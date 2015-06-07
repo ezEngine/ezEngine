@@ -39,7 +39,7 @@ void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
 
           pDocWnd->addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
 
-          e.m_pDocument->GetSelectionManager()->SetSelection(e.m_pDocument->GetObjectTree()->GetRootObject()->GetChildren()[0]);
+          e.m_pDocument->GetSelectionManager()->SetSelection(e.m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
 
         }
       }

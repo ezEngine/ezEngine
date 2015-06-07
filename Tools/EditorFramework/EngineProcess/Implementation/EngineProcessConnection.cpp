@@ -4,8 +4,8 @@
 #include <QMessageBox>
 #include <Foundation/Logging/Log.h>
 #include <ToolsFoundation/Document/Document.h>
-#include <ToolsFoundation/Object/DocumentObjectTree.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 ezEditorEngineProcessConnection* ezEditorEngineProcessConnection::s_pInstance = nullptr;
 ezEvent<const ezEditorEngineProcessConnection::Event&> ezEditorEngineProcessConnection::s_Events;
@@ -188,7 +188,7 @@ void ezEditorEngineConnection::SendMessage(ezEditorEngineDocumentMsg* pMessage)
   ezEditorEngineProcessConnection::GetInstance()->SendMessage(pMessage);
 }
 
-void ezEditorEngineConnection::SendObjectProperties(const ezDocumentObjectTreePropertyEvent& e)
+void ezEditorEngineConnection::SendObjectProperties(const ezDocumentObjectPropertyEvent& e)
 {
   if (e.m_bEditorProperty)
     return;
@@ -214,7 +214,7 @@ void ezEditorEngineConnection::SendObjectProperties(const ezDocumentObjectTreePr
   SendMessage(&msg);
 }
 
-void ezEditorEngineConnection::SendDocumentTreeChange(const ezDocumentObjectTreeStructureEvent& e)
+void ezEditorEngineConnection::SendDocumentTreeChange(const ezDocumentObjectStructureEvent& e)
 {
   ezEntityMsgToEngine msg;
   msg.m_DocumentGuid = m_pDocument->GetGuid();
@@ -229,7 +229,7 @@ void ezEditorEngineConnection::SendDocumentTreeChange(const ezDocumentObjectTree
 
   switch (e.m_EventType)
   {
-  case ezDocumentObjectTreeStructureEvent::Type::AfterObjectAdded:
+  case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
     {
       msg.m_iMsgType = ezEntityMsgToEngine::ObjectAdded;
 
@@ -245,21 +245,21 @@ void ezEditorEngineConnection::SendDocumentTreeChange(const ezDocumentObjectTree
     }
     break;
 
-  case ezDocumentObjectTreeStructureEvent::Type::AfterObjectMoved:
+  case ezDocumentObjectStructureEvent::Type::AfterObjectMoved:
     {
       msg.m_iMsgType = ezEntityMsgToEngine::ObjectMoved;
     }
     break;
 
-  case ezDocumentObjectTreeStructureEvent::Type::BeforeObjectRemoved:
+  case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
     {
       msg.m_iMsgType = ezEntityMsgToEngine::ObjectRemoved;
     }
     break;
 
-  case ezDocumentObjectTreeStructureEvent::Type::AfterObjectRemoved:
-  case ezDocumentObjectTreeStructureEvent::Type::BeforeObjectAdded:
-  case ezDocumentObjectTreeStructureEvent::Type::BeforeObjectMoved:
+  case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+  case ezDocumentObjectStructureEvent::Type::BeforeObjectAdded:
+  case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:
     return;
 
   default:
@@ -272,7 +272,7 @@ void ezEditorEngineConnection::SendDocumentTreeChange(const ezDocumentObjectTree
 
 void ezEditorEngineConnection::SendDocument()
 {
-  auto pTree = m_pDocument->GetObjectTree();
+  auto pTree = m_pDocument->GetObjectManager();
 
   for (auto pChild : pTree->GetRootObject()->GetChildren())
   {
@@ -282,8 +282,8 @@ void ezEditorEngineConnection::SendDocument()
 
 void ezEditorEngineConnection::SendObject(const ezDocumentObjectBase* pObject)
 {
-  ezDocumentObjectTreeStructureEvent msg;
-  msg.m_EventType = ezDocumentObjectTreeStructureEvent::Type::AfterObjectAdded;
+  ezDocumentObjectStructureEvent msg;
+  msg.m_EventType = ezDocumentObjectStructureEvent::Type::AfterObjectAdded;
   msg.m_pObject = pObject;
   msg.m_pNewParent = pObject->GetParent();
   msg.m_pPreviousParent = nullptr;

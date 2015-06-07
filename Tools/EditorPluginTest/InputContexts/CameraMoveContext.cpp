@@ -381,7 +381,7 @@ bool ezCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
       //{
       //  if (res.m_PickedComponent.IsValid())
       //  {
-      //    const ezDocumentObjectBase* pObject = m_pDocument->GetObjectTree()->GetObject(res.m_PickedComponent);
+      //    const ezDocumentObjectBase* pObject = m_pDocument->GetObjectManager()->GetObject(res.m_PickedComponent);
       //    m_pDocument->GetSelectionManager()->SetSelection(pObject);
       //  }
       //}
@@ -389,7 +389,7 @@ bool ezCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
       //{
       //  if (res.m_PickedObject.IsValid())
       //  {
-      //    const ezDocumentObjectBase* pObject = m_pDocument->GetObjectTree()->GetObject(res.m_PickedObject);
+      //    const ezDocumentObjectBase* pObject = m_pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
       //    m_pDocument->GetSelectionManager()->SetSelection(pObject);
       //  }
       //}

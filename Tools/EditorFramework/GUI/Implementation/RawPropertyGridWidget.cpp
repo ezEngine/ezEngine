@@ -5,6 +5,7 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <EditorFramework/GUI/CollapsibleGroupBox.moc.h>
 #include <QScrollArea>
 
@@ -36,13 +37,13 @@ ezRawPropertyGridWidget::ezRawPropertyGridWidget(ezDocumentBase* pDocument, QWid
   m_DelegatePropertyEvents = ezMakeDelegate(&ezRawPropertyGridWidget::PropertyEventHandler, this);
 
   m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(m_DelegateSelectionEvents);
-  m_pDocument->GetObjectTree()->m_PropertyEvents.AddEventHandler(m_DelegatePropertyEvents);
+  m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(m_DelegatePropertyEvents);
 }
 
 ezRawPropertyGridWidget::~ezRawPropertyGridWidget()
 {
   m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(m_DelegateSelectionEvents);
-  m_pDocument->GetObjectTree()->m_PropertyEvents.RemoveEventHandler(m_DelegatePropertyEvents);
+  m_pDocument->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(m_DelegatePropertyEvents);
 }
 
 void ezRawPropertyGridWidget::SelectionEventHandler(const ezSelectionManager::Event& e)
@@ -62,7 +63,7 @@ void ezRawPropertyGridWidget::SelectionEventHandler(const ezSelectionManager::Ev
   }
 }
 
-void ezRawPropertyGridWidget::PropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e)
+void ezRawPropertyGridWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   if (m_Selection.IndexOf(e.m_pObject) == ezInvalidIndex)
     return;

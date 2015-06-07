@@ -22,8 +22,8 @@ public:
   void SetActionContext(const ezActionContext& context);
 
 private:
-  void TreeEventHandler(const ezDocumentObjectTreeStructureEvent& e);
-  void TreePropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e);
+  void TreeEventHandler(const ezDocumentObjectStructureEvent& e);
+  void TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 
   void ClearView();
   void CreateView();

@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorPluginTest/InputContexts/SelectionContext.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
 #include <EditorFramework/IPC/SyncObject.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
@@ -49,7 +50,7 @@ bool ezSelectionContext::mouseReleaseEvent(QMouseEvent* e)
     {
       if (res.m_PickedComponent.IsValid())
       {
-        const ezDocumentObjectBase* pObject = m_pDocument->GetObjectTree()->GetObject(res.m_PickedComponent);
+        const ezDocumentObjectBase* pObject = m_pDocument->GetObjectManager()->GetObject(res.m_PickedComponent);
         m_pDocument->GetSelectionManager()->SetSelection(pObject);
       }
     }
@@ -57,7 +58,7 @@ bool ezSelectionContext::mouseReleaseEvent(QMouseEvent* e)
     {
       if (res.m_PickedObject.IsValid())
       {
-        const ezDocumentObjectBase* pObject = m_pDocument->GetObjectTree()->GetObject(res.m_PickedObject);
+        const ezDocumentObjectBase* pObject = m_pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
         m_pDocument->GetSelectionManager()->SetSelection(pObject);
       }
     }

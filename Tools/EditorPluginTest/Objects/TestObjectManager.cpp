@@ -4,7 +4,7 @@
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <Core/World/GameObject.h>
 
-ezTestObjectManager::ezTestObjectManager() : ezDocumentObjectManagerBase()
+ezTestObjectManager::ezTestObjectManager() : ezDocumentObjectManager()
 {
 }
 

@@ -23,6 +23,12 @@ public:
   /// \brief Sets a property defined by its path to the given value. Returns whether the operation was successful.
   virtual bool SetValue(const ezPropertyPath& path, const ezVariant& value) = 0;
 
+
+  //virtual bool InsertValue(const ezPropertyPath& path, const ezVariant& key, const ezVariant& value) = 0;
+  //virtual bool RemoveValue(const ezPropertyPath& path, const ezVariant& key) = 0;
+  //virtual bool GetKeys(const ezPropertyPath& path, ezHybridArray<ezVariant, 16> out_keys) = 0;
+  //virtual bool GetValues(const ezPropertyPath& path, ezHybridArray<ezVariant, 16> out_values) = 0;
+
 private:
   const ezRTTI* m_pRtti;
 };

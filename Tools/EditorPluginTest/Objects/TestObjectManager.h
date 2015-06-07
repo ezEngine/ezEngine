@@ -6,7 +6,7 @@
 
 class ezDocumentBase;
 
-class ezTestObjectManager : public ezDocumentObjectManagerBase
+class ezTestObjectManager : public ezDocumentObjectManager
 {
 public:
   ezTestObjectManager();

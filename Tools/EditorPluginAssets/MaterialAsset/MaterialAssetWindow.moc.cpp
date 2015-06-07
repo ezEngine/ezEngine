@@ -11,7 +11,7 @@
 ezMaterialAssetDocumentWindow::ezMaterialAssetDocumentWindow(ezDocumentBase* pDocument) : ezDocumentWindow(pDocument)
 {
   m_DelegatePropertyEvents = ezMakeDelegate(&ezMaterialAssetDocumentWindow::PropertyEventHandler, this);
-  GetDocument()->GetObjectTree()->m_PropertyEvents.AddEventHandler(m_DelegatePropertyEvents);
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(m_DelegatePropertyEvents);
 
   // Menu Bar
   {
@@ -41,17 +41,17 @@ ezMaterialAssetDocumentWindow::ezMaterialAssetDocumentWindow(ezDocumentBase* pDo
 
 ezMaterialAssetDocumentWindow::~ezMaterialAssetDocumentWindow()
 {
-  GetDocument()->GetObjectTree()->m_PropertyEvents.RemoveEventHandler(m_DelegatePropertyEvents);
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(m_DelegatePropertyEvents);
 }
 
 void ezMaterialAssetDocumentWindow::UpdatePreview()
 {
-  ezMaterialAssetObject* pObject = (ezMaterialAssetObject*)GetDocument()->GetObjectTree()->GetRootObject()->GetChildren()[0];
+  ezMaterialAssetObject* pObject = (ezMaterialAssetObject*)GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
 
   // TODO
 }
 
-void ezMaterialAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e)
+void ezMaterialAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   if (e.m_bEditorProperty)
     return;

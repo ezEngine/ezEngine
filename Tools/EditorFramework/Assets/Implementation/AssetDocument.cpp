@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
@@ -76,7 +77,7 @@ void ezAssetDocumentInfo::SetReferences(ezString s)
 }
 
 
-ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManagerBase* pObjectManager) : ezDocumentBase(szDocumentPath, pObjectManager)
+ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager) : ezDocumentBase(szDocumentPath, pObjectManager)
 {
 }
 
@@ -105,7 +106,7 @@ ezStatus ezAssetDocument::InternalSaveDocument()
 ezUInt64 ezAssetDocument::GetDocumentHash() const
 {
   ezUInt64 uiHash = 0;
-  for (auto pChild : GetObjectTree()->GetRootObject()->GetChildren())
+  for (auto pChild : GetObjectManager()->GetRootObject()->GetChildren())
   {
     GetChildHash(pChild, uiHash);
   }

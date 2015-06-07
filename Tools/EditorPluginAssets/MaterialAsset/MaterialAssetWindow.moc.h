@@ -2,6 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 class QLabel;
 class QScrollArea;
@@ -22,10 +23,10 @@ private slots:
 
 private:
   void UpdatePreview();
-  void PropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e);
+  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 
   QtImageWidget* m_pImageWidget;
 
   /// \todo Work around for broken delegates
-  ezDelegate<void(const ezDocumentObjectTreePropertyEvent&)> m_DelegatePropertyEvents;
+  ezDelegate<void(const ezDocumentObjectPropertyEvent&)> m_DelegatePropertyEvents;
 };

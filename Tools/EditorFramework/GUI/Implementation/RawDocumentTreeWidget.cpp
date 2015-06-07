@@ -6,7 +6,7 @@
 
 ezRawDocumentTreeWidget::ezRawDocumentTreeWidget(QWidget* pParent, const ezDocumentBase* pDocument) : 
   QTreeView(pParent),
-  m_Model(pDocument->GetObjectTree()),
+  m_Model(pDocument->GetObjectManager()),
   m_pDocument(pDocument)
 {
   m_bBlockSelectionSignal = false;

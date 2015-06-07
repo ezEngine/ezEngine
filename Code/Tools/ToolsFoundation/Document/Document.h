@@ -5,7 +5,6 @@
 #include <ToolsFoundation/Basics/Status.h>
 #include <ToolsFoundation/Basics/Guid.h>
 #include <ToolsFoundation/Basics/Status.h>
-#include <ToolsFoundation/Object/DocumentObjectTree.h>
 #include <ToolsFoundation/Selection/SelectionManager.h>
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
 #include <Foundation/Communication/Event.h>
@@ -13,7 +12,7 @@
 class ezDocumentBase;
 class ezDocumentManagerBase;
 class ezCommandHistoryBase;
-class ezDocumentObjectManagerBase;
+class ezDocumentObjectManager;
 
 class EZ_TOOLSFOUNDATION_DLL ezDocumentInfo : public ezReflectedClass
 {
@@ -30,7 +29,7 @@ class EZ_TOOLSFOUNDATION_DLL ezDocumentBase : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentBase);
 
 public:
-  ezDocumentBase(const char* szPath, ezDocumentObjectManagerBase* pDocumentObjectManagerImpl);
+  ezDocumentBase(const char* szPath, ezDocumentObjectManager* pDocumentObjectManagerImpl);
   virtual ~ezDocumentBase();
 
   bool IsModified() const { return m_bModified; }
@@ -38,13 +37,11 @@ public:
   const ezUuid& GetGuid() const { return m_pDocumentInfo->m_DocumentID; }
   virtual const char* GetDocumentTypeDisplayString() const = 0;
 
-  const ezDocumentObjectManagerBase* GetObjectManager() const { return m_pObjectManager; }
-  const ezDocumentObjectTree* GetObjectTree() const { return m_pObjectTree; }
+  const ezDocumentObjectManager* GetObjectManager() const { return m_pObjectManager; }
   const ezSelectionManager* GetSelectionManager() const { return &m_SelectionManager; }
   ezCommandHistory* GetCommandHistory() const { return &m_CommandHistory; }
 
-  ezDocumentObjectManagerBase* GetObjectManager() { return m_pObjectManager; }
-  ezDocumentObjectTree* GetObjectTree() { return m_pObjectTree; }
+  ezDocumentObjectManager* GetObjectManager() { return m_pObjectManager; }
   ezSelectionManager* GetSelectionManager() { return &m_SelectionManager; }
 
   const char* GetDocumentPath() const { return m_sDocumentPath; }
@@ -98,9 +95,9 @@ private:
 
   void SetupDocumentInfo();
 
-  ezDocumentObjectTree* m_pObjectTree;
+  ezDocumentObjectManager* m_pObjectTree;
   ezDocumentManagerBase* m_pDocumentManager;
-  ezDocumentObjectManagerBase* m_pObjectManager;
+  ezDocumentObjectManager* m_pObjectManager;
 
   ezString m_sDocumentPath;
   bool m_bModified;

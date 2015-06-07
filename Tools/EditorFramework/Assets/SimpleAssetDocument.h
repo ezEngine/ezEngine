@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 template<typename PropertyType, typename AssetObjectType, typename ObjectManagerType>
 class ezSimpleAssetDocument : public ezAssetDocument
@@ -14,7 +15,7 @@ public:
 
   const PropertyType* GetProperties() const
   {
-    AssetObjectType* pObject = static_cast<AssetObjectType*>(GetObjectTree()->GetRootObject()->GetChildren()[0]);
+    AssetObjectType* pObject = static_cast<AssetObjectType*>(GetObjectManager()->GetRootObject()->GetChildren()[0]);
     return &pObject->m_MemberProperties;
   }
 
@@ -28,7 +29,7 @@ protected:
 
   virtual ezStatus InternalLoadDocument() override
   {
-    GetObjectTree()->DestroyAllObjects(GetObjectManager());
+    GetObjectManager()->DestroyAllObjects(GetObjectManager());
 
     ezStatus ret = ezAssetDocument::InternalLoadDocument();
 
@@ -40,11 +41,11 @@ protected:
 private:
   void EnsureSettingsObjectExist()
   {
-    auto pRoot = GetObjectTree()->GetRootObject();
+    auto pRoot = GetObjectManager()->GetRootObject();
     if (pRoot->GetChildren().IsEmpty())
     {
       AssetObjectType* pObject = static_cast<AssetObjectType*>(GetObjectManager()->CreateObject(ezRTTI::FindTypeByName(ezGetStaticRTTI<PropertyType>()->GetTypeName())));
-      GetObjectTree()->AddObject(pObject, pRoot);
+      GetObjectManager()->AddObject(pObject, pRoot);
     }
   }
 
@@ -58,7 +59,7 @@ private:
 
 
 template<typename ObjectProperties, typename ObjectType>
-class ezSimpleDocumentObjectManager : public ezDocumentObjectManagerBase
+class ezSimpleDocumentObjectManager : public ezDocumentObjectManager
 {
 public:
   virtual void GetCreateableTypes(ezHybridArray<ezRTTI*, 32>& Types) const override

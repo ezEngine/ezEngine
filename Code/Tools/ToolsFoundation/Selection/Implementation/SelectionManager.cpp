@@ -1,7 +1,7 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Selection/SelectionManager.h>
-#include <ToolsFoundation/Object/DocumentObjectTree.h>
 #include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 ezSelectionManager::ezSelectionManager()
 {
@@ -11,22 +11,22 @@ void ezSelectionManager::SetOwner(const ezDocumentBase* pDocument)
 {
   if (pDocument)
   {
-    pDocument->GetObjectTree()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSelectionManager::TreeEventHandler, this));
+    pDocument->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSelectionManager::TreeEventHandler, this));
 
   }
   else
   {
-    m_pDocument->GetObjectTree()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezSelectionManager::TreeEventHandler, this));
+    m_pDocument->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezSelectionManager::TreeEventHandler, this));
   }
 
   m_pDocument = pDocument;
 }
 
-void ezSelectionManager::TreeEventHandler(const ezDocumentObjectTreeStructureEvent& e)
+void ezSelectionManager::TreeEventHandler(const ezDocumentObjectStructureEvent& e)
 {
   switch (e.m_EventType)
   {
-  case ezDocumentObjectTreeStructureEvent::Type::BeforeObjectRemoved:
+  case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
     RemoveObject(e.m_pObject);
     break;
   default:

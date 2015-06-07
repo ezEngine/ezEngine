@@ -4,7 +4,7 @@
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
 class ezDocumentBase;
-struct ezDocumentObjectTreeStructureEvent;
+struct ezDocumentObjectStructureEvent;
 
 class EZ_TOOLSFOUNDATION_DLL ezSelectionManager
 {
@@ -49,7 +49,7 @@ public:
   const ezDocumentBase* GetDocument() const { return m_pDocument; }
 
 private:
-  void TreeEventHandler(const ezDocumentObjectTreeStructureEvent& e);
+  void TreeEventHandler(const ezDocumentObjectStructureEvent& e);
 
   friend class ezDocumentBase;
 

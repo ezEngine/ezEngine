@@ -7,6 +7,12 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/Uuid.h>
 
+
+class ezEmptyProperties : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezEmptyProperties);
+};
+
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectBase
 {
 public:
@@ -21,7 +27,6 @@ public:
 
   const ezDocumentObjectBase* GetParent() const { return m_pParent; }
   const ezHybridArray<ezDocumentObjectBase*, 4>& GetChildren() const { return m_Children; }
-
   ezUInt32 GetChildIndex(ezDocumentObjectBase* pChild) const;
 
   const ezUuid& GetGuid() const { return m_Guid; }
@@ -29,8 +34,8 @@ public:
   void ComputeObjectHash(ezUInt64& uiHash) const;
 
 private:
-  friend class ezDocumentObjectTree;
-  friend class ezDocumentObjectManagerBase;
+  friend class ezDocumentObjectManager;
+  friend class ezDocumentObjectManager;
 
   void HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezRTTI* pType, ezPropertyPath& path) const;
 

@@ -5,6 +5,7 @@
 #include <ToolsFoundation/Serialization/SerializedTypeAccessorObject.h>
 #include <ToolsFoundation/Object/SerializedDocumentObject.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 
@@ -25,17 +26,15 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezEvent<const ezDocumentBase::Event&> ezDocumentBase::s_EventsAny;
 
-ezDocumentBase::ezDocumentBase(const char* szPath, ezDocumentObjectManagerBase* pDocumentObjectManagerImpl) :
+ezDocumentBase::ezDocumentBase(const char* szPath, ezDocumentObjectManager* pDocumentObjectManagerImpl) :
   m_CommandHistory(this)
 {
   m_pDocumentInfo = nullptr;
   m_sDocumentPath = szPath;
   m_pObjectManager = pDocumentObjectManagerImpl;
-  m_pObjectTree = EZ_DEFAULT_NEW(ezDocumentObjectTree);
+  m_pObjectManager->SetDocument(this);
 
   m_SelectionManager.SetOwner(this);
-  m_pObjectTree->SetOwner(this);
-  m_pObjectManager->SetObjectTree(m_pObjectTree);
 
   m_bWindowRequested = false;
   m_bModified = true;
@@ -46,12 +45,11 @@ ezDocumentBase::~ezDocumentBase()
 {
   m_SelectionManager.SetOwner(nullptr);
 
-  m_pObjectTree->DestroyAllObjects(GetObjectManager());
+  m_pObjectManager->DestroyAllObjects(GetObjectManager());
 
   m_CommandHistory.ClearRedoHistory();
   m_CommandHistory.ClearUndoHistory();
 
-  EZ_DEFAULT_DELETE(m_pObjectTree);
   EZ_DEFAULT_DELETE(m_pObjectManager);
   EZ_DEFAULT_DELETE(m_pDocumentInfo);
 }
@@ -169,7 +167,7 @@ ezStatus ezDocumentBase::InternalSaveDocument()
 
   writer.StartGroup("ObjectTree");
   {
-    const ezDocumentObjectBase* pRoot = GetObjectTree()->GetRootObject();
+    const ezDocumentObjectBase* pRoot = GetObjectManager()->GetRootObject();
 
     auto children = pRoot->GetChildren();
     const ezUInt32 uiCount = children.GetCount();
@@ -228,10 +226,10 @@ ezStatus ezDocumentBase::InternalLoadDocument()
         reader.ReadObject(objectReader);
         if (parentGuid.IsValid())
         {
-          ezDocumentObjectBase* pParent = GetObjectTree()->GetObject(parentGuid);
+          ezDocumentObjectBase* pParent = GetObjectManager()->GetObject(parentGuid);
           if (pParent)
           {
-            GetObjectTree()->AddObject(pObject, pParent);
+            GetObjectManager()->AddObject(pObject, pParent);
           }
           else
           {
@@ -241,7 +239,7 @@ ezStatus ezDocumentBase::InternalLoadDocument()
         }
         else
         {
-          GetObjectTree()->AddObject(pObject, nullptr);
+          GetObjectManager()->AddObject(pObject, nullptr);
         }
       }
       else

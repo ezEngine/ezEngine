@@ -1,7 +1,6 @@
 #pragma once
 
 #include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
-#include <ToolsFoundation/Object/DocumentObjectTree.h>
 #include <ToolsFoundation/Selection/SelectionManager.h>
 #include <QTreeView>
 

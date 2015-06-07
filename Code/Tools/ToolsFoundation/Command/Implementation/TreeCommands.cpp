@@ -1,6 +1,7 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAddObjectCommand, ezCommandBase, 1, ezRTTIDefaultAllocator<ezAddObjectCommand>);
   EZ_BEGIN_PROPERTIES
@@ -59,7 +60,7 @@ ezStatus ezAddObjectCommand::Do(bool bRedo)
   ezDocumentObjectBase* pParent = nullptr;
   if (m_Parent.IsValid())
   {
-    pParent = pDocument->GetObjectTree()->GetObject(m_Parent);
+    pParent = pDocument->GetObjectManager()->GetObject(m_Parent);
     if (pParent == nullptr)
       return ezStatus(EZ_FAILURE, "Add Object: The given parent does not exist!");
   }
@@ -76,7 +77,7 @@ ezStatus ezAddObjectCommand::Do(bool bRedo)
     m_pObject = pDocument->GetObjectManager()->CreateObject(m_pType);
   }
 
-  pDocument->GetObjectTree()->AddObject(m_pObject, pParent, m_iChildIndex);
+  pDocument->GetObjectManager()->AddObject(m_pObject, pParent, m_iChildIndex);
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -88,7 +89,7 @@ ezStatus ezAddObjectCommand::Undo(bool bFireEvents)
   if (!pDocument->GetObjectManager()->CanRemove(m_pObject))
     return ezStatus(EZ_FAILURE, "Add Object: Removal of the object is forbidden!");
 
-  pDocument->GetObjectTree()->RemoveObject(m_pObject);
+  pDocument->GetObjectManager()->RemoveObject(m_pObject);
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -121,7 +122,7 @@ ezStatus ezRemoveObjectCommand::Do(bool bRedo)
   {
     if (m_Object.IsValid())
     {
-      m_pObject = pDocument->GetObjectTree()->GetObject(m_Object);
+      m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
       if (m_pObject == nullptr)
         return ezStatus(EZ_FAILURE, "Remove Object: The given object does not exist!");
     }
@@ -139,7 +140,7 @@ ezStatus ezRemoveObjectCommand::Do(bool bRedo)
     m_iChildIndex = m_pObject->GetParent()->GetChildIndex(m_pObject);
   }
 
-  pDocument->GetObjectTree()->RemoveObject(m_pObject);
+  pDocument->GetObjectManager()->RemoveObject(m_pObject);
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -151,7 +152,7 @@ ezStatus ezRemoveObjectCommand::Undo(bool bFireEvents)
   if (!pDocument->GetObjectManager()->CanAdd(m_pObject->GetTypeAccessor().GetType(), m_pParent))
     return ezStatus(EZ_FAILURE, "Remove Object: Adding the object is forbidden!");
 
-  pDocument->GetObjectTree()->AddObject(m_pObject, m_pParent, m_iChildIndex);
+  pDocument->GetObjectManager()->AddObject(m_pObject, m_pParent, m_iChildIndex);
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -181,14 +182,14 @@ ezStatus ezMoveObjectCommand::Do(bool bRedo)
   if (!bRedo)
   {
     {
-      m_pObject = pDocument->GetObjectTree()->GetObject(m_Object);
+      m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
       if (m_pObject == nullptr)
         return ezStatus(EZ_FAILURE, "Move Object: The given object does not exist!");
     }
 
     if (m_NewParent.IsValid())
     {
-      m_pNewParent = pDocument->GetObjectTree()->GetObject(m_NewParent);
+      m_pNewParent = pDocument->GetObjectManager()->GetObject(m_NewParent);
       if (m_pNewParent == nullptr)
         return ezStatus(EZ_FAILURE, "Move Object: The new parent does not exist!");
     }
@@ -202,7 +203,7 @@ ezStatus ezMoveObjectCommand::Do(bool bRedo)
     }
   }
 
-  pDocument->GetObjectTree()->MoveObject(m_pObject, m_pNewParent, m_iNewChildIndex);
+  pDocument->GetObjectManager()->MoveObject(m_pObject, m_pNewParent, m_iNewChildIndex);
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -217,7 +218,7 @@ ezStatus ezMoveObjectCommand::Undo(bool bFireEvents)
     return ezStatus(EZ_FAILURE, "Move Object: Cannot move object to the old location.");
   }
 
-  pDocument->GetObjectTree()->MoveObject(m_pObject, m_pOldParent, m_iOldChildIndex);
+  pDocument->GetObjectManager()->MoveObject(m_pObject, m_pOldParent, m_iOldChildIndex);
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -241,7 +242,7 @@ ezStatus ezSetObjectPropertyCommand::Do(bool bRedo)
   {
     if (m_Object.IsValid())
     {
-      m_pObject = pDocument->GetObjectTree()->GetObject(m_Object);
+      m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
       if (m_pObject == nullptr)
         return ezStatus(EZ_FAILURE, "Set Property: The given object does not exist!");
     }
@@ -262,13 +263,13 @@ ezStatus ezSetObjectPropertyCommand::Do(bool bRedo)
     return ezStatus(EZ_FAILURE, s);
   }
 
-  ezDocumentObjectTreePropertyEvent e;
+  ezDocumentObjectPropertyEvent e;
   e.m_bEditorProperty = m_bEditorProperty;
   e.m_pObject = m_pObject;
   e.m_NewValue = m_NewValue;
   e.m_sPropertyPath = m_sPropertyPath;
 
-  pDocument->GetObjectTree()->m_PropertyEvents.Broadcast(e);
+  pDocument->GetObjectManager()->m_PropertyEvents.Broadcast(e);
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -287,13 +288,13 @@ ezStatus ezSetObjectPropertyCommand::Undo(bool bFireEvents)
 
   if (bFireEvents)
   {
-    ezDocumentObjectTreePropertyEvent e;
+    ezDocumentObjectPropertyEvent e;
     e.m_bEditorProperty = m_bEditorProperty;
     e.m_pObject = m_pObject;
     e.m_NewValue = m_OldValue;
     e.m_sPropertyPath = m_sPropertyPath;
 
-    GetDocument()->GetObjectTree()->m_PropertyEvents.Broadcast(e);
+    GetDocument()->GetObjectManager()->m_PropertyEvents.Broadcast(e);
   }
 
   return ezStatus(EZ_SUCCESS);

@@ -11,58 +11,11 @@ EZ_END_STATIC_REFLECTED_TYPE();
 
 
 ////////////////////////////////////////////////////////////////////////
-// ezActionObjectManager public functions
-////////////////////////////////////////////////////////////////////////
-
-ezActionObjectManager::ezActionObjectManager() : ezDocumentObjectManagerBase()
-{
-}
-
-void ezActionObjectManager::GetCreateableTypes(ezHybridArray<ezRTTI*, 32>& Types) const
-{
-  Types.PushBack(ezRTTI::FindTypeByName(ezGetStaticRTTI<ezActionMapDescriptor>()->GetTypeName()));
-}
-
-
-////////////////////////////////////////////////////////////////////////
-// ezActionObjectManager private functions
-////////////////////////////////////////////////////////////////////////
-
-ezDocumentObjectBase* ezActionObjectManager::InternalCreateObject(const ezRTTI* pRtti)
-{
-  return new ezActionMap::ObjectType;
-}
-
-void ezActionObjectManager::InternalDestroyObject(ezDocumentObjectBase* pObject)
-{
-  delete pObject;
-}
-
-bool ezActionObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent) const
-{
-  return true;
-}
-
-bool ezActionObjectManager::InternalCanRemove(const ezDocumentObjectBase* pObject) const
-{
-  return true;
-}
-
-bool ezActionObjectManager::InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex) const
-{
-  return true;
-}
-
-
-
-////////////////////////////////////////////////////////////////////////
 // ezActionMap public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezActionMap::ezActionMap() : ezDocumentObjectTree()
+ezActionMap::ezActionMap() : ezDocumentObjectManager()
 {
-  m_Manager.SetObjectTree(this);
-
   ezReflectedTypeDescriptor desc;
   ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(ezGetStaticRTTI<ezActionMapDescriptor>(), desc);
   m_pRtti = ezPhantomRttiManager::RegisterType(desc);
@@ -113,7 +66,7 @@ ezUuid ezActionMap::MapAction(const ezActionMapDescriptor& desc)
     return ezUuid();
   }
 
-  ObjectType* pCastObject = static_cast<ObjectType*>(m_Manager.CreateObject(m_pRtti));
+  ObjectType* pCastObject = static_cast<ObjectType*>(CreateObject(m_pRtti));
   pCastObject->m_MemberProperties = desc;
 
   ezInt32 iIndex = 0;
@@ -138,7 +91,7 @@ ezResult ezActionMap::UnmapAction(const ezUuid& guid)
     return EZ_FAILURE;
 
   RemoveObject(pObject);
-  m_Manager.DestroyObject(pObject);
+  DestroyObject(pObject);
   return EZ_SUCCESS;
 }
 
@@ -178,11 +131,6 @@ const ezActionMapDescriptor* ezActionMap::GetDescriptor(const ezDocumentObjectBa
   return &pCastObject->m_MemberProperties;
 }
 
-
-////////////////////////////////////////////////////////////////////////
-// ezActionMap private functions
-////////////////////////////////////////////////////////////////////////
-
 const ezDocumentObjectBase* ezActionMap::GetChildByName(const ezDocumentObjectBase* pObject, const ezStringView& sName) const
 {
   for(const ezDocumentObjectBase* pChild : pObject->GetChildren())
@@ -196,3 +144,37 @@ const ezDocumentObjectBase* ezActionMap::GetChildByName(const ezDocumentObjectBa
   return nullptr;
 }
 
+void ezActionMap::GetCreateableTypes(ezHybridArray<ezRTTI*, 32>& Types) const
+{
+  Types.PushBack(ezRTTI::FindTypeByName(ezGetStaticRTTI<ezActionMapDescriptor>()->GetTypeName()));
+}
+
+
+////////////////////////////////////////////////////////////////////////
+// ezActionMap private functions
+////////////////////////////////////////////////////////////////////////
+
+ezDocumentObjectBase* ezActionMap::InternalCreateObject(const ezRTTI* pRtti)
+{
+  return new ezActionMap::ObjectType;
+}
+
+void ezActionMap::InternalDestroyObject(ezDocumentObjectBase* pObject)
+{
+  delete pObject;
+}
+
+bool ezActionMap::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent) const
+{
+  return true;
+}
+
+bool ezActionMap::InternalCanRemove(const ezDocumentObjectBase* pObject) const
+{
+  return true;
+}
+
+bool ezActionMap::InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex) const
+{
+  return true;
+}

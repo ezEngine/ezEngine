@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Plugin.h>
 #include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 class ezImage;
 
@@ -29,7 +30,7 @@ class EZ_EDITORFRAMEWORK_DLL ezAssetDocument : public ezDocumentBase
   EZ_ADD_DYNAMIC_REFLECTION(ezAssetDocument);
 
 public:
-  ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManagerBase* pObjectManager);
+  ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager);
   ~ezAssetDocument();
 
   /// \brief Returns one of the strings that ezAssetDocumentManager::QuerySupportedAssetTypes returned.

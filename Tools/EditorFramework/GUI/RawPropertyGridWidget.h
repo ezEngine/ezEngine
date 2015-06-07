@@ -11,7 +11,7 @@
 
 class ezCollapsibleGroupBox;
 class ezDocumentBase;
-struct ezDocumentObjectTreePropertyEvent;
+struct ezDocumentObjectPropertyEvent;
 
 class EZ_EDITORFRAMEWORK_DLL ezRawPropertyGridWidget : public QWidget
 {
@@ -27,7 +27,7 @@ private:
   void ObjectPropertyChangedHandler(const ezPropertyEditorBaseWidget::Event& ed);
   void PropertyChangedHandler(const ezPropertyEditorBaseWidget::Event& ed, bool bEditor);
   void SelectionEventHandler(const ezSelectionManager::Event& e);
-  void PropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e);
+  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 
   ezDeque<const ezDocumentObjectBase*> m_Selection;
   QVBoxLayout* m_pLayout;
@@ -39,7 +39,7 @@ private:
 
   /// \todo Broken delegate stuff
   ezDelegate<void(const ezSelectionManager::Event&)> m_DelegateSelectionEvents;
-  ezDelegate<void(const ezDocumentObjectTreePropertyEvent&)> m_DelegatePropertyEvents;
+  ezDelegate<void(const ezDocumentObjectPropertyEvent&)> m_DelegatePropertyEvents;
 };
 
 

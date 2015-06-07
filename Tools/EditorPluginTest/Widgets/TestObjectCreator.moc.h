@@ -10,7 +10,7 @@ public:
   Q_OBJECT
 
 public:
-  ezTestObjectCreatorWidget(const ezDocumentObjectManagerBase* pManager, QWidget* parent);
+  ezTestObjectCreatorWidget(const ezDocumentObjectManager* pManager, QWidget* parent);
   ~ezTestObjectCreatorWidget();
 
   virtual QMimeData * mimeData ( const QList<QListWidgetItem *> items ) const override;
@@ -20,7 +20,7 @@ private:
   void TypeChanged(const ezPhantomTypeChange& data);
 
 private:
-  const ezDocumentObjectManagerBase* m_pManager;
+  const ezDocumentObjectManager* m_pManager;
 
 
   /// \todo Broken delegates

@@ -27,8 +27,8 @@ private:
   virtual bool HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
   virtual void InternalRedraw() override;
-  void DocumentTreeEventHandler(const ezDocumentObjectTreeStructureEvent& e);
-  void PropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e);
+  void DocumentTreeEventHandler(const ezDocumentObjectStructureEvent& e);
+  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 
   void SendRedrawMsg();
 
@@ -40,6 +40,6 @@ private:
   ezCamera m_Camera;
 
   /// \todo Broken delegates
-  ezDelegate<void(const ezDocumentObjectTreePropertyEvent&)> m_DelegatePropertyEvents;
-  ezDelegate<void(const ezDocumentObjectTreeStructureEvent&)> m_DelegateDocumentTreeEvents;
+  ezDelegate<void(const ezDocumentObjectPropertyEvent&)> m_DelegatePropertyEvents;
+  ezDelegate<void(const ezDocumentObjectStructureEvent&)> m_DelegateDocumentTreeEvents;
 };

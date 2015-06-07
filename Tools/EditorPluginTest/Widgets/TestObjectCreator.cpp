@@ -4,7 +4,7 @@
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <QMimeData>
 
-ezTestObjectCreatorWidget::ezTestObjectCreatorWidget(const ezDocumentObjectManagerBase* pManager, QWidget* parent) : QListWidget(parent)
+ezTestObjectCreatorWidget::ezTestObjectCreatorWidget(const ezDocumentObjectManager* pManager, QWidget* parent) : QListWidget(parent)
 {
   m_pManager = pManager;
 

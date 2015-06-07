@@ -11,7 +11,7 @@
 ezTextureAssetDocumentWindow::ezTextureAssetDocumentWindow(ezDocumentBase* pDocument) : ezDocumentWindow(pDocument)
 {
   m_DelegatePropertyEvents = ezMakeDelegate(&ezTextureAssetDocumentWindow::PropertyEventHandler, this);
-  GetDocument()->GetObjectTree()->m_PropertyEvents.AddEventHandler(m_DelegatePropertyEvents);
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(m_DelegatePropertyEvents);
 
   // Menu Bar
   {
@@ -41,12 +41,12 @@ ezTextureAssetDocumentWindow::ezTextureAssetDocumentWindow(ezDocumentBase* pDocu
 
 ezTextureAssetDocumentWindow::~ezTextureAssetDocumentWindow()
 {
-  GetDocument()->GetObjectTree()->m_PropertyEvents.RemoveEventHandler(m_DelegatePropertyEvents);
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(m_DelegatePropertyEvents);
 }
 
 void ezTextureAssetDocumentWindow::UpdatePreview()
 {
-  ezTextureAssetObject* pObject = (ezTextureAssetObject*)GetDocument()->GetObjectTree()->GetRootObject()->GetChildren()[0];
+  ezTextureAssetObject* pObject = (ezTextureAssetObject*)GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
 
   if (pObject->m_MemberProperties.GetImage().GetDataSize() == 0)
     return;
@@ -61,7 +61,7 @@ void ezTextureAssetDocumentWindow::UpdatePreview()
   m_pImageWidget->SetImage(QPixmap::fromImage(img));
 }
 
-void ezTextureAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e)
+void ezTextureAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   if (e.m_bEditorProperty)
     return;

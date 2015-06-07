@@ -7,8 +7,8 @@
 class ezEditorEngineConnection;
 class ezDocumentBase;
 class ezDocumentObjectBase;
-struct ezDocumentObjectTreePropertyEvent;
-struct ezDocumentObjectTreeStructureEvent;
+struct ezDocumentObjectPropertyEvent;
+struct ezDocumentObjectStructureEvent;
 class ezDocumentWindow3D;
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineProcessConnection
@@ -84,8 +84,8 @@ public:
 
   void SendMessage(ezEditorEngineDocumentMsg* pMessage);
 
-  void SendObjectProperties(const ezDocumentObjectTreePropertyEvent& e);
-  void SendDocumentTreeChange(const ezDocumentObjectTreeStructureEvent& e);
+  void SendObjectProperties(const ezDocumentObjectPropertyEvent& e);
+  void SendDocumentTreeChange(const ezDocumentObjectStructureEvent& e);
   void SendDocument();
 
   ezDocumentBase* GetDocument() const { return m_pDocument; }
