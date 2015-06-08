@@ -25,10 +25,16 @@ DepthWrite = true
 
 VS_OUT_COLORED main(VS_IN_COLORED Input)
 {
-  VS_OUT_COLORED RetVal;
-  RetVal.Position = mul(mvp, float4(Input.Position, 1.0f));
-  RetVal.Color = MeshColor;
+  float3 vWorldSpacePos = mul(ObjectToWorldMatrix, float4(0, 0, 0, 1)).xyz;
+  
+  float fScale = length(vWorldSpacePos - CameraPosition) * 0.125;
 
+  VS_OUT_COLORED RetVal;
+  RetVal.Position = mul(ObjectToScreenMatrix, float4(Input.Position * fScale, 1.0f));
+  RetVal.Color = MeshColor;
+  
+  
+  
   return RetVal;
 }
 

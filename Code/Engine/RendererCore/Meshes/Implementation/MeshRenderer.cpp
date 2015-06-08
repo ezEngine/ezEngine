@@ -6,16 +6,10 @@
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
+#include <RendererCore/../../../Shared/Data/Shaders/Common/ObjectConstants.h>
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderer, ezRenderer, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
-
-struct PerObjectCB
-{
-  ezMat4 world;
-  ezMat4 mvp;
-  ezUInt32 GameObjectID;
-  ezUInt32 PartIndex;
-};
 
 void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)
 {
@@ -26,7 +20,7 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderViewContext, ez
 {
   if (!m_hObjectTransformCB.IsValid())
   {
-    /// \todo Not sure ezMeshRenderer should create the PerObject CB, probably this should be centralized somewhere else
+    /// \todo Not sure ezMeshRenderer should create the ObjectConstants CB, probably this should be centralized somewhere else
 
     // this always accesses the same constant buffer (same GUID), but every ezMeshRenderer holds its own reference to it
     m_hObjectTransformCB = ezResourceManager::GetExistingResource<ezConstantBufferResource>("{34204E49-441A-49D6-AB09-9E8DE38BC803}");
@@ -34,14 +28,15 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderViewContext, ez
     if (!m_hObjectTransformCB.IsValid())
     {
       // only create this constant buffer, when it does not yet exist
-      ezConstantBufferResourceDescriptor<PerObjectCB> desc;
+      ezConstantBufferResourceDescriptor<ObjectConstants> desc;
       m_hObjectTransformCB = ezResourceManager::CreateResource<ezConstantBufferResource>("{34204E49-441A-49D6-AB09-9E8DE38BC803}", desc);
     }
   }
 
-  renderViewContext.m_pRenderContext->BindConstantBuffer("PerObject", m_hObjectTransformCB);
+  renderViewContext.m_pRenderContext->BindConstantBuffer("ObjectConstants", m_hObjectTransformCB);
 
-  const ezMat4& ViewProj = renderViewContext.m_pView->GetViewProjectionMatrix();
+  const ezMat4& ViewMatrix = renderViewContext.m_pView->GetViewMatrix();
+  const ezMat4& ViewProjMatrix = renderViewContext.m_pView->GetViewProjectionMatrix();
   ezMaterialResourceHandle hLastMaterial;
   
   ezUInt32 uiDataRendered = 0;
@@ -49,9 +44,10 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderViewContext, ez
   { 
     const ezMeshRenderData* pRenderData = static_cast<const ezMeshRenderData*>(renderData[uiDataRendered]);
 
-    PerObjectCB* cb = renderViewContext.m_pRenderContext->BeginModifyConstantBuffer<PerObjectCB>(m_hObjectTransformCB);
-    cb->world = pRenderData->m_WorldTransform.GetAsMat4();
-    cb->mvp = ViewProj * cb->world;
+    ObjectConstants* cb = renderViewContext.m_pRenderContext->BeginModifyConstantBuffer<ObjectConstants>(m_hObjectTransformCB);
+    cb->ObjectToWorldMatrix = pRenderData->m_WorldTransform.GetAsMat4();
+    cb->ObjectToCameraMatrix = ViewMatrix * cb->ObjectToWorldMatrix;
+    cb->ObjectToScreenMatrix = ViewProjMatrix * cb->ObjectToWorldMatrix;
     cb->GameObjectID = pRenderData->m_uiEditorPickingID;
     cb->PartIndex = pRenderData->m_uiPartIndex;
     

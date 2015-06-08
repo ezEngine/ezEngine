@@ -50,8 +50,6 @@ void ezEngineProcessGameState::Activate()
     ezFileSystem::AddDataDirectory(sAppDir.GetData(), ezFileSystem::AllowWrites, "App"); // for everything relative
   }
 
-  ezPlugin::LoadPlugin("ezEnginePluginTest");
-
   int argc = GetApplication()->GetArgumentCount();
   const char** argv = GetApplication()->GetArgumentsArray();
   m_pApp = new QApplication(argc, (char**) argv);

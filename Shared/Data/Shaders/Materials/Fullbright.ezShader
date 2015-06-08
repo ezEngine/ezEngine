@@ -18,7 +18,7 @@ PICKING
 VS_OUT main(VS_IN Input)
 {
   VS_OUT RetVal;
-  RetVal.Position = mul(mvp, float4(Input.Position, 1.0f));
+  RetVal.Position = mul(ObjectToScreenMatrix, float4(Input.Position, 1.0f));
   RetVal.Normal = float3(0, 0, 0);
   RetVal.TexCoord0 = Input.TexCoord0;
 

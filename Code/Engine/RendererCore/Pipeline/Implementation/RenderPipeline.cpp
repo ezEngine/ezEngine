@@ -93,6 +93,21 @@ void ezRenderPipeline::Render(const ezView& view, ezRenderContext* pRendererCont
   renderViewContext.m_pView = &view;
   renderViewContext.m_pRenderContext = pRendererContext;
 
+  auto& gc = pRendererContext->WriteGlobalConstants();
+  gc.CameraPosition = view.GetRenderCamera()->GetPosition();
+  gc.CameraDirForwards = view.GetRenderCamera()->GetDirForwards();
+  gc.CameraDirRight = view.GetRenderCamera()->GetDirRight();
+  gc.CameraDirUp = view.GetRenderCamera()->GetDirUp();
+  gc.CameraToScreenMatrix = view.GetProjectionMatrix();
+  gc.ScreenToCameraMatrix = view.GetInverseProjectionMatrix();
+  gc.WorldToCameraMatrix = view.GetViewMatrix();
+  gc.CameraToWorldMatrix = view.GetInverseViewMatrix();
+  gc.WorldToScreenMatrix = view.GetViewProjectionMatrix();
+  gc.ScreenToWorldMatrix = view.GetInverseViewProjectionMatrix();
+  gc.Viewport = ezVec4(view.GetViewport().x, view.GetViewport().y, view.GetViewport().width, view.GetViewport().height);
+
+  //ezLog::Dev("Camera Pos: %.2f | %.2f | %.2f", gc.CameraPosition.x, gc.CameraPosition.y, gc.CameraPosition.z);
+
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
   {
     m_Passes[i]->Run(renderViewContext);

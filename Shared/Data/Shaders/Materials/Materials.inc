@@ -1,12 +1,5 @@
 #include <Shaders/Common/GlobalConstants.h>
-
-CONSTANT_BUFFER(PerObject, 1)
-{
-  MAT4(world);
-  MAT4(mvp);
-  INT1(GameObjectID);
-  INT1(PartIndex);
-};
+#include <Shaders/Common/ObjectConstants.h>
 
 #ifdef PLATFORM_DX11
 
