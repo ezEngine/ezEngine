@@ -28,8 +28,7 @@ private:
   ezGizmoHandle m_AxisY;
   ezGizmoHandle m_AxisZ;
 
-  ezInt32 m_iMousePosX;
-  ezInt32 m_iMousePosY;
-
+  ezTime m_LastInteraction;
+  ezVec3 m_vLastPos;
   ezVec3 m_vMoveAxis;
 };

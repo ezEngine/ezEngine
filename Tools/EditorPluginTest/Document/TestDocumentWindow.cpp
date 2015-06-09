@@ -16,6 +16,7 @@
 #include <Foundation/Time/Time.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
 
 ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) 
   : ezDocumentWindow3D(pDocument)
@@ -36,7 +37,7 @@ ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument)
   m_Camera.SetCameraMode(ezCamera::CameraMode::PerspectiveFixedFovY, 80.0f, 0.1f, 1000.0f);
   m_Camera.LookAt(ezVec3(0.5f, 1.5f, 2.0f), ezVec3(0.0f, 0.5f, 0.0f), ezVec3(0.0f, 1.0f, 0.0f));
 
-  m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, pDocument, this);
+  m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, pDocument, this, &m_Camera);
   m_pMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, m_pCenterWidget, pDocument, this);
 
   m_pMoveContext->LoadState();
@@ -66,10 +67,21 @@ ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument)
     pToolBar->setObjectName("Test Document Window Tool Bar");
     addToolBar(pToolBar);
   }
+
+  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezTestDocumentWindow::SelectionManagerEventHandler, this));
+
+  m_TranslateGizmo.SetDocumentWindow3D(this);
+
+  m_TranslateGizmo.SetDocumentGuid(pDocument->GetGuid());
+  m_TranslateGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezTestDocumentWindow::TransformationGizmoEventHandler, this));
+
 }
 
 ezTestDocumentWindow::~ezTestDocumentWindow()
 {
+  m_TranslateGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezTestDocumentWindow::TransformationGizmoEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezTestDocumentWindow::SelectionManagerEventHandler, this));
+
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(m_DelegatePropertyEvents);
   GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(m_DelegateDocumentTreeEvents);
 
@@ -110,6 +122,8 @@ void ezTestDocumentWindow::SendRedrawMsg()
   m_Camera.GetViewMatrix(cam.m_ViewMatrix);
   m_Camera.GetProjectionMatrix((float)m_pCenterWidget->width() / (float)m_pCenterWidget->height(), cam.m_ProjMatrix);
 
+  m_pSelectionContext->SetWindowConfig(ezVec2I32(m_pCenterWidget->width(), m_pCenterWidget->height()));
+
   m_pEngineView->SendMessage(&cam);
 
   ezViewRedrawMsgToEngine msg;
@@ -137,5 +151,92 @@ bool ezTestDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg* 
   return false;
 }
 
+
+void ezTestDocumentWindow::SelectionManagerEventHandler(const ezSelectionManager::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezSelectionManager::Event::Type::SelectionCleared:
+    {
+      m_TranslateGizmo.SetVisible(false);
+    }
+    break;
+
+  case ezSelectionManager::Event::Type::SelectionSet:
+  case ezSelectionManager::Event::Type::ObjectAdded:
+    {
+      m_TranslateGizmo.SetVisible(true);
+
+      if (GetDocument()->GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetType() == ezRTTI::FindTypeByName("ezGameObject"))
+      {
+        ezVec3 vPos = GetDocument()->GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetValue("Position").ConvertTo<ezVec3>();
+        ezMat4 mt;
+        mt.SetTranslationMatrix(vPos);
+
+        m_TranslateGizmo.SetTransformation(mt);
+      }
+    }
+    break;
+  }
+}
+
+void ezTestDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::BaseEvent& e)
+{
+  switch (e.m_Type)
+  {
+  case ezGizmoBase::BaseEvent::Type::BeginInteractions:
+    {
+      GetDocument()->GetCommandHistory()->BeginTemporaryCommands();
+
+    }
+    break;
+
+  case ezGizmoBase::BaseEvent::Type::EndInteractions:
+    {
+      GetDocument()->GetCommandHistory()->EndTemporaryCommands(false);
+    }
+    break;
+
+  case ezGizmoBase::BaseEvent::Type::Interaction:
+    {
+      const ezMat4 mTransform = e.m_pGizmo->GetTransformation();
+
+      auto Selection = GetDocument()->GetSelectionManager()->GetSelection();
+
+      GetDocument()->GetCommandHistory()->StartTransaction();
+
+      bool bCancel = false;
+
+      ezSetObjectPropertyCommand cmd;
+      cmd.m_bEditorProperty = false;
+      cmd.m_NewValue = mTransform.GetTranslationVector();
+      cmd.SetPropertyPath("Position");
+
+      auto hType = ezRTTI::FindTypeByName("ezGameObject");
+
+      for (ezUInt32 sel = 0; sel < Selection.GetCount(); ++sel)
+      {
+        if (!Selection[sel]->GetTypeAccessor().GetType()->IsDerivedFrom(hType))
+          continue;
+
+        cmd.m_Object = Selection[sel]->GetGuid();
+
+        ezStatus res = GetDocument()->GetCommandHistory()->AddCommand(cmd);
+
+        //ezUIServices::GetInstance()->MessageBoxStatus(res, "Failed to set the position");
+
+        if (res.m_Result.Failed())
+        {
+          bCancel = true;
+          break;
+        }
+      }
+
+      GetDocument()->GetCommandHistory()->EndTransaction(bCancel);
+    }
+    break;
+  }
+
+}
 
 

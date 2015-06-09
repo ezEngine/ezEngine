@@ -17,6 +17,7 @@ class EZ_EDITORFRAMEWORK_DLL ezEditorInputContext : public ezReflectedClass
 public:
   ezEditorInputContext()
   {
+    m_pDocumentWindow3D = nullptr;
   }
 
   virtual ~ezEditorInputContext();
@@ -55,8 +56,20 @@ public:
     return s_pActiveInputContext == this;
   }
 
+  void SetDocumentWindow3D(ezDocumentWindow3D* pWindow)
+  {
+    m_pDocumentWindow3D = pWindow;
+  }
+
+  ezDocumentWindow3D* GetDocumentWindow3D() const
+  {
+    EZ_ASSERT_DEBUG(m_pDocumentWindow3D != nullptr, "Document window pointer has not been set");
+    return m_pDocumentWindow3D;
+  }
+
 private:
   static ezEditorInputContext* s_pActiveInputContext;
+  ezDocumentWindow3D* m_pDocumentWindow3D;
 
   virtual void UpdateContext() {}
 };

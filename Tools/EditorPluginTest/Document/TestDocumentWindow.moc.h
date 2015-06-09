@@ -9,6 +9,7 @@
 #include <EditorPluginTest/InputContexts/SelectionContext.h>
 #include <EditorPluginTest/InputContexts/CameraMoveContext.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <EditorFramework/Gizmos/TranslateGizmo.h>
 
 class ezTestDocumentWindow : public ezDocumentWindow3D
 {
@@ -24,6 +25,9 @@ public:
 
 
 private:
+  void TransformationGizmoEventHandler(const ezGizmoBase::BaseEvent& e);
+  void SelectionManagerEventHandler(const ezSelectionManager::Event& e);
+
   virtual bool HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
   virtual void InternalRedraw() override;
@@ -36,6 +40,8 @@ private:
 
   ezSelectionContext* m_pSelectionContext;
   ezCameraMoveContext* m_pMoveContext;
+
+  ezTranslateGizmo m_TranslateGizmo;
 
   ezCamera m_Camera;
 

@@ -8,17 +8,18 @@
 #include <Foundation/Logging/Log.h>
 #include <QKeyEvent>
 
-ezSelectionContext::ezSelectionContext(ezDocumentBase* pDocument, ezDocumentWindow3D* pDocumentWindow)
+ezSelectionContext::ezSelectionContext(ezDocumentBase* pDocument, ezDocumentWindow3D* pDocumentWindow, const ezCamera* pCamera)
 {
   m_pDocument = pDocument;
   m_pDocumentWindow = pDocumentWindow;
+  m_pCamera = pCamera;
 }
 
 bool ezSelectionContext::mousePressEvent(QMouseEvent* e)
 {
   if (e->button() == Qt::MouseButton::LeftButton)
   {
-    const ezObjectPickingResult& res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
+    const ezObjectPickingResult& res = m_pDocumentWindow->PickObject(e->windowPos().x(), e->windowPos().y());
 
     if (res.m_PickedOther.IsValid())
     {
@@ -30,7 +31,7 @@ bool ezSelectionContext::mousePressEvent(QMouseEvent* e)
         {
           ezGizmoHandleBase* pGizmoHandle = static_cast<ezGizmoHandleBase*>(pSO);
           ezGizmoBase* pGizmo = pGizmoHandle->GetParentGizmo();
-          pGizmo->ConfigureInteraction(pGizmoHandle);
+          pGizmo->ConfigureInteraction(pGizmoHandle, m_pCamera, res.m_vPickedPosition, m_Viewport);
           return pGizmo->mousePressEvent(e);
         }
       }
