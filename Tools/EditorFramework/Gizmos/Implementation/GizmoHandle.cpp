@@ -100,6 +100,27 @@ static ezMeshBufferResourceHandle CreateMeshBufferRect()
   return CreateMeshBufferResource(geom, szResourceName);
 }
 
+static ezMeshBufferResourceHandle CreateMeshBufferRing()
+{
+  const char* szResourceName = "{EA8677E3-F623-4FD8-BFAB-349CE1BEB3CA}";
+
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+
+  if (hMesh.IsValid())
+    return hMesh;
+
+  const float fInnerRadius = 1.3f;
+  const float fOuterRadius = fInnerRadius + 0.1f;
+
+  ezMat4 m;
+  m.SetIdentity();
+
+  ezGeometry geom;
+  geom.AddTorus(fInnerRadius, fOuterRadius, 32, 8,ezColor::White);
+
+  return CreateMeshBufferResource(geom, szResourceName);
+}
+
 static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, ezMeshBufferResourceHandle hMeshBuffer, const char* szMaterial)
 {
   ezMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshResourceName);
@@ -153,6 +174,12 @@ bool ezGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPick
     {
       hMeshBuffer = CreateMeshBufferRect();
       szMeshGuid = "{3DF4DDDA-F598-4A37-9691-D4C3677905A8}";
+    }
+    break;
+  case ezGizmoHandleType::Ring:
+    {
+      hMeshBuffer = CreateMeshBufferRing();
+      szMeshGuid = "{629AD0C6-C81B-4850-A5BC-41494DC0BF95}";
     }
     break;
   default:

@@ -28,8 +28,6 @@ public:
     m_pCamera = pCamera;
     m_vInteractionPivot = vInteractionPivot;
     m_Viewport = viewport;
-
-    ezLog::Info("Interaction Point: %.2f | %.2f | %.2f", m_vInteractionPivot.x, m_vInteractionPivot.y, m_vInteractionPivot.z);
   }
 
   struct BaseEvent

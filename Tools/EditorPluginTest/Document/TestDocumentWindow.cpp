@@ -71,15 +71,20 @@ ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument)
   GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezTestDocumentWindow::SelectionManagerEventHandler, this));
 
   m_TranslateGizmo.SetDocumentWindow3D(this);
+  m_RotateGizmo.SetDocumentWindow3D(this);
 
   m_TranslateGizmo.SetDocumentGuid(pDocument->GetGuid());
   m_TranslateGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezTestDocumentWindow::TransformationGizmoEventHandler, this));
 
+  m_RotateGizmo.SetDocumentGuid(pDocument->GetGuid());
+  m_RotateGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezTestDocumentWindow::TransformationGizmoEventHandler, this));
 }
 
 ezTestDocumentWindow::~ezTestDocumentWindow()
 {
   m_TranslateGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezTestDocumentWindow::TransformationGizmoEventHandler, this));
+  m_RotateGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezTestDocumentWindow::TransformationGizmoEventHandler, this));
+
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezTestDocumentWindow::SelectionManagerEventHandler, this));
 
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(m_DelegatePropertyEvents);
@@ -159,6 +164,7 @@ void ezTestDocumentWindow::SelectionManagerEventHandler(const ezSelectionManager
   case ezSelectionManager::Event::Type::SelectionCleared:
     {
       m_TranslateGizmo.SetVisible(false);
+      m_RotateGizmo.SetVisible(false);
     }
     break;
 
@@ -166,14 +172,18 @@ void ezTestDocumentWindow::SelectionManagerEventHandler(const ezSelectionManager
   case ezSelectionManager::Event::Type::ObjectAdded:
     {
       m_TranslateGizmo.SetVisible(true);
+      m_RotateGizmo.SetVisible(true);
 
       if (GetDocument()->GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetType() == ezRTTI::FindTypeByName("ezGameObject"))
       {
         ezVec3 vPos = GetDocument()->GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetValue("Position").ConvertTo<ezVec3>();
+        ezQuat qRot = GetDocument()->GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetValue("Rotation").ConvertTo<ezQuat>();
         ezMat4 mt;
         mt.SetTranslationMatrix(vPos);
+        mt.SetRotationalPart(qRot.GetAsMat3());
 
         m_TranslateGizmo.SetTransformation(mt);
+        m_RotateGizmo.SetTransformation(mt);
       }
     }
     break;
@@ -209,8 +219,21 @@ void ezTestDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::Ba
 
       ezSetObjectPropertyCommand cmd;
       cmd.m_bEditorProperty = false;
-      cmd.m_NewValue = mTransform.GetTranslationVector();
-      cmd.SetPropertyPath("Position");
+
+      if (e.m_pGizmo == &m_TranslateGizmo)
+      {
+        cmd.m_NewValue = mTransform.GetTranslationVector();
+        cmd.SetPropertyPath("Position");
+      }
+
+      if (e.m_pGizmo == &m_RotateGizmo)
+      {
+        ezQuat qRot;
+        qRot.SetFromMat3(mTransform.GetRotationalPart());
+
+        cmd.m_NewValue = qRot;
+        cmd.SetPropertyPath("Rotation");
+      }
 
       auto hType = ezRTTI::FindTypeByName("ezGameObject");
 

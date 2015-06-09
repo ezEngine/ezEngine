@@ -252,8 +252,8 @@ bool ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
   const float fPerspectiveScale = (vCurrentInteractionPoint - m_pCamera->GetPosition()).GetLength() * 0.125;
   const ezVec3 vOffset = (m_vInteractionPivot - m_vStartPosition);
 
-  ezMat4 mTrans;
-  mTrans.SetTranslationMatrix(vCurrentInteractionPoint - vOffset * fPerspectiveScale / m_fStartScale);
+  ezMat4 mTrans = GetTransformation();
+  mTrans.SetTranslationVector(vCurrentInteractionPoint - vOffset * fPerspectiveScale / m_fStartScale);
 
   SetTransformation(mTrans);
 
