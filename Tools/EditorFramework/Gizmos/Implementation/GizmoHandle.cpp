@@ -8,12 +8,14 @@
 #include <Core/World/World.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoHandleBase, ezEditorEngineSyncObject, 1, ezRTTINoAllocator);
+EZ_BEGIN_PROPERTIES
+EZ_MEMBER_PROPERTY("Visible", m_bVisible),
+EZ_MEMBER_PROPERTY("Transformation", m_Transformation),
+EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoHandle, ezGizmoHandleBase, 1, ezRTTIDefaultAllocator<ezGizmoHandle>);
 EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("Visible", m_bVisible),
-EZ_MEMBER_PROPERTY("Transformation", m_Transformation),
 EZ_MEMBER_PROPERTY("HandleType", m_iHandleType),
 EZ_MEMBER_PROPERTY("Color", m_Color),
 EZ_END_PROPERTIES
@@ -78,6 +80,26 @@ static ezMeshBufferResourceHandle CreateMeshBufferArrow()
   return CreateMeshBufferResource(geom, szResourceName);
 }
 
+static ezMeshBufferResourceHandle CreateMeshBufferRect()
+{
+  const char* szResourceName = "{75597E89-CDEE-4C90-A377-9441F64B9DB2}";
+
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+
+  if (hMesh.IsValid())
+    return hMesh;
+
+  const float fLength = 2.0f / 3.0f;
+
+  ezMat4 m;
+  m.SetIdentity();
+
+  ezGeometry geom;
+  geom.AddRectXY(ezVec2(fLength), ezColor::White, m);
+
+  return CreateMeshBufferResource(geom, szResourceName);
+}
+
 static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, ezMeshBufferResourceHandle hMeshBuffer, const char* szMaterial)
 {
   ezMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshResourceName);
@@ -116,8 +138,28 @@ bool ezGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPick
   if (!m_hGameObject.IsInvalidated())
     return false;
 
-  ezMeshBufferResourceHandle hMeshBuffer = CreateMeshBufferArrow();
-  ezMeshResourceHandle hMesh = CreateMeshResource("{9D02CF27-7A15-44EA-A372-C417AF2A8E9B}", hMeshBuffer, "Materials/Editor/GizmoHandle.ezMaterial");
+  ezMeshBufferResourceHandle hMeshBuffer;
+  const char* szMeshGuid = "";
+
+  switch (m_iHandleType)
+  {
+  case ezGizmoHandleType::Arrow:
+    {
+      hMeshBuffer = CreateMeshBufferArrow();
+      szMeshGuid = "{9D02CF27-7A15-44EA-A372-C417AF2A8E9B}";
+    }
+    break;
+  case ezGizmoHandleType::Rect:
+    {
+      hMeshBuffer = CreateMeshBufferRect();
+      szMeshGuid = "{3DF4DDDA-F598-4A37-9691-D4C3677905A8}";
+    }
+    break;
+  default:
+    EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  ezMeshResourceHandle hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Materials/Editor/GizmoHandle.ezMaterial");
 
   ezGameObjectDesc god;
   god.m_LocalPosition = m_Transformation.GetTranslationVector();

@@ -219,9 +219,9 @@ void ezViewContext::Redraw()
     ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
     ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(m_hPickingIdRT, &SysMemDescs);
 
-    MemDesc.m_pData = m_PickingResultsDepth.GetData();
-    ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescsDepth(&MemDesc, 1);
-    ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(m_hPickingDepthRT, &SysMemDescsDepth);
+    //MemDesc.m_pData = m_PickingResultsDepth.GetData();
+    //ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescsDepth(&MemDesc, 1);
+    //ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(m_hPickingDepthRT, &SysMemDescsDepth);
   }
 }
 

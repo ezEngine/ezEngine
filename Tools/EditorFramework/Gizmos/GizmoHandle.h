@@ -9,7 +9,7 @@ class ezWorld;
 class ezMeshComponent;
 class ezGizmoBase;
 
-enum class ezGizmoHandleType
+enum ezGizmoHandleType
 {
   Arrow,
   Ring,
@@ -27,7 +27,16 @@ public:
 
   ezGizmoBase* GetParentGizmo() const { return m_pParentGizmo; }
 
+  void SetVisible(bool bVisible) { m_bVisible = bVisible; SetModified(true); }
+
+  void SetTransformation(const ezMat4& m) { m_Transformation = m; SetModified(true); }
+
+  const ezMat4& GetTransformation() const { return m_Transformation; }
+
 protected:
+  bool m_bVisible;
+  ezMat4 m_Transformation;
+
   void SetParentGizmo(ezGizmoBase* pParentGizmo) { m_pParentGizmo = pParentGizmo; }
 
 private:
@@ -43,20 +52,12 @@ public:
 
   void Configure(ezGizmoBase* pParentGizmo, ezGizmoHandleType type, const ezColor& col);
 
-  void SetVisible(bool bVisible) { m_bVisible = bVisible; SetModified(true); }
-
-  void SetTransformation(const ezMat4& m) { m_Transformation = m; SetModified(true); }
-
-  const ezMat4& GetTransformation() const { return m_Transformation; }
-
   bool IsSetupForEngine() const { return !m_hGameObject.IsInvalidated(); }
 
   bool SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID);
   void UpdateForEngine(ezWorld* pWorld);
 
 protected:
-  bool m_bVisible;
-  ezMat4 m_Transformation;
   ezInt32 m_iHandleType;
   ezGameObjectHandle m_hGameObject;
   ezMeshComponent* m_pMeshComponent;

@@ -9,12 +9,13 @@ PICKING
 
 DepthTest = true
 DepthWrite = true
+CullMode = CullMode_None
 
-#if PICKING == 1
-	DepthTestFunc = CompareFunc_Always
-#else
+//#if PICKING == 1
+	//DepthTestFunc = CompareFunc_Always
+//#else
 	DepthTestFunc = CompareFunc_Less
-#endif
+//#endif
 
 [VERTEXSHADER]
 

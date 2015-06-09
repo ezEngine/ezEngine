@@ -19,7 +19,7 @@ bool ezSelectionContext::mousePressEvent(QMouseEvent* e)
 {
   if (e->button() == Qt::MouseButton::LeftButton)
   {
-    const ezObjectPickingResult& res = m_pDocumentWindow->PickObject(e->windowPos().x(), e->windowPos().y());
+    const ezObjectPickingResult& res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
 
     if (res.m_PickedOther.IsValid())
     {

@@ -15,8 +15,14 @@ ezTranslateGizmo::ezTranslateGizmo()
   m_AxisY.Configure(this, ezGizmoHandleType::Arrow, ezColorLinearUB(0, 128, 0));
   m_AxisZ.Configure(this, ezGizmoHandleType::Arrow, ezColorLinearUB(0, 0, 128));
 
+  m_PlaneXY.Configure(this, ezGizmoHandleType::Rect, ezColorLinearUB(128, 128, 255));
+  m_PlaneXZ.Configure(this, ezGizmoHandleType::Rect, ezColorLinearUB(128, 255, 128));
+  m_PlaneYZ.Configure(this, ezGizmoHandleType::Rect, ezColorLinearUB(255, 128, 128));
+
   SetVisible(false);
   SetTransformation(ezMat4::IdentityMatrix());
+
+  m_Mode = TranslateMode::None;
 }
 
 void ezTranslateGizmo::SetDocumentGuid(const ezUuid& guid)
@@ -24,6 +30,10 @@ void ezTranslateGizmo::SetDocumentGuid(const ezUuid& guid)
   m_AxisX.SetDocumentGuid(guid);
   m_AxisY.SetDocumentGuid(guid);
   m_AxisZ.SetDocumentGuid(guid);
+
+  m_PlaneXY.SetDocumentGuid(guid);
+  m_PlaneXZ.SetDocumentGuid(guid);
+  m_PlaneYZ.SetDocumentGuid(guid);
 }
 
 void ezTranslateGizmo::OnVisibleChanged(bool bVisible)
@@ -31,6 +41,10 @@ void ezTranslateGizmo::OnVisibleChanged(bool bVisible)
   m_AxisX.SetVisible(bVisible);
   m_AxisY.SetVisible(bVisible);
   m_AxisZ.SetVisible(bVisible);
+
+  m_PlaneXY.SetVisible(bVisible);
+  m_PlaneXZ.SetVisible(bVisible);
+  m_PlaneYZ.SetVisible(bVisible);
 }
 
 void ezTranslateGizmo::OnTransformationChanged(const ezMat4& transform)
@@ -45,6 +59,15 @@ void ezTranslateGizmo::OnTransformationChanged(const ezMat4& transform)
 
   m.SetRotationMatrixX(ezAngle::Degree(90));
   m_AxisZ.SetTransformation(transform * m);
+
+  m.SetIdentity();
+  m_PlaneXY.SetTransformation(transform * m);
+
+  m.SetRotationMatrixY(ezAngle::Degree(90));
+  m_PlaneYZ.SetTransformation(transform * m);
+
+  m.SetRotationMatrixX(ezAngle::Degree(90));
+  m_PlaneXZ.SetTransformation(transform * m);
 }
 
 void ezTranslateGizmo::FocusLost()
@@ -53,6 +76,19 @@ void ezTranslateGizmo::FocusLost()
   ev.m_pGizmo = this;
   ev.m_Type = BaseEvent::Type::EndInteractions;
   m_BaseEvents.Broadcast(ev);
+
+  ezViewHighlightMsgToEngine msg;
+  msg.SendHighlightObjectMessage(GetDocumentWindow3D()->GetEditorEngineConnection());
+
+  m_AxisX.SetVisible(true);
+  m_AxisY.SetVisible(true);
+  m_AxisZ.SetVisible(true);
+
+  m_PlaneXY.SetVisible(true);
+  m_PlaneXZ.SetVisible(true);
+  m_PlaneYZ.SetVisible(true);
+
+  m_Mode = TranslateMode::None;
 }
 
 bool ezTranslateGizmo::mousePressEvent(QMouseEvent* e)
@@ -64,19 +100,70 @@ bool ezTranslateGizmo::mousePressEvent(QMouseEvent* e)
     return false;
 
   if (m_pInteractionGizmoHandle == &m_AxisX)
-    m_vMoveAxis = m_AxisX.GetTransformation().GetColumn(1).GetAsVec3();
+  {
+    m_vMoveAxis = m_AxisX.GetTransformation().GetColumn(1).GetAsVec3().GetNormalized();
+    m_Mode = TranslateMode::Axis;
+  }
   else if (m_pInteractionGizmoHandle == &m_AxisY)
-    m_vMoveAxis = m_AxisY.GetTransformation().GetColumn(1).GetAsVec3();
+  {
+    m_vMoveAxis = m_AxisY.GetTransformation().GetColumn(1).GetAsVec3().GetNormalized();
+    m_Mode = TranslateMode::Axis;
+  }
   else if (m_pInteractionGizmoHandle == &m_AxisZ)
-    m_vMoveAxis = m_AxisZ.GetTransformation().GetColumn(1).GetAsVec3();
+  {
+    m_vMoveAxis = m_AxisZ.GetTransformation().GetColumn(1).GetAsVec3().GetNormalized();
+    m_Mode = TranslateMode::Axis;
+  }
+  else if (m_pInteractionGizmoHandle == &m_PlaneXY)
+  {
+    m_vMoveAxis = m_PlaneXY.GetTransformation().GetColumn(2).GetAsVec3().GetNormalized();
+    m_Mode = TranslateMode::Plane;
+  }
+  else if (m_pInteractionGizmoHandle == &m_PlaneXZ)
+  {
+    m_vMoveAxis = m_PlaneXZ.GetTransformation().GetColumn(2).GetAsVec3().GetNormalized();
+    m_Mode = TranslateMode::Plane;
+  }
+  else if (m_pInteractionGizmoHandle == &m_PlaneYZ)
+  {
+    m_vMoveAxis = m_PlaneYZ.GetTransformation().GetColumn(2).GetAsVec3().GetNormalized();
+    m_Mode = TranslateMode::Plane;
+  }
   else
     return false;
+
+  m_AxisX.SetVisible(false);
+  m_AxisY.SetVisible(false);
+  m_AxisZ.SetVisible(false);
+  m_PlaneXY.SetVisible(false);
+  m_PlaneXZ.SetVisible(false);
+  m_PlaneYZ.SetVisible(false);
+
+  m_pInteractionGizmoHandle->SetVisible(true);
+
+  m_vStartPosition = GetTransformation().GetTranslationVector();
+
+  ezMat4 mView, mProj, mViewProj;
+  m_pCamera->GetViewMatrix(mView);
+  m_pCamera->GetProjectionMatrix((float)m_Viewport.x / (float)m_Viewport.y, mProj);
+  mViewProj = mProj * mView;
+  m_InvViewProj = mViewProj.GetInverse();
+
 
   m_LastInteraction = ezTime::Now();
 
   SetActiveInputContext(this);
 
-  m_vLastPos = m_vInteractionPivot;
+  if (m_Mode == TranslateMode::Axis)
+  {
+    m_vInteractionPivot = GetPointOnAxis(e->pos().x(), m_Viewport.y - e->pos().y());
+  }
+  else if (m_Mode == TranslateMode::Plane)
+  {
+    m_vInteractionPivot = GetPointOnPlane(e->pos().x(), m_Viewport.y - e->pos().y());
+  }
+
+  m_fStartScale = (m_vInteractionPivot - m_pCamera->GetPosition()).GetLength() * 0.125;
 
   BaseEvent ev;
   ev.m_pGizmo = this;
@@ -94,17 +181,48 @@ bool ezTranslateGizmo::mouseReleaseEvent(QMouseEvent* e)
   if (e->button() != Qt::MouseButton::LeftButton)
     return true;
 
-  BaseEvent ev;
-  ev.m_pGizmo = this;
-  ev.m_Type = BaseEvent::Type::EndInteractions;
-  m_BaseEvents.Broadcast(ev);
-
-  ezViewHighlightMsgToEngine msg;
-  msg.SendHighlightObjectMessage(GetDocumentWindow3D()->GetEditorEngineConnection());
-  
+  FocusLost();
 
   SetActiveInputContext(nullptr);
   return true;
+}
+
+ezVec3 ezTranslateGizmo::GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenPosY) const
+{
+  ezVec3 vPos, vRayDir;
+  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0), vPos, &vRayDir).Failed())
+    return m_vStartPosition;
+
+  ezPlane Plane;
+  Plane.SetFromNormalAndPoint(m_vMoveAxis, m_vStartPosition);
+
+  ezVec3 vIntersection;
+  if (!Plane.GetRayIntersection(m_pCamera->GetPosition(), vRayDir, nullptr, &vIntersection))
+    return m_vStartPosition;
+
+  return vIntersection;
+}
+
+ezVec3 ezTranslateGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPosY) const
+{
+  ezVec3 vPos, vRayDir;
+  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0), vPos, &vRayDir).Failed())
+    return m_vStartPosition;
+
+  const ezVec3 vPlaneTangent = m_vMoveAxis.Cross(m_pCamera->GetDirForwards()).GetNormalized();
+  const ezVec3 vPlaneNormal = m_vMoveAxis.Cross(vPlaneTangent);
+
+  ezPlane Plane;
+  Plane.SetFromNormalAndPoint(vPlaneNormal, m_vStartPosition);
+
+  ezVec3 vIntersection;
+  if (!Plane.GetRayIntersection(m_pCamera->GetPosition(), vRayDir, nullptr, &vIntersection))
+    return m_vStartPosition;
+
+  const ezVec3 vDirAlongRay = vIntersection - m_vStartPosition;
+  const float fProjectedLength = vDirAlongRay.Dot(m_vMoveAxis);
+
+  return m_vStartPosition + fProjectedLength * m_vMoveAxis;
 }
 
 bool ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
@@ -119,64 +237,25 @@ bool ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
 
   m_LastInteraction = tNow;
 
-  ezMat4 mView, mProj, mViewProj, mInvViewProj;
-  m_pCamera->GetViewMatrix(mView);
-  m_pCamera->GetProjectionMatrix((float)m_Viewport.x / (float)m_Viewport.y, mProj);
-  mViewProj = mProj * mView;
-  mInvViewProj = mViewProj.GetInverse();
-
-  ezVec3 vPos, vRayDir;
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(e->windowPos().x(), m_Viewport.y - e->windowPos().y(), 0), vPos, &vRayDir).Failed())
-    return true;
-
-  //ezLog::Info("Dir: %.2f | %.2f | %.2f", vRayDir.x, vRayDir.y, vRayDir.z);
-
-  const ezVec3 vPlane1Normal = m_vMoveAxis.GetOrthogonalVector().GetNormalized();
-  const ezVec3 vPlane2Normal = vPlane1Normal.Cross(m_vMoveAxis).GetNormalized();
-
-  ezPlane Plane1, Plane2;
-  Plane1.SetFromNormalAndPoint(vPlane1Normal, m_vInteractionPivot);
-  Plane2.SetFromNormalAndPoint(vPlane2Normal, m_vInteractionPivot);
-
-  float fIntersection1 = 0.0f;
-  float fIntersection2 = 0.0f;
-
-  bool bIntersect1 = Plane1.GetRayIntersection(m_pCamera->GetPosition(), vRayDir, &fIntersection1);
-  bool bIntersect2 = Plane2.GetRayIntersection(m_pCamera->GetPosition(), vRayDir, &fIntersection2);
-
-  if (!bIntersect1)
-    fIntersection1 = ezMath::BasicType<float>::GetInfinity();
-  if (!bIntersect2)
-    fIntersection2 = ezMath::BasicType<float>::GetInfinity();
-
-  if (!bIntersect1 && !bIntersect2)
-    return true;
-
-  const float fIntersection = ezMath::Min(fIntersection1, fIntersection2);
-  const ezVec3 vIntersection = m_pCamera->GetPosition() + vRayDir * fIntersection;
-
-
-  //ezLog::Info("Intersection: %.2f | %.2f | %.2f", vIntersection.x, vIntersection.y, vIntersection.z);
-
-  ezVec3 vDiff(0);
-
-  // Point on Ray
+  ezVec3 vCurrentInteractionPoint;
+  
+  if (m_Mode == TranslateMode::Axis)
   {
-    const ezVec3 vDirAlongRay = vIntersection - m_vInteractionPivot;
-    const float fProjectedLength = vDirAlongRay.Dot(m_vMoveAxis);
-
-    const ezVec3 vPosOnRay = m_vInteractionPivot + fProjectedLength * m_vMoveAxis;
-
-    //ezLog::Info("vDiff: %.2f | %.2f | %.2f", vDiff.x, vDiff.y, vDiff.z);
-
-    vDiff = vPosOnRay - m_vLastPos;
-    m_vLastPos = vPosOnRay;
+    vCurrentInteractionPoint = GetPointOnAxis(e->pos().x(), m_Viewport.y - e->pos().y());
+  }
+  else if (m_Mode == TranslateMode::Plane)
+  {
+    vCurrentInteractionPoint = GetPointOnPlane(e->pos().x(), m_Viewport.y - e->pos().y());
   }
 
-  ezMat4 mTrans;
-  mTrans.SetTranslationMatrix(vDiff);
 
-  SetTransformation(mTrans * GetTransformation());
+  const float fPerspectiveScale = (vCurrentInteractionPoint - m_pCamera->GetPosition()).GetLength() * 0.125;
+  const ezVec3 vOffset = (m_vInteractionPivot - m_vStartPosition);
+
+  ezMat4 mTrans;
+  mTrans.SetTranslationMatrix(vCurrentInteractionPoint - vOffset * fPerspectiveScale / m_fStartScale);
+
+  SetTransformation(mTrans);
 
   BaseEvent ev;
   ev.m_pGizmo = this;
