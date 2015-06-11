@@ -65,6 +65,9 @@ public:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezUniquePtr);
 
 private:
+  template<typename U>
+  friend class ezUniquePtr;
+
   T* m_pInstance;
   ezAllocatorBase* m_pAllocator;
 };

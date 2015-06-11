@@ -11,6 +11,13 @@ public:
 
   virtual void Execute(const ezRenderViewContext& renderViewContext) override;
 
+  struct Event
+  {
+
+  };
+
+  ezEvent<const Event&> m_Events;
+
 private:
   ezGALRenderTargetConfigHandle m_hRTConfig;
 };

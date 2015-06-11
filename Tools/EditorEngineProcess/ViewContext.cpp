@@ -114,9 +114,12 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
 
     m_pView = ezRenderLoop::CreateView("Editor - View");
 
+    ezUniquePtr<ezPickingRenderPass> pRenderPass = EZ_DEFAULT_NEW(ezPickingRenderPass, m_hPickingRenderTargetCfg);
+    pRenderPass->m_Events.AddEventHandler(ezMakeDelegate(&ezViewContext::RenderPassEventHandler, this));
+
     ezRenderPipeline* pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
     pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezSimpleRenderPass, m_hBBRT));
-    pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezPickingRenderPass, m_hPickingRenderTargetCfg));
+    pRenderPipeline->AddPass(std::move(pRenderPass));
     m_pView->SetRenderPipeline(pRenderPipeline);
 
     m_pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));
@@ -189,6 +192,10 @@ void ezViewContext::Redraw()
 {
   ezRenderLoop::AddMainView(m_pView);
 
+}
+
+void ezViewContext::RenderPassEventHandler(const ezPickingRenderPass::Event& e)
+{
   // download the picking information from the GPU
   if (GetEditorWindow().m_uiWidth != 0 && GetEditorWindow().m_uiHeight != 0)
   {

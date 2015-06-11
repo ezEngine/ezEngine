@@ -36,6 +36,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING", "0");
 
-
+  Event e;
+  m_Events.Broadcast(e);
 
 }

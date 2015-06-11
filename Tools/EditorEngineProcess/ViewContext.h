@@ -2,6 +2,7 @@
 
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/EngineProcess/EngineProcessViewContext.h>
+#include <EditorEngineProcess/PickingRenderPass.h>
 #include <System/Window/Window.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
@@ -37,6 +38,8 @@ public:
   void SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg);
 
 private:
+  void RenderPassEventHandler(const ezPickingRenderPass::Event& e);
+
   ezGALRenderTargetConfigHandle m_hBBRT;
   ezGALSwapChainHandle m_hPrimarySwapChain;
 
