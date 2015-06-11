@@ -87,6 +87,20 @@ bool ezRotateGizmo::mousePressEvent(QMouseEvent* e)
   else
     return false;
 
+  // Determine on which side of the gizmo the camera is located
+  // if it is on the wrong side, flip the rotation axis, so that the mouse move direction matches the rotation direction better
+  {
+    ezPlane p;
+    p.SetFromNormalAndPoint(m_vMoveAxis, GetTransformation().GetTranslationVector());
+
+    if (p.GetPointPosition(m_pCamera->GetPosition()) == ezPositionOnPlane::Front)
+      m_vMoveAxis = -m_vMoveAxis;
+  }
+
+  ezViewHighlightMsgToEngine msg;
+  msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
+  msg.SendHighlightObjectMessage(GetDocumentWindow3D()->GetEditorEngineConnection());
+
   QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
 
   m_MousePos = ezVec2(e->globalPos().x(), e->globalPos().y());
@@ -99,7 +113,6 @@ bool ezRotateGizmo::mousePressEvent(QMouseEvent* e)
   m_pInteractionGizmoHandle->SetVisible(true);
 
   m_StartRotation.SetFromMat3(GetTransformation().GetRotationalPart());
-  m_vStartScaling = GetTransformation().GetScalingFactors();
 
   ezMat4 mView, mProj, mViewProj;
   m_pCamera->GetViewMatrix(mView);
@@ -153,14 +166,10 @@ bool ezRotateGizmo::mouseMoveEvent(QMouseEvent* e)
   m_fRotation += vDiff.x;
   m_fRotation -= vDiff.y;
 
-  ezQuat qRot;
-  qRot.SetFromAxisAndAngle(m_vMoveAxis, ezAngle::Degree(m_fRotation * 1.0f));
-
-  ezMat3 mRot = (qRot * m_StartRotation).GetAsMat3();
-  mRot.SetScalingFactors(m_vStartScaling);
+  m_CurrentRotation.SetFromAxisAndAngle(m_vMoveAxis, ezAngle::Degree(m_fRotation));
 
   ezMat4 mTrans = GetTransformation();
-  mTrans.SetRotationalPart(mRot);
+  mTrans.SetRotationalPart((m_CurrentRotation * m_StartRotation).GetAsMat3());
 
   SetTransformation(mTrans);
 

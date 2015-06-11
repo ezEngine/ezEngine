@@ -19,12 +19,14 @@ public:
   virtual bool mouseReleaseEvent(QMouseEvent* e) override;
   virtual bool mouseMoveEvent(QMouseEvent* e) override;
 
+  const ezVec3 GetTranslationResult() const { return GetTransformation().GetTranslationVector() - m_vStartPosition; }
+
 protected:
   virtual void OnVisibleChanged(bool bVisible) override;
   virtual void OnTransformationChanged(const ezMat4& transform) override;
 
-  ezVec3 GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPosY) const;
-  ezVec3 GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenPosY) const;
+  ezResult GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const;
+  ezResult GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const;
 
 private:
   ezGizmoHandle m_AxisX;

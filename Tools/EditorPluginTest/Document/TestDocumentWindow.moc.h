@@ -49,6 +49,16 @@ private:
 
   ezCamera m_Camera;
 
+  struct SelectedGO
+  {
+    ezUuid m_Object;
+    ezVec3 m_vTranslation;
+    ezVec3 m_vScaling;
+    ezQuat m_Rotation;
+  };
+
+  ezDeque<SelectedGO> m_GizmoSelection;
+
   /// \todo Broken delegates
   ezDelegate<void(const ezDocumentObjectPropertyEvent&)> m_DelegatePropertyEvents;
   ezDelegate<void(const ezDocumentObjectStructureEvent&)> m_DelegateDocumentTreeEvents;

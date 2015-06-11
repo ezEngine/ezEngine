@@ -177,18 +177,20 @@ void ezTestDocumentWindow::SelectionManagerEventHandler(const ezSelectionManager
   case ezSelectionManager::Event::Type::SelectionSet:
   case ezSelectionManager::Event::Type::ObjectAdded:
     {
-      //m_TranslateGizmo.SetVisible(true);
-      //m_RotateGizmo.SetVisible(true);
-      m_ScaleGizmo.SetVisible(true);
+      EZ_ASSERT_DEBUG(m_GizmoSelection.IsEmpty(), "This array should have been cleared when the gizmo lost focus");
 
-      if (GetDocument()->GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetType() == ezRTTI::FindTypeByName("ezGameObject"))
+      m_TranslateGizmo.SetVisible(true);
+      m_RotateGizmo.SetVisible(true);
+      //m_ScaleGizmo.SetVisible(true);
+
+      const auto& LatestSelection = GetDocument()->GetSelectionManager()->GetSelection().PeekBack();
+
+      if (LatestSelection->GetTypeAccessor().GetType() == ezRTTI::FindTypeByName("ezGameObject"))
       {
-        ezVec3 vPos = GetDocument()->GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetValue("Position").ConvertTo<ezVec3>();
-        ezQuat qRot = GetDocument()->GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetValue("Rotation").ConvertTo<ezQuat>();
-        //ezVec3 vScale = GetDocument()->GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetValue("Scaling").ConvertTo<ezVec3>();
-        ezMat4 mt;
-        mt.SetTranslationMatrix(vPos);
-        mt.SetRotationalPart(qRot.GetAsMat3());
+        ezVec3 vPos = LatestSelection->GetTypeAccessor().GetValue("Position").ConvertTo<ezVec3>();
+        ezQuat qRot = LatestSelection->GetTypeAccessor().GetValue("Rotation").ConvertTo<ezQuat>();
+
+        const ezMat4 mt(qRot.GetAsMat3(), vPos);
 
         m_TranslateGizmo.SetTransformation(mt);
         m_RotateGizmo.SetTransformation(mt);
@@ -205,6 +207,29 @@ void ezTestDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::Ba
   {
   case ezGizmoBase::BaseEvent::Type::BeginInteractions:
     {
+      // Get the list of all objects that are manipulated
+      // and store their original transformation
+      {
+        m_GizmoSelection.Clear();
+
+        auto hType = ezRTTI::FindTypeByName("ezGameObject");
+
+        const auto& Selection = GetDocument()->GetSelectionManager()->GetSelection();
+        for (ezUInt32 sel = 0; sel < Selection.GetCount(); ++sel)
+        {
+          if (!Selection[sel]->GetTypeAccessor().GetType()->IsDerivedFrom(hType))
+            continue;
+
+          SelectedGO sgo;
+          sgo.m_Object = Selection[sel]->GetGuid();
+          sgo.m_vTranslation = Selection[sel]->GetTypeAccessor().GetValue("Position").ConvertTo<ezVec3>();
+          sgo.m_vScaling = Selection[sel]->GetTypeAccessor().GetValue("Scaling").ConvertTo<ezVec3>();
+          sgo.m_Rotation = Selection[sel]->GetTypeAccessor().GetValue("Rotation").ConvertTo<ezQuat>();
+
+          m_GizmoSelection.PushBack(sgo);
+        }
+      }
+
       GetDocument()->GetCommandHistory()->BeginTemporaryCommands();
 
     }
@@ -213,14 +238,14 @@ void ezTestDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::Ba
   case ezGizmoBase::BaseEvent::Type::EndInteractions:
     {
       GetDocument()->GetCommandHistory()->EndTemporaryCommands(false);
+
+      m_GizmoSelection.Clear();
     }
     break;
 
   case ezGizmoBase::BaseEvent::Type::Interaction:
     {
       const ezMat4 mTransform = e.m_pGizmo->GetTransformation();
-
-      auto Selection = GetDocument()->GetSelectionManager()->GetSelection();
 
       GetDocument()->GetCommandHistory()->StartTransaction();
 
@@ -231,42 +256,64 @@ void ezTestDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::Ba
 
       if (e.m_pGizmo == &m_TranslateGizmo)
       {
-        cmd.m_NewValue = mTransform.GetTranslationVector();
         cmd.SetPropertyPath("Position");
+
+        const ezVec3 vTranslate = m_TranslateGizmo.GetTranslationResult();
+
+        for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
+        {
+          const auto& obj = m_GizmoSelection[sel];
+
+          cmd.m_Object = obj.m_Object;
+          cmd.m_NewValue = obj.m_vTranslation + vTranslate;
+
+          if (GetDocument()->GetCommandHistory()->AddCommand(cmd).m_Result.Failed())
+          {
+            bCancel = true;
+            break;
+          }
+        }
       }
 
       if (e.m_pGizmo == &m_RotateGizmo)
       {
-        ezQuat qRot;
-        qRot.SetFromMat3(mTransform.GetRotationalPart());
-
-        cmd.m_NewValue = qRot;
         cmd.SetPropertyPath("Rotation");
+
+        const ezQuat qRotation = m_RotateGizmo.GetRotationResult();
+
+        for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
+        {
+          const auto& obj = m_GizmoSelection[sel];
+
+          cmd.m_Object = obj.m_Object;
+          cmd.m_NewValue = qRotation * obj.m_Rotation;
+
+          if (GetDocument()->GetCommandHistory()->AddCommand(cmd).m_Result.Failed())
+          {
+            bCancel = true;
+            break;
+          }
+        }
       }
 
       if (e.m_pGizmo == &m_ScaleGizmo)
       {
-        cmd.m_NewValue = m_ScaleGizmo.GetScalingResult();
         cmd.SetPropertyPath("Scaling");
-      }
 
-      auto hType = ezRTTI::FindTypeByName("ezGameObject");
+        const ezVec3 vScale = m_ScaleGizmo.GetScalingResult();
 
-      for (ezUInt32 sel = 0; sel < Selection.GetCount(); ++sel)
-      {
-        if (!Selection[sel]->GetTypeAccessor().GetType()->IsDerivedFrom(hType))
-          continue;
-
-        cmd.m_Object = Selection[sel]->GetGuid();
-
-        ezStatus res = GetDocument()->GetCommandHistory()->AddCommand(cmd);
-
-        //ezUIServices::GetInstance()->MessageBoxStatus(res, "Failed to set the position");
-
-        if (res.m_Result.Failed())
+        for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
         {
-          bCancel = true;
-          break;
+          const auto& obj = m_GizmoSelection[sel];
+
+          cmd.m_Object = obj.m_Object;
+          cmd.m_NewValue = obj.m_vScaling.CompMult(vScale);
+
+          if (GetDocument()->GetCommandHistory()->AddCommand(cmd).m_Result.Failed())
+          {
+            bCancel = true;
+            break;
+          }
         }
       }
 

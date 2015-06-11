@@ -132,6 +132,10 @@ bool ezTranslateGizmo::mousePressEvent(QMouseEvent* e)
   else
     return false;
 
+  ezViewHighlightMsgToEngine msg;
+  msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
+  msg.SendHighlightObjectMessage(GetDocumentWindow3D()->GetEditorEngineConnection());
+
   m_AxisX.SetVisible(false);
   m_AxisY.SetVisible(false);
   m_AxisZ.SetVisible(false);
@@ -156,11 +160,11 @@ bool ezTranslateGizmo::mousePressEvent(QMouseEvent* e)
 
   if (m_Mode == TranslateMode::Axis)
   {
-    m_vInteractionPivot = GetPointOnAxis(e->pos().x(), m_Viewport.y - e->pos().y());
+    GetPointOnAxis(e->pos().x(), m_Viewport.y - e->pos().y(), m_vInteractionPivot);
   }
   else if (m_Mode == TranslateMode::Plane)
   {
-    m_vInteractionPivot = GetPointOnPlane(e->pos().x(), m_Viewport.y - e->pos().y());
+    GetPointOnPlane(e->pos().x(), m_Viewport.y - e->pos().y(), m_vInteractionPivot);
   }
 
   m_fStartScale = (m_vInteractionPivot - m_pCamera->GetPosition()).GetLength() * 0.125;
@@ -187,27 +191,32 @@ bool ezTranslateGizmo::mouseReleaseEvent(QMouseEvent* e)
   return true;
 }
 
-ezVec3 ezTranslateGizmo::GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenPosY) const
+ezResult ezTranslateGizmo::GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const
 {
+  out_Result = m_vStartPosition;
+
   ezVec3 vPos, vRayDir;
   if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0), vPos, &vRayDir).Failed())
-    return m_vStartPosition;
+    return EZ_FAILURE;
 
   ezPlane Plane;
   Plane.SetFromNormalAndPoint(m_vMoveAxis, m_vStartPosition);
 
   ezVec3 vIntersection;
   if (!Plane.GetRayIntersection(m_pCamera->GetPosition(), vRayDir, nullptr, &vIntersection))
-    return m_vStartPosition;
+    return EZ_FAILURE;
 
-  return vIntersection;
+  out_Result = vIntersection;
+  return EZ_SUCCESS;
 }
 
-ezVec3 ezTranslateGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPosY) const
+ezResult ezTranslateGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const
 {
+  out_Result = m_vStartPosition;
+
   ezVec3 vPos, vRayDir;
   if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0), vPos, &vRayDir).Failed())
-    return m_vStartPosition;
+    return EZ_FAILURE;
 
   const ezVec3 vPlaneTangent = m_vMoveAxis.Cross(m_pCamera->GetDirForwards()).GetNormalized();
   const ezVec3 vPlaneNormal = m_vMoveAxis.Cross(vPlaneTangent);
@@ -217,12 +226,13 @@ ezVec3 ezTranslateGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPosY
 
   ezVec3 vIntersection;
   if (!Plane.GetRayIntersection(m_pCamera->GetPosition(), vRayDir, nullptr, &vIntersection))
-    return m_vStartPosition;
+    return EZ_FAILURE;
 
   const ezVec3 vDirAlongRay = vIntersection - m_vStartPosition;
   const float fProjectedLength = vDirAlongRay.Dot(m_vMoveAxis);
 
-  return m_vStartPosition + fProjectedLength * m_vMoveAxis;
+  out_Result = m_vStartPosition + fProjectedLength * m_vMoveAxis;
+  return EZ_SUCCESS;
 }
 
 bool ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
@@ -241,11 +251,13 @@ bool ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
   
   if (m_Mode == TranslateMode::Axis)
   {
-    vCurrentInteractionPoint = GetPointOnAxis(e->pos().x(), m_Viewport.y - e->pos().y());
+    if (GetPointOnAxis(e->pos().x(), m_Viewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
+      return true;
   }
   else if (m_Mode == TranslateMode::Plane)
   {
-    vCurrentInteractionPoint = GetPointOnPlane(e->pos().x(), m_Viewport.y - e->pos().y());
+     if (GetPointOnPlane(e->pos().x(), m_Viewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
+      return true;
   }
 
 

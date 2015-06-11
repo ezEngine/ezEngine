@@ -19,6 +19,8 @@ public:
   virtual bool mouseReleaseEvent(QMouseEvent* e) override;
   virtual bool mouseMoveEvent(QMouseEvent* e) override;
 
+  const ezQuat& GetRotationResult() const { return m_CurrentRotation; }
+
 protected:
   virtual void OnVisibleChanged(bool bVisible) override;
   virtual void OnTransformationChanged(const ezMat4& transform) override;
@@ -29,7 +31,7 @@ private:
   ezGizmoHandle m_AxisZ;
 
   ezQuat m_StartRotation;
-  ezVec3 m_vStartScaling;
+  ezQuat m_CurrentRotation;
   float m_fRotation;
 
   ezVec2 m_MousePos;

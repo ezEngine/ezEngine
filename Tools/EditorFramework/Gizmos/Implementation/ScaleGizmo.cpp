@@ -98,6 +98,10 @@ bool ezScaleGizmo::mousePressEvent(QMouseEvent* e)
   else
     return false;
 
+  ezViewHighlightMsgToEngine msg;
+  msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
+  msg.SendHighlightObjectMessage(GetDocumentWindow3D()->GetEditorEngineConnection());
+
   QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
 
   m_MousePos = ezVec2(e->globalPos().x(), e->globalPos().y());
