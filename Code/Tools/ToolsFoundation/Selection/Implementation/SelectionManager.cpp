@@ -118,3 +118,18 @@ bool ezSelectionManager::IsSelected(const ezDocumentObjectBase* pObject) const
   return m_SelectionSet.Find(pObject->GetGuid()).IsValid();
 }
 
+bool ezSelectionManager::IsParentSelected(const ezDocumentObjectBase* pObject) const
+{
+  const ezDocumentObjectBase* pParent = pObject->GetParent();
+
+  while (pParent != nullptr)
+  {
+    if (m_SelectionSet.Find(pParent->GetGuid()).IsValid())
+      return true;
+
+    pParent = pParent->GetParent();
+  }
+
+  return false;
+}
+

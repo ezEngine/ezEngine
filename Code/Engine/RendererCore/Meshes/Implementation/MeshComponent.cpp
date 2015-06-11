@@ -56,7 +56,7 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
   for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
   {
     ezMeshRenderData* pRenderData = pRenderPipeline->CreateRenderData<ezMeshRenderData>(m_iRenderPass == -1 ? ezDefaultPassTypes::Opaque : m_iRenderPass, GetOwner());
-    pRenderData->m_WorldTransform = GetOwner()->GetWorldTransform();
+    pRenderData->m_WorldTransform = GetOwner()->GetGlobalTransform();
     pRenderData->m_hMesh = m_hMesh;
     pRenderData->m_uiEditorPickingID = m_uiEditorPickingID;
     pRenderData->m_MeshColor = m_MeshColor;

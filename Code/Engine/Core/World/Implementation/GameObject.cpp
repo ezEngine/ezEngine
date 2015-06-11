@@ -36,15 +36,63 @@ public:
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezGameObjectDummyAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
-    EZ_ACCESSOR_PROPERTY("Position", GetLocalPosition, SetLocalPosition),
-    EZ_ACCESSOR_PROPERTY("Rotation", GetLocalRotation, SetLocalRotation),
-    EZ_ACCESSOR_PROPERTY("Scaling", GetLocalScaling, SetLocalScaling),
-  EZ_END_PROPERTIES
+    EZ_ACCESSOR_PROPERTY("LocalPosition", GetLocalPosition, SetLocalPosition),
+    EZ_ACCESSOR_PROPERTY("LocalRotation", GetLocalRotation, SetLocalRotation),
+    EZ_ACCESSOR_PROPERTY("LocalScaling", GetLocalScaling, SetLocalScaling),
+    EZ_ACCESSOR_PROPERTY_READ_ONLY("GlobalPosition", GetGlobalPosition),
+    EZ_ACCESSOR_PROPERTY_READ_ONLY("GlobalRotation", GetGlobalRotation),
+    EZ_ACCESSOR_PROPERTY_READ_ONLY("GlobalScaling", GetGlobalScaling),
+    EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 
 void ezGameObject::ConstChildIterator::Next()
 {
   m_pObject = m_pObject->m_pWorld->GetObjectUnchecked(m_pObject->m_NextSiblingIndex);
+}
+
+void ezGameObject::SetGlobalPosition(const ezVec3& position)
+{
+  const ezGameObject* pParent = GetParent();
+
+  /// \todo Implement this
+
+  m_pTransformationData->m_worldTransform.m_vPosition = position;
+
+}
+
+void ezGameObject::SetGlobalRotation(const ezQuat rotation)
+{
+  /// \todo Implement this
+
+}
+
+void ezGameObject::SetGlobalScaling(const ezVec3& scaling)
+{
+  /// \todo Implement this
+
+}
+
+
+void ezGameObject::SetGlobalTransform(const ezTransform& transform)
+{
+  const ezGameObject* pParent = GetParent();
+
+  ezTransform LocalTransform;
+
+  if (pParent)
+  {
+    LocalTransform.SetLocalTransform(pParent->GetGlobalTransform(), transform);
+  }
+  else
+  {
+    LocalTransform = transform;
+  }
+    
+  m_pTransformationData->m_localScaling = LocalTransform.m_Rotation.GetScalingFactors().GetAsVec4(0.0f);
+  m_pTransformationData->m_localRotation.SetFromMat3(LocalTransform.m_Rotation); /// \todo Not sure this works, if there is a scaling in the matrix
+  m_pTransformationData->m_localPosition = LocalTransform.m_vPosition.GetAsPositionVec4();
+
+  m_pTransformationData->m_worldTransform = transform;
 }
 
 void ezGameObject::operator=(const ezGameObject& other)

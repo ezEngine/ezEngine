@@ -45,6 +45,7 @@ public:
   const ezDeque<const ezDocumentObjectBase*>& GetSelection() const { return m_SelectionList; }
 
   bool IsSelected(const ezDocumentObjectBase* pObject) const;
+  bool IsParentSelected(const ezDocumentObjectBase* pObject) const;
 
   const ezDocumentBase* GetDocument() const { return m_pDocument; }
 

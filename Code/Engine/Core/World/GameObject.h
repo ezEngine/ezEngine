@@ -149,17 +149,17 @@ public:
   void SetLocalScaling(const ezVec3& scaling);
   const ezVec3& GetLocalScaling() const;
 
-  void SetWorldPosition(const ezVec3& position);
-  const ezVec3& GetWorldPosition() const;
+  void SetGlobalPosition(const ezVec3& position);
+  const ezVec3& GetGlobalPosition() const;
 
-  void SetWorldRotation(const ezQuat& rotation);
-  const ezQuat GetWorldRotation() const;
+  void SetGlobalRotation(const ezQuat rotation);
+  const ezQuat GetGlobalRotation() const;
 
-  void SetWorldScaling(const ezVec3& scaling);
-  const ezVec3 GetWorldScaling() const;
+  void SetGlobalScaling(const ezVec3& scaling);
+  const ezVec3& GetGlobalScaling() const;
 
-  void SetWorldTransform(const ezTransform& transform);
-  const ezTransform& GetWorldTransform() const;
+  void SetGlobalTransform(const ezTransform& transform);
+  const ezTransform& GetGlobalTransform() const;
 
   void SetVelocity(const ezVec3& vVelocity);
   const ezVec3& GetVelocity() const;

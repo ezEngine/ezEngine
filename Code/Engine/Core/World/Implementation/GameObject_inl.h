@@ -170,12 +170,12 @@ EZ_FORCE_INLINE const ezVec3& ezGameObject::GetLocalScaling() const
   return *reinterpret_cast<const ezVec3*>(&m_pTransformationData->m_localScaling);
 }
 
-EZ_FORCE_INLINE const ezVec3& ezGameObject::GetWorldPosition() const
+EZ_FORCE_INLINE const ezVec3& ezGameObject::GetGlobalPosition() const
 {
   return m_pTransformationData->m_worldTransform.m_vPosition;
 }
 
-EZ_FORCE_INLINE const ezQuat ezGameObject::GetWorldRotation() const
+EZ_FORCE_INLINE const ezQuat ezGameObject::GetGlobalRotation() const
 {
   ezMat3 mat = m_pTransformationData->m_worldTransform.m_Rotation;
   mat.SetScalingFactors(ezVec3(1.0f));
@@ -184,12 +184,12 @@ EZ_FORCE_INLINE const ezQuat ezGameObject::GetWorldRotation() const
   return q;
 }
 
-EZ_FORCE_INLINE const ezVec3 ezGameObject::GetWorldScaling() const
+EZ_FORCE_INLINE const ezVec3& ezGameObject::GetGlobalScaling() const
 {
   return m_pTransformationData->m_worldTransform.m_Rotation.GetScalingFactors();
 }
 
-EZ_FORCE_INLINE const ezTransform& ezGameObject::GetWorldTransform() const
+EZ_FORCE_INLINE const ezTransform& ezGameObject::GetGlobalTransform() const
 {
   return m_pTransformationData->m_worldTransform;
 }

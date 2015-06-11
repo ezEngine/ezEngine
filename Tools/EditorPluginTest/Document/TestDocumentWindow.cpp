@@ -187,8 +187,8 @@ void ezTestDocumentWindow::SelectionManagerEventHandler(const ezSelectionManager
 
       if (LatestSelection->GetTypeAccessor().GetType() == ezRTTI::FindTypeByName("ezGameObject"))
       {
-        ezVec3 vPos = LatestSelection->GetTypeAccessor().GetValue("Position").ConvertTo<ezVec3>();
-        ezQuat qRot = LatestSelection->GetTypeAccessor().GetValue("Rotation").ConvertTo<ezQuat>();
+        ezVec3 vPos = LatestSelection->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
+        ezQuat qRot = LatestSelection->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
 
         const ezMat4 mt(qRot.GetAsMat3(), vPos);
 
@@ -214,17 +214,23 @@ void ezTestDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::Ba
 
         auto hType = ezRTTI::FindTypeByName("ezGameObject");
 
-        const auto& Selection = GetDocument()->GetSelectionManager()->GetSelection();
+        auto pSelMan = GetDocument()->GetSelectionManager();
+        const auto& Selection = pSelMan->GetSelection();
         for (ezUInt32 sel = 0; sel < Selection.GetCount(); ++sel)
         {
           if (!Selection[sel]->GetTypeAccessor().GetType()->IsDerivedFrom(hType))
             continue;
 
+          // ignore objects, whose parent is already selected as well, so that transformations aren't applied
+          // multiple times on the same hierarchy
+          if (pSelMan->IsParentSelected(Selection[sel]))
+            continue;
+
           SelectedGO sgo;
           sgo.m_Object = Selection[sel]->GetGuid();
-          sgo.m_vTranslation = Selection[sel]->GetTypeAccessor().GetValue("Position").ConvertTo<ezVec3>();
-          sgo.m_vScaling = Selection[sel]->GetTypeAccessor().GetValue("Scaling").ConvertTo<ezVec3>();
-          sgo.m_Rotation = Selection[sel]->GetTypeAccessor().GetValue("Rotation").ConvertTo<ezQuat>();
+          sgo.m_vTranslation = Selection[sel]->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
+          sgo.m_vScaling = Selection[sel]->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
+          sgo.m_Rotation = Selection[sel]->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
 
           m_GizmoSelection.PushBack(sgo);
         }
@@ -256,7 +262,7 @@ void ezTestDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::Ba
 
       if (e.m_pGizmo == &m_TranslateGizmo)
       {
-        cmd.SetPropertyPath("Position");
+        cmd.SetPropertyPath("LocalPosition");
 
         const ezVec3 vTranslate = m_TranslateGizmo.GetTranslationResult();
 
@@ -277,7 +283,7 @@ void ezTestDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::Ba
 
       if (e.m_pGizmo == &m_RotateGizmo)
       {
-        cmd.SetPropertyPath("Rotation");
+        cmd.SetPropertyPath("LocalRotation");
 
         const ezQuat qRotation = m_RotateGizmo.GetRotationResult();
 
@@ -298,7 +304,7 @@ void ezTestDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::Ba
 
       if (e.m_pGizmo == &m_ScaleGizmo)
       {
-        cmd.SetPropertyPath("Scaling");
+        cmd.SetPropertyPath("LocalScaling");
 
         const ezVec3 vScale = m_ScaleGizmo.GetScalingResult();
 
