@@ -11,6 +11,7 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <EditorFramework/Gizmos/TranslateGizmo.h>
 #include <EditorFramework/Gizmos/RotateGizmo.h>
+#include <EditorFramework/Gizmos/ScaleGizmo.h>
 
 class ezTestDocumentWindow : public ezDocumentWindow3D
 {
@@ -44,6 +45,7 @@ private:
 
   ezTranslateGizmo m_TranslateGizmo;
   ezRotateGizmo m_RotateGizmo;
+  ezScaleGizmo m_ScaleGizmo;
 
   ezCamera m_Camera;
 

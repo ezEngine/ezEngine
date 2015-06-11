@@ -80,6 +80,30 @@ static ezMeshBufferResourceHandle CreateMeshBufferArrow()
   return CreateMeshBufferResource(geom, szResourceName);
 }
 
+static ezMeshBufferResourceHandle CreateMeshBufferPiston()
+{
+  const char* szResourceName = "{E2B59B8F-8F61-48C0-AE37-CF31107BA2CE}";
+
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+
+  if (hMesh.IsValid())
+    return hMesh;
+
+  const float fThickness = 0.04f;
+  const float fLength = 2.0f;
+
+  ezMat4 m;
+  m.SetIdentity();
+
+  ezGeometry geom;
+  geom.AddCylinder(fThickness, fThickness, fLength, false, true, 16, ezColor::Red, m);
+
+  m.SetTranslationVector(ezVec3(0, fLength * 0.5f, 0));
+  geom.AddBox(ezVec3(fThickness * 5.0f), ezColor::Red, m);
+
+  return CreateMeshBufferResource(geom, szResourceName);
+}
+
 static ezMeshBufferResourceHandle CreateMeshBufferRect()
 {
   const char* szResourceName = "{75597E89-CDEE-4C90-A377-9441F64B9DB2}";
@@ -117,6 +141,26 @@ static ezMeshBufferResourceHandle CreateMeshBufferRing()
 
   ezGeometry geom;
   geom.AddTorus(fInnerRadius, fOuterRadius, 32, 8,ezColor::White);
+
+  return CreateMeshBufferResource(geom, szResourceName);
+}
+
+static ezMeshBufferResourceHandle CreateMeshBufferBox()
+{
+  const char* szResourceName = "{F14D4CD3-8F21-442B-B07F-3567DBD58A3F}";
+
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+
+  if (hMesh.IsValid())
+    return hMesh;
+
+  const float fThickness = 0.04f * 5;
+
+  ezMat4 m;
+  m.SetIdentity();
+
+  ezGeometry geom;
+  geom.AddBox(ezVec3(fThickness), ezColor::White, m);
 
   return CreateMeshBufferResource(geom, szResourceName);
 }
@@ -182,7 +226,18 @@ bool ezGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPick
       szMeshGuid = "{629AD0C6-C81B-4850-A5BC-41494DC0BF95}";
     }
     break;
-  default:
+  case ezGizmoHandleType::Box:
+    {
+      hMeshBuffer = CreateMeshBufferBox();
+      szMeshGuid = "{13A59253-4A98-4638-8B94-5AA370E929A7}";
+    }
+    break;
+  case ezGizmoHandleType::Piston:
+    {
+      hMeshBuffer = CreateMeshBufferPiston();
+      szMeshGuid = "{44A4FE37-6AE3-44C1-897D-E8B95AE53EF6}";
+    }
+    break;  default:
     EZ_ASSERT_NOT_IMPLEMENTED;
   }
 

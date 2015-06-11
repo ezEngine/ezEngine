@@ -72,18 +72,23 @@ ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument)
 
   m_TranslateGizmo.SetDocumentWindow3D(this);
   m_RotateGizmo.SetDocumentWindow3D(this);
+  m_ScaleGizmo.SetDocumentWindow3D(this);
 
   m_TranslateGizmo.SetDocumentGuid(pDocument->GetGuid());
-  m_TranslateGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezTestDocumentWindow::TransformationGizmoEventHandler, this));
-
   m_RotateGizmo.SetDocumentGuid(pDocument->GetGuid());
+  m_ScaleGizmo.SetDocumentGuid(pDocument->GetGuid());
+
+
+  m_TranslateGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezTestDocumentWindow::TransformationGizmoEventHandler, this));
   m_RotateGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezTestDocumentWindow::TransformationGizmoEventHandler, this));
+  m_ScaleGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezTestDocumentWindow::TransformationGizmoEventHandler, this));
 }
 
 ezTestDocumentWindow::~ezTestDocumentWindow()
 {
   m_TranslateGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezTestDocumentWindow::TransformationGizmoEventHandler, this));
   m_RotateGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezTestDocumentWindow::TransformationGizmoEventHandler, this));
+  m_ScaleGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezTestDocumentWindow::TransformationGizmoEventHandler, this));
 
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezTestDocumentWindow::SelectionManagerEventHandler, this));
 
@@ -165,25 +170,29 @@ void ezTestDocumentWindow::SelectionManagerEventHandler(const ezSelectionManager
     {
       m_TranslateGizmo.SetVisible(false);
       m_RotateGizmo.SetVisible(false);
+      m_ScaleGizmo.SetVisible(false);
     }
     break;
 
   case ezSelectionManager::Event::Type::SelectionSet:
   case ezSelectionManager::Event::Type::ObjectAdded:
     {
-      m_TranslateGizmo.SetVisible(true);
-      m_RotateGizmo.SetVisible(true);
+      //m_TranslateGizmo.SetVisible(true);
+      //m_RotateGizmo.SetVisible(true);
+      m_ScaleGizmo.SetVisible(true);
 
       if (GetDocument()->GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetType() == ezRTTI::FindTypeByName("ezGameObject"))
       {
         ezVec3 vPos = GetDocument()->GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetValue("Position").ConvertTo<ezVec3>();
         ezQuat qRot = GetDocument()->GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetValue("Rotation").ConvertTo<ezQuat>();
+        //ezVec3 vScale = GetDocument()->GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetValue("Scaling").ConvertTo<ezVec3>();
         ezMat4 mt;
         mt.SetTranslationMatrix(vPos);
         mt.SetRotationalPart(qRot.GetAsMat3());
 
         m_TranslateGizmo.SetTransformation(mt);
         m_RotateGizmo.SetTransformation(mt);
+        m_ScaleGizmo.SetTransformation(mt);
       }
     }
     break;
@@ -233,6 +242,12 @@ void ezTestDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::Ba
 
         cmd.m_NewValue = qRot;
         cmd.SetPropertyPath("Rotation");
+      }
+
+      if (e.m_pGizmo == &m_ScaleGizmo)
+      {
+        cmd.m_NewValue = m_ScaleGizmo.GetScalingResult();
+        cmd.SetPropertyPath("Scaling");
       }
 
       auto hType = ezRTTI::FindTypeByName("ezGameObject");
