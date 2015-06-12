@@ -72,11 +72,12 @@ public:
   ezEditorGuidEngineHandleMap<ezUInt32> m_OtherPickingMap;
   ezUInt32 m_uiNextComponentPickingID;
 
+  void ProcessIPCMessages();
+
 private:
   virtual void Activate() override;
   virtual void Deactivate() override;
-  virtual void BeforeWorldUpdate() override;
-
+  
   void HandlerEntityMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg);
   void UpdateProperties(ezEntityMsgToEngine* pMsg, void* pObject, const ezRTTI* pRtti);
   void HandlerGameObjectMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg, ezRTTI* pRtti);

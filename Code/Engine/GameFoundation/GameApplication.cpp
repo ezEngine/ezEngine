@@ -44,7 +44,7 @@ ezGameApplication::ezGameApplication(ezGameStateBase& initialGameState)
   : m_UpdateTask("GameApplication.Update", ezMakeDelegate(&ezGameApplication::UpdateWorldsAndExtractViews, this))
 {
   SetCurrentGameState(initialGameState);
-  m_bShouldRun = false;
+  m_bWasQuitRequested = false;
 }
 
 ezGameApplication::~ezGameApplication()
@@ -86,7 +86,7 @@ void ezGameApplication::SetCurrentGameState(ezGameStateBase& currentGameState)
 
 void ezGameApplication::RequestQuit()
 {
-  m_bShouldRun = false;
+  m_bWasQuitRequested = true;
 }
 
 void ezGameApplication::AfterEngineInit()
@@ -161,7 +161,7 @@ void ezGameApplication::AfterEngineInit()
     appFileSystemConfig.Apply();
   }
 
-  m_bShouldRun = true;
+  m_bWasQuitRequested = false;
 }
 
 void ezGameApplication::BeforeEngineShutdown()
@@ -201,6 +201,13 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
     m_Windows[i].m_pWindow->ProcessWindowMessages();
   }
 
+  UpdateWorldsAndRender();
+
+  return m_bWasQuitRequested ? ezApplication::Quit : ezApplication::Continue;
+}
+
+void ezGameApplication::UpdateWorldsAndRender()
+{
   ///\todo: there should also be a clock per world
   ezClock::UpdateAllGlobalClocks();
 
@@ -242,8 +249,6 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
 
   ezRenderLoop::FinishFrame();
   ezFrameAllocator::Swap();
-
-  return m_bShouldRun ? ezApplication::Continue : ezApplication::Quit;
 }
 
 void ezGameApplication::UpdateInput()
@@ -252,7 +257,7 @@ void ezGameApplication::UpdateInput()
 
   if (ezInputManager::GetInputActionState(g_szInputSet, g_szCloseAppAction) == ezKeyState::Pressed)
   {
-    m_bShouldRun = false;
+    m_bWasQuitRequested = true;
   }
 
   if (ezInputManager::GetInputActionState(g_szInputSet, g_szReloadResourcesAction) == ezKeyState::Pressed)

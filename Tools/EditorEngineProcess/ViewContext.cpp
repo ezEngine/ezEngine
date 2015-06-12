@@ -204,7 +204,7 @@ void ezViewContext::RenderPassEventHandler(const ezPickingRenderPass::Event& e)
 
     ezMat4 mProj, mView;
 
-    m_Camera.GetProjectionMatrix(GetEditorWindow().m_uiWidth / GetEditorWindow().m_uiHeight, mProj);
+    m_Camera.GetProjectionMatrix((float)GetEditorWindow().m_uiWidth / GetEditorWindow().m_uiHeight, mProj);
     m_Camera.GetViewMatrix(mView);
 
     if (mProj.IsNaN())

@@ -19,19 +19,34 @@ public:
   ezGameApplication(ezGameStateBase& initialGameState);
   ~ezGameApplication();
 
+  // public ezApplication implementation:
+  virtual ezApplication::ApplicationExecution Run() override;
+
   ezGALSwapChainHandle AddWindow(ezWindowBase* pWindow);
   void RemoveWindow(ezWindowBase* pWindow);
 
   void SetCurrentGameState(ezGameStateBase& currentGameState);
+  EZ_FORCE_INLINE ezGameStateBase& GetCurrentGameState() const
+  {
+    return *m_pCurrentGameState;
+  }
 
   void RequestQuit();
+  EZ_FORCE_INLINE bool WasQuitRequested() const
+  {
+    return m_bWasQuitRequested;
+  }
 
-private:
+protected:
 
+  void UpdateWorldsAndRender();  
+
+private:  
+
+  // private ezApplication implementation: these methods must not be overridden by derived classes from ezGameApplication
   virtual void AfterEngineInit() override;
   virtual void BeforeEngineShutdown() override;
-  virtual ezApplication::ApplicationExecution Run() override;
-
+  
   void UpdateInput();
   void UpdateWorldsAndExtractViews();
   ezDelegateTask<void> m_UpdateTask;
@@ -48,5 +63,5 @@ private:
 
   ezGameStateBase* m_pCurrentGameState;
 
-  bool m_bShouldRun;
+  bool m_bWasQuitRequested;
 };

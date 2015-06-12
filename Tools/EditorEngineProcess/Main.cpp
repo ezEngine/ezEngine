@@ -8,7 +8,31 @@
 #include <EditorFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 
-EZ_APPLICATION_ENTRY_POINT(ezGameApplication, *EZ_DEFAULT_NEW(ezEngineProcessGameState));
+class ezEngineProcessGameApplication : public ezGameApplication
+{
+public:
+  ezEngineProcessGameApplication(ezGameStateBase& initialGameState) : ezGameApplication(initialGameState)
+  {
+  }
+
+  virtual ezApplication::ApplicationExecution Run() override
+  {
+    ezRenderLoop::ClearMainViews();
+
+    static_cast<ezEngineProcessGameState&>(GetCurrentGameState()).ProcessIPCMessages();
+
+    if (ezRenderLoop::GetMainViews().GetCount() > 0)
+    {
+      UpdateWorldsAndRender();
+    }
+
+    ezThreadUtils::Sleep(1);
+
+    return WasQuitRequested() ? ezApplication::Quit : ezApplication::Continue;
+  }
+};
+
+EZ_APPLICATION_ENTRY_POINT(ezEngineProcessGameApplication, *EZ_DEFAULT_NEW(ezEngineProcessGameState));
 
 ezEngineProcessGameState* ezEngineProcessGameState::s_pInstance = nullptr;
 
@@ -70,10 +94,8 @@ void ezEngineProcessGameState::Deactivate()
   delete m_pApp;
 }
 
-void ezEngineProcessGameState::BeforeWorldUpdate()
+void ezEngineProcessGameState::ProcessIPCMessages()
 {
-  ezRenderLoop::ClearMainViews();
-
   m_IPC.ProcessMessages();
   
   if (!m_IPC.IsHostAlive())
@@ -109,8 +131,6 @@ void ezEngineProcessGameState::BeforeWorldUpdate()
 
     pSyncObject = pSyncObject->GetNextInstance();
   }
-
-  ezThreadUtils::Sleep(1);
 }
 
 
