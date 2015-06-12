@@ -155,8 +155,8 @@ public:
   void SetGlobalRotation(const ezQuat rotation);
   const ezQuat GetGlobalRotation() const;
 
-  void SetGlobalScaling(const ezVec3& scaling);
-  const ezVec3& GetGlobalScaling() const;
+  void SetGlobalScaling(const ezVec3 scaling);
+  const ezVec3 GetGlobalScaling() const;
 
   void SetGlobalTransform(const ezTransform& transform);
   const ezTransform& GetGlobalTransform() const;

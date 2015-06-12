@@ -66,7 +66,7 @@ void ezGameObject::SetGlobalRotation(const ezQuat rotation)
 
 }
 
-void ezGameObject::SetGlobalScaling(const ezVec3& scaling)
+void ezGameObject::SetGlobalScaling(const ezVec3 scaling)
 {
   /// \todo Implement this
 

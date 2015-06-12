@@ -184,7 +184,7 @@ EZ_FORCE_INLINE const ezQuat ezGameObject::GetGlobalRotation() const
   return q;
 }
 
-EZ_FORCE_INLINE const ezVec3& ezGameObject::GetGlobalScaling() const
+EZ_FORCE_INLINE const ezVec3 ezGameObject::GetGlobalScaling() const
 {
   return m_pTransformationData->m_worldTransform.m_Rotation.GetScalingFactors();
 }
