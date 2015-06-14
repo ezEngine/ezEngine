@@ -78,6 +78,17 @@ void ezRawDocumentTreeWidget::SelectionEventHandler(const ezSelectionManager::Ev
   }
 }
 
+void ezRawDocumentTreeWidget::EnsureLastSelectedItemVisible()
+{
+  if (m_pDocument->GetSelectionManager()->GetSelection().IsEmpty())
+    return;
+
+  const ezDocumentObjectBase* pObject = m_pDocument->GetSelectionManager()->GetSelection().PeekBack();
+
+  auto index = m_Model.ComputeModelIndex(pObject);
+  scrollTo(index, QAbstractItemView::EnsureVisible);
+}
+
 void ezRawDocumentTreeWidget::keyPressEvent(QKeyEvent* e)
 {
   if (e->key() == Qt::Key::Key_Delete)

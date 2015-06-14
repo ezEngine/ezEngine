@@ -36,7 +36,6 @@ void ezSceneDocument::SetActiveGizmo(ActiveGizmo gizmo)
 
   SceneEvent e;
   e.m_Type = SceneEvent::Type::ActiveGizmoChanged;
-
   m_SceneEvents.Broadcast(e);
 }
 
@@ -45,3 +44,21 @@ ActiveGizmo ezSceneDocument::GetActiveGizmo() const
   return m_ActiveGizmo;
 }
 
+void ezSceneDocument::TriggerShowSelectionInScenegraph()
+{
+  if (GetSelectionManager()->GetSelection().IsEmpty())
+    return;
+
+  SceneEvent e;
+  e.m_Type = SceneEvent::Type::ShowSelectionInScenegraph;
+  m_SceneEvents.Broadcast(e);
+}
+
+void ezSceneDocument::SetGizmoWorldSpace(bool bWorldSpace)
+{
+  m_bGizmoWorldSpace = bWorldSpace;
+
+  SceneEvent e;
+  e.m_Type = SceneEvent::Type::ActiveGizmoChanged;
+  m_SceneEvents.Broadcast(e);
+}

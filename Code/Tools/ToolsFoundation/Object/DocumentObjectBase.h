@@ -26,7 +26,7 @@ public:
   virtual ezIReflectedTypeAccessor& GetEditorTypeAccessor();
 
   const ezDocumentObjectBase* GetParent() const { return m_pParent; }
-  const ezHybridArray<ezDocumentObjectBase*, 4>& GetChildren() const { return m_Children; }
+  const ezHybridArray<ezDocumentObjectBase*, 8>& GetChildren() const { return m_Children; }
   ezUInt32 GetChildIndex(ezDocumentObjectBase* pChild) const;
 
   const ezUuid& GetGuid() const { return m_Guid; }
@@ -41,7 +41,7 @@ private:
 
   ezUuid m_Guid;
   ezDocumentObjectBase* m_pParent;
-  ezHybridArray<ezDocumentObjectBase*, 4> m_Children;
+  ezHybridArray<ezDocumentObjectBase*, 8> m_Children; /// \todo This is not compacted on plugin unload, so this will report a memory leak, when the static size is exceeded
 };
 
 

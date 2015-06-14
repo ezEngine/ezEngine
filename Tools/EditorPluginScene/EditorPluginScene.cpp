@@ -10,7 +10,8 @@
 #include <EditorPluginScene/Panels/ObjectCreatorPanel/ObjectCreatorList.moc.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <EditorPluginScene/Actions/GizmoActions.h>
-//#include <EditorPluginScene/Document/SceneDocumentManager.h>
+#include <EditorPluginScene/Actions/SelectionActions.h>
+#include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
 #include <Core/World/GameObject.h>
 #include <qmainwindow.h>
@@ -38,9 +39,7 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
           pPropertyPanel->setWindowTitle("Properties");
           pPropertyPanel->show();
 
-          ezDockWindow* pPanelTree = new ezDockWindow(pDocWnd);
-          pPanelTree->setObjectName("TreePanel");
-          pPanelTree->setWindowTitle("Hierarchy");
+          ezDockWindow* pPanelTree = new ezScenegraphPanel(pDocWnd, static_cast<ezSceneDocument*>(e.m_pDocument));
           pPanelTree->show();
 
           ezDockWindow* pPanelCreator = new ezDockWindow(pDocWnd);
@@ -51,14 +50,8 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
           ezRawPropertyGridWidget* pPropertyGrid = new ezRawPropertyGridWidget(e.m_pDocument, pPropertyPanel);
           pPropertyPanel->setWidget(pPropertyGrid);
 
-          ezRawDocumentTreeWidget* pTreeWidget = new ezRawDocumentTreeWidget(pPanelTree, e.m_pDocument);
-          pPanelTree->setWidget(pTreeWidget);
-
           ezObjectCreatorList* pCreatorWidget = new ezObjectCreatorList(e.m_pDocument->GetObjectManager(), pPanelCreator);
           pPanelCreator->setWidget(pCreatorWidget);
-
-          //ezDocumentObjectBase* pTestObject1 = ((ezDocumentObjectManager*) e.m_pDocument->GetObjectManager())->CreateObject(ezRTTI::FindTypeByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));
-          //((ezDocumentObjectManager*) e.m_pDocument->GetObjectManager())->AddObject(pTestObject1, nullptr);
 
           pDocWnd->addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
           pDocWnd->addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
@@ -82,6 +75,7 @@ void OnLoadPlugin(bool bReloading)
   ezEditorApp::GetInstance()->RegisterPluginNameForSettings("ScenePlugin");
 
   ezGizmoActions::RegisterActions();
+  ezSelectionActions::RegisterActions();
 
   // Menu Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentMenuBar");
@@ -90,6 +84,7 @@ void OnLoadPlugin(bool bReloading)
   ezDocumentActions::MapActions("EditorPluginScene_DocumentMenuBar", "File", false);
   ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentMenuBar", "Edit");
   ezGizmoActions::MapActions("EditorPluginScene_DocumentMenuBar", "Edit");
+  ezSelectionActions::MapActions("EditorPluginScene_DocumentMenuBar", "Edit");
 
   // Tool Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentToolBar");
@@ -103,6 +98,7 @@ void OnUnloadPlugin(bool bReloading)
   ezDocumentManagerBase::s_Events.RemoveEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
 
   ezGizmoActions::UnregisterActions();
+  ezSelectionActions::UnregisterActions();
 }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);

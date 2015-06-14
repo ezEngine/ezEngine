@@ -38,6 +38,8 @@ private:
   void DocumentTreeEventHandler(const ezDocumentObjectStructureEvent& e);
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 
+  ezTransform GetGlobalTransform(const ezDocumentObjectBase* pObject) const;
+  void UpdateGizmoSelectionList();
   void UpdateGizmoVisibility();
 
   void SendRedrawMsg();
@@ -59,6 +61,7 @@ private:
     ezVec3 m_vTranslation;
     ezVec3 m_vScaling;
     ezQuat m_Rotation;
+    ezTransform m_ParentTransform;
   };
 
   ezDeque<SelectedGO> m_GizmoSelection;

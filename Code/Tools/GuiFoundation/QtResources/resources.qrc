@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="GuiFoundation">
+    <file>Icons/Scenegraph16.png</file>
+    <file>Icons/WorldSpace16.png</file>
     <file>Icons/GizmoNone24.png</file>
     <file>Icons/IconView16.png</file>
     <file>Icons/GizmoRotate24.png</file>

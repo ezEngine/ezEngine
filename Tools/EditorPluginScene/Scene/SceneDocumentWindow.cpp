@@ -19,11 +19,11 @@
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 
-ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument) 
+ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   : ezDocumentWindow3D(pDocument)
 {
   m_pCenterWidget = new ez3DViewWidget(this, this);
- 
+
   m_pCenterWidget->setAutoFillBackground(false);
   setCentralWidget(m_pCenterWidget);
 
@@ -47,7 +47,7 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   // add the input contexts in the order in which they are supposed to be processed
   m_pCenterWidget->m_InputContexts.PushBack(m_pSelectionContext);
   m_pCenterWidget->m_InputContexts.PushBack(m_pMoveContext);
-  
+
 
   {
     // Menu Bar
@@ -122,6 +122,8 @@ void ezSceneDocumentWindow::UpdateGizmoVisibility()
   if (pSceneDoc->GetSelectionManager()->GetSelection().IsEmpty() || pSceneDoc->GetActiveGizmo() == ActiveGizmo::None)
     return;
 
+  // if world space ...
+
   switch (pSceneDoc->GetActiveGizmo())
   {
   case ActiveGizmo::Translate:
@@ -146,7 +148,7 @@ void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEve
     }
     break;
   }
-  
+
 }
 
 void ezSceneDocumentWindow::DocumentTreeEventHandler(const ezDocumentObjectStructureEvent& e)
@@ -206,6 +208,61 @@ bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg*
   return false;
 }
 
+ezTransform ezSceneDocumentWindow::GetGlobalTransform(const ezDocumentObjectBase* pObject) const
+{
+  ezTransform tGlobal;
+  if (pObject == nullptr || !pObject->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+  {
+    tGlobal.SetIdentity();
+    return tGlobal;
+  }
+
+  const ezTransform tParent = GetGlobalTransform(pObject->GetParent());
+
+  ezVec3 vTranslation = pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
+  ezVec3 vScaling = pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
+  ezQuat qRotation = pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
+
+  ezTransform tLocal;
+  tLocal.m_vPosition = vTranslation;
+  tLocal.m_Rotation = qRotation.GetAsMat3();
+  //tLocal.m_Rotation.SetScalingFactors(vScaling);
+
+  tGlobal.SetGlobalTransform(tParent, tLocal);
+  return tGlobal;
+}
+
+void ezSceneDocumentWindow::UpdateGizmoSelectionList()
+{
+  // Get the list of all objects that are manipulated
+    // and store their original transformation
+
+  m_GizmoSelection.Clear();
+
+  auto hType = ezRTTI::FindTypeByName("ezGameObject");
+
+  auto pSelMan = GetDocument()->GetSelectionManager();
+  const auto& Selection = pSelMan->GetSelection();
+  for (ezUInt32 sel = 0; sel < Selection.GetCount(); ++sel)
+  {
+    if (!Selection[sel]->GetTypeAccessor().GetType()->IsDerivedFrom(hType))
+      continue;
+
+    // ignore objects, whose parent is already selected as well, so that transformations aren't applied
+    // multiple times on the same hierarchy
+    if (pSelMan->IsParentSelected(Selection[sel]))
+      continue;
+
+    SelectedGO sgo;
+    sgo.m_Object = Selection[sel]->GetGuid();
+    sgo.m_vTranslation = Selection[sel]->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
+    sgo.m_vScaling = Selection[sel]->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
+    sgo.m_Rotation = Selection[sel]->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
+    sgo.m_ParentTransform = GetGlobalTransform(Selection[sel]->GetParent());
+
+    m_GizmoSelection.PushBack(sgo);
+  }
+}
 
 void ezSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManager::Event& e)
 {
@@ -249,34 +306,7 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
   {
   case ezGizmoBase::BaseEvent::Type::BeginInteractions:
     {
-      // Get the list of all objects that are manipulated
-      // and store their original transformation
-      {
-        m_GizmoSelection.Clear();
-
-        auto hType = ezRTTI::FindTypeByName("ezGameObject");
-
-        auto pSelMan = GetDocument()->GetSelectionManager();
-        const auto& Selection = pSelMan->GetSelection();
-        for (ezUInt32 sel = 0; sel < Selection.GetCount(); ++sel)
-        {
-          if (!Selection[sel]->GetTypeAccessor().GetType()->IsDerivedFrom(hType))
-            continue;
-
-          // ignore objects, whose parent is already selected as well, so that transformations aren't applied
-          // multiple times on the same hierarchy
-          if (pSelMan->IsParentSelected(Selection[sel]))
-            continue;
-
-          SelectedGO sgo;
-          sgo.m_Object = Selection[sel]->GetGuid();
-          sgo.m_vTranslation = Selection[sel]->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
-          sgo.m_vScaling = Selection[sel]->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
-          sgo.m_Rotation = Selection[sel]->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
-
-          m_GizmoSelection.PushBack(sgo);
-        }
-      }
+      UpdateGizmoSelectionList();
 
       GetDocument()->GetCommandHistory()->BeginTemporaryCommands();
 
@@ -312,8 +342,18 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
         {
           const auto& obj = m_GizmoSelection[sel];
 
+          ezTransform tGlobal, tLocal;
+          tLocal.m_vPosition = obj.m_vTranslation;
+          tLocal.m_Rotation = obj.m_Rotation.GetAsMat3();
+          //tLocal.m_Rotation.SetScalingFactors(obj.m_vScaling);
+
+          tGlobal.SetGlobalTransform(obj.m_ParentTransform, tLocal);
+          tGlobal.m_vPosition += vTranslate;
+
+          tLocal.SetLocalTransform(obj.m_ParentTransform, tGlobal);
+
           cmd.m_Object = obj.m_Object;
-          cmd.m_NewValue = obj.m_vTranslation + vTranslate;
+          cmd.m_NewValue = tLocal.m_vPosition;
 
           if (GetDocument()->GetCommandHistory()->AddCommand(cmd).m_Result.Failed())
           {

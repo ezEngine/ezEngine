@@ -25,11 +25,16 @@ public:
   void SetActiveGizmo(ActiveGizmo gizmo);
   ActiveGizmo GetActiveGizmo() const;
 
+  void TriggerShowSelectionInScenegraph();
+  void SetGizmoWorldSpace(bool bWorldSpace);
+  bool GetGizmoWorldSpace() const { return m_bGizmoWorldSpace; }
+
   struct SceneEvent
   {
     enum class Type
     {
       ActiveGizmoChanged,
+      ShowSelectionInScenegraph,
     };
 
     Type m_Type;
@@ -43,5 +48,6 @@ protected:
   virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezDocumentInfo); }
 
 private:
+  bool m_bGizmoWorldSpace;
   ActiveGizmo m_ActiveGizmo;
 };

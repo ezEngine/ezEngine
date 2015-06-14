@@ -13,6 +13,8 @@ public:
   ezRawDocumentTreeWidget(QWidget* pParent, const ezDocumentBase* pDocument);
   ~ezRawDocumentTreeWidget();
 
+  void EnsureLastSelectedItemVisible();
+
 protected:
   virtual void keyPressEvent(QKeyEvent* e) override;
 

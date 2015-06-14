@@ -47,12 +47,18 @@ bool ezSelectionContext::mouseReleaseEvent(QMouseEvent* e)
   {
     const ezObjectPickingResult& res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
 
-    if (e->modifiers() == Qt::KeyboardModifier::AltModifier)
+    const bool bToggle = (e->modifiers() & Qt::KeyboardModifier::ControlModifier) != 0;
+
+    if (e->modifiers() & Qt::KeyboardModifier::AltModifier)
     {
       if (res.m_PickedComponent.IsValid())
       {
         const ezDocumentObjectBase* pObject = m_pDocument->GetObjectManager()->GetObject(res.m_PickedComponent);
-        m_pDocument->GetSelectionManager()->SetSelection(pObject);
+
+        if (bToggle)
+          m_pDocument->GetSelectionManager()->ToggleObject(pObject);
+        else
+          m_pDocument->GetSelectionManager()->SetSelection(pObject);
       }
     }
     else
@@ -60,7 +66,11 @@ bool ezSelectionContext::mouseReleaseEvent(QMouseEvent* e)
       if (res.m_PickedObject.IsValid())
       {
         const ezDocumentObjectBase* pObject = m_pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
-        m_pDocument->GetSelectionManager()->SetSelection(pObject);
+
+        if (bToggle)
+          m_pDocument->GetSelectionManager()->ToggleObject(pObject);
+        else
+          m_pDocument->GetSelectionManager()->SetSelection(pObject);
       }
     }
 

@@ -5,7 +5,6 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 
-class ezSceneDocument;
 enum class ActiveGizmo;
 
 ///
@@ -22,6 +21,7 @@ public:
   static ezActionDescriptorHandle s_hTranslateGizmo;
   static ezActionDescriptorHandle s_hRotateGizmo;
   static ezActionDescriptorHandle s_hScaleGizmo;
+  static ezActionDescriptorHandle s_hWorldSpace;
 
 };
 
@@ -31,7 +31,16 @@ class EZ_EDITORPLUGINSCENE_DLL ezGizmoAction : public ezButtonAction
   EZ_ADD_DYNAMIC_REFLECTION(ezGizmoAction);
 public:
 
-  ezGizmoAction(const ezActionContext& context, const char* szName, ActiveGizmo button);
+  enum class ActionType
+  {
+    GizmoNone,
+    GizmoTranslate,
+    GizmoRotate,
+    GizmoScale,
+    GizmoToggleWorldSpace,
+  };
+
+  ezGizmoAction(const ezActionContext& context, const char* szName, ActionType type);
   ~ezGizmoAction();
 
   virtual void Execute(const ezVariant& value) override;
@@ -41,5 +50,5 @@ private:
   void SceneEventHandler(const ezSceneDocument::SceneEvent& e);
 
   ezSceneDocument* m_pSceneDocument;
-  ActiveGizmo m_ButtonType;
+  ActionType m_Type;
 };
