@@ -8,6 +8,7 @@
 #include <CoreUtils/Graphics/Camera.h>
 #include <EditorPluginScene/InputContexts/SelectionContext.h>
 #include <EditorPluginScene/InputContexts/CameraMoveContext.h>
+#include <EditorPluginScene/Scene/SceneDocument.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <EditorFramework/Gizmos/TranslateGizmo.h>
 #include <EditorFramework/Gizmos/RotateGizmo.h>
@@ -23,7 +24,7 @@ public:
 
   virtual const char* GetGroupName() const { return "Scene"; }
 
-  private slots:
+private slots:
 
 
 private:
@@ -33,8 +34,11 @@ private:
   virtual bool HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
   virtual void InternalRedraw() override;
+  void DocumentEventHandler(const ezSceneDocument::SceneEvent& e);
   void DocumentTreeEventHandler(const ezDocumentObjectStructureEvent& e);
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+
+  void UpdateGizmoVisibility();
 
   void SendRedrawMsg();
 

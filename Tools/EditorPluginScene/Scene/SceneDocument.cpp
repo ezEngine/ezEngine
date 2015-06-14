@@ -11,7 +11,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezSceneDocument::ezSceneDocument(const char* szDocumentPath) : ezDocumentBase(szDocumentPath, EZ_DEFAULT_NEW(ezSceneObjectManager))
 {
-  
+  m_ActiveGizmo = ActiveGizmo::None;
 
 }
 
@@ -28,5 +28,20 @@ ezSceneDocument::~ezSceneDocument()
 ezStatus ezSceneDocument::InternalSaveDocument()
 {
   return ezDocumentBase::InternalSaveDocument();
+}
+
+void ezSceneDocument::SetActiveGizmo(ActiveGizmo gizmo)
+{
+  m_ActiveGizmo = gizmo;
+
+  SceneEvent e;
+  e.m_Type = SceneEvent::Type::ActiveGizmoChanged;
+
+  m_SceneEvents.Broadcast(e);
+}
+
+ActiveGizmo ezSceneDocument::GetActiveGizmo() const
+{
+  return m_ActiveGizmo;
 }
 

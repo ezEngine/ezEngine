@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
+#include <EditorPluginScene/Scene/SceneDocument.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
@@ -52,7 +53,7 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
     // Menu Bar
     ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
     ezActionContext context;
-    context.m_sMapping = "EditorTestDocumentMenuBar";
+    context.m_sMapping = "EditorPluginScene_DocumentMenuBar";
     context.m_pDocument = pDocument;
     pMenuBar->SetActionContext(context);
   }
@@ -61,14 +62,17 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
     // Tool Bar
     ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView(this);
     ezActionContext context;
-    context.m_sMapping = "EditorTestDocumentToolBar";
+    context.m_sMapping = "EditorPluginScene_DocumentToolBar";
     context.m_pDocument = pDocument;
     pToolBar->SetActionContext(context);
-    pToolBar->setObjectName("Test Document Window Tool Bar");
+    pToolBar->setObjectName("SceneDocumentWindow_ToolBar");
     addToolBar(pToolBar);
   }
 
-  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::SelectionManagerEventHandler, this));
+  ezSceneDocument* pSceneDoc = static_cast<ezSceneDocument*>(GetDocument());
+  pSceneDoc->m_SceneEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::DocumentEventHandler, this));
+
+  pSceneDoc->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::SelectionManagerEventHandler, this));
 
   m_TranslateGizmo.SetDocumentWindow3D(this);
   m_RotateGizmo.SetDocumentWindow3D(this);
@@ -86,6 +90,9 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
 
 ezSceneDocumentWindow::~ezSceneDocumentWindow()
 {
+  ezSceneDocument* pSceneDoc = static_cast<ezSceneDocument*>(GetDocument());
+  pSceneDoc->m_SceneEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::DocumentEventHandler, this));
+
   m_TranslateGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
   m_RotateGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
   m_ScaleGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
@@ -102,6 +109,44 @@ ezSceneDocumentWindow::~ezSceneDocumentWindow()
 void ezSceneDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   m_pEngineView->SendObjectProperties(e);
+}
+
+void ezSceneDocumentWindow::UpdateGizmoVisibility()
+{
+  ezSceneDocument* pSceneDoc = static_cast<ezSceneDocument*>(GetDocument());
+
+  m_TranslateGizmo.SetVisible(false);
+  m_RotateGizmo.SetVisible(false);
+  m_ScaleGizmo.SetVisible(false);
+
+  if (pSceneDoc->GetSelectionManager()->GetSelection().IsEmpty() || pSceneDoc->GetActiveGizmo() == ActiveGizmo::None)
+    return;
+
+  switch (pSceneDoc->GetActiveGizmo())
+  {
+  case ActiveGizmo::Translate:
+    m_TranslateGizmo.SetVisible(true);
+    break;
+  case ActiveGizmo::Rotate:
+    m_RotateGizmo.SetVisible(true);
+    break;
+  case ActiveGizmo::Scale:
+    m_ScaleGizmo.SetVisible(true);
+    break;
+  }
+}
+
+void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEvent& e)
+{
+  switch (e.m_Type)
+  {
+  case ezSceneDocument::SceneEvent::Type::ActiveGizmoChanged:
+    {
+      UpdateGizmoVisibility();
+    }
+    break;
+  }
+  
 }
 
 void ezSceneDocumentWindow::DocumentTreeEventHandler(const ezDocumentObjectStructureEvent& e)
@@ -168,9 +213,8 @@ void ezSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManage
   {
   case ezSelectionManager::Event::Type::SelectionCleared:
     {
-      m_TranslateGizmo.SetVisible(false);
-      m_RotateGizmo.SetVisible(false);
-      m_ScaleGizmo.SetVisible(false);
+      m_GizmoSelection.IsEmpty();
+      UpdateGizmoVisibility();
     }
     break;
 
@@ -178,10 +222,6 @@ void ezSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManage
   case ezSelectionManager::Event::Type::ObjectAdded:
     {
       EZ_ASSERT_DEBUG(m_GizmoSelection.IsEmpty(), "This array should have been cleared when the gizmo lost focus");
-
-      m_TranslateGizmo.SetVisible(true);
-      m_RotateGizmo.SetVisible(true);
-      //m_ScaleGizmo.SetVisible(true);
 
       const auto& LatestSelection = GetDocument()->GetSelectionManager()->GetSelection().PeekBack();
 
@@ -196,6 +236,8 @@ void ezSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManage
         m_RotateGizmo.SetTransformation(mt);
         m_ScaleGizmo.SetTransformation(mt);
       }
+
+      UpdateGizmoVisibility();
     }
     break;
   }

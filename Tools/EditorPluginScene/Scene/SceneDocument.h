@@ -2,6 +2,14 @@
 
 #include <ToolsFoundation/Document/Document.h>
 
+enum class ActiveGizmo
+{
+  None,
+  Translate,
+  Rotate,
+  Scale,
+};
+
 class ezSceneDocument : public ezDocumentBase
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocument);
@@ -14,9 +22,26 @@ public:
 
   virtual ezStatus InternalSaveDocument() override;
 
+  void SetActiveGizmo(ActiveGizmo gizmo);
+  ActiveGizmo GetActiveGizmo() const;
+
+  struct SceneEvent
+  {
+    enum class Type
+    {
+      ActiveGizmoChanged,
+    };
+
+    Type m_Type;
+  };
+
+  ezEvent<const SceneEvent&> m_SceneEvents;
+
 protected:
   virtual void InitializeAfterLoading() override;
 
-
   virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezDocumentInfo); }
+
+private:
+  ActiveGizmo m_ActiveGizmo;
 };

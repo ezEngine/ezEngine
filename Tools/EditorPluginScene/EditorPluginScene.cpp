@@ -9,6 +9,7 @@
 #include <EditorPluginScene/Objects/SceneObjectManager.h>
 #include <EditorPluginScene/Panels/ObjectCreatorPanel/ObjectCreatorList.moc.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
+#include <EditorPluginScene/Actions/GizmoActions.h>
 //#include <EditorPluginScene/Document/SceneDocumentManager.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
 #include <Core/World/GameObject.h>
@@ -80,22 +81,28 @@ void OnLoadPlugin(bool bReloading)
 
   ezEditorApp::GetInstance()->RegisterPluginNameForSettings("ScenePlugin");
 
+  ezGizmoActions::RegisterActions();
+
   // Menu Bar
-  ezActionMapManager::RegisterActionMap("EditorTestDocumentMenuBar");
-  ezProjectActions::MapActions("EditorTestDocumentMenuBar");
-  ezStandardMenus::MapActions("EditorTestDocumentMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit);
-  ezDocumentActions::MapActions("EditorTestDocumentMenuBar", "File", false);
-  ezCommandHistoryActions::MapActions("EditorTestDocumentMenuBar", "Edit");
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentMenuBar");
+  ezProjectActions::MapActions("EditorPluginScene_DocumentMenuBar");
+  ezStandardMenus::MapActions("EditorPluginScene_DocumentMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit);
+  ezDocumentActions::MapActions("EditorPluginScene_DocumentMenuBar", "File", false);
+  ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentMenuBar", "Edit");
+  ezGizmoActions::MapActions("EditorPluginScene_DocumentMenuBar", "Edit");
 
   // Tool Bar
-  ezActionMapManager::RegisterActionMap("EditorTestDocumentToolBar");
-  ezDocumentActions::MapActions("EditorTestDocumentToolBar", "", true);
-  ezCommandHistoryActions::MapActions("EditorTestDocumentToolBar", "");
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentToolBar");
+  ezDocumentActions::MapActions("EditorPluginScene_DocumentToolBar", "", true);
+  ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentToolBar", "");
+  ezGizmoActions::MapActions("EditorPluginScene_DocumentToolBar", "");
 }
 
 void OnUnloadPlugin(bool bReloading)  
 {
   ezDocumentManagerBase::s_Events.RemoveEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
+
+  ezGizmoActions::UnregisterActions();
 }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
