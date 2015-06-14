@@ -38,7 +38,7 @@ SET (LINK_LIBRARIES
 
 SET (ADDITIONAL_DEPENDENCIES
   EditorEngineProcess
-  EditorPluginTest
+  EditorPluginScene
   EditorPluginAssets
 )
 

@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorPluginTest/InputContexts/SelectionContext.h>
+#include <EditorPluginScene/InputContexts/SelectionContext.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
 #include <EditorFramework/IPC/SyncObject.h>

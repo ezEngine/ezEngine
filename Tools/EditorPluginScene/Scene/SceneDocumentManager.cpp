@@ -1,29 +1,29 @@
 #include <PCH.h>
-#include <EditorPluginTest/Document/TestDocumentManager.h>
-#include <EditorPluginTest/Document/TestDocument.h>
+#include <EditorPluginScene/Scene/SceneDocumentManager.h>
+#include <EditorPluginScene/Scene/SceneDocument.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestDocumentManager, ezDocumentManagerBase, 1, ezRTTIDefaultAllocator<ezTestDocumentManager>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentManager, ezDocumentManagerBase, 1, ezRTTIDefaultAllocator<ezSceneDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezTestDocumentManager* ezTestDocumentManager::s_pSingleton = nullptr;
+ezSceneDocumentManager* ezSceneDocumentManager::s_pSingleton = nullptr;
 
-ezStatus ezTestDocumentManager::InternalCanOpenDocument(const char* szDocumentTypeName, const char* szFilePath) const
+ezStatus ezSceneDocumentManager::InternalCanOpenDocument(const char* szDocumentTypeName, const char* szFilePath) const
 {
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezTestDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument)
+ezStatus ezSceneDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument)
 {
   ezStatus status;
 
   if (ezStringUtils::IsEqual(szDocumentTypeName, "ezScene"))
   {
-    out_pDocument = new ezTestDocument(szPath);
+    out_pDocument = new ezSceneDocument(szPath);
   }
   else
   if (ezStringUtils::IsEqual(szDocumentTypeName, "ezPrefab"))
   {
-    out_pDocument = new ezTestDocument(szPath);
+    out_pDocument = new ezSceneDocument(szPath);
   }
   else
   {
@@ -39,7 +39,7 @@ ezStatus ezTestDocumentManager::InternalCreateDocument(const char* szDocumentTyp
   return status;
 }
 
-void ezTestDocumentManager::InternalGetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const
+void ezSceneDocumentManager::InternalGetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const
 {
   {
     ezDocumentTypeDescriptor td;

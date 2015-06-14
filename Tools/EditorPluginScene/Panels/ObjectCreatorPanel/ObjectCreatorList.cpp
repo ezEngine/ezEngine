@@ -1,14 +1,14 @@
 #include <PCH.h>
-#include <EditorPluginTest/Widgets/TestObjectCreator.moc.h>
+#include <EditorPluginScene/Panels/ObjectCreatorPanel/ObjectCreatorList.moc.h>
 #include <EditorFramework/GUI/QtHelpers.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <QMimeData>
 
-ezTestObjectCreatorWidget::ezTestObjectCreatorWidget(const ezDocumentObjectManager* pManager, QWidget* parent) : QListWidget(parent)
+ezObjectCreatorList::ezObjectCreatorList(const ezDocumentObjectManager* pManager, QWidget* parent) : QListWidget(parent)
 {
   m_pManager = pManager;
 
-  m_DelegateTypeChanged = ezMakeDelegate(&ezTestObjectCreatorWidget::TypeChanged, this);
+  m_DelegateTypeChanged = ezMakeDelegate(&ezObjectCreatorList::TypeChanged, this);
 
   ezPhantomRttiManager::m_TypeAddedEvent.AddEventHandler(m_DelegateTypeChanged);
   ezPhantomRttiManager::m_TypeChangedEvent.AddEventHandler(m_DelegateTypeChanged);
@@ -17,14 +17,14 @@ ezTestObjectCreatorWidget::ezTestObjectCreatorWidget(const ezDocumentObjectManag
   TypeChanged(ezPhantomTypeChange());
 }
 
-ezTestObjectCreatorWidget::~ezTestObjectCreatorWidget()
+ezObjectCreatorList::~ezObjectCreatorList()
 {
   ezPhantomRttiManager::m_TypeAddedEvent.RemoveEventHandler(m_DelegateTypeChanged);
   ezPhantomRttiManager::m_TypeChangedEvent.RemoveEventHandler(m_DelegateTypeChanged);
   ezPhantomRttiManager::m_TypeRemovedEvent.RemoveEventHandler(m_DelegateTypeChanged);
 }
 
-void ezTestObjectCreatorWidget::TypeChanged(const ezPhantomTypeChange& data)
+void ezObjectCreatorList::TypeChanged(const ezPhantomTypeChange& data)
 {
   ezHybridArray<ezRTTI*, 32> Types;
   m_pManager->GetCreateableTypes(Types);
@@ -40,7 +40,7 @@ void ezTestObjectCreatorWidget::TypeChanged(const ezPhantomTypeChange& data)
   setDragEnabled(true);
 }
 
-QMimeData* ezTestObjectCreatorWidget::mimeData(const QList<QListWidgetItem *> items) const
+QMimeData* ezObjectCreatorList::mimeData(const QList<QListWidgetItem *> items) const
 {
   QMimeData* mimeData = new QMimeData();
   QByteArray encodedData;
@@ -53,7 +53,7 @@ QMimeData* ezTestObjectCreatorWidget::mimeData(const QList<QListWidgetItem *> it
   return mimeData;
 }
 
-QStringList ezTestObjectCreatorWidget::mimeTypes() const
+QStringList ezObjectCreatorList::mimeTypes() const
 {
   QStringList types;
   types << "application/ezEditor.ObjectCreator";

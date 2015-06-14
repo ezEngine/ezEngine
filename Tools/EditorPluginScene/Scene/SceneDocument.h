@@ -2,13 +2,13 @@
 
 #include <ToolsFoundation/Document/Document.h>
 
-class ezTestDocument : public ezDocumentBase
+class ezSceneDocument : public ezDocumentBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTestDocument);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocument);
 
 public:
-  ezTestDocument(const char* szDocumentPath);
-  ~ezTestDocument();
+  ezSceneDocument(const char* szDocumentPath);
+  ~ezSceneDocument();
 
   virtual const char* GetDocumentTypeDisplayString() const override { return "Scene"; }
 

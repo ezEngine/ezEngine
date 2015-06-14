@@ -1,17 +1,17 @@
 #include <PCH.h>
-#include <EditorPluginTest/Objects/TestObjectManager.h>
-#include <EditorPluginTest/Objects/TestObject.h>
+#include <EditorPluginScene/Objects/SceneObjectManager.h>
+#include <EditorPluginScene/Objects/TestObjects.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <Core/World/GameObject.h>
 
-ezTestObjectManager::ezTestObjectManager() : ezDocumentObjectManager()
+ezSceneObjectManager::ezSceneObjectManager() : ezDocumentObjectManager()
 {
 }
 
-ezDocumentObjectBase* ezTestObjectManager::InternalCreateObject(const ezRTTI* pRtti)
+ezDocumentObjectBase* ezSceneObjectManager::InternalCreateObject(const ezRTTI* pRtti)
 {
   static int iCount = 0;
-  ezDocumentObjectStorage<ezTestEditorProperties>* pObj = new ezDocumentObjectStorage<ezTestEditorProperties>(pRtti);
+  ezDocumentObjectStorage<ezSceneObjectEditorProperties>* pObj = new ezDocumentObjectStorage<ezSceneObjectEditorProperties>(pRtti);
   
   ezStringBuilder sName;
   sName.Format("%s %03d", pRtti->GetTypeName(), iCount);
@@ -21,12 +21,12 @@ ezDocumentObjectBase* ezTestObjectManager::InternalCreateObject(const ezRTTI* pR
   return pObj;
 }
 
-void ezTestObjectManager::InternalDestroyObject(ezDocumentObjectBase* pObject)
+void ezSceneObjectManager::InternalDestroyObject(ezDocumentObjectBase* pObject)
 {
   delete pObject;
 }
 
-void ezTestObjectManager::GetCreateableTypes(ezHybridArray<ezRTTI*, 32>& Types) const
+void ezSceneObjectManager::GetCreateableTypes(ezHybridArray<ezRTTI*, 32>& Types) const
 {
   Types.PushBack(ezRTTI::FindTypeByName(ezGetStaticRTTI<ezGameObject>()->GetTypeName()));
 
@@ -39,7 +39,7 @@ void ezTestObjectManager::GetCreateableTypes(ezHybridArray<ezRTTI*, 32>& Types) 
   }
 }
 
-bool ezTestObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent) const
+bool ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent) const
 {
   const ezRTTI* pGameObjectType = ezRTTI::FindTypeByName(ezGetStaticRTTI<ezGameObject>()->GetTypeName());
   const ezRTTI* pComponentType  = ezRTTI::FindTypeByName(ezGetStaticRTTI<ezComponent>()->GetTypeName());
@@ -61,12 +61,12 @@ bool ezTestObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentOb
   return false;
 }
 
-bool ezTestObjectManager::InternalCanRemove(const ezDocumentObjectBase* pObject) const
+bool ezSceneObjectManager::InternalCanRemove(const ezDocumentObjectBase* pObject) const
 {
   return true;
 }
 
-bool ezTestObjectManager::InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex) const
+bool ezSceneObjectManager::InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex) const
 {
   return InternalCanAdd(pObject->GetTypeAccessor().GetType(), pNewParent);
 }

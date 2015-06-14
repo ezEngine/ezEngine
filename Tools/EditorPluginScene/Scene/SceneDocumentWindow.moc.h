@@ -6,20 +6,20 @@
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
 #include <CoreUtils/Graphics/Camera.h>
-#include <EditorPluginTest/InputContexts/SelectionContext.h>
-#include <EditorPluginTest/InputContexts/CameraMoveContext.h>
+#include <EditorPluginScene/InputContexts/SelectionContext.h>
+#include <EditorPluginScene/InputContexts/CameraMoveContext.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <EditorFramework/Gizmos/TranslateGizmo.h>
 #include <EditorFramework/Gizmos/RotateGizmo.h>
 #include <EditorFramework/Gizmos/ScaleGizmo.h>
 
-class ezTestDocumentWindow : public ezDocumentWindow3D
+class ezSceneDocumentWindow : public ezDocumentWindow3D
 {
   Q_OBJECT
 
 public:
-  ezTestDocumentWindow(ezDocumentBase* pDocument);
-  ~ezTestDocumentWindow();
+  ezSceneDocumentWindow(ezDocumentBase* pDocument);
+  ~ezSceneDocumentWindow();
 
   virtual const char* GetGroupName() const { return "Scene"; }
 

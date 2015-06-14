@@ -1,13 +1,13 @@
 #include <PCH.h>
-#include <EditorPluginTest/Objects/TestObject.h>
+#include <EditorPluginScene/Objects/TestObjects.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestEditorProperties, ezReflectedClass, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneObjectEditorProperties, ezReflectedClass, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezTestEditorProperties::ezTestEditorProperties()
+ezSceneObjectEditorProperties::ezSceneObjectEditorProperties()
 {
   static int bla = 0;
   bla++;

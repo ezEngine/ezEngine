@@ -5,15 +5,15 @@
 
 // Configure the DLL Import/Export Define
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
-  #ifdef BUILDSYSTEM_BUILDING_EDITORPLUGINTEST
-    #define EZ_EDITORPLUGINTEST_DLL __declspec(dllexport)
+  #ifdef BUILDSYSTEM_BUILDING_EDITORPLUGINSCENE
+    #define EZ_EDITORPLUGINSCENE_DLL __declspec(dllexport)
   #else
-    #define EZ_EDITORPLUGINTEST_DLL __declspec(dllimport)
+    #define EZ_EDITORPLUGINSCENE_DLL __declspec(dllimport)
   #endif
 #else
-  #define EZ_EDITORPLUGINTEST_DLL
+  #define EZ_EDITORPLUGINSCENE_DLL
 #endif
 
 // this is required so that this DLL exports anything at all and thus a .lib and .exp file is generated (otherwise it isn't)
 // which in turn is necessary to statically link this library into some application
-EZ_DYNAMIC_PLUGIN_DECLARATION(EZ_EDITORPLUGINTEST_DLL, ezEditorPluginTest);
+EZ_DYNAMIC_PLUGIN_DECLARATION(EZ_EDITORPLUGINSCENE_DLL, ezEditorPluginScene);

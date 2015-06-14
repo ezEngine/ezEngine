@@ -1,16 +1,16 @@
 #include <PCH.h>
-#include <EditorPluginTest/EditorPluginTest.h>
+#include <EditorPluginScene/EditorPluginScene.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/GUI/RawPropertyGridWidget.h>
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
-#include <EditorPluginTest/Objects/TestObject.h>
-#include <EditorPluginTest/Objects/TestObjectManager.h>
-#include <EditorPluginTest/Widgets/TestObjectCreator.moc.h>
-#include <EditorPluginTest/Document/TestDocument.h>
-#include <EditorPluginTest/Document/TestDocumentManager.h>
-#include <EditorPluginTest/Document/TestDocumentWindow.moc.h>
+#include <EditorPluginScene/Objects/TestObjects.h>
+#include <EditorPluginScene/Objects/SceneObjectManager.h>
+#include <EditorPluginScene/Panels/ObjectCreatorPanel/ObjectCreatorList.moc.h>
+#include <EditorPluginScene/Scene/SceneDocument.h>
+//#include <EditorPluginScene/Document/SceneDocumentManager.h>
+#include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
 #include <Core/World/GameObject.h>
 #include <qmainwindow.h>
 #include <QMessageBox>
@@ -27,9 +27,9 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
   {
   case ezDocumentManagerBase::Event::Type::DocumentWindowRequested:
     {
-      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezTestDocument>())
+      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSceneDocument>())
       {
-        ezDocumentWindow* pDocWnd = new ezTestDocumentWindow(e.m_pDocument);
+        ezDocumentWindow* pDocWnd = new ezSceneDocumentWindow(e.m_pDocument);
 
         {
           ezDockWindow* pPropertyPanel = new ezDockWindow(pDocWnd);
@@ -53,7 +53,7 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
           ezRawDocumentTreeWidget* pTreeWidget = new ezRawDocumentTreeWidget(pPanelTree, e.m_pDocument);
           pPanelTree->setWidget(pTreeWidget);
 
-          ezTestObjectCreatorWidget* pCreatorWidget = new ezTestObjectCreatorWidget(e.m_pDocument->GetObjectManager(), pPanelCreator);
+          ezObjectCreatorList* pCreatorWidget = new ezObjectCreatorList(e.m_pDocument->GetObjectManager(), pPanelCreator);
           pPanelCreator->setWidget(pCreatorWidget);
 
           //ezDocumentObjectBase* pTestObject1 = ((ezDocumentObjectManager*) e.m_pDocument->GetObjectManager())->CreateObject(ezRTTI::FindTypeByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));
@@ -72,13 +72,13 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
 void OnLoadPlugin(bool bReloading)    
 {
   ezToolsReflectionUtils::RegisterType(ezRTTI::FindTypeByName("ezAssetDocumentInfo"));
-  ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezTestEditorProperties>());
+  ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezSceneObjectEditorProperties>());
   ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezTestObjectProperties>());
   ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezGameObject>());
 
   ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
 
-  ezEditorApp::GetInstance()->RegisterPluginNameForSettings("TestPlugin");
+  ezEditorApp::GetInstance()->RegisterPluginNameForSettings("ScenePlugin");
 
   // Menu Bar
   ezActionMapManager::RegisterActionMap("EditorTestDocumentMenuBar");
@@ -100,4 +100,4 @@ void OnUnloadPlugin(bool bReloading)
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
 
-EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(ezEditorPluginTest);
+EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(ezEditorPluginScene);

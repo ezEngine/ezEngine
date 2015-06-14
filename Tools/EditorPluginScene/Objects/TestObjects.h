@@ -3,12 +3,12 @@
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeDirectAccessor.h>
 
-class ezTestEditorProperties : public ezReflectedClass
+class ezSceneObjectEditorProperties : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTestEditorProperties);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSceneObjectEditorProperties);
 
 public:
-  ezTestEditorProperties();
+  ezSceneObjectEditorProperties();
 
   void SetName(const char* szName) { m_sName.Assign(szName); }
   const char* GetName() const { return m_sName.GetString().GetData(); }
@@ -70,13 +70,13 @@ public:
   ezEnum<ezExampleEnum> m_Enum;
   ezBitflags<ezExampleBitflags> m_Bitflags;
 
-  ezTestEditorProperties m_EditorProps;
+  ezSceneObjectEditorProperties m_EditorProps;
 };
 
-class ezTestObject : public ezDocumentObjectDirectPtr<ezTestEditorProperties>
+class ezTestObject : public ezDocumentObjectDirectPtr<ezSceneObjectEditorProperties>
 {
 public:
-  ezTestObject(ezReflectedClass* pObjectProperties) : ezDocumentObjectDirectPtr<ezTestEditorProperties>(pObjectProperties)
+  ezTestObject(ezReflectedClass* pObjectProperties) : ezDocumentObjectDirectPtr<ezSceneObjectEditorProperties>(pObjectProperties)
   {
   }
 
@@ -87,10 +87,10 @@ public:
   }
 };
 
-class ezTestObject2 : public ezDocumentObjectStorage<ezTestEditorProperties>
+class ezTestObject2 : public ezDocumentObjectStorage<ezSceneObjectEditorProperties>
 {
 public:
-  ezTestObject2(ezRTTI* hObjectProperties) : ezDocumentObjectStorage<ezTestEditorProperties>(hObjectProperties)
+  ezTestObject2(ezRTTI* hObjectProperties) : ezDocumentObjectStorage<ezSceneObjectEditorProperties>(hObjectProperties)
   {
   }
 

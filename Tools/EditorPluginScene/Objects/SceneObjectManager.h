@@ -6,10 +6,10 @@
 
 class ezDocumentBase;
 
-class ezTestObjectManager : public ezDocumentObjectManager
+class ezSceneObjectManager : public ezDocumentObjectManager
 {
 public:
-  ezTestObjectManager();
+  ezSceneObjectManager();
   virtual void GetCreateableTypes(ezHybridArray<ezRTTI*, 32>& Types) const override;
 
 private:

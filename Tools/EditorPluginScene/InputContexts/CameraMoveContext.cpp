@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorPluginTest/InputContexts/CameraMoveContext.h>
+#include <EditorPluginScene/InputContexts/CameraMoveContext.h>
 #include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <CoreUtils/Graphics/Camera.h>
@@ -101,8 +101,8 @@ void ezCameraMoveContext::FocusLost()
 
 void ezCameraMoveContext::LoadState()
 {
-  ezEditorApp::GetInstance()->GetDocumentSettings(m_pDocument->GetDocumentPath(), "TestPlugin").RegisterValueInt("CameraSpeed", 15, ezSettingsFlags::User);
-  SetMoveSpeed(ezEditorApp::GetInstance()->GetDocumentSettings(m_pDocument->GetDocumentPath(), "TestPlugin").GetValueInt("CameraSpeed"));
+  ezEditorApp::GetInstance()->GetDocumentSettings(m_pDocument->GetDocumentPath(), "ScenePlugin").RegisterValueInt("CameraSpeed", 15, ezSettingsFlags::User);
+  SetMoveSpeed(ezEditorApp::GetInstance()->GetDocumentSettings(m_pDocument->GetDocumentPath(), "ScenePlugin").GetValueInt("CameraSpeed"));
 }
 
 void ezCameraMoveContext::UpdateContext()
@@ -515,7 +515,7 @@ void ezCameraMoveContext::SetMoveSpeed(ezInt32 iSpeed)
   m_fMoveSpeed = s_fMoveSpeed[m_iMoveSpeed];
 
   if (m_pDocument != nullptr)
-    ezEditorApp::GetInstance()->GetDocumentSettings(m_pDocument->GetDocumentPath(), "TestPlugin").SetValueInt("CameraSpeed", m_iMoveSpeed);
+    ezEditorApp::GetInstance()->GetDocumentSettings(m_pDocument->GetDocumentPath(), "ScenePlugin").SetValueInt("CameraSpeed", m_iMoveSpeed);
 }
 
 bool ezCameraMoveContext::wheelEvent(QWheelEvent* e)
