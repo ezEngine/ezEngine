@@ -7,6 +7,7 @@
 
 ezMutex ezTaskSystem::s_TaskSystemMutex;
 
+double ezTaskSystem::s_fSmoothFrameMS = 1000.0 / 40.0; // => 25 ms
 ezThreadSignal ezTaskSystem::s_TasksAvailableSignal[ezWorkerThreadType::ENUM_COUNT];
 ezDynamicArray<ezTaskWorkerThread*> ezTaskSystem::s_WorkerThreads[ezWorkerThreadType::ENUM_COUNT];
 ezDeque<ezTaskGroup> ezTaskSystem::s_TaskGroups;
@@ -207,7 +208,12 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoo
   }
 }
 
-void ezTaskSystem::FinishFrameTasks(double fSmoothFrameMS)
+void ezTaskSystem::SetTargetFrameTime(double fSmoothFrameMS)
+{
+  s_fSmoothFrameMS = fSmoothFrameMS;
+}
+
+void ezTaskSystem::FinishFrameTasks()
 {
   EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function must be executed on the main thread.");
 
@@ -226,7 +232,7 @@ void ezTaskSystem::FinishFrameTasks(double fSmoothFrameMS)
     ReprioritizeFrameTasks();
   }
 
-  ExecuteSomeFrameTasks(uiSomeFrameTasks, fSmoothFrameMS);
+  ExecuteSomeFrameTasks(uiSomeFrameTasks, s_fSmoothFrameMS);
 
   // Update the thread utilization
   {

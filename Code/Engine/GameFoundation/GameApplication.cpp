@@ -234,7 +234,7 @@ void ezGameApplication::UpdateWorldsAndRender()
 
     ezTelemetry::PerFrameUpdate();
     ezResourceManager::PerFrameUpdate();
-    ezTaskSystem::FinishFrameTasks(16.0);
+    ezTaskSystem::FinishFrameTasks();
 
     {
       EZ_PROFILE(g_PresentProfilingId);

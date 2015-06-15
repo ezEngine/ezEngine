@@ -132,6 +132,28 @@ private:
   QSpinBox* m_pWidget;
 };
 
+/// *** DOUBLE SPINBOX ***
+
+class EZ_EDITORFRAMEWORK_DLL ezPropertyEditorQuaternionWidget : public ezPropertyEditorBaseWidget
+{
+  Q_OBJECT
+
+public:
+  ezPropertyEditorQuaternionWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent);
+
+private slots:
+  void on_EditingFinished_triggered();
+  void SlotValueChanged();
+
+private:
+  virtual void InternalSetValue(const ezVariant& value) override;
+
+  bool m_bTemporaryCommand;
+  QHBoxLayout* m_pLayout;
+  QLabel* m_pLabel;
+  QDoubleSpinBox*  m_pWidget[3];
+};
+
 
 /// *** LINEEDIT ***
 

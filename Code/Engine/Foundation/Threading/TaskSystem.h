@@ -155,6 +155,11 @@ public:
   /// and it will correctly determine the results.
   static bool IsTaskGroupFinished(ezTaskGroupID Group); // [tested]
 
+  /// \brief Sets the target frame time that is supposed to not be exceeded.
+  ///
+  /// \see FinishFrameTasks() for more details.
+  static void SetTargetFrameTime(double fSmoothFrameMS = 1000.0 / 40.0 /* 40 FPS -> 25 ms */);
+
   /// \brief Call this function once at the end of a frame. It will ensure that all tasks for 'this frame' get finished properly.
   ///
   /// Calling this function is crucial for several reasons. It is the central function to execute 'main thread' tasks.
@@ -162,7 +167,7 @@ public:
   /// so that those tasks are guaranteed to get finished when 'FinishFrameTasks' is called the next time.
   ///
   /// Finally this function executes tasks with the priority 'SomeFrameMainThread' as long as the target frame time is not exceeded.
-  /// You can configure this with \a fSmoothFrameMS, which defines how long (in milliseconds) the frame is allowed to be. As long
+  /// You can configure this with SetTargetFrameTime(), which defines how long (in milliseconds) the frame is allowed to be. As long
   /// as that time is not exceeded, additional 'SomeFrameMainThread' tasks will be executed.
   /// If the frame time spikes for a few frames, no such tasks will be executed, to prevent making it worse. However, if the frame
   /// time stays high over a longer period, 'FinishFrameTasks' will execute 'SomeFrameMainThread' tasks every once in a while,
@@ -171,7 +176,7 @@ public:
   /// \note After this function returns all tasks of priority 'ThisFrameMainThread' are finished. All tasks of priority 
   /// 'EarlyThisFrame' up to 'LateThisFrame' are either finished or currently running on some thread, so they will be finished soon.
   /// There is however no guarantee that they are indeed all finished, as that would introduce unnecessary stalls.
-  static void FinishFrameTasks(double fSmoothFrameMS = 1000.0 / 40.0 /* 40 FPS -> 25 ms */); // [tested]
+  static void FinishFrameTasks(); // [tested]
 
   /// \brief This function will block until the given task has finished.
   ///
@@ -284,6 +289,9 @@ private:
 
   // Thread signals to wake up a worker thread of the proper type, whenever new work becomes available.
   static ezThreadSignal s_TasksAvailableSignal[ezWorkerThreadType::ENUM_COUNT];
+
+  // The target frame time used by FinishFrameTasks()
+  static double s_fSmoothFrameMS;
 
   // some data for profiling
   static ezProfilingId s_ProfileWaitForTask;

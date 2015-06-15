@@ -86,6 +86,7 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   m_TranslateGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
   m_RotateGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
   m_ScaleGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
+  pSceneDoc->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::ObjectPropertyEventHandler, this));
 }
 
 ezSceneDocumentWindow::~ezSceneDocumentWindow()
@@ -96,6 +97,7 @@ ezSceneDocumentWindow::~ezSceneDocumentWindow()
   m_TranslateGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
   m_RotateGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
   m_ScaleGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
+  pSceneDoc->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::ObjectPropertyEventHandler, this));
 
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::SelectionManagerEventHandler, this));
 
@@ -135,6 +137,26 @@ void ezSceneDocumentWindow::UpdateGizmoVisibility()
   case ActiveGizmo::Scale:
     m_ScaleGizmo.SetVisible(true);
     break;
+  }
+}
+
+void ezSceneDocumentWindow::ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+{
+  if (!m_TranslateGizmo.IsVisible() && !m_RotateGizmo.IsVisible() && !m_ScaleGizmo.IsVisible())
+    return;
+
+  if (e.m_bEditorProperty)
+    return;
+
+  if (GetDocument()->GetSelectionManager()->GetSelection().IsEmpty())
+    return;
+
+  if (e.m_pObject != GetDocument()->GetSelectionManager()->GetSelection()[0])
+    return;
+
+  if (e.m_sPropertyPath == "LocalPosition")
+  {
+    UpdateGizmoPosition();
   }
 }
 
@@ -264,6 +286,24 @@ void ezSceneDocumentWindow::UpdateGizmoSelectionList()
   }
 }
 
+void ezSceneDocumentWindow::UpdateGizmoPosition()
+{
+  const auto& LatestSelection = GetDocument()->GetSelectionManager()->GetSelection().PeekBack();
+
+  if (LatestSelection->GetTypeAccessor().GetType() == ezRTTI::FindTypeByName("ezGameObject"))
+  {
+    ezVec3 vPos = LatestSelection->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
+    ezQuat qRot = LatestSelection->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
+
+    const ezMat4 mt(qRot.GetAsMat3(), vPos);
+
+    m_TranslateGizmo.SetTransformation(mt);
+    m_RotateGizmo.SetTransformation(mt);
+    m_ScaleGizmo.SetTransformation(mt);
+  }
+
+}
+
 void ezSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManager::Event& e)
 {
   switch (e.m_Type)
@@ -279,20 +319,7 @@ void ezSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManage
   case ezSelectionManager::Event::Type::ObjectAdded:
     {
       EZ_ASSERT_DEBUG(m_GizmoSelection.IsEmpty(), "This array should have been cleared when the gizmo lost focus");
-
-      const auto& LatestSelection = GetDocument()->GetSelectionManager()->GetSelection().PeekBack();
-
-      if (LatestSelection->GetTypeAccessor().GetType() == ezRTTI::FindTypeByName("ezGameObject"))
-      {
-        ezVec3 vPos = LatestSelection->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
-        ezQuat qRot = LatestSelection->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
-
-        const ezMat4 mt(qRot.GetAsMat3(), vPos);
-
-        m_TranslateGizmo.SetTransformation(mt);
-        m_RotateGizmo.SetTransformation(mt);
-        m_ScaleGizmo.SetTransformation(mt);
-      }
+      UpdateGizmoPosition();
 
       UpdateGizmoVisibility();
     }

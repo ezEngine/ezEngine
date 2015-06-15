@@ -274,6 +274,88 @@ void ezPropertyEditorIntSpinboxWidget::on_EditingFinished_triggered()
 }
 
 
+/// *** QUATERNION ***
+
+ezPropertyEditorQuaternionWidget::ezPropertyEditorQuaternionWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent) : ezPropertyEditorBaseWidget(path, szName, pParent)
+{
+  m_bTemporaryCommand = false;
+
+  m_pWidget[0] = nullptr;
+  m_pWidget[1] = nullptr;
+  m_pWidget[2] = nullptr;
+
+  m_pLayout = new QHBoxLayout(this);
+  m_pLayout->setMargin(0);
+  setLayout(m_pLayout);
+
+  m_pLabel = new QLabel(this);
+  m_pLabel->setText(QString::fromUtf8(szName));
+  m_pLabel->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+
+  QSizePolicy policy = m_pLabel->sizePolicy();
+  policy.setHorizontalStretch(3);
+  m_pLabel->setSizePolicy(policy);
+  m_pLayout->addWidget(m_pLabel);
+
+  for (ezInt32 c = 0; c < 3; ++c)
+  {
+    m_pWidget[c] = new QDoubleSpinBox(this);
+    m_pWidget[c]->setMinimum(-ezMath::BasicType<double>::GetInfinity());
+    m_pWidget[c]->setMaximum(ezMath::BasicType<double>::GetInfinity());
+    m_pWidget[c]->setSingleStep(1.0);
+    m_pWidget[c]->setAccelerated(true);
+    m_pWidget[c]->setDecimals(1);
+
+    policy.setHorizontalStretch(2);
+    m_pWidget[c]->setSizePolicy(policy);
+
+    m_pLayout->addWidget(m_pWidget[c]);
+
+    connect(m_pWidget[c], SIGNAL(editingFinished()), this, SLOT(on_EditingFinished_triggered()));
+    connect(m_pWidget[c], SIGNAL(valueChanged(double)), this, SLOT(SlotValueChanged()));
+  }
+}
+
+void ezPropertyEditorQuaternionWidget::InternalSetValue(const ezVariant& value)
+{
+  ezQtBlockSignals b0(m_pWidget[0]);
+  ezQtBlockSignals b1(m_pWidget[1]);
+  ezQtBlockSignals b2(m_pWidget[2]);
+
+  const ezQuat qRot = value.ConvertTo<ezQuat>();
+  ezAngle Yaw, Pitch, Roll;
+  qRot.GetAsEulerAngles(Yaw, Pitch, Roll);
+
+  m_pWidget[0]->setValue(Yaw.GetDegree());
+  m_pWidget[1]->setValue(Pitch.GetDegree());
+  m_pWidget[2]->setValue(Roll.GetDegree());
+}
+
+void ezPropertyEditorQuaternionWidget::on_EditingFinished_triggered()
+{
+  if (m_bTemporaryCommand)
+    Broadcast(ezPropertyEditorBaseWidget::Event::Type::EndTemporary);
+
+  m_bTemporaryCommand = false;
+}
+
+void ezPropertyEditorQuaternionWidget::SlotValueChanged()
+{
+  if (!m_bTemporaryCommand)
+    Broadcast(ezPropertyEditorBaseWidget::Event::Type::BeginTemporary);
+
+  m_bTemporaryCommand = true;
+
+  ezAngle Yaw = ezAngle::Degree(m_pWidget[0]->value());
+  ezAngle Pitch = ezAngle::Degree(m_pWidget[1]->value()); 
+  ezAngle Roll = ezAngle::Degree(m_pWidget[2]->value());
+
+  ezQuat qRot;
+  qRot.SetFromEulerAngles(Yaw, Pitch, Roll);
+
+  BroadcastValueChanged(qRot);
+}
+
 /// *** LINEEDIT ***
 
 ezPropertyEditorLineEditWidget::ezPropertyEditorLineEditWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent) : ezPropertyEditorBaseWidget(path, szName, pParent)

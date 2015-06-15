@@ -74,6 +74,8 @@ void ezEngineProcessGameState::Activate()
     ezFileSystem::AddDataDirectory(sAppDir.GetData(), ezFileSystem::AllowWrites, "App"); // for everything relative
   }
 
+  ezTaskSystem::SetTargetFrameTime(1000.0 / 10.0);
+
   int argc = GetApplication()->GetArgumentCount();
   const char** argv = GetApplication()->GetArgumentsArray();
   m_pApp = new QApplication(argc, (char**) argv);

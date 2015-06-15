@@ -41,6 +41,8 @@ private:
   ezTransform GetGlobalTransform(const ezDocumentObjectBase* pObject) const;
   void UpdateGizmoSelectionList();
   void UpdateGizmoVisibility();
+  void UpdateGizmoPosition();
+  void ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 
   void SendRedrawMsg();
 

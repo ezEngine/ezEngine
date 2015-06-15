@@ -101,6 +101,15 @@ public:
 
   /// \brief Returns a Quaternion that represents the negative / inverted rotation.
   const ezQuatTemplate operator-() const; // [tested]
+
+// *** Euler Angle Conversions ***
+public:
+
+  /// \brief Converts the quaternion to Euler angles
+  void GetAsEulerAngles(ezAngle& out_Yaw, ezAngle& out_Pitch, ezAngle& out_Roll) const;
+
+  /// \brief Sets the quaternion from Euler angles
+  void SetFromEulerAngles(const ezAngle& Yaw, const ezAngle& Pitch, const ezAngle& Roll);
 };
 
 /// \brief Rotates v by q

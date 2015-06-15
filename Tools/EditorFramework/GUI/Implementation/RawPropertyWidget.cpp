@@ -61,6 +61,10 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRT
         pNewWidget = new ezPropertyEditorDoubleSpinboxWidget(ParentPath, pProp->GetPropertyName(), this, 4);
         break;
 
+      case ezVariant::Type::Quaternion:
+        pNewWidget = new ezPropertyEditorQuaternionWidget(ParentPath, pProp->GetPropertyName(), this);
+        break;
+
       case ezVariant::Type::Int8:
         pNewWidget = new ezPropertyEditorIntSpinboxWidget(ParentPath, pProp->GetPropertyName(), this, -127, 127);
         break;
