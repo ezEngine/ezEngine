@@ -37,6 +37,9 @@ ezStatus ezSceneDocument::InternalSaveDocument()
 
 void ezSceneDocument::SetActiveGizmo(ActiveGizmo gizmo)
 {
+  if (m_ActiveGizmo == gizmo)
+    return;
+
   m_ActiveGizmo = gizmo;
 
   SceneEvent e;
@@ -61,11 +64,22 @@ void ezSceneDocument::TriggerShowSelectionInScenegraph()
 
 void ezSceneDocument::SetGizmoWorldSpace(bool bWorldSpace)
 {
+  if (m_bGizmoWorldSpace == bWorldSpace)
+    return;
+
   m_bGizmoWorldSpace = bWorldSpace;
 
   SceneEvent e;
   e.m_Type = SceneEvent::Type::ActiveGizmoChanged;
   m_SceneEvents.Broadcast(e);
+}
+
+bool ezSceneDocument::GetGizmoWorldSpace() const
+{
+  if (m_ActiveGizmo == ActiveGizmo::Scale)
+    return false;
+
+  return m_bGizmoWorldSpace;
 }
 
 void ezSceneDocument::ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
@@ -80,67 +94,16 @@ void ezSceneDocument::ObjectPropertyEventHandler(const ezDocumentObjectPropertyE
       e.m_sPropertyPath == "LocalRotation" ||
       e.m_sPropertyPath == "LocalScaling")
   {
+    /// \todo Use a set ?
     m_UpdateGlobalTransform.PushBack(e.m_pObject);
   }
-}
-
-void ezSceneDocument::UpdateObjectGlobalPosition(const ezDocumentObjectBase* pObject, const ezTransform& tParent)
-{
-  if (pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
-    return;
-
-  const ezTransform tLocal = ComputeLocalTransform(pObject);
-
-  ezTransform tGlobal;
-  tGlobal.SetGlobalTransform(tParent, tLocal);
-
-  ezSetObjectPropertyCommand cmd;
-  cmd.m_bEditorProperty = false;
-  cmd.m_Object = pObject->GetGuid();
-
+  else if (e.m_sPropertyPath == "GlobalPosition" ||
+           e.m_sPropertyPath == "GlobalRotation" ||
+           e.m_sPropertyPath == "GlobalScaling")
   {
-    cmd.SetPropertyPath("GlobalPosition");
-    cmd.m_NewValue = tGlobal.m_vPosition;
-    GetCommandHistory()->AddCommand(cmd);
+    /// \todo Use a set ?
+    m_UpdateLocalTransform.PushBack(e.m_pObject);
   }
-
-  {
-    ezMat3 mRotScale = tGlobal.m_Rotation;
-    mRotScale.SetScalingFactors(ezVec3(1.0f));
-
-    ezQuat qRot;
-    qRot.SetFromMat3(mRotScale);
-    cmd.SetPropertyPath("GlobalRotation");
-    cmd.m_NewValue = qRot;
-    GetCommandHistory()->AddCommand(cmd);
-  }
-
-  {
-    cmd.SetPropertyPath("GlobalScaling");
-    cmd.m_NewValue = tGlobal.m_Rotation.GetScalingFactors();
-    GetCommandHistory()->AddCommand(cmd);
-  }
-
-  // update all children as well
-  for (const auto* pChild : pObject->GetChildren())
-  {
-    UpdateObjectGlobalPosition(pChild, tGlobal);
-  }
-}
-
-void ezSceneDocument::UpdateObjectGlobalPosition(const ezDocumentObjectBase* pObject)
-{
-  if (pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
-    return;
-
-  ezTransform tParent;
-
-  if (pObject->GetParent() != GetObjectManager()->GetRootObject())
-    tParent = ComputeGlobalTransform(pObject->GetParent());
-  else
-    tParent.SetIdentity();
-
-  UpdateObjectGlobalPosition(pObject, tParent);
 }
 
 void ezSceneDocument::CommandHistoryEventHandler(const ezCommandHistory::Event& e)
@@ -149,44 +112,25 @@ void ezSceneDocument::CommandHistoryEventHandler(const ezCommandHistory::Event& 
   {
     m_bInObjectTransformFixup = false;
     m_UpdateGlobalTransform.Clear();
+    m_UpdateLocalTransform.Clear();
     return;
   }
 
-  if (e.m_Type == ezCommandHistory::Event::Type::BeforeEndTransaction)
+  /// \todo Check why EndTransaction is called so often
+  if (e.m_Type == ezCommandHistory::Event::Type::BeforeEndTransaction && (!m_UpdateGlobalTransform.IsEmpty() || !m_UpdateLocalTransform.IsEmpty()))
   {
     m_bInObjectTransformFixup = true;
 
     for (auto pObj : m_UpdateGlobalTransform)
       UpdateObjectGlobalPosition(pObj);
 
+    for (auto pObj : m_UpdateLocalTransform)
+      UpdateObjectLocalPosition(pObj);
+
     m_UpdateGlobalTransform.Clear();
+    m_UpdateLocalTransform.Clear();
+
     m_bInObjectTransformFixup = false;
     return;
   }
-}
-
-ezTransform ezSceneDocument::ComputeLocalTransform(const ezDocumentObjectBase* pObject)
-{
-  const ezVec3 vTranslation = pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
-  const ezVec3 vScaling = pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
-  const ezQuat qRotation = pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
-
-  return ezTransform(vTranslation, qRotation, vScaling);
-}
-
-ezTransform ezSceneDocument::ComputeGlobalTransform(const ezDocumentObjectBase* pObject)
-{
-  ezTransform tGlobal;
-  if (pObject == nullptr || pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
-  {
-    tGlobal.SetIdentity();
-    return tGlobal;
-  }
-
-  const ezTransform tParent = ComputeGlobalTransform(pObject->GetParent());
-  const ezTransform tLocal = ComputeLocalTransform(pObject);
-
-  tGlobal.SetGlobalTransform(tParent, tLocal);
-
-  return tGlobal;
 }

@@ -62,6 +62,19 @@ inline void ezTransformTemplate<Type>::SetGlobalTransform(const ezTransformTempl
 }
 
 template<typename Type>
+inline void ezTransformTemplate<Type>::Decompose(ezVec3& vPos, ezQuat& qRot, ezVec3& vScale) const
+{
+  /// \test This is new
+
+  vPos = m_vPosition;
+  vScale = m_Rotation.GetScalingFactors();
+
+  ezMat3 mRot = m_Rotation;
+  mRot.SetScalingFactors(ezVec3(1.0f)); /// \todo Can we make this more efficient? E.g. ezQuat::SetFromScaledMat3 ?
+  qRot.SetFromMat3(mRot);
+}
+
+template<typename Type>
 EZ_FORCE_INLINE const ezMat4Template<Type> ezTransformTemplate<Type>::GetAsMat4() const
 {
   return ezMat4Template<Type>(m_Rotation, m_vPosition);

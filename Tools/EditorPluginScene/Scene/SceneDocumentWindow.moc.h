@@ -24,6 +24,8 @@ public:
 
   virtual const char* GetGroupName() const { return "Scene"; }
 
+  ezSceneDocument* GetSceneDocument() const { return static_cast<ezSceneDocument*>(GetDocument()); }
+
 private slots:
 
 
@@ -62,7 +64,6 @@ private:
     ezVec3 m_vTranslation;
     ezVec3 m_vScaling;
     ezQuat m_Rotation;
-    ezTransform m_ParentTransform;
   };
 
   bool m_bInGizmoInteraction;

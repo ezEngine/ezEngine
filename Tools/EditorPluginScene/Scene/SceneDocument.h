@@ -29,9 +29,11 @@ public:
 
   void TriggerShowSelectionInScenegraph();
   void SetGizmoWorldSpace(bool bWorldSpace);
-  bool GetGizmoWorldSpace() const { return m_bGizmoWorldSpace; }
+  bool GetGizmoWorldSpace() const;
 
-  static ezTransform ComputeLocalTransform(const ezDocumentObjectBase* pObject);
+  static ezTransform QueryLocalTransform(const ezDocumentObjectBase* pObject);
+  static ezTransform QueryGlobalTransform(const ezDocumentObjectBase* pObject);
+
   static ezTransform ComputeGlobalTransform(const ezDocumentObjectBase* pObject);
 
   struct SceneEvent
@@ -57,10 +59,12 @@ private:
   void CommandHistoryEventHandler(const ezCommandHistory::Event& e);
   void UpdateObjectGlobalPosition(const ezDocumentObjectBase* pObject);
   void UpdateObjectGlobalPosition(const ezDocumentObjectBase* pObject, const ezTransform& tParent);
+  void UpdateObjectLocalPosition(const ezDocumentObjectBase* pObject);
 
   bool m_bInObjectTransformFixup; // prevent queuing of more objects for local/global transform update, while we are in the process of updating the current object queue
   bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
   ActiveGizmo m_ActiveGizmo;
 
   ezDeque<const ezDocumentObjectBase*> m_UpdateGlobalTransform; // queue of objects whose global transform must be updated, because their local transform changed
+  ezDeque<const ezDocumentObjectBase*> m_UpdateLocalTransform; // queue of objects whose local transform must be updated, because their global transform changed
 };

@@ -78,6 +78,9 @@ public:
   /// \brief Returns the transformation as a matrix.
   const ezMat4Template<Type> GetAsMat4() const; // [tested]
 
+  /// \brief Extracts the different transformation parts and returns them.
+  void Decompose(ezVec3& vPos, ezQuat& qRot, ezVec3& vScale) const;
+
 
   // *** Operators ***
 public:

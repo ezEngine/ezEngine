@@ -39,9 +39,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezGameObjectDummyAlloc
     EZ_ACCESSOR_PROPERTY("LocalPosition", GetLocalPosition, SetLocalPosition),
     EZ_ACCESSOR_PROPERTY("LocalRotation", GetLocalRotation, SetLocalRotation),
     EZ_ACCESSOR_PROPERTY("LocalScaling", GetLocalScaling, SetLocalScaling),
-    EZ_ACCESSOR_PROPERTY_READ_ONLY("GlobalPosition", GetGlobalPosition),
-    EZ_ACCESSOR_PROPERTY_READ_ONLY("GlobalRotation", GetGlobalRotation),
-    EZ_ACCESSOR_PROPERTY_READ_ONLY("GlobalScaling", GetGlobalScaling),
+    EZ_ACCESSOR_PROPERTY("GlobalPosition", GetGlobalPosition, SetGlobalPosition),
+    EZ_ACCESSOR_PROPERTY("GlobalRotation", GetGlobalRotation, SetGlobalRotation),
+    EZ_ACCESSOR_PROPERTY("GlobalScaling", GetGlobalScaling, SetGlobalScaling),
     EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 
@@ -52,45 +52,51 @@ void ezGameObject::ConstChildIterator::Next()
 
 void ezGameObject::SetGlobalPosition(const ezVec3& position)
 {
-  const ezGameObject* pParent = GetParent();
-
-  /// \todo Implement this
+  /// \test This is not yet tested
 
   m_pTransformationData->m_worldTransform.m_vPosition = position;
-
+  SetGlobalTransform(m_pTransformationData->m_worldTransform);
 }
 
 void ezGameObject::SetGlobalRotation(const ezQuat rotation)
 {
-  /// \todo Implement this
+  /// \test This is not yet tested
 
+  const ezVec3 vOldScale = m_pTransformationData->m_worldTransform.m_Rotation.GetScalingFactors();
+  m_pTransformationData->m_worldTransform.m_Rotation = rotation.GetAsMat3();
+  m_pTransformationData->m_worldTransform.m_Rotation.SetScalingFactors(vOldScale);
+
+  SetGlobalTransform(m_pTransformationData->m_worldTransform);
 }
 
 void ezGameObject::SetGlobalScaling(const ezVec3 scaling)
 {
-  /// \todo Implement this
+  /// \test This is not yet tested
 
+  m_pTransformationData->m_worldTransform.m_Rotation.SetScalingFactors(scaling);
+
+  SetGlobalTransform(m_pTransformationData->m_worldTransform);
 }
 
 
 void ezGameObject::SetGlobalTransform(const ezTransform& transform)
 {
+  ezTransform tLocal;
+
   const ezGameObject* pParent = GetParent();
-
-  ezTransform LocalTransform;
-
-  if (pParent)
+  if (pParent != nullptr)
   {
-    LocalTransform.SetLocalTransform(pParent->GetGlobalTransform(), transform);
+    tLocal.SetLocalTransform(pParent->m_pTransformationData->m_worldTransform, transform);
   }
   else
   {
-    LocalTransform = transform;
+    tLocal = transform;
   }
-    
-  m_pTransformationData->m_localScaling = LocalTransform.m_Rotation.GetScalingFactors().GetAsVec4(0.0f);
-  m_pTransformationData->m_localRotation.SetFromMat3(LocalTransform.m_Rotation); /// \todo Not sure this works, if there is a scaling in the matrix
-  m_pTransformationData->m_localPosition = LocalTransform.m_vPosition.GetAsPositionVec4();
+
+  ezVec3 vPos, vScale;
+  tLocal.Decompose(vPos, m_pTransformationData->m_localRotation, vScale);
+  m_pTransformationData->m_localPosition = vPos.GetAsVec4(0.0f);
+  m_pTransformationData->m_localScaling = vScale.GetAsVec4(0.0f);
 
   m_pTransformationData->m_worldTransform = transform;
 }
