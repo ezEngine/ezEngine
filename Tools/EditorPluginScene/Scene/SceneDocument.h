@@ -1,6 +1,8 @@
 #pragma once
 
 #include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
+
 
 enum class ActiveGizmo
 {
@@ -29,6 +31,9 @@ public:
   void SetGizmoWorldSpace(bool bWorldSpace);
   bool GetGizmoWorldSpace() const { return m_bGizmoWorldSpace; }
 
+  static ezTransform ComputeLocalTransform(const ezDocumentObjectBase* pObject);
+  static ezTransform ComputeGlobalTransform(const ezDocumentObjectBase* pObject);
+
   struct SceneEvent
   {
     enum class Type
@@ -48,6 +53,14 @@ protected:
   virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezDocumentInfo); }
 
 private:
-  bool m_bGizmoWorldSpace;
+  void ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void CommandHistoryEventHandler(const ezCommandHistory::Event& e);
+  void UpdateObjectGlobalPosition(const ezDocumentObjectBase* pObject);
+  void UpdateObjectGlobalPosition(const ezDocumentObjectBase* pObject, const ezTransform& tParent);
+
+  bool m_bInObjectTransformFixup; // prevent queuing of more objects for local/global transform update, while we are in the process of updating the current object queue
+  bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
   ActiveGizmo m_ActiveGizmo;
+
+  ezDeque<const ezDocumentObjectBase*> m_UpdateGlobalTransform; // queue of objects whose global transform must be updated, because their local transform changed
 };

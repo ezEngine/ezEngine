@@ -37,6 +37,9 @@ public:
       ExecutedUndo,
       ExecutedRedo,
       NewTransation,
+      BeforeEndTransaction,
+      BeforeEndTransactionCancel,
+      AfterEndTransaction,
     };
 
     Type m_Type;

@@ -13,6 +13,8 @@ public:
   void SetName(const char* szName) { m_sName.Assign(szName); }
   const char* GetName() const { return m_sName.GetString().GetData(); }
 
+  ezVec3 m_vPivot;
+
 protected:
   ezHashedString m_sName;
 };

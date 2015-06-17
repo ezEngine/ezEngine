@@ -233,6 +233,10 @@ void ezCommandHistory::StartTransaction()
 
 void ezCommandHistory::EndTransaction(bool bCancel)
 {
+  Event et;
+  et.m_Type = bCancel ? Event::Type::BeforeEndTransactionCancel : Event::Type::BeforeEndTransaction;
+  m_Events.Broadcast(et);
+
   EZ_ASSERT_DEV(!m_TransactionStack.IsEmpty(), "Trying to end transaction without starting one!");
 
   if (!bCancel)
@@ -267,6 +271,9 @@ void ezCommandHistory::EndTransaction(bool bCancel)
       pTransaction->GetDynamicRTTI()->GetAllocator()->Deallocate(pTransaction);
     }
   }
+
+  et.m_Type = Event::Type::AfterEndTransaction;
+  m_Events.Broadcast(et);
 }
 
 ezStatus ezCommandHistory::AddCommand(ezCommandBase& command)

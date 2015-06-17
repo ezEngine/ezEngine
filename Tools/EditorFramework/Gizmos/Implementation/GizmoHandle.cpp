@@ -278,7 +278,7 @@ void ezGizmoHandle::UpdateForEngine(ezWorld* pWorld)
 
   pObject->SetLocalPosition(m_Transformation.GetTranslationVector());
   pObject->SetLocalRotation(qRot);
-  pObject->SetLocalScaling(m_Transformation.GetScalingFactors());
+  pObject->SetLocalScaling(ezVec3(1.0f));
 
   m_pMeshComponent->SetActive(m_bVisible);
 }

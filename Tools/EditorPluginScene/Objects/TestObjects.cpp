@@ -4,6 +4,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneObjectEditorProperties, ezReflectedClass, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
+    EZ_MEMBER_PROPERTY("Pivot", m_vPivot),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -16,6 +17,8 @@ ezSceneObjectEditorProperties::ezSceneObjectEditorProperties()
   s.Format("Object %i", bla);
 
   SetName(s.GetData());
+
+  m_vPivot.SetZero();
 }
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezExampleEnum, 1)

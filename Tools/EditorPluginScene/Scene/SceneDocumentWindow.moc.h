@@ -38,7 +38,6 @@ private:
   void DocumentTreeEventHandler(const ezDocumentObjectStructureEvent& e);
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 
-  ezTransform GetGlobalTransform(const ezDocumentObjectBase* pObject) const;
   void UpdateGizmoSelectionList();
   void UpdateGizmoVisibility();
   void UpdateGizmoPosition();
@@ -66,6 +65,7 @@ private:
     ezTransform m_ParentTransform;
   };
 
+  bool m_bInGizmoInteraction;
   ezDeque<SelectedGO> m_GizmoSelection;
 
   /// \todo Broken delegates
