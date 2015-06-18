@@ -36,7 +36,7 @@ public:
 
   void WaitForMessage(const ezRTTI* pMessageType);
 
-  void ProcessMessages();
+  bool ProcessMessages();
 
   struct Event
   {

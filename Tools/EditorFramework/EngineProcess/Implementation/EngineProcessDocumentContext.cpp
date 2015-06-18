@@ -94,5 +94,6 @@ void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEd
   }
 
   ezReflectionSerializer::ReadObjectPropertiesFromJSON(reader, *pRtti, pSyncObject);
+  pSyncObject->SetModified(true);
 }
 

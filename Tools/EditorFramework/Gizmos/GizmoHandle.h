@@ -29,7 +29,7 @@ public:
 
   void SetVisible(bool bVisible) { m_bVisible = bVisible; SetModified(true); }
 
-  void SetTransformation(const ezMat4& m) { m_Transformation = m; SetModified(true); }
+  void SetTransformation(const ezMat4& m) { m_Transformation = m; SetModified(m_bVisible); }
 
   const ezMat4& GetTransformation() const { return m_Transformation; }
 

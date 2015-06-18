@@ -6,6 +6,8 @@
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Reflection/ReflectionSerializer.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Time/Stopwatch.h>
+#include <Foundation/Utilities/Stats.h>
 #include <QCoreApplication>
 
 ezProcessCommunication::ezProcessCommunication()
@@ -179,10 +181,12 @@ void ezProcessCommunication::SendMessage(ezProcessMessage* pMessage)
   ezReflectionSerializer::WriteObjectToJSON(writer, pMessage->GetDynamicRTTI(), pMessage);
 }
 
-void ezProcessCommunication::ProcessMessages()
+bool ezProcessCommunication::ProcessMessages()
 {
   if (!m_pSharedMemory)
-    return;
+    return false;
+
+  bool bReadAny = false;
 
   EZ_VERIFY(m_pSharedMemory->lock(), "Implementation error?");
 
@@ -190,12 +194,16 @@ void ezProcessCommunication::ProcessMessages()
 
   if (ReadMessages())
   {
+    bReadAny = true;
     WriteMessages();
   }
 
   EZ_VERIFY(m_pSharedMemory->unlock(), "Implementation error?");
 
-  DispatchMessages();
+  if (bReadAny)
+    DispatchMessages();
+
+  return bReadAny;
 }
 
 void ezProcessCommunication::WriteMessages()
@@ -276,6 +284,9 @@ void ezProcessCommunication::WaitForMessage(const ezRTTI* pMessageType)
 
 void ezProcessCommunication::DispatchMessages()
 {
+  static ezStopwatch tMsgDecode;
+  tMsgDecode.StopAndReset();
+
   while (!m_MessageReadQueue.IsEmpty())
   {
     {
@@ -291,11 +302,25 @@ void ezProcessCommunication::DispatchMessages()
         ezLog::Debug("IPC Msg: %s", s.GetData());
       }
 
+      
+      tMsgDecode.Resume();
+
       const ezRTTI* pRtti = nullptr;
       ezProcessMessage* pObject = (ezProcessMessage*) ezReflectionSerializer::ReadObjectFromJSON(reader, pRtti);
 
+      tMsgDecode.Pause();
+
       if (m_pWaitForMessageType != nullptr && pObject->GetDynamicRTTI()->IsDerivedFrom(m_pWaitForMessageType))
         m_pWaitForMessageType = nullptr;
+
+      if (pObject->GetDynamicRTTI() == ezGetStaticRTTI<ezViewRedrawMsgToEngine>())
+      {
+        ezStringBuilder s;
+        s.Format("%.2fms", tMsgDecode.GetRunningTotal().GetMilliseconds());
+        tMsgDecode.StopAndReset();
+
+        ezStats::SetStat("Editor/MsgDecode", s);
+      }
 
       EZ_ASSERT_DEV(pRtti != nullptr, "Message Type unknown");
       EZ_ASSERT_DEV(pObject != nullptr, "Object could not be allocated");

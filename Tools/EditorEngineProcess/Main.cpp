@@ -26,8 +26,6 @@ public:
       UpdateWorldsAndRender();
     }
 
-    ezThreadUtils::Sleep(1);
-
     return WasQuitRequested() ? ezApplication::Quit : ezApplication::Continue;
   }
 };
@@ -98,40 +96,45 @@ void ezEngineProcessGameState::Deactivate()
 
 void ezEngineProcessGameState::ProcessIPCMessages()
 {
-  m_IPC.ProcessMessages();
+  const bool bReadAny = m_IPC.ProcessMessages();
   
   if (!m_IPC.IsHostAlive())
     GetApplication()->RequestQuit();
 
-  ezEditorEngineSyncObject* pSyncObject = ezEditorEngineSyncObject::GetFirstInstance();
-
-  while (pSyncObject)
+  if (bReadAny)
   {
-    if (pSyncObject->GetDynamicRTTI()->IsDerivedFrom<ezGizmoHandle>())
+    ezEditorEngineSyncObject* pSyncObject = ezEditorEngineSyncObject::GetFirstInstance();
+
+    while (pSyncObject)
     {
-      ezGizmoHandle* pGizmoHandle = static_cast<ezGizmoHandle*>(pSyncObject);
-
-      if (pSyncObject->GetDocumentGuid().IsValid())
+      if (pSyncObject->GetModified() && pSyncObject->GetDynamicRTTI()->IsDerivedFrom<ezGizmoHandle>())
       {
-        ezEngineProcessDocumentContext* pContext = ezEngineProcessDocumentContext::GetDocumentContext(pSyncObject->GetDocumentGuid());
+        // reset the modified state to make sure the object isn't updated unless a new sync messages comes in
+        pSyncObject->SetModified(false);
 
-        if (pContext)
+        ezGizmoHandle* pGizmoHandle = static_cast<ezGizmoHandle*>(pSyncObject);
+
+        if (pSyncObject->GetDocumentGuid().IsValid())
         {
-          EZ_LOCK(pContext->m_pWorld->GetWriteMarker());
+          ezEngineProcessDocumentContext* pContext = ezEngineProcessDocumentContext::GetDocumentContext(pSyncObject->GetDocumentGuid());
 
-          if (pGizmoHandle->SetupForEngine(pContext->m_pWorld, m_uiNextComponentPickingID))
+          if (pContext)
           {
-            m_OtherPickingMap.RegisterObject(pGizmoHandle->GetGuid(), m_uiNextComponentPickingID);
-            ++m_uiNextComponentPickingID;
-          }
+            EZ_LOCK(pContext->m_pWorld->GetWriteMarker());
 
-          pGizmoHandle->UpdateForEngine(pContext->m_pWorld);
+            if (pGizmoHandle->SetupForEngine(pContext->m_pWorld, m_uiNextComponentPickingID))
+            {
+              m_OtherPickingMap.RegisterObject(pGizmoHandle->GetGuid(), m_uiNextComponentPickingID);
+              ++m_uiNextComponentPickingID;
+            }
+
+            pGizmoHandle->UpdateForEngine(pContext->m_pWorld);
+          }
         }
       }
+
+      pSyncObject = pSyncObject->GetNextInstance();
     }
-
-
-    pSyncObject = pSyncObject->GetNextInstance();
   }
 }
 

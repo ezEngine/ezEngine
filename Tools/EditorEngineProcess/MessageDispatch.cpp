@@ -6,6 +6,7 @@
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcess/GameState.h>
 #include <Foundation/Reflection/ReflectionSerializer.h>
+#include <Foundation/Utilities/Stats.h>
 
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -47,6 +48,12 @@ void ezEngineProcessGameState::EventHandlerIPC(const ezProcessCommunication::Eve
     SendProjectReadyMessage();
     return;
   }
+
+  static ezUInt32 uiMessagesPerFrame = 0;
+  static ezUInt32 uiBlockingMessagesPerFrame = 0;
+  static ezUInt32 uiSyncObjMessagesPerFrame = 0;
+
+  ++uiMessagesPerFrame;
 
   // Document Messages:
   if (!e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineDocumentMsg>())
@@ -112,6 +119,21 @@ void ezEngineProcessGameState::EventHandlerIPC(const ezProcessCommunication::Eve
 
     pViewContext->SetupRenderTarget(reinterpret_cast<HWND>(pMsg->m_uiHWND), pMsg->m_uiWindowWidth, pMsg->m_uiWindowHeight);
     pViewContext->Redraw();
+
+    ezStringBuilder sValue;
+
+    sValue.Format("%u", uiMessagesPerFrame);
+    ezStats::SetStat("Editor/All Msgs", sValue);
+
+    sValue.Format("%u", uiBlockingMessagesPerFrame);
+    ezStats::SetStat("Editor/Blocking Msgs", sValue);
+
+    sValue.Format("%u", uiSyncObjMessagesPerFrame);
+    ezStats::SetStat("Editor/SyncObj Msgs", sValue);
+
+    uiMessagesPerFrame = 0;
+    uiBlockingMessagesPerFrame = 0;
+    uiSyncObjMessagesPerFrame = 0;
   }
   else if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezEntityMsgToEngine>())
   {
@@ -128,12 +150,15 @@ void ezEngineProcessGameState::EventHandlerIPC(const ezProcessCommunication::Eve
   }
   else if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineSyncObjectMsg>())
   {
+    ++uiSyncObjMessagesPerFrame;
+
     ezEditorEngineSyncObjectMsg* pMsg = (ezEditorEngineSyncObjectMsg*) pDocMsg;
 
     pDocumentContext->ProcessEditorEngineSyncObjectMsg(*pMsg);
   }
   else if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingMsgToEngine>())
   {
+    ++uiBlockingMessagesPerFrame;
     ezViewPickingMsgToEngine* pMsg = (ezViewPickingMsgToEngine*)pDocMsg;
 
     pViewContext->PickObjectAt(pMsg->m_uiPickPosX, pMsg->m_uiPickPosY);
