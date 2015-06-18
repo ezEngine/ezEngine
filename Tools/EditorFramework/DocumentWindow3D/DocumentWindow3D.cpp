@@ -90,6 +90,7 @@ void ezDocumentWindow3D::ShowRestartButton(bool bShow)
   if (m_pRestartButton)
   {
     m_pRestartButton->setVisible(bShow);
+    //centralWidget()->setAutoFillBackground(bShow); /// \todo this seems not to work
 
     if (bShow)
       m_pRestartButton->update();

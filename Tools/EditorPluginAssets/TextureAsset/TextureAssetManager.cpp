@@ -2,8 +2,6 @@
 #include <EditorPluginAssets/TextureAsset/TextureAssetManager.h>
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetWindow.moc.h>
-#include <GuiFoundation/DockWindow/DockWindow.moc.h>
-#include <EditorFramework/GUI/RawPropertyGridWidget.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocumentManager, ezAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezTextureAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -27,21 +25,6 @@ void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezTextureAssetDocument>())
       {
         ezTextureAssetDocumentWindow* pDocWnd = new ezTextureAssetDocumentWindow(e.m_pDocument);
-
-        {
-          ezDockWindow* pPropertyPanel = new ezDockWindow(pDocWnd);
-          pPropertyPanel->setObjectName("TextureAssetDockWidget");
-          pPropertyPanel->setWindowTitle("Texture Properties");
-          pPropertyPanel->show();
-
-          ezRawPropertyGridWidget* pPropertyGrid = new ezRawPropertyGridWidget(e.m_pDocument, pPropertyPanel);
-          pPropertyPanel->setWidget(pPropertyGrid);
-
-          pDocWnd->addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
-
-          e.m_pDocument->GetSelectionManager()->SetSelection(e.m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
-
-        }
       }
     }
     break;

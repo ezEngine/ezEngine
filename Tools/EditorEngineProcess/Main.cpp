@@ -53,6 +53,8 @@ void ezEngineProcessGameState::Activate()
     }
   }
 
+  ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezEngineProcessGameState::LogWriter, this));
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   // Setting this flags prevents Windows from showing a dialog when the Engine process crashes
   // this also speeds up process termination significantly (down to less than a second)
@@ -92,6 +94,28 @@ void ezEngineProcessGameState::Deactivate()
   m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameState::EventHandlerIPC, this));
 
   delete m_pApp;
+
+  ezGlobalLog::RemoveLogWriter(ezMakeDelegate(&ezEngineProcessGameState::LogWriter, this));
+}
+
+void ezEngineProcessGameState::LogWriter(const ezLoggingEventData & e)
+{
+  switch (e.m_EventType)
+  {
+  case ezLogMsgType::DebugMsg:
+  case ezLogMsgType::DevMsg:
+  case ezLogMsgType::ErrorMsg:
+  case ezLogMsgType::InfoMsg:
+  case ezLogMsgType::SeriousWarningMsg:
+  case ezLogMsgType::SuccessMsg:
+  case ezLogMsgType::WarningMsg:
+    {
+      ezLogMsgToEditor msg;
+      msg.m_sText = e.m_szText;
+      ProcessCommunication().SendMessage(&msg);
+    }
+    break;
+  }
 }
 
 void ezEngineProcessGameState::ProcessIPCMessages()

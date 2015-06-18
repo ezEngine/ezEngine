@@ -11,6 +11,7 @@
 
 class ezDocumentManagerBase;
 class ezDocumentBase;
+class ezApplicationPanel;
 struct ezDocumentTypeDescriptor;
 class QLabel;
 
@@ -25,14 +26,20 @@ public:
   static const ezDynamicArray<ezContainerWindow*>& GetAllContainerWindows() { return s_AllContainerWindows; }
 
   void MoveDocumentWindowToContainer(ezDocumentWindow* pDocWindow);
+  void MoveApplicationPanelToContainer(ezApplicationPanel* pPanel);
 
   static ezResult EnsureVisibleAnyContainer(ezDocumentBase* pDocument);
 
 private:
   friend class ezDocumentWindow;
+  friend class ezApplicationPanel;
 
   ezResult EnsureVisible(ezDocumentWindow* pDocWindow);
   ezResult EnsureVisible(ezDocumentBase* pDocument);
+  ezResult EnsureVisible(ezApplicationPanel* pPanel);
+
+  void ScheduleRestoreWindowLayout();
+  bool m_bWindowLayoutRestoreScheduled;
 
 private slots:
   void SlotDocumentTabCloseRequested(int index);
@@ -49,6 +56,8 @@ private:
   void UpdateWindowTitle();
 
   void RemoveDocumentWindowFromContainer(ezDocumentWindow* pDocWindow);
+  void RemoveApplicationPanelFromContainer(ezApplicationPanel* pPanel);
+
   void UpdateWindowDecoration(ezDocumentWindow* pDocWindow);
 
   void SetupDocumentTabArea();
@@ -64,6 +73,7 @@ private:
 private:
   QLabel* m_pStatusBarLabel;
   ezDynamicArray<ezDocumentWindow*> m_DocumentWindows;
+  ezDynamicArray<ezApplicationPanel*> m_ApplicationPanels;
 
   static ezDynamicArray<ezContainerWindow*> s_AllContainerWindows;
 

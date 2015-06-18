@@ -4,6 +4,8 @@
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
+#include <GuiFoundation/DockWindow/DockWindow.moc.h>
+#include <EditorFramework/GUI/RawPropertyGridWidget.h>
 #include <QLabel>
 #include <QLayout>
 #include <CoreUtils/Image/ImageConversion.h>
@@ -35,6 +37,20 @@ ezMaterialAssetDocumentWindow::ezMaterialAssetDocumentWindow(ezDocumentBase* pDo
 
   m_pImageWidget = new QtImageWidget(this);
   setCentralWidget(m_pImageWidget);
+
+  {
+    ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
+    pPropertyPanel->setObjectName("MaterialAssetDockWidget");
+    pPropertyPanel->setWindowTitle("Material Properties");
+    pPropertyPanel->show();
+
+    ezRawPropertyGridWidget* pPropertyGrid = new ezRawPropertyGridWidget(pDocument, pPropertyPanel);
+    pPropertyPanel->setWidget(pPropertyGrid);
+
+    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+
+    pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
+  }
 
   UpdatePreview();
 }

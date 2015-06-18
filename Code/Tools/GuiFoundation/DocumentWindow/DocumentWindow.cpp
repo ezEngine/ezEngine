@@ -42,9 +42,7 @@ void ezDocumentWindow::Constructor()
   ezContainerWindow::GetAllContainerWindows()[0]->MoveDocumentWindowToContainer(this);
   ScheduleRestoreWindowLayout();
 
-  m_DelegateUIServicesEvents = ezMakeDelegate(&ezDocumentWindow::UIServicesEventHandler, this);
-
-  ezUIServices::s_Events.AddEventHandler(m_DelegateUIServicesEvents);
+  ezUIServices::s_Events.AddEventHandler(ezMakeDelegate(&ezDocumentWindow::UIServicesEventHandler, this));
 }
 
 ezDocumentWindow::ezDocumentWindow(ezDocumentBase* pDocument)
@@ -74,7 +72,7 @@ ezDocumentWindow::ezDocumentWindow(const char* szUniqueName)
 
 ezDocumentWindow::~ezDocumentWindow()
 {
-  ezUIServices::s_Events.RemoveEventHandler(m_DelegateUIServicesEvents);
+  ezUIServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezDocumentWindow::UIServicesEventHandler, this));
 
   s_AllDocumentWindows.RemoveSwap(this);
 

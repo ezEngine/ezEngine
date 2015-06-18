@@ -174,15 +174,11 @@ public:
   // extend this message if other types of highlighting become necessary
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezLogMsgToEditor : public ezEditorEngineDocumentMsg
+class EZ_EDITORFRAMEWORK_DLL ezLogMsgToEditor : public ezEditorEngineMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezLogMsgToEditor);
 
 public:
-
-  //const char* GetText() const { return m_sText; }
-  //void SetText(const char* sz) { m_sText = sz; }
-
   ezString m_sText;
 };
 

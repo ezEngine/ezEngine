@@ -2,7 +2,7 @@
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
 
 ezScenegraphPanel::ezScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument)
-  : ezDockWindow(pParent)
+  : ezDocumentPanel(pParent)
 {
   setObjectName("ScenegraphPanel");
   setWindowTitle("Scenegraph");

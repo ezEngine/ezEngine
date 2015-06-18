@@ -119,7 +119,7 @@ void ezViewHighlightMsgToEngine::SendHighlightObjectMessage(ezEditorEngineConnec
   pConnection->SendMessage(this);
 }
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogMsgToEditor, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezLogMsgToEditor> );
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogMsgToEditor, ezEditorEngineMsg, 1, ezRTTIDefaultAllocator<ezLogMsgToEditor> );
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("Text", m_sText),
   EZ_END_PROPERTIES

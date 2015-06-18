@@ -18,6 +18,10 @@
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
+#include <GuiFoundation/DockWindow/DockWindow.moc.h>
+#include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
+#include <EditorPluginScene/Panels/ObjectCreatorPanel/ObjectCreatorList.moc.h>
+#include <EditorFramework/GUI/RawPropertyGridWidget.h>
 
 ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   : ezDocumentWindow3D(pDocument)
@@ -88,6 +92,33 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   m_RotateGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
   m_ScaleGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
   pSceneDoc->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::ObjectPropertyEventHandler, this));
+
+
+
+  {
+    ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
+    pPropertyPanel->setObjectName("PropertyPanel");
+    pPropertyPanel->setWindowTitle("Properties");
+    pPropertyPanel->show();
+
+    ezDocumentPanel* pPanelTree = new ezScenegraphPanel(this, static_cast<ezSceneDocument*>(pDocument));
+    pPanelTree->show();
+
+    ezDocumentPanel* pPanelCreator = new ezDocumentPanel(this);
+    pPanelCreator->setObjectName("CreatorPanel");
+    pPanelCreator->setWindowTitle("Object Creator");
+    pPanelCreator->show();
+
+    ezRawPropertyGridWidget* pPropertyGrid = new ezRawPropertyGridWidget(pDocument, pPropertyPanel);
+    pPropertyPanel->setWidget(pPropertyGrid);
+
+    ezObjectCreatorList* pCreatorWidget = new ezObjectCreatorList(pDocument->GetObjectManager(), pPanelCreator);
+    pPanelCreator->setWidget(pCreatorWidget);
+
+    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+    addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
+    addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelCreator);
+  }
 }
 
 ezSceneDocumentWindow::~ezSceneDocumentWindow()
@@ -198,14 +229,7 @@ bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg*
   if (ezDocumentWindow3D::HandleEngineMessage(pMsg))
     return true;
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezLogMsgToEditor>())
-  {
-    const ezLogMsgToEditor* pLogMsg = static_cast<const ezLogMsgToEditor*>(pMsg);
 
-    ezLog::Info("Process (%u): '%s'", pLogMsg->m_uiViewID, pLogMsg->m_sText.GetData());
-
-    return true;
-  }
 
   return false;
 }

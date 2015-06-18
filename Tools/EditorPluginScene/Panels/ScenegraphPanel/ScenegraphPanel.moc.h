@@ -6,7 +6,7 @@
 #include <EditorPluginScene/Scene/SceneDocument.h>
 
 
-class ezScenegraphPanel : public ezDockWindow
+class ezScenegraphPanel : public ezDocumentPanel
 {
   Q_OBJECT
 

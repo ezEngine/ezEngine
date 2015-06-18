@@ -1,6 +1,7 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
+#include <GuiFoundation/DockWindow/DockWindow.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
@@ -18,11 +19,13 @@ ezDynamicArray<ezContainerWindow*> ezContainerWindow::s_AllContainerWindows;
 ezContainerWindow::ezContainerWindow()
 {
   m_pStatusBarLabel = nullptr;
+  m_bWindowLayoutRestoreScheduled = false;
 
   setObjectName(QLatin1String(GetUniqueName())); // todo
   setWindowIcon(QIcon(QLatin1String(":/GuiFoundation/Icons/ezEditor16.png"))); /// \todo Make icon configurable
 
-  QTimer::singleShot(0, this, SLOT(SlotRestoreLayout()));
+  ScheduleRestoreWindowLayout();
+  
 
   s_AllContainerWindows.PushBack(this);
 
@@ -67,6 +70,18 @@ void ezContainerWindow::UpdateWindowTitle()
   sTitle.Append(ezUIServices::GetApplicationName());
 
   setWindowTitle(QString::fromUtf8(sTitle.GetData()));
+}
+
+void ezContainerWindow::ScheduleRestoreWindowLayout()
+{
+  // apparently preventing multiple layout restores does not work
+  // probably because there is stuff in the Qt message pump AFTER the already queued timer event
+  // that also needs to be done
+  //if (m_bWindowLayoutRestoreScheduled)
+    //return;
+
+  m_bWindowLayoutRestoreScheduled = true;
+  QTimer::singleShot(0, this, SLOT(SlotRestoreLayout()));
 }
 
 void ezContainerWindow::SlotRestoreLayout()
@@ -139,6 +154,8 @@ void ezContainerWindow::RestoreWindowLayout()
     restoreState(Settings.value("WindowState", saveState()).toByteArray());
   }
   Settings.endGroup();
+
+  m_bWindowLayoutRestoreScheduled = false;
 }
 
 void ezContainerWindow::SetupDocumentTabArea()
@@ -198,6 +215,18 @@ void ezContainerWindow::RemoveDocumentWindowFromContainer(ezDocumentWindow* pDoc
   pDocWindow->m_pContainerWindow = nullptr;
 }
 
+void ezContainerWindow::RemoveApplicationPanelFromContainer(ezApplicationPanel* pPanel)
+{
+  const ezInt32 iListIndex = m_ApplicationPanels.IndexOf(pPanel);
+
+  if (iListIndex == ezInvalidIndex)
+    return;
+
+  m_ApplicationPanels.RemoveAtSwap(iListIndex);
+
+  pPanel->m_pContainerWindow = nullptr;
+}
+
 void ezContainerWindow::MoveDocumentWindowToContainer(ezDocumentWindow* pDocWindow)
 {
   if (m_DocumentWindows.IndexOf(pDocWindow) != ezInvalidIndex)
@@ -217,6 +246,27 @@ void ezContainerWindow::MoveDocumentWindowToContainer(ezDocumentWindow* pDocWind
   int iTab = pTabs->addTab(pDocWindow, QString::fromUtf8(pDocWindow->GetDisplayNameShort()));
 
   UpdateWindowDecoration(pDocWindow);
+}
+
+void ezContainerWindow::MoveApplicationPanelToContainer(ezApplicationPanel* pPanel)
+{
+  if (m_ApplicationPanels.IndexOf(pPanel) != ezInvalidIndex)
+    return;
+
+  if (pPanel->m_pContainerWindow != nullptr)
+    pPanel->m_pContainerWindow->RemoveApplicationPanelFromContainer(pPanel);
+
+  EZ_ASSERT_DEV(pPanel->m_pContainerWindow == nullptr, "Implementation error");
+
+  SetupDocumentTabArea();
+
+  m_ApplicationPanels.PushBack(pPanel);
+  pPanel->m_pContainerWindow = this;
+
+  // dock the panel
+  addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPanel);
+
+  ScheduleRestoreWindowLayout();
 }
 
 ezResult ezContainerWindow::EnsureVisible(ezDocumentWindow* pDocWindow)
@@ -239,6 +289,15 @@ ezResult ezContainerWindow::EnsureVisible(ezDocumentBase* pDocument)
   }
 
   return EZ_FAILURE;
+}
+
+ezResult ezContainerWindow::EnsureVisible(ezApplicationPanel* pPanel)
+{
+  if (m_ApplicationPanels.IndexOf(pPanel) == ezInvalidIndex)
+    return EZ_FAILURE;
+
+  pPanel->show();
+  return EZ_SUCCESS;
 }
 
 ezResult ezContainerWindow::EnsureVisibleAnyContainer(ezDocumentBase* pDocument)

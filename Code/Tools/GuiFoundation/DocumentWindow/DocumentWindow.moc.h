@@ -47,7 +47,7 @@ public:
   const char* GetUniqueName() const { return m_sUniqueName; }
 
   /// \brief The 'GroupName' is used for serializing window layouts. It should be unique among different window types.
-  virtual const char* GetGroupName() const { return "DocumentWindow"; }
+  virtual const char* GetGroupName() const = 0 { return "DocumentWindow"; }
 
   ezDocumentBase* GetDocument() const { return m_pDocument; }
 
@@ -112,7 +112,6 @@ private:
   /// \todo Workaround for broken delegates
   ezDelegate<void(const ezDocumentManagerBase::Event&)> m_DelegateDocumentManagerEvents;
   ezDelegate<void(const ezDocumentBase::Event&)> m_DelegateDocumentEvents;
-  ezDelegate<void(const ezUIServices::Event&)> m_DelegateUIServicesEvents;
 };
 
 

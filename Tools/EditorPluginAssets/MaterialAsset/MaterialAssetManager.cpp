@@ -2,8 +2,6 @@
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetManager.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
-#include <GuiFoundation/DockWindow/DockWindow.moc.h>
-#include <EditorFramework/GUI/RawPropertyGridWidget.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocumentManager, ezAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezMaterialAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -27,21 +25,6 @@ void ezMaterialAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMana
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezMaterialAssetDocument>())
       {
         ezMaterialAssetDocumentWindow* pDocWnd = new ezMaterialAssetDocumentWindow(e.m_pDocument);
-
-        {
-          ezDockWindow* pPropertyPanel = new ezDockWindow(pDocWnd);
-          pPropertyPanel->setObjectName("MaterialAssetDockWidget");
-          pPropertyPanel->setWindowTitle("Material Properties");
-          pPropertyPanel->show();
-
-          ezRawPropertyGridWidget* pPropertyGrid = new ezRawPropertyGridWidget(e.m_pDocument, pPropertyPanel);
-          pPropertyPanel->setWidget(pPropertyGrid);
-
-          pDocWnd->addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
-
-          e.m_pDocument->GetSelectionManager()->SetSelection(e.m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
-
-        }
       }
     }
     break;

@@ -20,11 +20,11 @@ ezStatus ezSceneDocumentManager::InternalCreateDocument(const char* szDocumentTy
   {
     out_pDocument = new ezSceneDocument(szPath);
   }
-  else
-  if (ezStringUtils::IsEqual(szDocumentTypeName, "ezPrefab"))
-  {
-    out_pDocument = new ezSceneDocument(szPath);
-  }
+  //else
+  //if (ezStringUtils::IsEqual(szDocumentTypeName, "ezPrefab"))
+  //{
+  //  out_pDocument = new ezSceneDocument(szPath);
+  //}
   else
   {
     status.m_sError = "Unknown Document Type";
