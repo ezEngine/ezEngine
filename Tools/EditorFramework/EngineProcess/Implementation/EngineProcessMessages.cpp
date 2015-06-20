@@ -122,6 +122,9 @@ void ezViewHighlightMsgToEngine::SendHighlightObjectMessage(ezEditorEngineConnec
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogMsgToEditor, ezEditorEngineMsg, 1, ezRTTIDefaultAllocator<ezLogMsgToEditor> );
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("Text", m_sText),
+    EZ_MEMBER_PROPERTY("Tag", m_sTag),
+    EZ_MEMBER_PROPERTY("Type", m_iMsgType),
+    EZ_MEMBER_PROPERTY("Indentation", m_uiIndentation),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

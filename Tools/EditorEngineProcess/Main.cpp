@@ -78,7 +78,7 @@ void ezEngineProcessGameState::Activate()
 
   int argc = GetApplication()->GetArgumentCount();
   const char** argv = GetApplication()->GetArgumentsArray();
-  m_pApp = new QApplication(argc, (char**) argv);
+  m_pApp = new QApplication(argc, (char**)argv);
 
   EZ_VERIFY(m_IPC.ConnectToHostProcess().Succeeded(), "Could not connect to host");
 
@@ -100,28 +100,18 @@ void ezEngineProcessGameState::Deactivate()
 
 void ezEngineProcessGameState::LogWriter(const ezLoggingEventData & e)
 {
-  switch (e.m_EventType)
-  {
-  case ezLogMsgType::DebugMsg:
-  case ezLogMsgType::DevMsg:
-  case ezLogMsgType::ErrorMsg:
-  case ezLogMsgType::InfoMsg:
-  case ezLogMsgType::SeriousWarningMsg:
-  case ezLogMsgType::SuccessMsg:
-  case ezLogMsgType::WarningMsg:
-    {
-      ezLogMsgToEditor msg;
-      msg.m_sText = e.m_szText;
-      ProcessCommunication().SendMessage(&msg);
-    }
-    break;
-  }
+  ezLogMsgToEditor msg;
+  msg.m_sText = e.m_szText;
+  msg.m_sTag = e.m_szTag;
+  msg.m_iMsgType = (ezInt8)e.m_EventType;
+  msg.m_uiIndentation = e.m_uiIndentation;
+  ProcessCommunication().SendMessage(&msg);
 }
 
 void ezEngineProcessGameState::ProcessIPCMessages()
 {
   const bool bReadAny = m_IPC.ProcessMessages();
-  
+
   if (!m_IPC.IsHostAlive())
     GetApplication()->RequestQuit();
 

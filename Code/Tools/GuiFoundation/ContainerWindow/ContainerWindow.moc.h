@@ -39,7 +39,7 @@ private:
   ezResult EnsureVisible(ezApplicationPanel* pPanel);
 
   void ScheduleRestoreWindowLayout();
-  bool m_bWindowLayoutRestoreScheduled;
+  ezInt32 m_iWindowLayoutRestoreScheduled;
 
 private slots:
   void SlotDocumentTabCloseRequested(int index);

@@ -180,6 +180,9 @@ class EZ_EDITORFRAMEWORK_DLL ezLogMsgToEditor : public ezEditorEngineMsg
 
 public:
   ezString m_sText;
+  ezString m_sTag;
+  ezInt8 m_iMsgType;
+  ezUInt8 m_uiIndentation;
 };
 
 

@@ -19,7 +19,7 @@ ezDynamicArray<ezContainerWindow*> ezContainerWindow::s_AllContainerWindows;
 ezContainerWindow::ezContainerWindow()
 {
   m_pStatusBarLabel = nullptr;
-  m_bWindowLayoutRestoreScheduled = false;
+  m_iWindowLayoutRestoreScheduled = 0;
 
   setObjectName(QLatin1String(GetUniqueName())); // todo
   setWindowIcon(QIcon(QLatin1String(":/GuiFoundation/Icons/ezEditor16.png"))); /// \todo Make icon configurable
@@ -74,13 +74,7 @@ void ezContainerWindow::UpdateWindowTitle()
 
 void ezContainerWindow::ScheduleRestoreWindowLayout()
 {
-  // apparently preventing multiple layout restores does not work
-  // probably because there is stuff in the Qt message pump AFTER the already queued timer event
-  // that also needs to be done
-  //if (m_bWindowLayoutRestoreScheduled)
-    //return;
-
-  m_bWindowLayoutRestoreScheduled = true;
+  m_iWindowLayoutRestoreScheduled++;
   QTimer::singleShot(0, this, SLOT(SlotRestoreLayout()));
 }
 
@@ -137,6 +131,13 @@ void ezContainerWindow::SaveWindowLayout()
 
 void ezContainerWindow::RestoreWindowLayout()
 {
+  EZ_ASSERT_DEBUG(m_iWindowLayoutRestoreScheduled > 0, "Incorrect use of ScheduleRestoreWindowLayout");
+
+  --m_iWindowLayoutRestoreScheduled;
+
+  if (m_iWindowLayoutRestoreScheduled > 0)
+    return;
+
   ezStringBuilder sGroup;
   sGroup.Format("ContainerWnd_%s", GetUniqueName());
 
@@ -155,7 +156,11 @@ void ezContainerWindow::RestoreWindowLayout()
   }
   Settings.endGroup();
 
-  m_bWindowLayoutRestoreScheduled = false;
+  /// \todo make all panels visible
+  for (auto panel : ezApplicationPanel::GetAllApplicationPanels())
+  {
+    panel->EnsureVisible();
+  }
 }
 
 void ezContainerWindow::SetupDocumentTabArea()
@@ -252,6 +257,8 @@ void ezContainerWindow::MoveApplicationPanelToContainer(ezApplicationPanel* pPan
 {
   if (m_ApplicationPanels.IndexOf(pPanel) != ezInvalidIndex)
     return;
+
+  pPanel->setParent(this);
 
   if (pPanel->m_pContainerWindow != nullptr)
     pPanel->m_pContainerWindow->RemoveApplicationPanelFromContainer(pPanel);

@@ -21,6 +21,8 @@ void ezViewContext::SetCamera(ezViewCameraMsgToEngine* pMsg)
 
 void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight)
 {
+  EZ_LOG_BLOCK("ezViewContext::SetupRenderTarget");
+
   if (GetEditorWindow().m_hWnd != 0)
   {
     if (GetEditorWindow().m_uiWidth == uiWidth && GetEditorWindow().m_uiHeight == uiHeight)
