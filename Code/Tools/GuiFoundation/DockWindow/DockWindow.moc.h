@@ -15,7 +15,13 @@ public:
   ezDocumentPanel(QWidget* parent);
   ~ezDocumentPanel();
 
+  // prevents closing of the dockwidget, even with Alt+F4
+  virtual void closeEvent(QCloseEvent* e) override;
 
+  static const ezDynamicArray<ezDocumentPanel*>& GetAllDocumentPanels() { return s_AllDocumentPanels; }
+
+private:
+  static ezDynamicArray<ezDocumentPanel*> s_AllDocumentPanels;
 };
 
 class EZ_GUIFOUNDATION_DLL ezApplicationPanel : public QDockWidget
@@ -30,6 +36,9 @@ public:
   void EnsureVisible();
 
   static const ezDynamicArray<ezApplicationPanel*>& GetAllApplicationPanels() { return s_AllApplicationPanels; }
+
+  // prevents closing of the dockwidget, even with Alt+F4
+  virtual void closeEvent(QCloseEvent* e) override;
 
 private slots:
 

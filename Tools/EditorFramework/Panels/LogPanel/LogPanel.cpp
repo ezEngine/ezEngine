@@ -1,8 +1,14 @@
 #include <PCH.h>
-#include <EditorPluginScene/Panels/LogPanel/LogPanel.moc.h>
+#include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
+
+ezLogPanel* ezLogPanel::s_pInstance = nullptr;
 
 ezLogPanel::ezLogPanel()
 {
+  EZ_ASSERT_DEV(s_pInstance == nullptr, "Log panel is not a singleton anymore");
+
+  s_pInstance = this;
+
   setObjectName("LogPanel");
   setWindowTitle("Log");
 
@@ -19,6 +25,8 @@ ezLogPanel::ezLogPanel()
 
 ezLogPanel::~ezLogPanel()
 {
+  s_pInstance = nullptr;
+
   ezGlobalLog::RemoveLogWriter(ezMakeDelegate(&ezLogPanel::LogWriter, this));
   ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezLogPanel::EngineProcessMsgHandler, this));
 }

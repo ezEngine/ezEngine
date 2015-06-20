@@ -2,6 +2,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Foundation/IO/OSFile.h>
+#include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
 
 void ezEditorApp::SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg)
 {
@@ -112,3 +113,9 @@ void ezEditorApp::SetupDataDirectories()
     }
   }
 }
+
+void ezEditorApp::CreatePanels()
+{
+  new ezLogPanel();
+}
+

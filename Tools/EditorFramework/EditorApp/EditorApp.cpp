@@ -140,6 +140,8 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
 
   LoadRecentFiles();
 
+  CreatePanels();
+
   LoadPlugins();
 
   // first open the project, so that the data directory list is read

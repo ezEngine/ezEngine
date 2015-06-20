@@ -3,9 +3,14 @@
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <QTimer>
 #include <QSettings>
+#include <QCloseEvent>
+
+ezDynamicArray<ezDocumentPanel*> ezDocumentPanel::s_AllDocumentPanels;
 
 ezDocumentPanel::ezDocumentPanel(QWidget* parent) : QDockWidget(parent)
 {
+  s_AllDocumentPanels.PushBack(this);
+
   setBackgroundRole(QPalette::ColorRole::Highlight);
 
   setFeatures(DockWidgetFeature::DockWidgetFloatable | DockWidgetFeature::DockWidgetMovable);
@@ -13,8 +18,13 @@ ezDocumentPanel::ezDocumentPanel(QWidget* parent) : QDockWidget(parent)
 
 ezDocumentPanel::~ezDocumentPanel()
 {
+  s_AllDocumentPanels.RemoveSwap(this);
 }
 
+void ezDocumentPanel::closeEvent(QCloseEvent* e)
+{
+  e->ignore();
+}
 
 ezDynamicArray<ezApplicationPanel*> ezApplicationPanel::s_AllApplicationPanels;
 
@@ -25,9 +35,6 @@ ezApplicationPanel::ezApplicationPanel() : QDockWidget(nullptr)
   s_AllApplicationPanels.PushBack(this);
 
   m_pContainerWindow = nullptr;
-
-  /// \todo For now prevent closing
-  setFeatures(DockWidgetFeature::DockWidgetFloatable | DockWidgetFeature::DockWidgetMovable);
 
   ezContainerWindow::GetAllContainerWindows()[0]->MoveApplicationPanelToContainer(this);
 
@@ -43,4 +50,8 @@ void ezApplicationPanel::EnsureVisible()
   m_pContainerWindow->EnsureVisible(this);
 }
 
-
+void ezApplicationPanel::closeEvent(QCloseEvent* e)
+{
+  /// \todo For now prevent closing
+  e->ignore();
+}

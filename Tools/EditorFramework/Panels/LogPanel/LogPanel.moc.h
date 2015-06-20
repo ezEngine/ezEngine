@@ -4,11 +4,10 @@
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <GuiFoundation/DockWindow/DockWindow.moc.h>
-#include <EditorPluginScene/Scene/SceneDocument.h>
 #include <Tools/EditorPluginScene/ui_LogPanelWidget.h>
 #include <Foundation/Logging/Log.h>
 
-class ezLogModel : public QAbstractItemModel
+class EZ_EDITORFRAMEWORK_DLL ezLogModel : public QAbstractItemModel
 {
   Q_OBJECT
 
@@ -52,13 +51,15 @@ private:
   mutable ezDeque<const LogMsg*> m_VisibleMessages;
 };
 
-class ezLogPanel : public ezApplicationPanel, public Ui_LogPanel
+class EZ_EDITORFRAMEWORK_DLL ezLogPanel : public ezApplicationPanel, public Ui_LogPanel
 {
   Q_OBJECT
 
 public:
   ezLogPanel();
   ~ezLogPanel();
+
+  static ezLogPanel* GetInstance() { return s_pInstance; }
 
 private slots:
   void on_ButtonClearEditorLog_clicked();
@@ -74,4 +75,6 @@ private:
 
   void LogWriter(const ezLoggingEventData& e);
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
+
+  static ezLogPanel* s_pInstance;
 };

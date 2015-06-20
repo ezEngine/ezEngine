@@ -5,7 +5,6 @@
 #include <EditorPluginScene/Actions/GizmoActions.h>
 #include <EditorPluginScene/Actions/SelectionActions.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
-#include <EditorPluginScene/Panels/LogPanel/LogPanel.moc.h>
 #include <Core/World/GameObject.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <EditorFramework/Actions/ProjectActions.h>
@@ -27,8 +26,6 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
     break;
   }
 }
-
-ezLogPanel* g_pLogPanel = nullptr;
 
 void OnLoadPlugin(bool bReloading)    
 {
@@ -58,15 +55,10 @@ void OnLoadPlugin(bool bReloading)
   ezDocumentActions::MapActions("EditorPluginScene_DocumentToolBar", "", true);
   ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentToolBar", "");
   ezGizmoActions::MapActions("EditorPluginScene_DocumentToolBar", "");
-
-  g_pLogPanel = new ezLogPanel();
-  g_pLogPanel->show();
 }
 
 void OnUnloadPlugin(bool bReloading)  
 {
-  //delete g_pLogPanel;
-
   ezDocumentManagerBase::s_Events.RemoveEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
 
   ezGizmoActions::UnregisterActions();

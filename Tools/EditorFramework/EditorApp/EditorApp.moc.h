@@ -145,6 +145,7 @@ private:
 
   void ReadPluginsToBeLoaded();
   void SetupDataDirectories();
+  void CreatePanels();
 
   ezString s_sUserName;
 
