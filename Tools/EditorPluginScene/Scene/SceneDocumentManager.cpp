@@ -46,20 +46,10 @@ void ezSceneDocumentManager::InternalGetSupportedDocumentTypes(ezHybridArray<ezD
     td.m_bCanCreate = true;
     td.m_sDocumentTypeName = "ezScene";
     td.m_sFileExtensions.PushBack("ezScene");
+    td.m_sIcon = ":/GuiFoundation/Icons/ezEditor16.png";
 
     out_DocumentTypes.PushBack(td);
   }
-
-  /*
-  {
-    ezDocumentTypeDescriptor td;
-    td.m_bCanCreate = true;
-    td.m_sDocumentTypeName = "ezPrefab";
-    td.m_sFileExtensions.PushBack("prefab");
-
-    out_DocumentTypes.PushBack(td);
-  }
-  */
 }
 
 

@@ -46,6 +46,7 @@ private slots:
   void SlotRestoreLayout();
   void SlotTabsContextMenuRequested(const QPoint& pos);
   void SlotDocumentTabCurrentChanged(int index);
+  void SlotUpdateWindowDecoration(void* pDocWindow);
 
 private:
   QTabWidget* GetTabWidget() const;

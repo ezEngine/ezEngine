@@ -50,6 +50,7 @@ void ezTextureAssetDocumentManager::InternalGetSupportedDocumentTypes(ezHybridAr
     td.m_bCanCreate = true;
     td.m_sDocumentTypeName = "Texture Asset";
     td.m_sFileExtensions.PushBack("ezTextureAsset");
+    td.m_sIcon = ":/AssetIcons/Texture_2D.png";
 
     out_DocumentTypes.PushBack(td);
   }

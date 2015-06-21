@@ -50,6 +50,7 @@ void ezMaterialAssetDocumentManager::InternalGetSupportedDocumentTypes(ezHybridA
     td.m_bCanCreate = true;
     td.m_sDocumentTypeName = "Material Asset";
     td.m_sFileExtensions.PushBack("ezMaterialAsset");
+    td.m_sIcon = ":/AssetIcons/Material.png";
 
     out_DocumentTypes.PushBack(td);
   }

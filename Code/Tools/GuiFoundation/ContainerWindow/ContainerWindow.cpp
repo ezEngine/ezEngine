@@ -178,6 +178,11 @@ void ezContainerWindow::SetupDocumentTabArea()
   setCentralWidget(pTabs);
 }
 
+void ezContainerWindow::SlotUpdateWindowDecoration(void* pDocWindow)
+{
+  UpdateWindowDecoration(static_cast<ezDocumentWindow*>(pDocWindow));
+}
+
 void ezContainerWindow::UpdateWindowDecoration(ezDocumentWindow* pDocWindow)
 {
   const ezInt32 iListIndex = m_DocumentWindows.IndexOf(pDocWindow);
@@ -192,7 +197,7 @@ void ezContainerWindow::UpdateWindowDecoration(ezDocumentWindow* pDocWindow)
 
   pTabs->setTabToolTip(iTabIndex, QString::fromUtf8(pDocWindow->GetDisplayName().GetData()));
   pTabs->setTabText(iTabIndex, QString::fromUtf8(pDocWindow->GetDisplayNameShort().GetData()));
-  pTabs->setTabIcon(iTabIndex, QIcon(QString::fromUtf8(pDocWindow->GetTypeIcon().GetData())));
+  pTabs->setTabIcon(iTabIndex, QIcon(QString::fromUtf8(pDocWindow->GetWindowIcon().GetData())));
 }
 
 void ezContainerWindow::RemoveDocumentWindowFromContainer(ezDocumentWindow* pDocWindow)
@@ -244,7 +249,9 @@ void ezContainerWindow::MoveDocumentWindowToContainer(ezDocumentWindow* pDocWind
   QTabWidget* pTabs = GetTabWidget();
   int iTab = pTabs->addTab(pDocWindow, QString::fromUtf8(pDocWindow->GetDisplayNameShort()));
 
-  UpdateWindowDecoration(pDocWindow);
+  // we cannot call virutal functions on pDocWindow here, because the object might still be under construction
+  // so we delay it until later
+  QMetaObject::invokeMethod(this, "SlotUpdateWindowDecoration", Qt::ConnectionType::QueuedConnection, Q_ARG(void*, pDocWindow));
 }
 
 void ezContainerWindow::MoveApplicationPanelToContainer(ezApplicationPanel* pPanel)

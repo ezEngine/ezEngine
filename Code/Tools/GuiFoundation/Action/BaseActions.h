@@ -56,9 +56,14 @@ public:
       Checked
     };
 
+    Item()
+    {
+      m_CheckState = CheckMark::NotCheckable;
+    }
+
     ezString m_sDisplay;
     QIcon m_Icon;
-    CheckMark m_CheckState = CheckMark::NotCheckable;
+    CheckMark m_CheckState;
     ezVariant m_UserValue;
   };
 

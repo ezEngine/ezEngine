@@ -4,13 +4,6 @@
 #include <ToolsFoundation/Basics/Status.h>
 #include <ToolsFoundation/Document/Document.h>
 
-struct ezDocumentTypeDescriptor
-{
-  ezHybridArray<ezString, 4> m_sFileExtensions;
-  ezString m_sDocumentTypeName;
-  bool m_bCanCreate;
-};
-
 class EZ_TOOLSFOUNDATION_DLL ezDocumentManagerBase : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentManagerBase);
@@ -37,7 +30,6 @@ public:
 
   void CloseAllDocumentsOfManager();
   static void CloseAllDocuments();
-
 
   struct Event
   {

@@ -16,6 +16,8 @@ public:
 
   static ezSettingsTab* GetInstance();
 
+  virtual ezString GetWindowIcon() const override;
+
   virtual const char* GetGroupName() const override { return "Settings"; }
   
 private slots:

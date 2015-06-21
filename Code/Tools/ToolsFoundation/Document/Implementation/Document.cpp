@@ -54,8 +54,9 @@ ezDocumentBase::~ezDocumentBase()
   EZ_DEFAULT_DELETE(m_pDocumentInfo);
 }
 
-void ezDocumentBase::SetupDocumentInfo()
+void ezDocumentBase::SetupDocumentInfo(const ezDocumentTypeDescriptor& TypeDescriptor)
 {
+  m_TypeDescriptor = TypeDescriptor;
   m_pDocumentInfo = CreateDocumentInfo();
 
   EZ_ASSERT_DEV(m_pDocumentInfo != nullptr, "invalid document info");

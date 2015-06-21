@@ -220,7 +220,7 @@ void ezDocumentWindow::UIServicesEventHandler(const ezUIServices::Event& e)
 ezString ezDocumentWindow::GetDisplayNameShort() const
 {
   ezStringBuilder s = GetDisplayName();
-  s = s.GetFileNameAndExtension();
+  s = s.GetFileName();
 
   if (m_pDocument && m_pDocument->IsModified())
     s.Append('*');
@@ -399,4 +399,10 @@ ezDocumentWindow* ezDocumentWindow::FindWindowByDocument(const ezDocumentBase* p
   return nullptr;
 }
 
+ezString ezDocumentWindow::GetWindowIcon() const
+{
+  if (GetDocument() != nullptr)
+    return GetDocument()->GetDocumentTypeDescriptor().m_sIcon;
 
+  return ":/GuiFoundation/Icons/ezEditor16.png";
+}

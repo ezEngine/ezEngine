@@ -9,6 +9,11 @@
 
 static ezSettingsTab* g_pInstance = nullptr;
 
+ezString ezSettingsTab::GetWindowIcon() const
+{
+  return ":/GuiFoundation/Icons/Settings16.png";
+}
+
 void ezEditorApp::ShowSettingsDocument()
 {
   ezSettingsTab* pSettingsTab = ezSettingsTab::GetInstance();

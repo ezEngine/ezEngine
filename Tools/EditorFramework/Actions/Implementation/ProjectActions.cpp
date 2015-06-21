@@ -106,6 +106,13 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item
 
     ezLRUMenuAction::Item item;
 
+    ezDocumentManagerBase* pManager;
+    ezDocumentTypeDescriptor td;
+    ezDocumentManagerBase::FindDocumentTypeFromPath(s, false, pManager, &td);
+
+    item.m_UserValue = s;
+    item.m_Icon = QIcon(QString::fromUtf8(td.m_sIcon.GetData()));
+
     if (ezToolsProject::IsProjectOpen())
     {
       ezString sRelativePath;
@@ -113,14 +120,12 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item
         continue;
 
       item.m_sDisplay = sRelativePath;
-      item.m_UserValue = s;
 
       out_Entries.PushBack(item);
     }
     else
     {
       item.m_sDisplay = s;
-      item.m_UserValue = s;
 
       out_Entries.PushBack(item);
     }

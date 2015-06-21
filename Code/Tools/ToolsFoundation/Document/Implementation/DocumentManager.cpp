@@ -188,7 +188,7 @@ ezStatus ezDocumentManagerBase::CreateOrOpenDocument(bool bCreate, const char* s
 
       if (status.m_Result.Succeeded())
       {
-        out_pDocument->SetupDocumentInfo();
+        out_pDocument->SetupDocumentInfo(DocumentTypes[i]);
 
         out_pDocument->m_pDocumentManager = this;
         m_AllDocuments.PushBack(out_pDocument);

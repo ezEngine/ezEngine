@@ -14,6 +14,14 @@ class ezDocumentManagerBase;
 class ezCommandHistoryBase;
 class ezDocumentObjectManager;
 
+struct EZ_TOOLSFOUNDATION_DLL ezDocumentTypeDescriptor
+{
+  ezHybridArray<ezString, 4> m_sFileExtensions;
+  ezString m_sDocumentTypeName;
+  bool m_bCanCreate;
+  ezString m_sIcon;
+};
+
 class EZ_TOOLSFOUNDATION_DLL ezDocumentInfo : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentInfo);
@@ -56,6 +64,8 @@ public:
 
   bool HasWindowBeenRequested() const { return m_bWindowRequested; }
 
+  const ezDocumentTypeDescriptor& GetDocumentTypeDescriptor() const { return m_TypeDescriptor; }
+
 public:
   struct Event
   {
@@ -88,12 +98,13 @@ protected:
   ezSelectionManager m_SelectionManager;
   mutable ezCommandHistory m_CommandHistory;
   ezDocumentInfo* m_pDocumentInfo;
+  ezDocumentTypeDescriptor m_TypeDescriptor;
 
 private:
   friend class ezDocumentManagerBase;
   friend class ezCommandHistory;
 
-  void SetupDocumentInfo();
+  void SetupDocumentInfo(const ezDocumentTypeDescriptor& TypeDescriptor);
 
   ezDocumentObjectManager* m_pObjectTree;
   ezDocumentManagerBase* m_pDocumentManager;
