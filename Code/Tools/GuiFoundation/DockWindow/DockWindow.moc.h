@@ -3,6 +3,7 @@
 #include <GuiFoundation/Basics.h>
 #include <QDockWidget>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Strings/String.h>
 
 class ezContainerWindow;
 
@@ -30,7 +31,7 @@ public:
   Q_OBJECT
 
 public:
-  ezApplicationPanel();
+  ezApplicationPanel(const char* szPanelName);
   ~ezApplicationPanel();
 
   void EnsureVisible();

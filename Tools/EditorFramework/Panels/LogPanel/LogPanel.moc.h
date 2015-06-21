@@ -5,6 +5,7 @@
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <GuiFoundation/DockWindow/DockWindow.moc.h>
 #include <Tools/EditorPluginScene/ui_LogPanelWidget.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 #include <Foundation/Logging/Log.h>
 
 class EZ_EDITORFRAMEWORK_DLL ezLogModel : public QAbstractItemModel
@@ -75,6 +76,7 @@ private:
 
   void LogWriter(const ezLoggingEventData& e);
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
+  void ToolsProjectEventHandler(const ezToolsProject::Event& e);
 
   static ezLogPanel* s_pInstance;
 };

@@ -89,7 +89,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentDocumentsMenuAction, ezLRUMenuAction, 0,
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 
-void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<std::pair<ezString, ezVariant>, 16>& out_Entries)
+void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16>& out_Entries)
 {
   out_Entries.Clear();
 
@@ -104,17 +104,25 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<std::pair<ezString, e
     if (!ezOSFile::Exists(s))
       continue;
 
+    ezLRUMenuAction::Item item;
+
     if (ezToolsProject::IsProjectOpen())
     {
       ezString sRelativePath;
       if (!ezToolsProject::GetInstance()->IsDocumentInAllowedRoot(s, &sRelativePath))
         continue;
 
-      out_Entries.PushBack(std::pair<ezString, ezVariant>(sRelativePath, s));
+      item.m_sDisplay = sRelativePath;
+      item.m_UserValue = s;
+
+      out_Entries.PushBack(item);
     }
     else
     {
-      out_Entries.PushBack(std::pair<ezString, ezVariant>(s, s));
+      item.m_sDisplay = s;
+      item.m_UserValue = s;
+
+      out_Entries.PushBack(item);
     }
 
     --iMaxDocumentsToAdd;
@@ -138,7 +146,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentProjectsMenuAction, ezLRUMenuAction, 0, 
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 
-void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<std::pair<ezString, ezVariant>, 16>& out_Entries)
+void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16>& out_Entries)
 {
   out_Entries.Clear();
 
@@ -150,7 +158,11 @@ void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<std::pair<ezString, ez
     if (!ezOSFile::Exists(s))
       continue;
 
-    out_Entries.PushBack(std::pair<ezString, ezVariant>(s, s));
+    ezLRUMenuAction::Item item;
+    item.m_sDisplay = s;
+    item.m_UserValue = s;
+
+    out_Entries.PushBack(item);
   }
 }
 

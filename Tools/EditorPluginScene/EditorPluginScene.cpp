@@ -44,7 +44,7 @@ void OnLoadPlugin(bool bReloading)
   // Menu Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentMenuBar");
   ezProjectActions::MapActions("EditorPluginScene_DocumentMenuBar");
-  ezStandardMenus::MapActions("EditorPluginScene_DocumentMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit);
+  ezStandardMenus::MapActions("EditorPluginScene_DocumentMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
   ezDocumentActions::MapActions("EditorPluginScene_DocumentMenuBar", "File", false);
   ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentMenuBar", "Edit");
   ezGizmoActions::MapActions("EditorPluginScene_DocumentMenuBar", "Edit");

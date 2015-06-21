@@ -2,6 +2,7 @@
 
 #include <GuiFoundation/Basics.h>
 #include <GuiFoundation/Action/Action.h>
+#include <QIcon>
 
 ///
 class EZ_GUIFOUNDATION_DLL ezNamedAction : public ezAction
@@ -46,8 +47,23 @@ class EZ_GUIFOUNDATION_DLL ezLRUMenuAction : public ezMenuAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezLRUMenuAction);
 public:
+  struct Item
+  {
+    enum class CheckMark
+    {
+      NotCheckable,
+      Unchecked,
+      Checked
+    };
+
+    ezString m_sDisplay;
+    QIcon m_Icon;
+    CheckMark m_CheckState = CheckMark::NotCheckable;
+    ezVariant m_UserValue;
+  };
+
   ezLRUMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezMenuAction(context, szName, szIconPath) {}
-  virtual void GetEntries(ezHybridArray<std::pair<ezString, ezVariant>, 16>& out_Entries) = 0;
+  virtual void GetEntries(ezHybridArray<Item, 16>& out_Entries) = 0;
 };
 
 ///

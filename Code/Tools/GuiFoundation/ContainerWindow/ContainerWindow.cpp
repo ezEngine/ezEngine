@@ -155,12 +155,6 @@ void ezContainerWindow::RestoreWindowLayout()
     restoreState(Settings.value("WindowState", saveState()).toByteArray());
   }
   Settings.endGroup();
-
-  /// \todo make all panels visible
-  for (auto panel : ezApplicationPanel::GetAllApplicationPanels())
-  {
-    panel->EnsureVisible();
-  }
 }
 
 void ezContainerWindow::SetupDocumentTabArea()
@@ -255,6 +249,7 @@ void ezContainerWindow::MoveDocumentWindowToContainer(ezDocumentWindow* pDocWind
 
 void ezContainerWindow::MoveApplicationPanelToContainer(ezApplicationPanel* pPanel)
 {
+  // panel already in container window ?
   if (m_ApplicationPanels.IndexOf(pPanel) != ezInvalidIndex)
     return;
 
@@ -304,6 +299,7 @@ ezResult ezContainerWindow::EnsureVisible(ezApplicationPanel* pPanel)
     return EZ_FAILURE;
 
   pPanel->show();
+  pPanel->raise();
   return EZ_SUCCESS;
 }
 

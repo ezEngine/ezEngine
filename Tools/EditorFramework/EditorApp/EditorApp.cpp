@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <GuiFoundation/DockWindow/DockWindow.moc.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
@@ -184,6 +185,30 @@ void ezEditorApp::ShutdownEditor()
   {
     delete ezContainerWindow::GetAllContainerWindows()[0];
   }
+
+  // HACK to figure out why the panels are not always properly destroyed together with the ContainerWindows
+  // if you run into this, please try to figure this out
+  // every ezApplicationPanel actually registers itself with a container window in its constructor
+  // there its Qt 'parent' is set to the container window (there is only one)
+  // that means, when the application is shut down, all ezApplicationPanel instances should get deleted by their parent
+  // ie. the container window
+  // however, SOMETIMES this does not happen
+  // it seems to be related to whether a panel has been opened/closed (ie. shown/hidden), and maybe also with the restored state
+  {
+    const auto& Panels = ezApplicationPanel::GetAllApplicationPanels();
+    ezUInt32 uiNumPanels = Panels.GetCount();
+
+    EZ_ASSERT_DEBUG(uiNumPanels == 0, "Not all panels have been cleaned up correctly");
+
+    for (ezUInt32 i = 0; i < uiNumPanels; ++i)
+    {
+      ezApplicationPanel* pPanel = Panels[i];
+      QObject* pParent = pPanel->parent();
+      delete pPanel;
+    }
+  }
+
+
   QCoreApplication::sendPostedEvents();
   qApp->processEvents();
 

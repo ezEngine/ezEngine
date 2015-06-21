@@ -28,8 +28,13 @@ void ezDocumentPanel::closeEvent(QCloseEvent* e)
 
 ezDynamicArray<ezApplicationPanel*> ezApplicationPanel::s_AllApplicationPanels;
 
-ezApplicationPanel::ezApplicationPanel() : QDockWidget(nullptr)
+ezApplicationPanel::ezApplicationPanel(const char* szPanelName) : QDockWidget(ezContainerWindow::GetAllContainerWindows()[0])
 {
+  ezStringBuilder sPanel("AppPanel_", szPanelName);
+
+  setObjectName(QString::fromUtf8(sPanel.GetData()));
+  setWindowTitle(QString::fromUtf8(szPanelName));
+
   setBackgroundRole(QPalette::ColorRole::Highlight);
 
   s_AllApplicationPanels.PushBack(this);
@@ -38,6 +43,7 @@ ezApplicationPanel::ezApplicationPanel() : QDockWidget(nullptr)
 
   ezContainerWindow::GetAllContainerWindows()[0]->MoveApplicationPanelToContainer(this);
 
+  EZ_ASSERT_DEV(parent() != nullptr, "Invalid Qt parent window");
 }
 
 ezApplicationPanel::~ezApplicationPanel()
@@ -48,10 +54,13 @@ ezApplicationPanel::~ezApplicationPanel()
 void ezApplicationPanel::EnsureVisible()
 {
   m_pContainerWindow->EnsureVisible(this);
+
+  EZ_ASSERT_DEV(parent() != nullptr, "Invalid Parent!");
 }
 
 void ezApplicationPanel::closeEvent(QCloseEvent* e)
 {
-  /// \todo For now prevent closing
-  e->ignore();
+  e->accept();
+
+  EZ_ASSERT_DEV(parent() != nullptr, "Invalid Parent!");
 }

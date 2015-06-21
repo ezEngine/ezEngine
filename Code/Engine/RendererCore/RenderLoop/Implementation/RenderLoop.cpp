@@ -4,7 +4,8 @@
 
 #include <Foundation/Configuration/CVar.h>
 
-ezCVarBool CVarMultithreadedRendering("Renderer.Multithreading", true, ezCVarFlags::Default, "Enables multithreaded update and rendering");
+/// \todo Changed the default, otherwise the editor keeps crashing
+ezCVarBool CVarMultithreadedRendering("Renderer.Multithreading", false, ezCVarFlags::Default, "Enables multithreaded update and rendering");
 
 ezUInt32 ezRenderLoop::s_uiFrameCounter;
 

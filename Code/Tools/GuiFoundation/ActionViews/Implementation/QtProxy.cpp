@@ -184,8 +184,11 @@ void ezQtLRUMenuProxy::SlotMenuAboutToShow()
     {
       const auto& p = m_Entries[i];
 
-      auto pAction = m_pMenu->addAction(QString::fromUtf8(p.first.GetData()));
+      auto pAction = m_pMenu->addAction(QString::fromUtf8(p.m_sDisplay.GetData()));
       pAction->setData(i);
+      pAction->setIcon(p.m_Icon);
+      pAction->setCheckable(p.m_CheckState != ezLRUMenuAction::Item::CheckMark::NotCheckable);
+      pAction->setChecked(p.m_CheckState == ezLRUMenuAction::Item::CheckMark::Checked);
 
       EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(SlotMenuEntryTriggered())) != nullptr, "signal/slot connection failed");
     }
@@ -199,7 +202,7 @@ void ezQtLRUMenuProxy::SlotMenuEntryTriggered()
     return;
 
   ezUInt32 index = pAction->data().toUInt();
-  m_pAction->Execute(m_Entries[index].second);
+  m_pAction->Execute(m_Entries[index].m_UserValue);
 
 }
 

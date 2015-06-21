@@ -11,7 +11,7 @@ struct ezStandardMenuTypes
   {
     File = EZ_BIT(0),
     Edit = EZ_BIT(1),
-    View = EZ_BIT(2),
+    Panels = EZ_BIT(2),
     Settings = EZ_BIT(3),
     Help = EZ_BIT(4),
     //Window
@@ -22,7 +22,7 @@ struct ezStandardMenuTypes
   {
     StorageType File : 1;
     StorageType Edit : 1;
-    StorageType View : 1;
+    StorageType Panels : 1;
     StorageType Settings : 1;
     StorageType Help : 1;
   };
@@ -41,7 +41,17 @@ public:
 
   static ezActionDescriptorHandle s_hMenuFile;
   static ezActionDescriptorHandle s_hMenuEdit;
-  static ezActionDescriptorHandle s_hMenuView;
+  static ezActionDescriptorHandle s_hMenuPanels;
   static ezActionDescriptorHandle s_hMenuSettings;
   static ezActionDescriptorHandle s_hMenuHelp;
+};
+
+///
+class EZ_GUIFOUNDATION_DLL ezApplicationPanelsMenuAction : public ezLRUMenuAction
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezApplicationPanelsMenuAction);
+public:
+  ezApplicationPanelsMenuAction(const ezActionContext& context, const char* szName) : ezLRUMenuAction(context, szName, "") {}
+  virtual void GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16>& out_Entries) override;
+  virtual void Execute(const ezVariant& value) override;
 };

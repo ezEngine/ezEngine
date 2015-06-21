@@ -1,18 +1,18 @@
 #include <PCH.h>
 #include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
+#include <QSettings>
 
 ezLogPanel* ezLogPanel::s_pInstance = nullptr;
 
-ezLogPanel::ezLogPanel()
+ezLogPanel::ezLogPanel() : ezApplicationPanel("Log")
 {
   EZ_ASSERT_DEV(s_pInstance == nullptr, "Log panel is not a singleton anymore");
 
   s_pInstance = this;
 
-  setObjectName("LogPanel");
-  setWindowTitle("Log");
-
   setupUi(this);
+
+  setWindowIcon(QIcon(QString::fromUtf8(":/GuiFoundation/Icons/Log.png")));
 
   ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezLogPanel::LogWriter, this));
   ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezLogPanel::EngineProcessMsgHandler, this));
@@ -21,14 +21,50 @@ ezLogPanel::ezLogPanel()
   ListViewEngineLog->setModel(&m_EngineLog);
 
   ButtonClearSearch->setEnabled(false);
+
+  QSettings Settings;
+  Settings.beginGroup(QLatin1String("LogPanel"));
+  {
+    splitter->restoreState(Settings.value("Splitter", splitter->saveState()).toByteArray());
+  }
+  Settings.endGroup();
+
+  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezLogPanel::ToolsProjectEventHandler, this));
 }
 
 ezLogPanel::~ezLogPanel()
 {
+  QSettings Settings;
+  Settings.beginGroup(QLatin1String("LogPanel"));
+  {
+    Settings.setValue("Splitter", splitter->saveState());
+  }
+  Settings.endGroup();
+
   s_pInstance = nullptr;
 
   ezGlobalLog::RemoveLogWriter(ezMakeDelegate(&ezLogPanel::LogWriter, this));
   ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezLogPanel::EngineProcessMsgHandler, this));
+  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezLogPanel::ToolsProjectEventHandler, this));
+}
+
+void ezLogPanel::ToolsProjectEventHandler(const ezToolsProject::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezToolsProject::Event::Type::ProjectClosing:
+    {
+      m_EditorLog.Clear();
+      m_EngineLog.Clear();
+      LineSearch->clear();
+      ComboFilter->setCurrentIndex(0);
+      // fallthrough
+
+  case ezToolsProject::Event::Type::ProjectOpened:
+      setEnabled(e.m_Type == ezToolsProject::Event::Type::ProjectOpened);
+    }
+    break;
+  }
 }
 
 void ezLogPanel::LogWriter(const ezLoggingEventData& e)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GuiFoundation/Basics.h>
+#include <GuiFoundation/Action/BaseActions.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/Variant.h>
@@ -96,5 +97,5 @@ private slots:
   void SlotMenuEntryTriggered();
 
 private:
-  ezHybridArray<std::pair<ezString, ezVariant>, 16> m_Entries;
+  ezHybridArray<ezLRUMenuAction::Item, 16> m_Entries;
 };
