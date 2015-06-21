@@ -2,7 +2,7 @@
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
-#include <GuiFoundation/DockWindow/DockWindow.moc.h>
+#include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 
 ezActionDescriptorHandle ezStandardMenus::s_hMenuFile;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuEdit;
@@ -59,14 +59,27 @@ void ezStandardMenus::MapActions(const char* szMapping, const ezBitflags<ezStand
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezApplicationPanelsMenuAction, ezLRUMenuAction, 0, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+struct ezComparePanels
+{
+  /// \brief Returns true if a is less than b
+  EZ_FORCE_INLINE bool Less(const ezLRUMenuAction::Item& p1, const ezLRUMenuAction::Item& p2) const
+  {
+    return p1.m_sDisplay < p2.m_sDisplay;
+  }
+
+  /// \brief Returns true if a is equal to b
+  EZ_FORCE_INLINE bool Equal(const ezLRUMenuAction::Item& p1, const ezLRUMenuAction::Item& p2) const
+  {
+    return p1.m_sDisplay == p2.m_sDisplay;
+  }
+};
+
 
 void ezApplicationPanelsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16>& out_Entries)
 {
   out_Entries.Clear();
 
-  const auto& Panels = ezApplicationPanel::GetAllApplicationPanels();
-
-  for (auto* pPanel : Panels)
+  for (auto* pPanel : ezApplicationPanel::GetAllApplicationPanels())
   {
     ezLRUMenuAction::Item item;
     item.m_sDisplay = pPanel->windowTitle().toUtf8().data();
@@ -76,6 +89,10 @@ void ezApplicationPanelsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::It
     
     out_Entries.PushBack(item);
   }
+
+  // make sure the panels appear in alphabetical order in the menu
+  ezComparePanels cp;
+  out_Entries.Sort<ezComparePanels>(cp);
 }
 
 void ezApplicationPanelsMenuAction::Execute(const ezVariant& value)

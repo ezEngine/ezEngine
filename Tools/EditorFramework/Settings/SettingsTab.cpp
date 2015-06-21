@@ -255,10 +255,4 @@ void ezSettingsTab::on_ButtonDataDirConfig_clicked()
   dlg.exec();
 }
 
-void ezSettingsTab::on_ButtonAssetBrowserDlg_clicked()
-{
-  ezAssetBrowserDlg dlg(this, "Sponza/Textures/VasePlant.ezTextureAsset", "Texture 2D");
-  dlg.exec();
-
-}
 

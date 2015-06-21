@@ -1,7 +1,7 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
-#include <GuiFoundation/DockWindow/DockWindow.moc.h>
+#include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>

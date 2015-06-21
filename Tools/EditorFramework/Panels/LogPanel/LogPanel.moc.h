@@ -3,8 +3,8 @@
 #include <Foundation/Basics.h>
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
-#include <GuiFoundation/DockWindow/DockWindow.moc.h>
-#include <Tools/EditorPluginScene/ui_LogPanelWidget.h>
+#include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
+#include <Tools/EditorFramework/ui_LogPanel.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <Foundation/Logging/Log.h>
 
@@ -69,6 +69,9 @@ private slots:
   void on_LineSearch_textChanged(const QString& text);
   void on_ComboFilter_currentIndexChanged(int index);
 
+protected:
+  virtual void ToolsProjectEventHandler(const ezToolsProject::Event& e) override;
+
 private:
   ezLogModel m_EngineLog;
   ezLogModel m_EditorLog;
@@ -76,7 +79,6 @@ private:
 
   void LogWriter(const ezLoggingEventData& e);
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
-  void ToolsProjectEventHandler(const ezToolsProject::Event& e);
 
   static ezLogPanel* s_pInstance;
 };

@@ -4,7 +4,7 @@
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
-#include <GuiFoundation/DockWindow/DockWindow.moc.h>
+#include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <EditorFramework/GUI/RawPropertyGridWidget.h>
 #include <QLabel>
 #include <QLayout>

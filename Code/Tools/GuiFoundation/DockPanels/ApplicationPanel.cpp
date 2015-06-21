@@ -1,30 +1,7 @@
 #include <GuiFoundation/PCH.h>
-#include <GuiFoundation/DockWindow/DockWindow.moc.h>
+#include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <QTimer>
-#include <QSettings>
-#include <QCloseEvent>
-
-ezDynamicArray<ezDocumentPanel*> ezDocumentPanel::s_AllDocumentPanels;
-
-ezDocumentPanel::ezDocumentPanel(QWidget* parent) : QDockWidget(parent)
-{
-  s_AllDocumentPanels.PushBack(this);
-
-  setBackgroundRole(QPalette::ColorRole::Highlight);
-
-  setFeatures(DockWidgetFeature::DockWidgetFloatable | DockWidgetFeature::DockWidgetMovable);
-}
-
-ezDocumentPanel::~ezDocumentPanel()
-{
-  s_AllDocumentPanels.RemoveSwap(this);
-}
-
-void ezDocumentPanel::closeEvent(QCloseEvent* e)
-{
-  e->ignore();
-}
 
 ezDynamicArray<ezApplicationPanel*> ezApplicationPanel::s_AllApplicationPanels;
 
@@ -43,11 +20,13 @@ ezApplicationPanel::ezApplicationPanel(const char* szPanelName) : QDockWidget(ez
 
   ezContainerWindow::GetAllContainerWindows()[0]->MoveApplicationPanelToContainer(this);
 
-  EZ_ASSERT_DEV(parent() != nullptr, "Invalid Qt parent window");
+  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezApplicationPanel::ToolsProjectEventHandler, this));
 }
 
 ezApplicationPanel::~ezApplicationPanel()
 {
+  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezApplicationPanel::ToolsProjectEventHandler, this));
+
   s_AllApplicationPanels.RemoveSwap(this);
 }
 
@@ -58,9 +37,16 @@ void ezApplicationPanel::EnsureVisible()
   EZ_ASSERT_DEV(parent() != nullptr, "Invalid Parent!");
 }
 
-void ezApplicationPanel::closeEvent(QCloseEvent* e)
-{
-  e->accept();
 
-  EZ_ASSERT_DEV(parent() != nullptr, "Invalid Parent!");
+void ezApplicationPanel::ToolsProjectEventHandler(const ezToolsProject::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezToolsProject::Event::Type::ProjectClosing:
+    setEnabled(false);
+    break;
+  case ezToolsProject::Event::Type::ProjectOpened:
+    setEnabled(true);
+    break;
+  }
 }

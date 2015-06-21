@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AssetBrowserPanel</class>
+ <widget class="QDockWidget" name="AssetBrowserPanel">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>738</width>
+    <height>597</height>
+   </rect>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+    <normaloff>:/GuiFoundation/Icons/Log.png</normaloff>:/GuiFoundation/Icons/Log.png</iconset>
+  </property>
+  <property name="windowTitle">
+   <string>Asset Browser</string>
+  </property>
+  <widget class="QWidget" name="dockWidgetContents">
+   <layout class="QVBoxLayout" name="verticalLayout_3">
+    <item>
+     <widget class="ezAssetBrowserWidget" name="AssetBrowserWidget" native="true"/>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ezAssetBrowserWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">EditorFramework/Assets/AssetBrowserWidget.moc.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

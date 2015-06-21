@@ -18,7 +18,7 @@
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
-#include <GuiFoundation/DockWindow/DockWindow.moc.h>
+//#include <GuiFoundation/DockWindow/DockWindow.moc.h>
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
 #include <EditorPluginScene/Panels/ObjectCreatorPanel/ObjectCreatorList.moc.h>
 #include <EditorFramework/GUI/RawPropertyGridWidget.h>

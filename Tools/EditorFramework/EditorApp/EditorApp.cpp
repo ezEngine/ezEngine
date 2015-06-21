@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <GuiFoundation/DockWindow/DockWindow.moc.h>
+#include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>

@@ -28,8 +28,6 @@ ezLogPanel::ezLogPanel() : ezApplicationPanel("Log")
     splitter->restoreState(Settings.value("Splitter", splitter->saveState()).toByteArray());
   }
   Settings.endGroup();
-
-  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezLogPanel::ToolsProjectEventHandler, this));
 }
 
 ezLogPanel::~ezLogPanel()
@@ -45,7 +43,6 @@ ezLogPanel::~ezLogPanel()
 
   ezGlobalLog::RemoveLogWriter(ezMakeDelegate(&ezLogPanel::LogWriter, this));
   ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezLogPanel::EngineProcessMsgHandler, this));
-  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezLogPanel::ToolsProjectEventHandler, this));
 }
 
 void ezLogPanel::ToolsProjectEventHandler(const ezToolsProject::Event& e)
@@ -65,6 +62,8 @@ void ezLogPanel::ToolsProjectEventHandler(const ezToolsProject::Event& e)
     }
     break;
   }
+
+  ezApplicationPanel::ToolsProjectEventHandler(e);
 }
 
 void ezLogPanel::LogWriter(const ezLoggingEventData& e)

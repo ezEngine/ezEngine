@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
-#include <GuiFoundation/DockWindow/DockWindow.moc.h>
+#include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 
 

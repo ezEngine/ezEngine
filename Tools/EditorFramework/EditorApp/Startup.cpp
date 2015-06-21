@@ -5,6 +5,7 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
 #include <EditorFramework/Actions/AssetActions.h>
+#include <GuiFoundation/Action/StandardMenus.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 
@@ -21,6 +22,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 
     ezActionMapManager::RegisterActionMap("SettingsTabMenuBar");
     ezProjectActions::MapActions("SettingsTabMenuBar");
+    ezStandardMenus::MapActions("SettingsTabMenuBar", ezStandardMenuTypes::Panels);
     
     ezActionMapManager::RegisterActionMap("AssetBrowserToolBar");
     ezAssetActions::MapActions("AssetBrowserToolBar", false);
