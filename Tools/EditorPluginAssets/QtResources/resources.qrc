@@ -4,6 +4,7 @@
 	<file>Texture_3D.png</file>
 	<file>Texture_Cube.png</file>
 	<file>Material.png</file>
+  <file>Mesh.png</file>
 	<file>Shader.png</file>
 	<file>Sound.png</file>
 	<file>Prefab.png</file>

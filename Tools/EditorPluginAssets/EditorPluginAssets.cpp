@@ -58,6 +58,26 @@ void OnLoadPlugin(bool bReloading)
       ezAssetActions::MapActions("MaterialAssetToolBar", true);
     }
   }
+
+  // Mesh Asset
+  {
+    // Menu Bar
+    {
+      ezActionMapManager::RegisterActionMap("MeshAssetMenuBar");
+      ezProjectActions::MapActions("MeshAssetMenuBar");
+      ezStandardMenus::MapActions("MeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezDocumentActions::MapActions("MeshAssetMenuBar", "File", false);
+      ezCommandHistoryActions::MapActions("MeshAssetMenuBar", "Edit");
+    }
+
+    // Tool Bar
+    {
+      ezActionMapManager::RegisterActionMap("MeshAssetToolBar");
+      ezDocumentActions::MapActions("MeshAssetToolBar", "", true);
+      ezCommandHistoryActions::MapActions("MeshAssetToolBar", "");
+      ezAssetActions::MapActions("MeshAssetToolBar", true);
+    }
+  }
 }
 
 void OnUnloadPlugin(bool bReloading)

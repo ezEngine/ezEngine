@@ -57,11 +57,7 @@
           <item>
            <widget class="QPushButton" name="ButtonClearEditorLog">
             <property name="text">
-             <string>Clear</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
-              <normaloff>:/GuiFoundation/Icons/Delete16.png</normaloff>:/GuiFoundation/Icons/Delete16.png</iconset>
+             <string>Clear Log</string>
             </property>
            </widget>
           </item>
@@ -118,11 +114,7 @@
           <item>
            <widget class="QPushButton" name="ButtonClearEngineLog">
             <property name="text">
-             <string>Clear</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
-              <normaloff>:/GuiFoundation/Icons/Delete16.png</normaloff>:/GuiFoundation/Icons/Delete16.png</iconset>
+             <string>Clear Log</string>
             </property>
            </widget>
           </item>
@@ -205,35 +197,63 @@
          <property name="text">
           <string>Debug</string>
          </property>
+         <property name="icon">
+          <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+           <normaloff>:/GuiFoundation/Icons/Flag_Pink16.png</normaloff>:/GuiFoundation/Icons/Flag_Pink16.png</iconset>
+         </property>
         </item>
         <item>
          <property name="text">
           <string>Dev</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+           <normaloff>:/GuiFoundation/Icons/Flag_Purple16.png</normaloff>:/GuiFoundation/Icons/Flag_Purple16.png</iconset>
          </property>
         </item>
         <item>
          <property name="text">
           <string>Info</string>
          </property>
+         <property name="icon">
+          <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+           <normaloff>:/GuiFoundation/Icons/Flag_Blue16.png</normaloff>:/GuiFoundation/Icons/Flag_Blue16.png</iconset>
+         </property>
         </item>
         <item>
          <property name="text">
           <string>Success</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+           <normaloff>:/GuiFoundation/Icons/Flag_Green16.png</normaloff>:/GuiFoundation/Icons/Flag_Green16.png</iconset>
          </property>
         </item>
         <item>
          <property name="text">
           <string>Warning</string>
          </property>
+         <property name="icon">
+          <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+           <normaloff>:/GuiFoundation/Icons/Flag_Yellow16.png</normaloff>:/GuiFoundation/Icons/Flag_Yellow16.png</iconset>
+         </property>
         </item>
         <item>
          <property name="text">
           <string>Serious Warning</string>
          </property>
+         <property name="icon">
+          <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+           <normaloff>:/GuiFoundation/Icons/Flag_Orange16.png</normaloff>:/GuiFoundation/Icons/Flag_Orange16.png</iconset>
+         </property>
         </item>
         <item>
          <property name="text">
           <string>Error</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+           <normaloff>:/GuiFoundation/Icons/Flag_Red16.png</normaloff>:/GuiFoundation/Icons/Flag_Red16.png</iconset>
          </property>
         </item>
        </widget>
