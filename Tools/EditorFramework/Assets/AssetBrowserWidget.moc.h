@@ -3,6 +3,7 @@
 #include <EditorFramework/Plugin.h>
 #include <Tools/EditorFramework/ui_AssetBrowserWidget.h>
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 
 class ezToolBarActionMapView;
 
@@ -47,6 +48,8 @@ private:
   void UpdateDirectoryTree();
   void BuildDirectoryTree(const char* szCurPath, QTreeWidgetItem* pParent, const char* szCurPathToItem);
   bool SelectPathFilter(QTreeWidgetItem* pParent, const QString& sPath);
+  void UpdateAssetTypes();
+  void ProjectEventHandler(const ezToolsProject::Event& e);
 
   ezUInt32 m_uiKnownAssetFolderCount;
 

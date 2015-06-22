@@ -18,7 +18,6 @@ ezAssetBrowserPanel::ezAssetBrowserPanel() : ezApplicationPanel("Asset Browser")
   EZ_VERIFY(connect(AssetBrowserWidget, SIGNAL(ItemChosen(QString)), this, SLOT(SlotAssetChosen(QString))) != nullptr, "signal/slot connection failed");
 
   AssetBrowserWidget->RestoreState("AssetBrowserPanel2");
-
   
 }
 

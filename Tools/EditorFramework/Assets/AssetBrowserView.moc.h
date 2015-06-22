@@ -22,6 +22,10 @@ signals:
 
 protected:
   virtual void wheelEvent(QWheelEvent* pEvent) override;
+  virtual void dragEnterEvent(QDragEnterEvent *pEvent) override;
+  virtual void dragMoveEvent(QDragMoveEvent *pEvent) override;
+  virtual void dragLeaveEvent(QDragLeaveEvent *pEvent) override;
+  virtual void dropEvent(QDropEvent *pEvent) override;
 
 private:
   QtIconViewDelegate* m_pDelegate;
@@ -36,7 +40,7 @@ public:
   QtIconViewDelegate(ezAssetBrowserView* pParent = nullptr);
 
   void SetIconScale(ezInt32 iIconSizePercentage);
-  
+
 public:
   virtual void paint(QPainter* painter, const QStyleOptionViewItem& opt, const QModelIndex& index) const override;
   virtual QSize	sizeHint(const QStyleOptionViewItem& opt, const QModelIndex& index) const override;
@@ -46,9 +50,9 @@ private:
   QFont GetFont() const;
   ezUInt32 ThumbnailSize() const;
   bool IsInIconMode() const;
-  
+
 private:
-  enum 
+  enum
   {
     MaxSize = 256,
     HighlightBorderWidth = 3,

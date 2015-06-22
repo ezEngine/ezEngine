@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/Assets/AssetBrowserView.moc.h>
 #include <Foundation/Math/Math.h>
+#include <Foundation/Logging/Log.h>
 
 #include <QWheelEvent>
 #include <QApplication>
@@ -10,12 +11,17 @@ ezAssetBrowserView::ezAssetBrowserView(QWidget* parent) : QListView(parent)
 {
   m_iIconSizePercentage = 100;
 
+  /// \todo Drag & Drop is weird, it only works after switching the view mode to list and back (and only manually in the editor, not from code)
+  setDragDropMode(QAbstractItemView::DragOnly);
+  setDragEnabled(true);
+  setDropIndicatorShown(true);
+
   setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectItems);
   setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
   setViewMode(QListView::ViewMode::IconMode);
   setUniformItemSizes(true);
   setResizeMode(QListView::ResizeMode::Adjust);
-
+  
   m_pDelegate = new QtIconViewDelegate(this);
   setItemDelegate(m_pDelegate);
   SetIconScale(m_iIconSizePercentage);
@@ -64,6 +70,31 @@ void ezAssetBrowserView::wheelEvent(QWheelEvent* pEvent)
 
   QListView::wheelEvent(pEvent);
 }
+
+void ezAssetBrowserView::dragEnterEvent(QDragEnterEvent *pEvent)
+{
+  pEvent->acceptProposedAction();
+  ezLog::Info("dragEnterEvent");
+}
+
+void ezAssetBrowserView::dragMoveEvent(QDragMoveEvent *pEvent)
+{
+  pEvent->acceptProposedAction();
+  ezLog::Info("dragMoveEvent");
+}
+
+void ezAssetBrowserView::dragLeaveEvent(QDragLeaveEvent *pEvent)
+{
+  pEvent->accept();
+  ezLog::Info("dragLeaveEvent");
+}
+
+void ezAssetBrowserView::dropEvent(QDropEvent *pEvent)
+{
+  pEvent->acceptProposedAction();
+  ezLog::Info("dropEvent");
+}
+
 
 
 QtIconViewDelegate::QtIconViewDelegate(ezAssetBrowserView* pParent) : QItemDelegate(pParent)

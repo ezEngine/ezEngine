@@ -26,17 +26,6 @@ ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
   splitter->setStretchFactor(0, 0);
   splitter->setStretchFactor(1, 1);
 
-  //connect(ListAssets, SIGNAL(ViewZoomed(ezInt32 iDelta)), this, SLOT());
-#if (QT_VERSION < QT_VERSION_CHECK(5, 3, 0))
-  // Qt 5.2's scroll speed in list views is kinda broken
-  // https://bugreports.qt.io/browse/QTBUG-34378
-
-  /// \todo Remove this once we are on Qt Version 5.4 or so
-
-  ListAssets->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-  ListAssets->verticalScrollBar()->setSingleStep(64);
-#endif
-
   // Tool Bar
   {
     m_pToolbar = new ezToolBarActionMapView(this);
@@ -52,6 +41,24 @@ ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
   EZ_VERIFY(connect(m_pModel, SIGNAL(TypeFilterChanged()), this, SLOT(OnTypeFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pModel, SIGNAL(PathFilterChanged()), this, SLOT(OnPathFilterChanged())) != nullptr, "signal/slot connection failed");
 
+  UpdateAssetTypes();
+
+  m_DelegateAssetCuratorEvents = ezMakeDelegate(&ezAssetBrowserWidget::AssetCuratorEventHandler, this);
+
+  ezAssetCurator::GetInstance()->m_Events.AddEventHandler(m_DelegateAssetCuratorEvents);
+  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezAssetBrowserWidget::ProjectEventHandler, this));
+}
+
+ezAssetBrowserWidget::~ezAssetBrowserWidget()
+{
+  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetBrowserWidget::ProjectEventHandler, this));
+  ezAssetCurator::GetInstance()->m_Events.RemoveEventHandler(m_DelegateAssetCuratorEvents);
+
+  ListAssets->setModel(nullptr);
+}
+
+void ezAssetBrowserWidget::UpdateAssetTypes()
+{
   ezSet<ezString> KnownAssetTypes;
 
   for (auto docman : ezDocumentManagerBase::GetAllDocumentManagers())
@@ -66,6 +73,8 @@ ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
 
   {
     QtScopedBlockSignals block(ListTypeFilter);
+
+    ListTypeFilter->clear();
 
     ezStringBuilder sIconName;
 
@@ -93,16 +102,6 @@ ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
 
   UpdateDirectoryTree();
 
-  m_DelegateAssetCuratorEvents = ezMakeDelegate(&ezAssetBrowserWidget::AssetCuratorEventHandler, this);
-
-  ezAssetCurator::GetInstance()->m_Events.AddEventHandler(m_DelegateAssetCuratorEvents);
-}
-
-ezAssetBrowserWidget::~ezAssetBrowserWidget()
-{
-  ezAssetCurator::GetInstance()->m_Events.RemoveEventHandler(m_DelegateAssetCuratorEvents);
-
-  ListAssets->setModel(nullptr);
 }
 
 void ezAssetBrowserWidget::SetDialogMode()
@@ -138,6 +137,19 @@ void ezAssetBrowserWidget::RestoreState(const char* szSettingsName)
       on_ButtonListMode_clicked();
   }
   Settings.endGroup();
+}
+
+void ezAssetBrowserWidget::ProjectEventHandler(const ezToolsProject::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezToolsProject::Event::Type::ProjectOpened:
+    {
+      // this is necessary to detect new asset types when a plugin has been loaded (on project load)
+      UpdateAssetTypes();
+    }
+    break;
+  }
 }
 
 void ezAssetBrowserWidget::on_ListAssets_clicked(const QModelIndex & index)
@@ -309,6 +321,8 @@ void ezAssetBrowserWidget::AssetCuratorEventHandler(const ezAssetCurator::Event&
   switch (e.m_Type)
   {
   case ezAssetCurator::Event::Type::AssetListReset:
+    UpdateAssetTypes();
+    break;
   case ezAssetCurator::Event::Type::AssetAdded:
   case ezAssetCurator::Event::Type::AssetRemoved:
     UpdateDirectoryTree();
