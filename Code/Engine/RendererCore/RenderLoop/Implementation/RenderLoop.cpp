@@ -4,33 +4,82 @@
 
 #include <Foundation/Configuration/CVar.h>
 
-/// \todo Changed the default, otherwise the editor keeps crashing
-ezCVarBool CVarMultithreadedRendering("Renderer.Multithreading", false, ezCVarFlags::Default, "Enables multithreaded update and rendering");
+ezCVarBool CVarMultithreadedRendering("Renderer.Multithreading", true, ezCVarFlags::Default, "Enables multithreaded update and rendering");
 
 ezUInt32 ezRenderLoop::s_uiFrameCounter;
-
-bool ezRenderLoop::s_bInExtract;
-ezTaskGroupID ezRenderLoop::s_ExtractionFinishedTaskID;
-
 ezDynamicArray<ezView*> ezRenderLoop::s_MainViews;
 
-ezMutex ezRenderLoop::s_ViewsToRenderMutex;
-ezDynamicArray<ezView*> ezRenderLoop::s_ViewsToRender;
+namespace
+{
+  static bool s_bInExtract;
+  static ezTaskGroupID s_ExtractionFinishedTaskID;
 
-ezDynamicArray<ezView*> ezRenderLoop::s_FilteredViewsToRender[2];
+  static ezMutex s_ViewsToRenderMutex;
+  static ezDynamicArray<ezView*> s_ViewsToRender;
+
+  static ezDynamicArray<ezRenderPipeline*> s_FilteredRenderPipelines[2];
+
+  struct DeletedPipeline
+  {
+    EZ_DECLARE_MEM_RELOCATABLE_TYPE();
+
+    ezUniquePtr<ezRenderPipeline> m_pPipeline;
+    ezUInt32 m_uiFrameUntilDeletion;
+  };
+
+  static ezMutex s_DeletedPipelinesMutex;
+  static ezDynamicArray<DeletedPipeline> s_DeletedPipelines;
+
+  static bool IsDeleted(ezRenderPipeline* pRenderPipeline)
+  {
+    EZ_LOCK(s_DeletedPipelinesMutex);
+
+    for (auto& deletedPipeline : s_DeletedPipelines)
+    {
+      if (deletedPipeline.m_pPipeline.Borrow() == pRenderPipeline)
+        return true;
+    }
+
+    return false;
+  }
+}
+
+EZ_BEGIN_SUBSYSTEM_DECLARATION(Graphics, RendererLoop)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "Foundation",
+    "Core"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_ENGINE_SHUTDOWN
+  {
+    ezRenderLoop::OnEngineShutdown();
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION
 
 ezView* ezRenderLoop::CreateView(const char* szName)
 {
-  ezView* pView = static_cast<ezView*>(ezFoundation::GetDefaultAllocator()->Allocate(sizeof(ezView), EZ_ALIGNMENT_OF(ezView)));
-  ezMemoryUtils::Construct(pView, 1);
-
+  // can't use EZ_DEFAULT_NEW because it wants to create a destructor function which is not possible since the view destructor is private
+  ezView* pView = new (ezFoundation::GetDefaultAllocator()->Allocate(sizeof(ezView), EZ_ALIGNMENT_OF(ezView))) ezView();
+  
   pView->SetName(szName);
+  pView->InitializePins();
   return pView;
 }
 
 void ezRenderLoop::DeleteView(ezView* pView)
 {
-  
+  {
+    EZ_LOCK(s_DeletedPipelinesMutex);
+
+    auto& deletedPipeline = s_DeletedPipelines.ExpandAndGetRef();
+    deletedPipeline.m_pPipeline = std::move(pView->m_pRenderPipeline);
+    deletedPipeline.m_uiFrameUntilDeletion = 2;
+  }
+
+  pView->~ezView();
+  ezFoundation::GetDefaultAllocator()->Deallocate(pView);
 }
 
 void ezRenderLoop::AddMainView(ezView* pView)
@@ -130,15 +179,15 @@ void ezRenderLoop::ExtractMainViews()
 
   // filter out duplicates and reverse order so that dependent views are rendered first
   {
-    ezDynamicArray<ezView*>& filteredViews = s_FilteredViewsToRender[s_uiFrameCounter & 1];
-    filteredViews.Clear();
+    auto& filteredRenderPipelines = s_FilteredRenderPipelines[s_uiFrameCounter & 1];
+    filteredRenderPipelines.Clear();
 
     for (ezUInt32 i = s_ViewsToRender.GetCount(); i-- > 0;)
     {
-      ezView* pView = s_ViewsToRender[i];
-      if (!filteredViews.Contains(pView))
+      ezRenderPipeline* pRenderPipeline = s_ViewsToRender[i]->GetRenderPipeline();
+      if (!filteredRenderPipelines.Contains(pRenderPipeline))
       {
-        filteredViews.PushBack(pView);
+        filteredRenderPipelines.PushBack(pRenderPipeline);
       }
     }
 
@@ -149,11 +198,32 @@ void ezRenderLoop::ExtractMainViews()
 void ezRenderLoop::Render(ezRenderContext* pRenderContext)
 {
   const ezUInt32 uiFrameCounter = s_uiFrameCounter + (CVarMultithreadedRendering ? 1 : 0);
-  ezDynamicArray<ezView*>& filteredViews = s_FilteredViewsToRender[uiFrameCounter & 1];
+  auto& filteredRenderPipelines = s_FilteredRenderPipelines[uiFrameCounter & 1];
 
-  for (ezUInt32 i = 0; i < filteredViews.GetCount(); ++i)
+  for (auto pRenderPipeline : filteredRenderPipelines)
   {
-    filteredViews[i]->Render(pRenderContext);
+    if (IsDeleted(pRenderPipeline))
+      continue;
+
+    pRenderPipeline->Render(pRenderContext);
+  }
+
+  filteredRenderPipelines.Clear();
+
+  {
+    EZ_LOCK(s_DeletedPipelinesMutex);
+
+    for (ezUInt32 i = s_DeletedPipelines.GetCount(); i-- > 0;)
+    {
+      auto& deletedPipeline = s_DeletedPipelines[i];
+      deletedPipeline.m_uiFrameUntilDeletion--;
+
+      if (deletedPipeline.m_uiFrameUntilDeletion == 0)
+      {
+        deletedPipeline.m_pPipeline.Reset();
+        s_DeletedPipelines.RemoveAt(i);
+      }
+    }
   }
 }
 
@@ -165,4 +235,17 @@ bool ezRenderLoop::GetUseMultithreadedRendering()
 void ezRenderLoop::FinishFrame()
 {
   ++s_uiFrameCounter;
+}
+
+void ezRenderLoop::OnEngineShutdown()
+{
+  for (auto pView : s_MainViews)
+  {
+    pView->~ezView();
+    ezFoundation::GetDefaultAllocator()->Deallocate(pView);
+  }
+
+  ClearMainViews();
+
+  s_DeletedPipelines.Clear();
 }

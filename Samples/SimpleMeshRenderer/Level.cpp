@@ -69,9 +69,9 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfigHandle h
   m_pView = ezRenderLoop::CreateView("Asteroids - View");
   ezRenderLoop::AddMainView(m_pView);
 
-  ezRenderPipeline* pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
+  ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
   pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezSimpleRenderPass, hRTConfig));
-  m_pView->SetRenderPipeline(pRenderPipeline);
+  m_pView->SetRenderPipeline(std::move(pRenderPipeline));
 
   ezSizeU32 size = m_pWindow->GetClientAreaSize();
   m_pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));
@@ -95,19 +95,6 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfigHandle h
 
 void GameState::DestroyGameLevel()
 {
-  /// \todo: we need some better cleanup mechanism here
-  auto views = ezRenderLoop::GetMainViews();
-  for (auto pView : views)
-  {
-    ezRenderPipeline* pRenderPipeline = pView->GetRenderPipeline();
-
-    EZ_DEFAULT_DELETE(pRenderPipeline);
-
-    EZ_DEFAULT_DELETE(pView);
-  }
-
-  ezRenderLoop::ClearMainViews();
-
   EZ_DEFAULT_DELETE(m_pWorld);
 }
 

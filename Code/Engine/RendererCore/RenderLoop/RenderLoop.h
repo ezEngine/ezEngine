@@ -37,17 +37,12 @@ public:
 
 
 private:
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, RendererLoop);
+
+  static void OnEngineShutdown();
 
   static ezUInt32 s_uiFrameCounter;
 
-  static bool s_bInExtract;
-  static ezTaskGroupID s_ExtractionFinishedTaskID;
-
   static ezDynamicArray<ezView*> s_MainViews;
-
-  static ezMutex s_ViewsToRenderMutex;
-  static ezDynamicArray<ezView*> s_ViewsToRender;
-
-  static ezDynamicArray<ezView*> s_FilteredViewsToRender[2];
 };
 

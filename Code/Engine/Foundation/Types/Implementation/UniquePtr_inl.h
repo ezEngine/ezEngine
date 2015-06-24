@@ -58,6 +58,12 @@ EZ_FORCE_INLINE T* ezUniquePtr<T>::Release()
 }
 
 template <typename T>
+EZ_FORCE_INLINE T* ezUniquePtr<T>::Borrow() const
+{
+  return m_pInstance;
+}
+
+template <typename T>
 EZ_FORCE_INLINE void ezUniquePtr<T>::Reset()
 {
   EZ_DELETE(m_pAllocator, m_pInstance);

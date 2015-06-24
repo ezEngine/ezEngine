@@ -3,6 +3,33 @@
 #include <RendererCore/Pipeline/View.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezView, ezNode, 1, ezRTTINoAllocator);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("RenderTarget0", m_PinRenderTarget0),
+    EZ_MEMBER_PROPERTY("RenderTarget1", m_PinRenderTarget1),
+    EZ_MEMBER_PROPERTY("RenderTarget2", m_PinRenderTarget2),
+    EZ_MEMBER_PROPERTY("RenderTarget3", m_PinRenderTarget3),
+    EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil)
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+ezView::ezView()
+  : m_ExtractTask("", ezMakeDelegate(&ezView::ExtractData, this))
+{
+  m_pWorld = nullptr;
+  m_pLogicCamera = nullptr;
+  m_pRenderCamera = nullptr;
+
+  m_uiLastCameraSettingsModification = 0;
+  m_uiLastCameraOrientationModification = 0;
+  m_fLastViewportAspectRatio = 1.0f;
+}
+
+ezView::~ezView()
+{
+  
+}
+
 void ezView::SetName(const char* szName)
 {
   m_sName.Assign(szName);
@@ -28,57 +55,37 @@ void ezView::ExtractData()
   m_pRenderPipeline->ExtractData(*this);
 }
 
-void ezView::Render(ezRenderContext* pRenderer)
-{
-  EZ_ASSERT_DEV(IsValid(), "Cannot render an invalid view");
-
-  EZ_PROFILE(m_RenderProfilingID);
-
-  m_pRenderPipeline->Render(*this, pRenderer);
-}
-
-ezResult ezView::ComputePickingRay(float fScreenPosX, float fScreenPosY, ezVec3& out_RayStartPos, ezVec3& out_RayDir)
-{
-  UpdateCachedMatrices();
-
-  ezVec3 vScreenPos;
-  vScreenPos.x = fScreenPosX;
-  vScreenPos.y = 1.0f - fScreenPosY;
-  vScreenPos.z = 0.0f;
-
-  return ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InverseViewProjectionMatrix, 0, 0, 1, 1, vScreenPos, out_RayStartPos, &out_RayDir);
-}
-
 void ezView::UpdateCachedMatrices() const
 {
-  EZ_ASSERT_DEV(m_pRenderCamera != nullptr, "Render camera is not set");
+  const ezCamera* pCamera = GetRenderCamera();
 
   bool bUpdateVP = false;
 
-  if (m_uiLastCameraOrientationModification != m_pRenderCamera->GetOrientationModificationCounter())
+  if (m_uiLastCameraOrientationModification != pCamera->GetOrientationModificationCounter())
   {
     bUpdateVP = true;
-    m_uiLastCameraOrientationModification = m_pRenderCamera->GetOrientationModificationCounter();
+    m_uiLastCameraOrientationModification = pCamera->GetOrientationModificationCounter();
 
-    m_pRenderCamera->GetViewMatrix(m_ViewMatrix);
-    m_InverseViewMatrix = m_ViewMatrix.GetInverse();
+    pCamera->GetViewMatrix(m_Data.m_ViewMatrix);
+    m_Data.m_InverseViewMatrix = m_Data.m_ViewMatrix.GetInverse();
   }
 
-  if (m_uiLastCameraSettingsModification != m_pRenderCamera->GetSettingsModificationCounter() ||
-      m_fLastViewportAspectRatio != m_ViewPortRect.width / m_ViewPortRect.height)
+  const float fViewportAspectRatio = m_Data.m_ViewPortRect.width / m_Data.m_ViewPortRect.height;
+  if (m_uiLastCameraSettingsModification != pCamera->GetSettingsModificationCounter() ||
+    m_fLastViewportAspectRatio != fViewportAspectRatio)
   {
     bUpdateVP = true;
-    m_uiLastCameraSettingsModification = m_pRenderCamera->GetSettingsModificationCounter();
-    m_fLastViewportAspectRatio = m_ViewPortRect.width / m_ViewPortRect.height;
+    m_uiLastCameraSettingsModification = pCamera->GetSettingsModificationCounter();
+    m_fLastViewportAspectRatio = fViewportAspectRatio;
 
-    m_pRenderCamera->GetProjectionMatrix(m_fLastViewportAspectRatio, m_ProjectionMatrix);
-    m_InverseProjectionMatrix = m_ProjectionMatrix.GetInverse();
+    pCamera->GetProjectionMatrix(m_fLastViewportAspectRatio, m_Data.m_ProjectionMatrix);
+    m_Data.m_InverseProjectionMatrix = m_Data.m_ProjectionMatrix.GetInverse();
   }
 
   if (bUpdateVP)
   {
-    m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
-    m_InverseViewProjectionMatrix = m_ViewProjectionMatrix.GetInverse();
+    m_Data.m_ViewProjectionMatrix = m_Data.m_ProjectionMatrix * m_Data.m_ViewMatrix;
+    m_Data.m_InverseViewProjectionMatrix = m_Data.m_ViewProjectionMatrix.GetInverse();
   }
 }
 

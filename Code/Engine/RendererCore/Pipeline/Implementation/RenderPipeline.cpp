@@ -1,5 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
 
@@ -58,11 +59,15 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   // Usually clear is not needed, only if the multithreading flag is switched during runtime.
   ClearPipelineData(pPipelineData);
 
-  ezExtractRenderDataMessage msg;
-  msg.m_pRenderPipeline = this;
-  msg.m_pView = &view;
+  // Store camera and viewdata
+  pPipelineData->m_Camera = *view.GetRenderCamera();
+  pPipelineData->m_ViewData = view.GetData();
 
+  // Extract object render data
   {
+    ezExtractRenderDataMessage msg;
+    msg.m_pView = &view;
+
     EZ_LOCK(view.GetWorld()->GetReadMarker());
 
     /// \todo use spatial data to do visibility culling etc.
@@ -80,37 +85,40 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   }
 }
 
-void ezRenderPipeline::Render(const ezView& view, ezRenderContext* pRendererContext)
+void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
 {
   EZ_ASSERT_DEV(m_uiLastRenderFrame != ezRenderLoop::GetFrameCounter(), "Render must not be called multiple times per frame.");
   m_uiLastRenderFrame = ezRenderLoop::GetFrameCounter();
 
-  // calculate camera matrices
-  const ezRectFloat& viewPortRect = view.GetViewport();
-  pRendererContext->GetGALContext()->SetViewport(viewPortRect.x, viewPortRect.y, viewPortRect.width, viewPortRect.height, 0.0f, 1.0f);
-
-  ezRenderViewContext renderViewContext;
-  renderViewContext.m_pView = &view;
-  renderViewContext.m_pRenderContext = pRendererContext;
+  const PipelineData* pPipelineData = GetPipelineDataForRendering();
+  const ezCamera* pCamera = &pPipelineData->m_Camera;
+  const ezViewData* pViewData = &pPipelineData->m_ViewData;
 
   auto& gc = pRendererContext->WriteGlobalConstants();
-  gc.CameraPosition = view.GetRenderCamera()->GetPosition();
-  gc.CameraDirForwards = view.GetRenderCamera()->GetDirForwards();
-  gc.CameraDirRight = view.GetRenderCamera()->GetDirRight();
-  gc.CameraDirUp = view.GetRenderCamera()->GetDirUp();
-  gc.CameraToScreenMatrix = view.GetProjectionMatrix();
-  gc.ScreenToCameraMatrix = view.GetInverseProjectionMatrix();
-  gc.WorldToCameraMatrix = view.GetViewMatrix();
-  gc.CameraToWorldMatrix = view.GetInverseViewMatrix();
-  gc.WorldToScreenMatrix = view.GetViewProjectionMatrix();
-  gc.ScreenToWorldMatrix = view.GetInverseViewProjectionMatrix();
-  gc.Viewport = ezVec4(view.GetViewport().x, view.GetViewport().y, view.GetViewport().width, view.GetViewport().height);
+  gc.CameraPosition = pCamera->GetPosition();
+  gc.CameraDirForwards = pCamera->GetDirForwards();
+  gc.CameraDirRight = pCamera->GetDirRight();
+  gc.CameraDirUp = pCamera->GetDirUp();
+  gc.CameraToScreenMatrix = pViewData->m_ProjectionMatrix;
+  gc.ScreenToCameraMatrix = pViewData->m_InverseProjectionMatrix;
+  gc.WorldToCameraMatrix = pViewData->m_ViewMatrix;
+  gc.CameraToWorldMatrix = pViewData->m_InverseViewMatrix;
+  gc.WorldToScreenMatrix = pViewData->m_ViewProjectionMatrix;
+  gc.ScreenToWorldMatrix = pViewData->m_InverseViewProjectionMatrix;
+  gc.Viewport = ezVec4(pViewData->m_ViewPortRect.x, pViewData->m_ViewPortRect.y, pViewData->m_ViewPortRect.width, pViewData->m_ViewPortRect.height);
 
-  //ezLog::Dev("Camera Pos: %.2f | %.2f | %.2f", gc.CameraPosition.x, gc.CameraPosition.y, gc.CameraPosition.z);
+  ezRenderViewContext renderViewContext;
+  renderViewContext.m_pCamera = pCamera;
+  renderViewContext.m_pViewData = pViewData;
+  renderViewContext.m_pRenderContext = pRendererContext;
 
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
   {
-    m_Passes[i]->Run(renderViewContext);
+    {
+      EZ_PROFILE(m_Passes[i]->m_ProfilingID);
+
+      m_Passes[i]->Execute(renderViewContext);
+    }
   }
 
   ClearPipelineData(GetPipelineDataForRendering());
@@ -119,6 +127,7 @@ void ezRenderPipeline::Render(const ezView& view, ezRenderContext* pRendererCont
 void ezRenderPipeline::AddPass(ezUniquePtr<ezRenderPipelinePass>&& pPass)
 {
   pPass->m_pPipeline = this;
+  pPass->InitializePins();
 
   m_Passes.PushBack(std::move(pPass));
 }

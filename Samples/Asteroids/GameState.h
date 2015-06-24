@@ -18,7 +18,7 @@ private:
 
   void SetupInput();
   void CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfigHandle hRTConfig);
-  void DestroyLevelAndRenderPipeline();
+  void DestroyLevel();
 
   Level* m_pLevel;
   GameWindow* m_pWindow;

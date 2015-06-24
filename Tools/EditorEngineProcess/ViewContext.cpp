@@ -5,6 +5,7 @@
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/SimpleRenderPass.h>
+#include <RendererCore/Pipeline/View.h>
 #include <GameFoundation/GameApplication.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcess/PickingRenderPass.h>
@@ -109,9 +110,7 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
   {
     if (m_pView != nullptr)
     {
-      ezRenderPipeline* pRenderPipeline = m_pView->GetRenderPipeline();
-      EZ_DEFAULT_DELETE(pRenderPipeline);
-      EZ_DEFAULT_DELETE(m_pView);
+      ezRenderLoop::DeleteView(m_pView);
     }
 
     m_pView = ezRenderLoop::CreateView("Editor - View");
@@ -119,10 +118,10 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
     ezUniquePtr<ezPickingRenderPass> pRenderPass = EZ_DEFAULT_NEW(ezPickingRenderPass, m_hPickingRenderTargetCfg);
     pRenderPass->m_Events.AddEventHandler(ezMakeDelegate(&ezViewContext::RenderPassEventHandler, this));
 
-    ezRenderPipeline* pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
+    ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
     pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezSimpleRenderPass, m_hBBRT));
     pRenderPipeline->AddPass(std::move(pRenderPass));
-    m_pView->SetRenderPipeline(pRenderPipeline);
+    m_pView->SetRenderPipeline(std::move(pRenderPipeline));
 
     m_pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));
 

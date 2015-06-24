@@ -31,8 +31,11 @@ public:
   template <typename U>
   void operator=(ezUniquePtr<U>&& other);
 
-  /// \brief Returns the managed object. The unique ptr will be empty afterwards.
+  /// \brief Releases the managed object. The unique ptr will be empty afterwards.
   T* Release();
+
+  /// \brief Borrows the managed object. The unique ptr stays unmodified.
+  T* Borrow() const;
 
   /// \brief Destroys the managed object and resets the unique ptr.
   void Reset();

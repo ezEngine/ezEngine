@@ -71,11 +71,24 @@ void ezGameApplication::RemoveWindow(ezWindowBase* pWindow)
     WindowContext& windowContext = m_Windows[i];
     if (windowContext.m_pWindow == pWindow)
     {
-      ezGALDevice::GetDefaultDevice()->DestroySwapChain(m_Windows[i].m_hSwapChain);
+      ezGALDevice::GetDefaultDevice()->DestroySwapChain(windowContext.m_hSwapChain);
       m_Windows.RemoveAt(i);
       break;
     }
   }
+}
+
+ezGALSwapChainHandle ezGameApplication::GetSwapChain(const ezWindowBase* pWindow) const
+{
+  for (auto& windowContext : m_Windows)
+  {
+    if (windowContext.m_pWindow == pWindow)
+    {
+      return windowContext.m_hSwapChain;
+    }
+  }
+
+  return ezGALSwapChainHandle();
 }
 
 void ezGameApplication::SetCurrentGameState(ezGameStateBase& currentGameState)

@@ -1,6 +1,9 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelinePass, ezNode, 1, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
 ezRenderPipelinePass::ezRenderPipelinePass(const char* szName)
 {
   m_sName.Assign(szName);
@@ -27,11 +30,10 @@ void ezRenderPipelinePass::AddRenderer(ezUniquePtr<ezRenderer>&& pRenderer)
   }
 }
 
-void ezRenderPipelinePass::Run(const ezRenderViewContext& renderViewContext)
+void ezRenderPipelinePass::GetRenderTargetDescriptions(ezDynamicArray<ezGALTextureCreationDescription*>& outputs,
+  ezDynamicArray<ezGALTextureCreationDescription*>& helper)
 {
-  EZ_PROFILE(m_ProfilingID);
 
-  Execute(renderViewContext);
 }
 
 void ezRenderPipelinePass::RenderDataWithPassType(const ezRenderViewContext& renderViewContext, ezRenderPassType passType)

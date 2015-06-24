@@ -6,6 +6,18 @@
 #include <RendererFoundation/Context/Context.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleRenderPass, ezRenderPipelinePass, 1, ezRTTIDefaultAllocator<ezSimpleRenderPass>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("Color", m_PinColor),
+    EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil)
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+ezSimpleRenderPass::ezSimpleRenderPass() : ezRenderPipelinePass("SimpleRenderPass")
+{
+
+}
+
 ezSimpleRenderPass::ezSimpleRenderPass(ezGALRenderTargetConfigHandle hRTConfig) : ezRenderPipelinePass("SimpleRenderPass")
 {
   m_hRTConfig = hRTConfig;
@@ -20,6 +32,9 @@ ezSimpleRenderPass::~ezSimpleRenderPass()
 void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext)
 {
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
+
+  const ezRectFloat& viewPortRect = renderViewContext.m_pViewData->m_ViewPortRect;
+  pGALContext->SetViewport(viewPortRect.x, viewPortRect.y, viewPortRect.width, viewPortRect.height, 0.0f, 1.0f);
 
   pGALContext->SetRenderTargetConfig(m_hRTConfig);
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.1f));

@@ -35,8 +35,8 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderViewContext, ez
 
   renderViewContext.m_pRenderContext->BindConstantBuffer("ObjectConstants", m_hObjectTransformCB);
 
-  const ezMat4& ViewMatrix = renderViewContext.m_pView->GetViewMatrix();
-  const ezMat4& ViewProjMatrix = renderViewContext.m_pView->GetViewProjectionMatrix();
+  const ezMat4& ViewMatrix = renderViewContext.m_pViewData->m_ViewMatrix;
+  const ezMat4& ViewProjMatrix = renderViewContext.m_pViewData->m_ViewProjectionMatrix;
   ezMaterialResourceHandle hLastMaterial;
   
   ezUInt32 uiDataRendered = 0;

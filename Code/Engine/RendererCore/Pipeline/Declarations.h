@@ -5,15 +5,18 @@
 #include <RendererCore/Basics.h>
 
 class ezGameObject;
+class ezCamera;
 class ezView;
 class ezRenderPipeline;
 class ezRenderPipelinePass;
 class ezGALContext;
 class ezRenderContext;
+struct ezViewData;
 
 struct ezRenderViewContext
 {
-  const ezView* m_pView;
+  const ezCamera* m_pCamera;
+  const ezViewData* m_pViewData;
   ezRenderContext* m_pRenderContext;
 };
 
@@ -56,6 +59,5 @@ struct ezExtractRenderDataMessage : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezExtractRenderDataMessage);
 
-  ezRenderPipeline* m_pRenderPipeline;
   const ezView* m_pView;
 };

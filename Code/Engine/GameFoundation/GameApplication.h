@@ -25,6 +25,8 @@ public:
   ezGALSwapChainHandle AddWindow(ezWindowBase* pWindow);
   void RemoveWindow(ezWindowBase* pWindow);
 
+  ezGALSwapChainHandle GetSwapChain(const ezWindowBase* pWindow) const;
+
   void SetCurrentGameState(ezGameStateBase& currentGameState);
   EZ_FORCE_INLINE ezGameStateBase& GetCurrentGameState() const
   {

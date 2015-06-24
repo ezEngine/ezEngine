@@ -1,6 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/Pipeline/View.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderData, ezRenderData, 1, ezRTTINoAllocator);
@@ -48,7 +48,7 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
   if (!m_hMesh.IsValid())
     return;
 
-  ezRenderPipeline* pRenderPipeline = msg.m_pRenderPipeline;
+  ezRenderPipeline* pRenderPipeline = msg.m_pView->GetRenderPipeline();
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh);
   const ezDynamicArray<ezMeshResourceDescriptor::SubMesh>& parts = pMesh->GetSubMeshes();

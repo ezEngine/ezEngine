@@ -1,20 +1,17 @@
 #pragma once
 
-#include <Foundation/Math/Rect.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Threading/DelegateTask.h>
-#include <RendererCore/Basics.h>
+#include <RendererCore/Pipeline/RenderPipeline.h>
 
 class ezWorld;
-class ezCamera;
-class ezGALContext;
-class ezRenderPipeline;
-class ezRenderContext;
 
 /// \brief Encapsulates a view on the given world through the given camera and rendered with the specified RenderPipeline.
-class EZ_RENDERERCORE_DLL ezView
+class EZ_RENDERERCORE_DLL ezView : public ezNode
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezView);
+
 private:
   /// \brief Use ezRenderLoop::CreateView to create a view.
   ezView();
@@ -28,7 +25,7 @@ public:
   ezWorld* GetWorld();
   const ezWorld* GetWorld() const;
 
-  void SetRenderPipeline(ezRenderPipeline* pRenderPipeline);
+  void SetRenderPipeline(ezUniquePtr<ezRenderPipeline>&& pRenderPipeline);
   ezRenderPipeline* GetRenderPipeline() const;
 
   void SetLogicCamera(const ezCamera* pCamera);
@@ -40,13 +37,10 @@ public:
   void SetViewport(const ezRectFloat& viewport);
   const ezRectFloat& GetViewport() const;
 
+  const ezViewData& GetData() const;
+
   bool IsValid() const;
 
-  /// \brief Returns the start position and direction (in world space) of the picking ray through the screen position in this view.
-  ///
-  /// fScreenPosX and fScreenPosY are expected to be in [0; 1] range (normalized pixel coordinates).
-  /// If no ray can be computed, EZ_FAILURE is returned.
-  ezResult ComputePickingRay(float fScreenPosX, float fScreenPosY, ezVec3& out_RayStartPos, ezVec3& out_RayDir);
   
   /// \brief Extracts all relevant data from the world to render the view.
   void ExtractData();
@@ -54,9 +48,12 @@ public:
   /// \brief Returns a task implementation that calls ExtractData on this view.
   ezTask* GetExtractTask();
 
-  /// \brief Renders the extracted data with the view's pipeline.
-  void Render(ezRenderContext* pRenderer);
 
+  /// \brief Returns the start position and direction (in world space) of the picking ray through the screen position in this view.
+  ///
+  /// fScreenPosX and fScreenPosY are expected to be in [0; 1] range (normalized pixel coordinates).
+  /// If no ray can be computed, EZ_FAILURE is returned.
+  ezResult ComputePickingRay(float fScreenPosX, float fScreenPosY, ezVec3& out_RayStartPos, ezVec3& out_RayDir);
   
   /// \brief Returns the current projection matrix.
   const ezMat4& GetProjectionMatrix() const;
@@ -77,7 +74,7 @@ public:
   const ezMat4& GetInverseViewProjectionMatrix() const;
 
 private:
-  friend class ezMemoryUtils;
+  friend class ezRenderLoop;
 
   ezHashedString m_sName;
 
@@ -87,11 +84,16 @@ private:
   ezDelegateTask<void> m_ExtractTask;
 
   ezWorld* m_pWorld; 
-  ezRenderPipeline* m_pRenderPipeline;
+  ezUniquePtr<ezRenderPipeline> m_pRenderPipeline;
   const ezCamera* m_pLogicCamera;
   const ezCamera* m_pRenderCamera;
 
-  ezRectFloat m_ViewPortRect;
+private:
+  ezInputNodePin m_PinRenderTarget0;
+  ezInputNodePin m_PinRenderTarget1;
+  ezInputNodePin m_PinRenderTarget2;
+  ezInputNodePin m_PinRenderTarget3;
+  ezInputNodePin m_PinDepthStencil;
 
 private:
   void UpdateCachedMatrices() const;
@@ -99,13 +101,8 @@ private:
   mutable ezUInt32 m_uiLastCameraSettingsModification;
   mutable ezUInt32 m_uiLastCameraOrientationModification;
   mutable float m_fLastViewportAspectRatio;
-  mutable ezMat4 m_ViewMatrix;
-  mutable ezMat4 m_InverseViewMatrix;
-  mutable ezMat4 m_ProjectionMatrix;
-  mutable ezMat4 m_InverseProjectionMatrix;
-  mutable ezMat4 m_ViewProjectionMatrix;
-  mutable ezMat4 m_InverseViewProjectionMatrix;
-
+  
+  mutable ezViewData m_Data;
 };
 
 #include <RendererCore/Pipeline/Implementation/View_inl.h>

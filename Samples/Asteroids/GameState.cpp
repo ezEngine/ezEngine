@@ -8,7 +8,7 @@
 
 #include <InputXBox360/InputDeviceXBox.h>
 
-#include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Pipeline/SimpleRenderPass.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <Core/Application/Config/ApplicationConfig.h>
@@ -90,7 +90,7 @@ void AsteroidGameState::Deactivate()
 {
   EZ_LOG_BLOCK("AsteroidGameState::Deactivate");
 
-  DestroyLevelAndRenderPipeline();
+  DestroyLevel();
 
   EZ_DEFAULT_DELETE(m_pWindow);
 
@@ -209,9 +209,9 @@ void AsteroidGameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfig
   ezView* pView = ezRenderLoop::CreateView("Asteroids - View");
   ezRenderLoop::AddMainView(pView);
 
-  ezRenderPipeline* pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
+  ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
   pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezSimpleRenderPass, hRTConfig));
-  pView->SetRenderPipeline(pRenderPipeline);
+  pView->SetRenderPipeline(std::move(pRenderPipeline));
 
   ezSizeU32 size = m_pWindow->GetClientAreaSize();
   pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));
@@ -220,20 +220,7 @@ void AsteroidGameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfig
   pView->SetLogicCamera(m_pLevel->GetCamera());
 }
 
-void AsteroidGameState::DestroyLevelAndRenderPipeline()
+void AsteroidGameState::DestroyLevel()
 {
-  /// \todo: we need some better cleanup mechanism here
-  auto views = ezRenderLoop::GetMainViews();
-  for (auto pView : views)
-  {
-    ezRenderPipeline* pRenderPipeline = pView->GetRenderPipeline();
-    
-    EZ_DEFAULT_DELETE(pRenderPipeline);
-
-    EZ_DEFAULT_DELETE(pView);
-  }
-
-  ezRenderLoop::ClearMainViews();
-
   EZ_DEFAULT_DELETE(m_pLevel);
 }

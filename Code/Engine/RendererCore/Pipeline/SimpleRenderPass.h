@@ -5,7 +5,10 @@
 
 class EZ_RENDERERCORE_DLL ezSimpleRenderPass : public ezRenderPipelinePass
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezSimpleRenderPass);
+
 public:
+  ezSimpleRenderPass();
   ezSimpleRenderPass(ezGALRenderTargetConfigHandle hRTConfig);
   ~ezSimpleRenderPass();
 
@@ -13,4 +16,7 @@ public:
 
 private:
   ezGALRenderTargetConfigHandle m_hRTConfig;
+
+  ezPassThroughNodePin m_PinColor;
+  ezPassThroughNodePin m_PinDepthStencil;
 };
