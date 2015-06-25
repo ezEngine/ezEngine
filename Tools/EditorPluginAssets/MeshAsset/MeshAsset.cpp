@@ -7,9 +7,27 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <CoreUtils/Image/Image.h>
+#include <RendererCore/Meshes/MeshResourceDescriptor.h>
+#include <../ThirdParty/AssImp/include/scene.h>
+#include <../ThirdParty/AssImp/include/Importer.hpp>
+#include <../ThirdParty/AssImp/include/postprocess.h>
+#include <../ThirdParty/AssImp/include/Logger.hpp>
+#include <../ThirdParty/AssImp/include/LogStream.hpp>
+#include <../ThirdParty/AssImp/include/DefaultLogger.hpp>
+
+using namespace Assimp;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, ezAssetDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+class aiLogStream : public LogStream
+{
+public:
+  void write(const char* message)
+  {
+    ezLog::Dev("AssImp: %s", message);
+  }
+};
 
 ezMeshAssetDocument::ezMeshAssetDocument(const char* szDocumentPath) : ezSimpleAssetDocument<ezMeshAssetProperties, ezMeshAssetObject, ezMeshAssetObjectManager>(szDocumentPath)
 {
@@ -28,9 +46,197 @@ ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriterBase& stream,
 {
   const ezMeshAssetProperties* pProp = GetProperties();
 
+  ezString sMeshFileAbs = pProp->m_sMeshFile;
+  if (!ezEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sMeshFileAbs))
+  {
+    ezLog::Error("Mesh Asset Transform failed: Input Path '%s' is not in any data directory", sMeshFileAbs.GetData());
+    return ezStatus("Could not make path absolute: '%s;", sMeshFileAbs.GetData());
+  }
 
+  Importer importer;
 
+  DefaultLogger::create("", Logger::NORMAL);
 
+  const unsigned int severity = Logger::Debugging | Logger::Info | Logger::Err | Logger::Warn;
+  DefaultLogger::get()->attachStream(new aiLogStream(), severity);
+
+  const aiScene* scene = nullptr;
+
+  {
+    EZ_LOG_BLOCK("Importing Mesh", sMeshFileAbs.GetData());
+
+    scene = importer.ReadFile(sMeshFileAbs.GetData(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_PreTransformVertices);
+
+    if (!scene)
+    {
+      ezLog::Error("Could not import file '%s'", sMeshFileAbs.GetData());
+      return ezStatus("Mesh Asset input file could not be imported");
+    }
+  }
+
+  ezLog::Success("Mesh has been imported", sMeshFileAbs.GetData());
+
+  ezLog::Info("Number of unique Meshes: %u", scene->mNumMeshes);
+
+  ezMeshResourceDescriptor desc;
+
+  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
+  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
+
+  ezUInt32 uiVertices = 0;
+  ezUInt32 uiTriangles = 0;
+
+  for (ezUInt32 i = 0; i < scene->mNumMeshes; ++i)
+  {
+    uiVertices += scene->mMeshes[i]->mNumVertices;
+    uiTriangles += scene->mMeshes[i]->mNumFaces;
+  }
+
+  ezLog::Info("Number of Vertices: %u", uiVertices);
+  ezLog::Info("Number of Triangles: %u", uiTriangles);
+
+  desc.MeshBufferDesc().AllocateStreams(uiVertices, uiTriangles);
+
+  ezUInt32 uiCurVertex = 0;
+  ezUInt32 uiCurTriangle = 0;
+
+  desc.SetMaterial(0, "");
+
+  aiString name;
+  ezStringBuilder sMatName;
+
+  for (ezUInt32 i = 0; i < scene->mNumMeshes; ++i)
+  {
+    desc.AddSubMesh(scene->mMeshes[i]->mNumFaces, uiCurTriangle, scene->mMeshes[i]->mMaterialIndex);
+
+    aiMaterial* mat = scene->mMaterials[scene->mMeshes[i]->mMaterialIndex];
+
+    mat->Get(AI_MATKEY_NAME, name);
+    //pProp->GetResourceSlotProperty(i).m_sSlotName = name.C_Str();
+
+    sMatName = pProp->GetResourceSlotProperty(i);
+
+    desc.SetMaterial(scene->mMeshes[i]->mMaterialIndex, sMatName);
+
+    for (ezUInt32 f = 0; f < scene->mMeshes[i]->mNumFaces; ++f, ++uiCurTriangle)
+    {
+      EZ_ASSERT_DEV(scene->mMeshes[i]->mFaces[f].mNumIndices == 3, "");
+
+      desc.MeshBufferDesc().SetTriangleIndices(uiCurTriangle, uiCurVertex + scene->mMeshes[i]->mFaces[f].mIndices[0], uiCurVertex + scene->mMeshes[i]->mFaces[f].mIndices[1], uiCurVertex + scene->mMeshes[i]->mFaces[f].mIndices[2]);
+    }
+
+    const ezUInt32 uiBaseVertex = uiCurVertex;
+
+    ezUInt32 uiThisVertex = uiBaseVertex;
+    for (ezUInt32 v = 0; v < scene->mMeshes[i]->mNumVertices; ++v, ++uiThisVertex)
+    {
+      desc.MeshBufferDesc().SetVertexData(0, uiThisVertex, ezVec3(scene->mMeshes[i]->mVertices[v].x, scene->mMeshes[i]->mVertices[v].y, scene->mMeshes[i]->mVertices[v].z));
+    }
+    uiCurVertex = uiThisVertex;
+
+    uiThisVertex = uiBaseVertex;
+    if (scene->mMeshes[i]->mTextureCoords[0])
+    {
+      for (ezUInt32 v = 0; v < scene->mMeshes[i]->mNumVertices; ++v, ++uiThisVertex)
+      {
+        desc.MeshBufferDesc().SetVertexData(1, uiThisVertex, ezVec2(scene->mMeshes[i]->mTextureCoords[0][v].x, 1.0f - scene->mMeshes[i]->mTextureCoords[0][v].y));
+      }
+    }
+    else
+    {
+      for (ezUInt32 v = 0; v < scene->mMeshes[i]->mNumVertices; ++v, ++uiThisVertex)
+      {
+        desc.MeshBufferDesc().SetVertexData(1, uiThisVertex, ezVec2(0.0f, 0.0f));
+      }
+    }
+
+    uiThisVertex = uiBaseVertex;
+    if (scene->mMeshes[i]->mNormals)
+    {
+      for (ezUInt32 v = 0; v < scene->mMeshes[i]->mNumVertices; ++v, ++uiThisVertex)
+      {
+        desc.MeshBufferDesc().SetVertexData(2, uiThisVertex, ezVec3(scene->mMeshes[i]->mNormals[v].x, scene->mMeshes[i]->mNormals[v].y, scene->mMeshes[i]->mNormals[v].z));
+      }
+    }
+    else
+    {
+      for (ezUInt32 v = 0; v < scene->mMeshes[i]->mNumVertices; ++v, ++uiThisVertex)
+      {
+        desc.MeshBufferDesc().SetVertexData(2, uiThisVertex, ezVec3(0.0f, 1.0f, 0.0f));
+      }
+
+    }
+  }
+
+  desc.Save(stream);
+
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezMeshAssetDocument::InternalRetrieveAssetInfo(const char * szPlatform)
+{
+  ezMeshAssetProperties* pProp = GetProperties();
+
+  ezString sMeshFileAbs = pProp->m_sMeshFile;
+  if (!ezEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sMeshFileAbs))
+  {
+    ezLog::Error("Mesh Asset Transform failed: Input Path '%s' is not in any data directory", sMeshFileAbs.GetData());
+    return ezStatus("Could not make path absolute: '%s;", sMeshFileAbs.GetData());
+  }
+
+  Importer importer;
+
+  DefaultLogger::create("", Logger::NORMAL);
+
+  const unsigned int severity = Logger::Debugging | Logger::Info | Logger::Err | Logger::Warn;
+  DefaultLogger::get()->attachStream(new aiLogStream(), severity);
+
+  const aiScene* scene = nullptr;
+
+  {
+    EZ_LOG_BLOCK("Importing Mesh", sMeshFileAbs.GetData());
+
+    scene = importer.ReadFile(sMeshFileAbs.GetData(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_PreTransformVertices);
+
+    if (!scene)
+    {
+      ezLog::Error("Could not import file '%s'", sMeshFileAbs.GetData());
+      return ezStatus("Mesh Asset input file could not be imported");
+    }
+  }
+
+  ezLog::Success("Mesh has been imported", sMeshFileAbs.GetData());
+
+  ezLog::Info("Number of unique Meshes: %u", scene->mNumMeshes);
+
+  ezUInt32 uiVertices = 0;
+  ezUInt32 uiTriangles = 0;
+
+  for (ezUInt32 i = 0; i < scene->mNumMeshes; ++i)
+  {
+    uiVertices += scene->mMeshes[i]->mNumVertices;
+    uiTriangles += scene->mMeshes[i]->mNumFaces;
+  }
+
+  ezLog::Info("Number of Vertices: %u", uiVertices);
+  ezLog::Info("Number of Triangles: %u", uiTriangles);
+
+  pProp->m_uiVertices = uiVertices;
+  pProp->m_uiTriangles = uiTriangles;
+  pProp->m_SlotNames.SetCount(scene->mNumMeshes);
+
+  aiString name;
+  ezStringBuilder sMatName;
+
+  for (ezUInt32 i = 0; i < scene->mNumMeshes; ++i)
+  {
+    aiMaterial* mat = scene->mMaterials[scene->mMeshes[i]->mMaterialIndex];
+
+    mat->Get(AI_MATKEY_NAME, name);
+
+    pProp->m_SlotNames[i] = name.C_Str();
+  }
 
   return ezStatus(EZ_SUCCESS);
 }

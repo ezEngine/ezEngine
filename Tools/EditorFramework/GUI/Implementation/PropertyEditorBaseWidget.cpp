@@ -24,6 +24,13 @@
 
 /// *** BASE ***
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResourceSlotProperty, ezReflectedClass, 1, ezRTTINoAllocator);
+EZ_BEGIN_PROPERTIES
+EZ_MEMBER_PROPERTY_READ_ONLY("Slot", m_sSlotName),
+EZ_MEMBER_PROPERTY("Resource", m_sResource),
+EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
 ezPropertyEditorBaseWidget::ezPropertyEditorBaseWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent) : QWidget(pParent)
 {
   m_szDisplayName = szName;

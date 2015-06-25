@@ -54,7 +54,10 @@ ezResourceLoadDesc ezMeshResource::UpdateContent(ezStreamReaderBase* Stream)
     ezString sAbsFilePath;
     (*Stream) >> sAbsFilePath;
   }
-    
+
+  ezUInt64 uiAssetHash = 0;
+  *Stream >> uiAssetHash;
+
   if (desc.Load(*Stream).Failed())
   {
     res.m_State = ezResourceState::LoadedResourceMissing;

@@ -19,6 +19,12 @@ public:
     return &pObject->m_MemberProperties;
   }
 
+  PropertyType* GetProperties()
+  {
+    AssetObjectType* pObject = static_cast<AssetObjectType*>(GetObjectManager()->GetRootObject()->GetChildren()[0]);
+    return &pObject->m_MemberProperties;
+  }
+
 protected:
   virtual void InitializeAfterLoading() override
   {

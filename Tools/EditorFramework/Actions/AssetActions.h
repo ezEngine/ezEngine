@@ -17,6 +17,7 @@ public:
   static ezActionDescriptorHandle s_hTransformAllAssets;
   static ezActionDescriptorHandle s_hCheckFileSystem;
   static ezActionDescriptorHandle s_hWriteLookupTable;
+  static ezActionDescriptorHandle s_hRetrieveAssetInfo;
 };
 
 ///
@@ -30,6 +31,7 @@ public:
     TransformAllAssets,
     CheckFileSystem,
     WriteLookupTable,
+    RetrieveAssetInfo,
   };
 
   ezAssetAction(const ezActionContext& context, const char* szName, ButtonType button);

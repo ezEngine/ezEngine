@@ -5,6 +5,7 @@
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Types/Variant.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
+#include <EditorFramework/GUI/PropertyEditorBaseWidget.moc.h>
 #include <QWidget>
 
 class QCheckBox;
@@ -20,6 +21,16 @@ class QStandardItem;
 class QToolButton;
 class QMenu;
 /// *** BASE ***
+
+class EZ_EDITORFRAMEWORK_DLL ezResourceSlotProperty : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezResourceSlotProperty);
+
+public:
+
+  ezString m_sSlotName;
+  ezString m_sResource;
+};
 
 class EZ_EDITORFRAMEWORK_DLL ezPropertyEditorBaseWidget : public QWidget
 {

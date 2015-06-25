@@ -17,5 +17,6 @@ public:
 protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) override;
   virtual ezStatus InternalTransformAsset(ezStreamWriterBase& stream, const char* szPlatform) override;
+  virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override;
 
 };

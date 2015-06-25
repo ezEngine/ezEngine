@@ -155,6 +155,25 @@ ezStatus ezAssetDocument::TransformAsset(const char* szPlatform)
   return InternalTransformAsset(file, sPlatform);
 }
 
+ezStatus ezAssetDocument::RetrieveAssetInfo(const char* szPlatform)
+{
+  ezString sPlatform = szPlatform;
+
+  if (sPlatform.IsEmpty())
+    sPlatform = ezAssetCurator::GetInstance()->GetActivePlatform();
+
+  ezStatus stat = InternalRetrieveAssetInfo(sPlatform);
+
+  if (stat.m_Result.Succeeded())
+  {
+    AssetEvent e;
+    e.m_Type = AssetEvent::Type::AssetInfoChanged;
+    m_AssetEvents.Broadcast(e);
+  }
+
+  return stat;
+}
+
 void ezAssetDocument::SaveThumbnail(const ezImage& img)
 {
   const ezStringBuilder sResourceFile = static_cast<ezAssetDocumentManager*>(GetDocumentManager())->GenerateResourceThumbnailPath(GetDocumentPath());

@@ -1,0 +1,57 @@
+{
+  "Header" : [ {
+      "Type" : "ezAssetDocumentInfo",
+      "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "TypeData" : {
+        "DocumentID" : { "$t" : "uuid", "$b" : "0x7E56A3CE366D8F419259F2E157979BCC" },
+        "Dependencies" : "Sponza/sponza.obj",
+        "References" : "",
+        "Hash" : { "$t" : "uint64", "$v" : "9612508761400454229", "$b" : "0x55AC9A0BCA7D6685" },
+        "AssetType" : "Mesh"
+      }
+    } ],
+  "ObjectTree" : [ {
+      "Type" : "ezMeshAssetProperties",
+      "ID" : { "$t" : "uuid", "$b" : "0x71223D1E004E4D459AFC6EF27E6FFFA1" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "TypeData" : {
+        "Mesh File" : "Sponza/sponza.obj",
+        "Material Slot 0" : "Sponza/Materials/leaf.ezMaterial",
+        "Material Slot 1" : "Sponza/Materials/vase_round.ezMaterial",
+        "Material Slot 2" : "Sponza/Materials/Material__57.ezMaterial",
+        "Material Slot 3" : "Sponza/Materials/Material__298.ezMaterial",
+        "Material Slot 4" : "Sponza/Materials/16___Default.ezMaterial",
+        "Material Slot 5" : "Sponza/Materials/bricks.ezMaterial",
+        "Material Slot 6" : "Sponza/Materials/arch.ezMaterial",
+        "Material Slot 7" : "Sponza/Materials/ceiling.ezMaterial",
+        "Material Slot 8" : "Sponza/Materials/column_a.ezMaterial",
+        "Material Slot 9" : "Sponza/Materials/floor.ezMaterial",
+        "Material Slot 10" : "Sponza/Materials/column_c.ezMaterial",
+        "Material Slot 11" : "Sponza/Materials/details.ezMaterial",
+        "Material Slot 12" : "Sponza/Materials/column_b.ezMaterial",
+        "Material Slot 13" : "Sponza/Materials/Material__47.ezMaterial",
+        "Material Slot 14" : "Sponza/Materials/flagpole.ezMaterial",
+        "Material Slot 15" : "Sponza/Materials/fabric_e.ezMaterial",
+        "Material Slot 16" : "Sponza/Materials/fabric_d.ezMaterial",
+        "Material Slot 17" : "Sponza/Materials/fabric_a.ezMaterial",
+        "Material Slot 18" : "Sponza/Materials/fabric_g.ezMaterial",
+        "Material Slot 19" : "Sponza/Materials/fabric_c.ezMaterial",
+        "Material Slot 20" : "Sponza/Materials/fabric_f.ezMaterial",
+        "Material Slot 21" : "Sponza/Materials/chain.ezMaterial",
+        "Material Slot 22" : "Sponza/Materials/vase_hanging.ezMaterial",
+        "Material Slot 23" : "Sponza/Materials/vase.ezMaterial",
+        "Material Slot 24" : "Sponza/Materials/Material__25.ezMaterial",
+        "Material Slot 25" : "Sponza/Materials/roof.ezMaterial",
+        "Material Slot 26" : "",
+        "Material Slot 27" : "",
+        "Material Slot 28" : "",
+        "Material Slot 29" : "",
+        "Material Slot 30" : "",
+        "Material Slot 31" : ""
+      },
+      "EditorTypeData" : {
+        
+      }
+    } ]
+}

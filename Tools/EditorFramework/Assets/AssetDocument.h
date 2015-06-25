@@ -44,12 +44,27 @@ public:
 
   ezStatus TransformAsset(const char* szPlatform = "");
 
+  ezStatus RetrieveAssetInfo(const char* szPlatform = "");
+
+  struct AssetEvent
+  {
+    enum class Type
+    {
+      AssetInfoChanged,
+    };
+
+    Type m_Type;
+  };
+
+  ezEvent<const AssetEvent&> m_AssetEvents;
+
 protected:
   ezUInt64 GetDocumentHash() const;
   void GetChildHash(const ezDocumentObjectBase* pObject, ezUInt64& uiHash) const;
   virtual ezStatus InternalSaveDocument() override;
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) = 0;
   virtual ezStatus InternalTransformAsset(ezStreamWriterBase& stream, const char* szPlatform) = 0;
+  virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) = 0;
 
   void SaveThumbnail(const ezImage& img);
 

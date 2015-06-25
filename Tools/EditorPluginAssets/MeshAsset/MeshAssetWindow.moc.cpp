@@ -48,19 +48,46 @@ ezMeshAssetDocumentWindow::ezMeshAssetDocumentWindow(ezDocumentBase* pDocument) 
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
 
+  m_pAssetDoc = static_cast<ezMeshAssetDocument*>(pDocument);
+  m_pAssetDoc->m_AssetEvents.AddEventHandler(ezMakeDelegate(&ezMeshAssetDocumentWindow::MeshAssetDocumentEventHandler, this));
+
+  m_pLabelInfo = new QLabel(this);
+  setCentralWidget(m_pLabelInfo);
+
+  m_pLabelInfo->setText("<Mesh Information>");
+
   UpdatePreview();
 }
 
 ezMeshAssetDocumentWindow::~ezMeshAssetDocumentWindow()
 {
+  m_pAssetDoc->m_AssetEvents.RemoveEventHandler(ezMakeDelegate(&ezMeshAssetDocumentWindow::MeshAssetDocumentEventHandler, this));
+
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezMeshAssetDocumentWindow::PropertyEventHandler, this));
+}
+
+void ezMeshAssetDocumentWindow::MeshAssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e)
+{
+  switch (e.m_Type)
+  {
+  case ezAssetDocument::AssetEvent::Type::AssetInfoChanged:
+    UpdatePreview();
+    break;
+  }
 }
 
 void ezMeshAssetDocumentWindow::UpdatePreview()
 {
-  //ezMeshAssetObject* pObject = (ezMeshAssetObject*)GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
+  ezMeshAssetObject* pObject = (ezMeshAssetObject*)GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
+  const auto& prop = pObject->m_MemberProperties;
+
+  ezStringBuilder s;
+  s.Format("Vertices: %u\nTriangles: %u\nSubMeshes: %u", prop.m_uiVertices, prop.m_uiTriangles, prop.m_SlotNames.GetCount());
+
+  for (ezUInt32 m = 0; m < prop.m_SlotNames.GetCount(); ++m)
+    s.AppendFormat("\nSlot %u: %s", m, prop.m_SlotNames[m].GetData());
   
-  // TODO
+  m_pLabelInfo->setText(QString::fromUtf8(s.GetData()));
 }
 
 void ezMeshAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
