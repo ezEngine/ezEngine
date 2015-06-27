@@ -419,12 +419,22 @@ void ezPropertyEditorLineEditWidget::on_BrowseFile_clicked()
   if (dlg.exec() == 0)
     return;
 
-  sFile = dlg.GetSelectedPath();
+  sFile = dlg.GetSelectedAssetGuid();
+
+  if (sFile.IsEmpty())
+  {
+    sFile = dlg.GetSelectedAssetPathRelative();
+
+    if (sFile.IsEmpty())
+    {
+      sFile = dlg.GetSelectedAssetPathAbsolute();
+
+      ezEditorApp::GetInstance()->MakePathDataDirectoryRelative(sFile);
+    }
+  }
 
   if (sFile.IsEmpty())
     return;
-
-  ezEditorApp::GetInstance()->MakePathDataDirectoryRelative(sFile);
 
   m_pWidget->setText(sFile.GetData());
   on_TextFinished_triggered();

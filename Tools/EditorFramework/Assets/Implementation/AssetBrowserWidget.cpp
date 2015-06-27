@@ -154,18 +154,17 @@ void ezAssetBrowserWidget::ProjectEventHandler(const ezToolsProject::Event& e)
 
 void ezAssetBrowserWidget::on_ListAssets_clicked(const QModelIndex & index)
 {
-  emit ItemSelected(m_pModel->data(index, Qt::UserRole + 1).toString());
+  emit ItemSelected(m_pModel->data(index, Qt::UserRole + 0).toString(), m_pModel->data(index, Qt::UserRole + 2).toString(), m_pModel->data(index, Qt::UserRole + 1).toString());
 }
 
 void ezAssetBrowserWidget::on_ListAssets_activated(const QModelIndex & index)
 {
-  emit ItemSelected(m_pModel->data(index, Qt::UserRole + 1).toString());
+  emit ItemSelected(m_pModel->data(index, Qt::UserRole + 0).toString(), m_pModel->data(index, Qt::UserRole + 2).toString(), m_pModel->data(index, Qt::UserRole + 1).toString());
 }
 
 void ezAssetBrowserWidget::on_ListAssets_doubleClicked(const QModelIndex& index)
 {
-  emit ItemChosen(m_pModel->data(index, Qt::UserRole + 1).toString());
-  //ezEditorApp::GetInstance()->OpenDocument(m_pModel->data(index, Qt::UserRole + 1).toString().toUtf8().data());
+  emit ItemChosen(m_pModel->data(index, Qt::UserRole + 0).toString(), m_pModel->data(index, Qt::UserRole + 2).toString(), m_pModel->data(index, Qt::UserRole + 1).toString());
 }
 
 void ezAssetBrowserWidget::on_ButtonListMode_clicked()

@@ -219,10 +219,26 @@ ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
     if (sPath.IsEmpty())
       continue;
 
-    if (!ezEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sPath))
+    if (ezConversionUtils::IsStringUuid(sPath))
     {
-      ezLog::Error("Failed to make path absolute '%s'", sPath.GetData());
-      return 0;
+      const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sPath);
+      auto* pAsset = GetAssetInfo(guid);
+
+      if (pAsset == nullptr)
+      {
+        ezLog::Error("Asset with guid '%s' is unknown", sPath.GetData());
+        return 0;
+      }
+
+      sPath = pAsset->m_sAbsolutePath;
+    }
+    else
+    {
+      if (!ezEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sPath))
+      {
+        ezLog::Error("Failed to make path absolute '%s'", sPath.GetData());
+        return 0;
+      }
     }
 
     ezFileReader file;

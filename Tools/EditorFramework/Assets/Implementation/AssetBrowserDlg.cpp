@@ -7,7 +7,8 @@ ezAssetBrowserDlg::ezAssetBrowserDlg(QWidget* parent, const char* szPreselectedA
 {
   setupUi(this);
 
-  m_sSelectedPath = szPreselectedAsset;
+  /// \todo Implement this
+  //m_sSelectedPath = szPreselectedAsset;
 
   AssetBrowserWidget->SetSelectedAsset(szPreselectedAsset);
   AssetBrowserWidget->ShowOnlyTheseTypeFilters(szVisibleFilters);
@@ -39,16 +40,23 @@ ezAssetBrowserDlg::~ezAssetBrowserDlg()
   AssetBrowserWidget->SaveState("AssetBrowserDlg");
 }
 
-void ezAssetBrowserDlg::on_AssetBrowserWidget_ItemSelected(QString sItemPath)
+void ezAssetBrowserDlg::on_AssetBrowserWidget_ItemSelected(QString sAssetGUID, QString sAssetPathRelative, QString sAssetPathAbsolute)
 {
-  m_sSelectedPath = sItemPath.toUtf8().data();
+  m_sSelectedAssetGuid = sAssetGUID.toUtf8().data();
+  m_sSelectedAssetPathRelative = sAssetPathRelative.toUtf8().data();
+  m_sSelectedAssetPathAbsolute = sAssetPathAbsolute.toUtf8().data();
 }
 
-void ezAssetBrowserDlg::on_AssetBrowserWidget_ItemChosen(QString sItemPath)
+void ezAssetBrowserDlg::on_AssetBrowserWidget_ItemChosen(QString sAssetGUID, QString sAssetPathRelative, QString sAssetPathAbsolute)
 {
-  m_sSelectedPath = sItemPath.toUtf8().data();
+  m_sSelectedAssetGuid = sAssetGUID.toUtf8().data();
+  m_sSelectedAssetPathRelative = sAssetPathRelative.toUtf8().data();
+  m_sSelectedAssetPathAbsolute = sAssetPathAbsolute.toUtf8().data();
+
   accept();
 }
+
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 void ezAssetBrowserDlg::on_ButtonFileDialog_clicked()
 {
@@ -56,7 +64,9 @@ void ezAssetBrowserDlg::on_ButtonFileDialog_clicked()
 
   static QString sLastPath;
 
-  m_sSelectedPath.Clear();
+  m_sSelectedAssetGuid.Clear();
+  m_sSelectedAssetPathRelative.Clear();
+  m_sSelectedAssetPathAbsolute.Clear();
 
   const QString sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open File"), sLastPath);
 
@@ -66,8 +76,19 @@ void ezAssetBrowserDlg::on_ButtonFileDialog_clicked()
     return;
   }
 
+  m_sSelectedAssetPathAbsolute = sFile.toUtf8().data();
+  m_sSelectedAssetPathRelative = m_sSelectedAssetPathAbsolute;
+
+  if (!ezEditorApp::GetInstance()->MakePathDataDirectoryRelative(m_sSelectedAssetPathRelative))
+  {
+    // \todo Message Box: Invalid Path
+
+    //reject();
+    //return;
+  }
+
   sLastPath = sFile;
-  on_AssetBrowserWidget_ItemChosen(sFile);
+  on_AssetBrowserWidget_ItemChosen("", QString::fromUtf8(m_sSelectedAssetPathRelative.GetData()), sFile);
 }
 
 void ezAssetBrowserDlg::on_ButtonOk_clicked()

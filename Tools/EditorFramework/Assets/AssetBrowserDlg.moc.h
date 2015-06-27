@@ -12,15 +12,19 @@ public:
   ezAssetBrowserDlg(QWidget* parent, const char* szPreselectedAsset, const char* szVisibleFilters);
   ~ezAssetBrowserDlg();
 
-  const char* GetSelectedPath() const { return m_sSelectedPath; }
+  const char* GetSelectedAssetPathRelative() const { return m_sSelectedAssetPathRelative; }
+  const char* GetSelectedAssetPathAbsolute() const { return m_sSelectedAssetPathAbsolute; }
+  const char* GetSelectedAssetGuid() const { return m_sSelectedAssetGuid; }
 
 private slots:
   void on_ButtonFileDialog_clicked();
-  void on_AssetBrowserWidget_ItemChosen(QString sItemPath);
-  void on_AssetBrowserWidget_ItemSelected(QString sItemPath);
+  void on_AssetBrowserWidget_ItemChosen(QString sAssetGUID, QString sAssetPathRelative, QString sAssetPathAbsolute);
+  void on_AssetBrowserWidget_ItemSelected(QString sAssetGUID, QString sAssetPathRelative, QString sAssetPathAbsolute);
   void on_ButtonOk_clicked();
   void on_ButtonCancel_clicked();
 
 private:
-  ezStringBuilder m_sSelectedPath;
+  ezString m_sSelectedAssetPathRelative;
+  ezString m_sSelectedAssetPathAbsolute;
+  ezString m_sSelectedAssetGuid;
 };

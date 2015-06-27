@@ -23,8 +23,8 @@ public:
   void RestoreState(const char* szSettingsName);
 
 signals:
-  void ItemChosen(QString sAssetPath);
-  void ItemSelected(QString sAssetPath);
+  void ItemChosen(QString sAssetGUID, QString sAssetPathRelative, QString sAssetPathAbsolute);
+  void ItemSelected(QString sAssetGUID, QString sAssetPathRelative, QString sAssetPathAbsolute);
 
 private slots:
   void OnTextFilterChanged();

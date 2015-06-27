@@ -25,7 +25,7 @@ private slots:
   void on_ButtonPluginConfig_clicked();
   void SlotComboSettingsDomainIndexChanged(int iIndex);
   void on_ButtonDataDirConfig_clicked();
-  void SlotAssetChosen(QString sAssetPath);
+  void SlotAssetChosen(QString sAssetGuid, QString sAssetPathRelative, QString sAssetPathAbsolute);
 
 private:
   virtual bool InternalCanCloseWindow() override;

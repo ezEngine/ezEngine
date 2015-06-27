@@ -59,7 +59,7 @@ ezSettingsTab::ezSettingsTab() : ezDocumentWindow("Settings")
 
   EZ_VERIFY(connect(m_pSettingsGrid, SIGNAL(value_changed()), this, SLOT(SlotSettingsChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(ComboSettingsDomain, SIGNAL(currentIndexChanged(int)), this, SLOT(SlotComboSettingsDomainIndexChanged(int))) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(AssetBrowserWidget, SIGNAL(ItemChosen(QString)), this, SLOT(SlotAssetChosen(QString))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(AssetBrowserWidget, SIGNAL(ItemChosen(QString, QString, QString)), this, SLOT(SlotAssetChosen(QString, QString, QString))) != nullptr, "signal/slot connection failed");
 
   m_DelegatePluginEvents = ezMakeDelegate(&ezSettingsTab::PluginEventHandler, this);
   m_DelegateProjectEvents = ezMakeDelegate(&ezSettingsTab::ProjectEventHandler, this);
@@ -226,9 +226,9 @@ void ezSettingsTab::on_ButtonPluginConfig_clicked()
   dlg.exec();
 }
 
-void ezSettingsTab::SlotAssetChosen(QString sAssetPath)
+void ezSettingsTab::SlotAssetChosen(QString sAssetGuid, QString sAssetPathRelative, QString sAssetPathAbsolute)
 {
-  ezEditorApp::GetInstance()->OpenDocument(sAssetPath.toUtf8().data());
+  ezEditorApp::GetInstance()->OpenDocument(sAssetPathAbsolute.toUtf8().data());
 }
 
 void ezSettingsTab::SlotComboSettingsDomainIndexChanged(int iIndex)

@@ -180,17 +180,14 @@ QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
     }
     break;
 
+  case Qt::UserRole + 0:
+    return QString::fromUtf8(ezConversionUtils::ToString(pAssetInfo->m_Info.m_DocumentID).GetData());
+
   case Qt::UserRole + 1:
-    {
-      return QString::fromUtf8(pAssetInfo->m_sAbsolutePath);
-    }
-    break;
+    return QString::fromUtf8(pAssetInfo->m_sAbsolutePath);
 
   case Qt::UserRole + 2:
-    {
-      return QString::fromUtf8(pAssetInfo->m_sRelativePath);
-    }
-    break;
+    return QString::fromUtf8(pAssetInfo->m_sRelativePath);
   }
 
   return QVariant();
@@ -235,7 +232,7 @@ int ezAssetBrowserModel::rowCount(const QModelIndex& parent) const
   if (parent.isValid())
     return 0;
 
-  return (int) m_AssetsToDisplay.GetCount();
+  return (int)m_AssetsToDisplay.GetCount();
 }
 
 int ezAssetBrowserModel::columnCount(const QModelIndex& parent) const

@@ -15,7 +15,7 @@ ezAssetBrowserPanel::ezAssetBrowserPanel() : ezApplicationPanel("Asset Browser")
 
   setWindowIcon(QIcon(QString::fromUtf8(":/GuiFoundation/Icons/Asset16.png")));
 
-  EZ_VERIFY(connect(AssetBrowserWidget, SIGNAL(ItemChosen(QString)), this, SLOT(SlotAssetChosen(QString))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(AssetBrowserWidget, SIGNAL(ItemChosen(QString, QString, QString)), this, SLOT(SlotAssetChosen(QString, QString, QString))) != nullptr, "signal/slot connection failed");
 
   AssetBrowserWidget->RestoreState("AssetBrowserPanel2");
   
@@ -30,7 +30,7 @@ ezAssetBrowserPanel::~ezAssetBrowserPanel()
   
 }
 
-void ezAssetBrowserPanel::SlotAssetChosen(QString sAssetPath)
+void ezAssetBrowserPanel::SlotAssetChosen(QString sAssetGuid, QString sAssetPathRelative, QString sAssetPathAbsolute)
 {
-  ezEditorApp::GetInstance()->OpenDocument(sAssetPath.toUtf8().data());
+  ezEditorApp::GetInstance()->OpenDocument(sAssetPathAbsolute.toUtf8().data());
 }

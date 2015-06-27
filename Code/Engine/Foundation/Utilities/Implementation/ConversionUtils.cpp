@@ -594,9 +594,29 @@ namespace ezConversionUtils
     return sb;
   }
 
+  bool IsStringUuid(const char* szText)
+  {
+    /// \test This is new
+
+    if (ezStringUtils::IsNullOrEmpty(szText))
+      return false;
+
+    if (szText[0] != '{')
+      return false;
+
+    if (ezStringUtils::GetStringElementCount(szText) != 40)
+      return false;
+
+    if ((szText[1] != ' ') || (szText[10] != '-') || (szText[15] != '-') || (szText[20] != '-') || (szText[25] != '-') || (szText[38] != ' ') || (szText[39] != '}'))
+      return false;
+
+    return true;
+  }
+
   ezUuid ConvertStringToUuid(const char* szText)
   {
     /// \test This is new
+    EZ_ASSERT_DEBUG(IsStringUuid(szText), "The given string is not in the correct Uuid format: '%s'", szText);
 
     while (*szText == '{' || ezStringUtils::IsWhiteSpace(*szText))
       ++szText;

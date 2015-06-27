@@ -1,0 +1,30 @@
+{
+  "Header" : [ {
+      "Type" : "ezAssetDocumentInfo",
+      "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "TypeData" : {
+        "DocumentID" : { "$t" : "uuid", "$b" : "0xEB871E9644B5754488B9A9A6BDD0ABC4" },
+        "Dependencies" : "Materials/BaseMaterials/Fullbright.ezMaterialAsset;Sponza/Textures/ezFlag_D.dds",
+        "References" : "",
+        "Hash" : { "$t" : "uint64", "$v" : "9019826036998784546", "$b" : "0x22C621D7FDDB2C7D" },
+        "AssetType" : "Material"
+      }
+    } ],
+  "ObjectTree" : [ {
+      "Type" : "ezMaterialAssetProperties",
+      "ID" : { "$t" : "uuid", "$b" : "0x2813F62E275F1848824FEDAB210DFE1A" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "TypeData" : {
+        "Base Material" : "Materials/BaseMaterials/Fullbright.ezMaterialAsset",
+        "Shader" : "",
+        "Permutations" : "",
+        "Diffuse Texture" : "Sponza/Textures/ezFlag_D.dds",
+        "Mask Texture" : "",
+        "Normal Map" : ""
+      },
+      "EditorTypeData" : {
+        
+      }
+    } ]
+}

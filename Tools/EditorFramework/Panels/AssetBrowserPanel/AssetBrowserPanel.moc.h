@@ -16,7 +16,7 @@ public:
   static ezAssetBrowserPanel* GetInstance() { return s_pInstance; }
 
 private slots:
-  void SlotAssetChosen(QString sAssetPath);
+  void SlotAssetChosen(QString sAssetGuid, QString sAssetPathRelative, QString sAssetPathAbsolute);
 
 private:
   static ezAssetBrowserPanel* s_pInstance;
