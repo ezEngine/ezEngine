@@ -114,6 +114,9 @@ void ezApplicationFileSystemConfig::Apply()
 
   ezStringBuilder s;
 
+  // Make sure previous calls to Apply do not accumulate
+  ezFileSystem::RemoveDataDirectoryGroup("AppFileSystemConfig");
+
   for (const auto& var : m_DataDirs)
   {
     s = GetProjectDirectory();

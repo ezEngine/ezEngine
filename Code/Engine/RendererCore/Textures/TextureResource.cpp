@@ -439,54 +439,85 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
 
   ezResourceLoadData res;
 
-  ezFileReader File;
-  if (File.Open(pResource->GetResourceID().GetData()).Failed())
-    return res;
+  bool bSRGB = false;
 
-  const ezStringBuilder sAbsolutePath = File.GetFilePathAbsolute();
-
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+  // Solid Color Textures
+  if (ezPathUtils::HasExtension(pResource->GetResourceID(), "color"))
   {
-    ezFileStats stat;
-    if (ezOSFile::GetFileStats(sAbsolutePath, stat).Succeeded())
+    ezStringBuilder sName = pResource->GetResourceID();
+    sName.RemoveFileExtension();
+
+    const ezColorGammaUB color = ezConversionUtils::GetColorByName(sName);
+
+    bSRGB = true;
+    pData->m_Image.SetWidth(4);
+    pData->m_Image.SetHeight(4);
+    pData->m_Image.SetDepth(1);
+    pData->m_Image.SetImageFormat(ezImageFormat::B8G8R8A8_UNORM_SRGB);
+    pData->m_Image.SetNumMipLevels(1);
+    pData->m_Image.SetNumFaces(1);
+    pData->m_Image.AllocateImageData();
+    ezUInt8* pPixels = pData->m_Image.GetPixelPointer<ezUInt8>();
+
+    for (ezUInt32 px = 0; px < 4 * 4 * 4; px += 4)
     {
-      res.m_LoadedFileModificationDate = stat.m_LastModificationTime;
+      pPixels[px + 0] = color.b;
+      pPixels[px + 1] = color.g;
+      pPixels[px + 2] = color.r;
+      pPixels[px + 3] = color.a;
     }
-  }
-#endif
-
-  /// In case this is not a proper asset (ezTex format), this is a hack to get the SRGB information for the texture
-  const ezStringBuilder sName = ezPathUtils::GetFileName(sAbsolutePath);
-  bool bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB") || sName.EndsWith_NoCase("_diff"));
-
-  if (sAbsolutePath.HasExtension("ezTex"))
-  {
-    // read the hash, ignore it
-    ezUInt64 uiAssetHash = 0;
-    File >> uiAssetHash;
-
-    // read the ezTex file format
-    File >> bSRGB;
-
-    ezDdsFileFormat fmt;
-    if (fmt.ReadImage(File, pData->m_Image, ezGlobalLog::GetInstance()).Failed())
-      return res;
   }
   else
   {
-    // read whatever format, as long as ezImage supports it
-    File.Close();
-
-    if (pData->m_Image.LoadFrom(pResource->GetResourceID()).Failed())
+    ezFileReader File;
+    if (File.Open(pResource->GetResourceID().GetData()).Failed())
       return res;
 
-    if (pData->m_Image.GetImageFormat() == ezImageFormat::B8G8R8_UNORM)
-    {
-      /// \todo A conversion to B8G8R8X8_UNORM currently fails
+    const ezStringBuilder sAbsolutePath = File.GetFilePathAbsolute();
 
-      ezLog::Warning("Texture resource uses inefficient BGR format, converting to BGRX: '%s'", sAbsolutePath.GetData());
-      if (ezImageConversionBase::Convert(pData->m_Image, pData->m_Image, ezImageFormat::B8G8R8A8_UNORM).Failed())
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+    {
+      ezFileStats stat;
+      if (ezOSFile::GetFileStats(sAbsolutePath, stat).Succeeded())
+      {
+        res.m_LoadedFileModificationDate = stat.m_LastModificationTime;
+      }
+    }
+#endif
+
+    /// In case this is not a proper asset (ezTex format), this is a hack to get the SRGB information for the texture
+    const ezStringBuilder sName = ezPathUtils::GetFileName(sAbsolutePath);
+    bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB") || sName.EndsWith_NoCase("_diff"));
+
+    if (sAbsolutePath.HasExtension("ezTex"))
+    {
+      // read the hash, ignore it
+      ezUInt64 uiAssetHash = 0;
+      File >> uiAssetHash;
+
+      // read the ezTex file format
+      File >> bSRGB;
+
+      ezDdsFileFormat fmt;
+      if (fmt.ReadImage(File, pData->m_Image, ezGlobalLog::GetInstance()).Failed())
         return res;
+    }
+    else
+    {
+      // read whatever format, as long as ezImage supports it
+      File.Close();
+
+      if (pData->m_Image.LoadFrom(pResource->GetResourceID()).Failed())
+        return res;
+
+      if (pData->m_Image.GetImageFormat() == ezImageFormat::B8G8R8_UNORM)
+      {
+        /// \todo A conversion to B8G8R8X8_UNORM currently fails
+
+        ezLog::Warning("Texture resource uses inefficient BGR format, converting to BGRX: '%s'", sAbsolutePath.GetData());
+        if (ezImageConversionBase::Convert(pData->m_Image, pData->m_Image, ezImageFormat::B8G8R8A8_UNORM).Failed())
+          return res;
+      }
     }
   }
 
@@ -512,6 +543,10 @@ void ezTextureResourceLoader::CloseDataStream(const ezResourceBase* pResource, c
 
 bool ezTextureResourceLoader::IsResourceOutdated(const ezResourceBase* pResource) const
 {
+  // solid color textures are never outdated
+  if (ezPathUtils::HasExtension(pResource->GetResourceID(), "color"))
+    return false;
+
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   if (pResource->GetLoadedFileModificationTime().IsValid())
   {

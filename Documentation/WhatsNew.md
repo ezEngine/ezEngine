@@ -1,6 +1,10 @@
 What's New {#WhatsNew}
 ==========
 
+Milestone 7
+-----------
+  * Added solid color texture resources. E.g. use a texture resource with name "CornflowerBlue.color" or "#FF00FF.color" or "FF00FF00.color" and a 4x4 color texture will be generated from memory, instead of read from disk.
+
 Milestone 6
 -----------
 

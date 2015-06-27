@@ -62,14 +62,6 @@ void ezEngineProcessGameState::Activate()
   SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
 #endif
 
-  // setup the 'asset management system'
-  {
-    // which redirection table to search
-    ezDataDirectory::FolderType::s_sRedirectionFile = "AssetCache/LookupTable.ezAsset";
-    // which platform assets to use
-    ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/PC/";
-  }
-
   {
     ezStringBuilder sAppDir = ezOSFile::GetApplicationDirectory();
     sAppDir.AppendPath("../../../Shared/Tools/EditorEngineProcess");

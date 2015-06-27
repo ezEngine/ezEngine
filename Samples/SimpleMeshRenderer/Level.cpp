@@ -78,19 +78,6 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfigHandle h
 
   m_pView->SetWorld(m_pWorld);
   m_pView->SetLogicCamera(&m_Camera);
-
-  // Setup default resources
-  {
-    ezTextureResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTextureResource>("Textures/LoadingTexture_D.dds");
-    ezTextureResourceHandle hMissingTexture = ezResourceManager::LoadResource<ezTextureResource>("Textures/MissingTexture_D.dds");
-    ezMaterialResourceHandle hMissingMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/Missing.ezMaterial");
-    ezMaterialResourceHandle hFallbackMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/Fallback.ezMaterial");
-
-    ezTextureResource::SetTypeFallbackResource(hFallbackTexture);
-    ezTextureResource::SetTypeMissingResource(hMissingTexture);
-    ezMaterialResource::SetTypeFallbackResource(hFallbackMaterial); // not working yet
-    ezMaterialResource::SetTypeMissingResource(hMissingMaterial);
-  }
 }
 
 void GameState::DestroyGameLevel()

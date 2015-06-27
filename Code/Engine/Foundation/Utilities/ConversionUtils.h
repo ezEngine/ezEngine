@@ -197,6 +197,14 @@ namespace ezConversionUtils
   {
     return "N/A";
   }
+
+  /// \brief Returns the color with the given name.
+  ///
+  /// Allowed are all predefined color names (case-insensitive), as well as Hex-Values in the form '#RRGGBB' and '#RRGGBBAA'
+  EZ_FOUNDATION_DLL ezColor GetColorByName(const char* szColorName);
+
+  /// \brief The inverse of GetColorByName
+  EZ_FOUNDATION_DLL ezString GetColorName(const ezColor& col);
 };
 
 

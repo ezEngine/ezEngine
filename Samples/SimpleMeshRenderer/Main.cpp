@@ -38,14 +38,6 @@ void GameState::Activate()
   ezStringBuilder sProjectDir = BUILDSYSTEM_OUTPUT_FOLDER;
   sProjectDir.AppendPath("../../Shared/Samples/SimpleMeshRenderer");
 
-  // setup the 'asset management system'
-  {
-    // which redirection table to search
-    ezDataDirectory::FolderType::s_sRedirectionFile = "AssetCache/LookupTable.ezAsset";
-    // which platform assets to use
-    ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/PC/";
-  }
-
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
   ezFileSystem::AddDataDirectory("");
   ezFileSystem::AddDataDirectory(sBaseDir.GetData(), ezFileSystem::ReadOnly, "Base");

@@ -5,6 +5,7 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Memory/FrameAllocator.h>
@@ -19,6 +20,10 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
+
+#include <RendererCore/Meshes/MeshResource.h>
+#include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/Material/MaterialResource.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <RendererDX11/Device/DeviceDX11.h>
@@ -109,6 +114,27 @@ void ezGameApplication::AfterEngineInit()
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 
   ezTelemetry::CreateServer();
+
+  // setup the 'asset management system'
+  {
+    // which redirection table to search
+    ezDataDirectory::FolderType::s_sRedirectionFile = "AssetCache/LookupTable.ezAsset";
+    // which platform assets to use
+    ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/PC/";
+  }
+
+  // Setup default resources
+  {
+    ezTextureResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTextureResource>("SlateGray.color"/*"Textures/LoadingTexture_D.dds"*/);
+    ezTextureResourceHandle hMissingTexture = ezResourceManager::LoadResource<ezTextureResource>("Magenta.color"/*"Textures/MissingTexture_D.dds"*/);
+    ezMaterialResourceHandle hMissingMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/Missing.ezMaterial");
+    ezMaterialResourceHandle hFallbackMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/Fallback.ezMaterial");
+
+    ezTextureResource::SetTypeFallbackResource(hFallbackTexture);
+    ezTextureResource::SetTypeMissingResource(hMissingTexture);
+    ezMaterialResource::SetTypeFallbackResource(hFallbackMaterial);
+    ezMaterialResource::SetTypeMissingResource(hMissingMaterial);
+  }
 
   // init rendering
   {

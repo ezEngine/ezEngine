@@ -681,6 +681,347 @@ namespace ezConversionUtils
     return result;
   }
 
+#define Check(name) if (ezStringUtils::IsEqual_NoCase(szColorName, #name)) return ezColor::name
+
+  ezColor GetColorByName(const char* szColorName)
+  {
+    /// \test This is new
+
+    if (ezStringUtils::IsNullOrEmpty(szColorName))
+      return ezColor::Black;
+
+    const ezUInt32 uiLen = ezStringUtils::GetStringElementCount(szColorName);
+
+    if (szColorName[0] == '#')
+    {
+      if (uiLen == 7 || uiLen == 9) // #RRGGBB or #RRGGBBAA
+      {
+        ezInt32 cv[4] = { 0, 0, 0, 255 };
+
+        cv[0] = (HexCharacterToIntValue(*(szColorName + 1)) << 4) | HexCharacterToIntValue(*(szColorName + 2));
+        cv[1] = (HexCharacterToIntValue(*(szColorName + 3)) << 4) | HexCharacterToIntValue(*(szColorName + 4));
+        cv[2] = (HexCharacterToIntValue(*(szColorName + 5)) << 4) | HexCharacterToIntValue(*(szColorName + 6));
+
+        if (uiLen == 9)
+          cv[3] = (HexCharacterToIntValue(*(szColorName + 7)) << 4) | HexCharacterToIntValue(*(szColorName + 8));
+
+        return ezColorGammaUB(cv[0], cv[1], cv[2], cv[3]);
+      }
+
+      // else RebeccaPurple !
+    }
+    else
+    {
+      Check(AliceBlue);
+      Check(AntiqueWhite);
+      Check(Aqua);
+      Check(Aquamarine);
+      Check(Azure);
+      Check(Beige);
+      Check(Bisque);
+      Check(Black);
+      Check(BlanchedAlmond);
+      Check(Blue);
+      Check(BlueViolet);
+      Check(Brown);
+      Check(BurlyWood);
+      Check(CadetBlue);
+      Check(Chartreuse);
+      Check(Chocolate);
+      Check(Coral);
+      Check(CornflowerBlue);
+      Check(Cornsilk);
+      Check(Crimson);
+      Check(Cyan);
+      Check(DarkBlue);
+      Check(DarkCyan);
+      Check(DarkGoldenRod);
+      Check(DarkGray);
+      Check(DarkGreen);
+      Check(DarkKhaki);
+      Check(DarkMagenta);
+      Check(DarkOliveGreen);
+      Check(DarkOrange);
+      Check(DarkOrchid);
+      Check(DarkRed);
+      Check(DarkSalmon);
+      Check(DarkSeaGreen);
+      Check(DarkSlateBlue);
+      Check(DarkSlateGray);
+      Check(DarkTurquoise);
+      Check(DarkViolet);
+      Check(DeepPink);
+      Check(DeepSkyBlue);
+      Check(DimGray);
+      Check(DodgerBlue);
+      Check(FireBrick);
+      Check(FloralWhite);
+      Check(ForestGreen);
+      Check(Fuchsia);
+      Check(Gainsboro);
+      Check(GhostWhite);
+      Check(Gold);
+      Check(GoldenRod);
+      Check(Gray);
+      Check(Green);
+      Check(GreenYellow);
+      Check(HoneyDew);
+      Check(HotPink);
+      Check(IndianRed);
+      Check(Indigo);
+      Check(Ivory);
+      Check(Khaki);
+      Check(Lavender);
+      Check(LavenderBlush);
+      Check(LawnGreen);
+      Check(LemonChiffon);
+      Check(LightBlue);
+      Check(LightCoral);
+      Check(LightCyan);
+      Check(LightGoldenRodYellow);
+      Check(LightGray);
+      Check(LightGreen);
+      Check(LightPink);
+      Check(LightSalmon);
+      Check(LightSeaGreen);
+      Check(LightSkyBlue);
+      Check(LightSlateGray);
+      Check(LightSteelBlue);
+      Check(LightYellow);
+      Check(Lime);
+      Check(LimeGreen);
+      Check(Linen);
+      Check(Magenta);
+      Check(Maroon);
+      Check(MediumAquaMarine);
+      Check(MediumBlue);
+      Check(MediumOrchid);
+      Check(MediumPurple);
+      Check(MediumSeaGreen);
+      Check(MediumSlateBlue);
+      Check(MediumSpringGreen);
+      Check(MediumTurquoise);
+      Check(MediumVioletRed);
+      Check(MidnightBlue);
+      Check(MintCream);
+      Check(MistyRose);
+      Check(Moccasin);
+      Check(NavajoWhite);
+      Check(Navy);
+      Check(OldLace);
+      Check(Olive);
+      Check(OliveDrab);
+      Check(Orange);
+      Check(OrangeRed);
+      Check(Orchid);
+      Check(PaleGoldenRod);
+      Check(PaleGreen);
+      Check(PaleTurquoise);
+      Check(PaleVioletRed);
+      Check(PapayaWhip);
+      Check(PeachPuff);
+      Check(Peru);
+      Check(Pink);
+      Check(Plum);
+      Check(PowderBlue);
+      Check(Purple);
+      Check(RebeccaPurple);
+      Check(Red);
+      Check(RosyBrown);
+      Check(RoyalBlue);
+      Check(SaddleBrown);
+      Check(Salmon);
+      Check(SandyBrown);
+      Check(SeaGreen);
+      Check(SeaShell);
+      Check(Sienna);
+      Check(Silver);
+      Check(SkyBlue);
+      Check(SlateBlue);
+      Check(SlateGray);
+      Check(Snow);
+      Check(SpringGreen);
+      Check(SteelBlue);
+      Check(Tan);
+      Check(Teal);
+      Check(Thistle);
+      Check(Tomato);
+      Check(Turquoise);
+      Check(Violet);
+      Check(Wheat);
+      Check(White);
+      Check(WhiteSmoke);
+      Check(Yellow);
+      Check(YellowGreen);
+    }
+
+    return ezColor::RebeccaPurple;
+  }
+
+#undef Check
+
+#define Check(name) if (ezColor::name == col) return #name
+
+  ezString GetColorName(const ezColor& col)
+  {
+    /// \test This is new
+
+    Check(AliceBlue);
+    Check(AntiqueWhite);
+    Check(Aqua);
+    Check(Aquamarine);
+    Check(Azure);
+    Check(Beige);
+    Check(Bisque);
+    Check(Black);
+    Check(BlanchedAlmond);
+    Check(Blue);
+    Check(BlueViolet);
+    Check(Brown);
+    Check(BurlyWood);
+    Check(CadetBlue);
+    Check(Chartreuse);
+    Check(Chocolate);
+    Check(Coral);
+    Check(CornflowerBlue);
+    Check(Cornsilk);
+    Check(Crimson);
+    Check(Cyan);
+    Check(DarkBlue);
+    Check(DarkCyan);
+    Check(DarkGoldenRod);
+    Check(DarkGray);
+    Check(DarkGreen);
+    Check(DarkKhaki);
+    Check(DarkMagenta);
+    Check(DarkOliveGreen);
+    Check(DarkOrange);
+    Check(DarkOrchid);
+    Check(DarkRed);
+    Check(DarkSalmon);
+    Check(DarkSeaGreen);
+    Check(DarkSlateBlue);
+    Check(DarkSlateGray);
+    Check(DarkTurquoise);
+    Check(DarkViolet);
+    Check(DeepPink);
+    Check(DeepSkyBlue);
+    Check(DimGray);
+    Check(DodgerBlue);
+    Check(FireBrick);
+    Check(FloralWhite);
+    Check(ForestGreen);
+    Check(Fuchsia);
+    Check(Gainsboro);
+    Check(GhostWhite);
+    Check(Gold);
+    Check(GoldenRod);
+    Check(Gray);
+    Check(Green);
+    Check(GreenYellow);
+    Check(HoneyDew);
+    Check(HotPink);
+    Check(IndianRed);
+    Check(Indigo);
+    Check(Ivory);
+    Check(Khaki);
+    Check(Lavender);
+    Check(LavenderBlush);
+    Check(LawnGreen);
+    Check(LemonChiffon);
+    Check(LightBlue);
+    Check(LightCoral);
+    Check(LightCyan);
+    Check(LightGoldenRodYellow);
+    Check(LightGray);
+    Check(LightGreen);
+    Check(LightPink);
+    Check(LightSalmon);
+    Check(LightSeaGreen);
+    Check(LightSkyBlue);
+    Check(LightSlateGray);
+    Check(LightSteelBlue);
+    Check(LightYellow);
+    Check(Lime);
+    Check(LimeGreen);
+    Check(Linen);
+    Check(Magenta);
+    Check(Maroon);
+    Check(MediumAquaMarine);
+    Check(MediumBlue);
+    Check(MediumOrchid);
+    Check(MediumPurple);
+    Check(MediumSeaGreen);
+    Check(MediumSlateBlue);
+    Check(MediumSpringGreen);
+    Check(MediumTurquoise);
+    Check(MediumVioletRed);
+    Check(MidnightBlue);
+    Check(MintCream);
+    Check(MistyRose);
+    Check(Moccasin);
+    Check(NavajoWhite);
+    Check(Navy);
+    Check(OldLace);
+    Check(Olive);
+    Check(OliveDrab);
+    Check(Orange);
+    Check(OrangeRed);
+    Check(Orchid);
+    Check(PaleGoldenRod);
+    Check(PaleGreen);
+    Check(PaleTurquoise);
+    Check(PaleVioletRed);
+    Check(PapayaWhip);
+    Check(PeachPuff);
+    Check(Peru);
+    Check(Pink);
+    Check(Plum);
+    Check(PowderBlue);
+    Check(Purple);
+    Check(RebeccaPurple);
+    Check(Red);
+    Check(RosyBrown);
+    Check(RoyalBlue);
+    Check(SaddleBrown);
+    Check(Salmon);
+    Check(SandyBrown);
+    Check(SeaGreen);
+    Check(SeaShell);
+    Check(Sienna);
+    Check(Silver);
+    Check(SkyBlue);
+    Check(SlateBlue);
+    Check(SlateGray);
+    Check(Snow);
+    Check(SpringGreen);
+    Check(SteelBlue);
+    Check(Tan);
+    Check(Teal);
+    Check(Thistle);
+    Check(Tomato);
+    Check(Turquoise);
+    Check(Violet);
+    Check(Wheat);
+    Check(White);
+    Check(WhiteSmoke);
+    Check(Yellow);
+    Check(YellowGreen);
+
+    ezColorGammaUB cg = col;
+
+    ezStringBuilder s;
+
+    if (cg.a == 255)
+      s.Format("#%02X%02X%02X", cg.r, cg.g, cg.b);
+    else
+      s.Format("#%02X%02X%02X%02X", cg.r, cg.g, cg.b, cg.a);
+    
+    return s;
+  }
+
+#undef Check
+
 } // namespace ezConvertionUtils
 
 
