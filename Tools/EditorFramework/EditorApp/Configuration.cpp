@@ -117,6 +117,9 @@ void ezEditorApp::SetupDataDirectories()
 
 void ezEditorApp::CreatePanels()
 {
+  /// \todo Test whether this is the reason why the editor doesn't always shut down
+  return;
+
   new ezLogPanel();
   new ezAssetBrowserPanel();
 }

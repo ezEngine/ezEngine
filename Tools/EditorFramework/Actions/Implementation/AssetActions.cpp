@@ -81,7 +81,7 @@ ezAssetAction::ezAssetAction(const ezActionContext& context, const char* szName,
     SetIconPath(":/GuiFoundation/Icons/WriteLookupTable16.png");
     break;
   case ezAssetAction::ButtonType::RetrieveAssetInfo:
-    SetIconPath(":/GuiFoundation/Icons/WriteLookupTable16.png");// tODO
+    SetIconPath(":/GuiFoundation/Icons/RetriveAssetInfo16.png");
     break;
   }
 }

@@ -24,6 +24,10 @@ ezActionDescriptorHandle ezProjectActions::s_hCloseProject;
 ezActionDescriptorHandle ezProjectActions::s_hSettingsCategory;
 ezActionDescriptorHandle ezProjectActions::s_hProjectSettings;
 
+ezActionDescriptorHandle ezProjectActions::s_hToolsMenu;
+ezActionDescriptorHandle ezProjectActions::s_hEngineCategory;
+ezActionDescriptorHandle ezProjectActions::s_hReloadResources;
+
 void ezProjectActions::RegisterActions()
 {
   s_hEditorMenu = EZ_REGISTER_MENU("EditorMenu", "Editor");
@@ -41,6 +45,10 @@ void ezProjectActions::RegisterActions()
 
   s_hSettingsCategory = EZ_REGISTER_CATEGORY("SettingsCategory");
   s_hProjectSettings = EZ_REGISTER_ACTION_1("Settings", "Settings", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::ProjectSettings);
+
+  s_hToolsMenu = EZ_REGISTER_MENU("ToolsMenu", "Tools");
+  s_hEngineCategory = EZ_REGISTER_CATEGORY("EngineCategory");
+  s_hReloadResources = EZ_REGISTER_ACTION_1("EngineReloadResources", "Reload Resources", ezActionScope::Global, "Engine", "F5", ezProjectAction, ezProjectAction::ButtonType::ReloadResources);
 }
 
 void ezProjectActions::UnregisterActions()
@@ -57,6 +65,9 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hCloseProject);
   ezActionManager::UnregisterAction(s_hSettingsCategory);
   ezActionManager::UnregisterAction(s_hProjectSettings);
+  ezActionManager::UnregisterAction(s_hToolsMenu);
+  ezActionManager::UnregisterAction(s_hEngineCategory);
+  ezActionManager::UnregisterAction(s_hReloadResources);
 }
 
 void ezProjectActions::MapActions(const char* szMapping)
@@ -79,6 +90,10 @@ void ezProjectActions::MapActions(const char* szMapping)
 
   pMap->MapAction(s_hSettingsCategory, "EditorMenu", 3.0f);
   pMap->MapAction(s_hProjectSettings, "EditorMenu/SettingsCategory", 1.0f);
+
+  pMap->MapAction(s_hToolsMenu, "", 4.0f);
+  pMap->MapAction(s_hEngineCategory, "ToolsMenu", 1.0f);
+  pMap->MapAction(s_hReloadResources, "ToolsMenu/EngineCategory", 1.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -208,6 +223,9 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
   case ezProjectAction::ButtonType::ProjectSettings:
     SetIconPath(":/GuiFoundation/Icons/Settings16.png");
     break;
+  case ezProjectAction::ButtonType::ReloadResources:
+    SetIconPath(":/GuiFoundation/Icons/ReloadResources16.png");
+    break;
   }
 
   if (m_ButtonType == ButtonType::CloseProject)
@@ -260,6 +278,14 @@ void ezProjectAction::Execute(const ezVariant& value)
 
   case ezProjectAction::ButtonType::ProjectSettings:
     ezEditorApp::GetInstance()->ShowSettingsDocument();
+    break;
+
+  case ezProjectAction::ButtonType::ReloadResources:
+    {
+      ezSimpleConfigMsgToEngine msg;
+      msg.m_sWhatToDo = "ReloadResources";
+      ezEditorEngineProcessConnection::GetInstance()->SendMessage(&msg);
+    }
     break;
   }
 

@@ -28,6 +28,10 @@ public:
 
   static ezActionDescriptorHandle s_hSettingsCategory;
   static ezActionDescriptorHandle s_hProjectSettings;
+
+  static ezActionDescriptorHandle s_hToolsMenu;
+  static ezActionDescriptorHandle s_hEngineCategory;
+  static ezActionDescriptorHandle s_hReloadResources;
 };
 
 ///
@@ -62,7 +66,8 @@ public:
     CreateProject,
     OpenProject,
     CloseProject,
-    ProjectSettings
+    ProjectSettings,
+    ReloadResources
   };
 
   ezProjectAction(const ezActionContext& context, const char* szName, ButtonType button);
