@@ -49,6 +49,7 @@ private:
   virtual void AfterEngineInit() override;
   virtual void BeforeEngineShutdown() override;
   
+  void SetupDefaultResources();
   void UpdateInput();
   void UpdateWorldsAndExtractViews();
   ezDelegateTask<void> m_UpdateTask;

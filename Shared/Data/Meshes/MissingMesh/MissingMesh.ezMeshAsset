@@ -1,0 +1,57 @@
+{
+  "Header" : [ {
+      "Type" : "ezAssetDocumentInfo",
+      "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "TypeData" : {
+        "DocumentID" : { "$t" : "uuid", "$b" : "0x67B1E6E98CC160429B0E4CF4503C1463" },
+        "Dependencies" : "Meshes/MissingMesh/MissingMesh.obj",
+        "References" : "",
+        "Hash" : { "$t" : "uint64", "$v" : "6393174126401927167", "$b" : "0xFFB767D7FE1DB958" },
+        "AssetType" : "Mesh"
+      }
+    } ],
+  "ObjectTree" : [ {
+      "Type" : "ezMeshAssetProperties",
+      "ID" : { "$t" : "uuid", "$b" : "0x2DF13322285E6842B39EB2AFF89474E8" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "TypeData" : {
+        "Mesh File" : "Meshes/MissingMesh/MissingMesh.obj",
+        "Material Slot 0" : "Materials/BaseMaterials/MissingMesh.ezMaterial",
+        "Material Slot 1" : "",
+        "Material Slot 2" : "",
+        "Material Slot 3" : "",
+        "Material Slot 4" : "",
+        "Material Slot 5" : "",
+        "Material Slot 6" : "",
+        "Material Slot 7" : "",
+        "Material Slot 8" : "",
+        "Material Slot 9" : "",
+        "Material Slot 10" : "",
+        "Material Slot 11" : "",
+        "Material Slot 12" : "",
+        "Material Slot 13" : "",
+        "Material Slot 14" : "",
+        "Material Slot 15" : "",
+        "Material Slot 16" : "",
+        "Material Slot 17" : "",
+        "Material Slot 18" : "",
+        "Material Slot 19" : "",
+        "Material Slot 20" : "",
+        "Material Slot 21" : "",
+        "Material Slot 22" : "",
+        "Material Slot 23" : "",
+        "Material Slot 24" : "",
+        "Material Slot 25" : "",
+        "Material Slot 26" : "",
+        "Material Slot 27" : "",
+        "Material Slot 28" : "",
+        "Material Slot 29" : "",
+        "Material Slot 30" : "",
+        "Material Slot 31" : ""
+      },
+      "EditorTypeData" : {
+        
+      }
+    } ]
+}

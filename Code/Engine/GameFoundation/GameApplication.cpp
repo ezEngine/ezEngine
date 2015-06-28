@@ -21,10 +21,6 @@
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 
-#include <RendererCore/Meshes/MeshResource.h>
-#include <RendererCore/Textures/TextureResource.h>
-#include <RendererCore/Material/MaterialResource.h>
-
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <RendererDX11/Device/DeviceDX11.h>
   typedef ezGALDeviceDX11 ezGALDeviceDefault;
@@ -123,18 +119,7 @@ void ezGameApplication::AfterEngineInit()
     ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/PC/";
   }
 
-  // Setup default resources
-  {
-    ezTextureResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTextureResource>("SlateGray.color"/*"Textures/LoadingTexture_D.dds"*/);
-    ezTextureResourceHandle hMissingTexture = ezResourceManager::LoadResource<ezTextureResource>("Magenta.color"/*"Textures/MissingTexture_D.dds"*/);
-    ezMaterialResourceHandle hMissingMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/Missing.ezMaterial");
-    ezMaterialResourceHandle hFallbackMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/Fallback.ezMaterial");
-
-    ezTextureResource::SetTypeFallbackResource(hFallbackTexture);
-    ezTextureResource::SetTypeMissingResource(hMissingTexture);
-    ezMaterialResource::SetTypeFallbackResource(hFallbackMaterial);
-    ezMaterialResource::SetTypeMissingResource(hMissingMaterial);
-  }
+  SetupDefaultResources();
 
   // init rendering
   {

@@ -1,0 +1,16 @@
+{
+  "BaseMaterial" : "Materials/BaseMaterials/Fullbright.ezMaterial",
+  
+  "Permutations" : 
+  {
+  },
+
+  "Constants" :
+  {
+  },
+  
+  "Textures" :
+  {
+    "TexDiffuse" : "Textures/MissingMesh_D.dds"
+  }  
+}
