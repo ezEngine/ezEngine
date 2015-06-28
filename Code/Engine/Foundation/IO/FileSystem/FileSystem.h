@@ -110,6 +110,9 @@ public:
   /// \brief Returns the n-th currently active data directory.
   static ezDataDirectoryType* GetDataDirectory(ezUInt32 uiDataDirIndex);
 
+  /// \brief Calls ezDataDirectoryType::ReloadExternalConfigs() on all active data directories.
+  static void ReloadAllExternalDataDirectoryConfigs();
+
 public:
 
   /// \brief Deletes the given file from all data directories, if possible.

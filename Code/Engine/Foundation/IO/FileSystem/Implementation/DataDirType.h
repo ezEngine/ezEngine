@@ -25,6 +25,11 @@ public:
   /// \brief Returns the absolute path to the data directory.
   const ezString128& GetDataDirectoryPath() const { return m_sDataDirectoryPath; }
 
+  /// \brief Some data directory types may use external configuration files (e.g. asset lookup tables)
+  ///        that may get updated, while the directory is mounted. This function allows each directory type to implement
+  ///        reloading and reapplying of configurations, without dismounting and remounting the data directory.
+  virtual void ReloadExternalConfigs() { };
+
 protected:
   friend class ezFileSystem;
 

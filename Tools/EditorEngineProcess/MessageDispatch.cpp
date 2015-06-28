@@ -48,6 +48,21 @@ void ezEngineProcessGameState::EventHandlerIPC(const ezProcessCommunication::Eve
     SendProjectReadyMessage();
     return;
   }
+  else if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSimpleConfigMsgToEngine>())
+  {
+    const ezSimpleConfigMsgToEngine* pMsg = static_cast<const ezSimpleConfigMsgToEngine*>(e.m_pMessage);
+
+    if (pMsg->m_sWhatToDo == "ReloadAssetLUT")
+    {
+      ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
+    }
+    else if (pMsg->m_sWhatToDo == "ReloadResources")
+    {
+      ezResourceManager::ReloadAllResources();
+    }
+    else
+      ezLog::Warning("Unknown ezSimpleConfigMsgToEngine '%s'", pMsg->m_sWhatToDo.GetData());
+  }
 
   static ezUInt32 uiMessagesPerFrame = 0;
   static ezUInt32 uiBlockingMessagesPerFrame = 0;
@@ -98,7 +113,7 @@ void ezEngineProcessGameState::EventHandlerIPC(const ezProcessCommunication::Eve
 
   if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenMsgToEngine>()) // Document was opened or closed
   {
-    ezDocumentOpenMsgToEngine* pMsg = (ezDocumentOpenMsgToEngine*) pDocMsg;
+    const ezDocumentOpenMsgToEngine* pMsg = static_cast<const ezDocumentOpenMsgToEngine*>(pDocMsg);
 
     if (pMsg->m_bDocumentOpen)
     {
@@ -115,7 +130,7 @@ void ezEngineProcessGameState::EventHandlerIPC(const ezProcessCommunication::Eve
   }
   else if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
   {
-    ezViewRedrawMsgToEngine* pMsg = (ezViewRedrawMsgToEngine*) pDocMsg;
+    const ezViewRedrawMsgToEngine* pMsg = static_cast<const ezViewRedrawMsgToEngine*>(pDocMsg);
 
     pViewContext->SetupRenderTarget(reinterpret_cast<HWND>(pMsg->m_uiHWND), pMsg->m_uiWindowWidth, pMsg->m_uiWindowHeight);
     pViewContext->Redraw();
@@ -137,14 +152,14 @@ void ezEngineProcessGameState::EventHandlerIPC(const ezProcessCommunication::Eve
   }
   else if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezEntityMsgToEngine>())
   {
-    ezEntityMsgToEngine* pMsg = (ezEntityMsgToEngine*) pDocMsg;
+    const ezEntityMsgToEngine* pMsg = static_cast<const ezEntityMsgToEngine*>(pDocMsg);
 
     HandlerEntityMsg(pDocumentContext, pViewContext, pMsg);
 
   }
   else if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewCameraMsgToEngine>())
   {
-    ezViewCameraMsgToEngine* pMsg = (ezViewCameraMsgToEngine*) pDocMsg;
+    const ezViewCameraMsgToEngine* pMsg = static_cast<const ezViewCameraMsgToEngine*>(pDocMsg);
 
     pViewContext->SetCamera(pMsg);
   }
@@ -152,20 +167,20 @@ void ezEngineProcessGameState::EventHandlerIPC(const ezProcessCommunication::Eve
   {
     ++uiSyncObjMessagesPerFrame;
 
-    ezEditorEngineSyncObjectMsg* pMsg = (ezEditorEngineSyncObjectMsg*) pDocMsg;
+    const ezEditorEngineSyncObjectMsg* pMsg = static_cast<const ezEditorEngineSyncObjectMsg*>(pDocMsg);
 
     pDocumentContext->ProcessEditorEngineSyncObjectMsg(*pMsg);
   }
   else if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingMsgToEngine>())
   {
     ++uiBlockingMessagesPerFrame;
-    ezViewPickingMsgToEngine* pMsg = (ezViewPickingMsgToEngine*)pDocMsg;
+    const ezViewPickingMsgToEngine* pMsg = static_cast<const ezViewPickingMsgToEngine*>(pDocMsg);
 
     pViewContext->PickObjectAt(pMsg->m_uiPickPosX, pMsg->m_uiPickPosY);
   }
   else if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewHighlightMsgToEngine>())
   {
-    ezViewHighlightMsgToEngine* pMsg = (ezViewHighlightMsgToEngine*)pDocMsg;
+    const ezViewHighlightMsgToEngine* pMsg = static_cast<const ezViewHighlightMsgToEngine*>(pDocMsg);
 
     ezUInt32 uiPickingID = m_OtherPickingMap.GetHandle(pMsg->m_HighlightObject);
     
@@ -173,9 +188,10 @@ void ezEngineProcessGameState::EventHandlerIPC(const ezProcessCommunication::Eve
 
     //ezLog::Info("Picking: GUID = %s, ID = %u", ezConversionUtils::ToString(pMsg->m_HighlightObject).GetData(), uiPickingID);
   }
+
 }
 
-void ezEngineProcessGameState::UpdateProperties(ezEntityMsgToEngine* pMsg, void* pObject, const ezRTTI* pRtti)
+void ezEngineProcessGameState::UpdateProperties(const ezEntityMsgToEngine* pMsg, void* pObject, const ezRTTI* pRtti)
 {
   ezMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
@@ -186,7 +202,7 @@ void ezEngineProcessGameState::UpdateProperties(ezEntityMsgToEngine* pMsg, void*
   ezReflectionSerializer::ReadObjectPropertiesFromJSON(reader, *pRtti, pObject);
 }
 
-void ezEngineProcessGameState::HandlerGameObjectMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg, ezRTTI* pRtti)
+void ezEngineProcessGameState::HandlerGameObjectMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, const ezEntityMsgToEngine* pMsg, ezRTTI* pRtti)
 {
   switch (pMsg->m_iMsgType)
   {
@@ -256,7 +272,7 @@ void ezEngineProcessGameState::HandlerGameObjectMsg(ezEngineProcessDocumentConte
   }
 }
 
-void ezEngineProcessGameState::HandleComponentMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg, ezRTTI* pRtti)
+void ezEngineProcessGameState::HandleComponentMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, const ezEntityMsgToEngine* pMsg, ezRTTI* pRtti)
 {
   ezComponentManagerBase* pMan = pDocumentContext->m_pWorld->GetComponentManager(pRtti);
 
@@ -345,7 +361,7 @@ void ezEngineProcessGameState::HandleComponentMsg(ezEngineProcessDocumentContext
 
 }
 
-void ezEngineProcessGameState::HandlerEntityMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg)
+void ezEngineProcessGameState::HandlerEntityMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, const ezEntityMsgToEngine* pMsg)
 {
 
   ezRTTI* pRtti = ezRTTI::FindTypeByName(pMsg->m_sObjectType);

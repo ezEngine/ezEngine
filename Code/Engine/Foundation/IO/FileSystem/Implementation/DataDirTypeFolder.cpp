@@ -1,5 +1,6 @@
 #include <Foundation/PCH.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/Logging/Log.h>
 
 namespace ezDataDirectory
 {
@@ -96,29 +97,20 @@ namespace ezDataDirectory
       EZ_DEFAULT_DELETE(m_Writers[i]);
   }
 
-  ezResult FolderType::InternalInitializeDataDirectory(const char* szDirectory)
+  void FolderType::ReloadExternalConfigs()
   {
-    // allow to set the 'empty' directory to handle all absolute paths
-    if (ezStringUtils::IsNullOrEmpty(szDirectory))
-      return EZ_SUCCESS;
+    LoadRedirectionFile();
+  }
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
-
-    ezFileStats stats;
-    if (ezOSFile::GetFileStats(szDirectory, stats) == EZ_FAILURE)
-      return EZ_FAILURE;
-
-    // If this is not a simple directory, this DataDirectoryType cannot mount it.
-    if (!stats.m_bIsDirectory)
-      return EZ_FAILURE;
-
-#endif
-
+  void FolderType::LoadRedirectionFile()
+  {
     m_FileRedirection.Clear();
 
     if (!s_sRedirectionFile.IsEmpty())
     {
-      ezStringBuilder sRedirectionFile(szDirectory, "/", s_sRedirectionFile);
+      ezStringBuilder sRedirectionFile(GetDataDirectoryPath(), "/", s_sRedirectionFile);
+
+      EZ_LOG_BLOCK("LoadRedirectionFile", sRedirectionFile.GetData());
 
       ezOSFile file;
       if (file.Open(sRedirectionFile, ezFileMode::Read).Succeeded())
@@ -127,7 +119,7 @@ namespace ezDataDirectory
         char uiTemp[4096];
 
         ezUInt64 uiRead = 0;
-        
+
         do
         {
           uiRead = file.Read(uiTemp, EZ_ARRAY_SIZE(uiTemp));
@@ -158,8 +150,33 @@ namespace ezDataDirectory
 
           szLineStart = szLineEnd + 1;
         }
+
+        ezLog::Success("Redirection file contains %u entries", m_FileRedirection.GetCount());
       }
+      else
+        ezLog::Warning("Redirection file could not be opened: '%s'", sRedirectionFile.GetData());
     }
+  }
+
+  ezResult FolderType::InternalInitializeDataDirectory(const char* szDirectory)
+  {
+    // allow to set the 'empty' directory to handle all absolute paths
+    if (ezStringUtils::IsNullOrEmpty(szDirectory))
+      return EZ_SUCCESS;
+
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+
+    ezFileStats stats;
+    if (ezOSFile::GetFileStats(szDirectory, stats) == EZ_FAILURE)
+      return EZ_FAILURE;
+
+    // If this is not a simple directory, this DataDirectoryType cannot mount it.
+    if (!stats.m_bIsDirectory)
+      return EZ_FAILURE;
+
+#endif
+
+    LoadRedirectionFile();
 
     return EZ_SUCCESS;
   }

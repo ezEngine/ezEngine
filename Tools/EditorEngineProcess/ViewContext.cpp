@@ -13,7 +13,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 
-void ezViewContext::SetCamera(ezViewCameraMsgToEngine* pMsg)
+void ezViewContext::SetCamera(const ezViewCameraMsgToEngine* pMsg)
 {
   m_Camera.SetCameraMode((ezCamera::CameraMode) pMsg->m_iCameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
 

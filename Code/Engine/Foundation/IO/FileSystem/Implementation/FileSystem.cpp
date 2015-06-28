@@ -520,6 +520,16 @@ ezResult ezFileSystem::ResolvePath(const char* szPath, bool bForWriting, ezStrin
   return bRet;
 }
 
+void ezFileSystem::ReloadAllExternalDataDirectoryConfigs()
+{
+  EZ_LOG_BLOCK("ReloadAllExternalDataDirectoryConfigs");
+
+  for (auto& dd : s_Data->m_DataDirectories)
+  {
+    dd.m_pDataDirectory->ReloadExternalConfigs();
+  }
+}
+
 void ezFileSystem::Startup()
 {
   s_Data = EZ_DEFAULT_NEW(FileSystemData);

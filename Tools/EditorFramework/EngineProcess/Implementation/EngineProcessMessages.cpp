@@ -26,6 +26,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectReadyMsgToEditor, ezEditorEngineMsg, 1, ezRTTIDefaultAllocator<ezProjectReadyMsgToEditor> );
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleConfigMsgToEngine, ezEditorEngineMsg, 1, ezRTTIDefaultAllocator<ezSimpleConfigMsgToEngine>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("WhatToDo", m_sWhatToDo),
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ///////////////////////////////////// ezEditorEngineDocumentMsg ///////////////////////////////////// 
 

@@ -424,6 +424,13 @@ ezResult ezAssetCurator::WriteAssetTables()
       res = EZ_FAILURE;
   }
 
+  ezSimpleConfigMsgToEngine msg;
+  msg.m_sWhatToDo = "ReloadAssetLUT";
+  ezEditorEngineProcessConnection::GetInstance()->SendMessage(&msg);
+
+  msg.m_sWhatToDo = "ReloadResources";
+  ezEditorEngineProcessConnection::GetInstance()->SendMessage(&msg);
+
   return res;
 }
 

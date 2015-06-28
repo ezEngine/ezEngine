@@ -44,6 +44,15 @@ public:
 
 };
 
+class EZ_EDITORFRAMEWORK_DLL ezSimpleConfigMsgToEngine : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSimpleConfigMsgToEngine);
+
+public:
+  ezString m_sWhatToDo;
+
+};
+
 ///////////////////////////////////// ezEditorEngineDocumentMsg ///////////////////////////////////// 
 
 /// \brief Base class for all messages that are tied to some document.

@@ -32,6 +32,8 @@ namespace ezDataDirectory
     /// If a redirection file is used AND the redirection lookup was successful, s_sRedirectionPrefix is prepended to the redirected file access.
     static ezString s_sRedirectionPrefix;
 
+    virtual void ReloadExternalConfigs() override;
+
   protected:
     // The implementations of the abstract functions.
 
@@ -46,6 +48,8 @@ namespace ezDataDirectory
 
     /// \brief Marks the given reader/writer as reusable.
     virtual void OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed) override;
+
+    void LoadRedirectionFile();
 
     ezHybridArray<ezDataDirectory::FolderReader*, 4> m_Readers;
     ezHybridArray<ezDataDirectory::FolderWriter*, 4> m_Writers;

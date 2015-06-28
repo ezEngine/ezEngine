@@ -31,7 +31,7 @@ public:
 
   void Redraw();
 
-  void SetCamera(ezViewCameraMsgToEngine* pMsg);
+  void SetCamera(const ezViewCameraMsgToEngine* pMsg);
 
   void PickObjectAt(ezUInt16 x, ezUInt16 y);
 
