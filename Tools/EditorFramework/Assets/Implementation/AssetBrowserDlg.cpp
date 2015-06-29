@@ -3,13 +3,20 @@
 #include <QSettings>
 #include <QFileDialog>
 
+ezMap<ezString, ezString> ezAssetBrowserDlg::s_sTextFilter;
+ezMap<ezString, ezString> ezAssetBrowserDlg::s_sPathFilter;
+ezMap<ezString, ezString> ezAssetBrowserDlg::s_sTypeFilter;
+
 ezAssetBrowserDlg::ezAssetBrowserDlg(QWidget* parent, const char* szPreselectedAsset, const char* szVisibleFilters) : QDialog(parent)
 {
   setupUi(this);
 
+  m_sVisibleFilters = szVisibleFilters;
+
   /// \todo Implement this
   //m_sSelectedPath = szPreselectedAsset;
 
+  AssetBrowserWidget->SetDialogMode(true);
   AssetBrowserWidget->SetSelectedAsset(szPreselectedAsset);
   AssetBrowserWidget->ShowOnlyTheseTypeFilters(szVisibleFilters);
 
@@ -24,10 +31,25 @@ ezAssetBrowserDlg::ezAssetBrowserDlg(QWidget* parent, const char* szPreselectedA
 
   AssetBrowserWidget->SetDialogMode();
   AssetBrowserWidget->RestoreState("AssetBrowserDlg");
+
+  if (!s_sTextFilter[m_sVisibleFilters].IsEmpty())
+    AssetBrowserWidget->GetAssetBrowserModel()->SetTextFilter(s_sTextFilter[m_sVisibleFilters]);
+
+  if (!s_sPathFilter[m_sVisibleFilters].IsEmpty())
+    AssetBrowserWidget->GetAssetBrowserModel()->SetPathFilter(s_sPathFilter[m_sVisibleFilters]);
+
+  if (!s_sTypeFilter[m_sVisibleFilters].IsEmpty())
+    AssetBrowserWidget->GetAssetBrowserModel()->SetTypeFilter(s_sTypeFilter[m_sVisibleFilters]);
+
+  AssetBrowserWidget->LineSearchFilter->setFocus();
 }
 
 ezAssetBrowserDlg::~ezAssetBrowserDlg()
 {
+  s_sTextFilter[m_sVisibleFilters] = AssetBrowserWidget->GetAssetBrowserModel()->GetTextFilter();
+  s_sPathFilter[m_sVisibleFilters] = AssetBrowserWidget->GetAssetBrowserModel()->GetPathFilter();
+  s_sTypeFilter[m_sVisibleFilters] = AssetBrowserWidget->GetAssetBrowserModel()->GetTypeFilter();
+
   QSettings Settings;
   Settings.beginGroup(QLatin1String("AssetBrowserDlg"));
   {

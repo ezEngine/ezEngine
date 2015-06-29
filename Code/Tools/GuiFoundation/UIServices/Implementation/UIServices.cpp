@@ -1,6 +1,8 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QSettings>
+#include <QProcess>
+#include <QDir>
 
 ezEvent<const ezUIServices::Event&> ezUIServices::s_Events;
 
@@ -54,3 +56,11 @@ void ezUIServices::ShowGlobalStatusBarMessage(const char* szMsg)
 
   s_Events.Broadcast(e);
 }
+
+void ezUIServices::OpenInExplorer(const char* szPath)
+{
+  QStringList args;
+  args << "/select," << QDir::toNativeSeparators(szPath);
+  QProcess::startDetached("explorer", args);
+}
+

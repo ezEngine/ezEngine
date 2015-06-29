@@ -116,7 +116,7 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item
   {
     QAction* pAction = nullptr;
 
-    if (!ezOSFile::Exists(s))
+    if (!ezOSFile::ExistsFile(s))
       continue;
 
     ezLRUMenuAction::Item item;
@@ -175,7 +175,7 @@ void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item,
 
   for (ezString s : ezEditorApp::GetInstance()->GetRecentProjectsList().GetFileList())
   {
-    if (!ezOSFile::Exists(s))
+    if (!ezOSFile::ExistsFile(s))
       continue;
 
     ezLRUMenuAction::Item item;

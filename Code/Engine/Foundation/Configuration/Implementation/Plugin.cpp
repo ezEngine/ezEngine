@@ -196,7 +196,7 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy, 
   ezStringBuilder sOldPlugin, sNewPlugin;
   GetPluginPaths(szPluginFile, sOldPlugin, sNewPlugin, uiFileNumber);
 
-  if (!ezOSFile::Exists(sOldPlugin))
+  if (!ezOSFile::ExistsFile(sOldPlugin))
   {
     ezLog::Error("The plugin '%s' does not exist.", szPluginFile);
     return EZ_FAILURE;
@@ -444,7 +444,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
         ezStringBuilder sOldPlugin, sNewPlugin;
         GetPluginPaths(pPlugin->m_sLoadedFromFile, sOldPlugin, sNewPlugin, g_LoadedPlugins[pPlugin->m_sLoadedFromFile].m_uiFileNumber);
 
-        if (!ezOSFile::Exists(sOldPlugin.GetData()))
+        if (!ezOSFile::ExistsFile(sOldPlugin.GetData()))
         {
           bModified = false;
           res = EZ_FAILURE;

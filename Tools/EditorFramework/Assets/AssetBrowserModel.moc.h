@@ -14,7 +14,12 @@ public:
   ~ezAssetBrowserModel();
   
   void resetModel();
+
   void SetIconMode(bool bIconMode) { m_bIconMode = bIconMode; }
+  bool GetIconMode() { return m_bIconMode; }
+
+  void SetShowItemsInSubFolders(bool bShow);
+  bool GetShowItemsInSubFolders() { return m_bShowItemsInSubFolders; }
 
   void SetTextFilter(const char* szText);
   const char* GetTextFilter() const { return m_sTextFilter; }
@@ -29,6 +34,7 @@ signals:
   void TextFilterChanged();
   void TypeFilterChanged();
   void PathFilterChanged();
+  void ShowSubFolderItemsChanged();
 
 private slots:
   void ThumbnailLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2);
@@ -44,6 +50,7 @@ public: //QAbstractItemModel interface
 
 private:
   bool m_bIconMode;
+  bool m_bShowItemsInSubFolders;
   void AssetCuratorEventHandler(const ezAssetCurator::Event& e);
 
   ezString m_sTextFilter, m_sTypeFilter, m_sPathFilter;

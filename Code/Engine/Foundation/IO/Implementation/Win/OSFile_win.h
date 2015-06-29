@@ -135,12 +135,20 @@ void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFilePos::Enum Pos) c
   }
 }
 
-bool ezOSFile::InternalExists(const char* szFile)
+bool ezOSFile::InternalExistsFile(const char* szFile)
 {
   ezStringWChar sPath(szFile);
   DWORD dwAttrib = GetFileAttributesW(sPath.GetData());
 
   return ((dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) == 0));
+}
+
+bool ezOSFile::InternalExistsDirectory(const char* szDirectory)
+{
+  ezStringWChar sPath(szDirectory);
+  DWORD dwAttrib = GetFileAttributesW(sPath.GetData());
+
+  return ((dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) != 0));
 }
 
 #endif // not EZ_USE_POSIX_FILE_API

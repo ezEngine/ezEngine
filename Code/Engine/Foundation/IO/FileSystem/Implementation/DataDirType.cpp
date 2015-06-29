@@ -18,7 +18,7 @@ bool ezDataDirectoryType::ExistsFile(const char* szFile)
 {
   ezStringBuilder sPath = m_sDataDirectoryPath;
   sPath.AppendPath(szFile);
-  return ezOSFile::Exists(sPath.GetData());
+  return ezOSFile::ExistsFile(sPath.GetData());
 }
 
 void ezDataDirectoryReaderWriterBase::Close()

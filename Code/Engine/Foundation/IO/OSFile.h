@@ -170,7 +170,10 @@ public:
   const ezOSFileData& GetFileData() const { return m_FileData; }
 
   /// \brief Checks whether the given file exists.
-  static bool Exists(const char* szFile); // [tested]
+  static bool ExistsFile(const char* szFile); // [tested]
+
+  /// \brief Checks whether the given file exists.
+  static bool ExistsDirectory(const char* szDirectory); // [tested]
 
   /// \brief Deletes the given file. Returns EZ_SUCCESS, if the file was deleted or did not exist in the first place. Returns EZ_FAILURE
   static ezResult DeleteFile(const char* szFile); // [tested]
@@ -203,6 +206,7 @@ public:
       FileOpen,     ///< A file has been (attempted) to open.
       FileClose,    ///< An open file has been closed.
       FileExists,   ///< A check whether a file exists has been done.
+      DirectoryExists, ///< A check whether a directory exists has been done. 
       FileDelete,   ///< A file was attempted to be deleted.
       FileRead,     ///< From an open file data was read.
       FileWrite,    ///< Data was written to an open file.
@@ -274,7 +278,8 @@ private:
   ezUInt64 InternalGetFilePosition() const;
   void InternalSetFilePosition(ezInt64 iDistance, ezFilePos::Enum Pos) const;
 
-  static bool InternalExists(const char* szFile);
+  static bool InternalExistsFile(const char* szFile);
+  static bool InternalExistsDirectory(const char* szDirectory);
   static ezResult InternalDeleteFile(const char* szFile);
   static ezResult InternalCreateDirectory(const char* szFile);
 

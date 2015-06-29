@@ -186,31 +186,47 @@ Only concrete and clocks.\n\
     EZ_TEST_BOOL(f.Open(sOutputFile2.GetData(), ezFileMode::Read) == EZ_FAILURE); // file should not exist anymore
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Exists File")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExistsFile")
   {
-    EZ_TEST_BOOL(ezOSFile::Exists(sOutputFile.GetData()) == false);
-    EZ_TEST_BOOL(ezOSFile::Exists(sOutputFile2.GetData()) == false);
+    EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile.GetData()) == false);
+    EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile2.GetData()) == false);
 
     {
       ezOSFile f;
       EZ_TEST_BOOL(f.Open(sOutputFile.GetData(), ezFileMode::Write) == EZ_SUCCESS);
     }
 
-    EZ_TEST_BOOL(ezOSFile::Exists(sOutputFile.GetData()) == true);
-    EZ_TEST_BOOL(ezOSFile::Exists(sOutputFile2.GetData()) == false);
+    EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile.GetData()) == true);
+    EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile2.GetData()) == false);
 
     {
       ezOSFile f;
       EZ_TEST_BOOL(f.Open(sOutputFile2.GetData(), ezFileMode::Write) == EZ_SUCCESS);
     }
 
-    EZ_TEST_BOOL(ezOSFile::Exists(sOutputFile.GetData()) == true);
-    EZ_TEST_BOOL(ezOSFile::Exists(sOutputFile2.GetData()) == true);
+    EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile.GetData()) == true);
+    EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile2.GetData()) == true);
 
     EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile.GetData()) == EZ_SUCCESS);
     EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile2.GetData()) == EZ_SUCCESS);
 
-    EZ_TEST_BOOL(ezOSFile::Exists(sOutputFile.GetData()) == false);
-    EZ_TEST_BOOL(ezOSFile::Exists(sOutputFile2.GetData()) == false);
+    EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile.GetData()) == false);
+    EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile2.GetData()) == false);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExistsDirectory")
+  {
+    // files are not folders
+    EZ_TEST_BOOL(ezOSFile::ExistsDirectory(sOutputFile.GetData()) == false);
+    EZ_TEST_BOOL(ezOSFile::ExistsDirectory(sOutputFile2.GetData()) == false);
+
+    ezStringBuilder sOutputFolder = BUILDSYSTEM_OUTPUT_FOLDER;
+    EZ_TEST_BOOL(ezOSFile::ExistsDirectory(sOutputFolder) == true);
+
+    sOutputFile.AppendPath("FoundationTest", "IO");
+    EZ_TEST_BOOL(ezOSFile::ExistsDirectory(sOutputFolder) == true);
+
+    sOutputFile.AppendPath("SubFolder");
+    EZ_TEST_BOOL(ezOSFile::ExistsDirectory(sOutputFolder) == true);
   }
 }

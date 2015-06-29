@@ -194,10 +194,7 @@ void ezDocumentAction::Execute(const ezVariant& value)
       else
         sPath = m_Context.m_pDocument->GetDocumentPath();
 
-      QStringList args;
-      args << "/select," << QDir::toNativeSeparators(sPath.GetData());
-      QProcess::startDetached("explorer", args);
-
+      ezUIServices::OpenInExplorer(sPath);
     }
     break;
   }

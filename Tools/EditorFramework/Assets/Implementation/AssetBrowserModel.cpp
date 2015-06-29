@@ -17,6 +17,7 @@ ezAssetBrowserModel::ezAssetBrowserModel(QObject* pParent)
 
   resetModel();
   SetIconMode(true);
+  m_bShowItemsInSubFolders = true;
 }
 
 ezAssetBrowserModel::~ezAssetBrowserModel()
@@ -34,6 +35,17 @@ void ezAssetBrowserModel::AssetCuratorEventHandler(const ezAssetCurator::Event& 
     resetModel();
     break;
   }
+}
+
+void ezAssetBrowserModel::SetShowItemsInSubFolders(bool bShow)
+{
+  if (m_bShowItemsInSubFolders == bShow)
+    return;
+
+  m_bShowItemsInSubFolders = bShow;
+
+  resetModel();
+  emit ShowSubFolderItemsChanged();
 }
 
 void ezAssetBrowserModel::SetTextFilter(const char* szText)
@@ -95,7 +107,15 @@ void ezAssetBrowserModel::resetModel()
     {
       // if the string is not found in the path, ignore this asset
       if (!it.Value()->m_sRelativePath.StartsWith_NoCase(m_sPathFilter))
-        continue;
+          continue;
+
+      if (!m_bShowItemsInSubFolders)
+      {
+        // do we find another path separator after the prefix path?
+        // if so, there is a sub-folder, and thus we ignore it
+        if (ezStringUtils::FindSubString(it.Value()->m_sRelativePath.GetData() + m_sPathFilter.GetElementCount() + 1, "/") != nullptr)
+          continue;
+      }
     }
 
     if (!m_sTextFilter.IsEmpty())

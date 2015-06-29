@@ -10,14 +10,9 @@
 ezAssetBrowserView::ezAssetBrowserView(QWidget* parent) : QListView(parent)
 {
   m_iIconSizePercentage = 100;
-
-  /// \todo Drag & Drop is weird, it only works after switching the view mode to list and back (and only manually in the editor, not from code)
-  setDragDropMode(QAbstractItemView::DragOnly);
-  setDragEnabled(true);
-  setDropIndicatorShown(true);
+  SetDialogMode(false);
 
   setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectItems);
-  setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
   setViewMode(QListView::ViewMode::IconMode);
   setUniformItemSizes(true);
   setResizeMode(QListView::ResizeMode::Adjust);
@@ -25,6 +20,29 @@ ezAssetBrowserView::ezAssetBrowserView(QWidget* parent) : QListView(parent)
   m_pDelegate = new QtIconViewDelegate(this);
   setItemDelegate(m_pDelegate);
   SetIconScale(m_iIconSizePercentage);
+}
+
+void ezAssetBrowserView::SetDialogMode(bool bDialogMode)
+{
+  m_bDialogMode = bDialogMode;
+
+  if (m_bDialogMode)
+  {
+    setDragDropMode(QAbstractItemView::DragDropMode::NoDragDrop);
+    setDragEnabled(false);
+    setDropIndicatorShown(true);
+
+    setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
+  }
+  else
+  {
+    /// \todo Drag & Drop is weird, it only works after switching the view mode to list and back (and only manually in the editor, not from code)
+    setDragDropMode(QAbstractItemView::DragOnly);
+    setDragEnabled(true);
+    setDropIndicatorShown(true);
+
+    setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
+  }
 }
 
 void ezAssetBrowserView::SetIconMode(bool bIconMode)

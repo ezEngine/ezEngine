@@ -14,6 +14,7 @@ class ezAssetBrowserWidget : public QWidget, public Ui_AssetBrowserWidget
 public:
   ezAssetBrowserWidget(QWidget* parent);
   ~ezAssetBrowserWidget();
+  void SetDialogMode(bool bDialogMode);
 
   void SetDialogMode();
   void SetSelectedAsset(const char* szAssetPath);
@@ -21,6 +22,9 @@ public:
 
   void SaveState(const char* szSettingsName);
   void RestoreState(const char* szSettingsName);
+
+  ezAssetBrowserModel* GetAssetBrowserModel() { return m_pModel; }
+  const ezAssetBrowserModel* GetAssetBrowserModel() const { return m_pModel; }
 
 signals:
   void ItemChosen(QString sAssetGUID, QString sAssetPathRelative, QString sAssetPathAbsolute);
@@ -41,7 +45,10 @@ private slots:
   void on_ButtonClearSearch_clicked();
   void on_ListTypeFilter_itemChanged(QListWidgetItem* item);
   void on_TreeFolderFilter_itemSelectionChanged();
+  void on_TreeFolderFilter_customContextMenuRequested(const QPoint& pt);
   void OnScrollToItem(QString sPath);
+  void OnTreeOpenExplorer();
+  void OnShowSubFolderItemsToggled();
 
 private:
   void AssetCuratorEventHandler(const ezAssetCurator::Event& e);
@@ -51,6 +58,7 @@ private:
   void UpdateAssetTypes();
   void ProjectEventHandler(const ezToolsProject::Event& e);
 
+  bool m_bDialogMode;
   ezUInt32 m_uiKnownAssetFolderCount;
 
   ezToolBarActionMapView* m_pToolbar;

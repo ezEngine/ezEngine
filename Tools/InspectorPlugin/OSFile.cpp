@@ -45,6 +45,7 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
     break;
 
   case ezOSFile::EventType::FileExists:
+  case ezOSFile::EventType::DirectoryExists:
     {
       Msg.SetMessageID('FILE', 'EXST');
       Msg.GetWriter() << e.m_szFile;

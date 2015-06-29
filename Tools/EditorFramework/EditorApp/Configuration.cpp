@@ -33,7 +33,7 @@ bool ezEditorApp::MakeDataDirectoryRelativePathAbsolute(ezString & sPath) const
     sTemp.AppendPath(dd.m_sRelativePath, sPath);
     sTemp.MakeCleanPath();
 
-    if (ezOSFile::Exists(sTemp))
+    if (ezOSFile::ExistsFile(sTemp) || ezOSFile::ExistsDirectory(sTemp))
     {
       sPath = sTemp;
       return true;

@@ -195,7 +195,7 @@ ezString ezToolsProject::FindProjectForDocument(const char* szDocumentPath)
     sTemp = sPath;
     sTemp.AppendPath("ezProject");
 
-    if (ezOSFile::Exists(sTemp))
+    if (ezOSFile::ExistsFile(sTemp))
       return sTemp;
 
     sPath.PathParentDirectory();

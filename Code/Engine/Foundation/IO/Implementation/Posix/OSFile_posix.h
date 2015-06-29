@@ -109,7 +109,7 @@ void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFilePos::Enum Pos) c
   }
 }
 
-bool ezOSFile::InternalExists(const char* szFile)
+bool ezOSFile::InternalExistsFile(const char* szFile)
 {
   FILE* pFile = fopen(szFile, "r");
 
@@ -118,6 +118,12 @@ bool ezOSFile::InternalExists(const char* szFile)
 
   fclose(pFile);
   return true;
+}
+
+bool ezOSFile::InternalExistsDirectory(const char* szDirectory)
+{
+  stat sb;
+  return (stat(szDirectory, &sb) == 0 && S_ISDIR(sb.st_mode))
 }
 
 ezResult ezOSFile::InternalDeleteFile(const char* szFile)
@@ -147,7 +153,7 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
 ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats)
 {
-  struct stat tempStat;
+  stat tempStat;
   int iRes = stat(szFileOrFolder, &tempStat);
   
   if (iRes != 0)

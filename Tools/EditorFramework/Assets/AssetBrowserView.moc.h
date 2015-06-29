@@ -12,6 +12,7 @@ class ezAssetBrowserView : public QListView
 
 public:
   ezAssetBrowserView(QWidget* pParent);
+  void SetDialogMode(bool bDialogMode);
 
   void SetIconMode(bool bIconMode);
   void SetIconScale(ezInt32 iIconSizePercentage);
@@ -28,6 +29,7 @@ protected:
   virtual void dropEvent(QDropEvent *pEvent) override;
 
 private:
+  bool m_bDialogMode;
   QtIconViewDelegate* m_pDelegate;
   ezInt32 m_iIconSizePercentage;
 };

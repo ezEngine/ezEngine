@@ -8,6 +8,7 @@
 #include <QScrollBar>
 #include <QTimer>
 #include <QSettings>
+#include <QMenu>
 
 ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
 {
@@ -37,6 +38,8 @@ ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
     ToolBarLayout->insertWidget(0, m_pToolbar);
   }
 
+  TreeFolderFilter->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
+
   EZ_VERIFY(connect(m_pModel, SIGNAL(TextFilterChanged()), this, SLOT(OnTextFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pModel, SIGNAL(TypeFilterChanged()), this, SLOT(OnTypeFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pModel, SIGNAL(PathFilterChanged()), this, SLOT(OnPathFilterChanged())) != nullptr, "signal/slot connection failed");
@@ -55,6 +58,13 @@ ezAssetBrowserWidget::~ezAssetBrowserWidget()
   ezAssetCurator::GetInstance()->m_Events.RemoveEventHandler(m_DelegateAssetCuratorEvents);
 
   ListAssets->setModel(nullptr);
+}
+
+void ezAssetBrowserWidget::SetDialogMode(bool bDialogMode)
+{
+  m_bDialogMode = bDialogMode;
+
+  ListAssets->SetDialogMode(bDialogMode);
 }
 
 void ezAssetBrowserWidget::UpdateAssetTypes()
@@ -241,6 +251,7 @@ void ezAssetBrowserWidget::on_LineSearchFilter_textEdited(const QString& text)
 void ezAssetBrowserWidget::on_ButtonClearSearch_clicked()
 {
   m_pModel->SetTextFilter("");
+  LineSearchFilter->setFocus();
 }
 
 void ezAssetBrowserWidget::on_ListTypeFilter_itemChanged(QListWidgetItem* item)
@@ -419,6 +430,37 @@ void ezAssetBrowserWidget::on_TreeFolderFilter_itemSelectionChanged()
   m_pModel->SetPathFilter(sCurPath);
 }
 
+void ezAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(const QPoint& pt)
+{
+  if (!TreeFolderFilter->currentItem())
+    return;
+
+  QMenu m;
+  m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnTreeOpenExplorer()));
+  QAction* pAction = m.addAction(QLatin1String("Show Items in Sub-Folders"), this, SLOT(OnShowSubFolderItemsToggled()));
+  pAction->setCheckable(true);
+  pAction->setChecked(m_pModel->GetShowItemsInSubFolders());
+
+  m.exec(TreeFolderFilter->viewport()->mapToGlobal(pt));
+}
+
+void ezAssetBrowserWidget::OnShowSubFolderItemsToggled()
+{
+  m_pModel->SetShowItemsInSubFolders(!m_pModel->GetShowItemsInSubFolders());
+}
+
+void ezAssetBrowserWidget::OnTreeOpenExplorer()
+{
+  if (!TreeFolderFilter->currentItem())
+    return;
+
+  ezString sPath = TreeFolderFilter->currentItem()->data(0, Qt::UserRole + 1).toString().toUtf8().data();
+
+  ezEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sPath);
+
+  ezUIServices::OpenInExplorer(sPath);
+}
+
 void ezAssetBrowserWidget::OnPathFilterChanged()
 {
   const QString sPath = QString::fromUtf8(m_pModel->GetPathFilter());
@@ -438,7 +480,10 @@ bool ezAssetBrowserWidget::SelectPathFilter(QTreeWidgetItem* pParent, const QStr
   for (ezInt32 i = 0; i < pParent->childCount(); ++i)
   {
     if (SelectPathFilter(pParent->child(i), sPath))
+    {
+      pParent->setExpanded(true);
       return true;
+    }
   }
 
   return false;
