@@ -13,6 +13,7 @@
 ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
 {
   m_uiKnownAssetFolderCount = 0;
+  m_bDialogMode = false;
 
   setupUi(this);
 
@@ -22,6 +23,7 @@ ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
 
   ListAssets->setModel(m_pModel);
   ListAssets->SetIconScale(IconSizeSlider->value());
+  ListAssets->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
   on_ButtonIconMode_clicked();
 
   splitter->setStretchFactor(0, 0);
@@ -58,13 +60,6 @@ ezAssetBrowserWidget::~ezAssetBrowserWidget()
   ezAssetCurator::GetInstance()->m_Events.RemoveEventHandler(m_DelegateAssetCuratorEvents);
 
   ListAssets->setModel(nullptr);
-}
-
-void ezAssetBrowserWidget::SetDialogMode(bool bDialogMode)
-{
-  m_bDialogMode = bDialogMode;
-
-  ListAssets->SetDialogMode(bDialogMode);
 }
 
 void ezAssetBrowserWidget::UpdateAssetTypes()
@@ -117,6 +112,9 @@ void ezAssetBrowserWidget::UpdateAssetTypes()
 void ezAssetBrowserWidget::SetDialogMode()
 {
   m_pToolbar->hide();
+  m_bDialogMode = true;
+
+  ListAssets->SetDialogMode(true);
 }
 
 void ezAssetBrowserWidget::SaveState(const char* szSettingsName)
@@ -456,7 +454,45 @@ void ezAssetBrowserWidget::OnTreeOpenExplorer()
 
   ezString sPath = TreeFolderFilter->currentItem()->data(0, Qt::UserRole + 1).toString().toUtf8().data();
 
-  ezEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sPath);
+  if (!ezEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sPath))
+    return;
+
+  ezUIServices::OpenInExplorer(sPath);
+}
+
+void ezAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoint& pt)
+{
+  if (!ListAssets->selectionModel()->hasSelection())
+    return;
+
+  QMenu m;
+  
+  if (!m_bDialogMode)
+    m.setDefaultAction(m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open Document"), this, SLOT(OnListOpenAssetDocument())));
+  else
+    m.setDefaultAction(m.addAction(QLatin1String("Select"), this, SLOT(OnListOpenAssetDocument())));
+
+  m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open Containing Folder"), this, SLOT(OnListOpenExplorer()));
+
+  m.exec(ListAssets->viewport()->mapToGlobal(pt));
+}
+
+void ezAssetBrowserWidget::OnListOpenAssetDocument()
+{
+  if (!ListAssets->selectionModel()->hasSelection())
+    return;
+
+  auto index = ListAssets->currentIndex();
+
+  emit ItemChosen(m_pModel->data(index, Qt::UserRole + 0).toString(), m_pModel->data(index, Qt::UserRole + 2).toString(), m_pModel->data(index, Qt::UserRole + 1).toString());
+}
+
+void ezAssetBrowserWidget::OnListOpenExplorer()
+{
+  if (!ListAssets->selectionModel()->hasSelection())
+    return;
+
+  ezString sPath = m_pModel->data(ListAssets->currentIndex(), Qt::UserRole + 1).toString().toUtf8().data();
 
   ezUIServices::OpenInExplorer(sPath);
 }

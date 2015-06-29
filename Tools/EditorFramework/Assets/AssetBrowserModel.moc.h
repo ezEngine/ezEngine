@@ -53,6 +53,17 @@ private:
   bool m_bShowItemsInSubFolders;
   void AssetCuratorEventHandler(const ezAssetCurator::Event& e);
 
+  struct AssetEntry
+  {
+    ezString m_sSortingKey;
+    ezUuid m_Guid;
+
+    inline bool operator<(const AssetEntry& rhs) const
+    {
+      return m_sSortingKey < rhs.m_sSortingKey;
+    }
+  };
+
   ezString m_sTextFilter, m_sTypeFilter, m_sPathFilter;
-  ezDeque<ezUuid> m_AssetsToDisplay;
+  ezDeque<AssetEntry> m_AssetsToDisplay;
 };

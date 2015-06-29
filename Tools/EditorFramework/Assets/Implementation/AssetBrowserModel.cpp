@@ -100,6 +100,7 @@ void ezAssetBrowserModel::resetModel()
   m_AssetsToDisplay.Reserve(AllAssets.GetCount());
 
   ezStringBuilder sTemp;
+  AssetEntry ae;
 
   for (auto it = AllAssets.GetIterator(); it.IsValid(); ++it)
   {
@@ -133,8 +134,21 @@ void ezAssetBrowserModel::resetModel()
         continue;
     }
 
-    m_AssetsToDisplay.PushBack(it.Key());
+    ae.m_Guid = it.Key();
+
+    sTemp = it.Value()->m_sRelativePath;
+    sTemp = sTemp.GetFileName();
+
+    /// \todo Implement more sorting functions:
+    ///   Sort by recently used
+
+    sTemp.ToLower();
+    ae.m_sSortingKey = sTemp;
+
+    m_AssetsToDisplay.PushBack(ae);
   }
+
+  m_AssetsToDisplay.Sort();
 
   endResetModel();
 }
@@ -149,7 +163,7 @@ void ezAssetBrowserModel::ThumbnailLoaded(QString sPath, QModelIndex index, QVar
 
   for (ezUInt32 i = 0; i < m_AssetsToDisplay.GetCount(); ++i)
   {
-    if (m_AssetsToDisplay[i] == guid)
+    if (m_AssetsToDisplay[i].m_Guid == guid)
     {
       QModelIndex idx = createIndex(i, 0);
       emit dataChanged(idx, idx);
@@ -167,7 +181,7 @@ QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
   if (iRow < 0 || iRow >= (ezInt32)m_AssetsToDisplay.GetCount())
     return QVariant();
 
-  const ezUuid AssetGuid = m_AssetsToDisplay[iRow];
+  const ezUuid AssetGuid = m_AssetsToDisplay[iRow].m_Guid;
   const ezAssetCurator::AssetInfo* pAssetInfo = ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid);
 
   EZ_ASSERT_DEV(pAssetInfo != nullptr, "Invalid Pointer !!!!`1`1sonceleven");

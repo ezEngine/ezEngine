@@ -14,7 +14,6 @@ class ezAssetBrowserWidget : public QWidget, public Ui_AssetBrowserWidget
 public:
   ezAssetBrowserWidget(QWidget* parent);
   ~ezAssetBrowserWidget();
-  void SetDialogMode(bool bDialogMode);
 
   void SetDialogMode();
   void SetSelectedAsset(const char* szAssetPath);
@@ -49,6 +48,9 @@ private slots:
   void OnScrollToItem(QString sPath);
   void OnTreeOpenExplorer();
   void OnShowSubFolderItemsToggled();
+  void on_ListAssets_customContextMenuRequested(const QPoint& pt);
+  void OnListOpenExplorer();
+  void OnListOpenAssetDocument();
 
 private:
   void AssetCuratorEventHandler(const ezAssetCurator::Event& e);

@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <QSettings>
 #include <QFileDialog>
 
@@ -16,7 +17,10 @@ ezAssetBrowserDlg::ezAssetBrowserDlg(QWidget* parent, const char* szPreselectedA
   /// \todo Implement this
   //m_sSelectedPath = szPreselectedAsset;
 
-  AssetBrowserWidget->SetDialogMode(true);
+  // Ok / Cancel buttons are disable atm
+  ButtonOk->setVisible(false);
+  ButtonCancel->setVisible(false);
+
   AssetBrowserWidget->SetSelectedAsset(szPreselectedAsset);
   AssetBrowserWidget->ShowOnlyTheseTypeFilters(szVisibleFilters);
 
@@ -77,8 +81,6 @@ void ezAssetBrowserDlg::on_AssetBrowserWidget_ItemChosen(QString sAssetGUID, QSt
 
   accept();
 }
-
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 void ezAssetBrowserDlg::on_ButtonFileDialog_clicked()
 {
