@@ -51,6 +51,7 @@ private slots:
   void on_ListAssets_customContextMenuRequested(const QPoint& pt);
   void OnListOpenExplorer();
   void OnListOpenAssetDocument();
+  void OnListToggleSortByRecentlyUsed();
 
 private:
   void AssetCuratorEventHandler(const ezAssetCurator::Event& e);

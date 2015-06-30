@@ -41,6 +41,7 @@ public:
     ezString m_sAbsolutePath;
     ezString m_sRelativePath;
     ezAssetDocumentInfo m_Info;
+    ezTime m_LastAccess;
   };
 
   void CheckFileSystem();
@@ -54,6 +55,8 @@ public:
 
   const AssetInfo* GetAssetInfo(const ezUuid& assetGuid) const;
   const ezHashTable<ezUuid, AssetInfo*>& GetKnownAssets() const;
+
+  void UpdateAssetLastAccessTime(const ezUuid& assetGuid);
 
   /// \brief Computes the combined hash for the asset and its dependencies. Returns 0 if anything went wrong.
   ezUInt64 GetAssetDependencyHash(ezUuid assetGuid);

@@ -172,7 +172,15 @@ void ezAssetBrowserWidget::on_ListAssets_activated(const QModelIndex & index)
 
 void ezAssetBrowserWidget::on_ListAssets_doubleClicked(const QModelIndex& index)
 {
-  emit ItemChosen(m_pModel->data(index, Qt::UserRole + 0).toString(), m_pModel->data(index, Qt::UserRole + 2).toString(), m_pModel->data(index, Qt::UserRole + 1).toString());
+  QString sGuid = m_pModel->data(index, Qt::UserRole + 0).toString();
+
+  if (!sGuid.isEmpty())
+  {
+    ezUuid guid = ezConversionUtils::ConvertStringToUuid(sGuid.toUtf8().data());
+    ezAssetCurator::GetInstance()->UpdateAssetLastAccessTime(guid);
+  }
+
+  emit ItemChosen(sGuid, m_pModel->data(index, Qt::UserRole + 2).toString(), m_pModel->data(index, Qt::UserRole + 1).toString());
 }
 
 void ezAssetBrowserWidget::on_ButtonListMode_clicked()
@@ -430,11 +438,13 @@ void ezAssetBrowserWidget::on_TreeFolderFilter_itemSelectionChanged()
 
 void ezAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(const QPoint& pt)
 {
-  if (!TreeFolderFilter->currentItem())
-    return;
-
   QMenu m;
-  m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnTreeOpenExplorer()));
+
+  if (TreeFolderFilter->currentItem())
+  {
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnTreeOpenExplorer()));
+  }
+
   QAction* pAction = m.addAction(QLatin1String("Show Items in Sub-Folders"), this, SLOT(OnShowSubFolderItemsToggled()));
   pAction->setCheckable(true);
   pAction->setChecked(m_pModel->GetShowItemsInSubFolders());
@@ -462,17 +472,22 @@ void ezAssetBrowserWidget::OnTreeOpenExplorer()
 
 void ezAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoint& pt)
 {
-  if (!ListAssets->selectionModel()->hasSelection())
-    return;
-
   QMenu m;
-  
-  if (!m_bDialogMode)
-    m.setDefaultAction(m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open Document"), this, SLOT(OnListOpenAssetDocument())));
-  else
-    m.setDefaultAction(m.addAction(QLatin1String("Select"), this, SLOT(OnListOpenAssetDocument())));
 
-  m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open Containing Folder"), this, SLOT(OnListOpenExplorer()));
+  if (ListAssets->selectionModel()->hasSelection())
+  {
+
+    if (!m_bDialogMode)
+      m.setDefaultAction(m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open Document"), this, SLOT(OnListOpenAssetDocument())));
+    else
+      m.setDefaultAction(m.addAction(QLatin1String("Select"), this, SLOT(OnListOpenAssetDocument())));
+
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open Containing Folder"), this, SLOT(OnListOpenExplorer()));
+  }
+
+  auto pSortAction = m.addAction(QLatin1String("Sort by Recently Used"), this, SLOT(OnListToggleSortByRecentlyUsed()));
+  pSortAction->setCheckable(true);
+  pSortAction->setChecked(m_pModel->GetSortByRecentUse());
 
   m.exec(ListAssets->viewport()->mapToGlobal(pt));
 }
@@ -484,7 +499,15 @@ void ezAssetBrowserWidget::OnListOpenAssetDocument()
 
   auto index = ListAssets->currentIndex();
 
-  emit ItemChosen(m_pModel->data(index, Qt::UserRole + 0).toString(), m_pModel->data(index, Qt::UserRole + 2).toString(), m_pModel->data(index, Qt::UserRole + 1).toString());
+  QString sGuid = m_pModel->data(index, Qt::UserRole + 0).toString();
+
+  if (!sGuid.isEmpty())
+  {
+    ezUuid guid = ezConversionUtils::ConvertStringToUuid(sGuid.toUtf8().data());
+    ezAssetCurator::GetInstance()->UpdateAssetLastAccessTime(guid);
+  }
+
+  emit ItemChosen(sGuid, m_pModel->data(index, Qt::UserRole + 2).toString(), m_pModel->data(index, Qt::UserRole + 1).toString());
 }
 
 void ezAssetBrowserWidget::OnListOpenExplorer()
@@ -495,6 +518,11 @@ void ezAssetBrowserWidget::OnListOpenExplorer()
   ezString sPath = m_pModel->data(ListAssets->currentIndex(), Qt::UserRole + 1).toString().toUtf8().data();
 
   ezUIServices::OpenInExplorer(sPath);
+}
+
+void ezAssetBrowserWidget::OnListToggleSortByRecentlyUsed()
+{
+  m_pModel->SetSortByRecentUse(!m_pModel->GetSortByRecentUse());
 }
 
 void ezAssetBrowserWidget::OnPathFilterChanged()

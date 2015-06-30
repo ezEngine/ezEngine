@@ -21,6 +21,9 @@ public:
   void SetShowItemsInSubFolders(bool bShow);
   bool GetShowItemsInSubFolders() { return m_bShowItemsInSubFolders; }
 
+  void SetSortByRecentUse(bool bSort);
+  bool GetSortByRecentUse() { return m_bSortByRecentUse; }
+
   void SetTextFilter(const char* szText);
   const char* GetTextFilter() const { return m_sTextFilter; }
 
@@ -35,6 +38,7 @@ signals:
   void TypeFilterChanged();
   void PathFilterChanged();
   void ShowSubFolderItemsChanged();
+  void SortByRecentUseChanged();
 
 private slots:
   void ThumbnailLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2);
@@ -51,6 +55,7 @@ public: //QAbstractItemModel interface
 private:
   bool m_bIconMode;
   bool m_bShowItemsInSubFolders;
+  bool m_bSortByRecentUse;
   void AssetCuratorEventHandler(const ezAssetCurator::Event& e);
 
   struct AssetEntry

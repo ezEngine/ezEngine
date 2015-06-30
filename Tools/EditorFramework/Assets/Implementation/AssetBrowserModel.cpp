@@ -48,6 +48,18 @@ void ezAssetBrowserModel::SetShowItemsInSubFolders(bool bShow)
   emit ShowSubFolderItemsChanged();
 }
 
+void ezAssetBrowserModel::SetSortByRecentUse(bool bSort)
+{
+  if (m_bSortByRecentUse == bSort)
+    return;
+
+  m_bSortByRecentUse = bSort;
+
+  resetModel();
+  emit SortByRecentUseChanged();
+}
+
+
 void ezAssetBrowserModel::SetTextFilter(const char* szText)
 {
   ezStringBuilder sCleanText = szText;
@@ -59,7 +71,6 @@ void ezAssetBrowserModel::SetTextFilter(const char* szText)
   m_sTextFilter = sCleanText;
 
   resetModel();
-
   emit TextFilterChanged();
 }
 
@@ -99,8 +110,10 @@ void ezAssetBrowserModel::resetModel()
   m_AssetsToDisplay.Clear();
   m_AssetsToDisplay.Reserve(AllAssets.GetCount());
 
-  ezStringBuilder sTemp;
+  ezStringBuilder sTemp, sTemp2;
   AssetEntry ae;
+
+  const ezTime tNow = ezTime::Now();
 
   for (auto it = AllAssets.GetIterator(); it.IsValid(); ++it)
   {
@@ -136,11 +149,14 @@ void ezAssetBrowserModel::resetModel()
 
     ae.m_Guid = it.Key();
 
-    sTemp = it.Value()->m_sRelativePath;
-    sTemp = sTemp.GetFileName();
+    sTemp2 = it.Value()->m_sRelativePath;
+    sTemp = sTemp2.GetFileName();
 
-    /// \todo Implement more sorting functions:
-    ///   Sort by recently used
+    if (m_bSortByRecentUse)
+    {
+      sTemp2 = sTemp;
+      sTemp.Format("%012.1f - %s", (tNow - it.Value()->m_LastAccess).GetSeconds(), sTemp2.GetData());
+    }
 
     sTemp.ToLower();
     ae.m_sSortingKey = sTemp;

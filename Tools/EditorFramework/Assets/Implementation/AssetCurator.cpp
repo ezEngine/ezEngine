@@ -476,6 +476,15 @@ void ezAssetCurator::MainThreadTick()
   }
 }
 
+void ezAssetCurator::UpdateAssetLastAccessTime(const ezUuid& assetGuid)
+{
+  AssetInfo* pAssetInfo = nullptr;
+  if (!m_KnownAssets.TryGetValue(assetGuid, pAssetInfo))
+    return;
+
+  pAssetInfo->m_LastAccess = ezTime::Now();
+}
+
 const ezAssetCurator::AssetInfo* ezAssetCurator::GetAssetInfo(const ezUuid& assetGuid) const
 {
   AssetInfo* pAssetInfo = nullptr;
