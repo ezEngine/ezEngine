@@ -4,6 +4,8 @@
 #include <QSettings>
 #include <QFileDialog>
 
+bool ezAssetBrowserDlg::s_bShowItemsInSubFolder = true;
+bool ezAssetBrowserDlg::s_bSortByRecentUse = true;
 ezMap<ezString, ezString> ezAssetBrowserDlg::s_sTextFilter;
 ezMap<ezString, ezString> ezAssetBrowserDlg::s_sPathFilter;
 ezMap<ezString, ezString> ezAssetBrowserDlg::s_sTypeFilter;
@@ -35,6 +37,8 @@ ezAssetBrowserDlg::ezAssetBrowserDlg(QWidget* parent, const char* szPreselectedA
 
   AssetBrowserWidget->SetDialogMode();
   AssetBrowserWidget->RestoreState("AssetBrowserDlg");
+  AssetBrowserWidget->GetAssetBrowserModel()->SetSortByRecentUse(s_bSortByRecentUse);
+  AssetBrowserWidget->GetAssetBrowserModel()->SetShowItemsInSubFolders(s_bShowItemsInSubFolder);
 
   if (!s_sTextFilter[m_sVisibleFilters].IsEmpty())
     AssetBrowserWidget->GetAssetBrowserModel()->SetTextFilter(s_sTextFilter[m_sVisibleFilters]);
@@ -50,6 +54,8 @@ ezAssetBrowserDlg::ezAssetBrowserDlg(QWidget* parent, const char* szPreselectedA
 
 ezAssetBrowserDlg::~ezAssetBrowserDlg()
 {
+  s_bShowItemsInSubFolder = AssetBrowserWidget->GetAssetBrowserModel()->GetShowItemsInSubFolders();
+  s_bSortByRecentUse = AssetBrowserWidget->GetAssetBrowserModel()->GetSortByRecentUse();
   s_sTextFilter[m_sVisibleFilters] = AssetBrowserWidget->GetAssetBrowserModel()->GetTextFilter();
   s_sPathFilter[m_sVisibleFilters] = AssetBrowserWidget->GetAssetBrowserModel()->GetPathFilter();
   s_sTypeFilter[m_sVisibleFilters] = AssetBrowserWidget->GetAssetBrowserModel()->GetTypeFilter();

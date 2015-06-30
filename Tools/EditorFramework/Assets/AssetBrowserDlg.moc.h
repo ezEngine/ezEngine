@@ -29,6 +29,8 @@ private:
   ezString m_sSelectedAssetGuid;
   ezString m_sVisibleFilters;
 
+  static bool s_bShowItemsInSubFolder;
+  static bool s_bSortByRecentUse;
   static ezMap<ezString, ezString> s_sTextFilter;
   static ezMap<ezString, ezString> s_sPathFilter;
   static ezMap<ezString, ezString> s_sTypeFilter;
