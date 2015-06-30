@@ -128,11 +128,13 @@ void ezProcessCommunication::CloseConnection()
 {
   m_uiProcessID = 0;
 
-  delete m_pClientProcess;
-  m_pClientProcess = nullptr;
-
+  // If we kill the process while it is in the shared memory lock we will be unable to lock
+  // the shared memory ourselves. So we kill the process after freeing us from the shared memory.
   delete m_pSharedMemory;
   m_pSharedMemory = nullptr;
+
+  delete m_pClientProcess;
+  m_pClientProcess = nullptr;
 
   m_MessageSendQueue.Clear();
   m_MessageReadQueue.Clear();
