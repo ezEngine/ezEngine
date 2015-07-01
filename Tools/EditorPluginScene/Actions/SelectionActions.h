@@ -16,6 +16,7 @@ public:
 
   static ezActionDescriptorHandle s_hSelectionCategory;
   static ezActionDescriptorHandle s_hShowInScenegraph;
+  static ezActionDescriptorHandle s_hFocusOnSelection;
 
 };
 
@@ -28,7 +29,8 @@ public:
 
   enum class ActionType
   {
-    ShowInScenegraph
+    ShowInScenegraph,
+    FocusOnSelection,
   };
 
   ezSelectionAction(const ezActionContext& context, const char* szName, ActionType type);

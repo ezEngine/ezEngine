@@ -62,6 +62,16 @@ void ezSceneDocument::TriggerShowSelectionInScenegraph()
   m_SceneEvents.Broadcast(e);
 }
 
+void ezSceneDocument::TriggerFocusOnSelection()
+{
+  if (GetSelectionManager()->GetSelection().IsEmpty())
+    return;
+
+  SceneEvent e;
+  e.m_Type = SceneEvent::Type::FocusOnSelection;
+  m_SceneEvents.Broadcast(e);
+}
+
 void ezSceneDocument::SetGizmoWorldSpace(bool bWorldSpace)
 {
   if (m_bGizmoWorldSpace == bWorldSpace)

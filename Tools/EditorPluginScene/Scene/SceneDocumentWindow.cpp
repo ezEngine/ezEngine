@@ -45,9 +45,12 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
 
   m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, pDocument, this, &m_Camera);
   m_pMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, m_pCenterWidget, pDocument, this);
+  m_pCameraPositionContext = EZ_DEFAULT_NEW(ezCameraPositionContext, m_pCenterWidget, pDocument, this);
 
   m_pMoveContext->LoadState();
   m_pMoveContext->SetCamera(&m_Camera);
+
+  m_pCameraPositionContext->SetCamera(&m_Camera);
 
   // add the input contexts in the order in which they are supposed to be processed
   m_pCenterWidget->m_InputContexts.PushBack(m_pSelectionContext);
@@ -141,6 +144,7 @@ ezSceneDocumentWindow::~ezSceneDocumentWindow()
 
   EZ_DEFAULT_DELETE(m_pSelectionContext);
   EZ_DEFAULT_DELETE(m_pMoveContext);
+  EZ_DEFAULT_DELETE(m_pCameraPositionContext);
 }
 
 void ezSceneDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
@@ -181,6 +185,26 @@ void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEve
   case ezSceneDocument::SceneEvent::Type::ActiveGizmoChanged:
     {
       UpdateGizmoVisibility();
+    }
+    break;
+
+  case ezSceneDocument::SceneEvent::Type::FocusOnSelection:
+    {
+      const auto& sel = GetDocument()->GetSelectionManager()->GetSelection();
+
+      if (sel.IsEmpty())
+        return;
+      if (!sel[0]->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+        return;
+
+      const ezVec3 vPosition = sel[0]->GetTypeAccessor().GetValue("GlobalPosition").ConvertTo<ezVec3>();
+
+      ezVec3 vDiff = vPosition - m_Camera.GetCenterPosition();
+      if (vDiff.NormalizeIfNotZero().Failed())
+        return;
+
+      /// \todo The distance value of 10 is a hack
+      m_pCameraPositionContext->MoveToTarget(vPosition - vDiff * 10.0f, vDiff);
     }
     break;
   }

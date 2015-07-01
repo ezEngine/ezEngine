@@ -8,6 +8,7 @@
 #include <CoreUtils/Graphics/Camera.h>
 #include <EditorPluginScene/InputContexts/SelectionContext.h>
 #include <EditorPluginScene/InputContexts/CameraMoveContext.h>
+#include <EditorPluginScene/InputContexts/CameraPositionContext.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <EditorFramework/Gizmos/TranslateGizmo.h>
@@ -52,6 +53,7 @@ private:
 
   ezSelectionContext* m_pSelectionContext;
   ezCameraMoveContext* m_pMoveContext;
+  ezCameraPositionContext* m_pCameraPositionContext;
 
   ezTranslateGizmo m_TranslateGizmo;
   ezRotateGizmo m_RotateGizmo;

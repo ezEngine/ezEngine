@@ -29,6 +29,7 @@ public:
   ActiveGizmo GetActiveGizmo() const;
 
   void TriggerShowSelectionInScenegraph();
+  void TriggerFocusOnSelection();
   void SetGizmoWorldSpace(bool bWorldSpace);
   bool GetGizmoWorldSpace() const;
 
@@ -43,6 +44,7 @@ public:
     {
       ActiveGizmoChanged,
       ShowSelectionInScenegraph,
+      FocusOnSelection,
     };
 
     Type m_Type;
