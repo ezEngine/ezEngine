@@ -28,6 +28,7 @@ void ezSceneDocumentWindow::UpdateGizmoVisibility()
   m_TranslateGizmo.SetVisible(false);
   m_RotateGizmo.SetVisible(false);
   m_ScaleGizmo.SetVisible(false);
+  m_DragToPosGizmo.SetVisible(false);
 
   if (pSceneDoc->GetSelectionManager()->GetSelection().IsEmpty() || pSceneDoc->GetActiveGizmo() == ActiveGizmo::None)
     return;
@@ -42,6 +43,9 @@ void ezSceneDocumentWindow::UpdateGizmoVisibility()
     break;
   case ActiveGizmo::Scale:
     m_ScaleGizmo.SetVisible(true);
+    break;
+  case ActiveGizmo::DragToPosition:
+    m_DragToPosGizmo.SetVisible(true);
     break;
   }
 
@@ -105,6 +109,7 @@ void ezSceneDocumentWindow::UpdateGizmoPosition()
     m_TranslateGizmo.SetTransformation(mt);
     m_RotateGizmo.SetTransformation(mt);
     m_ScaleGizmo.SetTransformation(mt);
+    m_DragToPosGizmo.SetTransformation(mt);
   }
 
 }
@@ -197,6 +202,27 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
 
           cmd.m_Object = obj.m_Object;
           cmd.m_NewValue = obj.m_vScaling.CompMult(vScale);
+
+          if (GetDocument()->GetCommandHistory()->AddCommand(cmd).m_Result.Failed())
+          {
+            bCancel = true;
+            break;
+          }
+        }
+      }
+
+      if (e.m_pGizmo == &m_DragToPosGizmo)
+      {
+        cmd.SetPropertyPath("GlobalPosition");
+
+        const ezVec3 vTranslate = m_DragToPosGizmo.GetTranslationResult();
+
+        for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
+        {
+          const auto& obj = m_GizmoSelection[sel];
+
+          cmd.m_Object = obj.m_Object;
+          cmd.m_NewValue = obj.m_vTranslation + vTranslate;
 
           if (GetDocument()->GetCommandHistory()->AddCommand(cmd).m_Result.Failed())
           {

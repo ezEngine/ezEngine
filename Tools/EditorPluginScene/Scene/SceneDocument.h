@@ -10,6 +10,7 @@ enum class ActiveGizmo
   Translate,
   Rotate,
   Scale,
+  DragToPosition,
 };
 
 class ezSceneDocument : public ezDocumentBase

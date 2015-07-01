@@ -248,7 +248,7 @@ bool ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
   m_LastInteraction = tNow;
 
   ezVec3 vCurrentInteractionPoint;
-  
+
   if (m_Mode == TranslateMode::Axis)
   {
     if (GetPointOnAxis(e->pos().x(), m_Viewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
@@ -256,7 +256,7 @@ bool ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
   }
   else if (m_Mode == TranslateMode::Plane)
   {
-     if (GetPointOnPlane(e->pos().x(), m_Viewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
+    if (GetPointOnPlane(e->pos().x(), m_Viewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
       return true;
   }
 
@@ -276,4 +276,5 @@ bool ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
 
   return true;
 }
+
 

@@ -21,6 +21,7 @@ public:
   static ezActionDescriptorHandle s_hTranslateGizmo;
   static ezActionDescriptorHandle s_hRotateGizmo;
   static ezActionDescriptorHandle s_hScaleGizmo;
+  static ezActionDescriptorHandle s_hDragToPositionGizmo;
   static ezActionDescriptorHandle s_hWorldSpace;
 
 };
@@ -37,6 +38,7 @@ public:
     GizmoTranslate,
     GizmoRotate,
     GizmoScale,
+    GizmoDragToPosition,
     GizmoToggleWorldSpace,
   };
 

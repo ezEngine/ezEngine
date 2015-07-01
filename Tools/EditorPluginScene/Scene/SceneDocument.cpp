@@ -79,6 +79,9 @@ bool ezSceneDocument::GetGizmoWorldSpace() const
   if (m_ActiveGizmo == ActiveGizmo::Scale)
     return false;
 
+  if (m_ActiveGizmo == ActiveGizmo::DragToPosition)
+    return true;
+
   return m_bGizmoWorldSpace;
 }
 

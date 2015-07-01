@@ -13,6 +13,7 @@
 #include <EditorFramework/Gizmos/TranslateGizmo.h>
 #include <EditorFramework/Gizmos/RotateGizmo.h>
 #include <EditorFramework/Gizmos/ScaleGizmo.h>
+#include <EditorFramework/Gizmos/DragToPositionGizmo.h>
 
 class ezSceneDocumentWindow : public ezDocumentWindow3D
 {
@@ -55,6 +56,7 @@ private:
   ezTranslateGizmo m_TranslateGizmo;
   ezRotateGizmo m_RotateGizmo;
   ezScaleGizmo m_ScaleGizmo;
+  ezDragToPositionGizmo m_DragToPosGizmo;
 
   ezCamera m_Camera;
 

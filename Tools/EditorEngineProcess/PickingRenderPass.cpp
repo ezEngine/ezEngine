@@ -29,14 +29,17 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
   RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Opaque);
   RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Masked);
 
-  /// \todo this breaks picking positions, but we don't need that atm anyway
+  Event e;
+  e.m_Type = Event::Type::AfterOpaque;
+  m_Events.Broadcast(e);
+
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0); // only clear depth
 
   RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Foreground);
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING", "0");
 
-  Event e;
+  e.m_Type = Event::Type::EndOfFrame;
   m_Events.Broadcast(e);
 
 }

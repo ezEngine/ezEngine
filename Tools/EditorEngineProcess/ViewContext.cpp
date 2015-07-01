@@ -197,39 +197,65 @@ void ezViewContext::Redraw()
 
 void ezViewContext::RenderPassEventHandler(const ezPickingRenderPass::Event& e)
 {
-  // download the picking information from the GPU
-  if (GetEditorWindow().m_uiWidth != 0 && GetEditorWindow().m_uiHeight != 0)
+  if (e.m_Type == ezPickingRenderPass::Event::Type::AfterOpaque)
   {
-    ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hPickingIdRT);
-    ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hPickingDepthRT);
+    // download the picking information from the GPU
+    if (GetEditorWindow().m_uiWidth != 0 && GetEditorWindow().m_uiHeight != 0)
+    {
+      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hPickingDepthRT);
 
-    ezMat4 mProj, mView;
+      ezMat4 mProj, mView;
 
-    m_Camera.GetProjectionMatrix((float)GetEditorWindow().m_uiWidth / GetEditorWindow().m_uiHeight, mProj);
-    m_Camera.GetViewMatrix(mView);
+      m_Camera.GetProjectionMatrix((float)GetEditorWindow().m_uiWidth / GetEditorWindow().m_uiHeight, mProj);
+      m_Camera.GetViewMatrix(mView);
 
-    if (mProj.IsNaN())
-      return;
+      if (mProj.IsNaN())
+        return;
 
-    m_PickingInverseViewProjectionMatrix = (mProj * mView).GetInverse();
+      m_PickingInverseViewProjectionMatrix = (mProj * mView).GetInverse();
 
-    m_PickingResultsID.Clear();
-    m_PickingResultsID.SetCount(GetEditorWindow().m_uiWidth * GetEditorWindow().m_uiHeight);
+      m_PickingResultsDepth.Clear();
+      m_PickingResultsDepth.SetCount(GetEditorWindow().m_uiWidth * GetEditorWindow().m_uiHeight);
 
-    m_PickingResultsDepth.Clear();
-    m_PickingResultsDepth.SetCount(GetEditorWindow().m_uiWidth * GetEditorWindow().m_uiHeight);
+      ezGALSystemMemoryDescription MemDesc;
+      MemDesc.m_uiRowPitch = 4 * GetEditorWindow().m_uiWidth;
+      MemDesc.m_uiSlicePitch = 4 * GetEditorWindow().m_uiWidth * GetEditorWindow().m_uiHeight;
 
-    ezGALSystemMemoryDescription MemDesc;
-    MemDesc.m_uiRowPitch = 4 * GetEditorWindow().m_uiWidth;
-    MemDesc.m_uiSlicePitch = 4 * GetEditorWindow().m_uiWidth * GetEditorWindow().m_uiHeight;
+      MemDesc.m_pData = m_PickingResultsDepth.GetData();
+      ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescsDepth(&MemDesc, 1);
+      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(m_hPickingDepthRT, &SysMemDescsDepth);
+    }
+  }
 
-    MemDesc.m_pData = m_PickingResultsID.GetData();
-    ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
-    ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(m_hPickingIdRT, &SysMemDescs);
+  if (e.m_Type == ezPickingRenderPass::Event::Type::EndOfFrame)
+  {
 
-    //MemDesc.m_pData = m_PickingResultsDepth.GetData();
-    //ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescsDepth(&MemDesc, 1);
-    //ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(m_hPickingDepthRT, &SysMemDescsDepth);
+    // download the picking information from the GPU
+    if (GetEditorWindow().m_uiWidth != 0 && GetEditorWindow().m_uiHeight != 0)
+    {
+      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hPickingIdRT);
+
+      ezMat4 mProj, mView;
+
+      m_Camera.GetProjectionMatrix((float)GetEditorWindow().m_uiWidth / GetEditorWindow().m_uiHeight, mProj);
+      m_Camera.GetViewMatrix(mView);
+
+      if (mProj.IsNaN())
+        return;
+
+      m_PickingInverseViewProjectionMatrix = (mProj * mView).GetInverse();
+
+      m_PickingResultsID.Clear();
+      m_PickingResultsID.SetCount(GetEditorWindow().m_uiWidth * GetEditorWindow().m_uiHeight);
+
+      ezGALSystemMemoryDescription MemDesc;
+      MemDesc.m_uiRowPitch = 4 * GetEditorWindow().m_uiWidth;
+      MemDesc.m_uiSlicePitch = 4 * GetEditorWindow().m_uiWidth * GetEditorWindow().m_uiHeight;
+
+      MemDesc.m_pData = m_PickingResultsID.GetData();
+      ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
+      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(m_hPickingIdRT, &SysMemDescs);
+    }
   }
 }
 

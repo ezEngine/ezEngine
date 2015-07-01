@@ -13,7 +13,13 @@ public:
 
   struct Event
   {
+    enum class Type
+    {
+      AfterOpaque,
+      EndOfFrame,
+    };
 
+    Type m_Type;
   };
 
   ezEvent<const Event&> m_Events;
