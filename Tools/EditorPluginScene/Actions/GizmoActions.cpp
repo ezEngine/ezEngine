@@ -75,7 +75,7 @@ ezGizmoAction::ezGizmoAction(const ezActionContext& context, const char* szName,
     SetIconPath(":/GuiFoundation/Icons/GizmoScale24.png");
     break;
   case ActionType::GizmoDragToPosition:
-    SetIconPath(":/GuiFoundation/Icons/GizmoScale24.png"); // TODO
+    SetIconPath(":/GuiFoundation/Icons/GizmoDragPosition24.png");
     break;
   case ActionType::GizmoToggleWorldSpace:
     SetIconPath(":/GuiFoundation/Icons/WorldSpace16.png");

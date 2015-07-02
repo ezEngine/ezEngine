@@ -7,6 +7,7 @@
 #include <Foundation/Logging/Log.h>
 #include <QPixmap>
 #include <QMimeData>
+#include <QUrl>
 
 ////////////////////////////////////////////////////////////////////////
 // ezAssetBrowserModel public functions
@@ -310,6 +311,7 @@ QMimeData* ezAssetBrowserModel::mimeData(const QModelIndexList& indexes) const
   QDataStream stream(&encodedData, QIODevice::WriteOnly);
 
   QString sGuids;
+  QList<QUrl> urls;
 
   stream << indexes.size();
   for (int i = 0; i < indexes.size(); ++i)
@@ -319,10 +321,13 @@ QMimeData* ezAssetBrowserModel::mimeData(const QModelIndexList& indexes) const
 
     stream << sGuid;
     sGuids += sPath + "\n";
-  }  
+
+    urls.push_back(QUrl::fromLocalFile(sPath));
+  }
 
   mimeData->setData("application/ezEditor.AssetGuid", encodedData);
   mimeData->setText(sGuids);
+  mimeData->setUrls(urls);
   return mimeData;
 }
 

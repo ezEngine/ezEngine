@@ -16,6 +16,17 @@
 #include <EditorFramework/Gizmos/ScaleGizmo.h>
 #include <EditorFramework/Gizmos/DragToPositionGizmo.h>
 
+class ezScene3DWidget : public ez3DViewWidget
+{
+public:
+  ezScene3DWidget(QWidget* pParent, ezDocumentWindow3D* pDocument);
+
+protected:
+  virtual void dragEnterEvent(QDragEnterEvent* e) override;
+  virtual void dropEvent(QDropEvent* e) override;
+
+};
+
 class ezSceneDocumentWindow : public ezDocumentWindow3D
 {
   Q_OBJECT
@@ -49,7 +60,7 @@ private:
 
   void SendRedrawMsg();
 
-  ez3DViewWidget* m_pCenterWidget;
+  ezScene3DWidget* m_pCenterWidget;
 
   ezSelectionContext* m_pSelectionContext;
   ezCameraMoveContext* m_pMoveContext;

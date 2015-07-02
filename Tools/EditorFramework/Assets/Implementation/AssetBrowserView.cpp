@@ -29,17 +29,11 @@ void ezAssetBrowserView::SetDialogMode(bool bDialogMode)
   if (m_bDialogMode)
   {
     setDragDropMode(QAbstractItemView::DragDropMode::NoDragDrop);
-    setDragEnabled(false);
-    setDropIndicatorShown(true);
-
     setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
   }
   else
   {
     setDragDropMode(QAbstractItemView::DragOnly);
-    setDragEnabled(true);
-    setDropIndicatorShown(true);
-
     setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
   }
 }

@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="GuiFoundation">
+    <file>Icons/GizmoDragPosition24.png</file>
     <file>Icons/FocusOnSelection16.png</file>
     <file>Icons/ReloadResources16.png</file>
     <file>Icons/RetriveAssetInfo16.png</file>

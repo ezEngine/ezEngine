@@ -3,30 +3,30 @@
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Core/World/GameObject.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <CoreUtils/Geometry/OBJLoader.h>
 #include <Foundation/IO/OSFile.h>
-#include <QTimer>
-#include <QPushButton>
-#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
-#include <qlayout.h>
-#include <Foundation/Reflection/ReflectionUtils.h>
-#include <Core/World/GameObject.h>
-#include <QKeyEvent>
 #include <Foundation/Time/Time.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
-//#include <GuiFoundation/DockWindow/DockWindow.moc.h>
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
 #include <EditorPluginScene/Panels/ObjectCreatorPanel/ObjectCreatorList.moc.h>
 #include <EditorFramework/GUI/RawPropertyGridWidget.h>
+#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
+#include <QTimer>
+#include <QPushButton>
+#include <qlayout.h>
+#include <QKeyEvent>
+#include <QMimeData>
 
 ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   : ezDocumentWindow3D(pDocument)
 {
-  m_pCenterWidget = new ez3DViewWidget(this, this);
+  m_pCenterWidget = new ezScene3DWidget(this, this);
 
   m_pCenterWidget->setAutoFillBackground(false);
   setCentralWidget(m_pCenterWidget);
@@ -282,3 +282,70 @@ void ezSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManage
     break;
   }
 }
+
+
+ezScene3DWidget::ezScene3DWidget(QWidget* pParent, ezDocumentWindow3D* pDocument) : ez3DViewWidget(pParent, pDocument)
+{
+  setAcceptDrops(true);
+
+}
+
+void ezScene3DWidget::dragEnterEvent(QDragEnterEvent* e)
+{
+  if (e->mimeData()->hasFormat("application/ezEditor.AssetGuid"))
+    e->acceptProposedAction();
+}
+
+void ezScene3DWidget::dropEvent(QDropEvent * e)
+{
+  if (e->mimeData()->hasFormat("application/ezEditor.AssetGuid"))
+  {
+    QByteArray ba = e->mimeData()->data("application/ezEditor.AssetGuid");
+    QDataStream stream(&ba, QIODevice::ReadOnly);
+
+    int iGuids = 0;
+    stream >> iGuids;
+
+    ezStringBuilder sTemp;
+
+    for (ezInt32 i = 0; i < iGuids; ++i)
+    {
+      QString sGuid;
+      stream >> sGuid;
+
+      sTemp = sGuid.toUtf8().data();
+      ezUuid AssetGuid = ezConversionUtils::ConvertStringToUuid(sTemp);
+
+      if (ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName != "Mesh")
+        continue;
+
+      const ezObjectPickingResult& res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
+
+      if (res.m_vPickedPosition.IsNaN())
+        return;
+
+      ezAddObjectCommand cmd;
+      cmd.SetType("ezGameObject");
+
+      auto history = m_pDocumentWindow->GetDocument()->GetCommandHistory();
+
+      history->StartTransaction();
+
+      history->AddCommand(cmd);
+
+      /// \todo Cannot set additional properties, add components, etc. because I do not have a guid for the newly added object
+
+      //ezSetObjectPropertyCommand cmd2;
+      //cmd2.m_bEditorProperty = false;
+      //cmd2.SetPropertyPath("GlobalPosition");
+      //cmd2.m_NewValue = res.m_vPickedPosition;
+      //cmd2.m_Object = cmd.GetObject()->GetGuid();
+
+      //history->AddCommand(cmd2);
+
+      history->EndTransaction(false);
+    }
+  }
+
+}
+
