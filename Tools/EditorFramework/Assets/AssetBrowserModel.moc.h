@@ -51,6 +51,8 @@ public: //QAbstractItemModel interface
   virtual QModelIndex parent(const QModelIndex& index) const override;
   virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override;
   virtual int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+  virtual QStringList mimeTypes() const override;
+  virtual QMimeData* mimeData(const QModelIndexList& indexes) const override;
 
 private:
   bool m_bIconMode;

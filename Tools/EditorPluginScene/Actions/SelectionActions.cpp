@@ -48,7 +48,7 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
     SetIconPath(":/GuiFoundation/Icons/Scenegraph16.png");
     break;
   case ActionType::FocusOnSelection:
-    SetIconPath(":/GuiFoundation/Icons/Scenegraph16.png"); // TODO
+    SetIconPath(":/GuiFoundation/Icons/FocusOnSelection16.png");
     break;
   }
 

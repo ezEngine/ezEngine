@@ -4,7 +4,9 @@
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <Foundation/Types/Uuid.h>
+#include <Foundation/Logging/Log.h>
 #include <QPixmap>
+#include <QMimeData>
 
 ////////////////////////////////////////////////////////////////////////
 // ezAssetBrowserModel public functions
@@ -289,4 +291,44 @@ int ezAssetBrowserModel::columnCount(const QModelIndex& parent) const
 {
   return 1;
 }
+
+QStringList ezAssetBrowserModel::mimeTypes() const
+{
+  ezLog::Debug("mimeTypes");
+
+  QStringList types;
+  types << "application/ezEditor.AssetGuid";
+  return types;
+}
+
+QMimeData* ezAssetBrowserModel::mimeData(const QModelIndexList& indexes) const
+{
+  ezLog::Debug("mimeData");
+
+  QMimeData* mimeData = new QMimeData();
+  QByteArray encodedData;
+  QDataStream stream(&encodedData, QIODevice::WriteOnly);
+
+  QString sGuids;
+
+  stream << indexes.size();
+  for (int i = 0; i < indexes.size(); ++i)
+  {
+    QString sGuid = data(indexes[i], Qt::UserRole + 0).toString();
+    QString sPath = data(indexes[i], Qt::UserRole + 1).toString();
+
+    stream << sGuid;
+    sGuids += sPath + "\n";
+  }  
+
+  mimeData->setData("application/ezEditor.AssetGuid", encodedData);
+  mimeData->setText(sGuids);
+  return mimeData;
+}
+
+
+
+
+
+
 
