@@ -22,7 +22,7 @@ protected:
   ezHybridArrayBase(ezHybridArrayBase<T, Size>&& other, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Creates a copy of the given array.
-  ezHybridArrayBase(const ezArrayPtr<T>& other, ezAllocatorBase* pAllocator); // [tested]
+  ezHybridArrayBase(const ezArrayPtr<const T>& other, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Destructor.
   ~ezHybridArrayBase(); // [tested]
@@ -74,14 +74,14 @@ public:
 
   ezHybridArray(const ezHybridArray<T, Size, AllocatorWrapper>& other);
   ezHybridArray(const ezHybridArrayBase<T, Size>& other);
-  explicit ezHybridArray(const ezArrayPtr<T>& other);
+  explicit ezHybridArray(const ezArrayPtr<const T>& other);
 
   ezHybridArray(ezHybridArray<T, Size, AllocatorWrapper>&& other);
   ezHybridArray(ezHybridArrayBase<T, Size>&& other);
 
   void operator=(const ezHybridArray<T, Size, AllocatorWrapper>& rhs);
   void operator=(const ezHybridArrayBase<T, Size>& rhs);
-  void operator=(const ezArrayPtr<T>& rhs);
+  void operator=(const ezArrayPtr<const T>& rhs);
 
   void operator=(ezHybridArray<T, Size, AllocatorWrapper>&& rhs);
   void operator=(ezHybridArrayBase<T, Size>&& rhs);

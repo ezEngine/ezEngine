@@ -10,7 +10,7 @@ ezStaticArray<T, C>::ezStaticArray(const ezStaticArray<T, C>& rhs)
 {
   this->m_pElements = GetStaticArray();
 
-  *this = (ezArrayPtr<T>) rhs; // redirect this to the ezArrayPtr version
+  *this = (ezArrayPtr<const T>) rhs; // redirect this to the ezArrayPtr version
 }
 
 template <typename T, ezUInt32 C>
@@ -19,11 +19,11 @@ ezStaticArray<T, C>::ezStaticArray(const ezStaticArray<T, OtherCapacity>& rhs)
 {
   this->m_pElements = GetStaticArray();
 
-  *this = (ezArrayPtr<T>) rhs; // redirect this to the ezArrayPtr version
+  *this = (ezArrayPtr<const T>) rhs; // redirect this to the ezArrayPtr version
 }
 
 template <typename T, ezUInt32 C>
-ezStaticArray<T, C>::ezStaticArray(const ezArrayPtr<T>& rhs)
+ezStaticArray<T, C>::ezStaticArray(const ezArrayPtr<const T>& rhs)
 {
   this->m_pElements = GetStaticArray();
 
@@ -54,18 +54,18 @@ EZ_FORCE_INLINE void ezStaticArray<T, C>::Reserve(ezUInt32 uiCapacity)
 template <typename T, ezUInt32 C>
 EZ_FORCE_INLINE void ezStaticArray<T, C>::operator= (const ezStaticArray<T, C>& rhs)
 {
-  *this = (ezArrayPtr<T>) rhs; // redirect this to the ezArrayPtr version
+  *this = (ezArrayPtr<const T>) rhs; // redirect this to the ezArrayPtr version
 }
 
 template <typename T, ezUInt32 C>
 template <ezUInt32 OtherCapacity>
 EZ_FORCE_INLINE void ezStaticArray<T, C>::operator= (const ezStaticArray<T, OtherCapacity>& rhs)
 {
-  *this = (ezArrayPtr<T>) rhs; // redirect this to the ezArrayPtr version
+  *this = (ezArrayPtr<const T>) rhs; // redirect this to the ezArrayPtr version
 }
 
 template <typename T, ezUInt32 C>
-EZ_FORCE_INLINE void ezStaticArray<T, C>::operator= (const ezArrayPtr<T>& rhs)
+EZ_FORCE_INLINE void ezStaticArray<T, C>::operator= (const ezArrayPtr<const T>& rhs)
 {
   ezArrayBase<T, ezStaticArray<T, C>>::operator=(rhs);
 }

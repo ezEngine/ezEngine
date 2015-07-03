@@ -84,7 +84,7 @@ public:
   }
 
   /// \brief Function call operator. This will call the function that is bound to the delegate, or assert if nothing was bound.
-  EZ_FORCE_INLINE R operator()(EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
+  EZ_FORCE_INLINE R operator()(EZ_PAIR_LIST(ARG, arg, ARG_COUNT)) const
   {
     EZ_ASSERT_DEBUG(m_pDispatchFunction != nullptr, "Delegate is not bound.");
     return (*m_pDispatchFunction)(*this EZ_COMMA_IF(ARG_COUNT) EZ_LIST(arg, ARG_COUNT));
@@ -118,7 +118,7 @@ public:
 
 private:
   template <typename Method, typename Class>
-  static EZ_FORCE_INLINE R DispatchToMethod(SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
+  static EZ_FORCE_INLINE R DispatchToMethod(const SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
   {
     EZ_ASSERT_DEBUG(self.m_pInstance.m_Ptr != nullptr, "Instance must not be null.");
     Method method = *reinterpret_cast<Method*>(&self.m_Data);
@@ -126,7 +126,7 @@ private:
   }
 
   template <typename Method, typename Class>
-  static EZ_FORCE_INLINE R DispatchToConstMethod(SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
+  static EZ_FORCE_INLINE R DispatchToConstMethod(const SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
   {
     EZ_ASSERT_DEBUG(self.m_pInstance.m_ConstPtr != nullptr, "Instance must not be null.");
     Method method = *reinterpret_cast<Method*>(&self.m_Data);
@@ -134,17 +134,17 @@ private:
   }
 
   template <typename Function>
-  static EZ_FORCE_INLINE R DispatchToFunction(SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
+  static EZ_FORCE_INLINE R DispatchToFunction(const SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
   {
     return (*reinterpret_cast<Function*>(&self.m_Data))(EZ_LIST(arg, ARG_COUNT));
   }
 
 
-  typedef R (*DispatchFunction)(SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_LIST(ARG, ARG_COUNT));
+  typedef R (*DispatchFunction)(const SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_LIST(ARG, ARG_COUNT));
   DispatchFunction m_pDispatchFunction;
 
   enum { DATA_SIZE = 16 };
-  ezUInt8 m_Data[DATA_SIZE];
+  mutable ezUInt8 m_Data[DATA_SIZE];
 };
 
 template <typename Class, typename R EZ_COMMA_IF(ARG_COUNT) EZ_LIST(typename ARG, ARG_COUNT)>

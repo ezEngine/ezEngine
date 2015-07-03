@@ -22,7 +22,7 @@ protected:
   ezDynamicArrayBase(ezDynamicArrayBase<T>&& other, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Creates a copy of the given array.
-  ezDynamicArrayBase(const ezArrayPtr<T>& other, ezAllocatorBase* pAllocator); // [tested]
+  ezDynamicArrayBase(const ezArrayPtr<const T>& other, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Destructor.
   ~ezDynamicArrayBase(); // [tested]
@@ -68,14 +68,14 @@ public:
 
   ezDynamicArray(const ezDynamicArray<T, AllocatorWrapper>& other);
   ezDynamicArray(const ezDynamicArrayBase<T>& other);
-  explicit ezDynamicArray(const ezArrayPtr<T>& other);
+  explicit ezDynamicArray(const ezArrayPtr<const T>& other);
 
   ezDynamicArray(ezDynamicArray<T, AllocatorWrapper>&& other);
   ezDynamicArray(ezDynamicArrayBase<T>&& other);
 
   void operator=(const ezDynamicArray<T, AllocatorWrapper>& rhs);
   void operator=(const ezDynamicArrayBase<T>& rhs);
-  void operator=(const ezArrayPtr<T>& rhs);
+  void operator=(const ezArrayPtr<const T>& rhs);
 
   void operator=(ezDynamicArray<T, AllocatorWrapper>&& rhs);
   void operator=(ezDynamicArrayBase<T>&& rhs);

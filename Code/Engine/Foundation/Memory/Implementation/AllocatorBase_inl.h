@@ -62,7 +62,7 @@ namespace ezInternal
   }
 
   template <typename T>
-  inline void DeleteArray(ezAllocatorBase* pAllocator, const ezArrayPtr<T>& arrayPtr)
+  inline void DeleteArray(ezAllocatorBase* pAllocator, ezArrayPtr<T> arrayPtr)
   {
     T* buffer = arrayPtr.GetPtr();
     if (buffer != nullptr)

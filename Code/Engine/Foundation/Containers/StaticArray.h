@@ -23,7 +23,7 @@ public:
   ezStaticArray(const ezStaticArray<T, OtherCapacity>& rhs); // [tested]
 
   /// \brief Creates a copy of the given array.
-  explicit ezStaticArray(const ezArrayPtr<T>& rhs); // [tested]
+  explicit ezStaticArray(const ezArrayPtr<const T>& rhs); // [tested]
 
   /// \brief Destroys all objects.
   ~ezStaticArray(); // [tested]
@@ -36,7 +36,7 @@ public:
   void operator= (const ezStaticArray<T, OtherCapacity>& rhs); // [tested]
 
   /// \brief Copies the data from some other contiguous array into this one.
-  void operator= (const ezArrayPtr<T>& rhs); // [tested]
+  void operator= (const ezArrayPtr<const T>& rhs); // [tested]
 
 private:
   T* GetStaticArray();

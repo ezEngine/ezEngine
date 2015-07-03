@@ -14,7 +14,7 @@ ezArrayBase<T, Derived>::~ezArrayBase()
 }
 
 template <typename T, typename Derived>
-void ezArrayBase<T, Derived>::operator= (const ezArrayPtr<T>& rhs)
+void ezArrayBase<T, Derived>::operator= (const ezArrayPtr<const T>& rhs)
 {
   const ezUInt32 uiOldCount = m_uiCount;
   const ezUInt32 uiNewCount = rhs.GetCount();
@@ -35,9 +35,9 @@ void ezArrayBase<T, Derived>::operator= (const ezArrayPtr<T>& rhs)
 }
 
 template <typename T, typename Derived>
-EZ_FORCE_INLINE ezArrayBase<T, Derived>::operator const ezArrayPtr<T>() const
+EZ_FORCE_INLINE ezArrayBase<T, Derived>::operator ezArrayPtr<const T>() const
 {
-  return ezArrayPtr<T>(m_pElements, m_uiCount);
+  return ezArrayPtr<const T>(m_pElements, m_uiCount);
 }
 
 template <typename T, typename Derived>
@@ -47,7 +47,7 @@ EZ_FORCE_INLINE ezArrayBase<T, Derived>::operator ezArrayPtr<T>()
 }
 
 template <typename T, typename Derived>
-bool ezArrayBase<T, Derived>::operator== (const ezArrayPtr<T>& rhs) const
+bool ezArrayBase<T, Derived>::operator== (const ezArrayPtr<const T>& rhs) const
 {
   if (m_uiCount != rhs.GetCount())
     return false;
@@ -56,7 +56,7 @@ bool ezArrayBase<T, Derived>::operator== (const ezArrayPtr<T>& rhs) const
 }
 
 template <typename T, typename Derived>
-EZ_FORCE_INLINE bool ezArrayBase<T, Derived>::operator!= (const ezArrayPtr<T>& rhs) const
+EZ_FORCE_INLINE bool ezArrayBase<T, Derived>::operator!= (const ezArrayPtr<const T>& rhs) const
 {
   return !(*this == rhs);
 }
@@ -279,16 +279,6 @@ void ezArrayBase<T, Derived>::PushBackUnchecked(T&& value)
 }
 
 template <typename T, typename Derived>
-void ezArrayBase<T, Derived>::PushBackRange(const ezArrayPtr<typename ezTypeTraits<T>::NonConstType>& range)
-{
-  const ezUInt32 uiRangeCount = range.GetCount();
-  static_cast<Derived*>(this)->Reserve(m_uiCount + uiRangeCount);
-
-  ezMemoryUtils::CopyConstruct(m_pElements + m_uiCount, range.GetPtr(), uiRangeCount);
-  m_uiCount += uiRangeCount;
-}
-
-template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::PushBackRange(const ezArrayPtr<const T>& range)
 {
   const ezUInt32 uiRangeCount = range.GetCount();
@@ -367,7 +357,7 @@ ezArrayPtr<T> ezArrayBase<T, Derived>::GetArrayPtr()
 }
 
 template <typename T, typename Derived>
-const ezArrayPtr<const T> ezArrayBase<T, Derived>::GetArrayPtr() const
+ezArrayPtr<const T> ezArrayBase<T, Derived>::GetArrayPtr() const
 {
     return ezArrayPtr<const T>(GetData(), GetCount());
 }

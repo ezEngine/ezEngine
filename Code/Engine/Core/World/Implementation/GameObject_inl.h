@@ -235,8 +235,13 @@ void ezGameObject::TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_componen
   }
 }
 
-EZ_FORCE_INLINE ezArrayPtr<ezComponent*> ezGameObject::GetComponents() const
+EZ_FORCE_INLINE ezArrayPtr<ezComponent* const> ezGameObject::GetComponents()
 {
   return m_Components;
+}
+
+EZ_FORCE_INLINE ezArrayPtr<const ezComponent* const> ezGameObject::GetComponents() const
+{
+  return ezMakeArrayPtr(const_cast<const ezComponent*const*>(m_Components.GetData()), m_Components.GetCount());
 }
 

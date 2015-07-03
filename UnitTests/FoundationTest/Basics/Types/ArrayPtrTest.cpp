@@ -281,7 +281,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
     // const array
     const ezDynamicArray<ezInt32>& a2 = a1;
 
-    const ezArrayPtr<ezInt32> ptr2 = a2;
+    const ezArrayPtr<const ezInt32> ptr2 = a2;
 
     // STL lower bound
     auto lb = std::lower_bound(begin(ptr2), end(ptr2), 400);
@@ -316,7 +316,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
     // const array
     const ezDynamicArray<ezInt32>& a2 = a1;
 
-    const ezArrayPtr<ezInt32> ptr2 = a2;
+    const ezArrayPtr<const ezInt32> ptr2 = a2;
 
     // STL lower bound
     auto lb = std::lower_bound(rbegin(ptr2), rend(ptr2), 400);

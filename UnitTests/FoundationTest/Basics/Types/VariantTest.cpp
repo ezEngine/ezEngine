@@ -545,8 +545,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(va.GetType() == ezVariant::Type::VariantArray);
     EZ_TEST_BOOL(va.IsA<ezVariantArray>());
 
-    const ezArrayPtr<ezVariant>& b = va.Get<ezVariantArray>();
-    ezArrayPtr<ezVariant> b2 = va.Get<ezVariantArray>();
+    const ezArrayPtr<const ezVariant>& b = va.Get<ezVariantArray>();
+    ezArrayPtr<const ezVariant> b2 = va.Get<ezVariantArray>();
 
     EZ_TEST_BOOL(a == b);
     EZ_TEST_BOOL(a == b2);

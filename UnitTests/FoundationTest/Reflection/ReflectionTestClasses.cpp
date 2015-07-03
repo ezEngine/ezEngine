@@ -197,7 +197,7 @@ void ezTestSets::PseudoRemove(int value)
 }
 
 
-const ezArrayPtr<ezString> ezTestSets::GetPseudoSet2() const
+ezArrayPtr<const ezString> ezTestSets::GetPseudoSet2() const
 {
   return m_Array;
 }

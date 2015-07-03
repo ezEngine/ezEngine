@@ -186,7 +186,10 @@ public:
   void TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_components) const;
 
   /// \brief Returns a list of all components attached to this object.
-  ezArrayPtr<ezComponent*> GetComponents() const;
+  ezArrayPtr<ezComponent* const> GetComponents();
+
+  /// \brief Returns a list of all components attached to this object.
+  ezArrayPtr<const ezComponent* const> GetComponents() const;
 
 
   /// \brief Sends a message to all components of this object. Depending on the routing options the message is also send to parents or children.

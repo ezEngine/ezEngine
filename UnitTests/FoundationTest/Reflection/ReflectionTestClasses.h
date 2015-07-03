@@ -280,7 +280,7 @@ public:
   void PseudoInsert(int value);
   void PseudoRemove(int value);
 
-  const ezArrayPtr<ezString> GetPseudoSet2() const;
+  ezArrayPtr<const ezString> GetPseudoSet2() const;
   void PseudoInsert2(const ezString& value);
   void PseudoRemove2(const ezString& value);
 

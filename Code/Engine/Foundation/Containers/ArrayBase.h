@@ -19,19 +19,19 @@ public:
   ~ezArrayBase(); // [tested]
 
   /// \brief Copies the data from some other contiguous array into this one.
-  void operator= (const ezArrayPtr<T>& rhs); // [tested]
+  void operator= (const ezArrayPtr<const T>& rhs); // [tested]
 
   /// \brief Conversion to const ezArrayPtr.
-  operator const ezArrayPtr<T>() const; // [tested]
+  operator ezArrayPtr<const T>() const; // [tested]
 
   /// \brief Conversion to ezArrayPtr.
   operator ezArrayPtr<T>(); // [tested]
 
   /// \brief Compares this array to another contiguous array type.
-  bool operator== (const ezArrayPtr<T>& rhs) const; // [tested]
+  bool operator== (const ezArrayPtr<const T>& rhs) const; // [tested]
 
   /// \brief Compares this array to another contiguous array type.
-  bool operator!= (const ezArrayPtr<T>& rhs) const; // [tested]
+  bool operator!= (const ezArrayPtr<const T>& rhs) const; // [tested]
 
   /// \brief Returns the element at the given index. Does bounds checks in debug builds.
   const T& operator[](ezUInt32 uiIndex) const; // [tested]
@@ -97,9 +97,6 @@ public:
   void PushBackUnchecked(T&& value); // [tested]
 
   /// \brief Pushes all elements in range at the end of the array. Increases the capacity if necessary.
-  void PushBackRange(const ezArrayPtr<typename ezTypeTraits<T>::NonConstType>& range); // [tested]
-
-  /// \brief Pushes all elements in range at the end of the array. Increases the capacity if necessary.
   void PushBackRange(const ezArrayPtr<const T>& range); // [tested]
 
   /// \brief Removes count elements from the end of the array.
@@ -128,7 +125,7 @@ public:
   ezArrayPtr<T> GetArrayPtr(); // [tested]
 
   /// \brief Returns a array pointer to the array data, or an empty array pointer if the array is empty.
-  const ezArrayPtr<const T> GetArrayPtr() const; // [tested]
+  ezArrayPtr<const T> GetArrayPtr() const; // [tested]
 
   typedef T const * const_iterator;
   typedef const_reverse_pointer_iterator<T> const_reverse_iterator;

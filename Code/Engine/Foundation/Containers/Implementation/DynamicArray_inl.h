@@ -12,7 +12,7 @@ ezDynamicArrayBase<T>::ezDynamicArrayBase(const ezDynamicArrayBase<T>& other, ez
   this->m_uiCapacity = 0;
   m_pAllocator = pAllocator;
 
-  ezArrayBase<T, ezDynamicArrayBase<T>>::operator=((ezArrayPtr<T>)other); // redirect this to the ezArrayPtr version
+  ezArrayBase<T, ezDynamicArrayBase<T>>::operator=((ezArrayPtr<const T>)other); // redirect this to the ezArrayPtr version
 }
 
 template <typename T>
@@ -25,12 +25,12 @@ ezDynamicArrayBase<T>::ezDynamicArrayBase(ezDynamicArrayBase<T>&& other, ezAlloc
 }
 
 template <typename T>
-ezDynamicArrayBase<T>::ezDynamicArrayBase(const ezArrayPtr<T>& other, ezAllocatorBase* pAllocator)
+ezDynamicArrayBase<T>::ezDynamicArrayBase(const ezArrayPtr<const T>& other, ezAllocatorBase* pAllocator)
 {
   this->m_uiCapacity = 0;
   m_pAllocator = pAllocator;
 
-  ezArrayBase<T, ezDynamicArrayBase<T>>::operator=((ezArrayPtr<T>)other);
+  ezArrayBase<T, ezDynamicArrayBase<T>>::operator=((ezArrayPtr<const T>)other);
 }
 
 template <typename T>
@@ -44,7 +44,7 @@ ezDynamicArrayBase<T>::~ezDynamicArrayBase()
 template <typename T>
 EZ_FORCE_INLINE void ezDynamicArrayBase<T>::operator= (const ezDynamicArrayBase<T>& rhs)
 {
-  ezArrayBase<T, ezDynamicArrayBase<T>>::operator=((ezArrayPtr<T>)rhs); // redirect this to the ezArrayPtr version
+  ezArrayBase<T, ezDynamicArrayBase<T>>::operator=((ezArrayPtr<const T>)rhs); // redirect this to the ezArrayPtr version
 }
 
 template <typename T>
@@ -68,7 +68,7 @@ EZ_FORCE_INLINE void ezDynamicArrayBase<T>::operator= (ezDynamicArrayBase<T>&& r
   }
   else
   {
-    ezArrayBase<T, ezDynamicArrayBase<T>>::operator=((ezArrayPtr<T>)rhs); // redirect this to the ezArrayPtr version
+    ezArrayBase<T, ezDynamicArrayBase<T>>::operator=((ezArrayPtr<const T>)rhs); // redirect this to the ezArrayPtr version
     rhs.Clear();
   }
 }
@@ -135,7 +135,7 @@ ezDynamicArray<T, A>::ezDynamicArray(const ezDynamicArrayBase<T>& other) : ezDyn
 }
 
 template <typename T, typename A>
-ezDynamicArray<T, A>::ezDynamicArray(const ezArrayPtr<T>& other) : ezDynamicArrayBase<T>(other, A::GetAllocator())
+ezDynamicArray<T, A>::ezDynamicArray(const ezArrayPtr<const T>& other) : ezDynamicArrayBase<T>(other, A::GetAllocator())
 {
 }
 
@@ -162,7 +162,7 @@ void ezDynamicArray<T, A>::operator=(const ezDynamicArrayBase<T>& rhs)
 }
 
 template <typename T, typename A>
-void ezDynamicArray<T, A>::operator=(const ezArrayPtr<T>& rhs)
+void ezDynamicArray<T, A>::operator=(const ezArrayPtr<const T>& rhs)
 {
   ezArrayBase<T, ezDynamicArrayBase<T>>::operator=(rhs);
 }
