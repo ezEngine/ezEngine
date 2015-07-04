@@ -5,6 +5,7 @@
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAddObjectCommand, ezCommandBase, 1, ezRTTIDefaultAllocator<ezAddObjectCommand>);
   EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("NewGuid", m_NewObjectGuid),
     EZ_MEMBER_PROPERTY("ParentGuid", m_Parent),
     EZ_MEMBER_PROPERTY("ChildIndex", m_iChildIndex),
     EZ_ACCESSOR_PROPERTY("Type", GetType, SetType),
@@ -57,6 +58,9 @@ ezStatus ezAddObjectCommand::Do(bool bRedo)
 {
   ezDocumentBase* pDocument = GetDocument();
 
+  if (!m_NewObjectGuid.IsValid())
+    m_NewObjectGuid.CreateNewUuid();
+
   ezDocumentObjectBase* pParent = nullptr;
   if (m_Parent.IsValid())
   {
@@ -74,7 +78,7 @@ ezStatus ezAddObjectCommand::Do(bool bRedo)
 
   if (!bRedo)
   {
-    m_pObject = pDocument->GetObjectManager()->CreateObject(m_pType);
+    m_pObject = pDocument->GetObjectManager()->CreateObject(m_pType, m_NewObjectGuid);
   }
 
   pDocument->GetObjectManager()->AddObject(m_pObject, pParent, m_iChildIndex);

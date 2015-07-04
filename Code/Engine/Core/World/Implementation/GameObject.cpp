@@ -64,7 +64,9 @@ void ezGameObject::SetGlobalRotation(const ezQuat rotation)
 
   const ezVec3 vOldScale = m_pTransformationData->m_worldTransform.m_Rotation.GetScalingFactors();
   m_pTransformationData->m_worldTransform.m_Rotation = rotation.GetAsMat3();
-  m_pTransformationData->m_worldTransform.m_Rotation.SetScalingFactors(vOldScale);
+
+  if (!vOldScale.IsZero())
+    m_pTransformationData->m_worldTransform.m_Rotation.SetScalingFactors(vOldScale);
 
   SetGlobalTransform(m_pTransformationData->m_worldTransform);
 }
@@ -73,7 +75,8 @@ void ezGameObject::SetGlobalScaling(const ezVec3 scaling)
 {
   /// \test This is not yet tested
 
-  m_pTransformationData->m_worldTransform.m_Rotation.SetScalingFactors(scaling);
+  if (m_pTransformationData->m_worldTransform.m_Rotation.SetScalingFactors(scaling).Failed())
+    m_pTransformationData->m_worldTransform.m_Rotation.SetScalingMatrix(scaling);
 
   SetGlobalTransform(m_pTransformationData->m_worldTransform);
 }

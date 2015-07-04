@@ -18,6 +18,7 @@ public: // Properties
   const ezRTTI* m_pType;
   ezUuid m_Parent;
   ezInt32 m_iChildIndex;
+  ezUuid m_NewObjectGuid; ///< This is optional. If not filled out, a new guid is assigned automatically.
 
 private:
   virtual ezStatus Do(bool bRedo) override;

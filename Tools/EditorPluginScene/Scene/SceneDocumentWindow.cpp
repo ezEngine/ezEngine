@@ -324,8 +324,13 @@ void ezScene3DWidget::dropEvent(QDropEvent * e)
       if (res.m_vPickedPosition.IsNaN())
         return;
 
+      ezUuid ObjectGuid, CmpGuid;
+      ObjectGuid.CreateNewUuid();
+      CmpGuid.CreateNewUuid();
+
       ezAddObjectCommand cmd;
       cmd.SetType("ezGameObject");
+      cmd.m_NewObjectGuid = ObjectGuid;
 
       auto history = m_pDocumentWindow->GetDocument()->GetCommandHistory();
 
@@ -333,15 +338,39 @@ void ezScene3DWidget::dropEvent(QDropEvent * e)
 
       history->AddCommand(cmd);
 
-      /// \todo Cannot set additional properties, add components, etc. because I do not have a guid for the newly added object
+      ezSetObjectPropertyCommand cmd2;
+      cmd2.m_bEditorProperty = false;
+      cmd2.m_Object = ObjectGuid;
 
-      //ezSetObjectPropertyCommand cmd2;
-      //cmd2.m_bEditorProperty = false;
-      //cmd2.SetPropertyPath("GlobalPosition");
-      //cmd2.m_NewValue = res.m_vPickedPosition;
-      //cmd2.m_Object = cmd.GetObject()->GetGuid();
+      history->EndTransaction(false);
+      history->StartTransaction();
 
-      //history->AddCommand(cmd2);
+      cmd2.SetPropertyPath("LocalPosition");
+      cmd2.m_NewValue = res.m_vPickedPosition;
+      history->AddCommand(cmd2);
+
+      history->EndTransaction(false);
+      history->StartTransaction();
+
+      cmd2.SetPropertyPath("LocalScaling");
+      cmd2.m_NewValue = ezVec3(1.0f);
+      history->AddCommand(cmd2);
+
+      history->EndTransaction(false);
+      history->StartTransaction();
+
+      cmd.SetType("ezMeshComponent");
+      cmd.m_NewObjectGuid = CmpGuid;
+      cmd.m_Parent = ObjectGuid;
+      history->AddCommand(cmd);
+
+      history->EndTransaction(false);
+      history->StartTransaction();
+
+      cmd2.m_Object = CmpGuid;
+      cmd2.SetPropertyPath("MeshFile");
+      cmd2.m_NewValue = sGuid.toUtf8().data();
+      history->AddCommand(cmd2);
 
       history->EndTransaction(false);
     }
