@@ -242,6 +242,17 @@ void ezEditorEngineConnection::SendDocumentTreeChange(const ezDocumentObjectStru
       sData.ReadAll(reader);
 
       msg.m_sObjectData = sData;
+      SendMessage(&msg);
+
+      for (ezUInt32 i = 0; i < e.m_pObject->GetChildren().GetCount(); i++)
+      {
+        ezDocumentObjectStructureEvent childEvent = e;
+        childEvent.m_pNewParent = e.m_pObject;
+        childEvent.m_pObject = e.m_pObject->GetChildren()[i];
+        childEvent.m_uiNewChildIndex = i;
+        SendDocumentTreeChange(childEvent);
+      }
+      return;
     }
     break;
 
