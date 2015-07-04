@@ -141,24 +141,6 @@ struct ezGALSamplerStateCreationDescription : public ezHashableStruct<ezGALSampl
   ezUInt32 m_uiMaxAnisotropy;
 };
 
-struct ezGALRenderTargetConfigCreationDescription : public ezHashableStruct<ezGALRenderTargetConfigCreationDescription>
-{
-  ezGALRenderTargetViewHandle m_hColorTargets[EZ_GAL_MAX_RENDERTARGET_COUNT];
-  ezGALRenderTargetViewHandle m_hDepthStencilTarget;
-
-  ezUInt32 m_uiColorTargetCount;
-
-  /// Set this flag to true for render target configurations that are used for swap chain backbuffer.
-  /// This is important for render APIs that treat the hardware backbuffer differently. All other parameters may be ignored then.
-  bool m_bHardwareBackBuffer;
-
-  inline bool IsValid() const
-  {
-    return m_bHardwareBackBuffer || m_uiColorTargetCount > 0 || !m_hDepthStencilTarget.IsInvalidated();
-  }
-};
-
-
 struct ezGALVertexAttributeSemantic
 {
   enum Enum

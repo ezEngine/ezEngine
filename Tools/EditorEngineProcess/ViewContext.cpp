@@ -6,6 +6,7 @@
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/SimpleRenderPass.h>
 #include <RendererCore/Pipeline/View.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <GameFoundation/GameApplication.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcess/PickingRenderPass.h>
@@ -46,8 +47,8 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
     const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(m_hPrimarySwapChain);
     EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
 
-    m_hBBRT = pPrimarySwapChain->GetRenderTargetViewConfig();
-    EZ_ASSERT_DEV(!m_hBBRT.IsInvalidated(), "Failed to init render target");
+    m_hSwapChainRTV = pPrimarySwapChain->GetBackBufferRenderTargetView();
+    m_hSwapChainDSV = pPrimarySwapChain->GetDepthStencilTargetView();
   }
 
   // Create render target for picking
@@ -62,12 +63,6 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
     {
       pDevice->DestroyTexture(m_hPickingDepthRT);
       m_hPickingDepthRT.Invalidate();
-    }
-
-    if (!m_hPickingRenderTargetCfg.IsInvalidated())
-    {
-      pDevice->DestroyRenderTargetConfig(m_hPickingRenderTargetCfg);
-      m_hPickingRenderTargetCfg.Invalidate();
     }
 
     ezGALTextureCreationDescription tcd;
@@ -91,19 +86,11 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
     ezGALRenderTargetViewCreationDescription rtvd;
     rtvd.m_hTexture = m_hPickingIdRT;
     rtvd.m_RenderTargetType = ezGALRenderTargetType::Color;
-    ezGALRenderTargetViewHandle hRTVcol = pDevice->CreateRenderTargetView(rtvd);
+    m_hPickingIdRTV = pDevice->CreateRenderTargetView( rtvd );
 
     rtvd.m_hTexture = m_hPickingDepthRT;
     rtvd.m_RenderTargetType = ezGALRenderTargetType::DepthStencil;
-    ezGALRenderTargetViewHandle hRTVdepth = pDevice->CreateRenderTargetView(rtvd);
-
-    ezGALRenderTargetConfigCreationDescription rtd;
-    rtd.m_bHardwareBackBuffer = false;
-    rtd.m_hColorTargets[0] = hRTVcol;
-    rtd.m_hDepthStencilTarget = hRTVdepth;
-    rtd.m_uiColorTargetCount = 1;
-
-    m_hPickingRenderTargetCfg = pDevice->CreateRenderTargetConfig(rtd);
+    m_hPickingDepthDSV = pDevice->CreateRenderTargetView( rtvd );
   }
 
   // setup view
@@ -115,11 +102,19 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
 
     m_pView = ezRenderLoop::CreateView("Editor - View");
 
-    ezUniquePtr<ezPickingRenderPass> pRenderPass = EZ_DEFAULT_NEW(ezPickingRenderPass, m_hPickingRenderTargetCfg);
+    ezGALRenderTagetSetup PickingRenderTargetSetup;
+    PickingRenderTargetSetup.SetRenderTarget(0, m_hPickingIdRTV)
+                            .SetDepthStencilTarget(m_hPickingDepthDSV);
+
+    ezUniquePtr<ezPickingRenderPass> pRenderPass = EZ_DEFAULT_NEW(ezPickingRenderPass, PickingRenderTargetSetup);
     pRenderPass->m_Events.AddEventHandler(ezMakeDelegate(&ezViewContext::RenderPassEventHandler, this));
 
+    ezGALRenderTagetSetup BackBufferRenderTargetSetup;
+    BackBufferRenderTargetSetup.SetRenderTarget(0, m_hSwapChainRTV)
+      .SetDepthStencilTarget(m_hSwapChainDSV);
+
     ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
-    pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezSimpleRenderPass, m_hBBRT));
+    pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezSimpleRenderPass, BackBufferRenderTargetSetup));
     pRenderPipeline->AddPass(std::move(pRenderPass));
     m_pView->SetRenderPipeline(std::move(pRenderPipeline));
 

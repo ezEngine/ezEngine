@@ -64,7 +64,7 @@ public:
 
   void SetResourceView(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALResourceViewHandle hResourceView);
 
-  void SetRenderTargetConfig(ezGALRenderTargetConfigHandle hRenderTargetConfig);
+  void SetRenderTargetSetup(const ezGALRenderTagetSetup& RenderTargetSetup);
 
   void SetUnorderedAccessView(ezUInt32 uiSlot, ezGALResourceViewHandle hResourceView);
 
@@ -177,7 +177,7 @@ protected:
 
   virtual void SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALResourceView* pResourceView) = 0;
 
-  virtual void SetRenderTargetConfigPlatform(ezGALRenderTargetConfig* pRenderTargetConfig) = 0;
+  virtual void SetRenderTargetSetupPlatform(ezGALRenderTargetView** ppRenderTargetViews, ezUInt32 uiRenderTargetCount, ezGALRenderTargetView* pDepthStencilView) = 0;
 
   virtual void SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, ezGALResourceView* pResourceView) = 0;
 

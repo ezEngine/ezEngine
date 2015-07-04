@@ -1,12 +1,12 @@
 #pragma once
 
-#include <RendererFoundation/Resources/RenderTargetConfig.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 class ezPickingRenderPass : public ezRenderPipelinePass
 {
 public:
-  ezPickingRenderPass(ezGALRenderTargetConfigHandle hRTConfig);
+  ezPickingRenderPass(const ezGALRenderTagetSetup& RenderTargetSetup);
   ~ezPickingRenderPass();
 
   virtual void Execute(const ezRenderViewContext& renderViewContext) override;
@@ -25,5 +25,5 @@ public:
   ezEvent<const Event&> m_Events;
 
 private:
-  ezGALRenderTargetConfigHandle m_hRTConfig;
+  ezGALRenderTagetSetup m_RenderTargetSetup;
 };

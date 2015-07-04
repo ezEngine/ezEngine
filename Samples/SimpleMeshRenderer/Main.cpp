@@ -13,7 +13,7 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/Application/Config/ApplicationConfig.h>
 
-#include <RendererGL/Device/DeviceGL.h>
+#include <RendererFoundation/Device/Device.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
@@ -53,7 +53,7 @@ void GameState::Activate()
   SetupInput();
 
   const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(hSwapChain);
-  CreateGameLevelAndRenderPipeline(pSwapChain->GetRenderTargetViewConfig());
+  CreateGameLevelAndRenderPipeline(pSwapChain->GetBackBufferRenderTargetView(), pSwapChain->GetDepthStencilTargetView());
 }
 
 void GameState::Deactivate()

@@ -68,24 +68,22 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
       TexDesc.m_ResourceAccess.m_bReadBack = true;
 
     // And create the ez texture object wrapping the backbuffer texture
-    ezGALTextureHandle hBackBufferTexture = pDXDevice->CreateTexture(TexDesc, nullptr);
-    EZ_ASSERT_RELEASE(!hBackBufferTexture.IsInvalidated(), "Couldn't create backbuffer texture object!");
+    m_hBackBufferTexture = pDXDevice->CreateTexture(TexDesc, nullptr);
+    EZ_ASSERT_RELEASE(!m_hBackBufferTexture.IsInvalidated(), "Couldn't create backbuffer texture object!");
 
 
     // Create rendertarget view
     ezGALRenderTargetViewCreationDescription RTViewDesc;
     RTViewDesc.m_bReadOnly = true;
-    RTViewDesc.m_hTexture = hBackBufferTexture;
+    RTViewDesc.m_hTexture = m_hBackBufferTexture;
     RTViewDesc.m_RenderTargetType = ezGALRenderTargetType::Color;
     RTViewDesc.m_uiFirstSlice = 0;
     RTViewDesc.m_uiMipSlice = 0;
     RTViewDesc.m_uiSliceCount = 1;
-    ezGALRenderTargetViewHandle hBackBufferRenderTargetView = pDXDevice->CreateRenderTargetView(RTViewDesc);
-    EZ_ASSERT_RELEASE(!hBackBufferRenderTargetView.IsInvalidated(), "Couldn't create backbuffer rendertarget view!");
+    m_hBackBufferRTV = pDXDevice->CreateRenderTargetView(RTViewDesc);
+    EZ_ASSERT_RELEASE(!m_hBackBufferRTV.IsInvalidated(), "Couldn't create backbuffer rendertarget view!");
 
     // Optionally create depth buffer texture.
-    ezGALRenderTargetViewHandle hDepthStencilBufferRenderTargetView;
-    ezGALTextureHandle hDepthStencilBufferTexture;
     if (m_Description.m_bCreateDepthStencilBuffer)
     {
       ezGALTextureCreationDescription DepthStencilTexDesc;
@@ -94,27 +92,16 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
       DepthStencilTexDesc.m_Format = m_Description.m_DepthStencilBufferFormat;
       DepthStencilTexDesc.m_SampleCount = m_Description.m_SampleCount;
       DepthStencilTexDesc.m_bCreateRenderTarget = true;
-      hDepthStencilBufferTexture = pDXDevice->CreateTexture(DepthStencilTexDesc, nullptr);
-      EZ_ASSERT_RELEASE(!hDepthStencilBufferTexture.IsInvalidated(), "Couldn't create depth-stencil texture object!");
+      m_hDepthStencilBufferTexture = pDXDevice->CreateTexture(DepthStencilTexDesc, nullptr);
+      EZ_ASSERT_RELEASE(!m_hDepthStencilBufferTexture.IsInvalidated(), "Couldn't create depth-stencil texture object!");
 
       ezGALRenderTargetViewCreationDescription DepthStencilRTViewDesc;
       DepthStencilRTViewDesc.m_bReadOnly = false;
-      DepthStencilRTViewDesc.m_hTexture = hDepthStencilBufferTexture;
+      DepthStencilRTViewDesc.m_hTexture = m_hDepthStencilBufferTexture;
       DepthStencilRTViewDesc.m_RenderTargetType = ezGALRenderTargetType::DepthStencil;
-      hDepthStencilBufferRenderTargetView = pDXDevice->CreateRenderTargetView(DepthStencilRTViewDesc);
-      EZ_ASSERT_RELEASE(!hDepthStencilBufferRenderTargetView.IsInvalidated(), "Couldn't create depth-stencil rendertarget view!");
+      m_hBackBufferDSV = pDXDevice->CreateRenderTargetView(DepthStencilRTViewDesc);
+      EZ_ASSERT_RELEASE(!m_hBackBufferDSV.IsInvalidated(), "Couldn't create depth-stencil rendertarget view!");
     }
-
-    // Create render target view config.
-    ezGALRenderTargetConfigCreationDescription RTConfigDesc;
-    RTConfigDesc.m_uiColorTargetCount = 1;
-    RTConfigDesc.m_hColorTargets[0] = hBackBufferRenderTargetView;
-    RTConfigDesc.m_hDepthStencilTarget = hDepthStencilBufferRenderTargetView;
-    RTConfigDesc.m_bHardwareBackBuffer = true;
-    ezGALRenderTargetConfigHandle hRenderTargetConfig = pDXDevice->CreateRenderTargetConfig(RTConfigDesc);
-    EZ_ASSERT_RELEASE(!hRenderTargetConfig.IsInvalidated(), "Couldn't create render target config!");
-
-    SetBackBufferObjects(hRenderTargetConfig, hBackBufferTexture, hDepthStencilBufferTexture);
 
     return EZ_SUCCESS;
   }

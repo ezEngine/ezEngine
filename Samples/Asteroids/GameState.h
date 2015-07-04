@@ -17,7 +17,7 @@ private:
   virtual void BeforeWorldUpdate() override;
 
   void SetupInput();
-  void CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfigHandle hRTConfig);
+  void CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV);
   void DestroyLevel();
 
   Level* m_pLevel;

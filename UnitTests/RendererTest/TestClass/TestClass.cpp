@@ -93,8 +93,6 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(hPrimarySwapChain);
   EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
 
-  m_hBBRT = pPrimarySwapChain->GetRenderTargetViewConfig();
-
   ezGALDevice::SetDefaultDevice(m_pDevice);
 
   ezGALRasterizerStateCreationDescription RasterStateDesc;
@@ -214,9 +212,11 @@ void ezGraphicsTest::ClearScreen(const ezColor& color)
   ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
   const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(hPrimarySwapChain);
 
-  ezGALRenderTargetConfigHandle hBBRT = pPrimarySwapChain->GetRenderTargetViewConfig();
+  ezGALRenderTagetSetup RTS;
+  RTS.SetRenderTarget(0, pPrimarySwapChain->GetBackBufferRenderTargetView())
+     .SetDepthStencilTarget(pPrimarySwapChain->GetDepthStencilTargetView());
 
-  pContext->SetRenderTargetConfig(hBBRT);
+  pContext->SetRenderTargetSetup(RTS);
   pContext->SetViewport(0.0f, 0.0f, (float) m_pWindow->GetClientAreaSize().width, (float) m_pWindow->GetClientAreaSize().height, 0.0f, 1.0f);
   pContext->Clear(color);
 

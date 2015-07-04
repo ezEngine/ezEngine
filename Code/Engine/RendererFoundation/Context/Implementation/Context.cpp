@@ -307,6 +307,8 @@ void ezGALContext::SetResourceView(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot
 {
   AssertRenderingThread();
 
+  /// \todo Check if the device supports the stage / the slot index
+
   if (m_State.m_hResourceViews[Stage][uiSlot] == hResourceView)
   {
     CountRedundantStateChange();
@@ -323,22 +325,36 @@ void ezGALContext::SetResourceView(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot
   CountStateChange();
 }
 
-void ezGALContext::SetRenderTargetConfig(ezGALRenderTargetConfigHandle hRenderTargetConfig)
+void ezGALContext::SetRenderTargetSetup(const ezGALRenderTagetSetup& RenderTargetSetup)
 {
   AssertRenderingThread();
 
-  if (m_State.m_hRenderTargetConfig == hRenderTargetConfig)
+  if (m_State.m_RenderTargetSetup == RenderTargetSetup)
   {
     CountRedundantStateChange();
     return;
   }
+  
+  ezGALRenderTargetView* ppRenderTargetViews[EZ_GAL_MAX_RENDERTARGET_COUNT] = { nullptr };
+  ezGALRenderTargetView* pDepthStencilView = nullptr;
 
-  ezGALRenderTargetConfig* pRenderTargetConfig = nullptr;
-  m_pDevice->m_RenderTargetConfigs.TryGetValue(hRenderTargetConfig, pRenderTargetConfig);
+  ezUInt32 uiRenderTargetCount = 0;
 
-  SetRenderTargetConfigPlatform(pRenderTargetConfig);
+  if ( RenderTargetSetup.HasRenderTargets() )
+  {
+    for ( ezUInt8 uiIndex = 0; uiIndex <= RenderTargetSetup.GetMaxRenderTargetIndex(); ++uiIndex )
+    {
+      m_pDevice->m_RenderTargetViews.TryGetValue( RenderTargetSetup.GetRenderTarget( uiIndex ), ppRenderTargetViews[uiIndex] );
+    }
 
-  m_State.m_hRenderTargetConfig = hRenderTargetConfig;
+    uiRenderTargetCount = RenderTargetSetup.GetMaxRenderTargetIndex() + 1;
+  }
+
+  m_pDevice->m_RenderTargetViews.TryGetValue( RenderTargetSetup.GetDepthStencilTarget(), pDepthStencilView );
+
+  SetRenderTargetSetupPlatform( ppRenderTargetViews, uiRenderTargetCount, pDepthStencilView );
+
+  m_State.m_RenderTargetSetup = RenderTargetSetup;
 
   CountStateChange();
 }

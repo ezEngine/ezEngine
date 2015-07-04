@@ -6,7 +6,6 @@
 #include <RendererDX11/Shader/ShaderDX11.h>
 #include <RendererDX11/Resources/BufferDX11.h>
 #include <RendererDX11/Resources/TextureDX11.h>
-#include <RendererDX11/Resources/RenderTargetConfigDX11.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
 #include <RendererDX11/State/StateDX11.h>
@@ -268,43 +267,45 @@ void ezGALContextDX11::SetSamplerStatePlatform(ezGALShaderStage::Enum Stage, ezU
 
 void ezGALContextDX11::SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALResourceView* pResourceView)
 {
-  /// \todo Check if the device supports the stage / the slot index
   m_pBoundShaderResourceViews[Stage][uiSlot] = pResourceView != nullptr ? static_cast<ezGALResourceViewDX11*>(pResourceView)->GetDXResourceView() : nullptr;
   m_DeferredStateChanged.Add(ezGALDX11::DeferredStateChanged::ShaderResourceView);
 }
 
-void ezGALContextDX11::SetRenderTargetConfigPlatform(ezGALRenderTargetConfig* pRenderTargetConfig)
+void ezGALContextDX11::SetRenderTargetSetupPlatform( ezGALRenderTargetView** ppRenderTargetViews, ezUInt32 uiRenderTargetCount, ezGALRenderTargetView* pDepthStencilView )
 {
-  ezGALRenderTargetConfigDX11* pRTConfigDX11 = static_cast<ezGALRenderTargetConfigDX11*>(pRenderTargetConfig);
-
   for (ezUInt32 i = 0; i < EZ_GAL_MAX_RENDERTARGET_COUNT; i++)
   {
     m_pBoundRenderTargets[i] = nullptr;
   }
   m_pBoundDepthStencilTarget = nullptr;
 
-  if (pRenderTargetConfig)
+  if (uiRenderTargetCount > 0 || pDepthStencilView != nullptr)
   {
-    const ezGALRenderTargetConfigCreationDescription& Desc = pRenderTargetConfig->GetDescription();
-
-    for (ezUInt32 i = 0; i < Desc.m_uiColorTargetCount; i++)
+    for ( ezUInt32 i = 0; i < uiRenderTargetCount; i++ )
     {
-      m_pBoundRenderTargets[i] = pRTConfigDX11->m_pRenderTargetViews[i];
+      if ( ppRenderTargetViews[i] != nullptr )
+      {
+        m_pBoundRenderTargets[i] = static_cast<ezGALRenderTargetViewDX11*>(ppRenderTargetViews[i])->GetRenderTargetView();
+      }
+      
     }
 
-    m_pBoundDepthStencilTarget = pRTConfigDX11->m_pDepthStencilTargetView;
+    if (pDepthStencilView != nullptr )
+    {
+      m_pBoundDepthStencilTarget = static_cast<ezGALRenderTargetViewDX11*>(pDepthStencilView)->GetDepthStencilView();
+    }    
 
     // Bind rendertargets, bind max(new rt count, old rt count) to overwrite bound rts if new count < old count
-    m_pDXContext->OMSetRenderTargets(ezMath::Max(Desc.m_uiColorTargetCount, m_uiBoundRenderTargetCount), m_pBoundRenderTargets, m_pBoundDepthStencilTarget);
+    m_pDXContext->OMSetRenderTargets(ezMath::Max(uiRenderTargetCount, m_uiBoundRenderTargetCount), m_pBoundRenderTargets, m_pBoundDepthStencilTarget);
 
-    m_uiBoundRenderTargetCount = Desc.m_uiColorTargetCount;
+    m_uiBoundRenderTargetCount = uiRenderTargetCount;
   }
   else
   {
     m_pBoundDepthStencilTarget = nullptr;
     m_pDXContext->OMSetRenderTargets(0, nullptr, nullptr);
+    m_uiBoundRenderTargetCount = 0;
   }
-
 }
 
 void ezGALContextDX11::SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, ezGALResourceView* pResourceView)
@@ -456,12 +457,9 @@ void ezGALContextDX11::CopyTextureReadbackResultPlatform(ezGALTexture* pTexture,
   D3D11_MAPPED_SUBRESOURCE Mapped;
   if(SUCCEEDED(m_pDXContext->Map(pDXTexture->GetDXStagingTexture(), 0, D3D11_MAP_READ, 0, &Mapped)))
   {
-    //ezLog::Info("Warning: CopyTextureReadbackResult() is not 100%% correctly implemented at the current time!");
-
     if (Mapped.RowPitch == (*pData)[0].m_uiRowPitch)
     {
-      /// \todo This needs access to format information like bits per pixel etc.!
-      const ezUInt32 uiMemorySize = 4 * pDXTexture->GetDescription().m_uiWidth * pDXTexture->GetDescription().m_uiHeight;
+      const ezUInt32 uiMemorySize = ezGALResourceFormat::GetBitsPerElement(pDXTexture->GetDescription().m_Format) * pDXTexture->GetDescription().m_uiWidth * pDXTexture->GetDescription().m_uiHeight / 8;
       memcpy((*pData)[0].m_pData, Mapped.pData, uiMemorySize);
     }
     else
@@ -472,8 +470,7 @@ void ezGALContextDX11::CopyTextureReadbackResultPlatform(ezGALTexture* pTexture,
         const void* pSource = ezMemoryUtils::AddByteOffset(Mapped.pData, y * Mapped.RowPitch);
         void* pDest = ezMemoryUtils::AddByteOffset((*pData)[0].m_pData, y * (*pData)[0].m_uiRowPitch);
 
-        /// \todo This needs access to format information like bits per pixel etc.!
-        memcpy(pDest, pSource, 4 * pDXTexture->GetDescription().m_uiWidth);
+        memcpy(pDest, pSource, ezGALResourceFormat::GetBitsPerElement(pDXTexture->GetDescription().m_Format) * pDXTexture->GetDescription().m_uiWidth / 8);
       }
     }
 

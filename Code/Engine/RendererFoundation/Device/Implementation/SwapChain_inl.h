@@ -1,16 +1,21 @@
 #pragma once
 
-inline ezGALRenderTargetConfigHandle ezGALSwapChain::GetRenderTargetViewConfig() const
-{
-  return m_hRenderTargetConfig;
-}
-
-inline ezGALTextureHandle ezGALSwapChain::GetBackBufferTexture() const
+ezGALTextureHandle ezGALSwapChain::GetBackBufferTexture() const
 {
   return m_hBackBufferTexture;
 }
 
-inline ezGALTextureHandle ezGALSwapChain::GetDepthStencilBufferTexture() const
+ezGALRenderTargetViewHandle ezGALSwapChain::GetBackBufferRenderTargetView() const
+{
+  return m_hBackBufferRTV;
+}
+
+ezGALTextureHandle ezGALSwapChain::GetDepthStencilBufferTexture() const
 {
   return m_hDepthStencilBufferTexture;
+}
+
+ezGALRenderTargetViewHandle ezGALSwapChain::GetDepthStencilTargetView() const
+{
+  return m_hBackBufferDSV;
 }

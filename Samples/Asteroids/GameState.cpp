@@ -83,7 +83,7 @@ void AsteroidGameState::Activate()
   srand((ezUInt32)ezTime::Now().GetMicroseconds());
 
   const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(hSwapChain);
-  CreateGameLevelAndRenderPipeline(pSwapChain->GetRenderTargetViewConfig());
+  CreateGameLevelAndRenderPipeline(pSwapChain->GetBackBufferRenderTargetView(), pSwapChain->GetDepthStencilTargetView());
 }
 
 void AsteroidGameState::Deactivate()
@@ -201,7 +201,7 @@ void AsteroidGameState::SetupInput()
   m_pThumbstick2->SetEnabled(false);
 }
 
-void AsteroidGameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfigHandle hRTConfig)
+void AsteroidGameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV)
 {
   m_pLevel = EZ_DEFAULT_NEW(Level);
   m_pLevel->SetupLevel(EZ_DEFAULT_NEW(ezWorld, "Asteroids - World"));
@@ -209,8 +209,12 @@ void AsteroidGameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfig
   ezView* pView = ezRenderLoop::CreateView("Asteroids - View");
   ezRenderLoop::AddMainView(pView);
 
+  ezGALRenderTagetSetup RTS;
+  RTS.SetRenderTarget(0, hBackBuffer)
+     .SetDepthStencilTarget(hDSV);
+
   ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
-  pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezSimpleRenderPass, hRTConfig));
+  pRenderPipeline->AddPass(EZ_DEFAULT_NEW( ezSimpleRenderPass, RTS));
   pView->SetRenderPipeline(std::move(pRenderPipeline));
 
   ezSizeU32 size = m_pWindow->GetClientAreaSize();

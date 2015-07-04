@@ -90,10 +90,6 @@ public:
 
   void DestroyQuery(ezGALQueryHandle hQuery);
 
-  ezGALRenderTargetConfigHandle CreateRenderTargetConfig(const ezGALRenderTargetConfigCreationDescription& Description);
-
-  void DestroyRenderTargetConfig(ezGALRenderTargetConfigHandle hRenderTargetConfig);
-
   ezGALVertexDeclarationHandle CreateVertexDeclaration(const ezGALVertexDeclarationCreationDescription& Description);
 
   void DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration);
@@ -144,7 +140,6 @@ public:
   const ezGALDepthStencilState* GetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState) const;
   const ezGALBlendState* GetBlendState(ezGALBlendStateHandle hBlendState) const;
   const ezGALRasterizerState* GetRasterizerState(ezGALRasterizerStateHandle hRasterizerState) const;
-  const ezGALRenderTargetConfig* GetRenderTargetConfig(ezGALRenderTargetConfigHandle hRenderTargetConfig) const;
   const ezGALVertexDeclaration* GetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration) const;
   const ezGALQuery* GetQuery(ezGALQueryHandle hQuery) const;
   const ezGALSamplerState* GetSamplerState(ezGALSamplerStateHandle hSamplerState) const;
@@ -199,8 +194,6 @@ protected:
 
   typedef ezIdTable<ezGALQueryHandle::IdType, ezGALQuery*, ezLocalAllocatorWrapper> QueryTable;
 
-  typedef ezIdTable<ezGALRenderTargetConfigHandle::IdType, ezGALRenderTargetConfig*, ezLocalAllocatorWrapper> RenderTargetConfigTable;
-
   typedef ezIdTable<ezGALVertexDeclarationHandle::IdType, ezGALVertexDeclaration*, ezLocalAllocatorWrapper> VertexDeclarationTable;
 
   ShaderTable m_Shaders;
@@ -227,8 +220,6 @@ protected:
 
   QueryTable m_Queries;
 
-  RenderTargetConfigTable m_RenderTargetConfigs;
-
   VertexDeclarationTable m_VertexDeclarations;
 
 
@@ -239,7 +230,6 @@ protected:
   ezMap<ezUInt32, ezGALResourceViewHandle, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_ResourceViewMap;
   ezMap<ezUInt32, ezGALSamplerStateHandle, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_SamplerStateMap;
   ezMap<ezUInt32, ezGALRenderTargetViewHandle, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_RenderTargetViewMap;
-  ezMap<ezUInt32, ezGALRenderTargetConfigHandle, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_RenderTargetConfigMap;
   ezMap<ezUInt32, ezGALVertexDeclarationHandle, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_VertexDeclarationMap;
 
 
@@ -321,10 +311,6 @@ protected:
   virtual ezGALQuery* CreateQueryPlatform(const ezGALQueryCreationDescription& Description) = 0;
 
   virtual void DestroyQueryPlatform(ezGALQuery* pQuery) = 0;
-
-  virtual ezGALRenderTargetConfig* CreateRenderTargetConfigPlatform(const ezGALRenderTargetConfigCreationDescription& Description) = 0;
-
-  virtual void DestroyRenderTargetConfigPlatform(ezGALRenderTargetConfig* pRenderTargetConfig) = 0;
 
   virtual ezGALVertexDeclaration* CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description) = 0;
 

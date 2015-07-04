@@ -40,15 +40,19 @@ public:
 private:
   void RenderPassEventHandler(const ezPickingRenderPass::Event& e);
 
-  ezGALRenderTargetConfigHandle m_hBBRT;
   ezGALSwapChainHandle m_hPrimarySwapChain;
+
+  ezGALRenderTargetViewHandle m_hSwapChainRTV;
+  ezGALRenderTargetViewHandle m_hSwapChainDSV;
 
   ezCamera m_Camera;
   ezView* m_pView;
 
   ezGALTextureHandle m_hPickingIdRT;
   ezGALTextureHandle m_hPickingDepthRT;
-  ezGALRenderTargetConfigHandle m_hPickingRenderTargetCfg;
+
+  ezGALRenderTargetViewHandle m_hPickingIdRTV;
+  ezGALRenderTargetViewHandle m_hPickingDepthDSV;
 
   /// we need this matrix to compute the world space position of picked pixels
   ezMat4 m_PickingInverseViewProjectionMatrix;

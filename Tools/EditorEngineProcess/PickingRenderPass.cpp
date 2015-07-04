@@ -6,9 +6,9 @@
 #include <RendererFoundation/Context/Context.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
 
-ezPickingRenderPass::ezPickingRenderPass(ezGALRenderTargetConfigHandle hRTConfig) : ezRenderPipelinePass("SimpleRenderPass")
+ezPickingRenderPass::ezPickingRenderPass(const ezGALRenderTagetSetup& RenderTargetSetup) : ezRenderPipelinePass( "SimpleRenderPass" )
 {
-  m_hRTConfig = hRTConfig;
+  m_RenderTargetSetup = RenderTargetSetup;
   AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
 }
 
@@ -21,7 +21,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
 {
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
-  pGALContext->SetRenderTargetConfig(m_hRTConfig);
+  pGALContext->SetRenderTargetSetup(m_RenderTargetSetup);
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f));
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING", "1");

@@ -59,9 +59,6 @@ ezGALDevice::~ezGALDevice()
     if (!m_Queries.IsEmpty())
       ezLog::Warning("%d queries have not been cleaned up", m_Queries.GetCount());
 
-    if (!m_RenderTargetConfigs.IsEmpty())
-      ezLog::Warning("%d render target configs have not been cleaned up", m_RenderTargetConfigs.GetCount());
-
     if (!m_VertexDeclarations.IsEmpty())
       ezLog::Warning("%d vertex declarations have not been cleaned up", m_VertexDeclarations.GetCount());
   }
@@ -605,45 +602,6 @@ void ezGALDevice::DestroyQuery(ezGALQueryHandle hQuery)
   else
   {
     ezLog::Warning("DestroyQuery called on invalid handle (double free?)");
-  }
-}
-
-ezGALRenderTargetConfigHandle ezGALDevice::CreateRenderTargetConfig(const ezGALRenderTargetConfigCreationDescription& Description)
-{
-  if (!Description.IsValid())
-  {
-    ezLog::Error("Render target configuration is invalid (e.g. no color targets set (or m_ColorTargetCount invalid) and no depth stencil target)!");
-    return ezGALRenderTargetConfigHandle();
-  }
-
-  /// \todo Hash description and return potential existing one (including inc. refcount)
-
-  ezGALRenderTargetConfig* pRenderTargetConfig = CreateRenderTargetConfigPlatform(Description);
-
-  if (pRenderTargetConfig == nullptr)
-  {
-    return ezGALRenderTargetConfigHandle();
-  }
-  else
-  {
-    return ezGALRenderTargetConfigHandle(m_RenderTargetConfigs.Insert(pRenderTargetConfig));
-  }
-}
-
-
-void ezGALDevice::DestroyRenderTargetConfig(ezGALRenderTargetConfigHandle hRenderTargetConfig)
-{
-  ezGALRenderTargetConfig* pRenderTargetConfig = nullptr;
-
-  /// \todo Only remove if refcount = 0
-
-  if (m_RenderTargetConfigs.Remove(hRenderTargetConfig, &pRenderTargetConfig))
-  {
-    DestroyRenderTargetConfigPlatform(pRenderTargetConfig);
-  }
-  else
-  {
-    ezLog::Warning("DestroyRenderTargetConfig called on invalid handle (double free?)");
   }
 }
 

@@ -31,7 +31,6 @@ struct ezGALBufferCreationDescription;
 struct ezGALDepthStencilStateCreationDescription;
 struct ezGALBlendStateCreationDescription;
 struct ezGALRasterizerStateCreationDescription;
-struct ezGALRenderTargetConfigCreationDescription;
 struct ezGALVertexDeclarationCreationDescription;
 struct ezGALQueryCreationDescription;
 struct ezGALSamplerStateCreationDescription;
@@ -45,7 +44,7 @@ class ezGALBuffer;
 class ezGALDepthStencilState;
 class ezGALBlendState;
 class ezGALRasterizerState;
-class ezGALRenderTargetConfig;
+class ezGALRenderTargetSetup;
 class ezGALVertexDeclaration;
 class ezGALFence;
 class ezGALQuery;
@@ -374,15 +373,6 @@ class ezGALRasterizerStateHandle
 class ezGALSamplerStateHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezGALSamplerStateHandle, ezGAL::ez16_16Id);
-
-  friend class ezGALDevice;
-  friend struct ezGALContextState;
-  friend class ezGALContext;
-};
-
-class ezGALRenderTargetConfigHandle
-{
-  EZ_DECLARE_HANDLE_TYPE(ezGALRenderTargetConfigHandle, ezGAL::ez16_16Id);
 
   friend class ezGALDevice;
   friend struct ezGALContextState;

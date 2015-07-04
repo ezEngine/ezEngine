@@ -186,8 +186,9 @@ public:
     {
       ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
       const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(hPrimarySwapChain);
-
-      m_hBBRT = pPrimarySwapChain->GetRenderTargetViewConfig();
+      
+      m_hBBRTV = pPrimarySwapChain->GetBackBufferRenderTargetView();
+      m_hBBDSV = pPrimarySwapChain->GetDepthStencilTargetView();
     }
 
     // Create Rasterizer State
@@ -292,7 +293,12 @@ public:
       // The ezGALContext class is the main interaction point for draw / compute operations
       ezGALContext* pContext = m_pDevice->GetPrimaryContext();
 
-      pContext->SetRenderTargetConfig(m_hBBRT);
+
+      ezGALRenderTagetSetup RTS;
+      RTS.SetRenderTarget(0, m_hBBRTV)
+         .SetDepthStencilTarget(m_hBBDSV);
+
+      pContext->SetRenderTargetSetup(RTS);
       pContext->SetViewport(0.0f, 0.0f, (float) g_uiWindowWidth, (float) g_uiWindowHeight, 0.0f, 1.0f);
       pContext->Clear(ezColor::Black);
 
@@ -438,7 +444,8 @@ private:
   TextureSampleWindow* m_pWindow;
   ezGALDevice* m_pDevice;
 
-  ezGALRenderTargetConfigHandle m_hBBRT;
+  ezGALRenderTargetViewHandle m_hBBRTV;
+  ezGALRenderTargetViewHandle m_hBBDSV;
 
   ezGALRasterizerStateHandle m_hRasterizerState;
   ezGALDepthStencilStateHandle m_hDepthStencilState;

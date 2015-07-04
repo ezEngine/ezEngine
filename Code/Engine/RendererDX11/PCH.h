@@ -12,7 +12,7 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/Buffer.h>
-#include <RendererFoundation/Resources/RenderTargetConfig.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/ResourceView.h>
 #include <RendererFoundation/Resources/Texture.h>

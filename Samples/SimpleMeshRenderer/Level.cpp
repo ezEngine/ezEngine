@@ -13,7 +13,7 @@
 #include "GameState.h"
 #include "Window.h"
 
-void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfigHandle hRTConfig)
+void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV)
 {
   m_pWorld = EZ_DEFAULT_NEW(ezWorld, "Level");
   EZ_LOCK(m_pWorld->GetWriteMarker());
@@ -69,8 +69,12 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfigHandle h
   m_pView = ezRenderLoop::CreateView("Asteroids - View");
   ezRenderLoop::AddMainView(m_pView);
 
+  ezGALRenderTagetSetup RTS;
+  RTS.SetRenderTarget(0, hBackBuffer)
+     .SetDepthStencilTarget(hDSV);
+
   ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
-  pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezSimpleRenderPass, hRTConfig));
+  pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezSimpleRenderPass, RTS));
   m_pView->SetRenderPipeline(std::move(pRenderPipeline));
 
   ezSizeU32 size = m_pWindow->GetClientAreaSize();

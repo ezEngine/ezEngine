@@ -76,11 +76,6 @@ EZ_FORCE_INLINE const ezGALRasterizerState* ezGALDevice::GetRasterizerState(ezGA
   return Get<RasterizerStateTable, ezGALRasterizerState>(hRasterizerState, m_RasterizerStates);
 }
 
-EZ_FORCE_INLINE const ezGALRenderTargetConfig* ezGALDevice::GetRenderTargetConfig(ezGALRenderTargetConfigHandle hRenderTargetConfig) const
-{
-  return Get<RenderTargetConfigTable, ezGALRenderTargetConfig>(hRenderTargetConfig, m_RenderTargetConfigs);
-}
-
 EZ_FORCE_INLINE const ezGALVertexDeclaration* ezGALDevice::GetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration) const
 {
   return Get<VertexDeclarationTable, ezGALVertexDeclaration>(hVertexDeclaration, m_VertexDeclarations);

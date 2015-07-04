@@ -3,6 +3,7 @@
 
 #include <Foundation/Math/Rect.h>
 #include <Foundation/Math/Color.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALContextState
 {
@@ -20,7 +21,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALContextState
 
   ezGALRasterizerStateHandle m_hRasterizerState;
 
-  ezGALRenderTargetConfigHandle m_hRenderTargetConfig;
+  ezGALRenderTagetSetup m_RenderTargetSetup;
 
   ezGALBufferHandle m_hConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT];
 

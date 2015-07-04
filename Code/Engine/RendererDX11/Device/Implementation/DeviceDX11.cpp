@@ -5,7 +5,6 @@
 #include <RendererDX11/Shader/ShaderDX11.h>
 #include <RendererDX11/Resources/BufferDX11.h>
 #include <RendererDX11/Resources/TextureDX11.h>
-#include <RendererDX11/Resources/RenderTargetConfigDX11.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
 #include <RendererDX11/State/StateDX11.h>
@@ -371,28 +370,6 @@ ezGALQuery* ezGALDeviceDX11::CreateQueryPlatform(const ezGALQueryCreationDescrip
 void ezGALDeviceDX11::DestroyQueryPlatform(ezGALQuery* pQuery)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
-}
-
-ezGALRenderTargetConfig* ezGALDeviceDX11::CreateRenderTargetConfigPlatform(const ezGALRenderTargetConfigCreationDescription& Description)
-{
-  ezGALRenderTargetConfigDX11* pRenderTargetConfig = EZ_NEW(&m_Allocator, ezGALRenderTargetConfigDX11, Description);
-
-  if(pRenderTargetConfig->InitPlatform(this).Succeeded())
-  {
-    return pRenderTargetConfig;
-  }
-  else
-  {
-    EZ_DELETE(&m_Allocator, pRenderTargetConfig);
-    return nullptr;
-  }
-}
-
-void ezGALDeviceDX11::DestroyRenderTargetConfigPlatform(ezGALRenderTargetConfig* pRenderTargetConfig)
-{
-  ezGALRenderTargetConfigDX11* pRenderTargetConfigDX11 = static_cast<ezGALRenderTargetConfigDX11*>(pRenderTargetConfig);
-  pRenderTargetConfigDX11->DeInitPlatform(this);
-  EZ_DELETE(&m_Allocator, pRenderTargetConfigDX11);
 }
 
 ezGALVertexDeclaration* ezGALDeviceDX11::CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description)

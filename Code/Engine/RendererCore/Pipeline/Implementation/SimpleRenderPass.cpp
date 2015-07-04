@@ -18,10 +18,10 @@ ezSimpleRenderPass::ezSimpleRenderPass() : ezRenderPipelinePass("SimpleRenderPas
 
 }
 
-ezSimpleRenderPass::ezSimpleRenderPass(ezGALRenderTargetConfigHandle hRTConfig) : ezRenderPipelinePass("SimpleRenderPass")
+ezSimpleRenderPass::ezSimpleRenderPass(const ezGALRenderTagetSetup& RenderTargetSetup) : ezRenderPipelinePass("SimpleRenderPass")
 {
-  m_hRTConfig = hRTConfig;
-  AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
+  m_RenderTargetSetup = RenderTargetSetup;
+  AddRenderer( EZ_DEFAULT_NEW( ezMeshRenderer ) );
 }
 
 ezSimpleRenderPass::~ezSimpleRenderPass()
@@ -36,7 +36,7 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext)
   const ezRectFloat& viewPortRect = renderViewContext.m_pViewData->m_ViewPortRect;
   pGALContext->SetViewport(viewPortRect.x, viewPortRect.y, viewPortRect.width, viewPortRect.height, 0.0f, 1.0f);
 
-  pGALContext->SetRenderTargetConfig(m_hRTConfig);
+  pGALContext->SetRenderTargetSetup(m_RenderTargetSetup);
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.1f));
 
   RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Opaque);

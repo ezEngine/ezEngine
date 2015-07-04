@@ -20,7 +20,7 @@ private:
   void UpdateGameInput();
   
   void SetupInput();
-  void CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfigHandle hRTConfig);
+  void CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV);
   void DestroyGameLevel();
 
   GameWindow* m_pWindow;

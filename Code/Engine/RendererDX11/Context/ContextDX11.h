@@ -83,7 +83,7 @@ protected:
 
   virtual void SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALResourceView* pResourceView) override;
 
-  virtual void SetRenderTargetConfigPlatform(ezGALRenderTargetConfig* pRenderTargetConfig) override;
+  virtual void SetRenderTargetSetupPlatform( ezGALRenderTargetView** ppRenderTargetViews, ezUInt32 uiRenderTargetCount, ezGALRenderTargetView* pDepthStencilView ) override;
 
   virtual void SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, ezGALResourceView* pResourceView) override;
 
