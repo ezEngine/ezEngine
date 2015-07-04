@@ -18,11 +18,11 @@ public:
   virtual bool mousePressEvent(QMouseEvent* e) override;
   virtual bool mouseReleaseEvent(QMouseEvent* e) override;
   virtual bool mouseMoveEvent(QMouseEvent* e) override;
+  virtual bool keyPressEvent(QKeyEvent* e) override;
 
 private:
   const ezCamera* m_pCamera;
   ezVec2I32 m_Viewport;
   ezDocumentBase* m_pDocument;
-  ezDocumentWindow3D* m_pDocumentWindow;
 };
 

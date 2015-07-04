@@ -10,7 +10,7 @@ class EZ_EDITORFRAMEWORK_DLL ezRawDocumentTreeWidget : public QTreeView
 
 public:
 
-  ezRawDocumentTreeWidget(QWidget* pParent, const ezDocumentBase* pDocument);
+  ezRawDocumentTreeWidget(QWidget* pParent, ezDocumentBase* pDocument);
   ~ezRawDocumentTreeWidget();
 
   void EnsureLastSelectedItemVisible();
@@ -26,7 +26,7 @@ private:
 
 private:
   ezRawDocumentTreeModel m_Model;
-  const ezDocumentBase* m_pDocument;
+  ezDocumentBase* m_pDocument;
   bool m_bBlockSelectionSignal;
 };
 

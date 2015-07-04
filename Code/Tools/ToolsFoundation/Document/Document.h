@@ -66,6 +66,8 @@ public:
 
   const ezDocumentTypeDescriptor& GetDocumentTypeDescriptor() const { return m_TypeDescriptor; }
 
+  virtual void DeleteSelectedObjects();
+
 public:
   struct Event
   {

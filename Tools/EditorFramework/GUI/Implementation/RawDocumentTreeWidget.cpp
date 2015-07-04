@@ -4,7 +4,7 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <QKeyEvent>
 
-ezRawDocumentTreeWidget::ezRawDocumentTreeWidget(QWidget* pParent, const ezDocumentBase* pDocument) : 
+ezRawDocumentTreeWidget::ezRawDocumentTreeWidget(QWidget* pParent, ezDocumentBase* pDocument) : 
   QTreeView(pParent),
   m_Model(pDocument->GetObjectManager()),
   m_pDocument(pDocument)
@@ -92,26 +92,7 @@ void ezRawDocumentTreeWidget::keyPressEvent(QKeyEvent* e)
 {
   if (e->key() == Qt::Key::Key_Delete)
   {
-    auto objects = m_pDocument->GetSelectionManager()->GetSelection();
-
-    auto history = m_pDocument->GetCommandHistory();
-    history->StartTransaction();
-
-    ezRemoveObjectCommand cmd;
-
-    bool bCancel = false;
-    for (const ezDocumentObjectBase* pObject : objects)
-    {
-      cmd.m_Object = pObject->GetGuid();
-
-      if (history->AddCommand(cmd).m_Result.Failed())
-      {
-        bCancel = true;
-        break;
-      }
-    }
-
-    history->EndTransaction(bCancel);
+    m_pDocument->DeleteSelectedObjects();
   }
   else
   {

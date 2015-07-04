@@ -22,7 +22,7 @@ ezRotorComponent::ezRotorComponent()
 
 void ezRotorComponent::Update()
 {
-  if (m_Flags.IsAnySet(ezTransformComponentFlags::Autorun) && !m_Flags.IsAnySet(ezTransformComponentFlags::Paused))
+  if (m_Flags.IsAnySet(ezTransformComponentFlags::Autorun) && !m_Flags.IsAnySet(ezTransformComponentFlags::Paused) && m_fAnimationSpeed > 0.0f)
   {
     ezVec3 vAxis;
 

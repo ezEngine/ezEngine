@@ -11,7 +11,7 @@
 ezSelectionContext::ezSelectionContext(ezDocumentBase* pDocument, ezDocumentWindow3D* pDocumentWindow, const ezCamera* pCamera)
 {
   m_pDocument = pDocument;
-  m_pDocumentWindow = pDocumentWindow;
+  SetDocumentWindow3D(pDocumentWindow);
   m_pCamera = pCamera;
 }
 
@@ -19,7 +19,7 @@ bool ezSelectionContext::mousePressEvent(QMouseEvent* e)
 {
   if (e->button() == Qt::MouseButton::LeftButton)
   {
-    const ezObjectPickingResult& res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
+    const ezObjectPickingResult& res = GetDocumentWindow3D()->PickObject(e->pos().x(), e->pos().y());
 
     if (res.m_PickedOther.IsValid())
     {
@@ -45,7 +45,7 @@ bool ezSelectionContext::mouseReleaseEvent(QMouseEvent* e)
 {
   if (e->button() == Qt::MouseButton::LeftButton)
   {
-    const ezObjectPickingResult& res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
+    const ezObjectPickingResult& res = GetDocumentWindow3D()->PickObject(e->pos().x(), e->pos().y());
 
     const bool bToggle = (e->modifiers() & Qt::KeyboardModifier::ControlModifier) != 0;
 
@@ -87,7 +87,7 @@ bool ezSelectionContext::mouseMoveEvent(QMouseEvent* e)
   ezViewHighlightMsgToEngine msg;
 
   {
-    const ezObjectPickingResult& res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
+    const ezObjectPickingResult& res = GetDocumentWindow3D()->PickObject(e->pos().x(), e->pos().y());
 
     if (res.m_PickedComponent.IsValid())
       msg.m_HighlightObject = res.m_PickedComponent;
@@ -97,8 +97,23 @@ bool ezSelectionContext::mouseMoveEvent(QMouseEvent* e)
       msg.m_HighlightObject = res.m_PickedObject;
   }
 
-  msg.SendHighlightObjectMessage(m_pDocumentWindow->GetEditorEngineConnection());
+  msg.SendHighlightObjectMessage(GetDocumentWindow3D()->GetEditorEngineConnection());
 
   // we only updated the highlight, so others may do additional stuff, if they like
   return false;
 }
+
+bool ezSelectionContext::keyPressEvent(QKeyEvent* e)
+{
+  if (e->key() == Qt::Key_Delete)
+  {
+    GetDocumentWindow3D()->GetDocument()->DeleteSelectedObjects();
+    return true;
+  }
+
+  return false;
+}
+
+
+
+

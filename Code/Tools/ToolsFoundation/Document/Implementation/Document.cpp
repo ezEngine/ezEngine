@@ -6,6 +6,7 @@
 #include <ToolsFoundation/Object/SerializedDocumentObject.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 
@@ -254,3 +255,29 @@ ezStatus ezDocumentBase::InternalLoadDocument()
   SetModified(false);
   return ezStatus(EZ_SUCCESS);
 }
+
+void ezDocumentBase::DeleteSelectedObjects()
+{
+  auto objects = GetSelectionManager()->GetSelection();
+
+  auto history = GetCommandHistory();
+  history->StartTransaction();
+
+  ezRemoveObjectCommand cmd;
+
+  bool bCancel = false;
+  for (const ezDocumentObjectBase* pObject : objects)
+  {
+    cmd.m_Object = pObject->GetGuid();
+
+    if (history->AddCommand(cmd).m_Result.Failed())
+    {
+      bCancel = true;
+      break;
+    }
+  }
+
+  history->EndTransaction(bCancel);
+
+}
+
