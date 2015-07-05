@@ -58,10 +58,12 @@ public:
   bool CanRedo() const;
 
   void StartTransaction();
-  void EndTransaction(bool bCancel);
+  void CancelTransaction() { EndTransaction(true); }
+  void FinishTransaction() { EndTransaction(false); }
 
   void BeginTemporaryCommands();
-  void EndTemporaryCommands(bool bCancel);
+  void CancelTemporaryCommands() { EndTemporaryCommands(true); }
+  void FinishTemporaryCommands() { EndTemporaryCommands(false); }
 
   ezStatus AddCommand(ezCommandBase& command);
 
@@ -69,6 +71,9 @@ public:
   void ClearRedoHistory();
 
 private:
+  void EndTransaction(bool bCancel);
+  void EndTemporaryCommands(bool bCancel);
+
   bool m_bTemporaryMode;
   bool m_bTempTransaction;
 

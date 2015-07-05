@@ -130,7 +130,7 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
 
   case ezGizmoBase::BaseEvent::Type::EndInteractions:
     {
-      GetDocument()->GetCommandHistory()->EndTemporaryCommands(false);
+      GetDocument()->GetCommandHistory()->FinishTemporaryCommands();
 
       m_GizmoSelection.Clear();
     }
@@ -232,7 +232,11 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
         }
       }
 
-      GetDocument()->GetCommandHistory()->EndTransaction(bCancel);
+      if (bCancel)
+        GetDocument()->GetCommandHistory()->CancelTransaction();
+      else
+        GetDocument()->GetCommandHistory()->FinishTransaction();
+
       m_bInGizmoInteraction = false;
     }
     break;

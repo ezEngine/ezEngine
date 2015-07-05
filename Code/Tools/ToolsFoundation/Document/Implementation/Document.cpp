@@ -265,19 +265,18 @@ void ezDocumentBase::DeleteSelectedObjects()
 
   ezRemoveObjectCommand cmd;
 
-  bool bCancel = false;
   for (const ezDocumentObjectBase* pObject : objects)
   {
     cmd.m_Object = pObject->GetGuid();
 
     if (history->AddCommand(cmd).m_Result.Failed())
     {
-      bCancel = true;
-      break;
+      history->CancelTransaction();
+      return;
     }
   }
 
-  history->EndTransaction(bCancel);
+  history->FinishTransaction();
 
 }
 

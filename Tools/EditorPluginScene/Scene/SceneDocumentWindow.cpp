@@ -287,19 +287,22 @@ void ezSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManage
 ezScene3DWidget::ezScene3DWidget(QWidget* pParent, ezDocumentWindow3D* pDocument) : ez3DViewWidget(pParent, pDocument)
 {
   setAcceptDrops(true);
-
 }
 
 void ezScene3DWidget::dragEnterEvent(QDragEnterEvent* e)
 {
   if (e->mimeData()->hasFormat("application/ezEditor.AssetGuid"))
-    e->acceptProposedAction();
-}
-
-void ezScene3DWidget::dropEvent(QDropEvent * e)
-{
-  if (e->mimeData()->hasFormat("application/ezEditor.AssetGuid"))
   {
+    m_DraggedObjects.Clear();
+    e->acceptProposedAction();
+
+    m_pDocumentWindow->GetDocument()->GetCommandHistory()->StartTransaction();
+
+    ezObjectPickingResult res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
+
+    if (res.m_vPickedPosition.IsNaN())
+      res.m_vPickedPosition.SetZero();
+
     QByteArray ba = e->mimeData()->data("application/ezEditor.AssetGuid");
     QDataStream stream(&ba, QIODevice::ReadOnly);
 
@@ -319,62 +322,117 @@ void ezScene3DWidget::dropEvent(QDropEvent * e)
       if (ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName != "Mesh")
         continue;
 
-      const ezObjectPickingResult& res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
+      m_DraggedObjects.PushBack(CreateDropObject(res.m_vPickedPosition, "ezMeshComponent", "MeshFile", sTemp));
+    }
 
-      if (res.m_vPickedPosition.IsNaN())
-        return;
-
-      ezUuid ObjectGuid, CmpGuid;
-      ObjectGuid.CreateNewUuid();
-      CmpGuid.CreateNewUuid();
-
-      ezAddObjectCommand cmd;
-      cmd.SetType("ezGameObject");
-      cmd.m_NewObjectGuid = ObjectGuid;
-
-      auto history = m_pDocumentWindow->GetDocument()->GetCommandHistory();
-
-      history->StartTransaction();
-
-      history->AddCommand(cmd);
-
-      ezSetObjectPropertyCommand cmd2;
-      cmd2.m_bEditorProperty = false;
-      cmd2.m_Object = ObjectGuid;
-
-      history->EndTransaction(false);
-      history->StartTransaction();
-
-      cmd2.SetPropertyPath("LocalPosition");
-      cmd2.m_NewValue = res.m_vPickedPosition;
-      history->AddCommand(cmd2);
-
-      history->EndTransaction(false);
-      history->StartTransaction();
-
-      cmd2.SetPropertyPath("LocalScaling");
-      cmd2.m_NewValue = ezVec3(1.0f);
-      history->AddCommand(cmd2);
-
-      history->EndTransaction(false);
-      history->StartTransaction();
-
-      cmd.SetType("ezMeshComponent");
-      cmd.m_NewObjectGuid = CmpGuid;
-      cmd.m_Parent = ObjectGuid;
-      history->AddCommand(cmd);
-
-      history->EndTransaction(false);
-      history->StartTransaction();
-
-      cmd2.m_Object = CmpGuid;
-      cmd2.SetPropertyPath("MeshFile");
-      cmd2.m_NewValue = sGuid.toUtf8().data();
-      history->AddCommand(cmd2);
-
-      history->EndTransaction(false);
+    if (m_DraggedObjects.IsEmpty())
+      m_pDocumentWindow->GetDocument()->GetCommandHistory()->CancelTransaction();
+    else
+    {
+      m_pDocumentWindow->GetDocument()->GetCommandHistory()->FinishTransaction();
+      m_pDocumentWindow->GetDocument()->GetCommandHistory()->BeginTemporaryCommands();
     }
   }
+}
+
+void ezScene3DWidget::dragLeaveEvent(QDragLeaveEvent * e)
+{
+  if (!m_DraggedObjects.IsEmpty())
+  {
+    m_pDocumentWindow->GetDocument()->GetCommandHistory()->CancelTemporaryCommands();
+    m_pDocumentWindow->GetDocument()->GetCommandHistory()->Undo();
+    m_DraggedObjects.Clear();
+  }
+}
+
+void ezScene3DWidget::dragMoveEvent(QDragMoveEvent* e)
+{
+  if (e->mimeData()->hasFormat("application/ezEditor.AssetGuid") && !m_DraggedObjects.IsEmpty())
+  {
+    ezObjectPickingResult res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
+
+    MoveDraggedObjectsToPosition(res.m_vPickedPosition);
+  }
+}
+
+void ezScene3DWidget::dropEvent(QDropEvent * e)
+{
+  if (e->mimeData()->hasFormat("application/ezEditor.AssetGuid") && !m_DraggedObjects.IsEmpty())
+  {
+    m_pDocumentWindow->GetDocument()->GetCommandHistory()->FinishTemporaryCommands();
+    m_DraggedObjects.Clear();
+  }
+}
+
+ezUuid ezScene3DWidget::CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue)
+{
+  ezUuid ObjectGuid, CmpGuid;
+  ObjectGuid.CreateNewUuid();
+  CmpGuid.CreateNewUuid();
+
+  ezAddObjectCommand cmd;
+  cmd.SetType("ezGameObject");
+  cmd.m_NewObjectGuid = ObjectGuid;
+
+  auto history = m_pDocumentWindow->GetDocument()->GetCommandHistory();
+
+  history->AddCommand(cmd);
+
+  ezSetObjectPropertyCommand cmd2;
+  cmd2.m_bEditorProperty = false;
+  cmd2.m_Object = ObjectGuid;
+
+  cmd2.SetPropertyPath("LocalPosition");
+  cmd2.m_NewValue = vPosition;
+  history->AddCommand(cmd2);
+
+  cmd2.SetPropertyPath("LocalScaling");
+  cmd2.m_NewValue = ezVec3(1.0f);
+  history->AddCommand(cmd2);
+
+  cmd.SetType(szType);
+  cmd.m_NewObjectGuid = CmpGuid;
+  cmd.m_Parent = ObjectGuid;
+  history->AddCommand(cmd);
+
+  cmd2.m_Object = CmpGuid;
+  cmd2.SetPropertyPath(szProperty);
+  cmd2.m_NewValue = szValue;
+  history->AddCommand(cmd2);
+
+  return ObjectGuid;
+}
+
+void ezScene3DWidget::MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPosition)
+{
+  auto history = m_pDocumentWindow->GetDocument()->GetCommandHistory();
+
+  ezSetObjectPropertyCommand cmd2;
+  cmd2.m_bEditorProperty = false;
+  cmd2.m_Object = guid;
+
+  cmd2.SetPropertyPath("GlobalPosition");
+  cmd2.m_NewValue = vPosition;
+  history->AddCommand(cmd2);
 
 }
+
+void ezScene3DWidget::MoveDraggedObjectsToPosition(const ezVec3 & vPosition)
+{
+  if (m_DraggedObjects.IsEmpty() || vPosition.IsNaN())
+    return;
+
+  auto history = m_pDocumentWindow->GetDocument()->GetCommandHistory();
+
+  history->StartTransaction();
+
+  for (const auto& guid : m_DraggedObjects)
+  {
+    MoveObjectToPosition(guid, vPosition);
+  }
+
+  history->FinishTransaction();
+}
+
+
 

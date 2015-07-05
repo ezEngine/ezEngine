@@ -23,8 +23,15 @@ public:
 
 protected:
   virtual void dragEnterEvent(QDragEnterEvent* e) override;
+  virtual void dragLeaveEvent(QDragLeaveEvent* e) override;
+  virtual void dragMoveEvent(QDragMoveEvent* e) override;
   virtual void dropEvent(QDropEvent* e) override;
 
+  ezUuid CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue);
+  void MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPosition);
+  void MoveDraggedObjectsToPosition(const ezVec3& vPosition);
+
+  ezHybridArray<ezUuid, 16> m_DraggedObjects;
 };
 
 class ezSceneDocumentWindow : public ezDocumentWindow3D
@@ -83,6 +90,8 @@ private:
 
   bool m_bInGizmoInteraction;
   ezDeque<SelectedGO> m_GizmoSelection;
+
+  bool m_bInDragDropAction;
 
   /// \todo Broken delegates
   ezDelegate<void(const ezDocumentObjectPropertyEvent&)> m_DelegatePropertyEvents;

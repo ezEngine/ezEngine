@@ -265,7 +265,7 @@ bool ezRawDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction 
       pHistory->AddCommand(cmd);
     }
 
-    pHistory->EndTransaction(false);
+    pHistory->FinishTransaction();
 
     return true;
   }
@@ -288,9 +288,10 @@ bool ezRawDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction 
 
     history->StartTransaction();
 
-    ezStatus ret = history->AddCommand(cmd);
-
-    history->EndTransaction(ret.m_Result.Failed());
+    if (history->AddCommand(cmd).m_Result.Failed())
+      history->CancelTransaction();
+    else
+      history->FinishTransaction();
   }
 
   return false;
@@ -352,7 +353,7 @@ bool ezRawDocumentTreeModel::setData(const QModelIndex& index, const QVariant& v
 
     pHistory->AddCommand(cmd);
 
-    pHistory->EndTransaction(false);
+    pHistory->FinishTransaction();
 
     QVector<int> roles;
     roles.push_back(Qt::DisplayRole);

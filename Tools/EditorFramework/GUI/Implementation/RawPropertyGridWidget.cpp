@@ -93,10 +93,10 @@ void ezRawPropertyGridWidget::PropertyChangedHandler(const ezPropertyEditorBaseW
 
       ezUIServices::GetInstance()->MessageBoxStatus(res, "Changing the property failed.");
 
-      m_pDocument->GetCommandHistory()->EndTransaction(res.m_Result.Failed());
-
       if (res.m_Result.Failed())
       {
+        m_pDocument->GetCommandHistory()->CancelTransaction();
+
         // reset the UI to the old value
 
         const ezIReflectedTypeAccessor& accessor = bEditor ? m_Selection[0]->GetEditorTypeAccessor() : m_Selection[0]->GetTypeAccessor();
@@ -104,6 +104,8 @@ void ezRawPropertyGridWidget::PropertyChangedHandler(const ezPropertyEditorBaseW
 
         m_pRawPropertyWidget[bEditor ? 0 : 1]->ChangePropertyValue(cmd.GetPropertyPath(), OldValue);
       }
+      else
+        m_pDocument->GetCommandHistory()->FinishTransaction();
     }
     break;
 
@@ -115,13 +117,13 @@ void ezRawPropertyGridWidget::PropertyChangedHandler(const ezPropertyEditorBaseW
 
   case  ezPropertyEditorBaseWidget::Event::Type::EndTemporary:
     {
-      m_pDocument->GetCommandHistory()->EndTemporaryCommands(false);
+      m_pDocument->GetCommandHistory()->FinishTemporaryCommands();
     }
     break;
 
   case  ezPropertyEditorBaseWidget::Event::Type::CancelTemporary:
     {
-      m_pDocument->GetCommandHistory()->EndTemporaryCommands(true);
+      m_pDocument->GetCommandHistory()->CancelTemporaryCommands();
     }
     break;
 
