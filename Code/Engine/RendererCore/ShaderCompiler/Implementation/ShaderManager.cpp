@@ -130,9 +130,11 @@ void ezRenderContext::SetShaderPermutationVariable(const char* szVariable, const
   }
 
   if (itVar.Value() != sVal)
+  {
     m_StateFlags.Add(ezRenderContextFlags::ShaderStateChanged);
 
-  itVar.Value() = sVal;
+    itVar.Value() = sVal;
+  }
 }
 
 void ezRenderContext::BindShader(ezShaderResourceHandle hShader, ezBitflags<ezShaderBindFlags> flags)

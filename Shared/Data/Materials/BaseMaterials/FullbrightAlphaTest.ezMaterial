@@ -1,5 +1,7 @@
 {
-  "BaseMaterial" : "Materials/BaseMaterials/Fullbright.ezMaterial",
+  // Do not use the Fullbright material as base material, otherwise every time the material is bound
+  // the alpha test variable is set to 0 and then 1, guaranteeing a state change
+  "Shader" : "Shaders/Materials/Fullbright.ezShader",
   
   "Permutations" : 
   {

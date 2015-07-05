@@ -5,9 +5,9 @@
       "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
       "TypeData" : {
         "DocumentID" : { "$t" : "uuid", "$b" : "0x078DAF05380BA6448D5049731AE2625D" },
-        "Dependencies" : "",
+        "Dependencies" : "Shaders/Materials/Fullbright.ezShader",
         "References" : "",
-        "Hash" : { "$t" : "uint64", "$v" : "11547536173703097884", "$b" : "0x1CEE8BF0F71641A0" },
+        "Hash" : { "$t" : "uint64", "$v" : "4642533201164816932", "$b" : "0x24D2626959976D40" },
         "AssetType" : "Material"
       }
     } ],
@@ -18,7 +18,7 @@
       "TypeData" : {
         "Base Material" : "",
         "Shader" : "Shaders/Materials/Fullbright.ezShader",
-        "Permutations" : "",
+        "Permutations" : "ALPHATEST=0",
         "Diffuse Texture" : "",
         "Mask Texture" : "",
         "Normal Map" : ""
