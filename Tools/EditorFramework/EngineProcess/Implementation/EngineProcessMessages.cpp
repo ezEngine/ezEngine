@@ -16,7 +16,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUpdateReflectionTypeMsgToEditor, ezEditorEngin
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetupProjectMsgToEditor, ezEditorEngineMsg, 1, ezRTTIDefaultAllocator<ezSetupProjectMsgToEditor> );
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetupProjectMsgToEngine, ezEditorEngineMsg, 1, ezRTTIDefaultAllocator<ezSetupProjectMsgToEngine> );
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("ProjectDir", m_sProjectDir),
     EZ_MEMBER_PROPERTY("Config", m_Config),

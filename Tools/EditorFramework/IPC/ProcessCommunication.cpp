@@ -274,14 +274,27 @@ bool ezProcessCommunication::ReadMessages()
   return true;
 }
 
-void ezProcessCommunication::WaitForMessage(const ezRTTI* pMessageType)
+ezResult ezProcessCommunication::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout)
 {
   m_pWaitForMessageType = pMessageType;
+
+  const ezTime tStart = ezTime::Now();
 
   while (m_pWaitForMessageType != nullptr)
   {
     ProcessMessages();
+
+    if (tTimeout != ezTime())
+    {
+      if (ezTime::Now() - tStart > tTimeout)
+      {
+        ezLog::Error("Reached time-out of %.1f seconds while waiting for %s", tTimeout.GetSeconds(), pMessageType->GetTypeName());
+        return EZ_FAILURE;
+      }
+    }
   }
+
+  return EZ_SUCCESS;
 }
 
 void ezProcessCommunication::DispatchMessages()

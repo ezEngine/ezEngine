@@ -27,9 +27,9 @@ public:
   ezReflectedTypeDescriptor m_desc;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezSetupProjectMsgToEditor : public ezEditorEngineMsg
+class EZ_EDITORFRAMEWORK_DLL ezSetupProjectMsgToEngine : public ezEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSetupProjectMsgToEditor);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSetupProjectMsgToEngine);
 
 public:
   ezString m_sProjectDir;

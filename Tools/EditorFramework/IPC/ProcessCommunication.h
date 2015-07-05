@@ -34,7 +34,7 @@ public:
 
   void SendMessage(ezProcessMessage* pMessage);
 
-  void WaitForMessage(const ezRTTI* pMessageType);
+  ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout);
 
   bool ProcessMessages();
 

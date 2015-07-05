@@ -131,12 +131,12 @@ void ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
   m_IPC.SendMessage(pMessage);
 }
 
-void ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType)
+ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout)
 {
-  m_IPC.WaitForMessage(pMessageType);
+  return m_IPC.WaitForMessage(pMessageType, tTimeout);
 }
 
-void ezEditorEngineProcessConnection::RestartProcess()
+ezResult ezEditorEngineProcessConnection::RestartProcess()
 {
   ShutdownProcess();
 
@@ -144,12 +144,17 @@ void ezEditorEngineProcessConnection::RestartProcess()
 
   {
     // Send project setup.
-    ezSetupProjectMsgToEditor msg;
+    ezSetupProjectMsgToEngine msg;
     msg.m_sProjectDir = m_FileSystemConfig.GetProjectDirectory();
     msg.m_Config = m_FileSystemConfig;
     ezEditorEngineProcessConnection::GetInstance()->SendMessage(&msg);
   }
-  ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>());
+  if (ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>(), ezTime::Seconds(10)).Failed())
+  {
+    ezLog::Error("Failed to restart the engine process");
+    ShutdownProcess();
+    return EZ_FAILURE;
+  }
 
   // resend all open documents
   for (auto it = m_EngineViewsByID.GetIterator(); it.IsValid(); ++it)
@@ -158,6 +163,7 @@ void ezEditorEngineProcessConnection::RestartProcess()
   }
 
   m_bClientIsConfigured = true;
+  return EZ_SUCCESS;
 }
 
 void ezEditorEngineProcessConnection::Update()

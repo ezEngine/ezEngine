@@ -46,7 +46,8 @@ const ezObjectPickingResult& ezDocumentWindow3D::PickObject(ezUInt16 uiScreenPos
 
     SendMessageToEngine(&msg);
 
-    ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezViewPickingResultMsgToEditor>());
+    if (ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezViewPickingResultMsgToEditor>(), ezTime::Seconds(3.0)).Failed())
+      return m_LastPickingResult;
   }
 
   return m_LastPickingResult;

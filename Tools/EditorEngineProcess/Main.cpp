@@ -86,7 +86,8 @@ void ezEngineProcessGameState::Activate()
 
   SendReflectionInformation();
 
-  m_IPC.WaitForMessage(ezGetStaticRTTI<ezSetupProjectMsgToEditor>());
+  // wait indefinitely
+  m_IPC.WaitForMessage(ezGetStaticRTTI<ezSetupProjectMsgToEngine>(), ezTime());
 }
 
 void ezEngineProcessGameState::Deactivate()

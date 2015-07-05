@@ -440,7 +440,11 @@ void ezEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
       SetupDataDirectories();
 
       ezEditorEngineProcessConnection::GetInstance()->SetFileSystemConfig(m_FileSystemConfig);
-      ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
+
+      if (ezEditorEngineProcessConnection::GetInstance()->RestartProcess().Failed())
+      {
+        ezLog::Error("Failed to start the engine process. Project loading incomplete.");
+      }
 
       m_AssetCurator.Initialize(m_FileSystemConfig);
 

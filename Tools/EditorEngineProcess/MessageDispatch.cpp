@@ -38,12 +38,12 @@ void ezEngineProcessGameState::SendReflectionInformation()
 void ezEngineProcessGameState::EventHandlerIPC(const ezProcessCommunication::Event& e)
 {
   // Project Messages:
-  if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSetupProjectMsgToEditor>())
+  if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSetupProjectMsgToEngine>())
   {
-    const ezSetupProjectMsgToEditor* pSetupMsg = static_cast<const ezSetupProjectMsgToEditor*>(e.m_pMessage);
+    const ezSetupProjectMsgToEngine* pSetupMsg = static_cast<const ezSetupProjectMsgToEngine*>(e.m_pMessage);
     ezApplicationConfig::SetProjectDirectory(pSetupMsg->m_sProjectDir);
 
-    const_cast<ezSetupProjectMsgToEditor*>(pSetupMsg)->m_Config.Apply();
+    const_cast<ezSetupProjectMsgToEngine*>(pSetupMsg)->m_Config.Apply();
     // Project setup, we are now ready to accept document messages.
     SendProjectReadyMessage();
     return;

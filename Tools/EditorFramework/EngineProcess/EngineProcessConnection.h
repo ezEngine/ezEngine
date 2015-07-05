@@ -23,7 +23,7 @@ public:
 
   void SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg) { m_FileSystemConfig = cfg; }
   void Update();
-  void RestartProcess();
+  ezResult RestartProcess();
   void ShutdownProcess();
   bool IsProcessCrashed() const { return m_bProcessCrashed; }
 
@@ -31,7 +31,7 @@ public:
   void DestroyEngineConnection(ezDocumentWindow3D* pWindow);
 
   void SendMessage(ezProcessMessage* pMessage);
-  void WaitForMessage(const ezRTTI* pMessageType);
+  ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout);
 
   void SetWaitForDebugger(bool bWait) { m_bProcessShouldWaitForDebugger = bWait; }
   bool GetWaitForDebugger() const { return m_bProcessShouldWaitForDebugger; }
