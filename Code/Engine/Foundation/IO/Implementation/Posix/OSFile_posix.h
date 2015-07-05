@@ -122,8 +122,8 @@ bool ezOSFile::InternalExistsFile(const char* szFile)
 
 bool ezOSFile::InternalExistsDirectory(const char* szDirectory)
 {
-  stat sb;
-  return (stat(szDirectory, &sb) == 0 && S_ISDIR(sb.st_mode))
+  struct stat sb;
+  return (stat(szDirectory, &sb) == 0 && S_ISDIR(sb.st_mode));
 }
 
 ezResult ezOSFile::InternalDeleteFile(const char* szFile)
