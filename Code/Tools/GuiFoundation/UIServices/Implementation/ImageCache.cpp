@@ -15,8 +15,14 @@ ezInt64 QtImageCache::s_iMemoryUsageThreshold = 30 * 1024 * 1024; // 30 MB
 ezInt64 QtImageCache::s_iCurrentMemoryUsage = 0;
 QPixmap* QtImageCache::s_pImageLoading = NULL;
 QPixmap* QtImageCache::s_pImageUnavailable = NULL;
+ezUInt32 QtImageCache::s_uiCurImageID = 1;
 
 static QtImageCache g_ImageCacheSingleton;
+
+QtImageCache* QtImageCache::GetInstance()
+{
+  return &g_ImageCacheSingleton;
+}
 
 void QtImageCache::SetFallbackImages(const char* szLoading, const char* szUnavailable)
 {
@@ -36,11 +42,22 @@ void QtImageCache::InvalidateCache(const char* szAbsolutePath)
 
   EZ_LOCK(s_Mutex);
 
-  s_ImageCache.Remove(sPath);
+  auto& e = s_ImageCache.Find(sPath);
+
+  if (!e.IsValid())
+    return;
+
+  ezUInt32 id = e.Value().m_uiImageID;
+  s_ImageCache.Remove(e);
+
+  emit g_ImageCacheSingleton.ImageInvalidated(sPath, id);
 }
 
-QPixmap* QtImageCache::QueryPixmap(const char* szAbsolutePath, const QObject* pSignalMe, const char* szSlot, QModelIndex index, QVariant UserData1, QVariant UserData2)
+QPixmap* QtImageCache::QueryPixmap(const char* szAbsolutePath, QModelIndex index, QVariant UserData1, QVariant UserData2, ezUInt32* out_pImageID)
 {
+  if (out_pImageID)
+    *out_pImageID = 0;
+
   if (s_pImageLoading == NULL)
     SetFallbackImages(":/GuiFoundation/ThumbnailLoading.png", ":/GuiFoundation/ThumbnailUnavailable.png");
 
@@ -57,6 +74,9 @@ QPixmap* QtImageCache::QueryPixmap(const char* szAbsolutePath, const QObject* pS
 
   if (itEntry.IsValid())
   {
+    if (out_pImageID)
+      *out_pImageID = itEntry.Value().m_uiImageID;
+
     itEntry.Value().m_LastAccess = ezTime::Now();
     return &itEntry.Value().m_Pixmap;
   }
@@ -64,9 +84,6 @@ QPixmap* QtImageCache::QueryPixmap(const char* szAbsolutePath, const QObject* pS
   // do not queue any further requests, when the cache is disabled
   if (!s_bCacheEnabled)
     return s_pImageLoading;
-
-  if (pSignalMe != nullptr && szSlot != nullptr)
-    EZ_VERIFY(connect(&g_ImageCacheSingleton, SIGNAL(ImageLoaded(QString, QModelIndex, QVariant, QVariant)), pSignalMe, szSlot, Qt::ConnectionType::QueuedConnection) != nullptr, "signal/slot connection failed");
 
   ezHashedString sHashed;
   sHashed.Assign(sCleanPath.GetData());
@@ -192,6 +209,7 @@ void QtImageCache::LoadingTask(QString sPath, QModelIndex index, QVariant UserDa
     return;
 
   auto& entry = s_ImageCache[sPath];
+  entry.m_uiImageID = ++s_uiCurImageID;
 
   s_iCurrentMemoryUsage -= entry.m_Pixmap.width() * entry.m_Pixmap.height() * 4;
 

@@ -21,6 +21,9 @@ ezAssetBrowserModel::ezAssetBrowserModel(QObject* pParent)
   resetModel();
   SetIconMode(true);
   m_bShowItemsInSubFolders = true;
+
+  EZ_VERIFY(connect(QtImageCache::GetInstance(), SIGNAL(ImageLoaded(QString, QModelIndex, QVariant, QVariant)), this, SLOT(ThumbnailLoaded(QString, QModelIndex, QVariant, QVariant))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(QtImageCache::GetInstance(), SIGNAL(ImageInvalidated(QString, ezUInt32)), this, SLOT(ThumbnailInvalidated(QString, ezUInt32))) != nullptr, "signal/slot connection failed");
 }
 
 ezAssetBrowserModel::~ezAssetBrowserModel()
@@ -191,6 +194,19 @@ void ezAssetBrowserModel::ThumbnailLoaded(QString sPath, QModelIndex index, QVar
   }
 }
 
+void ezAssetBrowserModel::ThumbnailInvalidated(QString sPath, ezUInt32 uiImageID)
+{
+  for (ezUInt32 i = 0; i < m_AssetsToDisplay.GetCount(); ++i)
+  {
+    if (m_AssetsToDisplay[i].m_uiThumbnailID = uiImageID)
+    {
+      QModelIndex idx = createIndex(i, 0);
+      emit dataChanged(idx, idx);
+      return;
+    }
+  }
+}
+
 QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
 {
   if (!index.isValid() || index.column() != 0)
@@ -199,8 +215,9 @@ QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
   const ezInt32 iRow = index.row();
   if (iRow < 0 || iRow >= (ezInt32)m_AssetsToDisplay.GetCount())
     return QVariant();
-
-  const ezUuid AssetGuid = m_AssetsToDisplay[iRow].m_Guid;
+  
+  const auto& asset = m_AssetsToDisplay[iRow];
+  const ezUuid AssetGuid = asset.m_Guid;
   const ezAssetCurator::AssetInfo* pAssetInfo = ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid);
 
   EZ_ASSERT_DEV(pAssetInfo != nullptr, "Invalid Pointer !!!!`1`1sonceleven");
@@ -226,7 +243,7 @@ QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
         ezUInt64 uiUserData1, uiUserData2;
         AssetGuid.GetValues(uiUserData1, uiUserData2);
 
-        QPixmap* pThumbnailPixmap = QtImageCache::QueryPixmap(sThumbnailPath, this, SLOT(ThumbnailLoaded(QString, QModelIndex, QVariant, QVariant)), index, QVariant(uiUserData1), QVariant(uiUserData2));
+        QPixmap* pThumbnailPixmap = QtImageCache::QueryPixmap(sThumbnailPath, index, QVariant(uiUserData1), QVariant(uiUserData2), &asset.m_uiThumbnailID);
 
         return *pThumbnailPixmap;
       }

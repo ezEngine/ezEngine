@@ -25,13 +25,13 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
   if (!pProp->m_sShader.IsEmpty())
     pInfo->m_FileDependencies.PushBack(pProp->m_sShader);
 
-  if (!pProp->m_sTextureDiffuse.IsEmpty())
+  if (!pProp->m_sTextureDiffuse.IsEmpty() && !ezPathUtils::HasExtension(pProp->m_sTextureDiffuse, "color"))
     pInfo->m_FileDependencies.PushBack(pProp->m_sTextureDiffuse);
 
-  if (!pProp->m_sTextureMask.IsEmpty())
+  if (!pProp->m_sTextureMask.IsEmpty() && !ezPathUtils::HasExtension(pProp->m_sTextureMask, "color"))
     pInfo->m_FileDependencies.PushBack(pProp->m_sTextureMask);
 
-  if (!pProp->m_sTextureNormal.IsEmpty())
+  if (!pProp->m_sTextureNormal.IsEmpty() && !ezPathUtils::HasExtension(pProp->m_sTextureNormal, "color"))
     pInfo->m_FileDependencies.PushBack(pProp->m_sTextureNormal);
 }
 
@@ -50,20 +50,48 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriterBase& str
 
   if (!sImageFile.IsEmpty())
   {
-    sImageFile.MakeCleanPath();
-
-    ezString sAbsPath = sImageFile;
-
-    if (!sImageFile.IsAbsolutePath())
-    {
-      ezEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sAbsPath);
-    }
-
     ezImage image;
-    if (image.LoadFrom(sAbsPath).Succeeded())
+    bool bValidImage = false;
+
+    if (!ezPathUtils::HasExtension(sImageFile, "color"))
     {
-      SaveThumbnail(image);
+      sImageFile.MakeCleanPath();
+
+      ezString sAbsPath = sImageFile;
+
+      if (!sImageFile.IsAbsolutePath())
+      {
+        ezEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sAbsPath);
+      }
+
+      bValidImage = image.LoadFrom(sAbsPath).Succeeded();
     }
+    else
+    {
+      ezStringBuilder sColorName = sImageFile.GetFileName();
+      const ezColorGammaUB color = ezConversionUtils::GetColorByName(sColorName);
+
+      bValidImage = true;
+      image.SetWidth(4);
+      image.SetHeight(4);
+      image.SetDepth(1);
+      image.SetImageFormat(ezImageFormat::B8G8R8A8_UNORM_SRGB);
+      image.SetNumMipLevels(1);
+      image.SetNumFaces(1);
+      image.AllocateImageData();
+      ezUInt8* pPixels = image.GetPixelPointer<ezUInt8>();
+
+      for (ezUInt32 px = 0; px < 4 * 4 * 4; px += 4)
+      {
+        pPixels[px + 0] = color.b;
+        pPixels[px + 1] = color.g;
+        pPixels[px + 2] = color.r;
+        pPixels[px + 3] = color.a;
+      }
+    }
+
+    if (bValidImage)
+      SaveThumbnail(image);
   }
 
   // now generate the .ezMaterialBin file

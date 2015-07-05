@@ -126,6 +126,13 @@ void ezAssetDocument::GetChildHash(const ezDocumentObjectBase* pObject, ezUInt64
 
 ezStatus ezAssetDocument::TransformAsset(const char* szPlatform)
 {
+  if (IsModified())
+  {
+    auto res = SaveDocument().m_Result;
+    if (res.Failed())
+      return res;
+  }
+
   ezString sPlatform = szPlatform;
 
   if (sPlatform.IsEmpty())

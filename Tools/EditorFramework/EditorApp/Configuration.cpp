@@ -23,6 +23,18 @@ void ezEditorApp::SetEnginePluginConfig(const ezApplicationPluginConfig& cfg)
 
 bool ezEditorApp::MakeDataDirectoryRelativePathAbsolute(ezString & sPath) const
 {
+  if (ezConversionUtils::IsStringUuid(sPath))
+  {
+    ezUuid guid = ezConversionUtils::ConvertStringToUuid(sPath);
+    auto pAsset = ezAssetCurator::GetInstance()->GetAssetInfo(guid);
+
+    if (!pAsset)
+      return false;
+
+    sPath = pAsset->m_sAbsolutePath;
+    return true;
+  }
+
   ezStringBuilder sTemp;
 
   for (ezUInt32 i = m_FileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)

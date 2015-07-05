@@ -17,10 +17,11 @@ class EZ_GUIFOUNDATION_DLL QtImageCache : public QObject
   Q_OBJECT
 
 public:
+  static QtImageCache* GetInstance();
 
   static void SetFallbackImages(const char* szLoading, const char* szUnavailable);
 
-  static QPixmap* QueryPixmap(const char* szAbsolutePath, const QObject* pSignalMe = nullptr, const char* szSlot = nullptr, QModelIndex index = QModelIndex(), QVariant UserData1 = QVariant(), QVariant UserData2 = QVariant());
+  static QPixmap* QueryPixmap(const char* szAbsolutePath, QModelIndex index = QModelIndex(), QVariant UserData1 = QVariant(), QVariant UserData2 = QVariant(), ezUInt32* out_pImageID = nullptr);
   static void InvalidateCache(const char* szAbsolutePath);
 
   static void SetMemoryUsageThreshold(ezUInt64 uiMemoryThreshold) { s_iMemoryUsageThreshold = (ezInt64) uiMemoryThreshold; }
@@ -29,6 +30,7 @@ public:
 
 signals:
   void ImageLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2);
+  void ImageInvalidated(QString sPath, ezUInt32 uiImageID);
 
 private:
   void EmitLoadedSignal(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2);
@@ -76,12 +78,22 @@ private:
   static ezInt64 s_iCurrentMemoryUsage;
   static QPixmap* s_pImageLoading;
   static QPixmap* s_pImageUnavailable;
+  static ezUInt32 s_uiCurImageID;
 
   struct CacheEntry
   {
     QPixmap m_Pixmap;
     ezTime m_LastAccess;
+    ezUInt32 m_uiImageID;
+
+    CacheEntry()
+    {
+      m_uiImageID = 0xFFFFFFFF;
+    }
   };
 
   static ezMap<QString, CacheEntry> s_ImageCache;
 };
+
+
+

@@ -42,6 +42,7 @@ signals:
 
 private slots:
   void ThumbnailLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2);
+  void ThumbnailInvalidated(QString sPath, ezUInt32 uiImageID);
 
 public: //QAbstractItemModel interface
   virtual QVariant data(const QModelIndex& index, int role) const override;
@@ -64,6 +65,7 @@ private:
   {
     ezString m_sSortingKey;
     ezUuid m_Guid;
+    mutable ezUInt32 m_uiThumbnailID;
 
     inline bool operator<(const AssetEntry& rhs) const
     {
