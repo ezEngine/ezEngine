@@ -99,7 +99,7 @@ void ezMeshComponent::SetMeshFile(const char* szFile)
 
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
-    m_hMesh = ezResourceManager::LoadResource<ezMeshResource>(szFile);
+    hMesh = ezResourceManager::LoadResource<ezMeshResource>(szFile);
   }
 
   SetMesh(hMesh);
