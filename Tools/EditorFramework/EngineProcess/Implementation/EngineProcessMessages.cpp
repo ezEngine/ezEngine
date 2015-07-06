@@ -3,6 +3,9 @@
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessMessage, ezReflectedClass, 1, ezRTTINoAllocator );
+EZ_BEGIN_PROPERTIES
+EZ_MEMBER_PROPERTY("Timestamp", m_iSentTimeStamp)
+EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ///////////////////////////////////// ezEditorEngineMsg ///////////////////////////////////// 
@@ -56,6 +59,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRedrawMsgToEngine, ezEditorEngineDocumentM
     EZ_MEMBER_PROPERTY("WindowWidth", m_uiWindowWidth),
     EZ_MEMBER_PROPERTY("WindowHeight", m_uiWindowHeight),
   EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRedrawFinishedMsgToEditor, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezViewRedrawFinishedMsgToEditor>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEntityMsgToEngine, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezEntityMsgToEngine> );

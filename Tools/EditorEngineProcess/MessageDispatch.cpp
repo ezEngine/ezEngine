@@ -7,6 +7,9 @@
 #include <EditorEngineProcess/GameState.h>
 #include <Foundation/Reflection/ReflectionSerializer.h>
 #include <Foundation/Utilities/Stats.h>
+#include <Foundation/Time/Stopwatch.h>
+#include <Foundation/Time/Timestamp.h>
+#include <Foundation/Logging/Log.h>
 
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -135,6 +138,9 @@ void ezEngineProcessGameState::EventHandlerIPC(const ezProcessCommunication::Eve
     pViewContext->SetupRenderTarget(reinterpret_cast<HWND>(pMsg->m_uiHWND), pMsg->m_uiWindowWidth, pMsg->m_uiWindowHeight);
     pViewContext->Redraw();
 
+    ezViewRedrawFinishedMsgToEditor ack;
+    m_IPC.SendMessage(&ack);
+
     ezStringBuilder sValue;
 
     sValue.Format("%u", uiMessagesPerFrame);
@@ -173,10 +179,18 @@ void ezEngineProcessGameState::EventHandlerIPC(const ezProcessCommunication::Eve
   }
   else if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingMsgToEngine>())
   {
+    ezTimestamp ts = ezTimestamp::CurrentTimestamp();
+    ezStopwatch s;
+
     ++uiBlockingMessagesPerFrame;
     const ezViewPickingMsgToEngine* pMsg = static_cast<const ezViewPickingMsgToEngine*>(pDocMsg);
 
+    ezInt64 tDelivery = ts.GetInt64(ezSIUnitOfTime::Microsecond) - pMsg->m_iSentTimeStamp;
+
     pViewContext->PickObjectAt(pMsg->m_uiPickPosX, pMsg->m_uiPickPosY);
+
+    const ezTime tPick = s.Checkpoint();
+    //ezLog::Dev("%lli (%lli): Picking: %.3fms", ts.GetInt64(ezSIUnitOfTime::Microsecond), tDelivery, tPick.GetMilliseconds());
   }
   else if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewHighlightMsgToEngine>())
   {

@@ -104,6 +104,11 @@ public:
   ezUInt16 m_uiWindowHeight;
 };
 
+class EZ_EDITORFRAMEWORK_DLL ezViewRedrawFinishedMsgToEditor : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezViewRedrawFinishedMsgToEditor);
+};
+
 class EZ_EDITORFRAMEWORK_DLL ezViewCameraMsgToEngine : public ezEditorEngineDocumentMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezViewCameraMsgToEngine);

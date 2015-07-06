@@ -46,7 +46,7 @@ ezResult ezProcessCommunication::StartClientProcess(const char* szProcess, const
 success:
 
   EZ_VERIFY(m_pSharedMemory->lock(), "Implementation error?");
-  ezMemoryUtils::ZeroFill<ezUInt8>((ezUInt8*) m_pSharedMemory->data(), m_pSharedMemory->size());
+  ezMemoryUtils::ZeroFill<ezUInt8>((ezUInt8*)m_pSharedMemory->data(), m_pSharedMemory->size());
   EZ_VERIFY(m_pSharedMemory->unlock(), "Implementation error?");
 
   ezStringBuilder sPath = szProcess;
@@ -59,7 +59,7 @@ success:
 
   sPath.MakeCleanPath();
 
-  ezString sPID = ezConversionUtils::ToString((ezUInt64) QCoreApplication::applicationPid());
+  ezString sPID = ezConversionUtils::ToString((ezUInt64)QCoreApplication::applicationPid());
 
   QStringList arguments;
   arguments << "-IPC";
@@ -155,7 +155,7 @@ bool ezProcessCommunication::IsHostAlive() const
   if (GetExitCodeProcess(hProcess, &exitcode) && exitcode != STILL_ACTIVE)
     bValid = false;
 
-  CloseHandle(hProcess); 
+  CloseHandle(hProcess);
 #endif
 
   return bValid;
@@ -172,52 +172,57 @@ bool ezProcessCommunication::IsClientAlive() const
   return bRunning && bNoError;
 }
 
-void ezProcessCommunication::SendMessage(ezProcessMessage* pMessage)
+void ezProcessCommunication::SendMessage(ezProcessMessage* pMessage, bool bSuperHighPriority)
 {
   if (m_pSharedMemory == nullptr)
     return;
 
-  ezMemoryStreamStorage& storage = m_MessageSendQueue.ExpandAndGetRef();
-  ezMemoryStreamWriter writer(&storage);
+  pMessage->m_iSentTimeStamp = ezTimestamp::CurrentTimestamp().GetInt64(ezSIUnitOfTime::Microsecond);
 
-  ezReflectionSerializer::WriteObjectToJSON(writer, pMessage->GetDynamicRTTI(), pMessage);
+  {
+    ezMemoryStreamStorage& storage = m_MessageSendQueue.ExpandAndGetRef();
+    ezMemoryStreamWriter writer(&storage);
+
+    ezReflectionSerializer::WriteObjectToJSON(writer, pMessage->GetDynamicRTTI(), pMessage);
+  }
+
+  if (bSuperHighPriority)
+    ProcessMessages(false);
 }
 
-bool ezProcessCommunication::ProcessMessages()
+bool ezProcessCommunication::ProcessMessages(bool bAllowMsgDispatch)
 {
   if (!m_pSharedMemory)
     return false;
 
-  bool bReadAny = false;
-
   EZ_VERIFY(m_pSharedMemory->lock(), "Implementation error?");
 
-  ezUInt8* pData = (ezUInt8*) m_pSharedMemory->data();
+  ezUInt8* pData = (ezUInt8*)m_pSharedMemory->data();
 
   if (ReadMessages())
-  {
-    bReadAny = true;
     WriteMessages();
-  }
 
   EZ_VERIFY(m_pSharedMemory->unlock(), "Implementation error?");
 
-  if (bReadAny)
+  if (bAllowMsgDispatch && !m_MessageReadQueue.IsEmpty())
+  {
     DispatchMessages();
+    return true;
+  }
 
-  return bReadAny;
+  return false;
 }
 
 void ezProcessCommunication::WriteMessages()
 {
-  ezUInt8* pData = (ezUInt8*) m_pSharedMemory->data();
+  ezUInt8* pData = (ezUInt8*)m_pSharedMemory->data();
 
-  ezUInt32* pID = (ezUInt32*) pData;
+  ezUInt32* pID = (ezUInt32*)pData;
   *pID = m_uiProcessID;
 
   pData += sizeof(ezUInt32);
 
-  ezUInt32 uiRemainingSize = (ezUInt32) m_pSharedMemory->size();
+  ezUInt32 uiRemainingSize = (ezUInt32)m_pSharedMemory->size();
   uiRemainingSize -= sizeof(ezUInt32); // process ID
   uiRemainingSize -= sizeof(ezUInt32); // leave some room for the terminator
 
@@ -228,7 +233,7 @@ void ezProcessCommunication::WriteMessages()
     if (storage.GetStorageSize() + sizeof(ezUInt32) > uiRemainingSize)
       break;
 
-    ezUInt32* pSizeField = (ezUInt32*) pData;
+    ezUInt32* pSizeField = (ezUInt32*)pData;
 
     *pSizeField = storage.GetStorageSize();
     pData += sizeof(ezUInt32);
@@ -241,21 +246,21 @@ void ezProcessCommunication::WriteMessages()
     m_MessageSendQueue.PopFront();
   }
 
-  ezUInt32* pTerminator = (ezUInt32*) pData;
+  ezUInt32* pTerminator = (ezUInt32*)pData;
   *pTerminator = 0; // terminator, gets overwritten by next message
 }
 
 bool ezProcessCommunication::ReadMessages()
 {
-  ezUInt8* pData = (ezUInt8*) m_pSharedMemory->data();
+  ezUInt8* pData = (ezUInt8*)m_pSharedMemory->data();
 
-  ezUInt32* pProcessID = (ezUInt32*) pData;
+  ezUInt32* pProcessID = (ezUInt32*)pData;
   pData += sizeof(ezUInt32);
 
   if (*pProcessID == m_uiProcessID) // if we were the last one to write to the memory, do not read the same data back
     return false;
 
-  ezUInt32* pSizeField = (ezUInt32*) pData;
+  ezUInt32* pSizeField = (ezUInt32*)pData;
 
   while (*pSizeField > 0)
   {
@@ -268,7 +273,7 @@ bool ezProcessCommunication::ReadMessages()
 
     pData += *pSizeField;
 
-    pSizeField = (ezUInt32*) pData;
+    pSizeField = (ezUInt32*)pData;
   }
 
   return true;
@@ -304,24 +309,15 @@ void ezProcessCommunication::DispatchMessages()
 
   while (!m_MessageReadQueue.IsEmpty())
   {
+    // scope to ensure some objects are destroyed before we pop the queue
     {
       ezMemoryStreamStorage& storage = m_MessageReadQueue.PeekFront();
       ezMemoryStreamReader reader(&storage);
 
-      // Debug
-      if (false)
-      {
-        ezMemoryStreamReader reader2(&storage);
-        ezStringBuilder s;
-        s.ReadAll(reader2);
-        ezLog::Debug("IPC Msg: %s", s.GetData());
-      }
-
-      
       tMsgDecode.Resume();
 
       const ezRTTI* pRtti = nullptr;
-      ezProcessMessage* pObject = (ezProcessMessage*) ezReflectionSerializer::ReadObjectFromJSON(reader, pRtti);
+      ezProcessMessage* pObject = (ezProcessMessage*)ezReflectionSerializer::ReadObjectFromJSON(reader, pRtti);
 
       tMsgDecode.Pause();
 

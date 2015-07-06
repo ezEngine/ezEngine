@@ -108,7 +108,7 @@ void ezDocumentWindow::SetVisibleInContainer(bool bVisible)
   }
 }
 
-void ezDocumentWindow::SetTargetFramerate(ezInt8 iTargetFPS)
+void ezDocumentWindow::SetTargetFramerate(ezInt16 iTargetFPS)
 {
   if (m_iTargetFramerate == iTargetFPS)
     return;

@@ -126,12 +126,12 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
   }
 }
 
-void ezViewContext::SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg)
+void ezViewContext::SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg, bool bSuperHighPriority)
 {
   pViewMsg->m_DocumentGuid = GetDocumentGuid();
   pViewMsg->m_uiViewID = GetViewIndex();
 
-  ezEngineProcessGameState::GetInstance()->ProcessCommunication().SendMessage(pViewMsg);
+  ezEngineProcessGameState::GetInstance()->ProcessCommunication().SendMessage(pViewMsg, bSuperHighPriority);
 }
 
 void ezViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
@@ -181,7 +181,7 @@ void ezViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
     //ezLog::Info("Picked at %u, %u, %.2f, ID %u and GUID %s, Pos: %.2f | %.2f | %.2f, Start: %.2f | %.2f | %.2f", x, y, fDepth, uiComponentID, ezConversionUtils::ToString(res.m_ObjectGuid).GetData(), res.m_vPickedPosition.x, res.m_vPickedPosition.y, res.m_vPickedPosition.z, res.m_vPickingRayStartPosition.x, res.m_vPickingRayStartPosition.y, res.m_vPickingRayStartPosition.z);
   }
 
-  SendViewMessage(&res);
+  SendViewMessage(&res, true);
 }
 
 void ezViewContext::Redraw()

@@ -32,7 +32,7 @@ public:
 
   ezEditorEngineConnection* GetEditorEngineConnection() const { return m_pEngineView; }
 
-  void SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage) const;
+  void SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage, bool bSuperHighPriority = false) const;
 
   const ezObjectPickingResult& PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const;
 

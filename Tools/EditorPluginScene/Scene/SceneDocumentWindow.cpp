@@ -32,7 +32,7 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   setCentralWidget(m_pCenterWidget);
 
   m_bInGizmoInteraction = false;
-  SetTargetFramerate(24);
+  SetTargetFramerate(35);
 
   m_DelegatePropertyEvents = ezMakeDelegate(&ezSceneDocumentWindow::PropertyEventHandler, this);
   m_DelegateDocumentTreeEvents = ezMakeDelegate(&ezSceneDocumentWindow::DocumentTreeEventHandler, this);
@@ -248,7 +248,9 @@ void ezSceneDocumentWindow::SendRedrawMsg()
   msg.m_uiWindowWidth = m_pCenterWidget->width();
   msg.m_uiWindowHeight = m_pCenterWidget->height();
 
-  m_pEngineView->SendMessage(&msg);
+  m_pEngineView->SendMessage(&msg, true);
+
+  ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezViewRedrawFinishedMsgToEditor>(), ezTime::Seconds(1.0));
 }
 
 bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
@@ -293,6 +295,8 @@ void ezScene3DWidget::dragEnterEvent(QDragEnterEvent* e)
 {
   if (e->mimeData()->hasFormat("application/ezEditor.AssetGuid"))
   {
+    m_LastDragMoveEvent = ezTime::Now();
+
     m_DraggedObjects.Clear();
     e->acceptProposedAction();
 
@@ -349,6 +353,13 @@ void ezScene3DWidget::dragMoveEvent(QDragMoveEvent* e)
 {
   if (e->mimeData()->hasFormat("application/ezEditor.AssetGuid") && !m_DraggedObjects.IsEmpty())
   {
+    const ezTime tNow = ezTime::Now();
+
+    if (tNow - m_LastDragMoveEvent < ezTime::Seconds(1.0 / 25.0))
+      return;
+
+    m_LastDragMoveEvent = tNow;
+
     ezObjectPickingResult res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
 
     MoveDraggedObjectsToPosition(res.m_vPickedPosition);

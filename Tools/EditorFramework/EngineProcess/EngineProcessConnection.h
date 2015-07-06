@@ -30,7 +30,7 @@ public:
   ezEditorEngineConnection* CreateEngineConnection(ezDocumentWindow3D* pWindow);
   void DestroyEngineConnection(ezDocumentWindow3D* pWindow);
 
-  void SendMessage(ezProcessMessage* pMessage);
+  void SendMessage(ezProcessMessage* pMessage, bool bSuperHighPriority = false);
   ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout);
 
   void SetWaitForDebugger(bool bWait) { m_bProcessShouldWaitForDebugger = bWait; }
@@ -82,7 +82,7 @@ class EZ_EDITORFRAMEWORK_DLL ezEditorEngineConnection
 {
 public:
 
-  void SendMessage(ezEditorEngineDocumentMsg* pMessage);
+  void SendMessage(ezEditorEngineDocumentMsg* pMessage, bool bSuperHighPriority = false);
 
   void SendObjectProperties(const ezDocumentObjectPropertyEvent& e);
   void SendDocumentTreeChange(const ezDocumentObjectStructureEvent& e);

@@ -35,7 +35,7 @@ public:
 
   void PickObjectAt(ezUInt16 x, ezUInt16 y);
 
-  void SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg);
+  void SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg, bool bSuperHighPriority = false);
 
 private:
   void RenderPassEventHandler(const ezPickingRenderPass::Event& e);

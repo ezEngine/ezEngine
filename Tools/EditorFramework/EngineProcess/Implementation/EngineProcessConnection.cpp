@@ -126,9 +126,9 @@ void ezEditorEngineProcessConnection::ShutdownProcess()
   s_Events.Broadcast(e);
 }
 
-void ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
+void ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage, bool bSuperHighPriority)
 {
-  m_IPC.SendMessage(pMessage);
+  m_IPC.SendMessage(pMessage, bSuperHighPriority);
 }
 
 ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout)
@@ -186,12 +186,12 @@ void ezEditorEngineProcessConnection::Update()
   m_IPC.ProcessMessages();
 }
 
-void ezEditorEngineConnection::SendMessage(ezEditorEngineDocumentMsg* pMessage)
+void ezEditorEngineConnection::SendMessage(ezEditorEngineDocumentMsg* pMessage, bool bSuperHighPriority)
 {
   pMessage->m_uiViewID = m_iEngineViewID;
   pMessage->m_DocumentGuid = m_pDocument->GetGuid();
 
-  ezEditorEngineProcessConnection::GetInstance()->SendMessage(pMessage);
+  ezEditorEngineProcessConnection::GetInstance()->SendMessage(pMessage, bSuperHighPriority);
 }
 
 void ezEditorEngineConnection::SendObjectProperties(const ezDocumentObjectPropertyEvent& e)

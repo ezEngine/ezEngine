@@ -58,7 +58,7 @@ public:
   void ScheduleRestoreWindowLayout();
 
   bool IsVisibleInContainer() const { return m_bIsVisibleInContainer; }
-  void SetTargetFramerate(ezInt8 iTargetFPS);
+  void SetTargetFramerate(ezInt16 uiTargetFPS);
 
   void TriggerRedraw();
 
@@ -88,7 +88,7 @@ private:
   bool m_bRedrawIsTriggered;
   bool m_bIsDrawingATM;
   bool m_bTriggerRedrawQueued;
-  ezInt8 m_iTargetFramerate;
+  ezInt16 m_iTargetFramerate;
   ezDocumentBase* m_pDocument;
   ezContainerWindow* m_pContainerWindow;
 

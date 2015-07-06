@@ -1,6 +1,9 @@
 #include <PCH.h>
 #include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
 #include <EditorFramework/IPC/SyncObject.h>
+#include <Foundation/Time/Stopwatch.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Time/Timestamp.h>
 #include <QPushButton>
 #include <qlayout.h>
 
@@ -23,13 +26,16 @@ ezDocumentWindow3D::~ezDocumentWindow3D()
   ezEditorEngineProcessConnection::GetInstance()->DestroyEngineConnection(this);
 }
 
-void ezDocumentWindow3D::SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage) const
+void ezDocumentWindow3D::SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage, bool bSuperHighPriority) const
 {
-  m_pEngineView->SendMessage(pMessage);
+  m_pEngineView->SendMessage(pMessage, bSuperHighPriority);
 }
 
 const ezObjectPickingResult& ezDocumentWindow3D::PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const
 {
+  ezTimestamp ts = ezTimestamp::CurrentTimestamp();
+  ezStopwatch s;
+
   m_LastPickingResult.m_PickedComponent = ezUuid();
   m_LastPickingResult.m_PickedObject = ezUuid();
   m_LastPickingResult.m_PickedOther = ezUuid();
@@ -44,11 +50,14 @@ const ezObjectPickingResult& ezDocumentWindow3D::PickObject(ezUInt16 uiScreenPos
     msg.m_uiPickPosX = uiScreenPosX;
     msg.m_uiPickPosY = uiScreenPosY;
 
-    SendMessageToEngine(&msg);
+    SendMessageToEngine(&msg, true);
 
     if (ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezViewPickingResultMsgToEditor>(), ezTime::Seconds(3.0)).Failed())
       return m_LastPickingResult;
   }
+
+  const ezTime tPick = s.Checkpoint();
+  //ezLog::Dev("%lli: Picking: %.3fms", ts.GetInt64(ezSIUnitOfTime::Microsecond), tPick.GetMilliseconds());
 
   return m_LastPickingResult;
 }

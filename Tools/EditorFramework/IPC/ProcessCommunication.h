@@ -14,7 +14,7 @@ class EZ_EDITORFRAMEWORK_DLL ezProcessMessage : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezProcessMessage);
 
 public:
-
+  ezInt64 m_iSentTimeStamp;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezProcessCommunication
@@ -32,11 +32,11 @@ public:
 
   bool IsHostAlive() const;
 
-  void SendMessage(ezProcessMessage* pMessage);
+  void SendMessage(ezProcessMessage* pMessage, bool bSuperHighPriority = false);
 
   ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout);
 
-  bool ProcessMessages();
+  bool ProcessMessages(bool bAllowMsgDispatch = true);
 
   struct Event
   {

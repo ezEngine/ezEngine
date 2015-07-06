@@ -32,6 +32,7 @@ protected:
   void MoveDraggedObjectsToPosition(const ezVec3& vPosition);
 
   ezHybridArray<ezUuid, 16> m_DraggedObjects;
+  ezTime m_LastDragMoveEvent;
 };
 
 class ezSceneDocumentWindow : public ezDocumentWindow3D
