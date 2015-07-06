@@ -1,13 +1,14 @@
 #pragma once
 
 #include <Foundation/Containers/HybridArray.h>
-#include <Foundation/Math/Mat4.h>
 #include <Foundation/Math/Quat.h>
 #include <Foundation/Math/Transform.h>
+#include <Foundation/Math/BoundingBoxSphere.h>
 #include <Foundation/Time/Time.h>
 
 #include <Core/World/ComponentManager.h>
 #include <Core/World/GameObjectDesc.h>
+#include <Core/World/Messages.h>
 
 /// \brief This class represents an object inside the world.
 ///
@@ -20,7 +21,7 @@
 ///
 /// \todo Implement Clone
 /// \todo Implement switching dynamic and static
-/// \todo Implement unique ids
+
 class EZ_CORE_DLL ezGameObject
 {
 private:
@@ -100,8 +101,6 @@ public:
   bool IsActive() const;
 
 
-  //ezUInt64 GetUniqueId() const;
-
   void SetName(const char* szName);
   const char* GetName() const;
 
@@ -140,6 +139,7 @@ public:
   ezWorld* GetWorld();
   const ezWorld* GetWorld() const;
 
+
   void SetLocalPosition(const ezVec3& position);
   const ezVec3& GetLocalPosition() const;
 
@@ -163,6 +163,19 @@ public:
 
   void SetVelocity(const ezVec3& vVelocity);
   const ezVec3& GetVelocity() const;
+
+  /// \brief Updates the global transform immediately. Usually this done during the world update after the "Post-async" phase.
+  void UpdateGlobalTransform();
+
+
+  const ezBoundingBoxSphere& GetLocalBounds() const;
+  const ezBoundingBoxSphere& GetGlobalBounds() const;
+
+  /// \brief Invalidates the local bounds and sends a message to all components so they can add their bounds.
+  void UpdateLocalBounds();
+
+  /// \brief Updates the global transform and bounds immediately. Usually this done during the world update after the "Post-async" phase.
+  void UpdateGlobalTransformAndBounds();
 
 
   /// \brief Attaches the component to the object. Calls the OnAttachedToObject method on the component.
@@ -226,8 +239,19 @@ private:
     ezQuat m_localRotation;
     ezVec4 m_localScaling;
 
-    ezTransform m_worldTransform;
+    ezTransform m_globalTransform;
     ezVec4 m_velocity;
+
+    ezBoundingBoxSphere m_localBounds;
+    ezBoundingBoxSphere m_globalBounds;
+
+    void ConditionalUpdateGlobalTransform();
+    void UpdateGlobalTransform();
+    void UpdateGlobalTransformWithParent();
+
+    void ConditionalUpdateGlobalBounds();
+    void UpdateGlobalBounds();
+    void UpdateGlobalBoundsWithParent();
   };
 
   ezGameObjectId m_InternalId;

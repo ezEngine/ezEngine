@@ -172,12 +172,12 @@ EZ_FORCE_INLINE const ezVec3& ezGameObject::GetLocalScaling() const
 
 EZ_FORCE_INLINE const ezVec3& ezGameObject::GetGlobalPosition() const
 {
-  return m_pTransformationData->m_worldTransform.m_vPosition;
+  return m_pTransformationData->m_globalTransform.m_vPosition;
 }
 
 EZ_FORCE_INLINE const ezQuat ezGameObject::GetGlobalRotation() const
 {
-  ezMat3 mat = m_pTransformationData->m_worldTransform.m_Rotation;
+  ezMat3 mat = m_pTransformationData->m_globalTransform.m_Rotation;
   mat.SetScalingFactors(ezVec3(1.0f));
 
   ezQuat q; q.SetFromMat3(mat);
@@ -186,12 +186,12 @@ EZ_FORCE_INLINE const ezQuat ezGameObject::GetGlobalRotation() const
 
 EZ_FORCE_INLINE const ezVec3 ezGameObject::GetGlobalScaling() const
 {
-  return m_pTransformationData->m_worldTransform.m_Rotation.GetScalingFactors();
+  return m_pTransformationData->m_globalTransform.m_Rotation.GetScalingFactors();
 }
 
 EZ_FORCE_INLINE const ezTransform& ezGameObject::GetGlobalTransform() const
 {
-  return m_pTransformationData->m_worldTransform;
+  return m_pTransformationData->m_globalTransform;
 }
 
 EZ_FORCE_INLINE void ezGameObject::SetVelocity(const ezVec3& vVelocity)
@@ -201,7 +201,27 @@ EZ_FORCE_INLINE void ezGameObject::SetVelocity(const ezVec3& vVelocity)
 
 EZ_FORCE_INLINE const ezVec3& ezGameObject::GetVelocity() const
 {
-  return *reinterpret_cast<const ezVec3*>(&m_pTransformationData->m_velocity);
+  return *reinterpret_cast<ezVec3*>(&m_pTransformationData->m_velocity);
+}
+
+EZ_FORCE_INLINE void ezGameObject::UpdateGlobalTransform()
+{
+  m_pTransformationData->ConditionalUpdateGlobalTransform();
+}
+
+EZ_FORCE_INLINE const ezBoundingBoxSphere& ezGameObject::GetLocalBounds() const
+{
+  return m_pTransformationData->m_localBounds;
+}
+
+EZ_FORCE_INLINE const ezBoundingBoxSphere& ezGameObject::GetGlobalBounds() const
+{
+  return m_pTransformationData->m_globalBounds;
+}
+
+EZ_FORCE_INLINE void ezGameObject::UpdateGlobalTransformAndBounds()
+{
+  m_pTransformationData->ConditionalUpdateGlobalBounds();
 }
 
 template <typename T>
@@ -243,5 +263,34 @@ EZ_FORCE_INLINE ezArrayPtr<ezComponent* const> ezGameObject::GetComponents()
 EZ_FORCE_INLINE ezArrayPtr<const ezComponent* const> ezGameObject::GetComponents() const
 {
   return ezMakeArrayPtr(const_cast<const ezComponent*const*>(m_Components.GetData()), m_Components.GetCount());
+}
+
+
+EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalTransform()
+{
+  const ezVec3 vPos = *reinterpret_cast<const ezVec3*>(&m_localPosition);
+  const ezQuat qRot = m_localRotation;
+  const ezVec3 vScale = *reinterpret_cast<const ezVec3*>(&m_localScaling);
+  m_globalTransform = ezTransform(vPos, qRot, vScale);
+}
+
+EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalTransformWithParent()
+{
+  const ezVec3 vPos = *reinterpret_cast<const ezVec3*>(&m_localPosition);
+  const ezQuat qRot = m_localRotation;
+  const ezVec3 vScale = *reinterpret_cast<const ezVec3*>(&m_localScaling);
+  const ezTransform localTransform(vPos, qRot, vScale);
+  m_globalTransform.SetGlobalTransform(m_pParentData->m_globalTransform, localTransform);
+}
+
+EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBounds()
+{
+  m_globalBounds = m_localBounds;
+}
+
+EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBoundsWithParent()
+{
+  m_globalBounds = m_localBounds;
+  m_globalBounds.Transform(m_globalTransform.GetAsMat4());
 }
 

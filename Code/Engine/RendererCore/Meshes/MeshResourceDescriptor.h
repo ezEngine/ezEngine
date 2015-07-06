@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/IO/Stream.h>
+#include <Foundation/Math/BoundingBoxSphere.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 
 class EZ_RENDERERCORE_DLL ezMeshResourceDescriptor
@@ -14,12 +15,16 @@ public:
     ezUInt32 m_uiPrimitiveCount;
     ezUInt32 m_uiFirstPrimitive;
     ezUInt32 m_uiMaterialIndex;
+
+    ezBoundingBoxSphere m_Bounds;
   };
 
   struct Material
   {
     ezString m_sPath;
   };
+
+  ezMeshResourceDescriptor();
 
   ezMeshBufferResourceDescriptor& MeshBufferDesc();
 
@@ -43,11 +48,16 @@ public:
 
   const ezHybridArray<SubMesh, 32>& GetSubMeshes() const;
 
+  void CalculateBounds();
+  const ezBoundingBoxSphere& GetBounds() const;
+
 private:
 
   ezHybridArray<Material, 32> m_Materials;
   ezHybridArray<SubMesh, 32> m_SubMeshes;
   ezMeshBufferResourceDescriptor m_MeshBufferDescriptor;
-  mutable ezMeshBufferResourceHandle m_hMeshBuffer;
+  ezMeshBufferResourceHandle m_hMeshBuffer;
+
+  ezBoundingBoxSphere m_Bounds;
 };
 

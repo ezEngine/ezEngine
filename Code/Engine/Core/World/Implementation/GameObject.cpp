@@ -50,60 +50,6 @@ void ezGameObject::ConstChildIterator::Next()
   m_pObject = m_pObject->m_pWorld->GetObjectUnchecked(m_pObject->m_NextSiblingIndex);
 }
 
-void ezGameObject::SetGlobalPosition(const ezVec3& position)
-{
-  /// \test This is not yet tested
-
-  m_pTransformationData->m_worldTransform.m_vPosition = position;
-  SetGlobalTransform(m_pTransformationData->m_worldTransform);
-}
-
-void ezGameObject::SetGlobalRotation(const ezQuat rotation)
-{
-  /// \test This is not yet tested
-
-  const ezVec3 vOldScale = m_pTransformationData->m_worldTransform.m_Rotation.GetScalingFactors();
-  m_pTransformationData->m_worldTransform.m_Rotation = rotation.GetAsMat3();
-
-  if (!vOldScale.IsZero())
-    m_pTransformationData->m_worldTransform.m_Rotation.SetScalingFactors(vOldScale);
-
-  SetGlobalTransform(m_pTransformationData->m_worldTransform);
-}
-
-void ezGameObject::SetGlobalScaling(const ezVec3 scaling)
-{
-  /// \test This is not yet tested
-
-  if (m_pTransformationData->m_worldTransform.m_Rotation.SetScalingFactors(scaling).Failed())
-    m_pTransformationData->m_worldTransform.m_Rotation.SetScalingMatrix(scaling);
-
-  SetGlobalTransform(m_pTransformationData->m_worldTransform);
-}
-
-
-void ezGameObject::SetGlobalTransform(const ezTransform& transform)
-{
-  ezTransform tLocal;
-
-  const ezGameObject* pParent = GetParent();
-  if (pParent != nullptr)
-  {
-    tLocal.SetLocalTransform(pParent->m_pTransformationData->m_worldTransform, transform);
-  }
-  else
-  {
-    tLocal = transform;
-  }
-
-  ezVec3 vPos, vScale;
-  tLocal.Decompose(vPos, m_pTransformationData->m_localRotation, vScale);
-  m_pTransformationData->m_localPosition = vPos.GetAsVec4(0.0f);
-  m_pTransformationData->m_localScaling = vScale.GetAsVec4(0.0f);
-
-  m_pTransformationData->m_worldTransform = transform;
-}
-
 void ezGameObject::operator=(const ezGameObject& other)
 {
   EZ_ASSERT_DEV(m_pWorld == other.m_pWorld, "Cannot copy between worlds.");
@@ -203,6 +149,70 @@ ezGameObject::ChildIterator ezGameObject::GetChildren()
 ezGameObject::ConstChildIterator ezGameObject::GetChildren() const
 {
   return ConstChildIterator(m_pWorld->GetObjectUnchecked(m_FirstChildIndex));
+}
+
+void ezGameObject::SetGlobalPosition(const ezVec3& position)
+{
+  /// \test This is not yet tested
+
+  m_pTransformationData->m_globalTransform.m_vPosition = position;
+  SetGlobalTransform(m_pTransformationData->m_globalTransform);
+}
+
+void ezGameObject::SetGlobalRotation(const ezQuat rotation)
+{
+  /// \test This is not yet tested
+
+  const ezVec3 vOldScale = m_pTransformationData->m_globalTransform.m_Rotation.GetScalingFactors();
+  m_pTransformationData->m_globalTransform.m_Rotation = rotation.GetAsMat3();
+
+  if (!vOldScale.IsZero())
+    m_pTransformationData->m_globalTransform.m_Rotation.SetScalingFactors(vOldScale);
+
+  SetGlobalTransform(m_pTransformationData->m_globalTransform);
+}
+
+void ezGameObject::SetGlobalScaling(const ezVec3 scaling)
+{
+  /// \test This is not yet tested
+
+  if (m_pTransformationData->m_globalTransform.m_Rotation.SetScalingFactors(scaling).Failed())
+    m_pTransformationData->m_globalTransform.m_Rotation.SetScalingMatrix(scaling);
+
+  SetGlobalTransform(m_pTransformationData->m_globalTransform);
+}
+
+
+void ezGameObject::SetGlobalTransform(const ezTransform& transform)
+{
+  ezTransform tLocal;
+
+  const ezGameObject* pParent = GetParent();
+  if (pParent != nullptr)
+  {
+    tLocal.SetLocalTransform(pParent->m_pTransformationData->m_globalTransform, transform);
+  }
+  else
+  {
+    tLocal = transform;
+  }
+
+  ezVec3 vPos, vScale;
+  tLocal.Decompose(vPos, m_pTransformationData->m_localRotation, vScale);
+  m_pTransformationData->m_localPosition = vPos.GetAsVec4(0.0f);
+  m_pTransformationData->m_localScaling = vScale.GetAsVec4(0.0f);
+
+  m_pTransformationData->m_globalTransform = transform;
+}
+
+void ezGameObject::UpdateLocalBounds()
+{
+  ezUpdateLocalBoundsMessage msg;
+  msg.m_ResultingLocalBounds.SetInvalid();
+
+  SendMessage(msg);
+  
+  m_pTransformationData->m_localBounds = msg.m_ResultingLocalBounds;
 }
 
 ezResult ezGameObject::AddComponent(const ezComponentHandle& component)
@@ -361,6 +371,35 @@ void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
     {
       it->SendMessage(msg, routing);
     }
+  }
+}
+
+void ezGameObject::TransformationData::ConditionalUpdateGlobalTransform()
+{
+  if (m_pParentData != nullptr)
+  {
+    m_pParentData->ConditionalUpdateGlobalTransform();
+    UpdateGlobalTransformWithParent();
+  }
+  else
+  {
+    UpdateGlobalTransform();
+  }
+}
+
+void ezGameObject::TransformationData::ConditionalUpdateGlobalBounds()
+{
+  // Ensure that global transform is updated
+  ConditionalUpdateGlobalTransform();
+
+  if (m_pParentData != nullptr)
+  {
+    m_pParentData->ConditionalUpdateGlobalBounds();
+    UpdateGlobalBoundsWithParent();
+  }
+  else
+  {
+    UpdateGlobalBounds();
   }
 }
 

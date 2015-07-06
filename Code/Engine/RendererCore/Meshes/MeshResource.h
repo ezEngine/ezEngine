@@ -30,6 +30,12 @@ public:
     return m_Materials;
   }
 
+  /// \brief Returns the bounds of this mesh.
+  const ezBoundingBoxSphere& GetBounds() const
+  {
+    return m_Bounds;
+  }
+
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReaderBase* Stream) override;
@@ -39,6 +45,8 @@ private:
   ezDynamicArray<ezMeshResourceDescriptor::SubMesh> m_SubMeshes;
   ezMeshBufferResourceHandle m_hMeshBuffer;
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;
+
+  ezBoundingBoxSphere m_Bounds;
 
   static ezUInt32 s_MeshBufferNameSuffix;
 };

@@ -36,7 +36,7 @@ WorldData::WorldData(const char* szWorldName) :
   ObjectStorage::Entry entry = { nullptr };
   m_Objects.Insert(entry);
 
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 128);
+  EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 192);
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject) == 128);
 }
 
@@ -207,13 +207,13 @@ bool WorldData::TraverseObjectDepthFirst(ezGameObject* pObject, VisitorFunc& fun
   return true;
 }
 
-void WorldData::UpdateWorldTransforms()
+void WorldData::UpdateGlobalTransforms()
 {
   struct RootLevel
   {
     EZ_FORCE_INLINE static bool Visit(ezGameObject::TransformationData* pData, void* pUserData)
     {
-      WorldData::UpdateWorldTransform(pData, *static_cast<float*>(pUserData));
+      WorldData::UpdateGlobalTransform(pData, *static_cast<float*>(pUserData));
       return true;
     }
   };
@@ -222,7 +222,7 @@ void WorldData::UpdateWorldTransforms()
   {
     EZ_FORCE_INLINE static bool Visit(ezGameObject::TransformationData* pData, void* pUserData)
     {
-      WorldData::UpdateWorldTransformWithParent(pData, *static_cast<float*>(pUserData));
+      WorldData::UpdateGlobalTransformWithParent(pData, *static_cast<float*>(pUserData));
       return true;
     }
   };

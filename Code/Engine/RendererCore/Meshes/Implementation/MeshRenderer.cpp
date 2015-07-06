@@ -45,7 +45,7 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderViewContext, ez
     const ezMeshRenderData* pRenderData = static_cast<const ezMeshRenderData*>(renderData[uiDataRendered]);
 
     ObjectConstants* cb = renderViewContext.m_pRenderContext->BeginModifyConstantBuffer<ObjectConstants>(m_hObjectTransformCB);
-    cb->ObjectToWorldMatrix = pRenderData->m_WorldTransform.GetAsMat4();
+    cb->ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
     cb->ObjectToCameraMatrix = ViewMatrix * cb->ObjectToWorldMatrix;
     cb->ObjectToScreenMatrix = ViewProjMatrix * cb->ObjectToWorldMatrix;
     cb->GameObjectID = pRenderData->m_uiEditorPickingID;

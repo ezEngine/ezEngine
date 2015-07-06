@@ -117,13 +117,19 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pTransformationData->m_localPosition = desc.m_LocalPosition.GetAsPositionVec4();
   pTransformationData->m_localRotation = desc.m_LocalRotation;
   pTransformationData->m_localScaling = desc.m_LocalScaling.GetAsDirectionVec4();
-  pTransformationData->m_worldTransform.SetIdentity();
+  pTransformationData->m_globalTransform.SetIdentity();
   pTransformationData->m_velocity.SetZero();
+  pTransformationData->m_localBounds.SetInvalid();
+  pTransformationData->m_globalBounds.SetInvalid();
 
   if (pParentData != nullptr)
-    ezInternal::WorldData::UpdateWorldTransformWithParent(pTransformationData, 0.0f);
+  {
+    pTransformationData->UpdateGlobalTransformWithParent();
+  }
   else
-    ezInternal::WorldData::UpdateWorldTransform(pTransformationData, 0.0f);
+  {
+    pTransformationData->UpdateGlobalTransform();
+  }   
     
   // link the transformation data to the game object
   pNewObject->m_pTransformationData = pTransformationData;
@@ -254,7 +260,7 @@ void ezWorld::Update()
   // update transforms
   {
     EZ_PROFILE(s_UpdateTransformsProfilingID);
-    m_Data.UpdateWorldTransforms();
+    m_Data.UpdateGlobalTransforms();
   }
 
   // post-transform phase
@@ -632,8 +638,9 @@ void ezWorld::PatchHierarchyData(ezGameObject* pObject)
     pNewTransformationData->m_localPosition = pObject->m_pTransformationData->m_localPosition;
     pNewTransformationData->m_localRotation = pObject->m_pTransformationData->m_localRotation;
     pNewTransformationData->m_localScaling = pObject->m_pTransformationData->m_localScaling;
-    pNewTransformationData->m_worldTransform.SetIdentity();
+    pNewTransformationData->m_globalTransform.SetIdentity();
     pNewTransformationData->m_velocity.SetZero();
+    pNewTransformationData->m_localBounds = pObject->m_pTransformationData->m_localBounds;
 
     m_Data.DeleteTransformationData(pObject->m_Flags, pObject->m_uiHierarchyLevel,
       pObject->m_uiTransformationDataIndex);

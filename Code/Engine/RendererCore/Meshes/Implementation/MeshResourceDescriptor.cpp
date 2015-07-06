@@ -4,6 +4,11 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/IO/ChunkStream.h>
 
+ezMeshResourceDescriptor::ezMeshResourceDescriptor()
+{
+  m_Bounds.SetInvalid();
+}
+
 ezMeshBufferResourceDescriptor& ezMeshResourceDescriptor::MeshBufferDesc()
 {
   return m_MeshBufferDescriptor;
@@ -34,12 +39,18 @@ const ezHybridArray<ezMeshResourceDescriptor::SubMesh, 32>& ezMeshResourceDescri
   return m_SubMeshes;
 }
 
+const ezBoundingBoxSphere& ezMeshResourceDescriptor::GetBounds() const
+{
+  return m_Bounds;
+}
+
 void ezMeshResourceDescriptor::AddSubMesh(ezUInt32 uiPrimitiveCount, ezUInt32 uiFirstPrimitive, ezUInt32 uiMaterialIndex)
 {
   SubMesh p;
   p.m_uiFirstPrimitive = uiFirstPrimitive;
-  p.m_uiMaterialIndex = uiMaterialIndex;
   p.m_uiPrimitiveCount = uiPrimitiveCount;
+  p.m_uiMaterialIndex = uiMaterialIndex;
+  p.m_Bounds.SetInvalid();
 
   m_SubMeshes.PushBack(p);
 }
@@ -236,6 +247,9 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReaderBase& stream)
         chunk >> m_SubMeshes[idx].m_uiMaterialIndex;    // The material to use
         chunk >> m_SubMeshes[idx].m_uiFirstPrimitive;
         chunk >> m_SubMeshes[idx].m_uiPrimitiveCount;
+
+        /// \todo load from file
+        m_SubMeshes[idx].m_Bounds.SetInvalid();
       }
     }
 
@@ -322,6 +336,33 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReaderBase& stream)
 
   chunk.EndStream();
 
+  /// \todo load from file
+  CalculateBounds();
+
   return EZ_SUCCESS;
+}
+
+void ezMeshResourceDescriptor::CalculateBounds()
+{
+  m_Bounds.SetInvalid();
+
+  const ezVertexStreamInfo* pPositionStreamInfo = nullptr;
+  for (auto& streamInfo : m_MeshBufferDescriptor.GetVertexDeclaration().m_VertexStreams)
+  {
+    if (streamInfo.m_Semantic == ezGALVertexAttributeSemantic::Position)
+    {
+      pPositionStreamInfo = &streamInfo;
+      break;
+    }
+  }
+
+  if (pPositionStreamInfo == nullptr)
+    return;
+
+  const ezVec3* pPositionData = reinterpret_cast<ezVec3*>(m_MeshBufferDescriptor.GetVertexBufferData().GetData() + pPositionStreamInfo->m_uiOffset);
+  const ezUInt32 uiStride = m_MeshBufferDescriptor.GetVertexDataSize();
+
+  /// \todo submesh bounds
+  m_Bounds.SetFromPoints(pPositionData, m_MeshBufferDescriptor.GetVertexCount(), uiStride);
 }
 

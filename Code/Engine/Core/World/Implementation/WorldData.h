@@ -81,10 +81,10 @@ namespace ezInternal
     void TraverseDepthFirst(VisitorFunc& func);
     static bool TraverseObjectDepthFirst(ezGameObject* pObject, VisitorFunc& func);
 
-    static void UpdateWorldTransform(ezGameObject::TransformationData* pData, float fInvDeltaSeconds);
-    static void UpdateWorldTransformWithParent(ezGameObject::TransformationData* pData, float fInvDeltaSeconds);
+    static void UpdateGlobalTransform(ezGameObject::TransformationData* pData, float fInvDeltaSeconds);
+    static void UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, float fInvDeltaSeconds);
 
-    void UpdateWorldTransforms();
+    void UpdateGlobalTransforms();
 
     // game object lookups
     /// \todo

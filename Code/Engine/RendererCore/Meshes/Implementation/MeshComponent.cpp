@@ -12,7 +12,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, ezComponent, 1, ezMeshComponentManager)
     EZ_MEMBER_PROPERTY("Mesh Color", m_MeshColor),
   EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
-    EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData)
+    EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
+    EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
   EZ_END_MESSAGEHANDLERS
 EZ_END_COMPONENT_TYPE();
 
@@ -26,26 +27,44 @@ void ezMeshComponent::SetMesh(const ezMeshResourceHandle& hMesh)
 {
   m_hMesh = hMesh;
 
-  //ezResourceLock<ezMeshResource> pMesh(m_hMesh);
-  //m_Materials.SetCount(pMesh->GetMaterials().GetCount());
+  if (IsActive() && GetOwner() != nullptr)
+  {
+    GetOwner()->UpdateLocalBounds();
+  }
 }
 
 ezResult ezMeshComponent::OnAttachedToObject()
 {
+  if (IsActive() && m_hMesh.IsValid())
+  {
+    GetOwner()->UpdateLocalBounds();
+  }
+
   return EZ_SUCCESS;
 }
 
 ezResult ezMeshComponent::OnDetachedFromObject()
 {
+  if (IsActive() && m_hMesh.IsValid())
+  {
+    GetOwner()->UpdateLocalBounds();
+  }
+
   return EZ_SUCCESS;
+}
+
+void ezMeshComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
+{
+  if (!IsActive() || !m_hMesh.IsValid())
+    return;
+
+  ezResourceLock<ezMeshResource> pMesh(m_hMesh);
+  msg.m_ResultingLocalBounds.ExpandToInclude(pMesh->GetBounds());
 }
 
 void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 {
-  if (!IsActive())
-    return;
-
-  if (!m_hMesh.IsValid())
+  if (!IsActive() || !m_hMesh.IsValid())
     return;
 
   ezRenderPipeline* pRenderPipeline = msg.m_pView->GetRenderPipeline();
@@ -56,7 +75,7 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
   for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
   {
     ezMeshRenderData* pRenderData = pRenderPipeline->CreateRenderData<ezMeshRenderData>(m_iRenderPass == -1 ? ezDefaultPassTypes::Opaque : m_iRenderPass, GetOwner());
-    pRenderData->m_WorldTransform = GetOwner()->GetGlobalTransform();
+    pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
     pRenderData->m_hMesh = m_hMesh;
     pRenderData->m_uiEditorPickingID = m_uiEditorPickingID;
     pRenderData->m_MeshColor = m_MeshColor;
@@ -76,14 +95,14 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 
 void ezMeshComponent::SetMeshFile(const char* szFile)
 {
-  if (ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    m_hMesh.Invalidate();
-  }
-  else
+  ezMeshResourceHandle hMesh;
+
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
     m_hMesh = ezResourceManager::LoadResource<ezMeshResource>(szFile);
   }
+
+  SetMesh(hMesh);
 }
 
 const char* ezMeshComponent::GetMeshFile() const

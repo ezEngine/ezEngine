@@ -10,7 +10,7 @@ class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshRenderData);
 
 public:
-  ezTransform m_WorldTransform;
+  ezTransform m_GlobalTransform;
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
   ezUInt32 m_uiPartIndex;
@@ -58,6 +58,7 @@ public:
   virtual ezResult OnAttachedToObject() override;
   virtual ezResult OnDetachedFromObject() override;
 
+  void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const;
   void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
 
   void SetMeshFile(const char* szFile);

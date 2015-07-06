@@ -55,7 +55,7 @@ public:
 };
 
 
-struct ezExtractRenderDataMessage : public ezMessage
+struct EZ_RENDERERCORE_DLL ezExtractRenderDataMessage : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezExtractRenderDataMessage);
 

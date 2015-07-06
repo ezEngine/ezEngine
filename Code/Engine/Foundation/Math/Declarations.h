@@ -121,6 +121,12 @@ typedef ezBoundingBoxTemplate<double> ezBoundingBoxd;
 typedef ezBoundingBoxTemplate<ezUInt32> ezBoundingBoxu32;
 
 template<typename Type>
+class ezBoundingBoxSphereTemplate;
+
+typedef ezBoundingBoxSphereTemplate<float> ezBoundingBoxSphere;
+typedef ezBoundingBoxSphereTemplate<double> ezBoundingBoxSphered;
+
+template<typename Type>
 class ezBoundingSphereTemplate;
 
 typedef ezBoundingSphereTemplate<float> ezBoundingSphere;

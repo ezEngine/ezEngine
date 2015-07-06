@@ -104,6 +104,8 @@ ezResourceLoadDesc ezMeshResource::CreateResource(const ezMeshResourceDescriptor
     m_Materials.PushBack(hMat); // may be an invalid handle
   }
 
+  m_Bounds = desc.GetBounds();
+
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;

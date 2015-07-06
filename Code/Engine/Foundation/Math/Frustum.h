@@ -9,9 +9,9 @@ struct ezVolumePosition
   /// \brief Enum that describes where in a volume another object is located.
   enum Enum
   {
-	  Outside,		  //< means an object is ENTIRELY inside a volume
-	  Inside,		    //< means an object is outside a volume
-	  Intersecting,	//< means an object is PARTIALLY inside/outside a volume
+    Outside,		  //< means an object is ENTIRELY inside a volume
+    Inside,		    //< means an object is outside a volume
+    Intersecting,	//< means an object is PARTIALLY inside/outside a volume
   };
 };
 
