@@ -103,13 +103,12 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
     case ezPropertyCategory::Constant:
       {
         ezAbstractConstantProperty* constantProp = static_cast<ezAbstractConstantProperty*>(prop);
-        const ezRTTI* pMemberPropRtti = constantProp->GetSpecificType();
-        ezVariant::Type::Enum memberType = pMemberPropRtti->GetVariantType();
+        const ezRTTI* pPropRtti = constantProp->GetSpecificType();
 
-        if (ezReflectionUtils::IsBasicType(pMemberPropRtti))
+        if (ezReflectionUtils::IsBasicType(pPropRtti))
         {
           ezVariant value = constantProp->GetConstant();
-          out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(constantProp->GetPropertyName(), memberType, value));
+          out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(constantProp->GetPropertyName(), pPropRtti->GetVariantType(), value));
         }
         else
         {
@@ -117,28 +116,17 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
         }
       }
       break;
+
     case ezPropertyCategory::Member:
-      {
-        const ezRTTI* pMemberPropRtti = prop->GetSpecificType();
-        ezVariant::Type::Enum memberType = pMemberPropRtti->GetVariantType();
-        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(ezPropertyCategory::Member, prop->GetPropertyName(), pMemberPropRtti->GetTypeName(), memberType, prop->GetFlags()));
-      }
-      break;
-    case ezPropertyCategory::Function:
-      break;
     case ezPropertyCategory::Array:
-      {
-        const ezRTTI* pArrayPropRtti = prop->GetSpecificType();
-        ezVariant::Type::Enum arrayType = pArrayPropRtti->GetVariantType();
-        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(ezPropertyCategory::Array, prop->GetPropertyName(), pArrayPropRtti->GetTypeName(), arrayType, prop->GetFlags()));
-      }
-      break;
     case ezPropertyCategory::Set:
       {
-        const ezRTTI* pSetPropRtti = prop->GetSpecificType();
-        ezVariant::Type::Enum setType = pSetPropRtti->GetVariantType();
-        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(ezPropertyCategory::Set, prop->GetPropertyName(), pSetPropRtti->GetTypeName(), setType, prop->GetFlags()));
+        const ezRTTI* pPropRtti = prop->GetSpecificType();
+        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(prop->GetCategory(), prop->GetPropertyName(), pPropRtti->GetTypeName(), pPropRtti->GetVariantType(), prop->GetFlags()));
       }
+      break;
+
+    case ezPropertyCategory::Function:
       break;
     }
   }

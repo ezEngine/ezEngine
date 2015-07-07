@@ -31,7 +31,7 @@ const char* ezSerializedDocumentObjectWriter::GetType(ezStringBuilder& builder) 
   return builder.GetData();
 }
 
-void ezSerializedDocumentObjectWriter::GatherProperties(ezObjectSerializationContext& context) const
+void ezSerializedDocumentObjectWriter::GatherProperties(ezPropertySerializationContext& context) const
 {
   context.PushSubGroup("TypeData");
   {

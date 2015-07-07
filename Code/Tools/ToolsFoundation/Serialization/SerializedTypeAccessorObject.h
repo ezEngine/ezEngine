@@ -14,7 +14,7 @@ public:
   virtual ezUuid GetParentGuid() const override;
   virtual const char* GetType(ezStringBuilder& builder) const override;
 
-  virtual void GatherProperties(ezObjectSerializationContext& context) const override;
+  virtual void GatherProperties(ezPropertySerializationContext& context) const override;
 
 private:
   const ezIReflectedTypeAccessor* m_pObject;

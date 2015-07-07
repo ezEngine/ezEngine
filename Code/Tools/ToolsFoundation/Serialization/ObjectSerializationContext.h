@@ -6,10 +6,10 @@
 class ezDocumentWriterBase;
 class ezVariant;
 
-class EZ_TOOLSFOUNDATION_DLL ezObjectSerializationContext
+class EZ_TOOLSFOUNDATION_DLL ezPropertySerializationContext
 {
 public:
-  ezObjectSerializationContext(ezDocumentWriterBase& writer);
+  ezPropertySerializationContext(ezDocumentWriterBase& writer);
 
   void PushSubGroup(const char* szGroupName);
   void PopSubGroup();

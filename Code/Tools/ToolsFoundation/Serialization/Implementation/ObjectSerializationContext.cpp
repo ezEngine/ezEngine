@@ -2,26 +2,26 @@
 #include <ToolsFoundation/Serialization/ObjectSerializationContext.h>
 #include <ToolsFoundation/Serialization/DocumentWriterBase.h>
 
-ezObjectSerializationContext::ezObjectSerializationContext(ezDocumentWriterBase& writer) : m_pWriter(&writer)
+ezPropertySerializationContext::ezPropertySerializationContext(ezDocumentWriterBase& writer) : m_pWriter(&writer)
 {
 }
 
-void ezObjectSerializationContext::PushSubGroup(const char* szGroupName)
+void ezPropertySerializationContext::PushSubGroup(const char* szGroupName)
 {
   m_pWriter->PushSubGroup(szGroupName);
 }
 
-void ezObjectSerializationContext::PopSubGroup()
+void ezPropertySerializationContext::PopSubGroup()
 {
   m_pWriter->PopSubGroup();
 }
 
-void ezObjectSerializationContext::AddProperty(const char* szName, const ezVariant& value)
+void ezPropertySerializationContext::AddProperty(const char* szName, const ezVariant& value)
 {
   m_pWriter->AddProperty(szName, value);
 }
 
-void ezObjectSerializationContext::AddProperty(ezPropertyPath& path, const ezVariant& value)
+void ezPropertySerializationContext::AddProperty(ezPropertyPath& path, const ezVariant& value)
 {
   ezStringBuilder sPath;
   EZ_ASSERT_DEV(!path.IsEmpty(), "Can't call AddProperty with an empty path!");

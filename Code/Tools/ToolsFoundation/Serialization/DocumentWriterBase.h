@@ -19,8 +19,8 @@ public:
   virtual void EndDocument() = 0;
 
 private:
-  friend class ezObjectSerializationContext;
-  // Used by ezObjectSerializationContext
+  friend class ezPropertySerializationContext;
+  // Used by ezPropertySerializationContext
   virtual void PushSubGroup(const char* szGroupName) = 0;
   virtual void PopSubGroup() = 0;
   virtual void AddProperty(const char* szName, const ezVariant& value) = 0;

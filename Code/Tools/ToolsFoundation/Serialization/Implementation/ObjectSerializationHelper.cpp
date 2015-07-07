@@ -3,7 +3,7 @@
 #include <ToolsFoundation/Serialization/ObjectSerializationContext.h>
 #include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
 
-static void WriteTypeAccessorToContextRecursive(ezObjectSerializationContext& context, const ezIReflectedTypeAccessor& et, const ezRTTI* pType, ezPropertyPath& ParentPath)
+static void WriteTypeAccessorToContextRecursive(ezPropertySerializationContext& context, const ezIReflectedTypeAccessor& et, const ezRTTI* pType, ezPropertyPath& ParentPath)
 {
   const ezRTTI* pParentType = pType->GetParentType();
   if (pParentType != nullptr)
@@ -45,7 +45,7 @@ static void WriteTypeAccessorToContextRecursive(ezObjectSerializationContext& co
   }
 }
 
-void ezObjectSerializationHelper::WriteTypeAccessorToContext(const ezIReflectedTypeAccessor& accessor, ezObjectSerializationContext& context)
+void ezObjectSerializationHelper::WriteTypeAccessorToContext(const ezIReflectedTypeAccessor& accessor, ezPropertySerializationContext& context)
 {
   const ezRTTI* pType = accessor.GetType();
   ezPropertyPath parentPath;

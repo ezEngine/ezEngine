@@ -37,7 +37,7 @@ void ezDocumentJSONWriter::WriteObject(const ezSerializedObjectWriterBase& objec
     m_Writer.AddVariableString("Type", object.GetType(temp));
     m_Writer.AddVariableVariant("ID", object.GetGuid());
     m_Writer.AddVariableVariant("ParentID", object.GetParentGuid());
-    ezObjectSerializationContext context(*this);
+    ezPropertySerializationContext context(*this);
     object.GatherProperties(context);
   }
   m_Writer.EndObject();
