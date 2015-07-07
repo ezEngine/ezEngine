@@ -134,10 +134,6 @@ protected:
 
   virtual void DestroyQueryPlatform(ezGALQuery* pQuery) override;
 
-  virtual ezGALRenderTargetConfig* CreateRenderTargetConfigPlatform(const ezGALRenderTargetConfigCreationDescription& Description) override;
-
-  virtual void DestroyRenderTargetConfigPlatform(ezGALRenderTargetConfig* pRenderTargetConfig) override;
-
   virtual ezGALVertexDeclaration* CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description) override;
 
   virtual void DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration) override;
