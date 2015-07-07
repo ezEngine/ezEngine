@@ -149,7 +149,7 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
     msg.m_Config = m_FileSystemConfig;
     ezEditorEngineProcessConnection::GetInstance()->SendMessage(&msg);
   }
-  if (ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>(), ezTime::Seconds(10)).Failed())
+  if (ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>(), ezTime()).Failed())
   {
     ezLog::Error("Failed to restart the engine process");
     ShutdownProcess();
