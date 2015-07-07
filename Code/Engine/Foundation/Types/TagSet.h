@@ -5,6 +5,7 @@
 #include <Foundation/Containers/HybridArray.h>
 
 class ezTag;
+typedef ezUInt64 ezTagSetBlockStorage;
 
 /// \brief A dynamic collection of tags featuring fast lookups.
 ///
@@ -33,6 +34,8 @@ public:
 
   /// \brief Returns true if this tag set contains any tag set in the given other tag set.
   EZ_FORCE_INLINE bool IsAnySet(const ezTagSetTemplate& OtherSet) const; // [tested]
+
+  EZ_FORCE_INLINE bool IsEmpty() const;
 
 private:
 

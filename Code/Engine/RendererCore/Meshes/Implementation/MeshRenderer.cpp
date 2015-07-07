@@ -38,11 +38,23 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderViewContext, ez
   const ezMat4& ViewMatrix = renderViewContext.m_pViewData->m_ViewMatrix;
   const ezMat4& ViewProjMatrix = renderViewContext.m_pViewData->m_ViewProjectionMatrix;
   ezMaterialResourceHandle hLastMaterial;
-  
+
   ezUInt32 uiDataRendered = 0;
   while (uiDataRendered < renderData.GetCount() && renderData[uiDataRendered]->IsInstanceOf<ezMeshRenderData>())
-  { 
+  {
     const ezMeshRenderData* pRenderData = static_cast<const ezMeshRenderData*>(renderData[uiDataRendered]);
+
+    if (!pPass->m_ExcludeTags.IsEmpty() && pPass->m_ExcludeTags.IsAnySet(pRenderData->m_Tags))
+    {
+      ++uiDataRendered;
+      continue;
+    }
+
+    if (!pPass->m_IncludeTags.IsEmpty() && !pPass->m_IncludeTags.IsAnySet(pRenderData->m_Tags))
+    {
+      ++uiDataRendered;
+      continue;
+    }
 
     ObjectConstants* cb = renderViewContext.m_pRenderContext->BeginModifyConstantBuffer<ObjectConstants>(m_hObjectTransformCB);
     cb->ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
@@ -50,7 +62,7 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderViewContext, ez
     cb->ObjectToScreenMatrix = ViewProjMatrix * cb->ObjectToWorldMatrix;
     cb->GameObjectID = pRenderData->m_uiEditorPickingID;
     cb->PartIndex = pRenderData->m_uiPartIndex;
-    
+
     renderViewContext.m_pRenderContext->EndModifyConstantBuffer();
 
     ezResourceLock<ezMeshResource> pMesh(pRenderData->m_hMesh);
@@ -67,7 +79,7 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderViewContext, ez
     renderViewContext.m_pRenderContext->BindMeshBuffer(pMesh->GetMeshBuffer());
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive);
-    
+
     ++uiDataRendered;
   }
 

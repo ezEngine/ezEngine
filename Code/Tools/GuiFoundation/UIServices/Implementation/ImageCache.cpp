@@ -42,7 +42,7 @@ void QtImageCache::InvalidateCache(const char* szAbsolutePath)
 
   EZ_LOCK(s_Mutex);
 
-  auto& e = s_ImageCache.Find(sPath);
+  auto e = s_ImageCache.Find(sPath);
 
   if (!e.IsValid())
     return;

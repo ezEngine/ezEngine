@@ -31,7 +31,7 @@ void ezNode::InitializePins()
 
   for (auto pProp : properties)
   {
-    if (pProp->GetCategory() != ezPropertyCategory::Member || !static_cast<ezAbstractMemberProperty*>(pProp)->GetPropertyType()->IsDerivedFrom(ezGetStaticRTTI<ezNodePin>()))
+    if (pProp->GetCategory() != ezPropertyCategory::Member || !pProp->GetSpecificType()->IsDerivedFrom(ezGetStaticRTTI<ezNodePin>()))
       continue;
 
     auto pPinProp = static_cast<ezAbstractMemberProperty*>(pProp);

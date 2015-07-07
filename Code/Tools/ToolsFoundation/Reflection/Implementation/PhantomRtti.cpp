@@ -120,7 +120,7 @@ bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
       {
         auto pProp = (ezPhantomConstantProperty*)GetProperties()[i];
 
-        if (pProp->GetPropertyType() != ezRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
+        if (pProp->GetSpecificType() != ezRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
           return false;
 
         if (pProp->GetConstant() != desc.m_Properties[i].m_ConstantValue)
@@ -129,9 +129,7 @@ bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
       break;
     case ezPropertyCategory::Member:
       {
-        auto pProp = (ezPhantomMemberProperty*)GetProperties()[i];
-
-        if (pProp->GetPropertyType() != ezRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
+        if (GetProperties()[i]->GetSpecificType() != ezRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
           return false;
       }
       break;
@@ -142,17 +140,13 @@ bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
       break;
     case ezPropertyCategory::Array:
       {
-        auto pProp = (ezPhantomArrayProperty*)GetProperties()[i];
-
-        if (pProp->GetElementType() != ezRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
+        if (GetProperties()[i]->GetSpecificType() != ezRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
           return false;
       }
       break;
     case ezPropertyCategory::Set:
       {
-        auto pProp = (ezPhantomSetProperty*)GetProperties()[i];
-
-        if (pProp->GetElementType() != ezRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
+        if (GetProperties()[i]->GetSpecificType() != ezRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
           return false;
       }
       break;

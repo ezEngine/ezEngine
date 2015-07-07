@@ -4,6 +4,7 @@
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Pipeline/Declarations.h>
+#include <Foundation/Types/TagSet.h>
 
 class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezRenderData
 {
@@ -16,6 +17,7 @@ public:
   ezUInt32 m_uiPartIndex;
   ezUInt32 m_uiEditorPickingID;
   ezColor m_MeshColor;
+  ezTagSet m_Tags;
 };
 
 class ezMeshComponent;
@@ -65,6 +67,8 @@ public:
   const char* GetMeshFile() const;
 
   ezColor m_MeshColor;
+
+  mutable ezTagSet m_Tags;
 
 private:
   ezRenderPassType m_iRenderPass;

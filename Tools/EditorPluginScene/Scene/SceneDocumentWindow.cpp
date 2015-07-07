@@ -371,6 +371,18 @@ void ezScene3DWidget::dropEvent(QDropEvent * e)
   if (e->mimeData()->hasFormat("application/ezEditor.AssetGuid") && !m_DraggedObjects.IsEmpty())
   {
     m_pDocumentWindow->GetDocument()->GetCommandHistory()->FinishTemporaryCommands();
+
+    m_pDocumentWindow->GetDocument()->GetCommandHistory()->MergeLastTwoTransactions();
+
+    ezDeque<const ezDocumentObjectBase*> NewSelection;
+
+    for (const auto& guid : m_DraggedObjects)
+    {
+      NewSelection.PushBack(m_pDocumentWindow->GetDocument()->GetObjectManager()->GetObject(guid));
+    }
+
+    m_pDocumentWindow->GetDocument()->GetSelectionManager()->SetSelection(NewSelection);
+
     m_DraggedObjects.Clear();
   }
 }

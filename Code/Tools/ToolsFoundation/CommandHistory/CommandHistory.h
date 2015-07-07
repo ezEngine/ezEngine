@@ -70,6 +70,8 @@ public:
   void ClearUndoHistory();
   void ClearRedoHistory();
 
+  void MergeLastTwoTransactions();
+
 private:
   void EndTransaction(bool bCancel);
   void EndTemporaryCommands(bool bCancel);

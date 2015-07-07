@@ -425,13 +425,13 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, const ezRTTI
         }
         else if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
         {
-          AccessorPropertyTest(accessor, propPath, pProp3->GetPropertyType()->GetVariantType());
+          AccessorPropertyTest(accessor, propPath, pProp3->GetSpecificType()->GetVariantType());
           uiPropertiesSet++;
         }
         else
         {
           // Recurs into sub-classes
-          uiPropertiesSet += AccessorPropertiesTest(accessor, pProp3->GetPropertyType(), propPath);
+          uiPropertiesSet += AccessorPropertiesTest(accessor, pProp3->GetSpecificType(), propPath);
         }
       }
       break;

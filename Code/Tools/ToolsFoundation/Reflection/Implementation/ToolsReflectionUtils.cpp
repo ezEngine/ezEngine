@@ -103,7 +103,7 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
     case ezPropertyCategory::Constant:
       {
         ezAbstractConstantProperty* constantProp = static_cast<ezAbstractConstantProperty*>(prop);
-        const ezRTTI* pMemberPropRtti = constantProp->GetPropertyType();
+        const ezRTTI* pMemberPropRtti = constantProp->GetSpecificType();
         ezVariant::Type::Enum memberType = pMemberPropRtti->GetVariantType();
 
         if (ezReflectionUtils::IsBasicType(pMemberPropRtti))
@@ -119,28 +119,25 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
       break;
     case ezPropertyCategory::Member:
       {
-        ezAbstractMemberProperty* memberProp = static_cast<ezAbstractMemberProperty*>(prop);
-        const ezRTTI* pMemberPropRtti = memberProp->GetPropertyType();
+        const ezRTTI* pMemberPropRtti = prop->GetSpecificType();
         ezVariant::Type::Enum memberType = pMemberPropRtti->GetVariantType();
-        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(ezPropertyCategory::Member, memberProp->GetPropertyName(), pMemberPropRtti->GetTypeName(), memberType, memberProp->GetFlags()));
+        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(ezPropertyCategory::Member, prop->GetPropertyName(), pMemberPropRtti->GetTypeName(), memberType, prop->GetFlags()));
       }
       break;
     case ezPropertyCategory::Function:
       break;
     case ezPropertyCategory::Array:
       {
-        ezAbstractArrayProperty* arrayProp = static_cast<ezAbstractArrayProperty*>(prop);
-        const ezRTTI* pArrayPropRtti = arrayProp->GetElementType();
+        const ezRTTI* pArrayPropRtti = prop->GetSpecificType();
         ezVariant::Type::Enum arrayType = pArrayPropRtti->GetVariantType();
-        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(ezPropertyCategory::Array, arrayProp->GetPropertyName(), pArrayPropRtti->GetTypeName(), arrayType, arrayProp->GetFlags()));
+        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(ezPropertyCategory::Array, prop->GetPropertyName(), pArrayPropRtti->GetTypeName(), arrayType, prop->GetFlags()));
       }
       break;
     case ezPropertyCategory::Set:
       {
-        ezAbstractSetProperty* setProp = static_cast<ezAbstractSetProperty*>(prop);
-        const ezRTTI* pSetPropRtti = setProp->GetElementType();
+        const ezRTTI* pSetPropRtti = prop->GetSpecificType();
         ezVariant::Type::Enum setType = pSetPropRtti->GetVariantType();
-        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(ezPropertyCategory::Set, setProp->GetPropertyName(), pSetPropRtti->GetTypeName(), setType, setProp->GetFlags()));
+        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(ezPropertyCategory::Set, prop->GetPropertyName(), pSetPropRtti->GetTypeName(), setType, prop->GetFlags()));
       }
       break;
     }
@@ -199,7 +196,7 @@ ezAbstractProperty* ezToolsReflectionUtils::GetPropertyByPath(const ezRTTI* pRtt
   ezPropertyPath pathCopy = path;
   pathCopy.RemoveAt(0);
 
-  return GetPropertyByPath(pCurrentProp->GetPropertyType(), pathCopy);
+  return GetPropertyByPath(pCurrentProp->GetSpecificType(), pathCopy);
 }
 
 ezVariant ezToolsReflectionUtils::GetMemberPropertyValueByPath(const ezRTTI* pRtti, void* pObject, const ezPropertyPath& path)
@@ -219,19 +216,19 @@ ezVariant ezToolsReflectionUtils::GetMemberPropertyValueByPath(const ezRTTI* pRt
     ezPropertyPath pathCopy = path;
     pathCopy.RemoveAt(0);
 
-    return GetMemberPropertyValueByPath(pCurrentProp->GetPropertyType(), pCurrentProp->GetPropertyPointer(pObject), pathCopy);
+    return GetMemberPropertyValueByPath(pCurrentProp->GetSpecificType(), pCurrentProp->GetPropertyPointer(pObject), pathCopy);
   }
-  else if (pCurrentProp->GetPropertyType()->GetAllocator()->CanAllocate())
+  else if (pCurrentProp->GetSpecificType()->GetAllocator()->CanAllocate())
   {
-    void* pValue = pCurrentProp->GetPropertyType()->GetAllocator()->Allocate();
+    void* pValue = pCurrentProp->GetSpecificType()->GetAllocator()->Allocate();
     pCurrentProp->GetValuePtr(pObject, pValue);
 
     ezPropertyPath pathCopy = path;
     pathCopy.RemoveAt(0);
 
-    ezVariant res = GetMemberPropertyValueByPath(pCurrentProp->GetPropertyType(), pValue, pathCopy);
+    ezVariant res = GetMemberPropertyValueByPath(pCurrentProp->GetSpecificType(), pValue, pathCopy);
 
-    pCurrentProp->GetPropertyType()->GetAllocator()->Deallocate(pValue);
+    pCurrentProp->GetSpecificType()->GetAllocator()->Deallocate(pValue);
 
     return res;
   }
@@ -259,20 +256,20 @@ bool ezToolsReflectionUtils::SetMemberPropertyValueByPath(const ezRTTI* pRtti, v
     ezPropertyPath pathCopy = path;
     pathCopy.RemoveAt(0);
 
-    return SetMemberPropertyValueByPath(pCurrentProp->GetPropertyType(), pCurrentProp->GetPropertyPointer(pObject), pathCopy, value);
+    return SetMemberPropertyValueByPath(pCurrentProp->GetSpecificType(), pCurrentProp->GetPropertyPointer(pObject), pathCopy, value);
   }
-  else if (pCurrentProp->GetPropertyType()->GetAllocator()->CanAllocate())
+  else if (pCurrentProp->GetSpecificType()->GetAllocator()->CanAllocate())
   {
-    void* pValue = pCurrentProp->GetPropertyType()->GetAllocator()->Allocate();
+    void* pValue = pCurrentProp->GetSpecificType()->GetAllocator()->Allocate();
     pCurrentProp->GetValuePtr(pObject, pValue);
 
     ezPropertyPath pathCopy = path;
     pathCopy.RemoveAt(0);
 
-    const bool res = SetMemberPropertyValueByPath(pCurrentProp->GetPropertyType(), pValue, pathCopy, value);
+    const bool res = SetMemberPropertyValueByPath(pCurrentProp->GetSpecificType(), pValue, pathCopy, value);
 
     pCurrentProp->SetValuePtr(pObject, pValue);
-    pCurrentProp->GetPropertyType()->GetAllocator()->Deallocate(pValue);
+    pCurrentProp->GetSpecificType()->GetAllocator()->Deallocate(pValue);
 
     return res;
   }

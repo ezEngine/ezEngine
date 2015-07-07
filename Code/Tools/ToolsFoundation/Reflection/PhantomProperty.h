@@ -9,7 +9,7 @@ class ezPhantomConstantProperty : public ezAbstractConstantProperty
 public:
   ezPhantomConstantProperty(const ezReflectedPropertyDescriptor* pDesc);
 
-  virtual const ezRTTI* GetPropertyType() const override;
+  virtual const ezRTTI* GetSpecificType() const override;
   virtual void* GetPropertyPointer() const override;
   virtual ezVariant GetConstant() const override { return m_Value; }
 
@@ -24,7 +24,7 @@ class ezPhantomMemberProperty : public ezAbstractMemberProperty
 public:
   ezPhantomMemberProperty(const ezReflectedPropertyDescriptor* pDesc);
 
-  virtual const ezRTTI* GetPropertyType() const override;
+  virtual const ezRTTI* GetSpecificType() const override;
   virtual void* GetPropertyPointer(const void* pInstance) const override { return nullptr; }
   virtual void GetValuePtr(const void* pInstance, void* pObject) const override {}
   virtual void SetValuePtr(void* pInstance, void* pObject) override {}
@@ -38,6 +38,8 @@ class ezPhantomFunctionProperty : public ezAbstractFunctionProperty
 {
 public:
   ezPhantomFunctionProperty(const ezReflectedPropertyDescriptor* pDesc);
+
+  virtual const ezRTTI* GetSpecificType() const override { return nullptr; };
 
   virtual void Execute(void* pInstance) const
   {
@@ -54,7 +56,7 @@ class ezPhantomArrayProperty : public ezAbstractArrayProperty
 public:
   ezPhantomArrayProperty(const ezReflectedPropertyDescriptor* pDesc);
 
-  virtual const ezRTTI* GetElementType() const override;
+  virtual const ezRTTI* GetSpecificType() const override;
   virtual ezUInt32 GetCount(const void* pInstance) const override { return 0; }
   virtual void GetValue(const void* pInstance, ezUInt32 uiIndex, void* pObject) const override {}
   virtual void SetValue(void* pInstance, ezUInt32 uiIndex, const void* pObject) override {}
@@ -75,7 +77,7 @@ class ezPhantomSetProperty : public ezAbstractSetProperty
 public:
   ezPhantomSetProperty(const ezReflectedPropertyDescriptor* pDesc);
   
-  virtual const ezRTTI* GetElementType() const override;
+  virtual const ezRTTI* GetSpecificType() const override;
   virtual ezUInt32 GetCount(const void* pInstance) const override { return 0; }
   virtual void Clear(void* pInstance) override {}
   virtual void Insert(void* pInstance, void* pObject) override {}

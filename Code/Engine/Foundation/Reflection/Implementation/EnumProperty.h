@@ -44,7 +44,7 @@ public:
 
   /// \brief Returns the actual type of the property. You can then test whether it derives from ezEnumBase or 
   ///  ezBitflagsBase to determine whether we are dealing with an enum or bitflags property.
-  virtual const ezRTTI* GetPropertyType() const override // [tested]
+  virtual const ezRTTI* GetSpecificType() const override // [tested]
   {
     return ezGetStaticRTTI<typename ezTypeTraits<EnumType>::NonConstReferenceType>();
   }

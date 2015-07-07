@@ -52,6 +52,12 @@ bool ezTagSetTemplate<BlockStorageAllocator>::IsSet(const ezTag& Tag) const
 }
 
 template<typename BlockStorageAllocator>
+bool ezTagSetTemplate<BlockStorageAllocator>::IsEmpty() const
+{
+  return m_uiTagBlockStart == 0xFFFFFFFFu;
+}
+
+template<typename BlockStorageAllocator>
 bool ezTagSetTemplate<BlockStorageAllocator>::IsAnySet(const ezTagSetTemplate& OtherSet) const
 {
   // If any of the sets is empty nothing can match

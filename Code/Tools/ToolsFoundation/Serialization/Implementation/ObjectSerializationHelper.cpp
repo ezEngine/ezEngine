@@ -26,23 +26,19 @@ static void WriteTypeAccessorToContextRecursive(ezObjectSerializationContext& co
     }
     else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
     {
-      const ezAbstractMemberProperty* pMemberProp = static_cast<const ezAbstractMemberProperty*>(pProp);
-
       ParentPath.PushBack(pProp->GetPropertyName());
 
       ezStringBuilder sEnumValue;
-      ezReflectionUtils::EnumerationToString(pMemberProp->GetPropertyType(), et.GetValue(ParentPath).ConvertTo<ezInt64>(), sEnumValue);
+      ezReflectionUtils::EnumerationToString(pProp->GetSpecificType(), et.GetValue(ParentPath).ConvertTo<ezInt64>(), sEnumValue);
       context.AddProperty(ParentPath, sEnumValue.GetData());
 
       ParentPath.PopBack();
     }
     else if (pProp->GetCategory() == ezPropertyCategory::Member)
     {
-      const ezAbstractMemberProperty* pMemberProp = static_cast<const ezAbstractMemberProperty*>(pProp);
-
       ParentPath.PushBack(pProp->GetPropertyName());
 
-      WriteTypeAccessorToContextRecursive(context, et, pMemberProp->GetPropertyType(), ParentPath);
+      WriteTypeAccessorToContextRecursive(context, et, pProp->GetSpecificType(), ParentPath);
 
       ParentPath.PopBack();
     }

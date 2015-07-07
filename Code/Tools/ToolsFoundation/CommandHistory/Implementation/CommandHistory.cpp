@@ -208,6 +208,8 @@ bool ezCommandHistory::CanRedo() const
 
 void ezCommandHistory::StartTransaction()
 {
+  /// \todo Allow to have a limited transaction history and clean up transactions after a while
+
   ezCommandTransaction* pTransaction;
 
   if (m_bTemporaryMode && !m_TransactionStack.IsEmpty())
@@ -308,3 +310,23 @@ void ezCommandHistory::ClearRedoHistory()
     m_RedoHistory.PopBack();
   }
 }
+
+void ezCommandHistory::MergeLastTwoTransactions()
+{
+  /// \todo This would not be necessary, if hierarchical transactions would not crash
+
+  EZ_ASSERT_DEV(m_RedoHistory.IsEmpty(), "This can only be called directly after EndTransaction, when the redo history is empty");
+  EZ_ASSERT_DEV(m_UndoHistory.GetCount() >= 2, "Can only do this when at least two transcations are in the queue");
+  
+  ezCommandTransaction* pLast = m_UndoHistory.PeekBack();
+  m_UndoHistory.PopBack();
+
+  ezCommandTransaction* pNowLast = m_UndoHistory.PeekBack();
+  pNowLast->m_ChildActions.PushBackRange(pLast->m_ChildActions);
+
+  pLast->m_ChildActions.Clear();
+
+  pLast->GetDynamicRTTI()->GetAllocator()->Deallocate(pLast);
+}
+
+

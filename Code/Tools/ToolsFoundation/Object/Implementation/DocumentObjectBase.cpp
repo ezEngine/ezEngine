@@ -70,7 +70,7 @@ void ezDocumentObjectBase::HashPropertiesRecursive(const ezIReflectedTypeAccesso
       const ezAbstractMemberProperty* pMember = static_cast<const ezAbstractMemberProperty*>(pProperty);
 
       // Not POD type, recurse further
-      HashPropertiesRecursive(acc, uiHash, pMember->GetPropertyType(), path);
+      HashPropertiesRecursive(acc, uiHash, pMember->GetSpecificType(), path);
     }
 
     path.PopBack();

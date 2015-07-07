@@ -31,7 +31,7 @@ public:
   }
 
   /// \brief Returns the actual type of the property. You can then compare that with known types, eg. compare it to ezGetStaticRTTI<int>() to see whether this is an int property.
-  virtual const ezRTTI* GetPropertyType() const override // [tested]
+  virtual const ezRTTI* GetSpecificType() const override // [tested]
   {
     return ezGetStaticRTTI<typename ezTypeTraits<Type>::NonConstReferencePointerType>();
   }
@@ -62,7 +62,7 @@ public:
     m_Flags.Add(ezPropertyFlags::StandardType);
   }
 
-  virtual const ezRTTI* GetPropertyType() const override // [tested]
+  virtual const ezRTTI* GetSpecificType() const override // [tested]
   {
     return ezGetStaticRTTI<const char*>();
   }

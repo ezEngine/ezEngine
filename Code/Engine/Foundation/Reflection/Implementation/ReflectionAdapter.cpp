@@ -157,40 +157,12 @@ ezReflectedPropertyWrapper ezRttiAdapter::GetPropertyInfo(void* pProp) const
   ezAbstractProperty* pProp2 = static_cast<ezAbstractProperty*>(pProp);
   info.m_Category = pProp2->GetCategory();
   info.m_pProperty = pProp2;
-  info.m_pType = nullptr;
+  info.m_pType = pProp2->GetSpecificType();
   info.m_szName = pProp2->GetPropertyName();
   info.m_Flags = pProp2->GetFlags();
 
-  switch (info.m_Category)
-  {
-  case ezPropertyCategory::Constant:
-    {
-      ezAbstractConstantProperty* pProp3 = static_cast<ezAbstractConstantProperty*>(pProp2);
-      info.m_pType = pProp3->GetPropertyType();
-    }
-    break;
-  case ezPropertyCategory::Member:
-    {
-      ezAbstractMemberProperty* pProp3 = static_cast<ezAbstractMemberProperty*>(pProp2);
-      info.m_pType = pProp3->GetPropertyType();
-    }
-    break;
-  case ezPropertyCategory::Array:
-    {
-      ezAbstractArrayProperty* pProp3 = static_cast<ezAbstractArrayProperty*>(pProp2);
-      info.m_pType = pProp3->GetElementType();
-    }
-    break;
-  case ezPropertyCategory::Set:
-    {
-      ezAbstractSetProperty* pProp3 = static_cast<ezAbstractSetProperty*>(pProp2);
-      info.m_pType = pProp3->GetElementType();
-    }
-    break;
-  default:
-    EZ_ASSERT_DEBUG(false, "Not implemented!");
-    break;
-  }
+  EZ_ASSERT_DEBUG(info.m_pType != nullptr, "Not implemented!");
+  
   return info;
 }
 

@@ -71,9 +71,7 @@ void ezReflectionWidget::ProcessTelemetry(void* pUnuseed)
           PropertyData pd;
           msg.GetReader() >> pd.m_sPropertyName;
           msg.GetReader() >> pd.m_iCategory;
-
-          if (pd.m_iCategory == ezPropertyCategory::Member || pd.m_iCategory == ezPropertyCategory::Array)
-            msg.GetReader() >> pd.m_sType;
+          msg.GetReader() >> pd.m_sType;
 
           for (ezUInt32 j = 0; j < sd.m_Properties.GetCount(); ++j)
           {

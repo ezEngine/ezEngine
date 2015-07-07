@@ -4,6 +4,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <Foundation/Types/TagSet.h>
 #include <CoreUtils/NodeGraph/Node.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
@@ -12,6 +13,7 @@ class ezRenderPipeline;
 class EZ_RENDERERCORE_DLL ezRenderPipelinePass : public ezNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderPipelinePass);
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezRenderPipelinePass);
 
 public:
   ezRenderPipelinePass(const char* szName);
@@ -32,7 +34,8 @@ public:
     return m_pPipeline;
   }
 
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezRenderPipelinePass);
+  ezTagSet m_IncludeTags;
+  ezTagSet m_ExcludeTags;
 
 private:
   friend class ezRenderPipeline;

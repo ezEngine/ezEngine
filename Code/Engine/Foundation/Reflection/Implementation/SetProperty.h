@@ -19,7 +19,7 @@ public:
       m_Flags.Add(ezPropertyFlags::Pointer);
   }
 
-  virtual const ezRTTI* GetElementType() const override
+  virtual const ezRTTI* GetSpecificType() const override
   {
     return ezGetStaticRTTI<typename ezTypeTraits<Type>::NonConstReferencePointerType>();
   }
@@ -35,7 +35,7 @@ public:
     m_Flags.Add(ezPropertyFlags::StandardType);
   }
 
-  virtual const ezRTTI* GetElementType() const override
+  virtual const ezRTTI* GetSpecificType() const override
   {
     return ezGetStaticRTTI<const char*>();
   }

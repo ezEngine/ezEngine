@@ -113,7 +113,7 @@ ezVariant ezReflectionUtils::GetMemberPropertyValue(const ezAbstractMemberProper
 {
   if (pProp != nullptr)
   {
-    if (pProp->GetPropertyType() == ezGetStaticRTTI<const char*>())
+    if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
     {
       return static_cast<const ezTypedMemberProperty<const char*>*>(pProp)->GetValue(pObject);
     }
@@ -123,12 +123,12 @@ ezVariant ezReflectionUtils::GetMemberPropertyValue(const ezAbstractMemberProper
       pProp->GetValuePtr(pObject, &pValue);
       return ezVariant(pValue);
     }
-    else if (pProp->GetPropertyType()->IsDerivedFrom<ezEnumBase>() || pProp->GetPropertyType()->IsDerivedFrom<ezBitflagsBase>())
+    else if (pProp->GetSpecificType()->IsDerivedFrom<ezEnumBase>() || pProp->GetSpecificType()->IsDerivedFrom<ezBitflagsBase>())
     {
       const ezAbstractEnumerationProperty* pEnumerationProp = static_cast<const ezAbstractEnumerationProperty*>(pProp);
       return pEnumerationProp->GetValue(pObject);
     }
-    else if (pProp->GetPropertyType() == ezGetStaticRTTI<ezVariant>())
+    else if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
     {
       return static_cast<const ezTypedMemberProperty<ezVariant>*>(pProp)->GetValue(pObject);
     }
@@ -138,7 +138,7 @@ ezVariant ezReflectionUtils::GetMemberPropertyValue(const ezAbstractMemberProper
       func.m_pProp = pProp;
       func.m_pObject = pObject;
 
-      ezVariant::DispatchTo(func, pProp->GetPropertyType()->GetVariantType());
+      ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
 
       return func.m_Result;
     }
@@ -151,7 +151,7 @@ void ezReflectionUtils::SetMemberPropertyValue(ezAbstractMemberProperty* pProp, 
 {
   if (pProp != nullptr && !pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
   {
-    if (pProp->GetPropertyType() == ezGetStaticRTTI<const char*>())
+    if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
     {
       static_cast<ezTypedMemberProperty<const char*>*>(pProp)->SetValue(pObject, value.ConvertTo<ezString>().GetData());
       return;
@@ -161,7 +161,7 @@ void ezReflectionUtils::SetMemberPropertyValue(ezAbstractMemberProperty* pProp, 
       void* pValue = value.ConvertTo<void*>();
       pProp->SetValuePtr(pObject, &pValue);
     }
-    else if (pProp->GetPropertyType()->IsDerivedFrom<ezEnumBase>() || pProp->GetPropertyType()->IsDerivedFrom<ezBitflagsBase>())
+    else if (pProp->GetSpecificType()->IsDerivedFrom<ezEnumBase>() || pProp->GetSpecificType()->IsDerivedFrom<ezBitflagsBase>())
     {
       ezAbstractEnumerationProperty* pEnumerationProp = static_cast<ezAbstractEnumerationProperty*>(pProp);
 
@@ -169,7 +169,7 @@ void ezReflectionUtils::SetMemberPropertyValue(ezAbstractMemberProperty* pProp, 
       if (value.IsA<ezString>())
       {
         ezInt64 iValue;
-        ezReflectionUtils::StringToEnumeration(pProp->GetPropertyType(), value.Get<ezString>(), iValue);
+        ezReflectionUtils::StringToEnumeration(pProp->GetSpecificType(), value.Get<ezString>(), iValue);
         pEnumerationProp->SetValue(pObject, iValue);
       }
       else
@@ -178,7 +178,7 @@ void ezReflectionUtils::SetMemberPropertyValue(ezAbstractMemberProperty* pProp, 
       }
       return;
     }
-    else if (pProp->GetPropertyType() == ezGetStaticRTTI<ezVariant>())
+    else if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
     {
       static_cast<ezTypedMemberProperty<ezVariant>*>(pProp)->SetValue(pObject, value);
     }
@@ -189,7 +189,7 @@ void ezReflectionUtils::SetMemberPropertyValue(ezAbstractMemberProperty* pProp, 
       func.m_pObject = pObject;
       func.m_pValue = &value;
 
-      ezVariant::DispatchTo(func, pProp->GetPropertyType()->GetVariantType());
+      ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
     }
   }
 }
@@ -200,7 +200,7 @@ ezVariant ezReflectionUtils::GetArrayPropertyValue(const ezAbstractArrayProperty
   {
     return ezVariant();
   }
-  if (pProp->GetElementType() == ezGetStaticRTTI<const char*>())
+  if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
   {
     const char* pData = nullptr;
     pProp->GetValue(pObject, uiIndex, &pData);
@@ -214,7 +214,7 @@ ezVariant ezReflectionUtils::GetArrayPropertyValue(const ezAbstractArrayProperty
     return ezVariant(pValue);
   }
 
-  if (pProp->GetElementType() == ezGetStaticRTTI<ezVariant>())
+  if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
   {
     ezVariant value;
     pProp->GetValue(pObject, uiIndex, &value);
@@ -232,7 +232,7 @@ ezVariant ezReflectionUtils::GetArrayPropertyValue(const ezAbstractArrayProperty
     if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
       ezVariant::DispatchTo(func, ezVariantType::VoidPointer);
     else
-      ezVariant::DispatchTo(func, pProp->GetElementType()->GetVariantType());
+      ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
     return value;
   }
 }
@@ -243,7 +243,7 @@ void ezReflectionUtils::SetArrayPropertyValue(ezAbstractArrayProperty* pProp, vo
   {
     return;
   }
-  if (pProp->GetElementType() == ezGetStaticRTTI<const char*>())
+  if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
   {
     const char* pData = value.ConvertTo<ezString>().GetData();
     pProp->SetValue(pObject, uiIndex, &pData);
@@ -256,7 +256,7 @@ void ezReflectionUtils::SetArrayPropertyValue(ezAbstractArrayProperty* pProp, vo
     return;
   }
 
-  if (pProp->GetElementType() == ezGetStaticRTTI<ezVariant>())
+  if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
   {
     pProp->SetValue(pObject, uiIndex, &value);
     return;
@@ -272,7 +272,7 @@ void ezReflectionUtils::SetArrayPropertyValue(ezAbstractArrayProperty* pProp, vo
     if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
       ezVariant::DispatchTo(func, ezVariantType::VoidPointer);
     else
-      ezVariant::DispatchTo(func, pProp->GetElementType()->GetVariantType());
+      ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
   }
 }
 
@@ -291,7 +291,7 @@ void ezReflectionUtils::InsertSetPropertyValue(ezAbstractSetProperty* pProp, voi
   if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
     ezVariant::DispatchTo(func, ezVariantType::VoidPointer);
   else
-    ezVariant::DispatchTo(func, pProp->GetElementType()->GetVariantType());
+    ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
 }
 
 void ezReflectionUtils::RemoveSetPropertyValue(ezAbstractSetProperty* pProp, void* pObject, ezVariant& value)
@@ -309,7 +309,7 @@ void ezReflectionUtils::RemoveSetPropertyValue(ezAbstractSetProperty* pProp, voi
   if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
     ezVariant::DispatchTo(func, ezVariantType::VoidPointer);
   else
-    ezVariant::DispatchTo(func, pProp->GetElementType()->GetVariantType());
+    ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
 }
 
 ezAbstractMemberProperty* ezReflectionUtils::GetMemberProperty(const ezRTTI* pRtti, ezUInt32 uiPropertyIndex)
@@ -386,7 +386,7 @@ void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ez
     case ezPropertyCategory::Member:
       {
         ezAbstractMemberProperty* memberProp = static_cast<ezAbstractMemberProperty*>(prop);
-        const ezRTTI* pPropRtti = memberProp->GetPropertyType();
+        const ezRTTI* pPropRtti = memberProp->GetSpecificType();
         inout_types.Insert(pPropRtti);
         GatherDependentTypes(pPropRtti, inout_types);
       }
@@ -396,7 +396,7 @@ void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ez
     case ezPropertyCategory::Array:
       {
         ezAbstractArrayProperty* pArrayProp = static_cast<ezAbstractArrayProperty*>(prop);
-        const ezRTTI* pPropRtti = pArrayProp->GetElementType();
+        const ezRTTI* pPropRtti = pArrayProp->GetSpecificType();
         inout_types.Insert(pPropRtti);
         GatherDependentTypes(pPropRtti, inout_types);
       }
@@ -404,7 +404,7 @@ void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ez
     case ezPropertyCategory::Set:
       {
         ezAbstractSetProperty* pSetProp = static_cast<ezAbstractSetProperty*>(prop);
-        const ezRTTI* pPropRtti = pSetProp->GetElementType();
+        const ezRTTI* pPropRtti = pSetProp->GetSpecificType();
         inout_types.Insert(pPropRtti);
         GatherDependentTypes(pPropRtti, inout_types);
       }

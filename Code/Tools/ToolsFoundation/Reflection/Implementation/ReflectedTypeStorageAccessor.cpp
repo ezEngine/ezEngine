@@ -63,9 +63,8 @@ bool ezReflectedTypeStorageAccessor::SetValue(const ezPropertyPath& path, const 
 
       if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
       {
-        const ezAbstractMemberProperty* pMemberProp = static_cast<const ezAbstractMemberProperty*>(pProp);
         ezInt64 iValue;
-        ezReflectionUtils::StringToEnumeration(pMemberProp->GetPropertyType(), value.Get<ezString>(), iValue);
+        ezReflectionUtils::StringToEnumeration(pProp->GetSpecificType(), value.Get<ezString>(), iValue);
         m_Data[storageInfo->m_uiIndex] = ezVariant(iValue).ConvertTo(storageInfo->m_Type);
         return true;
       }

@@ -10,6 +10,10 @@ ezPickingRenderPass::ezPickingRenderPass(const ezGALRenderTagetSetup& RenderTarg
 {
   m_RenderTargetSetup = RenderTargetSetup;
   AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
+
+  ezTag tagIgnorePicking;
+  ezTagRegistry::GetGlobalRegistry().RegisterTag("IgnorePicking", &tagIgnorePicking);
+  m_ExcludeTags.Set(tagIgnorePicking);
 }
 
 ezPickingRenderPass::~ezPickingRenderPass()

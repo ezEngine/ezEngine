@@ -150,7 +150,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
         EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
         ezAbstractMemberProperty* pAbsMember = (ezAbstractMemberProperty*) pProp;
 
-        EZ_TEST_BOOL(pAbsMember->GetPropertyType() == ezGetStaticRTTI<float>());
+        EZ_TEST_BOOL(pAbsMember->GetSpecificType() == ezGetStaticRTTI<float>());
 
         ezTypedMemberProperty<float>* pMember = (ezTypedMemberProperty<float>*) pAbsMember;
 
@@ -273,10 +273,9 @@ void TestMemberProperty(const char* szPropName, void* pObject, const ezRTTI* pRt
   EZ_TEST_BOOL(pProp != nullptr);
 
   EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
-  ezAbstractMemberProperty* pAbs = (ezAbstractMemberProperty*) pProp;
 
-  EZ_TEST_BOOL(pAbs->GetPropertyType() == ezGetStaticRTTI<T>());
-  ezTypedMemberProperty<T>* pMember = (ezTypedMemberProperty<T>*) pAbs;
+  EZ_TEST_BOOL(pProp->GetSpecificType() == ezGetStaticRTTI<T>());
+  ezTypedMemberProperty<T>* pMember = (ezTypedMemberProperty<T>*) pProp;
 
   EZ_TEST_INT(pMember->GetFlags().GetValue(), expectedFlags.GetValue());
 
@@ -329,7 +328,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MemberProperties)
       EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
       ezAbstractMemberProperty* pAbs = (ezAbstractMemberProperty*) pProp;
 
-      const ezRTTI* pStruct = pAbs->GetPropertyType();
+      const ezRTTI* pStruct = pAbs->GetSpecificType();
       void* pSubStruct = pAbs->GetPropertyPointer(&Instance);
 
       EZ_TEST_BOOL(pSubStruct != nullptr);
@@ -485,7 +484,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Enum)
     {
       EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Constant);
       ezAbstractConstantProperty* pConstantProp = static_cast<ezAbstractConstantProperty*>(pProp);
-      EZ_TEST_BOOL(pConstantProp->GetPropertyType() == ezGetStaticRTTI<ezInt8>());
+      EZ_TEST_BOOL(pConstantProp->GetSpecificType() == ezGetStaticRTTI<ezInt8>());
     }
 
     EZ_TEST_STRING(props[0]->GetPropertyName(), "ezExampleEnum::Value1");
@@ -511,11 +510,11 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Enum)
       EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
       ezAbstractMemberProperty* pMemberProp = static_cast<ezAbstractMemberProperty*>(pProp);
       EZ_TEST_INT(pMemberProp->GetFlags().GetValue(), ezPropertyFlags::IsEnum);
-      EZ_TEST_BOOL(pMemberProp->GetPropertyType() == pEnumRTTI);
+      EZ_TEST_BOOL(pMemberProp->GetSpecificType() == pEnumRTTI);
       ezAbstractEnumerationProperty* pEnumProp = static_cast<ezAbstractEnumerationProperty*>(pProp);
       EZ_TEST_BOOL(pEnumProp->GetValue(&data) == ezExampleEnum::Value1);
 
-      const ezRTTI* pEnumPropertyRTTI = pEnumProp->GetPropertyType();
+      const ezRTTI* pEnumPropertyRTTI = pEnumProp->GetSpecificType();
       // Set and get all valid enum values.
       for (auto pProp2 : pEnumPropertyRTTI->GetProperties())
       {
@@ -562,8 +561,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Bitflags)
     for (auto pProp : props)
     {
       EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Constant);
-      ezAbstractConstantProperty* pConstantProp = static_cast<ezAbstractConstantProperty*>(pProp);
-      EZ_TEST_BOOL(pConstantProp->GetPropertyType() == ezGetStaticRTTI<ezUInt64>());
+      EZ_TEST_BOOL(pProp->GetSpecificType() == ezGetStaticRTTI<ezUInt64>());
     }
 
     EZ_TEST_STRING(props[0]->GetPropertyName(), "ezExampleBitflags::Value1");
@@ -587,13 +585,12 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Bitflags)
     for (auto pProp : props)
     {
       EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
-      ezAbstractMemberProperty* pMemberProp = static_cast<ezAbstractMemberProperty*>(pProp);
-      EZ_TEST_BOOL(pMemberProp->GetPropertyType() == pBitflagsRTTI);
-      EZ_TEST_INT(pMemberProp->GetFlags().GetValue(), ezPropertyFlags::Bitflags);
+      EZ_TEST_BOOL(pProp->GetSpecificType() == pBitflagsRTTI);
+      EZ_TEST_INT(pProp->GetFlags().GetValue(), ezPropertyFlags::Bitflags);
       ezAbstractEnumerationProperty* pBitflagsProp = static_cast<ezAbstractEnumerationProperty*>(pProp);
       EZ_TEST_BOOL(pBitflagsProp->GetValue(&data) == ezExampleBitflags::Value1);
 
-      const ezRTTI* pBitflagsPropertyRTTI = pBitflagsProp->GetPropertyType();
+      const ezRTTI* pBitflagsPropertyRTTI = pBitflagsProp->GetSpecificType();
 
       // Set and get all valid bitflags values.
       ezUInt64 constants[] = { static_cast<ezTypedConstantProperty<ezUInt64>*>(pBitflagsPropertyRTTI->GetProperties()[0])->GetValue(),
@@ -643,7 +640,7 @@ void TestArrayProperty(const char* szPropName, void* pObject, const ezRTTI* pRtt
   EZ_TEST_BOOL(pProp != nullptr);
   EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Array);
   ezAbstractArrayProperty* pArrayProp = static_cast<ezAbstractArrayProperty*>(pProp);
-  const ezRTTI* pElemRtti = pArrayProp->GetElementType();
+  const ezRTTI* pElemRtti = pProp->GetSpecificType();
   EZ_TEST_BOOL(pElemRtti == ezGetStaticRTTI<T>());
 
   if (!pArrayProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
@@ -797,7 +794,7 @@ void TestSetProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti,
   EZ_TEST_BOOL(pProp != nullptr);
   EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Set);
   ezAbstractSetProperty* pSetProp = static_cast<ezAbstractSetProperty*>(pProp);
-  const ezRTTI* pElemRtti = pSetProp->GetElementType();
+  const ezRTTI* pElemRtti = pProp->GetSpecificType();
   EZ_TEST_BOOL(pElemRtti == ezGetStaticRTTI<T>());
   EZ_TEST_BOOL(ezReflectionUtils::IsBasicType(pElemRtti));
 
@@ -929,8 +926,8 @@ void TestPointerMemberProperty(const char* szPropName, void* pObject, const ezRT
   EZ_TEST_BOOL(pProp != nullptr);
   EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
   ezAbstractMemberProperty* pAbsMember = (ezAbstractMemberProperty*) pProp;
-  EZ_TEST_INT(pAbsMember->GetFlags().GetValue(), expectedFlags.GetValue());
-  EZ_TEST_BOOL(pAbsMember->GetPropertyType() == ezGetStaticRTTI<T>());
+  EZ_TEST_INT(pProp->GetFlags().GetValue(), expectedFlags.GetValue());
+  EZ_TEST_BOOL(pProp->GetSpecificType() == ezGetStaticRTTI<T>());
   void* pData = nullptr;
   pAbsMember->GetValuePtr(pObject, &pData);
   EZ_TEST_BOOL(pData == pExpectedValue);
@@ -946,7 +943,7 @@ void TestPointerMemberProperty(const char* szPropName, void* pObject, const ezRT
 
   // Set value to new instance.
   {
-    void* pNewData = pAbsMember->GetPropertyType()->GetAllocator()->Allocate();
+    void* pNewData = pAbsMember->GetSpecificType()->GetAllocator()->Allocate();
     pAbsMember->SetValuePtr(pObject, &pNewData);
     void* pData2 = nullptr;
     pAbsMember->GetValuePtr(pObject, &pData2);
@@ -955,7 +952,7 @@ void TestPointerMemberProperty(const char* szPropName, void* pObject, const ezRT
   }
 
   // Delete old value
-  pAbsMember->GetPropertyType()->GetAllocator()->Deallocate(pData);
+  pAbsMember->GetSpecificType()->GetAllocator()->Deallocate(pData);
 }
 
 EZ_CREATE_SIMPLE_TEST(Reflection, Pointer)
@@ -970,9 +967,8 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Pointer)
       ezAbstractProperty* pProp = pRtti->FindPropertyByName("ConstCharPtr");
       EZ_TEST_BOOL(pProp != nullptr);
       EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Member);
-      ezAbstractMemberProperty* pAbsMember = (ezAbstractMemberProperty*) pProp;
-      EZ_TEST_INT(pAbsMember->GetFlags().GetValue(), ezPropertyFlags::StandardType);
-      EZ_TEST_BOOL(pAbsMember->GetPropertyType() == ezGetStaticRTTI<const char*>());
+      EZ_TEST_INT(pProp->GetFlags().GetValue(), ezPropertyFlags::StandardType);
+      EZ_TEST_BOOL(pProp->GetSpecificType() == ezGetStaticRTTI<const char*>());
     }
 
     TestPointerMemberProperty<ezTestArrays>("ArraysPtr", &containers, pRtti, ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner, containers.m_pArrays);

@@ -39,7 +39,7 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRT
 
       ezPropertyEditorBaseWidget* pNewWidget = nullptr;
 
-      switch (pMember->GetPropertyType()->GetVariantType())
+      switch (pMember->GetSpecificType()->GetVariantType())
       {
       case ezVariant::Type::Bool:
         pNewWidget = new ezPropertyEditorCheckboxWidget(ParentPath, pProp->GetPropertyName(), this);
@@ -119,11 +119,11 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRT
       ezPropertyEditorBaseWidget* pNewWidget = nullptr;
       if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum))
       {
-        pNewWidget = new ezPropertyEditorEnumWidget(ParentPath, pProp->GetPropertyName(), this, pMember->GetPropertyType());
+        pNewWidget = new ezPropertyEditorEnumWidget(ParentPath, pProp->GetPropertyName(), this, pMember->GetSpecificType());
       }
       else
       {
-        pNewWidget = new ezPropertyEditorBitflagsWidget(ParentPath, pProp->GetPropertyName(), this, pMember->GetPropertyType());
+        pNewWidget = new ezPropertyEditorBitflagsWidget(ParentPath, pProp->GetPropertyName(), this, pMember->GetSpecificType());
       }
       
       ezStringBuilder sPropertyPath = ParentPath.GetPathString();
@@ -151,7 +151,7 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRT
       /// \todo read-only flag ?
       //pNewWidget->setEnabled(!pProp->GetFlags().IsSet(PropertyFlags::IsReadOnly));
 
-      BuildUI(et, pMember->GetPropertyType(), ParentPath, pSubLayout);
+      BuildUI(et, pMember->GetSpecificType(), ParentPath, pSubLayout);
     }
 
     ParentPath.PopBack();

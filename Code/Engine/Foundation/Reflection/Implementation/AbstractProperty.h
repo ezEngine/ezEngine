@@ -73,6 +73,9 @@ public:
   /// \brief Returns the name of the property.
   const char* GetPropertyName() const { return m_szPropertyName; }
 
+  /// \brief Returns the type information of the constant property. Use this to cast this property to a specific version of ezTypedConstantProperty.
+  virtual const ezRTTI* GetSpecificType() const = 0;
+
   /// \brief Returns the category of this property. Cast this property to the next higher type for more information.
   virtual ezPropertyCategory::Enum GetCategory() const = 0; // [tested]
 
@@ -107,9 +110,6 @@ public:
   /// \brief Returns ezPropertyCategory::Constant.
   virtual ezPropertyCategory::Enum GetCategory() const override { return ezPropertyCategory::Constant; } // [tested]
 
-  /// \brief Returns the type information of the constant property. Use this to cast this property to a specific version of ezTypedConstantProperty.
-  virtual const ezRTTI* GetPropertyType() const = 0;
-
   /// \brief Returns a pointer to the constant data or nullptr. See ezAbstractMemberProperty::GetPropertyPointer for more information.
   virtual void* GetPropertyPointer() const = 0;
 
@@ -119,6 +119,9 @@ public:
 };
 
 /// \brief This is the base class for all properties that are members of a class. It provides more information about the actual type.
+///
+/// If ezPropertyFlags::Pointer is set as a flag, you must not cast this property to ezTypedMemberProperty, instead use GetValuePtr and SetValuePtr.
+/// This is because reference and constness of the property are only fixed for the pointer but not the type, so the actual property type cannot be derived.
 class EZ_FOUNDATION_DLL ezAbstractMemberProperty : public ezAbstractProperty
 {
 public:
@@ -131,19 +134,13 @@ public:
   /// \brief Returns ezPropertyCategory::Member.
   virtual ezPropertyCategory::Enum GetCategory() const override { return ezPropertyCategory::Member; }
 
-  /// \brief Returns the type information of the member property. Use this to cast this property to a specific version of ezTypedMemberProperty.
-  ///
-  /// If ezPropertyFlags::Pointer is set as a flag, you must not cast this property to ezTypedMemberProperty, instead use GetValuePtr and SetValuePtr.
-  /// This is because reference and constness of the property are only fixed for the pointer but not the type, so the actual property type cannot be derived.
-  virtual const ezRTTI* GetPropertyType() const = 0; // [tested]
-
-  /// \brief Returns a pointer to the property data or nullptr. If a valid pointer is returned, that pointer and the information from GetPropertyType() can
+  /// \brief Returns a pointer to the property data or nullptr. If a valid pointer is returned, that pointer and the information from GetSpecificType() can
   /// be used to step deeper into the type (if required).
   ///
   /// You need to pass the pointer to an object on which you are operating. This function is mostly of interest when the property itself is a compound
   /// type (a struct or class). If it is a simple type (int, float, etc.) it doesn't make much sense to retrieve the pointer.
   ///
-  /// For example GetPropertyType() might return that a property is of type ezVec3. In that case one might either stop and just use the code to handle
+  /// For example GetSpecificType() might return that a property is of type ezVec3. In that case one might either stop and just use the code to handle
   /// ezVec3 types, or one might continue and enumerate all sub-properties (x, y and z) as well.
   ///
   /// \note There is no guarantee that this function returns a non-nullptr pointer, independent of the type. When a property uses custom 'accessors' 
@@ -190,9 +187,6 @@ public:
   /// \brief Returns ezPropertyCategory::Array.
   virtual ezPropertyCategory::Enum GetCategory() const override { return ezPropertyCategory::Array; }
 
-  /// \brief Returns the type of the elements in the array.
-  virtual const ezRTTI* GetElementType() const = 0;
-
   /// \brief Returns number of elements.
   virtual ezUInt32 GetCount(const void* pInstance) const = 0;
 
@@ -231,9 +225,6 @@ public:
 
   /// \brief Returns ezPropertyCategory::Array.
   virtual ezPropertyCategory::Enum GetCategory() const override { return ezPropertyCategory::Set; }
-
-  /// \brief Returns the type of the elements in the array.
-  virtual const ezRTTI* GetElementType() const = 0;
 
   /// \brief Returns number of elements.
   virtual ezUInt32 GetCount(const void* pInstance) const = 0;

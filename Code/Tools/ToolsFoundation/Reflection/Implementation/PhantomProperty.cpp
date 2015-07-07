@@ -14,7 +14,7 @@ ezPhantomConstantProperty::ezPhantomConstantProperty(const ezReflectedPropertyDe
   m_Flags.Add(ezPropertyFlags::Phantom);
 }
 
-const ezRTTI* ezPhantomConstantProperty::GetPropertyType() const
+const ezRTTI* ezPhantomConstantProperty::GetSpecificType() const
 {
   return m_pPropertyType;
 }
@@ -38,7 +38,7 @@ ezPhantomMemberProperty::ezPhantomMemberProperty(const ezReflectedPropertyDescri
 
 }
 
-const ezRTTI* ezPhantomMemberProperty::GetPropertyType() const
+const ezRTTI* ezPhantomMemberProperty::GetSpecificType() const
 {
   return m_pPropertyType;
 }
@@ -69,7 +69,7 @@ ezPhantomArrayProperty::ezPhantomArrayProperty(const ezReflectedPropertyDescript
   m_Flags.Add(ezPropertyFlags::Phantom);
 }
 
-const ezRTTI* ezPhantomArrayProperty::GetElementType() const
+const ezRTTI* ezPhantomArrayProperty::GetSpecificType() const
 {
   return m_pPropertyType;
 }
@@ -85,7 +85,7 @@ ezPhantomSetProperty::ezPhantomSetProperty(const ezReflectedPropertyDescriptor* 
   m_Flags.Add(ezPropertyFlags::Phantom);
 }
 
-const ezRTTI* ezPhantomSetProperty::GetElementType() const
+const ezRTTI* ezPhantomSetProperty::GetSpecificType() const
 {
   return m_pPropertyType;
 }
