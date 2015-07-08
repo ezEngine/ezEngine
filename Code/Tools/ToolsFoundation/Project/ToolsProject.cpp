@@ -13,6 +13,7 @@ ezToolsProject::ezToolsProject(const char* szProjectPath)
   EZ_ASSERT_DEV(s_pInstance == nullptr, "There can be only one");
 
   s_pInstance = this;
+  m_bIsClosing = false;
 
   m_sProjectPath = szProjectPath;
   EZ_ASSERT_DEV(!m_sProjectPath.IsEmpty(), "Path cannot be empty.");
@@ -86,6 +87,8 @@ void ezToolsProject::CloseProject()
 {
   if (s_pInstance)
   {
+    s_pInstance->m_bIsClosing = true;
+
     Event e;
     e.m_Type = Event::Type::ProjectClosing;
     s_Events.Broadcast(e);

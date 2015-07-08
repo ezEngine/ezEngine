@@ -7,6 +7,7 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
+#include <Foundation/Logging/Log.h>
 #include <QSettings>
 #include <QMessageBox>
 #include <QTimer>
@@ -40,9 +41,10 @@ void ezDocumentWindow::Constructor()
   setMenuBar(pMenuBar);
 
   ezContainerWindow::GetAllContainerWindows()[0]->MoveDocumentWindowToContainer(this);
-  ScheduleRestoreWindowLayout();
 
   ezUIServices::s_Events.AddEventHandler(ezMakeDelegate(&ezDocumentWindow::UIServicesEventHandler, this));
+
+  ScheduleRestoreWindowLayout();
 }
 
 ezDocumentWindow::ezDocumentWindow(ezDocumentBase* pDocument)
@@ -264,6 +266,18 @@ void ezDocumentWindow::SaveWindowLayout()
 
 void ezDocumentWindow::RestoreWindowLayout()
 {
+  if (!m_pContainerWindow || !m_pContainerWindow->m_bWindowLayoutRestored)
+  {
+    // if the container window has not yet done its own resize (race condition in the timers)
+    // then delay our own restore a bit more, to ensure that this window only restores its size
+    // inside a correctly resized parent window
+
+    /// \todo Remove the warning, once I am sure this has been the cause for window restore issues
+    ezLog::Warning("Race condition with container window detected: Document WindowLayout restore deferred.");
+    ScheduleRestoreWindowLayout();
+    return;
+  }
+
   ezStringBuilder sGroup;
   sGroup.Format("DocumentWnd_%s", GetGroupName());
 

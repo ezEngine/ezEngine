@@ -38,6 +38,7 @@ private:
   ezResult EnsureVisible(ezDocumentBase* pDocument);
   ezResult EnsureVisible(ezApplicationPanel* pPanel);
 
+  bool m_bWindowLayoutRestored;
   void ScheduleRestoreWindowLayout();
   ezInt32 m_iWindowLayoutRestoreScheduled;
 

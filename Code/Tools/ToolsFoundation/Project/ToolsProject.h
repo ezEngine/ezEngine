@@ -39,6 +39,7 @@ public:
   static ezToolsProject* GetInstance() { return s_pInstance; }
 
   static bool IsProjectOpen() { return s_pInstance != nullptr; }
+  static bool IsProjectClosing() { return (s_pInstance != nullptr && s_pInstance->m_bIsClosing); }
   static void CloseProject();
   static bool CanCloseProject();
   static ezStatus OpenProject(const char* szProjectPath);
@@ -66,6 +67,7 @@ private:
   static ezToolsProject* s_pInstance;
 
 private:
+  bool m_bIsClosing;
   ezString m_sProjectPath;
   ezHybridArray<ezString, 4> m_AllowedDocumentRoots;
 };

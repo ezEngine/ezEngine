@@ -354,7 +354,9 @@ void ezEditorApp::DocumentWindowEventHandler(const ezDocumentWindow::Event& e)
     {
       // if all windows are closed, show at least the settings window
       if (ezDocumentWindow::GetAllDocumentWindows().GetCount() == 0)
+      {
         ShowSettingsDocument();
+      }
     }
     break;
   }

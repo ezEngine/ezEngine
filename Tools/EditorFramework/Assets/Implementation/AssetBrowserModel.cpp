@@ -312,8 +312,6 @@ int ezAssetBrowserModel::columnCount(const QModelIndex& parent) const
 
 QStringList ezAssetBrowserModel::mimeTypes() const
 {
-  ezLog::Debug("mimeTypes");
-
   QStringList types;
   types << "application/ezEditor.AssetGuid";
   return types;
@@ -321,8 +319,6 @@ QStringList ezAssetBrowserModel::mimeTypes() const
 
 QMimeData* ezAssetBrowserModel::mimeData(const QModelIndexList& indexes) const
 {
-  ezLog::Debug("mimeData");
-
   QMimeData* mimeData = new QMimeData();
   QByteArray encodedData;
   QDataStream stream(&encodedData, QIODevice::WriteOnly);

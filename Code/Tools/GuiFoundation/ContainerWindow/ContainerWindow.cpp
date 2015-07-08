@@ -18,14 +18,12 @@ ezDynamicArray<ezContainerWindow*> ezContainerWindow::s_AllContainerWindows;
 
 ezContainerWindow::ezContainerWindow()
 {
+  m_bWindowLayoutRestored = false;
   m_pStatusBarLabel = nullptr;
   m_iWindowLayoutRestoreScheduled = 0;
 
   setObjectName(QLatin1String(GetUniqueName())); // todo
   setWindowIcon(QIcon(QLatin1String(":/GuiFoundation/Icons/ezEditor16.png"))); /// \todo Make icon configurable
-
-  ScheduleRestoreWindowLayout();
-  
 
   s_AllContainerWindows.PushBack(this);
 
@@ -38,6 +36,8 @@ ezContainerWindow::ezContainerWindow()
   ezUIServices::s_Events.AddEventHandler(m_DelegateUIServicesEvents);
 
   UpdateWindowTitle();
+
+  ScheduleRestoreWindowLayout();
 }
 
 ezContainerWindow::~ezContainerWindow()
@@ -155,6 +155,8 @@ void ezContainerWindow::RestoreWindowLayout()
     restoreState(Settings.value("WindowState", saveState()).toByteArray());
   }
   Settings.endGroup();
+
+  m_bWindowLayoutRestored = true;
 }
 
 void ezContainerWindow::SetupDocumentTabArea()
