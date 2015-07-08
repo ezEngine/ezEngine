@@ -144,7 +144,7 @@ void ezViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
 
   if (uiIndex > m_PickingResultsID.GetCount())
   {
-    ezLog::Error("Picking position %u, %u is outside the available picking area of %u * %u", x, y, uiWindowWidth, uiWindowHeight);
+    //ezLog::Error("Picking position %u, %u is outside the available picking area of %u * %u", x, y, uiWindowWidth, uiWindowHeight);
   }
   else
   {

@@ -65,7 +65,7 @@ ezResourceHandle<ResourceType> ezResourceManager::GetExistingResource(const char
 }
 
 template<typename ResourceType>
-ezResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szResourceID, const typename ResourceType::DescriptorType& descriptor)
+ezResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szResourceID, const typename ResourceType::DescriptorType& descriptor, const char* szResourceDescription)
 {
   EZ_LOG_BLOCK("ezResourceManager::CreateResource", szResourceID);
 
@@ -74,6 +74,7 @@ ezResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szR
   ezResourceHandle<ResourceType> hResource(GetResource<ResourceType>(szResourceID, false));
 
   ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
+  pResource->SetResourceDescription(szResourceDescription);
 
   EZ_ASSERT_DEV(pResource->GetLoadingState() == ezResourceState::Unloaded, "CreateResource was called on a resource that is already created");
 

@@ -474,6 +474,7 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
       return res;
 
     const ezStringBuilder sAbsolutePath = File.GetFilePathAbsolute();
+    res.m_sResourceDescription = File.GetFilePathRelative().GetData();
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
     {

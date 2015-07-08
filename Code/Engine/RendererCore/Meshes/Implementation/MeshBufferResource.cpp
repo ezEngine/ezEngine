@@ -213,7 +213,7 @@ void ezVertexDeclarationInfo::ComputeHash()
   }
 }
 
-ezResult ezRenderContext::GetVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl, ezGALVertexDeclarationHandle& out_Declaration)
+ezResult ezRenderContext::BuildVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl, ezGALVertexDeclarationHandle& out_Declaration)
 {
   ShaderVertexDecl svd;
   svd.m_hShader = hShader;
@@ -249,6 +249,20 @@ ezResult ezRenderContext::GetVertexDeclaration(ezGALShaderHandle hShader, const 
 
     if (out_Declaration.IsInvalidated())
     {
+      /* This can happen when the resource system gives you a fallback resource, which then selects a shader that
+         does not fit the mesh layout.
+         E.g. when a material is not yet loaded and the fallback material is used, that fallback material may
+         use another shader, that requires more data streams, than what the mesh provides.
+         This problem will go away, once the proper material is loaded.
+
+         This can be fixed by ensuring that the fallback material uses a shader that only requires data that is
+         always there, e.g. only position and maybe a texcoord, and of course all meshes must provide at least those
+         data streams.
+
+         Otherwise, this is harmless, the renderer will ignore invalid drawcalls and once all the correct stuff is
+         available, it will work.
+      */
+
       ezLog::Error("Failed to create vertex declaration");
       return EZ_FAILURE;
     }

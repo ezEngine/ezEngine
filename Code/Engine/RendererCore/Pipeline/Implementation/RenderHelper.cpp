@@ -215,7 +215,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
     m_pGALContext->SetPrimitiveTopology(ezGALPrimitiveTopology::Triangles);
 
     ezGALVertexDeclarationHandle hVertexDeclaration;
-    if (GetVertexDeclaration(m_hActiveGALShader, pMeshBuffer->GetVertexDeclaration(), hVertexDeclaration).Failed())
+    if (BuildVertexDeclaration(m_hActiveGALShader, pMeshBuffer->GetVertexDeclaration(), hVertexDeclaration).Failed())
       return EZ_FAILURE;
 
     m_pGALContext->SetVertexDeclaration(hVertexDeclaration);

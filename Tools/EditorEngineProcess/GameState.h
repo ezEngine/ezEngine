@@ -87,6 +87,7 @@ private:
 
   void SendReflectionInformation();
   void SendProjectReadyMessage();
+  void UpdateSyncObjects();
 
   static ezEngineProcessGameState* s_pInstance;
 

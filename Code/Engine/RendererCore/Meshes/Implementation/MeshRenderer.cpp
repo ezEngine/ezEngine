@@ -29,7 +29,7 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderViewContext, ez
     {
       // only create this constant buffer, when it does not yet exist
       ezConstantBufferResourceDescriptor<ObjectConstants> desc;
-      m_hObjectTransformCB = ezResourceManager::CreateResource<ezConstantBufferResource>("{34204E49-441A-49D6-AB09-9E8DE38BC803}", desc);
+      m_hObjectTransformCB = ezResourceManager::CreateResource<ezConstantBufferResource>("{34204E49-441A-49D6-AB09-9E8DE38BC803}", desc, "ezMeshRenderer CB");
     }
   }
 

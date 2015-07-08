@@ -23,6 +23,8 @@ ezResourceLoadData ezResourceLoaderFromFile::OpenDataStream(const ezResourceBase
   if (File.Open(pResource->GetResourceID().GetData()).Failed())
     return res;
 
+  res.m_sResourceDescription = File.GetFilePathRelative().GetData();
+
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   ezFileStats stat;
   if (ezOSFile::GetFileStats(File.GetFilePathAbsolute(), stat).Succeeded())

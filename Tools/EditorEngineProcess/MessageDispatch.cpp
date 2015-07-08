@@ -135,6 +135,8 @@ void ezEngineProcessGameState::EventHandlerIPC(const ezProcessCommunication::Eve
   {
     const ezViewRedrawMsgToEngine* pMsg = static_cast<const ezViewRedrawMsgToEngine*>(pDocMsg);
 
+    UpdateSyncObjects();
+
     pViewContext->SetupRenderTarget(reinterpret_cast<HWND>(pMsg->m_uiHWND), pMsg->m_uiWindowWidth, pMsg->m_uiWindowHeight);
     pViewContext->Redraw();
 

@@ -54,7 +54,7 @@ public:
   static ezResourceHandle<ResourceType> LoadResource(const char* szResourceID, ezResourcePriority Priority, ezResourceHandle<ResourceType> hFallbackResource);
 
   template<typename ResourceType>
-  static ezResourceHandle<ResourceType> CreateResource(const char* szResourceID, const typename ResourceType::DescriptorType& descriptor);
+  static ezResourceHandle<ResourceType> CreateResource(const char* szResourceID, const typename ResourceType::DescriptorType& descriptor, const char* szResourceDescription = nullptr);
 
   template<typename ResourceType>
   static ezResourceHandle<ResourceType> GetExistingResource(const char* szResourceID);

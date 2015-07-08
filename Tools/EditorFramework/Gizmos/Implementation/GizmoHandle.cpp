@@ -21,7 +21,7 @@ EZ_MEMBER_PROPERTY("Color", m_Color),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-static ezMeshBufferResourceHandle CreateMeshBufferResource(const ezGeometry& geom, const char* szResourceName)
+static ezMeshBufferResourceHandle CreateMeshBufferResource(const ezGeometry& geom, const char* szResourceName, const char* szDescription)
 {
   ezDynamicArray<ezUInt16> Indices;
   Indices.Reserve(geom.GetPolygons().GetCount() * 6);
@@ -53,7 +53,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferResource(const ezGeometry& geo
     desc.SetTriangleIndices(t / 3, Indices[t], Indices[t + 1], Indices[t + 2]);
   }
 
-  return ezResourceManager::CreateResource<ezMeshBufferResource>(szResourceName, desc);
+  return ezResourceManager::CreateResource<ezMeshBufferResource>(szResourceName, desc, szDescription);
 }
 
 static ezMeshBufferResourceHandle CreateMeshBufferArrow()
@@ -77,7 +77,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferArrow()
   m.SetTranslationVector(ezVec3(0, fLength * 0.5f, 0));
   geom.AddCone(fThickness * 3.0f, fThickness * 6.0f, true, 16, ezColor::Red, m);
 
-  return CreateMeshBufferResource(geom, szResourceName);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Arrow");
 }
 
 static ezMeshBufferResourceHandle CreateMeshBufferPiston()
@@ -101,7 +101,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferPiston()
   m.SetTranslationVector(ezVec3(0, fLength * 0.5f, 0));
   geom.AddBox(ezVec3(fThickness * 5.0f), ezColor::Red, m);
 
-  return CreateMeshBufferResource(geom, szResourceName);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Piston");
 }
 
 static ezMeshBufferResourceHandle CreateMeshBufferRect()
@@ -121,7 +121,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferRect()
   ezGeometry geom;
   geom.AddRectXY(ezVec2(fLength), ezColor::White, m);
 
-  return CreateMeshBufferResource(geom, szResourceName);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Rect");
 }
 
 static ezMeshBufferResourceHandle CreateMeshBufferRing()
@@ -142,7 +142,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferRing()
   ezGeometry geom;
   geom.AddTorus(fInnerRadius, fOuterRadius, 32, 8,ezColor::White);
 
-  return CreateMeshBufferResource(geom, szResourceName);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Ring");
 }
 
 static ezMeshBufferResourceHandle CreateMeshBufferBox()
@@ -162,7 +162,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferBox()
   ezGeometry geom;
   geom.AddBox(ezVec3(fThickness), ezColor::White, m);
 
-  return CreateMeshBufferResource(geom, szResourceName);
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Box");
 }
 
 static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, ezMeshBufferResourceHandle hMeshBuffer, const char* szMaterial)
@@ -179,7 +179,7 @@ static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, e
   md.AddSubMesh(pMeshBuffer->GetPrimitiveCount(), 0, 0);
   md.SetMaterial(0, szMaterial);
 
-  return ezResourceManager::CreateResource<ezMeshResource>(szMeshResourceName, md);
+  return ezResourceManager::CreateResource<ezMeshResource>(szMeshResourceName, md, pMeshBuffer->GetResourceDescription());
 }
 
 ezGizmoHandle::ezGizmoHandle()

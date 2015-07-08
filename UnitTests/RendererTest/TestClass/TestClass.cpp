@@ -116,7 +116,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   EZ_ASSERT_DEV(!m_hBlendState.IsInvalidated(), "Couldn't create blend state!");
 
   ezConstantBufferResourceDescriptor<ObjectCB> desc;
-  m_hObjectTransformCB = ezResourceManager::CreateResource<ezConstantBufferResource>("{E74F00FD-8C0C-47B9-A63D-E3D2E77FCFB4}", desc);
+  m_hObjectTransformCB = ezResourceManager::CreateResource<ezConstantBufferResource>("{E74F00FD-8C0C-47B9-A63D-E3D2E77FCFB4}", desc, "ObjectTransformCB");
 
   ezRenderContext::ConfigureShaderSystem("DX11_SM40", true);
 
@@ -261,7 +261,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateMesh(const ezGeometry& geom, co
     desc.SetTriangleIndices(t / 3, Indices[t], Indices[t + 1], Indices[t + 2]);
   }
 
-  hMesh = ezResourceManager::CreateResource<ezMeshBufferResource>(szResourceName, desc);
+  hMesh = ezResourceManager::CreateResource<ezMeshBufferResource>(szResourceName, desc, szResourceName);
 
   return hMesh;
 }

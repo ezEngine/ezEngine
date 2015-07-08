@@ -185,6 +185,9 @@ void ezResourceManager::UpdateLoadingDeadlines()
 
 void ezResourceManagerWorkerGPU::Execute()
 {
+  if (!m_LoaderData.m_sResourceDescription.IsEmpty())
+    m_pResourceToLoad->SetResourceDescription(m_LoaderData.m_sResourceDescription);
+
   m_pResourceToLoad->CallUpdateContent(m_LoaderData.m_pDataStream);
 
   // update the file modification date, if available
@@ -274,6 +277,9 @@ void ezResourceManagerWorker::Execute()
   }
   else
   {
+    if (!LoaderData.m_sResourceDescription.IsEmpty())
+      pResourceToLoad->SetResourceDescription(LoaderData.m_sResourceDescription);
+
     pResourceToLoad->CallUpdateContent(LoaderData.m_pDataStream);
 
     // update the file modification date, if available

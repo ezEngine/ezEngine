@@ -245,6 +245,8 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
         ezLog::Debug("Shader Permutation '%s' still does not exist after recompile.", pResource->GetResourceID().GetData());
         return res;
       }
+
+      res.m_sResourceDescription = File.GetFilePathRelative().GetData();
     }
 
     if (permutationBinary.Read(File).Failed())

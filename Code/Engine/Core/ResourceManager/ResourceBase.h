@@ -54,6 +54,12 @@ public:
   /// \brief Returns the unique ID that identifies this resource. On a file resource this might be a path. Can also be a GUID or any other scheme that uniquely identifies the resource.
   const ezString& GetResourceID() const { return m_UniqueID; }
 
+  /// \brief The resource description allows to store an additional string that might be more descriptive during debugging, than the unique ID.
+  void SetResourceDescription(const char* szDescription);
+
+  /// \brief The resource description allows to store an additional string that might be more descriptive during debugging, than the unique ID.
+  const ezString& GetResourceDescription() const { return m_sResourceDescription; }
+
   /// \brief Returns the current state in which this resource is in.
   ezResourceState GetLoadingState() const { return m_LoadingState; }
 
@@ -146,7 +152,7 @@ private:
   friend class ezResourceManagerWorkerGPU;
 
   /// \brief Called by ezResourceManager shortly after resource creation.
-  void SetUniqueID(const ezString& UniqueID, bool bIsReloadable);
+  void SetUniqueID(const char* szUniqueID, bool bIsReloadable);
 
   void CallUnloadData(Unload WhatToUnload);
 
@@ -205,6 +211,7 @@ private:
   ezAtomicInteger32 m_iReferenceCount;
   ezAtomicInteger32 m_iLockCount;
   ezString m_UniqueID;
+  ezString m_sResourceDescription;
 
   MemoryUsage m_MemoryUsage;
 

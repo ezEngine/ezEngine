@@ -13,6 +13,9 @@ struct EZ_CORE_DLL ezResourceLoadData
     m_pCustomLoaderData = nullptr;
   }
 
+  /// Additional (optional) description that can help during debugging (e.g. the final file path).
+  ezString m_sResourceDescription;
+
   /// Used to keep track when the loaded file was modified last and thus when reloading of the resource might be necessary.
   ezTimestamp m_LoadedFileModificationDate;
 

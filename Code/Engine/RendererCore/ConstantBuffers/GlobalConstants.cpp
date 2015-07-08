@@ -25,7 +25,7 @@ void ezRenderContext::UploadGlobalConstants()
   {
     ezConstantBufferResourceDescriptor<GlobalConstants> rd;
     rd.m_Data = s_GlobalConstants;
-    s_hGlobalConstantBuffer = ezResourceManager::CreateResource<ezConstantBufferResource>("ezGlobalConstantBuffer", rd);
+    s_hGlobalConstantBuffer = ezResourceManager::CreateResource<ezConstantBufferResource>("ezGlobalConstantBuffer", rd, "ezGlobalConstantBuffer");
   }
 
   BindConstantBuffer("GlobalConstants", s_hGlobalConstantBuffer);

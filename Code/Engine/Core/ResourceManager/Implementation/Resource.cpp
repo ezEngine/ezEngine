@@ -29,6 +29,11 @@ ezResourceBase::ezResourceBase(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityL
   m_DueDate = ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 1000.0);
 }
 
+void ezResourceBase::SetResourceDescription(const char * szDescription)
+{
+  m_sResourceDescription = szDescription;
+}
+
 void ezResourceBase::SetDueDate(ezTime date /* = ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 1000.0) */)
 {
   if (m_DueDate != date)
@@ -52,9 +57,9 @@ void ezResourceBase::SetPriority(ezResourcePriority priority)
   ezResourceManager::BroadcastResourceEvent(e);
 }
 
-void ezResourceBase::SetUniqueID(const ezString& UniqueID, bool bIsReloadable)
+void ezResourceBase::SetUniqueID(const char* szUniqueID, bool bIsReloadable)
 {
-  m_UniqueID = UniqueID;
+  m_UniqueID = szUniqueID;
   SetIsReloadable(bIsReloadable);
 
   ezResourceManager::ResourceEvent e;
