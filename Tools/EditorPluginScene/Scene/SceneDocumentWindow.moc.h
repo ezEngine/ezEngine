@@ -93,8 +93,4 @@ private:
   ezDeque<SelectedGO> m_GizmoSelection;
 
   bool m_bInDragDropAction;
-
-  /// \todo Broken delegates
-  ezDelegate<void(const ezDocumentObjectPropertyEvent&)> m_DelegatePropertyEvents;
-  ezDelegate<void(const ezDocumentObjectStructureEvent&)> m_DelegateDocumentTreeEvents;
 };

@@ -53,9 +53,6 @@ private:
   QHBoxLayout* m_pRestartButtonLayout;
   QPushButton* m_pRestartButton;
 
-  /// \todo Broken delegates
-  ezDelegate<void(const ezEditorEngineProcessConnection::Event&)> m_DelegateEngineViewProcessEvents;
-
   mutable ezObjectPickingResult m_LastPickingResult;
 };
 

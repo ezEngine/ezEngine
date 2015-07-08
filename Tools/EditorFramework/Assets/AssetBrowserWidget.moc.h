@@ -67,7 +67,4 @@ private:
   ezToolBarActionMapView* m_pToolbar;
   ezString m_sAllTypesFilter;
   ezAssetBrowserModel* m_pModel;
-
-  /// \todo Broken delegates
-  ezDelegate<void(const ezAssetCurator::Event&)> m_DelegateAssetCuratorEvents;
 };

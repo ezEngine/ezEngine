@@ -55,11 +55,8 @@ ezDocumentWindow::ezDocumentWindow(ezDocumentBase* pDocument)
 
   Constructor();
 
-  m_DelegateDocumentManagerEvents = ezMakeDelegate(&ezDocumentWindow::DocumentManagerEventHandler, this);
-  m_DelegateDocumentEvents = ezMakeDelegate(&ezDocumentWindow::DocumentEventHandler, this);
-
-  ezDocumentManagerBase::s_Events.AddEventHandler(m_DelegateDocumentManagerEvents);
-  pDocument->m_EventsOne.AddEventHandler(m_DelegateDocumentEvents);
+  ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(&ezDocumentWindow::DocumentManagerEventHandler, this));
+  pDocument->m_EventsOne.AddEventHandler(ezMakeDelegate(&ezDocumentWindow::DocumentEventHandler, this));
 }
 
 ezDocumentWindow::ezDocumentWindow(const char* szUniqueName)
@@ -85,8 +82,8 @@ ezDocumentWindow::~ezDocumentWindow()
 
   if (m_pDocument)
   {
-    m_pDocument->m_EventsOne.RemoveEventHandler(m_DelegateDocumentEvents);
-    ezDocumentManagerBase::s_Events.RemoveEventHandler(m_DelegateDocumentManagerEvents);
+    m_pDocument->m_EventsOne.RemoveEventHandler(ezMakeDelegate(&ezDocumentWindow::DocumentEventHandler, this));
+    ezDocumentManagerBase::s_Events.RemoveEventHandler(ezMakeDelegate(&ezDocumentWindow::DocumentManagerEventHandler, this));
   }
 }
 

@@ -33,17 +33,14 @@ ezRawPropertyGridWidget::ezRawPropertyGridWidget(ezDocumentBase* pDocument, QWid
   m_pGroups[1] = nullptr;
   m_pSpacer = nullptr;
 
-  m_DelegateSelectionEvents = ezMakeDelegate(&ezRawPropertyGridWidget::SelectionEventHandler, this);
-  m_DelegatePropertyEvents = ezMakeDelegate(&ezRawPropertyGridWidget::PropertyEventHandler, this);
-
-  m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(m_DelegateSelectionEvents);
-  m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(m_DelegatePropertyEvents);
+  m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::SelectionEventHandler, this));
+  m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::PropertyEventHandler, this));
 }
 
 ezRawPropertyGridWidget::~ezRawPropertyGridWidget()
 {
-  m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(m_DelegateSelectionEvents);
-  m_pDocument->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(m_DelegatePropertyEvents);
+  m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::SelectionEventHandler, this));
+  m_pDocument->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::PropertyEventHandler, this));
 }
 
 void ezRawPropertyGridWidget::SelectionEventHandler(const ezSelectionManager::Event& e)

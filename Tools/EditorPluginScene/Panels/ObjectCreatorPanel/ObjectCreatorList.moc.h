@@ -21,10 +21,6 @@ private:
 
 private:
   const ezDocumentObjectManager* m_pManager;
-
-
-  /// \todo Broken delegates
-  ezDelegate<void(const ezPhantomTypeChange&)> m_DelegateTypeChanged;
 };
 
 

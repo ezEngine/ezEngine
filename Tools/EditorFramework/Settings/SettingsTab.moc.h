@@ -40,11 +40,6 @@ private:
   ezMap<ezString, ezVariant> m_Settings;
 
   ezSimplePropertyGridWidget* m_pSettingsGrid;
-
-  /// \todo Broken delegates
-  ezDelegate<void(const ezPlugin::PluginEvent&)> m_DelegatePluginEvents;
-  ezDelegate<void(const ezToolsProject::Event&)> m_DelegateProjectEvents;
-  ezDelegate<void(const ezDocumentManagerBase::Event&)> m_DelegateDocumentManagerEvents;
 };
 
 

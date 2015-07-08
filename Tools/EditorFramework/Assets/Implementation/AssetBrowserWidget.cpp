@@ -48,16 +48,14 @@ ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
 
   UpdateAssetTypes();
 
-  m_DelegateAssetCuratorEvents = ezMakeDelegate(&ezAssetBrowserWidget::AssetCuratorEventHandler, this);
-
-  ezAssetCurator::GetInstance()->m_Events.AddEventHandler(m_DelegateAssetCuratorEvents);
+  ezAssetCurator::GetInstance()->m_Events.AddEventHandler(ezMakeDelegate(&ezAssetBrowserWidget::AssetCuratorEventHandler, this));
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezAssetBrowserWidget::ProjectEventHandler, this));
 }
 
 ezAssetBrowserWidget::~ezAssetBrowserWidget()
 {
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetBrowserWidget::ProjectEventHandler, this));
-  ezAssetCurator::GetInstance()->m_Events.RemoveEventHandler(m_DelegateAssetCuratorEvents);
+  ezAssetCurator::GetInstance()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetBrowserWidget::AssetCuratorEventHandler, this));
 
   ListAssets->setModel(nullptr);
 }

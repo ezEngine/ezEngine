@@ -26,7 +26,4 @@ private:
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 
   QtImageWidget* m_pImageWidget;
-
-  /// \todo Work around for broken delegates
-  ezDelegate<void(const ezDocumentObjectPropertyEvent&)> m_DelegatePropertyEvents;
 };

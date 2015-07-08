@@ -27,13 +27,9 @@ ezContainerWindow::ezContainerWindow()
 
   s_AllContainerWindows.PushBack(this);
 
-  m_DelegateDocumentWindowEvents = ezMakeDelegate(&ezContainerWindow::DocumentWindowEventHandler, this);
-  m_DelegateProjectEvents = ezMakeDelegate(&ezContainerWindow::ProjectEventHandler, this);
-  m_DelegateUIServicesEvents = ezMakeDelegate(&ezContainerWindow::UIServicesEventHandler, this);
-
-  ezDocumentWindow::s_Events.AddEventHandler(m_DelegateDocumentWindowEvents);
-  ezToolsProject::s_Events.AddEventHandler(m_DelegateProjectEvents);
-  ezUIServices::s_Events.AddEventHandler(m_DelegateUIServicesEvents);
+  ezDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezContainerWindow::DocumentWindowEventHandler, this));
+  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezContainerWindow::ProjectEventHandler, this));
+  ezUIServices::s_Events.AddEventHandler(ezMakeDelegate(&ezContainerWindow::UIServicesEventHandler, this));
 
   UpdateWindowTitle();
 
@@ -44,9 +40,9 @@ ezContainerWindow::~ezContainerWindow()
 {
   s_AllContainerWindows.RemoveSwap(this);
 
-  ezDocumentWindow::s_Events.RemoveEventHandler(m_DelegateDocumentWindowEvents);
-  ezToolsProject::s_Events.RemoveEventHandler(m_DelegateProjectEvents);
-  ezUIServices::s_Events.RemoveEventHandler(m_DelegateUIServicesEvents);
+  ezDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezContainerWindow::DocumentWindowEventHandler, this));
+  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezContainerWindow::ProjectEventHandler, this));
+  ezUIServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezContainerWindow::UIServicesEventHandler, this));
 }
 
 QTabWidget* ezContainerWindow::GetTabWidget() const

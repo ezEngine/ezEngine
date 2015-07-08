@@ -8,20 +8,18 @@ ezObjectCreatorList::ezObjectCreatorList(const ezDocumentObjectManager* pManager
 {
   m_pManager = pManager;
 
-  m_DelegateTypeChanged = ezMakeDelegate(&ezObjectCreatorList::TypeChanged, this);
-
-  ezPhantomRttiManager::m_TypeAddedEvent.AddEventHandler(m_DelegateTypeChanged);
-  ezPhantomRttiManager::m_TypeChangedEvent.AddEventHandler(m_DelegateTypeChanged);
-  ezPhantomRttiManager::m_TypeRemovedEvent.AddEventHandler(m_DelegateTypeChanged);
+  ezPhantomRttiManager::m_TypeAddedEvent.AddEventHandler(ezMakeDelegate(&ezObjectCreatorList::TypeChanged, this));
+  ezPhantomRttiManager::m_TypeChangedEvent.AddEventHandler(ezMakeDelegate(&ezObjectCreatorList::TypeChanged, this));
+  ezPhantomRttiManager::m_TypeRemovedEvent.AddEventHandler(ezMakeDelegate(&ezObjectCreatorList::TypeChanged, this));
 
   TypeChanged(ezPhantomTypeChange());
 }
 
 ezObjectCreatorList::~ezObjectCreatorList()
 {
-  ezPhantomRttiManager::m_TypeAddedEvent.RemoveEventHandler(m_DelegateTypeChanged);
-  ezPhantomRttiManager::m_TypeChangedEvent.RemoveEventHandler(m_DelegateTypeChanged);
-  ezPhantomRttiManager::m_TypeRemovedEvent.RemoveEventHandler(m_DelegateTypeChanged);
+  ezPhantomRttiManager::m_TypeAddedEvent.RemoveEventHandler(ezMakeDelegate(&ezObjectCreatorList::TypeChanged, this));
+  ezPhantomRttiManager::m_TypeChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezObjectCreatorList::TypeChanged, this));
+  ezPhantomRttiManager::m_TypeRemovedEvent.RemoveEventHandler(ezMakeDelegate(&ezObjectCreatorList::TypeChanged, this));
 }
 
 void ezObjectCreatorList::TypeChanged(const ezPhantomTypeChange& data)

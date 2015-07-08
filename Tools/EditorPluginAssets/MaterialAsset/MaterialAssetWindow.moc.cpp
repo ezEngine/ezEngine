@@ -12,8 +12,7 @@
 
 ezMaterialAssetDocumentWindow::ezMaterialAssetDocumentWindow(ezDocumentBase* pDocument) : ezDocumentWindow(pDocument)
 {
-  m_DelegatePropertyEvents = ezMakeDelegate(&ezMaterialAssetDocumentWindow::PropertyEventHandler, this);
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(m_DelegatePropertyEvents);
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezMaterialAssetDocumentWindow::PropertyEventHandler, this));
 
   // Menu Bar
   {
@@ -57,7 +56,7 @@ ezMaterialAssetDocumentWindow::ezMaterialAssetDocumentWindow(ezDocumentBase* pDo
 
 ezMaterialAssetDocumentWindow::~ezMaterialAssetDocumentWindow()
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(m_DelegatePropertyEvents);
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezMaterialAssetDocumentWindow::PropertyEventHandler, this));
 }
 
 void ezMaterialAssetDocumentWindow::UpdatePreview()

@@ -12,8 +12,7 @@
 
 ezTextureAssetDocumentWindow::ezTextureAssetDocumentWindow(ezDocumentBase* pDocument) : ezDocumentWindow(pDocument)
 {
-  m_DelegatePropertyEvents = ezMakeDelegate(&ezTextureAssetDocumentWindow::PropertyEventHandler, this);
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(m_DelegatePropertyEvents);
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezTextureAssetDocumentWindow::PropertyEventHandler, this));
 
   // Menu Bar
   {
@@ -58,7 +57,7 @@ ezTextureAssetDocumentWindow::ezTextureAssetDocumentWindow(ezDocumentBase* pDocu
 
 ezTextureAssetDocumentWindow::~ezTextureAssetDocumentWindow()
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(m_DelegatePropertyEvents);
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezTextureAssetDocumentWindow::PropertyEventHandler, this));
 }
 
 void ezTextureAssetDocumentWindow::UpdatePreview()

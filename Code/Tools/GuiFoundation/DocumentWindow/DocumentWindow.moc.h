@@ -107,10 +107,6 @@ private:
   ezString m_sUniqueName;
 
   static ezDynamicArray<ezDocumentWindow*> s_AllDocumentWindows;
-
-  /// \todo Workaround for broken delegates
-  ezDelegate<void(const ezDocumentManagerBase::Event&)> m_DelegateDocumentManagerEvents;
-  ezDelegate<void(const ezDocumentBase::Event&)> m_DelegateDocumentEvents;
 };
 
 
