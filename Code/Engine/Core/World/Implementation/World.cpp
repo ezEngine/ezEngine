@@ -680,6 +680,8 @@ void ezWorld::UpdateHierarchy()
     if (pObject->GetParent() == pNewParent)
       continue;
 
+    const ezTransform tGlobal = pObject->GetGlobalTransform();
+
     UnlinkFromParent(pObject);
 
     if (pNewParent != nullptr)
@@ -687,6 +689,9 @@ void ezWorld::UpdateHierarchy()
       pObject->m_ParentIndex = pNewParent->m_InternalId.m_InstanceIndex;
       LinkToParent(pObject);
     }
+
+    // make sure to update the local transform, such that it yields the same global transform as before
+    pObject->SetGlobalTransform(tGlobal);
 
     // we need to patch all changed hierarchy data in a second round so we save the pointer to the object in the request data
     ezGameObject** pRequestData = reinterpret_cast<ezGameObject**>(&m_Data.m_SetParentRequests[uiNumObjectsToPatch]);

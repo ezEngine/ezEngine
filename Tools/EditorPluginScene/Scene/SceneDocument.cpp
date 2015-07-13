@@ -21,11 +21,14 @@ void ezSceneDocument::InitializeAfterLoading()
   ezDocumentBase::InitializeAfterLoading();
 
   GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectPropertyEventHandler, this));
+  GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectStructureEventHandler, this));
+
   GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::CommandHistoryEventHandler, this));
 }
 
 ezSceneDocument::~ezSceneDocument()
 {
+  GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectStructureEventHandler, this));
   GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectPropertyEventHandler, this));
   GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::CommandHistoryEventHandler, this));
 }
@@ -116,6 +119,21 @@ void ezSceneDocument::ObjectPropertyEventHandler(const ezDocumentObjectPropertyE
   {
     /// \todo Use a set ?
     m_UpdateLocalTransform.PushBack(e.m_pObject);
+  }
+}
+
+void ezSceneDocument::ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e)
+{
+  if (m_bInObjectTransformFixup)
+    return;
+
+  switch (e.m_EventType)
+  {
+  case ezDocumentObjectStructureEvent::Type::AfterObjectMoved:
+    {
+      m_UpdateLocalTransform.PushBack(e.m_pObject);
+    }
+    break;
   }
 }
 

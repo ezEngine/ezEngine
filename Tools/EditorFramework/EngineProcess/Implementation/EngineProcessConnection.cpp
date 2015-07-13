@@ -308,10 +308,5 @@ void ezEditorEngineConnection::SendObject(const ezDocumentObjectBase* pObject)
   msg.m_uiNewChildIndex = msg.m_pNewParent->GetChildIndex((ezDocumentObjectBase*) pObject);
 
   SendDocumentTreeChange(msg);
-
-  for (auto pChild : pObject->GetChildren())
-  {
-    SendObject(pChild);
-  }
 }
 

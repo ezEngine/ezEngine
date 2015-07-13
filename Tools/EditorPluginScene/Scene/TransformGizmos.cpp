@@ -33,6 +33,9 @@ void ezSceneDocumentWindow::UpdateGizmoVisibility()
   if (pSceneDoc->GetSelectionManager()->GetSelection().IsEmpty() || pSceneDoc->GetActiveGizmo() == ActiveGizmo::None)
     return;
 
+  if (!pSceneDoc->GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+    return;
+
   switch (pSceneDoc->GetActiveGizmo())
   {
   case ActiveGizmo::Translate:

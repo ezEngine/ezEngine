@@ -59,6 +59,7 @@ protected:
 
 private:
   void ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void CommandHistoryEventHandler(const ezCommandHistory::Event& e);
   void UpdateObjectGlobalPosition(const ezDocumentObjectBase* pObject);
   void UpdateObjectGlobalPosition(const ezDocumentObjectBase* pObject, const ezTransform& tParent);

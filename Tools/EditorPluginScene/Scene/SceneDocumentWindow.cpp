@@ -94,8 +94,7 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   m_ScaleGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
   m_DragToPosGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
   pSceneDoc->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::ObjectPropertyEventHandler, this));
-
-
+  pSceneDoc->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::ObjectStructureEventHandler, this));
 
   {
     ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
@@ -133,6 +132,7 @@ ezSceneDocumentWindow::~ezSceneDocumentWindow()
   m_ScaleGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
   m_DragToPosGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
   pSceneDoc->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::ObjectPropertyEventHandler, this));
+  pSceneDoc->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::ObjectStructureEventHandler, this));
 
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::SelectionManagerEventHandler, this));
 
@@ -146,6 +146,9 @@ ezSceneDocumentWindow::~ezSceneDocumentWindow()
 
 void ezSceneDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
+  if (e.m_bEditorProperty)
+    return;
+
   m_pEngineView->SendObjectProperties(e);
 }
 
@@ -175,6 +178,24 @@ void ezSceneDocumentWindow::ObjectPropertyEventHandler(const ezDocumentObjectPro
   }
 }
 
+void ezSceneDocumentWindow::ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e)
+{
+  if (m_bInGizmoInteraction)
+    return;
+
+  if (!m_TranslateGizmo.IsVisible() && !m_RotateGizmo.IsVisible() && !m_ScaleGizmo.IsVisible() && !m_DragToPosGizmo.IsVisible())
+    return;
+
+  switch (e.m_EventType)
+  {
+  case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+    {
+      UpdateGizmoVisibility();
+    }
+    break;
+  }
+}
+
 void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEvent& e)
 {
   switch (e.m_Type)
@@ -200,8 +221,8 @@ void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEve
       if (vDiff.NormalizeIfNotZero().Failed())
         return;
 
-      /// \todo The distance value of 10 is a hack
-      m_pCameraPositionContext->MoveToTarget(vPosition - vDiff * 10.0f, vDiff);
+      /// \todo The distance value of 5 is a hack, we need the bounding box of the selection for this
+      m_pCameraPositionContext->MoveToTarget(vPosition - vDiff * 5.0f, vDiff);
     }
     break;
   }
@@ -266,7 +287,7 @@ void ezSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManage
   {
   case ezSelectionManager::Event::Type::SelectionCleared:
     {
-      m_GizmoSelection.IsEmpty();
+      m_GizmoSelection.Clear();
       UpdateGizmoVisibility();
     }
     break;

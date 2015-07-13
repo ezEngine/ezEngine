@@ -65,6 +65,7 @@ private:
   void UpdateGizmoVisibility();
   void UpdateGizmoPosition();
   void ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e);
 
   void SendRedrawMsg();
 
