@@ -10,6 +10,7 @@
 #include <RendererFoundation/Context/Context.h>
 #include <CoreUtils/Image/ImageConversion.h>
 #include <CoreUtils/Image/Formats/DdsFileFormat.h>
+#include <CoreUtils/Assets/AssetFileHeader.h>
 
 static ezTextureResourceLoader s_TextureResourceLoader;
 
@@ -493,8 +494,8 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
     if (sAbsolutePath.HasExtension("ezTex"))
     {
       // read the hash, ignore it
-      ezUInt64 uiAssetHash = 0;
-      File >> uiAssetHash;
+      ezAssetFileHeader AssetHash;
+      AssetHash.Read(File);
 
       // read the ezTex file format
       File >> bSRGB;

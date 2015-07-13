@@ -2,6 +2,7 @@
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Textures/TextureResource.h>
 #include <Foundation/IO/ExtendedJSONReader.h>
+#include <CoreUtils/Assets/AssetFileHeader.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialResource, ezResourceBase, 1, ezRTTIDefaultAllocator<ezMaterialResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -44,8 +45,8 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReaderBase* Stream)
   {
     ezStringBuilder sTemp, sTemp2;
 
-    ezUInt64 uiAssetHash = 0;
-    (*Stream) >> uiAssetHash;
+    ezAssetFileHeader AssetHash;
+    AssetHash.Read(*Stream);
 
     ezUInt8 uiVersion = 0;
     (*Stream) >> uiVersion;

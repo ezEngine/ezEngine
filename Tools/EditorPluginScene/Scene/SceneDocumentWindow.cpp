@@ -245,6 +245,10 @@ void ezSceneDocumentWindow::InternalRedraw()
 
 void ezSceneDocumentWindow::SendRedrawMsg()
 {
+  // do not try to redraw while the process is crashed, it is obviously futile
+  if (ezEditorEngineProcessConnection::GetInstance()->IsProcessCrashed())
+    return;
+
   ezViewCameraMsgToEngine cam;
   cam.m_fNearPlane = m_Camera.GetNearPlane();
   cam.m_fFarPlane = m_Camera.GetFarPlane();

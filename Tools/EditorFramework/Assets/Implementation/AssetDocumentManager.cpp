@@ -3,6 +3,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <CoreUtils/Assets/AssetFileHeader.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentManager, ezDocumentManagerBase, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -13,10 +14,10 @@ bool ezAssetDocumentManager::IsResourceUpToDate(ezUInt64 uiHash, const char* szR
   if (file.Open(szResourceFile, 256).Failed())
     return false;
 
-  ezUInt64 uiHashInFile = 0;
-  file >> uiHashInFile;
+  ezAssetFileHeader AssetHeader;
+  AssetHeader.Read(file);
 
-  return uiHash == uiHashInFile;
+  return AssetHeader.IsFileUpToDate(uiHash);
 }
 
 ezString ezAssetDocumentManager::GenerateResourceFileName(const char* szDocumentPath, const char* szPlatform) const

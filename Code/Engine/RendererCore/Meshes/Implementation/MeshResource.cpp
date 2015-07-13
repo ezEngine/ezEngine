@@ -2,6 +2,7 @@
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <Foundation/Strings/StringBuilder.h>
+#include <CoreUtils/Assets/AssetFileHeader.h>
 
 #include <Core/ResourceManager/ResourceManager.h>
 
@@ -55,8 +56,8 @@ ezResourceLoadDesc ezMeshResource::UpdateContent(ezStreamReaderBase* Stream)
     (*Stream) >> sAbsFilePath;
   }
 
-  ezUInt64 uiAssetHash = 0;
-  *Stream >> uiAssetHash;
+  ezAssetFileHeader AssetHash;
+  AssetHash.Read(*Stream);
 
   if (desc.Load(*Stream).Failed())
   {

@@ -13,6 +13,7 @@
 #include <QImage>
 #include <QPainter>
 #include <Foundation/IO/OSFile.h>
+#include <CoreUtils/Assets/AssetFileHeader.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, ezDocumentInfo, 1, ezRTTINoAllocator);
 EZ_BEGIN_PROPERTIES
@@ -157,7 +158,10 @@ ezStatus ezAssetDocument::TransformAsset(const char* szPlatform)
     return ezStatus("Opening the asset output file failed");
   }
 
-  file << uiHash;
+  ezAssetFileHeader AssetHeader;
+  AssetHeader.SetFileHash(uiHash);
+
+  AssetHeader.Write(file);
 
   return InternalTransformAsset(file, sPlatform);
 }
