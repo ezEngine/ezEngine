@@ -131,7 +131,7 @@ ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriterBase& stream,
     ezUInt32 uiThisVertex = uiBaseVertex;
     for (ezUInt32 v = 0; v < scene->mMeshes[i]->mNumVertices; ++v, ++uiThisVertex)
     {
-      desc.MeshBufferDesc().SetVertexData(0, uiThisVertex, ezVec3(scene->mMeshes[i]->mVertices[v].x, scene->mMeshes[i]->mVertices[v].y, scene->mMeshes[i]->mVertices[v].z));
+      desc.MeshBufferDesc().SetVertexData(0, uiThisVertex, pProp->m_fMeshScaling * ezVec3(scene->mMeshes[i]->mVertices[v].x, scene->mMeshes[i]->mVertices[v].y, scene->mMeshes[i]->mVertices[v].z));
     }
     uiCurVertex = uiThisVertex;
 

@@ -13,6 +13,7 @@ public:
   ezMeshAssetProperties();
 
   ezString m_sMeshFile;
+  float m_fMeshScaling;
   ezString m_sSlot0;
   ezString m_sSlot1;
   ezString m_sSlot2;

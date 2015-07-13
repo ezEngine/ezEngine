@@ -5,6 +5,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, ezReflectedClass, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("Mesh File", m_sMeshFile),
+    EZ_MEMBER_PROPERTY("Mesh Scaling", m_fMeshScaling),
     EZ_MEMBER_PROPERTY("Material Slot 0", m_sSlot0),
     EZ_MEMBER_PROPERTY("Material Slot 1", m_sSlot1),
     EZ_MEMBER_PROPERTY("Material Slot 2", m_sSlot2),
@@ -44,6 +45,7 @@ ezMeshAssetProperties::ezMeshAssetProperties()
 {
   m_uiVertices = 0;
   m_uiTriangles = 0;
+  m_fMeshScaling = 1.0f;
 }
 
 const ezString& ezMeshAssetProperties::GetResourceSlotProperty(ezUInt32 uiSlot) const

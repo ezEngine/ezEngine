@@ -7,7 +7,7 @@
         "DocumentID" : { "$t" : "uuid", "$b" : "0x7E56A3CE366D8F419259F2E157979BCC" },
         "Dependencies" : "Sponza/sponza.obj",
         "References" : "",
-        "Hash" : { "$t" : "uint64", "$v" : "9612508761400454229", "$b" : "0x55AC9A0BCA7D6685" },
+        "Hash" : { "$t" : "uint64", "$v" : "50327873582178313", "$b" : "0x09A02A33EFCCB200" },
         "AssetType" : "Mesh"
       }
     } ],
@@ -17,6 +17,7 @@
       "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
       "TypeData" : {
         "Mesh File" : "Sponza/sponza.obj",
+        "Mesh Scaling" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
         "Material Slot 0" : "Sponza/Materials/leaf.ezMaterial",
         "Material Slot 1" : "Sponza/Materials/vase_round.ezMaterial",
         "Material Slot 2" : "Sponza/Materials/Material__57.ezMaterial",
