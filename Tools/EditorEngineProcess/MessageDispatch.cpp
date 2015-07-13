@@ -141,6 +141,7 @@ void ezEngineProcessGameState::EventHandlerIPC(const ezProcessCommunication::Eve
     pViewContext->Redraw();
 
     ezViewRedrawFinishedMsgToEditor ack;
+    ack.m_uiViewID = pMsg->m_uiViewID;
     m_IPC.SendMessage(&ack);
 
     ezStringBuilder sValue;

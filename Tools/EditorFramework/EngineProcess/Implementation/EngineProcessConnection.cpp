@@ -48,6 +48,7 @@ void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicatio
   {
     const ezEditorEngineDocumentMsg* pMsg = static_cast<const ezEditorEngineDocumentMsg*>(e.m_pMessage);
 
+    EZ_ASSERT_DEBUG(m_EngineViewsByID.Contains(pMsg->m_uiViewID), "The ViewID '%u' is not known!", pMsg->m_uiViewID);
     ezDocumentWindow3D* pWindow = m_EngineViewsByID[pMsg->m_uiViewID];
 
     if (pWindow)
