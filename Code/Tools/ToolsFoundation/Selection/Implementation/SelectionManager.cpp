@@ -27,10 +27,26 @@ void ezSelectionManager::TreeEventHandler(const ezDocumentObjectStructureEvent& 
   switch (e.m_EventType)
   {
   case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
-    RemoveObject(e.m_pObject);
+    RemoveObject(e.m_pObject, true);
     break;
   default:
     return;
+  }
+}
+
+void ezSelectionManager::RecursiveRemoveFromSelection(const ezDocumentObjectBase* pObject)
+{
+  auto it = m_SelectionSet.Find(pObject->GetGuid());
+
+  if (it.IsValid())
+  {
+    m_SelectionSet.Remove(it);
+    m_SelectionList.Remove(pObject);
+  }
+
+  for (const ezDocumentObjectBase* pChild : pObject->GetChildren())
+  {
+    RecursiveRemoveFromSelection(pChild);
   }
 }
 
@@ -42,7 +58,7 @@ void ezSelectionManager::Clear()
   Event e;
   e.m_pObject = nullptr;
   e.m_Type = Event::Type::SelectionCleared;
-  
+
   m_Events.Broadcast(e);
 }
 
@@ -57,27 +73,39 @@ void ezSelectionManager::AddObject(const ezDocumentObjectBase* pObject)
   Event e;
   e.m_pObject = pObject;
   e.m_Type = Event::Type::ObjectAdded;
-  
+
   m_Events.Broadcast(e);
 }
 
-void ezSelectionManager::RemoveObject(const ezDocumentObjectBase* pObject)
+void ezSelectionManager::RemoveObject(const ezDocumentObjectBase* pObject, bool bRecurseChildren)
 {
-  auto it = m_SelectionSet.Find(pObject->GetGuid());
-  
-  if (!it.IsValid())
-    return;
+  if (bRecurseChildren)
+  {
+    // We only want one message for the change in selection so we first everything and then fire
+    // SelectionSet instead of multiple ObjectRemoved messages.
+    RecursiveRemoveFromSelection(pObject);
 
-  m_SelectionSet.Remove(it);
+    Event e;
+    e.m_pObject = nullptr;
+    e.m_Type = Event::Type::SelectionSet;
+    m_Events.Broadcast(e);
+  }
+  else
+  {
+    auto it = m_SelectionSet.Find(pObject->GetGuid());
 
-  m_SelectionList.Remove(pObject);
+    if (!it.IsValid())
+      return;
 
-  Event e;
-  e.m_pObject = pObject;
-  e.m_Type = Event::Type::ObjectRemoved;
-  
-  m_Events.Broadcast(e);
+    m_SelectionSet.Remove(it);
+    m_SelectionList.Remove(pObject);
 
+    Event e;
+    e.m_pObject = pObject;
+    e.m_Type = Event::Type::ObjectRemoved;
+
+    m_Events.Broadcast(e);
+  }
 }
 
 void ezSelectionManager::SetSelection(const ezDeque<const ezDocumentObjectBase*>& Selection)
@@ -101,7 +129,7 @@ void ezSelectionManager::SetSelection(const ezDeque<const ezDocumentObjectBase*>
   Event e;
   e.m_pObject = nullptr;
   e.m_Type = Event::Type::SelectionSet;
-  
+
   m_Events.Broadcast(e);
 }
 

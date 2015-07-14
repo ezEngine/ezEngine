@@ -38,7 +38,7 @@ public:
 
   void Clear();
   void AddObject(const ezDocumentObjectBase* pObject);
-  void RemoveObject(const ezDocumentObjectBase* pObject);
+  void RemoveObject(const ezDocumentObjectBase* pObject, bool bRecurseChildren = false);
   void SetSelection(const ezDeque<const ezDocumentObjectBase*>& Selection);
   void ToggleObject(const ezDocumentObjectBase* pObject);
 
@@ -51,6 +51,7 @@ public:
 
 private:
   void TreeEventHandler(const ezDocumentObjectStructureEvent& e);
+  void RecursiveRemoveFromSelection(const ezDocumentObjectBase* pObject);
 
   friend class ezDocumentBase;
 
