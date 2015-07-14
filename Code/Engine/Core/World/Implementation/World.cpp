@@ -638,9 +638,10 @@ void ezWorld::PatchHierarchyData(ezGameObject* pObject)
     pNewTransformationData->m_localPosition = pObject->m_pTransformationData->m_localPosition;
     pNewTransformationData->m_localRotation = pObject->m_pTransformationData->m_localRotation;
     pNewTransformationData->m_localScaling = pObject->m_pTransformationData->m_localScaling;
-    pNewTransformationData->m_globalTransform.SetIdentity();
-    pNewTransformationData->m_velocity.SetZero();
+    pNewTransformationData->m_globalTransform = pObject->m_pTransformationData->m_globalTransform;
+    pNewTransformationData->m_velocity = pObject->m_pTransformationData->m_velocity;
     pNewTransformationData->m_localBounds = pObject->m_pTransformationData->m_localBounds;
+    pNewTransformationData->m_globalBounds = pObject->m_pTransformationData->m_globalBounds;
 
     m_Data.DeleteTransformationData(pObject->m_Flags, pObject->m_uiHierarchyLevel,
       pObject->m_uiTransformationDataIndex);
@@ -651,6 +652,7 @@ void ezWorld::PatchHierarchyData(ezGameObject* pObject)
   }
 
   pObject->m_pTransformationData->m_pParentData = pParent != nullptr ? pParent->m_pTransformationData : nullptr;
+  pObject->SetGlobalTransform(pObject->m_pTransformationData->m_globalTransform);
 
   for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
   {
@@ -680,8 +682,6 @@ void ezWorld::UpdateHierarchy()
     if (pObject->GetParent() == pNewParent)
       continue;
 
-    const ezTransform tGlobal = pObject->GetGlobalTransform();
-
     UnlinkFromParent(pObject);
 
     if (pNewParent != nullptr)
@@ -689,9 +689,6 @@ void ezWorld::UpdateHierarchy()
       pObject->m_ParentIndex = pNewParent->m_InternalId.m_InstanceIndex;
       LinkToParent(pObject);
     }
-
-    // make sure to update the local transform, such that it yields the same global transform as before
-    pObject->SetGlobalTransform(tGlobal);
 
     // we need to patch all changed hierarchy data in a second round so we save the pointer to the object in the request data
     ezGameObject** pRequestData = reinterpret_cast<ezGameObject**>(&m_Data.m_SetParentRequests[uiNumObjectsToPatch]);

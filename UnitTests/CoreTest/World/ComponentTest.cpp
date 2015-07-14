@@ -290,5 +290,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     TestComponent* pComponentB2 = nullptr;
     ezComponentHandle hComponentB2 = TestComponent::CreateComponent(&world, pComponentB2);
     EZ_TEST_BOOL(pComponentB2 == pComponentB);
+
+    TestComponent::s_bGOInactiveCheck = false;
   }
 }

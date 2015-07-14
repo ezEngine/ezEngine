@@ -72,7 +72,7 @@ void AsteroidGameState::Activate()
   ezFileSystem::AddDataDirectory(sSharedDir.GetData(), ezFileSystem::ReadOnly, "Shared");
   ezFileSystem::AddDataDirectory(sProjectDir.GetData(), ezFileSystem::AllowWrites, "Project");
 
-  ezApplicationConfig::SetProjectDirectory(sProjectDir);
+  GetApplication()->SetupProject(sProjectDir);
 
   m_pWindow = EZ_DEFAULT_NEW(GameWindow);
   ezGALSwapChainHandle hSwapChain = GetApplication()->AddWindow(m_pWindow);

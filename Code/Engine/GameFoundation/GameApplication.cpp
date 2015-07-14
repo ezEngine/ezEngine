@@ -103,6 +103,18 @@ void ezGameApplication::RequestQuit()
   m_bWasQuitRequested = true;
 }
 
+void ezGameApplication::SetupProject(const char* szProjectDir)
+{
+  ezApplicationConfig::SetProjectDirectory(szProjectDir);
+
+  // load data dir config
+  {
+    ezApplicationFileSystemConfig appFileSystemConfig;
+    appFileSystemConfig.Load();
+    appFileSystemConfig.Apply();
+  }
+}
+
 void ezGameApplication::AfterEngineInit()
 {
   // Setup the logging system
@@ -177,13 +189,6 @@ void ezGameApplication::AfterEngineInit()
   ezStartup::StartupEngine();
 
   m_pCurrentGameState->Activate();
-
-  // load data dir config
-  {
-    ezApplicationFileSystemConfig appFileSystemConfig;
-    appFileSystemConfig.Load();
-    appFileSystemConfig.Apply();
-  }
 
   m_bWasQuitRequested = false;
 }

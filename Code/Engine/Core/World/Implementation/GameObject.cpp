@@ -187,10 +187,9 @@ void ezGameObject::SetGlobalTransform(const ezTransform& transform)
 {
   ezTransform tLocal;
 
-  const ezGameObject* pParent = GetParent();
-  if (pParent != nullptr)
+  if (m_pTransformationData->m_pParentData != nullptr)
   {
-    tLocal.SetLocalTransform(pParent->m_pTransformationData->m_globalTransform, transform);
+    tLocal.SetLocalTransform(m_pTransformationData->m_pParentData->m_globalTransform, transform);
   }
   else
   {

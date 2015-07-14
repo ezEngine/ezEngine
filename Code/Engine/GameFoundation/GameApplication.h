@@ -39,6 +39,8 @@ public:
     return m_bWasQuitRequested;
   }
 
+  void SetupProject(const char* szProjectDir);
+
 protected:
 
   void UpdateWorldsAndRender();  

@@ -49,13 +49,21 @@ namespace
 
   void TestTransforms(const TestWorldObjects& o)
   {
+    const float eps = ezMath::BasicType<float>::DefaultEpsilon();
     ezQuat q; q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::Degree(90.0f));
 
-    for (ezUInt32 i = 0; i < sizeof(TestWorldObjects) / sizeof(ezGameObject*); ++i)
+    for (ezUInt32 i = 0; i < 2; ++i)
     {
-      EZ_TEST_VEC3(o.pObjects[i]->GetLocalPosition(), ezVec3(100.0f, 0.0f, 0.0f), 0);
-      EZ_TEST_BOOL(o.pObjects[i]->GetLocalRotation() == q);
-      EZ_TEST_VEC3(o.pObjects[i]->GetLocalScaling(), ezVec3(1.5f, 1.5f, 1.5f), 0);
+      EZ_TEST_VEC3(o.pObjects[i]->GetGlobalPosition(), ezVec3(100.0f, 0.0f, 0.0f), 0);
+      EZ_TEST_BOOL(o.pObjects[i]->GetGlobalRotation() == q);
+      EZ_TEST_VEC3(o.pObjects[i]->GetGlobalScaling(), ezVec3(1.5f, 1.5f, 1.5f), 0);
+    }
+
+    for (ezUInt32 i = 2; i < 4; ++i)
+    {
+      EZ_TEST_VEC3(o.pObjects[i]->GetGlobalPosition(), ezVec3(100.0f, 150.0f, 0.0f), eps * 2.0f);
+      EZ_TEST_BOOL(o.pObjects[i]->GetGlobalRotation().IsEqualRotation(q * q, eps * 10.0f));
+      EZ_TEST_VEC3(o.pObjects[i]->GetGlobalScaling(), ezVec3(2.25f, 2.25f, 2.25f), 0);
     }
   }
 }
