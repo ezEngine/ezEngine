@@ -36,12 +36,17 @@ public:
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezGameObjectDummyAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
-    EZ_ACCESSOR_PROPERTY("LocalPosition", GetLocalPosition, SetLocalPosition),
-    EZ_ACCESSOR_PROPERTY("LocalRotation", GetLocalRotation, SetLocalRotation),
-    EZ_ACCESSOR_PROPERTY("LocalScaling", GetLocalScaling, SetLocalScaling),
+    // Note: The global properties MUST come before the local properties!
+    // Otherwise if BOTH properties are set (one after the other) the modification of the global transform
+    // will also change the local transform and then yield an incorrect result when combined with the parent transform
+    // By synching the local transform last, the global transform may get 'broken' but it will be fixed during
+    // the world update
     EZ_ACCESSOR_PROPERTY("GlobalPosition", GetGlobalPosition, SetGlobalPosition),
     EZ_ACCESSOR_PROPERTY("GlobalRotation", GetGlobalRotation, SetGlobalRotation),
     EZ_ACCESSOR_PROPERTY("GlobalScaling", GetGlobalScaling, SetGlobalScaling),
+    EZ_ACCESSOR_PROPERTY("LocalPosition", GetLocalPosition, SetLocalPosition),
+    EZ_ACCESSOR_PROPERTY("LocalRotation", GetLocalRotation, SetLocalRotation),
+    EZ_ACCESSOR_PROPERTY("LocalScaling", GetLocalScaling, SetLocalScaling),
     EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 

@@ -80,7 +80,7 @@ void ezSceneDocumentWindow::UpdateGizmoSelectionList()
     SelectedGO sgo;
     sgo.m_Object = Selection[sel]->GetGuid();
     sgo.m_vTranslation = Selection[sel]->GetTypeAccessor().GetValue("GlobalPosition").ConvertTo<ezVec3>();
-    sgo.m_vScaling = Selection[sel]->GetTypeAccessor().GetValue("GlobalScaling").ConvertTo<ezVec3>();
+    sgo.m_vScaling = Selection[sel]->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
     sgo.m_Rotation = Selection[sel]->GetTypeAccessor().GetValue("GlobalRotation").ConvertTo<ezQuat>();
 
     m_GizmoSelection.PushBack(sgo);
@@ -136,6 +136,8 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
       GetDocument()->GetCommandHistory()->FinishTemporaryCommands();
 
       m_GizmoSelection.Clear();
+
+      UpdateGizmoPosition();
     }
     break;
 
@@ -148,8 +150,9 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
 
       bool bCancel = false;
 
-      ezSetObjectPropertyCommand cmd;
+      ezSetObjectPropertyCommand cmd, cmd2;
       cmd.m_bEditorProperty = false;
+      cmd2.m_bEditorProperty = false;
 
       if (e.m_pGizmo == &m_TranslateGizmo)
       {
@@ -175,8 +178,10 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
       if (e.m_pGizmo == &m_RotateGizmo)
       {
         cmd.SetPropertyPath("GlobalRotation");
+        cmd2.SetPropertyPath("GlobalPosition");
 
         const ezQuat qRotation = m_RotateGizmo.GetRotationResult();
+        const ezVec3 vPivot = m_RotateGizmo.GetTransformation().GetTranslationVector();
 
         for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
         {
@@ -186,6 +191,15 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
           cmd.m_NewValue = qRotation * obj.m_Rotation;
 
           if (GetDocument()->GetCommandHistory()->AddCommand(cmd).m_Result.Failed())
+          {
+            bCancel = true;
+            break;
+          }
+
+          cmd2.m_Object = obj.m_Object;
+          cmd2.m_NewValue = vPivot + qRotation * (obj.m_vTranslation - vPivot);
+
+          if (GetDocument()->GetCommandHistory()->AddCommand(cmd2).m_Result.Failed())
           {
             bCancel = true;
             break;
