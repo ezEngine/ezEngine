@@ -55,7 +55,7 @@ namespace
     for (ezUInt32 i = 0; i < 2; ++i)
     {
       EZ_TEST_VEC3(o.pObjects[i]->GetGlobalPosition(), ezVec3(100.0f, 0.0f, 0.0f), 0);
-      EZ_TEST_BOOL(o.pObjects[i]->GetGlobalRotation() == q);
+      EZ_TEST_BOOL(o.pObjects[i]->GetGlobalRotation().IsEqualRotation(q, eps * 10.0f));
       EZ_TEST_VEC3(o.pObjects[i]->GetGlobalScaling(), ezVec3(1.5f, 1.5f, 1.5f), 0);
     }
 
