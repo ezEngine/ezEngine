@@ -93,8 +93,8 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   m_RotateGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
   m_ScaleGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
   m_DragToPosGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
-  pSceneDoc->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::ObjectPropertyEventHandler, this));
   pSceneDoc->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::ObjectStructureEventHandler, this));
+  pSceneDoc->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::CommandHistoryEventHandler, this));
 
   {
     ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
@@ -131,8 +131,8 @@ ezSceneDocumentWindow::~ezSceneDocumentWindow()
   m_RotateGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
   m_ScaleGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
   m_DragToPosGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
-  pSceneDoc->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::ObjectPropertyEventHandler, this));
   pSceneDoc->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::ObjectStructureEventHandler, this));
+  pSceneDoc->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::CommandHistoryEventHandler, this));
 
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::SelectionManagerEventHandler, this));
 
@@ -152,30 +152,18 @@ void ezSceneDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyE
   m_pEngineView->SendObjectProperties(e);
 }
 
-void ezSceneDocumentWindow::ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void ezSceneDocumentWindow::CommandHistoryEventHandler(const ezCommandHistory::Event& e)
 {
-  if (m_bInGizmoInteraction)
-    return;
-
-  if (!m_TranslateGizmo.IsVisible() && !m_RotateGizmo.IsVisible() && !m_ScaleGizmo.IsVisible() && !m_DragToPosGizmo.IsVisible())
-    return;
-
-  if (e.m_bEditorProperty)
-    return;
-
-  if (GetDocument()->GetSelectionManager()->GetSelection().IsEmpty())
-    return;
-
-  if (e.m_pObject != GetDocument()->GetSelectionManager()->GetSelection()[0])
-    return;
-
-  if (e.m_sPropertyPath == "GlobalPosition" ||
-      e.m_sPropertyPath == "GlobalRotation" ||
-      e.m_sPropertyPath == "GlobalScaling")
+  switch (e.m_Type)
   {
-    /// \todo Make sure this isn't called three times for every update...
-    UpdateGizmoPosition();
+  case ezCommandHistory::Event::Type::AfterEndTransaction:
+    {
+      UpdateGizmoVisibility();
+    }
+    break;
+
   }
+
 }
 
 void ezSceneDocumentWindow::ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e)

@@ -260,6 +260,9 @@ void ezDocumentBase::DeleteSelectedObjects()
 {
   auto objects = GetSelectionManager()->GetSelection();
 
+  // make sure the whole selection is cleared, otherwise each delete command would reduce the selection one by one
+  GetSelectionManager()->Clear();
+
   auto history = GetCommandHistory();
   history->StartTransaction();
 
