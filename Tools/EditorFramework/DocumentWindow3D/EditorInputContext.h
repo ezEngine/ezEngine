@@ -18,6 +18,7 @@ public:
   ezEditorInputContext()
   {
     m_pDocumentWindow3D = nullptr;
+    m_bDisableShortcuts = false;
   }
 
   virtual ~ezEditorInputContext();
@@ -67,9 +68,15 @@ public:
     return m_pDocumentWindow3D;
   }
 
+  bool GetShortcutsDisabled() const { return m_bDisableShortcuts; }
+
+  /// \brief If set to true, the surrounding window will ensure to block all shortcuts and instead send keypress events to the input context
+  void SetShortcutsDisabled(bool bDisabled) { m_bDisableShortcuts = bDisabled; }
+
 private:
   static ezEditorInputContext* s_pActiveInputContext;
   ezDocumentWindow3D* m_pDocumentWindow3D;
+  bool m_bDisableShortcuts;
 
   virtual void UpdateContext() {}
 };

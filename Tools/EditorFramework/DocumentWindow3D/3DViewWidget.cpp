@@ -11,6 +11,23 @@ void ez3DViewWidget::paintEvent(QPaintEvent* event)
 
 }
 
+bool ez3DViewWidget::eventFilter(QObject* object, QEvent* event)
+{
+  if (event->type() == QEvent::Type::ShortcutOverride)
+  {
+    if (ezEditorInputContext::IsAnyInputContextActive())
+    {
+      // if the active input context does not like other shortcuts,
+      // accept this event and thus block further shortcut processing
+      // instead Qt will then send a keypress event
+      if (ezEditorInputContext::GetActiveInputContext()->GetShortcutsDisabled())
+        event->accept();
+    }
+  }
+
+  return false;
+}
+
 void ez3DViewWidget::resizeEvent(QResizeEvent* event)
 {
   m_pDocumentWindow->TriggerRedraw();
@@ -24,6 +41,8 @@ ez3DViewWidget::ez3DViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocument)
   setAttribute(Qt::WA_OpaquePaintEvent);
   setAutoFillBackground(false);
   setMouseTracking(true);
+
+  installEventFilter(this);
 }
 
 void ez3DViewWidget::keyReleaseEvent(QKeyEvent* e)

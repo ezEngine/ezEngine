@@ -79,9 +79,11 @@ void ezSceneDocumentWindow::UpdateGizmoSelectionList()
 
     SelectedGO sgo;
     sgo.m_Object = Selection[sel]->GetGuid();
-    sgo.m_vTranslation = Selection[sel]->GetTypeAccessor().GetValue("GlobalPosition").ConvertTo<ezVec3>();
-    sgo.m_vScaling = Selection[sel]->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
-    sgo.m_Rotation = Selection[sel]->GetTypeAccessor().GetValue("GlobalRotation").ConvertTo<ezQuat>();
+    sgo.m_vGlobalTranslation = Selection[sel]->GetTypeAccessor().GetValue("GlobalPosition").ConvertTo<ezVec3>();
+    sgo.m_GlobalRotation = Selection[sel]->GetTypeAccessor().GetValue("GlobalRotation").ConvertTo<ezQuat>();
+    sgo.m_vLocalTranslation = Selection[sel]->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
+    sgo.m_LocalRotation = Selection[sel]->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
+    sgo.m_vLocalScaling = Selection[sel]->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
 
     m_GizmoSelection.PushBack(sgo);
   }
@@ -165,7 +167,7 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
           const auto& obj = m_GizmoSelection[sel];
 
           cmd.m_Object = obj.m_Object;
-          cmd.m_NewValue = obj.m_vTranslation + vTranslate;
+          cmd.m_NewValue = obj.m_vGlobalTranslation + vTranslate;
 
           if (GetDocument()->GetCommandHistory()->AddCommand(cmd).m_Result.Failed())
           {
@@ -188,7 +190,7 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
           const auto& obj = m_GizmoSelection[sel];
 
           cmd.m_Object = obj.m_Object;
-          cmd.m_NewValue = qRotation * obj.m_Rotation;
+          cmd.m_NewValue = qRotation * obj.m_GlobalRotation;
 
           if (GetDocument()->GetCommandHistory()->AddCommand(cmd).m_Result.Failed())
           {
@@ -197,7 +199,7 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
           }
 
           cmd2.m_Object = obj.m_Object;
-          cmd2.m_NewValue = vPivot + qRotation * (obj.m_vTranslation - vPivot);
+          cmd2.m_NewValue = vPivot + qRotation * (obj.m_vGlobalTranslation - vPivot);
 
           if (GetDocument()->GetCommandHistory()->AddCommand(cmd2).m_Result.Failed())
           {
@@ -218,7 +220,7 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
           const auto& obj = m_GizmoSelection[sel];
 
           cmd.m_Object = obj.m_Object;
-          cmd.m_NewValue = obj.m_vScaling.CompMult(vScale);
+          cmd.m_NewValue = obj.m_vLocalScaling.CompMult(vScale);
 
           if (GetDocument()->GetCommandHistory()->AddCommand(cmd).m_Result.Failed())
           {
@@ -239,7 +241,7 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
           const auto& obj = m_GizmoSelection[sel];
 
           cmd.m_Object = obj.m_Object;
-          cmd.m_NewValue = obj.m_vTranslation + vTranslate;
+          cmd.m_NewValue = obj.m_vGlobalTranslation + vTranslate;
 
           if (GetDocument()->GetCommandHistory()->AddCommand(cmd).m_Result.Failed())
           {

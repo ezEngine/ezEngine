@@ -17,6 +17,9 @@ public:
 
   virtual void paintEvent(QPaintEvent* event) override;
 
+  /// \brief Used to deactivate shortcuts
+  virtual bool eventFilter(QObject* object, QEvent* event) override;
+
 protected:
   virtual void resizeEvent(QResizeEvent* event) override;
 

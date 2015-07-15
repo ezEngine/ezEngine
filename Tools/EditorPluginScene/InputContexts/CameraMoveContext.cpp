@@ -77,6 +77,9 @@ ezCameraMoveContext::ezCameraMoveContext(QWidget* pParentWidget, ezDocumentBase*
   // do not use SetMoveSpeed here, that would save that value to the settings
   m_iMoveSpeed = 15;
   m_fMoveSpeed = s_fMoveSpeed[m_iMoveSpeed];
+
+  // while the camera moves, ignore all other shortcuts
+  SetShortcutsDisabled(true);
 }
 
 void ezCameraMoveContext::FocusLost()
@@ -107,10 +110,8 @@ void ezCameraMoveContext::LoadState()
 
 void ezCameraMoveContext::UpdateContext()
 {
-  m_bRun = QApplication::keyboardModifiers() == Qt::KeyboardModifier::ShiftModifier;
-  m_bSlowDown = QApplication::keyboardModifiers() == Qt::KeyboardModifier::AltModifier;
-
-
+  //m_bRun = (QApplication::keyboardModifiers() & Qt::KeyboardModifier::ShiftModifier) != 0;
+  //m_bSlowDown = (QApplication::keyboardModifiers() & Qt::KeyboardModifier::AltModifier) != 0;
 
   ezTime diff = ezTime::Now() - m_LastUpdate;
   m_LastUpdate = ezTime::Now();
@@ -160,8 +161,8 @@ bool ezCameraMoveContext::keyReleaseEvent(QKeyEvent* e)
   if (m_pCamera == nullptr)
     return false;
 
-  //m_bRun = (e->modifiers() == Qt::KeyboardModifier::ShiftModifier);
-  //m_bSlowDown = (e->modifiers() == Qt::KeyboardModifier::AltModifier);
+  m_bRun = (e->modifiers() & Qt::KeyboardModifier::ShiftModifier) != 0;
+  m_bSlowDown = (e->modifiers() & Qt::KeyboardModifier::AltModifier) != 0;
 
   switch (e->key())
   {
@@ -208,16 +209,11 @@ bool ezCameraMoveContext::keyPressEvent(QKeyEvent* e)
   if (e->modifiers() == Qt::KeyboardModifier::ControlModifier)
     return false;
 
-  //m_bRun = (e->modifiers() == Qt::KeyboardModifier::ShiftModifier);
-  //m_bSlowDown = (e->modifiers() == Qt::KeyboardModifier::AltModifier);
+  m_bRun = (e->modifiers() & Qt::KeyboardModifier::ShiftModifier) != 0;
+  m_bSlowDown = (e->modifiers() & Qt::KeyboardModifier::AltModifier) != 0;
 
   switch (e->key())
   {
-    //case Qt::Key_Alt:
-    //case Qt::Key_Shift:
-    //  SetActiveInputContext(this);
-    //  return true;
-
   case Qt::Key_Left:
     m_bMoveLeft = true;
     SetActiveInputContext(this);
@@ -374,25 +370,6 @@ bool ezCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
       // not really handled, so make this context inactive and tell the surrounding code that it may pass
       // the event to the next handler
       return false;
-
-      //const ezObjectPickingResult& res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
-
-      //if (e->modifiers() == Qt::KeyboardModifier::AltModifier)
-      //{
-      //  if (res.m_PickedComponent.IsValid())
-      //  {
-      //    const ezDocumentObjectBase* pObject = m_pDocument->GetObjectManager()->GetObject(res.m_PickedComponent);
-      //    m_pDocument->GetSelectionManager()->SetSelection(pObject);
-      //  }
-      //}
-      //else
-      //{
-      //  if (res.m_PickedObject.IsValid())
-      //  {
-      //    const ezDocumentObjectBase* pObject = m_pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
-      //    m_pDocument->GetSelectionManager()->SetSelection(pObject);
-      //  }
-      //}
     }
 
     return true;

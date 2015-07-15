@@ -15,6 +15,9 @@ ezCameraPositionContext::ezCameraPositionContext(QWidget* pParentWidget, ezDocum
   m_LastUpdate = ezTime::Now();
 
   m_fLerp = 1.0f;
+
+  // while the camera moves, ignore all other shortcuts
+  SetShortcutsDisabled(true);
 }
 
 void ezCameraPositionContext::FocusLost()
@@ -59,8 +62,8 @@ void ezCameraPositionContext::UpdateContext()
 
   if (m_fLerp >= 1.0f)
   {
-    m_fLerp = 1.0f;
     FocusLost(); // done
+    m_fLerp = 1.0f;
   }
 
   const float fLerpValue = ezMath::Sin(ezAngle::Degree(90.0f * m_fLerp));

@@ -85,9 +85,11 @@ private:
   struct SelectedGO
   {
     ezUuid m_Object;
-    ezVec3 m_vTranslation;
-    ezVec3 m_vScaling;
-    ezQuat m_Rotation;
+    ezVec3 m_vGlobalTranslation;
+    ezQuat m_GlobalRotation;
+    ezVec3 m_vLocalTranslation;
+    ezQuat m_LocalRotation;
+    ezVec3 m_vLocalScaling;
   };
 
   bool m_bInGizmoInteraction;
