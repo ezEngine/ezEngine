@@ -111,6 +111,12 @@ bool ezSelectionContext::keyPressEvent(QKeyEvent* e)
     return true;
   }
 
+  if (e->key() == Qt::Key_Escape)
+  {
+    GetDocumentWindow3D()->GetDocument()->GetSelectionManager()->Clear();
+    return true;
+  }
+
   return false;
 }
 
