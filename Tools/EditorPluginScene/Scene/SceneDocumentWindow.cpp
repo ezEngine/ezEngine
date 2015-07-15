@@ -41,17 +41,17 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   m_Camera.LookAt(ezVec3(0.5f, 1.5f, 2.0f), ezVec3(0.0f, 0.5f, 0.0f), ezVec3(0.0f, 1.0f, 0.0f));
 
   m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, pDocument, this, &m_Camera);
-  m_pMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, m_pCenterWidget, pDocument, this);
+  m_pCameraMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, m_pCenterWidget, pDocument, this);
   m_pCameraPositionContext = EZ_DEFAULT_NEW(ezCameraPositionContext, m_pCenterWidget, pDocument, this);
 
-  m_pMoveContext->LoadState();
-  m_pMoveContext->SetCamera(&m_Camera);
+  m_pCameraMoveContext->LoadState();
+  m_pCameraMoveContext->SetCamera(&m_Camera);
 
   m_pCameraPositionContext->SetCamera(&m_Camera);
 
   // add the input contexts in the order in which they are supposed to be processed
   m_pCenterWidget->m_InputContexts.PushBack(m_pSelectionContext);
-  m_pCenterWidget->m_InputContexts.PushBack(m_pMoveContext);
+  m_pCenterWidget->m_InputContexts.PushBack(m_pCameraMoveContext);
 
 
   {
@@ -140,7 +140,7 @@ ezSceneDocumentWindow::~ezSceneDocumentWindow()
   GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::DocumentTreeEventHandler, this));
 
   EZ_DEFAULT_DELETE(m_pSelectionContext);
-  EZ_DEFAULT_DELETE(m_pMoveContext);
+  EZ_DEFAULT_DELETE(m_pCameraMoveContext);
   EZ_DEFAULT_DELETE(m_pCameraPositionContext);
 }
 
@@ -210,7 +210,9 @@ void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEve
         return;
 
       /// \todo The distance value of 5 is a hack, we need the bounding box of the selection for this
-      m_pCameraPositionContext->MoveToTarget(vPosition - vDiff * 5.0f, vDiff);
+      const ezVec3 vTargetPos = vPosition - vDiff * 5.0f;
+      m_pCameraMoveContext->SetOrbitPoint(vPosition);
+      m_pCameraPositionContext->MoveToTarget(vTargetPos, vDiff);
     }
     break;
   }

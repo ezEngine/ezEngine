@@ -22,6 +22,7 @@ ezCameraPositionContext::ezCameraPositionContext(QWidget* pParentWidget, ezDocum
 
 void ezCameraPositionContext::FocusLost()
 {
+  m_fLerp = 1.0f;
   m_pParentWidget->setCursor(QCursor(Qt::ArrowCursor));
   MakeActiveInputContext(false);
 }

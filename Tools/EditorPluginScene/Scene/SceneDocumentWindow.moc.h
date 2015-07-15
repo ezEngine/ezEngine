@@ -72,7 +72,7 @@ private:
   ezScene3DWidget* m_pCenterWidget;
 
   ezSelectionContext* m_pSelectionContext;
-  ezCameraMoveContext* m_pMoveContext;
+  ezCameraMoveContext* m_pCameraMoveContext;
   ezCameraPositionContext* m_pCameraPositionContext;
 
   ezTranslateGizmo m_TranslateGizmo;

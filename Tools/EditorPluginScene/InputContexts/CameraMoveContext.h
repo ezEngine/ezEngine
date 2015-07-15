@@ -24,6 +24,7 @@ public:
 
   void SetCamera(ezCamera* pCamera) { m_pCamera = pCamera; }
 
+  void SetOrbitPoint(const ezVec3& vPos);
 
 private:
   virtual void UpdateContext() override;
@@ -44,6 +45,7 @@ private:
   bool m_bRotateCamera;
   bool m_bMoveCamera;
   bool m_bMoveCameraInPlane;
+  bool m_bOrbitCamera;
   ezInt32 m_iMoveSpeed;
 
   ezCamera* m_pCamera;
@@ -60,6 +62,7 @@ private:
   bool m_bMoveForwardsInPlane;
   bool m_bMoveBackwardsInPlane;
   bool m_bDidMoveMouse[3]; // Left Click, Right Click, Middle Click
+  ezVec3 m_vOrbitPoint;
 
   ezTime m_LastUpdate;
 };

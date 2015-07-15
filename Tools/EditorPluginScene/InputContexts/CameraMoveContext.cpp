@@ -55,6 +55,8 @@ ezCameraMoveContext::ezCameraMoveContext(QWidget* pParentWidget, ezDocumentBase*
   m_pCamera = nullptr;
   m_fMoveSpeed = 1.0f;
 
+  m_vOrbitPoint.SetZero();
+
   m_bRun = false;
   m_bSlowDown = false;
   m_bMoveForwards = false;
@@ -72,6 +74,7 @@ ezCameraMoveContext::ezCameraMoveContext(QWidget* pParentWidget, ezDocumentBase*
   m_bMoveCamera = false;
   m_bMoveCameraInPlane = false;
   m_bTempMousePosition = false;
+  m_bOrbitCamera = false;
 
 
   // do not use SetMoveSpeed here, that would save that value to the settings
@@ -87,6 +90,7 @@ void ezCameraMoveContext::FocusLost()
   m_bRotateCamera = false;
   m_bMoveCamera = false;
   m_bMoveCameraInPlane = false;
+  m_bOrbitCamera = false;
 
   ResetCursor();
 
@@ -110,9 +114,6 @@ void ezCameraMoveContext::LoadState()
 
 void ezCameraMoveContext::UpdateContext()
 {
-  //m_bRun = (QApplication::keyboardModifiers() & Qt::KeyboardModifier::ShiftModifier) != 0;
-  //m_bSlowDown = (QApplication::keyboardModifiers() & Qt::KeyboardModifier::AltModifier) != 0;
-
   ezTime diff = ezTime::Now() - m_LastUpdate;
   m_LastUpdate = ezTime::Now();
 
@@ -285,7 +286,14 @@ bool ezCameraMoveContext::mousePressEvent(QMouseEvent* e)
 
   if (e->button() == Qt::MouseButton::MiddleButton)
   {
-    m_bMoveCameraInPlane = true;
+    m_bOrbitCamera = false;
+    m_bMoveCameraInPlane = false;
+
+    if ((e->modifiers() & Qt::KeyboardModifier::ControlModifier) != 0)
+      m_bOrbitCamera = true;
+    else
+      m_bMoveCameraInPlane = true;
+
     m_LastMousePos = e->globalPos();
     m_bDidMoveMouse[2] = false;
     MakeActiveInputContext();
@@ -297,7 +305,7 @@ bool ezCameraMoveContext::mousePressEvent(QMouseEvent* e)
 
 void ezCameraMoveContext::ResetCursor()
 {
-  if (!m_bRotateCamera && !m_bMoveCamera && !m_bMoveCameraInPlane)
+  if (!m_bRotateCamera && !m_bMoveCamera && !m_bMoveCameraInPlane && !m_bOrbitCamera)
   {
     if (m_bTempMousePosition)
     {
@@ -312,7 +320,7 @@ void ezCameraMoveContext::ResetCursor()
 
 void ezCameraMoveContext::SetBlankCursor()
 {
-  if (m_bRotateCamera || m_bMoveCamera || m_bMoveCameraInPlane)
+  if (m_bRotateCamera || m_bMoveCamera || m_bMoveCameraInPlane || m_bOrbitCamera)
   {
     m_pParentWidget->setCursor(QCursor(Qt::BlankCursor));
   }
@@ -378,12 +386,18 @@ bool ezCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
   if (e->button() == Qt::MouseButton::MiddleButton)
   {
     m_bMoveCameraInPlane = false;
+    m_bOrbitCamera = false;
 
     ResetCursor();
     return true;
   }
 
   return false;
+}
+
+void ezCameraMoveContext::SetOrbitPoint(const ezVec3& vPos)
+{
+  m_vOrbitPoint = vPos;
 }
 
 bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
@@ -477,6 +491,33 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
     vDir.NormalizeIfNotZero(ezVec3::ZeroVector());
 
     m_pCamera->MoveGlobally(vDir * fMoveZ);
+
+    SetCursorToWindowCenter();
+
+    return true;
+  }
+
+  if (m_bOrbitCamera)
+  {
+    const QPointF diff = e->globalPos() - m_LastMousePos;
+
+    float fMoveX = diff.x() * fMouseMoveSensitivity;
+    float fMoveZ = -diff.y() * fMouseMoveSensitivity;
+
+    const float fDistance = (m_vOrbitPoint - m_pCamera->GetCenterPosition()).GetLength();
+
+    m_pCamera->MoveLocally(ezVec3(fMoveX, -fMoveZ, 0));
+
+    ezVec3 vDir = m_vOrbitPoint - m_pCamera->GetCenterPosition();
+    if (fDistance == 0.0f || vDir.SetLength(fDistance).Failed())
+    {
+      vDir.Set(0.01f, 0, 0);
+    }
+
+    if (ezMath::Abs(vDir.GetNormalized().Dot(ezVec3(0,1,0))) < 0.999f)
+      m_pCamera->LookAt(m_vOrbitPoint - vDir, m_vOrbitPoint);
+    else
+      m_pCamera->MoveLocally(ezVec3(-fMoveX, fMoveZ, 0));
 
     SetCursorToWindowCenter();
 
