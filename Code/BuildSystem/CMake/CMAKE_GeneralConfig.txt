@@ -239,6 +239,8 @@ set (EZ_USE_PCH ON CACHE BOOL "Whether to use Precompiled Headers.")
 set (EZ_IGNORE_USERCONFIG_HEADER OFF CACHE BOOL "When disabled certain compile settings need to be configured through the UserConfig.h file in ezFoundation. When enabled those settings can be done from CMake. Do not enable this when you want to build ezEngine with CMake but then use that library in another project, as the settings in UserConfig.h and the pre-built library will differ.")
 set (EZ_ENABLE_D_SCRIPT ON CACHE BOOL "If D Scripting should be enabled")
 set (EZ_USE_VISUALD OFF CACHE BOOL "If VisualD is installed on the system and should be used for D projects")
+set (EZ_BUILD_SAMPLES ON CACHE BOOL "Whether sample projects should be added to the solution")
+set (EZ_BUILD_UNITTESTS ON CACHE BOOL "Whether unit-test projects should be added to the solution")
 
 set (EZ_OUTPUT_DIRECTORY_LIB "${CMAKE_SOURCE_DIR}/Output/Lib" CACHE PATH "Where to store the compiled .lib files.")
 set (EZ_OUTPUT_DIRECTORY_DLL "${CMAKE_SOURCE_DIR}/Output/Bin" CACHE PATH "Where to store the compiled .dll files.")
