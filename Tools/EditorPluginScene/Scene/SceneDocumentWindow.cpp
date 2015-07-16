@@ -200,18 +200,20 @@ void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEve
 
       if (sel.IsEmpty())
         return;
-      if (!sel[0]->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+      if (!sel.PeekBack()->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
         return;
 
-      const ezVec3 vPosition = sel[0]->GetTypeAccessor().GetValue("GlobalPosition").ConvertTo<ezVec3>();
+      const auto& LatestSelection = GetDocument()->GetSelectionManager()->GetSelection().PeekBack();
+      const ezTransform tGlobal = ezSceneDocument::QueryGlobalTransform(LatestSelection);
+      const ezVec3 vPivotPoint = tGlobal.m_vPosition + tGlobal.m_Rotation * LatestSelection->GetEditorTypeAccessor().GetValue("Pivot").ConvertTo<ezVec3>();
 
-      ezVec3 vDiff = vPosition - m_Camera.GetCenterPosition();
+      ezVec3 vDiff = vPivotPoint - m_Camera.GetCenterPosition();
       if (vDiff.NormalizeIfNotZero().Failed())
         return;
 
       /// \todo The distance value of 5 is a hack, we need the bounding box of the selection for this
-      const ezVec3 vTargetPos = vPosition - vDiff * 5.0f;
-      m_pCameraMoveContext->SetOrbitPoint(vPosition);
+      const ezVec3 vTargetPos = vPivotPoint - vDiff * 5.0f;
+      m_pCameraMoveContext->SetOrbitPoint(vPivotPoint);
       m_pCameraPositionContext->MoveToTarget(vTargetPos, vDiff);
     }
     break;

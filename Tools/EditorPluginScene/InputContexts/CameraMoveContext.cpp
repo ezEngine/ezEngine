@@ -420,11 +420,15 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
   SetBlankCursor();
 
   float fBoost = 1.0f;
+  float fRotateBoost = 1.0f;
 
   if (m_bRun)
     fBoost = 5.0f;
   if (m_bSlowDown)
+  {
     fBoost = 0.1f;
+    fRotateBoost = 0.2f;
+  }
 
   const float fAspectRatio = (float)m_pParentWidget->size().width() / (float)m_pParentWidget->size().height();
   const ezAngle fFovX = m_pCamera->GetFovX(fAspectRatio);
@@ -433,8 +437,8 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
   const float fMouseScale = 4.0f;
 
   const float fMouseMoveSensitivity = 0.002f * m_fMoveSpeed * fBoost;
-  const float fMouseRotateSensitivityX = (fFovX.GetRadian() / (float)m_pParentWidget->size().width()) * fBoost * fMouseScale;
-  const float fMouseRotateSensitivityY = (fFovY.GetRadian() / (float)m_pParentWidget->size().height()) * fBoost * fMouseScale;
+  const float fMouseRotateSensitivityX = (fFovX.GetRadian() / (float)m_pParentWidget->size().width()) * fRotateBoost * fMouseScale;
+  const float fMouseRotateSensitivityY = (fFovY.GetRadian() / (float)m_pParentWidget->size().height()) * fRotateBoost * fMouseScale;
 
   if (m_bRotateCamera && m_bMoveCamera) // left & right mouse button -> pan
   {
@@ -538,19 +542,41 @@ void ezCameraMoveContext::SetMoveSpeed(ezInt32 iSpeed)
 
 bool ezCameraMoveContext::wheelEvent(QWheelEvent* e)
 {
-  if (e->modifiers() != Qt::KeyboardModifier::ControlModifier)
-    return false;
-
-  if (e->delta() > 0)
+  if (e->modifiers() == Qt::KeyboardModifier::ControlModifier)
   {
-    SetMoveSpeed(m_iMoveSpeed + 1);
-  }
-  else
-  {
-    SetMoveSpeed(m_iMoveSpeed - 1);
+
+    if (e->delta() > 0)
+    {
+      SetMoveSpeed(m_iMoveSpeed + 1);
+    }
+    else
+    {
+      SetMoveSpeed(m_iMoveSpeed - 1);
+    }
+
+    // handled, independent of whether we are the active context or not
+    return true;
   }
 
-  // handled, independent of whether we are the active context or not
-  return true;
+  {
+    float fBoost = 0.25f;
+
+    if (e->modifiers() == Qt::KeyboardModifier::ShiftModifier)
+      fBoost *= 5.0f;
+    if (e->modifiers() == Qt::KeyboardModifier::AltModifier)
+      fBoost *= 0.1f;
+
+    if (e->delta() > 0)
+    {
+      m_pCamera->MoveLocally(ezVec3(0, 0, -1) * m_fMoveSpeed * fBoost);
+    }
+    else
+    {
+      m_pCamera->MoveLocally(ezVec3(0, 0, 1) * m_fMoveSpeed * fBoost);
+    }
+
+    // handled, independent of whether we are the active context or not
+    return true;
+  }
 }
 
