@@ -20,6 +20,44 @@ using namespace Assimp;
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, ezAssetDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+static ezVec3 GetBasisVector(ezBasisDir::Enum basisDir)
+{
+  switch (basisDir)
+  {
+  case ezBasisDir::PositiveX:
+    return ezVec3(1.0f, 0.0f, 0.0f);
+
+  case ezBasisDir::NegativeX:
+    return ezVec3(-1.0f, 0.0f, 0.0f);
+
+  case ezBasisDir::PositiveY:
+    return ezVec3(0.0f, 1.0f, 0.0f);
+
+  case ezBasisDir::NegativeY:
+    return ezVec3(0.0f, -1.0f, 0.0f);
+
+  case ezBasisDir::PositiveZ:
+    return ezVec3(0.0f, 0.0f, 1.0f);
+
+  case ezBasisDir::NegativeZ:
+    return ezVec3(0.0f, 0.0f, -1.0f);
+
+  default:
+    EZ_REPORT_FAILURE("Invalid basis dir %d", basisDir);
+    return ezVec3::ZeroVector();
+  }  
+}
+
+static ezMat3 CalculateTransformationMatrix(const ezMeshAssetProperties* pProp)
+{
+  ezMat3 mResult;
+  mResult.SetColumn(0, GetBasisVector(pProp->m_ForwardDir) * pProp->m_fMeshScaling);
+  mResult.SetColumn(1, GetBasisVector(pProp->m_RightDir) * pProp->m_fMeshScaling);
+  mResult.SetColumn(2, GetBasisVector(pProp->m_UpDir) * pProp->m_fMeshScaling);
+
+  return mResult.GetTranspose();
+}
+
 class aiLogStream : public LogStream
 {
 public:
@@ -103,65 +141,74 @@ ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriterBase& stream,
 
   desc.SetMaterial(0, "");
 
+  const ezMat3 mTransformation = CalculateTransformationMatrix(pProp);
+  const bool bFlipTriangles = (mTransformation.GetColumn(0).Cross(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
+
+  const ezUInt32 uiFirstIndex = bFlipTriangles ? 2 : 0;
+  const ezUInt32 uiMiddleIndex = 1;
+  const ezUInt32 uiLastIndex = bFlipTriangles ? 0 : 2;
+
   aiString name;
   ezStringBuilder sMatName;
 
   for (ezUInt32 i = 0; i < scene->mNumMeshes; ++i)
   {
-    desc.AddSubMesh(scene->mMeshes[i]->mNumFaces, uiCurTriangle, scene->mMeshes[i]->mMaterialIndex);
+    aiMesh* mesh = scene->mMeshes[i];
+    aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
 
-    aiMaterial* mat = scene->mMaterials[scene->mMeshes[i]->mMaterialIndex];
+    desc.AddSubMesh(mesh->mNumFaces, uiCurTriangle, mesh->mMaterialIndex);    
 
     mat->Get(AI_MATKEY_NAME, name);
     //pProp->GetResourceSlotProperty(i).m_sSlotName = name.C_Str();
 
     sMatName = pProp->GetResourceSlotProperty(i);
+    
+    desc.SetMaterial(mesh->mMaterialIndex, sMatName);
 
-    desc.SetMaterial(scene->mMeshes[i]->mMaterialIndex, sMatName);
-
-    for (ezUInt32 f = 0; f < scene->mMeshes[i]->mNumFaces; ++f, ++uiCurTriangle)
+    for (ezUInt32 f = 0; f < mesh->mNumFaces; ++f, ++uiCurTriangle)
     {
-      EZ_ASSERT_DEV(scene->mMeshes[i]->mFaces[f].mNumIndices == 3, "");
+      EZ_ASSERT_DEV(mesh->mFaces[f].mNumIndices == 3, "");
 
-      desc.MeshBufferDesc().SetTriangleIndices(uiCurTriangle, uiCurVertex + scene->mMeshes[i]->mFaces[f].mIndices[0], uiCurVertex + scene->mMeshes[i]->mFaces[f].mIndices[1], uiCurVertex + scene->mMeshes[i]->mFaces[f].mIndices[2]);
+      desc.MeshBufferDesc().SetTriangleIndices(uiCurTriangle, uiCurVertex + mesh->mFaces[f].mIndices[uiFirstIndex], 
+        uiCurVertex + mesh->mFaces[f].mIndices[uiMiddleIndex], uiCurVertex + mesh->mFaces[f].mIndices[uiLastIndex]);
     }
 
     const ezUInt32 uiBaseVertex = uiCurVertex;
-
+    
     ezUInt32 uiThisVertex = uiBaseVertex;
-    for (ezUInt32 v = 0; v < scene->mMeshes[i]->mNumVertices; ++v, ++uiThisVertex)
+    for (ezUInt32 v = 0; v < mesh->mNumVertices; ++v, ++uiThisVertex)
     {
-      desc.MeshBufferDesc().SetVertexData(0, uiThisVertex, pProp->m_fMeshScaling * ezVec3(scene->mMeshes[i]->mVertices[v].x, scene->mMeshes[i]->mVertices[v].y, scene->mMeshes[i]->mVertices[v].z));
+      desc.MeshBufferDesc().SetVertexData(0, uiThisVertex, mTransformation.TransformDirection(ezVec3(mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z)));
     }
     uiCurVertex = uiThisVertex;
 
     uiThisVertex = uiBaseVertex;
-    if (scene->mMeshes[i]->mTextureCoords[0])
+    if (mesh->mTextureCoords[0])
     {
-      for (ezUInt32 v = 0; v < scene->mMeshes[i]->mNumVertices; ++v, ++uiThisVertex)
+      for (ezUInt32 v = 0; v < mesh->mNumVertices; ++v, ++uiThisVertex)
       {
-        desc.MeshBufferDesc().SetVertexData(1, uiThisVertex, ezVec2(scene->mMeshes[i]->mTextureCoords[0][v].x, 1.0f - scene->mMeshes[i]->mTextureCoords[0][v].y));
+        desc.MeshBufferDesc().SetVertexData(1, uiThisVertex, ezVec2(mesh->mTextureCoords[0][v].x, 1.0f - mesh->mTextureCoords[0][v].y));
       }
     }
     else
     {
-      for (ezUInt32 v = 0; v < scene->mMeshes[i]->mNumVertices; ++v, ++uiThisVertex)
+      for (ezUInt32 v = 0; v < mesh->mNumVertices; ++v, ++uiThisVertex)
       {
         desc.MeshBufferDesc().SetVertexData(1, uiThisVertex, ezVec2(0.0f, 0.0f));
       }
     }
 
     uiThisVertex = uiBaseVertex;
-    if (scene->mMeshes[i]->mNormals)
+    if (mesh->mNormals)
     {
-      for (ezUInt32 v = 0; v < scene->mMeshes[i]->mNumVertices; ++v, ++uiThisVertex)
+      for (ezUInt32 v = 0; v < mesh->mNumVertices; ++v, ++uiThisVertex)
       {
-        desc.MeshBufferDesc().SetVertexData(2, uiThisVertex, ezVec3(scene->mMeshes[i]->mNormals[v].x, scene->mMeshes[i]->mNormals[v].y, scene->mMeshes[i]->mNormals[v].z));
+        desc.MeshBufferDesc().SetVertexData(2, uiThisVertex, ezVec3(mesh->mNormals[v].x, mesh->mNormals[v].y, mesh->mNormals[v].z));
       }
     }
     else
     {
-      for (ezUInt32 v = 0; v < scene->mMeshes[i]->mNumVertices; ++v, ++uiThisVertex)
+      for (ezUInt32 v = 0; v < mesh->mNumVertices; ++v, ++uiThisVertex)
       {
         desc.MeshBufferDesc().SetVertexData(2, uiThisVertex, ezVec3(0.0f, 1.0f, 0.0f));
       }

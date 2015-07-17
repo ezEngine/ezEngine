@@ -7,7 +7,7 @@
         "DocumentID" : { "$t" : "uuid", "$b" : "0x95A7BE5B5803D84D86A9C277F7A59F53" },
         "Dependencies" : "Trees/Tree5.obj",
         "References" : "",
-        "Hash" : { "$t" : "uint64", "$v" : "11726243962726537586", "$b" : "0x7259E27BC1FCBBA2" },
+        "Hash" : { "$t" : "uint64", "$v" : "6274177673826014409", "$b" : "0xC91416325A5B1257" },
         "AssetType" : "Mesh"
       }
     } ],
@@ -18,6 +18,9 @@
       "TypeData" : {
         "Mesh File" : "Trees/Tree5.obj",
         "Mesh Scaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+        "Forward Dir" : "ezBasisDir::NegativeZ",
+        "Right Dir" : "ezBasisDir::PositiveX",
+        "Up Dir" : "ezBasisDir::PositiveY",
         "Material Slot 0" : "{ b700025c-5c7f-4247-8157-f409369ef16b }",
         "Material Slot 1" : "{ b700025c-5c7f-4247-8157-f409369ef16b }",
         "Material Slot 2" : "{ b700025c-5c7f-4247-8157-f409369ef16b }",

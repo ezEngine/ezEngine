@@ -92,7 +92,7 @@ public:
   void SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle); // [tested]
 
   /// \brief Sets this matrix to be a look-at matrix (without the translation).
-  void SetLookInDirectionMatrix(ezVec3Template<Type> vLookDir, ezVec3Template<Type> vUpDir = ezVec3Template<Type> (0, 1, 0));
+  void SetLookInDirectionMatrix(ezVec3Template<Type> vLookDir, ezVec3Template<Type> vUpDir = ezVec3Template<Type> (0, 0, 1));
 
 // *** Common Matrix Operations ***
 public:

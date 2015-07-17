@@ -39,8 +39,8 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBa
 
   // Tree Mesh
   {
-    obj.m_LocalScaling.Set(70.0f);
-    obj.m_LocalPosition.x = -500;
+    obj.m_LocalScaling.Set(7.0f);
+    obj.m_LocalPosition.y = -50;
     m_pWorld->CreateObject(obj, pObj);
     pMeshCompMan->CreateComponent(pMesh);
     pObj->AddComponent(pMesh);
@@ -48,22 +48,22 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBa
     pRotorCompMan->CreateComponent(pRotor);
     pRotor->m_fAnimationSpeed = 5.0f;
     pRotor->SetAnimatingAtStartup(true);
-    pRotor->m_Axis = ezTransformComponentAxis::PosY;
+    pRotor->m_Axis = ezTransformComponentAxis::PosZ;
     pObj->AddComponent(pRotor);
   }
 
   // Tree Mesh
   {
-    obj.m_LocalScaling.Set(60.0f);
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(75));
-    obj.m_LocalPosition.x = 500;
+    obj.m_LocalScaling.Set(6.0f);
+    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(75));
+    obj.m_LocalPosition.y = 50;
     m_pWorld->CreateObject(obj, pObj);
     pMeshCompMan->CreateComponent(pMesh);
     pObj->AddComponent(pMesh);
     pMesh->SetMesh(hMeshTree);
   }
 
-  m_Camera.LookAt(ezVec3(0.0f, 0.0f, 0.0f), ezVec3(0.0f, 0.0f, -1.0f));
+  m_Camera.LookAt(ezVec3(0.0f, 0.0f, 10.0f), ezVec3(-1.0f, 0.0f, 10.0f), ezVec3(0.0f, 0.0f, 1.0f));
   m_Camera.SetCameraMode(ezCamera::PerspectiveFixedFovY, 60.0f, 1.0f, 5000.0f);
 
   m_pView = ezRenderLoop::CreateView("Asteroids - View");

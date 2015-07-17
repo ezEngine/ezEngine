@@ -36,10 +36,12 @@ void ezCamera::SetCameraMode(CameraMode Mode, float fFovOrDim, float fNearPlane,
 {
   // early out if no change
   if (m_Mode == Mode &&
-      m_fFovOrDim == fFovOrDim &&
-      m_fNearPlane == fNearPlane &&
-      m_fFarPlane == fFarPlane)
-      return;
+    m_fFovOrDim == fFovOrDim &&
+    m_fNearPlane == fNearPlane &&
+    m_fFarPlane == fFarPlane)
+  {
+    return;
+  }
 
   m_Mode = Mode;
   m_fFovOrDim = fFovOrDim;
@@ -53,8 +55,8 @@ void ezCamera::LookAt(const ezVec3& vCameraPos, const ezVec3& vTargetPos, const 
 {
   m_vPosition = vCameraPos;
   m_vDirForwards = (vTargetPos - vCameraPos).GetNormalized();
-  m_vDirRight = m_vDirForwards.Cross(vUp).GetNormalized();
-  m_vDirUp = m_vDirRight.Cross(m_vDirForwards).GetNormalized();
+  m_vDirRight = vUp.Cross(m_vDirForwards).GetNormalized();
+  m_vDirUp = m_vDirForwards.Cross(m_vDirRight).GetNormalized();
 
   CameraOrientationChanged(true, true);
 }
@@ -107,11 +109,11 @@ void ezCamera::CameraSettingsChanged()
   ++m_uiSettingsModificationCounter;
 }
 
-void ezCamera::MoveLocally (const ezVec3& vMove)
+void ezCamera::MoveLocally(float fForward, float fRight, float fUp)
 {
-  m_vPosition += vMove.x * m_vDirRight;
-  m_vPosition += vMove.y * m_vDirUp;
-  m_vPosition -= vMove.z * m_vDirForwards;
+  m_vPosition += m_vDirForwards * fForward;
+  m_vPosition += m_vDirRight * fRight;
+  m_vPosition += m_vDirUp * fUp;
 
   CameraOrientationChanged(true, false);
 }
@@ -127,17 +129,17 @@ void ezCamera::ClampRotationAngles(bool bLocalSpace, ezAngle& X, ezAngle& Y, ezA
 {
   if (bLocalSpace)
   {
-    if (X.GetRadian() != 0.0f)
+    if (Y.GetRadian() != 0.0f)
     {
       // Limit how much the camera can look up and down, to prevent it from overturning 
 
-      const float fDot = m_vDirForwards.Dot(ezVec3(0, 1, 0));
-      ezAngle fCurAngle = ezAngle::Degree(90.0f) - ezMath::ACos(fDot);
-      ezAngle fNewAngle = fCurAngle + X;
+      const float fDot = m_vDirForwards.Dot(ezVec3(0, 0, 1));
+      ezAngle fCurAngle = ezMath::ACos(fDot) - ezAngle::Degree(90.0f);
+      ezAngle fNewAngle = fCurAngle + Y;
 
       ezAngle fAllowedAngle = ezMath::Clamp(fNewAngle, ezAngle::Degree(-85.0f), ezAngle::Degree(85.0f));
 
-      X = fAllowedAngle - fCurAngle;
+      Y = fAllowedAngle - fCurAngle;
     }
   }
 }
@@ -149,28 +151,28 @@ void ezCamera::RotateLocally (ezAngle X, ezAngle Y, ezAngle Z)
   if (X.GetRadian() != 0.0f)
   {
     ezMat3 m;
-    m.SetRotationMatrix(m_vDirRight, X);
+    m.SetRotationMatrix(m_vDirForwards, X);
 
     m_vDirUp = m * m_vDirUp;
-    m_vDirForwards = m * m_vDirForwards;
+    m_vDirRight = m * m_vDirRight;
   }
 
   if (Y.GetRadian() != 0.0f)
   {
     ezMat3 m;
-    m.SetRotationMatrix(m_vDirUp, Y);
+    m.SetRotationMatrix(m_vDirRight, Y);
 
-    m_vDirRight = m * m_vDirRight;
+    m_vDirUp = m * m_vDirUp;
     m_vDirForwards = m * m_vDirForwards;
   }
 
   if (Z.GetRadian() != 0.0f)
   {
     ezMat3 m;
-    m.SetRotationMatrix(m_vDirForwards, Z);
+    m.SetRotationMatrix(m_vDirUp, Z);
 
-    m_vDirUp = m * m_vDirUp;
     m_vDirRight = m * m_vDirRight;
+    m_vDirForwards = m * m_vDirForwards;
   }
 
   CameraOrientationChanged(false, true);

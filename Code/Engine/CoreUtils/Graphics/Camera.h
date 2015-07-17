@@ -75,26 +75,22 @@ public:
   void SetFromMatrix(const ezMat4& mLookAtMatrix);
 
   /// \brief Repositions the camera such that it looks at the given target position.
-  void LookAt(const ezVec3& vCameraPos, const ezVec3& vTargetPos, const ezVec3& vUp = ezVec3(0, 1, 0));
+  void LookAt(const ezVec3& vCameraPos, const ezVec3& vTargetPos, const ezVec3& vUp);
 
-  /// \brief Moves the camera in its local space. Note: Moving it along -z means moving it forwards.
-  ///
-  /// E.g: MoveLocally(ezVec3(1, 2, -3)); moves the camera one unit to its local right, two units along its up vector and three units forwards.
-  ///
-  /// Move along X for strafing, move along Z for forwards/backwards movement.
-  void MoveLocally (const ezVec3& vMove);
+  /// \brief Moves the camera in its local space.
+  void MoveLocally (float fForward, float fRight, float fUp);
 
   /// \brief Moves the camera in global space.
   void MoveGlobally(const ezVec3& vMove);
 
-  /// \brief Rotates the camera around the X,Y and Z axis in its own local space.
+  /// \brief Rotates the camera around the X (forward), Y (right) and Z (up) axis in its own local space.
   ///
-  /// Rotate around X for looking up/down.
+  /// Rotate around Y for looking up/down. X is roll. For turning left/right use Z with RotateGlobally().
   void RotateLocally (ezAngle X, ezAngle Y, ezAngle Z);
 
-  /// \brief Rotates the camera around the X,Y and Z axis in global space.
+  /// \brief Rotates the camera around the X, Y and Z axis in global space.
   ///
-  /// Rotate around Y for turning the camera left/right.
+  /// Rotate around Z for turning the camera left/right.
   void RotateGlobally(ezAngle X, ezAngle Y, ezAngle Z);
 
   /// \brief Calculates the view matrix from the current camera properties and stores it in out_viewMatrix.

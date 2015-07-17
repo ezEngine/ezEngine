@@ -76,7 +76,7 @@ void ezCameraPositionContext::UpdateContext()
   const ezVec3 vNewDirection = qRotFinal * m_vStartDirection;
   const ezVec3 vNewPosition = ezMath::Lerp(m_vStartPosition, m_vTargetPosition, fLerpValue);
 
-  m_pCamera->LookAt(vNewPosition, vNewPosition + vNewDirection);
+  m_pCamera->LookAt(vNewPosition, vNewPosition + vNewDirection, ezVec3(0.0f, 0.0f, 1.0f));
 }
 
 

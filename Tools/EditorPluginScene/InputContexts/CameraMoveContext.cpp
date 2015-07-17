@@ -127,17 +127,17 @@ void ezCameraMoveContext::UpdateContext()
     fSpeedFactor *= 0.2f;
 
   if (m_bMoveForwards)
-    m_pCamera->MoveLocally(ezVec3(0, 0, -1) * fSpeedFactor);
+    m_pCamera->MoveLocally(fSpeedFactor, 0, 0);
   if (m_bMoveBackwards)
-    m_pCamera->MoveLocally(ezVec3(0, 0, 1) * fSpeedFactor);
+    m_pCamera->MoveLocally(-fSpeedFactor, 0, 0);
   if (m_bMoveRight)
-    m_pCamera->MoveLocally(ezVec3(1, 0, 0) * fSpeedFactor);
+    m_pCamera->MoveLocally(0, fSpeedFactor, 0);
   if (m_bMoveLeft)
-    m_pCamera->MoveLocally(ezVec3(-1, 0, 0) * fSpeedFactor);
+    m_pCamera->MoveLocally(0, -fSpeedFactor, 0);
   if (m_bMoveUp)
-    m_pCamera->MoveGlobally(ezVec3(0, 1, 0) * fSpeedFactor);
+    m_pCamera->MoveGlobally(ezVec3(0, 0, 1) * fSpeedFactor);
   if (m_bMoveDown)
-    m_pCamera->MoveGlobally(ezVec3(0, -1, 0) * fSpeedFactor);
+    m_pCamera->MoveGlobally(ezVec3(0, 0, -1) * fSpeedFactor);
   if (m_bMoveForwardsInPlane)
   {
     ezVec3 vDir = m_pCamera->GetCenterDirForwards();
@@ -444,10 +444,10 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
   {
     const QPointF diff = e->globalPos() - m_LastMousePos;
 
-    float fMoveY = -diff.y() * fMouseMoveSensitivity;
-    float fMoveX = diff.x() * fMouseMoveSensitivity;
+    float fMoveUp = -diff.y() * fMouseMoveSensitivity;
+    float fMoveRight = diff.x() * fMouseMoveSensitivity;
 
-    m_pCamera->MoveLocally(ezVec3(fMoveX, fMoveY, 0));
+    m_pCamera->MoveLocally(0, fMoveRight, fMoveUp);
 
     SetCursorToWindowCenter();
     return true;
@@ -457,11 +457,11 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
   {
     const QPointF diff = e->globalPos() - m_LastMousePos;
 
-    float fRotateX = diff.y() * -fMouseRotateSensitivityX;
-    float fRotateY = diff.x() * -fMouseRotateSensitivityY;
+    float fRotateHorizontal = diff.x() * fMouseRotateSensitivityX;
+    float fRotateVertical = diff.y() * fMouseRotateSensitivityY;
 
-    m_pCamera->RotateGlobally(ezAngle::Radian(0), ezAngle::Radian(fRotateY), ezAngle::Radian(0));
-    m_pCamera->RotateLocally(ezAngle::Radian(fRotateX), ezAngle::Radian(0), ezAngle::Radian(0));
+    m_pCamera->RotateLocally(ezAngle::Radian(0), ezAngle::Radian(fRotateVertical), ezAngle::Radian(0));
+    m_pCamera->RotateGlobally(ezAngle::Radian(0), ezAngle::Radian(0), ezAngle::Radian(fRotateHorizontal));
 
     SetCursorToWindowCenter();
     return true;
@@ -471,10 +471,10 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
   {
     const QPointF diff = e->globalPos() - m_LastMousePos;
 
-    float fMoveX = diff.x() * fMouseMoveSensitivity;
-    float fMoveZ = diff.y() * fMouseMoveSensitivity;
+    float fMoveRight = diff.x() * fMouseMoveSensitivity;
+    float fMoveForward = -diff.y() * fMouseMoveSensitivity;
 
-    m_pCamera->MoveLocally(ezVec3(fMoveX, 0, fMoveZ));
+    m_pCamera->MoveLocally(fMoveForward, fMoveRight, 0);
 
     SetCursorToWindowCenter();
 
@@ -485,16 +485,16 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
   {
     const QPointF diff = e->globalPos() - m_LastMousePos;
 
-    float fMoveX = diff.x() * fMouseMoveSensitivity;
-    float fMoveZ = -diff.y() * fMouseMoveSensitivity;
+    float fMoveRight = diff.x() * fMouseMoveSensitivity;
+    float fMoveForward = -diff.y() * fMouseMoveSensitivity;
 
-    m_pCamera->MoveLocally(ezVec3(fMoveX, 0, 0));
+    m_pCamera->MoveLocally(0, fMoveRight, 0);
 
     ezVec3 vDir = m_pCamera->GetCenterDirForwards();
-    vDir.y = 0.0f;
+    vDir.z = 0.0f;
     vDir.NormalizeIfNotZero(ezVec3::ZeroVector());
 
-    m_pCamera->MoveGlobally(vDir * fMoveZ);
+    m_pCamera->MoveGlobally(vDir * fMoveForward);
 
     SetCursorToWindowCenter();
 
@@ -505,12 +505,12 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
   {
     const QPointF diff = e->globalPos() - m_LastMousePos;
 
-    float fMoveX = diff.x() * fMouseMoveSensitivity;
-    float fMoveZ = -diff.y() * fMouseMoveSensitivity;
+    float fMoveRight = diff.x() * fMouseMoveSensitivity;
+    float fMoveUp = -diff.y() * fMouseMoveSensitivity;
 
     const float fDistance = (m_vOrbitPoint - m_pCamera->GetCenterPosition()).GetLength();
 
-    m_pCamera->MoveLocally(ezVec3(fMoveX, -fMoveZ, 0));
+    m_pCamera->MoveLocally(0, fMoveRight, fMoveUp);
 
     ezVec3 vDir = m_vOrbitPoint - m_pCamera->GetCenterPosition();
     if (fDistance == 0.0f || vDir.SetLength(fDistance).Failed())
@@ -518,10 +518,10 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
       vDir.Set(0.01f, 0, 0);
     }
 
-    if (ezMath::Abs(vDir.GetNormalized().Dot(ezVec3(0,1,0))) < 0.999f)
-      m_pCamera->LookAt(m_vOrbitPoint - vDir, m_vOrbitPoint);
+    if (ezMath::Abs(vDir.GetNormalized().Dot(ezVec3(0,0,1))) < 0.999f)
+      m_pCamera->LookAt(m_vOrbitPoint - vDir, m_vOrbitPoint, ezVec3(0.0f, 0.0f, 1.0f));
     else
-      m_pCamera->MoveLocally(ezVec3(-fMoveX, fMoveZ, 0));
+      m_pCamera->MoveLocally(0, fMoveRight, fMoveUp);
 
     SetCursorToWindowCenter();
 
@@ -568,11 +568,11 @@ bool ezCameraMoveContext::wheelEvent(QWheelEvent* e)
 
     if (e->delta() > 0)
     {
-      m_pCamera->MoveLocally(ezVec3(0, 0, -1) * m_fMoveSpeed * fBoost);
+      m_pCamera->MoveLocally(m_fMoveSpeed * fBoost, 0, 0);
     }
     else
     {
-      m_pCamera->MoveLocally(ezVec3(0, 0, 1) * m_fMoveSpeed * fBoost);
+      m_pCamera->MoveLocally(-m_fMoveSpeed * fBoost, 0, 0);
     }
 
     // handled, independent of whether we are the active context or not
