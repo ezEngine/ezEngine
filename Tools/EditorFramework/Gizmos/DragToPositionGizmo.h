@@ -20,12 +20,19 @@ public:
   virtual bool mouseMoveEvent(QMouseEvent* e) override;
 
   const ezVec3 GetTranslationResult() const { return GetTransformation().GetTranslationVector() - m_vStartPosition; }
+  const ezQuat GetRotationResult() const { ezQuat q; q.SetFromMat3(GetTransformation().GetRotationalPart()); return q; }
 
 protected:
   virtual void OnVisibleChanged(bool bVisible) override;
   virtual void OnTransformationChanged(const ezMat4& transform) override;
 
   ezGizmoHandle m_Bobble;
+  ezGizmoHandle m_AlignPX;
+  ezGizmoHandle m_AlignNX;
+  ezGizmoHandle m_AlignPY;
+  ezGizmoHandle m_AlignNY;
+  ezGizmoHandle m_AlignPZ;
+  ezGizmoHandle m_AlignNZ;
 
   ezTime m_LastInteraction;
   ezVec3 m_vStartPosition;

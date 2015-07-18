@@ -149,7 +149,6 @@ void ezViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
   else
   {
     const ezUInt32 uiComponentID = m_PickingResultsID[uiIndex];
-    const float fDepth = m_PickingResultsDepth[uiIndex];
 
     res.m_ComponentGuid = ezEngineProcessGameState::GetInstance()->m_ComponentPickingMap.GetGuid(uiComponentID);
     res.m_OtherGuid = ezEngineProcessGameState::GetInstance()->m_OtherPickingMap.GetGuid(uiComponentID);
@@ -175,10 +174,39 @@ void ezViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
     }
 
     /// \todo Add an enum that defines in which direction the window Y coordinate points ?
+    const float fDepth = m_PickingResultsDepth[uiIndex];
     ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3(x, uiWindowHeight - y, fDepth), res.m_vPickedPosition);
     ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3(x, uiWindowHeight - y, 0), res.m_vPickingRayStartPosition);
 
-    //ezLog::Info("Picked at %u, %u, %.2f, ID %u and GUID %s, Pos: %.2f | %.2f | %.2f, Start: %.2f | %.2f | %.2f", x, y, fDepth, uiComponentID, ezConversionUtils::ToString(res.m_ObjectGuid).GetData(), res.m_vPickedPosition.x, res.m_vPickedPosition.y, res.m_vPickedPosition.z, res.m_vPickingRayStartPosition.x, res.m_vPickingRayStartPosition.y, res.m_vPickingRayStartPosition.z);
+    // compute the average normal at that position
+    {
+      float fOtherDepths[4] = { fDepth, fDepth, fDepth ,fDepth };
+      ezVec3 vOtherPos[4];
+      ezVec3 vNormals[4];
+
+      if ((ezUInt32) x + 1 < uiWindowWidth)
+        fOtherDepths[0] = m_PickingResultsDepth[(y * uiWindowWidth) + x + 1];
+      if (x > 0)
+        fOtherDepths[1] = m_PickingResultsDepth[(y * uiWindowWidth) + x - 1];
+      if ((ezUInt32)y + 1 < uiWindowHeight)
+        fOtherDepths[2] = m_PickingResultsDepth[((y + 1) * uiWindowWidth) + x];
+      if (y > 0)
+        fOtherDepths[3] = m_PickingResultsDepth[((y - 1) * uiWindowWidth) + x];
+
+      ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3(x + 1, uiWindowHeight - y, fOtherDepths[0]), vOtherPos[0]);
+      ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3(x - 1, uiWindowHeight - y, fOtherDepths[1]), vOtherPos[1]);
+      ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3(x, uiWindowHeight - (y + 1), fOtherDepths[2]), vOtherPos[2]);
+      ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3(x, uiWindowHeight - (y - 1), fOtherDepths[3]), vOtherPos[3]);
+
+      vNormals[0] = ezPlane(res.m_vPickedPosition, vOtherPos[0], vOtherPos[2]).m_vNormal;
+      vNormals[1] = ezPlane(res.m_vPickedPosition, vOtherPos[2], vOtherPos[1]).m_vNormal;
+      vNormals[2] = ezPlane(res.m_vPickedPosition, vOtherPos[1], vOtherPos[3]).m_vNormal;
+      vNormals[3] = ezPlane(res.m_vPickedPosition, vOtherPos[3], vOtherPos[0]).m_vNormal;
+
+      res.m_vPickedNormal = (vNormals[0] + vNormals[1] + vNormals[2] + vNormals[3]).GetNormalized();
+    }
+
+    ezLog::Info("Picked Normal: %.2f | %.2f | %.2f", res.m_vPickedNormal.x, res.m_vPickedNormal.y, res.m_vPickedNormal.z);
   }
 
   SendViewMessage(&res, true);

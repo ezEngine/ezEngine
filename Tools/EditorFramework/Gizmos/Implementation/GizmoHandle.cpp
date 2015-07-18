@@ -21,6 +21,31 @@ EZ_MEMBER_PROPERTY("Color", m_Color),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+void ezGizmoHandleBase::SetVisible(bool bVisible)
+{
+  if (bVisible != m_bVisible)
+  {
+    m_bVisible = bVisible;
+    SetModified(true);
+
+    if (m_bVisible)
+    {
+      int i = 0;
+    }
+  }
+}
+
+void ezGizmoHandleBase::SetTransformation(const ezMat4& m) 
+{
+  if (m_Transformation != m)
+  {
+    m_Transformation = m;
+    if (m_bVisible)
+      SetModified(true);
+  }
+}
+
+
 static ezMeshBufferResourceHandle CreateMeshBufferResource(const ezGeometry& geom, const char* szResourceName, const char* szDescription)
 {
   ezDynamicArray<ezUInt16> Indices;
@@ -99,6 +124,30 @@ static ezMeshBufferResourceHandle CreateMeshBufferPiston()
   geom.AddCylinder(fThickness, fThickness, fLength, false, true, 16, ezColor::Red, m);
 
   m.SetTranslationVector(ezVec3(0, fLength * 0.5f, 0));
+  geom.AddBox(ezVec3(fThickness * 5.0f), ezColor::Red, m);
+
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Piston");
+}
+
+static ezMeshBufferResourceHandle CreateMeshBufferHalfPiston()
+{
+  const char* szResourceName = "{BA17D025-B280-4940-8DFD-5486B0E4B41B}";
+
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+
+  if (hMesh.IsValid())
+    return hMesh;
+
+  const float fThickness = 0.04f;
+  const float fLength = 1.0f;
+
+  ezMat4 m;
+  m.SetTranslationMatrix(ezVec3(0, fLength * 0.5f, 0));
+
+  ezGeometry geom;
+  geom.AddCylinder(fThickness, fThickness, fLength, false, true, 16, ezColor::Red, m);
+
+  m.SetTranslationMatrix(ezVec3(0, fLength, 0));
   geom.AddBox(ezVec3(fThickness * 5.0f), ezColor::Red, m);
 
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Piston");
@@ -237,7 +286,15 @@ bool ezGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPick
       hMeshBuffer = CreateMeshBufferPiston();
       szMeshGuid = "{44A4FE37-6AE3-44C1-897D-E8B95AE53EF6}";
     }
-    break;  default:
+    break;
+  case ezGizmoHandleType::HalfPiston:
+    {
+      hMeshBuffer = CreateMeshBufferHalfPiston();
+      szMeshGuid = "{64A45DD0-D7F9-4D1D-9F68-782FA3274200}";
+    }
+    break;
+
+  default:
     EZ_ASSERT_NOT_IMPLEMENTED;
   }
 

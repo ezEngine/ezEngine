@@ -40,6 +40,7 @@ const ezObjectPickingResult& ezDocumentWindow3D::PickObject(ezUInt16 uiScreenPos
   m_LastPickingResult.m_PickedOther = ezUuid();
   m_LastPickingResult.m_uiPartIndex = 0;
   m_LastPickingResult.m_vPickedPosition.SetZero();
+  m_LastPickingResult.m_vPickedNormal.SetZero();
   m_LastPickingResult.m_vPickingRayStart.SetZero();
 
   // do not send picking messages while the engine process isn't fully configured yet
@@ -123,6 +124,7 @@ bool ezDocumentWindow3D::HandleEngineMessage(const ezEditorEngineDocumentMsg* pM
     m_LastPickingResult.m_PickedOther = pFullMsg->m_OtherGuid;
     m_LastPickingResult.m_uiPartIndex = pFullMsg->m_uiPartIndex;
     m_LastPickingResult.m_vPickedPosition = pFullMsg->m_vPickedPosition;
+    m_LastPickingResult.m_vPickedNormal = pFullMsg->m_vPickedNormal;
     m_LastPickingResult.m_vPickingRayStart = pFullMsg->m_vPickingRayStartPosition;
     
     return true;

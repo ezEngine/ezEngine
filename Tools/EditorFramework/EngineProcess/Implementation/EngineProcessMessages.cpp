@@ -105,6 +105,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewPickingResultMsgToEditor, ezEditorEngineDo
     EZ_MEMBER_PROPERTY("OtherGuid", m_OtherGuid),
     EZ_MEMBER_PROPERTY("PartIndex", m_uiPartIndex),
     EZ_MEMBER_PROPERTY("PickedPos", m_vPickedPosition),
+    EZ_MEMBER_PROPERTY("PickedNormal", m_vPickedNormal),
     EZ_MEMBER_PROPERTY("PickRayStart", m_vPickingRayStartPosition),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();

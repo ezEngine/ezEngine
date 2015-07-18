@@ -13,12 +13,12 @@
       "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
       "TypeData" : {
         "Name" : "",
-        "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
-        "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-        "LocalScaling" : { "$t" : "vec3", "$v" : "(0.1000, 0.1000, 0.1000)", "$b" : "0xCDCCCC3DCDCCCC3DCDCCCC3D" },
         "GlobalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
         "GlobalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-        "GlobalScaling" : { "$t" : "vec3", "$v" : "(0.1000, 0.1000, 0.1000)", "$b" : "0xCDCCCC3DCDCCCC3DCDCCCC3D" }
+        "GlobalScaling" : { "$t" : "vec3", "$v" : "(0.1000, 0.1000, 0.1000)", "$b" : "0xCDCCCC3DCDCCCC3DCDCCCC3D" },
+        "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
+        "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+        "LocalScaling" : { "$t" : "vec3", "$v" : "(0.1000, 0.1000, 0.1000)", "$b" : "0xCDCCCC3DCDCCCC3DCDCCCC3D" }
       },
       "EditorTypeData" : {
         "Name" : "Sponza",
@@ -44,12 +44,12 @@
       "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
       "TypeData" : {
         "Name" : "",
-        "LocalPosition" : { "$t" : "vec3", "$v" : "(-6.0000, 0.0000, 0.0000)", "$b" : "0x0000C0C00000000000000000" },
-        "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-        "LocalScaling" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
         "GlobalPosition" : { "$t" : "vec3", "$v" : "(-6.0000, 0.0000, 0.0000)", "$b" : "0x0000C0C00000000000000000" },
         "GlobalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-        "GlobalScaling" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" }
+        "GlobalScaling" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
+        "LocalPosition" : { "$t" : "vec3", "$v" : "(-6.0000, 0.0000, 0.0000)", "$b" : "0x0000C0C00000000000000000" },
+        "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+        "LocalScaling" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" }
       },
       "EditorTypeData" : {
         "Name" : "ezGameObject 006",
@@ -75,12 +75,12 @@
       "ParentID" : { "$t" : "uuid", "$b" : "0x7F2C15C4C177D44C82FE3034EFB01E22" },
       "TypeData" : {
         "Name" : "",
-        "LocalPosition" : { "$t" : "vec3", "$v" : "(-5.0000, 0.0000, 0.0000)", "$b" : "0x0000A0C00000000000000000" },
-        "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-        "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
         "GlobalPosition" : { "$t" : "vec3", "$v" : "(-8.5000, 0.0000, 0.0000)", "$b" : "0x000008C10000000000000000" },
         "GlobalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-        "GlobalScaling" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" }
+        "GlobalScaling" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
+        "LocalPosition" : { "$t" : "vec3", "$v" : "(-5.0000, 0.0000, 0.0000)", "$b" : "0x0000A0C00000000000000000" },
+        "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+        "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" }
       },
       "EditorTypeData" : {
         "Name" : "ezGameObject 007",
@@ -97,6 +97,37 @@
       },
       "EditorTypeData" : {
         "Name" : "Right Tree Mesh",
+        "Pivot" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" }
+      }
+    },
+    {
+      "Type" : "ezGameObject",
+      "ID" : { "$t" : "uuid", "$b" : "0xEF6498DFFED00A4F9B1648261F50EF2F" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "TypeData" : {
+        "Name" : "NoPick",
+        "GlobalPosition" : { "$t" : "vec3", "$v" : "(0.4837, -3.4082, -0.0232)", "$b" : "0x06AAF73E6F1F5AC0A0D6BDBC" },
+        "GlobalRotation" : { "$t" : "quat", "$b" : "0x3FA52DB93FA52DB9B6C38733F304353F" },
+        "GlobalScaling" : { "$t" : "vec3", "$v" : "(0.1800, 0.1800, 0.1800)", "$b" : "0xEC51383EEC51383EEC51383E" },
+        "LocalPosition" : { "$t" : "vec3", "$v" : "(0.4837, -3.4082, -0.0232)", "$b" : "0x06AAF73E6F1F5AC0A0D6BDBC" },
+        "LocalRotation" : { "$t" : "quat", "$b" : "0x6492F5B86492F5B8000040330000803F" },
+        "LocalScaling" : { "$t" : "vec3", "$v" : "(0.1800, 0.1800, 0.1800)", "$b" : "0xEC51383EEC51383EEC51383E" }
+      },
+      "EditorTypeData" : {
+        "Name" : "ezGameObject 006",
+        "Pivot" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" }
+      }
+    },
+    {
+      "Type" : "ezMeshComponent",
+      "ID" : { "$t" : "uuid", "$b" : "0x0CAF979D6DB7264BA5067FBFDEB3D9F4" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0xEF6498DFFED00A4F9B1648261F50EF2F" },
+      "TypeData" : {
+        "MeshFile" : "{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }",
+        "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
+      },
+      "EditorTypeData" : {
+        "Name" : "ezMeshComponent 007",
         "Pivot" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" }
       }
     } ]

@@ -16,6 +16,7 @@ enum ezGizmoHandleType
   Rect,
   Box,
   Piston,
+  HalfPiston,
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezGizmoHandleBase : public ezEditorEngineSyncObject
@@ -27,9 +28,9 @@ public:
 
   ezGizmoBase* GetParentGizmo() const { return m_pParentGizmo; }
 
-  void SetVisible(bool bVisible) { m_bVisible = bVisible; SetModified(true); }
+  void SetVisible(bool bVisible);
 
-  void SetTransformation(const ezMat4& m) { m_Transformation = m; if (m_bVisible) SetModified(true); }
+  void SetTransformation(const ezMat4& m);
 
   const ezMat4& GetTransformation() const { return m_Transformation; }
 

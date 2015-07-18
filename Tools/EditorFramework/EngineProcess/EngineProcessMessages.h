@@ -171,6 +171,7 @@ public:
   ezUInt32 m_uiPartIndex;
 
   ezVec3 m_vPickedPosition;
+  ezVec3 m_vPickedNormal;
   ezVec3 m_vPickingRayStartPosition;
 };
 

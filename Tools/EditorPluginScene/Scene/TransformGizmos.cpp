@@ -233,8 +233,10 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
       if (e.m_pGizmo == &m_DragToPosGizmo)
       {
         cmd.SetPropertyPath("GlobalPosition");
+        cmd2.SetPropertyPath("GlobalRotation");
 
         const ezVec3 vTranslate = m_DragToPosGizmo.GetTranslationResult();
+        const ezQuat qRot = m_DragToPosGizmo.GetRotationResult();
 
         for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
         {
@@ -244,6 +246,15 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
           cmd.m_NewValue = obj.m_vGlobalTranslation + vTranslate;
 
           if (GetDocument()->GetCommandHistory()->AddCommand(cmd).m_Result.Failed())
+          {
+            bCancel = true;
+            break;
+          }
+
+          cmd2.m_Object = obj.m_Object;
+          cmd2.m_NewValue = qRot;
+
+          if (GetDocument()->GetCommandHistory()->AddCommand(cmd2).m_Result.Failed())
           {
             bCancel = true;
             break;
