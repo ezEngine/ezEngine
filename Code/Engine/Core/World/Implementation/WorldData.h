@@ -6,8 +6,12 @@
 
 #include <Foundation/Memory/BlockStorage.h>
 #include <Foundation/Memory/CommonAllocators.h>
+
 #include <Foundation/Threading/DelegateTask.h>
 
+#include <Foundation/Types/UniquePtr.h>
+
+#include <Core/World/CoordinateSystem.h>
 #include <Core/World/GameObject.h>
 
 namespace ezInternal
@@ -118,6 +122,8 @@ namespace ezInternal
     ezDynamicArray<ezComponentManagerBase::UpdateFunctionDesc, ezLocalAllocatorWrapper> m_UnresolvedUpdateFunctions;
 
     ezDynamicArray<UpdateTask*, ezLocalAllocatorWrapper> m_UpdateTasks;
+
+    ezUniquePtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;
 
     struct QueuedMsgMetaData
     {

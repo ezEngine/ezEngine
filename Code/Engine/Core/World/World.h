@@ -15,8 +15,6 @@
 /// * Actual deletion of dead objects and components as well as re-parenting of objects are done now.
 /// * Transform update: The world transformation of all dynamic objects is updated.
 /// * Post-transform phase: Another synchronous phase like the pre-async phase after the transformation has been updated.
-///
-/// \todo Implement unique ids
 class EZ_CORE_DLL ezWorld
 {
 public:
@@ -42,7 +40,8 @@ public:
   /// \brief Returns if an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
   bool TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject) const;
   
-  //bool TryGetObjectWithUniqueId(ezUInt64 uiPersistentId, ezGameObject*& out_pObject) const;  
+  /// \brief Returns if an object with the given name exists and if so writes out the corresponding pointer to the first object with that name to out_pObject.
+  // bool TryGetObjectWithName(const char* szName, ezGameObject*& out_pObject) const;  
 
 
   /// \brief Returns the total number of objects in this world.
@@ -114,6 +113,18 @@ public:
 
   /// \brief
   const ezInternal::SpatialData& GetSpatialData() const;
+
+
+  /// \brief Returns the coordinate system for the given position.
+  /// By default this always returns a coordinate system with forward = +X, right = +Y and up = +Z.
+  /// This can be customized by setting a different coordinate system provider.
+  void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_CoordinateSystem) const;
+
+  /// \brief Sets the coordinate system provider that should be used in this world.
+  void SetCoordinateSystemProvider(ezUniquePtr<ezCoordinateSystemProvider>&& pProvider);
+
+  /// \brief Returns the coordinate system provider that is associated with this world.
+  ezCoordinateSystemProvider* GetCoordinateSystemProvider() const;
 
 
   /// \brief Returns the allocator used by this world.

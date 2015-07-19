@@ -21,7 +21,7 @@ public:
   ezInt32 m_iDegreeToRotate;
   float m_fAcceleration;
   float m_fDeceleration;
-  ezEnum<ezTransformComponentAxis> m_Axis;
+  ezEnum<ezBasisAxis> m_Axis;
 
 private:
   ezQuat m_LastRotation;

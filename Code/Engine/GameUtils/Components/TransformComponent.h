@@ -34,25 +34,6 @@ struct ezTransformComponentFlags
 
 EZ_DECLARE_FLAGS_OPERATORS(ezTransformComponentFlags);
 
-struct EZ_GAMEUTILS_DLL ezTransformComponentAxis
-{
-  typedef ezUInt8 StorageType;
-
-  enum Enum
-  {
-    PosX,
-    PosY,
-    PosZ,
-    NegX,
-    NegY,
-    NegZ,
-
-    Default = PosY
-  };
-};
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEUTILS_DLL, ezTransformComponentAxis);
-
 class EZ_GAMEUTILS_DLL ezTransformComponent : public ezComponent
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTransformComponent);

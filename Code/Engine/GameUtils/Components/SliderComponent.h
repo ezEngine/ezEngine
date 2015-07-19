@@ -21,7 +21,7 @@ public:
   float m_fDistanceToTravel;
   float m_fAcceleration;
   float m_fDeceleration;
-  ezEnum<ezTransformComponentAxis> m_Axis;
+  ezEnum<ezBasisAxis> m_Axis;
 
 private:
   float m_fLastDistance;

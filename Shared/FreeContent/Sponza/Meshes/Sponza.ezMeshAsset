@@ -18,9 +18,9 @@
       "TypeData" : {
         "Mesh File" : "Sponza/sponza.obj",
         "Mesh Scaling" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
-        "Forward Dir" : "ezBasisDir::NegativeZ",
-        "Right Dir" : "ezBasisDir::PositiveX",
-        "Up Dir" : "ezBasisDir::PositiveY",
+        "Forward Dir" : "ezBasisAxis::NegativeZ",
+        "Right Dir" : "ezBasisAxis::PositiveX",
+        "Up Dir" : "ezBasisAxis::PositiveY",
         "Material Slot 0" : "Sponza/Materials/leaf.ezMaterial",
         "Material Slot 1" : "Sponza/Materials/vase_round.ezMaterial",
         "Material Slot 2" : "Sponza/Materials/Material__57.ezMaterial",

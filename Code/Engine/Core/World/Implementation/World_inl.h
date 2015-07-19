@@ -189,6 +189,22 @@ EZ_FORCE_INLINE const ezInternal::SpatialData& ezWorld::GetSpatialData() const
   return m_SpatialData;
 }
 
+EZ_FORCE_INLINE void ezWorld::GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_CoordinateSystem) const
+{
+  m_Data.m_pCoordinateSystemProvider->GetCoordinateSystem(vGlobalPosition, out_CoordinateSystem);
+}
+
+EZ_FORCE_INLINE void ezWorld::SetCoordinateSystemProvider(ezUniquePtr<ezCoordinateSystemProvider>&& pProvider)
+{
+  m_Data.m_pCoordinateSystemProvider = std::move(pProvider);
+  m_Data.m_pCoordinateSystemProvider->m_pOwnerWorld = this;
+}
+
+EZ_FORCE_INLINE ezCoordinateSystemProvider* ezWorld::GetCoordinateSystemProvider() const
+{
+  return m_Data.m_pCoordinateSystemProvider.Borrow();
+}
+
 EZ_FORCE_INLINE ezAllocatorBase* ezWorld::GetAllocator()
 {
   return &m_Data.m_Allocator;

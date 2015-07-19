@@ -1,10 +1,6 @@
 #include <GameUtils/PCH.h>
 #include <GameUtils/Components/TransformComponent.h>
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTransformComponentAxis, 1)
-  EZ_ENUM_CONSTANTS(ezTransformComponentAxis::PosX, ezTransformComponentAxis::PosY, ezTransformComponentAxis::PosZ, ezTransformComponentAxis::NegX, ezTransformComponentAxis::NegY, ezTransformComponentAxis::NegZ)
-EZ_END_STATIC_REFLECTED_ENUM()
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, ezComponent, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("Speed", m_fAnimationSpeed), // How many units per second the animation should do.

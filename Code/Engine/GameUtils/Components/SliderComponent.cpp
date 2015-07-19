@@ -5,7 +5,7 @@ float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration,
 
 EZ_BEGIN_COMPONENT_TYPE(ezSliderComponent, ezTransformComponent, 1, ezSliderComponentManager);
   EZ_BEGIN_PROPERTIES
-    EZ_ENUM_MEMBER_PROPERTY("Axis", ezTransformComponentAxis, m_Axis),
+    EZ_ENUM_MEMBER_PROPERTY("Axis", ezBasisAxis, m_Axis),
     EZ_MEMBER_PROPERTY("Distance", m_fDistanceToTravel),
     EZ_MEMBER_PROPERTY("Acceleration", m_fAcceleration),
     EZ_MEMBER_PROPERTY("Deceleration", m_fDeceleration),
@@ -17,6 +17,7 @@ ezSliderComponent::ezSliderComponent()
   m_fDistanceToTravel = 1.0f;
   m_fAcceleration = 0.0f;
   m_fDeceleration = 0.0;
+  m_Axis = ezBasisAxis::PositiveX;
   m_fLastDistance = 0.0f;
 }
 
@@ -28,22 +29,22 @@ void ezSliderComponent::Update()
 
     switch (m_Axis)
     {
-    case ezTransformComponentAxis::PosX:
+    case ezBasisAxis::PositiveX:
       vAxis.Set(1, 0, 0);
       break;
-    case ezTransformComponentAxis::PosY:
+    case ezBasisAxis::PositiveY:
       vAxis.Set(0, 1, 0);
       break;
-    case ezTransformComponentAxis::PosZ:
+    case ezBasisAxis::PositiveZ:
       vAxis.Set(0, 0, 1);
       break;
-    case ezTransformComponentAxis::NegX:
+    case ezBasisAxis::NegativeX:
       vAxis.Set(-1, 0, 0);
       break;
-    case ezTransformComponentAxis::NegY:
+    case ezBasisAxis::NegativeY:
       vAxis.Set(0, -1, 0);
       break;
-    case ezTransformComponentAxis::NegZ:
+    case ezBasisAxis::NegativeZ:
       vAxis.Set(0, 0, -1);
       break;
     }

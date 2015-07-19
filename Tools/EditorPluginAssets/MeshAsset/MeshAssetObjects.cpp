@@ -2,22 +2,13 @@
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezBasisDir, 1)
-  EZ_ENUM_CONSTANT(ezBasisDir::PositiveX),
-  EZ_ENUM_CONSTANT(ezBasisDir::NegativeX),
-  EZ_ENUM_CONSTANT(ezBasisDir::PositiveY),
-  EZ_ENUM_CONSTANT(ezBasisDir::NegativeY),
-  EZ_ENUM_CONSTANT(ezBasisDir::PositiveZ),
-  EZ_ENUM_CONSTANT(ezBasisDir::NegativeZ)
-EZ_END_STATIC_REFLECTED_ENUM();
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, ezReflectedClass, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("Mesh File", m_sMeshFile),
     EZ_MEMBER_PROPERTY("Mesh Scaling", m_fMeshScaling),
-    EZ_ENUM_MEMBER_PROPERTY("Forward Dir", ezBasisDir, m_ForwardDir),
-    EZ_ENUM_MEMBER_PROPERTY("Right Dir", ezBasisDir, m_RightDir),
-    EZ_ENUM_MEMBER_PROPERTY("Up Dir", ezBasisDir, m_UpDir),
+    EZ_ENUM_MEMBER_PROPERTY("Forward Dir", ezBasisAxis, m_ForwardDir),
+    EZ_ENUM_MEMBER_PROPERTY("Right Dir", ezBasisAxis, m_RightDir),
+    EZ_ENUM_MEMBER_PROPERTY("Up Dir", ezBasisAxis, m_UpDir),
     EZ_MEMBER_PROPERTY("Material Slot 0", m_sSlot0),
     EZ_MEMBER_PROPERTY("Material Slot 1", m_sSlot1),
     EZ_MEMBER_PROPERTY("Material Slot 2", m_sSlot2),
@@ -57,9 +48,9 @@ ezMeshAssetProperties::ezMeshAssetProperties()
 {
   m_uiVertices = 0;
   m_uiTriangles = 0;
-  m_ForwardDir = ezBasisDir::PositiveX;
-  m_RightDir = ezBasisDir::PositiveY;
-  m_UpDir = ezBasisDir::PositiveZ;
+  m_ForwardDir = ezBasisAxis::PositiveX;
+  m_RightDir = ezBasisAxis::PositiveY;
+  m_UpDir = ezBasisAxis::PositiveZ;
   m_fMeshScaling = 1.0f;
 }
 

@@ -66,6 +66,24 @@ namespace
       EZ_TEST_VEC3(o.pObjects[i]->GetGlobalScaling(), ezVec3(2.25f, 2.25f, 2.25f), 0);
     }
   }
+
+  class CustomCoordinateSystemProvider : public ezCoordinateSystemProvider
+  {
+  public:
+    CustomCoordinateSystemProvider(const ezWorld* pWorld) : ezCoordinateSystemProvider(pWorld)
+    {
+
+    }
+
+    virtual void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_CoordinateSystem) const override
+    {
+      ezMat3 mTmp; mTmp.SetLookInDirectionMatrix(-vGlobalPosition, ezVec3(0, 0, 1));
+
+      out_CoordinateSystem.m_vRightDir = mTmp.GetRow(0);
+      out_CoordinateSystem.m_vUpDir = mTmp.GetRow(1);
+      out_CoordinateSystem.m_vForwardDir = mTmp.GetRow(2);
+    }
+  };
 }
 
 class ezGameObjectTest
@@ -342,5 +360,24 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     world2.DeleteObject(hObj2);
 
     EZ_TEST_BOOL(!world2.IsValidObject(hObj2));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Custom coordinate system")
+  {
+    ezWorld world("Test");
+
+    ezUniquePtr<CustomCoordinateSystemProvider> pProvider = EZ_DEFAULT_NEW(CustomCoordinateSystemProvider, &world);
+    CustomCoordinateSystemProvider* pProviderBackup = pProvider.Borrow();
+
+    world.SetCoordinateSystemProvider(std::move(pProvider));
+    EZ_TEST_BOOL(world.GetCoordinateSystemProvider() == pProviderBackup);
+
+    ezVec3 pos = ezVec3(2, 3, 0);
+
+    ezCoordinateSystem coordSys;
+    world.GetCoordinateSystem(pos, coordSys);
+
+    EZ_TEST_VEC3(coordSys.m_vForwardDir, (-pos).GetNormalized(), ezMath::BasicType<float>::SmallEpsilon());
+    EZ_TEST_VEC3(coordSys.m_vUpDir, ezVec3(0, 0, 1), ezMath::BasicType<float>::SmallEpsilon());
   }
 }

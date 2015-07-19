@@ -5,7 +5,7 @@ float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration,
 
 EZ_BEGIN_COMPONENT_TYPE(ezRotorComponent, ezTransformComponent, 1, ezRotorComponentManager);
   EZ_BEGIN_PROPERTIES
-    EZ_ENUM_MEMBER_PROPERTY("Axis", ezTransformComponentAxis, m_Axis),
+    EZ_ENUM_MEMBER_PROPERTY("Axis", ezBasisAxis, m_Axis),
     EZ_MEMBER_PROPERTY("Degrees to Rotate", m_iDegreeToRotate),
     EZ_MEMBER_PROPERTY("Acceleration", m_fAcceleration),
     EZ_MEMBER_PROPERTY("Deceleration", m_fDeceleration),
@@ -18,6 +18,7 @@ ezRotorComponent::ezRotorComponent()
   m_iDegreeToRotate = 0;
   m_fAcceleration = 1.0f;
   m_fDeceleration = 1.0f;
+  m_Axis = ezBasisAxis::PositiveZ;
 }
 
 void ezRotorComponent::Update()
@@ -28,22 +29,22 @@ void ezRotorComponent::Update()
 
     switch (m_Axis)
     {
-    case ezTransformComponentAxis::PosX:
+    case ezBasisAxis::PositiveX:
       vAxis.Set(1, 0, 0);
       break;
-    case ezTransformComponentAxis::PosY:
+    case ezBasisAxis::PositiveY:
       vAxis.Set(0, 1, 0);
       break;
-    case ezTransformComponentAxis::PosZ:
+    case ezBasisAxis::PositiveZ:
       vAxis.Set(0, 0, 1);
       break;
-    case ezTransformComponentAxis::NegX:
+    case ezBasisAxis::NegativeX:
       vAxis.Set(-1, 0, 0);
       break;
-    case ezTransformComponentAxis::NegY:
+    case ezBasisAxis::NegativeY:
       vAxis.Set(0, -1, 0);
       break;
-    case ezTransformComponentAxis::NegZ:
+    case ezBasisAxis::NegativeZ:
       vAxis.Set(0, 0, -1);
       break;
     }

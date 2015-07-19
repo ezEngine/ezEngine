@@ -20,32 +20,32 @@ using namespace Assimp;
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, ezAssetDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-static ezVec3 GetBasisVector(ezBasisDir::Enum basisDir)
+static ezVec3 GetBasisVector(ezBasisAxis::Enum basisAxis)
 {
-  switch (basisDir)
+  switch (basisAxis)
   {
-  case ezBasisDir::PositiveX:
+  case ezBasisAxis::PositiveX:
     return ezVec3(1.0f, 0.0f, 0.0f);
 
-  case ezBasisDir::NegativeX:
+  case ezBasisAxis::NegativeX:
     return ezVec3(-1.0f, 0.0f, 0.0f);
 
-  case ezBasisDir::PositiveY:
+  case ezBasisAxis::PositiveY:
     return ezVec3(0.0f, 1.0f, 0.0f);
 
-  case ezBasisDir::NegativeY:
+  case ezBasisAxis::NegativeY:
     return ezVec3(0.0f, -1.0f, 0.0f);
 
-  case ezBasisDir::PositiveZ:
+  case ezBasisAxis::PositiveZ:
     return ezVec3(0.0f, 0.0f, 1.0f);
 
-  case ezBasisDir::NegativeZ:
+  case ezBasisAxis::NegativeZ:
     return ezVec3(0.0f, 0.0f, -1.0f);
 
   default:
-    EZ_REPORT_FAILURE("Invalid basis dir %d", basisDir);
+    EZ_REPORT_FAILURE("Invalid basis dir %d", basisAxis);
     return ezVec3::ZeroVector();
-  }  
+  }
 }
 
 static ezMat3 CalculateTransformationMatrix(const ezMeshAssetProperties* pProp)

@@ -18,9 +18,9 @@
       "TypeData" : {
         "Mesh File" : "Trees/Tree5.obj",
         "Mesh Scaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-        "Forward Dir" : "ezBasisDir::NegativeZ",
-        "Right Dir" : "ezBasisDir::PositiveX",
-        "Up Dir" : "ezBasisDir::PositiveY",
+        "Forward Dir" : "ezBasisAxis::NegativeZ",
+        "Right Dir" : "ezBasisAxis::PositiveX",
+        "Up Dir" : "ezBasisAxis::PositiveY",
         "Material Slot 0" : "{ b700025c-5c7f-4247-8157-f409369ef16b }",
         "Material Slot 1" : "{ b700025c-5c7f-4247-8157-f409369ef16b }",
         "Material Slot 2" : "{ b700025c-5c7f-4247-8157-f409369ef16b }",

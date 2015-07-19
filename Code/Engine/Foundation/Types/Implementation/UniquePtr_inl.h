@@ -26,7 +26,11 @@ template <typename T>
 template <typename U>
 EZ_FORCE_INLINE ezUniquePtr<T>::ezUniquePtr(ezUniquePtr<U>&& other)
 {
-  *this = std::move(other);
+  m_pInstance = other.m_pInstance;
+  m_pAllocator = other.m_pAllocator;
+
+  other.m_pInstance = nullptr;
+  other.m_pAllocator = nullptr;
 }
 
 template <typename T>
@@ -37,8 +41,20 @@ EZ_FORCE_INLINE ezUniquePtr<T>::~ezUniquePtr()
 
 template <typename T>
 template <typename U>
+EZ_FORCE_INLINE void ezUniquePtr<T>::operator=(const ezInternal::NewInstance<U>& instance)
+{
+  Reset();
+
+  m_pInstance = instance.m_pInstance;
+  m_pAllocator = instance.m_pAllocator;
+}
+
+template <typename T>
+template <typename U>
 EZ_FORCE_INLINE void ezUniquePtr<T>::operator=(ezUniquePtr<U>&& other)
 {
+  Reset();
+
   m_pInstance = other.m_pInstance;
   m_pAllocator = other.m_pAllocator;
 

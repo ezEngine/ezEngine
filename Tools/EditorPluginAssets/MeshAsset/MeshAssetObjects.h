@@ -5,23 +5,6 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorFramework/GUI/PropertyEditorBaseWidget.moc.h>
 
-struct ezBasisDir
-{
-  typedef ezInt8 StorageType;
-  enum Enum
-  {
-    PositiveX,
-    NegativeX,
-    PositiveY,
-    NegativeY,
-    PositiveZ,
-    NegativeZ,
-
-    Default = PositiveX
-  };
-};
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezBasisDir);
-
 class ezMeshAssetProperties : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshAssetProperties);
@@ -32,9 +15,9 @@ public:
   ezString m_sMeshFile;
   float m_fMeshScaling;
 
-  ezEnum<ezBasisDir> m_ForwardDir;
-  ezEnum<ezBasisDir> m_RightDir;
-  ezEnum<ezBasisDir> m_UpDir;
+  ezEnum<ezBasisAxis> m_ForwardDir;
+  ezEnum<ezBasisAxis> m_RightDir;
+  ezEnum<ezBasisAxis> m_UpDir;
 
   ezString m_sSlot0;
   ezString m_sSlot1;

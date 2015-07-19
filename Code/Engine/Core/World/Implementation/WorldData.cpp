@@ -7,6 +7,20 @@
 
 namespace ezInternal
 {
+  class DefaultCoordinateSystemProvider : public ezCoordinateSystemProvider
+  {
+  public:
+    DefaultCoordinateSystemProvider() : ezCoordinateSystemProvider(nullptr)
+    {
+    }
+
+    virtual void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_CoordinateSystem) const override
+    {
+      out_CoordinateSystem.m_vForwardDir = ezVec3(1.0f, 0.0f, 0.0f);
+      out_CoordinateSystem.m_vRightDir   = ezVec3(0.0f, 1.0f, 0.0f);
+      out_CoordinateSystem.m_vUpDir      = ezVec3(0.0f, 0.0f, 1.0f);
+    }
+  };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -38,6 +52,8 @@ WorldData::WorldData(const char* szWorldName) :
 
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 192);
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject) == 128);
+
+  m_pCoordinateSystemProvider = EZ_NEW(&m_Allocator, DefaultCoordinateSystemProvider);
 }
 
 WorldData::~WorldData()

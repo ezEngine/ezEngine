@@ -64,6 +64,24 @@ struct EZ_FOUNDATION_DLL ezProjectionDepthRange
 };
 
 
+struct EZ_FOUNDATION_DLL ezBasisAxis
+{
+  typedef ezInt8 StorageType;
+
+  enum Enum
+  {
+    PositiveX,
+    PositiveY,
+    PositiveZ,
+    NegativeX,
+    NegativeY,
+    NegativeZ,
+
+    Default = PositiveX
+  };
+};
+
+
 // forward declarations
 template<typename Type>
 class ezVec2Template;

@@ -48,7 +48,7 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBa
     pRotorCompMan->CreateComponent(pRotor);
     pRotor->m_fAnimationSpeed = 5.0f;
     pRotor->SetAnimatingAtStartup(true);
-    pRotor->m_Axis = ezTransformComponentAxis::PosZ;
+    pRotor->m_Axis = ezBasisAxis::PositiveZ;
     pObj->AddComponent(pRotor);
   }
 
@@ -63,7 +63,12 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBa
     pMesh->SetMesh(hMeshTree);
   }
 
-  m_Camera.LookAt(ezVec3(0.0f, 0.0f, 10.0f), ezVec3(-1.0f, 0.0f, 10.0f), ezVec3(0.0f, 0.0f, 1.0f));
+  ezVec3 vCameraPos = ezVec3(0.0f, 0.0f, 10.0f);
+
+  ezCoordinateSystem coordSys;
+  m_pWorld->GetCoordinateSystem(vCameraPos, coordSys);
+
+  m_Camera.LookAt(vCameraPos, vCameraPos + coordSys.m_vForwardDir, coordSys.m_vUpDir);
   m_Camera.SetCameraMode(ezCamera::PerspectiveFixedFovY, 60.0f, 1.0f, 5000.0f);
 
   m_pView = ezRenderLoop::CreateView("Asteroids - View");

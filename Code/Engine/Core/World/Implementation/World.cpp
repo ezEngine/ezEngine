@@ -18,6 +18,8 @@ ezWorld::ezWorld(const char* szWorldName) :
   m_UpdateTask("", ezMakeDelegate(&ezWorld::UpdateFromThread, this)),
   m_Data(szWorldName)
 {
+  m_Data.m_pCoordinateSystemProvider->m_pOwnerWorld = this;
+
   ezStringBuilder sb = szWorldName;
   sb.Append(".Update");
   m_UpdateProfilingID = ezProfilingSystem::CreateId(sb.GetData());
