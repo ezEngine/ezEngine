@@ -25,34 +25,39 @@ void ezSceneDocumentWindow::UpdateGizmoVisibility()
 {
   ezSceneDocument* pSceneDoc = static_cast<ezSceneDocument*>(GetDocument());
 
-  m_TranslateGizmo.SetVisible(false);
-  m_RotateGizmo.SetVisible(false);
-  m_ScaleGizmo.SetVisible(false);
-  m_DragToPosGizmo.SetVisible(false);
+  bool bGizmoVisible[4] = { false, false, false, false };
 
   if (pSceneDoc->GetSelectionManager()->GetSelection().IsEmpty() || pSceneDoc->GetActiveGizmo() == ActiveGizmo::None)
-    return;
+    goto done;
 
   if (!pSceneDoc->GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
-    return;
+    goto done;
 
   switch (pSceneDoc->GetActiveGizmo())
   {
   case ActiveGizmo::Translate:
-    m_TranslateGizmo.SetVisible(true);
+    bGizmoVisible[0] = true;
     break;
   case ActiveGizmo::Rotate:
-    m_RotateGizmo.SetVisible(true);
+    bGizmoVisible[1] = true;
     break;
   case ActiveGizmo::Scale:
-    m_ScaleGizmo.SetVisible(true);
+    bGizmoVisible[2] = true;
     break;
   case ActiveGizmo::DragToPosition:
-    m_DragToPosGizmo.SetVisible(true);
+    bGizmoVisible[3] = true;
     break;
   }
 
   UpdateGizmoPosition();
+
+done:
+
+  m_TranslateGizmo.SetVisible(bGizmoVisible[0]);
+  m_RotateGizmo.SetVisible(bGizmoVisible[1]);
+  m_ScaleGizmo.SetVisible(bGizmoVisible[2]);
+  m_DragToPosGizmo.SetVisible(bGizmoVisible[3]);
+
 }
 
 

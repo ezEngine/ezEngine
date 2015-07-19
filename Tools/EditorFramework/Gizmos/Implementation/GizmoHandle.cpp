@@ -27,11 +27,6 @@ void ezGizmoHandleBase::SetVisible(bool bVisible)
   {
     m_bVisible = bVisible;
     SetModified(true);
-
-    if (m_bVisible)
-    {
-      int i = 0;
-    }
   }
 }
 

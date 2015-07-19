@@ -11,13 +11,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezDragToPositionGizmo::ezDragToPositionGizmo()
 {
-  m_Bobble.Configure(this, ezGizmoHandleType::Box, ezColorLinearUB(64, 64, 255));
-  m_AlignPX.Configure(this, ezGizmoHandleType::HalfPiston, ezColorLinearUB(200, 64, 255));
-  m_AlignNX.Configure(this, ezGizmoHandleType::HalfPiston, ezColorLinearUB(100, 64, 255));
-  m_AlignPY.Configure(this, ezGizmoHandleType::HalfPiston, ezColorLinearUB(64, 200, 255));
-  m_AlignNY.Configure(this, ezGizmoHandleType::HalfPiston, ezColorLinearUB(64, 100, 255));
-  m_AlignPZ.Configure(this, ezGizmoHandleType::HalfPiston, ezColorLinearUB(64, 64, 255));
-  m_AlignNZ.Configure(this, ezGizmoHandleType::HalfPiston, ezColorLinearUB(64, 64, 128));
+  m_Bobble.Configure(this, ezGizmoHandleType::Box, ezColor::DodgerBlue);
+  m_AlignPX.Configure(this, ezGizmoHandleType::HalfPiston, ezColor::SteelBlue);
+  m_AlignNX.Configure(this, ezGizmoHandleType::HalfPiston, ezColor::SteelBlue);
+  m_AlignPY.Configure(this, ezGizmoHandleType::HalfPiston, ezColor::SteelBlue);
+  m_AlignNY.Configure(this, ezGizmoHandleType::HalfPiston, ezColor::SteelBlue);
+  m_AlignPZ.Configure(this, ezGizmoHandleType::HalfPiston, ezColor::SteelBlue);
+  m_AlignNZ.Configure(this, ezGizmoHandleType::HalfPiston, ezColor::SteelBlue);
 
   SetVisible(false);
   SetTransformation(ezMat4::IdentityMatrix());
@@ -77,13 +77,13 @@ void ezDragToPositionGizmo::FocusLost()
   ezViewHighlightMsgToEngine msg;
   msg.SendHighlightObjectMessage(GetDocumentWindow3D()->GetEditorEngineConnection());
 
-  //m_Bobble.SetVisible(true);
-  //m_AlignPX.SetVisible(true);
-  //m_AlignNX.SetVisible(true);
-  //m_AlignPY.SetVisible(true);
-  //m_AlignNY.SetVisible(true);
-  //m_AlignPZ.SetVisible(true);
-  //m_AlignNZ.SetVisible(true);
+  m_Bobble.SetVisible(true);
+  m_AlignPX.SetVisible(true);
+  m_AlignNX.SetVisible(true);
+  m_AlignPY.SetVisible(true);
+  m_AlignNY.SetVisible(true);
+  m_AlignPZ.SetVisible(true);
+  m_AlignNZ.SetVisible(true);
 }
 
 bool ezDragToPositionGizmo::mousePressEvent(QMouseEvent* e)
@@ -135,6 +135,14 @@ bool ezDragToPositionGizmo::mouseReleaseEvent(QMouseEvent* e)
   return true;
 }
 
+static const ezVec3 GetOrthogonalVector(const ezVec3& vDir)
+{
+  if (ezMath::Abs(vDir.Dot(ezVec3(0, 0, 1))) < 0.999f)
+    return -vDir.Cross(ezVec3(0, 0, 1));
+
+  return -vDir.Cross(ezVec3(1, 0, 0));
+}
+
 bool ezDragToPositionGizmo::mouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
@@ -152,7 +160,7 @@ bool ezDragToPositionGizmo::mouseMoveEvent(QMouseEvent* e)
   if (res.m_vPickedPosition.IsNaN() || res.m_vPickedNormal.IsNaN())
     return true;
 
-  const ezVec3 vTangent = res.m_vPickedNormal.GetOrthogonalVector().GetNormalized();
+  const ezVec3 vTangent = GetOrthogonalVector(res.m_vPickedNormal).GetNormalized();
   const ezVec3 vBiTangent = res.m_vPickedNormal.Cross(vTangent).GetNormalized();
 
   ezMat3 mRot;
@@ -169,14 +177,14 @@ bool ezDragToPositionGizmo::mouseMoveEvent(QMouseEvent* e)
   else if (m_pInteractionGizmoHandle == &m_AlignNX)
   {
     mRot.SetColumn(0, -res.m_vPickedNormal);
-    mRot.SetColumn(1, vBiTangent);
-    mRot.SetColumn(2, vTangent);
+    mRot.SetColumn(2, vBiTangent);
+    mRot.SetColumn(1, -vTangent);
   }
   else if (m_pInteractionGizmoHandle == &m_AlignPY)
   {
-    mRot.SetColumn(0, vBiTangent);
+    mRot.SetColumn(0, -vTangent);
     mRot.SetColumn(1, res.m_vPickedNormal);
-    mRot.SetColumn(2, vTangent);
+    mRot.SetColumn(2, vBiTangent);
   }
   else if (m_pInteractionGizmoHandle == &m_AlignNY)
   {
@@ -192,10 +200,12 @@ bool ezDragToPositionGizmo::mouseMoveEvent(QMouseEvent* e)
   }
   else if (m_pInteractionGizmoHandle == &m_AlignNZ)
   {
-    mRot.SetColumn(1, vTangent);
-    mRot.SetColumn(0, vBiTangent);
+    mRot.SetColumn(0, -vTangent);
+    mRot.SetColumn(1, vBiTangent);
     mRot.SetColumn(2, -res.m_vPickedNormal);
   }
+  else
+    mRot.SetIdentity();
 
   mTrans.SetRotationalPart(mRot);
   SetTransformation(mTrans);

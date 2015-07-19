@@ -206,7 +206,7 @@ void ezViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
       res.m_vPickedNormal = (vNormals[0] + vNormals[1] + vNormals[2] + vNormals[3]).GetNormalized();
     }
 
-    ezLog::Info("Picked Normal: %.2f | %.2f | %.2f", res.m_vPickedNormal.x, res.m_vPickedNormal.y, res.m_vPickedNormal.z);
+    //ezLog::Info("Picked Normal: %.2f | %.2f | %.2f", res.m_vPickedNormal.x, res.m_vPickedNormal.y, res.m_vPickedNormal.z);
   }
 
   SendViewMessage(&res, true);
