@@ -54,12 +54,13 @@ ezProfilingScope::ezProfilingScope(const ezProfilingId& id, const char* szFileNa
   m_Id(id)
 {
   EZ_LOCK(g_CaptureMutex);
+  m_szName = GetProfilingInfo(id.m_Id).m_sName.GetData();
 
   if (!g_CapturedEvents.CanAppend())
     g_CapturedEvents.PopFront();
 
   CapturedEvent e;
-  e.m_szName = GetProfilingInfo(id.m_Id).m_sName.GetData();
+  e.m_szName = m_szName;
   e.m_szFilename = szFileName;
   e.m_szFunctionName = szFunctionName;
   e.m_uiLineNumber = uiLineNumber;
@@ -78,7 +79,7 @@ ezProfilingScope::~ezProfilingScope()
     g_CapturedEvents.PopFront();
 
   CapturedEvent e;
-  e.m_szName = GetProfilingInfo(m_Id.m_Id).m_sName.GetData();
+  e.m_szName = m_szName;
   e.m_szFilename = nullptr;
   e.m_szFunctionName = nullptr;
   e.m_uiLineNumber = 0;

@@ -25,11 +25,7 @@ namespace
 }
 
 // Include inline file
-#if EZ_ENABLED(EZ_USE_PROFILING_GPA) && EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  #include <Foundation/Profiling/Implementation/Profiling_GPA_inl.h>
-#else
-  #include <Foundation/Profiling/Implementation/Profiling_EZ_inl.h>
-#endif
+#include <Foundation/Profiling/Implementation/Profiling_EZ_inl.h>
 
 namespace
 {

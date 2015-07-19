@@ -79,7 +79,6 @@ private:
   ezHashedString m_sName;
 
   ezProfilingId m_ExtractDataProfilingID;
-  ezProfilingId m_RenderProfilingID;
 
   ezDelegateTask<void> m_ExtractTask;
 

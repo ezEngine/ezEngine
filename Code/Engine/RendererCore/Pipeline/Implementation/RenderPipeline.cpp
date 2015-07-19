@@ -8,6 +8,8 @@
 
 #include <Core/World/World.h>
 
+#include <RendererFoundation/Context/Profiling.h>
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderData, ezReflectedClass, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -87,6 +89,8 @@ void ezRenderPipeline::ExtractData(const ezView& view)
 
 void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
 {
+  EZ_PROFILE_AND_MARKER(pRendererContext->GetGALContext(), m_RenderProfilingID);
+
   EZ_ASSERT_DEV(m_uiLastRenderFrame != ezRenderLoop::GetFrameCounter(), "Render must not be called multiple times per frame.");
   m_uiLastRenderFrame = ezRenderLoop::GetFrameCounter();
 
@@ -115,7 +119,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
   {
     {
-      EZ_PROFILE(m_Passes[i]->m_ProfilingID);
+      EZ_PROFILE_AND_MARKER(pRendererContext->GetGALContext(), m_Passes[i]->m_ProfilingID);
 
       m_Passes[i]->Execute(renderViewContext);
     }

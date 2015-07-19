@@ -55,7 +55,6 @@
 
 // Other Features
 #define EZ_USE_PROFILING EZ_OFF
-#define EZ_USE_PROFILING_GPA EZ_OFF
 
 
 // Math Debug Checks

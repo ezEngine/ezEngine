@@ -22,6 +22,10 @@ EZ_FORCE_INLINE const ezWorld* ezView::GetWorld() const
 EZ_FORCE_INLINE void ezView::SetRenderPipeline(ezUniquePtr<ezRenderPipeline>&& pRenderPipeline)
 {
   m_pRenderPipeline = std::move(pRenderPipeline);
+
+  ezStringBuilder sb = m_sName.GetString();
+  sb.Append(".Render");
+  m_pRenderPipeline->m_RenderProfilingID = ezProfilingSystem::CreateId(sb.GetData());
 }
 
 EZ_FORCE_INLINE ezRenderPipeline* ezView::GetRenderPipeline() const

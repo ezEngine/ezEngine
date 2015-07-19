@@ -79,13 +79,6 @@ void SetAppStats()
   #endif
   ezStats::SetStat("Features/Profiling", sOut.GetData());
 
-  #if EZ_ENABLED(EZ_USE_PROFILING_GPA)
-    sOut = "Enabled";
-  #else
-    sOut = "Disabled";
-  #endif
-  ezStats::SetStat("Features/Intel GPA Support", sOut.GetData());
-
   #if EZ_ENABLED(EZ_USE_ALLOCATION_STACK_TRACING)
     sOut = "Enabled";
   #else

@@ -39,6 +39,8 @@ public:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezRenderPipeline);
 
 private:
+  friend class ezView;
+
   struct PassData
   {
     void SortRenderData();
@@ -59,6 +61,7 @@ private:
   PipelineData* GetPipelineDataForExtraction();
   PipelineData* GetPipelineDataForRendering();
 
+  ezProfilingId m_RenderProfilingID;
   ezUInt32 m_uiLastExtractionFrame;
   ezUInt32 m_uiLastRenderFrame;
 

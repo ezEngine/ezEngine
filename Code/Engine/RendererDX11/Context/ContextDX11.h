@@ -13,6 +13,7 @@ namespace ezGALDX11
 
 
 struct ID3D11DeviceContext;
+struct ID3DUserDefinedAnnotation;
 struct ID3D11RenderTargetView;
 struct ID3D11DepthStencilView;
 struct ID3D11Buffer;
@@ -25,7 +26,6 @@ class EZ_RENDERERDX11_DLL ezGALContextDX11 : public ezGALContext
 public:
 
   EZ_FORCE_INLINE ID3D11DeviceContext* GetDXContext() const;
-
 
 protected:
 
@@ -131,18 +131,18 @@ protected:
 
   // Debug helper functions
 
-  virtual void PushMarkerPlatform(const char* Marker) override;
+  virtual void PushMarkerPlatform(const char* szMarker) override;
 
   virtual void PopMarkerPlatform() override;
 
-  virtual void InsertEventMarkerPlatform(const char* Marker) override;
+  virtual void InsertEventMarkerPlatform(const char* szMarker) override;
 
 
   void FlushDeferredStateChanges();
 
 
   ID3D11DeviceContext* m_pDXContext;
-
+  ID3DUserDefinedAnnotation* m_pDXAnnotation;
 
   // Bound objects for deferred state flushes
   ID3D11RenderTargetView* m_pBoundRenderTargets[EZ_GAL_MAX_RENDERTARGET_COUNT];

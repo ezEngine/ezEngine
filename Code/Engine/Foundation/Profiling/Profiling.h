@@ -18,8 +18,9 @@ public:
 
   ~ezProfilingScope();
 
-private:
+protected:
   const ezProfilingId& m_Id;
+  const char* m_szName;
 };
 
 #define EZ_PROFILING_ID_COUNT 512

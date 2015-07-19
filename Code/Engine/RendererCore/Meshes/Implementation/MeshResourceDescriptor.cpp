@@ -1,8 +1,11 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
+
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/Logging/Log.h>
 #include <Foundation/IO/ChunkStream.h>
+#include <Foundation/Logging/Log.h>
+
+#include <CoreUtils/Assets/AssetFileHeader.h>
 
 ezMeshResourceDescriptor::ezMeshResourceDescriptor()
 {
@@ -189,6 +192,10 @@ ezResult ezMeshResourceDescriptor::Load(const char* szFile)
     return EZ_FAILURE;
   }
 
+  // skip asset header
+  ezAssetFileHeader assetHeader;
+  assetHeader.Read(file);
+
   return Load(file);
 }
 
@@ -359,7 +366,7 @@ void ezMeshResourceDescriptor::CalculateBounds()
   if (pPositionStreamInfo == nullptr)
     return;
 
-  const ezVec3* pPositionData = reinterpret_cast<ezVec3*>(m_MeshBufferDescriptor.GetVertexBufferData().GetData() + pPositionStreamInfo->m_uiOffset);
+  const ezVec3* pPositionData = reinterpret_cast<const ezVec3*>(m_MeshBufferDescriptor.GetVertexBufferData().GetData() + pPositionStreamInfo->m_uiOffset);
   const ezUInt32 uiStride = m_MeshBufferDescriptor.GetVertexDataSize();
 
   /// \todo submesh bounds

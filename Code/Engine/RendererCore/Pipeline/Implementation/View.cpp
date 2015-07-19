@@ -40,10 +40,6 @@ void ezView::SetName(const char* szName)
 
   sb.Append(" Task");
   m_ExtractTask.SetTaskName(sb);
-
-  sb = szName;
-  sb.Append(".Render");
-  m_RenderProfilingID = ezProfilingSystem::CreateId(sb.GetData());
 }
 
 void ezView::ExtractData()

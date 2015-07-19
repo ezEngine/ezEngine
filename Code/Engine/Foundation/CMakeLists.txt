@@ -17,11 +17,8 @@ SET (LINK_LIBRARIES
  )
 
 if (MSVC)
-  #link_directories(${CMAKE_SOURCE_DIR}/Code/ThirdParty/gpa_ITT/libs/$(PlatformName))
-
   SET (LINK_LIBRARIES
     ${LINK_LIBRARIES}
-    ${CMAKE_SOURCE_DIR}/Code/ThirdParty/gpa_ITT/libs/$(PlatformName)/libittnotify.lib
     Rpcrt4.lib
   )
 endif()
@@ -43,7 +40,7 @@ if (CURRENT_OSX_VERSION)
   SET (LINK_LIBRARIES
     ${LINK_LIBRARIES}
     ${CORESERVICES_LIBRARY}
-	${COREFOUNDATION_LIBRARY}
+    ${COREFOUNDATION_LIBRARY}
   )
 endif()
 

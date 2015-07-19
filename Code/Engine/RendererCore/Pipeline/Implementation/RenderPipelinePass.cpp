@@ -1,5 +1,8 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+
+#include <RendererFoundation/Context/Profiling.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelinePass, ezNode, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -38,7 +41,7 @@ void ezRenderPipelinePass::GetRenderTargetDescriptions(ezDynamicArray<ezGALTextu
 
 void ezRenderPipelinePass::RenderDataWithPassType(const ezRenderViewContext& renderViewContext, ezRenderPassType passType)
 {
-  EZ_PROFILE(m_pPipeline->GetPassTypeProfilingID(passType));
+  EZ_PROFILE_AND_MARKER(renderViewContext.m_pRenderContext->GetGALContext(), m_pPipeline->GetPassTypeProfilingID(passType));
 
   ezArrayPtr<const ezRenderData*> renderData = m_pPipeline->GetRenderDataWithPassType(passType);
   while (renderData.GetCount() > 0)

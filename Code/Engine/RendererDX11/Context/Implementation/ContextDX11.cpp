@@ -16,15 +16,22 @@
 #include <Foundation/Math/Color.h>
 
 #include <d3d11.h>
+#include <d3d11_1.h>
 
 
 ezGALContextDX11::ezGALContextDX11(ezGALDevice* pDevice, ID3D11DeviceContext* pDXContext)
 : ezGALContext(pDevice),
   m_pDXContext(pDXContext),
+  m_pDXAnnotation(nullptr),
   m_pBoundDepthStencilTarget(nullptr),
   m_uiBoundRenderTargetCount(0)
 {
-  EZ_ASSERT_RELEASE(pDXContext != nullptr, "Invalid DX context!");
+  EZ_ASSERT_RELEASE(m_pDXContext != nullptr, "Invalid DX context!");
+
+  if (FAILED(m_pDXContext->QueryInterface(__uuidof(ID3DUserDefinedAnnotation), (void **)&m_pDXAnnotation)))
+  {
+    ezLog::Warning("Failed to get annotation interface. GALContext marker will not work");
+  }
 
   for (ezUInt32 i = 0; i < EZ_GAL_MAX_RENDERTARGET_COUNT; i++)
   {
@@ -56,6 +63,7 @@ ezGALContextDX11::ezGALContextDX11(ezGALDevice* pDevice, ID3D11DeviceContext* pD
 ezGALContextDX11::~ezGALContextDX11()
 {
   EZ_GAL_DX11_RELEASE(m_pDXContext);
+  EZ_GAL_DX11_RELEASE(m_pDXAnnotation);
 }
 
 
@@ -317,12 +325,11 @@ void ezGALContextDX11::SetBlendStatePlatform(ezGALBlendState* pBlendState, const
 {
   FLOAT BlendFactors[4] =
   {
-	  BlendFactor.r,
-	  BlendFactor.g,
-	  BlendFactor.b,
-	  BlendFactor.a
+    BlendFactor.r,
+    BlendFactor.g,
+    BlendFactor.b,
+    BlendFactor.a
   };
-
 
   m_pDXContext->OMSetBlendState(pBlendState != nullptr ? static_cast<ezGALBlendStateDX11*>(pBlendState)->GetDXBlendState() : nullptr, BlendFactors, uiSampleMask);
 }
@@ -358,35 +365,42 @@ void ezGALContextDX11::SetScissorRectPlatform(ezUInt32 uiX, ezUInt32 uiY, ezUInt
 
 void ezGALContextDX11::SetStreamOutBufferPlatform(ezUInt32 uiSlot, ezGALBuffer* pBuffer, ezUInt32 uiOffset)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 // Fence & Query functions
 
 void ezGALContextDX11::InsertFencePlatform(ezGALFence* pFence)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 bool ezGALContextDX11::IsFenceReachedPlatform(ezGALFence* pFence)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
   return false;
 }
 
 void ezGALContextDX11::BeginQueryPlatform(ezGALQuery* pQuery)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 void ezGALContextDX11::EndQueryPlatform(ezGALQuery* pQuery)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 // Resource update functions
 
 void ezGALContextDX11::CopyBufferPlatform(ezGALBuffer* pDestination, ezGALBuffer* pSource)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 void ezGALContextDX11::CopyBufferRegionPlatform(ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezGALBuffer* pSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 void ezGALContextDX11::UpdateBufferPlatform(ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const void* pSourceData, ezUInt32 uiByteCount)
@@ -407,23 +421,28 @@ void ezGALContextDX11::UpdateBufferPlatform(ezGALBuffer* pDestination, ezUInt32 
   else
   {
     ezLog::Warning("UpdateBuffer currently only for constant buffers implemented!");
+    EZ_ASSERT_NOT_IMPLEMENTED;
   }
 }
 
 void ezGALContextDX11::CopyTexturePlatform(ezGALTexture* pDestination, ezGALTexture* pSource)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 void ezGALContextDX11::CopyTextureRegionPlatform(ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezVec3U32& DestinationPoint, ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 void ezGALContextDX11::UpdateTexturePlatform(ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezBoundingBoxu32& DestinationBox, const void* pSourceData, ezUInt32 uiSourceRowPitch, ezUInt32 uiSourceDepthPitch)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 void ezGALContextDX11::ResolveTexturePlatform(ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 void ezGALContextDX11::ReadbackTexturePlatform(ezGALTexture* pTexture)
@@ -480,16 +499,30 @@ void ezGALContextDX11::CopyTextureReadbackResultPlatform(ezGALTexture* pTexture,
 
 // Debug helper functions
 
-void ezGALContextDX11::PushMarkerPlatform(const char* Marker)
+void ezGALContextDX11::PushMarkerPlatform(const char* szMarker)
 {
+  if (m_pDXAnnotation != nullptr)
+  {
+    ezStringWChar wsMarker(szMarker);
+    m_pDXAnnotation->BeginEvent(wsMarker.GetData());
+  }
 }
 
 void ezGALContextDX11::PopMarkerPlatform()
 {
+  if (m_pDXAnnotation != nullptr)
+  {
+    m_pDXAnnotation->EndEvent();
+  }
 }
 
-void ezGALContextDX11::InsertEventMarkerPlatform(const char* Marker)
+void ezGALContextDX11::InsertEventMarkerPlatform(const char* szMarker)
 {
+  if (m_pDXAnnotation != nullptr)
+  {
+    ezStringWChar wsMarker(szMarker);
+    m_pDXAnnotation->SetMarker(wsMarker.GetData());
+  }
 }
 
 
