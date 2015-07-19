@@ -33,6 +33,7 @@ struct ezShaderBindFlags
 
   struct Bits
   {
+    StorageType ForceRebind : 1;
     StorageType NoRasterizerState : 1;
     StorageType NoDepthStencilState : 1;
     StorageType NoBlendState : 1;

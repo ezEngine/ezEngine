@@ -38,7 +38,7 @@ ezTestAppRun ezRendererTestBasics::SubtestBlendStates()
 
   m_pDevice->GetPrimaryContext()->SetBlendState(hState);
 
-  RenderObjects();
+  RenderObjects(ezShaderBindFlags::NoBlendState);
 
   EZ_TEST_IMAGE(150);
 

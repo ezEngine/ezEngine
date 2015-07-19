@@ -54,9 +54,11 @@ void ezCamera::SetCameraMode(CameraMode Mode, float fFovOrDim, float fNearPlane,
 void ezCamera::LookAt(const ezVec3& vCameraPos, const ezVec3& vTargetPos, const ezVec3& vUp)
 {
   m_vPosition = vCameraPos;
-  m_vDirForwards = (vTargetPos - vCameraPos).GetNormalized();
-  m_vDirRight = vUp.Cross(m_vDirForwards).GetNormalized();
-  m_vDirUp = m_vDirForwards.Cross(m_vDirRight).GetNormalized();
+
+  ezMat3 mTmp; mTmp.SetLookInDirectionMatrix(vTargetPos - vCameraPos, vUp);
+  m_vDirRight = mTmp.GetRow(0);
+  m_vDirUp = mTmp.GetRow(1);
+  m_vDirForwards = mTmp.GetRow(2);
 
   CameraOrientationChanged(true, true);
 }
@@ -66,7 +68,7 @@ void ezCamera::SetFromMatrix(const ezMat4& mLookAtMatrix)
   m_vPosition    = -(mLookAtMatrix.GetRotationalPart().GetTranspose() * mLookAtMatrix.GetTranslationVector());
   m_vDirRight    =  mLookAtMatrix.GetRow(0).GetAsVec3();
   m_vDirUp       =  mLookAtMatrix.GetRow(1).GetAsVec3();
-  m_vDirForwards = -mLookAtMatrix.GetRow(2).GetAsVec3();
+  m_vDirForwards =  mLookAtMatrix.GetRow(2).GetAsVec3();
 
   CameraOrientationChanged(true, true);
 }

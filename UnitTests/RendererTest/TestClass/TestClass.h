@@ -52,9 +52,6 @@ protected:
   ezWindow* m_pWindow;
   ezGALDevice* m_pDevice;
 
-  ezGALRasterizerStateHandle m_hRasterizerState;
-  ezGALDepthStencilStateHandle m_hDepthStencilState;
-  ezGALBlendStateHandle m_hBlendState;
   ezConstantBufferResourceHandle m_hObjectTransformCB;
   ezShaderResourceHandle m_hShader;
 };

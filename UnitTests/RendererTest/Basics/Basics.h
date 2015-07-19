@@ -40,7 +40,7 @@ private:
   ezTestAppRun SubtestTextures3D();
   ezTestAppRun SubtestTexturesCube();
 
-  void RenderObjects();
+  void RenderObjects(ezBitflags<ezShaderBindFlags> ShaderBindFlags);
 
   virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier) override
   {

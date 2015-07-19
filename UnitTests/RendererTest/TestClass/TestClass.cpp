@@ -95,34 +95,16 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
 
   ezGALDevice::SetDefaultDevice(m_pDevice);
 
-  ezGALRasterizerStateCreationDescription RasterStateDesc;
-  RasterStateDesc.m_bWireFrame = false;
-  RasterStateDesc.m_CullMode = ezGALCullMode::Back;
-  RasterStateDesc.m_bFrontCounterClockwise = true;
-  m_hRasterizerState = m_pDevice->CreateRasterizerState(RasterStateDesc);
-  EZ_ASSERT_DEV(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");
+  {
+    ezConstantBufferResourceDescriptor<ObjectCB> desc;
+    m_hObjectTransformCB = ezResourceManager::CreateResource<ezConstantBufferResource>("{E74F00FD-8C0C-47B9-A63D-E3D2E77FCFB4}", desc, "ObjectTransformCB");
 
+    ezRenderContext::ConfigureShaderSystem("DX11_SM40", true);
 
-  ezGALDepthStencilStateCreationDescription DepthStencilStateDesc;
-  DepthStencilStateDesc.m_bDepthTest = true;
-  DepthStencilStateDesc.m_bDepthWrite = true;
-  m_hDepthStencilState = m_pDevice->CreateDepthStencilState(DepthStencilStateDesc);
-  EZ_ASSERT_DEV(!m_hDepthStencilState.IsInvalidated(), "Couldn't create depth-stencil state!");
+    EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
 
-  ezGALBlendStateCreationDescription BlendStateDesc;
-  BlendStateDesc.m_bAlphaToCoverage = false;
-  BlendStateDesc.m_bIndependentBlend = false;
-  m_hBlendState = m_pDevice->CreateBlendState(BlendStateDesc);
-  EZ_ASSERT_DEV(!m_hBlendState.IsInvalidated(), "Couldn't create blend state!");
-
-  ezConstantBufferResourceDescriptor<ObjectCB> desc;
-  m_hObjectTransformCB = ezResourceManager::CreateResource<ezConstantBufferResource>("{E74F00FD-8C0C-47B9-A63D-E3D2E77FCFB4}", desc, "ObjectTransformCB");
-
-  ezRenderContext::ConfigureShaderSystem("DX11_SM40", true);
-
-  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
-
-  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Default.ezShader");
+    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Default.ezShader");
+  }
 
   ezStartup::StartupEngine();
 
@@ -140,10 +122,6 @@ void ezGraphicsTest::ShutdownRenderer()
 
   if (m_pDevice)
   {
-    m_pDevice->DestroyBlendState(m_hBlendState);
-    m_pDevice->DestroyDepthStencilState(m_hDepthStencilState);
-    m_pDevice->DestroyRasterizerState(m_hRasterizerState);
-
     m_pDevice->Shutdown();
     EZ_DEFAULT_DELETE(m_pDevice);
   }
@@ -160,14 +138,6 @@ void ezGraphicsTest::ShutdownRenderer()
 void ezGraphicsTest::BeginFrame()
 {
   m_pDevice->BeginFrame();
-
-  ezGALContext* pContext = m_pDevice->GetPrimaryContext();
-
-  pContext->SetRasterizerState(m_hRasterizerState);
-  pContext->SetDepthStencilState(m_hDepthStencilState);
-  //pContext->SetResourceView(ezGALShaderStage::PixelShader, 0, m_hTexView);
-  //pContext->SetSamplerState(ezGALShaderStage::PixelShader, 0, m_hSamplerState);
-
 }
 
 void ezGraphicsTest::EndFrame()
@@ -219,8 +189,6 @@ void ezGraphicsTest::ClearScreen(const ezColor& color)
   pContext->SetRenderTargetSetup(RTS);
   pContext->SetViewport(0.0f, 0.0f, (float) m_pWindow->GetClientAreaSize().width, (float) m_pWindow->GetClientAreaSize().height, 0.0f, 1.0f);
   pContext->Clear(color);
-
-
 }
 
 ezMeshBufferResourceHandle ezGraphicsTest::CreateMesh(const ezGeometry& geom, const char* szResourceName)
