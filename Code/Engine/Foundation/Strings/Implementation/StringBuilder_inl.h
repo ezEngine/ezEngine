@@ -91,7 +91,7 @@ inline ezUInt32 ezStringBuilder::GetCharacterCount() const
 
 inline ezStringBuilder::operator ezStringView() const
 {
-  return GetIteratorFront();
+  return ezStringView(GetData(), GetData() + GetElementCount());
 }
 
 inline void ezStringBuilder::Clear()
@@ -226,33 +226,21 @@ inline void ezStringBuilder::FormatArgs(const char* szUtf8Format, va_list args0)
   va_end(args);
 }
 
-inline void ezStringBuilder::ChangeCharacter(ezStringView& It, ezUInt32 uiCharacter)
+inline void ezStringBuilder::ChangeCharacter(iterator& it, ezUInt32 uiCharacter)
 {
-  EZ_ASSERT_DEV(It.IsValid(), "The given character iterator does not point to a valid character.");
-  EZ_ASSERT_DEV(It.GetData() >= GetData() && It.GetData() < GetData() + GetElementCount(), "The given character iterator does not point into this string. It was either created from another string, or this string has been reallocated in the mean time.");
+  EZ_ASSERT_DEV(it.IsValid(), "The given character iterator does not point to a valid character.");
+  EZ_ASSERT_DEV(it.GetData() >= GetData() && it.GetData() < GetData() + GetElementCount(), "The given character iterator does not point into this string. It was either created from another string, or this string has been reallocated in the mean time.");
 
   // this is only an optimization for pure ASCII strings
   // without it, the code below would still work
-  if (ezUnicodeUtils::IsASCII(*It.GetData()) && ezUnicodeUtils::IsASCII(uiCharacter))
+  if (ezUnicodeUtils::IsASCII(*it) && ezUnicodeUtils::IsASCII(uiCharacter))
   {
-    char* pPos = const_cast<char*>(It.GetData()); // yes, I know...
+    char* pPos = const_cast<char*>(it.GetData()); // yes, I know...
     *pPos = uiCharacter & 0xFF;
     return;
   }
 
-  ChangeCharacterNonASCII(It, uiCharacter);
-}
-
-inline ezStringView ezStringBuilder::GetIteratorFront() const
-{
-  return ezStringView(GetData(), GetData() + GetElementCount());
-}
-
-inline ezStringView ezStringBuilder::GetIteratorBack() const
-{
-  ezStringView it (GetData(), GetData() + GetElementCount());
-  it.ResetToBack();
-  return it;
+  ChangeCharacterNonASCII(it, uiCharacter);
 }
 
 EZ_FORCE_INLINE bool ezStringBuilder::IsPureASCII() const

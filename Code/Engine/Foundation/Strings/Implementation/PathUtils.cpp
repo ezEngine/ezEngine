@@ -107,11 +107,11 @@ ezStringView ezPathUtils::GetFileDirectory(const char* szPath, const char* szPat
   ezStringUtils::UpdateStringEnd(szPath, szPathEnd);
 
   ezStringView end (szPath, szPathEnd);
-  end.ResetToBack();
+  auto it = rbegin(end);
 
   // if it already ends in a path separator, do not return a different directory
-  if (IsPathSeparator(end.GetCharacter()))
-    return ezStringView(szPath, szPathEnd);
+  if (IsPathSeparator(it.GetCharacter()))
+    return end;
 
   // find the last separator in the string
   const char* szSeparator = FindPreviousSeparator(szPath, szPathEnd);

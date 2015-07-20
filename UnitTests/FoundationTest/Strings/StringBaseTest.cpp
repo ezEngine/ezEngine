@@ -43,7 +43,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it2.StartsWith(""));
 
     ezStringView it3(sz + 2, sz + 4);
-    it3.SetCurrentPosition(sz + 3);
+    it3.SetStartPosition(sz + 3);
 
     EZ_TEST_BOOL(it3.StartsWith("d"));
     EZ_TEST_BOOL(!it3.StartsWith("de"));
@@ -64,7 +64,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it2.StartsWith_NoCase(""));
 
     ezStringView it3(sz + 2, sz + 4);
-    it3.SetCurrentPosition(sz + 3);
+    it3.SetStartPosition(sz + 3);
 
     EZ_TEST_BOOL(it3.StartsWith_NoCase("D"));
     EZ_TEST_BOOL(!it3.StartsWith_NoCase("DE"));
@@ -85,7 +85,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it2.EndsWith(""));
 
     ezStringView it3(sz + 2, sz + 4);
-    it3.SetCurrentPosition(sz + 3);
+    it3.SetStartPosition(sz + 3);
 
     EZ_TEST_BOOL(it3.EndsWith("d"));
     EZ_TEST_BOOL(!it3.EndsWith("cd"));
@@ -106,7 +106,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it2.EndsWith_NoCase(""));
 
     ezStringView it3(sz + 2, sz + 4);
-    it3.SetCurrentPosition(sz + 3);
+    it3.SetStartPosition(sz + 3);
 
     EZ_TEST_BOOL(it3.EndsWith_NoCase("d"));
     EZ_TEST_BOOL(!it3.EndsWith_NoCase("cd"));
@@ -133,7 +133,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it.FindSubString("", sz + 3) == nullptr);
 
     ezStringView it2(sz + 1, sz + 5);
-    it2.SetCurrentPosition(sz + 2);
+    it2.SetStartPosition(sz + 2);
 
     EZ_TEST_BOOL(it2.FindSubString("abcdef") == nullptr);
     EZ_TEST_BOOL(it2.FindSubString("abc") == nullptr);
@@ -166,7 +166,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
 
 
     ezStringView it2(sz + 1, sz + 5);
-    it2.SetCurrentPosition(sz + 2);
+    it2.SetStartPosition(sz + 2);
 
     EZ_TEST_BOOL(it2.FindSubString_NoCase("abcdef") == nullptr);
     EZ_TEST_BOOL(it2.FindSubString_NoCase("abc") == nullptr);
@@ -191,7 +191,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it.FindLastSubString("g") == nullptr);
 
     ezStringView it2(sz + 1, sz + 5);
-    it2.SetCurrentPosition(sz + 2);
+    it2.SetStartPosition(sz + 2);
 
     EZ_TEST_BOOL(it2.FindLastSubString("abcdef") == nullptr);
     EZ_TEST_BOOL(it2.FindLastSubString("abc") == nullptr);
@@ -216,7 +216,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it.FindLastSubString_NoCase("g") == nullptr);
 
     ezStringView it2(sz + 1, sz + 5);
-    it2.SetCurrentPosition(sz + 2);
+    it2.SetStartPosition(sz + 2);
 
     EZ_TEST_BOOL(it2.FindLastSubString_NoCase("abcdef") == nullptr);
     EZ_TEST_BOOL(it2.FindLastSubString_NoCase("abc") == nullptr);
@@ -237,7 +237,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it.Compare("abcdefg") < 0);
 
     ezStringView it2(sz + 2, sz + 5);
-    it2.SetCurrentPosition(sz + 3);
+    it2.SetStartPosition(sz + 3);
 
     EZ_TEST_BOOL(it2.Compare("de") == 0);
     EZ_TEST_BOOL(it2.Compare("def") < 0);
@@ -254,7 +254,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it.Compare_NoCase("abcdefg") < 0);
 
     ezStringView it2(sz + 2, sz + 5);
-    it2.SetCurrentPosition(sz + 3);
+    it2.SetStartPosition(sz + 3);
 
     EZ_TEST_BOOL(it2.Compare_NoCase("de") == 0);
     EZ_TEST_BOOL(it2.Compare_NoCase("def") < 0);
@@ -299,7 +299,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(!it.IsEqual("abcdefg"));
 
     ezStringView it2(sz + 1, sz + 5);
-    it2.SetCurrentPosition(sz + 2);
+    it2.SetStartPosition(sz + 2);
 
     EZ_TEST_BOOL(it2.IsEqual("cde"));
     EZ_TEST_BOOL(!it2.IsEqual("bcde"));
@@ -316,7 +316,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(!it.IsEqual_NoCase("abcdefg"));
 
     ezStringView it2(sz + 1, sz + 5);
-    it2.SetCurrentPosition(sz + 2);
+    it2.SetStartPosition(sz + 2);
 
     EZ_TEST_BOOL(it2.IsEqual_NoCase("cde"));
     EZ_TEST_BOOL(!it2.IsEqual_NoCase("bcde"));
@@ -332,7 +332,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(!it.IsEqualN("abcGHI", 4));
 
     ezStringView it2(sz + 1, sz + 5);
-    it2.SetCurrentPosition(sz + 2);
+    it2.SetStartPosition(sz + 2);
 
     EZ_TEST_BOOL(it2.IsEqualN("cdeZX", 3));
     EZ_TEST_BOOL(!it2.IsEqualN("cdeZX", 4));
@@ -347,7 +347,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(!it.IsEqualN_NoCase("abcGHI", 4));
 
     ezStringView it2(sz + 1, sz + 5);
-    it2.SetCurrentPosition(sz + 2);
+    it2.SetStartPosition(sz + 2);
 
     EZ_TEST_BOOL(it2.IsEqualN_NoCase("cdeZX", 3));
     EZ_TEST_BOOL(!it2.IsEqualN_NoCase("cdeZX", 4));

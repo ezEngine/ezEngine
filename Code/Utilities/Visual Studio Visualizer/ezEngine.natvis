@@ -14,19 +14,25 @@
 	</Type>
 
 	<Type Name="ezStringView">
-		<DisplayString Condition="m_bValid">{m_pCurrent,[m_pEnd - m_pCurrent]s8}</DisplayString>
-		<DisplayString Condition="!m_bValid">&lt;Invalid String&gt;</DisplayString>
-		<StringView>m_pCurrent,[m_pEnd - m_pCurrent]s8</StringView>
+		<DisplayString Condition="m_pStart != 0">{m_pStart,[m_pEnd - m_pStart]s8}</DisplayString>
+		<DisplayString Condition="m_pStart == 0">&lt;Invalid String&gt;</DisplayString>
+		<StringView>m_pStart,[m_pEnd - m_pStart]s8</StringView>
 		<Expand>
-			<Item Name="String" Condition="m_bValid">m_pCurrent,[m_pEnd - m_pCurrent]s8</Item>
-			<Item Name="ElementCount" Condition="m_bValid">m_pEnd - m_pCurrent</Item>
-			<Item Name="Valid">m_bValid</Item>
+			<Item Name="String" Condition="m_pStart != 0">m_pStart,[m_pEnd - m_pStart]s8</Item>
+			<Item Name="ElementCount" Condition="m_pStart != 0">m_pEnd - m_pStart</Item>
+			<Item Name="Valid">m_pStart != 0</Item>
 			<Item Name="ZeroTerminated" Condition="m_pEnd != 0">m_pEnd[0] == 0</Item>
-			<Item Name="Range" Condition="m_pStart != 0">m_pStart,[m_pEnd - m_pStart]s8</Item>
 		</Expand>
 	</Type>	
 	
-
+  <Type Name="ezStringIterator&lt;*&gt;">
+		<AlternativeType Name="ezStringReverseIterator&lt;*&gt;" />
+		<DisplayString Condition="m_pElement == 0">&lt;Invalid Iterator&gt;</DisplayString>
+		<DisplayString Condition="(m_pElement[1] &amp; 0xC0) != 0x80">{m_pElement,[1]s8}</DisplayString>
+		<DisplayString Condition="(m_pElement[1] &amp; 0xC0) == 0x80 &amp;&amp; (m_pElement[2] &amp; 0xC0) != 0x80">{m_pElement,[2]s8}</DisplayString>
+		<DisplayString Condition="(m_pElement[1] &amp; 0xC0) == 0x80 &amp;&amp; (m_pElement[2] &amp; 0xC0) == 0x80 &amp;&amp; (m_pElement[3] &amp; 0xC0) != 0x80">{m_pElement,[3]s8}</DisplayString>
+		<DisplayString Condition="(m_pElement[1] &amp; 0xC0) == 0x80 &amp;&amp; (m_pElement[2] &amp; 0xC0) == 0x80 &amp;&amp; (m_pElement[3] &amp; 0xC0) == 0x80 &amp;&amp; (m_pElement[4] &amp; 0xC0) != 0x80">{m_pElement,[4]s8}</DisplayString>
+	</Type>
 	
 	<Type Name="ezHashedString">
 		<DisplayString>{m_Data.m_pElement->m_Key}</DisplayString>

@@ -26,7 +26,7 @@ public:
   EZ_FORCE_INLINE bool operator==(const const_iterator_base& rhs) const { return m_Array == rhs.m_Array && m_iIndex == rhs.m_iIndex; }
   EZ_FORCE_INLINE bool operator!=(const const_iterator_base& rhs) const { return !(*this == rhs); }
 
-  EZ_FORCE_INLINE size_t operator-(const const_iterator_base& rhs) const { return m_iIndex - rhs.m_iIndex; }
+  EZ_FORCE_INLINE ptrdiff_t operator-(const const_iterator_base& rhs) const { return m_iIndex - rhs.m_iIndex; }
 
   EZ_FORCE_INLINE const_iterator_base operator+(ptrdiff_t rhs) const { return const_iterator_base(*m_Array, m_iIndex + rhs); }
   EZ_FORCE_INLINE const_iterator_base operator-(ptrdiff_t rhs) const { return const_iterator_base(*m_Array, m_iIndex - rhs); }

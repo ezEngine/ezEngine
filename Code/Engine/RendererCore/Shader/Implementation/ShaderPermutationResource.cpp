@@ -182,12 +182,12 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
     sPermutationFile.ChangeFileExtension("");
     sPermutationFile.Shrink(ezRenderContext::GetShaderCacheDirectory().GetCharacterCount() + ezRenderContext::GetActiveShaderPlatform().GetCharacterCount() + 2, 1);
 
-    ezStringView itBack = sPermutationFile.GetIteratorBack();
+    auto itEnd = end(sPermutationFile);
 
     // move the start of the iterator 8 characters from the back to the front
-    itBack -= 8;
+    itEnd -= 8;
 
-    ezString sHash = itBack; // copy the hash (last 8 characters)
+    ezString sHash = ezStringView(itEnd.GetData(), end(sPermutationFile).GetData()); // copy the hash (last 8 characters)
     ezUInt32 uiPermutationHash = ezConversionUtils::ConvertHexStringToUInt32(sHash.GetData());
 
     sPermutationFile.Shrink(0, 8); // remove the hash at the end

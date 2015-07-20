@@ -279,11 +279,11 @@ ezResult ezOSFile::CreateDirectoryStructure(const char* szDirectory)
 
   ezStringBuilder sCurPath;
 
-  ezStringView it = s.GetIteratorFront();
+  auto it = s.GetIteratorFront();
 
   ezResult Res = EZ_SUCCESS;
 
-  while (!it.IsEmpty())
+  while (it.IsValid())
   {
     while ((it.GetCharacter() != '\0') && (!ezPathUtils::IsPathSeparator(it.GetCharacter())))
     {
@@ -414,13 +414,13 @@ done:
 
     ezStringBuilder sCurPath;
 
-    ezStringView it = s.GetIteratorFront();
+    auto it = s.GetIteratorFront();
 
     out_sCorrectSpelling.Clear();
 
     ezResult Res = EZ_SUCCESS;
 
-    while (!it.IsEmpty())
+    while (it.IsValid())
     {
       while ((it.GetCharacter() != '\0') && (!ezPathUtils::IsPathSeparator(it.GetCharacter())))
       {

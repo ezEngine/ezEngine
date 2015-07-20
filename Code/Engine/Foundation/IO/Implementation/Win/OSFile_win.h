@@ -191,8 +191,7 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
   ezStringBuilder s = szFileOrFolder;
 
   // FindFirstFile does not like paths that end with a separator, so remove them all
-  while (ezPathUtils::IsPathSeparator(s.GetIteratorBack().GetCharacter()))
-    s.Shrink(0, 1);
+  s.Trim(nullptr, "/\\");
 
   // handle the case that this query is done on the 'device part' of a path
   if (s.GetCharacterCount() <= 2) // 'C:', 'D:', 'E' etc.

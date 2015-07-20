@@ -173,6 +173,18 @@ const char* ezStringBase<Derived>::ComputeCharacterPosition(ezUInt32 uiCharacter
   return pos;
 }
 
+template <typename Derived>
+typename ezStringBase<Derived>::iterator ezStringBase<Derived>::GetIteratorFront() const
+{
+  return begin(*this);
+}
+
+template <typename Derived>
+typename ezStringBase<Derived>::reverse_iterator ezStringBase<Derived>::GetIteratorBack() const
+{
+  return rbegin(*this);
+}
+
 template <typename DerivedLhs, typename DerivedRhs>
 EZ_FORCE_INLINE bool operator== (const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {

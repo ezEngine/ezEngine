@@ -84,7 +84,7 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
 
   int iPos = 0;
 
-  ezStringView sCommandIt = sCommand.GetIteratorFront();
+  ezStringView sCommandIt = sCommand;
 
   const ezString sVarName = GetNextWord(sCommandIt);
   const ezString sFunctionParam = GetRestWords(sCommandIt);

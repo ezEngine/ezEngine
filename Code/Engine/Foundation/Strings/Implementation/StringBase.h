@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Strings/StringUtils.h>
+#include <Foundation/Strings/Implementation/StringIterator.h>
 
 namespace ezInternal
 {
@@ -18,6 +18,11 @@ template <typename Derived>
 class ezStringBase : public ezThisIsAString
 {
 public:
+  typedef ezStringIterator<Derived> iterator;
+  typedef ezStringIterator<Derived> const_iterator;
+  typedef ezStringReverseIterator<Derived> reverse_iterator;
+  typedef ezStringReverseIterator<Derived> const_reverse_iterator;
+
   /// Returns whether the string is an empty string.
   bool IsEmpty() const; // [tested]
 
@@ -82,6 +87,18 @@ public:
   /// \brief Computes the pointer to the n-th character in the string. This is a linear search from the start.
   const char* ComputeCharacterPosition(ezUInt32 uiCharacterIndex) const;
 
+  /// \brief Returns an iterator to this string, which points to the very first character.
+  ///
+  /// Note that this iterator will only be valid as long as this string lives.
+  /// Once the original string is destroyed, all iterators to them will point into invalid memory.
+  iterator GetIteratorFront() const;
+
+  /// \brief Returns an iterator to this string, which points to the very last character (NOT the end).
+  ///
+  /// Note that this iterator will only be valid as long as this string lives.
+  /// Once the original string is destroyed, all iterators to them will point into invalid memory.
+  reverse_iterator GetIteratorBack() const;
+
 private:
   const char* InternalGetData() const;
   const char* InternalGetDataEnd() const;
@@ -109,8 +126,37 @@ private: // friends
 
   template <typename T, bool isString>
   friend struct ezInternal::HashHelperImpl;
+
+  friend struct ezStringIterator<Derived>;
+
+  friend struct ezStringReverseIterator<Derived>;
 };
 
+
+template <typename Derived>
+typename ezStringBase<Derived>::iterator begin(const ezStringBase<Derived>& container) { return typename ezStringBase<Derived>::iterator(container, false); }
+
+template <typename Derived>
+typename ezStringBase<Derived>::const_iterator cbegin(const ezStringBase<Derived>& container) { return typename ezStringBase<Derived>::const_iterator(container, false); }
+
+template <typename Derived>
+typename ezStringBase<Derived>::iterator end(const ezStringBase<Derived>& container) { return typename ezStringBase<Derived>::iterator(container, true); }
+
+template <typename Derived>
+typename ezStringBase<Derived>::const_iterator cend(const ezStringBase<Derived>& container) { return typename ezStringBase<Derived>::const_iterator(container, true); }
+
+
+template <typename Derived>
+typename ezStringBase<Derived>::reverse_iterator rbegin(const ezStringBase<Derived>& container) { return typename ezStringBase<Derived>::reverse_iterator(container, false); }
+
+template <typename Derived>
+typename ezStringBase<Derived>::const_reverse_iterator crbegin(const ezStringBase<Derived>& container) { return typename ezStringBase<Derived>::const_reverse_iterator(container, false); }
+
+template <typename Derived>
+typename ezStringBase<Derived>::reverse_iterator rend(const ezStringBase<Derived>& container) { return typename ezStringBase<Derived>::reverse_iterator(container, true); }
+
+template <typename Derived>
+typename ezStringBase<Derived>::const_reverse_iterator crend(const ezStringBase<Derived>& container) { return typename ezStringBase<Derived>::const_reverse_iterator(container, true); }
 
 #include <Foundation/Strings/Implementation/StringBase_inl.h>
 

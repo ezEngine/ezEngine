@@ -50,7 +50,7 @@ ezHybridStringBase<Size>::~ezHybridStringBase()
 template<ezUInt16 Size>
 ezHybridStringBase<Size>::operator ezStringView() const
 { 
-  return GetIteratorFront(); 
+  return ezStringView(GetData(), GetData() + m_Data.GetCount() - 1);
 }
 
 template<ezUInt16 Size>
@@ -123,20 +123,6 @@ void ezHybridStringBase<Size>::operator=(const ezStringView& rhs)
   m_Data.SetCount(rhs.GetElementCount() + 1);
   ezStringUtils::Copy(&m_Data[0], m_Data.GetCount() + 1, rhs.GetData(), rhs.GetEndPosition());
   m_uiCharacterCount = ezStringUtils::GetCharacterCount(GetData());
-}
-
-template<ezUInt16 Size>
-ezStringView ezHybridStringBase<Size>::GetIteratorFront() const
-{
-  return ezStringView(GetData(), GetData() + m_Data.GetCount() - 1);
-}
-
-template<ezUInt16 Size>
-ezStringView ezHybridStringBase<Size>::GetIteratorBack() const
-{
-  ezStringView it (GetData(), GetData() + m_Data.GetCount() - 1);
-  it.ResetToBack();
-  return it;
 }
 
 template<ezUInt16 Size>

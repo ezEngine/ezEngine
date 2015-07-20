@@ -97,18 +97,6 @@ public:
   /// \brief Returns the number of characters in this string.
   ezUInt32 GetCharacterCount() const; // [tested]
 
-  /// \brief Returns an iterator to this string, which points to the very first character.
-  ///
-  /// Note that this iterator will only be valid as long as this ezHybridString lives.
-  /// Once the original string is destroyed, all iterators to them will point into invalid memory.
-  ezStringView GetIteratorFront() const; // [tested]
-
-  /// \brief Returns an iterator to this string, which points to the very last character (NOT the end).
-  ///
-  /// Note that this iterator will only be valid as long as this ezHybridString lives.
-  /// Once the original string is destroyed, all iterators to them will point into invalid memory.
-  ezStringView GetIteratorBack() const; // [tested]
-
   /// \brief Returns an iterator to a sub-string of this string, starting at character uiFirstCharacter, up until uiFirstCharacter +  uiNumCharacters.
   ///
   /// Note that this iterator will only be valid as long as this ezHybridString lives.

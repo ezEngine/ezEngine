@@ -1,5 +1,6 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Strings/StringUtils.h>
+#include <Foundation/Strings/StringView.h>
 #include <Foundation/Math/Math.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -506,17 +507,17 @@ ezUInt32 ezStringUtils::CopyN(char* szDest, ezUInt32 uiDstSize, const char* szSo
   return uiLength;
 }
 
-bool ezStringUtils::StartsWith(const char* szString, const char* szStartsWith, const char* pStringEnd)
+bool ezStringUtils::StartsWith(const char* szString, const char* szStartsWith, const char* pStringEnd, const char* szStartsWithEnd)
 {
-  if (IsNullOrEmpty(szStartsWith))
+  if (IsNullOrEmpty(szStartsWith, szStartsWithEnd))
     return true;
-  if (IsNullOrEmpty(szString))
+  if (IsNullOrEmpty(szString, pStringEnd))
     return false;
 
   while ((*szString != '\0') && (szString < pStringEnd))
   {
     // if we have reached the end of the StartsWith string, the other string DOES start with it
-    if (*szStartsWith == '\0')
+    if (*szStartsWith == '\0' || szStartsWith == szStartsWithEnd)
       return true;
 
     if (*szStartsWith != *szString)
@@ -530,17 +531,17 @@ bool ezStringUtils::StartsWith(const char* szString, const char* szStartsWith, c
   return (*szStartsWith == '\0');
 }
 
-bool ezStringUtils::StartsWith_NoCase(const char* szString, const char* szStartsWith, const char* pStringEnd)
+bool ezStringUtils::StartsWith_NoCase(const char* szString, const char* szStartsWith, const char* pStringEnd, const char* szStartsWithEnd)
 {
-  if (IsNullOrEmpty(szStartsWith))
+  if (IsNullOrEmpty(szStartsWith, szStartsWithEnd))
     return true;
-  if (IsNullOrEmpty(szString))
+  if (IsNullOrEmpty(szString, pStringEnd))
     return false;
 
   while ((*szString != '\0') && (szString < pStringEnd))
   {
     // if we have reached the end of the StartsWith string, the other string DOES start with it
-    if (*szStartsWith == '\0')
+    if (*szStartsWith == '\0' || szStartsWith == szStartsWithEnd)
       return true;
 
     if (ezStringUtils::CompareChars_NoCase(szStartsWith, szString) != 0)
@@ -554,31 +555,31 @@ bool ezStringUtils::StartsWith_NoCase(const char* szString, const char* szStarts
   return (*szStartsWith == '\0');
 }
 
-bool ezStringUtils::EndsWith(const char* szString, const char* szEndsWith, const char* pStringEnd)
+bool ezStringUtils::EndsWith(const char* szString, const char* szEndsWith, const char* pStringEnd, const char* szEndsWithEnd)
 {
-  if (IsNullOrEmpty(szEndsWith))
+  if (IsNullOrEmpty(szEndsWith, szEndsWithEnd))
     return true;
-  if (IsNullOrEmpty(szString))
+  if (IsNullOrEmpty(szString, pStringEnd))
     return false;
 
   const ezUInt32 uiLength1 = ezStringUtils::GetStringElementCount(szString, pStringEnd);
-  const ezUInt32 uiLength2 = ezStringUtils::GetStringElementCount(szEndsWith);
+  const ezUInt32 uiLength2 = ezStringUtils::GetStringElementCount(szEndsWith, szEndsWithEnd);
 
   if (uiLength1 < uiLength2)
     return false;
 
-  return IsEqual(&szString[uiLength1 - uiLength2], szEndsWith, pStringEnd);
+  return IsEqual(&szString[uiLength1 - uiLength2], szEndsWith, pStringEnd, szEndsWithEnd);
 }
 
-bool ezStringUtils::EndsWith_NoCase(const char* szString, const char* szEndsWith, const char* pStringEnd)
+bool ezStringUtils::EndsWith_NoCase(const char* szString, const char* szEndsWith, const char* pStringEnd, const char* szEndsWithEnd)
 {
-  if (IsNullOrEmpty(szEndsWith))
+  if (IsNullOrEmpty(szEndsWith, szEndsWithEnd))
     return true;
-  if (IsNullOrEmpty(szString))
+  if (IsNullOrEmpty(szString, pStringEnd))
     return false;
 
   const ezUInt32 uiLength1 = ezStringUtils::GetStringElementCount(szString, pStringEnd);
-  const ezUInt32 uiLength2 = ezStringUtils::GetStringElementCount(szEndsWith);
+  const ezUInt32 uiLength2 = ezStringUtils::GetStringElementCount(szEndsWith, szEndsWithEnd);
 
   const char* pCur1 = szString + uiLength1; // points to \0
   const char* pCur2 = szEndsWith + uiLength2; // points to \0
@@ -773,6 +774,55 @@ const char* ezStringUtils::FindWordEnd(const char* szString, EZ_CHARACTER_FILTER
 
   return szString;
 }
+
+void ezStringUtils::Trim(const char*& pString, const char*& pStringEnd, const char* szTrimCharsStart, const char* szTrimCharsEnd)
+{
+  bool bTrimmed = false;
+  UpdateStringEnd(pString, pStringEnd);
+  ezStringView view(pString, pStringEnd);
+  ezStringView trimFront(szTrimCharsStart);
+  ezStringView trimEnd(szTrimCharsEnd);
+
+  // Trim start
+  auto itStart = begin(view);
+  if (!itStart.IsValid())
+    return;
+
+  do
+  {
+    bTrimmed = false;
+    for (ezUInt32 needle : trimFront)
+    {
+      while (itStart.GetCharacter() == needle)
+      {
+        ++itStart;
+        bTrimmed = true;
+      }
+    }
+  } while (bTrimmed && itStart.IsValid());
+  pString = itStart.GetData();
+  view.SetStartPosition(pString);
+
+  // Trim end
+  auto itEnd = rbegin(view);
+  if (!itEnd.IsValid())
+    return;
+
+  do
+  {
+    bTrimmed = false;
+    for (ezUInt32 needle : trimEnd)
+    {
+      while (itEnd.GetCharacter() == needle)
+      {
+        pStringEnd = itEnd.GetData();
+        ++itEnd;
+        bTrimmed = true;
+      }
+    }
+  } while (bTrimmed && itEnd.IsValid());
+}
+
 
 bool ezStringUtils::IsWhiteSpace(ezUInt32 c)
 {

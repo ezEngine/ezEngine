@@ -216,9 +216,9 @@ void ezStringBuilder::PrependFormatArgs(const char* szUtf8Format, va_list args0)
   va_end(args);
 }
 
-void ezStringBuilder::ChangeCharacterNonASCII(ezStringView& It, ezUInt32 uiCharacter)
+void ezStringBuilder::ChangeCharacterNonASCII(iterator& it, ezUInt32 uiCharacter)
 {
-  char* pPos = const_cast<char*>(It.GetData()); // yes, I know...
+  char* pPos = const_cast<char*>(it.GetData()); // yes, I know...
 
   const ezUInt32 uiOldCharLength = ezUnicodeUtils::GetUtf8SequenceLength(*pPos);
   const ezUInt32 uiNewCharLength = ezUnicodeUtils::GetSizeForCharacterInUtf8(uiCharacter);
@@ -244,7 +244,7 @@ void ezStringBuilder::ChangeCharacterNonASCII(ezStringView& It, ezUInt32 uiChara
 
     // how much has changed
     const ezUInt32 uiDifference = uiOldCharLength - uiNewCharLength;
-    const ezUInt32 uiTrailStringBytes = (ezUInt32)(It.GetEndPosition() - It.GetData() - uiOldCharLength + 1); // ???
+    const ezUInt32 uiTrailStringBytes = (ezUInt32)(GetData() + GetElementCount() - it.GetData() - uiOldCharLength + 1); // ???
 
     // move the trailing characters forwards
     ezMemoryUtils::CopyOverlapped(pPos, pPos + uiDifference, uiTrailStringBytes);
@@ -252,10 +252,7 @@ void ezStringBuilder::ChangeCharacterNonASCII(ezStringView& It, ezUInt32 uiChara
     // update the data array
     m_Data.PopBack(uiDifference);
 
-    // since the end of the array has changed, we must update the character iterator
-    ezStringView NewIt(It.GetStartPosition(), &m_Data[m_Data.GetCount() - 1]);
-    NewIt.SetCurrentPosition(It.GetData());
-    It = NewIt;
+    // 'It' references this already, no need to change anything.
   }
   else
   {
@@ -264,17 +261,14 @@ void ezStringBuilder::ChangeCharacterNonASCII(ezStringView& It, ezUInt32 uiChara
 
     // how much has changed
     const ezUInt32 uiDifference = uiNewCharLength - uiOldCharLength;
-    const ezUInt32 uiTrailStringBytes = (ezUInt32)(It.GetEndPosition() - It.GetData() - uiOldCharLength + 1);
-
+    const ezUInt32 uiTrailStringBytes = (ezUInt32)(GetData() + GetElementCount() - it.GetData() - uiOldCharLength + 1);
+    auto iCurrentPos = (it.GetData() - GetData());
     // resize the array
     m_Data.SetCount(m_Data.GetCount() + uiDifference);
 
     // these might have changed (array realloc)
-    pPos = &m_Data[0] + (It.GetData() - It.GetStartPosition());
-    ezStringView NewIt(&m_Data[0], &m_Data[m_Data.GetCount() - 1]);
-    NewIt.SetCurrentPosition(pPos);
-
-    It = NewIt;
+    pPos = &m_Data[0] + iCurrentPos;
+    it.SetCurrentPosition(pPos);
 
     // move the trailing string backwards
     ezMemoryUtils::CopyOverlapped(pPos + uiNewCharLength, pPos + uiOldCharLength, uiTrailStringBytes);
@@ -1005,74 +999,18 @@ void ezStringBuilder::ReadAll(ezStreamReaderBase& Stream)
   *this = (const char*)&Bytes[0];
 }
 
-void ezStringBuilder::Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd)
+void ezStringBuilder::Trim(const char* szTrimChars)
 {
-  /// \test This function is new
-
-  bool bFoundAny = true;
-
-  if (!ezStringUtils::IsNullOrEmpty(szTrimCharsEnd))
-  {
-    while (bFoundAny)
-    {
-      bFoundAny = false;
-
-      ezStringView v = szTrimCharsEnd;
-
-      while (v.IsValid())
-      {
-        // create a Utf-32 string
-        ezUInt32 uiString32[2] = { v.GetCharacter(), 0 };
-
-        // convert that to Utf-8 and compare
-        ezStringUtf8 sUtf8(uiString32);
-
-        // remove all occurrences of this character, that are in a sequence
-        while (EndsWith(sUtf8.GetData()))
-        {
-          bFoundAny = true;
-          Shrink(0, 1);
-        }
-
-        ++v;
-      }
-    }
-  }
-
-  // repeat for the front part of the string
-  if (!ezStringUtils::IsNullOrEmpty(szTrimCharsStart))
-  {
-    bFoundAny = true;
-
-    while (bFoundAny)
-    {
-      bFoundAny = false;
-
-      ezStringView v = szTrimCharsStart;
-
-      while (v.IsValid())
-      {
-        // create a Utf-32 string
-        ezUInt32 uiString32[2] = { v.GetCharacter(), 0 };
-
-        // convert that to Utf-8 and compare
-        ezStringUtf8 sUtf8(uiString32);
-
-        // remove all occurrences of this character, that are in a sequence
-        while (StartsWith(sUtf8.GetData()))
-        {
-          bFoundAny = true;
-          Shrink(1, 0);
-        }
-
-        ++v;
-      }
-    }
-  }
+  return Trim(szTrimChars, szTrimChars);
 }
 
-
-
+void ezStringBuilder::Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd)
+{
+  const char* szNewStart = GetData();
+  const char* szNewEnd = GetData() + GetElementCount();
+  ezStringUtils::Trim(szNewStart, szNewEnd, szTrimCharsStart, szTrimCharsEnd);
+  Shrink(ezStringUtils::GetCharacterCount(GetData(), szNewStart), ezStringUtils::GetCharacterCount(szNewEnd, GetData() + GetElementCount()));
+}
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringBuilder);

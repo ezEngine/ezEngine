@@ -136,7 +136,7 @@ const ezDocumentObjectBase* ezActionMap::GetChildByName(const ezDocumentObjectBa
   for(const ezDocumentObjectBase* pChild : pObject->GetChildren())
   {
     const ezActionMapDescriptor* pDesc = GetDescriptor(pChild);
-    if (sName.IsEqual_NoCase(pDesc->m_hAction.GetDescriptor()->m_sActionName))
+    if (sName.IsEqual_NoCase(pDesc->m_hAction.GetDescriptor()->m_sActionName.GetData()))
     {
       return pChild;
     }

@@ -126,12 +126,6 @@ public:
   /// \brief Returns whether this string only contains ASCII characters, which means that GetElementCount() == GetCharacterCount()
   bool IsPureASCII() const; // [tested]
 
-  /// \brief Returns an iterator to the entire string, which starts at the first character.
-  ezStringView GetIteratorFront() const; // [tested]
-
-  /// \brief Returns an iterator to the entire string, which starts at the last character.
-  ezStringView GetIteratorBack() const; // [tested]
-
   /// \brief Converts all characters to upper case. Might move the string data around, so all iterators to the data will be invalid afterwards.
   void ToUpper(); // [tested]
 
@@ -146,7 +140,7 @@ public:
   /// This can be a very costly operation (unless this string is pure ASCII).
   /// It is only provided for the few rare cases where it is more convenient and performance is not of concern.
   /// If possible, do not use this function, at all.
-  void ChangeCharacter(ezStringView& Pos, ezUInt32 uiCharacter); // [tested]
+  void ChangeCharacter(iterator& it, ezUInt32 uiCharacter); // [tested]
 
   /// \brief Sets the string by concatenating all given strings.
   void Set(const char* pData1, const char* pData2 = nullptr, const char* pData3 = nullptr, const char* pData4 = nullptr, const char* pData5 = nullptr, const char* pData6 = nullptr);
@@ -353,14 +347,17 @@ public:
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const { return m_Data.GetHeapMemoryUsage(); }
 
+  /// \brief Removes all characters from the start and end that appear in the given strings.
+  void Trim(const char* szTrimChars); // [tested]
+
   /// \brief Removes all characters from the start and/or end that appear in the given strings.
-  void Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd);
+  void Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd); // [tested]
 
 private:
   /// \brief Will remove all double path separators (slashes and backslashes) in a path, except if the path starts with two (back-)slashes, those are kept, as they might indicate a UNC path.
   void RemoveDoubleSlashesInPath(); // [tested]
 
-  void ChangeCharacterNonASCII(ezStringView& Pos, ezUInt32 uiCharacter);
+  void ChangeCharacterNonASCII(iterator& it, ezUInt32 uiCharacter);
   void AppendTerminator();
 
   // needed for better copy construction

@@ -85,7 +85,7 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
 
   ezUInt32 uiCurMaterial = 0xFFFFFFFF;
 
-  ezStringView sText = sContent.GetIteratorFront();
+  ezStringView sText = sContent;
 
   ezUInt32 uiPositionOffset = m_Positions.GetCount();
   ezUInt32 uiNormalOffset = m_Normals.GetCount();
@@ -138,7 +138,7 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
         if (ezConversionUtils::StringToInt(sLine.GetData(), id, &szCurPos).Failed())
           break;	// nothing found, face-declaration is finished
 
-        sLine.SetCurrentPosition(szCurPos);
+        sLine.SetStartPosition(szCurPos);
 
         FaceVertex Vertex;
         Vertex.m_uiPositionID = uiPositionOffset + id - 1; // OBJ indices start at 1, so decrement them to start at 0
@@ -152,7 +152,7 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
           if (ezConversionUtils::StringToInt(sLine.GetData(), id, &szCurPos).Failed())
             break;
 
-          sLine.SetCurrentPosition(szCurPos);
+          sLine.SetStartPosition(szCurPos);
 
           Vertex.m_uiTexCoordID = uiTexCoordOffset + id - 1; // OBJ indices start at 1, so decrement them to start at 0
         }
@@ -166,7 +166,7 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
           if (ezConversionUtils::StringToInt(sLine.GetData(), id, &szCurPos).Failed())
             break;
 
-          sLine.SetCurrentPosition(szCurPos);
+          sLine.SetStartPosition(szCurPos);
 
           Vertex.m_uiNormalID = uiNormalOffset + id - 1;		// OBJ indices start at 1, so decrement them to start at 0
         }
@@ -274,7 +274,7 @@ ezResult ezOBJLoader::LoadMTL(const char* szFile, const char* szMaterialBasePath
   ezString sContent;
   sContent.ReadAll(File);
 
-  ezStringView sText = sContent.GetIteratorFront();
+  ezStringView sText = sContent;
 
   ezString sCurMatName;
   ezStringBuilder sTemp;

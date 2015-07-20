@@ -29,6 +29,12 @@ EZ_FORCE_INLINE bool ezStringUtils::IsNullOrEmpty(const T* pString)
 }
 
 template <typename T>
+EZ_FORCE_INLINE bool ezStringUtils::IsNullOrEmpty(const T* pString, const T* pStringEnd)
+{
+  return (pString == nullptr) || (pString[0] == '\0') || pString == pStringEnd;
+}
+
+template <typename T>
 EZ_FORCE_INLINE void ezStringUtils::UpdateStringEnd(const T* szStringStart, const T*& szStringEnd)
 {
   if (szStringEnd != ezMaxStringEnd)

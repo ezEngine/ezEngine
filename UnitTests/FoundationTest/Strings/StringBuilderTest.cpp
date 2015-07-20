@@ -147,7 +147,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   {
     ezStringBuilder s ("abcdefghi");
     ezStringView it(s.GetData() + 2, s.GetData() + 8);
-    it.SetCurrentPosition(s.GetData() + 3);
+    it.SetStartPosition(s.GetData() + 3);
 
     s = it;
 
@@ -379,29 +379,10 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(iNumAllocs == allocator.GetStats().m_uiNumAllocations)
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetIteratorFront")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Convert to StringView")
   {
     ezStringBuilder s(L"abcdefghijklmnopqrstuvwxyzäöü€ß");
-    ezStringView it = s.GetIteratorFront();
-
-    EZ_TEST_BOOL(it.StartsWith(ezStringUtf8(L"abcdefghijklmnopqrstuvwxyzäöü€ß").GetData()));
-    EZ_TEST_BOOL(it.EndsWith(ezStringUtf8(L"abcdefghijklmnopqrstuvwxyzäöü€ß").GetData()));
-
-    it.ResetToBack();
-
-    EZ_TEST_BOOL(it.StartsWith(ezStringUtf8(L"ß").GetData()));
-    EZ_TEST_BOOL(it.EndsWith(ezStringUtf8(L"ß").GetData()));
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetIteratorBack")
-  {
-    ezStringBuilder s(L"abcdefghijklmnopqrstuvwxyzäöü€ß");
-    ezStringView it = s.GetIteratorBack();
-
-    EZ_TEST_BOOL(it.StartsWith(ezStringUtf8(L"ß").GetData()));
-    EZ_TEST_BOOL(it.EndsWith(ezStringUtf8(L"ß").GetData()));
-
-    it.ResetToFront();
+    ezStringView it = s;
 
     EZ_TEST_BOOL(it.StartsWith(ezStringUtf8(L"abcdefghijklmnopqrstuvwxyzäöü€ß").GetData()));
     EZ_TEST_BOOL(it.EndsWith(ezStringUtf8(L"abcdefghijklmnopqrstuvwxyzäöü€ß").GetData()));
@@ -412,13 +393,13 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     ezStringBuilder s(L"abcdefghijklmnopqrstuvwxyzäöü€ß");
 
     ezStringUtf8 upr(L"ÄÖÜ€ßABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    ezStringView it2(upr.GetData());
+    ezStringView view(upr.GetData());
     
-    for (ezStringView it = s.GetIteratorFront(); it.IsValid(); ++it, ++it2)
+    for (auto it = begin(s); it.IsValid(); ++it, ++view)
     {
-      s.ChangeCharacter(it, it2.GetCharacter());
+      s.ChangeCharacter(it, view.GetCharacter());
       
-      EZ_TEST_BOOL(it.GetCharacter() == it2.GetCharacter()); // iterator reflects the changes
+      EZ_TEST_BOOL(it.GetCharacter() == view.GetCharacter()); // iterator reflects the changes
     }
 
     EZ_TEST_BOOL(s == upr.GetData());
@@ -1374,5 +1355,38 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     sb.RemoveFileExtension();
     EZ_TEST_STRING(sb.GetData(), ezStringUtf8(L"⺅⻩⽇⿕").GetData());
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Trim")
+  {
+    // Empty input
+    ezStringBuilder sb = L"";
+    sb.Trim(" \t");
+    EZ_TEST_STRING(sb.GetData(), ezStringUtf8(L"").GetData());
+    sb.Trim(nullptr, " \t");
+    EZ_TEST_STRING(sb.GetData(), ezStringUtf8(L"").GetData());
+    sb.Trim(" \t", nullptr);
+    EZ_TEST_STRING(sb.GetData(), ezStringUtf8(L"").GetData());
+
+    // Clear all from one side
+    auto sUnicode = L"私はクリストハさんです"; 
+    sb = sUnicode;
+    sb.Trim(nullptr, ezStringUtf8(sUnicode).GetData());
+    EZ_TEST_STRING(sb.GetData(), "");
+    sb = sUnicode;
+    sb.Trim(ezStringUtf8(sUnicode).GetData(), nullptr);
+    EZ_TEST_STRING(sb.GetData(), "");
+
+    // Clear partial side
+    sb = L"ですですですAにぱにぱにぱ";
+    sb.Trim(nullptr, ezStringUtf8(L"にぱ").GetData());
+    EZ_TEST_STRING(sb.GetData(), ezStringUtf8(L"ですですですA").GetData());
+    sb.Trim(ezStringUtf8(L"です").GetData(), nullptr);
+    EZ_TEST_STRING(sb.GetData(), ezStringUtf8(L"A").GetData());
+
+    sb = L"ですですですAにぱにぱにぱ";
+    sb.Trim(ezStringUtf8(L"ですにぱ").GetData());
+    EZ_TEST_STRING(sb.GetData(), ezStringUtf8(L"A").GetData());
+  }
+
 }
 

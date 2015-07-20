@@ -159,15 +159,13 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
     EZ_TEST_INT(s.GetCharacterCount(), 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetIteratorFront / GetIteratorBack")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Convert to ezStringView")
   {
     ezString s(L"abcäöü€def");
 
-    EZ_TEST_BOOL(s.GetIteratorFront().StartsWith("abc"));
-    EZ_TEST_BOOL(s.GetIteratorFront().EndsWith("def"));
-
-    EZ_TEST_BOOL(s.GetIteratorBack().StartsWith("f"));
-    EZ_TEST_BOOL(s.GetIteratorBack().EndsWith("f"));
+    ezStringView view = s;
+    EZ_TEST_BOOL(view.StartsWith("abc"));
+    EZ_TEST_BOOL(view.EndsWith("def"));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetSubString")

@@ -7,13 +7,13 @@ void ezConsole::AutoCompleteInputLine()
   int iPos = 0;
   ezString sVarName = m_sInputLine;
 
-  ezStringView it = m_sInputLine.GetIteratorBack();
+  auto it = rbegin(m_sInputLine);
 
-  while (it.IsValid() && !ezStringUtils::IsIdentifierDelimiter_C_Code(it.GetCharacter()))
+  while (it.IsValid() && !ezStringUtils::IsIdentifierDelimiter_C_Code(*it))
     --it;
 
   const char* szLastWordDelimiter = nullptr;
-  if (it.IsValid() && ezStringUtils::IsIdentifierDelimiter_C_Code(it.GetCharacter()))
+  if (it.IsValid() && ezStringUtils::IsIdentifierDelimiter_C_Code(*it))
     szLastWordDelimiter = it.GetData();
 
   if (szLastWordDelimiter != nullptr)
@@ -180,14 +180,14 @@ const ezString ezConsole::FindCommonString(const ezDeque<ezString>& vStrings)
   ezUInt32 c;
 
   ezUInt32 uiPos = 0;
-  ezStringView it1 = vStrings[0].GetIteratorFront();
+  auto it1 = vStrings[0].GetIteratorFront();
   while (it1.IsValid())
   {
     c = it1.GetCharacter();
 
     for (int v = 1; v < (int) vStrings.GetCount(); v++)
     {
-      ezStringView it2 = vStrings[v].GetIteratorFront();
+      auto it2 = vStrings[v].GetIteratorFront();
 
       it2 += uiPos;
 

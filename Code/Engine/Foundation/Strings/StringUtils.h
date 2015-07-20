@@ -17,6 +17,10 @@ public:
   template <typename T>
   static bool IsNullOrEmpty(const T* pString); // [tested]
 
+  /// \brief Returns true, if the given string is a nullptr pointer, is equal to its end or a string that immediately terminates with a '\0' character.
+  template <typename T>
+  static bool IsNullOrEmpty(const T* pString, const T* pStringEnd);
+
   /// \brief Recomputes the end pointer of a string (\a szStringEnd), if that is currently set to ezMaxStringEnd. Otherwise does nothing.
   template <typename T>
   static void UpdateStringEnd(const T* szStringStart, const T*& szStringEnd);
@@ -167,16 +171,16 @@ public:
   static ezInt32 vsnprintf(char* szDst, ezUInt32 uiDstSize, const char* szFormat, va_list ap); // [tested]
 
   /// \brief Returns true if szString starts with the string given in szStartsWith.
-  static bool StartsWith(const char* szString, const char* szStartsWith, const char* pStringEnd = ezMaxStringEnd); // [tested]
+  static bool StartsWith(const char* szString, const char* szStartsWith, const char* pStringEnd = ezMaxStringEnd, const char* szStartsWithEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Returns true if szString starts with the string given in szStartsWith. Ignores case.
-  static bool StartsWith_NoCase(const char* szString, const char* szStartsWith, const char* pStringEnd = ezMaxStringEnd); // [tested]
+  static bool StartsWith_NoCase(const char* szString, const char* szStartsWith, const char* pStringEnd = ezMaxStringEnd, const char* szStartsWithEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Returns true if szString ends with the string given in szEndsWith.
-  static bool EndsWith(const char* szString, const char* szEndsWith, const char* pStringEnd = ezMaxStringEnd); // [tested]
+  static bool EndsWith(const char* szString, const char* szEndsWith, const char* pStringEnd = ezMaxStringEnd, const char* szEndsWithEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Returns true if szString ends with the string given in szEndsWith. Ignores case.
-  static bool EndsWith_NoCase(const char* szString, const char* szEndsWith, const char* pStringEnd = ezMaxStringEnd); // [tested]
+  static bool EndsWith_NoCase(const char* szString, const char* szEndsWith, const char* pStringEnd = ezMaxStringEnd, const char* szEndsWithEnd = ezMaxStringEnd); // [tested]
 
 
   /// \brief Searches for the first occurrence of szStringToFind in szSource. 
@@ -207,6 +211,14 @@ public:
   /// This is basically the inverse of SkipCharacters. SkipCharacters advances over all characters that fulfill the filter, 
   /// FindWordEnd advances over all characters that do not fulfill it.
   static const char* FindWordEnd(const char* szString, EZ_CHARACTER_FILTER IsDelimiterCB, bool bAlwaysSkipFirst = true); // [tested]
+
+  /// \brief Removes all characters at the start and end of the string that match the respective characters and updates the new start and end of the string.
+  /// 
+  /// \param pString The string to trim.
+  /// \param pStringEnd The end pointer into pString, either the end pointer for the not zero terminated string or ezMaxStringEnd for zero terminated ones.
+  /// \param szTrimCharsStart A string compromised of characters to trim from the start of the string.
+  /// \param szTrimCharsEnd A string compromised of characters to trim from the end of the string.
+  static void Trim(const char*& pString, const char*& pStringEnd, const char* szTrimCharsStart, const char* szTrimCharsEnd); // [tested] via ezStringView and ezStringBuilder
 
   /// \brief A default word delimiter function that returns true for ' ' (space), '\r' (carriage return), '\n' (newline), '\t' (tab) and '\v' (vertical tab)
   static bool IsWhiteSpace(ezUInt32 uiChar); // [tested]

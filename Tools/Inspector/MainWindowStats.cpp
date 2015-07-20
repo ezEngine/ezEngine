@@ -156,14 +156,14 @@ double ExtractValue(const char* szString)
 {
   ezStringBuilder res;
 
-  ezStringView s(szString);
-  s.ResetToBack();
+  ezStringView view(szString);
+  auto it = rbegin(view);
 
   bool bFoundNumber = false;
 
-  while (true)
+  while (it.IsValid())
   {
-    const ezUInt32 uiChar = s.GetCharacter();
+    const ezUInt32 uiChar = it.GetCharacter();
 
     if (bFoundNumber)
     {
@@ -181,10 +181,7 @@ double ExtractValue(const char* szString)
       }
     }
 
-    if (s.GetData() == s.GetStartPosition())
-      break;
-
-    --s;
+    ++it;
   }
 
   double dRes = 0.0f;

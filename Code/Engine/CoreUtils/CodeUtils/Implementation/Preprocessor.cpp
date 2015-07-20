@@ -48,7 +48,7 @@ ezToken* ezPreprocessor::AddCustomToken(const ezToken* pPrevious, const char* sz
 
   pToken->m_sIdentifierString = szNewText;
   pToken->m_Token = *pPrevious;
-  pToken->m_Token.m_DataView = pToken->m_sIdentifierString.GetIteratorFront();
+  pToken->m_Token.m_DataView = pToken->m_sIdentifierString;
 
   return &pToken->m_Token;
 }

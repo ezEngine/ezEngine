@@ -141,7 +141,7 @@ FileStats GetFileStats(const char* szFile)
       {
         ++s.m_uiLines;
 
-        ezStringView LineIt = sLine.GetIteratorFront();
+        ezStringView LineIt = sLine;
 
         bool bIsInWord = false;
         while (!LineIt.IsEmpty())
