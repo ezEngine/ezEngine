@@ -51,12 +51,6 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
     SetIconPath(":/GuiFoundation/Icons/FocusOnSelection16.png");
     break;
   }
-
-  UpdateState();
-}
-
-ezSelectionAction::~ezSelectionAction()
-{
 }
 
 void ezSelectionAction::Execute(const ezVariant& value)
@@ -70,10 +64,5 @@ void ezSelectionAction::Execute(const ezVariant& value)
     m_pSceneDocument->TriggerFocusOnSelection();
     return;
   }
-}
-
-void ezSelectionAction::UpdateState()
-{
-  //SetChecked(m_pSceneDocument->GetActiveGizmo() == m_ButtonType);
 }
 

@@ -21,6 +21,9 @@ public:
 
   const ezQuat& GetRotationResult() const { return m_CurrentRotation; }
 
+  /// \brief Sets the angle to which to snap the rotation result to. Zero means no snapping is performed.
+  void SetSnappingAngle(ezAngle angle) { m_SnappingAngle = angle; }
+
 protected:
   virtual void OnVisibleChanged(bool bVisible) override;
   virtual void OnTransformationChanged(const ezMat4& transform) override;
@@ -32,7 +35,8 @@ private:
 
   ezQuat m_StartRotation;
   ezQuat m_CurrentRotation;
-  float m_fRotation;
+  ezAngle m_Rotation;
+  ezAngle m_SnappingAngle;
 
   ezVec2 m_MousePos;
 

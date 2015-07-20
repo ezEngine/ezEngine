@@ -34,13 +34,10 @@ public:
   };
 
   ezSelectionAction(const ezActionContext& context, const char* szName, ActionType type);
-  ~ezSelectionAction();
 
   virtual void Execute(const ezVariant& value) override;
 
 private:
-  void UpdateState();
-
   ezSceneDocument* m_pSceneDocument;
   ActionType m_Type;
 };

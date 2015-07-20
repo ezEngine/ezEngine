@@ -40,6 +40,7 @@ void OnLoadPlugin(bool bReloading)
 
   ezGizmoActions::RegisterActions();
   ezSelectionActions::RegisterActions();
+  ezRotateGizmoAction::RegisterActions();
 
   // Menu Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentMenuBar");
@@ -49,12 +50,14 @@ void OnLoadPlugin(bool bReloading)
   ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentMenuBar", "Edit");
   ezGizmoActions::MapActions("EditorPluginScene_DocumentMenuBar", "Edit");
   ezSelectionActions::MapActions("EditorPluginScene_DocumentMenuBar", "Edit");
+  ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Edit/GizmoCategory");
 
   // Tool Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentToolBar");
   ezDocumentActions::MapActions("EditorPluginScene_DocumentToolBar", "", true);
   ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentToolBar", "");
   ezGizmoActions::MapActions("EditorPluginScene_DocumentToolBar", "");
+  ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentToolBar", "");
 }
 
 void OnUnloadPlugin(bool bReloading)  
@@ -63,6 +66,7 @@ void OnUnloadPlugin(bool bReloading)
 
   ezGizmoActions::UnregisterActions();
   ezSelectionActions::UnregisterActions();
+  ezRotateGizmoAction::UnregisterActions();
 }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);

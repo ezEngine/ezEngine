@@ -17,6 +17,8 @@ ezRotateGizmo::ezRotateGizmo()
 
   SetVisible(false);
   SetTransformation(ezMat4::IdentityMatrix());
+
+  m_SnappingAngle = ezAngle();
 }
 
 void ezRotateGizmo::SetDocumentGuid(const ezUuid& guid)
@@ -104,7 +106,7 @@ bool ezRotateGizmo::mousePressEvent(QMouseEvent* e)
   QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
 
   m_MousePos = ezVec2(e->globalPos().x(), e->globalPos().y());
-  m_fRotation = 0.0f;
+  m_Rotation = ezAngle();
 
   m_AxisX.SetVisible(false);
   m_AxisY.SetVisible(false);
@@ -163,10 +165,15 @@ bool ezRotateGizmo::mouseMoveEvent(QMouseEvent* e)
 
   QCursor::setPos(QPoint(m_MousePos.x, m_MousePos.y));
 
-  m_fRotation += vDiff.x;
-  m_fRotation -= vDiff.y;
+  m_Rotation += ezAngle::Degree(vDiff.x);
+  m_Rotation -= ezAngle::Degree(vDiff.y);
 
-  m_CurrentRotation.SetFromAxisAndAngle(m_vMoveAxis, ezAngle::Degree(m_fRotation));
+  ezAngle rot = m_Rotation;
+
+  if (m_SnappingAngle.GetRadian() != 0.0f)
+    rot = ezAngle::Radian(ezMath::Round(m_Rotation.GetRadian(), m_SnappingAngle.GetRadian()));
+
+  m_CurrentRotation.SetFromAxisAndAngle(m_vMoveAxis, rot);
 
   ezMat4 mTrans = GetTransformation();
   mTrans.SetRotationalPart((m_CurrentRotation * m_StartRotation).GetAsMat3());

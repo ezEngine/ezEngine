@@ -93,12 +93,16 @@ void ezToolBarActionMapView::CreateView(ezDocumentObjectBase* pObject)
 
     case ezActionType::Menu:
       {
+        ezNamedAction* pNamed = static_cast<ezNamedAction*>(pAction);
+
         QMenu* pQtMenu = static_cast<ezQtMenuProxy*>(pProxy)->GetQMenu();
         // TODO pButton leaks!
         QToolButton* pButton = new QToolButton(this);
         pButton->setMenu(pQtMenu);
         pButton->setPopupMode(QToolButton::ToolButtonPopupMode::InstantPopup);
         pButton->setText(pQtMenu->title());
+        pButton->setIcon(QIcon(QString::fromUtf8(pNamed->GetIconPath())));
+        pButton->setToolTip(pQtMenu->title());
 
         // TODO addWidget return value of QAction leaks!
         QAction* pToolButtonAction = addWidget(pButton);

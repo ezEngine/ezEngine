@@ -15,6 +15,7 @@
 #include <EditorFramework/Gizmos/RotateGizmo.h>
 #include <EditorFramework/Gizmos/ScaleGizmo.h>
 #include <EditorFramework/Gizmos/DragToPositionGizmo.h>
+#include <EditorPluginScene/Actions/GizmoActions.h>
 
 class ezScene3DWidget : public ez3DViewWidget
 {
@@ -60,6 +61,7 @@ private:
   void DocumentEventHandler(const ezSceneDocument::SceneEvent& e);
   void DocumentTreeEventHandler(const ezDocumentObjectStructureEvent& e);
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void RotateGizmoEventHandler(const ezRotateGizmoAction::Event& e);
 
   void UpdateGizmoSelectionList();
   void UpdateGizmoVisibility();
