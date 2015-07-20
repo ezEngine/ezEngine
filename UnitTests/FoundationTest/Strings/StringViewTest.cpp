@@ -135,27 +135,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCharacter")
   {
     ezStringUtf8 s(L"abcäöü€");
-
-
     ezStringView it = ezStringView(s.GetData());
-
-
-    ezStringView view = ezStringView(s.GetData());
-    for (ezUInt32 character : view)
-    {
-      printf("");
-    }
-
-    for (auto it2 = begin(view); it2 != end(view); ++it2)
-    {
-      printf("");
-    }
-
-    for (auto it2 = rbegin(view); it2 != rend(view); ++it2)
-    {
-      ezUInt32 character = *it2;
-      printf("");
-    }
 
     EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[0])); ++it;
     EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[1])); ++it;
@@ -266,7 +246,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Trim")
   {
     // Empty input
-    ezStringUtf8 utf8 = L"";
+    ezStringUtf8 utf8(L"");
     ezStringView view(utf8.GetData());
     view.Trim(" \t");
     EZ_TEST_BOOL(view.IsEqual(ezStringUtf8(L"").GetData()));
@@ -276,7 +256,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     EZ_TEST_BOOL(view.IsEqual(ezStringUtf8(L"").GetData()));
 
     // Clear all from one side
-    ezStringUtf8 sUnicode = L"私はクリストハさんです"; 
+    ezStringUtf8 sUnicode(L"私はクリストハさんです"); 
     view = sUnicode.GetData();
     view.Trim(nullptr, sUnicode.GetData());
     EZ_TEST_BOOL(view.IsEqual(""));

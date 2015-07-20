@@ -6,18 +6,18 @@ void TestConstruction(const STRING& value, const char* szStart, const char* szEn
 {
   ezStringUtf8 sUtf8(L"A単語F");
   EZ_TEST_BOOL(value.IsEqual(sUtf8.GetData()));
-  const bool bEqualForwardItTypes = ezConversionTest<STRING::iterator, STRING::const_iterator>::sameType == 1;
+  const bool bEqualForwardItTypes = ezConversionTest<typename STRING::iterator, typename STRING::const_iterator>::sameType == 1;
   EZ_CHECK_AT_COMPILETIME_MSG(bEqualForwardItTypes, "As the string iterator is read-only, both const and non-const versions should be the same type.");
-  const bool bEqualReverseItTypes = ezConversionTest<STRING::reverse_iterator, STRING::const_reverse_iterator>::sameType == 1;
+  const bool bEqualReverseItTypes = ezConversionTest<typename STRING::reverse_iterator, typename STRING::const_reverse_iterator>::sameType == 1;
   EZ_CHECK_AT_COMPILETIME_MSG(bEqualReverseItTypes, "As the reverse string iterator is read-only, both const and non-const versions should be the same type.");
 
-  STRING::iterator itInvalid;
+  typename STRING::iterator itInvalid;
   EZ_TEST_BOOL(!itInvalid.IsValid());
-  STRING::reverse_iterator itInvalidR;
+  typename STRING::reverse_iterator itInvalidR;
   EZ_TEST_BOOL(!itInvalidR.IsValid());
 
   // Begin
-  const STRING::iterator itBegin = begin(value);
+  const typename STRING::iterator itBegin = begin(value);
   EZ_TEST_BOOL(itBegin == value.GetIteratorFront());
   EZ_TEST_BOOL(itBegin.IsValid());
   EZ_TEST_BOOL(itBegin == itBegin);
@@ -26,7 +26,7 @@ void TestConstruction(const STRING& value, const char* szStart, const char* szEn
   EZ_TEST_BOOL(*itBegin == ezUnicodeUtils::ConvertUtf8ToUtf32("A"));
 
   // End
-  const STRING::iterator itEnd = end(value);
+  const typename STRING::iterator itEnd = end(value);
   EZ_TEST_BOOL(!itEnd.IsValid());
   EZ_TEST_BOOL(itEnd == itEnd);
   EZ_TEST_BOOL(itBegin != itEnd);
@@ -35,7 +35,7 @@ void TestConstruction(const STRING& value, const char* szStart, const char* szEn
   EZ_TEST_BOOL(*itEnd == 0);
 
   // RBegin
-  const STRING::reverse_iterator itBeginR = rbegin(value);
+  const typename STRING::reverse_iterator itBeginR = rbegin(value);
   EZ_TEST_BOOL(itBeginR == value.GetIteratorBack());
   EZ_TEST_BOOL(itBeginR.IsValid());
   EZ_TEST_BOOL(itBeginR == itBeginR);
@@ -46,7 +46,7 @@ void TestConstruction(const STRING& value, const char* szStart, const char* szEn
   EZ_TEST_BOOL(*itBeginR == ezUnicodeUtils::ConvertUtf8ToUtf32("F"));
 
   // REnd
-  const STRING::reverse_iterator itEndR = rend(value);
+  const typename STRING::reverse_iterator itEndR = rend(value);
   EZ_TEST_BOOL(!itEndR.IsValid());
   EZ_TEST_BOOL(itEndR == itEndR);
   EZ_TEST_BOOL(itBeginR != itEndR);
@@ -124,19 +124,19 @@ void TestOperators(const STRING& value, const char* szStart, const char* szEnd)
   EZ_TEST_BOOL(value.IsEqual(sUtf8.GetData()));
 
   // Begin
-  STRING::iterator itBegin = begin(value);
+  typename STRING::iterator itBegin = begin(value);
   TestIteratorBegin(value, itBegin);
 
   // End
-  STRING::iterator itEnd = end(value);
+  typename STRING::iterator itEnd = end(value);
   TestIteratorEnd(value, itEnd);
 
   // RBegin
-  STRING::reverse_iterator itBeginR = rbegin(value);
+  typename STRING::reverse_iterator itBeginR = rbegin(value);
   TestIteratorBegin(value, itBeginR);
 
   // REnd
-  STRING::reverse_iterator itEndR = rend(value);
+  typename STRING::reverse_iterator itEndR = rend(value);
   TestIteratorEnd(value, itEndR);
 }
 
@@ -159,8 +159,8 @@ void TestLoops(const STRING& value, const char* szStart, const char* szEnd)
   }
   EZ_TEST_INT(iIndex, 4);
 
-  STRING::iterator itBegin = begin(value);
-  STRING::iterator itEnd = end(value);
+  typename STRING::iterator itBegin = begin(value);
+  typename STRING::iterator itEnd = end(value);
   iIndex = 0;
   for (auto it = itBegin; it != itEnd; ++it)
   {
@@ -174,8 +174,8 @@ void TestLoops(const STRING& value, const char* szStart, const char* szEnd)
   EZ_TEST_INT(iIndex, 4);
 
   // Reverse
-  STRING::reverse_iterator itBeginR = rbegin(value);
-  STRING::reverse_iterator itEndR = rend(value);
+  typename STRING::reverse_iterator itBeginR = rbegin(value);
+  typename STRING::reverse_iterator itEndR = rend(value);
   iIndex = 3;
   for (auto it = itBeginR; it != itEndR; ++it)
   {
