@@ -1,6 +1,5 @@
 ﻿#include <PCH.h>
 #include <Foundation/Strings/String.h>
-#include <Foundation\Basics\Platform\Common.h>
 
 template<typename STRING>
 void TestConstruction(const STRING& value, const char* szStart, const char* szEnd)
