@@ -24,12 +24,30 @@
 
 /// *** BASE ***
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResourceSlotProperty, ezReflectedClass, 1, ezRTTINoAllocator);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY_READ_ONLY("Slot", m_sSlotName),
-EZ_MEMBER_PROPERTY("Resource", m_sResource),
-EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+class QDoubleSpinBoxLessAnnoying : public QDoubleSpinBox
+{
+public:
+  QDoubleSpinBoxLessAnnoying(QWidget* pParent) : QDoubleSpinBox(pParent) {}
+
+  virtual QString textFromValue(double val) const override
+  {
+    if (val == 0.0)
+      return QLatin1String("0");
+
+    QString sText = QDoubleSpinBox::textFromValue(val);
+    //sText = sText.replace(",", ".");
+    while (sText.startsWith('0'))
+      sText.remove(0, 1);
+    while (sText.endsWith('0'))
+      sText.resize(sText.length() - 1);
+    if (sText.endsWith(',') || sText.endsWith('.'))
+      sText.resize(sText.length() - 1);
+    if (sText.startsWith(',') || sText.startsWith('.'))
+      sText.insert(0, '0');
+
+    return sText;
+  }
+};
 
 ezPropertyEditorBaseWidget::ezPropertyEditorBaseWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent) : QWidget(pParent)
 {
@@ -145,7 +163,7 @@ ezPropertyEditorDoubleSpinboxWidget::ezPropertyEditorDoubleSpinboxWidget(const e
 
   for (ezInt32 c = 0; c < m_iNumComponents; ++c)
   {
-    m_pWidget[c] = new QDoubleSpinBox(this);
+    m_pWidget[c] = new QDoubleSpinBoxLessAnnoying(this);
     m_pWidget[c]->setMinimum(-ezMath::BasicType<double>::GetInfinity());
     m_pWidget[c]->setMaximum( ezMath::BasicType<double>::GetInfinity());
     m_pWidget[c]->setSingleStep(1.0);
@@ -306,7 +324,7 @@ ezPropertyEditorQuaternionWidget::ezPropertyEditorQuaternionWidget(const ezPrope
 
   for (ezInt32 c = 0; c < 3; ++c)
   {
-    m_pWidget[c] = new QDoubleSpinBox(this);
+    m_pWidget[c] = new QDoubleSpinBoxLessAnnoying(this);
     m_pWidget[c]->setMinimum(-ezMath::BasicType<double>::GetInfinity());
     m_pWidget[c]->setMaximum(ezMath::BasicType<double>::GetInfinity());
     m_pWidget[c]->setSingleStep(1.0);

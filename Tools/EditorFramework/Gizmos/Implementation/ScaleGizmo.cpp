@@ -18,6 +18,8 @@ ezScaleGizmo::ezScaleGizmo()
 
   SetVisible(false);
   SetTransformation(ezMat4::IdentityMatrix());
+
+  m_fSnappingValue = 0.0f;
 }
 
 void ezScaleGizmo::SetDocumentGuid(const ezUuid& guid)
@@ -165,8 +167,10 @@ bool ezScaleGizmo::mouseMoveEvent(QMouseEvent* e)
 
   QCursor::setPos(QPoint(m_MousePos.x, m_MousePos.y));
 
-  m_vScaleMouseMove += m_vMoveAxis * vDiff.x;
-  m_vScaleMouseMove -= m_vMoveAxis * vDiff.y;
+  float fFactor = m_fSnappingValue != 0.0f ? m_fSnappingValue : 1.0f;
+
+  m_vScaleMouseMove += m_vMoveAxis * vDiff.x * fFactor;
+  m_vScaleMouseMove -= m_vMoveAxis * vDiff.y * fFactor;
 
   m_vScalingResult.Set(1.0f);
 
@@ -186,6 +190,16 @@ bool ezScaleGizmo::mouseMoveEvent(QMouseEvent* e)
     m_vScalingResult.z = 1.0f + m_vScaleMouseMove.z * fScaleSpeed;
   if (m_vScaleMouseMove.z < 0.0f)
     m_vScalingResult.z = 1.0f / (1.0f - m_vScaleMouseMove.z * fScaleSpeed);
+
+  //if (m_fSnappingValue > 0.0f)
+  //{
+  //  if (m_vMoveAxis.x != 0.0f)
+  //    m_vScalingResult.x = ezMath::Round(m_vScalingResult.x, m_fSnappingValue);
+  //  if (m_vMoveAxis.y != 0.0f)
+  //    m_vScalingResult.y = ezMath::Round(m_vScalingResult.y, m_fSnappingValue);
+  //  if (m_vMoveAxis.z != 0.0f)
+  //    m_vScalingResult.z = ezMath::Round(m_vScalingResult.z, m_fSnappingValue);
+  //}
 
   BaseEvent ev;
   ev.m_pGizmo = this;

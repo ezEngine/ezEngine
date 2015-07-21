@@ -21,11 +21,16 @@ public:
 
   const ezVec3& GetScalingResult() const { return m_vScalingResult; }
 
+  /// \brief Sets the value to which to snap the scaling result to. Zero means no snapping is performed.
+  void SetSnappingValue(float fSnappingValue) { m_fSnappingValue = fSnappingValue; }
+
 protected:
   virtual void OnVisibleChanged(bool bVisible) override;
   virtual void OnTransformationChanged(const ezMat4& transform) override;
 
 private:
+  float m_fSnappingValue;
+
   ezVec3 m_vScalingResult;
   ezVec3 m_vScaleMouseMove;
 
