@@ -171,7 +171,7 @@ void ezRotateGizmoAction::MapActions(const char* szMapping, const char* szPath)
 
   ezStringBuilder sSubPath(szPath, "/RotationSnapCategory");
 
-  pMap->MapAction(s_hSnappingValueMenu, szPath, 5.0f);
+  pMap->MapAction(s_hSnappingValueMenu, szPath, 6.0f);
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_hSnappingValues); ++i)
     pMap->MapAction(s_hSnappingValues[i], sSubPath, i + 1.0f);
@@ -240,13 +240,13 @@ ezEvent<const ezScaleGizmoAction::Event&> ezScaleGizmoAction::s_Events;
 void ezScaleGizmoAction::RegisterActions()
 {
   s_hSnappingValueMenu = EZ_REGISTER_MENU_WITH_ICON("ScalingSnapCategory", "Scaling Factor", ":/GuiFoundation/Icons/GizmoScale24.png");
-  s_hSnappingValues[0] = EZ_REGISTER_ACTION_2("SnapFactor_10", "10", ezActionScope::Document, "Scale Snap", "", ezScaleGizmoAction, ezScaleGizmoAction::ActionType::SetSnappingAngle, 10.0f);
-  s_hSnappingValues[1] = EZ_REGISTER_ACTION_2("SnapFactor_5", "5", ezActionScope::Document, "Scale Snap", "", ezScaleGizmoAction, ezScaleGizmoAction::ActionType::SetSnappingAngle, 5.0f);
-  s_hSnappingValues[2] = EZ_REGISTER_ACTION_2("SnapFactor_2", "2", ezActionScope::Document, "Scale Snap", "", ezScaleGizmoAction, ezScaleGizmoAction::ActionType::SetSnappingAngle, 2.0f);
-  s_hSnappingValues[3] = EZ_REGISTER_ACTION_2("SnapFactor_1", "1", ezActionScope::Document, "Scale Snap", "", ezScaleGizmoAction, ezScaleGizmoAction::ActionType::SetSnappingAngle, 1.0f);
-  s_hSnappingValues[4] = EZ_REGISTER_ACTION_2("SnapFactor_0_5", "0.5", ezActionScope::Document, "Scale Snap", "", ezScaleGizmoAction, ezScaleGizmoAction::ActionType::SetSnappingAngle, 0.5f);
-  s_hSnappingValues[5] = EZ_REGISTER_ACTION_2("SnapFactor_0_2", "0.2", ezActionScope::Document, "Scale Snap", "", ezScaleGizmoAction, ezScaleGizmoAction::ActionType::SetSnappingAngle, 0.2f);
-  s_hSnappingValues[6] = EZ_REGISTER_ACTION_2("SnapFactor_0_1", "0.1", ezActionScope::Document, "Scale Snap", "", ezScaleGizmoAction, ezScaleGizmoAction::ActionType::SetSnappingAngle, 0.1f);
+  s_hSnappingValues[0] = EZ_REGISTER_ACTION_2("SnapFactor_8", "8", ezActionScope::Document, "Scale Snap", "", ezScaleGizmoAction, ezScaleGizmoAction::ActionType::SetSnappingValue, 8.0f);
+  s_hSnappingValues[1] = EZ_REGISTER_ACTION_2("SnapFactor_4", "4", ezActionScope::Document, "Scale Snap", "", ezScaleGizmoAction, ezScaleGizmoAction::ActionType::SetSnappingValue, 4.0f);
+  s_hSnappingValues[2] = EZ_REGISTER_ACTION_2("SnapFactor_2", "2", ezActionScope::Document, "Scale Snap", "", ezScaleGizmoAction, ezScaleGizmoAction::ActionType::SetSnappingValue, 2.0f);
+  s_hSnappingValues[3] = EZ_REGISTER_ACTION_2("SnapFactor_1", "1", ezActionScope::Document, "Scale Snap", "", ezScaleGizmoAction, ezScaleGizmoAction::ActionType::SetSnappingValue, 1.0f);
+  s_hSnappingValues[4] = EZ_REGISTER_ACTION_2("SnapFactor_0_5", "0.5", ezActionScope::Document, "Scale Snap", "", ezScaleGizmoAction, ezScaleGizmoAction::ActionType::SetSnappingValue, 0.5f);
+  s_hSnappingValues[5] = EZ_REGISTER_ACTION_2("SnapFactor_0_25", "0.25", ezActionScope::Document, "Scale Snap", "", ezScaleGizmoAction, ezScaleGizmoAction::ActionType::SetSnappingValue, 0.25f);
+  s_hSnappingValues[6] = EZ_REGISTER_ACTION_2("SnapFactor_0_125", "0.125", ezActionScope::Document, "Scale Snap", "", ezScaleGizmoAction, ezScaleGizmoAction::ActionType::SetSnappingValue, 0.125f);
 }
 
 void ezScaleGizmoAction::UnregisterActions()
@@ -264,7 +264,7 @@ void ezScaleGizmoAction::MapActions(const char* szMapping, const char* szPath)
 
   ezStringBuilder sSubPath(szPath, "/ScalingSnapCategory");
 
-  pMap->MapAction(s_hSnappingValueMenu, szPath, 6.0f);
+  pMap->MapAction(s_hSnappingValueMenu, szPath, 7.0f);
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_hSnappingValues); ++i)
     pMap->MapAction(s_hSnappingValues[i], sSubPath, i + 1.0f);
@@ -290,7 +290,7 @@ void ezScaleGizmoAction::EventHandler(const Event& e)
 {
   switch (e.m_Type)
   {
-  case Event::Type::SnapppingAngleChanged:
+  case Event::Type::SnapppingValueChanged:
     {
       SetChecked(m_fSnappingValue == GetCurrentSnappingValue());
     }
@@ -303,15 +303,123 @@ void ezScaleGizmoAction::SetCurrentSnappingValue(float f)
   s_fCurrentSnappingValue = f;
 
   Event e;
-  e.m_Type = Event::Type::SnapppingAngleChanged;
+  e.m_Type = Event::Type::SnapppingValueChanged;
 
   s_Events.Broadcast(e);
 }
 
 void ezScaleGizmoAction::Execute(const ezVariant& value)
 {
-  if (m_Type == ActionType::SetSnappingAngle)
+  if (m_Type == ActionType::SetSnappingValue)
   {
     SetCurrentSnappingValue(m_fSnappingValue);
+  }
+}
+
+
+
+
+
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmoAction, ezButtonAction, 0, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnappingValueMenu;
+ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnapToGrid;
+ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnappingValues[8];
+float ezTranslateGizmoAction::s_fCurrentSnappingValue = 0.25f;
+ezEvent<const ezTranslateGizmoAction::Event&> ezTranslateGizmoAction::s_Events;
+
+void ezTranslateGizmoAction::RegisterActions()
+{
+  s_hSnappingValueMenu = EZ_REGISTER_MENU_WITH_ICON("PositionSnapCategory", "Snap Position", ":/GuiFoundation/Icons/GizmoTranslate24.png");
+  s_hSnapToGrid        = EZ_REGISTER_ACTION_2("SnapToGrid", "Snap To Grid", ezActionScope::Document, "Position Snap", "CTRL+END", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SnapToGrid, 0.0f);
+  s_hSnappingValues[0] = EZ_REGISTER_ACTION_2("SnapPos_10",       "10", ezActionScope::Document, "Position Snap", "", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SetSnappingValue, 10.0f);
+  s_hSnappingValues[1] = EZ_REGISTER_ACTION_2("SnapPos_5",         "5", ezActionScope::Document, "Position Snap", "", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SetSnappingValue, 5.0f);
+  s_hSnappingValues[2] = EZ_REGISTER_ACTION_2("SnapPos_1",         "1", ezActionScope::Document, "Position Snap", "", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SetSnappingValue, 1.0f);
+  s_hSnappingValues[3] = EZ_REGISTER_ACTION_2("SnapPos_0_5",     "0.5", ezActionScope::Document, "Position Snap", "", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SetSnappingValue, 0.5f);
+  s_hSnappingValues[4] = EZ_REGISTER_ACTION_2("SnapPos_0_25",   "0.25", ezActionScope::Document, "Position Snap", "", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SetSnappingValue, 0.25f);
+  s_hSnappingValues[5] = EZ_REGISTER_ACTION_2("SnapPos_0_2",     "0.2", ezActionScope::Document, "Position Snap", "", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SetSnappingValue, 0.2f);
+  s_hSnappingValues[6] = EZ_REGISTER_ACTION_2("SnapPos_0_125", "0.125", ezActionScope::Document, "Position Snap", "", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SetSnappingValue, 0.125f);
+  s_hSnappingValues[7] = EZ_REGISTER_ACTION_2("SnapPos_0_1",     "0.1", ezActionScope::Document, "Position Snap", "", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SetSnappingValue, 0.1f);
+}
+
+void ezTranslateGizmoAction::UnregisterActions()
+{
+  ezActionManager::UnregisterAction(s_hSnappingValueMenu);
+
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_hSnappingValues); ++i)
+    ezActionManager::UnregisterAction(s_hSnappingValues[i]);
+}
+
+void ezTranslateGizmoAction::MapActions(const char* szMapping, const char* szPath)
+{
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the actions failed!", szMapping);
+
+  ezStringBuilder sSubPath(szPath, "/PositionSnapCategory");
+
+  pMap->MapAction(s_hSnappingValueMenu, szPath, 5.0f);
+
+  pMap->MapAction(s_hSnapToGrid, sSubPath, 0.0f);
+
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_hSnappingValues); ++i)
+    pMap->MapAction(s_hSnappingValues[i], sSubPath, i + 1.0f);
+}
+
+ezTranslateGizmoAction::ezTranslateGizmoAction(const ezActionContext& context, const char* szName, ActionType type, float fSnappingValue) : ezButtonAction(context, szName, false, "")
+{
+  m_Type = type;
+  m_fSnappingValue = fSnappingValue;
+
+  if (m_Type == ActionType::SetSnappingValue)
+  {
+    SetCheckable(true);
+    SetChecked(m_fSnappingValue == GetCurrentSnappingValue());
+  }
+
+  s_Events.AddEventHandler(ezMakeDelegate(&ezTranslateGizmoAction::EventHandler, this));
+}
+
+ezTranslateGizmoAction::~ezTranslateGizmoAction()
+{
+  s_Events.RemoveEventHandler(ezMakeDelegate(&ezTranslateGizmoAction::EventHandler, this));
+}
+
+void ezTranslateGizmoAction::EventHandler(const Event& e)
+{
+  switch (e.m_Type)
+  {
+  case Event::Type::SnapppingValueChanged:
+    {
+      SetChecked(m_fSnappingValue == GetCurrentSnappingValue());
+    }
+    break;
+  }
+}
+
+void ezTranslateGizmoAction::SetCurrentSnappingValue(float f)
+{
+  s_fCurrentSnappingValue = f;
+
+  Event e;
+  e.m_Type = Event::Type::SnapppingValueChanged;
+
+  s_Events.Broadcast(e);
+}
+
+void ezTranslateGizmoAction::Execute(const ezVariant& value)
+{
+  if (m_Type == ActionType::SetSnappingValue)
+  {
+    SetCurrentSnappingValue(m_fSnappingValue);
+  }
+
+  if (m_Type == ActionType::SnapToGrid)
+  {
+    Event e;
+    e.m_Type = Event::Type::SnapToGrid;
+
+    s_Events.Broadcast(e);
   }
 }

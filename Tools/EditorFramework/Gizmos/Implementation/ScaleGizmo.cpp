@@ -176,6 +176,7 @@ bool ezScaleGizmo::mouseMoveEvent(QMouseEvent* e)
 
   const float fScaleSpeed = 0.01f;
 
+
   if (m_vScaleMouseMove.x > 0.0f)
     m_vScalingResult.x = 1.0f + m_vScaleMouseMove.x * fScaleSpeed;
   if (m_vScaleMouseMove.x < 0.0f)
@@ -190,16 +191,6 @@ bool ezScaleGizmo::mouseMoveEvent(QMouseEvent* e)
     m_vScalingResult.z = 1.0f + m_vScaleMouseMove.z * fScaleSpeed;
   if (m_vScaleMouseMove.z < 0.0f)
     m_vScalingResult.z = 1.0f / (1.0f - m_vScaleMouseMove.z * fScaleSpeed);
-
-  //if (m_fSnappingValue > 0.0f)
-  //{
-  //  if (m_vMoveAxis.x != 0.0f)
-  //    m_vScalingResult.x = ezMath::Round(m_vScalingResult.x, m_fSnappingValue);
-  //  if (m_vMoveAxis.y != 0.0f)
-  //    m_vScalingResult.y = ezMath::Round(m_vScalingResult.y, m_fSnappingValue);
-  //  if (m_vMoveAxis.z != 0.0f)
-  //    m_vScalingResult.z = ezMath::Round(m_vScalingResult.z, m_fSnappingValue);
-  //}
 
   BaseEvent ev;
   ev.m_pGizmo = this;

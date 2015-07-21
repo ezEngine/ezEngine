@@ -21,6 +21,9 @@ public:
 
   const ezVec3 GetTranslationResult() const { return GetTransformation().GetTranslationVector() - m_vStartPosition; }
 
+  /// \brief Sets the value to which to snap the scaling result to. Zero means no snapping is performed.
+  void SetSnappingValue(float fSnappingValue) { m_fSnappingValue = fSnappingValue; }
+
 protected:
   virtual void OnVisibleChanged(bool bVisible) override;
   virtual void OnTransformationChanged(const ezMat4& transform) override;
@@ -29,6 +32,8 @@ protected:
   ezResult GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const;
 
 private:
+  float m_fSnappingValue;
+
   ezGizmoHandle m_AxisX;
   ezGizmoHandle m_AxisY;
   ezGizmoHandle m_AxisZ;

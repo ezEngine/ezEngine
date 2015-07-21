@@ -42,6 +42,7 @@ void OnLoadPlugin(bool bReloading)
   ezSelectionActions::RegisterActions();
   ezRotateGizmoAction::RegisterActions();
   ezScaleGizmoAction::RegisterActions();
+  ezTranslateGizmoAction::RegisterActions();
 
   // Menu Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentMenuBar");
@@ -53,6 +54,7 @@ void OnLoadPlugin(bool bReloading)
   ezSelectionActions::MapActions("EditorPluginScene_DocumentMenuBar", "Edit");
   ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Edit/GizmoCategory");
   ezScaleGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Edit/GizmoCategory");
+  ezTranslateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Edit/GizmoCategory");
 
   // Tool Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentToolBar");
@@ -61,6 +63,7 @@ void OnLoadPlugin(bool bReloading)
   ezGizmoActions::MapActions("EditorPluginScene_DocumentToolBar", "");
   ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentToolBar", "");
   ezScaleGizmoAction::MapActions("EditorPluginScene_DocumentToolBar", "");
+  ezTranslateGizmoAction::MapActions("EditorPluginScene_DocumentToolBar", "");
 }
 
 void OnUnloadPlugin(bool bReloading)  
@@ -71,6 +74,7 @@ void OnUnloadPlugin(bool bReloading)
   ezSelectionActions::UnregisterActions();
   ezRotateGizmoAction::UnregisterActions();
   ezScaleGizmoAction::UnregisterActions();
+  ezTranslateGizmoAction::UnregisterActions();
 }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);

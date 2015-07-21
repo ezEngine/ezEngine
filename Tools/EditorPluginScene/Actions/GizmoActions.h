@@ -126,7 +126,7 @@ private:
 public:
   enum class ActionType
   {
-    SetSnappingAngle,
+    SetSnappingValue,
   };
 
   ezScaleGizmoAction(const ezActionContext& context, const char* szName, ActionType type, float fSnappingValue);
@@ -138,7 +138,60 @@ public:
   {
     enum class Type
     {
-      SnapppingAngleChanged,
+      SnapppingValueChanged,
+    };
+
+    Type m_Type;
+  };
+
+  static ezEvent<const Event&> s_Events;
+
+private:
+  void EventHandler(const Event& e);
+
+  float m_fSnappingValue;
+  ActionType m_Type;
+
+  static float s_fCurrentSnappingValue;
+};
+
+
+class EZ_EDITORPLUGINSCENE_DLL ezTranslateGizmoAction : public ezButtonAction
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezTranslateGizmoAction);
+
+public:
+  static void RegisterActions();
+  static void UnregisterActions();
+
+  static void MapActions(const char* szMapping, const char* szPath);
+
+  static void SetCurrentSnappingValue(float f);
+  static float GetCurrentSnappingValue() { return s_fCurrentSnappingValue; }
+
+private:
+  static ezActionDescriptorHandle s_hSnappingValueMenu;
+  static ezActionDescriptorHandle s_hSnappingValues[8];
+  static ezActionDescriptorHandle s_hSnapToGrid;
+
+public:
+  enum class ActionType
+  {
+    SnapToGrid,
+    SetSnappingValue,
+  };
+
+  ezTranslateGizmoAction(const ezActionContext& context, const char* szName, ActionType type, float fSnappingValue);
+  ~ezTranslateGizmoAction();
+
+  virtual void Execute(const ezVariant& value) override;
+
+  struct Event
+  {
+    enum class Type
+    {
+      SnapToGrid,
+      SnapppingValueChanged,
     };
 
     Type m_Type;

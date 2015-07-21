@@ -11,6 +11,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezTranslateGizmo::ezTranslateGizmo()
 {
+  m_fSnappingValue = 0.0f;
+
   m_AxisX.Configure(this, ezGizmoHandleType::Arrow, ezColorLinearUB(128, 0, 0));
   m_AxisY.Configure(this, ezGizmoHandleType::Arrow, ezColorLinearUB(0, 128, 0));
   m_AxisZ.Configure(this, ezGizmoHandleType::Arrow, ezColorLinearUB(0, 0, 128));
@@ -265,7 +267,18 @@ bool ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
   const ezVec3 vOffset = (m_vInteractionPivot - m_vStartPosition);
 
   ezMat4 mTrans = GetTransformation();
-  mTrans.SetTranslationVector(vCurrentInteractionPoint - vOffset * fPerspectiveScale / m_fStartScale);
+  const ezVec3 vNewPos = vCurrentInteractionPoint - vOffset * fPerspectiveScale / m_fStartScale;
+
+  ezVec3 vTranslation = vNewPos - m_vStartPosition;
+
+  if (m_fSnappingValue > 0.0f)
+  {
+    float fLen = vTranslation.GetLength();
+    fLen = ezMath::Round(fLen, m_fSnappingValue);
+    vTranslation.SetLength(fLen);
+  }
+
+  mTrans.SetTranslationVector(m_vStartPosition + vTranslation);
 
   SetTransformation(mTrans);
 

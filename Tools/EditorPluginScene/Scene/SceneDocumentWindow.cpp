@@ -91,6 +91,7 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
 
   m_RotateGizmo.SetSnappingAngle(ezAngle::Degree(ezRotateGizmoAction::GetCurrentSnappingValue()));
   m_ScaleGizmo.SetSnappingValue(ezScaleGizmoAction::GetCurrentSnappingValue());
+  m_TranslateGizmo.SetSnappingValue(ezTranslateGizmoAction::GetCurrentSnappingValue());
 
   m_TranslateGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
   m_RotateGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
@@ -100,6 +101,8 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   pSceneDoc->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::CommandHistoryEventHandler, this));
   ezRotateGizmoAction::s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::RotateGizmoEventHandler, this));
   ezScaleGizmoAction::s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::ScaleGizmoEventHandler, this));
+  ezTranslateGizmoAction::s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TranslateGizmoEventHandler, this));
+
 
   {
     ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
@@ -140,6 +143,7 @@ ezSceneDocumentWindow::~ezSceneDocumentWindow()
   pSceneDoc->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::CommandHistoryEventHandler, this));
   ezRotateGizmoAction::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::RotateGizmoEventHandler, this));
   ezScaleGizmoAction::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::ScaleGizmoEventHandler, this));
+  ezTranslateGizmoAction::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TranslateGizmoEventHandler, this));
 
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::SelectionManagerEventHandler, this));
 
@@ -492,8 +496,22 @@ void ezSceneDocumentWindow::ScaleGizmoEventHandler(const ezScaleGizmoAction::Eve
 {
   switch (e.m_Type)
   {
-  case ezScaleGizmoAction::Event::Type::SnapppingAngleChanged:
+  case ezScaleGizmoAction::Event::Type::SnapppingValueChanged:
     m_ScaleGizmo.SetSnappingValue(ezScaleGizmoAction::GetCurrentSnappingValue());
+    break;
+  }
+}
+
+void ezSceneDocumentWindow::TranslateGizmoEventHandler(const ezTranslateGizmoAction::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezTranslateGizmoAction::Event::Type::SnapppingValueChanged:
+    m_TranslateGizmo.SetSnappingValue(ezTranslateGizmoAction::GetCurrentSnappingValue());
+    break;
+
+  case ezTranslateGizmoAction::Event::Type::SnapToGrid:
+    // TODO
     break;
   }
 }

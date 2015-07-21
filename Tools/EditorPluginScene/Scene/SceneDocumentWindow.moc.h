@@ -63,6 +63,7 @@ private:
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void RotateGizmoEventHandler(const ezRotateGizmoAction::Event& e);
   void ScaleGizmoEventHandler(const ezScaleGizmoAction::Event& e);
+  void TranslateGizmoEventHandler(const ezTranslateGizmoAction::Event& e);
 
   void UpdateGizmoSelectionList();
   void UpdateGizmoVisibility();
