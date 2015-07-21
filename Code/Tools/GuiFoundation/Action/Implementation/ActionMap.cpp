@@ -23,6 +23,7 @@ ezActionMap::ezActionMap() : ezDocumentObjectManager()
 
 ezActionMap::~ezActionMap()
 {
+  DestroyAllObjects(this);
 }
 
 void ezActionMap::MapAction(ezActionDescriptorHandle hAction, const char* szPath, float fOrder)
@@ -156,12 +157,12 @@ void ezActionMap::GetCreateableTypes(ezHybridArray<ezRTTI*, 32>& Types) const
 
 ezDocumentObjectBase* ezActionMap::InternalCreateObject(const ezRTTI* pRtti)
 {
-  return new ezActionMap::ObjectType;
+  return EZ_DEFAULT_NEW(ezActionMap::ObjectType);
 }
 
 void ezActionMap::InternalDestroyObject(ezDocumentObjectBase* pObject)
 {
-  delete pObject;
+  EZ_DEFAULT_DELETE(pObject);
 }
 
 bool ezActionMap::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent) const

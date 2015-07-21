@@ -64,7 +64,7 @@ public:
   ezEvent<const ezDocumentObjectPropertyEvent&> m_PropertyEvents;
 
   ezDocumentObjectManager();
-  virtual ~ezDocumentObjectManager() { }
+  virtual ~ezDocumentObjectManager();
   void SetDocument(const ezDocumentBase* pDocument) { m_pDocument = pDocument; }
 
   // Object Construction / Destruction

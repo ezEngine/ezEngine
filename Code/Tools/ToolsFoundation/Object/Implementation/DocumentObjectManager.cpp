@@ -15,6 +15,11 @@ ezDocumentObjectManager::ezDocumentObjectManager()
 {
 }
 
+ezDocumentObjectManager::~ezDocumentObjectManager()
+{
+  EZ_ASSERT_DEV(m_GuidToObject.IsEmpty(), "Not all objects have been destroyed!");
+}
+
 ////////////////////////////////////////////////////////////////////////
 // ezDocumentObjectManager Object Construction / Destruction
 ////////////////////////////////////////////////////////////////////////
