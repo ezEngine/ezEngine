@@ -71,7 +71,7 @@ public:
 
 private:
   static ezActionDescriptorHandle s_hSnappingValueMenu;
-  static ezActionDescriptorHandle s_hSnappingValues[10];
+  static ezActionDescriptorHandle s_hSnappingValues[11];
 
 public:
   enum class ActionType
@@ -121,7 +121,7 @@ public:
 
 private:
   static ezActionDescriptorHandle s_hSnappingValueMenu;
-  static ezActionDescriptorHandle s_hSnappingValues[7];
+  static ezActionDescriptorHandle s_hSnappingValues[8];
 
 public:
   enum class ActionType
@@ -171,7 +171,7 @@ public:
 
 private:
   static ezActionDescriptorHandle s_hSnappingValueMenu;
-  static ezActionDescriptorHandle s_hSnappingValues[8];
+  static ezActionDescriptorHandle s_hSnappingValues[9];
   static ezActionDescriptorHandle s_hSnapToGrid;
 
 public:

@@ -167,6 +167,8 @@ void ezSceneDocumentWindow::CommandHistoryEventHandler(const ezCommandHistory::E
 {
   switch (e.m_Type)
   {
+  case ezCommandHistory::Event::Type::ExecutedUndo:
+  case ezCommandHistory::Event::Type::ExecutedRedo:
   case ezCommandHistory::Event::Type::AfterEndTransaction:
     {
       UpdateGizmoVisibility();

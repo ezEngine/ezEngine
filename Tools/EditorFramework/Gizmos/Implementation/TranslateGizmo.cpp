@@ -273,9 +273,15 @@ bool ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
 
   if (m_fSnappingValue > 0.0f)
   {
-    float fLen = vTranslation.GetLength();
-    fLen = ezMath::Round(fLen, m_fSnappingValue);
-    vTranslation.SetLength(fLen);
+    ezMat3 mRot = mTrans.GetRotationalPart();
+    ezMat3 mInvRot = mRot.GetInverse();
+
+    ezVec3 vLocalTranslation = mInvRot * vTranslation;
+    vLocalTranslation.x = ezMath::Round(vLocalTranslation.x, m_fSnappingValue);
+    vLocalTranslation.y = ezMath::Round(vLocalTranslation.y, m_fSnappingValue);
+    vLocalTranslation.z = ezMath::Round(vLocalTranslation.z, m_fSnappingValue);
+
+    vTranslation = mRot * vLocalTranslation;
   }
 
   mTrans.SetTranslationVector(m_vStartPosition + vTranslation);
