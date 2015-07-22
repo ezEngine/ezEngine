@@ -24,6 +24,8 @@ public:
   /// \brief Sets the value to which to snap the scaling result to. Zero means no snapping is performed.
   void SetSnappingValue(float fSnappingValue) { m_fSnappingValue = fSnappingValue; }
 
+  void SnapToGrid();
+
 protected:
   virtual void OnVisibleChanged(bool bVisible) override;
   virtual void OnTransformationChanged(const ezMat4& transform) override;

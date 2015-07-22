@@ -290,4 +290,32 @@ bool ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
   return true;
 }
 
+void ezTranslateGizmo::SnapToGrid()
+{
+  if (m_Mode != TranslateMode::None)
+    return;
+
+  BaseEvent ev;
+  ev.m_pGizmo = this;
+  ev.m_Type = BaseEvent::Type::BeginInteractions;
+  m_BaseEvents.Broadcast(ev);
+
+  ezMat4 mTrans = GetTransformation();
+  m_vStartPosition = mTrans.GetTranslationVector();
+
+  ezVec3 vPos = mTrans.GetTranslationVector();
+  vPos.x = ezMath::Round(vPos.x, m_fSnappingValue);
+  vPos.y = ezMath::Round(vPos.y, m_fSnappingValue);
+  vPos.z = ezMath::Round(vPos.z, m_fSnappingValue);
+
+  mTrans.SetTranslationVector(vPos);
+  SetTransformation(mTrans);
+
+  ev.m_Type = BaseEvent::Type::Interaction;
+  m_BaseEvents.Broadcast(ev);
+
+  ev.m_Type = BaseEvent::Type::EndInteractions;
+  m_BaseEvents.Broadcast(ev);
+}
+
 

@@ -333,7 +333,7 @@ ezEvent<const ezTranslateGizmoAction::Event&> ezTranslateGizmoAction::s_Events;
 void ezTranslateGizmoAction::RegisterActions()
 {
   s_hSnappingValueMenu = EZ_REGISTER_MENU_WITH_ICON("PositionSnapCategory", "Snap Position", ":/GuiFoundation/Icons/GizmoTranslate24.png");
-  s_hSnapToGrid        = EZ_REGISTER_ACTION_2("SnapToGrid", "Snap To Grid", ezActionScope::Document, "Position Snap", "CTRL+END", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SnapToGrid, 0.0f);
+  s_hSnapToGrid        = EZ_REGISTER_ACTION_2("SnapToGrid", "Snap To Grid", ezActionScope::Document, "Position Snap", "Ctrl+G", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SnapToGrid, 0.0f);
   s_hSnappingValues[0] = EZ_REGISTER_ACTION_2("SnapPos_10",       "10", ezActionScope::Document, "Position Snap", "", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SetSnappingValue, 10.0f);
   s_hSnappingValues[1] = EZ_REGISTER_ACTION_2("SnapPos_5",         "5", ezActionScope::Document, "Position Snap", "", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SetSnappingValue, 5.0f);
   s_hSnappingValues[2] = EZ_REGISTER_ACTION_2("SnapPos_1",         "1", ezActionScope::Document, "Position Snap", "", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SetSnappingValue, 1.0f);

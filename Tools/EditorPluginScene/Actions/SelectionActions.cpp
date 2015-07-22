@@ -14,7 +14,7 @@ ezActionDescriptorHandle ezSelectionActions::s_hFocusOnSelection;
 void ezSelectionActions::RegisterActions()
 {
   s_hSelectionCategory = EZ_REGISTER_CATEGORY("SelectionCategory");
-  s_hShowInScenegraph = EZ_REGISTER_ACTION_1("ShowInScenegraph", "Show in Scenegraph", ezActionScope::Document, "Document", "CTRL+T", ezSelectionAction, ezSelectionAction::ActionType::ShowInScenegraph);
+  s_hShowInScenegraph = EZ_REGISTER_ACTION_1("ShowInScenegraph", "Show in Scenegraph", ezActionScope::Document, "Document", "Ctrl+T", ezSelectionAction, ezSelectionAction::ActionType::ShowInScenegraph);
   s_hFocusOnSelection = EZ_REGISTER_ACTION_1("FocusOnSelection", "Focus on Selection", ezActionScope::Document, "Document", "F", ezSelectionAction, ezSelectionAction::ActionType::FocusOnSelection);
 }
 

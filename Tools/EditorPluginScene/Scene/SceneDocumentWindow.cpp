@@ -511,7 +511,10 @@ void ezSceneDocumentWindow::TranslateGizmoEventHandler(const ezTranslateGizmoAct
     break;
 
   case ezTranslateGizmoAction::Event::Type::SnapToGrid:
-    // TODO
+    if (m_TranslateGizmo.IsVisible())
+    {
+      m_TranslateGizmo.SnapToGrid();
+    }
     break;
   }
 }
