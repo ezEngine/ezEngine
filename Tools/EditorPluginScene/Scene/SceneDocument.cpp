@@ -110,15 +110,13 @@ void ezSceneDocument::ObjectPropertyEventHandler(const ezDocumentObjectPropertyE
       e.m_sPropertyPath == "LocalRotation" ||
       e.m_sPropertyPath == "LocalScaling")
   {
-    /// \todo Use a set ?
-    m_UpdateGlobalTransform.PushBack(e.m_pObject);
+    m_UpdateGlobalTransform.Insert(e.m_pObject);
   }
   else if (e.m_sPropertyPath == "GlobalPosition" ||
            e.m_sPropertyPath == "GlobalRotation" ||
            e.m_sPropertyPath == "GlobalScaling")
   {
-    /// \todo Use a set ?
-    m_UpdateLocalTransform.PushBack(e.m_pObject);
+    m_UpdateLocalTransform.Insert(e.m_pObject);
   }
 }
 
@@ -131,7 +129,7 @@ void ezSceneDocument::ObjectStructureEventHandler(const ezDocumentObjectStructur
   {
   case ezDocumentObjectStructureEvent::Type::AfterObjectMoved:
     {
-      m_UpdateLocalTransform.PushBack(e.m_pObject);
+      m_UpdateLocalTransform.Insert(e.m_pObject);
     }
     break;
   }
@@ -139,8 +137,11 @@ void ezSceneDocument::ObjectStructureEventHandler(const ezDocumentObjectStructur
 
 void ezSceneDocument::CommandHistoryEventHandler(const ezCommandHistory::Event& e)
 {
-  if (e.m_Type == ezCommandHistory::Event::Type::AfterEndTransaction)
+  if (e.m_Type == ezCommandHistory::Event::Type::ExecutedUndo ||
+      e.m_Type == ezCommandHistory::Event::Type::ExecutedRedo ||
+      e.m_Type == ezCommandHistory::Event::Type::AfterEndTransaction)
   {
+    // not necessary, undo/redo contains all proper positions
     m_bInObjectTransformFixup = false;
     m_UpdateGlobalTransform.Clear();
     m_UpdateLocalTransform.Clear();

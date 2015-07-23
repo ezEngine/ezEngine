@@ -179,6 +179,87 @@ void ezSceneDocumentWindow::CommandHistoryEventHandler(const ezCommandHistory::E
 
 }
 
+void ezSceneDocumentWindow::SnapSelectionToPosition(bool bSnapEachObject)
+{
+  const float fSnap = ezTranslateGizmoAction::GetCurrentSnappingValue();
+
+  if (fSnap == 0.0f)
+    return;
+
+  const auto& pivotObj = GetSceneDocument()->GetSelectionManager()->GetSelection().PeekBack();
+
+  ezVec3 vPivotSnapOffset;
+
+  if (!bSnapEachObject)
+  {
+    // if we snap by the pivot object only, the last selected object must be a valid game object
+    if (!pivotObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+      return;
+
+    const ezVec3 vPivotPos = pivotObj->GetTypeAccessor().GetValue("GlobalPosition").ConvertTo<ezVec3>();
+    ezVec3 vSnappedPos;
+    vSnappedPos.x = ezMath::Round(vPivotPos.x, fSnap);
+    vSnappedPos.y = ezMath::Round(vPivotPos.y, fSnap);
+    vSnappedPos.z = ezMath::Round(vPivotPos.z, fSnap);
+
+    vPivotSnapOffset = vSnappedPos - vPivotPos;
+
+    if (vPivotSnapOffset.IsZero())
+      return;
+  }
+
+  UpdateGizmoSelectionList();
+
+  if (m_GizmoSelection.IsEmpty())
+    return;
+
+  auto CmdHistory = GetDocument()->GetCommandHistory();
+
+  CmdHistory->StartTransaction();
+
+  ezSetObjectPropertyCommand cmd;
+  cmd.m_bEditorProperty = false;
+  cmd.SetPropertyPath("GlobalPosition");
+
+  bool bDidAny = false;
+
+  for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
+  {
+    const auto& obj = m_GizmoSelection[sel];
+
+    cmd.m_Object = obj.m_Object;
+
+    // if we snap each object individually, compute the snap position for each one here
+    if (bSnapEachObject)
+    {
+      ezVec3 vSnappedPos;
+      vSnappedPos.x = ezMath::Round(obj.m_vGlobalTranslation.x, fSnap);
+      vSnappedPos.y = ezMath::Round(obj.m_vGlobalTranslation.y, fSnap);
+      vSnappedPos.z = ezMath::Round(obj.m_vGlobalTranslation.z, fSnap);
+
+      if (obj.m_vGlobalTranslation == vSnappedPos)
+        continue;
+
+      cmd.m_NewValue = vSnappedPos;
+    }
+    else
+    {
+      // otherwise use the offset from the pivot point for repositioning
+      cmd.m_NewValue = obj.m_vGlobalTranslation + vPivotSnapOffset;
+    }
+
+    bDidAny = true;
+    CmdHistory->AddCommand(cmd);
+  }
+
+  if (bDidAny)
+    CmdHistory->FinishTransaction();
+  else
+    CmdHistory->CancelTransaction();
+
+  m_GizmoSelection.Clear();
+}
+
 void ezSceneDocumentWindow::ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
   if (m_bInGizmoInteraction)
@@ -512,11 +593,12 @@ void ezSceneDocumentWindow::TranslateGizmoEventHandler(const ezTranslateGizmoAct
     m_TranslateGizmo.SetSnappingValue(ezTranslateGizmoAction::GetCurrentSnappingValue());
     break;
 
-  case ezTranslateGizmoAction::Event::Type::SnapToGrid:
-    if (m_TranslateGizmo.IsVisible())
-    {
-      m_TranslateGizmo.SnapToGrid();
-    }
+  case ezTranslateGizmoAction::Event::Type::SnapSelectionPivotToGrid:
+    SnapSelectionToPosition(false);
+    break;
+
+  case ezTranslateGizmoAction::Event::Type::SnapEachSelectedObjectToGrid:
+    SnapSelectionToPosition(true);
     break;
   }
 }

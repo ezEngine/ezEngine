@@ -327,7 +327,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmoAction, ezButtonAction, 0, ezRTT
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnappingValueMenu;
-ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnapToGrid;
+ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnapPivotToGrid;
+ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnapObjectsToGrid;
 ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnappingValues[9];
 float ezTranslateGizmoAction::s_fCurrentSnappingValue = 0.0f;
 ezEvent<const ezTranslateGizmoAction::Event&> ezTranslateGizmoAction::s_Events;
@@ -335,7 +336,8 @@ ezEvent<const ezTranslateGizmoAction::Event&> ezTranslateGizmoAction::s_Events;
 void ezTranslateGizmoAction::RegisterActions()
 {
   s_hSnappingValueMenu = EZ_REGISTER_MENU_WITH_ICON("PositionSnapCategory", "Snap Position", ":/GuiFoundation/Icons/GizmoTranslate24.png");
-  s_hSnapToGrid        = EZ_REGISTER_ACTION_2("SnapToGrid", "Snap To Grid", ezActionScope::Document, "Position Snap", "Ctrl+G", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SnapToGrid, 0.0f);
+  s_hSnapPivotToGrid   = EZ_REGISTER_ACTION_2("SnapPivotToGrid", "Snap Pivot To Grid", ezActionScope::Document, "Position Snap", "Ctrl+G", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SnapSelectionPivotToGrid, 0.0f);
+  s_hSnapObjectsToGrid = EZ_REGISTER_ACTION_2("SnapObjectsToGrid", "Snap Each Object To Grid", ezActionScope::Document, "Position Snap", "Shift+G", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SnapEachSelectedObjectToGrid, 0.0f);
   s_hSnappingValues[0] = EZ_REGISTER_ACTION_2("SnapPos_0", "No Position Snap", ezActionScope::Document, "Position Snap", "", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SetSnappingValue, 0.0f);
   s_hSnappingValues[1] = EZ_REGISTER_ACTION_2("SnapPos_10",       "10", ezActionScope::Document, "Position Snap", "", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SetSnappingValue, 10.0f);
   s_hSnappingValues[2] = EZ_REGISTER_ACTION_2("SnapPos_5",         "5", ezActionScope::Document, "Position Snap", "", ezTranslateGizmoAction, ezTranslateGizmoAction::ActionType::SetSnappingValue, 5.0f);
@@ -364,10 +366,11 @@ void ezTranslateGizmoAction::MapActions(const char* szMapping, const char* szPat
 
   pMap->MapAction(s_hSnappingValueMenu, szPath, 5.0f);
 
-  pMap->MapAction(s_hSnapToGrid, sSubPath, 0.0f);
+  pMap->MapAction(s_hSnapPivotToGrid, sSubPath, 0.0f);
+  pMap->MapAction(s_hSnapObjectsToGrid, sSubPath, 1.0f);
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_hSnappingValues); ++i)
-    pMap->MapAction(s_hSnappingValues[i], sSubPath, i + 1.0f);
+    pMap->MapAction(s_hSnappingValues[i], sSubPath, i + 2.0f);
 }
 
 ezTranslateGizmoAction::ezTranslateGizmoAction(const ezActionContext& context, const char* szName, ActionType type, float fSnappingValue) : ezButtonAction(context, szName, false, "")
@@ -418,10 +421,18 @@ void ezTranslateGizmoAction::Execute(const ezVariant& value)
     SetCurrentSnappingValue(m_fSnappingValue);
   }
 
-  if (m_Type == ActionType::SnapToGrid)
+  if (m_Type == ActionType::SnapSelectionPivotToGrid)
   {
     Event e;
-    e.m_Type = Event::Type::SnapToGrid;
+    e.m_Type = Event::Type::SnapSelectionPivotToGrid;
+
+    s_Events.Broadcast(e);
+  }
+
+  if (m_Type == ActionType::SnapEachSelectedObjectToGrid)
+  {
+    Event e;
+    e.m_Type = Event::Type::SnapEachSelectedObjectToGrid;
 
     s_Events.Broadcast(e);
   }

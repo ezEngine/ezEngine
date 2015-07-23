@@ -30,7 +30,7 @@ void ezSceneDocumentWindow::UpdateGizmoVisibility()
   if (pSceneDoc->GetSelectionManager()->GetSelection().IsEmpty() || pSceneDoc->GetActiveGizmo() == ActiveGizmo::None)
     goto done;
 
-  if (!pSceneDoc->GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+  if (!pSceneDoc->GetSelectionManager()->GetSelection().PeekBack()->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
     goto done;
 
   switch (pSceneDoc->GetActiveGizmo())
@@ -68,7 +68,7 @@ void ezSceneDocumentWindow::UpdateGizmoSelectionList()
 
   m_GizmoSelection.Clear();
 
-  auto hType = ezRTTI::FindTypeByName("ezGameObject");
+  auto hType = ezGetStaticRTTI<ezGameObject>();
 
   auto pSelMan = GetDocument()->GetSelectionManager();
   const auto& Selection = pSelMan->GetSelection();
@@ -143,8 +143,6 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
       GetDocument()->GetCommandHistory()->FinishTemporaryCommands();
 
       m_GizmoSelection.Clear();
-
-      UpdateGizmoPosition();
     }
     break;
 

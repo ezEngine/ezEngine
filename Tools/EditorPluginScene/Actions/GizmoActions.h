@@ -172,12 +172,14 @@ public:
 private:
   static ezActionDescriptorHandle s_hSnappingValueMenu;
   static ezActionDescriptorHandle s_hSnappingValues[9];
-  static ezActionDescriptorHandle s_hSnapToGrid;
+  static ezActionDescriptorHandle s_hSnapPivotToGrid;
+  static ezActionDescriptorHandle s_hSnapObjectsToGrid;
 
 public:
   enum class ActionType
   {
-    SnapToGrid,
+    SnapSelectionPivotToGrid,
+    SnapEachSelectedObjectToGrid,
     SetSnappingValue,
   };
 
@@ -190,7 +192,8 @@ public:
   {
     enum class Type
     {
-      SnapToGrid,
+      SnapSelectionPivotToGrid,
+      SnapEachSelectedObjectToGrid,
       SnapppingValueChanged,
     };
 

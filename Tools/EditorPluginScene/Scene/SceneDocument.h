@@ -69,6 +69,6 @@ private:
   bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
   ActiveGizmo m_ActiveGizmo;
 
-  ezDeque<const ezDocumentObjectBase*> m_UpdateGlobalTransform; // queue of objects whose global transform must be updated, because their local transform changed
-  ezDeque<const ezDocumentObjectBase*> m_UpdateLocalTransform; // queue of objects whose local transform must be updated, because their global transform changed
+  ezSet<const ezDocumentObjectBase*> m_UpdateGlobalTransform; // queue of objects whose global transform must be updated, because their local transform changed
+  ezSet<const ezDocumentObjectBase*> m_UpdateLocalTransform; // queue of objects whose local transform must be updated, because their global transform changed
 };

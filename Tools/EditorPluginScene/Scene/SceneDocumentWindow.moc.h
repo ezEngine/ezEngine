@@ -71,6 +71,8 @@ private:
   void ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void CommandHistoryEventHandler(const ezCommandHistory::Event& e);
 
+  void SnapSelectionToPosition(bool bSnapEachObject);
+
   void SendRedrawMsg();
 
   ezScene3DWidget* m_pCenterWidget;
