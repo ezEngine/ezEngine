@@ -4,8 +4,10 @@
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/ActionViews/QtProxy.moc.h>
 
-ezMenuActionMapView::ezMenuActionMapView(QWidget* parent)
+ezMenuActionMapView::ezMenuActionMapView(QWidget* parent, QWidget* pActionParent)
 {
+  m_pActionParent = pActionParent != nullptr ? pActionParent : parent;
+  EZ_ASSERT_DEV(m_pActionParent != nullptr, "Either parent or pActionParent needs to be set in the action view!");
 }
 
 ezMenuActionMapView::~ezMenuActionMapView()
@@ -27,15 +29,10 @@ void ezMenuActionMapView::SetActionContext(const ezActionContext& context)
 
 void ezMenuActionMapView::ClearView()
 {
-  for (auto it = m_Proxies.GetIterator(); it.IsValid(); ++it)
-  {
-    ezQtProxy* pProxy = it.Value();
-    pProxy->deleteLater();
-  }
   m_Proxies.Clear();
 }
 
-void ezMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, ezQtProxy*>& Proxies, ezActionContext& Context, ezActionMap* pActionMap, QMenu* pCurrentRoot, ezDocumentObjectBase* pObject)
+void ezMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedPointer<ezQtProxy>>& Proxies, ezActionContext& Context, ezActionMap* pActionMap, QMenu* pCurrentRoot, ezDocumentObjectBase* pObject, QWidget* pActionParent)
 {
   if (pObject == nullptr)
     return;
@@ -43,22 +40,17 @@ void ezMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, ezQtProxy*
   for (auto pChild : pObject->GetChildren())
   {
     auto pDesc = pActionMap->GetDescriptor(pChild);
-    auto pAction = pDesc->m_hAction.GetDescriptor()->CreateAction(Context);
-
-    ezQtProxy* pProxy = ezRttiMappedObjectFactory<ezQtProxy>::CreateObject(pAction->GetDynamicRTTI());
-    EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_hAction.GetDescriptor()->m_sActionName.GetData());
-
+    QSharedPointer<ezQtProxy> pProxy = ezQtProxy::GetProxy(Context, pDesc->m_hAction);
     Proxies[pChild->GetGuid()] = pProxy;
-    pProxy->setParent(pCurrentRoot);
-    pProxy->SetAction(pAction, true);
 
     switch (pDesc->m_hAction.GetDescriptor()->m_Type)
     {
     case ezActionType::Action:
       {
-        QAction* pQtAction = static_cast<ezQtActionProxy*>(pProxy)->GetQAction();
+        QAction* pQtAction = static_cast<ezQtActionProxy*>(pProxy.data())->GetQAction();
         pCurrentRoot->addAction(pQtAction);
-        //pQtAction->setParent(pCurrentRoot);
+        if (pDesc->m_hAction.GetDescriptor()->m_Scope == ezActionScope::Window)
+          pQtAction->setParent(pActionParent);
       }
       break;
 
@@ -66,7 +58,7 @@ void ezMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, ezQtProxy*
       {
         pCurrentRoot->addSeparator();
 
-        AddDocumentObjectToMenu(Proxies, Context, pActionMap, pCurrentRoot, pChild);
+        AddDocumentObjectToMenu(Proxies, Context, pActionMap, pCurrentRoot, pChild, pActionParent);
 
         pCurrentRoot->addSeparator();
       }
@@ -74,10 +66,9 @@ void ezMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, ezQtProxy*
 
     case ezActionType::Menu:
       {
-        QMenu* pQtMenu = static_cast<ezQtMenuProxy*>(pProxy)->GetQMenu();
+        QMenu* pQtMenu = static_cast<ezQtMenuProxy*>(pProxy.data())->GetQMenu();
         pCurrentRoot->addMenu(pQtMenu);
-        //pQtMenu->setParent(pCurrentRoot);
-        AddDocumentObjectToMenu(Proxies, Context, pActionMap, pQtMenu, pChild);
+        AddDocumentObjectToMenu(Proxies, Context, pActionMap, pQtMenu, pChild, pActionParent);
       }
       break;
     }
@@ -90,5 +81,5 @@ void ezMenuActionMapView::CreateView()
 
   auto pObject = m_pActionMap->GetRootObject();
 
-  AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, this, pObject);
+  AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, this, pObject, m_pActionParent);
 }

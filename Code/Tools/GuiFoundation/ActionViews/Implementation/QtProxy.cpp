@@ -4,6 +4,7 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 #include <Foundation/Configuration/Startup.h>
+#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <QMenu>
 #include <QAction>
 
@@ -27,26 +28,104 @@ static ezQtProxy* QtLRUMenuProxyCreator(const ezRTTI* pRtti)
   return new(ezQtLRUMenuProxy);
 }
 
+ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> ezQtProxy::s_GlobalActions;
+ezMap<ezUuid, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > ezQtProxy::s_DocumentActions;
+ezMap<ezString, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > ezQtProxy::s_WindowActions;
+
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtProxies)
 
-  BEGIN_SUBSYSTEM_DEPENDENCIES
-    "ToolsFoundation",
-    "ActionManager"
-  END_SUBSYSTEM_DEPENDENCIES
+BEGIN_SUBSYSTEM_DEPENDENCIES
+"ToolsFoundation",
+"ActionManager"
+END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
-  {
-    ezRttiMappedObjectFactory<ezQtProxy>::RegisterCreator(ezGetStaticRTTI<ezMenuAction>(), QtMenuProxyCreator);
-    ezRttiMappedObjectFactory<ezQtProxy>::RegisterCreator(ezGetStaticRTTI<ezCategoryAction>(), QtCategoryProxyCreator);
-    ezRttiMappedObjectFactory<ezQtProxy>::RegisterCreator(ezGetStaticRTTI<ezLRUMenuAction>(), QtLRUMenuProxyCreator);
-    ezRttiMappedObjectFactory<ezQtProxy>::RegisterCreator(ezGetStaticRTTI<ezButtonAction>(), QtButtonProxyCreator);
-  }
+ON_CORE_STARTUP
+{
+  ezRttiMappedObjectFactory<ezQtProxy>::RegisterCreator(ezGetStaticRTTI<ezMenuAction>(), QtMenuProxyCreator);
+  ezRttiMappedObjectFactory<ezQtProxy>::RegisterCreator(ezGetStaticRTTI<ezCategoryAction>(), QtCategoryProxyCreator);
+  ezRttiMappedObjectFactory<ezQtProxy>::RegisterCreator(ezGetStaticRTTI<ezLRUMenuAction>(), QtLRUMenuProxyCreator);
+  ezRttiMappedObjectFactory<ezQtProxy>::RegisterCreator(ezGetStaticRTTI<ezButtonAction>(), QtButtonProxyCreator);
+}
 
-  ON_CORE_SHUTDOWN
-  {
-  }
+ON_CORE_SHUTDOWN
+{
+  ezQtProxy::s_GlobalActions.Clear();
+  ezQtProxy::s_DocumentActions.Clear();
+  ezQtProxy::s_WindowActions.Clear();
+}
 
 EZ_END_SUBSYSTEM_DECLARATION
+
+QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezActionDescriptorHandle hDesc)
+{
+  QSharedPointer<ezQtProxy> pProxy;
+  const ezActionDescriptor* pDesc = hDesc.GetDescriptor();
+  if (pDesc->m_Type != ezActionType::Action)
+  {
+    auto pAction = pDesc->CreateAction(context);
+    pProxy = QSharedPointer<ezQtProxy>(ezRttiMappedObjectFactory<ezQtProxy>::CreateObject(pAction->GetDynamicRTTI()));
+    EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_sActionName.GetData());
+    pProxy->SetAction(pAction, true);
+    return pProxy;
+  }
+
+  // ezActionType::Action will be cached to ensure only one QAction exist in its scope to prevent shortcut collisions.
+  switch (pDesc->m_Scope)
+  {
+  case ezActionScope::Global:
+    {
+      QWeakPointer<ezQtProxy> pTemp = s_GlobalActions[hDesc];
+      if (pTemp.isNull())
+      {
+        auto pAction = pDesc->CreateAction(context);
+        pProxy = QSharedPointer<ezQtProxy>(ezRttiMappedObjectFactory<ezQtProxy>::CreateObject(pAction->GetDynamicRTTI()));
+        EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_sActionName.GetData());
+        pProxy->SetAction(pAction, true);
+        s_GlobalActions[hDesc] = pProxy.toWeakRef();
+      }
+      else
+      {
+        pProxy = pTemp.toStrongRef();
+      }
+    }
+    break;
+  case ezActionScope::Document:
+    {
+      QWeakPointer<ezQtProxy> pTemp = s_DocumentActions[context.m_pDocument->GetGuid()][hDesc];
+      if (pTemp.isNull())
+      {
+        auto pAction = pDesc->CreateAction(context);
+        pProxy = QSharedPointer<ezQtProxy>(ezRttiMappedObjectFactory<ezQtProxy>::CreateObject(pAction->GetDynamicRTTI()));
+        EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_sActionName.GetData());
+        pProxy->SetAction(pAction, true);
+        s_DocumentActions[context.m_pDocument->GetGuid()][hDesc] = pProxy;
+      }
+      else
+      {
+        pProxy = pTemp.toStrongRef();
+      }
+    }
+    break;
+  case ezActionScope::Window:
+    {
+      QWeakPointer<ezQtProxy> pTemp = s_WindowActions[context.m_sMapping][hDesc];
+      if (pTemp.isNull())
+      {
+        auto pAction = pDesc->CreateAction(context);
+        pProxy = QSharedPointer<ezQtProxy>(ezRttiMappedObjectFactory<ezQtProxy>::CreateObject(pAction->GetDynamicRTTI()));
+        EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_sActionName.GetData());
+        pProxy->SetAction(pAction, true);
+        s_WindowActions[pAction->GetContext().m_sMapping][hDesc] = pProxy;
+      }
+      else
+      {
+        pProxy = pTemp.toStrongRef();
+      }
+    }
+    break;
+  }
+  return pProxy;
+}
 
 ezQtProxy::ezQtProxy()
 {
@@ -107,22 +186,26 @@ ezQtButtonProxy::ezQtButtonProxy()
 
 ezQtButtonProxy::~ezQtButtonProxy()
 {
-  EZ_ASSERT_DEV(m_pQtAction != nullptr, "Something went horribly wrong!");
-
   m_pAction->m_StatusUpdateEvent.RemoveEventHandler(ezMakeDelegate(&ezQtButtonProxy::StatusUpdateEventHandler, this));
 
-  m_pQtAction->deleteLater();
+  if (m_pQtAction != nullptr)
+  {
+    m_pQtAction->deleteLater();
+  }
   m_pQtAction = nullptr;
 }
 
 void ezQtButtonProxy::Update(bool bSetShortcut)
 {
+  if (m_pQtAction == nullptr)
+    return;
+
   auto pButton = static_cast<ezButtonAction*>(m_pAction);
 
   if (bSetShortcut)
   {
-    m_pQtAction->setShortcut(QKeySequence(QString::fromUtf8(m_pAction->GetDescriptorHandle().GetDescriptor()->m_sShortcut.GetData())));
-    m_pQtAction->setShortcutContext(Qt::ShortcutContext::ApplicationShortcut);
+    const ezActionDescriptor* pDesc = m_pAction->GetDescriptorHandle().GetDescriptor();
+    m_pQtAction->setShortcut(QKeySequence(QString::fromUtf8(pDesc->m_sShortcut.GetData())));
   }
 
   m_pQtAction->setIcon(QIcon(QString::fromUtf8(pButton->GetIconPath())));
@@ -140,9 +223,40 @@ void ezQtButtonProxy::SetAction(ezAction* pAction, bool bSetShortcut)
   ezQtProxy::SetAction(pAction, bSetShortcut);
   m_pAction->m_StatusUpdateEvent.AddEventHandler(ezMakeDelegate(&ezQtButtonProxy::StatusUpdateEventHandler, this));
 
-  m_pQtAction = new QAction(nullptr);
-  
-  EZ_VERIFY(connect(m_pQtAction, SIGNAL(triggered(bool)), this, SLOT(OnTriggered())) != nullptr, "connection failed");
+  ezActionDescriptorHandle hDesc = m_pAction->GetDescriptorHandle();
+  const ezActionDescriptor* pDesc = hDesc.GetDescriptor();
+
+  if (m_pQtAction == nullptr)
+  {
+    m_pQtAction = new QAction(nullptr);
+    EZ_VERIFY(connect(m_pQtAction, SIGNAL(triggered(bool)), this, SLOT(OnTriggered())) != nullptr, "connection failed");
+
+    switch (pDesc->m_Scope)
+    {
+    case ezActionScope::Global:
+      {
+       // Parent is null so the global actions don't get deleted.
+        m_pQtAction->setShortcutContext(Qt::ShortcutContext::ApplicationShortcut);
+      }
+      break;
+    case ezActionScope::Document:
+      {
+        // Parent is set to the window belonging to the document.
+        ezDocumentWindow* pWindow = ezDocumentWindow::FindWindowByDocument(pAction->GetContext().m_pDocument);
+        EZ_ASSERT_DEBUG(pWindow != nullptr, "You can't map a ezActionScope::Document action without that document existing!");
+        m_pQtAction->setParent(pWindow);
+        m_pQtAction->setShortcutContext(Qt::ShortcutContext::WindowShortcut);
+      }
+      break;
+    case ezActionScope::Window:
+      {
+        // TODO: Parent is set externally in the view because we can't look up which window this action belongs to.
+        m_pQtAction->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+      }
+      break;
+    }
+  }
+
   Update(bSetShortcut);
 }
 

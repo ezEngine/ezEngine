@@ -6,6 +6,8 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/Variant.h>
 #include <QObject>
+#include <QPointer>
+#include <QSharedPointer>
 
 class QAction;
 class QMenu;
@@ -23,6 +25,14 @@ public:
 
   virtual void SetAction(ezAction* pAction, bool bSetShortcut);
   ezAction* GetAction() { return m_pAction; }
+
+  static QSharedPointer<ezQtProxy> GetProxy(ezActionContext& context, ezActionDescriptorHandle hAction);
+
+protected:
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(GuiFoundation, QtProxies);
+  static ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> s_GlobalActions;
+  static ezMap<ezUuid, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > s_DocumentActions;
+  static ezMap<ezString, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > s_WindowActions;
 
 protected:
   ezAction* m_pAction;
@@ -81,7 +91,7 @@ private:
   void StatusUpdateEventHandler(ezAction* pAction);
 
 private:
-  QAction* m_pQtAction;
+  QPointer<QAction> m_pQtAction;
 };
 
 

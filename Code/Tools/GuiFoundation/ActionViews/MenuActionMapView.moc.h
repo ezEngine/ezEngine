@@ -4,6 +4,7 @@
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 #include <GuiFoundation/Action/ActionMap.h>
 #include <QMenu>
+#include <QSharedPointer>
 
 class QWidget;
 class ezActionMap;
@@ -16,12 +17,12 @@ class EZ_GUIFOUNDATION_DLL ezMenuActionMapView : public QMenu
   Q_OBJECT
   EZ_DISALLOW_COPY_AND_ASSIGN(ezMenuActionMapView);
 public:
-  explicit ezMenuActionMapView(QWidget* parent = nullptr);
+  explicit ezMenuActionMapView(QWidget* parent, QWidget* pActionParent = nullptr);
   ~ezMenuActionMapView();
 
   void SetActionContext(const ezActionContext& context);
 
-  static void AddDocumentObjectToMenu(ezHashTable<ezUuid, ezQtProxy*>& Proxies, ezActionContext& Context, ezActionMap* pActionMap, QMenu* pCurrentRoot, ezDocumentObjectBase* pObject);
+  static void AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedPointer<ezQtProxy>>& Proxies, ezActionContext& Context, ezActionMap* pActionMap, QMenu* pCurrentRoot, ezDocumentObjectBase* pObject, QWidget* pActionParent);
 
 private:
   void TreeEventHandler(const ezDocumentObjectStructureEvent& e);
@@ -31,8 +32,9 @@ private:
   void CreateView();
   
 private:
-  ezHashTable<ezUuid, ezQtProxy*> m_Proxies;
+  ezHashTable<ezUuid, QSharedPointer<ezQtProxy>> m_Proxies;
 
   ezActionContext m_Context;
   ezActionMap* m_pActionMap;
+  QWidget* m_pActionParent;
 };

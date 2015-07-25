@@ -5,8 +5,10 @@
 #include <GuiFoundation/ActionViews/QtProxy.moc.h>
 #include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 
-ezMenuBarActionMapView::ezMenuBarActionMapView(QWidget* parent) : QMenuBar(parent)
+ezMenuBarActionMapView::ezMenuBarActionMapView(QWidget* parent, QWidget* pActionParent) : QMenuBar(parent)
 {
+  m_pActionParent = pActionParent != nullptr ? pActionParent : parent;
+  EZ_ASSERT_DEV(m_pActionParent != nullptr, "Either parent or pActionParent needs to be set in the action view!");
 }
 
 ezMenuBarActionMapView::~ezMenuBarActionMapView()
@@ -28,11 +30,6 @@ void ezMenuBarActionMapView::SetActionContext(const ezActionContext& context)
 
 void ezMenuBarActionMapView::ClearView()
 {
-  for (auto it = m_Proxies.GetIterator(); it.IsValid(); ++it)
-  {
-    ezQtProxy* pProxy = it.Value();
-    pProxy->deleteLater();
-  }
   m_Proxies.Clear();
 }
 
@@ -45,14 +42,9 @@ void ezMenuBarActionMapView::CreateView()
   for (auto pChild : pObject->GetChildren())
   {
     auto pDesc = m_pActionMap->GetDescriptor(pChild);
-    auto pAction = pDesc->m_hAction.GetDescriptor()->CreateAction(m_Context);
 
-    ezQtProxy* pProxy = ezRttiMappedObjectFactory<ezQtProxy>::CreateObject(pAction->GetDynamicRTTI());
-    EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_hAction.GetDescriptor()->m_sActionName.GetData());
-
+    QSharedPointer<ezQtProxy> pProxy = ezQtProxy::GetProxy(m_Context, pDesc->m_hAction);
     m_Proxies[pChild->GetGuid()] = pProxy;
-    pProxy->setParent(this);
-    pProxy->SetAction(pAction, false);
 
     switch (pDesc->m_hAction.GetDescriptor()->m_Type)
     {
@@ -70,9 +62,9 @@ void ezMenuBarActionMapView::CreateView()
 
     case ezActionType::Menu:
       {
-        QMenu* pQtMenu = static_cast<ezQtMenuProxy*>(pProxy)->GetQMenu();
+        QMenu* pQtMenu = static_cast<ezQtMenuProxy*>(pProxy.data())->GetQMenu();
         addMenu(pQtMenu);
-        ezMenuActionMapView::AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, pQtMenu, pChild);
+        ezMenuActionMapView::AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, pQtMenu, pChild, m_pActionParent);
       }
       break;
     }

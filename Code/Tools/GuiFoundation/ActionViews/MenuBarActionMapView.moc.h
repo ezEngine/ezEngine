@@ -4,6 +4,7 @@
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 #include <GuiFoundation/Action/ActionMap.h>
 #include <QMenuBar>
+#include <QSharedPointer>
 
 class QWidget;
 class ezActionMap;
@@ -15,7 +16,7 @@ class EZ_GUIFOUNDATION_DLL ezMenuBarActionMapView : public QMenuBar
   Q_OBJECT
   EZ_DISALLOW_COPY_AND_ASSIGN(ezMenuBarActionMapView);
 public:
-  explicit ezMenuBarActionMapView(QWidget* parent = nullptr);
+  explicit ezMenuBarActionMapView(QWidget* parent, QWidget* pActionParent = nullptr);
   ~ezMenuBarActionMapView();
 
   void SetActionContext(const ezActionContext& context);
@@ -28,8 +29,9 @@ private:
   void CreateView();
 
 private:
-  ezHashTable<ezUuid, ezQtProxy*> m_Proxies;
+  ezHashTable<ezUuid, QSharedPointer<ezQtProxy>> m_Proxies;
 
   ezActionContext m_Context;
   ezActionMap* m_pActionMap;
+  QWidget* m_pActionParent;
 };

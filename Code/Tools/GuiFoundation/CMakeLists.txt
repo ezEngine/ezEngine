@@ -29,7 +29,7 @@ else()
 endif()
 
 # Call this in case this library does not function without Qt.
-#BUILD_REQUIRES_QT()
+BUILD_REQUIRES_QT()
 
 # Set all headers, that shall be MOC'ed that do not end with moc.h and thus will be MOC'ed automatically.
 #SET (EZ_MOC_HEADERS

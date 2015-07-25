@@ -7,8 +7,10 @@
 #include <QMenu>
 #include <QToolButton>
 
-ezToolBarActionMapView::ezToolBarActionMapView(QWidget* parent) : QToolBar(parent)
+ezToolBarActionMapView::ezToolBarActionMapView(QWidget* parent, QWidget* pActionParent) : QToolBar(parent)
 {
+  m_pActionParent = pActionParent != nullptr ? pActionParent : parent;
+  EZ_ASSERT_DEV(m_pActionParent != nullptr, "Either parent or pActionParent needs to be set in the action view!");
   setIconSize(QSize(16, 16));
 }
 
@@ -31,11 +33,6 @@ void ezToolBarActionMapView::SetActionContext(const ezActionContext& context)
 
 void ezToolBarActionMapView::ClearView()
 {
-  for (auto it = m_Proxies.GetIterator(); it.IsValid(); ++it)
-  {
-    ezQtProxy* pProxy = it.Value();
-    pProxy->deleteLater();
-  }
   m_Proxies.Clear();
 }
 
@@ -60,42 +57,37 @@ void ezToolBarActionMapView::CreateView(ezDocumentObjectBase* pObject)
   for (auto pChild : pObject->GetChildren())
   {
     auto pDesc = m_pActionMap->GetDescriptor(pChild);
-    auto pAction = pDesc->m_hAction.GetDescriptor()->CreateAction(m_Context);
-
-    ezQtProxy* pProxy = ezRttiMappedObjectFactory<ezQtProxy>::CreateObject(pAction->GetDynamicRTTI());
-    EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_hAction.GetDescriptor()->m_sActionName.GetData());
-
+    QSharedPointer<ezQtProxy> pProxy = ezQtProxy::GetProxy(m_Context, pDesc->m_hAction);
     m_Proxies[pChild->GetGuid()] = pProxy;
-    pProxy->setParent(this);
-    pProxy->SetAction(pAction, false);
 
     switch (pDesc->m_hAction.GetDescriptor()->m_Type)
     {
     case ezActionType::Action:
       {
-        QAction* pQtAction = static_cast<ezQtActionProxy*>(pProxy)->GetQAction();
+        QAction* pQtAction = static_cast<ezQtActionProxy*>(pProxy.data())->GetQAction();
         addAction(pQtAction);
-        pQtAction->setParent(this);
+        if (pDesc->m_hAction.GetDescriptor()->m_Scope == ezActionScope::Window)
+          pQtAction->setParent(m_pActionParent);
       }
       break;
 
     case ezActionType::Category:
       {
         if (!actions().isEmpty() && !actions().back()->isSeparator())
-          addSeparator()->setParent(pProxy);
+          addSeparator()->setParent(pProxy.data());
 
         CreateView(pChild);
 
         if (!actions().isEmpty() && !actions().back()->isSeparator())
-          addSeparator()->setParent(pProxy);
+          addSeparator()->setParent(pProxy.data());
       }
       break;
 
     case ezActionType::Menu:
       {
-        ezNamedAction* pNamed = static_cast<ezNamedAction*>(pAction);
+        ezNamedAction* pNamed = static_cast<ezNamedAction*>(pProxy->GetAction());
 
-        QMenu* pQtMenu = static_cast<ezQtMenuProxy*>(pProxy)->GetQMenu();
+        QMenu* pQtMenu = static_cast<ezQtMenuProxy*>(pProxy.data())->GetQMenu();
         // TODO pButton leaks!
         QToolButton* pButton = new QToolButton(this);
         pButton->setMenu(pQtMenu);
@@ -107,9 +99,8 @@ void ezToolBarActionMapView::CreateView(ezDocumentObjectBase* pObject)
         // TODO addWidget return value of QAction leaks!
         QAction* pToolButtonAction = addWidget(pButton);
         pToolButtonAction->setParent(pQtMenu);
-        //pButton->setParent(pQtMenu);
 
-        ezMenuActionMapView::AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, pQtMenu, pChild);
+        ezMenuActionMapView::AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, pQtMenu, pChild, m_pActionParent);
       }
       break;
     }

@@ -102,7 +102,7 @@ public:
   virtual void Execute(const ezVariant& value) = 0;
 
   void TriggerUpdate();
-
+  const ezActionContext& GetContext() const { return m_Context; }
   ezActionDescriptorHandle GetDescriptorHandle() { return m_DescriptorHandle; }
 
 public:

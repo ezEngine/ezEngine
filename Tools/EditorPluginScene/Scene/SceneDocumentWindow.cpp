@@ -186,7 +186,11 @@ void ezSceneDocumentWindow::SnapSelectionToPosition(bool bSnapEachObject)
   if (fSnap == 0.0f)
     return;
 
-  const auto& pivotObj = GetSceneDocument()->GetSelectionManager()->GetSelection().PeekBack();
+  const ezDeque<const ezDocumentObjectBase*>& selection = GetSceneDocument()->GetSelectionManager()->GetSelection();
+  if (selection.IsEmpty())
+    return;
+
+  const auto& pivotObj = selection.PeekBack();
 
   ezVec3 vPivotSnapOffset;
 
