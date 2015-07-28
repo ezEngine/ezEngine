@@ -149,5 +149,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineSyncObjectMsg, ezEditorEngineDocum
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectTagMsgToEngine, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezObjectTagMsgToEngine>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("ObjectGuid", m_ObjectGuid),
+    EZ_MEMBER_PROPERTY("Tag", m_sTag),
+    EZ_MEMBER_PROPERTY("Set", m_bSetTag),
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
 

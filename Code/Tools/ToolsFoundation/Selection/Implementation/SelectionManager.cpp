@@ -161,3 +161,35 @@ bool ezSelectionManager::IsParentSelected(const ezDocumentObjectBase* pObject) c
   return false;
 }
 
+const ezDeque<const ezDocumentObjectBase*> ezSelectionManager::GetTopLevelSelection() const
+{
+  ezDeque<const ezDocumentObjectBase*> items;
+
+  for (const auto* pObj : m_SelectionList)
+  {
+    if (!IsParentSelected(pObj))
+    {
+      items.PushBack(pObj);
+    }
+  }
+
+  return items;
+}
+
+const ezDeque<const ezDocumentObjectBase*> ezSelectionManager::GetTopLevelSelection(const ezRTTI* pBase) const
+{
+  ezDeque<const ezDocumentObjectBase*> items;
+
+  for (const auto* pObj : m_SelectionList)
+  {
+    if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom(pBase))
+      continue;
+
+    if (!IsParentSelected(pObj))
+    {
+      items.PushBack(pObj);
+    }
+  }
+
+  return items;
+}

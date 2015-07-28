@@ -330,7 +330,7 @@ ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnappingValueMenu;
 ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnapPivotToGrid;
 ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnapObjectsToGrid;
 ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnappingValues[9];
-float ezTranslateGizmoAction::s_fCurrentSnappingValue = 0.0f;
+float ezTranslateGizmoAction::s_fCurrentSnappingValue = 0.1f;
 ezEvent<const ezTranslateGizmoAction::Event&> ezTranslateGizmoAction::s_Events;
 
 void ezTranslateGizmoAction::RegisterActions()

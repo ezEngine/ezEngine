@@ -44,6 +44,12 @@ public:
 
   const ezDeque<const ezDocumentObjectBase*>& GetSelection() const { return m_SelectionList; }
 
+  /// \brief Returns the subset of selected items which have no parent selected. Ie. if an object is selected and one of its ancestors is selected, it is culled from the list.
+  const ezDeque<const ezDocumentObjectBase*> GetTopLevelSelection() const;
+
+  /// \brief Same as GetTopLevelSelection() but additionally requires that all objects are derived from type pBase
+  const ezDeque<const ezDocumentObjectBase*> GetTopLevelSelection(const ezRTTI* pBase) const;
+
   bool IsSelected(const ezDocumentObjectBase* pObject) const;
   bool IsParentSelected(const ezDocumentObjectBase* pObject) const;
 

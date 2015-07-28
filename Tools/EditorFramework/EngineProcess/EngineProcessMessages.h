@@ -215,6 +215,15 @@ public:
   void SetObjectData(const char* s) { m_sObjectData = s; }
 };
 
+class EZ_EDITORFRAMEWORK_DLL ezObjectTagMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezObjectTagMsgToEngine);
 
+public:
+
+  ezUuid m_ObjectGuid;
+  ezString m_sTag;
+  bool m_bSetTag;
+};
 
 
