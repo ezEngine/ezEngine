@@ -3,6 +3,7 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Math/Mat3.h>
 #include <Foundation/Math/Mat4.h>
+#include <Foundation/Math/Transform.h>
 #include <Foundation/Time/Time.h>
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezEnumBase, ezNoBase, 1, ezRTTINoAllocator);
@@ -100,6 +101,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezMat3, ezNoBase, 1, ezRTTINoAllocator);
 EZ_END_STATIC_REFLECTED_TYPE();
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezMat4, ezNoBase, 1, ezRTTINoAllocator);
+EZ_END_STATIC_REFLECTED_TYPE();
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTransform, ezNoBase, 1, ezRTTINoAllocator);
 EZ_END_STATIC_REFLECTED_TYPE();
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezBasisAxis, 1)

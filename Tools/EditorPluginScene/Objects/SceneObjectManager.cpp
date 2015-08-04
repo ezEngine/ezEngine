@@ -12,7 +12,7 @@ ezDocumentObjectBase* ezSceneObjectManager::InternalCreateObject(const ezRTTI* p
 {
   static int iCount = 0;
   ezDocumentObjectStorage<ezSceneObjectEditorProperties>* pObj = new ezDocumentObjectStorage<ezSceneObjectEditorProperties>(pRtti);
-  
+
   ezStringBuilder sName;
   sName.Format("%s %03d", pRtti->GetTypeName(), iCount);
   iCount++;

@@ -200,7 +200,7 @@ void ezSceneDocumentWindow::SnapSelectionToPosition(bool bSnapEachObject)
     if (!pivotObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
       return;
 
-    const ezVec3 vPivotPos = pivotObj->GetTypeAccessor().GetValue("GlobalPosition").ConvertTo<ezVec3>();
+    const ezVec3 vPivotPos = GetSceneDocument()->GetGlobalTransform(pivotObj).m_vPosition;
     ezVec3 vSnappedPos;
     vSnappedPos.x = ezMath::Round(vPivotPos.x, fSnap);
     vSnappedPos.y = ezMath::Round(vPivotPos.y, fSnap);
@@ -221,39 +221,32 @@ void ezSceneDocumentWindow::SnapSelectionToPosition(bool bSnapEachObject)
 
   CmdHistory->StartTransaction();
 
-  ezSetObjectPropertyCommand cmd;
-  cmd.m_bEditorProperty = false;
-  cmd.SetPropertyPath("GlobalPosition");
-
   bool bDidAny = false;
 
   for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
   {
     const auto& obj = m_GizmoSelection[sel];
 
-    cmd.m_Object = obj.m_Object;
+    ezTransform vSnappedPos = obj.m_GlobalTransform;
 
     // if we snap each object individually, compute the snap position for each one here
     if (bSnapEachObject)
     {
-      ezVec3 vSnappedPos;
-      vSnappedPos.x = ezMath::Round(obj.m_vGlobalTranslation.x, fSnap);
-      vSnappedPos.y = ezMath::Round(obj.m_vGlobalTranslation.y, fSnap);
-      vSnappedPos.z = ezMath::Round(obj.m_vGlobalTranslation.z, fSnap);
+      vSnappedPos.m_vPosition.x = ezMath::Round(obj.m_GlobalTransform.m_vPosition.x, fSnap);
+      vSnappedPos.m_vPosition.y = ezMath::Round(obj.m_GlobalTransform.m_vPosition.y, fSnap);
+      vSnappedPos.m_vPosition.z = ezMath::Round(obj.m_GlobalTransform.m_vPosition.z, fSnap);
 
-      if (obj.m_vGlobalTranslation == vSnappedPos)
+      if (obj.m_GlobalTransform.m_vPosition == vSnappedPos.m_vPosition)
         continue;
-
-      cmd.m_NewValue = vSnappedPos;
     }
     else
     {
       // otherwise use the offset from the pivot point for repositioning
-      cmd.m_NewValue = obj.m_vGlobalTranslation + vPivotSnapOffset;
+      vSnappedPos.m_vPosition += vPivotSnapOffset;
     }
 
     bDidAny = true;
-    CmdHistory->AddCommand(cmd);
+    GetSceneDocument()->SetGlobalTransform(obj.m_pObject, vSnappedPos);
   }
 
   if (bDidAny)
@@ -302,7 +295,7 @@ void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEve
         return;
 
       const auto& LatestSelection = GetDocument()->GetSelectionManager()->GetSelection().PeekBack();
-      const ezTransform tGlobal = ezSceneDocument::QueryGlobalTransform(LatestSelection);
+      const ezTransform tGlobal = GetSceneDocument()->GetGlobalTransform(LatestSelection);
       const ezVec3 vPivotPoint = tGlobal.m_vPosition + tGlobal.m_Rotation * LatestSelection->GetEditorTypeAccessor().GetValue("Pivot").ConvertTo<ezVec3>();
 
       ezVec3 vDiff = vPivotPoint - m_Camera.GetCenterPosition();
@@ -546,7 +539,7 @@ void ezScene3DWidget::MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPo
   cmd2.m_bEditorProperty = false;
   cmd2.m_Object = guid;
 
-  cmd2.SetPropertyPath("GlobalPosition");
+  cmd2.SetPropertyPath("LocalPosition");
   cmd2.m_NewValue = vPosition;
   history->AddCommand(cmd2);
 

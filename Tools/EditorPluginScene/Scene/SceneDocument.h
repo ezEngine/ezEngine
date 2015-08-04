@@ -33,9 +33,10 @@ public:
   void SetGizmoWorldSpace(bool bWorldSpace);
   bool GetGizmoWorldSpace() const;
 
-  static ezTransform QueryLocalTransform(const ezDocumentObjectBase* pObject);
-  static ezTransform QueryGlobalTransform(const ezDocumentObjectBase* pObject);
+  const ezTransform& GetGlobalTransform(const ezDocumentObjectBase* pObject);
+  void SetGlobalTransform(const ezDocumentObjectBase* pObject, const ezTransform& t);
 
+  static ezTransform QueryLocalTransform(const ezDocumentObjectBase* pObject);
   static ezTransform ComputeGlobalTransform(const ezDocumentObjectBase* pObject);
 
   struct SceneEvent
@@ -60,15 +61,11 @@ protected:
 private:
   void ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e);
-  void CommandHistoryEventHandler(const ezCommandHistory::Event& e);
-  void UpdateObjectGlobalPosition(const ezDocumentObjectBase* pObject);
-  void UpdateObjectGlobalPosition(const ezDocumentObjectBase* pObject, const ezTransform& tParent);
-  void UpdateObjectLocalPosition(const ezDocumentObjectBase* pObject);
 
-  bool m_bInObjectTransformFixup; // prevent queuing of more objects for local/global transform update, while we are in the process of updating the current object queue
+  void InvalidateGlobalTransformValue(const ezDocumentObjectBase* pObject);
+
   bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
   ActiveGizmo m_ActiveGizmo;
 
-  ezSet<const ezDocumentObjectBase*> m_UpdateGlobalTransform; // queue of objects whose global transform must be updated, because their local transform changed
-  ezSet<const ezDocumentObjectBase*> m_UpdateLocalTransform; // queue of objects whose local transform must be updated, because their global transform changed
+  ezHashTable<const ezDocumentObjectBase*, ezTransform> m_GlobalTransforms;
 };

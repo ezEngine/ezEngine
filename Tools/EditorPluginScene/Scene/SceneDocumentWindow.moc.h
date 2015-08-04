@@ -90,12 +90,11 @@ private:
 
   struct SelectedGO
   {
-    ezUuid m_Object;
-    ezVec3 m_vGlobalTranslation;
-    ezQuat m_GlobalRotation;
-    ezVec3 m_vLocalTranslation;
+    const ezDocumentObjectBase* m_pObject;
+    ezVec3 m_vLocalPosition;
     ezQuat m_LocalRotation;
     ezVec3 m_vLocalScaling;
+    ezTransform m_GlobalTransform;
   };
 
   bool m_bInGizmoInteraction;

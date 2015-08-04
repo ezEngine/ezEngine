@@ -13,7 +13,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 ezSceneDocument::ezSceneDocument(const char* szDocumentPath) : ezDocumentBase(szDocumentPath, EZ_DEFAULT_NEW(ezSceneObjectManager))
 {
   m_ActiveGizmo = ActiveGizmo::None;
-  m_bInObjectTransformFixup = false;
 }
 
 void ezSceneDocument::InitializeAfterLoading()
@@ -22,15 +21,12 @@ void ezSceneDocument::InitializeAfterLoading()
 
   GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectPropertyEventHandler, this));
   GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectStructureEventHandler, this));
-
-  GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::CommandHistoryEventHandler, this));
 }
 
 ezSceneDocument::~ezSceneDocument()
 {
   GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectStructureEventHandler, this));
   GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectPropertyEventHandler, this));
-  GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::CommandHistoryEventHandler, this));
 }
 
 ezStatus ezSceneDocument::InternalSaveDocument()
@@ -100,9 +96,6 @@ bool ezSceneDocument::GetGizmoWorldSpace() const
 
 void ezSceneDocument::ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  if (m_bInObjectTransformFixup)
-    return;
-
   if (e.m_bEditorProperty)
     return;
 
@@ -110,59 +103,108 @@ void ezSceneDocument::ObjectPropertyEventHandler(const ezDocumentObjectPropertyE
       e.m_sPropertyPath == "LocalRotation" ||
       e.m_sPropertyPath == "LocalScaling")
   {
-    m_UpdateGlobalTransform.Insert(e.m_pObject);
-  }
-  else if (e.m_sPropertyPath == "GlobalPosition" ||
-           e.m_sPropertyPath == "GlobalRotation" ||
-           e.m_sPropertyPath == "GlobalScaling")
-  {
-    m_UpdateLocalTransform.Insert(e.m_pObject);
+    InvalidateGlobalTransformValue(e.m_pObject);
   }
 }
 
 void ezSceneDocument::ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
-  if (m_bInObjectTransformFixup)
-    return;
-
   switch (e.m_EventType)
   {
+  case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:
+    {
+      // make sure the cache is filled with a proper value
+      GetGlobalTransform(e.m_pObject);
+    }
+    break;
+
   case ezDocumentObjectStructureEvent::Type::AfterObjectMoved:
     {
-      m_UpdateLocalTransform.Insert(e.m_pObject);
+      // read cached value, hopefully it was not invalidated in between BeforeObjectMoved and AfterObjectMoved
+      ezTransform t = GetGlobalTransform(e.m_pObject);
+
+      SetGlobalTransform(e.m_pObject, t);
     }
     break;
   }
 }
 
-void ezSceneDocument::CommandHistoryEventHandler(const ezCommandHistory::Event& e)
+const ezTransform& ezSceneDocument::GetGlobalTransform(const ezDocumentObjectBase* pObject)
 {
-  if (e.m_Type == ezCommandHistory::Event::Type::ExecutedUndo ||
-      e.m_Type == ezCommandHistory::Event::Type::ExecutedRedo ||
-      e.m_Type == ezCommandHistory::Event::Type::AfterEndTransaction)
+  ezTransform Trans;
+
+  if (!m_GlobalTransforms.TryGetValue(pObject, Trans))
   {
-    // not necessary, undo/redo contains all proper positions
-    m_bInObjectTransformFixup = false;
-    m_UpdateGlobalTransform.Clear();
-    m_UpdateLocalTransform.Clear();
-    return;
+    /// \todo Insert all parents as well
+
+    Trans = ComputeGlobalTransform(pObject);
+    m_GlobalTransforms[pObject] = Trans;
   }
 
-  /// \todo Check why EndTransaction is called so often
-  if (e.m_Type == ezCommandHistory::Event::Type::BeforeEndTransaction && (!m_UpdateGlobalTransform.IsEmpty() || !m_UpdateLocalTransform.IsEmpty()))
+  return m_GlobalTransforms[pObject];
+}
+
+void ezSceneDocument::SetGlobalTransform(const ezDocumentObjectBase* pObject, const ezTransform& t)
+{
+  const ezDocumentObjectBase* pParent = pObject->GetParent();
+
+  ezTransform tLocal;
+
+  if (pParent != nullptr)
   {
-    m_bInObjectTransformFixup = true;
+    ezTransform tParent = GetGlobalTransform(pParent);
 
-    for (auto pObj : m_UpdateGlobalTransform)
-      UpdateObjectGlobalPosition(pObj);
+    tLocal.SetLocalTransform(tParent, t);
+  }
+  else
+    tLocal = t;
 
-    for (auto pObj : m_UpdateLocalTransform)
-      UpdateObjectLocalPosition(pObj);
+  ezVec3 vLocalPos;
+  ezVec3 vLocalScale;
+  ezQuat qLocalRot;
 
-    m_UpdateGlobalTransform.Clear();
-    m_UpdateLocalTransform.Clear();
+  tLocal.Decompose(vLocalPos, qLocalRot, vLocalScale);
 
-    m_bInObjectTransformFixup = false;
-    return;
+  auto pHistory = GetCommandHistory();
+
+  ezSetObjectPropertyCommand cmd;
+  cmd.m_bEditorProperty = false;
+  cmd.m_Object = pObject->GetGuid();
+
+  if (pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>() != vLocalPos)
+  {
+    cmd.SetPropertyPath("LocalPosition");
+    cmd.m_NewValue = vLocalPos;
+    pHistory->AddCommand(cmd);
+  }
+
+  if (pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>() != qLocalRot)
+  {
+    cmd.SetPropertyPath("LocalRotation");
+    cmd.m_NewValue = qLocalRot;
+    pHistory->AddCommand(cmd);
+  }
+
+  if (pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>() != vLocalScale)
+  {
+    cmd.SetPropertyPath("LocalScaling");
+    cmd.m_NewValue = vLocalScale;
+    pHistory->AddCommand(cmd);
+  }
+
+  // will be recomputed the next time it is queried
+  InvalidateGlobalTransformValue(pObject);
+}
+
+void ezSceneDocument::InvalidateGlobalTransformValue(const ezDocumentObjectBase* pObject)
+{
+  // will be recomputed the next time it is queried
+  m_GlobalTransforms.Remove(pObject);
+
+  /// \todo If all parents are always inserted as well, we can stop once an object is found that is not in the list
+
+  for (auto pChild : pObject->GetChildren())
+  {
+    InvalidateGlobalTransformValue(pChild);
   }
 }
