@@ -138,6 +138,27 @@ void ezSceneDocument::GroupSelection()
   pHistory->FinishTransaction();
 }
 
+void ezSceneDocument::TriggerHideSelectedObjects()
+{
+  SceneEvent e;
+  e.m_Type = SceneEvent::Type::HideSelectedObjects;
+  m_SceneEvents.Broadcast(e);
+}
+
+void ezSceneDocument::TriggerHideUnselectedObjects()
+{
+  SceneEvent e;
+  e.m_Type = SceneEvent::Type::HideUnselectedObjects;
+  m_SceneEvents.Broadcast(e);
+}
+
+void ezSceneDocument::TriggerShowHiddenObjects()
+{
+  SceneEvent e;
+  e.m_Type = SceneEvent::Type::ShowHiddenObjects;
+  m_SceneEvents.Broadcast(e);
+}
+
 void ezSceneDocument::SetGizmoWorldSpace(bool bWorldSpace)
 {
   if (m_bGizmoWorldSpace == bWorldSpace)

@@ -72,6 +72,11 @@ private:
   void CommandHistoryEventHandler(const ezCommandHistory::Event& e);
 
   void SnapSelectionToPosition(bool bSnapEachObject);
+  void HideSelectedObjects(bool bHide);
+  void HideUnselectedObjects();
+  void ShowHiddenObjects();
+
+  void SendObjectMsgRecursive(const ezDocumentObjectBase* pObj, ezObjectTagMsgToEngine* pMsg);
 
   void SendRedrawMsg();
 

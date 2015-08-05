@@ -33,6 +33,9 @@ public:
   void TriggerSnapPivotToGrid();
   void TriggerSnapEachObjectToGrid();
   void GroupSelection();
+  void TriggerHideSelectedObjects();
+  void TriggerHideUnselectedObjects();
+  void TriggerShowHiddenObjects();
   void SetGizmoWorldSpace(bool bWorldSpace);
   bool GetGizmoWorldSpace() const;
 
@@ -51,6 +54,9 @@ public:
       FocusOnSelection,
       SnapSelectionPivotToGrid,
       SnapEachSelectedObjectToGrid,
+      HideSelectedObjects,
+      HideUnselectedObjects,
+      ShowHiddenObjects,
     };
 
     Type m_Type;

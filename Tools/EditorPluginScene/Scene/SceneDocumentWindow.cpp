@@ -317,6 +317,76 @@ void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEve
     SnapSelectionToPosition(true);
     break;
   
+  case ezSceneDocument::SceneEvent::Type::HideSelectedObjects:
+    HideSelectedObjects(true);
+    break;
+
+  case ezSceneDocument::SceneEvent::Type::HideUnselectedObjects:
+    HideUnselectedObjects();
+    break;
+
+  case ezSceneDocument::SceneEvent::Type::ShowHiddenObjects:
+    ShowHiddenObjects();
+    break;
+  }
+}
+
+void ezSceneDocumentWindow::SendObjectMsgRecursive(const ezDocumentObjectBase* pObj, ezObjectTagMsgToEngine* pMsg)
+{
+  // if ezObjectTagMsgToEngine were derived from a general 'object msg' one could send other message types as well
+
+  if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+    return;
+
+  pMsg->m_ObjectGuid = pObj->GetGuid();
+  GetEditorEngineConnection()->SendMessage(pMsg);
+
+  for (auto pChild : pObj->GetChildren())
+  {
+    SendObjectMsgRecursive(pChild, pMsg);
+  }
+}
+
+void ezSceneDocumentWindow::HideSelectedObjects(bool bHide)
+{
+  auto sel = GetDocument()->GetSelectionManager()->GetTopLevelSelection(ezGetStaticRTTI<ezGameObject>());
+
+  ezObjectTagMsgToEngine msg;
+  msg.m_bSetTag = bHide;
+  msg.m_sTag = "EditorHidden";
+
+  for (auto item : sel)
+  {
+    SendObjectMsgRecursive(item, &msg);
+  }
+}
+
+void ezSceneDocumentWindow::HideUnselectedObjects()
+{
+  ezObjectTagMsgToEngine msg;
+  msg.m_bSetTag = true;
+  msg.m_sTag = "EditorHidden";
+
+  // hide ALL
+  for (auto pChild : GetDocument()->GetObjectManager()->GetRootObject()->GetChildren())
+  {
+    SendObjectMsgRecursive(pChild, &msg);
+  }
+
+  // unhide selected
+  HideSelectedObjects(false);
+}
+
+void ezSceneDocumentWindow::ShowHiddenObjects()
+{
+  ezObjectTagMsgToEngine msg;
+  msg.m_bSetTag = false;
+  msg.m_sTag = "EditorHidden";
+
+  // unhide ALL
+  for (auto pChild : GetDocument()->GetObjectManager()->GetRootObject()->GetChildren())
+  {
+    SendObjectMsgRecursive(pChild, &msg);
   }
 }
 

@@ -123,6 +123,12 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
     ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(GetDocumentGuid());
     m_pView->SetWorld(pDocumentContext->m_pWorld);
     m_pView->SetLogicCamera(&m_Camera);
+
+    auto& tagReg = ezTagRegistry::GetGlobalRegistry();
+    ezTag tagHidden;
+    tagReg.RegisterTag("EditorHidden", &tagHidden);
+
+    m_pView->m_ExcludeTags.Set(tagHidden);
   }
 }
 
