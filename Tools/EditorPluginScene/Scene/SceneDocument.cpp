@@ -71,6 +71,54 @@ void ezSceneDocument::TriggerFocusOnSelection()
   m_SceneEvents.Broadcast(e);
 }
 
+void ezSceneDocument::GroupSelection()
+{
+  const auto& sel = GetSelectionManager()->GetTopLevelSelection(ezGetStaticRTTI<ezGameObject>());
+  if (sel.GetCount() <= 1)
+    return;
+
+  ezVec3 vCenter(0.0f);
+
+  for (const auto& item : sel)
+  {
+    vCenter += GetGlobalTransform(item).m_vPosition;
+  }
+
+  vCenter /= sel.GetCount();
+  
+  auto pHistory = GetCommandHistory();
+
+  pHistory->StartTransaction();
+
+  ezAddObjectCommand cmdAdd;
+  cmdAdd.m_NewObjectGuid.CreateNewUuid();
+  cmdAdd.m_pType = ezGetStaticRTTI<ezGameObject>();
+
+  pHistory->AddCommand(cmdAdd);
+
+  ezSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
+
+  cmdSet.m_bEditorProperty = true;
+  cmdSet.SetPropertyPath("Name");
+  cmdSet.m_NewValue = "Group";
+  pHistory->AddCommand(cmdSet);
+
+  auto pGroupObject = GetObjectManager()->GetObject(cmdAdd.m_NewObjectGuid);
+  SetGlobalTransform(pGroupObject, ezTransform(vCenter));
+
+  ezMoveObjectCommand cmdMove;
+  cmdMove.m_NewParent = cmdAdd.m_NewObjectGuid;
+
+  for (const auto& item : sel)
+  {
+    cmdMove.m_Object = item->GetGuid();
+    pHistory->AddCommand(cmdMove);
+  }
+
+  pHistory->FinishTransaction();
+}
+
 void ezSceneDocument::SetGizmoWorldSpace(bool bWorldSpace)
 {
   if (m_bGizmoWorldSpace == bWorldSpace)

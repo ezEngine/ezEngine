@@ -30,6 +30,7 @@ public:
 
   void TriggerShowSelectionInScenegraph();
   void TriggerFocusOnSelection();
+  void GroupSelection();
   void SetGizmoWorldSpace(bool bWorldSpace);
   bool GetGizmoWorldSpace() const;
 

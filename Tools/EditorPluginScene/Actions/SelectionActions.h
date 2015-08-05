@@ -17,6 +17,7 @@ public:
   static ezActionDescriptorHandle s_hSelectionCategory;
   static ezActionDescriptorHandle s_hShowInScenegraph;
   static ezActionDescriptorHandle s_hFocusOnSelection;
+  static ezActionDescriptorHandle s_hGroupSelectedItems;
 
 };
 
@@ -31,6 +32,7 @@ public:
   {
     ShowInScenegraph,
     FocusOnSelection,
+    GroupSelectedItems,
   };
 
   ezSelectionAction(const ezActionContext& context, const char* szName, ActionType type);

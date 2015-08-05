@@ -10,12 +10,14 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 ezActionDescriptorHandle ezSelectionActions::s_hSelectionCategory;
 ezActionDescriptorHandle ezSelectionActions::s_hShowInScenegraph;
 ezActionDescriptorHandle ezSelectionActions::s_hFocusOnSelection;
+ezActionDescriptorHandle ezSelectionActions::s_hGroupSelectedItems;
 
 void ezSelectionActions::RegisterActions()
 {
   s_hSelectionCategory = EZ_REGISTER_CATEGORY("SelectionCategory");
   s_hShowInScenegraph = EZ_REGISTER_ACTION_1("ShowInScenegraph", "Show in Scenegraph", ezActionScope::Document, "Document", "Ctrl+T", ezSelectionAction, ezSelectionAction::ActionType::ShowInScenegraph);
   s_hFocusOnSelection = EZ_REGISTER_ACTION_1("FocusOnSelection", "Focus on Selection", ezActionScope::Document, "Document", "F", ezSelectionAction, ezSelectionAction::ActionType::FocusOnSelection);
+  s_hGroupSelectedItems = EZ_REGISTER_ACTION_1("GroupSelectedItems", "Group", ezActionScope::Document, "Document", "G", ezSelectionAction, ezSelectionAction::ActionType::GroupSelectedItems);
 }
 
 void ezSelectionActions::UnregisterActions()
@@ -23,6 +25,7 @@ void ezSelectionActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hSelectionCategory);
   ezActionManager::UnregisterAction(s_hShowInScenegraph);
   ezActionManager::UnregisterAction(s_hFocusOnSelection);
+  ezActionManager::UnregisterAction(s_hGroupSelectedItems);
 }
 
 void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
@@ -33,8 +36,9 @@ void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
   ezStringBuilder sSubPath(szPath, "/SelectionCategory");
 
   pMap->MapAction(s_hSelectionCategory, szPath, 5.0f);
-  pMap->MapAction(s_hShowInScenegraph, sSubPath, 1.0f);
-  pMap->MapAction(s_hFocusOnSelection, sSubPath, 2.0f);
+  pMap->MapAction(s_hGroupSelectedItems, sSubPath, 1.0f);
+  pMap->MapAction(s_hShowInScenegraph, sSubPath, 2.0f);
+  pMap->MapAction(s_hFocusOnSelection, sSubPath, 3.0f);
 }
 
 ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char* szName, ezSelectionAction::ActionType type) : ezButtonAction(context, szName, false, "")
@@ -50,6 +54,9 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
   case ActionType::FocusOnSelection:
     SetIconPath(":/GuiFoundation/Icons/FocusOnSelection16.png");
     break;
+  case ActionType::GroupSelectedItems:
+    //SetIconPath(":/GuiFoundation/Icons/FocusOnSelection16.png"); // TODO
+    break;
   }
 }
 
@@ -62,6 +69,9 @@ void ezSelectionAction::Execute(const ezVariant& value)
     return;
   case ActionType::FocusOnSelection:
     m_pSceneDocument->TriggerFocusOnSelection();
+    return;
+  case ActionType::GroupSelectedItems:
+    m_pSceneDocument->GroupSelection();
     return;
   }
 }

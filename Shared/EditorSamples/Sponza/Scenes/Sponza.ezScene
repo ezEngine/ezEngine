@@ -13,9 +13,6 @@
       "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
       "TypeData" : {
         "Name" : "",
-        "GlobalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
-        "GlobalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-        "GlobalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
         "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
         "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
         "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" }
@@ -40,32 +37,72 @@
     },
     {
       "Type" : "ezGameObject",
-      "ID" : { "$t" : "uuid", "$b" : "0xEF6498DFFED00A4F9B1648261F50EF2F" },
+      "ID" : { "$t" : "uuid", "$b" : "0xA807FC967C52EE448D696F7C6E44703D" },
       "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
       "TypeData" : {
-        "Name" : "NoPick",
-        "GlobalPosition" : { "$t" : "vec3", "$v" : "(0.4837, -3.4082, -0.0232)", "$b" : "0x06AAF73E6F1F5AC0A0D6BDBC" },
-        "GlobalRotation" : { "$t" : "quat", "$b" : "0x6492F5B86492F5B8000040330000803F" },
-        "GlobalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-        "LocalPosition" : { "$t" : "vec3", "$v" : "(0.4837, -3.4082, -0.0232)", "$b" : "0x06AAF73E6F1F5AC0A0D6BDBC" },
-        "LocalRotation" : { "$t" : "quat", "$b" : "0x6492F5B86492F5B8000040330000803F" },
+        "Name" : "",
+        "LocalPosition" : { "$t" : "vec3", "$v" : "(0.7685, -8.3667, -0.2361)", "$b" : "0x50BF443F22DE05C15AC571BE" },
+        "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
         "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" }
       },
       "EditorTypeData" : {
-        "Name" : "ezGameObject 006",
+        "Name" : "Group",
+        "Pivot" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" }
+      }
+    },
+    {
+      "Type" : "ezGameObject",
+      "ID" : { "$t" : "uuid", "$b" : "0xC22C0A0F78B674409A53F12506907C26" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0xA807FC967C52EE448D696F7C6E44703D" },
+      "TypeData" : {
+        "Name" : "",
+        "LocalPosition" : { "$t" : "vec3", "$v" : "(-2.3461, -5.6363, 0.0011)", "$b" : "0xFF2616C0405CB4C08082913A" },
+        "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+        "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" }
+      },
+      "EditorTypeData" : {
+        "Name" : "ezGameObject 007",
         "Pivot" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" }
       }
     },
     {
       "Type" : "ezMeshComponent",
-      "ID" : { "$t" : "uuid", "$b" : "0x0CAF979D6DB7264BA5067FBFDEB3D9F4" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0xEF6498DFFED00A4F9B1648261F50EF2F" },
+      "ID" : { "$t" : "uuid", "$b" : "0x0A2C86B450E95142B8F40900786D276E" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0xC22C0A0F78B674409A53F12506907C26" },
       "TypeData" : {
         "MeshFile" : "{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }",
         "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
       },
       "EditorTypeData" : {
-        "Name" : "ezMeshComponent 007",
+        "Name" : "ezMeshComponent 008",
+        "Pivot" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" }
+      }
+    },
+    {
+      "Type" : "ezGameObject",
+      "ID" : { "$t" : "uuid", "$b" : "0xB132A7AC555CB14D9894014B9CCCDD78" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0xA807FC967C52EE448D696F7C6E44703D" },
+      "TypeData" : {
+        "Name" : "",
+        "LocalPosition" : { "$t" : "vec3", "$v" : "(9.9461, -2.3637, -0.0011)", "$b" : "0x59231F41804717C0008391BA" },
+        "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+        "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" }
+      },
+      "EditorTypeData" : {
+        "Name" : "ezGameObject 009",
+        "Pivot" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" }
+      }
+    },
+    {
+      "Type" : "ezMeshComponent",
+      "ID" : { "$t" : "uuid", "$b" : "0x69B2310DF841D04E812E2CE0CC6FDBA5" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0xB132A7AC555CB14D9894014B9CCCDD78" },
+      "TypeData" : {
+        "MeshFile" : "{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }",
+        "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
+      },
+      "EditorTypeData" : {
+        "Name" : "ezMeshComponent 010",
         "Pivot" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" }
       }
     } ]
