@@ -73,6 +73,9 @@ public:
   /// \brief Returns the current inverse view-projection matrix.
   const ezMat4& GetInverseViewProjectionMatrix() const;
 
+  ezTagSet m_IncludeTags;
+  ezTagSet m_ExcludeTags;
+
 private:
   friend class ezRenderLoop;
 

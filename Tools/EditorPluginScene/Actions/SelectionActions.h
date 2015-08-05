@@ -43,3 +43,7 @@ private:
   ezSceneDocument* m_pSceneDocument;
   ActionType m_Type;
 };
+
+
+
+

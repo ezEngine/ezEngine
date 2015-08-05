@@ -67,12 +67,11 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
   if (!IsActive() || !m_hMesh.IsValid())
     return;
 
-  if (ezStringUtils::FindSubString_NoCase(GetOwner()->GetName(), "nopick") != nullptr)
-  {
-    ezTag tagIgnorePicking;
-    ezTagRegistry::GetGlobalRegistry().RegisterTag("IgnorePicking", &tagIgnorePicking);
-    m_Tags.Set(tagIgnorePicking);
-  }
+  if (!msg.m_pView->m_ExcludeTags.IsEmpty() &&  msg.m_pView->m_ExcludeTags.IsAnySet(GetOwner()->GetTags()))
+    return;
+
+  if (!msg.m_pView->m_IncludeTags.IsEmpty() && !msg.m_pView->m_IncludeTags.IsAnySet(GetOwner()->GetTags()))
+    return;
 
   ezRenderPipeline* pRenderPipeline = msg.m_pView->GetRenderPipeline();
 
@@ -86,7 +85,6 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
     pRenderData->m_hMesh = m_hMesh;
     pRenderData->m_uiEditorPickingID = m_uiEditorPickingID;
     pRenderData->m_MeshColor = m_MeshColor;
-    pRenderData->m_Tags = m_Tags;
 
     const ezUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
 

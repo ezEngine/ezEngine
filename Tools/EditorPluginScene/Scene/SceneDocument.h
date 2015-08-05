@@ -30,6 +30,8 @@ public:
 
   void TriggerShowSelectionInScenegraph();
   void TriggerFocusOnSelection();
+  void TriggerSnapPivotToGrid();
+  void TriggerSnapEachObjectToGrid();
   void GroupSelection();
   void SetGizmoWorldSpace(bool bWorldSpace);
   bool GetGizmoWorldSpace() const;
@@ -47,6 +49,8 @@ public:
       ActiveGizmoChanged,
       ShowSelectionInScenegraph,
       FocusOnSelection,
+      SnapSelectionPivotToGrid,
+      SnapEachSelectedObjectToGrid,
     };
 
     Type m_Type;

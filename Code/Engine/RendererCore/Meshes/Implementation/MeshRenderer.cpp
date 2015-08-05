@@ -44,18 +44,6 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderViewContext, ez
   {
     const ezMeshRenderData* pRenderData = static_cast<const ezMeshRenderData*>(renderData[uiDataRendered]);
 
-    if (!pPass->m_ExcludeTags.IsEmpty() && pPass->m_ExcludeTags.IsAnySet(pRenderData->m_Tags))
-    {
-      ++uiDataRendered;
-      continue;
-    }
-
-    if (!pPass->m_IncludeTags.IsEmpty() && !pPass->m_IncludeTags.IsAnySet(pRenderData->m_Tags))
-    {
-      ++uiDataRendered;
-      continue;
-    }
-
     ObjectConstants* cb = renderViewContext.m_pRenderContext->BeginModifyConstantBuffer<ObjectConstants>(m_hObjectTransformCB);
     cb->ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
     cb->ObjectToCameraMatrix = ViewMatrix * cb->ObjectToWorldMatrix;

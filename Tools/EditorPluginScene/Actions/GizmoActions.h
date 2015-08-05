@@ -178,9 +178,9 @@ private:
 public:
   enum class ActionType
   {
+    SetSnappingValue,
     SnapSelectionPivotToGrid,
     SnapEachSelectedObjectToGrid,
-    SetSnappingValue,
   };
 
   ezTranslateGizmoAction(const ezActionContext& context, const char* szName, ActionType type, float fSnappingValue);
@@ -192,8 +192,6 @@ public:
   {
     enum class Type
     {
-      SnapSelectionPivotToGrid,
-      SnapEachSelectedObjectToGrid,
       SnapppingValueChanged,
     };
 
@@ -205,8 +203,13 @@ public:
 private:
   void EventHandler(const Event& e);
 
+  ezSceneDocument* m_pSceneDocument;
   float m_fSnappingValue;
   ActionType m_Type;
 
   static float s_fCurrentSnappingValue;
 };
+
+
+
+

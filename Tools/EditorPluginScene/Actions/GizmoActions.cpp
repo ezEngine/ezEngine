@@ -375,6 +375,7 @@ void ezTranslateGizmoAction::MapActions(const char* szMapping, const char* szPat
 
 ezTranslateGizmoAction::ezTranslateGizmoAction(const ezActionContext& context, const char* szName, ActionType type, float fSnappingValue) : ezButtonAction(context, szName, false, "")
 {
+  m_pSceneDocument = static_cast<ezSceneDocument*>(context.m_pDocument);
   m_Type = type;
   m_fSnappingValue = fSnappingValue;
 
@@ -417,23 +418,11 @@ void ezTranslateGizmoAction::SetCurrentSnappingValue(float f)
 void ezTranslateGizmoAction::Execute(const ezVariant& value)
 {
   if (m_Type == ActionType::SetSnappingValue)
-  {
     SetCurrentSnappingValue(m_fSnappingValue);
-  }
 
   if (m_Type == ActionType::SnapSelectionPivotToGrid)
-  {
-    Event e;
-    e.m_Type = Event::Type::SnapSelectionPivotToGrid;
-
-    s_Events.Broadcast(e);
-  }
+    m_pSceneDocument->TriggerSnapPivotToGrid();
 
   if (m_Type == ActionType::SnapEachSelectedObjectToGrid)
-  {
-    Event e;
-    e.m_Type = Event::Type::SnapEachSelectedObjectToGrid;
-
-    s_Events.Broadcast(e);
-  }
+    m_pSceneDocument->TriggerSnapEachObjectToGrid();
 }

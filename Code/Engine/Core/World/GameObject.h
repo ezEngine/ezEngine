@@ -5,6 +5,7 @@
 #include <Foundation/Math/Transform.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
 #include <Foundation/Time/Time.h>
+#include <Foundation/Types/TagSet.h>
 
 #include <Core/World/ComponentManager.h>
 #include <Core/World/GameObjectDesc.h>
@@ -219,6 +220,9 @@ public:
   void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay,
     ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
 
+  const ezTagSet& GetTags() const { return m_Tags; }
+  ezTagSet& GetTags() { return m_Tags; }
+
 private:
   friend class ezGameObjectTest;
 
@@ -254,6 +258,7 @@ private:
     void UpdateGlobalBoundsWithParent();
   };
 
+  ezTagSet m_Tags;
   ezGameObjectId m_InternalId;
   ezBitflags<ezObjectFlags> m_Flags;
   ezHashedString m_sName;

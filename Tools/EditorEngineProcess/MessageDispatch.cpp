@@ -205,7 +205,24 @@ void ezEngineProcessGameState::EventHandlerIPC(const ezProcessCommunication::Eve
 
     //ezLog::Info("Picking: GUID = %s, ID = %u", ezConversionUtils::ToString(pMsg->m_HighlightObject).GetData(), uiPickingID);
   }
+  else if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezObjectTagMsgToEngine>())
+  {
+    const ezObjectTagMsgToEngine* pMsg = static_cast<const ezObjectTagMsgToEngine*>(pDocMsg);
 
+    ezGameObjectHandle hObject = m_GameObjectMap.GetHandle(pMsg->m_ObjectGuid);
+
+    ezTag tag;
+    ezTagRegistry::GetGlobalRegistry().RegisterTag(pMsg->m_sTag, &tag);
+
+    ezGameObject* pObject;
+    if (pDocumentContext->m_pWorld->TryGetObject(hObject, pObject))
+    {
+      if (pMsg->m_bSetTag)
+        pObject->GetTags().Set(tag);
+      else
+        pObject->GetTags().Clear(tag);
+    }
+  }
 }
 
 void ezEngineProcessGameState::UpdateProperties(const ezEntityMsgToEngine* pMsg, void* pObject, const ezRTTI* pRtti)

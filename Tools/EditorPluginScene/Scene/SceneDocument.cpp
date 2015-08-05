@@ -71,6 +71,25 @@ void ezSceneDocument::TriggerFocusOnSelection()
   m_SceneEvents.Broadcast(e);
 }
 
+void ezSceneDocument::TriggerSnapPivotToGrid()
+{
+  if (GetSelectionManager()->GetSelection().IsEmpty())
+    return;
+
+  SceneEvent e;
+  e.m_Type = SceneEvent::Type::SnapSelectionPivotToGrid;
+  m_SceneEvents.Broadcast(e);
+}
+
+void ezSceneDocument::TriggerSnapEachObjectToGrid()
+{
+  if (GetSelectionManager()->GetSelection().IsEmpty())
+    return;
+
+  SceneEvent e;
+  e.m_Type = SceneEvent::Type::SnapEachSelectedObjectToGrid;
+  m_SceneEvents.Broadcast(e);
+}
 void ezSceneDocument::GroupSelection()
 {
   const auto& sel = GetSelectionManager()->GetTopLevelSelection(ezGetStaticRTTI<ezGameObject>());

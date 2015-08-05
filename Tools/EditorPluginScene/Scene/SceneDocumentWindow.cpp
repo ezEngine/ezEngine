@@ -308,8 +308,16 @@ void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEve
       m_pCameraPositionContext->MoveToTarget(vTargetPos, vDiff);
     }
     break;
-  }
 
+  case ezSceneDocument::SceneEvent::Type::SnapSelectionPivotToGrid:
+    SnapSelectionToPosition(false);
+    break;
+
+  case ezSceneDocument::SceneEvent::Type::SnapEachSelectedObjectToGrid:
+    SnapSelectionToPosition(true);
+    break;
+  
+  }
 }
 
 void ezSceneDocumentWindow::DocumentTreeEventHandler(const ezDocumentObjectStructureEvent& e)
@@ -590,13 +598,6 @@ void ezSceneDocumentWindow::TranslateGizmoEventHandler(const ezTranslateGizmoAct
     m_TranslateGizmo.SetSnappingValue(ezTranslateGizmoAction::GetCurrentSnappingValue());
     break;
 
-  case ezTranslateGizmoAction::Event::Type::SnapSelectionPivotToGrid:
-    SnapSelectionToPosition(false);
-    break;
-
-  case ezTranslateGizmoAction::Event::Type::SnapEachSelectedObjectToGrid:
-    SnapSelectionToPosition(true);
-    break;
   }
 }
 

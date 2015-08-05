@@ -34,9 +34,6 @@ public:
     return m_pPipeline;
   }
 
-  ezTagSet m_IncludeTags;
-  ezTagSet m_ExcludeTags;
-
 private:
   friend class ezRenderPipeline;
 
