@@ -53,6 +53,7 @@ void ezGameObject::operator=(const ezGameObject& other)
 
   m_InternalId = other.m_InternalId;
   m_Flags = other.m_Flags;
+  m_sName = other.m_sName;
 
   m_ParentIndex = other.m_ParentIndex;
   m_FirstChildIndex = other.m_FirstChildIndex;
@@ -62,13 +63,9 @@ void ezGameObject::operator=(const ezGameObject& other)
   m_PrevSiblingIndex = other.m_PrevSiblingIndex;
   m_ChildCount = other.m_ChildCount;
 
-  if (m_pTransformationData != other.m_pTransformationData)
-  {
-    m_uiHierarchyLevel = other.m_uiHierarchyLevel;
-    m_uiTransformationDataIndex = other.m_uiTransformationDataIndex;  
-    ezMemoryUtils::Copy(m_pTransformationData, other.m_pTransformationData, 1);
-  }
-
+  m_uiHierarchyLevel = other.m_uiHierarchyLevel;
+  m_uiTransformationDataIndex = other.m_uiTransformationDataIndex;
+  m_pTransformationData = other.m_pTransformationData;
   m_pTransformationData->m_pObject = this;
 
   m_Components = other.m_Components;
