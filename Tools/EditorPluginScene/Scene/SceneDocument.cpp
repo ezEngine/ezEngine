@@ -206,7 +206,7 @@ void ezSceneDocument::ObjectStructureEventHandler(const ezDocumentObjectStructur
     }
     break;
 
-  case ezDocumentObjectStructureEvent::Type::AfterObjectMoved:
+  case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
     {
       // read cached value, hopefully it was not invalidated in between BeforeObjectMoved and AfterObjectMoved
       ezTransform t = GetGlobalTransform(e.m_pObject);
@@ -234,6 +234,10 @@ const ezTransform& ezSceneDocument::GetGlobalTransform(const ezDocumentObjectBas
 
 void ezSceneDocument::SetGlobalTransform(const ezDocumentObjectBase* pObject, const ezTransform& t)
 {
+  auto pHistory = GetCommandHistory();
+  if (!pHistory->IsInTransaction())
+    return;
+
   const ezDocumentObjectBase* pParent = pObject->GetParent();
 
   ezTransform tLocal;
@@ -252,8 +256,6 @@ void ezSceneDocument::SetGlobalTransform(const ezDocumentObjectBase* pObject, co
   ezQuat qLocalRot;
 
   tLocal.Decompose(vLocalPos, qLocalRot, vLocalScale);
-
-  auto pHistory = GetCommandHistory();
 
   ezSetObjectPropertyCommand cmd;
   cmd.m_bEditorProperty = false;

@@ -32,6 +32,7 @@ struct ezDocumentObjectStructureEvent
     AfterObjectRemoved,
     BeforeObjectMoved,
     AfterObjectMoved,
+    AfterObjectMoved2,
   };
 
   Type m_EventType;

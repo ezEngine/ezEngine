@@ -61,6 +61,9 @@ public:
   void CancelTransaction() { EndTransaction(true); }
   void FinishTransaction() { EndTransaction(false); }
 
+  /// \brief Returns true, if between StartTransaction / EndTransaction. False during Undo/Redo.
+  bool IsInTransaction() const { return !m_TransactionStack.IsEmpty(); }
+
   void BeginTemporaryCommands();
   void CancelTemporaryCommands() { EndTemporaryCommands(true); }
   void FinishTemporaryCommands() { EndTemporaryCommands(false); }

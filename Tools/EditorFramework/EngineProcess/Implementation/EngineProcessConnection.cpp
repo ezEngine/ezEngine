@@ -278,6 +278,7 @@ void ezEditorEngineConnection::SendDocumentTreeChange(const ezDocumentObjectStru
   case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
   case ezDocumentObjectStructureEvent::Type::BeforeObjectAdded:
   case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:
+  case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
     return;
 
   default:

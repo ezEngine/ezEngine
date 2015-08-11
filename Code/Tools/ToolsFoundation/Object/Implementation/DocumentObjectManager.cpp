@@ -166,6 +166,10 @@ void ezDocumentObjectManager::MoveObject(ezDocumentObjectBase* pObject, ezDocume
 
   e.m_EventType = ezDocumentObjectStructureEvent::Type::AfterObjectMoved;
   m_StructureEvents.Broadcast(e);
+
+
+  e.m_EventType = ezDocumentObjectStructureEvent::Type::AfterObjectMoved2;
+  m_StructureEvents.Broadcast(e);
 }
 
 const ezDocumentObjectBase* ezDocumentObjectManager::GetObject(const ezUuid& guid) const
