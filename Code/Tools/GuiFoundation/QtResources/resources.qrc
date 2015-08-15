@@ -1,7 +1,7 @@
 <RCC>
   <qresource prefix="GuiFoundation">
-    <file>Icons/GroupClosed.png</file>
-    <file>Icons/GroupOpen.png</file>
+    <file>Icons/groupClosed.png</file>
+    <file>Icons/groupOpen.png</file>
     <file>Icons/GroupSelection16.png</file>
     <file>Icons/HideSelected16.png</file>
     <file>Icons/HideUnselected16.png</file>
