@@ -7,58 +7,133 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/Uuid.h>
 
+class ezDocumentObjectManager;
+
+struct ezDocumentObjectType
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    Root,
+    Object,
+    ArrayElement,
+    SetElement,
+    SubObject,
+    Default = Object
+  };
+};
+
 
 class ezEmptyProperties : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEmptyProperties);
 };
 
+
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectBase
 {
 public:
-  ezDocumentObjectBase() { m_pParent = nullptr; }
-  virtual ~ezDocumentObjectBase() { }
+  ezDocumentObjectBase()
+    : m_pDocumentObjectManager(nullptr)
+    , m_pParent(nullptr)
+    , m_bEditorProperty(false)
+  {
+  }
+  virtual ~ezDocumentObjectBase() = 0 { }
+
+  // Accessors
+  const ezUuid& GetGuid() const { return m_Guid; }
+  ezEnum<ezDocumentObjectType> GetObjectType() const { return m_ObjectType; }
+  const ezDocumentObjectManager* GetDocumentObjectManager() const { return m_pDocumentObjectManager; }
+  bool IsEditorProperty() const { return m_bEditorProperty; }
 
   virtual const ezIReflectedTypeAccessor& GetTypeAccessor() const = 0;
   virtual const ezIReflectedTypeAccessor& GetEditorTypeAccessor() const = 0;
+  ezIReflectedTypeAccessor& GetTypeAccessor();
+  ezIReflectedTypeAccessor& GetEditorTypeAccessor();
 
-  virtual ezIReflectedTypeAccessor& GetTypeAccessor();
-  virtual ezIReflectedTypeAccessor& GetEditorTypeAccessor();
+  const ezIReflectedTypeAccessor& GetParentAccessor() const;
 
+  // Ownership
   const ezDocumentObjectBase* GetParent() const { return m_pParent; }
-  const ezHybridArray<ezDocumentObjectBase*, 8>& GetChildren() const { return m_Children; }
-  ezUInt32 GetChildIndex(ezDocumentObjectBase* pChild) const;
 
-  const ezUuid& GetGuid() const { return m_Guid; }
+  virtual void InsertSubObject(ezDocumentObjectBase* pObject, const char* szProperty, const ezVariant& index, bool bEditorProperty);
+  virtual void RemoveSubObject(ezDocumentObjectBase* pObject);
 
+  // Helper
   void ComputeObjectHash(ezUInt64& uiHash) const;
+  const ezHybridArray<ezDocumentObjectBase*, 8>& GetChildren() const { return m_Children; }
+  const char* GetParentProperty() const { return m_sParentProperty; }
+  ezVariant GetPropertyIndex() const;
 
 private:
   friend class ezDocumentObjectManager;
-  friend class ezDocumentObjectManager;
-
   void HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezRTTI* pType, ezPropertyPath& path) const;
+  ezUInt32 GetChildIndex(ezDocumentObjectBase* pChild) const;
 
+protected:
   ezUuid m_Guid;
+  ezEnum<ezDocumentObjectType> m_ObjectType;
+  const ezDocumentObjectManager* m_pDocumentObjectManager;
+
   ezDocumentObjectBase* m_pParent;
-  ezHybridArray<ezDocumentObjectBase*, 8> m_Children; /// \todo This is not compacted on plugin unload, so this will report a memory leak, when the static size is exceeded
+  ezHybridArray<ezDocumentObjectBase*, 8> m_Children;
+
+  // Sub object data
+  ezString m_sParentProperty;
+  bool m_bEditorProperty;
 };
 
+class EZ_TOOLSFOUNDATION_DLL ezDocumentObject : public ezDocumentObjectBase
+{
+public:
+  ezDocumentObject(const ezRTTI* pEditor, const ezRTTI* pObject)
+    : ezDocumentObjectBase()
+    , m_EditorPropertiesAccessor(pEditor, this)
+    , m_ObjectPropertiesAccessor(pObject, this)
+  {
+    m_ObjectType = ezDocumentObjectType::Object;
+  }
+  virtual ~ezDocumentObject() { }
 
-class EZ_TOOLSFOUNDATION_DLL ezDocumentSubObject : ezDocumentObjectBase
+  virtual const ezIReflectedTypeAccessor& GetTypeAccessor() const override { return m_ObjectPropertiesAccessor; }
+  virtual const ezIReflectedTypeAccessor& GetEditorTypeAccessor() const override { return m_EditorPropertiesAccessor; }
+
+protected:
+  ezReflectedTypeStorageAccessor m_EditorPropertiesAccessor;
+  ezReflectedTypeStorageAccessor m_ObjectPropertiesAccessor;
+};
+
+class EZ_TOOLSFOUNDATION_DLL ezDocumentSubElementObject : public ezDocumentObjectBase
+{
+public:
+  ezDocumentSubElementObject(const ezRTTI* pRtti, ezEnum<ezDocumentObjectType> type)
+    : ezDocumentObjectBase()
+    , m_Accessor(pRtti, this)
+  {
+    m_ObjectType = type;
+  }
+
+  virtual const ezIReflectedTypeAccessor& GetTypeAccessor() const override { EZ_ASSERT_DEV(!m_bEditorProperty, ""); return m_Accessor; }
+  virtual const ezIReflectedTypeAccessor& GetEditorTypeAccessor() const override { EZ_ASSERT_DEV(m_bEditorProperty, ""); return m_Accessor; }
+
+public:
+  ezReflectedTypeStorageAccessor m_Accessor;
+};
+
+class EZ_TOOLSFOUNDATION_DLL ezDocumentSubObject : public ezDocumentObjectBase
 {
 public:
   ezDocumentSubObject(const ezRTTI* pRtti);
-  void SetObject(ezDocumentObjectBase* pOwnerObject, const ezPropertyPath& subPath);
+  void SetObject(ezDocumentObjectBase* pOwnerObject, const ezPropertyPath& subPath, bool bEditorProperty);
 
-  virtual const ezIReflectedTypeAccessor& GetTypeAccessor() const override { return m_TypeAccessor; }
-  virtual const ezIReflectedTypeAccessor& GetEditorTypeAccessor() const override { return m_EditorTypeAccessor; }
+  virtual const ezIReflectedTypeAccessor& GetTypeAccessor() const override { EZ_ASSERT_DEV(!m_bEditorProperty, ""); return m_Accessor; }
+  virtual const ezIReflectedTypeAccessor& GetEditorTypeAccessor() const override { EZ_ASSERT_DEV(m_bEditorProperty, ""); return m_Accessor; }
 
 public:
-  ezReflectedTypeSubObjectAccessor m_TypeAccessor;
-  ezReflectedTypeSubObjectAccessor m_EditorTypeAccessor;
+  ezReflectedTypeSubObjectAccessor m_Accessor;
   ezPropertyPath m_SubPath;
-  ezDocumentObjectBase* m_pOwnerObject;
 };
 
 
@@ -67,9 +142,10 @@ class ezDocumentObjectDirectMember : public ezDocumentObjectBase
 {
 public:
   ezDocumentObjectDirectMember() :
-    m_ObjectPropertiesAccessor(&m_MemberProperties, ezGetStaticRTTI<DirectMemberProperties>()),
-    m_EditorPropertiesAccessor(&m_EditorProperties, ezGetStaticRTTI<EditorProperties>())
+    m_ObjectPropertiesAccessor(&m_MemberProperties, ezGetStaticRTTI<DirectMemberProperties>(), this),
+    m_EditorPropertiesAccessor(&m_EditorProperties, ezGetStaticRTTI<EditorProperties>(), this)
   {
+    m_ObjectType = ezDocumentObjectType::Object;
   }
 
   virtual ~ezDocumentObjectDirectMember()
@@ -87,59 +163,3 @@ private:
   ezReflectedTypeDirectAccessor m_ObjectPropertiesAccessor;
   ezReflectedTypeDirectAccessor m_EditorPropertiesAccessor;
 };
-
-
-template<typename EditorProperties>
-class ezDocumentObjectDirectPtr : public ezDocumentObjectBase
-{
-public:
-  ezDocumentObjectDirectPtr(ezReflectedClass* pObjectProperties) :
-    m_pObjectProperties(pObjectProperties),
-    m_ObjectPropertiesAccessor(pObjectProperties),
-    m_EditorPropertiesAccessor(&m_EditorProperties)
-  {
-  }
-
-  virtual ~ezDocumentObjectDirectPtr()
-  {
-    EZ_ASSERT_DEV(m_pObjectProperties == nullptr, "Object has not been destroyed.");
-  }
-
-  virtual const ezIReflectedTypeAccessor& GetTypeAccessor()       const override { return m_ObjectPropertiesAccessor; }
-  virtual const ezIReflectedTypeAccessor& GetEditorTypeAccessor() const override { return m_EditorPropertiesAccessor; }
-
-public:
-  ezReflectedClass* m_pObjectProperties;
-
-private:
-  EditorProperties m_EditorProperties;
-
-  ezReflectedTypeDirectAccessor m_ObjectPropertiesAccessor;
-  ezReflectedTypeDirectAccessor m_EditorPropertiesAccessor;
-};
-
-
-template<typename EditorProperties>
-class ezDocumentObjectStorage : public ezDocumentObjectBase
-{
-public:
-  ezDocumentObjectStorage(const ezRTTI* pType) :
-    m_ObjectPropertiesAccessor(pType),
-    m_EditorPropertiesAccessor(&m_EditorProperties)
-  {
-  }
-
-  virtual const ezIReflectedTypeAccessor& GetTypeAccessor()       const override { return m_ObjectPropertiesAccessor; }
-  virtual const ezIReflectedTypeAccessor& GetEditorTypeAccessor() const override { return m_EditorPropertiesAccessor; }
-
-public:
-  EditorProperties m_EditorProperties;
-
-private:
-  ezReflectedTypeStorageAccessor m_ObjectPropertiesAccessor;
-  ezReflectedTypeDirectAccessor m_EditorPropertiesAccessor;
-};
-
-
-
-

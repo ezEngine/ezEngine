@@ -4,9 +4,9 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <QKeyEvent>
 
-ezRawDocumentTreeWidget::ezRawDocumentTreeWidget(QWidget* pParent, ezDocumentBase* pDocument) : 
+ezRawDocumentTreeWidget::ezRawDocumentTreeWidget(QWidget* pParent, ezDocumentBase* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty) :
   QTreeView(pParent),
-  m_Model(pDocument->GetObjectManager()),
+  m_Model(pDocument->GetObjectManager(), pBaseClass, szChildProperty),
   m_pDocument(pDocument)
 {
   m_bBlockSelectionSignal = false;

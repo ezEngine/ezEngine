@@ -7,7 +7,7 @@
 class EZ_EDITORFRAMEWORK_DLL ezRawDocumentTreeModel : public QAbstractItemModel
 {
 public:
-  ezRawDocumentTreeModel(const ezDocumentObjectManager* pTree);
+  ezRawDocumentTreeModel(const ezDocumentObjectManager* pTree, const ezRTTI* pBaseClass, const char* szChildProperty);
   ~ezRawDocumentTreeModel();
 
   const ezDocumentObjectManager* GetDocumentTree() const { return m_pDocumentTree; }
@@ -37,7 +37,10 @@ private:
   void TreeEventHandler(const ezDocumentObjectStructureEvent& e);
   void TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 
+private:
   const ezDocumentObjectManager* m_pDocumentTree;
-
+  const ezRTTI* m_pBaseClass;
+  ezString m_sChildProperty;
+  ezPropertyPath m_PropertyPath;
 };
 

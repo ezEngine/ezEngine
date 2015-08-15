@@ -52,7 +52,7 @@ void ezToolBarActionMapView::CreateView()
   }
 }
 
-void ezToolBarActionMapView::CreateView(ezDocumentObjectBase* pObject)
+void ezToolBarActionMapView::CreateView(const ezActionMap::TreeNode* pObject)
 {
   for (auto pChild : pObject->GetChildren())
   {

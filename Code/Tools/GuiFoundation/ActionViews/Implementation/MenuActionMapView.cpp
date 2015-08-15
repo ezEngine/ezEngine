@@ -32,7 +32,7 @@ void ezMenuActionMapView::ClearView()
   m_Proxies.Clear();
 }
 
-void ezMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedPointer<ezQtProxy>>& Proxies, ezActionContext& Context, ezActionMap* pActionMap, QMenu* pCurrentRoot, ezDocumentObjectBase* pObject, QWidget* pActionParent)
+void ezMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedPointer<ezQtProxy>>& Proxies, ezActionContext& Context, ezActionMap* pActionMap, QMenu* pCurrentRoot, const ezActionMap::TreeNode* pObject, QWidget* pActionParent)
 {
   if (pObject == nullptr)
     return;

@@ -46,7 +46,7 @@ ezDocumentBase::~ezDocumentBase()
 {
   m_SelectionManager.SetOwner(nullptr);
 
-  m_pObjectManager->DestroyAllObjects(GetObjectManager());
+  m_pObjectManager->DestroyAllObjects();
 
   m_CommandHistory.ClearRedoHistory();
   m_CommandHistory.ClearUndoHistory();
@@ -148,6 +148,8 @@ void ezDocumentBase::EnsureVisible()
 
 ezStatus ezDocumentBase::InternalSaveDocument()
 {
+  /*
+  // TODO: BLA
   ezFileWriter file;
   if (file.Open(m_sDocumentPath) == EZ_FAILURE)
   {
@@ -161,7 +163,7 @@ ezStatus ezDocumentBase::InternalSaveDocument()
     const ezRTTI* pRtti = ezRTTI::FindTypeByName(m_pDocumentInfo->GetDynamicRTTI()->GetTypeName());
     EZ_ASSERT_DEV(pRtti != nullptr, "Need to register ezDocumentInfo at the ezPhantomRttiManager first!");
 
-    ezReflectedTypeDirectAccessor acc(m_pDocumentInfo);
+    ezReflectedTypeDirectAccessor acc(m_pDocumentInfo, nullptr);
     ezSerializedTypeAccessorObjectWriter objectWriter(&acc);
     writer.WriteObject(objectWriter);
   }
@@ -180,11 +182,14 @@ ezStatus ezDocumentBase::InternalSaveDocument()
   }
   writer.EndGroup();
   writer.EndDocument();
+  */
   return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezDocumentBase::InternalLoadDocument()
 {
+  /*
+  // TODO: BLA
   ezFileReader file;
   if (file.Open(m_sDocumentPath) == EZ_FAILURE)
   {
@@ -205,7 +210,7 @@ ezStatus ezDocumentBase::InternalLoadDocument()
         const ezRTTI* pRtti = ezRTTI::FindTypeByName(m_pDocumentInfo->GetDynamicRTTI()->GetTypeName());
         EZ_ASSERT_DEV(pRtti != nullptr, "Need to register ezDocumentInfo at the ezPhantomRttiManager first!");
 
-        ezReflectedTypeDirectAccessor acc(m_pDocumentInfo);
+        ezReflectedTypeDirectAccessor acc(m_pDocumentInfo, nullptr);
         ezSerializedTypeAccessorObjectReader objectReader(&acc);
         reader.ReadObject(objectReader);
       }
@@ -250,8 +255,9 @@ ezStatus ezDocumentBase::InternalLoadDocument()
       }
       
     }
+    
   }
-
+*/
   SetModified(false);
   return ezStatus(EZ_SUCCESS);
 }

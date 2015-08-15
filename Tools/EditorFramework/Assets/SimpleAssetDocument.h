@@ -35,7 +35,7 @@ protected:
 
   virtual ezStatus InternalLoadDocument() override
   {
-    GetObjectManager()->DestroyAllObjects(GetObjectManager());
+    GetObjectManager()->DestroyAllObjects();
 
     ezStatus ret = ezAssetDocument::InternalLoadDocument();
 
@@ -51,7 +51,7 @@ private:
     if (pRoot->GetChildren().IsEmpty())
     {
       AssetObjectType* pObject = static_cast<AssetObjectType*>(GetObjectManager()->CreateObject(ezRTTI::FindTypeByName(ezGetStaticRTTI<PropertyType>()->GetTypeName())));
-      GetObjectManager()->AddObject(pObject, pRoot);
+      GetObjectManager()->AddObject(pObject, pRoot, "RootObjects", 0);
     }
   }
 
@@ -84,8 +84,4 @@ private:
   {
     EZ_DEFAULT_DELETE(pObject);
   }
-
-  virtual bool InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent) const override { return true; }
-  virtual bool InternalCanRemove(const ezDocumentObjectBase* pObject) const override { return true; }
-  virtual bool InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex) const override { return false; }
 };

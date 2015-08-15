@@ -67,11 +67,14 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEntityMsgToEngine, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezEntityMsgToEngine> );
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("MsgType", m_iMsgType),
-    EZ_MEMBER_PROPERTY("NewChildIndex", m_uiNewChildIndex),
     EZ_MEMBER_PROPERTY("ObjectGuid", m_ObjectGuid),
     EZ_MEMBER_PROPERTY("PreviousParentGuid", m_PreviousParentGuid),
     EZ_MEMBER_PROPERTY("NewParentGuid", m_NewParentGuid),
     EZ_MEMBER_PROPERTY("ObjectType", m_sObjectType),
+    EZ_MEMBER_PROPERTY("ParentProperty", m_sParentProperty),
+    EZ_MEMBER_PROPERTY("PropertyIndex", m_PropertyIndex),
+    EZ_MEMBER_PROPERTY("EditorProperty", m_bEditorProperty),
+
     EZ_MEMBER_PROPERTY("ObjectData", m_sObjectData),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();

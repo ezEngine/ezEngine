@@ -35,12 +35,14 @@ ezRawPropertyGridWidget::ezRawPropertyGridWidget(ezDocumentBase* pDocument, QWid
 
   m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::SelectionEventHandler, this));
   m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::PropertyEventHandler, this));
+  m_pDocument->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::StructureEventHandler, this));
 }
 
 ezRawPropertyGridWidget::~ezRawPropertyGridWidget()
 {
   m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::SelectionEventHandler, this));
   m_pDocument->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::PropertyEventHandler, this));
+  m_pDocument->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::StructureEventHandler, this));
 }
 
 void ezRawPropertyGridWidget::SelectionEventHandler(const ezSelectionManager::Event& e)
@@ -72,37 +74,50 @@ void ezRawPropertyGridWidget::PropertyEventHandler(const ezDocumentObjectPropert
   m_pRawPropertyWidget[e.m_bEditorProperty ? 0 : 1]->ChangePropertyValue(e.m_sPropertyPath, e.m_NewValue);
 }
 
-void ezRawPropertyGridWidget::PropertyChangedHandler(const ezPropertyEditorBaseWidget::Event& ed, bool bEditor)
+void ezRawPropertyGridWidget::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
+{
+  switch (e.m_EventType)
+  {
+  case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
+  case ezDocumentObjectStructureEvent::Type::AfterObjectMoved:
+  case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+    SetSelection(m_pDocument->GetSelectionManager()->GetSelection());
+    break;
+  }
+}
+
+void ezRawPropertyGridWidget::PropertyChangedHandler(const ezPropertyEditorBaseWidget::Event& ed)
 {
   switch (ed.m_Type)
   {
   case  ezPropertyEditorBaseWidget::Event::Type::ValueChanged:
     {
       ezSetObjectPropertyCommand cmd;
-      cmd.m_bEditorProperty = bEditor;
-      cmd.m_Object = m_Selection[0]->GetGuid(); // TODO: Multi selection
+      cmd.m_bEditorProperty = ed.m_bEditorProperties;
       cmd.m_NewValue = ed.m_Value;
       cmd.SetPropertyPath(ed.m_pPropertyPath->GetPathString());
 
-
       m_pDocument->GetCommandHistory()->StartTransaction();
-      ezStatus res = m_pDocument->GetCommandHistory()->AddCommand(cmd);
+
+      ezStatus res;
+
+      for (const auto& sel : *ed.m_pItems)
+      {
+        cmd.m_Object = sel.m_pObject->GetGuid();
+
+        res = m_pDocument->GetCommandHistory()->AddCommand(cmd);
+
+        if (res.m_Result.Failed())
+          break;
+      }
+
+      if (res.m_Result.Failed())
+        m_pDocument->GetCommandHistory()->CancelTransaction();
+      else
+        m_pDocument->GetCommandHistory()->FinishTransaction();
 
       ezUIServices::GetInstance()->MessageBoxStatus(res, "Changing the property failed.");
 
-      if (res.m_Result.Failed())
-      {
-        m_pDocument->GetCommandHistory()->CancelTransaction();
-
-        // reset the UI to the old value
-
-        const ezIReflectedTypeAccessor& accessor = bEditor ? m_Selection[0]->GetEditorTypeAccessor() : m_Selection[0]->GetTypeAccessor();
-        const ezVariant OldValue = accessor.GetValue(cmd.GetPropertyPath());
-
-        m_pRawPropertyWidget[bEditor ? 0 : 1]->ChangePropertyValue(cmd.GetPropertyPath(), OldValue);
-      }
-      else
-        m_pDocument->GetCommandHistory()->FinishTransaction();
     }
     break;
 
@@ -127,16 +142,6 @@ void ezRawPropertyGridWidget::PropertyChangedHandler(const ezPropertyEditorBaseW
   }
 
   /// \todo ..asdfsdf (not sure what this means, though)
-}
-
-void ezRawPropertyGridWidget::EditorPropertyChangedHandler(const ezPropertyEditorBaseWidget::Event& ed)
-{
-  PropertyChangedHandler(ed, true);
-}
-
-void ezRawPropertyGridWidget::ObjectPropertyChangedHandler(const ezPropertyEditorBaseWidget::Event& ed)
-{
-  PropertyChangedHandler(ed, false);
 }
 
 void ezRawPropertyGridWidget::ClearSelection()
@@ -180,16 +185,29 @@ void ezRawPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObjectB
     m_pLayout->addWidget(m_pGroups[0]);
     m_pLayout->addWidget(m_pGroups[1]);
 
-    QVBoxLayout* pLayout0 = new QVBoxLayout(m_pGroups[0]);
+    QVBoxLayout* pLayout0 = new QVBoxLayout();
     pLayout0->setSpacing(1);
-    m_pGroups[0]->setLayout(pLayout0);
+    pLayout0->setContentsMargins(5, 0, 0, 0);
+    m_pGroups[0]->setInnerLayout(pLayout0);
 
-    QVBoxLayout* pLayout1 = new QVBoxLayout(m_pGroups[1]);
+    QVBoxLayout* pLayout1 = new QVBoxLayout();
     pLayout1->setSpacing(1);
-    m_pGroups[1]->setLayout(pLayout1);
+    pLayout1->setContentsMargins(5, 0, 0, 0);
+    m_pGroups[1]->setInnerLayout(pLayout1);
 
-    m_pRawPropertyWidget[0] = new ezRawPropertyWidget(m_pGroups[0], m_Selection[0]->GetEditorTypeAccessor());
-    m_pRawPropertyWidget[1] = new ezRawPropertyWidget(m_pGroups[1], m_Selection[0]->GetTypeAccessor());
+    ezHybridArray<ezPropertyEditorBaseWidget::Selection, 8> Items;
+    Items.Reserve(m_Selection.GetCount());
+
+    for (const auto* sel : m_Selection)
+    {
+      ezPropertyEditorBaseWidget::Selection s;
+      s.m_pObject = sel;
+
+      Items.PushBack(s);
+    }
+
+    m_pRawPropertyWidget[0] = new ezRawPropertyWidget(m_pGroups[0], Items, true);
+    m_pRawPropertyWidget[1] = new ezRawPropertyWidget(m_pGroups[1], Items, false);
 
     pLayout0->addWidget(m_pRawPropertyWidget[0]);
     pLayout1->addWidget(m_pRawPropertyWidget[1]);
@@ -198,8 +216,8 @@ void ezRawPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObjectB
   }
 
    // TODO: Multi selection
-  m_pRawPropertyWidget[1]->m_PropertyChanged.AddEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::ObjectPropertyChangedHandler, this));
-  m_pRawPropertyWidget[0]->m_PropertyChanged.AddEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::EditorPropertyChangedHandler, this));
+  m_pRawPropertyWidget[1]->m_PropertyChanged.AddEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::PropertyChangedHandler, this));
+  m_pRawPropertyWidget[0]->m_PropertyChanged.AddEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::PropertyChangedHandler, this));
 
   m_pSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
   

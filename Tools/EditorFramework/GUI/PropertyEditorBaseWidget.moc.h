@@ -10,7 +10,7 @@
 
 class QCheckBox;
 class QDoubleSpinBox;
-class QSpinBox;
+class QSpinBox; 
 class QLabel;
 class QHBoxLayout;
 class QLineEdit;
@@ -20,15 +20,23 @@ class QStandardItemModel;
 class QStandardItem;
 class QToolButton;
 class QMenu;
+class ezDocumentObjectBase;
 /// *** BASE ***
 
 class EZ_EDITORFRAMEWORK_DLL ezPropertyEditorBaseWidget : public QWidget
 {
 public:
-  ezPropertyEditorBaseWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent);
+  ezPropertyEditorBaseWidget(const char* szName, QWidget* pParent);
   virtual ~ezPropertyEditorBaseWidget();
 
-  void SetValue(const ezVariant& value);
+  struct Selection
+  {
+    const ezDocumentObjectBase* m_pObject;
+    ezVariant m_Index;
+  };
+
+  void Init(const ezHybridArray<Selection, 8>& items, const ezPropertyPath& path, bool bEditorProperties);
+
 
 public:
   virtual void InternalSetValue(const ezVariant& value) = 0;
@@ -45,7 +53,9 @@ public:
 
     Type m_Type;
     const ezPropertyPath* m_pPropertyPath;
+    const ezHybridArray<Selection, 8>* m_pItems;
     ezVariant m_Value;
+    bool m_bEditorProperties;
   };
 
   ezEvent<const Event&> m_Events;
@@ -54,8 +64,12 @@ protected:
   void Broadcast(Event::Type type);
   void BroadcastValueChanged(const ezVariant& NewValue);
 
+  virtual void OnInit() {}
+
   const char* m_szDisplayName;
   ezPropertyPath m_PropertyPath;
+  ezHybridArray<Selection, 8> m_Items;
+  bool m_bEditorProperties;
 
 private:
   ezVariant m_OldValue;
@@ -70,7 +84,7 @@ class EZ_EDITORFRAMEWORK_DLL ezPropertyEditorCheckboxWidget : public ezPropertyE
   Q_OBJECT
 
 public:
-  ezPropertyEditorCheckboxWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent);
+  ezPropertyEditorCheckboxWidget(const char* szName, QWidget* pParent);
 
   virtual void mousePressEvent(QMouseEvent * ev) override;
 
@@ -95,7 +109,7 @@ class EZ_EDITORFRAMEWORK_DLL ezPropertyEditorDoubleSpinboxWidget : public ezProp
   Q_OBJECT
 
 public:
-  ezPropertyEditorDoubleSpinboxWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, ezInt8 iNumComponents);
+  ezPropertyEditorDoubleSpinboxWidget(const char* szName, QWidget* pParent, ezInt8 iNumComponents);
 
 private slots:
   void on_EditingFinished_triggered();
@@ -118,7 +132,7 @@ class EZ_EDITORFRAMEWORK_DLL ezPropertyEditorIntSpinboxWidget : public ezPropert
   Q_OBJECT
 
 public:
-  ezPropertyEditorIntSpinboxWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, ezInt32 iMinValue, ezInt32 iMaxValue);
+  ezPropertyEditorIntSpinboxWidget(const char* szName, QWidget* pParent, ezInt32 iMinValue, ezInt32 iMaxValue);
 
 private slots:
   void SlotValueChanged();
@@ -140,7 +154,7 @@ class EZ_EDITORFRAMEWORK_DLL ezPropertyEditorQuaternionWidget : public ezPropert
   Q_OBJECT
 
 public:
-  ezPropertyEditorQuaternionWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent);
+  ezPropertyEditorQuaternionWidget(const char* szName, QWidget* pParent);
 
 private slots:
   void on_EditingFinished_triggered();
@@ -163,7 +177,7 @@ class EZ_EDITORFRAMEWORK_DLL ezPropertyEditorLineEditWidget : public ezPropertyE
   Q_OBJECT
 
 public:
-  ezPropertyEditorLineEditWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent);
+  ezPropertyEditorLineEditWidget(const char* szName, QWidget* pParent);
 
 private slots:
   void on_TextChanged_triggered(const QString& value);
@@ -187,7 +201,7 @@ class EZ_EDITORFRAMEWORK_DLL ezPropertyEditorColorWidget : public ezPropertyEdit
   Q_OBJECT
 
 public:
-  ezPropertyEditorColorWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent);
+  ezPropertyEditorColorWidget(const char* szName, QWidget* pParent);
 
 private slots:
   void on_Button_triggered();
@@ -212,7 +226,7 @@ class EZ_EDITORFRAMEWORK_DLL ezPropertyEditorEnumWidget : public ezPropertyEdito
   Q_OBJECT
 
 public:
-  ezPropertyEditorEnumWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, const ezRTTI* enumType);
+  ezPropertyEditorEnumWidget(const char* szName, QWidget* pParent, const ezRTTI* enumType);
 
 private slots:
   void on_CurrentEnum_changed(int iEnum);
@@ -234,7 +248,7 @@ class EZ_EDITORFRAMEWORK_DLL ezPropertyEditorBitflagsWidget : public ezPropertyE
   Q_OBJECT
 
 public:
-  ezPropertyEditorBitflagsWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, const ezRTTI* enumType);
+  ezPropertyEditorBitflagsWidget(const char* szName, QWidget* pParent, const ezRTTI* enumType);
   virtual ~ezPropertyEditorBitflagsWidget();
 
 private slots:

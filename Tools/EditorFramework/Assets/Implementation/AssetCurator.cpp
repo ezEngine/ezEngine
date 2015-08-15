@@ -510,7 +510,7 @@ void ezAssetCurator::ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamR
         const ezRTTI* pRtti = ezRTTI::FindTypeByName(pInfo->GetDynamicRTTI()->GetTypeName());
         EZ_ASSERT_DEV(pRtti != nullptr, "Need to register ezDocumentInfo at the ezPhantomRttiManager first!");
 
-        ezReflectedTypeDirectAccessor acc(pInfo);
+        ezReflectedTypeDirectAccessor acc(pInfo, nullptr);
         ezSerializedTypeAccessorObjectReader objectReader(&acc);
         reader.ReadObject(objectReader);
       }

@@ -9,15 +9,21 @@
 #include <QMimeData>
 #include <QMessageBox>
 
-ezRawDocumentTreeModel::ezRawDocumentTreeModel(const ezDocumentObjectManager* pTree) :
+ezRawDocumentTreeModel::ezRawDocumentTreeModel(const ezDocumentObjectManager* pTree, const ezRTTI* pBaseClass, const char* szChildProperty) :
   QAbstractItemModel(nullptr)
 {
   m_pDocumentTree = pTree;
+  m_pBaseClass = pBaseClass;
+  m_sChildProperty = szChildProperty;
+  m_PropertyPath = szChildProperty;
+  auto pProp = m_pBaseClass->FindPropertyByName(m_sChildProperty);
+  EZ_ASSERT_DEV(pProp != nullptr && (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set),
+    "The visualized object property tree must either be a set or array!");
+  EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner),
+    "The visualized object must have ownership of the property objects!");
 
   m_pDocumentTree->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezRawDocumentTreeModel::TreeEventHandler, this));
   m_pDocumentTree->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezRawDocumentTreeModel::TreePropertyEventHandler, this));
-
-  
 }
 
 ezRawDocumentTreeModel::~ezRawDocumentTreeModel()
@@ -42,11 +48,18 @@ void ezRawDocumentTreeModel::TreePropertyEventHandler(const ezDocumentObjectProp
 
 void ezRawDocumentTreeModel::TreeEventHandler(const ezDocumentObjectStructureEvent& e)
 {
+  if (!e.m_pObject->GetTypeAccessor().GetType()->IsDerivedFrom(m_pBaseClass))
+    return;
+  if (!e.m_sParentProperty.IsEqual(m_sChildProperty) && !e.m_sParentProperty.IsEqual("RootObjects"))
+    return;
+
+  // TODO: BLA root object could have other objects instead of m_pBaseClass, in which case indices are broken on root.
+
   switch (e.m_EventType)
   {
   case ezDocumentObjectStructureEvent::Type::BeforeObjectAdded:
     {
-      ezInt32 iIndex = (ezInt32)e.m_uiNewChildIndex;
+      ezInt32 iIndex = (ezInt32)e.m_PropertyIndex.ConvertTo<ezInt32>();
       if (e.m_pNewParent == m_pDocumentTree->GetRootObject())
         beginInsertRows(QModelIndex(), iIndex, iIndex);
       else
@@ -72,8 +85,9 @@ void ezRawDocumentTreeModel::TreeEventHandler(const ezDocumentObjectStructureEve
     break;
   case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:
     {
+      ezInt32 iNewIndex = (ezInt32)e.m_PropertyIndex.ConvertTo<ezInt32>();
       ezInt32 iIndex = ComputeIndex(e.m_pObject);
-      beginMoveRows(ComputeModelIndex(e.m_pPreviousParent), iIndex, iIndex, ComputeModelIndex(e.m_pNewParent), e.m_uiNewChildIndex);
+      beginMoveRows(ComputeModelIndex(e.m_pPreviousParent), iIndex, iIndex, ComputeModelIndex(e.m_pNewParent), iNewIndex);
     }
     break;
   case ezDocumentObjectStructureEvent::Type::AfterObjectMoved:
@@ -91,21 +105,26 @@ QModelIndex ezRawDocumentTreeModel::index(int row, int column, const QModelIndex
     if (m_pDocumentTree->GetRootObject()->GetChildren().IsEmpty())
       return QModelIndex();
 
-    ezDocumentObjectBase* pObject = m_pDocumentTree->GetRootObject()->GetChildren()[row];
-    return createIndex(row, column, pObject);
+    ezVariant value = m_pDocumentTree->GetRootObject()->GetTypeAccessor().GetValue("RootObjects", row);
+    EZ_ASSERT_DEV(value.IsValid() && value.IsA<ezUuid>(), "Tree corruption!");
+
+    const ezDocumentObjectBase* pObject = m_pDocumentTree->GetObject(value.Get<ezUuid>());
+    return createIndex(row, column, const_cast<ezDocumentObjectBase*>(pObject));
   }
 
   const ezDocumentObjectBase* pParent = (const ezDocumentObjectBase*) parent.internalPointer();
+  ezVariant value = pParent->GetTypeAccessor().GetValue(m_PropertyPath, row);
+  EZ_ASSERT_DEV(value.IsValid() && value.IsA<ezUuid>(), "Tree corruption!");
+  const ezDocumentObjectBase* pChild = m_pDocumentTree->GetObject(value.Get<ezUuid>());
 
-  return createIndex(row, column, pParent->GetChildren()[row]);
+  return createIndex(row, column, const_cast<ezDocumentObjectBase*>(pChild));
 }
 
 ezInt32 ezRawDocumentTreeModel::ComputeIndex(const ezDocumentObjectBase* pObject) const
 {
   const ezDocumentObjectBase* pParent = pObject->GetParent();
-
-  ezInt32 iIndex = pParent->GetChildren().IndexOf((ezDocumentObjectBase*) pObject);
-
+ 
+  ezInt32 iIndex = pObject->GetPropertyIndex().ConvertTo<ezInt32>();
   return iIndex;
 }
 
@@ -126,7 +145,7 @@ QModelIndex ezRawDocumentTreeModel::ComputeParent(const ezDocumentObjectBase* pO
 
   ezInt32 iIndex = ComputeIndex(pParent);
 
-  return createIndex(iIndex, 0, (ezDocumentObjectBase*) pParent);
+  return createIndex(iIndex, 0, const_cast<ezDocumentObjectBase*>(pParent));
 }
 
 QModelIndex ezRawDocumentTreeModel::parent(const QModelIndex& child) const
@@ -142,13 +161,13 @@ int ezRawDocumentTreeModel::rowCount(const QModelIndex& parent) const
 
   if (!parent.isValid())
   {
-    iCount = m_pDocumentTree->GetRootObject()->GetChildren().GetCount();
+    iCount = m_pDocumentTree->GetRootObject()->GetTypeAccessor().GetCount("RootObjects");
   }
   else
   {
     const ezDocumentObjectBase* pObject = (const ezDocumentObjectBase*) parent.internalPointer();
   
-    iCount = pObject->GetChildren().GetCount();
+    iCount = pObject->GetTypeAccessor().GetCount(m_PropertyPath);
   }
 
   return iCount;
@@ -257,10 +276,13 @@ bool ezRawDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction 
     {
       ezMoveObjectCommand cmd;
       cmd.m_Object = Dragged[i]->GetGuid();
-      cmd.m_iNewChildIndex = row;
+      cmd.m_sParentProperty = m_sChildProperty;
+      cmd.m_Index = row;
 
       if (pNewParent)
         cmd.m_NewParent = pNewParent->GetGuid();
+      else
+        cmd.m_sParentProperty = "RootObjects";
 
       pHistory->AddCommand(cmd);
     }
@@ -279,7 +301,8 @@ bool ezRawDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction 
 
     ezAddObjectCommand cmd;
     cmd.SetType(typeName.toUtf8().data());
-    cmd.m_iChildIndex = row;
+    cmd.m_sParentProperty = m_sChildProperty;
+    cmd.m_Index = row;
 
     if (parent.isValid())
       cmd.m_Parent = ((ezDocumentObjectBase*) parent.internalPointer())->GetGuid();

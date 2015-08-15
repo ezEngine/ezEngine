@@ -22,7 +22,7 @@ public:
 
   void SetActionContext(const ezActionContext& context);
 
-  static void AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedPointer<ezQtProxy>>& Proxies, ezActionContext& Context, ezActionMap* pActionMap, QMenu* pCurrentRoot, ezDocumentObjectBase* pObject, QWidget* pActionParent);
+  static void AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedPointer<ezQtProxy>>& Proxies, ezActionContext& Context, ezActionMap* pActionMap, QMenu* pCurrentRoot, const ezActionMap::TreeNode* pObject, QWidget* pActionParent);
 
 private:
   void TreeEventHandler(const ezDocumentObjectStructureEvent& e);

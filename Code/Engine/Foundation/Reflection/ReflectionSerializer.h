@@ -10,6 +10,10 @@ class EZ_FOUNDATION_DLL ezReflectionSerializer
 public:
   ezReflectionSerializer(ezReflectionAdapter* pAdapter);
 
+  bool GetSerializeOwnerPtrs() const { return m_bSerializeOwnerPtrs; }
+  void SetSerializeOwnerPtrs(bool bSerialize) { m_bSerializeOwnerPtrs = bSerialize; }
+
+
   void WritePropertyToJSON(ezJSONWriter& writer, const ezReflectedPropertyWrapper& prop, const ezReflectedObjectWrapper& object);
   void ReadPropertyFromJSON(const ezVariantDictionary& prop, ezReflectedObjectWrapper& object);
 
@@ -32,7 +36,7 @@ public:
   /// or might also be read by humans.
   ///
   /// Read-only properties are not written out, as they cannot be restored anyway.
-  static void WriteObjectToJSON(ezStreamWriterBase& stream, const ezRTTI* pRtti, const void* pObject, ezJSONWriter::WhitespaceMode::Enum = ezJSONWriter::WhitespaceMode::NewlinesOnly);
+  static void WriteObjectToJSON(ezStreamWriterBase& stream, const ezRTTI* pRtti, const void* pObject, ezJSONWriter::WhitespaceMode = ezJSONWriter::WhitespaceMode::NewlinesOnly);
 
   /// \brief Reads the entire JSON data in the stream and restores a reflected object.
   ///
@@ -56,4 +60,5 @@ private:
   ezReflectionAdapter* m_pAdapter;
   ezReflectedSerializationContext* m_pContext;
   bool m_bSerializeReadOnly;
+  bool m_bSerializeOwnerPtrs;
 };

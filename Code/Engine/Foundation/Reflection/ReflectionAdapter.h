@@ -42,6 +42,7 @@ public:
   virtual void* CreateObject(const ezUuid& guid, const ezRTTI* pRtti) = 0;
   virtual void DeleteObject(const ezUuid& guid) = 0;
   virtual void RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject) = 0;
+  virtual void UnregisterObject(const ezUuid& guid) = 0;
   virtual ezReflectedObjectWrapper* GetObjectByGUID(const ezUuid& guid) const = 0;
   virtual ezUuid GetObjectGUID(void* pObject) const = 0;
 
@@ -56,6 +57,7 @@ public:
   virtual void* CreateObject(const ezUuid& guid, const ezRTTI* pRtti) override;
   virtual void DeleteObject(const ezUuid& guid) override;
   virtual void RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject) override;
+  virtual void UnregisterObject(const ezUuid& guid) override;
   virtual ezReflectedObjectWrapper* GetObjectByGUID(const ezUuid& guid) const override;
   virtual ezUuid GetObjectGUID(void* pObject) const override;
 

@@ -14,13 +14,21 @@ class EZ_TOOLSFOUNDATION_DLL ezReflectedTypeDirectAccessor : public ezIReflected
 {
 public:
   /// \brief Use this ctor for static reflection.
-  ezReflectedTypeDirectAccessor(void* pInstance, const ezRTTI* pRtti); // [tested]
+  ezReflectedTypeDirectAccessor(void* pInstance, const ezRTTI* pRtti, ezDocumentObjectBase* pOwner); // [tested]
 
   /// \brief Use this ctor for dynamic reflection.
-  ezReflectedTypeDirectAccessor(ezReflectedClass* pInstance); // [tested]
+  ezReflectedTypeDirectAccessor(ezReflectedClass* pInstance, ezDocumentObjectBase* pOwner); // [tested]
 
-  virtual const ezVariant GetValue(const ezPropertyPath& path) const override; // [tested]
-  virtual bool SetValue(const ezPropertyPath& path, const ezVariant& value) override; // [tested]
+  virtual const ezVariant GetValue(const ezPropertyPath& path, ezVariant index = ezVariant()) const override;
+  virtual bool SetValue(const ezPropertyPath& path, const ezVariant& value, ezVariant index = ezVariant()) override;
+
+  virtual ezInt32 GetCount(const ezPropertyPath& path) const override;
+  virtual bool GetKeys(const ezPropertyPath& path, ezHybridArray<ezVariant, 16>& out_keys) const override;
+
+  virtual bool InsertValue(const ezPropertyPath& path, ezVariant index, const ezVariant& value) override;
+  virtual bool RemoveValue(const ezPropertyPath& path, ezVariant index) override;
+
+  virtual ezVariant GetPropertyChildIndex(const ezPropertyPath& path, const ezVariant& value) const override;
 
 private:
   const ezRTTI* m_pRtti;

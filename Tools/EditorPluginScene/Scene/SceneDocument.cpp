@@ -104,6 +104,7 @@ void ezSceneDocument::GroupSelection()
   }
 
   vCenter /= sel.GetCount();
+  //vCenter.SetZero();
   
   auto pHistory = GetCommandHistory();
 
@@ -197,6 +198,9 @@ void ezSceneDocument::ObjectPropertyEventHandler(const ezDocumentObjectPropertyE
 
 void ezSceneDocument::ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
+  if (!e.m_pObject->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+    return;
+
   switch (e.m_EventType)
   {
   case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:

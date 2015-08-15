@@ -7,7 +7,7 @@
 
 void ez3DViewWidget::paintEvent(QPaintEvent* event)
 {
-  event->accept();
+  //event->accept();
 
 }
 
@@ -38,9 +38,14 @@ ez3DViewWidget::ez3DViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocument)
   , m_pDocumentWindow(pDocument)
 {
   setFocusPolicy(Qt::FocusPolicy::StrongFocus);
-  setAttribute(Qt::WA_OpaquePaintEvent);
+  //setAttribute(Qt::WA_OpaquePaintEvent);
   setAutoFillBackground(false);
   setMouseTracking(true);
+
+  setAttribute(Qt::WA_PaintOnScreen, true);
+  setAttribute(Qt::WA_NativeWindow, true);
+  setAttribute(Qt::WA_NoBackground);
+  setAttribute(Qt::WA_NoSystemBackground);
 
   installEventFilter(this);
 }

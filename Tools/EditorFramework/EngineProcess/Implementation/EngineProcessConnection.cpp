@@ -211,7 +211,7 @@ void ezEditorEngineConnection::SendObjectProperties(const ezDocumentObjectProper
   ezMemoryStreamReader reader(&storage);
 
   // TODO: Only write a single property
-  ezToolsReflectionUtils::WriteObjectToJSON(writer, e.m_pObject);
+  ezToolsReflectionUtils::WriteObjectToJSON(false, writer, e.m_pObject, ezJSONWriter::WhitespaceMode::All);
 
   ezStringBuilder sData;
   sData.ReadAll(reader);
@@ -223,11 +223,14 @@ void ezEditorEngineConnection::SendObjectProperties(const ezDocumentObjectProper
 
 void ezEditorEngineConnection::SendDocumentTreeChange(const ezDocumentObjectStructureEvent& e)
 {
+
   ezEntityMsgToEngine msg;
   msg.m_DocumentGuid = m_pDocument->GetGuid();
   msg.m_ObjectGuid = e.m_pObject->GetGuid();
   msg.m_sObjectType = e.m_pObject->GetTypeAccessor().GetType()->GetTypeName();
-  msg.m_uiNewChildIndex = e.m_uiNewChildIndex;
+  msg.m_sParentProperty = e.m_sParentProperty;
+  msg.m_PropertyIndex = e.m_PropertyIndex;
+  msg.m_bEditorProperty = e.m_bEditorProperty;
 
   if (e.m_pPreviousParent)
     msg.m_PreviousParentGuid = e.m_pPreviousParent->GetGuid();
@@ -243,7 +246,7 @@ void ezEditorEngineConnection::SendDocumentTreeChange(const ezDocumentObjectStru
       ezMemoryStreamStorage storage;
       ezMemoryStreamWriter writer(&storage);
       ezMemoryStreamReader reader(&storage);
-      ezToolsReflectionUtils::WriteObjectToJSON(writer, e.m_pObject);
+      ezToolsReflectionUtils::WriteObjectToJSON(false, writer, e.m_pObject, ezJSONWriter::WhitespaceMode::All);
 
       ezStringBuilder sData;
       sData.ReadAll(reader);
@@ -251,13 +254,10 @@ void ezEditorEngineConnection::SendDocumentTreeChange(const ezDocumentObjectStru
       msg.m_sObjectData = sData;
       SendMessage(&msg);
 
+      // TODO: BLA
       for (ezUInt32 i = 0; i < e.m_pObject->GetChildren().GetCount(); i++)
       {
-        ezDocumentObjectStructureEvent childEvent = e;
-        childEvent.m_pNewParent = e.m_pObject;
-        childEvent.m_pObject = e.m_pObject->GetChildren()[i];
-        childEvent.m_uiNewChildIndex = i;
-        SendDocumentTreeChange(childEvent);
+        SendObject(e.m_pObject->GetChildren()[i]);
       }
       return;
     }
@@ -301,12 +301,15 @@ void ezEditorEngineConnection::SendDocument()
 
 void ezEditorEngineConnection::SendObject(const ezDocumentObjectBase* pObject)
 {
+  // TODO: BLA
   ezDocumentObjectStructureEvent msg;
   msg.m_EventType = ezDocumentObjectStructureEvent::Type::AfterObjectAdded;
   msg.m_pObject = pObject;
   msg.m_pNewParent = pObject->GetParent();
   msg.m_pPreviousParent = nullptr;
-  msg.m_uiNewChildIndex = msg.m_pNewParent->GetChildIndex((ezDocumentObjectBase*) pObject);
+  msg.m_sParentProperty = pObject->GetParentProperty();
+  msg.m_PropertyIndex = pObject->GetPropertyIndex();
+  msg.m_bEditorProperty = pObject->IsEditorProperty();
 
   SendDocumentTreeChange(msg);
 }

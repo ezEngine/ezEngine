@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
-
+#include <Core/World/GameObject.h>
 ezScenegraphPanel::ezScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument)
   : ezDocumentPanel(pParent)
 {
@@ -9,7 +9,7 @@ ezScenegraphPanel::ezScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocumen
 
   m_pDocument = pDocument;
 
-  m_pTreeWidget = new ezRawDocumentTreeWidget(this, pDocument);
+  m_pTreeWidget = new ezRawDocumentTreeWidget(this, pDocument, ezGetStaticRTTI<ezGameObject>(), "Children");
   setWidget(m_pTreeWidget);
 
   m_pDocument->m_SceneEvents.AddEventHandler(ezMakeDelegate(&ezScenegraphPanel::DocumentSceneEventHandler, this));

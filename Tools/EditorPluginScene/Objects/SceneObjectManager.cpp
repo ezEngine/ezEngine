@@ -11,19 +11,19 @@ ezSceneObjectManager::ezSceneObjectManager() : ezDocumentObjectManager()
 ezDocumentObjectBase* ezSceneObjectManager::InternalCreateObject(const ezRTTI* pRtti)
 {
   static int iCount = 0;
-  ezDocumentObjectStorage<ezSceneObjectEditorProperties>* pObj = new ezDocumentObjectStorage<ezSceneObjectEditorProperties>(pRtti);
+  //ezDocumentObjectStorage<ezSceneObjectEditorProperties>* pObj = EZ_DEFAULT_NEW(ezDocumentObjectStorage<ezSceneObjectEditorProperties>, pRtti);
+  ezDocumentObjectBase* pObj = EZ_DEFAULT_NEW(ezDocumentObject, ezSceneObjectEditorProperties::GetStaticRTTI(), pRtti);
 
   ezStringBuilder sName;
   sName.Format("%s %03d", pRtti->GetTypeName(), iCount);
   iCount++;
-  pObj->m_EditorProperties.SetName(sName);
-  
+  pObj->GetEditorTypeAccessor().SetValue("Name", sName.GetData());  
   return pObj;
 }
 
 void ezSceneObjectManager::InternalDestroyObject(ezDocumentObjectBase* pObject)
 {
-  delete pObject;
+  EZ_DEFAULT_DELETE(pObject);
 }
 
 void ezSceneObjectManager::GetCreateableTypes(ezHybridArray<ezRTTI*, 32>& Types) const
@@ -39,26 +39,18 @@ void ezSceneObjectManager::GetCreateableTypes(ezHybridArray<ezRTTI*, 32>& Types)
   }
 }
 
-bool ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent) const
+bool ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent, const char* szParentProperty, const ezVariant& index, bool bEditorProperty) const
 {
   const ezRTTI* pGameObjectType = ezRTTI::FindTypeByName(ezGetStaticRTTI<ezGameObject>()->GetTypeName());
-  const ezRTTI* pComponentType  = ezRTTI::FindTypeByName(ezGetStaticRTTI<ezComponent>()->GetTypeName());
+  // TODO: BLA
+  //const ezRTTI* pComponentType  = ezRTTI::FindTypeByName(ezGetStaticRTTI<ezComponent>()->GetTypeName());
 
-  if (pRtti->IsDerivedFrom(pGameObjectType))
+  if (pParent == nullptr)
   {
-    if (pParent == nullptr)
-      return true;
-
-    return (pParent->GetTypeAccessor().GetType() == pGameObjectType);
+    return pRtti->IsDerivedFrom(pGameObjectType);
   }
-  else if (pRtti->IsDerivedFrom(pComponentType))
-  {
-    if (pParent == nullptr)
-      return false;
-
-    return (pParent->GetTypeAccessor().GetType() == pGameObjectType);
-  }
-  return false;
+  
+  return true;
 }
 
 bool ezSceneObjectManager::InternalCanRemove(const ezDocumentObjectBase* pObject) const
@@ -66,7 +58,7 @@ bool ezSceneObjectManager::InternalCanRemove(const ezDocumentObjectBase* pObject
   return true;
 }
 
-bool ezSceneObjectManager::InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex) const
+bool ezSceneObjectManager::InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, const char* szParentProperty, const ezVariant& index) const
 {
-  return InternalCanAdd(pObject->GetTypeAccessor().GetType(), pNewParent);
+  return true;
 }

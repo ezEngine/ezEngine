@@ -26,6 +26,15 @@
 class EZ_CORE_DLL ezGameObject
 {
 private:
+  enum
+  {
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
+    NUM_INPLACE_COMPONENTS = 12
+#else
+    NUM_INPLACE_COMPONENTS = 6
+#endif
+  };
+
   friend class ezWorld;
   friend class ezInternal::WorldData;
   friend class ezMemoryUtils;
@@ -226,6 +235,16 @@ public:
 private:
   friend class ezGameObjectTest;
 
+  EZ_ALLOW_PRIVATE_PROPERTIES(ezGameObject);
+
+  void Reflection_AddChild(ezGameObject* pChild) { AddChild(pChild->GetHandle()); }
+  void Reflection_DetachChild(ezGameObject* pChild) { DetachChild(pChild->GetHandle()); }
+  ezHybridArray<ezGameObject*, 8> Reflection_GetChildren() const;
+  void Reflection_AddComponent(ezComponent* pComponent) { AddComponent(pComponent); }
+  void Reflection_RemoveComponent(ezComponent* pComponent) { RemoveComponent(pComponent); }
+  const ezHybridArray<ezComponent*, NUM_INPLACE_COMPONENTS>& Reflection_GetComponents() const { return m_Components; }
+
+
   void FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr);
 
   struct EZ_ALIGN_16(TransformationData)
@@ -295,15 +314,6 @@ private:
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
   ezUInt64 m_uiPadding;
 #endif
-
-  enum
-  {
-#if EZ_ENABLED(EZ_PLATFORM_32BIT)
-    NUM_INPLACE_COMPONENTS = 12
-#else
-    NUM_INPLACE_COMPONENTS = 6
-#endif
-  };
 
   /// \todo small array class to reduce memory overhead
   ezHybridArray<ezComponent*, NUM_INPLACE_COMPONENTS> m_Components;

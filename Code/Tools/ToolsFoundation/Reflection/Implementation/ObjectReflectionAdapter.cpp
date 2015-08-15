@@ -1,6 +1,7 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Reflection/ObjectReflectionAdapter.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezObjectSerializationContext
@@ -39,6 +40,21 @@ void ezObjectSerializationContext::RegisterObject(const ezUuid& guid, const ezRT
   object.m_pType = pType;
   m_Objects.Insert(guid, object);
   m_PtrLookup.Insert(object.m_pObject, guid);
+}
+
+void ezObjectSerializationContext::UnregisterObject(const ezUuid& guid)
+{
+  ezReflectedObjectWrapper* pObjectWrapper = nullptr;
+  if (!m_Objects.TryGetValue(guid, pObjectWrapper))
+  {
+    EZ_REPORT_FAILURE("Given object guid can't be found and thus can't be unregistered!");
+    return;
+  }
+
+  void* pObject = pObjectWrapper->m_pObject;
+  m_PtrLookup.Remove(pObject);
+  m_Objects.Remove(guid);
+  m_PendingObjects.Remove(guid);
 }
 
 ezReflectedObjectWrapper* ezObjectSerializationContext::GetObjectByGUID(const ezUuid& guid) const
@@ -126,15 +142,19 @@ ezVariant ezObjectReflectionAdapter::GetPropertyValue(const ezReflectedObjectWra
     }
     break;
   case ezPropertyCategory::Array:
-    {
-      EZ_ASSERT_NOT_IMPLEMENTED;
-    }
-    break;
   case ezPropertyCategory::Set:
     {
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      ezDocumentObjectBase* pDocObj = static_cast<ezDocumentObjectBase*>(object.m_pObject);
+      ezVariant value = pDocObj->GetTypeAccessor().GetValue(ezPropertyPath(pProp->GetPropertyName()), index);
+      if (prop.m_Flags.IsSet(ezPropertyFlags::Pointer))
+      {
+        return pDocObj->GetDocumentObjectManager()->GetObject(value.Get<ezUuid>());
+      }
+      else
+        return value;
     }
     break;
+
   default:
     EZ_ASSERT_DEBUG(false, "Not implemented!");
     break;
@@ -154,15 +174,13 @@ void ezObjectReflectionAdapter::SetPropertyValue(const ezReflectedObjectWrapper&
     }
     break;
   case ezPropertyCategory::Array:
-    {
-      EZ_ASSERT_NOT_IMPLEMENTED;
-    }
-    break;
   case ezPropertyCategory::Set:
     {
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      ezDocumentObjectBase* pDocObj = static_cast<ezDocumentObjectBase*>(object.m_pObject);
+      pDocObj->GetTypeAccessor().SetValue(ezPropertyPath(pProp->GetPropertyName()), value, index);
     }
     break;
+
   default:
     EZ_ASSERT_DEBUG(false, "Not implemented!");
     break;
@@ -177,19 +195,20 @@ void ezObjectReflectionAdapter::GetPropertyObject(const ezReflectedObjectWrapper
   case ezPropertyCategory::Member:
     {
       ezDocumentSubObject* pObject = static_cast<ezDocumentSubObject*>(value.m_pObject);
-      pObject->SetObject(static_cast<ezDocumentObjectBase*>(object.m_pObject), ezPropertyPath(prop.m_szName));
+      pObject->SetObject(static_cast<ezDocumentObjectBase*>(object.m_pObject), ezPropertyPath(prop.m_szName), false);
     }
     break;
   case ezPropertyCategory::Array:
-    {
-      EZ_ASSERT_NOT_IMPLEMENTED;
-    }
-    break;
   case ezPropertyCategory::Set:
     {
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      ezDocumentSubObject* pObject = static_cast<ezDocumentSubObject*>(value.m_pObject);
+      ezUuid guid = GetPropertyValue(object, prop, index).Get<ezUuid>();
+      ezDocumentObjectBase* pParent = static_cast<ezDocumentObjectBase*>(object.m_pObject);
+      const ezDocumentObjectBase* pChild = pParent->GetDocumentObjectManager()->GetObject(guid);
+      pObject->SetObject(const_cast<ezDocumentObjectBase*>(pChild), "", false);
     }
     break;
+
   default:
     EZ_ASSERT_DEBUG(false, "Not implemented!");
     break;
@@ -210,8 +229,8 @@ ezReflectedObjectWrapper ezObjectReflectionAdapter::GetDirectPropertyPointer(con
 // Array
 ezUInt32 ezObjectReflectionAdapter::GetArrayElementCount(const ezReflectedObjectWrapper& object, const ezReflectedPropertyWrapper& prop) const
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return 0;
+  ezDocumentSubObject* pObject = static_cast<ezDocumentSubObject*>(object.m_pObject);
+  return pObject->GetTypeAccessor().GetCount(prop.m_szName);
 }
 
 void ezObjectReflectionAdapter::SetArrayElementCount(const ezReflectedObjectWrapper& object, const ezReflectedPropertyWrapper& prop, ezUInt32 uiCount)
@@ -222,7 +241,22 @@ void ezObjectReflectionAdapter::SetArrayElementCount(const ezReflectedObjectWrap
 // Set
 void ezObjectReflectionAdapter::GetSetContent(const ezReflectedObjectWrapper& object, const ezReflectedPropertyWrapper& prop, ezHybridArray<ezVariant, 16>& out_Keys) const
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  ezDocumentSubObject* pObject = static_cast<ezDocumentSubObject*>(object.m_pObject);
+
+  const ezUInt32 count = pObject->GetTypeAccessor().GetCount(prop.m_szName);
+
+  out_Keys.SetCount(count);
+
+  const ezPropertyPath path(prop.m_szName);
+
+  for (ezUInt32 i = 0; i < count; ++i)
+  {
+    out_Keys[i] = pObject->GetTypeAccessor().GetValue(path, i);
+    if (prop.m_Flags.IsSet(ezPropertyFlags::Pointer))
+    {
+      out_Keys[i] = pObject->GetDocumentObjectManager()->GetObject(out_Keys[i].Get<ezUuid>());
+    }
+  }
 }
 
 void ezObjectReflectionAdapter::SetSetContent(const ezReflectedObjectWrapper& object, const ezReflectedPropertyWrapper& prop, const ezHybridArray<ezVariant, 16>& keys)

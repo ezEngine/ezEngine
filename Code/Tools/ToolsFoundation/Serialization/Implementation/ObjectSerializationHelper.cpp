@@ -16,29 +16,47 @@ static void WriteTypeAccessorToContextRecursive(ezPropertySerializationContext& 
   {
     const ezAbstractProperty* pProp = pType->GetProperties()[i];
 
-    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType))
+    if (pProp->GetCategory() == ezPropertyCategory::Member)
     {
-      ParentPath.PushBack(pProp->GetPropertyName());
+      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType))
+      {
+        ParentPath.PushBack(pProp->GetPropertyName());
 
-      context.AddProperty(ParentPath, et.GetValue(ParentPath));
+        context.AddProperty(ParentPath, et.GetValue(ParentPath));
 
-      ParentPath.PopBack();
+        ParentPath.PopBack();
+      }
+      else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+      {
+        ParentPath.PushBack(pProp->GetPropertyName());
+
+        ezStringBuilder sEnumValue;
+        ezReflectionUtils::EnumerationToString(pProp->GetSpecificType(), et.GetValue(ParentPath).ConvertTo<ezInt64>(), sEnumValue);
+        context.AddProperty(ParentPath, sEnumValue.GetData());
+
+        ParentPath.PopBack();
+      }
+      else
+      {
+        ParentPath.PushBack(pProp->GetPropertyName());
+
+        WriteTypeAccessorToContextRecursive(context, et, pProp->GetSpecificType(), ParentPath);
+
+        ParentPath.PopBack();
+      }
     }
-    else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+    else if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
     {
       ParentPath.PushBack(pProp->GetPropertyName());
 
-      ezStringBuilder sEnumValue;
-      ezReflectionUtils::EnumerationToString(pProp->GetSpecificType(), et.GetValue(ParentPath).ConvertTo<ezInt64>(), sEnumValue);
-      context.AddProperty(ParentPath, sEnumValue.GetData());
-
-      ParentPath.PopBack();
-    }
-    else if (pProp->GetCategory() == ezPropertyCategory::Member)
-    {
-      ParentPath.PushBack(pProp->GetPropertyName());
-
-      WriteTypeAccessorToContextRecursive(context, et, pProp->GetSpecificType(), ParentPath);
+      ezInt32 iCount = et.GetCount(ParentPath);
+      ezVariantArray values;
+      values.Reserve(iCount);
+      for (ezInt32 i = 0; i < iCount; ++i)
+      {
+        values.PushBack(et.GetValue(ParentPath, i));
+      }
+      context.AddProperty(ParentPath, values);
 
       ParentPath.PopBack();
     }

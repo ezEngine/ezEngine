@@ -49,19 +49,41 @@ public:
   }
 };
 
-ezPropertyEditorBaseWidget::ezPropertyEditorBaseWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent) : QWidget(pParent)
+ezPropertyEditorBaseWidget::ezPropertyEditorBaseWidget(const char* szName, QWidget* pParent) : QWidget(pParent)
 {
   m_szDisplayName = szName;
-  m_PropertyPath = path;
 }
 
 ezPropertyEditorBaseWidget::~ezPropertyEditorBaseWidget()
 {
 }
 
-void ezPropertyEditorBaseWidget::SetValue(const ezVariant& value)
+void ezPropertyEditorBaseWidget::Init(const ezHybridArray<Selection, 8>& items, const ezPropertyPath& path, bool bEditorProperties)
 {
-  m_OldValue = value;
+  m_Items = items;
+  m_PropertyPath = path;
+  m_bEditorProperties = bEditorProperties;
+
+  OnInit();
+
+  ezVariant value;
+
+  // check if we have multiple values
+  for (auto& item : items)
+  {
+    const ezIReflectedTypeAccessor& et = m_bEditorProperties ? item.m_pObject->GetEditorTypeAccessor() : item.m_pObject->GetTypeAccessor();
+
+    if (!value.IsValid())
+      value = et.GetValue(m_PropertyPath, item.m_Index);
+    else
+    {
+      if (value != et.GetValue(m_PropertyPath, item.m_Index))
+      {
+        value = ezVariant();
+        break;
+      }
+    }
+  }
 
   InternalSetValue(value);
 }
@@ -86,6 +108,8 @@ void ezPropertyEditorBaseWidget::BroadcastValueChanged(const ezVariant& NewValue
   ed.m_Type = Event::Type::ValueChanged;
   ed.m_pPropertyPath = &m_PropertyPath;
   ed.m_Value = NewValue;
+  ed.m_bEditorProperties = m_bEditorProperties;
+  ed.m_pItems = &m_Items;
 
   m_Events.Broadcast(ed);
 }
@@ -93,7 +117,7 @@ void ezPropertyEditorBaseWidget::BroadcastValueChanged(const ezVariant& NewValue
 
 /// *** CHECKBOX ***
 
-ezPropertyEditorCheckboxWidget::ezPropertyEditorCheckboxWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent) : ezPropertyEditorBaseWidget(path, szName, pParent)
+ezPropertyEditorCheckboxWidget::ezPropertyEditorCheckboxWidget(const char* szName, QWidget* pParent) : ezPropertyEditorBaseWidget(szName, pParent)
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
@@ -138,7 +162,7 @@ void ezPropertyEditorCheckboxWidget::on_StateChanged_triggered(int state)
 
 /// *** DOUBLE SPINBOX ***
 
-ezPropertyEditorDoubleSpinboxWidget::ezPropertyEditorDoubleSpinboxWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, ezInt8 iNumComponents) : ezPropertyEditorBaseWidget(path, szName, pParent)
+ezPropertyEditorDoubleSpinboxWidget::ezPropertyEditorDoubleSpinboxWidget(const char* szName, QWidget* pParent, ezInt8 iNumComponents) : ezPropertyEditorBaseWidget(szName, pParent)
 {
   m_iNumComponents= iNumComponents;
   m_bTemporaryCommand = false;
@@ -244,7 +268,7 @@ void ezPropertyEditorDoubleSpinboxWidget::SlotValueChanged()
 
 /// *** INT SPINBOX ***
 
-ezPropertyEditorIntSpinboxWidget::ezPropertyEditorIntSpinboxWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, ezInt32 iMinValue, ezInt32 iMaxValue) : ezPropertyEditorBaseWidget(path, szName, pParent)
+ezPropertyEditorIntSpinboxWidget::ezPropertyEditorIntSpinboxWidget(const char* szName, QWidget* pParent, ezInt32 iMinValue, ezInt32 iMaxValue) : ezPropertyEditorBaseWidget(szName, pParent)
 {
   m_bTemporaryCommand = false;
   m_pLayout = new QHBoxLayout(this);
@@ -301,7 +325,7 @@ void ezPropertyEditorIntSpinboxWidget::on_EditingFinished_triggered()
 
 /// *** QUATERNION ***
 
-ezPropertyEditorQuaternionWidget::ezPropertyEditorQuaternionWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent) : ezPropertyEditorBaseWidget(path, szName, pParent)
+ezPropertyEditorQuaternionWidget::ezPropertyEditorQuaternionWidget(const char* szName, QWidget* pParent) : ezPropertyEditorBaseWidget(szName, pParent)
 {
   m_bTemporaryCommand = false;
 
@@ -383,7 +407,7 @@ void ezPropertyEditorQuaternionWidget::SlotValueChanged()
 
 /// *** LINEEDIT ***
 
-ezPropertyEditorLineEditWidget::ezPropertyEditorLineEditWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent) : ezPropertyEditorBaseWidget(path, szName, pParent)
+ezPropertyEditorLineEditWidget::ezPropertyEditorLineEditWidget(const char* szName, QWidget* pParent) : ezPropertyEditorBaseWidget(szName, pParent)
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
@@ -460,7 +484,7 @@ void ezPropertyEditorLineEditWidget::on_BrowseFile_clicked()
 
 /// *** COLOR ***
 
-ezPropertyEditorColorWidget::ezPropertyEditorColorWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent) : ezPropertyEditorBaseWidget(path, szName, pParent)
+ezPropertyEditorColorWidget::ezPropertyEditorColorWidget(const char* szName, QWidget* pParent) : ezPropertyEditorBaseWidget(szName, pParent)
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
@@ -538,7 +562,7 @@ void ezPropertyEditorColorWidget::on_Color_accepted()
 
 /// *** ENUM COMBOBOX ***
 
-ezPropertyEditorEnumWidget::ezPropertyEditorEnumWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, const ezRTTI* enumType) : ezPropertyEditorBaseWidget(path, szName, pParent)
+ezPropertyEditorEnumWidget::ezPropertyEditorEnumWidget(const char* szName, QWidget* pParent, const ezRTTI* enumType) : ezPropertyEditorBaseWidget(szName, pParent)
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
@@ -601,7 +625,7 @@ void ezPropertyEditorEnumWidget::on_CurrentEnum_changed(int iEnum)
 
 /// *** BITFLAGS COMBOBOX ***
 
-ezPropertyEditorBitflagsWidget::ezPropertyEditorBitflagsWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, const ezRTTI* enumType) : ezPropertyEditorBaseWidget(path, szName, pParent)
+ezPropertyEditorBitflagsWidget::ezPropertyEditorBitflagsWidget(const char* szName, QWidget* pParent, const ezRTTI* enumType) : ezPropertyEditorBaseWidget(szName, pParent)
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);

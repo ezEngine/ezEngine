@@ -7,21 +7,29 @@
 class ezDocumentObjectManager;
 class ezDocumentBase;
 
-class ezDocumentObjectRoot : public ezDocumentObjectBase
+class ezDocumentRoot : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentRoot);
+
+  ezHybridArray<ezReflectedClass*, 8> m_RootObjects;
+};
+
+class ezDocumentObjectRoot : public ezDocumentObject
 {
 public:
-  virtual const ezIReflectedTypeAccessor& GetTypeAccessor() const override { return s_Accessor; }
-  virtual const ezIReflectedTypeAccessor& GetEditorTypeAccessor() const override { return s_Accessor; }
-
-private:
-  static ezEmptyProperties s_Properties;
-  static ezReflectedTypeDirectAccessor s_Accessor;
+  ezDocumentObjectRoot() : ezDocumentObject(ezEmptyProperties::GetStaticRTTI(), ezDocumentRoot::GetStaticRTTI())
+  {
+    m_ObjectType = ezDocumentObjectType::Root;
+  }
+public:
+  virtual void InsertSubObject(ezDocumentObjectBase* pObject, const char* szProperty, const ezVariant& index, bool bEditorProperty) override;
+  virtual void RemoveSubObject(ezDocumentObjectBase* pObject) override;
 };
 
 
 struct ezDocumentObjectStructureEvent
 {
-  ezDocumentObjectStructureEvent() : m_pObject(nullptr), m_pPreviousParent(nullptr), m_pNewParent(nullptr), m_uiNewChildIndex(-1)
+  ezDocumentObjectStructureEvent() : m_pObject(nullptr), m_pPreviousParent(nullptr), m_pNewParent(nullptr), m_bEditorProperty(false)
   {}
 
   enum class Type
@@ -39,7 +47,9 @@ struct ezDocumentObjectStructureEvent
   const ezDocumentObjectBase* m_pObject;
   const ezDocumentObjectBase* m_pPreviousParent;
   const ezDocumentObjectBase* m_pNewParent;
-  ezUInt32 m_uiNewChildIndex;
+  ezString m_sParentProperty;
+  ezVariant m_PropertyIndex;
+  bool m_bEditorProperty;
 };
 
 struct ezDocumentObjectPropertyEvent
@@ -50,9 +60,19 @@ struct ezDocumentObjectPropertyEvent
     m_bEditorProperty = false;
   }
 
+  enum class Type
+  {
+    PropertySet,
+    PropertyInserted,
+    PropertyRemoved,
+  };
+
+  Type m_EventType;
   const ezDocumentObjectBase* m_pObject;
+  ezVariant m_OldValue;
   ezVariant m_NewValue;
   ezString m_sPropertyPath;
+  ezVariant m_Index;
   bool m_bEditorProperty;
 };
 
@@ -69,33 +89,40 @@ public:
   void SetDocument(const ezDocumentBase* pDocument) { m_pDocument = pDocument; }
 
   // Object Construction / Destruction
+  // holds object data
   ezDocumentObjectBase* CreateObject(const ezRTTI* pRtti, ezUuid guid = ezUuid());
+  // a parent holds object data
+  ezDocumentObjectBase* CreateSubObject(const ezRTTI* pRtti, ezEnum<ezDocumentObjectType> type, ezUuid guid = ezUuid());
+
   void DestroyObject(ezDocumentObjectBase* pObject);
-  void DestroyAllObjects(ezDocumentObjectManager* pDocumentObjectManager);
+  void DestroyAllObjects();
   virtual void GetCreateableTypes(ezHybridArray<ezRTTI*, 32>& Types) const = 0;
 
   // Structure Change
   const ezDocumentObjectBase* GetRootObject() const { return &m_RootObject; }
   ezDocumentObjectBase* GetRootObject() { return &m_RootObject; }
 
-  void AddObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pParent, ezInt32 iChildIndex = -1);
+  void AddObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pParent, const char* szParentProperty, ezVariant index, bool bEditorProperty = false);
   void RemoveObject(ezDocumentObjectBase* pObject);
-  void MoveObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex = -1);
+  void MoveObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pNewParent, const char* szParentProperty, ezVariant index);
+  
+  
   const ezDocumentObjectBase* GetObject(const ezUuid& guid) const;
   ezDocumentObjectBase* GetObject(const ezUuid& guid);
   const ezDocumentBase* GetDocument() const { return m_pDocument; }
 
   // Structure Change Test
-  bool CanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent) const;
+  bool CanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent, const char* szParentProperty, const ezVariant& index, bool bEditorProperty = false) const;
   bool CanRemove(const ezDocumentObjectBase* pObject) const;
-  bool CanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex = -1) const;
+  bool CanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, const char* szParentProperty, const ezVariant& index) const;
 
 private:
   virtual ezDocumentObjectBase* InternalCreateObject(const ezRTTI* pRtti) = 0;
-  virtual void InternalDestroyObject(ezDocumentObjectBase* pObject) = 0;
-  virtual bool InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent) const = 0;
-  virtual bool InternalCanRemove(const ezDocumentObjectBase* pObject) const = 0;
-  virtual bool InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex) const = 0;
+  virtual ezDocumentObjectBase* InternalCreateSubObject(const ezRTTI* pRtti, ezEnum<ezDocumentObjectType> type);
+  virtual void InternalDestroyObject(ezDocumentObjectBase* pObject) { EZ_DEFAULT_DELETE(pObject); }
+  virtual bool InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent, const char* szParentProperty, const ezVariant& index, bool bEditorProperty = false) const { return true; };
+  virtual bool InternalCanRemove(const ezDocumentObjectBase* pObject) const { return true; };
+  virtual bool InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, const char* szParentProperty, const ezVariant& index) const { return true; };
 
   void RecursiveAddGuids(ezDocumentObjectBase* pObject);
   void RecursiveRemoveGuids(ezDocumentObjectBase* pObject);

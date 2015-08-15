@@ -13,17 +13,13 @@ class EZ_FOUNDATION_DLL ezJSONWriter
 public:
 
   /// \brief Modes to configure how much whitespace the JSON writer will output
-  struct WhitespaceMode
+  enum class WhitespaceMode
   {
-    /// \brief Modes to configure how much whitespace the JSON writer will output
-    enum Enum
-    {
-      All,              ///< All whitespace is output. This is the default, it should be used for files that are read by humans.
-      LessIndentation,  ///< Saves some space by using less space for indentation
-      NoIndentation,    ///< Saves even more space by dropping all indentation from the output. The result will be noticeably less readable.
-      NewlinesOnly,     ///< All unnecessary whitespace, except for newlines, is not output.
-      None,             ///< No whitespace, not even newlines, is output. This should be used when JSON is used for data exchange, but probably not read by humans.
-    };
+    All,              ///< All whitespace is output. This is the default, it should be used for files that are read by humans.
+    LessIndentation,  ///< Saves some space by using less space for indentation
+    NoIndentation,    ///< Saves even more space by dropping all indentation from the output. The result will be noticeably less readable.
+    NewlinesOnly,     ///< All unnecessary whitespace, except for newlines, is not output.
+    None,             ///< No whitespace, not even newlines, is output. This should be used when JSON is used for data exchange, but probably not read by humans.
   };
 
   /// \brief Constructor
@@ -35,7 +31,7 @@ public:
   virtual ~ezJSONWriter() { }
 
   /// \brief Configures how much whitespace is output.
-  void SetWhitespaceMode(WhitespaceMode::Enum wsm) { m_WhitespaceMode = wsm; }
+  void SetWhitespaceMode(WhitespaceMode wsm) { m_WhitespaceMode = wsm; }
 
   /// \brief Shorthand for "BeginVariable(szName); WriteBool(value); EndVariable(); "
   void AddVariableBool(const char* szName, bool value); // [tested]
@@ -206,7 +202,7 @@ public:
   virtual void EndObject() = 0;
 
 protected:
-  WhitespaceMode::Enum m_WhitespaceMode;
+  WhitespaceMode m_WhitespaceMode;
 
 };
 

@@ -65,50 +65,96 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertiesRe
 
     path = pathBuilder;
 
-    if (pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) && pProperty->GetCategory() == ezPropertyCategory::Member)
+    switch (pProperty->GetCategory())
     {
-      // POD types are added to the dictionary
-      StorageInfo* storageInfo = nullptr;
-      if (m_PathToStorageInfoTable.TryGetValue(path, storageInfo))
+    case ezPropertyCategory::Member:
       {
-        // Value already present, update type and instances
-        storageInfo->m_Type = pProperty->GetSpecificType()->GetVariantType();
-        UpdateInstances(storageInfo->m_uiIndex, pProperty);
-      }
-      else
-      {
-        const ezUInt16 uiIndex = (ezUInt16)m_PathToStorageInfoTable.GetCount();
+        if (pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        {
+          // POD types are added to the dictionary
+          StorageInfo* storageInfo = nullptr;
+          if (m_PathToStorageInfoTable.TryGetValue(path, storageInfo))
+          {
+            // Value already present, update type and instances
+            storageInfo->m_Type = pProperty->GetSpecificType()->GetVariantType();
+            UpdateInstances(storageInfo->m_uiIndex, pProperty);
+          }
+          else
+          {
+            const ezUInt16 uiIndex = (ezUInt16)m_PathToStorageInfoTable.GetCount();
 
-        // Add value, new entries are appended
-        m_PathToStorageInfoTable.Insert(path, StorageInfo(uiIndex, pProperty->GetSpecificType()->GetVariantType()));
-        AddPropertyToInstances(uiIndex, pProperty);
-      }
-    }
-    else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
-    {
-      // Enum and bitflags types are added to the dictionary
-      StorageInfo* storageInfo = nullptr;
-      if (m_PathToStorageInfoTable.TryGetValue(path, storageInfo))
-      {
-        // Value already present, update type and instances
-        storageInfo->m_Type = ezVariant::Type::Int64;
-        UpdateInstances(storageInfo->m_uiIndex, pProperty);
-      }
-      else
-      {
-        ezUInt16 uiIndex = (ezUInt16)m_PathToStorageInfoTable.GetCount();
-        // Add value, new entries are appended as int64
-        m_PathToStorageInfoTable.Insert(path, StorageInfo(uiIndex, ezVariant::Type::Int64));
-        AddPropertyToInstances(uiIndex, pProperty);
-      }
-    }
-    else if (pProperty->GetCategory() == ezPropertyCategory::Member)
-    {
-      const ezAbstractMemberProperty* pMember = static_cast<const ezAbstractMemberProperty*>(pProperty);
+            // Add value, new entries are appended
+            m_PathToStorageInfoTable.Insert(path, StorageInfo(uiIndex, pProperty->GetSpecificType()->GetVariantType()));
+            AddPropertyToInstances(uiIndex, pProperty);
+          }
+        }
+        else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+        {
+          // Enum and bitflags types are added to the dictionary
+          StorageInfo* storageInfo = nullptr;
+          if (m_PathToStorageInfoTable.TryGetValue(path, storageInfo))
+          {
+            // Value already present, update type and instances
+            storageInfo->m_Type = ezVariant::Type::Int64;
+            UpdateInstances(storageInfo->m_uiIndex, pProperty);
+          }
+          else
+          {
+            ezUInt16 uiIndex = (ezUInt16)m_PathToStorageInfoTable.GetCount();
+            // Add value, new entries are appended as int64
+            m_PathToStorageInfoTable.Insert(path, StorageInfo(uiIndex, ezVariantType::Int64));
+            AddPropertyToInstances(uiIndex, pProperty);
+          }
+        }
+        else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::Pointer))
+        {
+          // Pointer types are added to the dictionary
+          StorageInfo* storageInfo = nullptr;
+          if (m_PathToStorageInfoTable.TryGetValue(path, storageInfo))
+          {
+            // Value already present, update type and instances
+            storageInfo->m_Type = ezVariantType::Uuid;
+            UpdateInstances(storageInfo->m_uiIndex, pProperty);
+          }
+          else
+          {
+            const ezUInt16 uiIndex = (ezUInt16)m_PathToStorageInfoTable.GetCount();
 
-      // Not POD type, recurse further
-      AddPropertiesRecursive(pMember->GetSpecificType(), path);
+            // Add value, new entries are appended
+            m_PathToStorageInfoTable.Insert(path, StorageInfo(uiIndex, ezVariantType::Uuid));
+            AddPropertyToInstances(uiIndex, pProperty);
+          }
+        }
+        else // Member class or struct
+        {
+          const ezAbstractMemberProperty* pMember = static_cast<const ezAbstractMemberProperty*>(pProperty);
+
+          // Not POD type, recurse further
+          AddPropertiesRecursive(pMember->GetSpecificType(), path);
+        }
+      }
+      break;
+    case ezPropertyCategory::Array:
+    case ezPropertyCategory::Set:
+      {
+        StorageInfo* storageInfo = nullptr;
+        if (m_PathToStorageInfoTable.TryGetValue(path, storageInfo))
+        {
+          // Value already present, update type and instances
+          storageInfo->m_Type = ezVariantType::VariantArray;
+          UpdateInstances(storageInfo->m_uiIndex, pProperty);
+        }
+        else
+        {
+          const ezUInt16 uiIndex = (ezUInt16)m_PathToStorageInfoTable.GetCount();
+          // Add value, new entries are appended
+          m_PathToStorageInfoTable.Insert(path, StorageInfo(uiIndex, ezVariantType::VariantArray));
+          AddPropertyToInstances(uiIndex, pProperty);
+        }
+      }
+      break;
     }
+
   }
 }
 
@@ -119,41 +165,75 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::UpdateInstances
     ezDynamicArray<ezVariant>& data = it.Key()->m_Data;
     EZ_ASSERT_DEV(uiIndex < data.GetCount(), "ezReflectedTypeStorageAccessor found with fewer properties that is should have!");
     ezVariant& value = data[uiIndex];
-    // Did the type change from what it was previously?
-
-    if (pProperty->GetCategory() != ezPropertyCategory::Member)
-      continue;
-
+    
     const ezRTTI* pSpecificType = pProperty->GetSpecificType();
-    const auto SpecVarType = pSpecificType->GetVariantType();
+    const auto SpecVarType = pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pSpecificType->GetVariantType() : ezVariantType::Uuid;
 
-    if (value.GetType() == SpecVarType)
+    switch (pProperty->GetCategory())
     {
-      // The types are equal so nothing needs to be done. The current value will stay valid.
-      // This should be the most common case.
-      continue;
-    }
-
-    if (value.GetType() == ezVariant::Type::Invalid)
-    {
-      // The old data point was never set, this can happen if an instance was created after a ezRTTI
-      // was updated and a property was removed. In that case the index of the old property would still exist
-      // but its value would never be set. Now if the property gets added again its value will be invalid on
-      // this particular instance.
-      value = ezToolsReflectionUtils::GetDefaultVariantFromType(SpecVarType);
-
-      continue;
-    }
-
-    {
-      // The type has changed but we have a valid value stored. Assume that the type of a property was changed
-      // and try to convert the value.
-      ezResult res(EZ_FAILURE);
-      value = value.ConvertTo(SpecVarType, &res);
-      if (res == EZ_FAILURE)
+    case ezPropertyCategory::Member:
       {
-        value = ezToolsReflectionUtils::GetDefaultVariantFromType(SpecVarType);
+        // Did the type change from what it was previously?
+        if (value.GetType() == SpecVarType)
+        {
+          // The types are equal so nothing needs to be done. The current value will stay valid.
+          // This should be the most common case.
+          continue;
+        }
+        if (value.GetType() == ezVariantType::Invalid)
+        {
+          // The old data point was never set, this can happen if an instance was created after a ezRTTI
+          // was updated and a property was removed. In that case the index of the old property would still exist
+          // but its value would never be set. Now if the property gets added again its value will be invalid on
+          // this particular instance.
+          value = ezToolsReflectionUtils::GetDefaultVariantFromType(SpecVarType);
+          continue;
+        }
+
+        {
+          // The type has changed but we have a valid value stored. Assume that the type of a property was changed
+          // and try to convert the value.
+          ezResult res(EZ_FAILURE);
+          value = value.ConvertTo(SpecVarType, &res);
+          if (res == EZ_FAILURE)
+          {
+            value = ezToolsReflectionUtils::GetDefaultVariantFromType(SpecVarType);
+          }
+        }
       }
+      break;
+    case ezPropertyCategory::Array:
+    case ezPropertyCategory::Set:
+      {
+        if (value.GetType() != ezVariantType::VariantArray)
+        {
+          value = ezToolsReflectionUtils::GetDefaultVariantFromType(SpecVarType);
+          continue;
+        }
+        ezVariantArray values = value.Get<ezVariantArray>();
+        if (values.IsEmpty())
+          continue;
+
+        // Same conversion logic as for ezPropertyCategory::Member, but for each element instead.
+        for (ezVariant& var : values)
+        {
+          if (var.GetType() == SpecVarType)
+          {
+            continue;
+          }
+          else
+          {
+            ezResult res(EZ_FAILURE);
+            var = var.ConvertTo(SpecVarType, &res);
+            if (res == EZ_FAILURE)
+            {
+              var = ezToolsReflectionUtils::GetDefaultVariantFromType(SpecVarType);
+            }
+          }
+        }
+        value = values;
+      }
+      break;
     }
   }
 }
@@ -213,15 +293,28 @@ void ezReflectedTypeStorageManager::Shutdown()
 
 const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping* ezReflectedTypeStorageManager::AddStorageAccessor(ezReflectedTypeStorageAccessor* pInstance)
 {
-  ReflectedTypeStorageMapping* pMapping = m_ReflectedTypeToStorageMapping[pInstance->GetType()];
+  ReflectedTypeStorageMapping* pMapping = GetTypeStorageMapping(pInstance->GetType());
   pMapping->m_Instances.Insert(pInstance);
   return pMapping;
 }
 
 void ezReflectedTypeStorageManager::RemoveStorageAccessor(ezReflectedTypeStorageAccessor* pInstance)
 {
-  ReflectedTypeStorageMapping* pMapping = m_ReflectedTypeToStorageMapping[pInstance->GetType()];
+  ReflectedTypeStorageMapping* pMapping = GetTypeStorageMapping(pInstance->GetType());
   pMapping->m_Instances.Remove(pInstance);
+}
+
+ezReflectedTypeStorageManager::ReflectedTypeStorageMapping* ezReflectedTypeStorageManager::GetTypeStorageMapping(const ezRTTI* pType)
+{
+  EZ_ASSERT_DEV(pType != nullptr, "Nullptr is not a vali type!");
+  auto it = m_ReflectedTypeToStorageMapping.Find(pType);
+  if (it.IsValid())
+    return it.Value();
+
+  ReflectedTypeStorageMapping* pMapping = EZ_DEFAULT_NEW(ReflectedTypeStorageMapping);
+  pMapping->AddProperties(pType);
+  m_ReflectedTypeToStorageMapping[pType] = pMapping;
+  return pMapping;
 }
 
 void ezReflectedTypeStorageManager::TypeAddedEvent(const ezPhantomTypeChange& data)
@@ -229,11 +322,8 @@ void ezReflectedTypeStorageManager::TypeAddedEvent(const ezPhantomTypeChange& da
   const ezRTTI* pType = data.m_pChangedType;
   EZ_ASSERT_DEV(pType != nullptr, "A type was added but it has an invalid handle!");
 
-  ReflectedTypeStorageMapping* pMapping = EZ_DEFAULT_NEW(ReflectedTypeStorageMapping);
   EZ_ASSERT_DEV(!m_ReflectedTypeToStorageMapping.Find(data.m_pChangedType).IsValid(), "The type '%s' was added twice!", pType->GetTypeName());
-  pMapping->AddProperties(pType);
-
-  m_ReflectedTypeToStorageMapping.Insert(data.m_pChangedType, pMapping);
+  GetTypeStorageMapping(data.m_pChangedType);
 }
 
 void ezReflectedTypeStorageManager::TypeChangedEvent(const ezPhantomTypeChange& data)

@@ -17,14 +17,9 @@ void* ezRttiSerializationContext::CreateObject(const ezUuid& guid, const ezRTTI*
   if (!pRtti->GetAllocator()->CanAllocate())
     return nullptr;
 
-
-  ezReflectedObjectWrapper object;
-  object.m_pObject = pRtti->GetAllocator()->Allocate();
-  object.m_pType = pRtti;
-  m_Objects.Insert(guid, object);
-  m_PtrLookup.Insert(object.m_pObject, guid);
-
-  return object.m_pObject;
+  void* pObject = pRtti->GetAllocator()->Allocate();
+  RegisterObject(guid, pRtti, pObject);
+  return pObject;
 }
 
 void ezRttiSerializationContext::DeleteObject(const ezUuid& guid)
@@ -44,9 +39,7 @@ void ezRttiSerializationContext::DeleteObject(const ezUuid& guid)
 
   const ezRTTI* pRtti = pObjectWrapper->m_pType;
   void* pObject = pObjectWrapper->m_pObject;
-  m_PtrLookup.Remove(pObject);
-  m_Objects.Remove(guid);
-  m_PendingObjects.Remove(guid);
+  UnregisterObject(guid);
   pRtti->GetAllocator()->Deallocate(pObject);
 }
 
@@ -55,8 +48,30 @@ void ezRttiSerializationContext::RegisterObject(const ezUuid& guid, const ezRTTI
   ezReflectedObjectWrapper object;
   object.m_pObject = pObject;
   object.m_pType = pRtti;
+
+  if (pRtti->IsDerivedFrom<ezReflectedClass>())
+  {
+    ezReflectedClass* pReflectedClass = static_cast<ezReflectedClass*>(pObject);
+    object.m_pType = pReflectedClass->GetDynamicRTTI();
+  }
+
   m_Objects.Insert(guid, object);
   m_PtrLookup.Insert(object.m_pObject, guid);
+}
+
+void ezRttiSerializationContext::UnregisterObject(const ezUuid& guid)
+{
+  ezReflectedObjectWrapper* pObjectWrapper = nullptr;
+  if (!m_Objects.TryGetValue(guid, pObjectWrapper))
+  {
+    EZ_REPORT_FAILURE("Given object guid can't be found and thus can't be unregistered!");
+    return;
+  }
+
+  void* pObject = pObjectWrapper->m_pObject;
+  m_PtrLookup.Remove(pObject);
+  m_Objects.Remove(guid);
+  m_PendingObjects.Remove(guid);
 }
 
 ezReflectedObjectWrapper* ezRttiSerializationContext::GetObjectByGUID(const ezUuid& guid) const
@@ -85,14 +100,10 @@ ezUuid ezRttiSerializationContext::EnqueObject(void* pObject, const ezRTTI* pRtt
   ezUuid guid = GetObjectGUID(pObject);
   if (!guid.IsValid())
   {
-    ezReflectedObjectWrapper object;
-    object.m_pObject = pObject;
-    object.m_pType = pRtti;
     guid.CreateNewUuid();
-    m_Objects.Insert(guid, object);
-    m_PtrLookup.Insert(object.m_pObject, guid);
-    m_PendingObjects.Insert(guid);
+    RegisterObject(guid, pRtti, pObject);
   }
+  m_PendingObjects.Insert(guid);
   return guid;
 }
 

@@ -1,100 +1,149 @@
 #include <PCH.h>
 #include <EditorFramework/GUI/CollapsibleGroupBox.moc.h>
+#include <ToolsFoundation/CommandHistory/CommandHistory.h>
 #include <QStyleOptionToolButton>
 #include <QStyle>
 #include <QPainter>
+#include <QMouseEvent>
+#include <QScrollArea>
+#include <ToolsFoundation/Command/TreeCommands.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 const ezInt32 s_GroupBoxHeight = 17;
-ezCollapsibleGroupBox::ezCollapsibleGroupBox(QWidget* pParent) : QGroupBox(pParent)
+ezCollapsibleGroupBox::ezCollapsibleGroupBox(QWidget* pParent, bool bShowElementButtons) : QWidget(pParent)
 {
-  setCheckable(true);
-  connect(this, SIGNAL( toggled(bool) ), this, SLOT( on_toggled(bool) ));
+  setupUi(this);
+
+  if (!bShowElementButtons)
+  {
+    MoveUp->setVisible(false);
+    MoveDown->setVisible(false);
+    Delete->setVisible(false);
+  }
+
+  Icon->installEventFilter(this);
+  Caption->installEventFilter(this);
 }
 
-ezCollapsibleGroupBox::~ezCollapsibleGroupBox()
+void ezCollapsibleGroupBox::setTitle(QString sTitle)
 {
+  Caption->setText(sTitle);
 }
 
-void ezCollapsibleGroupBox::paintEvent(QPaintEvent* pEvent)
+bool ezCollapsibleGroupBox::eventFilter(QObject* object, QEvent* event)
 {
-  //QGroupBox::paintEvent(pEvent);
-
-  QStyleOptionGroupBox option;
-  initStyleOption(&option);
-  QRect textRect = style()->subControlRect(QStyle::CC_GroupBox, &option, QStyle::SC_GroupBoxLabel, this);
-
-  QPainter p(this);
-
-  // Frame
+  if (event->type() == QEvent::Type::MouseButtonPress || event->type() == QEvent::Type::MouseButtonDblClick)
   {
-      QStyleOptionFrame frame;
-      frame.QStyleOption::operator=(option);
-      frame.features = option.features;
-      frame.lineWidth = option.lineWidth;
-      frame.midLineWidth = option.midLineWidth;
-      frame.rect = style()->subControlRect(QStyle::CC_GroupBox, &option, QStyle::SC_GroupBoxFrame, this);
-      style()->drawPrimitive(QStyle::PE_FrameGroupBox, &frame, &p, this);
-  }
+    QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
 
-  // Frame Header
-  {
-    QStyleOptionToolButton opt;
-    opt.init(this);
-    opt.rect.setHeight(s_GroupBoxHeight);
-    opt.state |= (QStyle::State_AutoRaise | QStyle::State_On);
-    style()->drawPrimitive(QStyle::PE_PanelButtonTool, &opt, &p, this);
-  }
-
-  // Indicator
-  {
-    QStyleOptionViewItem opt;
-    QStyle::State extraFlags = QStyle::State_None;
-    if (isEnabled())
-      extraFlags |= QStyle::State_Enabled;
-    if (window()->isActiveWindow())
-      extraFlags |= QStyle::State_Active;
-
-    opt.rect = textRect;
-    opt.rect.setX(0);
-    opt.rect.setWidth(textRect.x());
-    const bool expanded = isChecked();
-    opt.state = extraFlags | QStyle::State_Item | QStyle::State_None | QStyle::State_Children | (expanded ? QStyle::State_Open : QStyle::State_None);
-    style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, &p, this);
-  }
-
-  // Text
-  {
-    p.setPen(QPen(option.palette.windowText(), 1));
-    int alignment = int(option.textAlignment);
-    if (!style()->styleHint(QStyle::SH_UnderlineShortcut, &option, this))
-      alignment |= Qt::TextHideMnemonic;
-
-    style()->drawItemText(&p, textRect,  Qt::TextShowMnemonic | Qt::AlignLeft | alignment, option.palette, option.state, option.text, QPalette::NoRole);
-  }
-}
-
-void ezCollapsibleGroupBox::on_toggled(bool bToggled)
-{
-  setUpdatesEnabled(false);
-  QObjectList childList = children();
-  for (int i = 0; i < childList.size(); ++i)
-  {
-    QObject* o = childList.at(i);
-    if (o->isWidgetType())
+    if (mouseEvent->button() == Qt::MouseButton::LeftButton)
     {
-      QWidget* w = static_cast<QWidget*>(o);
-      w->setVisible(bToggled);
+      QtScopedUpdatesDisabled sud(this);
+
+      Content->setVisible(!Content->isVisible());
+
+      QWidget* pCur = this;
+      while (pCur != nullptr && qobject_cast<QScrollArea*>(pCur) == nullptr)
+      {
+        pCur->updateGeometry();
+        pCur = pCur->parentWidget();
+      }
+
+      Icon->setPixmap(QPixmap(QLatin1String(Content->isVisible() ? ":/GuiFoundation/Icons/GroupOpen.png" : ":/GuiFoundation/Icons/GroupClosed.png")));
+      return true;
     }
   }
 
-  if(bToggled)
-  {
-    setFixedHeight(QWIDGETSIZE_MAX);
-    adjustSize();
-  }
-  else
-  {
-    setFixedHeight(s_GroupBoxHeight);
-  }
-  setUpdatesEnabled(true);
+  return false;
 }
+
+ezElementGroupBox::ezElementGroupBox(QWidget* pParent) : ezCollapsibleGroupBox(pParent, true)
+{
+
+}
+
+void ezElementGroupBox::Move(ezInt32 iMove)
+{
+  ezCommandHistory* history = m_Items[0].m_pObject->GetDocumentObjectManager()->GetDocument()->GetCommandHistory();
+  history->StartTransaction();
+
+  ezMoveObjectCommand cmd;
+
+  bool bDidAny = false;
+
+  ezStatus res(EZ_SUCCESS);
+  for (auto& item : m_Items)
+  {
+    ezInt32 iCurIndex = item.m_pObject->GetPropertyIndex().ConvertTo<ezInt32>() + iMove;
+    if (iCurIndex < 0 || iCurIndex > item.m_pObject->GetParentAccessor().GetCount(item.m_pObject->GetParentProperty()))
+      continue;
+
+    if (!bDidAny)
+    {
+      setParent(nullptr);
+      setVisible(false);
+    }
+
+    bDidAny = true;
+
+    cmd.m_NewParent = item.m_pObject->GetParent()->GetGuid();
+    cmd.m_Object = item.m_pObject->GetGuid();
+    cmd.m_sParentProperty = item.m_pObject->GetParentProperty();
+    cmd.m_Index = iCurIndex;
+
+    res = history->AddCommand(cmd);
+    if (res.m_Result.Failed())
+      break;
+  }
+
+  if (res.m_Result.Failed())
+    history->CancelTransaction();
+  else
+    history->FinishTransaction();
+
+  ezUIServices::GetInstance()->MessageBoxStatus(res, "Moving sub-element failed.");
+
+  if (bDidAny)
+    deleteLater();
+}
+
+void ezElementGroupBox::on_MoveUp_clicked()
+{
+  Move(-1);
+}
+
+void ezElementGroupBox::on_MoveDown_clicked()
+{
+  Move(+2);
+}
+
+void ezElementGroupBox::on_Delete_clicked()
+{
+  setParent(nullptr);
+  setVisible(false);
+
+  ezCommandHistory* history = m_Items[0].m_pObject->GetDocumentObjectManager()->GetDocument()->GetCommandHistory();
+  history->StartTransaction();
+
+  ezRemoveObjectCommand cmd;
+
+  ezStatus res;
+  for (auto& item : m_Items)
+  {
+    cmd.m_Object = item.m_pObject->GetGuid();
+    res = history->AddCommand(cmd);
+    if (res.m_Result.Failed())
+      break;
+  }
+
+  if (res.m_Result.Failed())
+    history->CancelTransaction();
+  else
+    history->FinishTransaction();
+
+  ezUIServices::GetInstance()->MessageBoxStatus(res, "Removing sub-element from the property failed.");
+
+  deleteLater();
+}
+

@@ -13,11 +13,19 @@ class EZ_TOOLSFOUNDATION_DLL ezReflectedTypeStorageAccessor : public ezIReflecte
 {
   friend class ezReflectedTypeStorageManager;
 public:
-  ezReflectedTypeStorageAccessor(const ezRTTI* hReflectedType); // [tested]
+  ezReflectedTypeStorageAccessor(const ezRTTI* hReflectedType, ezDocumentObjectBase* pOwner); // [tested]
   ~ezReflectedTypeStorageAccessor();
  
-  virtual const ezVariant GetValue(const ezPropertyPath& path) const override; // [tested]
-  virtual bool SetValue(const ezPropertyPath& path, const ezVariant& value) override; // [tested]
+  virtual const ezVariant GetValue(const ezPropertyPath& path, ezVariant index = ezVariant()) const override; // [tested]
+  virtual bool SetValue(const ezPropertyPath& path, const ezVariant& value, ezVariant index = ezVariant()) override; // [tested]
+
+  virtual ezInt32 GetCount(const ezPropertyPath& path) const override;
+  virtual bool GetKeys(const ezPropertyPath& path, ezHybridArray<ezVariant, 16>& out_keys) const override;
+
+  virtual bool InsertValue(const ezPropertyPath& path, ezVariant index, const ezVariant& value) override;
+  virtual bool RemoveValue(const ezPropertyPath& path, ezVariant index) override;
+
+  virtual ezVariant GetPropertyChildIndex(const ezPropertyPath& path, const ezVariant& value) const;
 
 private:
   ezDynamicArray<ezVariant> m_Data;

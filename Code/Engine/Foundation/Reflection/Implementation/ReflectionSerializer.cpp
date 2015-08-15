@@ -8,6 +8,7 @@ ezReflectionSerializer::ezReflectionSerializer(ezReflectionAdapter* pAdapter) : 
 {
   m_pContext = pAdapter->GetContext();
   m_bSerializeReadOnly = false;
+  m_bSerializeOwnerPtrs = true;
 }
 
 
@@ -341,6 +342,8 @@ void ezReflectionSerializer::WriteProperties(ezJSONWriter& writer, const ezRefle
   {
     void* pProp = m_pAdapter->GetProperty(object.m_pType, p);
     const ezReflectedPropertyWrapper prop = m_pAdapter->GetPropertyInfo(pProp);
+    if (!m_bSerializeOwnerPtrs && prop.m_Flags.IsSet(ezPropertyFlags::PointerOwner))
+      continue;
     ezReflectionSerializer::WritePropertyToJSON(writer, prop, object);
   }
 }
@@ -455,7 +458,7 @@ ezUuid ezReflectionSerializer::ReadObjectsFromJSON(const ezVariantDictionary& ro
 // ezReflectionSerializer public static functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezReflectionSerializer::WriteObjectToJSON(ezStreamWriterBase& stream, const ezRTTI* pRtti, const void* pObject, ezJSONWriter::WhitespaceMode::Enum WhitespaceMode)
+void ezReflectionSerializer::WriteObjectToJSON(ezStreamWriterBase& stream, const ezRTTI* pRtti, const void* pObject, ezJSONWriter::WhitespaceMode WhitespaceMode)
 {
   ezExtendedJSONWriter writer;
   writer.SetOutputStream(&stream);

@@ -387,6 +387,10 @@ void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ez
       {
         ezAbstractMemberProperty* memberProp = static_cast<ezAbstractMemberProperty*>(prop);
         const ezRTTI* pPropRtti = memberProp->GetSpecificType();
+
+        if (inout_types.Contains(pPropRtti))
+          continue;
+
         inout_types.Insert(pPropRtti);
         GatherDependentTypes(pPropRtti, inout_types);
       }
@@ -397,6 +401,10 @@ void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ez
       {
         ezAbstractArrayProperty* pArrayProp = static_cast<ezAbstractArrayProperty*>(prop);
         const ezRTTI* pPropRtti = pArrayProp->GetSpecificType();
+
+        if (inout_types.Contains(pPropRtti))
+          continue;
+
         inout_types.Insert(pPropRtti);
         GatherDependentTypes(pPropRtti, inout_types);
       }
@@ -405,6 +413,10 @@ void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ez
       {
         ezAbstractSetProperty* pSetProp = static_cast<ezAbstractSetProperty*>(prop);
         const ezRTTI* pPropRtti = pSetProp->GetSpecificType();
+
+        if (inout_types.Contains(pPropRtti))
+          continue;
+
         inout_types.Insert(pPropRtti);
         GatherDependentTypes(pPropRtti, inout_types);
       }

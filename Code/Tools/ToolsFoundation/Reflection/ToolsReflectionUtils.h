@@ -36,7 +36,7 @@ public:
   /// or might also be read by humans.
   ///
   /// Read-only properties are not written out, as they cannot be restored anyway.
-  static void WriteObjectToJSON(ezStreamWriterBase& stream, const ezDocumentObjectBase* pObject, ezJSONWriter::WhitespaceMode::Enum WhitespaceMode = ezJSONWriter::WhitespaceMode::None);
+  static void WriteObjectToJSON(bool bSerializeOwnerPtrs, ezStreamWriterBase& stream, const ezDocumentObjectBase* pObject, ezJSONWriter::WhitespaceMode WhitespaceMode = ezJSONWriter::WhitespaceMode::None);
 
   static void ReadObjectPropertiesFromJSON(ezStreamReaderBase& stream, ezIReflectedTypeAccessor& accessor);
 

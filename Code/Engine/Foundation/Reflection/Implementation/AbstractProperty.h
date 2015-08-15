@@ -13,7 +13,7 @@ class ezRTTI;
 /// \brief Flags used to describe a property and its type.
 struct ezPropertyFlags
 {
-  typedef ezUInt8 StorageType;
+  typedef ezUInt16 StorageType;
 
   enum Enum
   {
@@ -25,6 +25,7 @@ struct ezPropertyFlags
     Bitflags = EZ_BIT(5),     ///< bitflags property, cast to ezAbstractEnumerationProperty.
     Constant = EZ_BIT(6),     ///< Property is a constant.
     Phantom = EZ_BIT(7),
+    Hidden = EZ_BIT(8),
     Default = 0
   };
 
@@ -38,6 +39,7 @@ struct ezPropertyFlags
     StorageType Bitflags : 1;
     StorageType Constant : 1;
     StorageType Phantom : 1;
+    StorageType Hidden : 1;
   };
 };
 
@@ -86,7 +88,7 @@ public:
   };
 
   /// \brief Adds flags to the property. Returns itself to allow to be called during initialization.
-  ezAbstractProperty* AddFlags(ezPropertyFlags::Enum flags)
+  ezAbstractProperty* AddFlags(ezBitflags<ezPropertyFlags> flags)
   {
     m_Flags.Add(flags);
     return this;

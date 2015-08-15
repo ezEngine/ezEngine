@@ -64,9 +64,9 @@ ezVariant ezToolsReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enu
   case ezVariant::Type::Uuid:
     return ezVariant(ezUuid());
   case ezVariant::Type::VariantArray:
-    return ezVariant();
+    return ezVariantArray();
   case ezVariant::Type::VariantDictionary:
-    return ezVariant();
+    return ezVariantDictionary();
   case ezVariant::Type::ReflectedPointer:
     return ezVariant();
   case ezVariant::Type::VoidPointer:
@@ -177,7 +177,7 @@ ezPropertyPath ezToolsReflectionUtils::CreatePropertyPath(const char* pData1, co
 
 ezAbstractProperty* ezToolsReflectionUtils::GetPropertyByPath(const ezRTTI* pRtti, const ezPropertyPath& path)
 {
-  ezAbstractMemberProperty* pCurrentProp = ezReflectionUtils::GetMemberProperty(pRtti, path[0]);
+  ezAbstractProperty* pCurrentProp = pRtti->FindPropertyByName(path[0]);
   if (path.GetCount() == 1)
     return pCurrentProp;
 
@@ -265,7 +265,7 @@ bool ezToolsReflectionUtils::SetMemberPropertyValueByPath(const ezRTTI* pRtti, v
   return false;
 }
 
-void ezToolsReflectionUtils::WriteObjectToJSON(ezStreamWriterBase& stream, const ezDocumentObjectBase* pObject, ezJSONWriter::WhitespaceMode::Enum WhitespaceMode)
+void ezToolsReflectionUtils::WriteObjectToJSON(bool bSerializeOwnerPtrs, ezStreamWriterBase& stream, const ezDocumentObjectBase* pObject, ezJSONWriter::WhitespaceMode WhitespaceMode)
 {
   ezExtendedJSONWriter writer;
   writer.SetOutputStream(&stream);
@@ -274,6 +274,7 @@ void ezToolsReflectionUtils::WriteObjectToJSON(ezStreamWriterBase& stream, const
   ezObjectSerializationContext context;
   ezObjectReflectionAdapter adapter(&context);
   ezReflectionSerializer serializer(&adapter);
+  serializer.SetSerializeOwnerPtrs(bSerializeOwnerPtrs);
 
   writer.BeginObject();
   {

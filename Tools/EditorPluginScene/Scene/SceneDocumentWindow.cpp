@@ -579,6 +579,9 @@ ezUuid ezScene3DWidget::CreateDropObject(const ezVec3& vPosition, const char* sz
   ezAddObjectCommand cmd;
   cmd.SetType("ezGameObject");
   cmd.m_NewObjectGuid = ObjectGuid;
+  cmd.m_bEditorProperty = false;
+  cmd.m_Index = -1;
+  cmd.m_sParentProperty = "RootObjects";
 
   auto history = m_pDocumentWindow->GetDocument()->GetCommandHistory();
 
@@ -597,6 +600,8 @@ ezUuid ezScene3DWidget::CreateDropObject(const ezVec3& vPosition, const char* sz
   history->AddCommand(cmd2);
 
   cmd.SetType(szType);
+  cmd.m_sParentProperty = "Components";
+  cmd.m_Index = -1;
   cmd.m_NewObjectGuid = CmpGuid;
   cmd.m_Parent = ObjectGuid;
   history->AddCommand(cmd);

@@ -17,8 +17,10 @@ public: // Properties
 
   const ezRTTI* m_pType;
   ezUuid m_Parent;
-  ezInt32 m_iChildIndex;
+  ezString m_sParentProperty;
+  ezVariant m_Index;
   ezUuid m_NewObjectGuid; ///< This is optional. If not filled out, a new guid is assigned automatically.
+  bool m_bEditorProperty;
 
 private:
   virtual ezStatus Do(bool bRedo) override;
@@ -46,8 +48,10 @@ private:
 
 private:
   ezDocumentObjectBase* m_pParent;
-  ezInt32 m_iChildIndex;
+  ezString m_sParentProperty;
+  ezVariant m_Index;
   ezDocumentObjectBase* m_pObject;
+  bool m_bEditorProperty;
 };
 
 
@@ -61,7 +65,8 @@ public:
 public: // Properties
   ezUuid m_Object;
   ezUuid m_NewParent;
-  ezInt32 m_iNewChildIndex;
+  ezString m_sParentProperty;
+  ezVariant m_Index;
 
 private:
   virtual ezStatus Do(bool bRedo) override;
@@ -72,7 +77,8 @@ private:
   ezDocumentObjectBase* m_pObject;
   ezDocumentObjectBase* m_pOldParent;
   ezDocumentObjectBase* m_pNewParent;
-  ezInt32 m_iOldChildIndex;
+  ezString m_sOldParentProperty;
+  ezVariant m_OldIndex;
 };
 
 class EZ_TOOLSFOUNDATION_DLL ezSetObjectPropertyCommand : public ezCommandBase
@@ -101,5 +107,54 @@ private:
   ezString m_sPropertyPath;
 };
 
+class EZ_TOOLSFOUNDATION_DLL ezInsertObjectPropertyCommand : public ezCommandBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezInsertObjectPropertyCommand);
 
+public:
+  ezInsertObjectPropertyCommand();
 
+public: // Properties
+  ezUuid m_Object;
+  ezVariant m_NewValue;
+  ezVariant m_Index;
+  bool m_bEditorProperty;
+
+  const char* GetPropertyPath() const { return m_sPropertyPath; }
+  void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }
+
+private:
+  virtual ezStatus Do(bool bRedo) override;
+  virtual ezStatus Undo(bool bFireEvents) override;
+  virtual void Cleanup(CommandState state) override { }
+
+private:
+  ezDocumentObjectBase* m_pObject;
+  ezString m_sPropertyPath;
+};
+
+class EZ_TOOLSFOUNDATION_DLL ezRemoveObjectPropertyCommand : public ezCommandBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezRemoveObjectPropertyCommand);
+
+public:
+  ezRemoveObjectPropertyCommand();
+
+public: // Properties
+  ezUuid m_Object;
+  ezVariant m_Index;
+  bool m_bEditorProperty;
+
+  const char* GetPropertyPath() const { return m_sPropertyPath; }
+  void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }
+
+private:
+  virtual ezStatus Do(bool bRedo) override;
+  virtual ezStatus Undo(bool bFireEvents) override;
+  virtual void Cleanup(CommandState state) override { }
+
+private:
+  ezDocumentObjectBase* m_pObject;
+  ezString m_sPropertyPath;
+  ezVariant m_OldValue;
+};

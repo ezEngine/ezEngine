@@ -300,6 +300,7 @@ void ezEngineProcessGameState::HandlerGameObjectMsg(ezEngineProcessDocumentConte
       if (pDocumentContext->m_pWorld->TryGetObject(hObject, pObject))
       {
         UpdateProperties(pMsg, pObject, ezGetStaticRTTI<ezGameObject>());
+        //pObject->UpdateGlobalTransform();
       }
     }
     break;

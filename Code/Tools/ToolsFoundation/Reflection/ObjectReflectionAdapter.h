@@ -10,6 +10,7 @@ public:
   virtual void* CreateObject(const ezUuid& guid, const ezRTTI* pType) override;
   virtual void DeleteObject(const ezUuid& guid) override;
   virtual void RegisterObject(const ezUuid& guid, const ezRTTI* pType, void* pObject) override;
+  virtual void UnregisterObject(const ezUuid& guid) override;
   virtual ezReflectedObjectWrapper* GetObjectByGUID(const ezUuid& guid) const override;
   virtual ezUuid GetObjectGUID(void* pObject) const override;
 

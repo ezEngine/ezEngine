@@ -28,7 +28,7 @@ private:
 
   void ClearView();
   void CreateView();
-  void CreateView(ezDocumentObjectBase* pRoot);
+  void CreateView(const ezActionMap::TreeNode* pRoot);
 
 private:
   ezHashTable<ezUuid, QSharedPointer<ezQtProxy>> m_Proxies;

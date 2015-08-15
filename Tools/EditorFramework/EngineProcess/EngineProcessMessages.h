@@ -142,11 +142,14 @@ public:
   };
 
   ezInt8 m_iMsgType;
-  ezUInt16 m_uiNewChildIndex;
   ezUuid m_ObjectGuid;
   ezUuid m_PreviousParentGuid;
   ezUuid m_NewParentGuid;
   ezString m_sObjectType;
+  ezString m_sParentProperty;
+  ezVariant m_PropertyIndex;
+  bool m_bEditorProperty;
+
   ezString m_sObjectData;
 };
 

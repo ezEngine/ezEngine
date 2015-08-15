@@ -9,14 +9,14 @@
 class EZ_EDITORFRAMEWORK_DLL ezRawPropertyWidget : public QWidget
 {
 public:
-  ezRawPropertyWidget(QWidget* pParent, const ezIReflectedTypeAccessor& accessor);
+  ezRawPropertyWidget(QWidget* pParent, const ezHybridArray<ezPropertyEditorBaseWidget::Selection, 8>& items, bool bEditorProperty);
 
   ezEvent<const ezPropertyEditorBaseWidget::Event&> m_PropertyChanged;
 
   void ChangePropertyValue(const ezString& sPropertyPath, const ezVariant& value);
 
 private:
-  void BuildUI(const ezIReflectedTypeAccessor& et, const ezRTTI* pType, ezPropertyPath& ParentPath, QLayout* pLayout);
+  void BuildUI(const ezHybridArray<ezPropertyEditorBaseWidget::Selection, 8>& items, bool bEditorProperty, const ezRTTI* pType, ezPropertyPath& ParentPath, QLayout* pLayout);
 
   void PropertyChangedHandler(const ezPropertyEditorBaseWidget::Event& ed);
 

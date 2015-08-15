@@ -39,8 +39,26 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezGameObjectDummyAlloc
     EZ_ACCESSOR_PROPERTY("LocalPosition", GetLocalPosition, SetLocalPosition),
     EZ_ACCESSOR_PROPERTY("LocalRotation", GetLocalRotation, SetLocalRotation),
     EZ_ACCESSOR_PROPERTY("LocalScaling", GetLocalScaling, SetLocalScaling),
+    EZ_SET_ACCESSOR_PROPERTY("Children", Reflection_GetChildren, Reflection_AddChild, Reflection_DetachChild)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
+    EZ_SET_ACCESSOR_PROPERTY("Components", Reflection_GetComponents, Reflection_AddComponent, Reflection_RemoveComponent)->AddFlags(ezPropertyFlags::PointerOwner),
     EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
+
+ezHybridArray<ezGameObject*, 8> ezGameObject::Reflection_GetChildren() const
+{
+  ConstChildIterator it = GetChildren();
+
+  ezHybridArray<ezGameObject*, 8> all;
+  all.Reserve(GetChildCount());
+
+  while (it.IsValid())
+  {
+    all.PushBack(it.m_pObject);
+    ++it;
+  }
+
+  return all;
+}
 
 void ezGameObject::ConstChildIterator::Next()
 {

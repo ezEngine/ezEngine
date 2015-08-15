@@ -23,11 +23,10 @@ public:
   void SetSelection(const ezDeque<const ezDocumentObjectBase*>&);
 
 private:
-  void EditorPropertyChangedHandler(const ezPropertyEditorBaseWidget::Event& ed);
-  void ObjectPropertyChangedHandler(const ezPropertyEditorBaseWidget::Event& ed);
-  void PropertyChangedHandler(const ezPropertyEditorBaseWidget::Event& ed, bool bEditor);
+  void PropertyChangedHandler(const ezPropertyEditorBaseWidget::Event& ed);
   void SelectionEventHandler(const ezSelectionManager::Event& e);
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
 
   ezDeque<const ezDocumentObjectBase*> m_Selection;
   QVBoxLayout* m_pLayout;
