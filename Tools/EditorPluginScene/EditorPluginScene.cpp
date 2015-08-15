@@ -30,7 +30,6 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
 void OnLoadPlugin(bool bReloading)    
 {
   ezToolsReflectionUtils::RegisterType(ezRTTI::FindTypeByName("ezAssetDocumentInfo"));
-  ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezSceneObjectEditorProperties>());
   ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezGameObject>());
 
   ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(OnDocumentManagerEvent));

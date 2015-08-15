@@ -34,9 +34,6 @@ ezRawDocumentTreeModel::~ezRawDocumentTreeModel()
 
 void ezRawDocumentTreeModel::TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  if (!e.m_bEditorProperty)
-    return;
-
   if (e.m_sPropertyPath != "Name")
     return;
 
@@ -189,7 +186,7 @@ QVariant ezRawDocumentTreeModel::data(const QModelIndex& index, int role) const
     case Qt::DisplayRole:
     case Qt::EditRole:
       {
-        return QString::fromUtf8(pObject->GetEditorTypeAccessor().GetValue(ezToolsReflectionUtils::CreatePropertyPath("Name")).ConvertTo<ezString>().GetData());
+        return QString::fromUtf8(pObject->GetTypeAccessor().GetValue(ezToolsReflectionUtils::CreatePropertyPath("Name")).ConvertTo<ezString>().GetData());
       }
       break;
     }
@@ -369,10 +366,9 @@ bool ezRawDocumentTreeModel::setData(const QModelIndex& index, const QVariant& v
     pHistory->StartTransaction();
 
     ezSetObjectPropertyCommand cmd;
-    cmd.m_bEditorProperty = true;
     cmd.m_NewValue = value.toString().toUtf8().data();
     cmd.m_Object = pObject->GetGuid();
-    cmd.SetPropertyPath("Name");
+    cmd.SetPropertyPath("Name"); /// \todo BLA
 
     pHistory->AddCommand(cmd);
 

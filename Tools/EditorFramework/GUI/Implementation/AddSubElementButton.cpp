@@ -48,7 +48,7 @@ void ezAddSubElementButton::on_Menu_aboutToShow()
   if (!m_pMenu->isEmpty())
     return;
 
-  auto& acc = m_bEditorProperties ? m_Items[0].m_pObject->GetEditorTypeAccessor() : m_Items[0].m_pObject->GetTypeAccessor();
+  auto& acc = m_Items[0].m_pObject->GetTypeAccessor();
 
   auto pProp = ezToolsReflectionUtils::GetPropertyByPath(acc.GetType(), this->m_PropertyPath);
   EZ_ASSERT_DEV(pProp != nullptr, "not good");
@@ -90,7 +90,6 @@ void ezAddSubElementButton::OnMenuAction()
   cmd.m_pType = pRtti;
   cmd.m_sParentProperty = m_PropertyPath.GetPathString();
   cmd.m_Index = -1;
-  cmd.m_bEditorProperty = m_bEditorProperties;
 
   ezStatus res;
   for (auto& item : m_Items)

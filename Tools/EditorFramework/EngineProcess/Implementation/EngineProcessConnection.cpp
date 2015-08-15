@@ -197,9 +197,6 @@ void ezEditorEngineConnection::SendMessage(ezEditorEngineDocumentMsg* pMessage, 
 
 void ezEditorEngineConnection::SendObjectProperties(const ezDocumentObjectPropertyEvent& e)
 {
-  if (e.m_bEditorProperty)
-    return;
-
   ezEntityMsgToEngine msg;
   msg.m_DocumentGuid = m_pDocument->GetGuid();
   msg.m_ObjectGuid = e.m_pObject->GetGuid();
@@ -230,7 +227,6 @@ void ezEditorEngineConnection::SendDocumentTreeChange(const ezDocumentObjectStru
   msg.m_sObjectType = e.m_pObject->GetTypeAccessor().GetType()->GetTypeName();
   msg.m_sParentProperty = e.m_sParentProperty;
   msg.m_PropertyIndex = e.m_PropertyIndex;
-  msg.m_bEditorProperty = e.m_bEditorProperty;
 
   if (e.m_pPreviousParent)
     msg.m_PreviousParentGuid = e.m_pPreviousParent->GetGuid();
@@ -309,7 +305,6 @@ void ezEditorEngineConnection::SendObject(const ezDocumentObjectBase* pObject)
   msg.m_pPreviousParent = nullptr;
   msg.m_sParentProperty = pObject->GetParentProperty();
   msg.m_PropertyIndex = pObject->GetPropertyIndex();
-  msg.m_bEditorProperty = pObject->IsEditorProperty();
 
   SendDocumentTreeChange(msg);
 }

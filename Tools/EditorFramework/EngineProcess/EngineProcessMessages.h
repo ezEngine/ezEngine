@@ -148,7 +148,6 @@ public:
   ezString m_sObjectType;
   ezString m_sParentProperty;
   ezVariant m_PropertyIndex;
-  bool m_bEditorProperty;
 
   ezString m_sObjectData;
 };

@@ -16,7 +16,7 @@ private:
 
   virtual ezDocumentObjectBase* InternalCreateObject(const ezRTTI* pRtti) override;
   virtual void InternalDestroyObject(ezDocumentObjectBase* pObject) override;
-  virtual bool InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent, const char* szParentProperty, const ezVariant& index, bool bEditorProperty) const override;
+  virtual bool InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent, const char* szParentProperty, const ezVariant& index) const override;
   virtual bool InternalCanRemove(const ezDocumentObjectBase* pObject) const override;
   virtual bool InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, const char* szParentProperty, const ezVariant& index) const override;
 

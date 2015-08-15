@@ -14,9 +14,9 @@ EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 
-void ezDocumentObjectRoot::InsertSubObject(ezDocumentObjectBase* pObject, const char* szProperty, const ezVariant& index, bool bEditorProperty)
+void ezDocumentObjectRoot::InsertSubObject(ezDocumentObjectBase* pObject, const char* szProperty, const ezVariant& index)
 {
-  return ezDocumentObjectBase::InsertSubObject(pObject, "RootObjects", index, bEditorProperty);
+  return ezDocumentObjectBase::InsertSubObject(pObject, "RootObjects", index);
 }
 
 void ezDocumentObjectRoot::RemoveSubObject(ezDocumentObjectBase* pObject)
@@ -93,7 +93,7 @@ void ezDocumentObjectManager::DestroyAllObjects()
 // ezDocumentObjectManager Structure Change
 ////////////////////////////////////////////////////////////////////////
 
-void ezDocumentObjectManager::AddObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pParent, const char* szParentProperty, ezVariant index, bool bEditorProperty)
+void ezDocumentObjectManager::AddObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pParent, const char* szParentProperty, ezVariant index)
 {
   if (pParent == nullptr)
     pParent = &m_RootObject;
@@ -101,7 +101,7 @@ void ezDocumentObjectManager::AddObject(ezDocumentObjectBase* pObject, ezDocumen
     szParentProperty = "RootObjects";
 
   EZ_ASSERT_DEV(pObject->GetGuid().IsValid(), "Object Guid invalid! Object was not created via an ezObjectManagerBase!");
-  EZ_ASSERT_DEV(CanAdd(pObject->GetTypeAccessor().GetType(), pParent, szParentProperty, index, bEditorProperty), "Trying to execute invalid add!");
+  EZ_ASSERT_DEV(CanAdd(pObject->GetTypeAccessor().GetType(), pParent, szParentProperty, index), "Trying to execute invalid add!");
 
   ezDocumentObjectStructureEvent e;
   e.m_EventType = ezDocumentObjectStructureEvent::Type::BeforeObjectAdded;
@@ -110,16 +110,15 @@ void ezDocumentObjectManager::AddObject(ezDocumentObjectBase* pObject, ezDocumen
   e.m_pNewParent = pParent;
   e.m_sParentProperty = szParentProperty;
   e.m_PropertyIndex = index;
-  e.m_bEditorProperty = bEditorProperty;
 
   if (e.m_PropertyIndex.CanConvertTo<ezInt32>() && e.m_PropertyIndex.ConvertTo<ezInt32>() == -1)
   {
-    ezIReflectedTypeAccessor& accessor = pObject->IsEditorProperty() ? pParent->GetEditorTypeAccessor() : pParent->GetTypeAccessor();
+    ezIReflectedTypeAccessor& accessor = pParent->GetTypeAccessor();
     e.m_PropertyIndex = accessor.GetCount(szParentProperty);
   }
   m_StructureEvents.Broadcast(e);
 
-  pParent->InsertSubObject(pObject, szParentProperty, e.m_PropertyIndex, bEditorProperty);
+  pParent->InsertSubObject(pObject, szParentProperty, e.m_PropertyIndex);
   RecursiveAddGuids(pObject);
 
   e.m_EventType = ezDocumentObjectStructureEvent::Type::AfterObjectAdded;
@@ -130,7 +129,7 @@ void ezDocumentObjectManager::RemoveObject(ezDocumentObjectBase* pObject)
 {
   EZ_ASSERT_DEV(CanRemove(pObject), "Trying to execute invalid remove!");
   ezPropertyPath path(pObject->m_sParentProperty);
-  ezIReflectedTypeAccessor& accessor = pObject->IsEditorProperty() ? pObject->m_pParent->GetEditorTypeAccessor() : pObject->m_pParent->GetTypeAccessor();
+  ezIReflectedTypeAccessor& accessor = pObject->m_pParent->GetTypeAccessor();
 
   ezVariant index = accessor.GetPropertyChildIndex(path, pObject->GetGuid());
 
@@ -141,7 +140,6 @@ void ezDocumentObjectManager::RemoveObject(ezDocumentObjectBase* pObject)
   e.m_pNewParent = nullptr;
   e.m_sParentProperty = pObject->m_sParentProperty;
   e.m_PropertyIndex = index;
-  e.m_bEditorProperty = pObject->m_bEditorProperty;
   m_StructureEvents.Broadcast(e);
 
   pObject->m_pParent->RemoveSubObject(pObject);
@@ -165,11 +163,10 @@ void ezDocumentObjectManager::MoveObject(ezDocumentObjectBase* pObject, ezDocume
   e.m_pNewParent = pNewParent;
   e.m_sParentProperty = szParentProperty;
   e.m_PropertyIndex = index;
-  e.m_bEditorProperty = pObject->m_bEditorProperty;
 
   if (e.m_PropertyIndex.CanConvertTo<ezInt32>() && e.m_PropertyIndex.ConvertTo<ezInt32>() == -1)
   {
-    ezIReflectedTypeAccessor& accessor = pObject->IsEditorProperty() ? pNewParent->GetEditorTypeAccessor() : pNewParent->GetTypeAccessor();
+    ezIReflectedTypeAccessor& accessor = pNewParent->GetTypeAccessor();
     e.m_PropertyIndex = accessor.GetCount(szParentProperty);
   }
 
@@ -178,7 +175,7 @@ void ezDocumentObjectManager::MoveObject(ezDocumentObjectBase* pObject, ezDocume
   ezVariant newIndex = e.m_PropertyIndex;
   if (pNewParent == pObject->m_pParent)
   {
-    ezIReflectedTypeAccessor& accessor = pObject->m_bEditorProperty ? pObject->m_pParent->GetEditorTypeAccessor() : pObject->m_pParent->GetTypeAccessor();
+    ezIReflectedTypeAccessor& accessor = pObject->m_pParent->GetTypeAccessor();
 
     const ezRTTI* pType = accessor.GetType();
     auto* pProp = pType->FindPropertyByName(pObject->m_sParentProperty);
@@ -197,7 +194,7 @@ void ezDocumentObjectManager::MoveObject(ezDocumentObjectBase* pObject, ezDocume
   }
 
   pObject->m_pParent->RemoveSubObject(pObject);
-  pNewParent->InsertSubObject(pObject, szParentProperty, newIndex, pObject->m_bEditorProperty);
+  pNewParent->InsertSubObject(pObject, szParentProperty, newIndex);
 
   e.m_EventType = ezDocumentObjectStructureEvent::Type::AfterObjectMoved;
   m_StructureEvents.Broadcast(e);
@@ -228,7 +225,7 @@ ezDocumentObjectBase* ezDocumentObjectManager::GetObject(const ezUuid& guid)
 // ezDocumentObjectManager Structure Change Test
 ////////////////////////////////////////////////////////////////////////
 
-bool ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent, const char* szParentProperty, const ezVariant& index, bool bEditorProperty) const
+bool ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent, const char* szParentProperty, const ezVariant& index) const
 {
   // Test whether parent exists in tree.
   if (pParent == GetRootObject())
@@ -241,7 +238,7 @@ bool ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentObject
     if (pObjectInTree == nullptr)
       return false;
 
-    const ezIReflectedTypeAccessor& accessor = bEditorProperty ? pParent->GetEditorTypeAccessor() : pParent->GetTypeAccessor();
+    const ezIReflectedTypeAccessor& accessor = pParent->GetTypeAccessor();
     const ezRTTI* pType = accessor.GetType();
     auto* pProp = pType->FindPropertyByName(szParentProperty);
     if (pProp == nullptr)
@@ -268,7 +265,7 @@ bool ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentObject
     }
   }
 
-  return InternalCanAdd(pRtti, pParent, szParentProperty, index, bEditorProperty);
+  return InternalCanAdd(pRtti, pParent, szParentProperty, index);
 }
 
 bool ezDocumentObjectManager::CanRemove(const ezDocumentObjectBase* pObject) const
@@ -285,7 +282,7 @@ bool ezDocumentObjectManager::CanRemove(const ezDocumentObjectBase* pObject) con
 
 bool ezDocumentObjectManager::CanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, const char* szParentProperty, const ezVariant& index) const
 {
-  if (!CanAdd(pObject->GetTypeAccessor().GetType(), pNewParent, szParentProperty, index, pObject->m_bEditorProperty))
+  if (!CanAdd(pObject->GetTypeAccessor().GetType(), pNewParent, szParentProperty, index))
     return false;
 
   if (!CanRemove(pObject))
@@ -324,7 +321,7 @@ bool ezDocumentObjectManager::CanMove(const ezDocumentObjectBase* pObject, const
     pCurParent = pCurParent->GetParent();
   }
 
-  const ezIReflectedTypeAccessor& accessor = pObject->m_bEditorProperty ? pNewParent->GetEditorTypeAccessor() : pNewParent->GetTypeAccessor();
+  const ezIReflectedTypeAccessor& accessor = pNewParent->GetTypeAccessor();
   const ezRTTI* pType = accessor.GetType();
   auto* pProp = pType->FindPropertyByName(szParentProperty);
 
@@ -337,7 +334,7 @@ bool ezDocumentObjectManager::CanMove(const ezDocumentObjectBase* pObject, const
     if (pNewParent == pObject->GetParent())
     {
       // Test whether we are moving before or after ourselves, both of which are not allowed and would not change the tree.
-      ezIReflectedTypeAccessor& oldAccessor = pObject->m_bEditorProperty ? pObject->m_pParent->GetEditorTypeAccessor() : pObject->m_pParent->GetTypeAccessor();
+      ezIReflectedTypeAccessor& oldAccessor = pObject->m_pParent->GetTypeAccessor();
       ezInt32 iCurrentIndex = oldAccessor.GetPropertyChildIndex(szParentProperty, pObject->GetGuid()).ConvertTo<ezInt32>();
       if (iChildIndex == iCurrentIndex || iChildIndex == iCurrentIndex + 1)
         return false;

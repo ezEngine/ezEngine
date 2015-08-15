@@ -73,7 +73,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEntityMsgToEngine, ezEditorEngineDocumentMsg, 
     EZ_MEMBER_PROPERTY("ObjectType", m_sObjectType),
     EZ_MEMBER_PROPERTY("ParentProperty", m_sParentProperty),
     EZ_MEMBER_PROPERTY("PropertyIndex", m_PropertyIndex),
-    EZ_MEMBER_PROPERTY("EditorProperty", m_bEditorProperty),
 
     EZ_MEMBER_PROPERTY("ObjectData", m_sObjectData),
   EZ_END_PROPERTIES

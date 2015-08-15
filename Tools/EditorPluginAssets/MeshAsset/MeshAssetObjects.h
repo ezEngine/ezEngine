@@ -62,7 +62,7 @@ private:
 
 };
 
-class ezMeshAssetObject : public ezDocumentObjectDirectMember<ezReflectedClass, ezMeshAssetProperties>
+class ezMeshAssetObject : public ezDocumentObjectDirectMember<ezMeshAssetProperties>
 {
 public:
   ezMeshAssetObject()

@@ -35,7 +35,7 @@ public:
     ezVariant m_Index;
   };
 
-  void Init(const ezHybridArray<Selection, 8>& items, const ezPropertyPath& path, bool bEditorProperties);
+  void Init(const ezHybridArray<Selection, 8>& items, const ezPropertyPath& path);
 
 
 public:
@@ -55,7 +55,6 @@ public:
     const ezPropertyPath* m_pPropertyPath;
     const ezHybridArray<Selection, 8>* m_pItems;
     ezVariant m_Value;
-    bool m_bEditorProperties;
   };
 
   ezEvent<const Event&> m_Events;
@@ -69,7 +68,6 @@ protected:
   const char* m_szDisplayName;
   ezPropertyPath m_PropertyPath;
   ezHybridArray<Selection, 8> m_Items;
-  bool m_bEditorProperties;
 
 private:
   ezVariant m_OldValue;

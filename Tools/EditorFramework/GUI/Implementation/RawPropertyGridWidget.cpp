@@ -29,8 +29,7 @@ ezRawPropertyGridWidget::ezRawPropertyGridWidget(ezDocumentBase* pDocument, QWid
   m_pLayout->setSpacing(1);
   m_pMainContent->setLayout(m_pLayout);
 
-  m_pGroups[0] = nullptr;
-  m_pGroups[1] = nullptr;
+  m_pGroups = nullptr;
   m_pSpacer = nullptr;
 
   m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::SelectionEventHandler, this));
@@ -71,7 +70,7 @@ void ezRawPropertyGridWidget::PropertyEventHandler(const ezDocumentObjectPropert
   if (m_Selection[0] != e.m_pObject)
     return;
 
-  m_pRawPropertyWidget[e.m_bEditorProperty ? 0 : 1]->ChangePropertyValue(e.m_sPropertyPath, e.m_NewValue);
+  m_pRawPropertyWidget->ChangePropertyValue(e.m_sPropertyPath, e.m_NewValue);
 }
 
 void ezRawPropertyGridWidget::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
@@ -93,7 +92,6 @@ void ezRawPropertyGridWidget::PropertyChangedHandler(const ezPropertyEditorBaseW
   case  ezPropertyEditorBaseWidget::Event::Type::ValueChanged:
     {
       ezSetObjectPropertyCommand cmd;
-      cmd.m_bEditorProperty = ed.m_bEditorProperties;
       cmd.m_NewValue = ed.m_Value;
       cmd.SetPropertyPath(ed.m_pPropertyPath->GetPathString());
 
@@ -149,15 +147,12 @@ void ezRawPropertyGridWidget::ClearSelection()
   if (m_pSpacer)
     m_pLayout->removeItem(m_pSpacer);
 
-  delete m_pGroups[0];
-  delete m_pGroups[1];
+  delete m_pGroups;
   delete m_pSpacer;
 
-  m_pGroups[0] = nullptr;
-  m_pGroups[1] = nullptr;
+  m_pGroups = nullptr;
   m_pSpacer = nullptr;
-  m_pRawPropertyWidget[0] = nullptr;
-  m_pRawPropertyWidget[1] = nullptr;
+  m_pRawPropertyWidget = nullptr;
 
   m_Selection.Clear();
 }
@@ -172,28 +167,14 @@ void ezRawPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObjectB
     return;
 
   {
-    m_pGroups[0] = new ezCollapsibleGroupBox(m_pMainContent);
-    m_pGroups[1] = new ezCollapsibleGroupBox(m_pMainContent);
+    m_pGroups = new QWidget(m_pMainContent);
 
-    m_pGroups[0]->setTitle(QLatin1String("Editor Properties"));
-
-    ezStringBuilder sName;
-    sName.Format("Object Properties [%s]", m_Selection[0]->GetTypeAccessor().GetType()->GetTypeName());
-    m_pGroups[1]->setTitle(QString::fromUtf8(sName));
-
-
-    m_pLayout->addWidget(m_pGroups[0]);
-    m_pLayout->addWidget(m_pGroups[1]);
-
-    QVBoxLayout* pLayout0 = new QVBoxLayout();
-    pLayout0->setSpacing(1);
-    pLayout0->setContentsMargins(5, 0, 0, 0);
-    m_pGroups[0]->setInnerLayout(pLayout0);
+    m_pLayout->addWidget(m_pGroups);
 
     QVBoxLayout* pLayout1 = new QVBoxLayout();
     pLayout1->setSpacing(1);
     pLayout1->setContentsMargins(5, 0, 0, 0);
-    m_pGroups[1]->setInnerLayout(pLayout1);
+    m_pGroups->setLayout(pLayout1);
 
     ezHybridArray<ezPropertyEditorBaseWidget::Selection, 8> Items;
     Items.Reserve(m_Selection.GetCount());
@@ -206,18 +187,13 @@ void ezRawPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObjectB
       Items.PushBack(s);
     }
 
-    m_pRawPropertyWidget[0] = new ezRawPropertyWidget(m_pGroups[0], Items, true);
-    m_pRawPropertyWidget[1] = new ezRawPropertyWidget(m_pGroups[1], Items, false);
+    m_pRawPropertyWidget = new ezRawPropertyWidget(m_pGroups, Items);
 
-    pLayout0->addWidget(m_pRawPropertyWidget[0]);
-    pLayout1->addWidget(m_pRawPropertyWidget[1]);
-
-    m_pGroups[0]->setVisible(m_Selection[0]->GetEditorTypeAccessor().GetType()->GetProperties().GetCount() > 0);
+    pLayout1->addWidget(m_pRawPropertyWidget);
   }
 
    // TODO: Multi selection
-  m_pRawPropertyWidget[1]->m_PropertyChanged.AddEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::PropertyChangedHandler, this));
-  m_pRawPropertyWidget[0]->m_PropertyChanged.AddEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::PropertyChangedHandler, this));
+  m_pRawPropertyWidget->m_PropertyChanged.AddEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::PropertyChangedHandler, this));
 
   m_pSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
   

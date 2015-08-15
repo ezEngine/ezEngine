@@ -20,7 +20,6 @@ public: // Properties
   ezString m_sParentProperty;
   ezVariant m_Index;
   ezUuid m_NewObjectGuid; ///< This is optional. If not filled out, a new guid is assigned automatically.
-  bool m_bEditorProperty;
 
 private:
   virtual ezStatus Do(bool bRedo) override;
@@ -51,7 +50,6 @@ private:
   ezString m_sParentProperty;
   ezVariant m_Index;
   ezDocumentObjectBase* m_pObject;
-  bool m_bEditorProperty;
 };
 
 
@@ -91,7 +89,6 @@ public:
 public: // Properties
   ezUuid m_Object;
   ezVariant m_NewValue;
-  bool m_bEditorProperty;
 
   const char* GetPropertyPath() const { return m_sPropertyPath; }
   void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }
@@ -118,7 +115,6 @@ public: // Properties
   ezUuid m_Object;
   ezVariant m_NewValue;
   ezVariant m_Index;
-  bool m_bEditorProperty;
 
   const char* GetPropertyPath() const { return m_sPropertyPath; }
   void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }
@@ -143,7 +139,6 @@ public:
 public: // Properties
   ezUuid m_Object;
   ezVariant m_Index;
-  bool m_bEditorProperty;
 
   const char* GetPropertyPath() const { return m_sPropertyPath; }
   void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }

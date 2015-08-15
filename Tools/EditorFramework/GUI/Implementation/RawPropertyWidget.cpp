@@ -28,13 +28,13 @@ const ezRTTI* GetCommonBaseType(const ezRTTI* pRtti1, const ezRTTI* pRtti2)
   return nullptr;
 }
 
-const ezRTTI* GetCommonBaseType(const ezHybridArray<ezPropertyEditorBaseWidget::Selection, 8>& items, bool bEditorProperty)
+const ezRTTI* GetCommonBaseType(const ezHybridArray<ezPropertyEditorBaseWidget::Selection, 8>& items)
 {
   const ezRTTI* pSubtype = nullptr;
 
   for (const auto& item : items)
   {
-    const auto& accessor = bEditorProperty ? item.m_pObject->GetEditorTypeAccessor() : item.m_pObject->GetTypeAccessor();
+    const auto& accessor = item.m_pObject->GetTypeAccessor();
 
     if (pSubtype == nullptr)
       pSubtype = accessor.GetType();
@@ -52,24 +52,24 @@ void ezRawPropertyWidget::PropertyChangedHandler(const ezPropertyEditorBaseWidge
   m_PropertyChanged.Broadcast(e);
 }
 
-ezRawPropertyWidget::ezRawPropertyWidget(QWidget* pParent, const ezHybridArray<ezPropertyEditorBaseWidget::Selection, 8>& items, bool bEditorProperty) : QWidget(pParent)
+ezRawPropertyWidget::ezRawPropertyWidget(QWidget* pParent, const ezHybridArray<ezPropertyEditorBaseWidget::Selection, 8>& items) : QWidget(pParent)
 {
   m_pLayout = new QVBoxLayout(this);
   m_pLayout->setContentsMargins(5, 0, 0, 0);
   m_pLayout->setSpacing(1);
   setLayout(m_pLayout);
 
-  const ezRTTI* pSubtype = GetCommonBaseType(items, bEditorProperty);
+  const ezRTTI* pSubtype = GetCommonBaseType(items);
 
   ezPropertyPath path;
-  BuildUI(items, bEditorProperty, pSubtype, path, m_pLayout);
+  BuildUI(items, pSubtype, path, m_pLayout);
 }
 
-void ezRawPropertyWidget::BuildUI(const ezHybridArray<ezPropertyEditorBaseWidget::Selection, 8>& items, bool bEditorProperty, const ezRTTI* pType, ezPropertyPath& ParentPath, QLayout* pLayout)
+void ezRawPropertyWidget::BuildUI(const ezHybridArray<ezPropertyEditorBaseWidget::Selection, 8>& items, const ezRTTI* pType, ezPropertyPath& ParentPath, QLayout* pLayout)
 {
   const ezRTTI* pParentType = pType->GetParentType();
   if (pParentType != nullptr)
-    BuildUI(items, bEditorProperty, pParentType, ParentPath, pLayout);
+    BuildUI(items, pParentType, ParentPath, pLayout);
 
   if (pType->GetProperties().GetCount() == 0)
     return;
@@ -159,7 +159,7 @@ void ezRawPropertyWidget::BuildUI(const ezHybridArray<ezPropertyEditorBaseWidget
             m_PropertyWidgets[sPropertyPath] = pNewWidget;
 
             pLayout->addWidget(pNewWidget);
-            pNewWidget->Init(items, ParentPath, bEditorProperty);
+            pNewWidget->Init(items, ParentPath);
             pNewWidget->setEnabled(!pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly));
 
 
@@ -184,7 +184,7 @@ void ezRawPropertyWidget::BuildUI(const ezHybridArray<ezPropertyEditorBaseWidget
           m_PropertyWidgets[sPropertyPath] = pNewWidget;
 
           pLayout->addWidget(pNewWidget);
-          pNewWidget->Init(items, ParentPath, bEditorProperty);
+          pNewWidget->Init(items, ParentPath);
           pNewWidget->setEnabled(!pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly));
 
           pNewWidget->m_Events.AddEventHandler(ezMakeDelegate(&ezRawPropertyWidget::PropertyChangedHandler, this));
@@ -210,7 +210,7 @@ void ezRawPropertyWidget::BuildUI(const ezHybridArray<ezPropertyEditorBaseWidget
           /// \todo read-only flag ?
           //pNewWidget->setEnabled(!pProp->GetFlags().IsSet(PropertyFlags::IsReadOnly));
 
-          BuildUI(items, bEditorProperty, pMember->GetSpecificType(), ParentPath, pSubLayout);
+          BuildUI(items, pMember->GetSpecificType(), ParentPath, pSubLayout);
         }
 
       }
@@ -237,7 +237,7 @@ void ezRawPropertyWidget::BuildUI(const ezHybridArray<ezPropertyEditorBaseWidget
 
         for (const auto& item : items)
         {
-          const auto& accessor = bEditorProperty ? item.m_pObject->GetEditorTypeAccessor() : item.m_pObject->GetTypeAccessor();
+          const auto& accessor = item.m_pObject->GetTypeAccessor();
 
           iElements = ezMath::Min(iElements, accessor.GetCount(ParentPath));
         }
@@ -269,7 +269,7 @@ void ezRawPropertyWidget::BuildUI(const ezHybridArray<ezPropertyEditorBaseWidget
 
             for (const auto& item : items)
             {
-              const auto& accessor = bEditorProperty ? item.m_pObject->GetEditorTypeAccessor() : item.m_pObject->GetTypeAccessor();
+              const auto& accessor = item.m_pObject->GetTypeAccessor();
 
               ezUuid ObjectGuid = accessor.GetValue(ParentPath, i).ConvertTo<ezUuid>();
 
@@ -279,18 +279,18 @@ void ezRawPropertyWidget::BuildUI(const ezHybridArray<ezPropertyEditorBaseWidget
 
               SubItems.PushBack(sel);
             }
-            const ezRTTI* pSubtype = GetCommonBaseType(SubItems, bEditorProperty);
+            const ezRTTI* pSubtype = GetCommonBaseType(SubItems);
 
             pSubGroup->setTitle(QLatin1String("[") + QString::number(i) + QLatin1String("] - ") + QString::fromUtf8(pSubtype->GetTypeName()));
 
             pSubGroup->SetItems(SubItems);
 
             ezPropertyPath SubPath;
-            BuildUI(SubItems, bEditorProperty, pSubtype, SubPath, pSubLayout);
+            BuildUI(SubItems, pSubtype, SubPath, pSubLayout);
 
           }
           ezAddSubElementButton* pSubElementButton = new ezAddSubElementButton("Add Item", pElementsLayout->parentWidget());
-          pSubElementButton->Init(items, ParentPath, bEditorProperty);
+          pSubElementButton->Init(items, ParentPath);
           pElementsLayout->addWidget(pSubElementButton);
         }
         else

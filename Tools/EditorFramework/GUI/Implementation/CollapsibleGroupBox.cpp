@@ -76,7 +76,7 @@ void ezElementGroupBox::Move(ezInt32 iMove)
   for (auto& item : m_Items)
   {
     ezInt32 iCurIndex = item.m_pObject->GetPropertyIndex().ConvertTo<ezInt32>() + iMove;
-    if (iCurIndex < 0 || iCurIndex > item.m_pObject->GetParentAccessor().GetCount(item.m_pObject->GetParentProperty()))
+    if (iCurIndex < 0 || iCurIndex > item.m_pObject->GetParent()->GetTypeAccessor().GetCount(item.m_pObject->GetParentProperty()))
       continue;
 
     if (!bDidAny)

@@ -31,8 +31,8 @@ private:
   ezDeque<const ezDocumentObjectBase*> m_Selection;
   QVBoxLayout* m_pLayout;
   QWidget* m_pMainContent;
-  ezCollapsibleGroupBox* m_pGroups[2];
-  ezRawPropertyWidget* m_pRawPropertyWidget[2];
+  QWidget* m_pGroups;
+  ezRawPropertyWidget* m_pRawPropertyWidget;
   QSpacerItem* m_pSpacer;
   ezDocumentBase* m_pDocument;
 };

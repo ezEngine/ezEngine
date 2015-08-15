@@ -101,7 +101,8 @@ void ezSceneDocumentWindow::UpdateGizmoPosition()
   {
     const ezTransform tGlobal = GetSceneDocument()->GetGlobalTransform(LatestSelection);
 
-    const ezVec3 vPivotPoint = tGlobal.m_Rotation * LatestSelection->GetEditorTypeAccessor().GetValue("Pivot").ConvertTo<ezVec3>();
+    /// \todo Pivot point
+    const ezVec3 vPivotPoint = tGlobal.m_Rotation * ezVec3::ZeroVector();// LatestSelection->GetEditorTypeAccessor().GetValue("Pivot").ConvertTo<ezVec3>();
 
     ezMat4 mt;
 

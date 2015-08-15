@@ -38,12 +38,6 @@ void ezSerializedDocumentObjectWriter::GatherProperties(ezPropertySerializationC
     ezObjectSerializationHelper::WriteTypeAccessorToContext(m_pObject->GetTypeAccessor(), context);
   }
   context.PopSubGroup();
-
-  context.PushSubGroup("EditorTypeData");
-  {
-    ezObjectSerializationHelper::WriteTypeAccessorToContext(m_pObject->GetEditorTypeAccessor(), context);
-  }
-  context.PopSubGroup();
 }
 
 
@@ -82,10 +76,6 @@ void ezSerializedDocumentObjectReader::SubGroupChanged(const ezHybridArray<ezStr
     if (stack[0].Compare("TypeData") == 0)
     {
       m_pAccessor = &m_pObject->GetTypeAccessor();
-    }
-    if (stack[0].Compare("EditorTypeData") == 0)
-    {
-      m_pAccessor = &m_pObject->GetEditorTypeAccessor();
     }
   }
   else

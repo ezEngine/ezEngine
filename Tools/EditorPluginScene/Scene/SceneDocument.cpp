@@ -119,7 +119,6 @@ void ezSceneDocument::GroupSelection()
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
-  cmdSet.m_bEditorProperty = true;
   cmdSet.SetPropertyPath("Name");
   cmdSet.m_NewValue = "Group";
   pHistory->AddCommand(cmdSet);
@@ -185,9 +184,6 @@ bool ezSceneDocument::GetGizmoWorldSpace() const
 
 void ezSceneDocument::ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  if (e.m_bEditorProperty)
-    return;
-
   if (e.m_sPropertyPath == "LocalPosition" ||
       e.m_sPropertyPath == "LocalRotation" ||
       e.m_sPropertyPath == "LocalScaling")
@@ -262,7 +258,6 @@ void ezSceneDocument::SetGlobalTransform(const ezDocumentObjectBase* pObject, co
   tLocal.Decompose(vLocalPos, qLocalRot, vLocalScale);
 
   ezSetObjectPropertyCommand cmd;
-  cmd.m_bEditorProperty = false;
   cmd.m_Object = pObject->GetGuid();
 
   if (pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>() != vLocalPos)

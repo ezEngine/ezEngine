@@ -23,7 +23,7 @@ private:
 
 };
 
-class ezMaterialAssetObject : public ezDocumentObjectDirectMember<ezReflectedClass, ezMaterialAssetProperties>
+class ezMaterialAssetObject : public ezDocumentObjectDirectMember<ezMaterialAssetProperties>
 {
 public:
   ezMaterialAssetObject()

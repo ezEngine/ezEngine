@@ -11,7 +11,7 @@ class EZ_EDITORFRAMEWORK_DLL ezCollapsibleGroupBox : public QWidget, public Ui_C
   Q_OBJECT
 
 public:
-  ezCollapsibleGroupBox(QWidget* pParent, bool bShowElementButtons = false);
+  explicit ezCollapsibleGroupBox(QWidget* pParent, bool bShowElementButtons = false);
 
   void setTitle(QString sTitle);
 

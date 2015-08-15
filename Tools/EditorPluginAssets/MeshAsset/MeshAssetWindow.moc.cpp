@@ -92,8 +92,7 @@ void ezMeshAssetDocumentWindow::UpdatePreview()
 
 void ezMeshAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  if (e.m_bEditorProperty)
-    return;
+  /// \todo BLA
 
   //if (e.m_sPropertyPath == "Texture File")
   //{

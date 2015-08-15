@@ -58,11 +58,10 @@ ezPropertyEditorBaseWidget::~ezPropertyEditorBaseWidget()
 {
 }
 
-void ezPropertyEditorBaseWidget::Init(const ezHybridArray<Selection, 8>& items, const ezPropertyPath& path, bool bEditorProperties)
+void ezPropertyEditorBaseWidget::Init(const ezHybridArray<Selection, 8>& items, const ezPropertyPath& path)
 {
   m_Items = items;
   m_PropertyPath = path;
-  m_bEditorProperties = bEditorProperties;
 
   OnInit();
 
@@ -71,7 +70,7 @@ void ezPropertyEditorBaseWidget::Init(const ezHybridArray<Selection, 8>& items, 
   // check if we have multiple values
   for (auto& item : items)
   {
-    const ezIReflectedTypeAccessor& et = m_bEditorProperties ? item.m_pObject->GetEditorTypeAccessor() : item.m_pObject->GetTypeAccessor();
+    const ezIReflectedTypeAccessor& et = item.m_pObject->GetTypeAccessor();
 
     if (!value.IsValid())
       value = et.GetValue(m_PropertyPath, item.m_Index);
@@ -108,7 +107,6 @@ void ezPropertyEditorBaseWidget::BroadcastValueChanged(const ezVariant& NewValue
   ed.m_Type = Event::Type::ValueChanged;
   ed.m_pPropertyPath = &m_PropertyPath;
   ed.m_Value = NewValue;
-  ed.m_bEditorProperties = m_bEditorProperties;
   ed.m_pItems = &m_Items;
 
   m_Events.Broadcast(ed);

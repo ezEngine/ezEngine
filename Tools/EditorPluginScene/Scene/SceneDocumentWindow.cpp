@@ -157,9 +157,6 @@ ezSceneDocumentWindow::~ezSceneDocumentWindow()
 
 void ezSceneDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  if (e.m_bEditorProperty)
-    return;
-
   m_pEngineView->SendObjectProperties(e);
 }
 
@@ -296,7 +293,9 @@ void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEve
 
       const auto& LatestSelection = GetDocument()->GetSelectionManager()->GetSelection().PeekBack();
       const ezTransform tGlobal = GetSceneDocument()->GetGlobalTransform(LatestSelection);
-      const ezVec3 vPivotPoint = tGlobal.m_vPosition + tGlobal.m_Rotation * LatestSelection->GetEditorTypeAccessor().GetValue("Pivot").ConvertTo<ezVec3>();
+
+      /// \todo Pivot point
+      const ezVec3 vPivotPoint = tGlobal.m_vPosition + tGlobal.m_Rotation * ezVec3::ZeroVector(); // LatestSelection->GetEditorTypeAccessor().GetValue("Pivot").ConvertTo<ezVec3>();
 
       ezVec3 vDiff = vPivotPoint - m_Camera.GetCenterPosition();
       if (vDiff.NormalizeIfNotZero().Failed())
@@ -579,7 +578,6 @@ ezUuid ezScene3DWidget::CreateDropObject(const ezVec3& vPosition, const char* sz
   ezAddObjectCommand cmd;
   cmd.SetType("ezGameObject");
   cmd.m_NewObjectGuid = ObjectGuid;
-  cmd.m_bEditorProperty = false;
   cmd.m_Index = -1;
   cmd.m_sParentProperty = "RootObjects";
 
@@ -588,7 +586,6 @@ ezUuid ezScene3DWidget::CreateDropObject(const ezVec3& vPosition, const char* sz
   history->AddCommand(cmd);
 
   ezSetObjectPropertyCommand cmd2;
-  cmd2.m_bEditorProperty = false;
   cmd2.m_Object = ObjectGuid;
 
   cmd2.SetPropertyPath("LocalPosition");
@@ -619,7 +616,6 @@ void ezScene3DWidget::MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPo
   auto history = m_pDocumentWindow->GetDocument()->GetCommandHistory();
 
   ezSetObjectPropertyCommand cmd2;
-  cmd2.m_bEditorProperty = false;
   cmd2.m_Object = guid;
 
   cmd2.SetPropertyPath("LocalPosition");

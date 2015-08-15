@@ -195,7 +195,7 @@ void ezObjectReflectionAdapter::GetPropertyObject(const ezReflectedObjectWrapper
   case ezPropertyCategory::Member:
     {
       ezDocumentSubObject* pObject = static_cast<ezDocumentSubObject*>(value.m_pObject);
-      pObject->SetObject(static_cast<ezDocumentObjectBase*>(object.m_pObject), ezPropertyPath(prop.m_szName), false);
+      pObject->SetObject(static_cast<ezDocumentObjectBase*>(object.m_pObject), ezPropertyPath(prop.m_szName));
     }
     break;
   case ezPropertyCategory::Array:
@@ -205,7 +205,7 @@ void ezObjectReflectionAdapter::GetPropertyObject(const ezReflectedObjectWrapper
       ezUuid guid = GetPropertyValue(object, prop, index).Get<ezUuid>();
       ezDocumentObjectBase* pParent = static_cast<ezDocumentObjectBase*>(object.m_pObject);
       const ezDocumentObjectBase* pChild = pParent->GetDocumentObjectManager()->GetObject(guid);
-      pObject->SetObject(const_cast<ezDocumentObjectBase*>(pChild), "", false);
+      pObject->SetObject(const_cast<ezDocumentObjectBase*>(pChild), "");
     }
     break;
 

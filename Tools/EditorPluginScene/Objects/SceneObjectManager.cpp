@@ -11,13 +11,12 @@ ezSceneObjectManager::ezSceneObjectManager() : ezDocumentObjectManager()
 ezDocumentObjectBase* ezSceneObjectManager::InternalCreateObject(const ezRTTI* pRtti)
 {
   static int iCount = 0;
-  //ezDocumentObjectStorage<ezSceneObjectEditorProperties>* pObj = EZ_DEFAULT_NEW(ezDocumentObjectStorage<ezSceneObjectEditorProperties>, pRtti);
-  ezDocumentObjectBase* pObj = EZ_DEFAULT_NEW(ezDocumentObject, ezSceneObjectEditorProperties::GetStaticRTTI(), pRtti);
+  ezDocumentObjectBase* pObj = EZ_DEFAULT_NEW(ezDocumentObject, pRtti);
 
   ezStringBuilder sName;
   sName.Format("%s %03d", pRtti->GetTypeName(), iCount);
   iCount++;
-  pObj->GetEditorTypeAccessor().SetValue("Name", sName.GetData());  
+  pObj->GetTypeAccessor().SetValue("Name", sName.GetData());  
   return pObj;
 }
 
@@ -39,7 +38,7 @@ void ezSceneObjectManager::GetCreateableTypes(ezHybridArray<ezRTTI*, 32>& Types)
   }
 }
 
-bool ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent, const char* szParentProperty, const ezVariant& index, bool bEditorProperty) const
+bool ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent, const char* szParentProperty, const ezVariant& index) const
 {
   const ezRTTI* pGameObjectType = ezRTTI::FindTypeByName(ezGetStaticRTTI<ezGameObject>()->GetTypeName());
   // TODO: BLA
