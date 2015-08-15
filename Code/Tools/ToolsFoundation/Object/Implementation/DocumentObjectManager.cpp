@@ -46,19 +46,6 @@ ezDocumentObjectBase* ezDocumentObjectManager::CreateObject(const ezRTTI* pRtti,
 {
   ezDocumentObjectBase* pObject = InternalCreateObject(pRtti);
   pObject->m_pDocumentObjectManager = this;
-  EZ_ASSERT_DEV(pObject->GetObjectType() == ezDocumentObjectType::Object, "InternalCreateObject must return a object type object!");
-  if (guid.IsValid())
-    pObject->m_Guid = guid;
-  else
-    pObject->m_Guid.CreateNewUuid();
-
-  return pObject;
-}
-
-ezDocumentObjectBase* ezDocumentObjectManager::CreateSubObject(const ezRTTI* pRtti, ezEnum<ezDocumentObjectType> type, ezUuid guid)
-{
-  ezDocumentObjectBase* pObject = InternalCreateSubObject(pRtti, type);
-  EZ_ASSERT_DEV(pObject->GetObjectType() == type, "InternalCreateSubObject must create an object of the correct type!");
 
   if (guid.IsValid())
     pObject->m_Guid = guid;
@@ -350,32 +337,6 @@ bool ezDocumentObjectManager::CanMove(const ezDocumentObjectBase* pObject, const
 ////////////////////////////////////////////////////////////////////////
 // ezDocumentObjectManager Private Functions
 ////////////////////////////////////////////////////////////////////////
-
-ezDocumentObjectBase* ezDocumentObjectManager::InternalCreateSubObject(const ezRTTI* pRtti, ezEnum<ezDocumentObjectType> type)
-{
-  switch (type)
-  {
-  case ezDocumentObjectType::ArrayElement:
-  case ezDocumentObjectType::SetElement:
-    {
-      auto pObject = EZ_DEFAULT_NEW(ezDocumentSubElementObject, pRtti, type);
-      return pObject;
-    }
-  case ezDocumentObjectType::SubObject:
-    {
-      auto pObject = EZ_DEFAULT_NEW(ezDocumentSubObject, pRtti);
-      return pObject;
-    }
-    break;
-  case ezDocumentObjectType::Root:
-  case ezDocumentObjectType::Object:
-    {
-      EZ_REPORT_FAILURE("Not supported, use InternalCreateObject instead!");
-    }
-    break;
-  }
-  return nullptr;
-}
 
 void ezDocumentObjectManager::RecursiveAddGuids(ezDocumentObjectBase* pObject)
 {

@@ -23,9 +23,7 @@ void ezDocumentObjectBase::InsertSubObject(ezDocumentObjectBase* pObject, const 
   const ezRTTI* pType = accessor.GetType();
   auto* pProp = pType->FindPropertyByName(szProperty);
   EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner), "");
-  EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) == (pObject->GetObjectType() == ezDocumentObjectType::Object)
-                || (pObject->GetObjectType() == ezDocumentObjectType::ArrayElement) == (pProp->GetCategory() == ezPropertyCategory::Array)
-                || (pObject->GetObjectType() == ezDocumentObjectType::SetElement) == (pProp->GetCategory() == ezPropertyCategory::Set), "");
+  
   ezPropertyPath path(szProperty);
   if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
   {
@@ -133,7 +131,6 @@ void ezDocumentObjectBase::HashPropertiesRecursive(const ezIReflectedTypeAccesso
 ezDocumentSubObject::ezDocumentSubObject(const ezRTTI* pRtti)
   : m_Accessor(pRtti, this)
 {
-  m_ObjectType = ezDocumentObjectType::SubObject;
 }
 
 void ezDocumentSubObject::SetObject(ezDocumentObjectBase* pOwnerObject, const ezPropertyPath& subPath)

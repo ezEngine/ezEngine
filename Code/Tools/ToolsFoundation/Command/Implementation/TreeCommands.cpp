@@ -99,30 +99,7 @@ ezStatus ezAddObjectCommand::Do(bool bRedo)
 
   if (!bRedo)
   {
-    if (pParent)
-    {
-      ezIReflectedTypeAccessor& accessor = pParent->GetTypeAccessor();
-      auto* pProp = accessor.GetType()->FindPropertyByName(m_sParentProperty);
-      if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
-      {
-        m_pObject = pDocument->GetObjectManager()->CreateObject(m_pType, m_NewObjectGuid);
-      }
-      else
-      {
-        if (pProp->GetCategory() == ezPropertyCategory::Array)
-          m_pObject = pDocument->GetObjectManager()->CreateSubObject(m_pType, ezDocumentObjectType::ArrayElement, m_NewObjectGuid);
-        else if (pProp->GetCategory() == ezPropertyCategory::Set)
-          m_pObject = pDocument->GetObjectManager()->CreateSubObject(m_pType, ezDocumentObjectType::SetElement, m_NewObjectGuid);
-        else
-        {
-          EZ_ASSERT_NOT_IMPLEMENTED;
-        }
-      }
-    }
-    else
-    {
-      m_pObject = pDocument->GetObjectManager()->CreateObject(m_pType, m_NewObjectGuid);
-    }
+    m_pObject = pDocument->GetObjectManager()->CreateObject(m_pType, m_NewObjectGuid);
   }
 
   pDocument->GetObjectManager()->AddObject(m_pObject, pParent, m_sParentProperty, m_Index);

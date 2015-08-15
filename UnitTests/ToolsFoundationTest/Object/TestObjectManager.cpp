@@ -3,7 +3,6 @@
 
 ezTestDocumentObjectManager::ezTestDocumentObjectManager()
 {
-  m_pMetaRtti = ezReflectedClass::GetStaticRTTI();
 }
 
 ezTestDocumentObjectManager::~ezTestDocumentObjectManager()
@@ -16,6 +15,6 @@ void ezTestDocumentObjectManager::GetCreateableTypes(ezHybridArray<ezRTTI*, 32>&
 
 ezDocumentObjectBase* ezTestDocumentObjectManager::InternalCreateObject(const ezRTTI* pRtti)
 {
-  auto pObject = EZ_DEFAULT_NEW(ezDocumentObject, m_pMetaRtti, pRtti);
+  auto pObject = EZ_DEFAULT_NEW(ezDocumentObject, pRtti);
   return pObject;
 }

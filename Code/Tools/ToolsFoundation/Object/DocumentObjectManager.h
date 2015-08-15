@@ -19,8 +19,8 @@ class ezDocumentObjectRoot : public ezDocumentObject
 public:
   ezDocumentObjectRoot() : ezDocumentObject(ezDocumentRoot::GetStaticRTTI())
   {
-    m_ObjectType = ezDocumentObjectType::Root;
   }
+
 public:
   virtual void InsertSubObject(ezDocumentObjectBase* pObject, const char* szProperty, const ezVariant& index) override;
   virtual void RemoveSubObject(ezDocumentObjectBase* pObject) override;
@@ -88,8 +88,6 @@ public:
   // Object Construction / Destruction
   // holds object data
   ezDocumentObjectBase* CreateObject(const ezRTTI* pRtti, ezUuid guid = ezUuid());
-  // a parent holds object data
-  ezDocumentObjectBase* CreateSubObject(const ezRTTI* pRtti, ezEnum<ezDocumentObjectType> type, ezUuid guid = ezUuid());
 
   void DestroyObject(ezDocumentObjectBase* pObject);
   void DestroyAllObjects();
@@ -115,7 +113,6 @@ public:
 
 private:
   virtual ezDocumentObjectBase* InternalCreateObject(const ezRTTI* pRtti) = 0;
-  virtual ezDocumentObjectBase* InternalCreateSubObject(const ezRTTI* pRtti, ezEnum<ezDocumentObjectType> type);
   virtual void InternalDestroyObject(ezDocumentObjectBase* pObject) { EZ_DEFAULT_DELETE(pObject); }
   virtual bool InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent, const char* szParentProperty, const ezVariant& index) const { return true; };
   virtual bool InternalCanRemove(const ezDocumentObjectBase* pObject) const { return true; };

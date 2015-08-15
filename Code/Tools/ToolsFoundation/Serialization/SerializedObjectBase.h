@@ -12,8 +12,6 @@ public:
   virtual ezUuid GetGuid() const = 0;
   virtual ezUuid GetParentGuid() const = 0;
   virtual const char* GetType(ezStringBuilder& builder) const = 0;
-//  virtual ezDocumentObjectType::Enum GetObjectType() const = 0;
-//  virtual const char* GetParentProperty(ezStringBuilder& builder) const = 0;
 
   virtual void GatherProperties(ezPropertySerializationContext& context) const = 0;
 };

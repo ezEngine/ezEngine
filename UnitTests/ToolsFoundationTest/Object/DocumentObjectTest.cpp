@@ -14,26 +14,26 @@ EZ_CREATE_SIMPLE_TEST(DocumentObjectManager, DocumentObjectManager)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "DocumentObject")
   {
-    EZ_TEST_BOOL(manager.CanAdd(ezObjectTest::GetStaticRTTI(), nullptr, "", 0, false));
+    EZ_TEST_BOOL(manager.CanAdd(ezObjectTest::GetStaticRTTI(), nullptr, "", 0));
     pObject = manager.CreateObject(ezObjectTest::GetStaticRTTI());
-    manager.AddObject(pObject, nullptr, "", 0, false);
+    manager.AddObject(pObject, nullptr, "", 0);
 
     const char* szProperty = "SubObjectSet";
-    EZ_TEST_BOOL(!manager.CanAdd(OuterClass::GetStaticRTTI(), pObject, szProperty, 0, false));
-    EZ_TEST_BOOL(manager.CanAdd(ezObjectTest::GetStaticRTTI(), pObject, szProperty, 0, false));
+    EZ_TEST_BOOL(!manager.CanAdd(OuterClass::GetStaticRTTI(), pObject, szProperty, 0));
+    EZ_TEST_BOOL(manager.CanAdd(ezObjectTest::GetStaticRTTI(), pObject, szProperty, 0));
     pChildObject = manager.CreateObject(ezObjectTest::GetStaticRTTI());
-    manager.AddObject(pChildObject, pObject, "SubObjectSet", 0, false);
+    manager.AddObject(pChildObject, pObject, "SubObjectSet", 0);
     EZ_TEST_INT(pObject->GetTypeAccessor().GetCount(szProperty), 1);
 
-    EZ_TEST_BOOL(manager.CanAdd(OuterClass::GetStaticRTTI(), pObject, "ClassPtrArray", 0, false));
-    EZ_TEST_BOOL(manager.CanAdd(ezReflectedClass::GetStaticRTTI(), pObject, "ClassPtrArray", 0, false));
-    EZ_TEST_BOOL(manager.CanAdd(ezObjectTest::GetStaticRTTI(), pObject, "ClassPtrArray", 0, false));
+    EZ_TEST_BOOL(manager.CanAdd(OuterClass::GetStaticRTTI(), pObject, "ClassPtrArray", 0));
+    EZ_TEST_BOOL(manager.CanAdd(ezReflectedClass::GetStaticRTTI(), pObject, "ClassPtrArray", 0));
+    EZ_TEST_BOOL(manager.CanAdd(ezObjectTest::GetStaticRTTI(), pObject, "ClassPtrArray", 0));
 
     for (ezInt32 i = 0; i < EZ_ARRAY_SIZE(pChildren); i++)
     {
-      EZ_TEST_BOOL(manager.CanAdd(ezObjectTest::GetStaticRTTI(), pChildObject, szProperty, i, false));
-      pChildren[i] = manager.CreateSubObject(ezObjectTest::GetStaticRTTI(), ezDocumentObjectType::SetElement);
-      manager.AddObject(pChildren[i], pChildObject, szProperty, i, false);
+      EZ_TEST_BOOL(manager.CanAdd(ezObjectTest::GetStaticRTTI(), pChildObject, szProperty, i));
+      pChildren[i] = manager.CreateObject(ezObjectTest::GetStaticRTTI());
+      manager.AddObject(pChildren[i], pChildObject, szProperty, i);
       EZ_TEST_INT(pChildObject->GetTypeAccessor().GetCount(szProperty), i + 1);
     }
     EZ_TEST_INT(pChildObject->GetTypeAccessor().GetCount(szProperty), 4);
@@ -51,9 +51,9 @@ EZ_CREATE_SIMPLE_TEST(DocumentObjectManager, DocumentObjectManager)
     const char* szProperty = "ClassArray";
     for (ezInt32 i = 0; i < EZ_ARRAY_SIZE(pSubElementObject); i++)
     {
-      EZ_TEST_BOOL(manager.CanAdd(OuterClass::GetStaticRTTI(), pObject, szProperty, i, false));
-      pSubElementObject[i] = manager.CreateSubObject(OuterClass::GetStaticRTTI(), ezDocumentObjectType::ArrayElement);
-      manager.AddObject(pSubElementObject[i], pObject, szProperty, i, false);
+      EZ_TEST_BOOL(manager.CanAdd(OuterClass::GetStaticRTTI(), pObject, szProperty, i));
+      pSubElementObject[i] = manager.CreateObject(OuterClass::GetStaticRTTI());
+      manager.AddObject(pSubElementObject[i], pObject, szProperty, i);
       EZ_TEST_INT(pObject->GetTypeAccessor().GetCount(szProperty), i + 1);
     }
     
@@ -111,7 +111,7 @@ EZ_CREATE_SIMPLE_TEST(DocumentObjectManager, DocumentObjectManager)
   {
     // Temp object to limit accessor scope.
     ezDocumentSubObject* pSubObject = EZ_DEFAULT_NEW(ezDocumentSubObject, OuterClass::GetStaticRTTI());
-    pSubObject->SetObject(pObject, "MemberClass", false);
+    pSubObject->SetObject(pObject, "MemberClass");
 
     EZ_DEFAULT_DELETE(pSubObject);
   }

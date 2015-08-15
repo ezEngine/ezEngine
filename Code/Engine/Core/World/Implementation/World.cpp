@@ -679,7 +679,6 @@ void ezWorld::UpdateHierarchy()
 
     // might fail which means we want no parent for the object anymore thus it will become top level
     TryGetObject(request.m_NewParent, pNewParent);
-    pNewParent->UpdateGlobalTransform();
 
     // check again if parent is already set which can happen if we have multiple requests leading to the same result
     if (pObject->GetParent() == pNewParent)
