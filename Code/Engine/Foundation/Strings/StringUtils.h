@@ -5,9 +5,6 @@
 #include <Foundation/Strings/UnicodeUtils.h>
 #include <Foundation/Threading/AtomicInteger.h>
 
-// Minus 1 wraps around to the maximum unsigned integer value, which is different on 32 Bit and 64 Bit
-#define ezMaxStringEnd (const char*)-1
-
 /// \brief Helper functions to work with UTF-8 strings (which include pure ASCII strings)
 class EZ_FOUNDATION_DLL ezStringUtils
 {

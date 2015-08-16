@@ -120,9 +120,12 @@ inline ezUInt32 ezUnicodeUtils::GetSizeForCharacterInUtf8(ezUInt32 uiCharacter)
   return 4;
 }
 
-inline bool ezUnicodeUtils::IsValidUtf8(const char* szString)
+inline bool ezUnicodeUtils::IsValidUtf8(const char* szString, const char* szStringEnd)
 {
-  return utf8::is_valid(szString, szString + strlen(szString));
+  if (szStringEnd == ezMaxStringEnd)
+    szStringEnd = szString + strlen(szString);
+
+  return utf8::is_valid(szString, szStringEnd);
 }
 
 inline bool ezUnicodeUtils::SkipUtf8Bom(const char*& szUtf8)

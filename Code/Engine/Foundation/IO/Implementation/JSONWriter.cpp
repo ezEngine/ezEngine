@@ -240,6 +240,20 @@ void ezJSONWriter::WriteVariant(const ezVariant& value)
   case ezVariant::Type::Uuid:
     WriteUuid(value.Get<ezUuid>());
     return;
+  case ezVariant::Type::VariantArray:
+    {
+      BeginArray();
+
+      const auto& ar = value.Get<ezVariantArray>();
+
+      for (const auto& val : ar)
+      {
+        WriteVariant(val);
+      }
+
+      EndArray();
+    }
+    return;
 
   default:
     break;

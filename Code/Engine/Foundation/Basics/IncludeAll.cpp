@@ -95,6 +95,8 @@
 
 #include <Foundation/Profiling/Profiling.h>
 
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+
 #include <Foundation/Strings/PathUtils.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>

@@ -18,8 +18,7 @@ void ezStringBuilder::Set(const char* pData1, const char* pData2, const char* pD
 
 void ezStringBuilder::SetSubString_FromTo(const char* pStart, const char* pEnd)
 {
-  EZ_ASSERT_DEBUG(ezUnicodeUtils::IsValidUtf8(pStart), "Invalid substring, the start does not point to a valid Utf-8 character");
-  EZ_ASSERT_DEBUG(ezUnicodeUtils::IsValidUtf8(pEnd), "Invalid substring, the end does not point to a valid Utf-8 character");
+  EZ_ASSERT_DEBUG(ezUnicodeUtils::IsValidUtf8(pStart, pEnd), "Invalid substring, the start does not point to a valid Utf-8 character");
 
   ezStringView view(pStart, pEnd);
   *this = view;
@@ -27,9 +26,7 @@ void ezStringBuilder::SetSubString_FromTo(const char* pStart, const char* pEnd)
 
 void ezStringBuilder::SetSubString_ElementCount(const char* pStart, ezUInt32 uiElementCount)
 {
-  EZ_ASSERT_DEBUG(ezStringUtils::GetStringElementCount(pStart) >= uiElementCount, "Invalid substring, it does not contain %u bytes", uiElementCount);
-  EZ_ASSERT_DEBUG(ezUnicodeUtils::IsValidUtf8(pStart), "Invalid substring, the start does not point to a valid Utf-8 character");
-  EZ_ASSERT_DEBUG(ezUnicodeUtils::IsValidUtf8(pStart + uiElementCount), "Invalid substring, the end does not point to a valid Utf-8 character");
+  EZ_ASSERT_DEBUG(ezUnicodeUtils::IsValidUtf8(pStart, pStart + uiElementCount), "Invalid substring, the start does not point to a valid Utf-8 character");
 
   ezStringView view(pStart, pStart + uiElementCount);
   *this = view;
@@ -37,9 +34,6 @@ void ezStringBuilder::SetSubString_ElementCount(const char* pStart, ezUInt32 uiE
 
 void ezStringBuilder::SetSubString_CharacterCount(const char* pStart, ezUInt32 uiCharacterCount)
 {
-  EZ_ASSERT_DEBUG(ezUnicodeUtils::IsValidUtf8(pStart), "Invalid substring, the start does not point to a valid Utf-8 character");
-  EZ_ASSERT_DEBUG(ezStringUtils::GetCharacterCount(pStart) >= uiCharacterCount, "Invalid substring, it does not contain %u characters", uiCharacterCount);
-
   const char* pEnd = pStart;
   ezUnicodeUtils::MoveToNextUtf8(pEnd, uiCharacterCount);
 

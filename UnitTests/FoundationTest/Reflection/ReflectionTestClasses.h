@@ -132,6 +132,8 @@ public:
     m_MyVector.Set(3, 4, 5);
 
     m_Struct.m_fFloat1 = 33.3f;
+
+    m_Color = ezColor::CornflowerBlue; // The Original!
   }
 
   ezVec3 GetVector() const { return m_MyVector; }
