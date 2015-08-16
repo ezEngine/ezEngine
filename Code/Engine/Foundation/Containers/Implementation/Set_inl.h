@@ -507,6 +507,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inser
       // element is identical => do not insert
       if ((ezInt32) m_Comparer.Less(key, it->m_Key) == dir)
       {
+        pInsertedNode = it;
         return root;
       }
 

@@ -110,15 +110,19 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
 
     EZ_TEST_BOOL(m.GetHeapMemoryUsage() == 0);
 
-    m.Insert(1, 10);
+    EZ_TEST_BOOL(m.Insert(1, 10).IsValid());
+    EZ_TEST_BOOL(m.Insert(1, 10).IsValid());
     m.Insert(3, 30);
-    m.Insert(7, 70);
+    auto it7 = m.Insert(7, 70);
     m.Insert(9, 90);
     m.Insert(4, 40);
     m.Insert(2, 20);
     m.Insert(8, 80);
     m.Insert(5, 50);
     m.Insert(6, 60);
+
+    EZ_TEST_BOOL(m.Insert(7, 70).Value() == 70);
+    EZ_TEST_BOOL(m.Insert(7, 70) == it7);
 
     EZ_TEST_BOOL(m.GetHeapMemoryUsage() >= sizeof(ezUInt32) * 2 * 9);
 

@@ -448,11 +448,10 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, Va
 template <typename KeyType, typename ValueType, typename Comparer>
 typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::Insert(const KeyType& key, const ValueType& value)
 {
-  Node* pInsertedNode = nullptr;
+  auto it = FindOrAdd(key);
+  it.Value() = value;
 
-  Insert(key, value, pInsertedNode);
-
-  return Iterator(pInsertedNode);
+  return it;
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
@@ -554,82 +553,6 @@ EZ_FORCE_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBas
   }
 
   return root;
-}
-
-template <typename KeyType, typename ValueType, typename Comparer>
-void ezMapBase<KeyType, ValueType, Comparer>::Insert(const KeyType& key, const ValueType& value, Node*& pInsertedNode)
-{
-  Node* root = m_pRoot;
-
-  if (root == &m_NilNode)
-  {
-    pInsertedNode = AcquireNode(key, value, 1, reinterpret_cast<Node*>(&m_NilNode));
-    root = pInsertedNode;
-  }
-  else
-  {
-    Node* it = root;
-    Node* up[STACK_SIZE];
-
-    ezInt32 top = 0;
-    ezInt32 dir = 0;
-
-    while (true)
-    {
-      EZ_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
-      up[top++] = it;
-      dir = m_Comparer.Less(it->m_Key, key) ? 1 : 0;
-
-      // element is identical => do not insert
-      const ezInt32 iOtherDir = (ezInt32) m_Comparer.Less(key, it->m_Key);
-
-      if (iOtherDir == dir)
-      {
-        pInsertedNode = it;
-        it->m_Value = value;
-        goto end;
-      }
-
-      if (it->m_pLink[dir] == &m_NilNode)
-        break;
-
-      it = it->m_pLink[dir];
-    }
-
-    pInsertedNode = AcquireNode(key, value, 1, it);
-    it->m_pLink[dir] = pInsertedNode;
-
-    while (--top >= 0)
-    {
-      if (top != 0)
-      {
-        EZ_ASSERT_DEBUG(top >= 1 && top < STACK_SIZE, "Implementation error");
-        dir = up[top - 1]->m_pLink[1] == up[top];
-      }
-
-      EZ_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
-      up[top] = SkewNode(up[top]);
-      up[top] = SplitNode(up[top]);
-
-      if (top != 0)
-      {
-        EZ_ASSERT_DEBUG(top >= 1 && top < STACK_SIZE, "Implementation error");
-        up[top - 1]->m_pLink[dir] = up[top];
-        up[top - 1]->m_pLink[dir]->m_pParent = up[top - 1];
-      }
-      else
-      {
-        EZ_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
-        root = up[top];
-      }
-    }
-  }
-
-end:
-
-  m_pRoot = root;
-  m_pRoot->m_pParent = reinterpret_cast<Node*>(&m_NilNode);
-  m_NilNode.m_pParent = reinterpret_cast<Node*>(&m_NilNode);
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>

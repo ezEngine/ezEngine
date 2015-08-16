@@ -87,15 +87,21 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     ezSet<ezUInt32> m;
     EZ_TEST_BOOL(m.GetHeapMemoryUsage() == 0);
 
-    m.Insert(1);
+    EZ_TEST_BOOL(m.Insert(1).IsValid());
+    EZ_TEST_BOOL(m.Insert(1).IsValid());
+
     m.Insert(3);
-    m.Insert(7);
+    auto it7 = m.Insert(7);
     m.Insert(9);
     m.Insert(4);
     m.Insert(2);
     m.Insert(8);
     m.Insert(5);
     m.Insert(6);
+
+    EZ_TEST_BOOL(m.Insert(1).Key() == 1);
+    EZ_TEST_BOOL(m.Insert(3).Key() == 3);
+    EZ_TEST_BOOL(m.Insert(7) == it7);
 
     EZ_TEST_BOOL(m.GetHeapMemoryUsage() >= sizeof(ezUInt32) * 1 * 9);
 
