@@ -76,7 +76,7 @@ class EZ_TOOLSFOUNDATION_DLL ezDocumentSubObject : public ezDocumentObjectBase
 {
 public:
   ezDocumentSubObject(const ezRTTI* pRtti);
-  void SetObject(ezDocumentObjectBase* pOwnerObject, const ezPropertyPath& subPath);
+  void SetObject(ezDocumentObjectBase* pOwnerObject, const ezPropertyPath& subPath, ezUuid guid = ezUuid());
 
   virtual const ezIReflectedTypeAccessor& GetTypeAccessor() const override { return m_Accessor; }
 

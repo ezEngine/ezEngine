@@ -58,6 +58,8 @@ void ezAbstractGraphJsonSerializer::Write(ezStreamWriterBase& stream, const ezAb
 
             writer.EndObject();
           }
+
+          SortedProperties.Clear();
         }
         writer.EndArray();
       }

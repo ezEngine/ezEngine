@@ -3,6 +3,21 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 
+void* ezRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
+{
+  void* pObj = pRtti->GetAllocator()->Allocate();
+  RegisterObject(guid, pRtti, pObj);
+  return pObj;
+}
+
+void ezRttiConverterContext::DeleteObject(const ezUuid& guid)
+{
+  auto* pObj = GetObjectByGUID(guid);
+  pObj->m_pType->GetAllocator()->Deallocate(pObj->m_pObject);
+
+  UnregisterObject(guid);
+}
+
 void ezRttiConverterContext::RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject)
 {
   EZ_ASSERT_DEV(pObject != nullptr, "cannot register null object!");
@@ -94,8 +109,7 @@ ezAbstractObjectNode* ezRttiConverterWriter::AddObjectToGraph(const ezRTTI* pRtt
   while (obj != nullptr)
   {
     const ezUuid guid = m_pContext->GetObjectGUID(pRtti, pObject);
-    m_pGraph->AddNode(guid, obj->m_pType->GetTypeName());
-    AddProperties(pNode, obj->m_pType, obj->m_pObject);
+    AddSubObjectToGraph(obj->m_pType, obj->m_pObject, guid, nullptr);
 
     obj = m_pContext->DequeueObject();
   }
@@ -113,6 +127,9 @@ ezAbstractObjectNode* ezRttiConverterWriter::AddSubObjectToGraph(const ezRTTI* p
 void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbstractProperty* pProp, const void* pObject)
 {
   if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly) && !m_bSerializeReadOnly)
+    return;
+
+  if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner) && !m_bSerializeOwnerPtrs)
     return;
 
   ezVariant vTemp;
@@ -144,11 +161,8 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
         ezUuid guid;
         if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
         {
-          if (m_bSerializeOwnerPtrs)
-          {
-            guid = m_pContext->EnqueObject(pPropType, pRefrencedObject);
-            pNode->AddProperty(pProp->GetPropertyName(), guid);
-          }
+          guid = m_pContext->EnqueObject(pPropType, pRefrencedObject);
+          pNode->AddProperty(pProp->GetPropertyName(), guid);
         }
         else
         {
@@ -209,9 +223,6 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       }
       else if (pSpecific->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner) && !m_bSerializeOwnerPtrs)
-          return;
-
         for (ezUInt32 i = 0; i < uiCount; ++i)
         {
           vTemp = ezReflectionUtils::GetArrayPropertyValue(pSpecific, pObject, i);
@@ -264,9 +275,6 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       }
       else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
-        if (!m_bSerializeOwnerPtrs && pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
-          return;
-
         for (ezUInt32 i = 0; i < values.GetCount(); ++i)
         {
           void* pRefrencedObject = values[i].Get<void*>();

@@ -19,6 +19,7 @@ class ezDocumentObjectRoot : public ezDocumentObject
 public:
   ezDocumentObjectRoot() : ezDocumentObject(ezDocumentRoot::GetStaticRTTI())
   {
+    m_Guid = ezUuid::StableUuidForString("DocumentRoot");
   }
 
 public:

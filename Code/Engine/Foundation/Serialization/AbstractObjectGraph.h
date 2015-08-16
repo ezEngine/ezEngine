@@ -9,6 +9,8 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/Set.h>
 
+class ezAbstractObjectGraph;
+
 class EZ_FOUNDATION_DLL ezAbstractObjectNode
 {
 public:

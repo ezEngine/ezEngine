@@ -133,11 +133,12 @@ ezDocumentSubObject::ezDocumentSubObject(const ezRTTI* pRtti)
 {
 }
 
-void ezDocumentSubObject::SetObject(ezDocumentObjectBase* pOwnerObject, const ezPropertyPath& subPath)
+void ezDocumentSubObject::SetObject(ezDocumentObjectBase* pOwnerObject, const ezPropertyPath& subPath, ezUuid guid)
 {
   ezAbstractProperty* pProp = ezToolsReflectionUtils::GetPropertyByPath(pOwnerObject->GetTypeAccessor().GetType(), subPath);
   EZ_ASSERT_DEV(pProp != nullptr && pProp->GetSpecificType() == m_Accessor.GetType(), "ezDocumentSubObject was created for a different type it is mapped to!");
 
+  m_Guid = guid;
   m_pParent = pOwnerObject;
   m_SubPath = subPath;
   m_pDocumentObjectManager = pOwnerObject->GetDocumentObjectManager();

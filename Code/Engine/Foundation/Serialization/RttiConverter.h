@@ -24,8 +24,8 @@ struct EZ_FOUNDATION_DLL ezRttiConverterObject
 class EZ_FOUNDATION_DLL ezRttiConverterContext
 {
 public:
-  virtual void* CreateObject(const ezUuid& guid, const ezRTTI* pRtti) = 0;
-  virtual void DeleteObject(const ezUuid& guid) = 0;
+  virtual void* CreateObject(const ezUuid& guid, const ezRTTI* pRtti);
+  virtual void DeleteObject(const ezUuid& guid);
 
   virtual void RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject);
   virtual void UnregisterObject(const ezUuid& guid);

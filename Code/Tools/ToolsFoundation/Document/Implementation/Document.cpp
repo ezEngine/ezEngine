@@ -9,6 +9,10 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/JsonSerializer.h>
+#include <Foundation/Serialization/RttiConverter.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentInfo, ezReflectedClass, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
@@ -148,41 +152,23 @@ void ezDocumentBase::EnsureVisible()
 
 ezStatus ezDocumentBase::InternalSaveDocument()
 {
-  /*
-  // TODO: BLA
   ezFileWriter file;
   if (file.Open(m_sDocumentPath) == EZ_FAILURE)
   {
     return ezStatus(EZ_FAILURE, "Unable to open file for writing!");
   }
 
-  ezDocumentJSONWriter writer(&file);
+  ezAbstractObjectGraph graph;
+  ezRttiConverterContext context;
+  ezRttiConverterWriter rttiConverter(&graph, &context, true, true);
+  ezDocumentObjectConverterWriter objectConverter(&graph, GetObjectManager(), true, true);
+  context.RegisterObject(GetGuid(), m_pDocumentInfo->GetDynamicRTTI(), m_pDocumentInfo);
 
-  writer.StartGroup("Header");
-  {
-    const ezRTTI* pRtti = ezRTTI::FindTypeByName(m_pDocumentInfo->GetDynamicRTTI()->GetTypeName());
-    EZ_ASSERT_DEV(pRtti != nullptr, "Need to register ezDocumentInfo at the ezPhantomRttiManager first!");
+  rttiConverter.AddObjectToGraph(m_pDocumentInfo, "Header");
+  objectConverter.AddObjectToGraph(GetObjectManager()->GetRootObject(), "ObjectTree");
 
-    ezReflectedTypeDirectAccessor acc(m_pDocumentInfo, nullptr);
-    ezSerializedTypeAccessorObjectWriter objectWriter(&acc);
-    writer.WriteObject(objectWriter);
-  }
-  writer.EndGroup();
+  ezAbstractGraphJsonSerializer::Write(file, &graph, ezJSONWriter::WhitespaceMode::All);
 
-  writer.StartGroup("ObjectTree");
-  {
-    const ezDocumentObjectBase* pRoot = GetObjectManager()->GetRootObject();
-
-    auto children = pRoot->GetChildren();
-    const ezUInt32 uiCount = children.GetCount();
-    for (ezUInt32 i = 0; i < uiCount; ++i)
-    {
-      WriteObjectRecursive(writer, children[i]);
-    }
-  }
-  writer.EndGroup();
-  writer.EndDocument();
-  */
   return ezStatus(EZ_SUCCESS);
 }
 
