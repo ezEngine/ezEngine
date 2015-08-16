@@ -80,7 +80,7 @@ namespace ezInternal
   {
     ezBitflags<ezTypeFlags> flags;
     ezVariant::Type::Enum type = static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<typename ezTypeTraits<Type>::NonConstReferenceType>::value);
-    if (type >= ezVariant::Type::Bool && type <= ezVariant::Type::Uuid)
+    if (type >= ezVariant::Type::Bool && type <= ezVariant::Type::Uuid || EZ_IS_SAME_TYPE(ezVariant, Type))
       flags.Add(ezTypeFlags::StandardType);
 
     if (std::is_abstract<Type>::value)

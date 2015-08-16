@@ -48,6 +48,8 @@ ezAbstractObjectNode* ezAbstractObjectGraph::AddNode(const ezUuid& guid, const c
   }
 
   auto* pNode = &m_Nodes[guid];
+  EZ_ASSERT_DEV(!pNode->m_Guid.IsValid(), "object must not yet exist");
+
   pNode->m_Guid = guid;
   pNode->m_pOwner = this;
   pNode->m_szType = RegisterString(szType);

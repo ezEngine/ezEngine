@@ -300,7 +300,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MemberProperties)
     TestMemberProperty<float>("Float", &data, pRtti, ezPropertyFlags::StandardType, 1.1f, 5.0f);
     TestMemberProperty<ezInt32>("Int", &data, pRtti, ezPropertyFlags::StandardType, 2, -8);
     TestMemberProperty<ezVec3>("Vector", &data, pRtti, ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly, ezVec3(3, 4, 5), ezVec3(0, -1.0f, 3.14f));
-    TestMemberProperty<ezVariant>("Variant", &data, pRtti, ezPropertyFlags::Default, ezVariant("Test"), ezVariant(ezVec3(0, -1.0f, 3.14f)));
+    TestMemberProperty<ezVariant>("Variant", &data, pRtti, ezPropertyFlags::StandardType, ezVariant("Test"), ezVariant(ezVec3(0, -1.0f, 3.14f)));
 
   }
 
@@ -972,7 +972,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Pointer)
     }
 
     TestPointerMemberProperty<ezTestArrays>("ArraysPtr", &containers, pRtti, ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner, containers.m_pArrays);
-    TestPointerMemberProperty<ezTestArrays>("ArraysPtrDirect", &containers, pRtti, ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner, containers.m_pArrays);
+    TestPointerMemberProperty<ezTestArrays>("ArraysPtrDirect", &containers, pRtti, ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner, containers.m_pArraysDirect);
   }
 
   ezTestPtr containers;

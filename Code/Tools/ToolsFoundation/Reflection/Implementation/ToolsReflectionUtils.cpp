@@ -9,7 +9,9 @@
 #include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
 #include <ToolsFoundation/Reflection/ObjectReflectionAdapter.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
-
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/JsonSerializer.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezToolsReflectionUtils public functions
@@ -267,74 +269,15 @@ bool ezToolsReflectionUtils::SetMemberPropertyValueByPath(const ezRTTI* pRtti, v
 
 void ezToolsReflectionUtils::WriteObjectToJSON(bool bSerializeOwnerPtrs, ezStreamWriterBase& stream, const ezDocumentObjectBase* pObject, ezJSONWriter::WhitespaceMode WhitespaceMode)
 {
-  ezExtendedJSONWriter writer;
-  writer.SetOutputStream(&stream);
-  writer.SetWhitespaceMode(WhitespaceMode);
+  ezAbstractObjectGraph graph;
+  ezDocumentObjectConverterWriter conv(&graph, pObject->GetDocumentObjectManager(), false, bSerializeOwnerPtrs);
 
-  ezObjectSerializationContext context;
-  ezObjectReflectionAdapter adapter(&context);
-  ezReflectionSerializer serializer(&adapter);
-  serializer.SetSerializeOwnerPtrs(bSerializeOwnerPtrs);
+  ezUuid guid;
+  guid.CreateNewUuid();
 
-  writer.BeginObject();
-  {
-    struct TocData
-    {
-      ezUuid m_Guid;
-      ezString m_sType;
-    };
+  ezAbstractObjectNode* pNode = conv.AddObjectToGraph(pObject, "root");
 
-    ezDeque<TocData> AllObjects;
-
-    const ezUuid rootGuid = context.EnqueObject((void*)(pObject), pObject->GetTypeAccessor().GetType());
-
-    writer.AddVariableUuid("RootObjectGuid", rootGuid);
-
-    writer.BeginObject("Objects");
-    {
-      ezReflectedObjectWrapper object = context.DequeueObject();
-
-      while (object.m_pObject != nullptr)
-      {
-        auto& td = AllObjects.ExpandAndGetRef();
-        td.m_Guid = context.GetObjectGUID(object.m_pObject);
-        td.m_sType = adapter.GetTypeInfo(object.m_pType).m_szName;
-
-        serializer.WriteJSONObject(writer, object, ezConversionUtils::ToString(td.m_Guid));
-
-        object = context.DequeueObject();
-      }
-
-    }
-    writer.EndObject();
-
-    writer.BeginArray("TOC");
-    {
-      for (const auto& td : AllObjects)
-      {
-        writer.BeginObject();
-        writer.AddVariableUuid("guid", td.m_Guid);
-        writer.AddVariableString("type", td.m_sType);
-        writer.EndObject();
-      }
-    }
-    writer.EndArray();
-  }
-  writer.EndObject();
-
+  ezAbstractGraphJsonSerializer::Write(stream, &graph, ezJSONWriter::WhitespaceMode::LessIndentation);
 }
 
-void ezToolsReflectionUtils::ReadObjectPropertiesFromJSON(ezStreamReaderBase& stream, ezIReflectedTypeAccessor& accessor)
-{
-  EZ_ASSERT_NOT_IMPLEMENTED;
-
-  //ezExtendedJSONReader reader;
-  //if (reader.Parse(stream).Failed())
-  //  return;
-
-  //const ezVariantDictionary& root = reader.GetTopLevelObject();
-
-  //ezPropertyPath path;
-  //ReadJSONObject(root, accessor, path);
-}
 

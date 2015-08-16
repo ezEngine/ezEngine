@@ -3,6 +3,10 @@
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/IO/ExtendedJSONWriter.h>
 #include <Foundation/IO/ExtendedJSONReader.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/RttiConverter.h>
+#include <Foundation/Serialization/JsonSerializer.h>
+
 
 ezReflectionSerializer::ezReflectionSerializer(ezReflectionAdapter* pAdapter) : m_pAdapter(pAdapter)
 {
@@ -392,67 +396,6 @@ void ezReflectionSerializer::ReadJSONObject(const ezVariantDictionary& root, ezR
   }
 }
 
-ezUuid ezReflectionSerializer::ReadObjectsFromJSON(const ezVariantDictionary& root)
-{
-  ezUuid rootGuid;
-
-  ezVariant* pRootObjectGuid;
-  if (!root.TryGetValue("RootObjectGuid", pRootObjectGuid) || !pRootObjectGuid->IsA<ezUuid>())
-    return rootGuid;
-
-  rootGuid = pRootObjectGuid->Get<ezUuid>();
-
-  ezVariant* pTOC;
-  if (!root.TryGetValue("TOC", pTOC) || !pTOC->IsA<ezVariantArray>())
-    return rootGuid;
-
-  ezVariant* pObjects;
-  if (!root.TryGetValue("Objects", pObjects) || !pObjects->IsA<ezVariantDictionary>())
-    return rootGuid;
-
-  {
-    const ezVariantArray& toc = pTOC->Get<ezVariantArray>();
-
-    for (const auto& obj : toc)
-    {
-      if (obj.IsA<ezVariantDictionary>())
-      {
-        const ezVariantDictionary& MyObj = obj.Get<ezVariantDictionary>();
-
-        ezVariant* ObjType;
-        if (!MyObj.TryGetValue("type", ObjType) || !ObjType->IsA<ezString>())
-          continue;
-
-        ezVariant* ObjGuid;
-        if (!MyObj.TryGetValue("guid", ObjGuid) || !ObjGuid->IsA<ezUuid>())
-          continue;
-
-        const ezRTTI* pRtti = m_pAdapter->FindTypeByName(ObjType->Get<ezString>());
-        if (pRtti == nullptr)
-          continue;
-
-        m_pContext->CreateObject(ObjGuid->Get<ezUuid>(), pRtti);
-      }
-    }
-  }
-
-  {
-    const ezVariantDictionary& Objects = pObjects->Get<ezVariantDictionary>();
-
-    for (ezVariantDictionary::ConstIterator it = Objects.GetIterator(); it.IsValid(); ++it)
-    {
-      const ezUuid guid = ezConversionUtils::ConvertStringToUuid(it.Key());
-
-      ezReflectedObjectWrapper* pWrapper = m_pContext->GetObjectByGUID(guid);
-      EZ_ASSERT_DEBUG(pWrapper != nullptr, "Object with GUID '%s' should have been created!", ezConversionUtils::ToString(guid).GetData());
-
-      ReadJSONObject(it.Value().Get<ezVariantDictionary>(), *pWrapper);
-    }
-  }
-  return rootGuid;
-}
-
-
 
 ////////////////////////////////////////////////////////////////////////
 // ezReflectionSerializer public static functions
@@ -460,97 +403,51 @@ ezUuid ezReflectionSerializer::ReadObjectsFromJSON(const ezVariantDictionary& ro
 
 void ezReflectionSerializer::WriteObjectToJSON(ezStreamWriterBase& stream, const ezRTTI* pRtti, const void* pObject, ezJSONWriter::WhitespaceMode WhitespaceMode)
 {
-  ezExtendedJSONWriter writer;
-  writer.SetOutputStream(&stream);
-  writer.SetWhitespaceMode(WhitespaceMode);
+  ezAbstractObjectGraph graph;
+  ezRttiConverterContext context;
+  ezRttiConverterWriter conv(&graph, &context, false, true);
 
-  ezRttiSerializationContext context;
-  ezRttiAdapter adapter(&context);
-  ezReflectionSerializer serializer(&adapter);
+  ezUuid guid;
+  guid.CreateNewUuid();
 
-  writer.BeginObject();
-  {
-    struct TocData
-    {
-      ezUuid m_Guid;
-      ezString m_sType;
-    };
+  context.RegisterObject(guid, pRtti, const_cast<void*>(pObject));
+  ezAbstractObjectNode* pNode = conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
 
-    ezDeque<TocData> AllObjects;
-
-    const ezUuid rootGuid = context.EnqueObject(const_cast<void*>(pObject), pRtti);
-
-    writer.AddVariableUuid("RootObjectGuid", rootGuid);
-
-    writer.BeginObject("Objects");
-    {
-      ezReflectedObjectWrapper object = context.DequeueObject();
-
-      while (object.m_pObject != nullptr)
-      {
-        auto& td = AllObjects.ExpandAndGetRef();
-        td.m_Guid = context.GetObjectGUID(object.m_pObject);
-        td.m_sType = adapter.GetTypeInfo(object.m_pType).m_szName;
-
-        serializer.WriteJSONObject(writer, object, ezConversionUtils::ToString(td.m_Guid));
-
-        object = context.DequeueObject();
-      }
-
-    }
-    writer.EndObject();
-
-    writer.BeginArray("TOC");
-    {
-      for (const auto& td : AllObjects)
-      {
-        writer.BeginObject();
-          writer.AddVariableUuid("guid", td.m_Guid);
-          writer.AddVariableString("type", td.m_sType);
-        writer.EndObject();
-      }
-    }
-    writer.EndArray();
-  }
-  writer.EndObject();
+  ezAbstractGraphJsonSerializer::Write(stream, &graph, ezJSONWriter::WhitespaceMode::LessIndentation);
 }
 
 void* ezReflectionSerializer::ReadObjectFromJSON(ezStreamReaderBase& stream, const ezRTTI*& pRtti)
 {
-  pRtti = nullptr;
+  ezAbstractObjectGraph graph;
+  ezRttiConverterContext context;
 
-  ezRttiSerializationContext context;
-  ezRttiAdapter adapter(&context);
-  ezReflectionSerializer serializer(&adapter);
+  ezAbstractGraphJsonSerializer::Read(stream, &graph);
 
-  ezExtendedJSONReader reader;
-  if (reader.Parse(stream).Failed())
-    return nullptr;
+  ezRttiConverterReader convRead(&graph, &context);
+  auto* pRootNode = graph.GetNodeByName("root");
 
-  const ezVariantDictionary& root = reader.GetTopLevelObject();
+  EZ_ASSERT_DEV(pRootNode != nullptr, "invalid document");
 
-  ezUuid rootGuid = serializer.ReadObjectsFromJSON(root);
-  ezReflectedObjectWrapper* pWrapper = serializer.m_pContext->GetObjectByGUID(rootGuid);
-  pRtti = static_cast<const ezRTTI*>(pWrapper->m_pType);
-  return pWrapper->m_pObject;
+  pRtti = ezRTTI::FindTypeByName(pRootNode->GetType());
+
+  void* pTarget = context.CreateObject(pRootNode->GetGuid(), pRtti);
+
+  convRead.ApplyPropertiesToObject(pRootNode, pRtti, pTarget);
+
+  return pTarget;
 }
 
 void ezReflectionSerializer::ReadObjectPropertiesFromJSON(ezStreamReaderBase& stream, const ezRTTI& rtti, void* pObject)
 {
-  ezRttiSerializationContext context;
-  ezRttiAdapter adapter(&context);
-  ezReflectionSerializer serializer(&adapter);
+  ezAbstractObjectGraph graph;
+  ezRttiConverterContext context;
 
-  ezExtendedJSONReader reader;
-  if (reader.Parse(stream).Failed())
-    return;
+  ezAbstractGraphJsonSerializer::Read(stream, &graph);
 
-  const ezVariantDictionary& root = reader.GetTopLevelObject();
+  ezRttiConverterReader convRead(&graph, &context);
+  auto* pRootNode = graph.GetNodeByName("root");
 
-  ezVariant* pRootObjectGuid;
-  if (!root.TryGetValue("RootObjectGuid", pRootObjectGuid) || !pRootObjectGuid->IsA<ezUuid>())
-    return;
+  EZ_ASSERT_DEV(pRootNode != nullptr, "invalid document");
 
-  context.RegisterObject(pRootObjectGuid->Get<ezUuid>(), &rtti, pObject);
-  serializer.ReadObjectsFromJSON(root);
+  convRead.ApplyPropertiesToObject(pRootNode, &rtti, pObject);
 }

@@ -331,11 +331,13 @@ public:
   ezTestPtr()
   {
     m_pArrays = nullptr;
+    m_pArraysDirect = nullptr;
   }
 
   ~ezTestPtr()
   {
     EZ_DEFAULT_DELETE(m_pArrays);
+    EZ_DEFAULT_DELETE(m_pArraysDirect);
     for (auto ptr : m_ArrayPtr)
     {
       EZ_DEFAULT_DELETE(ptr);
@@ -364,6 +366,7 @@ public:
 
   ezString m_sString;
   ezTestArrays* m_pArrays;
+  ezTestArrays* m_pArraysDirect;
   ezDeque<ezTestArrays*> m_ArrayPtr;
   ezSet<ezTestSets*> m_SetPtr;
 };

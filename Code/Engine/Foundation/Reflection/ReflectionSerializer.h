@@ -10,7 +10,6 @@ class EZ_FOUNDATION_DLL ezReflectionSerializer
 public:
   ezReflectionSerializer(ezReflectionAdapter* pAdapter);
 
-  bool GetSerializeOwnerPtrs() const { return m_bSerializeOwnerPtrs; }
   void SetSerializeOwnerPtrs(bool bSerialize) { m_bSerializeOwnerPtrs = bSerialize; }
 
 
@@ -21,9 +20,6 @@ public:
   void WriteJSONObject(ezJSONWriter& writer, const ezReflectedObjectWrapper& object, const char* szObjectName);
 
   void ReadJSONObject(const ezVariantDictionary& root, ezReflectedObjectWrapper& object);
-
-  ezUuid ReadObjectsFromJSON(const ezVariantDictionary& root);
-
 
 
   /// \brief Writes all property values of the reflected \a pObject of type \a pRtti to \a stream in (extended) JSON format.

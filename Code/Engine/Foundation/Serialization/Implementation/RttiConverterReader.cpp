@@ -134,7 +134,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
       
       for (ezUInt32 i = 0; i < array.GetCount(); ++i)
       {
-        const ezUuid sourceGuid = pSource->m_Value.Get<ezUuid>();
+        const ezUuid sourceGuid = array[i].Get<ezUuid>();
         auto* pNode = m_pGraph->GetNode(sourceGuid);
         EZ_ASSERT_DEV(pNode != nullptr, "node must exist");
 
