@@ -72,6 +72,15 @@ public:
     m_variant = "Test";
   }
 
+  bool operator==(const ezTestStruct& rhs) const
+  {
+    return m_fFloat1 == rhs.m_fFloat1 &&
+      m_UInt8 == rhs.m_UInt8 &&
+      m_variant == rhs.m_variant &&
+      m_iInt2 == rhs.m_iInt2 &&
+      m_vProperty3 == rhs.m_vProperty3;
+  }
+
   float m_fFloat1;
   ezUInt8 m_UInt8;
   ezVariant m_variant;
@@ -136,6 +145,13 @@ public:
     m_Color = ezColor::CornflowerBlue; // The Original!
   }
 
+  bool operator==(const ezTestClass1& rhs) const
+  {
+    return m_Struct == rhs.m_Struct &&
+      m_MyVector == rhs.m_MyVector &&
+      m_Color == rhs.m_Color;
+  }
+
   ezVec3 GetVector() const { return m_MyVector; }
 
   ezTestStruct m_Struct;
@@ -152,6 +168,16 @@ public:
   ezTestClass2()
   {
     m_Text = "Legen";
+  }
+
+  bool operator==(const ezTestClass2& rhs) const
+  {
+    return m_Time == rhs.m_Time &&
+      m_enumClass == rhs.m_enumClass &&
+      m_bitflagsClass == rhs.m_bitflagsClass &&
+      m_array == rhs.m_array &&
+      m_Variant == rhs.m_Variant &&
+      m_Text == rhs.m_Text;
   }
 
   const char* GetText() const { return m_Text.GetData(); }
@@ -322,6 +348,13 @@ public:
     m_SetPtr.Clear();
   }
 
+  bool operator==(const ezTestPtr& rhs) const
+  {
+    return m_sString == rhs.m_sString &&
+      (m_pArrays == rhs.m_pArrays ||
+      *m_pArrays == *rhs.m_pArrays);
+  }
+
   void SetString(const char* pzValue) { m_sString = pzValue; }
   const char* GetString() const { return m_sString; }
 
@@ -349,6 +382,14 @@ public:
     m_enumClass2 = ezExampleEnum::Value1;
   }
 
+  bool operator==(const ezTestEnumStruct& rhs) const
+  {
+    return m_enum2 == rhs.m_enum2 &&
+      m_enum == rhs.m_enum &&
+      m_enumClass == rhs.m_enumClass &&
+      m_enumClass2 == rhs.m_enumClass2;
+  }
+
   ezExampleEnum::Enum m_enum;
   ezEnum<ezExampleEnum> m_enumClass;
 
@@ -374,6 +415,12 @@ public:
   {
     m_bitflagsClass = ezExampleBitflags::Value1;
     m_bitflagsClass2 = ezExampleBitflags::Value1;
+  }
+
+  bool operator==(const ezTestBitflagsStruct& rhs) const
+  {
+    return m_bitflagsClass == rhs.m_bitflagsClass &&
+      m_bitflagsClass2 == rhs.m_bitflagsClass2;
   }
 
   ezBitflags<ezExampleBitflags> m_bitflagsClass;
