@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/IPC/SyncObject.h>
 #include <ToolsFoundation/Document/Document.h>
-#include <Foundation/Reflection/ReflectionSerializer.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezEditorEngineSyncObject);
 

@@ -1,27 +1,12 @@
 #pragma once
 
 #include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Reflection/ReflectionAdapter.h>
 #include <Foundation/IO/JSONWriter.h>
 
 
 class EZ_FOUNDATION_DLL ezReflectionSerializer
 {
 public:
-  ezReflectionSerializer(ezReflectionAdapter* pAdapter);
-
-  void SetSerializeOwnerPtrs(bool bSerialize) { m_bSerializeOwnerPtrs = bSerialize; }
-
-
-  void WritePropertyToJSON(ezJSONWriter& writer, const ezReflectedPropertyWrapper& prop, const ezReflectedObjectWrapper& object);
-  void ReadPropertyFromJSON(const ezVariantDictionary& prop, ezReflectedObjectWrapper& object);
-
-  void WriteProperties(ezJSONWriter& writer, const ezReflectedObjectWrapper& object);
-  void WriteJSONObject(ezJSONWriter& writer, const ezReflectedObjectWrapper& object, const char* szObjectName);
-
-  void ReadJSONObject(const ezVariantDictionary& root, ezReflectedObjectWrapper& object);
-
-
   /// \brief Writes all property values of the reflected \a pObject of type \a pRtti to \a stream in (extended) JSON format.
   ///
   /// Using ReadObjectPropertiesFromJSON() you can read those properties back into an existing object.
@@ -51,10 +36,4 @@ public:
   /// The object itself will not be reset to the default state before the properties are set, so properties that do not appear
   /// in the JSON data, or cannot be matched, will not be affected.
   static void ReadObjectPropertiesFromJSON(ezStreamReaderBase& stream, const ezRTTI& rtti, void* pObject);
-
-private:
-  ezReflectionAdapter* m_pAdapter;
-  ezReflectedSerializationContext* m_pContext;
-  bool m_bSerializeReadOnly;
-  bool m_bSerializeOwnerPtrs;
 };

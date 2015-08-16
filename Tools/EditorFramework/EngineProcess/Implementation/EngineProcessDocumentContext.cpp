@@ -3,7 +3,7 @@
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorFramework/IPC/SyncObject.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
-#include <Foundation/Reflection/ReflectionSerializer.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Logging/Log.h>
 
 ezHashTable<ezUuid, ezEngineProcessDocumentContext*> ezEngineProcessDocumentContext::s_DocumentContexts;

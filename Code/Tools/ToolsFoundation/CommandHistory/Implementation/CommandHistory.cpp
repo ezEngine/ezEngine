@@ -1,7 +1,7 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
 #include <ToolsFoundation/Document/Document.h>
-#include <Foundation/Reflection/ReflectionSerializer.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/IO/MemoryStream.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCommandTransaction, ezCommandBase, 1, ezRTTIDefaultAllocator<ezCommandTransaction>);

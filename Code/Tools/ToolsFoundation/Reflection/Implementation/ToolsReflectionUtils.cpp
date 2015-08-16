@@ -5,9 +5,8 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/ExtendedJSONWriter.h>
 #include <Foundation/IO/ExtendedJSONReader.h>
-#include <Foundation/Reflection/ReflectionSerializer.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
 #include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
-#include <ToolsFoundation/Reflection/ObjectReflectionAdapter.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/JsonSerializer.h>

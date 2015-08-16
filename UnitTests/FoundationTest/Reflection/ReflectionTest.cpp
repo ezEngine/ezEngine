@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <FoundationTest/Reflection/ReflectionTestClasses.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
-#include <Foundation/Reflection/ReflectionSerializer.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/FileReader.h>

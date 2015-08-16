@@ -4,7 +4,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
-#include <Foundation/Reflection/ReflectionSerializer.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Utilities/Stats.h>

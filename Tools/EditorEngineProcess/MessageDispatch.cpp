@@ -5,7 +5,7 @@
 #include <EditorFramework/EngineProcess/EngineProcessViewContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcess/GameState.h>
-#include <Foundation/Reflection/ReflectionSerializer.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Utilities/Stats.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Time/Timestamp.h>
