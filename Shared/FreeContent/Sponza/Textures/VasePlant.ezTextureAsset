@@ -1,32 +1,36 @@
 {
-  "Header" : [ {
-      "Type" : "ezAssetDocumentInfo",
-      "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "DocumentID" : { "$t" : "uuid", "$b" : "0x99D47A1320BBCF41AC844247FD165170" },
-        "Dependencies" : "Sponza/Textures/vase_plant_diff.dds",
-        "References" : "",
-        "Hash" : { "$t" : "uint64", "$v" : "6988547060556608545", "$b" : "0x21B49350864EFC60" },
-        "AssetType" : "Texture 2D"
-      }
-    } ],
-  "ObjectTree" : [ {
-      "Type" : "ezTextureAssetProperties",
-      "ID" : { "$t" : "uuid", "$b" : "0xCD53B04377089B4FB7E494046A4EE58D" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "Texture File" : "Sponza/Textures/vase_plant_diff.dds",
-        "Usage" : "ezTextureUsageEnum::Diffuse",
-        "sRGB-Mode" : "ezSRGBModeEnum::Unknown",
-        "Type" : "ezTextureTypeEnum::Texture2D",
-        "Format" : "BC1_UNORM",
-        "Width" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
-        "Height" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
-        "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
-      },
-      "EditorTypeData" : {
-        
-      }
-    } ]
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x99D47A1320BBCF41AC844247FD165170" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Texture 2D",
+    "Dependencies" : "Sponza/Textures/vase_plant_diff.dds",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0x99D47A1320BBCF41AC844247FD165170" },
+    "Hash" : { "$t" : "uint64", "$v" : "6988547060556608545", "$b" : "0x21B49350864EFC60" },
+    "References" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "RootObjects" : [ { "$t" : "uuid", "$b" : "0x348402AF22EC4B4EAAD8B73D443533B8" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x348402AF22EC4B4EAAD8B73D443533B8" },
+   "t" : "ezTextureAssetProperties",
+   "p" : {
+    "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
+    "Format" : "BC1_UNORM",
+    "Height" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
+    "Texture File" : "Sponza/Textures/vase_plant_diff.dds",
+    "Type" : "ezTextureTypeEnum::Texture2D",
+    "Usage" : "ezTextureUsageEnum::Diffuse",
+    "Width" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
+    "sRGB-Mode" : "ezSRGBModeEnum::Unknown"
+   }
+  } ]
 }

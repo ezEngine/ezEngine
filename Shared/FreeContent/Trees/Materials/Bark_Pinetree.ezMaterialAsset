@@ -1,30 +1,34 @@
 {
-  "Header" : [ {
-      "Type" : "ezAssetDocumentInfo",
-      "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "DocumentID" : { "$t" : "uuid", "$b" : "0x5C0200B77F5C47428157F409369EF16B" },
-        "Dependencies" : "{ 05af8d07-0b38-44a6-8d50-49731ae2625d };{ 78ecfef6-adab-4b26-bd76-da926d92f24a };{ 21db19f2-a8a4-4cb2-b832-8d3c7bdcb261 }",
-        "References" : "",
-        "Hash" : { "$t" : "uint64", "$v" : "17032426209673187108", "$b" : "0x248F9F6265555FEC" },
-        "AssetType" : "Material"
-      }
-    } ],
-  "ObjectTree" : [ {
-      "Type" : "ezMaterialAssetProperties",
-      "ID" : { "$t" : "uuid", "$b" : "0xBB191C7AAB052941984DEA2C2E5321D3" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "Base Material" : "{ 05af8d07-0b38-44a6-8d50-49731ae2625d }",
-        "Shader" : "",
-        "Permutations" : "",
-        "Diffuse Texture" : "{ 78ecfef6-adab-4b26-bd76-da926d92f24a }",
-        "Mask Texture" : "",
-        "Normal Map" : "{ 21db19f2-a8a4-4cb2-b832-8d3c7bdcb261 }"
-      },
-      "EditorTypeData" : {
-        
-      }
-    } ]
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x59AD6ACC19A17B4193F602509F604BC8" },
+   "t" : "ezMaterialAssetProperties",
+   "p" : {
+    "Base Material" : "{ 05af8d07-0b38-44a6-8d50-49731ae2625d }",
+    "Diffuse Texture" : "{ 78ecfef6-adab-4b26-bd76-da926d92f24a }",
+    "Mask Texture" : "",
+    "Normal Map" : "{ 21db19f2-a8a4-4cb2-b832-8d3c7bdcb261 }",
+    "Permutations" : "",
+    "Shader" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x5C0200B77F5C47428157F409369EF16B" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Material",
+    "Dependencies" : "{ 05af8d07-0b38-44a6-8d50-49731ae2625d };{ 78ecfef6-adab-4b26-bd76-da926d92f24a };{ 21db19f2-a8a4-4cb2-b832-8d3c7bdcb261 }",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0x5C0200B77F5C47428157F409369EF16B" },
+    "Hash" : { "$t" : "uint64", "$v" : "17032426209673187108", "$b" : "0x248F9F6265555FEC" },
+    "References" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "RootObjects" : [ { "$t" : "uuid", "$b" : "0x59AD6ACC19A17B4193F602509F604BC8" } ]
+   }
+  } ]
 }

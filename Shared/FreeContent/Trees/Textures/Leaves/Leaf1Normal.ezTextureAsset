@@ -1,32 +1,36 @@
 {
-  "Header" : [ {
-      "Type" : "ezAssetDocumentInfo",
-      "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "DocumentID" : { "$t" : "uuid", "$b" : "0xB5157CEFD16AEF47927847A7A70D0C89" },
-        "Dependencies" : "Trees/Textures/Leaves/Blender3D/Leaf_1_N.dds",
-        "References" : "",
-        "Hash" : { "$t" : "uint64", "$v" : "4480283930394974226", "$b" : "0x125815447F2A2D3E" },
-        "AssetType" : "Texture 2D"
-      }
-    } ],
-  "ObjectTree" : [ {
-      "Type" : "ezTextureAssetProperties",
-      "ID" : { "$t" : "uuid", "$b" : "0xE6AC81CA1185F24A9E49CBA1F348139A" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "Texture File" : "Trees/Textures/Leaves/Blender3D/Leaf_1_N.dds",
-        "Usage" : "ezTextureUsageEnum::NormalMap",
-        "sRGB-Mode" : "ezSRGBModeEnum::Unknown",
-        "Type" : "ezTextureTypeEnum::Texture2D",
-        "Format" : "BC3_UNORM",
-        "Width" : { "$t" : "uint32", "$v" : "256", "$b" : "0x00010000" },
-        "Height" : { "$t" : "uint32", "$v" : "256", "$b" : "0x00010000" },
-        "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
-      },
-      "EditorTypeData" : {
-        
-      }
-    } ]
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0xB5157CEFD16AEF47927847A7A70D0C89" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Texture 2D",
+    "Dependencies" : "Trees/Textures/Leaves/Blender3D/Leaf_1_N.dds",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0xB5157CEFD16AEF47927847A7A70D0C89" },
+    "Hash" : { "$t" : "uint64", "$v" : "771576798639312159", "$b" : "0x1F4DD4A70231B50A" },
+    "References" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "RootObjects" : [ { "$t" : "uuid", "$b" : "0x348402AF22EC4B4EAAD8B73D443533B8" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x348402AF22EC4B4EAAD8B73D443533B8" },
+   "t" : "ezTextureAssetProperties",
+   "p" : {
+    "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
+    "Format" : "BC3_UNORM",
+    "Height" : { "$t" : "uint32", "$v" : "256", "$b" : "0x00010000" },
+    "Texture File" : "Trees/Textures/Leaves/Blender3D/Leaf_1_N.dds",
+    "Type" : "ezTextureTypeEnum::Texture2D",
+    "Usage" : "ezTextureUsageEnum::Diffuse",
+    "Width" : { "$t" : "uint32", "$v" : "256", "$b" : "0x00010000" },
+    "sRGB-Mode" : "ezSRGBModeEnum::Unknown"
+   }
+  } ]
 }

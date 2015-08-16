@@ -1,32 +1,36 @@
 {
-  "Header" : [ {
-      "Type" : "ezAssetDocumentInfo",
-      "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "DocumentID" : { "$t" : "uuid", "$b" : "0xF219DB21A4A8B24CB8328D3C7BDCB261" },
-        "Dependencies" : "Trees/Textures/Bark/deviantart.com/Pinetree_N.dds",
-        "References" : "",
-        "Hash" : { "$t" : "uint64", "$v" : "592890360172496361", "$b" : "0xE9C5D52CA45E3A08" },
-        "AssetType" : "Texture 2D"
-      }
-    } ],
-  "ObjectTree" : [ {
-      "Type" : "ezTextureAssetProperties",
-      "ID" : { "$t" : "uuid", "$b" : "0x4C500C8517B38049BE3A82D56DEAF8EA" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "Texture File" : "Trees/Textures/Bark/deviantart.com/Pinetree_N.dds",
-        "Usage" : "ezTextureUsageEnum::NormalMap",
-        "sRGB-Mode" : "ezSRGBModeEnum::Unknown",
-        "Type" : "ezTextureTypeEnum::Texture2D",
-        "Format" : "BC3_UNORM",
-        "Width" : { "$t" : "uint32", "$v" : "512", "$b" : "0x00020000" },
-        "Height" : { "$t" : "uint32", "$v" : "512", "$b" : "0x00020000" },
-        "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
-      },
-      "EditorTypeData" : {
-        
-      }
-    } ]
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "RootObjects" : [ { "$t" : "uuid", "$b" : "0x348402AF22EC4B4EAAD8B73D443533B8" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xF219DB21A4A8B24CB8328D3C7BDCB261" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Texture 2D",
+    "Dependencies" : "Trees/Textures/Bark/deviantart.com/Pinetree_N.dds",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0xF219DB21A4A8B24CB8328D3C7BDCB261" },
+    "Hash" : { "$t" : "uint64", "$v" : "16737566209665778734", "$b" : "0x2EC4B5CBC9C747E8" },
+    "References" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x348402AF22EC4B4EAAD8B73D443533B8" },
+   "t" : "ezTextureAssetProperties",
+   "p" : {
+    "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
+    "Format" : "BC3_UNORM",
+    "Height" : { "$t" : "uint32", "$v" : "512", "$b" : "0x00020000" },
+    "Texture File" : "Trees/Textures/Bark/deviantart.com/Pinetree_N.dds",
+    "Type" : "ezTextureTypeEnum::Texture2D",
+    "Usage" : "ezTextureUsageEnum::Diffuse",
+    "Width" : { "$t" : "uint32", "$v" : "512", "$b" : "0x00020000" },
+    "sRGB-Mode" : "ezSRGBModeEnum::Unknown"
+   }
+  } ]
 }

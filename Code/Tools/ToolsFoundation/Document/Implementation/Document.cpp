@@ -167,7 +167,7 @@ ezStatus ezDocumentBase::InternalSaveDocument()
   rttiConverter.AddObjectToGraph(m_pDocumentInfo, "Header");
   objectConverter.AddObjectToGraph(GetObjectManager()->GetRootObject(), "ObjectTree");
 
-  ezAbstractGraphJsonSerializer::Write(file, &graph, ezJSONWriter::WhitespaceMode::All);
+  ezAbstractGraphJsonSerializer::Write(file, &graph, ezJSONWriter::WhitespaceMode::LessIndentation);
 
   return ezStatus(EZ_SUCCESS);
 }

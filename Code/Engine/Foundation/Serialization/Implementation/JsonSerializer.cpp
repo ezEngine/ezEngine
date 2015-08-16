@@ -44,24 +44,19 @@ void ezAbstractGraphJsonSerializer::Write(ezStreamWriterBase& stream, const ezAb
         if (node.GetNodeName() != nullptr)
           writer.AddVariableString("n", node.GetNodeName());
 
-        writer.BeginArray("p");
+        writer.BeginObject("p");
         {
           for (const auto& prop : node.GetProperties())
             SortedProperties[prop.m_szPropertyName] = &prop.m_Value;
 
           for (auto it = SortedProperties.GetIterator(); it.IsValid(); ++it)
           {
-            writer.BeginObject();
-
-            writer.AddVariableString("n", it.Key());
-            writer.AddVariableVariant("v", *it.Value());
-
-            writer.EndObject();
+            writer.AddVariableVariant(it.Key(), *it.Value());
           }
 
           SortedProperties.Clear();
         }
-        writer.EndArray();
+        writer.EndObject();
       }
       writer.EndObject();
     }
@@ -105,7 +100,7 @@ void ezAbstractGraphJsonSerializer::Read(ezStreamReaderBase& stream, ezAbstractO
     ObjDict.TryGetValue("n", pNodeName);
 
     if (pGuid == nullptr || pType == nullptr || pProp == nullptr ||
-        !pGuid->IsA<ezUuid>() || !pType->IsA<ezString>() || !pProp->IsA<ezVariantArray>())
+        !pGuid->IsA<ezUuid>() || !pType->IsA<ezString>() || !pProp->IsA<ezVariantDictionary>())
     {
       EZ_REPORT_FAILURE("'Objects' array contains invalid elements");
       continue;
@@ -117,29 +112,10 @@ void ezAbstractGraphJsonSerializer::Read(ezStreamReaderBase& stream, ezAbstractO
 
     auto* pNode = pGraph->AddNode(pGuid->Get<ezUuid>(), pType->Get<ezString>(), szNodeName);
     
-    const ezVariantArray& Properties = pProp->Get<ezVariantArray>();
-    for (const auto& prop : Properties)
+    const ezVariantDictionary& Properties = pProp->Get<ezVariantDictionary>();
+    for (auto propIt = Properties.GetIterator(); propIt.IsValid(); ++propIt)
     {
-      if (!prop.IsA<ezVariantDictionary>())
-      {
-        EZ_REPORT_FAILURE("Property is not an object");
-        continue;
-      }
-
-      const ezVariantDictionary& PropDict = prop.Get<ezVariantDictionary>();
-
-      ezVariant* pName = nullptr;
-      ezVariant* pValue = nullptr;
-      PropDict.TryGetValue("n", pName);
-      PropDict.TryGetValue("v", pValue);
-
-      if (pName == nullptr || pValue == nullptr || !pName->IsA<ezString>())
-      {
-        EZ_REPORT_FAILURE("Property does not have valid name and value");
-        continue;
-      }
-
-      pNode->AddProperty(pName->Get<ezString>(), *pValue);
+      pNode->AddProperty(propIt.Key(), propIt.Value());
     }
 
   }

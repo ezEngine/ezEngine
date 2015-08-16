@@ -15,6 +15,9 @@
 #include <ToolsFoundation/Object/SerializedDocumentObject.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <GuiFoundation/UIServices/ProgressBar.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/JsonSerializer.h>
+#include <Foundation/Serialization/RttiConverter.h>
 
 ezAssetCurator* ezAssetCurator::s_pInstance = nullptr;
 
@@ -496,26 +499,14 @@ const ezAssetCurator::AssetInfo* ezAssetCurator::GetAssetInfo(const ezUuid& asse
 
 void ezAssetCurator::ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReaderBase& stream)
 {
-  ezDocumentJSONReader reader(&stream);
+  ezAbstractObjectGraph graph;
+  ezAbstractGraphJsonSerializer::Read(stream, &graph);
 
-  if (reader.OpenGroup("Header"))
-  {
-    ezUuid objectGuid;
-    ezStringBuilder sType;
-    ezUuid parentGuid;
-    while (reader.PeekNextObject(objectGuid, sType, parentGuid))
-    {
-      if (sType == pInfo->GetDynamicRTTI()->GetTypeName()) // this should always be "ezAssetDocumentInfo"
-      {
-        const ezRTTI* pRtti = ezRTTI::FindTypeByName(pInfo->GetDynamicRTTI()->GetTypeName());
-        EZ_ASSERT_DEV(pRtti != nullptr, "Need to register ezDocumentInfo at the ezPhantomRttiManager first!");
+  ezRttiConverterContext context;
+  ezRttiConverterReader rttiConverter(&graph, &context);
 
-        ezReflectedTypeDirectAccessor acc(pInfo, nullptr);
-        ezSerializedTypeAccessorObjectReader objectReader(&acc);
-        reader.ReadObject(objectReader);
-      }
-    }
-  }
+  auto* pHeaderNode = graph.GetNodeByName("Header");
+  rttiConverter.ApplyPropertiesToObject(pHeaderNode, pInfo->GetDynamicRTTI(), pInfo);
 }
 
 ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetCurator::AssetInfo& assetInfo, const ezFileStats* pFileStat)

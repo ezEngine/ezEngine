@@ -1,32 +1,36 @@
 {
-  "Header" : [ {
-      "Type" : "ezAssetDocumentInfo",
-      "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "DocumentID" : { "$t" : "uuid", "$b" : "0x5DB76CBA6757094599C742EE599607A3" },
-        "Dependencies" : "Cubemaps/SanFranciscoBeach.dds",
-        "References" : "",
-        "Hash" : { "$t" : "uint64", "$v" : "2440840715667210825", "$b" : "0x4982A7E2B29BDF21" },
-        "AssetType" : "Texture Cube"
-      }
-    } ],
-  "ObjectTree" : [ {
-      "Type" : "ezTextureAssetProperties",
-      "ID" : { "$t" : "uuid", "$b" : "0x4DC2B35C8C73544A888F5908D9462A64" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "Texture File" : "Cubemaps/SanFranciscoBeach.dds",
-        "Usage" : "ezTextureUsageEnum::Unknown",
-        "sRGB-Mode" : "ezSRGBModeEnum::Unknown",
-        "Type" : "ezTextureTypeEnum::TextureCube",
-        "Format" : "B8G8R8X8_UNORM",
-        "Width" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
-        "Height" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
-        "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
-      },
-      "EditorTypeData" : {
-        
-      }
-    } ]
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x5DB76CBA6757094599C742EE599607A3" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Texture Cube",
+    "Dependencies" : "Cubemaps/SanFranciscoBeach.dds",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0x5DB76CBA6757094599C742EE599607A3" },
+    "Hash" : { "$t" : "uint64", "$v" : "655759153495300657", "$b" : "0x315A4CCA79B91909" },
+    "References" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x30C038E0BBD97C45987EC7343EDC4B2E" },
+   "t" : "ezTextureAssetProperties",
+   "p" : {
+    "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
+    "Format" : "B8G8R8X8_UNORM",
+    "Height" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
+    "Texture File" : "Cubemaps/SanFranciscoBeach.dds",
+    "Type" : "ezTextureTypeEnum::TextureCube",
+    "Usage" : "ezTextureUsageEnum::Diffuse",
+    "Width" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
+    "sRGB-Mode" : "ezSRGBModeEnum::sRGB"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "RootObjects" : [ { "$t" : "uuid", "$b" : "0x30C038E0BBD97C45987EC7343EDC4B2E" } ]
+   }
+  } ]
 }

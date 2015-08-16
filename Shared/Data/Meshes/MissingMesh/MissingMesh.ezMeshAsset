@@ -1,21 +1,20 @@
 {
-  "Header" : [ {
-      "Type" : "ezAssetDocumentInfo",
-      "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "DocumentID" : { "$t" : "uuid", "$b" : "0x67B1E6E98CC160429B0E4CF4503C1463" },
-        "Dependencies" : "Meshes/MissingMesh/MissingMesh.obj",
-        "References" : "",
-        "Hash" : { "$t" : "uint64", "$v" : "6393174126401927167", "$b" : "0xFFB767D7FE1DB958" },
-        "AssetType" : "Mesh"
-      }
-    } ],
-  "ObjectTree" : [ {
-      "Type" : "ezMeshAssetProperties",
-      "ID" : { "$t" : "uuid", "$b" : "0x2DF13322285E6842B39EB2AFF89474E8" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x67B1E6E98CC160429B0E4CF4503C1463" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Mesh",
+    "Dependencies" : "",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0x67B1E6E98CC160429B0E4CF4503C1463" },
+    "Hash" : { "$t" : "uint64", "$v" : "13136321553092117751", "$b" : "0xF7045D73DA964DB6" },
+    "References" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xF7D37B95271EE243B8645DAAC8BD12E4" },
+   "t" : "ezMeshAssetProperties",
+   "p" : {
         "Mesh File" : "Meshes/MissingMesh/MissingMesh.obj",
         "Material Slot 0" : "Materials/BaseMaterials/MissingMesh.ezMaterial",
         "Material Slot 1" : "",
@@ -49,9 +48,14 @@
         "Material Slot 29" : "",
         "Material Slot 30" : "",
         "Material Slot 31" : ""
-      },
-      "EditorTypeData" : {
-        
-      }
-    } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "RootObjects" : [ { "$t" : "uuid", "$b" : "0xF7D37B95271EE243B8645DAAC8BD12E4" } ]
+   }
+  } ]
 }

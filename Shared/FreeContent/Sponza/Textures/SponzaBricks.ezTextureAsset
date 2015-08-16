@@ -1,32 +1,36 @@
 {
-  "Header" : [ {
-      "Type" : "ezAssetDocumentInfo",
-      "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "DocumentID" : { "$t" : "uuid", "$b" : "0x276046DA322BBB46ADCF0DF0C2727ACA" },
-        "Dependencies" : "Sponza/Textures/spnza_bricks_a_diff.dds",
-        "References" : "",
-        "Hash" : { "$t" : "uint64", "$v" : "4305125833854430082", "$b" : "0x822B40E822E1BE3B" },
-        "AssetType" : "Texture 2D"
-      }
-    } ],
-  "ObjectTree" : [ {
-      "Type" : "ezTextureAssetProperties",
-      "ID" : { "$t" : "uuid", "$b" : "0x4C87BB5AA95B4C43B467706069B013DF" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "Texture File" : "Sponza/Textures/spnza_bricks_a_diff.dds",
-        "Usage" : "ezTextureUsageEnum::Diffuse",
-        "sRGB-Mode" : "ezSRGBModeEnum::Unknown",
-        "Type" : "ezTextureTypeEnum::Texture2D",
-        "Format" : "BC1_UNORM",
-        "Width" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
-        "Height" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
-        "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
-      },
-      "EditorTypeData" : {
-        
-      }
-    } ]
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x30C038E0BBD97C45987EC7343EDC4B2E" },
+   "t" : "ezTextureAssetProperties",
+   "p" : {
+    "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
+    "Format" : "BC1_UNORM",
+    "Height" : { "$t" : "uint32", "$v" : "512", "$b" : "0x00020000" },
+    "Texture File" : "Textures/Reference_D.dds",
+    "Type" : "ezTextureTypeEnum::Texture2D",
+    "Usage" : "ezTextureUsageEnum::Diffuse",
+    "Width" : { "$t" : "uint32", "$v" : "512", "$b" : "0x00020000" },
+    "sRGB-Mode" : "ezSRGBModeEnum::sRGB"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x276046DA322BBB46ADCF0DF0C2727ACA" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Texture 2D",
+    "Dependencies" : "Textures/Reference_D.dds",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0x276046DA322BBB46ADCF0DF0C2727ACA" },
+    "Hash" : { "$t" : "uint64", "$v" : "7642175230408302080", "$b" : "0x009EC6CFE1750E6A" },
+    "References" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "RootObjects" : [ { "$t" : "uuid", "$b" : "0x30C038E0BBD97C45987EC7343EDC4B2E" } ]
+   }
+  } ]
 }

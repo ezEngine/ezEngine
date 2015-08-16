@@ -1,32 +1,36 @@
 {
-  "Header" : [ {
-      "Type" : "ezAssetDocumentInfo",
-      "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "DocumentID" : { "$t" : "uuid", "$b" : "0x96F10A875526F54E9FAA90CB966017E6" },
-        "Dependencies" : "Sponza/Textures/sponza_curtain_diff.dds",
-        "References" : "",
-        "Hash" : { "$t" : "uint64", "$v" : "7409735103903497766", "$b" : "0x26FEE88BD1AAD466" },
-        "AssetType" : "Texture 2D"
-      }
-    } ],
-  "ObjectTree" : [ {
-      "Type" : "ezTextureAssetProperties",
-      "ID" : { "$t" : "uuid", "$b" : "0x698ECE0FC9ED97478E9DE73D7ADEC9D0" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "Texture File" : "Sponza/Textures/sponza_curtain_diff.dds",
-        "Usage" : "ezTextureUsageEnum::Diffuse",
-        "sRGB-Mode" : "ezSRGBModeEnum::Unknown",
-        "Type" : "ezTextureTypeEnum::Texture2D",
-        "Format" : "BC1_UNORM",
-        "Width" : { "$t" : "uint32", "$v" : "2048", "$b" : "0x00080000" },
-        "Height" : { "$t" : "uint32", "$v" : "2048", "$b" : "0x00080000" },
-        "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
-      },
-      "EditorTypeData" : {
-        
-      }
-    } ]
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "RootObjects" : [ { "$t" : "uuid", "$b" : "0x348402AF22EC4B4EAAD8B73D443533B8" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x348402AF22EC4B4EAAD8B73D443533B8" },
+   "t" : "ezTextureAssetProperties",
+   "p" : {
+    "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
+    "Format" : "BC1_UNORM",
+    "Height" : { "$t" : "uint32", "$v" : "2048", "$b" : "0x00080000" },
+    "Texture File" : "Sponza/Textures/sponza_curtain_diff.dds",
+    "Type" : "ezTextureTypeEnum::Texture2D",
+    "Usage" : "ezTextureUsageEnum::Diffuse",
+    "Width" : { "$t" : "uint32", "$v" : "2048", "$b" : "0x00080000" },
+    "sRGB-Mode" : "ezSRGBModeEnum::Unknown"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x96F10A875526F54E9FAA90CB966017E6" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Texture 2D",
+    "Dependencies" : "Sponza/Textures/sponza_curtain_diff.dds",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0x96F10A875526F54E9FAA90CB966017E6" },
+    "Hash" : { "$t" : "uint64", "$v" : "7409735103903497766", "$b" : "0x26FEE88BD1AAD466" },
+    "References" : ""
+   }
+  } ]
 }

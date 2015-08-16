@@ -1,21 +1,20 @@
 {
-  "Header" : [ {
-      "Type" : "ezAssetDocumentInfo",
-      "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "DocumentID" : { "$t" : "uuid", "$b" : "0x7E56A3CE366D8F419259F2E157979BCC" },
-        "Dependencies" : "Sponza/sponza.obj",
-        "References" : "",
-        "Hash" : { "$t" : "uint64", "$v" : "3627620940969479477", "$b" : "0x350D419E06E65732" },
-        "AssetType" : "Mesh"
-      }
-    } ],
-  "ObjectTree" : [ {
-      "Type" : "ezMeshAssetProperties",
-      "ID" : { "$t" : "uuid", "$b" : "0x71223D1E004E4D459AFC6EF27E6FFFA1" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x7E56A3CE366D8F419259F2E157979BCC" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Mesh",
+    "Dependencies" : "",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0x7E56A3CE366D8F419259F2E157979BCC" },
+    "Hash" : { "$t" : "uint64", "$v" : "13136321553092117751", "$b" : "0xF7045D73DA964DB6" },
+    "References" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xF7D37B95271EE243B8645DAAC8BD12E4" },
+   "t" : "ezMeshAssetProperties",
+   "p" : {
         "Mesh File" : "Sponza/sponza.obj",
         "Mesh Scaling" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
         "Forward Dir" : "ezBasisAxis::NegativeZ",
@@ -53,9 +52,14 @@
         "Material Slot 29" : "",
         "Material Slot 30" : "",
         "Material Slot 31" : ""
-      },
-      "EditorTypeData" : {
-        
-      }
-    } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "RootObjects" : [ { "$t" : "uuid", "$b" : "0xF7D37B95271EE243B8645DAAC8BD12E4" } ]
+   }
+  } ]
 }

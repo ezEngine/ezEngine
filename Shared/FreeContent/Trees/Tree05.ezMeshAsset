@@ -1,61 +1,65 @@
 {
-  "Header" : [ {
-      "Type" : "ezAssetDocumentInfo",
-      "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "DocumentID" : { "$t" : "uuid", "$b" : "0x95A7BE5B5803D84D86A9C277F7A59F53" },
-        "Dependencies" : "Trees/Tree5.obj",
-        "References" : "",
-        "Hash" : { "$t" : "uint64", "$v" : "6274177673826014409", "$b" : "0xC91416325A5B1257" },
-        "AssetType" : "Mesh"
-      }
-    } ],
-  "ObjectTree" : [ {
-      "Type" : "ezMeshAssetProperties",
-      "ID" : { "$t" : "uuid", "$b" : "0x09854A67871D8B48B6BBACC927531C77" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "Mesh File" : "Trees/Tree5.obj",
-        "Mesh Scaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-        "Forward Dir" : "ezBasisAxis::NegativeZ",
-        "Right Dir" : "ezBasisAxis::PositiveX",
-        "Up Dir" : "ezBasisAxis::PositiveY",
-        "Material Slot 0" : "{ b700025c-5c7f-4247-8157-f409369ef16b }",
-        "Material Slot 1" : "{ b700025c-5c7f-4247-8157-f409369ef16b }",
-        "Material Slot 2" : "{ b700025c-5c7f-4247-8157-f409369ef16b }",
-        "Material Slot 3" : "",
-        "Material Slot 4" : "",
-        "Material Slot 5" : "",
-        "Material Slot 6" : "",
-        "Material Slot 7" : "",
-        "Material Slot 8" : "",
-        "Material Slot 9" : "",
-        "Material Slot 10" : "",
-        "Material Slot 11" : "",
-        "Material Slot 12" : "",
-        "Material Slot 13" : "",
-        "Material Slot 14" : "",
-        "Material Slot 15" : "",
-        "Material Slot 16" : "",
-        "Material Slot 17" : "",
-        "Material Slot 18" : "",
-        "Material Slot 19" : "",
-        "Material Slot 20" : "",
-        "Material Slot 21" : "",
-        "Material Slot 22" : "",
-        "Material Slot 23" : "",
-        "Material Slot 24" : "",
-        "Material Slot 25" : "",
-        "Material Slot 26" : "",
-        "Material Slot 27" : "",
-        "Material Slot 28" : "",
-        "Material Slot 29" : "",
-        "Material Slot 30" : "",
-        "Material Slot 31" : ""
-      },
-      "EditorTypeData" : {
-        
-      }
-    } ]
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0xF7D37B95271EE243B8645DAAC8BD12E4" },
+   "t" : "ezMeshAssetProperties",
+   "p" : {
+    "Forward Dir" : "ezBasisAxis::NegativeZ",
+    "Material Slot 0" : "{ b700025c-5c7f-4247-8157-f409369ef16b }",
+    "Material Slot 1" : "{ b700025c-5c7f-4247-8157-f409369ef16b }",
+    "Material Slot 10" : "",
+    "Material Slot 11" : "",
+    "Material Slot 12" : "",
+    "Material Slot 13" : "",
+    "Material Slot 14" : "",
+    "Material Slot 15" : "",
+    "Material Slot 16" : "",
+    "Material Slot 17" : "",
+    "Material Slot 18" : "",
+    "Material Slot 19" : "",
+    "Material Slot 2" : "{ b700025c-5c7f-4247-8157-f409369ef16b }",
+    "Material Slot 20" : "",
+    "Material Slot 21" : "",
+    "Material Slot 22" : "",
+    "Material Slot 23" : "",
+    "Material Slot 24" : "",
+    "Material Slot 25" : "",
+    "Material Slot 26" : "",
+    "Material Slot 27" : "",
+    "Material Slot 28" : "",
+    "Material Slot 29" : "",
+    "Material Slot 3" : "",
+    "Material Slot 30" : "",
+    "Material Slot 31" : "",
+    "Material Slot 4" : "",
+    "Material Slot 5" : "",
+    "Material Slot 6" : "",
+    "Material Slot 7" : "",
+    "Material Slot 8" : "",
+    "Material Slot 9" : "",
+    "Mesh File" : "Trees/Tree5.obj",
+    "Mesh Scaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Right Dir" : "ezBasisAxis::PositiveX",
+    "Up Dir" : "ezBasisAxis::PositiveY"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "RootObjects" : [ { "$t" : "uuid", "$b" : "0xF7D37B95271EE243B8645DAAC8BD12E4" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x95A7BE5B5803D84D86A9C277F7A59F53" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Mesh",
+    "Dependencies" : "Trees/Tree5.obj",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0x95A7BE5B5803D84D86A9C277F7A59F53" },
+    "Hash" : { "$t" : "uint64", "$v" : "7579427495079675302", "$b" : "0xA6850D3526892F69" },
+    "References" : ""
+   }
+  } ]
 }
