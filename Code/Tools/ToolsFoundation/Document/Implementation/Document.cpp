@@ -174,76 +174,25 @@ ezStatus ezDocumentBase::InternalSaveDocument()
 
 ezStatus ezDocumentBase::InternalLoadDocument()
 {
-  /*
-  // TODO: BLA
   ezFileReader file;
   if (file.Open(m_sDocumentPath) == EZ_FAILURE)
   {
     return ezStatus(EZ_FAILURE, "Unable to open file for reading!");
   }
 
-  ezDocumentJSONReader reader(&file);
+  ezAbstractObjectGraph graph;
+  ezAbstractGraphJsonSerializer::Read(file, &graph);
 
-  if (reader.OpenGroup("Header"))
-  {
-    ezUuid objectGuid;
-    ezStringBuilder sType;
-    ezUuid parentGuid;
-    while (reader.PeekNextObject(objectGuid, sType, parentGuid))
-    {
-      if (sType == m_pDocumentInfo->GetDynamicRTTI()->GetTypeName())
-      {
-        const ezRTTI* pRtti = ezRTTI::FindTypeByName(m_pDocumentInfo->GetDynamicRTTI()->GetTypeName());
-        EZ_ASSERT_DEV(pRtti != nullptr, "Need to register ezDocumentInfo at the ezPhantomRttiManager first!");
+  ezRttiConverterContext context;
+  ezRttiConverterReader rttiConverter(&graph, &context);
+  ezDocumentObjectConverterReader objectConverter(&graph, GetObjectManager());
 
-        ezReflectedTypeDirectAccessor acc(m_pDocumentInfo, nullptr);
-        ezSerializedTypeAccessorObjectReader objectReader(&acc);
-        reader.ReadObject(objectReader);
-      }
-    }
-  }
+  auto* pHeaderNode = graph.GetNodeByName("Header");
+  rttiConverter.ApplyPropertiesToObject(pHeaderNode, m_pDocumentInfo->GetDynamicRTTI(), m_pDocumentInfo);
 
-  if (reader.OpenGroup("ObjectTree"))
-  {
-    ezUuid objectGuid;
-    ezStringBuilder sType;
-    ezUuid parentGuid;
-    while (reader.PeekNextObject(objectGuid, sType, parentGuid))
-    {
-      const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
-      ezDocumentObjectBase* pObject = GetObjectManager()->CreateObject(pRtti, objectGuid);
+  auto* pRootNode = graph.GetNodeByName("ObjectTree");
+  objectConverter.ApplyPropertiesToObject(pRootNode, GetObjectManager()->GetRootObject());
 
-      if (pObject)
-      {
-        ezSerializedDocumentObjectReader objectReader(pObject);
-        reader.ReadObject(objectReader);
-        if (parentGuid.IsValid())
-        {
-          ezDocumentObjectBase* pParent = GetObjectManager()->GetObject(parentGuid);
-          if (pParent)
-          {
-            GetObjectManager()->AddObject(pObject, pParent);
-          }
-          else
-          {
-            // TODO: Oh noes!
-          }
-          
-        }
-        else
-        {
-          GetObjectManager()->AddObject(pObject, nullptr);
-        }
-      }
-      else
-      {
-        // TODO: Accumulate failed objects.
-      }
-      
-    }
-    
-  }
-*/
   SetModified(false);
   return ezStatus(EZ_SUCCESS);
 }

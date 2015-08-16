@@ -31,3 +31,18 @@ private:
 };
 
 
+class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectConverterReader
+{
+public:
+  ezDocumentObjectConverterReader(const ezAbstractObjectGraph* pGraph, ezDocumentObjectManager* pManager);
+
+  ezDocumentObjectBase* CreateObjectFromNode(const ezAbstractObjectNode* pNode);
+  void ApplyPropertiesToObject(const ezAbstractObjectNode* pNode, ezDocumentObjectBase* pObject);
+
+private:
+  void ApplyProperty(ezDocumentObjectBase* pObject, ezAbstractProperty* pProperty, const ezAbstractObjectNode::Property* pSource);
+
+  ezDocumentObjectManager* m_pManager;
+  const ezAbstractObjectGraph* m_pGraph;
+};
+

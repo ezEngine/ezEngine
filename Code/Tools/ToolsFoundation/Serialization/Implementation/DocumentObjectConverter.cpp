@@ -117,3 +117,102 @@ ezAbstractObjectNode* ezDocumentObjectConverterWriter::AddSubObjectToGraph(const
 
 
 
+ezDocumentObjectConverterReader::ezDocumentObjectConverterReader(const ezAbstractObjectGraph* pGraph, ezDocumentObjectManager* pManager)
+{
+  m_pManager = pManager;
+  m_pGraph = pGraph;
+}
+
+ezDocumentObjectBase* ezDocumentObjectConverterReader::CreateObjectFromNode(const ezAbstractObjectNode* pNode)
+{
+  return m_pManager->CreateObject(ezRTTI::FindTypeByName(pNode->GetType()), pNode->GetGuid());
+}
+
+void ezDocumentObjectConverterReader::ApplyPropertiesToObject(const ezAbstractObjectNode* pNode, ezDocumentObjectBase* pObject)
+{
+  ezHybridArray<ezAbstractProperty*, 32> Properties;
+  pObject->GetTypeAccessor().GetType()->GetAllProperties(Properties);
+
+  for (auto* pProp : Properties)
+  {
+    auto* pOtherProp = pNode->FindProperty(pProp->GetPropertyName());
+    if (pOtherProp == nullptr)
+      continue;
+
+    ApplyProperty(pObject, pProp, pOtherProp);
+  }
+}
+
+void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObjectBase* pObject, ezAbstractProperty* pProp, const ezAbstractObjectNode::Property* pSource)
+{
+  const ezRTTI* pPropType = pProp->GetSpecificType();
+  const ezPropertyPath path(pProp->GetPropertyName());
+  ezStringBuilder sTemp;
+
+  if (pProp->GetCategory() == ezPropertyCategory::Member)
+  {
+    if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+    {
+      const ezUuid guid = pSource->m_Value.Get<ezUuid>();
+      if (guid.IsValid())
+      {
+        auto* pSubNode = m_pGraph->GetNode(guid);
+        EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
+
+        auto* pSubObject = CreateObjectFromNode(pSubNode);
+
+        m_pManager->AddObject(pSubObject, pObject, pProp->GetPropertyName(), ezVariant());
+
+        ApplyPropertiesToObject(pSubNode, pSubObject);
+      }
+    }
+    else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags | ezPropertyFlags::StandardType | ezPropertyFlags::Pointer))
+    {
+      pObject->GetTypeAccessor().SetValue(path, pSource->m_Value);
+    }
+    else
+    {
+      const ezUuid guid = pSource->m_Value.Get<ezUuid>();
+
+      ezDocumentSubObject SubObj(pPropType);
+      SubObj.SetObject(pObject, path, guid);
+
+      auto* pSubNode = m_pGraph->GetNode(guid);
+      EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
+
+      ApplyPropertiesToObject(pSubNode, &SubObj);
+    }
+  }
+  else if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
+  {
+    const ezVariantArray& array = pSource->m_Value.Get<ezVariantArray>();
+
+    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+    {
+      for (ezUInt32 i = 0; i < array.GetCount(); ++i)
+      {
+        pObject->GetTypeAccessor().InsertValue(path, i, array[i]);
+      }
+    }
+    else
+    {
+      for (ezUInt32 i = 0; i < array.GetCount(); ++i)
+      {
+        const ezUuid guid = array[i].Get<ezUuid>();
+
+        if (guid.IsValid())
+        {
+          auto* pSubNode = m_pGraph->GetNode(guid);
+          EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
+
+          auto* pSubObject = CreateObjectFromNode(pSubNode);
+
+          m_pManager->AddObject(pSubObject, pObject, pProp->GetPropertyName(), -1);
+
+          ApplyPropertiesToObject(pSubNode, pSubObject);
+        }
+      }
+    }
+  }
+}
+
