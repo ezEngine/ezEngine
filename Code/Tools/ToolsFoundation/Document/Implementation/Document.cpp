@@ -1,9 +1,5 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Document/Document.h>
-#include <ToolsFoundation/Serialization/DocumentJSONReader.h>
-#include <ToolsFoundation/Serialization/DocumentJSONWriter.h>
-#include <ToolsFoundation/Serialization/SerializedTypeAccessorObject.h>
-#include <ToolsFoundation/Object/SerializedDocumentObject.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
@@ -65,19 +61,6 @@ void ezDocumentBase::SetupDocumentInfo(const ezDocumentTypeDescriptor& TypeDescr
   m_pDocumentInfo = CreateDocumentInfo();
 
   EZ_ASSERT_DEV(m_pDocumentInfo != nullptr, "invalid document info");
-}
-
-static void WriteObjectRecursive(ezDocumentJSONWriter& writer, const ezDocumentObjectBase* pObject)
-{
-  ezSerializedDocumentObjectWriter object(pObject);
-  writer.WriteObject(object);
-
-  auto children = pObject->GetChildren();
-  const ezUInt32 uiCount = children.GetCount();
-  for (ezUInt32 i = 0; i < uiCount; ++i)
-  {
-    WriteObjectRecursive(writer, children[i]);
-  }
 }
 
 void ezDocumentBase::SetModified(bool b)

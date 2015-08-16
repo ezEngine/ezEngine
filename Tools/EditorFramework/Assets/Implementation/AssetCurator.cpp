@@ -10,9 +10,6 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <ToolsFoundation/Serialization/DocumentJSONReader.h>
-#include <ToolsFoundation/Serialization/SerializedTypeAccessorObject.h>
-#include <ToolsFoundation/Object/SerializedDocumentObject.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <GuiFoundation/UIServices/ProgressBar.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
