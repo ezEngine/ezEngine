@@ -246,7 +246,7 @@ void ezEngineProcessGameState::HandlerGameObjectMsg(ezEngineProcessDocumentConte
       d.m_sName.Assign(ezConversionUtils::ToString(pMsg->m_ObjectGuid).GetData());
 
       if (pMsg->m_NewParentGuid.IsValid())
-        d.m_Parent = m_GameObjectMap.GetHandle(pMsg->m_NewParentGuid);
+        d.m_hParent = m_GameObjectMap.GetHandle(pMsg->m_NewParentGuid);
 
       ezGameObjectHandle hObject = pDocumentContext->m_pWorld->CreateObject(d);
       m_GameObjectMap.RegisterObject(pMsg->m_ObjectGuid, hObject);

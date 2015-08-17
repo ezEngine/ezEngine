@@ -6,6 +6,8 @@
 class EZ_FOUNDATION_DLL ezFrameAllocator
 {
 public:
+  typedef ezStackAllocator<ezMemoryTrackingFlags::None> StackAllocatorType;
+
   EZ_FORCE_INLINE static ezAllocatorBase* GetCurrentAllocator()
   {
     return s_pCurrentAllocator;
@@ -13,7 +15,7 @@ public:
 
   static void Swap();
 
-  static void Reset();
+  static void Reset(); 
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, FrameAllocator);
@@ -21,5 +23,5 @@ private:
   static void Startup();
   static void Shutdown();
 
-  static ezStackAllocator<0>* s_pCurrentAllocator;
+  static StackAllocatorType* s_pCurrentAllocator;
 };

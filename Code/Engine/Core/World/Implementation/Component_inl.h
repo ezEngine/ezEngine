@@ -29,7 +29,12 @@ EZ_FORCE_INLINE ezComponentManagerBase* ezComponent::GetManager() const
   return m_pManager;
 }
 
-EZ_FORCE_INLINE ezGameObject* ezComponent::GetOwner() const
+EZ_FORCE_INLINE ezGameObject* ezComponent::GetOwner()
+{
+  return m_pOwner;
+}
+
+EZ_FORCE_INLINE const ezGameObject* ezComponent::GetOwner() const
 {
   return m_pOwner;
 }

@@ -229,8 +229,10 @@ public:
   void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay,
     ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
 
-  const ezTagSet& GetTags() const { return m_Tags; }
-  ezTagSet& GetTags() { return m_Tags; }
+
+  /// \brief Returns the tag set associated with this object.
+  ezTagSet& GetTags();
+  const ezTagSet& GetTags() const;
 
 private:
   friend class ezGameObjectTest;
@@ -244,6 +246,7 @@ private:
   void Reflection_RemoveComponent(ezComponent* pComponent) { RemoveComponent(pComponent); }
   const ezHybridArray<ezComponent*, NUM_INPLACE_COMPONENTS>& Reflection_GetComponents() const { return m_Components; }
 
+  void OnDeleteObject(ezDeleteObjectMessage& msg);
 
   void FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr);
 
@@ -277,7 +280,6 @@ private:
     void UpdateGlobalBoundsWithParent();
   };
 
-  ezTagSet m_Tags;
   ezGameObjectId m_InternalId;
   ezBitflags<ezObjectFlags> m_Flags;
   ezHashedString m_sName;
@@ -321,6 +323,8 @@ private:
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
   ezUInt64 m_uiPadding2;
 #endif
+
+  ezTagSet m_Tags;
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezGameObject);

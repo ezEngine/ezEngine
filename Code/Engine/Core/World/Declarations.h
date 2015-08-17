@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Memory/LargeBlockAllocator.h>
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/Id.h>
 
@@ -135,10 +136,12 @@ struct ezObjectMsgRouting
 {
   enum Enum
   {
-    Default,     ///< Send the message only to the object's components.
-    ToParent,    ///< Send the message to parent objects recursively.
-    ToChildren,  ///< Send the message to all child objects recursively.
-    ToSubTree,   ///< Send the message to the whole subtree starting at the top-level parent object.
+    ToObjectOnly, ///< Send the message only to the object itself.
+    ToComponents, ///< Send the message to the object itself and its components.
+    ToParent,     ///< Send the message to parent objects and their components recursively.
+    ToChildren,   ///< Send the message to all child objects their components recursively.
+    ToSubTree,    ///< Send the message to the whole subtree starting at the top-level parent object.
+    Default = ToComponents
   };
 };
 

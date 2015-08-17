@@ -42,14 +42,6 @@ namespace ezInternal
 
     ezDynamicArray<ObjectStorage::Entry, ezLocalAllocatorWrapper> m_DeadObjects;
 
-    struct SetParentRequest
-    {
-      ezGameObjectHandle m_Object;
-      ezGameObjectHandle m_NewParent;
-    };
-
-    ezDynamicArray<SetParentRequest, ezLocalAllocatorWrapper> m_SetParentRequests;
-
     // hierarchy structures
     struct Hierarchy
     {

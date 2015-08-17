@@ -265,6 +265,16 @@ EZ_FORCE_INLINE ezArrayPtr<const ezComponent* const> ezGameObject::GetComponents
   return ezMakeArrayPtr(const_cast<const ezComponent*const*>(m_Components.GetData()), m_Components.GetCount());
 }
 
+EZ_FORCE_INLINE ezTagSet& ezGameObject::GetTags()
+{
+  return m_Tags;
+}
+
+EZ_FORCE_INLINE const ezTagSet& ezGameObject::GetTags() const 
+{
+  return m_Tags; 
+}
+
 
 EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalTransform()
 {

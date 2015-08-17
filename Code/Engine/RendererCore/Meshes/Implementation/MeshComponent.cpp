@@ -67,12 +67,6 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
   if (!IsActive() || !m_hMesh.IsValid())
     return;
 
-  if (!msg.m_pView->m_ExcludeTags.IsEmpty() &&  msg.m_pView->m_ExcludeTags.IsAnySet(GetOwner()->GetTags()))
-    return;
-
-  if (!msg.m_pView->m_IncludeTags.IsEmpty() && !msg.m_pView->m_IncludeTags.IsAnySet(GetOwner()->GetTags()))
-    return;
-
   ezRenderPipeline* pRenderPipeline = msg.m_pView->GetRenderPipeline();
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh);

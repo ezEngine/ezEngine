@@ -43,7 +43,7 @@ void ezRenderPipelinePass::RenderDataWithPassType(const ezRenderViewContext& ren
 {
   EZ_PROFILE_AND_MARKER(renderViewContext.m_pRenderContext->GetGALContext(), m_pPipeline->GetPassTypeProfilingID(passType));
 
-  ezArrayPtr<const ezRenderData*> renderData = m_pPipeline->GetRenderDataWithPassType(passType);
+  ezArrayPtr<const ezRenderData* const> renderData = m_pPipeline->GetRenderDataWithPassType(passType);
   while (renderData.GetCount() > 0)
   {
     const ezRenderData* pRenderData = renderData[0];

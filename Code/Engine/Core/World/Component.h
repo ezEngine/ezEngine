@@ -43,8 +43,11 @@ public:
   /// \brief Returns the corresponding manager for this component.
   ezComponentManagerBase* GetManager() const;
 
-  /// \brief Returns the owner game object if the component is attached to one or nullptr. 
-  ezGameObject* GetOwner() const;
+  /// \brief Returns the owner game object if the component is attached to one or nullptr.
+  ezGameObject* GetOwner();
+
+  /// \brief Returns the owner game object if the component is attached to one or nullptr.
+  const ezGameObject* GetOwner() const;
 
   /// \brief Returns a handle to this component.
   ezComponentHandle GetHandle() const;

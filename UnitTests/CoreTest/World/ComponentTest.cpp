@@ -236,12 +236,15 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
 
     world.CreateComponentManager<TestComponentManager>();
 
+    ezGameObjectDesc desc;
+
     ezGameObject* pObjectA = nullptr;
     ezGameObject* pObjectB = nullptr;
     ezGameObject* pObjectC = nullptr;
-    ezGameObjectHandle hObjectA = world.CreateObject(ezGameObjectDesc(), pObjectA);
-    ezGameObjectHandle hObjectB = world.CreateObject(ezGameObjectDesc(), pObjectB);
-    ezGameObjectHandle hObjectC = world.CreateObject(ezGameObjectDesc(), pObjectC);
+
+    desc.m_sName.Assign("A"); ezGameObjectHandle hObjectA = world.CreateObject(desc, pObjectA);
+    desc.m_sName.Assign("B"); ezGameObjectHandle hObjectB = world.CreateObject(desc, pObjectB);
+    desc.m_sName.Assign("C"); ezGameObjectHandle hObjectC = world.CreateObject(desc, pObjectC);
 
     TestComponent* pComponentA = nullptr;
     TestComponent* pComponentB = nullptr;
@@ -279,10 +282,12 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     //EZ_TEST_BOOL(world.TryGetComponent(hComponentC, pComponentC));
 
     EZ_TEST_BOOL(pObjectA->IsActive());
+    EZ_TEST_STRING(pObjectA->GetName(), "A");
     EZ_TEST_BOOL(pComponentA->IsActive());
     EZ_TEST_BOOL(pComponentA->GetOwner() == pObjectA);
 
     EZ_TEST_BOOL(pObjectC->IsActive());
+    EZ_TEST_STRING(pObjectC->GetName(), "C");
     EZ_TEST_BOOL(pComponentC->IsActive());
     EZ_TEST_BOOL(pComponentC->GetOwner() == pObjectC);
 

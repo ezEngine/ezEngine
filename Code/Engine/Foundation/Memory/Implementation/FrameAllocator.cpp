@@ -19,11 +19,11 @@ EZ_END_SUBSYSTEM_DECLARATION
 
 namespace
 {
-  ezStackAllocator<0>* g_Allocators[2];
+  ezFrameAllocator::StackAllocatorType* g_Allocators[2];
   ezProfilingId g_SwapProfilingId = ezProfilingSystem::CreateId("FrameAllocator.Swap");
 }
 
-ezStackAllocator<0>* ezFrameAllocator::s_pCurrentAllocator;
+ezFrameAllocator::StackAllocatorType* ezFrameAllocator::s_pCurrentAllocator;
 
 // static 
 void ezFrameAllocator::Swap()
@@ -44,8 +44,8 @@ void ezFrameAllocator::Reset()
 // static
 void ezFrameAllocator::Startup()
 {
-  g_Allocators[0] = EZ_DEFAULT_NEW(ezStackAllocator<0>, "FrameAllocator0", ezFoundation::GetDefaultAllocator());
-  g_Allocators[1] = EZ_DEFAULT_NEW(ezStackAllocator<0>, "FrameAllocator1", ezFoundation::GetDefaultAllocator());
+  g_Allocators[0] = EZ_DEFAULT_NEW(StackAllocatorType, "FrameAllocator0", ezFoundation::GetDefaultAllocator());
+  g_Allocators[1] = EZ_DEFAULT_NEW(StackAllocatorType, "FrameAllocator1", ezFoundation::GetDefaultAllocator());
 
   s_pCurrentAllocator = g_Allocators[0];
 }

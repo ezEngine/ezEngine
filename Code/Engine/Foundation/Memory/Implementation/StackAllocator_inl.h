@@ -10,6 +10,8 @@ ezStackAllocator<TrackingFlags>::ezStackAllocator(const char* szName, ezAllocato
 template <ezUInt32 TrackingFlags>
 void* ezStackAllocator<TrackingFlags>::Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc)
 {
+  EZ_LOCK(m_Mutex);
+
   void* ptr = ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingFlags>::Allocate(uiSize, uiAlign, destructorFunc);
 
   if (destructorFunc != nullptr)
@@ -28,6 +30,8 @@ void* ezStackAllocator<TrackingFlags>::Allocate(size_t uiSize, size_t uiAlign, e
 template <ezUInt32 TrackingFlags>
 void ezStackAllocator<TrackingFlags>::Deallocate(void* ptr)
 {
+  EZ_LOCK(m_Mutex);
+
   ezUInt32 uiIndex;
   if (m_PtrToDestructDataIndexTable.Remove(ptr, &uiIndex))
   {
@@ -42,6 +46,8 @@ void ezStackAllocator<TrackingFlags>::Deallocate(void* ptr)
 template <ezUInt32 TrackingFlags>
 void ezStackAllocator<TrackingFlags>::Reset()
 {
+  EZ_LOCK(m_Mutex);
+
   for (ezUInt32 i = m_DestructData.GetCount(); i-- > 0;)
   {
     auto& data = m_DestructData[i];

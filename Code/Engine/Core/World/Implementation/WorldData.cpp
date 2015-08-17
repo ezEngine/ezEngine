@@ -51,7 +51,7 @@ WorldData::WorldData(const char* szWorldName) :
   m_Objects.Insert(entry);
 
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 192);
-  //EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject) == 128); /// \todo whatever
+  //EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject) == 128); /// \todo get game object size back to 128
 
   m_pCoordinateSystemProvider = EZ_NEW(&m_Allocator, DefaultCoordinateSystemProvider);
 }
@@ -137,7 +137,7 @@ void WorldData::DeleteTransformationData(const ezBitflags<ezObjectFlags>& object
   Hierarchy::DataBlockArray& blocks = *hierarchy.m_Data[uiHierarchyLevel];
 
   Hierarchy::DataBlock& lastBlock = blocks.PeekBack();
-  ezGameObject::TransformationData* pLast = lastBlock.PopBack();
+  const ezGameObject::TransformationData* pLast = lastBlock.PopBack();
   const ezUInt32 uiLastIndex = lastBlock.m_uiCount + (blocks.GetCount() - 1) * TRANSFORMATION_DATA_PER_BLOCK;
 
   if (uiLastIndex != uiIndex)

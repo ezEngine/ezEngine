@@ -41,7 +41,10 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezGameObjectDummyAlloc
     EZ_ACCESSOR_PROPERTY("LocalScaling", GetLocalScaling, SetLocalScaling),
     EZ_SET_ACCESSOR_PROPERTY("Children", Reflection_GetChildren, Reflection_AddChild, Reflection_DetachChild)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
     EZ_SET_ACCESSOR_PROPERTY("Components", Reflection_GetComponents, Reflection_AddComponent, Reflection_RemoveComponent)->AddFlags(ezPropertyFlags::PointerOwner),
-    EZ_END_PROPERTIES
+  EZ_END_PROPERTIES
+  EZ_BEGIN_MESSAGEHANDLERS
+    EZ_MESSAGE_HANDLER(ezDeleteObjectMessage, OnDeleteObject)
+  EZ_END_MESSAGEHANDLERS
 EZ_END_STATIC_REFLECTED_TYPE();
 
 ezHybridArray<ezGameObject*, 8> ezGameObject::Reflection_GetChildren() const
@@ -93,6 +96,8 @@ void ezGameObject::operator=(const ezGameObject& other)
     EZ_ASSERT_DEV(pComponent->m_pOwner == &other, "");
     pComponent->m_pOwner = this;
   }
+
+  m_Tags = other.m_Tags;
 }
 
 void ezGameObject::Activate()
@@ -285,6 +290,11 @@ ezResult ezGameObject::RemoveComponent(ezComponent* pComponent)
   return EZ_FAILURE;
 }
 
+void ezGameObject::OnDeleteObject(ezDeleteObjectMessage& msg)
+{
+  m_pWorld->DeleteObject(GetHandle());
+}
+
 void ezGameObject::FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr)
 {
   ezUInt32 uiIndex = m_Components.IndexOf(pOldPtr);
@@ -321,10 +331,16 @@ void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
     return;
   }
 
-  // always send message to all components
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  const ezRTTI* pRtti = ezGetStaticRTTI<ezGameObject>();
+  pRtti->DispatchMessage(this, msg);
+
+  // route message to all components
+  if (routing >= ezObjectMsgRouting::ToComponents)
   {
-    m_Components[i]->OnMessage(msg);
+    for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+    {
+      m_Components[i]->OnMessage(msg);
+    }
   }
 
   // route message to parent or children
@@ -361,11 +377,16 @@ void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
     return;
   }
 
-  // always send message to all components
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  const ezRTTI* pRtti = ezGetStaticRTTI<ezGameObject>();
+  pRtti->DispatchMessage(this, msg);
+
+  // route message to all components
+  if (routing >= ezObjectMsgRouting::ToComponents)
   {
-    const ezComponent* pComponent = m_Components[i];
-    pComponent->OnMessage(msg);
+    for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+    {
+      m_Components[i]->OnMessage(msg);
+    }
   }
 
   // route message to parent or children

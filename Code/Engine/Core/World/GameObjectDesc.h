@@ -22,7 +22,7 @@ struct ezGameObjectDesc
   
   ezHashedString m_sName;
 
-  ezGameObjectHandle m_Parent;
+  ezGameObjectHandle m_hParent;
 
   ezVec3 m_LocalPosition;
   ezQuat m_LocalRotation;

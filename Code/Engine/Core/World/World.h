@@ -34,6 +34,9 @@ public:
   /// \brief Deletes the given object. Note that the object and all its components and children will be invalidated first and the actual deletion is postponed.
   void DeleteObject(const ezGameObjectHandle& object);
 
+  /// \brief Deletes the given object at the beginning of the next world update. The object and its components and children stay completely valid until then.
+  void DeleteObjectDelayed(const ezGameObjectHandle& object);
+
   /// \brief Returns whether the given handle corresponds to a valid object.
   bool IsValidObject(const ezGameObjectHandle& object) const;
   
@@ -180,7 +183,6 @@ private:
   void DeleteDeadComponents();
 
   void PatchHierarchyData(ezGameObject* pObject);
-  void UpdateHierarchy();
 
   ezProfilingId m_UpdateProfilingID;
   ezDelegateTask<void> m_UpdateTask;

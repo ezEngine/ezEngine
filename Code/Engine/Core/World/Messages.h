@@ -11,3 +11,8 @@ struct EZ_CORE_DLL ezUpdateLocalBoundsMessage : public ezMessage
 
   ezBoundingBoxSphere m_ResultingLocalBounds;
 };
+
+struct EZ_CORE_DLL ezDeleteObjectMessage : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezDeleteObjectMessage);
+};

@@ -27,6 +27,7 @@ private:
     void* m_Ptr;    
   };
 
+  ezMutex m_Mutex;
   ezDynamicArray<DestructData> m_DestructData;
   ezHashTable<void*, ezUInt32> m_PtrToDestructDataIndexTable;
 };

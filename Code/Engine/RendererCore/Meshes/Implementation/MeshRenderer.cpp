@@ -16,7 +16,7 @@ void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>
   types.PushBack(ezGetStaticRTTI<ezMeshRenderData>());
 }
 
-ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData*>& renderData)
+ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData* const>& renderData)
 {
   if (!m_hObjectTransformCB.IsValid())
   {

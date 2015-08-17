@@ -12,6 +12,7 @@ struct ezMemoryTrackingFlags
 
   enum Enum
   {
+    None,
     EnableTracking   = EZ_BIT(0),
     EnableStackTrace = EZ_BIT(1),
 

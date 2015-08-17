@@ -26,9 +26,9 @@ public:
 
 
   template <typename T>
-  T* CreateRenderData(ezRenderPassType passType, ezGameObject* pOwner);
+  T* CreateRenderData(ezRenderPassType passType, const ezGameObject* pOwner);
   
-  ezArrayPtr<const ezRenderData*> GetRenderDataWithPassType(ezRenderPassType passType);
+  ezArrayPtr<const ezRenderData* const> GetRenderDataWithPassType(ezRenderPassType passType) const;
 
 
   static ezRenderPassType FindOrRegisterPassType(const char* szPassTypeName);
@@ -40,6 +40,9 @@ public:
 
 private:
   friend class ezView;
+
+  ezThreadID m_CurrentExtractThread;
+  ezThreadID m_CurrentRenderThread;
 
   struct PassData
   {
@@ -60,6 +63,7 @@ private:
 
   PipelineData* GetPipelineDataForExtraction();
   PipelineData* GetPipelineDataForRendering();
+  const PipelineData* GetPipelineDataForRendering() const;
 
   ezProfilingId m_RenderProfilingID;
   ezUInt32 m_uiLastExtractionFrame;

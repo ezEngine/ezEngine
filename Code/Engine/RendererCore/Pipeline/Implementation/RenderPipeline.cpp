@@ -55,6 +55,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
     return;
 
   m_uiLastExtractionFrame = ezRenderLoop::GetFrameCounter();
+  m_CurrentExtractThread = ezThreadUtils::GetCurrentThreadID();
 
   PipelineData* pPipelineData = GetPipelineDataForExtraction();
 
@@ -76,6 +77,13 @@ void ezRenderPipeline::ExtractData(const ezView& view)
     for (auto it = view.GetWorld()->GetObjects(); it.IsValid(); ++it)
     {
       const ezGameObject* pObject = it;
+
+      if (!view.m_ExcludeTags.IsEmpty() && view.m_ExcludeTags.IsAnySet(pObject->GetTags()))
+        continue;
+
+      if (!view.m_IncludeTags.IsEmpty() && !view.m_IncludeTags.IsAnySet(pObject->GetTags()))
+        continue;
+
       pObject->SendMessage(msg);
     }
   }
@@ -93,6 +101,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
 
   EZ_ASSERT_DEV(m_uiLastRenderFrame != ezRenderLoop::GetFrameCounter(), "Render must not be called multiple times per frame.");
   m_uiLastRenderFrame = ezRenderLoop::GetFrameCounter();
+  m_CurrentRenderThread = ezThreadUtils::GetCurrentThreadID();
 
   const PipelineData* pPipelineData = GetPipelineDataForRendering();
   const ezCamera* pCamera = &pPipelineData->m_Camera;
@@ -149,6 +158,12 @@ ezRenderPipeline::PipelineData* ezRenderPipeline::GetPipelineDataForExtraction()
 }
 
 ezRenderPipeline::PipelineData* ezRenderPipeline::GetPipelineDataForRendering()
+{
+  const ezUInt32 uiFrameCounter = ezRenderLoop::GetFrameCounter() + (CVarMultithreadedRendering ? 1 : 0);
+  return &m_Data[uiFrameCounter & 1];
+}
+
+const ezRenderPipeline::PipelineData* ezRenderPipeline::GetPipelineDataForRendering() const
 {
   const ezUInt32 uiFrameCounter = ezRenderLoop::GetFrameCounter() + (CVarMultithreadedRendering ? 1 : 0);
   return &m_Data[uiFrameCounter & 1];

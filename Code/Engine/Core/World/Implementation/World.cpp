@@ -79,10 +79,10 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   ezUInt32 uiParentIndex = 0;
   ezUInt32 uiHierarchyLevel = 0;
 
-  if (TryGetObject(desc.m_Parent, pParentObject))
+  if (TryGetObject(desc.m_hParent, pParentObject))
   {
     pParentData = pParentObject->m_pTransformationData;
-    uiParentIndex = desc.m_Parent.m_InternalId.m_InstanceIndex;
+    uiParentIndex = desc.m_hParent.m_InternalId.m_InstanceIndex;
     uiHierarchyLevel = pParentObject->m_uiHierarchyLevel;
     EZ_ASSERT_DEV(uiHierarchyLevel < (1 << 12), "Max hierarchy level reached");
     ++uiHierarchyLevel; // if there is a parent hierarchy level is parent level + 1
@@ -177,6 +177,12 @@ void ezWorld::DeleteObject(const ezGameObjectHandle& object)
   EZ_VERIFY(m_Data.m_Objects.Remove(object), "Implementation error.");
 }
 
+void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject)
+{
+  ezDeleteObjectMessage msg;
+  PostMessage(hObject, msg, ezObjectMsgQueueType::NextFrame, ezObjectMsgRouting::ToObjectOnly);
+}
+
 ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pRtti) const
 {
   CheckForReadAccess();
@@ -256,7 +262,6 @@ void ezWorld::Update()
     EZ_PROFILE(s_DeleteDeadObjectsProfilingID);
     DeleteDeadObjects();
     DeleteDeadComponents();
-    UpdateHierarchy();
   }
 
   // update transforms
@@ -282,13 +287,18 @@ void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent)
   if (GetObjectUnchecked(pObject->m_ParentIndex) == pNewParent)
     return;
 
-  // we cannot store pointers here since objects might be deleted when we actually update the hierarchy.
-  ezInternal::WorldData::SetParentRequest request;
-  request.m_Object = pObject->GetHandle();
-  if (pNewParent != nullptr)
-    request.m_NewParent = pNewParent->GetHandle();
+  UnlinkFromParent(pObject);
 
-  m_Data.m_SetParentRequests.PushBack(request);
+  if (pNewParent != nullptr)
+  {
+    // Ensure that the parent's global transform is up-to-date otherwise the object's local transform will be wrong afterwards.
+    pNewParent->UpdateGlobalTransform();
+
+    pObject->m_ParentIndex = pNewParent->m_InternalId.m_InstanceIndex;
+    LinkToParent(pObject);
+  }
+
+  PatchHierarchyData(pObject);
 }
 
 void ezWorld::LinkToParent(ezGameObject* pObject)
@@ -329,9 +339,12 @@ void ezWorld::UnlinkFromParent(ezGameObject* pObject)
 
     if (ezGameObject* pPrevObject = GetObjectUnchecked(pObject->m_PrevSiblingIndex))
       pPrevObject->m_NextSiblingIndex = pObject->m_NextSiblingIndex;
-
+      
     pParentObject->m_ChildCount--;
     pObject->m_ParentIndex = 0;
+
+    // Note that the sibling indices must not be set to 0 here. 
+    // They are still needed if we currently iterate over child objects.
   }
 }
 
@@ -660,51 +673,6 @@ void ezWorld::PatchHierarchyData(ezGameObject* pObject)
   {
     PatchHierarchyData(it);
   }
-}
-
-void ezWorld::UpdateHierarchy()
-{
-  ezUInt32 uiNumObjectsToPatch = 0;
-
-  for (ezUInt32 i = 0; i < m_Data.m_SetParentRequests.GetCount(); ++i)
-  {
-    ezInternal::WorldData::SetParentRequest& request = m_Data.m_SetParentRequests[i];
-
-    ezGameObject* pObject = nullptr;
-    ezGameObject* pNewParent = nullptr;
-
-    // object has already been deleted so nothing to do here
-    if (!TryGetObject(request.m_Object, pObject))
-      continue;
-
-    // might fail which means we want no parent for the object anymore thus it will become top level
-    TryGetObject(request.m_NewParent, pNewParent);
-
-    // check again if parent is already set which can happen if we have multiple requests leading to the same result
-    if (pObject->GetParent() == pNewParent)
-      continue;
-
-    UnlinkFromParent(pObject);
-
-    if (pNewParent != nullptr)
-    {
-      pObject->m_ParentIndex = pNewParent->m_InternalId.m_InstanceIndex;
-      LinkToParent(pObject);
-    }
-
-    // we need to patch all changed hierarchy data in a second round so we save the pointer to the object in the request data
-    ezGameObject** pRequestData = reinterpret_cast<ezGameObject**>(&m_Data.m_SetParentRequests[uiNumObjectsToPatch]);
-    *pRequestData = pObject;
-    uiNumObjectsToPatch++;
-  }
-
-  for (ezUInt32 i = 0; i < uiNumObjectsToPatch; ++i)
-  {
-    ezGameObject* pObject = *reinterpret_cast<ezGameObject**>(&m_Data.m_SetParentRequests[i]);
-    PatchHierarchyData(pObject);
-  }
-
-  m_Data.m_SetParentRequests.Clear();
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_World);

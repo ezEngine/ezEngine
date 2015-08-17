@@ -36,11 +36,11 @@ namespace
     desc.m_sName.Assign("Parent2");
     world.CreateObject(desc, testWorldObjects.pParent2);
 
-    desc.m_Parent = testWorldObjects.pParent1->GetHandle();
+    desc.m_hParent = testWorldObjects.pParent1->GetHandle();
     desc.m_sName.Assign("Child11");
     world.CreateObject(desc, testWorldObjects.pChild11);
 
-    desc.m_Parent = testWorldObjects.pParent2->GetHandle();
+    desc.m_hParent = testWorldObjects.pParent2->GetHandle();
     desc.m_sName.Assign("Child21");
     world.CreateObject(desc, testWorldObjects.pChild21);
 
@@ -132,7 +132,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 
     desc.m_LocalRotation.SetIdentity();
     desc.m_LocalScaling.Set(1.0f);
-    desc.m_Parent = parentObject;
+    desc.m_hParent = parentObject;
 
     ezGameObjectHandle childObjects[10];
     for (ezUInt32 i = 0; i < 10; ++i)
@@ -188,16 +188,44 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     EZ_TEST_INT(uiCounter, 7);
     EZ_TEST_INT(pParentObject->GetChildCount(), 7);
 
-    world.DeleteObject(parentObject);
-    EZ_TEST_BOOL(!world.IsValidObject(parentObject));
-    
-    for (ezUInt32 i = 0; i < 10; ++i)
+    // do one update step so dead objects get deleted
+    world.Update();
+
+    EZ_TEST_BOOL(!world.IsValidObject(childObjects[0]));
+    EZ_TEST_BOOL(!world.IsValidObject(childObjects[3]));
+    EZ_TEST_BOOL(!world.IsValidObject(childObjects[9]));
+
+    uiCounter = 0;
+    for (auto it = pParentObject->GetChildren(); it.IsValid(); ++it)
     {
-      EZ_TEST_BOOL(!world.IsValidObject(childObjects[i]));
+      ezStringBuilder sb;
+      sb.AppendFormat("Child_%d", indices[uiCounter]);
+
+      EZ_TEST_STRING(it->GetName(), sb.GetData());
+
+      ++uiCounter;
+    }
+
+    EZ_TEST_INT(uiCounter, 7);
+    EZ_TEST_INT(pParentObject->GetChildCount(), 7);
+
+    world.DeleteObjectDelayed(parentObject);
+    EZ_TEST_BOOL(world.IsValidObject(parentObject));
+    
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(indices); ++i)
+    {
+      EZ_TEST_BOOL(world.IsValidObject(childObjects[indices[i]]));
     }
 
     // do one update step so dead objects get deleted
     world.Update();
+
+    EZ_TEST_BOOL(!world.IsValidObject(parentObject));
+
+    for (ezUInt32 i = 0; i < 10; ++i)
+    {
+      EZ_TEST_BOOL(!world.IsValidObject(childObjects[i]));
+    }
 
     EZ_TEST_INT(world.GetObjectCount(), 0);
   }
@@ -212,7 +240,8 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     o.pParent1->AddChild(o.pParent2->GetHandle());
     o.pParent2->SetParent(o.pParent1->GetHandle());
 
-    world.Update();
+    // No need to update the world since re-parenting is now done immediately.
+    //world.Update();
 
     TestTransforms(o);
 
@@ -244,7 +273,8 @@ EZ_CREATE_SIMPLE_TEST(World, World)
 
     o.pChild21->SetParent(ezGameObjectHandle());
 
-    world.Update();
+    // No need to update the world since re-parenting is now done immediately.
+    //world.Update();
 
     TestTransforms(o);
 

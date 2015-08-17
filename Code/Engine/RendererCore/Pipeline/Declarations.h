@@ -2,9 +2,9 @@
 
 #include <Foundation/Math/Transform.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Core/World/Declarations.h>
 #include <RendererCore/Basics.h>
 
-class ezGameObject;
 class ezCamera;
 class ezView;
 class ezRenderPipeline;
@@ -35,6 +35,7 @@ private:
   friend class ezRenderPipeline;
 
   ezUInt64 m_uiSortingKey;
+  ezGameObjectHandle m_hOwner;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const ezGameObject* m_pOwner; /// debugging only
@@ -51,7 +52,7 @@ public:
   virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) = 0;
 
   /// \brief Should return the number of objects which have been rendered
-  virtual ezUInt32 Render(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData*>& renderData) = 0;
+  virtual ezUInt32 Render(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData* const>& renderData) = 0;
 };
 
 
