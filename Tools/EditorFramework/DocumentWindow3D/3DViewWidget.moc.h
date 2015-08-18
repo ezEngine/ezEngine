@@ -16,6 +16,7 @@ public:
   ezHybridArray<ezEditorInputContext*, 8> m_InputContexts;
 
   virtual void paintEvent(QPaintEvent* event) override;
+  virtual QPaintEngine* paintEngine() const override { return nullptr; }
 
   /// \brief Used to deactivate shortcuts
   virtual bool eventFilter(QObject* object, QEvent* event) override;
