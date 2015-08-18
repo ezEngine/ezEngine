@@ -4,6 +4,8 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Memory/Allocator.h>
 #include <Foundation/Memory/Policies/StackAllocation.h>
+#include <Foundation/Threading/Lock.h>
+#include <Foundation/Threading/Mutex.h>
 
 template <ezUInt32 TrackingFlags = ezMemoryTrackingFlags::Default>
 class ezStackAllocator : public ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingFlags>
