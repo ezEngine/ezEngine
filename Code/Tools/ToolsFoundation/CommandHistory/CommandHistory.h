@@ -63,6 +63,7 @@ public:
 
   /// \brief Returns true, if between StartTransaction / EndTransaction. False during Undo/Redo.
   bool IsInTransaction() const { return !m_TransactionStack.IsEmpty(); }
+  bool IsInUndoRedo() const { return m_bIsInUndoRedo; }
 
   void BeginTemporaryCommands();
   void CancelTemporaryCommands() { EndTemporaryCommands(true); }
@@ -81,6 +82,7 @@ private:
 
   bool m_bTemporaryMode;
   bool m_bTempTransaction;
+  bool m_bIsInUndoRedo;
 
   ezHybridArray<ezCommandTransaction*, 4> m_TransactionStack;
   ezDeque<ezCommandTransaction*> m_UndoHistory;

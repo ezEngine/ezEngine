@@ -86,9 +86,9 @@ public:
 
   ezWorld* m_pWorld;
   ezEditorGuidEngineHandleMap<ezUInt32> m_OtherPickingMap;
+  ezEditorGuidEngineHandleMap<ezUInt32> m_ComponentPickingMap;
   ezEditorGuidEngineHandleMap<ezGameObjectHandle> m_GameObjectMap;
   ezEditorGuidEngineHandleMap<ezComponentHandle> m_ComponentMap;
-  ezEditorGuidEngineHandleMap<ezUInt32> m_ComponentPickingMap;
 
 protected:
   virtual void OnInitialize() {}

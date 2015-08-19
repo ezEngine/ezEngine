@@ -113,6 +113,8 @@ void ezSceneDocument::GroupSelection()
   ezAddObjectCommand cmdAdd;
   cmdAdd.m_NewObjectGuid.CreateNewUuid();
   cmdAdd.m_pType = ezGetStaticRTTI<ezGameObject>();
+  cmdAdd.m_Index = -1;
+  cmdAdd.m_sParentProperty = "RootObjects";
 
   pHistory->AddCommand(cmdAdd);
 
@@ -128,6 +130,8 @@ void ezSceneDocument::GroupSelection()
 
   ezMoveObjectCommand cmdMove;
   cmdMove.m_NewParent = cmdAdd.m_NewObjectGuid;
+  cmdMove.m_Index = -1;
+  cmdMove.m_sParentProperty = "Children";
 
   for (const auto& item : sel)
   {
@@ -236,7 +240,10 @@ void ezSceneDocument::SetGlobalTransform(const ezDocumentObjectBase* pObject, co
 {
   auto pHistory = GetCommandHistory();
   if (!pHistory->IsInTransaction())
+  {
+    InvalidateGlobalTransformValue(pObject);
     return;
+  }
 
   const ezDocumentObjectBase* pParent = pObject->GetParent();
 

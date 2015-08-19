@@ -81,8 +81,6 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
   }
   else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineSyncObjectMsg>())
   {
-    //++uiSyncObjMessagesPerFrame;
-
     const ezEditorEngineSyncObjectMsg* pMsg2 = static_cast<const ezEditorEngineSyncObjectMsg*>(pMsg);
 
     ProcessEditorEngineSyncObjectMsg(*pMsg2);
