@@ -3,6 +3,7 @@
 #include <EditorFramework/Plugin.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
+#include <EditorFramework/IPC/SyncObject.h>
 
 class QWidget;
 class QHBoxLayout;
@@ -37,13 +38,19 @@ public:
 
   const ezObjectPickingResult& PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const;
 
+  void AddSyncObject(ezEditorEngineSyncObject* pSync);
+  void RemoveSyncObject(ezEditorEngineSyncObject* pSync);
+  ezEditorEngineSyncObject* FindSyncObject(const ezUuid& guid);
+
+  
+
 private slots:
   void SlotRestartEngineProcess();
 
 protected:
   ezEditorEngineConnection* m_pEngineView;
 
-  void SyncObjects();
+  void SyncObjectsToEngine();
 
 private:
   virtual void InternalRedraw() override;
@@ -55,6 +62,11 @@ private:
   QPushButton* m_pRestartButton;
 
   mutable ezObjectPickingResult m_LastPickingResult;
+
+  ezHashTable<ezUuid, ezEditorEngineSyncObject*> m_AllSyncObjects;
+  ezDeque<ezEditorEngineSyncObject*> m_SyncObjects;
+
+  ezHybridArray<ezUuid, 32> m_DeletedObjects;
 };
 
 

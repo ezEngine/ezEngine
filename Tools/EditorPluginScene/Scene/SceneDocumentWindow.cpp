@@ -40,9 +40,9 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   m_Camera.SetCameraMode(ezCamera::CameraMode::PerspectiveFixedFovY, 80.0f, 0.1f, 1000.0f);
   m_Camera.LookAt(ezVec3(0.5f, 2.0f, 1.5f), ezVec3(0.0f, 0.0f, 0.5f), ezVec3(0.0f, 0.0f, 1.0f));
 
-  m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, pDocument, this, &m_Camera);
-  m_pCameraMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, m_pCenterWidget, pDocument, this);
-  m_pCameraPositionContext = EZ_DEFAULT_NEW(ezCameraPositionContext, m_pCenterWidget, pDocument, this);
+  m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, this, &m_Camera);
+  m_pCameraMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, m_pCenterWidget, this);
+  m_pCameraPositionContext = EZ_DEFAULT_NEW(ezCameraPositionContext, m_pCenterWidget, this);
 
   m_pCameraMoveContext->LoadState();
   m_pCameraMoveContext->SetCamera(&m_Camera);
@@ -79,16 +79,11 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
 
   pSceneDoc->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::SelectionManagerEventHandler, this));
 
-  m_TranslateGizmo.SetDocumentWindow3D(this);
-  m_RotateGizmo.SetDocumentWindow3D(this);
-  m_ScaleGizmo.SetDocumentWindow3D(this);
-  m_DragToPosGizmo.SetDocumentWindow3D(this);
-
-  m_TranslateGizmo.SetDocumentGuid(pDocument->GetGuid());
-  m_RotateGizmo.SetDocumentGuid(pDocument->GetGuid());
-  m_ScaleGizmo.SetDocumentGuid(pDocument->GetGuid());
-  m_DragToPosGizmo.SetDocumentGuid(pDocument->GetGuid());
-
+  m_TranslateGizmo.SetOwner(this);
+  m_RotateGizmo.SetOwner(this);
+  m_ScaleGizmo.SetOwner(this);
+  m_DragToPosGizmo.SetOwner(this);
+  
   m_RotateGizmo.SetSnappingAngle(ezAngle::Degree(ezRotateGizmoAction::GetCurrentSnappingValue()));
   m_ScaleGizmo.SetSnappingValue(ezScaleGizmoAction::GetCurrentSnappingValue());
   m_TranslateGizmo.SetSnappingValue(ezTranslateGizmoAction::GetCurrentSnappingValue());
@@ -396,7 +391,7 @@ void ezSceneDocumentWindow::DocumentTreeEventHandler(const ezDocumentObjectStruc
 
 void ezSceneDocumentWindow::InternalRedraw()
 {
-  ezDocumentWindow3D::SyncObjects();
+  ezDocumentWindow3D::SyncObjectsToEngine();
 
   ezEditorInputContext::UpdateActiveInputContext();
 

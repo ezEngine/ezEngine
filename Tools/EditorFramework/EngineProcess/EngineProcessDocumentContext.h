@@ -102,7 +102,13 @@ protected:
   void HandleComponentMsg(const ezEntityMsgToEngine* pMsg, ezRTTI* pRtti);
   void UpdateSyncObjects();
 
-  
+private:
+  friend class ezEditorEngineSyncObject;
+
+  void AddSyncObject(ezEditorEngineSyncObject* pSync);
+  void RemoveSyncObject(ezEditorEngineSyncObject* pSync);
+  ezEditorEngineSyncObject* FindSyncObject(const ezUuid& guid);
+
 
 private:
   void ClearViewContexts();
@@ -119,7 +125,7 @@ private:
   ezProcessCommunication* m_pIPC;
   ezHybridArray<ezEngineProcessViewContext*, 4> m_ViewContexts;
 
-
+  ezMap<ezUuid, ezEditorEngineSyncObject*> m_SyncObjects;
   
   ezUInt32 m_uiNextComponentPickingID;
 };

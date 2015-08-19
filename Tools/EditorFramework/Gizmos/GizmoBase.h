@@ -14,8 +14,6 @@ class EZ_EDITORFRAMEWORK_DLL ezGizmoBase : public ezEditorInputContext
 public:
   ezGizmoBase();
 
-  virtual void SetDocumentGuid(const ezUuid& guid) = 0;
-
   void SetVisible(bool bVisible);
   bool IsVisible() const { return m_bVisible; }
 

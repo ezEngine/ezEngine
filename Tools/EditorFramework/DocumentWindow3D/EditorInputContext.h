@@ -17,7 +17,7 @@ class EZ_EDITORFRAMEWORK_DLL ezEditorInputContext : public ezReflectedClass
 public:
   ezEditorInputContext()
   {
-    m_pDocumentWindow3D = nullptr;
+    m_pOwner = nullptr;
     m_bDisableShortcuts = false;
   }
 
@@ -57,15 +57,17 @@ public:
     return s_pActiveInputContext == this;
   }
 
-  void SetDocumentWindow3D(ezDocumentWindow3D* pWindow)
+  void SetOwner(ezDocumentWindow3D* pOwner)
   {
-    m_pDocumentWindow3D = pWindow;
+    m_pOwner = pOwner;
+
+    OnSetOwner(pOwner);
   }
 
-  ezDocumentWindow3D* GetDocumentWindow3D() const
+  ezDocumentWindow3D* GetOwner() const
   {
-    EZ_ASSERT_DEBUG(m_pDocumentWindow3D != nullptr, "Document window pointer has not been set");
-    return m_pDocumentWindow3D;
+    EZ_ASSERT_DEBUG(m_pOwner != nullptr, "Document window pointer has not been set");
+    return m_pOwner;
   }
 
   bool GetShortcutsDisabled() const { return m_bDisableShortcuts; }
@@ -73,9 +75,12 @@ public:
   /// \brief If set to true, the surrounding window will ensure to block all shortcuts and instead send keypress events to the input context
   void SetShortcutsDisabled(bool bDisabled) { m_bDisableShortcuts = bDisabled; }
 
+protected:
+  virtual void OnSetOwner(ezDocumentWindow3D* pOwner) = 0;
+
 private:
   static ezEditorInputContext* s_pActiveInputContext;
-  ezDocumentWindow3D* m_pDocumentWindow3D;
+  ezDocumentWindow3D* m_pOwner;
   bool m_bDisableShortcuts;
 
   virtual void UpdateContext() {}

@@ -8,22 +8,22 @@
 #include <Foundation/Logging/Log.h>
 #include <QKeyEvent>
 
-ezSelectionContext::ezSelectionContext(ezDocumentBase* pDocument, ezDocumentWindow3D* pDocumentWindow, const ezCamera* pCamera)
+ezSelectionContext::ezSelectionContext(ezDocumentWindow3D* pOwner, const ezCamera* pCamera)
 {
-  m_pDocument = pDocument;
-  SetDocumentWindow3D(pDocumentWindow);
   m_pCamera = pCamera;
+
+  SetOwner(pOwner);
 }
 
 bool ezSelectionContext::mousePressEvent(QMouseEvent* e)
 {
   if (e->button() == Qt::MouseButton::LeftButton)
   {
-    const ezObjectPickingResult& res = GetDocumentWindow3D()->PickObject(e->pos().x(), e->pos().y());
+    const ezObjectPickingResult& res = GetOwner()->PickObject(e->pos().x(), e->pos().y());
 
     if (res.m_PickedOther.IsValid())
     {
-      auto pSO = ezEditorEngineSyncObject::FindSyncObject(res.m_PickedOther);
+      auto pSO = GetOwner()->FindSyncObject(res.m_PickedOther);
 
       if (pSO != nullptr)
       {
@@ -43,9 +43,11 @@ bool ezSelectionContext::mousePressEvent(QMouseEvent* e)
 
 bool ezSelectionContext::mouseReleaseEvent(QMouseEvent* e)
 {
+  auto* pDocument = GetOwner()->GetDocument();
+
   if (e->button() == Qt::MouseButton::LeftButton)
   {
-    const ezObjectPickingResult& res = GetDocumentWindow3D()->PickObject(e->pos().x(), e->pos().y());
+    const ezObjectPickingResult& res = GetOwner()->PickObject(e->pos().x(), e->pos().y());
 
     const bool bToggle = (e->modifiers() & Qt::KeyboardModifier::ControlModifier) != 0;
 
@@ -53,24 +55,24 @@ bool ezSelectionContext::mouseReleaseEvent(QMouseEvent* e)
     {
       if (res.m_PickedComponent.IsValid())
       {
-        const ezDocumentObjectBase* pObject = m_pDocument->GetObjectManager()->GetObject(res.m_PickedComponent);
+        const ezDocumentObjectBase* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedComponent);
 
         if (bToggle)
-          m_pDocument->GetSelectionManager()->ToggleObject(pObject);
+          pDocument->GetSelectionManager()->ToggleObject(pObject);
         else
-          m_pDocument->GetSelectionManager()->SetSelection(pObject);
+          pDocument->GetSelectionManager()->SetSelection(pObject);
       }
     }
     else
     {
       if (res.m_PickedObject.IsValid())
       {
-        const ezDocumentObjectBase* pObject = m_pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
+        const ezDocumentObjectBase* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
 
         if (bToggle)
-          m_pDocument->GetSelectionManager()->ToggleObject(pObject);
+          pDocument->GetSelectionManager()->ToggleObject(pObject);
         else
-          m_pDocument->GetSelectionManager()->SetSelection(pObject);
+          pDocument->GetSelectionManager()->SetSelection(pObject);
       }
     }
 
@@ -87,7 +89,7 @@ bool ezSelectionContext::mouseMoveEvent(QMouseEvent* e)
   ezViewHighlightMsgToEngine msg;
 
   {
-    const ezObjectPickingResult& res = GetDocumentWindow3D()->PickObject(e->pos().x(), e->pos().y());
+    const ezObjectPickingResult& res = GetOwner()->PickObject(e->pos().x(), e->pos().y());
 
     if (res.m_PickedComponent.IsValid())
       msg.m_HighlightObject = res.m_PickedComponent;
@@ -97,7 +99,7 @@ bool ezSelectionContext::mouseMoveEvent(QMouseEvent* e)
       msg.m_HighlightObject = res.m_PickedObject;
   }
 
-  msg.SendHighlightObjectMessage(GetDocumentWindow3D()->GetEditorEngineConnection());
+  msg.SendHighlightObjectMessage(GetOwner()->GetEditorEngineConnection());
 
   // we only updated the highlight, so others may do additional stuff, if they like
   return false;
@@ -107,13 +109,13 @@ bool ezSelectionContext::keyPressEvent(QKeyEvent* e)
 {
   if (e->key() == Qt::Key_Delete)
   {
-    GetDocumentWindow3D()->GetDocument()->DeleteSelectedObjects();
+    GetOwner()->GetDocument()->DeleteSelectedObjects();
     return true;
   }
 
   if (e->key() == Qt::Key_Escape)
   {
-    GetDocumentWindow3D()->GetDocument()->GetSelectionManager()->Clear();
+    GetOwner()->GetDocument()->GetSelectionManager()->Clear();
     return true;
   }
 

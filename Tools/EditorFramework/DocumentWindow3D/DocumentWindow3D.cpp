@@ -6,6 +6,7 @@
 #include <Foundation/Time/Timestamp.h>
 #include <QPushButton>
 #include <qlayout.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
 
 ezDocumentWindow3D::ezDocumentWindow3D(ezDocumentBase* pDocument) : ezDocumentWindow(pDocument)
 {
@@ -67,15 +68,10 @@ void ezDocumentWindow3D::SlotRestartEngineProcess()
   ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
 }
 
-void ezDocumentWindow3D::SyncObjects()
-{
-  ezEditorEngineSyncObject::SyncObjectsToEngine(*m_pEngineView, false);
-}
-
 void ezDocumentWindow3D::InternalRedraw()
 {
   // TODO: Move this to a better place (some kind of regular update function, not redraw)
-  SyncObjects();
+  SyncObjectsToEngine();
 }
 
 void ezDocumentWindow3D::ShowRestartButton(bool bShow)
@@ -126,7 +122,7 @@ bool ezDocumentWindow3D::HandleEngineMessage(const ezEditorEngineDocumentMsg* pM
     m_LastPickingResult.m_vPickedPosition = pFullMsg->m_vPickedPosition;
     m_LastPickingResult.m_vPickedNormal = pFullMsg->m_vPickedNormal;
     m_LastPickingResult.m_vPickingRayStart = pFullMsg->m_vPickingRayStartPosition;
-    
+
     return true;
   }
 
@@ -153,4 +149,68 @@ void ezDocumentWindow3D::EngineViewProcessEventHandler(const ezEditorEngineProce
     break;
   }
 }
+
+void ezDocumentWindow3D::AddSyncObject(ezEditorEngineSyncObject* pSync)
+{
+  m_SyncObjects.PushBack(pSync);
+  pSync->m_pOwner = this;
+  m_AllSyncObjects[pSync->GetGuid()] = pSync;
+}
+
+void ezDocumentWindow3D::RemoveSyncObject(ezEditorEngineSyncObject* pSync)
+{
+  m_DeletedObjects.PushBack(pSync->GetGuid());
+  m_AllSyncObjects.Remove(pSync->GetGuid());
+  m_SyncObjects.RemoveSwap(pSync);
+  pSync->m_pOwner = nullptr;
+}
+
+ezEditorEngineSyncObject* ezDocumentWindow3D::FindSyncObject(const ezUuid& guid)
+{
+  ezEditorEngineSyncObject* pSync = nullptr;
+  m_AllSyncObjects.TryGetValue(guid, pSync);
+  return pSync;
+}
+
+
+void ezDocumentWindow3D::SyncObjectsToEngine()
+{
+  // Tell the engine which sync objects have been removed recently
+  {
+    for (const auto& guid : m_DeletedObjects)
+    {
+      ezEditorEngineSyncObjectMsg msg;
+      msg.m_ObjectGuid = guid;
+      SendMessageToEngine(&msg);
+    }
+
+    m_DeletedObjects.Clear();
+  }
+
+  ezStringBuilder sData;
+
+  for (auto* pObject : m_SyncObjects)
+  {
+    if (!pObject->GetModified())
+      continue;
+
+    ezEditorEngineSyncObjectMsg msg;
+    msg.m_ObjectGuid = pObject->m_SyncObjectGuid;
+    msg.m_sObjectType = pObject->GetDynamicRTTI()->GetTypeName();
+
+    ezMemoryStreamStorage storage;
+    ezMemoryStreamWriter writer(&storage);
+    ezMemoryStreamReader reader(&storage);
+
+    ezReflectionSerializer::WriteObjectToJSON(writer, pObject->GetDynamicRTTI(), pObject);
+
+    sData.ReadAll(reader);
+    msg.SetObjectData(sData);
+
+    SendMessageToEngine(&msg);
+
+    pObject->SetModified(false);
+  }
+}
+
 

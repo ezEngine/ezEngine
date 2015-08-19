@@ -9,7 +9,7 @@ class ezCamera;
 class ezCameraPositionContext : public ezEditorInputContext
 {
 public:
-  ezCameraPositionContext(QWidget* pParentWidget, ezDocumentBase* pDocument, ezDocumentWindow3D* pDocumentWindow);
+  ezCameraPositionContext(QWidget* pParentWidget, ezDocumentWindow3D* pOwner);
 
   virtual void FocusLost() override;
 
@@ -17,12 +17,13 @@ public:
 
   void MoveToTarget(const ezVec3& vPosition, const ezVec3& vDirection);
 
+protected:
+  virtual void OnSetOwner(ezDocumentWindow3D* pOwner) override {}
+
 private:
   virtual void UpdateContext() override;
 
   QWidget* m_pParentWidget;
-  ezDocumentBase* m_pDocument;
-  ezDocumentWindow3D* m_pDocumentWindow;
 
   float m_fLerp;
   ezVec3 m_vStartPosition;

@@ -11,8 +11,6 @@ class EZ_EDITORFRAMEWORK_DLL ezTranslateGizmo : public ezGizmoBase
 public:
   ezTranslateGizmo();
 
-  virtual void SetDocumentGuid(const ezUuid& guid) override;
-
   virtual void FocusLost() override;
 
   virtual bool mousePressEvent(QMouseEvent* e) override;
@@ -27,6 +25,7 @@ public:
   void SnapToGrid();
 
 protected:
+  virtual void OnSetOwner(ezDocumentWindow3D* pOwner) override;
   virtual void OnVisibleChanged(bool bVisible) override;
   virtual void OnTransformationChanged(const ezMat4& transform) override;
 

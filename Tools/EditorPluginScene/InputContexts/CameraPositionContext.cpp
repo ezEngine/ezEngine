@@ -4,11 +4,9 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <CoreUtils/Graphics/Camera.h>
 
-ezCameraPositionContext::ezCameraPositionContext(QWidget* pParentWidget, ezDocumentBase* pDocument, ezDocumentWindow3D* pDocumentWindow)
+ezCameraPositionContext::ezCameraPositionContext(QWidget* pParentWidget, ezDocumentWindow3D* pOwner)
 {
   m_pParentWidget = pParentWidget;
-  m_pDocument = pDocument;
-  m_pDocumentWindow = pDocumentWindow;
 
   m_pCamera = nullptr;
 
@@ -18,6 +16,8 @@ ezCameraPositionContext::ezCameraPositionContext(QWidget* pParentWidget, ezDocum
 
   // while the camera moves, ignore all other shortcuts
   SetShortcutsDisabled(true);
+
+  SetOwner(pOwner);
 }
 
 void ezCameraPositionContext::FocusLost()

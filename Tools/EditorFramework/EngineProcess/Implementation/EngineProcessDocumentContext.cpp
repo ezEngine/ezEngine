@@ -135,6 +135,24 @@ void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, ezPr
 }
 
 
+void ezEngineProcessDocumentContext::AddSyncObject(ezEditorEngineSyncObject* pSync)
+{
+  m_SyncObjects[pSync->GetGuid()] = pSync;
+}
+
+void ezEngineProcessDocumentContext::RemoveSyncObject(ezEditorEngineSyncObject* pSync)
+{
+  m_SyncObjects.Remove(pSync->GetGuid());
+}
+
+ezEditorEngineSyncObject* ezEngineProcessDocumentContext::FindSyncObject(const ezUuid& guid)
+{
+  auto it = m_SyncObjects.Find(guid);
+  if (it.IsValid())
+    return it.Value();
+  return nullptr;
+}
+
 void ezEngineProcessDocumentContext::ClearViewContexts()
 {
   for (auto* pContext : m_ViewContexts)
@@ -148,38 +166,30 @@ void ezEngineProcessDocumentContext::ClearViewContexts()
 
 void ezEngineProcessDocumentContext::CleanUpContextSyncObjects()
 {
-  ezEditorEngineSyncObject* pSyncObject = ezEditorEngineSyncObject::GetFirstInstance();
-
-  while (pSyncObject)
+  for (auto it = m_SyncObjects.GetIterator(); it.IsValid(); ++it)
   {
-    ezEditorEngineSyncObject* pNextSyncObject = pSyncObject->GetNextInstance();
-
-    // remove all sync objects that are linked to the same document
-    if (pSyncObject->GetDocumentGuid() == m_DocumentGuid)
-    {
-      pSyncObject->GetDynamicRTTI()->GetAllocator()->Deallocate(pSyncObject);
-    }
-
-    pSyncObject = pNextSyncObject;
+    it.Value()->GetDynamicRTTI()->GetAllocator()->Deallocate(it.Value());
   }
 }
 
 void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEditorEngineSyncObjectMsg& msg)
 {
-  ezEditorEngineSyncObject* pSyncObject = ezEditorEngineSyncObject::FindSyncObject(msg.m_ObjectGuid);
+  auto it = m_SyncObjects.Find(msg.m_ObjectGuid);
 
   if (msg.m_sObjectType.IsEmpty())
   {
     // object has been deleted!
-    if (pSyncObject != nullptr)
+    if (it.IsValid())
     {
-      pSyncObject->GetDynamicRTTI()->GetAllocator()->Deallocate(pSyncObject);
+      it.Value()->GetDynamicRTTI()->GetAllocator()->Deallocate(it.Value());
     }
 
     return;
   }
 
   const ezRTTI* pRtti = ezRTTI::FindTypeByName(msg.m_sObjectType);
+  ezEditorEngineSyncObject* pSyncObject = nullptr;
+  bool bSetOwner = false;
 
   if (pRtti == nullptr)
   {
@@ -187,23 +197,30 @@ void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEd
     return;
   }
 
-  ezMemoryStreamStorage storage;
-  ezMemoryStreamWriter writer(&storage);
-  ezMemoryStreamReader reader(&storage);
-  writer.WriteBytes(msg.m_sObjectData.GetData(), msg.m_sObjectData.GetElementCount());
-
-  if (pSyncObject == nullptr)
+  if (!it.IsValid())
   {
     // object does not yet exist
     EZ_ASSERT_DEV(pRtti->GetAllocator() != nullptr, "Sync object of type '%s' does not have a default allocator", msg.m_sObjectType.GetData());
     void* pObject = pRtti->GetAllocator()->Allocate();
 
     pSyncObject = static_cast<ezEditorEngineSyncObject*>(pObject);
-    pSyncObject->ChangeObjectGuid(msg.m_ObjectGuid);
-    pSyncObject->SetDocumentGuid(msg.m_DocumentGuid);
+    bSetOwner = true;
+  }
+  else
+  {
+    pSyncObject = it.Value();
   }
 
+  ezMemoryStreamStorage storage;
+  ezMemoryStreamWriter writer(&storage);
+  ezMemoryStreamReader reader(&storage);
+  writer.WriteBytes(msg.m_sObjectData.GetData(), msg.m_sObjectData.GetElementCount());
+
   ezReflectionSerializer::ReadObjectPropertiesFromJSON(reader, *pRtti, pSyncObject);
+
+  if (bSetOwner)
+    pSyncObject->SetOwner(this);
+
   pSyncObject->SetModified(true);
 }
 
@@ -393,9 +410,7 @@ void ezEngineProcessDocumentContext::HandlerEntityMsg(const ezEntityMsgToEngine*
 
 void ezEngineProcessDocumentContext::UpdateSyncObjects()
 {
-  ezEditorEngineSyncObject* pSyncObject = ezEditorEngineSyncObject::GetFirstInstance();
-
-  while (pSyncObject)
+  for (auto* pSyncObject : m_SyncObjects)
   {
     if (pSyncObject->GetModified() && pSyncObject->GetDynamicRTTI()->IsDerivedFrom<ezGizmoHandle>())
     {
@@ -404,26 +419,16 @@ void ezEngineProcessDocumentContext::UpdateSyncObjects()
 
       ezGizmoHandle* pGizmoHandle = static_cast<ezGizmoHandle*>(pSyncObject);
 
-      if (pSyncObject->GetDocumentGuid().IsValid())
+      EZ_LOCK(m_pWorld->GetWriteMarker());
+
+      if (pGizmoHandle->SetupForEngine(m_pWorld, m_uiNextComponentPickingID))
       {
-        ezEngineProcessDocumentContext* pContext = ezEngineProcessDocumentContext::GetDocumentContext(pSyncObject->GetDocumentGuid());
-
-        if (pContext)
-        {
-          EZ_LOCK(pContext->m_pWorld->GetWriteMarker());
-
-          if (pGizmoHandle->SetupForEngine(pContext->m_pWorld, m_uiNextComponentPickingID))
-          {
-            m_OtherPickingMap.RegisterObject(pGizmoHandle->GetGuid(), m_uiNextComponentPickingID);
-            ++m_uiNextComponentPickingID;
-          }
-
-          pGizmoHandle->UpdateForEngine(pContext->m_pWorld);
-        }
+        m_OtherPickingMap.RegisterObject(pGizmoHandle->GetGuid(), m_uiNextComponentPickingID);
+        ++m_uiNextComponentPickingID;
       }
-    }
 
-    pSyncObject = pSyncObject->GetNextInstance();
+      pGizmoHandle->UpdateForEngine(m_pWorld);
+    }
   }
 }
 

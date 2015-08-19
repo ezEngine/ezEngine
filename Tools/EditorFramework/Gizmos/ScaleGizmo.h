@@ -11,8 +11,6 @@ class EZ_EDITORFRAMEWORK_DLL ezScaleGizmo : public ezGizmoBase
 public:
   ezScaleGizmo();
 
-  virtual void SetDocumentGuid(const ezUuid& guid) override;
-
   virtual void FocusLost() override;
 
   virtual bool mousePressEvent(QMouseEvent* e) override;
@@ -25,6 +23,7 @@ public:
   void SetSnappingValue(float fSnappingValue) { m_fSnappingValue = fSnappingValue; }
 
 protected:
+  virtual void OnSetOwner(ezDocumentWindow3D* pOwner) override;
   virtual void OnVisibleChanged(bool bVisible) override;
   virtual void OnTransformationChanged(const ezMat4& transform) override;
 

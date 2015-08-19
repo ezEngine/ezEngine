@@ -46,11 +46,9 @@ static const float s_fMoveSpeed[31] =
   256.0f,
 };
 
-ezCameraMoveContext::ezCameraMoveContext(QWidget* pParentWidget, ezDocumentBase* pDocument, ezDocumentWindow3D* pDocumentWindow)
+ezCameraMoveContext::ezCameraMoveContext(QWidget* pParentWidget, ezDocumentWindow3D* pOwner)
 {
   m_pParentWidget = pParentWidget;
-  m_pDocument = pDocument;
-  m_pDocumentWindow = pDocumentWindow;
 
   m_pCamera = nullptr;
   m_fMoveSpeed = 1.0f;
@@ -83,6 +81,8 @@ ezCameraMoveContext::ezCameraMoveContext(QWidget* pParentWidget, ezDocumentBase*
 
   // while the camera moves, ignore all other shortcuts
   SetShortcutsDisabled(true);
+
+  SetOwner(pOwner);
 }
 
 void ezCameraMoveContext::FocusLost()
@@ -108,8 +108,8 @@ void ezCameraMoveContext::FocusLost()
 
 void ezCameraMoveContext::LoadState()
 {
-  ezEditorApp::GetInstance()->GetDocumentSettings(m_pDocument->GetDocumentPath(), "ScenePlugin").RegisterValueInt("CameraSpeed", 15, ezSettingsFlags::User);
-  SetMoveSpeed(ezEditorApp::GetInstance()->GetDocumentSettings(m_pDocument->GetDocumentPath(), "ScenePlugin").GetValueInt("CameraSpeed"));
+  ezEditorApp::GetInstance()->GetDocumentSettings(GetOwner()->GetDocument()->GetDocumentPath(), "ScenePlugin").RegisterValueInt("CameraSpeed", 15, ezSettingsFlags::User);
+  SetMoveSpeed(ezEditorApp::GetInstance()->GetDocumentSettings(GetOwner()->GetDocument()->GetDocumentPath(), "ScenePlugin").GetValueInt("CameraSpeed"));
 }
 
 void ezCameraMoveContext::UpdateContext()
@@ -412,7 +412,7 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
 
   // send a message to clear any highlight
   ezViewHighlightMsgToEngine msg;
-  msg.SendHighlightObjectMessage(m_pDocumentWindow->GetEditorEngineConnection());
+  msg.SendHighlightObjectMessage(GetOwner()->GetEditorEngineConnection());
 
   if (m_pCamera == nullptr)
     return false;
@@ -536,8 +536,8 @@ void ezCameraMoveContext::SetMoveSpeed(ezInt32 iSpeed)
   m_iMoveSpeed = ezMath::Clamp(iSpeed, 0, 30);
   m_fMoveSpeed = s_fMoveSpeed[m_iMoveSpeed];
 
-  if (m_pDocument != nullptr)
-    ezEditorApp::GetInstance()->GetDocumentSettings(m_pDocument->GetDocumentPath(), "ScenePlugin").SetValueInt("CameraSpeed", m_iMoveSpeed);
+  if (GetOwner()->GetDocument() != nullptr)
+    ezEditorApp::GetInstance()->GetDocumentSettings(GetOwner()->GetDocument()->GetDocumentPath(), "ScenePlugin").SetValueInt("CameraSpeed", m_iMoveSpeed);
 }
 
 bool ezCameraMoveContext::wheelEvent(QWheelEvent* e)

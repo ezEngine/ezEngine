@@ -27,15 +27,15 @@ ezTranslateGizmo::ezTranslateGizmo()
   m_Mode = TranslateMode::None;
 }
 
-void ezTranslateGizmo::SetDocumentGuid(const ezUuid& guid)
+void ezTranslateGizmo::OnSetOwner(ezDocumentWindow3D* pOwner)
 {
-  m_AxisX.SetDocumentGuid(guid);
-  m_AxisY.SetDocumentGuid(guid);
-  m_AxisZ.SetDocumentGuid(guid);
+  m_AxisX.SetOwner(pOwner);
+  m_AxisY.SetOwner(pOwner);
+  m_AxisZ.SetOwner(pOwner);
 
-  m_PlaneXY.SetDocumentGuid(guid);
-  m_PlaneXZ.SetDocumentGuid(guid);
-  m_PlaneYZ.SetDocumentGuid(guid);
+  m_PlaneXY.SetOwner(pOwner);
+  m_PlaneXZ.SetOwner(pOwner);
+  m_PlaneYZ.SetOwner(pOwner);
 }
 
 void ezTranslateGizmo::OnVisibleChanged(bool bVisible)
@@ -80,7 +80,7 @@ void ezTranslateGizmo::FocusLost()
   m_BaseEvents.Broadcast(ev);
 
   ezViewHighlightMsgToEngine msg;
-  msg.SendHighlightObjectMessage(GetDocumentWindow3D()->GetEditorEngineConnection());
+  msg.SendHighlightObjectMessage(GetOwner()->GetEditorEngineConnection());
 
   m_AxisX.SetVisible(true);
   m_AxisY.SetVisible(true);
@@ -136,7 +136,7 @@ bool ezTranslateGizmo::mousePressEvent(QMouseEvent* e)
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
-  msg.SendHighlightObjectMessage(GetDocumentWindow3D()->GetEditorEngineConnection());
+  msg.SendHighlightObjectMessage(GetOwner()->GetEditorEngineConnection());
 
   m_AxisX.SetVisible(false);
   m_AxisY.SetVisible(false);

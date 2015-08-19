@@ -21,11 +21,11 @@ ezRotateGizmo::ezRotateGizmo()
   m_SnappingAngle = ezAngle();
 }
 
-void ezRotateGizmo::SetDocumentGuid(const ezUuid& guid)
+void ezRotateGizmo::OnSetOwner(ezDocumentWindow3D* pOwner)
 {
-  m_AxisX.SetDocumentGuid(guid);
-  m_AxisY.SetDocumentGuid(guid);
-  m_AxisZ.SetDocumentGuid(guid);
+  m_AxisX.SetOwner(pOwner);
+  m_AxisY.SetOwner(pOwner);
+  m_AxisZ.SetOwner(pOwner);
 }
 
 void ezRotateGizmo::OnVisibleChanged(bool bVisible)
@@ -57,7 +57,7 @@ void ezRotateGizmo::FocusLost()
   m_BaseEvents.Broadcast(ev);
 
   ezViewHighlightMsgToEngine msg;
-  msg.SendHighlightObjectMessage(GetDocumentWindow3D()->GetEditorEngineConnection());
+  msg.SendHighlightObjectMessage(GetOwner()->GetEditorEngineConnection());
 
   m_AxisX.SetVisible(true);
   m_AxisY.SetVisible(true);
@@ -101,7 +101,7 @@ bool ezRotateGizmo::mousePressEvent(QMouseEvent* e)
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
-  msg.SendHighlightObjectMessage(GetDocumentWindow3D()->GetEditorEngineConnection());
+  msg.SendHighlightObjectMessage(GetOwner()->GetEditorEngineConnection());
 
   QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
 

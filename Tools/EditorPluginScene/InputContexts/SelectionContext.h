@@ -8,7 +8,7 @@ class ezCamera;
 class ezSelectionContext : public ezEditorInputContext
 {
 public:
-  ezSelectionContext(ezDocumentBase* pDocument, ezDocumentWindow3D* pDocumentWindow, const ezCamera* pCamera);
+  ezSelectionContext(ezDocumentWindow3D* pOwner, const ezCamera* pCamera);
 
   void SetWindowConfig(const ezVec2I32& viewport)
   {
@@ -20,9 +20,11 @@ public:
   virtual bool mouseMoveEvent(QMouseEvent* e) override;
   virtual bool keyPressEvent(QKeyEvent* e) override;
 
+protected:
+  virtual void OnSetOwner(ezDocumentWindow3D* pOwner) override {}
+
 private:
   const ezCamera* m_pCamera;
   ezVec2I32 m_Viewport;
-  ezDocumentBase* m_pDocument;
 };
 

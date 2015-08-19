@@ -11,8 +11,6 @@ class EZ_EDITORFRAMEWORK_DLL ezDragToPositionGizmo : public ezGizmoBase
 public:
   ezDragToPositionGizmo();
 
-  virtual void SetDocumentGuid(const ezUuid& guid) override;
-
   virtual void FocusLost() override;
 
   virtual bool mousePressEvent(QMouseEvent* e) override;
@@ -23,6 +21,7 @@ public:
   const ezQuat GetRotationResult() const { ezQuat q; q.SetFromMat3(GetTransformation().GetRotationalPart()); return q; }
 
 protected:
+  virtual void OnSetOwner(ezDocumentWindow3D* pOwner) override;
   virtual void OnVisibleChanged(bool bVisible) override;
   virtual void OnTransformationChanged(const ezMat4& transform) override;
 

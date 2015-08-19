@@ -22,12 +22,12 @@ ezScaleGizmo::ezScaleGizmo()
   m_fSnappingValue = 0.0f;
 }
 
-void ezScaleGizmo::SetDocumentGuid(const ezUuid& guid)
+void ezScaleGizmo::OnSetOwner(ezDocumentWindow3D* pOwner)
 {
-  m_AxisX.SetDocumentGuid(guid);
-  m_AxisY.SetDocumentGuid(guid);
-  m_AxisZ.SetDocumentGuid(guid);
-  m_AxisXYZ.SetDocumentGuid(guid);
+  m_AxisX.SetOwner(pOwner);
+  m_AxisY.SetOwner(pOwner);
+  m_AxisZ.SetOwner(pOwner);
+  m_AxisXYZ.SetOwner(pOwner);
 }
 
 void ezScaleGizmo::OnVisibleChanged(bool bVisible)
@@ -63,7 +63,7 @@ void ezScaleGizmo::FocusLost()
   m_BaseEvents.Broadcast(ev);
 
   ezViewHighlightMsgToEngine msg;
-  msg.SendHighlightObjectMessage(GetDocumentWindow3D()->GetEditorEngineConnection());
+  msg.SendHighlightObjectMessage(GetOwner()->GetEditorEngineConnection());
 
   m_AxisX.SetVisible(true);
   m_AxisY.SetVisible(true);
@@ -102,7 +102,7 @@ bool ezScaleGizmo::mousePressEvent(QMouseEvent* e)
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
-  msg.SendHighlightObjectMessage(GetDocumentWindow3D()->GetEditorEngineConnection());
+  msg.SendHighlightObjectMessage(GetOwner()->GetEditorEngineConnection());
 
   QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
 
