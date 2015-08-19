@@ -188,14 +188,16 @@ void ezGameApplication::AfterEngineInit()
 
   ezStartup::StartupEngine();
 
-  m_pCurrentGameState->Activate();
+  if (m_pCurrentGameState)
+    m_pCurrentGameState->Activate();
 
   m_bWasQuitRequested = false;
 }
 
 void ezGameApplication::BeforeEngineShutdown()
 {
-  m_pCurrentGameState->Deactivate();
+  if (m_pCurrentGameState)
+    m_pCurrentGameState->Deactivate();
 
   ezStartup::ShutdownEngine();
 

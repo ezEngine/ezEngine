@@ -11,7 +11,6 @@
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <EnginePluginScene/PickingRenderPass/PickingRenderPass.h>
-#include <EditorEngineProcess/GameState.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <GameFoundation/GameApplication.h>
