@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
-#include <EditorEngineProcess/PickingRenderPass.h>
+#include <EnginePluginScene/PickingRenderPass/PickingRenderPass.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
 #include <RendererFoundation/Context/Context.h>

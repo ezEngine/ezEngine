@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorEngineProcess/ViewContext.h>
+#include <EnginePluginScene/SceneView/SceneView.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
@@ -9,10 +9,15 @@
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <GameFoundation/GameApplication.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <EditorEngineProcess/PickingRenderPass.h>
+#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
+#include <EnginePluginScene/PickingRenderPass/PickingRenderPass.h>
 #include <EditorEngineProcess/GameState.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
+#include <GameFoundation/GameApplication.h>
+#include <Core/World/GameObject.h>
+#include <Core/World/Component.h>
+
 
 void ezViewContext::SetCamera(const ezViewCameraMsgToEngine* pMsg)
 {
@@ -86,11 +91,11 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
     ezGALRenderTargetViewCreationDescription rtvd;
     rtvd.m_hTexture = m_hPickingIdRT;
     rtvd.m_RenderTargetType = ezGALRenderTargetType::Color;
-    m_hPickingIdRTV = pDevice->CreateRenderTargetView( rtvd );
+    m_hPickingIdRTV = pDevice->CreateRenderTargetView(rtvd);
 
     rtvd.m_hTexture = m_hPickingDepthRT;
     rtvd.m_RenderTargetType = ezGALRenderTargetType::DepthStencil;
-    m_hPickingDepthDSV = pDevice->CreateRenderTargetView( rtvd );
+    m_hPickingDepthDSV = pDevice->CreateRenderTargetView(rtvd);
   }
 
   // setup view
@@ -104,7 +109,7 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
 
     ezGALRenderTagetSetup PickingRenderTargetSetup;
     PickingRenderTargetSetup.SetRenderTarget(0, m_hPickingIdRTV)
-                            .SetDepthStencilTarget(m_hPickingDepthDSV);
+      .SetDepthStencilTarget(m_hPickingDepthDSV);
 
     ezUniquePtr<ezPickingRenderPass> pRenderPass = EZ_DEFAULT_NEW(ezPickingRenderPass, PickingRenderTargetSetup);
     pRenderPass->m_Events.AddEventHandler(ezMakeDelegate(&ezViewContext::RenderPassEventHandler, this));
@@ -120,7 +125,7 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
 
     m_pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));
 
-    ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(GetDocumentGuid());
+    ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
     m_pView->SetWorld(pDocumentContext->m_pWorld);
     m_pView->SetLogicCamera(&m_Camera);
 
@@ -134,10 +139,72 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
 
 void ezViewContext::SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg, bool bSuperHighPriority)
 {
-  pViewMsg->m_DocumentGuid = GetDocumentGuid();
-  pViewMsg->m_uiViewID = GetViewIndex();
+  pViewMsg->m_DocumentGuid = GetDocumentContext()->GetDocumentGuid();
 
-  ezEngineProcessGameState::GetInstance()->ProcessCommunication().SendMessage(pViewMsg, bSuperHighPriority);
+  GetDocumentContext()->SendProcessMessage(pViewMsg, bSuperHighPriority);
+}
+
+void ezViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
+{
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
+  {
+    const ezViewRedrawMsgToEngine* pMsg2 = static_cast<const ezViewRedrawMsgToEngine*>(pMsg);
+
+    SetupRenderTarget(reinterpret_cast<HWND>(pMsg2->m_uiHWND), pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
+    Redraw();
+
+    ezViewRedrawFinishedMsgToEditor ack;
+    ack.m_uiViewID = pMsg->m_uiViewID;
+    this->SendViewMessage(&ack);
+
+    //ezStringBuilder sValue;
+
+    //sValue.Format("%u", uiMessagesPerFrame);
+    //ezStats::SetStat("Editor/All Msgs", sValue);
+
+    //sValue.Format("%u", uiBlockingMessagesPerFrame);
+    //ezStats::SetStat("Editor/Blocking Msgs", sValue);
+
+    //sValue.Format("%u", uiSyncObjMessagesPerFrame);
+    //ezStats::SetStat("Editor/SyncObj Msgs", sValue);
+
+    //uiMessagesPerFrame = 0;
+    //uiBlockingMessagesPerFrame = 0;
+    //uiSyncObjMessagesPerFrame = 0;
+  }
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewCameraMsgToEngine>())
+  {
+    const ezViewCameraMsgToEngine* pMsg2 = static_cast<const ezViewCameraMsgToEngine*>(pMsg);
+
+    SetCamera(pMsg2);
+  }
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingMsgToEngine>())
+  {
+    //ezTimestamp ts = ezTimestamp::CurrentTimestamp();
+    //ezStopwatch s;
+
+    //++uiBlockingMessagesPerFrame;
+    const ezViewPickingMsgToEngine* pMsg2 = static_cast<const ezViewPickingMsgToEngine*>(pMsg);
+
+    //ezInt64 tDelivery = ts.GetInt64(ezSIUnitOfTime::Microsecond) - pMsg->m_iSentTimeStamp;
+
+    PickObjectAt(pMsg2->m_uiPickPosX, pMsg2->m_uiPickPosY);
+
+    //const ezTime tPick = s.Checkpoint();
+    //ezLog::Dev("%lli (%lli): Picking: %.3fms", ts.GetInt64(ezSIUnitOfTime::Microsecond), tDelivery, tPick.GetMilliseconds());
+  }
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewHighlightMsgToEngine>())
+  {
+    const ezViewHighlightMsgToEngine* pMsg2 = static_cast<const ezViewHighlightMsgToEngine*>(pMsg);
+
+    
+    ezUInt32 uiPickingID = GetDocumentContext()->m_OtherPickingMap.GetHandle(pMsg2->m_HighlightObject);
+
+    ezRenderContext::GetDefaultInstance()->SetMaterialParameter("PickingHighlightID", (ezInt32)uiPickingID);
+
+    //ezLog::Info("Picking: GUID = %s, ID = %u", ezConversionUtils::ToString(pMsg->m_HighlightObject).GetData(), uiPickingID);
+  }
+
 }
 
 void ezViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
@@ -156,21 +223,21 @@ void ezViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
   {
     const ezUInt32 uiComponentID = m_PickingResultsID[uiIndex];
 
-    res.m_ComponentGuid = ezEngineProcessGameState::GetInstance()->m_ComponentPickingMap.GetGuid(uiComponentID);
-    res.m_OtherGuid = ezEngineProcessGameState::GetInstance()->m_OtherPickingMap.GetGuid(uiComponentID);
+    res.m_ComponentGuid = GetDocumentContext()->m_ComponentPickingMap.GetGuid(uiComponentID);
+    res.m_OtherGuid = GetDocumentContext()->m_OtherPickingMap.GetGuid(uiComponentID);
 
     if (res.m_ComponentGuid.IsValid())
     {
-      ezComponentHandle hComponent = ezEngineProcessGameState::GetInstance()->m_ComponentMap.GetHandle(res.m_ComponentGuid);
+      ezComponentHandle hComponent = GetDocumentContext()->m_ComponentMap.GetHandle(res.m_ComponentGuid);
 
-      ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(GetDocumentGuid());
+      ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
 
       // check whether the component is still valid
       ezComponent* pComponent = nullptr;
       if (pDocumentContext->m_pWorld->TryGetComponent<ezComponent>(hComponent, pComponent))
       {
         // if yes, fill out the parent game object guid
-        res.m_ObjectGuid = ezEngineProcessGameState::GetInstance()->m_GameObjectMap.GetGuid(pComponent->GetOwner()->GetHandle());
+        res.m_ObjectGuid = GetDocumentContext()->m_GameObjectMap.GetGuid(pComponent->GetOwner()->GetHandle());
         res.m_uiPartIndex = 0; /// TODO
       }
       else
@@ -181,16 +248,16 @@ void ezViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
 
     /// \todo Add an enum that defines in which direction the window Y coordinate points ?
     const float fDepth = m_PickingResultsDepth[uiIndex];
-    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3(x, uiWindowHeight - y, fDepth), res.m_vPickedPosition);
-    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3(x, uiWindowHeight - y, 0), res.m_vPickingRayStartPosition);
+    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3(x, (float)(uiWindowHeight - y), fDepth), res.m_vPickedPosition);
+    ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3(x, (float)(uiWindowHeight - y), 0), res.m_vPickingRayStartPosition);
 
     // compute the average normal at that position
     {
-      float fOtherDepths[4] = { fDepth, fDepth, fDepth ,fDepth };
+      float fOtherDepths[4] = { fDepth, fDepth, fDepth, fDepth };
       ezVec3 vOtherPos[4];
       ezVec3 vNormals[4];
 
-      if ((ezUInt32) x + 1 < uiWindowWidth)
+      if ((ezUInt32)x + 1 < uiWindowWidth)
         fOtherDepths[0] = m_PickingResultsDepth[(y * uiWindowWidth) + x + 1];
       if (x > 0)
         fOtherDepths[1] = m_PickingResultsDepth[(y * uiWindowWidth) + x - 1];
@@ -199,10 +266,10 @@ void ezViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
       if (y > 0)
         fOtherDepths[3] = m_PickingResultsDepth[((y - 1) * uiWindowWidth) + x];
 
-      ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3(x + 1, uiWindowHeight - y, fOtherDepths[0]), vOtherPos[0]);
-      ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3(x - 1, uiWindowHeight - y, fOtherDepths[1]), vOtherPos[1]);
-      ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3(x, uiWindowHeight - (y + 1), fOtherDepths[2]), vOtherPos[2]);
-      ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3(x, uiWindowHeight - (y - 1), fOtherDepths[3]), vOtherPos[3]);
+      ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3((float)(x + 1), (float)(uiWindowHeight - y), fOtherDepths[0]), vOtherPos[0]);
+      ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3((float)(x - 1), (float)(uiWindowHeight - y), fOtherDepths[1]), vOtherPos[1]);
+      ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3(x, (float)(uiWindowHeight - (y + 1)), fOtherDepths[2]), vOtherPos[2]);
+      ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3(x, (float)(uiWindowHeight - (y - 1)), fOtherDepths[3]), vOtherPos[3]);
 
       vNormals[0] = ezPlane(res.m_vPickedPosition, vOtherPos[0], vOtherPos[2]).m_vNormal;
       vNormals[1] = ezPlane(res.m_vPickedPosition, vOtherPos[2], vOtherPos[1]).m_vNormal;

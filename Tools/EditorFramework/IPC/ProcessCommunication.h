@@ -6,8 +6,9 @@
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Reflection/Reflection.h>
-#include <QProcess>
-#include <QSharedMemory>
+
+class QProcess;
+class QSharedMemory;
 
 class EZ_EDITORFRAMEWORK_DLL ezProcessMessage : public ezReflectedClass
 {

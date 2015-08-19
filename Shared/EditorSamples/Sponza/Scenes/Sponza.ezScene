@@ -20,23 +20,15 @@
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0xC00A9040F6CADE45BD2EE5DBE3BF33D7" },
+   "#" : { "$t" : "uuid", "$b" : "0x19C74033FD8A6D468644E636C8AD50BA" },
    "t" : "ezGameObject",
    "p" : {
     "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0xDA5E7297232B6C47A62144146185A685" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
+    "Components" : [ { "$t" : "uuid", "$b" : "0x74E37D3B3255EE4BBBD6F4BC39D6C650" }, { "$t" : "uuid", "$b" : "0x72A6ECC36FAECB4B86E5E89C62E3F6E8" } ],
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-0.5125, 13.3280, -0.2302)", "$b" : "0x3D3503BFAA3F55413AC06BBE" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(10.0000, 10.0000, 10.0000)", "$b" : "0x000020410000204100002041" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "Name" : "ezGameObject 002"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xDA5E7297232B6C47A62144146185A685" },
-   "t" : "ezMeshComponent",
-   "p" : {
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" },
-    "MeshFile" : "{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }"
    }
   },
   {
@@ -44,7 +36,30 @@
    "t" : "ezDocumentRoot",
    "n" : "ObjectTree",
    "p" : {
-    "RootObjects" : [ { "$t" : "uuid", "$b" : "0x50979F52CA041441B140EEE3B2E0D998" }, { "$t" : "uuid", "$b" : "0xC00A9040F6CADE45BD2EE5DBE3BF33D7" } ]
+    "RootObjects" : [ { "$t" : "uuid", "$b" : "0x50979F52CA041441B140EEE3B2E0D998" }, { "$t" : "uuid", "$b" : "0x19C74033FD8A6D468644E636C8AD50BA" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x72A6ECC36FAECB4B86E5E89C62E3F6E8" },
+   "t" : "ezRotorComponent",
+   "p" : {
+    "Acceleration" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "Auto-Toggle Direction" : false,
+    "Axis" : "ezBasisAxis::PositiveZ",
+    "Deceleration" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "Degrees to Rotate" : { "$t" : "int32", "$v" : "0", "$b" : "0x00000000" },
+    "Reverse at End" : false,
+    "Reverse at Start" : true,
+    "Run at Startup" : true,
+    "Speed" : { "$t" : "float", "$v" : "90.0000", "$b" : "0x0000B442" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x74E37D3B3255EE4BBBD6F4BC39D6C650" },
+   "t" : "ezMeshComponent",
+   "p" : {
+    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" },
+    "MeshFile" : "{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }"
    }
   },
   {

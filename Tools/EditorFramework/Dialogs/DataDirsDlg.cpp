@@ -5,6 +5,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QProcess>
 
 DataDirsDlg::DataDirsDlg(QWidget* parent) : QDialog(parent)
 {

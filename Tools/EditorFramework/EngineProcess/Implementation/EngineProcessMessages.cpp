@@ -40,20 +40,26 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineDocumentMsg, ezProcessMessage, 1, ezRTTINoAllocator );
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("DocumentGuid", m_DocumentGuid),
-    EZ_MEMBER_PROPERTY("ViewID", m_uiViewID),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineViewMsg, ezEditorEngineDocumentMsg, 1, ezRTTINoAllocator);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("ViewID", m_uiViewID),
+    EZ_END_PROPERTIES
+    EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentOpenMsgToEngine, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezDocumentOpenMsgToEngine> );
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("DocumentOpen", m_bDocumentOpen),
+    EZ_MEMBER_PROPERTY("DocumentType", m_sDocumentType),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentOpenResponseMsgToEditor, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezDocumentOpenResponseMsgToEditor> );
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRedrawMsgToEngine, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezViewRedrawMsgToEngine> );
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRedrawMsgToEngine, ezEditorEngineViewMsg, 1, ezRTTIDefaultAllocator<ezViewRedrawMsgToEngine>);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("HWND", m_uiHWND),
     EZ_MEMBER_PROPERTY("WindowWidth", m_uiWindowWidth),
@@ -61,7 +67,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRedrawMsgToEngine, ezEditorEngineDocumentM
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRedrawFinishedMsgToEditor, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezViewRedrawFinishedMsgToEditor>);
+  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRedrawFinishedMsgToEditor, ezEditorEngineViewMsg, 1, ezRTTIDefaultAllocator<ezViewRedrawFinishedMsgToEditor>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEntityMsgToEngine, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezEntityMsgToEngine> );
@@ -78,7 +84,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEntityMsgToEngine, ezEditorEngineDocumentMsg, 
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewCameraMsgToEngine, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezViewCameraMsgToEngine> );
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewCameraMsgToEngine, ezEditorEngineViewMsg, 1, ezRTTIDefaultAllocator<ezViewCameraMsgToEngine>);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("CameraMode", m_iCameraMode),
     EZ_MEMBER_PROPERTY("NearPlane", m_fNearPlane),
@@ -93,14 +99,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewCameraMsgToEngine, ezEditorEngineDocumentM
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewPickingMsgToEngine, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezViewPickingMsgToEngine>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewPickingMsgToEngine, ezEditorEngineViewMsg, 1, ezRTTIDefaultAllocator<ezViewPickingMsgToEngine>);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("PickPosX", m_uiPickPosX),
     EZ_MEMBER_PROPERTY("PickPosY", m_uiPickPosY),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewPickingResultMsgToEditor, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezViewPickingResultMsgToEditor>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewPickingResultMsgToEditor, ezEditorEngineViewMsg, 1, ezRTTIDefaultAllocator<ezViewPickingResultMsgToEditor>);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("ObjectGuid", m_ObjectGuid),
     EZ_MEMBER_PROPERTY("ComponentGuid", m_ComponentGuid),
@@ -112,7 +118,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewPickingResultMsgToEditor, ezEditorEngineDo
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewHighlightMsgToEngine, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezViewHighlightMsgToEngine>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewHighlightMsgToEngine, ezEditorEngineViewMsg, 1, ezRTTIDefaultAllocator<ezViewHighlightMsgToEngine>);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("HighlightObject", m_HighlightObject),
   EZ_END_PROPERTIES

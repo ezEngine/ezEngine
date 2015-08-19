@@ -9,6 +9,8 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Utilities/Stats.h>
 #include <QCoreApplication>
+#include <QProcess>
+#include <QSharedMemory>
 
 ezProcessCommunication::ezProcessCommunication()
 {

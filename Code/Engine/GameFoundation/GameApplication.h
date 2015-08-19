@@ -45,12 +45,12 @@ protected:
 
   void UpdateWorldsAndRender();  
 
-private:  
-
   // private ezApplication implementation: these methods must not be overridden by derived classes from ezGameApplication
   virtual void AfterEngineInit() override;
   virtual void BeforeEngineShutdown() override;
-  
+
+private:
+
   void SetupDefaultResources();
   void UpdateInput();
   void UpdateWorldsAndExtractViews();

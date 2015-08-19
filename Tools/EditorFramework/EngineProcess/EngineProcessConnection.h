@@ -65,17 +65,15 @@ public:
 private:
   void Initialize();
   void HandleIPCEvent(const ezProcessCommunication::Event& e);
-  void SendDocumentOpenMessage(ezUInt32 uiViewID, const ezUuid& guid, bool bOpen);
+  void SendDocumentOpenMessage(const ezDocumentBase* pDocument, bool bOpen);
 
   bool m_bProcessShouldWaitForDebugger;
   bool m_bProcessShouldBeRunning;
   bool m_bProcessCrashed;
   bool m_bClientIsConfigured;
-  ezUInt32 m_uiNextEngineViewID;
-  ezInt32 m_iNumViews;
   ezProcessCommunication m_IPC;
   ezApplicationFileSystemConfig m_FileSystemConfig;
-  ezHashTable<ezUInt32, ezDocumentWindow3D*> m_EngineViewsByID;
+  ezHashTable<ezUuid, ezDocumentWindow3D*> m_DocumentWindow3DByGuid;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineConnection
@@ -92,12 +90,10 @@ public:
 
 private:
   friend class ezEditorEngineProcessConnection;
-  ezEditorEngineConnection(ezDocumentBase* pDocument, ezInt32 iEngineViewID) { m_pDocument = pDocument; m_iEngineViewID = iEngineViewID; }
+  ezEditorEngineConnection(ezDocumentBase* pDocument) { m_pDocument = pDocument; }
   ~ezEditorEngineConnection() { }
 
   void SendObject(const ezDocumentObjectBase* pObject);
 
   ezDocumentBase* m_pDocument;
-  ezInt32 m_iEngineViewID;
-
 };

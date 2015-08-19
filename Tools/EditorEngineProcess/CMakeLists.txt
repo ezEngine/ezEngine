@@ -46,6 +46,7 @@ SET (LINK_LIBRARIES
 
 SET (ADDITIONAL_DEPENDENCIES
   ShaderCompilerHLSL
+  EnginePluginScene
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)

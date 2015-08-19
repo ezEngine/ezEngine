@@ -14,8 +14,6 @@ ezEditorEngineProcessConnection::ezEditorEngineProcessConnection()
 {
   EZ_ASSERT_DEV(s_pInstance == nullptr, "Incorrect use of ezEditorEngineProcessConnection");
   s_pInstance = this;
-  m_iNumViews = 0;
-  m_uiNextEngineViewID = 0;
   m_bProcessShouldBeRunning = false;
   m_bProcessCrashed = false;
   m_bClientIsConfigured = false;
@@ -25,19 +23,17 @@ ezEditorEngineProcessConnection::ezEditorEngineProcessConnection()
 
 ezEditorEngineProcessConnection::~ezEditorEngineProcessConnection()
 {
-  EZ_ASSERT_DEV(m_iNumViews == 0, "There are still views open at shutdown");
-
   m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorEngineProcessConnection::HandleIPCEvent, this));
 
   s_pInstance = nullptr;
 }
 
-void ezEditorEngineProcessConnection::SendDocumentOpenMessage(ezUInt32 uiViewID, const ezUuid& guid, bool bOpen)
+void ezEditorEngineProcessConnection::SendDocumentOpenMessage(const ezDocumentBase* pDocument, bool bOpen)
 {
   ezDocumentOpenMsgToEngine m;
-  m.m_uiViewID = uiViewID;
-  m.m_DocumentGuid = guid;
+  m.m_DocumentGuid = pDocument->GetGuid();
   m.m_bDocumentOpen = bOpen;
+  m.m_sDocumentType = pDocument->GetDocumentTypeDescriptor().m_sDocumentTypeName;
 
   SendMessage(&m);
 }
@@ -48,8 +44,8 @@ void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicatio
   {
     const ezEditorEngineDocumentMsg* pMsg = static_cast<const ezEditorEngineDocumentMsg*>(e.m_pMessage);
 
-    EZ_ASSERT_DEBUG(m_EngineViewsByID.Contains(pMsg->m_uiViewID), "The ViewID '%u' is not known!", pMsg->m_uiViewID);
-    ezDocumentWindow3D* pWindow = m_EngineViewsByID[pMsg->m_uiViewID];
+    //EZ_ASSERT_DEBUG(m_DocumentWindow3DByGuid.Contains(pMsg->m_DocumentGuid), "The doument '%u' is not known!", pMsg->m_uiViewID);
+    ezDocumentWindow3D* pWindow = m_DocumentWindow3DByGuid[pMsg->m_DocumentGuid];
 
     if (pWindow)
     {
@@ -68,28 +64,22 @@ void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicatio
 
 ezEditorEngineConnection* ezEditorEngineProcessConnection::CreateEngineConnection(ezDocumentWindow3D* pWindow)
 {
-  ezEditorEngineConnection* pView = new ezEditorEngineConnection(pWindow->GetDocument(), m_uiNextEngineViewID);
+  ezEditorEngineConnection* pConnection = new ezEditorEngineConnection(pWindow->GetDocument());
 
-  m_EngineViewsByID[pView->m_iEngineViewID] = pWindow;
+  m_DocumentWindow3DByGuid[pWindow->GetDocument()->GetGuid()] = pWindow;
 
-  m_uiNextEngineViewID++;
+  SendDocumentOpenMessage(pWindow->GetDocument(), true);
 
-  ++m_iNumViews;
-
-  SendDocumentOpenMessage(pView->m_iEngineViewID, pWindow->GetDocument()->GetGuid(), true);
-
-  return pView;
+  return pConnection;
 }
 
 void ezEditorEngineProcessConnection::DestroyEngineConnection(ezDocumentWindow3D* pWindow)
 {
-  SendDocumentOpenMessage(pWindow->GetEditorEngineConnection()->m_iEngineViewID, pWindow->GetDocument()->GetGuid(), false);
+  SendDocumentOpenMessage(pWindow->GetDocument(), false);
 
-  m_EngineViewsByID.Remove(pWindow->GetEditorEngineConnection()->m_iEngineViewID);
+  m_DocumentWindow3DByGuid.Remove(pWindow->GetDocument()->GetGuid());
 
   delete pWindow->GetEditorEngineConnection();
-
-  --m_iNumViews;
 }
 
 void ezEditorEngineProcessConnection::Initialize()
@@ -158,9 +148,9 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
   }
 
   // resend all open documents
-  for (auto it = m_EngineViewsByID.GetIterator(); it.IsValid(); ++it)
+  for (auto it = m_DocumentWindow3DByGuid.GetIterator(); it.IsValid(); ++it)
   {
-    SendDocumentOpenMessage(it.Value()->GetEditorEngineConnection()->m_iEngineViewID, it.Value()->GetDocument()->GetGuid(), true);
+    SendDocumentOpenMessage(it.Value()->GetDocument(), true);
   }
 
   m_bClientIsConfigured = true;
@@ -189,7 +179,6 @@ void ezEditorEngineProcessConnection::Update()
 
 void ezEditorEngineConnection::SendMessage(ezEditorEngineDocumentMsg* pMessage, bool bSuperHighPriority)
 {
-  pMessage->m_uiViewID = m_iEngineViewID;
   pMessage->m_DocumentGuid = m_pDocument->GetGuid();
 
   ezEditorEngineProcessConnection::GetInstance()->SendMessage(pMessage, bSuperHighPriority);

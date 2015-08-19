@@ -18,18 +18,18 @@ BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
 # add_definitions (-DMY_PREPROCESS_DEFINITION_2)
 
 # Enables the use of Qt in this project and sets up the required modules.
-QT_MODULES(Core Gui Widgets)
+#QT_MODULES(Core Gui Widgets)
 
 # Call this in case this project does not function without Qt.
-BUILD_REQUIRES_QT()
+#BUILD_REQUIRES_QT()
 
 BUILD_REQUIRES_DX11()
 
 # Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES
-  Foundation
-  EditorFramework
+  Foundation  
   ToolsFoundation
+  EditorFramework 
 
   Core
   System
@@ -37,11 +37,9 @@ SET (LINK_LIBRARIES
   RendererDX11
   RendererCore
   CoreUtils
-)
 
-SET (ADDITIONAL_DEPENDENCIES
-  EnginePluginScene
+  GameFoundation
+  GameUtils
 )
-
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)

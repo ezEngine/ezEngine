@@ -15,6 +15,13 @@ public:
   {
   }
 
+  virtual void AfterEngineInit() override
+  {
+    ezPlugin::LoadPlugin("ezEnginePluginScene");
+
+    ezGameApplication::AfterEngineInit();
+  }
+
   virtual ezApplication::ApplicationExecution Run() override
   {
     ezRenderLoop::ClearMainViews();
@@ -40,7 +47,7 @@ ezEngineProcessGameState::ezEngineProcessGameState()
 
   m_pApp = nullptr;
   s_pInstance = this;
-  m_uiNextComponentPickingID = 1;
+  
 }
 
 void ezEngineProcessGameState::Activate()
@@ -116,42 +123,4 @@ void ezEngineProcessGameState::ProcessIPCMessages()
   if (!m_IPC.IsHostAlive())
     GetApplication()->RequestQuit();
 }
-
-void ezEngineProcessGameState::UpdateSyncObjects()
-{
-  ezEditorEngineSyncObject* pSyncObject = ezEditorEngineSyncObject::GetFirstInstance();
-
-  while (pSyncObject)
-  {
-    if (pSyncObject->GetModified() && pSyncObject->GetDynamicRTTI()->IsDerivedFrom<ezGizmoHandle>())
-    {
-      // reset the modified state to make sure the object isn't updated unless a new sync messages comes in
-      pSyncObject->SetModified(false);
-
-      ezGizmoHandle* pGizmoHandle = static_cast<ezGizmoHandle*>(pSyncObject);
-
-      if (pSyncObject->GetDocumentGuid().IsValid())
-      {
-        ezEngineProcessDocumentContext* pContext = ezEngineProcessDocumentContext::GetDocumentContext(pSyncObject->GetDocumentGuid());
-
-        if (pContext)
-        {
-          EZ_LOCK(pContext->m_pWorld->GetWriteMarker());
-
-          if (pGizmoHandle->SetupForEngine(pContext->m_pWorld, m_uiNextComponentPickingID))
-          {
-            m_OtherPickingMap.RegisterObject(pGizmoHandle->GetGuid(), m_uiNextComponentPickingID);
-            ++m_uiNextComponentPickingID;
-          }
-
-          pGizmoHandle->UpdateForEngine(pContext->m_pWorld);
-        }
-      }
-    }
-
-    pSyncObject = pSyncObject->GetNextInstance();
-  }
-}
-
-
 

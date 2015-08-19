@@ -1,8 +1,11 @@
 #pragma once
 
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Plugin.h>
 #include <System/Window/Window.h>
 #include <RendererFoundation/Device/Device.h>
+
+class ezEngineProcessDocumentContext;
+class ezEditorEngineViewMsg;
 
 /// \brief Represents the window inside the editor process, into which the engine process renders
 class EZ_EDITORFRAMEWORK_DLL ezEditorProcessViewWindow : public ezWindowBase
@@ -14,6 +17,7 @@ public:
     m_uiWidth = 0;
     m_uiHeight = 0;
   }
+
 
   virtual ezSizeU32 GetClientAreaSize() const override { return ezSizeU32(m_uiWidth, m_uiHeight); }
   virtual ezWindowHandle GetNativeWindowHandle() const override { return m_hWnd; }
@@ -28,24 +32,19 @@ public:
 class EZ_EDITORFRAMEWORK_DLL ezEngineProcessViewContext
 {
 public:
-  ezEngineProcessViewContext(ezInt32 iViewIndex, ezUuid DocumentGuid) : m_iViewIndex(iViewIndex), m_DocumentGuid(DocumentGuid) { }
+  ezEngineProcessViewContext(ezEngineProcessDocumentContext* pContext) : m_pDocumentContext(pContext) { }
   virtual ~ezEngineProcessViewContext() { }
 
   ezEditorProcessViewWindow& GetEditorWindow() { return m_Window; }
 
-  ezInt32 GetViewIndex() const { return m_iViewIndex; }
-  ezUuid GetDocumentGuid() const { return m_DocumentGuid; }
+  ezEngineProcessDocumentContext* GetDocumentContext() const { return m_pDocumentContext; }
 
-  static ezEngineProcessViewContext* GetViewContext(ezUInt32 uiViewID);
-  static void AddViewContext(ezUInt32 uiViewID, ezEngineProcessViewContext* pView);
-  static void DestroyViewContext(ezUInt32 uiViewID);
+  virtual void HandleViewMessage(const ezEditorEngineViewMsg* pMsg) = 0;
 
 private:
-  ezInt32 m_iViewIndex;
-  ezUuid m_DocumentGuid;
+  ezEngineProcessDocumentContext* m_pDocumentContext;
   ezEditorProcessViewWindow m_Window;
 
-  static ezHashTable<ezUInt32, ezEngineProcessViewContext*> s_ViewContexts;
 };
 
 

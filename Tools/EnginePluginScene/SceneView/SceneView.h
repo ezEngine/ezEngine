@@ -1,17 +1,13 @@
 #pragma once
 
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/EngineProcess/EngineProcessViewContext.h>
-#include <EditorEngineProcess/PickingRenderPass.h>
-#include <System/Window/Window.h>
-#include <RendererFoundation/Device/Device.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/Shader/ShaderResource.h>
+#include <EnginePluginScene/PickingRenderPass/PickingRenderPass.h>
 #include <CoreUtils/Graphics/Camera.h>
-#include <CoreUtils/Debugging/DataTransfer.h>
 
 class ezView;
 class ezViewCameraMsgToEngine;
+class ezEngineProcessDocumentContext;
+class ezEditorEngineDocumentMsg;
 
 struct ObjectData
 {
@@ -22,7 +18,7 @@ struct ObjectData
 class ezViewContext : public ezEngineProcessViewContext
 {
 public:
-  ezViewContext(ezInt32 iViewIndex, ezUuid DocumentGuid) : ezEngineProcessViewContext(iViewIndex, DocumentGuid)
+  ezViewContext(ezEngineProcessDocumentContext* pContext) : ezEngineProcessViewContext(pContext)
   {
     m_pView = nullptr;
   }
@@ -36,6 +32,8 @@ public:
   void PickObjectAt(ezUInt16 x, ezUInt16 y);
 
   void SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg, bool bSuperHighPriority = false);
+
+  virtual void HandleViewMessage(const ezEditorEngineViewMsg* pMsg) override;
 
 private:
   void RenderPassEventHandler(const ezPickingRenderPass::Event& e);

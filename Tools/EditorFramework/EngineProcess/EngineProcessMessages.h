@@ -61,14 +61,22 @@ class EZ_EDITORFRAMEWORK_DLL ezEditorEngineDocumentMsg : public ezProcessMessage
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineDocumentMsg);
 
 public:
-  ezEditorEngineDocumentMsg()
+  ezUuid m_DocumentGuid;
+};
+
+class EZ_EDITORFRAMEWORK_DLL ezEditorEngineViewMsg : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineViewMsg);
+
+public:
+  ezEditorEngineViewMsg()
   {
     m_uiViewID = 0xFFFFFFFF;
   }
 
-  ezUuid m_DocumentGuid;
   ezUInt32 m_uiViewID;
 };
+
 
 class EZ_EDITORFRAMEWORK_DLL ezDocumentOpenMsgToEngine : public ezEditorEngineDocumentMsg
 {
@@ -81,6 +89,7 @@ public:
   }
 
   bool m_bDocumentOpen;
+  ezString m_sDocumentType;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezDocumentOpenResponseMsgToEditor : public ezEditorEngineDocumentMsg
@@ -93,7 +102,7 @@ public:
   }
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezViewRedrawMsgToEngine : public ezEditorEngineDocumentMsg
+class EZ_EDITORFRAMEWORK_DLL ezViewRedrawMsgToEngine : public ezEditorEngineViewMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezViewRedrawMsgToEngine);
 
@@ -104,12 +113,12 @@ public:
   ezUInt16 m_uiWindowHeight;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezViewRedrawFinishedMsgToEditor : public ezEditorEngineDocumentMsg
+class EZ_EDITORFRAMEWORK_DLL ezViewRedrawFinishedMsgToEditor : public ezEditorEngineViewMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezViewRedrawFinishedMsgToEditor);
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezViewCameraMsgToEngine : public ezEditorEngineDocumentMsg
+class EZ_EDITORFRAMEWORK_DLL ezViewCameraMsgToEngine : public ezEditorEngineViewMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezViewCameraMsgToEngine);
 
@@ -152,7 +161,7 @@ public:
   ezString m_sObjectData;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezViewPickingMsgToEngine : public ezEditorEngineDocumentMsg
+class EZ_EDITORFRAMEWORK_DLL ezViewPickingMsgToEngine : public ezEditorEngineViewMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezViewPickingMsgToEngine);
 
@@ -162,7 +171,7 @@ public:
   ezUInt16 m_uiPickPosY;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezViewPickingResultMsgToEditor : public ezEditorEngineDocumentMsg
+class EZ_EDITORFRAMEWORK_DLL ezViewPickingResultMsgToEditor : public ezEditorEngineViewMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezViewPickingResultMsgToEditor);
 
@@ -179,7 +188,7 @@ public:
 
 class ezEditorEngineConnection;
 
-class EZ_EDITORFRAMEWORK_DLL ezViewHighlightMsgToEngine : public ezEditorEngineDocumentMsg
+class EZ_EDITORFRAMEWORK_DLL ezViewHighlightMsgToEngine : public ezEditorEngineViewMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezViewHighlightMsgToEngine);
 
