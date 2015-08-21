@@ -92,7 +92,7 @@ public:
 
   void DestroyObject(ezDocumentObjectBase* pObject);
   void DestroyAllObjects();
-  virtual void GetCreateableTypes(ezHybridArray<ezRTTI*, 32>& Types) const = 0;
+  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const = 0;
 
   // Structure Change
   const ezDocumentObjectBase* GetRootObject() const { return &m_RootObject; }

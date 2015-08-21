@@ -3,8 +3,9 @@
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <ToolsFoundation/Object/DocumentObjectMirror.h>
 
-template<typename PropertyType, typename AssetObjectType, typename ObjectManagerType>
+template<typename PropertyType, typename ObjectManagerType>
 class ezSimpleAssetDocument : public ezAssetDocument
 {
 public:
@@ -13,16 +14,24 @@ public:
 
   }
 
+  ~ezSimpleAssetDocument()
+  {
+    m_ObjectMirror.DeInit();
+  }
+
   const PropertyType* GetProperties() const
   {
-    AssetObjectType* pObject = static_cast<AssetObjectType*>(GetObjectManager()->GetRootObject()->GetChildren()[0]);
-    return &pObject->m_MemberProperties;
+    return static_cast<const PropertyType*>(m_ObjectMirror.GetNativeObjectPointer(GetObjectManager()->GetRootObject()->GetChildren()[0]));
   }
 
   PropertyType* GetProperties()
   {
-    AssetObjectType* pObject = static_cast<AssetObjectType*>(GetObjectManager()->GetRootObject()->GetChildren()[0]);
-    return &pObject->m_MemberProperties;
+    return static_cast<PropertyType*>(m_ObjectMirror.GetNativeObjectPointer(GetObjectManager()->GetRootObject()->GetChildren()[0]));
+  }
+
+  ezDocumentObjectBase* GetPropertyObject()
+  {
+    return GetObjectManager()->GetRootObject()->GetChildren()[0];
   }
 
 protected:
@@ -41,6 +50,8 @@ protected:
 
     EnsureSettingsObjectExist();
 
+    m_ObjectMirror.Init(GetObjectManager());
+
     return ret;
   }
 
@@ -50,7 +61,7 @@ private:
     auto pRoot = GetObjectManager()->GetRootObject();
     if (pRoot->GetChildren().IsEmpty())
     {
-      AssetObjectType* pObject = static_cast<AssetObjectType*>(GetObjectManager()->CreateObject(ezRTTI::FindTypeByName(ezGetStaticRTTI<PropertyType>()->GetTypeName())));
+      ezDocumentObjectBase* pObject = GetObjectManager()->CreateObject(ezGetStaticRTTI<PropertyType>());
       GetObjectManager()->AddObject(pObject, pRoot, "RootObjects", 0);
     }
   }
@@ -59,25 +70,27 @@ private:
   { 
     return EZ_DEFAULT_NEW(ezAssetDocumentInfo); 
   }
+
+  ezDocumentObjectMirror m_ObjectMirror;
 };
 
 
 
 
-template<typename ObjectProperties, typename ObjectType>
+template<typename ObjectProperties>
 class ezSimpleDocumentObjectManager : public ezDocumentObjectManager
 {
 public:
-  virtual void GetCreateableTypes(ezHybridArray<ezRTTI*, 32>& Types) const override
+  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override
   {
-    Types.PushBack(ezRTTI::FindTypeByName(ezGetStaticRTTI<ObjectProperties>()->GetTypeName()));
+    Types.PushBack(ezGetStaticRTTI<ObjectProperties>());
   }
 
 private:
 
   virtual ezDocumentObjectBase* InternalCreateObject(const ezRTTI* pRtti) override
   {
-    return EZ_DEFAULT_NEW(ObjectType);
+    return EZ_DEFAULT_NEW(ezDocumentObject, pRtti);
   }
 
   virtual void InternalDestroyObject(ezDocumentObjectBase* pObject) override

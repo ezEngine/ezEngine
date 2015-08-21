@@ -86,7 +86,11 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
       for (ezInt32 i = 0; i < iCount; ++i)
       {
         values[i] = pObject->GetTypeAccessor().GetValue(path, i);
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+        if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+        {
+          EZ_ASSERT_NOT_IMPLEMENTED;
+        }
+        else
         {
           m_QueuedObjects.Insert(m_pManager->GetObject(values[i].Get<ezUuid>()));
         }
@@ -196,6 +200,7 @@ void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObjectBase* pObjec
     }
     else
     {
+      ezInt32 iCurrentCount = pObject->GetTypeAccessor().GetCount(path);
       for (ezUInt32 i = 0; i < array.GetCount(); ++i)
       {
         const ezUuid guid = array[i].Get<ezUuid>();
@@ -205,9 +210,17 @@ void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObjectBase* pObjec
           auto* pSubNode = m_pGraph->GetNode(guid);
           EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
 
-          auto* pSubObject = CreateObjectFromNode(pSubNode);
-
-          m_pManager->AddObject(pSubObject, pObject, pProp->GetPropertyName(), -1);
+          ezDocumentObjectBase* pSubObject = nullptr;
+          if (i < (ezUInt32)iCurrentCount)
+          {
+            ezUuid childGuid = pObject->GetTypeAccessor().GetValue(path, i).ConvertTo<ezUuid>();
+            pSubObject = pObject->GetDocumentObjectManager()->GetObject(childGuid);
+          }
+          else
+          {
+            pSubObject = CreateObjectFromNode(pSubNode);
+            m_pManager->AddObject(pSubObject, pObject, pProp->GetPropertyName(), -1);
+          }
 
           ApplyPropertiesToObject(pSubNode, pSubObject);
         }

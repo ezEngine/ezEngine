@@ -15,7 +15,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSRGBModeEnum, 1)
   EZ_ENUM_CONSTANTS(ezSRGBModeEnum::Unknown, ezSRGBModeEnum::sRGB, ezSRGBModeEnum::Linear, ezSRGBModeEnum::sRGB_Auto, ezSRGBModeEnum::Linear_Auto)
 EZ_END_STATIC_REFLECTED_ENUM();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, ezReflectedClass, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, ezReflectedClass, 1, ezRTTIDefaultAllocator<ezTextureAssetProperties>);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Texture File", GetInputFile, SetInputFile),
     //EZ_ACCESSOR_PROPERTY("Usage", GetTextureUsage, SetTextureUsage),

@@ -14,6 +14,7 @@
 #include <../ThirdParty/AssImp/include/Logger.hpp>
 #include <../ThirdParty/AssImp/include/LogStream.hpp>
 #include <../ThirdParty/AssImp/include/DefaultLogger.hpp>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 using namespace Assimp;
 
@@ -67,7 +68,7 @@ public:
   }
 };
 
-ezMeshAssetDocument::ezMeshAssetDocument(const char* szDocumentPath) : ezSimpleAssetDocument<ezMeshAssetProperties, ezMeshAssetObject, ezMeshAssetObjectManager>(szDocumentPath)
+ezMeshAssetDocument::ezMeshAssetDocument(const char* szDocumentPath) : ezSimpleAssetDocument<ezMeshAssetProperties, ezMeshAssetObjectManager>(szDocumentPath)
 {
 }
 
@@ -103,7 +104,7 @@ ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriterBase& stream,
   {
     EZ_LOG_BLOCK("Importing Mesh", sMeshFileAbs.GetData());
 
-    scene = importer.ReadFile(sMeshFileAbs.GetData(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_PreTransformVertices);
+    scene = importer.ReadFile(sMeshFileAbs.GetData(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_PreTransformVertices);
 
     if (!scene)
     {
@@ -224,6 +225,7 @@ ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriterBase& stream,
 ezStatus ezMeshAssetDocument::InternalRetrieveAssetInfo(const char * szPlatform)
 {
   ezMeshAssetProperties* pProp = GetProperties();
+  ezDocumentObjectBase* pPropObj = GetPropertyObject();
 
   ezString sMeshFileAbs = pProp->m_sMeshFile;
   if (!ezEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sMeshFileAbs))
@@ -244,7 +246,7 @@ ezStatus ezMeshAssetDocument::InternalRetrieveAssetInfo(const char * szPlatform)
   {
     EZ_LOG_BLOCK("Importing Mesh", sMeshFileAbs.GetData());
 
-    scene = importer.ReadFile(sMeshFileAbs.GetData(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_PreTransformVertices);
+    scene = importer.ReadFile(sMeshFileAbs.GetData(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_PreTransformVertices);
 
     if (!scene)
     {
@@ -269,21 +271,38 @@ ezStatus ezMeshAssetDocument::InternalRetrieveAssetInfo(const char * szPlatform)
   ezLog::Info("Number of Vertices: %u", uiVertices);
   ezLog::Info("Number of Triangles: %u", uiTriangles);
 
-  pProp->m_uiVertices = uiVertices;
-  pProp->m_uiTriangles = uiTriangles;
-  pProp->m_SlotNames.SetCount(scene->mNumMeshes);
-
+  //pProp->m_uiVertices = uiVertices;
+  //pProp->m_uiTriangles = uiTriangles;
+  //pProp->m_SlotNames.SetCount(scene->mNumMeshes);
+ 
+ 
   aiString name;
   ezStringBuilder sMatName;
 
+  pProp->m_Slots.SetCount(scene->mNumMeshes);
   for (ezUInt32 i = 0; i < scene->mNumMeshes; ++i)
   {
     aiMaterial* mat = scene->mMaterials[scene->mMeshes[i]->mMaterialIndex];
 
     mat->Get(AI_MATKEY_NAME, name);
 
-    pProp->m_SlotNames[i] = name.C_Str();
+    pProp->m_Slots[i].m_sLabel = name.C_Str();
   }
+
+
+  {
+    ezAbstractObjectGraph graph;
+    ezRttiConverterContext context;
+    ezRttiConverterWriter rttiConverter(&graph, &context, true, true);
+    context.RegisterObject(pPropObj->GetGuid(), pPropObj->GetTypeAccessor().GetType(), pProp);
+    auto* pNode = rttiConverter.AddObjectToGraph(pProp, "Object");
+
+    ezDocumentObjectConverterReader objectConverter(&graph, GetObjectManager());
+    objectConverter.ApplyPropertiesToObject(pNode, pPropObj);
+  }
+
+  GetSelectionManager()->Clear();
+  GetSelectionManager()->AddObject(pPropObj);
 
   return ezStatus(EZ_SUCCESS);
 }

@@ -248,7 +248,7 @@ void ezRawPropertyWidget::BuildUI(const ezHybridArray<ezPropertyEditorBaseWidget
         {
           EZ_ASSERT_NOT_IMPLEMENTED;
         }
-        else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+        else //if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
         {
           for (ezInt32 i = 0; i < iElements; ++i)
           {
@@ -293,10 +293,10 @@ void ezRawPropertyWidget::BuildUI(const ezHybridArray<ezPropertyEditorBaseWidget
           pSubElementButton->Init(items, ParentPath);
           pElementsLayout->addWidget(pSubElementButton);
         }
-        else
+ /*       else
         {
           EZ_ASSERT_NOT_IMPLEMENTED;
-        }
+        }*/
 
       }
       break;

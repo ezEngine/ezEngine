@@ -24,7 +24,7 @@ ezObjectCreatorList::~ezObjectCreatorList()
 
 void ezObjectCreatorList::TypeChanged(const ezPhantomTypeChange& data)
 {
-  ezHybridArray<ezRTTI*, 32> Types;
+  ezHybridArray<const ezRTTI*, 32> Types;
   m_pManager->GetCreateableTypes(Types);
 
   ezQtBlockSignals b(this);

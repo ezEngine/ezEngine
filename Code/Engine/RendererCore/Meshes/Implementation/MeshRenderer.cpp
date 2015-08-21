@@ -58,7 +58,7 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderViewContext, ez
 
     if (pRenderData->m_hMaterial != hLastMaterial)
     {
-      ezRenderContext::GetDefaultInstance()->SetMaterialState(pRenderData->m_hMaterial);
+      renderViewContext.m_pRenderContext->SetMaterialState(pRenderData->m_hMaterial);
       hLastMaterial = pRenderData->m_hMaterial;
     }
 

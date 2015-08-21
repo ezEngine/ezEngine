@@ -78,7 +78,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
     //case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
   case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:
     {
-      if (IsRootObject(e.m_pNewParent))
+      if (IsRootObject(e.m_pPreviousParent))
       {
         // Just delete
         m_Context.DeleteObject(e.m_pObject->GetGuid());
@@ -86,7 +86,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
       else
       {
         ezHybridArray<const ezDocumentObjectBase*, 8> path;
-        ezUuid guid = FindRootOpObject(e.m_pNewParent, path);
+        ezUuid guid = FindRootOpObject(e.m_pPreviousParent, path);
 
         // Recreate parent guid in place with all children
         ezAbstractObjectGraph graph;
@@ -138,6 +138,27 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
     }
     break;
   }
+}
+
+
+void* ezDocumentObjectMirror::GetNativeObjectPointer(const ezDocumentObjectBase* pObject)
+{
+  auto* pWrapper = m_Context.GetObjectByGUID(pObject->GetGuid());
+
+  if (pWrapper == nullptr)
+    return nullptr;
+
+  return pWrapper->m_pObject;
+}
+
+const void* ezDocumentObjectMirror::GetNativeObjectPointer(const ezDocumentObjectBase* pObject) const
+{
+  auto* pWrapper = m_Context.GetObjectByGUID(pObject->GetGuid());
+
+  if (pWrapper == nullptr)
+    return nullptr;
+
+  return pWrapper->m_pObject;
 }
 
 bool ezDocumentObjectMirror::IsRootObject(const ezDocumentObjectBase* pParent)

@@ -25,7 +25,7 @@ void ezSceneObjectManager::InternalDestroyObject(ezDocumentObjectBase* pObject)
   EZ_DEFAULT_DELETE(pObject);
 }
 
-void ezSceneObjectManager::GetCreateableTypes(ezHybridArray<ezRTTI*, 32>& Types) const
+void ezSceneObjectManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const
 {
   Types.PushBack(ezRTTI::FindTypeByName(ezGetStaticRTTI<ezGameObject>()->GetTypeName()));
 

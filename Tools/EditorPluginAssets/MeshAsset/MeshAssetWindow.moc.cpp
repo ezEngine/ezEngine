@@ -78,16 +78,15 @@ void ezMeshAssetDocumentWindow::MeshAssetDocumentEventHandler(const ezAssetDocum
 
 void ezMeshAssetDocumentWindow::UpdatePreview()
 {
-  ezMeshAssetObject* pObject = (ezMeshAssetObject*)GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
-  const auto& prop = pObject->m_MemberProperties;
+  const auto& prop = ((ezMeshAssetDocument*)GetDocument())->GetProperties();
 
-  ezStringBuilder s;
-  s.Format("Vertices: %u\nTriangles: %u\nSubMeshes: %u", prop.m_uiVertices, prop.m_uiTriangles, prop.m_SlotNames.GetCount());
+  //ezStringBuilder s;
+  //s.Format("Vertices: %u\nTriangles: %u\nSubMeshes: %u", prop->m_uiVertices, prop->m_uiTriangles, prop->m_SlotNames.GetCount());
 
-  for (ezUInt32 m = 0; m < prop.m_SlotNames.GetCount(); ++m)
-    s.AppendFormat("\nSlot %u: %s", m, prop.m_SlotNames[m].GetData());
+  //for (ezUInt32 m = 0; m < prop->m_SlotNames.GetCount(); ++m)
+  //  s.AppendFormat("\nSlot %u: %s", m, prop->m_SlotNames[m].GetData());
   
-  m_pLabelInfo->setText(QString::fromUtf8(s.GetData()));
+  //m_pLabelInfo->setText(QString::fromUtf8(s.GetData()));
 }
 
 void ezMeshAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)

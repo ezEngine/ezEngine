@@ -11,7 +11,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocument, ezAssetDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezMaterialAssetDocument::ezMaterialAssetDocument(const char* szDocumentPath) : ezSimpleAssetDocument<ezMaterialAssetProperties, ezMaterialAssetObject, ezMaterialAssetObjectManager>(szDocumentPath)
+ezMaterialAssetDocument::ezMaterialAssetDocument(const char* szDocumentPath) : ezSimpleAssetDocument<ezMaterialAssetProperties, ezMaterialAssetObjectManager>(szDocumentPath)
 {
 }
 
@@ -52,6 +52,14 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriterBase& str
   {
     ezImage image;
     bool bValidImage = false;
+
+    if (ezConversionUtils::IsStringUuid(sImageFile))
+    {
+      ezUuid guid = ezConversionUtils::ConvertStringToUuid(sImageFile);
+
+      sImageFile = ezAssetCurator::GetInstance()->GetAssetInfo(guid)->m_sAbsolutePath;
+    }
+
 
     if (!ezPathUtils::HasExtension(sImageFile, "color"))
     {

@@ -9,6 +9,9 @@
 
 void ezRenderContext::SetMaterialState(const ezMaterialResourceHandle& hMaterial)
 {
+  if (!hMaterial.IsValid())
+    return;
+
   ezResourceLock<ezMaterialResource> pMaterial(hMaterial);
 
   const ezMaterialResourceDescriptor&  md = pMaterial->GetDescriptor();

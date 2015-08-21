@@ -23,6 +23,7 @@ public:
   const ezUuid& GetGuid() const { return m_Guid; }
   
   const ezDocumentObjectManager* GetDocumentObjectManager() const { return m_pDocumentObjectManager; }
+  ezDocumentObjectManager* GetDocumentObjectManager() { return m_pDocumentObjectManager; }
 
   virtual const ezIReflectedTypeAccessor& GetTypeAccessor() const = 0;
   ezIReflectedTypeAccessor& GetTypeAccessor();
@@ -47,7 +48,7 @@ private:
 
 protected:
   ezUuid m_Guid;
-  const ezDocumentObjectManager* m_pDocumentObjectManager;
+  ezDocumentObjectManager* m_pDocumentObjectManager;
 
   ezDocumentObjectBase* m_pParent;
   ezHybridArray<ezDocumentObjectBase*, 8> m_Children;

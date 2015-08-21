@@ -85,17 +85,7 @@ private:
   ezImage m_Image;
 };
 
-class ezTextureAssetObject : public ezDocumentObjectDirectMember<ezTextureAssetProperties>
-{
-public:
-  ezTextureAssetObject() 
-  {
-  }
-
-};
-
-
-class ezTextureAssetObjectManager : public ezSimpleDocumentObjectManager<ezTextureAssetProperties, ezTextureAssetObject>
+class ezTextureAssetObjectManager : public ezSimpleDocumentObjectManager<ezTextureAssetProperties>
 {
 public:
 

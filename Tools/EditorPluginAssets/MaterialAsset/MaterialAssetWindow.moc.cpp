@@ -61,7 +61,6 @@ ezMaterialAssetDocumentWindow::~ezMaterialAssetDocumentWindow()
 
 void ezMaterialAssetDocumentWindow::UpdatePreview()
 {
-  ezMaterialAssetObject* pObject = (ezMaterialAssetObject*)GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
 
   // TODO
 }

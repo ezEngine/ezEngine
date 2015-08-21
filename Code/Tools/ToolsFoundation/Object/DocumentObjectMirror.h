@@ -6,7 +6,7 @@
 #include <Foundation/Containers/HybridArray.h>
 
 
-class ezDocumentObjectMirror
+class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectMirror
 {
 public:
   ezDocumentObjectMirror();
@@ -17,6 +17,9 @@ public:
 
   void TreeStructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+
+  void* GetNativeObjectPointer(const ezDocumentObjectBase* pObject);
+  const void* GetNativeObjectPointer(const ezDocumentObjectBase* pObject) const;
 
 private:
   bool IsRootObject(const ezDocumentObjectBase* pParent);

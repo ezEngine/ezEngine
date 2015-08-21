@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetWindow.moc.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
+#include <EditorPluginAssets/TextureAsset/TextureAsset.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
@@ -62,13 +63,13 @@ ezTextureAssetDocumentWindow::~ezTextureAssetDocumentWindow()
 
 void ezTextureAssetDocumentWindow::UpdatePreview()
 {
-  ezTextureAssetObject* pObject = (ezTextureAssetObject*)GetDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
+  auto* pObject = ((ezTextureAssetDocument*)GetDocument())->GetProperties();
 
-  if (pObject->m_MemberProperties.GetImage().GetDataSize() == 0)
+  if (pObject->GetImage().GetDataSize() == 0)
     return;
 
   ezImage Target;
-  if (ezImageConversionBase::Convert(pObject->m_MemberProperties.GetImage(), Target, ezImageFormat::B8G8R8A8_UNORM).Failed())
+  if (ezImageConversionBase::Convert(pObject->GetImage(), Target, ezImageFormat::B8G8R8A8_UNORM).Failed())
     return;
 
   /// \todo Fix format once ezImage is fixed
