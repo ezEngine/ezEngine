@@ -38,6 +38,7 @@ public:
   const ezHybridArray<ezDocumentObjectBase*, 8>& GetChildren() const { return m_Children; }
   const char* GetParentProperty() const { return m_sParentProperty; }
   ezVariant GetPropertyIndex() const;
+  bool IsOnHeap() const;
 
 private:
   friend class ezDocumentObjectManager;

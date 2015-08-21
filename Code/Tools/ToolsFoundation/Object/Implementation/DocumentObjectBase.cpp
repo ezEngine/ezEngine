@@ -1,5 +1,6 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 ezIReflectedTypeAccessor& ezDocumentObjectBase::GetTypeAccessor()
 {
@@ -83,6 +84,16 @@ ezVariant ezDocumentObjectBase::GetPropertyIndex() const
     return ezVariant();
   const ezIReflectedTypeAccessor& accessor = m_pParent->GetTypeAccessor();
   return accessor.GetPropertyChildIndex(m_sParentProperty.GetData(), GetGuid());
+}
+
+bool ezDocumentObjectBase::IsOnHeap() const
+{
+  if (GetParent() == GetDocumentObjectManager()->GetRootObject())
+    return true;
+
+  const ezRTTI* pRtti = GetParent()->GetTypeAccessor().GetType();
+  auto* pProp = pRtti->FindPropertyByName(m_sParentProperty);
+  return pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner);
 }
 
 
