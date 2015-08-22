@@ -407,6 +407,9 @@ void ezPropertyEditorQuaternionWidget::SlotValueChanged()
 
 ezPropertyEditorLineEditWidget::ezPropertyEditorLineEditWidget(const char* szName, QWidget* pParent) : ezPropertyEditorBaseWidget(szName, pParent)
 {
+  m_pAssetAttribute = nullptr;
+  m_pFileAttribute = nullptr;
+
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
   setLayout(m_pLayout);
@@ -415,11 +418,9 @@ ezPropertyEditorLineEditWidget::ezPropertyEditorLineEditWidget(const char* szNam
   m_pLabel->setText(QString::fromUtf8(szName));
   m_pLabel->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
 
-  m_pButton = new QToolButton(this);
-  m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextOnly);
-  m_pButton->setText("...");
-
   m_pWidget = new QLineEdit(this);
+  m_pWidget->setFocusPolicy(Qt::FocusPolicy::StrongFocus);
+  setFocusProxy(m_pWidget);
 
   QSizePolicy policy = m_pLabel->sizePolicy();
   policy.setHorizontalStretch(1);
@@ -429,16 +430,38 @@ ezPropertyEditorLineEditWidget::ezPropertyEditorLineEditWidget(const char* szNam
 
   m_pLayout->addWidget(m_pLabel);
   m_pLayout->addWidget(m_pWidget);
-  m_pLayout->addWidget(m_pButton);
 
   connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_TextFinished_triggered()));
-  connect(m_pButton, SIGNAL(clicked()), this, SLOT(on_BrowseFile_clicked()));
+}
+
+void ezPropertyEditorLineEditWidget::OnInit()
+{
+  auto* pProperty = ezToolsReflectionUtils::GetPropertyByPath(m_Items[0].m_pObject->GetTypeAccessor().GetType(), m_PropertyPath);
+
+  m_pAssetAttribute = pProperty->GetAttributeByType<ezAssetBrowserAttribute>();
+  m_pFileAttribute = pProperty->GetAttributeByType<ezFileBrowserAttribute>();
+
+  if (m_pFileAttribute != nullptr || m_pAssetAttribute != nullptr)
+  {
+    m_pButton = new QToolButton(this);
+    m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextOnly);
+    m_pButton->setText("...");
+
+    m_pLayout->addWidget(m_pButton);
+
+    connect(m_pButton, SIGNAL(clicked()), this, SLOT(on_BrowseFile_clicked()));
+  }
 }
 
 void ezPropertyEditorLineEditWidget::InternalSetValue(const ezVariant& value)
 {
   ezQtBlockSignals b (m_pWidget);
   m_pWidget->setText(QString::fromUtf8(value.ConvertTo<ezString>().GetData()));
+}
+
+void ezPropertyEditorLineEditWidget::focusOutEvent(QFocusEvent* event)
+{
+  int i = 0;
 }
 
 void ezPropertyEditorLineEditWidget::on_TextChanged_triggered(const QString& value)
@@ -455,29 +478,36 @@ void ezPropertyEditorLineEditWidget::on_BrowseFile_clicked()
 {
   ezString sFile = m_pWidget->text().toUtf8().data();
 
-  ezAssetBrowserDlg dlg(this, sFile, "");
-  if (dlg.exec() == 0)
-    return;
-
-  sFile = dlg.GetSelectedAssetGuid();
-
-  if (sFile.IsEmpty())
+  if (m_pAssetAttribute != nullptr)
   {
-    sFile = dlg.GetSelectedAssetPathRelative();
+    ezAssetBrowserDlg dlg(this, sFile, m_pAssetAttribute->GetTypeFilter());
+    if (dlg.exec() == 0)
+      return;
+
+    sFile = dlg.GetSelectedAssetGuid();
 
     if (sFile.IsEmpty())
     {
-      sFile = dlg.GetSelectedAssetPathAbsolute();
+      sFile = dlg.GetSelectedAssetPathRelative();
 
-      ezEditorApp::GetInstance()->MakePathDataDirectoryRelative(sFile);
+      if (sFile.IsEmpty())
+      {
+        sFile = dlg.GetSelectedAssetPathAbsolute();
+
+        ezEditorApp::GetInstance()->MakePathDataDirectoryRelative(sFile);
+      }
     }
+
+    if (sFile.IsEmpty())
+      return;
+
+    m_pWidget->setText(sFile.GetData());
+    on_TextFinished_triggered();
   }
+  else if (m_pFileAttribute)
+  {
 
-  if (sFile.IsEmpty())
-    return;
-
-  m_pWidget->setText(sFile.GetData());
-  on_TextFinished_triggered();
+  }
 }
 
 /// *** COLOR ***

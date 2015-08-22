@@ -12,6 +12,14 @@ ezPhantomConstantProperty::ezPhantomConstantProperty(const ezReflectedPropertyDe
 
   m_Flags = pDesc->m_Flags;
   m_Flags.Add(ezPropertyFlags::Phantom);
+  m_Attributes = pDesc->m_Attributes;
+  pDesc->m_Attributes.Clear();
+}
+
+ezPhantomConstantProperty::~ezPhantomConstantProperty()
+{
+  for (auto pAttr : m_Attributes)
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(pAttr);
 }
 
 const ezRTTI* ezPhantomConstantProperty::GetSpecificType() const
@@ -35,7 +43,14 @@ ezPhantomMemberProperty::ezPhantomMemberProperty(const ezReflectedPropertyDescri
 
   m_Flags = pDesc->m_Flags;
   m_Flags.Add(ezPropertyFlags::Phantom);
+  m_Attributes = pDesc->m_Attributes;
+  pDesc->m_Attributes.Clear();
+}
 
+ezPhantomMemberProperty::~ezPhantomMemberProperty()
+{
+  for (auto pAttr : m_Attributes)
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(pAttr);
 }
 
 const ezRTTI* ezPhantomMemberProperty::GetSpecificType() const
@@ -54,9 +69,17 @@ ezPhantomFunctionProperty::ezPhantomFunctionProperty(const ezReflectedPropertyDe
 
   m_Flags = pDesc->m_Flags;
   m_Flags.Add(ezPropertyFlags::Phantom);
+  m_Attributes = pDesc->m_Attributes;
+  pDesc->m_Attributes.Clear();
 }
 
 
+
+ezPhantomFunctionProperty::~ezPhantomFunctionProperty()
+{
+  for (auto pAttr : m_Attributes)
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(pAttr);
+}
 
 ezPhantomArrayProperty::ezPhantomArrayProperty(const ezReflectedPropertyDescriptor* pDesc)
   : ezAbstractArrayProperty(nullptr)
@@ -67,6 +90,14 @@ ezPhantomArrayProperty::ezPhantomArrayProperty(const ezReflectedPropertyDescript
 
   m_Flags = pDesc->m_Flags;
   m_Flags.Add(ezPropertyFlags::Phantom);
+  m_Attributes = pDesc->m_Attributes;
+  pDesc->m_Attributes.Clear();
+}
+
+ezPhantomArrayProperty::~ezPhantomArrayProperty()
+{
+  for (auto pAttr : m_Attributes)
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(pAttr);
 }
 
 const ezRTTI* ezPhantomArrayProperty::GetSpecificType() const
@@ -83,6 +114,14 @@ ezPhantomSetProperty::ezPhantomSetProperty(const ezReflectedPropertyDescriptor* 
 
   m_Flags = pDesc->m_Flags;
   m_Flags.Add(ezPropertyFlags::Phantom);
+  m_Attributes = pDesc->m_Attributes;
+  pDesc->m_Attributes.Clear();
+}
+
+ezPhantomSetProperty::~ezPhantomSetProperty()
+{
+  for (auto pAttr : m_Attributes)
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(pAttr);
 }
 
 const ezRTTI* ezPhantomSetProperty::GetSpecificType() const

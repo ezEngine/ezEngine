@@ -326,6 +326,9 @@ bool ezDocumentWindow::CanCloseWindow()
 
 bool ezDocumentWindow::InternalCanCloseWindow()
 {
+  setFocus();
+  clearFocus();
+
   if (m_pDocument && m_pDocument->IsModified())
   {
     QMessageBox::StandardButton res = QMessageBox::question(this, QLatin1String("ezEditor"), QLatin1String("Save before closing?"), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Cancel);
@@ -350,6 +353,9 @@ void ezDocumentWindow::CloseDocumentWindow()
 
 void ezDocumentWindow::SlotQueuedDelete()
 {
+  setFocus();
+  clearFocus();
+
   if (m_pDocument)
   {
     m_pDocument->GetDocumentManager()->CloseDocument(m_pDocument);

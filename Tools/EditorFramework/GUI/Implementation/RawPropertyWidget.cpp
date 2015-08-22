@@ -81,6 +81,9 @@ void ezRawPropertyWidget::BuildUI(const ezHybridArray<ezPropertyEditorBaseWidget
     if (pProp->GetFlags().IsSet(ezPropertyFlags::Hidden))
       continue;
 
+    if (pProp->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+      continue;
+
     ParentPath.PushBack(pProp->GetPropertyName());
 
     switch (pProp->GetCategory())

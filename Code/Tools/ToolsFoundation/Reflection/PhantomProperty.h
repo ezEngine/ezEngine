@@ -8,6 +8,7 @@ class ezPhantomConstantProperty : public ezAbstractConstantProperty
 {
 public:
   ezPhantomConstantProperty(const ezReflectedPropertyDescriptor* pDesc);
+  ~ezPhantomConstantProperty();
 
   virtual const ezRTTI* GetSpecificType() const override;
   virtual void* GetPropertyPointer() const override;
@@ -23,6 +24,7 @@ class ezPhantomMemberProperty : public ezAbstractMemberProperty
 {
 public:
   ezPhantomMemberProperty(const ezReflectedPropertyDescriptor* pDesc);
+  ~ezPhantomMemberProperty();
 
   virtual const ezRTTI* GetSpecificType() const override;
   virtual void* GetPropertyPointer(const void* pInstance) const override { return nullptr; }
@@ -38,6 +40,7 @@ class ezPhantomFunctionProperty : public ezAbstractFunctionProperty
 {
 public:
   ezPhantomFunctionProperty(const ezReflectedPropertyDescriptor* pDesc);
+  ~ezPhantomFunctionProperty();
 
   virtual const ezRTTI* GetSpecificType() const override { return nullptr; };
 
@@ -55,6 +58,7 @@ class ezPhantomArrayProperty : public ezAbstractArrayProperty
 {
 public:
   ezPhantomArrayProperty(const ezReflectedPropertyDescriptor* pDesc);
+  ~ezPhantomArrayProperty();
 
   virtual const ezRTTI* GetSpecificType() const override;
   virtual ezUInt32 GetCount(const void* pInstance) const override { return 0; }
@@ -76,6 +80,7 @@ class ezPhantomSetProperty : public ezAbstractSetProperty
 {
 public:
   ezPhantomSetProperty(const ezReflectedPropertyDescriptor* pDesc);
+  ~ezPhantomSetProperty();
   
   virtual const ezRTTI* GetSpecificType() const override;
   virtual ezUInt32 GetCount(const void* pInstance) const override { return 0; }

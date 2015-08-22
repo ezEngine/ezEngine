@@ -14,6 +14,7 @@
 #include <Foundation/Reflection/Implementation/ArrayProperty.h>
 #include <Foundation/Reflection/Implementation/SetProperty.h>
 #include <Foundation/Reflection/Implementation/MessageHandler.h>
+#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 
 #include <Foundation/Reflection/Implementation/StandardTypes.h>
 

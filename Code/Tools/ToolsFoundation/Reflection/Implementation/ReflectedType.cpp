@@ -44,20 +44,77 @@ EZ_BEGIN_PROPERTIES
   EZ_MEMBER_PROPERTY("Type", m_sType),
   EZ_BITFLAGS_MEMBER_PROPERTY("Flags", ezPropertyFlags, m_Flags),
   EZ_MEMBER_PROPERTY("ConstantValue", m_ConstantValue),
+  EZ_ARRAY_ACCESSOR_PROPERTY("Attributes", GetCount, GetValue, SetValue, Insert, Remove)->AddFlags(ezPropertyFlags::PointerOwner),
 EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 
-ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezVariant::Type::Enum type, ezBitflags<ezPropertyFlags> flags)
+ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezVariant::Type::Enum type, ezBitflags<ezPropertyFlags> flags, const ezArrayPtr<ezPropertyAttribute* const> attributes)
   : m_Category(category), m_sName(szName), m_sType(szType), m_Flags(flags)
 {
+  m_ReferenceAttributes = attributes;
 }
 
-ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(const char* szName, ezVariant::Type::Enum type, const ezVariant& constantValue)
+ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(const char* szName, ezVariant::Type::Enum type, const ezVariant& constantValue, const ezArrayPtr<ezPropertyAttribute* const> attributes)
   : m_Category(ezPropertyCategory::Constant), m_sName(szName), m_sType(), m_Flags(ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly | ezPropertyFlags::Constant)
   , m_ConstantValue(constantValue)
 {
+  m_ReferenceAttributes = attributes;
 }
 
+ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(const ezReflectedPropertyDescriptor& rhs)
+{
+  operator= (rhs);
+}
+
+void ezReflectedPropertyDescriptor::operator=(const ezReflectedPropertyDescriptor& rhs)
+{
+  m_Category = rhs.m_Category;
+  m_sName = rhs.m_sName;
+
+  m_sType = rhs.m_sType;
+
+  m_Flags = rhs.m_Flags;
+  m_ConstantValue = rhs.m_ConstantValue;
+
+  m_Attributes = rhs.m_Attributes; 
+  rhs.m_Attributes.Clear();
+
+  m_ReferenceAttributes = rhs.m_ReferenceAttributes;
+}
+
+ezReflectedPropertyDescriptor::~ezReflectedPropertyDescriptor()
+{
+  for (auto pAttr : m_Attributes)
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(pAttr);
+}
+
+ezUInt32 ezReflectedPropertyDescriptor::GetCount() const
+{
+  return ezMath::Max(m_ReferenceAttributes.GetCount(), m_Attributes.GetCount());
+}
+
+ezPropertyAttribute* ezReflectedPropertyDescriptor::GetValue(ezUInt32 uiIndex) const
+{
+  if (!m_ReferenceAttributes.IsEmpty())
+    return m_ReferenceAttributes[uiIndex];
+
+  return m_Attributes[uiIndex];
+}
+
+void ezReflectedPropertyDescriptor::SetValue(ezUInt32 uiIndex, ezPropertyAttribute* value)
+{
+  m_Attributes[uiIndex] = value;
+}
+
+void ezReflectedPropertyDescriptor::Insert(ezUInt32 uiIndex, ezPropertyAttribute* value)
+{
+  m_Attributes.Insert(value, uiIndex);
+}
+
+void ezReflectedPropertyDescriptor::Remove(ezUInt32 uiIndex)
+{
+  m_Attributes.RemoveAt(uiIndex);
+}
 
 ////////////////////////////////////////////////////////////////////////
 // ezReflectedTypeDescriptor

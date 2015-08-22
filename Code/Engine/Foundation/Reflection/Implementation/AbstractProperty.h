@@ -8,6 +8,7 @@
 #include <Foundation/Containers/Set.h>
 
 class ezRTTI;
+class ezPropertyAttribute;
 
 
 /// \brief Flags used to describe a property and its type.
@@ -72,6 +73,8 @@ public:
     m_szPropertyName = szPropertyName;
   }
 
+  virtual ~ezAbstractProperty(){}
+
   /// \brief Returns the name of the property.
   const char* GetPropertyName() const { return m_szPropertyName; }
 
@@ -94,9 +97,42 @@ public:
     return this;
   };
 
+  /// \brief Adds attributes to the property. Returns itself to allow to be called during initialization. Allocate an attribute using standard 'new'.
+  ezAbstractProperty* AddAttributes(ezPropertyAttribute* pAttrib1, ezPropertyAttribute* pAttrib2 = nullptr, ezPropertyAttribute* pAttrib3 = nullptr, ezPropertyAttribute* pAttrib4 = nullptr, ezPropertyAttribute* pAttrib5 = nullptr, ezPropertyAttribute* pAttrib6 = nullptr)
+  {
+    EZ_ASSERT_DEV(pAttrib1 != nullptr, "invalid attribute");
+
+    m_Attributes.PushBack(pAttrib1);
+    if (pAttrib2) m_Attributes.PushBack(pAttrib2);
+    if (pAttrib3) m_Attributes.PushBack(pAttrib3);
+    if (pAttrib4) m_Attributes.PushBack(pAttrib4);
+    if (pAttrib5) m_Attributes.PushBack(pAttrib5);
+    if (pAttrib6) m_Attributes.PushBack(pAttrib6);
+    return this;
+  };
+
+  /// \brief Returns the array of property attributes.
+  const ezArrayPtr<ezPropertyAttribute* const> GetAttributes() const
+  {
+    return m_Attributes.GetArrayPtr();
+  }
+
+  /// \brief Returns the first attribute that derives from the given type, or nullptr if nothing is found.
+  template<typename Type>
+  const Type* GetAttributeByType() const
+  {
+    for (const auto* pAttr : m_Attributes)
+    {
+      if (pAttr->GetDynamicRTTI()->IsDerivedFrom<Type>())
+        return static_cast<const Type*>(pAttr);
+    }
+    return nullptr;
+  }
+
 protected:
   ezBitflags<ezPropertyFlags> m_Flags;
   const char* m_szPropertyName;
+  ezHybridArray<ezPropertyAttribute*, 2> m_Attributes;
 };
 
 /// \brief This is the base class for all constant properties that are stored inside the RTTI data.

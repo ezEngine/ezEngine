@@ -33,8 +33,18 @@ struct EZ_TOOLSFOUNDATION_DLL ezPhantomTypeChange
 struct EZ_TOOLSFOUNDATION_DLL ezReflectedPropertyDescriptor
 {
   ezReflectedPropertyDescriptor() {}
-  ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezVariant::Type::Enum type, ezBitflags<ezPropertyFlags> flags); // [tested]
-  ezReflectedPropertyDescriptor(const char* szName, ezVariant::Type::Enum type, const ezVariant& constantValue); // [tested]
+  ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezVariant::Type::Enum type, ezBitflags<ezPropertyFlags> flags, const ezArrayPtr<ezPropertyAttribute* const> attributes); // [tested]
+  ezReflectedPropertyDescriptor(const char* szName, ezVariant::Type::Enum type, const ezVariant& constantValue, const ezArrayPtr<ezPropertyAttribute* const> attributes); // [tested]
+  ezReflectedPropertyDescriptor(const ezReflectedPropertyDescriptor& rhs);
+  ~ezReflectedPropertyDescriptor();
+
+  void operator=(const ezReflectedPropertyDescriptor& rhs);
+
+  ezUInt32 GetCount() const;
+  ezPropertyAttribute*GetValue(ezUInt32 uiIndex) const;
+  void SetValue(ezUInt32 uiIndex, ezPropertyAttribute* value);
+  void Insert(ezUInt32 uiIndex, ezPropertyAttribute* value);
+  void Remove(ezUInt32 uiIndex);
 
   ezEnum<ezPropertyCategory> m_Category;
   ezString m_sName;
@@ -43,8 +53,10 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedPropertyDescriptor
   //ezEnum<ezVariantType> m_Type;
 
   ezBitflags<ezPropertyFlags> m_Flags;
-
   ezVariant m_ConstantValue;
+
+  mutable ezHybridArray<ezPropertyAttribute*, 2> m_Attributes;
+  ezArrayPtr<ezPropertyAttribute* const> m_ReferenceAttributes;
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezReflectedPropertyDescriptor);
 

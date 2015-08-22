@@ -109,7 +109,7 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
         if (ezReflectionUtils::IsBasicType(pPropRtti))
         {
           ezVariant value = constantProp->GetConstant();
-          out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(constantProp->GetPropertyName(), pPropRtti->GetVariantType(), value));
+          out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(constantProp->GetPropertyName(), pPropRtti->GetVariantType(), value, prop->GetAttributes()));
         }
         else
         {
@@ -123,7 +123,7 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
     case ezPropertyCategory::Set:
       {
         const ezRTTI* pPropRtti = prop->GetSpecificType();
-        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(prop->GetCategory(), prop->GetPropertyName(), pPropRtti->GetTypeName(), pPropRtti->GetVariantType(), prop->GetFlags()));
+        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(prop->GetCategory(), prop->GetPropertyName(), pPropRtti->GetTypeName(), pPropRtti->GetVariantType(), prop->GetFlags(), prop->GetAttributes()));
       }
       break;
 

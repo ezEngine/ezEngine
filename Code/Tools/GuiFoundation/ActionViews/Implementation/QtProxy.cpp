@@ -272,6 +272,10 @@ void ezQtButtonProxy::StatusUpdateEventHandler(ezAction* pAction)
 
 void ezQtButtonProxy::OnTriggered()
 {
+  // make sure all focus is lost, to trigger pending changes
+  if (QApplication::focusWidget())
+    QApplication::focusWidget()->clearFocus();
+
   m_pAction->Execute(m_pQtAction->isChecked());
 }
 
@@ -314,6 +318,10 @@ void ezQtLRUMenuProxy::SlotMenuEntryTriggered()
   QAction* pAction = qobject_cast<QAction*>(sender());
   if (!pAction)
     return;
+
+  // make sure all focus is lost, to trigger pending changes
+  if (QApplication::focusWidget())
+    QApplication::focusWidget()->clearFocus();
 
   ezUInt32 index = pAction->data().toUInt();
   m_pAction->Execute(m_Entries[index].m_UserValue);

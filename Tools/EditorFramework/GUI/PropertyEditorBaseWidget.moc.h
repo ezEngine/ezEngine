@@ -183,12 +183,17 @@ private slots:
   void on_BrowseFile_clicked();
 
 private:
+  virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void focusOutEvent(QFocusEvent* event) override;
 
   QHBoxLayout* m_pLayout;
   QLabel* m_pLabel;
   QLineEdit* m_pWidget;
   QToolButton* m_pButton;
+
+  const ezFileBrowserAttribute* m_pFileAttribute;
+  const ezAssetBrowserAttribute* m_pAssetAttribute;
 };
 
 
