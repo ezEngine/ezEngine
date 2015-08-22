@@ -12,13 +12,16 @@ class EZ_EDITORFRAMEWORK_DLL ezAddSubElementButton : public ezPropertyEditorBase
 
 public:
   ezAddSubElementButton(const char* szName, QWidget* pParent);
+  virtual void InternalSetValue(const ezVariant& value) {}
 
 private slots:
   void on_Menu_aboutToShow();
+  void on_Button_clicked();
   void OnMenuAction();
-
+ 
 private:
-  virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void OnInit() override;
+  void OnAction(const ezRTTI* pRtti);
 
   QHBoxLayout* m_pLayout;
   QPushButton* m_pButton;

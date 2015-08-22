@@ -102,6 +102,7 @@ void ezRawPropertyGridWidget::PropertyChangedHandler(const ezPropertyEditorBaseW
       for (const auto& sel : *ed.m_pItems)
       {
         cmd.m_Object = sel.m_pObject->GetGuid();
+        cmd.m_Index = sel.m_Index;
 
         res = m_pDocument->GetCommandHistory()->AddCommand(cmd);
 

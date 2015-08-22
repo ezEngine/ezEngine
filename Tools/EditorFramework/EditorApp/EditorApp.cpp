@@ -96,6 +96,8 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
   RegisterPluginNameForSettings("-Main-");
 
   s_pQtApplication = new QApplication(argc, argv);
+  QLocale::setDefault(QLocale(QLocale::English));
+
   s_pEngineViewProcess = new ezEditorEngineProcessConnection;
 
   s_pEngineViewProcess->SetWaitForDebugger(ezCommandLineUtils::GetInstance()->GetBoolOption("-debug"));

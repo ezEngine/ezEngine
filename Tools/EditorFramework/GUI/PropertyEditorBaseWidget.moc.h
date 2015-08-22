@@ -7,6 +7,7 @@
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <EditorFramework/GUI/PropertyEditorBaseWidget.moc.h>
 #include <QWidget>
+#include <QFrame>
 
 class QCheckBox;
 class QDoubleSpinBox;
@@ -37,6 +38,7 @@ public:
 
   void Init(const ezHybridArray<Selection, 8>& items, const ezPropertyPath& path);
 
+  const ezAbstractProperty* GetProperty() const;
 
 public:
   virtual void InternalSetValue(const ezVariant& value) = 0;
@@ -68,6 +70,8 @@ protected:
   const char* m_szDisplayName;
   ezPropertyPath m_PropertyPath;
   ezHybridArray<Selection, 8> m_Items;
+
+  const ezVariant& GetOldValue() const { return m_OldValue; }
 
 private:
   ezVariant m_OldValue;
@@ -185,7 +189,6 @@ private slots:
 private:
   virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
-  virtual void focusOutEvent(QFocusEvent* event) override;
 
   QHBoxLayout* m_pLayout;
   QLabel* m_pLabel;
@@ -198,6 +201,22 @@ private:
 
 
 /// *** COLOR ***
+
+class EZ_EDITORFRAMEWORK_DLL ezColorButton : public QFrame
+{
+  Q_OBJECT
+
+public:
+  explicit ezColorButton(QWidget* pParent);
+  void SetColor(const ezVariant& color);
+
+signals:
+  void clicked();
+
+protected:
+  virtual void mouseReleaseEvent(QMouseEvent* event) override;
+
+};
 
 class EZ_EDITORFRAMEWORK_DLL ezPropertyEditorColorWidget : public ezPropertyEditorBaseWidget
 {
@@ -217,8 +236,8 @@ private:
 
   QHBoxLayout* m_pLayout;
   QLabel* m_pLabel;
-  QPushButton* m_pWidget;
-  ezColor m_CurrentColor;
+  ezColorButton* m_pWidget;
+  ezVariant m_OriginalValue;
 };
 
 

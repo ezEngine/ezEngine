@@ -67,6 +67,12 @@ public:
   ezColor m_MeshColor;
 
 private:
+  ezUInt32 Materials_GetCount() const;
+  const char* Materials_GetValue(ezUInt32 uiIndex) const;
+  void Materials_SetValue(ezUInt32 uiIndex, const char* value);
+  void Materials_Insert(ezUInt32 uiIndex, const char* value);
+  void Materials_Remove(ezUInt32 uiIndex);
+
   ezRenderPassType m_iRenderPass;
   ezMeshResourceHandle m_hMesh;
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;

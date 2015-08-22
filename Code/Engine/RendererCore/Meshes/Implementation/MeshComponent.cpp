@@ -10,6 +10,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, ezComponent, 1, ezMeshComponentManager)
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("MeshFile", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Mesh")),
     EZ_MEMBER_PROPERTY("Mesh Color", m_MeshColor),
+    EZ_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new ezAssetBrowserAttribute("Material")),
   EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
     EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
@@ -112,6 +113,53 @@ const char* ezMeshComponent::GetMeshFile() const
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh);
   return pMesh->GetResourceID();
+}
+
+
+ezUInt32 ezMeshComponent::Materials_GetCount() const
+{
+  return m_Materials.GetCount();
+}
+
+
+const char* ezMeshComponent::Materials_GetValue(ezUInt32 uiIndex) const
+{
+  auto hMat = GetMaterial(uiIndex);
+
+  if (!hMat.IsValid())
+    return "";
+
+  ezResourceLock<ezMaterialResource> pMat(hMat, ezResourceAcquireMode::PointerOnly);
+  return pMat->GetResourceID();
+}
+
+
+void ezMeshComponent::Materials_SetValue(ezUInt32 uiIndex, const char* value)
+{
+  if (ezStringUtils::IsNullOrEmpty(value))
+    SetMaterial(uiIndex, ezMaterialResourceHandle());
+  else
+  {
+    auto hMat = ezResourceManager::LoadResource<ezMaterialResource>(value);
+    SetMaterial(uiIndex, hMat);
+  }
+}
+
+
+void ezMeshComponent::Materials_Insert(ezUInt32 uiIndex, const char* value)
+{
+  ezMaterialResourceHandle hMat;
+
+  if (!ezStringUtils::IsNullOrEmpty(value))
+    hMat = ezResourceManager::LoadResource<ezMaterialResource>(value);
+
+  m_Materials.Insert(hMat, uiIndex);
+}
+
+
+void ezMeshComponent::Materials_Remove(ezUInt32 uiIndex)
+{
+  m_Materials.RemoveAt(uiIndex);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshComponent);

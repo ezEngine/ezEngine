@@ -163,8 +163,7 @@ void ezRawPropertyWidget::BuildUI(const ezHybridArray<ezPropertyEditorBaseWidget
 
             pLayout->addWidget(pNewWidget);
             pNewWidget->Init(items, ParentPath);
-            pNewWidget->setEnabled(!pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly));
-
+            
 
             pNewWidget->m_Events.AddEventHandler(ezMakeDelegate(&ezRawPropertyWidget::PropertyChangedHandler, this));
           }
@@ -188,7 +187,6 @@ void ezRawPropertyWidget::BuildUI(const ezHybridArray<ezPropertyEditorBaseWidget
 
           pLayout->addWidget(pNewWidget);
           pNewWidget->Init(items, ParentPath);
-          pNewWidget->setEnabled(!pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly));
 
           pNewWidget->m_Events.AddEventHandler(ezMakeDelegate(&ezRawPropertyWidget::PropertyChangedHandler, this));
         }
@@ -209,9 +207,6 @@ void ezRawPropertyWidget::BuildUI(const ezHybridArray<ezPropertyEditorBaseWidget
           pSubGroup->setInnerLayout(pSubLayout);
 
           pLayout->addWidget(pSubGroup);
-
-          /// \todo read-only flag ?
-          //pNewWidget->setEnabled(!pProp->GetFlags().IsSet(PropertyFlags::IsReadOnly));
 
           BuildUI(items, pMember->GetSpecificType(), ParentPath, pSubLayout);
         }
@@ -249,10 +244,8 @@ void ezRawPropertyWidget::BuildUI(const ezHybridArray<ezPropertyEditorBaseWidget
 
         if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType))
         {
-          EZ_ASSERT_NOT_IMPLEMENTED;
-        }
-        else //if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
-        {
+          const ezContainerAttribute* pArrayAttr = pProp->GetAttributeByType<ezContainerAttribute>();
+
           for (ezInt32 i = 0; i < iElements; ++i)
           {
             ezElementGroupBox* pSubGroup = new ezElementGroupBox((QWidget*)pElementsLayout->parent());
@@ -264,8 +257,63 @@ void ezRawPropertyWidget::BuildUI(const ezHybridArray<ezPropertyEditorBaseWidget
 
             pElementsLayout->addWidget(pSubGroup);
 
-            /// \todo read-only flag ?
-            //pNewWidget->setEnabled(!pProp->GetFlags().IsSet(PropertyFlags::IsReadOnly));
+            ezHybridArray<ezPropertyEditorBaseWidget::Selection, 8> SubItems;
+
+            for (const auto& item : items)
+            {
+              ezPropertyEditorBaseWidget::Selection sel;
+              sel.m_pObject = item.m_pObject;
+              sel.m_Index = i;
+
+              SubItems.PushBack(sel);
+            }
+
+            pSubGroup->setTitle(QLatin1String("[") + QString::number(i) + QLatin1String("]"));
+
+            pSubGroup->SetItems(SubItems, ParentPath);
+
+            ezPropertyEditorBaseWidget* pNewWidget = nullptr;
+            switch (pProp->GetSpecificType()->GetVariantType())
+            {
+            case ezVariant::Type::String:
+              pNewWidget = new ezPropertyEditorLineEditWidget(pProp->GetPropertyName(), this);
+              break;
+            }
+            if (pNewWidget)
+            {
+              ezStringBuilder sPropertyPath = ParentPath.GetPathString();
+
+              m_PropertyWidgets[sPropertyPath] = pNewWidget;
+
+              pSubLayout->addWidget(pNewWidget);
+              pNewWidget->Init(SubItems, ParentPath);
+
+
+              pNewWidget->m_Events.AddEventHandler(ezMakeDelegate(&ezRawPropertyWidget::PropertyChangedHandler, this));
+            }
+          }
+
+          if (!pArrayAttr || pArrayAttr->CanAdd())
+          {
+            ezAddSubElementButton* pSubElementButton = new ezAddSubElementButton("Add Item", pElementsLayout->parentWidget());
+            pSubElementButton->Init(items, ParentPath);
+            pElementsLayout->addWidget(pSubElementButton);
+          }
+        }
+        else
+        {
+          const ezContainerAttribute* pArrayAttr = pProp->GetAttributeByType<ezContainerAttribute>();
+
+          for (ezInt32 i = 0; i < iElements; ++i)
+          {
+            ezElementGroupBox* pSubGroup = new ezElementGroupBox((QWidget*)pElementsLayout->parent());
+
+            QVBoxLayout* pSubLayout = new QVBoxLayout(NULL);
+            pSubLayout->setContentsMargins(5, 0, 0, 0);
+            pSubLayout->setSpacing(1);
+            pSubGroup->setInnerLayout(pSubLayout);
+
+            pElementsLayout->addWidget(pSubGroup);
 
             ezHybridArray<ezPropertyEditorBaseWidget::Selection, 8> SubItems;
 
@@ -286,20 +334,19 @@ void ezRawPropertyWidget::BuildUI(const ezHybridArray<ezPropertyEditorBaseWidget
 
             pSubGroup->setTitle(QLatin1String("[") + QString::number(i) + QLatin1String("] - ") + QString::fromUtf8(pSubtype->GetTypeName()));
 
-            pSubGroup->SetItems(SubItems);
+            pSubGroup->SetItems(SubItems, "");
 
             ezPropertyPath SubPath;
             BuildUI(SubItems, pSubtype, SubPath, pSubLayout);
-
           }
-          ezAddSubElementButton* pSubElementButton = new ezAddSubElementButton("Add Item", pElementsLayout->parentWidget());
-          pSubElementButton->Init(items, ParentPath);
-          pElementsLayout->addWidget(pSubElementButton);
+
+          if (!pArrayAttr || pArrayAttr->CanAdd())
+          {
+            ezAddSubElementButton* pSubElementButton = new ezAddSubElementButton("Add Item", pElementsLayout->parentWidget());
+            pSubElementButton->Init(items, ParentPath);
+            pElementsLayout->addWidget(pSubElementButton);
+          }
         }
- /*       else
-        {
-          EZ_ASSERT_NOT_IMPLEMENTED;
-        }*/
 
       }
       break;

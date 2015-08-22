@@ -86,11 +86,7 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
       for (ezInt32 i = 0; i < iCount; ++i)
       {
         values[i] = pObject->GetTypeAccessor().GetValue(path, i);
-        if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
-        {
-          EZ_ASSERT_NOT_IMPLEMENTED;
-        }
-        else
+        if (!pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
         {
           m_QueuedObjects.Insert(m_pManager->GetObject(values[i].Get<ezUuid>()));
         }

@@ -28,6 +28,29 @@ public:
 
 };
 
+class EZ_FOUNDATION_DLL ezContainerAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezContainerAttribute);
+
+public:
+  ezContainerAttribute(){}
+  ezContainerAttribute(bool bCanAdd, bool bCanDelete, bool bCanMove)
+  {
+    m_bCanAdd = bCanAdd;
+    m_bCanDelete = bCanDelete;
+    m_bCanMove = bCanMove;
+  }
+
+  bool CanAdd() const { return m_bCanAdd; }
+  bool CanDelete() const { return m_bCanDelete; }
+  bool CanMove() const { return m_bCanMove; }
+
+private:
+  bool m_bCanAdd;
+  bool m_bCanDelete;
+  bool m_bCanMove;
+};
+
 class EZ_FOUNDATION_DLL ezFileBrowserAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezFileBrowserAttribute);

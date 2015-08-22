@@ -1,43 +1,28 @@
 {
  "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x7B37168B3CBFFB37B05B8F83D73641A6" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "Trunk_1_Branch",
+    "Resource" : "{ b700025c-5c7f-4247-8157-f409369ef16b }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xB26DD2DA35000B3AA9BE9BC178B0596C" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "Main_Branches_1_Branch",
+    "Resource" : "{ b700025c-5c7f-4247-8157-f409369ef16b }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xF7D37B95271EE243B8645DAAC8BD12E4" },
    "t" : "ezMeshAssetProperties",
    "p" : {
     "Forward Dir" : "ezBasisAxis::NegativeZ",
-    "Material Slot 0" : "{ b700025c-5c7f-4247-8157-f409369ef16b }",
-    "Material Slot 1" : "{ b700025c-5c7f-4247-8157-f409369ef16b }",
-    "Material Slot 10" : "",
-    "Material Slot 11" : "",
-    "Material Slot 12" : "",
-    "Material Slot 13" : "",
-    "Material Slot 14" : "",
-    "Material Slot 15" : "",
-    "Material Slot 16" : "",
-    "Material Slot 17" : "",
-    "Material Slot 18" : "",
-    "Material Slot 19" : "",
-    "Material Slot 2" : "{ b700025c-5c7f-4247-8157-f409369ef16b }",
-    "Material Slot 20" : "",
-    "Material Slot 21" : "",
-    "Material Slot 22" : "",
-    "Material Slot 23" : "",
-    "Material Slot 24" : "",
-    "Material Slot 25" : "",
-    "Material Slot 26" : "",
-    "Material Slot 27" : "",
-    "Material Slot 28" : "",
-    "Material Slot 29" : "",
-    "Material Slot 3" : "",
-    "Material Slot 30" : "",
-    "Material Slot 31" : "",
-    "Material Slot 4" : "",
-    "Material Slot 5" : "",
-    "Material Slot 6" : "",
-    "Material Slot 7" : "",
-    "Material Slot 8" : "",
-    "Material Slot 9" : "",
+    "Materials" : [ { "$t" : "uuid", "$b" : "0x7B37168B3CBFFB37B05B8F83D73641A6" }, { "$t" : "uuid", "$b" : "0xB26DD2DA35000B3AA9BE9BC178B0596C" }, { "$t" : "uuid", "$b" : "0x61A334B31E3198B321DA3CA1C7065B57" } ],
     "Mesh File" : "Trees/Tree5.obj",
-    "Mesh Scaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Mesh Scaling" : { "$t" : "float", "$v" : "1.1000", "$b" : "0xCDCC8C3F" },
     "Right Dir" : "ezBasisAxis::PositiveX",
     "Up Dir" : "ezBasisAxis::PositiveY"
    }
@@ -58,8 +43,16 @@
     "AssetType" : "Mesh",
     "Dependencies" : "Trees/Tree5.obj",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x95A7BE5B5803D84D86A9C277F7A59F53" },
-    "Hash" : { "$t" : "uint64", "$v" : "7579427495079675302", "$b" : "0xA6850D3526892F69" },
+    "Hash" : { "$t" : "uint64", "$v" : "10106648607789833229", "$b" : "0x0D5C02895C07428C" },
     "References" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x61A334B31E3198B321DA3CA1C7065B57" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "Sub_Branches_1_Branch",
+    "Resource" : "{ b700025c-5c7f-4247-8157-f409369ef16b }"
    }
   } ]
 }

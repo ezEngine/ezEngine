@@ -11,6 +11,14 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezHiddenAttribute, ezPropertyAttribute, 1, ezRTTIDefaultAllocator<ezHiddenAttribute>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezContainerAttribute, ezPropertyAttribute, 1, ezRTTIDefaultAllocator<ezContainerAttribute>);
+EZ_BEGIN_PROPERTIES
+EZ_MEMBER_PROPERTY("CanAdd", m_bCanAdd),
+EZ_MEMBER_PROPERTY("CanDelete", m_bCanDelete),
+EZ_MEMBER_PROPERTY("CanMove", m_bCanMove),
+EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFileBrowserAttribute, ezPropertyAttribute, 1, ezRTTIDefaultAllocator<ezFileBrowserAttribute>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("Title", m_sDialogTitle),

@@ -63,6 +63,10 @@ void ezPropertyEditorBaseWidget::Init(const ezHybridArray<Selection, 8>& items, 
   m_Items = items;
   m_PropertyPath = path;
 
+  auto* pProperty = GetProperty();
+  if (pProperty->GetAttributeByType<ezReadOnlyAttribute>() != nullptr || pProperty->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+    setEnabled(false);
+
   OnInit();
 
   ezVariant value;
@@ -84,7 +88,13 @@ void ezPropertyEditorBaseWidget::Init(const ezHybridArray<Selection, 8>& items, 
     }
   }
 
+  m_OldValue = value;
   InternalSetValue(value);
+}
+
+const ezAbstractProperty* ezPropertyEditorBaseWidget::GetProperty() const
+{
+  return ezToolsReflectionUtils::GetPropertyByPath(m_Items[0].m_pObject->GetTypeAccessor().GetType(), m_PropertyPath);
 }
 
 void ezPropertyEditorBaseWidget::Broadcast(Event::Type type)
@@ -142,7 +152,17 @@ ezPropertyEditorCheckboxWidget::ezPropertyEditorCheckboxWidget(const char* szNam
 void ezPropertyEditorCheckboxWidget::InternalSetValue(const ezVariant& value)
 {
   ezQtBlockSignals b(m_pWidget);
-  m_pWidget->setChecked(value.ConvertTo<bool>() ? Qt::Checked : Qt::Unchecked);
+
+  if (value.IsValid())
+  {
+    m_pWidget->setTristate(false);
+    m_pWidget->setChecked(value.ConvertTo<bool>() ? Qt::Checked : Qt::Unchecked);
+  }
+  else
+  {
+    m_pWidget->setTristate(true);
+    m_pWidget->setCheckState(Qt::CheckState::PartiallyChecked);
+  }
 }
 
 void ezPropertyEditorCheckboxWidget::mousePressEvent(QMouseEvent* ev)
@@ -154,7 +174,15 @@ void ezPropertyEditorCheckboxWidget::mousePressEvent(QMouseEvent* ev)
 
 void ezPropertyEditorCheckboxWidget::on_StateChanged_triggered(int state)
 {
-  BroadcastValueChanged((state == Qt::Checked) ? true : false);
+  if (state == Qt::PartiallyChecked)
+  {
+    ezQtBlockSignals b(m_pWidget);
+
+    m_pWidget->setCheckState(Qt::Checked);
+    m_pWidget->setTristate(false);
+  }
+
+  BroadcastValueChanged((state != Qt::Unchecked) ? true : false);
 }
 
 
@@ -409,6 +437,7 @@ ezPropertyEditorLineEditWidget::ezPropertyEditorLineEditWidget(const char* szNam
 {
   m_pAssetAttribute = nullptr;
   m_pFileAttribute = nullptr;
+  m_pButton = nullptr;
 
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
@@ -436,7 +465,7 @@ ezPropertyEditorLineEditWidget::ezPropertyEditorLineEditWidget(const char* szNam
 
 void ezPropertyEditorLineEditWidget::OnInit()
 {
-  auto* pProperty = ezToolsReflectionUtils::GetPropertyByPath(m_Items[0].m_pObject->GetTypeAccessor().GetType(), m_PropertyPath);
+  auto* pProperty = GetProperty();
 
   m_pAssetAttribute = pProperty->GetAttributeByType<ezAssetBrowserAttribute>();
   m_pFileAttribute = pProperty->GetAttributeByType<ezFileBrowserAttribute>();
@@ -451,17 +480,34 @@ void ezPropertyEditorLineEditWidget::OnInit()
 
     connect(m_pButton, SIGNAL(clicked()), this, SLOT(on_BrowseFile_clicked()));
   }
+
+  if (pProperty->GetAttributeByType<ezReadOnlyAttribute>() != nullptr || pProperty->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+  {
+    setEnabled(true);
+
+    if (m_pButton)
+      m_pButton->setEnabled(false);
+
+    m_pWidget->setReadOnly(true);
+    auto palette = m_pWidget->palette();
+    palette.setColor(QPalette::Base, QColor(0, 0, 0, 0));
+    m_pWidget->setPalette(palette);
+  }
 }
 
 void ezPropertyEditorLineEditWidget::InternalSetValue(const ezVariant& value)
 {
   ezQtBlockSignals b (m_pWidget);
-  m_pWidget->setText(QString::fromUtf8(value.ConvertTo<ezString>().GetData()));
-}
 
-void ezPropertyEditorLineEditWidget::focusOutEvent(QFocusEvent* event)
-{
-  int i = 0;
+  if (!value.IsValid())
+  {
+    m_pWidget->setPlaceholderText(QStringLiteral("<Multiple Values>"));
+  }
+  else
+  {
+    m_pWidget->setPlaceholderText(QString());
+    m_pWidget->setText(QString::fromUtf8(value.ConvertTo<ezString>().GetData()));
+  }
 }
 
 void ezPropertyEditorLineEditWidget::on_TextChanged_triggered(const QString& value)
@@ -512,6 +558,39 @@ void ezPropertyEditorLineEditWidget::on_BrowseFile_clicked()
 
 /// *** COLOR ***
 
+ezColorButton::ezColorButton(QWidget* parent) : QFrame(parent)
+{
+  setAutoFillBackground(true);
+}
+
+void ezColorButton::SetColor(const ezVariant& color)
+{
+  if (color.IsValid())
+  {
+    ezColorGammaUB col = color.ConvertTo<ezColor>();
+
+    QColor qol;
+    qol.setRgb(col.r, col.g, col.b, col.a);
+
+    QPalette pal = palette();
+    pal.setBrush(QPalette::Window, QBrush(qol, Qt::SolidPattern));
+
+    setPalette(pal);
+  }
+  else
+  {
+    QPalette pal = palette();
+    pal.setBrush(QPalette::Window, QBrush(pal.foreground().color(), Qt::DiagCrossPattern));
+
+    setPalette(pal);
+  }
+}
+
+void ezColorButton::mouseReleaseEvent(QMouseEvent* event)
+{
+  emit clicked();
+}
+
 ezPropertyEditorColorWidget::ezPropertyEditorColorWidget(const char* szName, QWidget* pParent) : ezPropertyEditorBaseWidget(szName, pParent)
 {
   m_pLayout = new QHBoxLayout(this);
@@ -522,7 +601,7 @@ ezPropertyEditorColorWidget::ezPropertyEditorColorWidget(const char* szName, QWi
   m_pLabel->setText(QString::fromUtf8(szName));
   m_pLabel->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
 
-  m_pWidget = new QPushButton(this);
+  m_pWidget = new ezColorButton(this);
 
   QSizePolicy policy = m_pLabel->sizePolicy();
   policy.setHorizontalStretch(1);
@@ -539,51 +618,40 @@ ezPropertyEditorColorWidget::ezPropertyEditorColorWidget(const char* szName, QWi
 void ezPropertyEditorColorWidget::InternalSetValue(const ezVariant& value)
 {
   ezQtBlockSignals b (m_pWidget);
-  m_CurrentColor = value.ConvertTo<ezColor>();
 
-  QColor col;
-  col.setRgbF(m_CurrentColor.r, m_CurrentColor.g, m_CurrentColor.b, m_CurrentColor.a);
-  
-  const QString COLOR_STYLE("QPushButton { background-color : %1 }");
-  m_pWidget->setStyleSheet(COLOR_STYLE.arg(col.name()));
+  m_OriginalValue = GetOldValue();
+  m_pWidget->SetColor(value);
 }
 
 void ezPropertyEditorColorWidget::on_Button_triggered()
 {
-  QColor col;
-  col.setRgbF(m_CurrentColor.r, m_CurrentColor.g, m_CurrentColor.b, m_CurrentColor.a);
-
   Broadcast(ezPropertyEditorBaseWidget::Event::Type::BeginTemporary);
 
-  ezUIServices::GetInstance()->ShowColorDialog(m_CurrentColor, true, this, SLOT(on_CurrentColor_changed(const QColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
+  ezColor temp = ezColor::White;
+  if (m_OriginalValue.IsValid())
+    temp = m_OriginalValue.ConvertTo<ezColor>();
+
+  ezUIServices::GetInstance()->ShowColorDialog(temp, true, this, SLOT(on_CurrentColor_changed(const QColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
 }
 
 void ezPropertyEditorColorWidget::on_CurrentColor_changed(const QColor& color)
 {
-  const ezColor NewCol(color.redF(), color.greenF(), color.blueF(), color.alphaF());
+  const ezColor NewCol(ezColorGammaUB(color.red(), color.green(), color.blue(), color.alpha()));
 
-  const QString COLOR_STYLE("QPushButton { background-color : %1 }");
-  m_pWidget->setStyleSheet(COLOR_STYLE.arg(color.name()));
-
-  m_CurrentColor = NewCol;
+  m_pWidget->SetColor(NewCol);
 
   BroadcastValueChanged(NewCol);
 }
 
 void ezPropertyEditorColorWidget::on_Color_reset()
 {
-  QColor color;
-  color.setRgbF(m_CurrentColor.r, m_CurrentColor.g, m_CurrentColor.b, m_CurrentColor.a);
-
-  const QString COLOR_STYLE("QPushButton { background-color : %1 }");
-  m_pWidget->setStyleSheet(COLOR_STYLE.arg(color.name()));
-
+  m_pWidget->SetColor(m_OriginalValue);
   Broadcast(ezPropertyEditorBaseWidget::Event::Type::CancelTemporary);
 }
 
 void ezPropertyEditorColorWidget::on_Color_accepted()
 {
-
+  m_OriginalValue = GetOldValue();
   Broadcast(ezPropertyEditorBaseWidget::Event::Type::EndTemporary);
 }
 
@@ -639,9 +707,17 @@ ezPropertyEditorEnumWidget::ezPropertyEditorEnumWidget(const char* szName, QWidg
 void ezPropertyEditorEnumWidget::InternalSetValue(const ezVariant& value)
 {
   ezQtBlockSignals b (m_pWidget);
-  ezInt32 iIndex = m_pWidget->findData(value.ConvertTo<ezInt64>());
-  EZ_ASSERT_DEV(iIndex != -1, "Enum widget is set to an invalid value!");
-  m_pWidget->setCurrentIndex(iIndex);
+
+  if (value.IsValid())
+  {
+    ezInt32 iIndex = m_pWidget->findData(value.ConvertTo<ezInt64>());
+    EZ_ASSERT_DEV(iIndex != -1, "Enum widget is set to an invalid value!");
+    m_pWidget->setCurrentIndex(iIndex);
+  }
+  else
+  {
+    m_pWidget->setCurrentIndex(-1);
+  }
 }
 
 void ezPropertyEditorEnumWidget::on_CurrentEnum_changed(int iEnum)

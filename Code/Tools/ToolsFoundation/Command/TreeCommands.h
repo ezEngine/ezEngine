@@ -89,6 +89,7 @@ public:
 public: // Properties
   ezUuid m_Object;
   ezVariant m_NewValue;
+  ezVariant m_Index;
 
   const char* GetPropertyPath() const { return m_sPropertyPath; }
   void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }

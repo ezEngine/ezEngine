@@ -32,6 +32,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetObjectPropertyCommand, ezCommandBase, 1, ez
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
     EZ_MEMBER_PROPERTY("NewValue", m_NewValue),
+    EZ_MEMBER_PROPERTY("Index", m_Index),
     EZ_ACCESSOR_PROPERTY("PropertyPath", GetPropertyPath, SetPropertyPath),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -300,13 +301,13 @@ ezStatus ezSetObjectPropertyCommand::Do(bool bRedo)
       return ezStatus(EZ_FAILURE, "Set Property: The given object does not exist!");
 
     ezIReflectedTypeAccessor& accessor0 = m_pObject->GetTypeAccessor();
-    m_OldValue = accessor0.GetValue(path);
+    m_OldValue = accessor0.GetValue(path, m_Index);
     if (!m_OldValue.IsValid())
       return ezStatus("Set Property: The property '%s' does not exist", m_sPropertyPath.GetData());
   }
 
   ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
-  if (!accessor.SetValue(path, m_NewValue))
+  if (!accessor.SetValue(path, m_NewValue, m_Index))
   {
     return ezStatus("Set Property: The property '%s' does not exist", m_sPropertyPath.GetData());
   }
@@ -317,6 +318,7 @@ ezStatus ezSetObjectPropertyCommand::Do(bool bRedo)
   e.m_OldValue = m_OldValue;
   e.m_NewValue = m_NewValue;
   e.m_sPropertyPath = m_sPropertyPath;
+  e.m_Index = m_Index;
 
   pDocument->GetObjectManager()->m_PropertyEvents.Broadcast(e);
 
@@ -328,7 +330,7 @@ ezStatus ezSetObjectPropertyCommand::Undo(bool bFireEvents)
   ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
   ezPropertyPath path(m_sPropertyPath);
 
-  if (!accessor.SetValue(path, m_OldValue))
+  if (!accessor.SetValue(path, m_OldValue, m_Index))
   {
     return ezStatus("Set Property: The property '%s' does not exist", m_sPropertyPath.GetData());
   }
@@ -341,6 +343,7 @@ ezStatus ezSetObjectPropertyCommand::Undo(bool bFireEvents)
     e.m_OldValue = m_NewValue;
     e.m_NewValue = m_OldValue;
     e.m_sPropertyPath = m_sPropertyPath;
+    e.m_Index = m_Index;
 
     GetDocument()->GetObjectManager()->m_PropertyEvents.Broadcast(e);
   }
@@ -373,6 +376,12 @@ ezStatus ezInsertObjectPropertyCommand::Do(bool bRedo)
     }
     else
       return ezStatus(EZ_FAILURE, "Insert Property: The given object does not exist!");
+
+    if (m_Index.CanConvertTo<ezInt32>() && m_Index.ConvertTo<ezInt32>() == -1)
+    {
+      ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
+      m_Index = accessor.GetCount(m_sPropertyPath.GetData());
+    }
   }
 
   ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();

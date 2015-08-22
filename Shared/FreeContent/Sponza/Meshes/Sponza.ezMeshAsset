@@ -1,13 +1,77 @@
 {
  "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x666E0F079E7E020EC78940853A48EFA1" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "floor",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xBED1F5F5BA2D2918E57EB2071F34CEC7" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "fabric_d",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x4F5C61CADC515D1883B831340423D914" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "column_a",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x6E59B5A43B94CC2ABCB8696C0757F65F" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "chain",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x79DA45CDBE63252C8C48539ACF011C88" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "ceiling",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x7B37168B3CBFFB37B05B8F83D73641A6" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "leaf",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x46702663D916213878A93AE4A386C4BA" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "flagpole",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xB26DD2DA35000B3AA9BE9BC178B0596C" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "vase_round",
+    "Resource" : ""
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x7E56A3CE366D8F419259F2E157979BCC" },
    "t" : "ezAssetDocumentInfo",
    "n" : "Header",
    "p" : {
     "AssetType" : "Mesh",
-    "Dependencies" : "",
+    "Dependencies" : "Sponza/sponza.obj",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x7E56A3CE366D8F419259F2E157979BCC" },
-    "Hash" : { "$t" : "uint64", "$v" : "13136321553092117751", "$b" : "0xF7045D73DA964DB6" },
+    "Hash" : { "$t" : "uint64", "$v" : "4156882053845684561", "$b" : "0x5111AB303436B039" },
     "References" : ""
    }
   },
@@ -15,43 +79,12 @@
    "#" : { "$t" : "uuid", "$b" : "0xF7D37B95271EE243B8645DAAC8BD12E4" },
    "t" : "ezMeshAssetProperties",
    "p" : {
-        "Mesh File" : "Sponza/sponza.obj",
-        "Mesh Scaling" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
-        "Forward Dir" : "ezBasisAxis::NegativeZ",
-        "Right Dir" : "ezBasisAxis::PositiveX",
-        "Up Dir" : "ezBasisAxis::PositiveY",
-        "Material Slot 0" : "Sponza/Materials/leaf.ezMaterial",
-        "Material Slot 1" : "Sponza/Materials/vase_round.ezMaterial",
-        "Material Slot 2" : "Sponza/Materials/Material__57.ezMaterial",
-        "Material Slot 3" : "Sponza/Materials/Material__298.ezMaterial",
-        "Material Slot 4" : "Sponza/Materials/16___Default.ezMaterial",
-        "Material Slot 5" : "Sponza/Materials/bricks.ezMaterial",
-        "Material Slot 6" : "Sponza/Materials/arch.ezMaterial",
-        "Material Slot 7" : "Sponza/Materials/ceiling.ezMaterial",
-        "Material Slot 8" : "Sponza/Materials/column_a.ezMaterial",
-        "Material Slot 9" : "Sponza/Materials/floor.ezMaterial",
-        "Material Slot 10" : "Sponza/Materials/column_c.ezMaterial",
-        "Material Slot 11" : "Sponza/Materials/details.ezMaterial",
-        "Material Slot 12" : "Sponza/Materials/column_b.ezMaterial",
-        "Material Slot 13" : "Sponza/Materials/Material__47.ezMaterial",
-        "Material Slot 14" : "Sponza/Materials/flagpole.ezMaterial",
-        "Material Slot 15" : "Sponza/Materials/fabric_e.ezMaterial",
-        "Material Slot 16" : "Sponza/Materials/fabric_d.ezMaterial",
-        "Material Slot 17" : "Sponza/Materials/fabric_a.ezMaterial",
-        "Material Slot 18" : "Sponza/Materials/fabric_g.ezMaterial",
-        "Material Slot 19" : "Sponza/Materials/fabric_c.ezMaterial",
-        "Material Slot 20" : "Sponza/Materials/fabric_f.ezMaterial",
-        "Material Slot 21" : "Sponza/Materials/chain.ezMaterial",
-        "Material Slot 22" : "Sponza/Materials/vase_hanging.ezMaterial",
-        "Material Slot 23" : "Sponza/Materials/vase.ezMaterial",
-        "Material Slot 24" : "Sponza/Materials/Material__25.ezMaterial",
-        "Material Slot 25" : "Sponza/Materials/roof.ezMaterial",
-        "Material Slot 26" : "",
-        "Material Slot 27" : "",
-        "Material Slot 28" : "",
-        "Material Slot 29" : "",
-        "Material Slot 30" : "",
-        "Material Slot 31" : ""
+    "Forward Dir" : "ezBasisAxis::NegativeZ",
+    "Materials" : [ { "$t" : "uuid", "$b" : "0x7B37168B3CBFFB37B05B8F83D73641A6" }, { "$t" : "uuid", "$b" : "0xB26DD2DA35000B3AA9BE9BC178B0596C" }, { "$t" : "uuid", "$b" : "0x61A334B31E3198B321DA3CA1C7065B57" }, { "$t" : "uuid", "$b" : "0x978CD9170236FFB0219386994E4B2FBF" }, { "$t" : "uuid", "$b" : "0x3A5AB7E4C14BB6D3A24A2F5DFBED625B" }, { "$t" : "uuid", "$b" : "0xE5157334BB8CC5D52C86D13C4A446446" }, { "$t" : "uuid", "$b" : "0x6411B721327B7163B2F483161453BF63" }, { "$t" : "uuid", "$b" : "0x79DA45CDBE63252C8C48539ACF011C88" }, { "$t" : "uuid", "$b" : "0x4F5C61CADC515D1883B831340423D914" }, { "$t" : "uuid", "$b" : "0x666E0F079E7E020EC78940853A48EFA1" }, { "$t" : "uuid", "$b" : "0x03B5BE039FA04B7FE8CFB017D10262DF" }, { "$t" : "uuid", "$b" : "0xC746C0F3F280D3D54330265D239CFD2A" }, { "$t" : "uuid", "$b" : "0x0E22D9D696F61A645A943AF6525A5769" }, { "$t" : "uuid", "$b" : "0xCBCE91370C3C6695E21D1975752E31E1" }, { "$t" : "uuid", "$b" : "0x46702663D916213878A93AE4A386C4BA" }, { "$t" : "uuid", "$b" : "0x2EE312AE444A3F662711D1C752F767CB" }, { "$t" : "uuid", "$b" : "0xBED1F5F5BA2D2918E57EB2071F34CEC7" }, { "$t" : "uuid", "$b" : "0xA891A03FDE3CC89B0314E45C6B5E43A2" }, { "$t" : "uuid", "$b" : "0xBB7A8653939C12EDC311D1B742E8BA7B" }, { "$t" : "uuid", "$b" : "0x8985339DB6ABB170B927D1CF14A73DC1" }, { "$t" : "uuid", "$b" : "0x593110C5EE38F9ECAC98CB53110634C5" }, { "$t" : "uuid", "$b" : "0x6E59B5A43B94CC2ABCB8696C0757F65F" }, { "$t" : "uuid", "$b" : "0xAE6A513555FE7EC88385CB416232A116" }, { "$t" : "uuid", "$b" : "0xB09DD55850D8D764C56699FEC4DBBEEA" }, { "$t" : "uuid", "$b" : "0xA794B2EF3B8BDDF7E5BA17124577363A" }, { "$t" : "uuid", "$b" : "0x7C522DFCE42E8AE6F527339F065E7018" } ],
+    "Mesh File" : "Sponza/sponza.obj",
+    "Mesh Scaling" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
+    "Right Dir" : "ezBasisAxis::PositiveX",
+    "Up Dir" : "ezBasisAxis::PositiveY"
    }
   },
   {
@@ -60,6 +93,150 @@
    "n" : "ObjectTree",
    "p" : {
     "RootObjects" : [ { "$t" : "uuid", "$b" : "0xF7D37B95271EE243B8645DAAC8BD12E4" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x6411B721327B7163B2F483161453BF63" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "arch",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x0E22D9D696F61A645A943AF6525A5769" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "column_b",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xB09DD55850D8D764C56699FEC4DBBEEA" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "vase",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x2EE312AE444A3F662711D1C752F767CB" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "fabric_e",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x8985339DB6ABB170B927D1CF14A73DC1" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "fabric_c",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x03B5BE039FA04B7FE8CFB017D10262DF" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "column_c",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xCBCE91370C3C6695E21D1975752E31E1" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "Material__47",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA891A03FDE3CC89B0314E45C6B5E43A2" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "fabric_a",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x978CD9170236FFB0219386994E4B2FBF" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "Material__298",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x61A334B31E3198B321DA3CA1C7065B57" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "Material__57",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xAE6A513555FE7EC88385CB416232A116" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "vase_hanging",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3A5AB7E4C14BB6D3A24A2F5DFBED625B" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "16___Default",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE5157334BB8CC5D52C86D13C4A446446" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "bricks",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xC746C0F3F280D3D54330265D239CFD2A" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "details",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x7C522DFCE42E8AE6F527339F065E7018" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "roof",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x593110C5EE38F9ECAC98CB53110634C5" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "fabric_f",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xBB7A8653939C12EDC311D1B742E8BA7B" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "fabric_g",
+    "Resource" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA794B2EF3B8BDDF7E5BA17124577363A" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "Material__25",
+    "Resource" : ""
    }
   } ]
 }

@@ -157,14 +157,14 @@ ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriterBase& stream,
     aiMesh* mesh = scene->mMeshes[i];
     aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
 
-    desc.AddSubMesh(mesh->mNumFaces, uiCurTriangle, mesh->mMaterialIndex);    
+    desc.AddSubMesh(mesh->mNumFaces, uiCurTriangle, i);
 
     mat->Get(AI_MATKEY_NAME, name);
     //pProp->GetResourceSlotProperty(i).m_sSlotName = name.C_Str();
 
     sMatName = pProp->GetResourceSlotProperty(i);
     
-    desc.SetMaterial(mesh->mMaterialIndex, sMatName);
+    desc.SetMaterial(i, sMatName);
 
     for (ezUInt32 f = 0; f < mesh->mNumFaces; ++f, ++uiCurTriangle)
     {

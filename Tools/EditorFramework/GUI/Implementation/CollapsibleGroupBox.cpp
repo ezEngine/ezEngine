@@ -63,6 +63,26 @@ ezElementGroupBox::ezElementGroupBox(QWidget* pParent) : ezCollapsibleGroupBox(p
 
 }
 
+void ezElementGroupBox::SetItems(const ezHybridArray<ezPropertyEditorBaseWidget::Selection, 8>& items, const ezPropertyPath& path)
+{
+  m_Items = items;
+  m_PropertyPath = path;
+  const auto* pProperty = ezToolsReflectionUtils::GetPropertyByPath(m_Items[0].m_pObject->GetParent()->GetTypeAccessor().GetType(), m_Items[0].m_pObject->GetParentProperty());
+
+  auto pAttr = pProperty->GetAttributeByType<ezContainerAttribute>();
+  if (pAttr)
+  {
+    if (!pAttr->CanDelete())
+      Delete->setVisible(false);
+
+    if (!pAttr->CanMove())
+    {
+      MoveUp->setVisible(false);
+      MoveDown->setVisible(false);
+    }
+  }
+}
+
 void ezElementGroupBox::Move(ezInt32 iMove)
 {
   ezCommandHistory* history = m_Items[0].m_pObject->GetDocumentObjectManager()->GetDocument()->GetCommandHistory();
@@ -126,15 +146,34 @@ void ezElementGroupBox::on_Delete_clicked()
   ezCommandHistory* history = m_Items[0].m_pObject->GetDocumentObjectManager()->GetDocument()->GetCommandHistory();
   history->StartTransaction();
 
-  ezRemoveObjectCommand cmd;
-
   ezStatus res;
-  for (auto& item : m_Items)
+
+  auto* pProperty = ezToolsReflectionUtils::GetPropertyByPath(m_Items[0].m_pObject->GetTypeAccessor().GetType(), m_PropertyPath);
+  if (pProperty != nullptr && pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType))
   {
-    cmd.m_Object = item.m_pObject->GetGuid();
-    res = history->AddCommand(cmd);
-    if (res.m_Result.Failed())
-      break;
+    ezRemoveObjectPropertyCommand cmd;
+    cmd.SetPropertyPath(m_PropertyPath.GetPathString());
+
+    for (auto& item : m_Items)
+    {
+      cmd.m_Object = item.m_pObject->GetGuid();
+      cmd.m_Index = item.m_Index;
+      res = history->AddCommand(cmd);
+      if (res.m_Result.Failed())
+        break;
+    }
+  }
+  else
+  {
+    ezRemoveObjectCommand cmd;
+
+    for (auto& item : m_Items)
+    {
+      cmd.m_Object = item.m_pObject->GetGuid();
+      res = history->AddCommand(cmd);
+      if (res.m_Result.Failed())
+        break;
+    }
   }
 
   if (res.m_Result.Failed())

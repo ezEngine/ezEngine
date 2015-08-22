@@ -178,6 +178,8 @@ ezPropertyPath ezToolsReflectionUtils::CreatePropertyPath(const char* pData1, co
 
 ezAbstractProperty* ezToolsReflectionUtils::GetPropertyByPath(const ezRTTI* pRtti, const ezPropertyPath& path)
 {
+  if (path.IsEmpty())
+    return nullptr;
   ezAbstractProperty* pCurrentProp = pRtti->FindPropertyByName(path[0]);
   if (path.GetCount() == 1)
     return pCurrentProp;

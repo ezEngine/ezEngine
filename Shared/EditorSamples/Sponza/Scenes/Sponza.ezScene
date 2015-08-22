@@ -12,11 +12,39 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xB5DA6C2A62FA484196F8BE4048E321F0" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x7579816DCA7156469F0A7FD470ADA744" }, { "$t" : "uuid", "$b" : "0x1091CC6CD4B4104EBA5C1F0AFB41968F" } ],
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(8.0117, 12.0274, -0.2405)", "$b" : "0xDA2F004162704041084676BE" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "Name" : "Tree2"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x623EA0E85FC6CD4199908F4ED38BDBC6" },
    "t" : "ezMeshComponent",
    "p" : {
+    "Materials" : [  ],
     "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" },
     "MeshFile" : "{ cea3567e-6d36-418f-9259-f2e157979bcc }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x7579816DCA7156469F0A7FD470ADA744" },
+   "t" : "ezRotorComponent",
+   "p" : {
+    "Acceleration" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "Auto-Toggle Direction" : false,
+    "Axis" : "ezBasisAxis::NegativeZ",
+    "Deceleration" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "Degrees to Rotate" : { "$t" : "int32", "$v" : "0", "$b" : "0x00000000" },
+    "Reverse at End" : false,
+    "Reverse at Start" : false,
+    "Run at Startup" : true,
+    "Speed" : { "$t" : "float", "$v" : "90.0000", "$b" : "0x0000B442" }
    }
   },
   {
@@ -28,7 +56,7 @@
     "LocalPosition" : { "$t" : "vec3", "$v" : "(-0.5125, 13.3280, -0.2302)", "$b" : "0x3D3503BFAA3F55413AC06BBE" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "Name" : "ezGameObject 002"
+    "Name" : "Tree1"
    }
   },
   {
@@ -36,7 +64,7 @@
    "t" : "ezDocumentRoot",
    "n" : "ObjectTree",
    "p" : {
-    "RootObjects" : [ { "$t" : "uuid", "$b" : "0x50979F52CA041441B140EEE3B2E0D998" }, { "$t" : "uuid", "$b" : "0x19C74033FD8A6D468644E636C8AD50BA" } ]
+    "RootObjects" : [ { "$t" : "uuid", "$b" : "0x50979F52CA041441B140EEE3B2E0D998" }, { "$t" : "uuid", "$b" : "0x19C74033FD8A6D468644E636C8AD50BA" }, { "$t" : "uuid", "$b" : "0xB5DA6C2A62FA484196F8BE4048E321F0" } ]
    }
   },
   {
@@ -58,6 +86,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x74E37D3B3255EE4BBBD6F4BC39D6C650" },
    "t" : "ezMeshComponent",
    "p" : {
+    "Materials" : [ "" ],
     "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" },
     "MeshFile" : "{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }"
    }
@@ -68,6 +97,15 @@
    "n" : "Header",
    "p" : {
     "DocumentID" : { "$t" : "uuid", "$b" : "0x5D079F69E049C14CAE6B2A2B47BE2858" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x1091CC6CD4B4104EBA5C1F0AFB41968F" },
+   "t" : "ezMeshComponent",
+   "p" : {
+    "Materials" : [ "{ 961e87eb-b544-4475-88b9-a9a6bdd0abc4 }", "{ 961e87eb-b544-4475-88b9-a9a6bdd0abc4 }", "{ 961e87eb-b544-4475-88b9-a9a6bdd0abc4 }" ],
+    "Mesh Color" : { "$t" : "color", "$v" : "(0.6939, 1.0000, 0.0097, 1.0000)", "$b" : "0x99A1313F0000803FBE451F3C0000803F" },
+    "MeshFile" : "{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }"
    }
   } ]
 }

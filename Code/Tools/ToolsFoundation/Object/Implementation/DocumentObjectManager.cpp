@@ -231,7 +231,12 @@ bool ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentObject
     if (pProp == nullptr)
       return false;
 
-    if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+    if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
+    {
+      // Need to use InsertValue action instead.
+      return false;
+    }
+    else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
     {
       if (!pRtti->IsDerivedFrom(pProp->GetSpecificType()))
         return false;

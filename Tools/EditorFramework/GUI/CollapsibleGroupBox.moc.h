@@ -45,7 +45,7 @@ class EZ_EDITORFRAMEWORK_DLL ezElementGroupBox : public ezCollapsibleGroupBox
 public:
   ezElementGroupBox(QWidget* pParent);
 
-  void SetItems(const ezHybridArray<ezPropertyEditorBaseWidget::Selection, 8>& items) { m_Items = items; }
+  void SetItems(const ezHybridArray<ezPropertyEditorBaseWidget::Selection, 8>& items, const ezPropertyPath& path);
 
 private slots:
   virtual void on_MoveUp_clicked();
@@ -56,7 +56,7 @@ private:
   void Move(ezInt32 iMove);
 
   ezHybridArray<ezPropertyEditorBaseWidget::Selection, 8> m_Items;
-
+  ezPropertyPath m_PropertyPath;
 
 };
 

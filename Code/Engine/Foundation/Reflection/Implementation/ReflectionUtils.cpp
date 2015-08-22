@@ -245,7 +245,8 @@ void ezReflectionUtils::SetArrayPropertyValue(ezAbstractArrayProperty* pProp, vo
   }
   if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
   {
-    const char* pData = value.ConvertTo<ezString>().GetData();
+    ezString sData = value.ConvertTo<ezString>().GetData();
+    const char* pData = sData.GetData();
     pProp->SetValue(pObject, uiIndex, &pData);
     return;
   }

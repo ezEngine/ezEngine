@@ -30,14 +30,22 @@ ezAddSubElementButton::ezAddSubElementButton(const char* szName, QWidget* pParen
 
   m_pMenu = new QMenu(m_pButton);
   m_pMenu->setObjectName("Menu");
-  m_pButton->setMenu(m_pMenu);
 
   QMetaObject::connectSlotsByName(this);
 }
 
-void ezAddSubElementButton::InternalSetValue(const ezVariant& value)
+void ezAddSubElementButton::OnInit()
 {
+  auto pProp = GetProperty();
 
+  if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+  {
+    m_pButton->setMenu(m_pMenu);
+  }
+  else
+  {
+
+  }
 }
 
 void ezAddSubElementButton::on_Menu_aboutToShow()
@@ -50,8 +58,7 @@ void ezAddSubElementButton::on_Menu_aboutToShow()
 
   auto& acc = m_Items[0].m_pObject->GetTypeAccessor();
 
-  auto pProp = ezToolsReflectionUtils::GetPropertyByPath(acc.GetType(), this->m_PropertyPath);
-  EZ_ASSERT_DEV(pProp != nullptr, "not good");
+  auto pProp = GetProperty();
 
   if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
   {
@@ -75,29 +82,64 @@ void ezAddSubElementButton::on_Menu_aboutToShow()
   }
 }
 
+void ezAddSubElementButton::on_Button_clicked()
+{
+  auto pProp = GetProperty();
+
+  if (!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+  {
+    OnAction(pProp->GetSpecificType());
+  }
+}
+
 void ezAddSubElementButton::OnMenuAction()
+{
+  const ezRTTI* pRtti = static_cast<const ezRTTI*>(sender()->property("type").value<void*>());
+
+  OnAction(pRtti);
+}
+
+void ezAddSubElementButton::OnAction(const ezRTTI* pRtti)
 {
   setParent(nullptr);
   setVisible(false);
 
-  const ezRTTI* pRtti = static_cast<const ezRTTI*>(sender()->property("type").value<void*>());
   EZ_ASSERT_DEV(pRtti != nullptr, "user data retrieval failed");
 
   ezCommandHistory* history = m_Items[0].m_pObject->GetDocumentObjectManager()->GetDocument()->GetCommandHistory();
   history->StartTransaction();
 
-  ezAddObjectCommand cmd;
-  cmd.m_pType = pRtti;
-  cmd.m_sParentProperty = m_PropertyPath.GetPathString();
-  cmd.m_Index = -1;
-
   ezStatus res;
-  for (auto& item : m_Items)
+  if (GetProperty()->GetFlags().IsSet(ezPropertyFlags::StandardType))
   {
-    cmd.m_Parent = item.m_pObject->GetGuid();
-    res = history->AddCommand(cmd);
-    if (res.m_Result.Failed())
-      break;
+    ezInsertObjectPropertyCommand cmd;
+    cmd.SetPropertyPath(m_PropertyPath.GetPathString());
+    cmd.m_Index = -1;
+
+    for (auto& item : m_Items)
+    {
+      cmd.m_Object = item.m_pObject->GetGuid();
+      cmd.m_NewValue = "";
+
+      res = history->AddCommand(cmd);
+      if (res.m_Result.Failed())
+        break;
+    }
+  }
+  else
+  {
+    ezAddObjectCommand cmd;
+    cmd.m_pType = pRtti;
+    cmd.m_sParentProperty = m_PropertyPath.GetPathString();
+    cmd.m_Index = -1;
+
+    for (auto& item : m_Items)
+    {
+      cmd.m_Parent = item.m_pObject->GetGuid();
+      res = history->AddCommand(cmd);
+      if (res.m_Result.Failed())
+        break;
+    }
   }
 
   if (res.m_Result.Failed())

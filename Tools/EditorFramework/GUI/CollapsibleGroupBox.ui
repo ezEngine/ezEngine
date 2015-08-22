@@ -17,7 +17,16 @@
    <property name="spacing">
     <number>0</number>
    </property>
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
@@ -71,7 +80,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap resource="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">:/GuiFoundation/Icons/GroupOpen.png</pixmap>
+         <pixmap>:/GuiFoundation/Icons/GroupOpen.png</pixmap>
         </property>
        </widget>
       </item>
@@ -97,6 +106,12 @@
          <iconset resource="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
           <normaloff>:/GuiFoundation/Icons/MoveUp16.png</normaloff>:/GuiFoundation/Icons/MoveUp16.png</iconset>
         </property>
+        <property name="iconSize">
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
+        </property>
         <property name="popupMode">
          <enum>QToolButton::InstantPopup</enum>
         </property>
@@ -111,6 +126,12 @@
          <iconset resource="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
           <normaloff>:/GuiFoundation/Icons/MoveDown16.png</normaloff>:/GuiFoundation/Icons/MoveDown16.png</iconset>
         </property>
+        <property name="iconSize">
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
+        </property>
        </widget>
       </item>
       <item>
@@ -121,6 +142,12 @@
         <property name="icon">
          <iconset resource="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
           <normaloff>:/GuiFoundation/Icons/Delete16.png</normaloff>:/GuiFoundation/Icons/Delete16.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>16</width>
+          <height>16</height>
+         </size>
         </property>
        </widget>
       </item>

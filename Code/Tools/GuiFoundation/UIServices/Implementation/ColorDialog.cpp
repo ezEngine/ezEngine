@@ -6,8 +6,10 @@
 
 void ezUIServices::ShowColorDialog(const ezColor& color, bool bAlpha, QWidget* pParent, const char* slotCurColChanged, const char* slotAccept, const char* slotReject)
 {
+  ezColorGammaUB gamma = color;
+
   QColor col;
-  col.setRgbF(color.r, color.g, color.b, color.a);
+  col.setRgb(gamma.r, gamma.g, gamma.b, gamma.a);
 
   m_pColorDlg = new QColorDialog (col, pParent);
   m_pColorDlg->move(m_ColorDlgPos);
