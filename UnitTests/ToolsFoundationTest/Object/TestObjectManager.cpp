@@ -9,7 +9,7 @@ ezTestDocumentObjectManager::~ezTestDocumentObjectManager()
 {
 }
 
-void ezTestDocumentObjectManager::GetCreateableTypes(ezHybridArray<ezRTTI*, 32>& Types) const
+void ezTestDocumentObjectManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const
 {
 }
 
