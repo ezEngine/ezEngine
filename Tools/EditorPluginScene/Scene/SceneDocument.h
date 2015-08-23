@@ -39,6 +39,9 @@ public:
   void SetGizmoWorldSpace(bool bWorldSpace);
   bool GetGizmoWorldSpace() const;
 
+  void Copy();
+  void Paste();
+
   const ezTransform& GetGlobalTransform(const ezDocumentObjectBase* pObject);
   void SetGlobalTransform(const ezDocumentObjectBase* pObject, const ezTransform& t);
 

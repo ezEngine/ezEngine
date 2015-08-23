@@ -6,6 +6,8 @@
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <Core/World/GameObject.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, ezDocumentBase, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -184,6 +186,78 @@ bool ezSceneDocument::GetGizmoWorldSpace() const
     return false;
 
   return m_bGizmoWorldSpace;
+}
+
+ezAbstractObjectGraph* pGraph = nullptr;
+
+void ezSceneDocument::Copy()
+{
+  if (GetSelectionManager()->GetSelection().GetCount() != 1) // HACK
+    return;
+
+  delete pGraph;
+  pGraph = new ezAbstractObjectGraph;
+
+  auto Selection = GetSelectionManager()->GetTopLevelSelection();
+
+  ezDocumentObjectConverterWriter writer(pGraph, GetObjectManager(), false, true);
+
+  for (auto item : Selection)
+    writer.AddObjectToGraph(item, "root"); // HACK (name)
+
+}
+
+void ezSceneDocument::Paste()
+{
+  if (pGraph == nullptr)
+    return;
+
+  auto& AllNodes = pGraph->GetAllNodes();
+
+  ezMap<ezUuid, ezUuid> GuidRemapping;
+
+  // record all existing node guids and create new ones for them
+  for (auto it = AllNodes.GetIterator(); it.IsValid(); ++it)
+  {
+    GuidRemapping[it.Key()].CreateNewUuid();
+  }
+
+  // change all existing node guids to new guids
+  for (auto it = GuidRemapping.GetIterator(); it.IsValid(); ++it)
+  {
+    pGraph->ChangeNodeGuid(it.Key(), it.Value());
+  }
+
+  // go through all nodes to remap guids
+  for (auto it = AllNodes.GetIterator(); it.IsValid(); ++it)
+  {
+    auto& node = it.Value();
+
+    // check every property
+    for (auto prop : node.GetProperties())
+    {
+      // if the property is a guid, we check if we need to remap it
+      if (prop.m_Value.IsA<ezUuid>())
+      {
+        const ezUuid guid = prop.m_Value.Get<ezUuid>();
+
+        // if we find the guid in our map, replace it by the new guid
+        auto newGuid = GuidRemapping.Find(guid);
+
+        if (newGuid.IsValid())
+        {
+          prop.m_Value = newGuid.Value();
+        }
+      }
+    }
+  }
+
+  ezDocumentObjectConverterReader reader(pGraph, GetObjectManager());
+
+  auto* pRoot = pGraph->GetNodeByName("root");
+  auto* pNewObject = reader.CreateObjectFromNode(pRoot);
+
+  //reader.ApplyPropertiesToObject(pRoot, pNewObject);
 }
 
 void ezSceneDocument::ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)

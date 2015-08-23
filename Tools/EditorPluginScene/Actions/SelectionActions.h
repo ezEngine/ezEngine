@@ -21,6 +21,8 @@ public:
   static ezActionDescriptorHandle s_hHideSelectedObjects;
   static ezActionDescriptorHandle s_hHideUnselectedObjects;
   static ezActionDescriptorHandle s_hShowHiddenObjects;
+  static ezActionDescriptorHandle s_hCopy;
+  static ezActionDescriptorHandle s_hPaste;
 
 };
 
@@ -39,6 +41,8 @@ public:
     HideSelectedObjects,
     HideUnselectedObjects,
     ShowHiddenObjects,
+    Copy,
+    Paste,
   };
 
   ezSelectionAction(const ezActionContext& context, const char* szName, ActionType type);

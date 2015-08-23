@@ -63,6 +63,9 @@ public:
   void RemoveNode(const ezUuid& guid);
 
   const ezMap<ezUuid, ezAbstractObjectNode>& GetAllNodes() const { return m_Nodes; }
+  ezMap<ezUuid, ezAbstractObjectNode>& GetAllNodes() { return m_Nodes; }
+
+  void ChangeNodeGuid(const ezUuid& oldGuid, const ezUuid& newGuid);
 
 private:
   ezSet<ezString> m_Strings;
