@@ -254,7 +254,15 @@ void ezSceneDocument::Paste()
     {
       auto* pNewObject = reader.CreateObjectFromNode(pNode, nullptr, nullptr, ezVariant());
       reader.ApplyPropertiesToObject(pNode, pNewObject);
-      GetObjectManager()->AddObject(pNewObject, nullptr, "RootObjects", -1);
+
+      if (GetSelectionManager()->GetCurrentObject() == nullptr)
+      {
+        GetObjectManager()->AddObject(pNewObject, nullptr, "RootObjects", -1);
+      }
+      else
+      {
+        GetObjectManager()->AddObject(pNewObject, const_cast<ezDocumentObjectBase*>(GetSelectionManager()->GetCurrentObject()), "Children", -1);
+      }
     }
   }
 }

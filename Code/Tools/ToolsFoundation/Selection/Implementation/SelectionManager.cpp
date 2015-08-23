@@ -141,6 +141,11 @@ void ezSelectionManager::ToggleObject(const ezDocumentObjectBase* pObject)
     AddObject(pObject);
 }
 
+const ezDocumentObjectBase* ezSelectionManager::GetCurrentObject() const
+{
+  return m_SelectionList.IsEmpty() ? nullptr : m_SelectionList[m_SelectionList.GetCount() - 1];
+}
+
 bool ezSelectionManager::IsSelected(const ezDocumentObjectBase* pObject) const
 {
   return m_SelectionSet.Find(pObject->GetGuid()).IsValid();

@@ -84,7 +84,7 @@ public:
   /// \brief Returns the category of this property. Cast this property to the next higher type for more information.
   virtual ezPropertyCategory::Enum GetCategory() const = 0; // [tested]
 
-                                                            /// \brief Returns the flags of the property.
+  /// \brief Returns the flags of the property.
   const ezBitflags<ezPropertyFlags>& GetFlags() const
   {
     return m_Flags;

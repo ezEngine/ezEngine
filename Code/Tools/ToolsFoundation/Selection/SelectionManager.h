@@ -42,6 +42,9 @@ public:
   void SetSelection(const ezDeque<const ezDocumentObjectBase*>& Selection);
   void ToggleObject(const ezDocumentObjectBase* pObject);
 
+  /// \brief Returns the last selected object in the selection or null if empty.
+  const ezDocumentObjectBase* GetCurrentObject() const;
+
   const ezDeque<const ezDocumentObjectBase*>& GetSelection() const { return m_SelectionList; }
 
   bool IsSelectionEmpty() const { return m_SelectionList.IsEmpty(); }
@@ -56,6 +59,7 @@ public:
   bool IsParentSelected(const ezDocumentObjectBase* pObject) const;
 
   const ezDocumentBase* GetDocument() const { return m_pDocument; }
+
 
 private:
   void TreeEventHandler(const ezDocumentObjectStructureEvent& e);
