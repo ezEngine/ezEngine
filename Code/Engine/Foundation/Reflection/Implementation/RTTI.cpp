@@ -3,8 +3,10 @@
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/Reflection/Implementation/AbstractProperty.h>
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
+#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
+#include <Foundation/Reflection/Implementation/AbstractProperty.h>
+
 #include <Foundation/Reflection/Implementation/MessageHandler.h>
 #include <Foundation/Configuration/Startup.h>
 

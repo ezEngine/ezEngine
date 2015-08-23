@@ -1,7 +1,7 @@
 
-EZ_FORCE_INLINE ezComponent::ezComponent() : 
-  m_pManager(nullptr),
+EZ_FORCE_INLINE ezComponent::ezComponent() :
   m_Flags(ezObjectFlags::Default),
+  m_pManager(nullptr),
   m_pOwner(nullptr)
 {
   m_uiEditorPickingID = 0xFFFFFFFF;

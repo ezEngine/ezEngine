@@ -16,8 +16,8 @@ class EZ_COREUTILS_DLL ezImageHeader
 public:
   /// \brief Constructs an image using an unknown format and zero size.
   ezImageHeader() :
-    m_uiWidth(0), m_uiHeight(0), m_uiDepth(1),
     m_uiNumMipLevels(1), m_uiNumFaces(1), m_uiNumArrayIndices(1),
+    m_uiWidth(0), m_uiHeight(0), m_uiDepth(1),
     m_format(ezImageFormat::UNKNOWN)
   {
   }
