@@ -1,6 +1,14 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 
+ezAbstractObjectGraph::~ezAbstractObjectGraph()
+{
+  for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
+  {
+    EZ_DEFAULT_DELETE(it.Value());
+  }
+}
+
 const char* ezAbstractObjectGraph::RegisterString(const char* szString)
 {
   auto it = m_Strings.Insert(szString);
@@ -12,7 +20,7 @@ ezAbstractObjectNode* ezAbstractObjectGraph::GetNode(const ezUuid& guid)
 {
   auto it = m_Nodes.Find(guid);
   if (it.IsValid())
-    return &it.Value();
+    return it.Value();
 
   return nullptr;
 }
@@ -42,18 +50,19 @@ ezAbstractObjectNode* ezAbstractObjectGraph::GetNodeByName(const char* szName)
 
 ezAbstractObjectNode* ezAbstractObjectGraph::AddNode(const ezUuid& guid, const char* szType, const char* szNodeName)
 {
+  EZ_ASSERT_DEV(!m_Nodes.Contains(guid), "object must not yet exist");
   if (szNodeName != nullptr)
   {
     szNodeName = RegisterString(szNodeName);
   }
 
-  auto* pNode = &m_Nodes[guid];
-  EZ_ASSERT_DEV(!pNode->m_Guid.IsValid(), "object must not yet exist");
-
+  ezAbstractObjectNode* pNode = EZ_DEFAULT_NEW(ezAbstractObjectNode);
   pNode->m_Guid = guid;
   pNode->m_pOwner = this;
   pNode->m_szType = RegisterString(szType);
   pNode->m_szNodeName = szNodeName;
+
+  m_Nodes[guid] = pNode;
 
   if (szNodeName != nullptr)
   {
@@ -69,25 +78,13 @@ void ezAbstractObjectGraph::RemoveNode(const ezUuid& guid)
 
   if (it.IsValid())
   {
-    if (it.Value().m_szNodeName != nullptr)
-      m_NodesByName.Remove(it.Value().m_szNodeName);
+    ezAbstractObjectNode* pNode = it.Value();
+    if (pNode->m_szNodeName != nullptr)
+      m_NodesByName.Remove(pNode->m_szNodeName);
 
     m_Nodes.Remove(guid);
+    EZ_DEFAULT_DELETE(pNode);
   }
-}
-
-
-void ezAbstractObjectGraph::ChangeNodeGuid(const ezUuid& oldGuid, const ezUuid& newGuid)
-{
-  ezAbstractObjectNode& oldNode = m_Nodes[oldGuid];
-  oldNode.m_Guid = newGuid;
-
-  ezAbstractObjectNode& newNode = m_Nodes[newGuid];
-  newNode = oldNode;
-
-  m_Nodes.Remove(oldGuid);
-
-  m_NodesByName[newNode.m_szNodeName] = &newNode;
 }
 
 void ezAbstractObjectNode::AddProperty(const char* szName, const ezVariant& value)
@@ -134,4 +131,95 @@ const ezAbstractObjectNode::Property* ezAbstractObjectNode::FindProperty(const c
   }
 
   return nullptr;
+}
+
+
+//
+//void ezAbstractObjectGraph::ChangeNodeGuid(const ezUuid& oldGuid, const ezUuid& newGuid)
+//{
+//  ezAbstractObjectNode& oldNode = m_Nodes[oldGuid];
+//  oldNode.m_Guid = newGuid;
+//
+//  ezAbstractObjectNode& newNode = m_Nodes[newGuid];
+//  newNode = oldNode;
+//
+//  m_Nodes.Remove(oldGuid);
+//
+//  m_NodesByName[newNode.m_szNodeName] = &newNode;
+//}
+
+void ezAbstractObjectGraph::ReMapNodeGuids(const ezUuid& seedGuid)
+{
+  ezHybridArray<ezAbstractObjectNode*, 16> nodes;
+  ezMap<ezUuid, ezUuid> guidMap;
+  for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
+  {
+    // TODO: make this reverseable
+    ezStringBuilder sTemp = ezConversionUtils::ToString(it.Key());
+    sTemp.Append(ezConversionUtils::ToString(seedGuid));
+    guidMap[it.Key()] = ezUuid::StableUuidForString(sTemp);
+
+    nodes.PushBack(it.Value());
+  }
+
+  m_Nodes.Clear();
+
+  // go through all nodes to remap guids
+  for (auto* pNode : nodes)
+  {
+    pNode->m_Guid = guidMap[pNode->m_Guid];
+
+    // check every property
+    for (auto& prop : pNode->m_Properties)
+    {
+      RemapVariant(prop.m_Value, guidMap);
+      
+    }
+    m_Nodes[pNode->m_Guid] = pNode;
+  }
+
+}
+
+void ezAbstractObjectGraph::RemapVariant(ezVariant& value, const ezMap<ezUuid, ezUuid>& guidMap)
+{
+  // if the property is a guid, we check if we need to remap it
+  if (value.IsA<ezUuid>())
+  {
+    const ezUuid& guid = value.Get<ezUuid>();
+
+    // if we find the guid in our map, replace it by the new guid
+    auto it = guidMap.Find(guid);
+
+    if (it.IsValid())
+    {
+      value = it.Value();
+    }
+  }
+  // Arrays may be of uuids
+  else if (value.IsA<ezVariantArray>())
+  {
+    const ezVariantArray& values = value.Get<ezVariantArray>();
+    bool bNeedToRemap = false;
+    for (auto& subValue : values)
+    {
+      if (subValue.IsA<ezUuid>() && guidMap.Contains(subValue.Get<ezUuid>()))
+      {
+        bNeedToRemap = true;
+      }
+      else if (subValue.IsA<ezVariantArray>())
+      {
+        bNeedToRemap = true;
+      }
+    }
+
+    if (bNeedToRemap)
+    {
+      ezVariantArray newValues = values;
+      for (auto& subValue : newValues)
+      {
+        RemapVariant(subValue, guidMap);
+      }
+      value = newValues;
+    }
+  }
 }

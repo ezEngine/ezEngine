@@ -24,6 +24,8 @@
 #include <QTimer>
 #include <qstylefactory.h>
 #include <QFileDialog>
+#include <QClipboard>
+
 
 ezEditorApp* ezEditorApp::s_pInstance = nullptr;
 
@@ -216,6 +218,8 @@ void ezEditorApp::ShutdownEditor()
 
   delete s_pEngineViewProcess;
 
+  // Unload potental plugin referenced clipboard data to prevent crash on shutdown.
+  QApplication::clipboard()->clear();
   UnloadPlugins();
 
   // make sure no one tries to load any further images in parallel

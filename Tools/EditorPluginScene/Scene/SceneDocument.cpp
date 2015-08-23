@@ -7,8 +7,10 @@
 #include <Core/World/GameObject.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/JsonSerializer.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-
+#include <QClipboard>
+#include <QMimeData>
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, ezDocumentBase, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -188,76 +190,73 @@ bool ezSceneDocument::GetGizmoWorldSpace() const
   return m_bGizmoWorldSpace;
 }
 
-ezAbstractObjectGraph* pGraph = nullptr;
+
 
 void ezSceneDocument::Copy()
 {
-  if (GetSelectionManager()->GetSelection().GetCount() != 1) // HACK
+  if (GetSelectionManager()->GetSelection().GetCount() == 0)
     return;
 
-  delete pGraph;
-  pGraph = new ezAbstractObjectGraph;
-
+  // Serialize selection to graph
+  ezAbstractObjectGraph graph;
   auto Selection = GetSelectionManager()->GetTopLevelSelection();
 
-  ezDocumentObjectConverterWriter writer(pGraph, GetObjectManager(), false, true);
+  ezDocumentObjectConverterWriter writer(&graph, GetObjectManager(), true, true);
 
   for (auto item : Selection)
-    writer.AddObjectToGraph(item, "root"); // HACK (name)
+    writer.AddObjectToGraph(item, "root");
 
+  ezMemoryStreamStorage streamStorage;
+  ezMemoryStreamWriter memoryWriter(&streamStorage);
+  ezAbstractGraphJsonSerializer::Write(memoryWriter, &graph, ezJSONWriter::WhitespaceMode::LessIndentation);
+  memoryWriter.WriteBytes("\0", 1);
+
+  // Write to clipboard
+  QClipboard* clipboard = QApplication::clipboard();
+  QMimeData* mimeData = new QMimeData();
+  QByteArray encodedData((const char*)streamStorage.GetData(), streamStorage.GetStorageSize());
+  mimeData->setData("ezSceneDocument", encodedData);
+  mimeData->setText(QString::fromUtf8((const char*)streamStorage.GetData()));
+  clipboard->setMimeData(mimeData);
 }
 
 void ezSceneDocument::Paste()
 {
-  if (pGraph == nullptr)
+  QClipboard* clipboard = QApplication::clipboard();
+  auto mimedata = clipboard->mimeData();
+  if (!mimedata->hasFormat("ezSceneDocument"))
     return;
 
-  auto& AllNodes = pGraph->GetAllNodes();
+  ezAbstractObjectGraph graph;
 
-  ezMap<ezUuid, ezUuid> GuidRemapping;
-
-  // record all existing node guids and create new ones for them
-  for (auto it = AllNodes.GetIterator(); it.IsValid(); ++it)
   {
-    GuidRemapping[it.Key()].CreateNewUuid();
+    // Deserialze 
+    QByteArray ba = mimedata->data("ezSceneDocument");
+    ezMemoryStreamStorage streamStorage;
+    ezMemoryStreamWriter memoryWriter(&streamStorage);
+    memoryWriter.WriteBytes(ba.data(), ba.count());
+
+    ezMemoryStreamReader memoryReader(&streamStorage);
+    ezAbstractGraphJsonSerializer::Read(memoryReader, &graph);
   }
 
-  // change all existing node guids to new guids
-  for (auto it = GuidRemapping.GetIterator(); it.IsValid(); ++it)
-  {
-    pGraph->ChangeNodeGuid(it.Key(), it.Value());
-  }
+  ezUuid seed;
+  seed.CreateNewUuid();
+  graph.ReMapNodeGuids(seed);
 
-  // go through all nodes to remap guids
-  for (auto it = AllNodes.GetIterator(); it.IsValid(); ++it)
-  {
-    auto& node = it.Value();
+  ezDocumentObjectConverterReader reader(&graph, GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
 
-    // check every property
-    for (auto prop : node.GetProperties())
+  auto& nodes = graph.GetAllNodes();
+  for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
+  {
+    auto* pNode = it.Value();
+    if (ezStringUtils::IsEqual(pNode->GetNodeName(), "root"))
     {
-      // if the property is a guid, we check if we need to remap it
-      if (prop.m_Value.IsA<ezUuid>())
-      {
-        const ezUuid guid = prop.m_Value.Get<ezUuid>();
-
-        // if we find the guid in our map, replace it by the new guid
-        auto newGuid = GuidRemapping.Find(guid);
-
-        if (newGuid.IsValid())
-        {
-          prop.m_Value = newGuid.Value();
-        }
-      }
+      auto* pNewObject = reader.CreateObjectFromNode(pNode, nullptr, nullptr, ezVariant());
+      reader.ApplyPropertiesToObject(pNode, pNewObject);
+      GetObjectManager()->AddObject(pNewObject, nullptr, "RootObjects", -1);
     }
   }
-
-  ezDocumentObjectConverterReader reader(pGraph, GetObjectManager());
-
-  auto* pRoot = pGraph->GetNodeByName("root");
-  auto* pNewObject = reader.CreateObjectFromNode(pRoot);
-
-  //reader.ApplyPropertiesToObject(pRoot, pNewObject);
 }
 
 void ezSceneDocument::ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)

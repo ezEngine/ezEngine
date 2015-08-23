@@ -36,7 +36,7 @@ void ezAbstractGraphJsonSerializer::Write(ezStreamWriterBase& stream, const ezAb
     {
       writer.BeginObject();
       {
-        const auto& node = itNode.Value();
+        const auto& node = *itNode.Value();
 
         writer.AddVariableUuid("#", node.GetGuid());
         writer.AddVariableString("t", node.GetType());

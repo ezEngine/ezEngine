@@ -19,7 +19,6 @@ void ezDocumentObjectBase::InsertSubObject(ezDocumentObjectBase* pObject, const 
   EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(szProperty), "Child objects must have a parent property to insert into");
   ezIReflectedTypeAccessor& accessor = GetTypeAccessor();
 
-
   // Property patching
   const ezRTTI* pType = accessor.GetType();
   auto* pProp = pType->FindPropertyByName(szProperty);
@@ -28,8 +27,17 @@ void ezDocumentObjectBase::InsertSubObject(ezDocumentObjectBase* pObject, const 
   ezPropertyPath path(szProperty);
   if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
   {
-    bool bRes = accessor.InsertValue(path, index, pObject->GetGuid());
-    EZ_ASSERT_DEV(bRes, "");
+    if (index.CanConvertTo<ezInt32>() && index.ConvertTo<ezInt32>() == -1)
+    {
+      ezVariant newIndex = accessor.GetCount(path);
+      bool bRes = accessor.InsertValue(path, newIndex, pObject->GetGuid());
+      EZ_ASSERT_DEV(bRes, "");
+    }
+    else
+    {
+      bool bRes = accessor.InsertValue(path, index, pObject->GetGuid());
+      EZ_ASSERT_DEV(bRes, "");
+    }
   }
   else if (pProp->GetCategory() == ezPropertyCategory::Member)
   {

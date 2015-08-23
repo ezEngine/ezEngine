@@ -168,7 +168,7 @@ ezStatus ezDocumentBase::InternalLoadDocument()
 
   ezRttiConverterContext context;
   ezRttiConverterReader rttiConverter(&graph, &context);
-  ezDocumentObjectConverterReader objectConverter(&graph, GetObjectManager());
+  ezDocumentObjectConverterReader objectConverter(&graph, GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
 
   auto* pHeaderNode = graph.GetNodeByName("Header");
   rttiConverter.ApplyPropertiesToObject(pHeaderNode, m_pDocumentInfo->GetDynamicRTTI(), m_pDocumentInfo);

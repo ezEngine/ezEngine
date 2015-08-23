@@ -50,6 +50,7 @@ private:
 class EZ_FOUNDATION_DLL ezAbstractObjectGraph
 {
 public:
+  ~ezAbstractObjectGraph();
 
   const char* RegisterString(const char* szString);
 
@@ -62,14 +63,16 @@ public:
   ezAbstractObjectNode* AddNode(const ezUuid& guid, const char* szType, const char* szNodeName = nullptr);
   void RemoveNode(const ezUuid& guid);
 
-  const ezMap<ezUuid, ezAbstractObjectNode>& GetAllNodes() const { return m_Nodes; }
-  ezMap<ezUuid, ezAbstractObjectNode>& GetAllNodes() { return m_Nodes; }
+  const ezMap<ezUuid, ezAbstractObjectNode*>& GetAllNodes() const { return m_Nodes; }
+  ezMap<ezUuid, ezAbstractObjectNode*>& GetAllNodes() { return m_Nodes; }
 
-  void ChangeNodeGuid(const ezUuid& oldGuid, const ezUuid& newGuid);
+  void ReMapNodeGuids(const ezUuid& seedGuid);
 
 private:
+  void RemapVariant(ezVariant& value, const ezMap<ezUuid, ezUuid>& guidMap);
+
   ezSet<ezString> m_Strings;
-  ezMap<ezUuid, ezAbstractObjectNode> m_Nodes;
+  ezMap<ezUuid, ezAbstractObjectNode*> m_Nodes;
   ezMap<const char*, ezAbstractObjectNode*> m_NodesByName;
 };
 

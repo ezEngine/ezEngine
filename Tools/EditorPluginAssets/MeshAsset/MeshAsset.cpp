@@ -297,7 +297,7 @@ ezStatus ezMeshAssetDocument::InternalRetrieveAssetInfo(const char * szPlatform)
     context.RegisterObject(pPropObj->GetGuid(), pPropObj->GetTypeAccessor().GetType(), pProp);
     auto* pNode = rttiConverter.AddObjectToGraph(pProp, "Object");
 
-    ezDocumentObjectConverterReader objectConverter(&graph, GetObjectManager());
+    ezDocumentObjectConverterReader objectConverter(&graph, GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
     objectConverter.ApplyPropertiesToObject(pNode, pPropObj);
   }
 

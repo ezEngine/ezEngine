@@ -119,10 +119,14 @@ void ezSelectionAction::Execute(const ezVariant& value)
     m_pSceneDocument->TriggerShowHiddenObjects();
     break;
   case ActionType::Copy:
-    m_pSceneDocument->Copy();
+    {
+      m_pSceneDocument->Copy();
+    }
     break;
   case ActionType::Paste:
-    m_pSceneDocument->Paste();
+    {
+      m_pSceneDocument->Paste();
+    }
     break;
   }
 }
