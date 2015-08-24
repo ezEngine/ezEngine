@@ -11,6 +11,7 @@
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
+#include <GuiFoundation/Action/EditActions.h>
 
 void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
 {
@@ -50,6 +51,7 @@ void OnLoadPlugin(bool bReloading)
   ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentMenuBar", "Edit");
   ezGizmoActions::MapActions("EditorPluginScene_DocumentMenuBar", "Edit");
   ezSelectionActions::MapActions("EditorPluginScene_DocumentMenuBar", "Edit");
+  ezEditActions::MapActions("EditorPluginScene_DocumentMenuBar", "Edit");
   ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Edit/GizmoCategory");
   ezScaleGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Edit/GizmoCategory");
   ezTranslateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Edit/GizmoCategory");

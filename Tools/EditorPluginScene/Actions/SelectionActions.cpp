@@ -14,8 +14,6 @@ ezActionDescriptorHandle ezSelectionActions::s_hGroupSelectedItems;
 ezActionDescriptorHandle ezSelectionActions::s_hHideSelectedObjects;
 ezActionDescriptorHandle ezSelectionActions::s_hHideUnselectedObjects;
 ezActionDescriptorHandle ezSelectionActions::s_hShowHiddenObjects;
-ezActionDescriptorHandle ezSelectionActions::s_hCopy;
-ezActionDescriptorHandle ezSelectionActions::s_hPaste;
 
 void ezSelectionActions::RegisterActions()
 {
@@ -26,8 +24,6 @@ void ezSelectionActions::RegisterActions()
   s_hHideSelectedObjects = EZ_REGISTER_ACTION_1("HideSelectedObjects", "Hide Selected", ezActionScope::Document, "Document", "H", ezSelectionAction, ezSelectionAction::ActionType::HideSelectedObjects);
   s_hHideUnselectedObjects = EZ_REGISTER_ACTION_1("HideUnselectedObjects", "Hide Unselected", ezActionScope::Document, "Document", "Shift+H", ezSelectionAction, ezSelectionAction::ActionType::HideUnselectedObjects);
   s_hShowHiddenObjects = EZ_REGISTER_ACTION_1("ShowHiddenObjects", "Show Hidden Objects", ezActionScope::Document, "Document", "Ctrl+H", ezSelectionAction, ezSelectionAction::ActionType::ShowHiddenObjects);
-  s_hCopy = EZ_REGISTER_ACTION_1("Copy", "Copy", ezActionScope::Document, "Document", "Ctrl+C", ezSelectionAction, ezSelectionAction::ActionType::Copy);
-  s_hPaste = EZ_REGISTER_ACTION_1("Paste", "Paste", ezActionScope::Document, "Document", "Ctrl+V", ezSelectionAction, ezSelectionAction::ActionType::Paste);
 }
 
 void ezSelectionActions::UnregisterActions()
@@ -39,8 +35,6 @@ void ezSelectionActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hHideSelectedObjects);
   ezActionManager::UnregisterAction(s_hHideUnselectedObjects);
   ezActionManager::UnregisterAction(s_hShowHiddenObjects);
-  ezActionManager::UnregisterAction(s_hCopy);
-  ezActionManager::UnregisterAction(s_hPaste);
 }
 
 void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
@@ -57,9 +51,6 @@ void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
   pMap->MapAction(s_hHideSelectedObjects, sSubPath, 4.0f);
   pMap->MapAction(s_hHideUnselectedObjects, sSubPath, 5.0f);
   pMap->MapAction(s_hShowHiddenObjects, sSubPath, 6.0f);
-
-  pMap->MapAction(s_hCopy, sSubPath, 7.0f);
-  pMap->MapAction(s_hPaste, sSubPath, 8.0f);
 }
 
 ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char* szName, ezSelectionAction::ActionType type) : ezButtonAction(context, szName, false, "")
@@ -87,12 +78,6 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
   case ActionType::ShowHiddenObjects:
     SetIconPath(":/GuiFoundation/Icons/ShowHidden16.png");
     break;
-  case ActionType::Copy:
-    //SetIconPath(":/GuiFoundation/Icons/ShowHidden16.png");
-    break;
-  case ActionType::Paste:
-    //SetIconPath(":/GuiFoundation/Icons/ShowHidden16.png");
-    break;
   }
 }
 
@@ -117,16 +102,6 @@ void ezSelectionAction::Execute(const ezVariant& value)
     break;
   case ActionType::ShowHiddenObjects:
     m_pSceneDocument->TriggerShowHiddenObjects();
-    break;
-  case ActionType::Copy:
-    {
-      m_pSceneDocument->Copy();
-    }
-    break;
-  case ActionType::Paste:
-    {
-      m_pSceneDocument->Paste();
-    }
     break;
   }
 }

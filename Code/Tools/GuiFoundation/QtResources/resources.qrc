@@ -53,6 +53,8 @@
     <file>Icons/Settings16.png</file>
     <file>Icons/Undo16.png</file>
     <file>Icons/Redo16.png</file>
+    <file>Icons/Copy16.png</file>
+    <file>Icons/Paste16.png</file>
     <file>Icons/ezEditor16.png</file>
   </qresource>
   <qresource prefix="AssetIcons">

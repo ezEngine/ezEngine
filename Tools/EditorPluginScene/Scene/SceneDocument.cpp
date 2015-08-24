@@ -7,10 +7,8 @@
 #include <Core/World/GameObject.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <Foundation/Serialization/JsonSerializer.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <QClipboard>
-#include <QMimeData>
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, ezDocumentBase, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -192,78 +190,39 @@ bool ezSceneDocument::GetGizmoWorldSpace() const
 
 
 
-void ezSceneDocument::Copy()
+bool ezSceneDocument::Copy(ezAbstractObjectGraph& graph)
 {
   if (GetSelectionManager()->GetSelection().GetCount() == 0)
-    return;
+    return false;
 
   // Serialize selection to graph
-  ezAbstractObjectGraph graph;
   auto Selection = GetSelectionManager()->GetTopLevelSelection();
 
   ezDocumentObjectConverterWriter writer(&graph, GetObjectManager(), true, true);
 
+  // TODO: objects are required to be named root but this is not enforced or obvious by the interface.
   for (auto item : Selection)
     writer.AddObjectToGraph(item, "root");
 
-  ezMemoryStreamStorage streamStorage;
-  ezMemoryStreamWriter memoryWriter(&streamStorage);
-  ezAbstractGraphJsonSerializer::Write(memoryWriter, &graph, ezJSONWriter::WhitespaceMode::LessIndentation);
-  memoryWriter.WriteBytes("\0", 1);
+  // TODO: make each object positions relative to a null point.
 
-  // Write to clipboard
-  QClipboard* clipboard = QApplication::clipboard();
-  QMimeData* mimeData = new QMimeData();
-  QByteArray encodedData((const char*)streamStorage.GetData(), streamStorage.GetStorageSize());
-  mimeData->setData("ezSceneDocument", encodedData);
-  mimeData->setText(QString::fromUtf8((const char*)streamStorage.GetData()));
-  clipboard->setMimeData(mimeData);
+  return true;
 }
 
-void ezSceneDocument::Paste()
+bool ezSceneDocument::Paste(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pParent)
 {
-  QClipboard* clipboard = QApplication::clipboard();
-  auto mimedata = clipboard->mimeData();
-  if (!mimedata->hasFormat("ezSceneDocument"))
-    return;
+  if (pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
+    return false;
 
-  ezAbstractObjectGraph graph;
-
+  if (pParent == nullptr || pParent == GetObjectManager()->GetRootObject())
   {
-    // Deserialze 
-    QByteArray ba = mimedata->data("ezSceneDocument");
-    ezMemoryStreamStorage streamStorage;
-    ezMemoryStreamWriter memoryWriter(&streamStorage);
-    memoryWriter.WriteBytes(ba.data(), ba.count());
-
-    ezMemoryStreamReader memoryReader(&streamStorage);
-    ezAbstractGraphJsonSerializer::Read(memoryReader, &graph);
+    GetObjectManager()->AddObject(pObject, nullptr, "RootObjects", -1);
+    return true;
   }
-
-  ezUuid seed;
-  seed.CreateNewUuid();
-  graph.ReMapNodeGuids(seed);
-
-  ezDocumentObjectConverterReader reader(&graph, GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
-
-  auto& nodes = graph.GetAllNodes();
-  for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
+  else
   {
-    auto* pNode = it.Value();
-    if (ezStringUtils::IsEqual(pNode->GetNodeName(), "root"))
-    {
-      auto* pNewObject = reader.CreateObjectFromNode(pNode, nullptr, nullptr, ezVariant());
-      reader.ApplyPropertiesToObject(pNode, pNewObject);
-
-      if (GetSelectionManager()->GetCurrentObject() == nullptr)
-      {
-        GetObjectManager()->AddObject(pNewObject, nullptr, "RootObjects", -1);
-      }
-      else
-      {
-        GetObjectManager()->AddObject(pNewObject, const_cast<ezDocumentObjectBase*>(GetSelectionManager()->GetCurrentObject()), "Children", -1);
-      }
-    }
+    GetObjectManager()->AddObject(pObject, pParent, "Children", -1);
+    return true;
   }
 }
 

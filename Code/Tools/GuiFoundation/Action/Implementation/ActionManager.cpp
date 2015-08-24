@@ -3,6 +3,7 @@
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
+#include <GuiFoundation/Action/EditActions.h>
 #include <Foundation/Configuration/Startup.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionManager)
@@ -115,6 +116,7 @@ void ezActionManager::Startup()
   ezDocumentActions::RegisterActions();
   ezStandardMenus::RegisterActions();
   ezCommandHistoryActions::RegisterActions();
+  ezEditActions::RegisterActions();
 }
 
 void ezActionManager::Shutdown()
@@ -122,6 +124,7 @@ void ezActionManager::Shutdown()
   ezDocumentActions::UnregisterActions();
   ezStandardMenus::UnregisterActions();
   ezCommandHistoryActions::UnregisterActions();
+  ezEditActions::UnregisterActions();
 }
 
 ezActionDescriptor* ezActionManager::CreateActionDesc(const ezActionDescriptor& desc)

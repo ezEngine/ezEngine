@@ -13,6 +13,7 @@ class ezDocumentBase;
 class ezDocumentManagerBase;
 class ezCommandHistoryBase;
 class ezDocumentObjectManager;
+class ezAbstractObjectGraph;
 
 struct EZ_TOOLSFOUNDATION_DLL ezDocumentTypeDescriptor
 {
@@ -66,6 +67,9 @@ public:
 
   const ezDocumentTypeDescriptor& GetDocumentTypeDescriptor() const { return m_TypeDescriptor; }
 
+
+  virtual bool Copy(ezAbstractObjectGraph& out_objectGraph) { return false; };
+  virtual bool Paste(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pParent) { return false; };
   virtual void DeleteSelectedObjects();
 
 public:

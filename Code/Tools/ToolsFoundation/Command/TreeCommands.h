@@ -4,6 +4,7 @@
 #include <ToolsFoundation/Command/Command.h>
 #include <ToolsFoundation/Document/Document.h>
 
+
 class EZ_TOOLSFOUNDATION_DLL ezAddObjectCommand : public ezCommandBase
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAddObjectCommand);
@@ -28,6 +29,33 @@ private:
 
 private:
   ezDocumentObjectBase* m_pObject;
+};
+
+class EZ_TOOLSFOUNDATION_DLL ezPasteObjectsCommand : public ezCommandBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezPasteObjectsCommand);
+
+public:
+  ezPasteObjectsCommand();
+
+public: // Properties
+  ezUuid m_Parent;
+  ezString m_sJsonGraph;
+
+private:
+  virtual ezStatus Do(bool bRedo) override;
+  virtual ezStatus Undo(bool bFireEvents) override;
+  virtual void Cleanup(CommandState state) override;
+
+private:
+  struct PastedObject
+  {
+    ezDocumentObjectBase* m_pObject;
+    ezString m_sParentProperty;
+    ezVariant m_Index;
+  };
+  
+  ezHybridArray<PastedObject, 4> m_PastedObjects;
 };
 
 class EZ_TOOLSFOUNDATION_DLL ezRemoveObjectCommand : public ezCommandBase
