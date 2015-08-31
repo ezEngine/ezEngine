@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoBase, ezReflectedClass, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoBase, ezEditorInputContext, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezGizmoBase::ezGizmoBase()

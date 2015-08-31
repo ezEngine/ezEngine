@@ -34,7 +34,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Reflection)
 EZ_END_SUBSYSTEM_DECLARATION
 
 ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags,
-  ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers)
+  ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, const ezRTTI*(*fnVerifyParent)())
 {
   UpdateType(pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags);
 
@@ -45,9 +45,13 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
   m_MessageHandlers = messageHandlers;
   m_uiMsgIdOffset = 0;
 
+  if (fnVerifyParent != nullptr)
+  {
+    EZ_ASSERT_DEV(fnVerifyParent() == pParentType, "The given parent type '%s' does not match the actual parent type '%s'", pParentType != nullptr ? pParentType->GetTypeName() : "null", fnVerifyParent() != nullptr ? fnVerifyParent()->GetTypeName() : "null");
+  }
+
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   {
-    // cannot use ezSet etc. this runs at startup, before allocators are initialized
     ezSet<ezString> Known;
 
     const ezRTTI* pInstance = this;

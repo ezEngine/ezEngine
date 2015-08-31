@@ -6,7 +6,7 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderProgramCompiler, ezNoBase, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderProgramCompiler, ezReflectedClass, 1, ezRTTINoAllocator);
 // no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

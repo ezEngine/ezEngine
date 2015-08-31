@@ -22,7 +22,22 @@
       return &SELF::s_RTTI;                                           \
     }                                                                 \
   private:                                                            \
-    static ezRTTI s_RTTI;
+    static ezRTTI s_RTTI;                                             \
+    EZ_REFLECTION_DEBUG_CODE
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG) && EZ_ENABLED(EZ_COMPILER_MSVC)
+  #define EZ_REFLECTION_DEBUG_CODE \
+    static const ezRTTI* ReflectionDebug_GetParentType()\
+    {\
+      return __super::GetStaticRTTI();\
+    }
+  #define EZ_REFLECTION_DEBUG_GETPARENTFUNC &OwnType::ReflectionDebug_GetParentType
+
+#else
+  #define EZ_REFLECTION_DEBUG_CODE /*empty*/
+  #define EZ_REFLECTION_DEBUG_GETPARENTFUNC nullptr
+#endif
+
 
 /// \brief Implements the necessary functionality for a type to be dynamically reflectable.
 ///
@@ -41,14 +56,14 @@
   EZ_RTTIINFO_GETRTTI_IMPL_BEGIN(Type, AllocatorType)
 
 /// \brief Ends the reflection code block that was opened with EZ_BEGIN_DYNAMIC_REFLECTED_TYPE.
-#define EZ_END_DYNAMIC_REFLECTED_TYPE()                             \
-    return ezRTTI(GetTypeName(),                                    \
-      ezGetStaticRTTI<OwnBaseType>(),                               \
-      sizeof(OwnType),                                              \
-      GetTypeVersion(),                                             \
-      ezVariant::TypeDeduction<OwnType>::value,                     \
-      flags,                                                        \
-      &Allocator, Properties, MessageHandlers);                     \
+#define EZ_END_DYNAMIC_REFLECTED_TYPE()                                             \
+    return ezRTTI(GetTypeName(),                                                    \
+      ezGetStaticRTTI<OwnBaseType>(),                                               \
+      sizeof(OwnType),                                                              \
+      GetTypeVersion(),                                                             \
+      ezVariant::TypeDeduction<OwnType>::value,                                     \
+      flags,                                                                        \
+      &Allocator, Properties, MessageHandlers, EZ_REFLECTION_DEBUG_GETPARENTFUNC);  \
   }
 
 class ezArchiveWriter;
@@ -57,7 +72,7 @@ class ezArchiveReader;
 /// \brief All classes that should be dynamically reflectable, need to be derived from this base class.
 ///
 /// The only functionality that this class provides is the GetDynamicRTTI() function.
-class EZ_FOUNDATION_DLL ezReflectedClass
+class EZ_FOUNDATION_DLL ezReflectedClass : public ezNoBase
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezReflectedClass);
 public:

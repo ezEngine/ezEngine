@@ -64,9 +64,14 @@ private:
   ezResultEnum e;
 };
 
+class ezRTTI;
+
 /// \brief Dummy type to pass to templates and macros that expect a base type for a class that has no base.
 class ezNoBase
 {
+public:
+  static const ezRTTI* GetStaticRTTI() { return nullptr; }
+
 };
 
 /// \brief Dummy type to pass to templates and macros that expect a base type for an enum class.

@@ -187,8 +187,8 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
       sizeof(OwnType),                                              \
       GetTypeVersion(),                                             \
       ezVariant::TypeDeduction<OwnType>::value,                     \
-      flags,                                         \
-      &Allocator, Properties, MessageHandlers);                     \
+      flags,                                                        \
+      &Allocator, Properties, MessageHandlers, nullptr);            \
   }
 
 
