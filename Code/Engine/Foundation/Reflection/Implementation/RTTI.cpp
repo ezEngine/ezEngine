@@ -47,7 +47,7 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
 
   if (fnVerifyParent != nullptr)
   {
-    EZ_ASSERT_DEV(fnVerifyParent() == pParentType, "The given parent type '%s' does not match the actual parent type '%s'", pParentType != nullptr ? pParentType->GetTypeName() : "null", fnVerifyParent() != nullptr ? fnVerifyParent()->GetTypeName() : "null");
+    EZ_ASSERT_DEV(fnVerifyParent() == pParentType, "Type '%s': The given parent type '%s' does not match the actual parent type '%s'", szName, pParentType != nullptr ? pParentType->GetTypeName() : "null", fnVerifyParent() != nullptr ? fnVerifyParent()->GetTypeName() : "null");
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
