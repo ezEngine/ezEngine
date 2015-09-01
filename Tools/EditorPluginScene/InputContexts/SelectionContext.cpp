@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorPluginScene/InputContexts/SelectionContext.h>
+#include <EditorPluginScene/Scene/SceneDocument.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
 #include <EditorFramework/IPC/SyncObject.h>
@@ -90,6 +91,13 @@ bool ezSelectionContext::mouseMoveEvent(QMouseEvent* e)
 
   {
     const ezObjectPickingResult& res = GetOwner()->PickObject(e->pos().x(), e->pos().y());
+
+    if (res.m_PickedComponent.IsValid())
+    {
+      ezSceneDocument* pScene = static_cast<ezSceneDocument*>(GetOwner()->GetDocument());
+
+      pScene->SetPickingResult(res);
+    }
 
     if (res.m_PickedComponent.IsValid())
       msg.m_HighlightObject = res.m_PickedComponent;

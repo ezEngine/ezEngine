@@ -129,8 +129,8 @@ void ezEditAction::Execute(const ezVariant& value)
       QByteArray ba = mimedata->data(sDocumentTypeName.GetData());
       cmd.m_sJsonGraph = ba.data();
 
-      if (!m_Context.m_pDocument->GetSelectionManager()->IsSelectionEmpty())
-        cmd.m_Parent = m_Context.m_pDocument->GetSelectionManager()->GetSelection().PeekBack()->GetGuid();
+      //if (!m_Context.m_pDocument->GetSelectionManager()->IsSelectionEmpty())
+        //cmd.m_Parent = m_Context.m_pDocument->GetSelectionManager()->GetSelection().PeekBack()->GetGuid();
 
       auto history = m_Context.m_pDocument->GetCommandHistory();
 

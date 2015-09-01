@@ -67,9 +67,16 @@ public:
 
   const ezDocumentTypeDescriptor& GetDocumentTypeDescriptor() const { return m_TypeDescriptor; }
 
+  struct PasteInfo
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ezDocumentObjectBase* m_pObject;
+    ezDocumentObjectBase* m_pParent;
+  };
 
   virtual bool Copy(ezAbstractObjectGraph& out_objectGraph) { return false; };
-  virtual bool Paste(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pParent) { return false; };
+  virtual bool Paste(const ezArrayPtr<PasteInfo>& info) { return false; };
   virtual void DeleteSelectedObjects();
 
 public:

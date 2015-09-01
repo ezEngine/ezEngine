@@ -209,21 +209,57 @@ bool ezSceneDocument::Copy(ezAbstractObjectGraph& graph)
   return true;
 }
 
-bool ezSceneDocument::Paste(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pParent)
+bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info)
 {
-  if (pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
-    return false;
+  ezVec3 vPasteAt(0.0f);
 
-  if (pParent == nullptr || pParent == GetObjectManager()->GetRootObject())
+  if (m_PickingResult.m_PickedObject.IsValid())
   {
-    GetObjectManager()->AddObject(pObject, nullptr, "RootObjects", -1);
-    return true;
+    vPasteAt = m_PickingResult.m_vPickedPosition;
   }
-  else
+
+  ezVec3 vAvgPos(0.0f);
+
+  for (const PasteInfo& pi : info)
   {
-    GetObjectManager()->AddObject(pObject, pParent, "Children", -1);
-    return true;
+    if (pi.m_pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
+      return false;
+
+    vAvgPos += pi.m_pObject->GetTypeAccessor().GetValue("LocalPosition").Get<ezVec3>();
   }
+
+  vAvgPos /= info.GetCount();
+
+  for (const PasteInfo& pi : info)
+  {
+    const ezVec3 vLocalPos = pi.m_pObject->GetTypeAccessor().GetValue("LocalPosition").Get<ezVec3>();
+    pi.m_pObject->GetTypeAccessor().SetValue("LocalPosition", vLocalPos - vAvgPos + vPasteAt);
+
+    if (pi.m_pParent == nullptr || pi.m_pParent == GetObjectManager()->GetRootObject())
+    {
+      GetObjectManager()->AddObject(pi.m_pObject, nullptr, "RootObjects", -1);
+    }
+    else
+    {
+      GetObjectManager()->AddObject(pi.m_pObject, pi.m_pParent, "Children", -1);
+    }
+  }
+
+  // set the pasted objects as the new selection
+  {
+    auto pSelMan = GetSelectionManager();
+
+    ezDeque<const ezDocumentObjectBase*> NewSelection;
+
+    for (const PasteInfo& pi : info)
+    {
+      NewSelection.PushBack(pi.m_pObject);
+    }
+
+    pSelMan->SetSelection(NewSelection);
+  }
+
+  return true;
 }
 
 void ezSceneDocument::ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)

@@ -165,7 +165,7 @@ ezStatus ezPasteObjectsCommand::Do(bool bRedo)
     ezAbstractObjectGraph graph;
 
     {
-      // Deserialze 
+      // Deserialize 
       ezMemoryStreamStorage streamStorage;
       ezMemoryStreamWriter memoryWriter(&streamStorage);
       memoryWriter.WriteBytes(m_sJsonGraph.GetData(), m_sJsonGraph.GetElementCount());
@@ -181,6 +181,8 @@ ezStatus ezPasteObjectsCommand::Do(bool bRedo)
 
     ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
 
+    ezHybridArray<ezDocumentBase::PasteInfo, 16> ToBePasted;
+
     auto& nodes = graph.GetAllNodes();
     for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
     {
@@ -190,17 +192,27 @@ ezStatus ezPasteObjectsCommand::Do(bool bRedo)
         auto* pNewObject = reader.CreateObjectFromNode(pNode, nullptr, nullptr, ezVariant());
         reader.ApplyPropertiesToObject(pNode, pNewObject);
 
-        if (pDocument->Paste(pNewObject, pParent))
-        {
-          auto& po = m_PastedObjects.ExpandAndGetRef();
-          po.m_pObject = pNewObject;
-          po.m_Index = pNewObject->GetPropertyIndex();
-          po.m_sParentProperty = pNewObject->GetParentProperty();
-        }
-        else
-        {
-          pDocument->GetObjectManager()->DestroyObject(pNewObject);
-        }
+        auto& ref = ToBePasted.ExpandAndGetRef();
+        ref.m_pObject = pNewObject;
+        ref.m_pParent = pParent;
+      }
+    }
+
+    if (pDocument->Paste(ToBePasted))
+    {
+      for (const auto& item : ToBePasted)
+      {
+        auto& po = m_PastedObjects.ExpandAndGetRef();
+        po.m_pObject = item.m_pObject;
+        po.m_Index = item.m_pObject->GetPropertyIndex();
+        po.m_sParentProperty = item.m_pObject->GetParentProperty();
+      }
+    }
+    else
+    {
+      for (const auto& item : ToBePasted)
+      {
+        pDocument->GetObjectManager()->DestroyObject(item.m_pObject);
       }
     }
 

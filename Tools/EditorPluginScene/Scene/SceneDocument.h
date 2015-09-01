@@ -2,7 +2,7 @@
 
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
-
+#include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
 
 enum class ActiveGizmo
 {
@@ -40,10 +40,12 @@ public:
   bool GetGizmoWorldSpace() const;
 
   virtual bool Copy(ezAbstractObjectGraph& out_objectGraph) override;
-  virtual bool Paste(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pParent) override;
+  virtual bool Paste(const ezArrayPtr<PasteInfo>& info) override;
 
   const ezTransform& GetGlobalTransform(const ezDocumentObjectBase* pObject);
   void SetGlobalTransform(const ezDocumentObjectBase* pObject, const ezTransform& t);
+
+  void SetPickingResult(const ezObjectPickingResult& res) { m_PickingResult = res; }
 
   static ezTransform QueryLocalTransform(const ezDocumentObjectBase* pObject);
   static ezTransform ComputeGlobalTransform(const ezDocumentObjectBase* pObject);
@@ -80,6 +82,7 @@ private:
 
   bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
   ActiveGizmo m_ActiveGizmo;
+  ezObjectPickingResult m_PickingResult;
 
   ezHashTable<const ezDocumentObjectBase*, ezTransform> m_GlobalTransforms;
 };
