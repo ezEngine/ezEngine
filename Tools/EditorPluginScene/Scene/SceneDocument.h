@@ -33,6 +33,7 @@ public:
   void TriggerSnapPivotToGrid();
   void TriggerSnapEachObjectToGrid();
   void GroupSelection();
+  void DuplicateSelection();
   void TriggerHideSelectedObjects();
   void TriggerHideUnselectedObjects();
   void TriggerShowHiddenObjects();
@@ -41,6 +42,10 @@ public:
 
   virtual bool Copy(ezAbstractObjectGraph& out_objectGraph) override;
   virtual bool Paste(const ezArrayPtr<PasteInfo>& info) override;
+  bool Duplicate(const ezArrayPtr<PasteInfo>& info);
+  bool Copy(ezAbstractObjectGraph& graph, ezMap<ezUuid, ezUuid>* out_pParents);
+  bool PasteAt(const ezArrayPtr<PasteInfo>& info, const ezVec3& vPos);
+  bool PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info);
 
   const ezTransform& GetGlobalTransform(const ezDocumentObjectBase* pObject);
   void SetGlobalTransform(const ezDocumentObjectBase* pObject, const ezTransform& t);

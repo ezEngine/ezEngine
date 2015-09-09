@@ -154,10 +154,10 @@ void ezAbstractObjectGraph::ReMapNodeGuids(const ezUuid& seedGuid)
   ezMap<ezUuid, ezUuid> guidMap;
   for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
   {
-    // TODO: make this reverseable
-    ezStringBuilder sTemp = ezConversionUtils::ToString(it.Key());
-    sTemp.Append(ezConversionUtils::ToString(seedGuid));
-    guidMap[it.Key()] = ezUuid::StableUuidForString(sTemp);
+    ezUuid newGuid = it.Key();
+    newGuid.CombineWithSeed(seedGuid);
+
+    guidMap[it.Key()] = newGuid;
 
     nodes.PushBack(it.Value());
   }

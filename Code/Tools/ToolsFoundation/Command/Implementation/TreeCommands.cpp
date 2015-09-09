@@ -204,6 +204,7 @@ ezStatus ezPasteObjectsCommand::Do(bool bRedo)
       {
         auto& po = m_PastedObjects.ExpandAndGetRef();
         po.m_pObject = item.m_pObject;
+        po.m_pParent = item.m_pParent;
         po.m_Index = item.m_pObject->GetPropertyIndex();
         po.m_sParentProperty = item.m_pObject->GetParentProperty();
       }
@@ -224,7 +225,7 @@ ezStatus ezPasteObjectsCommand::Do(bool bRedo)
     // Re-add at recorded place.
     for (auto& po : m_PastedObjects)
     {
-      pDocument->GetObjectManager()->AddObject(po.m_pObject, pParent, po.m_sParentProperty, po.m_Index);
+      pDocument->GetObjectManager()->AddObject(po.m_pObject, po.m_pParent, po.m_sParentProperty, po.m_Index);
     }
   }
   return ezStatus(EZ_SUCCESS);

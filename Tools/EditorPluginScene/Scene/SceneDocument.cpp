@@ -8,6 +8,8 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <Foundation/Serialization/JsonSerializer.h>
+#include <Commands/SceneCommands.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, ezDocumentBase, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -107,7 +109,7 @@ void ezSceneDocument::GroupSelection()
 
   vCenter /= sel.GetCount();
   //vCenter.SetZero();
-  
+
   auto pHistory = GetCommandHistory();
 
   pHistory->StartTransaction();
@@ -142,6 +144,41 @@ void ezSceneDocument::GroupSelection()
   }
 
   pHistory->FinishTransaction();
+}
+
+
+void ezSceneDocument::DuplicateSelection()
+{
+  ezMap<ezUuid, ezUuid> parents;
+
+  ezAbstractObjectGraph graph;
+  Copy(graph, &parents);
+
+  ezStringBuilder temp;
+  for (auto it = parents.GetIterator(); it.IsValid(); ++it)
+  {
+    temp.AppendFormat("%s=%s;", ezConversionUtils::ToString(it.Key()).GetData(), ezConversionUtils::ToString(it.Value()).GetData());
+  }
+
+  // Serialize to string
+  ezMemoryStreamStorage streamStorage;
+  ezMemoryStreamWriter memoryWriter(&streamStorage);
+
+  ezAbstractGraphJsonSerializer::Write(memoryWriter, &graph, ezJSONWriter::WhitespaceMode::LessIndentation);
+  memoryWriter.WriteBytes("\0", 1); // null terminate
+
+  ezDuplicateObjectsCommand cmd;
+  cmd.m_sJsonGraph = (const char*)streamStorage.GetData();
+  cmd.m_sParentNodes = temp;
+
+  auto history = GetCommandHistory();
+
+  history->StartTransaction();
+
+  if (history->AddCommand(cmd).m_Result.Failed())
+    history->CancelTransaction();
+  else
+    history->FinishTransaction();
 }
 
 void ezSceneDocument::TriggerHideSelectedObjects()
@@ -192,6 +229,11 @@ bool ezSceneDocument::GetGizmoWorldSpace() const
 
 bool ezSceneDocument::Copy(ezAbstractObjectGraph& graph)
 {
+  return Copy(graph, nullptr);
+}
+
+bool ezSceneDocument::Copy(ezAbstractObjectGraph& graph, ezMap<ezUuid, ezUuid>* out_pParents)
+{
   if (GetSelectionManager()->GetSelection().GetCount() == 0)
     return false;
 
@@ -204,20 +246,21 @@ bool ezSceneDocument::Copy(ezAbstractObjectGraph& graph)
   for (auto item : Selection)
     writer.AddObjectToGraph(item, "root");
 
-  // TODO: make each object positions relative to a null point.
+  if (out_pParents != nullptr)
+  {
+    out_pParents->Clear();
+
+    for (auto item : Selection)
+    {
+      (*out_pParents)[item->GetGuid()] = item->GetParent()->GetGuid();
+    }
+  }
 
   return true;
 }
 
-bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info)
+bool ezSceneDocument::PasteAt(const ezArrayPtr<PasteInfo>& info, const ezVec3& vPasteAt)
 {
-  ezVec3 vPasteAt(0.0f);
-
-  if (m_PickingResult.m_PickedObject.IsValid())
-  {
-    vPasteAt = m_PickingResult.m_vPickedPosition;
-  }
-
   ezVec3 vAvgPos(0.0f);
 
   for (const PasteInfo& pi : info)
@@ -244,6 +287,61 @@ bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info)
       GetObjectManager()->AddObject(pi.m_pObject, pi.m_pParent, "Children", -1);
     }
   }
+
+  return true;
+}
+
+bool ezSceneDocument::PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info)
+{
+  for (const PasteInfo& pi : info)
+  {
+    if (pi.m_pParent == nullptr || pi.m_pParent == GetObjectManager()->GetRootObject())
+    {
+      GetObjectManager()->AddObject(pi.m_pObject, nullptr, "RootObjects", -1);
+    }
+    else
+    {
+      GetObjectManager()->AddObject(pi.m_pObject, pi.m_pParent, "Children", -1);
+    }
+  }
+
+  return true;
+}
+
+bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info)
+{
+  if (m_PickingResult.m_PickedObject.IsValid())
+  {
+    if (!PasteAt(info, m_PickingResult.m_vPickedPosition))
+      return false;
+  }
+  else
+  {
+    if (!PasteAtOrignalPosition(info))
+      return false;
+  }
+
+  // set the pasted objects as the new selection
+  {
+    auto pSelMan = GetSelectionManager();
+
+    ezDeque<const ezDocumentObjectBase*> NewSelection;
+
+    for (const PasteInfo& pi : info)
+    {
+      NewSelection.PushBack(pi.m_pObject);
+    }
+
+    pSelMan->SetSelection(NewSelection);
+  }
+
+  return true;
+}
+
+bool ezSceneDocument::Duplicate(const ezArrayPtr<PasteInfo>& info)
+{
+  if (!PasteAtOrignalPosition(info))
+    return false;
 
   // set the pasted objects as the new selection
   {

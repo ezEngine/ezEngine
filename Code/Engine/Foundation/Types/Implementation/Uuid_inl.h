@@ -29,6 +29,18 @@ bool ezUuid::IsValid() const
   return m_uiHigh != 0 || m_uiLow != 0;
 }
 
+void ezUuid::CombineWithSeed(const ezUuid& seed)
+{
+  m_uiHigh += seed.m_uiHigh;
+  m_uiLow += seed.m_uiLow;
+}
+
+void ezUuid::RevertCombinationWithSeed(const ezUuid& seed)
+{
+  m_uiHigh -= seed.m_uiHigh;
+  m_uiLow -= seed.m_uiLow;
+}
+
 template <>
 struct ezHashHelper<ezUuid>
 {

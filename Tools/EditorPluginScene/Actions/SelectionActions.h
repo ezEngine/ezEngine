@@ -18,6 +18,7 @@ public:
   static ezActionDescriptorHandle s_hShowInScenegraph;
   static ezActionDescriptorHandle s_hFocusOnSelection;
   static ezActionDescriptorHandle s_hGroupSelectedItems;
+  static ezActionDescriptorHandle s_hDuplicateItems;
   static ezActionDescriptorHandle s_hHideSelectedObjects;
   static ezActionDescriptorHandle s_hHideUnselectedObjects;
   static ezActionDescriptorHandle s_hShowHiddenObjects;
@@ -36,6 +37,7 @@ public:
     ShowInScenegraph,
     FocusOnSelection,
     GroupSelectedItems,
+    DuplicateItems,
     HideSelectedObjects,
     HideUnselectedObjects,
     ShowHiddenObjects,

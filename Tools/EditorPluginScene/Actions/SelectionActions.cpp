@@ -11,6 +11,7 @@ ezActionDescriptorHandle ezSelectionActions::s_hSelectionCategory;
 ezActionDescriptorHandle ezSelectionActions::s_hShowInScenegraph;
 ezActionDescriptorHandle ezSelectionActions::s_hFocusOnSelection;
 ezActionDescriptorHandle ezSelectionActions::s_hGroupSelectedItems;
+ezActionDescriptorHandle ezSelectionActions::s_hDuplicateItems;
 ezActionDescriptorHandle ezSelectionActions::s_hHideSelectedObjects;
 ezActionDescriptorHandle ezSelectionActions::s_hHideUnselectedObjects;
 ezActionDescriptorHandle ezSelectionActions::s_hShowHiddenObjects;
@@ -21,6 +22,7 @@ void ezSelectionActions::RegisterActions()
   s_hShowInScenegraph = EZ_REGISTER_ACTION_1("ShowInScenegraph", "Show in Scenegraph", ezActionScope::Document, "Document", "Ctrl+T", ezSelectionAction, ezSelectionAction::ActionType::ShowInScenegraph);
   s_hFocusOnSelection = EZ_REGISTER_ACTION_1("FocusOnSelection", "Focus on Selection", ezActionScope::Document, "Document", "F", ezSelectionAction, ezSelectionAction::ActionType::FocusOnSelection);
   s_hGroupSelectedItems = EZ_REGISTER_ACTION_1("GroupSelectedItems", "Group", ezActionScope::Document, "Document", "G", ezSelectionAction, ezSelectionAction::ActionType::GroupSelectedItems);
+  s_hDuplicateItems = EZ_REGISTER_ACTION_1("DuplicateItems", "Duplicate", ezActionScope::Document, "Document", "Ctrl+D", ezSelectionAction, ezSelectionAction::ActionType::DuplicateItems);
   s_hHideSelectedObjects = EZ_REGISTER_ACTION_1("HideSelectedObjects", "Hide Selected", ezActionScope::Document, "Document", "H", ezSelectionAction, ezSelectionAction::ActionType::HideSelectedObjects);
   s_hHideUnselectedObjects = EZ_REGISTER_ACTION_1("HideUnselectedObjects", "Hide Unselected", ezActionScope::Document, "Document", "Shift+H", ezSelectionAction, ezSelectionAction::ActionType::HideUnselectedObjects);
   s_hShowHiddenObjects = EZ_REGISTER_ACTION_1("ShowHiddenObjects", "Show Hidden Objects", ezActionScope::Document, "Document", "Ctrl+H", ezSelectionAction, ezSelectionAction::ActionType::ShowHiddenObjects);
@@ -32,6 +34,7 @@ void ezSelectionActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hShowInScenegraph);
   ezActionManager::UnregisterAction(s_hFocusOnSelection);
   ezActionManager::UnregisterAction(s_hGroupSelectedItems);
+  ezActionManager::UnregisterAction(s_hDuplicateItems);
   ezActionManager::UnregisterAction(s_hHideSelectedObjects);
   ezActionManager::UnregisterAction(s_hHideUnselectedObjects);
   ezActionManager::UnregisterAction(s_hShowHiddenObjects);
@@ -46,6 +49,7 @@ void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
 
   pMap->MapAction(s_hSelectionCategory, szPath, 5.0f);
   pMap->MapAction(s_hGroupSelectedItems, sSubPath, 1.0f);
+  pMap->MapAction(s_hDuplicateItems, sSubPath, 1.5f);
   pMap->MapAction(s_hShowInScenegraph, sSubPath, 2.0f);
   pMap->MapAction(s_hFocusOnSelection, sSubPath, 3.0f);
   pMap->MapAction(s_hHideSelectedObjects, sSubPath, 4.0f);
@@ -68,6 +72,9 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
     break;
   case ActionType::GroupSelectedItems:
     SetIconPath(":/GuiFoundation/Icons/GroupSelection16.png");
+    break;
+  case ActionType::DuplicateItems:
+    //SetIconPath(":/GuiFoundation/Icons/GroupSelection16.png");
     break;
   case ActionType::HideSelectedObjects:
     SetIconPath(":/GuiFoundation/Icons/HideSelected16.png");
@@ -93,6 +100,9 @@ void ezSelectionAction::Execute(const ezVariant& value)
     return;
   case ActionType::GroupSelectedItems:
     m_pSceneDocument->GroupSelection();
+    return;
+  case ActionType::DuplicateItems:
+    m_pSceneDocument->DuplicateSelection();
     return;
   case ActionType::HideSelectedObjects:
     m_pSceneDocument->TriggerHideSelectedObjects();

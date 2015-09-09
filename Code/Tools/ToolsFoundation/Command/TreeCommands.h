@@ -51,6 +51,7 @@ private:
   struct PastedObject
   {
     ezDocumentObjectBase* m_pObject;
+    ezDocumentObjectBase* m_pParent;
     ezString m_sParentProperty;
     ezVariant m_Index;
   };
