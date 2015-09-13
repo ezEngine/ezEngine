@@ -2,7 +2,7 @@
 
 #include <EditorFramework/Plugin.h>
 #include <Foundation/Containers/HybridArray.h>
-#include <EditorFramework/GUI/PropertyEditorBaseWidget.moc.h>
+//#include <EditorFramework/GUI/PropertyEditorBaseWidget.moc.h>
 #include <ToolsFoundation/Settings/Settings.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <QWidget>

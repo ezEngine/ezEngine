@@ -24,7 +24,7 @@ ezReflectedTypeStorageAccessor::ezReflectedTypeStorageAccessor(const ezRTTI* pRt
   for (auto it = indexTable.GetIterator(); it.IsValid(); ++it)
   {
     const auto storageInfo = it.Value();
-    m_Data[storageInfo.m_uiIndex] = ezToolsReflectionUtils::GetDefaultVariantFromType(storageInfo.m_Type);
+    m_Data[storageInfo.m_uiIndex] = storageInfo.m_DefaultValue;
   }
 }
 
@@ -273,6 +273,52 @@ bool ezReflectedTypeStorageAccessor::RemoveValue(const ezPropertyPath& path, ezV
           {
             ezVariantArray changedValues = values;
             changedValues.RemoveAt(uiIndex);
+            m_Data[storageInfo->m_uiIndex] = changedValues;
+            return true;
+          }
+        }
+      }
+      break;
+    }
+  }
+  return false;
+}
+
+bool ezReflectedTypeStorageAccessor::MoveValue(const ezPropertyPath& path, ezVariant oldIndex, ezVariant newIndex)
+{
+  ezStringBuilder sPathString = path.GetPathString();
+
+  ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
+  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sPathString, storageInfo))
+  {
+    if (storageInfo->m_Type == ezVariant::Type::Invalid)
+      return false;
+
+    const ezAbstractProperty* pProp = ezToolsReflectionUtils::GetPropertyByPath(GetType(), path);
+    if (pProp == nullptr)
+      return false;
+
+    switch (pProp->GetCategory())
+    {
+    case ezPropertyCategory::Array:
+    case ezPropertyCategory::Set:
+      {
+        const ezVariantArray& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantArray>();
+        if (oldIndex.CanConvertTo<ezUInt32>() && newIndex.CanConvertTo<ezUInt32>())
+        {
+          ezUInt32 uiOldIndex = oldIndex.ConvertTo<ezUInt32>();
+          ezUInt32 uiNewIndex = newIndex.ConvertTo<ezUInt32>();
+          if (uiOldIndex < values.GetCount() && uiNewIndex <= values.GetCount())
+          {
+            ezVariantArray changedValues = values;
+            ezVariant value = changedValues[uiOldIndex];
+            changedValues.RemoveAt(uiOldIndex);
+            if (uiNewIndex > uiOldIndex)
+            {
+              uiNewIndex -= 1;
+            }
+            changedValues.Insert(value, uiNewIndex);
+
             m_Data[storageInfo->m_uiIndex] = changedValues;
             return true;
           }

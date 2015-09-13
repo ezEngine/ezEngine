@@ -37,9 +37,22 @@ private:
   static void Shutdown();
 
 public:
-  static ezEvent<const ezPhantomTypeChange&> m_TypeAddedEvent;
-  static ezEvent<const ezPhantomTypeChange&> m_TypeChangedEvent;
-  static ezEvent<const ezPhantomTypeChange&> m_TypeRemovedEvent;
+  struct Event
+  {
+    enum class Type
+    {
+      TypeAdded,
+      TypeRemoved,
+      TypeChanged,
+    };
+
+    Event() : m_Type(Type::TypeAdded), m_pChangedType(nullptr) {}
+
+    Type m_Type;
+    const ezRTTI* m_pChangedType;
+  };
+
+  static ezEvent<const Event&> m_Events;
 
 private:
   static ezSet<const ezRTTI*> m_RegisteredConcreteTypes;

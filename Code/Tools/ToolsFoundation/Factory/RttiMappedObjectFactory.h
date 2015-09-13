@@ -9,7 +9,7 @@
 /// When the create function is called for a type, the parent type hierarchy is traversed until
 /// the first type is found for which a creator is registered.
 template <typename Object>
-struct ezRttiMappedObjectFactory
+class ezRttiMappedObjectFactory
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezRttiMappedObjectFactory);
 public:
@@ -18,9 +18,9 @@ public:
 
   typedef Object* (*CreateObjectFunc)(const ezRTTI* pType);
 
-  static ezResult RegisterCreator(const ezRTTI* pType, CreateObjectFunc creator);
-  static ezResult UnregisterCreator(const ezRTTI* pType);
-  static Object* CreateObject(const ezRTTI* pType);
+  ezResult RegisterCreator(const ezRTTI* pType, CreateObjectFunc creator);
+  ezResult UnregisterCreator(const ezRTTI* pType);
+  Object* CreateObject(const ezRTTI* pType);
 
   struct Event
   {
@@ -34,10 +34,10 @@ public:
     const ezRTTI* m_pRttiType;
   };
 
-  static ezEvent<const Event&> s_Events;
+  ezEvent<const Event&> m_Events;
 
 private:
-  static ezHashTable<const ezRTTI*, CreateObjectFunc> s_Creators;
+  ezHashTable<const ezRTTI*, CreateObjectFunc> m_Creators;
 };
 
 #include <ToolsFoundation/Factory/Implementation/RttiMappedObjectFactory_inl.h>

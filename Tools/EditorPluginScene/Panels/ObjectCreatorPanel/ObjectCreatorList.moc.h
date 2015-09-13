@@ -17,7 +17,7 @@ public:
   virtual QStringList mimeTypes () const override;
 
 private:
-  void TypeChanged(const ezPhantomTypeChange& data);
+  void TypeEventHandler(const ezPhantomRttiManager::Event& e);
 
 private:
   const ezDocumentObjectManager* m_pManager;

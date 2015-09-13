@@ -109,6 +109,7 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
   case ezDocumentObjectPropertyEvent::Type::PropertySet:
   case ezDocumentObjectPropertyEvent::Type::PropertyInserted:
   case ezDocumentObjectPropertyEvent::Type::PropertyRemoved:
+  case ezDocumentObjectPropertyEvent::Type::PropertyMoved:
     {
       if (IsRootObject(e.m_pObject->GetParent()))
       {

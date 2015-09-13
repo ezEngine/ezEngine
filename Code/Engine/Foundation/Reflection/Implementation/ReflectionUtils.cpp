@@ -103,6 +103,29 @@ namespace
   };
 }
 
+const ezRTTI* ezReflectionUtils::GetCommonBaseType(const ezRTTI* pRtti1, const ezRTTI* pRtti2)
+{
+  if (pRtti2 == nullptr)
+    return nullptr;
+
+  while (pRtti1 != nullptr)
+  {
+    const ezRTTI* pRtti2Parent = pRtti2;
+
+    while (pRtti2Parent != nullptr)
+    {
+      if (pRtti1 == pRtti2Parent)
+        return pRtti2Parent;
+
+      pRtti2Parent = pRtti2Parent->GetParentType();
+    }
+
+    pRtti1 = pRtti1->GetParentType();
+  }
+
+  return nullptr;
+}
+
 bool ezReflectionUtils::IsBasicType(const ezRTTI* pRtti)
 {
   ezVariant::Type::Enum type = pRtti->GetVariantType();

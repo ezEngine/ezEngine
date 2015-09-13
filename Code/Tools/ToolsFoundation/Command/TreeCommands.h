@@ -119,6 +119,7 @@ public: // Properties
   ezUuid m_Object;
   ezVariant m_NewValue;
   ezVariant m_Index;
+  ezString m_sPropertyPath;
 
   const char* GetPropertyPath() const { return m_sPropertyPath; }
   void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }
@@ -131,7 +132,6 @@ private:
 private:
   ezDocumentObjectBase* m_pObject;
   ezVariant m_OldValue;
-  ezString m_sPropertyPath;
 };
 
 class EZ_TOOLSFOUNDATION_DLL ezInsertObjectPropertyCommand : public ezCommandBase
@@ -145,6 +145,7 @@ public: // Properties
   ezUuid m_Object;
   ezVariant m_NewValue;
   ezVariant m_Index;
+  ezString m_sPropertyPath;
 
   const char* GetPropertyPath() const { return m_sPropertyPath; }
   void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }
@@ -156,7 +157,6 @@ private:
 
 private:
   ezDocumentObjectBase* m_pObject;
-  ezString m_sPropertyPath;
 };
 
 class EZ_TOOLSFOUNDATION_DLL ezRemoveObjectPropertyCommand : public ezCommandBase
@@ -169,6 +169,7 @@ public:
 public: // Properties
   ezUuid m_Object;
   ezVariant m_Index;
+  ezString m_sPropertyPath;
 
   const char* GetPropertyPath() const { return m_sPropertyPath; }
   void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }
@@ -180,6 +181,30 @@ private:
 
 private:
   ezDocumentObjectBase* m_pObject;
-  ezString m_sPropertyPath;
   ezVariant m_OldValue;
+};
+
+class EZ_TOOLSFOUNDATION_DLL ezMoveObjectPropertyCommand : public ezCommandBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezMoveObjectPropertyCommand);
+
+public:
+  ezMoveObjectPropertyCommand();
+
+public: // Properties
+  ezUuid m_Object;
+  ezVariant m_OldIndex;
+  ezVariant m_NewIndex;
+  ezString m_sPropertyPath;
+
+  const char* GetPropertyPath() const { return m_sPropertyPath; }
+  void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }
+
+private:
+  virtual ezStatus Do(bool bRedo) override;
+  virtual ezStatus Undo(bool bFireEvents) override;
+  virtual void Cleanup(CommandState state) override { }
+
+private:
+  ezDocumentObjectBase* m_pObject;
 };

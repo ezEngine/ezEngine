@@ -69,6 +69,14 @@ bool ezReflectedTypeSubObjectAccessor::RemoveValue(const ezPropertyPath& path, e
   return m_pAcc->RemoveValue(pathCopy, index);
 }
 
+bool ezReflectedTypeSubObjectAccessor::MoveValue(const ezPropertyPath& path, ezVariant oldIndex, ezVariant newIndex)
+{
+  ezPropertyPath pathCopy = m_SubPath;
+  pathCopy.PushBackRange(path);
+
+  return m_pAcc->MoveValue(pathCopy, oldIndex, newIndex);
+}
+
 ezVariant ezReflectedTypeSubObjectAccessor::GetPropertyChildIndex(const ezPropertyPath& path, const ezVariant& value) const
 {
   ezPropertyPath pathCopy = m_SubPath;

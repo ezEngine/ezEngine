@@ -79,6 +79,28 @@ ezVariant ezToolsReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enu
   return ezVariant();
 }
 
+ezVariant ezToolsReflectionUtils::GetDefaultValue(const ezAbstractProperty* pProperty)
+{
+  auto type = pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+  if (pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::StandardType))
+  {
+    const ezDefaultValueAttribute* pAttrib = pProperty->GetAttributeByType<ezDefaultValueAttribute>();
+    if (pAttrib)
+    {
+      if (pProperty->GetSpecificType()->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
+      {
+        if (pAttrib->GetValue().CanConvertTo(ezVariantType::Int64))
+          return pAttrib->GetValue().ConvertTo(ezVariantType::Int64);
+      }
+      else if (pAttrib->GetValue().CanConvertTo(type))
+      {
+        return pAttrib->GetValue().ConvertTo(type);
+      }
+    }
+  }
+  return GetDefaultVariantFromType(type);
+}
+
 void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pRtti, ezReflectedTypeDescriptor& out_desc)
 {
   EZ_ASSERT_DEV(pRtti != nullptr, "Type to process must not be null!");
@@ -130,32 +152,6 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
     case ezPropertyCategory::Function:
       break;
     }
-  }
-}
-
-void ezToolsReflectionUtils::RegisterType(const ezRTTI* pRtti, bool bIncludeDerived)
-{
-  EZ_ASSERT_DEV(pRtti != nullptr, "Invalid type !!");
-
-  ezSet<const ezRTTI*> types;
-  types.Insert(pRtti);
-  if (bIncludeDerived)
-  {
-    ezReflectionUtils::GatherTypesDerivedFromClass(pRtti, types, true);
-  }
-  else
-  {
-    ezReflectionUtils::GatherDependentTypes(pRtti, types);
-  }
-
-  ezDynamicArray<const ezRTTI*> sortedTypes;
-  ezReflectionUtils::CreateDependencySortedTypeArray(types, sortedTypes);
-
-  for (auto type : sortedTypes)
-  {
-    ezReflectedTypeDescriptor desc;
-    ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(type, desc);
-    ezPhantomRttiManager::RegisterType(desc);
   }
 }
 

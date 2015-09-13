@@ -3,7 +3,7 @@
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeDirectAccessor.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
-#include <EditorFramework/GUI/PropertyEditorBaseWidget.moc.h>
+//#include <EditorFramework/GUI/PropertyEditorBaseWidget.moc.h>
 
 struct ezResourceSlot
 {

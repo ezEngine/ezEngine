@@ -8,6 +8,8 @@
 #include <QMenu>
 #include <QAction>
 
+ezRttiMappedObjectFactory<ezQtProxy> ezQtProxy::s_Factory;
+
 static ezQtProxy* QtMenuProxyCreator(const ezRTTI* pRtti)
 {
   return new(ezQtMenuProxy);
@@ -41,10 +43,10 @@ END_SUBSYSTEM_DEPENDENCIES
 
 ON_CORE_STARTUP
 {
-  ezRttiMappedObjectFactory<ezQtProxy>::RegisterCreator(ezGetStaticRTTI<ezMenuAction>(), QtMenuProxyCreator);
-  ezRttiMappedObjectFactory<ezQtProxy>::RegisterCreator(ezGetStaticRTTI<ezCategoryAction>(), QtCategoryProxyCreator);
-  ezRttiMappedObjectFactory<ezQtProxy>::RegisterCreator(ezGetStaticRTTI<ezLRUMenuAction>(), QtLRUMenuProxyCreator);
-  ezRttiMappedObjectFactory<ezQtProxy>::RegisterCreator(ezGetStaticRTTI<ezButtonAction>(), QtButtonProxyCreator);
+  ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezMenuAction>(), QtMenuProxyCreator);
+  ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezCategoryAction>(), QtCategoryProxyCreator);
+  ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezLRUMenuAction>(), QtLRUMenuProxyCreator);
+  ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezButtonAction>(), QtButtonProxyCreator);
 }
 
 ON_CORE_SHUTDOWN
@@ -56,6 +58,10 @@ ON_CORE_SHUTDOWN
 
 EZ_END_SUBSYSTEM_DECLARATION
 
+ezRttiMappedObjectFactory<ezQtProxy>& ezQtProxy::GetFactory()
+{
+  return s_Factory;
+}
 QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezActionDescriptorHandle hDesc)
 {
   QSharedPointer<ezQtProxy> pProxy;
@@ -63,7 +69,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
   if (pDesc->m_Type != ezActionType::Action)
   {
     auto pAction = pDesc->CreateAction(context);
-    pProxy = QSharedPointer<ezQtProxy>(ezRttiMappedObjectFactory<ezQtProxy>::CreateObject(pAction->GetDynamicRTTI()));
+    pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
     EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_sActionName.GetData());
     pProxy->SetAction(pAction, true);
     return pProxy;
@@ -78,7 +84,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       if (pTemp.isNull())
       {
         auto pAction = pDesc->CreateAction(context);
-        pProxy = QSharedPointer<ezQtProxy>(ezRttiMappedObjectFactory<ezQtProxy>::CreateObject(pAction->GetDynamicRTTI()));
+        pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
         EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_sActionName.GetData());
         pProxy->SetAction(pAction, true);
         s_GlobalActions[hDesc] = pProxy.toWeakRef();
@@ -95,7 +101,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       if (pTemp.isNull())
       {
         auto pAction = pDesc->CreateAction(context);
-        pProxy = QSharedPointer<ezQtProxy>(ezRttiMappedObjectFactory<ezQtProxy>::CreateObject(pAction->GetDynamicRTTI()));
+        pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
         EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_sActionName.GetData());
         pProxy->SetAction(pAction, true);
         s_DocumentActions[context.m_pDocument->GetGuid()][hDesc] = pProxy;
@@ -112,7 +118,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       if (pTemp.isNull())
       {
         auto pAction = pDesc->CreateAction(context);
-        pProxy = QSharedPointer<ezQtProxy>(ezRttiMappedObjectFactory<ezQtProxy>::CreateObject(pAction->GetDynamicRTTI()));
+        pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
         EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_sActionName.GetData());
         pProxy->SetAction(pAction, true);
         s_WindowActions[pAction->GetContext().m_sMapping][hDesc] = pProxy;

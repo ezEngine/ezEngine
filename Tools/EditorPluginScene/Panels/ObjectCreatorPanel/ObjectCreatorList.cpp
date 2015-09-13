@@ -1,6 +1,5 @@
 #include <PCH.h>
 #include <EditorPluginScene/Panels/ObjectCreatorPanel/ObjectCreatorList.moc.h>
-#include <EditorFramework/GUI/QtHelpers.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <QMimeData>
 
@@ -8,26 +7,22 @@ ezObjectCreatorList::ezObjectCreatorList(const ezDocumentObjectManager* pManager
 {
   m_pManager = pManager;
 
-  ezPhantomRttiManager::m_TypeAddedEvent.AddEventHandler(ezMakeDelegate(&ezObjectCreatorList::TypeChanged, this));
-  ezPhantomRttiManager::m_TypeChangedEvent.AddEventHandler(ezMakeDelegate(&ezObjectCreatorList::TypeChanged, this));
-  ezPhantomRttiManager::m_TypeRemovedEvent.AddEventHandler(ezMakeDelegate(&ezObjectCreatorList::TypeChanged, this));
+  ezPhantomRttiManager::m_Events.AddEventHandler(ezMakeDelegate(&ezObjectCreatorList::TypeEventHandler, this));
 
-  TypeChanged(ezPhantomTypeChange());
+  TypeEventHandler(ezPhantomRttiManager::Event());
 }
 
 ezObjectCreatorList::~ezObjectCreatorList()
 {
-  ezPhantomRttiManager::m_TypeAddedEvent.RemoveEventHandler(ezMakeDelegate(&ezObjectCreatorList::TypeChanged, this));
-  ezPhantomRttiManager::m_TypeChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezObjectCreatorList::TypeChanged, this));
-  ezPhantomRttiManager::m_TypeRemovedEvent.RemoveEventHandler(ezMakeDelegate(&ezObjectCreatorList::TypeChanged, this));
+  ezPhantomRttiManager::m_Events.RemoveEventHandler(ezMakeDelegate(&ezObjectCreatorList::TypeEventHandler, this));
 }
 
-void ezObjectCreatorList::TypeChanged(const ezPhantomTypeChange& data)
+void ezObjectCreatorList::TypeEventHandler(const ezPhantomRttiManager::Event& e)
 {
   ezHybridArray<const ezRTTI*, 32> Types;
   m_pManager->GetCreateableTypes(Types);
 
-  ezQtBlockSignals b(this);
+  QtScopedBlockSignals b(this);
 
   clear();
 

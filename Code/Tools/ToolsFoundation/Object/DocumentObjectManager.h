@@ -64,6 +64,7 @@ struct ezDocumentObjectPropertyEvent
     PropertySet,
     PropertyInserted,
     PropertyRemoved,
+    PropertyMoved,
   };
 
   Type m_EventType;
@@ -71,7 +72,8 @@ struct ezDocumentObjectPropertyEvent
   ezVariant m_OldValue;
   ezVariant m_NewValue;
   ezString m_sPropertyPath;
-  ezVariant m_Index;
+  ezVariant m_OldIndex;
+  ezVariant m_NewIndex;
 };
 
 

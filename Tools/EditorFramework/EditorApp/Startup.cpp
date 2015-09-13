@@ -6,17 +6,25 @@
 #include <EditorFramework/Actions/ProjectActions.h>
 #include <EditorFramework/Actions/AssetActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
+#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+#include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
+#include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
+
+
+static ezPropertyBaseWidget* AssetBrowserCreator(const ezRTTI* pRtti)
+{
+  return new ezAssetBrowserPropertyWidget();
+}
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
-    "GuiFoundation"
+    "GuiFoundation",
+    "PropertyGrid"
   END_SUBSYSTEM_DEPENDENCIES
 
   ON_CORE_STARTUP
   {
-    ezToolsReflectionUtils::RegisterType(ezRTTI::FindTypeByName("ezAssetDocumentInfo"));
-
     ezProjectActions::RegisterActions();
     ezAssetActions::RegisterActions();
 
@@ -26,11 +34,16 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     
     ezActionMapManager::RegisterActionMap("AssetBrowserToolBar");
     ezAssetActions::MapActions("AssetBrowserToolBar", false);
+
+    ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezAssetBrowserAttribute>(), AssetBrowserCreator);
   }
 
   ON_CORE_SHUTDOWN
   {
     ezProjectActions::UnregisterActions();
+    ezAssetActions::UnregisterActions();
+
+    ezPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezAssetBrowserAttribute>());
   }
 
 EZ_END_SUBSYSTEM_DECLARATION

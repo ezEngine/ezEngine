@@ -1,18 +1,18 @@
 #pragma once
 
-#include <Plugin.h>
-#include <QPushButton>
-#include <EditorFramework/GUI/PropertyEditorBaseWidget.moc.h>
+#include <GuiFoundation/Basics.h>
+#include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
 
 class QHBoxLayout;
+class QPushButton;
+class QMenu;
 
-class EZ_EDITORFRAMEWORK_DLL ezAddSubElementButton : public ezPropertyEditorBaseWidget
+class EZ_GUIFOUNDATION_DLL ezAddSubElementButton : public ezPropertyBaseWidget
 {
   Q_OBJECT
 
 public:
-  ezAddSubElementButton(const char* szName, QWidget* pParent);
-  virtual void InternalSetValue(const ezVariant& value) {}
+  ezAddSubElementButton();
 
 private slots:
   void on_Menu_aboutToShow();

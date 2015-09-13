@@ -30,7 +30,8 @@ public:
 
   virtual bool InsertValue(const ezPropertyPath& path, ezVariant index, const ezVariant& value) = 0;
   virtual bool RemoveValue(const ezPropertyPath& path, ezVariant index) = 0;
-  
+  virtual bool MoveValue(const ezPropertyPath& path, ezVariant oldIndex, ezVariant newIndex) = 0;
+
   virtual ezVariant GetPropertyChildIndex(const ezPropertyPath& path, const ezVariant& value) const = 0;
 
   const ezDocumentObjectBase* GetOwner() const { return m_pOwner; }

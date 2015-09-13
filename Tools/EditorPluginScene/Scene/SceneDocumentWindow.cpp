@@ -15,7 +15,7 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
 #include <EditorPluginScene/Panels/ObjectCreatorPanel/ObjectCreatorList.moc.h>
-#include <EditorFramework/GUI/RawPropertyGridWidget.h>
+#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <QTimer>
 #include <QPushButton>
@@ -113,7 +113,7 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
     pPanelCreator->setWindowTitle("Object Creator");
     pPanelCreator->show();
 
-    ezRawPropertyGridWidget* pPropertyGrid = new ezRawPropertyGridWidget(pDocument, pPropertyPanel);
+    ezPropertyGridWidget* pPropertyGrid = new ezPropertyGridWidget(pDocument, pPropertyPanel);
     pPropertyPanel->setWidget(pPropertyGrid);
 
     ezObjectCreatorList* pCreatorWidget = new ezObjectCreatorList(pDocument->GetObjectManager(), pPanelCreator);
@@ -585,10 +585,6 @@ ezUuid ezScene3DWidget::CreateDropObject(const ezVec3& vPosition, const char* sz
 
   cmd2.SetPropertyPath("LocalPosition");
   cmd2.m_NewValue = vPosition;
-  history->AddCommand(cmd2);
-
-  cmd2.SetPropertyPath("LocalScaling");
-  cmd2.m_NewValue = ezVec3(1.0f);
   history->AddCommand(cmd2);
 
   cmd.SetType(szType);

@@ -14,9 +14,6 @@
 
 void OnLoadPlugin(bool bReloading)
 {
-  ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezTextureAssetProperties>());
-  ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezMaterialAssetProperties>());
-
   ezEditorApp::GetInstance()->RegisterPluginNameForSettings("AssetsPlugin");
 
   // Texture Asset

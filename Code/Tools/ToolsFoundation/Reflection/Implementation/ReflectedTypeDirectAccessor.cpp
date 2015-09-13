@@ -58,6 +58,12 @@ bool ezReflectedTypeDirectAccessor::RemoveValue(const ezPropertyPath& path, ezVa
   return false;
 }
 
+bool ezReflectedTypeDirectAccessor::MoveValue(const ezPropertyPath & path, ezVariant oldIndex, ezVariant newIndex)
+{
+  EZ_REPORT_FAILURE("ezReflectedTypeDirectAccessor: Containers are not supported!");
+  return false;
+}
+
 ezVariant ezReflectedTypeDirectAccessor::GetPropertyChildIndex(const ezPropertyPath& path, const ezVariant& value) const
 {
   EZ_REPORT_FAILURE("ezReflectedTypeDirectAccessor: Containers are not supported!");

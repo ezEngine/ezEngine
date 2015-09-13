@@ -64,6 +64,15 @@ EZ_ACCESSOR_PROPERTY("PropertyPath", GetPropertyPath, SetPropertyPath),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMoveObjectPropertyCommand, ezCommandBase, 1, ezRTTIDefaultAllocator<ezMoveObjectPropertyCommand>);
+EZ_BEGIN_PROPERTIES
+EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
+EZ_MEMBER_PROPERTY("OldIndex", m_OldIndex),
+EZ_MEMBER_PROPERTY("NewIndex", m_NewIndex),
+EZ_ACCESSOR_PROPERTY("PropertyPath", GetPropertyPath, SetPropertyPath),
+EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
 ////////////////////////////////////////////////////////////////////////
 // ezAddObjectCommand
 ////////////////////////////////////////////////////////////////////////
@@ -449,7 +458,7 @@ ezStatus ezSetObjectPropertyCommand::Do(bool bRedo)
   e.m_OldValue = m_OldValue;
   e.m_NewValue = m_NewValue;
   e.m_sPropertyPath = m_sPropertyPath;
-  e.m_Index = m_Index;
+  e.m_NewIndex = m_Index;
 
   pDocument->GetObjectManager()->m_PropertyEvents.Broadcast(e);
 
@@ -474,7 +483,7 @@ ezStatus ezSetObjectPropertyCommand::Undo(bool bFireEvents)
     e.m_OldValue = m_NewValue;
     e.m_NewValue = m_OldValue;
     e.m_sPropertyPath = m_sPropertyPath;
-    e.m_Index = m_Index;
+    e.m_NewIndex = m_Index;
 
     GetDocument()->GetObjectManager()->m_PropertyEvents.Broadcast(e);
   }
@@ -525,7 +534,7 @@ ezStatus ezInsertObjectPropertyCommand::Do(bool bRedo)
   e.m_EventType = ezDocumentObjectPropertyEvent::Type::PropertyInserted;
   e.m_pObject = m_pObject;
   e.m_NewValue = m_NewValue;
-  e.m_Index = m_Index;
+  e.m_NewIndex = m_Index;
   e.m_sPropertyPath = m_sPropertyPath;
 
   pDocument->GetObjectManager()->m_PropertyEvents.Broadcast(e);
@@ -549,7 +558,7 @@ ezStatus ezInsertObjectPropertyCommand::Undo(bool bFireEvents)
     e.m_EventType = ezDocumentObjectPropertyEvent::Type::PropertyRemoved;
     e.m_pObject = m_pObject;
     e.m_OldValue = m_NewValue;
-    e.m_Index = m_Index;
+    e.m_OldIndex = m_Index;
     e.m_sPropertyPath = m_sPropertyPath;
 
     GetDocument()->GetObjectManager()->m_PropertyEvents.Broadcast(e);
@@ -596,10 +605,10 @@ ezStatus ezRemoveObjectPropertyCommand::Do(bool bRedo)
   }
 
   ezDocumentObjectPropertyEvent e;
-  e.m_EventType = ezDocumentObjectPropertyEvent::Type::PropertyInserted;
+  e.m_EventType = ezDocumentObjectPropertyEvent::Type::PropertyRemoved;
   e.m_pObject = m_pObject;
   e.m_OldValue = m_OldValue;
-  e.m_Index = m_Index;
+  e.m_OldIndex = m_Index;
   e.m_sPropertyPath = m_sPropertyPath;
 
   pDocument->GetObjectManager()->m_PropertyEvents.Broadcast(e);
@@ -620,10 +629,10 @@ ezStatus ezRemoveObjectPropertyCommand::Undo(bool bFireEvents)
   if (bFireEvents)
   {
     ezDocumentObjectPropertyEvent e;
-    e.m_EventType = ezDocumentObjectPropertyEvent::Type::PropertyRemoved;
+    e.m_EventType = ezDocumentObjectPropertyEvent::Type::PropertyInserted;
     e.m_pObject = m_pObject;
     e.m_NewValue = m_OldValue;
-    e.m_Index = m_Index;
+    e.m_NewIndex = m_Index;
     e.m_sPropertyPath = m_sPropertyPath;
 
     GetDocument()->GetObjectManager()->m_PropertyEvents.Broadcast(e);
@@ -632,3 +641,105 @@ ezStatus ezRemoveObjectPropertyCommand::Undo(bool bFireEvents)
   return ezStatus(EZ_SUCCESS);
 }
 
+
+////////////////////////////////////////////////////////////////////////
+// ezMoveObjectPropertyCommand
+////////////////////////////////////////////////////////////////////////
+
+ezMoveObjectPropertyCommand::ezMoveObjectPropertyCommand()
+{
+  m_pObject = nullptr;
+}
+
+ezStatus ezMoveObjectPropertyCommand::Do(bool bRedo)
+{
+  ezDocumentBase* pDocument = GetDocument();
+  if (!m_OldIndex.CanConvertTo<ezInt32>() || !m_OldIndex.CanConvertTo<ezInt32>())
+    return ezStatus(EZ_FAILURE, "Move Property: Invalid indices provided.");
+
+  ezPropertyPath path(m_sPropertyPath.GetData());
+  if (!bRedo)
+  {
+    {
+      m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
+      if (m_pObject == nullptr)
+        return ezStatus(EZ_FAILURE, "Move Property: The given object does not exist.");
+    }
+
+    const ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
+    ezInt32 iCount = accessor.GetCount(path);
+    if (iCount < 0)
+      return ezStatus("Move Property: Invalid property.");
+    if (m_OldIndex.ConvertTo<ezInt32>() < 0 || m_OldIndex.ConvertTo<ezInt32>() >= iCount)
+      return ezStatus("Move Property: Invalid old index '%i'.", m_OldIndex.ConvertTo<ezInt32>());
+    if (m_NewIndex.ConvertTo<ezInt32>() < 0 || m_NewIndex.ConvertTo<ezInt32>() > iCount)
+      return ezStatus("Move Property: Invalid new index '%i'.", m_NewIndex.ConvertTo<ezInt32>());
+  }
+
+  ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
+  if (!accessor.MoveValue(path, m_OldIndex, m_NewIndex))
+    return ezStatus("Move Property: Move value failed.");
+
+  {
+    ezDocumentObjectPropertyEvent e;
+    e.m_EventType = ezDocumentObjectPropertyEvent::Type::PropertyMoved;
+    e.m_pObject = m_pObject;
+    e.m_OldIndex = m_OldIndex;
+    e.m_NewIndex = m_NewIndex;
+    e.m_sPropertyPath = m_sPropertyPath;
+
+    GetDocument()->GetObjectManager()->m_PropertyEvents.Broadcast(e);
+  }
+
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezMoveObjectPropertyCommand::Undo(bool bFireEvents)
+{
+  EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
+
+  ezDocumentBase* pDocument = GetDocument();
+
+  ezVariant FinalOldPosition = m_OldIndex;
+  ezVariant FinalNewPosition = m_NewIndex;
+
+  if (m_OldIndex.CanConvertTo<ezInt32>())
+  {
+    // If we are moving an object downwards, we must move by more than 1 (+1 would be behind the same object, which is still the same position)
+    // so an object must always be moved by at least +2
+    // moving UP can be done by -1, so when we undo that, we must ensure to move +2
+
+    ezInt32 iNew = m_NewIndex.ConvertTo<ezInt32>();
+    ezInt32 iOld = m_OldIndex.ConvertTo<ezInt32>();
+
+    if (iNew < iOld)
+    {
+      FinalOldPosition = iOld + 1;
+    }
+
+    // The new position is relative to the original array, so we need to substract one to account for
+    // the removal of the same element at the lower index.
+    if (iNew > iOld)
+    {
+      FinalNewPosition = iNew - 1;
+    }
+  }
+
+  ezPropertyPath path(m_sPropertyPath.GetData());
+  ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
+  if (!accessor.MoveValue(path, FinalNewPosition, FinalOldPosition))
+    return ezStatus("Move Property: Move value failed.");
+
+  {
+    ezDocumentObjectPropertyEvent e;
+    e.m_EventType = ezDocumentObjectPropertyEvent::Type::PropertyMoved;
+    e.m_pObject = m_pObject;
+    e.m_OldIndex = FinalNewPosition;
+    e.m_NewIndex = FinalOldPosition;
+    e.m_sPropertyPath = m_sPropertyPath;
+
+    GetDocument()->GetObjectManager()->m_PropertyEvents.Broadcast(e);
+  }
+
+  return ezStatus(EZ_SUCCESS);
+}

@@ -6,11 +6,8 @@
 #include <Foundation/Memory/Allocator.h>
 #include <Foundation/Configuration/Startup.h>
 
-ezEvent<const ezPhantomTypeChange&> ezPhantomRttiManager::m_TypeAddedEvent;
-ezEvent<const ezPhantomTypeChange&> ezPhantomRttiManager::m_TypeChangedEvent;
-ezEvent<const ezPhantomTypeChange&> ezPhantomRttiManager::m_TypeRemovedEvent;
+ezEvent<const ezPhantomRttiManager::Event&> ezPhantomRttiManager::m_Events;
 
-ezSet<const ezRTTI*> ezPhantomRttiManager::m_RegisteredConcreteTypes;
 ezHashTable<const char*, ezPhantomRTTI*> ezPhantomRttiManager::m_NameToPhantom;
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, ReflectedTypeManager)
@@ -44,14 +41,6 @@ const ezRTTI* ezPhantomRttiManager::RegisterType(const ezReflectedTypeDescriptor
   // concrete type !
   if (pPhantom == nullptr && pType != nullptr)
   {
-    if (m_RegisteredConcreteTypes.Contains(pType))
-      return pType;
-
-    m_RegisteredConcreteTypes.Insert(pType);
-
-    ezPhantomTypeChange msg;
-    msg.m_pChangedType = pType;
-    m_TypeAddedEvent.Broadcast(msg);
     return pType;
   }
 
@@ -67,17 +56,19 @@ const ezRTTI* ezPhantomRttiManager::RegisterType(const ezReflectedTypeDescriptor
 
     m_NameToPhantom[pPhantom->GetTypeName()] = pPhantom;
 
-    ezPhantomTypeChange msg;
+    Event msg;
     msg.m_pChangedType = pPhantom;
-    m_TypeAddedEvent.Broadcast(msg);
+    msg.m_Type = Event::Type::TypeAdded;
+    m_Events.Broadcast(msg);
   }
   else
   {
     pPhantom->UpdateType(desc);
 
-    ezPhantomTypeChange msg;
+    Event msg;
     msg.m_pChangedType = pPhantom;
-    m_TypeChangedEvent.Broadcast(msg);
+    msg.m_Type = Event::Type::TypeChanged;
+    m_Events.Broadcast(msg);
   }
 
   return pPhantom;
@@ -92,9 +83,10 @@ bool ezPhantomRttiManager::UnregisterType(const ezRTTI* pRtti)
     return false;
 
   {
-    ezPhantomTypeChange msg;
+    Event msg;
     msg.m_pChangedType = pPhantom;
-    m_TypeRemovedEvent.Broadcast(msg);
+    msg.m_Type = Event::Type::TypeRemoved;
+    m_Events.Broadcast(msg);
   }
 
   m_NameToPhantom.Remove(pPhantom->GetTypeName());

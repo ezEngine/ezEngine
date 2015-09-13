@@ -1,0 +1,1 @@
+#include "DoubleSpinBox.moc.h"

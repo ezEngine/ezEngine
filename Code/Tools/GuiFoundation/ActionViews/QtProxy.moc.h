@@ -5,6 +5,8 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/Variant.h>
+#include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
+
 #include <QObject>
 #include <QPointer>
 #include <QSharedPointer>
@@ -26,10 +28,12 @@ public:
   virtual void SetAction(ezAction* pAction, bool bSetShortcut);
   ezAction* GetAction() { return m_pAction; }
 
+  static ezRttiMappedObjectFactory<ezQtProxy>& GetFactory();
   static QSharedPointer<ezQtProxy> GetProxy(ezActionContext& context, ezActionDescriptorHandle hAction);
 
 protected:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(GuiFoundation, QtProxies);
+  static ezRttiMappedObjectFactory<ezQtProxy> s_Factory;
   static ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> s_GlobalActions;
   static ezMap<ezUuid, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > s_DocumentActions;
   static ezMap<ezString, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > s_WindowActions;

@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/GUI/SimplePropertyGridWidget.moc.h>
 #include <QPushButton>
-#include <EditorFramework/GUI/CollapsibleGroupBox.moc.h>
+#include <GuiFoundation/Widgets/CollapsibleGroupBox.moc.h>
 #include <QScrollArea>
 #include <QLabel>
 #include <QCheckBox>

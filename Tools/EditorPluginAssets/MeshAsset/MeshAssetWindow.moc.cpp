@@ -5,7 +5,7 @@
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
-#include <EditorFramework/GUI/RawPropertyGridWidget.h>
+#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <QLabel>
 #include <QLayout>
 #include <CoreUtils/Image/ImageConversion.h>
@@ -40,7 +40,7 @@ ezMeshAssetDocumentWindow::ezMeshAssetDocumentWindow(ezDocumentBase* pDocument) 
     pPropertyPanel->setWindowTitle("Mesh Properties");
     pPropertyPanel->show();
 
-    ezRawPropertyGridWidget* pPropertyGrid = new ezRawPropertyGridWidget(pDocument, pPropertyPanel);
+    ezPropertyGridWidget* pPropertyGrid = new ezPropertyGridWidget(pDocument, pPropertyPanel);
     pPropertyPanel->setWidget(pPropertyGrid);
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);

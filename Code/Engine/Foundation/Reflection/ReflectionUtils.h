@@ -8,6 +8,8 @@
 class EZ_FOUNDATION_DLL ezReflectionUtils
 {
 public:
+  static const ezRTTI* GetCommonBaseType(const ezRTTI* pRtti1, const ezRTTI* pRtti2);
+
   // \brief Returns whether a type can be stored directly inside a ezVariant.
   static bool IsBasicType(const ezRTTI* pRtti);
 

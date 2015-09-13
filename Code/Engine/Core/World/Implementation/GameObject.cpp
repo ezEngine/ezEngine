@@ -38,7 +38,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezGameObjectDummyAlloc
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
     EZ_ACCESSOR_PROPERTY("LocalPosition", GetLocalPosition, SetLocalPosition),
     EZ_ACCESSOR_PROPERTY("LocalRotation", GetLocalRotation, SetLocalRotation),
-    EZ_ACCESSOR_PROPERTY("LocalScaling", GetLocalScaling, SetLocalScaling),
+    EZ_ACCESSOR_PROPERTY("LocalScaling", GetLocalScaling, SetLocalScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f, 1.0f, 1.0f))),
     EZ_SET_ACCESSOR_PROPERTY("Children", Reflection_GetChildren, Reflection_AddChild, Reflection_DetachChild)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
     EZ_SET_ACCESSOR_PROPERTY("Components", Reflection_GetComponents, Reflection_AddComponent, Reflection_RemoveComponent)->AddFlags(ezPropertyFlags::PointerOwner),
   EZ_END_PROPERTIES

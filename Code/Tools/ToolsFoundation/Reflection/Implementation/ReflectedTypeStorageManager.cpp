@@ -77,6 +77,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertiesRe
           {
             // Value already present, update type and instances
             storageInfo->m_Type = pProperty->GetSpecificType()->GetVariantType();
+            storageInfo->m_DefaultValue = ezToolsReflectionUtils::GetDefaultValue(pProperty);
             UpdateInstances(storageInfo->m_uiIndex, pProperty);
           }
           else
@@ -84,7 +85,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertiesRe
             const ezUInt16 uiIndex = (ezUInt16)m_PathToStorageInfoTable.GetCount();
 
             // Add value, new entries are appended
-            m_PathToStorageInfoTable.Insert(path, StorageInfo(uiIndex, pProperty->GetSpecificType()->GetVariantType()));
+            m_PathToStorageInfoTable.Insert(path, StorageInfo(uiIndex, pProperty->GetSpecificType()->GetVariantType(), ezToolsReflectionUtils::GetDefaultValue(pProperty)));
             AddPropertyToInstances(uiIndex, pProperty);
           }
         }
@@ -96,13 +97,14 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertiesRe
           {
             // Value already present, update type and instances
             storageInfo->m_Type = ezVariant::Type::Int64;
+            storageInfo->m_DefaultValue = ezToolsReflectionUtils::GetDefaultValue(pProperty);
             UpdateInstances(storageInfo->m_uiIndex, pProperty);
           }
           else
           {
             ezUInt16 uiIndex = (ezUInt16)m_PathToStorageInfoTable.GetCount();
             // Add value, new entries are appended as int64
-            m_PathToStorageInfoTable.Insert(path, StorageInfo(uiIndex, ezVariantType::Int64));
+            m_PathToStorageInfoTable.Insert(path, StorageInfo(uiIndex, ezVariantType::Int64, ezToolsReflectionUtils::GetDefaultValue(pProperty)));
             AddPropertyToInstances(uiIndex, pProperty);
           }
         }
@@ -114,6 +116,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertiesRe
           {
             // Value already present, update type and instances
             storageInfo->m_Type = ezVariantType::Uuid;
+            storageInfo->m_DefaultValue = ezToolsReflectionUtils::GetDefaultValue(pProperty);
             UpdateInstances(storageInfo->m_uiIndex, pProperty);
           }
           else
@@ -121,7 +124,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertiesRe
             const ezUInt16 uiIndex = (ezUInt16)m_PathToStorageInfoTable.GetCount();
 
             // Add value, new entries are appended
-            m_PathToStorageInfoTable.Insert(path, StorageInfo(uiIndex, ezVariantType::Uuid));
+            m_PathToStorageInfoTable.Insert(path, StorageInfo(uiIndex, ezVariantType::Uuid, ezToolsReflectionUtils::GetDefaultValue(pProperty)));
             AddPropertyToInstances(uiIndex, pProperty);
           }
         }
@@ -142,13 +145,14 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertiesRe
         {
           // Value already present, update type and instances
           storageInfo->m_Type = ezVariantType::VariantArray;
+          storageInfo->m_DefaultValue = ezVariantArray();
           UpdateInstances(storageInfo->m_uiIndex, pProperty);
         }
         else
         {
           const ezUInt16 uiIndex = (ezUInt16)m_PathToStorageInfoTable.GetCount();
           // Add value, new entries are appended
-          m_PathToStorageInfoTable.Insert(path, StorageInfo(uiIndex, ezVariantType::VariantArray));
+          m_PathToStorageInfoTable.Insert(path, StorageInfo(uiIndex, ezVariantType::VariantArray, ezVariantArray()));
           AddPropertyToInstances(uiIndex, pProperty);
         }
       }
@@ -186,7 +190,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::UpdateInstances
           // was updated and a property was removed. In that case the index of the old property would still exist
           // but its value would never be set. Now if the property gets added again its value will be invalid on
           // this particular instance.
-          value = ezToolsReflectionUtils::GetDefaultVariantFromType(SpecVarType);
+          value = ezToolsReflectionUtils::GetDefaultValue(pProperty);
           continue;
         }
 
@@ -197,7 +201,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::UpdateInstances
           value = value.ConvertTo(SpecVarType, &res);
           if (res == EZ_FAILURE)
           {
-            value = ezToolsReflectionUtils::GetDefaultVariantFromType(SpecVarType);
+            value = ezToolsReflectionUtils::GetDefaultValue(pProperty);
           }
         }
       }
@@ -207,7 +211,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::UpdateInstances
       {
         if (value.GetType() != ezVariantType::VariantArray)
         {
-          value = ezToolsReflectionUtils::GetDefaultVariantFromType(SpecVarType);
+          value = ezVariantArray();
           continue;
         }
         ezVariantArray values = value.Get<ezVariantArray>();
@@ -227,7 +231,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::UpdateInstances
             var = var.ConvertTo(SpecVarType, &res);
             if (res == EZ_FAILURE)
             {
-              var = ezToolsReflectionUtils::GetDefaultVariantFromType(SpecVarType);
+              var = ezToolsReflectionUtils::GetDefaultValue(pProperty);
             }
           }
         }
@@ -249,7 +253,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertyToIn
   {
     ezDynamicArray<ezVariant>& data = it.Key()->m_Data;
     EZ_ASSERT_DEV(data.GetCount() == uiIndex, "ezReflectedTypeStorageAccessor found with a property count that does not match its storage mapping!");
-    data.PushBack(ezToolsReflectionUtils::GetDefaultVariantFromType(SpecVarType));
+    data.PushBack(ezToolsReflectionUtils::GetDefaultValue(pProperty));
   }
 }
 
@@ -260,20 +264,12 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertyToIn
 
 void ezReflectedTypeStorageManager::Startup()
 {
-  ezPhantomRttiManager::m_TypeAddedEvent.AddEventHandler(TypeAddedEvent);
-  ezPhantomRttiManager::m_TypeChangedEvent.AddEventHandler(TypeChangedEvent);
-  ezPhantomRttiManager::m_TypeRemovedEvent.AddEventHandler(TypeRemovedEvent);
-
-  ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezEnumBase>());
-  ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezBitflagsBase>());
-  ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezDocumentInfo>());
+  ezPhantomRttiManager::m_Events.AddEventHandler(TypeEventHandler);
 }
 
 void ezReflectedTypeStorageManager::Shutdown()
 {
-  ezPhantomRttiManager::m_TypeAddedEvent.RemoveEventHandler(TypeAddedEvent);
-  ezPhantomRttiManager::m_TypeChangedEvent.RemoveEventHandler(TypeChangedEvent);
-  ezPhantomRttiManager::m_TypeRemovedEvent.RemoveEventHandler(TypeRemovedEvent);
+  ezPhantomRttiManager::m_Events.RemoveEventHandler(TypeEventHandler);
 
   for (auto it = m_ReflectedTypeToStorageMapping.GetIterator(); it.IsValid(); ++it)
   {
@@ -306,7 +302,7 @@ void ezReflectedTypeStorageManager::RemoveStorageAccessor(ezReflectedTypeStorage
 
 ezReflectedTypeStorageManager::ReflectedTypeStorageMapping* ezReflectedTypeStorageManager::GetTypeStorageMapping(const ezRTTI* pType)
 {
-  EZ_ASSERT_DEV(pType != nullptr, "Nullptr is not a vali type!");
+  EZ_ASSERT_DEV(pType != nullptr, "Nullptr is not a valid type!");
   auto it = m_ReflectedTypeToStorageMapping.Find(pType);
   if (it.IsValid())
     return it.Value();
@@ -317,60 +313,67 @@ ezReflectedTypeStorageManager::ReflectedTypeStorageMapping* ezReflectedTypeStora
   return pMapping;
 }
 
-void ezReflectedTypeStorageManager::TypeAddedEvent(const ezPhantomTypeChange& data)
+void ezReflectedTypeStorageManager::TypeEventHandler(const ezPhantomRttiManager::Event& e)
 {
-  const ezRTTI* pType = data.m_pChangedType;
-  EZ_ASSERT_DEV(pType != nullptr, "A type was added but it has an invalid handle!");
-
-  EZ_ASSERT_DEV(!m_ReflectedTypeToStorageMapping.Find(data.m_pChangedType).IsValid(), "The type '%s' was added twice!", pType->GetTypeName());
-  GetTypeStorageMapping(data.m_pChangedType);
-}
-
-void ezReflectedTypeStorageManager::TypeChangedEvent(const ezPhantomTypeChange& data)
-{
-  const ezRTTI* pNewType = data.m_pChangedType;
-  EZ_ASSERT_DEV(pNewType != nullptr, "A type was updated but its handle is invalid!");
-
-  ReflectedTypeStorageMapping* pMapping = m_ReflectedTypeToStorageMapping[data.m_pChangedType];
-  EZ_ASSERT_DEV(pMapping != nullptr, "A type was updated but no mapping exists for it!");
-
-  if (pNewType->GetParentType() != nullptr && ezStringUtils::IsEqual(pNewType->GetParentType()->GetTypeName(), "ezEnumBase"))
+  switch (e.m_Type)
   {
-    EZ_ASSERT_DEV(false, "Updating enums not implemented yet!");
+  case ezPhantomRttiManager::Event::Type::TypeAdded:
+    {
+      const ezRTTI* pType = e.m_pChangedType;
+      EZ_ASSERT_DEV(pType != nullptr, "A type was added but it has an invalid handle!");
+
+      EZ_ASSERT_DEV(!m_ReflectedTypeToStorageMapping.Find(e.m_pChangedType).IsValid(), "The type '%s' was added twice!", pType->GetTypeName());
+      GetTypeStorageMapping(e.m_pChangedType);
+    }
+    break;
+  case ezPhantomRttiManager::Event::Type::TypeChanged:
+    {
+      const ezRTTI* pNewType = e.m_pChangedType;
+      EZ_ASSERT_DEV(pNewType != nullptr, "A type was updated but its handle is invalid!");
+
+      ReflectedTypeStorageMapping* pMapping = m_ReflectedTypeToStorageMapping[e.m_pChangedType];
+      EZ_ASSERT_DEV(pMapping != nullptr, "A type was updated but no mapping exists for it!");
+
+      if (pNewType->GetParentType() != nullptr && ezStringUtils::IsEqual(pNewType->GetParentType()->GetTypeName(), "ezEnumBase"))
+      {
+        EZ_ASSERT_DEV(false, "Updating enums not implemented yet!");
+      }
+      else if (pNewType->GetParentType() != nullptr && ezStringUtils::IsEqual(pNewType->GetParentType()->GetTypeName(), "ezBitflagsBase"))
+      {
+        EZ_ASSERT_DEV(false, "Updating bitflags not implemented yet!");
+      }
+
+      pMapping->AddProperties(pNewType);
+
+      ezSet<ezRTTI*> dependencies;
+      // Update all types that either derive from the changed type or have the type as a member.
+      for (auto it = m_ReflectedTypeToStorageMapping.GetIterator(); it.IsValid(); ++it)
+      {
+        if (it.Key() == e.m_pChangedType)
+          continue;
+
+        const ezRTTI* pType = it.Key();
+
+        EZ_ASSERT_DEV(pType != nullptr, "Invalid type pointer");
+
+        // Check whether the changed type comes up in the transitive dependency list.
+        // If that is the case we need to update this type as well.
+        ezSet<const ezRTTI*> DepTypes;
+        ezReflectionUtils::GatherDependentTypes(pType, DepTypes);
+
+        if (DepTypes.Contains(e.m_pChangedType))
+          it.Value()->AddProperties(pType);
+      }
+    }
+    break;
+  case ezPhantomRttiManager::Event::Type::TypeRemoved:
+    {
+      ReflectedTypeStorageMapping* pMapping = m_ReflectedTypeToStorageMapping[e.m_pChangedType];
+      EZ_ASSERT_DEV(pMapping != nullptr, "A type was removed but no mapping ever exited for it!");
+      EZ_ASSERT_DEV(pMapping->m_Instances.IsEmpty(), "A type was removed which still has instances using the type!");
+      m_ReflectedTypeToStorageMapping.Remove(e.m_pChangedType);
+      EZ_DEFAULT_DELETE(pMapping);
+    }
+    break;
   }
-  else if (pNewType->GetParentType() != nullptr && ezStringUtils::IsEqual(pNewType->GetParentType()->GetTypeName(), "ezBitflagsBase"))
-  {
-    EZ_ASSERT_DEV(false, "Updating bitflags not implemented yet!");
-  }
-
-  pMapping->AddProperties(pNewType);
-
-  ezSet<ezRTTI*> dependencies;
-  // Update all types that either derive from the changed type or have the type as a member.
-  for (auto it = m_ReflectedTypeToStorageMapping.GetIterator(); it.IsValid(); ++it)
-  {
-    if (it.Key() == data.m_pChangedType)
-      continue;
-
-    const ezRTTI* pType = it.Key();
-
-    EZ_ASSERT_DEV(pType != nullptr, "Invalid type pointer");
-
-    // Check whether the changed type comes up in the transitive dependency list.
-    // If that is the case we need to update this type as well.
-    ezSet<const ezRTTI*> DepTypes;
-    ezReflectionUtils::GatherDependentTypes(pType, DepTypes);
-
-    if (DepTypes.Contains(data.m_pChangedType))
-      it.Value()->AddProperties(pType);
-  }
-}
-
-void ezReflectedTypeStorageManager::TypeRemovedEvent(const ezPhantomTypeChange& data)
-{
-  ReflectedTypeStorageMapping* pMapping = m_ReflectedTypeToStorageMapping[data.m_pChangedType];
-  EZ_ASSERT_DEV(pMapping != nullptr, "A type was removed but no mapping ever exited for it!");
-  EZ_ASSERT_DEV(pMapping->m_Instances.IsEmpty(), "A type was removed which still has instances using the type!");
-  m_ReflectedTypeToStorageMapping.Remove(data.m_pChangedType);
-  EZ_DEFAULT_DELETE(pMapping);
 }

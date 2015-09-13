@@ -13,10 +13,10 @@ public:
   /// \brief Returns a global default initialization value for the given variant type.
   static ezVariant GetDefaultVariantFromType(ezVariant::Type::Enum type); // [tested]
 
+  static ezVariant GetDefaultValue(const ezAbstractProperty* pProperty);
+
   /// \brief Creates a ReflectedTypeDescriptor from an ezRTTI instance that can be serialized and registered at the ezPhantomRttiManager.
   static void GetReflectedTypeDescriptorFromRtti(const ezRTTI* pRtti, ezReflectedTypeDescriptor& out_desc); // [tested]
-
-  static void RegisterType(const ezRTTI* pRtti, bool bIncludeDerived = false);
 
   static ezPropertyPath CreatePropertyPath(const char* pData1, const char* pData2 = nullptr, const char* pData3 = nullptr, const char* pData4 = nullptr, const char* pData5 = nullptr, const char* pData6 = nullptr);
 

@@ -1,0 +1,2 @@
+#include "PropertyBaseWidget.moc.h"
+
