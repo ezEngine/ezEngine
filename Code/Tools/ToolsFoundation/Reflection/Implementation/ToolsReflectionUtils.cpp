@@ -81,24 +81,34 @@ ezVariant ezToolsReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enu
 
 ezVariant ezToolsReflectionUtils::GetDefaultValue(const ezAbstractProperty* pProperty)
 {
+  const ezDefaultValueAttribute* pAttrib = pProperty->GetAttributeByType<ezDefaultValueAttribute>();
   auto type = pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
   if (pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::StandardType))
   {
-    const ezDefaultValueAttribute* pAttrib = pProperty->GetAttributeByType<ezDefaultValueAttribute>();
     if (pAttrib)
     {
-      if (pProperty->GetSpecificType()->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
-      {
-        if (pAttrib->GetValue().CanConvertTo(ezVariantType::Int64))
-          return pAttrib->GetValue().ConvertTo(ezVariantType::Int64);
-      }
-      else if (pAttrib->GetValue().CanConvertTo(type))
+      if (pAttrib->GetValue().CanConvertTo(type))
       {
         return pAttrib->GetValue().ConvertTo(type);
       }
     }
+    return GetDefaultVariantFromType(type);
   }
-  return GetDefaultVariantFromType(type);
+  else if (pProperty->GetSpecificType()->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
+  {
+    if (pAttrib)
+    {
+      if (pAttrib->GetValue().CanConvertTo(ezVariantType::Int64))
+        return pAttrib->GetValue().ConvertTo(ezVariantType::Int64);
+    }
+    else
+      return ezInt64(0);
+  }
+  else if (pProperty->GetFlags().IsSet(ezPropertyFlags::Pointer))
+  {
+    return ezUuid();
+  }
+  return ezVariant();
 }
 
 void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pRtti, ezReflectedTypeDescriptor& out_desc)
