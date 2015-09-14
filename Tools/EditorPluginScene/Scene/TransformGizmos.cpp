@@ -85,8 +85,6 @@ void ezSceneDocumentWindow::UpdateGizmoSelectionList()
     SelectedGO sgo;
     sgo.m_pObject = Selection[sel];
     sgo.m_GlobalTransform = GetSceneDocument()->GetGlobalTransform(sgo.m_pObject);
-    sgo.m_vLocalPosition = Selection[sel]->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
-    sgo.m_LocalRotation = Selection[sel]->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
     sgo.m_vLocalScaling = Selection[sel]->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
 
     m_GizmoSelection.PushBack(sgo);
@@ -131,6 +129,15 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
   {
   case ezGizmoBase::BaseEvent::Type::BeginInteractions:
     {
+      m_bMergeTransactions = false;
+
+      // duplicate the object when shift is held while dragging the item
+      if (e.m_pGizmo == &m_TranslateGizmo && QApplication::keyboardModifiers() & Qt::KeyboardModifier::ShiftModifier)
+      {
+        m_bMergeTransactions = true;
+        GetSceneDocument()->DuplicateSelection();
+      }
+
       UpdateGizmoSelectionList();
 
       GetDocument()->GetCommandHistory()->BeginTemporaryCommands();
@@ -143,6 +150,9 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
       GetDocument()->GetCommandHistory()->FinishTemporaryCommands();
 
       m_GizmoSelection.Clear();
+
+      if (m_bMergeTransactions)
+        GetDocument()->GetCommandHistory()->MergeLastTwoTransactions();
     }
     break;
 

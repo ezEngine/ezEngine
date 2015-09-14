@@ -96,13 +96,12 @@ private:
   struct SelectedGO
   {
     const ezDocumentObjectBase* m_pObject;
-    ezVec3 m_vLocalPosition;
-    ezQuat m_LocalRotation;
     ezVec3 m_vLocalScaling;
     ezTransform m_GlobalTransform;
   };
 
   bool m_bInGizmoInteraction;
+  bool m_bMergeTransactions;
   ezDeque<SelectedGO> m_GizmoSelection;
 
   bool m_bInDragDropAction;
