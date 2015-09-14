@@ -767,7 +767,8 @@ static void OutputFloat (char* szOutputBuffer, unsigned int uiBufferSize, unsign
   char szBuffer[128];
   unsigned int iNumDigits = 0;
 
-  if (bScientific)
+  // Input values that are outside the int64 range cannot be output in non-scientific form
+  if (bScientific || value >= 9223372036854775807.0 || value <= -9223372036854775808.0)
     FormatUFloatScientific (szBuffer, 128, iNumDigits, value, iPrecision, Flags, bUpperCase, bRemoveZeroes);
   else
     FormatUFloat (szBuffer, 128, iNumDigits, value, iPrecision, Flags, bRemoveZeroes);
@@ -831,9 +832,8 @@ static void OutputFloat_Short (char* szOutputBuffer, unsigned int uiBufferSize, 
       bScientific = true;
   }
 
-    
-
-  if (bScientific)
+  // Input values that are outside the int64 range cannot be output in non-scientific form
+  if (bScientific || value >= 9223372036854775807.0 || value <= -9223372036854775808.0)
     OutputFloat (szOutputBuffer, uiBufferSize, uiWritePos, value, iWidth, iPrecE, Flags, bUpperCase, bScientific, iPrecision < 0);
   else
     OutputFloat (szOutputBuffer, uiBufferSize, uiWritePos, value, iWidth, iPrecF, Flags, bUpperCase, bScientific, iPrecision < 0);
