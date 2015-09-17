@@ -138,10 +138,14 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
         GetSceneDocument()->DuplicateSelection();
       }
 
+      if (e.m_pGizmo == &m_TranslateGizmo && QApplication::keyboardModifiers() & Qt::KeyboardModifier::ControlModifier)
+      {
+        m_TranslateGizmo.SetMovementMode(ezTranslateGizmo::MovementMode::MouseDiff);
+      }
+
       UpdateGizmoSelectionList();
 
       GetDocument()->GetCommandHistory()->BeginTemporaryCommands();
-
     }
     break;
 
@@ -178,6 +182,17 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
           tNew.m_vPosition += vTranslate;
 
           pScene->SetGlobalTransform(obj.m_pObject, tNew);
+        }
+
+        if (e.m_pGizmo == &m_TranslateGizmo && QApplication::keyboardModifiers() & Qt::KeyboardModifier::ControlModifier)
+        {
+          m_TranslateGizmo.SetMovementMode(ezTranslateGizmo::MovementMode::MouseDiff);
+
+          m_Camera.MoveGlobally(m_TranslateGizmo.GetTranslationDiff());
+        }
+        else
+        {
+          m_TranslateGizmo.SetMovementMode(ezTranslateGizmo::MovementMode::ScreenProjection);
         }
       }
 

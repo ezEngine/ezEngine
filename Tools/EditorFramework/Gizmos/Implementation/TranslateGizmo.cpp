@@ -12,6 +12,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 ezTranslateGizmo::ezTranslateGizmo()
 {
   m_fSnappingValue = 0.0f;
+  m_pParentWidget = nullptr;
 
   m_AxisX.Configure(this, ezGizmoHandleType::Arrow, ezColorLinearUB(128, 0, 0));
   m_AxisY.Configure(this, ezGizmoHandleType::Arrow, ezColorLinearUB(0, 128, 0));
@@ -25,6 +26,12 @@ ezTranslateGizmo::ezTranslateGizmo()
   SetTransformation(ezMat4::IdentityMatrix());
 
   m_Mode = TranslateMode::None;
+  m_MovementMode = MovementMode::ScreenProjection;
+}
+
+void ezTranslateGizmo::SetParentWidget(QWidget* pParentWidget)
+{
+  m_pParentWidget = pParentWidget;
 }
 
 void ezTranslateGizmo::OnSetOwner(ezDocumentWindow3D* pOwner)
@@ -74,6 +81,12 @@ void ezTranslateGizmo::OnTransformationChanged(const ezMat4& transform)
 
 void ezTranslateGizmo::FocusLost()
 {
+  if (m_MovementMode == MovementMode::MouseDiff)
+  {
+    QCursor::setPos(m_OriginalMousePos);
+    m_pParentWidget->setCursor(QCursor(Qt::ArrowCursor));
+  }
+
   BaseEvent ev;
   ev.m_pGizmo = this;
   ev.m_Type = BaseEvent::Type::EndInteractions;
@@ -91,6 +104,8 @@ void ezTranslateGizmo::FocusLost()
   m_PlaneYZ.SetVisible(true);
 
   m_Mode = TranslateMode::None;
+  m_MovementMode = MovementMode::ScreenProjection;
+  m_vLastMoveDiff.SetZero();
 }
 
 bool ezTranslateGizmo::mousePressEvent(QMouseEvent* e)
@@ -100,6 +115,10 @@ bool ezTranslateGizmo::mousePressEvent(QMouseEvent* e)
 
   if (e->button() != Qt::MouseButton::LeftButton)
     return false;
+
+  m_vLastMoveDiff.SetZero();
+  m_LastMousePos = e->globalPos();
+  m_OriginalMousePos = m_LastMousePos;
 
   if (m_pInteractionGizmoHandle == &m_AxisX)
   {
@@ -119,16 +138,22 @@ bool ezTranslateGizmo::mousePressEvent(QMouseEvent* e)
   else if (m_pInteractionGizmoHandle == &m_PlaneXY)
   {
     m_vMoveAxis = m_PlaneXY.GetTransformation().GetColumn(2).GetAsVec3().GetNormalized();
+    m_vPlaneAxis[0] = m_PlaneXY.GetTransformation().GetColumn(0).GetAsVec3().GetNormalized();
+    m_vPlaneAxis[1] = m_PlaneXY.GetTransformation().GetColumn(1).GetAsVec3().GetNormalized();
     m_Mode = TranslateMode::Plane;
   }
   else if (m_pInteractionGizmoHandle == &m_PlaneXZ)
   {
     m_vMoveAxis = m_PlaneXZ.GetTransformation().GetColumn(2).GetAsVec3().GetNormalized();
+    m_vPlaneAxis[0] = m_PlaneXZ.GetTransformation().GetColumn(0).GetAsVec3().GetNormalized();
+    m_vPlaneAxis[1] = m_PlaneXZ.GetTransformation().GetColumn(1).GetAsVec3().GetNormalized();
     m_Mode = TranslateMode::Plane;
   }
   else if (m_pInteractionGizmoHandle == &m_PlaneYZ)
   {
     m_vMoveAxis = m_PlaneYZ.GetTransformation().GetColumn(2).GetAsVec3().GetNormalized();
+    m_vPlaneAxis[0] = m_PlaneYZ.GetTransformation().GetColumn(0).GetAsVec3().GetNormalized();
+    m_vPlaneAxis[1] = m_PlaneYZ.GetTransformation().GetColumn(1).GetAsVec3().GetNormalized();
     m_Mode = TranslateMode::Plane;
   }
   else
@@ -212,6 +237,21 @@ ezResult ezTranslateGizmo::GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenP
   return EZ_SUCCESS;
 }
 
+void ezTranslateGizmo::SetCursorToWindowCenter()
+{
+  QSize size = m_pParentWidget->size();
+  QPoint center;
+  center.setX(size.width() / 2);
+  center.setY(size.height() / 2);
+
+  center = m_pParentWidget->mapToGlobal(center);
+
+  m_LastMousePos = center;
+  QCursor::setPos(center);
+
+  m_pParentWidget->setCursor(QCursor(Qt::BlankCursor));
+}
+
 ezResult ezTranslateGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const
 {
   out_Result = m_vStartPosition;
@@ -249,42 +289,68 @@ bool ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
 
   m_LastInteraction = tNow;
 
-  ezVec3 vCurrentInteractionPoint;
-
-  if (m_Mode == TranslateMode::Axis)
-  {
-    if (GetPointOnAxis(e->pos().x(), m_Viewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
-      return true;
-  }
-  else if (m_Mode == TranslateMode::Plane)
-  {
-    if (GetPointOnPlane(e->pos().x(), m_Viewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
-      return true;
-  }
-
-
-  const float fPerspectiveScale = (vCurrentInteractionPoint - m_pCamera->GetPosition()).GetLength() * 0.125;
-  const ezVec3 vOffset = (m_vInteractionPivot - m_vStartPosition);
-
   ezMat4 mTrans = GetTransformation();
-  const ezVec3 vNewPos = vCurrentInteractionPoint - vOffset * fPerspectiveScale / m_fStartScale;
+  ezVec3 vTranslate(0);
 
-  ezVec3 vTranslation = vNewPos - m_vStartPosition;
+  if (m_MovementMode == MovementMode::ScreenProjection)
+  {
+    ezVec3 vCurrentInteractionPoint;
+
+    if (m_Mode == TranslateMode::Axis)
+    {
+      if (GetPointOnAxis(e->pos().x(), m_Viewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
+        return true;
+    }
+    else if (m_Mode == TranslateMode::Plane)
+    {
+      if (GetPointOnPlane(e->pos().x(), m_Viewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
+        return true;
+    }
+
+
+    const float fPerspectiveScale = (vCurrentInteractionPoint - m_pCamera->GetPosition()).GetLength() * 0.125;
+    const ezVec3 vOffset = (m_vInteractionPivot - m_vStartPosition);
+
+    const ezVec3 vNewPos = vCurrentInteractionPoint - vOffset * fPerspectiveScale / m_fStartScale;
+
+    vTranslate = vNewPos - m_vStartPosition;
+  }
+  else
+  {
+    const float fSpeed = 0.2f;
+
+    const ezVec3 vMouseDir = m_pCamera->GetDirRight() * (float)(e->globalPos().x() - m_LastMousePos.x()) + -m_pCamera->GetDirUp() * (float)(e->globalPos().y() - m_LastMousePos.y());
+
+    if (m_Mode == TranslateMode::Axis)
+    {
+      vTranslate = mTrans.GetTranslationVector() - m_vStartPosition + m_vMoveAxis * (m_vMoveAxis.Dot(vMouseDir)) * fSpeed;
+    }
+    else if (m_Mode == TranslateMode::Plane)
+    {
+      vTranslate = mTrans.GetTranslationVector() - m_vStartPosition + m_vPlaneAxis[0] * (m_vPlaneAxis[0].Dot(vMouseDir)) * fSpeed + m_vPlaneAxis[1] * (m_vPlaneAxis[1].Dot(vMouseDir)) * fSpeed;
+    }
+
+    SetCursorToWindowCenter();
+  }
 
   if (m_fSnappingValue > 0.0f)
   {
     ezMat3 mRot = mTrans.GetRotationalPart();
     ezMat3 mInvRot = mRot.GetInverse();
 
-    ezVec3 vLocalTranslation = mInvRot * vTranslation;
+    ezVec3 vLocalTranslation = mInvRot * vTranslate;
     vLocalTranslation.x = ezMath::Round(vLocalTranslation.x, m_fSnappingValue);
     vLocalTranslation.y = ezMath::Round(vLocalTranslation.y, m_fSnappingValue);
     vLocalTranslation.z = ezMath::Round(vLocalTranslation.z, m_fSnappingValue);
 
-    vTranslation = mRot * vLocalTranslation;
+    vTranslate = mRot * vLocalTranslation;
   }
 
-  mTrans.SetTranslationVector(m_vStartPosition + vTranslation);
+  const ezVec3 vLastPos = mTrans.GetTranslationVector();
+
+  mTrans.SetTranslationVector(m_vStartPosition + vTranslate);
+
+  m_vLastMoveDiff = mTrans.GetTranslationVector() - vLastPos;
 
   SetTransformation(mTrans);
 
@@ -324,4 +390,22 @@ void ezTranslateGizmo::SnapToGrid()
   m_BaseEvents.Broadcast(ev);
 }
 
+void ezTranslateGizmo::SetMovementMode(MovementMode mode)
+{
+  if (m_MovementMode == mode)
+    return;
+
+  m_MovementMode = mode;
+
+  if (m_MovementMode == MovementMode::MouseDiff)
+  {
+    m_OriginalMousePos = QCursor::pos();
+    SetCursorToWindowCenter();
+  }
+  else
+  {
+    QCursor::setPos(m_OriginalMousePos);
+    m_pParentWidget->setCursor(QCursor(Qt::ArrowCursor));
+  }
+}
 

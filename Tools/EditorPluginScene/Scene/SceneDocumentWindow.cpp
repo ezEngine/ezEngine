@@ -80,6 +80,7 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   pSceneDoc->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::SelectionManagerEventHandler, this));
 
   m_TranslateGizmo.SetOwner(this);
+  m_TranslateGizmo.SetParentWidget(m_pCenterWidget);
   m_RotateGizmo.SetOwner(this);
   m_ScaleGizmo.SetOwner(this);
   m_DragToPosGizmo.SetOwner(this);
