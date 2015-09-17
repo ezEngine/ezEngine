@@ -122,7 +122,7 @@ void ezMeshResourceDescriptor::Save(ezStreamWriterBase& stream)
   }
 
   {
-    chunk.BeginChunk("MeshInfo", 1);
+    chunk.BeginChunk("MeshInfo", 2);
 
     // Number of vertices
     chunk << m_MeshBufferDescriptor.GetVertexCount();
@@ -149,6 +149,12 @@ void ezMeshResourceDescriptor::Save(ezStreamWriterBase& stream)
       chunk << vs.m_uiElementSize;      // not needed, but can be used to check that memory layout has not changed
       chunk << vs.m_uiOffset;           // not needed, but can be used to check that memory layout has not changed
     }
+
+    // Version 2
+    CalculateBounds();
+    chunk << m_Bounds.m_vCenter;
+    chunk << m_Bounds.m_vBoxHalfExtends;
+    chunk << m_Bounds.m_fSphereRadius;
 
     chunk.EndChunk();
   }
@@ -208,6 +214,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReaderBase& stream)
   ezUInt32 count;
   bool bHasIndexBuffer = false;
   bool b32BitIndices = false;
+  bool bCalculateBounds = true;
 
   while (chunk.GetCurrentChunk().m_bValid)
   {
@@ -262,7 +269,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReaderBase& stream)
 
     if (ci.m_sChunkName == "MeshInfo")
     {
-      if (ci.m_uiChunkVersion != 1)
+      if (ci.m_uiChunkVersion > 2)
       {
         ezLog::Error("Version of chunk '%s' is invalid (%u)", ci.m_sChunkName.GetData(), ci.m_uiChunkVersion);
         return EZ_FAILURE;
@@ -304,6 +311,15 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReaderBase& stream)
       }
 
       m_MeshBufferDescriptor.AllocateStreams(uiVertexCount, uiTriangleCount);
+
+      // Version 2
+      if (ci.m_uiChunkVersion >= 2)
+      {
+        bCalculateBounds = false;
+        chunk >> m_Bounds.m_vCenter;
+        chunk >> m_Bounds.m_vBoxHalfExtends;
+        chunk >> m_Bounds.m_fSphereRadius;
+      }
     }
 
     if (ci.m_sChunkName == "VertexBuffer")
@@ -343,8 +359,10 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReaderBase& stream)
 
   chunk.EndStream();
 
-  /// \todo load from file
-  CalculateBounds();
+  if (bCalculateBounds)
+  {
+    CalculateBounds();
+  }
 
   return EZ_SUCCESS;
 }
