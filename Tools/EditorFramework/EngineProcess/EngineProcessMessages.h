@@ -237,4 +237,27 @@ public:
   bool m_bSetTag;
 };
 
+class EZ_EDITORFRAMEWORK_DLL ezObjectSelectionMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezObjectSelectionMsgToEngine);
+
+public:
+
+  ezString m_sSelection;
+};
+
+class EZ_EDITORFRAMEWORK_DLL ezQuerySelectionBBoxMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezQuerySelectionBBoxMsgToEngine);
+public:
+
+};
+
+class EZ_EDITORFRAMEWORK_DLL ezQuerySelectionBBoxResultMsgToEditor : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezQuerySelectionBBoxResultMsgToEditor);
+public:
+  ezVec3 m_vCenter;
+  ezVec3 m_vHalfExtents;
+};
 

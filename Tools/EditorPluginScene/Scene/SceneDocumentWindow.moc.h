@@ -77,6 +77,7 @@ private:
   void ShowHiddenObjects();
 
   void SendObjectMsgRecursive(const ezDocumentObjectBase* pObj, ezObjectTagMsgToEngine* pMsg);
+  void SendObjectSelection();
 
   void SendRedrawMsg();
 
@@ -100,6 +101,7 @@ private:
     ezTransform m_GlobalTransform;
   };
 
+  bool m_bResendSelection;
   bool m_bInGizmoInteraction;
   bool m_bMergeTransactions;
   ezDeque<SelectedGO> m_GizmoSelection;

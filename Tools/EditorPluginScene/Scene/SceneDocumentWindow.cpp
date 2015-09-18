@@ -31,6 +31,7 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   m_pCenterWidget->setAutoFillBackground(false);
   setCentralWidget(m_pCenterWidget);
 
+  m_bResendSelection = false;
   m_bInGizmoInteraction = false;
   SetTargetFramerate(35);
 
@@ -287,20 +288,8 @@ void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEve
       if (!sel.PeekBack()->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
         return;
 
-      const auto& LatestSelection = GetDocument()->GetSelectionManager()->GetSelection().PeekBack();
-      const ezTransform tGlobal = GetSceneDocument()->GetGlobalTransform(LatestSelection);
-
-      /// \todo Pivot point
-      const ezVec3 vPivotPoint = tGlobal.m_vPosition + tGlobal.m_Rotation * ezVec3::ZeroVector(); // LatestSelection->GetEditorTypeAccessor().GetValue("Pivot").ConvertTo<ezVec3>();
-
-      ezVec3 vDiff = vPivotPoint - m_Camera.GetCenterPosition();
-      if (vDiff.NormalizeIfNotZero().Failed())
-        return;
-
-      /// \todo The distance value of 5 is a hack, we need the bounding box of the selection for this
-      const ezVec3 vTargetPos = vPivotPoint - vDiff * 5.0f;
-      m_pCameraMoveContext->SetOrbitPoint(vPivotPoint);
-      m_pCameraPositionContext->MoveToTarget(vTargetPos, vDiff);
+      ezQuerySelectionBBoxMsgToEngine msg;
+      SendMessageToEngine(&msg, true);
     }
     break;
 
@@ -340,6 +329,31 @@ void ezSceneDocumentWindow::SendObjectMsgRecursive(const ezDocumentObjectBase* p
   {
     SendObjectMsgRecursive(pChild, pMsg);
   }
+}
+
+void ezSceneDocumentWindow::SendObjectSelection()
+{
+  if (!m_bResendSelection)
+    return;
+
+  m_bResendSelection = false;
+
+  const auto& sel = GetDocument()->GetSelectionManager()->GetSelection();
+
+  ezObjectSelectionMsgToEngine msg;
+  ezStringBuilder sTemp;
+  ezString sGuid;
+
+  for (const auto& item : sel)
+  {
+    sGuid = ezConversionUtils::ToString(item->GetGuid());
+
+    sTemp.Append(";", sGuid);
+  }
+
+  msg.m_sSelection = sTemp;
+
+  m_pEngineView->SendMessage(&msg);
 }
 
 void ezSceneDocumentWindow::HideSelectedObjects(bool bHide)
@@ -405,6 +419,8 @@ void ezSceneDocumentWindow::SendRedrawMsg()
   if (ezEditorEngineProcessConnection::GetInstance()->IsProcessCrashed())
     return;
 
+  SendObjectSelection();
+
   ezViewCameraMsgToEngine cam;
   cam.m_fNearPlane = m_Camera.GetNearPlane();
   cam.m_fFarPlane = m_Camera.GetFarPlane();
@@ -433,6 +449,29 @@ void ezSceneDocumentWindow::SendRedrawMsg()
 
 bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxResultMsgToEditor>())
+  {
+    const ezQuerySelectionBBoxResultMsgToEditor* msg = static_cast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg);
+
+    const auto& LatestSelection = GetDocument()->GetSelectionManager()->GetSelection().PeekBack();
+    const ezTransform tGlobal = GetSceneDocument()->GetGlobalTransform(LatestSelection);
+
+    /// \todo Pivot point
+    const ezVec3 vPivotPoint = msg->m_vCenter;
+      //tGlobal.m_vPosition + tGlobal.m_Rotation * ezVec3::ZeroVector(); // LatestSelection->GetEditorTypeAccessor().GetValue("Pivot").ConvertTo<ezVec3>();
+
+    ezVec3 vDiff = vPivotPoint - m_Camera.GetCenterPosition();
+    if (vDiff.NormalizeIfNotZero().Failed())
+      return true;
+
+    /// \todo The distance value of 5 is a hack, we need the bounding box of the selection for this
+    const ezVec3 vTargetPos = vPivotPoint - vDiff * 5.0f;
+    m_pCameraMoveContext->SetOrbitPoint(vPivotPoint);
+    m_pCameraPositionContext->MoveToTarget(vTargetPos, vDiff);
+
+    return true;
+  }
+
   if (ezDocumentWindow3D::HandleEngineMessage(pMsg))
     return true;
 
@@ -443,6 +482,8 @@ bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg*
 
 void ezSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManager::Event& e)
 {
+  m_bResendSelection = true;
+
   switch (e.m_Type)
   {
   case ezSelectionManager::Event::Type::SelectionCleared:

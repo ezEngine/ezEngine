@@ -165,3 +165,18 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectTagMsgToEngine, ezEditorEngineDocumentMs
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectSelectionMsgToEngine, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezObjectSelectionMsgToEngine>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("Selection", m_sSelection),
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezQuerySelectionBBoxMsgToEngine, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezQuerySelectionBBoxMsgToEngine>);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezQuerySelectionBBoxResultMsgToEditor, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezQuerySelectionBBoxResultMsgToEditor>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("Center", m_vCenter),
+    EZ_MEMBER_PROPERTY("Extents", m_vHalfExtents),
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();

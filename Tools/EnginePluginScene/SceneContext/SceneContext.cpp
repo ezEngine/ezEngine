@@ -5,6 +5,7 @@
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <GameUtils/Components/RotorComponent.h>
 #include <GameUtils/Components/SliderComponent.h>
+#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, ezEngineProcessDocumentContext, 1, ezRTTIDefaultAllocator<ezSceneContext>);
 EZ_BEGIN_PROPERTIES
@@ -12,6 +13,56 @@ EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "ezScene")
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+
+void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
+{
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezObjectSelectionMsgToEngine>())
+  {
+    HandleSelectionMsg(static_cast<const ezObjectSelectionMsgToEngine*>(pMsg));
+    return;
+  }
+
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxMsgToEngine>())
+  {
+    if (m_Selection.IsEmpty())
+      return;
+
+    ezBoundingBoxSphere bounds;
+    bounds.SetInvalid();
+
+    {
+      EZ_LOCK(m_pWorld->GetReadMarker());
+
+      for (const auto& obj : m_Selection)
+      {
+        ezGameObject* pObj;
+        if (!m_pWorld->TryGetObject(obj, pObj))
+          continue;
+
+        auto b = pObj->GetGlobalBounds();
+
+        bounds.ExpandToInclude(b);
+        ezLog::Info("Bounds: %.2f | %.2f | %.2f - %.2f | %.2f | %.2f", b.m_vCenter.x, b.m_vCenter.y, b.m_vCenter.z, b.m_vBoxHalfExtends.x, b.m_vBoxHalfExtends.y, b.m_vBoxHalfExtends.z);
+      }
+    }
+
+    auto b = bounds;
+    ezLog::Info("Final Bounds: %.2f | %.2f | %.2f - %.2f | %.2f | %.2f", b.m_vCenter.x, b.m_vCenter.y, b.m_vCenter.z, b.m_vBoxHalfExtends.x, b.m_vBoxHalfExtends.y, b.m_vBoxHalfExtends.z);
+
+    const ezQuerySelectionBBoxMsgToEngine* msg = static_cast<const ezQuerySelectionBBoxMsgToEngine*>(pMsg);
+
+    ezQuerySelectionBBoxResultMsgToEditor res;
+    res.m_vCenter = bounds.m_vCenter;
+    res.m_vHalfExtents = bounds.m_vBoxHalfExtends;
+    res.m_DocumentGuid = pMsg->m_DocumentGuid;
+
+    SendProcessMessage(&res);
+
+    return;
+  }
+
+  ezEngineProcessDocumentContext::HandleMessage(pMsg);
+}
 
 void ezSceneContext::OnInitialize()
 {
@@ -32,3 +83,26 @@ void ezSceneContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 {
   EZ_DEFAULT_DELETE(pContext);
 }
+
+void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg)
+{
+  m_Selection.Clear();
+
+  ezStringBuilder sSel = pMsg->m_sSelection;
+  ezStringBuilder sGuid;
+
+  while (!sSel.IsEmpty())
+  {
+    sGuid.SetSubString_ElementCount(sSel.GetData() + 1, 40);
+    sSel.Shrink(41, 0);
+
+    const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sGuid);
+
+    auto hObject = m_GameObjectMap.GetHandle(guid);
+
+    if (!hObject.IsInvalidated())
+      m_Selection.PushBack(hObject);
+  }
+}
+
+
