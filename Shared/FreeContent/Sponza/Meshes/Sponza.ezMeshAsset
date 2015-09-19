@@ -4,7 +4,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "floor",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/floor.ezMaterial"
    }
   },
   {
@@ -12,7 +12,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "fabric_d",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/fabric_d.ezMaterial"
    }
   },
   {
@@ -20,7 +20,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "column_a",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/column_a.ezMaterial"
    }
   },
   {
@@ -28,7 +28,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "chain",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/chain.ezMaterial"
    }
   },
   {
@@ -36,7 +36,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "ceiling",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/ceiling.ezMaterial"
    }
   },
   {
@@ -44,7 +44,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "leaf",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/leaf.ezMaterial"
    }
   },
   {
@@ -52,7 +52,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "flagpole",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/flagpole.ezMaterial"
    }
   },
   {
@@ -60,7 +60,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "vase_round",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/vase_round.ezMaterial"
    }
   },
   {
@@ -71,7 +71,7 @@
     "AssetType" : "Mesh",
     "Dependencies" : "Sponza/sponza.obj",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x7E56A3CE366D8F419259F2E157979BCC" },
-    "Hash" : { "$t" : "uint64", "$v" : "4156882053845684561", "$b" : "0x5111AB303436B039" },
+    "Hash" : { "$t" : "uint64", "$v" : "14273735722111375582", "$b" : "0xDE984086037F16C6" },
     "References" : ""
    }
   },
@@ -100,7 +100,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "arch",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/arch.ezMaterial"
    }
   },
   {
@@ -108,7 +108,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "column_b",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/column_b.ezMaterial"
    }
   },
   {
@@ -116,7 +116,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "vase",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/vase.ezMaterial"
    }
   },
   {
@@ -124,7 +124,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "fabric_e",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/fabric_e.ezMaterial"
    }
   },
   {
@@ -132,7 +132,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "fabric_c",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/fabric_c.ezMaterial"
    }
   },
   {
@@ -140,7 +140,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "column_c",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/column_c.ezMaterial"
    }
   },
   {
@@ -148,7 +148,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "Material__47",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/Material__47.ezMaterial"
    }
   },
   {
@@ -156,7 +156,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "fabric_a",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/fabric_a.ezMaterial"
    }
   },
   {
@@ -164,7 +164,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "Material__298",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/Material__298.ezMaterial"
    }
   },
   {
@@ -172,7 +172,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "Material__57",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/Material__57.ezMaterial"
    }
   },
   {
@@ -180,7 +180,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "vase_hanging",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/vase_hanging.ezMaterial"
    }
   },
   {
@@ -188,7 +188,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "16___Default",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/16___Default.ezMaterial"
    }
   },
   {
@@ -196,7 +196,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "bricks",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/bricks.ezMaterial"
    }
   },
   {
@@ -204,7 +204,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "details",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/details.ezMaterial"
    }
   },
   {
@@ -212,7 +212,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "roof",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/roof.ezMaterial"
    }
   },
   {
@@ -220,7 +220,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "fabric_f",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/fabric_f.ezMaterial"
    }
   },
   {
@@ -228,7 +228,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "fabric_g",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/fabric_g.ezMaterial"
    }
   },
   {
@@ -236,7 +236,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "Material__25",
-    "Resource" : ""
+    "Resource" : "Sponza/Materials/Material__25.ezMaterial"
    }
   } ]
 }

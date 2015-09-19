@@ -4,7 +4,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "DefaultMaterial",
-    "Resource" : ""
+    "Resource" : "Materials/BaseMaterials/MissingMesh.ezMaterial"
    }
   },
   {
@@ -15,7 +15,7 @@
     "AssetType" : "Mesh",
     "Dependencies" : "Meshes/MissingMesh/MissingMesh.obj",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x67B1E6E98CC160429B0E4CF4503C1463" },
-    "Hash" : { "$t" : "uint64", "$v" : "5695802834314579839", "$b" : "0x7FCFFB09808E0B4F" },
+    "Hash" : { "$t" : "uint64", "$v" : "11193623405623116162", "$b" : "0x8201AA592EBD579B" },
     "References" : ""
    }
   },
@@ -23,12 +23,12 @@
    "#" : { "$t" : "uuid", "$b" : "0xF7D37B95271EE243B8645DAAC8BD12E4" },
    "t" : "ezMeshAssetProperties",
    "p" : {
-    "Forward Dir" : "ezBasisAxis::PositiveX",
+    "Forward Dir" : "ezBasisAxis::NegativeZ",
     "Materials" : [ { "$t" : "uuid", "$b" : "0x7B37168B3CBFFB37B05B8F83D73641A6" } ],
     "Mesh File" : "Meshes/MissingMesh/MissingMesh.obj",
-    "Mesh Scaling" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "Mesh Scaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Right Dir" : "ezBasisAxis::PositiveX",
-    "Up Dir" : "ezBasisAxis::PositiveX"
+    "Up Dir" : "ezBasisAxis::PositiveY"
    }
   },
   {
