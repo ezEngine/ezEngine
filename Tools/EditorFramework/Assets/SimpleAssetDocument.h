@@ -40,6 +40,8 @@ protected:
     ezAssetDocument::InitializeAfterLoading();
 
     EnsureSettingsObjectExist();
+
+    m_ObjectMirror.Init(GetObjectManager());
   }
 
   virtual ezStatus InternalLoadDocument() override
@@ -47,10 +49,6 @@ protected:
     GetObjectManager()->DestroyAllObjects();
 
     ezStatus ret = ezAssetDocument::InternalLoadDocument();
-
-    EnsureSettingsObjectExist();
-
-    m_ObjectMirror.Init(GetObjectManager());
 
     return ret;
   }

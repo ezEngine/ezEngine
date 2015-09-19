@@ -4,6 +4,7 @@
 
 ezDocumentObjectMirror::ezDocumentObjectMirror()
 {
+  m_pManager = nullptr;
 }
 
 ezDocumentObjectMirror::~ezDocumentObjectMirror()
