@@ -3,7 +3,7 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
 
-class ezTextureAssetDocument : public ezSimpleAssetDocument<ezTextureAssetProperties, ezTextureAssetObjectManager>
+class ezTextureAssetDocument : public ezSimpleAssetDocument<ezTextureAssetProperties>
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTextureAssetDocument);
 

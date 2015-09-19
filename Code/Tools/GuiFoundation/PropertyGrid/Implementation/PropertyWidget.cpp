@@ -561,7 +561,8 @@ void ezPropertyEditorEnumWidget::OnInit()
   ezStringBuilder sTemp;
   const ezRTTI* pType = enumType;
   ezUInt32 uiCount = pType->GetProperties().GetCount();
-  for (ezUInt32 i = 0; i < uiCount; ++i)
+  // Start at 1 to skip default value.
+  for (ezUInt32 i = 1; i < uiCount; ++i)
   {
     auto pProp = pType->GetProperties()[i];
 
@@ -638,7 +639,8 @@ void ezPropertyEditorBitflagsWidget::OnInit()
   const ezRTTI* pType = enumType;
   ezUInt32 uiCount = pType->GetProperties().GetCount();
 
-  for (ezUInt32 i = 0; i < uiCount; ++i)
+  // Start at 1 to skip default value.
+  for (ezUInt32 i = 1; i < uiCount; ++i)
   {
     auto pProp = pType->GetProperties()[i];
 

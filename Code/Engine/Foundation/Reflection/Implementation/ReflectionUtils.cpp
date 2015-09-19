@@ -470,7 +470,7 @@ bool ezReflectionUtils::CreateDependencySortedTypeArray(const ezSet<const ezRTTI
   }
 
 
-  while(!dependencies.IsEmpty())
+  while (!dependencies.IsEmpty())
   {
     bool bDeadEnd = true;
     for (auto it = dependencies.GetIterator(); it.IsValid(); ++it)
@@ -500,7 +500,7 @@ bool ezReflectionUtils::EnumerationToString(const ezRTTI* pEnumerationRtti, ezIn
   out_sOutput.Clear();
   if (pEnumerationRtti->IsDerivedFrom<ezEnumBase>())
   {
-    for (auto pProp : pEnumerationRtti->GetProperties())
+    for (auto pProp : pEnumerationRtti->GetProperties().GetSubArray(1))
     {
       if (pProp->GetCategory() == ezPropertyCategory::Constant)
       {
@@ -516,7 +516,7 @@ bool ezReflectionUtils::EnumerationToString(const ezRTTI* pEnumerationRtti, ezIn
   }
   else if (pEnumerationRtti->IsDerivedFrom<ezBitflagsBase>())
   {
-    for (auto pProp : pEnumerationRtti->GetProperties())
+    for (auto pProp : pEnumerationRtti->GetProperties().GetSubArray(1))
     {
       if (pProp->GetCategory() == ezPropertyCategory::Constant)
       {
@@ -542,7 +542,7 @@ bool ezReflectionUtils::StringToEnumeration(const ezRTTI* pEnumerationRtti, cons
   out_iValue = 0;
   if (pEnumerationRtti->IsDerivedFrom<ezEnumBase>())
   {
-    for (auto pProp : pEnumerationRtti->GetProperties())
+    for (auto pProp : pEnumerationRtti->GetProperties().GetSubArray(1))
     {
       if (pProp->GetCategory() == ezPropertyCategory::Constant)
       {
@@ -563,7 +563,7 @@ bool ezReflectionUtils::StringToEnumeration(const ezRTTI* pEnumerationRtti, cons
     temp.Split(false, values, "|");
     for (auto sValue : values)
     {
-      for (auto pProp : pEnumerationRtti->GetProperties())
+      for (auto pProp : pEnumerationRtti->GetProperties().GetSubArray(1))
       {
         if (pProp->GetCategory() == ezPropertyCategory::Constant)
         {
@@ -584,6 +584,62 @@ bool ezReflectionUtils::StringToEnumeration(const ezRTTI* pEnumerationRtti, cons
   }
 }
 
+ezInt64 ezReflectionUtils::DefaultEnumerationValue(const ezRTTI* pEnumerationRtti)
+{
+  if (pEnumerationRtti->IsDerivedFrom<ezEnumBase>() || pEnumerationRtti->IsDerivedFrom<ezBitflagsBase>())
+  {
+    auto pProp = pEnumerationRtti->GetProperties()[0];
+    EZ_ASSERT_DEBUG(pProp->GetCategory() == ezPropertyCategory::Constant && ezStringUtils::EndsWith(pProp->GetPropertyName(), "::Default"), "First enumeration property must be the default value constant.");
+    return static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant().ConvertTo<ezInt64>();
+  }
+  else
+  {
+    EZ_ASSERT_DEV(false, "The RTTI class '%s' is not an enum or bitflags class", pEnumerationRtti->GetTypeName());
+    return 0;
+  }
+}
+
+ezInt64 ezReflectionUtils::MakeEnumerationValid(const ezRTTI* pEnumerationRtti, ezInt64 iValue)
+{
+  if (pEnumerationRtti->IsDerivedFrom<ezEnumBase>())
+  {
+    // Find current value
+    for (auto pProp : pEnumerationRtti->GetProperties().GetSubArray(1))
+    {
+      if (pProp->GetCategory() == ezPropertyCategory::Constant)
+      {
+        ezInt64 iCurrentValue = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant().ConvertTo<ezInt64>();
+        if (iCurrentValue == iValue)
+          return iValue;
+      }
+    }
+
+    // Current value not found, return default value
+    return ezReflectionUtils::DefaultEnumerationValue(pEnumerationRtti);
+  }
+  else if (pEnumerationRtti->IsDerivedFrom<ezBitflagsBase>())
+  {
+    ezInt64 iNewValue = 0;
+    // Filter valid bits
+    for (auto pProp : pEnumerationRtti->GetProperties().GetSubArray(1))
+    {
+      if (pProp->GetCategory() == ezPropertyCategory::Constant)
+      {
+        ezInt64 iCurrentValue = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant().ConvertTo<ezInt64>();
+        if ((iCurrentValue & iValue) != 0)
+        {
+          iNewValue |= iCurrentValue;
+        }
+      }
+    }
+    return iNewValue;
+  }
+  else
+  {
+    EZ_ASSERT_DEV(false, "The RTTI class '%s' is not an enum or bitflags class", pEnumerationRtti->GetTypeName());
+    return 0;
+  }
+}
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_ReflectionUtils);

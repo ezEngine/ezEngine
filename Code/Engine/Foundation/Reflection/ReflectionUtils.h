@@ -56,4 +56,11 @@ public:
   /// The type of pEnumerationRtti will be automatically detected. The syntax of szValue must equal the MSVC debugger output.
   static bool StringToEnumeration(const ezRTTI* pEnumerationRtti, const char* szValue, ezInt64& out_iValue); // [tested]
 
+  /// \brief Returns the default value (Enum::Default) for the given enumeration type.
+  static ezInt64 DefaultEnumerationValue(const ezRTTI* pEnumerationRtti); // [tested]
+
+  /// \brief Makes sure the given value is valid under the given enumeration type.
+  ///
+  /// Invalid bitflag bits are removed and an invalid enum value is replaced by the default value.
+  static ezInt64 MakeEnumerationValid(const ezRTTI* pEnumerationRtti, ezInt64 iValue); // [tested]
 };

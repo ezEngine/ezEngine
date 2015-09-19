@@ -16,6 +16,9 @@ ezArrayBase<T, Derived>::~ezArrayBase()
 template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::operator= (const ezArrayPtr<const T>& rhs)
 {
+  if (this->GetData() == rhs.GetPtr())
+    return;
+
   const ezUInt32 uiOldCount = m_uiCount;
   const ezUInt32 uiNewCount = rhs.GetCount();
 

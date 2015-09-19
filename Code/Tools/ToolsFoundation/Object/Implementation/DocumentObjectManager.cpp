@@ -165,7 +165,8 @@ void ezDocumentObjectManager::MoveObject(ezDocumentObjectBase* pObject, ezDocume
     ezIReflectedTypeAccessor& accessor = pObject->m_pParent->GetTypeAccessor();
 
     const ezRTTI* pType = accessor.GetType();
-    auto* pProp = pType->FindPropertyByName(pObject->m_sParentProperty);
+    ezPropertyPath path(pObject->m_sParentProperty);
+    auto* pProp = ezToolsReflectionUtils::GetPropertyByPath(pType, path);
     if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
     {
       ezPropertyPath path(pObject->m_sParentProperty);
@@ -227,7 +228,7 @@ bool ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentObject
 
     const ezIReflectedTypeAccessor& accessor = pParent->GetTypeAccessor();
     const ezRTTI* pType = accessor.GetType();
-    auto* pProp = pType->FindPropertyByName(szParentProperty);
+    auto* pProp = ezToolsReflectionUtils::GetPropertyByPath(pType, szParentProperty);
     if (pProp == nullptr)
       return false;
 
@@ -238,6 +239,9 @@ bool ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentObject
     }
     else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
     {
+      if (!pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+        return false;
+
       if (!pRtti->IsDerivedFrom(pProp->GetSpecificType()))
         return false;
     }
@@ -253,6 +257,17 @@ bool ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentObject
       ezInt32 iCount = accessor.GetCount(path);
       ezInt32 iNewIndex = index.ConvertTo<ezInt32>();
       if (iNewIndex >(ezInt32)iCount)
+        return false;
+    }
+    else if (pProp->GetCategory() == ezPropertyCategory::Member)
+    {
+      ezPropertyPath path(szParentProperty);
+      ezVariant value = accessor.GetValue(path);
+      if (!value.IsA<ezUuid>())
+        return false;
+
+      //  Can't set pointer if it already has a value, need to delete value first.
+      if (value.Get<ezUuid>().IsValid())
         return false;
     }
   }
@@ -315,7 +330,9 @@ bool ezDocumentObjectManager::CanMove(const ezDocumentObjectBase* pObject, const
 
   const ezIReflectedTypeAccessor& accessor = pNewParent->GetTypeAccessor();
   const ezRTTI* pType = accessor.GetType();
-  auto* pProp = pType->FindPropertyByName(szParentProperty);
+
+  ezPropertyPath path(szParentProperty);
+  auto* pProp = ezToolsReflectionUtils::GetPropertyByPath(pType, path);
 
   if (pProp == nullptr)
     return false;

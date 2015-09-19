@@ -96,18 +96,20 @@ ezVariant ezToolsReflectionUtils::GetDefaultValue(const ezAbstractProperty* pPro
   }
   else if (pProperty->GetSpecificType()->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
   {
+    ezInt64 iValue = ezReflectionUtils::DefaultEnumerationValue(pProperty->GetSpecificType());
     if (pAttrib)
     {
       if (pAttrib->GetValue().CanConvertTo(ezVariantType::Int64))
-        return pAttrib->GetValue().ConvertTo(ezVariantType::Int64);
+        iValue = pAttrib->GetValue().ConvertTo<ezInt64>();
     }
-    else
-      return ezInt64(0);
+    
+    return ezReflectionUtils::MakeEnumerationValid(pProperty->GetSpecificType(), iValue);
   }
   else if (pProperty->GetFlags().IsSet(ezPropertyFlags::Pointer))
   {
     return ezUuid();
   }
+  EZ_REPORT_FAILURE("Cannot provide a default variant for a member struct / class reference.");
   return ezVariant();
 }
 

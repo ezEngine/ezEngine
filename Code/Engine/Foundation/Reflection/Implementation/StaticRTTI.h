@@ -475,6 +475,7 @@ EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Value), (Storage)Value)                     \
   EZ_BEGIN_STATIC_REFLECTED_TYPE(Type, ezEnumBase, Version, ezRTTINoAllocator); \
   typedef Type::StorageType Storage;                                            \
   EZ_BEGIN_PROPERTIES                                                           \
+  EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Type::Default), (Storage)Type::Default),    \
 
 #define EZ_END_STATIC_REFLECTED_ENUM()                                        \
   EZ_END_PROPERTIES                                                           \
@@ -492,6 +493,7 @@ EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Value), (Storage)Value)                     \
   EZ_BEGIN_STATIC_REFLECTED_TYPE(Type, ezBitflagsBase, Version, ezRTTINoAllocator); \
   typedef Type::StorageType Storage;                                                \
   EZ_BEGIN_PROPERTIES                                                               \
+  EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Type::Default), (Storage)Type::Default),        \
 
 #define EZ_END_STATIC_REFLECTED_BITFLAGS()                                    \
   EZ_END_PROPERTIES                                                           \

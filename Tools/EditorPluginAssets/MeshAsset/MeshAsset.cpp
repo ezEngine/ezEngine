@@ -68,7 +68,7 @@ public:
   }
 };
 
-ezMeshAssetDocument::ezMeshAssetDocument(const char* szDocumentPath) : ezSimpleAssetDocument<ezMeshAssetProperties, ezMeshAssetObjectManager>(szDocumentPath)
+ezMeshAssetDocument::ezMeshAssetDocument(const char* szDocumentPath) : ezSimpleAssetDocument<ezMeshAssetProperties>(szDocumentPath)
 {
 }
 

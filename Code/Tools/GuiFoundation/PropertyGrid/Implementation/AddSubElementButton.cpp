@@ -100,9 +100,6 @@ void ezAddSubElementButton::OnMenuAction()
 
 void ezAddSubElementButton::OnAction(const ezRTTI* pRtti)
 {
-  //setParent(nullptr);
-  //setVisible(false);
-
   EZ_ASSERT_DEV(pRtti != nullptr, "user data retrieval failed");
 
   ezCommandHistory* history = m_Items[0].m_pObject->GetDocumentObjectManager()->GetDocument()->GetCommandHistory();
@@ -118,7 +115,7 @@ void ezAddSubElementButton::OnAction(const ezRTTI* pRtti)
     for (auto& item : m_Items)
     {
       cmd.m_Object = item.m_pObject->GetGuid();
-      cmd.m_NewValue = "";
+      cmd.m_NewValue = ezToolsReflectionUtils::GetDefaultValue(GetProperty());
 
       res = history->AddCommand(cmd);
       if (res.m_Result.Failed())
@@ -130,7 +127,9 @@ void ezAddSubElementButton::OnAction(const ezRTTI* pRtti)
     ezAddObjectCommand cmd;
     cmd.m_pType = pRtti;
     cmd.m_sParentProperty = m_PropertyPath.GetPathString();
-    cmd.m_Index = -1;
+    // We don't set the index field for member pointers
+    if (GetProperty()->GetCategory() != ezPropertyCategory::Member)
+      cmd.m_Index = -1;
 
     for (auto& item : m_Items)
     {
@@ -147,8 +146,6 @@ void ezAddSubElementButton::OnAction(const ezRTTI* pRtti)
     history->FinishTransaction();
 
   ezUIServices::GetInstance()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
-
-  //deleteLater();
 }
 
 

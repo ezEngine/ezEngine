@@ -34,20 +34,23 @@ void ezSelectionManager::TreeEventHandler(const ezDocumentObjectStructureEvent& 
   }
 }
 
-void ezSelectionManager::RecursiveRemoveFromSelection(const ezDocumentObjectBase* pObject)
+bool ezSelectionManager::RecursiveRemoveFromSelection(const ezDocumentObjectBase* pObject)
 {
   auto it = m_SelectionSet.Find(pObject->GetGuid());
 
+  bool bRemoved = false;
   if (it.IsValid())
   {
     m_SelectionSet.Remove(it);
     m_SelectionList.Remove(pObject);
+    bRemoved = true;
   }
 
   for (const ezDocumentObjectBase* pChild : pObject->GetChildren())
   {
-    RecursiveRemoveFromSelection(pChild);
+    bRemoved = bRemoved || RecursiveRemoveFromSelection(pChild);
   }
+  return bRemoved;
 }
 
 void ezSelectionManager::Clear()
@@ -83,12 +86,13 @@ void ezSelectionManager::RemoveObject(const ezDocumentObjectBase* pObject, bool 
   {
     // We only want one message for the change in selection so we first everything and then fire
     // SelectionSet instead of multiple ObjectRemoved messages.
-    RecursiveRemoveFromSelection(pObject);
-
-    Event e;
-    e.m_pObject = nullptr;
-    e.m_Type = Event::Type::SelectionSet;
-    m_Events.Broadcast(e);
+    if (RecursiveRemoveFromSelection(pObject))
+    {
+      Event e;
+      e.m_pObject = nullptr;
+      e.m_Type = Event::Type::SelectionSet;
+      m_Events.Broadcast(e);
+    }
   }
   else
   {

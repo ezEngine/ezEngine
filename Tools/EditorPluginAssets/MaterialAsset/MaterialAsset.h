@@ -3,7 +3,7 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetObjects.h>
 
-class ezMaterialAssetDocument : public ezSimpleAssetDocument<ezMaterialAssetProperties, ezMaterialAssetObjectManager>
+class ezMaterialAssetDocument : public ezSimpleAssetDocument<ezMaterialAssetProperties>
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMaterialAssetDocument);
 

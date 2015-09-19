@@ -5,11 +5,11 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
 
-template<typename PropertyType, typename ObjectManagerType>
+template<typename PropertyType>
 class ezSimpleAssetDocument : public ezAssetDocument
 {
 public:
-  ezSimpleAssetDocument(const char* szDocumentPath) : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ObjectManagerType))
+  ezSimpleAssetDocument(const char* szDocumentPath) : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezSimpleDocumentObjectManager<PropertyType>))
   {
 
   }

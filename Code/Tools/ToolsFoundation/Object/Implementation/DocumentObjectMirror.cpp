@@ -173,7 +173,9 @@ bool ezDocumentObjectMirror::IsHeapAllocated(const ezDocumentObjectBase* pParent
     return true;
 
   const ezRTTI* pRtti = pParent->GetTypeAccessor().GetType();
-  auto* pProp = pRtti->FindPropertyByName(szParentProperty);
+
+  ezPropertyPath path(szParentProperty);
+  auto* pProp = ezToolsReflectionUtils::GetPropertyByPath(pRtti, path);
   return pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner);
 }
 

@@ -51,7 +51,8 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
           const ezUuid guid = pObject->GetTypeAccessor().GetValue(path).Get<ezUuid>();
 
           pNode->AddProperty(pProp->GetPropertyName(), guid);
-          m_QueuedObjects.Insert(m_pManager->GetObject(guid));
+          if (guid.IsValid())
+            m_QueuedObjects.Insert(m_pManager->GetObject(guid));
         }
         else
         {
@@ -69,6 +70,7 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
         SubObj.SetObject(const_cast<ezDocumentObjectBase*>(pObject), path, SubObjectGuid);
        
         AddSubObjectToGraph(&SubObj, nullptr);
+        pNode->AddProperty(pProp->GetPropertyName(), SubObjectGuid);
       }
     }
 

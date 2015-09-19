@@ -21,10 +21,10 @@ void ezDocumentObjectBase::InsertSubObject(ezDocumentObjectBase* pObject, const 
 
   // Property patching
   const ezRTTI* pType = accessor.GetType();
-  auto* pProp = pType->FindPropertyByName(szProperty);
+  ezPropertyPath path(szProperty);
+  auto* pProp = ezToolsReflectionUtils::GetPropertyByPath(pType, path);
   EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner), "");
   
-  ezPropertyPath path(szProperty);
   if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
   {
     if (index.CanConvertTo<ezInt32>() && index.ConvertTo<ezInt32>() == -1)
@@ -60,8 +60,8 @@ void ezDocumentObjectBase::RemoveSubObject(ezDocumentObjectBase* pObject)
 
   // Property patching
   const ezRTTI* pType = accessor.GetType();
-  auto* pProp = pType->FindPropertyByName(pObject->m_sParentProperty);
   ezPropertyPath path(pObject->m_sParentProperty);
+  auto* pProp = ezToolsReflectionUtils::GetPropertyByPath(pType, path);
   if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
   {
     ezVariant index = accessor.GetPropertyChildIndex(path, pObject->GetGuid());
@@ -100,7 +100,9 @@ bool ezDocumentObjectBase::IsOnHeap() const
     return true;
 
   const ezRTTI* pRtti = GetParent()->GetTypeAccessor().GetType();
-  auto* pProp = pRtti->FindPropertyByName(m_sParentProperty);
+
+  ezPropertyPath path(m_sParentProperty);
+  auto* pProp = ezToolsReflectionUtils::GetPropertyByPath(pRtti, path);
   return pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner);
 }
 

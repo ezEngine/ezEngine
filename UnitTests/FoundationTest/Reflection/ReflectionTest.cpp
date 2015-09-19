@@ -478,7 +478,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Enum)
   {
     EZ_TEST_BOOL(pEnumRTTI->IsDerivedFrom<ezEnumBase>());
     auto props = pEnumRTTI->GetProperties();
-    EZ_TEST_INT(props.GetCount(), 3);
+    EZ_TEST_INT(props.GetCount(), 4);  // Default + 3
 
     for (auto pProp : props)
     {
@@ -486,17 +486,21 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Enum)
       ezAbstractConstantProperty* pConstantProp = static_cast<ezAbstractConstantProperty*>(pProp);
       EZ_TEST_BOOL(pConstantProp->GetSpecificType() == ezGetStaticRTTI<ezInt8>());
     }
+    EZ_TEST_INT(ezExampleEnum::Default, ezReflectionUtils::DefaultEnumerationValue(pEnumRTTI));
 
-    EZ_TEST_STRING(props[0]->GetPropertyName(), "ezExampleEnum::Value1");
-    EZ_TEST_STRING(props[1]->GetPropertyName(), "ezExampleEnum::Value2");
-    EZ_TEST_STRING(props[2]->GetPropertyName(), "ezExampleEnum::Value3");
+    EZ_TEST_STRING(props[0]->GetPropertyName(), "ezExampleEnum::Default");
+    EZ_TEST_STRING(props[1]->GetPropertyName(), "ezExampleEnum::Value1");
+    EZ_TEST_STRING(props[2]->GetPropertyName(), "ezExampleEnum::Value2");
+    EZ_TEST_STRING(props[3]->GetPropertyName(), "ezExampleEnum::Value3");
 
     auto pTypedConstantProp0 = static_cast<ezTypedConstantProperty<ezInt8>*>(props[0]);
     auto pTypedConstantProp1 = static_cast<ezTypedConstantProperty<ezInt8>*>(props[1]);
     auto pTypedConstantProp2 = static_cast<ezTypedConstantProperty<ezInt8>*>(props[2]);
-    EZ_TEST_INT(pTypedConstantProp0->GetValue(), ezExampleEnum::Value1);
-    EZ_TEST_INT(pTypedConstantProp1->GetValue(), ezExampleEnum::Value2);
-    EZ_TEST_INT(pTypedConstantProp2->GetValue(), ezExampleEnum::Value3);
+    auto pTypedConstantProp3 = static_cast<ezTypedConstantProperty<ezInt8>*>(props[3]);
+    EZ_TEST_INT(pTypedConstantProp0->GetValue(), ezExampleEnum::Default);
+    EZ_TEST_INT(pTypedConstantProp1->GetValue(), ezExampleEnum::Value1);
+    EZ_TEST_INT(pTypedConstantProp2->GetValue(), ezExampleEnum::Value2);
+    EZ_TEST_INT(pTypedConstantProp3->GetValue(), ezExampleEnum::Value3);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Enum Property")
@@ -516,7 +520,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Enum)
 
       const ezRTTI* pEnumPropertyRTTI = pEnumProp->GetSpecificType();
       // Set and get all valid enum values.
-      for (auto pProp2 : pEnumPropertyRTTI->GetProperties())
+      for (auto pProp2 : pEnumPropertyRTTI->GetProperties().GetSubArray(1))
       {
         ezTypedConstantProperty<ezInt8>* pConstantProp = static_cast<ezTypedConstantProperty<ezInt8>*>(pProp2);
         pEnumProp->SetValue(&data, pConstantProp->GetValue());
@@ -535,6 +539,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Enum)
         ezInt64 iValue = 0;
         EZ_TEST_BOOL(ezReflectionUtils::StringToEnumeration(pEnumPropertyRTTI, sValue, iValue));
         EZ_TEST_INT(iValue, pConstantProp->GetValue());
+
+        EZ_TEST_INT(iValue, ezReflectionUtils::MakeEnumerationValid(pEnumPropertyRTTI, iValue));
+        EZ_TEST_INT(ezExampleEnum::Default, ezReflectionUtils::MakeEnumerationValid(pEnumPropertyRTTI, iValue + 666));
       }
     }
 
@@ -556,24 +563,28 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Bitflags)
   {
     EZ_TEST_BOOL(pBitflagsRTTI->IsDerivedFrom<ezBitflagsBase>());
     auto props = pBitflagsRTTI->GetProperties();
-    EZ_TEST_INT(props.GetCount(), 3);
+    EZ_TEST_INT(props.GetCount(), 4); // Default + 3
 
     for (auto pProp : props)
     {
       EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Constant);
       EZ_TEST_BOOL(pProp->GetSpecificType() == ezGetStaticRTTI<ezUInt64>());
     }
+    EZ_TEST_INT(ezExampleBitflags::Default, ezReflectionUtils::DefaultEnumerationValue(pBitflagsRTTI));
 
-    EZ_TEST_STRING(props[0]->GetPropertyName(), "ezExampleBitflags::Value1");
-    EZ_TEST_STRING(props[1]->GetPropertyName(), "ezExampleBitflags::Value2");
-    EZ_TEST_STRING(props[2]->GetPropertyName(), "ezExampleBitflags::Value3");
+    EZ_TEST_STRING(props[0]->GetPropertyName(), "ezExampleBitflags::Default");
+    EZ_TEST_STRING(props[1]->GetPropertyName(), "ezExampleBitflags::Value1");
+    EZ_TEST_STRING(props[2]->GetPropertyName(), "ezExampleBitflags::Value2");
+    EZ_TEST_STRING(props[3]->GetPropertyName(), "ezExampleBitflags::Value3");
 
     auto pTypedConstantProp0 = static_cast<ezTypedConstantProperty<ezUInt64>*>(props[0]);
     auto pTypedConstantProp1 = static_cast<ezTypedConstantProperty<ezUInt64>*>(props[1]);
     auto pTypedConstantProp2 = static_cast<ezTypedConstantProperty<ezUInt64>*>(props[2]);
-    EZ_TEST_BOOL(pTypedConstantProp0->GetValue() == ezExampleBitflags::Value1);
-    EZ_TEST_BOOL(pTypedConstantProp1->GetValue() == ezExampleBitflags::Value2);
-    EZ_TEST_BOOL(pTypedConstantProp2->GetValue() == ezExampleBitflags::Value3);
+    auto pTypedConstantProp3 = static_cast<ezTypedConstantProperty<ezUInt64>*>(props[3]);
+    EZ_TEST_BOOL(pTypedConstantProp0->GetValue() == ezExampleBitflags::Default);
+    EZ_TEST_BOOL(pTypedConstantProp1->GetValue() == ezExampleBitflags::Value1);
+    EZ_TEST_BOOL(pTypedConstantProp2->GetValue() == ezExampleBitflags::Value2);
+    EZ_TEST_BOOL(pTypedConstantProp3->GetValue() == ezExampleBitflags::Value3);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Bitflags Property")
@@ -592,10 +603,10 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Bitflags)
 
       const ezRTTI* pBitflagsPropertyRTTI = pBitflagsProp->GetSpecificType();
 
-      // Set and get all valid bitflags values.
-      ezUInt64 constants[] = { static_cast<ezTypedConstantProperty<ezUInt64>*>(pBitflagsPropertyRTTI->GetProperties()[0])->GetValue(),
-        static_cast<ezTypedConstantProperty<ezUInt64>*>(pBitflagsPropertyRTTI->GetProperties()[1])->GetValue(),
-        static_cast<ezTypedConstantProperty<ezUInt64>*>(pBitflagsPropertyRTTI->GetProperties()[2])->GetValue() };
+      // Set and get all valid bitflags values. (skip default value)
+      ezUInt64 constants[] = { static_cast<ezTypedConstantProperty<ezUInt64>*>(pBitflagsPropertyRTTI->GetProperties()[1])->GetValue(),
+        static_cast<ezTypedConstantProperty<ezUInt64>*>(pBitflagsPropertyRTTI->GetProperties()[2])->GetValue(),
+        static_cast<ezTypedConstantProperty<ezUInt64>*>(pBitflagsPropertyRTTI->GetProperties()[3])->GetValue() };
 
       const char* stringValues[] = {"", "ezExampleBitflags::Value1", "ezExampleBitflags::Value2",
         "ezExampleBitflags::Value1|ezExampleBitflags::Value2", "ezExampleBitflags::Value3",
@@ -624,6 +635,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Bitflags)
         ezInt64 iValue = 0;
         EZ_TEST_BOOL(ezReflectionUtils::StringToEnumeration(pBitflagsPropertyRTTI, sValue, iValue));
         EZ_TEST_INT(iValue, uiBitflagValue);
+
+        EZ_TEST_INT(iValue, ezReflectionUtils::MakeEnumerationValid(pBitflagsPropertyRTTI, iValue));
+        EZ_TEST_INT(iValue, ezReflectionUtils::MakeEnumerationValid(pBitflagsPropertyRTTI, iValue | EZ_BIT(16)));
       }
     }
 

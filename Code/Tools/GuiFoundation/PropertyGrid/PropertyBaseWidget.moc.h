@@ -12,9 +12,11 @@ class ezDocumentObjectBase;
 class ezTypeWidget;
 class QHBoxLayout;
 class QVBoxLayout;
+class QLabel;
 class ezCollapsibleGroupBox;
 class ezAddSubElementButton;
 class ezPropertyGridWidget;
+class ezElementGroupButton;
 
 class EZ_GUIFOUNDATION_DLL ezPropertyBaseWidget : public QWidget
 {
@@ -72,6 +74,20 @@ protected:
 };
 
 
+class EZ_GUIFOUNDATION_DLL ezUnsupportedPropertyWidget : public ezPropertyBaseWidget
+{
+  Q_OBJECT;
+public:
+  explicit ezUnsupportedPropertyWidget();
+
+protected:
+  virtual void OnInit() override;
+
+  QHBoxLayout* m_pLayout;
+  QLabel* m_pWidget;
+};
+
+
 class EZ_GUIFOUNDATION_DLL ezStandardPropertyBaseWidget : public ezPropertyBaseWidget
 {
   Q_OBJECT;
@@ -95,7 +111,7 @@ class EZ_GUIFOUNDATION_DLL ezPropertyTypeWidget : public ezPropertyBaseWidget
 {
   Q_OBJECT;
 public:
-  explicit ezPropertyTypeWidget();
+  explicit ezPropertyTypeWidget(bool bAddCollapsibleGroup = false);
   virtual ~ezPropertyTypeWidget();
 
   virtual void SetSelection(const ezHybridArray<Selection, 8>& items) override;
@@ -106,8 +122,38 @@ protected:
 
 protected:
   QHBoxLayout* m_pLayout;
+  ezCollapsibleGroupBox* m_pGroup;
+  QHBoxLayout* m_pGroupLayout;
   ezTypeWidget* m_pTypeWidget;
 };
+
+
+class EZ_GUIFOUNDATION_DLL ezPropertyPointerWidget : public ezPropertyBaseWidget
+{
+  Q_OBJECT;
+public:
+  explicit ezPropertyPointerWidget();
+  virtual ~ezPropertyPointerWidget();
+
+  virtual void SetSelection(const ezHybridArray<Selection, 8>& items) override;
+  virtual bool HasLabel() const override { return false; }
+
+public slots:
+  void OnDeleteButtonClicked();
+
+protected:
+  virtual void OnInit() override;
+  void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
+
+protected:
+  QHBoxLayout* m_pLayout;
+  ezCollapsibleGroupBox* m_pGroup;
+  ezAddSubElementButton* m_pAddButton;
+  ezElementGroupButton* m_pDeleteButton;
+  QHBoxLayout* m_pGroupLayout;
+  ezTypeWidget* m_pTypeWidget;
+};
+
 
 class EZ_GUIFOUNDATION_DLL ezPropertyContainerBaseWidget : public ezPropertyBaseWidget
 {

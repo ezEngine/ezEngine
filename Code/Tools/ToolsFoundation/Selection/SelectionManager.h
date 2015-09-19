@@ -63,7 +63,7 @@ public:
 
 private:
   void TreeEventHandler(const ezDocumentObjectStructureEvent& e);
-  void RecursiveRemoveFromSelection(const ezDocumentObjectBase* pObject);
+  bool RecursiveRemoveFromSelection(const ezDocumentObjectBase* pObject);
 
   friend class ezDocumentBase;
 

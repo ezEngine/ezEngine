@@ -37,12 +37,3 @@ public:
 private:
 
 };
-
-class ezMeshAssetObjectManager : public ezSimpleDocumentObjectManager<ezMeshAssetProperties>
-{
-public:
-
-};
-
-
-

@@ -16,7 +16,9 @@ public:
   ezTypeWidget(QWidget* pParent, ezPropertyGridWidget* pGrid, const ezRTTI* pType, ezPropertyPath& parentPath);
   ~ezTypeWidget();
   void SetSelection(const ezHybridArray<ezPropertyBaseWidget::Selection, 8>& items);
+  const ezHybridArray<ezPropertyBaseWidget::Selection, 8>& GetSelection() const { return m_Items; }
   const ezRTTI* GetType() const { return m_pType; }
+  const ezPropertyPath& GetPropertyPath() const { return m_ParentPath; }
 
 private:
   void BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath);

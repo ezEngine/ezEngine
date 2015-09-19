@@ -23,11 +23,6 @@ private:
 
 };
 
-class ezMaterialAssetObjectManager : public ezSimpleDocumentObjectManager<ezMaterialAssetProperties>
-{
-public:
-
-};
 
 
 

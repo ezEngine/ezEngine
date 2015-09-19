@@ -245,8 +245,7 @@ ezPropertyBaseWidget* ezPropertyGridWidget::CreatePropertyWidget(const ezAbstrac
     {
       if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
-        EZ_ASSERT_NOT_IMPLEMENTED;
-        return nullptr;
+        return new ezPropertyPointerWidget();
       }
       else
       {
@@ -257,7 +256,7 @@ ezPropertyBaseWidget* ezPropertyGridWidget::CreatePropertyWidget(const ezAbstrac
         if (!pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
         {
           // Member struct / class
-          return new ezPropertyTypeWidget();
+          return new ezPropertyTypeWidget(true);
         }
       }
     }
@@ -287,8 +286,8 @@ ezPropertyBaseWidget* ezPropertyGridWidget::CreatePropertyWidget(const ezAbstrac
     break;
   }
 
-  EZ_REPORT_FAILURE("No property widget available for prop: '%s' of type: %s", pProp->GetPropertyName(), pProp->GetSpecificType()->GetTypeName());
-  return nullptr;
+  //EZ_REPORT_FAILURE("No property widget available for prop: '%s' of type: %s", pProp->GetPropertyName(), pProp->GetSpecificType()->GetTypeName());
+  return new ezUnsupportedPropertyWidget();
 }
 
 void ezPropertyGridWidget::SetCollapseState(ezCollapsibleGroupBox* pBox)

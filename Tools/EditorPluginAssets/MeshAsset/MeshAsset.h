@@ -3,7 +3,7 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 
-class ezMeshAssetDocument : public ezSimpleAssetDocument<ezMeshAssetProperties, ezMeshAssetObjectManager>
+class ezMeshAssetDocument : public ezSimpleAssetDocument<ezMeshAssetProperties>
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshAssetDocument);
 
