@@ -82,7 +82,7 @@ namespace
             err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, nullptr);
 
           char errStr[1024];
-          sprintf_s(errStr, "StackTracer could not initialize symbols. Error-Code %u (\"%s\")", err, lpMsgBuf);
+          sprintf_s(errStr, "StackTracer could not initialize symbols. Error-Code %u (\"%s\")", err, static_cast<char*>(lpMsgBuf));
           OutputDebugStringA(errStr);
 
           LocalFree(lpMsgBuf);
@@ -129,7 +129,7 @@ namespace
             err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, nullptr);
 
           char errStr[1024];
-          sprintf_s(errStr, "StackTracer could not load symbols for '%s'. Error-Code %u (\"%s\")", e.m_szPluginFile, err, lpMsgBuf);
+          sprintf_s(errStr, "StackTracer could not load symbols for '%s'. Error-Code %u (\"%s\")", e.m_szPluginFile, err, static_cast<char*>(lpMsgBuf));
           OutputDebugStringA(errStr);
 
           LocalFree(lpMsgBuf);
@@ -151,7 +151,7 @@ namespace
             err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, nullptr);
 
         char errStr[1024];
-        sprintf_s(errStr, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")", e.m_szPluginFile, err, lpMsgBuf);
+        sprintf_s(errStr, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")", e.m_szPluginFile, err, static_cast<char*>(lpMsgBuf));
         OutputDebugStringA(errStr);
 
         LocalFree(lpMsgBuf);
