@@ -22,7 +22,7 @@
     "Forward Dir" : "ezBasisAxis::NegativeZ",
     "Materials" : [ { "$t" : "uuid", "$b" : "0x7B37168B3CBFFB37B05B8F83D73641A6" }, { "$t" : "uuid", "$b" : "0xB26DD2DA35000B3AA9BE9BC178B0596C" }, { "$t" : "uuid", "$b" : "0x61A334B31E3198B321DA3CA1C7065B57" } ],
     "Mesh File" : "Trees/Tree5.obj",
-    "Mesh Scaling" : { "$t" : "float", "$v" : "1.1000", "$b" : "0xCDCC8C3F" },
+    "Mesh Scaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Right Dir" : "ezBasisAxis::PositiveX",
     "Up Dir" : "ezBasisAxis::PositiveY"
    }
@@ -43,7 +43,7 @@
     "AssetType" : "Mesh",
     "Dependencies" : "Trees/Tree5.obj",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x95A7BE5B5803D84D86A9C277F7A59F53" },
-    "Hash" : { "$t" : "uint64", "$v" : "10106648607789833229", "$b" : "0x0D5C02895C07428C" },
+    "Hash" : { "$t" : "uint64", "$v" : "7925676742475678839", "$b" : "0x7784D65701A9FD6D" },
     "References" : ""
    }
   },

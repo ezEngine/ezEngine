@@ -22,6 +22,8 @@ ezProcessCommunication::ezProcessCommunication()
 
 ezResult ezProcessCommunication::StartClientProcess(const char* szProcess, const char* szArguments, ezUInt32 uiMemSize)
 {
+  EZ_LOCK(m_Mutex);
+
   EZ_LOG_BLOCK("ezProcessCommunication::StartClientProcess");
 
   EZ_ASSERT_DEV(m_pSharedMemory == nullptr, "ProcessCommunication object already in use");
@@ -92,6 +94,8 @@ success:
 
 ezResult ezProcessCommunication::ConnectToHostProcess()
 {
+  EZ_LOCK(m_Mutex);
+
   EZ_ASSERT_DEV(m_pSharedMemory == nullptr, "ProcessCommunication object already in use");
   EZ_ASSERT_DEV(m_pClientProcess == nullptr, "ProcessCommunication object already in use");
 
@@ -128,6 +132,8 @@ ezResult ezProcessCommunication::ConnectToHostProcess()
 
 void ezProcessCommunication::CloseConnection()
 {
+  EZ_LOCK(m_Mutex);
+
   m_uiProcessID = 0;
 
   // If we kill the process while it is in the shared memory lock we will be unable to lock
@@ -176,6 +182,8 @@ bool ezProcessCommunication::IsClientAlive() const
 
 void ezProcessCommunication::SendMessage(ezProcessMessage* pMessage, bool bSuperHighPriority)
 {
+  EZ_LOCK(m_Mutex);
+
   if (m_pSharedMemory == nullptr)
     return;
 
@@ -196,6 +204,8 @@ bool ezProcessCommunication::ProcessMessages(bool bAllowMsgDispatch)
 {
   if (!m_pSharedMemory)
     return false;
+
+  EZ_LOCK(m_Mutex);
 
   EZ_VERIFY(m_pSharedMemory->lock(), "Implementation error?");
 
@@ -245,6 +255,9 @@ void ezProcessCommunication::WriteMessages()
 
     uiRemainingSize -= sizeof(ezUInt32);
     uiRemainingSize -= storage.GetStorageSize();
+
+    EZ_ASSERT_DEV(storage.GetRefCount() == 0, "");
+
     m_MessageSendQueue.PopFront();
   }
 
@@ -283,6 +296,8 @@ bool ezProcessCommunication::ReadMessages()
 
 ezResult ezProcessCommunication::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout)
 {
+  EZ_LOCK(m_Mutex);
+
   m_pWaitForMessageType = pMessageType;
 
   const ezTime tStart = ezTime::Now();
