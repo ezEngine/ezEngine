@@ -51,7 +51,7 @@ private:
   void WriteMessages();
   void DispatchMessages();
 
-  ezMutex m_Mutex;
+  ezMutex m_SendQueueMutex;
   const ezRTTI* m_pWaitForMessageType;
   ezInt64 m_iHostPID;
   ezUInt32 m_uiProcessID;

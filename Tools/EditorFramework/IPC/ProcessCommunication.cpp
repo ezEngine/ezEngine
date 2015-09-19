@@ -11,6 +11,7 @@
 #include <QCoreApplication>
 #include <QProcess>
 #include <QSharedMemory>
+#include <Foundation/Threading/ThreadUtils.h>
 
 ezProcessCommunication::ezProcessCommunication()
 {
@@ -22,8 +23,6 @@ ezProcessCommunication::ezProcessCommunication()
 
 ezResult ezProcessCommunication::StartClientProcess(const char* szProcess, const char* szArguments, ezUInt32 uiMemSize)
 {
-  EZ_LOCK(m_Mutex);
-
   EZ_LOG_BLOCK("ezProcessCommunication::StartClientProcess");
 
   EZ_ASSERT_DEV(m_pSharedMemory == nullptr, "ProcessCommunication object already in use");
@@ -94,8 +93,6 @@ success:
 
 ezResult ezProcessCommunication::ConnectToHostProcess()
 {
-  EZ_LOCK(m_Mutex);
-
   EZ_ASSERT_DEV(m_pSharedMemory == nullptr, "ProcessCommunication object already in use");
   EZ_ASSERT_DEV(m_pClientProcess == nullptr, "ProcessCommunication object already in use");
 
@@ -132,7 +129,7 @@ ezResult ezProcessCommunication::ConnectToHostProcess()
 
 void ezProcessCommunication::CloseConnection()
 {
-  EZ_LOCK(m_Mutex);
+  EZ_LOCK(m_SendQueueMutex);
 
   m_uiProcessID = 0;
 
@@ -182,22 +179,27 @@ bool ezProcessCommunication::IsClientAlive() const
 
 void ezProcessCommunication::SendMessage(ezProcessMessage* pMessage, bool bSuperHighPriority)
 {
-  EZ_LOCK(m_Mutex);
-
-  if (m_pSharedMemory == nullptr)
-    return;
-
-  pMessage->m_iSentTimeStamp = ezTimestamp::CurrentTimestamp().GetInt64(ezSIUnitOfTime::Microsecond);
-
   {
-    ezMemoryStreamStorage& storage = m_MessageSendQueue.ExpandAndGetRef();
-    ezMemoryStreamWriter writer(&storage);
+    EZ_LOCK(m_SendQueueMutex);
 
-    ezReflectionSerializer::WriteObjectToJSON(writer, pMessage->GetDynamicRTTI(), pMessage);
+    if (m_pSharedMemory == nullptr)
+      return;
+
+    pMessage->m_iSentTimeStamp = ezTimestamp::CurrentTimestamp().GetInt64(ezSIUnitOfTime::Microsecond);
+
+    {
+      ezMemoryStreamStorage& storage = m_MessageSendQueue.ExpandAndGetRef();
+      ezMemoryStreamWriter writer(&storage);
+
+      ezReflectionSerializer::WriteObjectToJSON(writer, pMessage->GetDynamicRTTI(), pMessage);
+    }
   }
 
   if (bSuperHighPriority)
+  {
+    EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function is not thread safe");
     ProcessMessages(false);
+  }
 }
 
 bool ezProcessCommunication::ProcessMessages(bool bAllowMsgDispatch)
@@ -205,7 +207,7 @@ bool ezProcessCommunication::ProcessMessages(bool bAllowMsgDispatch)
   if (!m_pSharedMemory)
     return false;
 
-  EZ_LOCK(m_Mutex);
+  EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function is not thread safe");
 
   EZ_VERIFY(m_pSharedMemory->lock(), "Implementation error?");
 
@@ -238,27 +240,30 @@ void ezProcessCommunication::WriteMessages()
   uiRemainingSize -= sizeof(ezUInt32); // process ID
   uiRemainingSize -= sizeof(ezUInt32); // leave some room for the terminator
 
-  while (!m_MessageSendQueue.IsEmpty())
   {
-    ezMemoryStreamStorage& storage = m_MessageSendQueue.PeekFront();
+    EZ_LOCK(m_SendQueueMutex);
+    while (!m_MessageSendQueue.IsEmpty())
+    {
+      ezMemoryStreamStorage& storage = m_MessageSendQueue.PeekFront();
 
-    if (storage.GetStorageSize() + sizeof(ezUInt32) > uiRemainingSize)
-      break;
+      if (storage.GetStorageSize() + sizeof(ezUInt32) > uiRemainingSize)
+        break;
 
-    ezUInt32* pSizeField = (ezUInt32*)pData;
+      ezUInt32* pSizeField = (ezUInt32*)pData;
 
-    *pSizeField = storage.GetStorageSize();
-    pData += sizeof(ezUInt32);
+      *pSizeField = storage.GetStorageSize();
+      pData += sizeof(ezUInt32);
 
-    ezMemoryUtils::Copy(pData, storage.GetData(), storage.GetStorageSize());
-    pData += storage.GetStorageSize();
+      ezMemoryUtils::Copy(pData, storage.GetData(), storage.GetStorageSize());
+      pData += storage.GetStorageSize();
 
-    uiRemainingSize -= sizeof(ezUInt32);
-    uiRemainingSize -= storage.GetStorageSize();
+      uiRemainingSize -= sizeof(ezUInt32);
+      uiRemainingSize -= storage.GetStorageSize();
 
-    EZ_ASSERT_DEV(storage.GetRefCount() == 0, "");
+      EZ_ASSERT_DEV(storage.GetRefCount() == 0, "");
 
-    m_MessageSendQueue.PopFront();
+      m_MessageSendQueue.PopFront();
+    }
   }
 
   ezUInt32* pTerminator = (ezUInt32*)pData;
@@ -296,7 +301,7 @@ bool ezProcessCommunication::ReadMessages()
 
 ezResult ezProcessCommunication::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout)
 {
-  EZ_LOCK(m_Mutex);
+  EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function is not thread safe");
 
   m_pWaitForMessageType = pMessageType;
 

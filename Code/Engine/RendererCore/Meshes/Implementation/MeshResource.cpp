@@ -107,6 +107,9 @@ ezResourceLoadDesc ezMeshResource::CreateResource(const ezMeshResourceDescriptor
 
   m_Bounds = desc.GetBounds();
 
+  auto b = m_Bounds;
+  ezLog::Info("Bounds from Desc: %.2f | %.2f | %.2f - %.2f | %.2f | %.2f", b.m_vCenter.x, b.m_vCenter.y, b.m_vCenter.z, b.m_vBoxHalfExtends.x, b.m_vBoxHalfExtends.y, b.m_vBoxHalfExtends.z);
+
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
