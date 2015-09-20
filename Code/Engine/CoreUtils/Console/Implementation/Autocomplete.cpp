@@ -4,7 +4,6 @@
 
 void ezConsole::AutoCompleteInputLine()
 {
-  int iPos = 0;
   ezString sVarName = m_sInputLine;
 
   auto it = rbegin(m_sInputLine);

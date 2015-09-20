@@ -92,7 +92,7 @@ public:
   ///
   /// This does NOT guarantee that you can read all the uncompressed data from the output stream afterwards, because a lot of data
   /// will still be inside the compressor and thus not yet written to the stream.
-  virtual ezResult Flush();
+  virtual ezResult Flush() override;
 
 private:
   ezUInt32 m_uiUncompressedSize;

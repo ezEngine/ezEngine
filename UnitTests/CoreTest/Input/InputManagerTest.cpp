@@ -64,7 +64,7 @@ private:
     RegisterInputSlot("testdevice_touchpoint", "", ezInputSlotFlags::IsTouchPoint);
   }
 
-  void ResetInputSlotValues()
+  void ResetInputSlotValues() override
   {
     m_InputSlotValues.Clear();
   }

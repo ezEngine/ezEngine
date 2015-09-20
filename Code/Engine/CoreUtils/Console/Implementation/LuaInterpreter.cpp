@@ -82,8 +82,6 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
     return EZ_SUCCESS;
   }
 
-  int iPos = 0;
-
   ezStringView sCommandIt = sCommand;
 
   const ezString sVarName = GetNextWord(sCommandIt);

@@ -66,7 +66,7 @@ public:
   virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) override; // [tested]
 
   /// \brief Skips bytes in the stream (e.g. for skipping objects which can't be serialized due to missing information etc.)
-  virtual ezUInt64 SkipBytes(ezUInt64 uiBytesToSkip); // [tested]
+  virtual ezUInt64 SkipBytes(ezUInt64 uiBytesToSkip) override; // [tested]
 
   /// \brief Sets the read position to be used
   void SetReadPosition(ezUInt32 uiReadPosition); // [tested]

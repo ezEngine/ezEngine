@@ -18,6 +18,7 @@ public:
 
     ezGameObjectDesc d;
     ezGameObjectHandle hObject = g_DummyWorld->CreateObject(d, pObject);
+      EZ_IGNORE_UNUSED(hObject);
 
     return pObject;
   }

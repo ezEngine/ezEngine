@@ -55,6 +55,7 @@ public:
   virtual ezResult Call(ezArrayPtr<ezVariant> params) override
   {
     ezResult r = EZ_FAILURE;
+    EZ_IGNORE_UNUSED(r);
 
 #if (ARG_COUNT > 0)
     P0 param0 = params[0].ConvertTo<P0>(&r);
