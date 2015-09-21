@@ -235,9 +235,45 @@ void ezRTTI::AssignPlugin(const char* szPluginName)
   while (pInstance)
   {
     if (pInstance->m_szPluginName == nullptr)
+    {
       pInstance->m_szPluginName = szPluginName;
-
+      SanityCheckType(pInstance);
+    }
     pInstance = pInstance->GetNextInstance();
+  }
+}
+
+void ezRTTI::SanityCheckType(ezRTTI* pType)
+{
+  for (auto pProp : pType->m_Properties)
+  {
+    const ezRTTI* pSpecificType = pProp->GetSpecificType();
+    switch (pProp->GetCategory())
+    {
+    case ezPropertyCategory::Constant:
+      {
+        EZ_ASSERT_DEV(pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::StandardType), "Only standard type constants are supported!");
+      }
+      break;
+    case ezPropertyCategory::Member:
+      {
+        EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) == pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::StandardType), "Property-Type missmatch!");
+        EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::IsEnum) == pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::IsEnum),
+          "Property-Type missmatch! Use EZ_BEGIN_STATIC_REFLECTED_ENUM for type and EZ_ENUM_MEMBER_PROPERTY / EZ_ENUM_ACCESSOR_PROPERTY for property.");
+        EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::Bitflags) == pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::Bitflags),
+          "Property-Type missmatch! Use EZ_BEGIN_STATIC_REFLECTED_ENUM for type and EZ_BITFLAGS_MEMBER_PROPERTY / EZ_BITFLAGS_ACCESSOR_PROPERTY for property.");
+      }
+      break;
+    case ezPropertyCategory::Array:
+    case ezPropertyCategory::Set:
+    case ezPropertyCategory::Map:
+      {
+        EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) == pSpecificType->GetTypeFlags().IsSet(ezTypeFlags::StandardType), "Property-Type missmatch!");
+      }
+      break;
+    case ezPropertyCategory::Function:
+      break;
+    }
   }
 }
 

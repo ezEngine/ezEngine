@@ -15,6 +15,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QScrollArea>
+#include <QStringBuilder>
 #include <QLabel>
 
 /// *** BASE ***
@@ -75,7 +76,7 @@ void ezPropertyBaseWidget::Broadcast(Event::Type type)
 
 /// *** ezUnsupportedPropertyWidget ***
 
-ezUnsupportedPropertyWidget::ezUnsupportedPropertyWidget()
+ezUnsupportedPropertyWidget::ezUnsupportedPropertyWidget(const char* szMessage)
   : ezPropertyBaseWidget()
 {
   m_pLayout = new QHBoxLayout(this);
@@ -85,11 +86,16 @@ ezUnsupportedPropertyWidget::ezUnsupportedPropertyWidget()
   m_pWidget = new QLabel(this);
   m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
   m_pLayout->addWidget(m_pWidget);
+  m_sMessage = szMessage;
 }
 
 void ezUnsupportedPropertyWidget::OnInit()
 {
-  m_pWidget->setText("Unsupported Type: " + QString::fromUtf8(m_pProp->GetSpecificType()->GetTypeName()));
+  QString sMessage = QStringLiteral("Unsupported Type: ") % QString::fromUtf8(m_pProp->GetSpecificType()->GetTypeName());
+  if (!m_sMessage.IsEmpty())
+    sMessage += QStringLiteral(" (") % QString::fromUtf8(m_sMessage) % QStringLiteral(")");
+  m_pWidget->setText(sMessage);
+  m_pWidget->setToolTip(sMessage);
 }
 
 

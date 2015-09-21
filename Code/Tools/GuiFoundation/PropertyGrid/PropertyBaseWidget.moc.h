@@ -78,13 +78,14 @@ class EZ_GUIFOUNDATION_DLL ezUnsupportedPropertyWidget : public ezPropertyBaseWi
 {
   Q_OBJECT;
 public:
-  explicit ezUnsupportedPropertyWidget();
+  explicit ezUnsupportedPropertyWidget(const char* szMessage = nullptr);
 
 protected:
   virtual void OnInit() override;
 
   QHBoxLayout* m_pLayout;
   QLabel* m_pWidget;
+  ezString m_sMessage;
 };
 
 

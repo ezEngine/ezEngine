@@ -126,6 +126,8 @@ private:
   /// \brief Assigns the given plugin name to every ezRTTI instance that has no plugin assigned yet.
   static void AssignPlugin(const char* szPluginName);
 
+  static void SanityCheckType(ezRTTI* pType);
+
   /// \brief Handles events by ezPlugin, to figure out which types were provided by which plugin
   static void PluginEventHandler(const ezPlugin::PluginEvent& EventData);
 };

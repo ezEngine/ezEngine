@@ -243,9 +243,21 @@ ezPropertyBaseWidget* ezPropertyGridWidget::CreatePropertyWidget(const ezAbstrac
   {
   case ezPropertyCategory::Member:
     {
+      // Try to create a registered widget for an existing ezTypeWidgetAttribute.
+      const ezTypeWidgetAttribute* pAttrib = pProp->GetAttributeByType<ezTypeWidgetAttribute>();
+      if (pAttrib != nullptr)
+      {
+        ezPropertyBaseWidget* pWidget = ezPropertyGridWidget::GetFactory().CreateObject(pAttrib->GetDynamicRTTI());
+        if (pWidget != nullptr)
+          return pWidget;
+      }
+
       if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
-        return new ezPropertyPointerWidget();
+        if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+          return new ezPropertyPointerWidget();
+        else
+          return new ezUnsupportedPropertyWidget("Pointer: Use ezPropertyFlags::PointerOwner or provide derived ezTypeWidgetAttribute");
       }
       else
       {
@@ -280,13 +292,17 @@ ezPropertyBaseWidget* ezPropertyGridWidget::CreatePropertyWidget(const ezAbstrac
       }
       else
       {
+        if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+        {
+          return new ezUnsupportedPropertyWidget("Pointer: Use ezPropertyFlags::PointerOwner or provide derived ezContainerWidgetAttribute");
+        }
+
         return new ezPropertyTypeContainerWidget();
       }
     }
     break;
   }
 
-  //EZ_REPORT_FAILURE("No property widget available for prop: '%s' of type: %s", pProp->GetPropertyName(), pProp->GetSpecificType()->GetTypeName());
   return new ezUnsupportedPropertyWidget();
 }
 
