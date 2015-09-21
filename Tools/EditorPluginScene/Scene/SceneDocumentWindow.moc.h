@@ -93,6 +93,7 @@ private:
   ezDragToPositionGizmo m_DragToPosGizmo;
 
   ezCamera m_Camera;
+  ezVec3 m_vLastTranslationGizmoResult;
 
   struct SelectedGO
   {
@@ -104,6 +105,7 @@ private:
   bool m_bResendSelection;
   bool m_bInGizmoInteraction;
   bool m_bMergeTransactions;
+  bool m_bMoveCameraWithGizmo;
   ezDeque<SelectedGO> m_GizmoSelection;
 
   bool m_bInDragDropAction;

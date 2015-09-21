@@ -150,20 +150,33 @@ ezStatus ezAssetDocument::TransformAsset(const char* szPlatform)
     return ezStatus(EZ_SUCCESS);
 
   // Write resource
-  ezFileWriter file;
-
-  if (file.Open(sResourceFile).Failed())
   {
-    ezLog::Error("Could not open file for writing: '%s'", sResourceFile.GetData());
-    return ezStatus("Opening the asset output file failed");
+    ezFileWriter file;
+
+    if (file.Open(sResourceFile).Failed())
+    {
+      ezLog::Error("Could not open file for writing: '%s'", sResourceFile.GetData());
+      return ezStatus("Opening the asset output file failed");
+    }
+
+    ezAssetFileHeader AssetHeader;
+    AssetHeader.SetFileHash(uiHash);
+
+    AssetHeader.Write(file);
+
+    auto ret = InternalTransformAsset(file, sPlatform);
+
+    // if writing failed, make sure the output file does not exist
+    if (ret.m_Result.Failed())
+    {
+      file.Close();
+      ezFileSystem::DeleteFile(sResourceFile);
+
+      /// \todo Write to dummy file, then rename it
+    }
+
+    return ret;
   }
-
-  ezAssetFileHeader AssetHeader;
-  AssetHeader.SetFileHash(uiHash);
-
-  AssetHeader.Write(file);
-
-  return InternalTransformAsset(file, sPlatform);
 }
 
 ezStatus ezAssetDocument::RetrieveAssetInfo(const char* szPlatform)

@@ -11,6 +11,30 @@ struct ezResourceSlot
   ezString m_sResource;
 };
 
+struct ezMeshPrimitive
+{
+  typedef ezInt8 StorageType;
+
+  enum Enum
+  {
+    File,
+    Box,
+    Rect,
+    Cylinder,
+    Cone,
+    Pyramid,
+    Sphere,
+    HalfSphere,
+    GeodesicSphere,
+    Capsule,
+    Torus,
+
+    Default = File
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezMeshPrimitive);
+
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezResourceSlot);
 
 class ezMeshAssetProperties : public ezReflectedClass
@@ -21,12 +45,23 @@ public:
   ezMeshAssetProperties();
 
   ezString m_sMeshFile;
-  float m_fMeshScaling;
+  float m_fUniformScaling;
+  ezVec3 m_vNonUniformScaling;
+  float m_fRadius;
+  float m_fRadius2;
+  float m_fHeight;
+  float m_fAngle;
+  ezUInt16 m_uiDetail;
+  ezUInt16 m_uiDetail2;
+  bool m_bCap;
+  bool m_bCap2;
+
 
   ezEnum<ezBasisAxis> m_ForwardDir;
   ezEnum<ezBasisAxis> m_RightDir;
   ezEnum<ezBasisAxis> m_UpDir;
 
+  ezMeshPrimitive::Enum m_PrimitiveType;
   ezHybridArray<ezResourceSlot, 8> m_Slots;
 
   const ezString& GetResourceSlotProperty(ezUInt32 uiSlot) const;

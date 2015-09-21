@@ -71,7 +71,7 @@
     "AssetType" : "Mesh",
     "Dependencies" : "Sponza/sponza.obj",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x7E56A3CE366D8F419259F2E157979BCC" },
-    "Hash" : { "$t" : "uint64", "$v" : "14273735722111375582", "$b" : "0xDE984086037F16C6" },
+    "Hash" : { "$t" : "uint64", "$v" : "8056416607739906111", "$b" : "0x3F08E5523824CE6F" },
     "References" : ""
    }
   },
@@ -79,11 +79,21 @@
    "#" : { "$t" : "uuid", "$b" : "0xF7D37B95271EE243B8645DAAC8BD12E4" },
    "t" : "ezMeshAssetProperties",
    "p" : {
+    "Angle" : { "$t" : "float", "$v" : "360.0000", "$b" : "0x0000B443" },
+    "Cap" : false,
+    "Cap 2" : false,
+    "Detail" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Detail 2" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
     "Forward Dir" : "ezBasisAxis::NegativeZ",
+    "Height" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
     "Materials" : [ { "$t" : "uuid", "$b" : "0x7B37168B3CBFFB37B05B8F83D73641A6" }, { "$t" : "uuid", "$b" : "0xB26DD2DA35000B3AA9BE9BC178B0596C" }, { "$t" : "uuid", "$b" : "0x61A334B31E3198B321DA3CA1C7065B57" }, { "$t" : "uuid", "$b" : "0x978CD9170236FFB0219386994E4B2FBF" }, { "$t" : "uuid", "$b" : "0x3A5AB7E4C14BB6D3A24A2F5DFBED625B" }, { "$t" : "uuid", "$b" : "0xE5157334BB8CC5D52C86D13C4A446446" }, { "$t" : "uuid", "$b" : "0x6411B721327B7163B2F483161453BF63" }, { "$t" : "uuid", "$b" : "0x79DA45CDBE63252C8C48539ACF011C88" }, { "$t" : "uuid", "$b" : "0x4F5C61CADC515D1883B831340423D914" }, { "$t" : "uuid", "$b" : "0x666E0F079E7E020EC78940853A48EFA1" }, { "$t" : "uuid", "$b" : "0x03B5BE039FA04B7FE8CFB017D10262DF" }, { "$t" : "uuid", "$b" : "0xC746C0F3F280D3D54330265D239CFD2A" }, { "$t" : "uuid", "$b" : "0x0E22D9D696F61A645A943AF6525A5769" }, { "$t" : "uuid", "$b" : "0xCBCE91370C3C6695E21D1975752E31E1" }, { "$t" : "uuid", "$b" : "0x46702663D916213878A93AE4A386C4BA" }, { "$t" : "uuid", "$b" : "0x2EE312AE444A3F662711D1C752F767CB" }, { "$t" : "uuid", "$b" : "0xBED1F5F5BA2D2918E57EB2071F34CEC7" }, { "$t" : "uuid", "$b" : "0xA891A03FDE3CC89B0314E45C6B5E43A2" }, { "$t" : "uuid", "$b" : "0xBB7A8653939C12EDC311D1B742E8BA7B" }, { "$t" : "uuid", "$b" : "0x8985339DB6ABB170B927D1CF14A73DC1" }, { "$t" : "uuid", "$b" : "0x593110C5EE38F9ECAC98CB53110634C5" }, { "$t" : "uuid", "$b" : "0x6E59B5A43B94CC2ABCB8696C0757F65F" }, { "$t" : "uuid", "$b" : "0xAE6A513555FE7EC88385CB416232A116" }, { "$t" : "uuid", "$b" : "0xB09DD55850D8D764C56699FEC4DBBEEA" }, { "$t" : "uuid", "$b" : "0xA794B2EF3B8BDDF7E5BA17124577363A" }, { "$t" : "uuid", "$b" : "0x7C522DFCE42E8AE6F527339F065E7018" } ],
     "Mesh File" : "Sponza/sponza.obj",
-    "Mesh Scaling" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
+    "Non-Uniform Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "Primitive Type" : "ezMeshPrimitive::File",
+    "Radius" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "Radius 2" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
     "Right Dir" : "ezBasisAxis::PositiveX",
+    "Uniform Scaling" : { "$t" : "float", "$v" : "0.0100", "$b" : "0x0AD7233C" },
     "Up Dir" : "ezBasisAxis::PositiveY"
    }
   },

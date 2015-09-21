@@ -232,6 +232,8 @@ void ezGeometry::AddPyramid(const ezVec3& size, const ezColor& color, const ezMa
 {
   const ezVec3 halfSize = size * 0.5f;
 
+  /// \todo Cap
+
   ezUInt32 quad[4];
 
   quad[0] = AddVertex(ezVec3(-halfSize.x, 0, halfSize.z), ezVec3(0, -1, 0), color, iCustomIndex, mTransform);
@@ -430,6 +432,7 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
 void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeight, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex, ezAngle fraction)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Cannot create a cylinder with only %u segments", uiSegments);
+  EZ_ASSERT_DEV(fraction.GetDegree() >= 0.0f, "A cylinder cannot be built with more less than 0 degree");
   EZ_ASSERT_DEV(fraction.GetDegree() <= 360.0f, "A cylinder cannot be built with more than 360 degree");
 
   const bool bIsFraction = fraction.GetDegree() < 360.0f;

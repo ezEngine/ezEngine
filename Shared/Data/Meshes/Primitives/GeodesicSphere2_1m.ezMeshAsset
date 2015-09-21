@@ -1,0 +1,52 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x5C01426BDAC1BE061903F6716FF0473E" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "Default",
+    "Resource" : "{ c069b8a2-ccad-417f-bca4-8739efc222cf }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "RootObjects" : [ { "$t" : "uuid", "$b" : "0x4A8AFE29E2038A4FB2C3838CC696239A" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xC45C5D3F9772394CB44A584F95AC3595" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Mesh",
+    "Dependencies" : "",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0xC45C5D3F9772394CB44A584F95AC3595" },
+    "Hash" : { "$t" : "uint64", "$v" : "4657145110595702167", "$b" : "0x970D81B0CD80A140" },
+    "References" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x4A8AFE29E2038A4FB2C3838CC696239A" },
+   "t" : "ezMeshAssetProperties",
+   "p" : {
+    "Angle" : { "$t" : "float", "$v" : "360.0000", "$b" : "0x0000B443" },
+    "Cap" : false,
+    "Cap 2" : false,
+    "Detail" : { "$t" : "uint32", "$v" : "2", "$b" : "0x02000000" },
+    "Detail 2" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Forward Dir" : "ezBasisAxis::NegativeZ",
+    "Height" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "Materials" : [ { "$t" : "uuid", "$b" : "0x5C01426BDAC1BE061903F6716FF0473E" } ],
+    "Mesh File" : "",
+    "Non-Uniform Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "Primitive Type" : "ezMeshPrimitive::GeodesicSphere",
+    "Radius" : { "$t" : "float", "$v" : "0.5000", "$b" : "0x0000003F" },
+    "Radius 2" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "Right Dir" : "ezBasisAxis::PositiveX",
+    "Uniform Scaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Up Dir" : "ezBasisAxis::PositiveY"
+   }
+  } ]
+}

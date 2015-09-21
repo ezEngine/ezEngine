@@ -11,14 +11,38 @@ EZ_END_STATIC_REFLECTED_TYPE();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, ezReflectedClass, 1, ezRTTIDefaultAllocator<ezMeshAssetProperties>);
   EZ_BEGIN_PROPERTIES
-    EZ_MEMBER_PROPERTY("Mesh File", m_sMeshFile),
-    EZ_MEMBER_PROPERTY("Mesh Scaling", m_fMeshScaling),
+    EZ_ENUM_MEMBER_PROPERTY("Primitive Type", ezMeshPrimitive, m_PrimitiveType),
     EZ_ENUM_MEMBER_PROPERTY("Forward Dir", ezBasisAxis, m_ForwardDir),
     EZ_ENUM_MEMBER_PROPERTY("Right Dir", ezBasisAxis, m_RightDir),
     EZ_ENUM_MEMBER_PROPERTY("Up Dir", ezBasisAxis, m_UpDir),
+    EZ_MEMBER_PROPERTY("Uniform Scaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("Non-Uniform Scaling", m_vNonUniformScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f))),
+    EZ_MEMBER_PROPERTY("Mesh File", m_sMeshFile),
+    EZ_MEMBER_PROPERTY("Radius", m_fRadius),
+    EZ_MEMBER_PROPERTY("Radius 2", m_fRadius2),
+    EZ_MEMBER_PROPERTY("Height", m_fHeight),
+    EZ_MEMBER_PROPERTY("Detail", m_uiDetail),
+    EZ_MEMBER_PROPERTY("Detail 2", m_uiDetail2),
+    EZ_MEMBER_PROPERTY("Cap", m_bCap),
+    EZ_MEMBER_PROPERTY("Cap 2", m_bCap2),
+    EZ_MEMBER_PROPERTY("Angle", m_fAngle)->AddAttributes(new ezDefaultValueAttribute(360.0f)),
     EZ_ARRAY_MEMBER_PROPERTY("Materials", m_Slots)->AddAttributes(new ezContainerAttribute(false, false, true)),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshPrimitive, 1)
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::File),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Box),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Rect),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Cylinder),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Cone),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Pyramid),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Sphere),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::HalfSphere),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::GeodesicSphere),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Capsule),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::Torus),
+EZ_END_STATIC_REFLECTED_ENUM();
 
 ezMeshAssetProperties::ezMeshAssetProperties()
 {
@@ -27,7 +51,9 @@ ezMeshAssetProperties::ezMeshAssetProperties()
   m_ForwardDir = ezBasisAxis::PositiveX;
   m_RightDir = ezBasisAxis::PositiveY;
   m_UpDir = ezBasisAxis::PositiveZ;
-  m_fMeshScaling = 1.0f;
+  m_fUniformScaling = 1.0f;
+  m_fRadius = 0.5f;
+  m_fHeight = 1.0f;
 }
 
 const ezString& ezMeshAssetProperties::GetResourceSlotProperty(ezUInt32 uiSlot) const
