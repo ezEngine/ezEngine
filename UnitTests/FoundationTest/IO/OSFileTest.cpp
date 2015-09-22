@@ -229,4 +229,10 @@ Only concrete and clocks.\n\
     sOutputFile.AppendPath("SubFolder");
     EZ_TEST_BOOL(ezOSFile::ExistsDirectory(sOutputFolder) == true);
   }
+  
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetApplicationDirectory")
+  {
+    const char* szAppDir = ezOSFile::GetApplicationDirectory();
+    EZ_IGNORE_UNUSED(szAppDir);
+  }
 }

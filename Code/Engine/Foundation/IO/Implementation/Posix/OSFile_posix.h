@@ -4,6 +4,10 @@
 #include <errno.h>
 #include <sys/stat.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_OSX)
+#include <CoreFoundation/CoreFoundation.h>
+#endif
+
 ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
 {
   switch (OpenMode)
@@ -170,7 +174,42 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
 
 const char* ezOSFile::GetApplicationDirectory()
 {
+#if EZ_ENABLED(EZ_PLATFORM_OSX)
+  
+  static ezString256 s_Path;
+  
+  if(s_Path.IsEmpty())
+  {
+    CFBundleRef appBundle = CFBundleGetMainBundle();
+    CFURLRef bundleURL = CFBundleCopyBundleURL(appBundle);
+    CFStringRef bundlePath = CFURLCopyFileSystemPath( bundleURL, kCFURLPOSIXPathStyle );
+    
+    if(bundlePath != nullptr)
+    {
+      CFIndex length = CFStringGetLength(bundlePath);
+      CFIndex maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8) + 1;
+      
+      ezArrayPtr<char> temp = EZ_DEFAULT_NEW_ARRAY(char, maxSize);
+      
+      if(CFStringGetCString(bundlePath, temp.GetPtr(), maxSize, kCFStringEncodingUTF8))
+      {
+        s_Path = temp.GetPtr();
+      }
+      
+      EZ_DEFAULT_DELETE_ARRAY(temp);
+    }
+    
+    CFRelease(bundlePath);
+    CFRelease(bundleURL);
+    CFRelease(appBundle);
+  }
+  
+  return s_Path.GetData();
+  
+#else
   #warning Not yet implemented.
+#endif
+
   return nullptr;
 }
 
