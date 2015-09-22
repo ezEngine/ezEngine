@@ -216,9 +216,6 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& 
   header.m_reserved2 = 0;
   header.m_offBits = uiHeaderSize;
 
-
-  const void* dataPtr = image.GetDataPointer<void>();
-  
   // Write all data
   if (stream.WriteBytes(&header, sizeof(header)) != EZ_SUCCESS)
   {

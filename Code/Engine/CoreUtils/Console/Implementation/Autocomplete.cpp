@@ -147,6 +147,9 @@ const ezString ezConsole::GetValueAsString(ezCVar* pCVar)
       s.Format("%.3f", pFloat->GetValue());
     }
     break;
+      
+  case ezCVarType::ENUM_COUNT:
+    break;
   }
 
   return s.GetData();

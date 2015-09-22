@@ -149,6 +149,11 @@ void ezTokenizer::Tokenize(const ezDynamicArray<ezUInt8>& Data, ezLogInterface* 
     case ezTokenType::NonIdentifier:
       HandleNonIdentifier();
       break;
+        
+    case ezTokenType::Newline:
+    case ezTokenType::EndOfFile:
+    case ezTokenType::ENUM_COUNT:
+      break;
     }
   }
 

@@ -209,6 +209,8 @@ static int LUAFUNC_ReadCVAR(lua_State* state)
       s.PushReturnValue(pVar->GetValue().GetData());
     }
     break;
+  case ezCVarType::ENUM_COUNT:
+    break;
   }
 
   return s.ReturnToScript();
@@ -255,6 +257,8 @@ static int LUAFUNC_WriteCVAR(lua_State* state)
       *pVar = s.GetStringParameter(1);
     }
     break;
+  case ezCVarType::ENUM_COUNT:
+      break;
   }
 
   return s.ReturnToScript();

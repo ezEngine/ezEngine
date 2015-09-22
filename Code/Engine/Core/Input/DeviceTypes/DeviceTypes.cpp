@@ -151,7 +151,7 @@ void ezInputDeviceController::UpdateVibration(ezTime tTimeDifference)
     if (iPhysical >= 0)
     {
       for (ezUInt32 m = 0; m < Motor::ENUM_COUNT; ++m)
-        fVibrationToApply[iPhysical][m] = ezMath::Max(m_fVibrationStrength[c][m], m_fVibrationTracks[c][m][m_uiVibrationTrackPos]);
+        fVibrationToApply[(ezUInt8)iPhysical][m] = ezMath::Max(m_fVibrationStrength[c][m], m_fVibrationTracks[c][m][m_uiVibrationTrackPos]);
     }
   }
 

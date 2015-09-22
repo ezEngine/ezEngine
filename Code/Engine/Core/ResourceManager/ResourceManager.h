@@ -171,8 +171,8 @@ private:
   static bool m_bStop;
   static ezResourceManagerWorker m_WorkerTask[2];
   static ezResourceManagerWorkerGPU m_WorkerGPU[16];
-  static ezInt8 m_iCurrentWorkerGPU;
-  static ezInt8 m_iCurrentWorker;
+  static ezUInt8 m_iCurrentWorkerGPU;
+  static ezUInt8 m_iCurrentWorker;
   static ezTime m_LastDeadLineUpdate;
   static ezTime m_LastFrameUpdate;
   static bool m_bBroadcastExistsEvent;
