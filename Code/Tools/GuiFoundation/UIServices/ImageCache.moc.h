@@ -21,7 +21,7 @@ public:
 
   static void SetFallbackImages(const char* szLoading, const char* szUnavailable);
 
-  static QPixmap* QueryPixmap(const char* szAbsolutePath, QModelIndex index = QModelIndex(), QVariant UserData1 = QVariant(), QVariant UserData2 = QVariant(), ezUInt32* out_pImageID = nullptr);
+  static const QPixmap* QueryPixmap(const char* szAbsolutePath, QModelIndex index = QModelIndex(), QVariant UserData1 = QVariant(), QVariant UserData2 = QVariant(), ezUInt32* out_pImageID = nullptr);
   static void InvalidateCache(const char* szAbsolutePath);
 
   static void SetMemoryUsageThreshold(ezUInt64 uiMemoryThreshold) { s_iMemoryUsageThreshold = (ezInt64) uiMemoryThreshold; }

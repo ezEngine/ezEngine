@@ -243,7 +243,7 @@ QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
         ezUInt64 uiUserData1, uiUserData2;
         AssetGuid.GetValues(uiUserData1, uiUserData2);
 
-        QPixmap* pThumbnailPixmap = QtImageCache::QueryPixmap(sThumbnailPath, index, QVariant(uiUserData1), QVariant(uiUserData2), &asset.m_uiThumbnailID);
+        const QPixmap* pThumbnailPixmap = QtImageCache::QueryPixmap(sThumbnailPath, index, QVariant(uiUserData1), QVariant(uiUserData2), &asset.m_uiThumbnailID);
 
         return *pThumbnailPixmap;
       }

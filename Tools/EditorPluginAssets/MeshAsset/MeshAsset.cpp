@@ -105,7 +105,7 @@ ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriterBase& stream,
 
     if (pProp->m_PrimitiveType == ezMeshPrimitive::Box)
     {
-      geom.AddBox(ezVec3(1.0f), ezColor::White, mTrans);
+      geom.AddTexturedBox(ezVec3(1.0f), ezColor::White, mTrans);
     }
     else if (pProp->m_PrimitiveType == ezMeshPrimitive::Capsule)
     {
@@ -185,7 +185,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(const ezMeshAssetProperties* pProp,
   for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
   {
     desc.MeshBufferDesc().SetVertexData<ezVec3>(0, v, geom.GetVertices()[v].m_vPosition);
-    desc.MeshBufferDesc().SetVertexData<ezVec2>(1, v, ezVec2(0.0f));// geom.GetVertices()[v].m_); // TODO: texcoords
+    desc.MeshBufferDesc().SetVertexData<ezVec2>(1, v, geom.GetVertices()[v].m_vTexCoord);
     desc.MeshBufferDesc().SetVertexData<ezVec3>(2, v, geom.GetVertices()[v].m_vNormal);
   }
 

@@ -274,6 +274,30 @@ void ezAssetCurator::Deinitialize()
   }
 }
 
+
+const ezAssetCurator::AssetInfo* ezAssetCurator::FindAssetInfo(const char* szRelativePath) const
+{
+  ezStringBuilder sPath = szRelativePath;
+  sPath.MakeCleanPath();
+
+  if (sPath.IsAbsolutePath())
+  {
+    ezString sPath2 = sPath;
+    if (!ezEditorApp::GetInstance()->MakePathDataDirectoryRelative(sPath2))
+      return nullptr;
+
+    sPath = sPath2;
+  }
+
+  for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Value()->m_sRelativePath.IsEqual_NoCase(sPath))
+      return it.Value();
+  }
+
+  return nullptr;
+}
+
 void ezAssetCurator::CheckFileSystem()
 {
   // reset the queue of assets to be hashed

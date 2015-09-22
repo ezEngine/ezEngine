@@ -53,7 +53,7 @@ void QtImageCache::InvalidateCache(const char* szAbsolutePath)
   emit g_ImageCacheSingleton.ImageInvalidated(sPath, id);
 }
 
-QPixmap* QtImageCache::QueryPixmap(const char* szAbsolutePath, QModelIndex index, QVariant UserData1, QVariant UserData2, ezUInt32* out_pImageID)
+const QPixmap* QtImageCache::QueryPixmap(const char* szAbsolutePath, QModelIndex index, QVariant UserData1, QVariant UserData2, ezUInt32* out_pImageID)
 {
   if (out_pImageID)
     *out_pImageID = 0;
@@ -188,7 +188,7 @@ void QtImageCache::LoadingTask(QString sPath, QModelIndex index, QVariant UserDa
   const bool bImageAvailable = Image.load(sPath);
 
   /// \todo Remove this Sleep (needed for testing)
-  ezThreadUtils::Sleep(10);
+  ezThreadUtils::Sleep(100);
 
   EZ_LOCK(s_Mutex);
 

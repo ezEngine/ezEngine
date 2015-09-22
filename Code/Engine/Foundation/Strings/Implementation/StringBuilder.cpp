@@ -671,6 +671,8 @@ void ezStringBuilder::MakeCleanPath()
 
   RemoveDoubleSlashesInPath();
 
+  Trim(" \t\r\n");
+
   const char* szStartPos = &m_Data[0];
   const char* szEndPos = &m_Data[m_Data.GetCount() - 1];
   const char* szCurReadPos = &m_Data[0];

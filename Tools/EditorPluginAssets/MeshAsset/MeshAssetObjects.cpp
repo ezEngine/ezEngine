@@ -12,9 +12,9 @@ EZ_END_STATIC_REFLECTED_TYPE();
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, ezReflectedClass, 1, ezRTTIDefaultAllocator<ezMeshAssetProperties>);
   EZ_BEGIN_PROPERTIES
     EZ_ENUM_MEMBER_PROPERTY("Primitive Type", ezMeshPrimitive, m_PrimitiveType),
-    EZ_ENUM_MEMBER_PROPERTY("Forward Dir", ezBasisAxis, m_ForwardDir),
-    EZ_ENUM_MEMBER_PROPERTY("Right Dir", ezBasisAxis, m_RightDir),
-    EZ_ENUM_MEMBER_PROPERTY("Up Dir", ezBasisAxis, m_UpDir),
+    EZ_ENUM_MEMBER_PROPERTY("Forward Dir", ezBasisAxis, m_ForwardDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveX)),
+    EZ_ENUM_MEMBER_PROPERTY("Right Dir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
+    EZ_ENUM_MEMBER_PROPERTY("Up Dir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveZ)),
     EZ_MEMBER_PROPERTY("Uniform Scaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("Non-Uniform Scaling", m_vNonUniformScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f))),
     EZ_MEMBER_PROPERTY("Mesh File", m_sMeshFile),

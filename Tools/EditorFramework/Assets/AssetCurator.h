@@ -53,6 +53,8 @@ public:
   void Initialize(const ezApplicationFileSystemConfig& cfg);
   void Deinitialize();
 
+  const AssetInfo* FindAssetInfo(const char* szRelativePath) const;
+
   const AssetInfo* GetAssetInfo(const ezUuid& assetGuid) const;
   const ezHashTable<ezUuid, AssetInfo*>& GetKnownAssets() const;
 

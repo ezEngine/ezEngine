@@ -24,6 +24,7 @@ public:
 
     ezVec3 m_vPosition;
     ezVec3 m_vNormal;
+    ezVec2 m_vTexCoord;
     ezColor m_Color;
     ezInt32 m_iCustomIndex;
   };
@@ -57,10 +58,10 @@ public:
   void Clear();
 
   /// \brief Adds a vertex, returns the index to the added vertex.
-  ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezColor& color, ezInt32 iCustomIndex = 0);
+  ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, ezInt32 iCustomIndex = 0);
 
   /// \brief Adds a vertex, returns the index to the added vertex. Position and normal are transformed with the given matrix.
-  ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezColor& color, ezInt32 iCustomIndex, const ezMat4& mTransform);
+  ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, ezInt32 iCustomIndex, const ezMat4& mTransform);
 
   /// \brief Adds a polygon that consists of all the referenced vertices. No face normal is computed at this point.
   void AddPolygon(const ezArrayPtr<ezUInt32>& Vertices);
@@ -96,8 +97,11 @@ public:
   /// It is centered at the origin, extending half size.x and half size.y into direction +X, -X, +Y and -Y.
   void AddRectXY(const ezVec2& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
-  /// \brief Adds a box.
+  /// \brief Adds an untextured box (8 vertices).
   void AddBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+
+  /// \brief Adds a box that has UV coordinates set (24 vertices).
+  void AddTexturedBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   /// \brief Adds a pyramid. This is different to a low-res cone in that the corners are placed differently (like on a box).
   ///

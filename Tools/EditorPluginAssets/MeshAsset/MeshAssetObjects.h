@@ -55,6 +55,7 @@ public:
   ezUInt16 m_uiDetail2;
   bool m_bCap;
   bool m_bCap2;
+  ezVec3 m_vScaleXYZ;
 
 
   ezEnum<ezBasisAxis> m_ForwardDir;
