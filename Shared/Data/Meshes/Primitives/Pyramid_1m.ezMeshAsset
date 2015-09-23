@@ -15,7 +15,7 @@
     "AssetType" : "Mesh",
     "Dependencies" : "",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x7DAAB736738239409D5A572B9D4E46EB" },
-    "Hash" : { "$t" : "uint64", "$v" : "14844327475380636558", "$b" : "0x8E4BA2B330A501CE" },
+    "Hash" : { "$t" : "uint64", "$v" : "8945989881390783482", "$b" : "0xFA5B8934668A267C" },
     "References" : ""
    }
   },
@@ -32,11 +32,11 @@
    "t" : "ezMeshAssetProperties",
    "p" : {
     "Angle" : { "$t" : "float", "$v" : "360.0000", "$b" : "0x0000B443" },
-    "Cap" : false,
+    "Cap" : true,
     "Cap 2" : false,
     "Detail" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
     "Detail 2" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Forward Dir" : "ezBasisAxis::NegativeZ",
+    "Forward Dir" : "ezBasisAxis::PositiveX",
     "Height" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Materials" : [ { "$t" : "uuid", "$b" : "0x4ECF719AB91AB30E32824849B335F1E9" } ],
     "Mesh File" : "",
@@ -44,9 +44,9 @@
     "Primitive Type" : "ezMeshPrimitive::Pyramid",
     "Radius" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
     "Radius 2" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
-    "Right Dir" : "ezBasisAxis::PositiveX",
+    "Right Dir" : "ezBasisAxis::PositiveY",
     "Uniform Scaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Up Dir" : "ezBasisAxis::PositiveY"
+    "Up Dir" : "ezBasisAxis::PositiveZ"
    }
   } ]
 }

@@ -4,7 +4,7 @@
    "t" : "ezMaterialAssetProperties",
    "p" : {
     "Base Material" : "{ 05af8d07-0b38-44a6-8d50-49731ae2625d }",
-    "Diffuse Texture" : "{ 78ecfef6-adab-4b26-bd76-da926d92f24a }",
+    "Diffuse Texture" : "Trees/Textures/Bark/deviantart.com/Pinetree_D.dds",
     "Mask Texture" : "",
     "Normal Map" : "{ 21db19f2-a8a4-4cb2-b832-8d3c7bdcb261 }",
     "Permutations" : "",
@@ -17,9 +17,9 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Material",
-    "Dependencies" : "{ 05af8d07-0b38-44a6-8d50-49731ae2625d };{ 78ecfef6-adab-4b26-bd76-da926d92f24a };{ 21db19f2-a8a4-4cb2-b832-8d3c7bdcb261 }",
+    "Dependencies" : "{ 05af8d07-0b38-44a6-8d50-49731ae2625d };Trees/Textures/Bark/deviantart.com/Pinetree_D.dds;{ 21db19f2-a8a4-4cb2-b832-8d3c7bdcb261 }",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x5C0200B77F5C47428157F409369EF16B" },
-    "Hash" : { "$t" : "uint64", "$v" : "17032426209673187108", "$b" : "0x248F9F6265555FEC" },
+    "Hash" : { "$t" : "uint64", "$v" : "3634024361717372437", "$b" : "0x15964731E7A56E32" },
     "References" : ""
    }
   },

@@ -106,7 +106,7 @@ public:
   /// \brief Adds a pyramid. This is different to a low-res cone in that the corners are placed differently (like on a box).
   ///
   /// The origin is at the center of the base quad.size.z is the height of the pyramid.
-  void AddPyramid(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+  void AddPyramid(const ezVec3& size, bool bCap, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   /// \brief Adds a geodesic sphere with radius 1 at the origin.
   ///

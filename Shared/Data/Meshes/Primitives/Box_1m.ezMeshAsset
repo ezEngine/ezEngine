@@ -8,7 +8,7 @@
     "Cap 2" : false,
     "Detail" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
     "Detail 2" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Forward Dir" : "ezBasisAxis::NegativeZ",
+    "Forward Dir" : "ezBasisAxis::PositiveX",
     "Height" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
     "Materials" : [ { "$t" : "uuid", "$b" : "0x17F0500B4EC466554D7F4F23E710D820" } ],
     "Mesh File" : "",
@@ -16,9 +16,9 @@
     "Primitive Type" : "ezMeshPrimitive::Box",
     "Radius" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
     "Radius 2" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
-    "Right Dir" : "ezBasisAxis::PositiveX",
+    "Right Dir" : "ezBasisAxis::PositiveY",
     "Uniform Scaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Up Dir" : "ezBasisAxis::PositiveY"
+    "Up Dir" : "ezBasisAxis::PositiveZ"
    }
   },
   {
@@ -37,7 +37,7 @@
     "AssetType" : "Mesh",
     "Dependencies" : "",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x20A1CA02B71C374F97824D7A45688459" },
-    "Hash" : { "$t" : "uint64", "$v" : "10152376161746397468", "$b" : "0x1CA9095B547CE48C" },
+    "Hash" : { "$t" : "uint64", "$v" : "7282016910812707838", "$b" : "0xFEFB6071CCEB0E65" },
     "References" : ""
    }
   },
@@ -46,7 +46,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "Default",
-    "Resource" : "{ c069b8a2-ccad-417f-bca4-8739efc222cf }"
+    "Resource" : "{ b700025c-5c7f-4247-8157-f409369ef16b }"
    }
   } ]
 }

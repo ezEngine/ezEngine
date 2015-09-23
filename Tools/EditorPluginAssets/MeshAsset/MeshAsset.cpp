@@ -129,8 +129,7 @@ ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriterBase& stream,
     }
     else if (pProp->m_PrimitiveType == ezMeshPrimitive::Pyramid)
     {
-      /// \todo Cap
-      geom.AddPyramid(ezVec3(1.0f), ezColor::White, mTrans);
+      geom.AddPyramid(ezVec3(1.0f), pProp->m_bCap, ezColor::White, mTrans);
     }
     else if (pProp->m_PrimitiveType == ezMeshPrimitive::Rect)
     {
