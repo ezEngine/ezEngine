@@ -26,10 +26,15 @@
 ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   : ezDocumentWindow3D(pDocument)
 {
-  m_pCenterWidget = new ezScene3DWidget(this, this);
+  m_ViewWidgets.PushBack(new ezSceneViewWidget(this, this));
+  m_ViewWidgets.PushBack(new ezSceneViewWidget(this, this));
 
-  m_pCenterWidget->setAutoFillBackground(false);
-  setCentralWidget(m_pCenterWidget);
+  QWidget* pCenter = new QWidget(this);
+  pCenter->setLayout(new QHBoxLayout(pCenter));
+  pCenter->layout()->addWidget(m_ViewWidgets[0]);
+  pCenter->layout()->addWidget(m_ViewWidgets[1]);
+
+  setCentralWidget(pCenter);
 
   m_bResendSelection = false;
   m_bInGizmoInteraction = false;
@@ -37,23 +42,6 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
 
   GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::DocumentTreeEventHandler, this));
   GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::PropertyEventHandler, this));
-
-  m_Camera.SetCameraMode(ezCamera::CameraMode::PerspectiveFixedFovY, 80.0f, 0.1f, 1000.0f);
-  m_Camera.LookAt(ezVec3(0.5f, 2.0f, 1.5f), ezVec3(0.0f, 0.0f, 0.5f), ezVec3(0.0f, 0.0f, 1.0f));
-
-  m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, this, &m_Camera);
-  m_pCameraMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, m_pCenterWidget, this);
-  m_pCameraPositionContext = EZ_DEFAULT_NEW(ezCameraPositionContext, m_pCenterWidget, this);
-
-  m_pCameraMoveContext->LoadState();
-  m_pCameraMoveContext->SetCamera(&m_Camera);
-
-  m_pCameraPositionContext->SetCamera(&m_Camera);
-
-  // add the input contexts in the order in which they are supposed to be processed
-  m_pCenterWidget->m_InputContexts.PushBack(m_pSelectionContext);
-  m_pCenterWidget->m_InputContexts.PushBack(m_pCameraMoveContext);
-
 
   {
     // Menu Bar
@@ -80,11 +68,11 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
 
   pSceneDoc->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::SelectionManagerEventHandler, this));
 
-  m_TranslateGizmo.SetOwner(this);
-  m_TranslateGizmo.SetParentWidget(m_pCenterWidget);
-  m_RotateGizmo.SetOwner(this);
-  m_ScaleGizmo.SetOwner(this);
-  m_DragToPosGizmo.SetOwner(this);
+  // TODO: (works but..) give the gizmo the proper view? remove the view from the input context altogether?
+  m_TranslateGizmo.SetOwner(this, m_ViewWidgets[0]);
+  m_RotateGizmo.SetOwner(this, m_ViewWidgets[0]);
+  m_ScaleGizmo.SetOwner(this, m_ViewWidgets[0]);
+  m_DragToPosGizmo.SetOwner(this, m_ViewWidgets[0]);
   
   m_RotateGizmo.SetSnappingAngle(ezAngle::Degree(ezRotateGizmoAction::GetCurrentSnappingValue()));
   m_ScaleGizmo.SetSnappingValue(ezScaleGizmoAction::GetCurrentSnappingValue());
@@ -146,15 +134,11 @@ ezSceneDocumentWindow::~ezSceneDocumentWindow()
 
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::PropertyEventHandler, this));
   GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::DocumentTreeEventHandler, this));
-
-  EZ_DEFAULT_DELETE(m_pSelectionContext);
-  EZ_DEFAULT_DELETE(m_pCameraMoveContext);
-  EZ_DEFAULT_DELETE(m_pCameraPositionContext);
 }
 
 void ezSceneDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  m_pEngineView->SendObjectProperties(e);
+  m_pEngineConnection->SendObjectProperties(e);
 }
 
 void ezSceneDocumentWindow::CommandHistoryEventHandler(const ezCommandHistory::Event& e)
@@ -353,7 +337,7 @@ void ezSceneDocumentWindow::SendObjectSelection()
 
   msg.m_sSelection = sTemp;
 
-  m_pEngineView->SendMessage(&msg);
+  m_pEngineConnection->SendMessage(&msg);
 }
 
 void ezSceneDocumentWindow::HideSelectedObjects(bool bHide)
@@ -401,7 +385,7 @@ void ezSceneDocumentWindow::ShowHiddenObjects()
 
 void ezSceneDocumentWindow::DocumentTreeEventHandler(const ezDocumentObjectStructureEvent& e)
 {
-  m_pEngineView->SendDocumentTreeChange(e);
+  m_pEngineConnection->SendDocumentTreeChange(e);
 }
 
 void ezSceneDocumentWindow::InternalRedraw()
@@ -421,30 +405,22 @@ void ezSceneDocumentWindow::SendRedrawMsg()
 
   SendObjectSelection();
 
-  ezViewCameraMsgToEngine cam;
-  cam.m_fNearPlane = m_Camera.GetNearPlane();
-  cam.m_fFarPlane = m_Camera.GetFarPlane();
-  cam.m_iCameraMode = (ezInt8)m_Camera.GetCameraMode();
-  cam.m_fFovOrDim = m_Camera.GetFovOrDim();
-  cam.m_vDirForwards = m_Camera.GetCenterDirForwards();
-  cam.m_vDirUp = m_Camera.GetCenterDirUp();
-  cam.m_vDirRight = m_Camera.GetCenterDirRight();
-  cam.m_vPosition = m_Camera.GetCenterPosition();
-  m_Camera.GetViewMatrix(cam.m_ViewMatrix);
-  m_Camera.GetProjectionMatrix((float)m_pCenterWidget->width() / (float)m_pCenterWidget->height(), cam.m_ProjMatrix);
+  for (auto pView : m_ViewWidgets)
+  {
+    pView->SyncToEngine();
 
-  m_pSelectionContext->SetWindowConfig(ezVec2I32(m_pCenterWidget->width(), m_pCenterWidget->height()));
+    // TODO: Batch render views
 
-  m_pEngineView->SendMessage(&cam);
+    ezViewRedrawMsgToEngine msg;
+    msg.m_uiViewID = pView->GetViewID();
+    msg.m_uiHWND = (ezUInt64)(pView->winId());
+    msg.m_uiWindowWidth = pView->width();
+    msg.m_uiWindowHeight = pView->height();
 
-  ezViewRedrawMsgToEngine msg;
-  msg.m_uiHWND = (ezUInt64)(m_pCenterWidget->winId());
-  msg.m_uiWindowWidth = m_pCenterWidget->width();
-  msg.m_uiWindowHeight = m_pCenterWidget->height();
+    m_pEngineConnection->SendMessage(&msg, true);
 
-  m_pEngineView->SendMessage(&msg, true);
-
-  ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezViewRedrawFinishedMsgToEditor>(), ezTime::Seconds(1.0));
+    ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezViewRedrawFinishedMsgToEditor>(), ezTime::Seconds(1.0));
+  }
 }
 
 bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
@@ -457,17 +433,26 @@ bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg*
     const ezTransform tGlobal = GetSceneDocument()->GetGlobalTransform(LatestSelection);
 
     /// \todo Pivot point
-    const ezVec3 vPivotPoint = msg->m_vCenter;
-      //tGlobal.m_vPosition + tGlobal.m_Rotation * ezVec3::ZeroVector(); // LatestSelection->GetEditorTypeAccessor().GetValue("Pivot").ConvertTo<ezVec3>();
+    //const ezVec3 vPivotPoint = msg->m_vCenter;
+    const ezVec3 vPivotPoint = tGlobal.m_vPosition + tGlobal.m_Rotation * ezVec3::ZeroVector(); // LatestSelection->GetEditorTypeAccessor().GetValue("Pivot").ConvertTo<ezVec3>();
 
-    ezVec3 vDiff = vPivotPoint - m_Camera.GetCenterPosition();
-    if (vDiff.NormalizeIfNotZero().Failed())
-      return true;
+    // TODO: focus all or one window?
+    //ezSceneViewWidget* pFocusedView = GetFocusedViewWidget();
+    //if (pFocusedView != nullptr)
+    for (auto pView : m_ViewWidgets)
+    {
+      ezSceneViewWidget* pSceneView = static_cast<ezSceneViewWidget*>(pView);
 
-    /// \todo The distance value of 5 is a hack, we need the bounding box of the selection for this
-    const ezVec3 vTargetPos = vPivotPoint - vDiff * 5.0f;
-    m_pCameraMoveContext->SetOrbitPoint(vPivotPoint);
-    m_pCameraPositionContext->MoveToTarget(vTargetPos, vDiff);
+      ezVec3 vDiff = vPivotPoint - pView->m_Camera.GetCenterPosition();
+      if (vDiff.NormalizeIfNotZero().Failed())
+        continue;
+
+      /// \todo The distance value of 5 is a hack, we need the bounding box of the selection for this
+      const ezVec3 vTargetPos = vPivotPoint - vDiff * 5.0f;
+
+      pSceneView->m_pCameraMoveContext->SetOrbitPoint(vPivotPoint);
+      pSceneView->m_pCameraPositionContext->MoveToTarget(vTargetPos, vDiff);
+    }
 
     return true;
   }
@@ -505,12 +490,42 @@ void ezSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManage
 }
 
 
-ezScene3DWidget::ezScene3DWidget(QWidget* pParent, ezDocumentWindow3D* pDocument) : ez3DViewWidget(pParent, pDocument)
+ezSceneViewWidget::ezSceneViewWidget(QWidget* pParent, ezDocumentWindow3D* pOwnerWindow) : ezEngineViewWidget(pParent, pOwnerWindow)
 {
   setAcceptDrops(true);
+
+  m_Camera.SetCameraMode(ezCamera::CameraMode::PerspectiveFixedFovY, 80.0f, 0.1f, 1000.0f);
+  m_Camera.LookAt(ezVec3(0.5f, 2.0f, 1.5f), ezVec3(0.0f, 0.0f, 0.5f), ezVec3(0.0f, 0.0f, 1.0f));
+
+  m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, pOwnerWindow, this, &m_Camera);
+  m_pCameraMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, pOwnerWindow, this);
+  m_pCameraPositionContext = EZ_DEFAULT_NEW(ezCameraPositionContext, pOwnerWindow, this);
+
+  m_pCameraMoveContext->LoadState();
+  m_pCameraMoveContext->SetCamera(&m_Camera);
+
+  m_pCameraPositionContext->SetCamera(&m_Camera);
+
+  // add the input contexts in the order in which they are supposed to be processed
+  m_InputContexts.PushBack(m_pSelectionContext);
+  m_InputContexts.PushBack(m_pCameraMoveContext);
 }
 
-void ezScene3DWidget::dragEnterEvent(QDragEnterEvent* e)
+ezSceneViewWidget::~ezSceneViewWidget()
+{
+  EZ_DEFAULT_DELETE(m_pSelectionContext);
+  EZ_DEFAULT_DELETE(m_pCameraMoveContext);
+  EZ_DEFAULT_DELETE(m_pCameraPositionContext);
+}
+
+void ezSceneViewWidget::SyncToEngine()
+{
+  m_pSelectionContext->SetWindowConfig(ezVec2I32(width(), height()));
+
+  ezEngineViewWidget::SyncToEngine();
+}
+
+void ezSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
 {
   if (e->mimeData()->hasFormat("application/ezEditor.AssetGuid"))
   {
@@ -558,7 +573,7 @@ void ezScene3DWidget::dragEnterEvent(QDragEnterEvent* e)
   }
 }
 
-void ezScene3DWidget::dragLeaveEvent(QDragLeaveEvent * e)
+void ezSceneViewWidget::dragLeaveEvent(QDragLeaveEvent * e)
 {
   if (!m_DraggedObjects.IsEmpty())
   {
@@ -568,7 +583,7 @@ void ezScene3DWidget::dragLeaveEvent(QDragLeaveEvent * e)
   }
 }
 
-void ezScene3DWidget::dragMoveEvent(QDragMoveEvent* e)
+void ezSceneViewWidget::dragMoveEvent(QDragMoveEvent* e)
 {
   if (e->mimeData()->hasFormat("application/ezEditor.AssetGuid") && !m_DraggedObjects.IsEmpty())
   {
@@ -585,7 +600,7 @@ void ezScene3DWidget::dragMoveEvent(QDragMoveEvent* e)
   }
 }
 
-void ezScene3DWidget::dropEvent(QDropEvent * e)
+void ezSceneViewWidget::dropEvent(QDropEvent * e)
 {
   if (e->mimeData()->hasFormat("application/ezEditor.AssetGuid") && !m_DraggedObjects.IsEmpty())
   {
@@ -606,7 +621,7 @@ void ezScene3DWidget::dropEvent(QDropEvent * e)
   }
 }
 
-ezUuid ezScene3DWidget::CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue)
+ezUuid ezSceneViewWidget::CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue)
 {
   ezUuid ObjectGuid, CmpGuid;
   ObjectGuid.CreateNewUuid();
@@ -644,7 +659,7 @@ ezUuid ezScene3DWidget::CreateDropObject(const ezVec3& vPosition, const char* sz
   return ObjectGuid;
 }
 
-void ezScene3DWidget::MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPosition)
+void ezSceneViewWidget::MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPosition)
 {
   auto history = m_pDocumentWindow->GetDocument()->GetCommandHistory();
 
@@ -657,7 +672,7 @@ void ezScene3DWidget::MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPo
 
 }
 
-void ezScene3DWidget::MoveDraggedObjectsToPosition(const ezVec3 & vPosition)
+void ezSceneViewWidget::MoveDraggedObjectsToPosition(const ezVec3 & vPosition)
 {
   if (m_DraggedObjects.IsEmpty() || vPosition.IsNaN())
     return;

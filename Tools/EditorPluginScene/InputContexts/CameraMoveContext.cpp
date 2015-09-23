@@ -2,6 +2,7 @@
 #include <EditorPluginScene/InputContexts/CameraMoveContext.h>
 #include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
 #include <CoreUtils/Graphics/Camera.h>
 #include <QKeyEvent>
 
@@ -46,10 +47,8 @@ static const float s_fMoveSpeed[31] =
   256.0f,
 };
 
-ezCameraMoveContext::ezCameraMoveContext(QWidget* pParentWidget, ezDocumentWindow3D* pOwner)
+ezCameraMoveContext::ezCameraMoveContext(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView)
 {
-  m_pParentWidget = pParentWidget;
-
   m_pCamera = nullptr;
   m_fMoveSpeed = 1.0f;
 
@@ -82,7 +81,7 @@ ezCameraMoveContext::ezCameraMoveContext(QWidget* pParentWidget, ezDocumentWindo
   // while the camera moves, ignore all other shortcuts
   SetShortcutsDisabled(true);
 
-  SetOwner(pOwner);
+  SetOwner(pOwnerWindow, pOwnerView);
 }
 
 void ezCameraMoveContext::FocusLost()
@@ -108,8 +107,10 @@ void ezCameraMoveContext::FocusLost()
 
 void ezCameraMoveContext::LoadState()
 {
-  ezEditorApp::GetInstance()->GetDocumentSettings(GetOwner()->GetDocument()->GetDocumentPath(), "ScenePlugin").RegisterValueInt("CameraSpeed", 15, ezSettingsFlags::User);
-  SetMoveSpeed(ezEditorApp::GetInstance()->GetDocumentSettings(GetOwner()->GetDocument()->GetDocumentPath(), "ScenePlugin").GetValueInt("CameraSpeed"));
+  // TODO settings per document
+
+  ezEditorApp::GetInstance()->GetDocumentSettings(GetOwnerWindow()->GetDocument()->GetDocumentPath(), "ScenePlugin").RegisterValueInt("CameraSpeed", 15, ezSettingsFlags::User);
+  SetMoveSpeed(ezEditorApp::GetInstance()->GetDocumentSettings(GetOwnerWindow()->GetDocument()->GetDocumentPath(), "ScenePlugin").GetValueInt("CameraSpeed"));
 }
 
 void ezCameraMoveContext::UpdateContext()
@@ -313,7 +314,7 @@ void ezCameraMoveContext::ResetCursor()
       QCursor::setPos(m_OriginalMousePos);
     }
 
-    m_pParentWidget->setCursor(QCursor(Qt::ArrowCursor));
+    GetOwnerView()->setCursor(QCursor(Qt::ArrowCursor));
     MakeActiveInputContext(false);
   }
 }
@@ -322,7 +323,7 @@ void ezCameraMoveContext::SetBlankCursor()
 {
   if (m_bRotateCamera || m_bMoveCamera || m_bMoveCameraInPlane || m_bOrbitCamera)
   {
-    m_pParentWidget->setCursor(QCursor(Qt::BlankCursor));
+    GetOwnerView()->setCursor(QCursor(Qt::BlankCursor));
   }
 }
 
@@ -334,12 +335,12 @@ void ezCameraMoveContext::SetCursorToWindowCenter()
     m_bTempMousePosition = true;
   }
 
-  QSize size = m_pParentWidget->size();
+  QSize size = GetOwnerView()->size();
   QPoint center;
   center.setX(size.width() / 2);
   center.setY(size.height() / 2);
 
-  center = m_pParentWidget->mapToGlobal(center);
+  center = GetOwnerView()->mapToGlobal(center);
 
   m_LastMousePos = center;
   QCursor::setPos(center);
@@ -412,7 +413,7 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
 
   // send a message to clear any highlight
   ezViewHighlightMsgToEngine msg;
-  msg.SendHighlightObjectMessage(GetOwner()->GetEditorEngineConnection());
+  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
 
   if (m_pCamera == nullptr)
     return false;
@@ -430,15 +431,15 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
     fRotateBoost = 0.2f;
   }
 
-  const float fAspectRatio = (float)m_pParentWidget->size().width() / (float)m_pParentWidget->size().height();
+  const float fAspectRatio = (float)GetOwnerView()->size().width() / (float)GetOwnerView()->size().height();
   const ezAngle fFovX = m_pCamera->GetFovX(fAspectRatio);
   const ezAngle fFovY = m_pCamera->GetFovY(fAspectRatio);
 
   const float fMouseScale = 4.0f;
 
   const float fMouseMoveSensitivity = 0.002f * m_fMoveSpeed * fBoost;
-  const float fMouseRotateSensitivityX = (fFovX.GetRadian() / (float)m_pParentWidget->size().width()) * fRotateBoost * fMouseScale;
-  const float fMouseRotateSensitivityY = (fFovY.GetRadian() / (float)m_pParentWidget->size().height()) * fRotateBoost * fMouseScale;
+  const float fMouseRotateSensitivityX = (fFovX.GetRadian() / (float)GetOwnerView()->size().width()) * fRotateBoost * fMouseScale;
+  const float fMouseRotateSensitivityY = (fFovY.GetRadian() / (float)GetOwnerView()->size().height()) * fRotateBoost * fMouseScale;
 
   if (m_bRotateCamera && m_bMoveCamera) // left & right mouse button -> pan
   {
@@ -536,8 +537,8 @@ void ezCameraMoveContext::SetMoveSpeed(ezInt32 iSpeed)
   m_iMoveSpeed = ezMath::Clamp(iSpeed, 0, 30);
   m_fMoveSpeed = s_fMoveSpeed[m_iMoveSpeed];
 
-  if (GetOwner()->GetDocument() != nullptr)
-    ezEditorApp::GetInstance()->GetDocumentSettings(GetOwner()->GetDocument()->GetDocumentPath(), "ScenePlugin").SetValueInt("CameraSpeed", m_iMoveSpeed);
+  if (GetOwnerWindow()->GetDocument() != nullptr)
+    ezEditorApp::GetInstance()->GetDocumentSettings(GetOwnerWindow()->GetDocument()->GetDocumentPath(), "ScenePlugin").SetValueInt("CameraSpeed", m_iMoveSpeed);
 }
 
 bool ezCameraMoveContext::wheelEvent(QWheelEvent* e)

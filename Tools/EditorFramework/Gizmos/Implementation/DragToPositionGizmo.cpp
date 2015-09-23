@@ -23,15 +23,15 @@ ezDragToPositionGizmo::ezDragToPositionGizmo()
   SetTransformation(ezMat4::IdentityMatrix());
 }
 
-void ezDragToPositionGizmo::OnSetOwner(ezDocumentWindow3D* pOwner)
+void ezDragToPositionGizmo::OnSetOwner(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView)
 {
-  m_Bobble.SetOwner(pOwner);
-  m_AlignPX.SetOwner(pOwner);
-  m_AlignNX.SetOwner(pOwner);
-  m_AlignPY.SetOwner(pOwner);
-  m_AlignNY.SetOwner(pOwner);
-  m_AlignPZ.SetOwner(pOwner);
-  m_AlignNZ.SetOwner(pOwner);
+  m_Bobble.SetOwner(pOwnerWindow);
+  m_AlignPX.SetOwner(pOwnerWindow);
+  m_AlignNX.SetOwner(pOwnerWindow);
+  m_AlignPY.SetOwner(pOwnerWindow);
+  m_AlignNY.SetOwner(pOwnerWindow);
+  m_AlignPZ.SetOwner(pOwnerWindow);
+  m_AlignNZ.SetOwner(pOwnerWindow);
 }
 
 void ezDragToPositionGizmo::OnVisibleChanged(bool bVisible)
@@ -75,7 +75,7 @@ void ezDragToPositionGizmo::FocusLost()
   m_BaseEvents.Broadcast(ev);
 
   ezViewHighlightMsgToEngine msg;
-  msg.SendHighlightObjectMessage(GetOwner()->GetEditorEngineConnection());
+  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
 
   m_Bobble.SetVisible(true);
   m_AlignPX.SetVisible(true);
@@ -96,7 +96,7 @@ bool ezDragToPositionGizmo::mousePressEvent(QMouseEvent* e)
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
-  msg.SendHighlightObjectMessage(GetOwner()->GetEditorEngineConnection());
+  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
 
   m_Bobble.SetVisible(false);
   m_AlignPX.SetVisible(false);
@@ -155,7 +155,7 @@ bool ezDragToPositionGizmo::mouseMoveEvent(QMouseEvent* e)
 
   m_LastInteraction = tNow;
 
-  const ezObjectPickingResult& res = GetOwner()->PickObject(e->pos().x(), e->pos().y());
+  const ezObjectPickingResult& res = GetOwnerWindow()->PickObject(e->pos().x(), e->pos().y());
 
   if (res.m_vPickedPosition.IsNaN() || res.m_vPickedNormal.IsNaN())
     return true;

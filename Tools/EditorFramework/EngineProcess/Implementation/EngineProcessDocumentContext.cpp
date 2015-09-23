@@ -8,6 +8,7 @@
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Logging/Log.h>
 #include <Gizmos/GizmoHandle.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, ezReflectedClass, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -113,9 +114,27 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
       UpdateSyncObjects();
     }
 
-    m_ViewContexts[0]->HandleViewMessage(static_cast<const ezEditorEngineViewMsg*>(pMsg));
+    const ezEditorEngineViewMsg* pViewMsg = static_cast<const ezEditorEngineViewMsg*>(pMsg);
+
+    EZ_ASSERT_DEV(pViewMsg->m_uiViewID < 0xFFFFFFFF, "Invalid view ID in '%s'", pMsg->GetDynamicRTTI()->GetTypeName());
+
+    if (pViewMsg->m_uiViewID >= m_ViewContexts.GetCount())
+      m_ViewContexts.SetCount(pViewMsg->m_uiViewID + 1);
+
+    if (m_ViewContexts[pViewMsg->m_uiViewID] == nullptr)
+      m_ViewContexts[pViewMsg->m_uiViewID] = CreateViewContext();
+
+    m_ViewContexts[pViewMsg->m_uiViewID]->HandleViewMessage(pViewMsg);
 
     return;
+  }
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewHighlightMsgToEngine>())
+  {
+    const ezViewHighlightMsgToEngine* pMsg2 = static_cast<const ezViewHighlightMsgToEngine*>(pMsg);
+
+    ezUInt32 uiPickingID = m_OtherPickingMap.GetHandle(pMsg2->m_HighlightObject);
+
+    ezRenderContext::GetDefaultInstance()->SetMaterialParameter("PickingHighlightID", (ezInt32)uiPickingID);
   }
 
 }
@@ -128,8 +147,6 @@ void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, ezPr
   m_pWorld = EZ_DEFAULT_NEW(ezWorld, ezConversionUtils::ToString(m_DocumentGuid));
 
   OnInitialize();
-
-  m_ViewContexts.PushBack(CreateViewContext());
 }
 
 

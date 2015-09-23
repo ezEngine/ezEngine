@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
+#include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
 #include <EditorFramework/IPC/SyncObject.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Logging/Log.h>
@@ -12,9 +13,9 @@ ezDocumentWindow3D::ezDocumentWindow3D(ezDocumentBase* pDocument) : ezDocumentWi
 {
   m_pRestartButtonLayout = nullptr;
   m_pRestartButton = nullptr;
-  m_pEngineView = nullptr;
+  m_pEngineConnection = nullptr;
 
-  m_pEngineView = ezEditorEngineProcessConnection::GetInstance()->CreateEngineConnection(this);
+  m_pEngineConnection = ezEditorEngineProcessConnection::GetInstance()->CreateEngineConnection(this);
 
   ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezDocumentWindow3D::EngineViewProcessEventHandler, this));
 }
@@ -28,14 +29,11 @@ ezDocumentWindow3D::~ezDocumentWindow3D()
 
 void ezDocumentWindow3D::SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage, bool bSuperHighPriority) const
 {
-  m_pEngineView->SendMessage(pMessage, bSuperHighPriority);
+  m_pEngineConnection->SendMessage(pMessage, bSuperHighPriority);
 }
 
 const ezObjectPickingResult& ezDocumentWindow3D::PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const
 {
-  ezTimestamp ts = ezTimestamp::CurrentTimestamp();
-  ezStopwatch s;
-
   m_LastPickingResult.m_PickedComponent = ezUuid();
   m_LastPickingResult.m_PickedObject = ezUuid();
   m_LastPickingResult.m_PickedOther = ezUuid();
@@ -47,18 +45,21 @@ const ezObjectPickingResult& ezDocumentWindow3D::PickObject(ezUInt16 uiScreenPos
   // do not send picking messages while the engine process isn't fully configured yet
   if (ezEditorEngineProcessConnection::GetInstance()->IsEngineSetup())
   {
-    ezViewPickingMsgToEngine msg;
-    msg.m_uiPickPosX = uiScreenPosX;
-    msg.m_uiPickPosY = uiScreenPosY;
+    auto pView = GetHoveredViewWidget();
 
-    SendMessageToEngine(&msg, true);
+    if (pView != nullptr)
+    {
+      ezViewPickingMsgToEngine msg;
+      msg.m_uiViewID = pView->GetViewID();
+      msg.m_uiPickPosX = uiScreenPosX;
+      msg.m_uiPickPosY = uiScreenPosY;
 
-    if (ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezViewPickingResultMsgToEditor>(), ezTime::Seconds(3.0)).Failed())
-      return m_LastPickingResult;
+      SendMessageToEngine(&msg, true);
+
+      if (ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezViewPickingResultMsgToEditor>(), ezTime::Seconds(3.0)).Failed())
+        return m_LastPickingResult;
+    }
   }
-
-  const ezTime tPick = s.Checkpoint();
-  //ezLog::Dev("%lli: Picking: %.3fms", ts.GetInt64(ezSIUnitOfTime::Microsecond), tPick.GetMilliseconds());
 
   return m_LastPickingResult;
 }
@@ -107,7 +108,7 @@ bool ezDocumentWindow3D::HandleEngineMessage(const ezEditorEngineDocumentMsg* pM
 {
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
   {
-    m_pEngineView->SendDocument();
+    m_pEngineConnection->SendDocument();
     return true;
   }
 
@@ -172,6 +173,47 @@ ezEditorEngineSyncObject* ezDocumentWindow3D::FindSyncObject(const ezUuid& guid)
   return pSync;
 }
 
+ezEngineViewWidget* ezDocumentWindow3D::GetHoveredViewWidget() const
+{
+  QWidget* pWidget = QApplication::widgetAt(QCursor::pos());
+
+  while (pWidget != nullptr)
+  {
+    ezEngineViewWidget* pCandidate = qobject_cast<ezEngineViewWidget*>(pWidget);
+    if (pCandidate != nullptr)
+    {
+      if (m_ViewWidgets.Contains(pCandidate))
+        return pCandidate;
+
+      return nullptr;
+    }
+
+    pWidget = pWidget->parentWidget();
+  }
+
+  return nullptr;
+}
+
+ezEngineViewWidget* ezDocumentWindow3D::GetFocusedViewWidget() const
+{
+  QWidget* pWidget = QApplication::focusWidget();
+
+  while (pWidget != nullptr)
+  {
+    ezEngineViewWidget* pCandidate = qobject_cast<ezEngineViewWidget*>(pWidget);
+    if (pCandidate != nullptr)
+    {
+      if (m_ViewWidgets.Contains(pCandidate))
+          return pCandidate;
+
+      return nullptr;
+    }
+
+    pWidget = pWidget->parentWidget();
+  }
+
+  return nullptr;
+}
 
 void ezDocumentWindow3D::SyncObjectsToEngine()
 {

@@ -9,6 +9,7 @@ class QMouseEvent;
 class QWheelEvent;
 class ezDocumentBase;
 class ezDocumentWindow3D;
+class ezEngineViewWidget;
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorInputContext : public ezReflectedClass
 {
@@ -17,7 +18,8 @@ class EZ_EDITORFRAMEWORK_DLL ezEditorInputContext : public ezReflectedClass
 public:
   ezEditorInputContext()
   {
-    m_pOwner = nullptr;
+    m_pOwnerWindow = nullptr;
+    m_pOwnerView = nullptr;
     m_bDisableShortcuts = false;
   }
 
@@ -57,17 +59,24 @@ public:
     return s_pActiveInputContext == this;
   }
 
-  void SetOwner(ezDocumentWindow3D* pOwner)
+  void SetOwner(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView)
   {
-    m_pOwner = pOwner;
+    m_pOwnerWindow = pOwnerWindow;
+    m_pOwnerView = pOwnerView;
 
-    OnSetOwner(pOwner);
+    OnSetOwner(m_pOwnerWindow, m_pOwnerView);
   }
 
-  ezDocumentWindow3D* GetOwner() const
+  ezDocumentWindow3D* GetOwnerWindow() const
   {
-    EZ_ASSERT_DEBUG(m_pOwner != nullptr, "Document window pointer has not been set");
-    return m_pOwner;
+    EZ_ASSERT_DEBUG(m_pOwnerWindow != nullptr, "Owner window pointer has not been set");
+    return m_pOwnerWindow;
+  }
+
+  ezEngineViewWidget* GetOwnerView() const
+  {
+    EZ_ASSERT_DEBUG(m_pOwnerView != nullptr, "Owner view pointer has not been set");
+    return m_pOwnerView;
   }
 
   bool GetShortcutsDisabled() const { return m_bDisableShortcuts; }
@@ -76,11 +85,13 @@ public:
   void SetShortcutsDisabled(bool bDisabled) { m_bDisableShortcuts = bDisabled; }
 
 protected:
-  virtual void OnSetOwner(ezDocumentWindow3D* pOwner) = 0;
+  virtual void OnSetOwner(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView) = 0;
 
 private:
   static ezEditorInputContext* s_pActiveInputContext;
-  ezDocumentWindow3D* m_pOwner;
+
+  ezDocumentWindow3D* m_pOwnerWindow;
+  ezEngineViewWidget* m_pOwnerView;
   bool m_bDisableShortcuts;
 
   virtual void UpdateContext() {}

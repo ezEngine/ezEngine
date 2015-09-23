@@ -171,7 +171,7 @@ public:
   ezUInt16 m_uiPickPosY;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezViewPickingResultMsgToEditor : public ezEditorEngineViewMsg
+class EZ_EDITORFRAMEWORK_DLL ezViewPickingResultMsgToEditor : public ezEditorEngineDocumentMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezViewPickingResultMsgToEditor);
 
@@ -188,7 +188,7 @@ public:
 
 class ezEditorEngineConnection;
 
-class EZ_EDITORFRAMEWORK_DLL ezViewHighlightMsgToEngine : public ezEditorEngineViewMsg
+class EZ_EDITORFRAMEWORK_DLL ezViewHighlightMsgToEngine : public ezEditorEngineDocumentMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezViewHighlightMsgToEngine);
 

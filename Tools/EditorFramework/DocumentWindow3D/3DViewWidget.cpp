@@ -5,13 +5,15 @@
 
 #include <QPaintEvent>
 
-void ez3DViewWidget::paintEvent(QPaintEvent* event)
+ezUInt32 ezEngineViewWidget::s_uiNextViewID = 0;
+
+void ezEngineViewWidget::paintEvent(QPaintEvent* event)
 {
   //event->accept();
 
 }
 
-bool ez3DViewWidget::eventFilter(QObject* object, QEvent* event)
+bool ezEngineViewWidget::eventFilter(QObject* object, QEvent* event)
 {
   if (event->type() == QEvent::Type::ShortcutOverride)
   {
@@ -28,14 +30,33 @@ bool ez3DViewWidget::eventFilter(QObject* object, QEvent* event)
   return false;
 }
 
-void ez3DViewWidget::resizeEvent(QResizeEvent* event)
+
+void ezEngineViewWidget::SyncToEngine()
+{
+  ezViewCameraMsgToEngine cam;
+  cam.m_uiViewID = GetViewID();
+  cam.m_fNearPlane = m_Camera.GetNearPlane();
+  cam.m_fFarPlane = m_Camera.GetFarPlane();
+  cam.m_iCameraMode = (ezInt8)m_Camera.GetCameraMode();
+  cam.m_fFovOrDim = m_Camera.GetFovOrDim();
+  cam.m_vDirForwards = m_Camera.GetCenterDirForwards();
+  cam.m_vDirUp = m_Camera.GetCenterDirUp();
+  cam.m_vDirRight = m_Camera.GetCenterDirRight();
+  cam.m_vPosition = m_Camera.GetCenterPosition();
+  m_Camera.GetViewMatrix(cam.m_ViewMatrix);
+  m_Camera.GetProjectionMatrix((float)width() / (float)height(), cam.m_ProjMatrix);
+
+  m_pDocumentWindow->GetEditorEngineConnection()->SendMessage(&cam);
+}
+
+void ezEngineViewWidget::resizeEvent(QResizeEvent* event)
 {
   m_pDocumentWindow->TriggerRedraw();
 }
 
-ez3DViewWidget::ez3DViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocument)
+ezEngineViewWidget::ezEngineViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocumentWindow)
   : QWidget(pParent)
-  , m_pDocumentWindow(pDocument)
+  , m_pDocumentWindow(pDocumentWindow)
 {
   setFocusPolicy(Qt::FocusPolicy::StrongFocus);
   //setAttribute(Qt::WA_OpaquePaintEvent);
@@ -48,9 +69,18 @@ ez3DViewWidget::ez3DViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocument)
   setAttribute(Qt::WA_NoSystemBackground);
 
   installEventFilter(this);
+
+  m_uiViewID = s_uiNextViewID;
+  ++s_uiNextViewID;
 }
 
-void ez3DViewWidget::keyReleaseEvent(QKeyEvent* e)
+
+ezEngineViewWidget::~ezEngineViewWidget()
+{
+  // TODO: Tell the engine about it!
+}
+
+void ezEngineViewWidget::keyReleaseEvent(QKeyEvent* e)
 {
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
@@ -72,7 +102,7 @@ void ez3DViewWidget::keyReleaseEvent(QKeyEvent* e)
   QWidget::keyReleaseEvent(e);
 }
 
-void ez3DViewWidget::keyPressEvent(QKeyEvent* e)
+void ezEngineViewWidget::keyPressEvent(QKeyEvent* e)
 {
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
@@ -94,7 +124,7 @@ void ez3DViewWidget::keyPressEvent(QKeyEvent* e)
   QWidget::keyPressEvent(e);
 }
 
-void ez3DViewWidget::mousePressEvent(QMouseEvent* e)
+void ezEngineViewWidget::mousePressEvent(QMouseEvent* e)
 {
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
@@ -116,7 +146,7 @@ void ez3DViewWidget::mousePressEvent(QMouseEvent* e)
   QWidget::mousePressEvent(e);
 }
 
-void ez3DViewWidget::mouseReleaseEvent(QMouseEvent* e)
+void ezEngineViewWidget::mouseReleaseEvent(QMouseEvent* e)
 {
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
@@ -138,7 +168,7 @@ void ez3DViewWidget::mouseReleaseEvent(QMouseEvent* e)
   QWidget::mouseReleaseEvent(e);
 }
 
-void ez3DViewWidget::mouseMoveEvent(QMouseEvent* e)
+void ezEngineViewWidget::mouseMoveEvent(QMouseEvent* e)
 {
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
@@ -160,7 +190,7 @@ void ez3DViewWidget::mouseMoveEvent(QMouseEvent* e)
   QWidget::mouseMoveEvent(e);
 }
 
-void ez3DViewWidget::wheelEvent(QWheelEvent* e)
+void ezEngineViewWidget::wheelEvent(QWheelEvent* e)
 {
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
@@ -182,7 +212,7 @@ void ez3DViewWidget::wheelEvent(QWheelEvent* e)
   QWidget::wheelEvent(e);
 }
 
-void ez3DViewWidget::focusOutEvent(QFocusEvent* e)
+void ezEngineViewWidget::focusOutEvent(QFocusEvent* e)
 {
   if (ezEditorInputContext::IsAnyInputContextActive())
   {

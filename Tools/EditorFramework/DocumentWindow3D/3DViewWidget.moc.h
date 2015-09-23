@@ -3,14 +3,19 @@
 #include <EditorFramework/Plugin.h>
 #include <QWidget>
 #include <Foundation/Containers/HybridArray.h>
+#include <CoreUtils/Graphics/Camera.h>
 
 class ezDocumentWindow3D;
 class ezEditorInputContext;
 
-class EZ_EDITORFRAMEWORK_DLL ez3DViewWidget : public QWidget
+class EZ_EDITORFRAMEWORK_DLL ezEngineViewWidget : public QWidget
 {
+  Q_OBJECT
+
 public:
-  ez3DViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocument);
+  ezEngineViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocumentWindow);
+
+  ~ezEngineViewWidget();
 
   /// \brief Add input contexts in the order in which they are supposed to be processed
   ezHybridArray<ezEditorInputContext*, 8> m_InputContexts;
@@ -20,6 +25,13 @@ public:
 
   /// \brief Used to deactivate shortcuts
   virtual bool eventFilter(QObject* object, QEvent* event) override;
+
+  /// \brief Returns the ID of this view
+  ezUInt32 GetViewID() const { return m_uiViewID; }
+
+  virtual void SyncToEngine();
+
+  ezCamera m_Camera;
 
 protected:
   virtual void resizeEvent(QResizeEvent* event) override;
@@ -32,7 +44,10 @@ protected:
   virtual void wheelEvent(QWheelEvent* e) override;
   virtual void focusOutEvent(QFocusEvent* e) override;
 
+  ezUInt32 m_uiViewID;
   ezDocumentWindow3D* m_pDocumentWindow;
+
+  static ezUInt32 s_uiNextViewID;
 };
 
 

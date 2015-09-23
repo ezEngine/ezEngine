@@ -3,11 +3,10 @@
 #include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <CoreUtils/Graphics/Camera.h>
+#include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
 
-ezCameraPositionContext::ezCameraPositionContext(QWidget* pParentWidget, ezDocumentWindow3D* pOwner)
+ezCameraPositionContext::ezCameraPositionContext(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView)
 {
-  m_pParentWidget = pParentWidget;
-
   m_pCamera = nullptr;
 
   m_LastUpdate = ezTime::Now();
@@ -17,13 +16,13 @@ ezCameraPositionContext::ezCameraPositionContext(QWidget* pParentWidget, ezDocum
   // while the camera moves, ignore all other shortcuts
   SetShortcutsDisabled(true);
 
-  SetOwner(pOwner);
+  SetOwner(pOwnerWindow, pOwnerView);
 }
 
 void ezCameraPositionContext::FocusLost()
 {
   m_fLerp = 1.0f;
-  m_pParentWidget->setCursor(QCursor(Qt::ArrowCursor));
+  GetOwnerView()->setCursor(QCursor(Qt::ArrowCursor));
   MakeActiveInputContext(false);
 }
 
@@ -49,7 +48,7 @@ void ezCameraPositionContext::MoveToTarget(const ezVec3& vPosition, const ezVec3
   m_LastUpdate = ezTime::Now();
 
   m_fLerp = 0.0f;
-  m_pParentWidget->setCursor(QCursor(Qt::BlankCursor));
+  GetOwnerView()->setCursor(QCursor(Qt::BlankCursor));
   MakeActiveInputContext();
 }
 

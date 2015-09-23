@@ -12,8 +12,6 @@ class EZ_EDITORFRAMEWORK_DLL ezTranslateGizmo : public ezGizmoBase
 public:
   ezTranslateGizmo();
 
-  void SetParentWidget(QWidget* pParentWidget);
-
   virtual void FocusLost() override;
 
   virtual bool mousePressEvent(QMouseEvent* e) override;
@@ -37,7 +35,7 @@ public:
   void SetMovementMode(MovementMode mode);
 
 protected:
-  virtual void OnSetOwner(ezDocumentWindow3D* pOwner) override;
+  virtual void OnSetOwner(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
   virtual void OnTransformationChanged(const ezMat4& transform) override;
 
@@ -53,7 +51,6 @@ private:
   float m_fSnappingValue;
   ezVec3 m_vLastMoveDiff;
 
-  QWidget* m_pParentWidget;
   MovementMode m_MovementMode;
   ezGizmoHandle m_AxisX;
   ezGizmoHandle m_AxisY;

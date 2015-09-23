@@ -5,7 +5,6 @@
 #include <EditorFramework/IPC/ProcessCommunication.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
-#include <CoreUtils/Graphics/Camera.h>
 #include <EditorPluginScene/InputContexts/SelectionContext.h>
 #include <EditorPluginScene/InputContexts/CameraMoveContext.h>
 #include <EditorPluginScene/InputContexts/CameraPositionContext.h>
@@ -17,10 +16,18 @@
 #include <EditorFramework/Gizmos/DragToPositionGizmo.h>
 #include <EditorPluginScene/Actions/GizmoActions.h>
 
-class ezScene3DWidget : public ez3DViewWidget
+class ezSceneViewWidget : public ezEngineViewWidget
 {
+  Q_OBJECT
 public:
-  ezScene3DWidget(QWidget* pParent, ezDocumentWindow3D* pDocument);
+  ezSceneViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocument);
+  ~ezSceneViewWidget();
+
+  ezSelectionContext* m_pSelectionContext;
+  ezCameraMoveContext* m_pCameraMoveContext;
+  ezCameraPositionContext* m_pCameraPositionContext;
+
+  virtual void SyncToEngine() override;
 
 protected:
   virtual void dragEnterEvent(QDragEnterEvent* e) override;
@@ -81,18 +88,11 @@ private:
 
   void SendRedrawMsg();
 
-  ezScene3DWidget* m_pCenterWidget;
-
-  ezSelectionContext* m_pSelectionContext;
-  ezCameraMoveContext* m_pCameraMoveContext;
-  ezCameraPositionContext* m_pCameraPositionContext;
-
   ezTranslateGizmo m_TranslateGizmo;
   ezRotateGizmo m_RotateGizmo;
   ezScaleGizmo m_ScaleGizmo;
   ezDragToPositionGizmo m_DragToPosGizmo;
 
-  ezCamera m_Camera;
   ezVec3 m_vLastTranslationGizmoResult;
 
   struct SelectedGO

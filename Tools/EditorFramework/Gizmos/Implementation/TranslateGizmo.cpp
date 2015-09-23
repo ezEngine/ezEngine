@@ -5,6 +5,7 @@
 #include <QMouseEvent>
 #include <CoreUtils/Graphics/Camera.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
+#include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmo, ezGizmoBase, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -12,7 +13,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 ezTranslateGizmo::ezTranslateGizmo()
 {
   m_fSnappingValue = 0.0f;
-  m_pParentWidget = nullptr;
 
   m_AxisX.Configure(this, ezGizmoHandleType::Arrow, ezColorLinearUB(128, 0, 0));
   m_AxisY.Configure(this, ezGizmoHandleType::Arrow, ezColorLinearUB(0, 128, 0));
@@ -29,20 +29,15 @@ ezTranslateGizmo::ezTranslateGizmo()
   m_MovementMode = MovementMode::ScreenProjection;
 }
 
-void ezTranslateGizmo::SetParentWidget(QWidget* pParentWidget)
+void ezTranslateGizmo::OnSetOwner(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView)
 {
-  m_pParentWidget = pParentWidget;
-}
+  m_AxisX.SetOwner(pOwnerWindow);
+  m_AxisY.SetOwner(pOwnerWindow);
+  m_AxisZ.SetOwner(pOwnerWindow);
 
-void ezTranslateGizmo::OnSetOwner(ezDocumentWindow3D* pOwner)
-{
-  m_AxisX.SetOwner(pOwner);
-  m_AxisY.SetOwner(pOwner);
-  m_AxisZ.SetOwner(pOwner);
-
-  m_PlaneXY.SetOwner(pOwner);
-  m_PlaneXZ.SetOwner(pOwner);
-  m_PlaneYZ.SetOwner(pOwner);
+  m_PlaneXY.SetOwner(pOwnerWindow);
+  m_PlaneXZ.SetOwner(pOwnerWindow);
+  m_PlaneYZ.SetOwner(pOwnerWindow);
 }
 
 void ezTranslateGizmo::OnVisibleChanged(bool bVisible)
@@ -84,7 +79,7 @@ void ezTranslateGizmo::FocusLost()
   if (m_MovementMode == MovementMode::MouseDiff)
   {
     QCursor::setPos(m_OriginalMousePos);
-    m_pParentWidget->setCursor(QCursor(Qt::ArrowCursor));
+    GetOwnerView()->setCursor(QCursor(Qt::ArrowCursor));
   }
 
   BaseEvent ev;
@@ -93,7 +88,7 @@ void ezTranslateGizmo::FocusLost()
   m_BaseEvents.Broadcast(ev);
 
   ezViewHighlightMsgToEngine msg;
-  msg.SendHighlightObjectMessage(GetOwner()->GetEditorEngineConnection());
+  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
 
   m_AxisX.SetVisible(true);
   m_AxisY.SetVisible(true);
@@ -161,7 +156,7 @@ bool ezTranslateGizmo::mousePressEvent(QMouseEvent* e)
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
-  msg.SendHighlightObjectMessage(GetOwner()->GetEditorEngineConnection());
+  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
 
   m_AxisX.SetVisible(false);
   m_AxisY.SetVisible(false);
@@ -239,17 +234,17 @@ ezResult ezTranslateGizmo::GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenP
 
 void ezTranslateGizmo::SetCursorToWindowCenter()
 {
-  QSize size = m_pParentWidget->size();
+  QSize size = GetOwnerView()->size();
   QPoint center;
   center.setX(size.width() / 2);
   center.setY(size.height() / 2);
 
-  center = m_pParentWidget->mapToGlobal(center);
+  center = GetOwnerView()->mapToGlobal(center);
 
   m_LastMousePos = center;
   QCursor::setPos(center);
 
-  m_pParentWidget->setCursor(QCursor(Qt::BlankCursor));
+  GetOwnerView()->setCursor(QCursor(Qt::BlankCursor));
 }
 
 ezResult ezTranslateGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const
@@ -405,7 +400,7 @@ void ezTranslateGizmo::SetMovementMode(MovementMode mode)
   else
   {
     QCursor::setPos(m_OriginalMousePos);
-    m_pParentWidget->setCursor(QCursor(Qt::ArrowCursor));
+    GetOwnerView()->setCursor(QCursor(Qt::ArrowCursor));
   }
 }
 

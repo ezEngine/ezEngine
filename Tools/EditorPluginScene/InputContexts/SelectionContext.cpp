@@ -9,22 +9,22 @@
 #include <Foundation/Logging/Log.h>
 #include <QKeyEvent>
 
-ezSelectionContext::ezSelectionContext(ezDocumentWindow3D* pOwner, const ezCamera* pCamera)
+ezSelectionContext::ezSelectionContext(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView, const ezCamera* pCamera)
 {
   m_pCamera = pCamera;
 
-  SetOwner(pOwner);
+  SetOwner(pOwnerWindow, pOwnerView);
 }
 
 bool ezSelectionContext::mousePressEvent(QMouseEvent* e)
 {
   if (e->button() == Qt::MouseButton::LeftButton)
   {
-    const ezObjectPickingResult& res = GetOwner()->PickObject(e->pos().x(), e->pos().y());
+    const ezObjectPickingResult& res = GetOwnerWindow()->PickObject(e->pos().x(), e->pos().y());
 
     if (res.m_PickedOther.IsValid())
     {
-      auto pSO = GetOwner()->FindSyncObject(res.m_PickedOther);
+      auto pSO = GetOwnerWindow()->FindSyncObject(res.m_PickedOther);
 
       if (pSO != nullptr)
       {
@@ -44,11 +44,11 @@ bool ezSelectionContext::mousePressEvent(QMouseEvent* e)
 
 bool ezSelectionContext::mouseReleaseEvent(QMouseEvent* e)
 {
-  auto* pDocument = GetOwner()->GetDocument();
+  auto* pDocument = GetOwnerWindow()->GetDocument();
 
   if (e->button() == Qt::MouseButton::LeftButton)
   {
-    const ezObjectPickingResult& res = GetOwner()->PickObject(e->pos().x(), e->pos().y());
+    const ezObjectPickingResult& res = GetOwnerWindow()->PickObject(e->pos().x(), e->pos().y());
 
     const bool bToggle = (e->modifiers() & Qt::KeyboardModifier::ControlModifier) != 0;
 
@@ -90,11 +90,11 @@ bool ezSelectionContext::mouseMoveEvent(QMouseEvent* e)
   ezViewHighlightMsgToEngine msg;
 
   {
-    const ezObjectPickingResult& res = GetOwner()->PickObject(e->pos().x(), e->pos().y());
+    const ezObjectPickingResult& res = GetOwnerWindow()->PickObject(e->pos().x(), e->pos().y());
 
     if (res.m_PickedComponent.IsValid())
     {
-      ezSceneDocument* pScene = static_cast<ezSceneDocument*>(GetOwner()->GetDocument());
+      ezSceneDocument* pScene = static_cast<ezSceneDocument*>(GetOwnerWindow()->GetDocument());
 
       pScene->SetPickingResult(res);
     }
@@ -107,7 +107,7 @@ bool ezSelectionContext::mouseMoveEvent(QMouseEvent* e)
       msg.m_HighlightObject = res.m_PickedObject;
   }
 
-  msg.SendHighlightObjectMessage(GetOwner()->GetEditorEngineConnection());
+  msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
 
   // we only updated the highlight, so others may do additional stuff, if they like
   return false;
@@ -117,13 +117,13 @@ bool ezSelectionContext::keyPressEvent(QKeyEvent* e)
 {
   if (e->key() == Qt::Key_Delete)
   {
-    GetOwner()->GetDocument()->DeleteSelectedObjects();
+    GetOwnerWindow()->GetDocument()->DeleteSelectedObjects();
     return true;
   }
 
   if (e->key() == Qt::Key_Escape)
   {
-    GetOwner()->GetDocument()->GetSelectionManager()->Clear();
+    GetOwnerWindow()->GetDocument()->GetSelectionManager()->Clear();
     return true;
   }
 

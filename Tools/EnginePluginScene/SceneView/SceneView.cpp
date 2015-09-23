@@ -179,30 +179,13 @@ void ezViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
   }
   else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingMsgToEngine>())
   {
-    //ezTimestamp ts = ezTimestamp::CurrentTimestamp();
-    //ezStopwatch s;
 
-    //++uiBlockingMessagesPerFrame;
+
     const ezViewPickingMsgToEngine* pMsg2 = static_cast<const ezViewPickingMsgToEngine*>(pMsg);
 
-    //ezInt64 tDelivery = ts.GetInt64(ezSIUnitOfTime::Microsecond) - pMsg->m_iSentTimeStamp;
-
     PickObjectAt(pMsg2->m_uiPickPosX, pMsg2->m_uiPickPosY);
-
-    //const ezTime tPick = s.Checkpoint();
-    //ezLog::Dev("%lli (%lli): Picking: %.3fms", ts.GetInt64(ezSIUnitOfTime::Microsecond), tDelivery, tPick.GetMilliseconds());
   }
-  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewHighlightMsgToEngine>())
-  {
-    const ezViewHighlightMsgToEngine* pMsg2 = static_cast<const ezViewHighlightMsgToEngine*>(pMsg);
 
-    
-    ezUInt32 uiPickingID = GetDocumentContext()->m_OtherPickingMap.GetHandle(pMsg2->m_HighlightObject);
-
-    ezRenderContext::GetDefaultInstance()->SetMaterialParameter("PickingHighlightID", (ezInt32)uiPickingID);
-
-    //ezLog::Info("Picking: GUID = %s, ID = %u", ezConversionUtils::ToString(pMsg->m_HighlightObject).GetData(), uiPickingID);
-  }
 
 }
 

@@ -8,6 +8,7 @@
 class QWidget;
 class QHBoxLayout;
 class QPushButton;
+class ezEngineViewWidget;
 
 struct ezObjectPickingResult
 {
@@ -32,7 +33,7 @@ public:
   ezDocumentWindow3D(ezDocumentBase* pDocument);
   virtual ~ezDocumentWindow3D();
 
-  ezEditorEngineConnection* GetEditorEngineConnection() const { return m_pEngineView; }
+  ezEditorEngineConnection* GetEditorEngineConnection() const { return m_pEngineConnection; }
 
   void SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage, bool bSuperHighPriority = false) const;
 
@@ -42,13 +43,18 @@ public:
   void RemoveSyncObject(ezEditorEngineSyncObject* pSync);
   ezEditorEngineSyncObject* FindSyncObject(const ezUuid& guid);
 
-  
+  /// \brief Returns the ezEngineViewWidget over which the mouse currently hovers
+  ezEngineViewWidget* GetHoveredViewWidget() const;
+
+  /// \brief Returns the ezEngineViewWidget that has the input focus
+  ezEngineViewWidget* GetFocusedViewWidget() const;
 
 private slots:
   void SlotRestartEngineProcess();
 
 protected:
-  ezEditorEngineConnection* m_pEngineView;
+  ezEditorEngineConnection* m_pEngineConnection;
+  ezHybridArray<ezEngineViewWidget*, 4> m_ViewWidgets;
 
   void SyncObjectsToEngine();
 

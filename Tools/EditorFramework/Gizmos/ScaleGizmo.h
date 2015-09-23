@@ -23,7 +23,7 @@ public:
   void SetSnappingValue(float fSnappingValue) { m_fSnappingValue = fSnappingValue; }
 
 protected:
-  virtual void OnSetOwner(ezDocumentWindow3D* pOwner) override;
+  virtual void OnSetOwner(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
   virtual void OnTransformationChanged(const ezMat4& transform) override;
 
