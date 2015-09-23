@@ -29,6 +29,8 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   m_ViewWidgets.PushBack(new ezSceneViewWidget(this, this, &m_CameraMoveSettings));
   m_ViewWidgets.PushBack(new ezSceneViewWidget(this, this, &m_CameraMoveSettings));
 
+  m_ViewWidgets[1]->m_ViewRenderMode = ezViewRenderMode::WireframeMonochrome;
+
   QWidget* pCenter = new QWidget(this);
   pCenter->setLayout(new QHBoxLayout(pCenter));
   pCenter->layout()->addWidget(m_ViewWidgets[0]);

@@ -5,8 +5,15 @@ ALL
 
 ALPHATEST
 PICKING
+EDITOR_WIREFRAME
 
 [RENDERSTATE]
+
+#if EDITOR_WIREFRAME != 0
+  WireFrame = true
+#else
+  WireFrame = false
+#endif
 
 [VERTEXSHADER]
 
@@ -59,6 +66,11 @@ float4 main(PS_IN Input) : SV_Target
   
   return IdCol;
 #else
+
+  #if EDITOR_WIREFRAME == 2
+    return float4(1, 1, 1, 1);
+  #endif
+
   return TexDiffuse.Sample(TexDiffuseSampler, Input.TexCoord0) * MeshColor;
 #endif
 }

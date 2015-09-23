@@ -13,12 +13,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleRenderPass, ezRenderPipelinePass, 1, ezR
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezSimpleRenderPass::ezSimpleRenderPass() : ezRenderPipelinePass("SimpleRenderPass")
+ezSimpleRenderPass::ezSimpleRenderPass(const char* szName) : ezRenderPipelinePass(szName)
 {
 
 }
 
-ezSimpleRenderPass::ezSimpleRenderPass(const ezGALRenderTagetSetup& RenderTargetSetup) : ezRenderPipelinePass("SimpleRenderPass")
+ezSimpleRenderPass::ezSimpleRenderPass(const ezGALRenderTagetSetup& RenderTargetSetup, const char* szName) : ezRenderPipelinePass(szName)
 {
   m_RenderTargetSetup = RenderTargetSetup;
   AddRenderer( EZ_DEFAULT_NEW( ezMeshRenderer ) );

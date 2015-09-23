@@ -123,11 +123,11 @@ class EZ_EDITORFRAMEWORK_DLL ezViewCameraMsgToEngine : public ezEditorEngineView
   EZ_ADD_DYNAMIC_REFLECTION(ezViewCameraMsgToEngine);
 
 public:
-
   ezInt8 m_iCameraMode;
   float m_fNearPlane;
   float m_fFarPlane;
   float m_fFovOrDim;
+  ezUInt8 m_uiRenderMode; ///< ezViewRenderMode::Enum
 
   ezVec3 m_vPosition;
   ezVec3 m_vDirForwards;

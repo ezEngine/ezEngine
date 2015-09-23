@@ -8,6 +8,7 @@ class ezView;
 class ezViewCameraMsgToEngine;
 class ezEngineProcessDocumentContext;
 class ezEditorEngineDocumentMsg;
+class ezEditorRenderPass;
 
 struct ObjectData
 {
@@ -21,6 +22,8 @@ public:
   ezViewContext(ezEngineProcessDocumentContext* pContext) : ezEngineProcessViewContext(pContext)
   {
     m_pView = nullptr;
+    m_pEditorRenderPass = nullptr;
+    m_pPickingRenderPass = nullptr;
   }
 
   void SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);
@@ -63,5 +66,8 @@ private:
 
   /// Stores the optional/additional "part index" of a pickable object. E.g. for a mesh this can be the sub-mesh or material index
   ezDynamicArray<ezUInt16> m_PickingResultsPartIndex;
+
+  ezPickingRenderPass* m_pPickingRenderPass;
+  ezEditorRenderPass* m_pEditorRenderPass;
 };
 

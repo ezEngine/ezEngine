@@ -1,0 +1,3 @@
+add("EDITOR_WIREFRAME", "0")
+add("EDITOR_WIREFRAME", "1")
+add("EDITOR_WIREFRAME", "2")

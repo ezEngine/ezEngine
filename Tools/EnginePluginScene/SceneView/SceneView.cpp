@@ -16,6 +16,7 @@
 #include <GameFoundation/GameApplication.h>
 #include <Core/World/GameObject.h>
 #include <Core/World/Component.h>
+#include <EnginePluginScene/EditorRenderPass/EditorRenderPass.h>
 
 
 void ezViewContext::SetCamera(const ezViewCameraMsgToEngine* pMsg)
@@ -23,6 +24,11 @@ void ezViewContext::SetCamera(const ezViewCameraMsgToEngine* pMsg)
   m_Camera.SetCameraMode((ezCamera::CameraMode) pMsg->m_iCameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
 
   m_Camera.LookAt(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
+
+  if (!m_pEditorRenderPass)
+    return;
+
+  m_pEditorRenderPass->m_ViewRenderMode = static_cast<ezViewRenderMode::Enum>(pMsg->m_uiRenderMode);
 }
 
 void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight)
@@ -110,16 +116,22 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
     PickingRenderTargetSetup.SetRenderTarget(0, m_hPickingIdRTV)
       .SetDepthStencilTarget(m_hPickingDepthDSV);
 
-    ezUniquePtr<ezPickingRenderPass> pRenderPass = EZ_DEFAULT_NEW(ezPickingRenderPass, PickingRenderTargetSetup);
-    pRenderPass->m_Events.AddEventHandler(ezMakeDelegate(&ezViewContext::RenderPassEventHandler, this));
-
     ezGALRenderTagetSetup BackBufferRenderTargetSetup;
     BackBufferRenderTargetSetup.SetRenderTarget(0, m_hSwapChainRTV)
       .SetDepthStencilTarget(m_hSwapChainDSV);
 
+
+    ezUniquePtr<ezPickingRenderPass> pPickingRenderPass = EZ_DEFAULT_NEW(ezPickingRenderPass, PickingRenderTargetSetup);
+    pPickingRenderPass->m_Events.AddEventHandler(ezMakeDelegate(&ezViewContext::RenderPassEventHandler, this));
+
+    ezUniquePtr<ezEditorRenderPass> pEditorRenderPass = EZ_DEFAULT_NEW(ezEditorRenderPass, BackBufferRenderTargetSetup, "EditorRenderPass");
+
+    m_pPickingRenderPass = pPickingRenderPass.Borrow();
+    m_pEditorRenderPass = pEditorRenderPass.Borrow();
+
     ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
-    pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezSimpleRenderPass, BackBufferRenderTargetSetup));
-    pRenderPipeline->AddPass(std::move(pRenderPass));
+    pRenderPipeline->AddPass(std::move(pEditorRenderPass));
+    pRenderPipeline->AddPass(std::move(pPickingRenderPass));
     m_pView->SetRenderPipeline(std::move(pRenderPipeline));
 
     m_pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));

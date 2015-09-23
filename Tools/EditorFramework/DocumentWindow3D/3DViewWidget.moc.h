@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <Foundation/Containers/HybridArray.h>
 #include <CoreUtils/Graphics/Camera.h>
+#include <EditorFramework/EngineProcess/ViewRenderSettings.h>
 
 class ezDocumentWindow3D;
 class ezEditorInputContext;
@@ -32,6 +33,7 @@ public:
   virtual void SyncToEngine();
 
   ezCamera m_Camera;
+  ezViewRenderMode::Enum m_ViewRenderMode;
 
 protected:
   virtual void resizeEvent(QResizeEvent* event) override;

@@ -34,6 +34,7 @@ bool ezEngineViewWidget::eventFilter(QObject* object, QEvent* event)
 void ezEngineViewWidget::SyncToEngine()
 {
   ezViewCameraMsgToEngine cam;
+  cam.m_uiRenderMode = m_ViewRenderMode;
   cam.m_uiViewID = GetViewID();
   cam.m_fNearPlane = m_Camera.GetNearPlane();
   cam.m_fFarPlane = m_Camera.GetFarPlane();
@@ -58,6 +59,8 @@ ezEngineViewWidget::ezEngineViewWidget(QWidget* pParent, ezDocumentWindow3D* pDo
   : QWidget(pParent)
   , m_pDocumentWindow(pDocumentWindow)
 {
+  m_ViewRenderMode = ezViewRenderMode::Default;
+
   setFocusPolicy(Qt::FocusPolicy::StrongFocus);
   //setAttribute(Qt::WA_OpaquePaintEvent);
   setAutoFillBackground(false);

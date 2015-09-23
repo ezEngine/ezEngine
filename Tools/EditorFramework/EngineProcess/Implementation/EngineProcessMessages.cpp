@@ -96,6 +96,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewCameraMsgToEngine, ezEditorEngineViewMsg, 
     EZ_MEMBER_PROPERTY("Right", m_vDirRight),
     EZ_MEMBER_PROPERTY("ViewMat", m_ViewMatrix),
     EZ_MEMBER_PROPERTY("ProjMat", m_ProjMatrix),
+    EZ_MEMBER_PROPERTY("RenderMode", m_uiRenderMode),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
