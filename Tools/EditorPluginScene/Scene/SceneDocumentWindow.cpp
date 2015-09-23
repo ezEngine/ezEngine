@@ -26,8 +26,8 @@
 ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   : ezDocumentWindow3D(pDocument)
 {
-  m_ViewWidgets.PushBack(new ezSceneViewWidget(this, this));
-  m_ViewWidgets.PushBack(new ezSceneViewWidget(this, this));
+  m_ViewWidgets.PushBack(new ezSceneViewWidget(this, this, &m_CameraMoveSettings));
+  m_ViewWidgets.PushBack(new ezSceneViewWidget(this, this, &m_CameraMoveSettings));
 
   QWidget* pCenter = new QWidget(this);
   pCenter->setLayout(new QHBoxLayout(pCenter));
@@ -490,15 +490,17 @@ void ezSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManage
 }
 
 
-ezSceneViewWidget::ezSceneViewWidget(QWidget* pParent, ezDocumentWindow3D* pOwnerWindow) : ezEngineViewWidget(pParent, pOwnerWindow)
+ezSceneViewWidget::ezSceneViewWidget(QWidget* pParent, ezDocumentWindow3D* pOwnerWindow, ezCameraMoveContextSettings* pCameraMoveSettings) : ezEngineViewWidget(pParent, pOwnerWindow)
 {
   setAcceptDrops(true);
+
+  ezSceneDocumentWindow* pSceneWindow = static_cast<ezSceneDocumentWindow*>(pOwnerWindow);
 
   m_Camera.SetCameraMode(ezCamera::CameraMode::PerspectiveFixedFovY, 80.0f, 0.1f, 1000.0f);
   m_Camera.LookAt(ezVec3(0.5f, 2.0f, 1.5f), ezVec3(0.0f, 0.0f, 0.5f), ezVec3(0.0f, 0.0f, 1.0f));
 
   m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, pOwnerWindow, this, &m_Camera);
-  m_pCameraMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, pOwnerWindow, this);
+  m_pCameraMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, pOwnerWindow, this, pCameraMoveSettings);
   m_pCameraPositionContext = EZ_DEFAULT_NEW(ezCameraPositionContext, pOwnerWindow, this);
 
   m_pCameraMoveContext->LoadState();

@@ -6,10 +6,22 @@
 
 class ezCamera;
 
+struct ezCameraMoveContextSettings
+{
+  ezCameraMoveContextSettings()
+  {
+    m_vOrbitPoint.SetZero();
+    m_iMoveSpeed = 15;
+  }
+
+  ezInt32 m_iMoveSpeed;
+  ezVec3 m_vOrbitPoint;
+};
+
 class ezCameraMoveContext : public ezEditorInputContext
 {
 public:
-  ezCameraMoveContext(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView);
+  ezCameraMoveContext(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView, ezCameraMoveContextSettings* pSettings);
 
   virtual void FocusLost() override;
 
@@ -37,6 +49,8 @@ private:
   void SetBlankCursor();
   void SetCursorToWindowCenter();
 
+  ezCameraMoveContextSettings* m_pSettings;
+
   QPoint m_LastMousePos;
   QPoint m_OriginalMousePos;
   bool m_bTempMousePosition;
@@ -45,10 +59,8 @@ private:
   bool m_bMoveCamera;
   bool m_bMoveCameraInPlane;
   bool m_bOrbitCamera;
-  ezInt32 m_iMoveSpeed;
 
   ezCamera* m_pCamera;
-  float m_fMoveSpeed;
 
   bool m_bRun;
   bool m_bSlowDown;
@@ -61,7 +73,6 @@ private:
   bool m_bMoveForwardsInPlane;
   bool m_bMoveBackwardsInPlane;
   bool m_bDidMoveMouse[3]; // Left Click, Right Click, Middle Click
-  ezVec3 m_vOrbitPoint;
 
   ezTime m_LastUpdate;
 };

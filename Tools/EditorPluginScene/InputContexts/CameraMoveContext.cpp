@@ -47,12 +47,12 @@ static const float s_fMoveSpeed[31] =
   256.0f,
 };
 
-ezCameraMoveContext::ezCameraMoveContext(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView)
+ezCameraMoveContext::ezCameraMoveContext(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView, ezCameraMoveContextSettings* pSettings)
 {
-  m_pCamera = nullptr;
-  m_fMoveSpeed = 1.0f;
+  EZ_ASSERT_DEV(pSettings != nullptr, "Need a valid settings object");
 
-  m_vOrbitPoint.SetZero();
+  m_pSettings = pSettings;
+  m_pCamera = nullptr;
 
   m_bRun = false;
   m_bSlowDown = false;
@@ -72,11 +72,6 @@ ezCameraMoveContext::ezCameraMoveContext(ezDocumentWindow3D* pOwnerWindow, ezEng
   m_bMoveCameraInPlane = false;
   m_bTempMousePosition = false;
   m_bOrbitCamera = false;
-
-
-  // do not use SetMoveSpeed here, that would save that value to the settings
-  m_iMoveSpeed = 15;
-  m_fMoveSpeed = s_fMoveSpeed[m_iMoveSpeed];
 
   // while the camera moves, ignore all other shortcuts
   SetShortcutsDisabled(true);
@@ -120,7 +115,7 @@ void ezCameraMoveContext::UpdateContext()
 
   const double TimeDiff = ezMath::Min(diff.GetSeconds(), 0.1);
 
-  float fSpeedFactor = m_fMoveSpeed * TimeDiff;
+  float fSpeedFactor = s_fMoveSpeed[m_pSettings->m_iMoveSpeed] * TimeDiff;
 
   if (m_bRun)
     fSpeedFactor *= 5.0f;
@@ -398,7 +393,7 @@ bool ezCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
 
 void ezCameraMoveContext::SetOrbitPoint(const ezVec3& vPos)
 {
-  m_vOrbitPoint = vPos;
+  m_pSettings->m_vOrbitPoint = vPos;
 }
 
 bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
@@ -437,7 +432,7 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
 
   const float fMouseScale = 4.0f;
 
-  const float fMouseMoveSensitivity = 0.002f * m_fMoveSpeed * fBoost;
+  const float fMouseMoveSensitivity = 0.002f * s_fMoveSpeed[m_pSettings->m_iMoveSpeed] * fBoost;
   const float fMouseRotateSensitivityX = (fFovX.GetRadian() / (float)GetOwnerView()->size().width()) * fRotateBoost * fMouseScale;
   const float fMouseRotateSensitivityY = (fFovY.GetRadian() / (float)GetOwnerView()->size().height()) * fRotateBoost * fMouseScale;
 
@@ -509,18 +504,18 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
     float fMoveRight = diff.x() * fMouseMoveSensitivity;
     float fMoveUp = -diff.y() * fMouseMoveSensitivity;
 
-    const float fDistance = (m_vOrbitPoint - m_pCamera->GetCenterPosition()).GetLength();
+    const float fDistance = (m_pSettings->m_vOrbitPoint - m_pCamera->GetCenterPosition()).GetLength();
 
     m_pCamera->MoveLocally(0, fMoveRight, fMoveUp);
 
-    ezVec3 vDir = m_vOrbitPoint - m_pCamera->GetCenterPosition();
+    ezVec3 vDir = m_pSettings->m_vOrbitPoint - m_pCamera->GetCenterPosition();
     if (fDistance == 0.0f || vDir.SetLength(fDistance).Failed())
     {
       vDir.Set(0.01f, 0, 0);
     }
 
     if (ezMath::Abs(vDir.GetNormalized().Dot(ezVec3(0,0,1))) < 0.999f)
-      m_pCamera->LookAt(m_vOrbitPoint - vDir, m_vOrbitPoint, ezVec3(0.0f, 0.0f, 1.0f));
+      m_pCamera->LookAt(m_pSettings->m_vOrbitPoint - vDir, m_pSettings->m_vOrbitPoint, ezVec3(0.0f, 0.0f, 1.0f));
     else
       m_pCamera->MoveLocally(0, fMoveRight, fMoveUp);
 
@@ -534,11 +529,10 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
 
 void ezCameraMoveContext::SetMoveSpeed(ezInt32 iSpeed)
 {
-  m_iMoveSpeed = ezMath::Clamp(iSpeed, 0, 30);
-  m_fMoveSpeed = s_fMoveSpeed[m_iMoveSpeed];
+  m_pSettings->m_iMoveSpeed = ezMath::Clamp(iSpeed, 0, 30);
 
   if (GetOwnerWindow()->GetDocument() != nullptr)
-    ezEditorApp::GetInstance()->GetDocumentSettings(GetOwnerWindow()->GetDocument()->GetDocumentPath(), "ScenePlugin").SetValueInt("CameraSpeed", m_iMoveSpeed);
+    ezEditorApp::GetInstance()->GetDocumentSettings(GetOwnerWindow()->GetDocument()->GetDocumentPath(), "ScenePlugin").SetValueInt("CameraSpeed", m_pSettings->m_iMoveSpeed);
 }
 
 bool ezCameraMoveContext::wheelEvent(QWheelEvent* e)
@@ -548,11 +542,11 @@ bool ezCameraMoveContext::wheelEvent(QWheelEvent* e)
 
     if (e->delta() > 0)
     {
-      SetMoveSpeed(m_iMoveSpeed + 1);
+      SetMoveSpeed(m_pSettings->m_iMoveSpeed + 1);
     }
     else
     {
-      SetMoveSpeed(m_iMoveSpeed - 1);
+      SetMoveSpeed(m_pSettings->m_iMoveSpeed - 1);
     }
 
     // handled, independent of whether we are the active context or not
@@ -569,11 +563,11 @@ bool ezCameraMoveContext::wheelEvent(QWheelEvent* e)
 
     if (e->delta() > 0)
     {
-      m_pCamera->MoveLocally(m_fMoveSpeed * fBoost, 0, 0);
+      m_pCamera->MoveLocally(s_fMoveSpeed[m_pSettings->m_iMoveSpeed] * fBoost, 0, 0);
     }
     else
     {
-      m_pCamera->MoveLocally(-m_fMoveSpeed * fBoost, 0, 0);
+      m_pCamera->MoveLocally(-s_fMoveSpeed[m_pSettings->m_iMoveSpeed] * fBoost, 0, 0);
     }
 
     // handled, independent of whether we are the active context or not

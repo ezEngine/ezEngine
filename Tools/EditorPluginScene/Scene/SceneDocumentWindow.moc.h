@@ -20,7 +20,7 @@ class ezSceneViewWidget : public ezEngineViewWidget
 {
   Q_OBJECT
 public:
-  ezSceneViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocument);
+  ezSceneViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings);
   ~ezSceneViewWidget();
 
   ezSelectionContext* m_pSelectionContext;
@@ -93,6 +93,7 @@ private:
   ezScaleGizmo m_ScaleGizmo;
   ezDragToPositionGizmo m_DragToPosGizmo;
 
+  ezCameraMoveContextSettings m_CameraMoveSettings;
   ezVec3 m_vLastTranslationGizmoResult;
 
   struct SelectedGO
