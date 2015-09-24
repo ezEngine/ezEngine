@@ -8,6 +8,12 @@ EZ_MEMBER_PROPERTY("Timestamp", m_iSentTimeStamp)
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSyncWithProcessMsgToEngine, ezProcessMessage, 1, ezRTTIDefaultAllocator<ezSyncWithProcessMsgToEngine>);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSyncWithProcessMsgToEditor, ezProcessMessage, 1, ezRTTIDefaultAllocator<ezSyncWithProcessMsgToEditor>);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
 ///////////////////////////////////// ezEditorEngineMsg ///////////////////////////////////// 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineMsg, ezProcessMessage, 1, ezRTTINoAllocator );
@@ -68,9 +74,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRedrawMsgToEngine, ezEditorEngineViewMsg, 
     EZ_MEMBER_PROPERTY("WindowWidth", m_uiWindowWidth),
     EZ_MEMBER_PROPERTY("WindowHeight", m_uiWindowHeight),
   EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
-
-  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRedrawFinishedMsgToEditor, ezEditorEngineViewMsg, 1, ezRTTIDefaultAllocator<ezViewRedrawFinishedMsgToEditor>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEntityMsgToEngine, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezEntityMsgToEngine> );

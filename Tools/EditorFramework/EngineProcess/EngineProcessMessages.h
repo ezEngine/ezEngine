@@ -5,6 +5,19 @@
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <Core/Application/Config/FileSystemConfig.h>
 
+///////////////////////////////////// ezProcessMessages ///////////////////////////////////// 
+
+
+class EZ_EDITORFRAMEWORK_DLL ezSyncWithProcessMsgToEngine : public ezProcessMessage
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEngine);
+};
+
+class EZ_EDITORFRAMEWORK_DLL ezSyncWithProcessMsgToEditor : public ezProcessMessage
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEditor);
+};
+
 ///////////////////////////////////// ezEditorEngineMsg ///////////////////////////////////// 
 
 /// \brief Base class for all messages between editor and engine that are not bound to any document
@@ -117,11 +130,6 @@ public:
   ezUInt64 m_uiHWND;
   ezUInt16 m_uiWindowWidth;
   ezUInt16 m_uiWindowHeight;
-};
-
-class EZ_EDITORFRAMEWORK_DLL ezViewRedrawFinishedMsgToEditor : public ezEditorEngineViewMsg
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezViewRedrawFinishedMsgToEditor);
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezViewCameraMsgToEngine : public ezEditorEngineViewMsg

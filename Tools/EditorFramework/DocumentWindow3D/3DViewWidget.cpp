@@ -34,18 +34,18 @@ bool ezEngineViewWidget::eventFilter(QObject* object, QEvent* event)
 void ezEngineViewWidget::SyncToEngine()
 {
   ezViewCameraMsgToEngine cam;
-  cam.m_uiRenderMode = m_ViewRenderMode;
+  cam.m_uiRenderMode = m_pViewConfig->m_RenderMode;
   cam.m_uiViewID = GetViewID();
-  cam.m_fNearPlane = m_Camera.GetNearPlane();
-  cam.m_fFarPlane = m_Camera.GetFarPlane();
-  cam.m_iCameraMode = (ezInt8)m_Camera.GetCameraMode();
-  cam.m_fFovOrDim = m_Camera.GetFovOrDim();
-  cam.m_vDirForwards = m_Camera.GetCenterDirForwards();
-  cam.m_vDirUp = m_Camera.GetCenterDirUp();
-  cam.m_vDirRight = m_Camera.GetCenterDirRight();
-  cam.m_vPosition = m_Camera.GetCenterPosition();
-  m_Camera.GetViewMatrix(cam.m_ViewMatrix);
-  m_Camera.GetProjectionMatrix((float)width() / (float)height(), cam.m_ProjMatrix);
+  cam.m_fNearPlane = m_pViewConfig->m_Camera.GetNearPlane();
+  cam.m_fFarPlane = m_pViewConfig->m_Camera.GetFarPlane();
+  cam.m_iCameraMode = (ezInt8)m_pViewConfig->m_Camera.GetCameraMode();
+  cam.m_fFovOrDim = m_pViewConfig->m_Camera.GetFovOrDim();
+  cam.m_vDirForwards = m_pViewConfig->m_Camera.GetCenterDirForwards();
+  cam.m_vDirUp = m_pViewConfig->m_Camera.GetCenterDirUp();
+  cam.m_vDirRight = m_pViewConfig->m_Camera.GetCenterDirRight();
+  cam.m_vPosition = m_pViewConfig->m_Camera.GetCenterPosition();
+  m_pViewConfig->m_Camera.GetViewMatrix(cam.m_ViewMatrix);
+  m_pViewConfig->m_Camera.GetProjectionMatrix((float)width() / (float)height(), cam.m_ProjMatrix);
 
   m_pDocumentWindow->GetEditorEngineConnection()->SendMessage(&cam);
 }
@@ -55,12 +55,11 @@ void ezEngineViewWidget::resizeEvent(QResizeEvent* event)
   m_pDocumentWindow->TriggerRedraw();
 }
 
-ezEngineViewWidget::ezEngineViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocumentWindow)
+ezEngineViewWidget::ezEngineViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocumentWindow, ezSceneViewConfig* pViewConfig)
   : QWidget(pParent)
   , m_pDocumentWindow(pDocumentWindow)
+  , m_pViewConfig(pViewConfig)
 {
-  m_ViewRenderMode = ezViewRenderMode::Default;
-
   setFocusPolicy(Qt::FocusPolicy::StrongFocus);
   //setAttribute(Qt::WA_OpaquePaintEvent);
   setAutoFillBackground(false);

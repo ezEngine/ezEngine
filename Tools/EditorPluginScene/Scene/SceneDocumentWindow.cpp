@@ -22,21 +22,19 @@
 #include <qlayout.h>
 #include <QKeyEvent>
 #include <QMimeData>
+#include <QGridLayout>
 
 ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   : ezDocumentWindow3D(pDocument)
 {
-  m_ViewWidgets.PushBack(new ezSceneViewWidget(this, this, &m_CameraMoveSettings));
-  m_ViewWidgets.PushBack(new ezSceneViewWidget(this, this, &m_CameraMoveSettings));
-
-  m_ViewWidgets[1]->m_ViewRenderMode = ezViewRenderMode::WireframeMonochrome;
-
   QWidget* pCenter = new QWidget(this);
-  pCenter->setLayout(new QHBoxLayout(pCenter));
-  pCenter->layout()->addWidget(m_ViewWidgets[0]);
-  pCenter->layout()->addWidget(m_ViewWidgets[1]);
+  m_pViewLayout = new QGridLayout(pCenter);
+  pCenter->setLayout(m_pViewLayout);
 
   setCentralWidget(pCenter);
+
+  SetupDefaultViewConfigs();
+  CreateViews(true);
 
   m_bResendSelection = false;
   m_bInGizmoInteraction = false;
@@ -420,8 +418,48 @@ void ezSceneDocumentWindow::SendRedrawMsg()
     msg.m_uiWindowHeight = pView->height();
 
     m_pEngineConnection->SendMessage(&msg, true);
+  }
 
-    ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezViewRedrawFinishedMsgToEditor>(), ezTime::Seconds(1.0));
+  {
+    ezSyncWithProcessMsgToEngine sm;
+    ezEditorEngineProcessConnection::GetInstance()->SendMessage(&sm, true);
+
+    ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::Seconds(2.0));
+  }
+}
+
+void ezSceneDocumentWindow::SetupDefaultViewConfigs()
+{
+  m_ViewConfigSingle.m_Perspective = ezSceneViewPerspective::Perspective;
+  m_ViewConfigSingle.m_RenderMode = ezViewRenderMode::Default;
+  m_ViewConfigSingle.m_Camera.LookAt(ezVec3(0), ezVec3(1, 0, 0), ezVec3(0, 0, 1));
+  m_ViewConfigSingle.ApplyPerspectiveSetting();
+  
+  for (int i = 0; i < 4; ++i)
+  {
+    m_ViewConfigQuad[i].m_Perspective = (ezSceneViewPerspective::Enum)(ezSceneViewPerspective::Orhogonal_Front + i);
+    m_ViewConfigQuad[i].m_RenderMode = (i == ezSceneViewPerspective::Perspective) ? ezViewRenderMode::Default : ezViewRenderMode::WireframeMonochrome;
+    m_ViewConfigQuad[i].m_Camera.LookAt(ezVec3(0), ezVec3(1, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfigQuad[i].ApplyPerspectiveSetting();
+  }
+}
+
+void ezSceneDocumentWindow::CreateViews(bool bQuad)
+{
+  DestroyAllViews();
+
+  if (bQuad)
+  {
+    for (ezUInt32 i = 0; i < 4; ++i)
+    {
+      m_ViewWidgets.PushBack(new ezSceneViewWidget(this, this, &m_CameraMoveSettings, &m_ViewConfigQuad[i]));
+      m_pViewLayout->addWidget(m_ViewWidgets[i], i / 2, i % 2);
+    }
+  }
+  else
+  {
+    m_ViewWidgets.PushBack(new ezSceneViewWidget(this, this, &m_CameraMoveSettings, &m_ViewConfigSingle));
+    m_pViewLayout->addWidget(m_ViewWidgets[0], 0, 0);
   }
 }
 
@@ -445,7 +483,7 @@ bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg*
     {
       ezSceneViewWidget* pSceneView = static_cast<ezSceneViewWidget*>(pView);
 
-      ezVec3 vDiff = vPivotPoint - pView->m_Camera.GetCenterPosition();
+      ezVec3 vDiff = vPivotPoint - pView->m_pViewConfig->m_Camera.GetCenterPosition();
       if (vDiff.NormalizeIfNotZero().Failed())
         continue;
 
@@ -492,23 +530,21 @@ void ezSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManage
 }
 
 
-ezSceneViewWidget::ezSceneViewWidget(QWidget* pParent, ezDocumentWindow3D* pOwnerWindow, ezCameraMoveContextSettings* pCameraMoveSettings) : ezEngineViewWidget(pParent, pOwnerWindow)
+ezSceneViewWidget::ezSceneViewWidget(QWidget* pParent, ezDocumentWindow3D* pOwnerWindow, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig) 
+  : ezEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
 {
   setAcceptDrops(true);
 
   ezSceneDocumentWindow* pSceneWindow = static_cast<ezSceneDocumentWindow*>(pOwnerWindow);
 
-  m_Camera.SetCameraMode(ezCamera::CameraMode::PerspectiveFixedFovY, 80.0f, 0.1f, 1000.0f);
-  m_Camera.LookAt(ezVec3(0.5f, 2.0f, 1.5f), ezVec3(0.0f, 0.0f, 0.5f), ezVec3(0.0f, 0.0f, 1.0f));
-
-  m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, pOwnerWindow, this, &m_Camera);
+  m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
   m_pCameraMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, pOwnerWindow, this, pCameraMoveSettings);
   m_pCameraPositionContext = EZ_DEFAULT_NEW(ezCameraPositionContext, pOwnerWindow, this);
 
   m_pCameraMoveContext->LoadState();
-  m_pCameraMoveContext->SetCamera(&m_Camera);
+  m_pCameraMoveContext->SetCamera(&m_pViewConfig->m_Camera);
 
-  m_pCameraPositionContext->SetCamera(&m_Camera);
+  m_pCameraPositionContext->SetCamera(&m_pViewConfig->m_Camera);
 
   // add the input contexts in the order in which they are supposed to be processed
   m_InputContexts.PushBack(m_pSelectionContext);

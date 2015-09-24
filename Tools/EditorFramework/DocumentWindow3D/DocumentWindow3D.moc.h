@@ -57,6 +57,7 @@ protected:
   ezHybridArray<ezEngineViewWidget*, 4> m_ViewWidgets;
 
   void SyncObjectsToEngine();
+  void DestroyAllViews();
 
 private:
   virtual void InternalRedraw() override;

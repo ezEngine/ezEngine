@@ -81,6 +81,11 @@ ezApplication::ApplicationExecution ezEngineProcessGameApplication::Run()
   {
     UpdateWorldsAndRender();
   }
+  else
+  {
+    /// \todo This is not so good
+    ezThreadUtils::Sleep(1);
+  }
 
   return WasQuitRequested() ? ezApplication::Quit : ezApplication::Continue;
 }
@@ -129,6 +134,14 @@ void ezEngineProcessGameApplication::SendReflectionInformation()
 
 void ezEngineProcessGameApplication::EventHandlerIPC(const ezProcessCommunication::Event& e)
 {
+  // Sync 
+  if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSyncWithProcessMsgToEngine>())
+  {
+    ezSyncWithProcessMsgToEditor msg;
+    m_IPC.SendMessage(&msg);
+    return;
+  }
+
   // Project Messages:
   if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSetupProjectMsgToEngine>())
   {

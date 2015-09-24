@@ -167,11 +167,6 @@ void ezViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
       SetupRenderTarget(reinterpret_cast<HWND>(pMsg2->m_uiHWND), pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
       Redraw();
     }
-
-    ezViewRedrawFinishedMsgToEditor ack;
-    ack.m_uiViewID = pMsg->m_uiViewID;
-    this->SendViewMessage(&ack);
-
   }
   else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewCameraMsgToEngine>())
   {

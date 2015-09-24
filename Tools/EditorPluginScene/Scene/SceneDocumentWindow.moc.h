@@ -16,11 +16,13 @@
 #include <EditorFramework/Gizmos/DragToPositionGizmo.h>
 #include <EditorPluginScene/Actions/GizmoActions.h>
 
+class QGridLayout;
+
 class ezSceneViewWidget : public ezEngineViewWidget
 {
   Q_OBJECT
 public:
-  ezSceneViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings);
+  ezSceneViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig);
   ~ezSceneViewWidget();
 
   ezSelectionContext* m_pSelectionContext;
@@ -88,6 +90,12 @@ private:
 
   void SendRedrawMsg();
 
+  void SetupDefaultViewConfigs();
+  void CreateViews(bool bQuad);
+
+  ezSceneViewConfig m_ViewConfigSingle;
+  ezSceneViewConfig m_ViewConfigQuad[4];
+
   ezTranslateGizmo m_TranslateGizmo;
   ezRotateGizmo m_RotateGizmo;
   ezScaleGizmo m_ScaleGizmo;
@@ -110,4 +118,6 @@ private:
   ezDeque<SelectedGO> m_GizmoSelection;
 
   bool m_bInDragDropAction;
+
+  QGridLayout* m_pViewLayout;
 };

@@ -14,7 +14,7 @@ class EZ_EDITORFRAMEWORK_DLL ezEngineViewWidget : public QWidget
   Q_OBJECT
 
 public:
-  ezEngineViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocumentWindow);
+  ezEngineViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocumentWindow, ezSceneViewConfig* pViewConfig);
 
   ~ezEngineViewWidget();
 
@@ -32,8 +32,7 @@ public:
 
   virtual void SyncToEngine();
 
-  ezCamera m_Camera;
-  ezViewRenderMode::Enum m_ViewRenderMode;
+  ezSceneViewConfig* m_pViewConfig;
 
 protected:
   virtual void resizeEvent(QResizeEvent* event) override;

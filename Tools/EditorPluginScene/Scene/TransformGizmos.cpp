@@ -191,7 +191,7 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
           auto* pFocusedView = GetFocusedViewWidget();
           if (pFocusedView != nullptr)
           {
-            pFocusedView->m_Camera.MoveGlobally(m_TranslateGizmo.GetTranslationDiff());
+            pFocusedView->m_pViewConfig->m_Camera.MoveGlobally(m_TranslateGizmo.GetTranslationDiff());
           }
         }
         else
