@@ -80,7 +80,9 @@ ezEngineViewWidget::ezEngineViewWidget(QWidget* pParent, ezDocumentWindow3D* pDo
 
 ezEngineViewWidget::~ezEngineViewWidget()
 {
-  // TODO: Tell the engine about it!
+  ezViewDestroyedMsgToEngine msg;
+  msg.m_uiViewID = GetViewID();
+  m_pDocumentWindow->SendMessageToEngine(&msg);
 }
 
 void ezEngineViewWidget::keyReleaseEvent(QKeyEvent* e)

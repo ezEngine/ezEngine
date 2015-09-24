@@ -22,6 +22,14 @@ ezDocumentWindow3D::ezDocumentWindow3D(ezDocumentBase* pDocument) : ezDocumentWi
 
 ezDocumentWindow3D::~ezDocumentWindow3D()
 {
+  // delete all view widgets, so that they can send their messages before we clean up the engine connection
+  for (auto pView : m_ViewWidgets)
+  {
+    delete pView;
+  }
+
+  m_ViewWidgets.Clear();
+
   ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezDocumentWindow3D::EngineViewProcessEventHandler, this));
 
   ezEditorEngineProcessConnection::GetInstance()->DestroyEngineConnection(this);

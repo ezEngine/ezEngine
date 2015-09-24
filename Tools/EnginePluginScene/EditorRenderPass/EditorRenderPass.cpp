@@ -15,14 +15,14 @@ void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext)
   switch (m_ViewRenderMode)
   {
   case ezViewRenderMode::WireframeColor:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_WIREFRAME", "1");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_WIREFRAME_COLOR");
     break;
   case ezViewRenderMode::WireframeMonochrome:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_WIREFRAME", "2");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_WIREFRAME_MONOCHROME");
     break;
   }
 
   ezSimpleRenderPass::Execute(renderViewContext);
 
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_WIREFRAME", "0");
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_DEFAULT");
 }

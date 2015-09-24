@@ -29,6 +29,7 @@ void ezViewContext::SetCamera(const ezViewCameraMsgToEngine* pMsg)
     return;
 
   m_pEditorRenderPass->m_ViewRenderMode = static_cast<ezViewRenderMode::Enum>(pMsg->m_uiRenderMode);
+  m_pPickingRenderPass->m_ViewRenderMode = ezViewRenderMode::Enum::Default;// static_cast<ezViewRenderMode::Enum>(pMsg->m_uiRenderMode);
 }
 
 void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight)
@@ -161,27 +162,16 @@ void ezViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
   {
     const ezViewRedrawMsgToEngine* pMsg2 = static_cast<const ezViewRedrawMsgToEngine*>(pMsg);
 
-    SetupRenderTarget(reinterpret_cast<HWND>(pMsg2->m_uiHWND), pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
-    Redraw();
+    if (pMsg2->m_uiWindowWidth > 0 && pMsg2->m_uiWindowHeight > 0)
+    {
+      SetupRenderTarget(reinterpret_cast<HWND>(pMsg2->m_uiHWND), pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
+      Redraw();
+    }
 
     ezViewRedrawFinishedMsgToEditor ack;
     ack.m_uiViewID = pMsg->m_uiViewID;
     this->SendViewMessage(&ack);
 
-    //ezStringBuilder sValue;
-
-    //sValue.Format("%u", uiMessagesPerFrame);
-    //ezStats::SetStat("Editor/All Msgs", sValue);
-
-    //sValue.Format("%u", uiBlockingMessagesPerFrame);
-    //ezStats::SetStat("Editor/Blocking Msgs", sValue);
-
-    //sValue.Format("%u", uiSyncObjMessagesPerFrame);
-    //ezStats::SetStat("Editor/SyncObj Msgs", sValue);
-
-    //uiMessagesPerFrame = 0;
-    //uiBlockingMessagesPerFrame = 0;
-    //uiSyncObjMessagesPerFrame = 0;
   }
   else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewCameraMsgToEngine>())
   {

@@ -115,16 +115,28 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
     }
 
     const ezEditorEngineViewMsg* pViewMsg = static_cast<const ezEditorEngineViewMsg*>(pMsg);
-
     EZ_ASSERT_DEV(pViewMsg->m_uiViewID < 0xFFFFFFFF, "Invalid view ID in '%s'", pMsg->GetDynamicRTTI()->GetTypeName());
 
     if (pViewMsg->m_uiViewID >= m_ViewContexts.GetCount())
       m_ViewContexts.SetCount(pViewMsg->m_uiViewID + 1);
 
-    if (m_ViewContexts[pViewMsg->m_uiViewID] == nullptr)
-      m_ViewContexts[pViewMsg->m_uiViewID] = CreateViewContext();
+    if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewDestroyedMsgToEngine>())
+    {
+      if (m_ViewContexts[pViewMsg->m_uiViewID] != nullptr)
+      {
+        DestroyViewContext(m_ViewContexts[pViewMsg->m_uiViewID]);
+        m_ViewContexts[pViewMsg->m_uiViewID] = nullptr;
 
-    m_ViewContexts[pViewMsg->m_uiViewID]->HandleViewMessage(pViewMsg);
+        ezLog::Info("Destroyed View %i", pViewMsg->m_uiViewID);
+      }
+    }
+    else
+    {
+      if (m_ViewContexts[pViewMsg->m_uiViewID] == nullptr)
+        m_ViewContexts[pViewMsg->m_uiViewID] = CreateViewContext();
+
+      m_ViewContexts[pViewMsg->m_uiViewID]->HandleViewMessage(pViewMsg);
+    }
 
     return;
   }
@@ -181,8 +193,9 @@ void ezEngineProcessDocumentContext::ClearViewContexts()
 
 void ezEngineProcessDocumentContext::CleanUpContextSyncObjects()
 {
-  for (auto it = m_SyncObjects.GetIterator(); it.IsValid(); ++it)
+  while (!m_SyncObjects.IsEmpty())
   {
+    auto it = m_SyncObjects.GetIterator();
     it.Value()->GetDynamicRTTI()->GetAllocator()->Deallocate(it.Value());
   }
 }

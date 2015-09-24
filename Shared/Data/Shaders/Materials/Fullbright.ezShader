@@ -5,14 +5,14 @@ ALL
 
 ALPHATEST
 PICKING
-EDITOR_WIREFRAME
+EDITOR_RENDER_MODE
 
 [RENDERSTATE]
 
-#if EDITOR_WIREFRAME != 0
+#include <Shaders/Editor/EditorRenderModes.h>
+
+#if (EDITOR_RENDER_MODE == ERM_WIREFRAME_MONOCHROME) || (EDITOR_RENDER_MODE == ERM_WIREFRAME_COLOR)
   WireFrame = true
-#else
-  WireFrame = false
 #endif
 
 [VERTEXSHADER]
@@ -26,7 +26,7 @@ VS_OUT main(VS_IN Input)
 {
   VS_OUT RetVal;
   RetVal.Position = mul(ObjectToScreenMatrix, float4(Input.Position, 1.0f));
-  RetVal.Normal = float3(0, 0, 0);
+  RetVal.Normal = Input.Normal;
   RetVal.TexCoord0 = Input.TexCoord0;
 
   return RetVal;
@@ -39,6 +39,7 @@ VS_OUT main(VS_IN Input)
 
 #include <Shaders/Materials/Materials.inc>
 #include <Shaders/Materials/DefaultMaterialCB.inc>
+#include <Shaders/Editor/EditorRenderModes.h>
 
 #ifdef PLATFORM_DX11
 
@@ -54,7 +55,10 @@ float4 main(PS_IN Input) : SV_Target
 {
 #if ALPHATEST == 1
   float fMask = TexAlphaMask.Sample(TexAlphaMaskSampler, Input.TexCoord0).r;
-  clip(fMask < 0.1f ? -1 : 1);
+  
+  #if (EDITOR_RENDER_MODE != ERM_WIREFRAME_MONOCHROME) && (EDITOR_RENDER_MODE != ERM_WIREFRAME_COLOR)
+    clip(fMask < 0.1f ? -1 : 1);
+  #endif
 #endif
 
 #if PICKING == 1
@@ -67,8 +71,24 @@ float4 main(PS_IN Input) : SV_Target
   return IdCol;
 #else
 
-  #if EDITOR_WIREFRAME == 2
+  #if (EDITOR_RENDER_MODE == ERM_WIREFRAME_MONOCHROME)
     return float4(1, 1, 1, 1);
+  #endif
+
+  #if (EDITOR_RENDER_MODE == ERM_TEXCOORDS_UV0)
+    // Would need to be gamma corrected
+    return float4(frac(Input.TexCoord0), 0, 1);
+  #endif
+
+  #if (EDITOR_RENDER_MODE == ERM_VERTEX_NORMALS)
+    // Would need to be gamma corrected
+    return float4(Input.Normal.xyz * 0.5 + 0.5, 1);
+  #endif
+
+  #if (EDITOR_RENDER_MODE == ERM_PIXEL_DEPTH)
+    float depth = 1.0 - min(1.0, max(0, (Input.Position.z / Input.Position.w)));
+    depth = depth * depth * depth * depth;
+    return float4(depth, depth, depth, 1);
   #endif
 
   return TexDiffuse.Sample(TexDiffuseSampler, Input.TexCoord0) * MeshColor;

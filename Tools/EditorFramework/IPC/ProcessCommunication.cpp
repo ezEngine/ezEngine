@@ -326,9 +326,6 @@ ezResult ezProcessCommunication::WaitForMessage(const ezRTTI* pMessageType, ezTi
 
 void ezProcessCommunication::DispatchMessages()
 {
-  static ezStopwatch tMsgDecode;
-  tMsgDecode.StopAndReset();
-
   while (!m_MessageReadQueue.IsEmpty())
   {
     // scope to ensure some objects are destroyed before we pop the queue
@@ -336,24 +333,11 @@ void ezProcessCommunication::DispatchMessages()
       ezMemoryStreamStorage& storage = m_MessageReadQueue.PeekFront();
       ezMemoryStreamReader reader(&storage);
 
-      tMsgDecode.Resume();
-
       const ezRTTI* pRtti = nullptr;
       ezProcessMessage* pObject = (ezProcessMessage*)ezReflectionSerializer::ReadObjectFromJSON(reader, pRtti);
 
-      tMsgDecode.Pause();
-
       if (m_pWaitForMessageType != nullptr && pObject->GetDynamicRTTI()->IsDerivedFrom(m_pWaitForMessageType))
         m_pWaitForMessageType = nullptr;
-
-      if (pObject->GetDynamicRTTI() == ezGetStaticRTTI<ezViewRedrawMsgToEngine>())
-      {
-        ezStringBuilder s;
-        s.Format("%.2fms", tMsgDecode.GetRunningTotal().GetMilliseconds());
-        tMsgDecode.StopAndReset();
-
-        ezStats::SetStat("Editor/MsgDecode", s);
-      }
 
       EZ_ASSERT_DEV(pRtti != nullptr, "Message Type unknown");
       EZ_ASSERT_DEV(pObject != nullptr, "Object could not be allocated");

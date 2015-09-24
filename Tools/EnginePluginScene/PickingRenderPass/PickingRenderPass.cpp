@@ -19,6 +19,16 @@ ezPickingRenderPass::~ezPickingRenderPass()
 
 void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
 {
+  switch (m_ViewRenderMode)
+  {
+  case ezViewRenderMode::WireframeColor:
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_WIREFRAME_COLOR");
+    break;
+  case ezViewRenderMode::WireframeMonochrome:
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_WIREFRAME_MONOCHROME");
+    break;
+  }
+
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
   pGALContext->SetRenderTargetSetup(m_RenderTargetSetup);
@@ -38,8 +48,11 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
   RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Foreground);
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING", "0");
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_DEFAULT");
 
   e.m_Type = Event::Type::EndOfFrame;
   m_Events.Broadcast(e);
+
+  
 
 }

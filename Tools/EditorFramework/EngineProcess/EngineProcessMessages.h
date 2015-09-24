@@ -102,6 +102,12 @@ public:
   }
 };
 
+class EZ_EDITORFRAMEWORK_DLL ezViewDestroyedMsgToEngine : public ezEditorEngineViewMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezViewDestroyedMsgToEngine);
+
+};
+
 class EZ_EDITORFRAMEWORK_DLL ezViewRedrawMsgToEngine : public ezEditorEngineViewMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezViewRedrawMsgToEngine);

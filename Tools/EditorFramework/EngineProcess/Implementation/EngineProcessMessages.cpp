@@ -59,6 +59,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentOpenResponseMsgToEditor, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezDocumentOpenResponseMsgToEditor> );
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewDestroyedMsgToEngine, ezEditorEngineViewMsg, 1, ezRTTIDefaultAllocator<ezViewDestroyedMsgToEngine>);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRedrawMsgToEngine, ezEditorEngineViewMsg, 1, ezRTTIDefaultAllocator<ezViewRedrawMsgToEngine>);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("HWND", m_uiHWND),
