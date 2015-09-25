@@ -204,7 +204,7 @@ void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, const void* ptr, 
     ezMemoryUtils::Copy(info.GetStackTrace().GetPtr(), pBuffer, uiNumTraces);
   }
 
-  data.m_Allocations.Insert(ptr, info);
+  EZ_VERIFY(!data.m_Allocations.Insert(ptr, info), "Allocation already known");
 }
 
 //static 

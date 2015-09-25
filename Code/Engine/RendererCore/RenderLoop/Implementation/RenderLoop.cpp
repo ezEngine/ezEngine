@@ -5,7 +5,7 @@
 #include <Foundation/Configuration/CVar.h>
 
 /// \todo This is broken: ezRenderPipeline::CreateRenderData -> m_RenderData.PushBack will resize an array not thread-safe
-ezCVarBool CVarMultithreadedRendering("Renderer.Multithreading", false, ezCVarFlags::Default, "Enables multithreaded update and rendering");
+ezCVarBool CVarMultithreadedRendering("Renderer.Multithreading", true, ezCVarFlags::Default, "Enables multithreaded update and rendering");
 
 ezUInt32 ezRenderLoop::s_uiFrameCounter;
 ezDynamicArray<ezView*> ezRenderLoop::s_MainViews;

@@ -498,8 +498,8 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeigh
   ezHybridArray<ezUInt32, 512> VertsTop;
   ezHybridArray<ezUInt32, 512> VertsBottom;
 
-  const ezVec3 vTopCenter(0, fHeight * 0.5f, 0);
-  const ezVec3 vBottomCenter(0, -fHeight * 0.5f, 0);
+  const ezVec3 vTopCenter(0, 0, fHeight * 0.5f);
+  const ezVec3 vBottomCenter(0, 0, -fHeight * 0.5f);
 
   const ezAngle fDegStep = ezAngle::Degree(fraction.GetDegree() / uiSegments);
 
@@ -511,14 +511,22 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeigh
     ++uiSegments;
   }
 
-  for (ezUInt32 i = 0; i < uiSegments; ++i)
+  for (ezInt32 i = uiSegments - 1; i >= 0; --i)
   {
     const ezAngle deg = (float) i * fDegStep;
 
-    ezVec3 vDir(ezMath::Cos(deg), 0, ezMath::Sin(deg));
+    float fU = ((float)i / (float)(uiSegments)) * 2.0f;
 
-    VertsTop.PushBack(AddVertex(vTopCenter + vDir * fRadiusTop, vDir, ezVec2(0), color, iCustomIndex, mTransform));
-    VertsBottom.PushBack(AddVertex(vBottomCenter + vDir * fRadiusBottom, vDir, ezVec2(0), color, iCustomIndex, mTransform));
+    if (fU > 1.0f)
+      fU = 2.0f - fU;
+
+    const float fX = ezMath::Cos(deg);
+    const float fY = ezMath::Sin(deg);
+
+    ezVec3 vDir(fX, fY, 0);
+
+    VertsTop.PushBack(AddVertex(vTopCenter + vDir * fRadiusTop, vDir, ezVec2(fU, 0), color, iCustomIndex, mTransform));
+    VertsBottom.PushBack(AddVertex(vBottomCenter + vDir * fRadiusBottom, vDir, ezVec2(fU, 1), color, iCustomIndex, mTransform));
   }
 
   if (bIsFraction)
