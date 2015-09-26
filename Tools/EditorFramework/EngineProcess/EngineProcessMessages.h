@@ -130,6 +130,7 @@ public:
   ezUInt64 m_uiHWND;
   ezUInt16 m_uiWindowWidth;
   ezUInt16 m_uiWindowHeight;
+  bool m_bUpdatePickingData;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezViewCameraMsgToEngine : public ezEditorEngineViewMsg

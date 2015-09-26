@@ -29,7 +29,7 @@ void ezViewContext::SetCamera(const ezViewCameraMsgToEngine* pMsg)
     return;
 
   m_pEditorRenderPass->m_ViewRenderMode = static_cast<ezViewRenderMode::Enum>(pMsg->m_uiRenderMode);
-  m_pPickingRenderPass->m_ViewRenderMode = ezViewRenderMode::Enum::Default;// static_cast<ezViewRenderMode::Enum>(pMsg->m_uiRenderMode);
+  m_pPickingRenderPass->m_ViewRenderMode = static_cast<ezViewRenderMode::Enum>(pMsg->m_uiRenderMode);
 }
 
 void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight)
@@ -161,6 +161,9 @@ void ezViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
   {
     const ezViewRedrawMsgToEngine* pMsg2 = static_cast<const ezViewRedrawMsgToEngine*>(pMsg);
+
+    if (m_pPickingRenderPass)
+      m_pPickingRenderPass->SetEnabled(pMsg2->m_bUpdatePickingData);
 
     if (pMsg2->m_uiWindowWidth > 0 && pMsg2->m_uiWindowHeight > 0)
     {

@@ -73,6 +73,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRedrawMsgToEngine, ezEditorEngineViewMsg, 
     EZ_MEMBER_PROPERTY("HWND", m_uiHWND),
     EZ_MEMBER_PROPERTY("WindowWidth", m_uiWindowWidth),
     EZ_MEMBER_PROPERTY("WindowHeight", m_uiWindowHeight),
+    EZ_MEMBER_PROPERTY("UpdatePickingData", m_bUpdatePickingData),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

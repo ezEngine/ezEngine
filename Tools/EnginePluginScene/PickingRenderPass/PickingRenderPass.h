@@ -10,6 +10,8 @@ public:
   ezPickingRenderPass(const ezGALRenderTagetSetup& RenderTargetSetup);
   ~ezPickingRenderPass();
 
+  void SetEnabled(bool b) { m_bEnable = b; }
+
   virtual void Execute(const ezRenderViewContext& renderViewContext) override;
 
   struct Event
@@ -27,5 +29,6 @@ public:
   ezViewRenderMode::Enum m_ViewRenderMode;
 
 private:
+  bool m_bEnable;
   ezGALRenderTagetSetup m_RenderTargetSetup;
 };

@@ -8,6 +8,7 @@
 
 ezPickingRenderPass::ezPickingRenderPass(const ezGALRenderTagetSetup& RenderTargetSetup) : ezRenderPipelinePass( "SimpleRenderPass" )
 {
+  m_bEnable = true;
   m_RenderTargetSetup = RenderTargetSetup;
   AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
 }
@@ -19,6 +20,9 @@ ezPickingRenderPass::~ezPickingRenderPass()
 
 void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
 {
+  if (!m_bEnable)
+    return;
+
   switch (m_ViewRenderMode)
   {
   case ezViewRenderMode::WireframeColor:

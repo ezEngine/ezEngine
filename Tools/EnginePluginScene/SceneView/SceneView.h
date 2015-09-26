@@ -24,6 +24,7 @@ public:
     m_pView = nullptr;
     m_pEditorRenderPass = nullptr;
     m_pPickingRenderPass = nullptr;
+    m_bUpdatePickingData = true;
   }
 
   void SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);
@@ -48,6 +49,7 @@ private:
 
   ezCamera m_Camera;
   ezView* m_pView;
+  bool m_bUpdatePickingData;
 
   ezGALTextureHandle m_hPickingIdRT;
   ezGALTextureHandle m_hPickingDepthRT;
