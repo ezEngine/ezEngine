@@ -137,7 +137,9 @@ void ezGameApplication::AfterEngineInit()
   {
     ezGALDeviceCreationDescription DeviceInit;
     DeviceInit.m_bCreatePrimarySwapChain = false;
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     DeviceInit.m_bDebugDevice = true;
+#endif
 
     ezGALDevice* pDevice = EZ_DEFAULT_NEW(ezGALDeviceDefault, DeviceInit);
     EZ_VERIFY(pDevice->Init() == EZ_SUCCESS, "Device init failed!");

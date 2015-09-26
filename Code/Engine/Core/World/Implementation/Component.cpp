@@ -32,14 +32,12 @@ ezResult ezComponent::Deinitialize()
   return EZ_SUCCESS;
 }
 
-ezResult ezComponent::OnAttachedToObject()
+void ezComponent::OnAfterAttachedToObject()
 {
-  return EZ_SUCCESS;
 }
 
-ezResult ezComponent::OnDetachedFromObject()
+void ezComponent::OnBeforeDetachedFromObject()
 {
-  return EZ_SUCCESS;
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_Component);

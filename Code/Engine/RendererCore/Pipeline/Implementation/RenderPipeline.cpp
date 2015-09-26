@@ -38,6 +38,8 @@ void ezRenderPipeline::PassData::SortRenderData()
 
 ezRenderPipeline::ezRenderPipeline()
 {
+  m_CurrentExtractThread = (ezThreadID)0;
+  m_CurrentRenderThread = (ezThreadID)0;
   m_uiLastExtractionFrame = -1;
   m_uiLastRenderFrame = -1;
 }
@@ -50,13 +52,15 @@ ezRenderPipeline::~ezRenderPipeline()
 
 void ezRenderPipeline::ExtractData(const ezView& view)
 {
+  EZ_ASSERT_DEV(m_CurrentExtractThread == (ezThreadID)0, "Extract must not be called from multiple threads.");
+  m_CurrentExtractThread = ezThreadUtils::GetCurrentThreadID();
+
   // Is this view already extracted?
   if (m_uiLastExtractionFrame == ezRenderLoop::GetFrameCounter())
     return;
 
   m_uiLastExtractionFrame = ezRenderLoop::GetFrameCounter();
-  m_CurrentExtractThread = ezThreadUtils::GetCurrentThreadID();
-
+  
   PipelineData* pPipelineData = GetPipelineDataForExtraction();
 
   // Usually clear is not needed, only if the multithreading flag is switched during runtime.
@@ -93,15 +97,19 @@ void ezRenderPipeline::ExtractData(const ezView& view)
     PassData& data = pPipelineData->m_PassData[uiPassIndex];
     data.SortRenderData();
   }
+
+  m_CurrentExtractThread = (ezThreadID)0;
 }
 
 void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
 {
   EZ_PROFILE_AND_MARKER(pRendererContext->GetGALContext(), m_RenderProfilingID);
 
+  EZ_ASSERT_DEV(m_CurrentRenderThread == (ezThreadID)0, "Render must not be called from multiple threads.");
+  m_CurrentRenderThread = ezThreadUtils::GetCurrentThreadID();
+
   EZ_ASSERT_DEV(m_uiLastRenderFrame != ezRenderLoop::GetFrameCounter(), "Render must not be called multiple times per frame.");
   m_uiLastRenderFrame = ezRenderLoop::GetFrameCounter();
-  m_CurrentRenderThread = ezThreadUtils::GetCurrentThreadID();
 
   const PipelineData* pPipelineData = GetPipelineDataForRendering();
   const ezCamera* pCamera = &pPipelineData->m_Camera;
@@ -135,6 +143,8 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
   }
 
   ClearPipelineData(GetPipelineDataForRendering());
+
+  m_CurrentRenderThread = (ezThreadID)0;
 }
 
 void ezRenderPipeline::AddPass(ezUniquePtr<ezRenderPipelinePass>&& pPass)

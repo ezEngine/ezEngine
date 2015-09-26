@@ -296,11 +296,7 @@ EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalTransformWith
 EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBounds()
 {
   m_globalBounds = m_localBounds;
-}
-
-EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBoundsWithParent()
-{
-  m_globalBounds = m_localBounds;
   m_globalBounds.Transform(m_globalTransform.GetAsMat4());
 }
+
 

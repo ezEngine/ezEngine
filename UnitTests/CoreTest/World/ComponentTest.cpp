@@ -54,13 +54,12 @@ namespace
       return EZ_SUCCESS;
     }
 
-    virtual ezResult OnAttachedToObject() override
+    virtual void OnAfterAttachedToObject() override
     {
       ++s_iAttachCounter;
-      return EZ_SUCCESS;
     }
 
-    virtual ezResult OnDetachedFromObject() override
+    virtual void OnBeforeDetachedFromObject() override
     {
       if (s_bGOInactiveCheck)
       {
@@ -68,7 +67,6 @@ namespace
       }
 
       --s_iAttachCounter;
-      return EZ_SUCCESS;
     }
 
     void Update()

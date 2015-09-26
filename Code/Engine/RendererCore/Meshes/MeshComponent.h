@@ -55,8 +55,8 @@ public:
     m_iRenderPass = renderpass;
   }
 
-  virtual ezResult OnAttachedToObject() override;
-  virtual ezResult OnDetachedFromObject() override;
+  virtual void OnAfterAttachedToObject() override;
+  virtual void OnBeforeDetachedFromObject() override;
 
   void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const;
   void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;

@@ -34,29 +34,28 @@ void ezMeshComponent::SetMesh(const ezMeshResourceHandle& hMesh)
   }
 }
 
-ezResult ezMeshComponent::OnAttachedToObject()
+void ezMeshComponent::OnAfterAttachedToObject()
 {
   if (IsActive() && m_hMesh.IsValid())
   {
     GetOwner()->UpdateLocalBounds();
   }
-
-  return EZ_SUCCESS;
 }
 
-ezResult ezMeshComponent::OnDetachedFromObject()
+void ezMeshComponent::OnBeforeDetachedFromObject()
 {
   if (IsActive() && m_hMesh.IsValid())
   {
+    // temporay set to inactive so we don't receive the msg
+    SetActive(false);
     GetOwner()->UpdateLocalBounds();
+    SetActive(true);
   }
-
-  return EZ_SUCCESS;
 }
 
 void ezMeshComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
 {
-  if (!IsActive() || !m_hMesh.IsValid())
+  if (!m_hMesh.IsValid())
     return;
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh);
@@ -65,7 +64,7 @@ void ezMeshComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
 
 void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 {
-  if (!IsActive() || !m_hMesh.IsValid())
+  if (!m_hMesh.IsValid())
     return;
 
   ezRenderPipeline* pRenderPipeline = msg.m_pView->GetRenderPipeline();

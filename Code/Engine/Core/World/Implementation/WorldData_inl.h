@@ -38,7 +38,7 @@ namespace ezInternal
   {
     const ezVec3 vOldWorldPos = pData->m_globalTransform.m_vPosition;
     pData->UpdateGlobalTransformWithParent();
-    pData->UpdateGlobalBoundsWithParent();
+    pData->UpdateGlobalBounds();
     pData->m_velocity = ((pData->m_globalTransform.m_vPosition - vOldWorldPos) * fInvDeltaSeconds).GetAsDirectionVec4();
   }
 

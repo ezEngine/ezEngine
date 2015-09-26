@@ -277,7 +277,6 @@ private:
 
     void ConditionalUpdateGlobalBounds();
     void UpdateGlobalBounds();
-    void UpdateGlobalBoundsWithParent();
   };
 
   ezGameObjectId m_InternalId;

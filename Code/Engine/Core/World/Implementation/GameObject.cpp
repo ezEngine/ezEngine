@@ -251,14 +251,11 @@ ezResult ezGameObject::AddComponent(ezComponent* pComponent)
     "Cannot attach a dynamic component to a static object. Call MakeDynamic() first.");
 
   pComponent->m_pOwner = this;
-  if (pComponent->OnAttachedToObject() == EZ_SUCCESS)
-  {
-    m_Components.PushBack(pComponent);
-    return EZ_SUCCESS;
-  }
+  m_Components.PushBack(pComponent);
 
-  pComponent->m_pOwner = nullptr;
-  return EZ_FAILURE;
+  pComponent->OnAfterAttachedToObject();
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezGameObject::RemoveComponent(const ezComponentHandle& component)
@@ -280,15 +277,12 @@ ezResult ezGameObject::RemoveComponent(ezComponent* pComponent)
   if (uiIndex == ezInvalidIndex)
     return EZ_FAILURE;
 
-  if (pComponent->OnDetachedFromObject() == EZ_SUCCESS)
-  {
-    pComponent->m_pOwner = nullptr;
-
-    m_Components.RemoveAtSwap(uiIndex);
-    return EZ_SUCCESS;
-  }
-
-  return EZ_FAILURE;
+  pComponent->OnBeforeDetachedFromObject();
+  
+  pComponent->m_pOwner = nullptr;
+  m_Components.RemoveAtSwap(uiIndex);
+  
+  return EZ_SUCCESS;
 }
 
 void ezGameObject::OnDeleteObject(ezDeleteObjectMessage& msg)
@@ -340,7 +334,9 @@ void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
   {
     for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
     {
-      m_Components[i]->OnMessage(msg);
+      ezComponent* pComponent = m_Components[i];
+      if (pComponent->IsActive())
+        pComponent->OnMessage(msg);
     }
   }
 
@@ -386,7 +382,9 @@ void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
   {
     for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
     {
-      m_Components[i]->OnMessage(msg);
+      const ezComponent* pComponent = m_Components[i];
+      if (pComponent->IsActive())
+        pComponent->OnMessage(msg);
     }
   }
 
@@ -425,15 +423,7 @@ void ezGameObject::TransformationData::ConditionalUpdateGlobalBounds()
   // Ensure that global transform is updated
   ConditionalUpdateGlobalTransform();
 
-  if (m_pParentData != nullptr)
-  {
-    m_pParentData->ConditionalUpdateGlobalBounds();
-    UpdateGlobalBoundsWithParent();
-  }
-  else
-  {
-    UpdateGlobalBounds();
-  }
+  UpdateGlobalBounds();
 }
 
 

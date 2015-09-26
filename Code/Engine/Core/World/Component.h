@@ -83,10 +83,10 @@ private:
   bool IsInitialized() const;
 
   /// \brief This method is called when the component is attached to a game object. At this point the owner pointer is already set. A derived type can override this method to do additional work.
-  virtual ezResult OnAttachedToObject();
+  virtual void OnAfterAttachedToObject();
 
   /// \brief This method is called when the component is detached from a game object. At this point the owner pointer is still set. A derived type can override this method to do additional work.
-  virtual ezResult OnDetachedFromObject();
+  virtual void OnBeforeDetachedFromObject();
 
   void OnMessage(ezMessage& msg);
   void OnMessage(ezMessage& msg) const;

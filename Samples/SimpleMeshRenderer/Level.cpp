@@ -32,9 +32,10 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBa
   // World Mesh
   {
     m_pWorld->CreateObject(obj, pObj);
+    
     pMeshCompMan->CreateComponent(pMesh);
-    pObj->AddComponent(pMesh);
     pMesh->SetMesh(hMesh);
+    pObj->AddComponent(pMesh);    
   }
 
   // Tree Mesh
@@ -42,9 +43,11 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBa
     obj.m_LocalScaling.Set(7.0f);
     obj.m_LocalPosition.y = -50;
     m_pWorld->CreateObject(obj, pObj);
+
     pMeshCompMan->CreateComponent(pMesh);
-    pObj->AddComponent(pMesh);
     pMesh->SetMesh(hMeshTree);
+    pObj->AddComponent(pMesh);
+    
     pRotorCompMan->CreateComponent(pRotor);
     pRotor->m_fAnimationSpeed = 5.0f;
     pRotor->SetAnimatingAtStartup(true);
@@ -58,9 +61,10 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBa
     obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(75));
     obj.m_LocalPosition.y = 50;
     m_pWorld->CreateObject(obj, pObj);
+
     pMeshCompMan->CreateComponent(pMesh);
-    pObj->AddComponent(pMesh);
     pMesh->SetMesh(hMeshTree);
+    pObj->AddComponent(pMesh);    
   }
 
   ezVec3 vCameraPos = ezVec3(0.0f, 0.0f, 10.0f);
