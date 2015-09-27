@@ -21,7 +21,7 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   setCentralWidget(pCenter);
 
   SetupDefaultViewConfigs();
-  CreateViews(true);
+  CreateViews(false);
 
   m_bResendSelection = false;
   m_bInGizmoInteraction = false;
@@ -259,8 +259,13 @@ void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEve
       if (!sel.PeekBack()->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
         return;
 
+      auto pView = GetHoveredViewWidget();
+
+      if (pView == nullptr)
+        return;
+
       ezQuerySelectionBBoxMsgToEngine msg;
-      msg.m_uiViewID = GetFocusedViewWidget()->GetViewID();
+      msg.m_uiViewID = pView->GetViewID();
       msg.m_iPurpose = 0;
       SendMessageToEngine(&msg, true);
     }
@@ -458,7 +463,7 @@ void ezSceneDocumentWindow::CreateViews(bool bQuad)
   {
     ezSceneViewWidgetContainer* pContainer = new ezSceneViewWidgetContainer(this, this, &m_CameraMoveSettings, &m_ViewConfigSingle);
     m_ActiveMainViews.PushBack(pContainer);
-    m_pViewLayout->addWidget(m_ViewWidgets[0], 0, 0);
+    m_pViewLayout->addWidget(pContainer, 0, 0);
   }
 }
 
@@ -469,46 +474,49 @@ bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg*
     const ezQuerySelectionBBoxResultMsgToEditor* msg = static_cast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg);
 
     if (msg->m_uiViewID >= m_ViewWidgets.GetCount() || m_ViewWidgets[msg->m_uiViewID] == nullptr)
-      return false;
+      return true;
     
-    //ezEngineViewWidget* pView = m_ViewWidgets[msg->m_uiViewID];
+    ezSceneViewWidget* pSceneView = static_cast<ezSceneViewWidget*>(m_ViewWidgets[msg->m_uiViewID]);
 
-    //const ezPlane nearPlane(pView->m_pViewConfig->m_Camera.GetDirForwards(), pView->m_pViewConfig->m_Camera.GetCenterPosition());
+    /// \todo Object Pivot Offset
+    const ezVec3 vPivotPoint = msg->m_vCenter;
 
-    //ezBoundingBox bbox;
-    //bbox.SetCenterAndHalfExtents(msg->m_vCenter, msg->m_vHalfExtents);
+    ezVec3 vNewCameraPosition = pSceneView->m_pViewConfig->m_Camera.GetCenterPosition();
+    ezVec3 vNewCameraDirection = pSceneView->m_pViewConfig->m_Camera.GetDirForwards();
 
-    //ezVec3 corners[8];
-    //bbox.GetCorners(corners);
+    if (pSceneView->width() == 0 || pSceneView->height() == 0)
+      return true;
 
-    //float fDist = nearPlane.getdi
+    if (pSceneView->m_pViewConfig->m_Camera.GetCameraMode() == ezCamera::PerspectiveFixedFovX ||
+        pSceneView->m_pViewConfig->m_Camera.GetCameraMode() == ezCamera::PerspectiveFixedFovY)
+    {
+      const ezAngle fovX = pSceneView->m_pViewConfig->m_Camera.GetFovX((float)pSceneView->width() / (float)pSceneView->height());
+      const ezAngle fovY = pSceneView->m_pViewConfig->m_Camera.GetFovY((float)pSceneView->width() / (float)pSceneView->height());
 
-    //for (int i = 0; i < 8; ++i)
-    //{
-    //  
-    //}
+      ezBoundingBox bbox;
+      bbox.SetCenterAndHalfExtents(msg->m_vCenter, msg->m_vHalfExtents);
+      const float fRadius = bbox.GetBoundingSphere().m_fRadius * 1.5f;
 
-    ///// \todo Pivot point
-    //const ezVec3 vPivotPoint = msg->m_vCenter;
-    ////const ezVec3 vPivotPoint = tGlobal.m_vPosition + tGlobal.m_Rotation * ezVec3::ZeroVector(); // LatestSelection->GetEditorTypeAccessor().GetValue("Pivot").ConvertTo<ezVec3>();
+      const float dist1 = fRadius / ezMath::Sin(fovX * 0.5);
+      const float dist2 = fRadius / ezMath::Sin(fovY * 0.5);
+      const float distBest = ezMath::Max(dist1, dist2);
 
-    //// TODO: focus all or one window?
-    ////ezSceneViewWidget* pFocusedView = GetFocusedViewWidget();
-    ////if (pFocusedView != nullptr)
-    //for (auto pView : m_ViewWidgets)
-    //{
-    //  ezSceneViewWidget* pSceneView = static_cast<ezSceneViewWidget*>(pView);
+      vNewCameraDirection = vPivotPoint - pSceneView->m_pViewConfig->m_Camera.GetCenterPosition();
 
-    //  ezVec3 vDiff = vPivotPoint - pView->m_pViewConfig->m_Camera.GetCenterPosition();
-    //  if (vDiff.NormalizeIfNotZero().Failed())
-    //    continue;
+      if (vNewCameraDirection.NormalizeIfNotZero().Failed())
+        return true;
 
-    //  /// \todo The distance value of 5 is a hack, we need the bounding box of the selection for this
-    //  const ezVec3 vTargetPos = vPivotPoint - vDiff * 5.0f;
+      vNewCameraPosition = vPivotPoint - vNewCameraDirection * distBest;
 
-    //  pSceneView->m_pCameraMoveContext->SetOrbitPoint(vPivotPoint);
-    //  pSceneView->m_pCameraPositionContext->MoveToTarget(vTargetPos, vDiff);
-    //}
+      /// \todo Limit up/down rotation to ~30 degree around forward
+    }
+    else
+    {
+      vNewCameraPosition = msg->m_vCenter;
+    }
+
+    pSceneView->m_pCameraMoveContext->SetOrbitPoint(vPivotPoint);
+    pSceneView->m_pCameraPositionContext->MoveToTarget(vNewCameraPosition, vNewCameraDirection);
 
     return true;
   }

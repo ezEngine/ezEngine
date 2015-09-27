@@ -41,13 +41,12 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
         auto b = pObj->GetGlobalBounds();
 
-        bounds.ExpandToInclude(b);
-        ezLog::Info("Bounds: %.2f | %.2f | %.2f - %.2f | %.2f | %.2f", b.m_vCenter.x, b.m_vCenter.y, b.m_vCenter.z, b.m_vBoxHalfExtends.x, b.m_vBoxHalfExtends.y, b.m_vBoxHalfExtends.z);
+        if (bounds.IsValid())
+          bounds.ExpandToInclude(b);
+        else
+          bounds = b;
       }
     }
-
-    auto b = bounds;
-    ezLog::Info("Final Bounds: %.2f | %.2f | %.2f - %.2f | %.2f | %.2f", b.m_vCenter.x, b.m_vCenter.y, b.m_vCenter.z, b.m_vBoxHalfExtends.x, b.m_vBoxHalfExtends.y, b.m_vBoxHalfExtends.z);
 
     const ezQuerySelectionBBoxMsgToEngine* msg = static_cast<const ezQuerySelectionBBoxMsgToEngine*>(pMsg);
 

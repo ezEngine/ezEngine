@@ -20,6 +20,15 @@ void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext)
   case ezViewRenderMode::WireframeMonochrome:
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_WIREFRAME_MONOCHROME");
     break;
+  case ezViewRenderMode::TexCoordsUV0:
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_TEXCOORDS_UV0");
+    break;
+  case ezViewRenderMode::VertexNormals:
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_VERTEX_NORMALS");
+    break;
+  case ezViewRenderMode::PixelDepth:
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_PIXEL_DEPTH");
+    break;
   }
 
   ezSimpleRenderPass::Execute(renderViewContext);

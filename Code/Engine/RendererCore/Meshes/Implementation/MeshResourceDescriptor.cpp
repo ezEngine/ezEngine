@@ -319,9 +319,6 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReaderBase& stream)
         chunk >> m_Bounds.m_vCenter;
         chunk >> m_Bounds.m_vBoxHalfExtends;
         chunk >> m_Bounds.m_fSphereRadius;
-
-        auto b = m_Bounds;
-        ezLog::Info("Loaded Bounds: %.2f | %.2f | %.2f - %.2f | %.2f | %.2f", b.m_vCenter.x, b.m_vCenter.y, b.m_vCenter.z, b.m_vBoxHalfExtends.x, b.m_vBoxHalfExtends.y, b.m_vBoxHalfExtends.z);
       }
     }
 
