@@ -139,18 +139,16 @@ ezInternal::ezAllocatorMixinReallocate<A, TrackingFlags, true>::ezAllocatorMixin
 template <typename A, ezUInt32 TrackingFlags>
 void* ezInternal::ezAllocatorMixinReallocate<A, TrackingFlags, true>::Reallocate(void* ptr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign)
 {
-    void* pNewMem = this->m_allocator.Reallocate(ptr, uiCurrentSize, uiNewSize, uiAlign);
-    if((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
-    {
-      if (pNewMem == ptr)
-      {
-        ezMemoryTracker::ReplaceAllocation(this->m_Id, ptr, uiCurrentSize, uiNewSize);
-      }
-      else
-      {
-        ezMemoryTracker::RemoveAllocation(this->m_Id, ptr);
-        ezMemoryTracker::AddAllocation(this->m_Id, pNewMem, uiNewSize, uiAlign);
-      }
-    }
-    return pNewMem;
+  if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
+  {
+    ezMemoryTracker::RemoveAllocation(this->m_Id, ptr);
+  }
+
+  void* pNewMem = this->m_allocator.Reallocate(ptr, uiCurrentSize, uiNewSize, uiAlign);
+
+  if((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
+  {
+    ezMemoryTracker::AddAllocation(this->m_Id, pNewMem, uiNewSize, uiAlign);
+  }
+  return pNewMem;
 }

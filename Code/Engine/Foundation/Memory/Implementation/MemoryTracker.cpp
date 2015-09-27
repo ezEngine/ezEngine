@@ -245,18 +245,6 @@ void ezMemoryTracker::RemoveAllAllocations(ezAllocatorId allocatorId)
 }
 
 //static
-void ezMemoryTracker::ReplaceAllocation(ezAllocatorId allocatorId, const void* ptr, size_t uiOldSize, size_t uiNewSize)
-{
-  EZ_LOCK(*s_pTrackerData);
-
-  AllocatorData& data = s_pTrackerData->m_AllocatorData[allocatorId];
-  data.m_Stats.m_uiAllocationSize += (uiNewSize - uiOldSize);
-
-  EZ_ASSERT_DEV(uiNewSize < 0xFFFFFFFF, "new size is too big");
-  data.m_Allocations[ptr].m_uiSize = (ezUInt32)uiNewSize;
-}
-
-//static
 const char* ezMemoryTracker::GetAllocatorName(ezAllocatorId allocatorId)
 {
   EZ_LOCK(*s_pTrackerData);
