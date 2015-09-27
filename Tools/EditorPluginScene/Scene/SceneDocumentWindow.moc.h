@@ -5,11 +5,7 @@
 #include <EditorFramework/IPC/ProcessCommunication.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
-#include <EditorPluginScene/InputContexts/SelectionContext.h>
 #include <EditorPluginScene/InputContexts/CameraMoveContext.h>
-#include <EditorPluginScene/InputContexts/CameraPositionContext.h>
-#include <EditorPluginScene/Scene/SceneDocument.h>
-#include <Foundation/Types/UniquePtr.h>
 #include <EditorFramework/Gizmos/TranslateGizmo.h>
 #include <EditorFramework/Gizmos/RotateGizmo.h>
 #include <EditorFramework/Gizmos/ScaleGizmo.h>
@@ -17,33 +13,7 @@
 #include <EditorPluginScene/Actions/GizmoActions.h>
 
 class QGridLayout;
-
-class ezSceneViewWidget : public ezEngineViewWidget
-{
-  Q_OBJECT
-public:
-  ezSceneViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig);
-  ~ezSceneViewWidget();
-
-  ezSelectionContext* m_pSelectionContext;
-  ezCameraMoveContext* m_pCameraMoveContext;
-  ezCameraPositionContext* m_pCameraPositionContext;
-
-  virtual void SyncToEngine() override;
-
-protected:
-  virtual void dragEnterEvent(QDragEnterEvent* e) override;
-  virtual void dragLeaveEvent(QDragLeaveEvent* e) override;
-  virtual void dragMoveEvent(QDragMoveEvent* e) override;
-  virtual void dropEvent(QDropEvent* e) override;
-
-  ezUuid CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue);
-  void MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPosition);
-  void MoveDraggedObjectsToPosition(const ezVec3& vPosition);
-
-  ezHybridArray<ezUuid, 16> m_DraggedObjects;
-  ezTime m_LastDragMoveEvent;
-};
+class ezSceneViewWidgetContainer;
 
 class ezSceneDocumentWindow : public ezDocumentWindow3D
 {
@@ -95,6 +65,7 @@ private:
 
   ezSceneViewConfig m_ViewConfigSingle;
   ezSceneViewConfig m_ViewConfigQuad[4];
+  ezHybridArray<ezSceneViewWidgetContainer*, 4> m_ActiveMainViews;
 
   ezTranslateGizmo m_TranslateGizmo;
   ezRotateGizmo m_RotateGizmo;

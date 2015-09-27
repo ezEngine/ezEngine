@@ -2,9 +2,12 @@
 
 #include <EditorFramework/Plugin.h>
 #include <CoreUtils/Graphics/Camera.h>
+#include <Foundation/Reflection/Reflection.h>
 
-struct ezViewRenderMode
+struct EZ_EDITORFRAMEWORK_DLL ezViewRenderMode
 {
+  typedef ezUInt8 StorageType;
+
   enum Enum
   {
     None,
@@ -13,12 +16,16 @@ struct ezViewRenderMode
     TexCoordsUV0,
     VertexNormals,
     PixelDepth,
+
     Default = None
   };
 };
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORFRAMEWORK_DLL, ezViewRenderMode);
 
-struct ezSceneViewPerspective
+struct EZ_EDITORFRAMEWORK_DLL ezSceneViewPerspective
 {
+  typedef ezUInt8 StorageType;
+
   enum Enum
   {
     Orhogonal_Front,
@@ -30,6 +37,7 @@ struct ezSceneViewPerspective
   };
 
 };
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORFRAMEWORK_DLL, ezSceneViewPerspective);
 
 struct EZ_EDITORFRAMEWORK_DLL ezSceneViewConfig
 {

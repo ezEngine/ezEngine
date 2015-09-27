@@ -260,12 +260,10 @@ void ezDocumentWindow3D::SyncObjectsToEngine()
 
 void ezDocumentWindow3D::DestroyAllViews()
 {
-  for (auto pView : m_ViewWidgets)
+  while (!m_ViewWidgets.IsEmpty())
   {
-    delete pView;
+    delete m_ViewWidgets[0];
   }
-
-  m_ViewWidgets.Clear();
 }
 
 

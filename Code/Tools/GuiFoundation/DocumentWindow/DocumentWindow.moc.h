@@ -60,7 +60,7 @@ public:
   bool IsVisibleInContainer() const { return m_bIsVisibleInContainer; }
   void SetTargetFramerate(ezInt16 uiTargetFPS);
 
-  void TriggerRedraw();
+  void TriggerRedraw(float fLastFrameTimeMS = 0.0f);
 
   virtual void RequestWindowTabContextMenu(const QPoint& GlobalPos);
 

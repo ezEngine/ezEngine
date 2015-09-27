@@ -72,6 +72,20 @@ public:
 };
 
 ///
+class EZ_GUIFOUNDATION_DLL ezEnumerationMenuAction : public ezLRUMenuAction
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezEnumerationMenuAction);
+public:
+  ezEnumerationMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath);
+  void InitEnumerationType(const ezRTTI* pEnumerationType);
+  virtual void GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16>& out_Entries) override;
+  virtual ezInt64 GetValue() const = 0;
+
+protected:
+  const ezRTTI* m_pEnumerationType;
+};
+
+///
 class EZ_GUIFOUNDATION_DLL ezButtonAction : public ezNamedAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezButtonAction);

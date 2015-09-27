@@ -53,6 +53,7 @@ private slots:
   void SlotRestartEngineProcess();
 
 protected:
+  friend class ezEngineViewWidget;
   ezEditorEngineConnection* m_pEngineConnection;
   ezHybridArray<ezEngineViewWidget*, 4> m_ViewWidgets;
 

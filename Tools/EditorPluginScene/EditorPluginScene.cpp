@@ -8,6 +8,7 @@
 #include <Core/World/GameObject.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <EditorFramework/Actions/ProjectActions.h>
+#include <EditorFramework/Actions/ViewActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
@@ -61,6 +62,11 @@ void OnLoadPlugin(bool bReloading)
   ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentToolBar", "");
   ezScaleGizmoAction::MapActions("EditorPluginScene_DocumentToolBar", "");
   ezTranslateGizmoAction::MapActions("EditorPluginScene_DocumentToolBar", "");
+
+  // View Tool Bar
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_ViewToolBar");
+  ezViewActions::MapActions("EditorPluginScene_ViewToolBar", "");
+
 }
 
 void OnUnloadPlugin(bool bReloading)  

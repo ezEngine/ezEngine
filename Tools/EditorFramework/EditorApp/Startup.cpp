@@ -5,6 +5,7 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
 #include <EditorFramework/Actions/AssetActions.h>
+#include <EditorFramework/Actions/ViewActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
@@ -27,6 +28,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
   {
     ezProjectActions::RegisterActions();
     ezAssetActions::RegisterActions();
+    ezViewActions::RegisterActions();
 
     ezActionMapManager::RegisterActionMap("SettingsTabMenuBar");
     ezProjectActions::MapActions("SettingsTabMenuBar");
@@ -42,6 +44,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
   {
     ezProjectActions::UnregisterActions();
     ezAssetActions::UnregisterActions();
+    ezViewActions::UnregisterActions();
 
     ezPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezAssetBrowserAttribute>());
   }

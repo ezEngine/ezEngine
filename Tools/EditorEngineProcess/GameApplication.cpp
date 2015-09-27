@@ -84,7 +84,7 @@ ezApplication::ApplicationExecution ezEngineProcessGameApplication::Run()
   else
   {
     /// \todo This is not so good
-    ezThreadUtils::Sleep(1);
+    //ezThreadUtils::Sleep(1);
   }
 
   return WasQuitRequested() ? ezApplication::Quit : ezApplication::Continue;

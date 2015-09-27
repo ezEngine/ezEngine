@@ -74,6 +74,7 @@ ezEngineViewWidget::ezEngineViewWidget(QWidget* pParent, ezDocumentWindow3D* pDo
 
   m_uiViewID = s_uiNextViewID;
   ++s_uiNextViewID;
+  m_pDocumentWindow->m_ViewWidgets.PushBack(this);
 }
 
 
@@ -82,6 +83,8 @@ ezEngineViewWidget::~ezEngineViewWidget()
   ezViewDestroyedMsgToEngine msg;
   msg.m_uiViewID = GetViewID();
   m_pDocumentWindow->SendMessageToEngine(&msg);
+
+  m_pDocumentWindow->m_ViewWidgets.RemoveSwap(this);
 }
 
 void ezEngineViewWidget::keyReleaseEvent(QKeyEvent* e)
