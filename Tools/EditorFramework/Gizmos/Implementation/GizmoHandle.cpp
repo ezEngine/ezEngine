@@ -89,12 +89,12 @@ static ezMeshBufferResourceHandle CreateMeshBufferArrow()
   const float fLength = 2.0f;
 
   ezMat4 m;
-  m.SetIdentity();
+  m.SetRotationMatrixY(ezAngle::Degree(90));
 
   ezGeometry geom;
   geom.AddCylinder(fThickness, fThickness, fLength, false, true, 16, ezColor::Red, m);
 
-  m.SetTranslationVector(ezVec3(0, fLength * 0.5f, 0));
+  m.SetTranslationVector(ezVec3(fLength * 0.5f, 0, 0));
   geom.AddCone(fThickness * 3.0f, fThickness * 6.0f, true, 16, ezColor::Red, m);
 
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Arrow");
@@ -113,12 +113,12 @@ static ezMeshBufferResourceHandle CreateMeshBufferPiston()
   const float fLength = 2.0f;
 
   ezMat4 m;
-  m.SetIdentity();
+  m.SetRotationMatrixY(ezAngle::Degree(90));
 
   ezGeometry geom;
   geom.AddCylinder(fThickness, fThickness, fLength, false, true, 16, ezColor::Red, m);
 
-  m.SetTranslationVector(ezVec3(0, fLength * 0.5f, 0));
+  m.SetTranslationVector(ezVec3(fLength * 0.5f, 0, 0));
   geom.AddBox(ezVec3(fThickness * 5.0f), ezColor::Red, m);
 
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Piston");
@@ -137,12 +137,13 @@ static ezMeshBufferResourceHandle CreateMeshBufferHalfPiston()
   const float fLength = 1.0f;
 
   ezMat4 m;
-  m.SetTranslationMatrix(ezVec3(0, fLength * 0.5f, 0));
+  m.SetRotationMatrixY(ezAngle::Degree(90));
+  m.SetTranslationVector(ezVec3(fLength * 0.5f, 0, 0));
 
   ezGeometry geom;
   geom.AddCylinder(fThickness, fThickness, fLength, false, true, 16, ezColor::Red, m);
 
-  m.SetTranslationMatrix(ezVec3(0, fLength, 0));
+  m.SetTranslationVector(ezVec3(fLength, 0, 0));
   geom.AddBox(ezVec3(fThickness * 5.0f), ezColor::Red, m);
 
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Piston");

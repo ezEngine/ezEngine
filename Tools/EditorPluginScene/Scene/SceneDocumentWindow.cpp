@@ -273,6 +273,8 @@ void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEve
         return;
 
       ezQuerySelectionBBoxMsgToEngine msg;
+      msg.m_uiViewID = GetFocusedViewWidget()->GetViewID();
+      msg.m_iPurpose = 0;
       SendMessageToEngine(&msg, true);
     }
     break;
@@ -470,30 +472,47 @@ bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg*
   {
     const ezQuerySelectionBBoxResultMsgToEditor* msg = static_cast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg);
 
-    const auto& LatestSelection = GetDocument()->GetSelectionManager()->GetSelection().PeekBack();
-    const ezTransform tGlobal = GetSceneDocument()->GetGlobalTransform(LatestSelection);
+    if (msg->m_uiViewID >= m_ViewWidgets.GetCount() || m_ViewWidgets[msg->m_uiViewID] == nullptr)
+      return false;
+    
+    //ezEngineViewWidget* pView = m_ViewWidgets[msg->m_uiViewID];
 
-    /// \todo Pivot point
+    //const ezPlane nearPlane(pView->m_pViewConfig->m_Camera.GetDirForwards(), pView->m_pViewConfig->m_Camera.GetCenterPosition());
+
+    //ezBoundingBox bbox;
+    //bbox.SetCenterAndHalfExtents(msg->m_vCenter, msg->m_vHalfExtents);
+
+    //ezVec3 corners[8];
+    //bbox.GetCorners(corners);
+
+    //float fDist = nearPlane.getdi
+
+    //for (int i = 0; i < 8; ++i)
+    //{
+    //  
+    //}
+
+    ///// \todo Pivot point
     //const ezVec3 vPivotPoint = msg->m_vCenter;
-    const ezVec3 vPivotPoint = tGlobal.m_vPosition + tGlobal.m_Rotation * ezVec3::ZeroVector(); // LatestSelection->GetEditorTypeAccessor().GetValue("Pivot").ConvertTo<ezVec3>();
+    ////const ezVec3 vPivotPoint = tGlobal.m_vPosition + tGlobal.m_Rotation * ezVec3::ZeroVector(); // LatestSelection->GetEditorTypeAccessor().GetValue("Pivot").ConvertTo<ezVec3>();
 
-    // TODO: focus all or one window?
-    //ezSceneViewWidget* pFocusedView = GetFocusedViewWidget();
-    //if (pFocusedView != nullptr)
-    for (auto pView : m_ViewWidgets)
-    {
-      ezSceneViewWidget* pSceneView = static_cast<ezSceneViewWidget*>(pView);
+    //// TODO: focus all or one window?
+    ////ezSceneViewWidget* pFocusedView = GetFocusedViewWidget();
+    ////if (pFocusedView != nullptr)
+    //for (auto pView : m_ViewWidgets)
+    //{
+    //  ezSceneViewWidget* pSceneView = static_cast<ezSceneViewWidget*>(pView);
 
-      ezVec3 vDiff = vPivotPoint - pView->m_pViewConfig->m_Camera.GetCenterPosition();
-      if (vDiff.NormalizeIfNotZero().Failed())
-        continue;
+    //  ezVec3 vDiff = vPivotPoint - pView->m_pViewConfig->m_Camera.GetCenterPosition();
+    //  if (vDiff.NormalizeIfNotZero().Failed())
+    //    continue;
 
-      /// \todo The distance value of 5 is a hack, we need the bounding box of the selection for this
-      const ezVec3 vTargetPos = vPivotPoint - vDiff * 5.0f;
+    //  /// \todo The distance value of 5 is a hack, we need the bounding box of the selection for this
+    //  const ezVec3 vTargetPos = vPivotPoint - vDiff * 5.0f;
 
-      pSceneView->m_pCameraMoveContext->SetOrbitPoint(vPivotPoint);
-      pSceneView->m_pCameraPositionContext->MoveToTarget(vTargetPos, vDiff);
-    }
+    //  pSceneView->m_pCameraMoveContext->SetOrbitPoint(vPivotPoint);
+    //  pSceneView->m_pCameraPositionContext->MoveToTarget(vTargetPos, vDiff);
+    //}
 
     return true;
   }
@@ -568,6 +587,10 @@ void ezSceneViewWidget::SyncToEngine()
 
 void ezSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
 {
+  // can only drag & drop objects around in perspective mode
+  if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
+    return;
+
   if (e->mimeData()->hasFormat("application/ezEditor.AssetGuid"))
   {
     m_LastDragMoveEvent = ezTime::Now();
@@ -601,7 +624,7 @@ void ezSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
       if (ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName != "Mesh")
         continue;
 
-      m_DraggedObjects.PushBack(CreateDropObject(res.m_vPickedPosition, "ezMeshComponent", "MeshFile", sTemp));
+      m_DraggedObjects.PushBack(CreateDropObject(res.m_vPickedPosition, "ezMeshComponent", "Mesh", sTemp));
     }
 
     if (m_DraggedObjects.IsEmpty())
@@ -616,6 +639,10 @@ void ezSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
 
 void ezSceneViewWidget::dragLeaveEvent(QDragLeaveEvent * e)
 {
+  // can only drag & drop objects around in perspective mode
+  if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
+    return;
+
   if (!m_DraggedObjects.IsEmpty())
   {
     m_pDocumentWindow->GetDocument()->GetCommandHistory()->CancelTemporaryCommands();
@@ -626,6 +653,10 @@ void ezSceneViewWidget::dragLeaveEvent(QDragLeaveEvent * e)
 
 void ezSceneViewWidget::dragMoveEvent(QDragMoveEvent* e)
 {
+  // can only drag & drop objects around in perspective mode
+  if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
+    return;
+
   if (e->mimeData()->hasFormat("application/ezEditor.AssetGuid") && !m_DraggedObjects.IsEmpty())
   {
     const ezTime tNow = ezTime::Now();
@@ -643,6 +674,10 @@ void ezSceneViewWidget::dragMoveEvent(QDragMoveEvent* e)
 
 void ezSceneViewWidget::dropEvent(QDropEvent * e)
 {
+  // can only drag & drop objects around in perspective mode
+  if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
+    return;
+
   if (e->mimeData()->hasFormat("application/ezEditor.AssetGuid") && !m_DraggedObjects.IsEmpty())
   {
     m_pDocumentWindow->GetDocument()->GetCommandHistory()->FinishTemporaryCommands();

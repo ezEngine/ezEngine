@@ -574,13 +574,13 @@ void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSeg
 
   const ezAngle fDegStep = ezAngle::Degree(360.0f / uiSegments);
 
-  const ezUInt32 uiTip = AddVertex(ezVec3(0, fHeight, 0), ezVec3(0, 1, 0), ezVec2(0), color, iCustomIndex, mTransform);
+  const ezUInt32 uiTip = AddVertex(ezVec3(0, 0, fHeight), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
 
   for (ezUInt32 i = 0; i < uiSegments; ++i)
   {
     const ezAngle deg = (float) i * fDegStep;
 
-    ezVec3 vDir(ezMath::Cos(deg), 0, ezMath::Sin(deg));
+    ezVec3 vDir(ezMath::Cos(deg), ezMath::Sin(deg), 0);
 
     VertsBottom.PushBack(AddVertex(vDir * fRadius, vDir, ezVec2(0), color, iCustomIndex, mTransform));
   }

@@ -52,6 +52,8 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     const ezQuerySelectionBBoxMsgToEngine* msg = static_cast<const ezQuerySelectionBBoxMsgToEngine*>(pMsg);
 
     ezQuerySelectionBBoxResultMsgToEditor res;
+    res.m_uiViewID = msg->m_uiViewID;
+    res.m_iPurpose = msg->m_iPurpose;
     res.m_vCenter = bounds.m_vCenter;
     res.m_vHalfExtents = bounds.m_vBoxHalfExtends;
     res.m_DocumentGuid = pMsg->m_DocumentGuid;

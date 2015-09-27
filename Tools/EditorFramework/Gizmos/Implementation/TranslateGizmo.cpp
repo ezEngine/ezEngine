@@ -55,13 +55,13 @@ void ezTranslateGizmo::OnTransformationChanged(const ezMat4& transform)
 {
   ezMat4 m;
 
-  m.SetRotationMatrixZ(ezAngle::Degree(-90));
+  m.SetIdentity();
   m_AxisX.SetTransformation(transform * m);
 
-  m.SetIdentity();
+  m.SetRotationMatrixZ(ezAngle::Degree(90));
   m_AxisY.SetTransformation(transform * m);
 
-  m.SetRotationMatrixX(ezAngle::Degree(90));
+  m.SetRotationMatrixY(ezAngle::Degree(-90));
   m_AxisZ.SetTransformation(transform * m);
 
   m.SetIdentity();

@@ -265,7 +265,8 @@ class EZ_EDITORFRAMEWORK_DLL ezQuerySelectionBBoxMsgToEngine : public ezEditorEn
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezQuerySelectionBBoxMsgToEngine);
 public:
-
+  ezUInt32 m_uiViewID; /// passed through to ezQuerySelectionBBoxResultMsgToEditor
+  ezInt32 m_iPurpose; /// passed through to ezQuerySelectionBBoxResultMsgToEditor
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezQuerySelectionBBoxResultMsgToEditor : public ezEditorEngineDocumentMsg
@@ -274,5 +275,8 @@ class EZ_EDITORFRAMEWORK_DLL ezQuerySelectionBBoxResultMsgToEditor : public ezEd
 public:
   ezVec3 m_vCenter;
   ezVec3 m_vHalfExtents;
+
+  ezUInt32 m_uiViewID; /// passed through from ezQuerySelectionBBoxMsgToEngine
+  ezInt32 m_iPurpose; /// passed through from ezQuerySelectionBBoxMsgToEngine
 };
 

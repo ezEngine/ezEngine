@@ -8,7 +8,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, ezComponent, 1, ezMeshComponentManager);
   EZ_BEGIN_PROPERTIES
-    EZ_ACCESSOR_PROPERTY("MeshFile", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Mesh")),
+    EZ_ACCESSOR_PROPERTY("Mesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Mesh")),
     EZ_MEMBER_PROPERTY("Mesh Color", m_MeshColor),
     EZ_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new ezAssetBrowserAttribute("Material")),
   EZ_END_PROPERTIES

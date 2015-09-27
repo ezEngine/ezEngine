@@ -50,19 +50,20 @@ void ezDragToPositionGizmo::OnTransformationChanged(const ezMat4& transform)
   m_Bobble.SetTransformation(transform);
 
   ezMat4 m;
-  m.SetRotationMatrixZ(ezAngle::Degree(-90));
-  m_AlignPX.SetTransformation(transform * m);
-  m.SetRotationMatrixZ(ezAngle::Degree(+90));
-  m_AlignNX.SetTransformation(transform * m);
 
   m.SetIdentity();
+  m_AlignPX.SetTransformation(transform * m);
+  m.SetRotationMatrixY(ezAngle::Degree(180));
+  m_AlignNX.SetTransformation(transform * m);
+
+  m.SetRotationMatrixZ(ezAngle::Degree(+90));
   m_AlignPY.SetTransformation(transform * m);
-  m.SetRotationMatrixZ(ezAngle::Degree(+180));
+  m.SetRotationMatrixZ(ezAngle::Degree(-90));
   m_AlignNY.SetTransformation(transform * m);
 
-  m.SetRotationMatrixX(ezAngle::Degree(+90));
+  m.SetRotationMatrixY(ezAngle::Degree(-90));
   m_AlignPZ.SetTransformation(transform * m);
-  m.SetRotationMatrixX(ezAngle::Degree(-90));
+  m.SetRotationMatrixY(ezAngle::Degree(+90));
   m_AlignNZ.SetTransformation(transform * m);
 
 }
@@ -157,7 +158,10 @@ bool ezDragToPositionGizmo::mouseMoveEvent(QMouseEvent* e)
 
   const ezObjectPickingResult& res = GetOwnerWindow()->PickObject(e->pos().x(), e->pos().y());
 
-  if (res.m_vPickedPosition.IsNaN() || res.m_vPickedNormal.IsNaN())
+  if (!res.m_PickedObject.IsValid())
+    return true;
+
+  if (res.m_vPickedPosition.IsNaN() || res.m_vPickedNormal.IsNaN() || res.m_vPickedNormal.IsZero())
     return true;
 
   const ezVec3 vTangent = GetOrthogonalVector(res.m_vPickedNormal).GetNormalized();

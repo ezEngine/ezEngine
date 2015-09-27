@@ -180,11 +180,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectSelectionMsgToEngine, ezEditorEngineDocu
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezQuerySelectionBBoxMsgToEngine, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezQuerySelectionBBoxMsgToEngine>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("ViewID", m_uiViewID),
+    EZ_MEMBER_PROPERTY("Purpose", m_iPurpose),
+  EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezQuerySelectionBBoxResultMsgToEditor, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezQuerySelectionBBoxResultMsgToEditor>);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("Center", m_vCenter),
     EZ_MEMBER_PROPERTY("Extents", m_vHalfExtents),
+    EZ_MEMBER_PROPERTY("ViewID", m_uiViewID),
+    EZ_MEMBER_PROPERTY("Purpose", m_iPurpose),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
