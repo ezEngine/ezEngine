@@ -21,7 +21,7 @@ class EZ_EDITORFRAMEWORK_DLL ezRenderModeAction : public ezEnumerationMenuAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderModeAction);
 public:
-  ezRenderModeAction(const ezActionContext& context, const char* szName);
+  ezRenderModeAction(const ezActionContext& context, const char* szName, const char* szIconPath);
   virtual ezInt64 GetValue() const override;
   virtual void Execute(const ezVariant& value) override;
 };
@@ -31,7 +31,7 @@ class EZ_EDITORFRAMEWORK_DLL ezPerspectiveAction : public ezEnumerationMenuActio
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezPerspectiveAction);
 public:
-  ezPerspectiveAction(const ezActionContext& context, const char* szName);
+  ezPerspectiveAction(const ezActionContext& context, const char* szName, const char* szIconPath);
   virtual ezInt64 GetValue() const override;
   virtual void Execute(const ezVariant& value) override;
 };

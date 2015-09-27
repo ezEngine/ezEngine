@@ -14,7 +14,7 @@ void ezStandardMenus::RegisterActions()
 {
   s_hMenuFile = EZ_REGISTER_MENU("File", "File");
   s_hMenuEdit = EZ_REGISTER_MENU("Edit", "Edit");
-  s_hMenuPanels = EZ_REGISTER_LRU_MENU("Panels", "Panels", ezApplicationPanelsMenuAction);
+  s_hMenuPanels = EZ_REGISTER_LRU_MENU("Panels", "Panels", ezApplicationPanelsMenuAction, "");
   s_hMenuSettings = EZ_REGISTER_MENU("Settings", "Settings");
   s_hMenuHelp = EZ_REGISTER_MENU("Help", "Help");
 

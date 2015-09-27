@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="GuiFoundation">
+    <file>Icons/Perspective.png</file>
+    <file>Icons/RenderMode.png</file>
     <file>Icons/groupClosed.png</file>
     <file>Icons/groupOpen.png</file>
     <file>Icons/GroupSelection16.png</file>

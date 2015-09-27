@@ -21,7 +21,7 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   setCentralWidget(pCenter);
 
   SetupDefaultViewConfigs();
-  CreateViews(false);
+  CreateViews(true);
 
   m_bResendSelection = false;
   m_bInGizmoInteraction = false;
@@ -479,6 +479,7 @@ bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg*
     ezSceneViewWidget* pSceneView = static_cast<ezSceneViewWidget*>(m_ViewWidgets[msg->m_uiViewID]);
 
     /// \todo Object Pivot Offset
+    /// \todo Zoom in / out only on second focus ?
     const ezVec3 vPivotPoint = msg->m_vCenter;
 
     ezVec3 vNewCameraPosition = pSceneView->m_pViewConfig->m_Camera.GetCenterPosition();
@@ -502,17 +503,34 @@ bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg*
       const float distBest = ezMath::Max(dist1, dist2);
 
       vNewCameraDirection = vPivotPoint - pSceneView->m_pViewConfig->m_Camera.GetCenterPosition();
+      vNewCameraDirection.NormalizeIfNotZero(ezVec3(1, 0, 0));
 
-      if (vNewCameraDirection.NormalizeIfNotZero().Failed())
-        return true;
+      {
+        const ezAngle maxAngle = ezAngle::Degree(30.0f);
+
+        /// \todo Hard coded 'up' direction
+        ezVec3 vPlaneDir = vNewCameraDirection;
+        vPlaneDir.z = 0.0f;
+
+        vPlaneDir.NormalizeIfNotZero(ezVec3(1, 0, 0));
+
+        if (maxAngle < vPlaneDir.GetAngleBetween(vNewCameraDirection))
+        {
+          const ezVec3 vAxis = vPlaneDir.Cross(vNewCameraDirection).GetNormalized();
+          ezMat3 mRot;
+          mRot.SetRotationMatrix(vAxis, maxAngle);
+
+          vNewCameraDirection = mRot * vPlaneDir;
+        }
+      }
 
       vNewCameraPosition = vPivotPoint - vNewCameraDirection * distBest;
-
-      /// \todo Limit up/down rotation to ~30 degree around forward
     }
     else
     {
       vNewCameraPosition = msg->m_vCenter;
+
+      /// \todo Zoom In / Out
     }
 
     pSceneView->m_pCameraMoveContext->SetOrbitPoint(vPivotPoint);

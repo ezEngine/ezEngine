@@ -11,8 +11,8 @@ ezActionDescriptorHandle ezViewActions::s_hPerspective;
 
 void ezViewActions::RegisterActions()
 {
-  s_hRenderMode = EZ_REGISTER_LRU_MENU("RenderMode", "Render Mode", ezRenderModeAction);
-  s_hPerspective = EZ_REGISTER_LRU_MENU("Perspective", "Perspective", ezPerspectiveAction);
+  s_hRenderMode = EZ_REGISTER_LRU_MENU("RenderMode", "Render Mode", ezRenderModeAction, ":/GuiFoundation/Icons/RenderMode.png");
+  s_hPerspective = EZ_REGISTER_LRU_MENU("Perspective", "Perspective", ezPerspectiveAction, ":/GuiFoundation/Icons/Perspective.png");
 }
 
 void ezViewActions::UnregisterActions()
@@ -37,8 +37,8 @@ void ezViewActions::MapActions(const char* szMapping, const char* szPath)
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderModeAction, ezEnumerationMenuAction, 0, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezRenderModeAction::ezRenderModeAction(const ezActionContext& context, const char* szName)
-  : ezEnumerationMenuAction(context, szName, "")
+ezRenderModeAction::ezRenderModeAction(const ezActionContext& context, const char* szName, const char* szIconPath)
+  : ezEnumerationMenuAction(context, szName, szIconPath)
 {
   ezEngineViewWidget* pView = qobject_cast<ezEngineViewWidget*>(context.m_pWindow);
   EZ_ASSERT_DEV(pView != nullptr, "context.m_pWindow must be derived from type 'ezEngineViewWidget'!");
@@ -65,8 +65,8 @@ void ezRenderModeAction::Execute(const ezVariant& value)
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPerspectiveAction, ezEnumerationMenuAction, 0, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezPerspectiveAction::ezPerspectiveAction(const ezActionContext& context, const char* szName)
-  : ezEnumerationMenuAction(context, szName, "")
+ezPerspectiveAction::ezPerspectiveAction(const ezActionContext& context, const char* szName, const char* szIconPath)
+  : ezEnumerationMenuAction(context, szName, szIconPath)
 {
   ezEngineViewWidget* pView = qobject_cast<ezEngineViewWidget*>(context.m_pWindow);
   EZ_ASSERT_DEV(pView != nullptr, "context.m_pWindow must be derived from type 'ezEngineViewWidget'!");

@@ -36,13 +36,23 @@ void ezEnumerationMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16
   out_Entries.Reserve(m_pEnumerationType->GetProperties().GetCount() - 1);
   ezInt64 iCurrentValue = ezReflectionUtils::MakeEnumerationValid(m_pEnumerationType, GetValue());
 
+  ezStringBuilder sTemp;
+
   for (auto pProp : m_pEnumerationType->GetProperties().GetSubArray(1))
   {
     if (pProp->GetCategory() == ezPropertyCategory::Constant)
     {
       ezInt64 iValue = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant().ConvertTo<ezInt64>();
       ezLRUMenuAction::Item item;
-      item.m_sDisplay = pProp->GetPropertyName();
+
+      // If this is a qualified C++ name, skip everything before the last colon
+      sTemp = pProp->GetPropertyName();
+      const char* szColon = sTemp.FindLastSubString(":");
+      if (szColon != nullptr)
+        item.m_sDisplay = szColon + 1;
+      else
+        item.m_sDisplay = sTemp;
+
       item.m_UserValue = iValue;
       if (m_pEnumerationType->IsDerivedFrom<ezEnumBase>())
       {

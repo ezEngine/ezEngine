@@ -575,9 +575,11 @@ void ezPropertyEditorEnumWidget::OnInit()
     sTemp = pConstant->GetPropertyName();
     const char* szColon = sTemp.FindLastSubString(":");
     if (szColon != nullptr)
-      sTemp = szColon + 1;
+      szColon = szColon + 1;
+    else
+      szColon = sTemp;
 
-    m_pWidget->addItem(QString::fromUtf8(sTemp.GetData()), pConstant->GetConstant().ConvertTo<ezInt64>());
+    m_pWidget->addItem(QString::fromUtf8(szColon), pConstant->GetConstant().ConvertTo<ezInt64>());
   }
 }
 

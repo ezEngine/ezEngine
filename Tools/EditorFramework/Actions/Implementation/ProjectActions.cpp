@@ -35,12 +35,12 @@ void ezProjectActions::RegisterActions()
   s_hDocumentCategory = EZ_REGISTER_CATEGORY("DocumentCategory");
   s_hCreateDocument = EZ_REGISTER_ACTION_1("Create Document", "Create Document", ezActionScope::Global, "Project", "Ctrl+N", ezProjectAction, ezProjectAction::ButtonType::CreateDocument);
   s_hOpenDocument = EZ_REGISTER_ACTION_1("Open Document", "Open Document", ezActionScope::Global, "Project", "Ctrl+O", ezProjectAction, ezProjectAction::ButtonType::OpenDocument);
-  s_hRecentDocuments = EZ_REGISTER_LRU_MENU("Recent Documents", "Recent Documents", ezRecentDocumentsMenuAction);
+  s_hRecentDocuments = EZ_REGISTER_LRU_MENU("Recent Documents", "Recent Documents", ezRecentDocumentsMenuAction, "");
 
   s_hProjectCategory = EZ_REGISTER_CATEGORY("ProjectCategory");
   s_hCreateProject = EZ_REGISTER_ACTION_1("Create Project", "Create Project", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CreateProject);
   s_hOpenProject = EZ_REGISTER_ACTION_1("Open Project", "Open Project", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::OpenProject);
-  s_hRecentProjects = EZ_REGISTER_LRU_MENU("Recent Projects", "Recent Projects", ezRecentProjectsMenuAction);
+  s_hRecentProjects = EZ_REGISTER_LRU_MENU("Recent Projects", "Recent Projects", ezRecentProjectsMenuAction, "");
   s_hCloseProject = EZ_REGISTER_ACTION_1("Close Project", "Close Project", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CloseProject);
 
   s_hSettingsCategory = EZ_REGISTER_CATEGORY("SettingsCategory");
