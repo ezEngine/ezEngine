@@ -4,6 +4,27 @@ What's New {#WhatsNew}
 Milestone 7
 -----------
   * Added solid color texture resources. E.g. use a texture resource with name "CornflowerBlue.color" or "#FF00FF.color" or "FF00FF00.color" and a 4x4 color texture will be generated from memory, instead of read from disk.
+  * Added RendererFoundation low-level rendering infrastructure
+  * Added RendererCore mid-level rendering infrastructure, see ezRenderContext, ezRenderPipeline, ezRenderPipelinePass, ezView
+  * Added DX11 implementation of RendererFoundation
+  * Added tools infrastructure
+  * Added ezEditor, a general purpose document based editor with undo/redo and out-of-process rendering
+  * Added an asset management system
+  * Added file redirection through ezDataDirectory::FolderType for asset management
+  * Added ezDirectoryWatcher
+  * Enhanced the reflection system to handle enums and bitfields
+  * Reflection system now supports custom attributes for properties
+  * Split up ezStringView and added ezStringIterator
+  * Added ezTagRegistry, ezTag and ezTagSet to handle tags
+  * Added support for more types to ezVariant
+  * Named colors can now be converted back and forth using ezConversionUtils
+  * Added some basic infrastructure for node graphs
+  * Added GameFoundation library
+  * Added some basic components for rotating and translating objects
+  * Added rendering resources: ezConstantBufferResource, ezMaterialResource, ezMeshResource, ezShaderResource, ezTextureResource
+  * Added (runtime) shader compilation and shader permutation generation
+  * Added ezGPUResourcePool for sharing gpu resources
+ 
 
 Milestone 6
 -----------

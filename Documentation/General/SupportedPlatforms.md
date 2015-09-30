@@ -12,6 +12,7 @@ Versions:
   * Windows 7
   * Windows 8 (desktop)
   * Windows 8.1 (desktop)
+  * Windows 10
 
 Compilers:
   * Visual Studio 2012 32 Bit
@@ -20,7 +21,7 @@ Compilers:
   * Visual Studio 2013 64 Bit
 
 Dependencies:
-  * Qt5.4.1 (optional)
+  * Qt5.5.0 (optional)
  
 Not supported anymore, but might still work:
   * Visual Studio 2010 32 Bit
@@ -79,3 +80,4 @@ Not yet supported, but maybe someday
   * Android
   * iOS
   * Windows Phone 8
+
