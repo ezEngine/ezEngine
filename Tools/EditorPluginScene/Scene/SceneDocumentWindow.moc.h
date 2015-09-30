@@ -14,6 +14,9 @@
 
 class QGridLayout;
 class ezSceneViewWidgetContainer;
+class ezSceneViewWidget;
+
+Q_DECLARE_OPAQUE_POINTER(ezSceneViewWidget*);
 
 class ezSceneDocumentWindow : public ezDocumentWindow3D
 {
@@ -27,8 +30,8 @@ public:
 
   ezSceneDocument* GetSceneDocument() const { return static_cast<ezSceneDocument*>(GetDocument()); }
 
-private slots:
-
+public slots:
+  void ToggleViews(QWidget* pView);
 
 private:
   void TransformationGizmoEventHandler(const ezGizmoBase::BaseEvent& e);

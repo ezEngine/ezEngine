@@ -17,12 +17,12 @@ class EZ_GUIFOUNDATION_DLL ezMenuActionMapView : public QMenu
   Q_OBJECT
   EZ_DISALLOW_COPY_AND_ASSIGN(ezMenuActionMapView);
 public:
-  explicit ezMenuActionMapView(QWidget* parent, QWidget* pActionParent = nullptr);
+  explicit ezMenuActionMapView(QWidget* parent);
   ~ezMenuActionMapView();
 
   void SetActionContext(const ezActionContext& context);
 
-  static void AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedPointer<ezQtProxy>>& Proxies, ezActionContext& Context, ezActionMap* pActionMap, QMenu* pCurrentRoot, const ezActionMap::TreeNode* pObject, QWidget* pActionParent);
+  static void AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedPointer<ezQtProxy>>& Proxies, ezActionContext& Context, ezActionMap* pActionMap, QMenu* pCurrentRoot, const ezActionMap::TreeNode* pObject);
 
 private:
   void TreeEventHandler(const ezDocumentObjectStructureEvent& e);
@@ -36,5 +36,4 @@ private:
 
   ezActionContext m_Context;
   ezActionMap* m_pActionMap;
-  QWidget* m_pActionParent;
 };

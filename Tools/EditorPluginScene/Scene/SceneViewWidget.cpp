@@ -9,12 +9,12 @@
 #include <QMimeData>
 #include <QVBoxLayout>
 
-ezSceneViewWidget::ezSceneViewWidget(QWidget* pParent, ezDocumentWindow3D* pOwnerWindow, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig) 
+ezSceneViewWidget::ezSceneViewWidget(QWidget* pParent, ezSceneDocumentWindow* pOwnerWindow, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig)
   : ezEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
 {
   setAcceptDrops(true);
 
-  ezSceneDocumentWindow* pSceneWindow = static_cast<ezSceneDocumentWindow*>(pOwnerWindow);
+  ezSceneDocumentWindow* pSceneWindow = pOwnerWindow;
 
   m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
   m_pCameraMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, pOwnerWindow, this, pCameraMoveSettings);
@@ -225,7 +225,7 @@ void ezSceneViewWidget::MoveDraggedObjectsToPosition(const ezVec3 & vPosition)
 }
 
 
-ezSceneViewWidgetContainer::ezSceneViewWidgetContainer(QWidget* pParent, ezDocumentWindow3D* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig)
+ezSceneViewWidgetContainer::ezSceneViewWidgetContainer(QWidget* pParent, ezSceneDocumentWindow* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig)
 {
   setBackgroundRole(QPalette::Base);
   setAutoFillBackground(true);

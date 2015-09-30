@@ -15,7 +15,6 @@ class EZ_EDITORFRAMEWORK_DLL ezEngineViewWidget : public QWidget
 
 public:
   ezEngineViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocumentWindow, ezSceneViewConfig* pViewConfig);
-
   ~ezEngineViewWidget();
 
   /// \brief Add input contexts in the order in which they are supposed to be processed
@@ -29,7 +28,7 @@ public:
 
   /// \brief Returns the ID of this view
   ezUInt32 GetViewID() const { return m_uiViewID; }
-
+  ezDocumentWindow3D* GetDocumentWindow() const { return m_pDocumentWindow; }
   virtual void SyncToEngine();
 
   ezSceneViewConfig* m_pViewConfig;

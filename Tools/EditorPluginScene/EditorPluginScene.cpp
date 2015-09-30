@@ -4,6 +4,7 @@
 #include <EditorPluginScene/Objects/TestObjects.h>
 #include <EditorPluginScene/Actions/GizmoActions.h>
 #include <EditorPluginScene/Actions/SelectionActions.h>
+#include <EditorPluginScene/Actions/SceneViewActions.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
 #include <Core/World/GameObject.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
@@ -40,6 +41,7 @@ void OnLoadPlugin(bool bReloading)
   ezRotateGizmoAction::RegisterActions();
   ezScaleGizmoAction::RegisterActions();
   ezTranslateGizmoAction::RegisterActions();
+  ezSceneViewActions::RegisterActions();
 
   // Menu Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentMenuBar");
@@ -66,6 +68,7 @@ void OnLoadPlugin(bool bReloading)
   // View Tool Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_ViewToolBar");
   ezViewActions::MapActions("EditorPluginScene_ViewToolBar", "");
+  ezSceneViewActions::MapActions("EditorPluginScene_ViewToolBar", "");
 
 }
 
@@ -78,6 +81,7 @@ void OnUnloadPlugin(bool bReloading)
   ezRotateGizmoAction::UnregisterActions();
   ezScaleGizmoAction::UnregisterActions();
   ezTranslateGizmoAction::UnregisterActions();
+  ezSceneViewActions::UnregisterActions();
 }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);

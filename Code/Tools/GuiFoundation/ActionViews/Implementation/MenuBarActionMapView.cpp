@@ -5,10 +5,8 @@
 #include <GuiFoundation/ActionViews/QtProxy.moc.h>
 #include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 
-ezMenuBarActionMapView::ezMenuBarActionMapView(QWidget* parent, QWidget* pActionParent) : QMenuBar(parent)
+ezMenuBarActionMapView::ezMenuBarActionMapView(QWidget* parent) : QMenuBar(parent)
 {
-  m_pActionParent = pActionParent != nullptr ? pActionParent : parent;
-  EZ_ASSERT_DEV(m_pActionParent != nullptr, "Either parent or pActionParent needs to be set in the action view!");
 }
 
 ezMenuBarActionMapView::~ezMenuBarActionMapView()
@@ -64,7 +62,7 @@ void ezMenuBarActionMapView::CreateView()
       {
         QMenu* pQtMenu = static_cast<ezQtMenuProxy*>(pProxy.data())->GetQMenu();
         addMenu(pQtMenu);
-        ezMenuActionMapView::AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, pQtMenu, pChild, m_pActionParent);
+        ezMenuActionMapView::AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, pQtMenu, pChild);
       }
       break;
     }

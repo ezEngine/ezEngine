@@ -32,7 +32,7 @@ static ezQtProxy* QtLRUMenuProxyCreator(const ezRTTI* pRtti)
 
 ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> ezQtProxy::s_GlobalActions;
 ezMap<ezUuid, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > ezQtProxy::s_DocumentActions;
-ezMap<ezString, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > ezQtProxy::s_WindowActions;
+ezMap<QWidget*, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > ezQtProxy::s_WindowActions;
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtProxies)
 
@@ -114,14 +114,14 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
     break;
   case ezActionScope::Window:
     {
-      QWeakPointer<ezQtProxy> pTemp = s_WindowActions[context.m_sMapping][hDesc];
+      QWeakPointer<ezQtProxy> pTemp = s_WindowActions[context.m_pWindow][hDesc];
       if (pTemp.isNull())
       {
         auto pAction = pDesc->CreateAction(context);
         pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
         EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_sActionName.GetData());
         pProxy->SetAction(pAction, true);
-        s_WindowActions[pAction->GetContext().m_sMapping][hDesc] = pProxy;
+        s_WindowActions[pAction->GetContext().m_pWindow][hDesc] = pProxy;
       }
       else
       {
@@ -256,7 +256,7 @@ void ezQtButtonProxy::SetAction(ezAction* pAction, bool bSetShortcut)
       break;
     case ezActionScope::Window:
       {
-        // TODO: Parent is set externally in the view because we can't look up which window this action belongs to.
+        m_pQtAction->setParent(pAction->GetContext().m_pWindow);
         m_pQtAction->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
       }
       break;

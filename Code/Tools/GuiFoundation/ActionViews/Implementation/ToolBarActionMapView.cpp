@@ -7,10 +7,8 @@
 #include <QMenu>
 #include <QToolButton>
 
-ezToolBarActionMapView::ezToolBarActionMapView(QWidget* parent, QWidget* pActionParent) : QToolBar(parent)
+ezToolBarActionMapView::ezToolBarActionMapView(QWidget* parent) : QToolBar(parent)
 {
-  m_pActionParent = pActionParent != nullptr ? pActionParent : parent;
-  EZ_ASSERT_DEV(m_pActionParent != nullptr, "Either parent or pActionParent needs to be set in the action view!");
   setIconSize(QSize(16, 16));
 }
 
@@ -66,8 +64,6 @@ void ezToolBarActionMapView::CreateView(const ezActionMap::TreeNode* pObject)
       {
         QAction* pQtAction = static_cast<ezQtActionProxy*>(pProxy.data())->GetQAction();
         addAction(pQtAction);
-        if (pDesc->m_hAction.GetDescriptor()->m_Scope == ezActionScope::Window)
-          pQtAction->setParent(m_pActionParent);
       }
       break;
 
@@ -100,7 +96,7 @@ void ezToolBarActionMapView::CreateView(const ezActionMap::TreeNode* pObject)
         QAction* pToolButtonAction = addWidget(pButton);
         pToolButtonAction->setParent(pQtMenu);
 
-        ezMenuActionMapView::AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, pQtMenu, pChild, m_pActionParent);
+        ezMenuActionMapView::AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, pQtMenu, pChild);
       }
       break;
     }

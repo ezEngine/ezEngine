@@ -8,12 +8,13 @@
 #include <EditorPluginScene/Scene/SceneDocument.h>
 
 class QVBoxLayout;
+class ezSceneDocumentWindow;
 
 class ezSceneViewWidget : public ezEngineViewWidget
 {
   Q_OBJECT
 public:
-  ezSceneViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig);
+  ezSceneViewWidget(QWidget* pParent, ezSceneDocumentWindow* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig);
   ~ezSceneViewWidget();
 
   ezSelectionContext* m_pSelectionContext;
@@ -40,9 +41,10 @@ class ezSceneViewWidgetContainer : public QWidget
 {
   Q_OBJECT
 public:
-  ezSceneViewWidgetContainer(QWidget* pParent, ezDocumentWindow3D* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig);
+  ezSceneViewWidgetContainer(QWidget* pParent, ezSceneDocumentWindow* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig);
   ~ezSceneViewWidgetContainer();
 
+  ezSceneViewWidget* GetViewWidget() const { return m_pViewWidget; }
 
 private:
   ezSceneViewWidget* m_pViewWidget;

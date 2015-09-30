@@ -448,8 +448,6 @@ void ezSceneDocumentWindow::CreateViews(bool bQuad)
   }
   m_ActiveMainViews.Clear();
 
-  DestroyAllViews();
-
   if (bQuad)
   {
     for (ezUInt32 i = 0; i < 4; ++i)
@@ -464,6 +462,22 @@ void ezSceneDocumentWindow::CreateViews(bool bQuad)
     ezSceneViewWidgetContainer* pContainer = new ezSceneViewWidgetContainer(this, this, &m_CameraMoveSettings, &m_ViewConfigSingle);
     m_ActiveMainViews.PushBack(pContainer);
     m_pViewLayout->addWidget(pContainer, 0, 0);
+  }
+}
+
+void ezSceneDocumentWindow::ToggleViews(QWidget* pView)
+{
+  ezSceneViewWidget* pViewport = qobject_cast<ezSceneViewWidget*>(pView);
+  EZ_ASSERT_DEV(pViewport != nullptr, "ezSceneDocumentWindow::ToggleViews must be called with a ezSceneViewWidget as parameter!");
+  bool bIsQuad = m_ActiveMainViews.GetCount() == 4;
+  if (bIsQuad)
+  {
+    m_ViewConfigSingle = *pViewport->m_pViewConfig;
+    CreateViews(false);
+  }
+  else
+  {
+    CreateViews(true);
   }
 }
 
@@ -489,7 +503,7 @@ bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg*
       return true;
 
     if (pSceneView->m_pViewConfig->m_Camera.GetCameraMode() == ezCamera::PerspectiveFixedFovX ||
-        pSceneView->m_pViewConfig->m_Camera.GetCameraMode() == ezCamera::PerspectiveFixedFovY)
+      pSceneView->m_pViewConfig->m_Camera.GetCameraMode() == ezCamera::PerspectiveFixedFovY)
     {
       const ezAngle fovX = pSceneView->m_pViewConfig->m_Camera.GetFovX((float)pSceneView->width() / (float)pSceneView->height());
       const ezAngle fovY = pSceneView->m_pViewConfig->m_Camera.GetFovY((float)pSceneView->width() / (float)pSceneView->height());

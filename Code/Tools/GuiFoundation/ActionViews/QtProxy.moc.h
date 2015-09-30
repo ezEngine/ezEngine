@@ -36,7 +36,7 @@ protected:
   static ezRttiMappedObjectFactory<ezQtProxy> s_Factory;
   static ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> s_GlobalActions;
   static ezMap<ezUuid, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > s_DocumentActions;
-  static ezMap<ezString, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > s_WindowActions;
+  static ezMap<QWidget*, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > s_WindowActions;
 
 protected:
   ezAction* m_pAction;

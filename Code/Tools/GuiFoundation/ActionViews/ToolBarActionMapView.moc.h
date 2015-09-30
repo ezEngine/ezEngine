@@ -17,7 +17,7 @@ class EZ_GUIFOUNDATION_DLL ezToolBarActionMapView : public QToolBar
   Q_OBJECT
   EZ_DISALLOW_COPY_AND_ASSIGN(ezToolBarActionMapView);
 public:
-  explicit ezToolBarActionMapView(QWidget* parent, QWidget* pActionParent = nullptr);
+  explicit ezToolBarActionMapView(QWidget* parent);
   ~ezToolBarActionMapView();
 
   void SetActionContext(const ezActionContext& context);
@@ -35,5 +35,4 @@ private:
 
   ezActionContext m_Context;
   ezActionMap* m_pActionMap;
-  QWidget* m_pActionParent;
 };

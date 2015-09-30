@@ -406,11 +406,12 @@ void ezDocumentWindow::EnsureVisible()
 
 void ezDocumentWindow::RequestWindowTabContextMenu(const QPoint& GlobalPos)
 {
-  ezMenuActionMapView menu(nullptr, this);
+  ezMenuActionMapView menu(nullptr);
 
   ezActionContext context;
   context.m_sMapping = "DocumentWindowTabMenu";
   context.m_pDocument = GetDocument();
+  context.m_pWindow = this;
   menu.SetActionContext(context);
 
   menu.exec(GlobalPos);
