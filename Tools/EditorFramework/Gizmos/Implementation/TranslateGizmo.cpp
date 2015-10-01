@@ -117,17 +117,17 @@ bool ezTranslateGizmo::mousePressEvent(QMouseEvent* e)
 
   if (m_pInteractionGizmoHandle == &m_AxisX)
   {
-    m_vMoveAxis = m_AxisX.GetTransformation().GetColumn(1).GetAsVec3().GetNormalized();
+    m_vMoveAxis = m_AxisX.GetTransformation().GetColumn(0).GetAsVec3().GetNormalized();
     m_Mode = TranslateMode::Axis;
   }
   else if (m_pInteractionGizmoHandle == &m_AxisY)
   {
-    m_vMoveAxis = m_AxisY.GetTransformation().GetColumn(1).GetAsVec3().GetNormalized();
+    m_vMoveAxis = m_AxisY.GetTransformation().GetColumn(0).GetAsVec3().GetNormalized();
     m_Mode = TranslateMode::Axis;
   }
   else if (m_pInteractionGizmoHandle == &m_AxisZ)
   {
-    m_vMoveAxis = m_AxisZ.GetTransformation().GetColumn(1).GetAsVec3().GetNormalized();
+    m_vMoveAxis = m_AxisZ.GetTransformation().GetColumn(0).GetAsVec3().GetNormalized();
     m_Mode = TranslateMode::Axis;
   }
   else if (m_pInteractionGizmoHandle == &m_PlaneXY)

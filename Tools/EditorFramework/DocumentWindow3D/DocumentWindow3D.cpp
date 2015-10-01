@@ -218,6 +218,17 @@ ezEngineViewWidget* ezDocumentWindow3D::GetFocusedViewWidget() const
   return nullptr;
 }
 
+ezEngineViewWidget * ezDocumentWindow3D::GetViewWidgetByID(ezUInt32 uiViewID) const
+{
+  for (auto pView : m_ViewWidgets)
+  {
+    if (pView && pView->GetViewID() == uiViewID)
+      return pView;
+  }
+
+  return nullptr;
+}
+
 void ezDocumentWindow3D::SyncObjectsToEngine()
 {
   // Tell the engine which sync objects have been removed recently

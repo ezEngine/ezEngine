@@ -49,6 +49,8 @@ public:
   /// \brief Returns the ezEngineViewWidget that has the input focus
   ezEngineViewWidget* GetFocusedViewWidget() const;
 
+  ezEngineViewWidget* GetViewWidgetByID(ezUInt32 uiViewID) const;
+
 private slots:
   void SlotRestartEngineProcess();
 

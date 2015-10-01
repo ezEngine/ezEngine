@@ -487,10 +487,10 @@ bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg*
   {
     const ezQuerySelectionBBoxResultMsgToEditor* msg = static_cast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg);
 
-    if (msg->m_uiViewID >= m_ViewWidgets.GetCount() || m_ViewWidgets[msg->m_uiViewID] == nullptr)
+    ezSceneViewWidget* pSceneView = static_cast<ezSceneViewWidget*>(GetViewWidgetByID(msg->m_uiViewID));
+
+    if (!pSceneView)
       return true;
-    
-    ezSceneViewWidget* pSceneView = static_cast<ezSceneViewWidget*>(m_ViewWidgets[msg->m_uiViewID]);
 
     /// \todo Object Pivot Offset
     /// \todo Zoom in / out only on second focus ?
