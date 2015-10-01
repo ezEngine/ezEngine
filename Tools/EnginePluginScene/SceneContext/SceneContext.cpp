@@ -13,6 +13,18 @@ EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "ezScene")
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+void ezSceneContext::ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds)
+{
+  bounds.ExpandToInclude(pObj->GetGlobalBounds());
+
+  auto it = pObj->GetChildren();
+
+  while (it.IsValid())
+  {
+    ComputeHierarchyBounds(it, bounds);
+    it.Next();
+  }
+}
 
 void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
@@ -39,12 +51,7 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
         if (!m_pWorld->TryGetObject(obj, pObj))
           continue;
 
-        auto b = pObj->GetGlobalBounds();
-
-        if (bounds.IsValid())
-          bounds.ExpandToInclude(b);
-        else
-          bounds = b;
+        ComputeHierarchyBounds(pObj, bounds);
       }
     }
 

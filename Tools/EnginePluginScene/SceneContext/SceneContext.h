@@ -22,6 +22,7 @@ protected:
 
 private:
   void HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg);
+  void ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds);
 
   ezDeque<ezGameObjectHandle> m_Selection;
 };

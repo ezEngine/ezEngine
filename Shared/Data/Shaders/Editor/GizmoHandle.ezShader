@@ -28,7 +28,7 @@ VS_OUT_COLORED main(VS_IN_COLORED Input)
 {
   float3 vWorldSpacePos = mul(ObjectToWorldMatrix, float4(0, 0, 0, 1)).xyz;
   
-  float fScale = length(vWorldSpacePos - CameraPosition) * 0.125;
+  float fScale = length(vWorldSpacePos - CameraPosition) * GizmoScale;
 
   VS_OUT_COLORED RetVal;
   RetVal.Position = mul(ObjectToScreenMatrix, float4(Input.Position * fScale, 1.0f));

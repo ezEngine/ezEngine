@@ -31,6 +31,10 @@ void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext)
     break;
   }
 
+  // since typically the fov is tied to the height, we orient the gizmo size on that
+  const float fGizmoScale = 128.0f / (float) renderViewContext.m_pViewData->m_ViewPortRect.height;
+  ezRenderContext::GetDefaultInstance()->SetMaterialParameter("GizmoScale", fGizmoScale);
+
   ezSimpleRenderPass::Execute(renderViewContext);
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_DEFAULT");

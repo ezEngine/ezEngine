@@ -4,4 +4,5 @@ CONSTANT_BUFFER(MaterialCB, 1)
 {
   COLOR(MeshColor);
   INT1(PickingHighlightID);
+  FLOAT1(GizmoScale);
 };

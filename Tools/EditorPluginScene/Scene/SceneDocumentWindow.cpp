@@ -5,7 +5,6 @@
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
-#include <EditorPluginScene/Panels/ObjectCreatorPanel/ObjectCreatorList.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <QGridLayout>
 
@@ -85,20 +84,11 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
     ezDocumentPanel* pPanelTree = new ezScenegraphPanel(this, static_cast<ezSceneDocument*>(pDocument));
     pPanelTree->show();
 
-    ezDocumentPanel* pPanelCreator = new ezDocumentPanel(this);
-    pPanelCreator->setObjectName("CreatorPanel");
-    pPanelCreator->setWindowTitle("Object Creator");
-    pPanelCreator->show();
-
     ezPropertyGridWidget* pPropertyGrid = new ezPropertyGridWidget(pDocument, pPropertyPanel);
     pPropertyPanel->setWidget(pPropertyGrid);
 
-    ezObjectCreatorList* pCreatorWidget = new ezObjectCreatorList(pDocument->GetObjectManager(), pPanelCreator);
-    pPanelCreator->setWidget(pCreatorWidget);
-
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
     addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
-    addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelCreator);
   }
 }
 
@@ -499,7 +489,12 @@ void ezSceneDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxRes
     const float dist2 = fRadius / ezMath::Sin(fovY * 0.5);
     const float distBest = ezMath::Max(dist1, dist2);
 
-    vNewCameraDirection = vPivotPoint - cam.GetCenterPosition();
+    /// \todo Hard coded 'up' axis
+    // make sure the camera is always above the objects center point, looking down, never up
+    ezVec3 vCamRefPoint = cam.GetCenterPosition();
+    vCamRefPoint.z = ezMath::Max(vCamRefPoint.z, pMsg->m_vCenter.z + pMsg->m_vHalfExtents.z * 0.5f);
+
+    vNewCameraDirection = vPivotPoint - vCamRefPoint;
     vNewCameraDirection.NormalizeIfNotZero(ezVec3(1, 0, 0));
 
     {
