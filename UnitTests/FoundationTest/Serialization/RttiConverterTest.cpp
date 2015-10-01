@@ -3,6 +3,7 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/RttiConverter.h>
 #include <Foundation/Serialization/JsonSerializer.h>
+#include <Foundation/Serialization/BinarySerializer.h>
 #include <Foundation/IO/MemoryStream.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Serialization);
@@ -44,34 +45,67 @@ void TestSerialize(T* pObject)
   EZ_TEST_STRING(pNode->GetType(), pRtti->GetTypeName());
   EZ_TEST_INT(pNode->GetProperties().GetCount(), pNode->GetProperties().GetCount());
 
-  ezMemoryStreamStorage storage;
-  ezMemoryStreamWriter writer(&storage);
-  ezMemoryStreamReader reader(&storage);
+  {
+    ezMemoryStreamStorage storage;
+    ezMemoryStreamWriter writer(&storage);
+    ezMemoryStreamReader reader(&storage);
 
-  ezAbstractGraphJsonSerializer::Write(writer, &graph, ezJSONWriter::WhitespaceMode::All);
+    ezAbstractGraphJsonSerializer::Write(writer, &graph, ezJSONWriter::WhitespaceMode::All);
 
-  ezStringBuilder sData, sData2;
-  sData.SetSubString_ElementCount((const char*)storage.GetData(), storage.GetStorageSize());
+    ezStringBuilder sData, sData2;
+    sData.SetSubString_ElementCount((const char*)storage.GetData(), storage.GetStorageSize());
 
 
-  ezRttiConverterReader convRead(&graph, &context);
-  auto* pRootNode = graph.GetNodeByName("root");
-  EZ_TEST_BOOL(pRootNode != nullptr);
+    ezRttiConverterReader convRead(&graph, &context);
+    auto* pRootNode = graph.GetNodeByName("root");
+    EZ_TEST_BOOL(pRootNode != nullptr);
 
-  T target;
-  convRead.ApplyPropertiesToObject(pRootNode, pRtti, &target);
-  EZ_TEST_BOOL(target == *pObject);
+    T target;
+    convRead.ApplyPropertiesToObject(pRootNode, pRtti, &target);
+    EZ_TEST_BOOL(target == *pObject);
 
-  ezAbstractObjectGraph graph2;
-  ezAbstractGraphJsonSerializer::Read(reader, &graph2);
+    ezAbstractObjectGraph graph2;
+    ezAbstractGraphJsonSerializer::Read(reader, &graph2);
 
-  ezMemoryStreamStorage storage2;
-  ezMemoryStreamWriter writer2(&storage2);
+    ezMemoryStreamStorage storage2;
+    ezMemoryStreamWriter writer2(&storage2);
 
-  ezAbstractGraphJsonSerializer::Write(writer2, &graph2, ezJSONWriter::WhitespaceMode::All);
-  sData2.SetSubString_ElementCount((const char*)storage2.GetData(), storage2.GetStorageSize());
+    ezAbstractGraphJsonSerializer::Write(writer2, &graph2, ezJSONWriter::WhitespaceMode::All);
+    sData2.SetSubString_ElementCount((const char*)storage2.GetData(), storage2.GetStorageSize());
 
-  EZ_TEST_STRING(sData, sData2);
+    EZ_TEST_STRING(sData, sData2);
+  }
+
+  {
+    ezMemoryStreamStorage storage;
+    ezMemoryStreamWriter writer(&storage);
+    ezMemoryStreamReader reader(&storage);
+
+    ezAbstractGraphBinarySerializer::Write(writer, &graph);
+
+    ezRttiConverterReader convRead(&graph, &context);
+    auto* pRootNode = graph.GetNodeByName("root");
+    EZ_TEST_BOOL(pRootNode != nullptr);
+
+    T target;
+    convRead.ApplyPropertiesToObject(pRootNode, pRtti, &target);
+    EZ_TEST_BOOL(target == *pObject);
+
+    ezAbstractObjectGraph graph2;
+    ezAbstractGraphBinarySerializer::Read(reader, &graph2);
+
+    ezMemoryStreamStorage storage2;
+    ezMemoryStreamWriter writer2(&storage2);
+
+    ezAbstractGraphBinarySerializer::Write(writer2, &graph2);
+
+    EZ_TEST_INT(storage.GetStorageSize(), storage2.GetStorageSize());
+
+    if (storage.GetStorageSize() == storage2.GetStorageSize())
+    {
+      EZ_TEST_BOOL(ezMemoryUtils::ByteCompare<ezUInt8>(storage.GetData(), storage2.GetData(), storage.GetStorageSize()) == 0);
+    }
+  }
 }
 
 EZ_CREATE_SIMPLE_TEST(Serialization, RttiConverter)

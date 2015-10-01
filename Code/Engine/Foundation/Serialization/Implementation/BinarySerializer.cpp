@@ -1,0 +1,57 @@
+#include <Foundation/PCH.h>
+#include <Foundation/Serialization/BinarySerializer.h>
+
+void ezAbstractGraphBinarySerializer::Write(ezStreamWriterBase& stream, const ezAbstractObjectGraph* pGraph)
+{
+  const auto& Nodes = pGraph->GetAllNodes();
+
+  ezUInt32 iNodes = Nodes.GetCount();
+  stream << iNodes;
+  for (auto itNode = Nodes.GetIterator(); itNode.IsValid(); ++itNode)
+  {
+    const auto& node = *itNode.Value();
+    stream << node.GetGuid();
+    stream << node.GetType();
+    stream << node.GetNodeName();
+
+    const ezHybridArray<ezAbstractObjectNode::Property, 16>& properties = node.GetProperties();
+    ezUInt32 iProps = properties.GetCount();
+    stream << iProps;
+    for (const ezAbstractObjectNode::Property& prop : properties)
+    {
+      stream << prop.m_szPropertyName;
+      stream << prop.m_Value;
+    }
+  }
+}
+
+
+void ezAbstractGraphBinarySerializer::Read(ezStreamReaderBase& stream, ezAbstractObjectGraph* pGraph)
+{
+  ezUInt32 iNodes;
+  stream >> iNodes;
+  for (ezUInt32 i = 0; i < iNodes; i++)
+  {
+    ezUuid guid;
+    ezStringBuilder sType;
+    ezStringBuilder sNodeName;
+    stream >> guid;
+    stream >> sType;
+    stream >> sNodeName;
+    ezAbstractObjectNode* pNode = pGraph->AddNode(guid, sType, sNodeName);
+    ezUInt32 iProps;
+    stream >> iProps;
+    for (ezUInt32 i = 0; i < iProps; i++)
+    {
+      ezStringBuilder sPropName;
+      ezVariant value;
+      stream >> sPropName;
+      stream >> value;
+      pNode->AddProperty(sPropName, value);
+    }
+  }
+}
+
+
+
+

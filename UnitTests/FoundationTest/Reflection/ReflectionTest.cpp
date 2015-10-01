@@ -339,27 +339,86 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MemberProperties)
 }
 
 
+template<typename T>
+void TestSerialization(const T& source)
+{
+  ezMemoryStreamStorage StreamStorage;
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteObjectToJSON")
+  {
+    ezMemoryStreamWriter FileOut(&StreamStorage);
+
+    ezReflectionSerializer::WriteObjectToJSON(FileOut, ezGetStaticRTTI<T>(), &source, ezJSONWriter::WhitespaceMode::All);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromJSON")
+  {
+    ezMemoryStreamReader FileIn(&StreamStorage);
+    T data;
+    ezReflectionSerializer::ReadObjectPropertiesFromJSON(FileIn, *ezGetStaticRTTI<T>(), &data);
+
+    EZ_TEST_BOOL(data == source);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectFromJSON")
+  {
+    ezMemoryStreamReader FileIn(&StreamStorage);
+
+    const ezRTTI* pRtti;
+    void* pObject = ezReflectionSerializer::ReadObjectFromJSON(FileIn, pRtti);
+
+    T& c2 = *((T*)pObject);
+
+    EZ_TEST_BOOL(c2 == source);
+
+    if (pObject)
+    {
+      pRtti->GetAllocator()->Deallocate(pObject);
+    }
+  }
+
+  ezMemoryStreamStorage StreamStorageBinary;
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteObjectToBinary")
+  {
+    ezMemoryStreamWriter FileOut(&StreamStorageBinary);
+
+    ezReflectionSerializer::WriteObjectToBinary(FileOut, ezGetStaticRTTI<T>(), &source);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromBinary")
+  {
+    ezMemoryStreamReader FileIn(&StreamStorageBinary);
+    T data;
+    ezReflectionSerializer::ReadObjectPropertiesFromBinary(FileIn, *ezGetStaticRTTI<T>(), &data);
+
+    EZ_TEST_BOOL(data == source);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectFromBinary")
+  {
+    ezMemoryStreamReader FileIn(&StreamStorageBinary);
+
+    const ezRTTI* pRtti;
+    void* pObject = ezReflectionSerializer::ReadObjectFromBinary(FileIn, pRtti);
+
+    T& c2 = *((T*)pObject);
+
+    EZ_TEST_BOOL(c2 == source);
+
+    if (pObject)
+    {
+      pRtti->GetAllocator()->Deallocate(pObject);
+    }
+  }
+}
+
 EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
 {
-
-  ezStringBuilder sOutputFolder1 = BUILDSYSTEM_OUTPUT_FOLDER;
-  sOutputFolder1.AppendPath("FoundationTest", "Reflection");
-
-  //ezOSFile osf;
-  //osf.CreateDirectoryStructure(sOutputFolder1.GetData());
-
-  //ezFileSystem::ClearAllDataDirectoryFactories();
-  //ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-  //EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), ezFileSystem::AllowWrites, "Clear") == EZ_SUCCESS);
 
   ezMemoryStreamStorage StreamStorage;
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteObjectToJSON")
   {
     ezMemoryStreamWriter FileOut(&StreamStorage);
-
-    //ezFileWriter FileOut;
-    //EZ_TEST_BOOL(FileOut.Open("JSON.txt") == EZ_SUCCESS);
 
     ezTestClass2 c2;
     c2.SetText("Hallo");
@@ -380,9 +439,6 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromJSON")
   {
     ezMemoryStreamReader FileIn(&StreamStorage);
-
-    //ezFileReader FileIn;
-    //EZ_TEST_BOOL(FileIn.Open("JSON.txt") == EZ_SUCCESS);
 
     ezTestClass2 c2;
 
@@ -414,9 +470,6 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
 
     ezMemoryStreamReader FileIn(&StreamStorage);
 
-    //ezFileReader FileIn;
-    //EZ_TEST_BOOL(FileIn.Open("JSON.txt") == EZ_SUCCESS);
-
     ezTestClass2b c2;
 
     ezReflectionSerializer::ReadObjectPropertiesFromJSON(FileIn, *c2.GetDynamicRTTI(), &c2);
@@ -432,9 +485,6 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectFromJSON")
   {
     ezMemoryStreamReader FileIn(&StreamStorage);
-
-    //ezFileReader FileIn;
-    //EZ_TEST_BOOL(FileIn.Open("JSON.txt") == EZ_SUCCESS);
 
     const ezRTTI* pRtti;
     void* pObject = ezReflectionSerializer::ReadObjectFromJSON(FileIn, pRtti);
@@ -764,41 +814,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Arrays)
     TestArrayProperty<ezTestArrays>("AcDequeRO", &containers, pRtti, data);
   }
 
-  ezMemoryStreamStorage StreamStorage;
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteObjectToJSON")
-  {
-    ezMemoryStreamWriter FileOut(&StreamStorage);
-
-    ezReflectionSerializer::WriteObjectToJSON(FileOut, containers.GetDynamicRTTI(), &containers, ezJSONWriter::WhitespaceMode::All);
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromJSON")
-  {
-    ezMemoryStreamReader FileIn(&StreamStorage);
-    ezTestArrays data;
-    ezReflectionSerializer::ReadObjectPropertiesFromJSON(FileIn, *data.GetDynamicRTTI(), &data);
-
-    EZ_TEST_BOOL(data == containers);
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectFromJSON")
-  {
-    ezMemoryStreamReader FileIn(&StreamStorage);
-
-    const ezRTTI* pRtti;
-    void* pObject = ezReflectionSerializer::ReadObjectFromJSON(FileIn, pRtti);
-
-    ezTestArrays& c2 = *((ezTestArrays*) pObject);
-
-    EZ_TEST_BOOL(c2 == containers);
-
-    if (pObject)
-    {
-      pRtti->GetAllocator()->Deallocate(pObject);
-    }
-  }
+  TestSerialization<ezTestArrays>(containers);
 }
+
 
 
 template<typename T>
@@ -896,40 +914,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Sets)
     TestSetProperty<const char*>("AcPseudoSet2b", &containers, pRtti, szValue1, szValue2);
   }
 
-  ezMemoryStreamStorage StreamStorage;
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteObjectToJSON")
-  {
-    ezMemoryStreamWriter FileOut(&StreamStorage);
-
-    ezReflectionSerializer::WriteObjectToJSON(FileOut, containers.GetDynamicRTTI(), &containers, ezJSONWriter::WhitespaceMode::All);
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromJSON")
-  {
-    ezMemoryStreamReader FileIn(&StreamStorage);
-    ezTestSets data;
-    ezReflectionSerializer::ReadObjectPropertiesFromJSON(FileIn, *data.GetDynamicRTTI(), &data);
-
-    EZ_TEST_BOOL(data == containers);
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectFromJSON")
-  {
-    ezMemoryStreamReader FileIn(&StreamStorage);
-
-    const ezRTTI* pRtti;
-    void* pObject = ezReflectionSerializer::ReadObjectFromJSON(FileIn, pRtti);
-
-    ezTestSets& c2 = *((ezTestSets*) pObject);
-
-    EZ_TEST_BOOL(c2 == containers);
-
-    if (pObject)
-    {
-      pRtti->GetAllocator()->Deallocate(pObject);
-    }
-  }
+  TestSerialization<ezTestSets>(containers);
 }
 
 
@@ -1006,44 +991,5 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Pointer)
     containers.m_SetPtr.GetIterator().Key()->m_Array.PushBack("BLA");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteObjectToJSON")
-  {
-    ezMemoryStreamWriter FileOut(&StreamStorage);
-
-    ezReflectionSerializer::WriteObjectToJSON(FileOut, containers.GetDynamicRTTI(), &containers, ezJSONWriter::WhitespaceMode::All);
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromJSON")
-  {
-    ezMemoryStreamReader FileIn(&StreamStorage);
-    ezTestPtr data;
-    ezReflectionSerializer::ReadObjectPropertiesFromJSON(FileIn, *data.GetDynamicRTTI(), &data);
-
-    EZ_TEST_BOOL(data.m_sString == containers.m_sString);
-    EZ_TEST_BOOL(*data.m_pArrays == *containers.m_pArrays);
-    EZ_TEST_BOOL(*data.m_ArrayPtr[0] == *containers.m_ArrayPtr[0]);
-    EZ_TEST_BOOL(*data.m_SetPtr.GetIterator().Key() == *containers.m_SetPtr.GetIterator().Key());
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectFromJSON")
-  {
-    ezMemoryStreamReader FileIn(&StreamStorage);
-
-    const ezRTTI* pRtti2;
-    void* pObject = ezReflectionSerializer::ReadObjectFromJSON(FileIn, pRtti2);
-    EZ_TEST_BOOL(pRtti == pRtti2);
-    
-    ezTestPtr& data = *((ezTestPtr*) pObject);
-
-    EZ_TEST_BOOL(data.m_sString == containers.m_sString);
-    EZ_TEST_BOOL(*data.m_pArrays == *containers.m_pArrays);
-    EZ_TEST_BOOL(*data.m_ArrayPtr[0] == *containers.m_ArrayPtr[0]);
-    EZ_TEST_BOOL(*data.m_SetPtr.GetIterator().Key() == *containers.m_SetPtr.GetIterator().Key());
-
-    if (pObject)
-    {
-      pRtti->GetAllocator()->Deallocate(pObject);
-    }
-  }
-
+  TestSerialization<ezTestPtr>(containers);
 }

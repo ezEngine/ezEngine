@@ -191,7 +191,7 @@ void ezProcessCommunication::SendMessage(ezProcessMessage* pMessage, bool bSuper
       ezMemoryStreamStorage& storage = m_MessageSendQueue.ExpandAndGetRef();
       ezMemoryStreamWriter writer(&storage);
 
-      ezReflectionSerializer::WriteObjectToJSON(writer, pMessage->GetDynamicRTTI(), pMessage);
+      ezReflectionSerializer::WriteObjectToBinary(writer, pMessage->GetDynamicRTTI(), pMessage);
     }
   }
 
@@ -336,7 +336,7 @@ void ezProcessCommunication::DispatchMessages()
       ezMemoryStreamReader reader(&storage);
 
       const ezRTTI* pRtti = nullptr;
-      ezProcessMessage* pObject = (ezProcessMessage*)ezReflectionSerializer::ReadObjectFromJSON(reader, pRtti);
+      ezProcessMessage* pObject = (ezProcessMessage*)ezReflectionSerializer::ReadObjectFromBinary(reader, pRtti);
 
       if (m_pWaitForMessageType != nullptr && pObject->GetDynamicRTTI()->IsDerivedFrom(m_pWaitForMessageType))
         m_pWaitForMessageType = nullptr;

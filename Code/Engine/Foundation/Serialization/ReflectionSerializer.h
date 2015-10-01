@@ -17,7 +17,10 @@ public:
   /// or might also be read by humans.
   ///
   /// Read-only properties are not written out, as they cannot be restored anyway.
-  static void WriteObjectToJSON(ezStreamWriterBase& stream, const ezRTTI* pRtti, const void* pObject, ezJSONWriter::WhitespaceMode = ezJSONWriter::WhitespaceMode::NewlinesOnly);
+  static void WriteObjectToJSON(ezStreamWriterBase& stream, const ezRTTI* pRtti, const void* pObject, ezJSONWriter::WhitespaceMode = ezJSONWriter::WhitespaceMode::NewlinesOnly); // [tested]
+
+  /// \brief Same as WriteObjectToJSON but binary.
+  static void WriteObjectToBinary(ezStreamWriterBase& stream, const ezRTTI* pRtti, const void* pObject); // [tested]
 
   /// \brief Reads the entire JSON data in the stream and restores a reflected object.
   ///
@@ -25,7 +28,10 @@ public:
   /// or, if none is provided, the default allocator for the type is used.
   ///
   /// All properties are set to the values as described in the JSON data, as long as the properties can be matched to the runtime type.
-  static void* ReadObjectFromJSON(ezStreamReaderBase& stream, const ezRTTI*& pRtti);
+  static void* ReadObjectFromJSON(ezStreamReaderBase& stream, const ezRTTI*& pRtti); // [tested]
+
+  /// \brief Same as ReadObjectFromJSON but binary.
+  static void* ReadObjectFromBinary(ezStreamReaderBase& stream, const ezRTTI*& pRtti); // [tested]
 
   /// \brief Reads the entire JSON data in the stream and sets all properties of the given object.
   ///
@@ -35,5 +41,9 @@ public:
   ///
   /// The object itself will not be reset to the default state before the properties are set, so properties that do not appear
   /// in the JSON data, or cannot be matched, will not be affected.
-  static void ReadObjectPropertiesFromJSON(ezStreamReaderBase& stream, const ezRTTI& rtti, void* pObject);
+  static void ReadObjectPropertiesFromJSON(ezStreamReaderBase& stream, const ezRTTI& rtti, void* pObject); // [tested]
+
+  /// \brief Same as ReadObjectPropertiesFromJSON but binary.
+  static void ReadObjectPropertiesFromBinary(ezStreamReaderBase& stream, const ezRTTI& rtti, void* pObject); // [tested]
+
 };

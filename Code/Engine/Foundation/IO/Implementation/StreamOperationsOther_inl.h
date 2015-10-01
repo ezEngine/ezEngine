@@ -23,3 +23,11 @@ EZ_FOUNDATION_DLL void operator<< (ezStreamWriterBase& Stream, const ezUuid& Val
 
 /// \brief Operator to serialize ezUuid objects. [tested]
 EZ_FOUNDATION_DLL void operator>> (ezStreamReaderBase& Stream, ezUuid& Value);
+
+class ezVariant;
+
+/// \brief Operator to serialize ezVariant objects.
+EZ_FOUNDATION_DLL void operator<< (ezStreamWriterBase& Stream, const ezVariant& Value);
+
+/// \brief Operator to serialize ezVariant objects.
+EZ_FOUNDATION_DLL void operator>> (ezStreamReaderBase& Stream, ezVariant& Value);

@@ -352,9 +352,28 @@ public:
 
   bool operator==(const ezTestPtr& rhs) const
   {
-    return m_sString == rhs.m_sString &&
-      (m_pArrays == rhs.m_pArrays ||
-      *m_pArrays == *rhs.m_pArrays);
+    if (m_sString != rhs.m_sString ||
+      (m_pArrays != rhs.m_pArrays &&
+      *m_pArrays != *rhs.m_pArrays))
+      return false;
+
+    if (m_ArrayPtr.GetCount() != rhs.m_ArrayPtr.GetCount())
+      return false;
+
+    for (ezUInt32 i = 0; i < m_ArrayPtr.GetCount(); i++)
+    {
+      if (!(*m_ArrayPtr[i] == *rhs.m_ArrayPtr[i]))
+        return false;
+    }
+
+    // only works for the test data if the test.
+    if (m_SetPtr.IsEmpty() && rhs.m_SetPtr.IsEmpty())
+      return true;
+
+    if (m_SetPtr.GetCount() != 1 || rhs.m_SetPtr.GetCount() != 1)
+      return true;
+
+    return  *m_SetPtr.GetIterator().Key() == *rhs.m_SetPtr.GetIterator().Key();
   }
 
   void SetString(const char* pzValue) { m_sString = pzValue; }

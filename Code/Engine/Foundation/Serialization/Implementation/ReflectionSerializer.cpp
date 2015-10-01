@@ -6,7 +6,7 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/RttiConverter.h>
 #include <Foundation/Serialization/JsonSerializer.h>
-
+#include <Foundation/Serialization/BinarySerializer.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezReflectionSerializer public static functions
@@ -25,6 +25,21 @@ void ezReflectionSerializer::WriteObjectToJSON(ezStreamWriterBase& stream, const
   ezAbstractObjectNode* pNode = conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
 
   ezAbstractGraphJsonSerializer::Write(stream, &graph, ezJSONWriter::WhitespaceMode::LessIndentation);
+}
+
+void ezReflectionSerializer::WriteObjectToBinary(ezStreamWriterBase& stream, const ezRTTI* pRtti, const void* pObject)
+{
+  ezAbstractObjectGraph graph;
+  ezRttiConverterContext context;
+  ezRttiConverterWriter conv(&graph, &context, false, true);
+
+  ezUuid guid;
+  guid.CreateNewUuid();
+
+  context.RegisterObject(guid, pRtti, const_cast<void*>(pObject));
+  ezAbstractObjectNode* pNode = conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
+
+  ezAbstractGraphBinarySerializer::Write(stream, &graph);
 }
 
 void* ezReflectionSerializer::ReadObjectFromJSON(ezStreamReaderBase& stream, const ezRTTI*& pRtti)
@@ -48,12 +63,48 @@ void* ezReflectionSerializer::ReadObjectFromJSON(ezStreamReaderBase& stream, con
   return pTarget;
 }
 
+void* ezReflectionSerializer::ReadObjectFromBinary(ezStreamReaderBase& stream, const ezRTTI*& pRtti)
+{
+  ezAbstractObjectGraph graph;
+  ezRttiConverterContext context;
+
+  ezAbstractGraphBinarySerializer::Read(stream, &graph);
+
+  ezRttiConverterReader convRead(&graph, &context);
+  auto* pRootNode = graph.GetNodeByName("root");
+
+  EZ_ASSERT_DEV(pRootNode != nullptr, "invalid document");
+
+  pRtti = ezRTTI::FindTypeByName(pRootNode->GetType());
+
+  void* pTarget = context.CreateObject(pRootNode->GetGuid(), pRtti);
+
+  convRead.ApplyPropertiesToObject(pRootNode, pRtti, pTarget);
+
+  return pTarget;
+}
+
 void ezReflectionSerializer::ReadObjectPropertiesFromJSON(ezStreamReaderBase& stream, const ezRTTI& rtti, void* pObject)
 {
   ezAbstractObjectGraph graph;
   ezRttiConverterContext context;
 
   ezAbstractGraphJsonSerializer::Read(stream, &graph);
+
+  ezRttiConverterReader convRead(&graph, &context);
+  auto* pRootNode = graph.GetNodeByName("root");
+
+  EZ_ASSERT_DEV(pRootNode != nullptr, "invalid document");
+
+  convRead.ApplyPropertiesToObject(pRootNode, &rtti, pObject);
+}
+
+void ezReflectionSerializer::ReadObjectPropertiesFromBinary(ezStreamReaderBase& stream, const ezRTTI& rtti, void* pObject)
+{
+  ezAbstractObjectGraph graph;
+  ezRttiConverterContext context;
+
+  ezAbstractGraphBinarySerializer::Read(stream, &graph);
 
   ezRttiConverterReader convRead(&graph, &context);
   auto* pRootNode = graph.GetNodeByName("root");
