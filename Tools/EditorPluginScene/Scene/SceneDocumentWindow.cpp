@@ -403,6 +403,7 @@ void ezSceneDocumentWindow::SendRedrawMsg()
 
   for (auto pView : m_ViewWidgets)
   {
+    pView->UpdateCameraInterpolation();
     pView->SyncToEngine();
 
     ezViewRedrawMsgToEngine msg;
@@ -465,6 +466,100 @@ void ezSceneDocumentWindow::CreateViews(bool bQuad)
   }
 }
 
+void ezSceneDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg)
+{
+  ezSceneViewWidget* pSceneView = static_cast<ezSceneViewWidget*>(GetViewWidgetByID(pMsg->m_uiViewID));
+
+  /// \todo Object Pivot Offset
+  /// \todo Zoom in / out only on second focus ?
+  const ezVec3 vPivotPoint = pMsg->m_vCenter;
+
+  const ezCamera& cam = pSceneView->m_pViewConfig->m_Camera;
+
+  ezVec3 vNewCameraPosition = cam.GetCenterPosition();
+  ezVec3 vNewCameraDirection = cam.GetDirForwards();
+  float fNewFovOrDim = cam.GetFovOrDim();
+
+  if (pSceneView->width() == 0 || pSceneView->height() == 0)
+    return;
+
+  const float fApsectRation = (float)pSceneView->width() / (float)pSceneView->height();
+
+  if (cam.GetCameraMode() == ezCamera::PerspectiveFixedFovX ||
+      cam.GetCameraMode() == ezCamera::PerspectiveFixedFovY)
+  {
+    const ezAngle fovX = cam.GetFovX(fApsectRation);
+    const ezAngle fovY = cam.GetFovY(fApsectRation);
+
+    ezBoundingBox bbox;
+    bbox.SetCenterAndHalfExtents(pMsg->m_vCenter, pMsg->m_vHalfExtents);
+    const float fRadius = bbox.GetBoundingSphere().m_fRadius * 1.5f;
+
+    const float dist1 = fRadius / ezMath::Sin(fovX * 0.5);
+    const float dist2 = fRadius / ezMath::Sin(fovY * 0.5);
+    const float distBest = ezMath::Max(dist1, dist2);
+
+    vNewCameraDirection = vPivotPoint - cam.GetCenterPosition();
+    vNewCameraDirection.NormalizeIfNotZero(ezVec3(1, 0, 0));
+
+    {
+      const ezAngle maxAngle = ezAngle::Degree(30.0f);
+
+      /// \todo Hard coded 'up' direction
+      ezVec3 vPlaneDir = vNewCameraDirection;
+      vPlaneDir.z = 0.0f;
+
+      vPlaneDir.NormalizeIfNotZero(ezVec3(1, 0, 0));
+
+      if (maxAngle < vPlaneDir.GetAngleBetween(vNewCameraDirection))
+      {
+        const ezVec3 vAxis = vPlaneDir.Cross(vNewCameraDirection).GetNormalized();
+        ezMat3 mRot;
+        mRot.SetRotationMatrix(vAxis, maxAngle);
+
+        vNewCameraDirection = mRot * vPlaneDir;
+      }
+    }
+
+    vNewCameraPosition = vPivotPoint - vNewCameraDirection * distBest;
+  }
+  else
+  {
+    vNewCameraPosition = pMsg->m_vCenter;
+
+    const ezVec3 right = cam.GetDirRight();
+    const ezVec3 up = cam.GetDirUp();
+
+    const float fSizeFactor = 2.0f;
+
+    const float fRequiredWidth = ezMath::Abs(right.Dot(pMsg->m_vHalfExtents) * 2.0f) * fSizeFactor;
+    const float fRequiredHeight = ezMath::Abs(up.Dot(pMsg->m_vHalfExtents) * 2.0f) * fSizeFactor;
+
+    float fDimWidth, fDimHeight;
+
+    if (cam.GetCameraMode() == ezCamera::OrthoFixedHeight)
+    {
+      fDimHeight = cam.GetFovOrDim();
+      fDimWidth = fDimHeight * fApsectRation;
+    }
+    else
+    {
+      fDimWidth = cam.GetFovOrDim();
+      fDimHeight = fDimWidth / fApsectRation;
+    }
+
+    const float fScaleWidth = fRequiredWidth / fDimWidth;
+    const float fScaleHeight = fRequiredHeight / fDimHeight;
+
+    const float fScaleDim = ezMath::Max(fScaleWidth, fScaleHeight);
+
+    fNewFovOrDim *= fScaleDim;
+  }
+
+  pSceneView->m_pCameraMoveContext->SetOrbitPoint(vPivotPoint);
+  pSceneView->InterpolateCameraTo(vNewCameraPosition, vNewCameraDirection, fNewFovOrDim);
+}
+
 void ezSceneDocumentWindow::ToggleViews(QWidget* pView)
 {
   ezSceneViewWidget* pViewport = qobject_cast<ezSceneViewWidget*>(pView);
@@ -473,10 +568,14 @@ void ezSceneDocumentWindow::ToggleViews(QWidget* pView)
   if (bIsQuad)
   {
     m_ViewConfigSingle = *pViewport->m_pViewConfig;
+    m_ViewConfigSingle.m_pLinkedViewConfig = pViewport->m_pViewConfig;
     CreateViews(false);
   }
   else
   {
+    if (pViewport->m_pViewConfig->m_pLinkedViewConfig != nullptr)
+      *pViewport->m_pViewConfig->m_pLinkedViewConfig = *pViewport->m_pViewConfig;
+
     CreateViews(true);
   }
 }
@@ -492,63 +591,8 @@ bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg*
     if (!pSceneView)
       return true;
 
-    /// \todo Object Pivot Offset
-    /// \todo Zoom in / out only on second focus ?
-    const ezVec3 vPivotPoint = msg->m_vCenter;
-
-    ezVec3 vNewCameraPosition = pSceneView->m_pViewConfig->m_Camera.GetCenterPosition();
-    ezVec3 vNewCameraDirection = pSceneView->m_pViewConfig->m_Camera.GetDirForwards();
-
-    if (pSceneView->width() == 0 || pSceneView->height() == 0)
-      return true;
-
-    if (pSceneView->m_pViewConfig->m_Camera.GetCameraMode() == ezCamera::PerspectiveFixedFovX ||
-      pSceneView->m_pViewConfig->m_Camera.GetCameraMode() == ezCamera::PerspectiveFixedFovY)
-    {
-      const ezAngle fovX = pSceneView->m_pViewConfig->m_Camera.GetFovX((float)pSceneView->width() / (float)pSceneView->height());
-      const ezAngle fovY = pSceneView->m_pViewConfig->m_Camera.GetFovY((float)pSceneView->width() / (float)pSceneView->height());
-
-      ezBoundingBox bbox;
-      bbox.SetCenterAndHalfExtents(msg->m_vCenter, msg->m_vHalfExtents);
-      const float fRadius = bbox.GetBoundingSphere().m_fRadius * 1.5f;
-
-      const float dist1 = fRadius / ezMath::Sin(fovX * 0.5);
-      const float dist2 = fRadius / ezMath::Sin(fovY * 0.5);
-      const float distBest = ezMath::Max(dist1, dist2);
-
-      vNewCameraDirection = vPivotPoint - pSceneView->m_pViewConfig->m_Camera.GetCenterPosition();
-      vNewCameraDirection.NormalizeIfNotZero(ezVec3(1, 0, 0));
-
-      {
-        const ezAngle maxAngle = ezAngle::Degree(30.0f);
-
-        /// \todo Hard coded 'up' direction
-        ezVec3 vPlaneDir = vNewCameraDirection;
-        vPlaneDir.z = 0.0f;
-
-        vPlaneDir.NormalizeIfNotZero(ezVec3(1, 0, 0));
-
-        if (maxAngle < vPlaneDir.GetAngleBetween(vNewCameraDirection))
-        {
-          const ezVec3 vAxis = vPlaneDir.Cross(vNewCameraDirection).GetNormalized();
-          ezMat3 mRot;
-          mRot.SetRotationMatrix(vAxis, maxAngle);
-
-          vNewCameraDirection = mRot * vPlaneDir;
-        }
-      }
-
-      vNewCameraPosition = vPivotPoint - vNewCameraDirection * distBest;
-    }
-    else
-    {
-      vNewCameraPosition = msg->m_vCenter;
-
-      /// \todo Zoom In / Out
-    }
-
-    pSceneView->m_pCameraMoveContext->SetOrbitPoint(vPivotPoint);
-    pSceneView->m_pCameraPositionContext->MoveToTarget(vNewCameraPosition, vNewCameraDirection);
+    if (msg->m_iPurpose == 0)
+      HandleFocusOnSelection(msg);
 
     return true;
   }

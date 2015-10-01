@@ -50,6 +50,66 @@ void ezEngineViewWidget::SyncToEngine()
   m_pDocumentWindow->GetEditorEngineConnection()->SendMessage(&cam);
 }
 
+
+void ezEngineViewWidget::UpdateCameraInterpolation()
+{
+  if (m_fCameraLerp >= 1.0f)
+    return;
+
+  const ezTime tNow = ezTime::Now();
+  const ezTime tDiff = tNow - m_LastCameraUpdate;
+  m_LastCameraUpdate = tNow;
+
+  m_fCameraLerp += tDiff.GetSeconds() * 2.0f;
+
+  if (m_fCameraLerp >= 1.0f)
+    m_fCameraLerp = 1.0f;
+
+  ezCamera& cam = m_pViewConfig->m_Camera;
+
+  const float fLerpValue = ezMath::Sin(ezAngle::Degree(90.0f * m_fCameraLerp));
+
+  ezQuat qRot, qRotFinal;
+  qRot.SetShortestRotation(m_vCameraStartDirection, m_vCameraTargetDirection);
+  qRotFinal.SetSlerp(ezQuat::IdentityQuaternion(), qRot, fLerpValue);
+
+  const ezVec3 vNewDirection = qRotFinal * m_vCameraStartDirection;
+  const ezVec3 vNewPosition = ezMath::Lerp(m_vCameraStartPosition, m_vCameraTargetPosition, fLerpValue);
+  const float fNewFovOrDim = ezMath::Lerp(m_fCameraStartFovOrDim, m_fCameraTargetFovOrDim, fLerpValue);
+
+  /// \todo Hard coded up vector
+  cam.LookAt(vNewPosition, vNewPosition + vNewDirection, ezVec3(0.0f, 0.0f, 1.0f));
+  cam.SetCameraMode(cam.GetCameraMode(), fNewFovOrDim, cam.GetNearPlane(), cam.GetFarPlane());
+}
+
+void ezEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim)
+{
+  // prevent restarting this in the middle of a move
+  if (m_fCameraLerp < 1.0f)
+    return;
+
+  m_vCameraStartPosition = m_pViewConfig->m_Camera.GetPosition();
+  m_vCameraTargetPosition = vPosition;
+
+  m_vCameraStartDirection = m_pViewConfig->m_Camera.GetCenterDirForwards();
+  m_vCameraTargetDirection = vDirection;
+
+  m_vCameraStartDirection.Normalize();
+  m_vCameraTargetDirection.Normalize();
+
+  m_fCameraStartFovOrDim = m_pViewConfig->m_Camera.GetFovOrDim();
+  m_fCameraTargetFovOrDim = fFovOrDim;
+
+  if (m_vCameraStartPosition == m_vCameraTargetPosition &&
+      m_vCameraStartDirection == m_vCameraTargetDirection &&
+      m_fCameraStartFovOrDim == m_fCameraTargetFovOrDim)
+    return;
+
+  m_LastCameraUpdate = ezTime::Now();
+
+  m_fCameraLerp = 0.0f;
+}
+
 void ezEngineViewWidget::resizeEvent(QResizeEvent* event)
 {
   m_pDocumentWindow->TriggerRedraw();
@@ -75,6 +135,8 @@ ezEngineViewWidget::ezEngineViewWidget(QWidget* pParent, ezDocumentWindow3D* pDo
   m_uiViewID = s_uiNextViewID;
   ++s_uiNextViewID;
   m_pDocumentWindow->m_ViewWidgets.PushBack(this);
+
+  m_fCameraLerp = 1.0f;
 }
 
 

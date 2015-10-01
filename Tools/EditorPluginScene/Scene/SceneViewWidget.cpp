@@ -18,12 +18,9 @@ ezSceneViewWidget::ezSceneViewWidget(QWidget* pParent, ezSceneDocumentWindow* pO
 
   m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
   m_pCameraMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, pOwnerWindow, this, pCameraMoveSettings);
-  m_pCameraPositionContext = EZ_DEFAULT_NEW(ezCameraPositionContext, pOwnerWindow, this);
 
   m_pCameraMoveContext->LoadState();
   m_pCameraMoveContext->SetCamera(&m_pViewConfig->m_Camera);
-
-  m_pCameraPositionContext->SetCamera(&m_pViewConfig->m_Camera);
 
   // add the input contexts in the order in which they are supposed to be processed
   m_InputContexts.PushBack(m_pSelectionContext);
@@ -34,7 +31,6 @@ ezSceneViewWidget::~ezSceneViewWidget()
 {
   EZ_DEFAULT_DELETE(m_pSelectionContext);
   EZ_DEFAULT_DELETE(m_pCameraMoveContext);
-  EZ_DEFAULT_DELETE(m_pCameraPositionContext);
 }
 
 void ezSceneViewWidget::SyncToEngine()

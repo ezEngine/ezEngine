@@ -45,6 +45,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezSceneViewConfig
   ezSceneViewPerspective::Enum m_Perspective;
 
   ezCamera m_Camera;
+  ezSceneViewConfig* m_pLinkedViewConfig = nullptr; // used to store which other view config this is linked to, for resetting values when switching views
 
   void ApplyPerspectiveSetting();
 };

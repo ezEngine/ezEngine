@@ -33,6 +33,11 @@ public:
 
   ezSceneViewConfig* m_pViewConfig;
 
+  void UpdateCameraInterpolation();
+
+  /// \brief The view's camera will be interpolated to the given coordinates
+  void InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim);
+
 protected:
   virtual void resizeEvent(QResizeEvent* event) override;
 
@@ -48,6 +53,16 @@ protected:
   ezDocumentWindow3D* m_pDocumentWindow;
 
   static ezUInt32 s_uiNextViewID;
+
+  // Camera Interpolation
+  float m_fCameraLerp;
+  float m_fCameraStartFovOrDim;
+  float m_fCameraTargetFovOrDim;
+  ezVec3 m_vCameraStartPosition;
+  ezVec3 m_vCameraTargetPosition;
+  ezVec3 m_vCameraStartDirection;
+  ezVec3 m_vCameraTargetDirection;
+  ezTime m_LastCameraUpdate;
 };
 
 

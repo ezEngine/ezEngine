@@ -4,7 +4,6 @@
 #include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
 #include <EditorPluginScene/InputContexts/SelectionContext.h>
 #include <EditorPluginScene/InputContexts/CameraMoveContext.h>
-#include <EditorPluginScene/InputContexts/CameraPositionContext.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 
 class QVBoxLayout;
@@ -19,7 +18,6 @@ public:
 
   ezSelectionContext* m_pSelectionContext;
   ezCameraMoveContext* m_pCameraMoveContext;
-  ezCameraPositionContext* m_pCameraPositionContext;
 
   virtual void SyncToEngine() override;
 
