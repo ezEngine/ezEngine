@@ -69,7 +69,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBoxSphere)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude")
   {
     ezBoundingBoxSphereT b1; b1.SetInvalid();
-    ezBoundingBoxSphereT b2(ezVec3T(0, 0, 0), ezVec3T(2, 2, 2), 2);
+    ezBoundingBoxSphereT b2(ezBoundingBoxT(ezVec3T(2, 2, 2), ezVec3T(4, 4, 4)));
 
     b1.ExpandToInclude(b2);
     EZ_TEST_BOOL(b1 == b2);
@@ -80,9 +80,9 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBoxSphere)
     b1.ExpandToInclude(b2);
     EZ_TEST_BOOL(b1 != b2);
 
-    EZ_TEST_BOOL(b1.m_vCenter == ezVec3T(1, 1, 1));
-    EZ_TEST_BOOL(b1.m_vBoxHalfExtends == ezVec3T(3, 3, 3));
-    EZ_TEST_FLOAT(b1.m_fSphereRadius, ezMath::Sqrt(ezMathTestType(3)) + 2, 0.00001f);
+    EZ_TEST_BOOL(b1.m_vCenter == ezVec3T(2, 2, 2));
+    EZ_TEST_BOOL(b1.m_vBoxHalfExtends == ezVec3T(2, 2, 2));
+    EZ_TEST_FLOAT(b1.m_fSphereRadius, ezMath::Sqrt(ezMathTestType(3)) * 2, 0.00001f);
     EZ_TEST_BOOL(b1.m_fSphereRadius <= b1.m_vBoxHalfExtends.GetLength());
   }
 

@@ -48,7 +48,7 @@ EZ_FORCE_INLINE void ezBoundingBoxSphereTemplate<Type>::SetInvalid()
 {
   m_vCenter.SetZero();
   m_fSphereRadius = -1.0f;
-  m_vBoxHalfExtends.SetZero();
+  m_vBoxHalfExtends.Set(-ezMath::BasicType<Type>::MaxValue());
 }
 
 template<typename Type>
@@ -93,7 +93,9 @@ EZ_FORCE_INLINE const ezBoundingSphereTemplate<Type> ezBoundingBoxSphereTemplate
 template<typename Type>
 void ezBoundingBoxSphereTemplate<Type>::ExpandToInclude(const ezBoundingBoxSphereTemplate& rhs)
 {
-  ezBoundingBoxTemplate<Type> box = GetBox();
+  ezBoundingBoxTemplate<Type> box;
+  box.m_vMin = m_vCenter - m_vBoxHalfExtends;
+  box.m_vMax = m_vCenter + m_vBoxHalfExtends;
   box.ExpandToInclude(rhs.GetBox());
 
   ezBoundingBoxSphereTemplate<Type> result(box);
