@@ -372,25 +372,14 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReaderBase& stream)
 
 void ezMeshResourceDescriptor::CalculateBounds()
 {
-  m_Bounds.SetInvalid();
-
-  const ezVertexStreamInfo* pPositionStreamInfo = nullptr;
-  for (auto& streamInfo : m_MeshBufferDescriptor.GetVertexDeclaration().m_VertexStreams)
+  if (m_hMeshBuffer.IsValid())
   {
-    if (streamInfo.m_Semantic == ezGALVertexAttributeSemantic::Position)
-    {
-      pPositionStreamInfo = &streamInfo;
-      break;
-    }
+    ezResourceLock<ezMeshBufferResource> pMeshBuffer(m_hMeshBuffer);
+    m_Bounds = pMeshBuffer->GetBounds();
   }
-
-  if (pPositionStreamInfo == nullptr)
-    return;
-
-  const ezVec3* pPositionData = reinterpret_cast<const ezVec3*>(m_MeshBufferDescriptor.GetVertexBufferData().GetData() + pPositionStreamInfo->m_uiOffset);
-  const ezUInt32 uiStride = m_MeshBufferDescriptor.GetVertexDataSize();
-
-  /// \todo submesh bounds
-  m_Bounds.SetFromPoints(pPositionData, m_MeshBufferDescriptor.GetVertexCount(), uiStride);
+  else
+  {
+    m_Bounds = m_MeshBufferDescriptor.ComputeBounds();
+  }
 }
 

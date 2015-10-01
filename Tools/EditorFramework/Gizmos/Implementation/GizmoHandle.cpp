@@ -223,6 +223,7 @@ static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, e
   md.UseExistingMeshBuffer(hMeshBuffer);
   md.AddSubMesh(pMeshBuffer->GetPrimitiveCount(), 0, 0);
   md.SetMaterial(0, szMaterial);
+  md.CalculateBounds();
 
   return ezResourceManager::CreateResource<ezMeshResource>(szMeshResourceName, md, pMeshBuffer->GetResourceDescription());
 }

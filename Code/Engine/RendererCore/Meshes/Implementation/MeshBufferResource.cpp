@@ -122,6 +122,27 @@ ezUInt32 ezMeshBufferResourceDescriptor::GetPrimitiveCount() const
   }
 }
 
+ezBoundingBoxSphere ezMeshBufferResourceDescriptor::ComputeBounds() const
+{
+  ezBoundingBoxSphere bounds;
+  bounds.SetInvalid();
+
+  for (ezUInt32 i = 0; i < m_VertexDeclaration.m_VertexStreams.GetCount(); ++i)
+  {
+    if (m_VertexDeclaration.m_VertexStreams[i].m_Semantic == ezGALVertexAttributeSemantic::Position)
+    {
+      EZ_ASSERT_DEBUG(m_VertexDeclaration.m_VertexStreams[i].m_Format == ezGALResourceFormat::XYZFloat, "Position format is not usable");
+
+      const ezUInt32 offset = m_VertexDeclaration.m_VertexStreams[i].m_uiOffset;
+
+      bounds.SetFromPoints(reinterpret_cast<const ezVec3*>(&m_VertexStreamData[offset]), m_uiVertexCount, m_uiVertexSize);
+      return bounds;
+    }
+  }
+
+  return bounds;
+}
+
 
 ezMeshBufferResource::ezMeshBufferResource() : ezResource<ezMeshBufferResource, ezMeshBufferResourceDescriptor>(DoUpdate::OnMainThread, 1)
 {
@@ -197,6 +218,8 @@ ezResourceLoadDesc ezMeshBufferResource::CreateResource(const ezMeshBufferResour
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
   res.m_State = ezResourceState::Loaded;
+
+  m_Bounds = descriptor.ComputeBounds();
 
   return res;
 }

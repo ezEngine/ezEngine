@@ -3,6 +3,7 @@
 #include <RendererCore/Basics.h>
 #include <Core/ResourceManager/Resource.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
+#include <Foundation/Math/BoundingBoxSphere.h>
 
 typedef ezResourceHandle<class ezMeshBufferResource> ezMeshBufferResourceHandle;
 
@@ -81,6 +82,9 @@ public:
   /// \brief Returns whether an index buffer is available.
   bool HasIndexBuffer() const { return !m_IndexBufferData.IsEmpty(); }
 
+  /// \brief Calculates the bounds using the data from the position stream
+  ezBoundingBoxSphere ComputeBounds() const;
+
 private:
 
   ezUInt32 m_uiVertexSize;
@@ -116,12 +120,16 @@ public:
   /// \brief Returns the vertex declaration used by this mesh buffer.
   const ezVertexDeclarationInfo& GetVertexDeclaration() const { return m_VertexDeclaration; }
 
+  /// \brief Returns the bounds of the mesh
+  const ezBoundingBoxSphere& GetBounds() const { return m_Bounds; }
+
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReaderBase* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
   virtual ezResourceLoadDesc CreateResource(const ezMeshBufferResourceDescriptor& descriptor) override;
 
+  ezBoundingBoxSphere m_Bounds;
   ezVertexDeclarationInfo m_VertexDeclaration;
   ezUInt32 m_uiPrimitiveCount;
   ezGALBufferHandle m_hVertexBuffer;
