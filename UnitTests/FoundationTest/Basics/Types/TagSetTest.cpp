@@ -77,7 +77,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, TagSet)
     EZ_TEST_BOOL(TagSet.IsSet(TestTag1) == true);
     EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == true);
 
-    TagSet.Clear(TestTag1);
+    TagSet.Remove(TestTag1);
 
     EZ_TEST_BOOL(TagSet.IsSet(TestTag1) == false);
     EZ_TEST_BOOL(TagSet.IsSet(TestTag2) == true);
@@ -125,7 +125,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, TagSet)
 
     for (ezUInt32 i = 10; i < 60; ++i)
     {
-      BigTagSet.Clear(RegisteredTags[i]);
+      BigTagSet.Remove(RegisteredTags[i]);
     }
 
     for (ezUInt32 i = 0; i < 10; ++i)
@@ -202,7 +202,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, TagSet)
     EZ_TEST_BOOL(SimpleSingleTagBlock0.IsAnySet(SimpleSingleTagBlock0));
     EZ_TEST_BOOL(SimpleSingleTagBlock0.IsAnySet(SimpleSingleTagBlock1));
 
-    SimpleSingleTagBlock1.Clear(RegisteredTags[0]);
+    SimpleSingleTagBlock1.Remove(RegisteredTags[0]);
     EZ_TEST_BOOL(!SimpleSingleTagBlock1.IsAnySet(SimpleSingleTagBlock0));
 
     // Try with different block sizes/offsets (but same bit index)
