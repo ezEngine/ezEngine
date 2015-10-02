@@ -29,7 +29,7 @@ public:
   ActiveGizmo GetActiveGizmo() const;
 
   void TriggerShowSelectionInScenegraph();
-  void TriggerFocusOnSelection();
+  void TriggerFocusOnSelection(bool bAllViews);
   void TriggerSnapPivotToGrid();
   void TriggerSnapEachObjectToGrid();
   void GroupSelection();
@@ -61,7 +61,8 @@ public:
     {
       ActiveGizmoChanged,
       ShowSelectionInScenegraph,
-      FocusOnSelection,
+      FocusOnSelection_Hovered,
+      FocusOnSelection_All,
       SnapSelectionPivotToGrid,
       SnapEachSelectedObjectToGrid,
       HideSelectedObjects,

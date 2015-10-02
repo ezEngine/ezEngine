@@ -66,7 +66,7 @@ private:
   void SetupDefaultViewConfigs();
   void CreateViews(bool bQuad);
 
-  void HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg);
+  void HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg, ezSceneViewWidget* pSceneView);
 
   ezSceneViewConfig m_ViewConfigSingle;
   ezSceneViewConfig m_ViewConfigQuad[4];

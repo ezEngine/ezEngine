@@ -65,13 +65,13 @@ void ezSceneDocument::TriggerShowSelectionInScenegraph()
   m_SceneEvents.Broadcast(e);
 }
 
-void ezSceneDocument::TriggerFocusOnSelection()
+void ezSceneDocument::TriggerFocusOnSelection(bool bAllViews)
 {
   if (GetSelectionManager()->GetSelection().IsEmpty())
     return;
 
   SceneEvent e;
-  e.m_Type = SceneEvent::Type::FocusOnSelection;
+  e.m_Type = bAllViews ? SceneEvent::Type::FocusOnSelection_All : SceneEvent::Type::FocusOnSelection_Hovered;
   m_SceneEvents.Broadcast(e);
 }
 

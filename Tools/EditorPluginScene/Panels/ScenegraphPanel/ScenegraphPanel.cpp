@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
 #include <Core/World/GameObject.h>
+
 ezScenegraphPanel::ezScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument)
   : ezDocumentPanel(pParent)
 {
@@ -13,6 +14,8 @@ ezScenegraphPanel::ezScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocumen
   setWidget(m_pTreeWidget);
 
   m_pDocument->m_SceneEvents.AddEventHandler(ezMakeDelegate(&ezScenegraphPanel::DocumentSceneEventHandler, this));
+
+  EZ_VERIFY(connect(m_pTreeWidget, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(OnItemDoubleClicked(const QModelIndex&))) != nullptr, "signal/slot connection failed");
 
 }
 
@@ -33,3 +36,9 @@ void ezScenegraphPanel::DocumentSceneEventHandler(const ezSceneDocument::SceneEv
   }
 
 }
+
+void ezScenegraphPanel::OnItemDoubleClicked(const QModelIndex&)
+{
+  m_pDocument->TriggerFocusOnSelection(true);
+}
+

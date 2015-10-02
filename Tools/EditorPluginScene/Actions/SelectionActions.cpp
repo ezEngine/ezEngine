@@ -89,7 +89,7 @@ void ezSelectionAction::Execute(const ezVariant& value)
     m_pSceneDocument->TriggerShowSelectionInScenegraph();
     return;
   case ActionType::FocusOnSelection:
-    m_pSceneDocument->TriggerFocusOnSelection();
+    m_pSceneDocument->TriggerFocusOnSelection(false);
     return;
   case ActionType::GroupSelectedItems:
     m_pSceneDocument->GroupSelection();

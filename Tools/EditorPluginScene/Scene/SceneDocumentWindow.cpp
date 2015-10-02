@@ -240,7 +240,7 @@ void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEve
     }
     break;
 
-  case ezSceneDocument::SceneEvent::Type::FocusOnSelection:
+  case ezSceneDocument::SceneEvent::Type::FocusOnSelection_Hovered:
     {
       const auto& sel = GetDocument()->GetSelectionManager()->GetSelection();
 
@@ -256,6 +256,23 @@ void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEve
 
       ezQuerySelectionBBoxMsgToEngine msg;
       msg.m_uiViewID = pView->GetViewID();
+      msg.m_iPurpose = 0;
+      SendMessageToEngine(&msg, true);
+    }
+    break;
+
+
+  case ezSceneDocument::SceneEvent::Type::FocusOnSelection_All:
+    {
+      const auto& sel = GetDocument()->GetSelectionManager()->GetSelection();
+
+      if (sel.IsEmpty())
+        return;
+      if (!sel.PeekBack()->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+        return;
+
+      ezQuerySelectionBBoxMsgToEngine msg;
+      msg.m_uiViewID = 0xFFFFFFFF;
       msg.m_iPurpose = 0;
       SendMessageToEngine(&msg, true);
     }
@@ -448,10 +465,8 @@ void ezSceneDocumentWindow::CreateViews(bool bQuad)
   }
 }
 
-void ezSceneDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg)
+void ezSceneDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg, ezSceneViewWidget* pSceneView)
 {
-  ezSceneViewWidget* pSceneView = static_cast<ezSceneViewWidget*>(GetViewWidgetByID(pMsg->m_uiViewID));
-
   /// \todo Object Pivot Offset
   /// \todo Zoom in / out only on second focus ?
   const ezVec3 vPivotPoint = pMsg->m_vCenter;
@@ -573,13 +588,28 @@ bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg*
   {
     const ezQuerySelectionBBoxResultMsgToEditor* msg = static_cast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg);
 
-    ezSceneViewWidget* pSceneView = static_cast<ezSceneViewWidget*>(GetViewWidgetByID(msg->m_uiViewID));
+    if (msg->m_uiViewID == 0xFFFFFFFF)
+    {
+      for (auto pView : m_ViewWidgets)
+      {
+        if (!pView)
+          continue;
 
-    if (!pSceneView)
-      return true;
+        if (msg->m_iPurpose == 0)
+          HandleFocusOnSelection(msg, static_cast<ezSceneViewWidget*>(pView));
+      }
 
-    if (msg->m_iPurpose == 0)
-      HandleFocusOnSelection(msg);
+    }
+    else
+    {
+      ezSceneViewWidget* pSceneView = static_cast<ezSceneViewWidget*>(GetViewWidgetByID(msg->m_uiViewID));
+
+      if (!pSceneView)
+        return true;
+
+      if (msg->m_iPurpose == 0)
+        HandleFocusOnSelection(msg, pSceneView);
+    }
 
     return true;
   }

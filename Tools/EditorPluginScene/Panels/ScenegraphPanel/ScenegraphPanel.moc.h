@@ -14,6 +14,8 @@ public:
   ezScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument);
   ~ezScenegraphPanel();
 
+private slots:
+  void OnItemDoubleClicked(const QModelIndex&);
 
 private:
   void DocumentSceneEventHandler(const ezSceneDocument::SceneEvent& e);
