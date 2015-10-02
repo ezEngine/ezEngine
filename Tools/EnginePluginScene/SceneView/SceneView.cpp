@@ -157,6 +157,19 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
 
 void ezViewContext::Redraw()
 {
+  ezTag tagNoOrtho;
+  ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode", &tagNoOrtho);
+
+  if (m_pView->GetRenderCamera()->GetCameraMode() == ezCamera::OrthoFixedHeight ||
+      m_pView->GetRenderCamera()->GetCameraMode() == ezCamera::OrthoFixedWidth)
+  {
+    m_pView->m_ExcludeTags.Set(tagNoOrtho);
+  }
+  else
+  {
+    m_pView->m_ExcludeTags.Remove(tagNoOrtho);
+  }
+
   ezRenderLoop::AddMainView(m_pView);
 
 }

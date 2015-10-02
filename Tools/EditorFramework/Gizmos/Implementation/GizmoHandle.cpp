@@ -305,6 +305,13 @@ bool ezGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPick
   ezGameObject* pObject;
   m_hGameObject = pWorld->CreateObject(god, pObject);
 
+  {
+    ezTag tagNoOrtho;
+    ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode", &tagNoOrtho);
+
+    pObject->GetTags().Set(tagNoOrtho);
+  }
+
   ezMeshComponentManager* pMeshCompMan = pWorld->GetComponentManager<ezMeshComponentManager>();
   pMeshCompMan->CreateComponent(m_pMeshComponent);
 

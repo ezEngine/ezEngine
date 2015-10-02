@@ -101,7 +101,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
       if (pMsg2->m_bSetTag)
         pObject->GetTags().Set(tag);
       else
-        pObject->GetTags().Clear(tag);
+        pObject->GetTags().Remove(tag);
     }
   }
 

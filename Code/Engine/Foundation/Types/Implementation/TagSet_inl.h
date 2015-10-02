@@ -26,7 +26,7 @@ void ezTagSetTemplate<BlockStorageAllocator>::Set(const ezTag& Tag)
 }
 
 template<typename BlockStorageAllocator>
-void ezTagSetTemplate<BlockStorageAllocator>::Clear(const ezTag& Tag)
+void ezTagSetTemplate<BlockStorageAllocator>::Remove(const ezTag& Tag)
 {
   EZ_ASSERT_DEV(Tag.IsValid(), "Only valid tags can be cleared from a tag set!");
 

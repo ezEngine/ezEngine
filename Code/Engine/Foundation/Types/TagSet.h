@@ -27,7 +27,7 @@ public:
   EZ_FORCE_INLINE void Set(const ezTag& Tag); // [tested]
 
   /// \brief Removes the given tag.
-  EZ_FORCE_INLINE void Clear(const ezTag& Tag); // [tested]
+  EZ_FORCE_INLINE void Remove(const ezTag& Tag); // [tested]
 
   /// \brief Returns true, if the given tag is in the set.
   EZ_FORCE_INLINE bool IsSet(const ezTag& Tag) const; // [tested]
