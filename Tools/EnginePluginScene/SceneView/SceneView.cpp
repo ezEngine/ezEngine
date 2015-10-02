@@ -19,17 +19,23 @@
 #include <EnginePluginScene/EditorRenderPass/EditorRenderPass.h>
 
 
-void ezViewContext::SetCamera(const ezViewCameraMsgToEngine* pMsg)
+
+ezViewContext::ezViewContext(ezEngineProcessDocumentContext* pContext) : ezEngineProcessViewContext(pContext)
 {
-  m_Camera.SetCameraMode((ezCamera::CameraMode) pMsg->m_iCameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
+  m_pView = nullptr;
+  m_pEditorRenderPass = nullptr;
+  m_pPickingRenderPass = nullptr;
+  m_bUpdatePickingData = true;
+}
 
-  m_Camera.LookAt(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
+ezViewContext::~ezViewContext()
+{
+  ezRenderLoop::DeleteView(m_pView);
 
-  if (!m_pEditorRenderPass)
-    return;
-
-  m_pEditorRenderPass->m_ViewRenderMode = static_cast<ezViewRenderMode::Enum>(pMsg->m_uiRenderMode);
-  m_pPickingRenderPass->m_ViewRenderMode = static_cast<ezViewRenderMode::Enum>(pMsg->m_uiRenderMode);
+  if (GetEditorWindow().m_hWnd != 0)
+  {
+    static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->RemoveWindow(&GetEditorWindow());
+  }
 }
 
 void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight)
@@ -149,44 +155,23 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
   }
 }
 
-void ezViewContext::SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg, bool bSuperHighPriority)
+void ezViewContext::Redraw()
 {
-  pViewMsg->m_DocumentGuid = GetDocumentContext()->GetDocumentGuid();
+  ezRenderLoop::AddMainView(m_pView);
 
-  GetDocumentContext()->SendProcessMessage(pViewMsg, bSuperHighPriority);
 }
 
-void ezViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
+void ezViewContext::SetCamera(const ezViewCameraMsgToEngine* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
-  {
-    const ezViewRedrawMsgToEngine* pMsg2 = static_cast<const ezViewRedrawMsgToEngine*>(pMsg);
+  m_Camera.SetCameraMode((ezCamera::CameraMode) pMsg->m_iCameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
 
-    if (m_pPickingRenderPass)
-      m_pPickingRenderPass->SetEnabled(pMsg2->m_bUpdatePickingData);
+  m_Camera.LookAt(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
 
-    if (pMsg2->m_uiWindowWidth > 0 && pMsg2->m_uiWindowHeight > 0)
-    {
-      SetupRenderTarget(reinterpret_cast<HWND>(pMsg2->m_uiHWND), pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
-      Redraw();
-    }
-  }
-  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewCameraMsgToEngine>())
-  {
-    const ezViewCameraMsgToEngine* pMsg2 = static_cast<const ezViewCameraMsgToEngine*>(pMsg);
+  if (!m_pEditorRenderPass)
+    return;
 
-    SetCamera(pMsg2);
-  }
-  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingMsgToEngine>())
-  {
-
-
-    const ezViewPickingMsgToEngine* pMsg2 = static_cast<const ezViewPickingMsgToEngine*>(pMsg);
-
-    PickObjectAt(pMsg2->m_uiPickPosX, pMsg2->m_uiPickPosY);
-  }
-
-
+  m_pEditorRenderPass->m_ViewRenderMode = static_cast<ezViewRenderMode::Enum>(pMsg->m_uiRenderMode);
+  m_pPickingRenderPass->m_ViewRenderMode = static_cast<ezViewRenderMode::Enum>(pMsg->m_uiRenderMode);
 }
 
 void ezViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
@@ -267,9 +252,43 @@ void ezViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
   SendViewMessage(&res, true);
 }
 
-void ezViewContext::Redraw()
+void ezViewContext::SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg, bool bSuperHighPriority)
 {
-  ezRenderLoop::AddMainView(m_pView);
+  pViewMsg->m_DocumentGuid = GetDocumentContext()->GetDocumentGuid();
+
+  GetDocumentContext()->SendProcessMessage(pViewMsg, bSuperHighPriority);
+}
+
+void ezViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
+{
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
+  {
+    const ezViewRedrawMsgToEngine* pMsg2 = static_cast<const ezViewRedrawMsgToEngine*>(pMsg);
+
+    if (m_pPickingRenderPass)
+      m_pPickingRenderPass->SetEnabled(pMsg2->m_bUpdatePickingData);
+
+    if (pMsg2->m_uiWindowWidth > 0 && pMsg2->m_uiWindowHeight > 0)
+    {
+      SetupRenderTarget(reinterpret_cast<HWND>(pMsg2->m_uiHWND), pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
+      Redraw();
+    }
+  }
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewCameraMsgToEngine>())
+  {
+    const ezViewCameraMsgToEngine* pMsg2 = static_cast<const ezViewCameraMsgToEngine*>(pMsg);
+
+    SetCamera(pMsg2);
+  }
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingMsgToEngine>())
+  {
+
+
+    const ezViewPickingMsgToEngine* pMsg2 = static_cast<const ezViewPickingMsgToEngine*>(pMsg);
+
+    PickObjectAt(pMsg2->m_uiPickPosX, pMsg2->m_uiPickPosY);
+  }
+
 
 }
 
@@ -336,4 +355,3 @@ void ezViewContext::RenderPassEventHandler(const ezPickingRenderPass::Event& e)
     }
   }
 }
-

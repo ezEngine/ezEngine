@@ -59,7 +59,10 @@ void ezMeshComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
     return;
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh);
-  msg.m_ResultingLocalBounds.ExpandToInclude(pMesh->GetBounds());
+  if (pMesh->GetBounds().IsValid())
+  {
+    msg.m_ResultingLocalBounds.ExpandToInclude(pMesh->GetBounds());
+  }
 }
 
 void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const

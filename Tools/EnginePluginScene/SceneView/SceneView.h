@@ -19,13 +19,9 @@ struct ObjectData
 class ezViewContext : public ezEngineProcessViewContext
 {
 public:
-  ezViewContext(ezEngineProcessDocumentContext* pContext) : ezEngineProcessViewContext(pContext)
-  {
-    m_pView = nullptr;
-    m_pEditorRenderPass = nullptr;
-    m_pPickingRenderPass = nullptr;
-    m_bUpdatePickingData = true;
-  }
+  ezViewContext(ezEngineProcessDocumentContext* pContext);
+
+  ~ezViewContext();
 
   void SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);
 
