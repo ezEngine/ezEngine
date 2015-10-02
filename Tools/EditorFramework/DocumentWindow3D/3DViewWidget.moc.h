@@ -38,6 +38,8 @@ public:
   /// \brief The view's camera will be interpolated to the given coordinates
   void InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim);
 
+  void SetEnablePicking(bool bEnable) { m_bUpdatePickingData = bEnable; }
+
 protected:
   virtual void resizeEvent(QResizeEvent* event) override;
 
@@ -49,6 +51,7 @@ protected:
   virtual void wheelEvent(QWheelEvent* e) override;
   virtual void focusOutEvent(QFocusEvent* e) override;
 
+  bool m_bUpdatePickingData;
   ezUInt32 m_uiViewID;
   ezDocumentWindow3D* m_pDocumentWindow;
 

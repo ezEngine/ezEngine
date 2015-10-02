@@ -161,7 +161,7 @@ void ezViewContext::Redraw()
 
 }
 
-void ezViewContext::SetCamera(const ezViewCameraMsgToEngine* pMsg)
+void ezViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
   m_Camera.SetCameraMode((ezCamera::CameraMode) pMsg->m_iCameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
 
@@ -268,17 +268,13 @@ void ezViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
     if (m_pPickingRenderPass)
       m_pPickingRenderPass->SetEnabled(pMsg2->m_bUpdatePickingData);
 
+    SetCamera(pMsg2);
+
     if (pMsg2->m_uiWindowWidth > 0 && pMsg2->m_uiWindowHeight > 0)
     {
       SetupRenderTarget(reinterpret_cast<HWND>(pMsg2->m_uiHWND), pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
       Redraw();
     }
-  }
-  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewCameraMsgToEngine>())
-  {
-    const ezViewCameraMsgToEngine* pMsg2 = static_cast<const ezViewCameraMsgToEngine*>(pMsg);
-
-    SetCamera(pMsg2);
   }
   else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingMsgToEngine>())
   {

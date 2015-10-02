@@ -131,13 +131,7 @@ public:
   ezUInt16 m_uiWindowWidth;
   ezUInt16 m_uiWindowHeight;
   bool m_bUpdatePickingData;
-};
 
-class EZ_EDITORFRAMEWORK_DLL ezViewCameraMsgToEngine : public ezEditorEngineViewMsg
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezViewCameraMsgToEngine);
-
-public:
   ezInt8 m_iCameraMode;
   float m_fNearPlane;
   float m_fFarPlane;

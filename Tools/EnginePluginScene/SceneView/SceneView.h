@@ -5,7 +5,7 @@
 #include <CoreUtils/Graphics/Camera.h>
 
 class ezView;
-class ezViewCameraMsgToEngine;
+class ezViewRedrawMsgToEngine;
 class ezEngineProcessDocumentContext;
 class ezEditorEngineDocumentMsg;
 class ezEditorRenderPass;
@@ -27,7 +27,7 @@ public:
 
   void Redraw();
 
-  void SetCamera(const ezViewCameraMsgToEngine* pMsg);
+  void SetCamera(const ezViewRedrawMsgToEngine* pMsg);
 
   void PickObjectAt(ezUInt16 x, ezUInt16 y);
 

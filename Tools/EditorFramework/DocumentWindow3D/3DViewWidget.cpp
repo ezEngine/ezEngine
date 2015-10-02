@@ -33,7 +33,7 @@ bool ezEngineViewWidget::eventFilter(QObject* object, QEvent* event)
 
 void ezEngineViewWidget::SyncToEngine()
 {
-  ezViewCameraMsgToEngine cam;
+  ezViewRedrawMsgToEngine cam;
   cam.m_uiRenderMode = m_pViewConfig->m_RenderMode;
   cam.m_uiViewID = GetViewID();
   cam.m_fNearPlane = m_pViewConfig->m_Camera.GetNearPlane();
@@ -46,6 +46,11 @@ void ezEngineViewWidget::SyncToEngine()
   cam.m_vPosition = m_pViewConfig->m_Camera.GetCenterPosition();
   m_pViewConfig->m_Camera.GetViewMatrix(cam.m_ViewMatrix);
   m_pViewConfig->m_Camera.GetProjectionMatrix((float)width() / (float)height(), cam.m_ProjMatrix);
+
+  cam.m_uiHWND = (ezUInt64)(winId());
+  cam.m_uiWindowWidth = width();
+  cam.m_uiWindowHeight = height();
+  cam.m_bUpdatePickingData = m_bUpdatePickingData;
 
   m_pDocumentWindow->GetEditorEngineConnection()->SendMessage(&cam);
 }
@@ -132,6 +137,7 @@ ezEngineViewWidget::ezEngineViewWidget(QWidget* pParent, ezDocumentWindow3D* pDo
 
   installEventFilter(this);
 
+  m_bUpdatePickingData = false;
   m_uiViewID = s_uiNextViewID;
   ++s_uiNextViewID;
   m_pDocumentWindow->m_ViewWidgets.PushBack(this);

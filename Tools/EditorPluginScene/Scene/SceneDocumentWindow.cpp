@@ -393,17 +393,9 @@ void ezSceneDocumentWindow::SendRedrawMsg()
 
   for (auto pView : m_ViewWidgets)
   {
+    pView->SetEnablePicking(pView == pHoveredView);
     pView->UpdateCameraInterpolation();
     pView->SyncToEngine();
-
-    ezViewRedrawMsgToEngine msg;
-    msg.m_uiViewID = pView->GetViewID();
-    msg.m_uiHWND = (ezUInt64)(pView->winId());
-    msg.m_uiWindowWidth = pView->width();
-    msg.m_uiWindowHeight = pView->height();
-    msg.m_bUpdatePickingData = pView == pHoveredView;
-
-    m_pEngineConnection->SendMessage(&msg, true);
   }
 
   {
