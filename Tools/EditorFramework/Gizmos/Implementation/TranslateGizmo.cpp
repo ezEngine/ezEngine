@@ -2,10 +2,11 @@
 #include <EditorFramework/Gizmos/TranslateGizmo.h>
 #include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
 #include <Foundation/Logging/Log.h>
-#include <QMouseEvent>
 #include <CoreUtils/Graphics/Camera.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
+#include <QMouseEvent>
+#include <QDesktopWidget>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmo, ezGizmoBase, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -79,7 +80,7 @@ void ezTranslateGizmo::FocusLost()
   if (m_MovementMode == MovementMode::MouseDiff)
   {
     QCursor::setPos(m_OriginalMousePos);
-    GetOwnerView()->setCursor(QCursor(Qt::ArrowCursor));
+    GetOwnerWindow()->setCursor(QCursor(Qt::ArrowCursor));
   }
 
   BaseEvent ev;
@@ -232,19 +233,28 @@ ezResult ezTranslateGizmo::GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenP
   return EZ_SUCCESS;
 }
 
-void ezTranslateGizmo::SetCursorToWindowCenter()
+void ezTranslateGizmo::SetCursorToWindowCenter(QPoint pos)
 {
-  QSize size = GetOwnerView()->size();
+  QDesktopWidget dw;
+  QRect rect = dw.screenGeometry(this->GetOwnerWindow());
+
   QPoint center;
-  center.setX(size.width() / 2);
-  center.setY(size.height() / 2);
+  center.setX(rect.left() + rect.width() / 2);
+  center.setY(rect.top() + rect.height() / 2);
 
-  center = GetOwnerView()->mapToGlobal(center);
+  // Only move cursor if we reach the edge of this current screen.
+  rect.adjust(20, 20, -20, -20);
+  if (!rect.contains(pos))
+  {
+    m_LastMousePos = center;
+    QCursor::setPos(center);
+  }
+  else
+  {
+    m_LastMousePos = pos;
+  }
 
-  m_LastMousePos = center;
-  QCursor::setPos(center);
-
-  GetOwnerView()->setCursor(QCursor(Qt::BlankCursor));
+  GetOwnerWindow()->setCursor(QCursor(Qt::BlankCursor));
 }
 
 ezResult ezTranslateGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const
@@ -325,7 +335,7 @@ bool ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
       vTranslate = mTrans.GetTranslationVector() - m_vStartPosition + m_vPlaneAxis[0] * (m_vPlaneAxis[0].Dot(vMouseDir)) * fSpeed + m_vPlaneAxis[1] * (m_vPlaneAxis[1].Dot(vMouseDir)) * fSpeed;
     }
 
-    SetCursorToWindowCenter();
+    SetCursorToWindowCenter(e->globalPos());
   }
 
   if (m_fSnappingValue > 0.0f)
@@ -395,12 +405,12 @@ void ezTranslateGizmo::SetMovementMode(MovementMode mode)
   if (m_MovementMode == MovementMode::MouseDiff)
   {
     m_OriginalMousePos = QCursor::pos();
-    SetCursorToWindowCenter();
+    SetCursorToWindowCenter(m_OriginalMousePos);
   }
   else
   {
     QCursor::setPos(m_OriginalMousePos);
-    GetOwnerView()->setCursor(QCursor(Qt::ArrowCursor));
+    GetOwnerWindow()->setCursor(QCursor(Qt::ArrowCursor));
   }
 }
 

@@ -43,7 +43,7 @@ protected:
   ezResult GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const;
 
 private:
-  void SetCursorToWindowCenter();
+  void SetCursorToWindowCenter(QPoint pos);
 
   QPoint m_LastMousePos;
   QPoint m_OriginalMousePos;

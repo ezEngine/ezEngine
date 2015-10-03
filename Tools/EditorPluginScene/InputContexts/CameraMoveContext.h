@@ -47,7 +47,7 @@ private:
   void SetMoveSpeed(ezInt32 iSpeed);
   void ResetCursor();
   void SetBlankCursor();
-  void SetCursorToWindowCenter();
+  void SetCursorToWindowCenter(QPoint pos);
 
   ezCameraMoveContextSettings* m_pSettings;
 

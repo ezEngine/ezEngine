@@ -5,6 +5,7 @@
 #include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
 #include <CoreUtils/Graphics/Camera.h>
 #include <QKeyEvent>
+#include <QDesktopWidget>
 
 static const float s_fMoveSpeed[31] =
 {
@@ -336,7 +337,7 @@ void ezCameraMoveContext::SetBlankCursor()
   }
 }
 
-void ezCameraMoveContext::SetCursorToWindowCenter()
+void ezCameraMoveContext::SetCursorToWindowCenter(QPoint pos)
 {
   if (!m_bTempMousePosition)
   {
@@ -344,15 +345,24 @@ void ezCameraMoveContext::SetCursorToWindowCenter()
     m_bTempMousePosition = true;
   }
 
-  QSize size = GetOwnerView()->size();
+  QDesktopWidget dw;
+  QRect rect = dw.screenGeometry(this->GetOwnerWindow());
+
   QPoint center;
-  center.setX(size.width() / 2);
-  center.setY(size.height() / 2);
+  center.setX(rect.left() + rect.width() / 2);
+  center.setY(rect.top() + rect.height() / 2);
 
-  center = GetOwnerView()->mapToGlobal(center);
-
-  m_LastMousePos = center;
-  QCursor::setPos(center);
+  // Only move cursor if we reach the edge of this current screen.
+  rect.adjust(20, 20, -20, -20);
+  if (!rect.contains(pos))
+  {
+    m_LastMousePos = center;
+    QCursor::setPos(center);
+  }
+  else
+  {
+    m_LastMousePos = pos;
+  }
 }
 
 bool ezCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
@@ -497,7 +507,7 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
 
       m_pCamera->MoveLocally(0, fMoveRight, fMoveUp);
 
-      SetCursorToWindowCenter();
+      SetCursorToWindowCenter(e->globalPos());
       return true;
     }
 
@@ -508,10 +518,12 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
       float fRotateHorizontal = diff.x() * fMouseRotateSensitivityX;
       float fRotateVertical = diff.y() * fMouseRotateSensitivityY;
 
+      ezLog::Warning("Mouse %.3f, %.3f", fRotateHorizontal, fRotateVertical);
+
       m_pCamera->RotateLocally(ezAngle::Radian(0), ezAngle::Radian(fRotateVertical), ezAngle::Radian(0));
       m_pCamera->RotateGlobally(ezAngle::Radian(0), ezAngle::Radian(0), ezAngle::Radian(fRotateHorizontal));
 
-      SetCursorToWindowCenter();
+      SetCursorToWindowCenter(e->globalPos());
       return true;
     }
 
@@ -524,7 +536,7 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
 
       m_pCamera->MoveLocally(fMoveForward, fMoveRight, 0);
 
-      SetCursorToWindowCenter();
+      SetCursorToWindowCenter(e->globalPos());
 
       return true;
     }
@@ -544,7 +556,7 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
 
       m_pCamera->MoveGlobally(vDir * fMoveForward);
 
-      SetCursorToWindowCenter();
+      SetCursorToWindowCenter(e->globalPos());
 
       return true;
     }
@@ -571,7 +583,7 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
       else
         m_pCamera->MoveLocally(0, fMoveRight, fMoveUp);
 
-      SetCursorToWindowCenter();
+      SetCursorToWindowCenter(e->globalPos());
 
       return true;
     }
