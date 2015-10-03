@@ -9,6 +9,13 @@ ezEngineProcessGameApplication::ezEngineProcessGameApplication() : ezGameApplica
   m_pApp = nullptr;
 }
 
+void ezEngineProcessGameApplication::BeforeEngineInit()
+{
+  int argc = GetArgumentCount();
+  const char** argv = GetArgumentsArray();
+  m_pApp = new QApplication(argc, (char**)argv);
+}
+
 void ezEngineProcessGameApplication::AfterEngineInit()
 {
   ezPlugin::LoadPlugin("ezEnginePluginScene");
@@ -46,10 +53,6 @@ void ezEngineProcessGameApplication::AfterEngineInit()
 
   ezTaskSystem::SetTargetFrameTime(1000.0 / 10.0);
 
-  int argc = GetArgumentCount();
-  const char** argv = GetArgumentsArray();
-  m_pApp = new QApplication(argc, (char**)argv);
-
   EZ_VERIFY(m_IPC.ConnectToHostProcess().Succeeded(), "Could not connect to host");
 
   m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerIPC, this));
@@ -64,11 +67,14 @@ void ezEngineProcessGameApplication::BeforeEngineShutdown()
 {
   m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerIPC, this));
 
-  delete m_pApp;
-
   ezGlobalLog::RemoveLogWriter(ezMakeDelegate(&ezEngineProcessGameApplication::LogWriter, this));
 
   ezGameApplication::BeforeEngineShutdown();
+}
+
+void ezEngineProcessGameApplication::AfterEngineShutdown()
+{
+  delete m_pApp;
 }
 
 ezApplication::ApplicationExecution ezEngineProcessGameApplication::Run()

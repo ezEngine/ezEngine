@@ -13,8 +13,11 @@ class ezEngineProcessGameApplication : public ezGameApplication
 public:
   ezEngineProcessGameApplication();
 
+
+  virtual void BeforeEngineInit() override;
   virtual void AfterEngineInit() override;
   virtual void BeforeEngineShutdown() override;
+  virtual void AfterEngineShutdown() override;
 
   virtual ezApplication::ApplicationExecution Run() override;
 

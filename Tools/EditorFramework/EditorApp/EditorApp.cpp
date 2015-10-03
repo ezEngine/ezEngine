@@ -88,7 +88,12 @@ ezEditorApp::~ezEditorApp()
   s_pInstance = nullptr;
 }
 
-void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, int argc, char** argv)
+void ezEditorApp::InitQt(int argc, char** argv)
+{
+  s_pQtApplication = new QApplication(argc, argv);
+}
+
+void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
 {
   ezString sApplicationName = ezCommandLineUtils::GetInstance()->GetStringOption("-appname", 0, szAppName);
   ezUIServices::SetApplicationName(sApplicationName);
@@ -97,7 +102,6 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
 
   RegisterPluginNameForSettings("-Main-");
 
-  s_pQtApplication = new QApplication(argc, argv);
   QLocale::setDefault(QLocale(QLocale::English));
 
   s_pEngineViewProcess = new ezEditorEngineProcessConnection;
@@ -225,8 +229,6 @@ void ezEditorApp::ShutdownEditor()
   // make sure no one tries to load any further images in parallel
   QtImageCache::StopRequestProcessing(true);
 
-  delete s_pQtApplication;
-
   m_LogHTML.EndLog();
 }
 
@@ -239,6 +241,11 @@ ezInt32 ezEditorApp::RunEditor()
 
   ezToolsProject::CloseProject();
   return ret;
+}
+
+void ezEditorApp::DeInitQt()
+{
+  delete s_pQtApplication;
 }
 
 void ezEditorApp::OpenProject(const char* szProject)

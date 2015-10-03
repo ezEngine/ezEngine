@@ -75,9 +75,11 @@ public:
   ezSettings& GetDocumentSettings(const char* szDocument, const char* szPlugin = "-Main-");
   void SaveSettings();
 
-  void StartupEditor(const char* szAppName, const char* szUserName, int argc, char** argv);
+  void InitQt(int argc, char** argv);
+  void StartupEditor(const char* szAppName, const char* szUserName);
   void ShutdownEditor();
   ezInt32 RunEditor();
+  void DeInitQt();
 
   void LoadPlugins();
   void UnloadPlugins();

@@ -51,9 +51,6 @@ public:
 
   ezEngineViewWidget* GetViewWidgetByID(ezUInt32 uiViewID) const;
 
-private slots:
-  void SlotRestartEngineProcess();
-
 protected:
   friend class ezEngineViewWidget;
   ezEditorEngineConnection* m_pEngineConnection;
@@ -64,12 +61,6 @@ protected:
 
 private:
   virtual void InternalRedraw() override;
-
-  void ShowRestartButton(bool bShow);
-  void EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e);
-
-  QHBoxLayout* m_pRestartButtonLayout;
-  QPushButton* m_pRestartButton;
 
   mutable ezObjectPickingResult m_LastPickingResult;
 

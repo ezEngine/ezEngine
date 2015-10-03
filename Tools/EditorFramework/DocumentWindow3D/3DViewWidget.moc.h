@@ -5,9 +5,12 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <CoreUtils/Graphics/Camera.h>
 #include <EditorFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 
 class ezDocumentWindow3D;
 class ezEditorInputContext;
+class QHBoxLayout;
+class QPushButton;
 
 class EZ_EDITORFRAMEWORK_DLL ezEngineViewWidget : public QWidget
 {
@@ -40,6 +43,9 @@ public:
 
   void SetEnablePicking(bool bEnable) { m_bUpdatePickingData = bEnable; }
 
+private slots:
+  void SlotRestartEngineProcess();
+
 protected:
   virtual void resizeEvent(QResizeEvent* event) override;
 
@@ -51,6 +57,10 @@ protected:
   virtual void wheelEvent(QWheelEvent* e) override;
   virtual void focusOutEvent(QFocusEvent* e) override;
 
+  void EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e);
+  void ShowRestartButton(bool bShow);
+
+protected:
   bool m_bUpdatePickingData;
   ezUInt32 m_uiViewID;
   ezDocumentWindow3D* m_pDocumentWindow;
@@ -66,6 +76,9 @@ protected:
   ezVec3 m_vCameraStartDirection;
   ezVec3 m_vCameraTargetDirection;
   ezTime m_LastCameraUpdate;
+
+  QHBoxLayout* m_pRestartButtonLayout;
+  QPushButton* m_pRestartButton;
 };
 
 

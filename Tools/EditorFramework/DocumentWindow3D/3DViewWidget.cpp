@@ -4,8 +4,56 @@
 #include <EditorFramework/DocumentWindow3D/EditorInputContext.h>
 
 #include <QPaintEvent>
+#include <QPushButton>
+#include <QHBoxLayout>
 
 ezUInt32 ezEngineViewWidget::s_uiNextViewID = 0;
+
+
+ezEngineViewWidget::ezEngineViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocumentWindow, ezSceneViewConfig* pViewConfig)
+  : QWidget(pParent)
+  , m_pDocumentWindow(pDocumentWindow)
+  , m_pViewConfig(pViewConfig)
+{
+  m_pRestartButtonLayout = nullptr;
+  m_pRestartButton = nullptr;
+
+  setFocusPolicy(Qt::FocusPolicy::StrongFocus);
+  //setAttribute(Qt::WA_OpaquePaintEvent);
+  setAutoFillBackground(false);
+  setMouseTracking(true);
+
+  setAttribute(Qt::WA_PaintOnScreen, true);
+  setAttribute(Qt::WA_NativeWindow, true);
+  setAttribute(Qt::WA_NoBackground);
+  setAttribute(Qt::WA_NoSystemBackground);
+
+  installEventFilter(this);
+
+  m_bUpdatePickingData = false;
+  m_uiViewID = s_uiNextViewID;
+  ++s_uiNextViewID;
+  m_pDocumentWindow->m_ViewWidgets.PushBack(this);
+
+  m_fCameraLerp = 1.0f;
+
+  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezEngineViewWidget::EngineViewProcessEventHandler, this));
+
+  if (ezEditorEngineProcessConnection::GetInstance()->IsProcessCrashed())
+    ShowRestartButton(true);
+}
+
+
+ezEngineViewWidget::~ezEngineViewWidget()
+{
+  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineViewWidget::EngineViewProcessEventHandler, this));
+
+  ezViewDestroyedMsgToEngine msg;
+  msg.m_uiViewID = GetViewID();
+  m_pDocumentWindow->SendMessageToEngine(&msg);
+
+  m_pDocumentWindow->m_ViewWidgets.RemoveSwap(this);
+}
 
 void ezEngineViewWidget::paintEvent(QPaintEvent* event)
 {
@@ -118,41 +166,6 @@ void ezEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ezVe
 void ezEngineViewWidget::resizeEvent(QResizeEvent* event)
 {
   m_pDocumentWindow->TriggerRedraw();
-}
-
-ezEngineViewWidget::ezEngineViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocumentWindow, ezSceneViewConfig* pViewConfig)
-  : QWidget(pParent)
-  , m_pDocumentWindow(pDocumentWindow)
-  , m_pViewConfig(pViewConfig)
-{
-  setFocusPolicy(Qt::FocusPolicy::StrongFocus);
-  //setAttribute(Qt::WA_OpaquePaintEvent);
-  setAutoFillBackground(false);
-  setMouseTracking(true);
-
-  setAttribute(Qt::WA_PaintOnScreen, true);
-  setAttribute(Qt::WA_NativeWindow, true);
-  setAttribute(Qt::WA_NoBackground);
-  setAttribute(Qt::WA_NoSystemBackground);
-
-  installEventFilter(this);
-
-  m_bUpdatePickingData = false;
-  m_uiViewID = s_uiNextViewID;
-  ++s_uiNextViewID;
-  m_pDocumentWindow->m_ViewWidgets.PushBack(this);
-
-  m_fCameraLerp = 1.0f;
-}
-
-
-ezEngineViewWidget::~ezEngineViewWidget()
-{
-  ezViewDestroyedMsgToEngine msg;
-  msg.m_uiViewID = GetViewID();
-  m_pDocumentWindow->SendMessageToEngine(&msg);
-
-  m_pDocumentWindow->m_ViewWidgets.RemoveSwap(this);
 }
 
 void ezEngineViewWidget::keyReleaseEvent(QKeyEvent* e)
@@ -296,4 +309,61 @@ void ezEngineViewWidget::focusOutEvent(QFocusEvent* e)
   }
 
   QWidget::focusOutEvent(e);
+}
+
+
+void ezEngineViewWidget::EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezEditorEngineProcessConnection::Event::Type::ProcessCrashed:
+    {
+      ShowRestartButton(true);
+    }
+    break;
+
+  case ezEditorEngineProcessConnection::Event::Type::ProcessStarted:
+    {
+      ShowRestartButton(false);
+    }
+    break;
+
+  case ezEditorEngineProcessConnection::Event::Type::ProcessShutdown:
+    break;
+  }
+}
+
+void ezEngineViewWidget::ShowRestartButton(bool bShow)
+{
+  QtScopedUpdatesDisabled _(this);
+
+  if (m_pRestartButtonLayout == nullptr && bShow == true)
+  {
+    m_pRestartButtonLayout = new QHBoxLayout(this);
+    m_pRestartButtonLayout->setMargin(0);
+
+    setLayout(m_pRestartButtonLayout);
+
+    m_pRestartButton = new QPushButton(this);
+    m_pRestartButton->setText("Restart Engine View Process");
+    m_pRestartButton->setVisible(ezEditorEngineProcessConnection::GetInstance()->IsProcessCrashed());
+    m_pRestartButton->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    m_pRestartButton->connect(m_pRestartButton, &QPushButton::clicked, this, &ezEngineViewWidget::SlotRestartEngineProcess);
+
+    m_pRestartButtonLayout->addWidget(m_pRestartButton);
+  }
+
+  if (m_pRestartButton)
+  {
+    m_pRestartButton->setVisible(bShow);
+
+    if (bShow)
+      m_pRestartButton->update();
+  }
+}
+
+
+void ezEngineViewWidget::SlotRestartEngineProcess()
+{
+  ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
 }

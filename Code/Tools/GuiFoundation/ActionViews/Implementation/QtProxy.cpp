@@ -9,6 +9,10 @@
 #include <QAction>
 
 ezRttiMappedObjectFactory<ezQtProxy> ezQtProxy::s_Factory;
+ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> ezQtProxy::s_GlobalActions;
+ezMap<ezUuid, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > ezQtProxy::s_DocumentActions;
+ezMap<QWidget*, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > ezQtProxy::s_WindowActions;
+QObject* ezQtProxy::s_pSignalProxy = nullptr;
 
 static ezQtProxy* QtMenuProxyCreator(const ezRTTI* pRtti)
 {
@@ -30,9 +34,6 @@ static ezQtProxy* QtLRUMenuProxyCreator(const ezRTTI* pRtti)
   return new(ezQtLRUMenuProxy);
 }
 
-ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> ezQtProxy::s_GlobalActions;
-ezMap<ezUuid, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > ezQtProxy::s_DocumentActions;
-ezMap<QWidget*, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > ezQtProxy::s_WindowActions;
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtProxies)
 
@@ -47,6 +48,7 @@ ON_CORE_STARTUP
   ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezCategoryAction>(), QtCategoryProxyCreator);
   ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezLRUMenuAction>(), QtLRUMenuProxyCreator);
   ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezButtonAction>(), QtButtonProxyCreator);
+  ezQtProxy::s_pSignalProxy = new QObject;
 }
 
 ON_CORE_SHUTDOWN
@@ -54,6 +56,8 @@ ON_CORE_SHUTDOWN
   ezQtProxy::s_GlobalActions.Clear();
   ezQtProxy::s_DocumentActions.Clear();
   ezQtProxy::s_WindowActions.Clear();
+  delete ezQtProxy::s_pSignalProxy;
+  ezQtProxy::s_pSignalProxy = nullptr;
 }
 
 EZ_END_SUBSYSTEM_DECLARATION
@@ -114,14 +118,21 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
     break;
   case ezActionScope::Window:
     {
-      QWeakPointer<ezQtProxy> pTemp = s_WindowActions[context.m_pWindow][hDesc];
+      bool bExisted = true;
+      auto it = s_WindowActions.FindOrAdd(context.m_pWindow, &bExisted);
+      if (!bExisted)
+      {
+        s_pSignalProxy->connect(context.m_pWindow, &QObject::destroyed,
+          s_pSignalProxy, [=]() { s_WindowActions.Remove(context.m_pWindow); });
+      }
+      QWeakPointer<ezQtProxy> pTemp = it.Value()[hDesc];
       if (pTemp.isNull())
       {
         auto pAction = pDesc->CreateAction(context);
         pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
         EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_sActionName.GetData());
         pProxy->SetAction(pAction, true);
-        s_WindowActions[pAction->GetContext().m_pWindow][hDesc] = pProxy;
+        it.Value()[hDesc] = pProxy;
       }
       else
       {

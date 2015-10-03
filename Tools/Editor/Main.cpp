@@ -16,21 +16,28 @@ public:
     EnableMemoryLeakReporting(true);
   }
 
+  virtual void BeforeEngineInit() override
+  {
+    ezEditorApp::GetInstance()->InitQt(GetArgumentCount(), (char**)GetArgumentsArray());
+  }
+
+  virtual void AfterEngineShutdown() override
+  {
+    ezEditorApp::GetInstance()->DeInitQt();
+  }
+
   virtual ApplicationExecution Run() override
   {
     QHostInfo hostInfo;
     hostInfo = QHostInfo::fromName(QHostInfo::localHostName());
     ezString sHostName = QHostInfo::localHostName().toUtf8().data();
 
-    ezEditorApp::GetInstance()->StartupEditor("ezEditor", sHostName, GetArgumentCount(), (char**) GetArgumentsArray());
-
+    ezEditorApp::GetInstance()->StartupEditor("ezEditor", sHostName);
     {
       const ezInt32 iReturnCode = ezEditorApp::GetInstance()->RunEditor();
-
       SetReturnCode(iReturnCode);
-
-      ezEditorApp::GetInstance()->ShutdownEditor();
     }
+    ezEditorApp::GetInstance()->ShutdownEditor();
 
     return ezApplication::Quit;
   }

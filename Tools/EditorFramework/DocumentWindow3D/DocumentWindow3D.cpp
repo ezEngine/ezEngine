@@ -5,27 +5,20 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Time/Timestamp.h>
-#include <QPushButton>
-#include <qlayout.h>
+
 #include <Foundation/Serialization/ReflectionSerializer.h>
 
 ezDocumentWindow3D::ezDocumentWindow3D(ezDocumentBase* pDocument) : ezDocumentWindow(pDocument)
 {
-  m_pRestartButtonLayout = nullptr;
-  m_pRestartButton = nullptr;
   m_pEngineConnection = nullptr;
 
   m_pEngineConnection = ezEditorEngineProcessConnection::GetInstance()->CreateEngineConnection(this);
-
-  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezDocumentWindow3D::EngineViewProcessEventHandler, this));
 }
 
 ezDocumentWindow3D::~ezDocumentWindow3D()
 {
   // delete all view widgets, so that they can send their messages before we clean up the engine connection
   DestroyAllViews();
-
-  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezDocumentWindow3D::EngineViewProcessEventHandler, this));
 
   ezEditorEngineProcessConnection::GetInstance()->DestroyEngineConnection(this);
 }
@@ -67,44 +60,10 @@ const ezObjectPickingResult& ezDocumentWindow3D::PickObject(ezUInt16 uiScreenPos
   return m_LastPickingResult;
 }
 
-void ezDocumentWindow3D::SlotRestartEngineProcess()
-{
-  ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
-}
-
 void ezDocumentWindow3D::InternalRedraw()
 {
   // TODO: Move this to a better place (some kind of regular update function, not redraw)
   SyncObjectsToEngine();
-}
-
-void ezDocumentWindow3D::ShowRestartButton(bool bShow)
-{
-  if (m_pRestartButtonLayout == nullptr && bShow == true)
-  {
-    m_pRestartButtonLayout = new QHBoxLayout(this);
-    m_pRestartButtonLayout->setMargin(0);
-
-    centralWidget()->setLayout(m_pRestartButtonLayout);
-
-    m_pRestartButton = new QPushButton(centralWidget());
-    m_pRestartButton->setText("Restart Engine View Process");
-    m_pRestartButton->setVisible(ezEditorEngineProcessConnection::GetInstance()->IsProcessCrashed());
-    m_pRestartButton->setMaximumWidth(200);
-    m_pRestartButton->setMinimumHeight(50);
-    m_pRestartButton->connect(m_pRestartButton, &QPushButton::clicked, this, &ezDocumentWindow3D::SlotRestartEngineProcess);
-
-    m_pRestartButtonLayout->addWidget(m_pRestartButton);
-  }
-
-  if (m_pRestartButton)
-  {
-    m_pRestartButton->setVisible(bShow);
-    //centralWidget()->setAutoFillBackground(bShow); /// \todo this seems not to work
-
-    if (bShow)
-      m_pRestartButton->update();
-  }
 }
 
 bool ezDocumentWindow3D::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
@@ -131,27 +90,6 @@ bool ezDocumentWindow3D::HandleEngineMessage(const ezEditorEngineDocumentMsg* pM
   }
 
   return false;
-}
-
-void ezDocumentWindow3D::EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e)
-{
-  switch (e.m_Type)
-  {
-  case ezEditorEngineProcessConnection::Event::Type::ProcessCrashed:
-    {
-      ShowRestartButton(true);
-    }
-    break;
-
-  case ezEditorEngineProcessConnection::Event::Type::ProcessStarted:
-    {
-      ShowRestartButton(false);
-    }
-    break;
-
-  case ezEditorEngineProcessConnection::Event::Type::ProcessShutdown:
-    break;
-  }
 }
 
 void ezDocumentWindow3D::AddSyncObject(ezEditorEngineSyncObject* pSync)
