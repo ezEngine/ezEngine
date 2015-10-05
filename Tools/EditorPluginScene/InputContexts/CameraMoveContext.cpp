@@ -137,15 +137,16 @@ void ezCameraMoveContext::UpdateContext()
     m_pCamera->MoveGlobally(ezVec3(0, 0, -1) * fSpeedFactor);
   if (m_bMoveForwardsInPlane)
   {
+    /// \todo hard coded up direction
     ezVec3 vDir = m_pCamera->GetCenterDirForwards();
-    vDir.y = 0.0f;
+    vDir.z = 0.0f;
     vDir.NormalizeIfNotZero(ezVec3::ZeroVector());
     m_pCamera->MoveGlobally(vDir * fSpeedFactor);
   }
   if (m_bMoveBackwardsInPlane)
   {
     ezVec3 vDir = m_pCamera->GetCenterDirForwards();
-    vDir.y = 0.0f;
+    vDir.z = 0.0f;
     vDir.NormalizeIfNotZero(ezVec3::ZeroVector());
     m_pCamera->MoveGlobally(vDir * -fSpeedFactor);
   }
