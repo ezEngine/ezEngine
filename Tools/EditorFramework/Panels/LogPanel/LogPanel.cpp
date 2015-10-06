@@ -1,10 +1,11 @@
 #include <PCH.h>
 #include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
 #include <QSettings>
+#include <CoreUtils/Localization/TranslationLookup.h>
 
 ezLogPanel* ezLogPanel::s_pInstance = nullptr;
 
-ezLogPanel::ezLogPanel() : ezApplicationPanel("Log")
+ezLogPanel::ezLogPanel() : ezApplicationPanel("PanelLog")
 {
   EZ_ASSERT_DEV(s_pInstance == nullptr, "Log panel is not a singleton anymore");
 
@@ -13,6 +14,7 @@ ezLogPanel::ezLogPanel() : ezApplicationPanel("Log")
   setupUi(this);
 
   setWindowIcon(QIcon(QString::fromUtf8(":/GuiFoundation/Icons/Log.png")));
+  setWindowTitle(QString::fromUtf8(ezTranslate("PanelLog")));
 
   ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezLogPanel::LogWriter, this));
   ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezLogPanel::EngineProcessMsgHandler, this));

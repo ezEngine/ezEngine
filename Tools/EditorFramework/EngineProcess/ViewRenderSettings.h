@@ -28,9 +28,9 @@ struct EZ_EDITORFRAMEWORK_DLL ezSceneViewPerspective
 
   enum Enum
   {
-    Orhogonal_Front,
-    Orhogonal_Right,
-    Orhogonal_Top,
+    Orthogonal_Front,
+    Orthogonal_Right,
+    Orthogonal_Top,
     Perspective,
 
     Default = Perspective

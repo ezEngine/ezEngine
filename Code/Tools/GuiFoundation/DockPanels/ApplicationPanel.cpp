@@ -2,6 +2,7 @@
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <QTimer>
+#include <CoreUtils/Localization/TranslationLookup.h>
 
 ezDynamicArray<ezApplicationPanel*> ezApplicationPanel::s_AllApplicationPanels;
 
@@ -10,7 +11,7 @@ ezApplicationPanel::ezApplicationPanel(const char* szPanelName) : QDockWidget(ez
   ezStringBuilder sPanel("AppPanel_", szPanelName);
 
   setObjectName(QString::fromUtf8(sPanel.GetData()));
-  setWindowTitle(QString::fromUtf8(szPanelName));
+  setWindowTitle(QString::fromUtf8(ezTranslate(szPanelName)));
 
   setBackgroundRole(QPalette::ColorRole::Highlight);
 

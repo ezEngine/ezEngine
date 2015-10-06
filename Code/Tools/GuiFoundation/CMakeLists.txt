@@ -19,6 +19,7 @@ endif()
 SET (LINK_LIBRARIES
   Foundation      # Example: Another library build with cmake
   ToolsFoundation
+  CoreUtils
 )
 
 # Enables the use of Qt in this library and sets up the required modules.

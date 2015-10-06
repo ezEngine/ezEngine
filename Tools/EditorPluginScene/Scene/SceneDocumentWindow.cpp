@@ -435,7 +435,7 @@ void ezSceneDocumentWindow::SetupDefaultViewConfigs()
 
   for (int i = 0; i < 4; ++i)
   {
-    m_ViewConfigQuad[i].m_Perspective = (ezSceneViewPerspective::Enum)(ezSceneViewPerspective::Orhogonal_Front + i);
+    m_ViewConfigQuad[i].m_Perspective = (ezSceneViewPerspective::Enum)(ezSceneViewPerspective::Orthogonal_Front + i);
     m_ViewConfigQuad[i].m_RenderMode = (i == ezSceneViewPerspective::Perspective) ? ezViewRenderMode::Default : ezViewRenderMode::WireframeMonochrome;
     m_ViewConfigQuad[i].m_Camera.LookAt(ezVec3(0), ezVec3(1, 0, 0), ezVec3(0, 0, 1));
     m_ViewConfigQuad[i].ApplyPerspectiveSetting();

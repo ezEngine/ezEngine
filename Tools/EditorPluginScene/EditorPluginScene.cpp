@@ -14,6 +14,7 @@
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/Action/EditActions.h>
+#include <CoreUtils/Localization/TranslationLookup.h>
 
 void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
 {
@@ -32,6 +33,8 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
 
 void OnLoadPlugin(bool bReloading)    
 {
+  ezTranslationLookup::AddTranslationFile("ScenePlugin.txt");
+
   ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
 
   ezEditorApp::GetInstance()->RegisterPluginNameForSettings("ScenePlugin");
@@ -47,14 +50,14 @@ void OnLoadPlugin(bool bReloading)
   ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentMenuBar");
   ezProjectActions::MapActions("EditorPluginScene_DocumentMenuBar");
   ezStandardMenus::MapActions("EditorPluginScene_DocumentMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
-  ezDocumentActions::MapActions("EditorPluginScene_DocumentMenuBar", "File", false);
-  ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentMenuBar", "Edit");
-  ezGizmoActions::MapActions("EditorPluginScene_DocumentMenuBar", "Edit");
-  ezSelectionActions::MapActions("EditorPluginScene_DocumentMenuBar", "Edit");
-  ezEditActions::MapActions("EditorPluginScene_DocumentMenuBar", "Edit");
-  ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Edit/GizmoCategory");
-  ezScaleGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Edit/GizmoCategory");
-  ezTranslateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Edit/GizmoCategory");
+  ezDocumentActions::MapActions("EditorPluginScene_DocumentMenuBar", "MenuFile", false);
+  ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentMenuBar", "MenuEdit");
+  ezGizmoActions::MapActions("EditorPluginScene_DocumentMenuBar", "MenuEdit");
+  ezSelectionActions::MapActions("EditorPluginScene_DocumentMenuBar", "MenuEdit");
+  ezEditActions::MapActions("EditorPluginScene_DocumentMenuBar", "MenuEdit");
+  ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "MenuEdit/GizmoCategory");
+  ezScaleGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "MenuEdit/GizmoCategory");
+  ezTranslateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "MenuEdit/GizmoCategory");
 
   // Tool Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentToolBar");

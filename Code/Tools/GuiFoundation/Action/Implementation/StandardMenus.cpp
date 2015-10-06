@@ -12,11 +12,11 @@ ezActionDescriptorHandle ezStandardMenus::s_hMenuHelp;
 
 void ezStandardMenus::RegisterActions()
 {
-  s_hMenuFile = EZ_REGISTER_MENU("File", "File");
-  s_hMenuEdit = EZ_REGISTER_MENU("Edit", "Edit");
-  s_hMenuPanels = EZ_REGISTER_LRU_MENU("Panels", "Panels", ezApplicationPanelsMenuAction, "");
-  s_hMenuSettings = EZ_REGISTER_MENU("Settings", "Settings");
-  s_hMenuHelp = EZ_REGISTER_MENU("Help", "Help");
+  s_hMenuFile = EZ_REGISTER_MENU("MenuFile");
+  s_hMenuEdit = EZ_REGISTER_MENU("MenuEdit");
+  s_hMenuPanels = EZ_REGISTER_LRU_MENU("MenuPanels", ezApplicationPanelsMenuAction, "");
+  s_hMenuSettings = EZ_REGISTER_MENU("MenuSettings");
+  s_hMenuHelp = EZ_REGISTER_MENU("MenuHelp");
 
 }
 

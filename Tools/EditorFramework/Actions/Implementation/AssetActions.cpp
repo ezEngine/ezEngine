@@ -16,11 +16,11 @@ ezActionDescriptorHandle ezAssetActions::s_hRetrieveAssetInfo;
 void ezAssetActions::RegisterActions()
 {
   s_hAssetCategory = EZ_REGISTER_CATEGORY("AssetCategory");
-  s_hTransformAsset = EZ_REGISTER_ACTION_1("TransformAsset", "Transform Asset", ezActionScope::Document, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::TransformAsset);
-  s_hTransformAllAssets = EZ_REGISTER_ACTION_1("TransformAllAssets", "Transform All Assets", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::TransformAllAssets);
-  s_hCheckFileSystem = EZ_REGISTER_ACTION_1("CheckFilesystem", "Check Filesystem", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::CheckFileSystem);
-  s_hWriteLookupTable = EZ_REGISTER_ACTION_1("WriteLookupTable", "Write Lookup Table", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::WriteLookupTable);
-  s_hRetrieveAssetInfo = EZ_REGISTER_ACTION_1("RetrieveAssetInfo", "Retrieve Asset Info", ezActionScope::Document, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::RetrieveAssetInfo);
+  s_hTransformAsset = EZ_REGISTER_ACTION_1("ActionTransformAsset", ezActionScope::Document, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::TransformAsset);
+  s_hTransformAllAssets = EZ_REGISTER_ACTION_1("ActionTransformAllAssets", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::TransformAllAssets);
+  s_hCheckFileSystem = EZ_REGISTER_ACTION_1("ActionCheckFilesystem", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::CheckFileSystem);
+  s_hWriteLookupTable = EZ_REGISTER_ACTION_1("ActionWriteLookupTable", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::WriteLookupTable);
+  s_hRetrieveAssetInfo = EZ_REGISTER_ACTION_1("ActionRetrieveAssetInfo", ezActionScope::Document, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::RetrieveAssetInfo);
 }
 
 void ezAssetActions::UnregisterActions()

@@ -18,6 +18,10 @@ ezDynamicArray<ezDocumentWindow*> ezDocumentWindow::s_AllDocumentWindows;
 
 void ezDocumentWindow::Constructor()
 {
+  // maybe this helps fixing the layouting bug at startup?
+  QtScopedUpdatesDisabled qt(this);
+  QtScopedBlockSignals qtSig(this);
+
   if (s_AllDocumentWindows.IsEmpty())
   {
     ezActionMapManager::RegisterActionMap("DocumentWindowTabMenu");
@@ -53,10 +57,10 @@ ezDocumentWindow::ezDocumentWindow(ezDocumentBase* pDocument)
   m_sUniqueName = m_pDocument->GetDocumentPath();
   setObjectName(GetUniqueName());
 
-  Constructor();
-
   ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(&ezDocumentWindow::DocumentManagerEventHandler, this));
   pDocument->m_EventsOne.AddEventHandler(ezMakeDelegate(&ezDocumentWindow::DocumentEventHandler, this));
+
+  Constructor();
 }
 
 ezDocumentWindow::ezDocumentWindow(const char* szUniqueName)
@@ -274,18 +278,6 @@ void ezDocumentWindow::SaveWindowLayout()
 
 void ezDocumentWindow::RestoreWindowLayout()
 {
-  if (!m_pContainerWindow || !m_pContainerWindow->m_bWindowLayoutRestored)
-  {
-    // if the container window has not yet done its own resize (race condition in the timers)
-    // then delay our own restore a bit more, to ensure that this window only restores its size
-    // inside a correctly resized parent window
-
-    /// \todo Remove the warning, once I am sure this has been the cause for window restore issues
-    ezLog::Warning("Race condition with container window detected: Document WindowLayout restore deferred.");
-    ScheduleRestoreWindowLayout();
-    return;
-  }
-
   ezStringBuilder sGroup;
   sGroup.Format("DocumentWnd_%s", GetGroupName());
 

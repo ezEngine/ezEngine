@@ -11,8 +11,8 @@ ezActionDescriptorHandle ezSceneViewActions::s_hSpawnView;
 
 void ezSceneViewActions::RegisterActions()
 {
-  s_hToggleViews = EZ_REGISTER_ACTION_1("ToggleViews", "Toggle Views", ezActionScope::Window, "Document", "", ezSceneViewAction, ezSceneViewAction::ButtonType::ToggleViews);
-  s_hSpawnView = EZ_REGISTER_ACTION_1("SpawnView", "Spawn View", ezActionScope::Window, "Document", "", ezSceneViewAction, ezSceneViewAction::ButtonType::SpawnView);
+  s_hToggleViews = EZ_REGISTER_ACTION_1("ActionToggleViews", ezActionScope::Window, "Document", "", ezSceneViewAction, ezSceneViewAction::ButtonType::ToggleViews);
+  s_hSpawnView = EZ_REGISTER_ACTION_1("ActionSpawnView", ezActionScope::Window, "Document", "", ezSceneViewAction, ezSceneViewAction::ButtonType::SpawnView);
 }
 
 void ezSceneViewActions::UnregisterActions()

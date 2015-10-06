@@ -7,6 +7,7 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <QMenu>
 #include <QAction>
+#include <CoreUtils/Localization/TranslationLookup.h>
 
 ezRttiMappedObjectFactory<ezQtProxy> ezQtProxy::s_Factory;
 ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> ezQtProxy::s_GlobalActions;
@@ -178,7 +179,7 @@ void ezQtMenuProxy::Update(bool bSetShortcut)
   auto pMenu = static_cast<ezMenuAction*>(m_pAction);
 
   m_pMenu->setIcon(QIcon(QString::fromUtf8(pMenu->GetIconPath())));
-  m_pMenu->setTitle(QString::fromUtf8(pMenu->GetText()));
+  m_pMenu->setTitle(QString::fromUtf8(ezTranslate(pMenu->GetName())));
 }
 
 void ezQtMenuProxy::SetAction(ezAction* pAction, bool bSetShortcut)
@@ -226,7 +227,7 @@ void ezQtButtonProxy::Update(bool bSetShortcut)
   }
 
   m_pQtAction->setIcon(QIcon(QString::fromUtf8(pButton->GetIconPath())));
-  m_pQtAction->setText(QString::fromUtf8(pButton->GetText()));
+  m_pQtAction->setText(QString::fromUtf8(ezTranslate(pButton->GetName())));
   m_pQtAction->setCheckable(pButton->IsCheckable());
   m_pQtAction->setChecked(pButton->IsChecked());
   m_pQtAction->setEnabled(pButton->IsEnabled());

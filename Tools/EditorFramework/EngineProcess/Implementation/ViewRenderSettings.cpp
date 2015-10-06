@@ -7,7 +7,7 @@ EZ_BITFLAGS_CONSTANTS(ezViewRenderMode::None, ezViewRenderMode::WireframeColor, 
 EZ_END_STATIC_REFLECTED_ENUM();
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSceneViewPerspective, 1)
-EZ_BITFLAGS_CONSTANTS(ezSceneViewPerspective::Orhogonal_Front, ezSceneViewPerspective::Orhogonal_Right, ezSceneViewPerspective::Orhogonal_Top, ezSceneViewPerspective::Perspective)
+EZ_BITFLAGS_CONSTANTS(ezSceneViewPerspective::Orthogonal_Front, ezSceneViewPerspective::Orthogonal_Right, ezSceneViewPerspective::Orthogonal_Top, ezSceneViewPerspective::Perspective)
 EZ_END_STATIC_REFLECTED_ENUM();
 
 

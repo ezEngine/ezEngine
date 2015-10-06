@@ -9,16 +9,15 @@ class EZ_GUIFOUNDATION_DLL ezNamedAction : public ezAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezNamedAction);
 public:
-  ezNamedAction(const ezActionContext& context, const char* szText, const char* szIconPath) : ezAction(context), m_sText(szText), m_sIconPath(szIconPath) {}
+  ezNamedAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezAction(context), m_sName(szName), m_sIconPath(szIconPath) {}
 
-  const char* GetText() const { return m_sText; }
-  void SetText(const char* szName) { m_sText = szName; }
+  const char* GetName() const { return m_sName; }
 
   const char* GetIconPath() const { return m_sIconPath; }
   void SetIconPath(const char* szIconPath) { m_sIconPath = szIconPath; }
 
 protected:
-  ezString m_sText;
+  ezString m_sName;
   ezString m_sIconPath;
 };
 

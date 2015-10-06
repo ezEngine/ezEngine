@@ -23,8 +23,8 @@ void OnLoadPlugin(bool bReloading)
       ezActionMapManager::RegisterActionMap("TextureAssetMenuBar");
       ezProjectActions::MapActions("TextureAssetMenuBar");
       ezStandardMenus::MapActions("TextureAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
-      ezDocumentActions::MapActions("TextureAssetMenuBar", "File", false);
-      ezCommandHistoryActions::MapActions("TextureAssetMenuBar", "Edit");
+      ezDocumentActions::MapActions("TextureAssetMenuBar", "MenuFile", false);
+      ezCommandHistoryActions::MapActions("TextureAssetMenuBar", "MenuEdit");
     }
 
     // Tool Bar
@@ -43,8 +43,8 @@ void OnLoadPlugin(bool bReloading)
       ezActionMapManager::RegisterActionMap("MaterialAssetMenuBar");
       ezProjectActions::MapActions("MaterialAssetMenuBar");
       ezStandardMenus::MapActions("MaterialAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
-      ezDocumentActions::MapActions("MaterialAssetMenuBar", "File", false);
-      ezCommandHistoryActions::MapActions("MaterialAssetMenuBar", "Edit");
+      ezDocumentActions::MapActions("MaterialAssetMenuBar", "MenuFile", false);
+      ezCommandHistoryActions::MapActions("MaterialAssetMenuBar", "MenuEdit");
     }
 
     // Tool Bar
@@ -63,8 +63,8 @@ void OnLoadPlugin(bool bReloading)
       ezActionMapManager::RegisterActionMap("MeshAssetMenuBar");
       ezProjectActions::MapActions("MeshAssetMenuBar");
       ezStandardMenus::MapActions("MeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
-      ezDocumentActions::MapActions("MeshAssetMenuBar", "File", false);
-      ezCommandHistoryActions::MapActions("MeshAssetMenuBar", "Edit");
+      ezDocumentActions::MapActions("MeshAssetMenuBar", "MenuFile", false);
+      ezCommandHistoryActions::MapActions("MeshAssetMenuBar", "MenuEdit");
     }
 
     // Tool Bar

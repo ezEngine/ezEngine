@@ -25,9 +25,9 @@ ezActionDescriptorHandle ezEditActions::s_hDelete;
 void ezEditActions::RegisterActions()
 {
   s_hEditCategory = EZ_REGISTER_CATEGORY("EditCategory");
-  s_hCopy = EZ_REGISTER_ACTION_1("Copy", "Copy", ezActionScope::Document, "Document", "Ctrl+C", ezEditAction, ezEditAction::ButtonType::Copy);
-  s_hPaste = EZ_REGISTER_ACTION_1("Paste", "Paste", ezActionScope::Document, "Document", "Ctrl+V", ezEditAction, ezEditAction::ButtonType::Paste);
-  s_hDelete = EZ_REGISTER_ACTION_1("Delete", "Delete", ezActionScope::Document, "Document", "", ezEditAction, ezEditAction::ButtonType::Delete);
+  s_hCopy = EZ_REGISTER_ACTION_1("ActionCopy", ezActionScope::Document, "Document", "Ctrl+C", ezEditAction, ezEditAction::ButtonType::Copy);
+  s_hPaste = EZ_REGISTER_ACTION_1("ActionPaste", ezActionScope::Document, "Document", "Ctrl+V", ezEditAction, ezEditAction::ButtonType::Paste);
+  s_hDelete = EZ_REGISTER_ACTION_1("ActionDelete", ezActionScope::Document, "Document", "", ezEditAction, ezEditAction::ButtonType::Delete);
 }
 
 void ezEditActions::UnregisterActions()

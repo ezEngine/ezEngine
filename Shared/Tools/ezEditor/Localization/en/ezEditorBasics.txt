@@ -1,0 +1,45 @@
+ActionCreateDocument;Create Document
+ActionOpenDocument;Open Document
+ActionUndo;Undo
+ActionRedo;Redo
+MenuRecentDocuments;Recent Documents
+ActionCreateProject;Create Project
+ActionOpenProject;Open Project
+MenuRecentProjects;Recent Projects
+ActionCloseProject;Close Project
+ActionOpenSettings;Settings
+ActionReloadResources;Reload Resources
+ActionSaveDocument;Save
+ActionSaveAllDocuments;Save All
+ActionSaveDocumentAs;Save As...
+ActionCloseDocument;Close
+ActionOpenContainingFolder;Open Containing Folder
+ActionCopy;Copy
+ActionPaste;Paste
+ActionDelete;Delete
+MenuFile;File
+MenuEdit;Edit
+MenuPanels;Panels
+MenuSettings;Settings
+MenuHelp;Help
+ActionTransformAsset;Transform Asset
+ActionTransformAllAssets;Transform All Assets
+ActionCheckFilesystem;Check Filesystem
+ActionWriteLookupTable;Write Lookup Table
+ActionRetrieveAssetInfo;Retrieve Asset Info
+MenuEditor;Editor
+MenuTools;Tools
+MenuRenderMode;Render Mode
+MenuRenderPerspective;Perspective
+PanelAssetBrowser;Asset Browser
+PanelLog;Log
+ezSceneViewPerspective::Orthogonal_Front;Ortho Front
+ezSceneViewPerspective::Orthogonal_Right;Ortho Right
+ezSceneViewPerspective::Orthogonal_Top;Ortho Top
+ezSceneViewPerspective::Perspective;Perspective
+ezViewRenderMode::None;Default
+ezViewRenderMode::WireframeColor;Wireframe Color
+ezViewRenderMode::WireframeMonochrome;Wireframe Monochrome
+ezViewRenderMode::TexCoordsUV0;Texture Coordinates (UV0)
+ezViewRenderMode::VertexNormals;Vertex Normals
+ezViewRenderMode::PixelDepth;Depth

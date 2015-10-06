@@ -11,8 +11,8 @@ ezActionDescriptorHandle ezViewActions::s_hPerspective;
 
 void ezViewActions::RegisterActions()
 {
-  s_hRenderMode = EZ_REGISTER_LRU_MENU("RenderMode", "Render Mode", ezRenderModeAction, ":/GuiFoundation/Icons/RenderMode.png");
-  s_hPerspective = EZ_REGISTER_LRU_MENU("Perspective", "Perspective", ezPerspectiveAction, ":/GuiFoundation/Icons/Perspective.png");
+  s_hRenderMode = EZ_REGISTER_LRU_MENU("MenuRenderMode", ezRenderModeAction, ":/GuiFoundation/Icons/RenderMode.png");
+  s_hPerspective = EZ_REGISTER_LRU_MENU("MenuRenderPerspective", ezPerspectiveAction, ":/GuiFoundation/Icons/Perspective.png");
 }
 
 void ezViewActions::UnregisterActions()

@@ -173,7 +173,6 @@ void ezViewContext::Redraw()
   }
 
   ezRenderLoop::AddMainView(m_pView);
-
 }
 
 void ezViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)

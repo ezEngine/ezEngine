@@ -25,6 +25,7 @@
 #include <qstylefactory.h>
 #include <QFileDialog>
 #include <QClipboard>
+#include <CoreUtils/Localization/TranslationLookup.h>
 
 
 ezEditorApp* ezEditorApp::s_pInstance = nullptr;
@@ -144,6 +145,8 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
   ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
  
+  ezTranslationLookup::SetLanguageSearchPath("Localization/en");
+  ezTranslationLookup::AddTranslationFile("ezEditorBasics.txt");
 
   ezUIServices::GetInstance()->LoadState();
 

@@ -3,12 +3,10 @@
 
 void OnLoadPlugin(bool bReloading)
 {
-  int i = 0;
 }
 
 void OnUnloadPlugin(bool bReloading)  
 {
-
 }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);

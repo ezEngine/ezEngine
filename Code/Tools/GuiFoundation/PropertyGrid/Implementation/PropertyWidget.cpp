@@ -20,6 +20,7 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <CoreUtils/Localization/TranslationLookup.h>
 
 /// *** CHECKBOX ***
 
@@ -571,15 +572,7 @@ void ezPropertyEditorEnumWidget::OnInit()
 
     const ezAbstractConstantProperty* pConstant = static_cast<const ezAbstractConstantProperty*>(pProp);
 
-    // If this is a qualified C++ name, skip everything before the last colon
-    sTemp = pConstant->GetPropertyName();
-    const char* szColon = sTemp.FindLastSubString(":");
-    if (szColon != nullptr)
-      szColon = szColon + 1;
-    else
-      szColon = sTemp;
-
-    m_pWidget->addItem(QString::fromUtf8(szColon), pConstant->GetConstant().ConvertTo<ezInt64>());
+    m_pWidget->addItem(QString::fromUtf8(ezTranslate(pConstant->GetPropertyName())), pConstant->GetConstant().ConvertTo<ezInt64>());
   }
 }
 

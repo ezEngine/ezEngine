@@ -1,0 +1,35 @@
+ActionCreateDocument;Neues Dokument
+ActionOpenDocument;Öffne Dokument
+ActionUndo;Rückgängig
+ActionRedo;Wiederholen
+MenuRecentDocuments;Letzte Dokumente
+ActionCreateProject;Neues Projekt
+ActionOpenProject;Öffne Projekt
+MenuRecentProjects;Letzte Projekte
+ActionCloseProject;Projekt schließen
+ActionOpenSettings;Einstellungen
+ActionReloadResources;Resourcen neu laden
+ActionSaveDocument;Speichern
+ActionSaveAllDocuments;Alle Speichern
+ActionSaveDocumentAs;Speichern als...
+ActionCloseDocument;Schließen
+ActionOpenContainingFolder;In Explorer öffnen
+ActionCopy;Kopieren
+ActionPaste;Einfügen
+ActionDelete;Löschen
+MenuFile;Datei
+MenuEdit;Bearbeiten
+MenuPanels;Fenster
+MenuSettings;Einstellungen
+MenuHelp;Hilfe
+ActionTransformAsset;Transformiere Asset
+ActionTransformAllAssets;Transformiere alle Assets
+ActionCheckFilesystem;Prüfe Dateisystem
+ActionWriteLookupTable;Schreibe Übersetzungstabelle
+ActionRetrieveAssetInfo;Hole Asset Info
+MenuEditor;Editor
+MenuTools;Werkzeuge
+MenuRenderMode;Render Modus
+MenuRenderPerspective;Perspektive
+PanelAssetBrowser;Asset Browser
+PanelLog;Log

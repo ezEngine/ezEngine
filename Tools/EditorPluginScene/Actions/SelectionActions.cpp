@@ -18,12 +18,12 @@ ezActionDescriptorHandle ezSelectionActions::s_hShowHiddenObjects;
 void ezSelectionActions::RegisterActions()
 {
   s_hSelectionCategory = EZ_REGISTER_CATEGORY("SelectionCategory");
-  s_hShowInScenegraph = EZ_REGISTER_ACTION_1("ShowInScenegraph", "Show in Scenegraph", ezActionScope::Document, "Document", "Ctrl+T", ezSelectionAction, ezSelectionAction::ActionType::ShowInScenegraph);
-  s_hFocusOnSelection = EZ_REGISTER_ACTION_1("FocusOnSelection", "Focus on Selection", ezActionScope::Document, "Document", "F", ezSelectionAction, ezSelectionAction::ActionType::FocusOnSelection);
-  s_hGroupSelectedItems = EZ_REGISTER_ACTION_1("GroupSelectedItems", "Group", ezActionScope::Document, "Document", "G", ezSelectionAction, ezSelectionAction::ActionType::GroupSelectedItems);
-  s_hHideSelectedObjects = EZ_REGISTER_ACTION_1("HideSelectedObjects", "Hide Selected", ezActionScope::Document, "Document", "H", ezSelectionAction, ezSelectionAction::ActionType::HideSelectedObjects);
-  s_hHideUnselectedObjects = EZ_REGISTER_ACTION_1("HideUnselectedObjects", "Hide Unselected", ezActionScope::Document, "Document", "Shift+H", ezSelectionAction, ezSelectionAction::ActionType::HideUnselectedObjects);
-  s_hShowHiddenObjects = EZ_REGISTER_ACTION_1("ShowHiddenObjects", "Show Hidden Objects", ezActionScope::Document, "Document", "Ctrl+H", ezSelectionAction, ezSelectionAction::ActionType::ShowHiddenObjects);
+  s_hShowInScenegraph = EZ_REGISTER_ACTION_1("ActionShowInScenegraph", ezActionScope::Document, "Document", "Ctrl+T", ezSelectionAction, ezSelectionAction::ActionType::ShowInScenegraph);
+  s_hFocusOnSelection = EZ_REGISTER_ACTION_1("ActionFocusOnSelection", ezActionScope::Document, "Document", "F", ezSelectionAction, ezSelectionAction::ActionType::FocusOnSelection);
+  s_hGroupSelectedItems = EZ_REGISTER_ACTION_1("ActionGroupSelectedItems", ezActionScope::Document, "Document", "G", ezSelectionAction, ezSelectionAction::ActionType::GroupSelectedItems);
+  s_hHideSelectedObjects = EZ_REGISTER_ACTION_1("ActionHideSelectedObjects", ezActionScope::Document, "Document", "H", ezSelectionAction, ezSelectionAction::ActionType::HideSelectedObjects);
+  s_hHideUnselectedObjects = EZ_REGISTER_ACTION_1("ActionHideUnselectedObjects", ezActionScope::Document, "Document", "Shift+H", ezSelectionAction, ezSelectionAction::ActionType::HideUnselectedObjects);
+  s_hShowHiddenObjects = EZ_REGISTER_ACTION_1("ActionShowHiddenObjects", ezActionScope::Document, "Document", "Ctrl+H", ezSelectionAction, ezSelectionAction::ActionType::ShowHiddenObjects);
 }
 
 void ezSelectionActions::UnregisterActions()
