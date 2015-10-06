@@ -13,9 +13,9 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Mesh",
-    "Dependencies" : "Meshes/MissingMesh/MissingMesh.obj",
+    "Dependencies" : "",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x67B1E6E98CC160429B0E4CF4503C1463" },
-    "Hash" : { "$t" : "uint64", "$v" : "11193623405623116162", "$b" : "0x8201AA592EBD579B" },
+    "Hash" : { "$t" : "uint64", "$v" : "10739543781825316104", "$b" : "0x080574452B860A95" },
     "References" : ""
    }
   },
@@ -23,12 +23,22 @@
    "#" : { "$t" : "uuid", "$b" : "0xF7D37B95271EE243B8645DAAC8BD12E4" },
    "t" : "ezMeshAssetProperties",
    "p" : {
-    "Forward Dir" : "ezBasisAxis::NegativeZ",
+    "Angle" : { "$t" : "float", "$v" : "360.0000", "$b" : "0x0000B443" },
+    "Cap" : false,
+    "Cap 2" : false,
+    "Detail" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Detail 2" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Forward Dir" : "ezBasisAxis::PositiveX",
+    "Height" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
     "Materials" : [ { "$t" : "uuid", "$b" : "0x7B37168B3CBFFB37B05B8F83D73641A6" } ],
-    "Mesh File" : "Meshes/MissingMesh/MissingMesh.obj",
-    "Mesh Scaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Right Dir" : "ezBasisAxis::PositiveX",
-    "Up Dir" : "ezBasisAxis::PositiveY"
+    "Mesh File" : "",
+    "Non-Uniform Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "Primitive Type" : "ezMeshPrimitive::Box",
+    "Radius" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "Radius 2" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "Right Dir" : "ezBasisAxis::PositiveY",
+    "Uniform Scaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Up Dir" : "ezBasisAxis::PositiveZ"
    }
   },
   {

@@ -7,7 +7,7 @@
     "AssetType" : "Mesh",
     "Dependencies" : "",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x7E7AD5534E74AA42BD5D0F7B0EA836D3" },
-    "Hash" : { "$t" : "uint64", "$v" : "16379081004828075649", "$b" : "0x812620D0642F4EE3" },
+    "Hash" : { "$t" : "uint64", "$v" : "11053671404816054651", "$b" : "0x7B39F4EB93876699" },
     "References" : ""
    }
   },
@@ -15,7 +15,7 @@
    "#" : { "$t" : "uuid", "$b" : "0xC29F129256F7E149A9E5A757EA06C768" },
    "t" : "ezMeshAssetProperties",
    "p" : {
-    "Angle" : { "$t" : "float", "$v" : "360.0000", "$b" : "0x0000B443" },
+    "Angle" : { "$t" : "float", "$v" : "270.0000", "$b" : "0x00008743" },
     "Cap" : true,
     "Cap 2" : true,
     "Detail" : { "$t" : "uint32", "$v" : "16", "$b" : "0x10000000" },

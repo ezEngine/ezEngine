@@ -23,7 +23,7 @@
     "AssetType" : "Mesh",
     "Dependencies" : "",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xC45C5D3F9772394CB44A584F95AC3595" },
-    "Hash" : { "$t" : "uint64", "$v" : "4657145110595702167", "$b" : "0x970D81B0CD80A140" },
+    "Hash" : { "$t" : "uint64", "$v" : "3873201210248175002", "$b" : "0x9A9D74C8FA5FC035" },
     "References" : ""
    }
   },
@@ -36,7 +36,7 @@
     "Cap 2" : false,
     "Detail" : { "$t" : "uint32", "$v" : "2", "$b" : "0x02000000" },
     "Detail 2" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Forward Dir" : "ezBasisAxis::NegativeZ",
+    "Forward Dir" : "ezBasisAxis::PositiveX",
     "Height" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
     "Materials" : [ { "$t" : "uuid", "$b" : "0x5C01426BDAC1BE061903F6716FF0473E" } ],
     "Mesh File" : "",
@@ -44,9 +44,9 @@
     "Primitive Type" : "ezMeshPrimitive::GeodesicSphere",
     "Radius" : { "$t" : "float", "$v" : "0.5000", "$b" : "0x0000003F" },
     "Radius 2" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
-    "Right Dir" : "ezBasisAxis::PositiveX",
+    "Right Dir" : "ezBasisAxis::PositiveY",
     "Uniform Scaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Up Dir" : "ezBasisAxis::PositiveY"
+    "Up Dir" : "ezBasisAxis::PositiveZ"
    }
   } ]
 }

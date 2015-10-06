@@ -8,7 +8,7 @@
     "Cap 2" : false,
     "Detail" : { "$t" : "uint32", "$v" : "16", "$b" : "0x10000000" },
     "Detail 2" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Forward Dir" : "ezBasisAxis::NegativeZ",
+    "Forward Dir" : "ezBasisAxis::PositiveX",
     "Height" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Materials" : [ { "$t" : "uuid", "$b" : "0x667177FA231713DD6C257E0B63A50520" } ],
     "Mesh File" : "",
@@ -16,9 +16,9 @@
     "Primitive Type" : "ezMeshPrimitive::Cone",
     "Radius" : { "$t" : "float", "$v" : "0.5000", "$b" : "0x0000003F" },
     "Radius 2" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
-    "Right Dir" : "ezBasisAxis::PositiveX",
+    "Right Dir" : "ezBasisAxis::PositiveY",
     "Uniform Scaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Up Dir" : "ezBasisAxis::PositiveY"
+    "Up Dir" : "ezBasisAxis::PositiveZ"
    }
   },
   {
@@ -29,7 +29,7 @@
     "AssetType" : "Mesh",
     "Dependencies" : "",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xE60AFAFFBBA24E489CAC8AEAED5D268A" },
-    "Hash" : { "$t" : "uint64", "$v" : "1334135340243647859", "$b" : "0x737D84FD05CD8312" },
+    "Hash" : { "$t" : "uint64", "$v" : "11724261598536224238", "$b" : "0xEE4D815ACEF1B4A2" },
     "References" : ""
    }
   },

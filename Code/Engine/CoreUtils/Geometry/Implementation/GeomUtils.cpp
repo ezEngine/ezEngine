@@ -487,81 +487,138 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
   TransformVertices(mTransform, uiFirstVertex);
 }
 
-void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeight, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex, ezAngle fraction)
+void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeight, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments0, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex, ezAngle fraction)
 {
-  EZ_ASSERT_DEV(uiSegments >= 3, "Cannot create a cylinder with only %u segments", uiSegments);
+  EZ_ASSERT_DEV(uiSegments0 >= 3, "Cannot create a cylinder with only %u segments", uiSegments0);
   EZ_ASSERT_DEV(fraction.GetDegree() >= 0.0f, "A cylinder cannot be built with more less than 0 degree");
   EZ_ASSERT_DEV(fraction.GetDegree() <= 360.0f, "A cylinder cannot be built with more than 360 degree");
 
   const bool bIsFraction = fraction.GetDegree() < 360.0f;
+  const ezAngle fDegStep = ezAngle::Degree(fraction.GetDegree() / uiSegments0);
 
-  ezHybridArray<ezUInt32, 512> VertsTop;
-  ezHybridArray<ezUInt32, 512> VertsBottom;
-
-  const ezVec3 vTopCenter(0, 0, fHeight * 0.5f);
-  const ezVec3 vBottomCenter(0, 0, -fHeight * 0.5f);
-
-  const ezAngle fDegStep = ezAngle::Degree(fraction.GetDegree() / uiSegments);
-
-  if (bIsFraction)
   {
-    VertsTop.PushBack(AddVertex(vTopCenter, ezVec3(0, 1, 0), ezVec2(0), color, iCustomIndex, mTransform));
-    VertsBottom.PushBack(AddVertex(vBottomCenter, ezVec3(0, -1, 0), ezVec2(0), color, iCustomIndex, mTransform));
+    ezUInt16 uiSegments = uiSegments0;
 
-    ++uiSegments;
-  }
+    ezHybridArray<ezUInt32, 512> VertsTop;
+    ezHybridArray<ezUInt32, 512> VertsBottom;
 
-  for (ezInt32 i = uiSegments - 1; i >= 0; --i)
-  {
-    const ezAngle deg = (float) i * fDegStep;
+    const ezVec3 vTopCenter(0, 0, fHeight * 0.5f);
+    const ezVec3 vBottomCenter(0, 0, -fHeight * 0.5f);
 
-    float fU = ((float)i / (float)(uiSegments)) * 2.0f;
 
-    if (fU > 1.0f)
-      fU = 2.0f - fU;
+    if (bIsFraction)
+    {
+      VertsTop.PushBack(AddVertex(vTopCenter, ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform));
+      VertsBottom.PushBack(AddVertex(vBottomCenter, ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform));
 
-    const float fX = ezMath::Cos(deg);
-    const float fY = ezMath::Sin(deg);
+      ++uiSegments;
+    }
 
-    ezVec3 vDir(fX, fY, 0);
+    for (ezInt32 i = uiSegments - 1; i >= 0; --i)
+    {
+      const ezAngle deg = (float)i * fDegStep;
 
-    VertsTop.PushBack(AddVertex(vTopCenter + vDir * fRadiusTop, vDir, ezVec2(fU, 0), color, iCustomIndex, mTransform));
-    VertsBottom.PushBack(AddVertex(vBottomCenter + vDir * fRadiusBottom, vDir, ezVec2(fU, 1), color, iCustomIndex, mTransform));
-  }
+      float fU = ((float)i / (float)(uiSegments)) * 4.0f;
 
-  if (bIsFraction)
-    ++uiSegments;
+      if (fU > 3.0f)
+        fU = 4.0f - fU;
+      else if (fU > 2.0f)
+        fU = fU - 2.0f;
+      else if (fU > 1.0f)
+        fU = 2.0f - fU;
 
-  ezUInt32 uiPrevSeg = VertsBottom.GetCount() - 1;
+      const float fX = ezMath::Cos(deg);
+      const float fY = ezMath::Sin(deg);
 
-  for (ezUInt32 i = 0; i < uiSegments; ++i)
-  {
-    ezUInt32 quad[4];
-    quad[0] = VertsBottom[uiPrevSeg];
-    quad[1] = VertsTop[uiPrevSeg];
-    quad[2] = VertsTop[i];
-    quad[3] = VertsBottom[i];
+      const ezVec3 vDir(fX, fY, 0);
 
-    uiPrevSeg = i;
+      VertsTop.PushBack(AddVertex(vTopCenter + vDir * fRadiusTop, vDir, ezVec2(fU, 0), color, iCustomIndex, mTransform));
+      VertsBottom.PushBack(AddVertex(vBottomCenter + vDir * fRadiusBottom, vDir, ezVec2(fU, 1), color, iCustomIndex, mTransform));
+    }
 
-    AddPolygon(quad);
+    if (bIsFraction)
+      ++uiSegments;
+
+    ezUInt32 uiPrevSeg = VertsBottom.GetCount() - 1;
+
+    for (ezUInt32 i = 0; i < uiSegments; ++i)
+    {
+      ezUInt32 quad[4];
+      quad[0] = VertsBottom[uiPrevSeg];
+      quad[1] = VertsTop[uiPrevSeg];
+      quad[2] = VertsTop[i];
+      quad[3] = VertsBottom[i];
+
+      uiPrevSeg = i;
+
+      AddPolygon(quad);
+    }
   }
 
   if (bCapBottom)
   {
+    ezUInt16 uiSegments = uiSegments0;
+
+    ezHybridArray<ezUInt32, 512> VertsBottom;
+
+    const ezVec3 vBottomCenter(0, 0, -fHeight * 0.5f);
+
+    if (bIsFraction)
+    {
+      VertsBottom.PushBack(AddVertex(vBottomCenter, ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform));
+
+      ++uiSegments;
+    }
+
+    for (ezInt32 i = uiSegments - 1; i >= 0; --i)
+    {
+      const ezAngle deg = (float)i * fDegStep;
+
+      const float fX = ezMath::Cos(deg);
+      const float fY = ezMath::Sin(deg);
+
+      const ezVec3 vDir(fX, fY, 0);
+
+      VertsBottom.PushBack(AddVertex(vBottomCenter + vDir * fRadiusBottom, ezVec3(0, 0, -1), ezVec2(fY, fX), color, iCustomIndex, mTransform));
+    }
+
+    if (bIsFraction)
+      ++uiSegments;
+
     AddPolygon(VertsBottom);
   }
 
   if (bCapTop)
   {
-    VertsBottom.Clear();
+    ezUInt16 uiSegments = uiSegments0;
 
-    VertsBottom.PushBack(VertsTop[0]);
+    ezHybridArray<ezUInt32, 512> VertsTop;
 
-    for (ezUInt32 i = VertsTop.GetCount(); i > 1; --i)
-      VertsBottom.PushBack(VertsTop[i - 1]);
+    const ezVec3 vTopCenter(0, 0, fHeight * 0.5f);
 
-    AddPolygon(VertsBottom);
+    if (bIsFraction)
+    {
+      VertsTop.PushBack(AddVertex(vTopCenter, ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform));
+
+      ++uiSegments;
+    }
+
+    for (ezInt32 i = 0; i < uiSegments; ++i)
+    {
+      const ezAngle deg = (float)i * fDegStep;
+
+      const float fX = ezMath::Cos(deg);
+      const float fY = ezMath::Sin(deg);
+
+      const ezVec3 vDir(fX, fY, 0);
+
+      VertsTop.PushBack(AddVertex(vTopCenter + vDir * fRadiusBottom, ezVec3(0, 0, 1), ezVec2(fY, -fX), color, iCustomIndex, mTransform));
+    }
+
+    if (bIsFraction)
+      ++uiSegments;
+
+    AddPolygon(VertsTop);
   }
 
 }
