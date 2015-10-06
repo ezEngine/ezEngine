@@ -82,7 +82,9 @@ void ezRendererTestBasics::RenderObjects(ezBitflags<ezShaderBindFlags> ShaderBin
   cam.GetProjectionMatrix((float) GetResolution().width / (float) GetResolution().height, mProj);
   cam.GetViewMatrix(mView);
 
-  ezMat4 mTransform, mOther;
+  ezMat4 mTransform, mOther, mRot;
+
+  mRot.SetRotationMatrixX(ezAngle::Degree(-90));
 
   mOther.SetScalingMatrix(ezVec3(1.0f, 1.0f, 1.0f));
   mTransform.SetTranslationMatrix(ezVec3( -0.3f, -0.3f, 0.0f));
@@ -90,7 +92,7 @@ void ezRendererTestBasics::RenderObjects(ezBitflags<ezShaderBindFlags> ShaderBin
 
   mOther.SetRotationMatrixX(ezAngle::Degree(80.0f));
   mTransform.SetTranslationMatrix(ezVec3(0.75f, 0, -1.8f));
-  RenderObject(m_hTorus, mProj * mView * mTransform * mOther, ezColor(1, 0, 0, 0.5f), ShaderBindFlags);
+  RenderObject(m_hTorus, mProj * mView * mTransform * mOther * mRot, ezColor(1, 0, 0, 0.5f), ShaderBindFlags);
 
   mOther.SetIdentity();
   mTransform.SetTranslationMatrix(ezVec3( 0, 0.1f, -2.0f));
@@ -98,7 +100,7 @@ void ezRendererTestBasics::RenderObjects(ezBitflags<ezShaderBindFlags> ShaderBin
 
   mOther.SetScalingMatrix(ezVec3(1.5f, 1.0f, 1.0f));
   mTransform.SetTranslationMatrix(ezVec3( -0.6f, -0.2f, -2.2f));
-  RenderObject(m_hSphere2, mProj * mView * mTransform * mOther, ezColor(0, 0, 1, 1), ShaderBindFlags);
+  RenderObject(m_hSphere2, mProj * mView * mTransform * mOther * mRot, ezColor(0, 0, 1, 1), ShaderBindFlags);
 }
 
 static ezRendererTestBasics g_Test;
