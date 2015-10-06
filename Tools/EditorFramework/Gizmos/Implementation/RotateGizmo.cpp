@@ -39,13 +39,13 @@ void ezRotateGizmo::OnTransformationChanged(const ezMat4& transform)
 {
   ezMat4 m;
 
-  m.SetRotationMatrixZ(ezAngle::Degree(-90));
+  m.SetRotationMatrixY(ezAngle::Degree(-90));
   m_AxisX.SetTransformation(transform * m);
 
-  m.SetIdentity();
+  m.SetRotationMatrixX(ezAngle::Degree(90));
   m_AxisY.SetTransformation(transform * m);
 
-  m.SetRotationMatrixX(ezAngle::Degree(90));
+  m.SetIdentity();
   m_AxisZ.SetTransformation(transform * m);
 }
 
@@ -76,15 +76,15 @@ bool ezRotateGizmo::mousePressEvent(QMouseEvent* e)
 
   if (m_pInteractionGizmoHandle == &m_AxisX)
   {
-    m_vMoveAxis = m_AxisX.GetTransformation().GetColumn(1).GetAsVec3().GetNormalized();
+    m_vMoveAxis = m_AxisX.GetTransformation().GetColumn(2).GetAsVec3().GetNormalized();
   }
   else if (m_pInteractionGizmoHandle == &m_AxisY)
   {
-    m_vMoveAxis = m_AxisY.GetTransformation().GetColumn(1).GetAsVec3().GetNormalized();
+    m_vMoveAxis = m_AxisY.GetTransformation().GetColumn(2).GetAsVec3().GetNormalized();
   }
   else if (m_pInteractionGizmoHandle == &m_AxisZ)
   {
-    m_vMoveAxis = m_AxisZ.GetTransformation().GetColumn(1).GetAsVec3().GetNormalized();
+    m_vMoveAxis = m_AxisZ.GetTransformation().GetColumn(2).GetAsVec3().GetNormalized();
   }
   else
     return false;
