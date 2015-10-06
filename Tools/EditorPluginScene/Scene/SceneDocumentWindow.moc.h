@@ -15,6 +15,7 @@
 class QGridLayout;
 class ezSceneViewWidgetContainer;
 class ezSceneViewWidget;
+class QSettings;
 
 Q_DECLARE_OPAQUE_POINTER(ezSceneViewWidget*);
 
@@ -64,6 +65,10 @@ private:
   void SendRedrawMsg();
 
   void SetupDefaultViewConfigs();
+  void SaveViewConfig(QSettings& Settings, const ezSceneViewConfig& cfg, const char* szName) const;
+  void LoadViewConfig(QSettings& Settings, ezSceneViewConfig& cfg, const char* szName);
+  void SaveViewConfigs() const;
+  void LoadViewConfigs();
   void CreateViews(bool bQuad);
 
   void HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg, ezSceneViewWidget* pSceneView);

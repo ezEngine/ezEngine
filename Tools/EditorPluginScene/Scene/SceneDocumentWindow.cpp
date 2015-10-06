@@ -7,6 +7,7 @@
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <QGridLayout>
+#include <QSettings>
 
 ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   : ezDocumentWindow3D(pDocument)
@@ -20,7 +21,7 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   setCentralWidget(pCenter);
 
   SetupDefaultViewConfigs();
-  CreateViews(true);
+  LoadViewConfigs();
 
   m_bResendSelection = false;
   m_bInGizmoInteraction = false;
@@ -59,7 +60,7 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   m_RotateGizmo.SetOwner(this, m_ViewWidgets[0]);
   m_ScaleGizmo.SetOwner(this, m_ViewWidgets[0]);
   m_DragToPosGizmo.SetOwner(this, m_ViewWidgets[0]);
-  
+
   m_RotateGizmo.SetSnappingAngle(ezAngle::Degree(ezRotateGizmoAction::GetCurrentSnappingValue()));
   m_ScaleGizmo.SetSnappingValue(ezScaleGizmoAction::GetCurrentSnappingValue());
   m_TranslateGizmo.SetSnappingValue(ezTranslateGizmoAction::GetCurrentSnappingValue());
@@ -94,6 +95,8 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
 
 ezSceneDocumentWindow::~ezSceneDocumentWindow()
 {
+  SaveViewConfigs();
+
   ezSceneDocument* pSceneDoc = static_cast<ezSceneDocument*>(GetDocument());
   pSceneDoc->m_SceneEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::DocumentEventHandler, this));
 
@@ -285,7 +288,7 @@ void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEve
   case ezSceneDocument::SceneEvent::Type::SnapEachSelectedObjectToGrid:
     SnapSelectionToPosition(true);
     break;
-  
+
   case ezSceneDocument::SceneEvent::Type::HideSelectedObjects:
     HideSelectedObjects(true);
     break;
@@ -429,7 +432,7 @@ void ezSceneDocumentWindow::SetupDefaultViewConfigs()
   m_ViewConfigSingle.m_RenderMode = ezViewRenderMode::Default;
   m_ViewConfigSingle.m_Camera.LookAt(ezVec3(0), ezVec3(1, 0, 0), ezVec3(0, 0, 1));
   m_ViewConfigSingle.ApplyPerspectiveSetting();
-  
+
   for (int i = 0; i < 4; ++i)
   {
     m_ViewConfigQuad[i].m_Perspective = (ezSceneViewPerspective::Enum)(ezSceneViewPerspective::Orhogonal_Front + i);
@@ -437,6 +440,64 @@ void ezSceneDocumentWindow::SetupDefaultViewConfigs()
     m_ViewConfigQuad[i].m_Camera.LookAt(ezVec3(0), ezVec3(1, 0, 0), ezVec3(0, 0, 1));
     m_ViewConfigQuad[i].ApplyPerspectiveSetting();
   }
+}
+
+void ezSceneDocumentWindow::SaveViewConfig(QSettings& Settings, const ezSceneViewConfig& cfg, const char* szName) const
+{
+  ezStringBuilder s("ViewConfig_", szName);
+
+  Settings.beginGroup(QLatin1String(s.GetData()));
+  {
+    Settings.setValue(QLatin1String("Perspective"), (int) cfg.m_Perspective);
+    Settings.setValue(QLatin1String("Mode"), (int)cfg.m_RenderMode);
+  }
+  Settings.endGroup();
+}
+
+void ezSceneDocumentWindow::LoadViewConfig(QSettings& Settings, ezSceneViewConfig& cfg, const char* szName)
+{
+  ezStringBuilder s("ViewConfig_", szName);
+
+  Settings.beginGroup(QLatin1String(s.GetData()));
+  {
+    cfg.m_Perspective = (ezSceneViewPerspective::Enum)Settings.value(QLatin1String("Perspective"), (int)cfg.m_Perspective).toInt();
+    cfg.m_RenderMode = (ezViewRenderMode::Enum)Settings.value(QLatin1String("Mode"), (int)cfg.m_RenderMode).toInt();
+  }
+  Settings.endGroup();
+}
+
+void ezSceneDocumentWindow::SaveViewConfigs() const
+{
+  QSettings Settings;
+  Settings.beginGroup(QLatin1String("SceneDocument"));
+  {
+    Settings.setValue("QuadView", m_ViewWidgets.GetCount() == 4);
+    SaveViewConfig(Settings, m_ViewConfigSingle, "Single");
+    SaveViewConfig(Settings, m_ViewConfigQuad[0], "Quad0");
+    SaveViewConfig(Settings, m_ViewConfigQuad[1], "Quad1");
+    SaveViewConfig(Settings, m_ViewConfigQuad[2], "Quad2");
+    SaveViewConfig(Settings, m_ViewConfigQuad[3], "Quad3");
+  }
+  Settings.endGroup();
+}
+
+void ezSceneDocumentWindow::LoadViewConfigs()
+{
+  bool bQuadView = true;
+
+  QSettings Settings;
+  Settings.beginGroup(QLatin1String("SceneDocument"));
+  {
+    bQuadView = Settings.value("QuadView", bQuadView).toBool();
+    LoadViewConfig(Settings, m_ViewConfigSingle, "Single");
+    LoadViewConfig(Settings, m_ViewConfigQuad[0], "Quad0");
+    LoadViewConfig(Settings, m_ViewConfigQuad[1], "Quad1");
+    LoadViewConfig(Settings, m_ViewConfigQuad[2], "Quad2");
+    LoadViewConfig(Settings, m_ViewConfigQuad[3], "Quad3");
+  }
+  Settings.endGroup();
+
+  CreateViews(bQuadView);
 }
 
 void ezSceneDocumentWindow::CreateViews(bool bQuad)
