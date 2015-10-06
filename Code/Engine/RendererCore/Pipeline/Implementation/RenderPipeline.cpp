@@ -1,4 +1,5 @@
 #include <RendererCore/PCH.h>
+#include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -50,6 +51,64 @@ ezRenderPipeline::~ezRenderPipeline()
   ClearPipelineData(&m_Data[1]);
 }
 
+void ezRenderPipeline::AddPass(ezUniquePtr<ezRenderPipelinePass>&& pPass)
+{
+  pPass->m_pPipeline = this;
+  pPass->InitializePins();
+
+  m_Passes.PushBack(std::move(pPass));
+}
+
+void ezRenderPipeline::RemovePass(ezRenderPipelinePass* pPass)
+{
+  for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
+  {
+    if (m_Passes[i].Borrow() == pPass)
+    {
+      pPass->m_pPipeline = nullptr;
+      m_Passes.RemoveAt(i);
+      break;
+    }
+  }
+}
+
+void ezRenderPipeline::GetPasses(ezHybridArray<ezRenderPipelinePass*, 16>& passes)
+{
+  passes.Reserve(m_Passes.GetCount());
+
+  for (auto& pPass : m_Passes)
+  {
+    passes.PushBack(pPass.Borrow());
+  }
+}
+
+void ezRenderPipeline::AddExtractor(ezUniquePtr<ezExtractor>&& pExtractor)
+{
+  m_Extractors.PushBack(std::move(pExtractor));
+}
+
+void ezRenderPipeline::RemoveExtractor(ezExtractor* pExtractor)
+{
+  for (ezUInt32 i = 0; i < m_Extractors.GetCount(); ++i)
+  {
+    if (m_Extractors[i].Borrow() == pExtractor)
+    {
+      m_Extractors.RemoveAt(i);
+      break;
+    }
+  }
+}
+
+void ezRenderPipeline::GetExtractors(ezHybridArray<ezExtractor*, 16>& extractors)
+{
+  extractors.Reserve(m_Extractors.GetCount());
+
+  for (auto& pExtractor : m_Extractors)
+  {
+    extractors.PushBack(pExtractor.Borrow());
+  }
+}
+
 void ezRenderPipeline::ExtractData(const ezView& view)
 {
   EZ_ASSERT_DEV(m_CurrentExtractThread == (ezThreadID)0, "Extract must not be called from multiple threads.");
@@ -71,25 +130,9 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   pPipelineData->m_ViewData = view.GetData();
 
   // Extract object render data
+  for (auto& pExtractor : m_Extractors)
   {
-    ezExtractRenderDataMessage msg;
-    msg.m_pView = &view;
-
-    EZ_LOCK(view.GetWorld()->GetReadMarker());
-
-    /// \todo use spatial data to do visibility culling etc.
-    for (auto it = view.GetWorld()->GetObjects(); it.IsValid(); ++it)
-    {
-      const ezGameObject* pObject = it;
-
-      if (!view.m_ExcludeTags.IsEmpty() && view.m_ExcludeTags.IsAnySet(pObject->GetTags()))
-        continue;
-
-      if (!view.m_IncludeTags.IsEmpty() && !view.m_IncludeTags.IsAnySet(pObject->GetTags()))
-        continue;
-
-      pObject->SendMessage(msg);
-    }
+    pExtractor->Extract(view);
   }
 
   for (ezUInt32 uiPassIndex = 0; uiPassIndex < pPipelineData->m_PassData.GetCount(); ++uiPassIndex)
@@ -145,21 +188,6 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
   ClearPipelineData(GetPipelineDataForRendering());
 
   m_CurrentRenderThread = (ezThreadID)0;
-}
-
-void ezRenderPipeline::AddPass(ezUniquePtr<ezRenderPipelinePass>&& pPass)
-{
-  pPass->m_pPipeline = this;
-  pPass->InitializePins();
-
-  m_Passes.PushBack(std::move(pPass));
-}
-
-void ezRenderPipeline::RemovePass(ezUniquePtr<ezRenderPipelinePass>&& pPass)
-{
-  m_Passes.Remove(pPass);
-
-  pPass->m_pPipeline = nullptr;
 }
 
 ezRenderPipeline::PipelineData* ezRenderPipeline::GetPipelineDataForExtraction()

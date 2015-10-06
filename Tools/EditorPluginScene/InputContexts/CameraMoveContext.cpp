@@ -519,8 +519,6 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
       float fRotateHorizontal = diff.x() * fMouseRotateSensitivityX;
       float fRotateVertical = diff.y() * fMouseRotateSensitivityY;
 
-      ezLog::Warning("Mouse %.3f, %.3f", fRotateHorizontal, fRotateVertical);
-
       m_pCamera->RotateLocally(ezAngle::Radian(0), ezAngle::Radian(fRotateVertical), ezAngle::Radian(0));
       m_pCamera->RotateGlobally(ezAngle::Radian(0), ezAngle::Radian(0), ezAngle::Radian(fRotateHorizontal));
 

@@ -15,14 +15,17 @@ public:
   ezRenderPipeline();
   ~ezRenderPipeline();
 
-  void ExtractData(const ezView& view);
-  void Render(ezRenderContext* pRenderer);
-
   void AddPass(ezUniquePtr<ezRenderPipelinePass>&& pPass);
-  void RemovePass(ezUniquePtr<ezRenderPipelinePass>&& pPass);
+  void RemovePass(ezRenderPipelinePass* pPass);
+  void GetPasses(ezHybridArray<ezRenderPipelinePass*, 16>& passes);
 
   void Connect(ezNode* pOutputNode, ezTempHashedString sOutputPinName, ezNode* pInputNode, ezTempHashedString sInputPinName);
   void Rebuild();
+
+  
+  void AddExtractor(ezUniquePtr<ezExtractor>&& pExtractor);
+  void RemoveExtractor(ezExtractor* pExtractor);
+  void GetExtractors(ezHybridArray<ezExtractor*, 16>& extractors);
 
 
   template <typename T>
@@ -39,7 +42,11 @@ public:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezRenderPipeline);
 
 private:
-  friend class ezView;
+  friend class ezRenderLoop;
+  friend class ezView;  
+
+  void ExtractData(const ezView& view);
+  void Render(ezRenderContext* pRenderer);
 
   ezThreadID m_CurrentExtractThread;
   ezThreadID m_CurrentRenderThread;
@@ -73,6 +80,7 @@ private:
   static bool IsPipelineDataEmpty(PipelineData* pPipeLineData);
 
   ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> m_Passes;
+  ezDynamicArray<ezUniquePtr<ezExtractor>> m_Extractors;
 
   static ezRenderPassType s_uiNextPassType;
 

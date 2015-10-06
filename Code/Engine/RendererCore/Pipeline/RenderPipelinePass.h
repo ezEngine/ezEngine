@@ -8,8 +8,6 @@
 #include <CoreUtils/NodeGraph/Node.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
-class ezRenderPipeline;
-
 class EZ_RENDERERCORE_DLL ezRenderPipelinePass : public ezNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderPipelinePass);

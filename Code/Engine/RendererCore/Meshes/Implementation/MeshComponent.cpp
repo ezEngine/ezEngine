@@ -20,7 +20,7 @@ EZ_END_COMPONENT_TYPE();
 
 ezMeshComponent::ezMeshComponent()
 {
-  m_iRenderPass = -1;
+  m_RenderPass = ezInvalidIndex;
   m_MeshColor = ezColor::White;
 }
 
@@ -77,7 +77,17 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 
   for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
   {
-    ezMeshRenderData* pRenderData = pRenderPipeline->CreateRenderData<ezMeshRenderData>(m_iRenderPass == -1 ? ezDefaultPassTypes::Opaque : m_iRenderPass, GetOwner());
+    ezRenderPassType renderPass = ezDefaultPassTypes::Opaque;
+    if (m_RenderPass != ezInvalidIndex)
+    {
+      renderPass = m_RenderPass;
+    } 
+    if (msg.m_OverrideRenderPass != ezInvalidIndex)
+    {
+      renderPass = msg.m_OverrideRenderPass;
+    }
+
+    ezMeshRenderData* pRenderData = pRenderPipeline->CreateRenderData<ezMeshRenderData>(renderPass, GetOwner());
     pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
     pRenderData->m_hMesh = m_hMesh;
     pRenderData->m_uiEditorPickingID = m_uiEditorPickingID;

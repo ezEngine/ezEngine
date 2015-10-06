@@ -60,6 +60,7 @@ private:
   {
     ezWindowBase* m_pWindow;
     ezGALSwapChainHandle m_hSwapChain;
+    bool m_bFirstFrame;
   };
 
   ezDynamicArray<WindowContext> m_Windows;

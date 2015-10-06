@@ -6,6 +6,7 @@
 #include <RendererCore/Basics.h>
 
 class ezCamera;
+class ezExtractor;
 class ezView;
 class ezRenderPipeline;
 class ezRenderPipelinePass;
@@ -61,4 +62,5 @@ struct EZ_RENDERERCORE_DLL ezExtractRenderDataMessage : public ezMessage
   EZ_DECLARE_MESSAGE_TYPE(ezExtractRenderDataMessage);
 
   const ezView* m_pView;
+  ezRenderPassType m_OverrideRenderPass;
 };

@@ -3,6 +3,7 @@
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
+#include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/SimpleRenderPass.h>
 #include <RendererCore/Pipeline/View.h>
@@ -139,6 +140,7 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
     ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
     pRenderPipeline->AddPass(std::move(pEditorRenderPass));
     pRenderPipeline->AddPass(std::move(pPickingRenderPass));
+    pRenderPipeline->AddExtractor(EZ_DEFAULT_NEW(ezVisibleObjectsExtractor));
     m_pView->SetRenderPipeline(std::move(pRenderPipeline));
 
     m_pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));

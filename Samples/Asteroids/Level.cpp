@@ -46,6 +46,7 @@ static ezMeshResourceHandle CreateAsteroidMesh()
 
   mfb.AddSubMesh(polygons.GetCount(), 0, 0);
   mfb.SetMaterial(0, "Materials/Asteroid.ezMaterial");
+  mfb.CalculateBounds();
 
   return ezResourceManager::CreateResource<ezMeshResource>("AsteroidMesh", mfb);
 }

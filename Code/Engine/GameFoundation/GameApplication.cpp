@@ -62,6 +62,7 @@ ezGALSwapChainHandle ezGameApplication::AddWindow(ezWindowBase* pWindow)
   desc.m_bAllowScreenshots = true;
 
   windowContext.m_hSwapChain = ezGALDevice::GetDefaultDevice()->CreateSwapChain(desc);
+  windowContext.m_bFirstFrame = true;
   return windowContext.m_hSwapChain;
 }
 
@@ -271,9 +272,16 @@ void ezGameApplication::UpdateWorldsAndRender()
 
     {
       EZ_PROFILE(g_PresentProfilingId);
-      for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)
+      for (auto& windowContext : m_Windows)
       {
-        pDevice->Present(m_Windows[i].m_hSwapChain);
+        if (ezRenderLoop::GetUseMultithreadedRendering() && windowContext.m_bFirstFrame)
+        {
+          windowContext.m_bFirstFrame = false;
+        }
+        else
+        {
+          pDevice->Present(windowContext.m_hSwapChain);
+        }
       }
     }
 

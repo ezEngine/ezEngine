@@ -8,6 +8,7 @@
 
 #include <InputXBox360/InputDeviceXBox.h>
 
+#include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Pipeline/SimpleRenderPass.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
@@ -215,6 +216,7 @@ void AsteroidGameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHa
 
   ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
   pRenderPipeline->AddPass(EZ_DEFAULT_NEW( ezSimpleRenderPass, RTS));
+  pRenderPipeline->AddExtractor(EZ_DEFAULT_NEW(ezVisibleObjectsExtractor));
   pView->SetRenderPipeline(std::move(pRenderPipeline));
 
   ezSizeU32 size = m_pWindow->GetClientAreaSize();

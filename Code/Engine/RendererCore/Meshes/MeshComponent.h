@@ -52,7 +52,7 @@ public:
 
   EZ_FORCE_INLINE void SetRenderPass(ezRenderPassType renderpass)
   {
-    m_iRenderPass = renderpass;
+    m_RenderPass = renderpass;
   }
 
   virtual void OnAfterAttachedToObject() override;
@@ -73,7 +73,7 @@ private:
   void Materials_Insert(ezUInt32 uiIndex, const char* value);
   void Materials_Remove(ezUInt32 uiIndex);
 
-  ezRenderPassType m_iRenderPass;
+  ezRenderPassType m_RenderPass;
   ezMeshResourceHandle m_hMesh;
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;
 };
