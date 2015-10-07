@@ -68,6 +68,9 @@ public:
 
   static ezDocumentWindow* FindWindowByDocument(const ezDocumentBase* pDocument);
 
+protected:
+  void FinishWindowCreation();
+
 private slots:
   void SlotRestoreLayout();
   void SlotRedraw();
@@ -108,7 +111,4 @@ private:
 
   static ezDynamicArray<ezDocumentWindow*> s_AllDocumentWindows;
 };
-
-
-
 

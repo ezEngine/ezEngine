@@ -33,7 +33,7 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
 
 void OnLoadPlugin(bool bReloading)    
 {
-  ezTranslationLookup::AddTranslationFile("ScenePlugin.txt");
+  ezTranslatorFromFiles::AddTranslationFile("ScenePlugin.txt");
 
   ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
 

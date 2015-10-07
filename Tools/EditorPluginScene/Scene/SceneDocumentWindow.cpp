@@ -91,6 +91,8 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
     addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
   }
+
+  FinishWindowCreation();
 }
 
 ezSceneDocumentWindow::~ezSceneDocumentWindow()

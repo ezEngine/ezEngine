@@ -53,6 +53,8 @@ ezTextureAssetDocumentWindow::ezTextureAssetDocumentWindow(ezDocumentBase* pDocu
 
   }
 
+  FinishWindowCreation();
+
   UpdatePreview();
 }
 

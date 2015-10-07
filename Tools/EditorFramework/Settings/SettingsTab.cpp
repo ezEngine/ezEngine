@@ -74,6 +74,8 @@ ezSettingsTab::ezSettingsTab() : ezDocumentWindow("Settings")
   pMenuBar->SetActionContext(context);
 
   AssetBrowserWidget->RestoreState("AssetBrowserPanel");
+
+  FinishWindowCreation();
 }
 
 ezSettingsTab::~ezSettingsTab()

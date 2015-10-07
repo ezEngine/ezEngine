@@ -43,3 +43,36 @@ ezViewRenderMode::WireframeMonochrome;Wireframe Monochrome
 ezViewRenderMode::TexCoordsUV0;Texture Coordinates (UV0)
 ezViewRenderMode::VertexNormals;Vertex Normals
 ezViewRenderMode::PixelDepth;Depth
+ezMeshPrimitive::File;From File
+ezMeshPrimitive::Box;Box
+ezMeshPrimitive::Rect;Rectangle
+ezMeshPrimitive::Cylinder;Cylinder
+ezMeshPrimitive::Cone;Cone
+ezMeshPrimitive::Pyramid;Pyramid
+ezMeshPrimitive::Sphere;Sphere
+ezMeshPrimitive::HalfSphere;Half Sphere
+ezMeshPrimitive::GeodesicSphere;Geodesic Sphere
+ezMeshPrimitive::Capsule;Capsule
+ezMeshPrimitive::Torus;Torus
+ezBasisAxis::PositiveX;Positive X
+ezBasisAxis::PositiveY;Positive Y
+ezBasisAxis::PositiveZ;Positive Z
+ezBasisAxis::NegativeX;Negative X
+ezBasisAxis::NegativeY;Negative Y
+ezBasisAxis::NegativeZ;Negative Z
+ezTextureUsageEnum::Unknown;Unknown
+ezTextureUsageEnum::Diffuse;Diffuse
+ezTextureUsageEnum::NormalMap;Normal Map
+ezTextureUsageEnum::Height;Height
+ezTextureUsageEnum::Mask;Mask
+ezTextureUsageEnum::LookupTable;Lookup Table
+ezTextureUsageEnum::Skybox;Skybox
+ezSRGBModeEnum::Unknown;Unknown
+ezSRGBModeEnum::sRGB;sRGB
+ezSRGBModeEnum::Linear;Linear
+ezSRGBModeEnum::sRGB_Auto;sRGB (Auto)
+ezSRGBModeEnum::Linear_Auto;Linear (Auto)
+ezTextureTypeEnum::Unknown;Unknown
+ezTextureTypeEnum::Texture2D;Texture 2D
+ezTextureTypeEnum::Texture3D;Texture 3D
+ezTextureTypeEnum::TextureCube;Texture Cube

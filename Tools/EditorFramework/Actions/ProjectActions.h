@@ -67,7 +67,7 @@ public:
     OpenProject,
     CloseProject,
     ProjectSettings,
-    ReloadResources
+    ReloadResources,
   };
 
   ezProjectAction(const ezActionContext& context, const char* szName, ButtonType button);

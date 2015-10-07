@@ -145,8 +145,17 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
   ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
  
-  ezTranslationLookup::SetLanguageSearchPath("Localization/en");
-  ezTranslationLookup::AddTranslationFile("ezEditorBasics.txt");
+  ezUniquePtr<ezTranslatorFromFiles> pTranslatorEn = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
+  ezUniquePtr<ezTranslatorFromFiles> pTranslatorDe = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
+
+  pTranslatorEn->SetSearchPath("Localization/en");
+  pTranslatorDe->SetSearchPath("Localization/de");
+
+  ezTranslationLookup::AddTranslator(EZ_DEFAULT_NEW(ezTranslatorLogMissing));
+  ezTranslationLookup::AddTranslator(std::move(pTranslatorEn));
+  ezTranslationLookup::AddTranslator(std::move(pTranslatorDe));
+
+  ezTranslatorFromFiles::AddTranslationFile("ezEditorBasics.txt");
 
   ezUIServices::GetInstance()->LoadState();
 
@@ -231,6 +240,8 @@ void ezEditorApp::ShutdownEditor()
 
   // make sure no one tries to load any further images in parallel
   QtImageCache::StopRequestProcessing(true);
+
+  ezTranslationLookup::Clear();
 
   m_LogHTML.EndLog();
 }

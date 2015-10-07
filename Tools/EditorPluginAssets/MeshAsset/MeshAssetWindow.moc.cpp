@@ -56,6 +56,8 @@ ezMeshAssetDocumentWindow::ezMeshAssetDocumentWindow(ezDocumentBase* pDocument) 
 
   m_pLabelInfo->setText("<Mesh Information>");
 
+  FinishWindowCreation();
+
   UpdatePreview();
 }
 

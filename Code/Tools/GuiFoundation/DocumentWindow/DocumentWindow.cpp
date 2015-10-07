@@ -47,8 +47,6 @@ void ezDocumentWindow::Constructor()
   ezContainerWindow::GetAllContainerWindows()[0]->MoveDocumentWindowToContainer(this);
 
   ezUIServices::s_Events.AddEventHandler(ezMakeDelegate(&ezDocumentWindow::UIServicesEventHandler, this));
-
-  ScheduleRestoreWindowLayout();
 }
 
 ezDocumentWindow::ezDocumentWindow(ezDocumentBase* pDocument)
@@ -240,6 +238,11 @@ ezString ezDocumentWindow::GetDisplayNameShort() const
     s.Append('*');
 
   return s;
+}
+
+void ezDocumentWindow::FinishWindowCreation()
+{
+  ScheduleRestoreWindowLayout();
 }
 
 void ezDocumentWindow::ScheduleRestoreWindowLayout()

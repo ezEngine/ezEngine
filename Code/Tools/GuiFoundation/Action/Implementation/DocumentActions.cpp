@@ -161,7 +161,7 @@ void ezDocumentAction::Execute(const ezVariant& value)
         for (auto pDoc : pMan->ezDocumentManagerBase::GetAllDocuments())
         {
           ezDocumentWindow* pWnd = ezDocumentWindow::FindWindowByDocument(pDoc);
-          
+
           if (pWnd->SaveDocument().m_Result.Failed())
             return;
         }

@@ -51,6 +51,8 @@ ezMaterialAssetDocumentWindow::ezMaterialAssetDocumentWindow(ezDocumentBase* pDo
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
 
+  FinishWindowCreation();
+
   UpdatePreview();
 }
 
