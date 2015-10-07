@@ -74,7 +74,6 @@ void ezTextureAssetDocumentWindow::UpdatePreview()
   if (ezImageConversionBase::Convert(pObject->GetImage(), Target, ezImageFormat::B8G8R8A8_UNORM).Failed())
     return;
 
-  /// \todo Fix format once ezImage is fixed
   QImage img(Target.GetPixelPointer<ezUInt8>(), Target.GetWidth(), Target.GetHeight(), QImage::Format_RGBA8888);
 
   m_pImageWidget->SetImage(QPixmap::fromImage(img));

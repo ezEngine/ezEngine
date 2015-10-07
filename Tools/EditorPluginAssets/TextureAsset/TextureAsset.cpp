@@ -29,6 +29,9 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(ezStreamWriterBase& stre
 {
   EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '%s' is not supported", szPlatform);
 
+  // set the input file again to ensure it is reloaded
+  GetProperties()->SetInputFile(GetProperties()->GetInputFile());
+
   const ezImage* pImage = &GetProperties()->GetImage();
   ezImage ConvertedImage;
 
