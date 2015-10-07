@@ -61,7 +61,7 @@ void ezRotorComponent::Update()
       ezQuat qRotation;
       qRotation.SetFromAxisAndAngle(vAxis, ezAngle::Degree(fNewDistance));
 
-      GetOwner()->SetLocalRotation(qRotation * -m_LastRotation * GetOwner()->GetLocalRotation());
+      GetOwner()->SetLocalRotation(GetOwner()->GetLocalRotation() * -m_LastRotation * qRotation);
 
       m_LastRotation = qRotation;
 
@@ -110,11 +110,11 @@ void ezRotorComponent::Update()
 
       /// \todo This will probably give precision issues pretty quickly
 
-      ezQuat qRot;
-      qRot.SetFromAxisAndAngle(vAxis, ezAngle::Degree(m_fAnimationSpeed * (float)m_AnimationTime.GetSeconds()));
+      ezQuat qRotation;
+      qRotation.SetFromAxisAndAngle(vAxis, ezAngle::Degree(m_fAnimationSpeed * (float)m_AnimationTime.GetSeconds()));
 
-      GetOwner()->SetLocalRotation(qRot * -m_LastRotation * GetOwner()->GetLocalRotation());
-      m_LastRotation = qRot;
+      GetOwner()->SetLocalRotation(GetOwner()->GetLocalRotation() * -m_LastRotation * qRotation);
+      m_LastRotation = qRotation;
     }
   }
 

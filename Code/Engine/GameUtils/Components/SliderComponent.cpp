@@ -58,7 +58,7 @@ void ezSliderComponent::Update()
 
     const float fDistanceDiff = fNewDistance - m_fLastDistance;
 
-    GetOwner()->SetLocalPosition(GetOwner()->GetLocalPosition() + vAxis * fDistanceDiff);
+    GetOwner()->SetLocalPosition(GetOwner()->GetLocalPosition() + GetOwner()->GetLocalRotation() * vAxis * fDistanceDiff);
 
     m_fLastDistance = fNewDistance;
 
