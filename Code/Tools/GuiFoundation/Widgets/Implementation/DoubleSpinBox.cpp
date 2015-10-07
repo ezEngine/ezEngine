@@ -6,10 +6,18 @@ inline QDoubleSpinBoxLessAnnoying::QDoubleSpinBoxLessAnnoying(QWidget * pParent)
   m_bInvalid = false;
 }
 
-inline QString QDoubleSpinBoxLessAnnoying::textFromValue(double val) const
+QString QDoubleSpinBoxLessAnnoying::textFromValue(double val) const
 {
+  if (hasFocus())
+  {
+    return m_sDisplayedText;
+  }
+
   if (val == 0.0)
+  {
+    m_sDisplayedText = "0";
     return QLatin1String("0");
+  }
 
   QString sText = QDoubleSpinBox::textFromValue(val);
 
@@ -18,34 +26,43 @@ inline QString QDoubleSpinBoxLessAnnoying::textFromValue(double val) const
 
   if (sText.contains('.') || sText.contains(','))
   {
-    while (sText.endsWith('0'))
+    while (sText.endsWith("0"))
       sText.resize(sText.length() - 1);
     if (sText.endsWith(',') || sText.endsWith('.'))
       sText.resize(sText.length() - 1);
     if (sText.startsWith(',') || sText.startsWith('.'))
       sText.insert(0, '0');
   }
+
+  m_sDisplayedText = sText;
   return sText;
 }
 
 double QDoubleSpinBoxLessAnnoying::valueFromText(const QString& text) const
 {
-  if (text != specialValueText())
+  if (m_bInvalid && text != specialValueText())
   {
     const_cast<QDoubleSpinBoxLessAnnoying*>(this)->setSpecialValueText(QString());
     m_bInvalid = false;
   }
-  return QDoubleSpinBox::valueFromText(text);
-}
 
-void QDoubleSpinBoxLessAnnoying::fixup(QString& str) const
-{
-  QDoubleSpinBox::fixup(str);
+  if (hasFocus())
+  {
+    m_sDisplayedText = text;
+  }
+
+  QString sFixedText = text;
+
+  if (sFixedText.contains(','))
+    sFixedText.replace(',', ".");
+
+  return QDoubleSpinBox::valueFromText(sFixedText);
 }
 
 void QDoubleSpinBoxLessAnnoying::setValueInvalid()
 {
   m_bInvalid = true;
+  m_sDisplayedText = " ";
   setSpecialValueText(QStringLiteral(" "));
   setValue(minimum());
 }
@@ -57,3 +74,5 @@ double QDoubleSpinBoxLessAnnoying::value() const
 
   return QDoubleSpinBox::value();
 }
+
+

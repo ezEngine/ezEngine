@@ -149,7 +149,7 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
   ezUniquePtr<ezTranslatorFromFiles> pTranslatorDe = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
 
   pTranslatorEn->SetSearchPath("Localization/en");
-  pTranslatorDe->SetSearchPath("Localization/de");
+  //pTranslatorDe->SetSearchPath("Localization/de");
 
   ezTranslationLookup::AddTranslator(EZ_DEFAULT_NEW(ezTranslatorLogMissing));
   ezTranslationLookup::AddTranslator(std::move(pTranslatorEn));

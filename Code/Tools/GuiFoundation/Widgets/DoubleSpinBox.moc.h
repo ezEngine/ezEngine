@@ -11,11 +11,11 @@ public:
 
   virtual QString textFromValue(double val) const override;
   virtual double valueFromText(const QString &text) const override;
-  virtual void fixup(QString &str) const override;
 
   void setValueInvalid();
   double value() const;
 
 private:
+  mutable QString m_sDisplayedText;
   mutable bool m_bInvalid;
 };
