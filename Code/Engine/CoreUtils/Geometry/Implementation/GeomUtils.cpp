@@ -618,7 +618,7 @@ void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSeg
 
   const ezUInt32 uiTip = AddVertex(ezVec3(0, 0, fHeight), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
 
-  for (ezUInt32 i = 0; i < uiSegments; ++i)
+  for (ezInt32 i = uiSegments - 1; i >= 0; --i)
   {
     const ezAngle deg = (float) i * fDegStep;
 

@@ -66,6 +66,10 @@ protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriterBase& stream, const char* szPlatform) = 0;
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) = 0;
 
+  /// \brief Override this to change the version of the asset type. E.g. when the algorithm to transform an asset changes.
+  /// This will ensure that assets get re-transformed, even though their settings and dependencies might not have changed.
+  virtual ezUInt16 GetAssetTypeVersion() const = 0;
+
   void SaveThumbnail(const ezImage& img);
 
 private:

@@ -305,8 +305,9 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(const ezMeshAssetProperties* pP
     {
       for (ezUInt32 v = 0; v < mesh->mNumVertices; ++v, ++uiThisVertex)
       {
-        /// \todo Transform the normals correctly
-        desc.MeshBufferDesc().SetVertexData(2, uiThisVertex, ezVec3(mesh->mNormals[v].x, mesh->mNormals[v].y, mesh->mNormals[v].z));
+        ezVec3 vNormal = ezVec3(mesh->mNormals[v].x, mesh->mNormals[v].y, mesh->mNormals[v].z);
+        vNormal = mTransformation.TransformDirection(vNormal).GetNormalized();
+        desc.MeshBufferDesc().SetVertexData(2, uiThisVertex, vNormal);
       }
     }
     else

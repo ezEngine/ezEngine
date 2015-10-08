@@ -8,11 +8,13 @@ ezAssetFileHeader::ezAssetFileHeader()
   // initialize to a 'valid' hash
   // this may get stored, unless someone sets the hash
   m_uiHash = 0;
+  m_uiVersion = 0;
 }
 
 enum ezAssetFileHeaderVersion : ezUInt8
 {
   Version1 = 1,
+  Version2,
 
   VersionCount,
   VersionCurrent = VersionCount - 1
@@ -30,12 +32,15 @@ void ezAssetFileHeader::Write(ezStreamWriterBase& stream)
 
   // 8 Bytes for the hash
   stream << m_uiHash;
+  // 2 for the type version
+  stream << m_uiVersion;
 }
 
 void ezAssetFileHeader::Read(ezStreamReaderBase& stream)
 {
   // initialize to 'invalid'
   m_uiHash = 0xFFFFFFFFFFFFFFFF;
+  m_uiVersion = 0;
 
   char szTag[8];
   stream.ReadBytes(szTag, 7);
@@ -52,6 +57,11 @@ void ezAssetFileHeader::Read(ezStreamReaderBase& stream)
 
   // future version?
   EZ_ASSERT_DEV(uiVersion <= ezAssetFileHeaderVersion::VersionCurrent, "Unknown asset header version %u", uiVersion);
+
+  if (uiVersion >= ezAssetFileHeaderVersion::Version2)
+  {
+    stream >> m_uiVersion;
+  }
 
   // older version? set the hash to 'invalid'
   if (uiVersion != ezAssetFileHeaderVersion::VersionCurrent)

@@ -601,6 +601,9 @@ void ezCameraMoveContext::SetMoveSpeed(ezInt32 iSpeed)
 
 bool ezCameraMoveContext::wheelEvent(QWheelEvent* e)
 {
+  if (m_bMoveCamera || m_bMoveCameraInPlane || m_bOrbitCamera || m_bRotateCamera)
+    return true; // ignore it, but others should not handle it either
+
   if (m_pCamera->GetCameraMode() == ezCamera::OrthoFixedHeight || m_pCamera->GetCameraMode() == ezCamera::OrthoFixedWidth)
   {
     float fBoost = 1.0f;

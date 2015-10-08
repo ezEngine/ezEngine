@@ -15,6 +15,7 @@ public:
   virtual const char* QueryAssetType() const override { return "Material"; }
 
 protected:
+  virtual ezUInt16 GetAssetTypeVersion() const override { return 1; }
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) override;
   virtual ezStatus InternalTransformAsset(ezStreamWriterBase& stream, const char* szPlatform) override;
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override { return ezStatus(EZ_SUCCESS); }

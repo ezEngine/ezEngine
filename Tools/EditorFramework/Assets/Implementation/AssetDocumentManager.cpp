@@ -8,7 +8,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentManager, ezDocumentManagerBase, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-bool ezAssetDocumentManager::IsResourceUpToDate(ezUInt64 uiHash, const char* szResourceFile)
+bool ezAssetDocumentManager::IsResourceUpToDate(ezUInt64 uiHash, ezUInt16 uiTypeVersion, const char* szResourceFile)
 {
   ezFileReader file;
   if (file.Open(szResourceFile, 256).Failed())
@@ -17,7 +17,7 @@ bool ezAssetDocumentManager::IsResourceUpToDate(ezUInt64 uiHash, const char* szR
   ezAssetFileHeader AssetHeader;
   AssetHeader.Read(file);
 
-  return AssetHeader.IsFileUpToDate(uiHash);
+  return AssetHeader.IsFileUpToDate(uiHash, uiTypeVersion);
 }
 
 ezString ezAssetDocumentManager::GenerateResourceFileName(const char* szDocumentPath, const char* szPlatform) const

@@ -146,7 +146,7 @@ ezStatus ezAssetDocument::TransformAsset(const char* szPlatform)
 
   const ezString sResourceFile = static_cast<ezAssetDocumentManager*>(GetDocumentManager())->GenerateResourceFileName(GetDocumentPath(), sPlatform);
 
-  if (ezAssetDocumentManager::IsResourceUpToDate(uiHash, sResourceFile))
+  if (ezAssetDocumentManager::IsResourceUpToDate(uiHash, GetAssetTypeVersion(), sResourceFile))
     return ezStatus(EZ_SUCCESS);
 
   // Write resource
@@ -160,7 +160,7 @@ ezStatus ezAssetDocument::TransformAsset(const char* szPlatform)
     }
 
     ezAssetFileHeader AssetHeader;
-    AssetHeader.SetFileHash(uiHash);
+    AssetHeader.SetFileHashAndVersion(uiHash, GetAssetTypeVersion());
 
     AssetHeader.Write(file);
 
