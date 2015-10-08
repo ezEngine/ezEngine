@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/DocumentWindow3D/EditorInputContext.h>
+#include <QKeyEvent>
 
 ezEditorInputContext* ezEditorInputContext::s_pActiveInputContext = nullptr;
 
@@ -10,4 +11,19 @@ ezEditorInputContext::~ezEditorInputContext()
 {
   if (s_pActiveInputContext == this)
     SetActiveInputContext(nullptr);
+}
+
+bool ezEditorInputContext::keyPressEvent(QKeyEvent* e)
+{
+  if (!IsActiveInputContext())
+    return false;
+
+  if (e->key() == Qt::Key_Escape)
+  {
+    FocusLost(true);
+    SetActiveInputContext(nullptr);
+    return true;
+  }
+
+  return false;
 }

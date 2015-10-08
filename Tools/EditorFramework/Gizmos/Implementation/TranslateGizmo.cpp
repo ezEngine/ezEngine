@@ -75,7 +75,7 @@ void ezTranslateGizmo::OnTransformationChanged(const ezMat4& transform)
   m_PlaneXZ.SetTransformation(transform * m);
 }
 
-void ezTranslateGizmo::FocusLost()
+void ezTranslateGizmo::FocusLost(bool bCancel)
 {
   if (m_MovementMode == MovementMode::MouseDiff)
   {
@@ -85,7 +85,7 @@ void ezTranslateGizmo::FocusLost()
 
   BaseEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = BaseEvent::Type::EndInteractions;
+  ev.m_Type = bCancel ? BaseEvent::Type::CancelInteractions : BaseEvent::Type::EndInteractions;
   m_BaseEvents.Broadcast(ev);
 
   ezViewHighlightMsgToEngine msg;
@@ -208,7 +208,7 @@ bool ezTranslateGizmo::mouseReleaseEvent(QMouseEvent* e)
   if (e->button() != Qt::MouseButton::LeftButton)
     return true;
 
-  FocusLost();
+  FocusLost(false);
 
   SetActiveInputContext(nullptr);
   return true;

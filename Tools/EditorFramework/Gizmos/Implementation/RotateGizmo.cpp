@@ -49,11 +49,11 @@ void ezRotateGizmo::OnTransformationChanged(const ezMat4& transform)
   m_AxisZ.SetTransformation(transform * m);
 }
 
-void ezRotateGizmo::FocusLost()
+void ezRotateGizmo::FocusLost(bool bCancel)
 {
   BaseEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = BaseEvent::Type::EndInteractions;
+  ev.m_Type = bCancel ? BaseEvent::Type::CancelInteractions : BaseEvent::Type::EndInteractions;
   m_BaseEvents.Broadcast(ev);
 
   ezViewHighlightMsgToEngine msg;
@@ -142,7 +142,7 @@ bool ezRotateGizmo::mouseReleaseEvent(QMouseEvent* e)
   if (e->button() != Qt::MouseButton::LeftButton)
     return true;
 
-  FocusLost();
+  FocusLost(false);
 
   SetActiveInputContext(nullptr);
   return true;

@@ -35,6 +35,7 @@ public:
       BeginInteractions,
       EndInteractions,
       Interaction,
+      CancelInteractions,
     };
 
     const ezGizmoBase* m_pGizmo;

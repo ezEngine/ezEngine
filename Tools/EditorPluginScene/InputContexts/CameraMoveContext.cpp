@@ -80,7 +80,7 @@ ezCameraMoveContext::ezCameraMoveContext(ezDocumentWindow3D* pOwnerWindow, ezEng
   SetOwner(pOwnerWindow, pOwnerView);
 }
 
-void ezCameraMoveContext::FocusLost()
+void ezCameraMoveContext::FocusLost(bool bCancel)
 {
   m_bRotateCamera = false;
   m_bMoveCamera = false;

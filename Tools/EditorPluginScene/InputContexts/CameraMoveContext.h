@@ -23,7 +23,7 @@ class ezCameraMoveContext : public ezEditorInputContext
 public:
   ezCameraMoveContext(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView, ezCameraMoveContextSettings* pSettings);
 
-  virtual void FocusLost() override;
+  virtual void FocusLost(bool bCancel) override;
 
   void LoadState();
 

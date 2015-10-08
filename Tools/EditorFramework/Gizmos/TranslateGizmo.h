@@ -12,7 +12,7 @@ class EZ_EDITORFRAMEWORK_DLL ezTranslateGizmo : public ezGizmoBase
 public:
   ezTranslateGizmo();
 
-  virtual void FocusLost() override;
+  virtual void FocusLost(bool bCancel) override;
 
   virtual bool mousePressEvent(QMouseEvent* e) override;
   virtual bool mouseReleaseEvent(QMouseEvent* e) override;

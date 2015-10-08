@@ -11,7 +11,7 @@ class EZ_EDITORFRAMEWORK_DLL ezDragToPositionGizmo : public ezGizmoBase
 public:
   ezDragToPositionGizmo();
 
-  virtual void FocusLost() override;
+  virtual void FocusLost(bool bCancel) override;
 
   virtual bool mousePressEvent(QMouseEvent* e) override;
   virtual bool mouseReleaseEvent(QMouseEvent* e) override;

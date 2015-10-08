@@ -12,6 +12,7 @@
 ezSelectionContext::ezSelectionContext(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView, const ezCamera* pCamera)
 {
   m_pCamera = pCamera;
+  m_bSelectOnMouseUp = false;
 
   SetOwner(pOwnerWindow, pOwnerView);
 }
@@ -20,6 +21,8 @@ bool ezSelectionContext::mousePressEvent(QMouseEvent* e)
 {
   if (e->button() == Qt::MouseButton::LeftButton)
   {
+    m_bSelectOnMouseUp = false;
+
     const ezObjectPickingResult& res = GetOwnerWindow()->PickObject(e->pos().x(), e->pos().y());
 
     if (res.m_PickedOther.IsValid())
@@ -37,6 +40,8 @@ bool ezSelectionContext::mousePressEvent(QMouseEvent* e)
         }
       }
     }
+
+    m_bSelectOnMouseUp = true;
   }
 
   return false;
@@ -46,7 +51,7 @@ bool ezSelectionContext::mouseReleaseEvent(QMouseEvent* e)
 {
   auto* pDocument = GetOwnerWindow()->GetDocument();
 
-  if (e->button() == Qt::MouseButton::LeftButton)
+  if (e->button() == Qt::MouseButton::LeftButton && m_bSelectOnMouseUp)
   {
     const ezObjectPickingResult& res = GetOwnerWindow()->PickObject(e->pos().x(), e->pos().y());
 
@@ -76,6 +81,8 @@ bool ezSelectionContext::mouseReleaseEvent(QMouseEvent* e)
           pDocument->GetSelectionManager()->SetSelection(pObject);
       }
     }
+
+    m_bSelectOnMouseUp = false;
 
     // we handled the mouse click event
     // but this is it, we don't stay active

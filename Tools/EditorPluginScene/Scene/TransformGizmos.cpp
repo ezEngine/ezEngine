@@ -160,6 +160,14 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
     }
     break;
 
+  case ezGizmoBase::BaseEvent::Type::CancelInteractions:
+    {
+      GetDocument()->GetCommandHistory()->CancelTemporaryCommands();
+
+      m_GizmoSelection.Clear();
+    }
+    break;
+
   case ezGizmoBase::BaseEvent::Type::Interaction:
     {
       m_bInGizmoInteraction = true;

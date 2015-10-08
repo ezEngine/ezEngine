@@ -25,9 +25,9 @@ public:
 
   virtual ~ezEditorInputContext();
 
-  virtual void FocusLost() {}
+  virtual void FocusLost(bool bCancel) {}
 
-  virtual bool keyPressEvent(QKeyEvent* e) { return false; }
+  virtual bool keyPressEvent(QKeyEvent* e);
   virtual bool keyReleaseEvent(QKeyEvent* e) { return false; }
   virtual bool mousePressEvent(QMouseEvent* e) { return false; }
   virtual bool mouseReleaseEvent(QMouseEvent* e) { return false; }

@@ -24,6 +24,7 @@ protected:
   virtual void OnSetOwner(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView) override {}
 
 private:
+  bool m_bSelectOnMouseUp;
   const ezCamera* m_pCamera;
   ezVec2I32 m_Viewport;
 };

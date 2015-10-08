@@ -559,32 +559,33 @@ void ezSceneDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxRes
     const float dist2 = fRadius / ezMath::Sin(fovY * 0.5);
     const float distBest = ezMath::Max(dist1, dist2);
 
-    /// \todo Hard coded 'up' axis
-    // make sure the camera is always above the objects center point, looking down, never up
-    ezVec3 vCamRefPoint = cam.GetCenterPosition();
-    vCamRefPoint.z = ezMath::Max(vCamRefPoint.z, pMsg->m_vCenter.z + pMsg->m_vHalfExtents.z * 0.5f);
+    // Previous method that will additionally rotate the camera
+    //// Hard coded 'up' axis
+    //// make sure the camera is always above the objects center point, looking down, never up
+    //ezVec3 vCamRefPoint = cam.GetCenterPosition();
+    //vCamRefPoint.z = ezMath::Max(vCamRefPoint.z, pMsg->m_vCenter.z + pMsg->m_vHalfExtents.z * 0.5f);
 
-    vNewCameraDirection = vPivotPoint - vCamRefPoint;
-    vNewCameraDirection.NormalizeIfNotZero(ezVec3(1, 0, 0));
+    //vNewCameraDirection = vPivotPoint - vCamRefPoint;
+    //vNewCameraDirection.NormalizeIfNotZero(ezVec3(1, 0, 0));
 
-    {
-      const ezAngle maxAngle = ezAngle::Degree(30.0f);
+    //{
+    //  const ezAngle maxAngle = ezAngle::Degree(30.0f);
 
-      /// \todo Hard coded 'up' direction
-      ezVec3 vPlaneDir = vNewCameraDirection;
-      vPlaneDir.z = 0.0f;
+    //  /// \todo Hard coded 'up' direction
+    //  ezVec3 vPlaneDir = vNewCameraDirection;
+    //  vPlaneDir.z = 0.0f;
 
-      vPlaneDir.NormalizeIfNotZero(ezVec3(1, 0, 0));
+    //  vPlaneDir.NormalizeIfNotZero(ezVec3(1, 0, 0));
 
-      if (maxAngle < vPlaneDir.GetAngleBetween(vNewCameraDirection))
-      {
-        const ezVec3 vAxis = vPlaneDir.Cross(vNewCameraDirection).GetNormalized();
-        ezMat3 mRot;
-        mRot.SetRotationMatrix(vAxis, maxAngle);
+    //  if (maxAngle < vPlaneDir.GetAngleBetween(vNewCameraDirection))
+    //  {
+    //    const ezVec3 vAxis = vPlaneDir.Cross(vNewCameraDirection).GetNormalized();
+    //    ezMat3 mRot;
+    //    mRot.SetRotationMatrix(vAxis, maxAngle);
 
-        vNewCameraDirection = mRot * vPlaneDir;
-      }
-    }
+    //    vNewCameraDirection = mRot * vPlaneDir;
+    //  }
+    //}
 
     vNewCameraPosition = vPivotPoint - vNewCameraDirection * distBest;
   }

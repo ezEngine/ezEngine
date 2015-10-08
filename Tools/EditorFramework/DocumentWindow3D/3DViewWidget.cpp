@@ -304,7 +304,7 @@ void ezEngineViewWidget::focusOutEvent(QFocusEvent* e)
 {
   if (ezEditorInputContext::IsAnyInputContextActive())
   {
-    ezEditorInputContext::GetActiveInputContext()->FocusLost();
+    ezEditorInputContext::GetActiveInputContext()->FocusLost(false);
     ezEditorInputContext::SetActiveInputContext(nullptr);
   }
 
