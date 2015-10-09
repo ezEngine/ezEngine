@@ -15,7 +15,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 void ezSceneContext::ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds)
 {
-  bounds.ExpandToInclude(pObj->GetGlobalBounds());
+  /// \todo Work around for objects without bounds (?)
+  auto b = pObj->GetGlobalBounds();
+
+  if (b.IsValid())
+    bounds.ExpandToInclude(b);
 
   auto it = pObj->GetChildren();
 

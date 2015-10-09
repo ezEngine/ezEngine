@@ -11,10 +11,12 @@ public:
   static void UnregisterActions();
 
   static void MapActions(const char* szMapping, const char* szPath);
+  static void MapContextMenuActions(const char* szMapping, const char* szPath);
 
   static ezActionDescriptorHandle s_hEditCategory;
   static ezActionDescriptorHandle s_hCopy;
   static ezActionDescriptorHandle s_hPaste;
+  static ezActionDescriptorHandle s_hPasteAsChild;
   static ezActionDescriptorHandle s_hDelete;
 };
 
@@ -28,6 +30,7 @@ public:
   {
     Copy,
     Paste,
+    PasteAsChild,
     Delete,
   };
   ezEditAction(const ezActionContext& context, const char* szName, ButtonType button);
@@ -40,3 +43,8 @@ private:
 
   ButtonType m_ButtonType;
 };
+
+
+
+
+

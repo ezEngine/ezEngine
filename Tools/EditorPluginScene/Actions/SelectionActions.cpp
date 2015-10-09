@@ -10,6 +10,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 ezActionDescriptorHandle ezSelectionActions::s_hSelectionCategory;
 ezActionDescriptorHandle ezSelectionActions::s_hShowInScenegraph;
 ezActionDescriptorHandle ezSelectionActions::s_hFocusOnSelection;
+ezActionDescriptorHandle ezSelectionActions::s_hFocusOnSelectionAllViews;
 ezActionDescriptorHandle ezSelectionActions::s_hGroupSelectedItems;
 ezActionDescriptorHandle ezSelectionActions::s_hHideSelectedObjects;
 ezActionDescriptorHandle ezSelectionActions::s_hHideUnselectedObjects;
@@ -20,6 +21,7 @@ void ezSelectionActions::RegisterActions()
   s_hSelectionCategory = EZ_REGISTER_CATEGORY("SelectionCategory");
   s_hShowInScenegraph = EZ_REGISTER_ACTION_1("ActionShowInScenegraph", ezActionScope::Document, "Document", "Ctrl+T", ezSelectionAction, ezSelectionAction::ActionType::ShowInScenegraph);
   s_hFocusOnSelection = EZ_REGISTER_ACTION_1("ActionFocusOnSelection", ezActionScope::Document, "Document", "F", ezSelectionAction, ezSelectionAction::ActionType::FocusOnSelection);
+  s_hFocusOnSelectionAllViews = EZ_REGISTER_ACTION_1("ActionFocusOnSelectionAllViews", ezActionScope::Document, "Document", "", ezSelectionAction, ezSelectionAction::ActionType::FocusOnSelectionAllViews);
   s_hGroupSelectedItems = EZ_REGISTER_ACTION_1("ActionGroupSelectedItems", ezActionScope::Document, "Document", "G", ezSelectionAction, ezSelectionAction::ActionType::GroupSelectedItems);
   s_hHideSelectedObjects = EZ_REGISTER_ACTION_1("ActionHideSelectedObjects", ezActionScope::Document, "Document", "H", ezSelectionAction, ezSelectionAction::ActionType::HideSelectedObjects);
   s_hHideUnselectedObjects = EZ_REGISTER_ACTION_1("ActionHideUnselectedObjects", ezActionScope::Document, "Document", "Shift+H", ezSelectionAction, ezSelectionAction::ActionType::HideUnselectedObjects);
@@ -31,6 +33,7 @@ void ezSelectionActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hSelectionCategory);
   ezActionManager::UnregisterAction(s_hShowInScenegraph);
   ezActionManager::UnregisterAction(s_hFocusOnSelection);
+  ezActionManager::UnregisterAction(s_hFocusOnSelectionAllViews);
   ezActionManager::UnregisterAction(s_hGroupSelectedItems);
   ezActionManager::UnregisterAction(s_hHideSelectedObjects);
   ezActionManager::UnregisterAction(s_hHideUnselectedObjects);
@@ -45,12 +48,29 @@ void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
   ezStringBuilder sSubPath(szPath, "/SelectionCategory");
 
   pMap->MapAction(s_hSelectionCategory, szPath, 5.0f);
-  pMap->MapAction(s_hGroupSelectedItems, sSubPath, 1.0f);
+  
   pMap->MapAction(s_hShowInScenegraph, sSubPath, 2.0f);
   pMap->MapAction(s_hFocusOnSelection, sSubPath, 3.0f);
+  pMap->MapAction(s_hFocusOnSelectionAllViews, sSubPath, 3.5f);
+  pMap->MapAction(s_hGroupSelectedItems, sSubPath, 3.7f);
   pMap->MapAction(s_hHideSelectedObjects, sSubPath, 4.0f);
   pMap->MapAction(s_hHideUnselectedObjects, sSubPath, 5.0f);
   pMap->MapAction(s_hShowHiddenObjects, sSubPath, 6.0f);
+}
+
+
+void ezSelectionActions::MapContextMenuActions(const char* szMapping, const char* szPath)
+{
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the actions failed!", szMapping);
+
+  ezStringBuilder sSubPath(szPath, "/SelectionCategory");
+
+  pMap->MapAction(s_hSelectionCategory, szPath, 5.0f);
+  
+  pMap->MapAction(s_hFocusOnSelectionAllViews, sSubPath, 1.0f);
+  pMap->MapAction(s_hGroupSelectedItems, sSubPath, 2.0f);
+  pMap->MapAction(s_hHideSelectedObjects, sSubPath, 3.0f);
 }
 
 ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char* szName, ezSelectionAction::ActionType type) : ezButtonAction(context, szName, false, "")
@@ -66,6 +86,9 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
   case ActionType::FocusOnSelection:
     SetIconPath(":/GuiFoundation/Icons/FocusOnSelection16.png");
     break;
+  case ActionType::FocusOnSelectionAllViews:
+    SetIconPath(":/GuiFoundation/Icons/FocusOnSelection16.png"); /// \todo Icon
+    break;
   case ActionType::GroupSelectedItems:
     SetIconPath(":/GuiFoundation/Icons/GroupSelection16.png");
     break;
@@ -79,6 +102,16 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
     SetIconPath(":/GuiFoundation/Icons/ShowHidden16.png");
     break;
   }
+
+  UpdateEnableState();
+
+  m_Context.m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezSelectionAction::SelectionEventHandler, this));
+}
+
+
+ezSelectionAction::~ezSelectionAction()
+{
+  m_Context.m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezSelectionAction::SelectionEventHandler, this));
 }
 
 void ezSelectionAction::Execute(const ezVariant& value)
@@ -90,6 +123,9 @@ void ezSelectionAction::Execute(const ezVariant& value)
     return;
   case ActionType::FocusOnSelection:
     m_pSceneDocument->TriggerFocusOnSelection(false);
+    return;
+  case ActionType::FocusOnSelectionAllViews:
+    m_pSceneDocument->TriggerFocusOnSelection(true);
     return;
   case ActionType::GroupSelectedItems:
     m_pSceneDocument->GroupSelection();
@@ -103,6 +139,29 @@ void ezSelectionAction::Execute(const ezVariant& value)
   case ActionType::ShowHiddenObjects:
     m_pSceneDocument->TriggerShowHiddenObjects();
     break;
+  }
+}
+
+void ezSelectionAction::SelectionEventHandler(const ezSelectionManager::Event& e)
+{
+  UpdateEnableState();
+
+}
+
+void ezSelectionAction::UpdateEnableState()
+{
+  if (m_Type == ActionType::FocusOnSelection ||
+      m_Type == ActionType::FocusOnSelectionAllViews ||
+      m_Type == ActionType::HideSelectedObjects ||
+      m_Type == ActionType::ShowInScenegraph ||
+      m_Type == ActionType::HideUnselectedObjects)
+  {
+    SetEnabled(!m_Context.m_pDocument->GetSelectionManager()->IsSelectionEmpty());
+  }
+
+  if (m_Type == ActionType::GroupSelectedItems)
+  {
+    SetEnabled(m_Context.m_pDocument->GetSelectionManager()->GetSelection().GetCount() > 1);
   }
 }
 

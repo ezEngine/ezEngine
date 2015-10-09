@@ -13,10 +13,12 @@ public:
   static void UnregisterActions();
 
   static void MapActions(const char* szMapping, const char* szPath);
+  static void MapContextMenuActions(const char* szMapping, const char* szPath);
 
   static ezActionDescriptorHandle s_hSelectionCategory;
   static ezActionDescriptorHandle s_hShowInScenegraph;
   static ezActionDescriptorHandle s_hFocusOnSelection;
+  static ezActionDescriptorHandle s_hFocusOnSelectionAllViews;
   static ezActionDescriptorHandle s_hGroupSelectedItems;
   static ezActionDescriptorHandle s_hHideSelectedObjects;
   static ezActionDescriptorHandle s_hHideUnselectedObjects;
@@ -35,6 +37,7 @@ public:
   {
     ShowInScenegraph,
     FocusOnSelection,
+    FocusOnSelectionAllViews,
     GroupSelectedItems,
     HideSelectedObjects,
     HideUnselectedObjects,
@@ -42,10 +45,15 @@ public:
   };
 
   ezSelectionAction(const ezActionContext& context, const char* szName, ActionType type);
+  ~ezSelectionAction();
 
   virtual void Execute(const ezVariant& value) override;
 
 private:
+  void SelectionEventHandler(const ezSelectionManager::Event& e);
+
+  void UpdateEnableState();
+
   ezSceneDocument* m_pSceneDocument;
   ActionType m_Type;
 };

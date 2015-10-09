@@ -14,8 +14,11 @@ public:
   ezScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument);
   ~ezScenegraphPanel();
 
+  static void RegisterActions();
+
 private slots:
   void OnItemDoubleClicked(const QModelIndex&);
+  void OnRequestContextMenu(QPoint pos);
 
 private:
   void DocumentSceneEventHandler(const ezSceneDocument::SceneEvent& e);

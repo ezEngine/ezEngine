@@ -15,6 +15,7 @@
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/Action/EditActions.h>
 #include <CoreUtils/Localization/TranslationLookup.h>
+#include <Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
 
 void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
 {
@@ -45,6 +46,7 @@ void OnLoadPlugin(bool bReloading)
   ezScaleGizmoAction::RegisterActions();
   ezTranslateGizmoAction::RegisterActions();
   ezSceneViewActions::RegisterActions();
+  ezScenegraphPanel::RegisterActions();
 
   // Menu Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentMenuBar");

@@ -41,6 +41,7 @@ ActionToggleViews;Toggle Views
 ActionSpawnView;Spawn View
 ActionShowInScenegraph;Show in Scenegraph
 ActionFocusOnSelection;Focus on Selection
+ActionFocusOnSelectionAllViews;Focus All Views on Selection
 ActionGroupSelectedItems;Group
 ActionHideSelectedObjects;Hide Selected
 ActionHideUnselectedObjects;Hide Unselected

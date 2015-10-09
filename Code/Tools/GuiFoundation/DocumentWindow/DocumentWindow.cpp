@@ -18,10 +18,6 @@ ezDynamicArray<ezDocumentWindow*> ezDocumentWindow::s_AllDocumentWindows;
 
 void ezDocumentWindow::Constructor()
 {
-  // maybe this helps fixing the layouting bug at startup?
-  QtScopedUpdatesDisabled qt(this);
-  QtScopedBlockSignals qtSig(this);
-
   if (s_AllDocumentWindows.IsEmpty())
   {
     ezActionMapManager::RegisterActionMap("DocumentWindowTabMenu");

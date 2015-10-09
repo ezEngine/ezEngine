@@ -16,6 +16,7 @@ ActionCloseDocument;Close
 ActionOpenContainingFolder;Open Containing Folder
 ActionCopy;Copy
 ActionPaste;Paste
+ActionPasteAsChild;Paste as Child
 ActionDelete;Delete
 MenuFile;File
 MenuEdit;Edit
