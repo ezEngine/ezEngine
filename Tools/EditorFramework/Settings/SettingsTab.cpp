@@ -3,6 +3,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Dialogs/DataDirsDlg.moc.h>
 #include <EditorFramework/Dialogs/PluginDlg.moc.h>
+#include <GuiFoundation/Dialogs/ShortcutEditorDlg.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
@@ -220,7 +221,14 @@ void ezSettingsTab::SlotSettingsChanged()
 
 void ezSettingsTab::on_ButtonPluginConfig_clicked()
 {
-  PluginDlg dlg(nullptr);
+  PluginDlg dlg(this);
+  dlg.exec();
+}
+
+
+void ezSettingsTab::on_ButtonEditShortcuts_clicked()
+{
+  ezShortcutEditorDlg dlg(this);
   dlg.exec();
 }
 

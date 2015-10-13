@@ -23,9 +23,9 @@ public:
   ezQtProxy();
   virtual ~ezQtProxy();
 
-  virtual void Update(bool bSetShortcut) = 0;
+  virtual void Update() = 0;
 
-  virtual void SetAction(ezAction* pAction, bool bSetShortcut);
+  virtual void SetAction(ezAction* pAction);
   ezAction* GetAction() { return m_pAction; }
 
   static ezRttiMappedObjectFactory<ezQtProxy>& GetFactory();
@@ -56,7 +56,7 @@ class EZ_GUIFOUNDATION_DLL ezQtCategoryProxy : public ezQtProxy
 {
   Q_OBJECT
 public:
-  virtual void Update(bool bSetShortcut) override {}
+  virtual void Update() override {}
 };
 
 class EZ_GUIFOUNDATION_DLL ezQtMenuProxy : public ezQtProxy
@@ -67,8 +67,8 @@ public:
   ezQtMenuProxy();
   ~ezQtMenuProxy();
 
-  virtual void Update(bool bSetShortcut) override;
-  virtual void SetAction(ezAction* pAction, bool bSetShortcut) override;
+  virtual void Update() override;
+  virtual void SetAction(ezAction* pAction) override;
 
   virtual QMenu* GetQMenu();
 
@@ -84,8 +84,8 @@ public:
   ezQtButtonProxy();
   ~ezQtButtonProxy();
 
-  virtual void Update(bool bSetShortcut) override;
-  virtual void SetAction(ezAction* pAction, bool bSetShortcut) override;
+  virtual void Update() override;
+  virtual void SetAction(ezAction* pAction) override;
 
   virtual QAction* GetQAction() override;
 
@@ -105,7 +105,7 @@ class EZ_GUIFOUNDATION_DLL ezQtLRUMenuProxy : public ezQtMenuProxy
   Q_OBJECT
 
 public:
-  virtual void SetAction(ezAction* pAction, bool bSetShortcut) override;
+  virtual void SetAction(ezAction* pAction) override;
 
 private slots:
   void SlotMenuAboutToShow();

@@ -35,28 +35,48 @@
          <property name="title">
           <string>Editor Configuration</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
-            <item>
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>51</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
              <widget class="QPushButton" name="ButtonPluginConfig">
               <property name="text">
-               <string>Configure Editor Plugins</string>
+               <string>Editor Plugins...</string>
               </property>
              </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ButtonEditShortcuts">
+              <property name="text">
+               <string>Shortcuts...</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </item>
@@ -87,7 +107,7 @@
             <item>
              <widget class="QPushButton" name="ButtonDataDirConfig">
               <property name="text">
-               <string>Configure Data Directories</string>
+               <string>Data Directories...</string>
               </property>
              </widget>
             </item>

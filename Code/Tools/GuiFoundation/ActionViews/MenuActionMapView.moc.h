@@ -25,9 +25,6 @@ public:
   static void AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedPointer<ezQtProxy>>& Proxies, ezActionContext& Context, ezActionMap* pActionMap, QMenu* pCurrentRoot, const ezActionMap::TreeNode* pObject);
 
 private:
-  void TreeEventHandler(const ezDocumentObjectStructureEvent& e);
-  void TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-
   void ClearView();
   void CreateView();
   

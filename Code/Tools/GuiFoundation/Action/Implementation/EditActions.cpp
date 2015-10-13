@@ -28,7 +28,7 @@ void ezEditActions::RegisterActions()
   s_hEditCategory = EZ_REGISTER_CATEGORY("EditCategory");
   s_hCopy = EZ_REGISTER_ACTION_1("ActionCopy", ezActionScope::Document, "Document", "Ctrl+C", ezEditAction, ezEditAction::ButtonType::Copy);
   s_hPaste = EZ_REGISTER_ACTION_1("ActionPaste", ezActionScope::Document, "Document", "Ctrl+V", ezEditAction, ezEditAction::ButtonType::Paste);
-  s_hPasteAsChild = EZ_REGISTER_ACTION_1("ActionPasteAsChild", ezActionScope::Document, "Document", "", ezEditAction, ezEditAction::ButtonType::PasteAsChild);
+  s_hPasteAsChild = EZ_REGISTER_ACTION_1("ActionPasteAsChild", ezActionScope::Document, "Document", "Ctrl+Shift+V", ezEditAction, ezEditAction::ButtonType::PasteAsChild);
   s_hDelete = EZ_REGISTER_ACTION_1("ActionDelete", ezActionScope::Document, "Document", "", ezEditAction, ezEditAction::ButtonType::Delete);
 }
 

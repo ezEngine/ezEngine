@@ -90,9 +90,13 @@ struct EZ_GUIFOUNDATION_DLL ezActionDescriptor
   ezAction* CreateAction(const ezActionContext& context) const;
   void DeleteAction(ezAction* pAction) const;
 
+  void UpdateExistingActions();
+
 private:
   CreateActionFunc m_CreateAction;
   DeleteActionFunc m_DeleteAction;
+
+  mutable ezHybridArray<ezAction*, 4> m_CreatedActions;
 };
 
 

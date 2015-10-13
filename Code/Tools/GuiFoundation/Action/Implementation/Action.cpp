@@ -24,17 +24,30 @@ ezAction* ezActionDescriptor::CreateAction(const ezActionContext& context) const
   EZ_ASSERT_DEV(!m_Handle.IsInvalidated(), "Handle invalid!");
   auto pAction = m_CreateAction(context);
   pAction->m_DescriptorHandle = m_Handle;
+
+  m_CreatedActions.PushBack(pAction);
   return pAction;
 }
 
 void ezActionDescriptor::DeleteAction(ezAction* pAction) const
 {
+  m_CreatedActions.RemoveSwap(pAction);
+
   if (m_DeleteAction == nullptr)
   {
     EZ_DEFAULT_DELETE(pAction);
   }
   else
     m_DeleteAction(pAction);
+}
+
+
+void ezActionDescriptor::UpdateExistingActions()
+{
+  for (auto pAction : m_CreatedActions)
+  {
+    pAction->TriggerUpdate();
+  }
 }
 
 void ezAction::TriggerUpdate()

@@ -23,6 +23,7 @@ public:
 private slots:
   void SlotSettingsChanged();
   void on_ButtonPluginConfig_clicked();
+  void on_ButtonEditShortcuts_clicked();
   void SlotComboSettingsDomainIndexChanged(int iIndex);
   void on_ButtonDataDirConfig_clicked();
   void SlotAssetChosen(QString sAssetGuid, QString sAssetPathRelative, QString sAssetPathAbsolute);
