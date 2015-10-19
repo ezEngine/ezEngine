@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>842</width>
-    <height>709</height>
+    <width>582</width>
+    <height>596</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,37 +19,13 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTableWidget" name="Shortcuts">
-     <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
-     </property>
-     <property name="showDropIndicator" stdset="0">
-      <bool>false</bool>
-     </property>
-     <property name="dragDropOverwriteMode">
-      <bool>false</bool>
-     </property>
-     <property name="alternatingRowColors">
+    <widget class="QTreeWidget" name="Shortcuts">
+     <property name="uniformRowHeights">
       <bool>true</bool>
-     </property>
-     <property name="selectionMode">
-      <enum>QAbstractItemView::SingleSelection</enum>
-     </property>
-     <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectRows</enum>
-     </property>
-     <property name="cornerButtonEnabled">
-      <bool>false</bool>
      </property>
      <property name="columnCount">
-      <number>5</number>
+      <number>3</number>
      </property>
-     <attribute name="horizontalHeaderStretchLastSection">
-      <bool>true</bool>
-     </attribute>
-     <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
      <column>
       <property name="text">
        <string>Action</string>
@@ -65,12 +41,28 @@
        <string>Shortcut</string>
       </property>
      </column>
-     <column/>
-     <column/>
     </widget>
    </item>
    <item>
-    <widget class="QKeySequenceEdit" name="KeyEditor"/>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QKeySequenceEdit" name="KeyEditor"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ButtonAssign">
+       <property name="text">
+        <string>Assign</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ButtonRemove">
+       <property name="text">
+        <string>Remove</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

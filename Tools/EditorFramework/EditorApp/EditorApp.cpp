@@ -26,6 +26,7 @@
 #include <QFileDialog>
 #include <QClipboard>
 #include <CoreUtils/Localization/TranslationLookup.h>
+#include <GuiFoundation/Action/ActionManager.h>
 
 
 ezEditorApp* ezEditorApp::s_pInstance = nullptr;
@@ -158,6 +159,8 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
   ezTranslatorFromFiles::AddTranslationFile("ezEditorBasics.txt");
 
   ezUIServices::GetInstance()->LoadState();
+
+  ezActionManager::LoadShortcutAssignment();
 
   LoadRecentFiles();
 

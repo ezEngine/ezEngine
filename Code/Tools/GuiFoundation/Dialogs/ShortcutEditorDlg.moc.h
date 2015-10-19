@@ -4,6 +4,9 @@
 #include <QDialog>
 #include <Code/Tools/GuiFoundation/ui_ShortcutEditorDlg.h>
 #include <Foundation/Containers/Deque.h>
+#include <Foundation/Containers/Map.h>
+#include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Strings/String.h>
 
 struct ezActionDescriptor;
 
@@ -14,16 +17,23 @@ public:
 
 public:
   ezShortcutEditorDlg(QWidget* parent);
+  ~ezShortcutEditorDlg();
 
   void UpdateTable(bool bOnlyShortcuts);
 
 private slots:
-  void SlotSelectionChanged(int currentRow, int currentColumn, int previousRow, int previousColumn);
+  void SlotSelectionChanged();
   void on_KeyEditor_editingFinished();
+
+  void UpdateKeyEdit();
+
+  void on_KeyEditor_keySequenceChanged(const QKeySequence & keySequence);
+  void on_ButtonAssign_clicked();
+  void on_ButtonRemove_clicked();
 
 private:
   ezInt32 m_iSelectedAction;
-  ezDeque<ezActionDescriptor*> m_ActionDescs;
+  ezHybridArray<ezActionDescriptor*, 32> m_ActionDescs;
 };
 
 

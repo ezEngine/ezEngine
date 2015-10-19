@@ -44,7 +44,7 @@ void ezProjectActions::RegisterActions()
   s_hCloseProject = EZ_REGISTER_ACTION_1("ActionCloseProject", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CloseProject);
 
   s_hSettingsCategory = EZ_REGISTER_CATEGORY("SettingsCategory");
-  s_hProjectSettings = EZ_REGISTER_ACTION_1("ActionOpenSettings", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::ProjectSettings);
+  s_hProjectSettings = EZ_REGISTER_ACTION_1("ActionOpenSettings", ezActionScope::Global, "Settings", "", ezProjectAction, ezProjectAction::ButtonType::ProjectSettings);
 
   s_hToolsMenu = EZ_REGISTER_MENU("MenuTools");
   s_hEngineCategory = EZ_REGISTER_CATEGORY("EngineCategory");

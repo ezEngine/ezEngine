@@ -40,6 +40,9 @@ public:
   static const ezActionDescriptor* GetActionDescriptor(ezActionDescriptorHandle hAction);
   static ezActionDescriptorHandle GetActionHandle(const char* szCategoryPath, const char* szActionName);
 
+  static void SaveShortcutAssignment();
+  static void LoadShortcutAssignment();
+
   static const ezIdTable<ezActionId, ezActionDescriptor*>::ConstIterator GetActionIterator();
 
   struct Event
@@ -74,5 +77,6 @@ private:
 private:
   static ezIdTable<ezActionId, ezActionDescriptor*> s_ActionTable;
   static ezMap<ezString, CategoryData> s_CategoryPathToActions;
+  static ezMap<ezString, ezString> s_ShortcutOverride;
 };
 
