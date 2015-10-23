@@ -14,6 +14,7 @@
 #include <QPainter>
 #include <Foundation/IO/OSFile.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, ezDocumentInfo, 1, ezRTTINoAllocator);
 EZ_BEGIN_PROPERTIES
@@ -151,13 +152,9 @@ ezStatus ezAssetDocument::TransformAsset(const char* szPlatform)
 
   // Write resource
   {
-    ezFileWriter file;
+    ezDeferredFileWriter file;
 
-    if (file.Open(sResourceFile).Failed())
-    {
-      ezLog::Error("Could not open file for writing: '%s'", sResourceFile.GetData());
-      return ezStatus("Opening the asset output file failed");
-    }
+    file.SetOutput(sResourceFile);
 
     ezAssetFileHeader AssetHeader;
     AssetHeader.SetFileHashAndVersion(uiHash, GetAssetTypeVersion());
@@ -166,13 +163,16 @@ ezStatus ezAssetDocument::TransformAsset(const char* szPlatform)
 
     auto ret = InternalTransformAsset(file, sPlatform);
 
+    if (file.Close().Failed())
+    {
+      ezLog::Error("Could not open file for writing: '%s'", sResourceFile.GetData());
+      return ezStatus("Opening the asset output file failed");
+    }
+
     // if writing failed, make sure the output file does not exist
     if (ret.m_Result.Failed())
     {
-      file.Close();
       ezFileSystem::DeleteFile(sResourceFile);
-
-      /// \todo Write to dummy file, then rename it
     }
 
     return ret;
