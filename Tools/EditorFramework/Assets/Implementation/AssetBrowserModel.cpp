@@ -8,6 +8,7 @@
 #include <QPixmap>
 #include <QMimeData>
 #include <QUrl>
+#include <QIcon>
 
 ////////////////////////////////////////////////////////////////////////
 // ezAssetBrowserModel public functions
@@ -258,6 +259,15 @@ QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
 
   case Qt::UserRole + 2:
     return QString::fromUtf8(pAssetInfo->m_sRelativePath);
+
+  case Qt::UserRole + 3:
+    {
+      ezStringBuilder sIconName;
+      sIconName.Set(":/AssetIcons/", pAssetInfo->m_Info.m_sAssetTypeName);
+      sIconName.ReplaceAll(" ", "_");
+
+      return QPixmap(QString::fromUtf8(sIconName.GetData()));
+    }
   }
 
   return QVariant();
