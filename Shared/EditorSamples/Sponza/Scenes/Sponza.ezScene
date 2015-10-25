@@ -17,7 +17,7 @@
    "p" : {
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x23F278BAE6BE1646B2F6409AC6D8509C" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.1665, -5.2782, 1.0023)", "$b" : "0x0C782A3E1EE7A8C0CA49803F" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0264, 2.8032, -0.1204)", "$b" : "0x7025D83CE0673340C0A5F6BD" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "Name" : "Half sphere"
@@ -27,7 +27,7 @@
    "#" : { "$t" : "uuid", "$b" : "0xEF0F16571CD2C24382A3F8C7F52DD3F6" },
    "t" : "ezGameObject",
    "p" : {
-    "Children" : [  ],
+    "Children" : [ { "$t" : "uuid", "$b" : "0x9BE698FB5BFE244E88C81F8228AB8105" }, { "$t" : "uuid", "$b" : "0x920F6C02FAF3244481553A1568F330E1" } ],
     "Components" : [ { "$t" : "uuid", "$b" : "0xCAA1F1BB3979B74D9E51FC906B46A1C5" } ],
     "LocalPosition" : { "$t" : "vec3", "$v" : "(-0.0410, -9.8608, 1.1803)", "$b" : "0x26F427BDE0C51DC19812973F" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
@@ -41,7 +41,7 @@
    "p" : {
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x4A0D6A7B0A20984DAB24D631BECBA6EE" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(-0.1565, -1.9534, 0.9515)", "$b" : "0x303B20BE6E0AFABF6C96733F" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-0.1155, 7.9074, -0.2287)", "$b" : "0x4D7CECBD2409FD40103B6ABE" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "Name" : "Pyramid"
@@ -112,7 +112,7 @@
    "t" : "ezDocumentRoot",
    "n" : "ObjectTree",
    "p" : {
-    "RootObjects" : [ { "$t" : "uuid", "$b" : "0x8CA563E0495477408C6599A102BCD5E9" }, { "$t" : "uuid", "$b" : "0x91F71E29DEE19F9069BB6C85F99AA693" }, { "$t" : "uuid", "$b" : "0x9395B5D61BD9174CAB320D3B6B962C3D" }, { "$t" : "uuid", "$b" : "0xEF0F16571CD2C24382A3F8C7F52DD3F6" }, { "$t" : "uuid", "$b" : "0x9BE698FB5BFE244E88C81F8228AB8105" }, { "$t" : "uuid", "$b" : "0x80A5E997F9321D42A2F8E4F856D3E70E" }, { "$t" : "uuid", "$b" : "0x920F6C02FAF3244481553A1568F330E1" }, { "$t" : "uuid", "$b" : "0x7D031A6194C3EF49BBFC1CC9CA39E8E0" }, { "$t" : "uuid", "$b" : "0x26C465D43CE4B64886A88BB931384551" } ]
+    "RootObjects" : [ { "$t" : "uuid", "$b" : "0x8CA563E0495477408C6599A102BCD5E9" }, { "$t" : "uuid", "$b" : "0x91F71E29DEE19F9069BB6C85F99AA693" }, { "$t" : "uuid", "$b" : "0x9395B5D61BD9174CAB320D3B6B962C3D" }, { "$t" : "uuid", "$b" : "0xEF0F16571CD2C24382A3F8C7F52DD3F6" }, { "$t" : "uuid", "$b" : "0x7D031A6194C3EF49BBFC1CC9CA39E8E0" }, { "$t" : "uuid", "$b" : "0x26C465D43CE4B64886A88BB931384551" } ]
    }
   },
   {
@@ -166,9 +166,9 @@
    "#" : { "$t" : "uuid", "$b" : "0x9BE698FB5BFE244E88C81F8228AB8105" },
    "t" : "ezGameObject",
    "p" : {
-    "Children" : [  ],
+    "Children" : [ { "$t" : "uuid", "$b" : "0x80A5E997F9321D42A2F8E4F856D3E70E" } ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x7E80A2F609C9CA45B93DE820D6854B83" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.1401, -8.0814, 1.1227)", "$b" : "0x5E730F3E874D01C126B48F3F" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.1811, 1.7794, -0.0576)", "$b" : "0x6870393EC8C2E33F40CE6BBD" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "Name" : "Geodesic Sphere"

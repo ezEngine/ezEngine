@@ -4,15 +4,19 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <QKeyEvent>
 
-ezRawDocumentTreeWidget::ezRawDocumentTreeWidget(QWidget* pParent, ezDocumentBase* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty) :
+ezRawDocumentTreeWidget::ezRawDocumentTreeWidget(QWidget* pParent, ezDocumentBase* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty, std::unique_ptr<ezRawDocumentTreeModel> pCustomModel) :
   QTreeView(pParent),
-  m_Model(pDocument->GetObjectManager(), pBaseClass, szChildProperty),
   m_pDocument(pDocument)
 {
+  if (pCustomModel)
+    m_pModel = std::move(pCustomModel);
+  else
+    m_pModel.reset(new ezRawDocumentTreeModel(pDocument->GetObjectManager(), pBaseClass, szChildProperty));
+
   m_bBlockSelectionSignal = false;
   setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
   setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
-  setModel(&m_Model);
+  setModel(m_pModel.get());
   setDragEnabled(true);
   setAcceptDrops(true);
   setDropIndicatorShown(true);
@@ -70,7 +74,7 @@ void ezRawDocumentTreeWidget::SelectionEventHandler(const ezSelectionManager::Ev
       
       for (const ezDocumentObjectBase* pObject : m_pDocument->GetSelectionManager()->GetSelection())
       {
-        auto index = m_Model.ComputeModelIndex(pObject);
+        auto index = m_pModel->ComputeModelIndex(pObject);
         selection.select(index, index);
       }
       selectionModel()->select(selection, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows | QItemSelectionModel::NoUpdate);
@@ -87,7 +91,7 @@ void ezRawDocumentTreeWidget::EnsureLastSelectedItemVisible()
 
   const ezDocumentObjectBase* pObject = m_pDocument->GetSelectionManager()->GetSelection().PeekBack();
 
-  auto index = m_Model.ComputeModelIndex(pObject);
+  auto index = m_pModel->ComputeModelIndex(pObject);
   scrollTo(index, QAbstractItemView::EnsureVisible);
 }
 

@@ -6,6 +6,7 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/EditActions.h>
 #include <Actions/SelectionActions.h>
+#include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphModel.moc.h>
 
 ezScenegraphPanel::ezScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument)
   : ezDocumentPanel(pParent)
@@ -15,7 +16,7 @@ ezScenegraphPanel::ezScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocumen
 
   m_pDocument = pDocument;
 
-  m_pTreeWidget = new ezRawDocumentTreeWidget(this, pDocument, ezGetStaticRTTI<ezGameObject>(), "Children");
+  m_pTreeWidget = new ezRawDocumentTreeWidget(this, pDocument, ezGetStaticRTTI<ezGameObject>(), "Children", std::unique_ptr<ezRawDocumentTreeModel>(new ezQtScenegraphModel(pDocument)));
   setWidget(m_pTreeWidget);
 
   m_pDocument->m_SceneEvents.AddEventHandler(ezMakeDelegate(&ezScenegraphPanel::DocumentSceneEventHandler, this));
@@ -30,6 +31,7 @@ ezScenegraphPanel::ezScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocumen
 ezScenegraphPanel::~ezScenegraphPanel()
 {
   m_pDocument->m_SceneEvents.RemoveEventHandler(ezMakeDelegate(&ezScenegraphPanel::DocumentSceneEventHandler, this));
+  
 }
 
 void ezScenegraphPanel::RegisterActions()

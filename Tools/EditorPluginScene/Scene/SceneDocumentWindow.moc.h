@@ -37,11 +37,17 @@ public slots:
 private:
   void TransformationGizmoEventHandler(const ezGizmoBase::BaseEvent& e);
   void SelectionManagerEventHandler(const ezSelectionManager::Event& e);
+  void SceneObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezSceneObjectMetaData>::EventData& e);
 
   virtual bool HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
   virtual void InternalRedraw() override;
   void DocumentEventHandler(const ezSceneDocument::SceneEvent& e);
+
+  void FocusOnSelectionAllViews();
+
+  void FocusOnSelectionHoveredView();
+
   void DocumentTreeEventHandler(const ezDocumentObjectStructureEvent& e);
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void RotateGizmoEventHandler(const ezRotateGizmoAction::Event& e);
@@ -55,10 +61,8 @@ private:
   void CommandHistoryEventHandler(const ezCommandHistory::Event& e);
 
   void SnapSelectionToPosition(bool bSnapEachObject);
-  void HideSelectedObjects(bool bHide);
-  void HideUnselectedObjects();
-  void ShowHiddenObjects();
 
+  void SendObjectMsg(const ezDocumentObjectBase* pObj, ezObjectTagMsgToEngine* pMsg);
   void SendObjectMsgRecursive(const ezDocumentObjectBase* pObj, ezObjectTagMsgToEngine* pMsg);
   void SendObjectSelection();
 

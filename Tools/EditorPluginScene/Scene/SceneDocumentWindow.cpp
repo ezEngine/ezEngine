@@ -30,6 +30,8 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::DocumentTreeEventHandler, this));
   GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::PropertyEventHandler, this));
 
+  GetSceneDocument()->m_ObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::SceneObjectMetaDataEventHandler, this));
+
   {
     // Menu Bar
     ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
@@ -101,6 +103,7 @@ ezSceneDocumentWindow::~ezSceneDocumentWindow()
 
   ezSceneDocument* pSceneDoc = static_cast<ezSceneDocument*>(GetDocument());
   pSceneDoc->m_SceneEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::DocumentEventHandler, this));
+  GetSceneDocument()->m_ObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::SceneObjectMetaDataEventHandler, this));
 
   m_TranslateGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
   m_RotateGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
@@ -240,47 +243,17 @@ void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEve
   switch (e.m_Type)
   {
   case ezSceneDocument::SceneEvent::Type::ActiveGizmoChanged:
-    {
-      UpdateGizmoVisibility();
-    }
+    UpdateGizmoVisibility();
     break;
 
   case ezSceneDocument::SceneEvent::Type::FocusOnSelection_Hovered:
-    {
-      const auto& sel = GetDocument()->GetSelectionManager()->GetSelection();
-
-      if (sel.IsEmpty())
-        return;
-      if (!sel.PeekBack()->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
-        return;
-
-      auto pView = GetHoveredViewWidget();
-
-      if (pView == nullptr)
-        return;
-
-      ezQuerySelectionBBoxMsgToEngine msg;
-      msg.m_uiViewID = pView->GetViewID();
-      msg.m_iPurpose = 0;
-      SendMessageToEngine(&msg, true);
-    }
+    GetSceneDocument()->ShowOrHideSelectedObjects(ezSceneDocument::ShowOrHide::Show);
+    FocusOnSelectionHoveredView();
     break;
 
-
   case ezSceneDocument::SceneEvent::Type::FocusOnSelection_All:
-    {
-      const auto& sel = GetDocument()->GetSelectionManager()->GetSelection();
-
-      if (sel.IsEmpty())
-        return;
-      if (!sel.PeekBack()->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
-        return;
-
-      ezQuerySelectionBBoxMsgToEngine msg;
-      msg.m_uiViewID = 0xFFFFFFFF;
-      msg.m_iPurpose = 0;
-      SendMessageToEngine(&msg, true);
-    }
+    GetSceneDocument()->ShowOrHideSelectedObjects(ezSceneDocument::ShowOrHide::Show);
+    FocusOnSelectionAllViews();
     break;
 
   case ezSceneDocument::SceneEvent::Type::SnapSelectionPivotToGrid:
@@ -290,21 +263,54 @@ void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEve
   case ezSceneDocument::SceneEvent::Type::SnapEachSelectedObjectToGrid:
     SnapSelectionToPosition(true);
     break;
-
-  case ezSceneDocument::SceneEvent::Type::HideSelectedObjects:
-    HideSelectedObjects(true);
-    break;
-
-  case ezSceneDocument::SceneEvent::Type::HideUnselectedObjects:
-    HideUnselectedObjects();
-    break;
-
-  case ezSceneDocument::SceneEvent::Type::ShowHiddenObjects:
-    ShowHiddenObjects();
-    break;
   }
 }
 
+void ezSceneDocumentWindow::FocusOnSelectionAllViews()
+{
+  const auto& sel = GetDocument()->GetSelectionManager()->GetSelection();
+
+  if (sel.IsEmpty())
+    return;
+  if (!sel.PeekBack()->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+    return;
+
+  ezQuerySelectionBBoxMsgToEngine msg;
+  msg.m_uiViewID = 0xFFFFFFFF;
+  msg.m_iPurpose = 0;
+  SendMessageToEngine(&msg, true);
+}
+
+void ezSceneDocumentWindow::FocusOnSelectionHoveredView()
+{
+  const auto& sel = GetDocument()->GetSelectionManager()->GetSelection();
+
+  if (sel.IsEmpty())
+    return;
+  if (!sel.PeekBack()->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+    return;
+
+  auto pView = GetHoveredViewWidget();
+
+  if (pView == nullptr)
+    return;
+
+  ezQuerySelectionBBoxMsgToEngine msg;
+  msg.m_uiViewID = pView->GetViewID();
+  msg.m_iPurpose = 0;
+  SendMessageToEngine(&msg, true);
+}
+
+void ezSceneDocumentWindow::SendObjectMsg(const ezDocumentObjectBase* pObj, ezObjectTagMsgToEngine* pMsg)
+{
+  // if ezObjectTagMsgToEngine were derived from a general 'object msg' one could send other message types as well
+
+  if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+    return;
+
+  pMsg->m_ObjectGuid = pObj->GetGuid();
+  GetEditorEngineConnection()->SendMessage(pMsg);
+}
 void ezSceneDocumentWindow::SendObjectMsgRecursive(const ezDocumentObjectBase* pObj, ezObjectTagMsgToEngine* pMsg)
 {
   // if ezObjectTagMsgToEngine were derived from a general 'object msg' one could send other message types as well
@@ -344,49 +350,6 @@ void ezSceneDocumentWindow::SendObjectSelection()
   msg.m_sSelection = sTemp;
 
   m_pEngineConnection->SendMessage(&msg);
-}
-
-void ezSceneDocumentWindow::HideSelectedObjects(bool bHide)
-{
-  auto sel = GetDocument()->GetSelectionManager()->GetTopLevelSelection(ezGetStaticRTTI<ezGameObject>());
-
-  ezObjectTagMsgToEngine msg;
-  msg.m_bSetTag = bHide;
-  msg.m_sTag = "EditorHidden";
-
-  for (auto item : sel)
-  {
-    SendObjectMsgRecursive(item, &msg);
-  }
-}
-
-void ezSceneDocumentWindow::HideUnselectedObjects()
-{
-  ezObjectTagMsgToEngine msg;
-  msg.m_bSetTag = true;
-  msg.m_sTag = "EditorHidden";
-
-  // hide ALL
-  for (auto pChild : GetDocument()->GetObjectManager()->GetRootObject()->GetChildren())
-  {
-    SendObjectMsgRecursive(pChild, &msg);
-  }
-
-  // unhide selected
-  HideSelectedObjects(false);
-}
-
-void ezSceneDocumentWindow::ShowHiddenObjects()
-{
-  ezObjectTagMsgToEngine msg;
-  msg.m_bSetTag = false;
-  msg.m_sTag = "EditorHidden";
-
-  // unhide ALL
-  for (auto pChild : GetDocument()->GetObjectManager()->GetRootObject()->GetChildren())
-  {
-    SendObjectMsgRecursive(pChild, &msg);
-  }
 }
 
 void ezSceneDocumentWindow::DocumentTreeEventHandler(const ezDocumentObjectStructureEvent& e)
@@ -707,6 +670,18 @@ void ezSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManage
       UpdateGizmoVisibility();
     }
     break;
+  }
+}
+
+void ezSceneDocumentWindow::SceneObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezSceneObjectMetaData>::EventData& e)
+{
+  if ((e.m_uiModifiedFlags & ezSceneObjectMetaData::HiddenFlag) != 0)
+  {
+    ezObjectTagMsgToEngine msg;
+    msg.m_bSetTag = e.m_pValue->m_bHidden;
+    msg.m_sTag = "EditorHidden";
+
+    SendObjectMsg(GetDocument()->GetObjectManager()->GetObject(e.m_ObjectKey), &msg);
   }
 }
 

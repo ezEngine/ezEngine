@@ -3,6 +3,7 @@
 #include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
 #include <ToolsFoundation/Selection/SelectionManager.h>
 #include <QTreeView>
+#include <memory>
 
 class EZ_EDITORFRAMEWORK_DLL ezRawDocumentTreeWidget : public QTreeView
 {
@@ -10,7 +11,7 @@ class EZ_EDITORFRAMEWORK_DLL ezRawDocumentTreeWidget : public QTreeView
 
 public:
 
-  ezRawDocumentTreeWidget(QWidget* pParent, ezDocumentBase* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty);
+  ezRawDocumentTreeWidget(QWidget* pParent, ezDocumentBase* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty, std::unique_ptr<ezRawDocumentTreeModel> pCustomModel = nullptr);
   ~ezRawDocumentTreeWidget();
 
   void EnsureLastSelectedItemVisible();
@@ -25,7 +26,7 @@ private:
   void SelectionEventHandler(const ezSelectionManager::Event& e);
 
 private:
-  ezRawDocumentTreeModel m_Model;
+  std::unique_ptr<ezRawDocumentTreeModel> m_pModel;
   ezDocumentBase* m_pDocument;
   bool m_bBlockSelectionSignal;
 };

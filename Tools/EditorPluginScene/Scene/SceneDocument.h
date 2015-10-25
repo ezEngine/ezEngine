@@ -3,6 +3,7 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
+#include <CoreUtils/DataStructures/ObjectMetaData.h>
 
 enum class ActiveGizmo
 {
@@ -11,6 +12,23 @@ enum class ActiveGizmo
   Rotate,
   Scale,
   DragToPosition,
+};
+
+struct ezSceneObjectMetaData
+{
+  enum ModifiedFlags
+  {
+    HiddenFlag = EZ_BIT(0),
+
+    AllFlags = 0xFFFFFFFF
+  };
+
+  ezSceneObjectMetaData()
+  {
+    m_bHidden = false;
+  }
+
+  bool m_bHidden;
 };
 
 class ezSceneDocument : public ezDocumentBase
@@ -28,15 +46,22 @@ public:
   void SetActiveGizmo(ActiveGizmo gizmo);
   ActiveGizmo GetActiveGizmo() const;
 
+  enum class ShowOrHide
+  {
+    Show,
+    Hide
+  };
+
   void TriggerShowSelectionInScenegraph();
   void TriggerFocusOnSelection(bool bAllViews);
   void TriggerSnapPivotToGrid();
   void TriggerSnapEachObjectToGrid();
   void GroupSelection();
   void DuplicateSelection();
-  void TriggerHideSelectedObjects();
-  void TriggerHideUnselectedObjects();
-  void TriggerShowHiddenObjects();
+  void ShowOrHideSelectedObjects(ShowOrHide action);
+  void ShowOrHideAllObjects(ShowOrHide action);
+  void HideUnselectedObjects();
+  
   void SetGizmoWorldSpace(bool bWorldSpace);
   bool GetGizmoWorldSpace() const;
 
@@ -65,20 +90,29 @@ public:
       FocusOnSelection_All,
       SnapSelectionPivotToGrid,
       SnapEachSelectedObjectToGrid,
-      HideSelectedObjects,
-      HideUnselectedObjects,
-      ShowHiddenObjects,
     };
 
     Type m_Type;
   };
 
   ezEvent<const SceneEvent&> m_SceneEvents;
+  ezObjectMetaData<ezUuid, ezSceneObjectMetaData> m_ObjectMetaData;
 
 protected:
   virtual void InitializeAfterLoading() override;
 
   virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezDocumentInfo); }
+
+  template<typename Func>
+  void ApplyRecursive(const ezDocumentObjectBase* pObject, Func f)
+  {
+    f(pObject);
+
+    for (auto pChild : pObject->GetChildren())
+    {
+      ApplyRecursive<Func>(pChild, f);
+    }
+  }
 
 private:
   void ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);

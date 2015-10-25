@@ -131,13 +131,13 @@ void ezSelectionAction::Execute(const ezVariant& value)
     m_pSceneDocument->GroupSelection();
     return;
   case ActionType::HideSelectedObjects:
-    m_pSceneDocument->TriggerHideSelectedObjects();
+    m_pSceneDocument->ShowOrHideSelectedObjects(ezSceneDocument::ShowOrHide::Hide);
     break;
   case ActionType::HideUnselectedObjects:
-    m_pSceneDocument->TriggerHideUnselectedObjects();
+    m_pSceneDocument->HideUnselectedObjects();
     break;
   case ActionType::ShowHiddenObjects:
-    m_pSceneDocument->TriggerShowHiddenObjects();
+    m_pSceneDocument->ShowOrHideAllObjects(ezSceneDocument::ShowOrHide::Show);
     break;
   }
 }

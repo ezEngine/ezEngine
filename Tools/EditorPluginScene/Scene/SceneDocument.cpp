@@ -181,25 +181,63 @@ void ezSceneDocument::DuplicateSelection()
     history->FinishTransaction();
 }
 
-void ezSceneDocument::TriggerHideSelectedObjects()
+void ezSceneDocument::ShowOrHideSelectedObjects(ShowOrHide action)
 {
-  SceneEvent e;
-  e.m_Type = SceneEvent::Type::HideSelectedObjects;
-  m_SceneEvents.Broadcast(e);
+  const bool bHide = action == ShowOrHide::Hide;
+
+  auto sel = GetSelectionManager()->GetSelection();
+  
+  for (auto pItem : sel)
+  {
+    if (!pItem->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+      continue;
+
+    ApplyRecursive(pItem, [this, bHide](const ezDocumentObjectBase* pObj)
+    {
+      if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+        return;
+
+      auto pMeta = m_ObjectMetaData.BeginModifyMetaData(pObj->GetGuid());
+      if (pMeta->m_bHidden != bHide)
+      {
+        pMeta->m_bHidden = bHide;
+        m_ObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::HiddenFlag);
+      }
+      else
+        m_ObjectMetaData.EndModifyMetaData(0);
+    });
+
+  }
 }
 
-void ezSceneDocument::TriggerHideUnselectedObjects()
+void ezSceneDocument::HideUnselectedObjects()
 {
-  SceneEvent e;
-  e.m_Type = SceneEvent::Type::HideUnselectedObjects;
-  m_SceneEvents.Broadcast(e);
+  ShowOrHideAllObjects(ShowOrHide::Hide);
+
+  ShowOrHideSelectedObjects(ShowOrHide::Show);
 }
 
-void ezSceneDocument::TriggerShowHiddenObjects()
+void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
 {
-  SceneEvent e;
-  e.m_Type = SceneEvent::Type::ShowHiddenObjects;
-  m_SceneEvents.Broadcast(e);
+  const bool bHide = action == ShowOrHide::Hide;
+
+  ApplyRecursive(GetObjectManager()->GetRootObject(), [this, bHide](const ezDocumentObjectBase* pObj)
+  {
+    if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+      return;
+
+    ezUInt32 uiFlags = 0;
+
+    auto pMeta = m_ObjectMetaData.BeginModifyMetaData(pObj->GetGuid());
+
+    if (pMeta->m_bHidden != bHide)
+    {
+      pMeta->m_bHidden = bHide;
+      uiFlags = ezSceneObjectMetaData::HiddenFlag;
+    }
+
+    m_ObjectMetaData.EndModifyMetaData(uiFlags);
+  });
 }
 
 void ezSceneDocument::SetGizmoWorldSpace(bool bWorldSpace)
@@ -390,6 +428,13 @@ void ezSceneDocument::ObjectStructureEventHandler(const ezDocumentObjectStructur
       ezTransform t = GetGlobalTransform(e.m_pObject);
 
       SetGlobalTransform(e.m_pObject, t);
+    }
+    break;
+
+  case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
+    {
+      // clean up object meta data upon object destruction, because we can :-P
+      m_ObjectMetaData.ClearMetaData(e.m_pObject->GetGuid());
     }
     break;
   }
