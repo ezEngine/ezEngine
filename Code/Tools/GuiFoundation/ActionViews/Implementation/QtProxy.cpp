@@ -102,14 +102,19 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
     break;
   case ezActionScope::Document:
     {
-      QWeakPointer<ezQtProxy> pTemp = s_DocumentActions[context.m_pDocument->GetGuid()][hDesc];
+      ezUuid guid; // invalid
+
+      if (context.m_pDocument)
+        guid = context.m_pDocument->GetGuid();
+
+      QWeakPointer<ezQtProxy> pTemp = s_DocumentActions[guid][hDesc];
       if (pTemp.isNull())
       {
         auto pAction = pDesc->CreateAction(context);
         pProxy = QSharedPointer<ezQtProxy>(ezQtProxy::GetFactory().CreateObject(pAction->GetDynamicRTTI()));
         EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_sActionName.GetData());
         pProxy->SetAction(pAction);
-        s_DocumentActions[context.m_pDocument->GetGuid()][hDesc] = pProxy;
+        s_DocumentActions[guid][hDesc] = pProxy;
       }
       else
       {
