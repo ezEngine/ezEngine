@@ -589,6 +589,31 @@ void ezSceneDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxRes
   pSceneView->InterpolateCameraTo(vNewCameraPosition, vNewCameraDirection, fNewFovOrDim);
 }
 
+void ezSceneDocumentWindow::SyncObjectHiddenState()
+{
+  for (auto pChild : GetDocument()->GetObjectManager()->GetRootObject()->GetChildren())
+  {
+    SyncObjectHiddenState(pChild);
+  }
+}
+
+void ezSceneDocumentWindow::SyncObjectHiddenState(ezDocumentObjectBase* pObject)
+{
+  const bool bHidden = GetSceneDocument()->m_ObjectMetaData.BeginReadMetaData(pObject->GetGuid())->m_bHidden;
+  GetSceneDocument()->m_ObjectMetaData.EndReadMetaData();
+
+  ezObjectTagMsgToEngine msg;
+  msg.m_bSetTag = bHidden;
+  msg.m_sTag = "EditorHidden";
+
+  SendObjectMsg(pObject, &msg);
+
+  for (auto pChild : pObject->GetChildren())
+  {
+    SyncObjectHiddenState(pChild);
+  }
+}
+
 void ezSceneDocumentWindow::ToggleViews(QWidget* pView)
 {
   ezSceneViewWidget* pViewport = qobject_cast<ezSceneViewWidget*>(pView);
@@ -642,9 +667,14 @@ bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg*
   }
 
   if (ezDocumentWindow3D::HandleEngineMessage(pMsg))
+  {
+    if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
+    {
+      SyncObjectHiddenState();
+    }
+
     return true;
-
-
+  }
 
   return false;
 }

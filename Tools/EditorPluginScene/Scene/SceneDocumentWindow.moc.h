@@ -76,6 +76,8 @@ private:
   void CreateViews(bool bQuad);
 
   void HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg, ezSceneViewWidget* pSceneView);
+  void SyncObjectHiddenState();
+  void SyncObjectHiddenState(ezDocumentObjectBase* pObject);
 
   ezSceneViewConfig m_ViewConfigSingle;
   ezSceneViewConfig m_ViewConfigQuad[4];
