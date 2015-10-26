@@ -4,7 +4,7 @@
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 
 class ezIReflectedTypeAccessor;
-class ezDocumentObjectBase;
+class ezDocumentObject;
 
 /// \brief Helper functions for handling reflection related operations.
 class EZ_TOOLSFOUNDATION_DLL ezToolsReflectionUtils
@@ -36,7 +36,7 @@ public:
   /// or might also be read by humans.
   ///
   /// Read-only properties are not written out, as they cannot be restored anyway.
-  static void WriteObjectToJSON(bool bSerializeOwnerPtrs, ezStreamWriterBase& stream, const ezDocumentObjectBase* pObject, ezJSONWriter::WhitespaceMode WhitespaceMode = ezJSONWriter::WhitespaceMode::None);
+  static void WriteObjectToJSON(bool bSerializeOwnerPtrs, ezStreamWriter& stream, const ezDocumentObject* pObject, ezJSONWriter::WhitespaceMode WhitespaceMode = ezJSONWriter::WhitespaceMode::None);
 
 
 };

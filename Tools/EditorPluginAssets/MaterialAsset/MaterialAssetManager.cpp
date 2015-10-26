@@ -8,19 +8,19 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezMaterialAssetDocumentManager::ezMaterialAssetDocumentManager()
 {
-  ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(&ezMaterialAssetDocumentManager::OnDocumentManagerEvent, this));
+  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezMaterialAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
 ezMaterialAssetDocumentManager::~ezMaterialAssetDocumentManager()
 {
-  ezDocumentManagerBase::s_Events.RemoveEventHandler(ezMakeDelegate(&ezMaterialAssetDocumentManager::OnDocumentManagerEvent, this));
+  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezMaterialAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-void ezMaterialAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
+void ezMaterialAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-  case ezDocumentManagerBase::Event::Type::DocumentWindowRequested:
+  case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezMaterialAssetDocument>())
       {
@@ -36,7 +36,7 @@ ezStatus ezMaterialAssetDocumentManager::InternalCanOpenDocument(const char* szD
   return EZ_SUCCESS;
 }
 
-ezStatus ezMaterialAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument)
+ezStatus ezMaterialAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezMaterialAssetDocument(szPath);
 

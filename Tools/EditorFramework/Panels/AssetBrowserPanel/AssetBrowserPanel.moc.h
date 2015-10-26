@@ -5,19 +5,20 @@
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <Tools/EditorFramework/ui_AssetBrowserPanel.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezAssetBrowserPanel : public ezApplicationPanel, public Ui_AssetBrowserPanel
+/// \brief The application wide panel that shows and asset browser.
+class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserPanel : public ezQtApplicationPanel, public Ui_AssetBrowserPanel
 {
   Q_OBJECT
 
 public:
-  ezAssetBrowserPanel();
-  ~ezAssetBrowserPanel();
+  ezQtAssetBrowserPanel();
+  ~ezQtAssetBrowserPanel();
 
-  static ezAssetBrowserPanel* GetInstance() { return s_pInstance; }
+  static ezQtAssetBrowserPanel* GetInstance() { return s_pInstance; }
 
 private slots:
   void SlotAssetChosen(QString sAssetGuid, QString sAssetPathRelative, QString sAssetPathAbsolute);
 
 private:
-  static ezAssetBrowserPanel* s_pInstance;
+  static ezQtAssetBrowserPanel* s_pInstance;
 };

@@ -256,7 +256,7 @@ static ezUInt32 GetBCnMemPitchFactor(ezImageFormat::Enum format)
   return 1;
 }
 
-ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReaderBase* Stream)
+ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReader* Stream)
 {
   if (Stream == nullptr)
   {
@@ -517,7 +517,7 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
         /// \todo A conversion to B8G8R8X8_UNORM currently fails
 
         ezLog::Warning("Texture resource uses inefficient BGR format, converting to BGRX: '%s'", sAbsolutePath.GetData());
-        if (ezImageConversionBase::Convert(pData->m_Image, pData->m_Image, ezImageFormat::B8G8R8A8_UNORM).Failed())
+        if (ezImageConversion::Convert(pData->m_Image, pData->m_Image, ezImageFormat::B8G8R8A8_UNORM).Failed())
           return res;
       }
     }

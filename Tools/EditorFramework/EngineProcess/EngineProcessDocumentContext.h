@@ -71,7 +71,7 @@ public:
   void Initialize(const ezUuid& DocumentGuid, ezProcessCommunication* pIPC);
   void Deinitialize();
 
-  void SendProcessMessage(ezProcessMessage* pMsg, bool bSuperHighPriority = false);
+  void SendProcessMessage(ezProcessMessage* pMsg = false);
   virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg);
 
   static ezEngineProcessDocumentContext* GetDocumentContext(ezUuid guid);

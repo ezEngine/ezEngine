@@ -123,12 +123,12 @@ ezDocumentAction::~ezDocumentAction()
   }
 }
 
-void ezDocumentAction::DocumentEventHandler(const ezDocumentBase::Event& e)
+void ezDocumentAction::DocumentEventHandler(const ezDocument::Event& e)
 {
   switch (e.m_Type)
   {
-  case ezDocumentBase::Event::Type::DocumentSaved:
-  case ezDocumentBase::Event::Type::ModifiedChanged:
+  case ezDocument::Event::Type::DocumentSaved:
+  case ezDocument::Event::Type::ModifiedChanged:
     {
       if (m_ButtonType == ButtonType::Save)
       {
@@ -145,7 +145,7 @@ void ezDocumentAction::Execute(const ezVariant& value)
   {
   case ezDocumentAction::ButtonType::Save:
     {
-      ezDocumentWindow* pWnd = ezDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
+      ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
       pWnd->SaveDocument();
     }
     break;
@@ -156,11 +156,11 @@ void ezDocumentAction::Execute(const ezVariant& value)
 
   case ezDocumentAction::ButtonType::SaveAll:
     {
-      for (auto pMan : ezDocumentManagerBase::GetAllDocumentManagers())
+      for (auto pMan : ezDocumentManager::GetAllDocumentManagers())
       {
-        for (auto pDoc : pMan->ezDocumentManagerBase::GetAllDocuments())
+        for (auto pDoc : pMan->ezDocumentManager::GetAllDocuments())
         {
-          ezDocumentWindow* pWnd = ezDocumentWindow::FindWindowByDocument(pDoc);
+          ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(pDoc);
 
           if (pWnd->SaveDocument().m_Result.Failed())
             return;
@@ -171,7 +171,7 @@ void ezDocumentAction::Execute(const ezVariant& value)
 
   case ezDocumentAction::ButtonType::Close:
     {
-      ezDocumentWindow* pWnd = ezDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
+      ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
 
       if (!pWnd->CanCloseWindow())
         return;

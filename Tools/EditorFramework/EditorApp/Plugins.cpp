@@ -7,7 +7,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Configuration/Plugin.h>
 
-const ezPluginSet& ezEditorApp::GetEditorPluginsAvailable()
+const ezPluginSet& ezQtEditorApp::GetEditorPluginsAvailable()
 {
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
   if (s_EditorPluginsAvailable.m_Plugins.IsEmpty())
@@ -33,7 +33,7 @@ const ezPluginSet& ezEditorApp::GetEditorPluginsAvailable()
   return s_EditorPluginsAvailable;
 }
 
-void ezEditorApp::SetEditorPluginsToBeLoaded(const ezPluginSet& plugins)
+void ezQtEditorApp::SetEditorPluginsToBeLoaded(const ezPluginSet& plugins)
 {
   if (s_EditorPluginsToBeLoaded == plugins)
     return;
@@ -60,7 +60,7 @@ void ezEditorApp::SetEditorPluginsToBeLoaded(const ezPluginSet& plugins)
   writer.EndObject();
 }
 
-void ezEditorApp::ReadPluginsToBeLoaded()
+void ezQtEditorApp::ReadPluginsToBeLoaded()
 {
   s_EditorPluginsToBeLoaded.m_Plugins.Clear();
 
@@ -87,7 +87,7 @@ void ezEditorApp::ReadPluginsToBeLoaded()
 }
 
 
-void ezEditorApp::LoadPlugins()
+void ezQtEditorApp::LoadPlugins()
 {
   EZ_ASSERT_DEV(s_EditorPluginsActive.m_Plugins.IsEmpty(), "Plugins were already loaded.");
 
@@ -107,7 +107,7 @@ void ezEditorApp::LoadPlugins()
   }
 }
 
-void ezEditorApp::UnloadPlugins()
+void ezQtEditorApp::UnloadPlugins()
 {
   for (auto it = s_EditorPluginsActive.m_Plugins.GetLastIterator(); it.IsValid(); --it)
   {

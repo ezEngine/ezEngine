@@ -276,7 +276,7 @@ bool ezToolsReflectionUtils::SetMemberPropertyValueByPath(const ezRTTI* pRtti, v
   return false;
 }
 
-void ezToolsReflectionUtils::WriteObjectToJSON(bool bSerializeOwnerPtrs, ezStreamWriterBase& stream, const ezDocumentObjectBase* pObject, ezJSONWriter::WhitespaceMode WhitespaceMode)
+void ezToolsReflectionUtils::WriteObjectToJSON(bool bSerializeOwnerPtrs, ezStreamWriter& stream, const ezDocumentObject* pObject, ezJSONWriter::WhitespaceMode WhitespaceMode)
 {
   ezAbstractObjectGraph graph;
   ezDocumentObjectConverterWriter conv(&graph, pObject->GetDocumentObjectManager(), false, bSerializeOwnerPtrs);

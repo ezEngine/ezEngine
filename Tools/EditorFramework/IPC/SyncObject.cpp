@@ -32,7 +32,7 @@ ezEditorEngineSyncObject::~ezEditorEngineSyncObject()
   }
 }
 
-void ezEditorEngineSyncObject::SetOwner(ezDocumentWindow3D* pOwner)
+void ezEditorEngineSyncObject::SetOwner(ezQtEngineDocumentWindow* pOwner)
 { 
   EZ_ASSERT_DEV(pOwner != nullptr, "invalid owner");
   m_pOwner = pOwner;

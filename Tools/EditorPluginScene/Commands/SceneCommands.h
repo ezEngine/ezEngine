@@ -4,7 +4,7 @@
 #include <ToolsFoundation/Command/Command.h>
 #include <ToolsFoundation/Document/Document.h>
 
-class ezDuplicateObjectsCommand : public ezCommandBase
+class ezDuplicateObjectsCommand : public ezCommand
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDuplicateObjectsCommand);
 
@@ -23,8 +23,8 @@ private:
 private:
   struct DuplicatedObject
   {
-    ezDocumentObjectBase* m_pObject;
-    ezDocumentObjectBase* m_pParent;
+    ezDocumentObject* m_pObject;
+    ezDocumentObject* m_pParent;
     ezString m_sParentProperty;
     ezVariant m_Index;
   };

@@ -25,7 +25,7 @@ public:
   ezString m_sAssetTypeName;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezAssetDocument : public ezDocumentBase
+class EZ_EDITORFRAMEWORK_DLL ezAssetDocument : public ezDocument
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAssetDocument);
 
@@ -60,10 +60,10 @@ public:
 
 protected:
   ezUInt64 GetDocumentHash() const;
-  void GetChildHash(const ezDocumentObjectBase* pObject, ezUInt64& uiHash) const;
+  void GetChildHash(const ezDocumentObject* pObject, ezUInt64& uiHash) const;
   virtual ezStatus InternalSaveDocument() override;
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) = 0;
-  virtual ezStatus InternalTransformAsset(ezStreamWriterBase& stream, const char* szPlatform) = 0;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform) = 0;
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) = 0;
 
   /// \brief Override this to change the version of the asset type. E.g. when the algorithm to transform an asset changes.

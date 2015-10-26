@@ -31,7 +31,7 @@ public:
 
   void PickObjectAt(ezUInt16 x, ezUInt16 y);
 
-  void SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg, bool bSuperHighPriority = false);
+  void SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg = false);
 
   virtual void HandleViewMessage(const ezEditorEngineViewMsg* pMsg) override;
 

@@ -47,7 +47,7 @@ private:
 ///
 /// Please note that the functions exposed by this object are not thread safe! If access to the same ezMemoryStreamStorage object from
 /// multiple threads is desired please create one instance of ezMemoryStreamReader per thread.
-class EZ_FOUNDATION_DLL ezMemoryStreamReader : public ezStreamReaderBase
+class EZ_FOUNDATION_DLL ezMemoryStreamReader : public ezStreamReader
 {
 public:
   /// \brief Pass the memory storage object from which to read from.
@@ -84,7 +84,7 @@ private:
 /// \brief A writer which can access a memory stream
 ///
 /// Please note that the functions exposed by this object are not thread safe!
-class EZ_FOUNDATION_DLL ezMemoryStreamWriter : public ezStreamWriterBase
+class EZ_FOUNDATION_DLL ezMemoryStreamWriter : public ezStreamWriter
 {
 public:
   /// \brief Pass the memory storage object to which to write to.

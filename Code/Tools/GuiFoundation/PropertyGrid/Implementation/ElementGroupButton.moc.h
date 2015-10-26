@@ -15,11 +15,11 @@ public:
     DeleteElement,
   };
 
-  explicit ezElementGroupButton(QWidget* pParent, ElementAction action, ezPropertyBaseWidget* pGroupWidget);
+  explicit ezElementGroupButton(QWidget* pParent, ElementAction action, ezQtPropertyWidget* pGroupWidget);
   ElementAction GetAction() const { return m_Action; }
-  ezPropertyBaseWidget* GetGroupWidget() const { return m_pGroupWidget; }
+  ezQtPropertyWidget* GetGroupWidget() const { return m_pGroupWidget; }
 
 private:
   ElementAction m_Action;
-  ezPropertyBaseWidget* m_pGroupWidget;
+  ezQtPropertyWidget* m_pGroupWidget;
 };

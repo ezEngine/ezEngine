@@ -38,7 +38,7 @@ void ezConstantBufferResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage
   out_NewMemoryUsage.m_uiMemoryGPU = m_Bytes.GetCount();
 }
 
-ezResourceLoadDesc ezConstantBufferResource::UpdateContent(ezStreamReaderBase* Stream)
+ezResourceLoadDesc ezConstantBufferResource::UpdateContent(ezStreamReader* Stream)
 {
   EZ_REPORT_FAILURE("This resource type does not support loading data from file.");
 

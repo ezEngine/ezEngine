@@ -9,9 +9,8 @@
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
 #include <Foundation/Communication/Event.h>
 
-class ezDocumentBase;
-class ezDocumentManagerBase;
-class ezCommandHistoryBase;
+class ezDocument;
+class ezDocumentManager;
 class ezDocumentObjectManager;
 class ezAbstractObjectGraph;
 
@@ -33,13 +32,13 @@ public:
   ezUuid m_DocumentID;
 };
 
-class EZ_TOOLSFOUNDATION_DLL ezDocumentBase : public ezReflectedClass
+class EZ_TOOLSFOUNDATION_DLL ezDocument : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezDocument);
 
 public:
-  ezDocumentBase(const char* szPath, ezDocumentObjectManager* pDocumentObjectManagerImpl);
-  virtual ~ezDocumentBase();
+  ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObjectManagerImpl);
+  virtual ~ezDocument();
 
   bool IsModified() const { return m_bModified; }
   bool IsReadOnly() const { return m_bReadOnly; }
@@ -61,7 +60,7 @@ public:
 
   void BroadcastSaveDocumentMetaState();
 
-  ezDocumentManagerBase* GetDocumentManager() const { return m_pDocumentManager; }
+  ezDocumentManager* GetDocumentManager() const { return m_pDocumentManager; }
 
   bool HasWindowBeenRequested() const { return m_bWindowRequested; }
 
@@ -71,8 +70,8 @@ public:
   {
     EZ_DECLARE_POD_TYPE();
 
-    ezDocumentObjectBase* m_pObject;
-    ezDocumentObjectBase* m_pParent;
+    ezDocumentObject* m_pObject;
+    ezDocumentObject* m_pParent;
   };
 
   virtual bool Copy(ezAbstractObjectGraph& out_objectGraph) { return false; };
@@ -92,7 +91,7 @@ public:
     };
 
     Type m_Type;
-    const ezDocumentBase* m_pDocument;
+    const ezDocument* m_pDocument;
   };
   
   ezEvent<const Event&> m_EventsOne;
@@ -114,13 +113,13 @@ protected:
   ezDocumentTypeDescriptor m_TypeDescriptor;
 
 private:
-  friend class ezDocumentManagerBase;
+  friend class ezDocumentManager;
   friend class ezCommandHistory;
 
   void SetupDocumentInfo(const ezDocumentTypeDescriptor& TypeDescriptor);
 
   ezDocumentObjectManager* m_pObjectTree;
-  ezDocumentManagerBase* m_pDocumentManager;
+  ezDocumentManager* m_pDocumentManager;
   ezDocumentObjectManager* m_pObjectManager;
 
   ezString m_sDocumentPath;

@@ -2,7 +2,7 @@
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
-ezModifiedDocumentsDlg::ezModifiedDocumentsDlg(QWidget* parent, const ezHybridArray<ezDocumentBase*, 32>& ModifiedDocs) : QDialog(parent)
+ezModifiedDocumentsDlg::ezModifiedDocumentsDlg(QWidget* parent, const ezHybridArray<ezDocument*, 32>& ModifiedDocs) : QDialog(parent)
 {
   m_ModifiedDocs = ModifiedDocs;
 
@@ -29,7 +29,7 @@ ezModifiedDocumentsDlg::ezModifiedDocumentsDlg(QWidget* parent, const ezHybridAr
   ezInt32 iTrimStart = sPath.GetCharacterCount();
 
   ezInt32 iRow = 0;
-  for (ezDocumentBase* pDoc : m_ModifiedDocs)
+  for (ezDocument* pDoc : m_ModifiedDocs)
   {
     ezStringBuilder sText = pDoc->GetDocumentPath();
     sText.Shrink(iTrimStart, 0);
@@ -59,7 +59,7 @@ ezModifiedDocumentsDlg::ezModifiedDocumentsDlg(QWidget* parent, const ezHybridAr
   TableDocuments->blockSignals(false);
 }
 
-ezResult ezModifiedDocumentsDlg::SaveDocument(ezDocumentBase* pDoc)
+ezResult ezModifiedDocumentsDlg::SaveDocument(ezDocument* pDoc)
 {
   if (pDoc->SaveDocument().m_Result.Failed())
   {
@@ -78,7 +78,7 @@ void ezModifiedDocumentsDlg::SlotSaveDocument()
   if (!pButtonSave)
     return;
 
-  ezDocumentBase* pDoc = (ezDocumentBase*) pButtonSave->property("document").value<void*>();
+  ezDocument* pDoc = (ezDocument*) pButtonSave->property("document").value<void*>();
 
   SaveDocument(pDoc);
 
@@ -92,14 +92,14 @@ void ezModifiedDocumentsDlg::SlotSelectionChanged(int currentRow, int currentCol
   if (!pButtonSave)
     return;
 
-  ezDocumentBase* pDoc = (ezDocumentBase*) pButtonSave->property("document").value<void*>();
+  ezDocument* pDoc = (ezDocument*) pButtonSave->property("document").value<void*>();
 
   pDoc->EnsureVisible();
 }
 
 void ezModifiedDocumentsDlg::on_ButtonSaveSelected_clicked()
 {
-  for (ezDocumentBase* pDoc : m_ModifiedDocs)
+  for (ezDocument* pDoc : m_ModifiedDocs)
   {
     if (SaveDocument(pDoc).Failed())
       return;

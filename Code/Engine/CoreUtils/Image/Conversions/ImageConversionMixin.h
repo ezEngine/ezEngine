@@ -5,7 +5,7 @@
 
 /// \brief A template mixin useful as a base for custom image conversion routines.
 template<typename Impl>
-struct ezImageConversionMixinBase : public ezImageConversionBase
+struct ezImageConversionMixinBase : public ezImageConversion
 {
   /// \brief Converts an image by iterating over all sub-images and calling the implementation.
   virtual ezResult DoConvert(const ezImage& source, ezImage& target, ezImageFormat::Enum targetFormat) const override

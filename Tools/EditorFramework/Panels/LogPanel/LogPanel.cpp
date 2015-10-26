@@ -3,9 +3,9 @@
 #include <QSettings>
 #include <CoreUtils/Localization/TranslationLookup.h>
 
-ezLogPanel* ezLogPanel::s_pInstance = nullptr;
+ezQtLogPanel* ezQtLogPanel::s_pInstance = nullptr;
 
-ezLogPanel::ezLogPanel() : ezApplicationPanel("PanelLog")
+ezQtLogPanel::ezQtLogPanel() : ezQtApplicationPanel("PanelLog")
 {
   EZ_ASSERT_DEV(s_pInstance == nullptr, "Log panel is not a singleton anymore");
 
@@ -16,8 +16,8 @@ ezLogPanel::ezLogPanel() : ezApplicationPanel("PanelLog")
   setWindowIcon(QIcon(QString::fromUtf8(":/GuiFoundation/Icons/Log.png")));
   setWindowTitle(QString::fromUtf8(ezTranslate("PanelLog")));
 
-  ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezLogPanel::LogWriter, this));
-  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezLogPanel::EngineProcessMsgHandler, this));
+  ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezQtLogPanel::LogWriter, this));
+  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezQtLogPanel::EngineProcessMsgHandler, this));
 
   ListViewEditorLog->setModel(&m_EditorLog);
   ListViewEngineLog->setModel(&m_EngineLog);
@@ -32,7 +32,7 @@ ezLogPanel::ezLogPanel() : ezApplicationPanel("PanelLog")
   Settings.endGroup();
 }
 
-ezLogPanel::~ezLogPanel()
+ezQtLogPanel::~ezQtLogPanel()
 {
   QSettings Settings;
   Settings.beginGroup(QLatin1String("LogPanel"));
@@ -43,11 +43,11 @@ ezLogPanel::~ezLogPanel()
 
   s_pInstance = nullptr;
 
-  ezGlobalLog::RemoveLogWriter(ezMakeDelegate(&ezLogPanel::LogWriter, this));
-  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezLogPanel::EngineProcessMsgHandler, this));
+  ezGlobalLog::RemoveLogWriter(ezMakeDelegate(&ezQtLogPanel::LogWriter, this));
+  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtLogPanel::EngineProcessMsgHandler, this));
 }
 
-void ezLogPanel::ToolsProjectEventHandler(const ezToolsProject::Event& e)
+void ezQtLogPanel::ToolsProjectEventHandler(const ezToolsProject::Event& e)
 {
   switch (e.m_Type)
   {
@@ -65,12 +65,12 @@ void ezLogPanel::ToolsProjectEventHandler(const ezToolsProject::Event& e)
     break;
   }
 
-  ezApplicationPanel::ToolsProjectEventHandler(e);
+  ezQtApplicationPanel::ToolsProjectEventHandler(e);
 }
 
-void ezLogPanel::LogWriter(const ezLoggingEventData& e)
+void ezQtLogPanel::LogWriter(const ezLoggingEventData& e)
 {
-  ezLogModel::LogMsg msg;
+  ezQtLogModel::LogMsg msg;
   msg.m_sMsg = e.m_szText;
   msg.m_sTag = e.m_szTag;
   msg.m_Type = e.m_EventType;
@@ -84,7 +84,7 @@ void ezLogPanel::LogWriter(const ezLoggingEventData& e)
   }
 }
 
-void ezLogPanel::ScrollToBottomIfAtEnd(QListView* pView, int iNumElements)
+void ezQtLogPanel::ScrollToBottomIfAtEnd(QListView* pView, int iNumElements)
 {
   if (pView->selectionModel()->hasSelection())
   {
@@ -98,7 +98,7 @@ void ezLogPanel::ScrollToBottomIfAtEnd(QListView* pView, int iNumElements)
     pView->scrollToBottom();
 }
 
-void ezLogPanel::EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e)
+void ezQtLogPanel::EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e)
 {
   switch (e.m_Type)
   {
@@ -108,7 +108,7 @@ void ezLogPanel::EngineProcessMsgHandler(const ezEditorEngineProcessConnection::
       {
         const ezLogMsgToEditor* pMsg = static_cast<const ezLogMsgToEditor*>(e.m_pMsg);
 
-        ezLogModel::LogMsg msg;
+        ezQtLogModel::LogMsg msg;
         msg.m_sMsg = pMsg->m_sText;
         msg.m_sTag = pMsg->m_sTag;
         msg.m_Type = (ezLogMsgType::Enum)pMsg->m_iMsgType;
@@ -129,22 +129,22 @@ void ezLogPanel::EngineProcessMsgHandler(const ezEditorEngineProcessConnection::
   }
 }
 
-void ezLogPanel::on_ButtonClearEditorLog_clicked()
+void ezQtLogPanel::on_ButtonClearEditorLog_clicked()
 {
   m_EditorLog.Clear();
 }
 
-void ezLogPanel::on_ButtonClearEngineLog_clicked()
+void ezQtLogPanel::on_ButtonClearEngineLog_clicked()
 {
   m_EngineLog.Clear();
 }
 
-void ezLogPanel::on_ButtonClearSearch_clicked()
+void ezQtLogPanel::on_ButtonClearSearch_clicked()
 {
   LineSearch->clear();
 }
 
-void ezLogPanel::on_LineSearch_textChanged(const QString& text)
+void ezQtLogPanel::on_LineSearch_textChanged(const QString& text)
 {
   ButtonClearSearch->setEnabled(!text.isEmpty());
 
@@ -152,7 +152,7 @@ void ezLogPanel::on_LineSearch_textChanged(const QString& text)
   m_EngineLog.SetSearchText(text.toUtf8().data());
 }
 
-void ezLogPanel::on_ComboFilter_currentIndexChanged(int index)
+void ezQtLogPanel::on_ComboFilter_currentIndexChanged(int index)
 {
   const ezLogMsgType::Enum LogLevel = (ezLogMsgType::Enum) (ezLogMsgType::All - index);
 
@@ -160,13 +160,13 @@ void ezLogPanel::on_ComboFilter_currentIndexChanged(int index)
   m_EngineLog.SetLogLevel(LogLevel);
 }
 
-ezLogModel::ezLogModel()
+ezQtLogModel::ezQtLogModel()
 {
   m_bIsValid = true;
   m_LogLevel = ezLogMsgType::All;
 }
 
-void ezLogModel::Invalidate()
+void ezQtLogModel::Invalidate()
 {
   if (!m_bIsValid)
     return;
@@ -175,7 +175,7 @@ void ezLogModel::Invalidate()
   dataChanged(QModelIndex(), QModelIndex());
 }
 
-void ezLogModel::Clear()
+void ezQtLogModel::Clear()
 {
   if (m_AllMessages.IsEmpty())
     return;
@@ -184,7 +184,7 @@ void ezLogModel::Clear()
   Invalidate();
 }
 
-void ezLogModel::SetLogLevel(ezLogMsgType::Enum LogLevel)
+void ezQtLogModel::SetLogLevel(ezLogMsgType::Enum LogLevel)
 {
   if (m_LogLevel == LogLevel)
     return;
@@ -193,7 +193,7 @@ void ezLogModel::SetLogLevel(ezLogMsgType::Enum LogLevel)
   Invalidate();
 }
 
-void ezLogModel::SetSearchText(const char* szText)
+void ezQtLogModel::SetSearchText(const char* szText)
 {
   if (m_sSearchText == szText)
     return;
@@ -202,7 +202,7 @@ void ezLogModel::SetSearchText(const char* szText)
   Invalidate();
 }
 
-bool ezLogModel::AddLogMsg(const LogMsg& msg)
+bool ezQtLogModel::AddLogMsg(const LogMsg& msg)
 {
   ezStringBuilder s;
 
@@ -235,7 +235,7 @@ bool ezLogModel::AddLogMsg(const LogMsg& msg)
   return true;
 }
 
-bool ezLogModel::IsFiltered(const LogMsg& lm) const
+bool ezQtLogModel::IsFiltered(const LogMsg& lm) const
 {
   if (lm.m_Type < ezLogMsgType::None)
     return false;
@@ -253,10 +253,10 @@ bool ezLogModel::IsFiltered(const LogMsg& lm) const
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ezLogModel QAbstractItemModel functions
+// ezQtLogModel QAbstractItemModel functions
 ////////////////////////////////////////////////////////////////////////
 
-QVariant ezLogModel::data(const QModelIndex& index, int role) const
+QVariant ezQtLogModel::data(const QModelIndex& index, int role) const
 {
   if (!index.isValid() || index.column() != 0)
     return QVariant();
@@ -298,7 +298,7 @@ QVariant ezLogModel::data(const QModelIndex& index, int role) const
   }
 }
 
-Qt::ItemFlags ezLogModel::flags(const QModelIndex& index) const
+Qt::ItemFlags ezQtLogModel::flags(const QModelIndex& index) const
 {
   if (!index.isValid())
     return 0;
@@ -306,12 +306,12 @@ Qt::ItemFlags ezLogModel::flags(const QModelIndex& index) const
   return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
-QVariant ezLogModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant ezQtLogModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
   return QVariant();
 }
 
-QModelIndex ezLogModel::index(int row, int column, const QModelIndex& parent) const
+QModelIndex ezQtLogModel::index(int row, int column, const QModelIndex& parent) const
 {
   if (parent.isValid() || column != 0)
     return QModelIndex();
@@ -319,12 +319,12 @@ QModelIndex ezLogModel::index(int row, int column, const QModelIndex& parent) co
   return createIndex(row, column, row);
 }
 
-QModelIndex ezLogModel::parent(const QModelIndex& index) const
+QModelIndex ezQtLogModel::parent(const QModelIndex& index) const
 {
   return QModelIndex();
 }
 
-int ezLogModel::rowCount(const QModelIndex& parent) const
+int ezQtLogModel::rowCount(const QModelIndex& parent) const
 {
   if (parent.isValid())
     return 0;
@@ -334,12 +334,12 @@ int ezLogModel::rowCount(const QModelIndex& parent) const
   return (int)m_VisibleMessages.GetCount();
 }
 
-int ezLogModel::columnCount(const QModelIndex& parent) const
+int ezQtLogModel::columnCount(const QModelIndex& parent) const
 {
   return 1;
 }
 
-void ezLogModel::UpdateVisibleEntries() const
+void ezQtLogModel::UpdateVisibleEntries() const
 {
   if (m_bIsValid)
     return;

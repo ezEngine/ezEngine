@@ -177,7 +177,7 @@ bool ezProcessCommunication::IsClientAlive() const
   return bRunning && bNoError;
 }
 
-void ezProcessCommunication::SendMessage(ezProcessMessage* pMessage, bool bSuperHighPriority)
+void ezProcessCommunication::SendMessage(ezProcessMessage* pMessage)
 {
   {
     EZ_LOCK(m_SendQueueMutex);
@@ -193,12 +193,6 @@ void ezProcessCommunication::SendMessage(ezProcessMessage* pMessage, bool bSuper
 
       ezReflectionSerializer::WriteObjectToBinary(writer, pMessage->GetDynamicRTTI(), pMessage);
     }
-  }
-
-  if (bSuperHighPriority)
-  {
-    EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function is not thread safe");
-    ProcessMessages(false);
   }
 }
 

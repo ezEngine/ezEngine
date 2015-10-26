@@ -4,14 +4,14 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <QKeyEvent>
 
-ezRawDocumentTreeWidget::ezRawDocumentTreeWidget(QWidget* pParent, ezDocumentBase* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty, std::unique_ptr<ezRawDocumentTreeModel> pCustomModel) :
+ezQtDocumentTreeWidget::ezQtDocumentTreeWidget(QWidget* pParent, ezDocument* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel) :
   QTreeView(pParent),
   m_pDocument(pDocument)
 {
   if (pCustomModel)
     m_pModel = std::move(pCustomModel);
   else
-    m_pModel.reset(new ezRawDocumentTreeModel(pDocument->GetObjectManager(), pBaseClass, szChildProperty));
+    m_pModel.reset(new ezQtDocumentTreeModel(pDocument->GetObjectManager(), pBaseClass, szChildProperty));
 
   m_bBlockSelectionSignal = false;
   setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
@@ -25,34 +25,34 @@ ezRawDocumentTreeWidget::ezRawDocumentTreeWidget(QWidget* pParent, ezDocumentBas
   setEditTriggers(QAbstractItemView::EditTrigger::EditKeyPressed);
 
   EZ_VERIFY(connect(selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(on_selectionChanged_triggered(const QItemSelection&, const QItemSelection&))) != nullptr, "signal/slot connection failed");
-  pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezRawDocumentTreeWidget::SelectionEventHandler, this));
+  pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtDocumentTreeWidget::SelectionEventHandler, this));
 }
 
-ezRawDocumentTreeWidget::~ezRawDocumentTreeWidget()
+ezQtDocumentTreeWidget::~ezQtDocumentTreeWidget()
 {
-  m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezRawDocumentTreeWidget::SelectionEventHandler, this));
+  m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentTreeWidget::SelectionEventHandler, this));
 }
 
-void ezRawDocumentTreeWidget::on_selectionChanged_triggered(const QItemSelection& selected, const QItemSelection& deselected)
+void ezQtDocumentTreeWidget::on_selectionChanged_triggered(const QItemSelection& selected, const QItemSelection& deselected)
 {
   if (m_bBlockSelectionSignal)
     return;
 
   QModelIndexList selection = selectionModel()->selectedIndexes();
 
-  ezDeque<const ezDocumentObjectBase*> sel;
+  ezDeque<const ezDocumentObject*> sel;
 
   foreach(QModelIndex index, selection)
   {
     if (index.isValid())
-      sel.PushBack((const ezDocumentObjectBase*) index.internalPointer());
+      sel.PushBack((const ezDocumentObject*) index.internalPointer());
   }
 
   // TODO const cast
   ((ezSelectionManager*) m_pDocument->GetSelectionManager())->SetSelection(sel);
 }
 
-void ezRawDocumentTreeWidget::SelectionEventHandler(const ezSelectionManager::Event& e)
+void ezQtDocumentTreeWidget::SelectionEventHandler(const ezSelectionManager::Event& e)
 {
   switch (e.m_Type)
   {
@@ -72,7 +72,7 @@ void ezRawDocumentTreeWidget::SelectionEventHandler(const ezSelectionManager::Ev
       m_bBlockSelectionSignal = true;
       QItemSelection selection;
       
-      for (const ezDocumentObjectBase* pObject : m_pDocument->GetSelectionManager()->GetSelection())
+      for (const ezDocumentObject* pObject : m_pDocument->GetSelectionManager()->GetSelection())
       {
         auto index = m_pModel->ComputeModelIndex(pObject);
         selection.select(index, index);
@@ -84,18 +84,18 @@ void ezRawDocumentTreeWidget::SelectionEventHandler(const ezSelectionManager::Ev
   }
 }
 
-void ezRawDocumentTreeWidget::EnsureLastSelectedItemVisible()
+void ezQtDocumentTreeWidget::EnsureLastSelectedItemVisible()
 {
   if (m_pDocument->GetSelectionManager()->GetSelection().IsEmpty())
     return;
 
-  const ezDocumentObjectBase* pObject = m_pDocument->GetSelectionManager()->GetSelection().PeekBack();
+  const ezDocumentObject* pObject = m_pDocument->GetSelectionManager()->GetSelection().PeekBack();
 
   auto index = m_pModel->ComputeModelIndex(pObject);
   scrollTo(index, QAbstractItemView::EnsureVisible);
 }
 
-void ezRawDocumentTreeWidget::keyPressEvent(QKeyEvent* e)
+void ezQtDocumentTreeWidget::keyPressEvent(QKeyEvent* e)
 {
   if (e->key() == Qt::Key::Key_Delete)
   {

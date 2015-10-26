@@ -79,7 +79,7 @@ void ezApplicationPanelsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::It
 {
   out_Entries.Clear();
 
-  for (auto* pPanel : ezApplicationPanel::GetAllApplicationPanels())
+  for (auto* pPanel : ezQtApplicationPanel::GetAllApplicationPanels())
   {
     ezLRUMenuAction::Item item;
     item.m_sDisplay = pPanel->windowTitle().toUtf8().data();
@@ -97,7 +97,7 @@ void ezApplicationPanelsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::It
 
 void ezApplicationPanelsMenuAction::Execute(const ezVariant& value)
 {
-  ezApplicationPanel* pPanel = static_cast<ezApplicationPanel*>(value.ConvertTo<void*>());
+  ezQtApplicationPanel* pPanel = static_cast<ezQtApplicationPanel*>(value.ConvertTo<void*>());
 
   if (pPanel->isVisible())
     pPanel->close();

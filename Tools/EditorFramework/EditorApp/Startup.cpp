@@ -12,7 +12,7 @@
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 
 
-static ezPropertyBaseWidget* AssetBrowserCreator(const ezRTTI* pRtti)
+static ezQtPropertyWidget* AssetBrowserCreator(const ezRTTI* pRtti)
 {
   return new ezAssetBrowserPropertyWidget();
 }

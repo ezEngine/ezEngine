@@ -1,6 +1,5 @@
 #include <PCH.h>
 #include <EditorPluginScene/Objects/SceneObjectManager.h>
-#include <EditorPluginScene/Objects/TestObjects.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <Core/World/GameObject.h>
 
@@ -8,10 +7,10 @@ ezSceneObjectManager::ezSceneObjectManager() : ezDocumentObjectManager()
 {
 }
 
-ezDocumentObjectBase* ezSceneObjectManager::InternalCreateObject(const ezRTTI* pRtti)
+ezDocumentObject* ezSceneObjectManager::InternalCreateObject(const ezRTTI* pRtti)
 {
   static int iCount = 0;
-  ezDocumentObjectBase* pObj = EZ_DEFAULT_NEW(ezDocumentObject, pRtti);
+  ezDocumentObject* pObj = EZ_DEFAULT_NEW(ezDocumentStorageObject, pRtti);
 
   ezStringBuilder sName;
   sName.Format("%s %03d", pRtti->GetTypeName(), iCount);
@@ -20,7 +19,7 @@ ezDocumentObjectBase* ezSceneObjectManager::InternalCreateObject(const ezRTTI* p
   return pObj;
 }
 
-void ezSceneObjectManager::InternalDestroyObject(ezDocumentObjectBase* pObject)
+void ezSceneObjectManager::InternalDestroyObject(ezDocumentObject* pObject)
 {
   EZ_DEFAULT_DELETE(pObject);
 }
@@ -38,7 +37,7 @@ void ezSceneObjectManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& 
   }
 }
 
-bool ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent, const char* szParentProperty, const ezVariant& index) const
+bool ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const
 {
   const ezRTTI* pGameObjectType = ezRTTI::FindTypeByName(ezGetStaticRTTI<ezGameObject>()->GetTypeName());
   // TODO: BLA
@@ -52,12 +51,12 @@ bool ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentO
   return true;
 }
 
-bool ezSceneObjectManager::InternalCanRemove(const ezDocumentObjectBase* pObject) const
+bool ezSceneObjectManager::InternalCanRemove(const ezDocumentObject* pObject) const
 {
   return true;
 }
 
-bool ezSceneObjectManager::InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, const char* szParentProperty, const ezVariant& index) const
+bool ezSceneObjectManager::InternalCanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const
 {
   return true;
 }

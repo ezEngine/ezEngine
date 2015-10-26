@@ -11,7 +11,7 @@ DataDirsDlg::DataDirsDlg(QWidget* parent) : QDialog(parent)
 {
   setupUi(this);
 
-  m_Config = ezEditorApp::GetInstance()->GetFileSystemConfig();
+  m_Config = ezQtEditorApp::GetInstance()->GetFileSystemConfig();
   m_iSelection = -1;
   FillList();
 }
@@ -61,7 +61,7 @@ void DataDirsDlg::on_ButtonOK_clicked()
     return;
   }
 
-  ezEditorApp::GetInstance()->SetFileSystemConfig(m_Config);
+  ezQtEditorApp::GetInstance()->SetFileSystemConfig(m_Config);
   accept();
 }
 

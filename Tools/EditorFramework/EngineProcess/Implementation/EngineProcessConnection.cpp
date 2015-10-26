@@ -28,7 +28,7 @@ ezEditorEngineProcessConnection::~ezEditorEngineProcessConnection()
   s_pInstance = nullptr;
 }
 
-void ezEditorEngineProcessConnection::SendDocumentOpenMessage(const ezDocumentBase* pDocument, bool bOpen)
+void ezEditorEngineProcessConnection::SendDocumentOpenMessage(const ezDocument* pDocument, bool bOpen)
 {
   ezDocumentOpenMsgToEngine m;
   m.m_DocumentGuid = pDocument->GetGuid();
@@ -45,7 +45,7 @@ void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicatio
     const ezEditorEngineDocumentMsg* pMsg = static_cast<const ezEditorEngineDocumentMsg*>(e.m_pMessage);
 
     //EZ_ASSERT_DEBUG(m_DocumentWindow3DByGuid.Contains(pMsg->m_DocumentGuid), "The doument '%u' is not known!", pMsg->m_uiViewID);
-    ezDocumentWindow3D* pWindow = m_DocumentWindow3DByGuid[pMsg->m_DocumentGuid];
+    ezQtEngineDocumentWindow* pWindow = m_DocumentWindow3DByGuid[pMsg->m_DocumentGuid];
 
     if (pWindow)
     {
@@ -62,7 +62,7 @@ void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicatio
   }
 }
 
-ezEditorEngineConnection* ezEditorEngineProcessConnection::CreateEngineConnection(ezDocumentWindow3D* pWindow)
+ezEditorEngineConnection* ezEditorEngineProcessConnection::CreateEngineConnection(ezQtEngineDocumentWindow* pWindow)
 {
   ezEditorEngineConnection* pConnection = new ezEditorEngineConnection(pWindow->GetDocument());
 
@@ -73,7 +73,7 @@ ezEditorEngineConnection* ezEditorEngineProcessConnection::CreateEngineConnectio
   return pConnection;
 }
 
-void ezEditorEngineProcessConnection::DestroyEngineConnection(ezDocumentWindow3D* pWindow)
+void ezEditorEngineProcessConnection::DestroyEngineConnection(ezQtEngineDocumentWindow* pWindow)
 {
   SendDocumentOpenMessage(pWindow->GetDocument(), false);
 
@@ -117,9 +117,9 @@ void ezEditorEngineProcessConnection::ShutdownProcess()
   s_Events.Broadcast(e);
 }
 
-void ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage, bool bSuperHighPriority)
+void ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
 {
-  m_IPC.SendMessage(pMessage, bSuperHighPriority);
+  m_IPC.SendMessage(pMessage);
 }
 
 ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout)
@@ -177,11 +177,11 @@ void ezEditorEngineProcessConnection::Update()
   m_IPC.ProcessMessages();
 }
 
-void ezEditorEngineConnection::SendMessage(ezEditorEngineDocumentMsg* pMessage, bool bSuperHighPriority)
+void ezEditorEngineConnection::SendMessage(ezEditorEngineDocumentMsg* pMessage)
 {
   pMessage->m_DocumentGuid = m_pDocument->GetGuid();
 
-  ezEditorEngineProcessConnection::GetInstance()->SendMessage(pMessage, bSuperHighPriority);
+  ezEditorEngineProcessConnection::GetInstance()->SendMessage(pMessage);
 }
 
 void ezEditorEngineConnection::SendObjectProperties(const ezDocumentObjectPropertyEvent& e)
@@ -284,7 +284,7 @@ void ezEditorEngineConnection::SendDocument()
   }
 }
 
-void ezEditorEngineConnection::SendObject(const ezDocumentObjectBase* pObject)
+void ezEditorEngineConnection::SendObject(const ezDocumentObject* pObject)
 {
   // TODO: BLA
   ezDocumentObjectStructureEvent msg;

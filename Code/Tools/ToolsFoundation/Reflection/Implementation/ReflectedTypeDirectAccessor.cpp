@@ -9,14 +9,14 @@
 // ezReflectedTypeDirectAccessor public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezReflectedTypeDirectAccessor::ezReflectedTypeDirectAccessor(void* pInstance, const ezRTTI* pRtti, ezDocumentObjectBase* pOwner)
+ezReflectedTypeDirectAccessor::ezReflectedTypeDirectAccessor(void* pInstance, const ezRTTI* pRtti, ezDocumentObject* pOwner)
   : ezIReflectedTypeAccessor(pRtti, pOwner),
   m_pRtti(pRtti), m_pInstance(pInstance)
 {
 
 }
 
-ezReflectedTypeDirectAccessor::ezReflectedTypeDirectAccessor(ezReflectedClass* pInstance, ezDocumentObjectBase* pOwner)
+ezReflectedTypeDirectAccessor::ezReflectedTypeDirectAccessor(ezReflectedClass* pInstance, ezDocumentObject* pOwner)
   : ezIReflectedTypeAccessor(pInstance->GetDynamicRTTI(), pOwner),
   m_pRtti(pInstance->GetDynamicRTTI()), m_pInstance(pInstance)
 {

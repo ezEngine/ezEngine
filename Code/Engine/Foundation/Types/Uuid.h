@@ -3,8 +3,8 @@
 
 #include <Foundation/Algorithm/Hashing.h>
 
-class ezStreamReaderBase;
-class ezStreamWriterBase;
+class ezStreamReader;
+class ezStreamWriter;
 
 /// \brief This data type is the abstraction for 128-bit Uuid (also known as GUID) instances.
 class EZ_FOUNDATION_DLL ezUuid
@@ -48,8 +48,8 @@ public:
 
 private:
 
-  friend EZ_FOUNDATION_DLL void operator>> (ezStreamReaderBase& Stream, ezUuid& Value);
-  friend EZ_FOUNDATION_DLL void operator<< (ezStreamWriterBase& Stream, const ezUuid& Value);
+  friend EZ_FOUNDATION_DLL void operator>> (ezStreamReader& Stream, ezUuid& Value);
+  friend EZ_FOUNDATION_DLL void operator<< (ezStreamWriter& Stream, const ezUuid& Value);
 
   ezUInt64 m_uiHigh;
   ezUInt64 m_uiLow;

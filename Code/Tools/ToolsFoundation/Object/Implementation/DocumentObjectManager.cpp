@@ -14,14 +14,14 @@ EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 
-void ezDocumentObjectRoot::InsertSubObject(ezDocumentObjectBase* pObject, const char* szProperty, const ezVariant& index)
+void ezDocumentRootObject::InsertSubObject(ezDocumentObject* pObject, const char* szProperty, const ezVariant& index)
 {
-  return ezDocumentObjectBase::InsertSubObject(pObject, "RootObjects", index);
+  return ezDocumentObject::InsertSubObject(pObject, "RootObjects", index);
 }
 
-void ezDocumentObjectRoot::RemoveSubObject(ezDocumentObjectBase* pObject)
+void ezDocumentRootObject::RemoveSubObject(ezDocumentObject* pObject)
 {
-  return ezDocumentObjectBase::RemoveSubObject(pObject);
+  return ezDocumentObject::RemoveSubObject(pObject);
 }
 
 
@@ -42,9 +42,9 @@ ezDocumentObjectManager::~ezDocumentObjectManager()
 // ezDocumentObjectManager Object Construction / Destruction
 ////////////////////////////////////////////////////////////////////////
 
-ezDocumentObjectBase* ezDocumentObjectManager::CreateObject(const ezRTTI* pRtti, ezUuid guid)
+ezDocumentObject* ezDocumentObjectManager::CreateObject(const ezRTTI* pRtti, ezUuid guid)
 {
-  ezDocumentObjectBase* pObject = InternalCreateObject(pRtti);
+  ezDocumentObject* pObject = InternalCreateObject(pRtti);
   pObject->m_pDocumentObjectManager = this;
 
   if (guid.IsValid())
@@ -55,9 +55,9 @@ ezDocumentObjectBase* ezDocumentObjectManager::CreateObject(const ezRTTI* pRtti,
   return pObject;
 }
 
-void ezDocumentObjectManager::DestroyObject(ezDocumentObjectBase* pObject)
+void ezDocumentObjectManager::DestroyObject(ezDocumentObject* pObject)
 {
-  for (ezDocumentObjectBase* pChild : pObject->m_Children)
+  for (ezDocumentObject* pChild : pObject->m_Children)
   {
     DestroyObject(pChild);
   }
@@ -80,7 +80,7 @@ void ezDocumentObjectManager::DestroyAllObjects()
 // ezDocumentObjectManager Structure Change
 ////////////////////////////////////////////////////////////////////////
 
-void ezDocumentObjectManager::AddObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pParent, const char* szParentProperty, ezVariant index)
+void ezDocumentObjectManager::AddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index)
 {
   if (pParent == nullptr)
     pParent = &m_RootObject;
@@ -112,7 +112,7 @@ void ezDocumentObjectManager::AddObject(ezDocumentObjectBase* pObject, ezDocumen
   m_StructureEvents.Broadcast(e);
 }
 
-void ezDocumentObjectManager::RemoveObject(ezDocumentObjectBase* pObject)
+void ezDocumentObjectManager::RemoveObject(ezDocumentObject* pObject)
 {
   EZ_ASSERT_DEV(CanRemove(pObject), "Trying to execute invalid remove!");
   ezPropertyPath path(pObject->m_sParentProperty);
@@ -136,7 +136,7 @@ void ezDocumentObjectManager::RemoveObject(ezDocumentObjectBase* pObject)
   m_StructureEvents.Broadcast(e);
 }
 
-void ezDocumentObjectManager::MoveObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pNewParent, const char* szParentProperty, ezVariant index)
+void ezDocumentObjectManager::MoveObject(ezDocumentObject* pObject, ezDocumentObject* pNewParent, const char* szParentProperty, ezVariant index)
 {
   EZ_ASSERT_DEV(CanMove(pObject, pNewParent, szParentProperty, index), "Trying to execute invalid move!");
 
@@ -192,9 +192,9 @@ void ezDocumentObjectManager::MoveObject(ezDocumentObjectBase* pObject, ezDocume
   m_StructureEvents.Broadcast(e);
 }
 
-const ezDocumentObjectBase* ezDocumentObjectManager::GetObject(const ezUuid& guid) const
+const ezDocumentObject* ezDocumentObjectManager::GetObject(const ezUuid& guid) const
 {
-  const ezDocumentObjectBase* pObject = nullptr;
+  const ezDocumentObject* pObject = nullptr;
   if (m_GuidToObject.TryGetValue(guid, pObject))
   {
     return pObject;
@@ -203,9 +203,9 @@ const ezDocumentObjectBase* ezDocumentObjectManager::GetObject(const ezUuid& gui
   return nullptr;
 }
 
-ezDocumentObjectBase* ezDocumentObjectManager::GetObject(const ezUuid& guid)
+ezDocumentObject* ezDocumentObjectManager::GetObject(const ezUuid& guid)
 {
-  return const_cast<ezDocumentObjectBase*>(((const ezDocumentObjectManager*)this)->GetObject(guid));
+  return const_cast<ezDocumentObject*>(((const ezDocumentObjectManager*)this)->GetObject(guid));
 }
 
 
@@ -213,7 +213,7 @@ ezDocumentObjectBase* ezDocumentObjectManager::GetObject(const ezUuid& guid)
 // ezDocumentObjectManager Structure Change Test
 ////////////////////////////////////////////////////////////////////////
 
-bool ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent, const char* szParentProperty, const ezVariant& index) const
+bool ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const
 {
   // Test whether parent exists in tree.
   if (pParent == GetRootObject())
@@ -221,7 +221,7 @@ bool ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentObject
 
   if (pParent != nullptr)
   {
-    const ezDocumentObjectBase* pObjectInTree = GetObject(pParent->GetGuid());
+    const ezDocumentObject* pObjectInTree = GetObject(pParent->GetGuid());
     EZ_ASSERT_DEV(pObjectInTree == pParent, "Tree Corruption!!!");
     if (pObjectInTree == nullptr)
       return false;
@@ -275,9 +275,9 @@ bool ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentObject
   return InternalCanAdd(pRtti, pParent, szParentProperty, index);
 }
 
-bool ezDocumentObjectManager::CanRemove(const ezDocumentObjectBase* pObject) const
+bool ezDocumentObjectManager::CanRemove(const ezDocumentObject* pObject) const
 {
-  const ezDocumentObjectBase* pObjectInTree = GetObject(pObject->GetGuid());
+  const ezDocumentObject* pObjectInTree = GetObject(pObject->GetGuid());
 
   if (pObjectInTree == nullptr)
     return false;
@@ -287,7 +287,7 @@ bool ezDocumentObjectManager::CanRemove(const ezDocumentObjectBase* pObject) con
   return InternalCanRemove(pObject);
 }
 
-bool ezDocumentObjectManager::CanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, const char* szParentProperty, const ezVariant& index) const
+bool ezDocumentObjectManager::CanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const
 {
   if (!CanAdd(pObject->GetTypeAccessor().GetType(), pNewParent, szParentProperty, index))
     return false;
@@ -301,7 +301,7 @@ bool ezDocumentObjectManager::CanMove(const ezDocumentObjectBase* pObject, const
   if (pObject == pNewParent)
     return false;
 
-  const ezDocumentObjectBase* pObjectInTree = GetObject(pObject->GetGuid());
+  const ezDocumentObject* pObjectInTree = GetObject(pObject->GetGuid());
 
   if (pObjectInTree == nullptr)
     return false;
@@ -310,7 +310,7 @@ bool ezDocumentObjectManager::CanMove(const ezDocumentObjectBase* pObject, const
 
   if (pNewParent != GetRootObject())
   {
-    const ezDocumentObjectBase* pNewParentInTree = GetObject(pNewParent->GetGuid());
+    const ezDocumentObject* pNewParentInTree = GetObject(pNewParent->GetGuid());
 
     if (pNewParentInTree == nullptr)
       return false;
@@ -318,7 +318,7 @@ bool ezDocumentObjectManager::CanMove(const ezDocumentObjectBase* pObject, const
     EZ_ASSERT_DEV(pNewParentInTree == pNewParent, "Tree Corruption!!!");
   }
 
-  const ezDocumentObjectBase* pCurParent = pNewParent->GetParent();
+  const ezDocumentObject* pCurParent = pNewParent->GetParent();
 
   while (pCurParent)
   {
@@ -360,7 +360,7 @@ bool ezDocumentObjectManager::CanMove(const ezDocumentObjectBase* pObject, const
 // ezDocumentObjectManager Private Functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezDocumentObjectManager::RecursiveAddGuids(ezDocumentObjectBase* pObject)
+void ezDocumentObjectManager::RecursiveAddGuids(ezDocumentObject* pObject)
 {
   m_GuidToObject[pObject->m_Guid] = pObject;
 
@@ -368,7 +368,7 @@ void ezDocumentObjectManager::RecursiveAddGuids(ezDocumentObjectBase* pObject)
     RecursiveAddGuids(pObject->GetChildren()[c]);
 }
 
-void ezDocumentObjectManager::RecursiveRemoveGuids(ezDocumentObjectBase* pObject)
+void ezDocumentObjectManager::RecursiveRemoveGuids(ezDocumentObject* pObject)
 {
   m_GuidToObject.Remove(pObject->m_Guid);
 

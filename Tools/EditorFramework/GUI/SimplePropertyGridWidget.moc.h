@@ -10,7 +10,7 @@
 
 class QScrollArea;
 
-class EZ_EDITORFRAMEWORK_DLL ezSimplePropertyGridWidget : public QWidget
+class EZ_EDITORFRAMEWORK_DLL ezQtSimplePropertyGridWidget : public QWidget
 {
   Q_OBJECT
 
@@ -24,8 +24,8 @@ public:
     bool m_bReadOnly;
   };
 
-  ezSimplePropertyGridWidget(QWidget* pParent);
-  ~ezSimplePropertyGridWidget();
+  ezQtSimplePropertyGridWidget(QWidget* pParent);
+  ~ezQtSimplePropertyGridWidget();
 
   void BeginProperties();
   void EndProperties();

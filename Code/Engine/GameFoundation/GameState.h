@@ -6,13 +6,13 @@
 
 class ezGameApplication;
 
-class EZ_GAMEFOUNDATION_DLL ezGameStateBase : public ezReflectedClass
+class EZ_GAMEFOUNDATION_DLL ezGameState : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGameStateBase)
+  EZ_ADD_DYNAMIC_REFLECTION(ezGameState)
 
 public:
-  ezGameStateBase() : m_pApplication(nullptr) { }
-  virtual ~ezGameStateBase() { }
+  ezGameState() : m_pApplication(nullptr) { }
+  virtual ~ezGameState() { }
 
   virtual void Activate() { }
   virtual void Deactivate() { }

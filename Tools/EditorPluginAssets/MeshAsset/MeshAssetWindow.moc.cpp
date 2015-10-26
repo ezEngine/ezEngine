@@ -10,7 +10,7 @@
 #include <QLayout>
 #include <CoreUtils/Image/ImageConversion.h>
 
-ezMeshAssetDocumentWindow::ezMeshAssetDocumentWindow(ezDocumentBase* pDocument) : ezDocumentWindow(pDocument)
+ezMeshAssetDocumentWindow::ezMeshAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {
   GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezMeshAssetDocumentWindow::PropertyEventHandler, this));
 

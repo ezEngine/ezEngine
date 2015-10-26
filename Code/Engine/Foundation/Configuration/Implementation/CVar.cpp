@@ -219,7 +219,7 @@ void ezCVar::SaveCVars()
 
 }
 
-static ezResult ReadLine(ezStreamReaderBase& Stream, ezStringBuilder& sLine)
+static ezResult ReadLine(ezStreamReader& Stream, ezStringBuilder& sLine)
 {
   sLine.Clear();
 

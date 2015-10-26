@@ -4,7 +4,7 @@
 #include <Foundation/IO/FileSystem/Implementation/FileReaderWriterBase.h>
 #include <Foundation/Containers/DynamicArray.h>
 
-/// \brief The default class to use to write data to a file, implements the ezStreamWriterBase interface.
+/// \brief The default class to use to write data to a file, implements the ezStreamWriter interface.
 ///
 /// This file writer buffers writes up to a certain amount of bytes (configurable).
 /// It closes the file automatically once it goes out of scope.

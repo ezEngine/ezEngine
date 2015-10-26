@@ -9,7 +9,7 @@
 /// You can search for a path to a specific location using FindPath() or to the closest node that fulfills some arbitrary criteria
 /// using FindClosest().
 ///
-/// PathStateType must be derived from ezPathStateBase and can be used for keeping track of certain state along a path and to modify
+/// PathStateType must be derived from ezPathState and can be used for keeping track of certain state along a path and to modify
 /// the path search dynamically.
 template<typename PathStateType>
 class ezPathSearch

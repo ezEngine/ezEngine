@@ -54,9 +54,9 @@ private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezReloadableVariableBase);
 
   /// \brief Overridden by 'ezReloadableVariableWrapper' to implement type specific serialization.
-  virtual void SaveState(ezStreamWriterBase& Stream) = 0;
+  virtual void SaveState(ezStreamWriter& Stream) = 0;
   /// \brief Overridden by 'ezReloadableVariableWrapper' to implement type specific serialization.
-  virtual void LoadState(ezStreamReaderBase& Stream) = 0;
+  virtual void LoadState(ezStreamReader& Stream) = 0;
 
   /// \brief This map stores the last state of all known reloadable variables, to allow reading it back again on demand.
   static ezMap<ezString, ezMemoryStreamStorage> s_StoredVariables;
@@ -72,8 +72,8 @@ public:
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezReloadableVariableWrapper);
 
-  virtual void SaveState(ezStreamWriterBase& Stream) override;
-  virtual void LoadState(ezStreamReaderBase& Stream) override;
+  virtual void SaveState(ezStreamWriter& Stream) override;
+  virtual void LoadState(ezStreamReader& Stream) override;
 
   Type& m_Variable;
 };

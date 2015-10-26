@@ -136,10 +136,10 @@ public:
   ezTime GetMaximumTimeStep() const; // [tested]
 
   /// \brief Serializes the current clock state to a stream.
-  void Save(ezStreamWriterBase& Stream) const;
+  void Save(ezStreamWriter& Stream) const;
 
   /// \brief Deserializes the current clock state from a stream.
-  void Load(ezStreamReaderBase& Stream);
+  void Load(ezStreamReader& Stream);
 
   /// \brief Sets the name of the clock. Useful to identify the clock in tools such as ezInspector.
   void SetClockName(const char* szName);

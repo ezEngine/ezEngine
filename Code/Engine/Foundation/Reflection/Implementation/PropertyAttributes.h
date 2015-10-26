@@ -42,8 +42,8 @@ private:
 ///
 /// Using this attribute affects both member properties as well as elements in a container but not the container widget.
 /// When creating a property widget, the property grid will look for an attribute of this type and use
-/// its type to look for a factory creator in ezRttiMappedObjectFactory<ezPropertyBaseWidget>.
-/// E.g. ezRttiMappedObjectFactory<ezPropertyBaseWidget>::RegisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>(), FileBrowserCreator);
+/// its type to look for a factory creator in ezRttiMappedObjectFactory<ezQtPropertyWidget>.
+/// E.g. ezRttiMappedObjectFactory<ezQtPropertyWidget>::RegisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>(), FileBrowserCreator);
 /// will replace the property widget for all properties that use ezFileBrowserAttribute.
 class EZ_FOUNDATION_DLL ezTypeWidgetAttribute : public ezPropertyAttribute
 {

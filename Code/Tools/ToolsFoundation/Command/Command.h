@@ -4,8 +4,7 @@
 #include <ToolsFoundation/Basics/Status.h>
 #include <Foundation/Reflection/Reflection.h>
 
-class ezDocumentBase;
-class ezDocumentTypeBase;
+class ezDocument;
 class ezCommandTransaction;
 class ezJSONWriter;
 class ezJSONReader;
@@ -14,12 +13,12 @@ class ezJSONReader;
 ///
 /// Commands are the only objects that have non-const access to any data structures (contexts, documents etc.).
 /// Thus, any modification must go through a command and the ezCommandHistory is the only class capable of executing commands.
-class EZ_TOOLSFOUNDATION_DLL ezCommandBase : public ezReflectedClass
+class EZ_TOOLSFOUNDATION_DLL ezCommand : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCommandBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezCommand);
 
 public:
-  ezCommandBase();
+  ezCommand();
 
   bool IsUndoable() const { return m_bUndoable; };
 
@@ -32,7 +31,7 @@ private:
   virtual void Cleanup(CommandState state) = 0;
 
 protected:
-  ezDocumentBase* GetDocument() { return m_pDocument; };
+  ezDocument* GetDocument() { return m_pDocument; };
 
 protected:
   friend class ezCommandHistory;
@@ -42,5 +41,5 @@ protected:
   bool m_bUndoable; // TODO
 
 private:
-  ezDocumentBase* m_pDocument;
+  ezDocument* m_pDocument;
 };

@@ -262,7 +262,7 @@ void ezQtButtonProxy::SetAction(ezAction* pAction)
     case ezActionScope::Document:
       {
         // Parent is set to the window belonging to the document.
-        ezDocumentWindow* pWindow = ezDocumentWindow::FindWindowByDocument(pAction->GetContext().m_pDocument);
+        ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(pAction->GetContext().m_pDocument);
         EZ_ASSERT_DEBUG(pWindow != nullptr, "You can't map a ezActionScope::Document action without that document existing!");
         m_pQtAction->setParent(pWindow);
         m_pQtAction->setShortcutContext(Qt::ShortcutContext::WindowShortcut);

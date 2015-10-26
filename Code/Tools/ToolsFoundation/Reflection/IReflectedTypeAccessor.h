@@ -3,7 +3,7 @@
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
-class ezDocumentObjectBase;
+class ezDocumentObject;
 
 /// \brief Provides access to the properties of an ezRTTI compatible data storage.
 class EZ_TOOLSFOUNDATION_DLL ezIReflectedTypeAccessor
@@ -14,7 +14,7 @@ public:
   /// It is a valid implementation to pass an invalid handle. Note that in this case there is no way to determine
   /// what is actually stored inside. However, it can be useful to use e.g. the ezReflectedTypeDirectAccessor
   /// to set properties on the engine runtime side without having the ezPhantomRttiManager initialized.
-  ezIReflectedTypeAccessor(const ezRTTI* pRtti, ezDocumentObjectBase* pOwner) : m_pRtti(pRtti), m_pOwner(pOwner) {} // [tested]
+  ezIReflectedTypeAccessor(const ezRTTI* pRtti, ezDocumentObject* pOwner) : m_pRtti(pRtti), m_pOwner(pOwner) {} // [tested]
 
   /// \brief Returns the ezRTTI* of the wrapped instance type.
   const ezRTTI* GetType() const { return m_pRtti; } // [tested]
@@ -34,13 +34,13 @@ public:
 
   virtual ezVariant GetPropertyChildIndex(const ezPropertyPath& path, const ezVariant& value) const = 0;
 
-  const ezDocumentObjectBase* GetOwner() const { return m_pOwner; }
+  const ezDocumentObject* GetOwner() const { return m_pOwner; }
 
 private:
   friend class ezDocumentObjectManager;
-  friend class ezDocumentObjectBase;
+  friend class ezDocumentObject;
 
   const ezRTTI* m_pRtti;
-  ezDocumentObjectBase* m_pOwner;
+  ezDocumentObject* m_pOwner;
 };
 

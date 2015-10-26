@@ -6,7 +6,7 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDuplicateObjectsCommand, ezCommandBase, 1, ezRTTIDefaultAllocator<ezDuplicateObjectsCommand>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDuplicateObjectsCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezDuplicateObjectsCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("JsonGraph", m_sJsonGraph),
 EZ_MEMBER_PROPERTY("ParentNodes", m_sParentNodes),
@@ -48,7 +48,7 @@ ezStatus ezDuplicateObjectsCommand::Do(bool bRedo)
 
     ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
 
-    ezHybridArray<ezDocumentBase::PasteInfo, 16> ToBePasted;
+    ezHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
     ezStringBuilder sParentGuids = m_sParentNodes;
     ezStringBuilder sNextParentGuid;
 
@@ -124,7 +124,7 @@ ezStatus ezDuplicateObjectsCommand::Do(bool bRedo)
 ezStatus ezDuplicateObjectsCommand::Undo(bool bFireEvents)
 {
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
-  ezDocumentBase* pDocument = GetDocument();
+  ezDocument* pDocument = GetDocument();
 
   for (auto& po : m_DuplicatedObjects)
   {

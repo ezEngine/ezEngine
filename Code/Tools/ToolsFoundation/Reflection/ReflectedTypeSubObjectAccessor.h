@@ -8,7 +8,7 @@ class ezReflectedClass;
 class EZ_TOOLSFOUNDATION_DLL ezReflectedTypeSubObjectAccessor : public ezIReflectedTypeAccessor
 {
 public:
-  ezReflectedTypeSubObjectAccessor(const ezRTTI* pRtti, ezDocumentObjectBase* pOwner);
+  ezReflectedTypeSubObjectAccessor(const ezRTTI* pRtti, ezDocumentObject* pOwner);
   void SetSubAccessor(ezIReflectedTypeAccessor* pAcc, const ezPropertyPath& subPath);
 
   virtual const ezVariant GetValue(const ezPropertyPath& path, ezVariant index = ezVariant()) const override;

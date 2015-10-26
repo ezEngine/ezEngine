@@ -3,7 +3,7 @@
 
 /// \brief A file writer that caches all written data and only opens and writes to the output file when everything is finished. 
 /// Useful to ensure that only complete files are written, or nothing at all, in case of a crash.
-class EZ_FOUNDATION_DLL ezDeferredFileWriter : public ezStreamWriterBase
+class EZ_FOUNDATION_DLL ezDeferredFileWriter : public ezStreamWriter
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezDeferredFileWriter);
 

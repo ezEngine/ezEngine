@@ -7,7 +7,7 @@
 // ezReflectedTypeStorageAccessor public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezReflectedTypeStorageAccessor::ezReflectedTypeStorageAccessor(const ezRTTI* pRtti, ezDocumentObjectBase* pOwner) : ezIReflectedTypeAccessor(pRtti, pOwner)
+ezReflectedTypeStorageAccessor::ezReflectedTypeStorageAccessor(const ezRTTI* pRtti, ezDocumentObject* pOwner) : ezIReflectedTypeAccessor(pRtti, pOwner)
 {
   const ezRTTI* pType = pRtti;
   EZ_ASSERT_DEV(pType != nullptr, "Trying to construct an ezReflectedTypeStorageAccessor for an invalid type!");

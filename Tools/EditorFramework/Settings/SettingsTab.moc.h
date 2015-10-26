@@ -6,7 +6,7 @@
 #include <Tools/EditorFramework/ui_SettingsTab.h>
 #include <Foundation/Configuration/Plugin.h>
 
-class ezSettingsTab : public ezDocumentWindow, Ui_SettingsTab
+class ezSettingsTab : public ezQtDocumentWindow, Ui_SettingsTab
 {
   Q_OBJECT
 
@@ -35,12 +35,12 @@ private:
   void PluginEventHandler(const ezPlugin::PluginEvent& e);
   void UpdateSettings();
   void ProjectEventHandler(const ezToolsProject::Event& e);
-  void DocumentManagerEventHandler(const ezDocumentManagerBase::Event& e);
+  void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
 
   ezString m_sSelectedSettingDomain;
   ezMap<ezString, ezVariant> m_Settings;
 
-  ezSimplePropertyGridWidget* m_pSettingsGrid;
+  ezQtSimplePropertyGridWidget* m_pSettingsGrid;
 };
 
 

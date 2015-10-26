@@ -5,7 +5,7 @@
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
 class ezDocumentObjectManager;
-class ezDocumentBase;
+class ezDocument;
 
 class ezDocumentRoot : public ezReflectedClass
 {
@@ -14,17 +14,17 @@ class ezDocumentRoot : public ezReflectedClass
   ezHybridArray<ezReflectedClass*, 8> m_RootObjects;
 };
 
-class ezDocumentObjectRoot : public ezDocumentObject
+class ezDocumentRootObject : public ezDocumentStorageObject
 {
 public:
-  ezDocumentObjectRoot() : ezDocumentObject(ezDocumentRoot::GetStaticRTTI())
+  ezDocumentRootObject() : ezDocumentStorageObject(ezDocumentRoot::GetStaticRTTI())
   {
     m_Guid = ezUuid::StableUuidForString("DocumentRoot");
   }
 
 public:
-  virtual void InsertSubObject(ezDocumentObjectBase* pObject, const char* szProperty, const ezVariant& index) override;
-  virtual void RemoveSubObject(ezDocumentObjectBase* pObject) override;
+  virtual void InsertSubObject(ezDocumentObject* pObject, const char* szProperty, const ezVariant& index) override;
+  virtual void RemoveSubObject(ezDocumentObject* pObject) override;
 };
 
 
@@ -45,9 +45,9 @@ struct ezDocumentObjectStructureEvent
   };
 
   Type m_EventType;
-  const ezDocumentObjectBase* m_pObject;
-  const ezDocumentObjectBase* m_pPreviousParent;
-  const ezDocumentObjectBase* m_pNewParent;
+  const ezDocumentObject* m_pObject;
+  const ezDocumentObject* m_pPreviousParent;
+  const ezDocumentObject* m_pNewParent;
   ezString m_sParentProperty;
   ezVariant m_PropertyIndex;
 };
@@ -68,7 +68,7 @@ struct ezDocumentObjectPropertyEvent
   };
 
   Type m_EventType;
-  const ezDocumentObjectBase* m_pObject;
+  const ezDocumentObject* m_pObject;
   ezVariant m_OldValue;
   ezVariant m_NewValue;
   ezString m_sPropertyPath;
@@ -86,47 +86,47 @@ public:
 
   ezDocumentObjectManager();
   virtual ~ezDocumentObjectManager();
-  void SetDocument(const ezDocumentBase* pDocument) { m_pDocument = pDocument; }
+  void SetDocument(const ezDocument* pDocument) { m_pDocument = pDocument; }
 
   // Object Construction / Destruction
   // holds object data
-  ezDocumentObjectBase* CreateObject(const ezRTTI* pRtti, ezUuid guid = ezUuid());
+  ezDocumentObject* CreateObject(const ezRTTI* pRtti, ezUuid guid = ezUuid());
 
-  void DestroyObject(ezDocumentObjectBase* pObject);
+  void DestroyObject(ezDocumentObject* pObject);
   void DestroyAllObjects();
   virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const = 0;
 
   // Structure Change
-  const ezDocumentObjectBase* GetRootObject() const { return &m_RootObject; }
-  ezDocumentObjectBase* GetRootObject() { return &m_RootObject; }
+  const ezDocumentObject* GetRootObject() const { return &m_RootObject; }
+  ezDocumentObject* GetRootObject() { return &m_RootObject; }
 
-  void AddObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pParent, const char* szParentProperty, ezVariant index);
-  void RemoveObject(ezDocumentObjectBase* pObject);
-  void MoveObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pNewParent, const char* szParentProperty, ezVariant index);
+  void AddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index);
+  void RemoveObject(ezDocumentObject* pObject);
+  void MoveObject(ezDocumentObject* pObject, ezDocumentObject* pNewParent, const char* szParentProperty, ezVariant index);
   
   
-  const ezDocumentObjectBase* GetObject(const ezUuid& guid) const;
-  ezDocumentObjectBase* GetObject(const ezUuid& guid);
-  const ezDocumentBase* GetDocument() const { return m_pDocument; }
+  const ezDocumentObject* GetObject(const ezUuid& guid) const;
+  ezDocumentObject* GetObject(const ezUuid& guid);
+  const ezDocument* GetDocument() const { return m_pDocument; }
 
   // Structure Change Test
-  bool CanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent, const char* szParentProperty, const ezVariant& index) const;
-  bool CanRemove(const ezDocumentObjectBase* pObject) const;
-  bool CanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, const char* szParentProperty, const ezVariant& index) const;
+  bool CanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const;
+  bool CanRemove(const ezDocumentObject* pObject) const;
+  bool CanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const;
 
 private:
-  virtual ezDocumentObjectBase* InternalCreateObject(const ezRTTI* pRtti) = 0;
-  virtual void InternalDestroyObject(ezDocumentObjectBase* pObject) { EZ_DEFAULT_DELETE(pObject); }
-  virtual bool InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent, const char* szParentProperty, const ezVariant& index) const { return true; };
-  virtual bool InternalCanRemove(const ezDocumentObjectBase* pObject) const { return true; };
-  virtual bool InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, const char* szParentProperty, const ezVariant& index) const { return true; };
+  virtual ezDocumentObject* InternalCreateObject(const ezRTTI* pRtti) = 0;
+  virtual void InternalDestroyObject(ezDocumentObject* pObject) { EZ_DEFAULT_DELETE(pObject); }
+  virtual bool InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const { return true; };
+  virtual bool InternalCanRemove(const ezDocumentObject* pObject) const { return true; };
+  virtual bool InternalCanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const { return true; };
 
-  void RecursiveAddGuids(ezDocumentObjectBase* pObject);
-  void RecursiveRemoveGuids(ezDocumentObjectBase* pObject);
+  void RecursiveAddGuids(ezDocumentObject* pObject);
+  void RecursiveRemoveGuids(ezDocumentObject* pObject);
 
 private:
-  const ezDocumentBase* m_pDocument;
-  ezDocumentObjectRoot m_RootObject;
+  const ezDocument* m_pDocument;
+  ezDocumentRootObject m_RootObject;
 
-  ezHashTable<ezUuid, const ezDocumentObjectBase*> m_GuidToObject;
+  ezHashTable<ezUuid, const ezDocumentObject*> m_GuidToObject;
 };

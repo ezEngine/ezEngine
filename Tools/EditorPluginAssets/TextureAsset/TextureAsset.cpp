@@ -25,7 +25,7 @@ void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
   pInfo->m_FileDependencies.PushBack(sTemp);
 }
 
-ezStatus ezTextureAssetDocument::InternalTransformAsset(ezStreamWriterBase& stream, const char* szPlatform)
+ezStatus ezTextureAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform)
 {
   EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '%s' is not supported", szPlatform);
 
@@ -53,7 +53,7 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(ezStreamWriterBase& stre
 
   if (TargetFormat != pImage->GetImageFormat())
   {
-    if (ezImageConversionBase::Convert(*pImage, ConvertedImage, TargetFormat).Failed())
+    if (ezImageConversion::Convert(*pImage, ConvertedImage, TargetFormat).Failed())
       return ezStatus("Conversion to from source format '%s' to target format '%s' failed", ezImageFormat::GetName(pImage->GetImageFormat()), ezImageFormat::GetName(TargetFormat));
 
     pImage = &ConvertedImage;

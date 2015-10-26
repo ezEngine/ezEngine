@@ -7,10 +7,10 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 
-ezUInt32 ezEngineViewWidget::s_uiNextViewID = 0;
+ezUInt32 ezQtEngineViewWidget::s_uiNextViewID = 0;
 
 
-ezEngineViewWidget::ezEngineViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocumentWindow, ezSceneViewConfig* pViewConfig)
+ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentWindow* pDocumentWindow, ezSceneViewConfig* pViewConfig)
   : QWidget(pParent)
   , m_pDocumentWindow(pDocumentWindow)
   , m_pViewConfig(pViewConfig)
@@ -37,16 +37,16 @@ ezEngineViewWidget::ezEngineViewWidget(QWidget* pParent, ezDocumentWindow3D* pDo
 
   m_fCameraLerp = 1.0f;
 
-  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezEngineViewWidget::EngineViewProcessEventHandler, this));
+  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEngineViewWidget::EngineViewProcessEventHandler, this));
 
   if (ezEditorEngineProcessConnection::GetInstance()->IsProcessCrashed())
     ShowRestartButton(true);
 }
 
 
-ezEngineViewWidget::~ezEngineViewWidget()
+ezQtEngineViewWidget::~ezQtEngineViewWidget()
 {
-  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineViewWidget::EngineViewProcessEventHandler, this));
+  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEngineViewWidget::EngineViewProcessEventHandler, this));
 
   ezViewDestroyedMsgToEngine msg;
   msg.m_uiViewID = GetViewID();
@@ -55,13 +55,13 @@ ezEngineViewWidget::~ezEngineViewWidget()
   m_pDocumentWindow->m_ViewWidgets.RemoveSwap(this);
 }
 
-void ezEngineViewWidget::paintEvent(QPaintEvent* event)
+void ezQtEngineViewWidget::paintEvent(QPaintEvent* event)
 {
   //event->accept();
 
 }
 
-bool ezEngineViewWidget::eventFilter(QObject* object, QEvent* event)
+bool ezQtEngineViewWidget::eventFilter(QObject* object, QEvent* event)
 {
   if (event->type() == QEvent::Type::ShortcutOverride)
   {
@@ -79,7 +79,7 @@ bool ezEngineViewWidget::eventFilter(QObject* object, QEvent* event)
 }
 
 
-void ezEngineViewWidget::SyncToEngine()
+void ezQtEngineViewWidget::SyncToEngine()
 {
   ezViewRedrawMsgToEngine cam;
   cam.m_uiRenderMode = m_pViewConfig->m_RenderMode;
@@ -104,7 +104,7 @@ void ezEngineViewWidget::SyncToEngine()
 }
 
 
-void ezEngineViewWidget::UpdateCameraInterpolation()
+void ezQtEngineViewWidget::UpdateCameraInterpolation()
 {
   if (m_fCameraLerp >= 1.0f)
     return;
@@ -135,7 +135,7 @@ void ezEngineViewWidget::UpdateCameraInterpolation()
   cam.SetCameraMode(cam.GetCameraMode(), fNewFovOrDim, cam.GetNearPlane(), cam.GetFarPlane());
 }
 
-void ezEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim)
+void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim)
 {
   // prevent restarting this in the middle of a move
   if (m_fCameraLerp < 1.0f)
@@ -163,12 +163,12 @@ void ezEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ezVe
   m_fCameraLerp = 0.0f;
 }
 
-void ezEngineViewWidget::resizeEvent(QResizeEvent* event)
+void ezQtEngineViewWidget::resizeEvent(QResizeEvent* event)
 {
   m_pDocumentWindow->TriggerRedraw();
 }
 
-void ezEngineViewWidget::keyReleaseEvent(QKeyEvent* e)
+void ezQtEngineViewWidget::keyReleaseEvent(QKeyEvent* e)
 {
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
@@ -190,7 +190,7 @@ void ezEngineViewWidget::keyReleaseEvent(QKeyEvent* e)
   QWidget::keyReleaseEvent(e);
 }
 
-void ezEngineViewWidget::keyPressEvent(QKeyEvent* e)
+void ezQtEngineViewWidget::keyPressEvent(QKeyEvent* e)
 {
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
@@ -212,7 +212,7 @@ void ezEngineViewWidget::keyPressEvent(QKeyEvent* e)
   QWidget::keyPressEvent(e);
 }
 
-void ezEngineViewWidget::mousePressEvent(QMouseEvent* e)
+void ezQtEngineViewWidget::mousePressEvent(QMouseEvent* e)
 {
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
@@ -234,7 +234,7 @@ void ezEngineViewWidget::mousePressEvent(QMouseEvent* e)
   QWidget::mousePressEvent(e);
 }
 
-void ezEngineViewWidget::mouseReleaseEvent(QMouseEvent* e)
+void ezQtEngineViewWidget::mouseReleaseEvent(QMouseEvent* e)
 {
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
@@ -256,7 +256,7 @@ void ezEngineViewWidget::mouseReleaseEvent(QMouseEvent* e)
   QWidget::mouseReleaseEvent(e);
 }
 
-void ezEngineViewWidget::mouseMoveEvent(QMouseEvent* e)
+void ezQtEngineViewWidget::mouseMoveEvent(QMouseEvent* e)
 {
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
@@ -278,7 +278,7 @@ void ezEngineViewWidget::mouseMoveEvent(QMouseEvent* e)
   QWidget::mouseMoveEvent(e);
 }
 
-void ezEngineViewWidget::wheelEvent(QWheelEvent* e)
+void ezQtEngineViewWidget::wheelEvent(QWheelEvent* e)
 {
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
@@ -300,7 +300,7 @@ void ezEngineViewWidget::wheelEvent(QWheelEvent* e)
   QWidget::wheelEvent(e);
 }
 
-void ezEngineViewWidget::focusOutEvent(QFocusEvent* e)
+void ezQtEngineViewWidget::focusOutEvent(QFocusEvent* e)
 {
   if (ezEditorInputContext::IsAnyInputContextActive())
   {
@@ -312,7 +312,7 @@ void ezEngineViewWidget::focusOutEvent(QFocusEvent* e)
 }
 
 
-void ezEngineViewWidget::EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e)
+void ezQtEngineViewWidget::EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e)
 {
   switch (e.m_Type)
   {
@@ -333,7 +333,7 @@ void ezEngineViewWidget::EngineViewProcessEventHandler(const ezEditorEngineProce
   }
 }
 
-void ezEngineViewWidget::ShowRestartButton(bool bShow)
+void ezQtEngineViewWidget::ShowRestartButton(bool bShow)
 {
   QtScopedUpdatesDisabled _(this);
 
@@ -348,7 +348,7 @@ void ezEngineViewWidget::ShowRestartButton(bool bShow)
     m_pRestartButton->setText("Restart Engine View Process");
     m_pRestartButton->setVisible(ezEditorEngineProcessConnection::GetInstance()->IsProcessCrashed());
     m_pRestartButton->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-    m_pRestartButton->connect(m_pRestartButton, &QPushButton::clicked, this, &ezEngineViewWidget::SlotRestartEngineProcess);
+    m_pRestartButton->connect(m_pRestartButton, &QPushButton::clicked, this, &ezQtEngineViewWidget::SlotRestartEngineProcess);
 
     m_pRestartButtonLayout->addWidget(m_pRestartButton);
   }
@@ -363,7 +363,7 @@ void ezEngineViewWidget::ShowRestartButton(bool bShow)
 }
 
 
-void ezEngineViewWidget::SlotRestartEngineProcess()
+void ezQtEngineViewWidget::SlotRestartEngineProcess()
 {
   ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
 }

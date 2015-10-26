@@ -25,7 +25,7 @@
 /// *** CHECKBOX ***
 
 ezPropertyEditorCheckboxWidget::ezPropertyEditorCheckboxWidget()
-  : ezStandardPropertyBaseWidget()
+  : ezQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
@@ -77,7 +77,7 @@ void ezPropertyEditorCheckboxWidget::on_StateChanged_triggered(int state)
 
 /// *** DOUBLE SPINBOX ***
 
-ezPropertyEditorDoubleSpinboxWidget::ezPropertyEditorDoubleSpinboxWidget(ezInt8 iNumComponents) : ezStandardPropertyBaseWidget()
+ezPropertyEditorDoubleSpinboxWidget::ezPropertyEditorDoubleSpinboxWidget(ezInt8 iNumComponents) : ezQtStandardPropertyWidget()
 {
   m_iNumComponents = iNumComponents;
   m_bTemporaryCommand = false;
@@ -173,7 +173,7 @@ void ezPropertyEditorDoubleSpinboxWidget::InternalSetValue(const ezVariant& valu
 void ezPropertyEditorDoubleSpinboxWidget::on_EditingFinished_triggered()
 {
   if (m_bTemporaryCommand)
-    Broadcast(ezPropertyBaseWidget::Event::Type::EndTemporary);
+    Broadcast(ezQtPropertyWidget::Event::Type::EndTemporary);
 
   m_bTemporaryCommand = false;
 }
@@ -181,7 +181,7 @@ void ezPropertyEditorDoubleSpinboxWidget::on_EditingFinished_triggered()
 void ezPropertyEditorDoubleSpinboxWidget::SlotValueChanged()
 {
   if (!m_bTemporaryCommand)
-    Broadcast(ezPropertyBaseWidget::Event::Type::BeginTemporary);
+    Broadcast(ezQtPropertyWidget::Event::Type::BeginTemporary);
 
   m_bTemporaryCommand = true;
 
@@ -204,7 +204,7 @@ void ezPropertyEditorDoubleSpinboxWidget::SlotValueChanged()
 
 /// *** INT SPINBOX ***
 
-ezPropertyEditorIntSpinboxWidget::ezPropertyEditorIntSpinboxWidget(ezInt32 iMinValue, ezInt32 iMaxValue) : ezStandardPropertyBaseWidget()
+ezPropertyEditorIntSpinboxWidget::ezPropertyEditorIntSpinboxWidget(ezInt32 iMinValue, ezInt32 iMaxValue) : ezQtStandardPropertyWidget()
 {
   m_bTemporaryCommand = false;
   m_pLayout = new QHBoxLayout(this);
@@ -233,7 +233,7 @@ void ezPropertyEditorIntSpinboxWidget::InternalSetValue(const ezVariant& value)
 void ezPropertyEditorIntSpinboxWidget::SlotValueChanged()
 {
   if (!m_bTemporaryCommand)
-    Broadcast(ezPropertyBaseWidget::Event::Type::BeginTemporary);
+    Broadcast(ezQtPropertyWidget::Event::Type::BeginTemporary);
 
   m_bTemporaryCommand = true;
 
@@ -243,7 +243,7 @@ void ezPropertyEditorIntSpinboxWidget::SlotValueChanged()
 void ezPropertyEditorIntSpinboxWidget::on_EditingFinished_triggered()
 {
   if (m_bTemporaryCommand)
-    Broadcast(ezPropertyBaseWidget::Event::Type::EndTemporary);
+    Broadcast(ezQtPropertyWidget::Event::Type::EndTemporary);
 
   m_bTemporaryCommand = false;
 }
@@ -251,7 +251,7 @@ void ezPropertyEditorIntSpinboxWidget::on_EditingFinished_triggered()
 
 /// *** QUATERNION ***
 
-ezPropertyEditorQuaternionWidget::ezPropertyEditorQuaternionWidget() : ezStandardPropertyBaseWidget()
+ezPropertyEditorQuaternionWidget::ezPropertyEditorQuaternionWidget() : ezQtStandardPropertyWidget()
 {
   m_bTemporaryCommand = false;
 
@@ -302,7 +302,7 @@ void ezPropertyEditorQuaternionWidget::InternalSetValue(const ezVariant& value)
 void ezPropertyEditorQuaternionWidget::on_EditingFinished_triggered()
 {
   if (m_bTemporaryCommand)
-    Broadcast(ezPropertyBaseWidget::Event::Type::EndTemporary);
+    Broadcast(ezQtPropertyWidget::Event::Type::EndTemporary);
 
   m_bTemporaryCommand = false;
 }
@@ -310,7 +310,7 @@ void ezPropertyEditorQuaternionWidget::on_EditingFinished_triggered()
 void ezPropertyEditorQuaternionWidget::SlotValueChanged()
 {
   if (!m_bTemporaryCommand)
-    Broadcast(ezPropertyBaseWidget::Event::Type::BeginTemporary);
+    Broadcast(ezQtPropertyWidget::Event::Type::BeginTemporary);
 
   m_bTemporaryCommand = true;
 
@@ -326,7 +326,7 @@ void ezPropertyEditorQuaternionWidget::SlotValueChanged()
 
 /// *** LINEEDIT ***
 
-ezPropertyEditorLineEditWidget::ezPropertyEditorLineEditWidget() : ezStandardPropertyBaseWidget()
+ezPropertyEditorLineEditWidget::ezPropertyEditorLineEditWidget() : ezQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
@@ -431,7 +431,7 @@ void ezPropertyEditorFileBrowserWidget::on_BrowseFile_clicked()
   {
   sFile = dlg.GetSelectedAssetPathAbsolute();
 
-  ezEditorApp::GetInstance()->MakePathDataDirectoryRelative(sFile);
+  ezQtEditorApp::GetInstance()->MakePathDataDirectoryRelative(sFile);
   }
   }
 
@@ -484,7 +484,7 @@ void ezColorButton::mouseReleaseEvent(QMouseEvent* event)
   emit clicked();
 }
 
-ezPropertyEditorColorWidget::ezPropertyEditorColorWidget() : ezStandardPropertyBaseWidget()
+ezPropertyEditorColorWidget::ezPropertyEditorColorWidget() : ezQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
@@ -508,7 +508,7 @@ void ezPropertyEditorColorWidget::InternalSetValue(const ezVariant& value)
 
 void ezPropertyEditorColorWidget::on_Button_triggered()
 {
-  Broadcast(ezPropertyBaseWidget::Event::Type::BeginTemporary);
+  Broadcast(ezQtPropertyWidget::Event::Type::BeginTemporary);
 
   ezColor temp = ezColor::White;
   if (m_OriginalValue.IsValid())
@@ -529,19 +529,19 @@ void ezPropertyEditorColorWidget::on_CurrentColor_changed(const QColor& color)
 void ezPropertyEditorColorWidget::on_Color_reset()
 {
   m_pWidget->SetColor(m_OriginalValue);
-  Broadcast(ezPropertyBaseWidget::Event::Type::CancelTemporary);
+  Broadcast(ezQtPropertyWidget::Event::Type::CancelTemporary);
 }
 
 void ezPropertyEditorColorWidget::on_Color_accepted()
 {
   m_OriginalValue = GetOldValue();
-  Broadcast(ezPropertyBaseWidget::Event::Type::EndTemporary);
+  Broadcast(ezQtPropertyWidget::Event::Type::EndTemporary);
 }
 
 
 /// *** ENUM COMBOBOX ***
 
-ezPropertyEditorEnumWidget::ezPropertyEditorEnumWidget() : ezStandardPropertyBaseWidget()
+ezPropertyEditorEnumWidget::ezPropertyEditorEnumWidget() : ezQtStandardPropertyWidget()
 {
   
   m_pLayout = new QHBoxLayout(this);
@@ -601,7 +601,7 @@ void ezPropertyEditorEnumWidget::on_CurrentEnum_changed(int iEnum)
 
 /// *** BITFLAGS COMBOBOX ***
 
-ezPropertyEditorBitflagsWidget::ezPropertyEditorBitflagsWidget() : ezStandardPropertyBaseWidget()
+ezPropertyEditorBitflagsWidget::ezPropertyEditorBitflagsWidget() : ezQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);

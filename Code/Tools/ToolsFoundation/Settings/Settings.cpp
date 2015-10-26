@@ -142,7 +142,7 @@ ezColor ezSettings::GetValueColor(const char* szKey)
 
 }
 
-void ezSettings::WriteToJSON(ezStreamWriterBase& stream, bool bNonUserSettings, bool bUserSettings) const
+void ezSettings::WriteToJSON(ezStreamWriter& stream, bool bNonUserSettings, bool bUserSettings) const
 {
   ezExtendedJSONWriter writer;
   writer.SetOutputStream(&stream);
@@ -184,7 +184,7 @@ void ezSettings::WriteToJSON(ezStreamWriterBase& stream, bool bNonUserSettings, 
   writer.EndObject();
 }
 
-void ezSettings::ReadFromJSON(ezStreamReaderBase& stream)
+void ezSettings::ReadFromJSON(ezStreamReader& stream)
 {
   ezExtendedJSONReader reader;
   if (reader.Parse(stream).Failed())

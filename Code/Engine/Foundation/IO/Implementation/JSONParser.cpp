@@ -14,7 +14,7 @@ ezJSONParser::ezJSONParser()
   m_uiCurColumn = 0;
 }
 
-void ezJSONParser::SetInputStream(ezStreamReaderBase& stream, ezUInt32 uiFirstLineOffset)
+void ezJSONParser::SetInputStream(ezStreamReader& stream, ezUInt32 uiFirstLineOffset)
 {
   m_StateStack.Clear();
   m_uiCurByte = '\0';

@@ -18,7 +18,7 @@ struct CompareConstChar
   }
 };
 
-void ezAbstractGraphJsonSerializer::Write(ezStreamWriterBase& stream, const ezAbstractObjectGraph* pGraph, ezStandardJSONWriter::WhitespaceMode mode)
+void ezAbstractGraphJsonSerializer::Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph, ezStandardJSONWriter::WhitespaceMode mode)
 {
   const auto& Nodes = pGraph->GetAllNodes();
 
@@ -67,7 +67,7 @@ void ezAbstractGraphJsonSerializer::Write(ezStreamWriterBase& stream, const ezAb
 }
 
 
-void ezAbstractGraphJsonSerializer::Read(ezStreamReaderBase& stream, ezAbstractObjectGraph* pGraph)
+void ezAbstractGraphJsonSerializer::Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph)
 {
   ezExtendedJSONReader reader;
   reader.Parse(stream);

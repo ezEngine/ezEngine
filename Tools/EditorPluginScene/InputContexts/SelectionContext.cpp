@@ -9,7 +9,7 @@
 #include <Foundation/Logging/Log.h>
 #include <QKeyEvent>
 
-ezSelectionContext::ezSelectionContext(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView, const ezCamera* pCamera)
+ezSelectionContext::ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera)
 {
   m_pCamera = pCamera;
   m_bSelectOnMouseUp = false;
@@ -31,10 +31,10 @@ bool ezSelectionContext::mousePressEvent(QMouseEvent* e)
 
       if (pSO != nullptr)
       {
-        if (pSO->GetDynamicRTTI()->IsDerivedFrom<ezGizmoHandleBase>())
+        if (pSO->GetDynamicRTTI()->IsDerivedFrom<ezGizmoHandle>())
         {
-          ezGizmoHandleBase* pGizmoHandle = static_cast<ezGizmoHandleBase*>(pSO);
-          ezGizmoBase* pGizmo = pGizmoHandle->GetParentGizmo();
+          ezGizmoHandle* pGizmoHandle = static_cast<ezGizmoHandle*>(pSO);
+          ezGizmo* pGizmo = pGizmoHandle->GetOwnerGizmo();
           pGizmo->ConfigureInteraction(pGizmoHandle, m_pCamera, res.m_vPickedPosition, m_Viewport);
           return pGizmo->mousePressEvent(e);
         }
@@ -61,7 +61,7 @@ bool ezSelectionContext::mouseReleaseEvent(QMouseEvent* e)
     {
       if (res.m_PickedComponent.IsValid())
       {
-        const ezDocumentObjectBase* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedComponent);
+        const ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedComponent);
 
         if (bToggle)
           pDocument->GetSelectionManager()->ToggleObject(pObject);
@@ -73,7 +73,7 @@ bool ezSelectionContext::mouseReleaseEvent(QMouseEvent* e)
     {
       if (res.m_PickedObject.IsValid())
       {
-        const ezDocumentObjectBase* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
+        const ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
 
         if (bToggle)
           pDocument->GetSelectionManager()->ToggleObject(pObject);

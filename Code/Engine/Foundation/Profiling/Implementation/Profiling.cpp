@@ -158,7 +158,7 @@ void ezProfilingSystem::ReleaseReference(const ezProfilingId& id)
 {
 }
 
-void ezProfilingSystem::Capture(ezStreamWriterBase& outputStream)
+void ezProfilingSystem::Capture(ezStreamWriter& outputStream)
 {
 }
 

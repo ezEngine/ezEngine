@@ -5,7 +5,7 @@
 #include <RendererFoundation/Resources/RenderTargetView.h>
 
 ezGALSwapChain::ezGALSwapChain(const ezGALSwapChainCreationDescription& Description)
-: ezGALObjectBase(Description)
+: ezGALObject(Description)
 {
 }
 

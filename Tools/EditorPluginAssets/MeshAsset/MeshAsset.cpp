@@ -82,7 +82,7 @@ void ezMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
 
 }
 
-ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriterBase& stream, const char* szPlatform)
+ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform)
 {
   const ezMeshAssetProperties* pProp = GetProperties();
 
@@ -197,7 +197,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(const ezMeshAssetProperties* pProp,
 ezStatus ezMeshAssetDocument::CreateMeshFromFile(const ezMeshAssetProperties* pProp, ezMeshResourceDescriptor &desc, bool bFlipTriangles, const ezMat3 &mTransformation)
 {
   ezString sMeshFileAbs = pProp->m_sMeshFile;
-  if (!ezEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sMeshFileAbs))
+  if (!ezQtEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sMeshFileAbs))
   {
     ezLog::Error("Mesh Asset Transform failed: Input Path '%s' is not in any data directory", sMeshFileAbs.GetData());
     return ezStatus("Could not make path absolute: '%s;", sMeshFileAbs.GetData());
@@ -326,13 +326,13 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(const ezMeshAssetProperties* pP
 ezStatus ezMeshAssetDocument::InternalRetrieveAssetInfo(const char * szPlatform)
 {
   ezMeshAssetProperties* pProp = GetProperties();
-  ezDocumentObjectBase* pPropObj = GetPropertyObject();
+  ezDocumentObject* pPropObj = GetPropertyObject();
 
   if (pProp->m_PrimitiveType == ezMeshPrimitive::File)
   {
 
     ezString sMeshFileAbs = pProp->m_sMeshFile;
-    if (!ezEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sMeshFileAbs))
+    if (!ezQtEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sMeshFileAbs))
     {
       ezLog::Error("Mesh Asset Transform failed: Input Path '%s' is not in any data directory", sMeshFileAbs.GetData());
       return ezStatus("Could not make path absolute: '%s;", sMeshFileAbs.GetData());

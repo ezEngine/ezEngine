@@ -103,7 +103,7 @@ void ezProfilingSystem::SetThreadName(const char* szThreadName)
 }
 
 //static
-void ezProfilingSystem::Capture(ezStreamWriterBase& outputStream)
+void ezProfilingSystem::Capture(ezStreamWriter& outputStream)
 {
   EZ_LOCK(g_CaptureMutex);
 

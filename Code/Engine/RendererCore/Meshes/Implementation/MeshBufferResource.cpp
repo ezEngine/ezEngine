@@ -181,7 +181,7 @@ ezResourceLoadDesc ezMeshBufferResource::UnloadData(Unload WhatToUnload)
   return res;
 }
 
-ezResourceLoadDesc ezMeshBufferResource::UpdateContent(ezStreamReaderBase* Stream)
+ezResourceLoadDesc ezMeshBufferResource::UpdateContent(ezStreamReader* Stream)
 {
   EZ_REPORT_FAILURE("This resource type does not support loading data from file.");
 

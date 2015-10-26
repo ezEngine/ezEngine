@@ -115,7 +115,7 @@ struct ezDdsCaps2
 static const ezUInt32 ezDdsMagic = 0x20534444;
 static const ezUInt32 ezDdsDxt10FourCc = 0x30315844;
 
-ezResult ezDdsFileFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, ezLogInterface* pLog) const
+ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLogInterface* pLog) const
 {
   ezDdsHeader fileHeader;
   if (stream.ReadBytes(&fileHeader, sizeof(ezDdsHeader)) != sizeof(ezDdsHeader))
@@ -285,7 +285,7 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, 
   return EZ_SUCCESS;
 }
 
-ezResult ezDdsFileFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& image, ezLogInterface* pLog) const
+ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& image, ezLogInterface* pLog) const
 {
   const ezImageFormat::Enum format = image.GetImageFormat();
 

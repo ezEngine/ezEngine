@@ -5,23 +5,23 @@
 #include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
 
-void ezEditorApp::SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg)
+void ezQtEditorApp::SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg)
 {
   if (m_FileSystemConfig == cfg)
     return;
 
   m_FileSystemConfig = cfg;
-  ezEditorApp::GetInstance()->AddReloadProjectRequiredReason("The data directory configuration has changed.");
+  ezQtEditorApp::GetInstance()->AddReloadProjectRequiredReason("The data directory configuration has changed.");
 
   m_FileSystemConfig.CreateDataDirStubFiles();
 }
 
-void ezEditorApp::SetEnginePluginConfig(const ezApplicationPluginConfig& cfg)
+void ezQtEditorApp::SetEnginePluginConfig(const ezApplicationPluginConfig& cfg)
 {
   m_EnginePluginConfig = cfg;
 }
 
-bool ezEditorApp::MakeDataDirectoryRelativePathAbsolute(ezString & sPath) const
+bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezString & sPath) const
 {
   if (ezConversionUtils::IsStringUuid(sPath))
   {
@@ -62,7 +62,7 @@ bool ezEditorApp::MakeDataDirectoryRelativePathAbsolute(ezString & sPath) const
   return false;
 }
 
-bool ezEditorApp::MakePathDataDirectoryRelative(ezString & sPath) const
+bool ezQtEditorApp::MakePathDataDirectoryRelative(ezString & sPath) const
 {
   ezStringBuilder sTemp;
   ezStringBuilder sResult = sPath;
@@ -88,7 +88,7 @@ bool ezEditorApp::MakePathDataDirectoryRelative(ezString & sPath) const
   return false;
 }
 
-void ezEditorApp::SetupDataDirectories()
+void ezQtEditorApp::SetupDataDirectories()
 {
   ezStringBuilder sPath = ezToolsProject::GetInstance()->GetProjectPath();
   sPath.PathParentDirectory();
@@ -127,12 +127,12 @@ void ezEditorApp::SetupDataDirectories()
   }
 }
 
-void ezEditorApp::CreatePanels()
+void ezQtEditorApp::CreatePanels()
 {
   ///// \todo Test whether this is the reason why the editor doesn't always shut down
   //return;
 
-  new ezLogPanel();
-  new ezAssetBrowserPanel();
+  new ezQtLogPanel();
+  new ezQtAssetBrowserPanel();
 }
 

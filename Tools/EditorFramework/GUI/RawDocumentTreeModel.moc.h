@@ -4,11 +4,11 @@
 #include <QAbstractItemModel>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezRawDocumentTreeModel : public QAbstractItemModel
+class EZ_EDITORFRAMEWORK_DLL ezQtDocumentTreeModel : public QAbstractItemModel
 {
 public:
-  ezRawDocumentTreeModel(const ezDocumentObjectManager* pTree, const ezRTTI* pBaseClass, const char* szChildProperty);
-  ~ezRawDocumentTreeModel();
+  ezQtDocumentTreeModel(const ezDocumentObjectManager* pTree, const ezRTTI* pBaseClass, const char* szChildProperty);
+  ~ezQtDocumentTreeModel();
 
   const ezDocumentObjectManager* GetDocumentTree() const { return m_pDocumentTree; }
 
@@ -29,10 +29,10 @@ public:
 
   virtual bool setData(const QModelIndex& index, const QVariant& value, int role) override;
  
-  QModelIndex ComputeModelIndex(const ezDocumentObjectBase* pObject) const;
+  QModelIndex ComputeModelIndex(const ezDocumentObject* pObject) const;
 private:
-  QModelIndex ComputeParent(const ezDocumentObjectBase* pObject) const;
-  ezInt32 ComputeIndex(const ezDocumentObjectBase* pObject) const;
+  QModelIndex ComputeParent(const ezDocumentObject* pObject) const;
+  ezInt32 ComputeIndex(const ezDocumentObject* pObject) const;
   
   void TreeEventHandler(const ezDocumentObjectStructureEvent& e);
   void TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e);

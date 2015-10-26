@@ -4,7 +4,7 @@
 #include <EditorFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezRotateGizmo : public ezGizmoBase
+class EZ_EDITORFRAMEWORK_DLL ezRotateGizmo : public ezGizmo
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRotateGizmo);
 
@@ -23,14 +23,14 @@ public:
   void SetSnappingAngle(ezAngle angle) { m_SnappingAngle = angle; }
 
 protected:
-  virtual void OnSetOwner(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView) override;
+  virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
   virtual void OnTransformationChanged(const ezMat4& transform) override;
 
 private:
-  ezGizmoHandle m_AxisX;
-  ezGizmoHandle m_AxisY;
-  ezGizmoHandle m_AxisZ;
+  ezEngineGizmoHandle m_AxisX;
+  ezEngineGizmoHandle m_AxisY;
+  ezEngineGizmoHandle m_AxisZ;
 
   ezQuat m_StartRotation;
   ezQuat m_CurrentRotation;

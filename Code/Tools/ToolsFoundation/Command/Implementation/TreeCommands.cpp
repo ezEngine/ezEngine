@@ -6,7 +6,7 @@
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAddObjectCommand, ezCommandBase, 1, ezRTTIDefaultAllocator<ezAddObjectCommand>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAddObjectCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezAddObjectCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_ACCESSOR_PROPERTY("Type", GetType, SetType),
 EZ_MEMBER_PROPERTY("ParentGuid", m_Parent),
@@ -16,20 +16,20 @@ EZ_MEMBER_PROPERTY("NewGuid", m_NewObjectGuid),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPasteObjectsCommand, ezCommandBase, 1, ezRTTIDefaultAllocator<ezPasteObjectsCommand>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPasteObjectsCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezPasteObjectsCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("ParentGuid", m_Parent),
 EZ_MEMBER_PROPERTY("JsonGraph", m_sJsonGraph),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveObjectCommand, ezCommandBase, 1, ezRTTIDefaultAllocator<ezRemoveObjectCommand>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveObjectCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezRemoveObjectCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMoveObjectCommand, ezCommandBase, 1, ezRTTIDefaultAllocator<ezMoveObjectCommand>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMoveObjectCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezMoveObjectCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
 EZ_MEMBER_PROPERTY("NewParentGuid", m_NewParent),
@@ -38,7 +38,7 @@ EZ_MEMBER_PROPERTY("Index", m_Index),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetObjectPropertyCommand, ezCommandBase, 1, ezRTTIDefaultAllocator<ezSetObjectPropertyCommand>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetObjectPropertyCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezSetObjectPropertyCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
 EZ_MEMBER_PROPERTY("NewValue", m_NewValue),
@@ -47,7 +47,7 @@ EZ_ACCESSOR_PROPERTY("PropertyPath", GetPropertyPath, SetPropertyPath),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInsertObjectPropertyCommand, ezCommandBase, 1, ezRTTIDefaultAllocator<ezInsertObjectPropertyCommand>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInsertObjectPropertyCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezInsertObjectPropertyCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
 EZ_MEMBER_PROPERTY("NewValue", m_NewValue),
@@ -56,7 +56,7 @@ EZ_ACCESSOR_PROPERTY("PropertyPath", GetPropertyPath, SetPropertyPath),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveObjectPropertyCommand, ezCommandBase, 1, ezRTTIDefaultAllocator<ezRemoveObjectPropertyCommand>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveObjectPropertyCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezRemoveObjectPropertyCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
 EZ_MEMBER_PROPERTY("Index", m_Index),
@@ -64,7 +64,7 @@ EZ_ACCESSOR_PROPERTY("PropertyPath", GetPropertyPath, SetPropertyPath),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMoveObjectPropertyCommand, ezCommandBase, 1, ezRTTIDefaultAllocator<ezMoveObjectPropertyCommand>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMoveObjectPropertyCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezMoveObjectPropertyCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
 EZ_MEMBER_PROPERTY("OldIndex", m_OldIndex),
@@ -97,12 +97,12 @@ void ezAddObjectCommand::SetType(const char* szType)
 
 ezStatus ezAddObjectCommand::Do(bool bRedo)
 {
-  ezDocumentBase* pDocument = GetDocument();
+  ezDocument* pDocument = GetDocument();
 
   if (!m_NewObjectGuid.IsValid())
     m_NewObjectGuid.CreateNewUuid();
 
-  ezDocumentObjectBase* pParent = nullptr;
+  ezDocumentObject* pParent = nullptr;
   if (m_Parent.IsValid())
   {
     pParent = pDocument->GetObjectManager()->GetObject(m_Parent);
@@ -130,7 +130,7 @@ ezStatus ezAddObjectCommand::Undo(bool bFireEvents)
 {
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
-  ezDocumentBase* pDocument = GetDocument();
+  ezDocument* pDocument = GetDocument();
   if (!pDocument->GetObjectManager()->CanRemove(m_pObject))
     return ezStatus(EZ_FAILURE, "Add Object: Removal of the object is forbidden!");
 
@@ -159,9 +159,9 @@ ezPasteObjectsCommand::ezPasteObjectsCommand()
 
 ezStatus ezPasteObjectsCommand::Do(bool bRedo)
 {
-  ezDocumentBase* pDocument = GetDocument();
+  ezDocument* pDocument = GetDocument();
 
-  ezDocumentObjectBase* pParent = nullptr;
+  ezDocumentObject* pParent = nullptr;
   if (m_Parent.IsValid())
   {
     pParent = pDocument->GetObjectManager()->GetObject(m_Parent);
@@ -190,7 +190,7 @@ ezStatus ezPasteObjectsCommand::Do(bool bRedo)
 
     ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
 
-    ezHybridArray<ezDocumentBase::PasteInfo, 16> ToBePasted;
+    ezHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
 
     auto& nodes = graph.GetAllNodes();
     for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
@@ -243,7 +243,7 @@ ezStatus ezPasteObjectsCommand::Do(bool bRedo)
 ezStatus ezPasteObjectsCommand::Undo(bool bFireEvents)
 {
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
-  ezDocumentBase* pDocument = GetDocument();
+  ezDocument* pDocument = GetDocument();
 
   for (auto& po : m_PastedObjects)
   {
@@ -282,7 +282,7 @@ ezRemoveObjectCommand::ezRemoveObjectCommand() :
 
 ezStatus ezRemoveObjectCommand::Do(bool bRedo)
 {
-  ezDocumentBase* pDocument = GetDocument();
+  ezDocument* pDocument = GetDocument();
 
   if (!bRedo)
   {
@@ -304,7 +304,7 @@ ezStatus ezRemoveObjectCommand::Do(bool bRedo)
       return ezStatus(EZ_FAILURE, sErrorMessage);
     }
 
-    m_pParent = const_cast<ezDocumentObjectBase*>(m_pObject->GetParent());
+    m_pParent = const_cast<ezDocumentObject*>(m_pObject->GetParent());
     m_sParentProperty = m_pObject->GetParentProperty();
     const ezIReflectedTypeAccessor& accessor = m_pObject->GetParent()->GetTypeAccessor();
     m_Index = accessor.GetPropertyChildIndex(m_pObject->GetParentProperty(), m_pObject->GetGuid());
@@ -318,7 +318,7 @@ ezStatus ezRemoveObjectCommand::Undo(bool bFireEvents)
 {
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
-  ezDocumentBase* pDocument = GetDocument();
+  ezDocument* pDocument = GetDocument();
   if (!pDocument->GetObjectManager()->CanAdd(m_pObject->GetTypeAccessor().GetType(), m_pParent, m_sParentProperty, m_Index))
     return ezStatus(EZ_FAILURE, "Remove Object: Adding the object is forbidden!");
 
@@ -349,7 +349,7 @@ ezMoveObjectCommand::ezMoveObjectCommand()
 
 ezStatus ezMoveObjectCommand::Do(bool bRedo)
 {
-  ezDocumentBase* pDocument = GetDocument();
+  ezDocument* pDocument = GetDocument();
 
   if (!bRedo)
   {
@@ -366,7 +366,7 @@ ezStatus ezMoveObjectCommand::Do(bool bRedo)
         return ezStatus(EZ_FAILURE, "Move Object: The new parent does not exist!");
     }
 
-    m_pOldParent = const_cast<ezDocumentObjectBase*>(m_pObject->GetParent());
+    m_pOldParent = const_cast<ezDocumentObject*>(m_pObject->GetParent());
     m_sOldParentProperty = m_pObject->GetParentProperty();
     const ezIReflectedTypeAccessor& accessor = m_pOldParent->GetTypeAccessor();
     m_OldIndex = accessor.GetPropertyChildIndex(m_pObject->GetParentProperty(), m_pObject->GetGuid());
@@ -385,7 +385,7 @@ ezStatus ezMoveObjectCommand::Undo(bool bFireEvents)
 {
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
-  ezDocumentBase* pDocument = GetDocument();
+  ezDocument* pDocument = GetDocument();
 
   ezVariant FinalOldPosition = m_OldIndex;
 
@@ -426,7 +426,7 @@ ezSetObjectPropertyCommand::ezSetObjectPropertyCommand()
 
 ezStatus ezSetObjectPropertyCommand::Do(bool bRedo)
 {
-  ezDocumentBase* pDocument = GetDocument();
+  ezDocument* pDocument = GetDocument();
   ezPropertyPath path(m_sPropertyPath);
 
   if (!bRedo)
@@ -503,7 +503,7 @@ ezInsertObjectPropertyCommand::ezInsertObjectPropertyCommand()
 
 ezStatus ezInsertObjectPropertyCommand::Do(bool bRedo)
 {
-  ezDocumentBase* pDocument = GetDocument();
+  ezDocument* pDocument = GetDocument();
   ezPropertyPath path(m_sPropertyPath);
 
   if (!bRedo)
@@ -579,7 +579,7 @@ ezRemoveObjectPropertyCommand::ezRemoveObjectPropertyCommand()
 
 ezStatus ezRemoveObjectPropertyCommand::Do(bool bRedo)
 {
-  ezDocumentBase* pDocument = GetDocument();
+  ezDocument* pDocument = GetDocument();
   ezPropertyPath path(m_sPropertyPath);
 
   if (!bRedo)
@@ -653,7 +653,7 @@ ezMoveObjectPropertyCommand::ezMoveObjectPropertyCommand()
 
 ezStatus ezMoveObjectPropertyCommand::Do(bool bRedo)
 {
-  ezDocumentBase* pDocument = GetDocument();
+  ezDocument* pDocument = GetDocument();
   if (!m_OldIndex.CanConvertTo<ezInt32>() || !m_OldIndex.CanConvertTo<ezInt32>())
     return ezStatus(EZ_FAILURE, "Move Property: Invalid indices provided.");
 
@@ -698,7 +698,7 @@ ezStatus ezMoveObjectPropertyCommand::Undo(bool bFireEvents)
 {
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
-  ezDocumentBase* pDocument = GetDocument();
+  ezDocument* pDocument = GetDocument();
 
   ezVariant FinalOldPosition = m_OldIndex;
   ezVariant FinalNewPosition = m_NewIndex;

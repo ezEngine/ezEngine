@@ -33,6 +33,6 @@ private:
 
   QApplication* m_pApp;
   ezProcessCommunication m_IPC;
-  ezGameStateBase m_GameState;
+  ezGameState m_GameState;
 };
 

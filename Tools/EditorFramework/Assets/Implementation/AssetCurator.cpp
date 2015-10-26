@@ -22,14 +22,14 @@ ezAssetCurator::ezAssetCurator()
 {
   m_bActive = false;
   s_pInstance = this;
-  ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(&ezAssetCurator::DocumentManagerEventHandler, this));
+  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezAssetCurator::DocumentManagerEventHandler, this));
 }
 
 ezAssetCurator::~ezAssetCurator()
 {
   Deinitialize();
 
-  ezDocumentManagerBase::s_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetCurator::DocumentManagerEventHandler, this));
+  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetCurator::DocumentManagerEventHandler, this));
   s_pInstance = nullptr;
 }
 
@@ -38,7 +38,7 @@ void ezAssetCurator::BuildFileExtensionSet(ezSet<ezString>& AllExtensions)
   ezStringBuilder sTemp;
   AllExtensions.Clear();
 
-  for (auto pMan : ezDocumentManagerBase::GetAllDocumentManagers())
+  for (auto pMan : ezDocumentManager::GetAllDocumentManagers())
   {
     if (pMan->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocumentManager>())
     {
@@ -283,7 +283,7 @@ const ezAssetCurator::AssetInfo* ezAssetCurator::FindAssetInfo(const char* szRel
   if (sPath.IsAbsolutePath())
   {
     ezString sPath2 = sPath;
-    if (!ezEditorApp::GetInstance()->MakePathDataDirectoryRelative(sPath2))
+    if (!ezQtEditorApp::GetInstance()->MakePathDataDirectoryRelative(sPath2))
       return nullptr;
 
     sPath = sPath2;
@@ -411,7 +411,7 @@ void ezAssetCurator::TransformAllAssets()
 
     progress.WorkingOnNextItem(ezPathUtils::GetFileNameAndExtension(it.Value()->m_sRelativePath).GetData());
 
-    ezDocumentBase* pDoc = ezEditorApp::GetInstance()->OpenDocumentImmediate(it.Value()->m_sAbsolutePath, false);
+    ezDocument* pDoc = ezQtEditorApp::GetInstance()->OpenDocumentImmediate(it.Value()->m_sAbsolutePath, false);
 
     if (pDoc == nullptr)
     {
@@ -518,7 +518,7 @@ const ezAssetCurator::AssetInfo* ezAssetCurator::GetAssetInfo(const ezUuid& asse
   return nullptr;
 }
 
-void ezAssetCurator::ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReaderBase& stream)
+void ezAssetCurator::ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReader& stream)
 {
   ezAbstractObjectGraph graph;
   ezAbstractGraphJsonSerializer::Read(stream, &graph);
@@ -578,8 +578,8 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
 
   // figure out which manager should handle this asset type
   {
-    ezDocumentManagerBase* pDocMan = assetInfo.m_pManager;
-    if (assetInfo.m_pManager == nullptr && ezDocumentManagerBase::FindDocumentTypeFromPath(szAbsFilePath, false, pDocMan).Failed())
+    ezDocumentManager* pDocMan = assetInfo.m_pManager;
+    if (assetInfo.m_pManager == nullptr && ezDocumentManager::FindDocumentTypeFromPath(szAbsFilePath, false, pDocMan).Failed())
     {
       EZ_REPORT_FAILURE("Invalid asset setup");
     }
@@ -611,7 +611,7 @@ const ezHashTable<ezUuid, ezAssetCurator::AssetInfo*>& ezAssetCurator::GetKnownA
   return m_KnownAssets;
 }
 
-void ezAssetCurator::DocumentManagerEventHandler(const ezDocumentManagerBase::Event& r)
+void ezAssetCurator::DocumentManagerEventHandler(const ezDocumentManager::Event& r)
 {
   // Invoke new scan
 }

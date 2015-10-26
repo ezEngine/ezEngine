@@ -29,7 +29,7 @@ public:
     return static_cast<PropertyType*>(m_ObjectMirror.GetNativeObjectPointer(GetObjectManager()->GetRootObject()->GetChildren()[0]));
   }
 
-  ezDocumentObjectBase* GetPropertyObject()
+  ezDocumentObject* GetPropertyObject()
   {
     return GetObjectManager()->GetRootObject()->GetChildren()[0];
   }
@@ -59,7 +59,7 @@ private:
     auto pRoot = GetObjectManager()->GetRootObject();
     if (pRoot->GetChildren().IsEmpty())
     {
-      ezDocumentObjectBase* pObject = GetObjectManager()->CreateObject(ezGetStaticRTTI<PropertyType>());
+      ezDocumentObject* pObject = GetObjectManager()->CreateObject(ezGetStaticRTTI<PropertyType>());
       GetObjectManager()->AddObject(pObject, pRoot, "RootObjects", 0);
     }
   }
@@ -86,12 +86,12 @@ public:
 
 private:
 
-  virtual ezDocumentObjectBase* InternalCreateObject(const ezRTTI* pRtti) override
+  virtual ezDocumentObject* InternalCreateObject(const ezRTTI* pRtti) override
   {
-    return EZ_DEFAULT_NEW(ezDocumentObject, pRtti);
+    return EZ_DEFAULT_NEW(ezDocumentStorageObject, pRtti);
   }
 
-  virtual void InternalDestroyObject(ezDocumentObjectBase* pObject) override
+  virtual void InternalDestroyObject(ezDocumentObject* pObject) override
   {
     EZ_DEFAULT_DELETE(pObject);
   }

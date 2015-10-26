@@ -55,7 +55,7 @@ static inline ezColorLinearUB GetPixelColor(const ezImage& image, ezUInt32 x, ez
 }
 
 
-ezResult ezTgaFileFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& image, ezLogInterface* pLog) const
+ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& image, ezLogInterface* pLog) const
 {
   // Technically almost arbitrary formats are supported, but we only use the common ones.
   ezImageFormat::Enum compatibleFormats[] =
@@ -67,7 +67,7 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& 
   };
 
   // Find a compatible format closest to the one the image currently has
-  ezImageFormat::Enum format = ezImageConversionBase::FindClosestCompatibleFormat(image.GetImageFormat(), compatibleFormats);
+  ezImageFormat::Enum format = ezImageConversion::FindClosestCompatibleFormat(image.GetImageFormat(), compatibleFormats);
 
   if (format == ezImageFormat::UNKNOWN)
   {
@@ -79,7 +79,7 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& 
   if (format != image.GetImageFormat())
   {
     ezImage convertedImage;
-    if (ezImageConversionBase::Convert(image, convertedImage, format) != EZ_SUCCESS)
+    if (ezImageConversion::Convert(image, convertedImage, format) != EZ_SUCCESS)
     {
       // This should never happen
       EZ_ASSERT_DEV(false, "ezImageConversion::Convert failed even though the conversion was to the format returned by FindClosestCompatibleFormat.");
@@ -275,7 +275,7 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& 
 }
 
 
-ezResult ezTgaFileFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, ezLogInterface* pLog) const
+ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLogInterface* pLog) const
 {
   TgaHeader Header;
   stream >> Header.m_iImageIDLength;

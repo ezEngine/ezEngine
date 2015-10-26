@@ -11,8 +11,8 @@ public:
 
   void operator=(const ezTelemetryMessage& rhs);
 
-  EZ_FORCE_INLINE ezStreamReaderBase& GetReader() { return m_Reader; }
-  EZ_FORCE_INLINE ezStreamWriterBase& GetWriter() { return m_Writer; }
+  EZ_FORCE_INLINE ezStreamReader& GetReader() { return m_Reader; }
+  EZ_FORCE_INLINE ezStreamWriter& GetWriter() { return m_Writer; }
 
   EZ_FORCE_INLINE ezUInt32 GetSystemID()  const { return m_uiSystemID; }
   EZ_FORCE_INLINE ezUInt32 GetMessageID() const { return m_uiMsgID; }

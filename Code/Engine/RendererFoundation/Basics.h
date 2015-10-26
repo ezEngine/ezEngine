@@ -263,11 +263,11 @@ struct ezGALSystemMemoryDescription
 };
 
 /// \brief Base class for GAL objects, stores a creation description of the object and also allows for reference counting.
-template<typename CreationDescription> class ezGALObjectBase : public ezRefCounted
+template<typename CreationDescription> class ezGALObject : public ezRefCounted
 {
 public:
 
-  EZ_FORCE_INLINE ezGALObjectBase(const CreationDescription& Description)
+  EZ_FORCE_INLINE ezGALObject(const CreationDescription& Description)
     : m_Description(Description)
   {
   }

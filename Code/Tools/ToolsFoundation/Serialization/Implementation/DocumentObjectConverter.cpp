@@ -1,7 +1,7 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-ezAbstractObjectNode* ezDocumentObjectConverterWriter::AddObjectToGraph(const ezDocumentObjectBase* pObject, const char* szNodeName)
+ezAbstractObjectNode* ezDocumentObjectConverterWriter::AddObjectToGraph(const ezDocumentObject* pObject, const char* szNodeName)
 {
   ezAbstractObjectNode* pNode = AddSubObjectToGraph(pObject, szNodeName);
 
@@ -17,7 +17,7 @@ ezAbstractObjectNode* ezDocumentObjectConverterWriter::AddObjectToGraph(const ez
   return pNode;
 }
 
-void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbstractProperty* pProp, const ezDocumentObjectBase* pObject)
+void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbstractProperty* pProp, const ezDocumentObject* pObject)
 {
   if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly) && !m_bSerializeReadOnly)
     return;
@@ -67,7 +67,7 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
         const ezUuid SubObjectGuid = ezUuid::StableUuidForString(sTemp);
 
         ezDocumentSubObject SubObj(pPropType);
-        SubObj.SetObject(const_cast<ezDocumentObjectBase*>(pObject), path, SubObjectGuid);
+        SubObj.SetObject(const_cast<ezDocumentObject*>(pObject), path, SubObjectGuid);
        
         AddSubObjectToGraph(&SubObj, nullptr);
         pNode->AddProperty(pProp->GetPropertyName(), SubObjectGuid);
@@ -99,7 +99,7 @@ void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, c
   }
 }
 
-void ezDocumentObjectConverterWriter::AddProperties(ezAbstractObjectNode* pNode, const ezDocumentObjectBase* pObject)
+void ezDocumentObjectConverterWriter::AddProperties(ezAbstractObjectNode* pNode, const ezDocumentObject* pObject)
 {
   ezHybridArray<ezAbstractProperty*, 32> Properties;
   pObject->GetTypeAccessor().GetType()->GetAllProperties(Properties);
@@ -110,7 +110,7 @@ void ezDocumentObjectConverterWriter::AddProperties(ezAbstractObjectNode* pNode,
   }
 }
 
-ezAbstractObjectNode* ezDocumentObjectConverterWriter::AddSubObjectToGraph(const ezDocumentObjectBase* pObject, const char* szNodeName)
+ezAbstractObjectNode* ezDocumentObjectConverterWriter::AddSubObjectToGraph(const ezDocumentObject* pObject, const char* szNodeName)
 {
   ezAbstractObjectNode* pNode = m_pGraph->AddNode(pObject->GetGuid(), pObject->GetTypeAccessor().GetType()->GetTypeName(), szNodeName);
   AddProperties(pNode, pObject);
@@ -126,9 +126,9 @@ ezDocumentObjectConverterReader::ezDocumentObjectConverterReader(const ezAbstrac
   m_Mode = mode;
 }
 
-ezDocumentObjectBase* ezDocumentObjectConverterReader::CreateObjectFromNode(const ezAbstractObjectNode* pNode, ezDocumentObjectBase* pParent, const char* szParentProperty, ezVariant index)
+ezDocumentObject* ezDocumentObjectConverterReader::CreateObjectFromNode(const ezAbstractObjectNode* pNode, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index)
 {
-  ezDocumentObjectBase* pObject = m_pManager->CreateObject(ezRTTI::FindTypeByName(pNode->GetType()), pNode->GetGuid());
+  ezDocumentObject* pObject = m_pManager->CreateObject(ezRTTI::FindTypeByName(pNode->GetType()), pNode->GetGuid());
 
   switch (m_Mode)
   {
@@ -148,7 +148,7 @@ ezDocumentObjectBase* ezDocumentObjectConverterReader::CreateObjectFromNode(cons
   return pObject;
 }
 
-void ezDocumentObjectConverterReader::ApplyPropertiesToObject(const ezAbstractObjectNode* pNode, ezDocumentObjectBase* pObject)
+void ezDocumentObjectConverterReader::ApplyPropertiesToObject(const ezAbstractObjectNode* pNode, ezDocumentObject* pObject)
 {
   ezHybridArray<ezAbstractProperty*, 32> Properties;
   pObject->GetTypeAccessor().GetType()->GetAllProperties(Properties);
@@ -163,7 +163,7 @@ void ezDocumentObjectConverterReader::ApplyPropertiesToObject(const ezAbstractOb
   }
 }
 
-void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObjectBase* pObject, ezAbstractProperty* pProp, const ezAbstractObjectNode::Property* pSource)
+void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, ezAbstractProperty* pProp, const ezAbstractObjectNode::Property* pSource)
 {
   const ezRTTI* pPropType = pProp->GetSpecificType();
   const ezPropertyPath path(pProp->GetPropertyName());
@@ -223,7 +223,7 @@ void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObjectBase* pObjec
           auto* pSubNode = m_pGraph->GetNode(guid);
           EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
 
-          ezDocumentObjectBase* pSubObject = nullptr;
+          ezDocumentObject* pSubObject = nullptr;
           if (i < (ezUInt32)iCurrentCount)
           {
             // Overwrite existing object

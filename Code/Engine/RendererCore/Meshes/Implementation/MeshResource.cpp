@@ -37,7 +37,7 @@ ezResourceLoadDesc ezMeshResource::UnloadData(Unload WhatToUnload)
   return res;
 }
 
-ezResourceLoadDesc ezMeshResource::UpdateContent(ezStreamReaderBase* Stream)
+ezResourceLoadDesc ezMeshResource::UpdateContent(ezStreamReader* Stream)
 {
   ezMeshResourceDescriptor desc;
   ezResourceLoadDesc res;

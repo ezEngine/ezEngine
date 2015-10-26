@@ -14,7 +14,7 @@
 
 void OnLoadPlugin(bool bReloading)
 {
-  ezEditorApp::GetInstance()->RegisterPluginNameForSettings("AssetsPlugin");
+  ezQtEditorApp::GetInstance()->RegisterPluginNameForSettings("AssetsPlugin");
 
   // Texture Asset
   {

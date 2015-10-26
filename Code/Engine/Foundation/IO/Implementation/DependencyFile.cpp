@@ -79,7 +79,7 @@ bool ezDependencyFile::HasAnyFileChanged()
   return false;
 }
 
-ezResult ezDependencyFile::WriteDependencyFile(ezStreamWriterBase& stream) const
+ezResult ezDependencyFile::WriteDependencyFile(ezStreamWriter& stream) const
 {
   stream << (ezUInt8) ezDependencyFileVersion::Current;
   
@@ -92,7 +92,7 @@ ezResult ezDependencyFile::WriteDependencyFile(ezStreamWriterBase& stream) const
   return EZ_SUCCESS;
 }
 
-ezResult ezDependencyFile::ReadDependencyFile(ezStreamReaderBase& stream)
+ezResult ezDependencyFile::ReadDependencyFile(ezStreamReader& stream)
 {
   ezUInt8 uiVersion = (ezUInt8) ezDependencyFileVersion::Version0;
   stream >> uiVersion;

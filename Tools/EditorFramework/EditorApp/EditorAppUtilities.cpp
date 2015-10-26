@@ -2,7 +2,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
-void ezEditorApp::AddRestartRequiredReason(const char* szReason)
+void ezQtEditorApp::AddRestartRequiredReason(const char* szReason)
 {
   if (!s_RestartRequiredReasons.Find(szReason).IsValid())
   {
@@ -17,7 +17,7 @@ void ezEditorApp::AddRestartRequiredReason(const char* szReason)
   }
 }
 
-void ezEditorApp::AddReloadProjectRequiredReason(const char* szReason)
+void ezQtEditorApp::AddReloadProjectRequiredReason(const char* szReason)
 {
   if (!s_ReloadProjectRequiredReasons.Find(szReason).IsValid())
   {
@@ -32,7 +32,7 @@ void ezEditorApp::AddReloadProjectRequiredReason(const char* szReason)
   }
 }
 
-void ezEditorApp::UpdateGlobalStatusBarMessage()
+void ezQtEditorApp::UpdateGlobalStatusBarMessage()
 {
   ezStringBuilder sText;
 

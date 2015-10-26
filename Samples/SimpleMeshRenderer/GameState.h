@@ -6,7 +6,7 @@
 
 class GameWindow;
 
-class GameState : public ezGameStateBase
+class GameState : public ezGameState
 {
 public:
   GameState();

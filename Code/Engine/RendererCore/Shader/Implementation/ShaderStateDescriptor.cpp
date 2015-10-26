@@ -11,7 +11,7 @@ enum ezShaderStateVersion : ezUInt32
   Current = ENUM_COUNT - 1
 };
 
-void ezShaderStateResourceDescriptor::Save(ezStreamWriterBase& stream) const
+void ezShaderStateResourceDescriptor::Save(ezStreamWriter& stream) const
 {
   stream << (ezUInt32) ezShaderStateVersion::Current;
 
@@ -70,7 +70,7 @@ void ezShaderStateResourceDescriptor::Save(ezStreamWriterBase& stream) const
   }
 }
 
-void ezShaderStateResourceDescriptor::Load(ezStreamReaderBase& stream)
+void ezShaderStateResourceDescriptor::Load(ezStreamReader& stream)
 {
   ezUInt32 uiVersion = 0;
   stream >> uiVersion;

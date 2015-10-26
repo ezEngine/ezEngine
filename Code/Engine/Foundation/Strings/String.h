@@ -7,7 +7,7 @@
 #include <Foundation/Containers/HybridArray.h>
 
 class ezStringBuilder;
-class ezStreamReaderBase;
+class ezStreamReader;
 
 /// \brief A string class for storing and passing around strings.
 ///
@@ -116,7 +116,7 @@ public:
   ezStringView GetLast(ezUInt32 uiNumCharacters) const; // [tested]
 
   /// \brief Replaces the current string with the content from the stream. Reads the stream to its end.
-  void ReadAll(ezStreamReaderBase& Stream);
+  void ReadAll(ezStreamReader& Stream);
 
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const { return m_Data.GetHeapMemoryUsage(); }

@@ -42,17 +42,17 @@ private:
   ezDeque<ezString> m_Files;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezEditorApp : public QObject
+class EZ_EDITORFRAMEWORK_DLL ezQtEditorApp : public QObject
 {
   Q_OBJECT
 
-  static ezEditorApp* s_pInstance;
+  static ezQtEditorApp* s_pInstance;
 
 public:
-  ezEditorApp();
-  ~ezEditorApp();
+  ezQtEditorApp();
+  ~ezQtEditorApp();
 
-  static ezEditorApp* GetInstance() { return s_pInstance; }
+  static ezQtEditorApp* GetInstance() { return s_pInstance; }
 
   const ezString& GetApplicationUserName() { return s_sUserName; }
 
@@ -71,7 +71,7 @@ public:
   const ezSet<ezString>& GetRegisteredPluginNamesForSettings() { return s_SettingsPluginNames; }
   ezSettings& GetEditorSettings(const char* szPluginName = "-Main-");
   ezSettings& GetProjectSettings(const char* szPluginName = "-Main-");
-  ezSettings& GetDocumentSettings(const ezDocumentBase* pDocument, const char* szPluginName = "-Main-");
+  ezSettings& GetDocumentSettings(const ezDocument* pDocument, const char* szPluginName = "-Main-");
   ezSettings& GetDocumentSettings(const char* szDocument, const char* szPlugin = "-Main-");
   void SaveSettings();
 
@@ -104,7 +104,7 @@ public:
   void GuiOpenProject();
 
   void OpenDocument(const char* szDocument);
-  ezDocumentBase* OpenDocumentImmediate(const char* szDocument, bool bRequestWindow = true);
+  ezDocument* OpenDocumentImmediate(const char* szDocument, bool bRequestWindow = true);
   
 
   const ezApplicationFileSystemConfig& GetFileSystemConfig() const { return m_FileSystemConfig; }
@@ -122,7 +122,7 @@ private:
   void GuiCreateOrOpenDocument(bool bCreate);
   void GuiCreateOrOpenProject(bool bCreate);
 
-  ezDocumentBase* CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow = true);
+  ezDocument* CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow = true);
   void CreateOrOpenProject(bool bCreate, const char* szFile);
 
 private slots:
@@ -137,10 +137,10 @@ private:
 
   void UpdateGlobalStatusBarMessage();
 
-  void DocumentManagerRequestHandler(ezDocumentManagerBase::Request& r);
-  void DocumentManagerEventHandler(const ezDocumentManagerBase::Event& r);
-  void DocumentEventHandler(const ezDocumentBase::Event& e);
-  void DocumentWindowEventHandler(const ezDocumentWindow::Event& e);
+  void DocumentManagerRequestHandler(ezDocumentManager::Request& r);
+  void DocumentManagerEventHandler(const ezDocumentManager::Event& r);
+  void DocumentEventHandler(const ezDocument::Event& e);
+  void DocumentWindowEventHandler(const ezQtDocumentWindow::Event& e);
   void ProjectRequestHandler(ezToolsProject::Request& r);
   void ProjectEventHandler(const ezToolsProject::Event& r);
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
@@ -164,7 +164,7 @@ private:
   ezMap<ezString, ezMap<ezString, ezSettings> > s_DocumentSettings;
 
   void StoreSettings(const ezMap<ezString, ezSettings>& settings, const char* szFolder);
-  void SaveDocumentSettings(const ezDocumentBase* pDocument);
+  void SaveDocumentSettings(const ezDocument* pDocument);
 
   void SaveRecentFiles();
   void LoadRecentFiles();

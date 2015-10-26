@@ -6,14 +6,14 @@
 #include <CoreUtils/Graphics/Camera.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRotateGizmo, ezGizmoBase, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRotateGizmo, ezGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezRotateGizmo::ezRotateGizmo()
 {
-  m_AxisX.Configure(this, ezGizmoHandleType::Ring, ezColorLinearUB(128, 0, 0));
-  m_AxisY.Configure(this, ezGizmoHandleType::Ring, ezColorLinearUB(0, 128, 0));
-  m_AxisZ.Configure(this, ezGizmoHandleType::Ring, ezColorLinearUB(0, 0, 128));
+  m_AxisX.Configure(this, ezEngineGizmoHandleType::Ring, ezColorLinearUB(128, 0, 0));
+  m_AxisY.Configure(this, ezEngineGizmoHandleType::Ring, ezColorLinearUB(0, 128, 0));
+  m_AxisZ.Configure(this, ezEngineGizmoHandleType::Ring, ezColorLinearUB(0, 0, 128));
 
   SetVisible(false);
   SetTransformation(ezMat4::IdentityMatrix());
@@ -21,7 +21,7 @@ ezRotateGizmo::ezRotateGizmo()
   m_SnappingAngle = ezAngle();
 }
 
-void ezRotateGizmo::OnSetOwner(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView)
+void ezRotateGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
   m_AxisX.SetOwner(pOwnerWindow);
   m_AxisY.SetOwner(pOwnerWindow);
@@ -51,10 +51,10 @@ void ezRotateGizmo::OnTransformationChanged(const ezMat4& transform)
 
 void ezRotateGizmo::FocusLost(bool bCancel)
 {
-  BaseEvent ev;
+  GizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = bCancel ? BaseEvent::Type::CancelInteractions : BaseEvent::Type::EndInteractions;
-  m_BaseEvents.Broadcast(ev);
+  ev.m_Type = bCancel ? GizmoEvent::Type::CancelInteractions : GizmoEvent::Type::EndInteractions;
+  m_GizmoEvents.Broadcast(ev);
 
   ezViewHighlightMsgToEngine msg;
   msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
@@ -126,10 +126,10 @@ bool ezRotateGizmo::mousePressEvent(QMouseEvent* e)
 
   SetActiveInputContext(this);
 
-  BaseEvent ev;
+  GizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = BaseEvent::Type::BeginInteractions;
-  m_BaseEvents.Broadcast(ev);
+  ev.m_Type = GizmoEvent::Type::BeginInteractions;
+  m_GizmoEvents.Broadcast(ev);
 
   return true;
 }
@@ -180,10 +180,10 @@ bool ezRotateGizmo::mouseMoveEvent(QMouseEvent* e)
 
   SetTransformation(mTrans);
 
-  BaseEvent ev;
+  GizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = BaseEvent::Type::Interaction;
-  m_BaseEvents.Broadcast(ev);
+  ev.m_Type = GizmoEvent::Type::Interaction;
+  m_GizmoEvents.Broadcast(ev);
 
   return true;
 }

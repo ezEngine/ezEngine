@@ -21,7 +21,7 @@
 
 
 
-void ezSceneDocumentWindow::UpdateGizmoVisibility()
+void ezQtSceneDocumentWindow::UpdateGizmoVisibility()
 {
   ezSceneDocument* pSceneDoc = static_cast<ezSceneDocument*>(GetDocument());
 
@@ -61,7 +61,7 @@ done:
 }
 
 
-void ezSceneDocumentWindow::UpdateGizmoSelectionList()
+void ezQtSceneDocumentWindow::UpdateGizmoSelectionList()
 {
   // Get the list of all objects that are manipulated
   // and store their original transformation
@@ -91,7 +91,7 @@ void ezSceneDocumentWindow::UpdateGizmoSelectionList()
   }
 }
 
-void ezSceneDocumentWindow::UpdateGizmoPosition()
+void ezQtSceneDocumentWindow::UpdateGizmoPosition()
 {
   const auto& LatestSelection = GetDocument()->GetSelectionManager()->GetSelection().PeekBack();
 
@@ -123,11 +123,11 @@ void ezSceneDocumentWindow::UpdateGizmoPosition()
 }
 
 
-void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::BaseEvent& e)
+void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmo::GizmoEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezGizmoBase::BaseEvent::Type::BeginInteractions:
+  case ezGizmo::GizmoEvent::Type::BeginInteractions:
     {
       m_bMergeTransactions = false;
 
@@ -149,7 +149,7 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
     }
     break;
 
-  case ezGizmoBase::BaseEvent::Type::EndInteractions:
+  case ezGizmo::GizmoEvent::Type::EndInteractions:
     {
       GetDocument()->GetCommandHistory()->FinishTemporaryCommands();
 
@@ -160,7 +160,7 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
     }
     break;
 
-  case ezGizmoBase::BaseEvent::Type::CancelInteractions:
+  case ezGizmo::GizmoEvent::Type::CancelInteractions:
     {
       GetDocument()->GetCommandHistory()->CancelTemporaryCommands();
 
@@ -168,7 +168,7 @@ void ezSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoBase::B
     }
     break;
 
-  case ezGizmoBase::BaseEvent::Type::Interaction:
+  case ezGizmo::GizmoEvent::Type::Interaction:
     {
       m_bInGizmoInteraction = true;
       GetDocument()->GetCommandHistory()->StartTransaction();

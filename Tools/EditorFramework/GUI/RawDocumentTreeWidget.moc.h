@@ -5,14 +5,14 @@
 #include <QTreeView>
 #include <memory>
 
-class EZ_EDITORFRAMEWORK_DLL ezRawDocumentTreeWidget : public QTreeView
+class EZ_EDITORFRAMEWORK_DLL ezQtDocumentTreeWidget : public QTreeView
 {
   Q_OBJECT
 
 public:
 
-  ezRawDocumentTreeWidget(QWidget* pParent, ezDocumentBase* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty, std::unique_ptr<ezRawDocumentTreeModel> pCustomModel = nullptr);
-  ~ezRawDocumentTreeWidget();
+  ezQtDocumentTreeWidget(QWidget* pParent, ezDocument* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel = nullptr);
+  ~ezQtDocumentTreeWidget();
 
   void EnsureLastSelectedItemVisible();
 
@@ -26,8 +26,8 @@ private:
   void SelectionEventHandler(const ezSelectionManager::Event& e);
 
 private:
-  std::unique_ptr<ezRawDocumentTreeModel> m_pModel;
-  ezDocumentBase* m_pDocument;
+  std::unique_ptr<ezQtDocumentTreeModel> m_pModel;
+  ezDocument* m_pDocument;
   bool m_bBlockSelectionSignal;
 };
 

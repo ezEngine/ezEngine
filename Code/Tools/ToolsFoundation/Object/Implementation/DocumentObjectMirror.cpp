@@ -61,7 +61,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
       }
       else
       {
-        ezHybridArray<const ezDocumentObjectBase*, 8> path;
+        ezHybridArray<const ezDocumentObject*, 8> path;
         ezUuid guid = FindRootOpObject(e.m_pNewParent, path);
 
         // Recreate parent guid in place with all children
@@ -86,7 +86,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
       }
       else
       {
-        ezHybridArray<const ezDocumentObjectBase*, 8> path;
+        ezHybridArray<const ezDocumentObject*, 8> path;
         ezUuid guid = FindRootOpObject(e.m_pPreviousParent, path);
 
         // Recreate parent guid in place with all children
@@ -125,7 +125,7 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
       }
       else
       {
-        ezHybridArray<const ezDocumentObjectBase*, 8> path;
+        ezHybridArray<const ezDocumentObject*, 8> path;
         ezUuid guid = FindRootOpObject(e.m_pObject, path);
 
         // Recreate parent guid in place with all children
@@ -143,7 +143,7 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
 }
 
 
-void* ezDocumentObjectMirror::GetNativeObjectPointer(const ezDocumentObjectBase* pObject)
+void* ezDocumentObjectMirror::GetNativeObjectPointer(const ezDocumentObject* pObject)
 {
   auto* pWrapper = m_Context.GetObjectByGUID(pObject->GetGuid());
 
@@ -153,7 +153,7 @@ void* ezDocumentObjectMirror::GetNativeObjectPointer(const ezDocumentObjectBase*
   return pWrapper->m_pObject;
 }
 
-const void* ezDocumentObjectMirror::GetNativeObjectPointer(const ezDocumentObjectBase* pObject) const
+const void* ezDocumentObjectMirror::GetNativeObjectPointer(const ezDocumentObject* pObject) const
 {
   auto* pWrapper = m_Context.GetObjectByGUID(pObject->GetGuid());
 
@@ -163,12 +163,12 @@ const void* ezDocumentObjectMirror::GetNativeObjectPointer(const ezDocumentObjec
   return pWrapper->m_pObject;
 }
 
-bool ezDocumentObjectMirror::IsRootObject(const ezDocumentObjectBase* pParent)
+bool ezDocumentObjectMirror::IsRootObject(const ezDocumentObject* pParent)
 {
   return (pParent == nullptr || pParent == m_pManager->GetRootObject());
 }
 
-bool ezDocumentObjectMirror::IsHeapAllocated(const ezDocumentObjectBase* pParent, const char* szParentProperty)
+bool ezDocumentObjectMirror::IsHeapAllocated(const ezDocumentObject* pParent, const char* szParentProperty)
 {
   if (pParent == nullptr || pParent == m_pManager->GetRootObject())
     return true;
@@ -180,7 +180,7 @@ bool ezDocumentObjectMirror::IsHeapAllocated(const ezDocumentObjectBase* pParent
   return pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner);
 }
 
-ezUuid ezDocumentObjectMirror::FindRootOpObject(const ezDocumentObjectBase* pParent, ezHybridArray<const ezDocumentObjectBase*, 8>& path)
+ezUuid ezDocumentObjectMirror::FindRootOpObject(const ezDocumentObject* pParent, ezHybridArray<const ezDocumentObject*, 8>& path)
 {
   path.PushBack(pParent);
 

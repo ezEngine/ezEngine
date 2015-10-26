@@ -4,9 +4,9 @@
 #include <QTimer>
 #include <CoreUtils/Localization/TranslationLookup.h>
 
-ezDynamicArray<ezApplicationPanel*> ezApplicationPanel::s_AllApplicationPanels;
+ezDynamicArray<ezQtApplicationPanel*> ezQtApplicationPanel::s_AllApplicationPanels;
 
-ezApplicationPanel::ezApplicationPanel(const char* szPanelName) : QDockWidget(ezContainerWindow::GetAllContainerWindows()[0])
+ezQtApplicationPanel::ezQtApplicationPanel(const char* szPanelName) : QDockWidget(ezContainerWindow::GetAllContainerWindows()[0])
 {
   ezStringBuilder sPanel("AppPanel_", szPanelName);
 
@@ -21,17 +21,17 @@ ezApplicationPanel::ezApplicationPanel(const char* szPanelName) : QDockWidget(ez
 
   ezContainerWindow::GetAllContainerWindows()[0]->MoveApplicationPanelToContainer(this);
 
-  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezApplicationPanel::ToolsProjectEventHandler, this));
+  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezQtApplicationPanel::ToolsProjectEventHandler, this));
 }
 
-ezApplicationPanel::~ezApplicationPanel()
+ezQtApplicationPanel::~ezQtApplicationPanel()
 {
-  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezApplicationPanel::ToolsProjectEventHandler, this));
+  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtApplicationPanel::ToolsProjectEventHandler, this));
 
   s_AllApplicationPanels.RemoveSwap(this);
 }
 
-void ezApplicationPanel::EnsureVisible()
+void ezQtApplicationPanel::EnsureVisible()
 {
   m_pContainerWindow->EnsureVisible(this);
 
@@ -39,7 +39,7 @@ void ezApplicationPanel::EnsureVisible()
 }
 
 
-void ezApplicationPanel::ToolsProjectEventHandler(const ezToolsProject::Event& e)
+void ezQtApplicationPanel::ToolsProjectEventHandler(const ezToolsProject::Event& e)
 {
   switch (e.m_Type)
   {

@@ -23,7 +23,7 @@ public:
 protected:
 
   /// \brief Resets the parser to the start state and configures it to read from the given stream.
-  void SetInputStream(ezStreamReaderBase& stream, ezUInt32 uiFirstLineOffset = 0);
+  void SetInputStream(ezStreamReader& stream, ezUInt32 uiFirstLineOffset = 0);
 
   /// \brief Does one parsing step.
   ///
@@ -143,7 +143,7 @@ private:
   ezUInt32 m_uiCurLine;
   ezUInt32 m_uiCurColumn;
 
-  ezStreamReaderBase* m_pInput;
+  ezStreamReader* m_pInput;
   ezHybridArray<JSONState, 32> m_StateStack;
   ezHybridArray<ezUInt8, 4096> m_TempString;
 

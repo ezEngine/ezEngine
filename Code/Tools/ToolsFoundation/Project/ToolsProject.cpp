@@ -93,7 +93,7 @@ void ezToolsProject::CloseProject()
     e.m_Type = Event::Type::ProjectClosing;
     s_Events.Broadcast(e);
 
-    ezDocumentManagerBase::CloseAllDocuments();
+    ezDocumentManager::CloseAllDocuments();
 
     delete s_pInstance;
 

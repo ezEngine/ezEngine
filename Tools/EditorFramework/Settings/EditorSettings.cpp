@@ -7,36 +7,36 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 
-void ezEditorApp::RegisterPluginNameForSettings(const char* szPluginName)
+void ezQtEditorApp::RegisterPluginNameForSettings(const char* szPluginName)
 {
   s_SettingsPluginNames.Insert(szPluginName);
 }
 
-ezSettings& ezEditorApp::GetEditorSettings(const char* szPlugin)
+ezSettings& ezQtEditorApp::GetEditorSettings(const char* szPlugin)
 {
   return GetSettings(s_EditorSettings, szPlugin, "");
 }
 
-ezSettings& ezEditorApp::GetProjectSettings(const char* szPlugin)
+ezSettings& ezQtEditorApp::GetProjectSettings(const char* szPlugin)
 {
   EZ_ASSERT_DEV(ezToolsProject::IsProjectOpen(), "No project is open");
 
-  return GetSettings(s_ProjectSettings, szPlugin, ezEditorApp::GetDocumentDataFolder(ezToolsProject::GetInstance()->GetProjectPath()));
+  return GetSettings(s_ProjectSettings, szPlugin, ezQtEditorApp::GetDocumentDataFolder(ezToolsProject::GetInstance()->GetProjectPath()));
 }
 
-ezSettings& ezEditorApp::GetDocumentSettings(const ezDocumentBase* pDocument, const char* szPlugin)
+ezSettings& ezQtEditorApp::GetDocumentSettings(const ezDocument* pDocument, const char* szPlugin)
 {
   return GetDocumentSettings(pDocument->GetDocumentPath(), szPlugin);
 }
 
-ezSettings& ezEditorApp::GetDocumentSettings(const char* szDocument, const char* szPlugin)
+ezSettings& ezQtEditorApp::GetDocumentSettings(const char* szDocument, const char* szPlugin)
 {
-  return GetSettings(s_DocumentSettings[szDocument], szPlugin, ezEditorApp::GetDocumentDataFolder(szDocument));
+  return GetSettings(s_DocumentSettings[szDocument], szPlugin, ezQtEditorApp::GetDocumentDataFolder(szDocument));
 }
 
-ezSettings& ezEditorApp::GetSettings(ezMap<ezString, ezSettings>& SettingsMap, const char* szPlugin, const char* szSearchPath)
+ezSettings& ezQtEditorApp::GetSettings(ezMap<ezString, ezSettings>& SettingsMap, const char* szPlugin, const char* szSearchPath)
 {
-  EZ_ASSERT_DEV(s_SettingsPluginNames.Contains(szPlugin), "The plugin name '%s' has not been registered with 'ezEditorApp::RegisterPluginNameForSettings'", szPlugin);
+  EZ_ASSERT_DEV(s_SettingsPluginNames.Contains(szPlugin), "The plugin name '%s' has not been registered with 'ezQtEditorApp::RegisterPluginNameForSettings'", szPlugin);
 
   bool bExisted = false;
 
@@ -72,19 +72,19 @@ ezSettings& ezEditorApp::GetSettings(ezMap<ezString, ezSettings>& SettingsMap, c
   return settings;
 }
 
-void ezEditorApp::SaveRecentFiles()
+void ezQtEditorApp::SaveRecentFiles()
 {
   s_RecentProjects.Save("Settings/RecentProjects.txt");
   s_RecentDocuments.Save("Settings/RecentDocuments.txt");
 }
 
-void ezEditorApp::LoadRecentFiles()
+void ezQtEditorApp::LoadRecentFiles()
 {
   s_RecentProjects.Load("Settings/RecentProjects.txt");
   s_RecentDocuments.Load("Settings/RecentDocuments.txt");
 }
 
-void ezEditorApp::StoreSettings(const ezMap<ezString, ezSettings>& settings, const char* szFolder)
+void ezQtEditorApp::StoreSettings(const ezMap<ezString, ezSettings>& settings, const char* szFolder)
 {
   for (auto it = settings.GetIterator(); it.IsValid(); ++it)
   {
@@ -113,7 +113,7 @@ void ezEditorApp::StoreSettings(const ezMap<ezString, ezSettings>& settings, con
   }
 }
 
-void ezEditorApp::SaveSettings()
+void ezQtEditorApp::SaveSettings()
 {
   SaveRecentFiles();
 
@@ -128,7 +128,7 @@ void ezEditorApp::SaveSettings()
   }
 }
 
-void ezEditorApp::SaveDocumentSettings(const ezDocumentBase* pDocument)
+void ezQtEditorApp::SaveDocumentSettings(const ezDocument* pDocument)
 {
   auto it = s_DocumentSettings.Find(pDocument->GetDocumentPath());
 

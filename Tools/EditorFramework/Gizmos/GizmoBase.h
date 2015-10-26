@@ -7,12 +7,12 @@
 
 class ezCamera;
 
-class EZ_EDITORFRAMEWORK_DLL ezGizmoBase : public ezEditorInputContext
+class EZ_EDITORFRAMEWORK_DLL ezGizmo : public ezEditorInputContext
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGizmoBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezGizmo);
 
 public:
-  ezGizmoBase();
+  ezGizmo();
 
   void SetVisible(bool bVisible);
   bool IsVisible() const { return m_bVisible; }
@@ -20,7 +20,7 @@ public:
   void SetTransformation(const ezMat4& transform);
   const ezMat4& GetTransformation() const { return m_Transformation; }
 
-  void ConfigureInteraction(ezGizmoHandleBase* pHandle, const ezCamera* pCamera, const ezVec3& vInteractionPivot, const ezVec2I32& viewport)
+  void ConfigureInteraction(ezGizmoHandle* pHandle, const ezCamera* pCamera, const ezVec3& vInteractionPivot, const ezVec2I32& viewport)
   {
     m_pInteractionGizmoHandle = pHandle;
     m_pCamera = pCamera;
@@ -28,7 +28,7 @@ public:
     m_Viewport = viewport;
   }
 
-  struct BaseEvent
+  struct GizmoEvent
   {
     enum class Type
     {
@@ -38,18 +38,18 @@ public:
       CancelInteractions,
     };
 
-    const ezGizmoBase* m_pGizmo;
+    const ezGizmo* m_pGizmo;
     Type m_Type;
   };
 
-  ezEvent<const BaseEvent&> m_BaseEvents;
+  ezEvent<const GizmoEvent&> m_GizmoEvents;
 
 protected:
   virtual void OnVisibleChanged(bool bVisible) = 0;
   virtual void OnTransformationChanged(const ezMat4& transform) = 0;
 
   const ezCamera* m_pCamera;
-  ezGizmoHandleBase* m_pInteractionGizmoHandle;
+  ezGizmoHandle* m_pInteractionGizmoHandle;
   ezVec3 m_vInteractionPivot;
   ezVec2I32 m_Viewport;
 

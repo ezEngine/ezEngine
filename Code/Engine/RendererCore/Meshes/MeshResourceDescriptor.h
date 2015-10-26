@@ -36,10 +36,10 @@ public:
 
   void SetMaterial(ezUInt32 uiMaterialIndex, const char* szPathToMaterial);
 
-  void Save(ezStreamWriterBase& stream);
+  void Save(ezStreamWriter& stream);
   ezResult Save(const char* szFile);
 
-  ezResult Load(ezStreamReaderBase& stream);
+  ezResult Load(ezStreamReader& stream);
   ezResult Load(const char* szFile);
 
   const ezMeshBufferResourceHandle& GetExistingMeshBuffer() const;

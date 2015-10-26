@@ -7,7 +7,7 @@ class QHBoxLayout;
 class QPushButton;
 class QMenu;
 
-class EZ_GUIFOUNDATION_DLL ezAddSubElementButton : public ezPropertyBaseWidget
+class EZ_GUIFOUNDATION_DLL ezAddSubElementButton : public ezQtPropertyWidget
 {
   Q_OBJECT
 

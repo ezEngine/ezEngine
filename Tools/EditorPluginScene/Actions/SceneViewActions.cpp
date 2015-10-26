@@ -41,8 +41,8 @@ ezSceneViewAction::ezSceneViewAction(const ezActionContext& context, const char*
   : ezButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
-  ezSceneViewWidget* pView = qobject_cast<ezSceneViewWidget*>(context.m_pWindow);
-  EZ_ASSERT_DEV(pView != nullptr, "context.m_pWindow must be derived from type 'ezSceneViewWidget'!");
+  ezQtSceneViewWidget* pView = qobject_cast<ezQtSceneViewWidget*>(context.m_pWindow);
+  EZ_ASSERT_DEV(pView != nullptr, "context.m_pWindow must be derived from type 'ezQtSceneViewWidget'!");
   switch (m_ButtonType)
   {
   case ButtonType::ToggleViews:
@@ -61,8 +61,8 @@ ezSceneViewAction::~ezSceneViewAction()
 
 void ezSceneViewAction::Execute(const ezVariant& value)
 {
-  ezSceneViewWidget* pView = qobject_cast<ezSceneViewWidget*>(m_Context.m_pWindow);
-  ezSceneDocumentWindow* pWindow = static_cast<ezSceneDocumentWindow*>(pView->GetDocumentWindow());
+  ezQtSceneViewWidget* pView = qobject_cast<ezQtSceneViewWidget*>(m_Context.m_pWindow);
+  ezQtSceneDocumentWindow* pWindow = static_cast<ezQtSceneDocumentWindow*>(pView->GetDocumentWindow());
 
   switch (m_ButtonType)
   {

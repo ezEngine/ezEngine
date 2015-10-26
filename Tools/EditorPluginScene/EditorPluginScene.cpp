@@ -1,7 +1,6 @@
 #include <PCH.h>
 #include <EditorPluginScene/EditorPluginScene.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorPluginScene/Objects/TestObjects.h>
 #include <EditorPluginScene/Actions/GizmoActions.h>
 #include <EditorPluginScene/Actions/SelectionActions.h>
 #include <EditorPluginScene/Actions/SceneViewActions.h>
@@ -17,15 +16,15 @@
 #include <CoreUtils/Localization/TranslationLookup.h>
 #include <Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
 
-void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
+void OnDocumentManagerEvent(const ezDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-  case ezDocumentManagerBase::Event::Type::DocumentWindowRequested:
+  case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSceneDocument>())
       {
-        ezDocumentWindow* pDocWnd = new ezSceneDocumentWindow(e.m_pDocument);
+        ezQtDocumentWindow* pDocWnd = new ezQtSceneDocumentWindow(e.m_pDocument);
       }
     }
     break;
@@ -36,9 +35,9 @@ void OnLoadPlugin(bool bReloading)
 {
   ezTranslatorFromFiles::AddTranslationFile("ScenePlugin.txt");
 
-  ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
+  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
 
-  ezEditorApp::GetInstance()->RegisterPluginNameForSettings("ScenePlugin");
+  ezQtEditorApp::GetInstance()->RegisterPluginNameForSettings("ScenePlugin");
 
   ezGizmoActions::RegisterActions();
   ezSelectionActions::RegisterActions();
@@ -79,7 +78,7 @@ void OnLoadPlugin(bool bReloading)
 
 void OnUnloadPlugin(bool bReloading)  
 {
-  ezDocumentManagerBase::s_Events.RemoveEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
+  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
 
   ezGizmoActions::UnregisterActions();
   ezSelectionActions::UnregisterActions();

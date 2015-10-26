@@ -38,7 +38,7 @@ ezTypeWidget::~ezTypeWidget()
   m_pGrid->GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezTypeWidget::PropertyEventHandler, this));
 }
 
-void ezTypeWidget::SetSelection(const ezHybridArray<ezPropertyBaseWidget::Selection, 8>& items)
+void ezTypeWidget::SetSelection(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items)
 {
   QtScopedUpdatesDisabled _(this);
 
@@ -71,7 +71,7 @@ void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath)
 
     ParentPath.PushBack(pProp->GetPropertyName());
 
-    ezPropertyBaseWidget* pNewWidget = ezPropertyGridWidget::CreatePropertyWidget(pProp);
+    ezQtPropertyWidget* pNewWidget = ezPropertyGridWidget::CreatePropertyWidget(pProp);
     EZ_ASSERT_DEV(pNewWidget != nullptr, "No property editor defined for '%s'", pProp->GetPropertyName());
     pNewWidget->setParent(this);
     pNewWidget->Init(m_pGrid, pProp, ParentPath);
@@ -98,11 +98,11 @@ void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath)
 
 }
 
-void ezTypeWidget::PropertyChangedHandler(const ezPropertyBaseWidget::Event& ed)
+void ezTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
 {
   switch (ed.m_Type)
   {
-  case  ezPropertyBaseWidget::Event::Type::ValueChanged:
+  case  ezQtPropertyWidget::Event::Type::ValueChanged:
     {
       ezSetObjectPropertyCommand cmd;
       cmd.m_NewValue = ed.m_Value;
@@ -133,19 +133,19 @@ void ezTypeWidget::PropertyChangedHandler(const ezPropertyBaseWidget::Event& ed)
     }
     break;
 
-  case  ezPropertyBaseWidget::Event::Type::BeginTemporary:
+  case  ezQtPropertyWidget::Event::Type::BeginTemporary:
     {
       m_pGrid->GetDocument()->GetCommandHistory()->BeginTemporaryCommands();
     }
     break;
 
-  case  ezPropertyBaseWidget::Event::Type::EndTemporary:
+  case  ezQtPropertyWidget::Event::Type::EndTemporary:
     {
       m_pGrid->GetDocument()->GetCommandHistory()->FinishTemporaryCommands();
     }
     break;
 
-  case  ezPropertyBaseWidget::Event::Type::CancelTemporary:
+  case  ezQtPropertyWidget::Event::Type::CancelTemporary:
     {
       m_pGrid->GetDocument()->GetCommandHistory()->CancelTemporaryCommands();
     }
@@ -158,10 +158,10 @@ void ezTypeWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
   UpdateProperty(e.m_pObject, e.m_sPropertyPath);
 }
 
-void ezTypeWidget::UpdateProperty(const ezDocumentObjectBase* pObject, const ezString& sProperty)
+void ezTypeWidget::UpdateProperty(const ezDocumentObject* pObject, const ezString& sProperty)
 {
   if (std::none_of(cbegin(m_Items), cend(m_Items),
-    [=](const ezPropertyBaseWidget::Selection& sel) { return pObject == sel.m_pObject; }
+    [=](const ezQtPropertyWidget::Selection& sel) { return pObject == sel.m_pObject; }
     ))
     return;
 

@@ -57,8 +57,8 @@ public:
   ezString GetValueString(const char* szKey);
   ezColor GetValueColor(const char* szKey);
 
-  void WriteToJSON(ezStreamWriterBase& stream, bool bNonUserSettings, bool bUserSettings) const;
-  void ReadFromJSON(ezStreamReaderBase& stream);
+  void WriteToJSON(ezStreamWriter& stream, bool bNonUserSettings, bool bUserSettings) const;
+  void ReadFromJSON(ezStreamReader& stream);
 
   const ezMap<ezString, VariableValue>& GetAllSettings() const { return m_Settings; }
   ezMap<ezString, VariableValue>& GetAllSettings() { return m_Settings; }

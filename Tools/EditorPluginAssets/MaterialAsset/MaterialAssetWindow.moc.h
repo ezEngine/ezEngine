@@ -8,12 +8,12 @@ class QLabel;
 class QScrollArea;
 class QtImageWidget;
 
-class ezMaterialAssetDocumentWindow : public ezDocumentWindow
+class ezMaterialAssetDocumentWindow : public ezQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezMaterialAssetDocumentWindow(ezDocumentBase* pDocument);
+  ezMaterialAssetDocumentWindow(ezDocument* pDocument);
   ~ezMaterialAssetDocumentWindow();
 
   virtual const char* GetGroupName() const { return "MaterialAsset"; }

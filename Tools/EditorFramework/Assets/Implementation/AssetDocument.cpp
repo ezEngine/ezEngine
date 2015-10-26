@@ -25,7 +25,7 @@ EZ_MEMBER_PROPERTY("AssetType", m_sAssetTypeName),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocument, ezDocumentBase, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocument, ezDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezAssetDocumentInfo::ezAssetDocumentInfo()
@@ -79,7 +79,7 @@ void ezAssetDocumentInfo::SetReferences(ezString s)
 }
 
 
-ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager) : ezDocumentBase(szDocumentPath, pObjectManager)
+ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager) : ezDocument(szDocumentPath, pObjectManager)
 {
 }
 
@@ -102,7 +102,7 @@ ezStatus ezAssetDocument::InternalSaveDocument()
 
   UpdateAssetDocumentInfo(pInfo);
 
-  return ezDocumentBase::InternalSaveDocument();
+  return ezDocument::InternalSaveDocument();
 }
 
 ezUInt64 ezAssetDocument::GetDocumentHash() const
@@ -116,7 +116,7 @@ ezUInt64 ezAssetDocument::GetDocumentHash() const
   return uiHash;
 }
 
-void ezAssetDocument::GetChildHash(const ezDocumentObjectBase* pObject, ezUInt64& uiHash) const
+void ezAssetDocument::GetChildHash(const ezDocumentObject* pObject, ezUInt64& uiHash) const
 {
   pObject->ComputeObjectHash(uiHash);
 
@@ -210,7 +210,7 @@ void ezAssetDocument::SaveThumbnail(const ezImage& img)
 
   /// \todo A conversion to B8G8R8X8_UNORM currently fails
 
-  if (ezImageConversionBase::Convert(img, converted, ezImageFormat::B8G8R8A8_UNORM).Failed())
+  if (ezImageConversion::Convert(img, converted, ezImageFormat::B8G8R8A8_UNORM).Failed())
   {
     ezLog::Error("Could not convert asset thumbnail to target format: '%s'", sResourceFile.GetData());
     return;

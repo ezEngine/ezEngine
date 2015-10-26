@@ -8,7 +8,7 @@ class ezCamera;
 class ezSelectionContext : public ezEditorInputContext
 {
 public:
-  ezSelectionContext(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView, const ezCamera* pCamera);
+  ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera);
 
   void SetWindowConfig(const ezVec2I32& viewport)
   {
@@ -21,7 +21,7 @@ public:
   virtual bool keyPressEvent(QKeyEvent* e) override;
 
 protected:
-  virtual void OnSetOwner(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView) override {}
+  virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override {}
 
 private:
   bool m_bSelectOnMouseUp;

@@ -5,11 +5,11 @@
 #include <Foundation/Containers/HashTable.h>
 
 /// \brief Base class for all path finding state objects.
-struct ezPathStateBase
+struct ezPathState
 {
   EZ_DECLARE_POD_TYPE();
 
-  ezPathStateBase()
+  ezPathState()
   {
     m_iReachedThroughNode = 0;
     m_fCostToNode = 0.0f;
@@ -44,7 +44,7 @@ class ezPathSearch;
 /// The 'state' that is then carried is the current orientation of the unit at that point along the path, which determines into which
 /// directions the path search can be expanded.
 ///
-/// PathStateType needs to be derived from ezPathStateBase.
+/// PathStateType needs to be derived from ezPathState.
 template<typename PathStateType>
 class ezPathStateGenerator
 {

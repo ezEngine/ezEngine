@@ -159,10 +159,10 @@ private:
   /// \brief Requests the resource to unload another quality level. If bFullUnload is true, the resource should unload all data, because it is going to be deleted afterwards.
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) = 0;
 
-  void CallUpdateContent(ezStreamReaderBase* Stream);
+  void CallUpdateContent(ezStreamReader* Stream);
 
   /// \brief Called whenever more data for the resource is available. The resource must read the stream to update it's data.
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReaderBase* Stream) = 0;
+  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) = 0;
 
   /// \brief Returns the resource type loader that should be used for this type of resource, unless it has been overridden on the ezResourceManager.
   ///

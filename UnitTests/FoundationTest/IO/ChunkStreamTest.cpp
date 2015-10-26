@@ -19,22 +19,22 @@ class ezSerializationContextTest : public ezSerializationContext<ezSerialization
 {
 public:
 
-  void SetStream(ezStreamReaderBase& stream)
+  void SetStream(ezStreamReader& stream)
   {
     RegisterReaderStream(&stream);
   }
 
-  void SetStream(ezStreamWriterBase& stream)
+  void SetStream(ezStreamWriter& stream)
   {
     RegisterWriterStream(&stream);
   }
 
-  void Read(ezStreamReaderBase& stream, ezSomeSerializationObj& obj)
+  void Read(ezStreamReader& stream, ezSomeSerializationObj& obj)
   {
     stream >> obj.m_iData;
   }
 
-  void Write(ezStreamWriterBase& stream, const ezSomeSerializationObj& obj)
+  void Write(ezStreamWriter& stream, const ezSomeSerializationObj& obj)
   {
     stream << obj.m_iData;
   }

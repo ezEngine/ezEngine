@@ -5,11 +5,11 @@
 #include <Foundation/Communication/Event.h>
 
 class ezEditorEngineConnection;
-class ezDocumentBase;
-class ezDocumentObjectBase;
+class ezDocument;
+class ezDocumentObject;
 struct ezDocumentObjectPropertyEvent;
 struct ezDocumentObjectStructureEvent;
-class ezDocumentWindow3D;
+class ezQtEngineDocumentWindow;
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineProcessConnection
 {
@@ -27,10 +27,10 @@ public:
   void ShutdownProcess();
   bool IsProcessCrashed() const { return m_bProcessCrashed; }
 
-  ezEditorEngineConnection* CreateEngineConnection(ezDocumentWindow3D* pWindow);
-  void DestroyEngineConnection(ezDocumentWindow3D* pWindow);
+  ezEditorEngineConnection* CreateEngineConnection(ezQtEngineDocumentWindow* pWindow);
+  void DestroyEngineConnection(ezQtEngineDocumentWindow* pWindow);
 
-  void SendMessage(ezProcessMessage* pMessage, bool bSuperHighPriority = false);
+  void SendMessage(ezProcessMessage* pMessage = false);
   ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout);
 
   void SetWaitForDebugger(bool bWait) { m_bProcessShouldWaitForDebugger = bWait; }
@@ -65,7 +65,7 @@ public:
 private:
   void Initialize();
   void HandleIPCEvent(const ezProcessCommunication::Event& e);
-  void SendDocumentOpenMessage(const ezDocumentBase* pDocument, bool bOpen);
+  void SendDocumentOpenMessage(const ezDocument* pDocument, bool bOpen);
 
   bool m_bProcessShouldWaitForDebugger;
   bool m_bProcessShouldBeRunning;
@@ -73,27 +73,27 @@ private:
   bool m_bClientIsConfigured;
   ezProcessCommunication m_IPC;
   ezApplicationFileSystemConfig m_FileSystemConfig;
-  ezHashTable<ezUuid, ezDocumentWindow3D*> m_DocumentWindow3DByGuid;
+  ezHashTable<ezUuid, ezQtEngineDocumentWindow*> m_DocumentWindow3DByGuid;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineConnection
 {
 public:
 
-  void SendMessage(ezEditorEngineDocumentMsg* pMessage, bool bSuperHighPriority = false);
+  void SendMessage(ezEditorEngineDocumentMsg* pMessage = false);
 
   void SendObjectProperties(const ezDocumentObjectPropertyEvent& e);
   void SendDocumentTreeChange(const ezDocumentObjectStructureEvent& e);
   void SendDocument();
 
-  ezDocumentBase* GetDocument() const { return m_pDocument; }
+  ezDocument* GetDocument() const { return m_pDocument; }
 
 private:
   friend class ezEditorEngineProcessConnection;
-  ezEditorEngineConnection(ezDocumentBase* pDocument) { m_pDocument = pDocument; }
+  ezEditorEngineConnection(ezDocument* pDocument) { m_pDocument = pDocument; }
   ~ezEditorEngineConnection() { }
 
-  void SendObject(const ezDocumentObjectBase* pObject);
+  void SendObject(const ezDocumentObject* pObject);
 
-  ezDocumentBase* m_pDocument;
+  ezDocument* m_pDocument;
 };

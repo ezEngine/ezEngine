@@ -3,7 +3,7 @@
 
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
-class EZ_RENDERERFOUNDATION_DLL ezGALBlendState : public ezGALObjectBase<ezGALBlendStateCreationDescription>
+class EZ_RENDERERFOUNDATION_DLL ezGALBlendState : public ezGALObject<ezGALBlendStateCreationDescription>
 {
 public:
 
@@ -19,7 +19,7 @@ protected:
 
 };
 
-class EZ_RENDERERFOUNDATION_DLL ezGALDepthStencilState : public ezGALObjectBase<ezGALDepthStencilStateCreationDescription>
+class EZ_RENDERERFOUNDATION_DLL ezGALDepthStencilState : public ezGALObject<ezGALDepthStencilStateCreationDescription>
 {
 public:
 
@@ -34,7 +34,7 @@ protected:
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
 };
 
-class EZ_RENDERERFOUNDATION_DLL ezGALRasterizerState : public ezGALObjectBase<ezGALRasterizerStateCreationDescription>
+class EZ_RENDERERFOUNDATION_DLL ezGALRasterizerState : public ezGALObject<ezGALRasterizerStateCreationDescription>
 {
 public:
 
@@ -49,7 +49,7 @@ protected:
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
 };
 
-class EZ_RENDERERFOUNDATION_DLL ezGALSamplerState : public ezGALObjectBase<ezGALSamplerStateCreationDescription>
+class EZ_RENDERERFOUNDATION_DLL ezGALSamplerState : public ezGALObject<ezGALSamplerStateCreationDescription>
 {
 public:
 

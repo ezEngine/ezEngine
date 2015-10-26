@@ -4,7 +4,7 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeDirectAccessor.h>
 
-class ezDocumentBase;
+class ezDocument;
 
 class ezSceneObjectManager : public ezDocumentObjectManager
 {
@@ -14,11 +14,11 @@ public:
 
 private:
 
-  virtual ezDocumentObjectBase* InternalCreateObject(const ezRTTI* pRtti) override;
-  virtual void InternalDestroyObject(ezDocumentObjectBase* pObject) override;
-  virtual bool InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent, const char* szParentProperty, const ezVariant& index) const override;
-  virtual bool InternalCanRemove(const ezDocumentObjectBase* pObject) const override;
-  virtual bool InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, const char* szParentProperty, const ezVariant& index) const override;
+  virtual ezDocumentObject* InternalCreateObject(const ezRTTI* pRtti) override;
+  virtual void InternalDestroyObject(ezDocumentObject* pObject) override;
+  virtual bool InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const override;
+  virtual bool InternalCanRemove(const ezDocumentObject* pObject) const override;
+  virtual bool InternalCanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const override;
 
 };
 

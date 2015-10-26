@@ -11,7 +11,7 @@
 #include <QLayout>
 #include <CoreUtils/Image/ImageConversion.h>
 
-ezTextureAssetDocumentWindow::ezTextureAssetDocumentWindow(ezDocumentBase* pDocument) : ezDocumentWindow(pDocument)
+ezTextureAssetDocumentWindow::ezTextureAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {
   GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezTextureAssetDocumentWindow::PropertyEventHandler, this));
 
@@ -71,7 +71,7 @@ void ezTextureAssetDocumentWindow::UpdatePreview()
     return;
 
   ezImage Target;
-  if (ezImageConversionBase::Convert(pObject->GetImage(), Target, ezImageFormat::B8G8R8A8_UNORM).Failed())
+  if (ezImageConversion::Convert(pObject->GetImage(), Target, ezImageFormat::B8G8R8A8_UNORM).Failed())
     return;
 
   QImage img(Target.GetPixelPointer<ezUInt8>(), Target.GetWidth(), Target.GetHeight(), QImage::Format_RGBA8888);

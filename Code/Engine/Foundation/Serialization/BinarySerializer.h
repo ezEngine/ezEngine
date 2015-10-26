@@ -10,8 +10,8 @@ class EZ_FOUNDATION_DLL ezAbstractGraphBinarySerializer
 {
 public:
 
-  static void Write(ezStreamWriterBase& stream, const ezAbstractObjectGraph* pGraph); // [tested]
-  static void Read(ezStreamReaderBase& stream, ezAbstractObjectGraph* pGraph); // [tested]
+  static void Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph); // [tested]
+  static void Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph); // [tested]
 
 private:
 

@@ -6,7 +6,7 @@
 
 class GameWindow;
 
-class AsteroidGameState : public ezGameStateBase
+class AsteroidGameState : public ezGameState
 {
 public:
   AsteroidGameState();

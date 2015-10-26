@@ -4,29 +4,29 @@
 #include <ToolsFoundation/Basics/Status.h>
 #include <ToolsFoundation/Document/Document.h>
 
-class EZ_TOOLSFOUNDATION_DLL ezDocumentManagerBase : public ezReflectedClass
+class EZ_TOOLSFOUNDATION_DLL ezDocumentManager : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentManagerBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentManager);
 
 public:
-  virtual ~ezDocumentManagerBase() { }
+  virtual ~ezDocumentManager() { }
 
-  static const ezHybridArray<ezDocumentManagerBase*, 16>& GetAllDocumentManagers() { return s_AllDocumentManagers; }
+  static const ezHybridArray<ezDocumentManager*, 16>& GetAllDocumentManagers() { return s_AllDocumentManagers; }
 
-  static ezResult FindDocumentTypeFromPath(const char* szPath, bool bForCreation, ezDocumentManagerBase*& out_pTypeManager, ezDocumentTypeDescriptor* out_pTypeDesc = nullptr);
+  static ezResult FindDocumentTypeFromPath(const char* szPath, bool bForCreation, ezDocumentManager*& out_pTypeManager, ezDocumentTypeDescriptor* out_pTypeDesc = nullptr);
 
   void GetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const;
 
   ezStatus CanOpenDocument(const char* szFilePath) const;
 
-  ezStatus CreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument, bool bRequestWindow = true);
-  ezStatus OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument, bool bRequestWindow = true);
-  void CloseDocument(ezDocumentBase* pDocument);
-  void EnsureWindowRequested(ezDocumentBase* pDocument);
+  ezStatus CreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow = true);
+  ezStatus OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow = true);
+  void CloseDocument(ezDocument* pDocument);
+  void EnsureWindowRequested(ezDocument* pDocument);
 
-  const ezDynamicArray<ezDocumentBase*>& GetAllDocuments() const { return m_AllDocuments; }
+  const ezDynamicArray<ezDocument*>& GetAllDocuments() const { return m_AllDocuments; }
 
-  ezDocumentBase* GetDocumentByPath(const char* szPath) const;
+  ezDocument* GetDocumentByPath(const char* szPath) const;
 
   void CloseAllDocumentsOfManager();
   static void CloseAllDocuments();
@@ -44,7 +44,7 @@ public:
     };
 
     Type m_Type;
-    ezDocumentBase* m_pDocument;
+    ezDocument* m_pDocument;
   };
 
   struct Request
@@ -65,11 +65,11 @@ public:
 
 private:
   virtual ezStatus InternalCanOpenDocument(const char* szDocumentTypeName, const char* szFilePath) const = 0;
-  virtual ezStatus InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument) = 0;
+  virtual ezStatus InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument) = 0;
   virtual void InternalGetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const = 0;
 
 private:
-  ezStatus CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument, bool bRequestWindow);
+  ezStatus CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow);
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(ToolsFoundation, DocumentManager);
@@ -79,8 +79,8 @@ private:
   static void UpdateBeforeUnloadingPlugins(const ezPlugin::PluginEvent& e);
   static void UpdatedAfterLoadingPlugins();
 
-  ezDynamicArray<ezDocumentBase*> m_AllDocuments;
+  ezDynamicArray<ezDocument*> m_AllDocuments;
 
   static ezSet<const ezRTTI*> s_KnownManagers;
-  static ezHybridArray<ezDocumentManagerBase*, 16> s_AllDocumentManagers;
+  static ezHybridArray<ezDocumentManager*, 16> s_AllDocumentManagers;
 };

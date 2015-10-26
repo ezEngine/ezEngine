@@ -22,12 +22,12 @@ ezDocumentInfo::ezDocumentInfo()
 }
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentBase, ezReflectedClass, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocument, ezReflectedClass, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezEvent<const ezDocumentBase::Event&> ezDocumentBase::s_EventsAny;
+ezEvent<const ezDocument::Event&> ezDocument::s_EventsAny;
 
-ezDocumentBase::ezDocumentBase(const char* szPath, ezDocumentObjectManager* pDocumentObjectManagerImpl) :
+ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObjectManagerImpl) :
   m_CommandHistory(this)
 {
   m_pDocumentInfo = nullptr;
@@ -42,7 +42,7 @@ ezDocumentBase::ezDocumentBase(const char* szPath, ezDocumentObjectManager* pDoc
   m_bReadOnly = false;
 }
 
-ezDocumentBase::~ezDocumentBase()
+ezDocument::~ezDocument()
 {
   m_SelectionManager.SetOwner(nullptr);
 
@@ -55,7 +55,7 @@ ezDocumentBase::~ezDocumentBase()
   EZ_DEFAULT_DELETE(m_pDocumentInfo);
 }
 
-void ezDocumentBase::SetupDocumentInfo(const ezDocumentTypeDescriptor& TypeDescriptor)
+void ezDocument::SetupDocumentInfo(const ezDocumentTypeDescriptor& TypeDescriptor)
 {
   m_TypeDescriptor = TypeDescriptor;
   m_pDocumentInfo = CreateDocumentInfo();
@@ -63,7 +63,7 @@ void ezDocumentBase::SetupDocumentInfo(const ezDocumentTypeDescriptor& TypeDescr
   EZ_ASSERT_DEV(m_pDocumentInfo != nullptr, "invalid document info");
 }
 
-void ezDocumentBase::SetModified(bool b)
+void ezDocument::SetModified(bool b)
 {
   if (m_bModified == b)
     return;
@@ -78,7 +78,7 @@ void ezDocumentBase::SetModified(bool b)
   s_EventsAny.Broadcast(e);
 }
 
-void ezDocumentBase::SetReadOnly(bool b)
+void ezDocument::SetReadOnly(bool b)
 {
   if (m_bReadOnly == b)
     return;
@@ -93,7 +93,7 @@ void ezDocumentBase::SetReadOnly(bool b)
   s_EventsAny.Broadcast(e);
 }
 
-void ezDocumentBase::BroadcastSaveDocumentMetaState()
+void ezDocument::BroadcastSaveDocumentMetaState()
 {
   Event e;
   e.m_pDocument = this;
@@ -103,7 +103,7 @@ void ezDocumentBase::BroadcastSaveDocumentMetaState()
   s_EventsAny.Broadcast(e);
 }
 
-ezStatus ezDocumentBase::SaveDocument()
+ezStatus ezDocument::SaveDocument()
 {
   ezStatus ret = InternalSaveDocument();
 
@@ -123,7 +123,7 @@ ezStatus ezDocumentBase::SaveDocument()
   return ret;
 }
 
-void ezDocumentBase::EnsureVisible()
+void ezDocument::EnsureVisible()
 {
   Event e;
   e.m_pDocument = this;
@@ -133,7 +133,7 @@ void ezDocumentBase::EnsureVisible()
   s_EventsAny.Broadcast(e);
 }
 
-ezStatus ezDocumentBase::InternalSaveDocument()
+ezStatus ezDocument::InternalSaveDocument()
 {
   ezFileWriter file;
   if (file.Open(m_sDocumentPath) == EZ_FAILURE)
@@ -155,7 +155,7 @@ ezStatus ezDocumentBase::InternalSaveDocument()
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezDocumentBase::InternalLoadDocument()
+ezStatus ezDocument::InternalLoadDocument()
 {
   ezFileReader file;
   if (file.Open(m_sDocumentPath) == EZ_FAILURE)
@@ -180,7 +180,7 @@ ezStatus ezDocumentBase::InternalLoadDocument()
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezDocumentBase::DeleteSelectedObjects()
+void ezDocument::DeleteSelectedObjects()
 {
   auto objects = GetSelectionManager()->GetSelection();
 
@@ -192,7 +192,7 @@ void ezDocumentBase::DeleteSelectedObjects()
 
   ezRemoveObjectCommand cmd;
 
-  for (const ezDocumentObjectBase* pObject : objects)
+  for (const ezDocumentObject* pObject : objects)
   {
     cmd.m_Object = pObject->GetGuid();
 

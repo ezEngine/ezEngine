@@ -5,7 +5,7 @@
 #include <ToolsFoundation/Document/Document.h>
 
 
-class EZ_TOOLSFOUNDATION_DLL ezAddObjectCommand : public ezCommandBase
+class EZ_TOOLSFOUNDATION_DLL ezAddObjectCommand : public ezCommand
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAddObjectCommand);
 
@@ -28,10 +28,10 @@ private:
   virtual void Cleanup(CommandState state) override;
 
 private:
-  ezDocumentObjectBase* m_pObject;
+  ezDocumentObject* m_pObject;
 };
 
-class EZ_TOOLSFOUNDATION_DLL ezPasteObjectsCommand : public ezCommandBase
+class EZ_TOOLSFOUNDATION_DLL ezPasteObjectsCommand : public ezCommand
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezPasteObjectsCommand);
 
@@ -50,8 +50,8 @@ private:
 private:
   struct PastedObject
   {
-    ezDocumentObjectBase* m_pObject;
-    ezDocumentObjectBase* m_pParent;
+    ezDocumentObject* m_pObject;
+    ezDocumentObject* m_pParent;
     ezString m_sParentProperty;
     ezVariant m_Index;
   };
@@ -59,7 +59,7 @@ private:
   ezHybridArray<PastedObject, 4> m_PastedObjects;
 };
 
-class EZ_TOOLSFOUNDATION_DLL ezRemoveObjectCommand : public ezCommandBase
+class EZ_TOOLSFOUNDATION_DLL ezRemoveObjectCommand : public ezCommand
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRemoveObjectCommand);
 
@@ -75,14 +75,14 @@ private:
   virtual void Cleanup(CommandState state) override;
 
 private:
-  ezDocumentObjectBase* m_pParent;
+  ezDocumentObject* m_pParent;
   ezString m_sParentProperty;
   ezVariant m_Index;
-  ezDocumentObjectBase* m_pObject;
+  ezDocumentObject* m_pObject;
 };
 
 
-class EZ_TOOLSFOUNDATION_DLL ezMoveObjectCommand : public ezCommandBase
+class EZ_TOOLSFOUNDATION_DLL ezMoveObjectCommand : public ezCommand
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMoveObjectCommand);
 
@@ -101,14 +101,14 @@ private:
   virtual void Cleanup(CommandState state) override { }
 
 private:
-  ezDocumentObjectBase* m_pObject;
-  ezDocumentObjectBase* m_pOldParent;
-  ezDocumentObjectBase* m_pNewParent;
+  ezDocumentObject* m_pObject;
+  ezDocumentObject* m_pOldParent;
+  ezDocumentObject* m_pNewParent;
   ezString m_sOldParentProperty;
   ezVariant m_OldIndex;
 };
 
-class EZ_TOOLSFOUNDATION_DLL ezSetObjectPropertyCommand : public ezCommandBase
+class EZ_TOOLSFOUNDATION_DLL ezSetObjectPropertyCommand : public ezCommand
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSetObjectPropertyCommand);
 
@@ -130,11 +130,11 @@ private:
   virtual void Cleanup(CommandState state) override { }
 
 private:
-  ezDocumentObjectBase* m_pObject;
+  ezDocumentObject* m_pObject;
   ezVariant m_OldValue;
 };
 
-class EZ_TOOLSFOUNDATION_DLL ezInsertObjectPropertyCommand : public ezCommandBase
+class EZ_TOOLSFOUNDATION_DLL ezInsertObjectPropertyCommand : public ezCommand
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezInsertObjectPropertyCommand);
 
@@ -156,10 +156,10 @@ private:
   virtual void Cleanup(CommandState state) override { }
 
 private:
-  ezDocumentObjectBase* m_pObject;
+  ezDocumentObject* m_pObject;
 };
 
-class EZ_TOOLSFOUNDATION_DLL ezRemoveObjectPropertyCommand : public ezCommandBase
+class EZ_TOOLSFOUNDATION_DLL ezRemoveObjectPropertyCommand : public ezCommand
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRemoveObjectPropertyCommand);
 
@@ -180,11 +180,11 @@ private:
   virtual void Cleanup(CommandState state) override { }
 
 private:
-  ezDocumentObjectBase* m_pObject;
+  ezDocumentObject* m_pObject;
   ezVariant m_OldValue;
 };
 
-class EZ_TOOLSFOUNDATION_DLL ezMoveObjectPropertyCommand : public ezCommandBase
+class EZ_TOOLSFOUNDATION_DLL ezMoveObjectPropertyCommand : public ezCommand
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMoveObjectPropertyCommand);
 
@@ -206,5 +206,5 @@ private:
   virtual void Cleanup(CommandState state) override { }
 
 private:
-  ezDocumentObjectBase* m_pObject;
+  ezDocumentObject* m_pObject;
 };

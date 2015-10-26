@@ -63,7 +63,7 @@ ezStandardJSONWriter::~ezStandardJSONWriter()
   EZ_ASSERT_DEV(m_StateStack.PeekBack().m_State == ezStandardJSONWriter::Empty, "The JSON stream must be closed properly.");
 }
 
-void ezStandardJSONWriter::SetOutputStream(ezStreamWriterBase* pOutput)
+void ezStandardJSONWriter::SetOutputStream(ezStreamWriter* pOutput)
 {
   m_pOutput = pOutput;
 }

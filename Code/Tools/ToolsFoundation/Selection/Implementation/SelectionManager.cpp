@@ -7,7 +7,7 @@ ezSelectionManager::ezSelectionManager()
 {
 }
 
-void ezSelectionManager::SetOwner(const ezDocumentBase* pDocument)
+void ezSelectionManager::SetOwner(const ezDocument* pDocument)
 {
   if (pDocument)
   {
@@ -34,7 +34,7 @@ void ezSelectionManager::TreeEventHandler(const ezDocumentObjectStructureEvent& 
   }
 }
 
-bool ezSelectionManager::RecursiveRemoveFromSelection(const ezDocumentObjectBase* pObject)
+bool ezSelectionManager::RecursiveRemoveFromSelection(const ezDocumentObject* pObject)
 {
   auto it = m_SelectionSet.Find(pObject->GetGuid());
 
@@ -46,7 +46,7 @@ bool ezSelectionManager::RecursiveRemoveFromSelection(const ezDocumentObjectBase
     bRemoved = true;
   }
 
-  for (const ezDocumentObjectBase* pChild : pObject->GetChildren())
+  for (const ezDocumentObject* pChild : pObject->GetChildren())
   {
     bRemoved = bRemoved || RecursiveRemoveFromSelection(pChild);
   }
@@ -65,7 +65,7 @@ void ezSelectionManager::Clear()
   m_Events.Broadcast(e);
 }
 
-void ezSelectionManager::AddObject(const ezDocumentObjectBase* pObject)
+void ezSelectionManager::AddObject(const ezDocumentObject* pObject)
 {
   if (IsSelected(pObject))
     return;
@@ -80,7 +80,7 @@ void ezSelectionManager::AddObject(const ezDocumentObjectBase* pObject)
   m_Events.Broadcast(e);
 }
 
-void ezSelectionManager::RemoveObject(const ezDocumentObjectBase* pObject, bool bRecurseChildren)
+void ezSelectionManager::RemoveObject(const ezDocumentObject* pObject, bool bRecurseChildren)
 {
   if (bRecurseChildren)
   {
@@ -112,7 +112,7 @@ void ezSelectionManager::RemoveObject(const ezDocumentObjectBase* pObject, bool 
   }
 }
 
-void ezSelectionManager::SetSelection(const ezDeque<const ezDocumentObjectBase*>& Selection)
+void ezSelectionManager::SetSelection(const ezDeque<const ezDocumentObject*>& Selection)
 {
   if (Selection.IsEmpty())
   {
@@ -137,7 +137,7 @@ void ezSelectionManager::SetSelection(const ezDeque<const ezDocumentObjectBase*>
   m_Events.Broadcast(e);
 }
 
-void ezSelectionManager::ToggleObject(const ezDocumentObjectBase* pObject)
+void ezSelectionManager::ToggleObject(const ezDocumentObject* pObject)
 {
   if (IsSelected(pObject))
     RemoveObject(pObject);
@@ -145,19 +145,19 @@ void ezSelectionManager::ToggleObject(const ezDocumentObjectBase* pObject)
     AddObject(pObject);
 }
 
-const ezDocumentObjectBase* ezSelectionManager::GetCurrentObject() const
+const ezDocumentObject* ezSelectionManager::GetCurrentObject() const
 {
   return m_SelectionList.IsEmpty() ? nullptr : m_SelectionList[m_SelectionList.GetCount() - 1];
 }
 
-bool ezSelectionManager::IsSelected(const ezDocumentObjectBase* pObject) const
+bool ezSelectionManager::IsSelected(const ezDocumentObject* pObject) const
 {
   return m_SelectionSet.Find(pObject->GetGuid()).IsValid();
 }
 
-bool ezSelectionManager::IsParentSelected(const ezDocumentObjectBase* pObject) const
+bool ezSelectionManager::IsParentSelected(const ezDocumentObject* pObject) const
 {
-  const ezDocumentObjectBase* pParent = pObject->GetParent();
+  const ezDocumentObject* pParent = pObject->GetParent();
 
   while (pParent != nullptr)
   {
@@ -170,9 +170,9 @@ bool ezSelectionManager::IsParentSelected(const ezDocumentObjectBase* pObject) c
   return false;
 }
 
-const ezDeque<const ezDocumentObjectBase*> ezSelectionManager::GetTopLevelSelection() const
+const ezDeque<const ezDocumentObject*> ezSelectionManager::GetTopLevelSelection() const
 {
-  ezDeque<const ezDocumentObjectBase*> items;
+  ezDeque<const ezDocumentObject*> items;
 
   for (const auto* pObj : m_SelectionList)
   {
@@ -185,9 +185,9 @@ const ezDeque<const ezDocumentObjectBase*> ezSelectionManager::GetTopLevelSelect
   return items;
 }
 
-const ezDeque<const ezDocumentObjectBase*> ezSelectionManager::GetTopLevelSelection(const ezRTTI* pBase) const
+const ezDeque<const ezDocumentObject*> ezSelectionManager::GetTopLevelSelection(const ezRTTI* pBase) const
 {
-  ezDeque<const ezDocumentObjectBase*> items;
+  ezDeque<const ezDocumentObject*> items;
 
   for (const auto* pObj : m_SelectionList)
   {

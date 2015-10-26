@@ -10,10 +10,10 @@ public:
   ezAssetFileHeader();
 
   /// \brief Reads the hash from file. If the file is outdated, the hash is set to 0xFFFFFFFFFFFFFFFF.
-  void Read(ezStreamReaderBase& stream);
+  void Read(ezStreamReader& stream);
 
   /// \brief Writes the asset hash to file (plus a little version info)
-  void Write(ezStreamWriterBase& stream);
+  void Write(ezStreamWriter& stream);
 
   /// \brief Checks whether the stored file contains the same hash.
   bool IsFileUpToDate(ezUInt64 uiExpectedHash, ezUInt16 uiVersion) const { return (m_uiHash == uiExpectedHash && m_uiVersion == uiVersion); }

@@ -1,6 +1,5 @@
 #include <PCH.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
-#include <EditorPluginScene/Objects/TestObjects.h>
 #include <EditorPluginScene/Objects/SceneObjectManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
@@ -8,7 +7,7 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 
 
-ezTransform ezSceneDocument::QueryLocalTransform(const ezDocumentObjectBase* pObject)
+ezTransform ezSceneDocument::QueryLocalTransform(const ezDocumentObject* pObject)
 {
   const ezVec3 vTranslation = pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
   const ezVec3 vScaling = pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
@@ -17,7 +16,7 @@ ezTransform ezSceneDocument::QueryLocalTransform(const ezDocumentObjectBase* pOb
   return ezTransform(vTranslation, qRotation, vScaling);
 }
 
-ezTransform ezSceneDocument::ComputeGlobalTransform(const ezDocumentObjectBase* pObject)
+ezTransform ezSceneDocument::ComputeGlobalTransform(const ezDocumentObject* pObject)
 {
   ezTransform tGlobal;
   if (pObject == nullptr || pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())

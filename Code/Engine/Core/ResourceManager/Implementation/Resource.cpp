@@ -88,7 +88,7 @@ void ezResourceBase::CallUnloadData(Unload WhatToUnload)
   ezResourceManager::BroadcastResourceEvent(e);
 }
 
-void ezResourceBase::CallUpdateContent(ezStreamReaderBase* Stream)
+void ezResourceBase::CallUpdateContent(ezStreamReader* Stream)
 {
   EZ_LOG_BLOCK("ezResource::UpdateContent", GetResourceID().GetData());
 

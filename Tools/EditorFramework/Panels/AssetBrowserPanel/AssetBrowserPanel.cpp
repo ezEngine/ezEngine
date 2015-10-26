@@ -4,11 +4,11 @@
 #include <QSettings>
 #include <CoreUtils/Localization/TranslationLookup.h>
 
-ezAssetBrowserPanel* ezAssetBrowserPanel::s_pInstance = nullptr;
+ezQtAssetBrowserPanel* ezQtAssetBrowserPanel::s_pInstance = nullptr;
 
-ezAssetBrowserPanel::ezAssetBrowserPanel() : ezApplicationPanel("PanelAssetBrowser")
+ezQtAssetBrowserPanel::ezQtAssetBrowserPanel() : ezQtApplicationPanel("PanelAssetBrowser")
 {
-  EZ_ASSERT_DEV(s_pInstance == nullptr, "ezAssetBrowserPanel panel is not a singleton anymore");
+  EZ_ASSERT_DEV(s_pInstance == nullptr, "ezQtAssetBrowserPanel panel is not a singleton anymore");
 
   s_pInstance = this;
 
@@ -23,7 +23,7 @@ ezAssetBrowserPanel::ezAssetBrowserPanel() : ezApplicationPanel("PanelAssetBrows
   
 }
 
-ezAssetBrowserPanel::~ezAssetBrowserPanel()
+ezQtAssetBrowserPanel::~ezQtAssetBrowserPanel()
 {
   AssetBrowserWidget->SaveState("AssetBrowserPanel2");
 
@@ -32,7 +32,7 @@ ezAssetBrowserPanel::~ezAssetBrowserPanel()
   
 }
 
-void ezAssetBrowserPanel::SlotAssetChosen(QString sAssetGuid, QString sAssetPathRelative, QString sAssetPathAbsolute)
+void ezQtAssetBrowserPanel::SlotAssetChosen(QString sAssetGuid, QString sAssetPathRelative, QString sAssetPathAbsolute)
 {
-  ezEditorApp::GetInstance()->OpenDocument(sAssetPathAbsolute.toUtf8().data());
+  ezQtEditorApp::GetInstance()->OpenDocument(sAssetPathAbsolute.toUtf8().data());
 }

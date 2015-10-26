@@ -65,9 +65,9 @@ void ezEngineProcessDocumentContext::Deinitialize()
   EZ_DEFAULT_DELETE(m_pWorld);
 }
 
-void ezEngineProcessDocumentContext::SendProcessMessage(ezProcessMessage* pMsg, bool bSuperHighPriority /*= false*/)
+void ezEngineProcessDocumentContext::SendProcessMessage(ezProcessMessage* pMsg /*= false*/)
 {
-  m_pIPC->SendMessage(pMsg, bSuperHighPriority);
+  m_pIPC->SendMessage(pMsg);
 }
 
 void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
@@ -440,12 +440,12 @@ void ezEngineProcessDocumentContext::UpdateSyncObjects()
 {
   for (auto* pSyncObject : m_SyncObjects)
   {
-    if (pSyncObject->GetModified() && pSyncObject->GetDynamicRTTI()->IsDerivedFrom<ezGizmoHandle>())
+    if (pSyncObject->GetModified() && pSyncObject->GetDynamicRTTI()->IsDerivedFrom<ezEngineGizmoHandle>())
     {
       // reset the modified state to make sure the object isn't updated unless a new sync messages comes in
       pSyncObject->SetModified(false);
 
-      ezGizmoHandle* pGizmoHandle = static_cast<ezGizmoHandle*>(pSyncObject);
+      ezEngineGizmoHandle* pGizmoHandle = static_cast<ezEngineGizmoHandle*>(pSyncObject);
 
       EZ_LOCK(m_pWorld->GetWriteMarker());
 

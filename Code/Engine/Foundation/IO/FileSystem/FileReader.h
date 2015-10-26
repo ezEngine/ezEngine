@@ -4,7 +4,7 @@
 #include <Foundation/IO/FileSystem/Implementation/FileReaderWriterBase.h>
 #include <Foundation/Containers/DynamicArray.h>
 
-/// \brief The default class to use to read data from a file, implements the ezStreamReaderBase interface.
+/// \brief The default class to use to read data from a file, implements the ezStreamReader interface.
 ///
 /// This file reader buffers reads up to a certain amount of bytes (configurable).
 /// It closes the file automatically once it goes out of scope.

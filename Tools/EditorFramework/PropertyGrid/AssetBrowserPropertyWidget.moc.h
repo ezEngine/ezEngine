@@ -4,22 +4,12 @@
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <QModelIndex>
 #include <QLineEdit>
+#include <EditorFramework/PropertyGrid/QtAssetLineEdit.moc.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezAssetLineEdit : public QLineEdit
-{
-  Q_OBJECT
-
-public:
-
-  explicit ezAssetLineEdit(QWidget* parent = nullptr);
-  virtual void dragMoveEvent(QDragMoveEvent *e) override;
-  virtual void dragEnterEvent(QDragEnterEvent * e) override;
-  virtual void dropEvent(QDropEvent* e) override;
-};
 
 /// *** Asset Browser ***
 
-class EZ_EDITORFRAMEWORK_DLL ezAssetBrowserPropertyWidget : public ezStandardPropertyBaseWidget
+class EZ_EDITORFRAMEWORK_DLL ezAssetBrowserPropertyWidget : public ezQtStandardPropertyWidget
 {
   Q_OBJECT
 
@@ -47,7 +37,7 @@ protected:
   void UpdateThumbnail(const ezUuid& guid, const char* szThumbnailPath);
 
   QHBoxLayout* m_pLayout;
-  ezAssetLineEdit* m_pWidget;
+  ezQtAssetLineEdit* m_pWidget;
   QToolButton* m_pButton;
   ezUInt32 m_uiThumbnailID;
   ezUuid m_AssetGuid;

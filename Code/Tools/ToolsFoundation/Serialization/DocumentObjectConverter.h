@@ -15,19 +15,19 @@ public:
     m_bSerializeOwnerPtrs = bSerializeOwnerPtrs;
   }
 
-  ezAbstractObjectNode* AddObjectToGraph(const ezDocumentObjectBase* pObject, const char* szNodeName = nullptr);
+  ezAbstractObjectNode* AddObjectToGraph(const ezDocumentObject* pObject, const char* szNodeName = nullptr);
 
 private:
-  void AddProperty(ezAbstractObjectNode* pNode, const ezAbstractProperty* pProp, const ezDocumentObjectBase* pObject);
-  void AddProperties(ezAbstractObjectNode* pNode, const ezDocumentObjectBase* pObject);
+  void AddProperty(ezAbstractObjectNode* pNode, const ezAbstractProperty* pProp, const ezDocumentObject* pObject);
+  void AddProperties(ezAbstractObjectNode* pNode, const ezDocumentObject* pObject);
 
-  ezAbstractObjectNode* AddSubObjectToGraph(const ezDocumentObjectBase* pObject, const char* szNodeName);
+  ezAbstractObjectNode* AddSubObjectToGraph(const ezDocumentObject* pObject, const char* szNodeName);
 
   const ezDocumentObjectManager* m_pManager;
   ezAbstractObjectGraph* m_pGraph;
   bool m_bSerializeReadOnly;
   bool m_bSerializeOwnerPtrs;
-  ezSet<const ezDocumentObjectBase*> m_QueuedObjects;
+  ezSet<const ezDocumentObject*> m_QueuedObjects;
 };
 
 
@@ -42,11 +42,11 @@ public:
   };
   ezDocumentObjectConverterReader(const ezAbstractObjectGraph* pGraph, ezDocumentObjectManager* pManager, Mode mode);
 
-  ezDocumentObjectBase* CreateObjectFromNode(const ezAbstractObjectNode* pNode, ezDocumentObjectBase* pParent, const char* szParentProperty, ezVariant index);
-  void ApplyPropertiesToObject(const ezAbstractObjectNode* pNode, ezDocumentObjectBase* pObject);
+  ezDocumentObject* CreateObjectFromNode(const ezAbstractObjectNode* pNode, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index);
+  void ApplyPropertiesToObject(const ezAbstractObjectNode* pNode, ezDocumentObject* pObject);
 
 private:
-  void ApplyProperty(ezDocumentObjectBase* pObject, ezAbstractProperty* pProperty, const ezAbstractObjectNode::Property* pSource);
+  void ApplyProperty(ezDocumentObject* pObject, ezAbstractProperty* pProperty, const ezAbstractObjectNode::Property* pSource);
 
   Mode m_Mode;
   ezDocumentObjectManager* m_pManager;

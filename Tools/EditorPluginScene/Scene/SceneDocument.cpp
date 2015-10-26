@@ -1,6 +1,5 @@
 #include <PCH.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
-#include <EditorPluginScene/Objects/TestObjects.h>
 #include <EditorPluginScene/Objects/SceneObjectManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
@@ -11,17 +10,17 @@
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <Commands/SceneCommands.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, ezDocumentBase, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, ezDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezSceneDocument::ezSceneDocument(const char* szDocumentPath) : ezDocumentBase(szDocumentPath, EZ_DEFAULT_NEW(ezSceneObjectManager))
+ezSceneDocument::ezSceneDocument(const char* szDocumentPath) : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezSceneObjectManager))
 {
   m_ActiveGizmo = ActiveGizmo::None;
 }
 
 void ezSceneDocument::InitializeAfterLoading()
 {
-  ezDocumentBase::InitializeAfterLoading();
+  ezDocument::InitializeAfterLoading();
 
   GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectPropertyEventHandler, this));
   GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectStructureEventHandler, this));
@@ -35,7 +34,7 @@ ezSceneDocument::~ezSceneDocument()
 
 ezStatus ezSceneDocument::InternalSaveDocument()
 {
-  return ezDocumentBase::InternalSaveDocument();
+  return ezDocument::InternalSaveDocument();
 }
 
 void ezSceneDocument::SetActiveGizmo(ActiveGizmo gizmo)
@@ -192,7 +191,7 @@ void ezSceneDocument::ShowOrHideSelectedObjects(ShowOrHide action)
     if (!pItem->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
       continue;
 
-    ApplyRecursive(pItem, [this, bHide](const ezDocumentObjectBase* pObj)
+    ApplyRecursive(pItem, [this, bHide](const ezDocumentObject* pObj)
     {
       if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
         return;
@@ -221,7 +220,7 @@ void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
 {
   const bool bHide = action == ShowOrHide::Hide;
 
-  ApplyRecursive(GetObjectManager()->GetRootObject(), [this, bHide](const ezDocumentObjectBase* pObj)
+  ApplyRecursive(GetObjectManager()->GetRootObject(), [this, bHide](const ezDocumentObject* pObj)
   {
     if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
       return;
@@ -363,7 +362,7 @@ bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info)
   {
     auto pSelMan = GetSelectionManager();
 
-    ezDeque<const ezDocumentObjectBase*> NewSelection;
+    ezDeque<const ezDocumentObject*> NewSelection;
 
     for (const PasteInfo& pi : info)
     {
@@ -385,7 +384,7 @@ bool ezSceneDocument::Duplicate(const ezArrayPtr<PasteInfo>& info)
   {
     auto pSelMan = GetSelectionManager();
 
-    ezDeque<const ezDocumentObjectBase*> NewSelection;
+    ezDeque<const ezDocumentObject*> NewSelection;
 
     for (const PasteInfo& pi : info)
     {
@@ -440,7 +439,7 @@ void ezSceneDocument::ObjectStructureEventHandler(const ezDocumentObjectStructur
   }
 }
 
-const ezTransform& ezSceneDocument::GetGlobalTransform(const ezDocumentObjectBase* pObject)
+const ezTransform& ezSceneDocument::GetGlobalTransform(const ezDocumentObject* pObject)
 {
   ezTransform Trans;
 
@@ -455,7 +454,7 @@ const ezTransform& ezSceneDocument::GetGlobalTransform(const ezDocumentObjectBas
   return m_GlobalTransforms[pObject];
 }
 
-void ezSceneDocument::SetGlobalTransform(const ezDocumentObjectBase* pObject, const ezTransform& t)
+void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t)
 {
   auto pHistory = GetCommandHistory();
   if (!pHistory->IsInTransaction())
@@ -464,7 +463,7 @@ void ezSceneDocument::SetGlobalTransform(const ezDocumentObjectBase* pObject, co
     return;
   }
 
-  const ezDocumentObjectBase* pParent = pObject->GetParent();
+  const ezDocumentObject* pParent = pObject->GetParent();
 
   ezTransform tLocal;
 
@@ -511,7 +510,7 @@ void ezSceneDocument::SetGlobalTransform(const ezDocumentObjectBase* pObject, co
   InvalidateGlobalTransformValue(pObject);
 }
 
-void ezSceneDocument::InvalidateGlobalTransformValue(const ezDocumentObjectBase* pObject)
+void ezSceneDocument::InvalidateGlobalTransformValue(const ezDocumentObject* pObject)
 {
   // will be recomputed the next time it is queried
   m_GlobalTransforms.Remove(pObject);

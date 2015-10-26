@@ -9,12 +9,12 @@
 #include <QMimeData>
 #include <QVBoxLayout>
 
-ezSceneViewWidget::ezSceneViewWidget(QWidget* pParent, ezSceneDocumentWindow* pOwnerWindow, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig)
-  : ezEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
+ezQtSceneViewWidget::ezQtSceneViewWidget(QWidget* pParent, ezQtSceneDocumentWindow* pOwnerWindow, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig)
+  : ezQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
 {
   setAcceptDrops(true);
 
-  ezSceneDocumentWindow* pSceneWindow = pOwnerWindow;
+  ezQtSceneDocumentWindow* pSceneWindow = pOwnerWindow;
 
   m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
   m_pCameraMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, pOwnerWindow, this, pCameraMoveSettings);
@@ -27,20 +27,20 @@ ezSceneViewWidget::ezSceneViewWidget(QWidget* pParent, ezSceneDocumentWindow* pO
   m_InputContexts.PushBack(m_pCameraMoveContext);
 }
 
-ezSceneViewWidget::~ezSceneViewWidget()
+ezQtSceneViewWidget::~ezQtSceneViewWidget()
 {
   EZ_DEFAULT_DELETE(m_pSelectionContext);
   EZ_DEFAULT_DELETE(m_pCameraMoveContext);
 }
 
-void ezSceneViewWidget::SyncToEngine()
+void ezQtSceneViewWidget::SyncToEngine()
 {
   m_pSelectionContext->SetWindowConfig(ezVec2I32(width(), height()));
 
-  ezEngineViewWidget::SyncToEngine();
+  ezQtEngineViewWidget::SyncToEngine();
 }
 
-void ezSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
+void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
 {
   // can only drag & drop objects around in perspective mode
   if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
@@ -92,7 +92,7 @@ void ezSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
   }
 }
 
-void ezSceneViewWidget::dragLeaveEvent(QDragLeaveEvent * e)
+void ezQtSceneViewWidget::dragLeaveEvent(QDragLeaveEvent * e)
 {
   // can only drag & drop objects around in perspective mode
   if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
@@ -106,7 +106,7 @@ void ezSceneViewWidget::dragLeaveEvent(QDragLeaveEvent * e)
   }
 }
 
-void ezSceneViewWidget::dragMoveEvent(QDragMoveEvent* e)
+void ezQtSceneViewWidget::dragMoveEvent(QDragMoveEvent* e)
 {
   // can only drag & drop objects around in perspective mode
   if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
@@ -127,7 +127,7 @@ void ezSceneViewWidget::dragMoveEvent(QDragMoveEvent* e)
   }
 }
 
-void ezSceneViewWidget::dropEvent(QDropEvent * e)
+void ezQtSceneViewWidget::dropEvent(QDropEvent * e)
 {
   // can only drag & drop objects around in perspective mode
   if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
@@ -139,7 +139,7 @@ void ezSceneViewWidget::dropEvent(QDropEvent * e)
 
     m_pDocumentWindow->GetDocument()->GetCommandHistory()->MergeLastTwoTransactions();
 
-    ezDeque<const ezDocumentObjectBase*> NewSelection;
+    ezDeque<const ezDocumentObject*> NewSelection;
 
     for (const auto& guid : m_DraggedObjects)
     {
@@ -152,7 +152,7 @@ void ezSceneViewWidget::dropEvent(QDropEvent * e)
   }
 }
 
-ezUuid ezSceneViewWidget::CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue)
+ezUuid ezQtSceneViewWidget::CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue)
 {
   ezUuid ObjectGuid, CmpGuid;
   ObjectGuid.CreateNewUuid();
@@ -190,7 +190,7 @@ ezUuid ezSceneViewWidget::CreateDropObject(const ezVec3& vPosition, const char* 
   return ObjectGuid;
 }
 
-void ezSceneViewWidget::MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPosition)
+void ezQtSceneViewWidget::MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPosition)
 {
   auto history = m_pDocumentWindow->GetDocument()->GetCommandHistory();
 
@@ -203,7 +203,7 @@ void ezSceneViewWidget::MoveObjectToPosition(const ezUuid& guid, const ezVec3& v
 
 }
 
-void ezSceneViewWidget::MoveDraggedObjectsToPosition(const ezVec3 & vPosition)
+void ezQtSceneViewWidget::MoveDraggedObjectsToPosition(const ezVec3 & vPosition)
 {
   if (m_DraggedObjects.IsEmpty() || vPosition.IsNaN())
     return;
@@ -221,7 +221,7 @@ void ezSceneViewWidget::MoveDraggedObjectsToPosition(const ezVec3 & vPosition)
 }
 
 
-ezSceneViewWidgetContainer::ezSceneViewWidgetContainer(QWidget* pParent, ezSceneDocumentWindow* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig)
+ezQtSceneViewWidgetContainer::ezQtSceneViewWidgetContainer(QWidget* pParent, ezQtSceneDocumentWindow* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig)
 {
   setBackgroundRole(QPalette::Base);
   setAutoFillBackground(true);
@@ -231,7 +231,7 @@ ezSceneViewWidgetContainer::ezSceneViewWidgetContainer(QWidget* pParent, ezScene
   pLayout->setSpacing(0);
   setLayout(pLayout);
 
-  m_pViewWidget = new ezSceneViewWidget(this, pDocument, pCameraMoveSettings, pViewConfig);
+  m_pViewWidget = new ezQtSceneViewWidget(this, pDocument, pCameraMoveSettings, pViewConfig);
   
   {
     // Tool Bar
@@ -248,7 +248,7 @@ ezSceneViewWidgetContainer::ezSceneViewWidgetContainer(QWidget* pParent, ezScene
   pLayout->addWidget(m_pViewWidget);
 }
 
-ezSceneViewWidgetContainer::~ezSceneViewWidgetContainer()
+ezQtSceneViewWidgetContainer::~ezQtSceneViewWidgetContainer()
 {
 
 }

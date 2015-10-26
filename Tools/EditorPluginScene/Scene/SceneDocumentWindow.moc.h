@@ -13,19 +13,19 @@
 #include <EditorPluginScene/Actions/GizmoActions.h>
 
 class QGridLayout;
-class ezSceneViewWidgetContainer;
-class ezSceneViewWidget;
+class ezQtSceneViewWidgetContainer;
+class ezQtSceneViewWidget;
 class QSettings;
 
-Q_DECLARE_OPAQUE_POINTER(ezSceneViewWidget*);
+Q_DECLARE_OPAQUE_POINTER(ezQtSceneViewWidget*);
 
-class ezSceneDocumentWindow : public ezDocumentWindow3D
+class ezQtSceneDocumentWindow : public ezQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezSceneDocumentWindow(ezDocumentBase* pDocument);
-  ~ezSceneDocumentWindow();
+  ezQtSceneDocumentWindow(ezDocument* pDocument);
+  ~ezQtSceneDocumentWindow();
 
   virtual const char* GetGroupName() const { return "Scene"; }
 
@@ -35,7 +35,7 @@ public slots:
   void ToggleViews(QWidget* pView);
 
 private:
-  void TransformationGizmoEventHandler(const ezGizmoBase::BaseEvent& e);
+  void TransformationGizmoEventHandler(const ezGizmo::GizmoEvent& e);
   void SelectionManagerEventHandler(const ezSelectionManager::Event& e);
   void SceneObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezSceneObjectMetaData>::EventData& e);
 
@@ -62,8 +62,8 @@ private:
 
   void SnapSelectionToPosition(bool bSnapEachObject);
 
-  void SendObjectMsg(const ezDocumentObjectBase* pObj, ezObjectTagMsgToEngine* pMsg);
-  void SendObjectMsgRecursive(const ezDocumentObjectBase* pObj, ezObjectTagMsgToEngine* pMsg);
+  void SendObjectMsg(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg);
+  void SendObjectMsgRecursive(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg);
   void SendObjectSelection();
 
   void SendRedrawMsg();
@@ -75,13 +75,13 @@ private:
   void LoadViewConfigs();
   void CreateViews(bool bQuad);
 
-  void HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg, ezSceneViewWidget* pSceneView);
+  void HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg, ezQtSceneViewWidget* pSceneView);
   void SyncObjectHiddenState();
-  void SyncObjectHiddenState(ezDocumentObjectBase* pObject);
+  void SyncObjectHiddenState(ezDocumentObject* pObject);
 
   ezSceneViewConfig m_ViewConfigSingle;
   ezSceneViewConfig m_ViewConfigQuad[4];
-  ezHybridArray<ezSceneViewWidgetContainer*, 4> m_ActiveMainViews;
+  ezHybridArray<ezQtSceneViewWidgetContainer*, 4> m_ActiveMainViews;
 
   ezTranslateGizmo m_TranslateGizmo;
   ezRotateGizmo m_RotateGizmo;
@@ -93,7 +93,7 @@ private:
 
   struct SelectedGO
   {
-    const ezDocumentObjectBase* m_pObject;
+    const ezDocumentObject* m_pObject;
     ezVec3 m_vLocalScaling;
     ezTransform m_GlobalTransform;
   };

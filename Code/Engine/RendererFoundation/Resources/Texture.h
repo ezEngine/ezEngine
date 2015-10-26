@@ -4,7 +4,7 @@
 #include <RendererFoundation/Basics.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
-class EZ_RENDERERFOUNDATION_DLL ezGALTexture : public ezGALObjectBase<ezGALTextureCreationDescription>
+class EZ_RENDERERFOUNDATION_DLL ezGALTexture : public ezGALObject<ezGALTextureCreationDescription>
 {
 public:
 

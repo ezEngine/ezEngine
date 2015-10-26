@@ -1,7 +1,7 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/PropertyGrid/Implementation/ElementGroupButton.moc.h>
 
-ezElementGroupButton::ezElementGroupButton(QWidget* pParent, ezElementGroupButton::ElementAction action, ezPropertyBaseWidget* pGroupWidget)
+ezElementGroupButton::ezElementGroupButton(QWidget* pParent, ezElementGroupButton::ElementAction action, ezQtPropertyWidget* pGroupWidget)
   : QToolButton(pParent)
 {
   m_Action = action;

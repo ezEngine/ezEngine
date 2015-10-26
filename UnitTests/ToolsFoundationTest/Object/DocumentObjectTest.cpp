@@ -7,10 +7,10 @@ EZ_CREATE_SIMPLE_TEST_GROUP(DocumentObjectManager);
 EZ_CREATE_SIMPLE_TEST(DocumentObjectManager, DocumentObjectManager)
 {
   ezTestDocumentObjectManager manager;
-  ezDocumentObjectBase* pObject = nullptr;
-  ezDocumentObjectBase* pChildObject = nullptr;
-  ezDocumentObjectBase* pChildren[4] = { nullptr };
-  ezDocumentObjectBase* pSubElementObject[4] = { nullptr };
+  ezDocumentObject* pObject = nullptr;
+  ezDocumentObject* pChildObject = nullptr;
+  ezDocumentObject* pChildren[4] = { nullptr };
+  ezDocumentObject* pSubElementObject[4] = { nullptr };
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "DocumentObject")
   {

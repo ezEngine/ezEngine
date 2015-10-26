@@ -4,7 +4,7 @@
 #include <RendererFoundation/Basics.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
-class EZ_RENDERERFOUNDATION_DLL ezGALRenderTargetView : public ezGALObjectBase<ezGALRenderTargetViewCreationDescription>
+class EZ_RENDERERFOUNDATION_DLL ezGALRenderTargetView : public ezGALObject<ezGALRenderTargetViewCreationDescription>
 {
 public:
 

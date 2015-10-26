@@ -15,7 +15,7 @@ ezString ezSettingsTab::GetWindowIcon() const
   return ":/GuiFoundation/Icons/Settings16.png";
 }
 
-void ezEditorApp::ShowSettingsDocument()
+void ezQtEditorApp::ShowSettingsDocument()
 {
   ezSettingsTab* pSettingsTab = ezSettingsTab::GetInstance();
 
@@ -27,7 +27,7 @@ void ezEditorApp::ShowSettingsDocument()
   pSettingsTab->EnsureVisible();
 }
 
-void ezEditorApp::CloseSettingsDocument()
+void ezQtEditorApp::CloseSettingsDocument()
 {
   ezSettingsTab* pSettingsTab = ezSettingsTab::GetInstance();
 
@@ -42,7 +42,7 @@ ezSettingsTab* ezSettingsTab::GetInstance()
   return g_pInstance;
 }
 
-ezSettingsTab::ezSettingsTab() : ezDocumentWindow("Settings")
+ezSettingsTab::ezSettingsTab() : ezQtDocumentWindow("Settings")
 {
   setCentralWidget(new QWidget());
 
@@ -55,7 +55,7 @@ ezSettingsTab::ezSettingsTab() : ezDocumentWindow("Settings")
   setupUi(centralWidget());
   QMetaObject::connectSlotsByName(this);
 
-  m_pSettingsGrid = new ezSimplePropertyGridWidget(this);
+  m_pSettingsGrid = new ezQtSimplePropertyGridWidget(this);
   GroupSettings->layout()->addWidget(m_pSettingsGrid);
 
   EZ_VERIFY(connect(m_pSettingsGrid, SIGNAL(value_changed()), this, SLOT(SlotSettingsChanged())) != nullptr, "signal/slot connection failed");
@@ -64,7 +64,7 @@ ezSettingsTab::ezSettingsTab() : ezDocumentWindow("Settings")
 
   ezPlugin::s_PluginEvents.AddEventHandler(ezMakeDelegate(&ezSettingsTab::PluginEventHandler, this));
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezSettingsTab::ProjectEventHandler, this));
-  ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(&ezSettingsTab::DocumentManagerEventHandler, this));
+  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezSettingsTab::DocumentManagerEventHandler, this));
 
   UpdateSettings();
 
@@ -84,7 +84,7 @@ ezSettingsTab::~ezSettingsTab()
   AssetBrowserWidget->SaveState("AssetBrowserPanel");
 
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSettingsTab::ProjectEventHandler, this));
-  ezDocumentManagerBase::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSettingsTab::DocumentManagerEventHandler, this));
+  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSettingsTab::DocumentManagerEventHandler, this));
   ezPlugin::s_PluginEvents.RemoveEventHandler(ezMakeDelegate(&ezSettingsTab::PluginEventHandler, this));
 
   g_pInstance = nullptr;
@@ -114,12 +114,12 @@ void ezSettingsTab::ProjectEventHandler(const ezToolsProject::Event& e)
   }
 }
 
-void ezSettingsTab::DocumentManagerEventHandler(const ezDocumentManagerBase::Event& e)
+void ezSettingsTab::DocumentManagerEventHandler(const ezDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-  case ezDocumentManagerBase::Event::Type::DocumentClosed:
-  case ezDocumentManagerBase::Event::Type::DocumentOpened:
+  case ezDocumentManager::Event::Type::DocumentClosed:
+  case ezDocumentManager::Event::Type::DocumentOpened:
     UpdateSettings();
     break;
   }
@@ -145,7 +145,7 @@ void ezSettingsTab::UpdateSettings()
       iSelected = 1;
 
     ezInt32 iIndex = 2;
-    for (auto dm : ezDocumentManagerBase::GetAllDocumentManagers())
+    for (auto dm : ezDocumentManager::GetAllDocumentManagers())
     {
       for (auto doc : dm->GetAllDocuments())
       {
@@ -169,17 +169,17 @@ void ezSettingsTab::UpdateSettings()
 
   m_pSettingsGrid->BeginProperties();
 
-  for (const ezString& sName : ezEditorApp::GetInstance()->GetRegisteredPluginNamesForSettings())
+  for (const ezString& sName : ezQtEditorApp::GetInstance()->GetRegisteredPluginNamesForSettings())
   {
     ezSettings* s;
 
     if (m_sSelectedSettingDomain == "<Application>")
-      s = &ezEditorApp::GetInstance()->GetEditorSettings(sName);
+      s = &ezQtEditorApp::GetInstance()->GetEditorSettings(sName);
     else
     if (m_sSelectedSettingDomain == "<Project>")
-      s = &ezEditorApp::GetInstance()->GetProjectSettings(sName);
+      s = &ezQtEditorApp::GetInstance()->GetProjectSettings(sName);
     else
-      s = &ezEditorApp::GetInstance()->GetDocumentSettings(m_sSelectedSettingDomain, sName);
+      s = &ezQtEditorApp::GetInstance()->GetDocumentSettings(m_sSelectedSettingDomain, sName);
 
     bool bAddedGroupName = false;
 
@@ -206,7 +206,7 @@ void ezSettingsTab::UpdateSettings()
 bool ezSettingsTab::InternalCanCloseWindow()
 {
   // if this is the last window, prevent closing it
-  return ezDocumentWindow::GetAllDocumentWindows().GetCount() > 1;
+  return ezQtDocumentWindow::GetAllDocumentWindows().GetCount() > 1;
 }
 
 void ezSettingsTab::InternalCloseDocumentWindow()
@@ -234,7 +234,7 @@ void ezSettingsTab::on_ButtonEditShortcuts_clicked()
 
 void ezSettingsTab::SlotAssetChosen(QString sAssetGuid, QString sAssetPathRelative, QString sAssetPathAbsolute)
 {
-  ezEditorApp::GetInstance()->OpenDocument(sAssetPathAbsolute.toUtf8().data());
+  ezQtEditorApp::GetInstance()->OpenDocument(sAssetPathAbsolute.toUtf8().data());
 }
 
 void ezSettingsTab::SlotComboSettingsDomainIndexChanged(int iIndex)

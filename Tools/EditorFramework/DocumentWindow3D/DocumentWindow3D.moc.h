@@ -8,7 +8,7 @@
 class QWidget;
 class QHBoxLayout;
 class QPushButton;
-class ezEngineViewWidget;
+class ezQtEngineViewWidget;
 
 struct ezObjectPickingResult
 {
@@ -21,21 +21,26 @@ struct ezObjectPickingResult
   ezVec3 m_vPickingRayStart;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezDocumentWindow3D : public ezDocumentWindow
+/// \brief Base class for all document windows that need a connection to the engine process, and might want to render 3D content.
+///
+/// This class has an ezEditorEngineConnection object for sending messages between the editor and the engine process.
+/// It also allows to embed ezQtEngineViewWidget objects into the UI, which enable 3D rendering by the engine process.
+class EZ_EDITORFRAMEWORK_DLL ezQtEngineDocumentWindow : public ezQtDocumentWindow
 {
   Q_OBJECT
 
 public:
 
+  /// \brief Returns true if the given message has been handled in a meaningful way.
   virtual bool HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg);
 
 public:
-  ezDocumentWindow3D(ezDocumentBase* pDocument);
-  virtual ~ezDocumentWindow3D();
+  ezQtEngineDocumentWindow(ezDocument* pDocument);
+  virtual ~ezQtEngineDocumentWindow();
 
   ezEditorEngineConnection* GetEditorEngineConnection() const { return m_pEngineConnection; }
 
-  void SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage, bool bSuperHighPriority = false) const;
+  void SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage = false) const;
 
   const ezObjectPickingResult& PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const;
 
@@ -43,18 +48,18 @@ public:
   void RemoveSyncObject(ezEditorEngineSyncObject* pSync);
   ezEditorEngineSyncObject* FindSyncObject(const ezUuid& guid);
 
-  /// \brief Returns the ezEngineViewWidget over which the mouse currently hovers
-  ezEngineViewWidget* GetHoveredViewWidget() const;
+  /// \brief Returns the ezQtEngineViewWidget over which the mouse currently hovers
+  ezQtEngineViewWidget* GetHoveredViewWidget() const;
 
-  /// \brief Returns the ezEngineViewWidget that has the input focus
-  ezEngineViewWidget* GetFocusedViewWidget() const;
+  /// \brief Returns the ezQtEngineViewWidget that has the input focus
+  ezQtEngineViewWidget* GetFocusedViewWidget() const;
 
-  ezEngineViewWidget* GetViewWidgetByID(ezUInt32 uiViewID) const;
+  ezQtEngineViewWidget* GetViewWidgetByID(ezUInt32 uiViewID) const;
 
 protected:
-  friend class ezEngineViewWidget;
+  friend class ezQtEngineViewWidget;
   ezEditorEngineConnection* m_pEngineConnection;
-  ezHybridArray<ezEngineViewWidget*, 4> m_ViewWidgets;
+  ezHybridArray<ezQtEngineViewWidget*, 4> m_ViewWidgets;
 
   void SyncObjectsToEngine();
   void DestroyAllViews();

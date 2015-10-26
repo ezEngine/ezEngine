@@ -9,9 +9,10 @@
 #include <ToolsFoundation/Document/DocumentManager.h>
 
 class ezContainerWindow;
-class ezDocumentBase;
+class ezDocument;
 
-class EZ_GUIFOUNDATION_DLL ezDocumentWindow : public QMainWindow
+/// \brief Base class for all document windows. Handles the most basic document window management.
+class EZ_GUIFOUNDATION_DLL ezQtDocumentWindow : public QMainWindow
 {
   Q_OBJECT
 
@@ -27,15 +28,15 @@ public:
     };
 
     Type m_Type;
-    ezDocumentWindow* m_pWindow;
+    ezQtDocumentWindow* m_pWindow;
   };
 
   static ezEvent<const Event&> s_Events;
 
 public:
-  ezDocumentWindow(ezDocumentBase* pDocument);
-  ezDocumentWindow(const char* szUniqueName);
-  virtual ~ezDocumentWindow();
+  ezQtDocumentWindow(ezDocument* pDocument);
+  ezQtDocumentWindow(const char* szUniqueName);
+  virtual ~ezQtDocumentWindow();
 
   void EnsureVisible();
 
@@ -48,7 +49,7 @@ public:
   /// \brief The 'GroupName' is used for serializing window layouts. It should be unique among different window types.
   virtual const char* GetGroupName() const = 0;
 
-  ezDocumentBase* GetDocument() const { return m_pDocument; }
+  ezDocument* GetDocument() const { return m_pDocument; }
 
   ezStatus SaveDocument();
 
@@ -64,9 +65,9 @@ public:
 
   virtual void RequestWindowTabContextMenu(const QPoint& GlobalPos);
 
-  static const ezDynamicArray<ezDocumentWindow*>& GetAllDocumentWindows() { return s_AllDocumentWindows; }
+  static const ezDynamicArray<ezQtDocumentWindow*>& GetAllDocumentWindows() { return s_AllDocumentWindows; }
 
-  static ezDocumentWindow* FindWindowByDocument(const ezDocumentBase* pDocument);
+  static ezQtDocumentWindow* FindWindowByDocument(const ezDocument* pDocument);
 
 protected:
   void FinishWindowCreation();
@@ -92,13 +93,13 @@ private:
   bool m_bIsDrawingATM;
   bool m_bTriggerRedrawQueued;
   ezInt16 m_iTargetFramerate;
-  ezDocumentBase* m_pDocument;
+  ezDocument* m_pDocument;
   ezContainerWindow* m_pContainerWindow;
 
 private:
   void Constructor();
-  void DocumentManagerEventHandler(const ezDocumentManagerBase::Event& e);
-  void DocumentEventHandler(const ezDocumentBase::Event& e);
+  void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
+  void DocumentEventHandler(const ezDocument::Event& e);
   void UIServicesEventHandler(const ezUIServices::Event& e);
 
   virtual void InternalDeleteThis() { delete this; }
@@ -109,6 +110,6 @@ private:
 
   ezString m_sUniqueName;
 
-  static ezDynamicArray<ezDocumentWindow*> s_AllDocumentWindows;
+  static ezDynamicArray<ezQtDocumentWindow*> s_AllDocumentWindows;
 };
 

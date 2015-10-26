@@ -4,7 +4,7 @@
 #include <RendererFoundation/Basics.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
-class EZ_RENDERERFOUNDATION_DLL ezGALBuffer : public ezGALObjectBase<ezGALBufferCreationDescription>
+class EZ_RENDERERFOUNDATION_DLL ezGALBuffer : public ezGALObject<ezGALBufferCreationDescription>
 {
 public:
 

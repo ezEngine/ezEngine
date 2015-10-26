@@ -18,13 +18,13 @@ public:
   void TreeStructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 
-  void* GetNativeObjectPointer(const ezDocumentObjectBase* pObject);
-  const void* GetNativeObjectPointer(const ezDocumentObjectBase* pObject) const;
+  void* GetNativeObjectPointer(const ezDocumentObject* pObject);
+  const void* GetNativeObjectPointer(const ezDocumentObject* pObject) const;
 
 private:
-  bool IsRootObject(const ezDocumentObjectBase* pParent);
-  bool IsHeapAllocated(const ezDocumentObjectBase* pParent, const char* szParentProperty);
-  ezUuid FindRootOpObject(const ezDocumentObjectBase* pObject, ezHybridArray<const ezDocumentObjectBase*, 8>& path);
+  bool IsRootObject(const ezDocumentObject* pParent);
+  bool IsHeapAllocated(const ezDocumentObject* pParent, const char* szParentProperty);
+  ezUuid FindRootOpObject(const ezDocumentObject* pObject, ezHybridArray<const ezDocumentObject*, 8>& path);
 
 private:
   ezRttiConverterContext m_Context;

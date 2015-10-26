@@ -5,7 +5,7 @@
 #include <EditorFramework/Gizmos/GizmoBase.h>
 #include <QPoint>
 
-class EZ_EDITORFRAMEWORK_DLL ezTranslateGizmo : public ezGizmoBase
+class EZ_EDITORFRAMEWORK_DLL ezTranslateGizmo : public ezGizmo
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTranslateGizmo);
 
@@ -35,7 +35,7 @@ public:
   void SetMovementMode(MovementMode mode);
 
 protected:
-  virtual void OnSetOwner(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView) override;
+  virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
   virtual void OnTransformationChanged(const ezMat4& transform) override;
 
@@ -52,13 +52,13 @@ private:
   ezVec3 m_vLastMoveDiff;
 
   MovementMode m_MovementMode;
-  ezGizmoHandle m_AxisX;
-  ezGizmoHandle m_AxisY;
-  ezGizmoHandle m_AxisZ;
+  ezEngineGizmoHandle m_AxisX;
+  ezEngineGizmoHandle m_AxisY;
+  ezEngineGizmoHandle m_AxisZ;
 
-  ezGizmoHandle m_PlaneXY;
-  ezGizmoHandle m_PlaneXZ;
-  ezGizmoHandle m_PlaneYZ;
+  ezEngineGizmoHandle m_PlaneXY;
+  ezEngineGizmoHandle m_PlaneXZ;
+  ezEngineGizmoHandle m_PlaneYZ;
 
   enum class TranslateMode
   {

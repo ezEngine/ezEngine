@@ -491,7 +491,7 @@ ezResourceLoadData CustomTextureResourceLoader::OpenDataStream(const ezResourceB
 
   if (pData->m_Image.GetImageFormat() == ezImageFormat::B8G8R8_UNORM)
   {
-    ezImageConversionBase::Convert(pData->m_Image, pData->m_Image, ezImageFormat::B8G8R8A8_UNORM);
+    ezImageConversion::Convert(pData->m_Image, pData->m_Image, ezImageFormat::B8G8R8A8_UNORM);
   }
 
   ezMemoryStreamWriter w(&pData->m_Storage);

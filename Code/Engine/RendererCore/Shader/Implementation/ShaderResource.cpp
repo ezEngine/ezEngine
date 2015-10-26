@@ -25,7 +25,7 @@ ezResourceLoadDesc ezShaderResource::UnloadData(Unload WhatToUnload)
   return res;
 }
 
-ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReaderBase* Stream)
+ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReader* Stream)
 {
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

@@ -1,7 +1,7 @@
 #include <Foundation/PCH.h>
 #include <Foundation/IO/Archive.h>
 
-ezArchiveWriter::ezArchiveWriter(ezStreamWriterBase& stream) : ezChunkStreamWriter(m_WriterTemp),
+ezArchiveWriter::ezArchiveWriter(ezStreamWriter& stream) : ezChunkStreamWriter(m_WriterTemp),
   m_OutputStream(stream),
   m_WriterTemp(&m_StorageTemp)
 {

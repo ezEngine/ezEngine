@@ -9,9 +9,9 @@
 #include <QLayout>
 #include <QScrollArea>
 
-ezRttiMappedObjectFactory<ezPropertyBaseWidget> ezPropertyGridWidget::s_Factory;
+ezRttiMappedObjectFactory<ezQtPropertyWidget> ezPropertyGridWidget::s_Factory;
 
-static ezPropertyBaseWidget* StandardTypeCreator(const ezRTTI* pRtti)
+static ezQtPropertyWidget* StandardTypeCreator(const ezRTTI* pRtti)
 {
   EZ_ASSERT_DEV(pRtti->GetTypeFlags().IsSet(ezTypeFlags::StandardType), "This function is only valid for StandardType properties, regardless of category");
 
@@ -69,17 +69,17 @@ static ezPropertyBaseWidget* StandardTypeCreator(const ezRTTI* pRtti)
   }
 }
 
-static ezPropertyBaseWidget* EnumCreator(const ezRTTI* pRtti)
+static ezQtPropertyWidget* EnumCreator(const ezRTTI* pRtti)
 {
   return new ezPropertyEditorEnumWidget();
 }
 
-static ezPropertyBaseWidget* BitflagsCreator(const ezRTTI* pRtti)
+static ezQtPropertyWidget* BitflagsCreator(const ezRTTI* pRtti)
 {
   return new ezPropertyEditorBitflagsWidget();
 }
 
-static ezPropertyBaseWidget* FileBrowserCreator(const ezRTTI* pRtti)
+static ezQtPropertyWidget* FileBrowserCreator(const ezRTTI* pRtti)
 {
   return new ezPropertyEditorFileBrowserWidget();
 }
@@ -126,12 +126,12 @@ ON_CORE_SHUTDOWN
 
 EZ_END_SUBSYSTEM_DECLARATION
 
-ezRttiMappedObjectFactory<ezPropertyBaseWidget>& ezPropertyGridWidget::GetFactory()
+ezRttiMappedObjectFactory<ezQtPropertyWidget>& ezPropertyGridWidget::GetFactory()
 {
   return s_Factory;
 }
 
-ezPropertyGridWidget::ezPropertyGridWidget(ezDocumentBase* pDocument, QWidget* pParent)
+ezPropertyGridWidget::ezPropertyGridWidget(ezDocument* pDocument, QWidget* pParent)
   : QWidget(pParent)
 {
   m_pDocument = pDocument;
@@ -185,7 +185,7 @@ void ezPropertyGridWidget::ClearSelection()
   m_Selection.Clear();
 }
 
-void ezPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObjectBase*>& selection)
+void ezPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObject*>& selection)
 {
   QtScopedUpdatesDisabled _(this);
 
@@ -197,19 +197,19 @@ void ezPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObjectBase
     return;
 
   {
-    ezHybridArray<ezPropertyBaseWidget::Selection, 8> Items;
+    ezHybridArray<ezQtPropertyWidget::Selection, 8> Items;
     Items.Reserve(m_Selection.GetCount());
 
     for (const auto* sel : m_Selection)
     {
-      ezPropertyBaseWidget::Selection s;
+      ezQtPropertyWidget::Selection s;
       s.m_pObject = sel;
 
       Items.PushBack(s);
     }
 
     ezPropertyPath path;
-    const ezRTTI* pCommonType = ezPropertyBaseWidget::GetCommonBaseType(Items);
+    const ezRTTI* pCommonType = ezQtPropertyWidget::GetCommonBaseType(Items);
     m_pTypeWidget = new ezTypeWidget(m_pContent, this, pCommonType, path);
     m_pTypeWidget->SetSelection(Items);
 
@@ -217,18 +217,18 @@ void ezPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObjectBase
   }
 }
 
-const ezDocumentBase* ezPropertyGridWidget::GetDocument() const
+const ezDocument* ezPropertyGridWidget::GetDocument() const
 {
   return m_pDocument;
 }
 
-ezPropertyBaseWidget* ezPropertyGridWidget::CreateMemberPropertyWidget(const ezAbstractProperty* pProp)
+ezQtPropertyWidget* ezPropertyGridWidget::CreateMemberPropertyWidget(const ezAbstractProperty* pProp)
 {
   // Try to create a registered widget for an existing ezTypeWidgetAttribute.
   const ezTypeWidgetAttribute* pAttrib = pProp->GetAttributeByType<ezTypeWidgetAttribute>();
   if (pAttrib != nullptr)
   {
-    ezPropertyBaseWidget* pWidget = ezPropertyGridWidget::GetFactory().CreateObject(pAttrib->GetDynamicRTTI());
+    ezQtPropertyWidget* pWidget = ezPropertyGridWidget::GetFactory().CreateObject(pAttrib->GetDynamicRTTI());
     if (pWidget != nullptr)
       return pWidget;
   }
@@ -237,7 +237,7 @@ ezPropertyBaseWidget* ezPropertyGridWidget::CreateMemberPropertyWidget(const ezA
   return ezPropertyGridWidget::GetFactory().CreateObject(pProp->GetSpecificType());
 }
 
-ezPropertyBaseWidget* ezPropertyGridWidget::CreatePropertyWidget(const ezAbstractProperty* pProp)
+ezQtPropertyWidget* ezPropertyGridWidget::CreatePropertyWidget(const ezAbstractProperty* pProp)
 {
   switch (pProp->GetCategory())
   {
@@ -247,7 +247,7 @@ ezPropertyBaseWidget* ezPropertyGridWidget::CreatePropertyWidget(const ezAbstrac
       const ezTypeWidgetAttribute* pAttrib = pProp->GetAttributeByType<ezTypeWidgetAttribute>();
       if (pAttrib != nullptr)
       {
-        ezPropertyBaseWidget* pWidget = ezPropertyGridWidget::GetFactory().CreateObject(pAttrib->GetDynamicRTTI());
+        ezQtPropertyWidget* pWidget = ezPropertyGridWidget::GetFactory().CreateObject(pAttrib->GetDynamicRTTI());
         if (pWidget != nullptr)
           return pWidget;
       }
@@ -255,20 +255,20 @@ ezPropertyBaseWidget* ezPropertyGridWidget::CreatePropertyWidget(const ezAbstrac
       if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
         if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
-          return new ezPropertyPointerWidget();
+          return new ezQtPropertyPointerWidget();
         else
-          return new ezUnsupportedPropertyWidget("Pointer: Use ezPropertyFlags::PointerOwner or provide derived ezTypeWidgetAttribute");
+          return new ezQtUnsupportedPropertyWidget("Pointer: Use ezPropertyFlags::PointerOwner or provide derived ezTypeWidgetAttribute");
       }
       else
       {
-        ezPropertyBaseWidget* pWidget = CreateMemberPropertyWidget(pProp);
+        ezQtPropertyWidget* pWidget = CreateMemberPropertyWidget(pProp);
         if (pWidget != nullptr)
           return pWidget;
 
         if (!pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
         {
           // Member struct / class
-          return new ezPropertyTypeWidget(true);
+          return new ezQtPropertyTypeWidget(true);
         }
       }
     }
@@ -280,7 +280,7 @@ ezPropertyBaseWidget* ezPropertyGridWidget::CreatePropertyWidget(const ezAbstrac
       const ezContainerWidgetAttribute* pAttrib = pProp->GetAttributeByType<ezContainerWidgetAttribute>();
       if (pAttrib != nullptr)
       {
-        ezPropertyBaseWidget* pWidget = ezPropertyGridWidget::GetFactory().CreateObject(pAttrib->GetDynamicRTTI());
+        ezQtPropertyWidget* pWidget = ezPropertyGridWidget::GetFactory().CreateObject(pAttrib->GetDynamicRTTI());
         if (pWidget != nullptr)
           return pWidget;
       }
@@ -288,22 +288,22 @@ ezPropertyBaseWidget* ezPropertyGridWidget::CreatePropertyWidget(const ezAbstrac
       // Fallback to default container widgets.
       if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType))
       {
-        return new ezPropertyStandardTypeContainerWidget();
+        return new ezQtPropertyStandardTypeContainerWidget();
       }
       else
       {
         if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
         {
-          return new ezUnsupportedPropertyWidget("Pointer: Use ezPropertyFlags::PointerOwner or provide derived ezContainerWidgetAttribute");
+          return new ezQtUnsupportedPropertyWidget("Pointer: Use ezPropertyFlags::PointerOwner or provide derived ezContainerWidgetAttribute");
         }
 
-        return new ezPropertyTypeContainerWidget();
+        return new ezQtPropertyTypeContainerWidget();
       }
     }
     break;
   }
 
-  return new ezUnsupportedPropertyWidget();
+  return new ezQtUnsupportedPropertyWidget();
 }
 
 void ezPropertyGridWidget::SetCollapseState(ezCollapsibleGroupBox* pBox)
@@ -343,7 +343,7 @@ void ezPropertyGridWidget::SelectionEventHandler(const ezSelectionManager::Event
   }
 }
 
-void ezPropertyGridWidget::FactoryEventHandler(const ezRttiMappedObjectFactory<ezPropertyBaseWidget>::Event& e)
+void ezPropertyGridWidget::FactoryEventHandler(const ezRttiMappedObjectFactory<ezQtPropertyWidget>::Event& e)
 {
   SetSelection(m_pDocument->GetSelectionManager()->GetSelection());
 }

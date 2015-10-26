@@ -31,7 +31,7 @@ struct ezSceneObjectMetaData
   bool m_bHidden;
 };
 
-class ezSceneDocument : public ezDocumentBase
+class ezSceneDocument : public ezDocument
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocument);
 
@@ -72,13 +72,13 @@ public:
   bool PasteAt(const ezArrayPtr<PasteInfo>& info, const ezVec3& vPos);
   bool PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info);
 
-  const ezTransform& GetGlobalTransform(const ezDocumentObjectBase* pObject);
-  void SetGlobalTransform(const ezDocumentObjectBase* pObject, const ezTransform& t);
+  const ezTransform& GetGlobalTransform(const ezDocumentObject* pObject);
+  void SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t);
 
   void SetPickingResult(const ezObjectPickingResult& res) { m_PickingResult = res; }
 
-  static ezTransform QueryLocalTransform(const ezDocumentObjectBase* pObject);
-  static ezTransform ComputeGlobalTransform(const ezDocumentObjectBase* pObject);
+  static ezTransform QueryLocalTransform(const ezDocumentObject* pObject);
+  static ezTransform ComputeGlobalTransform(const ezDocumentObject* pObject);
 
   struct SceneEvent
   {
@@ -104,7 +104,7 @@ protected:
   virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezDocumentInfo); }
 
   template<typename Func>
-  void ApplyRecursive(const ezDocumentObjectBase* pObject, Func f)
+  void ApplyRecursive(const ezDocumentObject* pObject, Func f)
   {
     f(pObject);
 
@@ -118,11 +118,11 @@ private:
   void ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e);
 
-  void InvalidateGlobalTransformValue(const ezDocumentObjectBase* pObject);
+  void InvalidateGlobalTransformValue(const ezDocumentObject* pObject);
 
   bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
   ActiveGizmo m_ActiveGizmo;
   ezObjectPickingResult m_PickingResult;
 
-  ezHashTable<const ezDocumentObjectBase*, ezTransform> m_GlobalTransforms;
+  ezHashTable<const ezDocumentObject*, ezTransform> m_GlobalTransforms;
 };

@@ -973,7 +973,7 @@ void ezStringBuilder::RemoveDoubleSlashesInPath()
 }
 
 
-void ezStringBuilder::ReadAll(ezStreamReaderBase& Stream)
+void ezStringBuilder::ReadAll(ezStreamReader& Stream)
 {
   Clear();
 

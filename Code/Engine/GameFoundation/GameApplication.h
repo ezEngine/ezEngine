@@ -16,7 +16,7 @@ class ezWorld;
 class EZ_GAMEFOUNDATION_DLL ezGameApplication : public ezApplication
 {
 public:
-  ezGameApplication(ezGameStateBase& initialGameState);
+  ezGameApplication(ezGameState& initialGameState);
   ~ezGameApplication();
 
   // public ezApplication implementation:
@@ -27,8 +27,8 @@ public:
 
   ezGALSwapChainHandle GetSwapChain(const ezWindowBase* pWindow) const;
 
-  void SetCurrentGameState(ezGameStateBase& currentGameState);
-  EZ_FORCE_INLINE ezGameStateBase& GetCurrentGameState() const
+  void SetCurrentGameState(ezGameState& currentGameState);
+  EZ_FORCE_INLINE ezGameState& GetCurrentGameState() const
   {
     return *m_pCurrentGameState;
   }
@@ -67,7 +67,7 @@ private:
 
   ezDefaultTimeStepSmoothing m_TimeStepSmoother;
 
-  ezGameStateBase* m_pCurrentGameState;
+  ezGameState* m_pCurrentGameState;
 
   bool m_bWasQuitRequested;
 };

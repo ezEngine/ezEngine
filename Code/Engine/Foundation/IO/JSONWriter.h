@@ -224,7 +224,7 @@ public:
   ~ezStandardJSONWriter(); // [tested]
 
   /// \brief All output is written to this binary stream.
-  void SetOutputStream(ezStreamWriterBase* pOutput); // [tested]
+  void SetOutputStream(ezStreamWriter* pOutput); // [tested]
 
   /// \brief \copydoc ezJSONWriter::WriteBool()
   virtual void WriteBool(bool value) override; // [tested]
@@ -338,7 +338,7 @@ protected:
   void OutputIndentation();
 
   ezInt32 m_iIndentation;
-  ezStreamWriterBase* m_pOutput;
+  ezStreamWriter* m_pOutput;
 
   ezHybridArray<JSONState, 16> m_StateStack;
 };

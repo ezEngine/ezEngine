@@ -110,7 +110,7 @@ struct ezBmpBgrxQuad {
   ezUInt8 m_reserved;
 };
 
-ezResult ezBmpFileFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& image, ezLogInterface* pLog) const
+ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& image, ezLogInterface* pLog) const
 {
   // Technically almost arbitrary formats are supported, but we only use the common ones.
   ezImageFormat::Enum compatibleFormats[] =
@@ -123,7 +123,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& 
   };
 
   // Find a compatible format closest to the one the image currently has
-  ezImageFormat::Enum format = ezImageConversionBase::FindClosestCompatibleFormat(image.GetImageFormat(), compatibleFormats);
+  ezImageFormat::Enum format = ezImageConversion::FindClosestCompatibleFormat(image.GetImageFormat(), compatibleFormats);
 
   if (format == ezImageFormat::UNKNOWN)
   {
@@ -135,7 +135,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& 
   if (format != image.GetImageFormat())
   {
     ezImage convertedImage;
-    if (ezImageConversionBase::Convert(image, convertedImage, format) != EZ_SUCCESS)
+    if (ezImageConversion::Convert(image, convertedImage, format) != EZ_SUCCESS)
     {
       // This should never happen
       EZ_ASSERT_DEV(false, "ezImageConversion::Convert failed even though the conversion was to the format returned by FindClosestCompatibleFormat.");
@@ -292,7 +292,7 @@ namespace
   }
 }
 
-ezResult ezBmpFileFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, ezLogInterface* pLog) const
+ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLogInterface* pLog) const
 {
   ezBmpFileHeader fileHeader;
   if (stream.ReadBytes(&fileHeader, sizeof(ezBmpFileHeader)) != sizeof(ezBmpFileHeader))

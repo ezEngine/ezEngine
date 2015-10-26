@@ -11,8 +11,8 @@ class EZ_FOUNDATION_DLL ezAbstractGraphJsonSerializer
 {
 public:
 
-  static void Write(ezStreamWriterBase& stream, const ezAbstractObjectGraph* pGraph, ezStandardJSONWriter::WhitespaceMode mode = ezStandardJSONWriter::WhitespaceMode::None); // [tested]
-  static void Read(ezStreamReaderBase& stream, ezAbstractObjectGraph* pGraph); // [tested]
+  static void Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph, ezStandardJSONWriter::WhitespaceMode mode = ezStandardJSONWriter::WhitespaceMode::None); // [tested]
+  static void Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph); // [tested]
 
 private:
 

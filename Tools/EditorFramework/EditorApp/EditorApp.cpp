@@ -29,7 +29,7 @@
 #include <GuiFoundation/Action/ActionManager.h>
 
 
-ezEditorApp* ezEditorApp::s_pInstance = nullptr;
+ezQtEditorApp* ezQtEditorApp::s_pInstance = nullptr;
 
 void SetStyleSheet()
 {
@@ -68,7 +68,7 @@ void SetStyleSheet()
   QApplication::setPalette(palette);
 }
 
-ezEditorApp::ezEditorApp() :
+ezQtEditorApp::ezQtEditorApp() :
   s_RecentProjects(5),
   s_RecentDocuments(50)
 {
@@ -83,19 +83,19 @@ ezEditorApp::ezEditorApp() :
 
 }
 
-ezEditorApp::~ezEditorApp()
+ezQtEditorApp::~ezQtEditorApp()
 {
   delete m_pTimer;
   m_pTimer = nullptr;
   s_pInstance = nullptr;
 }
 
-void ezEditorApp::InitQt(int argc, char** argv)
+void ezQtEditorApp::InitQt(int argc, char** argv)
 {
   s_pQtApplication = new QApplication(argc, argv);
 }
 
-void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
+void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
 {
   ezString sApplicationName = ezCommandLineUtils::GetInstance()->GetStringOption("-appname", 0, szAppName);
   ezUIServices::SetApplicationName(sApplicationName);
@@ -120,13 +120,13 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
   ezContainerWindow* pContainer = new ezContainerWindow();
   pContainer->show();
 
-  ezDocumentManagerBase::s_Requests.AddEventHandler(ezMakeDelegate(&ezEditorApp::DocumentManagerRequestHandler, this));
-  ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(&ezEditorApp::DocumentManagerEventHandler, this));
-  ezDocumentBase::s_EventsAny.AddEventHandler(ezMakeDelegate(&ezEditorApp::DocumentEventHandler, this));
-  ezToolsProject::s_Requests.AddEventHandler(ezMakeDelegate(&ezEditorApp::ProjectRequestHandler, this));
-  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezEditorApp::ProjectEventHandler, this));
-  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezEditorApp::EngineProcessMsgHandler, this));
-  ezDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezEditorApp::DocumentWindowEventHandler, this));
+  ezDocumentManager::s_Requests.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentManagerRequestHandler, this));
+  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentManagerEventHandler, this));
+  ezDocument::s_EventsAny.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentEventHandler, this));
+  ezToolsProject::s_Requests.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::ProjectRequestHandler, this));
+  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::ProjectEventHandler, this));
+  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::EngineProcessMsgHandler, this));
+  ezQtDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentWindowEventHandler, this));
 
   ezStartup::StartupCore();
 
@@ -180,23 +180,23 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
     CreateOrOpenDocument(false, s_RecentDocuments.GetFileList()[0]);
   }
 
-  if (ezDocumentWindow::GetAllDocumentWindows().IsEmpty())
+  if (ezQtDocumentWindow::GetAllDocumentWindows().IsEmpty())
   {
     ShowSettingsDocument();
   }
 }
 
-void ezEditorApp::ShutdownEditor()
+void ezQtEditorApp::ShutdownEditor()
 {
   ezToolsProject::CloseProject();
 
-  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::EngineProcessMsgHandler, this));
-  ezToolsProject::s_Requests.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::ProjectRequestHandler, this));
-  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::ProjectEventHandler, this));
-  ezDocumentBase::s_EventsAny.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::DocumentEventHandler, this));
-  ezDocumentManagerBase::s_Requests.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::DocumentManagerRequestHandler, this));
-  ezDocumentManagerBase::s_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::DocumentManagerEventHandler, this));
-  ezDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::DocumentWindowEventHandler, this));
+  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::EngineProcessMsgHandler, this));
+  ezToolsProject::s_Requests.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::ProjectRequestHandler, this));
+  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::ProjectEventHandler, this));
+  ezDocument::s_EventsAny.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentEventHandler, this));
+  ezDocumentManager::s_Requests.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentManagerRequestHandler, this));
+  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentManagerEventHandler, this));
+  ezQtDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentWindowEventHandler, this));
 
   SaveSettings();
 
@@ -211,21 +211,21 @@ void ezEditorApp::ShutdownEditor()
 
   // HACK to figure out why the panels are not always properly destroyed together with the ContainerWindows
   // if you run into this, please try to figure this out
-  // every ezApplicationPanel actually registers itself with a container window in its constructor
+  // every ezQtApplicationPanel actually registers itself with a container window in its constructor
   // there its Qt 'parent' is set to the container window (there is only one)
-  // that means, when the application is shut down, all ezApplicationPanel instances should get deleted by their parent
+  // that means, when the application is shut down, all ezQtApplicationPanel instances should get deleted by their parent
   // ie. the container window
   // however, SOMETIMES this does not happen
   // it seems to be related to whether a panel has been opened/closed (ie. shown/hidden), and maybe also with the restored state
   {
-    const auto& Panels = ezApplicationPanel::GetAllApplicationPanels();
+    const auto& Panels = ezQtApplicationPanel::GetAllApplicationPanels();
     ezUInt32 uiNumPanels = Panels.GetCount();
 
     EZ_ASSERT_DEBUG(uiNumPanels == 0, "Not all panels have been cleaned up correctly");
 
     for (ezUInt32 i = 0; i < uiNumPanels; ++i)
     {
-      ezApplicationPanel* pPanel = Panels[i];
+      ezQtApplicationPanel* pPanel = Panels[i];
       QObject* pParent = pPanel->parent();
       delete pPanel;
     }
@@ -249,7 +249,7 @@ void ezEditorApp::ShutdownEditor()
   m_LogHTML.EndLog();
 }
 
-ezInt32 ezEditorApp::RunEditor()
+ezInt32 ezQtEditorApp::RunEditor()
 {
   connect(m_pTimer, SIGNAL(timeout()), this, SLOT(SlotTimedUpdate()), Qt::QueuedConnection);
   m_pTimer->start(1);
@@ -260,67 +260,67 @@ ezInt32 ezEditorApp::RunEditor()
   return ret;
 }
 
-void ezEditorApp::DeInitQt()
+void ezQtEditorApp::DeInitQt()
 {
   delete s_pQtApplication;
 }
 
-void ezEditorApp::OpenProject(const char* szProject)
+void ezQtEditorApp::OpenProject(const char* szProject)
 {
   QMetaObject::invokeMethod(this, "SlotQueuedOpenProject", Qt::ConnectionType::QueuedConnection,  Q_ARG(QString, szProject));
 }
 
-void ezEditorApp::GuiCreateDocument()
+void ezQtEditorApp::GuiCreateDocument()
 {
   GuiCreateOrOpenDocument(true);
 }
 
-void ezEditorApp::GuiOpenDocument()
+void ezQtEditorApp::GuiOpenDocument()
 {
   GuiCreateOrOpenDocument(false);
 }
 
-void ezEditorApp::OpenDocument(const char* szDocument)
+void ezQtEditorApp::OpenDocument(const char* szDocument)
 {
   QMetaObject::invokeMethod(this, "SlotQueuedOpenDocument", Qt::ConnectionType::QueuedConnection,  Q_ARG(QString, szDocument));
 }
 
-ezDocumentBase* ezEditorApp::OpenDocumentImmediate(const char* szDocument, bool bRequestWindow)
+ezDocument* ezQtEditorApp::OpenDocumentImmediate(const char* szDocument, bool bRequestWindow)
 {
   return CreateOrOpenDocument(false, szDocument, bRequestWindow);
 }
 
-void ezEditorApp::GuiCreateProject()
+void ezQtEditorApp::GuiCreateProject()
 {
   QMetaObject::invokeMethod(this, "SlotQueuedCreateOrOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(bool, true));
 }
 
-void ezEditorApp::GuiOpenProject()
+void ezQtEditorApp::GuiOpenProject()
 {
   QMetaObject::invokeMethod(this, "SlotQueuedCreateOrOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(bool, false));
 }
 
-void ezEditorApp::SlotQueuedCreateOrOpenProject(bool bCreate)
+void ezQtEditorApp::SlotQueuedCreateOrOpenProject(bool bCreate)
 {
   GuiCreateOrOpenProject(bCreate);
 }
 
-void ezEditorApp::CloseProject()
+void ezQtEditorApp::CloseProject()
 {
   QMetaObject::invokeMethod(this, "SlotQueuedCloseProject", Qt::ConnectionType::QueuedConnection);
 }
 
-void ezEditorApp::SlotQueuedOpenProject(QString sProject)
+void ezQtEditorApp::SlotQueuedOpenProject(QString sProject)
 {
   CreateOrOpenProject(false, sProject.toUtf8().data());
 }
 
-void ezEditorApp::SlotQueuedOpenDocument(QString sProject)
+void ezQtEditorApp::SlotQueuedOpenDocument(QString sProject)
 {
   CreateOrOpenDocument(false, sProject.toUtf8().data());
 }
 
-void ezEditorApp::SlotQueuedCloseProject()
+void ezQtEditorApp::SlotQueuedCloseProject()
 {
   // purge the image loading queue when a project is closed, but keep the existing cache
   QtImageCache::StopRequestProcessing(false);
@@ -331,7 +331,7 @@ void ezEditorApp::SlotQueuedCloseProject()
   QtImageCache::EnableRequestProcessing();
 }
 
-void ezEditorApp::SlotTimedUpdate()
+void ezQtEditorApp::SlotTimedUpdate()
 {
   if (ezEditorEngineProcessConnection::GetInstance())
     ezEditorEngineProcessConnection::GetInstance()->Update();
@@ -339,17 +339,17 @@ void ezEditorApp::SlotTimedUpdate()
   m_pTimer->start(1);
 }
 
-void ezEditorApp::DocumentManagerEventHandler(const ezDocumentManagerBase::Event& r)
+void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& r)
 {
   switch (r.m_Type)
   {
-  case ezDocumentManagerBase::Event::Type::DocumentWindowRequested:
+  case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
       s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath());
       SaveSettings();
     }
     break;
-  case ezDocumentManagerBase::Event::Type::DocumentClosing:
+  case ezDocumentManager::Event::Type::DocumentClosing:
     {
       // Clear all document settings when it is closed
       s_DocumentSettings.Remove(r.m_pDocument->GetDocumentPath());
@@ -358,17 +358,17 @@ void ezEditorApp::DocumentManagerEventHandler(const ezDocumentManagerBase::Event
   }
 }
 
-void ezEditorApp::DocumentEventHandler(const ezDocumentBase::Event& e)
+void ezQtEditorApp::DocumentEventHandler(const ezDocument::Event& e)
 {
   switch (e.m_Type)
   {
-  case ezDocumentBase::Event::Type::SaveDocumentMetaState:
+  case ezDocument::Event::Type::SaveDocumentMetaState:
     {
       SaveDocumentSettings(e.m_pDocument);
     }
     break;
 
-  case ezDocumentBase::Event::Type::DocumentSaved:
+  case ezDocument::Event::Type::DocumentSaved:
     {
       ezAssetCurator::GetInstance()->NotifyOfPotentialAsset(e.m_pDocument->GetDocumentPath());
     }
@@ -376,14 +376,14 @@ void ezEditorApp::DocumentEventHandler(const ezDocumentBase::Event& e)
   }
 }
 
-void ezEditorApp::DocumentWindowEventHandler(const ezDocumentWindow::Event& e)
+void ezQtEditorApp::DocumentWindowEventHandler(const ezQtDocumentWindow::Event& e)
 {
   switch (e.m_Type)
   {
-  case ezDocumentWindow::Event::WindowClosed:
+  case ezQtDocumentWindow::Event::WindowClosed:
     {
       // if all windows are closed, show at least the settings window
-      if (ezDocumentWindow::GetAllDocumentWindows().GetCount() == 0)
+      if (ezQtDocumentWindow::GetAllDocumentWindows().GetCount() == 0)
       {
         ShowSettingsDocument();
       }
@@ -392,11 +392,11 @@ void ezEditorApp::DocumentWindowEventHandler(const ezDocumentWindow::Event& e)
   }
 }
 
-void ezEditorApp::DocumentManagerRequestHandler(ezDocumentManagerBase::Request& r)
+void ezQtEditorApp::DocumentManagerRequestHandler(ezDocumentManager::Request& r)
 {
   switch (r.m_Type)
   {
-  case ezDocumentManagerBase::Request::Type::DocumentAllowedToOpen:
+  case ezDocumentManager::Request::Type::DocumentAllowedToOpen:
     {
       // if someone else already said no, don't bother to check further
       if (r.m_RequestStatus.m_Result.Failed())
@@ -440,7 +440,7 @@ void ezEditorApp::DocumentManagerRequestHandler(ezDocumentManagerBase::Request& 
   }
 }
 
-void ezEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e)
+void ezQtEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e)
 {
   switch (e.m_Type)
   {
@@ -463,7 +463,7 @@ void ezEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnection:
   }
 }
 
-void ezEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
+void ezQtEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
 {
   switch (r.m_Type)
   {
@@ -511,7 +511,7 @@ void ezEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
   }
 }
 
-void ezEditorApp::ProjectRequestHandler(ezToolsProject::Request& r)
+void ezQtEditorApp::ProjectRequestHandler(ezToolsProject::Request& r)
 {
   switch (r.m_Type)
   {
@@ -520,11 +520,11 @@ void ezEditorApp::ProjectRequestHandler(ezToolsProject::Request& r)
       if (r.m_bProjectCanClose == false)
         return;
 
-      ezHybridArray<ezDocumentBase*, 32> ModifiedDocs;
+      ezHybridArray<ezDocument*, 32> ModifiedDocs;
 
-      for (ezDocumentManagerBase* pMan : ezDocumentManagerBase::GetAllDocumentManagers())
+      for (ezDocumentManager* pMan : ezDocumentManager::GetAllDocumentManagers())
       {
-        for (ezDocumentBase* pDoc : pMan->GetAllDocuments())
+        for (ezDocument* pDoc : pMan->GetAllDocuments())
         {
           if (pDoc->IsModified())
             ModifiedDocs.PushBack(pDoc);
@@ -589,7 +589,7 @@ void ezRecentFilesList::Load(const char* szFile)
   }
 }
 
-ezString ezEditorApp::GetDocumentDataFolder(const char* szDocument)
+ezString ezQtEditorApp::GetDocumentDataFolder(const char* szDocument)
 {
   ezStringBuilder sPath = szDocument;
   sPath.Append("_data");
@@ -597,7 +597,7 @@ ezString ezEditorApp::GetDocumentDataFolder(const char* szDocument)
   return sPath;
 }
 
-ezString ezEditorApp::BuildDocumentTypeFileFilter(bool bForCreation)
+ezString ezQtEditorApp::BuildDocumentTypeFileFilter(bool bForCreation)
 {
   ezStringBuilder sAllFilters;
   const char* sepsep = "";
@@ -608,7 +608,7 @@ ezString ezEditorApp::BuildDocumentTypeFileFilter(bool bForCreation)
     sepsep = ";;";
   }
 
-  for (ezDocumentManagerBase* pMan : ezDocumentManagerBase::GetAllDocumentManagers())
+  for (ezDocumentManager* pMan : ezDocumentManager::GetAllDocumentManagers())
   {
     ezHybridArray<ezDocumentTypeDescriptor, 4> Types;
     pMan->GetSupportedDocumentTypes(Types);
@@ -641,7 +641,7 @@ ezString ezEditorApp::BuildDocumentTypeFileFilter(bool bForCreation)
   return sAllFilters;
 }
 
-void ezEditorApp::GuiCreateOrOpenDocument(bool bCreate)
+void ezQtEditorApp::GuiCreateOrOpenDocument(bool bCreate)
 {
   const ezString sAllFilters = BuildDocumentTypeFileFilter(bCreate);
 
@@ -666,10 +666,10 @@ void ezEditorApp::GuiCreateOrOpenDocument(bool bCreate)
 
   m_sLastDocumentFolder = ezPathUtils::GetFileDirectory(sFile);
 
-  ezDocumentManagerBase* pManToCreate = nullptr;
+  ezDocumentManager* pManToCreate = nullptr;
   ezDocumentTypeDescriptor DescToCreate;
 
-  if (ezDocumentManagerBase::FindDocumentTypeFromPath(sFile, bCreate, pManToCreate, &DescToCreate).Succeeded())
+  if (ezDocumentManager::FindDocumentTypeFromPath(sFile, bCreate, pManToCreate, &DescToCreate).Succeeded())
   {
     sSelectedExt = DescToCreate.m_sDocumentTypeName;
   }
@@ -677,12 +677,12 @@ void ezEditorApp::GuiCreateOrOpenDocument(bool bCreate)
   CreateOrOpenDocument(bCreate, sFile);
 }
 
-ezDocumentBase* ezEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow)
+ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow)
 {
-  ezDocumentManagerBase* pManToCreate = nullptr;
+  ezDocumentManager* pManToCreate = nullptr;
   ezDocumentTypeDescriptor DescToCreate;
 
-  if (ezDocumentManagerBase::FindDocumentTypeFromPath(szFile, bCreate, pManToCreate, &DescToCreate).Failed())
+  if (ezDocumentManager::FindDocumentTypeFromPath(szFile, bCreate, pManToCreate, &DescToCreate).Failed())
   {
     ezStringBuilder sTemp = szFile;
     ezStringBuilder sExt = sTemp.GetFileExtension();
@@ -694,7 +694,7 @@ ezDocumentBase* ezEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFi
   }
 
   // does the same document already exist and is open ?
-  ezDocumentBase* pDocument = pManToCreate->GetDocumentByPath(szFile);
+  ezDocument* pDocument = pManToCreate->GetDocumentByPath(szFile);
 
   if (!pDocument)
   {
@@ -738,7 +738,7 @@ ezDocumentBase* ezEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFi
   return pDocument;
 }
 
-void ezEditorApp::GuiCreateOrOpenProject(bool bCreate)
+void ezQtEditorApp::GuiCreateOrOpenProject(bool bCreate)
 {
   const QString sDir = QString::fromUtf8(m_sLastProjectFolder.GetData());
   ezStringBuilder sFile;
@@ -761,7 +761,7 @@ void ezEditorApp::GuiCreateOrOpenProject(bool bCreate)
   CreateOrOpenProject(bCreate, sFile);
 }
 
-void ezEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
+void ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 {
   if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetInstance()->GetProjectPath() == szFile)
   {

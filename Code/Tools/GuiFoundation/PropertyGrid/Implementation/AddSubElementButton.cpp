@@ -10,7 +10,7 @@
 #include "GuiFoundation/UIServices/UIServices.moc.h"
 
 ezAddSubElementButton::ezAddSubElementButton()
-  : ezPropertyBaseWidget()
+  : ezQtPropertyWidget()
 {
   // Reset base class size policy as we are put in a layout that would cause us to vanish instead.
   setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);

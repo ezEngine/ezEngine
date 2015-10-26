@@ -19,8 +19,8 @@ public:
   /// \brief Returns a copy of this allocated with the given allocator. This method is automatically implemented by adding EZ_DECLARE_MESSAGE_TYPE.
   virtual ezMessage* Clone(ezAllocatorBase* pAllocator) const = 0;
 
-  //virtual void Serialize(ezStreamWriterBase& stream) const;
-  //virtual ezResult Deserialize(ezStreamReaderBase& stream);
+  //virtual void Serialize(ezStreamWriter& stream) const;
+  //virtual ezResult Deserialize(ezStreamReader& stream);
 
   /// \brief Returns the id for this message type.
   EZ_FORCE_INLINE ezMessageId GetId() const

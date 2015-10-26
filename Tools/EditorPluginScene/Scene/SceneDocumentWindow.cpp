@@ -9,8 +9,8 @@
 #include <QGridLayout>
 #include <QSettings>
 
-ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
-  : ezDocumentWindow3D(pDocument)
+ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezDocument* pDocument)
+  : ezQtEngineDocumentWindow(pDocument)
 {
   QWidget* pCenter = new QWidget(this);
   m_pViewLayout = new QGridLayout(pCenter);
@@ -27,10 +27,10 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   m_bInGizmoInteraction = false;
   SetTargetFramerate(35);
 
-  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::DocumentTreeEventHandler, this));
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::DocumentTreeEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::PropertyEventHandler, this));
 
-  GetSceneDocument()->m_ObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::SceneObjectMetaDataEventHandler, this));
+  GetSceneDocument()->m_ObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SceneObjectMetaDataEventHandler, this));
 
   {
     // Menu Bar
@@ -53,9 +53,9 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   }
 
   ezSceneDocument* pSceneDoc = static_cast<ezSceneDocument*>(GetDocument());
-  pSceneDoc->m_SceneEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::DocumentEventHandler, this));
+  pSceneDoc->m_SceneEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::DocumentEventHandler, this));
 
-  pSceneDoc->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::SelectionManagerEventHandler, this));
+  pSceneDoc->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SelectionManagerEventHandler, this));
 
   // TODO: (works but..) give the gizmo the proper view? remove the view from the input context altogether?
   m_TranslateGizmo.SetOwner(this, m_ViewWidgets[0]);
@@ -67,15 +67,15 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   m_ScaleGizmo.SetSnappingValue(ezScaleGizmoAction::GetCurrentSnappingValue());
   m_TranslateGizmo.SetSnappingValue(ezTranslateGizmoAction::GetCurrentSnappingValue());
 
-  m_TranslateGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
-  m_RotateGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
-  m_ScaleGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
-  m_DragToPosGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
-  pSceneDoc->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::ObjectStructureEventHandler, this));
-  pSceneDoc->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::CommandHistoryEventHandler, this));
-  ezRotateGizmoAction::s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::RotateGizmoEventHandler, this));
-  ezScaleGizmoAction::s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::ScaleGizmoEventHandler, this));
-  ezTranslateGizmoAction::s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TranslateGizmoEventHandler, this));
+  m_TranslateGizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
+  m_RotateGizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
+  m_ScaleGizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
+  m_DragToPosGizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
+  pSceneDoc->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::ObjectStructureEventHandler, this));
+  pSceneDoc->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::CommandHistoryEventHandler, this));
+  ezRotateGizmoAction::s_Events.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::RotateGizmoEventHandler, this));
+  ezScaleGizmoAction::s_Events.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::ScaleGizmoEventHandler, this));
+  ezTranslateGizmoAction::s_Events.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TranslateGizmoEventHandler, this));
 
 
   {
@@ -97,36 +97,36 @@ ezSceneDocumentWindow::ezSceneDocumentWindow(ezDocumentBase* pDocument)
   FinishWindowCreation();
 }
 
-ezSceneDocumentWindow::~ezSceneDocumentWindow()
+ezQtSceneDocumentWindow::~ezQtSceneDocumentWindow()
 {
   SaveViewConfigs();
 
   ezSceneDocument* pSceneDoc = static_cast<ezSceneDocument*>(GetDocument());
-  pSceneDoc->m_SceneEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::DocumentEventHandler, this));
-  GetSceneDocument()->m_ObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::SceneObjectMetaDataEventHandler, this));
+  pSceneDoc->m_SceneEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::DocumentEventHandler, this));
+  GetSceneDocument()->m_ObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SceneObjectMetaDataEventHandler, this));
 
-  m_TranslateGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
-  m_RotateGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
-  m_ScaleGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
-  m_DragToPosGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TransformationGizmoEventHandler, this));
-  pSceneDoc->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::ObjectStructureEventHandler, this));
-  pSceneDoc->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::CommandHistoryEventHandler, this));
-  ezRotateGizmoAction::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::RotateGizmoEventHandler, this));
-  ezScaleGizmoAction::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::ScaleGizmoEventHandler, this));
-  ezTranslateGizmoAction::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::TranslateGizmoEventHandler, this));
+  m_TranslateGizmo.m_GizmoEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
+  m_RotateGizmo.m_GizmoEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
+  m_ScaleGizmo.m_GizmoEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
+  m_DragToPosGizmo.m_GizmoEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
+  pSceneDoc->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::ObjectStructureEventHandler, this));
+  pSceneDoc->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::CommandHistoryEventHandler, this));
+  ezRotateGizmoAction::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::RotateGizmoEventHandler, this));
+  ezScaleGizmoAction::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::ScaleGizmoEventHandler, this));
+  ezTranslateGizmoAction::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TranslateGizmoEventHandler, this));
 
-  GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::SelectionManagerEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SelectionManagerEventHandler, this));
 
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocumentWindow::DocumentTreeEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::DocumentTreeEventHandler, this));
 }
 
-void ezSceneDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void ezQtSceneDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   m_pEngineConnection->SendObjectProperties(e);
 }
 
-void ezSceneDocumentWindow::CommandHistoryEventHandler(const ezCommandHistory::Event& e)
+void ezQtSceneDocumentWindow::CommandHistoryEventHandler(const ezCommandHistory::Event& e)
 {
   switch (e.m_Type)
   {
@@ -142,14 +142,14 @@ void ezSceneDocumentWindow::CommandHistoryEventHandler(const ezCommandHistory::E
 
 }
 
-void ezSceneDocumentWindow::SnapSelectionToPosition(bool bSnapEachObject)
+void ezQtSceneDocumentWindow::SnapSelectionToPosition(bool bSnapEachObject)
 {
   const float fSnap = ezTranslateGizmoAction::GetCurrentSnappingValue();
 
   if (fSnap == 0.0f)
     return;
 
-  const ezDeque<const ezDocumentObjectBase*>& selection = GetSceneDocument()->GetSelectionManager()->GetSelection();
+  const ezDeque<const ezDocumentObject*>& selection = GetSceneDocument()->GetSelectionManager()->GetSelection();
   if (selection.IsEmpty())
     return;
 
@@ -220,7 +220,7 @@ void ezSceneDocumentWindow::SnapSelectionToPosition(bool bSnapEachObject)
   m_GizmoSelection.Clear();
 }
 
-void ezSceneDocumentWindow::ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void ezQtSceneDocumentWindow::ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
   if (m_bInGizmoInteraction)
     return;
@@ -238,7 +238,7 @@ void ezSceneDocumentWindow::ObjectStructureEventHandler(const ezDocumentObjectSt
   }
 }
 
-void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEvent& e)
+void ezQtSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEvent& e)
 {
   switch (e.m_Type)
   {
@@ -266,7 +266,7 @@ void ezSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEve
   }
 }
 
-void ezSceneDocumentWindow::FocusOnSelectionAllViews()
+void ezQtSceneDocumentWindow::FocusOnSelectionAllViews()
 {
   const auto& sel = GetDocument()->GetSelectionManager()->GetSelection();
 
@@ -278,10 +278,10 @@ void ezSceneDocumentWindow::FocusOnSelectionAllViews()
   ezQuerySelectionBBoxMsgToEngine msg;
   msg.m_uiViewID = 0xFFFFFFFF;
   msg.m_iPurpose = 0;
-  SendMessageToEngine(&msg, true);
+  SendMessageToEngine(&msg);
 }
 
-void ezSceneDocumentWindow::FocusOnSelectionHoveredView()
+void ezQtSceneDocumentWindow::FocusOnSelectionHoveredView()
 {
   const auto& sel = GetDocument()->GetSelectionManager()->GetSelection();
 
@@ -298,10 +298,10 @@ void ezSceneDocumentWindow::FocusOnSelectionHoveredView()
   ezQuerySelectionBBoxMsgToEngine msg;
   msg.m_uiViewID = pView->GetViewID();
   msg.m_iPurpose = 0;
-  SendMessageToEngine(&msg, true);
+  SendMessageToEngine(&msg);
 }
 
-void ezSceneDocumentWindow::SendObjectMsg(const ezDocumentObjectBase* pObj, ezObjectTagMsgToEngine* pMsg)
+void ezQtSceneDocumentWindow::SendObjectMsg(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg)
 {
   // if ezObjectTagMsgToEngine were derived from a general 'object msg' one could send other message types as well
 
@@ -311,7 +311,7 @@ void ezSceneDocumentWindow::SendObjectMsg(const ezDocumentObjectBase* pObj, ezOb
   pMsg->m_ObjectGuid = pObj->GetGuid();
   GetEditorEngineConnection()->SendMessage(pMsg);
 }
-void ezSceneDocumentWindow::SendObjectMsgRecursive(const ezDocumentObjectBase* pObj, ezObjectTagMsgToEngine* pMsg)
+void ezQtSceneDocumentWindow::SendObjectMsgRecursive(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg)
 {
   // if ezObjectTagMsgToEngine were derived from a general 'object msg' one could send other message types as well
 
@@ -327,7 +327,7 @@ void ezSceneDocumentWindow::SendObjectMsgRecursive(const ezDocumentObjectBase* p
   }
 }
 
-void ezSceneDocumentWindow::SendObjectSelection()
+void ezQtSceneDocumentWindow::SendObjectSelection()
 {
   if (!m_bResendSelection)
     return;
@@ -352,21 +352,21 @@ void ezSceneDocumentWindow::SendObjectSelection()
   m_pEngineConnection->SendMessage(&msg);
 }
 
-void ezSceneDocumentWindow::DocumentTreeEventHandler(const ezDocumentObjectStructureEvent& e)
+void ezQtSceneDocumentWindow::DocumentTreeEventHandler(const ezDocumentObjectStructureEvent& e)
 {
   m_pEngineConnection->SendDocumentTreeChange(e);
 }
 
-void ezSceneDocumentWindow::InternalRedraw()
+void ezQtSceneDocumentWindow::InternalRedraw()
 {
-  ezDocumentWindow3D::SyncObjectsToEngine();
+  ezQtEngineDocumentWindow::SyncObjectsToEngine();
 
   ezEditorInputContext::UpdateActiveInputContext();
 
   SendRedrawMsg();
 }
 
-void ezSceneDocumentWindow::SendRedrawMsg()
+void ezQtSceneDocumentWindow::SendRedrawMsg()
 {
   // do not try to redraw while the process is crashed, it is obviously futile
   if (ezEditorEngineProcessConnection::GetInstance()->IsProcessCrashed())
@@ -385,13 +385,13 @@ void ezSceneDocumentWindow::SendRedrawMsg()
 
   {
     ezSyncWithProcessMsgToEngine sm;
-    ezEditorEngineProcessConnection::GetInstance()->SendMessage(&sm, true);
+    ezEditorEngineProcessConnection::GetInstance()->SendMessage(&sm);
 
     ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::Seconds(2.0));
   }
 }
 
-void ezSceneDocumentWindow::SetupDefaultViewConfigs()
+void ezQtSceneDocumentWindow::SetupDefaultViewConfigs()
 {
   m_ViewConfigSingle.m_Perspective = ezSceneViewPerspective::Perspective;
   m_ViewConfigSingle.m_RenderMode = ezViewRenderMode::Default;
@@ -407,7 +407,7 @@ void ezSceneDocumentWindow::SetupDefaultViewConfigs()
   }
 }
 
-void ezSceneDocumentWindow::SaveViewConfig(QSettings& Settings, const ezSceneViewConfig& cfg, const char* szName) const
+void ezQtSceneDocumentWindow::SaveViewConfig(QSettings& Settings, const ezSceneViewConfig& cfg, const char* szName) const
 {
   ezStringBuilder s("ViewConfig_", szName);
 
@@ -419,7 +419,7 @@ void ezSceneDocumentWindow::SaveViewConfig(QSettings& Settings, const ezSceneVie
   Settings.endGroup();
 }
 
-void ezSceneDocumentWindow::LoadViewConfig(QSettings& Settings, ezSceneViewConfig& cfg, const char* szName)
+void ezQtSceneDocumentWindow::LoadViewConfig(QSettings& Settings, ezSceneViewConfig& cfg, const char* szName)
 {
   ezStringBuilder s("ViewConfig_", szName);
 
@@ -431,7 +431,7 @@ void ezSceneDocumentWindow::LoadViewConfig(QSettings& Settings, ezSceneViewConfi
   Settings.endGroup();
 }
 
-void ezSceneDocumentWindow::SaveViewConfigs() const
+void ezQtSceneDocumentWindow::SaveViewConfigs() const
 {
   QSettings Settings;
   Settings.beginGroup(QLatin1String("SceneDocument"));
@@ -446,7 +446,7 @@ void ezSceneDocumentWindow::SaveViewConfigs() const
   Settings.endGroup();
 }
 
-void ezSceneDocumentWindow::LoadViewConfigs()
+void ezQtSceneDocumentWindow::LoadViewConfigs()
 {
   bool bQuadView = true;
 
@@ -465,7 +465,7 @@ void ezSceneDocumentWindow::LoadViewConfigs()
   CreateViews(bQuadView);
 }
 
-void ezSceneDocumentWindow::CreateViews(bool bQuad)
+void ezQtSceneDocumentWindow::CreateViews(bool bQuad)
 {
   QtScopedUpdatesDisabled _(this);
   for (auto pContainer : m_ActiveMainViews)
@@ -478,20 +478,20 @@ void ezSceneDocumentWindow::CreateViews(bool bQuad)
   {
     for (ezUInt32 i = 0; i < 4; ++i)
     {
-      ezSceneViewWidgetContainer* pContainer = new ezSceneViewWidgetContainer(this, this, &m_CameraMoveSettings, &m_ViewConfigQuad[i]);
+      ezQtSceneViewWidgetContainer* pContainer = new ezQtSceneViewWidgetContainer(this, this, &m_CameraMoveSettings, &m_ViewConfigQuad[i]);
       m_ActiveMainViews.PushBack(pContainer);
       m_pViewLayout->addWidget(pContainer, i / 2, i % 2);
     }
   }
   else
   {
-    ezSceneViewWidgetContainer* pContainer = new ezSceneViewWidgetContainer(this, this, &m_CameraMoveSettings, &m_ViewConfigSingle);
+    ezQtSceneViewWidgetContainer* pContainer = new ezQtSceneViewWidgetContainer(this, this, &m_CameraMoveSettings, &m_ViewConfigSingle);
     m_ActiveMainViews.PushBack(pContainer);
     m_pViewLayout->addWidget(pContainer, 0, 0);
   }
 }
 
-void ezSceneDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg, ezSceneViewWidget* pSceneView)
+void ezQtSceneDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg, ezQtSceneViewWidget* pSceneView)
 {
   /// \todo Object Pivot Offset
   /// \todo Zoom in / out only on second focus ?
@@ -589,7 +589,7 @@ void ezSceneDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxRes
   pSceneView->InterpolateCameraTo(vNewCameraPosition, vNewCameraDirection, fNewFovOrDim);
 }
 
-void ezSceneDocumentWindow::SyncObjectHiddenState()
+void ezQtSceneDocumentWindow::SyncObjectHiddenState()
 {
   for (auto pChild : GetDocument()->GetObjectManager()->GetRootObject()->GetChildren())
   {
@@ -597,7 +597,7 @@ void ezSceneDocumentWindow::SyncObjectHiddenState()
   }
 }
 
-void ezSceneDocumentWindow::SyncObjectHiddenState(ezDocumentObjectBase* pObject)
+void ezQtSceneDocumentWindow::SyncObjectHiddenState(ezDocumentObject* pObject)
 {
   const bool bHidden = GetSceneDocument()->m_ObjectMetaData.BeginReadMetaData(pObject->GetGuid())->m_bHidden;
   GetSceneDocument()->m_ObjectMetaData.EndReadMetaData();
@@ -614,10 +614,10 @@ void ezSceneDocumentWindow::SyncObjectHiddenState(ezDocumentObjectBase* pObject)
   }
 }
 
-void ezSceneDocumentWindow::ToggleViews(QWidget* pView)
+void ezQtSceneDocumentWindow::ToggleViews(QWidget* pView)
 {
-  ezSceneViewWidget* pViewport = qobject_cast<ezSceneViewWidget*>(pView);
-  EZ_ASSERT_DEV(pViewport != nullptr, "ezSceneDocumentWindow::ToggleViews must be called with a ezSceneViewWidget as parameter!");
+  ezQtSceneViewWidget* pViewport = qobject_cast<ezQtSceneViewWidget*>(pView);
+  EZ_ASSERT_DEV(pViewport != nullptr, "ezQtSceneDocumentWindow::ToggleViews must be called with a ezQtSceneViewWidget as parameter!");
   bool bIsQuad = m_ActiveMainViews.GetCount() == 4;
   if (bIsQuad)
   {
@@ -634,7 +634,7 @@ void ezSceneDocumentWindow::ToggleViews(QWidget* pView)
   }
 }
 
-bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
+bool ezQtSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxResultMsgToEditor>())
   {
@@ -648,13 +648,13 @@ bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg*
           continue;
 
         if (msg->m_iPurpose == 0)
-          HandleFocusOnSelection(msg, static_cast<ezSceneViewWidget*>(pView));
+          HandleFocusOnSelection(msg, static_cast<ezQtSceneViewWidget*>(pView));
       }
 
     }
     else
     {
-      ezSceneViewWidget* pSceneView = static_cast<ezSceneViewWidget*>(GetViewWidgetByID(msg->m_uiViewID));
+      ezQtSceneViewWidget* pSceneView = static_cast<ezQtSceneViewWidget*>(GetViewWidgetByID(msg->m_uiViewID));
 
       if (!pSceneView)
         return true;
@@ -666,7 +666,7 @@ bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg*
     return true;
   }
 
-  if (ezDocumentWindow3D::HandleEngineMessage(pMsg))
+  if (ezQtEngineDocumentWindow::HandleEngineMessage(pMsg))
   {
     if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
     {
@@ -679,7 +679,7 @@ bool ezSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg*
   return false;
 }
 
-void ezSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManager::Event& e)
+void ezQtSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManager::Event& e)
 {
   m_bResendSelection = true;
 
@@ -703,7 +703,7 @@ void ezSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManage
   }
 }
 
-void ezSceneDocumentWindow::SceneObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezSceneObjectMetaData>::EventData& e)
+void ezQtSceneDocumentWindow::SceneObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezSceneObjectMetaData>::EventData& e)
 {
   if ((e.m_uiModifiedFlags & ezSceneObjectMetaData::HiddenFlag) != 0)
   {
@@ -715,7 +715,7 @@ void ezSceneDocumentWindow::SceneObjectMetaDataEventHandler(const ezObjectMetaDa
   }
 }
 
-void ezSceneDocumentWindow::RotateGizmoEventHandler(const ezRotateGizmoAction::Event& e)
+void ezQtSceneDocumentWindow::RotateGizmoEventHandler(const ezRotateGizmoAction::Event& e)
 {
   switch (e.m_Type)
   {
@@ -725,7 +725,7 @@ void ezSceneDocumentWindow::RotateGizmoEventHandler(const ezRotateGizmoAction::E
   }
 }
 
-void ezSceneDocumentWindow::ScaleGizmoEventHandler(const ezScaleGizmoAction::Event& e)
+void ezQtSceneDocumentWindow::ScaleGizmoEventHandler(const ezScaleGizmoAction::Event& e)
 {
   switch (e.m_Type)
   {
@@ -735,7 +735,7 @@ void ezSceneDocumentWindow::ScaleGizmoEventHandler(const ezScaleGizmoAction::Eve
   }
 }
 
-void ezSceneDocumentWindow::TranslateGizmoEventHandler(const ezTranslateGizmoAction::Event& e)
+void ezQtSceneDocumentWindow::TranslateGizmoEventHandler(const ezTranslateGizmoAction::Event& e)
 {
   switch (e.m_Type)
   {

@@ -4,7 +4,7 @@
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/IO/MemoryStream.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCommandTransaction, ezCommandBase, 1, ezRTTIDefaultAllocator<ezCommandTransaction>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCommandTransaction, ezCommand, 1, ezRTTIDefaultAllocator<ezCommandTransaction>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezCommandTransaction::~ezCommandTransaction()
@@ -54,7 +54,7 @@ ezStatus ezCommandTransaction::Undo(bool bFireEvents)
 
 void ezCommandTransaction::Cleanup(CommandState state)
 {
-  for (ezCommandBase* pCommand : m_ChildActions)
+  for (ezCommand* pCommand : m_ChildActions)
   {
     pCommand->Cleanup(state);
     pCommand->GetDynamicRTTI()->GetAllocator()->Deallocate(pCommand);
@@ -63,7 +63,7 @@ void ezCommandTransaction::Cleanup(CommandState state)
   m_ChildActions.Clear();
 }
 
-ezStatus ezCommandTransaction::AddCommand(ezCommandBase& command)
+ezStatus ezCommandTransaction::AddCommand(ezCommand& command)
 {
   ezMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
@@ -74,14 +74,14 @@ ezStatus ezCommandTransaction::AddCommand(ezCommandBase& command)
   ezReflectionSerializer::WriteObjectToJSON(writer, command.GetDynamicRTTI(), &command, ezJSONWriter::WhitespaceMode::None);
 
   const ezRTTI* pRtti;
-  ezCommandBase* pCommand = (ezCommandBase*) ezReflectionSerializer::ReadObjectFromJSON(reader, pRtti);
+  ezCommand* pCommand = (ezCommand*) ezReflectionSerializer::ReadObjectFromJSON(reader, pRtti);
 
   pCommand->m_pDocument = m_pDocument;
   ezStatus ret = pCommand->Do(false);
 
   if (ret.m_Result == EZ_FAILURE)
   {
-    pCommand->Cleanup(ezCommandBase::CommandState::WasDone);
+    pCommand->Cleanup(ezCommand::CommandState::WasDone);
     pCommand->GetDynamicRTTI()->GetAllocator()->Deallocate(pCommand);
     return ret;
   }
@@ -91,7 +91,7 @@ ezStatus ezCommandTransaction::AddCommand(ezCommandBase& command)
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezCommandTransaction::AddCommand(ezCommandBase* pCommand)
+ezStatus ezCommandTransaction::AddCommand(ezCommand* pCommand)
 {
   pCommand->m_pDocument = m_pDocument;
   ezStatus res = pCommand->Do(false);
@@ -103,7 +103,7 @@ ezStatus ezCommandTransaction::AddCommand(ezCommandBase* pCommand)
   return ezStatus(EZ_FAILURE);
 }
 
-ezCommandHistory::ezCommandHistory(ezDocumentBase* pDocument) : m_pDocument(pDocument)
+ezCommandHistory::ezCommandHistory(ezDocument* pDocument) : m_pDocument(pDocument)
 {
   m_bTemporaryMode = false;
   m_bIsInUndoRedo = false;
@@ -228,7 +228,7 @@ void ezCommandHistory::StartTransaction()
   {
     pTransaction = m_TransactionStack.PeekBack();
     pTransaction->Undo(false);
-    pTransaction->Cleanup(ezCommandBase::CommandState::WasUndone);
+    pTransaction->Cleanup(ezCommand::CommandState::WasUndone);
     m_TransactionStack.PushBack(pTransaction);
     return;
   }
@@ -281,7 +281,7 @@ void ezCommandHistory::EndTransaction(bool bCancel)
 
     if (m_TransactionStack.IsEmpty())
     {
-      pTransaction->Cleanup(ezCommandBase::CommandState::WasUndone);
+      pTransaction->Cleanup(ezCommand::CommandState::WasUndone);
       pTransaction->GetDynamicRTTI()->GetAllocator()->Deallocate(pTransaction);
     }
   }
@@ -290,7 +290,7 @@ void ezCommandHistory::EndTransaction(bool bCancel)
   m_Events.Broadcast(et);
 }
 
-ezStatus ezCommandHistory::AddCommand(ezCommandBase& command)
+ezStatus ezCommandHistory::AddCommand(ezCommand& command)
 {
   EZ_ASSERT_DEV(!m_TransactionStack.IsEmpty(), "Cannot add command while no transaction is started");
 
@@ -303,7 +303,7 @@ void ezCommandHistory::ClearUndoHistory()
   {
     ezCommandTransaction* pTransaction = m_UndoHistory.PeekBack();
 
-    pTransaction->Cleanup(ezCommandBase::CommandState::WasDone);
+    pTransaction->Cleanup(ezCommand::CommandState::WasDone);
     pTransaction->GetDynamicRTTI()->GetAllocator()->Deallocate(pTransaction);
 
     m_UndoHistory.PopBack();
@@ -316,7 +316,7 @@ void ezCommandHistory::ClearRedoHistory()
   {
     ezCommandTransaction* pTransaction = m_RedoHistory.PeekBack();
 
-    pTransaction->Cleanup(ezCommandBase::CommandState::WasUndone);
+    pTransaction->Cleanup(ezCommand::CommandState::WasUndone);
     pTransaction->GetDynamicRTTI()->GetAllocator()->Deallocate(pTransaction);
 
     m_RedoHistory.PopBack();

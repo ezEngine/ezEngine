@@ -7,21 +7,21 @@
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <Core/World/World.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoHandleBase, ezEditorEngineSyncObject, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoHandle, ezEditorEngineSyncObject, 1, ezRTTINoAllocator);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("Visible", m_bVisible),
 EZ_MEMBER_PROPERTY("Transformation", m_Transformation),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoHandle, ezGizmoHandleBase, 1, ezRTTIDefaultAllocator<ezGizmoHandle>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineGizmoHandle, ezGizmoHandle, 1, ezRTTIDefaultAllocator<ezEngineGizmoHandle>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("HandleType", m_iHandleType),
 EZ_MEMBER_PROPERTY("Color", m_Color),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-void ezGizmoHandleBase::SetVisible(bool bVisible)
+void ezGizmoHandle::SetVisible(bool bVisible)
 {
   if (bVisible != m_bVisible)
   {
@@ -30,7 +30,7 @@ void ezGizmoHandleBase::SetVisible(bool bVisible)
   }
 }
 
-void ezGizmoHandleBase::SetTransformation(const ezMat4& m) 
+void ezGizmoHandle::SetTransformation(const ezMat4& m) 
 {
   if (m_Transformation != m)
   {
@@ -228,7 +228,7 @@ static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, e
   return ezResourceManager::CreateResource<ezMeshResource>(szMeshResourceName, md, pMeshBuffer->GetResourceDescription());
 }
 
-ezGizmoHandle::ezGizmoHandle()
+ezEngineGizmoHandle::ezEngineGizmoHandle()
 {
   m_bVisible = false;
   m_Transformation.SetIdentity();
@@ -236,7 +236,7 @@ ezGizmoHandle::ezGizmoHandle()
   m_pMeshComponent = nullptr;
 }
 
-void ezGizmoHandle::Configure(ezGizmoBase* pParentGizmo, ezGizmoHandleType type, const ezColor& col)
+void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col)
 {
   SetParentGizmo(pParentGizmo);
 
@@ -244,7 +244,7 @@ void ezGizmoHandle::Configure(ezGizmoBase* pParentGizmo, ezGizmoHandleType type,
   m_Color = col;
 }
 
-bool ezGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID)
+bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID)
 {
   if (!m_hGameObject.IsInvalidated())
     return false;
@@ -254,37 +254,37 @@ bool ezGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPick
 
   switch (m_iHandleType)
   {
-  case ezGizmoHandleType::Arrow:
+  case ezEngineGizmoHandleType::Arrow:
     {
       hMeshBuffer = CreateMeshBufferArrow();
       szMeshGuid = "{9D02CF27-7A15-44EA-A372-C417AF2A8E9B}";
     }
     break;
-  case ezGizmoHandleType::Rect:
+  case ezEngineGizmoHandleType::Rect:
     {
       hMeshBuffer = CreateMeshBufferRect();
       szMeshGuid = "{3DF4DDDA-F598-4A37-9691-D4C3677905A8}";
     }
     break;
-  case ezGizmoHandleType::Ring:
+  case ezEngineGizmoHandleType::Ring:
     {
       hMeshBuffer = CreateMeshBufferRing();
       szMeshGuid = "{629AD0C6-C81B-4850-A5BC-41494DC0BF95}";
     }
     break;
-  case ezGizmoHandleType::Box:
+  case ezEngineGizmoHandleType::Box:
     {
       hMeshBuffer = CreateMeshBufferBox();
       szMeshGuid = "{13A59253-4A98-4638-8B94-5AA370E929A7}";
     }
     break;
-  case ezGizmoHandleType::Piston:
+  case ezEngineGizmoHandleType::Piston:
     {
       hMeshBuffer = CreateMeshBufferPiston();
       szMeshGuid = "{44A4FE37-6AE3-44C1-897D-E8B95AE53EF6}";
     }
     break;
-  case ezGizmoHandleType::HalfPiston:
+  case ezEngineGizmoHandleType::HalfPiston:
     {
       hMeshBuffer = CreateMeshBufferHalfPiston();
       szMeshGuid = "{64A45DD0-D7F9-4D1D-9F68-782FA3274200}";
@@ -325,7 +325,7 @@ bool ezGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPick
   return true;
 }
 
-void ezGizmoHandle::UpdateForEngine(ezWorld* pWorld)
+void ezEngineGizmoHandle::UpdateForEngine(ezWorld* pWorld)
 {
   if (m_hGameObject.IsInvalidated())
     return;

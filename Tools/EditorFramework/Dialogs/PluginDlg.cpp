@@ -14,9 +14,9 @@ PluginDlg::PluginDlg(QWidget* parent) : QDialog(parent)
 
 void PluginDlg::FillPluginList()
 {
-  const ezPluginSet& PluginsAvailable = ezEditorApp::GetInstance()->GetEditorPluginsAvailable();
-  const ezPluginSet& PluginsActive = ezEditorApp::GetInstance()->GetEditorPluginsActive();
-  const ezPluginSet& PluginsToBeLoaded = ezEditorApp::GetInstance()->GetEditorPluginsToBeLoaded();
+  const ezPluginSet& PluginsAvailable = ezQtEditorApp::GetInstance()->GetEditorPluginsAvailable();
+  const ezPluginSet& PluginsActive = ezQtEditorApp::GetInstance()->GetEditorPluginsActive();
+  const ezPluginSet& PluginsToBeLoaded = ezQtEditorApp::GetInstance()->GetEditorPluginsToBeLoaded();
 
   ListPlugins->blockSignals(true);
 
@@ -56,7 +56,7 @@ void PluginDlg::on_ButtonOK_clicked()
     }
   }
 
-  ezEditorApp::GetInstance()->SetEditorPluginsToBeLoaded(ToBeLoaded);
+  ezQtEditorApp::GetInstance()->SetEditorPluginsToBeLoaded(ToBeLoaded);
 
   accept();
 }

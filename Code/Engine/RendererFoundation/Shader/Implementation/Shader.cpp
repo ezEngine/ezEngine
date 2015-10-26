@@ -3,7 +3,7 @@
 #include <RendererFoundation/Shader/Shader.h>
 
 ezGALShader::ezGALShader(const ezGALShaderCreationDescription& Description)
-  : ezGALObjectBase(Description)
+  : ezGALObject(Description)
 {
 }
 

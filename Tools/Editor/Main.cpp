@@ -6,7 +6,7 @@
 #include <QtNetwork/QHostInfo>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 
-static ezEditorApp g_EditorApp;
+static ezQtEditorApp g_EditorApp;
 
 class ezEditorApplication : public ezApplication
 {
@@ -18,12 +18,12 @@ public:
 
   virtual void BeforeEngineInit() override
   {
-    ezEditorApp::GetInstance()->InitQt(GetArgumentCount(), (char**)GetArgumentsArray());
+    ezQtEditorApp::GetInstance()->InitQt(GetArgumentCount(), (char**)GetArgumentsArray());
   }
 
   virtual void AfterEngineShutdown() override
   {
-    ezEditorApp::GetInstance()->DeInitQt();
+    ezQtEditorApp::GetInstance()->DeInitQt();
   }
 
   virtual ApplicationExecution Run() override
@@ -32,12 +32,12 @@ public:
     hostInfo = QHostInfo::fromName(QHostInfo::localHostName());
     ezString sHostName = QHostInfo::localHostName().toUtf8().data();
 
-    ezEditorApp::GetInstance()->StartupEditor("ezEditor", sHostName);
+    ezQtEditorApp::GetInstance()->StartupEditor("ezEditor", sHostName);
     {
-      const ezInt32 iReturnCode = ezEditorApp::GetInstance()->RunEditor();
+      const ezInt32 iReturnCode = ezQtEditorApp::GetInstance()->RunEditor();
       SetReturnCode(iReturnCode);
     }
-    ezEditorApp::GetInstance()->ShutdownEditor();
+    ezQtEditorApp::GetInstance()->ShutdownEditor();
 
     return ezApplication::Quit;
   }

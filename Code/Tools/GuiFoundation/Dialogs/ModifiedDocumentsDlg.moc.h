@@ -11,7 +11,7 @@ public:
   Q_OBJECT
 
 public:
-  ezModifiedDocumentsDlg(QWidget* parent, const ezHybridArray<ezDocumentBase*, 32>& ModifiedDocs);
+  ezModifiedDocumentsDlg(QWidget* parent, const ezHybridArray<ezDocument*, 32>& ModifiedDocs);
 
 
 private slots:
@@ -22,9 +22,9 @@ private slots:
   void SlotSelectionChanged(int currentRow, int currentColumn, int previousRow, int previousColumn);
 
 private:
-  ezResult SaveDocument(ezDocumentBase* pDoc);
+  ezResult SaveDocument(ezDocument* pDoc);
 
-  ezHybridArray<ezDocumentBase*, 32> m_ModifiedDocs;
+  ezHybridArray<ezDocument*, 32> m_ModifiedDocs;
 };
 
 

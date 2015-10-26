@@ -50,7 +50,7 @@ public:
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
-  virtual ezResourceLoadDesc UpdateContent(ezStreamReaderBase* Stream) override;
+  virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
   virtual ezResourceLoadDesc CreateResource(const ezConstantBufferResourceDescriptorBase& descriptor) override;
 

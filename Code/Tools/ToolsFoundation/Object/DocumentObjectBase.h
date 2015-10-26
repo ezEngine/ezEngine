@@ -9,15 +9,15 @@
 
 class ezDocumentObjectManager;
 
-class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectBase
+class EZ_TOOLSFOUNDATION_DLL ezDocumentObject
 {
 public:
-  ezDocumentObjectBase()
+  ezDocumentObject()
     : m_pDocumentObjectManager(nullptr)
     , m_pParent(nullptr)
   {
   }
-  virtual ~ezDocumentObjectBase() { }
+  virtual ~ezDocumentObject() { }
 
   // Accessors
   const ezUuid& GetGuid() const { return m_Guid; }
@@ -29,14 +29,14 @@ public:
   ezIReflectedTypeAccessor& GetTypeAccessor();
 
   // Ownership
-  const ezDocumentObjectBase* GetParent() const { return m_pParent; }
+  const ezDocumentObject* GetParent() const { return m_pParent; }
 
-  virtual void InsertSubObject(ezDocumentObjectBase* pObject, const char* szProperty, const ezVariant& index);
-  virtual void RemoveSubObject(ezDocumentObjectBase* pObject);
+  virtual void InsertSubObject(ezDocumentObject* pObject, const char* szProperty, const ezVariant& index);
+  virtual void RemoveSubObject(ezDocumentObject* pObject);
 
   // Helper
   void ComputeObjectHash(ezUInt64& uiHash) const;
-  const ezHybridArray<ezDocumentObjectBase*, 8>& GetChildren() const { return m_Children; }
+  const ezHybridArray<ezDocumentObject*, 8>& GetChildren() const { return m_Children; }
   const char* GetParentProperty() const { return m_sParentProperty; }
   ezVariant GetPropertyIndex() const;
   bool IsOnHeap() const;
@@ -44,29 +44,29 @@ public:
 private:
   friend class ezDocumentObjectManager;
   void HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezRTTI* pType, ezPropertyPath& path) const;
-  ezUInt32 GetChildIndex(ezDocumentObjectBase* pChild) const;
+  ezUInt32 GetChildIndex(ezDocumentObject* pChild) const;
 
 protected:
   ezUuid m_Guid;
   ezDocumentObjectManager* m_pDocumentObjectManager;
 
-  ezDocumentObjectBase* m_pParent;
-  ezHybridArray<ezDocumentObjectBase*, 8> m_Children;
+  ezDocumentObject* m_pParent;
+  ezHybridArray<ezDocumentObject*, 8> m_Children;
 
   // Sub object data
   ezString m_sParentProperty;
 };
 
-class EZ_TOOLSFOUNDATION_DLL ezDocumentObject : public ezDocumentObjectBase
+class EZ_TOOLSFOUNDATION_DLL ezDocumentStorageObject : public ezDocumentObject
 {
 public:
-  ezDocumentObject(const ezRTTI* pObject)
-    : ezDocumentObjectBase()
+  ezDocumentStorageObject(const ezRTTI* pObject)
+    : ezDocumentObject()
     , m_ObjectPropertiesAccessor(pObject, this)
   {
   }
 
-  virtual ~ezDocumentObject() { }
+  virtual ~ezDocumentStorageObject() { }
 
   virtual const ezIReflectedTypeAccessor& GetTypeAccessor() const override { return m_ObjectPropertiesAccessor; }
 
@@ -74,11 +74,11 @@ protected:
   ezReflectedTypeStorageAccessor m_ObjectPropertiesAccessor;
 };
 
-class EZ_TOOLSFOUNDATION_DLL ezDocumentSubObject : public ezDocumentObjectBase
+class EZ_TOOLSFOUNDATION_DLL ezDocumentSubObject : public ezDocumentObject
 {
 public:
   ezDocumentSubObject(const ezRTTI* pRtti);
-  void SetObject(ezDocumentObjectBase* pOwnerObject, const ezPropertyPath& subPath, ezUuid guid = ezUuid());
+  void SetObject(ezDocumentObject* pOwnerObject, const ezPropertyPath& subPath, ezUuid guid = ezUuid());
 
   virtual const ezIReflectedTypeAccessor& GetTypeAccessor() const override { return m_Accessor; }
 
@@ -87,25 +87,3 @@ public:
   ezPropertyPath m_SubPath;
 };
 
-
-template<typename DirectMemberProperties>
-class ezDocumentObjectDirectMember : public ezDocumentObjectBase
-{
-public:
-  ezDocumentObjectDirectMember() :
-    m_ObjectPropertiesAccessor(&m_MemberProperties, ezGetStaticRTTI<DirectMemberProperties>(), this)
-  {
-  }
-
-  virtual ~ezDocumentObjectDirectMember()
-  {
-  }
-
-  virtual const ezIReflectedTypeAccessor& GetTypeAccessor()       const override { return m_ObjectPropertiesAccessor; }
-
-public:
-  DirectMemberProperties m_MemberProperties;
-
-private:
-  ezReflectedTypeDirectAccessor m_ObjectPropertiesAccessor;
-};

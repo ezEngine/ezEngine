@@ -1,7 +1,7 @@
 #include <Foundation/PCH.h>
 #include <Foundation/IO/ChunkStream.h>
 
-ezChunkStreamWriter::ezChunkStreamWriter(ezStreamWriterBase& pStream) : m_Stream(pStream)
+ezChunkStreamWriter::ezChunkStreamWriter(ezStreamWriter& pStream) : m_Stream(pStream)
 {
   m_bWritingFile = false;
   m_bWritingChunk = false;
@@ -85,7 +85,7 @@ ezResult ezChunkStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBy
 
 
 
-ezChunkStreamReader::ezChunkStreamReader(ezStreamReaderBase& stream) : m_Stream(stream)
+ezChunkStreamReader::ezChunkStreamReader(ezStreamReader& stream) : m_Stream(stream)
 {
   m_ChunkInfo.m_bValid = false;
   m_EndChunkFileMode = EndChunkFileMode::JustClose;

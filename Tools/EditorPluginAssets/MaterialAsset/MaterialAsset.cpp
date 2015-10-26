@@ -35,7 +35,7 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
     pInfo->m_FileDependencies.PushBack(pProp->m_sTextureNormal);
 }
 
-ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriterBase& stream, const char* szPlatform)
+ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform)
 {
   const ezMaterialAssetProperties* pProp = GetProperties();
 
@@ -69,7 +69,7 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriterBase& str
 
       if (!sImageFile.IsAbsolutePath())
       {
-        ezEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sAbsPath);
+        ezQtEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sAbsPath);
       }
 
       bValidImage = image.LoadFrom(sAbsPath).Succeeded();

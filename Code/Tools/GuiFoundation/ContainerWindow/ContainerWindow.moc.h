@@ -9,9 +9,9 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QMainWindow>
 
-class ezDocumentManagerBase;
-class ezDocumentBase;
-class ezApplicationPanel;
+class ezDocumentManager;
+class ezDocument;
+class ezQtApplicationPanel;
 struct ezDocumentTypeDescriptor;
 class QLabel;
 
@@ -25,18 +25,18 @@ public:
 
   static const ezDynamicArray<ezContainerWindow*>& GetAllContainerWindows() { return s_AllContainerWindows; }
 
-  void MoveDocumentWindowToContainer(ezDocumentWindow* pDocWindow);
-  void MoveApplicationPanelToContainer(ezApplicationPanel* pPanel);
+  void MoveDocumentWindowToContainer(ezQtDocumentWindow* pDocWindow);
+  void MoveApplicationPanelToContainer(ezQtApplicationPanel* pPanel);
 
-  static ezResult EnsureVisibleAnyContainer(ezDocumentBase* pDocument);
+  static ezResult EnsureVisibleAnyContainer(ezDocument* pDocument);
 
 private:
-  friend class ezDocumentWindow;
-  friend class ezApplicationPanel;
+  friend class ezQtDocumentWindow;
+  friend class ezQtApplicationPanel;
 
-  ezResult EnsureVisible(ezDocumentWindow* pDocWindow);
-  ezResult EnsureVisible(ezDocumentBase* pDocument);
-  ezResult EnsureVisible(ezApplicationPanel* pPanel);
+  ezResult EnsureVisible(ezQtDocumentWindow* pDocWindow);
+  ezResult EnsureVisible(ezDocument* pDocument);
+  ezResult EnsureVisible(ezQtApplicationPanel* pPanel);
 
   bool m_bWindowLayoutRestored;
   void ScheduleRestoreWindowLayout();
@@ -57,16 +57,16 @@ private:
 
   void UpdateWindowTitle();
 
-  void RemoveDocumentWindowFromContainer(ezDocumentWindow* pDocWindow);
-  void RemoveApplicationPanelFromContainer(ezApplicationPanel* pPanel);
+  void RemoveDocumentWindowFromContainer(ezQtDocumentWindow* pDocWindow);
+  void RemoveApplicationPanelFromContainer(ezQtApplicationPanel* pPanel);
 
-  void UpdateWindowDecoration(ezDocumentWindow* pDocWindow);
+  void UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow);
 
   void SetupDocumentTabArea();
 
   const char* GetUniqueName() const { return "ezEditor"; /* todo */ }
 
-  void DocumentWindowEventHandler(const ezDocumentWindow::Event& e);
+  void DocumentWindowEventHandler(const ezQtDocumentWindow::Event& e);
   void ProjectEventHandler(const ezToolsProject::Event& e);
   void UIServicesEventHandler(const ezUIServices::Event& e);
 
@@ -74,8 +74,8 @@ private:
 
 private:
   QLabel* m_pStatusBarLabel;
-  ezDynamicArray<ezDocumentWindow*> m_DocumentWindows;
-  ezDynamicArray<ezApplicationPanel*> m_ApplicationPanels;
+  ezDynamicArray<ezQtDocumentWindow*> m_DocumentWindows;
+  ezDynamicArray<ezQtApplicationPanel*> m_ApplicationPanels;
 
   static ezDynamicArray<ezContainerWindow*> s_AllContainerWindows;
 };

@@ -26,10 +26,10 @@ public:
   const ezHybridArray<ezString, 16>& GetFileDependencies() const { return m_FileDependencies; }
 
   /// \brief Writes the current state to a stream. Note that you probably should call StoreCurrentTimeStamp() before this, to serialize the latest file stamp
-  ezResult WriteDependencyFile(ezStreamWriterBase& stream) const;
+  ezResult WriteDependencyFile(ezStreamWriter& stream) const;
 
   /// \brief Reads the state from a stream. Call HasAnyFileChanged() afterwards to determine whether anything has changed since when the data was serialized.
-  ezResult ReadDependencyFile(ezStreamReaderBase& stream);
+  ezResult ReadDependencyFile(ezStreamReader& stream);
 
   /// \brief Writes the current state to a file. Note that you probably should call StoreCurrentTimeStamp() before this, to serialize the latest file stamp
   ezResult WriteDependencyFile(const char* szFile) const;

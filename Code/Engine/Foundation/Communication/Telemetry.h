@@ -64,11 +64,11 @@ public:
   /// @{ 
 
   static void Broadcast(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes);
-  static void Broadcast(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReaderBase& Stream, ezInt32 iDataBytes = -1);
+  static void Broadcast(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReader& Stream, ezInt32 iDataBytes = -1);
   static void Broadcast(TransmitMode tm, ezTelemetryMessage& Msg);
 
   static void SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData = nullptr, ezUInt32 uiDataBytes = 0);
-  static void SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReaderBase& Stream, ezInt32 iDataBytes = -1);
+  static void SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReader& Stream, ezInt32 iDataBytes = -1);
   static void SendToServer(ezTelemetryMessage& Msg);
 
   /// @}
@@ -188,7 +188,7 @@ private:
   static void Transmit(TransmitMode tm, const void* pData, ezUInt32 uiDataBytes);
 
   static void Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes);
-  static void Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReaderBase& Stream, ezInt32 iDataBytes = -1);
+  static void Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReader& Stream, ezInt32 iDataBytes = -1);
   static void Send(TransmitMode tm, ezTelemetryMessage& msg);
 
   friend class ezTelemetryThread;

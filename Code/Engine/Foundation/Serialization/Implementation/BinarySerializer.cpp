@@ -1,7 +1,7 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Serialization/BinarySerializer.h>
 
-void ezAbstractGraphBinarySerializer::Write(ezStreamWriterBase& stream, const ezAbstractObjectGraph* pGraph)
+void ezAbstractGraphBinarySerializer::Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph)
 {
   const auto& Nodes = pGraph->GetAllNodes();
 
@@ -26,7 +26,7 @@ void ezAbstractGraphBinarySerializer::Write(ezStreamWriterBase& stream, const ez
 }
 
 
-void ezAbstractGraphBinarySerializer::Read(ezStreamReaderBase& stream, ezAbstractObjectGraph* pGraph)
+void ezAbstractGraphBinarySerializer::Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph)
 {
   ezUInt32 iNodes;
   stream >> iNodes;

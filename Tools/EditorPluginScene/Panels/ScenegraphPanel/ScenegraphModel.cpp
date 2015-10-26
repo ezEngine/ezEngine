@@ -6,7 +6,7 @@
 #include <EditorPluginScene/Scene/SceneDocument.h>
 
 ezQtScenegraphModel::ezQtScenegraphModel(ezSceneDocument* pDocument)
-  : ezRawDocumentTreeModel(pDocument->GetObjectManager(), ezGetStaticRTTI<ezGameObject>(), "Children")
+  : ezQtDocumentTreeModel(pDocument->GetObjectManager(), ezGetStaticRTTI<ezGameObject>(), "Children")
 {
   m_pSceneDocument = pDocument;
 
@@ -20,7 +20,7 @@ ezQtScenegraphModel::~ezQtScenegraphModel()
 
 QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
 {
-  const ezDocumentObjectBase* pObject = (const ezDocumentObjectBase*)index.internalPointer();
+  const ezDocumentObject* pObject = (const ezDocumentObject*)index.internalPointer();
 
   switch (role)
   {
@@ -40,7 +40,7 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
     break;
   }
 
-  return ezRawDocumentTreeModel::data(index, role);
+  return ezQtDocumentTreeModel::data(index, role);
 }
 
 void ezQtScenegraphModel::ObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezSceneObjectMetaData>::EventData& e)

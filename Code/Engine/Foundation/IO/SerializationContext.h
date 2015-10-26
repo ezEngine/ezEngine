@@ -18,8 +18,8 @@
 /// A serialization context is created by deriving from ezSerializationContext, passing the own class as the template argument.
 ///
 /// In the derived class you have to implement two functions per type that the context is supposed to handle:\n
-///   (virtual) void Read (ezStreamReaderBase& stream, TYPE& type)\n
-///   (virtual) void Write(ezStreamWriterBase& stream, const TYPE& type)\n
+///   (virtual) void Read (ezStreamReader& stream, TYPE& type)\n
+///   (virtual) void Write(ezStreamWriter& stream, const TYPE& type)\n
 ///
 /// The macro EZ_ADD_SERIALIZATION_CONTEXT_OPERATORS() will then add the << and >> operators that redirect serialization of that type
 /// to these Read/Write functions.
@@ -39,7 +39,7 @@ public:
   /// \brief Returns the serialization context that is associated with the given stream (may be NULL).
   ///
   /// As long as you use the EZ_ADD_SERIALIZATION_CONTEXT_OPERATORS() macro, it is typically not necessary to call this function directly.
-  static DERIVED* GetReaderContext(ezStreamReaderBase* pStream) // [tested]
+  static DERIVED* GetReaderContext(ezStreamReader* pStream) // [tested]
   {
     auto it = s_ActiveReaderContexts.Find(pStream);
     if (it.IsValid())
@@ -51,7 +51,7 @@ public:
   /// \brief Returns the serialization context that is associated with the given stream (may be NULL).
   ///
   /// As long as you use the EZ_ADD_SERIALIZATION_CONTEXT_OPERATORS() macro, it is typically not necessary to call this function directly.
-  static DERIVED* GetWriterContext(ezStreamWriterBase* pStream) // [tested]
+  static DERIVED* GetWriterContext(ezStreamWriter* pStream) // [tested]
   {
     auto it = s_ActiveWriterContexts.Find(pStream);
     if (it.IsValid())
@@ -79,7 +79,7 @@ protected:
   /// \brief The deriving class should call this to associate this serialization context with the given stream.
   ///
   /// Each context can only be associated with one reader and one writer stream.
-  void RegisterReaderStream(ezStreamReaderBase* pStream) // [tested]
+  void RegisterReaderStream(ezStreamReader* pStream) // [tested]
   {
     if (pStream == m_pReaderStream)
       return;
@@ -103,7 +103,7 @@ protected:
   /// \brief The deriving class should call this to associate this serialization context with the given stream.
   ///
   /// Each context can only be associated with one reader and one writer stream.
-  void RegisterWriterStream(ezStreamWriterBase* pStream) // [tested]
+  void RegisterWriterStream(ezStreamWriter* pStream) // [tested]
   {
     if (pStream == m_pWriterStream)
       return;
@@ -125,19 +125,19 @@ protected:
   }
 
 private:
-  ezStreamReaderBase* m_pReaderStream;
-  ezStreamWriterBase* m_pWriterStream;
+  ezStreamReader* m_pReaderStream;
+  ezStreamWriter* m_pWriterStream;
 
-  static ezMap<ezStreamReaderBase*, DERIVED*> s_ActiveReaderContexts;
-  static ezMap<ezStreamWriterBase*, DERIVED*> s_ActiveWriterContexts;
+  static ezMap<ezStreamReader*, DERIVED*> s_ActiveReaderContexts;
+  static ezMap<ezStreamWriter*, DERIVED*> s_ActiveWriterContexts;
 };
 
 
 template<typename DERIVED>
-ezMap<ezStreamReaderBase*, DERIVED*> ezSerializationContext<DERIVED>::s_ActiveReaderContexts;
+ezMap<ezStreamReader*, DERIVED*> ezSerializationContext<DERIVED>::s_ActiveReaderContexts;
 
 template<typename DERIVED>
-ezMap<ezStreamWriterBase*, DERIVED*> ezSerializationContext<DERIVED>::s_ActiveWriterContexts;
+ezMap<ezStreamWriter*, DERIVED*> ezSerializationContext<DERIVED>::s_ActiveWriterContexts;
 
 /// \brief This macro adds serialization operators (<< and >>) for the given TYPE. The operators will redirect the serialization work
 /// to the Read/Write functions in the given CONTEXT class (derived from ezSerializationContext).
@@ -146,7 +146,7 @@ ezMap<ezStreamWriterBase*, DERIVED*> ezSerializationContext<DERIVED>::s_ActiveWr
 /// \sa ezSerializationContext
 #define EZ_ADD_SERIALIZATION_CONTEXT_OPERATORS(CONTEXT, TYPE) \
   \
-inline ezStreamWriterBase& operator<<(ezStreamWriterBase& stream, const TYPE type) \
+inline ezStreamWriter& operator<<(ezStreamWriter& stream, const TYPE type) \
 { \
   CONTEXT* pContext = CONTEXT::GetWriterContext(&stream); \
   EZ_ASSERT_DEV(pContext != nullptr, "No serialization context of type '" #CONTEXT "' that handles type '" #TYPE "' is available."); \
@@ -156,7 +156,7 @@ inline ezStreamWriterBase& operator<<(ezStreamWriterBase& stream, const TYPE typ
   return stream; \
 } \
 \
-inline ezStreamReaderBase& operator>>(ezStreamReaderBase& stream, TYPE type) \
+inline ezStreamReader& operator>>(ezStreamReader& stream, TYPE type) \
 { \
   CONTEXT* pContext = CONTEXT::GetReaderContext(&stream); \
   EZ_ASSERT_DEV(pContext != nullptr, "No serialization context of type '" #CONTEXT "' that handles type '" #TYPE "' is available."); \
@@ -168,7 +168,7 @@ inline ezStreamReaderBase& operator>>(ezStreamReaderBase& stream, TYPE type) \
 
 /// \brief Add this to the derived ezSerializationContext class, if the Read and Write functions are not supposed to be public
 #define EZ_MAKE_SERIALIZATION_CONTEXT_OPERATORS_FRIENDS(TYPE) \
-  friend ezStreamWriterBase& operator<<(ezStreamWriterBase& stream, const TYPE type); \
-  friend ezStreamReaderBase& operator>>(ezStreamReaderBase& stream, TYPE type);
+  friend ezStreamWriter& operator<<(ezStreamWriter& stream, const TYPE type); \
+  friend ezStreamReader& operator>>(ezStreamReader& stream, TYPE type);
 
 

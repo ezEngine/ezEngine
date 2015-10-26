@@ -9,7 +9,7 @@
 // ezReflectedTypeSubObjectAccessor public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezReflectedTypeSubObjectAccessor::ezReflectedTypeSubObjectAccessor(const ezRTTI* pRtti, ezDocumentObjectBase* pOwner)
+ezReflectedTypeSubObjectAccessor::ezReflectedTypeSubObjectAccessor(const ezRTTI* pRtti, ezDocumentObject* pOwner)
   : ezIReflectedTypeAccessor(pRtti, pOwner)
 {
 

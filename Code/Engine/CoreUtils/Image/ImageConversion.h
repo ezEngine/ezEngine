@@ -9,7 +9,7 @@
 EZ_DECLARE_FLAGS(ezUInt8, ezImageConversionFlags, None, InPlace, Lossy);
 
 /// \brief Helper class containing utilities to convert between different image formats and layouts.
-class EZ_COREUTILS_DLL ezImageConversionBase : public ezEnumerable<ezImageConversionBase>
+class EZ_COREUTILS_DLL ezImageConversion : public ezEnumerable<ezImageConversion>
 {
 public:
   /// \brief Finds the image format from a given list of formats which is the cheapest to convert to.
@@ -25,11 +25,11 @@ public:
 
   static ezResult Convert(const ezImage& source, ezImage& target, ezImageFormat::Enum targetFormat);
 
-  EZ_DECLARE_ENUMERABLE_CLASS(ezImageConversionBase);
+  EZ_DECLARE_ENUMERABLE_CLASS(ezImageConversion);
 
 protected:
-  ezImageConversionBase();
-  virtual ~ezImageConversionBase();
+  ezImageConversion();
+  virtual ~ezImageConversion();
 
   virtual ezResult DoConvert(const ezImage& source, ezImage& target, ezImageFormat::Enum targetFormat) const = 0;
 

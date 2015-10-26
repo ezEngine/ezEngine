@@ -8,20 +8,20 @@
 #include <QMouseEvent>
 #include <QDesktopWidget>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmo, ezGizmoBase, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmo, ezGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezTranslateGizmo::ezTranslateGizmo()
 {
   m_fSnappingValue = 0.0f;
 
-  m_AxisX.Configure(this, ezGizmoHandleType::Arrow, ezColorLinearUB(128, 0, 0));
-  m_AxisY.Configure(this, ezGizmoHandleType::Arrow, ezColorLinearUB(0, 128, 0));
-  m_AxisZ.Configure(this, ezGizmoHandleType::Arrow, ezColorLinearUB(0, 0, 128));
+  m_AxisX.Configure(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(128, 0, 0));
+  m_AxisY.Configure(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(0, 128, 0));
+  m_AxisZ.Configure(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(0, 0, 128));
 
-  m_PlaneXY.Configure(this, ezGizmoHandleType::Rect, ezColorLinearUB(128, 128, 255));
-  m_PlaneXZ.Configure(this, ezGizmoHandleType::Rect, ezColorLinearUB(128, 255, 128));
-  m_PlaneYZ.Configure(this, ezGizmoHandleType::Rect, ezColorLinearUB(255, 128, 128));
+  m_PlaneXY.Configure(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(128, 128, 255));
+  m_PlaneXZ.Configure(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(128, 255, 128));
+  m_PlaneYZ.Configure(this, ezEngineGizmoHandleType::Rect, ezColorLinearUB(255, 128, 128));
 
   SetVisible(false);
   SetTransformation(ezMat4::IdentityMatrix());
@@ -30,7 +30,7 @@ ezTranslateGizmo::ezTranslateGizmo()
   m_MovementMode = MovementMode::ScreenProjection;
 }
 
-void ezTranslateGizmo::OnSetOwner(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView)
+void ezTranslateGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
   m_AxisX.SetOwner(pOwnerWindow);
   m_AxisY.SetOwner(pOwnerWindow);
@@ -83,10 +83,10 @@ void ezTranslateGizmo::FocusLost(bool bCancel)
     GetOwnerWindow()->setCursor(QCursor(Qt::ArrowCursor));
   }
 
-  BaseEvent ev;
+  GizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = bCancel ? BaseEvent::Type::CancelInteractions : BaseEvent::Type::EndInteractions;
-  m_BaseEvents.Broadcast(ev);
+  ev.m_Type = bCancel ? GizmoEvent::Type::CancelInteractions : GizmoEvent::Type::EndInteractions;
+  m_GizmoEvents.Broadcast(ev);
 
   ezViewHighlightMsgToEngine msg;
   msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
@@ -192,10 +192,10 @@ bool ezTranslateGizmo::mousePressEvent(QMouseEvent* e)
 
   m_fStartScale = (m_vInteractionPivot - m_pCamera->GetPosition()).GetLength() * 0.125;
 
-  BaseEvent ev;
+  GizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = BaseEvent::Type::BeginInteractions;
-  m_BaseEvents.Broadcast(ev);
+  ev.m_Type = GizmoEvent::Type::BeginInteractions;
+  m_GizmoEvents.Broadcast(ev);
 
   return true;
 }
@@ -359,10 +359,10 @@ bool ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
 
   SetTransformation(mTrans);
 
-  BaseEvent ev;
+  GizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = BaseEvent::Type::Interaction;
-  m_BaseEvents.Broadcast(ev);
+  ev.m_Type = GizmoEvent::Type::Interaction;
+  m_GizmoEvents.Broadcast(ev);
 
   return true;
 }
@@ -372,10 +372,10 @@ void ezTranslateGizmo::SnapToGrid()
   if (m_Mode != TranslateMode::None)
     return;
 
-  BaseEvent ev;
+  GizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = BaseEvent::Type::BeginInteractions;
-  m_BaseEvents.Broadcast(ev);
+  ev.m_Type = GizmoEvent::Type::BeginInteractions;
+  m_GizmoEvents.Broadcast(ev);
 
   ezMat4 mTrans = GetTransformation();
   m_vStartPosition = mTrans.GetTranslationVector();
@@ -388,11 +388,11 @@ void ezTranslateGizmo::SnapToGrid()
   mTrans.SetTranslationVector(vPos);
   SetTransformation(mTrans);
 
-  ev.m_Type = BaseEvent::Type::Interaction;
-  m_BaseEvents.Broadcast(ev);
+  ev.m_Type = GizmoEvent::Type::Interaction;
+  m_GizmoEvents.Broadcast(ev);
 
-  ev.m_Type = BaseEvent::Type::EndInteractions;
-  m_BaseEvents.Broadcast(ev);
+  ev.m_Type = GizmoEvent::Type::EndInteractions;
+  m_GizmoEvents.Broadcast(ev);
 }
 
 void ezTranslateGizmo::SetMovementMode(MovementMode mode)

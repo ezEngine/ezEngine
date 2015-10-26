@@ -89,10 +89,10 @@ public:
   virtual void EnableLogOutput(bool bEnable);
 
   /// \brief Writes the state of the console (history, bound keys) to the stream.
-  virtual void SaveState(ezStreamWriterBase& Stream) const;
+  virtual void SaveState(ezStreamWriter& Stream) const;
 
   /// \brief Reads the state of the console (history, bound keys) from the stream.
-  virtual void LoadState(ezStreamReaderBase& Stream);
+  virtual void LoadState(ezStreamReader& Stream);
 
   /// @}
 

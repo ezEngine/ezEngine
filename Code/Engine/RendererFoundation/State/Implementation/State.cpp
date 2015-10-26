@@ -4,7 +4,7 @@
 #include <RendererFoundation/State/State.h>
 
 ezGALBlendState::ezGALBlendState(const ezGALBlendStateCreationDescription& Description)
-  : ezGALObjectBase(Description)
+  : ezGALObject(Description)
 {
 }
 
@@ -15,7 +15,7 @@ ezGALBlendState::~ezGALBlendState()
 
 
 ezGALDepthStencilState::ezGALDepthStencilState(const ezGALDepthStencilStateCreationDescription& Description)
-  : ezGALObjectBase(Description)
+  : ezGALObject(Description)
 {
 }
 
@@ -26,7 +26,7 @@ ezGALDepthStencilState::~ezGALDepthStencilState()
 
 
 ezGALRasterizerState::ezGALRasterizerState(const ezGALRasterizerStateCreationDescription& Description)
-  : ezGALObjectBase(Description)
+  : ezGALObject(Description)
 {
 }
 
@@ -36,7 +36,7 @@ ezGALRasterizerState::~ezGALRasterizerState()
 
 
 ezGALSamplerState::ezGALSamplerState(const ezGALSamplerStateCreationDescription& Description)
-: ezGALObjectBase(Description)
+: ezGALObject(Description)
 {
 }
 

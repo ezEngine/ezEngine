@@ -2,7 +2,7 @@
 
 #include <Foundation/IO/OSFile.h>
 
-class StreamComparer : public ezStreamWriterBase
+class StreamComparer : public ezStreamWriter
 {
 public:
   StreamComparer(const char* szExpectedData, bool bOnlyWriteResult = false)
@@ -44,7 +44,7 @@ private:
 };
 
 
-class StringStream : public ezStreamReaderBase
+class StringStream : public ezStreamReader
 {
 public:
 

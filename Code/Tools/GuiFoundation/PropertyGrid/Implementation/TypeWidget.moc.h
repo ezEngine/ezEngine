@@ -7,7 +7,7 @@
 #include <QWidget>
 
 class QGridLayout;
-class ezDocumentBase;
+class ezDocument;
 
 class EZ_GUIFOUNDATION_DLL ezTypeWidget : public QWidget
 {
@@ -15,28 +15,28 @@ class EZ_GUIFOUNDATION_DLL ezTypeWidget : public QWidget
 public:
   ezTypeWidget(QWidget* pParent, ezPropertyGridWidget* pGrid, const ezRTTI* pType, ezPropertyPath& parentPath);
   ~ezTypeWidget();
-  void SetSelection(const ezHybridArray<ezPropertyBaseWidget::Selection, 8>& items);
-  const ezHybridArray<ezPropertyBaseWidget::Selection, 8>& GetSelection() const { return m_Items; }
+  void SetSelection(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items);
+  const ezHybridArray<ezQtPropertyWidget::Selection, 8>& GetSelection() const { return m_Items; }
   const ezRTTI* GetType() const { return m_pType; }
   const ezPropertyPath& GetPropertyPath() const { return m_ParentPath; }
 
 private:
   void BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath);
 
-  void PropertyChangedHandler(const ezPropertyBaseWidget::Event& ed);
+  void PropertyChangedHandler(const ezQtPropertyWidget::Event& ed);
 
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 
-  void UpdateProperty(const ezDocumentObjectBase* pObject, const ezString& sProperty);
+  void UpdateProperty(const ezDocumentObject* pObject, const ezString& sProperty);
 
 private:
   ezPropertyGridWidget* m_pGrid;
   const ezRTTI* m_pType;
   ezPropertyPath m_ParentPath;
-  ezHybridArray<ezPropertyBaseWidget::Selection, 8> m_Items;
+  ezHybridArray<ezQtPropertyWidget::Selection, 8> m_Items;
 
   QGridLayout* m_pLayout;
-  ezMap<ezString, ezPropertyBaseWidget*> m_PropertyWidgets;
+  ezMap<ezString, ezQtPropertyWidget*> m_PropertyWidgets;
 
 };
 

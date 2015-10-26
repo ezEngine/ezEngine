@@ -5,7 +5,7 @@
 
 class ezCommandHistory;
 
-class EZ_TOOLSFOUNDATION_DLL ezCommandTransaction : public ezCommandBase
+class EZ_TOOLSFOUNDATION_DLL ezCommandTransaction : public ezCommand
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCommandTransaction);
 
@@ -19,11 +19,11 @@ public:
 
 private:
   friend class ezCommandHistory;
-  ezStatus AddCommand(ezCommandBase& command);
-  ezStatus AddCommand(ezCommandBase* command);
+  ezStatus AddCommand(ezCommand& command);
+  ezStatus AddCommand(ezCommand* command);
 
 private:
-  ezHybridArray<ezCommandBase*, 8> m_ChildActions;
+  ezHybridArray<ezCommand*, 8> m_ChildActions;
 };
 
 class EZ_TOOLSFOUNDATION_DLL ezCommandHistory
@@ -48,7 +48,7 @@ public:
   ezEvent<const Event&> m_Events;
 
 public:
-  ezCommandHistory(ezDocumentBase* pDocument);
+  ezCommandHistory(ezDocument* pDocument);
   ~ezCommandHistory();
    
   ezStatus Undo();
@@ -69,7 +69,7 @@ public:
   void CancelTemporaryCommands() { EndTemporaryCommands(true); }
   void FinishTemporaryCommands() { EndTemporaryCommands(false); }
 
-  ezStatus AddCommand(ezCommandBase& command);
+  ezStatus AddCommand(ezCommand& command);
 
   void ClearUndoHistory();
   void ClearRedoHistory();
@@ -87,5 +87,5 @@ private:
   ezHybridArray<ezCommandTransaction*, 4> m_TransactionStack;
   ezDeque<ezCommandTransaction*> m_UndoHistory;
   ezDeque<ezCommandTransaction*> m_RedoHistory;
-  ezDocumentBase* m_pDocument;
+  ezDocument* m_pDocument;
 };

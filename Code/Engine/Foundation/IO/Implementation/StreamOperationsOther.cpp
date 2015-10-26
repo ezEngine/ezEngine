@@ -7,14 +7,14 @@
 
 // ezAllocatorBase::Stats
 
-void operator<< (ezStreamWriterBase& Stream, const ezAllocatorBase::Stats& rhs)
+void operator<< (ezStreamWriter& Stream, const ezAllocatorBase::Stats& rhs)
 {
   Stream << rhs.m_uiNumAllocations;
   Stream << rhs.m_uiNumDeallocations;
   Stream << rhs.m_uiAllocationSize;
 }
 
-void operator>> (ezStreamReaderBase& Stream, ezAllocatorBase::Stats& rhs)
+void operator>> (ezStreamReader& Stream, ezAllocatorBase::Stats& rhs)
 {
   Stream >> rhs.m_uiNumAllocations;
   Stream >> rhs.m_uiNumDeallocations;
@@ -23,12 +23,12 @@ void operator>> (ezStreamReaderBase& Stream, ezAllocatorBase::Stats& rhs)
 
 // ezTime
 
-void operator<< (ezStreamWriterBase& Stream, ezTime Value)
+void operator<< (ezStreamWriter& Stream, ezTime Value)
 {
   Stream << Value.GetSeconds();
 }
 
-void operator>> (ezStreamReaderBase& Stream, ezTime& Value)
+void operator>> (ezStreamReader& Stream, ezTime& Value)
 {
   double d = 0;
   Stream.ReadQWordValue(&d);
@@ -38,13 +38,13 @@ void operator>> (ezStreamReaderBase& Stream, ezTime& Value)
 
 // ezUuid
 
-void operator<< (ezStreamWriterBase& Stream, const ezUuid& Value)
+void operator<< (ezStreamWriter& Stream, const ezUuid& Value)
 {
   Stream << Value.m_uiHigh;
   Stream << Value.m_uiLow;
 }
 
-void operator>> (ezStreamReaderBase& Stream, ezUuid& Value)
+void operator>> (ezStreamReader& Stream, ezUuid& Value)
 {
   Stream >> Value.m_uiHigh;
   Stream >> Value.m_uiLow;
@@ -61,7 +61,7 @@ struct WriteValueFunc
     (*m_pStream) << m_pValue->Get<T>();
   }
 
-  ezStreamWriterBase* m_pStream;
+  ezStreamWriter* m_pStream;
   const ezVariant* m_pValue;
 };
 
@@ -113,7 +113,7 @@ struct ReadValueFunc
     *m_pValue = value;
   }
 
-  ezStreamReaderBase* m_pStream;
+  ezStreamReader* m_pStream;
   ezVariant* m_pValue;
 };
 
@@ -163,7 +163,7 @@ EZ_FORCE_INLINE void ReadValueFunc::operator()<void*>()
 
 // ezVariant
 
-void operator<< (ezStreamWriterBase& Stream, const ezVariant& Value)
+void operator<< (ezStreamWriter& Stream, const ezVariant& Value)
 {
   ezUInt8 variantVersion = (ezUInt8)ezGetStaticRTTI<ezVariant>()->GetTypeVersion();
   Stream << variantVersion;
@@ -181,7 +181,7 @@ void operator<< (ezStreamWriterBase& Stream, const ezVariant& Value)
   }
 }
 
-void operator>> (ezStreamReaderBase& Stream, ezVariant& Value)
+void operator>> (ezStreamReader& Stream, ezVariant& Value)
 {
   ezUInt8 variantVersion;
   Stream >> variantVersion;

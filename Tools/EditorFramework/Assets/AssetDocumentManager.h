@@ -4,7 +4,7 @@
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <ToolsFoundation/Basics/Status.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezAssetDocumentManager : public ezDocumentManagerBase
+class EZ_EDITORFRAMEWORK_DLL ezAssetDocumentManager : public ezDocumentManager
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAssetDocumentManager);
 

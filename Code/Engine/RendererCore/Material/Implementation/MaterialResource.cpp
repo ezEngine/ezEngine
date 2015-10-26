@@ -23,7 +23,7 @@ ezResourceLoadDesc ezMaterialResource::UnloadData(Unload WhatToUnload)
   return res;
 }
 
-ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReaderBase* Stream)
+ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 {
   m_Desc.Clear();
 

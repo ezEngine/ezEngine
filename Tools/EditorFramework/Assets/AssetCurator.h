@@ -121,7 +121,7 @@ private:
     Status m_Status;
   };
 
-  void DocumentManagerEventHandler(const ezDocumentManagerBase::Event& r);
+  void DocumentManagerEventHandler(const ezDocumentManager::Event& r);
   static void BuildFileExtensionSet(ezSet<ezString>& AllExtensions);
   void IterateDataDirectory(const char* szDataDir, const ezSet<ezString>& validExtensions);
   void HandleSingleFile(const ezString& sAbsolutePath);
@@ -154,10 +154,10 @@ private:
   friend class ezHashingTask;
 
   /// \brief Computes the hash of the given file. Optionally passes the data stream through into another stream writer.
-  static ezUInt64 HashFile(ezStreamReaderBase& InputStream, ezStreamWriterBase* pPassThroughStream);
+  static ezUInt64 HashFile(ezStreamReader& InputStream, ezStreamWriter* pPassThroughStream);
 
   /// \brief Opens the asset JSON file and reads the "Header" into the given ezAssetDocumentInfo.
-  static void ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReaderBase& stream);
+  static void ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReader& stream);
 
   bool GetNextFileToHash(ezStringBuilder& sFile, FileStatus& status);
   void OnHashingTaskFinished(ezTask* pTask);

@@ -5,7 +5,7 @@
 #include <Foundation/Utilities/EnumerableClass.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 
-class ezDocumentWindow3D;
+class ezQtEngineDocumentWindow;
 class ezEngineProcessDocumentContext;
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineSyncObject : public ezReflectedClass
@@ -16,7 +16,7 @@ public:
   ezEditorEngineSyncObject();
   ~ezEditorEngineSyncObject();
 
-  void SetOwner(ezDocumentWindow3D* pOwner);
+  void SetOwner(ezQtEngineDocumentWindow* pOwner);
   void SetOwner(ezEngineProcessDocumentContext* pOwner);
 
   ezUuid GetDocumentGuid() const;
@@ -28,11 +28,11 @@ public:
 private:
   EZ_ALLOW_PRIVATE_PROPERTIES(ezEditorEngineSyncObject);
 
-  friend class ezDocumentWindow3D;
+  friend class ezQtEngineDocumentWindow;
 
   bool m_bModified;
   ezUuid m_SyncObjectGuid;
 
-  ezDocumentWindow3D* m_pOwner;
+  ezQtEngineDocumentWindow* m_pOwner;
   ezEngineProcessDocumentContext* m_pOwnerEngine;
 };

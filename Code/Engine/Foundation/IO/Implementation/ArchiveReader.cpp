@@ -1,7 +1,7 @@
 #include <Foundation/PCH.h>
 #include <Foundation/IO/Archive.h>
 
-ezArchiveReader::ezArchiveReader(ezStreamReaderBase& stream) : ezChunkStreamReader(stream), m_InputStream(stream)
+ezArchiveReader::ezArchiveReader(ezStreamReader& stream) : ezChunkStreamReader(stream), m_InputStream(stream)
 {
   m_bStreamFinished = true;
   m_pLog = nullptr;

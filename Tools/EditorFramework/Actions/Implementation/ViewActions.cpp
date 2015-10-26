@@ -40,20 +40,20 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 ezRenderModeAction::ezRenderModeAction(const ezActionContext& context, const char* szName, const char* szIconPath)
   : ezEnumerationMenuAction(context, szName, szIconPath)
 {
-  ezEngineViewWidget* pView = qobject_cast<ezEngineViewWidget*>(context.m_pWindow);
-  EZ_ASSERT_DEV(pView != nullptr, "context.m_pWindow must be derived from type 'ezEngineViewWidget'!");
+  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(context.m_pWindow);
+  EZ_ASSERT_DEV(pView != nullptr, "context.m_pWindow must be derived from type 'ezQtEngineViewWidget'!");
   InitEnumerationType(ezGetStaticRTTI<ezViewRenderMode>());
 }
 
 ezInt64 ezRenderModeAction::GetValue() const
 {
-  ezEngineViewWidget* pView = qobject_cast<ezEngineViewWidget*>(m_Context.m_pWindow);
+  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
   return (ezInt64)pView->m_pViewConfig->m_RenderMode;
 }
 
 void ezRenderModeAction::Execute(const ezVariant& value)
 {
-  ezEngineViewWidget* pView = qobject_cast<ezEngineViewWidget*>(m_Context.m_pWindow);
+  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
   pView->m_pViewConfig->m_RenderMode = (ezViewRenderMode::Enum)value.ConvertTo<ezInt64>();
   TriggerUpdate();
 }
@@ -68,20 +68,20 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 ezPerspectiveAction::ezPerspectiveAction(const ezActionContext& context, const char* szName, const char* szIconPath)
   : ezEnumerationMenuAction(context, szName, szIconPath)
 {
-  ezEngineViewWidget* pView = qobject_cast<ezEngineViewWidget*>(context.m_pWindow);
-  EZ_ASSERT_DEV(pView != nullptr, "context.m_pWindow must be derived from type 'ezEngineViewWidget'!");
+  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(context.m_pWindow);
+  EZ_ASSERT_DEV(pView != nullptr, "context.m_pWindow must be derived from type 'ezQtEngineViewWidget'!");
   InitEnumerationType(ezGetStaticRTTI<ezSceneViewPerspective>());
 }
 
 ezInt64 ezPerspectiveAction::GetValue() const
 {
-  ezEngineViewWidget* pView = qobject_cast<ezEngineViewWidget*>(m_Context.m_pWindow);
+  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
   return (ezInt64)pView->m_pViewConfig->m_Perspective;
 }
 
 void ezPerspectiveAction::Execute(const ezVariant& value)
 {
-  ezEngineViewWidget* pView = qobject_cast<ezEngineViewWidget*>(m_Context.m_pWindow);
+  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
   pView->m_pViewConfig->m_Perspective = (ezSceneViewPerspective::Enum)value.ConvertTo<ezInt64>();
   pView->m_pViewConfig->ApplyPerspectiveSetting();
   TriggerUpdate();

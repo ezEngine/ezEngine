@@ -9,7 +9,7 @@
 /// ezDataDirectoryType's provide.
 /// Derive from this class if you want to implement different policies on how to read files.
 /// E.g. the default reader (ezFileReader) implements a buffered read policy (using an internal cache).
-class EZ_FOUNDATION_DLL ezFileReaderBase : public ezStreamReaderBase
+class EZ_FOUNDATION_DLL ezFileReaderBase : public ezStreamReader
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezFileReaderBase);
 
@@ -51,7 +51,7 @@ protected:
 /// ezDataDirectoryType's provide.
 /// Derive from this class if you want to implement different policies on how to write files.
 /// E.g. the default writer (ezFileWriter) implements a buffered write policy (using an internal cache).
-class EZ_FOUNDATION_DLL ezFileWriterBase : public ezStreamWriterBase
+class EZ_FOUNDATION_DLL ezFileWriterBase : public ezStreamWriter
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezFileWriterBase);
 

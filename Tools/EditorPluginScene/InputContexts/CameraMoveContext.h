@@ -21,7 +21,7 @@ struct ezCameraMoveContextSettings
 class ezCameraMoveContext : public ezEditorInputContext
 {
 public:
-  ezCameraMoveContext(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView, ezCameraMoveContextSettings* pSettings);
+  ezCameraMoveContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, ezCameraMoveContextSettings* pSettings);
 
   virtual void FocusLost(bool bCancel) override;
 
@@ -39,7 +39,7 @@ public:
   void SetOrbitPoint(const ezVec3& vPos);
 
 protected:
-  virtual void OnSetOwner(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView) override {}
+  virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override {}
 
 private:
   virtual void UpdateContext() override;

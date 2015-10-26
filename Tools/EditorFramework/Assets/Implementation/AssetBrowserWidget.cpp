@@ -64,7 +64,7 @@ void ezAssetBrowserWidget::UpdateAssetTypes()
 {
   ezSet<ezString> KnownAssetTypes;
 
-  for (auto docman : ezDocumentManagerBase::GetAllDocumentManagers())
+  for (auto docman : ezDocumentManager::GetAllDocumentManagers())
   {
     if (!docman->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocumentManager>())
       continue;
@@ -367,7 +367,7 @@ void ezAssetBrowserWidget::UpdateDirectoryTree()
 
   for (auto sDir : Folders)
   {
-    if (!ezEditorApp::GetInstance()->MakePathDataDirectoryRelative(sDir))
+    if (!ezQtEditorApp::GetInstance()->MakePathDataDirectoryRelative(sDir))
       continue;
 
     BuildDirectoryTree(sDir, TreeFolderFilter->topLevelItem(0), "");
@@ -462,7 +462,7 @@ void ezAssetBrowserWidget::OnTreeOpenExplorer()
 
   ezString sPath = TreeFolderFilter->currentItem()->data(0, Qt::UserRole + 1).toString().toUtf8().data();
 
-  if (!ezEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sPath))
+  if (!ezQtEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sPath))
     return;
 
   ezUIServices::OpenInExplorer(sPath);

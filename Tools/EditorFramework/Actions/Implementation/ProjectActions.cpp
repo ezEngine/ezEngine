@@ -108,11 +108,11 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item
 {
   out_Entries.Clear();
 
-  if (ezEditorApp::GetInstance()->GetRecentDocumentsList().GetFileList().IsEmpty())
+  if (ezQtEditorApp::GetInstance()->GetRecentDocumentsList().GetFileList().IsEmpty())
     return;
 
   ezInt32 iMaxDocumentsToAdd = 10;
-  for (ezString s : ezEditorApp::GetInstance()->GetRecentDocumentsList().GetFileList())
+  for (ezString s : ezQtEditorApp::GetInstance()->GetRecentDocumentsList().GetFileList())
   {
     QAction* pAction = nullptr;
 
@@ -121,9 +121,9 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item
 
     ezLRUMenuAction::Item item;
 
-    ezDocumentManagerBase* pManager;
+    ezDocumentManager* pManager;
     ezDocumentTypeDescriptor td;
-    ezDocumentManagerBase::FindDocumentTypeFromPath(s, false, pManager, &td);
+    ezDocumentManager::FindDocumentTypeFromPath(s, false, pManager, &td);
 
     item.m_UserValue = s;
     item.m_Icon = QIcon(QString::fromUtf8(td.m_sIcon.GetData()));
@@ -154,7 +154,7 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item
 
 void ezRecentDocumentsMenuAction::Execute(const ezVariant& value)
 {
-  ezEditorApp::GetInstance()->OpenDocument(value.ConvertTo<ezString>());
+  ezQtEditorApp::GetInstance()->OpenDocument(value.ConvertTo<ezString>());
 }
 
 
@@ -170,10 +170,10 @@ void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item,
 {
   out_Entries.Clear();
 
-  if (ezEditorApp::GetInstance()->GetRecentProjectsList().GetFileList().IsEmpty())
+  if (ezQtEditorApp::GetInstance()->GetRecentProjectsList().GetFileList().IsEmpty())
     return;
 
-  for (ezString s : ezEditorApp::GetInstance()->GetRecentProjectsList().GetFileList())
+  for (ezString s : ezQtEditorApp::GetInstance()->GetRecentProjectsList().GetFileList())
   {
     if (!ezOSFile::ExistsFile(s))
       continue;
@@ -188,7 +188,7 @@ void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item,
 
 void ezRecentProjectsMenuAction::Execute(const ezVariant& value)
 {
-  ezEditorApp::GetInstance()->OpenProject(value.ConvertTo<ezString>());
+  ezQtEditorApp::GetInstance()->OpenProject(value.ConvertTo<ezString>());
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -254,30 +254,30 @@ void ezProjectAction::Execute(const ezVariant& value)
   switch (m_ButtonType)
   {
   case ezProjectAction::ButtonType::CreateDocument:
-    ezEditorApp::GetInstance()->GuiCreateDocument();
+    ezQtEditorApp::GetInstance()->GuiCreateDocument();
     break;
 
   case ezProjectAction::ButtonType::OpenDocument:
-    ezEditorApp::GetInstance()->GuiOpenDocument();
+    ezQtEditorApp::GetInstance()->GuiOpenDocument();
     break;
 
   case ezProjectAction::ButtonType::CreateProject:
-    ezEditorApp::GetInstance()->GuiCreateProject();
+    ezQtEditorApp::GetInstance()->GuiCreateProject();
     break;
 
   case ezProjectAction::ButtonType::OpenProject:
-    ezEditorApp::GetInstance()->GuiOpenProject();
+    ezQtEditorApp::GetInstance()->GuiOpenProject();
     break;
 
   case ezProjectAction::ButtonType::CloseProject:
     {
       if (ezToolsProject::CanCloseProject())
-        ezEditorApp::GetInstance()->CloseProject();
+        ezQtEditorApp::GetInstance()->CloseProject();
     }
     break;
 
   case ezProjectAction::ButtonType::ProjectSettings:
-    ezEditorApp::GetInstance()->ShowSettingsDocument();
+    ezQtEditorApp::GetInstance()->ShowSettingsDocument();
     break;
 
   case ezProjectAction::ButtonType::ReloadResources:

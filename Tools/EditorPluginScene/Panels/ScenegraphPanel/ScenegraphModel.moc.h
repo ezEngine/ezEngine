@@ -7,7 +7,7 @@
 
 class ezSceneDocument;
 
-class ezQtScenegraphModel : public ezRawDocumentTreeModel
+class ezQtScenegraphModel : public ezQtDocumentTreeModel
 {
   Q_OBJECT
 

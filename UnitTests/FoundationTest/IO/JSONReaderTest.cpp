@@ -2,7 +2,7 @@
 #include <Foundation/IO/JSONReader.h>
 #include <Foundation/Containers/Deque.h>
 
-class StringStream : public ezStreamReaderBase
+class StringStream : public ezStreamReader
 {
 public:
 

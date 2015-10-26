@@ -8,7 +8,8 @@
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <Foundation/Logging/Log.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezLogModel : public QAbstractItemModel
+/// \brief The Qt model that represents log output for a view
+class EZ_EDITORFRAMEWORK_DLL ezQtLogModel : public QAbstractItemModel
 {
   Q_OBJECT
 
@@ -21,7 +22,7 @@ public:
     ezUInt8 m_uiIndentation;
   };
 
-  ezLogModel();
+  ezQtLogModel();
   void Clear();
   void SetLogLevel(ezLogMsgType::Enum LogLevel);
   void SetSearchText(const char* szText);
@@ -52,15 +53,16 @@ private:
   mutable ezDeque<const LogMsg*> m_VisibleMessages;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezLogPanel : public ezApplicationPanel, public Ui_LogPanel
+/// \brief The application wide panel that shows the engine log output and the editor log output
+class EZ_EDITORFRAMEWORK_DLL ezQtLogPanel : public ezQtApplicationPanel, public Ui_LogPanel
 {
   Q_OBJECT
 
 public:
-  ezLogPanel();
-  ~ezLogPanel();
+  ezQtLogPanel();
+  ~ezQtLogPanel();
 
-  static ezLogPanel* GetInstance() { return s_pInstance; }
+  static ezQtLogPanel* GetInstance() { return s_pInstance; }
 
 private slots:
   void on_ButtonClearEditorLog_clicked();
@@ -73,12 +75,12 @@ protected:
   virtual void ToolsProjectEventHandler(const ezToolsProject::Event& e) override;
 
 private:
-  ezLogModel m_EngineLog;
-  ezLogModel m_EditorLog;
+  ezQtLogModel m_EngineLog;
+  ezQtLogModel m_EditorLog;
   void ScrollToBottomIfAtEnd(QListView* pView, int iNumElements);
 
   void LogWriter(const ezLoggingEventData& e);
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
 
-  static ezLogPanel* s_pInstance;
+  static ezQtLogPanel* s_pInstance;
 };

@@ -8,14 +8,14 @@
 
 #include <Foundation/Serialization/ReflectionSerializer.h>
 
-ezDocumentWindow3D::ezDocumentWindow3D(ezDocumentBase* pDocument) : ezDocumentWindow(pDocument)
+ezQtEngineDocumentWindow::ezQtEngineDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {
   m_pEngineConnection = nullptr;
 
   m_pEngineConnection = ezEditorEngineProcessConnection::GetInstance()->CreateEngineConnection(this);
 }
 
-ezDocumentWindow3D::~ezDocumentWindow3D()
+ezQtEngineDocumentWindow::~ezQtEngineDocumentWindow()
 {
   // delete all view widgets, so that they can send their messages before we clean up the engine connection
   DestroyAllViews();
@@ -23,12 +23,12 @@ ezDocumentWindow3D::~ezDocumentWindow3D()
   ezEditorEngineProcessConnection::GetInstance()->DestroyEngineConnection(this);
 }
 
-void ezDocumentWindow3D::SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage, bool bSuperHighPriority) const
+void ezQtEngineDocumentWindow::SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage) const
 {
-  m_pEngineConnection->SendMessage(pMessage, bSuperHighPriority);
+  m_pEngineConnection->SendMessage(pMessage);
 }
 
-const ezObjectPickingResult& ezDocumentWindow3D::PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const
+const ezObjectPickingResult& ezQtEngineDocumentWindow::PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const
 {
   m_LastPickingResult.m_PickedComponent = ezUuid();
   m_LastPickingResult.m_PickedObject = ezUuid();
@@ -50,7 +50,7 @@ const ezObjectPickingResult& ezDocumentWindow3D::PickObject(ezUInt16 uiScreenPos
       msg.m_uiPickPosX = uiScreenPosX;
       msg.m_uiPickPosY = uiScreenPosY;
 
-      SendMessageToEngine(&msg, true);
+      SendMessageToEngine(&msg);
 
       if (ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezViewPickingResultMsgToEditor>(), ezTime::Seconds(3.0)).Failed())
         return m_LastPickingResult;
@@ -60,13 +60,13 @@ const ezObjectPickingResult& ezDocumentWindow3D::PickObject(ezUInt16 uiScreenPos
   return m_LastPickingResult;
 }
 
-void ezDocumentWindow3D::InternalRedraw()
+void ezQtEngineDocumentWindow::InternalRedraw()
 {
   // TODO: Move this to a better place (some kind of regular update function, not redraw)
   SyncObjectsToEngine();
 }
 
-bool ezDocumentWindow3D::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
+bool ezQtEngineDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
   {
@@ -92,14 +92,14 @@ bool ezDocumentWindow3D::HandleEngineMessage(const ezEditorEngineDocumentMsg* pM
   return false;
 }
 
-void ezDocumentWindow3D::AddSyncObject(ezEditorEngineSyncObject* pSync)
+void ezQtEngineDocumentWindow::AddSyncObject(ezEditorEngineSyncObject* pSync)
 {
   m_SyncObjects.PushBack(pSync);
   pSync->m_pOwner = this;
   m_AllSyncObjects[pSync->GetGuid()] = pSync;
 }
 
-void ezDocumentWindow3D::RemoveSyncObject(ezEditorEngineSyncObject* pSync)
+void ezQtEngineDocumentWindow::RemoveSyncObject(ezEditorEngineSyncObject* pSync)
 {
   m_DeletedObjects.PushBack(pSync->GetGuid());
   m_AllSyncObjects.Remove(pSync->GetGuid());
@@ -107,20 +107,20 @@ void ezDocumentWindow3D::RemoveSyncObject(ezEditorEngineSyncObject* pSync)
   pSync->m_pOwner = nullptr;
 }
 
-ezEditorEngineSyncObject* ezDocumentWindow3D::FindSyncObject(const ezUuid& guid)
+ezEditorEngineSyncObject* ezQtEngineDocumentWindow::FindSyncObject(const ezUuid& guid)
 {
   ezEditorEngineSyncObject* pSync = nullptr;
   m_AllSyncObjects.TryGetValue(guid, pSync);
   return pSync;
 }
 
-ezEngineViewWidget* ezDocumentWindow3D::GetHoveredViewWidget() const
+ezQtEngineViewWidget* ezQtEngineDocumentWindow::GetHoveredViewWidget() const
 {
   QWidget* pWidget = QApplication::widgetAt(QCursor::pos());
 
   while (pWidget != nullptr)
   {
-    ezEngineViewWidget* pCandidate = qobject_cast<ezEngineViewWidget*>(pWidget);
+    ezQtEngineViewWidget* pCandidate = qobject_cast<ezQtEngineViewWidget*>(pWidget);
     if (pCandidate != nullptr)
     {
       if (m_ViewWidgets.Contains(pCandidate))
@@ -135,13 +135,13 @@ ezEngineViewWidget* ezDocumentWindow3D::GetHoveredViewWidget() const
   return nullptr;
 }
 
-ezEngineViewWidget* ezDocumentWindow3D::GetFocusedViewWidget() const
+ezQtEngineViewWidget* ezQtEngineDocumentWindow::GetFocusedViewWidget() const
 {
   QWidget* pWidget = QApplication::focusWidget();
 
   while (pWidget != nullptr)
   {
-    ezEngineViewWidget* pCandidate = qobject_cast<ezEngineViewWidget*>(pWidget);
+    ezQtEngineViewWidget* pCandidate = qobject_cast<ezQtEngineViewWidget*>(pWidget);
     if (pCandidate != nullptr)
     {
       if (m_ViewWidgets.Contains(pCandidate))
@@ -156,7 +156,7 @@ ezEngineViewWidget* ezDocumentWindow3D::GetFocusedViewWidget() const
   return nullptr;
 }
 
-ezEngineViewWidget * ezDocumentWindow3D::GetViewWidgetByID(ezUInt32 uiViewID) const
+ezQtEngineViewWidget * ezQtEngineDocumentWindow::GetViewWidgetByID(ezUInt32 uiViewID) const
 {
   for (auto pView : m_ViewWidgets)
   {
@@ -167,7 +167,7 @@ ezEngineViewWidget * ezDocumentWindow3D::GetViewWidgetByID(ezUInt32 uiViewID) co
   return nullptr;
 }
 
-void ezDocumentWindow3D::SyncObjectsToEngine()
+void ezQtEngineDocumentWindow::SyncObjectsToEngine()
 {
   // Tell the engine which sync objects have been removed recently
   {
@@ -207,7 +207,7 @@ void ezDocumentWindow3D::SyncObjectsToEngine()
   }
 }
 
-void ezDocumentWindow3D::DestroyAllViews()
+void ezQtEngineDocumentWindow::DestroyAllViews()
 {
   while (!m_ViewWidgets.IsEmpty())
   {

@@ -263,14 +263,14 @@ void ezViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
     //ezLog::Info("Picked Normal: %.2f | %.2f | %.2f", res.m_vPickedNormal.x, res.m_vPickedNormal.y, res.m_vPickedNormal.z);
   }
 
-  SendViewMessage(&res, true);
+  SendViewMessage(&res);
 }
 
-void ezViewContext::SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg, bool bSuperHighPriority)
+void ezViewContext::SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg)
 {
   pViewMsg->m_DocumentGuid = GetDocumentContext()->GetDocumentGuid();
 
-  GetDocumentContext()->SendProcessMessage(pViewMsg, bSuperHighPriority);
+  GetDocumentContext()->SendProcessMessage(pViewMsg);
 }
 
 void ezViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)

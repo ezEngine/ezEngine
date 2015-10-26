@@ -20,12 +20,12 @@ class QStandardItemModel;
 class QStandardItem;
 class QToolButton;
 class QMenu;
-class ezDocumentObjectBase;
+class ezDocumentObject;
 class QDoubleSpinBoxLessAnnoying;
 
 /// *** CHECKBOX ***
 
-class EZ_GUIFOUNDATION_DLL ezPropertyEditorCheckboxWidget : public ezStandardPropertyBaseWidget
+class EZ_GUIFOUNDATION_DLL ezPropertyEditorCheckboxWidget : public ezQtStandardPropertyWidget
 {
   Q_OBJECT
 
@@ -50,7 +50,7 @@ protected:
 
 /// *** DOUBLE SPINBOX ***
 
-class EZ_GUIFOUNDATION_DLL ezPropertyEditorDoubleSpinboxWidget : public ezStandardPropertyBaseWidget
+class EZ_GUIFOUNDATION_DLL ezPropertyEditorDoubleSpinboxWidget : public ezQtStandardPropertyWidget
 {
   Q_OBJECT
 
@@ -73,7 +73,7 @@ protected:
 
 /// *** INT SPINBOX ***
 
-class EZ_GUIFOUNDATION_DLL ezPropertyEditorIntSpinboxWidget : public ezStandardPropertyBaseWidget
+class EZ_GUIFOUNDATION_DLL ezPropertyEditorIntSpinboxWidget : public ezQtStandardPropertyWidget
 {
   Q_OBJECT
 
@@ -95,7 +95,7 @@ protected:
 
 /// *** DOUBLE SPINBOX ***
 
-class EZ_GUIFOUNDATION_DLL ezPropertyEditorQuaternionWidget : public ezStandardPropertyBaseWidget
+class EZ_GUIFOUNDATION_DLL ezPropertyEditorQuaternionWidget : public ezQtStandardPropertyWidget
 {
   Q_OBJECT
 
@@ -119,7 +119,7 @@ protected:
 
 /// *** LINEEDIT ***
 
-class EZ_GUIFOUNDATION_DLL ezPropertyEditorLineEditWidget : public ezStandardPropertyBaseWidget
+class EZ_GUIFOUNDATION_DLL ezPropertyEditorLineEditWidget : public ezQtStandardPropertyWidget
 {
   Q_OBJECT
 
@@ -178,7 +178,7 @@ protected:
 
 };
 
-class EZ_GUIFOUNDATION_DLL ezPropertyEditorColorWidget : public ezStandardPropertyBaseWidget
+class EZ_GUIFOUNDATION_DLL ezPropertyEditorColorWidget : public ezQtStandardPropertyWidget
 {
   Q_OBJECT
 
@@ -204,7 +204,7 @@ protected:
 
 /// *** ENUM COMBOBOX ***
 
-class EZ_GUIFOUNDATION_DLL ezPropertyEditorEnumWidget : public ezStandardPropertyBaseWidget
+class EZ_GUIFOUNDATION_DLL ezPropertyEditorEnumWidget : public ezQtStandardPropertyWidget
 {
   Q_OBJECT
 
@@ -227,7 +227,7 @@ protected:
 
 /// *** BITFLAGS COMBOBOX ***
 
-class EZ_GUIFOUNDATION_DLL ezPropertyEditorBitflagsWidget : public ezStandardPropertyBaseWidget
+class EZ_GUIFOUNDATION_DLL ezPropertyEditorBitflagsWidget : public ezQtStandardPropertyWidget
 {
   Q_OBJECT
 

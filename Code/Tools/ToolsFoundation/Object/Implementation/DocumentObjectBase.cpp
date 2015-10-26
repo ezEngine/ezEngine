@@ -2,18 +2,18 @@
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-ezIReflectedTypeAccessor& ezDocumentObjectBase::GetTypeAccessor()
+ezIReflectedTypeAccessor& ezDocumentObject::GetTypeAccessor()
 {
-  const ezDocumentObjectBase* pMe = this;
+  const ezDocumentObject* pMe = this;
   return const_cast<ezIReflectedTypeAccessor&>(pMe->GetTypeAccessor());
 }
 
-ezUInt32 ezDocumentObjectBase::GetChildIndex(ezDocumentObjectBase* pChild) const
+ezUInt32 ezDocumentObject::GetChildIndex(ezDocumentObject* pChild) const
 {
   return m_Children.IndexOf(pChild);
 }
 
-void ezDocumentObjectBase::InsertSubObject(ezDocumentObjectBase* pObject, const char* szProperty, const ezVariant& index)
+void ezDocumentObject::InsertSubObject(ezDocumentObject* pObject, const char* szProperty, const ezVariant& index)
 {
   EZ_ASSERT_DEV(pObject != nullptr, "");
   EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(szProperty), "Child objects must have a parent property to insert into");
@@ -51,7 +51,7 @@ void ezDocumentObjectBase::InsertSubObject(ezDocumentObjectBase* pObject, const 
   m_Children.PushBack(pObject);
 }
 
-void ezDocumentObjectBase::RemoveSubObject(ezDocumentObjectBase* pObject)
+void ezDocumentObject::RemoveSubObject(ezDocumentObject* pObject)
 {
   EZ_ASSERT_DEV(pObject != nullptr, "");
   EZ_ASSERT_DEV(!pObject->m_sParentProperty.IsEmpty(), "");
@@ -78,7 +78,7 @@ void ezDocumentObjectBase::RemoveSubObject(ezDocumentObjectBase* pObject)
   pObject->m_pParent = nullptr;
 }
 
-void ezDocumentObjectBase::ComputeObjectHash(ezUInt64& uiHash) const
+void ezDocumentObject::ComputeObjectHash(ezUInt64& uiHash) const
 {
   const ezIReflectedTypeAccessor& acc = GetTypeAccessor();
   auto pType = acc.GetType();
@@ -86,7 +86,7 @@ void ezDocumentObjectBase::ComputeObjectHash(ezUInt64& uiHash) const
   HashPropertiesRecursive(acc, uiHash, pType, path);
 }
 
-ezVariant ezDocumentObjectBase::GetPropertyIndex() const
+ezVariant ezDocumentObject::GetPropertyIndex() const
 {
   if (m_pParent == nullptr)
     return ezVariant();
@@ -94,7 +94,7 @@ ezVariant ezDocumentObjectBase::GetPropertyIndex() const
   return accessor.GetPropertyChildIndex(m_sParentProperty.GetData(), GetGuid());
 }
 
-bool ezDocumentObjectBase::IsOnHeap() const
+bool ezDocumentObject::IsOnHeap() const
 {
   if (GetParent() == GetDocumentObjectManager()->GetRootObject())
     return true;
@@ -107,7 +107,7 @@ bool ezDocumentObjectBase::IsOnHeap() const
 }
 
 
-void ezDocumentObjectBase::HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezRTTI* pType, ezPropertyPath& path) const
+void ezDocumentObject::HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezRTTI* pType, ezPropertyPath& path) const
 {
   // Parse parent class
   const ezRTTI* pParentType = pType->GetParentType();
@@ -154,7 +154,7 @@ ezDocumentSubObject::ezDocumentSubObject(const ezRTTI* pRtti)
 {
 }
 
-void ezDocumentSubObject::SetObject(ezDocumentObjectBase* pOwnerObject, const ezPropertyPath& subPath, ezUuid guid)
+void ezDocumentSubObject::SetObject(ezDocumentObject* pOwnerObject, const ezPropertyPath& subPath, ezUuid guid)
 {
   ezAbstractProperty* pProp = ezToolsReflectionUtils::GetPropertyByPath(pOwnerObject->GetTypeAccessor().GetType(), subPath);
   EZ_ASSERT_DEV(pProp != nullptr && pProp->GetSpecificType() == m_Accessor.GetType(), "ezDocumentSubObject was created for a different type it is mapped to!");

@@ -54,7 +54,7 @@ void ezShaderStageBinary::OnEngineShutdown()
     s_ShaderStageBinaries[stage].Clear();
 }
 
-ezResult ezShaderStageBinary::Write(ezStreamWriterBase& Stream) const
+ezResult ezShaderStageBinary::Write(ezStreamWriter& Stream) const
 {
   const ezUInt8 uiVersion = ezShaderStageBinary::VersionCurrent;
 
@@ -114,7 +114,7 @@ ezResult ezShaderStageBinary::Write(ezStreamWriterBase& Stream) const
   return EZ_SUCCESS;
 }
 
-ezResult ezShaderStageBinary::Read(ezStreamReaderBase& Stream)
+ezResult ezShaderStageBinary::Read(ezStreamReader& Stream)
 {
   ezUInt8 uiVersion = 0;
 

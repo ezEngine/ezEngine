@@ -4,7 +4,7 @@
 
 
 ezGALRenderTargetView::ezGALRenderTargetView(const ezGALRenderTargetViewCreationDescription& Description)
-  : ezGALObjectBase(Description)
+  : ezGALObject(Description)
 {
 }
 

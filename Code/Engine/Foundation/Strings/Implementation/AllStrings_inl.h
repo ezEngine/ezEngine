@@ -57,7 +57,7 @@ EZ_FORCE_INLINE void ezHybridString<Size, A>::operator=(ezStringBuilder&& rhs)
 }
 
 template<ezUInt16 Size>
-void ezHybridStringBase<Size>::ReadAll(ezStreamReaderBase& Stream)
+void ezHybridStringBase<Size>::ReadAll(ezStreamReader& Stream)
 {
   Clear();
 

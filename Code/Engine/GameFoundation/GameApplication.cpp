@@ -41,7 +41,7 @@ namespace
 }
 
 
-ezGameApplication::ezGameApplication(ezGameStateBase& initialGameState)
+ezGameApplication::ezGameApplication(ezGameState& initialGameState)
   : m_UpdateTask("GameApplication.Update", ezMakeDelegate(&ezGameApplication::UpdateWorldsAndExtractViews, this))
 {
   SetCurrentGameState(initialGameState);
@@ -93,7 +93,7 @@ ezGALSwapChainHandle ezGameApplication::GetSwapChain(const ezWindowBase* pWindow
   return ezGALSwapChainHandle();
 }
 
-void ezGameApplication::SetCurrentGameState(ezGameStateBase& currentGameState)
+void ezGameApplication::SetCurrentGameState(ezGameState& currentGameState)
 {
   m_pCurrentGameState = &currentGameState;
   m_pCurrentGameState->m_pApplication = this;

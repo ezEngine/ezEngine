@@ -14,61 +14,8 @@
 #include <QMimeData>
 #include <QUrl>
 
-ezAssetLineEdit::ezAssetLineEdit(QWidget* parent /*= nullptr*/) : QLineEdit(parent)
-{
 
-}
-
-void ezAssetLineEdit::dragMoveEvent(QDragMoveEvent *e)
-{
-  if (e->mimeData()->hasUrls())
-  {
-    e->acceptProposedAction();
-  }
-  else
-  {
-    QLineEdit::dragMoveEvent(e);
-  }
-}
-
-void ezAssetLineEdit::dragEnterEvent(QDragEnterEvent * e)
-{
-  if (e->mimeData()->hasUrls())
-  {
-    e->acceptProposedAction();
-  }
-  else
-  {
-    QLineEdit::dragEnterEvent(e);
-  }
-}
-
-void ezAssetLineEdit::dropEvent(QDropEvent* e)
-{
-  if (e->source() == this)
-  {
-    QLineEdit::dropEvent(e);
-    return;
-  }
-
-  if (e->mimeData()->hasUrls() && !e->mimeData()->urls().isEmpty())
-  {
-    QString str = e->mimeData()->urls()[0].toLocalFile();
-    setText(str);
-    return;
-  }
-
-
-  if (e->mimeData()->hasText())
-  {
-    QString str = e->mimeData()->text();
-    setText(str);
-    return;
-  }
-}
-
-
-ezAssetBrowserPropertyWidget::ezAssetBrowserPropertyWidget() : ezStandardPropertyBaseWidget()
+ezAssetBrowserPropertyWidget::ezAssetBrowserPropertyWidget() : ezQtStandardPropertyWidget()
 {
   m_uiThumbnailID = 0;
 
@@ -76,7 +23,7 @@ ezAssetBrowserPropertyWidget::ezAssetBrowserPropertyWidget() : ezStandardPropert
   m_pLayout->setMargin(0);
   setLayout(m_pLayout);
 
-  m_pWidget = new ezAssetLineEdit(this);
+  m_pWidget = new ezQtAssetLineEdit(this);
   m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
   m_pWidget->setFocusPolicy(Qt::FocusPolicy::StrongFocus);
   setFocusProxy(m_pWidget);
@@ -234,12 +181,12 @@ void ezAssetBrowserPropertyWidget::on_customContextMenuRequested(const QPoint& p
 
 void ezAssetBrowserPropertyWidget::OnOpenAssetDocument()
 {
-  ezEditorApp::GetInstance()->OpenDocument(ezAssetCurator::GetInstance()->GetAssetInfo(m_AssetGuid)->m_sAbsolutePath);
+  ezQtEditorApp::GetInstance()->OpenDocument(ezAssetCurator::GetInstance()->GetAssetInfo(m_AssetGuid)->m_sAbsolutePath);
 }
 
 void ezAssetBrowserPropertyWidget::OnSelectInAssetBrowser()
 {
-  ezAssetBrowserPanel::GetInstance()->AssetBrowserWidget->SetSelectedAsset(ezAssetCurator::GetInstance()->GetAssetInfo(m_AssetGuid)->m_sRelativePath);
+  ezQtAssetBrowserPanel::GetInstance()->AssetBrowserWidget->SetSelectedAsset(ezAssetCurator::GetInstance()->GetAssetInfo(m_AssetGuid)->m_sRelativePath);
 }
 
 void ezAssetBrowserPropertyWidget::OnOpenExplorer()
@@ -253,7 +200,7 @@ void ezAssetBrowserPropertyWidget::OnOpenExplorer()
   else
   {
     sPath = m_pWidget->text().toUtf8().data();
-    if (!ezEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sPath))
+    if (!ezQtEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sPath))
       return;
   }
 
@@ -279,7 +226,7 @@ void ezAssetBrowserPropertyWidget::on_BrowseFile_clicked()
     {
       sFile = dlg.GetSelectedAssetPathAbsolute();
 
-      ezEditorApp::GetInstance()->MakePathDataDirectoryRelative(sFile);
+      ezQtEditorApp::GetInstance()->MakePathDataDirectoryRelative(sFile);
     }
   }
 

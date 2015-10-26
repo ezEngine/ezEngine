@@ -24,5 +24,5 @@ private:
   void DocumentSceneEventHandler(const ezSceneDocument::SceneEvent& e);
 
   ezSceneDocument* m_pDocument;
-  ezRawDocumentTreeWidget* m_pTreeWidget;
+  ezQtDocumentTreeWidget* m_pTreeWidget;
 };

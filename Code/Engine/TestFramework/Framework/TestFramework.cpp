@@ -676,7 +676,7 @@ bool ezTestFramework::CompareImages(ezUInt32 uiMaxError, char* szErrorMsg)
     return false;
   }
 
-  if (ezImageConversionBase::Convert(img, imgRGB, ezImageFormat::B8G8R8_UNORM).Failed())
+  if (ezImageConversion::Convert(img, imgRGB, ezImageFormat::B8G8R8_UNORM).Failed())
   {
     safeprintf(szErrorMsg, 512, "Captured Image '%s' could not be converted to BGR8", sImgName.GetData());
     return false;
@@ -696,7 +696,7 @@ bool ezTestFramework::CompareImages(ezUInt32 uiMaxError, char* szErrorMsg)
     return false;
   }
 
-  if (ezImageConversionBase::Convert(imgExp, imgExpRGB, ezImageFormat::B8G8R8_UNORM).Failed())
+  if (ezImageConversion::Convert(imgExp, imgExpRGB, ezImageFormat::B8G8R8_UNORM).Failed())
   {
     imgSmall.SaveTo(sImgPathResult);
 

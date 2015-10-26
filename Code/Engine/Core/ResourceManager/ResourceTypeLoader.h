@@ -20,7 +20,7 @@ struct EZ_CORE_DLL ezResourceLoadData
   ezTimestamp m_LoadedFileModificationDate;
 
   /// All loaded data should be stored in a memory stream. This stream reader allows the resource to read the memory stream.
-  ezStreamReaderBase* m_pDataStream;
+  ezStreamReader* m_pDataStream;
 
   /// Custom loader data, e.g. a pointer to a custom memory block, that needs to be freed when the resource is done updating.
   void* m_pCustomLoaderData;

@@ -4,7 +4,7 @@
 
 
 ezGALResourceView::ezGALResourceView(const ezGALResourceViewCreationDescription& Description)
-  : ezGALObjectBase(Description)
+  : ezGALObject(Description)
 {
 }
 

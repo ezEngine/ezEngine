@@ -20,7 +20,7 @@ public:
 protected:
   virtual ezUInt16 GetAssetTypeVersion() const override { return 1; }
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) override;
-  virtual ezStatus InternalTransformAsset(ezStreamWriterBase& stream, const char* szPlatform) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform) override;
 
   void CreateMeshFromGeom(const ezMeshAssetProperties* pProp, ezGeometry &geom, const bool bFlipTriangles, ezMeshResourceDescriptor &desc);
 

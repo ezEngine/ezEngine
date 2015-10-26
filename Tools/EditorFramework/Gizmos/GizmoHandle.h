@@ -7,26 +7,16 @@
 
 class ezWorld;
 class ezMeshComponent;
-class ezGizmoBase;
+class ezGizmo;
 
-enum ezGizmoHandleType
+class EZ_EDITORFRAMEWORK_DLL ezGizmoHandle : public ezEditorEngineSyncObject
 {
-  Arrow,
-  Ring,
-  Rect,
-  Box,
-  Piston,
-  HalfPiston,
-};
-
-class EZ_EDITORFRAMEWORK_DLL ezGizmoHandleBase : public ezEditorEngineSyncObject
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezGizmoHandleBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezGizmoHandle);
 
 public:
-  ezGizmoHandleBase(){}
+  ezGizmoHandle(){}
 
-  ezGizmoBase* GetParentGizmo() const { return m_pParentGizmo; }
+  ezGizmo* GetOwnerGizmo() const { return m_pParentGizmo; }
 
   void SetVisible(bool bVisible);
 
@@ -38,20 +28,31 @@ protected:
   bool m_bVisible;
   ezMat4 m_Transformation;
 
-  void SetParentGizmo(ezGizmoBase* pParentGizmo) { m_pParentGizmo = pParentGizmo; }
+  void SetParentGizmo(ezGizmo* pParentGizmo) { m_pParentGizmo = pParentGizmo; }
 
 private:
-  ezGizmoBase* m_pParentGizmo;
+  ezGizmo* m_pParentGizmo;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezGizmoHandle : public ezGizmoHandleBase
+
+enum ezEngineGizmoHandleType
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGizmoHandle);
+  Arrow,
+  Ring,
+  Rect,
+  Box,
+  Piston,
+  HalfPiston,
+};
+
+class EZ_EDITORFRAMEWORK_DLL ezEngineGizmoHandle : public ezGizmoHandle
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezEngineGizmoHandle);
 
 public:
-  ezGizmoHandle();
+  ezEngineGizmoHandle();
 
-  void Configure(ezGizmoBase* pParentGizmo, ezGizmoHandleType type, const ezColor& col);
+  void Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col);
 
   bool IsSetupForEngine() const { return !m_hGameObject.IsInvalidated(); }
 

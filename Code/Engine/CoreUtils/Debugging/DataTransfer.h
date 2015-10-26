@@ -35,7 +35,7 @@ public:
   /// \brief Returns the stream writer that you need to use to write the data into the object.
   ///
   /// When finished writing all data to the object, you should call Transmit().
-  ezStreamWriterBase& GetWriter() { return m_Msg.GetWriter(); }
+  ezStreamWriter& GetWriter() { return m_Msg.GetWriter(); }
 
   /// \brief Will initiate the data transfer.
   void Transmit();

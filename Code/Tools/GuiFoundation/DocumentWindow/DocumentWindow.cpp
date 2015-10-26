@@ -13,10 +13,10 @@
 #include <QTimer>
 #include <QStatusBar>
 
-ezEvent<const ezDocumentWindow::Event&> ezDocumentWindow::s_Events;
-ezDynamicArray<ezDocumentWindow*> ezDocumentWindow::s_AllDocumentWindows;
+ezEvent<const ezQtDocumentWindow::Event&> ezQtDocumentWindow::s_Events;
+ezDynamicArray<ezQtDocumentWindow*> ezQtDocumentWindow::s_AllDocumentWindows;
 
-void ezDocumentWindow::Constructor()
+void ezQtDocumentWindow::Constructor()
 {
   if (s_AllDocumentWindows.IsEmpty())
   {
@@ -42,22 +42,22 @@ void ezDocumentWindow::Constructor()
 
   ezContainerWindow::GetAllContainerWindows()[0]->MoveDocumentWindowToContainer(this);
 
-  ezUIServices::s_Events.AddEventHandler(ezMakeDelegate(&ezDocumentWindow::UIServicesEventHandler, this));
+  ezUIServices::s_Events.AddEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesEventHandler, this));
 }
 
-ezDocumentWindow::ezDocumentWindow(ezDocumentBase* pDocument)
+ezQtDocumentWindow::ezQtDocumentWindow(ezDocument* pDocument)
 {
   m_pDocument = pDocument;
   m_sUniqueName = m_pDocument->GetDocumentPath();
   setObjectName(GetUniqueName());
 
-  ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(&ezDocumentWindow::DocumentManagerEventHandler, this));
-  pDocument->m_EventsOne.AddEventHandler(ezMakeDelegate(&ezDocumentWindow::DocumentEventHandler, this));
+  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezQtDocumentWindow::DocumentManagerEventHandler, this));
+  pDocument->m_EventsOne.AddEventHandler(ezMakeDelegate(&ezQtDocumentWindow::DocumentEventHandler, this));
 
   Constructor();
 }
 
-ezDocumentWindow::ezDocumentWindow(const char* szUniqueName)
+ezQtDocumentWindow::ezQtDocumentWindow(const char* szUniqueName)
 {
   m_pDocument = nullptr;
   m_sUniqueName = szUniqueName;
@@ -67,9 +67,9 @@ ezDocumentWindow::ezDocumentWindow(const char* szUniqueName)
 }
 
 
-ezDocumentWindow::~ezDocumentWindow()
+ezQtDocumentWindow::~ezQtDocumentWindow()
 {
-  ezUIServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezDocumentWindow::UIServicesEventHandler, this));
+  ezUIServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesEventHandler, this));
 
   s_AllDocumentWindows.RemoveSwap(this);
 
@@ -80,12 +80,12 @@ ezDocumentWindow::~ezDocumentWindow()
 
   if (m_pDocument)
   {
-    m_pDocument->m_EventsOne.RemoveEventHandler(ezMakeDelegate(&ezDocumentWindow::DocumentEventHandler, this));
-    ezDocumentManagerBase::s_Events.RemoveEventHandler(ezMakeDelegate(&ezDocumentWindow::DocumentManagerEventHandler, this));
+    m_pDocument->m_EventsOne.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentWindow::DocumentEventHandler, this));
+    ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentWindow::DocumentManagerEventHandler, this));
   }
 }
 
-void ezDocumentWindow::SetVisibleInContainer(bool bVisible)
+void ezQtDocumentWindow::SetVisibleInContainer(bool bVisible)
 {
   if (m_bIsVisibleInContainer == bVisible)
     return;
@@ -105,7 +105,7 @@ void ezDocumentWindow::SetVisibleInContainer(bool bVisible)
   }
 }
 
-void ezDocumentWindow::SetTargetFramerate(ezInt16 iTargetFPS)
+void ezQtDocumentWindow::SetTargetFramerate(ezInt16 iTargetFPS)
 {
   if (m_iTargetFramerate == iTargetFPS)
     return;
@@ -116,7 +116,7 @@ void ezDocumentWindow::SetTargetFramerate(ezInt16 iTargetFPS)
     TriggerRedraw();
 }
 
-void ezDocumentWindow::TriggerRedraw(float fLastFrameTimeMS)
+void ezQtDocumentWindow::TriggerRedraw(float fLastFrameTimeMS)
 {
   if (m_bRedrawIsTriggered)
     return;
@@ -150,7 +150,7 @@ void ezDocumentWindow::TriggerRedraw(float fLastFrameTimeMS)
   QTimer::singleShot((ezInt32)ezMath::Floor(fDelay), this, SLOT(SlotRedraw()));
 }
 
-void ezDocumentWindow::SlotRedraw()
+void ezQtDocumentWindow::SlotRedraw()
 {
   EZ_ASSERT_DEV(!m_bIsDrawingATM, "Implementation error");
   ezTime startTime = ezTime::Now();
@@ -173,11 +173,11 @@ void ezDocumentWindow::SlotRedraw()
   }
 }
 
-void ezDocumentWindow::DocumentEventHandler(const ezDocumentBase::Event& e)
+void ezQtDocumentWindow::DocumentEventHandler(const ezDocument::Event& e)
 {
   switch (e.m_Type)
   {
-  case ezDocumentBase::Event::Type::ModifiedChanged:
+  case ezDocument::Event::Type::ModifiedChanged:
     {
       Event dwe;
       dwe.m_pWindow = this;
@@ -185,7 +185,7 @@ void ezDocumentWindow::DocumentEventHandler(const ezDocumentBase::Event& e)
       s_Events.Broadcast(dwe);
     }
     break;
-  case ezDocumentBase::Event::Type::EnsureVisible:
+  case ezDocument::Event::Type::EnsureVisible:
     {
       EnsureVisible();
     }
@@ -193,11 +193,11 @@ void ezDocumentWindow::DocumentEventHandler(const ezDocumentBase::Event& e)
   }
 }
 
-void ezDocumentWindow::DocumentManagerEventHandler(const ezDocumentManagerBase::Event& e)
+void ezQtDocumentWindow::DocumentManagerEventHandler(const ezDocumentManager::Event& e)
 {
   switch (e.m_Type)
   {
-  case ezDocumentManagerBase::Event::Type::DocumentClosing:
+  case ezDocumentManager::Event::Type::DocumentClosing:
     {
       if (e.m_pDocument == m_pDocument)
       {
@@ -209,7 +209,7 @@ void ezDocumentWindow::DocumentManagerEventHandler(const ezDocumentManagerBase::
   }
 }
 
-void ezDocumentWindow::UIServicesEventHandler(const ezUIServices::Event& e)
+void ezQtDocumentWindow::UIServicesEventHandler(const ezUIServices::Event& e)
 {
   switch (e.m_Type)
   {
@@ -225,7 +225,7 @@ void ezDocumentWindow::UIServicesEventHandler(const ezUIServices::Event& e)
   }
 }
 
-ezString ezDocumentWindow::GetDisplayNameShort() const
+ezString ezQtDocumentWindow::GetDisplayNameShort() const
 {
   ezStringBuilder s = GetDisplayName();
   s = s.GetFileName();
@@ -236,22 +236,22 @@ ezString ezDocumentWindow::GetDisplayNameShort() const
   return s;
 }
 
-void ezDocumentWindow::FinishWindowCreation()
+void ezQtDocumentWindow::FinishWindowCreation()
 {
   ScheduleRestoreWindowLayout();
 }
 
-void ezDocumentWindow::ScheduleRestoreWindowLayout()
+void ezQtDocumentWindow::ScheduleRestoreWindowLayout()
 {
   QTimer::singleShot(0, this, SLOT(SlotRestoreLayout()));
 }
 
-void ezDocumentWindow::SlotRestoreLayout()
+void ezQtDocumentWindow::SlotRestoreLayout()
 {
   RestoreWindowLayout();
 }
 
-void ezDocumentWindow::SaveWindowLayout()
+void ezQtDocumentWindow::SaveWindowLayout()
 {
   const bool bMaximized = isMaximized();
 
@@ -275,7 +275,7 @@ void ezDocumentWindow::SaveWindowLayout()
   Settings.endGroup();
 }
 
-void ezDocumentWindow::RestoreWindowLayout()
+void ezQtDocumentWindow::RestoreWindowLayout()
 {
   ezStringBuilder sGroup;
   sGroup.Format("DocumentWnd_%s", GetGroupName());
@@ -296,7 +296,7 @@ void ezDocumentWindow::RestoreWindowLayout()
   Settings.endGroup();
 }
 
-ezStatus ezDocumentWindow::SaveDocument()
+ezStatus ezQtDocumentWindow::SaveDocument()
 {
   if (m_pDocument)
   {
@@ -321,12 +321,12 @@ ezStatus ezDocumentWindow::SaveDocument()
 
 }
 
-bool ezDocumentWindow::CanCloseWindow()
+bool ezQtDocumentWindow::CanCloseWindow()
 {
   return InternalCanCloseWindow();
 }
 
-bool ezDocumentWindow::InternalCanCloseWindow()
+bool ezQtDocumentWindow::InternalCanCloseWindow()
 {
   setFocus();
   clearFocus();
@@ -348,12 +348,12 @@ bool ezDocumentWindow::InternalCanCloseWindow()
   return true;
 }
 
-void ezDocumentWindow::CloseDocumentWindow()
+void ezQtDocumentWindow::CloseDocumentWindow()
 {
   QMetaObject::invokeMethod(this, "SlotQueuedDelete", Qt::ConnectionType::QueuedConnection);
 }
 
-void ezDocumentWindow::SlotQueuedDelete()
+void ezQtDocumentWindow::SlotQueuedDelete()
 {
   setFocus();
   clearFocus();
@@ -369,7 +369,7 @@ void ezDocumentWindow::SlotQueuedDelete()
   }
 }
 
-void ezDocumentWindow::ShutdownDocumentWindow()
+void ezQtDocumentWindow::ShutdownDocumentWindow()
 {
   SaveWindowLayout();
 
@@ -386,16 +386,16 @@ void ezDocumentWindow::ShutdownDocumentWindow()
   s_Events.Broadcast(e);
 }
 
-void ezDocumentWindow::InternalCloseDocumentWindow()
+void ezQtDocumentWindow::InternalCloseDocumentWindow()
 {
 }
 
-void ezDocumentWindow::EnsureVisible()
+void ezQtDocumentWindow::EnsureVisible()
 {
   m_pContainerWindow->EnsureVisible(this);
 }
 
-void ezDocumentWindow::RequestWindowTabContextMenu(const QPoint& GlobalPos)
+void ezQtDocumentWindow::RequestWindowTabContextMenu(const QPoint& GlobalPos)
 {
   ezMenuActionMapView menu(nullptr);
 
@@ -408,7 +408,7 @@ void ezDocumentWindow::RequestWindowTabContextMenu(const QPoint& GlobalPos)
   menu.exec(GlobalPos);
 }
 
-ezDocumentWindow* ezDocumentWindow::FindWindowByDocument(const ezDocumentBase* pDocument)
+ezQtDocumentWindow* ezQtDocumentWindow::FindWindowByDocument(const ezDocument* pDocument)
 {
   for (auto pWnd : s_AllDocumentWindows)
   {
@@ -419,7 +419,7 @@ ezDocumentWindow* ezDocumentWindow::FindWindowByDocument(const ezDocumentBase* p
   return nullptr;
 }
 
-ezString ezDocumentWindow::GetWindowIcon() const
+ezString ezQtDocumentWindow::GetWindowIcon() const
 {
   if (GetDocument() != nullptr)
     return GetDocument()->GetDocumentTypeDescriptor().m_sIcon;

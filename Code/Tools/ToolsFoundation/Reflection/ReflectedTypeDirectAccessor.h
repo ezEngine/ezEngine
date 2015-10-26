@@ -14,10 +14,10 @@ class EZ_TOOLSFOUNDATION_DLL ezReflectedTypeDirectAccessor : public ezIReflected
 {
 public:
   /// \brief Use this ctor for static reflection.
-  ezReflectedTypeDirectAccessor(void* pInstance, const ezRTTI* pRtti, ezDocumentObjectBase* pOwner); // [tested]
+  ezReflectedTypeDirectAccessor(void* pInstance, const ezRTTI* pRtti, ezDocumentObject* pOwner); // [tested]
 
   /// \brief Use this ctor for dynamic reflection.
-  ezReflectedTypeDirectAccessor(ezReflectedClass* pInstance, ezDocumentObjectBase* pOwner); // [tested]
+  ezReflectedTypeDirectAccessor(ezReflectedClass* pInstance, ezDocumentObject* pOwner); // [tested]
 
   virtual const ezVariant GetValue(const ezPropertyPath& path, ezVariant index = ezVariant()) const override;
   virtual bool SetValue(const ezPropertyPath& path, const ezVariant& value, ezVariant index = ezVariant()) override;

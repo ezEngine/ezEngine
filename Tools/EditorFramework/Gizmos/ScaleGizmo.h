@@ -4,7 +4,7 @@
 #include <EditorFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezScaleGizmo : public ezGizmoBase
+class EZ_EDITORFRAMEWORK_DLL ezScaleGizmo : public ezGizmo
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezScaleGizmo);
 
@@ -23,7 +23,7 @@ public:
   void SetSnappingValue(float fSnappingValue) { m_fSnappingValue = fSnappingValue; }
 
 protected:
-  virtual void OnSetOwner(ezDocumentWindow3D* pOwnerWindow, ezEngineViewWidget* pOwnerView) override;
+  virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
   virtual void OnTransformationChanged(const ezMat4& transform) override;
 
@@ -33,10 +33,10 @@ private:
   ezVec3 m_vScalingResult;
   ezVec3 m_vScaleMouseMove;
 
-  ezGizmoHandle m_AxisX;
-  ezGizmoHandle m_AxisY;
-  ezGizmoHandle m_AxisZ;
-  ezGizmoHandle m_AxisXYZ;
+  ezEngineGizmoHandle m_AxisX;
+  ezEngineGizmoHandle m_AxisY;
+  ezEngineGizmoHandle m_AxisZ;
+  ezEngineGizmoHandle m_AxisXYZ;
 
   ezVec2 m_MousePos;
 

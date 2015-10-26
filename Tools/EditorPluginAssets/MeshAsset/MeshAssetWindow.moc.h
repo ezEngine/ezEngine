@@ -9,12 +9,12 @@ class QLabel;
 class QScrollArea;
 class QtImageWidget;
 
-class ezMeshAssetDocumentWindow : public ezDocumentWindow
+class ezMeshAssetDocumentWindow : public ezQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezMeshAssetDocumentWindow(ezDocumentBase* pDocument);
+  ezMeshAssetDocumentWindow(ezDocument* pDocument);
   ~ezMeshAssetDocumentWindow();
 
   virtual const char* GetGroupName() const { return "MeshAsset"; }

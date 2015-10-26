@@ -109,7 +109,7 @@ void ezAssetBrowserDlg::on_ButtonFileDialog_clicked()
   m_sSelectedAssetPathAbsolute = sFile.toUtf8().data();
   m_sSelectedAssetPathRelative = m_sSelectedAssetPathAbsolute;
 
-  if (!ezEditorApp::GetInstance()->MakePathDataDirectoryRelative(m_sSelectedAssetPathRelative))
+  if (!ezQtEditorApp::GetInstance()->MakePathDataDirectoryRelative(m_sSelectedAssetPathRelative))
   {
     // \todo Message Box: Invalid Path
 

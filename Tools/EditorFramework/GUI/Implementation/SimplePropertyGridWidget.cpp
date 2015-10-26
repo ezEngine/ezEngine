@@ -8,7 +8,7 @@
 #include <QSpinBox>
 #include <QLineEdit>
 
-ezSimplePropertyGridWidget::ezSimplePropertyGridWidget(QWidget* pParent) : QWidget(pParent)
+ezQtSimplePropertyGridWidget::ezQtSimplePropertyGridWidget(QWidget* pParent) : QWidget(pParent)
 {
   m_pScrollArea = new QScrollArea(this);
   m_pScrollArea->setContentsMargins(0, 0, 0, 0);
@@ -30,11 +30,11 @@ ezSimplePropertyGridWidget::ezSimplePropertyGridWidget(QWidget* pParent) : QWidg
   m_pMainContent->setLayout(m_pLayout);
 }
 
-ezSimplePropertyGridWidget::~ezSimplePropertyGridWidget()
+ezQtSimplePropertyGridWidget::~ezQtSimplePropertyGridWidget()
 {
 }
 
-void ezSimplePropertyGridWidget::ClearProperties()
+void ezQtSimplePropertyGridWidget::ClearProperties()
 {
   m_Properties.Clear();
 
@@ -51,7 +51,7 @@ void ezSimplePropertyGridWidget::ClearProperties()
   m_pMainContent->setLayout(m_pLayout);
 }
 
-void ezSimplePropertyGridWidget::SlotPropertyChanged()
+void ezQtSimplePropertyGridWidget::SlotPropertyChanged()
 {
   for (ezUInt32 p = 0; p < m_Properties.GetCount(); ++p)
   {
@@ -90,7 +90,7 @@ void ezSimplePropertyGridWidget::SlotPropertyChanged()
   emit value_changed();
 }
 
-QWidget* ezSimplePropertyGridWidget::CreateControl(Property& Prop, QWidget* pWidget)
+QWidget* ezQtSimplePropertyGridWidget::CreateControl(Property& Prop, QWidget* pWidget)
 {
   Prop.m_pWidget = pWidget;
 
@@ -119,7 +119,7 @@ QWidget* ezSimplePropertyGridWidget::CreateControl(Property& Prop, QWidget* pWid
   return pControl;
 }
 
-QWidget* ezSimplePropertyGridWidget::CreateCheckbox(Property& Prop)
+QWidget* ezQtSimplePropertyGridWidget::CreateCheckbox(Property& Prop)
 {
   QCheckBox* pWidget = new QCheckBox();
   pWidget->setChecked(Prop.m_Value.ConvertTo<bool>());
@@ -129,7 +129,7 @@ QWidget* ezSimplePropertyGridWidget::CreateCheckbox(Property& Prop)
   return CreateControl(Prop, pWidget);
 }
 
-QWidget* ezSimplePropertyGridWidget::CreateDoubleSpinbox(Property& Prop)
+QWidget* ezQtSimplePropertyGridWidget::CreateDoubleSpinbox(Property& Prop)
 {
   QDoubleSpinBox* pWidget = new QDoubleSpinBox();
   pWidget->setMinimum(-ezMath::BasicType<double>::GetInfinity());
@@ -144,7 +144,7 @@ QWidget* ezSimplePropertyGridWidget::CreateDoubleSpinbox(Property& Prop)
   return CreateControl(Prop, pWidget);
 }
 
-QWidget* ezSimplePropertyGridWidget::CreateSpinbox(Property& Prop)
+QWidget* ezQtSimplePropertyGridWidget::CreateSpinbox(Property& Prop)
 {
   QSpinBox* pWidget = new QSpinBox();
   pWidget->setMinimum(-2147483645);
@@ -158,7 +158,7 @@ QWidget* ezSimplePropertyGridWidget::CreateSpinbox(Property& Prop)
   return CreateControl(Prop, pWidget);
 }
 
-QWidget* ezSimplePropertyGridWidget::CreateLineEdit(Property& Prop)
+QWidget* ezQtSimplePropertyGridWidget::CreateLineEdit(Property& Prop)
 {
   QLineEdit* pWidget = new QLineEdit();
   pWidget->setText(QString::fromUtf8(Prop.m_Value.ConvertTo<ezString>()));
@@ -168,12 +168,12 @@ QWidget* ezSimplePropertyGridWidget::CreateLineEdit(Property& Prop)
   return CreateControl(Prop, pWidget);
 }
 
-void ezSimplePropertyGridWidget::BeginProperties()
+void ezQtSimplePropertyGridWidget::BeginProperties()
 {
   ClearProperties();
 }
 
-void ezSimplePropertyGridWidget::AddProperty(const char* szName, const ezVariant& value, ezVariant* pValue, bool bReadOnly)
+void ezQtSimplePropertyGridWidget::AddProperty(const char* szName, const ezVariant& value, ezVariant* pValue, bool bReadOnly)
 {
   Property p;
   p.m_sName = szName;
@@ -184,7 +184,7 @@ void ezSimplePropertyGridWidget::AddProperty(const char* szName, const ezVariant
   m_Properties.PushBack(p);
 }
 
-void ezSimplePropertyGridWidget::EndProperties()
+void ezQtSimplePropertyGridWidget::EndProperties()
 {
   if (m_Properties.IsEmpty())
     return;

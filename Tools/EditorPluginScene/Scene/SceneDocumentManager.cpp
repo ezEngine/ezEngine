@@ -2,7 +2,7 @@
 #include <EditorPluginScene/Scene/SceneDocumentManager.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentManager, ezDocumentManagerBase, 1, ezRTTIDefaultAllocator<ezSceneDocumentManager>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentManager, ezDocumentManager, 1, ezRTTIDefaultAllocator<ezSceneDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezSceneDocumentManager* ezSceneDocumentManager::s_pSingleton = nullptr;
@@ -12,7 +12,7 @@ ezStatus ezSceneDocumentManager::InternalCanOpenDocument(const char* szDocumentT
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezSceneDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument)
+ezStatus ezSceneDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)
 {
   ezStatus status;
 

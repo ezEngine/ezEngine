@@ -61,7 +61,7 @@ ezResourceLoadDesc ezShaderPermutationResource::UnloadData(Unload WhatToUnload)
   return res;
 }
 
-ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReaderBase* Stream)
+ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReader* Stream)
 {
   ezUInt32 uiGPUMem = 0;
   ModifyMemoryUsage().m_uiMemoryGPU = 0;

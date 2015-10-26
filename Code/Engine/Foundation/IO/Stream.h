@@ -6,18 +6,18 @@
 #include <Foundation/Memory/EndianHelper.h>
 
 /// \brief Interface for binary in (read) streams.
-class EZ_FOUNDATION_DLL ezStreamReaderBase 
+class EZ_FOUNDATION_DLL ezStreamReader 
 {
 
 public:
 
   /// \brief Constructor
-  ezStreamReaderBase()
+  ezStreamReader()
   {
   }
 
   /// \brief Virtual destructor to ensure correct cleanup
-  virtual ~ezStreamReaderBase()
+  virtual ~ezStreamReader()
   {
   }
 
@@ -62,18 +62,18 @@ public:
 };
 
 /// \brief Interface for binary out (write) streams.
-class EZ_FOUNDATION_DLL ezStreamWriterBase
+class EZ_FOUNDATION_DLL ezStreamWriter
 {
 
 public:
 
   /// \brief Constructor
-  ezStreamWriterBase()
+  ezStreamWriter()
   {
   }
 
   /// \brief Virtual destructor to ensure correct cleanup
-  virtual ~ezStreamWriterBase()
+  virtual ~ezStreamWriter()
   {
   }
 

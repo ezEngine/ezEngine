@@ -98,8 +98,8 @@ public:
   ezShaderStageBinary();
   ~ezShaderStageBinary();
 
-  ezResult Write(ezStreamWriterBase& Stream) const;
-  ezResult Read(ezStreamReaderBase& Stream);
+  ezResult Write(ezStreamWriter& Stream) const;
+  ezResult Read(ezStreamReader& Stream);
   void CreateMaterialParamObject(const ezShaderMaterialParamCB& matparams);
 
   static void OnEngineShutdown();

@@ -16,7 +16,7 @@ ezShaderPermutationBinary::ezShaderPermutationBinary()
     m_uiShaderStageHashes[stage] = 0;
 }
 
-ezResult ezShaderPermutationBinary::Write(ezStreamWriterBase& Stream)
+ezResult ezShaderPermutationBinary::Write(ezStreamWriter& Stream)
 {
   // write this at the beginning so that the file can be read as an ezDependencyFile
   m_DependencyFile.StoreCurrentTimeStamp();
@@ -38,7 +38,7 @@ ezResult ezShaderPermutationBinary::Write(ezStreamWriterBase& Stream)
   return EZ_SUCCESS;
 }
 
-ezResult ezShaderPermutationBinary::Read(ezStreamReaderBase& Stream)
+ezResult ezShaderPermutationBinary::Read(ezStreamReader& Stream)
 {
   m_DependencyFile.ReadDependencyFile(Stream);
 

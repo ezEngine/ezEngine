@@ -7,18 +7,18 @@
 #include <EditorFramework/EngineProcess/ViewRenderSettings.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 
-class ezDocumentWindow3D;
+class ezQtEngineDocumentWindow;
 class ezEditorInputContext;
 class QHBoxLayout;
 class QPushButton;
 
-class EZ_EDITORFRAMEWORK_DLL ezEngineViewWidget : public QWidget
+class EZ_EDITORFRAMEWORK_DLL ezQtEngineViewWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  ezEngineViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocumentWindow, ezSceneViewConfig* pViewConfig);
-  ~ezEngineViewWidget();
+  ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentWindow* pDocumentWindow, ezSceneViewConfig* pViewConfig);
+  ~ezQtEngineViewWidget();
 
   /// \brief Add input contexts in the order in which they are supposed to be processed
   ezHybridArray<ezEditorInputContext*, 8> m_InputContexts;
@@ -31,7 +31,7 @@ public:
 
   /// \brief Returns the ID of this view
   ezUInt32 GetViewID() const { return m_uiViewID; }
-  ezDocumentWindow3D* GetDocumentWindow() const { return m_pDocumentWindow; }
+  ezQtEngineDocumentWindow* GetDocumentWindow() const { return m_pDocumentWindow; }
   virtual void SyncToEngine();
 
   ezSceneViewConfig* m_pViewConfig;
@@ -63,7 +63,7 @@ protected:
 protected:
   bool m_bUpdatePickingData;
   ezUInt32 m_uiViewID;
-  ezDocumentWindow3D* m_pDocumentWindow;
+  ezQtEngineDocumentWindow* m_pDocumentWindow;
 
   static ezUInt32 s_uiNextViewID;
 

@@ -7,14 +7,14 @@
 #include <EditorPluginScene/Scene/SceneDocument.h>
 
 class QVBoxLayout;
-class ezSceneDocumentWindow;
+class ezQtSceneDocumentWindow;
 
-class ezSceneViewWidget : public ezEngineViewWidget
+class ezQtSceneViewWidget : public ezQtEngineViewWidget
 {
   Q_OBJECT
 public:
-  ezSceneViewWidget(QWidget* pParent, ezSceneDocumentWindow* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig);
-  ~ezSceneViewWidget();
+  ezQtSceneViewWidget(QWidget* pParent, ezQtSceneDocumentWindow* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig);
+  ~ezQtSceneViewWidget();
 
   ezSelectionContext* m_pSelectionContext;
   ezCameraMoveContext* m_pCameraMoveContext;
@@ -35,17 +35,17 @@ protected:
   ezTime m_LastDragMoveEvent;
 };
 
-class ezSceneViewWidgetContainer : public QWidget
+class ezQtSceneViewWidgetContainer : public QWidget
 {
   Q_OBJECT
 public:
-  ezSceneViewWidgetContainer(QWidget* pParent, ezSceneDocumentWindow* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig);
-  ~ezSceneViewWidgetContainer();
+  ezQtSceneViewWidgetContainer(QWidget* pParent, ezQtSceneDocumentWindow* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig);
+  ~ezQtSceneViewWidgetContainer();
 
-  ezSceneViewWidget* GetViewWidget() const { return m_pViewWidget; }
+  ezQtSceneViewWidget* GetViewWidget() const { return m_pViewWidget; }
 
 private:
-  ezSceneViewWidget* m_pViewWidget;
+  ezQtSceneViewWidget* m_pViewWidget;
   QVBoxLayout* m_pLayout;
 };
 

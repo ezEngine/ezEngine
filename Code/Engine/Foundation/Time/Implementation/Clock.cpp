@@ -112,7 +112,7 @@ void ezClock::SetAccumulatedTime(ezTime t)
   m_LastTimeDiff = ezTime::Seconds(0.01);
 }
 
-void ezClock::Save(ezStreamWriterBase& Stream) const
+void ezClock::Save(ezStreamWriter& Stream) const
 {
   const ezUInt8 uiVersion = 1;
 
@@ -126,7 +126,7 @@ void ezClock::Save(ezStreamWriterBase& Stream) const
   Stream << m_bPaused;
 }
 
-void ezClock::Load(ezStreamReaderBase& Stream)
+void ezClock::Load(ezStreamReader& Stream)
 {
   ezUInt8 uiVersion = 0;
   Stream >> uiVersion;

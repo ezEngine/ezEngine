@@ -150,7 +150,7 @@ void ezConsole::EnableLogOutput(bool bEnable)
   }
 }
 
-void ezConsole::SaveState(ezStreamWriterBase& Stream) const
+void ezConsole::SaveState(ezStreamWriter& Stream) const
 {
   ezUInt8 uiVersion = 1;
   Stream << uiVersion;
@@ -169,7 +169,7 @@ void ezConsole::SaveState(ezStreamWriterBase& Stream) const
   }
 }
 
-void ezConsole::LoadState(ezStreamReaderBase& Stream)
+void ezConsole::LoadState(ezStreamReader& Stream)
 {
   ezUInt8 uiVersion = 0;
   Stream >> uiVersion;

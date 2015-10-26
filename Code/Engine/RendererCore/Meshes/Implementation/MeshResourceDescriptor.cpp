@@ -81,7 +81,7 @@ ezResult ezMeshResourceDescriptor::Save(const char* szFile)
   return EZ_SUCCESS;
 }
 
-void ezMeshResourceDescriptor::Save(ezStreamWriterBase& stream)
+void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
 {
   ezChunkStreamWriter chunk(stream);
 
@@ -205,7 +205,7 @@ ezResult ezMeshResourceDescriptor::Load(const char* szFile)
   return Load(file);
 }
 
-ezResult ezMeshResourceDescriptor::Load(ezStreamReaderBase& stream)
+ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
 {
   ezChunkStreamReader chunk(stream);
 

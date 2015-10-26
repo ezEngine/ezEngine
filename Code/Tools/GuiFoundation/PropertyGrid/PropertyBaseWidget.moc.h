@@ -8,7 +8,7 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <QWidget>
 
-class ezDocumentObjectBase;
+class ezDocumentObject;
 class ezTypeWidget;
 class QHBoxLayout;
 class QVBoxLayout;
@@ -18,13 +18,14 @@ class ezAddSubElementButton;
 class ezPropertyGridWidget;
 class ezElementGroupButton;
 
-class EZ_GUIFOUNDATION_DLL ezPropertyBaseWidget : public QWidget
+/// \brief Base class for all property widgets
+class EZ_GUIFOUNDATION_DLL ezQtPropertyWidget : public QWidget
 {
   Q_OBJECT;
 public:
   struct Selection
   {
-    const ezDocumentObjectBase* m_pObject;
+    const ezDocumentObject* m_pObject;
     ezVariant m_Index;
   };
 
@@ -47,8 +48,8 @@ public:
   ezEvent<const Event&> m_Events;
 
 public:
-  explicit ezPropertyBaseWidget();
-  virtual ~ezPropertyBaseWidget();
+  explicit ezQtPropertyWidget();
+  virtual ~ezQtPropertyWidget();
 
   void Init(ezPropertyGridWidget* pGrid, const ezAbstractProperty* pProp, const ezPropertyPath& path);
   const ezAbstractProperty* GetProperty() const { return m_pProp; }
@@ -60,7 +61,7 @@ public:
   virtual bool HasLabel() const { return true; }
   virtual const char* GetLabel() const { return m_pProp->GetPropertyName(); }
 
-  static const ezRTTI* GetCommonBaseType(const ezHybridArray<ezPropertyBaseWidget::Selection, 8>& items);
+  static const ezRTTI* GetCommonBaseType(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items);
   
 protected:
   void Broadcast(Event::Type type);
@@ -74,11 +75,12 @@ protected:
 };
 
 
-class EZ_GUIFOUNDATION_DLL ezUnsupportedPropertyWidget : public ezPropertyBaseWidget
+/// \brief Fallback widget for all property types for which no other widget type is registered
+class EZ_GUIFOUNDATION_DLL ezQtUnsupportedPropertyWidget : public ezQtPropertyWidget
 {
   Q_OBJECT;
 public:
-  explicit ezUnsupportedPropertyWidget(const char* szMessage = nullptr);
+  explicit ezQtUnsupportedPropertyWidget(const char* szMessage = nullptr);
 
 protected:
   virtual void OnInit() override;
@@ -89,11 +91,12 @@ protected:
 };
 
 
-class EZ_GUIFOUNDATION_DLL ezStandardPropertyBaseWidget : public ezPropertyBaseWidget
+/// \brief Base class for most 'simple' property type widgets. Implements some of the standard functionality.
+class EZ_GUIFOUNDATION_DLL ezQtStandardPropertyWidget : public ezQtPropertyWidget
 {
   Q_OBJECT;
 public:
-  explicit ezStandardPropertyBaseWidget();
+  explicit ezQtStandardPropertyWidget();
 
   virtual void SetSelection(const ezHybridArray<Selection, 8>& items) override;
 
@@ -108,12 +111,13 @@ protected:
 };
 
 
-class EZ_GUIFOUNDATION_DLL ezPropertyTypeWidget : public ezPropertyBaseWidget
+/// \todo Not really sure what this is used for
+class EZ_GUIFOUNDATION_DLL ezQtPropertyTypeWidget : public ezQtPropertyWidget
 {
   Q_OBJECT;
 public:
-  explicit ezPropertyTypeWidget(bool bAddCollapsibleGroup = false);
-  virtual ~ezPropertyTypeWidget();
+  explicit ezQtPropertyTypeWidget(bool bAddCollapsibleGroup = false);
+  virtual ~ezQtPropertyTypeWidget();
 
   virtual void SetSelection(const ezHybridArray<Selection, 8>& items) override;
   virtual bool HasLabel() const override { return false; }
@@ -128,13 +132,13 @@ protected:
   ezTypeWidget* m_pTypeWidget;
 };
 
-
-class EZ_GUIFOUNDATION_DLL ezPropertyPointerWidget : public ezPropertyBaseWidget
+/// \brief Used for property types that are pointers.
+class EZ_GUIFOUNDATION_DLL ezQtPropertyPointerWidget : public ezQtPropertyWidget
 {
   Q_OBJECT;
 public:
-  explicit ezPropertyPointerWidget();
-  virtual ~ezPropertyPointerWidget();
+  explicit ezQtPropertyPointerWidget();
+  virtual ~ezQtPropertyPointerWidget();
 
   virtual void SetSelection(const ezHybridArray<Selection, 8>& items) override;
   virtual bool HasLabel() const override { return false; }
@@ -156,12 +160,13 @@ protected:
 };
 
 
-class EZ_GUIFOUNDATION_DLL ezPropertyContainerBaseWidget : public ezPropertyBaseWidget
+/// \brief Base class for all container properties
+class EZ_GUIFOUNDATION_DLL ezQtPropertyContainerWidget : public ezQtPropertyWidget
 {
   Q_OBJECT;
 public:
-  ezPropertyContainerBaseWidget();
-  virtual ~ezPropertyContainerBaseWidget();
+  ezQtPropertyContainerWidget();
+  virtual ~ezQtPropertyContainerWidget();
 
   virtual void SetSelection(const ezHybridArray<Selection, 8>& items) override;
   virtual bool HasLabel() const override { return false; }
@@ -173,10 +178,10 @@ protected:
   struct Element
   {
     Element() : m_pSubGroup(nullptr), m_pWidget(nullptr) {}
-    Element(ezCollapsibleGroupBox* pSubGroup, ezPropertyBaseWidget* pWidget) : m_pSubGroup(pSubGroup), m_pWidget(pWidget) {}
+    Element(ezCollapsibleGroupBox* pSubGroup, ezQtPropertyWidget* pWidget) : m_pSubGroup(pSubGroup), m_pWidget(pWidget) {}
 
     ezCollapsibleGroupBox* m_pSubGroup;
-    ezPropertyBaseWidget* m_pWidget;
+    ezQtPropertyWidget* m_pWidget;
   };
 
   virtual Element& AddElement(ezUInt32 index);
@@ -201,27 +206,27 @@ protected:
 };
 
 
-class EZ_GUIFOUNDATION_DLL ezPropertyStandardTypeContainerWidget : public ezPropertyContainerBaseWidget
+class EZ_GUIFOUNDATION_DLL ezQtPropertyStandardTypeContainerWidget : public ezQtPropertyContainerWidget
 {
   Q_OBJECT;
 public:
-  ezPropertyStandardTypeContainerWidget();
-  virtual ~ezPropertyStandardTypeContainerWidget();
+  ezQtPropertyStandardTypeContainerWidget();
+  virtual ~ezQtPropertyStandardTypeContainerWidget();
 
 protected:
   virtual Element& AddElement(ezUInt32 index) override;
   virtual void RemoveElement(ezUInt32 index) override;
   virtual void UpdateElement(ezUInt32 index) override;
 
-  void PropertyChangedHandler(const ezPropertyBaseWidget::Event& ed);
+  void PropertyChangedHandler(const ezQtPropertyWidget::Event& ed);
 };
 
-class EZ_GUIFOUNDATION_DLL ezPropertyTypeContainerWidget : public ezPropertyContainerBaseWidget
+class EZ_GUIFOUNDATION_DLL ezQtPropertyTypeContainerWidget : public ezQtPropertyContainerWidget
 {
   Q_OBJECT;
 public:
-  ezPropertyTypeContainerWidget();
-  virtual ~ezPropertyTypeContainerWidget();
+  ezQtPropertyTypeContainerWidget();
+  virtual ~ezQtPropertyTypeContainerWidget();
 
 protected:
   virtual void OnInit() override;
