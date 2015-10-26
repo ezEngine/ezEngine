@@ -20,7 +20,7 @@ EDITOR_RENDER_MODE
 #include <Shaders/Materials/Materials.inc>
 #include <Shaders/Materials/DefaultMaterialCB.inc>
 
-#ifdef PLATFORM_DX11
+#if EZ_ENABLED(PLATFORM_DX11)
 
 VS_OUT main(VS_IN Input)
 {
@@ -41,7 +41,7 @@ VS_OUT main(VS_IN Input)
 #include <Shaders/Materials/DefaultMaterialCB.inc>
 #include <Shaders/Editor/EditorRenderModes.h>
 
-#ifdef PLATFORM_DX11
+#if EZ_ENABLED(PLATFORM_DX11)
 
 Texture2D TexDiffuse;
 SamplerState TexDiffuseSampler;
