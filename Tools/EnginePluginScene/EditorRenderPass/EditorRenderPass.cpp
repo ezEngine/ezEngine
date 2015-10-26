@@ -14,6 +14,9 @@ void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext)
 {
   switch (m_ViewRenderMode)
   {
+  case ezViewRenderMode::None:
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_DEFAULT");
+    break;
   case ezViewRenderMode::WireframeColor:
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_WIREFRAME_COLOR");
     break;

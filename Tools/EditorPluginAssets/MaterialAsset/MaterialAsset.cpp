@@ -20,19 +20,19 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
   const ezMaterialAssetProperties* pProp = GetProperties();
 
   if (!pProp->m_sBaseMaterial.IsEmpty())
-    pInfo->m_FileDependencies.PushBack(pProp->m_sBaseMaterial);
+    pInfo->m_FileDependencies.Insert(pProp->m_sBaseMaterial);
 
   if (!pProp->m_sShader.IsEmpty())
-    pInfo->m_FileDependencies.PushBack(pProp->m_sShader);
+    pInfo->m_FileDependencies.Insert(pProp->m_sShader);
 
   if (!pProp->m_sTextureDiffuse.IsEmpty() && !ezPathUtils::HasExtension(pProp->m_sTextureDiffuse, "color"))
-    pInfo->m_FileDependencies.PushBack(pProp->m_sTextureDiffuse);
+    pInfo->m_FileDependencies.Insert(pProp->m_sTextureDiffuse);
 
   if (!pProp->m_sTextureMask.IsEmpty() && !ezPathUtils::HasExtension(pProp->m_sTextureMask, "color"))
-    pInfo->m_FileDependencies.PushBack(pProp->m_sTextureMask);
+    pInfo->m_FileDependencies.Insert(pProp->m_sTextureMask);
 
   if (!pProp->m_sTextureNormal.IsEmpty() && !ezPathUtils::HasExtension(pProp->m_sTextureNormal, "color"))
-    pInfo->m_FileDependencies.PushBack(pProp->m_sTextureNormal);
+    pInfo->m_FileDependencies.Insert(pProp->m_sTextureNormal);
 }
 
 ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform)

@@ -78,7 +78,7 @@ void ezMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
   const ezMeshAssetProperties* pProp = GetProperties();
 
   if (!pProp->m_sMeshFile.IsEmpty())
-    pInfo->m_FileDependencies.PushBack(pProp->m_sMeshFile);
+    pInfo->m_FileDependencies.Insert(pProp->m_sMeshFile);
 
 }
 

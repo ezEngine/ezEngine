@@ -19,7 +19,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, ezDocumentInfo, 1, ezRTTINoAllocator);
 EZ_BEGIN_PROPERTIES
 EZ_ACCESSOR_PROPERTY("Dependencies", GetDependencies, SetDependencies),
-EZ_ACCESSOR_PROPERTY("References", GetReferences, SetReferences),
+//EZ_ACCESSOR_PROPERTY("References", GetReferences, SetReferences),
 EZ_MEMBER_PROPERTY("Hash", m_uiSettingsHash),
 EZ_MEMBER_PROPERTY("AssetType", m_sAssetTypeName),
 EZ_END_PROPERTIES
@@ -53,30 +53,40 @@ void ezAssetDocumentInfo::SetDependencies(ezString s)
 
   ezStringBuilder sTemp = s;
   sTemp.MakeCleanPath();
-  sTemp.Split(false, m_FileDependencies, ";");
+
+  ezHybridArray<ezString, 16> temp;
+  sTemp.Split(false, temp, ";");
+
+  for (const auto& s : temp)
+    m_FileDependencies.Insert(s);
 }
 
 
-ezString ezAssetDocumentInfo::GetReferences() const
-{
-  ezStringBuilder s;
-
-  for (const auto& dep : m_FileReferences)
-  {
-    s.AppendFormat("%s;", dep.GetData());
-  }
-
-  s.Shrink(0, 1);
-  return s;
-}
-
-void ezAssetDocumentInfo::SetReferences(ezString s)
-{
-  m_FileReferences.Clear();
-
-  ezStringBuilder sTemp = s;
-  sTemp.Split(false, m_FileReferences, ";");
-}
+//ezString ezAssetDocumentInfo::GetReferences() const
+//{
+//  ezStringBuilder s;
+//
+//  for (const auto& dep : m_FileReferences)
+//  {
+//    s.AppendFormat("%s;", dep.GetData());
+//  }
+//
+//  s.Shrink(0, 1);
+//  return s;
+//}
+//
+//void ezAssetDocumentInfo::SetReferences(ezString s)
+//{
+//  m_FileReferences.Clear();
+//
+//  ezStringBuilder sTemp = s;
+//
+//  ezHybridArray<ezString, 16> temp;
+//  sTemp.Split(false, temp, ";");
+//
+//  for (const auto& s : temp)
+//    m_FileReferences.Insert(s);
+//}
 
 
 ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager) : ezDocument(szDocumentPath, pObjectManager)

@@ -31,6 +31,9 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
   case ezViewRenderMode::WireframeMonochrome:
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_WIREFRAME_MONOCHROME");
     break;
+  default:
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_DEFAULT");
+    break;
   }
 
   // since typically the fov is tied to the height, we orient the gizmo size on that

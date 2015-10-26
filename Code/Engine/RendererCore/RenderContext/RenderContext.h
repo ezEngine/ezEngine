@@ -75,6 +75,7 @@ public:
   static const ezString& GetActiveShaderPlatform() { return s_sPlatform; }
   static const ezString& GetShaderCacheDirectory() { return s_ShaderCacheDirectory; }
   static bool IsRuntimeShaderCompilationEnabled() { return s_bEnableRuntimeCompilation; }
+  static const ezPermutationGenerator& GetAllowedPermutations() { return s_AllowedPermutations; }
 
 public:
 

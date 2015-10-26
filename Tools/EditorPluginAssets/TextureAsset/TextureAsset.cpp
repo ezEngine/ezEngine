@@ -22,7 +22,7 @@ void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
   ezStringBuilder sTemp = pProp->GetInputFile();
   sTemp.MakeCleanPath();
 
-  pInfo->m_FileDependencies.PushBack(sTemp);
+  pInfo->m_FileDependencies.Insert(sTemp);
 }
 
 ezStatus ezTextureAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform)

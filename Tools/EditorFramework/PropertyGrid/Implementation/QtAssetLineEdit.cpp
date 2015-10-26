@@ -3,6 +3,7 @@
 #include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
 #include <qevent.h>
 #include <QMimeData>
+#include "EditorApp/EditorApp.moc.h"
 
 ezQtAssetLineEdit::ezQtAssetLineEdit(QWidget* parent /*= nullptr*/) : QLineEdit(parent)
 {
@@ -50,7 +51,15 @@ void ezQtAssetLineEdit::dropEvent(QDropEvent* e)
   if (e->mimeData()->hasUrls() && !e->mimeData()->urls().isEmpty())
   {
     QString str = e->mimeData()->urls()[0].toLocalFile();
-    setText(str);
+
+    ezString sPath = str.toUtf8().data();
+    if (ezQtEditorApp::GetInstance()->MakePathDataDirectoryRelative(sPath))
+    {
+      setText(QString::fromUtf8(sPath.GetData()));
+    }
+    else
+      setText(QString());
+
     return;
   }
 
@@ -58,7 +67,15 @@ void ezQtAssetLineEdit::dropEvent(QDropEvent* e)
   if (e->mimeData()->hasText())
   {
     QString str = e->mimeData()->text();
-    setText(str);
+
+    ezString sPath = str.toUtf8().data();
+    if (ezQtEditorApp::GetInstance()->MakePathDataDirectoryRelative(sPath))
+    {
+      setText(QString::fromUtf8(sPath.GetData()));
+    }
+    else
+      setText(QString());
+
     return;
   }
 }
