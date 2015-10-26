@@ -2,6 +2,7 @@
 #include <EditorPluginAssets/MeshAsset/MeshAssetManager.h>
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetWindow.moc.h>
+#include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocumentManager, ezAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezMeshAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -9,6 +10,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 ezMeshAssetDocumentManager::ezMeshAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezMeshAssetDocumentManager::OnDocumentManagerEvent, this));
+
+  // additional whitelist for non-asset files where an asset may be selected
+  ezAssetFileExtensionWhitelist::AddAssetFileExtension("Mesh", "ezMesh");
+
 }
 
 ezMeshAssetDocumentManager::~ezMeshAssetDocumentManager()

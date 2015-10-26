@@ -115,7 +115,8 @@ public:
   ezAssetBrowserAttribute() {}
   ezAssetBrowserAttribute(const char* szTypeFilter)
   {
-    m_sTypeFilter = szTypeFilter;
+    ezStringBuilder sTemp(";", szTypeFilter, ";");
+    m_sTypeFilter = sTemp;
   }
 
   const char* GetTypeFilter() const { return m_sTypeFilter; }

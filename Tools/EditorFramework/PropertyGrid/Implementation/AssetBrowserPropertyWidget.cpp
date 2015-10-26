@@ -13,9 +13,10 @@
 #include <QDropEvent>
 #include <QMimeData>
 #include <QUrl>
+#include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
 
 
-ezAssetBrowserPropertyWidget::ezAssetBrowserPropertyWidget() : ezQtStandardPropertyWidget()
+ezQtAssetPropertyWidget::ezQtAssetPropertyWidget() : ezQtStandardPropertyWidget()
 {
   m_uiThumbnailID = 0;
 
@@ -26,6 +27,7 @@ ezAssetBrowserPropertyWidget::ezAssetBrowserPropertyWidget() : ezQtStandardPrope
   m_pWidget = new ezQtAssetLineEdit(this);
   m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
   m_pWidget->setFocusPolicy(Qt::FocusPolicy::StrongFocus);
+  m_pWidget->m_pOwner = this;
   setFocusProxy(m_pWidget);
 
   EZ_VERIFY(connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_TextFinished_triggered())) != nullptr, "signal/slot connection failed");
@@ -37,21 +39,55 @@ ezAssetBrowserPropertyWidget::ezAssetBrowserPropertyWidget() : ezQtStandardPrope
   m_pButton->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
 
   EZ_VERIFY(connect(m_pButton, SIGNAL(clicked()), this, SLOT(on_BrowseFile_clicked())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pButton, &QWidget::customContextMenuRequested, this, &ezAssetBrowserPropertyWidget::on_customContextMenuRequested) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pButton, &QWidget::customContextMenuRequested, this, &ezQtAssetPropertyWidget::on_customContextMenuRequested) != nullptr, "signal/slot connection failed");
 
   m_pLayout->addWidget(m_pWidget);
   m_pLayout->addWidget(m_pButton);
 
-  EZ_VERIFY(connect(QtImageCache::GetInstance(), &QtImageCache::ImageLoaded, this, &ezAssetBrowserPropertyWidget::ThumbnailLoaded) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(QtImageCache::GetInstance(), &QtImageCache::ImageInvalidated, this, &ezAssetBrowserPropertyWidget::ThumbnailInvalidated) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(QtImageCache::GetInstance(), &QtImageCache::ImageLoaded, this, &ezQtAssetPropertyWidget::ThumbnailLoaded) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(QtImageCache::GetInstance(), &QtImageCache::ImageInvalidated, this, &ezQtAssetPropertyWidget::ThumbnailInvalidated) != nullptr, "signal/slot connection failed");
 }
 
-void ezAssetBrowserPropertyWidget::OnInit()
+
+bool ezQtAssetPropertyWidget::IsValidAssetType(const char* szAssetReference) const
+{
+  const ezAssetCurator::AssetInfo* pAsset = nullptr;
+
+  if (!ezConversionUtils::IsStringUuid(szAssetReference))
+  {
+    pAsset = ezAssetCurator::GetInstance()->FindAssetInfo(szAssetReference);
+
+    if (!pAsset)
+    {
+      const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
+
+      // if this file type is on the asset whitelist for this asset type, let it through
+      return ezAssetFileExtensionWhitelist::IsFileOnAssetWhitelist(pAssetAttribute->GetTypeFilter(), szAssetReference);
+    }
+  }
+  else
+  {
+    const ezUuid AssetGuid = ezConversionUtils::ConvertStringToUuid(szAssetReference);
+
+    pAsset = ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid);
+  }
+
+  // invalid asset in general
+  if (!pAsset)
+    return false;
+
+  const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
+
+  const ezStringBuilder sTypeFilter(";", pAsset->m_Info.m_sAssetTypeName, ";");
+  return ezStringUtils::FindSubString_NoCase(pAssetAttribute->GetTypeFilter(), sTypeFilter) != nullptr;
+}
+
+void ezQtAssetPropertyWidget::OnInit()
 {
   EZ_ASSERT_DEV(m_pProp->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr, "ezPropertyEditorFileBrowserWidget was created without a ezAssetBrowserAttribute!");
 }
 
-void ezAssetBrowserPropertyWidget::UpdateThumbnail(const ezUuid& guid, const char* szThumbnailPath)
+void ezQtAssetPropertyWidget::UpdateThumbnail(const ezUuid& guid, const char* szThumbnailPath)
 {
   const QPixmap* pThumbnailPixmap = nullptr;
 
@@ -75,7 +111,7 @@ void ezAssetBrowserPropertyWidget::UpdateThumbnail(const ezUuid& guid, const cha
   }
 }
 
-void ezAssetBrowserPropertyWidget::InternalSetValue(const ezVariant& value)
+void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
 {
   QtScopedBlockSignals b(m_pWidget);
 
@@ -91,6 +127,23 @@ void ezAssetBrowserPropertyWidget::InternalSetValue(const ezVariant& value)
 
     if (ezConversionUtils::IsStringUuid(sText))
     {
+      if (!IsValidAssetType(sText))
+      {
+        m_uiThumbnailID = 0;
+
+        m_pWidget->setText(QString());
+        m_pWidget->setPlaceholderText(QStringLiteral("<Selected Invalid Asset Type>"));
+
+        m_pButton->setIcon(QIcon());
+        m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextOnly);
+
+        auto pal = m_pWidget->palette();
+        pal.setColor(QPalette::Text, Qt::red);
+        m_pWidget->setPalette(pal);
+
+        return;
+      }
+
       m_AssetGuid = ezConversionUtils::ConvertStringToUuid(sText);
 
       const auto* pAsset = ezAssetCurator::GetInstance()->GetAssetInfo(m_AssetGuid);
@@ -124,7 +177,7 @@ void ezAssetBrowserPropertyWidget::InternalSetValue(const ezVariant& value)
   }
 }
 
-void ezAssetBrowserPropertyWidget::on_TextFinished_triggered()
+void ezQtAssetPropertyWidget::on_TextFinished_triggered()
 {
   ezStringBuilder sText = m_pWidget->text().toUtf8().data();
 
@@ -139,13 +192,13 @@ void ezAssetBrowserPropertyWidget::on_TextFinished_triggered()
 }
 
 
-void ezAssetBrowserPropertyWidget::on_TextChanged_triggered(const QString& value)
+void ezQtAssetPropertyWidget::on_TextChanged_triggered(const QString& value)
 {
   if (!hasFocus())
     on_TextFinished_triggered();
 }
 
-void ezAssetBrowserPropertyWidget::ThumbnailLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2)
+void ezQtAssetPropertyWidget::ThumbnailLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2)
 {
   const ezUuid guid(UserData1.toULongLong(), UserData2.toULongLong());
 
@@ -156,7 +209,7 @@ void ezAssetBrowserPropertyWidget::ThumbnailLoaded(QString sPath, QModelIndex in
 }
 
 
-void ezAssetBrowserPropertyWidget::ThumbnailInvalidated(QString sPath, ezUInt32 uiImageID)
+void ezQtAssetPropertyWidget::ThumbnailInvalidated(QString sPath, ezUInt32 uiImageID)
 {
   if (m_uiThumbnailID == uiImageID)
   {
@@ -165,7 +218,7 @@ void ezAssetBrowserPropertyWidget::ThumbnailInvalidated(QString sPath, ezUInt32 
 }
 
 
-void ezAssetBrowserPropertyWidget::on_customContextMenuRequested(const QPoint& pt)
+void ezQtAssetPropertyWidget::on_customContextMenuRequested(const QPoint& pt)
 {
   QMenu m;
 
@@ -179,17 +232,17 @@ void ezAssetBrowserPropertyWidget::on_customContextMenuRequested(const QPoint& p
   m.exec(m_pButton->mapToGlobal(pt));
 }
 
-void ezAssetBrowserPropertyWidget::OnOpenAssetDocument()
+void ezQtAssetPropertyWidget::OnOpenAssetDocument()
 {
   ezQtEditorApp::GetInstance()->OpenDocument(ezAssetCurator::GetInstance()->GetAssetInfo(m_AssetGuid)->m_sAbsolutePath);
 }
 
-void ezAssetBrowserPropertyWidget::OnSelectInAssetBrowser()
+void ezQtAssetPropertyWidget::OnSelectInAssetBrowser()
 {
   ezQtAssetBrowserPanel::GetInstance()->AssetBrowserWidget->SetSelectedAsset(ezAssetCurator::GetInstance()->GetAssetInfo(m_AssetGuid)->m_sRelativePath);
 }
 
-void ezAssetBrowserPropertyWidget::OnOpenExplorer()
+void ezQtAssetPropertyWidget::OnOpenExplorer()
 {
   ezString sPath;
 
@@ -207,7 +260,7 @@ void ezAssetBrowserPropertyWidget::OnOpenExplorer()
   ezUIServices::OpenInExplorer(sPath);
 }
 
-void ezAssetBrowserPropertyWidget::on_BrowseFile_clicked()
+void ezQtAssetPropertyWidget::on_BrowseFile_clicked()
 {
   ezString sFile = m_pWidget->text().toUtf8().data();
   const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();

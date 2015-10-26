@@ -4,7 +4,7 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
 
-struct ezStatus
+struct EZ_TOOLSFOUNDATION_DLL ezStatus
 {
   ezStatus() : m_Result(EZ_FAILURE)
   {

@@ -2,6 +2,7 @@
 #include <EditorPluginAssets/TextureAsset/TextureAssetManager.h>
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetWindow.moc.h>
+#include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocumentManager, ezAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezTextureAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -9,6 +10,16 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezTextureAssetDocumentManager::OnDocumentManagerEvent, this));
+
+  // additional whitelist for non-asset files where an asset may be selected
+  ezAssetFileExtensionWhitelist::AddAssetFileExtension("Texture 2D", "dds");
+  ezAssetFileExtensionWhitelist::AddAssetFileExtension("Texture 2D", "color");
+  ezAssetFileExtensionWhitelist::AddAssetFileExtension("Texture 3D", "dds");
+  ezAssetFileExtensionWhitelist::AddAssetFileExtension("Texture Cube", "dds");
+
+  // texture asset source files
+  ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "dds");
+  ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "tga");
 }
 
 ezTextureAssetDocumentManager::~ezTextureAssetDocumentManager()

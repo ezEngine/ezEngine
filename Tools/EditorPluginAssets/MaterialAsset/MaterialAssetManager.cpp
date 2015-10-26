@@ -2,6 +2,7 @@
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetManager.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
+#include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocumentManager, ezAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezMaterialAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -9,6 +10,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 ezMaterialAssetDocumentManager::ezMaterialAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezMaterialAssetDocumentManager::OnDocumentManagerEvent, this));
+
+  // additional whitelist for non-asset files where an asset may be selected
+  ezAssetFileExtensionWhitelist::AddAssetFileExtension("Material", "ezMaterial");
 }
 
 ezMaterialAssetDocumentManager::~ezMaterialAssetDocumentManager()

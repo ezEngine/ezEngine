@@ -14,7 +14,7 @@
 
 static ezQtPropertyWidget* AssetBrowserCreator(const ezRTTI* pRtti)
 {
-  return new ezAssetBrowserPropertyWidget();
+  return new ezQtAssetPropertyWidget();
 }
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)

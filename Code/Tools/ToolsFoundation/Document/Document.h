@@ -3,8 +3,6 @@
 #include <ToolsFoundation/Basics.h>
 #include <Foundation/Strings/String.h>
 #include <ToolsFoundation/Basics/Status.h>
-#include <ToolsFoundation/Basics/Guid.h>
-#include <ToolsFoundation/Basics/Status.h>
 #include <ToolsFoundation/Selection/SelectionManager.h>
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
 #include <Foundation/Communication/Event.h>

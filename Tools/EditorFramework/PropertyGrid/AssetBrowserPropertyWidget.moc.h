@@ -9,14 +9,16 @@
 
 /// *** Asset Browser ***
 
-class EZ_EDITORFRAMEWORK_DLL ezAssetBrowserPropertyWidget : public ezQtStandardPropertyWidget
+class EZ_EDITORFRAMEWORK_DLL ezQtAssetPropertyWidget : public ezQtStandardPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezAssetBrowserPropertyWidget();
+  ezQtAssetPropertyWidget();
 
-  private slots:
+  bool IsValidAssetType(const char* szAssetReference) const;
+
+private slots:
   void on_BrowseFile_clicked();
 
 protected slots:
