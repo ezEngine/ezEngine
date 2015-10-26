@@ -17,6 +17,9 @@ ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
 
   setupUi(this);
 
+  ButtonListMode->setVisible(false);
+  ButtonIconMode->setVisible(false);
+
   m_pModel = new ezAssetBrowserModel(this);
 
   IconSizeSlider->setValue(50);

@@ -3,20 +3,12 @@
    "#" : { "$t" : "uuid", "$b" : "0x59AD6ACC19A17B4193F602509F604BC8" },
    "t" : "ezMaterialAssetProperties",
    "p" : {
-        "Base Material" : "Materials/BaseMaterials/Fullbright.ezMaterialAsset",
-        "Shader" : "",
-        "Permutations" : "",
-        "Diffuse Texture" : "Sponza/Textures/background_diff.dds",
-        "Mask Texture" : "",
-        "Normal Map" : ""
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "RootObjects" : [ { "$t" : "uuid", "$b" : "0x59AD6ACC19A17B4193F602509F604BC8" } ]
+    "Base Material" : "{ 05af8d07-0b38-44a6-8d50-49731ae2625d }",
+    "Diffuse Texture" : "Sponza/Textures/background_diff.dds",
+    "Mask Texture" : "",
+    "Normal Map" : "",
+    "Permutations" : "",
+    "Shader" : ""
    }
   },
   {
@@ -25,10 +17,18 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Material",
-    "Dependencies" : "Materials/BaseMaterials/Fullbright.ezMaterialAsset",
+    "Dependencies" : "{ 05af8d07-0b38-44a6-8d50-49731ae2625d };Sponza/Textures/background_diff.dds",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xCB76C5260BE66E47A0F5330826893652" },
-    "Hash" : { "$t" : "uint64", "$v" : "942324037440068187", "$b" : "0x5B5AED2AB8CE130D" },
+    "Hash" : { "$t" : "uint64", "$v" : "2777938833194588545", "$b" : "0x81995390A6388D26" },
     "References" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "RootObjects" : [ { "$t" : "uuid", "$b" : "0x59AD6ACC19A17B4193F602509F604BC8" } ]
    }
   } ]
 }

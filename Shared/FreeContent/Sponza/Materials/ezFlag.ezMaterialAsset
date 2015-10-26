@@ -3,7 +3,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x59AD6ACC19A17B4193F602509F604BC8" },
    "t" : "ezMaterialAssetProperties",
    "p" : {
-    "Base Material" : "Materials/BaseMaterials/Fullbright.ezMaterialAsset",
+    "Base Material" : "{ 05af8d07-0b38-44a6-8d50-49731ae2625d }",
     "Diffuse Texture" : "White.color",
     "Mask Texture" : "",
     "Normal Map" : "",
@@ -17,9 +17,9 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Material",
-    "Dependencies" : "Materials/BaseMaterials/Fullbright.ezMaterialAsset",
+    "Dependencies" : "{ 05af8d07-0b38-44a6-8d50-49731ae2625d }",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xEB871E9644B5754488B9A9A6BDD0ABC4" },
-    "Hash" : { "$t" : "uint64", "$v" : "14961068897875121307", "$b" : "0x9BD4FD3DE564A0CF" },
+    "Hash" : { "$t" : "uint64", "$v" : "16487692586319982469", "$b" : "0x85AF713D0D0DD0E4" },
     "References" : ""
    }
   },
