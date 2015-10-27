@@ -60,7 +60,7 @@ private:
     if (pRoot->GetChildren().IsEmpty())
     {
       ezDocumentObject* pObject = GetObjectManager()->CreateObject(ezGetStaticRTTI<PropertyType>());
-      GetObjectManager()->AddObject(pObject, pRoot, "RootObjects", 0);
+      GetObjectManager()->AddObject(pObject, pRoot, "Children", 0);
     }
   }
 

@@ -64,6 +64,8 @@ public:
 
   const ezDocumentTypeDescriptor& GetDocumentTypeDescriptor() const { return m_TypeDescriptor; }
 
+  const ezDocumentInfo* GetDocumentInfo() { return m_pDocumentInfo; }
+
   struct PasteInfo
   {
     EZ_DECLARE_POD_TYPE();

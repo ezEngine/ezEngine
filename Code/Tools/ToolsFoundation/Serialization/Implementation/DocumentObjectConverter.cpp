@@ -1,5 +1,6 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
 
 ezAbstractObjectNode* ezDocumentObjectConverterWriter::AddObjectToGraph(const ezDocumentObject* pObject, const char* szNodeName)
 {
@@ -128,21 +129,42 @@ ezDocumentObjectConverterReader::ezDocumentObjectConverterReader(const ezAbstrac
 
 ezDocumentObject* ezDocumentObjectConverterReader::CreateObjectFromNode(const ezAbstractObjectNode* pNode, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index)
 {
-  ezDocumentObject* pObject = m_pManager->CreateObject(ezRTTI::FindTypeByName(pNode->GetType()), pNode->GetGuid());
+  ezDocumentObject* pObject = nullptr;
 
   switch (m_Mode)
   {
   case ezDocumentObjectConverterReader::Mode::CreateOnly:
-    if (pParent != nullptr)
-      pParent->InsertSubObject(pObject, szParentProperty, index);
+    {
+      pObject = m_pManager->CreateObject(ezRTTI::FindTypeByName(pNode->GetType()), pNode->GetGuid());
+      if (pParent != nullptr)
+        pParent->InsertSubObject(pObject, szParentProperty, index);
+    }
     break;
-  case ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument:
-    m_pManager->AddObject(pObject, pParent, szParentProperty, index);
-    break;
+
   case ezDocumentObjectConverterReader::Mode::CreateAndAddToDocumentUndoable:
-    // TODO:
-    m_pManager->AddObject(pObject, pParent, szParentProperty, index); 
+  case ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument:
+    {
+      pObject = m_pManager->CreateObject(ezRTTI::FindTypeByName(pNode->GetType()), pNode->GetGuid());
+      m_pManager->AddObject(pObject, pParent, szParentProperty, index);
+    }
     break;
+
+  //case ezDocumentObjectConverterReader::Mode::CreateAndAddToDocumentUndoable:
+  //  {
+  //    /// \todo This is important for prefabs!
+
+  //    ezAddObjectCommand cmd;
+  //    cmd.m_sParentProperty = szParentProperty;
+  //    cmd.m_Index = index;
+  //    cmd.m_NewObjectGuid = pNode->GetGuid();
+  //    cmd.m_pType = ezRTTI::FindTypeByName(pNode->GetType());
+
+  //    if (pParent != nullptr)
+  //      cmd.m_Parent = pParent->GetGuid();
+
+  //    m_pManager->GetDocument()->GetCommandHistory()->AddCommand(cmd);
+  //  }
+  //  break;
   }
   
   return pObject;

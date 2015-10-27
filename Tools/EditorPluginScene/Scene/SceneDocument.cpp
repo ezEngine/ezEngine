@@ -129,7 +129,7 @@ void ezSceneDocument::GroupSelection()
   cmdAdd.m_NewObjectGuid.CreateNewUuid();
   cmdAdd.m_pType = ezGetStaticRTTI<ezGameObject>();
   cmdAdd.m_Index = -1;
-  cmdAdd.m_sParentProperty = "RootObjects";
+  cmdAdd.m_sParentProperty = "Children";
 
   pHistory->AddCommand(cmdAdd);
 
@@ -329,7 +329,7 @@ bool ezSceneDocument::PasteAt(const ezArrayPtr<PasteInfo>& info, const ezVec3& v
 
     if (pi.m_pParent == nullptr || pi.m_pParent == GetObjectManager()->GetRootObject())
     {
-      GetObjectManager()->AddObject(pi.m_pObject, nullptr, "RootObjects", -1);
+      GetObjectManager()->AddObject(pi.m_pObject, nullptr, "Children", -1);
     }
     else
     {
@@ -346,7 +346,7 @@ bool ezSceneDocument::PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info)
   {
     if (pi.m_pParent == nullptr || pi.m_pParent == GetObjectManager()->GetRootObject())
     {
-      GetObjectManager()->AddObject(pi.m_pObject, nullptr, "RootObjects", -1);
+      GetObjectManager()->AddObject(pi.m_pObject, nullptr, "Children", -1);
     }
     else
     {

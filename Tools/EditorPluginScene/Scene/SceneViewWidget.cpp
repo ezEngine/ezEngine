@@ -8,6 +8,10 @@
 #include <QKeyEvent>
 #include <QMimeData>
 #include <QVBoxLayout>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/Serialization/JsonSerializer.h>
+#include <Foundation/Serialization/RttiConverter.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 ezQtSceneViewWidget::ezQtSceneViewWidget(QWidget* pParent, ezQtSceneDocumentWindow* pOwnerWindow, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig)
   : ezQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
@@ -57,7 +61,7 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
 
     ezObjectPickingResult res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
 
-    if (res.m_vPickedPosition.IsNaN())
+    if (res.m_vPickedPosition.IsNaN() || !res.m_PickedObject.IsValid())
       res.m_vPickedPosition.SetZero();
 
     QByteArray ba = e->mimeData()->data("application/ezEditor.AssetGuid");
@@ -76,10 +80,15 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
       sTemp = sGuid.toUtf8().data();
       ezUuid AssetGuid = ezConversionUtils::ConvertStringToUuid(sTemp);
 
-      if (ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName != "Mesh")
-        continue;
-
-      m_DraggedObjects.PushBack(CreateDropObject(res.m_vPickedPosition, "ezMeshComponent", "Mesh", sTemp));
+      if (ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName == "Prefab")
+      {
+        CreatePrefab(res.m_vPickedPosition, AssetGuid);
+      }
+      else
+      if (ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName == "Mesh")
+      {
+        CreateDropObject(res.m_vPickedPosition, "ezMeshComponent", "Mesh", sTemp);
+      }
     }
 
     if (m_DraggedObjects.IsEmpty())
@@ -123,6 +132,9 @@ void ezQtSceneViewWidget::dragMoveEvent(QDragMoveEvent* e)
 
     ezObjectPickingResult res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
 
+    if (res.m_vPickedPosition.IsNaN() || !res.m_PickedObject.IsValid())
+      res.m_vPickedPosition.SetZero();
+
     MoveDraggedObjectsToPosition(res.m_vPickedPosition);
   }
 }
@@ -143,7 +155,10 @@ void ezQtSceneViewWidget::dropEvent(QDropEvent * e)
 
     for (const auto& guid : m_DraggedObjects)
     {
-      NewSelection.PushBack(m_pDocumentWindow->GetDocument()->GetObjectManager()->GetObject(guid));
+      auto pObj = m_pDocumentWindow->GetDocument()->GetObjectManager()->GetObject(guid);
+
+      if (pObj != nullptr)
+        NewSelection.PushBack(pObj);
     }
 
     m_pDocumentWindow->GetDocument()->GetSelectionManager()->SetSelection(NewSelection);
@@ -152,7 +167,7 @@ void ezQtSceneViewWidget::dropEvent(QDropEvent * e)
   }
 }
 
-ezUuid ezQtSceneViewWidget::CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue)
+void ezQtSceneViewWidget::CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue)
 {
   ezUuid ObjectGuid, CmpGuid;
   ObjectGuid.CreateNewUuid();
@@ -162,7 +177,7 @@ ezUuid ezQtSceneViewWidget::CreateDropObject(const ezVec3& vPosition, const char
   cmd.SetType("ezGameObject");
   cmd.m_NewObjectGuid = ObjectGuid;
   cmd.m_Index = -1;
-  cmd.m_sParentProperty = "RootObjects";
+  cmd.m_sParentProperty = "Children";
 
   auto history = m_pDocumentWindow->GetDocument()->GetCommandHistory();
 
@@ -187,8 +202,96 @@ ezUuid ezQtSceneViewWidget::CreateDropObject(const ezVec3& vPosition, const char
   cmd2.m_NewValue = szValue;
   history->AddCommand(cmd2);
 
-  return ObjectGuid;
+  m_DraggedObjects.PushBack(ObjectGuid);
 }
+
+void ezQtSceneViewWidget::CreatePrefab(const ezVec3& vPosition, const ezUuid& AssetGuid)
+{
+  auto* pAssetInfo = ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid);
+
+  const auto& sPrefabFile = pAssetInfo->m_sAbsolutePath;
+
+  ezFileReader file;
+  if (file.Open(sPrefabFile) == EZ_FAILURE)
+  {
+    ezLog::Error("Failed to open prefab file '%s'", sPrefabFile.GetData());
+    return;
+  }
+
+  auto* pDocument = static_cast<ezSceneDocument*>(GetDocumentWindow()->GetDocument());
+  auto pCmdHistory = pDocument->GetCommandHistory();
+
+  ezAbstractObjectGraph graph;
+  ezAbstractGraphJsonSerializer::Read(file, &graph);
+
+  ezUuid RootObjectGuid;
+  RootObjectGuid.CreateNewUuid();
+
+  // create root object (workaround)
+  ezDocumentObject* pRootObject = nullptr;
+  {
+    ezAddObjectCommand cmd;
+    cmd.SetType("ezGameObject");
+    cmd.m_NewObjectGuid = RootObjectGuid;
+    cmd.m_Index = -1;
+    cmd.m_sParentProperty = "Children";
+
+    pCmdHistory->AddCommand(cmd);
+
+    ezSetObjectPropertyCommand cmd2;
+    cmd2.m_Object = RootObjectGuid;
+
+    cmd2.SetPropertyPath("LocalPosition");
+    cmd2.m_NewValue = vPosition;
+    pCmdHistory->AddCommand(cmd2);
+
+    pRootObject = pDocument->GetObjectManager()->GetObject(RootObjectGuid);
+  }
+
+  // make sure all guids are unique, use new parent node guid as seed
+  graph.ReMapNodeGuids(RootObjectGuid);
+
+  ezRttiConverterContext context;
+  ezRttiConverterReader rttiConverter(&graph, &context);
+  ezDocumentObjectConverterReader objectConverter(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocumentUndoable);
+
+  auto* pRootNode = graph.GetNodeByName("ObjectTree");
+
+
+  objectConverter.ApplyPropertiesToObject(pRootNode, pRootObject); // workaround
+  //objectConverter.ApplyPropertiesToObject(pRootNode, pDocument->GetObjectManager()->GetRootObject());
+
+
+  // put the guids of all the new objects into the m_DraggedObjects array
+  //for (const auto& RootProps : pRootNode->GetProperties())
+  //{
+  //  if (ezStringUtils::IsEqual(RootProps.m_szPropertyName, "Children") && RootProps.m_Value.IsA<ezVariantArray>())
+  //  {
+  //    const ezVariantArray& ChildProbs = RootProps.m_Value.Get<ezVariantArray>();
+
+  //    ezInt32 iChildIndex = 0;
+  //    for (const auto& child : ChildProbs)
+  //    {
+  //      if (child.IsA<ezUuid>())
+  //      {
+  //        m_DraggedObjects.PushBack(child.Get<ezUuid>());
+  //      }
+  //    }
+
+  //    break;
+  //  }
+  //}
+
+  // workaround
+  m_DraggedObjects.PushBack(RootObjectGuid);
+
+
+  /// \todo HACK: This is to get around the fact that ezDocumentObjectConverterReader::Mode::CreateAndAddToDocumentUndoable is not implemented and thus objects are not synched with the engine process
+  /// This breaks undo/redo (engine is not informed of undo operations)
+  GetDocumentWindow()->GetEditorEngineConnection()->SendDocument();
+}
+
+
 
 void ezQtSceneViewWidget::MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPosition)
 {

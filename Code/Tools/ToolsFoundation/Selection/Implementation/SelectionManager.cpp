@@ -123,11 +123,16 @@ void ezSelectionManager::SetSelection(const ezDeque<const ezDocumentObject*>& Se
   m_SelectionList.Clear();
   m_SelectionSet.Clear();
 
-  m_SelectionList = Selection;
+  m_SelectionList.Reserve(Selection.GetCount());
 
-  for (ezUInt32 i = 0; i < m_SelectionList.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < Selection.GetCount(); ++i)
   {
-    m_SelectionSet.Insert(m_SelectionList[i]->GetGuid());
+    if (Selection[i] != nullptr)
+    {
+      // actually == nullptr should never happen, unless we have an error somewhere else
+      m_SelectionList.PushBack(Selection[i]);
+      m_SelectionSet.Insert(Selection[i]->GetGuid());
+    }
   }
 
   Event e;

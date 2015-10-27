@@ -190,10 +190,12 @@ void ezAbstractObjectGraph::RemapVariant(ezVariant& value, const ezMap<ezUuid, e
       if (subValue.IsA<ezUuid>() && guidMap.Contains(subValue.Get<ezUuid>()))
       {
         bNeedToRemap = true;
+        break;
       }
       else if (subValue.IsA<ezVariantArray>())
       {
         bNeedToRemap = true;
+        break;
       }
     }
 

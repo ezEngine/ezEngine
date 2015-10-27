@@ -38,7 +38,7 @@
    "t" : "ezDocumentRoot",
    "n" : "ObjectTree",
    "p" : {
-    "RootObjects" : [ { "$t" : "uuid", "$b" : "0x7AD2D38F50D80140B13CAB7578C366CF" } ]
+    "Children" : [ { "$t" : "uuid", "$b" : "0x7AD2D38F50D80140B13CAB7578C366CF" } ]
    }
   },
   {

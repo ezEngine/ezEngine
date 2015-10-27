@@ -9,14 +9,14 @@
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentRoot, ezReflectedClass, 1, ezRTTINoAllocator);
 EZ_BEGIN_PROPERTIES
-EZ_ARRAY_MEMBER_PROPERTY("RootObjects", m_RootObjects)->AddFlags(ezPropertyFlags::PointerOwner),
+EZ_ARRAY_MEMBER_PROPERTY("Children", m_RootObjects)->AddFlags(ezPropertyFlags::PointerOwner),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 
 void ezDocumentRootObject::InsertSubObject(ezDocumentObject* pObject, const char* szProperty, const ezVariant& index)
 {
-  return ezDocumentObject::InsertSubObject(pObject, "RootObjects", index);
+  return ezDocumentObject::InsertSubObject(pObject, "Children", index);
 }
 
 void ezDocumentRootObject::RemoveSubObject(ezDocumentObject* pObject)
@@ -85,7 +85,7 @@ void ezDocumentObjectManager::AddObject(ezDocumentObject* pObject, ezDocumentObj
   if (pParent == nullptr)
     pParent = &m_RootObject;
   if (pParent == &m_RootObject)
-    szParentProperty = "RootObjects";
+    szParentProperty = "Children";
 
   EZ_ASSERT_DEV(pObject->GetGuid().IsValid(), "Object Guid invalid! Object was not created via an ezObjectManagerBase!");
   EZ_ASSERT_DEV(CanAdd(pObject->GetTypeAccessor().GetType(), pParent, szParentProperty, index), "Trying to execute invalid add!");

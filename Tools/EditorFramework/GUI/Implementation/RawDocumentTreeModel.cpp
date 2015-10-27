@@ -47,7 +47,7 @@ void ezQtDocumentTreeModel::TreeEventHandler(const ezDocumentObjectStructureEven
 {
   if (!e.m_pObject->GetTypeAccessor().GetType()->IsDerivedFrom(m_pBaseClass))
     return;
-  if (!e.m_sParentProperty.IsEqual(m_sChildProperty) && !e.m_sParentProperty.IsEqual("RootObjects"))
+  if (!e.m_sParentProperty.IsEqual(m_sChildProperty) && !e.m_sParentProperty.IsEqual("Children"))
     return;
 
   // TODO: BLA root object could have other objects instead of m_pBaseClass, in which case indices are broken on root.
@@ -102,7 +102,7 @@ QModelIndex ezQtDocumentTreeModel::index(int row, int column, const QModelIndex&
     if (m_pDocumentTree->GetRootObject()->GetChildren().IsEmpty())
       return QModelIndex();
 
-    ezVariant value = m_pDocumentTree->GetRootObject()->GetTypeAccessor().GetValue("RootObjects", row);
+    ezVariant value = m_pDocumentTree->GetRootObject()->GetTypeAccessor().GetValue("Children", row);
     EZ_ASSERT_DEV(value.IsValid() && value.IsA<ezUuid>(), "Tree corruption!");
 
     const ezDocumentObject* pObject = m_pDocumentTree->GetObject(value.Get<ezUuid>());
@@ -158,7 +158,7 @@ int ezQtDocumentTreeModel::rowCount(const QModelIndex& parent) const
 
   if (!parent.isValid())
   {
-    iCount = m_pDocumentTree->GetRootObject()->GetTypeAccessor().GetCount("RootObjects");
+    iCount = m_pDocumentTree->GetRootObject()->GetTypeAccessor().GetCount("Children");
   }
   else
   {
@@ -279,7 +279,7 @@ bool ezQtDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction a
       if (pNewParent)
         cmd.m_NewParent = pNewParent->GetGuid();
       else
-        cmd.m_sParentProperty = "RootObjects";
+        cmd.m_sParentProperty = "Children";
 
       pHistory->AddCommand(cmd);
     }
