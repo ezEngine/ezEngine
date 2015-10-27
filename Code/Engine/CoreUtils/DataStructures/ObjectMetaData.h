@@ -4,6 +4,7 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 
 template<typename KEY, typename VALUE>
 class ezObjectMetaData
