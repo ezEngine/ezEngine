@@ -138,10 +138,13 @@
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0x5D079F69E049C14CAE6B2A2B47BE2858" },
-   "t" : "ezDocumentInfo",
+   "t" : "ezAssetDocumentInfo",
    "n" : "Header",
    "p" : {
-    "DocumentID" : { "$t" : "uuid", "$b" : "0x5D079F69E049C14CAE6B2A2B47BE2858" }
+    "AssetType" : "Scene",
+    "Dependencies" : "",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0x5D079F69E049C14CAE6B2A2B47BE2858" },
+    "Hash" : { "$t" : "uint64", "$v" : "10123175808917754343", "$b" : "0xE7D15E69C3BE7C8C" }
    }
   },
   {

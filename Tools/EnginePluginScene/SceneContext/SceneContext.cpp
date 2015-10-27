@@ -9,7 +9,7 @@
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, ezEngineProcessDocumentContext, 1, ezRTTIDefaultAllocator<ezSceneContext>);
 EZ_BEGIN_PROPERTIES
-EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "ezScene")
+EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "ezScene;ezPrefab"),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

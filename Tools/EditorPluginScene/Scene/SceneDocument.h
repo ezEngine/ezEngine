@@ -4,6 +4,7 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
 #include <CoreUtils/DataStructures/ObjectMetaData.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 
 enum class ActiveGizmo
 {
@@ -35,12 +36,12 @@ public:
   bool m_bHidden;
 };
 
-class ezSceneDocument : public ezDocument
+class ezSceneDocument : public ezAssetDocument
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocument);
 
 public:
-  ezSceneDocument(const char* szDocumentPath);
+  ezSceneDocument(const char* szDocumentPath, bool bIsPrefab);
   ~ezSceneDocument();
 
   virtual const char* GetDocumentTypeDisplayString() const override { return "Scene"; }
@@ -103,8 +104,6 @@ public:
 protected:
   virtual void InitializeAfterLoading() override;
 
-  virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezDocumentInfo); }
-
   template<typename Func>
   void ApplyRecursive(const ezDocumentObject* pObject, Func f)
   {
@@ -116,8 +115,6 @@ protected:
     }
   }
 
-  virtual ezStatus InternalSaveDocument() override;
-
   virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) override;
   virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph) override;
 
@@ -127,9 +124,22 @@ private:
 
   void InvalidateGlobalTransformValue(const ezDocumentObject* pObject);
 
+  virtual const char* QueryAssetType() const override;
+
+  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) override;
+
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform) override;
+
+  virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override;
+
+  virtual ezUInt16 GetAssetTypeVersion() const override;
+
+  bool m_bIsPrefab;
   bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
+
   ActiveGizmo m_ActiveGizmo;
   ezObjectPickingResult m_PickingResult;
 
   ezHashTable<const ezDocumentObject*, ezTransform> m_GlobalTransforms;
+  
 };

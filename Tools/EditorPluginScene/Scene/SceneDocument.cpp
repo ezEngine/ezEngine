@@ -16,12 +16,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneObjectMetaData, ezReflectedClass, 1, ezRT
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, ezDocument, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, ezAssetDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezSceneDocument::ezSceneDocument(const char* szDocumentPath) : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezSceneObjectManager))
+ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab) : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezSceneObjectManager))
 {
   m_ActiveGizmo = ActiveGizmo::None;
+  m_bIsPrefab = bIsPrefab;
 }
 
 void ezSceneDocument::InitializeAfterLoading()
@@ -36,11 +37,6 @@ ezSceneDocument::~ezSceneDocument()
 {
   GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectStructureEventHandler, this));
   GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectPropertyEventHandler, this));
-}
-
-ezStatus ezSceneDocument::InternalSaveDocument()
-{
-  return ezDocument::InternalSaveDocument();
 }
 
 void ezSceneDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph)
@@ -537,4 +533,32 @@ void ezSceneDocument::InvalidateGlobalTransformValue(const ezDocumentObject* pOb
   {
     InvalidateGlobalTransformValue(pChild);
   }
+}
+
+const char* ezSceneDocument::QueryAssetType() const
+{
+  if (m_bIsPrefab)
+    return "Prefab";
+
+  return "Scene";
+}
+
+void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
+{
+  /// \todo go through all objects, get asset properties, retrieve dependencies
+}
+
+ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform)
+{
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezSceneDocument::InternalRetrieveAssetInfo(const char* szPlatform)
+{
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezUInt16 ezSceneDocument::GetAssetTypeVersion() const
+{
+  return 1;
 }

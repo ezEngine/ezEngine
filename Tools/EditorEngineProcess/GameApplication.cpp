@@ -190,6 +190,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezProcessCommunicatio
     if (pMsg->m_bDocumentOpen)
     {
       pDocumentContext = CreateDocumentContext(pMsg);
+      EZ_ASSERT_DEV(pDocumentContext != nullptr, "Could not create a document context for document type '%s'", pMsg->m_sDocumentType.GetData());
     }
     else
     {
@@ -220,7 +221,10 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
       auto* pProp = pRtti->FindPropertyByName("DocumentType");
       if (pProp && pProp->GetCategory() == ezPropertyCategory::Constant)
       {
-        if (static_cast<ezAbstractConstantProperty*>(pProp)->GetConstant().ConvertTo<ezString>() == pMsg->m_sDocumentType)
+        const ezStringBuilder sDocTypes(";", static_cast<ezAbstractConstantProperty*>(pProp)->GetConstant().ConvertTo<ezString>(), ";");
+        const ezStringBuilder sRequestedType(";", pMsg->m_sDocumentType, ";");
+
+        if (sRequestedType.FindSubString(sRequestedType) != nullptr)
         {
           ezLog::Info("Created Context of type '%s' for '%s'", pRtti->GetTypeName(), pMsg->m_sDocumentType.GetData());
 

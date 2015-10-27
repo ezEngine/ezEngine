@@ -8,6 +8,7 @@
 	<file>Shader.png</file>
 	<file>Sound.png</file>
 	<file>Prefab.png</file>
+  <file>Scene.png</file>
   </qresource>
 </RCC>
 
