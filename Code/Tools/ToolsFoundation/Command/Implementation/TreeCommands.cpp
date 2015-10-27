@@ -356,6 +356,9 @@ ezStatus ezInstantiatePrefabCommand::Do(bool bRedo)
 
                 ((ezHybridArray<ezUuid, 16>*)pObj)->PushBack(pNewObject->GetGuid());
               }
+              
+              // only create the very first object, if there are multiple objects in the prefab, ignore the rest
+              break;
             }
 
             break;

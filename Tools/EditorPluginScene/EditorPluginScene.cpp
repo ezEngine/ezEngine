@@ -15,6 +15,7 @@
 #include <GuiFoundation/Action/EditActions.h>
 #include <CoreUtils/Localization/TranslationLookup.h>
 #include <Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
+#include <Actions/SceneActions.h>
 
 void OnDocumentManagerEvent(const ezDocumentManager::Event& e)
 {
@@ -46,6 +47,7 @@ void OnLoadPlugin(bool bReloading)
   ezTranslateGizmoAction::RegisterActions();
   ezSceneViewActions::RegisterActions();
   ezScenegraphPanel::RegisterActions();
+  ezSceneActions::RegisterActions();
 
   // Menu Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentMenuBar");
@@ -59,6 +61,7 @@ void OnLoadPlugin(bool bReloading)
   ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "MenuEdit/GizmoCategory");
   ezScaleGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "MenuEdit/GizmoCategory");
   ezTranslateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "MenuEdit/GizmoCategory");
+  ezSceneActions::MapActions("EditorPluginScene_DocumentMenuBar", "MenuTools");
 
   // Tool Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentToolBar");
@@ -86,6 +89,7 @@ void OnUnloadPlugin(bool bReloading)
   ezScaleGizmoAction::UnregisterActions();
   ezTranslateGizmoAction::UnregisterActions();
   ezSceneViewActions::UnregisterActions();
+  ezSceneActions::UnregisterActions();
 }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);

@@ -207,35 +207,29 @@ void ezQtSceneViewWidget::CreateDropObject(const ezVec3& vPosition, const char* 
 
 void ezQtSceneViewWidget::CreatePrefab(const ezVec3& vPosition, const ezUuid& AssetGuid)
 {
-  auto* pAssetInfo = ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid);
-
-  const auto& sPrefabFile = pAssetInfo->m_sAbsolutePath;
-
-  ezFileReader file;
-  if (file.Open(sPrefabFile) == EZ_FAILURE)
-  {
-    ezLog::Error("Failed to open prefab file '%s'", sPrefabFile.GetData());
-    return;
-  }
-
   auto* pDocument = static_cast<ezSceneDocument*>(GetDocumentWindow()->GetDocument());
   auto pCmdHistory = pDocument->GetCommandHistory();
 
-
-  ezStringBuilder sGraph;
-  sGraph.ReadAll(file);
-
   ezInstantiatePrefabCommand PasteCmd;
-  PasteCmd.m_sJsonGraph = sGraph;
+  PasteCmd.m_sJsonGraph = pDocument->GetCachedPrefabGraph(AssetGuid);
   PasteCmd.m_RemapGuid.CreateNewUuid();
   void* pArray = &m_DraggedObjects;
   memcpy(&PasteCmd.m_pCreatedRootObjects, &pArray, sizeof(void*)); /// \todo HACK-o-rama
+
+  if (PasteCmd.m_sJsonGraph.IsEmpty())
+    return; // error
 
   pCmdHistory->AddCommand(PasteCmd);
 
   for (const auto& guid : m_DraggedObjects)
   {
+    auto pMeta = pDocument->m_ObjectMetaData.BeginModifyMetaData(guid);
+    pMeta->m_CreateFromPrefab = AssetGuid;
+    pMeta->m_PrefabSeedGuid = PasteCmd.m_RemapGuid;
+
     MoveObjectToPosition(guid, vPosition);
+
+    pDocument->m_ObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::PrefabFlag);
   }
 }
 

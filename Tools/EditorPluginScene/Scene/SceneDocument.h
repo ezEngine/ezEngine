@@ -24,6 +24,7 @@ public:
   enum ModifiedFlags
   {
     HiddenFlag = EZ_BIT(0),
+    PrefabFlag = EZ_BIT(1),
 
     AllFlags = 0xFFFFFFFF
   };
@@ -34,6 +35,8 @@ public:
   }
 
   bool m_bHidden;
+  ezUuid m_CreateFromPrefab;
+  ezUuid m_PrefabSeedGuid;
 };
 
 class ezSceneDocument : public ezAssetDocument
@@ -64,6 +67,7 @@ public:
   void ShowOrHideSelectedObjects(ShowOrHide action);
   void ShowOrHideAllObjects(ShowOrHide action);
   void HideUnselectedObjects();
+  void UpdatePrefabs();
   
   void SetGizmoWorldSpace(bool bWorldSpace);
   bool GetGizmoWorldSpace() const;
@@ -82,6 +86,8 @@ public:
 
   static ezTransform QueryLocalTransform(const ezDocumentObject* pObject);
   static ezTransform ComputeGlobalTransform(const ezDocumentObject* pObject);
+
+  const ezString& GetCachedPrefabGraph(const ezUuid& AssetGuid);
 
   struct SceneEvent
   {
@@ -124,6 +130,8 @@ private:
 
   void InvalidateGlobalTransformValue(const ezDocumentObject* pObject);
 
+  void UpdatePrefabsRecursive(ezDocumentObject* pObject);
+
   virtual const char* QueryAssetType() const override;
 
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) override;
@@ -134,6 +142,8 @@ private:
 
   virtual ezUInt16 GetAssetTypeVersion() const override;
 
+  
+
   bool m_bIsPrefab;
   bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
 
@@ -141,5 +151,7 @@ private:
   ezObjectPickingResult m_PickingResult;
 
   ezHashTable<const ezDocumentObject*, ezTransform> m_GlobalTransforms;
+
+  ezMap<ezUuid, ezString> m_CachedPrefabGraphs;
   
 };

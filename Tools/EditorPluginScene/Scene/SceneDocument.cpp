@@ -9,10 +9,13 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <Commands/SceneCommands.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneObjectMetaData, ezReflectedClass, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
-    EZ_MEMBER_PROPERTY("MetaHidden", m_bHidden) // remove this property to disable serialization
+    //EZ_MEMBER_PROPERTY("MetaHidden", m_bHidden) // remove this property to disable serialization
+    EZ_MEMBER_PROPERTY("MetaFromPrefab", m_CreateFromPrefab),
+    EZ_MEMBER_PROPERTY("MetaPrefabSeed", m_PrefabSeedGuid),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -226,6 +229,100 @@ void ezSceneDocument::HideUnselectedObjects()
   ShowOrHideAllObjects(ShowOrHide::Hide);
 
   ShowOrHideSelectedObjects(ShowOrHide::Show);
+}
+
+const ezString& ezSceneDocument::GetCachedPrefabGraph(const ezUuid& AssetGuid)
+{
+  if (!m_CachedPrefabGraphs.Contains(AssetGuid))
+  {
+    auto* pAssetInfo = ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid);
+
+    const auto& sPrefabFile = pAssetInfo->m_sAbsolutePath;
+
+    ezFileReader file;
+    if (file.Open(sPrefabFile) == EZ_FAILURE)
+    {
+      ezLog::Error("Failed to open prefab file '%s'", sPrefabFile.GetData());
+      return m_CachedPrefabGraphs[AssetGuid];
+    }
+
+    ezStringBuilder sGraph;
+    sGraph.ReadAll(file);
+
+    m_CachedPrefabGraphs[AssetGuid] = sGraph;
+  }
+
+  return m_CachedPrefabGraphs[AssetGuid];
+}
+
+
+void ezSceneDocument::UpdatePrefabs()
+{
+  EZ_LOCK(m_ObjectMetaData.GetMutex());
+
+  // make sure the prefabs are updated
+  m_CachedPrefabGraphs.Clear();
+
+  GetCommandHistory()->StartTransaction();
+
+  UpdatePrefabsRecursive(GetObjectManager()->GetRootObject());
+
+  GetCommandHistory()->FinishTransaction();
+}
+
+void ezSceneDocument::UpdatePrefabsRecursive(ezDocumentObject* pObject)
+{
+  auto ChildArray = pObject->GetChildren();
+
+  ezHybridArray<ezUuid, 16> NewObjects;
+
+  for (auto pChild : ChildArray)
+  {
+    // first do the recursion to have the children out of the way
+    UpdatePrefabsRecursive(pChild);
+
+
+    auto pMeta = m_ObjectMetaData.BeginReadMetaData(pChild->GetGuid());
+    const ezUuid PrefabAsset = pMeta->m_CreateFromPrefab;
+
+    // if this is a prefab instance, update it
+    if (PrefabAsset.IsValid())
+    {
+      ezInstantiatePrefabCommand inst;
+      inst.m_Parent = pChild->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pChild->GetParent()->GetGuid();
+      inst.m_RemapGuid = pMeta->m_PrefabSeedGuid;
+      inst.m_sJsonGraph = GetCachedPrefabGraph(PrefabAsset);
+
+      NewObjects.Clear();
+      void* pArray = &NewObjects;
+      memcpy(&inst.m_pCreatedRootObjects, &pArray, sizeof(void*)); /// \todo HACK-o-rama
+
+      m_ObjectMetaData.EndReadMetaData();
+
+      /// \todo orientation (in diff?)
+
+      ezRemoveObjectCommand rm;
+      rm.m_Object = pChild->GetGuid();
+
+      // remove current object
+      GetCommandHistory()->AddCommand(rm);
+
+      // instantiate prefab again
+      GetCommandHistory()->AddCommand(inst);
+
+      // pass the prefab meta data to the new instance
+      for (const auto& guid : NewObjects)
+      {
+        auto pMeta = m_ObjectMetaData.BeginModifyMetaData(guid);
+        pMeta->m_CreateFromPrefab = PrefabAsset;
+        pMeta->m_PrefabSeedGuid = inst.m_RemapGuid;
+
+        m_ObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::PrefabFlag);
+      }
+    }
+    else
+      m_ObjectMetaData.EndReadMetaData();
+  }
 }
 
 void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
