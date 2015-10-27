@@ -221,74 +221,22 @@ void ezQtSceneViewWidget::CreatePrefab(const ezVec3& vPosition, const ezUuid& As
   auto* pDocument = static_cast<ezSceneDocument*>(GetDocumentWindow()->GetDocument());
   auto pCmdHistory = pDocument->GetCommandHistory();
 
-  ezAbstractObjectGraph graph;
-  ezAbstractGraphJsonSerializer::Read(file, &graph);
 
-  ezUuid RootObjectGuid;
-  RootObjectGuid.CreateNewUuid();
+  ezStringBuilder sGraph;
+  sGraph.ReadAll(file);
 
-  // create root object (workaround)
-  ezDocumentObject* pRootObject = nullptr;
+  ezInstantiatePrefabCommand PasteCmd;
+  PasteCmd.m_sJsonGraph = sGraph;
+  PasteCmd.m_RemapGuid.CreateNewUuid();
+  void* pArray = &m_DraggedObjects;
+  memcpy(&PasteCmd.m_pCreatedRootObjects, &pArray, sizeof(void*)); /// \todo HACK-o-rama
+
+  pCmdHistory->AddCommand(PasteCmd);
+
+  for (const auto& guid : m_DraggedObjects)
   {
-    ezAddObjectCommand cmd;
-    cmd.SetType("ezGameObject");
-    cmd.m_NewObjectGuid = RootObjectGuid;
-    cmd.m_Index = -1;
-    cmd.m_sParentProperty = "Children";
-
-    pCmdHistory->AddCommand(cmd);
-
-    ezSetObjectPropertyCommand cmd2;
-    cmd2.m_Object = RootObjectGuid;
-
-    cmd2.SetPropertyPath("LocalPosition");
-    cmd2.m_NewValue = vPosition;
-    pCmdHistory->AddCommand(cmd2);
-
-    pRootObject = pDocument->GetObjectManager()->GetObject(RootObjectGuid);
+    MoveObjectToPosition(guid, vPosition);
   }
-
-  // make sure all guids are unique, use new parent node guid as seed
-  graph.ReMapNodeGuids(RootObjectGuid);
-
-  ezRttiConverterContext context;
-  ezRttiConverterReader rttiConverter(&graph, &context);
-  ezDocumentObjectConverterReader objectConverter(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocumentUndoable);
-
-  auto* pRootNode = graph.GetNodeByName("ObjectTree");
-
-
-  objectConverter.ApplyPropertiesToObject(pRootNode, pRootObject); // workaround
-  //objectConverter.ApplyPropertiesToObject(pRootNode, pDocument->GetObjectManager()->GetRootObject());
-
-
-  // put the guids of all the new objects into the m_DraggedObjects array
-  //for (const auto& RootProps : pRootNode->GetProperties())
-  //{
-  //  if (ezStringUtils::IsEqual(RootProps.m_szPropertyName, "Children") && RootProps.m_Value.IsA<ezVariantArray>())
-  //  {
-  //    const ezVariantArray& ChildProbs = RootProps.m_Value.Get<ezVariantArray>();
-
-  //    ezInt32 iChildIndex = 0;
-  //    for (const auto& child : ChildProbs)
-  //    {
-  //      if (child.IsA<ezUuid>())
-  //      {
-  //        m_DraggedObjects.PushBack(child.Get<ezUuid>());
-  //      }
-  //    }
-
-  //    break;
-  //  }
-  //}
-
-  // workaround
-  m_DraggedObjects.PushBack(RootObjectGuid);
-
-
-  /// \todo HACK: This is to get around the fact that ezDocumentObjectConverterReader::Mode::CreateAndAddToDocumentUndoable is not implemented and thus objects are not synched with the engine process
-  /// This breaks undo/redo (engine is not informed of undo operations)
-  GetDocumentWindow()->GetEditorEngineConnection()->SendDocument();
 }
 
 

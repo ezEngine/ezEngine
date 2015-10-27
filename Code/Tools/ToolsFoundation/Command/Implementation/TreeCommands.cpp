@@ -23,6 +23,15 @@ EZ_MEMBER_PROPERTY("JsonGraph", m_sJsonGraph),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstantiatePrefabCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezInstantiatePrefabCommand>);
+EZ_BEGIN_PROPERTIES
+EZ_MEMBER_PROPERTY("ParentGuid", m_Parent),
+EZ_MEMBER_PROPERTY("JsonGraph", m_sJsonGraph),
+EZ_MEMBER_PROPERTY("RemapGuid", m_RemapGuid),
+EZ_MEMBER_PROPERTY("CreatedObjects", m_pCreatedRootObjects),
+EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveObjectCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezRemoveObjectCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
@@ -257,6 +266,156 @@ ezStatus ezPasteObjectsCommand::Undo(bool bFireEvents)
 }
 
 void ezPasteObjectsCommand::Cleanup(CommandState state)
+{
+  if (state == CommandState::WasUndone)
+  {
+    for (auto& po : m_PastedObjects)
+    {
+      GetDocument()->GetObjectManager()->DestroyObject(po.m_pObject);
+    }
+    m_PastedObjects.Clear();
+  }
+
+}
+
+////////////////////////////////////////////////////////////////////////
+// ezInstantiatePrefabCommand
+////////////////////////////////////////////////////////////////////////
+
+ezInstantiatePrefabCommand::ezInstantiatePrefabCommand()
+{
+  m_pCreatedRootObjects = 0;
+}
+
+ezStatus ezInstantiatePrefabCommand::Do(bool bRedo)
+{
+  ezDocument* pDocument = GetDocument();
+
+  ezDocumentObject* pParent = nullptr;
+  if (m_Parent.IsValid())
+  {
+    pParent = pDocument->GetObjectManager()->GetObject(m_Parent);
+    if (pParent == nullptr)
+      return ezStatus(EZ_FAILURE, "Instantiate Prefab: The given parent does not exist!");
+  }
+
+  if (!bRedo)
+  {
+    ezAbstractObjectGraph graph;
+
+    {
+      // Deserialize 
+      ezMemoryStreamStorage streamStorage;
+      ezMemoryStreamWriter memoryWriter(&streamStorage);
+      memoryWriter.WriteBytes(m_sJsonGraph.GetData(), m_sJsonGraph.GetElementCount());
+
+      ezMemoryStreamReader memoryReader(&streamStorage);
+      ezAbstractGraphJsonSerializer::Read(memoryReader, &graph);
+    }
+
+    // Remap
+    graph.ReMapNodeGuids(m_RemapGuid);
+
+    ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
+
+    ezHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
+
+    auto& nodes = graph.GetAllNodes();
+    for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
+    {
+      auto* pNode = it.Value();
+      if (ezStringUtils::IsEqual(pNode->GetNodeName(), "ObjectTree"))
+      {
+        for (const auto& ObjectTreeProp : pNode->GetProperties())
+        {
+          if (ezStringUtils::IsEqual(ObjectTreeProp.m_szPropertyName, "Children") && ObjectTreeProp.m_Value.IsA<ezVariantArray>())
+          {
+            const ezVariantArray& RootChildren = ObjectTreeProp.m_Value.Get<ezVariantArray>();
+
+            for (const ezVariant& childGuid : RootChildren)
+            {
+              if (!childGuid.IsA<ezUuid>())
+                continue;
+
+              const ezUuid& rootObjectGuid = childGuid.Get<ezUuid>();
+
+              auto pRealRootNode = graph.GetNode(rootObjectGuid);
+
+              auto* pNewObject = reader.CreateObjectFromNode(pRealRootNode, nullptr, nullptr, ezVariant());
+              reader.ApplyPropertiesToObject(pRealRootNode, pNewObject);
+
+              auto& ref = ToBePasted.ExpandAndGetRef();
+              ref.m_pObject = pNewObject;
+              ref.m_pParent = pParent;
+
+              /// \todo HACK-o-rama
+              if (m_pCreatedRootObjects != 0)
+              {
+                void* pObj = nullptr;
+                ezMemoryUtils::Copy((ezUInt8*) &pObj, (ezUInt8*) &m_pCreatedRootObjects, sizeof(void*));
+
+                ((ezHybridArray<ezUuid, 16>*)pObj)->PushBack(pNewObject->GetGuid());
+              }
+            }
+
+            break;
+          }
+        }
+
+        break;
+      }
+    }
+
+    if (pDocument->Paste(ToBePasted))
+    {
+      for (const auto& item : ToBePasted)
+      {
+        auto& po = m_PastedObjects.ExpandAndGetRef();
+        po.m_pObject = item.m_pObject;
+        po.m_pParent = item.m_pParent;
+        po.m_Index = item.m_pObject->GetPropertyIndex();
+        po.m_sParentProperty = item.m_pObject->GetParentProperty();
+      }
+    }
+    else
+    {
+      for (const auto& item : ToBePasted)
+      {
+        pDocument->GetObjectManager()->DestroyObject(item.m_pObject);
+      }
+    }
+
+    if (m_PastedObjects.IsEmpty())
+      return ezStatus(EZ_FAILURE, "Paste Objects: nothing was pasted!");
+  }
+  else
+  {
+    // Re-add at recorded place.
+    for (auto& po : m_PastedObjects)
+    {
+      pDocument->GetObjectManager()->AddObject(po.m_pObject, po.m_pParent, po.m_sParentProperty, po.m_Index);
+    }
+  }
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezInstantiatePrefabCommand::Undo(bool bFireEvents)
+{
+  EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
+  ezDocument* pDocument = GetDocument();
+
+  for (auto& po : m_PastedObjects)
+  {
+    if (!pDocument->GetObjectManager()->CanRemove(po.m_pObject))
+      return ezStatus(EZ_FAILURE, "Add Object: Removal of the object is forbidden!");
+
+    pDocument->GetObjectManager()->RemoveObject(po.m_pObject);
+  }
+
+  return ezStatus(EZ_SUCCESS);
+}
+
+void ezInstantiatePrefabCommand::Cleanup(CommandState state)
 {
   if (state == CommandState::WasUndone)
   {

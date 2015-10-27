@@ -142,29 +142,14 @@ ezDocumentObject* ezDocumentObjectConverterReader::CreateObjectFromNode(const ez
     break;
 
   case ezDocumentObjectConverterReader::Mode::CreateAndAddToDocumentUndoable:
+    /// \todo Not implemented. Necessary?
+
   case ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument:
     {
       pObject = m_pManager->CreateObject(ezRTTI::FindTypeByName(pNode->GetType()), pNode->GetGuid());
       m_pManager->AddObject(pObject, pParent, szParentProperty, index);
     }
     break;
-
-  //case ezDocumentObjectConverterReader::Mode::CreateAndAddToDocumentUndoable:
-  //  {
-  //    /// \todo This is important for prefabs!
-
-  //    ezAddObjectCommand cmd;
-  //    cmd.m_sParentProperty = szParentProperty;
-  //    cmd.m_Index = index;
-  //    cmd.m_NewObjectGuid = pNode->GetGuid();
-  //    cmd.m_pType = ezRTTI::FindTypeByName(pNode->GetType());
-
-  //    if (pParent != nullptr)
-  //      cmd.m_Parent = pParent->GetGuid();
-
-  //    m_pManager->GetDocument()->GetCommandHistory()->AddCommand(cmd);
-  //  }
-  //  break;
   }
   
   return pObject;

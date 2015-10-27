@@ -59,6 +59,36 @@ private:
   ezHybridArray<PastedObject, 4> m_PastedObjects;
 };
 
+class EZ_TOOLSFOUNDATION_DLL ezInstantiatePrefabCommand : public ezCommand
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezInstantiatePrefabCommand);
+
+public:
+  ezInstantiatePrefabCommand();
+
+public: // Properties
+  ezUuid m_Parent;
+  ezUuid m_RemapGuid;
+  ezString m_sJsonGraph;
+  ezUInt64 m_pCreatedRootObjects; // ezHybridArray<ezUuid, 16>
+
+private:
+  virtual ezStatus Do(bool bRedo) override;
+  virtual ezStatus Undo(bool bFireEvents) override;
+  virtual void Cleanup(CommandState state) override;
+
+private:
+  struct PastedObject
+  {
+    ezDocumentObject* m_pObject;
+    ezDocumentObject* m_pParent;
+    ezString m_sParentProperty;
+    ezVariant m_Index;
+  };
+
+  ezHybridArray<PastedObject, 4> m_PastedObjects;
+};
+
 class EZ_TOOLSFOUNDATION_DLL ezRemoveObjectCommand : public ezCommand
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRemoveObjectCommand);
