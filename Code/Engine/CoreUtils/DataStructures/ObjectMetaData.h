@@ -3,6 +3,7 @@
 #include <CoreUtils/Basics.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Communication/Event.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
 
 template<typename KEY, typename VALUE>
 class ezObjectMetaData
@@ -15,17 +16,6 @@ public:
     const VALUE* m_pValue;
     ezUInt32 m_uiModifiedFlags;
   };
-
-  //class DataReadProxy
-  //{
-  //public:
-
-  //  const VALUE* operator->() const { return m_pData; }
-
-  //private:
-  //  ezObjectMetaData* m_pOwner;
-  //  const VALUE* m_pData;
-  //};
 
   ezObjectMetaData();
 
@@ -41,11 +31,21 @@ public:
 
   ezEvent<const EventData&> m_DataModifiedEvent;
 
+  ezMutex& GetMutex() const { return m_Mutex; }
+
+  const VALUE& GetDefaultValue() const { return m_DefaultValue; }
+
+  /// \brief Uses reflection information from VALUE to store all properties that differ from the default value as additional properties for the graph objects.
+  void AttachMetaDataToAbstractGraph(ezAbstractObjectGraph& graph);
+
+  /// \brief Uses reflection information from VALUE to restore all meta data properties from the graph.
+  void RestoreMetaDataFromAbstractGraph(const ezAbstractObjectGraph& graph);
+
 private:
   VALUE m_DefaultValue;
   mutable enum class AccessMode { Nothing, Read, Write } m_AccessMode;
   mutable KEY m_AcessingKey;
-  mutable ezNoMutex m_Mutex;
+  mutable ezMutex m_Mutex;
   ezHashTable<KEY, VALUE> m_MetaData;
 };
 

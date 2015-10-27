@@ -133,21 +133,6 @@ const ezAbstractObjectNode::Property* ezAbstractObjectNode::FindProperty(const c
   return nullptr;
 }
 
-
-//
-//void ezAbstractObjectGraph::ChangeNodeGuid(const ezUuid& oldGuid, const ezUuid& newGuid)
-//{
-//  ezAbstractObjectNode& oldNode = m_Nodes[oldGuid];
-//  oldNode.m_Guid = newGuid;
-//
-//  ezAbstractObjectNode& newNode = m_Nodes[newGuid];
-//  newNode = oldNode;
-//
-//  m_Nodes.Remove(oldGuid);
-//
-//  m_NodesByName[newNode.m_szNodeName] = &newNode;
-//}
-
 void ezAbstractObjectGraph::ReMapNodeGuids(const ezUuid& seedGuid)
 {
   ezHybridArray<ezAbstractObjectNode*, 16> nodes;

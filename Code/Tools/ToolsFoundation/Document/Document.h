@@ -102,6 +102,9 @@ protected:
   virtual ezStatus InternalLoadDocument();
   virtual ezDocumentInfo* CreateDocumentInfo() = 0;
 
+  virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) {}
+  virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph) {}
+
   virtual void InitializeBeforeLoading() { }
   virtual void InitializeAfterLoading() { }
 

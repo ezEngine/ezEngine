@@ -14,8 +14,12 @@ enum class ActiveGizmo
   DragToPosition,
 };
 
-struct ezSceneObjectMetaData
+class ezSceneObjectMetaData : public ezReflectedClass
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezSceneObjectMetaData);
+
+public:
+
   enum ModifiedFlags
   {
     HiddenFlag = EZ_BIT(0),
@@ -40,8 +44,6 @@ public:
   ~ezSceneDocument();
 
   virtual const char* GetDocumentTypeDisplayString() const override { return "Scene"; }
-
-  virtual ezStatus InternalSaveDocument() override;
 
   void SetActiveGizmo(ActiveGizmo gizmo);
   ActiveGizmo GetActiveGizmo() const;
@@ -113,6 +115,11 @@ protected:
       ApplyRecursive<Func>(pChild, f);
     }
   }
+
+  virtual ezStatus InternalSaveDocument() override;
+
+  virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) override;
+  virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph) override;
 
 private:
   void ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);

@@ -150,6 +150,8 @@ ezStatus ezDocument::InternalSaveDocument()
   rttiConverter.AddObjectToGraph(m_pDocumentInfo, "Header");
   objectConverter.AddObjectToGraph(GetObjectManager()->GetRootObject(), "ObjectTree");
 
+  AttachMetaDataBeforeSaving(graph);
+
   ezAbstractGraphJsonSerializer::Write(file, &graph, ezJSONWriter::WhitespaceMode::LessIndentation);
 
   return ezStatus(EZ_SUCCESS);
@@ -175,6 +177,8 @@ ezStatus ezDocument::InternalLoadDocument()
 
   auto* pRootNode = graph.GetNodeByName("ObjectTree");
   objectConverter.ApplyPropertiesToObject(pRootNode, GetObjectManager()->GetRootObject());
+
+  RestoreMetaDataAfterLoading(graph);
 
   SetModified(false);
   return ezStatus(EZ_SUCCESS);

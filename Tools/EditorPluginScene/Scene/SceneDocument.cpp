@@ -10,6 +10,12 @@
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <Commands/SceneCommands.h>
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneObjectMetaData, ezReflectedClass, 1, ezRTTINoAllocator);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("MetaHidden", m_bHidden) // remove this property to disable serialization
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, ezDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -35,6 +41,16 @@ ezSceneDocument::~ezSceneDocument()
 ezStatus ezSceneDocument::InternalSaveDocument()
 {
   return ezDocument::InternalSaveDocument();
+}
+
+void ezSceneDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph)
+{
+  m_ObjectMetaData.AttachMetaDataToAbstractGraph(graph);
+}
+
+void ezSceneDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph)
+{
+  m_ObjectMetaData.RestoreMetaDataFromAbstractGraph(graph);
 }
 
 void ezSceneDocument::SetActiveGizmo(ActiveGizmo gizmo)
@@ -185,7 +201,7 @@ void ezSceneDocument::ShowOrHideSelectedObjects(ShowOrHide action)
   const bool bHide = action == ShowOrHide::Hide;
 
   auto sel = GetSelectionManager()->GetSelection();
-  
+
   for (auto pItem : sel)
   {
     if (!pItem->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())

@@ -89,3 +89,101 @@ void ezObjectMetaData<KEY, VALUE>::EndModifyMetaData(ezUInt32 uiModifiedFlags /*
   m_Mutex.Release();
 }
 
+
+template<typename KEY, typename VALUE>
+void ezObjectMetaData<KEY, VALUE>::AttachMetaDataToAbstractGraph(ezAbstractObjectGraph& graph)
+{
+  auto& AllNodes = graph.GetAllNodes();
+
+  EZ_LOCK(m_Mutex);
+
+  ezHashTable<const char*, ezVariant> DefaultValues;
+
+  // store the default values in an easily accessible hash map, to be able to compare against them
+  {
+    DefaultValues.Reserve(m_DefaultValue.GetDynamicRTTI()->GetProperties().GetCount());
+
+    for (const auto& pProp : m_DefaultValue.GetDynamicRTTI()->GetProperties())
+    {
+      if (pProp->GetCategory() != ezPropertyCategory::Member)
+        continue;
+
+      const ezAbstractMemberProperty* pDefVal = static_cast<ezAbstractMemberProperty*>(pProp);
+
+      DefaultValues[pProp->GetPropertyName()] = ezReflectionUtils::GetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pProp), &m_DefaultValue);
+    }
+  }
+
+  // now serialize all properties that differ from the default value
+  {
+    ezVariant value;
+
+    for (auto it = AllNodes.GetIterator(); it.IsValid(); ++it)
+    {
+      auto* pNode = it.Value();
+      const ezUuid& guid = pNode->GetGuid();
+
+      VALUE* pMeta = nullptr;
+      if (!m_MetaData.TryGetValue(guid, pMeta)) // TryGetValue is not const correct with the second parameter
+        continue; // it is the default object, so all values are default -> skip
+
+      for (const auto& pProp : pMeta->GetDynamicRTTI()->GetProperties())
+      {
+        if (pProp->GetCategory() != ezPropertyCategory::Member)
+          continue;
+
+        value = ezReflectionUtils::GetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pProp), pMeta);
+
+        if (value.IsValid() && DefaultValues[pProp->GetPropertyName()] != value)
+        {
+          pNode->AddProperty(pProp->GetPropertyName(), value);
+        }
+
+      }
+    }
+  }
+}
+
+
+template<typename KEY, typename VALUE>
+void ezObjectMetaData<KEY, VALUE>::RestoreMetaDataFromAbstractGraph(const ezAbstractObjectGraph& graph)
+{
+  EZ_LOCK(m_Mutex);
+
+  ezHybridArray<ezString, 16> PropertyNames;
+
+  // find all properties (names) that we want to read
+  {
+    for (const auto& pProp : m_DefaultValue.GetDynamicRTTI()->GetProperties())
+    {
+      if (pProp->GetCategory() != ezPropertyCategory::Member)
+        continue;
+
+      PropertyNames.PushBack(pProp->GetPropertyName());
+    }
+  }
+
+  auto& AllNodes = graph.GetAllNodes();
+
+  for (auto it = AllNodes.GetIterator(); it.IsValid(); ++it)
+  {
+    auto* pNode = it.Value();
+    const ezUuid& guid = pNode->GetGuid();
+
+    for (const auto& name : PropertyNames)
+    {
+      if (const auto* pProp = pNode->FindProperty(name))
+      {
+        VALUE* pValue = &m_MetaData[guid];
+
+        ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pValue->GetDynamicRTTI()->FindPropertyByName(name)), pValue, pProp->m_Value);
+      }
+    }
+  }
+
+}
+
+
+
+
+
