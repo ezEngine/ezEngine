@@ -2,13 +2,13 @@
 #include <CoreUtils/DataStructures/ObjectMetaData.h>
 #include <Foundation/Types/Uuid.h>
 
+static int a = 0, b = 1, c = 2, d = 3;
+
 EZ_CREATE_SIMPLE_TEST(DataStructures, ObjectMetaData)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Pointers / int")
   {
     ezObjectMetaData<void*, ezInt32> meta;
-
-    int a = 0, b = 1, c = 2, d = 3;
 
     EZ_TEST_BOOL(!meta.HasMetaData(&a));
     EZ_TEST_BOOL(!meta.HasMetaData(&b));
