@@ -76,13 +76,29 @@ struct ezDocumentObjectPropertyEvent
   ezVariant m_NewIndex;
 };
 
+struct ezDocumentObjectEvent
+{
+  ezDocumentObjectEvent()
+  {
+    m_pObject = nullptr;
+  }
 
+  enum class Type
+  {
+    BeforeObjectDestroyed,
+    AfterObjectCreated,
+  };
+
+  Type m_EventType;
+  const ezDocumentObject* m_pObject;
+};
 
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectManager
 {
 public:
   ezEvent<const ezDocumentObjectStructureEvent&> m_StructureEvents;
   ezEvent<const ezDocumentObjectPropertyEvent&> m_PropertyEvents;
+  ezEvent<const ezDocumentObjectEvent&> m_ObjectEvents;
 
   ezDocumentObjectManager();
   virtual ~ezDocumentObjectManager();

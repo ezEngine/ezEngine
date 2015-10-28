@@ -34,12 +34,14 @@ void ezSceneDocument::InitializeAfterLoading()
 
   GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectPropertyEventHandler, this));
   GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectStructureEventHandler, this));
+  GetObjectManager()->m_ObjectEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectEventHandler, this));
 }
 
 ezSceneDocument::~ezSceneDocument()
 {
   GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectStructureEventHandler, this));
   GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectPropertyEventHandler, this));
+  GetObjectManager()->m_ObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectEventHandler, this));
 }
 
 void ezSceneDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph)
@@ -538,8 +540,18 @@ void ezSceneDocument::ObjectStructureEventHandler(const ezDocumentObjectStructur
       SetGlobalTransform(e.m_pObject, t);
     }
     break;
+  }
+}
 
-  case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
+
+void ezSceneDocument::ObjectEventHandler(const ezDocumentObjectEvent& e)
+{
+  if (!e.m_pObject->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+    return;
+
+  switch (e.m_EventType)
+  {
+  case ezDocumentObjectEvent::Type::BeforeObjectDestroyed:
     {
       // clean up object meta data upon object destruction, because we can :-P
       m_ObjectMetaData.ClearMetaData(e.m_pObject->GetGuid());

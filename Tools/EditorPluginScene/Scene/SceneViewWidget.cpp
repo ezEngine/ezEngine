@@ -95,6 +95,8 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
       m_pDocumentWindow->GetDocument()->GetCommandHistory()->CancelTransaction();
     else
     {
+      /// \todo We would need nested transactions that can be entirely canceled in dragLeaveEvent. The way it is currently implemented, we are destroying the Redo-history here.
+
       m_pDocumentWindow->GetDocument()->GetCommandHistory()->FinishTransaction();
       m_pDocumentWindow->GetDocument()->GetCommandHistory()->BeginTemporaryCommands();
     }

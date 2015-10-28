@@ -127,6 +127,7 @@ protected:
 private:
   void ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e);
+  void ObjectEventHandler(const ezDocumentObjectEvent& e);
 
   void InvalidateGlobalTransformValue(const ezDocumentObject* pObject);
 

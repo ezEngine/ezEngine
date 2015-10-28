@@ -52,6 +52,11 @@ ezDocumentObject* ezDocumentObjectManager::CreateObject(const ezRTTI* pRtti, ezU
   else
     pObject->m_Guid.CreateNewUuid();
 
+  ezDocumentObjectEvent e;
+  e.m_pObject = pObject;
+  e.m_EventType = ezDocumentObjectEvent::Type::AfterObjectCreated;
+  m_ObjectEvents.Broadcast(e);
+
   return pObject;
 }
 
@@ -61,6 +66,11 @@ void ezDocumentObjectManager::DestroyObject(ezDocumentObject* pObject)
   {
     DestroyObject(pChild);
   }
+
+  ezDocumentObjectEvent e;
+  e.m_pObject = pObject;
+  e.m_EventType = ezDocumentObjectEvent::Type::BeforeObjectDestroyed;
+  m_ObjectEvents.Broadcast(e);
 
   InternalDestroyObject(pObject);
 }
