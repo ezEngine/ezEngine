@@ -71,6 +71,7 @@ public: // Properties
   ezUuid m_RemapGuid;
   ezString m_sJsonGraph;
   ezUInt64 m_pCreatedRootObjects; // ezHybridArray<ezUuid, 16>
+  bool m_bAllowPickedPosition;
 
 private:
   virtual ezStatus Do(bool bRedo) override;

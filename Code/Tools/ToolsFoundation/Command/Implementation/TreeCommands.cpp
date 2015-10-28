@@ -29,6 +29,7 @@ EZ_MEMBER_PROPERTY("ParentGuid", m_Parent),
 EZ_MEMBER_PROPERTY("JsonGraph", m_sJsonGraph),
 EZ_MEMBER_PROPERTY("RemapGuid", m_RemapGuid),
 EZ_MEMBER_PROPERTY("CreatedObjects", m_pCreatedRootObjects),
+EZ_MEMBER_PROPERTY("AllowPickedPos", m_bAllowPickedPosition),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -216,7 +217,7 @@ ezStatus ezPasteObjectsCommand::Do(bool bRedo)
       }
     }
 
-    if (pDocument->Paste(ToBePasted, graph))
+    if (pDocument->Paste(ToBePasted, graph, true))
     {
       for (const auto& item : ToBePasted)
       {
@@ -285,6 +286,7 @@ void ezPasteObjectsCommand::Cleanup(CommandState state)
 ezInstantiatePrefabCommand::ezInstantiatePrefabCommand()
 {
   m_pCreatedRootObjects = 0;
+  m_bAllowPickedPosition = true;
 }
 
 ezStatus ezInstantiatePrefabCommand::Do(bool bRedo)
@@ -369,7 +371,7 @@ ezStatus ezInstantiatePrefabCommand::Do(bool bRedo)
       }
     }
 
-    if (pDocument->Paste(ToBePasted, graph))
+    if (pDocument->Paste(ToBePasted, graph, m_bAllowPickedPosition))
     {
       for (const auto& item : ToBePasted)
       {

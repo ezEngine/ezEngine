@@ -32,6 +32,7 @@ public:
   const char* GetType() const { return m_szType; }
 
   const Property* FindProperty(const char* szName) const;
+  Property* FindProperty(const char* szName);
 
   const char* GetNodeName() const { return m_szNodeName; }
 
@@ -45,6 +46,22 @@ private:
   const char* m_szNodeName;
 
   ezHybridArray<Property, 16> m_Properties;
+};
+
+class EZ_FOUNDATION_DLL ezAbstractGraphDiffOperation
+{
+public:
+  enum class Op
+  {
+    NodeAdd,
+    NodeDelete,
+    PropertySet,
+  };
+
+  Op m_Operation;
+  ezUuid m_Node;
+  ezString m_sProperty;
+  ezVariant m_Value;
 };
 
 class EZ_FOUNDATION_DLL ezAbstractObjectGraph
@@ -66,7 +83,14 @@ public:
   const ezMap<ezUuid, ezAbstractObjectNode*>& GetAllNodes() const { return m_Nodes; }
   ezMap<ezUuid, ezAbstractObjectNode*>& GetAllNodes() { return m_Nodes; }
 
-  void ReMapNodeGuids(const ezUuid& seedGuid);
+  void ReMapNodeGuids(const ezUuid& seedGuid, bool bRemapInverse = false);
+
+  /// \brief Allows to copy a node from another graph into this graph.
+  void CopyNodeIntoGraph(ezAbstractObjectNode* pNode);
+
+  void CreateDiffWithBaseGraph(const ezAbstractObjectGraph& base, ezDeque<ezAbstractGraphDiffOperation>& out_DiffResult);
+
+  void ApplyDiff(ezDeque<ezAbstractGraphDiffOperation>& Diff);
 
 private:
   void RemapVariant(ezVariant& value, const ezMap<ezUuid, ezUuid>& guidMap);

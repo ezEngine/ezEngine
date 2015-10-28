@@ -133,14 +133,31 @@ const ezAbstractObjectNode::Property* ezAbstractObjectNode::FindProperty(const c
   return nullptr;
 }
 
-void ezAbstractObjectGraph::ReMapNodeGuids(const ezUuid& seedGuid)
+ezAbstractObjectNode::Property* ezAbstractObjectNode::FindProperty(const char* szName)
+{
+  for (ezUInt32 i = 0; i < m_Properties.GetCount(); ++i)
+  {
+    if (ezStringUtils::IsEqual(m_Properties[i].m_szPropertyName, szName))
+    {
+      return &m_Properties[i];
+    }
+  }
+
+  return nullptr;
+}
+
+void ezAbstractObjectGraph::ReMapNodeGuids(const ezUuid& seedGuid, bool bRemapInverse /*= false*/)
 {
   ezHybridArray<ezAbstractObjectNode*, 16> nodes;
   ezMap<ezUuid, ezUuid> guidMap;
   for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
   {
     ezUuid newGuid = it.Key();
-    newGuid.CombineWithSeed(seedGuid);
+
+    if (bRemapInverse)
+      newGuid.RevertCombinationWithSeed(seedGuid);
+    else
+      newGuid.CombineWithSeed(seedGuid);
 
     guidMap[it.Key()] = newGuid;
 
@@ -162,7 +179,141 @@ void ezAbstractObjectGraph::ReMapNodeGuids(const ezUuid& seedGuid)
     }
     m_Nodes[pNode->m_Guid] = pNode;
   }
+}
 
+void ezAbstractObjectGraph::CopyNodeIntoGraph(ezAbstractObjectNode* pNode)
+{
+  auto pNewNode = AddNode(pNode->GetGuid(), pNode->GetType(), pNode->GetNodeName());
+
+  for (const auto& props : pNode->GetProperties())
+    pNewNode->AddProperty(props.m_szPropertyName, props.m_Value);
+}
+
+
+void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph& base, ezDeque<ezAbstractGraphDiffOperation>& out_DiffResult)
+{
+  out_DiffResult.Clear();
+
+  // check whether any nodes have been deleted
+  {
+    for (auto itNodeBase = base.GetAllNodes().GetIterator(); itNodeBase.IsValid(); ++itNodeBase)
+    {
+      if (GetNode(itNodeBase.Key()) == nullptr)
+      {
+        // does not exist in this graph -> has been deleted from base
+
+        ezAbstractGraphDiffOperation op;
+        op.m_Node = itNodeBase.Key();
+        op.m_Operation = ezAbstractGraphDiffOperation::Op::NodeDelete;
+
+        out_DiffResult.PushBack(op);
+      }
+    }
+  }
+
+  // check whether any nodes have been added
+  {
+    for (auto itNodeThis = GetAllNodes().GetIterator(); itNodeThis.IsValid(); ++itNodeThis)
+    {
+      if (base.GetNode(itNodeThis.Key()) == nullptr)
+      {
+        // does not exist in base graph -> has been added
+
+        ezAbstractGraphDiffOperation op;
+        op.m_Node = itNodeThis.Key();
+        op.m_Operation = ezAbstractGraphDiffOperation::Op::NodeAdd;
+        op.m_sProperty = itNodeThis.Value()->m_szType;
+        op.m_Value = itNodeThis.Value()->m_szNodeName;
+
+        out_DiffResult.PushBack(op);
+
+        // set all properties
+        for (const auto& prop : itNodeThis.Value()->GetProperties())
+        {
+          op.m_Operation = ezAbstractGraphDiffOperation::Op::PropertySet;
+          op.m_sProperty = prop.m_szPropertyName;
+          op.m_Value = prop.m_Value;
+
+          out_DiffResult.PushBack(op);
+        }
+      }
+    }
+  }
+
+  // check whether any properties have been modified
+  {
+    for (auto itNodeThis = GetAllNodes().GetIterator(); itNodeThis.IsValid(); ++itNodeThis)
+    {
+      const auto pBaseNode = base.GetNode(itNodeThis.Key());
+
+      if (pBaseNode == nullptr)
+        continue;
+
+      for (const auto& prop : itNodeThis.Value()->GetProperties())
+      {
+        bool bDifferent = true;
+
+        for (const auto& baseProp : pBaseNode->GetProperties())
+        {
+          if (ezStringUtils::IsEqual(baseProp.m_szPropertyName, prop.m_szPropertyName))
+          {
+            if (baseProp.m_Value == prop.m_Value) /// \todo Handle arrays, etc.
+              bDifferent = false;
+
+            break;
+          }
+        }
+
+        if (bDifferent)
+        {
+          ezAbstractGraphDiffOperation op;
+          op.m_Node = itNodeThis.Key();
+          op.m_Operation = ezAbstractGraphDiffOperation::Op::PropertySet;
+          op.m_sProperty = prop.m_szPropertyName;
+          op.m_Value = prop.m_Value;
+
+          out_DiffResult.PushBack(op);
+        }
+
+        /// \todo Handle deleted properties ?
+      }
+    }
+  }
+}
+
+
+void ezAbstractObjectGraph::ApplyDiff(ezDeque<ezAbstractGraphDiffOperation>& Diff)
+{
+  for (const auto& op : Diff)
+  {
+    switch (op.m_Operation)
+    {
+    case ezAbstractGraphDiffOperation::Op::NodeAdd:
+      {
+        AddNode(op.m_Node, op.m_sProperty, op.m_Value.Get<ezString>());
+      }
+      break;
+
+    case ezAbstractGraphDiffOperation::Op::NodeDelete:
+      {
+        RemoveNode(op.m_Node);
+      }
+      break;
+
+    case ezAbstractGraphDiffOperation::Op::PropertySet:
+      {
+        auto* pNode = GetNode(op.m_Node);
+
+        auto* pProp = pNode->FindProperty(op.m_sProperty);
+
+        if (!pProp)
+          pNode->AddProperty(op.m_sProperty, op.m_Value);
+        else
+          pProp->m_Value = op.m_Value;
+      }
+      break;
+    }
+  }
 }
 
 void ezAbstractObjectGraph::RemapVariant(ezVariant& value, const ezMap<ezUuid, ezUuid>& guidMap)
