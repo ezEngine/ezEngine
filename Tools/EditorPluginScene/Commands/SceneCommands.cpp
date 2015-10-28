@@ -88,7 +88,7 @@ ezStatus ezDuplicateObjectsCommand::Do(bool bRedo)
       }
     }
 
-    if (pDocument->Duplicate(ToBePasted))
+    if (pDocument->Duplicate(ToBePasted, graph))
     {
       for (const auto& item : ToBePasted)
       {

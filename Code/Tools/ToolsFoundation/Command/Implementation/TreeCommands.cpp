@@ -216,7 +216,7 @@ ezStatus ezPasteObjectsCommand::Do(bool bRedo)
       }
     }
 
-    if (pDocument->Paste(ToBePasted))
+    if (pDocument->Paste(ToBePasted, graph))
     {
       for (const auto& item : ToBePasted)
       {
@@ -369,7 +369,7 @@ ezStatus ezInstantiatePrefabCommand::Do(bool bRedo)
       }
     }
 
-    if (pDocument->Paste(ToBePasted))
+    if (pDocument->Paste(ToBePasted, graph))
     {
       for (const auto& item : ToBePasted)
       {

@@ -73,8 +73,8 @@ public:
   bool GetGizmoWorldSpace() const;
 
   virtual bool Copy(ezAbstractObjectGraph& out_objectGraph) override;
-  virtual bool Paste(const ezArrayPtr<PasteInfo>& info) override;
-  bool Duplicate(const ezArrayPtr<PasteInfo>& info);
+  virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph) override;
+  bool Duplicate(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph);
   bool Copy(ezAbstractObjectGraph& graph, ezMap<ezUuid, ezUuid>* out_pParents);
   bool PasteAt(const ezArrayPtr<PasteInfo>& info, const ezVec3& vPos);
   bool PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info);

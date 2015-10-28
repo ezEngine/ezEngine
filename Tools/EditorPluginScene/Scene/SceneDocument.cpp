@@ -404,6 +404,8 @@ bool ezSceneDocument::Copy(ezAbstractObjectGraph& graph, ezMap<ezUuid, ezUuid>* 
     }
   }
 
+  AttachMetaDataBeforeSaving(graph);
+
   return true;
 }
 
@@ -456,7 +458,7 @@ bool ezSceneDocument::PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info)
   return true;
 }
 
-bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info)
+bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph)
 {
   if (m_PickingResult.m_PickedObject.IsValid())
   {
@@ -468,6 +470,8 @@ bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info)
     if (!PasteAtOrignalPosition(info))
       return false;
   }
+
+  m_ObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
 
   // set the pasted objects as the new selection
   {
@@ -486,10 +490,12 @@ bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info)
   return true;
 }
 
-bool ezSceneDocument::Duplicate(const ezArrayPtr<PasteInfo>& info)
+bool ezSceneDocument::Duplicate(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph)
 {
   if (!PasteAtOrignalPosition(info))
     return false;
+
+  m_ObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
 
   // set the pasted objects as the new selection
   {

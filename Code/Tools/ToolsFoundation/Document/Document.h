@@ -75,7 +75,7 @@ public:
   };
 
   virtual bool Copy(ezAbstractObjectGraph& out_objectGraph) { return false; };
-  virtual bool Paste(const ezArrayPtr<PasteInfo>& info) { return false; };
+  virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph) { return false; };
   virtual void DeleteSelectedObjects();
 
 public:
