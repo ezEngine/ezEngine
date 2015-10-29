@@ -228,6 +228,7 @@ void ezQtSceneViewWidget::CreatePrefab(const ezVec3& vPosition, const ezUuid& As
     auto pMeta = pDocument->m_ObjectMetaData.BeginModifyMetaData(guid);
     pMeta->m_CreateFromPrefab = AssetGuid;
     pMeta->m_PrefabSeedGuid = PasteCmd.m_RemapGuid;
+	pMeta->m_sBasePrefab = PasteCmd.m_sJsonGraph;
 
     MoveObjectToPosition(guid, vPosition);
 

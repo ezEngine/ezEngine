@@ -37,6 +37,7 @@ public:
   bool m_bHidden;
   ezUuid m_CreateFromPrefab;
   ezUuid m_PrefabSeedGuid;
+  ezString m_sBasePrefab;
 };
 
 class ezSceneDocument : public ezAssetDocument
@@ -132,7 +133,7 @@ private:
   void InvalidateGlobalTransformValue(const ezDocumentObject* pObject);
 
   void UpdatePrefabsRecursive(ezDocumentObject* pObject);
-  void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed);
+  void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab);
 
   virtual const char* QueryAssetType() const override;
 

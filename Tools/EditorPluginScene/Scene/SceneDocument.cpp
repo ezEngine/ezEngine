@@ -16,6 +16,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneObjectMetaData, ezReflectedClass, 1, ezRT
     //EZ_MEMBER_PROPERTY("MetaHidden", m_bHidden) // remove this property to disable serialization
     EZ_MEMBER_PROPERTY("MetaFromPrefab", m_CreateFromPrefab),
     EZ_MEMBER_PROPERTY("MetaPrefabSeed", m_PrefabSeedGuid),
+    EZ_MEMBER_PROPERTY("MetaBasePrefab", m_sBasePrefab),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
