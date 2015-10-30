@@ -151,6 +151,14 @@ void WorldData::DeleteTransformationData(const ezBitflags<ezObjectFlags>& object
     ezMemoryUtils::Copy(pCurrent, pLast, 1);
     pCurrent->m_pObject->m_pTransformationData = pCurrent;
     pCurrent->m_pObject->m_uiTransformationDataIndex = uiIndex;
+
+    // fix parent transform data for children as well
+    auto it = pCurrent->m_pObject->GetChildren();
+    while (it.IsValid())
+    {
+      it->m_pTransformationData->m_pParentData = pCurrent;
+      it.Next();
+    }
   }
 
   if (lastBlock.IsEmpty())

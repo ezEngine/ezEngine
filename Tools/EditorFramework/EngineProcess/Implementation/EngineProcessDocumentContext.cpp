@@ -272,6 +272,7 @@ void ezEngineProcessDocumentContext::HandlerGameObjectMsg(const ezEntityMsgToEng
       if (m_pWorld->TryGetObject(hObject, pObject))
       {
         UpdateProperties(pMsg, pObject, ezGetStaticRTTI<ezGameObject>());
+        pObject->UpdateGlobalTransform();
       }
     }
     break;
