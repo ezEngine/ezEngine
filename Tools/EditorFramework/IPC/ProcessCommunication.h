@@ -23,7 +23,7 @@ class EZ_EDITORFRAMEWORK_DLL ezProcessCommunication
 public:
   ezProcessCommunication();
 
-  ezResult StartClientProcess(const char* szProcess, const char* szArguments = nullptr, ezUInt32 uiMemSize = 1024 * 1024 * 10);
+  ezResult StartClientProcess(const char* szProcess, const char* szArguments = nullptr, const ezRTTI* pFirstAllowedMessageType = nullptr, ezUInt32 uiMemSize = 1024 * 1024 * 10);
 
   ezResult ConnectToHostProcess();
 
@@ -53,6 +53,7 @@ private:
 
   ezMutex m_SendQueueMutex;
   const ezRTTI* m_pWaitForMessageType;
+  const ezRTTI* m_pFirstAllowedMessageType;
   ezInt64 m_iHostPID;
   ezUInt32 m_uiProcessID;
   QProcess* m_pClientProcess;

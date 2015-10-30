@@ -63,7 +63,7 @@ public:
 
 
 private:
-  void Initialize();
+  void Initialize(const ezRTTI* pFirstAllowedMessageType);
   void HandleIPCEvent(const ezProcessCommunication::Event& e);
   void SendDocumentOpenMessage(const ezDocument* pDocument, bool bOpen);
 

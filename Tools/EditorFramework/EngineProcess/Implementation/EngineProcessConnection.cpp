@@ -82,7 +82,7 @@ void ezEditorEngineProcessConnection::DestroyEngineConnection(ezQtEngineDocument
   delete pWindow->GetEditorEngineConnection();
 }
 
-void ezEditorEngineProcessConnection::Initialize()
+void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMessageType)
 {
   if (m_IPC.IsClientAlive())
     return;
@@ -91,7 +91,7 @@ void ezEditorEngineProcessConnection::Initialize()
   m_bProcessCrashed = false;
   m_bClientIsConfigured = false;
 
-  if (m_IPC.StartClientProcess("EditorEngineProcess.exe", m_bProcessShouldWaitForDebugger ? "-debug" : "").Failed())
+  if (m_IPC.StartClientProcess("EditorEngineProcess.exe", m_bProcessShouldWaitForDebugger ? "-debug" : "", pFirstAllowedMessageType).Failed())
   {
     m_bProcessCrashed = true;
   }
@@ -131,7 +131,7 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
 {
   ShutdownProcess();
 
-  Initialize();
+  Initialize(ezGetStaticRTTI<ezSetupProjectMsgToEngine>());
 
   {
     // Send project setup.

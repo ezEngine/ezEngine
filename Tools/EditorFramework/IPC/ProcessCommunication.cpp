@@ -21,7 +21,7 @@ ezProcessCommunication::ezProcessCommunication()
   m_pWaitForMessageType = nullptr;
 }
 
-ezResult ezProcessCommunication::StartClientProcess(const char* szProcess, const char* szArguments, ezUInt32 uiMemSize)
+ezResult ezProcessCommunication::StartClientProcess(const char* szProcess, const char* szArguments, const ezRTTI* pFirstAllowedMessageType, ezUInt32 uiMemSize)
 {
   EZ_LOG_BLOCK("ezProcessCommunication::StartClientProcess");
 
@@ -30,6 +30,7 @@ ezResult ezProcessCommunication::StartClientProcess(const char* szProcess, const
 
   m_uiProcessID = 0xF0F0F0F0;
 
+  m_pFirstAllowedMessageType = pFirstAllowedMessageType;
   m_pSharedMemory = new QSharedMemory();
 
   ezStringBuilder sMemName;
@@ -179,6 +180,17 @@ bool ezProcessCommunication::IsClientAlive() const
 
 void ezProcessCommunication::SendMessage(ezProcessMessage* pMessage)
 {
+  if (m_pFirstAllowedMessageType != nullptr)
+  {
+    // ignore all messages that are not the first allowed message
+    // this is necessary to make sure that during an engine restart we don't accidentally send stray messages while
+    // the engine is not yet correctly set up
+    if (!pMessage->GetDynamicRTTI()->IsDerivedFrom(m_pFirstAllowedMessageType))
+      return;
+
+    m_pFirstAllowedMessageType = nullptr;
+  }
+
   {
     EZ_LOCK(m_SendQueueMutex);
 
