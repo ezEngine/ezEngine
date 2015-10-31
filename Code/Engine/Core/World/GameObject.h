@@ -250,7 +250,7 @@ private:
 
   void FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr);
 
-  struct EZ_ALIGN_16(TransformationData)
+  struct EZ_CORE_DLL EZ_ALIGN_16(TransformationData)
   {
     EZ_DECLARE_POD_TYPE();
 
