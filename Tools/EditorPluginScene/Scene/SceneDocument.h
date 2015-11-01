@@ -108,6 +108,9 @@ public:
   ezEvent<const SceneEvent&> m_SceneEvents;
   ezObjectMetaData<ezUuid, ezSceneObjectMetaData> m_ObjectMetaData;
 
+  ezStatus CreatePrefabDocumentFromSelection(const char* szFile);
+  ezStatus CreatePrefabDocument(const char* szFile, const ezDocumentObject* pRootObject);
+
 protected:
   virtual void InitializeAfterLoading() override;
 

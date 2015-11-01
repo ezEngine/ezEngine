@@ -3,6 +3,7 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <EditorPluginScene/Actions/SelectionActions.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
+#include <QFileDialog>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectionAction, ezButtonAction, 0, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -15,6 +16,7 @@ ezActionDescriptorHandle ezSelectionActions::s_hGroupSelectedItems;
 ezActionDescriptorHandle ezSelectionActions::s_hHideSelectedObjects;
 ezActionDescriptorHandle ezSelectionActions::s_hHideUnselectedObjects;
 ezActionDescriptorHandle ezSelectionActions::s_hShowHiddenObjects;
+ezActionDescriptorHandle ezSelectionActions::s_hCreatePrefab;
 
 void ezSelectionActions::RegisterActions()
 {
@@ -26,6 +28,7 @@ void ezSelectionActions::RegisterActions()
   s_hHideSelectedObjects = EZ_REGISTER_ACTION_1("ActionHideSelectedObjects", ezActionScope::Document, "Scene - Selection", "H", ezSelectionAction, ezSelectionAction::ActionType::HideSelectedObjects);
   s_hHideUnselectedObjects = EZ_REGISTER_ACTION_1("ActionHideUnselectedObjects", ezActionScope::Document, "Scene - Selection", "Shift+H", ezSelectionAction, ezSelectionAction::ActionType::HideUnselectedObjects);
   s_hShowHiddenObjects = EZ_REGISTER_ACTION_1("ActionShowHiddenObjects", ezActionScope::Document, "Scene - Selection", "Ctrl+H", ezSelectionAction, ezSelectionAction::ActionType::ShowHiddenObjects);
+  s_hCreatePrefab = EZ_REGISTER_ACTION_1("ActionCreatePrefab", ezActionScope::Document, "Scene - Selection", "Ctrl+P, Ctrl+C", ezSelectionAction, ezSelectionAction::ActionType::CreatePrefab);
 }
 
 void ezSelectionActions::UnregisterActions()
@@ -38,6 +41,7 @@ void ezSelectionActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hHideSelectedObjects);
   ezActionManager::UnregisterAction(s_hHideUnselectedObjects);
   ezActionManager::UnregisterAction(s_hShowHiddenObjects);
+  ezActionManager::UnregisterAction(s_hCreatePrefab);
 }
 
 void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
@@ -71,6 +75,7 @@ void ezSelectionActions::MapContextMenuActions(const char* szMapping, const char
   pMap->MapAction(s_hFocusOnSelectionAllViews, sSubPath, 1.0f);
   pMap->MapAction(s_hGroupSelectedItems, sSubPath, 2.0f);
   pMap->MapAction(s_hHideSelectedObjects, sSubPath, 3.0f);
+  pMap->MapAction(s_hCreatePrefab, sSubPath, 4.0f);
 }
 
 ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char* szName, ezSelectionAction::ActionType type) : ezButtonAction(context, szName, false, "")
@@ -100,6 +105,9 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
     break;
   case ActionType::ShowHiddenObjects:
     SetIconPath(":/GuiFoundation/Icons/ShowHidden16.png");
+    break;
+  case ActionType::CreatePrefab:
+    //SetIconPath(":/GuiFoundation/Icons/ShowHidden16.png"); /// \todo icon
     break;
   }
 
@@ -139,6 +147,19 @@ void ezSelectionAction::Execute(const ezVariant& value)
   case ActionType::ShowHiddenObjects:
     m_pSceneDocument->ShowOrHideAllObjects(ezSceneDocument::ShowOrHide::Show);
     break;
+  case ActionType::CreatePrefab:
+    {
+      ezStringBuilder sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Prefab"), "", QString::fromUtf8("*.ezPrefab")).toUtf8().data();
+
+      if (!sFile.IsEmpty())
+      {
+        sFile.ChangeFileExtension("ezPrefab");
+        
+        auto res = m_pSceneDocument->CreatePrefabDocumentFromSelection(sFile);
+        ezUIServices::MessageBoxStatus(res, "Failed to create Prefab", "Successfully created Prefab");
+      }
+    }
+    return;
   }
 }
 
@@ -162,6 +183,11 @@ void ezSelectionAction::UpdateEnableState()
   if (m_Type == ActionType::GroupSelectedItems)
   {
     SetEnabled(m_Context.m_pDocument->GetSelectionManager()->GetSelection().GetCount() > 1);
+  }
+
+  if (m_Type == ActionType::CreatePrefab)
+  {
+    SetEnabled(m_Context.m_pDocument->GetSelectionManager()->GetSelection().GetCount() == 1);
   }
 }
 

@@ -258,7 +258,6 @@ const ezString& ezSceneDocument::GetCachedPrefabGraph(const ezUuid& AssetGuid)
   return m_CachedPrefabGraphs[AssetGuid];
 }
 
-
 void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
 {
   const bool bHide = action == ShowOrHide::Hide;

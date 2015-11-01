@@ -47,3 +47,4 @@ ActionHideSelectedObjects;Hide Selected
 ActionHideUnselectedObjects;Hide Unselected
 ActionShowHiddenObjects;Show Hidden Objects
 ActionUpdatePrefabs;Update Prefabs
+ActionCreatePrefab;Create Prefab...

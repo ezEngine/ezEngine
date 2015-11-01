@@ -4,6 +4,7 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Core/World/GameObject.h>
 
 ezString ToBinary(const ezUuid& guid)
 {
@@ -22,6 +23,46 @@ ezString ToBinary(const ezUuid& guid)
   return sResult;
 }
 
+ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile)
+{
+  auto Selection = GetSelectionManager()->GetTopLevelSelection(ezGetStaticRTTI<ezGameObject>());
+
+  if (Selection.GetCount() != 1)
+    return ezStatus("To create a prefab, the selection must contain exactly one game object");
+
+  return CreatePrefabDocument(szFile, Selection[0]);
+}
+
+ezStatus ezSceneDocument::CreatePrefabDocument(const char* szFile, const ezDocumentObject* pSaveAsPrefab)
+{
+  // prepare the current state as a graph
+  ezAbstractObjectGraph PrefabGraph;
+
+  ezDocumentObjectConverterWriter writer(&PrefabGraph, GetObjectManager(), true, true);
+  auto pPrefabGraphMainNode = writer.AddObjectToGraph(pSaveAsPrefab);
+  
+  ezDocumentManager* pDocumentManager;
+  if (ezDocumentManager::FindDocumentTypeFromPath(szFile, true, pDocumentManager).Failed())
+    return ezStatus("Document type is unknown: '%s'", szFile);
+
+  ezDocument* pSceneDocument = nullptr;
+
+  {
+    auto res = pDocumentManager->CreateDocument("ezPrefab", szFile, pSceneDocument, false);
+
+    if (res.m_Result.Failed())
+      return res;
+  }
+
+  auto pPrefabSceneRoot = pSceneDocument->GetObjectManager()->GetRootObject();
+  ezDocumentObject* pPrefabSceneMainObject = pSceneDocument->GetObjectManager()->CreateObject(ezGetStaticRTTI<ezGameObject>());
+  pSceneDocument->GetObjectManager()->AddObject(pPrefabSceneMainObject, pPrefabSceneRoot, "Children", 0);
+
+  ezDocumentObjectConverterReader reader(&PrefabGraph, pSceneDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+  reader.ApplyPropertiesToObject(pPrefabGraphMainNode, pPrefabSceneMainObject);
+
+  return pSceneDocument->SaveDocument();
+}
 
 void ezSceneDocument::UpdatePrefabs()
 {

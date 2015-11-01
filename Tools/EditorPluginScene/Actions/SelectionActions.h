@@ -23,6 +23,7 @@ public:
   static ezActionDescriptorHandle s_hHideSelectedObjects;
   static ezActionDescriptorHandle s_hHideUnselectedObjects;
   static ezActionDescriptorHandle s_hShowHiddenObjects;
+  static ezActionDescriptorHandle s_hCreatePrefab;
 
 };
 
@@ -42,6 +43,7 @@ public:
     HideSelectedObjects,
     HideUnselectedObjects,
     ShowHiddenObjects,
+    CreatePrefab,
   };
 
   ezSelectionAction(const ezActionContext& context, const char* szName, ActionType type);
