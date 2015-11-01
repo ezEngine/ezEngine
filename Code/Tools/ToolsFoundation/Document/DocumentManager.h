@@ -28,6 +28,8 @@ public:
 
   ezDocument* GetDocumentByPath(const char* szPath) const;
 
+  ezResult EnsureDocumentIsClosed(const char* szPath);
+
   void CloseAllDocumentsOfManager();
   static void CloseAllDocuments();
 

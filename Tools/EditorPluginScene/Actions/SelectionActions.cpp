@@ -4,6 +4,12 @@
 #include <EditorPluginScene/Actions/SelectionActions.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <QFileDialog>
+#include <ToolsFoundation/Project/ToolsProject.h>
+#include <Foundation/IO/OSFile.h>
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <Core/World/GameObject.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectionAction, ezButtonAction, 0, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -16,7 +22,11 @@ ezActionDescriptorHandle ezSelectionActions::s_hGroupSelectedItems;
 ezActionDescriptorHandle ezSelectionActions::s_hHideSelectedObjects;
 ezActionDescriptorHandle ezSelectionActions::s_hHideUnselectedObjects;
 ezActionDescriptorHandle ezSelectionActions::s_hShowHiddenObjects;
+ezActionDescriptorHandle ezSelectionActions::s_hPrefabMenu;
 ezActionDescriptorHandle ezSelectionActions::s_hCreatePrefab;
+ezActionDescriptorHandle ezSelectionActions::s_hRevertPrefab;
+ezActionDescriptorHandle ezSelectionActions::s_hOpenPrefabDocument;
+
 
 void ezSelectionActions::RegisterActions()
 {
@@ -28,7 +38,11 @@ void ezSelectionActions::RegisterActions()
   s_hHideSelectedObjects = EZ_REGISTER_ACTION_1("ActionHideSelectedObjects", ezActionScope::Document, "Scene - Selection", "H", ezSelectionAction, ezSelectionAction::ActionType::HideSelectedObjects);
   s_hHideUnselectedObjects = EZ_REGISTER_ACTION_1("ActionHideUnselectedObjects", ezActionScope::Document, "Scene - Selection", "Shift+H", ezSelectionAction, ezSelectionAction::ActionType::HideUnselectedObjects);
   s_hShowHiddenObjects = EZ_REGISTER_ACTION_1("ActionShowHiddenObjects", ezActionScope::Document, "Scene - Selection", "Ctrl+H", ezSelectionAction, ezSelectionAction::ActionType::ShowHiddenObjects);
-  s_hCreatePrefab = EZ_REGISTER_ACTION_1("ActionCreatePrefab", ezActionScope::Document, "Scene - Selection", "Ctrl+P, Ctrl+C", ezSelectionAction, ezSelectionAction::ActionType::CreatePrefab);
+
+  s_hPrefabMenu = EZ_REGISTER_MENU_WITH_ICON("MenuPrefabs", ":/AssetIcons/Prefab.png");
+  s_hCreatePrefab = EZ_REGISTER_ACTION_1("ActionCreatePrefab", ezActionScope::Document, "Prefabs", "Ctrl+P,Ctrl+C", ezSelectionAction, ezSelectionAction::ActionType::CreatePrefab);
+  s_hRevertPrefab = EZ_REGISTER_ACTION_1("ActionRevertPrefab", ezActionScope::Document, "Prefabs", "Ctrl+P,Ctrl+R", ezSelectionAction, ezSelectionAction::ActionType::RevertPrefab);
+  s_hOpenPrefabDocument = EZ_REGISTER_ACTION_1("ActionOpenPrefabDocument", ezActionScope::Document, "Prefabs", "Ctrl+P,Ctrl+O", ezSelectionAction, ezSelectionAction::ActionType::OpenPrefabDocument);
 }
 
 void ezSelectionActions::UnregisterActions()
@@ -41,7 +55,10 @@ void ezSelectionActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hHideSelectedObjects);
   ezActionManager::UnregisterAction(s_hHideUnselectedObjects);
   ezActionManager::UnregisterAction(s_hShowHiddenObjects);
+  ezActionManager::UnregisterAction(s_hPrefabMenu);
   ezActionManager::UnregisterAction(s_hCreatePrefab);
+  ezActionManager::UnregisterAction(s_hRevertPrefab);
+  ezActionManager::UnregisterAction(s_hOpenPrefabDocument);
 }
 
 void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
@@ -60,8 +77,22 @@ void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
   pMap->MapAction(s_hHideSelectedObjects, sSubPath, 4.0f);
   pMap->MapAction(s_hHideUnselectedObjects, sSubPath, 5.0f);
   pMap->MapAction(s_hShowHiddenObjects, sSubPath, 6.0f);
+
+  MapPrefabActions(szMapping, sSubPath, 1.0f);
 }
 
+void ezSelectionActions::MapPrefabActions(const char* szMapping, const char* szPath, float fPriority)
+{
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the actions failed!", szMapping);
+
+  ezStringBuilder sPrefabSubPath(szPath, "/MenuPrefabs");
+  pMap->MapAction(s_hPrefabMenu, szPath, fPriority);
+
+  pMap->MapAction(s_hOpenPrefabDocument, sPrefabSubPath, 1.0f);
+  pMap->MapAction(s_hRevertPrefab, sPrefabSubPath, 2.0f);
+  pMap->MapAction(s_hCreatePrefab, sPrefabSubPath, 3.0f);
+}
 
 void ezSelectionActions::MapContextMenuActions(const char* szMapping, const char* szPath)
 {
@@ -75,7 +106,8 @@ void ezSelectionActions::MapContextMenuActions(const char* szMapping, const char
   pMap->MapAction(s_hFocusOnSelectionAllViews, sSubPath, 1.0f);
   pMap->MapAction(s_hGroupSelectedItems, sSubPath, 2.0f);
   pMap->MapAction(s_hHideSelectedObjects, sSubPath, 3.0f);
-  pMap->MapAction(s_hCreatePrefab, sSubPath, 4.0f);
+
+  MapPrefabActions(szMapping, sSubPath, 4.0f);
 }
 
 ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char* szName, ezSelectionAction::ActionType type) : ezButtonAction(context, szName, false, "")
@@ -107,7 +139,13 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
     SetIconPath(":/GuiFoundation/Icons/ShowHidden16.png");
     break;
   case ActionType::CreatePrefab:
-    //SetIconPath(":/GuiFoundation/Icons/ShowHidden16.png"); /// \todo icon
+    SetIconPath(":/AssetIcons/PrefabCreate.png");
+    break;
+  case ActionType::RevertPrefab:
+    SetIconPath(":/AssetIcons/PrefabRevert.png");
+    break;
+  case ActionType::OpenPrefabDocument:
+    SetIconPath(":/AssetIcons/PrefabOpenDocument.png");
     break;
   }
 
@@ -148,18 +186,72 @@ void ezSelectionAction::Execute(const ezVariant& value)
     m_pSceneDocument->ShowOrHideAllObjects(ezSceneDocument::ShowOrHide::Show);
     break;
   case ActionType::CreatePrefab:
-    {
-      ezStringBuilder sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Prefab"), "", QString::fromUtf8("*.ezPrefab")).toUtf8().data();
+    CreatePrefab();
+    break;
 
-      if (!sFile.IsEmpty())
-      {
-        sFile.ChangeFileExtension("ezPrefab");
-        
-        auto res = m_pSceneDocument->CreatePrefabDocumentFromSelection(sFile);
-        ezUIServices::MessageBoxStatus(res, "Failed to create Prefab", "Successfully created Prefab");
-      }
+  case ActionType::RevertPrefab:
+    {
+      const ezDeque<const ezDocumentObject*> sel = m_Context.m_pDocument->GetSelectionManager()->GetTopLevelSelection(ezGetStaticRTTI<ezGameObject>());
+
+      if (sel.IsEmpty())
+        return;
+
+      ezSceneDocument* pScene = static_cast<ezSceneDocument*>(m_Context.m_pDocument);
+      pScene->RevertPrefabs(sel);
     }
+    break;
+
+  case ActionType::OpenPrefabDocument:
+    OpenPrefabDocument();
+    break;
+  }
+}
+
+
+void ezSelectionAction::OpenPrefabDocument()
+{
+  const auto& sel = m_Context.m_pDocument->GetSelectionManager()->GetSelection();
+
+  if (sel.GetCount() != 1)
     return;
+
+  ezSceneDocument* pScene = static_cast<ezSceneDocument*>(m_Context.m_pDocument);
+
+  auto pMeta = pScene->m_ObjectMetaData.BeginReadMetaData(sel[0]->GetGuid());
+  const ezUuid PrefabAsset = pMeta->m_CreateFromPrefab;
+  pScene->m_ObjectMetaData.EndReadMetaData();
+
+  auto pAsset = ezAssetCurator::GetInstance()->GetAssetInfo(PrefabAsset);
+  if (pAsset)
+  {
+    ezQtEditorApp::GetInstance()->OpenDocument(pAsset->m_sAbsolutePath);
+  }
+  else
+  {
+    ezUIServices::MessageBoxWarning("The prefab asset of this instance is currently unknown. It may have been deleted. Try updating the asset library ('Check FileSystem'), if it should be there.");
+  }
+}
+
+void ezSelectionAction::CreatePrefab()
+{
+  static ezString sSearchDir = ezToolsProject::GetInstance()->GetProjectPath();
+
+  ezStringBuilder sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Prefab"), QString::fromUtf8(sSearchDir.GetData()), QString::fromUtf8("*.ezPrefab")).toUtf8().data();
+
+  if (!sFile.IsEmpty())
+  {
+    sFile.ChangeFileExtension("ezPrefab");
+
+    sSearchDir = sFile.GetFileDirectory();
+
+    if (ezOSFile::ExistsFile(sFile))
+    {
+      ezUIServices::MessageBoxInformation("You currently cannot replace an existing prefab this way. Please choose a new prefab file.");
+      return;
+    }
+
+    auto res = m_pSceneDocument->CreatePrefabDocumentFromSelection(sFile);
+    ezUIServices::MessageBoxStatus(res, "Failed to create Prefab", "Successfully created Prefab");
   }
 }
 
@@ -185,9 +277,32 @@ void ezSelectionAction::UpdateEnableState()
     SetEnabled(m_Context.m_pDocument->GetSelectionManager()->GetSelection().GetCount() > 1);
   }
 
-  if (m_Type == ActionType::CreatePrefab)
+  if (m_Type == ActionType::RevertPrefab ||
+      m_Type == ActionType::OpenPrefabDocument || 
+      m_Type == ActionType::CreatePrefab)
   {
-    SetEnabled(m_Context.m_pDocument->GetSelectionManager()->GetSelection().GetCount() == 1);
+    const auto& sel = m_Context.m_pDocument->GetSelectionManager()->GetSelection();
+
+    if (sel.IsEmpty() || (m_Type != ActionType::RevertPrefab && sel.GetCount() != 1))
+    {
+      SetEnabled(false);
+      return;
+    }
+
+    bool bIsPrefab = false;
+    const bool bShouldBePrefab = (m_Type == ActionType::RevertPrefab) || (m_Type == ActionType::OpenPrefabDocument);
+
+    {
+      ezSceneDocument* pScene = static_cast<ezSceneDocument*>(m_Context.m_pDocument);
+
+      auto pMeta = pScene->m_ObjectMetaData.BeginReadMetaData(sel[0]->GetGuid());
+
+      bIsPrefab = pMeta->m_CreateFromPrefab.IsValid();
+
+      pScene->m_ObjectMetaData.EndReadMetaData();
+    }
+
+    SetEnabled(bIsPrefab == bShouldBePrefab);
   }
 }
 

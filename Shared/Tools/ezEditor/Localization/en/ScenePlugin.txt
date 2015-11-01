@@ -48,3 +48,6 @@ ActionHideUnselectedObjects;Hide Unselected
 ActionShowHiddenObjects;Show Hidden Objects
 ActionUpdatePrefabs;Update Prefabs
 ActionCreatePrefab;Create Prefab...
+MenuPrefabs;Prefabs
+ActionRevertPrefab;Revert Prefab
+ActionOpenPrefabDocument;Edit Prefab...

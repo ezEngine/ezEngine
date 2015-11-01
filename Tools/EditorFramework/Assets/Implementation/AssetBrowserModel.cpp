@@ -221,7 +221,10 @@ QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
   const ezUuid AssetGuid = asset.m_Guid;
   const ezAssetCurator::AssetInfo* pAssetInfo = ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid);
 
-  EZ_ASSERT_DEV(pAssetInfo != nullptr, "Invalid Pointer !!!!`1`1sonceleven");
+  EZ_ASSERT_DEV(pAssetInfo != nullptr, "Invalid Pointer! This can happen when an asset has been overwritten by a new file with a new asset GUID.");
+
+  if (pAssetInfo == nullptr)
+    return QVariant();
 
   switch (role)
   {

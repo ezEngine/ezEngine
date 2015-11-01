@@ -70,7 +70,7 @@ public: // Properties
   ezUuid m_Parent;
   ezUuid m_RemapGuid;
   ezString m_sJsonGraph;
-  ezUInt64 m_pCreatedRootObjects; // ezHybridArray<ezUuid, 16>
+  ezUInt64 m_pCreatedRootObject; // ezUuid*
   bool m_bAllowPickedPosition;
 
 private:

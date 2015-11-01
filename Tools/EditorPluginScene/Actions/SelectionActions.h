@@ -13,6 +13,7 @@ public:
   static void UnregisterActions();
 
   static void MapActions(const char* szMapping, const char* szPath);
+  static void MapPrefabActions(const char* szMapping, const char* szPath, float fPriority);
   static void MapContextMenuActions(const char* szMapping, const char* szPath);
 
   static ezActionDescriptorHandle s_hSelectionCategory;
@@ -23,7 +24,10 @@ public:
   static ezActionDescriptorHandle s_hHideSelectedObjects;
   static ezActionDescriptorHandle s_hHideUnselectedObjects;
   static ezActionDescriptorHandle s_hShowHiddenObjects;
+  static ezActionDescriptorHandle s_hPrefabMenu;
   static ezActionDescriptorHandle s_hCreatePrefab;
+  static ezActionDescriptorHandle s_hRevertPrefab;
+  static ezActionDescriptorHandle s_hOpenPrefabDocument;
 
 };
 
@@ -44,12 +48,18 @@ public:
     HideUnselectedObjects,
     ShowHiddenObjects,
     CreatePrefab,
+    RevertPrefab,
+    OpenPrefabDocument,
   };
 
   ezSelectionAction(const ezActionContext& context, const char* szName, ActionType type);
   ~ezSelectionAction();
 
   virtual void Execute(const ezVariant& value) override;
+
+  void OpenPrefabDocument();
+
+  void CreatePrefab();
 
 private:
   void SelectionEventHandler(const ezSelectionManager::Event& e);

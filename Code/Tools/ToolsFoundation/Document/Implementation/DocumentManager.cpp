@@ -280,6 +280,18 @@ ezDocument* ezDocumentManager::GetDocumentByPath(const char* szPath) const
 }
 
 
+ezResult ezDocumentManager::EnsureDocumentIsClosed(const char* szPath)
+{
+  auto pDoc = GetDocumentByPath(szPath);
+
+  if (pDoc == nullptr)
+    return EZ_SUCCESS;
+
+  CloseDocument(pDoc);
+
+  return EZ_FAILURE;
+}
+
 ezResult ezDocumentManager::FindDocumentTypeFromPath(const char* szPath, bool bForCreation, ezDocumentManager*& out_pTypeManager, ezDocumentTypeDescriptor* out_pTypeDesc)
 {
   const ezString sFileExt = ezPathUtils::GetFileExtension(szPath);

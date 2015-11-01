@@ -85,10 +85,10 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
         CreatePrefab(res.m_vPickedPosition, AssetGuid);
       }
       else
-      if (ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName == "Mesh")
-      {
-        CreateDropObject(res.m_vPickedPosition, "ezMeshComponent", "Mesh", sTemp);
-      }
+        if (ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName == "Mesh")
+        {
+          CreateDropObject(res.m_vPickedPosition, "ezMeshComponent", "Mesh", sTemp);
+        }
     }
 
     if (m_DraggedObjects.IsEmpty())
@@ -215,23 +215,27 @@ void ezQtSceneViewWidget::CreatePrefab(const ezVec3& vPosition, const ezUuid& As
   ezInstantiatePrefabCommand PasteCmd;
   PasteCmd.m_sJsonGraph = pDocument->GetCachedPrefabGraph(AssetGuid);
   PasteCmd.m_RemapGuid.CreateNewUuid();
-  void* pArray = &m_DraggedObjects;
-  memcpy(&PasteCmd.m_pCreatedRootObjects, &pArray, sizeof(void*)); /// \todo HACK-o-rama
+
+  ezUuid NewObject;
+  void* pArray = &NewObject;
+  memcpy(&PasteCmd.m_pCreatedRootObject, &pArray, sizeof(void*)); /// \todo HACK-o-rama
 
   if (PasteCmd.m_sJsonGraph.IsEmpty())
     return; // error
 
   pCmdHistory->AddCommand(PasteCmd);
 
-  for (const auto& guid : m_DraggedObjects)
+  if (NewObject.IsValid())
   {
-    auto pMeta = pDocument->m_ObjectMetaData.BeginModifyMetaData(guid);
+    auto pMeta = pDocument->m_ObjectMetaData.BeginModifyMetaData(NewObject);
     pMeta->m_CreateFromPrefab = AssetGuid;
     pMeta->m_PrefabSeedGuid = PasteCmd.m_RemapGuid;
-	pMeta->m_sBasePrefab = PasteCmd.m_sJsonGraph;
-	pDocument->m_ObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::PrefabFlag);
+    pMeta->m_sBasePrefab = PasteCmd.m_sJsonGraph;
+    pDocument->m_ObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::PrefabFlag);
 
-    MoveObjectToPosition(guid, vPosition);
+    MoveObjectToPosition(NewObject, vPosition);
+
+    m_DraggedObjects.PushBack(NewObject);
   }
 }
 
@@ -279,7 +283,7 @@ ezQtSceneViewWidgetContainer::ezQtSceneViewWidgetContainer(QWidget* pParent, ezQ
   setLayout(pLayout);
 
   m_pViewWidget = new ezQtSceneViewWidget(this, pDocument, pCameraMoveSettings, pViewConfig);
-  
+
   {
     // Tool Bar
     ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView(this);

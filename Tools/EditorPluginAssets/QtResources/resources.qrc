@@ -1,14 +1,18 @@
 <RCC>
   <qresource prefix="AssetIcons">
-	<file>Texture_2D.png</file>
-	<file>Texture_3D.png</file>
-	<file>Texture_Cube.png</file>
-	<file>Material.png</file>
-  <file>Mesh.png</file>
-	<file>Shader.png</file>
-	<file>Sound.png</file>
-	<file>Prefab.png</file>
-  <file>Scene.png</file>
+    <file>Texture_2D.png</file>
+    <file>Texture_3D.png</file>
+    <file>Texture_Cube.png</file>
+    <file>Material.png</file>
+    <file>Mesh.png</file>
+    <file>Shader.png</file>
+    <file>Sound.png</file>
+    <file>Prefab.png</file>
+    <file>PrefabCreate.png</file>
+    <file>PrefabRevert.png</file>
+    <file>PrefabUpdate.png</file>
+    <file>PrefabOpenDocument.png</file>
+    <file>Scene.png</file>
   </qresource>
 </RCC>
 

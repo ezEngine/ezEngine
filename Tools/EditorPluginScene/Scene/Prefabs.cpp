@@ -30,21 +30,39 @@ ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile)
   if (Selection.GetCount() != 1)
     return ezStatus("To create a prefab, the selection must contain exactly one game object");
 
-  return CreatePrefabDocument(szFile, Selection[0]);
+  const ezDocumentObject* pNode = Selection[0];
+
+  ezUuid PrefabGuid, SeedGuid;
+  SeedGuid.CreateNewUuid();
+  ezStatus res = CreatePrefabDocument(szFile, pNode, SeedGuid, PrefabGuid);
+
+  if (res.m_Result.Succeeded())
+  {
+    ReplaceByPrefab(pNode, szFile, PrefabGuid, SeedGuid);
+  }
+
+  return res;
 }
 
-ezStatus ezSceneDocument::CreatePrefabDocument(const char* szFile, const ezDocumentObject* pSaveAsPrefab)
+ezStatus ezSceneDocument::CreatePrefabDocument(const char* szFile, const ezDocumentObject* pSaveAsPrefab, const ezUuid& invPrefabSeed, ezUuid& out_NewDocumentGuid)
 {
+  ezDocumentManager* pDocumentManager;
+  if (ezDocumentManager::FindDocumentTypeFromPath(szFile, true, pDocumentManager).Failed())
+    return ezStatus("Document type is unknown: '%s'", szFile);
+
+  if (pDocumentManager->EnsureDocumentIsClosed(szFile).Failed())
+  {
+    return ezStatus("Could not close the existing prefab document");
+  }
+
   // prepare the current state as a graph
   ezAbstractObjectGraph PrefabGraph;
 
   ezDocumentObjectConverterWriter writer(&PrefabGraph, GetObjectManager(), true, true);
   auto pPrefabGraphMainNode = writer.AddObjectToGraph(pSaveAsPrefab);
-  
-  ezDocumentManager* pDocumentManager;
-  if (ezDocumentManager::FindDocumentTypeFromPath(szFile, true, pDocumentManager).Failed())
-    return ezStatus("Document type is unknown: '%s'", szFile);
 
+  PrefabGraph.ReMapNodeGuids(invPrefabSeed, true);
+  
   ezDocument* pSceneDocument = nullptr;
 
   {
@@ -54,14 +72,54 @@ ezStatus ezSceneDocument::CreatePrefabDocument(const char* szFile, const ezDocum
       return res;
   }
 
+  out_NewDocumentGuid = pSceneDocument->GetGuid();
+
+  ezUuid rootGuid = pSaveAsPrefab->GetGuid();
+  rootGuid.RevertCombinationWithSeed(invPrefabSeed);
+
   auto pPrefabSceneRoot = pSceneDocument->GetObjectManager()->GetRootObject();
-  ezDocumentObject* pPrefabSceneMainObject = pSceneDocument->GetObjectManager()->CreateObject(ezGetStaticRTTI<ezGameObject>());
+  ezDocumentObject* pPrefabSceneMainObject = pSceneDocument->GetObjectManager()->CreateObject(ezGetStaticRTTI<ezGameObject>(), rootGuid);
   pSceneDocument->GetObjectManager()->AddObject(pPrefabSceneMainObject, pPrefabSceneRoot, "Children", 0);
 
   ezDocumentObjectConverterReader reader(&PrefabGraph, pSceneDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
   reader.ApplyPropertiesToObject(pPrefabGraphMainNode, pPrefabSceneMainObject);
 
-  return pSceneDocument->SaveDocument();
+  auto res = pSceneDocument->SaveDocument();
+  pDocumentManager->CloseDocument(pSceneDocument);
+  return res;
+}
+
+
+void ezSceneDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed)
+{
+  GetCommandHistory()->StartTransaction();
+
+  ezRemoveObjectCommand remCmd;
+  remCmd.m_Object = pRootObject->GetGuid();
+
+  ezInstantiatePrefabCommand instCmd;
+  instCmd.m_bAllowPickedPosition = false;
+  instCmd.m_Parent = pRootObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pRootObject->GetParent()->GetGuid();
+  instCmd.m_sJsonGraph = ReadDocumentAsString(szPrefabFile); // since the prefab might have been created just now, going through the cache (via GUID) will most likely fail
+  instCmd.m_RemapGuid = PrefabSeed;
+
+  ezUuid NewObject;
+  void* pArray = &NewObject;
+  memcpy(&instCmd.m_pCreatedRootObject, &pArray, sizeof(void*)); /// \todo HACK-o-rama
+
+  GetCommandHistory()->AddCommand(remCmd);
+  GetCommandHistory()->AddCommand(instCmd);
+  GetCommandHistory()->FinishTransaction();
+
+  if (NewObject.IsValid())
+  {
+    auto pMeta = m_ObjectMetaData.BeginModifyMetaData(NewObject);
+    pMeta->m_CreateFromPrefab = PrefabAsset;
+    pMeta->m_PrefabSeedGuid = PrefabSeed;
+    pMeta->m_sBasePrefab = instCmd.m_sJsonGraph;
+
+    m_ObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::PrefabFlag);
+  }
 }
 
 void ezSceneDocument::UpdatePrefabs()
@@ -109,7 +167,7 @@ void ezSceneDocument::UpdatePrefabsRecursive(ezDocumentObject* pObject)
 
 void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab)
 {
-  ezHybridArray<ezUuid, 16> NewObjects;
+  ezUuid NewObject;
 
   ezInstantiatePrefabCommand inst;
   inst.m_bAllowPickedPosition = false;
@@ -117,9 +175,8 @@ void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid
   inst.m_RemapGuid = PrefabSeed;
   inst.m_sJsonGraph = GetCachedPrefabGraph(PrefabAsset);
 
-  NewObjects.Clear();
-  void* pArray = &NewObjects;
-  memcpy(&inst.m_pCreatedRootObjects, &pArray, sizeof(void*)); /// \todo HACK-o-rama
+  void* pArray = &NewObject;
+  memcpy(&inst.m_pCreatedRootObject, &pArray, sizeof(void*)); /// \todo HACK-o-rama
 
   // prepare the original prefab as a graph
   ezAbstractObjectGraph graphBasePrefab;
@@ -257,9 +314,9 @@ void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid
   GetCommandHistory()->AddCommand(inst);
 
   // pass the prefab meta data to the new instance
-  for (const auto& guid : NewObjects)
+  if (NewObject.IsValid())
   {
-    auto pMeta = m_ObjectMetaData.BeginModifyMetaData(guid);
+    auto pMeta = m_ObjectMetaData.BeginModifyMetaData(NewObject);
     pMeta->m_CreateFromPrefab = PrefabAsset;
     pMeta->m_PrefabSeedGuid = PrefabSeed;
     pMeta->m_sBasePrefab = GetCachedPrefabGraph(PrefabAsset);

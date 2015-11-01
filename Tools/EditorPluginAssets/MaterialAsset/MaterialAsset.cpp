@@ -91,9 +91,9 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
       for (ezUInt32 px = 0; px < 4 * 4 * 4; px += 4)
       {
-        pPixels[px + 0] = color.b;
+        pPixels[px + 0] = color.r;
         pPixels[px + 1] = color.g;
-        pPixels[px + 2] = color.r;
+        pPixels[px + 2] = color.b;
         pPixels[px + 3] = color.a;
       }
     }

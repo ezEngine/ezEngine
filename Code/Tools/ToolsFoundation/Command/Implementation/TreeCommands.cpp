@@ -28,7 +28,7 @@ EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("ParentGuid", m_Parent),
 EZ_MEMBER_PROPERTY("JsonGraph", m_sJsonGraph),
 EZ_MEMBER_PROPERTY("RemapGuid", m_RemapGuid),
-EZ_MEMBER_PROPERTY("CreatedObjects", m_pCreatedRootObjects),
+EZ_MEMBER_PROPERTY("CreatedObjects", m_pCreatedRootObject),
 EZ_MEMBER_PROPERTY("AllowPickedPos", m_bAllowPickedPosition),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -285,7 +285,7 @@ void ezPasteObjectsCommand::Cleanup(CommandState state)
 
 ezInstantiatePrefabCommand::ezInstantiatePrefabCommand()
 {
-  m_pCreatedRootObjects = 0;
+  m_pCreatedRootObject = 0;
   m_bAllowPickedPosition = true;
 }
 
@@ -351,12 +351,12 @@ ezStatus ezInstantiatePrefabCommand::Do(bool bRedo)
               ref.m_pParent = pParent;
 
               /// \todo HACK-o-rama
-              if (m_pCreatedRootObjects != 0)
+              if (m_pCreatedRootObject != 0)
               {
                 void* pObj = nullptr;
-                ezMemoryUtils::Copy((ezUInt8*) &pObj, (ezUInt8*) &m_pCreatedRootObjects, sizeof(void*));
+                ezMemoryUtils::Copy((ezUInt8*) &pObj, (ezUInt8*) &m_pCreatedRootObject, sizeof(void*));
 
-                ((ezHybridArray<ezUuid, 16>*)pObj)->PushBack(pNewObject->GetGuid());
+                *((ezUuid*)pObj) = pNewObject->GetGuid();
               }
               
               // only create the very first object, if there are multiple objects in the prefab, ignore the rest

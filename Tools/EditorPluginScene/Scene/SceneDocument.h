@@ -69,6 +69,7 @@ public:
   void ShowOrHideAllObjects(ShowOrHide action);
   void HideUnselectedObjects();
   void UpdatePrefabs();
+  void RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
   
   void SetGizmoWorldSpace(bool bWorldSpace);
   bool GetGizmoWorldSpace() const;
@@ -89,6 +90,7 @@ public:
   static ezTransform ComputeGlobalTransform(const ezDocumentObject* pObject);
 
   const ezString& GetCachedPrefabGraph(const ezUuid& AssetGuid);
+  ezString ReadDocumentAsString(const char* szFile) const;
 
   struct SceneEvent
   {
@@ -109,7 +111,8 @@ public:
   ezObjectMetaData<ezUuid, ezSceneObjectMetaData> m_ObjectMetaData;
 
   ezStatus CreatePrefabDocumentFromSelection(const char* szFile);
-  ezStatus CreatePrefabDocument(const char* szFile, const ezDocumentObject* pRootObject);
+  ezStatus CreatePrefabDocument(const char* szFile, const ezDocumentObject* pRootObject, const ezUuid& invPrefabSeed, ezUuid& out_NewDocumentGuid);
+  void ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed);
 
 protected:
   virtual void InitializeAfterLoading() override;
