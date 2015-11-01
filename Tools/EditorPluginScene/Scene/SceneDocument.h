@@ -69,6 +69,7 @@ public:
   void ShowOrHideAllObjects(ShowOrHide action);
   void HideUnselectedObjects();
   void UpdatePrefabs();
+  void TriggerExportScene();
   void RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
   
   void SetGizmoWorldSpace(bool bWorldSpace);
@@ -102,6 +103,7 @@ public:
       FocusOnSelection_All,
       SnapSelectionPivotToGrid,
       SnapEachSelectedObjectToGrid,
+      ExportScene,
     };
 
     Type m_Type;

@@ -97,8 +97,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEntityMsgToEngine, ezEditorEngineDocumentMsg, 
     EZ_MEMBER_PROPERTY("ObjectType", m_sObjectType),
     EZ_MEMBER_PROPERTY("ParentProperty", m_sParentProperty),
     EZ_MEMBER_PROPERTY("PropertyIndex", m_PropertyIndex),
-
     EZ_MEMBER_PROPERTY("ObjectData", m_sObjectData),
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExportSceneMsgToEngine, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezExportSceneMsgToEngine> );
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("OutputFile", m_sOutputFile),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

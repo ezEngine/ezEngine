@@ -11,6 +11,7 @@ class ezEngineProcessViewContext;
 class ezProcessCommunication;
 class ezProcessMessage;
 class ezEntityMsgToEngine;
+class ezExportSceneMsgToEngine;
 
 template<typename HandleType>
 class ezEditorGuidEngineHandleMap
@@ -119,7 +120,7 @@ private:
 
   /// Removes all sync objects that are tied to this context
   void CleanUpContextSyncObjects();
-
+  void ExportScene(const ezExportSceneMsgToEngine* pMsg);
   ezUuid m_DocumentGuid;
 
   ezProcessCommunication* m_pIPC;

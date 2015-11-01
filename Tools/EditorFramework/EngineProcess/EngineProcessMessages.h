@@ -170,6 +170,14 @@ public:
   ezString m_sObjectData;
 };
 
+class EZ_EDITORFRAMEWORK_DLL ezExportSceneMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezExportSceneMsgToEngine);
+
+public:
+  ezString m_sOutputFile;
+};
+
 class EZ_EDITORFRAMEWORK_DLL ezViewPickingMsgToEngine : public ezEditorEngineViewMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezViewPickingMsgToEngine);

@@ -2,6 +2,8 @@
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Pipeline/View.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Core/WorldSerializer/WorldReader.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderData, ezRenderData, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -127,6 +129,51 @@ const char* ezMeshComponent::GetMeshFile() const
   return pMesh->GetResourceID();
 }
 
+
+void ezMeshComponent::SerializeComponent(ezWorldWriter& stream) const
+{
+  ezStreamWriter& s = stream.GetStream();
+
+  // ignore components that have created meshes (?)
+
+  s << GetMeshFile();
+  s << m_MeshColor;
+  s << m_RenderPass;
+
+  s << m_Materials.GetCount();
+
+  for (const auto& mat : m_Materials)
+  {
+    ezResourceLock<ezMaterialResource> pMat(mat);
+    s << pMat->GetResourceID();
+  }
+}
+
+void ezMeshComponent::DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion)
+{
+  ezStreamReader& s = stream.GetStream();
+
+  ezStringBuilder sTemp;
+
+  s >> sTemp;
+  SetMeshFile(sTemp);
+
+  s >> m_MeshColor;
+  s >> m_RenderPass;
+
+  ezUInt32 uiMaterials = 0;
+  s >> uiMaterials;
+  
+  m_Materials.SetCount(uiMaterials);
+
+  for (auto& mat : m_Materials)
+  {
+    s >> sTemp;
+
+    if (!sTemp.IsEmpty())
+      mat = ezResourceManager::LoadResource<ezMaterialResource>(sTemp);
+  }
+}
 
 ezUInt32 ezMeshComponent::Materials_GetCount() const
 {

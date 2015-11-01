@@ -289,6 +289,14 @@ void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
 }
 
 
+void ezSceneDocument::TriggerExportScene()
+{
+  SceneEvent e;
+  e.m_Type = SceneEvent::Type::ExportScene;
+
+  m_SceneEvents.Broadcast(e);
+}
+
 void ezSceneDocument::RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection)
 {
   auto pHistory = GetCommandHistory();

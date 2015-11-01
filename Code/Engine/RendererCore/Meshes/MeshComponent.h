@@ -66,6 +66,9 @@ public:
 
   ezColor m_MeshColor;
 
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) override;
+
 private:
   ezUInt32 Materials_GetCount() const;
   const char* Materials_GetValue(ezUInt32 uiIndex) const;

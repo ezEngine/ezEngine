@@ -263,6 +263,15 @@ void ezQtSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneE
   case ezSceneDocument::SceneEvent::Type::SnapEachSelectedObjectToGrid:
     SnapSelectionToPosition(true);
     break;
+
+  case ezSceneDocument::SceneEvent::Type::ExportScene:
+    {
+      ezExportSceneMsgToEngine msg;
+      msg.m_sOutputFile = "D:\\Test.scene";
+
+      GetEditorEngineConnection()->SendMessage(&msg);
+    }
+    break;
   }
 }
 

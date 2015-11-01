@@ -16,6 +16,7 @@ public:
 
   static ezActionDescriptorHandle s_hSceneCategory;
   static ezActionDescriptorHandle s_hUpdatePrefabs;
+  static ezActionDescriptorHandle s_hExportScene;
 
 };
 
@@ -29,6 +30,7 @@ public:
   enum class ActionType
   {
     UpdatePrefabs,
+    ExportScene,
   };
 
   ezSceneAction(const ezActionContext& context, const char* szName, ActionType type);

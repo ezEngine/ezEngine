@@ -7,6 +7,9 @@
 
 #include <Core/World/Declarations.h>
 
+class ezWorldWriter;
+class ezWorldReader;
+
 /// \brief Base class of all component types.
 ///
 /// Derive from this class to implement custom component types. Also add the EZ_DECLARE_COMPONENT_TYPE macro to your class declaration.
@@ -59,6 +62,9 @@ public:
   static ezUInt16 GetNextTypeId();
 
   ezUInt32 m_uiEditorPickingID;
+
+  virtual void SerializeComponent(ezWorldWriter& stream) const {}
+  virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) {}
 
 protected:
   friend class ezWorld;

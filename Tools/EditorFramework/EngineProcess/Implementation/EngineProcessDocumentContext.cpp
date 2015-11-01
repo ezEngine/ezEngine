@@ -9,6 +9,10 @@
 #include <Foundation/Logging/Log.h>
 #include <Gizmos/GizmoHandle.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Core/WorldSerializer/WorldReader.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, ezReflectedClass, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -104,7 +108,12 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
         pObject->GetTags().Remove(tag);
     }
   }
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezExportSceneMsgToEngine>())
+  {
+    const ezExportSceneMsgToEngine* pMsg2 = static_cast<const ezExportSceneMsgToEngine*>(pMsg);
 
+    ExportScene(pMsg2);
+  }
 
 
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineViewMsg>())
@@ -197,6 +206,37 @@ void ezEngineProcessDocumentContext::CleanUpContextSyncObjects()
   {
     auto it = m_SyncObjects.GetIterator();
     it.Value()->GetDynamicRTTI()->GetAllocator()->Deallocate(it.Value());
+  }
+}
+
+void ezEngineProcessDocumentContext::ExportScene(const ezExportSceneMsgToEngine* pMsg)
+{
+  {
+    ezFileWriter file;
+    if (file.Open(pMsg->m_sOutputFile).Failed())
+    {
+      ezLog::Error("Could not write to file '%s'", pMsg->m_sOutputFile.GetData());
+      return;
+    }
+
+
+    /// \todo Filter out editor gizmo's etc.
+
+    ezWorldWriter ww;
+    ww.Write(file, *m_pWorld);
+  }
+
+  {
+    ezFileReader file;
+    if (file.Open(pMsg->m_sOutputFile).Failed())
+    {
+      ezLog::Error("Could not write to file '%s'", pMsg->m_sOutputFile.GetData());
+      return;
+    }
+
+
+    ezWorldReader ww;
+    ww.Read(file, *m_pWorld);
   }
 }
 
