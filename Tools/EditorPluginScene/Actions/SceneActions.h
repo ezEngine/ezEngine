@@ -17,6 +17,7 @@ public:
   static ezActionDescriptorHandle s_hSceneCategory;
   static ezActionDescriptorHandle s_hUpdatePrefabs;
   static ezActionDescriptorHandle s_hExportScene;
+  static ezActionDescriptorHandle s_hRunScene;
 
 };
 
@@ -31,6 +32,7 @@ public:
   {
     UpdatePrefabs,
     ExportScene,
+    RunScene,
   };
 
   ezSceneAction(const ezActionContext& context, const char* szName, ActionType type);

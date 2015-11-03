@@ -3,6 +3,7 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <EditorPluginScene/Actions/SceneActions.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
+#include <QProcess>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneAction, ezButtonAction, 0, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -10,12 +11,14 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 ezActionDescriptorHandle ezSceneActions::s_hSceneCategory;
 ezActionDescriptorHandle ezSceneActions::s_hUpdatePrefabs;
 ezActionDescriptorHandle ezSceneActions::s_hExportScene;
+ezActionDescriptorHandle ezSceneActions::s_hRunScene;
 
 void ezSceneActions::RegisterActions()
 {
   s_hSceneCategory = EZ_REGISTER_CATEGORY("SceneCategory");
   s_hUpdatePrefabs = EZ_REGISTER_ACTION_1("ActionUpdatePrefabs", ezActionScope::Document, "Scene", "Ctrl+Shift+P", ezSceneAction, ezSceneAction::ActionType::UpdatePrefabs);
   s_hExportScene = EZ_REGISTER_ACTION_1("ActionExportScene", ezActionScope::Document, "Scene", "Ctrl+E", ezSceneAction, ezSceneAction::ActionType::ExportScene);
+  s_hRunScene = EZ_REGISTER_ACTION_1("ActionRunScene", ezActionScope::Document, "Scene", "Ctrl+R", ezSceneAction, ezSceneAction::ActionType::RunScene);
 }
 
 void ezSceneActions::UnregisterActions()
@@ -23,6 +26,7 @@ void ezSceneActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hSceneCategory);
   ezActionManager::UnregisterAction(s_hUpdatePrefabs);
   ezActionManager::UnregisterAction(s_hExportScene);
+  ezActionManager::UnregisterAction(s_hRunScene);
 }
 
 void ezSceneActions::MapActions(const char* szMapping, const char* szPath)
@@ -36,6 +40,7 @@ void ezSceneActions::MapActions(const char* szMapping, const char* szPath)
   
   pMap->MapAction(s_hUpdatePrefabs, sSubPath, 1.0f);
   pMap->MapAction(s_hExportScene, sSubPath, 2.0f);
+  pMap->MapAction(s_hRunScene, sSubPath, 3.0f);
 }
 
 
@@ -52,6 +57,9 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
   case ActionType::ExportScene:
     //SetIconPath(":/GuiFoundation/Icons/Scenegraph16.png"); /// \todo icon
     break;
+  case ActionType::RunScene:
+	  //SetIconPath(":/GuiFoundation/Icons/Scenegraph16.png"); /// \todo icon
+	  break;
   }
 }
 
@@ -69,6 +77,19 @@ void ezSceneAction::Execute(const ezVariant& value)
   case ActionType::ExportScene:
     m_pSceneDocument->TriggerExportScene();
     return;
+  case ActionType::RunScene:
+	{
+		/// \todo
+		//ezUIServices::
+
+		QStringList arguments;
+		arguments << "-scene";
+		arguments << QLatin1String("D:\\test.scene");
+
+		QProcess proc;
+		proc.startDetached(QString::fromUtf8("Player.exe"), arguments);
+	}
+	return;
   }
 }
 
