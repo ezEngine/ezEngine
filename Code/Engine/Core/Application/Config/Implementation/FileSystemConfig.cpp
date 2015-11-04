@@ -152,3 +152,7 @@ ezResult ezApplicationFileSystemConfig::CreateDataDirStubFiles()
   return EZ_SUCCESS;
 }
 
+
+
+EZ_STATICLINK_FILE(Core, Core_Application_Config_Implementation_FileSystemConfig);
+

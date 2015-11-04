@@ -82,3 +82,7 @@ ezResult ezTagRegistry::GetTag(const ezHashedString& TagString, ezTag& ResultTag
   return EZ_FAILURE;
 }
 
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_TagRegistry);
+

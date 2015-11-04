@@ -135,3 +135,8 @@ void ezWorldReader::FulfillComponentHandleRequets()
     *req.m_pWriteToComponent = m_IndexToComponentHandle[req.m_uiComponentIndex];
   }
 }
+
+
+
+EZ_STATICLINK_FILE(Core, Core_WorldSerializer_Implementation_WorldReader);
+

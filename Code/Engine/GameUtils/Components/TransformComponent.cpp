@@ -131,3 +131,8 @@ float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration,
   // return the distance with the decelerated movement
   return fDistanceInMeters - 0.5f * fDeceleration * ezMath::Square(fDecTime - fDecTime2);
 }
+
+
+
+EZ_STATICLINK_FILE(GameUtils, GameUtils_Components_TransformComponent);
+

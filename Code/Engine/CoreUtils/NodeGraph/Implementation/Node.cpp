@@ -70,3 +70,8 @@ const ezNodePin* ezNode::GetPinByName(const char* szName) const
 
   return nullptr;
 }
+
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_NodeGraph_Implementation_Node);
+

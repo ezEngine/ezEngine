@@ -101,3 +101,8 @@ void ezApplicationPluginConfig::Apply()
   }
 
 }
+
+
+
+EZ_STATICLINK_FILE(Core, Core_Application_Config_Implementation_PluginConfig);
+

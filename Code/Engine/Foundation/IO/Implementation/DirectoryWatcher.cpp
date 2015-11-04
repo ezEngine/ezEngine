@@ -7,3 +7,8 @@
 #else
 #error "Unknown Platform."
 #endif
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_DirectoryWatcher);
+

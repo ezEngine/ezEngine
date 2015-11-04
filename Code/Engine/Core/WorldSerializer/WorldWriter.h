@@ -2,11 +2,12 @@
 
 #include <Core/World/World.h>
 #include <Foundation/IO/Stream.h>
+#include <Foundation/Types/TagSet.h>
 
 class EZ_CORE_DLL ezWorldWriter
 {
 public:
-  void Write(ezStreamWriter& stream, ezWorld& world);
+  void Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet* pExclude = nullptr);
 
   void WriteHandle(const ezGameObjectHandle& hObject);
   void WriteHandle(const ezComponentHandle& hComponent);
@@ -20,6 +21,7 @@ private:
 
   ezStreamWriter* m_pStream;
   ezWorld* m_pWorld;
+  const ezTagSet* m_pExclude;
 
   ezDeque<const ezGameObject*> m_AllObjects;
   ezHashTable<const ezRTTI*, ezDeque<const ezComponent*>> m_AllComponents;

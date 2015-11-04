@@ -3,6 +3,8 @@
 #include <RendererCore/Basics.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Threading/Mutex.h>
+#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/Resources/ResourceFormats.h>
 
 /// \brief This class serves as a pool for GPU related resources (e.g. buffers and textures required for rendering).
 /// Note that the functions creating and returning render targets are thread safe (by using a mutex).

@@ -149,3 +149,8 @@ const char* ezTranslatorLogMissing::Translate(const char* szString, ezUInt32 uiS
   StoreTranslation(szString, uiStringHash);
   return szString;
 }
+
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Localization_Implementation_TranslationLookup);
+

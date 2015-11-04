@@ -18,3 +18,7 @@ const char* ezApplicationConfig::GetProjectDirectory()
 }
 
 
+
+
+EZ_STATICLINK_FILE(Core, Core_Application_Config_Implementation_ApplicationConfig);
+

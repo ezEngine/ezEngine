@@ -21,6 +21,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Configuration_Implementation_Startup);
   EZ_STATICLINK_REFERENCE(Foundation_IO_FileSystem_Implementation_DataDirType);
   EZ_STATICLINK_REFERENCE(Foundation_IO_FileSystem_Implementation_DataDirTypeFolder);
+  EZ_STATICLINK_REFERENCE(Foundation_IO_FileSystem_Implementation_DeferredFileWriter);
   EZ_STATICLINK_REFERENCE(Foundation_IO_FileSystem_Implementation_FileReader);
   EZ_STATICLINK_REFERENCE(Foundation_IO_FileSystem_Implementation_FileSystem);
   EZ_STATICLINK_REFERENCE(Foundation_IO_FileSystem_Implementation_FileWriter);
@@ -28,6 +29,8 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_ArchiveWriter);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_ChunkStream);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_CompressedStream);
+  EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_DependencyFile);
+  EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_DirectoryWatcher);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_ExtendedJSONReader);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_ExtendedJSONWriter);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_JSONParser);
@@ -41,6 +44,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_HTMLWriter);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_Log);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_VisualStudioWriter);
+  EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Color);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Float16);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Frustum);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Intersection);
@@ -48,13 +52,21 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_AllocatorBase);
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_AllocatorWrapper);
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_EndianHelper);
+  EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_FrameAllocator);
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_MemoryTracker);
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_MemoryUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_PageAllocator);
   EZ_STATICLINK_REFERENCE(Foundation_Profiling_Implementation_Profiling);
+  EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_PropertyAttributes);
   EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_RTTI);
   EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_ReflectionUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_StandardTypes);
+  EZ_STATICLINK_REFERENCE(Foundation_Serialization_Implementation_AbstractObjectGraph);
+  EZ_STATICLINK_REFERENCE(Foundation_Serialization_Implementation_BinarySerializer);
+  EZ_STATICLINK_REFERENCE(Foundation_Serialization_Implementation_JsonSerializer);
+  EZ_STATICLINK_REFERENCE(Foundation_Serialization_Implementation_ReflectionSerializer);
+  EZ_STATICLINK_REFERENCE(Foundation_Serialization_Implementation_RttiConverterReader);
+  EZ_STATICLINK_REFERENCE(Foundation_Serialization_Implementation_RttiConverterWriter);
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_HashedString);
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_PathUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_StringBuilder);
@@ -77,6 +89,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_Stopwatch);
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_Time);
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_Timestamp);
+  EZ_STATICLINK_REFERENCE(Foundation_Types_Implementation_TagRegistry);
   EZ_STATICLINK_REFERENCE(Foundation_Types_Implementation_Variant);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_CommandLineUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_ConversionUtils);

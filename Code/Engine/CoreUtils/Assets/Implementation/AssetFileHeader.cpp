@@ -69,3 +69,8 @@ void ezAssetFileHeader::Read(ezStreamReader& stream)
 
   m_uiHash = uiHash;
 }
+
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Assets_Implementation_AssetFileHeader);
+

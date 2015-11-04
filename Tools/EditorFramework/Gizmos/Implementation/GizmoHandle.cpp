@@ -312,6 +312,13 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
     pObject->GetTags().Set(tagNoOrtho);
   }
 
+  {
+    ezTag tagEditor;
+    ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tagEditor);
+
+    pObject->GetTags().Set(tagEditor);
+  }
+
   ezMeshComponentManager* pMeshCompMan = pWorld->GetComponentManager<ezMeshComponentManager>();
   pMeshCompMan->CreateComponent(m_pMeshComponent);
 

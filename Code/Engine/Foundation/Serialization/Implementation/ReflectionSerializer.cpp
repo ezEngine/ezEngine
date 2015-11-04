@@ -113,3 +113,8 @@ void ezReflectionSerializer::ReadObjectPropertiesFromBinary(ezStreamReader& stre
 
   convRead.ApplyPropertiesToObject(pRootNode, &rtti, pObject);
 }
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_ReflectionSerializer);
+

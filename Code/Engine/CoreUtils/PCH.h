@@ -15,6 +15,7 @@
 #include <Foundation/Configuration/SubSystem.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
@@ -25,6 +26,7 @@
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Math/BoundingBox.h>
+#include <Foundation/Math/Color.h>
 #include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Math/Frustum.h>
 #include <Foundation/Math/Mat4.h>
@@ -32,6 +34,9 @@
 #include <Foundation/Math/Size.h>
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/PCH.h>
+#include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Strings/PathUtils.h>
 #include <Foundation/Strings/String.h>
@@ -40,6 +45,7 @@
 #include <Foundation/Time/Timestamp.h>
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/Types.h>
+#include <Foundation/Types/UniquePtr.h>
 #include <Foundation/Types/Variant.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <Foundation/Utilities/EnumerableClass.h>

@@ -7,6 +7,7 @@
 
 
 #include <Core/PCH.h>
+#include <Core/World/Component.h>
 #include <Core/World/GameObject.h>
 #include <Core/World/World.h>
 #include <CoreUtils/PCH.h>
@@ -20,4 +21,5 @@
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/PCH.h>
+#include <Foundation/Time/Time.h>
 

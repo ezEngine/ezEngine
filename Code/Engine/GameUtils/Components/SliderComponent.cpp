@@ -101,3 +101,7 @@ void ezSliderComponent::Update()
   }
 }
 
+
+
+EZ_STATICLINK_FILE(GameUtils, GameUtils_Components_SliderComponent);
+

@@ -361,3 +361,8 @@ void ezAbstractObjectGraph::RemapVariant(ezVariant& value, const ezMap<ezUuid, e
     }
   }
 }
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_AbstractObjectGraph);
+

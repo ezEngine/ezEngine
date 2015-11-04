@@ -6,6 +6,7 @@ EZ_STATICLINK_LIBRARY(CoreUtils)
   if (bReturn)
     return;
 
+  EZ_STATICLINK_REFERENCE(CoreUtils_Assets_Implementation_AssetFileHeader);
   EZ_STATICLINK_REFERENCE(CoreUtils_CodeUtils_Implementation_Conditions);
   EZ_STATICLINK_REFERENCE(CoreUtils_CodeUtils_Implementation_Defines);
   EZ_STATICLINK_REFERENCE(CoreUtils_CodeUtils_Implementation_Expand);
@@ -21,6 +22,7 @@ EZ_STATICLINK_LIBRARY(CoreUtils)
   EZ_STATICLINK_REFERENCE(CoreUtils_Console_Implementation_LuaInterpreter);
   EZ_STATICLINK_REFERENCE(CoreUtils_DataStructures_DynamicTree_Implementation_DynamicOctree);
   EZ_STATICLINK_REFERENCE(CoreUtils_DataStructures_DynamicTree_Implementation_DynamicQuadtree);
+  EZ_STATICLINK_REFERENCE(CoreUtils_DataStructures_Implementation_ObjectMetaData);
   EZ_STATICLINK_REFERENCE(CoreUtils_Debugging_Implementation_DataTransfer);
   EZ_STATICLINK_REFERENCE(CoreUtils_Geometry_Implementation_GeomUtils);
   EZ_STATICLINK_REFERENCE(CoreUtils_Geometry_Implementation_OBJLoader);
@@ -40,6 +42,8 @@ EZ_STATICLINK_LIBRARY(CoreUtils)
   EZ_STATICLINK_REFERENCE(CoreUtils_Image_Implementation_ImageFormatMappings);
   EZ_STATICLINK_REFERENCE(CoreUtils_Image_Implementation_ImageUtils);
   EZ_STATICLINK_REFERENCE(CoreUtils_Image_Implementation_SubSystem);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Localization_Implementation_TranslationLookup);
+  EZ_STATICLINK_REFERENCE(CoreUtils_NodeGraph_Implementation_Node);
   EZ_STATICLINK_REFERENCE(CoreUtils_Scripting_LuaWrapper_CFunctions);
   EZ_STATICLINK_REFERENCE(CoreUtils_Scripting_LuaWrapper_Initialize);
   EZ_STATICLINK_REFERENCE(CoreUtils_Scripting_LuaWrapper_Tables);

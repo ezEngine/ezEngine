@@ -178,3 +178,8 @@ ezResult ezDependencyFile::ReadDependencyFile(const char* szFile)
 
   return ReadDependencyFile(file);
 }
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_DependencyFile);
+

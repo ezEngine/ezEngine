@@ -124,3 +124,6 @@ void ezAbstractGraphJsonSerializer::Read(ezStreamReader& stream, ezAbstractObjec
 
 
 
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_JsonSerializer);
+

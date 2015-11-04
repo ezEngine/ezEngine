@@ -219,11 +219,13 @@ void ezEngineProcessDocumentContext::ExportScene(const ezExportSceneMsgToEngine*
       return;
     }
 
-
-    /// \todo Filter out editor gizmo's etc.
+    ezTag tagEditor;
+    ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tagEditor);
+    ezTagSet tags;
+    tags.Set(tagEditor);
 
     ezWorldWriter ww;
-    ww.Write(file, *m_pWorld);
+    ww.Write(file, *m_pWorld, &tags);
   }
 
   {

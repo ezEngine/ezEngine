@@ -364,3 +364,8 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
 
   ezRenderLoop::ExtractMainViews();
 }
+
+
+
+EZ_STATICLINK_FILE(GameFoundation, GameFoundation_GameApplication);
+

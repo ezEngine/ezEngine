@@ -5,11 +5,11 @@
 
 #include <Core/World/World.h>
 
-static ezProfilingId s_PreAsyncProfilingID          = ezProfilingSystem::CreateId("Pre-Async Phase");
-static ezProfilingId s_AsyncProfilingID             = ezProfilingSystem::CreateId("Async Phase");
-static ezProfilingId s_PostAsyncProfilingID         = ezProfilingSystem::CreateId("Post-Async Phase");
-static ezProfilingId s_UpdateTransformsProfilingID  = ezProfilingSystem::CreateId("Update Transforms");
-static ezProfilingId s_PostTransformProfilingID     = ezProfilingSystem::CreateId("Post-Transform Phase");
+static ezProfilingId s_PreAsyncProfilingID = ezProfilingSystem::CreateId("Pre-Async Phase");
+static ezProfilingId s_AsyncProfilingID = ezProfilingSystem::CreateId("Async Phase");
+static ezProfilingId s_PostAsyncProfilingID = ezProfilingSystem::CreateId("Post-Async Phase");
+static ezProfilingId s_UpdateTransformsProfilingID = ezProfilingSystem::CreateId("Update Transforms");
+static ezProfilingId s_PostTransformProfilingID = ezProfilingSystem::CreateId("Post-Transform Phase");
 static ezProfilingId s_DeleteDeadObjectsProfilingID = ezProfilingSystem::CreateId("Delete Dead Objects");
 
 ezStaticArray<ezWorld*, 64> ezWorld::s_Worlds;
@@ -105,8 +105,8 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pNewObject->m_Flags = desc.m_Flags;
   pNewObject->m_sName = desc.m_sName;
   pNewObject->m_pWorld = this;
-  pNewObject->m_ParentIndex = uiParentIndex; 
-  
+  pNewObject->m_ParentIndex = uiParentIndex;
+
   // fix links
   LinkToParent(pNewObject);
 
@@ -131,8 +131,8 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   else
   {
     pTransformationData->UpdateGlobalTransform();
-  }   
-    
+  }
+
   // link the transformation data to the game object
   pNewObject->m_pTransformationData = pTransformationData;
 
@@ -196,8 +196,8 @@ ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pRtti) const
   return nullptr;
 }
 
-void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
-  ezObjectMsgQueueType::Enum queueType, ezObjectMsgRouting::Enum routing)
+void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg,
+                          ezObjectMsgQueueType::Enum queueType, ezObjectMsgRouting::Enum routing)
 {
   // This method is allowed to be called from multiple threads.
 
@@ -209,8 +209,8 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& m
   m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
 }
 
-void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
-  ezObjectMsgQueueType::Enum queueType, ezTime delay, ezObjectMsgRouting::Enum routing)
+void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg,
+                          ezObjectMsgQueueType::Enum queueType, ezTime delay, ezObjectMsgRouting::Enum routing)
 {
   // This method is allowed to be called from multiple threads.
 
@@ -234,7 +234,7 @@ void ezWorld::Update()
   // pre-async phase
   {
     EZ_PROFILE(s_PreAsyncProfilingID);
-    ProcessQueuedMessages(ezObjectMsgQueueType::NextFrame);  
+    ProcessQueuedMessages(ezObjectMsgQueueType::NextFrame);
     UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::PreAsync]);
   }
 
@@ -339,7 +339,7 @@ void ezWorld::UnlinkFromParent(ezGameObject* pObject)
 
     if (ezGameObject* pPrevObject = GetObjectUnchecked(pObject->m_PrevSiblingIndex))
       pPrevObject->m_NextSiblingIndex = pObject->m_NextSiblingIndex;
-      
+
     pParentObject->m_ChildCount--;
     pObject->m_ParentIndex = 0;
 
@@ -362,7 +362,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 
       if (a.m_MetaData.m_ReceiverObject != b.m_MetaData.m_ReceiverObject)
         return a.m_MetaData.m_ReceiverObject < b.m_MetaData.m_ReceiverObject;
-          
+
       return a.m_pMessage->GetHash() < b.m_pMessage->GetHash();
     }
   };
@@ -449,8 +449,8 @@ ezResult ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFun
   return EZ_SUCCESS;
 }
 
-ezResult ezWorld::RegisterUpdateFunctionWithDependency(const ezComponentManagerBase::UpdateFunctionDesc& desc, 
-  bool bInsertAsUnresolved)
+ezResult ezWorld::RegisterUpdateFunctionWithDependency(const ezComponentManagerBase::UpdateFunctionDesc& desc,
+                                                       bool bInsertAsUnresolved)
 {
   ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase];
   ezUInt32 uiInsertionIndex = 0;
@@ -547,7 +547,7 @@ void ezWorld::UpdateAsynchronous()
 {
   ezTaskGroupID taskGroupId = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
 
-  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = 
+  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions =
     m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Async];
 
   ezUInt32 uiCurrentTaskIndex = 0;
@@ -573,7 +573,7 @@ void ezWorld::UpdateAsynchronous()
         pTask = EZ_NEW(&m_Data.m_Allocator, ezInternal::WorldData::UpdateTask);
         m_Data.m_UpdateTasks.PushBack(pTask);
       }
-            
+
       pTask->SetTaskName(updateFunction.m_szFunctionName);
       pTask->m_Function = updateFunction.m_Function;
       pTask->m_uiStartIndex = uiStartIndex;
@@ -599,10 +599,10 @@ void ezWorld::DeleteDeadObjects()
     ObjectStorageEntry entry = m_Data.m_DeadObjects[i];
     ezGameObject* pObject = entry.m_Ptr;
 
-    m_Data.DeleteTransformationData(pObject->m_Flags, pObject->m_uiHierarchyLevel, 
-      pObject->m_uiTransformationDataIndex);
+    m_Data.DeleteTransformationData(pObject->m_Flags, pObject->m_uiHierarchyLevel,
+                                    pObject->m_uiTransformationDataIndex);
     m_Data.m_ObjectStorage.Delete(entry);
-    
+
     // patch the id table: the last element in the storage has been moved to deleted object's location, 
     // thus the pointer now points to another object
     ezGameObjectId id = entry.m_Ptr->m_InternalId;
@@ -624,7 +624,7 @@ void ezWorld::DeleteDeadComponents()
     ezComponentManagerBase* pManager = m_Data.m_ComponentManagers[entry.m_Ptr->GetTypeId()];
     ezComponent* pMovedComponent = nullptr;
     pManager->DeleteDeadComponent(entry, pMovedComponent);
-    
+
     // another component has been moved to the deleted component location
     if (entry.m_Ptr != pMovedComponent)
     {
@@ -632,7 +632,7 @@ void ezWorld::DeleteDeadComponents()
       {
         pOwner->FixComponentPointer(pMovedComponent, entry.m_Ptr);
       }
-    }    
+    }
   }
 
   m_Data.m_DeadComponents.Clear();
@@ -659,7 +659,7 @@ void ezWorld::PatchHierarchyData(ezGameObject* pObject)
     pNewTransformationData->m_globalBounds = pObject->m_pTransformationData->m_globalBounds;
 
     m_Data.DeleteTransformationData(pObject->m_Flags, pObject->m_uiHierarchyLevel,
-      pObject->m_uiTransformationDataIndex);
+                                    pObject->m_uiTransformationDataIndex);
 
     pObject->m_uiHierarchyLevel = uiNewHierarchyLevel;
     pObject->m_uiTransformationDataIndex = uiTransformationDataIndex;

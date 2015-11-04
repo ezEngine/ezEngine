@@ -122,3 +122,7 @@ void ezRotorComponent::Update()
 
 
 
+
+
+EZ_STATICLINK_FILE(GameUtils, GameUtils_Components_RotorComponent);
+

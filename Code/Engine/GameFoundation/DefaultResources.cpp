@@ -21,3 +21,7 @@ void ezGameApplication::SetupDefaultResources()
 }
 
 
+
+
+EZ_STATICLINK_FILE(GameFoundation, GameFoundation_DefaultResources);
+

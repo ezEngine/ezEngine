@@ -2,10 +2,11 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 
 
-void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world)
+void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet* pExclude)
 {
   m_pStream = &stream;
   m_pWorld = &world;
+  m_pExclude = pExclude;
 
   EZ_LOCK(m_pWorld->GetReadMarker());
 
@@ -70,6 +71,9 @@ void ezWorldWriter::WriteHandle(const ezComponentHandle& hComponent)
 
 bool ezWorldWriter::ObjectTraverser(ezGameObject* pObject)
 {
+  if (m_pExclude && pObject->GetTags().IsAnySet(*m_pExclude))
+    return true;
+
   m_AllObjects.PushBack(pObject);
 
   if (!m_WrittenGameObjectHandles.Find(pObject->GetHandle()).IsValid())
@@ -141,4 +145,8 @@ void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<con
   }
 
 }
+
+
+
+EZ_STATICLINK_FILE(Core, Core_WorldSerializer_Implementation_WorldWriter);
 
