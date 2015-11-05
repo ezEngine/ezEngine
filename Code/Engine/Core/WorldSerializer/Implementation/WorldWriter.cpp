@@ -52,7 +52,6 @@ void ezWorldWriter::WriteHandle(const ezGameObjectHandle& hObject)
   if (it.IsValid())
     uiIndex = it.Value();
 
-  EZ_ASSERT_DEBUG(uiIndex < 23, "");
   *m_pStream << uiIndex;
 }
 
@@ -76,20 +75,8 @@ bool ezWorldWriter::ObjectTraverser(ezGameObject* pObject)
 
   m_AllObjects.PushBack(pObject);
 
-  if (!m_WrittenGameObjectHandles.Find(pObject->GetHandle()).IsValid())
-  {
-	  const ezUInt32 uiObjectIdx = m_WrittenGameObjectHandles.GetCount();
-	  m_WrittenGameObjectHandles[pObject->GetHandle()] = uiObjectIdx;
-  }
-  else
-  {
-	  EZ_REPORT_FAILURE("Object already visited");
-  }
-
-  if (pObject->GetParent())
-  {
-	  EZ_ASSERT_DEV(m_WrittenGameObjectHandles.Find(pObject->GetParent()->GetHandle()).IsValid(), "parent not yet written!");
-  }
+  const ezUInt32 uiObjectIdx = m_WrittenGameObjectHandles.GetCount();
+  m_WrittenGameObjectHandles[pObject->GetHandle()] = uiObjectIdx;
 
   auto components = pObject->GetComponents();
 
@@ -108,7 +95,7 @@ bool ezWorldWriter::ObjectTraverser(ezGameObject* pObject)
 void ezWorldWriter::WriteGameObject(const ezGameObject* pObject)
 {
   if (pObject->GetParent())
-    WriteHandle(pObject->GetHandle());
+    WriteHandle(pObject->GetParent()->GetHandle());
   else
     WriteHandle(ezGameObjectHandle());
 

@@ -49,7 +49,7 @@ void GameState::SetupInput()
 void GameState::BeforeWorldUpdate()
 {
   float fRotateSpeed = 180.0f;
-  float fMoveSpeed = 100.0f;
+  float fMoveSpeed = 10.0f;
   float fInput = 0.0f;
 
   if (ezInputManager::GetInputActionState("Game", "Run", &fInput) != ezKeyState::Up)
@@ -62,12 +62,12 @@ void GameState::BeforeWorldUpdate()
   if (ezInputManager::GetInputActionState("Game", "MoveLeft", &fInput) != ezKeyState::Up)
     m_Camera.MoveLocally(0, -fInput * fMoveSpeed, 0);
   if (ezInputManager::GetInputActionState("Game", "MoveRight", &fInput) != ezKeyState::Up)
-    m_Camera.MoveLocally(0,  fInput * fMoveSpeed, 0);
+    m_Camera.MoveLocally(0, fInput * fMoveSpeed, 0);
 
   if (ezInputManager::GetInputActionState("Game", "MoveUp", &fInput) != ezKeyState::Up)
-    m_Camera.MoveGlobally(ezVec3( 0, 0, fInput * fMoveSpeed));
+    m_Camera.MoveGlobally(ezVec3(0, 0, fInput * fMoveSpeed));
   if (ezInputManager::GetInputActionState("Game", "MoveDown", &fInput) != ezKeyState::Up)
-    m_Camera.MoveGlobally(ezVec3( 0, 0, -fInput * fMoveSpeed));
+    m_Camera.MoveGlobally(ezVec3(0, 0, -fInput * fMoveSpeed));
 
   if (ezInputManager::GetInputActionState("Game", "TurnLeft", &fInput) != ezKeyState::Up)
     m_Camera.RotateGlobally(ezAngle(), ezAngle(), ezAngle::Degree(-fRotateSpeed * fInput));

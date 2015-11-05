@@ -267,7 +267,7 @@ void ezQtSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneE
   case ezSceneDocument::SceneEvent::Type::ExportScene:
     {
       ezExportSceneMsgToEngine msg;
-      msg.m_sOutputFile = "D:\\Test.scene";
+      msg.m_sOutputFile = GetSceneDocument()->GetBinaryTargetFile();
 
       GetEditorEngineConnection()->SendMessage(&msg);
     }
@@ -422,7 +422,7 @@ void ezQtSceneDocumentWindow::SaveViewConfig(QSettings& Settings, const ezSceneV
 
   Settings.beginGroup(QLatin1String(s.GetData()));
   {
-    Settings.setValue(QLatin1String("Perspective"), (int) cfg.m_Perspective);
+    Settings.setValue(QLatin1String("Perspective"), (int)cfg.m_Perspective);
     Settings.setValue(QLatin1String("Mode"), (int)cfg.m_RenderMode);
   }
   Settings.endGroup();

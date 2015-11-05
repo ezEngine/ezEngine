@@ -319,7 +319,7 @@ void ezSceneDocument::RevertPrefabs(const ezDeque<const ezDocumentObject*>& Sele
 
     const ezVec3 vLocalPos = pItem->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
     const ezQuat vLocalRot = pItem->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
-    const ezVec3 vLocalScale=pItem->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
+    const ezVec3 vLocalScale = pItem->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
 
     ezRemoveObjectCommand remCmd;
     remCmd.m_Object = pItem->GetGuid();
@@ -366,6 +366,19 @@ void ezSceneDocument::RevertPrefabs(const ezDeque<const ezDocumentObject*>& Sele
   }
 
   pHistory->FinishTransaction();
+}
+
+
+ezString ezSceneDocument::GetBinaryTargetFile() const
+{
+  ezStringBuilder sTargetFile = GetDocumentPath();
+
+  if (m_bIsPrefab)
+    sTargetFile.ChangeFileExtension("ezBinaryPrefab");
+  else
+    sTargetFile.ChangeFileExtension("ezBinaryScene");
+
+  return sTargetFile;
 }
 
 void ezSceneDocument::SetGizmoWorldSpace(bool bWorldSpace)

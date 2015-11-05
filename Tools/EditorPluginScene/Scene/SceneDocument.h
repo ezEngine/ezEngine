@@ -71,7 +71,10 @@ public:
   void UpdatePrefabs();
   void TriggerExportScene();
   void RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
-  
+
+  bool IsPrefab() const { return m_bIsPrefab; }
+  ezString GetBinaryTargetFile() const;
+
   void SetGizmoWorldSpace(bool bWorldSpace);
   bool GetGizmoWorldSpace() const;
 
@@ -153,7 +156,7 @@ private:
 
   virtual ezUInt16 GetAssetTypeVersion() const override;
 
-  
+
 
   bool m_bIsPrefab;
   bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
@@ -164,5 +167,5 @@ private:
   ezHashTable<const ezDocumentObject*, ezTransform> m_GlobalTransforms;
 
   ezMap<ezUuid, ezString> m_CachedPrefabGraphs;
-  
+
 };

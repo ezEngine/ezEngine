@@ -37,7 +37,7 @@ void ezSceneActions::MapActions(const char* szMapping, const char* szPath)
   ezStringBuilder sSubPath(szPath, "/SceneCategory");
 
   pMap->MapAction(s_hSceneCategory, szPath, 6.0f);
-  
+
   pMap->MapAction(s_hUpdatePrefabs, sSubPath, 1.0f);
   pMap->MapAction(s_hExportScene, sSubPath, 2.0f);
   pMap->MapAction(s_hRunScene, sSubPath, 3.0f);
@@ -58,8 +58,8 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
     //SetIconPath(":/GuiFoundation/Icons/Scenegraph16.png"); /// \todo icon
     break;
   case ActionType::RunScene:
-	  //SetIconPath(":/GuiFoundation/Icons/Scenegraph16.png"); /// \todo icon
-	  break;
+    //SetIconPath(":/GuiFoundation/Icons/Scenegraph16.png"); /// \todo icon
+    break;
   }
 }
 
@@ -78,18 +78,18 @@ void ezSceneAction::Execute(const ezVariant& value)
     m_pSceneDocument->TriggerExportScene();
     return;
   case ActionType::RunScene:
-	{
-		/// \todo
-		//ezUIServices::
+    {
+      /// \todo
+      //ezUIServices::
 
-		QStringList arguments;
-		arguments << "-scene";
-		arguments << QLatin1String("D:\\test.scene");
+      QStringList arguments;
+      arguments << "-scene";
+      arguments << QString::fromUtf8(m_pSceneDocument->GetBinaryTargetFile().GetData());
 
-		QProcess proc;
-		proc.startDetached(QString::fromUtf8("Player.exe"), arguments);
-	}
-	return;
+      QProcess proc;
+      proc.startDetached(QString::fromUtf8("Player.exe"), arguments);
+    }
+    return;
   }
 }
 

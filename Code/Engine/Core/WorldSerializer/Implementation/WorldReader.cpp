@@ -70,14 +70,14 @@ ezGameObject* ezWorldReader::ReadGameObject()
 
   desc.m_Flags = ezObjectFlags::Default;
   desc.m_hParent = ReadHandle();
-  
+
   *m_pStream >> sName;
   *m_pStream >> desc.m_LocalPosition;
   *m_pStream >> desc.m_LocalRotation;
   *m_pStream >> desc.m_LocalScaling;
 
   desc.m_sName.Assign(sName.GetData());
-  
+
   // desc.m_Flags ..
 
   ezGameObject* pObject;

@@ -211,35 +211,20 @@ void ezEngineProcessDocumentContext::CleanUpContextSyncObjects()
 
 void ezEngineProcessDocumentContext::ExportScene(const ezExportSceneMsgToEngine* pMsg)
 {
+  ezFileWriter file;
+  if (file.Open(pMsg->m_sOutputFile).Failed())
   {
-    ezFileWriter file;
-    if (file.Open(pMsg->m_sOutputFile).Failed())
-    {
-      ezLog::Error("Could not write to file '%s'", pMsg->m_sOutputFile.GetData());
-      return;
-    }
-
-    ezTag tagEditor;
-    ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tagEditor);
-    ezTagSet tags;
-    tags.Set(tagEditor);
-
-    ezWorldWriter ww;
-    ww.Write(file, *m_pWorld, &tags);
+    ezLog::Error("Could not write to file '%s'", pMsg->m_sOutputFile.GetData());
+    return;
   }
 
-  {
-    ezFileReader file;
-    if (file.Open(pMsg->m_sOutputFile).Failed())
-    {
-      ezLog::Error("Could not write to file '%s'", pMsg->m_sOutputFile.GetData());
-      return;
-    }
+  ezTag tagEditor;
+  ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tagEditor);
+  ezTagSet tags;
+  tags.Set(tagEditor);
 
-
-    ezWorldReader ww;
-    ww.Read(file, *m_pWorld);
-  }
+  ezWorldWriter ww;
+  ww.Write(file, *m_pWorld, &tags);
 }
 
 void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEditorEngineSyncObjectMsg& msg)
