@@ -266,8 +266,11 @@ void ezQtSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneE
 
   case ezSceneDocument::SceneEvent::Type::ExportScene:
     {
+      const ezAssetDocumentInfo* pInfo = static_cast<const ezAssetDocumentInfo*>(GetSceneDocument()->GetDocumentInfo());
+
       ezExportSceneMsgToEngine msg;
       msg.m_sOutputFile = GetSceneDocument()->GetBinaryTargetFile();
+      msg.m_uiAssetHash = pInfo->m_uiSettingsHash;
 
       GetEditorEngineConnection()->SendMessage(&msg);
     }

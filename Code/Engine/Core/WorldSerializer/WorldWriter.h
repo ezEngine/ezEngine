@@ -23,7 +23,8 @@ private:
   ezWorld* m_pWorld;
   const ezTagSet* m_pExclude;
 
-  ezDeque<const ezGameObject*> m_AllObjects;
+  ezDeque<const ezGameObject*> m_AllRootObjects;
+  ezDeque<const ezGameObject*> m_AllChildObjects;
   ezHashTable<const ezRTTI*, ezDeque<const ezComponent*>> m_AllComponents;
   ezUInt32 m_uiNumComponents;
 

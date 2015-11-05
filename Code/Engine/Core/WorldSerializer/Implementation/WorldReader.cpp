@@ -2,10 +2,14 @@
 #include <Core/WorldSerializer/WorldReader.h>
 
 
-void ezWorldReader::Read(ezStreamReader& stream, ezWorld& world)
+void ezWorldReader::Read(ezStreamReader& stream, ezWorld& world, const ezVec3& vRootPosition, const ezQuat& qRootRotation, const ezVec3& vRootScale)
 {
   m_pStream = &stream;
   m_pWorld = &world;
+
+  m_vRootPosition = vRootPosition;
+  m_qRootRotation = qRootRotation;
+  m_vRootScale = vRootScale;
 
   EZ_LOCK(m_pWorld->GetWriteMarker());
 
@@ -14,8 +18,11 @@ void ezWorldReader::Read(ezStreamReader& stream, ezWorld& world)
 
   EZ_ASSERT_DEV(uiVersion == 1, "Invalid version");
 
-  ezUInt32 uiNumObjects = 0;
-  stream >> uiNumObjects;
+  ezUInt32 uiNumRootObjects = 0;
+  stream >> uiNumRootObjects;
+
+  ezUInt32 uiNumChildObjects = 0;
+  stream >> uiNumChildObjects;
 
   ezUInt32 uiNumComponentTypes = 0;
   stream >> uiNumComponentTypes;
@@ -23,15 +30,21 @@ void ezWorldReader::Read(ezStreamReader& stream, ezWorld& world)
   ezUInt32 uiNumComponents = 0;
   stream >> uiNumComponents;
 
-  m_IndexToGameObjectHandle.Reserve(uiNumObjects + 1);
+  m_IndexToGameObjectHandle.Reserve(uiNumRootObjects + uiNumChildObjects + 1);
   m_IndexToGameObjectHandle.PushBack(ezGameObjectHandle());
 
   m_IndexToComponentHandle.Reserve(uiNumComponents + 1);
   m_IndexToComponentHandle.PushBack(ezComponentHandle());
 
-  for (ezUInt32 i = 0; i < uiNumObjects; ++i)
+  for (ezUInt32 i = 0; i < uiNumRootObjects; ++i)
   {
-    auto pObject = ReadGameObject();
+    auto pObject = ReadGameObject(true);
+    m_IndexToGameObjectHandle.PushBack(pObject->GetHandle());
+  }
+
+  for (ezUInt32 i = 0; i < uiNumChildObjects; ++i)
+  {
+    auto pObject = ReadGameObject(false);
     m_IndexToGameObjectHandle.PushBack(pObject->GetHandle());
   }
 
@@ -63,18 +76,38 @@ void ezWorldReader::ReadHandle(ezComponentHandle* out_hComponent)
   m_ComponentHandleRequests.PushBack(r);
 }
 
-ezGameObject* ezWorldReader::ReadGameObject()
+ezGameObject* ezWorldReader::ReadGameObject(bool bRoot)
 {
   ezGameObjectDesc desc;
   ezStringBuilder sName;
 
-  desc.m_Flags = ezObjectFlags::Default;
+  desc.m_Flags = ezObjectFlags::None;
   desc.m_hParent = ReadHandle();
 
   *m_pStream >> sName;
   *m_pStream >> desc.m_LocalPosition;
   *m_pStream >> desc.m_LocalRotation;
   *m_pStream >> desc.m_LocalScaling;
+
+  if (bRoot)
+  {
+    ezTransform tRoot(m_vRootPosition, m_qRootRotation, m_vRootScale);
+    ezTransform tChild(desc.m_LocalPosition, desc.m_LocalRotation, desc.m_LocalScaling);
+
+    ezTransform tNew;
+    tNew.SetGlobalTransform(tRoot, tChild);
+
+    tNew.Decompose(desc.m_LocalPosition, desc.m_LocalRotation, desc.m_LocalScaling);
+  }
+
+  bool bActive = true;
+  *m_pStream >> bActive;
+
+  bool bDynamic = true;
+  *m_pStream >> bDynamic;
+
+  desc.m_Flags.AddOrRemove(ezObjectFlags::Active, bActive);
+  desc.m_Flags.AddOrRemove(ezObjectFlags::Dynamic, bDynamic);
 
   desc.m_sName.Assign(sName.GetData());
 
@@ -112,12 +145,20 @@ void ezWorldReader::ReadComponentsOfType()
 
     const ezGameObjectHandle hOwner = ReadHandle();
 
+    bool bActive = true;
+    *m_pStream >> bActive;
+
+    bool bDynamic = true;
+    *m_pStream >> bDynamic;
+
     auto hComponent = pManager->CreateComponent();
     m_IndexToComponentHandle.PushBack(hComponent);
-    /// \todo flags, state
 
     ezComponent* pComponent = nullptr;
     pManager->TryGetComponent(hComponent, pComponent);
+
+    pComponent->SetActive(bActive);
+    /// \todo currently everything is always dynamic
 
     pComponent->DeserializeComponent(*this, uiRttiVersion);
 

@@ -218,6 +218,17 @@ void ezEngineProcessDocumentContext::ExportScene(const ezExportSceneMsgToEngine*
     return;
   }
 
+  // File Header
+  {
+    const char* szSceneTag = "[ezBinaryScene]";
+    file.WriteBytes(szSceneTag, sizeof(char) * 16);
+
+    const ezUInt8 uiVersion = 1;
+    file << uiVersion;
+
+    file << pMsg->m_uiAssetHash;
+  }
+
   ezTag tagEditor;
   ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tagEditor);
   ezTagSet tags;

@@ -13,7 +13,8 @@ void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet
   const ezUInt8 uiVersion = 1;
   stream << uiVersion;
 
-  m_AllObjects.Clear();
+  m_AllRootObjects.Clear();
+  m_AllChildObjects.Clear();
   m_AllComponents.Clear();
   m_uiNumComponents = 0;
 
@@ -28,11 +29,17 @@ void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet
 
   m_pWorld->Traverse(ezMakeDelegate(&ezWorldWriter::ObjectTraverser, this), ezWorld::TraversalMethod::DepthFirst);
 
-  stream << m_AllObjects.GetCount();
+  stream << m_AllRootObjects.GetCount();
+  stream << m_AllChildObjects.GetCount();
   stream << m_AllComponents.GetCount();
   stream << m_uiNumComponents;
 
-  for (const auto* pObj : m_AllObjects)
+  for (const auto* pObj : m_AllRootObjects)
+  {
+    WriteGameObject(pObj);
+  }
+
+  for (const auto* pObj : m_AllChildObjects)
   {
     WriteGameObject(pObj);
   }
@@ -73,7 +80,10 @@ bool ezWorldWriter::ObjectTraverser(ezGameObject* pObject)
   if (m_pExclude && pObject->GetTags().IsAnySet(*m_pExclude))
     return true;
 
-  m_AllObjects.PushBack(pObject);
+  if (pObject->GetParent())
+    m_AllChildObjects.PushBack(pObject);
+  else
+    m_AllRootObjects.PushBack(pObject);
 
   const ezUInt32 uiObjectIdx = m_WrittenGameObjectHandles.GetCount();
   m_WrittenGameObjectHandles[pObject->GetHandle()] = uiObjectIdx;
@@ -105,9 +115,10 @@ void ezWorldWriter::WriteGameObject(const ezGameObject* pObject)
   s << pObject->GetLocalPosition();
   s << pObject->GetLocalRotation();
   s << pObject->GetLocalScaling();
+  s << pObject->IsActive();
+  s << pObject->IsDynamic();
 
   /// \todo
-  // flags
   // tags
   // write strings only once
 }
@@ -126,7 +137,8 @@ void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<con
 
     WriteHandle(pComp->GetOwner()->GetHandle());
 
-    /// \todo flags, state
+    s << pComp->IsActive();
+    s << pComp->IsDynamic();
 
     pComp->SerializeComponent(*this);
   }

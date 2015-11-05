@@ -156,6 +156,7 @@ private:
 
   virtual ezUInt16 GetAssetTypeVersion() const override;
 
+  virtual ezStatus InternalSaveDocument() override;
 
 
   bool m_bIsPrefab;

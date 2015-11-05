@@ -26,16 +26,36 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBa
   ezRotorComponentManager* pRotorCompMan = m_pWorld->CreateComponentManager<ezRotorComponentManager>();
 
   {
-	  ezFileReader file;
-	  if (file.Open(szLevelFile).Succeeded())
-	  {
-		  ezWorldReader reader;
-		  reader.Read(file, *m_pWorld);
-	  }
-	  else
-	  {
-		  ezLog::Error("Could not read file '%s'", szLevelFile);
-	  }
+    ezFileReader file;
+    if (file.Open(szLevelFile).Succeeded())
+    {
+      // File Header
+      {
+        char szSceneTag[16];
+        file.ReadBytes(szSceneTag, sizeof(char) * 16);
+
+        EZ_ASSERT_RELEASE(ezStringUtils::IsEqualN(szSceneTag, "[ezBinaryScene]", 16), "The given file is not a valid scene file");
+
+        ezUInt8 uiVersion = 0;
+        file >> uiVersion;
+
+        EZ_ASSERT_RELEASE(uiVersion == 1, "The given scene file has an invalid version: %u", uiVersion);
+
+        ezUInt64 uiHash = 0;
+        file >> uiHash;
+      }
+
+      ezQuat qRot;
+      qRot.SetIdentity();
+      //qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(45));
+
+      ezWorldReader reader;
+      reader.Read(file, *m_pWorld, ezVec3(0), qRot, ezVec3(1.0f));
+    }
+    else
+    {
+      ezLog::Error("Could not read file '%s'", szLevelFile);
+    }
   }
 
   ezVec3 vCameraPos = ezVec3(0.0f, 0.0f, 10.0f);

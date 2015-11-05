@@ -9,18 +9,22 @@ public:
 
   ezStreamReader& GetStream() const { return *m_pStream; }
 
-  void Read(ezStreamReader& stream, ezWorld& world);
+  void Read(ezStreamReader& stream, ezWorld& world, const ezVec3& vRootPosition = ezVec3(0.0f), const ezQuat& qRootRotation = ezQuat::IdentityQuaternion(), const ezVec3& vRootScale = ezVec3(1.0f));
 
   ezGameObjectHandle ReadHandle();
   void ReadHandle(ezComponentHandle* out_hComponent);
 
 private:
-  ezGameObject* ReadGameObject();
+  ezGameObject* ReadGameObject(bool bRoot);
   void ReadComponentsOfType();
   void FulfillComponentHandleRequets();
 
   ezStreamReader* m_pStream;
   ezWorld* m_pWorld;
+
+  ezVec3 m_vRootPosition;
+  ezQuat m_qRootRotation;
+  ezVec3 m_vRootScale;
 
   ezDynamicArray<ezGameObjectHandle> m_IndexToGameObjectHandle;
   ezDynamicArray<ezComponentHandle> m_IndexToComponentHandle;

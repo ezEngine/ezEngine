@@ -104,6 +104,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExportSceneMsgToEngine, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezExportSceneMsgToEngine> );
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("OutputFile", m_sOutputFile),
+    EZ_MEMBER_PROPERTY("AssetHash", m_uiAssetHash),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

@@ -706,3 +706,15 @@ ezUInt16 ezSceneDocument::GetAssetTypeVersion() const
 {
   return 1;
 }
+
+ezStatus ezSceneDocument::InternalSaveDocument()
+{
+  // save the scene properly
+  ezStatus ret = ezAssetDocument::InternalSaveDocument();
+
+  // then also export it automatically if it is a prefab
+  if (ret.m_Result.Succeeded() && IsPrefab())
+    TriggerExportScene();
+
+  return ret;
+}
