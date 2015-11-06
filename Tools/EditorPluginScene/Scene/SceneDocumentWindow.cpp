@@ -8,6 +8,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <QGridLayout>
 #include <QSettings>
+#include <InputContexts/OrthoGizmoContext.h>
 
 ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
@@ -439,6 +440,8 @@ void ezQtSceneDocumentWindow::LoadViewConfig(QSettings& Settings, ezSceneViewCon
   {
     cfg.m_Perspective = (ezSceneViewPerspective::Enum)Settings.value(QLatin1String("Perspective"), (int)cfg.m_Perspective).toInt();
     cfg.m_RenderMode = (ezViewRenderMode::Enum)Settings.value(QLatin1String("Mode"), (int)cfg.m_RenderMode).toInt();
+
+    cfg.ApplyPerspectiveSetting();
   }
   Settings.endGroup();
 }
@@ -493,6 +496,8 @@ void ezQtSceneDocumentWindow::CreateViews(bool bQuad)
       ezQtSceneViewWidgetContainer* pContainer = new ezQtSceneViewWidgetContainer(this, this, &m_CameraMoveSettings, &m_ViewConfigQuad[i]);
       m_ActiveMainViews.PushBack(pContainer);
       m_pViewLayout->addWidget(pContainer, i / 2, i % 2);
+
+      pContainer->GetViewWidget()->m_pOrthoGizmoContext->m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
     }
   }
   else
@@ -500,6 +505,8 @@ void ezQtSceneDocumentWindow::CreateViews(bool bQuad)
     ezQtSceneViewWidgetContainer* pContainer = new ezQtSceneViewWidgetContainer(this, this, &m_CameraMoveSettings, &m_ViewConfigSingle);
     m_ActiveMainViews.PushBack(pContainer);
     m_pViewLayout->addWidget(pContainer, 0, 0);
+
+    pContainer->GetViewWidget()->m_pOrthoGizmoContext->m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
   }
 }
 

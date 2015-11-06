@@ -18,6 +18,7 @@
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
+#include <InputContexts/OrthoGizmoContext.h>
 
 
 
@@ -261,6 +262,23 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmo::Giz
           tNew = obj.m_GlobalTransform;
           tNew.m_vPosition += vTranslate;
           tNew.m_Rotation = qRot.GetAsMat3(); /// \todo preserve scaling ?
+
+          pScene->SetGlobalTransform(obj.m_pObject, tNew);
+        }
+      }
+
+      if (e.m_pGizmo->GetDynamicRTTI()->IsDerivedFrom<ezOrthoGizmoContext>())
+      {
+        const ezOrthoGizmoContext* pOrtho = static_cast<const ezOrthoGizmoContext*>(e.m_pGizmo);
+
+        const ezVec3 vTranslate = pOrtho->GetTranslationResult();
+
+        for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
+        {
+          const auto& obj = m_GizmoSelection[sel];
+
+          tNew = obj.m_GlobalTransform;
+          tNew.m_vPosition += vTranslate;
 
           pScene->SetGlobalTransform(obj.m_pObject, tNew);
         }

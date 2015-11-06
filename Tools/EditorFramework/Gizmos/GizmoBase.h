@@ -38,7 +38,7 @@ public:
       CancelInteractions,
     };
 
-    const ezGizmo* m_pGizmo;
+    const ezEditorInputContext* m_pGizmo;
     Type m_Type;
   };
 
