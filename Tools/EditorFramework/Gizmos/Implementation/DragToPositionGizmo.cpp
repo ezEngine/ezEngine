@@ -87,13 +87,13 @@ void ezDragToPositionGizmo::FocusLost(bool bCancel)
   m_AlignNZ.SetVisible(true);
 }
 
-bool ezDragToPositionGizmo::mousePressEvent(QMouseEvent* e)
+ezEditorInut ezDragToPositionGizmo::mousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
@@ -119,21 +119,21 @@ bool ezDragToPositionGizmo::mousePressEvent(QMouseEvent* e)
   ev.m_Type = GizmoEvent::Type::BeginInteractions;
   m_GizmoEvents.Broadcast(ev);
 
-  return true;
+  return ezEditorInut::WasExclusivelyHandled;
 }
 
-bool ezDragToPositionGizmo::mouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezDragToPositionGizmo::mouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
 
   FocusLost(false);
 
   SetActiveInputContext(nullptr);
-  return true;
+  return ezEditorInut::WasExclusivelyHandled;
 }
 
 static const ezVec3 GetOrthogonalVector(const ezVec3& vDir)
@@ -144,25 +144,25 @@ static const ezVec3 GetOrthogonalVector(const ezVec3& vDir)
   return -vDir.Cross(ezVec3(1, 0, 0));
 }
 
-bool ezDragToPositionGizmo::mouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezDragToPositionGizmo::mouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   const ezTime tNow = ezTime::Now();
 
   if (tNow - m_LastInteraction < ezTime::Seconds(1.0 / 25.0))
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
 
   m_LastInteraction = tNow;
 
   const ezObjectPickingResult& res = GetOwnerWindow()->PickObject(e->pos().x(), e->pos().y());
 
   if (!res.m_PickedObject.IsValid())
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
 
   if (res.m_vPickedPosition.IsNaN() || res.m_vPickedNormal.IsNaN() || res.m_vPickedNormal.IsZero())
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
 
   const ezVec3 vTangent = GetOrthogonalVector(res.m_vPickedNormal).GetNormalized();
   const ezVec3 vBiTangent = res.m_vPickedNormal.Cross(vTangent).GetNormalized();
@@ -219,6 +219,6 @@ bool ezDragToPositionGizmo::mouseMoveEvent(QMouseEvent* e)
   ev.m_Type = GizmoEvent::Type::Interaction;
   m_GizmoEvents.Broadcast(ev);
 
-  return true;
+  return ezEditorInut::WasExclusivelyHandled;
 }
 

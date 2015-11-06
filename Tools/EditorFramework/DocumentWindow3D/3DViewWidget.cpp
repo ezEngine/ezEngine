@@ -173,7 +173,7 @@ void ezQtEngineViewWidget::keyReleaseEvent(QKeyEvent* e)
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
   {
-    if (ezEditorInputContext::GetActiveInputContext()->keyReleaseEvent(e))
+    if (ezEditorInputContext::GetActiveInputContext()->keyReleaseEvent(e) == ezEditorInut::WasExclusivelyHandled)
       return;
   }
 
@@ -183,7 +183,7 @@ void ezQtEngineViewWidget::keyReleaseEvent(QKeyEvent* e)
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
-    if (pContext->keyReleaseEvent(e))
+    if (pContext->keyReleaseEvent(e) == ezEditorInut::WasExclusivelyHandled)
       return;
   }
 
@@ -195,7 +195,7 @@ void ezQtEngineViewWidget::keyPressEvent(QKeyEvent* e)
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
   {
-    if (ezEditorInputContext::GetActiveInputContext()->keyPressEvent(e))
+    if (ezEditorInputContext::GetActiveInputContext()->keyPressEvent(e) == ezEditorInut::WasExclusivelyHandled)
       return;
   }
 
@@ -205,7 +205,7 @@ void ezQtEngineViewWidget::keyPressEvent(QKeyEvent* e)
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
-    if (pContext->keyPressEvent(e))
+    if (pContext->keyPressEvent(e) == ezEditorInut::WasExclusivelyHandled)
       return;
   }
 
@@ -217,7 +217,7 @@ void ezQtEngineViewWidget::mousePressEvent(QMouseEvent* e)
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
   {
-    if (ezEditorInputContext::GetActiveInputContext()->mousePressEvent(e))
+    if (ezEditorInputContext::GetActiveInputContext()->mousePressEvent(e) == ezEditorInut::WasExclusivelyHandled)
       return;
   }
 
@@ -227,7 +227,7 @@ void ezQtEngineViewWidget::mousePressEvent(QMouseEvent* e)
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
-    if (pContext->mousePressEvent(e))
+    if (pContext->mousePressEvent(e) == ezEditorInut::WasExclusivelyHandled)
       return;
   }
 
@@ -239,7 +239,7 @@ void ezQtEngineViewWidget::mouseReleaseEvent(QMouseEvent* e)
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
   {
-    if (ezEditorInputContext::GetActiveInputContext()->mouseReleaseEvent(e))
+    if (ezEditorInputContext::GetActiveInputContext()->mouseReleaseEvent(e) == ezEditorInut::WasExclusivelyHandled)
       return;
   }
 
@@ -249,7 +249,7 @@ void ezQtEngineViewWidget::mouseReleaseEvent(QMouseEvent* e)
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
-    if (pContext->mouseReleaseEvent(e))
+    if (pContext->mouseReleaseEvent(e) == ezEditorInut::WasExclusivelyHandled)
       return;
   }
 
@@ -261,7 +261,7 @@ void ezQtEngineViewWidget::mouseMoveEvent(QMouseEvent* e)
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
   {
-    if (ezEditorInputContext::GetActiveInputContext()->mouseMoveEvent(e))
+    if (ezEditorInputContext::GetActiveInputContext()->mouseMoveEvent(e) == ezEditorInut::WasExclusivelyHandled)
       return;
   }
 
@@ -271,7 +271,7 @@ void ezQtEngineViewWidget::mouseMoveEvent(QMouseEvent* e)
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
-    if (pContext->mouseMoveEvent(e))
+    if (pContext->mouseMoveEvent(e) == ezEditorInut::WasExclusivelyHandled)
       return;
   }
 
@@ -283,7 +283,7 @@ void ezQtEngineViewWidget::wheelEvent(QWheelEvent* e)
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
   {
-    if (ezEditorInputContext::GetActiveInputContext()->wheelEvent(e))
+    if (ezEditorInputContext::GetActiveInputContext()->wheelEvent(e) == ezEditorInut::WasExclusivelyHandled)
       return;
   }
 
@@ -293,7 +293,7 @@ void ezQtEngineViewWidget::wheelEvent(QWheelEvent* e)
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
-    if (pContext->wheelEvent(e))
+    if (pContext->wheelEvent(e) == ezEditorInut::WasExclusivelyHandled)
       return;
   }
 

@@ -12,6 +12,7 @@
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <Foundation/Serialization/RttiConverter.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <InputContexts/OrthoGizmoContext.h>
 
 ezQtSceneViewWidget::ezQtSceneViewWidget(QWidget* pParent, ezQtSceneDocumentWindow* pOwnerWindow, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig)
   : ezQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
@@ -22,17 +23,20 @@ ezQtSceneViewWidget::ezQtSceneViewWidget(QWidget* pParent, ezQtSceneDocumentWind
 
   m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
   m_pCameraMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, pOwnerWindow, this, pCameraMoveSettings);
+  m_pOrthoGizmoContext = EZ_DEFAULT_NEW(ezOrthoGizmoContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
 
   m_pCameraMoveContext->LoadState();
   m_pCameraMoveContext->SetCamera(&m_pViewConfig->m_Camera);
 
   // add the input contexts in the order in which they are supposed to be processed
+  m_InputContexts.PushBack(m_pOrthoGizmoContext);
   m_InputContexts.PushBack(m_pSelectionContext);
   m_InputContexts.PushBack(m_pCameraMoveContext);
 }
 
 ezQtSceneViewWidget::~ezQtSceneViewWidget()
 {
+  EZ_DEFAULT_DELETE(m_pOrthoGizmoContext);
   EZ_DEFAULT_DELETE(m_pSelectionContext);
   EZ_DEFAULT_DELETE(m_pCameraMoveContext);
 }

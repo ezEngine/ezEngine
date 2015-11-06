@@ -5,26 +5,29 @@
 class QWidget;
 class ezCamera;
 
-class ezSelectionContext : public ezEditorInputContext
+class ezOrthoGizmoContext : public ezEditorInputContext
 {
 public:
-  ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera);
+  ezOrthoGizmoContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera);
 
   void SetWindowConfig(const ezVec2I32& viewport)
   {
     m_Viewport = viewport;
   }
 
+  virtual void FocusLost(bool bCancel);
+
   virtual ezEditorInut mousePressEvent(QMouseEvent* e) override;
   virtual ezEditorInut mouseReleaseEvent(QMouseEvent* e) override;
   virtual ezEditorInut mouseMoveEvent(QMouseEvent* e) override;
-  virtual ezEditorInut keyPressEvent(QKeyEvent* e) override;
 
 protected:
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override {}
 
 private:
-  bool m_bSelectOnMouseUp;
+  bool IsViewInOthoMode() const;
+
+  bool m_bCanInteract;
   const ezCamera* m_pCamera;
   ezVec2I32 m_Viewport;
 };

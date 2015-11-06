@@ -13,9 +13,9 @@ public:
 
   virtual void FocusLost(bool bCancel) override;
 
-  virtual bool mousePressEvent(QMouseEvent* e) override;
-  virtual bool mouseReleaseEvent(QMouseEvent* e) override;
-  virtual bool mouseMoveEvent(QMouseEvent* e) override;
+  virtual ezEditorInut mousePressEvent(QMouseEvent* e) override;
+  virtual ezEditorInut mouseReleaseEvent(QMouseEvent* e) override;
+  virtual ezEditorInut mouseMoveEvent(QMouseEvent* e) override;
 
   const ezVec3& GetScalingResult() const { return m_vScalingResult; }
 

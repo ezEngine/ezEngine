@@ -11,6 +11,12 @@ class ezDocument;
 class ezQtEngineDocumentWindow;
 class ezQtEngineViewWidget;
 
+enum class ezEditorInut
+{
+  MayBeHandledByOthers,
+  WasExclusivelyHandled,
+};
+
 class EZ_EDITORFRAMEWORK_DLL ezEditorInputContext : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorInputContext);
@@ -27,12 +33,12 @@ public:
 
   virtual void FocusLost(bool bCancel) {}
 
-  virtual bool keyPressEvent(QKeyEvent* e);
-  virtual bool keyReleaseEvent(QKeyEvent* e) { return false; }
-  virtual bool mousePressEvent(QMouseEvent* e) { return false; }
-  virtual bool mouseReleaseEvent(QMouseEvent* e) { return false; }
-  virtual bool mouseMoveEvent(QMouseEvent* e) { return false; }
-  virtual bool wheelEvent(QWheelEvent* e) { return false; }
+  virtual ezEditorInut keyPressEvent(QKeyEvent* e);
+  virtual ezEditorInut keyReleaseEvent(QKeyEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
+  virtual ezEditorInut mousePressEvent(QMouseEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
+  virtual ezEditorInut mouseReleaseEvent(QMouseEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
+  virtual ezEditorInut mouseMoveEvent(QMouseEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
+  virtual ezEditorInut wheelEvent(QWheelEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
 
   static void SetActiveInputContext(ezEditorInputContext* pContext) { s_pActiveInputContext = pContext; }
 

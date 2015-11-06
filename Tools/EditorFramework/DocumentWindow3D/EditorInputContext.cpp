@@ -13,17 +13,17 @@ ezEditorInputContext::~ezEditorInputContext()
     SetActiveInputContext(nullptr);
 }
 
-bool ezEditorInputContext::keyPressEvent(QKeyEvent* e)
+ezEditorInut ezEditorInputContext::keyPressEvent(QKeyEvent* e)
 {
   if (!IsActiveInputContext())
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   if (e->key() == Qt::Key_Escape)
   {
     FocusLost(true);
     SetActiveInputContext(nullptr);
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   }
 
-  return false;
+  return ezEditorInut::MayBeHandledByOthers;
 }

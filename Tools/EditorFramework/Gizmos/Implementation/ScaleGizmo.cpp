@@ -73,13 +73,13 @@ void ezScaleGizmo::FocusLost(bool bCancel)
   QApplication::restoreOverrideCursor();
 }
 
-bool ezScaleGizmo::mousePressEvent(QMouseEvent* e)
+ezEditorInut ezScaleGizmo::mousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   if (m_pInteractionGizmoHandle == &m_AxisX)
   {
@@ -98,7 +98,7 @@ bool ezScaleGizmo::mousePressEvent(QMouseEvent* e)
     m_vMoveAxis.Set(1, 1, 1);
   }
   else
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
@@ -133,32 +133,32 @@ bool ezScaleGizmo::mousePressEvent(QMouseEvent* e)
   ev.m_Type = GizmoEvent::Type::BeginInteractions;
   m_GizmoEvents.Broadcast(ev);
 
-  return true;
+  return ezEditorInut::WasExclusivelyHandled;
 }
 
-bool ezScaleGizmo::mouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezScaleGizmo::mouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
 
   FocusLost(false);
 
   SetActiveInputContext(nullptr);
-  return true;
+  return ezEditorInut::WasExclusivelyHandled;
 }
 
-bool ezScaleGizmo::mouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezScaleGizmo::mouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   const ezTime tNow = ezTime::Now();
 
   if (tNow - m_LastInteraction < ezTime::Seconds(1.0 / 25.0))
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
 
   m_LastInteraction = tNow;
 
@@ -197,6 +197,6 @@ bool ezScaleGizmo::mouseMoveEvent(QMouseEvent* e)
   ev.m_Type = GizmoEvent::Type::Interaction;
   m_GizmoEvents.Broadcast(ev);
 
-  return true;
+  return ezEditorInut::WasExclusivelyHandled;
 }
 

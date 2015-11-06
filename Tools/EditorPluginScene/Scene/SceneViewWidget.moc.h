@@ -8,6 +8,7 @@
 
 class QVBoxLayout;
 class ezQtSceneDocumentWindow;
+class ezOrthoGizmoContext;
 
 class ezQtSceneViewWidget : public ezQtEngineViewWidget
 {
@@ -16,6 +17,7 @@ public:
   ezQtSceneViewWidget(QWidget* pParent, ezQtSceneDocumentWindow* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig);
   ~ezQtSceneViewWidget();
 
+  ezOrthoGizmoContext* m_pOrthoGizmoContext;
   ezSelectionContext* m_pSelectionContext;
   ezCameraMoveContext* m_pCameraMoveContext;
 

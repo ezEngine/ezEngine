@@ -66,13 +66,13 @@ void ezRotateGizmo::FocusLost(bool bCancel)
   QApplication::restoreOverrideCursor();
 }
 
-bool ezRotateGizmo::mousePressEvent(QMouseEvent* e)
+ezEditorInut ezRotateGizmo::mousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   if (m_pInteractionGizmoHandle == &m_AxisX)
   {
@@ -87,7 +87,7 @@ bool ezRotateGizmo::mousePressEvent(QMouseEvent* e)
     m_vMoveAxis = m_AxisZ.GetTransformation().GetColumn(2).GetAsVec3().GetNormalized();
   }
   else
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   // Determine on which side of the gizmo the camera is located
   // if it is on the wrong side, flip the rotation axis, so that the mouse move direction matches the rotation direction better
@@ -131,32 +131,32 @@ bool ezRotateGizmo::mousePressEvent(QMouseEvent* e)
   ev.m_Type = GizmoEvent::Type::BeginInteractions;
   m_GizmoEvents.Broadcast(ev);
 
-  return true;
+  return ezEditorInut::WasExclusivelyHandled;
 }
 
-bool ezRotateGizmo::mouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezRotateGizmo::mouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
 
   FocusLost(false);
 
   SetActiveInputContext(nullptr);
-  return true;
+  return ezEditorInut::WasExclusivelyHandled;
 }
 
-bool ezRotateGizmo::mouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezRotateGizmo::mouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   const ezTime tNow = ezTime::Now();
 
   if (tNow - m_LastInteraction < ezTime::Seconds(1.0 / 25.0))
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
 
   m_LastInteraction = tNow;
 
@@ -185,6 +185,6 @@ bool ezRotateGizmo::mouseMoveEvent(QMouseEvent* e)
   ev.m_Type = GizmoEvent::Type::Interaction;
   m_GizmoEvents.Broadcast(ev);
 
-  return true;
+  return ezEditorInut::WasExclusivelyHandled;
 }
 

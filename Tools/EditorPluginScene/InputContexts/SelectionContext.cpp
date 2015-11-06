@@ -17,7 +17,7 @@ ezSelectionContext::ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, e
   SetOwner(pOwnerWindow, pOwnerView);
 }
 
-bool ezSelectionContext::mousePressEvent(QMouseEvent* e)
+ezEditorInut ezSelectionContext::mousePressEvent(QMouseEvent* e)
 {
   if (e->button() == Qt::MouseButton::LeftButton)
   {
@@ -44,10 +44,10 @@ bool ezSelectionContext::mousePressEvent(QMouseEvent* e)
     m_bSelectOnMouseUp = true;
   }
 
-  return false;
+  return ezEditorInut::MayBeHandledByOthers;
 }
 
-bool ezSelectionContext::mouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezSelectionContext::mouseReleaseEvent(QMouseEvent* e)
 {
   auto* pDocument = GetOwnerWindow()->GetDocument();
 
@@ -86,13 +86,13 @@ bool ezSelectionContext::mouseReleaseEvent(QMouseEvent* e)
 
     // we handled the mouse click event
     // but this is it, we don't stay active
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   }
 
-  return false;
+  return ezEditorInut::MayBeHandledByOthers;
 }
 
-bool ezSelectionContext::mouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezSelectionContext::mouseMoveEvent(QMouseEvent* e)
 {
   ezViewHighlightMsgToEngine msg;
 
@@ -117,24 +117,24 @@ bool ezSelectionContext::mouseMoveEvent(QMouseEvent* e)
   msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
 
   // we only updated the highlight, so others may do additional stuff, if they like
-  return false;
+  return ezEditorInut::MayBeHandledByOthers;
 }
 
-bool ezSelectionContext::keyPressEvent(QKeyEvent* e)
+ezEditorInut ezSelectionContext::keyPressEvent(QKeyEvent* e)
 {
   if (e->key() == Qt::Key_Delete)
   {
     GetOwnerWindow()->GetDocument()->DeleteSelectedObjects();
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   }
 
   if (e->key() == Qt::Key_Escape)
   {
     GetOwnerWindow()->GetDocument()->GetSelectionManager()->Clear();
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   }
 
-  return false;
+  return ezEditorInut::MayBeHandledByOthers;
 }
 
 

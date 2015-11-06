@@ -104,13 +104,13 @@ void ezTranslateGizmo::FocusLost(bool bCancel)
   m_vLastMoveDiff.SetZero();
 }
 
-bool ezTranslateGizmo::mousePressEvent(QMouseEvent* e)
+ezEditorInut ezTranslateGizmo::mousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   m_vLastMoveDiff.SetZero();
   m_LastMousePos = e->globalPos();
@@ -153,7 +153,7 @@ bool ezTranslateGizmo::mousePressEvent(QMouseEvent* e)
     m_Mode = TranslateMode::Plane;
   }
   else
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
@@ -197,21 +197,21 @@ bool ezTranslateGizmo::mousePressEvent(QMouseEvent* e)
   ev.m_Type = GizmoEvent::Type::BeginInteractions;
   m_GizmoEvents.Broadcast(ev);
 
-  return true;
+  return ezEditorInut::WasExclusivelyHandled;
 }
 
-bool ezTranslateGizmo::mouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezTranslateGizmo::mouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
 
   FocusLost(false);
 
   SetActiveInputContext(nullptr);
-  return true;
+  return ezEditorInut::WasExclusivelyHandled;
 }
 
 ezResult ezTranslateGizmo::GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const
@@ -282,15 +282,15 @@ ezResult ezTranslateGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPo
   return EZ_SUCCESS;
 }
 
-bool ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   const ezTime tNow = ezTime::Now();
 
   if (tNow - m_LastInteraction < ezTime::Seconds(1.0 / 25.0))
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
 
   m_LastInteraction = tNow;
 
@@ -304,12 +304,12 @@ bool ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
     if (m_Mode == TranslateMode::Axis)
     {
       if (GetPointOnAxis(e->pos().x(), m_Viewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
-        return true;
+        return ezEditorInut::WasExclusivelyHandled;
     }
     else if (m_Mode == TranslateMode::Plane)
     {
       if (GetPointOnPlane(e->pos().x(), m_Viewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
-        return true;
+        return ezEditorInut::WasExclusivelyHandled;
     }
 
 
@@ -364,7 +364,7 @@ bool ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
   ev.m_Type = GizmoEvent::Type::Interaction;
   m_GizmoEvents.Broadcast(ev);
 
-  return true;
+  return ezEditorInut::WasExclusivelyHandled;
 }
 
 void ezTranslateGizmo::SnapToGrid()

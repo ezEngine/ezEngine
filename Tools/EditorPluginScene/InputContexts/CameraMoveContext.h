@@ -27,12 +27,12 @@ public:
 
   void LoadState();
 
-  virtual bool keyPressEvent(QKeyEvent* e) override;
-  virtual bool keyReleaseEvent(QKeyEvent* e) override;
-  virtual bool mousePressEvent(QMouseEvent* e) override;
-  virtual bool mouseReleaseEvent(QMouseEvent* e) override;
-  virtual bool mouseMoveEvent(QMouseEvent* e) override;
-  virtual bool wheelEvent(QWheelEvent* e) override;
+  virtual ezEditorInut keyPressEvent(QKeyEvent* e) override;
+  virtual ezEditorInut keyReleaseEvent(QKeyEvent* e) override;
+  virtual ezEditorInut mousePressEvent(QMouseEvent* e) override;
+  virtual ezEditorInut mouseReleaseEvent(QMouseEvent* e) override;
+  virtual ezEditorInut mouseMoveEvent(QMouseEvent* e) override;
+  virtual ezEditorInut wheelEvent(QWheelEvent* e) override;
 
   void SetCamera(ezCamera* pCamera) { m_pCamera = pCamera; }
 

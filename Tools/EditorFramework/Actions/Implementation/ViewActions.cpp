@@ -82,7 +82,12 @@ ezInt64 ezPerspectiveAction::GetValue() const
 void ezPerspectiveAction::Execute(const ezVariant& value)
 {
   ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
-  pView->m_pViewConfig->m_Perspective = (ezSceneViewPerspective::Enum)value.ConvertTo<ezInt64>();
-  pView->m_pViewConfig->ApplyPerspectiveSetting();
-  TriggerUpdate();
+  auto newValue = (ezSceneViewPerspective::Enum)value.ConvertTo<ezInt64>();
+
+  if (pView->m_pViewConfig->m_Perspective != newValue)
+  {
+    pView->m_pViewConfig->m_Perspective = newValue;
+    pView->m_pViewConfig->ApplyPerspectiveSetting();
+    TriggerUpdate();
+  }
 }

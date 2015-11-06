@@ -152,13 +152,13 @@ void ezCameraMoveContext::UpdateContext()
   }
 }
 
-bool ezCameraMoveContext::keyReleaseEvent(QKeyEvent* e)
+ezEditorInut ezCameraMoveContext::keyReleaseEvent(QKeyEvent* e)
 {
   if (!IsActiveInputContext())
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   if (m_pCamera == nullptr)
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   m_bRun = (e->modifiers() & Qt::KeyboardModifier::ShiftModifier) != 0;
   m_bSlowDown = (e->modifiers() & Qt::KeyboardModifier::AltModifier) != 0;
@@ -167,46 +167,46 @@ bool ezCameraMoveContext::keyReleaseEvent(QKeyEvent* e)
   {
   case Qt::Key_W:
     m_bMoveForwards = false;
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   case Qt::Key_S:
     m_bMoveBackwards = false;
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   case Qt::Key_A:
     m_bMoveLeft = false;
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   case Qt::Key_D:
     m_bMoveRight = false;
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   case Qt::Key_Q:
     m_bMoveUp = false;
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   case Qt::Key_E:
     m_bMoveDown = false;
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   case Qt::Key_Left:
     m_bMoveLeft = false;
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   case Qt::Key_Right:
     m_bMoveRight = false;
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   case Qt::Key_Up:
     m_bMoveForwardsInPlane = false;
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   case Qt::Key_Down:
     m_bMoveBackwardsInPlane = false;
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   }
 
-  return false;
+  return ezEditorInut::MayBeHandledByOthers;
 }
 
-bool ezCameraMoveContext::keyPressEvent(QKeyEvent* e)
+ezEditorInut ezCameraMoveContext::keyPressEvent(QKeyEvent* e)
 {
   if (m_pCamera == nullptr)
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   if (e->modifiers() == Qt::KeyboardModifier::ControlModifier)
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   m_bRun = (e->modifiers() & Qt::KeyboardModifier::ShiftModifier) != 0;
   m_bSlowDown = (e->modifiers() & Qt::KeyboardModifier::AltModifier) != 0;
@@ -216,53 +216,53 @@ bool ezCameraMoveContext::keyPressEvent(QKeyEvent* e)
   case Qt::Key_Left:
     m_bMoveLeft = true;
     SetActiveInputContext(this);
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   case Qt::Key_Right:
     m_bMoveRight = true;
     SetActiveInputContext(this);
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   case Qt::Key_Up:
     m_bMoveForwardsInPlane = true;
     SetActiveInputContext(this);
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   case Qt::Key_Down:
     m_bMoveBackwardsInPlane = true;
     SetActiveInputContext(this);
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   }
 
   if (!m_bRotateCamera)
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   switch (e->key())
   {
   case Qt::Key_W:
     m_bMoveForwards = true;
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   case Qt::Key_S:
     m_bMoveBackwards = true;
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   case Qt::Key_A:
     m_bMoveLeft = true;
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   case Qt::Key_D:
     m_bMoveRight = true;
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   case Qt::Key_Q:
     m_bMoveUp = true;
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   case Qt::Key_E:
     m_bMoveDown = true;
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   }
 
-  return false;
+  return ezEditorInut::MayBeHandledByOthers;
 }
 
-bool ezCameraMoveContext::mousePressEvent(QMouseEvent* e)
+ezEditorInut ezCameraMoveContext::mousePressEvent(QMouseEvent* e)
 {
   if (m_pCamera == nullptr)
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   if (m_pCamera->GetCameraMode() == ezCamera::OrthoFixedHeight || m_pCamera->GetCameraMode() == ezCamera::OrthoFixedWidth)
   {
@@ -272,7 +272,7 @@ bool ezCameraMoveContext::mousePressEvent(QMouseEvent* e)
       m_LastMousePos = e->globalPos();
       m_bDidMoveMouse[1] = false;
       MakeActiveInputContext();
-      return true;
+      return ezEditorInut::WasExclusivelyHandled;
     }
   }
   else
@@ -283,7 +283,7 @@ bool ezCameraMoveContext::mousePressEvent(QMouseEvent* e)
       m_LastMousePos = e->globalPos();
       m_bDidMoveMouse[1] = false;
       MakeActiveInputContext();
-      return true;
+      return ezEditorInut::WasExclusivelyHandled;
     }
 
     if (e->button() == Qt::MouseButton::LeftButton)
@@ -292,7 +292,7 @@ bool ezCameraMoveContext::mousePressEvent(QMouseEvent* e)
       m_LastMousePos = e->globalPos();
       m_bDidMoveMouse[0] = false;
       MakeActiveInputContext();
-      return true;
+      return ezEditorInut::WasExclusivelyHandled;
     }
 
     if (e->button() == Qt::MouseButton::MiddleButton)
@@ -308,11 +308,11 @@ bool ezCameraMoveContext::mousePressEvent(QMouseEvent* e)
       m_LastMousePos = e->globalPos();
       m_bDidMoveMouse[2] = false;
       MakeActiveInputContext();
-      return true;
+      return ezEditorInut::WasExclusivelyHandled;
     }
   }
 
-  return false;
+  return ezEditorInut::MayBeHandledByOthers;
 }
 
 void ezCameraMoveContext::ResetCursor()
@@ -366,13 +366,13 @@ void ezCameraMoveContext::SetCursorToWindowCenter(QPoint pos)
   }
 }
 
-bool ezCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   if (m_pCamera == nullptr)
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   if (m_pCamera->GetCameraMode() == ezCamera::OrthoFixedHeight || m_pCamera->GetCameraMode() == ezCamera::OrthoFixedWidth)
   {
@@ -381,7 +381,7 @@ bool ezCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
       m_bMoveCamera = false;
 
       ResetCursor();
-      return true;
+      return ezEditorInut::WasExclusivelyHandled;
     }
   }
   else
@@ -398,7 +398,7 @@ bool ezCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
       m_bMoveDown = false;
 
       ResetCursor();
-      return true;
+      return ezEditorInut::WasExclusivelyHandled;
     }
 
     if (e->button() == Qt::MouseButton::LeftButton)
@@ -410,10 +410,10 @@ bool ezCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
       {
         // not really handled, so make this context inactive and tell the surrounding code that it may pass
         // the event to the next handler
-        return false;
+        return ezEditorInut::MayBeHandledByOthers;
       }
 
-      return true;
+      return ezEditorInut::WasExclusivelyHandled;
     }
 
     if (e->button() == Qt::MouseButton::MiddleButton)
@@ -422,11 +422,11 @@ bool ezCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
       m_bOrbitCamera = false;
 
       ResetCursor();
-      return true;
+      return ezEditorInut::WasExclusivelyHandled;
     }
   }
 
-  return false;
+  return ezEditorInut::MayBeHandledByOthers;
 }
 
 void ezCameraMoveContext::SetOrbitPoint(const ezVec3& vPos)
@@ -434,11 +434,11 @@ void ezCameraMoveContext::SetOrbitPoint(const ezVec3& vPos)
   m_pSettings->m_vOrbitPoint = vPos;
 }
 
-bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
 {
   // do nothing, unless this is an active context
   if (!IsActiveInputContext())
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   // store that the mouse has been moved since the last click
   for (ezInt32 i = 0; i < EZ_ARRAY_SIZE(m_bDidMoveMouse); ++i)
@@ -449,7 +449,7 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
   msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
 
   if (m_pCamera == nullptr)
-    return false;
+    return ezEditorInut::MayBeHandledByOthers;
 
   float fBoost = 1.0f;
   float fRotateBoost = 1.0f;
@@ -482,7 +482,7 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
 
       m_pCamera->MoveLocally(0, fMoveRight, fMoveUp);
 
-      return true;
+      return ezEditorInut::WasExclusivelyHandled;
     }
   }
   else
@@ -509,7 +509,7 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
       m_pCamera->MoveLocally(0, fMoveRight, fMoveUp);
 
       SetCursorToWindowCenter(e->globalPos());
-      return true;
+      return ezEditorInut::WasExclusivelyHandled;
     }
 
     if (m_bRotateCamera)
@@ -523,7 +523,7 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
       m_pCamera->RotateGlobally(ezAngle::Radian(0), ezAngle::Radian(0), ezAngle::Radian(fRotateHorizontal));
 
       SetCursorToWindowCenter(e->globalPos());
-      return true;
+      return ezEditorInut::WasExclusivelyHandled;
     }
 
     if (m_bMoveCamera)
@@ -537,7 +537,7 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
 
       SetCursorToWindowCenter(e->globalPos());
 
-      return true;
+      return ezEditorInut::WasExclusivelyHandled;
     }
 
     if (m_bMoveCameraInPlane)
@@ -557,7 +557,7 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
 
       SetCursorToWindowCenter(e->globalPos());
 
-      return true;
+      return ezEditorInut::WasExclusivelyHandled;
     }
 
     if (m_bOrbitCamera)
@@ -584,11 +584,11 @@ bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
 
       SetCursorToWindowCenter(e->globalPos());
 
-      return true;
+      return ezEditorInut::WasExclusivelyHandled;
     }
   }
 
-  return false;
+  return ezEditorInut::MayBeHandledByOthers;
 }
 
 void ezCameraMoveContext::SetMoveSpeed(ezInt32 iSpeed)
@@ -599,10 +599,10 @@ void ezCameraMoveContext::SetMoveSpeed(ezInt32 iSpeed)
     ezQtEditorApp::GetInstance()->GetDocumentSettings(GetOwnerWindow()->GetDocument()->GetDocumentPath(), "ScenePlugin").SetValueInt("CameraSpeed", m_pSettings->m_iMoveSpeed);
 }
 
-bool ezCameraMoveContext::wheelEvent(QWheelEvent* e)
+ezEditorInut ezCameraMoveContext::wheelEvent(QWheelEvent* e)
 {
   if (m_bMoveCamera || m_bMoveCameraInPlane || m_bOrbitCamera || m_bRotateCamera)
-    return true; // ignore it, but others should not handle it either
+    return ezEditorInut::WasExclusivelyHandled; // ignore it, but others should not handle it either
 
   if (m_pCamera->GetCameraMode() == ezCamera::OrthoFixedHeight || m_pCamera->GetCameraMode() == ezCamera::OrthoFixedWidth)
   {
@@ -625,7 +625,7 @@ bool ezCameraMoveContext::wheelEvent(QWheelEvent* e)
     }
 
     // handled, independent of whether we are the active context or not
-    return true;
+    return ezEditorInut::WasExclusivelyHandled;
   }
   else
   {
@@ -642,7 +642,7 @@ bool ezCameraMoveContext::wheelEvent(QWheelEvent* e)
       }
 
       // handled, independent of whether we are the active context or not
-      return true;
+      return ezEditorInut::WasExclusivelyHandled;
     }
 
     {
@@ -663,7 +663,7 @@ bool ezCameraMoveContext::wheelEvent(QWheelEvent* e)
       }
 
       // handled, independent of whether we are the active context or not
-      return true;
+      return ezEditorInut::WasExclusivelyHandled;
     }
   }
 }
