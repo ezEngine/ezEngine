@@ -82,21 +82,41 @@ ezEditorInut ezOrthoGizmoContext::mouseMoveEvent(QMouseEvent* e)
       fDistPerPixel = m_pCamera->GetFovOrDim() / (float)GetOwnerView()->size().width();
 
     const QPointF diff = e->globalPos() - m_LastMousePos;
+    ezQuat qRot;
+    qRot.SetIdentity();
 
     switch (GetOwnerView()->m_pViewConfig->m_Perspective)
     {
     case ezSceneViewPerspective::Orthogonal_Front:
       m_vTranslationResult.y -= diff.x() * fDistPerPixel;
       m_vTranslationResult.z -= diff.y() * fDistPerPixel;
+      qRot.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(diff.x()));
       break;
     case ezSceneViewPerspective::Orthogonal_Top:
       m_vTranslationResult.y += diff.x() * fDistPerPixel;
       m_vTranslationResult.x -= diff.y() * fDistPerPixel;
+      qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(diff.x()));
       break;
     case ezSceneViewPerspective::Orthogonal_Right:
       m_vTranslationResult.x += diff.x() * fDistPerPixel;
       m_vTranslationResult.z -= diff.y() * fDistPerPixel;
+      qRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(diff.x()));
       break;
+    }
+
+    m_qRotationResult = qRot * m_qRotationResult;
+
+    {
+      float fFactor = 1.0f; // m_fSnappingValue != 0.0f ? m_fSnappingValue : 1.0f;
+      m_fScaleMouseMove += diff.x() * fFactor;
+      m_fScalingResult = 1.0f;
+
+      const float fScaleSpeed = 0.01f;
+
+      if (m_fScaleMouseMove > 0.0f)
+        m_fScalingResult = 1.0f + m_fScaleMouseMove * fScaleSpeed;
+      if (m_fScaleMouseMove < 0.0f)
+        m_fScalingResult = 1.0f / (1.0f - m_fScaleMouseMove * fScaleSpeed);
     }
 
     m_LastMousePos = e->globalPos();
@@ -114,6 +134,9 @@ ezEditorInut ezOrthoGizmoContext::mouseMoveEvent(QMouseEvent* e)
   {
     m_LastMousePos = e->globalPos();
     m_vTranslationResult.SetZero();
+    m_qRotationResult.SetIdentity();
+    m_fScalingResult = 1.0f;
+    m_fScaleMouseMove = 0.0f;
 
     m_bCanInteract = false;
     SetActiveInputContext(this);

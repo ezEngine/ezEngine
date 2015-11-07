@@ -29,6 +29,8 @@ public:
   ezEvent<const ezGizmo::GizmoEvent&> m_GizmoEvents;
 
   const ezVec3& GetTranslationResult() const { return m_vTranslationResult; }
+  const ezQuat& GetRotationResult() const { return m_qRotationResult; }
+  float GetScalingResult() const { return m_fScalingResult; }
 
 protected:
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override {}
@@ -38,6 +40,9 @@ private:
 
   QPoint m_LastMousePos;
   ezVec3 m_vTranslationResult;
+  ezQuat m_qRotationResult;
+  float m_fScaleMouseMove;
+  float m_fScalingResult;
   bool m_bCanInteract;
   const ezCamera* m_pCamera;
   ezVec2I32 m_Viewport;

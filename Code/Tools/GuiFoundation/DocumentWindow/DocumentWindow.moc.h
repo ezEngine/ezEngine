@@ -69,6 +69,8 @@ public:
 
   static ezQtDocumentWindow* FindWindowByDocument(const ezDocument* pDocument);
 
+  void ShowStatusBarMsg(ezUInt32 uiMilliseconds, const char* szTest, ...);
+
 protected:
   void FinishWindowCreation();
 

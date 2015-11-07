@@ -271,16 +271,61 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmo::Giz
       {
         const ezOrthoGizmoContext* pOrtho = static_cast<const ezOrthoGizmoContext*>(e.m_pGizmo);
 
-        const ezVec3 vTranslate = pOrtho->GetTranslationResult();
-
-        for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
+        if (m_TranslateGizmo.IsVisible())
         {
-          const auto& obj = m_GizmoSelection[sel];
+          const ezVec3 vTranslate = pOrtho->GetTranslationResult();
 
-          tNew = obj.m_GlobalTransform;
-          tNew.m_vPosition += vTranslate;
+          for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
+          {
+            const auto& obj = m_GizmoSelection[sel];
 
-          pScene->SetGlobalTransform(obj.m_pObject, tNew);
+            tNew = obj.m_GlobalTransform;
+            tNew.m_vPosition += vTranslate;
+
+            pScene->SetGlobalTransform(obj.m_pObject, tNew);
+          }
+        }
+
+        if (m_RotateGizmo.IsVisible())
+        {
+          const ezQuat qRotation = pOrtho->GetRotationResult();
+
+          const ezMat3 mRot = qRotation.GetAsMat3();
+
+          //const ezVec3 vPivot(0);
+
+          for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
+          {
+            const auto& obj = m_GizmoSelection[sel];
+
+            tNew = obj.m_GlobalTransform;
+            tNew.m_Rotation = mRot * obj.m_GlobalTransform.m_Rotation;
+            //tNew.m_vPosition = vPivot + mRot * (obj.m_GlobalTransform.m_vPosition - vPivot);
+
+            pScene->SetGlobalTransform(obj.m_pObject, tNew);
+          }
+        }
+
+        if (m_ScaleGizmo.IsVisible())
+        {
+          ezSetObjectPropertyCommand cmd;
+          cmd.SetPropertyPath("LocalScaling");
+
+          const ezVec3 vScale(pOrtho->GetScalingResult());
+
+          for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
+          {
+            const auto& obj = m_GizmoSelection[sel];
+
+            cmd.m_Object = obj.m_pObject->GetGuid();
+            cmd.m_NewValue = obj.m_vLocalScaling.CompMult(vScale);
+
+            if (GetDocument()->GetCommandHistory()->AddCommand(cmd).m_Result.Failed())
+            {
+              bCancel = true;
+              break;
+            }
+          }
         }
       }
 

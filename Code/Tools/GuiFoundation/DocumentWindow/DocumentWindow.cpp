@@ -311,15 +311,31 @@ ezStatus ezQtDocumentWindow::SaveDocument()
 
     if (res.m_Result.Failed())
     {
-      statusBar()->showMessage("Failed to save document", 10000);
+      ShowStatusBarMsg(10000, "Failed to save document");
       return res;
     }
   }
 
-  statusBar()->showMessage("Document saved", 5000);
+  ShowStatusBarMsg(5000, "Document saved");
   return ezStatus(EZ_SUCCESS);
 
 }
+
+
+void ezQtDocumentWindow::ShowStatusBarMsg(ezUInt32 uiMilliseconds, const char* szTest, ...)
+{
+  if (statusBar() == nullptr)
+    setStatusBar(new QStatusBar());
+
+  ezStringBuilder sText;
+  va_list args;
+  va_start(args, szTest);
+  sText.FormatArgs(szTest, args);
+  va_end(args);
+
+  statusBar()->showMessage(QString::fromUtf8(sText.GetData()), uiMilliseconds);
+}
+
 
 bool ezQtDocumentWindow::CanCloseWindow()
 {
