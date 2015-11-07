@@ -85,7 +85,10 @@ struct IndexFunc
   EZ_FORCE_INLINE ezVariant Impl(ezTraitInt<1>)
   {
     const ezRTTI* pRtti = ezGetStaticRTTI<T>();
-    return ezReflectionUtils::GetMemberPropertyValue(ezReflectionUtils::GetMemberProperty(pRtti, m_uiIndex), m_pThis->GetData());
+    ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRtti, m_uiIndex);
+    if (!pProp)
+      return ezVariant();
+    return ezReflectionUtils::GetMemberPropertyValue(pProp, m_pThis->GetData());
   }
 
   template <typename T>
@@ -111,7 +114,10 @@ struct KeyFunc
   EZ_FORCE_INLINE ezVariant Impl(ezTraitInt<1>)
   {
     const ezRTTI* pRtti = ezGetStaticRTTI<T>();
-    return ezReflectionUtils::GetMemberPropertyValue(ezReflectionUtils::GetMemberProperty(pRtti, m_szKey), m_pThis->GetData());
+    ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRtti, m_szKey);
+    if (!pProp)
+      return ezVariant();
+    return ezReflectionUtils::GetMemberPropertyValue(pProp, m_pThis->GetData());
   }
 
   template <typename T>
@@ -188,7 +194,10 @@ ezVariant ezVariant::operator[](ezUInt32 uiIndex) const
   {
     ezReflectedClass* pObject = Cast<ezReflectedClass*>();
     const ezRTTI* pRtti = pObject->GetDynamicRTTI();
-    return ezReflectionUtils::GetMemberPropertyValue(ezReflectionUtils::GetMemberProperty(pRtti, uiIndex), pObject);
+    ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRtti, uiIndex);
+    if (!pProp)
+      return ezVariant();
+    return ezReflectionUtils::GetMemberPropertyValue(pProp, pObject);
   }
   else if (IsValid())
   {
@@ -216,7 +225,10 @@ ezVariant ezVariant::operator[](ezHashing::StringWrapper szKey) const
   {
     ezReflectedClass* pObject = Cast<ezReflectedClass*>();
     const ezRTTI* pRtti = pObject->GetDynamicRTTI();
-    return ezReflectionUtils::GetMemberPropertyValue(ezReflectionUtils::GetMemberProperty(pRtti, szKey.m_str), pObject);
+    ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRtti, szKey.m_str);
+    if (!pProp)
+      return ezVariant();
+    return ezReflectionUtils::GetMemberPropertyValue(pProp, pObject);
   }
   else if (IsValid())
   {

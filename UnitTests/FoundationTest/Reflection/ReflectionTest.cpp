@@ -787,6 +787,11 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Arrays)
 
     TestArrayProperty<double>("AcHybrid", &containers, pRtti, fValue);
     TestArrayProperty<double>("AcHybridRO", &containers, pRtti, fValue);
+
+    const char* szValue = "Bla";
+    const char* szValue2 = "LongString------------------------------------------------------------------------------------";
+    containers.m_HybridChar.PushBack(szValue);
+    containers.m_HybridChar.PushBack(szValue2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Struct Array")

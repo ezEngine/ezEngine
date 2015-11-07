@@ -94,7 +94,7 @@ public:
   /// \note \code ap.GetSubArray(i) \endcode is equivalent to \code ap.GetSubArray(i, ap.GetCount() - i) \endcode.
   EZ_FORCE_INLINE ezArrayPtr<const T> GetSubArray(ezUInt32 uiStart) const // [tested]
   {
-    EZ_ASSERT_DEV(uiStart < GetCount(), "uiStart (%i) has to be smaller or equal than the count (%i).", uiStart, GetCount());
+    EZ_ASSERT_DEV(uiStart <= GetCount(), "uiStart (%i) has to be smaller or equal than the count (%i).", uiStart, GetCount());
     return ezArrayPtr<const T>(GetPtr() + uiStart, GetCount() - uiStart);
   }
 
@@ -102,7 +102,7 @@ public:
   /// \note \code ap.GetSubArray(i) \endcode is equivalent to \code ap.GetSubArray(i, ap.GetCount() - i) \endcode.
   EZ_FORCE_INLINE ezArrayPtr<T> GetSubArray(ezUInt32 uiStart) // [tested]
   {
-    EZ_ASSERT_DEV(uiStart < GetCount(), "uiStart (%i) has to be smaller or equal than the count (%i).", uiStart, GetCount());
+    EZ_ASSERT_DEV(uiStart <= GetCount(), "uiStart (%i) has to be smaller or equal than the count (%i).", uiStart, GetCount());
     return ezArrayPtr<T>(GetPtr() + uiStart, GetCount() - uiStart);
   }
 

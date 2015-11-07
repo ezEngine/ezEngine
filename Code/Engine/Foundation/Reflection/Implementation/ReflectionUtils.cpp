@@ -2,6 +2,7 @@
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/IO/ExtendedJSONWriter.h>
 #include <Foundation/IO/ExtendedJSONReader.h>
+#include <Foundation/Logging/Log.h>
 
 namespace
 {
@@ -74,6 +75,21 @@ namespace
     const ezVariant* m_pValue;
   };
 
+  struct InsertArrayValueFunc
+  {
+    template <typename T>
+    EZ_FORCE_INLINE void operator()()
+    {
+      T value = m_pValue->ConvertTo<T>();
+      m_pProp->Insert(m_pObject, m_uiIndex, &value);
+    }
+
+    ezAbstractArrayProperty* m_pProp;
+    void* m_pObject;
+    ezUInt32 m_uiIndex;
+    const ezVariant* m_pValue;
+  };
+
   struct InsertSetValueFunc
   {
     template <typename T>
@@ -128,43 +144,43 @@ const ezRTTI* ezReflectionUtils::GetCommonBaseType(const ezRTTI* pRtti1, const e
 
 bool ezReflectionUtils::IsBasicType(const ezRTTI* pRtti)
 {
+  EZ_ASSERT_DEBUG(pRtti != nullptr, "IsBasicType: missing data!");
   ezVariant::Type::Enum type = pRtti->GetVariantType();
   return type >= ezVariant::Type::Bool && type <= ezVariant::Type::Uuid;
 }
 
 ezVariant ezReflectionUtils::GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject)
 {
-  if (pProp != nullptr)
+  EZ_ASSERT_DEBUG(pProp != nullptr, "GetMemberPropertyValue: missing data!");
+
+  if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
   {
-    if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
-    {
-      return static_cast<const ezTypedMemberProperty<const char*>*>(pProp)->GetValue(pObject);
-    }
-    else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
-    {
-      void* pValue = nullptr;
-      pProp->GetValuePtr(pObject, &pValue);
-      return ezVariant(pValue);
-    }
-    else if (pProp->GetSpecificType()->IsDerivedFrom<ezEnumBase>() || pProp->GetSpecificType()->IsDerivedFrom<ezBitflagsBase>())
-    {
-      const ezAbstractEnumerationProperty* pEnumerationProp = static_cast<const ezAbstractEnumerationProperty*>(pProp);
-      return pEnumerationProp->GetValue(pObject);
-    }
-    else if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
-    {
-      return static_cast<const ezTypedMemberProperty<ezVariant>*>(pProp)->GetValue(pObject);
-    }
-    else
-    {
-      GetValueFunc func;
-      func.m_pProp = pProp;
-      func.m_pObject = pObject;
+    return static_cast<const ezTypedMemberProperty<const char*>*>(pProp)->GetValue(pObject);
+  }
+  else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+  {
+    void* pValue = nullptr;
+    pProp->GetValuePtr(pObject, &pValue);
+    return ezVariant(pValue);
+  }
+  else if (pProp->GetSpecificType()->IsDerivedFrom<ezEnumBase>() || pProp->GetSpecificType()->IsDerivedFrom<ezBitflagsBase>())
+  {
+    const ezAbstractEnumerationProperty* pEnumerationProp = static_cast<const ezAbstractEnumerationProperty*>(pProp);
+    return pEnumerationProp->GetValue(pObject);
+  }
+  else if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
+  {
+    return static_cast<const ezTypedMemberProperty<ezVariant>*>(pProp)->GetValue(pObject);
+  }
+  else
+  {
+    GetValueFunc func;
+    func.m_pProp = pProp;
+    func.m_pObject = pObject;
 
-      ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
+    ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
 
-      return func.m_Result;
-    }
+    return func.m_Result;
   }
 
   return ezVariant();
@@ -172,57 +188,62 @@ ezVariant ezReflectionUtils::GetMemberPropertyValue(const ezAbstractMemberProper
 
 void ezReflectionUtils::SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value)
 {
-  if (pProp != nullptr && !pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
-  {
-    if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
-    {
-      static_cast<ezTypedMemberProperty<const char*>*>(pProp)->SetValue(pObject, value.ConvertTo<ezString>().GetData());
-      return;
-    }
-    else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
-    {
-      void* pValue = value.ConvertTo<void*>();
-      pProp->SetValuePtr(pObject, &pValue);
-    }
-    else if (pProp->GetSpecificType()->IsDerivedFrom<ezEnumBase>() || pProp->GetSpecificType()->IsDerivedFrom<ezBitflagsBase>())
-    {
-      ezAbstractEnumerationProperty* pEnumerationProp = static_cast<ezAbstractEnumerationProperty*>(pProp);
+  EZ_ASSERT_DEBUG(pProp != nullptr && pObject != nullptr, "SetMemberPropertyValue: missing data!");
+  if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+    return;
 
-      // Value can either be an integer or a string (human readable value)
-      if (value.IsA<ezString>())
-      {
-        ezInt64 iValue;
-        ezReflectionUtils::StringToEnumeration(pProp->GetSpecificType(), value.Get<ezString>(), iValue);
-        pEnumerationProp->SetValue(pObject, iValue);
-      }
-      else
-      {
-        pEnumerationProp->SetValue(pObject, value.Get<ezInt64>());
-      }
-      return;
-    }
-    else if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
+  if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
+  {
+    static_cast<ezTypedMemberProperty<const char*>*>(pProp)->SetValue(pObject, value.ConvertTo<ezString>().GetData());
+    return;
+  }
+  else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+  {
+    void* pValue = value.ConvertTo<void*>();
+    pProp->SetValuePtr(pObject, &pValue);
+  }
+  else if (pProp->GetSpecificType()->IsDerivedFrom<ezEnumBase>() || pProp->GetSpecificType()->IsDerivedFrom<ezBitflagsBase>())
+  {
+    ezAbstractEnumerationProperty* pEnumerationProp = static_cast<ezAbstractEnumerationProperty*>(pProp);
+
+    // Value can either be an integer or a string (human readable value)
+    if (value.IsA<ezString>())
     {
-      static_cast<ezTypedMemberProperty<ezVariant>*>(pProp)->SetValue(pObject, value);
+      ezInt64 iValue;
+      ezReflectionUtils::StringToEnumeration(pProp->GetSpecificType(), value.Get<ezString>(), iValue);
+      pEnumerationProp->SetValue(pObject, iValue);
     }
     else
     {
-      SetValueFunc func;
-      func.m_pProp = pProp;
-      func.m_pObject = pObject;
-      func.m_pValue = &value;
-
-      ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
+      pEnumerationProp->SetValue(pObject, value.Get<ezInt64>());
     }
+    return;
+  }
+  else if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
+  {
+    static_cast<ezTypedMemberProperty<ezVariant>*>(pProp)->SetValue(pObject, value);
+  }
+  else
+  {
+    SetValueFunc func;
+    func.m_pProp = pProp;
+    func.m_pObject = pObject;
+    func.m_pValue = &value;
+
+    ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
   }
 }
 
 ezVariant ezReflectionUtils::GetArrayPropertyValue(const ezAbstractArrayProperty* pProp, const void* pObject, ezUInt32 uiIndex)
 {
-  if (pProp == nullptr)
+  EZ_ASSERT_DEBUG(pProp != nullptr && pObject != nullptr, "GetArrayPropertyValue: missing data!");
+  auto uiCount = pProp->GetCount(pObject);
+  if (uiIndex >= uiCount)
   {
+    ezLog::Error("GetArrayPropertyValue: Invalid index: %u", uiIndex);
     return ezVariant();
   }
+
   if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
   {
     const char* pData = nullptr;
@@ -252,20 +273,24 @@ ezVariant ezReflectionUtils::GetArrayPropertyValue(const ezAbstractArrayProperty
     func.m_pObject = pObject;
     func.m_pValue = &value;
 
-    if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
-      ezVariant::DispatchTo(func, ezVariantType::VoidPointer);
-    else
-      ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
+    ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
     return value;
   }
 }
 
 void ezReflectionUtils::SetArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value)
 {
-  if (pProp == nullptr || pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+  EZ_ASSERT_DEBUG(pProp != nullptr && pObject != nullptr, "GetArrayPropertyValue: missing data!");
+  if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+    return;
+
+  auto uiCount = pProp->GetCount(pObject);
+  if (uiIndex >= uiCount)
   {
+    ezLog::Error("SetArrayPropertyValue: Invalid index: %u", uiIndex);
     return;
   }
+
   if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
   {
     ezString sData = value.ConvertTo<ezString>().GetData();
@@ -293,17 +318,21 @@ void ezReflectionUtils::SetArrayPropertyValue(ezAbstractArrayProperty* pProp, vo
     func.m_pObject = pObject;
     func.m_pValue = &value;
 
-    if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
-      ezVariant::DispatchTo(func, ezVariantType::VoidPointer);
-    else
-      ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
+    ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
   }
 }
 
 void ezReflectionUtils::InsertSetPropertyValue(ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value)
 {
-  if (pProp == nullptr || pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+  EZ_ASSERT_DEBUG(pProp != nullptr && pObject != nullptr, "InsertSetPropertyValue: missing data!");
+  if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+    return;
+
+  if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
   {
+    ezString sData = value.ConvertTo<ezString>().GetData();
+    const char* pData = sData.GetData();
+    pProp->Insert(pObject, &pData);
     return;
   }
 
@@ -318,10 +347,17 @@ void ezReflectionUtils::InsertSetPropertyValue(ezAbstractSetProperty* pProp, voi
     ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
 }
 
-void ezReflectionUtils::RemoveSetPropertyValue(ezAbstractSetProperty* pProp, void* pObject, ezVariant& value)
+void ezReflectionUtils::RemoveSetPropertyValue(ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value)
 {
-  if (pProp == nullptr || pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+  EZ_ASSERT_DEBUG(pProp != nullptr && pObject != nullptr, "RemoveSetPropertyValue: missing data!");
+  if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+    return;
+  
+  if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
   {
+    ezString sData = value.ConvertTo<ezString>().GetData();
+    const char* pData = sData.GetData();
+    pProp->Remove(pObject, &pData);
     return;
   }
 
@@ -334,6 +370,66 @@ void ezReflectionUtils::RemoveSetPropertyValue(ezAbstractSetProperty* pProp, voi
     ezVariant::DispatchTo(func, ezVariantType::VoidPointer);
   else
     ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
+}
+
+void ezReflectionUtils::InsertArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, const ezVariant& value, ezUInt32 uiIndex)
+{
+  EZ_ASSERT_DEBUG(pProp != nullptr && pObject != nullptr, "InsertArrayPropertyValue: missing data!");
+  if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+    return;
+  
+  auto uiCount = pProp->GetCount(pObject);
+  if (uiIndex > uiCount)
+  {
+    ezLog::Error("InsertArrayPropertyValue: Invalid index: %u", uiIndex);
+    return;
+  }
+
+  if (pProp->GetSpecificType() == ezGetStaticRTTI<const char*>())
+  {
+    ezString sData = value.ConvertTo<ezString>().GetData();
+    const char* pData = sData.GetData();
+    pProp->Insert(pObject, uiIndex, &pData);
+    return;
+  }
+  if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+  {
+    void* pValue = value.ConvertTo<void*>();
+    pProp->Insert(pObject, uiIndex, &pValue);
+    return;
+  }
+
+  if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
+  {
+    pProp->Insert(pObject, uiIndex, &value);
+    return;
+  }
+  else
+  {
+    InsertArrayValueFunc func;
+    func.m_pProp = pProp;
+    func.m_uiIndex = uiIndex;
+    func.m_pObject = pObject;
+    func.m_pValue = &value;
+
+    ezVariant::DispatchTo(func, pProp->GetSpecificType()->GetVariantType());
+  }
+}
+
+void ezReflectionUtils::RemoveArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex)
+{
+  EZ_ASSERT_DEBUG(pProp != nullptr && pObject != nullptr, "RemoveArrayPropertyValue: missing data!");
+  if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+    return;
+
+  auto uiCount = pProp->GetCount(pObject);
+  if (uiIndex >= uiCount)
+  {
+    ezLog::Error("RemoveArrayPropertyValue: Invalid index: %u", uiIndex);
+    return;
+  }
+
+  pProp->Remove(pObject, uiIndex);
 }
 
 ezAbstractMemberProperty* ezReflectionUtils::GetMemberProperty(const ezRTTI* pRtti, ezUInt32 uiPropertyIndex)

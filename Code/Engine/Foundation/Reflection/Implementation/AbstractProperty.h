@@ -235,7 +235,7 @@ public:
   virtual void SetValue(void* pInstance, ezUInt32 uiIndex, const void* pObject) = 0;
 
   /// \brief Inserts the target of pObject into the array at index uiIndex.
-  virtual void Insert(void* pInstance, ezUInt32 uiIndex, void* pObject) = 0;
+  virtual void Insert(void* pInstance, ezUInt32 uiIndex, const void* pObject) = 0;
 
   /// \brief Removes the element in the array at index uiIndex.
   virtual void Remove(void* pInstance, ezUInt32 uiIndex) = 0;

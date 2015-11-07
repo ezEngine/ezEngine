@@ -64,7 +64,7 @@ public:
   virtual ezUInt32 GetCount(const void* pInstance) const override { return 0; }
   virtual void GetValue(const void* pInstance, ezUInt32 uiIndex, void* pObject) const override {}
   virtual void SetValue(void* pInstance, ezUInt32 uiIndex, const void* pObject) override {}
-  virtual void Insert(void* pInstance, ezUInt32 uiIndex, void* pObject) override {}
+  virtual void Insert(void* pInstance, ezUInt32 uiIndex, const void* pObject) override {}
   virtual void Remove(void* pInstance, ezUInt32 uiIndex) override {}
   virtual void Clear(void* pInstance) override {}
   virtual void SetCount(void* pInstance, ezUInt32 uiCount) override {}

@@ -80,6 +80,8 @@ EZ_BEGIN_PROPERTIES
 
   EZ_ARRAY_ACCESSOR_PROPERTY("AcHybrid", GetCount, GetValue, SetValue, Insert, Remove),
   EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcHybridRO", GetCount, GetValue),
+  EZ_ARRAY_ACCESSOR_PROPERTY("AcHybridChar", GetCountChar, GetValueChar, SetValueChar, InsertChar, RemoveChar),
+  EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcHybridCharRO", GetCountChar, GetValueChar),
   EZ_ARRAY_ACCESSOR_PROPERTY("AcDynamic", GetCountDyn, GetValueDyn, SetValueDyn, InsertDyn, RemoveDyn),
   EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcDynamicRO", GetCountDyn, GetValueDyn),
   EZ_ARRAY_ACCESSOR_PROPERTY("AcDeque", GetCountDeq, GetValueDeq, SetValueDeq, InsertDeq, RemoveDeq),
@@ -106,6 +108,27 @@ void ezTestArrays::Insert(ezUInt32 uiIndex, double value)
 void ezTestArrays::Remove(ezUInt32 uiIndex)
 {
   m_Hybrid.RemoveAt(uiIndex);
+}
+
+ezUInt32 ezTestArrays::GetCountChar() const
+{
+  return m_HybridChar.GetCount();
+}
+const char* ezTestArrays::GetValueChar(ezUInt32 uiIndex) const
+{
+  return m_HybridChar[uiIndex];
+}
+void ezTestArrays::SetValueChar(ezUInt32 uiIndex, const char* value)
+{
+  m_HybridChar[uiIndex] = value;
+}
+void ezTestArrays::InsertChar(ezUInt32 uiIndex, const char* value)
+{
+  m_HybridChar.Insert(value, uiIndex);
+}
+void ezTestArrays::RemoveChar(ezUInt32 uiIndex)
+{
+  m_HybridChar.RemoveAt(uiIndex);
 }
 
 ezUInt32 ezTestArrays::GetCountDyn() const

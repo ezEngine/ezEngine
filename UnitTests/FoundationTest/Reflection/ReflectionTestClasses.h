@@ -248,7 +248,7 @@ public:
 
   bool operator==(const ezTestArrays& rhs) const
   {
-    return m_Hybrid == rhs.m_Hybrid && m_Dynamic == rhs.m_Dynamic && m_Deque == rhs.m_Deque;
+    return m_Hybrid == rhs.m_Hybrid && m_Dynamic == rhs.m_Dynamic && m_Deque == rhs.m_Deque && m_HybridChar == rhs.m_HybridChar;
   }
 
   bool operator!=(const ezTestArrays& rhs) const
@@ -261,6 +261,12 @@ public:
   void SetValue(ezUInt32 uiIndex, double value);
   void Insert(ezUInt32 uiIndex, double value);
   void Remove(ezUInt32 uiIndex);
+
+  ezUInt32 GetCountChar() const;
+  const char* GetValueChar(ezUInt32 uiIndex) const;
+  void SetValueChar(ezUInt32 uiIndex, const char* value);
+  void InsertChar(ezUInt32 uiIndex, const char* value);
+  void RemoveChar(ezUInt32 uiIndex);
 
   ezUInt32 GetCountDyn() const;
   const ezTestStruct3& GetValueDyn(ezUInt32 uiIndex) const;
@@ -275,6 +281,7 @@ public:
   void RemoveDeq(ezUInt32 uiIndex);
 
   ezHybridArray<double, 5> m_Hybrid;
+  ezHybridArray<ezString, 2> m_HybridChar;
   ezDynamicArray<ezTestStruct3> m_Dynamic;
   ezDeque<ezTestArrays> m_Deque;
 };
