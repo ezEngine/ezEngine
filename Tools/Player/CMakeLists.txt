@@ -11,6 +11,8 @@
 # add_definitions (-DMY_PREPROCESS_DEFINITION_1)
 # add_definitions (-DMY_PREPROCESS_DEFINITION_2)
 
+BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
+
 # Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES
   Foundation

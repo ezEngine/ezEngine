@@ -8,6 +8,7 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Pipeline/ViewData.h>
+#include <Core/World/GameObject.h>
 
 class EZ_RENDERERCORE_DLL ezRenderPipeline
 {
