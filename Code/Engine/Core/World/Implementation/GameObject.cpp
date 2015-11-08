@@ -1,40 +1,7 @@
 #include <Core/PCH.h>
 #include <Core/World/World.h>
 
-
-// TODO: This is a temporary hack
-ezWorld* g_DummyWorld = nullptr;
-
-class ezGameObjectDummyAllocator : public ezRTTIAllocator
-{
-public:
-  
-  virtual void* Allocate() override
-  {
-    if (g_DummyWorld == nullptr)
-      g_DummyWorld = EZ_DEFAULT_NEW(ezWorld, "Dummy");
-
-    ezGameObject* pObject = nullptr;
-
-    ezGameObjectDesc d;
-    ezGameObjectHandle hObject = g_DummyWorld->CreateObject(d, pObject);
-      EZ_IGNORE_UNUSED(hObject);
-
-    return pObject;
-  }
-
-  virtual void Deallocate(void* pObject) override
-  {
-    ezGameObject* pGameObject = (ezGameObject*) pObject;
-
-    g_DummyWorld->DeleteObject(pGameObject->GetHandle());
-
-    EZ_DEFAULT_DELETE(g_DummyWorld);
-  }
-};
-
-
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezGameObjectDummyAllocator);
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
     EZ_ACCESSOR_PROPERTY("LocalPosition", GetLocalPosition, SetLocalPosition),

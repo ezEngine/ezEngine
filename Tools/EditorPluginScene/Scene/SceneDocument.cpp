@@ -257,7 +257,14 @@ void ezSceneDocument::SetSimulateWorld(bool b)
   if (m_bSimulateWorld == b)
     return;
 
+  GetSelectionManager()->Clear();
+
   m_bSimulateWorld = b;
+
+  if (!m_bSimulateWorld)
+  {
+    ezEditorEngineProcessConnection::GetInstance()->SendDocumentOpenMessage(this, true);
+  }
 
   SceneEvent e;
   e.m_Type = SceneEvent::Type::SimulateModeChanged;

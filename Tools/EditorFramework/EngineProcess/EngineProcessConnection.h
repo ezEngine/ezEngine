@@ -38,6 +38,8 @@ public:
 
   bool IsEngineSetup() const { return m_bClientIsConfigured; }
 
+  void SendDocumentOpenMessage(const ezDocument* pDocument, bool bOpen);
+
   struct Event
   {
     enum class Type
@@ -65,7 +67,7 @@ public:
 private:
   void Initialize(const ezRTTI* pFirstAllowedMessageType);
   void HandleIPCEvent(const ezProcessCommunication::Event& e);
-  void SendDocumentOpenMessage(const ezDocument* pDocument, bool bOpen);
+  
 
   bool m_bProcessShouldWaitForDebugger;
   bool m_bProcessShouldBeRunning;

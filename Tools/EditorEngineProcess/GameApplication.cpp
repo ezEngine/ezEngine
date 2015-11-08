@@ -211,32 +211,39 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
 {
   ezDocumentOpenResponseMsgToEditor m;
   m.m_DocumentGuid = pMsg->m_DocumentGuid;
-  ezEngineProcessDocumentContext* pDocumentContext = nullptr;
+  ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pMsg->m_DocumentGuid);
 
-  ezRTTI* pRtti = ezRTTI::GetFirstInstance();
-  while (pRtti)
+  if (pDocumentContext == nullptr)
   {
-    if (pRtti->IsDerivedFrom<ezEngineProcessDocumentContext>())
+    ezRTTI* pRtti = ezRTTI::GetFirstInstance();
+    while (pRtti)
     {
-      auto* pProp = pRtti->FindPropertyByName("DocumentType");
-      if (pProp && pProp->GetCategory() == ezPropertyCategory::Constant)
+      if (pRtti->IsDerivedFrom<ezEngineProcessDocumentContext>())
       {
-        const ezStringBuilder sDocTypes(";", static_cast<ezAbstractConstantProperty*>(pProp)->GetConstant().ConvertTo<ezString>(), ";");
-        const ezStringBuilder sRequestedType(";", pMsg->m_sDocumentType, ";");
-
-        if (sRequestedType.FindSubString(sRequestedType) != nullptr)
+        auto* pProp = pRtti->FindPropertyByName("DocumentType");
+        if (pProp && pProp->GetCategory() == ezPropertyCategory::Constant)
         {
-          ezLog::Info("Created Context of type '%s' for '%s'", pRtti->GetTypeName(), pMsg->m_sDocumentType.GetData());
+          const ezStringBuilder sDocTypes(";", static_cast<ezAbstractConstantProperty*>(pProp)->GetConstant().ConvertTo<ezString>(), ";");
+          const ezStringBuilder sRequestedType(";", pMsg->m_sDocumentType, ";");
 
-          pDocumentContext = static_cast<ezEngineProcessDocumentContext*>(pRtti->GetAllocator()->Allocate());
+          if (sRequestedType.FindSubString(sRequestedType) != nullptr)
+          {
+            ezLog::Info("Created Context of type '%s' for '%s'", pRtti->GetTypeName(), pMsg->m_sDocumentType.GetData());
 
-          ezEngineProcessDocumentContext::AddDocumentContext(pMsg->m_DocumentGuid, pDocumentContext, &m_IPC);
-          break;
+            pDocumentContext = static_cast<ezEngineProcessDocumentContext*>(pRtti->GetAllocator()->Allocate());
+
+            ezEngineProcessDocumentContext::AddDocumentContext(pMsg->m_DocumentGuid, pDocumentContext, &m_IPC);
+            break;
+          }
         }
       }
-    }
 
-    pRtti = pRtti->GetNextInstance();
+      pRtti = pRtti->GetNextInstance();
+    }
+  }
+  else
+  {
+    pDocumentContext->Reset();
   }
 
   m_IPC.SendMessage(&m);

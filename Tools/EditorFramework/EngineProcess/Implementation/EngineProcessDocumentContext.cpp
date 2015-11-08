@@ -39,7 +39,7 @@ void ezEngineProcessDocumentContext::DestroyDocumentContext(ezUuid guid)
   ezEngineProcessDocumentContext* pContext = nullptr;
   if (s_DocumentContexts.Remove(guid, &pContext))
   {
-    pContext->Deinitialize();
+    pContext->Deinitialize(true);
     pContext->GetDynamicRTTI()->GetAllocator()->Deallocate(pContext);
   }
 }
@@ -58,9 +58,10 @@ ezEngineProcessDocumentContext::~ezEngineProcessDocumentContext()
   EZ_ASSERT_DEV(m_pWorld == nullptr, "World has not been deleted! Call 'ezEngineProcessDocumentContext::DestroyDocumentContext'");
 }
 
-void ezEngineProcessDocumentContext::Deinitialize()
+void ezEngineProcessDocumentContext::Deinitialize(bool bFullDestruction)
 {
-  ClearViewContexts();
+  //if (bFullDestruction)
+    ClearViewContexts();
 
   OnDeinitialize();
 
@@ -290,6 +291,16 @@ void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEd
   pSyncObject->SetModified(true);
 }
 
+
+void ezEngineProcessDocumentContext::Reset()
+{
+  ezUuid guid = m_DocumentGuid;
+  auto ipc = m_pIPC;
+
+  Deinitialize(false);
+
+  Initialize(guid, ipc);
+}
 
 void ezEngineProcessDocumentContext::HandlerGameObjectMsg(const ezEntityMsgToEngine* pMsg, ezRTTI* pRtti)
 {

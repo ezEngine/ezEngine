@@ -70,7 +70,7 @@ public:
   virtual ~ezEngineProcessDocumentContext();
 
   void Initialize(const ezUuid& DocumentGuid, ezProcessCommunication* pIPC);
-  void Deinitialize();
+  void Deinitialize(bool bFullDestruction);
 
   void SendProcessMessage(ezProcessMessage* pMsg = false);
   virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg);
@@ -83,7 +83,7 @@ public:
 
   const ezUuid& GetDocumentGuid() const { return m_DocumentGuid; }
 
-  
+  virtual void Reset();
 
   ezWorld* m_pWorld;
   ezEditorGuidEngineHandleMap<ezUInt32> m_OtherPickingMap;
