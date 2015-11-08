@@ -41,8 +41,8 @@ class EZ_GAMEUTILS_DLL ezTransformComponent : public ezComponent
 public:
   ezTransformComponent();
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override = 0;
-  virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) override = 0;
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) override;
 
   // ************************************* PROPERTIES ***********************************
 

@@ -64,13 +64,13 @@ public:
   ezUInt32 m_uiEditorPickingID;
 
   /// \brief Override this to save the current state of the component to the given stream.
-  virtual void SerializeComponent(ezWorldWriter& stream) const = 0 {}
+  virtual void SerializeComponent(ezWorldWriter& stream) const = 0;
 
   /// \brief Override this to load the current state of the component from the given stream.
   ///
   /// The active state will be automatically serialized. The 'initialized' state is not serialized, all components
   /// will be initialized after creation, even if they were already in an initialized state when they were serialized.
-  virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) = 0 {}
+  virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) = 0;
 
 protected:
   friend class ezWorld;
