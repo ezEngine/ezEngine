@@ -6,7 +6,7 @@
 #include <RendererFoundation/Context/Context.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleRenderPass, ezRenderPipelinePass, 1, ezRTTIDefaultAllocator<ezSimpleRenderPass>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleRenderPass, 1, ezRTTIDefaultAllocator<ezSimpleRenderPass>);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("Color", m_PinColor),
     EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil)

@@ -4,7 +4,7 @@
 
 class EZ_RENDERERCORE_DLL ezSimpleRenderPass : public ezRenderPipelinePass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSimpleRenderPass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSimpleRenderPass, ezRenderPipelinePass);
 
 public:
   ezSimpleRenderPass(const char* szName = "SimpleRenderPass");

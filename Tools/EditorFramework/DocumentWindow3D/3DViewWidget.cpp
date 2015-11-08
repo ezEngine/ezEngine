@@ -31,6 +31,7 @@ ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentW
   installEventFilter(this);
 
   m_bUpdatePickingData = false;
+
   m_uiViewID = s_uiNextViewID;
   ++s_uiNextViewID;
   m_pDocumentWindow->m_ViewWidgets.PushBack(this);

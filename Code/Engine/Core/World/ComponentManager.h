@@ -156,7 +156,7 @@ protected:
 };
 
 /// \brief Simple component manager implementation that calls an update method on all components every frame.
-template <typename ComponentType>
+template <typename ComponentType, bool OnlyUpdateWhenSimulating>
 class ezComponentManagerSimple : public ezComponentManager<ComponentType>
 {
 public:

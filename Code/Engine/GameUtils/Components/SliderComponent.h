@@ -4,16 +4,19 @@
 #include <GameUtils/Components/TransformComponent.h>
 
 class ezSliderComponent;
-typedef ezComponentManagerSimple<ezSliderComponent> ezSliderComponentManager;
+typedef ezComponentManagerSimple<ezSliderComponent, true> ezSliderComponentManager;
 
 class EZ_GAMEUTILS_DLL ezSliderComponent : public ezTransformComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezSliderComponent, ezSliderComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezSliderComponent, ezTransformComponent, ezSliderComponentManager);
 
 public:
   ezSliderComponent();
 
   void Update();
+
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) override;
 
   // ************************************* PROPERTIES ***********************************
 

@@ -19,7 +19,7 @@ enum class ezEditorInut
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorInputContext : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorInputContext);
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditorInputContext, ezReflectedClass);
 
 public:
   ezEditorInputContext()

@@ -39,7 +39,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezResourceSlot);
 
 class ezMeshAssetProperties : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMeshAssetProperties);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMeshAssetProperties, ezReflectedClass);
 
 public:
   ezMeshAssetProperties();

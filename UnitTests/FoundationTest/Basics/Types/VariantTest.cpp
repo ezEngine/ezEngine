@@ -4,13 +4,13 @@
 
 class Blubb : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(Blubb);
+  EZ_ADD_DYNAMIC_REFLECTION(Blubb, ezReflectedClass);
 public:
   float u;
   float v;
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Blubb, ezReflectedClass, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Blubb, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("u", u),
     EZ_MEMBER_PROPERTY("v", v)

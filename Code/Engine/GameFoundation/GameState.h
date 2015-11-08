@@ -8,7 +8,7 @@ class ezGameApplication;
 
 class EZ_GAMEFOUNDATION_DLL ezGameState : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGameState)
+  EZ_ADD_DYNAMIC_REFLECTION(ezGameState, ezReflectedClass)
 
 public:
   ezGameState() : m_pApplication(nullptr) { }

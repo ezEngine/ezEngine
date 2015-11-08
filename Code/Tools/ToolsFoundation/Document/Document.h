@@ -22,7 +22,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezDocumentTypeDescriptor
 
 class EZ_TOOLSFOUNDATION_DLL ezDocumentInfo : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentInfo);
+  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentInfo, ezReflectedClass);
 
 public:
   ezDocumentInfo();
@@ -32,7 +32,7 @@ public:
 
 class EZ_TOOLSFOUNDATION_DLL ezDocument : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDocument);
+  EZ_ADD_DYNAMIC_REFLECTION(ezDocument, ezReflectedClass);
 
 public:
   ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObjectManagerImpl);

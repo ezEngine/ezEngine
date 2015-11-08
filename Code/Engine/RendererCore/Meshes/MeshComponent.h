@@ -7,7 +7,7 @@
 
 class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezRenderData
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMeshRenderData);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMeshRenderData, ezRenderData);
 
 public:
   ezTransform m_GlobalTransform;
@@ -23,7 +23,7 @@ typedef ezComponentManager<ezMeshComponent> ezMeshComponentManager;
 
 class EZ_RENDERERCORE_DLL ezMeshComponent : public ezComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezMeshComponent, ezMeshComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezMeshComponent, ezComponent, ezMeshComponentManager);
 
 public:
   ezMeshComponent();

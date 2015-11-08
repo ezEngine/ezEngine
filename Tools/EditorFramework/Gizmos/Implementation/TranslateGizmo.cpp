@@ -8,7 +8,7 @@
 #include <QMouseEvent>
 #include <QDesktopWidget>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmo, ezGizmo, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezTranslateGizmo::ezTranslateGizmo()

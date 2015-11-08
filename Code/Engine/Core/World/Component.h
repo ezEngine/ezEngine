@@ -20,7 +20,7 @@ class ezWorldReader;
 /// component handle instead.
 class EZ_CORE_DLL ezComponent : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezComponent);
+  EZ_ADD_DYNAMIC_REFLECTION(ezComponent, ezReflectedClass);
 
 protected:
   /// \brief Keep the constructor private or protected in derived classes, so it cannot be called manually.
@@ -63,8 +63,14 @@ public:
 
   ezUInt32 m_uiEditorPickingID;
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const {}
-  virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) {}
+  /// \brief Override this to save the current state of the component to the given stream.
+  virtual void SerializeComponent(ezWorldWriter& stream) const = 0 {}
+
+  /// \brief Override this to load the current state of the component from the given stream.
+  ///
+  /// The active state will be automatically serialized. The 'initialized' state is not serialized, all components
+  /// will be initialized after creation, even if they were already in an initialized state when they were serialized.
+  virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) = 0 {}
 
 protected:
   friend class ezWorld;
@@ -109,8 +115,8 @@ private:
 #include <Core/World/Implementation/Component_inl.h>
 
 /// \brief Add this macro to a custom component type inside the type declaration.
-#define EZ_DECLARE_COMPONENT_TYPE(componentType, managerType) \
-  EZ_ADD_DYNAMIC_REFLECTION(componentType); \
+#define EZ_DECLARE_COMPONENT_TYPE(componentType, baseType, managerType) \
+  EZ_ADD_DYNAMIC_REFLECTION(componentType, baseType); \
   public: \
     ezComponentHandle GetHandle() const; \
     managerType* GetManager() const; \
@@ -125,11 +131,11 @@ private:
 /// \brief Implements rtti and component specific functionality. Add this macro to a cpp file.
 ///
 /// \see EZ_BEGIN_DYNAMIC_REFLECTED_TYPE
-#define EZ_BEGIN_COMPONENT_TYPE(componentType, baseType, version, managerType) \
+#define EZ_BEGIN_COMPONENT_TYPE(componentType, version, managerType) \
   ezUInt16 componentType::TYPE_ID = ezComponent::GetNextTypeId(); \
   ezComponentHandle componentType::GetHandle() const { return ezComponent::GetHandle<componentType>(); } \
   managerType* componentType::GetManager() const { return static_cast<managerType*>(ezComponent::GetManager()); } \
-  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(componentType, baseType, version, ezRTTINoAllocator);
+  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(componentType, version, ezRTTINoAllocator);
 
 /// \brief Ends the component implementation code block that was opened with EZ_BEGIN_COMPONENT_TYPE.
 #define EZ_END_COMPONENT_TYPE EZ_END_DYNAMIC_REFLECTED_TYPE

@@ -63,6 +63,20 @@ public:
     return static_cast<typename Derived::Enum>(m_value);
   }
 
+  /// \brief Returns the enum value as an integer
+  EZ_FORCE_INLINE StorageType GetValue() const
+  {
+    /// \test this is new
+    return m_value;
+  }
+
+  /// \brief Sets the enum value through an integer
+  EZ_FORCE_INLINE void SetValue(StorageType value)
+  {
+    /// \test this is new
+    m_value = value;
+  }
+
 private:
   StorageType m_value;
 };

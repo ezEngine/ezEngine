@@ -13,7 +13,7 @@ EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezExampleBitflags, 1)
 EZ_END_STATIC_REFLECTED_BITFLAGS();
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAbstractTestClass, ezReflectedClass, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAbstractTestClass, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 
@@ -39,7 +39,7 @@ EZ_BEGIN_PROPERTIES
 EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass1, ezReflectedClass, 11, ezRTTIDefaultAllocator<ezTestClass1>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass1, 11, ezRTTIDefaultAllocator<ezTestClass1>);
 EZ_BEGIN_PROPERTIES
   EZ_MEMBER_PROPERTY("Sub Struct", m_Struct),
   EZ_MEMBER_PROPERTY("Color", m_Color),
@@ -50,7 +50,7 @@ EZ_BEGIN_PROPERTIES
 ezInt32 ezTestClass2Allocator::m_iAllocs = 0;
 ezInt32 ezTestClass2Allocator::m_iDeallocs = 0;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2, ezTestClass1, 22, ezTestClass2Allocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2, 22, ezTestClass2Allocator);
 EZ_BEGIN_PROPERTIES
   EZ_ACCESSOR_PROPERTY("Text", GetText, SetText),
   EZ_MEMBER_PROPERTY("Time", m_Time),
@@ -61,7 +61,7 @@ EZ_BEGIN_PROPERTIES
   EZ_END_PROPERTIES
   EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2b, ezReflectedClass, 24, ezRTTIDefaultAllocator<ezTestClass2b>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2b, 24, ezRTTIDefaultAllocator<ezTestClass2b>);
 EZ_BEGIN_PROPERTIES
   EZ_ACCESSOR_PROPERTY("Text2b", GetText, SetText),
   EZ_MEMBER_PROPERTY("Sub Struct", m_Struct),
@@ -69,7 +69,7 @@ EZ_BEGIN_PROPERTIES
   EZ_END_PROPERTIES
   EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestArrays, ezReflectedClass, 1, ezRTTIDefaultAllocator<ezTestArrays>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestArrays, 1, ezRTTIDefaultAllocator<ezTestArrays>);
 EZ_BEGIN_PROPERTIES
   EZ_ARRAY_MEMBER_PROPERTY("Hybrid", m_Hybrid),
   EZ_ARRAY_MEMBER_PROPERTY("Dynamic", m_Dynamic),
@@ -173,7 +173,7 @@ void ezTestArrays::RemoveDeq(ezUInt32 uiIndex)
   m_Deque.RemoveAt(uiIndex);
 }
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestSets, ezReflectedClass, 1, ezRTTIDefaultAllocator<ezTestSets>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestSets, 1, ezRTTIDefaultAllocator<ezTestSets>);
 EZ_BEGIN_PROPERTIES
   EZ_SET_MEMBER_PROPERTY("Set", m_SetMember),
   EZ_SET_MEMBER_PROPERTY_READ_ONLY("SetRO", m_SetMember),
@@ -247,7 +247,7 @@ void ezTestSets::PseudoRemove2b(const char* value)
   m_Array.Remove(value);
 }
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestPtr, ezReflectedClass, 1, ezRTTIDefaultAllocator<ezTestPtr>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestPtr, 1, ezRTTIDefaultAllocator<ezTestPtr>);
 EZ_BEGIN_PROPERTIES
   EZ_ACCESSOR_PROPERTY("ConstCharPtr", GetString, SetString),
   EZ_ACCESSOR_PROPERTY("ArraysPtr", GetArrays, SetArrays)->AddFlags(ezPropertyFlags::PointerOwner),

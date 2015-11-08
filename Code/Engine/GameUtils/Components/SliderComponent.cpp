@@ -1,9 +1,11 @@
 #include <GameUtils/PCH.h>
 #include <GameUtils/Components/SliderComponent.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Core/WorldSerializer/WorldReader.h>
 
 float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, ezTime& fTimeSinceStartInSec);
 
-EZ_BEGIN_COMPONENT_TYPE(ezSliderComponent, ezTransformComponent, 1, ezSliderComponentManager);
+EZ_BEGIN_COMPONENT_TYPE(ezSliderComponent, 1, ezSliderComponentManager);
   EZ_BEGIN_PROPERTIES
     EZ_ENUM_MEMBER_PROPERTY("Axis", ezBasisAxis, m_Axis),
     EZ_MEMBER_PROPERTY("Distance", m_fDistanceToTravel),
@@ -102,6 +104,36 @@ void ezSliderComponent::Update()
 }
 
 
+
+void ezSliderComponent::SerializeComponent(ezWorldWriter& stream) const
+{
+  SUPER::SerializeComponent(stream);
+
+  auto& s = stream.GetStream();
+
+  s << m_fDistanceToTravel;
+  s << m_fAcceleration;
+  s << m_fDeceleration;
+  s << m_Axis.GetValue();
+  s << m_fLastDistance;
+}
+
+
+void ezSliderComponent::DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion)
+{
+  SUPER::DeserializeComponent(stream, uiTypeVersion);
+
+  auto& s = stream.GetStream();
+
+  s >> m_fDistanceToTravel;
+  s >> m_fAcceleration;
+  s >> m_fDeceleration;
+  ezBasisAxis::StorageType axis;
+  s >> axis;
+  m_Axis.SetValue(axis);
+  s >> m_fLastDistance;
+
+}
 
 EZ_STATICLINK_FILE(GameUtils, GameUtils_Components_SliderComponent);
 

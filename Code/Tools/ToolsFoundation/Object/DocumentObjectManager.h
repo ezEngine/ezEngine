@@ -9,7 +9,7 @@ class ezDocument;
 
 class ezDocumentRoot : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentRoot);
+  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentRoot, ezReflectedClass);
 
   ezHybridArray<ezReflectedClass*, 8> m_RootObjects;
 };

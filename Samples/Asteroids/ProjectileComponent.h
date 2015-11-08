@@ -3,15 +3,18 @@
 #include <Core/World/World.h>
 
 class ProjectileComponent;
-typedef ezComponentManagerSimple<ProjectileComponent> ProjectileComponentManager;
+typedef ezComponentManagerSimple<ProjectileComponent, true> ProjectileComponentManager;
 
 class ProjectileComponent : public ezComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ProjectileComponent, ProjectileComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ProjectileComponent, ezComponent, ProjectileComponentManager);
 
 public:
   ProjectileComponent();
   void Update();
+
+  virtual void SerializeComponent(ezWorldWriter& stream) const override {}
+  virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) override {}
 
   ezInt32 m_iTimeToLive;
   ezVec3 m_vVelocity;

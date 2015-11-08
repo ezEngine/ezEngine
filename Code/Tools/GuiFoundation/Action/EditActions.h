@@ -24,7 +24,7 @@ public:
 ///
 class EZ_GUIFOUNDATION_DLL ezEditAction : public ezButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditAction, ezButtonAction);
 public:
   enum class ButtonType
   {

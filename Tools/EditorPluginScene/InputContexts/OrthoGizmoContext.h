@@ -9,7 +9,7 @@ class ezCamera;
 
 class ezOrthoGizmoContext : public ezEditorInputContext
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezOrthoGizmoContext);
+  EZ_ADD_DYNAMIC_REFLECTION(ezOrthoGizmoContext, ezEditorInputContext);
 
 public:
 

@@ -23,7 +23,7 @@ public:
 ///
 class EZ_GUIFOUNDATION_DLL ezCommandHistoryAction : public ezButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCommandHistoryAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezCommandHistoryAction, ezButtonAction);
 public:
 
   enum class ButtonType

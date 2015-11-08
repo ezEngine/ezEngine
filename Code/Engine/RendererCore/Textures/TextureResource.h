@@ -34,7 +34,7 @@ struct ezTextureResourceDescriptor
 
 class EZ_RENDERERCORE_DLL ezTextureResource : public ezResource<ezTextureResource, ezTextureResourceDescriptor>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTextureResource);
+  EZ_ADD_DYNAMIC_REFLECTION(ezTextureResource, ezResourceBase);
 
 public:
   ezTextureResource();

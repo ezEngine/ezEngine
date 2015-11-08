@@ -7,7 +7,7 @@
 #include <Xinput.h>
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceXBox360, ezInputDeviceController, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceXBox360, 1, ezRTTINoAllocator);
   // no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

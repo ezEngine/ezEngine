@@ -41,7 +41,7 @@ EZ_IMPLEMENT_MESSAGE_TYPE(GetMessage);
 
 class BaseHandler : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(BaseHandler);
+  EZ_ADD_DYNAMIC_REFLECTION(BaseHandler, ezReflectedClass);
 
 public:
   BaseHandler() : m_iValue(0) 
@@ -66,7 +66,7 @@ public:
   ezInt32 m_iValue;
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(BaseHandler, ezReflectedClass, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(BaseHandler, 1, ezRTTINoAllocator);
   EZ_BEGIN_MESSAGEHANDLERS
     EZ_MESSAGE_HANDLER(AddMessage, OnAddMessage),
     EZ_MESSAGE_HANDLER(MulMessage, OnMulMessage),
@@ -76,7 +76,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 class DerivedHandler : public BaseHandler
 {
-  EZ_ADD_DYNAMIC_REFLECTION(DerivedHandler);
+  EZ_ADD_DYNAMIC_REFLECTION(DerivedHandler, BaseHandler);
 
 public:
   void OnAddMessage(AddMessage& msg)
@@ -90,7 +90,7 @@ public:
   }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(DerivedHandler, BaseHandler, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(DerivedHandler, 1, ezRTTINoAllocator);
   EZ_BEGIN_MESSAGEHANDLERS
     EZ_MESSAGE_HANDLER(AddMessage, OnAddMessage),
     EZ_MESSAGE_HANDLER(SubMessage, OnSubMessage)

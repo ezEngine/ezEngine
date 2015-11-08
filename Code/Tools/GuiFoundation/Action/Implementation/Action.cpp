@@ -55,5 +55,5 @@ void ezAction::TriggerUpdate()
   m_StatusUpdateEvent.Broadcast(this);
 }
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAction, ezReflectedClass, 0, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();

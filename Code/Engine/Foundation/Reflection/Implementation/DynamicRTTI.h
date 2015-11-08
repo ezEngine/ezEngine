@@ -10,9 +10,10 @@
 /// This macro extends a class, such that it is now able to return its own type information via GetDynamicRTTI(),
 /// which is a virtual function, that is reimplemented on each type. A class needs to be derived from ezReflectedClass
 /// (at least indirectly) for this.
-#define EZ_ADD_DYNAMIC_REFLECTION(SELF)                               \
+#define EZ_ADD_DYNAMIC_REFLECTION(SELF, BASE_TYPE)                    \
   EZ_ALLOW_PRIVATE_PROPERTIES(SELF);                                  \
   public:                                                             \
+    typedef BASE_TYPE SUPER;                                          \
     EZ_FORCE_INLINE static const ezRTTI* GetStaticRTTI()              \
     {                                                                 \
       return &SELF::s_RTTI;                                           \
@@ -50,8 +51,8 @@
 ///   of \a Type. Pass ezRTTINoAllocator for types that should not be created dynamically.
 ///   Pass ezRTTIDefaultAllocator<Type> for types that should be created on the default heap.
 ///   Pass a custom ezRTTIAllocator type to handle allocation differently.
-#define EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Type, BaseType, Version, AllocatorType)  \
-  EZ_RTTIINFO_DECL(Type, BaseType, Version)                                      \
+#define EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Type, Version, AllocatorType)            \
+  EZ_RTTIINFO_DECL(Type, Type::SUPER, Version)                                   \
   ezRTTI Type::s_RTTI = ezRTTInfo_##Type::GetRTTI();                             \
   EZ_RTTIINFO_GETRTTI_IMPL_BEGIN(Type, AllocatorType)
 
@@ -74,7 +75,7 @@ class ezArchiveReader;
 /// The only functionality that this class provides is the GetDynamicRTTI() function.
 class EZ_FOUNDATION_DLL ezReflectedClass : public ezNoBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezReflectedClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezReflectedClass, ezNoBase);
 public:
   EZ_FORCE_INLINE ezReflectedClass()
   {

@@ -4,7 +4,7 @@
 #include <RendererFoundation/Context/Context.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshBufferResource, ezResourceBase, 1, ezRTTIDefaultAllocator<ezMeshBufferResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshBufferResource, 1, ezRTTIDefaultAllocator<ezMeshBufferResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezMeshBufferResourceDescriptor::ezMeshBufferResourceDescriptor()

@@ -1,9 +1,11 @@
 #include <GameUtils/PCH.h>
 #include <GameUtils/Components/RotorComponent.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Core/WorldSerializer/WorldReader.h>
 
 float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, ezTime& fTimeSinceStartInSec);
 
-EZ_BEGIN_COMPONENT_TYPE(ezRotorComponent, ezTransformComponent, 1, ezRotorComponentManager);
+EZ_BEGIN_COMPONENT_TYPE(ezRotorComponent, 1, ezRotorComponentManager);
   EZ_BEGIN_PROPERTIES
     EZ_ENUM_MEMBER_PROPERTY("Axis", ezBasisAxis, m_Axis),
     EZ_MEMBER_PROPERTY("Degrees to Rotate", m_iDegreeToRotate),
@@ -123,6 +125,35 @@ void ezRotorComponent::Update()
 
 
 
+
+void ezRotorComponent::SerializeComponent(ezWorldWriter& stream) const
+{
+  SUPER::SerializeComponent(stream);
+
+  auto& s = stream.GetStream();
+
+  s << m_iDegreeToRotate;
+  s << m_fAcceleration;
+  s << m_fDeceleration;
+  s << m_Axis.GetValue();
+  s << m_LastRotation;
+}
+
+
+void ezRotorComponent::DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion)
+{
+  SUPER::DeserializeComponent(stream, uiTypeVersion);
+
+  auto& s = stream.GetStream();
+
+  s >> m_iDegreeToRotate;
+  s >> m_fAcceleration;
+  s >> m_fDeceleration;
+  ezBasisAxis::StorageType axis;
+  s >> axis;
+  m_Axis.SetValue(axis);
+  s >> m_LastRotation;
+}
 
 EZ_STATICLINK_FILE(GameUtils, GameUtils_Components_RotorComponent);
 

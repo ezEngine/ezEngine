@@ -8,7 +8,7 @@ class ezGeometry;
 
 class ezMeshAssetDocument : public ezSimpleAssetDocument<ezMeshAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMeshAssetDocument);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMeshAssetDocument, ezSimpleAssetDocument<ezMeshAssetProperties>);
 
 public:
   ezMeshAssetDocument(const char* szDocumentPath);

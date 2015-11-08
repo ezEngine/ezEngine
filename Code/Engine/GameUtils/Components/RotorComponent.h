@@ -4,16 +4,19 @@
 #include <GameUtils/Components/TransformComponent.h>
 
 class ezRotorComponent;
-typedef ezComponentManagerSimple<ezRotorComponent> ezRotorComponentManager;
+typedef ezComponentManagerSimple<ezRotorComponent, true> ezRotorComponentManager;
 
 class EZ_GAMEUTILS_DLL ezRotorComponent : public ezTransformComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezRotorComponent, ezRotorComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezRotorComponent, ezTransformComponent, ezRotorComponentManager);
 
 public:
   ezRotorComponent();
 
   void Update();
+
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) override;
 
   // ************************************* PROPERTIES ***********************************
 

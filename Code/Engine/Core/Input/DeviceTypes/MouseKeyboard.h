@@ -8,7 +8,7 @@
 /// This class is derived from ezInputDevice but adds interface functions to handle mouse and keyboard input.
 class EZ_CORE_DLL ezInputDeviceMouseKeyboard : public ezInputDevice
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezInputDeviceMouseKeyboard);
+  EZ_ADD_DYNAMIC_REFLECTION(ezInputDeviceMouseKeyboard, ezInputDevice);
 
 public:
   ezInputDeviceMouseKeyboard()

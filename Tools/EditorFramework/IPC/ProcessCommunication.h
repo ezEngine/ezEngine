@@ -12,7 +12,7 @@ class QSharedMemory;
 
 class EZ_EDITORFRAMEWORK_DLL ezProcessMessage : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProcessMessage);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcessMessage, ezReflectedClass);
 
 public:
   ezInt64 m_iSentTimeStamp;

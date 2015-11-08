@@ -8,7 +8,7 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Context/Context.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConstantBufferResource, ezResourceBase, 1, ezRTTIDefaultAllocator<ezConstantBufferResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConstantBufferResource, 1, ezRTTIDefaultAllocator<ezConstantBufferResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 

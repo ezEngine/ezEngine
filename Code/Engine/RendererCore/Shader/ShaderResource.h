@@ -13,7 +13,7 @@ struct ezShaderResourceDescriptor
 
 class EZ_RENDERERCORE_DLL ezShaderResource : public ezResource<ezShaderResource, ezShaderResourceDescriptor>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezShaderResource);
+  EZ_ADD_DYNAMIC_REFLECTION(ezShaderResource, ezResourceBase);
 
 public:
   ezShaderResource();

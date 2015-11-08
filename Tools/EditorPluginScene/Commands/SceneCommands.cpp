@@ -6,7 +6,7 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDuplicateObjectsCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezDuplicateObjectsCommand>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDuplicateObjectsCommand, 1, ezRTTIDefaultAllocator<ezDuplicateObjectsCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("JsonGraph", m_sJsonGraph),
 EZ_MEMBER_PROPERTY("ParentNodes", m_sParentNodes),

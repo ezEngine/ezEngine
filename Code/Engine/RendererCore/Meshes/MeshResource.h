@@ -7,7 +7,7 @@ typedef ezResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
 
 class EZ_RENDERERCORE_DLL ezMeshResource : public ezResource<ezMeshResource, ezMeshResourceDescriptor>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMeshResource);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMeshResource, ezResourceBase);
 
 public:
   ezMeshResource();

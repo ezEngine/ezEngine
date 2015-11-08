@@ -34,7 +34,7 @@ public:
 ///
 class EZ_EDITORPLUGINSCENE_DLL ezSelectionAction : public ezButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSelectionAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSelectionAction, ezButtonAction);
 
 public:
 

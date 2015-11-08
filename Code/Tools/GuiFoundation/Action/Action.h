@@ -104,7 +104,7 @@ private:
 ///
 class EZ_GUIFOUNDATION_DLL ezAction : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezAction, ezReflectedClass);
   EZ_DISALLOW_COPY_AND_ASSIGN(ezAction);
 public:
   ezAction(const ezActionContext& context) { m_Context = context; }

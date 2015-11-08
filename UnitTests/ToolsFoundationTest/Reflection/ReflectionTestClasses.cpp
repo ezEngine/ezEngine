@@ -25,7 +25,7 @@ EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPODClass, ezReflectedClass, 1, ezRTTIDefaultAllocator<ezPODClass>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPODClass, 1, ezRTTIDefaultAllocator<ezPODClass>);
 EZ_BEGIN_PROPERTIES
   EZ_MEMBER_PROPERTY("Integer", m_IntegerStruct),
   EZ_MEMBER_PROPERTY("Float", m_FloatStruct),
@@ -36,7 +36,7 @@ EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMathClass, ezPODClass, 1, ezRTTIDefaultAllocator<ezMathClass>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMathClass, 1, ezRTTIDefaultAllocator<ezMathClass>);
 EZ_BEGIN_PROPERTIES
   EZ_ACCESSOR_PROPERTY("Vec2", GetVec2, SetVec2),
   EZ_ACCESSOR_PROPERTY("Vec3", GetVec3, SetVec3),
@@ -60,7 +60,7 @@ EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezExampleBitflags, 1)
 EZ_END_STATIC_REFLECTED_BITFLAGS();
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEnumerationsClass, ezReflectedClass, 1, ezRTTIDefaultAllocator<ezEnumerationsClass>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEnumerationsClass, 1, ezRTTIDefaultAllocator<ezEnumerationsClass>);
 EZ_BEGIN_PROPERTIES
   EZ_ENUM_ACCESSOR_PROPERTY("Enum", ezExampleEnum, GetEnum, SetEnum),
   EZ_BITFLAGS_ACCESSOR_PROPERTY("Bitflags", ezExampleBitflags, GetBitflags, SetBitflags),
@@ -75,7 +75,7 @@ EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(OuterClass, ezReflectedClass, 1, ezRTTIDefaultAllocator<OuterClass>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(OuterClass, 1, ezRTTIDefaultAllocator<OuterClass>);
 EZ_BEGIN_PROPERTIES
   EZ_MEMBER_PROPERTY("Inner", m_Inner1),
   EZ_MEMBER_PROPERTY("OP1", m_fP1),
@@ -83,7 +83,7 @@ EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectTest, ezReflectedClass, 1, ezRTTIDefaultAllocator<ezObjectTest>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectTest, 1, ezRTTIDefaultAllocator<ezObjectTest>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("MemberClass", m_MemberClass),
 EZ_ARRAY_MEMBER_PROPERTY("StandardTypeArray", m_StandardTypeArray),

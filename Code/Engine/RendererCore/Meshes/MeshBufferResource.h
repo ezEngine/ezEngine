@@ -96,7 +96,7 @@ private:
 
 class EZ_RENDERERCORE_DLL ezMeshBufferResource : public ezResource<ezMeshBufferResource, ezMeshBufferResourceDescriptor>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMeshBufferResource);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMeshBufferResource, ezResourceBase);
 
 public:
   ezMeshBufferResource();

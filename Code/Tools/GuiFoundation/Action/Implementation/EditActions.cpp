@@ -10,7 +10,7 @@
 #include <QApplication>
 #include <QMimeData>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditAction, ezButtonAction, 0, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ////////////////////////////////////////////////////////////////////////

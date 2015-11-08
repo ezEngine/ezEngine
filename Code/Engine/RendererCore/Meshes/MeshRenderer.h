@@ -7,7 +7,7 @@ typedef ezResourceHandle<class ezConstantBufferResource> ezConstantBufferResourc
 
 class EZ_RENDERERCORE_DLL ezMeshRenderer : public ezRenderer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMeshRenderer);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMeshRenderer, ezRenderer);
 
 public:
   // ezRenderer implementation

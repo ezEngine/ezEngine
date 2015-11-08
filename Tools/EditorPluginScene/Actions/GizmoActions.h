@@ -28,7 +28,7 @@ public:
 ///
 class EZ_EDITORPLUGINSCENE_DLL ezGizmoAction : public ezButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGizmoAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezGizmoAction, ezButtonAction);
 public:
 
   enum class ActionType
@@ -58,7 +58,7 @@ private:
 
 class EZ_EDITORPLUGINSCENE_DLL ezRotateGizmoAction : public ezButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRotateGizmoAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezRotateGizmoAction, ezButtonAction);
 
 public:
   static void RegisterActions();
@@ -108,7 +108,7 @@ private:
 
 class EZ_EDITORPLUGINSCENE_DLL ezScaleGizmoAction : public ezButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezScaleGizmoAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezScaleGizmoAction, ezButtonAction);
 
 public:
   static void RegisterActions();
@@ -158,7 +158,7 @@ private:
 
 class EZ_EDITORPLUGINSCENE_DLL ezTranslateGizmoAction : public ezButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTranslateGizmoAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezTranslateGizmoAction, ezButtonAction);
 
 public:
   static void RegisterActions();

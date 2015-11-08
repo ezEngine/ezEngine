@@ -4,7 +4,7 @@
 #include <EditorPluginScene/Actions/GizmoActions.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoAction, ezButtonAction, 0, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoAction, 0, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezActionDescriptorHandle ezGizmoActions::s_hGizmoCategory;
@@ -132,12 +132,12 @@ void ezGizmoAction::SceneEventHandler(const ezSceneDocument::SceneEvent& e)
 
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRotateGizmoAction, ezButtonAction, 0, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRotateGizmoAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezActionDescriptorHandle ezRotateGizmoAction::s_hSnappingValueMenu;
 ezActionDescriptorHandle ezRotateGizmoAction::s_hSnappingValues[11];
-float ezRotateGizmoAction::s_fCurrentSnappingValue = 10.0f;
+float ezRotateGizmoAction::s_fCurrentSnappingValue = 5.0f;
 ezEvent<const ezRotateGizmoAction::Event&> ezRotateGizmoAction::s_Events;
 
 void ezRotateGizmoAction::RegisterActions()
@@ -230,7 +230,7 @@ void ezRotateGizmoAction::Execute(const ezVariant& value)
 
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScaleGizmoAction, ezButtonAction, 0, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScaleGizmoAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezActionDescriptorHandle ezScaleGizmoAction::s_hSnappingValueMenu;
@@ -323,7 +323,7 @@ void ezScaleGizmoAction::Execute(const ezVariant& value)
 
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmoAction, ezButtonAction, 0, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmoAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnappingValueMenu;

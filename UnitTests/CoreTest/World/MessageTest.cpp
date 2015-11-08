@@ -27,11 +27,14 @@ namespace
 
   class TestComponentMsg : public ezComponent
   {
-    EZ_DECLARE_COMPONENT_TYPE(TestComponentMsg, TestComponentMsgManager);
+    EZ_DECLARE_COMPONENT_TYPE(TestComponentMsg, ezComponent, TestComponentMsgManager);
 
   public:
     TestComponentMsg() : m_iSomeData(1), m_iSomeData2(2) {}
     ~TestComponentMsg() {}
+
+    virtual void SerializeComponent(ezWorldWriter& stream) const override {}
+    virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) override {}
 
     void OnTestMessage(TestMessage& msg)
     {
@@ -47,7 +50,7 @@ namespace
     ezInt32 m_iSomeData2;
   };
 
-  EZ_BEGIN_COMPONENT_TYPE(TestComponentMsg, ezComponent, 1, TestComponentMsgManager);
+  EZ_BEGIN_COMPONENT_TYPE(TestComponentMsg, 1, TestComponentMsgManager);
     EZ_BEGIN_MESSAGEHANDLERS
       EZ_MESSAGE_HANDLER(TestMessage, OnTestMessage),
       EZ_MESSAGE_HANDLER(TestMessage2, OnTestMessage2)

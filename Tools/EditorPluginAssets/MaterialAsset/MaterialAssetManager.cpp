@@ -4,7 +4,7 @@
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
 #include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocumentManager, ezAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezMaterialAssetDocumentManager>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezMaterialAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezMaterialAssetDocumentManager::ezMaterialAssetDocumentManager()

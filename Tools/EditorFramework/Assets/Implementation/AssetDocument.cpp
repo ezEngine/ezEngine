@@ -16,7 +16,7 @@
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, ezDocumentInfo, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, 1, ezRTTINoAllocator);
 EZ_BEGIN_PROPERTIES
 EZ_ACCESSOR_PROPERTY("Dependencies", GetDependencies, SetDependencies),
 //EZ_ACCESSOR_PROPERTY("References", GetReferences, SetReferences),
@@ -25,7 +25,7 @@ EZ_MEMBER_PROPERTY("AssetType", m_sAssetTypeName),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocument, ezDocument, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezAssetDocumentInfo::ezAssetDocumentInfo()

@@ -10,7 +10,7 @@
 #include <Foundation/Serialization/RttiConverter.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentInfo, ezReflectedClass, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentInfo, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("DocumentID", m_DocumentID),
   EZ_END_PROPERTIES
@@ -22,7 +22,7 @@ ezDocumentInfo::ezDocumentInfo()
 }
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocument, ezReflectedClass, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezEvent<const ezDocument::Event&> ezDocument::s_EventsAny;

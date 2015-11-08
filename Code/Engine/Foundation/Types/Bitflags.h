@@ -199,6 +199,13 @@ public:
     return m_Value;
   }
 
+  /// \brief Overwrites the flags with a new value.
+  EZ_FORCE_INLINE void SetValue(StorageType value)
+  {
+    /// \test this is new
+    m_Value = value;
+  }
+
 private:
   EZ_FORCE_INLINE explicit ezBitflags(StorageType flags)
     : m_Value(flags)

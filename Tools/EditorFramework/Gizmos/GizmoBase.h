@@ -9,7 +9,7 @@ class ezCamera;
 
 class EZ_EDITORFRAMEWORK_DLL ezGizmo : public ezEditorInputContext
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGizmo);
+  EZ_ADD_DYNAMIC_REFLECTION(ezGizmo, ezEditorInputContext);
 
 public:
   ezGizmo();

@@ -9,7 +9,7 @@ EZ_MEMBER_PROPERTY("Resource", m_sResource)->AddAttributes(new ezAssetBrowserAtt
 EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, ezReflectedClass, 1, ezRTTIDefaultAllocator<ezMeshAssetProperties>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 1, ezRTTIDefaultAllocator<ezMeshAssetProperties>);
   EZ_BEGIN_PROPERTIES
     EZ_ENUM_MEMBER_PROPERTY("Primitive Type", ezMeshPrimitive, m_PrimitiveType),
     EZ_ENUM_MEMBER_PROPERTY("Forward Dir", ezBasisAxis, m_ForwardDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveX)),

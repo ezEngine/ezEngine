@@ -27,6 +27,8 @@ ezWorld::ezWorld(const char* szWorldName) :
   sb.Append(" Task");
   m_UpdateTask.SetTaskName(sb);
 
+  m_bSimulateWorld = true;
+
   m_uiIndex = ezInvalidIndex;
 
   // find a free world slot
@@ -319,6 +321,9 @@ void ezWorld::LinkToParent(ezGameObject* pObject)
 
     pParentObject->m_LastChildIndex = uiIndex;
     pParentObject->m_ChildCount++;
+
+    // this crashes, because pObject->m_pTransformationData can apparently be null
+    //pObject->m_pTransformationData->m_pParentData = pParentObject->m_pTransformationData;
   }
 }
 
@@ -342,6 +347,7 @@ void ezWorld::UnlinkFromParent(ezGameObject* pObject)
 
     pParentObject->m_ChildCount--;
     pObject->m_ParentIndex = 0;
+    pObject->m_pTransformationData->m_pParentData = nullptr;
 
     // Note that the sibling indices must not be set to 0 here. 
     // They are still needed if we currently iterate over child objects.

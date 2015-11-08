@@ -14,7 +14,7 @@
 
 class EZ_RENDERERCORE_DLL ezShaderProgramCompiler : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezShaderProgramCompiler);
+  EZ_ADD_DYNAMIC_REFLECTION(ezShaderProgramCompiler, ezReflectedClass);
 
 public:
 

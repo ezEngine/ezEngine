@@ -36,10 +36,13 @@ EZ_DECLARE_FLAGS_OPERATORS(ezTransformComponentFlags);
 
 class EZ_GAMEUTILS_DLL ezTransformComponent : public ezComponent
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTransformComponent);
+  EZ_ADD_DYNAMIC_REFLECTION(ezTransformComponent, ezComponent);
 
 public:
   ezTransformComponent();
+
+  virtual void SerializeComponent(ezWorldWriter& stream) const override = 0;
+  virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) override = 0;
 
   // ************************************* PROPERTIES ***********************************
 

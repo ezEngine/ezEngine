@@ -6,7 +6,7 @@
 
 class EZ_EDITORFRAMEWORK_DLL ezRotateGizmo : public ezGizmo
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRotateGizmo);
+  EZ_ADD_DYNAMIC_REFLECTION(ezRotateGizmo, ezGizmo);
 
 public:
   ezRotateGizmo();

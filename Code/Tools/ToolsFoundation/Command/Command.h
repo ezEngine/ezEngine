@@ -15,7 +15,7 @@ class ezJSONReader;
 /// Thus, any modification must go through a command and the ezCommandHistory is the only class capable of executing commands.
 class EZ_TOOLSFOUNDATION_DLL ezCommand : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCommand);
+  EZ_ADD_DYNAMIC_REFLECTION(ezCommand, ezReflectedClass);
 
 public:
   ezCommand();

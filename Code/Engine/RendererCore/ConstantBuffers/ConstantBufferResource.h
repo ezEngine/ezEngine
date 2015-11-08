@@ -43,7 +43,7 @@ struct ezConstantBufferResourceDescriptorRawBytes : public ezConstantBufferResou
 
 class EZ_RENDERERCORE_DLL ezConstantBufferResource : public ezResource<ezConstantBufferResource, ezConstantBufferResourceDescriptorBase>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezConstantBufferResource);
+  EZ_ADD_DYNAMIC_REFLECTION(ezConstantBufferResource, ezResourceBase);
 
 public:
   ezConstantBufferResource();

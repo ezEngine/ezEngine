@@ -5,7 +5,7 @@
 
 class TypeA : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(TypeA);
+  EZ_ADD_DYNAMIC_REFLECTION(TypeA, ezReflectedClass);
 
 public:
 
@@ -46,7 +46,7 @@ public:
   }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(TypeA, ezReflectedClass, 2, ezRTTIDefaultAllocator<TypeA>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(TypeA, 2, ezRTTIDefaultAllocator<TypeA>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 
@@ -54,7 +54,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 class TypeAB : public TypeA
 {
-  EZ_ADD_DYNAMIC_REFLECTION(TypeAB);
+  EZ_ADD_DYNAMIC_REFLECTION(TypeAB, TypeA);
 
 public:
 
@@ -82,14 +82,14 @@ public:
   }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(TypeAB, TypeA, 3, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(TypeAB, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 
 
 class TypeABD : public TypeAB
 {
-  EZ_ADD_DYNAMIC_REFLECTION(TypeABD);
+  EZ_ADD_DYNAMIC_REFLECTION(TypeABD, TypeAB);
 
 public:
 
@@ -139,14 +139,14 @@ public:
   }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(TypeABD, TypeAB, 5, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(TypeABD, 5, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 
 
 class TypeC : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(TypeC);
+  EZ_ADD_DYNAMIC_REFLECTION(TypeC, ezReflectedClass);
 
 public:
 
@@ -178,7 +178,7 @@ public:
   }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(TypeC, ezReflectedClass, 4, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(TypeC, 4, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 

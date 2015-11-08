@@ -34,7 +34,7 @@ void ezSceneViewActions::MapActions(const char* szMapping, const char* szPath)
 // ezSceneViewAction
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneViewAction, ezButtonAction, 0, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneViewAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezSceneViewAction::ezSceneViewAction(const ezActionContext& context, const char* szName, ButtonType button)

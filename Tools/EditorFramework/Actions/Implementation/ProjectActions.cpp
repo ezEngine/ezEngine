@@ -100,7 +100,7 @@ void ezProjectActions::MapActions(const char* szMapping)
 // ezRecentDocumentsMenuAction
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentDocumentsMenuAction, ezLRUMenuAction, 0, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentDocumentsMenuAction, 0, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 
@@ -162,7 +162,7 @@ void ezRecentDocumentsMenuAction::Execute(const ezVariant& value)
 // ezRecentDocumentsMenuAction
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentProjectsMenuAction, ezLRUMenuAction, 0, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecentProjectsMenuAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 
@@ -195,7 +195,7 @@ void ezRecentProjectsMenuAction::Execute(const ezVariant& value)
 // ezProjectAction
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectAction, ezButtonAction, 0, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szName, ButtonType button)

@@ -3,7 +3,7 @@
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResourceBase, ezReflectedClass, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResourceBase, 1, ezRTTINoAllocator);
 
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

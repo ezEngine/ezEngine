@@ -11,7 +11,7 @@ class ezGizmo;
 
 class EZ_EDITORFRAMEWORK_DLL ezGizmoHandle : public ezEditorEngineSyncObject
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezGizmoHandle);
+  EZ_ADD_DYNAMIC_REFLECTION(ezGizmoHandle, ezEditorEngineSyncObject);
 
 public:
   ezGizmoHandle(){}
@@ -47,7 +47,7 @@ enum ezEngineGizmoHandleType
 
 class EZ_EDITORFRAMEWORK_DLL ezEngineGizmoHandle : public ezGizmoHandle
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEngineGizmoHandle);
+  EZ_ADD_DYNAMIC_REFLECTION(ezEngineGizmoHandle, ezGizmoHandle);
 
 public:
   ezEngineGizmoHandle();

@@ -7,7 +7,7 @@
 
 class EZ_EDITORFRAMEWORK_DLL ezTranslateGizmo : public ezGizmo
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTranslateGizmo);
+  EZ_ADD_DYNAMIC_REFLECTION(ezTranslateGizmo, ezGizmo);
 
 public:
   ezTranslateGizmo();

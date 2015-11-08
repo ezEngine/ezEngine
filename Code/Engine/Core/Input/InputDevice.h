@@ -40,7 +40,7 @@
 class EZ_CORE_DLL ezInputDevice : public ezEnumerable<ezInputDevice, ezReflectedClass>
 {
   EZ_DECLARE_ENUMERABLE_CLASS_WITH_BASE(ezInputDevice, ezReflectedClass);
-  EZ_ADD_DYNAMIC_REFLECTION(ezInputDevice);
+  EZ_ADD_DYNAMIC_REFLECTION(ezInputDevice, ezReflectedClass);
 
 public:
   /// \brief Default Constructor.

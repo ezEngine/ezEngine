@@ -56,7 +56,7 @@ void ezStandardMenus::MapActions(const char* szMapping, const ezBitflags<ezStand
 // ezApplicationPanelsMenuAction
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezApplicationPanelsMenuAction, ezLRUMenuAction, 0, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezApplicationPanelsMenuAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 struct ezComparePanels

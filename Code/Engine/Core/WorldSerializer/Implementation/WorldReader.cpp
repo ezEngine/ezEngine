@@ -131,6 +131,8 @@ void ezWorldReader::ReadComponentsOfType()
   s >> uiRttiVersion;
   s >> uiNumComponents;
 
+  /// \todo rtti version stuff
+
   const ezRTTI* pRtti = ezRTTI::FindTypeByName(sRttiName);
 
   /// \todo Skip unknown types

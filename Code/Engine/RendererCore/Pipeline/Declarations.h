@@ -23,7 +23,7 @@ struct ezRenderViewContext
 
 class EZ_RENDERERCORE_DLL ezRenderData : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRenderData);
+  EZ_ADD_DYNAMIC_REFLECTION(ezRenderData, ezReflectedClass);
 
 public:
 
@@ -47,7 +47,7 @@ typedef ezUInt32 ezRenderPassType;
 
 class EZ_RENDERERCORE_DLL ezRenderer : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRenderer);
+  EZ_ADD_DYNAMIC_REFLECTION(ezRenderer, ezReflectedClass);
 
 public:
   virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) = 0;

@@ -17,7 +17,7 @@ enum class ActiveGizmo
 
 class ezSceneObjectMetaData : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneObjectMetaData);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSceneObjectMetaData, ezReflectedClass);
 
 public:
 
@@ -42,7 +42,7 @@ public:
 
 class ezSceneDocument : public ezAssetDocument
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocument);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocument, ezAssetDocument);
 
 public:
   ezSceneDocument(const char* szDocumentPath, bool bIsPrefab);
@@ -107,6 +107,7 @@ public:
       SnapSelectionPivotToGrid,
       SnapEachSelectedObjectToGrid,
       ExportScene,
+      SimulateModeChanged,
     };
 
     Type m_Type;
@@ -118,6 +119,9 @@ public:
   ezStatus CreatePrefabDocumentFromSelection(const char* szFile);
   ezStatus CreatePrefabDocument(const char* szFile, const ezDocumentObject* pRootObject, const ezUuid& invPrefabSeed, ezUuid& out_NewDocumentGuid);
   void ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed);
+
+  bool GetSimulateWorld() const { return m_bSimulateWorld; }
+  void SetSimulateWorld(bool b);
 
 protected:
   virtual void InitializeAfterLoading() override;
@@ -161,6 +165,7 @@ private:
 
   bool m_bIsPrefab;
   bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
+  bool m_bSimulateWorld;
 
   ActiveGizmo m_ActiveGizmo;
   ezObjectPickingResult m_PickingResult;

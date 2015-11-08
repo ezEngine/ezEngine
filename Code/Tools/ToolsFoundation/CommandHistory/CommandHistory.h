@@ -7,7 +7,7 @@ class ezCommandHistory;
 
 class EZ_TOOLSFOUNDATION_DLL ezCommandTransaction : public ezCommand
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCommandTransaction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezCommandTransaction, ezCommand);
 
 public:
   ezCommandTransaction() { }

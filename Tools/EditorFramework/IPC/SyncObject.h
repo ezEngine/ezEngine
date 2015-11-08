@@ -10,7 +10,7 @@ class ezEngineProcessDocumentContext;
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineSyncObject : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineSyncObject);
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineSyncObject, ezReflectedClass);
 
 public:
   ezEditorEngineSyncObject();

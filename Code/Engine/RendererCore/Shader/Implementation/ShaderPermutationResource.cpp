@@ -9,7 +9,7 @@
 #include <Foundation/IO/MemoryStream.h>
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderPermutationResource, ezResourceBase, 1, ezRTTIDefaultAllocator<ezShaderPermutationResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderPermutationResource, 1, ezRTTIDefaultAllocator<ezShaderPermutationResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 static ezShaderPermutationResourceLoader g_PermutationResourceLoader;

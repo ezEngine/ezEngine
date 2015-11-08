@@ -6,7 +6,7 @@
 
 class ezSceneDocumentManager : public ezAssetDocumentManager
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocumentManager);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocumentManager, ezAssetDocumentManager);
 
 public:
   ezSceneDocumentManager()

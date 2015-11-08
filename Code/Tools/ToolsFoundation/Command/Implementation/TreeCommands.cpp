@@ -6,7 +6,7 @@
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAddObjectCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezAddObjectCommand>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAddObjectCommand, 1, ezRTTIDefaultAllocator<ezAddObjectCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_ACCESSOR_PROPERTY("Type", GetType, SetType),
 EZ_MEMBER_PROPERTY("ParentGuid", m_Parent),
@@ -16,14 +16,14 @@ EZ_MEMBER_PROPERTY("NewGuid", m_NewObjectGuid),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPasteObjectsCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezPasteObjectsCommand>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPasteObjectsCommand, 1, ezRTTIDefaultAllocator<ezPasteObjectsCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("ParentGuid", m_Parent),
 EZ_MEMBER_PROPERTY("JsonGraph", m_sJsonGraph),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstantiatePrefabCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezInstantiatePrefabCommand>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstantiatePrefabCommand, 1, ezRTTIDefaultAllocator<ezInstantiatePrefabCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("ParentGuid", m_Parent),
 EZ_MEMBER_PROPERTY("JsonGraph", m_sJsonGraph),
@@ -33,13 +33,13 @@ EZ_MEMBER_PROPERTY("AllowPickedPos", m_bAllowPickedPosition),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveObjectCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezRemoveObjectCommand>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveObjectCommand, 1, ezRTTIDefaultAllocator<ezRemoveObjectCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMoveObjectCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezMoveObjectCommand>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMoveObjectCommand, 1, ezRTTIDefaultAllocator<ezMoveObjectCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
 EZ_MEMBER_PROPERTY("NewParentGuid", m_NewParent),
@@ -48,7 +48,7 @@ EZ_MEMBER_PROPERTY("Index", m_Index),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetObjectPropertyCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezSetObjectPropertyCommand>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetObjectPropertyCommand, 1, ezRTTIDefaultAllocator<ezSetObjectPropertyCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
 EZ_MEMBER_PROPERTY("NewValue", m_NewValue),
@@ -57,7 +57,7 @@ EZ_ACCESSOR_PROPERTY("PropertyPath", GetPropertyPath, SetPropertyPath),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInsertObjectPropertyCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezInsertObjectPropertyCommand>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInsertObjectPropertyCommand, 1, ezRTTIDefaultAllocator<ezInsertObjectPropertyCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
 EZ_MEMBER_PROPERTY("NewValue", m_NewValue),
@@ -66,7 +66,7 @@ EZ_ACCESSOR_PROPERTY("PropertyPath", GetPropertyPath, SetPropertyPath),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveObjectPropertyCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezRemoveObjectPropertyCommand>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveObjectPropertyCommand, 1, ezRTTIDefaultAllocator<ezRemoveObjectPropertyCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
 EZ_MEMBER_PROPERTY("Index", m_Index),
@@ -74,7 +74,7 @@ EZ_ACCESSOR_PROPERTY("PropertyPath", GetPropertyPath, SetPropertyPath),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMoveObjectPropertyCommand, ezCommand, 1, ezRTTIDefaultAllocator<ezMoveObjectPropertyCommand>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMoveObjectPropertyCommand, 1, ezRTTIDefaultAllocator<ezMoveObjectPropertyCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
 EZ_MEMBER_PROPERTY("OldIndex", m_OldIndex),

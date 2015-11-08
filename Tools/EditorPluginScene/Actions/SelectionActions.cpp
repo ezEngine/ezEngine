@@ -11,7 +11,7 @@
 #include <Core/World/GameObject.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectionAction, ezButtonAction, 0, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectionAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezActionDescriptorHandle ezSelectionActions::s_hSelectionCategory;

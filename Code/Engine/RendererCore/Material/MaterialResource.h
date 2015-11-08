@@ -45,7 +45,7 @@ struct ezMaterialResourceDescriptor
 
 class EZ_RENDERERCORE_DLL ezMaterialResource : public ezResource<ezMaterialResource, ezMaterialResourceDescriptor>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMaterialResource);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMaterialResource, ezResourceBase);
 
 public:
   ezMaterialResource();

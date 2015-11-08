@@ -6,7 +6,7 @@
 #include <CoreUtils/Graphics/Camera.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScaleGizmo, ezGizmo, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScaleGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezScaleGizmo::ezScaleGizmo()

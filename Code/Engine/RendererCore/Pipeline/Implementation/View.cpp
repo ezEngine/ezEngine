@@ -3,7 +3,7 @@
 #include <RendererCore/Pipeline/View.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezView, ezNode, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezView, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("RenderTarget0", m_PinRenderTarget0),
     EZ_MEMBER_PROPERTY("RenderTarget1", m_PinRenderTarget1),

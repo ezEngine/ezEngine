@@ -57,7 +57,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezSRGBModeEnum);
 
 class ezTextureAssetProperties : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTextureAssetProperties);
+  EZ_ADD_DYNAMIC_REFLECTION(ezTextureAssetProperties, ezReflectedClass);
 
 public:
   ezTextureAssetProperties();

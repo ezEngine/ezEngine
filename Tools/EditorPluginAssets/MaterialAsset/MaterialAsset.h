@@ -5,7 +5,7 @@
 
 class ezMaterialAssetDocument : public ezSimpleAssetDocument<ezMaterialAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMaterialAssetDocument);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMaterialAssetDocument, ezSimpleAssetDocument<ezMaterialAssetProperties>);
 
 public:
   ezMaterialAssetDocument(const char* szDocumentPath);

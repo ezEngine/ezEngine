@@ -37,7 +37,7 @@ public:
 ///
 class EZ_EDITORFRAMEWORK_DLL ezRecentDocumentsMenuAction : public ezLRUMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRecentDocumentsMenuAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezRecentDocumentsMenuAction, ezLRUMenuAction);
 public:
   ezRecentDocumentsMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezLRUMenuAction(context, szName, szIconPath) {}
   virtual void GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16>& out_Entries) override;
@@ -47,7 +47,7 @@ public:
 ///
 class EZ_EDITORFRAMEWORK_DLL ezRecentProjectsMenuAction : public ezLRUMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRecentProjectsMenuAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezRecentProjectsMenuAction, ezLRUMenuAction);
 public:
   ezRecentProjectsMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezLRUMenuAction(context, szName, szIconPath) {}
   virtual void GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16>& out_Entries) override;
@@ -57,7 +57,7 @@ public:
 ///
 class EZ_EDITORFRAMEWORK_DLL ezProjectAction : public ezButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProjectAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProjectAction, ezButtonAction);
 public:
   enum class ButtonType
   {

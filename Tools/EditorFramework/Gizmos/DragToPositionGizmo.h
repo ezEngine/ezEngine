@@ -6,7 +6,7 @@
 
 class EZ_EDITORFRAMEWORK_DLL ezDragToPositionGizmo : public ezGizmo
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDragToPositionGizmo);
+  EZ_ADD_DYNAMIC_REFLECTION(ezDragToPositionGizmo, ezGizmo);
 
 public:
   ezDragToPositionGizmo();

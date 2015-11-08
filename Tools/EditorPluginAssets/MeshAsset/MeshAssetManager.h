@@ -5,7 +5,7 @@
 
 class ezMeshAssetDocumentManager : public ezAssetDocumentManager
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMeshAssetDocumentManager);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMeshAssetDocumentManager, ezAssetDocumentManager);
 
 public:
   ezMeshAssetDocumentManager();

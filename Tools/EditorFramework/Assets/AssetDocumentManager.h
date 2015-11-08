@@ -6,7 +6,7 @@
 
 class EZ_EDITORFRAMEWORK_DLL ezAssetDocumentManager : public ezDocumentManager
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAssetDocumentManager);
+  EZ_ADD_DYNAMIC_REFLECTION(ezAssetDocumentManager, ezDocumentManager);
 
 public:
   ezAssetDocumentManager() {};

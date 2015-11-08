@@ -105,6 +105,11 @@ public:
   void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
     ezObjectMsgQueueType::Enum queueType, ezTime delay, ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
 
+  /// \brief If enabled, the full simulation should be executed, otherwise only the rendering related updates should be done
+  void SetWorldSimulationEnabled(bool bEnable) { m_bSimulateWorld = bEnable; }
+
+  /// \brief If enabled, the full simulation should be executed, otherwise only the rendering related updates should be done
+  bool GetWorldSimulationEnabled() const { return m_bSimulateWorld; }
 
   /// \brief Updates the world by calling the various update methods on the component managers and also updates the transformation data of the game objects. 
   /// See ezWorld for a detailed description of the update phases.
@@ -183,6 +188,9 @@ private:
   void DeleteDeadComponents();
 
   void PatchHierarchyData(ezGameObject* pObject);
+
+  // if true, the full simulation should be executed, otherwise only the rendering related updates should be done
+  bool m_bSimulateWorld;
 
   ezProfilingId m_UpdateProfilingID;
   ezDelegateTask<void> m_UpdateTask;

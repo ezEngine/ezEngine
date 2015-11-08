@@ -3,7 +3,7 @@
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezNodePin) == 4);
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezNode, ezReflectedClass, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezNode, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezNodePin, ezNoBase, 1, ezRTTINoAllocator);

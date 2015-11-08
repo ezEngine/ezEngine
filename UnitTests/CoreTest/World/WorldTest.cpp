@@ -94,6 +94,12 @@ public:
     EZ_TEST_INT(pObject->m_uiHierarchyLevel, uiHierarchyLevel);
     EZ_TEST_INT(pObject->m_uiTransformationDataIndex, uiTransformationDataIndex);
     EZ_TEST_BOOL(pObject->m_pTransformationData->m_pObject == pObject);
+
+    if (pParent)
+    {
+      EZ_TEST_BOOL(pObject->m_pTransformationData->m_pParentData->m_pObject == pParent);
+    }
+
     EZ_TEST_BOOL(pObject->m_pTransformationData->m_pParentData == (pParent != nullptr ? pParent->m_pTransformationData : nullptr));
     EZ_TEST_BOOL(pObject->GetParent() == pParent);
   }

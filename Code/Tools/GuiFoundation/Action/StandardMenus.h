@@ -49,7 +49,7 @@ public:
 ///
 class EZ_GUIFOUNDATION_DLL ezApplicationPanelsMenuAction : public ezLRUMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezApplicationPanelsMenuAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezApplicationPanelsMenuAction, ezLRUMenuAction);
 public:
   ezApplicationPanelsMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezLRUMenuAction(context, szName, szIconPath) {}
   virtual void GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16>& out_Entries) override;

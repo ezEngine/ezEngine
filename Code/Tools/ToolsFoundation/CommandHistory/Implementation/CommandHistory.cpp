@@ -4,7 +4,7 @@
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/IO/MemoryStream.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCommandTransaction, ezCommand, 1, ezRTTIDefaultAllocator<ezCommandTransaction>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCommandTransaction, 1, ezRTTIDefaultAllocator<ezCommandTransaction>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezCommandTransaction::~ezCommandTransaction()

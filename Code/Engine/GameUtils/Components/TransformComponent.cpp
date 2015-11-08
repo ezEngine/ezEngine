@@ -1,7 +1,9 @@
 #include <GameUtils/PCH.h>
 #include <GameUtils/Components/TransformComponent.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Core/WorldSerializer/WorldReader.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, ezComponent, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("Speed", m_fAnimationSpeed), // How many units per second the animation should do.
     EZ_ACCESSOR_PROPERTY("Run at Startup", GetAnimatingAtStartup, SetAnimatingAtStartup), // Whether the animation should start right away.
@@ -10,6 +12,29 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, ezComponent, 1, ezRTTINoAl
     EZ_ACCESSOR_PROPERTY("Auto-Toggle Direction", GetAutoToggleDirection, SetAutoToggleDirection)->AddAttributes(new ezHiddenAttribute()), // If true, the animation might stop at start/end points, but set toggle its direction state. Triggering the animation again, means it will run in the reverse direction.
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+
+void ezTransformComponent::SerializeComponent(ezWorldWriter& stream) const
+{
+  SUPER::SerializeComponent(stream);
+
+  stream.GetStream() << m_Flags.GetValue();
+  stream.GetStream() << m_AnimationTime;
+  stream.GetStream() << m_fAnimationSpeed;
+}
+
+
+void ezTransformComponent::DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion)
+{
+  SUPER::DeserializeComponent(stream, uiTypeVersion);
+
+  ezTransformComponentFlags::StorageType flags;
+  stream.GetStream() >> flags;
+  m_Flags.SetValue(flags);
+
+  stream.GetStream() >> m_AnimationTime;
+  stream.GetStream() >> m_fAnimationSpeed;
+}
 
 ezTransformComponent::ezTransformComponent()
 {

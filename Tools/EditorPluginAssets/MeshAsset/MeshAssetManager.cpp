@@ -4,7 +4,7 @@
 #include <EditorPluginAssets/MeshAsset/MeshAssetWindow.moc.h>
 #include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocumentManager, ezAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezMeshAssetDocumentManager>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezMeshAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezMeshAssetDocumentManager::ezMeshAssetDocumentManager()

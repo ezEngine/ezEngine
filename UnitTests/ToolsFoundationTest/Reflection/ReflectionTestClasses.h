@@ -67,7 +67,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezFloatStruct);
 
 class ezPODClass : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPODClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezPODClass, ezReflectedClass);
 
 public:
   ezPODClass()
@@ -96,7 +96,7 @@ private:
 
 class ezMathClass : public ezPODClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMathClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMathClass, ezPODClass);
 
 public:
   ezMathClass()
@@ -171,7 +171,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezExampleBitflags);
 
 class ezEnumerationsClass : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEnumerationsClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezEnumerationsClass, ezReflectedClass);
 
 public:
   ezEnumerationsClass()
@@ -201,7 +201,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, InnerStruct);
 
 class OuterClass : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(OuterClass);
+  EZ_ADD_DYNAMIC_REFLECTION(OuterClass, ezReflectedClass);
 
 public:
   InnerStruct m_Inner1;
@@ -211,7 +211,7 @@ public:
 
 class ezObjectTest : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezObjectTest);
+  EZ_ADD_DYNAMIC_REFLECTION(ezObjectTest, ezReflectedClass);
 
 public:
   ezObjectTest()

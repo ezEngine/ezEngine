@@ -7,7 +7,7 @@
 
 class EZ_TOOLSFOUNDATION_DLL ezAddObjectCommand : public ezCommand
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAddObjectCommand);
+  EZ_ADD_DYNAMIC_REFLECTION(ezAddObjectCommand, ezCommand);
 
 public:
   ezAddObjectCommand();
@@ -33,7 +33,7 @@ private:
 
 class EZ_TOOLSFOUNDATION_DLL ezPasteObjectsCommand : public ezCommand
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPasteObjectsCommand);
+  EZ_ADD_DYNAMIC_REFLECTION(ezPasteObjectsCommand, ezCommand);
 
 public:
   ezPasteObjectsCommand();
@@ -61,7 +61,7 @@ private:
 
 class EZ_TOOLSFOUNDATION_DLL ezInstantiatePrefabCommand : public ezCommand
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezInstantiatePrefabCommand);
+  EZ_ADD_DYNAMIC_REFLECTION(ezInstantiatePrefabCommand, ezCommand);
 
 public:
   ezInstantiatePrefabCommand();
@@ -92,7 +92,7 @@ private:
 
 class EZ_TOOLSFOUNDATION_DLL ezRemoveObjectCommand : public ezCommand
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRemoveObjectCommand);
+  EZ_ADD_DYNAMIC_REFLECTION(ezRemoveObjectCommand, ezCommand);
 
 public:
   ezRemoveObjectCommand();
@@ -115,7 +115,7 @@ private:
 
 class EZ_TOOLSFOUNDATION_DLL ezMoveObjectCommand : public ezCommand
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMoveObjectCommand);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMoveObjectCommand, ezCommand);
 
 public:
   ezMoveObjectCommand();
@@ -141,7 +141,7 @@ private:
 
 class EZ_TOOLSFOUNDATION_DLL ezSetObjectPropertyCommand : public ezCommand
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSetObjectPropertyCommand);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSetObjectPropertyCommand, ezCommand);
 
 public:
   ezSetObjectPropertyCommand();
@@ -167,7 +167,7 @@ private:
 
 class EZ_TOOLSFOUNDATION_DLL ezInsertObjectPropertyCommand : public ezCommand
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezInsertObjectPropertyCommand);
+  EZ_ADD_DYNAMIC_REFLECTION(ezInsertObjectPropertyCommand, ezCommand);
 
 public:
   ezInsertObjectPropertyCommand();
@@ -192,7 +192,7 @@ private:
 
 class EZ_TOOLSFOUNDATION_DLL ezRemoveObjectPropertyCommand : public ezCommand
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRemoveObjectPropertyCommand);
+  EZ_ADD_DYNAMIC_REFLECTION(ezRemoveObjectPropertyCommand, ezCommand);
 
 public:
   ezRemoveObjectPropertyCommand();
@@ -217,7 +217,7 @@ private:
 
 class EZ_TOOLSFOUNDATION_DLL ezMoveObjectPropertyCommand : public ezCommand
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMoveObjectPropertyCommand);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMoveObjectPropertyCommand, ezCommand);
 
 public:
   ezMoveObjectPropertyCommand();

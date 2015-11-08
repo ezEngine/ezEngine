@@ -7,7 +7,7 @@
 ///
 class EZ_GUIFOUNDATION_DLL ezNamedAction : public ezAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezNamedAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezNamedAction, ezAction);
 public:
   ezNamedAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezAction(context), m_sName(szName), m_sIconPath(szIconPath) {}
 
@@ -24,7 +24,7 @@ protected:
 ///
 class EZ_GUIFOUNDATION_DLL ezCategoryAction : public ezAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCategoryAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezCategoryAction, ezAction);
 public:
   ezCategoryAction(const ezActionContext& context) : ezAction(context) {}
 
@@ -34,7 +34,7 @@ public:
 ///
 class EZ_GUIFOUNDATION_DLL ezMenuAction : public ezNamedAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMenuAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMenuAction, ezNamedAction);
 public:
   ezMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezNamedAction(context, szName, szIconPath) {}
 
@@ -44,7 +44,7 @@ public:
 ///
 class EZ_GUIFOUNDATION_DLL ezLRUMenuAction : public ezMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLRUMenuAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezLRUMenuAction, ezMenuAction);
 public:
   struct Item
   {
@@ -73,7 +73,7 @@ public:
 ///
 class EZ_GUIFOUNDATION_DLL ezEnumerationMenuAction : public ezLRUMenuAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEnumerationMenuAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezEnumerationMenuAction, ezLRUMenuAction);
 public:
   ezEnumerationMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath);
   void InitEnumerationType(const ezRTTI* pEnumerationType);
@@ -87,7 +87,7 @@ protected:
 ///
 class EZ_GUIFOUNDATION_DLL ezButtonAction : public ezNamedAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezButtonAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezButtonAction, ezNamedAction);
 public:
   ezButtonAction(const ezActionContext& context, const char* szName, bool bCheckable, const char* szIconPath);
 

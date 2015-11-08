@@ -124,25 +124,31 @@ EZ_FORCE_INLINE void ezComponentManager<T, CompactStorage>::RegisterUpdateFuncti
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename ComponentType>
-ezComponentManagerSimple<ComponentType>::ezComponentManagerSimple(ezWorld* pWorld) : 
+template <typename ComponentType, bool OnlyUpdateWhenSimulating>
+ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::ezComponentManagerSimple(ezWorld* pWorld) :
   ezComponentManager<ComponentType>(pWorld)
 {
 }
 
-template <typename ComponentType>
-ezResult ezComponentManagerSimple<ComponentType>::Initialize()
+template <typename ComponentType, bool OnlyUpdateWhenSimulating>
+ezResult ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::Initialize()
 {
-  auto desc = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(ezComponentManagerSimple<ComponentType>::SimpleUpdate, this);
+  typedef ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating> OwnType;
+
+  auto desc = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(OwnType::SimpleUpdate, this);
 
   this->RegisterUpdateFunction(desc);
 
   return EZ_SUCCESS;
 }
 
-template <typename ComponentType>
-void ezComponentManagerSimple<ComponentType>::SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount)
+template <typename ComponentType, bool OnlyUpdateWhenSimulating>
+void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount)
 {
+  // ignore the update when this is a 'simulating' component type and the world is not in simulation mode
+  if (OnlyUpdateWhenSimulating && !GetWorld()->GetWorldSimulationEnabled())
+    return;
+
   for (auto it = this->m_ComponentStorage.GetIterator(uiStartIndex, uiCount); it.IsValid(); ++it)
   {
     if (it->IsActive())

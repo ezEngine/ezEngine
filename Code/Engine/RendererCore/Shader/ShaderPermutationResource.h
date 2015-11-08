@@ -16,7 +16,7 @@ struct ezShaderPermutationResourceDescriptor
 
 class EZ_RENDERERCORE_DLL ezShaderPermutationResource : public ezResource<ezShaderPermutationResource, ezShaderPermutationResourceDescriptor>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezShaderPermutationResource);
+  EZ_ADD_DYNAMIC_REFLECTION(ezShaderPermutationResource, ezResourceBase);
 
 public:
   ezShaderPermutationResource();

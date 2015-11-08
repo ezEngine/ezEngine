@@ -5,7 +5,7 @@
 #include <Foundation/Strings/StringConversion.h>
 #include <Foundation/Containers/HybridArray.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, ezInputDeviceMouseKeyboard, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator);
   // no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

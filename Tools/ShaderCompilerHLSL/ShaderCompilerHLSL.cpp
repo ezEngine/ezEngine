@@ -2,7 +2,7 @@
 #include <ShaderCompilerHLSL/ShaderCompilerHLSL.h>
 #include <d3dcompiler.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderCompilerHLSL, ezShaderProgramCompiler, 1, ezRTTIDefaultAllocator<ezShaderCompilerHLSL>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderCompilerHLSL, 1, ezRTTIDefaultAllocator<ezShaderCompilerHLSL>);
 // no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

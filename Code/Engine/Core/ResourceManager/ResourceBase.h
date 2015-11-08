@@ -16,7 +16,7 @@ class ezResourceTypeLoader;
 /// \note Never derive directly from ezResourceBase, but derive from ezResource instead.
 class EZ_CORE_DLL ezResourceBase : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezResourceBase, ezReflectedClass);
 
 protected:
   enum class DoUpdate

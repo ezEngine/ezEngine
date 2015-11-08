@@ -5,7 +5,7 @@
 
 class ezTextureAssetDocument : public ezSimpleAssetDocument<ezTextureAssetProperties>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTextureAssetDocument);
+  EZ_ADD_DYNAMIC_REFLECTION(ezTextureAssetDocument, ezSimpleAssetDocument<ezTextureAssetProperties>);
 
 public:
   ezTextureAssetDocument(const char* szDocumentPath);

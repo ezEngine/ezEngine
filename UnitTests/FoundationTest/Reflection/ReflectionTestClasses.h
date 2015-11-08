@@ -44,7 +44,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezExampleBitflags);
 
 class ezAbstractTestClass : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAbstractTestClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezAbstractTestClass, ezReflectedClass);
 
   virtual void AbstractFunction() = 0;
 };
@@ -133,7 +133,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTestStruct3);
 
 class ezTestClass1 : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTestClass1);
+  EZ_ADD_DYNAMIC_REFLECTION(ezTestClass1, ezReflectedClass);
 
 public:
   ezTestClass1()
@@ -162,7 +162,7 @@ public:
 
 class ezTestClass2 : public ezTestClass1
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTestClass2);
+  EZ_ADD_DYNAMIC_REFLECTION(ezTestClass2, ezTestClass1);
 
 public:
   ezTestClass2()
@@ -218,7 +218,7 @@ struct ezTestClass2Allocator : public ezRTTIAllocator
 
 class ezTestClass2b : ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTestClass2b);
+  EZ_ADD_DYNAMIC_REFLECTION(ezTestClass2b, ezReflectedClass);
 
 public:
   ezTestClass2b()
@@ -239,7 +239,7 @@ private:
 
 class ezTestArrays : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTestArrays);
+  EZ_ADD_DYNAMIC_REFLECTION(ezTestArrays, ezReflectedClass);
 
 public:
   ezTestArrays()
@@ -289,7 +289,7 @@ public:
 
 class ezTestSets : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTestSets);
+  EZ_ADD_DYNAMIC_REFLECTION(ezTestSets, ezReflectedClass);
 
 public:
   ezTestSets()
@@ -332,7 +332,7 @@ public:
 
 class ezTestPtr : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTestPtr);
+  EZ_ADD_DYNAMIC_REFLECTION(ezTestPtr, ezReflectedClass);
 
 public:
   ezTestPtr()

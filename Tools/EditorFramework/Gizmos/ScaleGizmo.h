@@ -6,7 +6,7 @@
 
 class EZ_EDITORFRAMEWORK_DLL ezScaleGizmo : public ezGizmo
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezScaleGizmo);
+  EZ_ADD_DYNAMIC_REFLECTION(ezScaleGizmo, ezGizmo);
 
 public:
   ezScaleGizmo();

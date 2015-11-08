@@ -10,7 +10,7 @@
 /// also allows to query which controller is actually connected.
 class EZ_CORE_DLL ezInputDeviceController : public ezInputDevice
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezInputDeviceController);
+  EZ_ADD_DYNAMIC_REFLECTION(ezInputDeviceController, ezInputDevice);
 
 public:
   enum 

@@ -5,7 +5,7 @@
 
 class EZ_SYSTEM_DLL ezStandardInputDevice : public ezInputDeviceMouseKeyboard
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStandardInputDevice);
+  EZ_ADD_DYNAMIC_REFLECTION(ezStandardInputDevice, ezInputDeviceMouseKeyboard);
 
 public:
   ezStandardInputDevice(ezUInt32 uiWindowNumber);

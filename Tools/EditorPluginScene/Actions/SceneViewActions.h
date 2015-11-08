@@ -20,7 +20,7 @@ public:
 ///
 class EZ_EDITORPLUGINSCENE_DLL ezSceneViewAction : public ezButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneViewAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSceneViewAction, ezButtonAction);
 public:
   enum class ButtonType
   {

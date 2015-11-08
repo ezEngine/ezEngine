@@ -7,23 +7,23 @@
 /// \brief Base class of all attributes can be used to decorate a RTTI property.
 class EZ_FOUNDATION_DLL ezPropertyAttribute : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAttribute);
+  EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAttribute, ezReflectedClass);
 };
 
 class EZ_FOUNDATION_DLL ezReadOnlyAttribute : public ezPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezReadOnlyAttribute);
+  EZ_ADD_DYNAMIC_REFLECTION(ezReadOnlyAttribute, ezPropertyAttribute);
 };
 
 class EZ_FOUNDATION_DLL ezHiddenAttribute : public ezPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezHiddenAttribute);
+  EZ_ADD_DYNAMIC_REFLECTION(ezHiddenAttribute, ezPropertyAttribute);
 };
 
 /// \brief Sets the default value of the property.
 class EZ_FOUNDATION_DLL ezDefaultValueAttribute : public ezPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDefaultValueAttribute);
+  EZ_ADD_DYNAMIC_REFLECTION(ezDefaultValueAttribute, ezPropertyAttribute);
 
 public:
   ezDefaultValueAttribute() {}
@@ -47,7 +47,7 @@ private:
 /// will replace the property widget for all properties that use ezFileBrowserAttribute.
 class EZ_FOUNDATION_DLL ezTypeWidgetAttribute : public ezPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezTypeWidgetAttribute);
+  EZ_ADD_DYNAMIC_REFLECTION(ezTypeWidgetAttribute, ezPropertyAttribute);
 };
 
 /// \brief Derive from this class if you want to define an attribute that replaces the property widget of containers.
@@ -57,13 +57,13 @@ class EZ_FOUNDATION_DLL ezTypeWidgetAttribute : public ezPropertyAttribute
 /// prefer to use ezTypeWidgetAttribute.
 class EZ_FOUNDATION_DLL ezContainerWidgetAttribute : public ezPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezContainerWidgetAttribute);
+  EZ_ADD_DYNAMIC_REFLECTION(ezContainerWidgetAttribute, ezPropertyAttribute);
 };
 
 /// \brief Sets the allowed actions on a container.
 class EZ_FOUNDATION_DLL ezContainerAttribute : public ezPropertyAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezContainerAttribute);
+  EZ_ADD_DYNAMIC_REFLECTION(ezContainerAttribute, ezPropertyAttribute);
 
 public:
   ezContainerAttribute(){}
@@ -86,7 +86,7 @@ private:
 
 class EZ_FOUNDATION_DLL ezFileBrowserAttribute : public ezTypeWidgetAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezFileBrowserAttribute);
+  EZ_ADD_DYNAMIC_REFLECTION(ezFileBrowserAttribute, ezTypeWidgetAttribute);
 
 public:
   ezFileBrowserAttribute() {}
@@ -109,7 +109,7 @@ private:
 
 class EZ_FOUNDATION_DLL ezAssetBrowserAttribute : public ezTypeWidgetAttribute
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAssetBrowserAttribute);
+  EZ_ADD_DYNAMIC_REFLECTION(ezAssetBrowserAttribute, ezTypeWidgetAttribute);
 
 public:
   ezAssetBrowserAttribute() {}

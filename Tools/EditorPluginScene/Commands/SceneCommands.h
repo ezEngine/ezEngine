@@ -6,7 +6,7 @@
 
 class ezDuplicateObjectsCommand : public ezCommand
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDuplicateObjectsCommand);
+  EZ_ADD_DYNAMIC_REFLECTION(ezDuplicateObjectsCommand, ezCommand);
 
 public:
   ezDuplicateObjectsCommand();

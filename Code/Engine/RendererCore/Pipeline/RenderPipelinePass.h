@@ -10,7 +10,7 @@
 
 class EZ_RENDERERCORE_DLL ezRenderPipelinePass : public ezNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezRenderPipelinePass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezRenderPipelinePass, ezNode);
   EZ_DISALLOW_COPY_AND_ASSIGN(ezRenderPipelinePass);
 
 public:

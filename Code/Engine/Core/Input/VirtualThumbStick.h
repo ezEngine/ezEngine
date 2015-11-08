@@ -13,7 +13,7 @@
 /// This way a game controller type of input is emulated.
 class EZ_CORE_DLL ezVirtualThumbStick : public ezInputDevice
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVirtualThumbStick);
+  EZ_ADD_DYNAMIC_REFLECTION(ezVirtualThumbStick, ezInputDevice);
 
 public:
   /// \brief Constructor.

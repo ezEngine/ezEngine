@@ -7,7 +7,7 @@ class ezObjectSelectionMsgToEngine;
 
 class EZ_ENGINEPLUGINSCENE_DLL ezSceneContext : public ezEngineProcessDocumentContext
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneContext);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSceneContext, ezEngineProcessDocumentContext);
 
 public:
 

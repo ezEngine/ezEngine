@@ -4,7 +4,7 @@
 
 #include <RendererFoundation/Context/Profiling.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelinePass, ezNode, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelinePass, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezRenderPipelinePass::ezRenderPipelinePass(const char* szName)

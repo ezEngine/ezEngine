@@ -6,7 +6,7 @@
 
 class ezMaterialAssetProperties : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMaterialAssetProperties);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMaterialAssetProperties, ezReflectedClass);
 
 public:
   ezMaterialAssetProperties();

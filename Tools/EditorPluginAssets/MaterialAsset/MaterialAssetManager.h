@@ -5,7 +5,7 @@
 
 class ezMaterialAssetDocumentManager : public ezAssetDocumentManager
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMaterialAssetDocumentManager);
+  EZ_ADD_DYNAMIC_REFLECTION(ezMaterialAssetDocumentManager, ezAssetDocumentManager);
 
 public:
   ezMaterialAssetDocumentManager();

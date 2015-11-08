@@ -2,7 +2,7 @@
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetObjects.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, ezReflectedClass, 1, ezRTTIDefaultAllocator<ezMaterialAssetProperties>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 1, ezRTTIDefaultAllocator<ezMaterialAssetProperties>);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("Base Material", m_sBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("Material")),
     EZ_MEMBER_PROPERTY("Shader", m_sShader),

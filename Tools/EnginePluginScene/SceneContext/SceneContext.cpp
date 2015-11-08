@@ -7,7 +7,7 @@
 #include <GameUtils/Components/SliderComponent.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, ezEngineProcessDocumentContext, 1, ezRTTIDefaultAllocator<ezSceneContext>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>);
 EZ_BEGIN_PROPERTIES
 EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "ezScene;ezPrefab"),
 EZ_END_PROPERTIES
@@ -32,6 +32,19 @@ void ezSceneContext::ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSph
 
 void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezSceneSettingsMsgToEngine>())
+  {
+    const bool bSimulate = static_cast<const ezSceneSettingsMsgToEngine*>(pMsg)->m_bSimulateWorld;
+
+    if (bSimulate != m_pWorld->GetWorldSimulationEnabled())
+    {
+      ezLog::Info("World Simulation %s", bSimulate ? "enabled" : "disabled");
+      m_pWorld->SetWorldSimulationEnabled(bSimulate);
+    }
+
+    return;
+  }
+
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezObjectSelectionMsgToEngine>())
   {
     HandleSelectionMsg(static_cast<const ezObjectSelectionMsgToEngine*>(pMsg));

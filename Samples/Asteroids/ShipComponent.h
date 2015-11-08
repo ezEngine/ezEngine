@@ -3,14 +3,17 @@
 #include <Core/World/World.h>
 
 class ShipComponent;
-typedef ezComponentManagerSimple<ShipComponent> ShipComponentManager;
+typedef ezComponentManagerSimple<ShipComponent, true> ShipComponentManager;
 
 class ShipComponent : public ezComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ShipComponent, ShipComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ShipComponent, ezComponent, ShipComponentManager);
 
 public:
   ShipComponent();
+
+  virtual void SerializeComponent(ezWorldWriter& stream) const override {}
+  virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) override {}
 
   void Update();
 

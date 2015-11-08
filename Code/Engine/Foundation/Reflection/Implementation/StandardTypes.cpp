@@ -12,7 +12,7 @@ EZ_END_STATIC_REFLECTED_TYPE();
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezBitflagsBase, ezNoBase, 1, ezRTTINoAllocator);
 EZ_END_STATIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReflectedClass, ezNoBase, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReflectedClass, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 // *********************************************

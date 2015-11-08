@@ -6,7 +6,7 @@
 
 class EZ_TOOLSFOUNDATION_DLL ezDocumentManager : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentManager);
+  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentManager, ezReflectedClass);
 
 public:
   virtual ~ezDocumentManager() { }

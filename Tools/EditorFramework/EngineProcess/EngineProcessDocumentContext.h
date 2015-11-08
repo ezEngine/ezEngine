@@ -63,7 +63,7 @@ private:
 /// created in the engine process.
 class EZ_EDITORFRAMEWORK_DLL ezEngineProcessDocumentContext : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEngineProcessDocumentContext);
+  EZ_ADD_DYNAMIC_REFLECTION(ezEngineProcessDocumentContext, ezReflectedClass);
 
 public:
   ezEngineProcessDocumentContext();

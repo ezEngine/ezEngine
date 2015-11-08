@@ -11,7 +11,7 @@
 #include <Commands/SceneCommands.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneObjectMetaData, ezReflectedClass, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneObjectMetaData, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     //EZ_MEMBER_PROPERTY("MetaHidden", m_bHidden) // remove this property to disable serialization
     EZ_MEMBER_PROPERTY("MetaFromPrefab", m_CreateFromPrefab),
@@ -20,13 +20,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneObjectMetaData, ezReflectedClass, 1, ezRT
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, ezAssetDocument, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab) : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezSceneObjectManager))
 {
   m_ActiveGizmo = ActiveGizmo::None;
   m_bIsPrefab = bIsPrefab;
+  m_bSimulateWorld = false;
+  m_bGizmoWorldSpace = true;
 }
 
 void ezSceneDocument::InitializeAfterLoading()
@@ -247,6 +249,19 @@ ezString ezSceneDocument::ReadDocumentAsString(const char* szFile) const
   sGraph.ReadAll(file);
 
   return sGraph;
+}
+
+
+void ezSceneDocument::SetSimulateWorld(bool b)
+{
+  if (m_bSimulateWorld == b)
+    return;
+
+  m_bSimulateWorld = b;
+
+  SceneEvent e;
+  e.m_Type = SceneEvent::Type::SimulateModeChanged;
+  m_SceneEvents.Broadcast(e);
 }
 
 const ezString& ezSceneDocument::GetCachedPrefabGraph(const ezUuid& AssetGuid)

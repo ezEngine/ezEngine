@@ -36,11 +36,14 @@ namespace
 
   class TestComponent : public ezComponent
   {
-    EZ_DECLARE_COMPONENT_TYPE(TestComponent, TestComponentManager);
+    EZ_DECLARE_COMPONENT_TYPE(TestComponent, ezComponent, TestComponentManager);
 
   public:
     TestComponent() : m_iSomeData(1) {}
     ~TestComponent() {}
+
+    virtual void SerializeComponent(ezWorldWriter& stream) const override {}
+    virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) override {}
 
     virtual ezResult Initialize() override
     {
@@ -90,7 +93,7 @@ namespace
   ezInt32 TestComponent::s_iAttachCounter = 0;
   bool TestComponent::s_bGOInactiveCheck = false;
 
-  EZ_BEGIN_COMPONENT_TYPE(TestComponent, ezComponent, 1, TestComponentManager);
+  EZ_BEGIN_COMPONENT_TYPE(TestComponent, 1, TestComponentManager);
   EZ_END_COMPONENT_TYPE();
 
   void TestComponentManager::Update(ezUInt32 uiStartIndex, ezUInt32 uiCount)

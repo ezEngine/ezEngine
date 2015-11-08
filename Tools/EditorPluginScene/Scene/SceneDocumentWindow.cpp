@@ -385,6 +385,12 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
   if (ezEditorEngineProcessConnection::GetInstance()->IsProcessCrashed())
     return;
 
+  {
+    ezSceneSettingsMsgToEngine msg;
+    msg.m_bSimulateWorld = GetSceneDocument()->GetSimulateWorld();
+    m_pEngineConnection->SendMessage(&msg);
+  }
+
   SendObjectSelection();
 
   auto pHoveredView = GetHoveredViewWidget();

@@ -5,7 +5,7 @@
 #include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineSyncObject, ezReflectedClass, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineSyncObject, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("SyncGuid", m_SyncObjectGuid)
   EZ_END_PROPERTIES

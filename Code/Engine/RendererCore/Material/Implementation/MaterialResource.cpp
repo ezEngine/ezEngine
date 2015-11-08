@@ -4,7 +4,7 @@
 #include <Foundation/IO/ExtendedJSONReader.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialResource, ezResourceBase, 1, ezRTTIDefaultAllocator<ezMaterialResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialResource, 1, ezRTTIDefaultAllocator<ezMaterialResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezMaterialResource::ezMaterialResource() : ezResource<ezMaterialResource, ezMaterialResourceDescriptor>(DoUpdate::OnAnyThread, 1)

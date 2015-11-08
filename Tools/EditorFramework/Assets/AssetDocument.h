@@ -8,7 +8,7 @@ class ezImage;
 
 class EZ_EDITORFRAMEWORK_DLL ezAssetDocumentInfo : public ezDocumentInfo
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAssetDocumentInfo);
+  EZ_ADD_DYNAMIC_REFLECTION(ezAssetDocumentInfo, ezDocumentInfo);
 
 public:
   ezAssetDocumentInfo();
@@ -27,7 +27,7 @@ public:
 
 class EZ_EDITORFRAMEWORK_DLL ezAssetDocument : public ezDocument
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezAssetDocument);
+  EZ_ADD_DYNAMIC_REFLECTION(ezAssetDocument, ezDocument);
 
 public:
   ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager);

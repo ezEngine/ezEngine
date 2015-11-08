@@ -2,7 +2,7 @@
 #include <EditorPluginScene/Scene/SceneDocumentManager.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentManager, ezAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSceneDocumentManager>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentManager, 1, ezRTTIDefaultAllocator<ezSceneDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezSceneDocumentManager* ezSceneDocumentManager::s_pSingleton = nullptr;

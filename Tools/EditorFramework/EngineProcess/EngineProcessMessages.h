@@ -10,12 +10,12 @@
 
 class EZ_EDITORFRAMEWORK_DLL ezSyncWithProcessMsgToEngine : public ezProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEngine);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEngine, ezProcessMessage);
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezSyncWithProcessMsgToEditor : public ezProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEditor);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEditor, ezProcessMessage);
 };
 
 ///////////////////////////////////// ezEditorEngineMsg ///////////////////////////////////// 
@@ -23,7 +23,7 @@ class EZ_EDITORFRAMEWORK_DLL ezSyncWithProcessMsgToEditor : public ezProcessMess
 /// \brief Base class for all messages between editor and engine that are not bound to any document
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineMsg : public ezProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineMsg);
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineMsg, ezProcessMessage);
 
 public:
   ezEditorEngineMsg()
@@ -34,7 +34,7 @@ public:
 
 class EZ_EDITORFRAMEWORK_DLL ezUpdateReflectionTypeMsgToEditor : public ezEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezUpdateReflectionTypeMsgToEditor);
+  EZ_ADD_DYNAMIC_REFLECTION(ezUpdateReflectionTypeMsgToEditor, ezEditorEngineMsg);
 
 public:
   ezReflectedTypeDescriptor m_desc;
@@ -42,7 +42,7 @@ public:
 
 class EZ_EDITORFRAMEWORK_DLL ezSetupProjectMsgToEngine : public ezEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSetupProjectMsgToEngine);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSetupProjectMsgToEngine, ezEditorEngineMsg);
 
 public:
   ezString m_sProjectDir;
@@ -51,7 +51,7 @@ public:
 
 class EZ_EDITORFRAMEWORK_DLL ezProjectReadyMsgToEditor : public ezEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezProjectReadyMsgToEditor);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProjectReadyMsgToEditor, ezEditorEngineMsg);
 
 public:
 
@@ -59,7 +59,7 @@ public:
 
 class EZ_EDITORFRAMEWORK_DLL ezSimpleConfigMsgToEngine : public ezEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSimpleConfigMsgToEngine);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSimpleConfigMsgToEngine, ezEditorEngineMsg);
 
 public:
   ezString m_sWhatToDo;
@@ -71,7 +71,7 @@ public:
 /// \brief Base class for all messages that are tied to some document.
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineDocumentMsg : public ezProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineDocumentMsg);
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineDocumentMsg, ezProcessMessage);
 
 public:
   ezUuid m_DocumentGuid;
@@ -79,7 +79,7 @@ public:
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineViewMsg : public ezEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineViewMsg);
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineViewMsg, ezEditorEngineDocumentMsg);
 
 public:
   ezEditorEngineViewMsg()
@@ -93,7 +93,7 @@ public:
 
 class EZ_EDITORFRAMEWORK_DLL ezDocumentOpenMsgToEngine : public ezEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentOpenMsgToEngine);
+  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentOpenMsgToEngine, ezEditorEngineDocumentMsg);
 
 public:
   ezDocumentOpenMsgToEngine()
@@ -107,7 +107,7 @@ public:
 
 class EZ_EDITORFRAMEWORK_DLL ezDocumentOpenResponseMsgToEditor : public ezEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentOpenResponseMsgToEditor);
+  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentOpenResponseMsgToEditor, ezEditorEngineDocumentMsg);
 
 public:
   ezDocumentOpenResponseMsgToEditor()
@@ -117,13 +117,13 @@ public:
 
 class EZ_EDITORFRAMEWORK_DLL ezViewDestroyedMsgToEngine : public ezEditorEngineViewMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezViewDestroyedMsgToEngine);
+  EZ_ADD_DYNAMIC_REFLECTION(ezViewDestroyedMsgToEngine, ezEditorEngineViewMsg);
 
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezViewRedrawMsgToEngine : public ezEditorEngineViewMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezViewRedrawMsgToEngine);
+  EZ_ADD_DYNAMIC_REFLECTION(ezViewRedrawMsgToEngine, ezEditorEngineViewMsg);
 
 public:
 
@@ -148,7 +148,7 @@ public:
 
 class EZ_EDITORFRAMEWORK_DLL ezEntityMsgToEngine : public ezEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEntityMsgToEngine);
+  EZ_ADD_DYNAMIC_REFLECTION(ezEntityMsgToEngine, ezEditorEngineDocumentMsg);
 
 public:
   enum Type
@@ -172,7 +172,7 @@ public:
 
 class EZ_EDITORFRAMEWORK_DLL ezExportSceneMsgToEngine : public ezEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezExportSceneMsgToEngine);
+  EZ_ADD_DYNAMIC_REFLECTION(ezExportSceneMsgToEngine, ezEditorEngineDocumentMsg);
 
 public:
   ezString m_sOutputFile;
@@ -181,7 +181,7 @@ public:
 
 class EZ_EDITORFRAMEWORK_DLL ezViewPickingMsgToEngine : public ezEditorEngineViewMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezViewPickingMsgToEngine);
+  EZ_ADD_DYNAMIC_REFLECTION(ezViewPickingMsgToEngine, ezEditorEngineViewMsg);
 
 public:
 
@@ -191,7 +191,7 @@ public:
 
 class EZ_EDITORFRAMEWORK_DLL ezViewPickingResultMsgToEditor : public ezEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezViewPickingResultMsgToEditor);
+  EZ_ADD_DYNAMIC_REFLECTION(ezViewPickingResultMsgToEditor, ezEditorEngineDocumentMsg);
 
 public:
   ezUuid m_ObjectGuid;
@@ -208,7 +208,7 @@ class ezEditorEngineConnection;
 
 class EZ_EDITORFRAMEWORK_DLL ezViewHighlightMsgToEngine : public ezEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezViewHighlightMsgToEngine);
+  EZ_ADD_DYNAMIC_REFLECTION(ezViewHighlightMsgToEngine, ezEditorEngineDocumentMsg);
 
 public:
   void SendHighlightObjectMessage(ezEditorEngineConnection* pConnection);
@@ -220,7 +220,7 @@ public:
 
 class EZ_EDITORFRAMEWORK_DLL ezLogMsgToEditor : public ezEditorEngineMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezLogMsgToEditor);
+  EZ_ADD_DYNAMIC_REFLECTION(ezLogMsgToEditor, ezEditorEngineMsg);
 
 public:
   ezString m_sText;
@@ -232,7 +232,7 @@ public:
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineSyncObjectMsg : public ezEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineSyncObjectMsg);
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineSyncObjectMsg, ezEditorEngineDocumentMsg);
 
 public:
   
@@ -246,7 +246,7 @@ public:
 
 class EZ_EDITORFRAMEWORK_DLL ezObjectTagMsgToEngine : public ezEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezObjectTagMsgToEngine);
+  EZ_ADD_DYNAMIC_REFLECTION(ezObjectTagMsgToEngine, ezEditorEngineDocumentMsg);
 
 public:
 
@@ -257,16 +257,25 @@ public:
 
 class EZ_EDITORFRAMEWORK_DLL ezObjectSelectionMsgToEngine : public ezEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezObjectSelectionMsgToEngine);
+  EZ_ADD_DYNAMIC_REFLECTION(ezObjectSelectionMsgToEngine, ezEditorEngineDocumentMsg);
 
 public:
 
   ezString m_sSelection;
 };
 
+class EZ_EDITORFRAMEWORK_DLL ezSceneSettingsMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSceneSettingsMsgToEngine, ezEditorEngineDocumentMsg);
+
+public:
+
+  bool m_bSimulateWorld;
+};
+
 class EZ_EDITORFRAMEWORK_DLL ezQuerySelectionBBoxMsgToEngine : public ezEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezQuerySelectionBBoxMsgToEngine);
+  EZ_ADD_DYNAMIC_REFLECTION(ezQuerySelectionBBoxMsgToEngine, ezEditorEngineDocumentMsg);
 public:
   ezUInt32 m_uiViewID; /// passed through to ezQuerySelectionBBoxResultMsgToEditor
   ezInt32 m_iPurpose; /// passed through to ezQuerySelectionBBoxResultMsgToEditor
@@ -274,7 +283,7 @@ public:
 
 class EZ_EDITORFRAMEWORK_DLL ezQuerySelectionBBoxResultMsgToEditor : public ezEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezQuerySelectionBBoxResultMsgToEditor);
+  EZ_ADD_DYNAMIC_REFLECTION(ezQuerySelectionBBoxResultMsgToEditor, ezEditorEngineDocumentMsg);
 public:
   ezVec3 m_vCenter;
   ezVec3 m_vHalfExtents;

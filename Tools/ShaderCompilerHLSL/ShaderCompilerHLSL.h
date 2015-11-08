@@ -6,7 +6,7 @@ struct ID3D11ShaderReflection;
 
 class ezShaderCompilerHLSL : public ezShaderProgramCompiler
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezShaderCompilerHLSL);
+  EZ_ADD_DYNAMIC_REFLECTION(ezShaderCompilerHLSL, ezShaderProgramCompiler);
 
 public:
   virtual void GetSupportedPlatforms(ezHybridArray<ezString, 4>& Platforms) override

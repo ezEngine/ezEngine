@@ -5,7 +5,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentManager, ezDocumentManager, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentManager, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 bool ezAssetDocumentManager::IsResourceUpToDate(ezUInt64 uiHash, ezUInt16 uiTypeVersion, const char* szResourceFile)

@@ -68,7 +68,7 @@ struct ezPassThroughNodePin : public ezNodePin
 
 class EZ_COREUTILS_DLL ezNode : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezNode);
+  EZ_ADD_DYNAMIC_REFLECTION(ezNode, ezReflectedClass);
 
 public:
   virtual ~ezNode() { }
