@@ -146,7 +146,7 @@ template <typename ComponentType, bool OnlyUpdateWhenSimulating>
 void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount)
 {
   // ignore the update when this is a 'simulating' component type and the world is not in simulation mode
-  if (OnlyUpdateWhenSimulating && !GetWorld()->GetWorldSimulationEnabled())
+  if (OnlyUpdateWhenSimulating && !ezComponentManagerBase::GetWorld()->GetWorldSimulationEnabled())
     return;
 
   for (auto it = this->m_ComponentStorage.GetIterator(uiStartIndex, uiCount); it.IsValid(); ++it)
