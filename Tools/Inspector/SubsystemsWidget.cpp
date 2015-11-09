@@ -2,6 +2,7 @@
 #include <Inspector/SubsystemsWidget.moc.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <MainWindow.moc.h>
+#include <GuiFoundation/UIServices/IconCache.h>
 
 ezSubsystemsWidget* ezSubsystemsWidget::s_pWidget = nullptr;
 
@@ -58,7 +59,7 @@ void ezSubsystemsWidget::UpdateSubSystems()
       const SubsystemData& ssd = it.Value();
 
       QLabel* pIcon = new QLabel();
-      pIcon->setPixmap(QPixmap(":/Icons/Icons/Subsystem.png"));
+      pIcon->setPixmap(ezQtIconCache::GetPixmap(":/Icons/Icons/Subsystem.png"));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableSubsystems->setCellWidget(iRow, 0, pIcon);
 

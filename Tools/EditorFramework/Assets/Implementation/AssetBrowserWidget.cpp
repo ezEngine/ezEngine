@@ -9,6 +9,7 @@
 #include <QTimer>
 #include <QSettings>
 #include <QMenu>
+#include <GuiFoundation/UIServices/IconCache.h>
 
 ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
 {
@@ -98,7 +99,7 @@ void ezAssetBrowserWidget::UpdateAssetTypes()
       sIconName.Set(":/AssetIcons/", key);
       sIconName.ReplaceAll(" ", "_");
 
-      QListWidgetItem* pItem = new QListWidgetItem(QIcon(QString::fromUtf8(sIconName.GetData())), QString::fromUtf8(key.GetData()));
+      QListWidgetItem* pItem = new QListWidgetItem(ezQtIconCache::GetIcon(sIconName), QString::fromUtf8(key.GetData()));
       pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
       pItem->setCheckState(Qt::CheckState::Unchecked);
 

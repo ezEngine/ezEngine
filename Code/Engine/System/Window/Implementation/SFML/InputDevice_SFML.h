@@ -19,7 +19,7 @@
 /// Also many special keys are not properly supported by SFML, most notably Numpad Enter is handled like Return.
 class EZ_SYSTEM_DLL ezStandardInputDevice : public ezInputDeviceMouseKeyboard
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStandardInputDevice);
+  EZ_ADD_DYNAMIC_REFLECTION(ezStandardInputDevice, ezInputDeviceMouseKeyboard);
 
 public:
   ezStandardInputDevice(sf::Window* pWindow, ezUInt32 uiWindowNumber);

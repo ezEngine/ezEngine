@@ -3,6 +3,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <QSettings>
 #include <CoreUtils/Localization/TranslationLookup.h>
+#include <GuiFoundation/UIServices/IconCache.h>
 
 ezQtAssetBrowserPanel* ezQtAssetBrowserPanel::s_pInstance = nullptr;
 
@@ -14,7 +15,7 @@ ezQtAssetBrowserPanel::ezQtAssetBrowserPanel() : ezQtApplicationPanel("PanelAsse
 
   setupUi(this);
 
-  setWindowIcon(QIcon(QString::fromUtf8(":/GuiFoundation/Icons/Asset16.png")));
+  setWindowIcon(ezQtIconCache::GetIcon(":/GuiFoundation/Icons/Asset16.png"));
   setWindowTitle(QString::fromUtf8(ezTranslate("PanelAssetBrowser")));
 
   EZ_VERIFY(connect(AssetBrowserWidget, SIGNAL(ItemChosen(QString, QString, QString)), this, SLOT(SlotAssetChosen(QString, QString, QString))) != nullptr, "signal/slot connection failed");

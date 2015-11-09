@@ -8,6 +8,7 @@
 #include <QMenu>
 #include <QAction>
 #include <CoreUtils/Localization/TranslationLookup.h>
+#include <GuiFoundation/UIServices/IconCache.h>
 
 ezRttiMappedObjectFactory<ezQtProxy> ezQtProxy::s_Factory;
 ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> ezQtProxy::s_GlobalActions;
@@ -183,7 +184,7 @@ void ezQtMenuProxy::Update()
 {
   auto pMenu = static_cast<ezMenuAction*>(m_pAction);
 
-  m_pMenu->setIcon(QIcon(QString::fromUtf8(pMenu->GetIconPath())));
+  m_pMenu->setIcon(ezQtIconCache::GetIcon(pMenu->GetIconPath()));
   m_pMenu->setTitle(QString::fromUtf8(ezTranslate(pMenu->GetName())));
 }
 
@@ -228,7 +229,7 @@ void ezQtButtonProxy::Update()
   const ezActionDescriptor* pDesc = m_pAction->GetDescriptorHandle().GetDescriptor();
   m_pQtAction->setShortcut(QKeySequence(QString::fromUtf8(pDesc->m_sShortcut.GetData())));
 
-  m_pQtAction->setIcon(QIcon(QString::fromUtf8(pButton->GetIconPath())));
+  m_pQtAction->setIcon(ezQtIconCache::GetIcon(pButton->GetIconPath()));
   m_pQtAction->setText(QString::fromUtf8(ezTranslate(pButton->GetName())));
   m_pQtAction->setCheckable(pButton->IsCheckable());
   m_pQtAction->setChecked(pButton->IsChecked());

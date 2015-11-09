@@ -6,6 +6,7 @@
 #include <qlineedit.h>
 #include <qcombobox.h>
 #include <qspinbox.h>
+#include <GuiFoundation/UIServices/IconCache.h>
 
 ezCVarsWidget* ezCVarsWidget::s_pWidget = nullptr;
 
@@ -148,7 +149,7 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
       it.Value().m_iTableRow = iRow;
 
       QLabel* pIcon = new QLabel();
-      pIcon->setPixmap(QPixmap(":/Icons/Icons/CVar.png"));
+      pIcon->setPixmap(ezQtIconCache::GetPixmap(":/Icons/Icons/CVar.png"));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableCVars->setCellWidget(iRow, 0, pIcon);
 

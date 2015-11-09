@@ -2,6 +2,7 @@
 #include <Inspector/PluginsWidget.moc.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <MainWindow.moc.h>
+#include <GuiFoundation/UIServices/IconCache.h>
 
 ezPluginsWidget* ezPluginsWidget::s_pWidget = nullptr;
 
@@ -57,7 +58,7 @@ void ezPluginsWidget::UpdatePlugins()
       const PluginsData& ssd = it.Value();
 
       QLabel* pIcon = new QLabel();
-      pIcon->setPixmap(QPixmap(":/Icons/Icons/Plugin.png"));
+      pIcon->setPixmap(ezQtIconCache::GetPixmap(":/Icons/Icons/Plugin.png"));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TablePlugins->setCellWidget(iRow, 0, pIcon);
 

@@ -7,6 +7,7 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <Foundation/IO/OSFile.h>
+#include <GuiFoundation/UIServices/IconCache.h>
 
 ezActionDescriptorHandle ezProjectActions::s_hEditorMenu;
 
@@ -126,7 +127,7 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item
     ezDocumentManager::FindDocumentTypeFromPath(s, false, pManager, &td);
 
     item.m_UserValue = s;
-    item.m_Icon = QIcon(QString::fromUtf8(td.m_sIcon.GetData()));
+    item.m_Icon = ezQtIconCache::GetIcon(td.m_sIcon);
 
     if (ezToolsProject::IsProjectOpen())
     {
