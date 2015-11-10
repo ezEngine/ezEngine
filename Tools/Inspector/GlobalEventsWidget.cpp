@@ -3,7 +3,7 @@
 #include <qlistwidget.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <MainWindow.moc.h>
-#include <GuiFoundation/UIServices/IconCache.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 
 ezGlobalEventsWidget* ezGlobalEventsWidget::s_pWidget = nullptr;
 
@@ -107,7 +107,7 @@ void ezGlobalEventsWidget::UpdateTable(bool bRecreate)
       it.Value().m_iTableRow = iRow;
 
       QLabel* pIcon = new QLabel();
-      pIcon->setPixmap(ezQtIconCache::GetPixmap(":/Icons/Icons/GlobalEvent.png"));
+      pIcon->setPixmap(ezUIServices::GetCachedPixmapResource(":/Icons/Icons/GlobalEvent.png"));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableEvents->setCellWidget(iRow, 0, pIcon);
 

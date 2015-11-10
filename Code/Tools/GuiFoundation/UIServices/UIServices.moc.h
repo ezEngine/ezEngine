@@ -52,6 +52,15 @@ public:
   void LoadState();
   void SaveState();
 
+  /// \brief Returns a cached QIcon that was created from an internal Qt resource (e.g. 'QIcon(":QtNamespace/MyIcon.png")' ). Prevents creating the object over and over.
+  static const QIcon& GetCachedIconResource(const char* szIdentifier);
+
+  /// \brief Returns a cached QImage that was created from an internal Qt resource (e.g. 'QImage(":QtNamespace/MyIcon.png")' ). Prevents creating the object over and over.
+  static const QImage& GetCachedImageResource(const char* szIdentifier);
+
+  /// \brief Returns a cached QPixmap that was created from an internal Qt resource (e.g. 'QPixmap(":QtNamespace/MyIcon.png")' ). Prevents creating the object over and over.
+  static const QPixmap& GetCachedPixmapResource(const char* szIdentifier);
+
 private slots:
   void SlotColorDialogClosed();
 
@@ -59,6 +68,10 @@ private:
   static ezString s_sApplicationName;
   QColorDialog* m_pColorDlg;
   QPoint m_ColorDlgPos;
+
+  static ezMap<ezString, QIcon> s_IconsCache;
+  static ezMap<ezString, QImage> s_ImagesCache;
+  static ezMap<ezString, QPixmap> s_PixmapsCache;
 
 private:
   ezUIServices();

@@ -13,7 +13,7 @@
 #include <QTabBar>
 #include <QStatusBar>
 #include <QLabel>
-#include <GuiFoundation/UIServices/IconCache.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 
 ezDynamicArray<ezContainerWindow*> ezContainerWindow::s_AllContainerWindows;
 
@@ -196,7 +196,7 @@ void ezContainerWindow::UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow)
 
   pTabs->setTabToolTip(iTabIndex, QString::fromUtf8(pDocWindow->GetDisplayName().GetData()));
   pTabs->setTabText(iTabIndex, QString::fromUtf8(pDocWindow->GetDisplayNameShort().GetData()));
-  pTabs->setTabIcon(iTabIndex, ezQtIconCache::GetIcon(pDocWindow->GetWindowIcon().GetData()));
+  pTabs->setTabIcon(iTabIndex, ezUIServices::GetCachedIconResource(pDocWindow->GetWindowIcon().GetData()));
 }
 
 void ezContainerWindow::RemoveDocumentWindowFromContainer(ezQtDocumentWindow* pDocWindow)

@@ -3,7 +3,7 @@
 #include <qlistwidget.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <MainWindow.moc.h>
-#include <GuiFoundation/UIServices/IconCache.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 
 ezInputWidget* ezInputWidget::s_pWidget = nullptr;
 
@@ -179,7 +179,7 @@ void ezInputWidget::UpdateSlotTable(bool bRecreate)
       sTemp.Format("  %s  ", it.Key().GetData());
 
       QLabel* pIcon = new QLabel();
-      pIcon->setPixmap(ezQtIconCache::GetPixmap(":/Icons/Icons/InputSlots.png"));
+      pIcon->setPixmap(ezUIServices::GetCachedPixmapResource(":/Icons/Icons/InputSlots.png"));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableInputSlots->setCellWidget(iRow, 0, pIcon);
 
@@ -321,7 +321,7 @@ void ezInputWidget::UpdateActionTable(bool bRecreate)
       sTemp.Format("  %s  ", it.Key().GetData());
 
       QLabel* pIcon = new QLabel();
-      pIcon->setPixmap(ezQtIconCache::GetPixmap(":/Icons/Icons/InputActions.png"));
+      pIcon->setPixmap(ezUIServices::GetCachedPixmapResource(":/Icons/Icons/InputActions.png"));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableInputActions->setCellWidget(iRow, 0, pIcon);
 

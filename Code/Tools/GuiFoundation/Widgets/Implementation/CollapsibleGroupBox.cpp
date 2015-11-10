@@ -11,7 +11,7 @@
 #include <QScrollArea>
 #include <QRect>
 #include <QRectF>
-#include <GuiFoundation/UIServices/IconCache.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 
 ezCollapsibleGroupBox::ezCollapsibleGroupBox(QWidget* pParent) : QWidget(pParent), m_bCollapsed(false)
 {
@@ -57,7 +57,7 @@ void ezCollapsibleGroupBox::SetCollapseState(bool bCollapsed)
     pCur = pCur->parentWidget();
   }
 
-  Icon->setPixmap(Content->isVisible() ? ezQtIconCache::GetPixmap(":/GuiFoundation/Icons/groupOpen.png") : ezQtIconCache::GetPixmap(":/GuiFoundation/Icons/groupClosed.png"));
+  Icon->setPixmap(Content->isVisible() ? ezUIServices::GetCachedPixmapResource(":/GuiFoundation/Icons/groupOpen.png") : ezUIServices::GetCachedPixmapResource(":/GuiFoundation/Icons/groupClosed.png"));
 
   emit CollapseStateChanged(bCollapsed);
 }

@@ -2,7 +2,7 @@
 #include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
 #include <QSettings>
 #include <CoreUtils/Localization/TranslationLookup.h>
-#include <GuiFoundation/UIServices/IconCache.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 
 ezQtLogPanel* ezQtLogPanel::s_pInstance = nullptr;
 
@@ -14,7 +14,7 @@ ezQtLogPanel::ezQtLogPanel() : ezQtApplicationPanel("PanelLog")
 
   setupUi(this);
 
-  setWindowIcon(ezQtIconCache::GetIcon(":/GuiFoundation/Icons/Log.png"));
+  setWindowIcon(ezUIServices::GetCachedIconResource(":/GuiFoundation/Icons/Log.png"));
   setWindowTitle(QString::fromUtf8(ezTranslate("PanelLog")));
 
   ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezQtLogPanel::LogWriter, this));

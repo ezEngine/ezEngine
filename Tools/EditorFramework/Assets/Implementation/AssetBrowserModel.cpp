@@ -9,7 +9,7 @@
 #include <QMimeData>
 #include <QUrl>
 #include <QIcon>
-#include <GuiFoundation/UIServices/IconCache.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezAssetBrowserModel public functions
@@ -270,7 +270,7 @@ QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
       sIconName.Set(":/AssetIcons/", pAssetInfo->m_Info.m_sAssetTypeName);
       sIconName.ReplaceAll(" ", "_");
 
-      return ezQtIconCache::GetPixmap(sIconName.GetData());
+      return ezUIServices::GetCachedPixmapResource(sIconName.GetData());
     }
   }
 

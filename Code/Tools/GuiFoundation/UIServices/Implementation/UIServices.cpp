@@ -3,8 +3,15 @@
 #include <QSettings>
 #include <QProcess>
 #include <QDir>
+#include <QIcon>
+#include <QImage>
+#include <QPixmap>
 
 ezEvent<const ezUIServices::Event&> ezUIServices::s_Events;
+ezMap<ezString, QIcon> ezUIServices::s_IconsCache;
+ezMap<ezString, QImage> ezUIServices::s_ImagesCache;
+ezMap<ezString, QPixmap> ezUIServices::s_PixmapsCache;
+
 
 ezUIServices* ezUIServices::GetInstance()
 {
@@ -25,6 +32,54 @@ void ezUIServices::SaveState()
     Settings.setValue("ColorDlgPos", m_ColorDlgPos);
   }
   Settings.endGroup();
+}
+
+
+const QIcon& ezUIServices::GetCachedIconResource(const char* szIdentifier)
+{
+  const ezString sIdentifier = szIdentifier;
+  auto& map = s_IconsCache;
+
+  auto it = map.Find(sIdentifier);
+
+  if (it.IsValid())
+    return it.Value();
+
+  map[sIdentifier] = QIcon(QString::fromUtf8(szIdentifier));
+
+  return map[sIdentifier];
+}
+
+
+const QImage& ezUIServices::GetCachedImageResource(const char* szIdentifier)
+{
+  const ezString sIdentifier = szIdentifier;
+  auto& map = s_ImagesCache;
+
+  auto it = map.Find(sIdentifier);
+
+  if (it.IsValid())
+    return it.Value();
+
+  map[sIdentifier] = QImage(QString::fromUtf8(szIdentifier));
+
+  return map[sIdentifier];
+}
+
+
+const QPixmap& ezUIServices::GetCachedPixmapResource(const char* szIdentifier)
+{
+  const ezString sIdentifier = szIdentifier;
+  auto& map = s_PixmapsCache;
+
+  auto it = map.Find(sIdentifier);
+
+  if (it.IsValid())
+    return it.Value();
+
+  map[sIdentifier] = QPixmap(QString::fromUtf8(szIdentifier));
+
+  return map[sIdentifier];
 }
 
 void ezUIServices::LoadState()

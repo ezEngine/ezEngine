@@ -6,7 +6,7 @@
 #include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 #include <QMenu>
 #include <QToolButton>
-#include <GuiFoundation/UIServices/IconCache.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 
 ezToolBarActionMapView::ezToolBarActionMapView(QWidget* parent) : QToolBar(parent)
 {
@@ -90,7 +90,7 @@ void ezToolBarActionMapView::CreateView(const ezActionMap::TreeNode* pObject)
         pButton->setMenu(pQtMenu);
         pButton->setPopupMode(QToolButton::ToolButtonPopupMode::InstantPopup);
         pButton->setText(pQtMenu->title());
-        pButton->setIcon(ezQtIconCache::GetIcon(pNamed->GetIconPath()));
+        pButton->setIcon(ezUIServices::GetCachedIconResource(pNamed->GetIconPath()));
         pButton->setToolTip(pQtMenu->title());
 
         // TODO addWidget return value of QAction leaks!
