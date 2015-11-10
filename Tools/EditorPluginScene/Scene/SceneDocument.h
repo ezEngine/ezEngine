@@ -25,6 +25,7 @@ public:
   {
     HiddenFlag = EZ_BIT(0),
     PrefabFlag = EZ_BIT(1),
+    CachedName = EZ_BIT(2),
 
     AllFlags = 0xFFFFFFFF
   };
@@ -38,6 +39,7 @@ public:
   ezUuid m_CreateFromPrefab;
   ezUuid m_PrefabSeedGuid;
   ezString m_sBasePrefab;
+  ezString m_CachedNodeName;
 };
 
 class ezSceneDocument : public ezAssetDocument

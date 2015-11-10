@@ -141,13 +141,6 @@ void ezSceneDocument::GroupSelection()
 
   pHistory->AddCommand(cmdAdd);
 
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
-
-  cmdSet.SetPropertyPath("Name");
-  cmdSet.m_NewValue = "Group";
-  pHistory->AddCommand(cmdSet);
-
   auto pGroupObject = GetObjectManager()->GetObject(cmdAdd.m_NewObjectGuid);
   SetGlobalTransform(pGroupObject, ezTransform(vCenter));
 

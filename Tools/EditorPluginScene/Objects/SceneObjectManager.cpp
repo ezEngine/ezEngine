@@ -9,13 +9,8 @@ ezSceneObjectManager::ezSceneObjectManager() : ezDocumentObjectManager()
 
 ezDocumentObject* ezSceneObjectManager::InternalCreateObject(const ezRTTI* pRtti)
 {
-  static int iCount = 0;
   ezDocumentObject* pObj = EZ_DEFAULT_NEW(ezDocumentStorageObject, pRtti);
 
-  ezStringBuilder sName;
-  sName.Format("%s %03d", pRtti->GetTypeName(), iCount);
-  iCount++;
-  pObj->GetTypeAccessor().SetValue("Name", sName.GetData());  
   return pObj;
 }
 

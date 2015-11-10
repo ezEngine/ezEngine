@@ -17,10 +17,11 @@ public:
   ~ezQtScenegraphModel();
 
   virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-
+  virtual bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 
 private:
   void ObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezSceneObjectMetaData>::EventData& e);
+  void DetermineNodeName(const ezDocumentObject* pObject, ezStringBuilder& out_Result) const;
 
   ezSceneDocument* m_pSceneDocument;
 };

@@ -19,6 +19,79 @@ ezQtScenegraphModel::~ezQtScenegraphModel()
   m_pSceneDocument->m_ObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtScenegraphModel::ObjectMetaDataEventHandler, this));
 }
 
+void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, ezStringBuilder& out_Result) const
+{
+  // tries to find a good name for a node by looking at the attached components and their properties
+
+  bool bHasChildren = false;
+
+  /// \todo Iterate over children in a way that returns the proper order (this is random)
+
+  for (auto pChild : pObject->GetChildren())
+  {
+    // search for components
+    if (pChild->GetTypeAccessor().GetType()->IsDerivedFrom<ezComponent>())
+    {
+      // take the first components name
+      if (out_Result.IsEmpty())
+      {
+        out_Result = pChild->GetTypeAccessor().GetType()->GetTypeName();
+
+        // clean up the component name
+        if (out_Result.EndsWith_NoCase("Component"))
+          out_Result.Shrink(0, 9);
+        if (out_Result.StartsWith("ez"))
+          out_Result.Shrink(2, 0);
+      }
+
+      const auto& properties = pChild->GetTypeAccessor().GetType()->GetProperties();
+
+      for (auto pProperty : properties)
+      {
+        // search for string properties that also have an asset browser property -> they reference an asset, so this is most likely the most relevant property
+        if (pProperty->GetCategory() == ezPropertyCategory::Member && 
+            (pProperty->GetSpecificType() == ezGetStaticRTTI<const char*>() ||
+             pProperty->GetSpecificType() == ezGetStaticRTTI<ezString>()) &&
+            pProperty->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr)
+        {
+          ezStringBuilder sValue = pChild->GetTypeAccessor().GetValue(ezToolsReflectionUtils::CreatePropertyPath(pProperty->GetPropertyName())).ConvertTo<ezString>();
+
+          // if the property is a full asset guid reference, convert it to a file name
+          if (ezConversionUtils::IsStringUuid(sValue))
+          {
+            const ezUuid AssetGuid = ezConversionUtils::ConvertStringToUuid(sValue);
+
+            auto pAsset = ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid);
+
+            if (pAsset)
+              sValue = pAsset->m_sRelativePath;
+            else
+              sValue = "<unknown>";
+          }
+
+          // only use the file name for our display
+          sValue = sValue.GetFileName();
+
+          out_Result.Append(": ", sValue);
+          return;
+        }
+      }
+    }
+    else
+    {
+      // must be ezGameObject children
+      bHasChildren = true;
+    }
+  }
+
+  /// \todo If it is a prefab, return the prefab asset name
+
+  if (bHasChildren)
+    out_Result = "Group";
+  else
+    out_Result = "Entity";
+}
+
 QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
 {
   const ezDocumentObject* pObject = (const ezDocumentObject*)index.internalPointer();
@@ -27,16 +100,50 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
   {
   case Qt::DisplayRole:
     {
+      ezStringBuilder sName = pObject->GetTypeAccessor().GetValue(ezToolsReflectionUtils::CreatePropertyPath("Name")).ConvertTo<ezString>();
+
       auto pMeta = m_pSceneDocument->m_ObjectMetaData.BeginReadMetaData(pObject->GetGuid());
       const bool bPrefab = pMeta->m_CreateFromPrefab.IsValid();
+
+      if (sName.IsEmpty())
+        sName = pMeta->m_CachedNodeName;
+
       m_pSceneDocument->m_ObjectMetaData.EndReadMetaData();
 
-      QString sName = QString::fromUtf8(pObject->GetTypeAccessor().GetValue(ezToolsReflectionUtils::CreatePropertyPath("Name")).ConvertTo<ezString>().GetData());
+      if (sName.IsEmpty())
+      {
+        // the cached node name is only determined once
+        // after that only a node rename (EditRole) will currently trigger a cache cleaning and thus a reevaluation
+        // this is to prevent excessive recomputation of the name, which is quite involved
+
+        DetermineNodeName(pObject, sName);
+
+        auto pMetaWrite = m_pSceneDocument->m_ObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
+        pMetaWrite->m_CachedNodeName = sName;
+        m_pSceneDocument->m_ObjectMetaData.EndModifyMetaData(0); // no need to broadcast this change
+      }
+
+      const QString sQtName = QString::fromUtf8(sName.GetData());
 
       if (bPrefab)
-        return QStringLiteral("[") + sName + QStringLiteral("]");
+        return QStringLiteral("[") + sQtName + QStringLiteral("]");
 
-      return sName;
+      return sQtName;
+    }
+    break;
+
+  case Qt::EditRole:
+    {
+      ezStringBuilder sName = pObject->GetTypeAccessor().GetValue(ezToolsReflectionUtils::CreatePropertyPath("Name")).ConvertTo<ezString>();
+
+      if (sName.IsEmpty())
+      {
+        auto pMeta = m_pSceneDocument->m_ObjectMetaData.BeginReadMetaData(pObject->GetGuid());
+        sName = pMeta->m_CachedNodeName;
+        m_pSceneDocument->m_ObjectMetaData.EndReadMetaData();
+      }
+
+      return QString::fromUtf8(sName.GetData());
     }
     break;
 
@@ -88,6 +195,30 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
 
   return ezQtDocumentTreeModel::data(index, role);
 }
+
+bool ezQtScenegraphModel::setData(const QModelIndex& index, const QVariant& value, int role)
+{
+  if (role == Qt::EditRole)
+  {
+    const ezDocumentObject* pObject = (const ezDocumentObject*)index.internalPointer();
+ 
+    auto pMetaWrite = m_pSceneDocument->m_ObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
+
+    const ezStringBuilder sNewValue = value.toString().toUtf8().data();
+    const ezStringBuilder sOldValue = pMetaWrite->m_CachedNodeName;
+
+    pMetaWrite->m_CachedNodeName.Clear();
+    m_pSceneDocument->m_ObjectMetaData.EndModifyMetaData(0); // no need to broadcast this change
+    
+    if (sOldValue == sNewValue && !sOldValue.IsEmpty())
+      return false;
+
+    return ezQtDocumentTreeModel::setData(index, value, role);
+  }
+
+  return false;
+}
+
 
 void ezQtScenegraphModel::ObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezSceneObjectMetaData>::EventData& e)
 {

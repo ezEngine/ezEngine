@@ -368,7 +368,7 @@ bool ezQtDocumentTreeModel::setData(const QModelIndex& index, const QVariant& va
     ezSetObjectPropertyCommand cmd;
     cmd.m_NewValue = value.toString().toUtf8().data();
     cmd.m_Object = pObject->GetGuid();
-    cmd.SetPropertyPath("Name"); /// \todo BLA
+    cmd.SetPropertyPath("Name");
 
     pHistory->AddCommand(cmd);
 
