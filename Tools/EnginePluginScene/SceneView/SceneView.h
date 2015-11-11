@@ -9,6 +9,8 @@ class ezViewRedrawMsgToEngine;
 class ezEngineProcessDocumentContext;
 class ezEditorEngineDocumentMsg;
 class ezEditorRenderPass;
+class ezSelectedObjectsExtractor;
+class ezSceneContext;
 
 struct ObjectData
 {
@@ -19,8 +21,7 @@ struct ObjectData
 class ezViewContext : public ezEngineProcessViewContext
 {
 public:
-  ezViewContext(ezEngineProcessDocumentContext* pContext);
-
+  ezViewContext(ezSceneContext* pSceneContext);
   ~ezViewContext();
 
   void SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);
@@ -37,6 +38,8 @@ public:
 
 private:
   void RenderPassEventHandler(const ezPickingRenderPass::Event& e);
+
+  ezSceneContext* m_pSceneContext;
 
   ezGALSwapChainHandle m_hPrimarySwapChain;
 
@@ -67,5 +70,6 @@ private:
 
   ezPickingRenderPass* m_pPickingRenderPass;
   ezEditorRenderPass* m_pEditorRenderPass;
+  ezSelectedObjectsExtractor* m_pSelectionExtractor;
 };
 

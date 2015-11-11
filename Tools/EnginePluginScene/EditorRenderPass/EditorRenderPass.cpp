@@ -12,33 +12,62 @@ ezEditorRenderPass::ezEditorRenderPass(const ezGALRenderTagetSetup& RenderTarget
 
 void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext)
 {
+  const char* szRenderMode = "ERM_DEFAULT";
+
   switch (m_ViewRenderMode)
   {
   case ezViewRenderMode::None:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_DEFAULT");
+    szRenderMode = "ERM_DEFAULT";
     break;
   case ezViewRenderMode::WireframeColor:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_WIREFRAME_COLOR");
+    szRenderMode = "ERM_WIREFRAME_COLOR";
     break;
   case ezViewRenderMode::WireframeMonochrome:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_WIREFRAME_MONOCHROME");
+    szRenderMode = "ERM_WIREFRAME_MONOCHROME";
     break;
   case ezViewRenderMode::TexCoordsUV0:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_TEXCOORDS_UV0");
+    szRenderMode = "ERM_TEXCOORDS_UV0";
     break;
   case ezViewRenderMode::VertexNormals:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_VERTEX_NORMALS");
+    szRenderMode = "ERM_VERTEX_NORMALS";
     break;
   case ezViewRenderMode::PixelDepth:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_PIXEL_DEPTH");
+    szRenderMode = "ERM_PIXEL_DEPTH";
     break;
   }
+
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", szRenderMode);
 
   // since typically the fov is tied to the height, we orient the gizmo size on that
   const float fGizmoScale = 128.0f / (float) renderViewContext.m_pViewData->m_ViewPortRect.height;
   ezRenderContext::GetDefaultInstance()->SetMaterialParameter("GizmoScale", fGizmoScale);
 
-  ezSimpleRenderPass::Execute(renderViewContext);
+  //ezSimpleRenderPass::Execute(renderViewContext);
+  {
+    ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
+
+    const ezRectFloat& viewPortRect = renderViewContext.m_pViewData->m_ViewPortRect;
+    pGALContext->SetViewport(viewPortRect.x, viewPortRect.y, viewPortRect.width, viewPortRect.height, 0.0f, 1.0f);
+
+    pGALContext->SetRenderTargetSetup(m_RenderTargetSetup);
+    pGALContext->Clear(ezColor(0.0f, 0.0f, 0.1f));
+
+    RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Opaque);
+    RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Masked);
+    RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Transparent);
+
+    if (m_ViewRenderMode == ezViewRenderMode::Default)
+    {
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_SELECTED");
+      RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Selection);
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", szRenderMode);
+    }
+
+    pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0); // only clear depth
+
+    RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Foreground);
+
+  }
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_DEFAULT");
 }

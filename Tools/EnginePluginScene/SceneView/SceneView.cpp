@@ -18,11 +18,13 @@
 #include <Core/World/GameObject.h>
 #include <Core/World/Component.h>
 #include <EnginePluginScene/EditorRenderPass/EditorRenderPass.h>
+#include <SceneContext/SceneContext.h>
 
 
 
-ezViewContext::ezViewContext(ezEngineProcessDocumentContext* pContext) : ezEngineProcessViewContext(pContext)
+ezViewContext::ezViewContext(ezSceneContext* pSceneContext) : ezEngineProcessViewContext(pSceneContext)
 {
+  m_pSceneContext = pSceneContext;
   m_pView = nullptr;
   m_pEditorRenderPass = nullptr;
   m_pPickingRenderPass = nullptr;
@@ -140,7 +142,14 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
     ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
     pRenderPipeline->AddPass(std::move(pEditorRenderPass));
     pRenderPipeline->AddPass(std::move(pPickingRenderPass));
+    
+    ezUniquePtr<ezSelectedObjectsExtractor> pExtractor = EZ_DEFAULT_NEW(ezSelectedObjectsExtractor);
+    m_pSelectionExtractor = pExtractor.Borrow();
+    m_pSelectionExtractor->m_pSelection = &m_pSceneContext->GetSelectionWithChildren();
+    
+    pRenderPipeline->AddExtractor(std::move(pExtractor));
     pRenderPipeline->AddExtractor(EZ_DEFAULT_NEW(ezVisibleObjectsExtractor));
+
     m_pView->SetRenderPipeline(std::move(pRenderPipeline));
 
     m_pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));

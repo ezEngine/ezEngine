@@ -6,5 +6,6 @@
 #define ERM_TEXCOORDS_UV0 3
 #define ERM_VERTEX_NORMALS 4
 #define ERM_PIXEL_DEPTH 5
+#define ERM_SELECTED 6
 
 

@@ -114,9 +114,13 @@ void ezSceneContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg)
 {
   m_Selection.Clear();
+  m_SelectionWithChildrenSet.Clear();
+  m_SelectionWithChildren.Clear();
 
   ezStringBuilder sSel = pMsg->m_sSelection;
   ezStringBuilder sGuid;
+
+  EZ_LOCK(m_pWorld->GetReadMarker());
 
   while (!sSel.IsEmpty())
   {
@@ -128,8 +132,31 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
     auto hObject = m_GameObjectMap.GetHandle(guid);
 
     if (!hObject.IsInvalidated())
+    {
       m_Selection.PushBack(hObject);
+
+      ezGameObject* pObject;
+      if (m_pWorld->TryGetObject(hObject, pObject))
+        InsertSelectedChildren(pObject);
+    }
+  }
+
+  for (auto it = m_SelectionWithChildrenSet.GetIterator(); it.IsValid(); ++it)
+  {
+    m_SelectionWithChildren.PushBack(it.Key());
   }
 }
 
+void ezSceneContext::InsertSelectedChildren(const ezGameObject* pObject)
+{
+  m_SelectionWithChildrenSet.Insert(pObject->GetHandle());
 
+  auto it = pObject->GetChildren();
+
+  while (it.IsValid())
+  {
+    InsertSelectedChildren(it);
+
+    it.Next();
+  }
+}

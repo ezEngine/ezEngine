@@ -15,6 +15,11 @@ EDITOR_RENDER_MODE
   WireFrame = true
 #endif
 
+#if (EDITOR_RENDER_MODE == ERM_SELECTED)
+  DepthTestFunc = CompareFunc_LessEqual
+  BlendingEnabled0 = true
+#endif
+
 [VERTEXSHADER]
 
 #include <Shaders/Materials/Materials.inc>
@@ -70,6 +75,9 @@ float4 main(PS_IN Input) : SV_Target
   
   return IdCol;
 #else
+  #if (EDITOR_RENDER_MODE == ERM_SELECTED)
+	return float4(0.2, 0.2, 1, 0.5);
+  #endif
 
   #if (EDITOR_RENDER_MODE == ERM_WIREFRAME_MONOCHROME)
     return float4(1, 1, 1, 1);

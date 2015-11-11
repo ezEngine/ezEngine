@@ -13,6 +13,9 @@ public:
 
   virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
+  const ezDeque<ezGameObjectHandle>& GetSelection() const { return m_Selection; }
+  const ezDeque<ezGameObjectHandle>& GetSelectionWithChildren() const { return m_SelectionWithChildren; }
+
 protected:
   virtual void OnInitialize() override;
   virtual void OnDeinitialize() {}
@@ -23,8 +26,11 @@ protected:
 private:
   void HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg);
   void ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds);
+  void InsertSelectedChildren(const ezGameObject* pObject);
 
   ezDeque<ezGameObjectHandle> m_Selection;
+  ezDeque<ezGameObjectHandle> m_SelectionWithChildren;
+  ezSet<ezGameObjectHandle> m_SelectionWithChildrenSet;
 };
 
 

@@ -13,7 +13,7 @@ public:
 
   virtual void Execute(const ezRenderViewContext& renderViewContext) override;
 
-private:
+protected:
 
   ezPassThroughNodePin m_PinColor;
   ezPassThroughNodePin m_PinDepthStencil;

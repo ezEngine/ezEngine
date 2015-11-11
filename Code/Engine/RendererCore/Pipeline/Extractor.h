@@ -18,7 +18,17 @@ class EZ_RENDERERCORE_DLL ezVisibleObjectsExtractor : public ezExtractor
 {
 public:
   ezVisibleObjectsExtractor() {}
-  ~ezVisibleObjectsExtractor() {}
 
   virtual void Extract(const ezView& view) override;
+};
+
+class EZ_RENDERERCORE_DLL ezSelectedObjectsExtractor : public ezExtractor
+{
+public:
+  ezSelectedObjectsExtractor();
+
+  virtual void Extract(const ezView& view) override;
+
+  ezRenderPassType m_OverridePassType;
+  const ezDeque<ezGameObjectHandle>* m_pSelection;
 };

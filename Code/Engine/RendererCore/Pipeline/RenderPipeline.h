@@ -106,6 +106,7 @@ public:
   static ezRenderPassType Masked;
   static ezRenderPassType Transparent;
   static ezRenderPassType Foreground;
+  static ezRenderPassType Selection;
 };
 
 #include <RendererCore/Pipeline/Implementation/RenderPipeline_inl.h>
