@@ -19,9 +19,26 @@ ezQtScenegraphModel::~ezQtScenegraphModel()
   m_pSceneDocument->m_ObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtScenegraphModel::ObjectMetaDataEventHandler, this));
 }
 
-void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, ezStringBuilder& out_Result) const
+void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result) const
 {
   // tries to find a good name for a node by looking at the attached components and their properties
+
+  if (prefabGuid.IsValid())
+  {
+    auto pInfo = ezAssetCurator::GetInstance()->GetAssetInfo(prefabGuid);
+
+    if (pInfo)
+    {
+      ezStringBuilder sPath = pInfo->m_sRelativePath;
+      sPath = sPath.GetFileName();
+
+      out_Result.Set("Prefab: ", sPath);
+    }
+    else
+      out_Result = "Prefab: Invalid Asset";
+
+    return;
+  }
 
   bool bHasChildren = false;
 
@@ -84,8 +101,6 @@ void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, ezS
     }
   }
 
-  /// \todo If it is a prefab, return the prefab asset name
-
   if (bHasChildren)
     out_Result = "Group";
   else
@@ -103,7 +118,7 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
       ezStringBuilder sName = pObject->GetTypeAccessor().GetValue(ezToolsReflectionUtils::CreatePropertyPath("Name")).ConvertTo<ezString>();
 
       auto pMeta = m_pSceneDocument->m_ObjectMetaData.BeginReadMetaData(pObject->GetGuid());
-      const bool bPrefab = pMeta->m_CreateFromPrefab.IsValid();
+      const ezUuid prefabGuid = pMeta->m_CreateFromPrefab;
 
       if (sName.IsEmpty())
         sName = pMeta->m_CachedNodeName;
@@ -116,7 +131,7 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
         // after that only a node rename (EditRole) will currently trigger a cache cleaning and thus a reevaluation
         // this is to prevent excessive recomputation of the name, which is quite involved
 
-        DetermineNodeName(pObject, sName);
+        DetermineNodeName(pObject, prefabGuid, sName);
 
         auto pMetaWrite = m_pSceneDocument->m_ObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
         pMetaWrite->m_CachedNodeName = sName;
@@ -125,7 +140,7 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
 
       const QString sQtName = QString::fromUtf8(sName.GetData());
 
-      if (bPrefab)
+      if (prefabGuid.IsValid())
         return QStringLiteral("[") + sQtName + QStringLiteral("]");
 
       return sQtName;
@@ -166,16 +181,23 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
     }
     break;
 
-  case Qt::FontRole: // probably should use something else for displaying hidden objects
+  case Qt::FontRole:
     {
       auto pMeta = m_pSceneDocument->m_ObjectMetaData.BeginReadMetaData(pObject->GetGuid());
       const bool bHidden = pMeta->m_bHidden;
       m_pSceneDocument->m_ObjectMetaData.EndReadMetaData();
 
-      if (bHidden)
+      const bool bHasName = !pObject->GetTypeAccessor().GetValue(ezToolsReflectionUtils::CreatePropertyPath("Name")).ConvertTo<ezString>().IsEmpty();
+
+      if (bHidden || bHasName)
       {
         QFont font;
-        font.setStrikeOut(true);
+
+        if (bHidden)
+          font.setStrikeOut(true);
+        if (bHasName)
+          font.setBold(true);
+
         return font;
       }
     }
@@ -183,12 +205,23 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
 
   case Qt::ForegroundRole:
     {
+      ezStringBuilder sName = pObject->GetTypeAccessor().GetValue(ezToolsReflectionUtils::CreatePropertyPath("Name")).ConvertTo<ezString>();
+      
       auto pMeta = m_pSceneDocument->m_ObjectMetaData.BeginReadMetaData(pObject->GetGuid());
       const bool bPrefab = pMeta->m_CreateFromPrefab.IsValid();
       m_pSceneDocument->m_ObjectMetaData.EndReadMetaData();
 
       if (bPrefab)
+      {
         return QColor(0, 128, 196);
+      }
+
+      if (sName.IsEmpty())
+      {
+        // uses an auto generated name
+        return QColor(128, 128, 128);
+      }
+
     }
     break;
   }
@@ -204,7 +237,8 @@ bool ezQtScenegraphModel::setData(const QModelIndex& index, const QVariant& valu
  
     auto pMetaWrite = m_pSceneDocument->m_ObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
 
-    const ezStringBuilder sNewValue = value.toString().toUtf8().data();
+    ezStringBuilder sNewValue = value.toString().toUtf8().data();
+
     const ezStringBuilder sOldValue = pMetaWrite->m_CachedNodeName;
 
     pMetaWrite->m_CachedNodeName.Clear();
@@ -213,7 +247,9 @@ bool ezQtScenegraphModel::setData(const QModelIndex& index, const QVariant& valu
     if (sOldValue == sNewValue && !sOldValue.IsEmpty())
       return false;
 
-    return ezQtDocumentTreeModel::setData(index, value, role);
+    sNewValue.Trim("[]{}() \t\r"); // forbid these
+
+    return ezQtDocumentTreeModel::setData(index, QString::fromUtf8(sNewValue.GetData()), role);
   }
 
   return false;

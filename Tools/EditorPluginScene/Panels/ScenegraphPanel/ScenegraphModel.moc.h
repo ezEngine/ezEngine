@@ -21,7 +21,7 @@ public:
 
 private:
   void ObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezSceneObjectMetaData>::EventData& e);
-  void DetermineNodeName(const ezDocumentObject* pObject, ezStringBuilder& out_Result) const;
+  void DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result) const;
 
   ezSceneDocument* m_pSceneDocument;
 };
