@@ -19,6 +19,7 @@ public:
   static ezActionDescriptorHandle s_hExportScene;
   static ezActionDescriptorHandle s_hRunScene;
   static ezActionDescriptorHandle s_hEnableWorldSimulation;
+  static ezActionDescriptorHandle s_hRenderSelectionOverlay;
 };
 
 ///
@@ -34,6 +35,7 @@ public:
     ExportScene,
     RunScene,
     SimulateWorld,
+    RenderSelectionOverlay,
   };
 
   ezSceneAction(const ezActionContext& context, const char* szName, ActionType type);

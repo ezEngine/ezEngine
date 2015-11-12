@@ -271,6 +271,7 @@ class EZ_EDITORFRAMEWORK_DLL ezSceneSettingsMsgToEngine : public ezEditorEngineD
 public:
 
   bool m_bSimulateWorld;
+  bool m_bRenderOverlay;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezQuerySelectionBBoxMsgToEngine : public ezEditorEngineDocumentMsg

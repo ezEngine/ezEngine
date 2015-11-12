@@ -34,7 +34,10 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezSceneSettingsMsgToEngine>())
   {
-    const bool bSimulate = static_cast<const ezSceneSettingsMsgToEngine*>(pMsg)->m_bSimulateWorld;
+     auto msg = static_cast<const ezSceneSettingsMsgToEngine*>(pMsg);
+
+    const bool bSimulate = msg->m_bSimulateWorld;
+    m_bRenderSelectionOverlay = msg->m_bRenderOverlay;
 
     if (bSimulate != m_pWorld->GetWorldSimulationEnabled())
     {
@@ -103,7 +106,7 @@ void ezSceneContext::OnInitialize()
 
 ezEngineProcessViewContext* ezSceneContext::CreateViewContext()
 {
-  return EZ_DEFAULT_NEW(ezViewContext, this);
+  return EZ_DEFAULT_NEW(ezSceneViewContext, this);
 }
 
 void ezSceneContext::DestroyViewContext(ezEngineProcessViewContext* pContext)

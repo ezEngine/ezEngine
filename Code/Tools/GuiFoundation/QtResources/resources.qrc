@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="GuiFoundation">
+    <file>Icons/Selection16.png</file>
     <file>Icons/SceneExport16.png</file>
     <file>Icons/ScenePlay16.png</file>
     <file>Icons/SceneRun16.png</file>

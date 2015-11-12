@@ -264,6 +264,19 @@ void ezSceneDocument::SetSimulateWorld(bool b)
   m_SceneEvents.Broadcast(e);
 }
 
+void ezSceneDocument::SetRenderSelectionOverlay(bool b)
+{
+  if (m_bRenderSelectionOverlay == b)
+    return;
+
+  m_bRenderSelectionOverlay = b;
+
+  SceneEvent e;
+  e.m_Type = SceneEvent::Type::RenderSelectionOverlayChanged;
+  m_SceneEvents.Broadcast(e);
+}
+
+
 const ezString& ezSceneDocument::GetCachedPrefabGraph(const ezUuid& AssetGuid)
 {
   if (!m_CachedPrefabGraphs.Contains(AssetGuid))

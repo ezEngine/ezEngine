@@ -22,7 +22,7 @@
 
 
 
-ezViewContext::ezViewContext(ezSceneContext* pSceneContext) : ezEngineProcessViewContext(pSceneContext)
+ezSceneViewContext::ezSceneViewContext(ezSceneContext* pSceneContext) : ezEngineProcessViewContext(pSceneContext)
 {
   m_pSceneContext = pSceneContext;
   m_pView = nullptr;
@@ -31,7 +31,7 @@ ezViewContext::ezViewContext(ezSceneContext* pSceneContext) : ezEngineProcessVie
   m_bUpdatePickingData = true;
 }
 
-ezViewContext::~ezViewContext()
+ezSceneViewContext::~ezSceneViewContext()
 {
   ezRenderLoop::DeleteView(m_pView);
 
@@ -41,7 +41,7 @@ ezViewContext::~ezViewContext()
   }
 }
 
-void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight)
+void ezSceneViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight)
 {
   EZ_LOG_BLOCK("ezViewContext::SetupRenderTarget");
 
@@ -132,7 +132,7 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
 
 
     ezUniquePtr<ezPickingRenderPass> pPickingRenderPass = EZ_DEFAULT_NEW(ezPickingRenderPass, PickingRenderTargetSetup);
-    pPickingRenderPass->m_Events.AddEventHandler(ezMakeDelegate(&ezViewContext::RenderPassEventHandler, this));
+    pPickingRenderPass->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneViewContext::RenderPassEventHandler, this));
 
     ezUniquePtr<ezEditorRenderPass> pEditorRenderPass = EZ_DEFAULT_NEW(ezEditorRenderPass, BackBufferRenderTargetSetup, "EditorRenderPass");
 
@@ -166,7 +166,7 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
   }
 }
 
-void ezViewContext::Redraw()
+void ezSceneViewContext::Redraw()
 {
   ezTag tagNoOrtho;
   ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode", &tagNoOrtho);
@@ -184,7 +184,7 @@ void ezViewContext::Redraw()
   ezRenderLoop::AddMainView(m_pView);
 }
 
-void ezViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
+void ezSceneViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
   m_Camera.SetCameraMode((ezCamera::CameraMode) pMsg->m_iCameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
 
@@ -193,11 +193,12 @@ void ezViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   if (!m_pEditorRenderPass)
     return;
 
+  m_pEditorRenderPass->m_bRenderSelectionOverlay = m_pSceneContext->GetRenderSelectionOverlay();
   m_pEditorRenderPass->m_ViewRenderMode = static_cast<ezViewRenderMode::Enum>(pMsg->m_uiRenderMode);
   m_pPickingRenderPass->m_ViewRenderMode = static_cast<ezViewRenderMode::Enum>(pMsg->m_uiRenderMode);
 }
 
-void ezViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
+void ezSceneViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
 {
   ezViewPickingResultMsgToEditor res;
 
@@ -275,14 +276,14 @@ void ezViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
   SendViewMessage(&res);
 }
 
-void ezViewContext::SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg)
+void ezSceneViewContext::SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg)
 {
   pViewMsg->m_DocumentGuid = GetDocumentContext()->GetDocumentGuid();
 
   GetDocumentContext()->SendProcessMessage(pViewMsg);
 }
 
-void ezViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
+void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 {
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
   {
@@ -311,7 +312,7 @@ void ezViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 
 }
 
-void ezViewContext::RenderPassEventHandler(const ezPickingRenderPass::Event& e)
+void ezSceneViewContext::RenderPassEventHandler(const ezPickingRenderPass::Event& e)
 {
   if (e.m_Type == ezPickingRenderPass::Event::Type::AfterOpaque)
   {

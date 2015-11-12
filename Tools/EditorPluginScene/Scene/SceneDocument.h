@@ -110,6 +110,7 @@ public:
       SnapEachSelectedObjectToGrid,
       ExportScene,
       SimulateModeChanged,
+      RenderSelectionOverlayChanged,
     };
 
     Type m_Type;
@@ -124,6 +125,9 @@ public:
 
   bool GetSimulateWorld() const { return m_bSimulateWorld; }
   void SetSimulateWorld(bool b);
+
+  bool GetRenderSelectionOverlay() const { return m_bRenderSelectionOverlay; }
+  void SetRenderSelectionOverlay( bool b );
 
 protected:
   virtual void InitializeAfterLoading() override;
@@ -168,6 +172,7 @@ private:
   bool m_bIsPrefab;
   bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
   bool m_bSimulateWorld;
+  bool m_bRenderSelectionOverlay;
 
   ActiveGizmo m_ActiveGizmo;
   ezObjectPickingResult m_PickingResult;

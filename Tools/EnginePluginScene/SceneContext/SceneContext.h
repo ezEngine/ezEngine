@@ -15,6 +15,7 @@ public:
 
   const ezDeque<ezGameObjectHandle>& GetSelection() const { return m_Selection; }
   const ezDeque<ezGameObjectHandle>& GetSelectionWithChildren() const { return m_SelectionWithChildren; }
+  bool GetRenderSelectionOverlay() const { return m_bRenderSelectionOverlay; }
 
 protected:
   virtual void OnInitialize() override;
@@ -28,6 +29,7 @@ private:
   void ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds);
   void InsertSelectedChildren(const ezGameObject* pObject);
 
+  bool m_bRenderSelectionOverlay;
   ezDeque<ezGameObjectHandle> m_Selection;
   ezDeque<ezGameObjectHandle> m_SelectionWithChildren;
   ezSet<ezGameObjectHandle> m_SelectionWithChildrenSet;

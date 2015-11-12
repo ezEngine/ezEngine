@@ -18,11 +18,11 @@ struct ObjectData
   float m_PickingID[4];
 };
 
-class ezViewContext : public ezEngineProcessViewContext
+class ezSceneViewContext : public ezEngineProcessViewContext
 {
 public:
-  ezViewContext(ezSceneContext* pSceneContext);
-  ~ezViewContext();
+  ezSceneViewContext(ezSceneContext* pSceneContext);
+  ~ezSceneViewContext();
 
   void SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);
 

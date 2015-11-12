@@ -13,6 +13,7 @@ ezActionDescriptorHandle ezSceneActions::s_hUpdatePrefabs;
 ezActionDescriptorHandle ezSceneActions::s_hExportScene;
 ezActionDescriptorHandle ezSceneActions::s_hRunScene;
 ezActionDescriptorHandle ezSceneActions::s_hEnableWorldSimulation;
+ezActionDescriptorHandle ezSceneActions::s_hRenderSelectionOverlay;
 
 void ezSceneActions::RegisterActions()
 {
@@ -21,6 +22,7 @@ void ezSceneActions::RegisterActions()
   s_hExportScene = EZ_REGISTER_ACTION_1("ActionExportScene", ezActionScope::Document, "Scene", "Ctrl+E", ezSceneAction, ezSceneAction::ActionType::ExportScene);
   s_hRunScene = EZ_REGISTER_ACTION_1("ActionRunScene", ezActionScope::Document, "Scene", "Ctrl+R", ezSceneAction, ezSceneAction::ActionType::RunScene);
   s_hEnableWorldSimulation = EZ_REGISTER_ACTION_1("ActionSimulateWorld", ezActionScope::Document, "Scene", "Ctrl+F5", ezSceneAction, ezSceneAction::ActionType::SimulateWorld);
+  s_hRenderSelectionOverlay = EZ_REGISTER_ACTION_1( "ActionRenderSelectionOverlay", ezActionScope::Document, "Scene", "Ctrl+M", ezSceneAction, ezSceneAction::ActionType::RenderSelectionOverlay);
 }
 
 void ezSceneActions::UnregisterActions()
@@ -30,6 +32,7 @@ void ezSceneActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hExportScene);
   ezActionManager::UnregisterAction(s_hRunScene);
   ezActionManager::UnregisterAction(s_hEnableWorldSimulation);
+  ezActionManager::UnregisterAction(s_hRenderSelectionOverlay);
 }
 
 void ezSceneActions::MapActions(const char* szMapping, const char* szPath, bool bToolbar)
@@ -45,6 +48,7 @@ void ezSceneActions::MapActions(const char* szMapping, const char* szPath, bool 
     pMap->MapAction(s_hSceneCategory, szPath, 7.0f);
 
     pMap->MapAction(s_hEnableWorldSimulation, sSubPath, 1.0f);
+    pMap->MapAction(s_hRenderSelectionOverlay, sSubPath, 2.0f);
   }
   else
   {
@@ -54,6 +58,7 @@ void ezSceneActions::MapActions(const char* szMapping, const char* szPath, bool 
     pMap->MapAction(s_hExportScene, sSubPath, 2.0f);
     pMap->MapAction(s_hRunScene, sSubPath, 3.0f);
     pMap->MapAction(s_hEnableWorldSimulation, sSubPath, 4.0f);
+	pMap->MapAction(s_hRenderSelectionOverlay, sSubPath, 4.0f);
   }
 }
 
@@ -78,6 +83,12 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
   case ActionType::SimulateWorld:
     SetCheckable(true);
     SetIconPath(":/GuiFoundation/Icons/ScenePlay16.png");
+    SetChecked(m_pSceneDocument->GetSimulateWorld());
+    break;
+  case ActionType::RenderSelectionOverlay:
+    SetCheckable(true);
+    SetIconPath(":/GuiFoundation/Icons/Selection16.png");
+    SetChecked(m_pSceneDocument->GetRenderSelectionOverlay());
     break;
   }
 }
@@ -113,6 +124,12 @@ void ezSceneAction::Execute(const ezVariant& value)
       m_pSceneDocument->SetSimulateWorld(!m_pSceneDocument->GetSimulateWorld());
     }
     return;
+
+  case ActionType::RenderSelectionOverlay:
+    {
+      m_pSceneDocument->SetRenderSelectionOverlay(!m_pSceneDocument->GetRenderSelectionOverlay());
+    }
+    return;
   }
 }
 
@@ -128,7 +145,15 @@ void ezSceneAction::SceneEventHandler(const ezSceneDocument::SceneEvent& e)
       }
     }
     break;
-  }
 
+  case ezSceneDocument::SceneEvent::Type::RenderSelectionOverlayChanged:
+    {
+      if (m_Type == ActionType::RenderSelectionOverlay)
+      {
+        SetChecked(m_pSceneDocument->GetRenderSelectionOverlay());
+      }
+    }
+    break;
+  }
 }
 
