@@ -16,6 +16,7 @@ public:
   double value() const;
 
 private:
+  mutable double m_fDisplayedValue;
   mutable QString m_sDisplayedText;
   mutable bool m_bInvalid;
 };

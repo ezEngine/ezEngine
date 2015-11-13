@@ -57,7 +57,7 @@ void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext)
     RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Masked);
     RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Transparent);
 
-    if (m_ViewRenderMode == ezViewRenderMode::Default && m_bRenderSelectionOverlay)
+    if (/*m_ViewRenderMode == ezViewRenderMode::Default && */m_bRenderSelectionOverlay)
     {
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_SELECTED");
       RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Selection);

@@ -1,5 +1,6 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
+#include <Foundation/Math/Math.h>
 
 inline QDoubleSpinBoxLessAnnoying::QDoubleSpinBoxLessAnnoying(QWidget * pParent) : QDoubleSpinBox(pParent)
 {
@@ -8,13 +9,14 @@ inline QDoubleSpinBoxLessAnnoying::QDoubleSpinBoxLessAnnoying(QWidget * pParent)
 
 QString QDoubleSpinBoxLessAnnoying::textFromValue(double val) const
 {
-  if (hasFocus())
+  if (hasFocus() && val == m_fDisplayedValue)
   {
     return m_sDisplayedText;
   }
 
   if (val == 0.0)
   {
+    m_fDisplayedValue = 0;
     m_sDisplayedText = "0";
     return QLatin1String("0");
   }
@@ -34,6 +36,7 @@ QString QDoubleSpinBoxLessAnnoying::textFromValue(double val) const
       sText.insert(0, '0');
   }
 
+  m_fDisplayedValue = val;
   m_sDisplayedText = sText;
   return sText;
 }
@@ -46,23 +49,27 @@ double QDoubleSpinBoxLessAnnoying::valueFromText(const QString& text) const
     m_bInvalid = false;
   }
 
-  if (hasFocus())
-  {
-    m_sDisplayedText = text;
-  }
-
   QString sFixedText = text;
 
   if (sFixedText.contains(','))
     sFixedText.replace(',', ".");
 
-  return QDoubleSpinBox::valueFromText(sFixedText);
+  const double val = QDoubleSpinBox::valueFromText(sFixedText);
+
+  if (hasFocus())
+  {
+    m_sDisplayedText = text;
+    m_fDisplayedValue = val;
+  }
+
+  return val;
 }
 
 void QDoubleSpinBoxLessAnnoying::setValueInvalid()
 {
   m_bInvalid = true;
   m_sDisplayedText = " ";
+  m_fDisplayedValue = ezMath::BasicType<float>::GetNaN();
   setSpecialValueText(QStringLiteral(" "));
   setValue(minimum());
 }
