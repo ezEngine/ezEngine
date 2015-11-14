@@ -19,6 +19,11 @@
 
 void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV, const char* szLevelFile)
 {
+  EZ_LOG_BLOCK("CreateGameLevelAndRenderPipeline", szLevelFile);
+
+  m_pScene = EZ_DEFAULT_NEW(ezScene);
+  m_pScene->Initialize();
+
   m_pWorld = EZ_DEFAULT_NEW(ezWorld, "Level");
   EZ_LOCK(m_pWorld->GetWriteMarker());
 
@@ -54,7 +59,7 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBa
     }
     else
     {
-      ezLog::Error("Could not read file '%s'", szLevelFile);
+      ezLog::Error("Could not read level '%s'", szLevelFile);
     }
   }
 
@@ -87,7 +92,10 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBa
 
 void GameState::DestroyGameLevel()
 {
+  m_pScene->Deinitialize();
+
   EZ_DEFAULT_DELETE(m_pWorld);
+  EZ_DEFAULT_DELETE(m_pScene);
 }
 
 

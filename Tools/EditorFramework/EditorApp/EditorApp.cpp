@@ -406,7 +406,7 @@ void ezQtEditorApp::DocumentManagerRequestHandler(ezDocumentManager::Request& r)
       {
         // if no project is open yet, try to open the corresponding one
 
-        ezString sProjectPath = ezToolsProject::FindProjectForDocument(r.m_sDocumentPath);
+        ezStringBuilder sProjectPath = ezToolsProject::FindProjectDirectoryForDocument(r.m_sDocumentPath);
 
         // if no project could be located, just reject the request
         if (sProjectPath.IsEmpty())
@@ -416,6 +416,9 @@ void ezQtEditorApp::DocumentManagerRequestHandler(ezDocumentManager::Request& r)
         }
         else
         {
+          // append the project file
+          sProjectPath.AppendPath("ezProject");
+
           // if a project could be found, try to open it
           ezStatus res = ezToolsProject::OpenProject(sProjectPath);
 

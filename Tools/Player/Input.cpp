@@ -77,6 +77,8 @@ void GameState::BeforeWorldUpdate()
     m_Camera.RotateLocally(ezAngle(), ezAngle::Degree(-fRotateSpeed * fInput), ezAngle());
   if (ezInputManager::GetInputActionState("Game", "TurnDown", &fInput) != ezKeyState::Up)
     m_Camera.RotateLocally(ezAngle(), ezAngle::Degree(fRotateSpeed * fInput), ezAngle());
+
+  m_pScene->Update();
 }
 
 

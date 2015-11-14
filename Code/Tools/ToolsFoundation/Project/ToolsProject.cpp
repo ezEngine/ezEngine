@@ -185,9 +185,8 @@ bool ezToolsProject::IsDocumentInAllowedRoot(const char* szDocumentPath, ezStrin
   return false;
 }
 
-ezString ezToolsProject::FindProjectForDocument(const char* szDocumentPath)
+ezString ezToolsProject::FindProjectDirectoryForDocument(const char* szDocumentPath)
 {
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
   ezStringBuilder sPath = szDocumentPath;
   sPath.PathParentDirectory();
 
@@ -199,11 +198,10 @@ ezString ezToolsProject::FindProjectForDocument(const char* szDocumentPath)
     sTemp.AppendPath("ezProject");
 
     if (ezOSFile::ExistsFile(sTemp))
-      return sTemp;
+      return sPath;
 
     sPath.PathParentDirectory();
   }
-#endif
 
   return "";
 }

@@ -41,7 +41,7 @@ ezResult ezApplicationPluginConfig::Save()
 
 void ezApplicationPluginConfig::Load()
 {
-  EZ_LOG_BLOCK("ezApplicationFileSystemConfig::Load()");
+  EZ_LOG_BLOCK("ezApplicationPluginConfig::Load()");
 
   m_Plugins.Clear();
 

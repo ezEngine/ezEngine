@@ -8,7 +8,10 @@ ezString ezApplicationConfig::s_sProjectDir;
 
 void ezApplicationConfig::SetProjectDirectory(const char* szProjectDir)
 {
-  s_sProjectDir = szProjectDir;
+  ezStringBuilder s = szProjectDir;
+  s.MakeCleanPath();
+
+  s_sProjectDir = s;
 }
 
 const char* ezApplicationConfig::GetProjectDirectory()

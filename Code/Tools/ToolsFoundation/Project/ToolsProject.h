@@ -47,7 +47,7 @@ public:
 
   const ezString& GetProjectPath() const { return m_sProjectPath; }
 
-  static ezString FindProjectForDocument(const char* szDocumentPath);
+  static ezString FindProjectDirectoryForDocument(const char* szDocumentPath);
 
   bool IsDocumentInAllowedRoot(const char* szDocumentPath, ezString* out_RelativePath = nullptr) const;
 

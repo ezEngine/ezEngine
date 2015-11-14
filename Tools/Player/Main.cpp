@@ -22,6 +22,7 @@ GameState::GameState()
   m_pWindow = nullptr;
   m_pRenderPipeline = nullptr;
   m_pWorld = nullptr;
+  m_pScene = nullptr;
   m_pView = nullptr;
 }
 
@@ -29,20 +30,19 @@ void GameState::Activate()
 {
   EZ_LOG_BLOCK("GameState::Activate");
 
-  ezStringBuilder sBaseDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sBaseDir.AppendPath("../../Shared/Data/");
+  const ezString sSceneFile = ezCommandLineUtils::GetInstance()->GetStringOption("-scene", 0, "");
+  EZ_ASSERT_ALWAYS(!sSceneFile.IsEmpty(), "Scene file has not been specified. Use the -scene command line followed by a full path to the ezBinaryScene file");
 
-  ezStringBuilder sSharedDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sSharedDir.AppendPath("../../Shared/FreeContent/");
-
-  ezStringBuilder sProjectDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sProjectDir.AppendPath("../../Shared/Samples/SimpleMeshRenderer");
 
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
   ezFileSystem::AddDataDirectory("");
-  ezFileSystem::AddDataDirectory(sBaseDir.GetData(), ezFileSystem::ReadOnly, "Base");
-  ezFileSystem::AddDataDirectory(sSharedDir.GetData(), ezFileSystem::ReadOnly, "Shared");
-  ezFileSystem::AddDataDirectory(sProjectDir.GetData(), ezFileSystem::AllowWrites, "Project");
+
+  const ezString sProjectDir = GetApplication()->FindProjectDirectoryForScene(sSceneFile);
+
+  if (sProjectDir.IsEmpty())
+  {
+    ezLog::Error("No project directory could be found for scene file '%s'", sSceneFile.GetData());
+  }
 
   GetApplication()->SetupProject(sProjectDir);
 
@@ -52,7 +52,7 @@ void GameState::Activate()
   // Map the input keys to actions
   SetupInput();
 
-  const ezString sSceneFile = ezCommandLineUtils::GetInstance()->GetStringOption("-scene", 0, "");
+  
 
   const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(hSwapChain);
   CreateGameLevelAndRenderPipeline(pSwapChain->GetBackBufferRenderTargetView(), pSwapChain->GetDepthStencilTargetView(), sSceneFile);

@@ -39,6 +39,10 @@ public:
     return m_bWasQuitRequested;
   }
 
+  /// \brief Checks all parent directories of the scene file and tries to find an 'ezProject' file which marks the project directory.
+  /// Returns an empty string, if no such directory could be found.
+  ezString FindProjectDirectoryForScene(const char* szScene) const;
+
   void SetupProject(const char* szProjectDir);
 
 protected:

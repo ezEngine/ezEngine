@@ -28,6 +28,7 @@
   #include <RendererGL/Device/DeviceGL.h>
   typedef ezGALDeviceGL ezGALDeviceDefault;
 #endif
+#include <Core/Application/Config/PluginConfig.h>
 
 namespace
 {
@@ -104,6 +105,28 @@ void ezGameApplication::RequestQuit()
   m_bWasQuitRequested = true;
 }
 
+
+ezString ezGameApplication::FindProjectDirectoryForScene(const char* szScene) const
+{
+  ezStringBuilder sPath = szScene;
+  sPath.PathParentDirectory();
+
+  ezStringBuilder sTemp;
+
+  while (!sPath.IsEmpty())
+  {
+    sTemp = sPath;
+    sTemp.AppendPath("ezProject");
+
+    if (ezOSFile::ExistsFile(sTemp))
+      return sPath;
+
+    sPath.PathParentDirectory();
+  }
+
+  return "";
+}
+
 void ezGameApplication::SetupProject(const char* szProjectDir)
 {
   ezApplicationConfig::SetProjectDirectory(szProjectDir);
@@ -113,6 +136,13 @@ void ezGameApplication::SetupProject(const char* szProjectDir)
     ezApplicationFileSystemConfig appFileSystemConfig;
     appFileSystemConfig.Load();
     appFileSystemConfig.Apply();
+  }
+
+  // load plugins
+  {
+    ezApplicationPluginConfig appPluginConfig;
+    appPluginConfig.Load();
+    appPluginConfig.Apply();
   }
 }
 
@@ -139,7 +169,8 @@ void ezGameApplication::AfterEngineInit()
     ezGALDeviceCreationDescription DeviceInit;
     DeviceInit.m_bCreatePrimarySwapChain = false;
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    DeviceInit.m_bDebugDevice = true;
+    /// \todo Debug Device fails on Windows 10 (TH2 1511) on nVidia, not sure why
+    //DeviceInit.m_bDebugDevice = true;
 #endif
 
     ezGALDevice* pDevice = EZ_DEFAULT_NEW(ezGALDeviceDefault, DeviceInit);
