@@ -109,8 +109,6 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pNewObject->m_pWorld = this;
   pNewObject->m_ParentIndex = uiParentIndex;
 
-  // fix links
-  LinkToParent(pNewObject);
 
   pNewObject->m_uiHierarchyLevel = uiHierarchyLevel;
   pNewObject->m_uiTransformationDataIndex = uiTransformationDataIndex;
@@ -137,6 +135,9 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
 
   // link the transformation data to the game object
   pNewObject->m_pTransformationData = pTransformationData;
+
+  // fix links
+  LinkToParent(pNewObject);
 
   out_pObject = pNewObject;
   return newId;
@@ -284,6 +285,7 @@ void ezWorld::Update()
 
 void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent)
 {
+  EZ_ASSERT_DEV(pObject != pNewParent, "Object can't be its own parent!");
   CheckForWriteAccess();
 
   if (GetObjectUnchecked(pObject->m_ParentIndex) == pNewParent)
@@ -322,8 +324,7 @@ void ezWorld::LinkToParent(ezGameObject* pObject)
     pParentObject->m_LastChildIndex = uiIndex;
     pParentObject->m_ChildCount++;
 
-    // this crashes, because pObject->m_pTransformationData can apparently be null
-    //pObject->m_pTransformationData->m_pParentData = pParentObject->m_pTransformationData;
+    pObject->m_pTransformationData->m_pParentData = pParentObject->m_pTransformationData;
   }
 }
 
@@ -654,7 +655,6 @@ void ezWorld::PatchHierarchyData(ezGameObject* pObject)
   {
     ezGameObject::TransformationData* pNewTransformationData = nullptr;
     ezUInt32 uiTransformationDataIndex = m_Data.CreateTransformationData(pObject->m_Flags, uiNewHierarchyLevel, pNewTransformationData);
-
     pNewTransformationData->m_pObject = pObject;
     pNewTransformationData->m_localPosition = pObject->m_pTransformationData->m_localPosition;
     pNewTransformationData->m_localRotation = pObject->m_pTransformationData->m_localRotation;
@@ -664,21 +664,25 @@ void ezWorld::PatchHierarchyData(ezGameObject* pObject)
     pNewTransformationData->m_localBounds = pObject->m_pTransformationData->m_localBounds;
     pNewTransformationData->m_globalBounds = pObject->m_pTransformationData->m_globalBounds;
 
-    m_Data.DeleteTransformationData(pObject->m_Flags, pObject->m_uiHierarchyLevel,
-                                    pObject->m_uiTransformationDataIndex);
+    ezUInt32 m_uiOldHierarchyLevel = pObject->m_uiHierarchyLevel;
+    ezUInt32 uiOldTransformationDataIndex = pObject->m_uiTransformationDataIndex;
 
     pObject->m_uiHierarchyLevel = uiNewHierarchyLevel;
     pObject->m_uiTransformationDataIndex = uiTransformationDataIndex;
     pObject->m_pTransformationData = pNewTransformationData;
+
+    m_Data.DeleteTransformationData(pObject->m_Flags, m_uiOldHierarchyLevel, uiOldTransformationDataIndex);
   }
 
   pObject->m_pTransformationData->m_pParentData = pParent != nullptr ? pParent->m_pTransformationData : nullptr;
+
   pObject->SetGlobalTransform(pObject->m_pTransformationData->m_globalTransform);
 
   for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
   {
     PatchHierarchyData(it);
   }
+  EZ_ASSERT_DEBUG(pObject->m_pTransformationData != pObject->m_pTransformationData->m_pParentData, "Hierarchy corrupted!");
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_World);
