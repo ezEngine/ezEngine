@@ -28,9 +28,12 @@ include_directories ("${EZ_PHYSX_DIR}/Include")
 SET (LINK_LIBRARIES 
   Foundation
   Core
-  PhysX3ExtensionsCHECKED
-  PhysXVisualDebuggerSDKCHECKED
-  PxTaskCHECKED
+  # debug PhysX3ExtensionsDEBUG
+  debug PhysXVisualDebuggerSDKDEBUG
+  # debug PxTaskDEBUG
+  # optimized PhysX3ExtensionsCHECKED
+  optimized PhysXVisualDebuggerSDKCHECKED
+  # optimized PxTaskCHECKED
 )
 
 if (${BUILDSYSTEM_PLATFORM_64BIT})
@@ -38,10 +41,14 @@ if (${BUILDSYSTEM_PLATFORM_64BIT})
 
   SET (LINK_LIBRARIES 
     ${LINK_LIBRARIES}
-    PhysX3CHECKED_x64
-    PhysX3CommonCHECKED_x64
-    PhysX3CookingCHECKED_x64
-    PhysX3CharacterKinematicCHECKED_x64
+    debug PhysX3DEBUG_x64
+    debug PhysX3CommonDEBUG_x64
+    debug PhysX3CookingDEBUG_x64
+    debug PhysX3CharacterKinematicDEBUG_x64
+    optimized PhysX3CHECKED_x64
+    optimized PhysX3CommonCHECKED_x64
+    optimized PhysX3CookingCHECKED_x64
+    optimized PhysX3CharacterKinematicCHECKED_x64
   )
 
 else()
@@ -49,10 +56,14 @@ else()
 
   SET (LINK_LIBRARIES 
     ${LINK_LIBRARIES}
-    PhysX3CHECKED_x86
-    PhysX3CommonCHECKED_x86
-    PhysX3CookingCHECKED_x86
-    PhysX3CharacterKinematicCHECKED_x86
+    debug PhysX3DEBUG_x86
+    debug PhysX3CommonDEBUG_x86
+    debug PhysX3CookingDEBUG_x86
+    debug PhysX3CharacterKinematicDEBUG_x86
+    optimized PhysX3CHECKED_x86
+    optimized PhysX3CommonCHECKED_x86
+    optimized PhysX3CookingCHECKED_x86
+    optimized PhysX3CharacterKinematicCHECKED_x86
   )
 endif()
 

@@ -93,7 +93,7 @@ namespace
   ezInt32 TestComponent::s_iAttachCounter = 0;
   bool TestComponent::s_bGOInactiveCheck = false;
 
-  EZ_BEGIN_COMPONENT_TYPE(TestComponent, 1, TestComponentManager);
+  EZ_BEGIN_COMPONENT_TYPE(TestComponent, 1);
   EZ_END_COMPONENT_TYPE();
 
   void TestComponentManager::Update(ezUInt32 uiStartIndex, ezUInt32 uiCount)

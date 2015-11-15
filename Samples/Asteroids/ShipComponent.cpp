@@ -5,7 +5,7 @@
 #include <InputXBox360/InputDeviceXBox.h>
 #include <Foundation/Utilities/Stats.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ShipComponent, 1, ShipComponentManager);
+EZ_BEGIN_COMPONENT_TYPE(ShipComponent, 1);
 EZ_END_COMPONENT_TYPE();
 
 ShipComponent::ShipComponent()

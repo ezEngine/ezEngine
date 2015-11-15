@@ -50,7 +50,7 @@ namespace
     ezInt32 m_iSomeData2;
   };
 
-  EZ_BEGIN_COMPONENT_TYPE(TestComponentMsg, 1, TestComponentMsgManager);
+  EZ_BEGIN_COMPONENT_TYPE(TestComponentMsg, 1);
     EZ_BEGIN_MESSAGEHANDLERS
       EZ_MESSAGE_HANDLER(TestMessage, OnTestMessage),
       EZ_MESSAGE_HANDLER(TestMessage2, OnTestMessage2)
