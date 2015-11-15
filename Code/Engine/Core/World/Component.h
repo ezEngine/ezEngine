@@ -118,12 +118,13 @@ private:
 #define EZ_DECLARE_COMPONENT_TYPE(componentType, baseType, managerType) \
   EZ_ADD_DYNAMIC_REFLECTION(componentType, baseType); \
   public: \
+    typedef managerType ComponentManagerType; \
     ezComponentHandle GetHandle() const; \
-    managerType* GetManager() const; \
+    ComponentManagerType* GetManager() const; \
     EZ_FORCE_INLINE ezWorld* GetWorld() const { return GetManager()->GetWorld(); } \
     virtual ezUInt16 GetTypeId() const override { return TYPE_ID; } \
     static EZ_FORCE_INLINE ezUInt16 TypeId() { return TYPE_ID; } \
-    static ezComponentHandle CreateComponent(ezWorld* pWorld, componentType*& pComponent) { return pWorld->GetComponentManager<managerType>()->CreateComponent(pComponent); } \
+    static ezComponentHandle CreateComponent(ezWorld* pWorld, componentType*& pComponent) { return pWorld->GetComponentManager<ComponentManagerType>()->CreateComponent(pComponent); } \
   private: \
     friend managerType; \
     static ezUInt16 TYPE_ID;
@@ -131,10 +132,10 @@ private:
 /// \brief Implements rtti and component specific functionality. Add this macro to a cpp file.
 ///
 /// \see EZ_BEGIN_DYNAMIC_REFLECTED_TYPE
-#define EZ_BEGIN_COMPONENT_TYPE(componentType, version, managerType) \
+#define EZ_BEGIN_COMPONENT_TYPE(componentType, version) \
   ezUInt16 componentType::TYPE_ID = ezComponent::GetNextTypeId(); \
   ezComponentHandle componentType::GetHandle() const { return ezComponent::GetHandle<componentType>(); } \
-  managerType* componentType::GetManager() const { return static_cast<managerType*>(ezComponent::GetManager()); } \
+  componentType::ComponentManagerType* componentType::GetManager() const { return static_cast<componentType::ComponentManagerType*>(ezComponent::GetManager()); } \
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(componentType, version, ezRTTINoAllocator);
 
 /// \brief Ends the component implementation code block that was opened with EZ_BEGIN_COMPONENT_TYPE.

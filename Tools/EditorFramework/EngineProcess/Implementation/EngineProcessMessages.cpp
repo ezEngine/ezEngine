@@ -28,7 +28,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetupProjectMsgToEngine, 1, ezRTTIDefaultAllocator<ezSetupProjectMsgToEngine> );
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("ProjectDir", m_sProjectDir),
-    EZ_MEMBER_PROPERTY("Config", m_Config),
+    EZ_MEMBER_PROPERTY("FileSystemConfig", m_FileSystemConfig),
+    EZ_MEMBER_PROPERTY("PluginConfig", m_PluginConfig),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

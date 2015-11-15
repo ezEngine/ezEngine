@@ -1,4 +1,4 @@
-#include <PhysX/PCH.h>
+#include <PhysXPlugin/PCH.h>
 #include <Core/PCH.h>
 
 EZ_STATICLINK_LIBRARY(PhysX)

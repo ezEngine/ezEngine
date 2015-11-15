@@ -1,10 +1,10 @@
 #pragma once
 
-#include <PhysX/Basics.h>
+#include <PhysXPlugin/Basics.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Core/Scene/SceneModule.h>
 
-class EZ_PHYSX_DLL ezPhysXSceneModule : public ezSceneModule
+class EZ_PHYSXPLUGIN_DLL ezPhysXSceneModule : public ezSceneModule
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezPhysXSceneModule, ezSceneModule);
 
@@ -21,4 +21,4 @@ protected:
 };
 
 
-EZ_DYNAMIC_PLUGIN_DECLARATION(EZ_PHYSX_DLL, ezPhysXPlugin);
+EZ_DYNAMIC_PLUGIN_DECLARATION(EZ_PHYSXPLUGIN_DLL, ezPhysXPlugin);

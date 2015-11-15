@@ -20,3 +20,7 @@ public:
 };
 
 
+typedef ezApplicationPluginConfig::PluginConfig ezApplicationPluginConfig_PluginConfig;
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezApplicationPluginConfig);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezApplicationPluginConfig_PluginConfig);

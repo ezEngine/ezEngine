@@ -137,7 +137,8 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
     // Send project setup.
     ezSetupProjectMsgToEngine msg;
     msg.m_sProjectDir = m_FileSystemConfig.GetProjectDirectory();
-    msg.m_Config = m_FileSystemConfig;
+    msg.m_FileSystemConfig = m_FileSystemConfig;
+    msg.m_PluginConfig = m_PluginConfig;
     ezEditorEngineProcessConnection::GetInstance()->SendMessage(&msg);
   }
   if (ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>(), ezTime()).Failed())

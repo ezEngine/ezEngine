@@ -146,6 +146,8 @@ private:
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
 
   void ReadPluginsToBeLoaded();
+  void ReadEnginePluginConfig();
+
   void SetupDataDirectories();
   void CreatePanels();
 

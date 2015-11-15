@@ -13,6 +13,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Core/Scene/Scene.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -232,12 +233,12 @@ void ezEngineProcessDocumentContext::DestroyDocumentContext(ezUuid guid)
 
 ezEngineProcessDocumentContext::ezEngineProcessDocumentContext()
 {
-  m_pWorld = nullptr;
+  m_pScene = nullptr;
 }
 
 ezEngineProcessDocumentContext::~ezEngineProcessDocumentContext()
 {
-  EZ_ASSERT_DEV(m_pWorld == nullptr, "World has not been deleted! Call 'ezEngineProcessDocumentContext::DestroyDocumentContext'");
+  EZ_ASSERT_DEV(m_pScene == nullptr, "Scene has not been deleted! Call 'ezEngineProcessDocumentContext::DestroyDocumentContext'");
 }
 
 void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, ezProcessCommunication* pIPC)
@@ -245,8 +246,9 @@ void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, ezPr
   m_DocumentGuid = DocumentGuid;
   m_pIPC = pIPC;
 
-  m_pWorld = EZ_DEFAULT_NEW(ezWorld, ezConversionUtils::ToString(m_DocumentGuid));
-  m_Context.m_pWorld = m_pWorld;
+  m_pScene = EZ_DEFAULT_NEW(ezScene);
+  m_pScene->Initialize(ezConversionUtils::ToString(m_DocumentGuid));
+  m_Context.m_pWorld = m_pScene->GetWorld();
   m_Mirror.InitReceiver(&m_Context);
   OnInitialize();
 }
@@ -263,7 +265,7 @@ void ezEngineProcessDocumentContext::Deinitialize(bool bFullDestruction)
 
   CleanUpContextSyncObjects();
 
-  EZ_DEFAULT_DELETE(m_pWorld);
+  EZ_DEFAULT_DELETE(m_pScene);
 }
 
 void ezEngineProcessDocumentContext::SendProcessMessage(ezProcessMessage* pMsg /*= false*/)
@@ -273,7 +275,9 @@ void ezEngineProcessDocumentContext::SendProcessMessage(ezProcessMessage* pMsg /
 
 void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
-  EZ_LOCK(m_pWorld->GetWriteMarker());
+  auto pWorld = m_pScene->GetWorld();
+
+  EZ_LOCK(pWorld->GetWriteMarker());
 
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEntityMsgToEngine>())
   {
@@ -296,7 +300,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
     ezTagRegistry::GetGlobalRegistry().RegisterTag(pMsg2->m_sTag, &tag);
 
     ezGameObject* pObject;
-    if (m_pWorld->TryGetObject(hObject, pObject))
+    if (pWorld->TryGetObject(hObject, pObject))
     {
       if (pMsg2->m_bSetTag)
         pObject->GetTags().Set(tag);
@@ -420,7 +424,7 @@ void ezEngineProcessDocumentContext::ExportScene(const ezExportSceneMsgToEngine*
   tags.Set(tagEditor);
 
   ezWorldWriter ww;
-  ww.Write(file, *m_pWorld, &tags);
+  ww.Write(file, *m_pScene->GetWorld(), &tags);
 }
 
 void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEditorEngineSyncObjectMsg& msg)
@@ -487,6 +491,8 @@ void ezEngineProcessDocumentContext::Reset()
 }
 void ezEngineProcessDocumentContext::UpdateSyncObjects()
 {
+  auto pWorld = m_pScene->GetWorld();
+
   for (auto* pSyncObject : m_SyncObjects)
   {
     if (pSyncObject->GetModified() && pSyncObject->GetDynamicRTTI()->IsDerivedFrom<ezEngineGizmoHandle>())
@@ -496,15 +502,15 @@ void ezEngineProcessDocumentContext::UpdateSyncObjects()
 
       ezEngineGizmoHandle* pGizmoHandle = static_cast<ezEngineGizmoHandle*>(pSyncObject);
 
-      EZ_LOCK(m_pWorld->GetWriteMarker());
+      EZ_LOCK(pWorld->GetWriteMarker());
 
-      if (pGizmoHandle->SetupForEngine(m_pWorld, m_Context.m_uiNextComponentPickingID))
+      if (pGizmoHandle->SetupForEngine(pWorld, m_Context.m_uiNextComponentPickingID))
       {
         m_Context.m_OtherPickingMap.RegisterObject(pGizmoHandle->GetGuid(), m_Context.m_uiNextComponentPickingID);
         ++m_Context.m_uiNextComponentPickingID;
       }
 
-      pGizmoHandle->UpdateForEngine(m_pWorld);
+      pGizmoHandle->UpdateForEngine(pWorld);
     }
   }
 }

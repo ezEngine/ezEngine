@@ -6,6 +6,7 @@
 #include <GameUtils/Components/RotorComponent.h>
 #include <GameUtils/Components/SliderComponent.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
+#include <Core/Scene/Scene.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>);
 EZ_BEGIN_PROPERTIES
@@ -39,10 +40,10 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     const bool bSimulate = msg->m_bSimulateWorld;
     m_bRenderSelectionOverlay = msg->m_bRenderOverlay;
 
-    if (bSimulate != m_pWorld->GetWorldSimulationEnabled())
+    if (bSimulate != GetScene()->GetWorld()->GetWorldSimulationEnabled())
     {
       ezLog::Info("World Simulation %s", bSimulate ? "enabled" : "disabled");
-      m_pWorld->SetWorldSimulationEnabled(bSimulate);
+      GetScene()->GetWorld()->SetWorldSimulationEnabled(bSimulate);
     }
 
     return;
@@ -63,12 +64,14 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     bounds.SetInvalid();
 
     {
-      EZ_LOCK(m_pWorld->GetReadMarker());
+      auto pWorld = GetScene()->GetWorld();
+
+      EZ_LOCK(pWorld->GetReadMarker());
 
       for (const auto& obj : m_Selection)
       {
         ezGameObject* pObj;
-        if (!m_pWorld->TryGetObject(obj, pObj))
+        if (!pWorld->TryGetObject(obj, pObj))
           continue;
 
         ComputeHierarchyBounds(pObj, bounds);
@@ -96,12 +99,13 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
 void ezSceneContext::OnInitialize()
 {
-  EZ_LOCK(m_pWorld->GetWriteMarker());
+  auto pWorld = GetScene()->GetWorld();
+  EZ_LOCK(pWorld->GetWriteMarker());
 
   /// \todo Plugin concept to allow custom initialization
-  m_pWorld->CreateComponentManager<ezMeshComponentManager>();
-  m_pWorld->CreateComponentManager<ezRotorComponentManager>();
-  m_pWorld->CreateComponentManager<ezSliderComponentManager>();
+  pWorld->CreateComponentManager<ezMeshComponentManager>();
+  pWorld->CreateComponentManager<ezRotorComponentManager>();
+  pWorld->CreateComponentManager<ezSliderComponentManager>();
 }
 
 ezEngineProcessViewContext* ezSceneContext::CreateViewContext()
@@ -123,7 +127,8 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
   ezStringBuilder sSel = pMsg->m_sSelection;
   ezStringBuilder sGuid;
 
-  EZ_LOCK(m_pWorld->GetReadMarker());
+  auto pWorld = GetScene()->GetWorld();
+  EZ_LOCK(pWorld->GetReadMarker());
 
   while (!sSel.IsEmpty())
   {
@@ -139,7 +144,7 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
       m_Selection.PushBack(hObject);
 
       ezGameObject* pObject;
-      if (m_pWorld->TryGetObject(hObject, pObject))
+      if (pWorld->TryGetObject(hObject, pObject))
         InsertSelectedChildren(pObject);
     }
   }

@@ -5,6 +5,7 @@
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
 #include <Core/Application/Config/FileSystemConfig.h>
+#include <Core/Application/Config/PluginConfig.h>
 
 ///////////////////////////////////// ezProcessMessages ///////////////////////////////////// 
 
@@ -47,7 +48,8 @@ class EZ_EDITORFRAMEWORK_DLL ezSetupProjectMsgToEngine : public ezEditorEngineMs
 
 public:
   ezString m_sProjectDir;
-  ezApplicationFileSystemConfig m_Config;
+  ezApplicationFileSystemConfig m_FileSystemConfig;
+  ezApplicationPluginConfig m_PluginConfig;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezProjectReadyMsgToEditor : public ezEditorEngineMsg

@@ -11,10 +11,11 @@ public:
   ezScene();
   virtual ~ezScene();
 
-  void Initialize();
+  void Initialize(const char* szWorldName);
   void Deinitialize();
   void Update();
 
+  ezWorld* GetWorld() const { return m_pWorld; }
 
 protected:
   void CreateSceneModules();
@@ -22,6 +23,6 @@ protected:
 
 
   ezHybridArray<ezSceneModule*, 8> m_SceneModules;
-  //ezWorld* m_pWorld;
+  ezWorld* m_pWorld;
 };
 

@@ -1,7 +1,12 @@
-#include <PhysX/PCH.h>
-#include <PhysX/PhysXSceneModule.h>
+#include <PhysXPlugin/PCH.h>
+#include <PhysXPlugin/PhysXSceneModule.h>
+#include <Core/World/World.h>
+
+#include <PhysXPlugin/Components/StaticMeshComponent.h>
+#include <PhysXPlugin/Components/RigidBodyComponent.h>
 
 #include <PxPhysicsAPI.h>
+
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXSceneModule, 1, ezRTTIDefaultAllocator<ezPhysXSceneModule>);
   // no properties or message handlers
@@ -16,6 +21,8 @@ ezPhysXSceneModule::ezPhysXSceneModule()
 
 void ezPhysXSceneModule::InternalStartup()
 {
+  GetWorld()->CreateComponentManager<ezStaticMeshComponentManager>();
+  GetWorld()->CreateComponentManager<ezRigidBodyComponentManager>();
 }
 
 void ezPhysXSceneModule::InternalShutdown()

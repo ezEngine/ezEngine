@@ -3,6 +3,7 @@
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <Foundation/Communication/Event.h>
+#include <Core/Application/Config/PluginConfig.h>
 
 class ezEditorEngineConnection;
 class ezDocument;
@@ -21,7 +22,14 @@ public:
 
   static ezEditorEngineProcessConnection* GetInstance() { return s_pInstance; }
 
+  /// \brief The given file system configuration will be used by the engine process to setup the runtime data directories.
+  ///        This only takes effect if the editor process is restarted.
   void SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg) { m_FileSystemConfig = cfg; }
+
+  /// \brief The given plugin configuration will be used by the engine process to load runtime plugins.
+  ///        This only takes effect if the editor process is restarted.
+  void SetPluginConfig(const ezApplicationPluginConfig& cfg) { m_PluginConfig = cfg; }
+
   void Update();
   ezResult RestartProcess();
   void ShutdownProcess();
@@ -75,6 +83,7 @@ private:
   bool m_bClientIsConfigured;
   ezProcessCommunication m_IPC;
   ezApplicationFileSystemConfig m_FileSystemConfig;
+  ezApplicationPluginConfig m_PluginConfig;
   ezHashTable<ezUuid, ezQtEngineDocumentWindow*> m_DocumentWindow3DByGuid;
 };
 

@@ -473,8 +473,11 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
   case ezToolsProject::Event::Type::ProjectOpened:
     {
       SetupDataDirectories();
+      ReadEnginePluginConfig();
 
+      // tell the engine process which file system and plugin configuration to use
       ezEditorEngineProcessConnection::GetInstance()->SetFileSystemConfig(m_FileSystemConfig);
+      ezEditorEngineProcessConnection::GetInstance()->SetPluginConfig(m_EnginePluginConfig);
 
       if (ezEditorEngineProcessConnection::GetInstance()->RestartProcess().Failed())
       {

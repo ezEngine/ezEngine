@@ -1,6 +1,7 @@
 #include <Core/PCH.h>
 #include <Core/Scene/Scene.h>
 #include <Core/Scene/SceneModule.h>
+#include <Core/World/World.h>
 
 ezScene::ezScene()
 {
@@ -12,28 +13,43 @@ ezScene::~ezScene()
   Deinitialize();
 }
 
-void ezScene::Initialize()
+void ezScene::Initialize(const char* szWorldName)
 {
   CreateSceneModules();
 
+  m_pWorld = EZ_DEFAULT_NEW(ezWorld, szWorldName);
+
+  // scene modules will most likely register component managers, so just mark it for write once here
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
   for (auto pModule : m_SceneModules)
   {
-    pModule->Startup();
+    pModule->Startup(this);
   }
 }
 
 void ezScene::Deinitialize()
 {
-  for (auto pModule : m_SceneModules)
+  if (m_pWorld != nullptr)
   {
-    pModule->Shutdown();
+    // scene modules will most likely register component managers, so just mark it for write once here
+    EZ_LOCK(m_pWorld->GetWriteMarker());
+
+    for (auto pModule : m_SceneModules)
+    {
+      pModule->Shutdown();
+    }
   }
+
+  EZ_DEFAULT_DELETE(m_pWorld);
 
   DestroySceneModules();
 }
 
 void ezScene::Update()
 {
+  // mark world for write here ?
+
   for (auto pModule : m_SceneModules)
   {
     pModule->Update();

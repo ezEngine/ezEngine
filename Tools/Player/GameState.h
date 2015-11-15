@@ -29,7 +29,6 @@ private:
   ezRenderPipeline* m_pRenderPipeline;
 
   ezScene* m_pScene;
-  ezWorld* m_pWorld;
   ezCamera m_Camera;
 
   ezView* m_pView;

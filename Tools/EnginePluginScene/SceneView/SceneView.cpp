@@ -19,6 +19,7 @@
 #include <Core/World/Component.h>
 #include <EnginePluginScene/EditorRenderPass/EditorRenderPass.h>
 #include <SceneContext/SceneContext.h>
+#include <Core/Scene/Scene.h>
 
 
 
@@ -155,7 +156,7 @@ void ezSceneViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth
     m_pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));
 
     ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
-    m_pView->SetWorld(pDocumentContext->m_pWorld);
+    m_pView->SetWorld(pDocumentContext->GetScene()->GetWorld());
     m_pView->SetLogicCamera(&m_Camera);
 
     auto& tagReg = ezTagRegistry::GetGlobalRegistry();
@@ -225,7 +226,7 @@ void ezSceneViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
 
       // check whether the component is still valid
       ezComponent* pComponent = nullptr;
-      if (pDocumentContext->m_pWorld->TryGetComponent<ezComponent>(hComponent, pComponent))
+      if (pDocumentContext->GetScene()->GetWorld()->TryGetComponent<ezComponent>(hComponent, pComponent))
       {
         // if yes, fill out the parent game object guid
         res.m_ObjectGuid = GetDocumentContext()->m_Context.m_GameObjectMap.GetGuid(pComponent->GetOwner()->GetHandle());

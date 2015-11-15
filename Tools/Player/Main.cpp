@@ -21,7 +21,6 @@ GameState::GameState()
 {
   m_pWindow = nullptr;
   m_pRenderPipeline = nullptr;
-  m_pWorld = nullptr;
   m_pScene = nullptr;
   m_pView = nullptr;
 }

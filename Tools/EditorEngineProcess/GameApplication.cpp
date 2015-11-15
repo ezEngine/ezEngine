@@ -57,10 +57,11 @@ void ezEngineProcessGameApplication::AfterEngineInit()
 
   m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerIPC, this));
 
-  SendReflectionInformation();
-
   // wait indefinitely
   m_IPC.WaitForMessage(ezGetStaticRTTI<ezSetupProjectMsgToEngine>(), ezTime());
+
+  // after the ezSetupProjectMsgToEngine was processed, all dynamic plugins should be loaded and we can finally send the reflection information over
+  SendReflectionInformation();
 }
 
 void ezEngineProcessGameApplication::BeforeEngineShutdown()
@@ -151,10 +152,16 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezProcessCommunicatio
   // Project Messages:
   if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSetupProjectMsgToEngine>())
   {
+
+
     const ezSetupProjectMsgToEngine* pSetupMsg = static_cast<const ezSetupProjectMsgToEngine*>(e.m_pMessage);
+    ezSetupProjectMsgToEngine* pSetupMsgNonConst = const_cast<ezSetupProjectMsgToEngine*>(pSetupMsg);
+
     ezApplicationConfig::SetProjectDirectory(pSetupMsg->m_sProjectDir);
 
-    const_cast<ezSetupProjectMsgToEngine*>(pSetupMsg)->m_Config.Apply();
+    pSetupMsgNonConst->m_FileSystemConfig.Apply();
+    pSetupMsgNonConst->m_PluginConfig.Apply();
+
     // Project setup, we are now ready to accept document messages.
     SendProjectReadyMessage();
     return;

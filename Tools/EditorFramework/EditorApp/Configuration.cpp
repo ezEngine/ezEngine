@@ -127,6 +127,11 @@ void ezQtEditorApp::SetupDataDirectories()
   }
 }
 
+void ezQtEditorApp::ReadEnginePluginConfig()
+{
+  m_EnginePluginConfig.Load();
+}
+
 void ezQtEditorApp::CreatePanels()
 {
   ///// \todo Test whether this is the reason why the editor doesn't always shut down

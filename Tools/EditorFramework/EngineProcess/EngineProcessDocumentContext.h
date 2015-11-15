@@ -14,6 +14,7 @@ class ezProcessCommunication;
 class ezProcessMessage;
 class ezEntityMsgToEngine;
 class ezExportSceneMsgToEngine;
+class ezScene;
 
 template<typename HandleType>
 class ezEditorGuidEngineHandleMap
@@ -123,10 +124,11 @@ public:
 
   virtual void Reset();
 
-  ezWorld* m_pWorld;
   ezIPCObjectMirror m_Mirror;
   ezWorldRttiConverterContext m_Context; //TODO: Move actual context into the EngineProcessDocumentContext
 
+  /// \brief Returns the ezScene object that holds the ezWorld and other information
+  ezScene* GetScene() const { return m_pScene; }
 
 protected:
   virtual void OnInitialize() {}
@@ -135,6 +137,8 @@ protected:
   virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) = 0;
   
   void UpdateSyncObjects();
+
+  ezScene* m_pScene;
 
 private:
   friend class ezEditorEngineSyncObject;

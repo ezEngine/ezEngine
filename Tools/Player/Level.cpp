@@ -22,13 +22,13 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBa
   EZ_LOG_BLOCK("CreateGameLevelAndRenderPipeline", szLevelFile);
 
   m_pScene = EZ_DEFAULT_NEW(ezScene);
-  m_pScene->Initialize();
+  m_pScene->Initialize(szLevelFile);
 
-  m_pWorld = EZ_DEFAULT_NEW(ezWorld, "Level");
-  EZ_LOCK(m_pWorld->GetWriteMarker());
+  auto pWorld = m_pScene->GetWorld();
+  EZ_LOCK(pWorld->GetWriteMarker());
 
-  ezMeshComponentManager* pMeshCompMan = m_pWorld->CreateComponentManager<ezMeshComponentManager>();
-  ezRotorComponentManager* pRotorCompMan = m_pWorld->CreateComponentManager<ezRotorComponentManager>();
+  ezMeshComponentManager* pMeshCompMan = pWorld->CreateComponentManager<ezMeshComponentManager>();
+  ezRotorComponentManager* pRotorCompMan = pWorld->CreateComponentManager<ezRotorComponentManager>();
 
   {
     ezFileReader file;
@@ -55,7 +55,7 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBa
       //qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(45));
 
       ezWorldReader reader;
-      reader.Read(file, *m_pWorld, ezVec3(0), qRot, ezVec3(1.0f));
+      reader.Read(file, *pWorld, ezVec3(0), qRot, ezVec3(1.0f));
     }
     else
     {
@@ -66,7 +66,7 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBa
   ezVec3 vCameraPos = ezVec3(0.0f, 0.0f, 10.0f);
 
   ezCoordinateSystem coordSys;
-  m_pWorld->GetCoordinateSystem(vCameraPos, coordSys);
+  pWorld->GetCoordinateSystem(vCameraPos, coordSys);
 
   m_Camera.LookAt(vCameraPos, vCameraPos + coordSys.m_vForwardDir, coordSys.m_vUpDir);
   m_Camera.SetCameraMode(ezCamera::PerspectiveFixedFovY, 60.0f, 1.0f, 5000.0f);
@@ -86,7 +86,7 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBa
   ezSizeU32 size = m_pWindow->GetClientAreaSize();
   m_pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));
 
-  m_pView->SetWorld(m_pWorld);
+  m_pView->SetWorld(pWorld);
   m_pView->SetLogicCamera(&m_Camera);
 }
 
@@ -94,7 +94,6 @@ void GameState::DestroyGameLevel()
 {
   m_pScene->Deinitialize();
 
-  EZ_DEFAULT_DELETE(m_pWorld);
   EZ_DEFAULT_DELETE(m_pScene);
 }
 

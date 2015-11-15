@@ -1,6 +1,7 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 
 ezModifiedDocumentsDlg::ezModifiedDocumentsDlg(QWidget* parent, const ezHybridArray<ezDocument*, 32>& ModifiedDocs) : QDialog(parent)
 {
@@ -20,6 +21,7 @@ ezModifiedDocumentsDlg::ezModifiedDocumentsDlg(QWidget* parent, const ezHybridAr
   TableDocuments->setColumnCount(Headers.size());
 
   TableDocuments->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
+  TableDocuments->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
   TableDocuments->setHorizontalHeaderLabels(Headers);
   TableDocuments->horizontalHeader()->show();
   TableDocuments->setSortingEnabled(true);
@@ -50,6 +52,7 @@ ezModifiedDocumentsDlg::ezModifiedDocumentsDlg(QWidget* parent, const ezHybridAr
 
     QTableWidgetItem* pItem0 = new QTableWidgetItem();
     pItem0->setData(Qt::DisplayRole, QString::fromUtf8(pDoc->GetDocumentTypeDisplayString()));
+    pItem0->setIcon(ezUIServices::GetCachedIconResource(pDoc->GetDocumentTypeDescriptor().m_sIcon));
     TableDocuments->setItem(iRow, 0, pItem0);
 
     QTableWidgetItem* pItem1 = new QTableWidgetItem();
