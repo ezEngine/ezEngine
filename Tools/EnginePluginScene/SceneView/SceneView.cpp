@@ -214,12 +214,12 @@ void ezSceneViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
   {
     const ezUInt32 uiComponentID = m_PickingResultsID[uiIndex];
 
-    res.m_ComponentGuid = GetDocumentContext()->m_ComponentPickingMap.GetGuid(uiComponentID);
-    res.m_OtherGuid = GetDocumentContext()->m_OtherPickingMap.GetGuid(uiComponentID);
+    res.m_ComponentGuid = GetDocumentContext()->m_Context.m_ComponentPickingMap.GetGuid(uiComponentID);
+    res.m_OtherGuid = GetDocumentContext()->m_Context.m_OtherPickingMap.GetGuid(uiComponentID);
 
     if (res.m_ComponentGuid.IsValid())
     {
-      ezComponentHandle hComponent = GetDocumentContext()->m_ComponentMap.GetHandle(res.m_ComponentGuid);
+      ezComponentHandle hComponent = GetDocumentContext()->m_Context.m_ComponentMap.GetHandle(res.m_ComponentGuid);
 
       ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
 
@@ -228,7 +228,7 @@ void ezSceneViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
       if (pDocumentContext->m_pWorld->TryGetComponent<ezComponent>(hComponent, pComponent))
       {
         // if yes, fill out the parent game object guid
-        res.m_ObjectGuid = GetDocumentContext()->m_GameObjectMap.GetGuid(pComponent->GetOwner()->GetHandle());
+        res.m_ObjectGuid = GetDocumentContext()->m_Context.m_GameObjectMap.GetGuid(pComponent->GetOwner()->GetHandle());
         res.m_uiPartIndex = 0; /// TODO
       }
       else

@@ -3,6 +3,7 @@
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/IPC/ProcessCommunication.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
+#include <ToolsFoundation/Object/DocumentObjectMirror.h>
 #include <Core/Application/Config/FileSystemConfig.h>
 
 ///////////////////////////////////// ezProcessMessages ///////////////////////////////////// 
@@ -151,23 +152,7 @@ class EZ_EDITORFRAMEWORK_DLL ezEntityMsgToEngine : public ezEditorEngineDocument
   EZ_ADD_DYNAMIC_REFLECTION(ezEntityMsgToEngine, ezEditorEngineDocumentMsg);
 
 public:
-  enum Type
-  {
-    ObjectAdded,
-    ObjectRemoved,
-    ObjectMoved,
-    PropertyChanged,
-  };
-
-  ezInt8 m_iMsgType;
-  ezUuid m_ObjectGuid;
-  ezUuid m_PreviousParentGuid;
-  ezUuid m_NewParentGuid;
-  ezString m_sObjectType;
-  ezString m_sParentProperty;
-  ezVariant m_PropertyIndex;
-
-  ezString m_sObjectData;
+  ezObjectChange m_change;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezExportSceneMsgToEngine : public ezEditorEngineDocumentMsg

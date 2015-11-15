@@ -132,7 +132,7 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
 
     const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sGuid);
 
-    auto hObject = m_GameObjectMap.GetHandle(guid);
+    auto hObject = m_Context.m_GameObjectMap.GetHandle(guid);
 
     if (!hObject.IsInvalidated())
     {

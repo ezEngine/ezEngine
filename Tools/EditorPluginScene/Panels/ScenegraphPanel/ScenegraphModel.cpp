@@ -259,7 +259,13 @@ bool ezQtScenegraphModel::setData(const QModelIndex& index, const QVariant& valu
 void ezQtScenegraphModel::ObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezSceneObjectMetaData>::EventData& e)
 {
   auto pObject = m_pSceneDocument->GetObjectManager()->GetObject(e.m_ObjectKey);
-
+  
+  if (pObject == nullptr)
+  {
+    // The object was destroyed due to a clear of the redo queue, i.e. it is not contained in the scene anymore.
+    // So we of course won't find it in the model and thus can skip it.
+    return;
+  }
   auto index = ComputeModelIndex(pObject);
 
   QVector<int> v;

@@ -67,7 +67,10 @@ public:
 class EZ_FOUNDATION_DLL ezAbstractObjectGraph
 {
 public:
+  ezAbstractObjectGraph() {}
   ~ezAbstractObjectGraph();
+
+  void Clear();
 
   const char* RegisterString(const char* szString);
 
@@ -93,6 +96,7 @@ public:
   void ApplyDiff(ezDeque<ezAbstractGraphDiffOperation>& Diff);
 
 private:
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezAbstractObjectGraph);
   void RemapVariant(ezVariant& value, const ezMap<ezUuid, ezUuid>& guidMap);
 
   ezSet<ezString> m_Strings;

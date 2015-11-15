@@ -16,6 +16,7 @@ public:
 
   ~ezSimpleAssetDocument()
   {
+    m_ObjectMirror.Clear();
     m_ObjectMirror.DeInit();
   }
 
@@ -41,7 +42,9 @@ protected:
 
     EnsureSettingsObjectExist();
 
-    m_ObjectMirror.Init(GetObjectManager());
+    m_ObjectMirror.InitSender(GetObjectManager());
+    m_ObjectMirror.InitReceiver(&m_Context);
+    m_ObjectMirror.SendDocument();
   }
 
   virtual ezStatus InternalLoadDocument() override
@@ -70,6 +73,7 @@ private:
   }
 
   ezDocumentObjectMirror m_ObjectMirror;
+  ezRttiConverterContext m_Context;
 };
 
 

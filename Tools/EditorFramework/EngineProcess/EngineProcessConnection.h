@@ -84,18 +84,12 @@ public:
 
   void SendMessage(ezEditorEngineDocumentMsg* pMessage = false);
 
-  void SendObjectProperties(const ezDocumentObjectPropertyEvent& e);
-  void SendDocumentTreeChange(const ezDocumentObjectStructureEvent& e);
-  void SendDocument();
-
   ezDocument* GetDocument() const { return m_pDocument; }
 
 private:
   friend class ezEditorEngineProcessConnection;
   ezEditorEngineConnection(ezDocument* pDocument) { m_pDocument = pDocument; }
   ~ezEditorEngineConnection() { }
-
-  void SendObject(const ezDocumentObject* pObject);
 
   ezDocument* m_pDocument;
 };

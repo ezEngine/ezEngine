@@ -3,6 +3,13 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 
+void ezRttiConverterContext::Clear()
+{
+  m_GuidToObject.Clear();
+  m_ObjectToGuid.Clear();
+  m_QueuedObjects.Clear();
+}
+
 void* ezRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
 {
   void* pObj = pRtti->GetAllocator()->Allocate();
@@ -28,7 +35,8 @@ void ezRttiConverterContext::RegisterObject(const ezUuid& guid, const ezRTTI* pR
     pRtti = static_cast<ezReflectedClass*>(pObject)->GetDynamicRTTI();
   }
 
-  EZ_ASSERT_DEV(co.m_pObject == nullptr || (co.m_pObject == pObject && co.m_pType == pRtti), "Registered same guid twice with different values");
+  //TODO: Actually remove child owner ptr from register when deleting an object
+  //EZ_ASSERT_DEV(co.m_pObject == nullptr || (co.m_pObject == pObject && co.m_pType == pRtti), "Registered same guid twice with different values");
 
   co.m_pObject = pObject;
   co.m_pType = pRtti;

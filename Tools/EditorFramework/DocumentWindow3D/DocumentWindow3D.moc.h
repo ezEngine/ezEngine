@@ -4,6 +4,7 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <EditorFramework/IPC/SyncObject.h>
+#include <EditorFramework/IPC/IPCObjectMirror.h>
 
 class QWidget;
 class QHBoxLayout;
@@ -58,6 +59,7 @@ public:
 
 protected:
   friend class ezQtEngineViewWidget;
+  ezIPCObjectMirror m_Mirror;
   ezEditorEngineConnection* m_pEngineConnection;
   ezHybridArray<ezQtEngineViewWidget*, 4> m_ViewWidgets;
 

@@ -28,9 +28,6 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezDocument* pDocument)
   m_bInGizmoInteraction = false;
   SetTargetFramerate(35);
 
-  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::DocumentTreeEventHandler, this));
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::PropertyEventHandler, this));
-
   GetSceneDocument()->m_ObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SceneObjectMetaDataEventHandler, this));
 
   {
@@ -59,10 +56,10 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezDocument* pDocument)
   pSceneDoc->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SelectionManagerEventHandler, this));
 
   // TODO: (works but..) give the gizmo the proper view? remove the view from the input context altogether?
-  m_TranslateGizmo.SetOwner(this, m_ViewWidgets[0]);
-  m_RotateGizmo.SetOwner(this, m_ViewWidgets[0]);
-  m_ScaleGizmo.SetOwner(this, m_ViewWidgets[0]);
-  m_DragToPosGizmo.SetOwner(this, m_ViewWidgets[0]);
+  m_TranslateGizmo.SetOwner(this, nullptr);
+  m_RotateGizmo.SetOwner(this, nullptr);
+  m_ScaleGizmo.SetOwner(this, nullptr);
+  m_DragToPosGizmo.SetOwner(this, nullptr);
 
   m_RotateGizmo.SetSnappingAngle(ezAngle::Degree(ezRotateGizmoAction::GetCurrentSnappingValue()));
   m_ScaleGizmo.SetSnappingValue(ezScaleGizmoAction::GetCurrentSnappingValue());
@@ -117,14 +114,6 @@ ezQtSceneDocumentWindow::~ezQtSceneDocumentWindow()
   ezTranslateGizmoAction::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TranslateGizmoEventHandler, this));
 
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SelectionManagerEventHandler, this));
-
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::DocumentTreeEventHandler, this));
-}
-
-void ezQtSceneDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
-{
-  m_pEngineConnection->SendObjectProperties(e);
 }
 
 void ezQtSceneDocumentWindow::CommandHistoryEventHandler(const ezCommandHistory::Event& e)
@@ -365,11 +354,6 @@ void ezQtSceneDocumentWindow::SendObjectSelection()
   m_pEngineConnection->SendMessage(&msg);
 }
 
-void ezQtSceneDocumentWindow::DocumentTreeEventHandler(const ezDocumentObjectStructureEvent& e)
-{
-  m_pEngineConnection->SendDocumentTreeChange(e);
-}
-
 void ezQtSceneDocumentWindow::InternalRedraw()
 {
   ezQtEngineDocumentWindow::SyncObjectsToEngine();
@@ -388,7 +372,7 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
   {
     ezSceneSettingsMsgToEngine msg;
     msg.m_bSimulateWorld = GetSceneDocument()->GetSimulateWorld();
-	msg.m_bRenderOverlay = GetSceneDocument()->GetRenderSelectionOverlay();
+    msg.m_bRenderOverlay = GetSceneDocument()->GetRenderSelectionOverlay();
     m_pEngineConnection->SendMessage(&msg);
   }
 

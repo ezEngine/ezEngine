@@ -48,8 +48,6 @@ private:
 
   void FocusOnSelectionHoveredView();
 
-  void DocumentTreeEventHandler(const ezDocumentObjectStructureEvent& e);
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void RotateGizmoEventHandler(const ezRotateGizmoAction::Event& e);
   void ScaleGizmoEventHandler(const ezScaleGizmoAction::Event& e);
   void TranslateGizmoEventHandler(const ezTranslateGizmoAction::Event& e);

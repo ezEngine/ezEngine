@@ -24,6 +24,8 @@ struct EZ_FOUNDATION_DLL ezRttiConverterObject
 class EZ_FOUNDATION_DLL ezRttiConverterContext
 {
 public:
+  virtual void Clear();
+
   virtual void* CreateObject(const ezUuid& guid, const ezRTTI* pRtti);
   virtual void DeleteObject(const ezUuid& guid);
 
@@ -36,9 +38,9 @@ public:
   virtual ezUuid EnqueObject(const ezRTTI* pRtti, void* pObject);
   virtual ezRttiConverterObject* DequeueObject();
 
-private:
+protected:
   ezHashTable<ezUuid, ezRttiConverterObject> m_GuidToObject;
-  ezHashTable<void*, ezUuid> m_ObjectToGuid;
+  mutable ezHashTable<void*, ezUuid> m_ObjectToGuid;
   ezSet<ezUuid> m_QueuedObjects;
 };
 

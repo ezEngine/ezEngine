@@ -19,6 +19,189 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezHashTable<ezUuid, ezEngineProcessDocumentContext*> ezEngineProcessDocumentContext::s_DocumentContexts;
 
+
+void ezWorldRttiConverterContext::Clear()
+{
+  ezRttiConverterContext::Clear();
+
+  m_pWorld = nullptr;
+  m_GameObjectMap.Clear();
+  m_ComponentMap.Clear();
+
+  m_OtherPickingMap.Clear();
+  m_ComponentPickingMap.Clear();
+}
+
+void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
+{
+  if (pRtti == ezGetStaticRTTI<ezGameObject>())
+  {
+    ezGameObjectDesc d;
+    d.m_sName.Assign(ezConversionUtils::ToString(guid).GetData());
+
+    ezGameObjectHandle hObject = m_pWorld->CreateObject(d);
+    ezGameObject* pObject;
+    if (m_pWorld->TryGetObject(hObject, pObject))
+    {
+      RegisterObject(guid, pRtti, pObject);
+      return pObject;
+    }
+    else
+    {
+      ezLog::Error("Failed to create ezGameObject!");
+      return nullptr;
+    }
+  }
+  else if (pRtti->IsDerivedFrom<ezComponent>())
+  {
+    ezComponentManagerBase* pMan = m_pWorld->GetComponentManager(pRtti);
+    if (pMan == nullptr)
+    {
+      ezLog::Error("Component of type '%s' cannot be created, no component manager is registered", pRtti->GetTypeName());
+      return nullptr;
+    }
+    ezComponentHandle hComponent = pMan->CreateComponent();
+    ezComponent* pComponent;
+    if (pMan->TryGetComponent(hComponent, pComponent))
+    {
+      RegisterObject(guid, pRtti, pComponent);
+      return pComponent;
+    }
+    else
+    {
+      ezLog::Error("Component of type '%s' cannot be found after creation", pRtti->GetTypeName());
+      return nullptr;
+    }
+  }
+  else
+  {
+    return ezRttiConverterContext::CreateObject(guid, pRtti);
+  }
+}
+
+void ezWorldRttiConverterContext::DeleteObject(const ezUuid& guid)
+{
+  ezRttiConverterObject* pObject = GetObjectByGUID(guid);
+  const ezRTTI* pRtti = pObject->m_pType;
+  if (pRtti == ezGetStaticRTTI<ezGameObject>())
+  {
+    auto hObject = m_GameObjectMap.GetHandle(guid);
+    UnregisterObject(guid);
+    m_pWorld->DeleteObject(hObject);
+  }
+  else if (pRtti->IsDerivedFrom<ezComponent>())
+  {
+    ezComponentHandle hComponent = m_ComponentMap.GetHandle(guid);
+    ezComponentManagerBase* pMan = m_pWorld->GetComponentManager(pRtti);
+    if (pMan == nullptr)
+    {
+      ezLog::Error("Component of type '%s' cannot be created, no component manager is registered", pRtti->GetTypeName());
+      return;
+    }
+
+    UnregisterObject(guid);
+    pMan->DeleteComponent(hComponent);
+  }
+  else
+  {
+    ezRttiConverterContext::DeleteObject(guid);
+  }
+}
+
+void ezWorldRttiConverterContext::RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject)
+{
+  if (pRtti == ezGetStaticRTTI<ezGameObject>())
+  {
+    ezGameObject* pGameObject = static_cast<ezGameObject*>(pObject);
+    m_GameObjectMap.RegisterObject(guid, pGameObject->GetHandle());
+  }
+  else if (pRtti->IsDerivedFrom<ezComponent>())
+  {
+    ezComponent* pComponent = static_cast<ezComponent*>(pObject);
+    m_ComponentMap.RegisterObject(guid, pComponent->GetHandle());
+    pComponent->m_uiEditorPickingID = m_uiNextComponentPickingID++;
+    m_ComponentPickingMap.RegisterObject(guid, pComponent->m_uiEditorPickingID);
+  }
+  
+  ezRttiConverterContext::RegisterObject(guid, pRtti, pObject);
+}
+
+void ezWorldRttiConverterContext::UnregisterObject(const ezUuid& guid)
+{
+  ezRttiConverterObject* pObject = GetObjectByGUID(guid);
+  EZ_ASSERT_DEBUG(pObject, "Failed to retrieve object by guid!");
+  const ezRTTI* pRtti = pObject->m_pType;
+  if (pRtti == ezGetStaticRTTI<ezGameObject>())
+  {
+    m_GameObjectMap.UnregisterObject(guid);
+  }
+  else if (pRtti->IsDerivedFrom<ezComponent>())
+  {
+    m_ComponentMap.UnregisterObject(guid);
+    m_ComponentPickingMap.UnregisterObject(guid);
+  }
+
+  ezRttiConverterContext::UnregisterObject(guid);
+}
+
+ezRttiConverterObject* ezWorldRttiConverterContext::GetObjectByGUID(const ezUuid& guid) const
+{
+  ezRttiConverterObject* pObject = ezRttiConverterContext::GetObjectByGUID(guid);
+
+  // We can't look up the ptr via the base class map as it keeps changing, we we need to use the handle.
+  if (pObject->m_pType == ezGetStaticRTTI<ezGameObject>())
+  {
+    auto hObject = m_GameObjectMap.GetHandle(guid);
+    ezGameObject* pGameObject = nullptr;
+    if (!m_pWorld->TryGetObject(hObject, pGameObject))
+    {
+      EZ_REPORT_FAILURE("Can't resolve game object GUID!");
+    }
+
+    // Update new ptr of game object
+    if (pObject->m_pObject != pGameObject)
+    {
+      m_ObjectToGuid.Remove(pObject->m_pObject);
+      pObject->m_pObject = pGameObject;
+      m_ObjectToGuid.Insert(pObject->m_pObject, guid);
+    }
+  }
+  else if (pObject->m_pType->IsDerivedFrom<ezComponent>())
+  {
+    auto hComponent = m_ComponentMap.GetHandle(guid);
+    ezComponent* pComponent = nullptr;
+    if (!m_pWorld->TryGetComponent(hComponent, pComponent))
+    {
+      EZ_REPORT_FAILURE("Can't resolve component GUID!");
+    }
+
+    // Update new ptr of component
+    if (pObject->m_pObject != pComponent)
+    {
+      m_ObjectToGuid.Remove(pObject->m_pObject);
+      pObject->m_pObject = pComponent;
+      m_ObjectToGuid.Insert(pObject->m_pObject, guid);
+    }
+  }
+  return pObject;
+}
+
+ezUuid ezWorldRttiConverterContext::GetObjectGUID(const ezRTTI* pRtti, void* pObject) const
+{
+  if (pRtti == ezGetStaticRTTI<ezGameObject>())
+  {
+    ezGameObject* pGameObject = static_cast<ezGameObject*>(pObject);
+    return m_GameObjectMap.GetGuid(pGameObject->GetHandle());
+  }
+  else if (pRtti->IsDerivedFrom<ezComponent>())
+  {
+    ezComponent* pComponent = static_cast<ezComponent*>(pObject);
+    return m_ComponentMap.GetGuid(pComponent->GetHandle());
+  }
+  return ezRttiConverterContext::GetObjectGUID(pRtti, pObject);
+}
+
+
 ezEngineProcessDocumentContext* ezEngineProcessDocumentContext::GetDocumentContext(ezUuid guid)
 {
   ezEngineProcessDocumentContext* pResult = nullptr;
@@ -50,7 +233,6 @@ void ezEngineProcessDocumentContext::DestroyDocumentContext(ezUuid guid)
 ezEngineProcessDocumentContext::ezEngineProcessDocumentContext()
 {
   m_pWorld = nullptr;
-  m_uiNextComponentPickingID = 1;
 }
 
 ezEngineProcessDocumentContext::~ezEngineProcessDocumentContext()
@@ -58,10 +240,24 @@ ezEngineProcessDocumentContext::~ezEngineProcessDocumentContext()
   EZ_ASSERT_DEV(m_pWorld == nullptr, "World has not been deleted! Call 'ezEngineProcessDocumentContext::DestroyDocumentContext'");
 }
 
+void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, ezProcessCommunication* pIPC)
+{
+  m_DocumentGuid = DocumentGuid;
+  m_pIPC = pIPC;
+
+  m_pWorld = EZ_DEFAULT_NEW(ezWorld, ezConversionUtils::ToString(m_DocumentGuid));
+  m_Context.m_pWorld = m_pWorld;
+  m_Mirror.InitReceiver(&m_Context);
+  OnInitialize();
+}
+
 void ezEngineProcessDocumentContext::Deinitialize(bool bFullDestruction)
 {
   //if (bFullDestruction)
     ClearViewContexts();
+  m_Mirror.Clear();
+  m_Mirror.DeInit();
+  m_Context.Clear();
 
   OnDeinitialize();
 
@@ -82,8 +278,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEntityMsgToEngine>())
   {
     const ezEntityMsgToEngine* pMsg2 = static_cast<const ezEntityMsgToEngine*>(pMsg);
-
-    HandlerEntityMsg(pMsg2);
+    m_Mirror.ApplyOp(const_cast<ezObjectChange&>(pMsg2->m_change));
   }
   else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineSyncObjectMsg>())
   {
@@ -95,7 +290,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
   {
     const ezObjectTagMsgToEngine* pMsg2 = static_cast<const ezObjectTagMsgToEngine*>(pMsg);
 
-    ezGameObjectHandle hObject = m_GameObjectMap.GetHandle(pMsg2->m_ObjectGuid);
+    ezGameObjectHandle hObject = m_Context.m_GameObjectMap.GetHandle(pMsg2->m_ObjectGuid);
 
     ezTag tag;
     ezTagRegistry::GetGlobalRegistry().RegisterTag(pMsg2->m_sTag, &tag);
@@ -154,23 +349,12 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
   {
     const ezViewHighlightMsgToEngine* pMsg2 = static_cast<const ezViewHighlightMsgToEngine*>(pMsg);
 
-    ezUInt32 uiPickingID = m_OtherPickingMap.GetHandle(pMsg2->m_HighlightObject);
+    ezUInt32 uiPickingID = m_Context.m_OtherPickingMap.GetHandle(pMsg2->m_HighlightObject);
 
     ezRenderContext::GetDefaultInstance()->SetMaterialParameter("PickingHighlightID", (ezInt32)uiPickingID);
   }
 
 }
-
-void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, ezProcessCommunication* pIPC)
-{
-  m_DocumentGuid = DocumentGuid;
-  m_pIPC = pIPC;
-
-  m_pWorld = EZ_DEFAULT_NEW(ezWorld, ezConversionUtils::ToString(m_DocumentGuid));
-
-  OnInitialize();
-}
-
 
 void ezEngineProcessDocumentContext::AddSyncObject(ezEditorEngineSyncObject* pSync)
 {
@@ -301,191 +485,6 @@ void ezEngineProcessDocumentContext::Reset()
 
   Initialize(guid, ipc);
 }
-
-void ezEngineProcessDocumentContext::HandlerGameObjectMsg(const ezEntityMsgToEngine* pMsg, ezRTTI* pRtti)
-{
-  switch (pMsg->m_iMsgType)
-  {
-  case ezEntityMsgToEngine::ObjectAdded:
-    {
-      ezGameObjectDesc d;
-      d.m_sName.Assign(ezConversionUtils::ToString(pMsg->m_ObjectGuid).GetData());
-
-      if (pMsg->m_NewParentGuid.IsValid())
-        d.m_hParent = m_GameObjectMap.GetHandle(pMsg->m_NewParentGuid);
-
-      ezGameObjectHandle hObject = m_pWorld->CreateObject(d);
-      m_GameObjectMap.RegisterObject(pMsg->m_ObjectGuid, hObject);
-
-      ezGameObject* pObject;
-      if (m_pWorld->TryGetObject(hObject, pObject))
-      {
-        UpdateProperties(pMsg, pObject, ezGetStaticRTTI<ezGameObject>());
-        pObject->UpdateGlobalTransform();
-      }
-    }
-    break;
-
-  case ezEntityMsgToEngine::ObjectMoved:
-    {
-      ezRTTI* pRtti = ezRTTI::FindTypeByName(pMsg->m_sObjectType);
-
-      if (pRtti == nullptr)
-      {
-        ezLog::Error("Cannot create object of type '%s', RTTI is unknown", pMsg->m_sObjectType.GetData());
-        break;
-      }
-
-      ezGameObjectHandle hObject = m_GameObjectMap.GetHandle(pMsg->m_ObjectGuid);
-
-      ezGameObjectHandle hNewParent;
-      if (pMsg->m_NewParentGuid.IsValid())
-        hNewParent = m_GameObjectMap.GetHandle(pMsg->m_NewParentGuid);
-
-      ezGameObject* pObject = nullptr;
-      if (m_pWorld->TryGetObject(hObject, pObject))
-      {
-        pObject->SetParent(hNewParent);
-      }
-      else
-        ezLog::Error("Couldn't access game object object %s in world %p", ezConversionUtils::ToString(pMsg->m_ObjectGuid).GetData(), m_pWorld);
-    }
-    break;
-
-  case ezEntityMsgToEngine::ObjectRemoved:
-    {
-      m_pWorld->DeleteObject(m_GameObjectMap.GetHandle(pMsg->m_ObjectGuid));
-      m_GameObjectMap.UnregisterObject(pMsg->m_ObjectGuid);
-    }
-    break;
-
-  case ezEntityMsgToEngine::PropertyChanged:
-    {
-      ezGameObjectHandle hObject = m_GameObjectMap.GetHandle(pMsg->m_ObjectGuid);
-
-      ezGameObject* pObject;
-      if (m_pWorld->TryGetObject(hObject, pObject))
-      {
-        UpdateProperties(pMsg, pObject, ezGetStaticRTTI<ezGameObject>());
-        //pObject->UpdateGlobalTransform();
-      }
-    }
-    break;
-  }
-}
-
-void ezEngineProcessDocumentContext::HandleComponentMsg(const ezEntityMsgToEngine* pMsg, ezRTTI* pRtti)
-{
-  ezComponentManagerBase* pMan = m_pWorld->GetComponentManager(pRtti);
-
-  if (pMan == nullptr)
-  {
-    ezLog::Error("Component of type '%s' cannot be created, no component manager is registered", pRtti->GetTypeName());
-    return;
-  }
-
-  switch (pMsg->m_iMsgType)
-  {
-  case ezEntityMsgToEngine::ObjectAdded:
-    {
-      ezComponentHandle hComponent = pMan->CreateComponent();
-
-      ezGameObjectHandle hParent = m_GameObjectMap.GetHandle(pMsg->m_NewParentGuid);
-      ezGameObject* pParent;
-      if (!m_pWorld->TryGetObject(hParent, pParent))
-        break;
-
-      ezComponent* pComponent;
-      if (pMan->TryGetComponent(hComponent, pComponent))
-      {
-        m_ComponentMap.RegisterObject(pMsg->m_ObjectGuid, hComponent);
-        UpdateProperties(pMsg, pComponent, pComponent->GetDynamicRTTI());
-
-        pComponent->m_uiEditorPickingID = m_uiNextComponentPickingID++;
-
-        m_ComponentPickingMap.RegisterObject(pMsg->m_ObjectGuid, pComponent->m_uiEditorPickingID);
-      }
-      else
-      {
-        ezLog::Error("Component of type '%s' cannot be found after creation", pRtti->GetTypeName());
-      }
-
-      pParent->AddComponent(hComponent);
-    }
-    break;
-
-  case ezEntityMsgToEngine::ObjectMoved:
-    {
-      ezGameObjectHandle hParent = m_GameObjectMap.GetHandle(pMsg->m_NewParentGuid);
-      ezGameObject* pParent;
-      if (!m_pWorld->TryGetObject(hParent, pParent))
-        break;
-
-      ezComponentHandle hComponent = m_ComponentMap.GetHandle(pMsg->m_ObjectGuid);
-
-      ezComponent* pComponent;
-      if (pMan->TryGetComponent(hComponent, pComponent))
-      {
-        if (pComponent->GetOwner())
-          pComponent->GetOwner()->RemoveComponent(pComponent);
-      }
-
-      pParent->AddComponent(hComponent);
-    }
-    break;
-
-  case ezEntityMsgToEngine::ObjectRemoved:
-    {
-      ezComponentHandle hComponent = m_ComponentMap.GetHandle(pMsg->m_ObjectGuid);
-      m_ComponentMap.UnregisterObject(pMsg->m_ObjectGuid);
-      m_ComponentPickingMap.UnregisterObject(pMsg->m_ObjectGuid);
-
-      pMan->DeleteComponent(hComponent);
-    }
-    break;
-
-  case ezEntityMsgToEngine::PropertyChanged:
-    {
-      ezComponentHandle hComponent = m_ComponentMap.GetHandle(pMsg->m_ObjectGuid);
-
-      ezComponent* pComponent;
-      if (pMan->TryGetComponent(hComponent, pComponent))
-      {
-        UpdateProperties(pMsg, pComponent, pComponent->GetDynamicRTTI());
-      }
-      else
-      {
-        ezLog::Error("Component of type '%s' cannot be found", pRtti->GetTypeName());
-      }
-    }
-    break;
-  }
-
-}
-
-void ezEngineProcessDocumentContext::HandlerEntityMsg(const ezEntityMsgToEngine* pMsg)
-{
-
-  ezRTTI* pRtti = ezRTTI::FindTypeByName(pMsg->m_sObjectType);
-
-  if (pRtti == nullptr)
-  {
-    ezLog::Error("Cannot create object of type '%s', RTTI is unknown", pMsg->m_sObjectType.GetData());
-    return;
-  }
-
-  if (pRtti == ezGetStaticRTTI<ezGameObject>())
-  {
-    HandlerGameObjectMsg(pMsg, pRtti);
-  }
-
-  if (pRtti->IsDerivedFrom<ezComponent>())
-  {
-    HandleComponentMsg(pMsg, pRtti);
-  }
-
-}
-
 void ezEngineProcessDocumentContext::UpdateSyncObjects()
 {
   for (auto* pSyncObject : m_SyncObjects)
@@ -499,30 +498,14 @@ void ezEngineProcessDocumentContext::UpdateSyncObjects()
 
       EZ_LOCK(m_pWorld->GetWriteMarker());
 
-      if (pGizmoHandle->SetupForEngine(m_pWorld, m_uiNextComponentPickingID))
+      if (pGizmoHandle->SetupForEngine(m_pWorld, m_Context.m_uiNextComponentPickingID))
       {
-        m_OtherPickingMap.RegisterObject(pGizmoHandle->GetGuid(), m_uiNextComponentPickingID);
-        ++m_uiNextComponentPickingID;
+        m_Context.m_OtherPickingMap.RegisterObject(pGizmoHandle->GetGuid(), m_Context.m_uiNextComponentPickingID);
+        ++m_Context.m_uiNextComponentPickingID;
       }
 
       pGizmoHandle->UpdateForEngine(m_pWorld);
     }
   }
 }
-
-
-
-void ezEngineProcessDocumentContext::UpdateProperties(const ezEntityMsgToEngine* pMsg, void* pObject, const ezRTTI* pRtti)
-{
-  ezMemoryStreamStorage storage;
-  ezMemoryStreamWriter writer(&storage);
-  ezMemoryStreamReader reader(&storage);
-
-  writer.WriteBytes(pMsg->m_sObjectData.GetData(), pMsg->m_sObjectData.GetElementCount());
-
-  ezReflectionSerializer::ReadObjectPropertiesFromJSON(reader, *pRtti, pObject);
-}
-
-
-
 

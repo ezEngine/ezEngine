@@ -3,10 +3,18 @@
 
 ezAbstractObjectGraph::~ezAbstractObjectGraph()
 {
+  Clear();
+}
+
+void ezAbstractObjectGraph::Clear()
+{
   for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
   {
     EZ_DEFAULT_DELETE(it.Value());
   }
+  m_Nodes.Clear();
+  m_NodesByName.Clear();
+  m_Strings.Clear();
 }
 
 const char* ezAbstractObjectGraph::RegisterString(const char* szString)

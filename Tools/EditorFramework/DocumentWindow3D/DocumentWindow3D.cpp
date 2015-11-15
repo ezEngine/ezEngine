@@ -13,10 +13,14 @@ ezQtEngineDocumentWindow::ezQtEngineDocumentWindow(ezDocument* pDocument) : ezQt
   m_pEngineConnection = nullptr;
 
   m_pEngineConnection = ezEditorEngineProcessConnection::GetInstance()->CreateEngineConnection(this);
+
+  m_Mirror.SetIPC(m_pEngineConnection);
+  m_Mirror.InitSender(pDocument->GetObjectManager());
 }
 
 ezQtEngineDocumentWindow::~ezQtEngineDocumentWindow()
 {
+  m_Mirror.DeInit();
   // delete all view widgets, so that they can send their messages before we clean up the engine connection
   DestroyAllViews();
 
@@ -70,7 +74,7 @@ bool ezQtEngineDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentM
 {
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
   {
-    m_pEngineConnection->SendDocument();
+    m_Mirror.SendDocument();
     return true;
   }
 

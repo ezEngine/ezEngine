@@ -31,6 +31,7 @@ void ezDocumentRootObject::RemoveSubObject(ezDocumentObject* pObject)
 ezDocumentObjectManager::ezDocumentObjectManager()
   : m_pDocument(nullptr)
 {
+  m_RootObject.m_pDocumentObjectManager = this;
 }
 
 ezDocumentObjectManager::~ezDocumentObjectManager()
