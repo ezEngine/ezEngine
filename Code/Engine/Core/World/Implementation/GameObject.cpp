@@ -15,6 +15,28 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator);
   EZ_END_MESSAGEHANDLERS
 EZ_END_STATIC_REFLECTED_TYPE();
 
+void ezGameObject::Reflection_AddChild(ezGameObject* pChild)
+{
+  ezVec3 vPos = pChild->GetLocalPosition();
+  ezQuat vRot = pChild->GetLocalRotation();
+  ezVec3 vScale = pChild->GetLocalScaling();
+  AddChild(pChild->GetHandle());
+  pChild->SetLocalPosition(vPos);
+  pChild->SetLocalRotation(vRot);
+  pChild->SetLocalScaling(vScale);
+}
+
+void ezGameObject::Reflection_DetachChild(ezGameObject* pChild) 
+{
+  ezVec3 vPos = pChild->GetLocalPosition();
+  ezQuat vRot = pChild->GetLocalRotation();
+  ezVec3 vScale = pChild->GetLocalScaling();
+  DetachChild(pChild->GetHandle());
+  pChild->SetLocalPosition(vPos);
+  pChild->SetLocalRotation(vRot);
+  pChild->SetLocalScaling(vScale);
+}
+
 ezHybridArray<ezGameObject*, 8> ezGameObject::Reflection_GetChildren() const
 {
   ConstChildIterator it = GetChildren();

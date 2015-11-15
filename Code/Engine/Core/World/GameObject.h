@@ -239,8 +239,10 @@ private:
 
   EZ_ALLOW_PRIVATE_PROPERTIES(ezGameObject);
 
-  void Reflection_AddChild(ezGameObject* pChild) { AddChild(pChild->GetHandle()); }
-  void Reflection_DetachChild(ezGameObject* pChild) { DetachChild(pChild->GetHandle()); }
+  // Add / Detach child used by the reflected property keep their local transform as
+  // updating that is handled by the editor.
+  void Reflection_AddChild(ezGameObject* pChild);
+  void Reflection_DetachChild(ezGameObject* pChild);
   ezHybridArray<ezGameObject*, 8> Reflection_GetChildren() const;
   void Reflection_AddComponent(ezComponent* pComponent) { AddComponent(pComponent); }
   void Reflection_RemoveComponent(ezComponent* pComponent) { RemoveComponent(pComponent); }
