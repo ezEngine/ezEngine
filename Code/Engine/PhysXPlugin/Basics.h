@@ -11,3 +11,5 @@
   #define EZ_PHYSXPLUGIN_DLL
 #endif
 
+#include <PxPhysicsAPI.h>
+using namespace physx;

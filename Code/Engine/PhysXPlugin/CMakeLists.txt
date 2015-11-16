@@ -25,16 +25,22 @@ include_directories ("${EZ_PHYSX_DIR}/Include")
 #  OpenGL32.lib    # Example: A library that can be found in any lib path, but was not built with cmake
 # )
 
+set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /MTd")
+
 SET (LINK_LIBRARIES 
   Foundation
   Core
-  # debug PhysX3ExtensionsDEBUG
+  debug PhysX3ExtensionsDEBUG
   debug PhysXVisualDebuggerSDKDEBUG
   # debug PxTaskDEBUG
   # optimized PhysX3ExtensionsCHECKED
   optimized PhysXVisualDebuggerSDKCHECKED
   # optimized PxTaskCHECKED
 )
+
+IF (NOT DEFINED BUILDSYSTEM_COMPILER_MSVC_110)
+  message (FATAL_ERROR "Unless you compile PhysX yourself from GitHub sources, PhysX will only compile and link on Visual Studio 2012.")
+endif()
 
 if (${BUILDSYSTEM_PLATFORM_64BIT})
   link_directories ("${EZ_PHYSX_DIR}/Lib/vc11win64")

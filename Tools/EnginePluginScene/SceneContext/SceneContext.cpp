@@ -35,6 +35,8 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezSceneSettingsMsgToEngine>())
   {
+    // this message comes exactly once per 'update', afterwards there will be 1 to n redraw messages
+
      auto msg = static_cast<const ezSceneSettingsMsgToEngine*>(pMsg);
 
     const bool bSimulate = msg->m_bSimulateWorld;
@@ -45,6 +47,8 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
       ezLog::Info("World Simulation %s", bSimulate ? "enabled" : "disabled");
       GetScene()->GetWorld()->SetWorldSimulationEnabled(bSimulate);
     }
+
+    GetScene()->Update();
 
     return;
   }

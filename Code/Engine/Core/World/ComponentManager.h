@@ -43,6 +43,10 @@ public:
   /// \brief Returns the rtti info of the component type that this manager handles.
   virtual const ezRTTI* GetComponentType() const = 0;
 
+  void SetUserData(void* pUserData) { m_pUserData = pUserData; }
+
+  void* GetUserData() const { return m_pUserData; }
+
 protected:
   friend class ezWorld;
   friend class ezInternal::WorldData;
@@ -115,6 +119,8 @@ private:
   virtual ezResult Deinitialize() { return EZ_SUCCESS; }
 
   ezWorld* m_pWorld;
+
+  void* m_pUserData;
 };
 
 template <typename T, bool CompactStorage = false>

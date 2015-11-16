@@ -2,14 +2,14 @@
 
 #include <PhysXPlugin/Components/PhysXComponent.h>
 
-typedef ezComponentManagerSimple<class ezStaticMeshComponent, true> ezStaticMeshComponentManager;
+typedef ezComponentManagerSimple<class ezPxStaticMeshComponent, true> ezPxStaticMeshComponentManager;
 
-class EZ_PHYSXPLUGIN_DLL ezStaticMeshComponent : public ezPhysXComponent
+class EZ_PHYSXPLUGIN_DLL ezPxStaticMeshComponent : public ezPhysXComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezStaticMeshComponent, ezPhysXComponent, ezStaticMeshComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezPxStaticMeshComponent, ezPhysXComponent, ezPxStaticMeshComponentManager);
 
 public:
-  ezStaticMeshComponent();
+  ezPxStaticMeshComponent();
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) override;
@@ -30,5 +30,7 @@ public:
 
   virtual ezResult Deinitialize() override;
 
+private:
 
+  PxRigidStatic* m_pActor;
 };

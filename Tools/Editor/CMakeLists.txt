@@ -40,6 +40,7 @@ SET (ADDITIONAL_DEPENDENCIES
   EditorEngineProcess
   EditorPluginScene
   EditorPluginAssets
+  PhysXPlugin
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)

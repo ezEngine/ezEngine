@@ -2,14 +2,14 @@
 
 #include <PhysXPlugin/Components/PhysXComponent.h>
 
-typedef ezComponentManagerSimple<class ezRigidBodyComponent, true> ezRigidBodyComponentManager;
+typedef ezComponentManagerSimple<class ezPxRigidBodyComponent, true> ezPxRigidBodyComponentManager;
 
-class EZ_PHYSXPLUGIN_DLL ezRigidBodyComponent : public ezPhysXComponent
+class EZ_PHYSXPLUGIN_DLL ezPxRigidBodyComponent : public ezPhysXComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezRigidBodyComponent, ezPhysXComponent, ezRigidBodyComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezPxRigidBodyComponent, ezPhysXComponent, ezPxRigidBodyComponentManager);
 
 public:
-  ezRigidBodyComponent();
+  ezPxRigidBodyComponent();
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) override;
@@ -24,11 +24,12 @@ protected:
   // ************************************* FUNCTIONS *****************************
 
 public:
-  void Update() {}
+  void Update();
 
   virtual ezResult Initialize() override;
 
   virtual ezResult Deinitialize() override;
 
-
+protected:
+  PxRigidDynamic* m_pActor;
 };
