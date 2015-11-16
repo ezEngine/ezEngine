@@ -138,6 +138,10 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
   TestComponent* pComponent = nullptr;
   ezGameObject* pObject = nullptr;
 
+  TestComponent::s_iAttachCounter = 0;
+  TestComponent::s_iInitCounter = 0;
+  TestComponent::s_bGOInactiveCheck = false;
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Component Init")
   {
     // test recursive write lock
@@ -156,13 +160,19 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     EZ_TEST_BOOL(pComponent->GetHandle() == handle);
 
     EZ_TEST_INT(pComponent->m_iSomeData, 1);
-    EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
+    EZ_TEST_INT(TestComponent::s_iInitCounter, 0);
 
     for (ezUInt32 i = 1; i < 100; ++i)
     {
       pManager->CreateComponent(pComponent);
       pComponent->m_iSomeData = i + 1;
     }
+
+    EZ_TEST_INT(pManager->GetComponentCount(), 100);
+    EZ_TEST_INT(TestComponent::s_iInitCounter, 0);
+
+    // Update with no components created
+    world.Update();
 
     EZ_TEST_INT(pManager->GetComponentCount(), 100);
     EZ_TEST_INT(TestComponent::s_iInitCounter, 100);
@@ -178,7 +188,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     ezUInt32 uiCounter = 0;
     for (auto it = pManager->GetComponents(); it.IsValid(); ++it)
     {
-      EZ_TEST_INT(it->m_iSomeData, (uiCounter + 4) * 25);
+      EZ_TEST_INT(it->m_iSomeData, (((uiCounter + 4) * 25) + 3) * 25);
       ++uiCounter;
     }
 
