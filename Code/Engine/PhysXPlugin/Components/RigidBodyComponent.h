@@ -26,5 +26,9 @@ protected:
 public:
   void Update() {}
 
+  virtual ezResult Initialize() override;
+
+  virtual ezResult Deinitialize() override;
+
 
 };

@@ -28,3 +28,15 @@ void ezRigidBodyComponent::DeserializeComponent(ezWorldReader& stream, ezUInt32 
 
 }
 
+ezResult ezRigidBodyComponent::Initialize()
+{
+	int i = 0;
+	return EZ_SUCCESS;
+}
+
+ezResult ezRigidBodyComponent::Deinitialize()
+{
+	int i = 0;
+	return EZ_SUCCESS;
+}
+

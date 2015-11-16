@@ -234,7 +234,6 @@ ezResult ezGameObject::AddComponent(const ezComponentHandle& component)
 
 ezResult ezGameObject::AddComponent(ezComponent* pComponent)
 {
-  EZ_ASSERT_DEV(pComponent->IsInitialized(), "Component must be initialized.");
   EZ_ASSERT_DEV(pComponent->m_pOwner == nullptr, "Component must not be added twice.");
   EZ_ASSERT_DEV(IsDynamic() || !pComponent->IsDynamic(),
     "Cannot attach a dynamic component to a static object. Call MakeDynamic() first.");
@@ -260,13 +259,12 @@ ezResult ezGameObject::RemoveComponent(const ezComponentHandle& component)
 
 ezResult ezGameObject::RemoveComponent(ezComponent* pComponent)
 {
-  EZ_ASSERT_DEV(pComponent->IsInitialized(), "Component must be initialized.");
-
   ezUInt32 uiIndex = m_Components.IndexOf(pComponent);
   if (uiIndex == ezInvalidIndex)
     return EZ_FAILURE;
 
-  pComponent->OnBeforeDetachedFromObject();
+  if (pComponent->IsInitialized())
+    pComponent->OnBeforeDetachedFromObject();
   
   pComponent->m_pOwner = nullptr;
   m_Components.RemoveAtSwap(uiIndex);

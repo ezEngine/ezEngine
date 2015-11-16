@@ -154,6 +154,9 @@ public:
   /// \brief Returns the associated user data.
   void* GetUserData() const;
 
+  /// \brief Used by component managers to queue a new component for initialization during the next update
+  void AddComponentToInitialize(ezComponentHandle hComponent);
+
 public:
   /// \brief Returns the number of active worlds.
   static ezUInt32 GetWorldCount();
@@ -204,6 +207,8 @@ private:
 
   ezUInt32 m_uiIndex;
   static ezStaticArray<ezWorld*, 64> s_Worlds;
+
+  ezDeque<ezComponentHandle> m_ComponentsToInitialize;
 };
 
 #include <Core/World/Implementation/World_inl.h>

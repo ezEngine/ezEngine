@@ -40,8 +40,8 @@ ezComponentHandle ezComponentManagerBase::CreateComponent(ComponentStorageEntry 
   ezComponent* pComponent = storageEntry.m_Ptr;
   pComponent->m_pManager = this;
   pComponent->m_InternalId = newId;
-  pComponent->Initialize();
-  pComponent->m_Flags.Add(ezObjectFlags::Initialized);
+
+  GetWorld()->AddComponentToInitialize(pComponent->GetHandle());
 
   return GetHandle(newId, uiTypeId);
 }

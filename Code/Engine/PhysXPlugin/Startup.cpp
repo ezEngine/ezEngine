@@ -102,6 +102,8 @@ struct ezPhysXData
   PxFoundation* m_pFoundation;
   ezPxErrorCallback m_ErrorCallback;
   ezPxAllocatorCallback m_AllocatorCallback;
+  PxProfileZoneManager* m_pProfileZoneManager;
+  PxPhysics* m_pPhysX;
 };
 
 ezPhysXData* ezPhysXSceneModule::s_pPhysXData = nullptr;
@@ -116,12 +118,33 @@ void ezPhysXSceneModule::InitializePhysX()
 
   EZ_ASSERT_DEV(s_pPhysXData->m_pFoundation != nullptr, "Initializing PhysX failed");
 
+
+  bool bRecordMemoryAllocations = false;
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  bRecordMemoryAllocations = true;
+#  endif
+
+  /// \todo This seems to be in the Extensions library, which does not compile with VS 2015
+  s_pPhysXData->m_pProfileZoneManager = nullptr;// &PxProfileZoneManager::createProfileZoneManager(s_pPhysXData->m_pFoundation);
+
+  //EZ_ASSERT_DEV(s_pPhysXData->m_pProfileZoneManager != nullptr, "Initializing PhysX Profile Zone Manager failed");
+
+  s_pPhysXData->m_pPhysX = PxCreatePhysics(PX_PHYSICS_VERSION, *s_pPhysXData->m_pFoundation, PxTolerancesScale(), bRecordMemoryAllocations, s_pPhysXData->m_pProfileZoneManager);
+
+  EZ_ASSERT_DEV(s_pPhysXData->m_pPhysX != nullptr, "Initializing PhysX API failed");
 }
 
 void ezPhysXSceneModule::DeinitializePhysX()
 {
+  if (s_pPhysXData != nullptr)
+  {
+    if (s_pPhysXData->m_pPhysX != nullptr)
+      s_pPhysXData->m_pPhysX->release();
 
+    if (s_pPhysXData->m_pFoundation != nullptr)
+      s_pPhysXData->m_pFoundation->release();
 
-  EZ_DEFAULT_DELETE(s_pPhysXData);
+    EZ_DEFAULT_DELETE(s_pPhysXData);
+  }
 }
 

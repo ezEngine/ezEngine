@@ -28,3 +28,15 @@ void ezStaticMeshComponent::DeserializeComponent(ezWorldReader& stream, ezUInt32
 
 }
 
+ezResult ezStaticMeshComponent::Initialize()
+{
+	int i = 0;
+	return EZ_SUCCESS;
+}
+
+ezResult ezStaticMeshComponent::Deinitialize()
+{
+	int i = 0;
+	return EZ_SUCCESS;
+}
+

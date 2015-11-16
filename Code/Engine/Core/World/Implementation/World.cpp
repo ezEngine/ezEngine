@@ -234,6 +234,25 @@ void ezWorld::Update()
   EZ_LOG_BLOCK(m_Data.m_sName.GetData());
   EZ_PROFILE(m_UpdateProfilingID);
 
+  if (m_bSimulateWorld)
+  {
+    for (ezComponentHandle hComponent : m_ComponentsToInitialize)
+    {
+      ezComponent* pComponent = nullptr;
+      if (!TryGetComponent(hComponent, pComponent)) // if it is in the editor, the component might have been added and already deleted, without ever running the simulation
+        continue;
+
+      // may have been set to initialized by a deserializer in the mean time
+      if (!pComponent->IsInitialized())
+      {
+        pComponent->Initialize();
+        pComponent->m_Flags.Add(ezObjectFlags::Initialized);
+      }
+    }
+
+    m_ComponentsToInitialize.Clear();
+  }
+
   // pre-async phase
   {
     EZ_PROFILE(s_PreAsyncProfilingID);
@@ -279,6 +298,12 @@ void ezWorld::Update()
     ProcessQueuedMessages(ezObjectMsgQueueType::PostTransform);
     UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::PostTransform]);
   }
+}
+
+
+void ezWorld::AddComponentToInitialize(ezComponentHandle hComponent)
+{
+  m_ComponentsToInitialize.PushBack(hComponent);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
