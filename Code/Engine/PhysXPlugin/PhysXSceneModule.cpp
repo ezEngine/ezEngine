@@ -2,13 +2,23 @@
 #include <PhysXPlugin/PhysXSceneModule.h>
 #include <Core/World/World.h>
 
-#include <PhysXPlugin/Components/StaticMeshComponent.h>
-#include <PhysXPlugin/Components/RigidBodyComponent.h>
+#include <PhysXPlugin/Components/PxStaticActorComponent.h>
+#include <PhysXPlugin/Components/PxDynamicActorComponent.h>
+#include <PhysXPlugin/Components/PxShapeBoxComponent.h>
+#include <PhysXPlugin/Components/PxShapeSphereComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXSceneModule, 1, ezRTTIDefaultAllocator<ezPhysXSceneModule>);
   // no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+ezPhysXData::ezPhysXData()
+{
+  m_pFoundation = nullptr;
+  m_pProfileZoneManager = nullptr;
+  m_pPhysX = nullptr;
+  m_pDefaultMaterial = nullptr;
+  m_VdbConnection = nullptr;
+}
 
 ezPhysXSceneModule::ezPhysXSceneModule()
 {
@@ -18,8 +28,10 @@ ezPhysXSceneModule::ezPhysXSceneModule()
 
 void ezPhysXSceneModule::InternalStartup()
 {
-  GetWorld()->CreateComponentManager<ezPxStaticMeshComponentManager>()->SetUserData(this);
-  GetWorld()->CreateComponentManager<ezPxRigidBodyComponentManager>()->SetUserData(this);
+  GetWorld()->CreateComponentManager<ezPxStaticActorComponentManager>()->SetUserData(this);
+  GetWorld()->CreateComponentManager<ezPxDynamicActorComponentManager>()->SetUserData(this);
+  GetWorld()->CreateComponentManager<ezPxShapeBoxComponentManager>()->SetUserData(this);
+  GetWorld()->CreateComponentManager<ezPxShapeSphereComponentManager>()->SetUserData(this);
 
   PxSceneDesc desc = PxSceneDesc(PxTolerancesScale());
   desc.setToDefault(PxTolerancesScale());
@@ -57,3 +69,5 @@ void ezPhysXSceneModule::InternalUpdate()
     tDiff -= tStep;
   }
 }
+
+

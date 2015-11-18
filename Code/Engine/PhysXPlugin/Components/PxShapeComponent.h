@@ -2,14 +2,14 @@
 
 #include <PhysXPlugin/Components/PhysXComponent.h>
 
-typedef ezComponentManagerSimple<class ezPxRigidBodyComponent, true> ezPxRigidBodyComponentManager;
+typedef ezComponentManagerAbstract<class ezPxShapeComponent> ezPxShapeComponentManager;
 
-class EZ_PHYSXPLUGIN_DLL ezPxRigidBodyComponent : public ezPhysXComponent
+class EZ_PHYSXPLUGIN_DLL ezPxShapeComponent : public ezPhysXComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezPxRigidBodyComponent, ezPhysXComponent, ezPxRigidBodyComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezPxShapeComponent, ezPhysXComponent, ezPxShapeComponentManager);
 
 public:
-  ezPxRigidBodyComponent();
+  ezPxShapeComponent();
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) override;
@@ -17,6 +17,9 @@ public:
   // ************************************* PROPERTIES ***********************************
 public:
 
+  // physics material
+  // collision flags ?
+  // flags: scene query shape, simulate, trigger (?), vdb vis
 
 protected:
 
@@ -24,12 +27,10 @@ protected:
   // ************************************* FUNCTIONS *****************************
 
 public:
-  void Update();
-
-  virtual ezResult Initialize() override;
-
-  virtual ezResult Deinitialize() override;
+  virtual void AddToActor(PxRigidActor* pActor, const ezTransform& ParentTransform) = 0;
 
 protected:
-  PxRigidDynamic* m_pActor;
+
 };
+
+

@@ -153,7 +153,7 @@ void ezWorldReader::ReadComponentsOfType()
     bool bDynamic = true;
     *m_pStream >> bDynamic;
 
-    auto hComponent = pManager->CreateComponent();
+    auto hComponent = pManager->AllocateComponent();
     m_IndexToComponentHandle.PushBack(hComponent);
 
     ezComponent* pComponent = nullptr;

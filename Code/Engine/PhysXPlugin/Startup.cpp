@@ -113,6 +113,10 @@ void ezPhysXSceneModule::InitializePhysX()
 
 
   s_pPhysXData->m_pDefaultMaterial = s_pPhysXData->m_pPhysX->createMaterial(0.6f, 0.4f, 0.25f);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  StartupVDB();
+#endif
 }
 
 void ezPhysXSceneModule::DeinitializePhysX()
@@ -127,5 +131,36 @@ void ezPhysXSceneModule::DeinitializePhysX()
 
     EZ_DEFAULT_DELETE(s_pPhysXData);
   }
+
+  ShutdownVDB();
 }
 
+void ezPhysXSceneModule::StartupVDB()
+{
+  if (s_pPhysXData == nullptr)
+    return;
+
+  // check if PvdConnection manager is available on this platform
+  if (GetPxApi()->getPvdConnectionManager() == nullptr)
+    return;
+
+  // setup connection parameters
+  const char* pvd_host_ip = "127.0.0.1"; // IP of the PC which is running PVD
+  int port = 5425; // TCP port to connect to, where PVD is listening
+  unsigned int timeout = 100; // timeout in milliseconds to wait for PVD to respond, consoles and remote PCs need a higher timeout.
+
+  PxVisualDebuggerConnectionFlags connectionFlags = PxVisualDebuggerExt::getAllConnectionFlags();
+
+  s_pPhysXData->m_VdbConnection = PxVisualDebuggerExt::createConnection(GetPxApi()->getPvdConnectionManager(), pvd_host_ip, port, timeout, connectionFlags);
+}
+
+void ezPhysXSceneModule::ShutdownVDB()
+{
+  if (s_pPhysXData == nullptr)
+    return;
+
+  if (s_pPhysXData->m_VdbConnection == nullptr)
+    return;
+
+  s_pPhysXData->m_VdbConnection->release();
+}

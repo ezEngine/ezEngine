@@ -17,7 +17,7 @@ void ezComponentManagerBase::DeleteComponent(const ezComponentHandle& component)
   ComponentStorageEntry storageEntry;
   if (m_Components.TryGetValue(component, storageEntry))
   {
-    DeleteComponent(storageEntry);
+    DeleteComponentEntry(storageEntry);
   }
 }
 
@@ -33,7 +33,7 @@ void ezComponentManagerBase::DeregisterUpdateFunction(const UpdateFunctionDesc& 
   m_pWorld->DeregisterUpdateFunction(desc);
 }
 
-ezComponentHandle ezComponentManagerBase::CreateComponent(ComponentStorageEntry storageEntry, ezUInt16 uiTypeId)
+ezComponentHandle ezComponentManagerBase::CreateComponentEntry(ComponentStorageEntry storageEntry, ezUInt16 uiTypeId)
 {
   ezGenericComponentId newId = m_Components.Insert(storageEntry);
 
@@ -60,7 +60,7 @@ void ezComponentManagerBase::DeinitializeComponent(ezComponent* pComponent)
   }
 }
 
-void ezComponentManagerBase::DeleteComponent(ComponentStorageEntry storageEntry)
+void ezComponentManagerBase::DeleteComponentEntry(ComponentStorageEntry storageEntry)
 {
   ezComponent* pComponent = storageEntry.m_Ptr;
   DeinitializeComponent(pComponent);

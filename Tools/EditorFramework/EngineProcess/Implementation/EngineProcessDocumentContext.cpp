@@ -61,7 +61,7 @@ void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI
       ezLog::Error("Component of type '%s' cannot be created, no component manager is registered", pRtti->GetTypeName());
       return nullptr;
     }
-    ezComponentHandle hComponent = pMan->CreateComponent();
+    ezComponentHandle hComponent = pMan->AllocateComponent();
     ezComponent* pComponent;
     if (pMan->TryGetComponent(hComponent, pComponent))
     {

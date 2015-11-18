@@ -22,14 +22,12 @@ void ezComponent::Deactivate()
   m_Flags.Remove(ezObjectFlags::Active);
 }
 
-ezResult ezComponent::Initialize() 
+void ezComponent::Initialize() 
 { 
-  return EZ_SUCCESS;
 }
 
-ezResult ezComponent::Deinitialize()
+void ezComponent::Deinitialize()
 {
-  return EZ_SUCCESS;
 }
 
 void ezComponent::OnAfterAttachedToObject()

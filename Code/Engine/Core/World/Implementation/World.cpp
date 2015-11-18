@@ -245,6 +245,9 @@ void ezWorld::Update()
       // may have been set to initialized by a deserializer in the mean time
       if (!pComponent->IsInitialized())
       {
+        // make sure the object's transform is up to date before the component is initialized
+        pComponent->GetOwner()->UpdateGlobalTransform();
+
         pComponent->Initialize();
         pComponent->m_Flags.Add(ezObjectFlags::Initialized);
       }

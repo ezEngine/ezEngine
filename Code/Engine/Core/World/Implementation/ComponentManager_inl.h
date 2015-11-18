@@ -55,7 +55,7 @@ ezComponentManager<T, CompactStorage>::~ezComponentManager()
 }
 
 template <typename T, bool CompactStorage>
-EZ_FORCE_INLINE ezComponentHandle ezComponentManager<T, CompactStorage>::CreateComponent()
+EZ_FORCE_INLINE ezComponentHandle ezComponentManager<T, CompactStorage>::AllocateComponent()
 {
   ComponentType* pNewComponent = nullptr;
   return CreateComponent(pNewComponent);
@@ -67,7 +67,7 @@ EZ_FORCE_INLINE ezComponentHandle ezComponentManager<T, CompactStorage>::CreateC
   auto storageEntry = m_ComponentStorage.Create();
   out_pComponent = storageEntry.m_Ptr;
 
-  return ezComponentManagerBase::CreateComponent(*reinterpret_cast<ComponentStorageEntry*>(&storageEntry), ComponentType::TypeId());
+  return ezComponentManagerBase::CreateComponentEntry(*reinterpret_cast<ComponentStorageEntry*>(&storageEntry), ComponentType::TypeId());
 }
 
 template <typename T, bool CompactStorage>

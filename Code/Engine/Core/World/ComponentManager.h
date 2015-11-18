@@ -35,7 +35,7 @@ public:
   ezUInt32 GetComponentCount() const;
 
   /// \brief Create a new component instance and returns a handle to it. This method is implemented by ezComponentManager.
-  virtual ezComponentHandle CreateComponent() = 0;
+  virtual ezComponentHandle AllocateComponent() = 0;
 
   /// \brief Deletes the given component. Note that the component will be invalidated first and the actual deletion is postponed.
   void DeleteComponent(const ezComponentHandle& component);
@@ -99,9 +99,9 @@ protected:
   // internal methods
   typedef ezBlockStorage<ezComponent, ezInternal::DEFAULT_BLOCK_SIZE, false>::Entry ComponentStorageEntry;
 
-  ezComponentHandle CreateComponent(ComponentStorageEntry storageEntry, ezUInt16 uiTypeId);
+  ezComponentHandle CreateComponentEntry(ComponentStorageEntry storageEntry, ezUInt16 uiTypeId);
   void DeinitializeComponent(ezComponent* pComponent);
-  void DeleteComponent(ComponentStorageEntry storageEntry);
+  void DeleteComponentEntry(ComponentStorageEntry storageEntry);
   virtual void DeleteDeadComponent(ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent);
 
   static ezComponentId GetIdFromHandle(const ezComponentHandle& component);
@@ -134,7 +134,7 @@ public:
   virtual ~ezComponentManager();
 
   /// \brief Create a new component instance and returns a handle to it.
-  virtual ezComponentHandle CreateComponent() override;
+  virtual ezComponentHandle AllocateComponent() override;
 
   /// \brief Create a new component instance and returns a handle to it and writes a pointer to out_pComponent.
   ezComponentHandle CreateComponent(ComponentType*& out_pComponent);
@@ -172,6 +172,41 @@ public:
 
   /// \brief A simple update function that iterates over all components and calls Update() on every component
   void SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount);
+};
+
+/// \brief Simple component manager implementation that calls an update method on all components every frame.
+template <typename component>
+class ezComponentManagerAbstract : public ezComponentManagerBase
+{
+public:
+  typedef component ComponentType;
+
+  ezComponentManagerAbstract(ezWorld* pWorld) : ezComponentManagerBase(pWorld)
+  {
+
+  }
+
+  virtual ezComponentHandle AllocateComponent() override
+  {
+    EZ_REPORT_FAILURE("Components of type '%s' cannot be created, they are abstract", ezGetStaticRTTI<ComponentType>()->GetTypeName());
+    return ezComponentHandle();
+  }
+
+  ezComponentHandle CreateComponent(ComponentType*& out_pComponent)
+  {
+    EZ_REPORT_FAILURE("Components of type '%s' cannot be created, they are abstract", ezGetStaticRTTI<ComponentType>()->GetTypeName());
+    return ezComponentHandle();
+  }
+
+  virtual const ezRTTI* GetComponentType() const override
+  {
+    return ezGetStaticRTTI<ComponentType>();
+  }
+
+  static ezUInt16 TypeId()
+  {
+    return ComponentType::TypeId();
+  }
 };
 
 /// \brief Helper macro to create an update function description with proper name

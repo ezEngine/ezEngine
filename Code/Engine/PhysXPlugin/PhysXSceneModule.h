@@ -24,12 +24,15 @@ public:
 
 struct ezPhysXData
 {
+  ezPhysXData();
+
   PxFoundation* m_pFoundation;
   ezPxErrorCallback m_ErrorCallback;
   ezPxAllocatorCallback m_AllocatorCallback;
   PxProfileZoneManager* m_pProfileZoneManager;
   PxPhysics* m_pPhysX;
   PxMaterial* m_pDefaultMaterial;
+  PxVisualDebuggerConnection* m_VdbConnection;
 };
 
 
@@ -42,7 +45,7 @@ public:
 
   PxScene* GetPxScene() const { return m_pPxScene; }
 
-  PxPhysics* GetPxApi() const { return s_pPhysXData->m_pPhysX; }
+  static PxPhysics* GetPxApi() { return s_pPhysXData->m_pPhysX; }
 
   PxMaterial* GetDefaultMaterial() const { return s_pPhysXData->m_pDefaultMaterial; }
 
@@ -52,6 +55,9 @@ protected:
   virtual void InternalShutdown() override;
 
   virtual void InternalUpdate() override;
+
+  static void StartupVDB();
+  static void ShutdownVDB();
 
 private:
   PxScene* m_pPxScene;

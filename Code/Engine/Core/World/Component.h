@@ -86,10 +86,10 @@ private:
   virtual ezUInt16 GetTypeId() const = 0;
 
   /// \brief This method is called after the constructor. A derived type can override this method to do common initialization work.
-  virtual ezResult Initialize();
+  virtual void Initialize();
 
   /// \brief This method is called before the destructor. A derived type can override this method to do common deinitialization work.
-  virtual ezResult Deinitialize();
+  virtual void Deinitialize();
 
   /// \brief Returns whether this component is initialized. Internal method.
   bool IsInitialized() const;
