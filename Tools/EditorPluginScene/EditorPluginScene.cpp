@@ -95,4 +95,4 @@ void OnUnloadPlugin(bool bReloading)
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
 
-EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(ezEditorPluginScene);
+EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_EDITORPLUGINSCENE_DLL, ezEditorPluginScene);

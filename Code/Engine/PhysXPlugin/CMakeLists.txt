@@ -25,11 +25,13 @@ include_directories ("${EZ_PHYSX_DIR}/Include")
 #  OpenGL32.lib    # Example: A library that can be found in any lib path, but was not built with cmake
 # )
 
+# this is because PhysX is compiled with that setting
 set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /MTd")
 
 SET (LINK_LIBRARIES 
   Foundation
   Core
+  CoreUtils
   debug PhysX3ExtensionsDEBUG
   debug PhysXVisualDebuggerSDKDEBUG
   # debug PxTaskDEBUG
@@ -49,7 +51,6 @@ if (${BUILDSYSTEM_PLATFORM_64BIT})
     ${LINK_LIBRARIES}
     debug PhysX3DEBUG_x64
     debug PhysX3CommonDEBUG_x64
-    debug PhysX3CookingDEBUG_x64
     debug PhysX3CharacterKinematicDEBUG_x64
     optimized PhysX3CHECKED_x64
     optimized PhysX3CommonCHECKED_x64
@@ -64,7 +65,6 @@ else()
     ${LINK_LIBRARIES}
     debug PhysX3DEBUG_x86
     debug PhysX3CommonDEBUG_x86
-    debug PhysX3CookingDEBUG_x86
     debug PhysX3CharacterKinematicDEBUG_x86
     optimized PhysX3CHECKED_x86
     optimized PhysX3CommonCHECKED_x86

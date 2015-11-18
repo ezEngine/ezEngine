@@ -1,3 +1,5 @@
 {
-  "Plugins" : [  ]
+  "Plugins" : [ {
+      "Path" : "ezPhysXPlugin"
+    } ]
 }

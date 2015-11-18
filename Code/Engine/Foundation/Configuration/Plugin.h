@@ -166,6 +166,6 @@ public:                                                     \
 static ezDynamicPluginHelper_##Plugin ezPluginHelperVar     \
 
 /// \brief The counter part to EZ_DYNAMIC_PLUGIN_DECLARATION. Must be put into some cpp file of a plugin.
-#define EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(Plugin)            \
-  void ezPluginHelper_##Plugin() { }
+#define EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(LINKAGE, Plugin)   \
+  LINKAGE void ezPluginHelper_##Plugin() { }
 

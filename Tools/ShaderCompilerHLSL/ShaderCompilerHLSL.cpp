@@ -11,7 +11,7 @@ void OnUnloadPlugin(bool bReloading) { }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
 
-EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(ezShaderCompilerHLSLPlugin);
+EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_SHADERCOMPILERHLSL_DLL, ezShaderCompilerHLSLPlugin);
 
 ezResult CompileDXShader(const char* szFile, const char* source, const char* profile, const char* entryPoint, ezDynamicArray<ezUInt8>& out_ByteCode)
 {
