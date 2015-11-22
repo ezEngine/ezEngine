@@ -16,6 +16,8 @@ class QScrollArea;
 
 class ezCollapsibleGroupBox;
 class ezDocument;
+class ezDocumentObjectManager;
+class ezCommandHistory;
 struct ezDocumentObjectPropertyEvent;
 
 class EZ_GUIFOUNDATION_DLL ezPropertyGridWidget : public QWidget
@@ -28,6 +30,8 @@ public:
   void ClearSelection();
   void SetSelection(const ezDeque<const ezDocumentObject*>& selection);
   const ezDocument* GetDocument() const;
+  const ezDocumentObjectManager* GetObjectManager() const;
+  ezCommandHistory* GetCommandHistory() const;
 
   static ezRttiMappedObjectFactory<ezQtPropertyWidget>& GetFactory();
   static ezQtPropertyWidget* CreateMemberPropertyWidget(const ezAbstractProperty* pProp);

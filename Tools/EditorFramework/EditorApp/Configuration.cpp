@@ -2,6 +2,8 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <ToolsFoundation/Settings/ToolsTagRegistry.h>
 #include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
 #include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
 
@@ -86,6 +88,62 @@ bool ezQtEditorApp::MakePathDataDirectoryRelative(ezString & sPath) const
   sPath = sResult;
 
   return false;
+}
+
+ezStatus ezQtEditorApp::SaveTagRegistry()
+{
+  EZ_LOG_BLOCK("ezQtEditorApp::SaveTagRegistry()");
+
+  ezStringBuilder sPath;
+  sPath = m_EnginePluginConfig.GetProjectDirectory();
+  sPath.AppendPath("Tags.ezManifest");
+
+  ezFileWriter file;
+  if (file.Open(sPath).Failed())
+  {
+    return ezStatus("Could not open tags config file '%s' for writing", sPath.GetData());
+  }
+
+  ezToolsTagRegistry::WriteToJSON(file);
+  return ezStatus(EZ_SUCCESS);
+}
+
+void ezQtEditorApp::ReadTagRegistry()
+{
+  EZ_LOG_BLOCK("ezQtEditorApp::ReadTagRegistry()");
+
+  ezToolsTagRegistry::Clear();
+
+  ezStringBuilder sPath;
+  sPath = m_EnginePluginConfig.GetProjectDirectory();
+  sPath.AppendPath("Tags.ezManifest");
+
+  ezFileReader file;
+  if (file.Open(sPath).Failed())
+  {
+    ezLog::Warning("Could not open tags config file '%s'", sPath.GetData());
+    
+    ezStatus res = SaveTagRegistry();
+    if (res.m_Result.Failed())
+    {
+      ezLog::Error("%s", res.m_sError.GetData());
+    }
+  }
+  else
+  {
+    ezStatus res = ezToolsTagRegistry::ReadFromJSON(file);
+    if (res.m_Result.Failed())
+    {
+      ezLog::Error("%s", res.m_sError.GetData());
+    }
+  }
+
+
+  // TODO: Add default tags
+  ezToolsTag tag;
+  tag.m_sName = "EditorHidden";
+  tag.m_sCategory = "Default";
+  ezToolsTagRegistry::AddTag(tag);
 }
 
 void ezQtEditorApp::SetupDataDirectories()

@@ -838,13 +838,13 @@ void TestSetProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti,
   if (!pSetProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
   {
     pSetProp->Clear(pObject);
-    EZ_TEST_INT(pSetProp->GetCount(pObject), 0);
+    EZ_TEST_BOOL(pSetProp->IsEmpty(pObject));
     pSetProp->Insert(pObject, &value1);
-    EZ_TEST_INT(pSetProp->GetCount(pObject), 1);
+    EZ_TEST_BOOL(!pSetProp->IsEmpty(pObject));
     EZ_TEST_BOOL(pSetProp->Contains(pObject, &value1));
     EZ_TEST_BOOL(!pSetProp->Contains(pObject, &value2));
     pSetProp->Insert(pObject, &value2);
-    EZ_TEST_INT(pSetProp->GetCount(pObject), 2);
+    EZ_TEST_BOOL(!pSetProp->IsEmpty(pObject));
     EZ_TEST_BOOL(pSetProp->Contains(pObject, &value1));
     EZ_TEST_BOOL(pSetProp->Contains(pObject, &value2));
 
@@ -853,21 +853,21 @@ void TestSetProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti,
     {
       T temp;
       pSetProp->Insert(pObject, &temp);
-      EZ_TEST_INT(pSetProp->GetCount(pObject), 3);
+      EZ_TEST_BOOL(!pSetProp->IsEmpty(pObject));
       EZ_TEST_BOOL(pSetProp->Contains(pObject, &value1));
       EZ_TEST_BOOL(pSetProp->Contains(pObject, &value2));
       EZ_TEST_BOOL(pSetProp->Contains(pObject, &temp));
 
       // Remove it again
       pSetProp->Remove(pObject, &temp);
-      EZ_TEST_INT(pSetProp->GetCount(pObject), 2);
+      EZ_TEST_BOOL(!pSetProp->IsEmpty(pObject));
       EZ_TEST_BOOL(!pSetProp->Contains(pObject, &temp));
     }
   }
 
   // Assumes this function gets called first by a writeable property, and then immediately by the same data as a read-only property.
   // So the checks are valid for the read-only version, too.
-  EZ_TEST_INT(pSetProp->GetCount(pObject), 2);
+  EZ_TEST_BOOL(!pSetProp->IsEmpty(pObject));
   EZ_TEST_BOOL(pSetProp->Contains(pObject, &value1));
   EZ_TEST_BOOL(pSetProp->Contains(pObject, &value2));
 

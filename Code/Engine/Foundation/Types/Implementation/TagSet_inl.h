@@ -3,6 +3,131 @@
 
 #include <Foundation/Types/Tag.h>
 
+
+// Template specialization to be able to use ezTagSet properties as EZ_SET_MEMBER_PROPERTY.
+template <typename T>
+struct ezContainerSubTypeResolver<ezTagSetTemplate<T> >
+{
+  typedef const char* Type;
+};
+
+
+template<typename Class>
+class ezMemberSetProperty<Class, ezTagSet, const char*> : public ezTypedSetProperty< typename ezTypeTraits<const char*>::NonConstReferenceType >
+{
+public:
+  typedef ezTagSet Container;
+  typedef ezConstCharPtr Type;
+  typedef typename ezTypeTraits<Type>::NonConstReferenceType RealType;
+  typedef const Container& (*GetConstContainerFunc)(const Class* pInstance);
+  typedef Container& (*GetContainerFunc)(Class* pInstance);
+
+  ezMemberSetProperty(const char* szPropertyName, GetConstContainerFunc constGetter, GetContainerFunc getter)
+    : ezTypedSetProperty<RealType>(szPropertyName)
+  {
+    EZ_ASSERT_DEBUG(constGetter != nullptr, "The const get count function of an set property cannot be nullptr.");
+
+    m_ConstGetter = constGetter;
+    m_Getter = getter;
+
+    if (m_Getter == nullptr)
+      ezAbstractSetProperty::m_Flags.Add(ezPropertyFlags::ReadOnly);
+  }
+
+  virtual bool IsEmpty(const void* pInstance) const override
+  {
+    return m_ConstGetter(static_cast<const Class*>(pInstance)).IsEmpty();
+  }
+
+  virtual void Clear(void* pInstance) override
+  {
+    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '%s' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    m_Getter(static_cast<Class*>(pInstance)).Clear();
+  }
+
+  virtual void Insert(void* pInstance, void* pObject) override
+  {
+    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '%s' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    m_Getter(static_cast<Class*>(pInstance)).SetByName(*static_cast<const RealType*>(pObject));
+  }
+
+  virtual void Remove(void* pInstance, void* pObject) override
+  {
+    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '%s' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    m_Getter(static_cast<Class*>(pInstance)).RemoveByName(*static_cast<const RealType*>(pObject));
+  }
+
+  virtual bool Contains(const void* pInstance, void* pObject) const override
+  {
+    return m_ConstGetter(static_cast<const Class*>(pInstance)).IsSetByName(*static_cast<const RealType*>(pObject));
+  }
+
+  virtual void GetValues(const void* pInstance, ezHybridArray<ezVariant, 16>& out_keys) const override
+  {
+    out_keys.Clear();
+    for (const auto& value : m_ConstGetter(static_cast<const Class*>(pInstance)))
+    {
+      out_keys.PushBack(value);
+    }
+  }
+
+private:
+  GetConstContainerFunc m_ConstGetter;
+  GetContainerFunc m_Getter;
+};
+
+
+template <typename BlockStorageAllocator>
+ezTagSetTemplate<BlockStorageAllocator>::Iterator::Iterator(const ezTagSetTemplate<BlockStorageAllocator>* pSet, bool bEnd) : m_pTagSet(pSet), m_uiIndex(0)
+{
+  if (!bEnd)
+  {
+    m_uiIndex = pSet->m_uiTagBlockStart * (sizeof(ezTagSetBlockStorage) * 8);
+
+    if (pSet->IsEmpty())
+      m_uiIndex = 0xFFFFFFFF;
+    else
+    {
+      if (!IsBitSet())
+        operator++();
+    }
+  }
+  else
+    m_uiIndex = 0xFFFFFFFF;
+}
+
+template <typename BlockStorageAllocator>
+bool ezTagSetTemplate<BlockStorageAllocator>::Iterator::IsBitSet() const
+{
+  ezTag TempTag;
+  TempTag.m_uiBlockIndex = m_uiIndex / (sizeof(ezTagSetBlockStorage) * 8);
+  TempTag.m_uiBitIndex = m_uiIndex - (TempTag.m_uiBlockIndex * sizeof(ezTagSetBlockStorage) * 8);
+  TempTag.m_uiPreshiftedBit = (static_cast<ezTagSetBlockStorage>(1) << static_cast<ezTagSetBlockStorage>(TempTag.m_uiBitIndex));
+
+  return m_pTagSet->IsSet(TempTag);
+}
+
+template <typename BlockStorageAllocator>
+void ezTagSetTemplate<BlockStorageAllocator>::Iterator::operator++()
+{
+  const ezUInt32 uiMax = (m_pTagSet->m_uiTagBlockStart + m_pTagSet->m_TagBlocks.GetCount()) * (sizeof(ezTagSetBlockStorage) * 8);
+
+  do
+  {
+    ++m_uiIndex;
+  } while (m_uiIndex < uiMax && !IsBitSet());
+
+  if (m_uiIndex >= uiMax)
+    m_uiIndex = 0xFFFFFFFF;
+}
+
+template <typename BlockStorageAllocator>
+const char* ezTagSetTemplate<BlockStorageAllocator>::Iterator::operator*() const
+{
+  return ezTagRegistry::GetGlobalRegistry().GetTagByIndex(m_uiIndex)->GetTagString();
+}
+
+
 template<typename BlockStorageAllocator>
 ezTagSetTemplate<BlockStorageAllocator>::ezTagSetTemplate()
   : m_uiTagBlockStart(0xFFFFFFFFu)
@@ -52,12 +177,6 @@ bool ezTagSetTemplate<BlockStorageAllocator>::IsSet(const ezTag& Tag) const
 }
 
 template<typename BlockStorageAllocator>
-bool ezTagSetTemplate<BlockStorageAllocator>::IsEmpty() const
-{
-  return m_uiTagBlockStart == 0xFFFFFFFFu;
-}
-
-template<typename BlockStorageAllocator>
 bool ezTagSetTemplate<BlockStorageAllocator>::IsAnySet(const ezTagSetTemplate& OtherSet) const
 {
   // If any of the sets is empty nothing can match
@@ -83,6 +202,53 @@ bool ezTagSetTemplate<BlockStorageAllocator>::IsAnySet(const ezTagSetTemplate& O
   }
 
   return false;
+}
+
+template<typename BlockStorageAllocator>
+bool ezTagSetTemplate<BlockStorageAllocator>::IsEmpty() const
+{
+  if (m_uiTagBlockStart == 0xFFFFFFFFu)
+    return true;
+
+  //for (ezUInt32 i = m_uiTagBlockStart; i < m_uiTagBlockStart; ++i)
+  //{
+  //  if (m_TagBlocks[i - m_uiTagBlockStart] != 0)
+  //    return false;
+  //}
+
+  return false;
+  return true;
+}
+
+template<typename BlockStorageAllocator>
+void ezTagSetTemplate<BlockStorageAllocator>::Clear()
+{
+  m_TagBlocks.Clear();
+  m_uiTagBlockStart = 0xFFFFFFFFu;
+}
+
+template<typename BlockStorageAllocator>
+void ezTagSetTemplate<BlockStorageAllocator>::SetByName(const char* szTag)
+{
+  ezTag tag;
+  ezTagRegistry::GetGlobalRegistry().RegisterTag(szTag, &tag);
+  Set(tag);
+}
+
+template<typename BlockStorageAllocator>
+void ezTagSetTemplate<BlockStorageAllocator>::RemoveByName(const char* szTag)
+{
+  ezTag tag;
+  ezTagRegistry::GetGlobalRegistry().RegisterTag(szTag, &tag);
+  Remove(tag);
+}
+
+template<typename BlockStorageAllocator>
+bool ezTagSetTemplate<BlockStorageAllocator>::IsSetByName(const char* szTag) const
+{
+  ezTag tag;
+  ezTagRegistry::GetGlobalRegistry().RegisterTag(szTag, &tag);
+  return IsSet(tag);
 }
 
 template<typename BlockStorageAllocator>

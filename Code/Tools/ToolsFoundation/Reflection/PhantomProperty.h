@@ -83,7 +83,7 @@ public:
   ~ezPhantomSetProperty();
   
   virtual const ezRTTI* GetSpecificType() const override;
-  virtual ezUInt32 GetCount(const void* pInstance) const override { return 0; }
+  virtual bool IsEmpty(const void* pInstance) const override { return true; }
   virtual void Clear(void* pInstance) override {}
   virtual void Insert(void* pInstance, void* pObject) override {}
   virtual void Remove(void* pInstance, void* pObject) override {}

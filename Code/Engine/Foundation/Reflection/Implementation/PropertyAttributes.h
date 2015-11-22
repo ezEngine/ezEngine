@@ -60,6 +60,29 @@ class EZ_FOUNDATION_DLL ezContainerWidgetAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezContainerWidgetAttribute, ezPropertyAttribute);
 };
 
+/// \brief Add this attribute to a tag set member property to make it use the tag set editor
+/// and define the categories it will use as a ; separated list of category names.
+///
+/// Usage: EZ_SET_MEMBER_PROPERTY("Tags", m_Tags)->AddAttributes(new ezTagSetWidgetAttribute("Category1;Category2")),
+class EZ_FOUNDATION_DLL ezTagSetWidgetAttribute : public ezContainerWidgetAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezTagSetWidgetAttribute, ezContainerWidgetAttribute);
+
+public:
+  ezTagSetWidgetAttribute() {}
+  ezTagSetWidgetAttribute(const char* szTagFilter)
+  {
+    m_sTagFilter = szTagFilter;
+  }
+
+  const char* GetTagFilter() const { return m_sTagFilter; }
+
+private:
+  EZ_ALLOW_PRIVATE_PROPERTIES(ezTagSetWidgetAttribute);
+
+  ezString m_sTagFilter;
+};
+
 /// \brief Sets the allowed actions on a container.
 class EZ_FOUNDATION_DLL ezContainerAttribute : public ezPropertyAttribute
 {

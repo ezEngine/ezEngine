@@ -1,6 +1,7 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
+#include <GuiFoundation/PropertyGrid/Implementation/TagSetPropertyWidget.moc.h>
 #include <GuiFoundation/Widgets/CollapsibleGroupBox.moc.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <Foundation/Configuration/Startup.h>
@@ -84,6 +85,11 @@ static ezQtPropertyWidget* FileBrowserCreator(const ezRTTI* pRtti)
   return new ezPropertyEditorFileBrowserWidget();
 }
 
+static ezQtPropertyWidget* TagSetCreator(const ezRTTI* pRtti)
+{
+  return new ezPropertyEditorTagSetWidget();
+}
+
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
 
 BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -117,7 +123,7 @@ ON_CORE_STARTUP
   ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezBitflagsBase>(), BitflagsCreator);
 
   ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>(), FileBrowserCreator);
-
+  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezTagSetWidgetAttribute>(), TagSetCreator);
 }
 
 ON_CORE_SHUTDOWN
@@ -220,6 +226,16 @@ void ezPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObject*>& 
 const ezDocument* ezPropertyGridWidget::GetDocument() const
 {
   return m_pDocument;
+}
+
+const ezDocumentObjectManager* ezPropertyGridWidget::GetObjectManager() const
+{
+  return m_pDocument->GetObjectManager();
+}
+
+ezCommandHistory* ezPropertyGridWidget::GetCommandHistory() const
+{
+  return m_pDocument->GetCommandHistory();
 }
 
 ezQtPropertyWidget* ezPropertyGridWidget::CreateMemberPropertyWidget(const ezAbstractProperty* pProp)

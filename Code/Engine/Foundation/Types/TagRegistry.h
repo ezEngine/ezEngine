@@ -26,13 +26,15 @@ public:
   void RegisterTag(const char* szTagString, ezTag* ResultTag = nullptr); // [tested]
   void RegisterTag(const ezHashedString& TagString, ezTag* ResultTag = nullptr); // [tested]
 
-  ezResult GetTag(const char* szTagString, ezTag& ResultTag); // [tested]
-  ezResult GetTag(const ezHashedString& TagString, ezTag& ResultTag); // [tested]
+  ezResult GetTag(const char* szTagString, ezTag& ResultTag) const; // [tested]
+  ezResult GetTag(const ezHashedString& TagString, ezTag& ResultTag) const; // [tested]
+
+  const ezTag* GetTagByIndex(ezUInt32 uiIndex) const;
 
 protected:
 
-  ezMutex m_TagRegistryMutex;
+  mutable ezMutex m_TagRegistryMutex;
 
   ezMap<ezHashedString, ezTag> m_RegisteredTags;
-  ezUInt32 m_uiNextTagIndex;
+  ezDeque<ezTag*> m_TagsByIndex;
 };

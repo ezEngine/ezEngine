@@ -264,8 +264,8 @@ public:
   /// \brief Returns ezPropertyCategory::Array.
   virtual ezPropertyCategory::Enum GetCategory() const override { return ezPropertyCategory::Set; }
 
-  /// \brief Returns number of elements.
-  virtual ezUInt32 GetCount(const void* pInstance) const = 0;
+  /// \brief Returns whether the set is empty.
+  virtual bool IsEmpty(const void* pInstance) const = 0;
 
   /// \brief Clears the set.
   virtual void Clear(void* pInstance) = 0;

@@ -116,6 +116,8 @@ public:
   bool MakeDataDirectoryRelativePathAbsolute(ezString& sPath) const;
   bool MakePathDataDirectoryRelative(ezString& sPath) const;
 
+  ezStatus SaveTagRegistry();
+
 private:
   ezString BuildDocumentTypeFileFilter(bool bForCreation);
   
@@ -147,6 +149,7 @@ private:
 
   void ReadPluginsToBeLoaded();
   void ReadEnginePluginConfig();
+  void ReadTagRegistry();
 
   void SetupDataDirectories();
   void CreatePanels();

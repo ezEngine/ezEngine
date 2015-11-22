@@ -5,6 +5,7 @@
 #include <QHBoxLayout>
 #include <QSpacerItem>
 #include <QMenu>
+#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include "ToolsFoundation/Command/TreeCommands.h"
 #include "ToolsFoundation/Object/DocumentObjectManager.h"
 #include "GuiFoundation/UIServices/UIServices.moc.h"
@@ -102,7 +103,7 @@ void ezAddSubElementButton::OnAction(const ezRTTI* pRtti)
 {
   EZ_ASSERT_DEV(pRtti != nullptr, "user data retrieval failed");
 
-  ezCommandHistory* history = m_Items[0].m_pObject->GetDocumentObjectManager()->GetDocument()->GetCommandHistory();
+  ezCommandHistory* history = m_pGrid->GetCommandHistory();
   history->StartTransaction();
 
   ezStatus res;

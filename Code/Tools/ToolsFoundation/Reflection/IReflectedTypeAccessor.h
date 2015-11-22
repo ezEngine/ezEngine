@@ -36,6 +36,9 @@ public:
 
   const ezDocumentObject* GetOwner() const { return m_pOwner; }
 
+  bool GetValues(const ezPropertyPath& path, ezHybridArray<ezVariant, 16>& out_values) const;
+
+
 private:
   friend class ezDocumentObjectManager;
   friend class ezDocumentObject;

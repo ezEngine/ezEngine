@@ -68,9 +68,9 @@ public:
   }
 
 
-  virtual ezUInt32 GetCount(const void* pInstance) const override
+  virtual bool IsEmpty(const void* pInstance) const override
   {
-    return (static_cast<const Class*>(pInstance)->*m_GetValues)().GetCount();
+    return (static_cast<const Class*>(pInstance)->*m_GetValues)().IsEmpty();
   }
 
   virtual void Clear(void* pInstance) override
@@ -79,7 +79,7 @@ public:
 
     // We must not cache the container c here as the Remove can make it invalid
     // e.g. ezArrayPtr by value.
-    while (GetCount(pInstance) != 0)
+    while (!IsEmpty(pInstance))
     {
       Container c = (static_cast<const Class*>(pInstance)->*m_GetValues)();
       auto it = cbegin(c);
@@ -165,9 +165,9 @@ public:
       ezAbstractSetProperty::m_Flags.Add(ezPropertyFlags::ReadOnly);
   }
 
-  virtual ezUInt32 GetCount(const void* pInstance) const override
+  virtual bool IsEmpty(const void* pInstance) const override
   {
-    return m_ConstGetter(static_cast<const Class*>(pInstance)).GetCount();
+    return m_ConstGetter(static_cast<const Class*>(pInstance)).IsEmpty();
   }
 
   virtual void Clear(void* pInstance) override

@@ -474,6 +474,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
     {
       SetupDataDirectories();
       ReadEnginePluginConfig();
+      ReadTagRegistry();
 
       // tell the engine process which file system and plugin configuration to use
       ezEditorEngineProcessConnection::GetInstance()->SetFileSystemConfig(m_FileSystemConfig);
