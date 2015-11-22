@@ -1,6 +1,7 @@
 #pragma once
 
 #include <PhysXPlugin/Components/PxActorComponent.h>
+#include <PhysXPlugin/Resources/PhysXMeshResource.h>
 
 typedef ezComponentManagerSimple<class ezPxStaticActorComponent, true> ezPxStaticActorComponentManager;
 
@@ -18,13 +19,19 @@ public:
   // ************************************* PROPERTIES ***********************************
 public:
 
+  void SetMeshFile(const char* szFile);
+  const char* GetMeshFile() const;
+
 
 protected:
-
+  ezPhysXMeshResourceHandle m_hCollisionMesh;
 
   // ************************************* FUNCTIONS *****************************
 
 public:
+  void SetMesh(const ezPhysXMeshResourceHandle& hMesh);
+  EZ_FORCE_INLINE const ezPhysXMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; }
+
   void Update() {}
 
   virtual void Initialize() override;

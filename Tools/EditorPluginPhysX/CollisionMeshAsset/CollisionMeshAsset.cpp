@@ -15,6 +15,7 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <PhysXCooking/PhysXCooking.h>
+#include <Foundation/IO/ChunkStream.h>
 
 using namespace Assimp;
 
@@ -85,146 +86,118 @@ ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
 {
   const ezCollisionMeshAssetProperties* pProp = GetProperties();
 
-  //ezPhysXMeshResourceDescriptor desc;
-
   const ezMat3 mTransformation = CalculateTransformationMatrix(pProp);
   const bool bFlipTriangles = (mTransformation.GetColumn(0).Cross(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
 
-  //auto ret = CreateMeshFromFile(pProp, desc, bFlipTriangles, mTransformation);
+  ezChunkStreamWriter chunk(stream);
 
-  //if (ret.m_Result.Failed())
-    //return ret;
+  chunk.BeginStream();
+
+  {
+    auto ret = CreateMeshFromFile(pProp, bFlipTriangles, mTransformation, chunk);
+
+    if (ret.m_Result.Failed())
+      return ret;
+  }
+
+  chunk.EndStream();
 
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(const ezCollisionMeshAssetProperties* pProp, ezPhysXMeshResourceDescriptor &desc, bool bFlipTriangles, const ezMat3 &mTransformation)
+ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(const ezCollisionMeshAssetProperties* pProp, bool bFlipTriangles, const ezMat3 &mTransformation, ezChunkStreamWriter& stream)
 {
-  //ezPhysXCooking::CookMesh();
+  ezPhysXCooking::Mesh xMesh;
+  xMesh.m_bFlipNormals = false;// bFlipTriangles;
 
-  //ezString sMeshFileAbs = pProp->m_sMeshFile;
-  //if (!ezQtEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sMeshFileAbs))
-  //{
-  //  ezLog::Error("Mesh Asset Transform failed: Input Path '%s' is not in any data directory", sMeshFileAbs.GetData());
-  //  return ezStatus("Could not make path absolute: '%s;", sMeshFileAbs.GetData());
-  //}
+  ezString sMeshFileAbs = pProp->m_sMeshFile;
+  if (!ezQtEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sMeshFileAbs))
+  {
+    ezLog::Error("Collision Mesh Asset Transform failed: Input Path '%s' is not in any data directory", sMeshFileAbs.GetData());
+    return ezStatus("Could not make path absolute: '%s;", sMeshFileAbs.GetData());
+  }
 
-  //Importer importer;
+  Importer importer;
 
-  //DefaultLogger::create("", Logger::NORMAL);
+  DefaultLogger::create("", Logger::NORMAL);
 
-  //const unsigned int severity = Logger::Debugging | Logger::Info | Logger::Err | Logger::Warn;
-  //DefaultLogger::get()->attachStream(new aiLogStream(), severity);
+  const unsigned int severity = Logger::Debugging | Logger::Info | Logger::Err | Logger::Warn;
+  DefaultLogger::get()->attachStream(new aiLogStream(), severity);
 
-  //const aiScene* scene = nullptr;
+  const aiScene* scene = nullptr;
 
-  //{
-  //  EZ_LOG_BLOCK("Importing Mesh", sMeshFileAbs.GetData());
+  {
+    EZ_LOG_BLOCK("Importing Mesh", sMeshFileAbs.GetData());
 
-  //  scene = importer.ReadFile(sMeshFileAbs.GetData(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_PreTransformVertices);
+    scene = importer.ReadFile(sMeshFileAbs.GetData(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_PreTransformVertices);
 
-  //  if (!scene)
-  //  {
-  //    ezLog::Error("Could not import file '%s'", sMeshFileAbs.GetData());
-  //    return ezStatus("Mesh Asset input file could not be imported");
-  //  }
-  //}
+    if (!scene)
+    {
+      ezLog::Error("Could not import file '%s'", sMeshFileAbs.GetData());
+      return ezStatus("Collision Mesh Asset input file could not be imported");
+    }
+  }
 
-  //ezLog::Success("Mesh has been imported", sMeshFileAbs.GetData());
+  ezLog::Success("Mesh has been imported", sMeshFileAbs.GetData());
 
-  //ezLog::Info("Number of unique Meshes: %u", scene->mNumMeshes);
+  ezLog::Info("Number of unique Meshes: %u", scene->mNumMeshes);
 
-  //desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  //desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
-  //desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
+  ezUInt32 uiVertices = 0;
+  ezUInt32 uiTriangles = 0;
 
-  //ezUInt32 uiVertices = 0;
-  //ezUInt32 uiTriangles = 0;
+  for (ezUInt32 i = 0; i < scene->mNumMeshes; ++i)
+  {
+    uiVertices += scene->mMeshes[i]->mNumVertices;
+    uiTriangles += scene->mMeshes[i]->mNumFaces;
+  }
 
-  //for (ezUInt32 i = 0; i < scene->mNumMeshes; ++i)
-  //{
-  //  uiVertices += scene->mMeshes[i]->mNumVertices;
-  //  uiTriangles += scene->mMeshes[i]->mNumFaces;
-  //}
+  ezLog::Info("Number of Vertices: %u", uiVertices);
+  ezLog::Info("Number of Triangles: %u", uiTriangles);
 
-  //ezLog::Info("Number of Vertices: %u", uiVertices);
-  //ezLog::Info("Number of Triangles: %u", uiTriangles);
+  xMesh.m_PolygonIndices.Reserve(uiTriangles * 3);
+  xMesh.m_Vertices.SetCount(uiVertices);
+  xMesh.m_VerticesInPolygon.SetCount(uiTriangles);
 
-  //desc.MeshBufferDesc().AllocateStreams(uiVertices, uiTriangles);
+  ezUInt32 uiCurVertex = 0;
+  ezUInt32 uiCurTriangle = 0;
 
-  //ezUInt32 uiCurVertex = 0;
-  //ezUInt32 uiCurTriangle = 0;
+  aiString name;
+  ezStringBuilder sMatName;
 
-  //desc.SetMaterial(0, "");
+  for (ezUInt32 i = 0; i < scene->mNumMeshes; ++i)
+  {
+    aiMesh* mesh = scene->mMeshes[i];
+    //aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
+    //mat->Get(AI_MATKEY_NAME, name);
 
-  //aiString name;
-  //ezStringBuilder sMatName;
+    for (ezUInt32 f = 0; f < mesh->mNumFaces; ++f, ++uiCurTriangle)
+    {
+      EZ_ASSERT_DEV(mesh->mFaces[f].mNumIndices == 3, "");
 
-  //for (ezUInt32 i = 0; i < scene->mNumMeshes; ++i)
-  //{
-  //  aiMesh* mesh = scene->mMeshes[i];
-  //  aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
+      xMesh.m_VerticesInPolygon[uiCurTriangle] = 3;
+      xMesh.m_PolygonIndices.PushBack(uiCurVertex + mesh->mFaces[f].mIndices[bFlipTriangles ? 2 : 0]);
+      xMesh.m_PolygonIndices.PushBack(uiCurVertex + mesh->mFaces[f].mIndices[1]);
+      xMesh.m_PolygonIndices.PushBack(uiCurVertex + mesh->mFaces[f].mIndices[bFlipTriangles ? 0 : 2]);
+    }
 
-  //  desc.AddSubMesh(mesh->mNumFaces, uiCurTriangle, i);
+    for (ezUInt32 v = 0; v < mesh->mNumVertices; ++v, ++uiCurVertex)
+    {
+      xMesh.m_Vertices[uiCurVertex] = mTransformation.TransformDirection(ezVec3(mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z));
+    }
+  }
 
-  //  mat->Get(AI_MATKEY_NAME, name);
+  ezResult resCooking = EZ_FAILURE;
 
-  //  sMatName = pProp->GetResourceSlotProperty(i);
+  {
+    stream.BeginChunk("TriangleMesh", 1);
 
-  //  desc.SetMaterial(i, sMatName);
+    resCooking = ezPhysXCooking::CookTriangleMesh(xMesh, stream);
 
-  //  for (ezUInt32 f = 0; f < mesh->mNumFaces; ++f, ++uiCurTriangle)
-  //  {
-  //    EZ_ASSERT_DEV(mesh->mFaces[f].mNumIndices == 3, "");
+    stream.EndChunk();
+  }
 
-  //    desc.MeshBufferDesc().SetTriangleIndices(uiCurTriangle, uiCurVertex + mesh->mFaces[f].mIndices[bFlipTriangles ? 2 : 0],
-  //                                             uiCurVertex + mesh->mFaces[f].mIndices[1], uiCurVertex + mesh->mFaces[f].mIndices[bFlipTriangles ? 0 : 2]);
-  //  }
-
-  //  const ezUInt32 uiBaseVertex = uiCurVertex;
-
-  //  ezUInt32 uiThisVertex = uiBaseVertex;
-  //  for (ezUInt32 v = 0; v < mesh->mNumVertices; ++v, ++uiThisVertex)
-  //  {
-  //    desc.MeshBufferDesc().SetVertexData(0, uiThisVertex, mTransformation.TransformDirection(ezVec3(mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z)));
-  //  }
-  //  uiCurVertex = uiThisVertex;
-
-  //  uiThisVertex = uiBaseVertex;
-  //  if (mesh->mTextureCoords[0])
-  //  {
-  //    for (ezUInt32 v = 0; v < mesh->mNumVertices; ++v, ++uiThisVertex)
-  //    {
-  //      desc.MeshBufferDesc().SetVertexData(1, uiThisVertex, ezVec2(mesh->mTextureCoords[0][v].x, 1.0f - mesh->mTextureCoords[0][v].y));
-  //    }
-  //  }
-  //  else
-  //  {
-  //    for (ezUInt32 v = 0; v < mesh->mNumVertices; ++v, ++uiThisVertex)
-  //    {
-  //      desc.MeshBufferDesc().SetVertexData(1, uiThisVertex, ezVec2(0.0f, 0.0f));
-  //    }
-  //  }
-
-  //  uiThisVertex = uiBaseVertex;
-  //  if (mesh->mNormals)
-  //  {
-  //    for (ezUInt32 v = 0; v < mesh->mNumVertices; ++v, ++uiThisVertex)
-  //    {
-  //      ezVec3 vNormal = ezVec3(mesh->mNormals[v].x, mesh->mNormals[v].y, mesh->mNormals[v].z);
-  //      vNormal = mTransformation.TransformDirection(vNormal).GetNormalized();
-  //      desc.MeshBufferDesc().SetVertexData(2, uiThisVertex, vNormal);
-  //    }
-  //  }
-  //  else
-  //  {
-  //    for (ezUInt32 v = 0; v < mesh->mNumVertices; ++v, ++uiThisVertex)
-  //    {
-  //      desc.MeshBufferDesc().SetVertexData(2, uiThisVertex, ezVec3(0.0f, 1.0f, 0.0f));
-  //    }
-
-  //  }
-  //}
+  if (resCooking.Failed())
+    return ezStatus("Cooking the triangle mesh failed.");
 
   return ezStatus(EZ_SUCCESS);
 }

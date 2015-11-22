@@ -1,6 +1,8 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Resources/PhysXMeshResource.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
+#include <Foundation/IO/ChunkStream.h>
+#include <PhysXPlugin/PhysXSceneModule.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXMeshResource, 1, ezRTTIDefaultAllocator<ezPhysXMeshResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -38,8 +40,23 @@ ezResourceLoadDesc ezPhysXMeshResource::UnloadData(Unload WhatToUnload)
   return res;
 }
 
+class ezPxInputStream : public PxInputStream
+{
+public:
+  ezPxInputStream(ezStreamReader* pStream) : m_pStream(pStream) {}
+
+  virtual PxU32 read(void* dest, PxU32 count) override
+  {
+    return (PxU32)m_pStream->ReadBytes(dest, count);
+  }
+
+  ezStreamReader* m_pStream;
+};
+
 ezResourceLoadDesc ezPhysXMeshResource::UpdateContent(ezStreamReader* Stream)
 {
+  EZ_LOG_BLOCK("ezPhysXMeshResource::UpdateContent", GetResourceDescription().GetData());
+
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
@@ -59,13 +76,29 @@ ezResourceLoadDesc ezPhysXMeshResource::UpdateContent(ezStreamReader* Stream)
   ezAssetFileHeader AssetHash;
   AssetHash.Read(*Stream);
 
-  /// \todo Load cooked mesh
-
-  //ezPhysXMeshResourceDescriptor desc;
-  //if (desc.Load(*Stream).Failed())
+  // load and create the PhysX mesh
   {
-    res.m_State = ezResourceState::LoadedResourceMissing;
-    return res;
+    ezChunkStreamReader chunk(*Stream);
+    chunk.SetEndChunkFileMode(ezChunkStreamReader::EndChunkFileMode::JustClose);
+
+    chunk.BeginStream();
+
+    // skip all chunks that we don't know
+    while (chunk.GetCurrentChunk().m_bValid && chunk.GetCurrentChunk().m_sChunkName != "TriangleMesh")
+      chunk.NextChunk();
+
+    if (chunk.GetCurrentChunk().m_bValid && chunk.GetCurrentChunk().m_sChunkName == "TriangleMesh")
+    {
+      ezPxInputStream PassThroughStream(&chunk);
+
+      m_pPxMesh = ezPhysX::GetSingleton()->GetPhysXAPI()->createTriangleMesh(PassThroughStream);
+    }
+    else
+    {
+      ezLog::Error("Could not find a 'TriangleMesh' chunk in the PhysXMesh file '%s'", GetResourceID().GetData());
+    }
+
+    chunk.EndStream();
   }
 
   res.m_State = ezResourceState::Loaded;

@@ -5,8 +5,9 @@
 #include <Core/WorldSerializer/WorldReader.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ezPxStaticActorComponent, 1);
-  //EZ_BEGIN_PROPERTIES
-  //EZ_END_PROPERTIES
+  EZ_BEGIN_PROPERTIES
+    EZ_ACCESSOR_PROPERTY("Collision Mesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Collision Mesh")),
+  EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezPxStaticActorComponent::ezPxStaticActorComponent()
@@ -30,6 +31,38 @@ void ezPxStaticActorComponent::DeserializeComponent(ezWorldReader& stream, ezUIn
 
 }
 
+
+void ezPxStaticActorComponent::SetMeshFile(const char* szFile)
+{
+  ezPhysXMeshResourceHandle hMesh;
+
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  {
+    hMesh = ezResourceManager::LoadResource<ezPhysXMeshResource>(szFile);
+  }
+
+  SetMesh(hMesh);
+}
+
+
+const char* ezPxStaticActorComponent::GetMeshFile() const
+{
+  if (!m_hCollisionMesh.IsValid())
+    return "";
+
+  ezResourceLock<ezPhysXMeshResource> pMesh(m_hCollisionMesh);
+  return pMesh->GetResourceID();
+}
+
+
+void ezPxStaticActorComponent::SetMesh(const ezPhysXMeshResourceHandle& hMesh)
+{
+  m_hCollisionMesh = hMesh;
+
+  if (m_hCollisionMesh.IsValid())
+    ezResourceManager::PreloadResource(m_hCollisionMesh, ezTime::Seconds(5.0));
+}
+
 void ezPxStaticActorComponent::Initialize()
 {
   ezPhysXSceneModule* pModule = static_cast<ezPhysXSceneModule*>(GetManager()->GetUserData());
@@ -45,6 +78,19 @@ void ezPxStaticActorComponent::Initialize()
 
   AddShapesFromObject(GetOwner(), m_pActor, GetOwner()->GetGlobalTransform());
   AddShapesFromChildren(GetOwner(), m_pActor, GetOwner()->GetGlobalTransform());
+
+  if (m_hCollisionMesh.IsValid())
+  {
+    ezResourceLock<ezPhysXMeshResource> pMesh(m_hCollisionMesh);
+
+    auto pTriMesh = pMesh->GetTriangleMesh();
+
+    if (pTriMesh != nullptr)
+    {
+      ezLog::Warning("ezPxStaticActorComponent: Collision mesh resource is valid, but it contains no triangle mesh ('%s' - '%s')", pMesh->GetResourceID().GetData(), pMesh->GetResourceDescription().GetData());
+      m_pActor->createShape(PxTriangleMeshGeometry(pTriMesh), *ezPhysX::GetSingleton()->GetDefaultMaterial());
+    }
+  }
 
   if (m_pActor->getNbShapes() == 0)
   {

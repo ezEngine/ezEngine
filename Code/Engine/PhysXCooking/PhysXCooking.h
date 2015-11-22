@@ -12,7 +12,15 @@ public:
   static void Startup();
   static void Shutdown();
 
-  static void CookMesh();
+  struct Mesh
+  {
+    bool m_bFlipNormals;
+    ezDynamicArray<ezVec3> m_Vertices;
+    ezDynamicArray<ezUInt8> m_VerticesInPolygon;
+    ezDynamicArray<ezUInt32> m_PolygonIndices;
+  };
+
+  static ezResult CookTriangleMesh(const Mesh& mesh, ezStreamWriter& OutputStream);
 
 
 private:

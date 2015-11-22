@@ -91,7 +91,7 @@ public:
   /// \brief Translators will be queried in the reverse order that they were added.
   static void AddTranslator(ezUniquePtr<ezTranslator> pTranslator);
 
-  /// \brief Prefer to use the ezTranslate instead of calling this function directly. Will query all translators for a translation, until one is found.
+  /// \brief Prefer to use the ezTranslate macro instead of calling this function directly. Will query all translators for a translation, until one is found.
   static const char* Translate(const char* szString, ezUInt32 uiStringHash);
 
   /// \brief Deletes all translators.

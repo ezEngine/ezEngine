@@ -11,26 +11,31 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXPlugin)
 
   ON_CORE_STARTUP
   {
+    ezPhysX::GetSingleton()->Startup();
   }
 
   ON_CORE_SHUTDOWN
   {
+    ezPhysX::GetSingleton()->Shutdown();
   }
 
   ON_ENGINE_STARTUP
   {
-    ezPhysX::GetSingleton()->Startup();
   }
 
   ON_ENGINE_SHUTDOWN
   {
-    ezPhysX::GetSingleton()->Shutdown();
   }
 
 EZ_END_SUBSYSTEM_DECLARATION
 
 void ezPxErrorCallback::reportError(PxErrorCode::Enum code, const char* message, const char* file, int line)
 {
+  OutputDebugStringA(message);
+  return;
+
+  /// \todo This can happen on a thread that was created by PhysX, thus our thread-local system is not initialized and ezLog will crash!
+
   switch (code)
   {
   case PxErrorCode::eABORT:

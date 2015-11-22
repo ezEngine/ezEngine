@@ -40,6 +40,7 @@ SET (ADDITIONAL_DEPENDENCIES
   EditorEngineProcess
   EditorPluginScene
   EditorPluginAssets
+  EditorPluginPhysX
   PhysXPlugin
 )
 

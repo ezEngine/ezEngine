@@ -14,20 +14,20 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXCooking)
 
   ON_CORE_STARTUP
   {
+    ezPhysXCooking::Startup();
   }
 
   ON_CORE_SHUTDOWN
   {
+    ezPhysXCooking::Shutdown();
   }
 
   ON_ENGINE_STARTUP
   {
-    ezPhysXCooking::Startup();
   }
 
   ON_ENGINE_SHUTDOWN
   {
-    ezPhysXCooking::Shutdown();
   }
 
 EZ_END_SUBSYSTEM_DECLARATION
@@ -56,7 +56,66 @@ void ezPhysXCooking::Shutdown()
   }
 }
 
-void ezPhysXCooking::CookMesh()
+class ezPxOutStream : public PxOutputStream
 {
+public:
+  ezPxOutStream(ezStreamWriter* pStream) : m_pStream(pStream) {}
 
+  virtual PxU32 write(const void* src, PxU32 count) override
+  {
+    if (m_pStream->WriteBytes(src, count).Succeeded())
+      return count;
+
+    return 0;
+  }
+
+  ezStreamWriter* m_pStream;
+};
+
+ezResult ezPhysXCooking::CookTriangleMesh(const Mesh& mesh, ezStreamWriter& OutputStream)
+{
+  PxTriangleMeshDesc desc;
+  desc.setToDefault();
+
+  desc.points.count = mesh.m_Vertices.GetCount();
+  desc.points.stride = sizeof(ezVec3);
+  desc.points.data = mesh.m_Vertices.GetData();
+
+  ezUInt32 uiTriangles = 0;
+  for (auto numIndices : mesh.m_VerticesInPolygon)
+    uiTriangles += numIndices - 2;
+
+  ezDynamicArray<ezUInt32> TriangleIndices;
+  TriangleIndices.SetCount(uiTriangles * 3);
+
+  ezUInt32 uiFirstIndex = 0;
+  ezUInt32 uiFirstTriangleIdx = 0;
+  for (auto numIndices : mesh.m_VerticesInPolygon)
+  {
+    for (ezUInt32 t = 2; t < numIndices; ++t)
+    {
+      TriangleIndices[uiFirstTriangleIdx + 0] = mesh.m_PolygonIndices[uiFirstIndex];
+      TriangleIndices[uiFirstTriangleIdx + 1] = mesh.m_PolygonIndices[uiFirstIndex + t - 1];
+      TriangleIndices[uiFirstTriangleIdx + 2] = mesh.m_PolygonIndices[uiFirstIndex + t];
+
+      uiFirstTriangleIdx += 3;
+    }
+
+    uiFirstIndex += numIndices;
+  }
+
+  desc.triangles.count = uiTriangles;
+  desc.triangles.stride = sizeof(ezUInt32) * 3;
+  desc.triangles.data = TriangleIndices.GetData();
+
+  desc.flags.set(mesh.m_bFlipNormals ? PxMeshFlag::eFLIPNORMALS : (PxMeshFlag::Enum)0);
+
+  EZ_ASSERT_DEV(desc.isValid(), "PhysX PxTriangleMeshDesc is invalid");
+
+  ezPxOutStream PassThroughStream(&OutputStream);
+
+  if (!s_pCooking->cookTriangleMesh(desc, PassThroughStream))
+    return EZ_FAILURE;
+
+  return EZ_SUCCESS;
 }

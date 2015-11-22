@@ -5,6 +5,7 @@
 
 class ezPhysXMeshResourceDescriptor;
 class ezGeometry;
+class ezChunkStreamWriter;
 
 class ezCollisionMeshAssetDocument : public ezSimpleAssetDocument<ezCollisionMeshAssetProperties>
 {
@@ -22,7 +23,7 @@ protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform) override;
 
-  ezStatus CreateMeshFromFile(const ezCollisionMeshAssetProperties* pProp, ezPhysXMeshResourceDescriptor &desc, bool bFlipTriangles, const ezMat3 &mTransformation);
+  ezStatus CreateMeshFromFile(const ezCollisionMeshAssetProperties* pProp, bool bFlipTriangles, const ezMat3 &mTransformation, ezChunkStreamWriter& stream);
 
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override;
 

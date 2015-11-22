@@ -60,6 +60,8 @@ void ezPhysX::Shutdown()
 
   m_bInitialized = false;
 
+  ShutdownVDB();
+
   if (m_pDefaultMaterial != nullptr)
   {
     m_pDefaultMaterial->release();
@@ -85,8 +87,6 @@ void ezPhysX::Shutdown()
   }
 
   ezAbstractInterfaceRegistry::UnregisterInterfaceImplementation("ezPhysXInterface", this);
-
-  ShutdownVDB();
 }
 
 void ezPhysX::StartupVDB()
