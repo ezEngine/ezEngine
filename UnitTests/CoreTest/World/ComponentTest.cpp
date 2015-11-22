@@ -45,16 +45,14 @@ namespace
     virtual void SerializeComponent(ezWorldWriter& stream) const override {}
     virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) override {}
 
-    virtual ezResult Initialize() override
+    virtual void Initialize() override
     {
       ++s_iInitCounter;
-      return EZ_SUCCESS;
     }
 
-    virtual ezResult Deinitialize() override
+    virtual void Deinitialize() override
     {
       --s_iInitCounter;
-      return EZ_SUCCESS;
     }
 
     virtual void OnAfterAttachedToObject() override
