@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="AssetIcons">
+    <file>Collision_Mesh.png</file>
+  </qresource>
+</RCC>
+

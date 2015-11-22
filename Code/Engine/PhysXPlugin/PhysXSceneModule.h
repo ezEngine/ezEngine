@@ -1,6 +1,7 @@
 #pragma once
 
 #include <PhysXPlugin/Basics.h>
+#include <PhysXPlugin/PluginInterface.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Core/Scene/SceneModule.h>
 
@@ -21,11 +22,25 @@ public:
   ezProxyAllocator m_Allocator;
 };
 
-
-struct ezPhysXData
+class EZ_PHYSXPLUGIN_DLL ezPhysX : public ezPhysXInterface
 {
-  ezPhysXData();
+public:
+  ezPhysX();
 
+  static ezPhysX* GetSingleton();
+
+  void Startup();
+  void Shutdown();
+
+  virtual PxPhysics* GetPhysXAPI() override { return m_pPhysX; }
+
+  virtual PxMaterial* GetDefaultMaterial() const { return m_pDefaultMaterial; }
+
+private:
+  void StartupVDB();
+  void ShutdownVDB();
+
+  bool m_bInitialized;
   PxFoundation* m_pFoundation;
   ezPxErrorCallback m_ErrorCallback;
   ezPxAllocatorCallback m_AllocatorCallback;
@@ -45,29 +60,15 @@ public:
 
   PxScene* GetPxScene() const { return m_pPxScene; }
 
-  static PxPhysics* GetPxApi() { return s_pPhysXData->m_pPhysX; }
-
-  PxMaterial* GetDefaultMaterial() const { return s_pPhysXData->m_pDefaultMaterial; }
 
 protected:
   virtual void InternalStartup() override;
-
   virtual void InternalShutdown() override;
-
   virtual void InternalUpdate() override;
-
-  static void StartupVDB();
-  static void ShutdownVDB();
 
 private:
   PxScene* m_pPxScene;
   PxCpuDispatcher* m_pCPUDispatcher;
-
-private:
-  static void InitializePhysX();
-  static void DeinitializePhysX();
-
-  static ezPhysXData* s_pPhysXData;
 
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(PhysX, PhysXPlugin);
 };

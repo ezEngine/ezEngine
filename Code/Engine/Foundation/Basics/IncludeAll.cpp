@@ -27,6 +27,7 @@
 #include <Foundation/Configuration/StaticSubSystem.h>
 #include <Foundation/Configuration/SubSystem.h>
 #include <Foundation/Configuration/Plugin.h>
+#include <Foundation/Configuration/AbstractInterfaceRegistry.h>
 
 #include <Foundation/Containers/ArrayBase.h>
 #include <Foundation/Containers/Bitfield.h>

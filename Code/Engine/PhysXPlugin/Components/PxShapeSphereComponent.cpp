@@ -51,7 +51,7 @@ void ezPxShapeSphereComponent::AddToActor(PxRigidActor* pActor, const ezTransfor
   t.q = PxQuat(r.v.x, r.v.y, r.v.z, r.w);
 
   /// \todo Material
-  auto pShape = pActor->createShape(PxSphereGeometry(m_fRadius), *pModule->GetDefaultMaterial());
+  auto pShape = pActor->createShape(PxSphereGeometry(m_fRadius), *ezPhysX::GetSingleton()->GetDefaultMaterial());
   pShape->setLocalPose(t);
 
   EZ_ASSERT_DEBUG(pShape != nullptr, "PhysX sphere shape creation failed");

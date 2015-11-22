@@ -40,7 +40,7 @@ void ezPxStaticActorComponent::Initialize()
   PxTransform t = PxTransform::createIdentity();
   t.p = PxVec3(pos.x, pos.y, pos.z);
   t.q = PxQuat(rot.v.x, rot.v.y, rot.v.z, rot.w);
-  m_pActor = pModule->GetPxApi()->createRigidStatic(t);
+  m_pActor = ezPhysX::GetSingleton()->GetPhysXAPI()->createRigidStatic(t);
   EZ_ASSERT_DEBUG(m_pActor != nullptr, "PhysX actor creation failed");
 
   AddShapesFromObject(GetOwner(), m_pActor, GetOwner()->GetGlobalTransform());
@@ -51,7 +51,7 @@ void ezPxStaticActorComponent::Initialize()
     ezQuat qRot;
     qRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(270));
 
-    auto pShape = m_pActor->createShape(PxPlaneGeometry(), *pModule->GetDefaultMaterial());
+    auto pShape = m_pActor->createShape(PxPlaneGeometry(), *ezPhysX::GetSingleton()->GetDefaultMaterial());
     pShape->setLocalPose(PxTransform(PxQuat(qRot.v.x, qRot.v.y, qRot.v.z, qRot.w)));
   }
 

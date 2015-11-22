@@ -11,19 +11,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXSceneModule, 1, ezRTTIDefaultAllocator<ez
   // no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezPhysXData::ezPhysXData()
-{
-  m_pFoundation = nullptr;
-  m_pProfileZoneManager = nullptr;
-  m_pPhysX = nullptr;
-  m_pDefaultMaterial = nullptr;
-  m_VdbConnection = nullptr;
-}
-
 ezPhysXSceneModule::ezPhysXSceneModule()
 {
-
-
 }
 
 void ezPhysXSceneModule::InternalStartup()
@@ -43,13 +32,15 @@ void ezPhysXSceneModule::InternalStartup()
   desc.filterShader = PxDefaultSimulationFilterShader;
 
   EZ_ASSERT_DEV(desc.isValid(), "PhysX scene description is invalid");
-  m_pPxScene = s_pPhysXData->m_pPhysX->createScene(desc);
+  m_pPxScene = ezPhysX::GetSingleton()->GetPhysXAPI()->createScene(desc);
 
   EZ_ASSERT_ALWAYS(m_pPxScene != nullptr, "Creating the PhysX scene failed");
 }
 
 void ezPhysXSceneModule::InternalShutdown()
 {
+  m_pPxScene->release();
+  m_pPxScene = nullptr;
 }
 
 void ezPhysXSceneModule::InternalUpdate()

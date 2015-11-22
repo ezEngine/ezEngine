@@ -94,7 +94,7 @@ void ezPxDynamicActorComponent::Initialize()
   PxTransform t = PxTransform::createIdentity();
   t.p = PxVec3(pos.x, pos.y, pos.z);
   t.q = PxQuat(rot.v.x, rot.v.y, rot.v.z, rot.w);
-  m_pActor = pModule->GetPxApi()->createRigidDynamic(t);
+  m_pActor = ezPhysX::GetSingleton()->GetPhysXAPI()->createRigidDynamic(t);
   EZ_ASSERT_DEBUG(m_pActor != nullptr, "PhysX actor creation failed");
 
   AddShapesFromObject(GetOwner(), m_pActor, GetOwner()->GetGlobalTransform());

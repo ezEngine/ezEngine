@@ -31,13 +31,6 @@ set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /MTd")
 SET (LINK_LIBRARIES 
   Foundation
   Core
-  CoreUtils
-  debug PhysX3ExtensionsDEBUG
-  debug PhysXVisualDebuggerSDKDEBUG
-  # debug PxTaskDEBUG
-  optimized PhysX3ExtensionsCHECKED
-  optimized PhysXVisualDebuggerSDKCHECKED
-  # optimized PxTaskCHECKED
 )
 
 IF (NOT DEFINED BUILDSYSTEM_COMPILER_MSVC_110)
@@ -51,10 +44,10 @@ if (${BUILDSYSTEM_PLATFORM_64BIT})
     ${LINK_LIBRARIES}
     debug PhysX3DEBUG_x64
     debug PhysX3CommonDEBUG_x64
-    debug PhysX3CharacterKinematicDEBUG_x64
+    debug PhysX3CookingDEBUG_x64
     optimized PhysX3CHECKED_x64
     optimized PhysX3CommonCHECKED_x64
-    optimized PhysX3CharacterKinematicCHECKED_x64
+    optimized PhysX3CookingCHECKED_x64
   )
 
 else()
@@ -67,7 +60,7 @@ else()
     debug PhysX3CharacterKinematicDEBUG_x86
     optimized PhysX3CHECKED_x86
     optimized PhysX3CommonCHECKED_x86
-    optimized PhysX3CharacterKinematicCHECKED_x86
+    optimized PhysX3CookingCHECKED_x86
   )
 endif()
 

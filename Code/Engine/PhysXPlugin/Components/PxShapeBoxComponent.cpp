@@ -52,7 +52,7 @@ void ezPxShapeBoxComponent::AddToActor(PxRigidActor* pActor, const ezTransform& 
   t.q = PxQuat(r.v.x, r.v.y, r.v.z, r.w);
 
   /// \todo Material
-  auto pShape = pActor->createShape(PxBoxGeometry(m_vHalfExtents.x, m_vHalfExtents.y, m_vHalfExtents.z), *pModule->GetDefaultMaterial());
+  auto pShape = pActor->createShape(PxBoxGeometry(m_vHalfExtents.x, m_vHalfExtents.y, m_vHalfExtents.z), *ezPhysX::GetSingleton()->GetDefaultMaterial());
   pShape->setLocalPose(t);
 
   EZ_ASSERT_DEBUG(pShape != nullptr, "PhysX box shape creation failed");
