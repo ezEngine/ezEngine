@@ -38,6 +38,8 @@ void ezSceneDocument::InitializeAfterLoading()
   GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectPropertyEventHandler, this));
   GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectStructureEventHandler, this));
   GetObjectManager()->m_ObjectEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectEventHandler, this));
+
+  ezEditorEngineProcessConnection::GetInstance()->s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
 }
 
 ezSceneDocument::~ezSceneDocument()
@@ -45,6 +47,8 @@ ezSceneDocument::~ezSceneDocument()
   GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectStructureEventHandler, this));
   GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectPropertyEventHandler, this));
   GetObjectManager()->m_ObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectEventHandler, this));
+
+  ezEditorEngineProcessConnection::GetInstance()->s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
 }
 
 void ezSceneDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph)
@@ -619,6 +623,19 @@ void ezSceneDocument::ObjectEventHandler(const ezDocumentObjectEvent& e)
       // clean up object meta data upon object destruction, because we can :-P
       m_ObjectMetaData.ClearMetaData(e.m_pObject->GetGuid());
     }
+    break;
+  }
+}
+
+
+void ezSceneDocument::EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezEditorEngineProcessConnection::Event::Type::ProcessCrashed:
+  case ezEditorEngineProcessConnection::Event::Type::ProcessShutdown:
+  case ezEditorEngineProcessConnection::Event::Type::ProcessStarted:
+    SetSimulateWorld(false);
     break;
   }
 }

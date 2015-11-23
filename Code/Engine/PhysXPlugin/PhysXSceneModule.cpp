@@ -6,6 +6,8 @@
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/Components/PxShapeBoxComponent.h>
 #include <PhysXPlugin/Components/PxShapeSphereComponent.h>
+#include <PhysXPlugin/Components/PxShapeCapsuleComponent.h>
+#include <PhysXPlugin/Components/PxCenterOfMassComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXSceneModule, 1, ezRTTIDefaultAllocator<ezPhysXSceneModule>);
   // no properties or message handlers
@@ -21,6 +23,8 @@ void ezPhysXSceneModule::InternalStartup()
   GetWorld()->CreateComponentManager<ezPxDynamicActorComponentManager>()->SetUserData(this);
   GetWorld()->CreateComponentManager<ezPxShapeBoxComponentManager>()->SetUserData(this);
   GetWorld()->CreateComponentManager<ezPxShapeSphereComponentManager>()->SetUserData(this);
+  GetWorld()->CreateComponentManager<ezPxShapeCapsuleComponentManager>()->SetUserData(this);
+  GetWorld()->CreateComponentManager<ezPxCenterOfMassComponentManager>()->SetUserData(this);
 
   PxSceneDesc desc = PxSceneDesc(PxTolerancesScale());
   desc.setToDefault(PxTolerancesScale());

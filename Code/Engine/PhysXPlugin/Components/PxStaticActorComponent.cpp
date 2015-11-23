@@ -20,6 +20,10 @@ void ezPxStaticActorComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
 
+  auto& s = stream.GetStream();
+
+  /// \todo Serialize resource handles more efficiently
+  s << GetMeshFile();
 }
 
 
@@ -27,8 +31,11 @@ void ezPxStaticActorComponent::DeserializeComponent(ezWorldReader& stream, ezUIn
 {
   SUPER::DeserializeComponent(stream, uiTypeVersion);
 
+  auto& s = stream.GetStream();
 
-
+  ezStringBuilder sTemp;
+  s >> sTemp;
+  SetMeshFile(sTemp);
 }
 
 
@@ -87,8 +94,11 @@ void ezPxStaticActorComponent::Initialize()
 
     if (pTriMesh != nullptr)
     {
-      ezLog::Warning("ezPxStaticActorComponent: Collision mesh resource is valid, but it contains no triangle mesh ('%s' - '%s')", pMesh->GetResourceID().GetData(), pMesh->GetResourceDescription().GetData());
       m_pActor->createShape(PxTriangleMeshGeometry(pTriMesh), *ezPhysX::GetSingleton()->GetDefaultMaterial());
+    }
+    else
+    {
+      ezLog::Warning("ezPxStaticActorComponent: Collision mesh resource is valid, but it contains no triangle mesh ('%s' - '%s')", pMesh->GetResourceID().GetData(), pMesh->GetResourceDescription().GetData());
     }
   }
 

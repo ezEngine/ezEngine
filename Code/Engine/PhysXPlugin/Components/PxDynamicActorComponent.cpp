@@ -1,5 +1,6 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
+#include <PhysXPlugin/Components/PxCenterOfMassComponent.h>
 #include <PhysXPlugin/PhysXSceneModule.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -23,12 +24,24 @@ void ezPxDynamicActorComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
 
+  auto& s = stream.GetStream();
+
+  s << m_bKinematic;
+  s << m_fDensity;
+  s << m_fMass;
+  s << m_bDisableGravity;
 }
 
 void ezPxDynamicActorComponent::DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion)
 {
   SUPER::DeserializeComponent(stream, uiTypeVersion);
 
+  auto& s = stream.GetStream();
+
+  s >> m_bKinematic;
+  s >> m_fDensity;
+  s >> m_fMass;
+  s >> m_bDisableGravity;
 }
 
 
@@ -109,13 +122,22 @@ void ezPxDynamicActorComponent::Initialize()
     return;
   }
 
+  ezVec3 vCoM(0.0f);
+  if (FindCenterOfMass(GetOwner(), vCoM))
+  {
+    ezMat4 mTransform = GetOwner()->GetGlobalTransform().GetAsMat4();
+    mTransform.Invert();
+
+    vCoM = mTransform * vCoM;
+  }
+
   if (m_fMass > 0.0f)
   {
-    PxRigidBodyExt::setMassAndUpdateInertia(*m_pActor, m_fMass);
+    PxRigidBodyExt::setMassAndUpdateInertia(*m_pActor, m_fMass, (PxVec3*) &vCoM);
   }
   else if (m_fDensity > 0.0f)
   {
-    PxRigidBodyExt::updateMassAndInertia(*m_pActor, m_fDensity);
+    PxRigidBodyExt::updateMassAndInertia(*m_pActor, m_fDensity, (PxVec3*)&vCoM);
   }
   else
   {
@@ -137,3 +159,28 @@ void ezPxDynamicActorComponent::Deinitialize()
     m_pActor = nullptr;
   }
 }
+
+bool ezPxDynamicActorComponent::FindCenterOfMass(ezGameObject* pRoot, ezVec3& out_CoM) const
+{
+  ezPxCenterOfMassComponent* pCOM;
+  if (pRoot->TryGetComponentOfBaseType<ezPxCenterOfMassComponent>(pCOM))
+  {
+    out_CoM = pRoot->GetGlobalPosition();
+    return true;
+  }
+  else
+  {
+    auto it = pRoot->GetChildren();
+
+    while (it.IsValid())
+    {
+      if (FindCenterOfMass(it, out_CoM))
+        return true;
+
+      ++it;
+    }
+  }
+
+  return false;
+}
+

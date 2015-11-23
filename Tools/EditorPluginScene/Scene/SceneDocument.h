@@ -150,6 +150,7 @@ private:
   void ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void ObjectEventHandler(const ezDocumentObjectEvent& e);
+  void EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e);
 
   void InvalidateGlobalTransformValue(const ezDocumentObject* pObject);
 

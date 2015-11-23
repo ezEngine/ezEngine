@@ -40,6 +40,7 @@ public:
   virtual void Deinitialize() override;
 
 protected:
+  bool FindCenterOfMass(ezGameObject* pRoot, ezVec3& out_CoM) const;
 
   PxRigidDynamic* m_pActor;
 
