@@ -246,8 +246,10 @@ void ezWorld::Update()
       if (!pComponent->IsInitialized())
       {
         // make sure the object's transform is up to date before the component is initialized
-        pComponent->GetOwner()->UpdateGlobalTransform();
-
+        if (pComponent->GetOwner())
+        {
+          pComponent->GetOwner()->UpdateGlobalTransform();
+        }
         pComponent->Initialize();
         pComponent->m_Flags.Add(ezObjectFlags::Initialized);
       }
