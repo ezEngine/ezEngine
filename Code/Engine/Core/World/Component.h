@@ -82,24 +82,34 @@ protected:
 
   ezBitflags<ezObjectFlags> m_Flags;
 
-private:
+  enum class Initialization
+  {
+    Done,
+    RequiresInit2
+  };
+
   virtual ezUInt16 GetTypeId() const = 0;
 
-  /// \brief This method is called after the constructor. A derived type can override this method to do common initialization work.
-  virtual void Initialize();
+  /// \brief This method is called at the start of the next world update. The global position will be computed before initialization.
+  virtual Initialization Initialize() { return Initialization::Done; }
 
-  /// \brief This method is called before the destructor. A derived type can override this method to do common deinitialization work.
-  virtual void Deinitialize();
+  /// \brief If Initialize() returned Initialization::RequiresInit2, this function is called after Initialize() has been called on ALL other components during the world update start.
+  ///        This allows to access other components during Initialize2().
+  virtual void Initialize2() {}
+
+  /// \brief This method is called before the destructor. A derived type can override this method to do common de-initialization work.
+  virtual void Deinitialize() {}
 
   /// \brief Returns whether this component is initialized. Internal method.
   bool IsInitialized() const;
 
   /// \brief This method is called when the component is attached to a game object. At this point the owner pointer is already set. A derived type can override this method to do additional work.
-  virtual void OnAfterAttachedToObject();
+  virtual void OnAfterAttachedToObject() {}
 
   /// \brief This method is called when the component is detached from a game object. At this point the owner pointer is still set. A derived type can override this method to do additional work.
-  virtual void OnBeforeDetachedFromObject();
+  virtual void OnBeforeDetachedFromObject() {}
 
+private:
   void OnMessage(ezMessage& msg);
   void OnMessage(ezMessage& msg) const;
 

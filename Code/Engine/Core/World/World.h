@@ -209,6 +209,7 @@ private:
   static ezStaticArray<ezWorld*, 64> s_Worlds;
 
   ezDeque<ezComponentHandle> m_ComponentsToInitialize;
+  ezDeque<ezComponent*> m_ComponentsToInitialize2;
 };
 
 #include <Core/World/Implementation/World_inl.h>

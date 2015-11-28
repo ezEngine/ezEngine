@@ -26,6 +26,8 @@ public:
 
   float m_fMass;
   float m_fDensity;
+  float m_fLinearDamping;
+  float m_fAngularDamping;
 
 protected:
 
@@ -35,9 +37,11 @@ protected:
 public:
   void Update();
 
-  virtual void Initialize() override;
+  virtual ezComponent::Initialization Initialize() override;
 
   virtual void Deinitialize() override;
+
+  PxRigidDynamic* GetActor() const { return m_pActor; }
 
 protected:
   bool FindCenterOfMass(ezGameObject* pRoot, ezVec3& out_CoM) const;

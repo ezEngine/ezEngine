@@ -34,7 +34,7 @@ public:
 
   void Update() {}
 
-  virtual void Initialize() override;
+  virtual ezComponent::Initialization Initialize() override;
 
   virtual void Deinitialize() override;
 

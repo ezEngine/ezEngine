@@ -250,12 +250,23 @@ void ezWorld::Update()
         {
           pComponent->GetOwner()->UpdateGlobalTransform();
         }
-        pComponent->Initialize();
+
+        if (pComponent->Initialize() == ezComponent::Initialization::RequiresInit2)
+        {
+          m_ComponentsToInitialize2.PushBack(pComponent);
+        }
+
         pComponent->m_Flags.Add(ezObjectFlags::Initialized);
       }
     }
 
+    for (ezComponent* pComponent : m_ComponentsToInitialize2)
+    {
+      pComponent->Initialize2();
+    }
+
     m_ComponentsToInitialize.Clear();
+    m_ComponentsToInitialize2.Clear();
   }
 
   // pre-async phase

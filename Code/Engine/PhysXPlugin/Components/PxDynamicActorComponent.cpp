@@ -12,12 +12,20 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 1);
     EZ_MEMBER_PROPERTY("Mass", m_fMass),
     EZ_MEMBER_PROPERTY("Density", m_fDensity)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_ACCESSOR_PROPERTY("Disable Gravity", GetDisableGravity, SetDisableGravity),
+    EZ_MEMBER_PROPERTY("Linear Damping", m_fLinearDamping)->AddAttributes(new ezDefaultValueAttribute(0.1f)),
+    EZ_MEMBER_PROPERTY("Angular Damping", m_fAngularDamping)->AddAttributes(new ezDefaultValueAttribute(0.05f)),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezPxDynamicActorComponent::ezPxDynamicActorComponent()
 {
   m_bKinematic = false;
+  m_bDisableGravity = false;
+
+  m_fLinearDamping = 0.1f;
+  m_fAngularDamping = 0.05f;
+  m_fDensity = 1.0f;
+  m_fMass = 0.0f;
 }
 
 void ezPxDynamicActorComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -97,7 +105,7 @@ void ezPxDynamicActorComponent::Update()
   }
 }
 
-void ezPxDynamicActorComponent::Initialize()
+ezComponent::Initialization ezPxDynamicActorComponent::Initialize()
 {
   ezPhysXSceneModule* pModule = static_cast<ezPhysXSceneModule*>(GetManager()->GetUserData());
 
@@ -113,13 +121,16 @@ void ezPxDynamicActorComponent::Initialize()
   AddShapesFromObject(GetOwner(), m_pActor, GetOwner()->GetGlobalTransform());
   AddShapesFromChildren(GetOwner(), m_pActor, GetOwner()->GetGlobalTransform());
 
+  m_pActor->setLinearDamping(ezMath::Clamp(m_fLinearDamping, 0.0f, 1000.0f));
+  m_pActor->setAngularDamping(ezMath::Clamp(m_fAngularDamping, 0.0f, 1000.0f));
+
   if (m_pActor->getNbShapes() == 0)
   {
     m_pActor->release();
     m_pActor = nullptr;
 
     ezLog::Error("Rigid Body '%s' does not have any shape components. Actor will be removed.", GetOwner()->GetName());
-    return;
+    return ezComponent::Initialization::Done;
   }
 
   ezVec3 vCoM(0.0f);
@@ -149,6 +160,8 @@ void ezPxDynamicActorComponent::Initialize()
   pModule->GetPxScene()->addActor(*m_pActor);
 
   m_pActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, m_bKinematic);
+
+  return ezComponent::Initialization::Done;
 }
 
 void ezPxDynamicActorComponent::Deinitialize()

@@ -22,21 +22,5 @@ void ezComponent::Deactivate()
   m_Flags.Remove(ezObjectFlags::Active);
 }
 
-void ezComponent::Initialize() 
-{ 
-}
-
-void ezComponent::Deinitialize()
-{
-}
-
-void ezComponent::OnAfterAttachedToObject()
-{
-}
-
-void ezComponent::OnBeforeDetachedFromObject()
-{
-}
-
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_Component);
 

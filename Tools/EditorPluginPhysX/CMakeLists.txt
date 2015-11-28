@@ -24,9 +24,6 @@ QT_MODULES(Core Gui Widgets)
 # Call this in case this project does not function without Qt.
 BUILD_REQUIRES_QT()
 
-# this is because PhysX is compiled with that setting
-set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /MTd")
-
 SET (LINK_LIBRARIES 
   Foundation
   EditorFramework

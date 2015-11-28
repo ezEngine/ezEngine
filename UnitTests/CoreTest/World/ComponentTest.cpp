@@ -45,9 +45,10 @@ namespace
     virtual void SerializeComponent(ezWorldWriter& stream) const override {}
     virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) override {}
 
-    virtual void Initialize() override
+    virtual ezComponent::Initialization Initialize() override
     {
       ++s_iInitCounter;
+      return ezComponent::Initialization::Done;
     }
 
     virtual void Deinitialize() override
