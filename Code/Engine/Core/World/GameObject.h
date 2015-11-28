@@ -114,9 +114,15 @@ public:
   void SetName(const char* szName);
   const char* GetName() const;
 
+  /// \brief Defines during re-parenting what transform is going to be preserved.
+  enum class TransformPreservation
+  {
+    PreserveLocal,
+    PreserveGlobal
+  };
 
   /// \brief Sets the parent of this object to the given. Note that the actual re-parenting is postponed.
-  void SetParent(const ezGameObjectHandle& parent);
+  void SetParent(const ezGameObjectHandle& parent, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Gets the parent of this object or nullptr if this is a top-level object.
   ezGameObject* GetParent();
@@ -125,16 +131,16 @@ public:
   const ezGameObject* GetParent() const;
 
   /// \brief Adds the given object as a child object. Note that the actual re-parenting is postponed.
-  void AddChild(const ezGameObjectHandle& child);
+  void AddChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Adds the given objects as child objects. Note that the actual re-parenting is postponed.
-  void AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children);
+  void AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Removes the given child object from this object and makes it a top-level object. Note that the actual re-parenting is postponed.
-  void DetachChild(const ezGameObjectHandle& child);
+  void DetachChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Removes the given child objects from this object and makes them top-level objects. Note that the actual re-parenting is postponed.
-  void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children);
+  void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Returns the number of children.
   ezUInt32 GetChildCount() const;

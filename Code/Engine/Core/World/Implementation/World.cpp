@@ -313,7 +313,7 @@ void ezWorld::AddComponentToInitialize(ezComponentHandle hComponent)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent)
+void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameObject::TransformPreservation preserve)
 {
   EZ_ASSERT_DEV(pObject != pNewParent, "Object can't be its own parent!");
   CheckForWriteAccess();
@@ -332,7 +332,7 @@ void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent)
     LinkToParent(pObject);
   }
 
-  PatchHierarchyData(pObject);
+  PatchHierarchyData(pObject, preserve);
 }
 
 void ezWorld::LinkToParent(ezGameObject* pObject)
@@ -675,7 +675,7 @@ void ezWorld::DeleteDeadComponents()
   m_Data.m_DeadComponents.Clear();
 }
 
-void ezWorld::PatchHierarchyData(ezGameObject* pObject)
+void ezWorld::PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformPreservation preserve)
 {
   ezGameObject* pParent = pObject->GetParent();
 
@@ -706,11 +706,18 @@ void ezWorld::PatchHierarchyData(ezGameObject* pObject)
 
   pObject->m_pTransformationData->m_pParentData = pParent != nullptr ? pParent->m_pTransformationData : nullptr;
 
-  pObject->SetGlobalTransform(pObject->m_pTransformationData->m_globalTransform);
+  if (preserve == ezGameObject::TransformPreservation::PreserveGlobal)
+  {
+    pObject->SetGlobalTransform(pObject->m_pTransformationData->m_globalTransform);
+  }
+  else
+  {
+    pObject->UpdateGlobalTransform();
+  }
 
   for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
   {
-    PatchHierarchyData(it);
+    PatchHierarchyData(it, preserve);
   }
   EZ_ASSERT_DEBUG(pObject->m_pTransformationData != pObject->m_pTransformationData->m_pParentData, "Hierarchy corrupted!");
 }

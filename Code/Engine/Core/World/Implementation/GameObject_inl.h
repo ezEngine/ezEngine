@@ -109,19 +109,19 @@ EZ_FORCE_INLINE const char* ezGameObject::GetName() const
   return m_sName.GetString().GetData();
 }
 
-EZ_FORCE_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children)
+EZ_FORCE_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve)
 {
   for (ezUInt32 i = 0; i < children.GetCount(); ++i)
   {
-    AddChild(children[i]);
+    AddChild(children[i], preserve);
   }
 }
 
-EZ_FORCE_INLINE void ezGameObject::DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children)
+EZ_FORCE_INLINE void ezGameObject::DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve)
 {
   for (ezUInt32 i = 0; i < children.GetCount(); ++i)
   {
-    DetachChild(children[i]);
+    DetachChild(children[i], preserve);
   }
 }
 

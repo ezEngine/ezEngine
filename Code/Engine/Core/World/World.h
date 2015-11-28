@@ -173,7 +173,7 @@ private:
 
   ezGameObject* GetObjectUnchecked(ezUInt32 uiIndex) const;
 
-  void SetParent(ezGameObject* pObject, ezGameObject* pNewParent);
+  void SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameObject::TransformPreservation preserve = ezGameObject::TransformPreservation::PreserveGlobal);
   void LinkToParent(ezGameObject* pObject);
   void UnlinkFromParent(ezGameObject* pObject);
 
@@ -190,7 +190,7 @@ private:
   void DeleteDeadObjects();
   void DeleteDeadComponents();
 
-  void PatchHierarchyData(ezGameObject* pObject);
+  void PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformPreservation preserve);
 
   // if true, the full simulation should be executed, otherwise only the rendering related updates should be done
   bool m_bSimulateWorld;

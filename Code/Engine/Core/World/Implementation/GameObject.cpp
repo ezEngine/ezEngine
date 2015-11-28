@@ -18,24 +18,12 @@ EZ_END_STATIC_REFLECTED_TYPE();
 
 void ezGameObject::Reflection_AddChild(ezGameObject* pChild)
 {
-  ezVec3 vPos = pChild->GetLocalPosition();
-  ezQuat vRot = pChild->GetLocalRotation();
-  ezVec3 vScale = pChild->GetLocalScaling();
-  AddChild(pChild->GetHandle());
-  pChild->SetLocalPosition(vPos);
-  pChild->SetLocalRotation(vRot);
-  pChild->SetLocalScaling(vScale);
+  AddChild(pChild->GetHandle(), TransformPreservation::PreserveLocal);
 }
 
 void ezGameObject::Reflection_DetachChild(ezGameObject* pChild) 
 {
-  ezVec3 vPos = pChild->GetLocalPosition();
-  ezQuat vRot = pChild->GetLocalRotation();
-  ezVec3 vScale = pChild->GetLocalScaling();
-  DetachChild(pChild->GetHandle());
-  pChild->SetLocalPosition(vPos);
-  pChild->SetLocalRotation(vRot);
-  pChild->SetLocalScaling(vScale);
+  DetachChild(pChild->GetHandle(), TransformPreservation::PreserveLocal);
 }
 
 ezHybridArray<ezGameObject*, 8> ezGameObject::Reflection_GetChildren() const
@@ -111,11 +99,11 @@ void ezGameObject::Deactivate()
   }
 }
 
-void ezGameObject::SetParent(const ezGameObjectHandle& parent)
+void ezGameObject::SetParent(const ezGameObjectHandle& parent, ezGameObject::TransformPreservation preserve)
 {
   ezGameObject* pParent = nullptr;
   m_pWorld->TryGetObject(parent, pParent);
-  m_pWorld->SetParent(this, pParent);
+  m_pWorld->SetParent(this, pParent, preserve);
 }
 
 ezGameObject* ezGameObject::GetParent()
@@ -128,23 +116,23 @@ const ezGameObject* ezGameObject::GetParent() const
   return m_pWorld->GetObjectUnchecked(m_ParentIndex);
 }
 
-void ezGameObject::AddChild(const ezGameObjectHandle& child)
+void ezGameObject::AddChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve)
 {
   ezGameObject* pChild = nullptr;
   if (m_pWorld->TryGetObject(child, pChild))
   {
-    m_pWorld->SetParent(pChild, this);
+    m_pWorld->SetParent(pChild, this, preserve);
   }
 }
 
-void ezGameObject::DetachChild(const ezGameObjectHandle& child)
+void ezGameObject::DetachChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve)
 {
   ezGameObject* pChild = nullptr;
   if (m_pWorld->TryGetObject(child, pChild))
   {
     if (pChild->GetParent() == this)
     {
-      m_pWorld->SetParent(pChild, nullptr);
+      m_pWorld->SetParent(pChild, nullptr, preserve);
     }
   }
 }
