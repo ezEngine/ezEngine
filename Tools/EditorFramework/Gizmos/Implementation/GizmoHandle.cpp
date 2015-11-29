@@ -21,6 +21,13 @@ EZ_MEMBER_PROPERTY("Color", m_Color),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+ezGizmoHandle::ezGizmoHandle()
+{
+  m_bVisible = false;
+  m_Transformation.SetZero();
+  m_pParentGizmo = nullptr;
+}
+
 void ezGizmoHandle::SetVisible(bool bVisible)
 {
   if (bVisible != m_bVisible)
@@ -230,10 +237,9 @@ static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, e
 
 ezEngineGizmoHandle::ezEngineGizmoHandle()
 {
-  m_bVisible = false;
-  m_Transformation.SetIdentity();
-  m_Color = ezColor::CornflowerBlue; /* The Original! */
+  m_iHandleType = -1;
   m_pMeshComponent = nullptr;
+  m_Color = ezColor::CornflowerBlue; /* The Original! */
 }
 
 void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col)

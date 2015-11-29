@@ -101,6 +101,9 @@ void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, con
     }
   }
 
+  if (!out_Result.IsEmpty())
+    return;
+
   if (bHasChildren)
     out_Result = "Group";
   else

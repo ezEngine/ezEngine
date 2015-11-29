@@ -7,7 +7,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 ezGizmo::ezGizmo()
 {
   m_bVisible = false;
-  m_Transformation.SetIdentity();
+  m_Transformation.SetZero();
 }
 
 void ezGizmo::SetVisible(bool bVisible)

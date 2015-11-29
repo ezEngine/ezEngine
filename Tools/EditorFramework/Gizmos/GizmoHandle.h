@@ -14,7 +14,7 @@ class EZ_EDITORFRAMEWORK_DLL ezGizmoHandle : public ezEditorEngineSyncObject
   EZ_ADD_DYNAMIC_REFLECTION(ezGizmoHandle, ezEditorEngineSyncObject);
 
 public:
-  ezGizmoHandle(){}
+  ezGizmoHandle();
 
   ezGizmo* GetOwnerGizmo() const { return m_pParentGizmo; }
 
