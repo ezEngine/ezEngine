@@ -5,6 +5,7 @@
 #include <ToolsFoundation/Basics/Status.h>
 #include <Foundation/Communication/Event.h>
 #include <QApplication>
+#include <QMessageBox>
 
 class QColorDialog;
 
@@ -39,6 +40,7 @@ public:
   static void MessageBoxStatus(const ezStatus& s, const char* szFailureMsg, const char* szSuccessMsg = "", bool bOnlySuccessMsgIfDetails = true);
   static void MessageBoxInformation(const char* szMsg);
   static void MessageBoxWarning(const char* szMsg);
+  static QMessageBox::StandardButton MessageBoxQuestion(const char* szMsg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton);
 
   /// \brief Use this if you need to display a status bar message in any/all documents. Go directly through the document, if you only want to show a message in a single document window.
   static void ShowAllDocumentsStatusBarMessage(const char* szMsg, ezTime timeOut);

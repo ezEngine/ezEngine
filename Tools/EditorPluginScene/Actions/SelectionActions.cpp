@@ -19,12 +19,14 @@ ezActionDescriptorHandle ezSelectionActions::s_hShowInScenegraph;
 ezActionDescriptorHandle ezSelectionActions::s_hFocusOnSelection;
 ezActionDescriptorHandle ezSelectionActions::s_hFocusOnSelectionAllViews;
 ezActionDescriptorHandle ezSelectionActions::s_hGroupSelectedItems;
+ezActionDescriptorHandle ezSelectionActions::s_hCreateEmptyNode;
 ezActionDescriptorHandle ezSelectionActions::s_hHideSelectedObjects;
 ezActionDescriptorHandle ezSelectionActions::s_hHideUnselectedObjects;
 ezActionDescriptorHandle ezSelectionActions::s_hShowHiddenObjects;
 ezActionDescriptorHandle ezSelectionActions::s_hPrefabMenu;
 ezActionDescriptorHandle ezSelectionActions::s_hCreatePrefab;
 ezActionDescriptorHandle ezSelectionActions::s_hRevertPrefab;
+ezActionDescriptorHandle ezSelectionActions::s_hUnlinkFromPrefab;
 ezActionDescriptorHandle ezSelectionActions::s_hOpenPrefabDocument;
 
 
@@ -35,6 +37,7 @@ void ezSelectionActions::RegisterActions()
   s_hFocusOnSelection = EZ_REGISTER_ACTION_1("ActionFocusOnSelection", ezActionScope::Document, "Scene - Selection", "F", ezSelectionAction, ezSelectionAction::ActionType::FocusOnSelection);
   s_hFocusOnSelectionAllViews = EZ_REGISTER_ACTION_1("ActionFocusOnSelectionAllViews", ezActionScope::Document, "Scene - Selection", "Ctrl+K,Ctrl+F", ezSelectionAction, ezSelectionAction::ActionType::FocusOnSelectionAllViews);
   s_hGroupSelectedItems = EZ_REGISTER_ACTION_1("ActionGroupSelectedItems", ezActionScope::Document, "Scene - Selection", "G", ezSelectionAction, ezSelectionAction::ActionType::GroupSelectedItems);
+  s_hCreateEmptyNode = EZ_REGISTER_ACTION_1("Selection.CreateEmptyNode", ezActionScope::Document, "Scene - Selection", "Ctrl+Shift+N", ezSelectionAction, ezSelectionAction::ActionType::CreateEmptyNode);
   s_hHideSelectedObjects = EZ_REGISTER_ACTION_1("ActionHideSelectedObjects", ezActionScope::Document, "Scene - Selection", "H", ezSelectionAction, ezSelectionAction::ActionType::HideSelectedObjects);
   s_hHideUnselectedObjects = EZ_REGISTER_ACTION_1("ActionHideUnselectedObjects", ezActionScope::Document, "Scene - Selection", "Shift+H", ezSelectionAction, ezSelectionAction::ActionType::HideUnselectedObjects);
   s_hShowHiddenObjects = EZ_REGISTER_ACTION_1("ActionShowHiddenObjects", ezActionScope::Document, "Scene - Selection", "Ctrl+H", ezSelectionAction, ezSelectionAction::ActionType::ShowHiddenObjects);
@@ -42,6 +45,7 @@ void ezSelectionActions::RegisterActions()
   s_hPrefabMenu = EZ_REGISTER_MENU_WITH_ICON("MenuPrefabs", ":/AssetIcons/Prefab.png");
   s_hCreatePrefab = EZ_REGISTER_ACTION_1("ActionCreatePrefab", ezActionScope::Document, "Prefabs", "Ctrl+P,Ctrl+C", ezSelectionAction, ezSelectionAction::ActionType::CreatePrefab);
   s_hRevertPrefab = EZ_REGISTER_ACTION_1("ActionRevertPrefab", ezActionScope::Document, "Prefabs", "Ctrl+P,Ctrl+R", ezSelectionAction, ezSelectionAction::ActionType::RevertPrefab);
+  s_hUnlinkFromPrefab = EZ_REGISTER_ACTION_1("Prefabs.Unlink", ezActionScope::Document, "Prefabs", "Ctrl+P,Ctrl+U", ezSelectionAction, ezSelectionAction::ActionType::UnlinkFromPrefab);
   s_hOpenPrefabDocument = EZ_REGISTER_ACTION_1("ActionOpenPrefabDocument", ezActionScope::Document, "Prefabs", "Ctrl+P,Ctrl+O", ezSelectionAction, ezSelectionAction::ActionType::OpenPrefabDocument);
 }
 
@@ -52,12 +56,14 @@ void ezSelectionActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hFocusOnSelection);
   ezActionManager::UnregisterAction(s_hFocusOnSelectionAllViews);
   ezActionManager::UnregisterAction(s_hGroupSelectedItems);
+  ezActionManager::UnregisterAction(s_hCreateEmptyNode);
   ezActionManager::UnregisterAction(s_hHideSelectedObjects);
   ezActionManager::UnregisterAction(s_hHideUnselectedObjects);
   ezActionManager::UnregisterAction(s_hShowHiddenObjects);
   ezActionManager::UnregisterAction(s_hPrefabMenu);
   ezActionManager::UnregisterAction(s_hCreatePrefab);
   ezActionManager::UnregisterAction(s_hRevertPrefab);
+  ezActionManager::UnregisterAction(s_hUnlinkFromPrefab);
   ezActionManager::UnregisterAction(s_hOpenPrefabDocument);
 }
 
@@ -70,6 +76,7 @@ void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
 
   pMap->MapAction(s_hSelectionCategory, szPath, 5.0f);
   
+  pMap->MapAction(s_hCreateEmptyNode, sSubPath, 1.0f);
   pMap->MapAction(s_hShowInScenegraph, sSubPath, 2.0f);
   pMap->MapAction(s_hFocusOnSelection, sSubPath, 3.0f);
   pMap->MapAction(s_hFocusOnSelectionAllViews, sSubPath, 3.5f);
@@ -92,6 +99,7 @@ void ezSelectionActions::MapPrefabActions(const char* szMapping, const char* szP
   pMap->MapAction(s_hOpenPrefabDocument, sPrefabSubPath, 1.0f);
   pMap->MapAction(s_hRevertPrefab, sPrefabSubPath, 2.0f);
   pMap->MapAction(s_hCreatePrefab, sPrefabSubPath, 3.0f);
+  pMap->MapAction(s_hUnlinkFromPrefab, sPrefabSubPath, 4.0f);
 }
 
 void ezSelectionActions::MapContextMenuActions(const char* szMapping, const char* szPath)
@@ -103,6 +111,7 @@ void ezSelectionActions::MapContextMenuActions(const char* szMapping, const char
 
   pMap->MapAction(s_hSelectionCategory, szPath, 5.0f);
   
+  pMap->MapAction(s_hCreateEmptyNode, sSubPath, 0.5f);
   pMap->MapAction(s_hFocusOnSelectionAllViews, sSubPath, 1.0f);
   pMap->MapAction(s_hGroupSelectedItems, sSubPath, 2.0f);
   pMap->MapAction(s_hHideSelectedObjects, sSubPath, 3.0f);
@@ -129,6 +138,9 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
   case ActionType::GroupSelectedItems:
     SetIconPath(":/GuiFoundation/Icons/GroupSelection16.png");
     break;
+  case ActionType::CreateEmptyNode:
+    //SetIconPath(":/GuiFoundation/Icons/FocusOnSelection16.png"); /// \todo Icon
+    break;
   case ActionType::HideSelectedObjects:
     SetIconPath(":/GuiFoundation/Icons/HideSelected16.png");
     break;
@@ -143,6 +155,9 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
     break;
   case ActionType::RevertPrefab:
     SetIconPath(":/AssetIcons/PrefabRevert.png");
+    break;
+  case ActionType::UnlinkFromPrefab:
+    SetIconPath(":/AssetIcons/PrefabUnlink.png");
     break;
   case ActionType::OpenPrefabDocument:
     SetIconPath(":/AssetIcons/PrefabOpenDocument.png");
@@ -176,6 +191,9 @@ void ezSelectionAction::Execute(const ezVariant& value)
   case ActionType::GroupSelectedItems:
     m_pSceneDocument->GroupSelection();
     return;
+  case ActionType::CreateEmptyNode:
+    m_pSceneDocument->CreateEmptyNode();
+    return;
   case ActionType::HideSelectedObjects:
     m_pSceneDocument->ShowOrHideSelectedObjects(ezSceneDocument::ShowOrHide::Hide);
     break;
@@ -191,13 +209,21 @@ void ezSelectionAction::Execute(const ezVariant& value)
 
   case ActionType::RevertPrefab:
     {
-      const ezDeque<const ezDocumentObject*> sel = m_Context.m_pDocument->GetSelectionManager()->GetTopLevelSelection(ezGetStaticRTTI<ezGameObject>());
+      if (ezUIServices::MessageBoxQuestion("Discard all modifications to the selected prefabs and revert to the prefab template state?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
+      {
+        const ezDeque<const ezDocumentObject*> sel = m_pSceneDocument->GetSelectionManager()->GetTopLevelSelection(ezGetStaticRTTI<ezGameObject>());
+        m_pSceneDocument->RevertPrefabs(sel);
+      }
+    }
+    break;
 
-      if (sel.IsEmpty())
-        return;
-
-      ezSceneDocument* pScene = static_cast<ezSceneDocument*>(m_Context.m_pDocument);
-      pScene->RevertPrefabs(sel);
+  case ActionType::UnlinkFromPrefab:
+    {
+      if (ezUIServices::MessageBoxQuestion("Unlink the selected prefab instances from their templates?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
+      {
+        const ezDeque<const ezDocumentObject*> sel = m_pSceneDocument->GetSelectionManager()->GetTopLevelSelection(ezGetStaticRTTI<ezGameObject>());
+        m_pSceneDocument->UnlinkPrefabs(sel);
+      }
     }
     break;
 
@@ -277,28 +303,59 @@ void ezSelectionAction::UpdateEnableState()
     SetEnabled(m_Context.m_pDocument->GetSelectionManager()->GetSelection().GetCount() > 1);
   }
 
-  if (m_Type == ActionType::RevertPrefab ||
-      m_Type == ActionType::OpenPrefabDocument || 
-      m_Type == ActionType::CreatePrefab)
+  if (m_Type == ActionType::CreateEmptyNode)
+  {
+    SetEnabled(m_Context.m_pDocument->GetSelectionManager()->GetSelection().GetCount() <= 1);
+  }
+
+  if (m_Type == ActionType::OpenPrefabDocument)
   {
     const auto& sel = m_Context.m_pDocument->GetSelectionManager()->GetSelection();
 
-    if (sel.IsEmpty() || (m_Type != ActionType::RevertPrefab && sel.GetCount() != 1))
+    if (sel.GetCount() != 1)
     {
       SetEnabled(false);
       return;
     }
 
-    bool bIsPrefab = false;
-    const bool bShouldBePrefab = (m_Type == ActionType::RevertPrefab) || (m_Type == ActionType::OpenPrefabDocument);
+    
+  }
 
+  if (m_Type == ActionType::RevertPrefab ||
+      m_Type == ActionType::UnlinkFromPrefab ||
+      m_Type == ActionType::OpenPrefabDocument ||
+      m_Type == ActionType::CreatePrefab)
+  {
+    const auto& sel = m_Context.m_pDocument->GetSelectionManager()->GetSelection();
+
+    if (sel.IsEmpty())
+    {
+      SetEnabled(false);
+      return;
+    }
+
+    if (m_Type == ActionType::CreatePrefab)
+    {
+      SetEnabled(sel.GetCount() == 1);
+      return;
+    }
+
+    if (m_Type == ActionType::OpenPrefabDocument && (sel.GetCount() != 1))
+    {
+      SetEnabled(false);
+      return;
+    }
+
+    const bool bShouldBePrefab = (m_Type == ActionType::RevertPrefab) || 
+                                 (m_Type == ActionType::OpenPrefabDocument) || 
+                                 (m_Type == ActionType::UnlinkFromPrefab);
+
+    bool bIsPrefab = false;
     {
       ezSceneDocument* pScene = static_cast<ezSceneDocument*>(m_Context.m_pDocument);
 
       auto pMeta = pScene->m_ObjectMetaData.BeginReadMetaData(sel[0]->GetGuid());
-
       bIsPrefab = pMeta->m_CreateFromPrefab.IsValid();
-
       pScene->m_ObjectMetaData.EndReadMetaData();
     }
 

@@ -66,6 +66,10 @@ public:
   void TriggerSnapPivotToGrid();
   void TriggerSnapEachObjectToGrid();
   void GroupSelection();
+
+  /// \brief Creates a new empty node, either top-level (selection empty) or as a child of the selected item
+  void CreateEmptyNode();
+
   void DuplicateSelection();
   void ShowOrHideSelectedObjects(ShowOrHide action);
   void ShowOrHideAllObjects(ShowOrHide action);
@@ -73,6 +77,7 @@ public:
   void UpdatePrefabs();
   void TriggerExportScene();
   void RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
+  void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
 
   bool IsPrefab() const { return m_bIsPrefab; }
   ezString GetBinaryTargetFile() const;

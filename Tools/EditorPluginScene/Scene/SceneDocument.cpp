@@ -162,6 +162,34 @@ void ezSceneDocument::GroupSelection()
   pHistory->FinishTransaction();
 }
 
+void ezSceneDocument::CreateEmptyNode()
+{
+  auto history = GetCommandHistory();
+
+  history->StartTransaction();
+
+  ezAddObjectCommand cmdAdd;
+  cmdAdd.m_pType = ezGetStaticRTTI<ezGameObject>();
+  cmdAdd.m_sParentProperty = "Children";
+  cmdAdd.m_Index = -1;
+
+  const auto& Sel = GetSelectionManager()->GetSelection();
+
+  if (Sel.IsEmpty())
+  {
+    history->AddCommand(cmdAdd);
+  }
+  else
+  {
+    for (auto pParent : Sel)
+    {
+      cmdAdd.m_Parent = pParent->GetGuid();
+      history->AddCommand(cmdAdd);
+    }
+  }
+
+  history->FinishTransaction();
+}
 
 void ezSceneDocument::DuplicateSelection()
 {
@@ -331,6 +359,9 @@ void ezSceneDocument::TriggerExportScene()
 
 void ezSceneDocument::RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection)
 {
+  if (Selection.IsEmpty())
+    return;
+
   auto pHistory = GetCommandHistory();
 
   m_CachedPrefabGraphs.Clear();
@@ -400,6 +431,27 @@ void ezSceneDocument::RevertPrefabs(const ezDeque<const ezDocumentObject*>& Sele
   pHistory->FinishTransaction();
 }
 
+
+void ezSceneDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection)
+{
+  if (Selection.IsEmpty())
+    return;
+
+  /// \todo this operation is (currently) not undo-able, since it only operates on meta data
+
+  for (auto pObject : Selection)
+  {
+    auto pMeta = m_ObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
+
+    pMeta->m_CreateFromPrefab = ezUuid();
+    pMeta->m_CachedNodeName.Clear();
+    pMeta->m_PrefabSeedGuid = ezUuid();
+    pMeta->m_sBasePrefab.Clear();
+
+    m_ObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::PrefabFlag | ezSceneObjectMetaData::CachedName);
+  }
+
+}
 
 ezString ezSceneDocument::GetBinaryTargetFile() const
 {

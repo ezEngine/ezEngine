@@ -117,6 +117,7 @@ void ezSceneDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const
     pMeta->m_CreateFromPrefab = PrefabAsset;
     pMeta->m_PrefabSeedGuid = PrefabSeed;
     pMeta->m_sBasePrefab = instCmd.m_sJsonGraph;
+    pMeta->m_CachedNodeName.Clear();
 
     m_ObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::PrefabFlag);
   }

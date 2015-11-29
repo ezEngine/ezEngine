@@ -80,6 +80,19 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
         ComputeHierarchyBounds(pObj, bounds);
       }
+
+      // if there are no valid bounds, at all, use dummy bounds for each object
+      if (!bounds.IsValid())
+      {
+        for (const auto& obj : m_Selection)
+        {
+          ezGameObject* pObj;
+          if (!pWorld->TryGetObject(obj, pObj))
+            continue;
+
+          bounds.ExpandToInclude(ezBoundingBoxSphere(pObj->GetGlobalPosition(), ezVec3(0.5f), 0.5f));
+        }
+      }
     }
 
     EZ_ASSERT_DEV(bounds.IsValid() && !bounds.IsNaN(), "Invalid bounds");

@@ -43,3 +43,8 @@ void ezUIServices::MessageBoxWarning(const char* szMsg)
 {
   QMessageBox::warning(QApplication::activeWindow(), QString::fromUtf8(s_sApplicationName.GetData()), QString::fromUtf8(szMsg), QMessageBox::StandardButton::Ok);
 }
+
+QMessageBox::StandardButton ezUIServices::MessageBoxQuestion(const char* szMsg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton)
+{
+  return QMessageBox::question(QApplication::activeWindow(), QString::fromUtf8(s_sApplicationName.GetData()), QString::fromUtf8(szMsg), buttons, defaultButton);
+}

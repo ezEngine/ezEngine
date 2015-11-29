@@ -11,6 +11,7 @@
     <file>PrefabCreate.png</file>
     <file>PrefabRevert.png</file>
     <file>PrefabUpdate.png</file>
+    <file>PrefabUnlink.png</file>
     <file>PrefabOpenDocument.png</file>
     <file>Scene.png</file>
   </qresource>

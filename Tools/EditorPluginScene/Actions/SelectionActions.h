@@ -21,12 +21,14 @@ public:
   static ezActionDescriptorHandle s_hFocusOnSelection;
   static ezActionDescriptorHandle s_hFocusOnSelectionAllViews;
   static ezActionDescriptorHandle s_hGroupSelectedItems;
+  static ezActionDescriptorHandle s_hCreateEmptyNode;
   static ezActionDescriptorHandle s_hHideSelectedObjects;
   static ezActionDescriptorHandle s_hHideUnselectedObjects;
   static ezActionDescriptorHandle s_hShowHiddenObjects;
   static ezActionDescriptorHandle s_hPrefabMenu;
   static ezActionDescriptorHandle s_hCreatePrefab;
   static ezActionDescriptorHandle s_hRevertPrefab;
+  static ezActionDescriptorHandle s_hUnlinkFromPrefab;
   static ezActionDescriptorHandle s_hOpenPrefabDocument;
 
 };
@@ -44,11 +46,13 @@ public:
     FocusOnSelection,
     FocusOnSelectionAllViews,
     GroupSelectedItems,
+    CreateEmptyNode,
     HideSelectedObjects,
     HideUnselectedObjects,
     ShowHiddenObjects,
     CreatePrefab,
     RevertPrefab,
+    UnlinkFromPrefab,
     OpenPrefabDocument,
   };
 
