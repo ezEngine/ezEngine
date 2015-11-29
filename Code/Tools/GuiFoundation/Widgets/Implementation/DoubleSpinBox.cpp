@@ -2,13 +2,17 @@
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
 #include <Foundation/Math/Math.h>
 
-inline QDoubleSpinBoxLessAnnoying::QDoubleSpinBoxLessAnnoying(QWidget * pParent) : QDoubleSpinBox(pParent)
+inline QDoubleSpinBoxLessAnnoying::QDoubleSpinBoxLessAnnoying(QWidget* pParent) : QDoubleSpinBox(pParent)
 {
+  m_fDisplayedValue = ezMath::BasicType<float>::GetNaN();
   m_bInvalid = false;
 }
 
 QString QDoubleSpinBoxLessAnnoying::textFromValue(double val) const
 {
+  if (m_bInvalid)
+    return QString();
+
   if (hasFocus() && val == m_fDisplayedValue)
   {
     return m_sDisplayedText;
@@ -43,9 +47,8 @@ QString QDoubleSpinBoxLessAnnoying::textFromValue(double val) const
 
 double QDoubleSpinBoxLessAnnoying::valueFromText(const QString& text) const
 {
-  if (m_bInvalid && text != specialValueText())
+  if (m_bInvalid)
   {
-    const_cast<QDoubleSpinBoxLessAnnoying*>(this)->setSpecialValueText(QString());
     m_bInvalid = false;
   }
 
@@ -68,10 +71,17 @@ double QDoubleSpinBoxLessAnnoying::valueFromText(const QString& text) const
 void QDoubleSpinBoxLessAnnoying::setValueInvalid()
 {
   m_bInvalid = true;
-  m_sDisplayedText = " ";
+  m_sDisplayedText = QString();
   m_fDisplayedValue = ezMath::BasicType<float>::GetNaN();
-  setSpecialValueText(QStringLiteral(" "));
-  setValue(minimum());
+  QDoubleSpinBox::setValue(minimum());
+}
+
+void QDoubleSpinBoxLessAnnoying::setValue(double val)
+{
+  EZ_ASSERT_DEBUG(ezMath::IsFinite(val), "Spin box value must be finite!");
+  m_bInvalid = false;
+  m_fDisplayedValue = ezMath::BasicType<float>::GetNaN();
+  QDoubleSpinBox::setValue(val);
 }
 
 double QDoubleSpinBoxLessAnnoying::value() const
@@ -79,6 +89,7 @@ double QDoubleSpinBoxLessAnnoying::value() const
   if (m_bInvalid)
     return 0.0;
 
+  EZ_ASSERT_DEBUG(!ezMath::IsNaN(QDoubleSpinBox::value()), "Spin box valid value should never be NaN!");
   return QDoubleSpinBox::value();
 }
 

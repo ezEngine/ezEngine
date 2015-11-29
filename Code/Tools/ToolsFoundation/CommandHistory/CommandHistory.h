@@ -34,12 +34,15 @@ public:
   {
     enum class Type
     {
-      ExecutedUndo,
-      ExecutedRedo,
-      NewTransation,
-      BeforeEndTransaction,
-      BeforeEndTransactionCancel,
-      AfterEndTransaction,
+      UndoStarted,
+      UndoEnded,
+      RedoStarted,
+      RedoEnded,
+      TransactionStarted, ///< Emit after initial transaction started.
+      BeforeTransactionEnded, ///< Emit before initial transaction ended.
+      BeforeTransactionCanceled, ///< Emit before initial transaction ended.
+      TransactionEnded, ///< Emit after initial transaction ended.
+      TransactionCanceled, ///< Emit after initial transaction canceled.
     };
 
     Type m_Type;

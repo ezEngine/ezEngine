@@ -120,9 +120,10 @@ void ezQtSceneDocumentWindow::CommandHistoryEventHandler(const ezCommandHistory:
 {
   switch (e.m_Type)
   {
-  case ezCommandHistory::Event::Type::ExecutedUndo:
-  case ezCommandHistory::Event::Type::ExecutedRedo:
-  case ezCommandHistory::Event::Type::AfterEndTransaction:
+  case ezCommandHistory::Event::Type::UndoEnded:
+  case ezCommandHistory::Event::Type::RedoEnded:
+  case ezCommandHistory::Event::Type::TransactionEnded:
+  case ezCommandHistory::Event::Type::TransactionCanceled:
     {
       UpdateGizmoVisibility();
     }

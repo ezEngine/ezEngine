@@ -146,14 +146,19 @@ void ezCommandHistory::EndTemporaryCommands(bool bCancel)
 ezStatus ezCommandHistory::Undo()
 {
   EZ_ASSERT_DEV(!m_bIsInUndoRedo, "invalidly nested undo/redo");
-
-  m_bIsInUndoRedo = true;
-
   EZ_ASSERT_DEV(m_TransactionStack.IsEmpty(), "Can't undo with active transaction!");
   EZ_ASSERT_DEV(!m_UndoHistory.IsEmpty(), "Can't undo with empty undo queue!");
 
+  m_bIsInUndoRedo = true;
+  {
+    Event e;
+    e.m_Type = Event::Type::UndoStarted;
+    m_Events.Broadcast(e);
+  }
+
   ezCommandTransaction* pTransaction = m_UndoHistory.PeekBack();
   
+  ezStatus status(EZ_FAILURE);
   if (pTransaction->Undo(true).m_Result == EZ_SUCCESS)
   {
     m_UndoHistory.PopBack();
@@ -161,28 +166,34 @@ ezStatus ezCommandHistory::Undo()
 
     m_pDocument->SetModified(true);
 
-    Event e;
-    e.m_Type = Event::Type::ExecutedUndo;
-    m_Events.Broadcast(e);
-
-    m_bIsInUndoRedo = false;
-    return ezStatus(EZ_SUCCESS);
+    status = ezStatus(EZ_SUCCESS);
   }
   
   m_bIsInUndoRedo = false;
-  return ezStatus(EZ_FAILURE);
+  {
+    Event e;
+    e.m_Type = Event::Type::UndoEnded;
+    m_Events.Broadcast(e);
+  }
+  return status;
 }
 
 ezStatus ezCommandHistory::Redo()
 {
   EZ_ASSERT_DEV(!m_bIsInUndoRedo, "invalidly nested undo/redo");
-
-  m_bIsInUndoRedo = true;
   EZ_ASSERT_DEV(m_TransactionStack.IsEmpty(), "Can't redo with active transaction!");
   EZ_ASSERT_DEV(!m_RedoHistory.IsEmpty(), "Can't redo with empty undo queue!");
 
+  m_bIsInUndoRedo = true;
+  {
+    Event e;
+    e.m_Type = Event::Type::RedoStarted;
+    m_Events.Broadcast(e);
+  }
+
   ezCommandTransaction* pTransaction = m_RedoHistory.PeekBack();
   
+  ezStatus status(EZ_FAILURE);
   if (pTransaction->Do(true).m_Result == EZ_SUCCESS)
   {
     m_RedoHistory.PopBack();
@@ -190,16 +201,16 @@ ezStatus ezCommandHistory::Redo()
 
     m_pDocument->SetModified(true);
 
-    Event e;
-    e.m_Type = Event::Type::ExecutedRedo;
-    m_Events.Broadcast(e);
-
-    m_bIsInUndoRedo = false;
-    return ezStatus(EZ_SUCCESS);
+    status = ezStatus(EZ_SUCCESS);
   }
   
   m_bIsInUndoRedo = false;
-  return ezStatus(EZ_FAILURE);
+  {
+    Event e;
+    e.m_Type = Event::Type::RedoEnded;
+    m_Events.Broadcast(e);
+  }
+  return status;
 }
 
 bool ezCommandHistory::CanUndo() const
@@ -238,20 +249,32 @@ void ezCommandHistory::StartTransaction()
 
   if (!m_TransactionStack.IsEmpty())
   {
+    // Stacked transaction
     m_TransactionStack.PeekBack()->AddCommand(pTransaction);
+    m_TransactionStack.PushBack(pTransaction);
   }
-  m_TransactionStack.PushBack(pTransaction);
-
+  else
+  {
+    // Initial transaction
+    m_TransactionStack.PushBack(pTransaction);
+    {
+      Event e;
+      e.m_Type = Event::Type::TransactionStarted;
+      m_Events.Broadcast(e);
+    }
+  }
   return;
 }
 
 void ezCommandHistory::EndTransaction(bool bCancel)
 {
-  Event et;
-  et.m_Type = bCancel ? Event::Type::BeforeEndTransactionCancel : Event::Type::BeforeEndTransaction;
-  m_Events.Broadcast(et);
-
   EZ_ASSERT_DEV(!m_TransactionStack.IsEmpty(), "Trying to end transaction without starting one!");
+  if (m_TransactionStack.GetCount() == 1)
+  {
+    Event e;
+    e.m_Type = bCancel ? Event::Type::BeforeTransactionCanceled : Event::Type::BeforeTransactionEnded;
+    m_Events.Broadcast(e);
+  }
 
   if (!bCancel)
   {
@@ -266,10 +289,6 @@ void ezCommandHistory::EndTransaction(bool bCancel)
       ClearRedoHistory();
 
       m_pDocument->SetModified(true);
-
-      Event e;
-      e.m_Type = Event::Type::NewTransation;
-      m_Events.Broadcast(e);
     }
   }
   else
@@ -286,8 +305,13 @@ void ezCommandHistory::EndTransaction(bool bCancel)
     }
   }
 
-  et.m_Type = Event::Type::AfterEndTransaction;
-  m_Events.Broadcast(et);
+  if (m_TransactionStack.IsEmpty())
+  {
+    // All transactions done
+    Event e;
+    e.m_Type = bCancel ? Event::Type::TransactionCanceled : Event::Type::TransactionEnded;
+    m_Events.Broadcast(e);
+  }
 }
 
 ezStatus ezCommandHistory::AddCommand(ezCommand& command)

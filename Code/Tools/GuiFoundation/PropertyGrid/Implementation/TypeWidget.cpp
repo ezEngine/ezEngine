@@ -26,7 +26,8 @@ ezTypeWidget::ezTypeWidget(QWidget* pParent, ezPropertyGridWidget* pGrid, const 
   setLayout(m_pLayout);
 
 
-  m_pGrid->GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezTypeWidget::PropertyEventHandler, this));
+  m_pGrid->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezTypeWidget::PropertyEventHandler, this));
+  m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezTypeWidget::CommandHistoryEventHandler, this));
 
   ezPropertyPath ParentPath = m_ParentPath;
  
@@ -35,7 +36,8 @@ ezTypeWidget::ezTypeWidget(QWidget* pParent, ezPropertyGridWidget* pGrid, const 
 
 ezTypeWidget::~ezTypeWidget()
 {
-  m_pGrid->GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezTypeWidget::PropertyEventHandler, this));
+  m_pGrid->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezTypeWidget::PropertyEventHandler, this));
+  m_pGrid->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezTypeWidget::CommandHistoryEventHandler, this));
 }
 
 void ezTypeWidget::SetSelection(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items)
@@ -158,6 +160,21 @@ void ezTypeWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
   UpdateProperty(e.m_pObject, e.m_sPropertyPath);
 }
 
+void ezTypeWidget::CommandHistoryEventHandler(const ezCommandHistory::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezCommandHistory::Event::Type::UndoEnded:
+  case ezCommandHistory::Event::Type::RedoEnded:
+  case ezCommandHistory::Event::Type::TransactionEnded:
+  case ezCommandHistory::Event::Type::TransactionCanceled:
+    {
+      FlushQueuedChanges();
+    }
+    break;
+  }
+}
+
 void ezTypeWidget::UpdateProperty(const ezDocumentObject* pObject, const ezString& sProperty)
 {
   if (std::none_of(cbegin(m_Items), cend(m_Items),
@@ -165,14 +182,26 @@ void ezTypeWidget::UpdateProperty(const ezDocumentObject* pObject, const ezStrin
     ))
     return;
 
-  for (auto it = m_PropertyWidgets.GetIterator(); it.IsValid(); ++it)
+  if (!m_QueuedChanges.Contains(sProperty))
   {
-    if (it.Key().StartsWith(sProperty))
+    m_QueuedChanges.PushBack(sProperty);
+  }
+}
+
+void ezTypeWidget::FlushQueuedChanges()
+{
+  for (const ezString& sProperty : m_QueuedChanges)
+  {
+    for (auto it = m_PropertyWidgets.GetIterator(); it.IsValid(); ++it)
     {
-      QtScopedUpdatesDisabled _(this);
-      it.Value()->SetSelection(m_Items);
-      break;
+      if (it.Key().StartsWith(sProperty))
+      {
+        QtScopedUpdatesDisabled _(this);
+        it.Value()->SetSelection(m_Items);
+        break;
+      }
     }
   }
+  m_QueuedChanges.Clear();
 }
 

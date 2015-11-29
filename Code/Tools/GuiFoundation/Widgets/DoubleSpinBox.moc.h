@@ -13,6 +13,7 @@ public:
   virtual double valueFromText(const QString &text) const override;
 
   void setValueInvalid();
+  void setValue(double val);
   double value() const;
 
 private:
