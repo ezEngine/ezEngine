@@ -27,9 +27,9 @@ void ezPxStaticActorComponent::SerializeComponent(ezWorldWriter& stream) const
 }
 
 
-void ezPxStaticActorComponent::DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion)
+void ezPxStaticActorComponent::DeserializeComponent(ezWorldReader& stream)
 {
-  SUPER::DeserializeComponent(stream, uiTypeVersion);
+  SUPER::DeserializeComponent(stream);
 
   auto& s = stream.GetStream();
 
@@ -94,6 +94,7 @@ ezComponent::Initialization ezPxStaticActorComponent::Initialize()
 
     if (pTriMesh != nullptr)
     {
+      /// \todo Material(s)
       m_pActor->createShape(PxTriangleMeshGeometry(pTriMesh), *ezPhysX::GetSingleton()->GetDefaultMaterial());
     }
     else

@@ -25,9 +25,9 @@ void ezPxShapeSphereComponent::SerializeComponent(ezWorldWriter& stream) const
 }
 
 
-void ezPxShapeSphereComponent::DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion)
+void ezPxShapeSphereComponent::DeserializeComponent(ezWorldReader& stream)
 {
-  SUPER::DeserializeComponent(stream, uiTypeVersion);
+  SUPER::DeserializeComponent(stream);
 
   auto& s = stream.GetStream();
   s >> m_fRadius;
@@ -50,8 +50,7 @@ void ezPxShapeSphereComponent::AddToActor(PxRigidActor* pActor, const ezTransfor
   t.p = PxVec3(LocalTransform.m_vPosition.x, LocalTransform.m_vPosition.y, LocalTransform.m_vPosition.z);
   t.q = PxQuat(r.v.x, r.v.y, r.v.z, r.w);
 
-  /// \todo Material
-  auto pShape = pActor->createShape(PxSphereGeometry(m_fRadius), *ezPhysX::GetSingleton()->GetDefaultMaterial());
+  auto pShape = pActor->createShape(PxSphereGeometry(m_fRadius), *GetPxMaterial());
   pShape->setLocalPose(t);
 
   EZ_ASSERT_DEBUG(pShape != nullptr, "PhysX sphere shape creation failed");

@@ -45,7 +45,7 @@ public:
   ezPhysXComponent();
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override {}
-  virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) override {}
+  virtual void DeserializeComponent(ezWorldReader& stream) override {}
 
   // ************************************* PROPERTIES ***********************************
 

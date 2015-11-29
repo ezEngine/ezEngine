@@ -140,9 +140,9 @@ void ezRotorComponent::SerializeComponent(ezWorldWriter& stream) const
 }
 
 
-void ezRotorComponent::DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion)
+void ezRotorComponent::DeserializeComponent(ezWorldReader& stream)
 {
-  SUPER::DeserializeComponent(stream, uiTypeVersion);
+  SUPER::DeserializeComponent(stream);
 
   auto& s = stream.GetStream();
 

@@ -38,9 +38,9 @@ void ezPxDistanceJointComponent::SerializeComponent(ezWorldWriter& stream) const
 }
 
 
-void ezPxDistanceJointComponent::DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion)
+void ezPxDistanceJointComponent::DeserializeComponent(ezWorldReader& stream)
 {
-  SUPER::DeserializeComponent(stream, uiTypeVersion);
+  SUPER::DeserializeComponent(stream);
 
   auto& s = stream.GetStream();
 

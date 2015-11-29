@@ -25,9 +25,9 @@ void ezPxShapeBoxComponent::SerializeComponent(ezWorldWriter& stream) const
 }
 
 
-void ezPxShapeBoxComponent::DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion)
+void ezPxShapeBoxComponent::DeserializeComponent(ezWorldReader& stream)
 {
-  SUPER::DeserializeComponent(stream, uiTypeVersion);
+  SUPER::DeserializeComponent(stream);
 
   auto& s = stream.GetStream();
   s >> m_vHalfExtents;
@@ -51,8 +51,7 @@ void ezPxShapeBoxComponent::AddToActor(PxRigidActor* pActor, const ezTransform& 
   t.p = PxVec3(LocalTransform.m_vPosition.x, LocalTransform.m_vPosition.y, LocalTransform.m_vPosition.z);
   t.q = PxQuat(r.v.x, r.v.y, r.v.z, r.w);
 
-  /// \todo Material
-  auto pShape = pActor->createShape(PxBoxGeometry(m_vHalfExtents.x, m_vHalfExtents.y, m_vHalfExtents.z), *ezPhysX::GetSingleton()->GetDefaultMaterial());
+  auto pShape = pActor->createShape(PxBoxGeometry(m_vHalfExtents.x, m_vHalfExtents.y, m_vHalfExtents.z), *GetPxMaterial());
   pShape->setLocalPose(t);
 
   EZ_ASSERT_DEBUG(pShape != nullptr, "PhysX box shape creation failed");

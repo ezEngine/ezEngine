@@ -37,23 +37,23 @@ Gizmo.Translate.Snap.0_25;0.25
 Gizmo.Translate.Snap.0_2;0.2
 Gizmo.Translate.Snap.0_125;0.125
 Gizmo.Translate.Snap.0_1;0.1
-ActionToggleViews;Toggle Views
-ActionSpawnView;Spawn View
-ActionShowInScenegraph;Show in Scenegraph
-ActionFocusOnSelection;Focus on Selection
-ActionFocusOnSelectionAllViews;Focus All Views on Selection
-ActionGroupSelectedItems;Group
-ActionHideSelectedObjects;Hide Selected
-ActionHideUnselectedObjects;Hide Unselected
-ActionShowHiddenObjects;Show Hidden Objects
-ActionUpdatePrefabs;Update Prefabs
-ActionCreatePrefab;Create Prefab...
-MenuPrefabs;Prefabs
-ActionRevertPrefab;Revert Prefab
-ActionOpenPrefabDocument;Edit Prefab...
-ActionExportScene;Export Scene...
-ActionRunScene;Run Scene...
-ActionSimulateWorld;Simulate World
-ActionRenderSelectionOverlay;Visualize Selection
-Prefabs.Unlink;Unlink from Template
+Scene.View.Toggle;Toggle Views
+Scene.View.Span;Spawn View
+Scene.Export;Export Scene...
+Scene.Run;Run Scene...
+Scene.Render.SelectionOverlay;Visualize Selection
+Scene.SimulateWorld;Simulate World
+Selection.ShowInScenegraph;Show in Scenegraph
+Selection.FocusSingleView;Focus on Selection
+Selection.FocusAllViews;Focus All Views on Selection
+Selection.GroupItems;Group
+Selection.HideItems;Hide Selected
+Selection.HideUnselectedItems;Hide Unselected
+Selection.ShowHidden;Show Hidden Objects
 Selection.CreateEmptyNode;Create Empty Node
+Prefabs.Menu;Prefabs
+Prefabs.UpdateAll;Update Prefabs
+Prefabs.Create;Create Prefab...
+Prefabs.Revert;Revert Prefab
+Prefabs.OpenDocument;Edit Prefab...
+Prefabs.Unlink;Unlink from Template

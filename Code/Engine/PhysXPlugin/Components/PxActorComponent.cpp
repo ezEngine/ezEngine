@@ -22,9 +22,9 @@ void ezPxActorComponent::SerializeComponent(ezWorldWriter& stream) const
 }
 
 
-void ezPxActorComponent::DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion)
+void ezPxActorComponent::DeserializeComponent(ezWorldReader& stream)
 {
-  SUPER::DeserializeComponent(stream, uiTypeVersion);
+  SUPER::DeserializeComponent(stream);
 
 
 

@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
+#include <EditorPluginAssets/SurfaceAsset/SurfaceAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
@@ -9,15 +9,15 @@
 #include <QLayout>
 #include <CoreUtils/Image/ImageConversion.h>
 
-ezMaterialAssetDocumentWindow::ezMaterialAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
+ezSurfaceAssetDocumentWindow::ezSurfaceAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezMaterialAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSurfaceAssetDocumentWindow::PropertyEventHandler, this));
 
   // Menu Bar
   {
     ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
     ezActionContext context;
-    context.m_sMapping = "MaterialAssetMenuBar";
+    context.m_sMapping = "SurfaceAssetMenuBar";
     context.m_pDocument = pDocument;
     pMenuBar->SetActionContext(context);
   }
@@ -26,20 +26,17 @@ ezMaterialAssetDocumentWindow::ezMaterialAssetDocumentWindow(ezDocument* pDocume
   {
     ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView(this);
     ezActionContext context;
-    context.m_sMapping = "MaterialAssetToolBar";
+    context.m_sMapping = "SurfaceAssetToolBar";
     context.m_pDocument = pDocument;
     pToolBar->SetActionContext(context);
-    pToolBar->setObjectName("MaterialAssetWindowToolBar");
+    pToolBar->setObjectName("SurfaceAssetWindowToolBar");
     addToolBar(pToolBar);
   }
 
-  m_pImageWidget = new QtImageWidget(this);
-  setCentralWidget(m_pImageWidget);
-
   {
     ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
-    pPropertyPanel->setObjectName("MaterialAssetDockWidget");
-    pPropertyPanel->setWindowTitle("Material Properties");
+    pPropertyPanel->setObjectName("SurfaceAssetDockWidget");
+    pPropertyPanel->setWindowTitle("Surface Properties");
     pPropertyPanel->show();
 
     ezPropertyGridWidget* pPropertyGrid = new ezPropertyGridWidget(pDocument, pPropertyPanel);
@@ -55,25 +52,20 @@ ezMaterialAssetDocumentWindow::ezMaterialAssetDocumentWindow(ezDocument* pDocume
   UpdatePreview();
 }
 
-ezMaterialAssetDocumentWindow::~ezMaterialAssetDocumentWindow()
+ezSurfaceAssetDocumentWindow::~ezSurfaceAssetDocumentWindow()
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezMaterialAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezSurfaceAssetDocumentWindow::PropertyEventHandler, this));
 }
 
-void ezMaterialAssetDocumentWindow::UpdatePreview()
+void ezSurfaceAssetDocumentWindow::UpdatePreview()
 {
 
   // TODO
 }
 
-void ezMaterialAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void ezSurfaceAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  /// \todo BLA
 
-  //if (e.m_sPropertyPath == "Texture File")
-  //{
-  //  UpdatePreview();
-  //}
 }
 
 

@@ -46,6 +46,11 @@ void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet
 
   for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
   {
+    WriteComponentInfo(it.Key());
+  }
+
+  for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
+  {
     WriteComponentsOfType(it.Key(), it.Value());
   }
 }
@@ -123,12 +128,19 @@ void ezWorldWriter::WriteGameObject(const ezGameObject* pObject)
   // write strings only once
 }
 
-void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<const ezComponent*>& components)
+
+void ezWorldWriter::WriteComponentInfo(const ezRTTI* pRtti)
 {
   ezStreamWriter& s = *m_pStream;
 
   s << pRtti->GetTypeName();
   s << pRtti->GetTypeVersion();
+}
+
+void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<const ezComponent*>& components)
+{
+  ezStreamWriter& s = *m_pStream;
+
   s << components.GetCount();
 
   for (const auto* pComp : components)

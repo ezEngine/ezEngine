@@ -21,9 +21,9 @@ void ezPxCenterOfMassComponent::SerializeComponent(ezWorldWriter& stream) const
 }
 
 
-void ezPxCenterOfMassComponent::DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion)
+void ezPxCenterOfMassComponent::DeserializeComponent(ezWorldReader& stream)
 {
-  SUPER::DeserializeComponent(stream, uiTypeVersion);
+  SUPER::DeserializeComponent(stream);
 
 
 

@@ -32,6 +32,8 @@ SET (LINK_LIBRARIES
   Foundation
   Core
   CoreUtils
+  GameUtils
+
   debug PhysX3ExtensionsDEBUG
   debug PhysXVisualDebuggerSDKDEBUG
   # debug PxTaskDEBUG

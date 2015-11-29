@@ -28,9 +28,9 @@ void ezPxShapeCapsuleComponent::SerializeComponent(ezWorldWriter& stream) const
 }
 
 
-void ezPxShapeCapsuleComponent::DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion)
+void ezPxShapeCapsuleComponent::DeserializeComponent(ezWorldReader& stream)
 {
-  SUPER::DeserializeComponent(stream, uiTypeVersion);
+  SUPER::DeserializeComponent(stream);
 
   auto& s = stream.GetStream();
   s >> m_fRadius;
@@ -58,8 +58,7 @@ void ezPxShapeCapsuleComponent::AddToActor(PxRigidActor* pActor, const ezTransfo
   t.p = PxVec3(LocalTransform.m_vPosition.x, LocalTransform.m_vPosition.y, LocalTransform.m_vPosition.z);
   t.q = PxQuat(r.v.x, r.v.y, r.v.z, r.w);
 
-  /// \todo Material
-  auto pShape = pActor->createShape(PxCapsuleGeometry(m_fRadius, m_fHalfHeight), *ezPhysX::GetSingleton()->GetDefaultMaterial());
+  auto pShape = pActor->createShape(PxCapsuleGeometry(m_fRadius, m_fHalfHeight), *GetPxMaterial());
   pShape->setLocalPose(t);
 
   EZ_ASSERT_DEBUG(pShape != nullptr, "PhysX capsule shape creation failed");

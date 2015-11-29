@@ -47,6 +47,8 @@ void ezPhysX::Startup()
 
   m_pDefaultMaterial = m_pPhysX->createMaterial(0.6f, 0.4f, 0.25f);
 
+  ezSurfaceResource::s_Events.AddEventHandler(ezMakeDelegate(&ezPhysX::SurfaceResourceEventHandler, this));
+
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   StartupVDB();
 #endif
@@ -61,6 +63,8 @@ void ezPhysX::Shutdown()
   m_bInitialized = false;
 
   ShutdownVDB();
+
+  ezSurfaceResource::s_Events.RemoveEventHandler(ezMakeDelegate(&ezPhysX::SurfaceResourceEventHandler, this));
 
   if (m_pDefaultMaterial != nullptr)
   {
@@ -114,3 +118,28 @@ void ezPhysX::ShutdownVDB()
   m_VdbConnection = nullptr;
 }
 
+
+
+void ezPhysX::SurfaceResourceEventHandler(const ezSurfaceResource::Event& e)
+{
+  if (e.m_Type == ezSurfaceResource::Event::Type::Created)
+  {
+    const auto& desc = e.m_pSurface->GetDescriptor();
+
+    PxMaterial* pMaterial = m_pPhysX->createMaterial(desc.m_fPhysicsFrictionStatic, desc.m_fPhysicsFrictionDynamic, desc.m_fPhysicsRestitution);
+
+    e.m_pSurface->m_pPhysicsMaterial = pMaterial;
+  }
+  else if (e.m_Type == ezSurfaceResource::Event::Type::Destroyed)
+  {
+    if (e.m_pSurface->m_pPhysicsMaterial != nullptr)
+    {
+      PxMaterial* pMaterial = static_cast<PxMaterial*>(e.m_pSurface->m_pPhysicsMaterial);
+
+      pMaterial->release();
+
+      e.m_pSurface->m_pPhysicsMaterial = nullptr;
+    }
+  }
+
+}

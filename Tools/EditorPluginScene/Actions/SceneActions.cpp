@@ -18,11 +18,11 @@ ezActionDescriptorHandle ezSceneActions::s_hRenderSelectionOverlay;
 void ezSceneActions::RegisterActions()
 {
   s_hSceneCategory = EZ_REGISTER_CATEGORY("SceneCategory");
-  s_hUpdatePrefabs = EZ_REGISTER_ACTION_1("ActionUpdatePrefabs", ezActionScope::Document, "Scene", "Ctrl+Shift+P", ezSceneAction, ezSceneAction::ActionType::UpdatePrefabs);
-  s_hExportScene = EZ_REGISTER_ACTION_1("ActionExportScene", ezActionScope::Document, "Scene", "Ctrl+E", ezSceneAction, ezSceneAction::ActionType::ExportScene);
-  s_hRunScene = EZ_REGISTER_ACTION_1("ActionRunScene", ezActionScope::Document, "Scene", "Ctrl+R", ezSceneAction, ezSceneAction::ActionType::RunScene);
-  s_hEnableWorldSimulation = EZ_REGISTER_ACTION_1("ActionSimulateWorld", ezActionScope::Document, "Scene", "Ctrl+F5", ezSceneAction, ezSceneAction::ActionType::SimulateWorld);
-  s_hRenderSelectionOverlay = EZ_REGISTER_ACTION_1( "ActionRenderSelectionOverlay", ezActionScope::Document, "Scene", "Ctrl+M", ezSceneAction, ezSceneAction::ActionType::RenderSelectionOverlay);
+  s_hUpdatePrefabs = EZ_REGISTER_ACTION_1("Prefabs.UpdateAll", ezActionScope::Document, "Scene", "Ctrl+Shift+P", ezSceneAction, ezSceneAction::ActionType::UpdatePrefabs);
+  s_hExportScene = EZ_REGISTER_ACTION_1("Scene.Export", ezActionScope::Document, "Scene", "Ctrl+E", ezSceneAction, ezSceneAction::ActionType::ExportScene);
+  s_hRunScene = EZ_REGISTER_ACTION_1("Scene.Run", ezActionScope::Document, "Scene", "Ctrl+R", ezSceneAction, ezSceneAction::ActionType::RunScene);
+  s_hEnableWorldSimulation = EZ_REGISTER_ACTION_1("Scene.SimulateWorld", ezActionScope::Document, "Scene", "Ctrl+F5", ezSceneAction, ezSceneAction::ActionType::SimulateWorld);
+  s_hRenderSelectionOverlay = EZ_REGISTER_ACTION_1( "Scene.Render.SelectionOverlay", ezActionScope::Document, "Scene", "Ctrl+M", ezSceneAction, ezSceneAction::ActionType::RenderSelectionOverlay);
 }
 
 void ezSceneActions::UnregisterActions()

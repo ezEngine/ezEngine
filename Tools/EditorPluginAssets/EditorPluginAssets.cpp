@@ -1,7 +1,6 @@
 #include <PCH.h>
 #include <EditorPluginAssets/EditorPluginAssets.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
-#include <EditorPluginAssets/MaterialAsset/MaterialAssetObjects.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
@@ -73,6 +72,26 @@ void OnLoadPlugin(bool bReloading)
       ezDocumentActions::MapActions("MeshAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("MeshAssetToolBar", "");
       ezAssetActions::MapActions("MeshAssetToolBar", true);
+    }
+  }
+
+  // Surface Asset
+  {
+    // Menu Bar
+    {
+      ezActionMapManager::RegisterActionMap("SurfaceAssetMenuBar");
+      ezProjectActions::MapActions("SurfaceAssetMenuBar");
+      ezStandardMenus::MapActions("SurfaceAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezDocumentActions::MapActions("SurfaceAssetMenuBar", "MenuFile", false);
+      ezCommandHistoryActions::MapActions("SurfaceAssetMenuBar", "MenuEdit");
+    }
+
+    // Tool Bar
+    {
+      ezActionMapManager::RegisterActionMap("SurfaceAssetToolBar");
+      ezDocumentActions::MapActions("SurfaceAssetToolBar", "", true);
+      ezCommandHistoryActions::MapActions("SurfaceAssetToolBar", "");
+      ezAssetActions::MapActions("SurfaceAssetToolBar", true);
     }
   }
 }

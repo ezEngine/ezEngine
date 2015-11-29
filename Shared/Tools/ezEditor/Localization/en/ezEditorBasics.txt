@@ -1,14 +1,14 @@
-ActionCreateDocument;Create Document
-ActionOpenDocument;Open Document
+Document.Create;Create Document
+Document.Open;Open Document
 ActionUndo;Undo
 ActionRedo;Redo
-MenuRecentDocuments;Recent Documents
-ActionCreateProject;Create Project
-ActionOpenProject;Open Project
-MenuRecentProjects;Recent Projects
-ActionCloseProject;Close Project
-ActionOpenSettings;Settings
-ActionReloadResources;Reload Resources
+Project.RecentDocuments.Menu;Recent Documents
+Project.Create;Create Project
+Project.Open;Open Project
+Project.RecentProjects.Menu;Recent Projects
+Project.Close;Close Project
+Settings.Open;Settings
+Engine.ReloadResources;Reload Resources
 ActionSaveDocument;Save
 ActionSaveAllDocuments;Save All
 ActionSaveDocumentAs;Save As...

@@ -10,11 +10,13 @@ class EZ_FOUNDATION_DLL ezPropertyAttribute : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAttribute, ezReflectedClass);
 };
 
+/// \brief A property attribute that indicates that the property may not be modified through the UI
 class EZ_FOUNDATION_DLL ezReadOnlyAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezReadOnlyAttribute, ezPropertyAttribute);
 };
 
+/// \brief A property attribute that indicates that the property is not to be shown in the UI
 class EZ_FOUNDATION_DLL ezHiddenAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezHiddenAttribute, ezPropertyAttribute);
@@ -38,7 +40,7 @@ private:
   ezVariant m_Value;
 };
 
-
+/// \brief A property attribute that allows to define min and max values for the UI. Min or max may be set to an invalid variant to indicate unbounded values in one direction.
 class EZ_FOUNDATION_DLL ezClampValueAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezClampValueAttribute, ezPropertyAttribute);
@@ -129,6 +131,10 @@ private:
   bool m_bCanMove;
 };
 
+/// \brief A property attribute that indicates that the string property should display a file browsing button.
+///
+/// Allows to specify the title for the browse dialog and the allowed file types.
+/// Usage: EZ_MEMBER_PROPERTY("File", m_sFilePath)->AddAttributes(new ezFileBrowserAttribute("Choose a File", "*.txt")),
 class EZ_FOUNDATION_DLL ezFileBrowserAttribute : public ezTypeWidgetAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezFileBrowserAttribute, ezTypeWidgetAttribute);
@@ -151,7 +157,10 @@ private:
   ezString m_sTypeFilter;
 };
 
-
+/// \brief A property attribute that indicates that the string property is actually an asset reference.
+///
+/// Allows to specify the allowed asset types, separated with ;
+/// Usage: EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D;Texture 3D")),
 class EZ_FOUNDATION_DLL ezAssetBrowserAttribute : public ezTypeWidgetAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAssetBrowserAttribute, ezTypeWidgetAttribute);

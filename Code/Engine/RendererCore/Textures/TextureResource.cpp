@@ -47,7 +47,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 bool ezTextureResource::s_bForceFullQualityAlways = false;
 
-ezTextureResource::ezTextureResource() : ezResource<ezTextureResource, ezTextureResourceDescriptor>(DoUpdate::OnMainThread, s_bForceFullQualityAlways ? 1 : 2)
+ezTextureResource::ezTextureResource() : ezResource<ezTextureResource, ezTextureResourceDescriptor>(DoUpdate::OnAnyThread, s_bForceFullQualityAlways ? 1 : 2)
 {
   m_uiLoadedTextures = 0;
   m_uiMemoryGPU[0] = 0;

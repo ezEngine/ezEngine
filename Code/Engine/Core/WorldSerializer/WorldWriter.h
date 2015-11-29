@@ -17,6 +17,7 @@ public:
 private:
   bool ObjectTraverser(ezGameObject* pObject);
   void WriteGameObject(const ezGameObject* pObject);
+  void WriteComponentInfo(const ezRTTI* pRtti);
   void WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<const ezComponent*>& components);
 
   ezStreamWriter* m_pStream;

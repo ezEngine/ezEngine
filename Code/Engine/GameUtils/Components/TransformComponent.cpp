@@ -22,7 +22,7 @@ void ezTransformComponent::SerializeComponent(ezWorldWriter& stream) const
 }
 
 
-void ezTransformComponent::DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion)
+void ezTransformComponent::DeserializeComponent(ezWorldReader& stream)
 {
   ezTransformComponentFlags::StorageType flags;
   stream.GetStream() >> flags;

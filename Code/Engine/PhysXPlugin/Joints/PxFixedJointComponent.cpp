@@ -21,9 +21,9 @@ void ezPxFixedJointComponent::SerializeComponent(ezWorldWriter& stream) const
 }
 
 
-void ezPxFixedJointComponent::DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion)
+void ezPxFixedJointComponent::DeserializeComponent(ezWorldReader& stream)
 {
-  SUPER::DeserializeComponent(stream, uiTypeVersion);
+  SUPER::DeserializeComponent(stream);
 
   auto& s = stream.GetStream();
 

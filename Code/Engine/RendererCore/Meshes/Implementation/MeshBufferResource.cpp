@@ -144,7 +144,7 @@ ezBoundingBoxSphere ezMeshBufferResourceDescriptor::ComputeBounds() const
 }
 
 
-ezMeshBufferResource::ezMeshBufferResource() : ezResource<ezMeshBufferResource, ezMeshBufferResourceDescriptor>(DoUpdate::OnMainThread, 1)
+ezMeshBufferResource::ezMeshBufferResource() : ezResource<ezMeshBufferResource, ezMeshBufferResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
 }
 

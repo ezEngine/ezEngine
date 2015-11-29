@@ -37,6 +37,7 @@ SET (LINK_LIBRARIES
   RendererDX11
   RendererCore
   CoreUtils
+  GameUtils
 )
 
 if (BUILDSYSTEM_PLATFORM_64BIT)

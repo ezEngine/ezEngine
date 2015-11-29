@@ -14,9 +14,12 @@ public:
   ezGameObjectHandle ReadHandle();
   void ReadHandle(ezComponentHandle* out_hComponent);
 
+  ezUInt32 GetComponentTypeVersion(const ezRTTI* pRtti) const;
+
 private:
   ezGameObject* ReadGameObject(bool bRoot);
-  void ReadComponentsOfType();
+  void ReadComponentInfo(ezUInt32 uiComponentTypeIdx);
+  void ReadComponentsOfType(ezUInt32 uiComponentTypeIdx);
   void FulfillComponentHandleRequets();
 
   ezStreamReader* m_pStream;
@@ -38,6 +41,8 @@ private:
   };
 
   ezHybridArray<CompRequest, 64> m_ComponentHandleRequests;
+  ezDynamicArray<const ezRTTI*> m_ComponentTypes;
+  ezHashTable<const ezRTTI*, ezUInt32> m_ComponentTypeVersions;
 };
 
 

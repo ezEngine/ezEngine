@@ -149,7 +149,7 @@ void ezMeshComponent::SerializeComponent(ezWorldWriter& stream) const
   }
 }
 
-void ezMeshComponent::DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion)
+void ezMeshComponent::DeserializeComponent(ezWorldReader& stream)
 {
   ezStreamReader& s = stream.GetStream();
 

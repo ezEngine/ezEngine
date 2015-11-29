@@ -40,9 +40,9 @@ void ezPxDynamicActorComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_bDisableGravity;
 }
 
-void ezPxDynamicActorComponent::DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion)
+void ezPxDynamicActorComponent::DeserializeComponent(ezWorldReader& stream)
 {
-  SUPER::DeserializeComponent(stream, uiTypeVersion);
+  SUPER::DeserializeComponent(stream);
 
   auto& s = stream.GetStream();
 

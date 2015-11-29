@@ -4,6 +4,7 @@
 #include <PhysXPlugin/PluginInterface.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Core/Scene/SceneModule.h>
+#include <GameUtils/Surfaces/SurfaceResource.h>
 
 class ezPxErrorCallback : public PxErrorCallback
 {
@@ -39,6 +40,8 @@ public:
 private:
   void StartupVDB();
   void ShutdownVDB();
+
+  void SurfaceResourceEventHandler(const ezSurfaceResource::Event& e);
 
   bool m_bInitialized;
   PxFoundation* m_pFoundation;

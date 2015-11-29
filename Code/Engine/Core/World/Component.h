@@ -70,7 +70,7 @@ public:
   ///
   /// The active state will be automatically serialized. The 'initialized' state is not serialized, all components
   /// will be initialized after creation, even if they were already in an initialized state when they were serialized.
-  virtual void DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion) = 0;
+  virtual void DeserializeComponent(ezWorldReader& stream) = 0;
 
 protected:
   friend class ezWorld;

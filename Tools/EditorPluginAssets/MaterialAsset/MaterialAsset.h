@@ -1,7 +1,25 @@
 #pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
-#include <EditorPluginAssets/MaterialAsset/MaterialAssetObjects.h>
+
+class ezMaterialAssetProperties : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezMaterialAssetProperties, ezReflectedClass);
+
+public:
+  ezMaterialAssetProperties() {}
+
+  ezString m_sBaseMaterial;
+  ezString m_sShader;
+  ezString m_sPermutationVarValues;
+  ezString m_sTextureDiffuse;
+  ezString m_sTextureMask;
+  ezString m_sTextureNormal;
+
+
+private:
+
+};
 
 class ezMaterialAssetDocument : public ezSimpleAssetDocument<ezMaterialAssetProperties>
 {

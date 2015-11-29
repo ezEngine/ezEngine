@@ -48,9 +48,16 @@ void ezWorldReader::Read(ezStreamReader& stream, ezWorld& world, const ezVec3& v
     m_IndexToGameObjectHandle.PushBack(pObject->GetHandle());
   }
 
+  m_ComponentTypes.SetCount(uiNumComponentTypes);
+  m_ComponentTypeVersions.Reserve(uiNumComponentTypes);
   for (ezUInt32 i = 0; i < uiNumComponentTypes; ++i)
   {
-    ReadComponentsOfType();
+    ReadComponentInfo(i);
+  }
+
+  for (ezUInt32 i = 0; i < uiNumComponentTypes; ++i)
+  {
+    ReadComponentsOfType(i);
   }
 
   FulfillComponentHandleRequets();
@@ -74,6 +81,15 @@ void ezWorldReader::ReadHandle(ezComponentHandle* out_hComponent)
   r.m_uiComponentIndex = idx;
 
   m_ComponentHandleRequests.PushBack(r);
+}
+
+
+ezUInt32 ezWorldReader::GetComponentTypeVersion(const ezRTTI* pRtti) const
+{
+  ezUInt32 uiVersion = 0xFFFFFFFF;
+  m_ComponentTypeVersions.TryGetValue(pRtti, uiVersion);
+
+  return uiVersion;
 }
 
 ezGameObject* ezWorldReader::ReadGameObject(bool bRoot)
@@ -119,27 +135,37 @@ ezGameObject* ezWorldReader::ReadGameObject(bool bRoot)
   return pObject;
 }
 
-void ezWorldReader::ReadComponentsOfType()
+
+void ezWorldReader::ReadComponentInfo(ezUInt32 uiComponentTypeIdx)
 {
   ezStreamReader& s = *m_pStream;
 
   ezStringBuilder sRttiName;
   ezUInt32 uiRttiVersion = 0;
-  ezUInt32 uiNumComponents = 0;
 
   s >> sRttiName;
   s >> uiRttiVersion;
-  s >> uiNumComponents;
-
-  /// \todo rtti version stuff
-
-  const ezRTTI* pRtti = ezRTTI::FindTypeByName(sRttiName);
 
   /// \todo Skip unknown types
+  const ezRTTI* pRtti = ezRTTI::FindTypeByName(sRttiName);
   EZ_ASSERT_DEV(pRtti != nullptr, "Unknown rtti type '%s'", sRttiName.GetData());
 
+  m_ComponentTypes[uiComponentTypeIdx] = pRtti;
+  m_ComponentTypeVersions[pRtti] = uiRttiVersion;
+}
+
+void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
+{
+  ezStreamReader& s = *m_pStream;
+
+  ezUInt32 uiNumComponents = 0;
+
+  s >> uiNumComponents;
+
+  const ezRTTI* pRtti = m_ComponentTypes[uiComponentTypeIdx];
+
   auto* pManager = m_pWorld->GetComponentManager(pRtti);
-  EZ_ASSERT_DEV(pManager != nullptr, "Cannot create components of type '%s'", sRttiName.GetData());
+  EZ_ASSERT_DEV(pManager != nullptr, "Cannot create components of type '%s'", pRtti->GetTypeName());
 
   for (ezUInt32 i = 0; i < uiNumComponents; ++i)
   {
@@ -162,7 +188,7 @@ void ezWorldReader::ReadComponentsOfType()
     pComponent->SetActive(bActive);
     /// \todo currently everything is always dynamic
 
-    pComponent->DeserializeComponent(*this, uiRttiVersion);
+    pComponent->DeserializeComponent(*this);
 
     ezGameObject* pParentObject = nullptr;
     m_pWorld->TryGetObject(hOwner, pParentObject);

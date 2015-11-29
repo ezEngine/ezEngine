@@ -34,9 +34,9 @@ void ezPxJointComponent::SerializeComponent(ezWorldWriter& stream) const
 }
 
 
-void ezPxJointComponent::DeserializeComponent(ezWorldReader& stream, ezUInt32 uiTypeVersion)
+void ezPxJointComponent::DeserializeComponent(ezWorldReader& stream)
 {
-  SUPER::DeserializeComponent(stream, uiTypeVersion);
+  SUPER::DeserializeComponent(stream);
 
   auto& s = stream.GetStream();
 

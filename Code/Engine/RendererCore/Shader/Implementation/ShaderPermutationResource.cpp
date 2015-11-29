@@ -14,7 +14,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 static ezShaderPermutationResourceLoader g_PermutationResourceLoader;
 
-ezShaderPermutationResource::ezShaderPermutationResource() : ezResource<ezShaderPermutationResource, ezShaderPermutationResourceDescriptor>(DoUpdate::OnMainThread, 1)
+ezShaderPermutationResource::ezShaderPermutationResource() : ezResource<ezShaderPermutationResource, ezShaderPermutationResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
   m_bShaderPermutationValid = false;
 

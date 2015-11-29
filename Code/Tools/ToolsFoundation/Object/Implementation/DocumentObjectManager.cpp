@@ -45,6 +45,8 @@ ezDocumentObjectManager::~ezDocumentObjectManager()
 
 ezDocumentObject* ezDocumentObjectManager::CreateObject(const ezRTTI* pRtti, ezUuid guid)
 {
+  EZ_ASSERT_DEV(pRtti != nullptr, "Unknown RTTI type");
+
   ezDocumentObject* pObject = InternalCreateObject(pRtti);
   pObject->m_pDocumentObjectManager = this;
 
