@@ -112,6 +112,83 @@ ezPropertyEditorDoubleSpinboxWidget::ezPropertyEditorDoubleSpinboxWidget(ezInt8 
   }
 }
 
+void ezPropertyEditorDoubleSpinboxWidget::OnInit()
+{
+  const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>();
+  if (pClamp)
+  {
+    switch (m_iNumComponents)
+    {
+    case 1:
+      {
+        if (pClamp->GetMinValue().CanConvertTo<double>())
+        {
+          m_pWidget[0]->setMinimum(pClamp->GetMinValue().ConvertTo<double>());
+        }
+        if (pClamp->GetMaxValue().CanConvertTo<double>())
+        {
+          m_pWidget[0]->setMaximum(pClamp->GetMaxValue().ConvertTo<double>());
+        }
+        break;
+      }
+    case 2:
+      {
+        if (pClamp->GetMinValue().CanConvertTo<ezVec2>())
+        {
+          ezVec2 value = pClamp->GetMinValue().ConvertTo<ezVec2>();
+          m_pWidget[0]->setMinimum(value.x);
+          m_pWidget[1]->setMinimum(value.y);
+        }
+        if (pClamp->GetMaxValue().CanConvertTo<ezVec2>())
+        {
+          ezVec2 value = pClamp->GetMaxValue().ConvertTo<ezVec2>();
+          m_pWidget[0]->setMaximum(value.x);
+          m_pWidget[1]->setMaximum(value.y);
+        }
+        break;
+      }
+    case 3:
+      {
+        if (pClamp->GetMinValue().CanConvertTo<ezVec3>())
+        {
+          ezVec3 value = pClamp->GetMinValue().ConvertTo<ezVec3>();
+          m_pWidget[0]->setMinimum(value.x);
+          m_pWidget[1]->setMinimum(value.y);
+          m_pWidget[2]->setMinimum(value.z);
+        }
+        if (pClamp->GetMaxValue().CanConvertTo<ezVec3>())
+        {
+          ezVec3 value = pClamp->GetMaxValue().ConvertTo<ezVec3>();
+          m_pWidget[0]->setMaximum(value.x);
+          m_pWidget[1]->setMaximum(value.y);
+          m_pWidget[2]->setMaximum(value.z);
+        }
+        break;
+      }
+    case 4:
+      {
+        if (pClamp->GetMinValue().CanConvertTo<ezVec4>())
+        {
+          ezVec4 value = pClamp->GetMinValue().ConvertTo<ezVec4>();
+          m_pWidget[0]->setMinimum(value.x);
+          m_pWidget[1]->setMinimum(value.y);
+          m_pWidget[2]->setMinimum(value.z);
+          m_pWidget[3]->setMinimum(value.w);
+        }
+        if (pClamp->GetMaxValue().CanConvertTo<ezVec4>())
+        {
+          ezVec4 value = pClamp->GetMaxValue().ConvertTo<ezVec4>();
+          m_pWidget[0]->setMaximum(value.x);
+          m_pWidget[1]->setMaximum(value.y);
+          m_pWidget[2]->setMaximum(value.z);
+          m_pWidget[3]->setMaximum(value.w);
+        }
+        break;
+      }
+    }
+  }
+}
+
 void ezPropertyEditorDoubleSpinboxWidget::InternalSetValue(const ezVariant& value)
 {
   QtScopedBlockSignals b0(m_pWidget[0]);
@@ -222,6 +299,22 @@ ezPropertyEditorIntSpinboxWidget::ezPropertyEditorIntSpinboxWidget(ezInt32 iMinV
 
   connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_EditingFinished_triggered()));
   connect(m_pWidget, SIGNAL(valueChanged(int)), this, SLOT(SlotValueChanged()));
+}
+
+void ezPropertyEditorIntSpinboxWidget::OnInit()
+{
+  const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>();
+  if (pClamp)
+  {
+    if (pClamp->GetMinValue().CanConvertTo<ezInt32>())
+    {
+      m_pWidget->setMinimum(pClamp->GetMinValue().ConvertTo<ezInt32>());
+    }
+    if (pClamp->GetMaxValue().CanConvertTo<ezInt32>())
+    {
+      m_pWidget->setMaximum(pClamp->GetMaxValue().ConvertTo<ezInt32>());
+    }
+  }
 }
 
 void ezPropertyEditorIntSpinboxWidget::InternalSetValue(const ezVariant& value)

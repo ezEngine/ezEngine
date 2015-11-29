@@ -62,7 +62,7 @@ private slots:
   void SlotValueChanged();
 
 protected:
-  virtual void OnInit() override {}
+  virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
 
   bool m_bTemporaryCommand;
@@ -85,7 +85,7 @@ private slots:
   void on_EditingFinished_triggered();
 
 protected:
-  virtual void OnInit() override {}
+  virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
 
   bool m_bTemporaryCommand;

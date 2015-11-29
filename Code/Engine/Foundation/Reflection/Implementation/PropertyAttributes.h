@@ -38,6 +38,28 @@ private:
   ezVariant m_Value;
 };
 
+
+class EZ_FOUNDATION_DLL ezClampValueAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezClampValueAttribute, ezPropertyAttribute);
+
+public:
+  ezClampValueAttribute() {}
+  ezClampValueAttribute(const ezVariant& min, const ezVariant& max)
+  {
+    m_MinValue = min;
+    m_MaxValue = max;
+  }
+
+  const ezVariant& GetMinValue() const { return m_MinValue; }
+  const ezVariant& GetMaxValue() const { return m_MaxValue; }
+
+private:
+  ezVariant m_MinValue;
+  ezVariant m_MaxValue;
+};
+
+
 /// \brief Derive from this class if you want to define an attribute that replaces the property type widget.
 ///
 /// Using this attribute affects both member properties as well as elements in a container but not the container widget.
