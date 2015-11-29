@@ -21,8 +21,6 @@ ezPxDistanceJointComponent::ezPxDistanceJointComponent()
   m_fSpringStiffness = 0.0f;
   m_fSpringDamping = 0.0f;
   m_fSpringTolerance = 0.0f;
-
-  m_pJoint = nullptr;
 }
 
 

@@ -1,5 +1,5 @@
 #include <PhysXPlugin/PCH.h>
-#include <PhysXPlugin/Components/PxShapeComponent.h>
+#include <PhysXPlugin/Shapes/PxShapeComponent.h>
 #include <PhysXPlugin/PhysXSceneModule.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>

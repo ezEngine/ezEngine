@@ -4,11 +4,12 @@
 
 #include <PhysXPlugin/Components/PxStaticActorComponent.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
-#include <PhysXPlugin/Components/PxShapeBoxComponent.h>
-#include <PhysXPlugin/Components/PxShapeSphereComponent.h>
-#include <PhysXPlugin/Components/PxShapeCapsuleComponent.h>
+#include <PhysXPlugin/Shapes/PxShapeBoxComponent.h>
+#include <PhysXPlugin/Shapes/PxShapeSphereComponent.h>
+#include <PhysXPlugin/Shapes/PxShapeCapsuleComponent.h>
 #include <PhysXPlugin/Components/PxCenterOfMassComponent.h>
 #include <PhysXPlugin/Joints/PxDistanceJointComponent.h>
+#include <PhysXPlugin/Joints/PxFixedJointComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXSceneModule, 1, ezRTTIDefaultAllocator<ezPhysXSceneModule>);
   // no properties or message handlers
@@ -27,6 +28,7 @@ void ezPhysXSceneModule::InternalStartup()
   GetWorld()->CreateComponentManager<ezPxShapeCapsuleComponentManager>()->SetUserData(this);
   GetWorld()->CreateComponentManager<ezPxCenterOfMassComponentManager>()->SetUserData(this);
   GetWorld()->CreateComponentManager<ezPxDistanceJointComponentManager>()->SetUserData(this);
+  GetWorld()->CreateComponentManager<ezPxFixedJointComponentManager>()->SetUserData(this);
 
   PxSceneDesc desc = PxSceneDesc(PxTolerancesScale());
   desc.setToDefault(PxTolerancesScale());

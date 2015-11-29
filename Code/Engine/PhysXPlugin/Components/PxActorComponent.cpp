@@ -3,7 +3,7 @@
 #include <PhysXPlugin/PhysXSceneModule.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
-#include <PhysXPlugin/Components/PxShapeComponent.h>
+#include <PhysXPlugin/Shapes/PxShapeComponent.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ezPxActorComponent, 1);
   //EZ_BEGIN_PROPERTIES

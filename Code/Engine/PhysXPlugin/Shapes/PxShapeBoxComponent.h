@@ -1,6 +1,6 @@
 #pragma once
 
-#include <PhysXPlugin/Components/PxShapeComponent.h>
+#include <PhysXPlugin/Shapes/PxShapeComponent.h>
 
 typedef ezComponentManager<class ezPxShapeBoxComponent> ezPxShapeBoxComponentManager;
 

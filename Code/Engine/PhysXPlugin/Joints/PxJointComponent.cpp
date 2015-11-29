@@ -18,6 +18,7 @@ ezPxJointComponent::ezPxJointComponent()
   m_fBreakForce = 0.0f;
   m_fBreakTorque = 0.0f;
   m_bPairCollision = false;
+  m_pJoint = nullptr;
 }
 
 
@@ -66,12 +67,19 @@ PxJoint* ezPxJointComponent::SetupJoint()
   if (pParent)
     pParent->TryGetComponentOfBaseType<ezPxDynamicActorComponent>(pParentRbComp);
 
-  for (auto itChild = pOwner->GetChildren(); itChild.IsValid(); itChild.Next())
+  if (pOwner->TryGetComponentOfBaseType<ezPxDynamicActorComponent>(pChildRbComp))
   {
-    if (itChild->TryGetComponentOfBaseType<ezPxDynamicActorComponent>(pChildRbComp))
+    pChild = pOwner;
+  }
+  else
+  {
+    for (auto itChild = pOwner->GetChildren(); itChild.IsValid(); itChild.Next())
     {
-      pChild = itChild;
-      break;
+      if (itChild->TryGetComponentOfBaseType<ezPxDynamicActorComponent>(pChildRbComp))
+      {
+        pChild = itChild;
+        break;
+      }
     }
   }
 
