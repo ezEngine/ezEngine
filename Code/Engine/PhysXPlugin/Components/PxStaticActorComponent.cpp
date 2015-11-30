@@ -90,12 +90,15 @@ ezComponent::Initialization ezPxStaticActorComponent::Initialize()
   {
     ezResourceLock<ezPhysXMeshResource> pMesh(m_hCollisionMesh);
 
-    auto pTriMesh = pMesh->GetTriangleMesh();
-
-    if (pTriMesh != nullptr)
+    if (pMesh->GetTriangleMesh() != nullptr)
     {
       /// \todo Material(s)
-      m_pActor->createShape(PxTriangleMeshGeometry(pTriMesh), *ezPhysX::GetSingleton()->GetDefaultMaterial());
+      m_pActor->createShape(PxTriangleMeshGeometry(pMesh->GetTriangleMesh()), *ezPhysX::GetSingleton()->GetDefaultMaterial());
+    }
+    else if (pMesh->GetConvexMesh() != nullptr)
+    {
+      /// \todo Material(s)
+      m_pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh()), *ezPhysX::GetSingleton()->GetDefaultMaterial());
     }
     else
     {

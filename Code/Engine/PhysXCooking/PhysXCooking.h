@@ -5,6 +5,11 @@
 
 using namespace physx;
 
+namespace physx
+{
+  class PxSimpleTriangleMesh;
+}
+
 class EZ_PHYSXCOOKING_DLL ezPhysXCooking
 {
 public:
@@ -21,10 +26,13 @@ public:
   };
 
   static ezResult CookTriangleMesh(const Mesh& mesh, ezStreamWriter& OutputStream);
+  static ezResult CookConvexMesh(const Mesh& mesh, ezStreamWriter& OutputStream);
 
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(PhysX, PhysXCooking);
+
+  static void CreateMeshDesc(const Mesh& mesh, physx::PxSimpleTriangleMesh& desc, ezDynamicArray<ezUInt32>& TriangleIndices);
 
   static PxCooking* s_pCooking;
   static ezPhysXInterface* s_pPhysX;

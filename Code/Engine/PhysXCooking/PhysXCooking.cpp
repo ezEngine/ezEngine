@@ -72,9 +72,121 @@ public:
   ezStreamWriter* m_pStream;
 };
 
+class ezPxAllocator : public PxAllocatorCallback
+{
+public:
+
+  virtual void* allocate(size_t size, const char* typeName, const char* filename, int line) override
+  {
+    if (size == 0)
+      return nullptr;
+
+    return new unsigned char[size];
+  }
+
+  virtual void deallocate(void* ptr) override
+  {
+    if (ptr != nullptr)
+    {
+      delete[] ptr;
+    }
+  }
+
+};
+
 ezResult ezPhysXCooking::CookTriangleMesh(const Mesh& mesh, ezStreamWriter& OutputStream)
 {
   PxTriangleMeshDesc desc;
+  desc.setToDefault();
+
+  ezDynamicArray<ezUInt32> TriangleIndices;
+  CreateMeshDesc(mesh, desc, TriangleIndices);
+
+  ezPxOutStream PassThroughStream(&OutputStream);
+
+  if (!s_pCooking->cookTriangleMesh(desc, PassThroughStream))
+    return EZ_FAILURE;
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezPhysXCooking::CookConvexMesh(const Mesh& mesh, ezStreamWriter& OutputStream)
+{
+  if (mesh.m_VerticesInPolygon.GetCount() > 255)
+  {
+    ezLog::Error("Cannot cook convex meshes with more than 255 polygons. This mesh has %u.", mesh.m_VerticesInPolygon.GetCount());
+    return EZ_FAILURE;
+  }
+
+  PxSimpleTriangleMesh desc;
+  desc.setToDefault();
+
+  ezDynamicArray<ezUInt32> TriangleIndices;
+  CreateMeshDesc(mesh, desc, TriangleIndices);
+
+  if (desc.triangles.count > 255)
+  {
+    ezLog::Error("Cannot cook convex meshes with more than 255 triangles. This mesh has %u.", desc.triangles.count);
+    return EZ_FAILURE;
+  }
+
+  ezPxAllocator allocator;
+
+  PxU32 uiNumVertices = desc.points.count, uiNumIndices = desc.triangles.count * 3, uiNumPolygons = 0;
+  PxVec3* pVertices = nullptr;
+  PxU32* pIndices = nullptr;
+  PxHullPolygon* pPolygons = nullptr;
+  if (!s_pCooking->computeHullPolygons(desc, allocator, uiNumVertices, pVertices, uiNumIndices, pIndices, uiNumPolygons, pPolygons))
+  {
+    ezLog::Error("Convex Hull computation failed");
+    allocator.deallocate(pVertices);
+    allocator.deallocate(pIndices);
+    allocator.deallocate(pPolygons);
+    return EZ_FAILURE;
+  }
+
+  PxConvexMeshDesc convex;
+  convex.points.count = uiNumVertices;
+  convex.points.data = pVertices;
+  convex.points.stride = sizeof(PxVec3);
+
+  convex.indices.count = uiNumIndices;
+  convex.indices.data = pIndices;
+  convex.indices.stride = sizeof(PxU32);
+
+  convex.polygons.count = uiNumPolygons;
+  convex.polygons.data = pPolygons;
+  convex.polygons.stride = sizeof(PxHullPolygon);
+
+  convex.vertexLimit = 256;
+
+  ezPxOutStream PassThroughStream(&OutputStream);
+  if (!s_pCooking->cookConvexMesh(convex, PassThroughStream))
+  {
+    ezLog::Warning("Convex mesh cooking failed. Trying again with inflated mesh.");
+
+    convex.flags.set(PxConvexFlag::eCOMPUTE_CONVEX);
+    convex.flags.set(PxConvexFlag::eINFLATE_CONVEX);
+
+    if (!s_pCooking->cookConvexMesh(convex, PassThroughStream))
+    {
+      allocator.deallocate(pVertices);
+      allocator.deallocate(pIndices);
+      allocator.deallocate(pPolygons);
+
+      ezLog::Error("Convex mesh cooking failed with inflated mesh as well.");
+      return EZ_FAILURE;
+    }
+  }
+
+  allocator.deallocate(pVertices);
+  allocator.deallocate(pIndices);
+  allocator.deallocate(pPolygons);
+  return EZ_SUCCESS;
+}
+
+void ezPhysXCooking::CreateMeshDesc(const Mesh& mesh, PxSimpleTriangleMesh& desc, ezDynamicArray<ezUInt32>& TriangleIndices)
+{
   desc.setToDefault();
 
   desc.points.count = mesh.m_Vertices.GetCount();
@@ -85,7 +197,6 @@ ezResult ezPhysXCooking::CookTriangleMesh(const Mesh& mesh, ezStreamWriter& Outp
   for (auto numIndices : mesh.m_VerticesInPolygon)
     uiTriangles += numIndices - 2;
 
-  ezDynamicArray<ezUInt32> TriangleIndices;
   TriangleIndices.SetCount(uiTriangles * 3);
 
   ezUInt32 uiFirstIndex = 0;
@@ -111,11 +222,5 @@ ezResult ezPhysXCooking::CookTriangleMesh(const Mesh& mesh, ezStreamWriter& Outp
   desc.flags.set(mesh.m_bFlipNormals ? PxMeshFlag::eFLIPNORMALS : (PxMeshFlag::Enum)0);
 
   EZ_ASSERT_DEV(desc.isValid(), "PhysX PxTriangleMeshDesc is invalid");
-
-  ezPxOutStream PassThroughStream(&OutputStream);
-
-  if (!s_pCooking->cookTriangleMesh(desc, PassThroughStream))
-    return EZ_FAILURE;
-
-  return EZ_SUCCESS;
 }
+

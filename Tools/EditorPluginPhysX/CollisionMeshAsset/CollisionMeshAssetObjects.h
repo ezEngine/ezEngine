@@ -12,6 +12,21 @@
 
 //EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezResourceSlot);
 
+struct ezCollisionMeshType
+{
+  typedef ezInt8 StorageType;
+
+  enum Enum
+  {
+    ConvexHull,
+    TriangleMesh,
+
+    Default = ConvexHull
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezCollisionMeshType);
+
 class ezCollisionMeshAssetProperties : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCollisionMeshAssetProperties, ezReflectedClass);
@@ -26,6 +41,7 @@ public:
   ezEnum<ezBasisAxis> m_ForwardDir;
   ezEnum<ezBasisAxis> m_RightDir;
   ezEnum<ezBasisAxis> m_UpDir;
+  ezEnum<ezCollisionMeshType> m_MeshType;
 
   //ezHybridArray<ezResourceSlot, 8> m_Slots;
 

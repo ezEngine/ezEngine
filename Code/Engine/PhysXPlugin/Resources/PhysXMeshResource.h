@@ -23,7 +23,8 @@ public:
   ezPhysXMeshResource();
   ~ezPhysXMeshResource();
 
-  physx::PxTriangleMesh* GetTriangleMesh() const { return m_pPxMesh; }
+  physx::PxTriangleMesh* GetTriangleMesh() const { return m_pPxTriangleMesh; }
+  physx::PxConvexMesh* GetConvexMesh() const { return m_pPxConvexMesh; }
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
@@ -32,6 +33,7 @@ private:
   virtual ezResourceLoadDesc CreateResource(const ezPhysXMeshResourceDescriptor& descriptor) override;
 
 private:
-  physx::PxTriangleMesh* m_pPxMesh;
+  physx::PxTriangleMesh* m_pPxTriangleMesh;
+  physx::PxConvexMesh* m_pPxConvexMesh;
 };
 

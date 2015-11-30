@@ -188,10 +188,20 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(const ezCollisionMeshA
 
   ezResult resCooking = EZ_FAILURE;
 
+  if (pProp->m_MeshType == ezCollisionMeshType::TriangleMesh)
   {
     stream.BeginChunk("TriangleMesh", 1);
 
     resCooking = ezPhysXCooking::CookTriangleMesh(xMesh, stream);
+
+    stream.EndChunk();
+  }
+
+  if (pProp->m_MeshType == ezCollisionMeshType::ConvexHull)
+  {
+    stream.BeginChunk("ConvexMesh", 1);
+
+    resCooking = ezPhysXCooking::CookConvexMesh(xMesh, stream);
 
     stream.EndChunk();
   }

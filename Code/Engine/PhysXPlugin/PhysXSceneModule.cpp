@@ -7,6 +7,7 @@
 #include <PhysXPlugin/Shapes/PxShapeBoxComponent.h>
 #include <PhysXPlugin/Shapes/PxShapeSphereComponent.h>
 #include <PhysXPlugin/Shapes/PxShapeCapsuleComponent.h>
+#include <PhysXPlugin/Shapes/PxShapeConvexComponent.h>
 #include <PhysXPlugin/Components/PxCenterOfMassComponent.h>
 #include <PhysXPlugin/Joints/PxDistanceJointComponent.h>
 #include <PhysXPlugin/Joints/PxFixedJointComponent.h>
@@ -26,6 +27,7 @@ void ezPhysXSceneModule::InternalStartup()
   GetWorld()->CreateComponentManager<ezPxShapeBoxComponentManager>()->SetUserData(this);
   GetWorld()->CreateComponentManager<ezPxShapeSphereComponentManager>()->SetUserData(this);
   GetWorld()->CreateComponentManager<ezPxShapeCapsuleComponentManager>()->SetUserData(this);
+  GetWorld()->CreateComponentManager<ezPxShapeConvexComponentManager>()->SetUserData(this);
   GetWorld()->CreateComponentManager<ezPxCenterOfMassComponentManager>()->SetUserData(this);
   GetWorld()->CreateComponentManager<ezPxDistanceJointComponentManager>()->SetUserData(this);
   GetWorld()->CreateComponentManager<ezPxFixedJointComponentManager>()->SetUserData(this);

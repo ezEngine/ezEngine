@@ -11,6 +11,7 @@
 	<file>ezPxDistanceJointComponent.png</file>
 	<file>ezPxFixedJointComponent.png</file>
 	<file>ezPxCenterOfMassComponent.png</file>
+	<file>ezPxShapeConvexComponent.png</file>
   </qresource>  
 </RCC>
 

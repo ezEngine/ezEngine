@@ -9,23 +9,32 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezPhysXMeshResource::ezPhysXMeshResource() : ezResource<ezPhysXMeshResource, ezPhysXMeshResourceDescriptor>(DoUpdate::OnMainThread, 1)
 {
-  m_pPxMesh = nullptr;
+  m_pPxTriangleMesh = nullptr;
+  m_pPxConvexMesh = nullptr;
 
   ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezPhysXMeshResource);
 }
 
 ezPhysXMeshResource::~ezPhysXMeshResource()
 {
-  EZ_ASSERT_DEBUG(m_pPxMesh == nullptr, "Collision mesh was not unloaded correctly");
+  EZ_ASSERT_DEBUG(m_pPxTriangleMesh == nullptr, "Collision mesh was not unloaded correctly");
+  EZ_ASSERT_DEBUG(m_pPxConvexMesh == nullptr, "Collision mesh was not unloaded correctly");
 }
 
 ezResourceLoadDesc ezPhysXMeshResource::UnloadData(Unload WhatToUnload)
 {
-  if (m_pPxMesh)
+  if (m_pPxTriangleMesh)
   {
     // since it is ref-counted, it may still be in use by the SDK, but we don't bother about that here
-    m_pPxMesh->release();
-    m_pPxMesh = nullptr;
+    m_pPxTriangleMesh->release();
+    m_pPxTriangleMesh = nullptr;
+  }
+
+  if (m_pPxConvexMesh)
+  {
+    // since it is ref-counted, it may still be in use by the SDK, but we don't bother about that here
+    m_pPxConvexMesh->release();
+    m_pPxConvexMesh = nullptr;
   }
 
   // we cannot compute this in UpdateMemoryUsage(), so we only read the data there, therefore we need to update this information here
@@ -84,19 +93,30 @@ ezResourceLoadDesc ezPhysXMeshResource::UpdateContent(ezStreamReader* Stream)
     chunk.BeginStream();
 
     // skip all chunks that we don't know
-    while (chunk.GetCurrentChunk().m_bValid && chunk.GetCurrentChunk().m_sChunkName != "TriangleMesh")
+    while (chunk.GetCurrentChunk().m_bValid)
+    {
+      if (chunk.GetCurrentChunk().m_sChunkName == "TriangleMesh")
+      {
+        ezPxInputStream PassThroughStream(&chunk);
+
+        m_pPxTriangleMesh = ezPhysX::GetSingleton()->GetPhysXAPI()->createTriangleMesh(PassThroughStream);
+      }
+      
+      if (chunk.GetCurrentChunk().m_sChunkName == "ConvexMesh")
+      {
+        ezPxInputStream PassThroughStream(&chunk);
+
+        m_pPxConvexMesh = ezPhysX::GetSingleton()->GetPhysXAPI()->createConvexMesh(PassThroughStream);
+      }
+
       chunk.NextChunk();
-
-    if (chunk.GetCurrentChunk().m_bValid && chunk.GetCurrentChunk().m_sChunkName == "TriangleMesh")
-    {
-      ezPxInputStream PassThroughStream(&chunk);
-
-      m_pPxMesh = ezPhysX::GetSingleton()->GetPhysXAPI()->createTriangleMesh(PassThroughStream);
     }
-    else
-    {
-      ezLog::Error("Could not find a 'TriangleMesh' chunk in the PhysXMesh file '%s'", GetResourceID().GetData());
-    }
+
+  if (m_pPxTriangleMesh == nullptr && m_pPxConvexMesh == nullptr)
+  {
+    ezLog::Error("Could neither find a 'TriangleMesh' chunk nor a 'ConvexMesh' chunk in the PhysXMesh file '%s'", GetResourceID().GetData());
+  }
+
 
     chunk.EndStream();
   }
