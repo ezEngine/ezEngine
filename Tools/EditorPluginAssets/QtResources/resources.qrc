@@ -16,5 +16,10 @@
     <file>Scene.png</file>
     <file>Surface.png</file>
   </qresource>
+  <qresource prefix="TypeIcons">
+	<file>ezMeshComponent.png</file>
+	<file>ezRotorComponent.png</file>
+	<file>ezSliderComponent.png</file>
+  </qresource>
 </RCC>
 

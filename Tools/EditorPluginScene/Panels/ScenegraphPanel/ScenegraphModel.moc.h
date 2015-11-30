@@ -19,9 +19,12 @@ public:
   virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
   virtual bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 
+protected:
+  virtual void TreeEventHandler(const ezDocumentObjectStructureEvent& e) override;
+
 private:
   void ObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezSceneObjectMetaData>::EventData& e);
-  void DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result) const;
+  void DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result, QIcon& icon) const;
 
   ezSceneDocument* m_pSceneDocument;
 };

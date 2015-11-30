@@ -282,8 +282,6 @@ void ezSceneDocument::SetSimulateWorld(bool b)
   if (m_bSimulateWorld == b)
     return;
 
-  GetSelectionManager()->Clear();
-
   m_bSimulateWorld = b;
 
   if (!m_bSimulateWorld)

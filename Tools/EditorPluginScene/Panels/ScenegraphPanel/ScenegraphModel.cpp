@@ -19,9 +19,11 @@ ezQtScenegraphModel::~ezQtScenegraphModel()
   m_pSceneDocument->m_ObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtScenegraphModel::ObjectMetaDataEventHandler, this));
 }
 
-void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result) const
+void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result, QIcon& icon) const
 {
   // tries to find a good name for a node by looking at the attached components and their properties
+
+  bool bHasIcon = false;
 
   if (prefabGuid.IsValid())
   {
@@ -36,20 +38,33 @@ void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, con
     }
     else
       out_Result = "Prefab: Invalid Asset";
-
-    return;
   }
 
   bool bHasChildren = false;
 
   /// \todo Iterate over children in a way that returns the proper order (this is random)
 
-  for (auto pChild : pObject->GetChildren())
+  ezHybridArray<ezVariant, 16> values;
+  ezPropertyPath componentPath = "Components";
+  pObject->GetTypeAccessor().GetValues(componentPath, values);
+  for (ezVariant& value : values)
   {
+    auto pChild = m_pSceneDocument->GetObjectManager()->GetObject(value.Get<ezUuid>());
+
     // search for components
     if (pChild->GetTypeAccessor().GetType()->IsDerivedFrom<ezComponent>())
     {
       // take the first components name
+      
+      if (!bHasIcon)
+      {
+        bHasIcon = true;
+
+        ezStringBuilder sIconName;
+        sIconName.Set(":/TypeIcons/", pChild->GetTypeAccessor().GetType()->GetTypeName());
+        icon = ezUIServices::GetCachedIconResource(sIconName.GetData());
+      }
+
       if (out_Result.IsEmpty())
       {
         out_Result = pChild->GetTypeAccessor().GetType()->GetTypeName();
@@ -60,6 +75,9 @@ void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, con
         if (out_Result.StartsWith("ez"))
           out_Result.Shrink(2, 0);
       }
+
+      if (prefabGuid.IsValid())
+        continue;
 
       const auto& properties = pChild->GetTypeAccessor().GetType()->GetProperties();
 
@@ -134,10 +152,12 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
         // after that only a node rename (EditRole) will currently trigger a cache cleaning and thus a reevaluation
         // this is to prevent excessive recomputation of the name, which is quite involved
 
-        DetermineNodeName(pObject, prefabGuid, sName);
+        QIcon icon;
+        DetermineNodeName(pObject, prefabGuid, sName, icon);
 
         auto pMetaWrite = m_pSceneDocument->m_ObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
         pMetaWrite->m_CachedNodeName = sName;
+        pMetaWrite->m_Icon = icon;
         m_pSceneDocument->m_ObjectMetaData.EndModifyMetaData(0); // no need to broadcast this change
       }
 
@@ -147,6 +167,16 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
         return QStringLiteral("[") + sQtName + QStringLiteral("]");
 
       return sQtName;
+    }
+    break;
+
+  case Qt::DecorationRole:
+    {
+      auto pMeta = m_pSceneDocument->m_ObjectMetaData.BeginReadMetaData(pObject->GetGuid());
+      QIcon icon = pMeta->m_Icon;
+      m_pSceneDocument->m_ObjectMetaData.EndReadMetaData();
+
+      return icon;
     }
     break;
 
@@ -258,6 +288,43 @@ bool ezQtScenegraphModel::setData(const QModelIndex& index, const QVariant& valu
   return false;
 }
 
+
+void ezQtScenegraphModel::TreeEventHandler(const ezDocumentObjectStructureEvent& e)
+{
+  ezQtDocumentTreeModel::TreeEventHandler(e);
+
+  switch (e.m_EventType)
+  {
+  case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
+  case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
+  case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+    if (e.m_sParentProperty == "Components")
+    {
+      if (e.m_pPreviousParent != nullptr)
+      {
+        auto pMeta = m_pSceneDocument->m_ObjectMetaData.BeginModifyMetaData(e.m_pPreviousParent->GetGuid());
+        pMeta->m_CachedNodeName.Clear();
+        m_pSceneDocument->m_ObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::CachedName);
+
+        auto idx = ComputeModelIndex(e.m_pPreviousParent);
+        emit dataChanged(idx, idx);
+      }
+
+      if (e.m_pNewParent != nullptr)
+      {
+        auto pMeta = m_pSceneDocument->m_ObjectMetaData.BeginModifyMetaData(e.m_pNewParent->GetGuid());
+        pMeta->m_CachedNodeName.Clear();
+        m_pSceneDocument->m_ObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::CachedName);
+
+        auto idx = ComputeModelIndex(e.m_pNewParent);
+        emit dataChanged(idx, idx);
+      }
+    }
+    break;
+  }
+
+  
+}
 
 void ezQtScenegraphModel::ObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezSceneObjectMetaData>::EventData& e)
 {

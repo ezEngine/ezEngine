@@ -40,6 +40,7 @@ public:
   ezUuid m_PrefabSeedGuid;
   ezString m_sBasePrefab;
   ezString m_CachedNodeName;
+  QIcon m_Icon;
 };
 
 class ezSceneDocument : public ezAssetDocument

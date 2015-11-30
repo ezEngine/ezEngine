@@ -747,6 +747,13 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
 
   const ezRTTI* pCommonType = ezQtPropertyWidget::GetCommonBaseType(SubItems);
   elem.m_pSubGroup->setTitle(QLatin1String("[") + QString::number(index) + QLatin1String("] - ") + QString::fromUtf8(pCommonType->GetTypeName()));
+
+  {
+    ezStringBuilder sIconName;
+    sIconName.Set(":/TypeIcons/", pCommonType->GetTypeName());
+    elem.m_pSubGroup->Icon2->setPixmap(ezUIServices::GetCachedPixmapResource(sIconName.GetData()));
+  }
+
   m_pGrid->SetCollapseState(elem.m_pSubGroup);
   elem.m_pWidget->SetSelection(SubItems);
 }

@@ -85,6 +85,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QLabel" name="Icon2">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="Caption">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">

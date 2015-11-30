@@ -69,6 +69,10 @@ void ezAddSubElementButton::on_Menu_aboutToShow()
 
   m_SupportedTypes.Insert(pProp->GetSpecificType());
 
+  ezStringBuilder sIconName;
+
+  ezMap<ezString, QAction*> sorted;
+
   for (const auto* pRtti : m_SupportedTypes)
   {
     if (pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
@@ -78,7 +82,15 @@ void ezAddSubElementButton::on_Menu_aboutToShow()
     pAction->setProperty("type", qVariantFromValue((void*)pRtti));
     EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnMenuAction())) != NULL, "connection failed");
 
-    m_pMenu->addAction(pAction);
+    sIconName.Set(":/TypeIcons/", pRtti->GetTypeName());
+    pAction->setIcon(ezUIServices::GetCachedIconResource(sIconName.GetData()));
+
+    sorted[pRtti->GetTypeName()] = pAction;
+  }
+
+  for (auto it = sorted.GetIterator(); it.IsValid(); ++it)
+  {
+    m_pMenu->addAction(it.Value());
   }
 }
 

@@ -30,14 +30,17 @@ public:
   virtual bool setData(const QModelIndex& index, const QVariant& value, int role) override;
  
   QModelIndex ComputeModelIndex(const ezDocumentObject* pObject) const;
+
+protected:
+  virtual void TreeEventHandler(const ezDocumentObjectStructureEvent& e);
+
 private:
   QModelIndex ComputeParent(const ezDocumentObject* pObject) const;
   ezInt32 ComputeIndex(const ezDocumentObject* pObject) const;
   
-  void TreeEventHandler(const ezDocumentObjectStructureEvent& e);
   void TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 
-private:
+protected:
   const ezDocumentObjectManager* m_pDocumentTree;
   const ezRTTI* m_pBaseClass;
   ezString m_sChildProperty;
