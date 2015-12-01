@@ -20,7 +20,13 @@ public:
   virtual void* allocate(size_t size, const char* typeName, const char* filename, int line) override;
   virtual void deallocate(void* ptr) override;
 
+  void VerifyAllocations();
+
   ezProxyAllocator m_Allocator;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  ezHashTable<void*, ezString> m_Allocations;
+#endif
 };
 
 class EZ_PHYSXPLUGIN_DLL ezPhysX : public ezPhysXInterface
@@ -46,7 +52,7 @@ private:
   bool m_bInitialized;
   PxFoundation* m_pFoundation;
   ezPxErrorCallback m_ErrorCallback;
-  ezPxAllocatorCallback m_AllocatorCallback;
+  ezPxAllocatorCallback* m_pAllocatorCallback;
   PxProfileZoneManager* m_pProfileZoneManager;
   PxPhysics* m_pPhysX;
   PxMaterial* m_pDefaultMaterial;
@@ -71,7 +77,8 @@ protected:
 
 private:
   PxScene* m_pPxScene;
-  PxCpuDispatcher* m_pCPUDispatcher;
+  PxDefaultCpuDispatcher* m_pCPUDispatcher;
+  ezTime m_AccumulatedTimeSinceUpdate;
 
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(PhysX, PhysXPlugin);
 };

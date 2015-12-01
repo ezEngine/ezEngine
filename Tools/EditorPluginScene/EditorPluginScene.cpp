@@ -53,15 +53,15 @@ void OnLoadPlugin(bool bReloading)
   ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentMenuBar");
   ezProjectActions::MapActions("EditorPluginScene_DocumentMenuBar");
   ezStandardMenus::MapActions("EditorPluginScene_DocumentMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
-  ezDocumentActions::MapActions("EditorPluginScene_DocumentMenuBar", "MenuFile", false);
-  ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentMenuBar", "MenuEdit");
-  ezGizmoActions::MapActions("EditorPluginScene_DocumentMenuBar", "MenuEdit");
-  ezSelectionActions::MapActions("EditorPluginScene_DocumentMenuBar", "MenuEdit");
-  ezEditActions::MapActions("EditorPluginScene_DocumentMenuBar", "MenuEdit");
-  ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "MenuEdit/GizmoCategory");
-  ezScaleGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "MenuEdit/GizmoCategory");
-  ezTranslateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "MenuEdit/GizmoCategory");
-  ezSceneActions::MapActions("EditorPluginScene_DocumentMenuBar", "MenuTools", false);
+  ezDocumentActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.File", false);
+  ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
+  ezGizmoActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
+  ezSelectionActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
+  ezEditActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
+  ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/GizmoCategory");
+  ezScaleGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/GizmoCategory");
+  ezTranslateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/GizmoCategory");
+  ezSceneActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Tools", false);
 
   // Tool Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentToolBar");

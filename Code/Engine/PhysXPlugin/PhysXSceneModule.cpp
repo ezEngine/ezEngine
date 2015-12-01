@@ -32,6 +32,8 @@ void ezPhysXSceneModule::InternalStartup()
   GetWorld()->CreateComponentManager<ezPxDistanceJointComponentManager>()->SetUserData(this);
   GetWorld()->CreateComponentManager<ezPxFixedJointComponentManager>()->SetUserData(this);
 
+  m_AccumulatedTimeSinceUpdate.SetZero();
+
   PxSceneDesc desc = PxSceneDesc(PxTolerancesScale());
   desc.setToDefault(PxTolerancesScale());
 
@@ -51,6 +53,9 @@ void ezPhysXSceneModule::InternalShutdown()
 {
   m_pPxScene->release();
   m_pPxScene = nullptr;
+
+  m_pCPUDispatcher->release();
+  m_pCPUDispatcher = nullptr;
 }
 
 void ezPhysXSceneModule::InternalUpdate()
@@ -59,16 +64,28 @@ void ezPhysXSceneModule::InternalUpdate()
     return;
 
   ezTime tDiff = ezClock::Get(ezGlobalClock_GameLogic)->GetTimeDiff();
+  m_AccumulatedTimeSinceUpdate += tDiff;
 
   const ezTime tStep = ezTime::Seconds(1.0 / 60.0);
 
-  while (tDiff >= tStep)
+  while (m_AccumulatedTimeSinceUpdate >= tStep)
   {
     m_pPxScene->simulate((PxReal) tStep.GetSeconds());
     m_pPxScene->fetchResults(true);
 
-    tDiff -= tStep;
+    m_AccumulatedTimeSinceUpdate -= tStep;
   }
 }
 
+void ezPxAllocatorCallback::VerifyAllocations()
+{
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  EZ_ASSERT_DEV(m_Allocations.IsEmpty(), "There are %u unfreed allocations", m_Allocations.GetCount());
 
+  for (auto it = m_Allocations.GetIterator(); it.IsValid(); ++it)
+  {
+    const char* s = it.Value().GetData();
+    ezLog::Info(s);
+  }
+#endif
+}

@@ -14,8 +14,8 @@ ezActionDescriptorHandle ezCommandHistoryActions::s_hRedo;
 void ezCommandHistoryActions::RegisterActions()
 {
   s_hCommandHistoryCategory = EZ_REGISTER_CATEGORY("CmdHistoryCategory");
-  s_hUndo = EZ_REGISTER_ACTION_1("ActionUndo", ezActionScope::Document, "Document", "Ctrl+Z", ezCommandHistoryAction, ezCommandHistoryAction::ButtonType::Undo);
-  s_hRedo = EZ_REGISTER_ACTION_1("ActionRedo", ezActionScope::Document, "Document", "Ctrl+Y", ezCommandHistoryAction, ezCommandHistoryAction::ButtonType::Redo);
+  s_hUndo = EZ_REGISTER_ACTION_1("Document.Undo", ezActionScope::Document, "Document", "Ctrl+Z", ezCommandHistoryAction, ezCommandHistoryAction::ButtonType::Undo);
+  s_hRedo = EZ_REGISTER_ACTION_1("Document.Redo", ezActionScope::Document, "Document", "Ctrl+Y", ezCommandHistoryAction, ezCommandHistoryAction::ButtonType::Redo);
 
 }
 

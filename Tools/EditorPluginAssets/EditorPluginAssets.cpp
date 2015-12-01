@@ -22,8 +22,8 @@ void OnLoadPlugin(bool bReloading)
       ezActionMapManager::RegisterActionMap("TextureAssetMenuBar");
       ezProjectActions::MapActions("TextureAssetMenuBar");
       ezStandardMenus::MapActions("TextureAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
-      ezDocumentActions::MapActions("TextureAssetMenuBar", "MenuFile", false);
-      ezCommandHistoryActions::MapActions("TextureAssetMenuBar", "MenuEdit");
+      ezDocumentActions::MapActions("TextureAssetMenuBar", "Menu.File", false);
+      ezCommandHistoryActions::MapActions("TextureAssetMenuBar", "Menu.Edit");
     }
 
     // Tool Bar
@@ -42,8 +42,8 @@ void OnLoadPlugin(bool bReloading)
       ezActionMapManager::RegisterActionMap("MaterialAssetMenuBar");
       ezProjectActions::MapActions("MaterialAssetMenuBar");
       ezStandardMenus::MapActions("MaterialAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
-      ezDocumentActions::MapActions("MaterialAssetMenuBar", "MenuFile", false);
-      ezCommandHistoryActions::MapActions("MaterialAssetMenuBar", "MenuEdit");
+      ezDocumentActions::MapActions("MaterialAssetMenuBar", "Menu.File", false);
+      ezCommandHistoryActions::MapActions("MaterialAssetMenuBar", "Menu.Edit");
     }
 
     // Tool Bar
@@ -62,8 +62,8 @@ void OnLoadPlugin(bool bReloading)
       ezActionMapManager::RegisterActionMap("MeshAssetMenuBar");
       ezProjectActions::MapActions("MeshAssetMenuBar");
       ezStandardMenus::MapActions("MeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
-      ezDocumentActions::MapActions("MeshAssetMenuBar", "MenuFile", false);
-      ezCommandHistoryActions::MapActions("MeshAssetMenuBar", "MenuEdit");
+      ezDocumentActions::MapActions("MeshAssetMenuBar", "Menu.File", false);
+      ezCommandHistoryActions::MapActions("MeshAssetMenuBar", "Menu.Edit");
     }
 
     // Tool Bar
@@ -82,8 +82,8 @@ void OnLoadPlugin(bool bReloading)
       ezActionMapManager::RegisterActionMap("SurfaceAssetMenuBar");
       ezProjectActions::MapActions("SurfaceAssetMenuBar");
       ezStandardMenus::MapActions("SurfaceAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
-      ezDocumentActions::MapActions("SurfaceAssetMenuBar", "MenuFile", false);
-      ezCommandHistoryActions::MapActions("SurfaceAssetMenuBar", "MenuEdit");
+      ezDocumentActions::MapActions("SurfaceAssetMenuBar", "Menu.File", false);
+      ezCommandHistoryActions::MapActions("SurfaceAssetMenuBar", "Menu.Edit");
     }
 
     // Tool Bar

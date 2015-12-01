@@ -23,8 +23,8 @@ void OnLoadPlugin(bool bReloading)
       ezActionMapManager::RegisterActionMap("CollisionMeshAssetMenuBar");
       ezProjectActions::MapActions("CollisionMeshAssetMenuBar");
       ezStandardMenus::MapActions("CollisionMeshAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
-      ezDocumentActions::MapActions("CollisionMeshAssetMenuBar", "MenuFile", false);
-      ezCommandHistoryActions::MapActions("CollisionMeshAssetMenuBar", "MenuEdit");
+      ezDocumentActions::MapActions("CollisionMeshAssetMenuBar", "Menu.File", false);
+      ezCommandHistoryActions::MapActions("CollisionMeshAssetMenuBar", "Menu.Edit");
     }
 
     // Tool Bar

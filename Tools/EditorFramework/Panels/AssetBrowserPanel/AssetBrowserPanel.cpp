@@ -7,7 +7,7 @@
 
 ezQtAssetBrowserPanel* ezQtAssetBrowserPanel::s_pInstance = nullptr;
 
-ezQtAssetBrowserPanel::ezQtAssetBrowserPanel() : ezQtApplicationPanel("PanelAssetBrowser")
+ezQtAssetBrowserPanel::ezQtAssetBrowserPanel() : ezQtApplicationPanel("Panel.AssetBrowser")
 {
   EZ_ASSERT_DEV(s_pInstance == nullptr, "ezQtAssetBrowserPanel panel is not a singleton anymore");
 
@@ -16,7 +16,7 @@ ezQtAssetBrowserPanel::ezQtAssetBrowserPanel() : ezQtApplicationPanel("PanelAsse
   setupUi(this);
 
   setWindowIcon(ezUIServices::GetCachedIconResource(":/EditorFramework/Icons/Asset16.png"));
-  setWindowTitle(QString::fromUtf8(ezTranslate("PanelAssetBrowser")));
+  setWindowTitle(QString::fromUtf8(ezTranslate("Panel.AssetBrowser")));
 
   EZ_VERIFY(connect(AssetBrowserWidget, SIGNAL(ItemChosen(QString, QString, QString)), this, SLOT(SlotAssetChosen(QString, QString, QString))) != nullptr, "signal/slot connection failed");
 

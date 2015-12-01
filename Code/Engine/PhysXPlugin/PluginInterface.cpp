@@ -30,7 +30,9 @@ void ezPhysX::Startup()
 
   ezAbstractInterfaceRegistry::RegisterInterfaceImplementation("ezPhysXInterface", this);
 
-  m_pFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_AllocatorCallback, m_ErrorCallback);
+  m_pAllocatorCallback = EZ_DEFAULT_NEW(ezPxAllocatorCallback);
+
+  m_pFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, *m_pAllocatorCallback, m_ErrorCallback);
   EZ_ASSERT_DEV(m_pFoundation != nullptr, "Initializing PhysX failed");
 
   bool bRecordMemoryAllocations = false;
@@ -91,6 +93,9 @@ void ezPhysX::Shutdown()
   }
 
   ezAbstractInterfaceRegistry::UnregisterInterfaceImplementation("ezPhysXInterface", this);
+
+  m_pAllocatorCallback->VerifyAllocations();
+  EZ_DEFAULT_DELETE(m_pAllocatorCallback);
 }
 
 void ezPhysX::StartupVDB()

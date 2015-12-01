@@ -6,7 +6,7 @@
 
 ezQtLogPanel* ezQtLogPanel::s_pInstance = nullptr;
 
-ezQtLogPanel::ezQtLogPanel() : ezQtApplicationPanel("PanelLog")
+ezQtLogPanel::ezQtLogPanel() : ezQtApplicationPanel("Panel.Log")
 {
   EZ_ASSERT_DEV(s_pInstance == nullptr, "Log panel is not a singleton anymore");
 
@@ -15,7 +15,7 @@ ezQtLogPanel::ezQtLogPanel() : ezQtApplicationPanel("PanelLog")
   setupUi(this);
 
   setWindowIcon(ezUIServices::GetCachedIconResource(":/EditorFramework/Icons/Log.png"));
-  setWindowTitle(QString::fromUtf8(ezTranslate("PanelLog")));
+  setWindowTitle(QString::fromUtf8(ezTranslate("Panel.Log")));
 
   ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezQtLogPanel::LogWriter, this));
   ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezQtLogPanel::EngineProcessMsgHandler, this));

@@ -77,7 +77,16 @@ ezPxAllocatorCallback::ezPxAllocatorCallback()
 
 void* ezPxAllocatorCallback::allocate(size_t size, const char* typeName, const char* filename, int line)
 {
-  return m_Allocator.Allocate(size, 16);
+  //return new unsigned char[size];
+  void* pPtr = m_Allocator.Allocate(size, 16);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  ezStringBuilder s;
+  s.Set(typeName, " - ", filename);
+  m_Allocations[pPtr] = s;
+#endif
+
+  return pPtr;
 }
 
 void ezPxAllocatorCallback::deallocate(void* ptr)
@@ -85,6 +94,10 @@ void ezPxAllocatorCallback::deallocate(void* ptr)
   // apparently this happens
   if (ptr == nullptr)
     return;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  m_Allocations.Remove(ptr);
+#endif
 
   m_Allocator.Deallocate(ptr);
 }

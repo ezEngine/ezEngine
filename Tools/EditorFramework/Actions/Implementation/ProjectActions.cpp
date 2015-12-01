@@ -31,7 +31,7 @@ ezActionDescriptorHandle ezProjectActions::s_hReloadResources;
 
 void ezProjectActions::RegisterActions()
 {
-  s_hEditorMenu = EZ_REGISTER_MENU("MenuEditor");
+  s_hEditorMenu = EZ_REGISTER_MENU("Menu.Editor");
 
   s_hDocumentCategory = EZ_REGISTER_CATEGORY("DocumentCategory");
   s_hCreateDocument = EZ_REGISTER_ACTION_1("Document.Create", ezActionScope::Global, "Project", "Ctrl+N", ezProjectAction, ezProjectAction::ButtonType::CreateDocument);
@@ -47,7 +47,7 @@ void ezProjectActions::RegisterActions()
   s_hSettingsCategory = EZ_REGISTER_CATEGORY("SettingsCategory");
   s_hProjectSettings = EZ_REGISTER_ACTION_1("Settings.Open", ezActionScope::Global, "Settings", "", ezProjectAction, ezProjectAction::ButtonType::ProjectSettings);
 
-  s_hToolsMenu = EZ_REGISTER_MENU("MenuTools");
+  s_hToolsMenu = EZ_REGISTER_MENU("Menu.Tools");
   s_hEngineCategory = EZ_REGISTER_CATEGORY("EngineCategory");
   s_hReloadResources = EZ_REGISTER_ACTION_1("Engine.ReloadResources", ezActionScope::Global, "Engine", "F5", ezProjectAction, ezProjectAction::ButtonType::ReloadResources);
 }
@@ -78,23 +78,23 @@ void ezProjectActions::MapActions(const char* szMapping)
 
   pMap->MapAction(s_hEditorMenu, "", -1000000000.0f);
 
-  pMap->MapAction(s_hDocumentCategory, "MenuEditor", 1.0f);
-  pMap->MapAction(s_hCreateDocument, "MenuEditor/DocumentCategory", 1.0f);
-  pMap->MapAction(s_hOpenDocument, "MenuEditor/DocumentCategory", 2.0f);
-  pMap->MapAction(s_hRecentDocuments, "MenuEditor/DocumentCategory", 3.0f);
+  pMap->MapAction(s_hDocumentCategory, "Menu.Editor", 1.0f);
+  pMap->MapAction(s_hCreateDocument, "Menu.Editor/DocumentCategory", 1.0f);
+  pMap->MapAction(s_hOpenDocument, "Menu.Editor/DocumentCategory", 2.0f);
+  pMap->MapAction(s_hRecentDocuments, "Menu.Editor/DocumentCategory", 3.0f);
 
-  pMap->MapAction(s_hProjectCategory, "MenuEditor", 2.0f);
-  pMap->MapAction(s_hCreateProject, "MenuEditor/ProjectCategory", 1.0f);
-  pMap->MapAction(s_hOpenProject, "MenuEditor/ProjectCategory", 2.0f);
-  pMap->MapAction(s_hRecentProjects, "MenuEditor/ProjectCategory", 3.0f);
-  pMap->MapAction(s_hCloseProject, "MenuEditor/ProjectCategory", 4.0f);
+  pMap->MapAction(s_hProjectCategory, "Menu.Editor", 2.0f);
+  pMap->MapAction(s_hCreateProject, "Menu.Editor/ProjectCategory", 1.0f);
+  pMap->MapAction(s_hOpenProject, "Menu.Editor/ProjectCategory", 2.0f);
+  pMap->MapAction(s_hRecentProjects, "Menu.Editor/ProjectCategory", 3.0f);
+  pMap->MapAction(s_hCloseProject, "Menu.Editor/ProjectCategory", 4.0f);
 
-  pMap->MapAction(s_hSettingsCategory, "MenuEditor", 3.0f);
-  pMap->MapAction(s_hProjectSettings, "MenuEditor/SettingsCategory", 1.0f);
+  pMap->MapAction(s_hSettingsCategory, "Menu.Editor", 3.0f);
+  pMap->MapAction(s_hProjectSettings, "Menu.Editor/SettingsCategory", 1.0f);
 
   pMap->MapAction(s_hToolsMenu, "", 4.0f);
-  pMap->MapAction(s_hEngineCategory, "MenuTools", 1.0f);
-  pMap->MapAction(s_hReloadResources, "MenuTools/EngineCategory", 1.0f);
+  pMap->MapAction(s_hEngineCategory, "Menu.Tools", 1.0f);
+  pMap->MapAction(s_hReloadResources, "Menu.Tools/EngineCategory", 1.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
