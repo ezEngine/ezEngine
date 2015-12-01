@@ -91,8 +91,6 @@ void ezCollisionMeshAssetDocumentWindow::UpdatePreview()
 
 void ezCollisionMeshAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  /// \todo BLA
-
   //if (e.m_sPropertyPath == "Texture File")
   //{
   //  UpdatePreview();

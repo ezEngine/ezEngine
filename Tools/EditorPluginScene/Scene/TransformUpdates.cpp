@@ -22,6 +22,7 @@ ezTransform ezSceneDocument::ComputeGlobalTransform(const ezDocumentObject* pObj
   if (pObject == nullptr || pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
   {
     tGlobal.SetIdentity();
+    m_GlobalTransforms[pObject] = tGlobal;
     return tGlobal;
   }
 
@@ -29,6 +30,8 @@ ezTransform ezSceneDocument::ComputeGlobalTransform(const ezDocumentObject* pObj
   const ezTransform tLocal = QueryLocalTransform(pObject);
 
   tGlobal.SetGlobalTransform(tParent, tLocal);
+
+  m_GlobalTransforms[pObject] = tGlobal;
 
   return tGlobal;
 }

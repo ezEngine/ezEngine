@@ -42,8 +42,6 @@ void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, con
 
   bool bHasChildren = false;
 
-  /// \todo Iterate over children in a way that returns the proper order (this is random)
-
   ezHybridArray<ezVariant, 16> values;
   ezPropertyPath componentPath = "Components";
   pObject->GetTypeAccessor().GetValues(componentPath, values);

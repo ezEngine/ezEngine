@@ -41,7 +41,6 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(ezStreamWriter& stream, 
 
   if (pImage->GetImageFormat() == ezImageFormat::B8G8R8_UNORM)
   {
-    /// \todo A conversion to B8G8R8X8_UNORM currently fails
     TargetFormat = ezImageFormat::B8G8R8A8_UNORM;
   }
 

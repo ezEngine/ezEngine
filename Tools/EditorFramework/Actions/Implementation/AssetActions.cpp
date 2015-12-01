@@ -69,19 +69,19 @@ ezAssetAction::ezAssetAction(const ezActionContext& context, const char* szName,
   switch (m_ButtonType)
   {
   case ezAssetAction::ButtonType::TransformAsset:
-    SetIconPath(":/GuiFoundation/Icons/TransformAssets16.png");
+    SetIconPath(":/EditorFramework/Icons/TransformAssets16.png");
     break;
   case ezAssetAction::ButtonType::TransformAllAssets:
-    SetIconPath(":/GuiFoundation/Icons/TransformAllAssets16.png");
+    SetIconPath(":/EditorFramework/Icons/TransformAllAssets16.png");
     break;
   case ezAssetAction::ButtonType::CheckFileSystem:
-    SetIconPath(":/GuiFoundation/Icons/CheckFileSystem16.png");
+    SetIconPath(":/EditorFramework/Icons/CheckFileSystem16.png");
     break;
   case ezAssetAction::ButtonType::WriteLookupTable:
-    SetIconPath(":/GuiFoundation/Icons/WriteLookupTable16.png");
+    SetIconPath(":/EditorFramework/Icons/WriteLookupTable16.png");
     break;
   case ezAssetAction::ButtonType::RetrieveAssetInfo:
-    SetIconPath(":/GuiFoundation/Icons/RetriveAssetInfo16.png");
+    SetIconPath(":/EditorFramework/Icons/RetriveAssetInfo16.png");
     break;
   }
 }

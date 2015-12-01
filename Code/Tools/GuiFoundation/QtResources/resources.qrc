@@ -1,41 +1,8 @@
 <RCC>
   <qresource prefix="GuiFoundation">
-    <file>Icons/Selection16.png</file>
-    <file>Icons/SceneExport16.png</file>
-    <file>Icons/ScenePlay16.png</file>
-    <file>Icons/SceneRun16.png</file>
-    <file>Icons/SceneStop16.png</file>
-    <file>Icons/Perspective.png</file>
-    <file>Icons/RenderMode.png</file>
     <file>Icons/groupClosed.png</file>
     <file>Icons/groupOpen.png</file>
-    <file>Icons/GroupSelection16.png</file>
-    <file>Icons/HideSelected16.png</file>
-    <file>Icons/HideUnselected16.png</file>
-    <file>Icons/ShowHidden16.png</file>
-    <file>Icons/GizmoDragPosition24.png</file>
-    <file>Icons/FocusOnSelection16.png</file>
     <file>Icons/ReloadResources16.png</file>
-    <file>Icons/RetriveAssetInfo16.png</file>
-    <file>Icons/Flag_Blue16.png</file>
-    <file>Icons/Flag_Green16.png</file>
-    <file>Icons/Flag_Orange16.png</file>
-    <file>Icons/Flag_Pink16.png</file>
-    <file>Icons/Flag_Purple16.png</file>
-    <file>Icons/Flag_Red16.png</file>
-    <file>Icons/Flag_Yellow16.png</file>
-    <file>Icons/Asset16.png</file>
-    <file>Icons/Log.png</file>
-    <file>Icons/Scenegraph16.png</file>
-    <file>Icons/WorldSpace16.png</file>
-    <file>Icons/GizmoNone24.png</file>
-    <file>Icons/IconView16.png</file>
-    <file>Icons/GizmoRotate24.png</file>
-    <file>Icons/GizmoScale24.png</file>
-    <file>Icons/GizmoTranslate24.png</file>
-    <file>ThumbnailLoading.png</file>
-    <file>ThumbnailUnavailable.png</file>
-    <file>Icons/ListView16.png</file>
     <file>Icons/ZoomIn16.png</file>
     <file>Icons/ZoomOut16.png</file>
     <file>Icons/Search16.png</file>
@@ -44,10 +11,6 @@
     <file>Icons/Delete16.png</file>
     <file>Icons/MoveDown16.png</file>
     <file>Icons/MoveUp16.png</file>
-    <file>Icons/CheckFileSystem16.png</file>
-    <file>Icons/TransformAllAssets16.png</file>
-    <file>Icons/TransformAssets16.png</file>
-    <file>Icons/WriteLookupTable16.png</file>
     <file>Icons/Document16.png</file>
     <file>Icons/DocumentAdd16.png</file>
     <file>Icons/DocumentSave16.png</file>
@@ -63,8 +26,7 @@
     <file>Icons/Copy16.png</file>
     <file>Icons/Paste16.png</file>
     <file>Icons/ezEditor16.png</file>
-  </qresource>
-  <qresource prefix="AssetIcons">
-    <file>All.png</file>
+    <file>ThumbnailLoading.png</file>
+    <file>ThumbnailUnavailable.png</file>
   </qresource>
 </RCC>

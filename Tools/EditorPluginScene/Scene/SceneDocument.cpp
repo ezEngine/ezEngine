@@ -696,10 +696,7 @@ const ezTransform& ezSceneDocument::GetGlobalTransform(const ezDocumentObject* p
 
   if (!m_GlobalTransforms.TryGetValue(pObject, Trans))
   {
-    /// \todo Insert all parents as well
-
     Trans = ComputeGlobalTransform(pObject);
-    m_GlobalTransforms[pObject] = Trans;
   }
 
   return m_GlobalTransforms[pObject];

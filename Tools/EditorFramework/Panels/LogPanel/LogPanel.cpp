@@ -14,7 +14,7 @@ ezQtLogPanel::ezQtLogPanel() : ezQtApplicationPanel("PanelLog")
 
   setupUi(this);
 
-  setWindowIcon(ezUIServices::GetCachedIconResource(":/GuiFoundation/Icons/Log.png"));
+  setWindowIcon(ezUIServices::GetCachedIconResource(":/EditorFramework/Icons/Log.png"));
   setWindowTitle(QString::fromUtf8(ezTranslate("PanelLog")));
 
   ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezQtLogPanel::LogWriter, this));

@@ -1,0 +1,28 @@
+<RCC>
+  <qresource prefix="EditorPluginScene">
+    <file>Icons/Selection16.png</file>
+    <file>Icons/SceneExport16.png</file>
+    <file>Icons/ScenePlay16.png</file>
+    <file>Icons/SceneRun16.png</file>
+    <file>Icons/SceneStop16.png</file>
+    <file>Icons/GroupSelection16.png</file>
+    <file>Icons/HideSelected16.png</file>
+    <file>Icons/HideUnselected16.png</file>
+    <file>Icons/ShowHidden16.png</file>
+    <file>Icons/GizmoDragPosition24.png</file>
+    <file>Icons/FocusOnSelection16.png</file>
+	<file>Icons/FocusOnSelectionAllViews16.png</file>
+    <file>Icons/Scenegraph16.png</file>
+    <file>Icons/WorldSpace16.png</file>
+    <file>Icons/GizmoNone24.png</file>
+    <file>Icons/GizmoRotate24.png</file>
+    <file>Icons/GizmoScale24.png</file>
+    <file>Icons/GizmoTranslate24.png</file>
+	<file>Icons/CreateNode16.png</file>
+    <file>Icons/PrefabCreate16.png</file>
+    <file>Icons/PrefabRevert16.png</file>
+    <file>Icons/PrefabUpdate16.png</file>
+    <file>Icons/PrefabUnlink16.png</file>
+    <file>Icons/PrefabOpenDocument16.png</file>
+  </qresource>
+</RCC>

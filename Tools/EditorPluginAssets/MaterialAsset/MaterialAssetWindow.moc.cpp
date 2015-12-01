@@ -68,8 +68,6 @@ void ezMaterialAssetDocumentWindow::UpdatePreview()
 
 void ezMaterialAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  /// \todo BLA
-
   //if (e.m_sPropertyPath == "Texture File")
   //{
   //  UpdatePreview();

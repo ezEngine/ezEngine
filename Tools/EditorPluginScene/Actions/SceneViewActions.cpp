@@ -46,10 +46,10 @@ ezSceneViewAction::ezSceneViewAction(const ezActionContext& context, const char*
   switch (m_ButtonType)
   {
   case ButtonType::ToggleViews:
-    SetIconPath(":/GuiFoundation/Icons/FocusOnSelection16.png");
+    SetIconPath(":/EditorPluginScene/Icons/ToggleViews16.png");
     break;
   case ButtonType::SpawnView:
-    SetIconPath(":/GuiFoundation/Icons/FocusOnSelection16.png");
+    SetIconPath(":/EditorPluginScene/Icons/SpawnView16.png");
     break;
   }
 }

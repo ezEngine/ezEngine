@@ -192,9 +192,6 @@ void ezQtEditorApp::ReadEnginePluginConfig()
 
 void ezQtEditorApp::CreatePanels()
 {
-  ///// \todo Test whether this is the reason why the editor doesn't always shut down
-  //return;
-
   new ezQtLogPanel();
   new ezQtAssetBrowserPanel();
 }

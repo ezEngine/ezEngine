@@ -226,7 +226,6 @@ void ezAssetDocument::SaveThumbnail(const ezImage& img)
     return;
   }
 
-  /// \todo Fix format once ezImage is fixed
   QImage qimg(converted.GetPixelPointer<ezUInt8>(), converted.GetWidth(), converted.GetHeight(), QImage::Format_RGBA8888);
 
   if (converted.GetWidth() == converted.GetHeight())
@@ -244,8 +243,6 @@ void ezAssetDocument::SaveThumbnail(const ezImage& img)
       qimg = qimg.scaledToWidth(256, Qt::TransformationMode::SmoothTransformation);
     else
       qimg = qimg.scaledToHeight(256, Qt::TransformationMode::SmoothTransformation);
-
-    /// \todo Fix format once ezImage is fixed
 
     // create a black canvas
     QImage img2(256, 256, QImage::Format_RGBA8888);

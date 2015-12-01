@@ -127,40 +127,40 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
   switch (m_Type)
   {
   case ActionType::ShowInScenegraph:
-    SetIconPath(":/GuiFoundation/Icons/Scenegraph16.png");
+    SetIconPath(":/EditorPluginScene/Icons/Scenegraph16.png");
     break;
   case ActionType::FocusOnSelection:
-    SetIconPath(":/GuiFoundation/Icons/FocusOnSelection16.png");
+    SetIconPath(":/EditorPluginScene/Icons/FocusOnSelection16.png");
     break;
   case ActionType::FocusOnSelectionAllViews:
-    SetIconPath(":/GuiFoundation/Icons/FocusOnSelection16.png"); /// \todo Icon
+    SetIconPath(":/EditorPluginScene/Icons/FocusOnSelectionAllViews16.png");
     break;
   case ActionType::GroupSelectedItems:
-    SetIconPath(":/GuiFoundation/Icons/GroupSelection16.png");
+    SetIconPath(":/EditorPluginScene/Icons/GroupSelection16.png");
     break;
   case ActionType::CreateEmptyNode:
-    //SetIconPath(":/GuiFoundation/Icons/FocusOnSelection16.png"); /// \todo Icon
+    SetIconPath(":/EditorPluginScene/Icons/CreateNode16.png");
     break;
   case ActionType::HideSelectedObjects:
-    SetIconPath(":/GuiFoundation/Icons/HideSelected16.png");
+    SetIconPath(":/EditorPluginScene/Icons/HideSelected16.png");
     break;
   case ActionType::HideUnselectedObjects:
-    SetIconPath(":/GuiFoundation/Icons/HideUnselected16.png");
+    SetIconPath(":/EditorPluginScene/Icons/HideUnselected16.png");
     break;
   case ActionType::ShowHiddenObjects:
-    SetIconPath(":/GuiFoundation/Icons/ShowHidden16.png");
+    SetIconPath(":/EditorPluginScene/Icons/ShowHidden16.png");
     break;
   case ActionType::CreatePrefab:
-    SetIconPath(":/AssetIcons/PrefabCreate.png");
+    SetIconPath(":/EditorPluginScene/PrefabCreate.png");
     break;
   case ActionType::RevertPrefab:
-    SetIconPath(":/AssetIcons/PrefabRevert.png");
+    SetIconPath(":/EditorPluginScene/PrefabRevert.png");
     break;
   case ActionType::UnlinkFromPrefab:
-    SetIconPath(":/AssetIcons/PrefabUnlink.png");
+    SetIconPath(":/EditorPluginScene/PrefabUnlink.png");
     break;
   case ActionType::OpenPrefabDocument:
-    SetIconPath(":/AssetIcons/PrefabOpenDocument.png");
+    SetIconPath(":/EditorPluginScene/PrefabOpenDocument.png");
     break;
   }
 

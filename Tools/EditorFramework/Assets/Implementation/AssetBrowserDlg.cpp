@@ -16,9 +16,6 @@ ezAssetBrowserDlg::ezAssetBrowserDlg(QWidget* parent, const char* szPreselectedA
 
   m_sVisibleFilters = szVisibleFilters;
 
-  /// \todo Implement this
-  //m_sSelectedPath = szPreselectedAsset;
-
   // Ok / Cancel buttons are disable atm
   ButtonOk->setVisible(false);
   ButtonCancel->setVisible(false);

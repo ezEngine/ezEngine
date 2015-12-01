@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+   <iconset>
     <normaloff>:/GuiFoundation/Icons/Log.png</normaloff>:/GuiFoundation/Icons/Log.png</iconset>
   </property>
   <property name="windowTitle">
@@ -198,8 +198,8 @@
           <string>Debug</string>
          </property>
          <property name="icon">
-          <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
-           <normaloff>:/GuiFoundation/Icons/Flag_Pink16.png</normaloff>:/GuiFoundation/Icons/Flag_Pink16.png</iconset>
+          <iconset resource="../../QtResources/resources.qrc">
+           <normaloff>:/EditorFramework/Icons/Flag_Pink16.png</normaloff>:/EditorFramework/Icons/Flag_Pink16.png</iconset>
          </property>
         </item>
         <item>
@@ -207,8 +207,8 @@
           <string>Dev</string>
          </property>
          <property name="icon">
-          <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
-           <normaloff>:/GuiFoundation/Icons/Flag_Purple16.png</normaloff>:/GuiFoundation/Icons/Flag_Purple16.png</iconset>
+          <iconset resource="../../QtResources/resources.qrc">
+           <normaloff>:/EditorFramework/Icons/Flag_Purple16.png</normaloff>:/EditorFramework/Icons/Flag_Purple16.png</iconset>
          </property>
         </item>
         <item>
@@ -216,8 +216,8 @@
           <string>Info</string>
          </property>
          <property name="icon">
-          <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
-           <normaloff>:/GuiFoundation/Icons/Flag_Blue16.png</normaloff>:/GuiFoundation/Icons/Flag_Blue16.png</iconset>
+          <iconset resource="../../QtResources/resources.qrc">
+           <normaloff>:/EditorFramework/Icons/Flag_Blue16.png</normaloff>:/EditorFramework/Icons/Flag_Blue16.png</iconset>
          </property>
         </item>
         <item>
@@ -225,8 +225,8 @@
           <string>Success</string>
          </property>
          <property name="icon">
-          <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
-           <normaloff>:/GuiFoundation/Icons/Flag_Green16.png</normaloff>:/GuiFoundation/Icons/Flag_Green16.png</iconset>
+          <iconset resource="../../QtResources/resources.qrc">
+           <normaloff>:/EditorFramework/Icons/Flag_Green16.png</normaloff>:/EditorFramework/Icons/Flag_Green16.png</iconset>
          </property>
         </item>
         <item>
@@ -234,8 +234,8 @@
           <string>Warning</string>
          </property>
          <property name="icon">
-          <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
-           <normaloff>:/GuiFoundation/Icons/Flag_Yellow16.png</normaloff>:/GuiFoundation/Icons/Flag_Yellow16.png</iconset>
+          <iconset resource="../../QtResources/resources.qrc">
+           <normaloff>:/EditorFramework/Icons/Flag_Yellow16.png</normaloff>:/EditorFramework/Icons/Flag_Yellow16.png</iconset>
          </property>
         </item>
         <item>
@@ -243,8 +243,8 @@
           <string>Serious Warning</string>
          </property>
          <property name="icon">
-          <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
-           <normaloff>:/GuiFoundation/Icons/Flag_Orange16.png</normaloff>:/GuiFoundation/Icons/Flag_Orange16.png</iconset>
+          <iconset resource="../../QtResources/resources.qrc">
+           <normaloff>:/EditorFramework/Icons/Flag_Orange16.png</normaloff>:/EditorFramework/Icons/Flag_Orange16.png</iconset>
          </property>
         </item>
         <item>
@@ -252,8 +252,8 @@
           <string>Error</string>
          </property>
          <property name="icon">
-          <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
-           <normaloff>:/GuiFoundation/Icons/Flag_Red16.png</normaloff>:/GuiFoundation/Icons/Flag_Red16.png</iconset>
+          <iconset resource="../../QtResources/resources.qrc">
+           <normaloff>:/EditorFramework/Icons/Flag_Red16.png</normaloff>:/EditorFramework/Icons/Flag_Red16.png</iconset>
          </property>
         </item>
        </widget>
@@ -265,6 +265,7 @@
  </widget>
  <resources>
   <include location="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc"/>
+  <include location="../../QtResources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

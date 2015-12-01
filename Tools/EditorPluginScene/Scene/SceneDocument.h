@@ -99,7 +99,7 @@ public:
   void SetPickingResult(const ezObjectPickingResult& res) { m_PickingResult = res; }
 
   static ezTransform QueryLocalTransform(const ezDocumentObject* pObject);
-  static ezTransform ComputeGlobalTransform(const ezDocumentObject* pObject);
+  ezTransform ComputeGlobalTransform(const ezDocumentObject* pObject);
 
   const ezString& GetCachedPrefabGraph(const ezUuid& AssetGuid);
   ezString ReadDocumentAsString(const char* szFile) const;

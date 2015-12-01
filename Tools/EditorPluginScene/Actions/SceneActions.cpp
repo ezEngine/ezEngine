@@ -72,22 +72,22 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
   switch (m_Type)
   {
   case ActionType::UpdatePrefabs:
-    SetIconPath(":/AssetIcons/PrefabUpdate.png");
+    SetIconPath(":/EditorPluginScene/PrefabUpdate.png");
     break;
   case ActionType::ExportScene:
-    SetIconPath(":/GuiFoundation/Icons/SceneExport16.png");
+    SetIconPath(":/EditorPluginScene/Icons/SceneExport16.png");
     break;
   case ActionType::RunScene:
-    SetIconPath(":/GuiFoundation/Icons/SceneRun16.png");
+    SetIconPath(":/EditorPluginScene/Icons/SceneRun16.png");
     break;
   case ActionType::SimulateWorld:
     SetCheckable(true);
-    SetIconPath(":/GuiFoundation/Icons/ScenePlay16.png");
+    SetIconPath(":/EditorPluginScene/Icons/ScenePlay16.png");
     SetChecked(m_pSceneDocument->GetSimulateWorld());
     break;
   case ActionType::RenderSelectionOverlay:
     SetCheckable(true);
-    SetIconPath(":/GuiFoundation/Icons/Selection16.png");
+    SetIconPath(":/EditorPluginScene/Icons/Selection16.png");
     SetChecked(m_pSceneDocument->GetRenderSelectionOverlay());
     break;
   }

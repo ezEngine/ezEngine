@@ -15,7 +15,7 @@ ezQtAssetBrowserPanel::ezQtAssetBrowserPanel() : ezQtApplicationPanel("PanelAsse
 
   setupUi(this);
 
-  setWindowIcon(ezUIServices::GetCachedIconResource(":/GuiFoundation/Icons/Asset16.png"));
+  setWindowIcon(ezUIServices::GetCachedIconResource(":/EditorFramework/Icons/Asset16.png"));
   setWindowTitle(QString::fromUtf8(ezTranslate("PanelAssetBrowser")));
 
   EZ_VERIFY(connect(AssetBrowserWidget, SIGNAL(ItemChosen(QString, QString, QString)), this, SLOT(SlotAssetChosen(QString, QString, QString))) != nullptr, "signal/slot connection failed");

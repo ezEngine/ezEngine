@@ -8,11 +8,6 @@
     <file>Shader.png</file>
     <file>Sound.png</file>
     <file>Prefab.png</file>
-    <file>PrefabCreate.png</file>
-    <file>PrefabRevert.png</file>
-    <file>PrefabUpdate.png</file>
-    <file>PrefabUnlink.png</file>
-    <file>PrefabOpenDocument.png</file>
     <file>Scene.png</file>
     <file>Surface.png</file>
   </qresource>
