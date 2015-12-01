@@ -15,7 +15,7 @@
 struct ezRTTIAllocator;
 class ezAbstractProperty;
 class ezAbstractMessageHandler;
-
+class ezPropertyAttribute;
 
 
 /// \brief This enumerable class holds information about reflected types. Each instance represents one type that is known to the reflection system.
@@ -31,7 +31,7 @@ class EZ_FOUNDATION_DLL ezRTTI : public ezEnumerable<ezRTTI>
 public:
   /// \brief The constructor requires all the information about the type that this object represents.
   ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags,
-    ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, const ezRTTI*(*fnVerifyParent)());
+    ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, const ezRTTI*(*fnVerifyParent)());
 
   ~ezRTTI();
 
@@ -56,6 +56,23 @@ public:
 
   /// \brief Returns the array of properties that this type has. Does NOT include properties from base classes.
   EZ_FORCE_INLINE const ezArrayPtr<ezAbstractProperty*>& GetProperties() const { return m_Properties; } // [tested]
+
+  EZ_FORCE_INLINE const ezArrayPtr<ezPropertyAttribute*>& GetAttributes() const { return m_Attributes; }
+
+  /// \brief Returns the first attribute that derives from the given type, or nullptr if nothing is found.
+  template<typename Type>
+  const Type* GetAttributeByType() const
+  {
+    for (const auto* pAttr : m_Attributes)
+    {
+      if (pAttr->GetDynamicRTTI()->IsDerivedFrom<Type>())
+        return static_cast<const Type*>(pAttr);
+    }
+    if (GetParentType() != nullptr)
+      return GetParentType()->GetAttributeByType<Type>();
+    else
+      return nullptr;
+  }
 
   /// \brief Returns the list of properties that this type has, including derived properties from all base classes.
   void GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_Properties) const; // [tested]
@@ -105,7 +122,7 @@ protected:
   const char* m_szPluginName;
   const char* m_szTypeName;
   ezArrayPtr<ezAbstractProperty*> m_Properties;
-
+  ezArrayPtr<ezPropertyAttribute*> m_Attributes;
   void UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags);
 
 private:

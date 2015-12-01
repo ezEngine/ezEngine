@@ -11,6 +11,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 1, ezRTTINoAllocator);
     EZ_ACCESSOR_PROPERTY("Reverse at End", GetAutoReturnEnd, SetAutoReturnEnd), // If true, after coming back to the start point, the animation won't stop but turn around and continue.
     EZ_ACCESSOR_PROPERTY("Auto-Toggle Direction", GetAutoToggleDirection, SetAutoToggleDirection)->AddAttributes(new ezHiddenAttribute()), // If true, the animation might stop at start/end points, but set toggle its direction state. Triggering the animation again, means it will run in the reverse direction.
   EZ_END_PROPERTIES
+  EZ_BEGIN_ATTRIBUTES
+    new ezCategoryAttribute("Transform"),
+  EZ_END_ATTRIBUTES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 

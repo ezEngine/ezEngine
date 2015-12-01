@@ -165,6 +165,8 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
       break;
     }
   }
+
+  out_desc.m_ReferenceAttributes = pRtti->GetAttributes();
 }
 
 ezPropertyPath ezToolsReflectionUtils::CreatePropertyPath(const char* pData1, const char* pData2, const char* pData3, const char* pData4, const char* pData5, const char* pData6)

@@ -63,12 +63,22 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezReflectedPropertyDescripto
 /// \brief Stores the description of a reflected type in a serializable form. Used by ezPhantomRttiManager to add new types.
 struct EZ_TOOLSFOUNDATION_DLL ezReflectedTypeDescriptor
 {
+  ~ezReflectedTypeDescriptor();
+
+  ezUInt32 GetCount() const;
+  ezPropertyAttribute*GetValue(ezUInt32 uiIndex) const;
+  void SetValue(ezUInt32 uiIndex, ezPropertyAttribute* value);
+  void Insert(ezUInt32 uiIndex, ezPropertyAttribute* value);
+  void Remove(ezUInt32 uiIndex);
+
   ezString m_sTypeName;
   ezString m_sPluginName;
   ezString m_sParentTypeName;
   ezString m_sDefaultInitialization;
   ezBitflags<ezTypeFlags> m_Flags;
   ezDynamicArray<ezReflectedPropertyDescriptor> m_Properties;
+  mutable ezHybridArray<ezPropertyAttribute*, 2> m_Attributes;
+  ezArrayPtr<ezPropertyAttribute* const> m_ReferenceAttributes;
   ezUInt32 m_uiTypeSize;
   ezUInt32 m_uiTypeVersion;
 };

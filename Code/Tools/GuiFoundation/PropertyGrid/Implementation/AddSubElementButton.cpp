@@ -48,6 +48,33 @@ void ezAddSubElementButton::OnInit()
   QMetaObject::connectSlotsByName(this);
 }
 
+struct TypeComparer
+{
+  EZ_FORCE_INLINE bool Less(const ezRTTI* a, const ezRTTI* b) const
+  {
+    const ezCategoryAttribute* pCatA = a->GetAttributeByType<ezCategoryAttribute>();
+    const ezCategoryAttribute* pCatB = b->GetAttributeByType<ezCategoryAttribute>();
+    if (pCatA != nullptr && pCatB == nullptr)
+    {
+      return true;
+    }
+    else if (pCatA == nullptr && pCatB != nullptr)
+    {
+      return false;
+    }
+    else if (pCatA != nullptr && pCatB != nullptr)
+    {
+      ezInt32 iRes = ezStringUtils::Compare(pCatA->GetCategory(), pCatB->GetCategory());
+      if (iRes != 0)
+      {
+        return iRes < 0;
+      }
+    }
+      
+    return ezStringUtils::Compare(a->GetTypeName(), b->GetTypeName()) < 0;
+  }
+};
+
 void ezAddSubElementButton::on_Menu_aboutToShow()
 {
   if (m_Items.IsEmpty())
@@ -66,18 +93,41 @@ void ezAddSubElementButton::on_Menu_aboutToShow()
 
     ezReflectionUtils::GatherTypesDerivedFromClass(pProp->GetSpecificType(), m_SupportedTypes, false);
   }
-
   m_SupportedTypes.Insert(pProp->GetSpecificType());
 
-  ezStringBuilder sIconName;
-
-  ezMap<ezString, QAction*> sorted;
-
-  for (const auto* pRtti : m_SupportedTypes)
+  // Make category-sorted array of types
+  ezDynamicArray<const ezRTTI*> supportedTypes;
+  for (const ezRTTI* pRtti : m_SupportedTypes)
   {
     if (pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
       continue;
 
+    supportedTypes.PushBack(pRtti);
+  }
+  supportedTypes.Sort(TypeComparer());
+
+  ezStringBuilder sIconName;
+  ezStringBuilder sCategory = "";
+  QMenu* pCat = m_pMenu;
+  for (const ezRTTI* pRtti : supportedTypes)
+  {
+    // Determine current menu
+    const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
+    const char* szCategory = pCatA ? pCatA->GetCategory() : nullptr;
+    if (sCategory != szCategory)
+    {
+      sCategory = szCategory;
+      if (szCategory == nullptr)
+      {
+        pCat = m_pMenu;
+      }
+      else
+      {
+        pCat = m_pMenu->addMenu(szCategory);
+      }
+    }
+
+    // Add type action to current menu
     QAction* pAction = new QAction(QString::fromUtf8(pRtti->GetTypeName()), m_pMenu);
     pAction->setProperty("type", qVariantFromValue((void*)pRtti));
     EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnMenuAction())) != NULL, "connection failed");
@@ -85,12 +135,7 @@ void ezAddSubElementButton::on_Menu_aboutToShow()
     sIconName.Set(":/TypeIcons/", pRtti->GetTypeName());
     pAction->setIcon(ezUIServices::GetCachedIconResource(sIconName.GetData()));
 
-    sorted[pRtti->GetTypeName()] = pAction;
-  }
-
-  for (auto it = sorted.GetIterator(); it.IsValid(); ++it)
-  {
-    m_pMenu->addAction(it.Value());
+    pCat->addAction(pAction);
   }
 }
 

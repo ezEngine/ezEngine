@@ -128,8 +128,43 @@ EZ_BEGIN_PROPERTIES
   EZ_MEMBER_PROPERTY("DefaultInitialization", m_sDefaultInitialization),
   EZ_BITFLAGS_MEMBER_PROPERTY("Flags", ezTypeFlags, m_Flags),
   EZ_ARRAY_MEMBER_PROPERTY("Properties", m_Properties),
+  EZ_ARRAY_ACCESSOR_PROPERTY("Attributes", GetCount, GetValue, SetValue, Insert, Remove)->AddFlags(ezPropertyFlags::PointerOwner),
   EZ_MEMBER_PROPERTY("TypeSize", m_uiTypeSize),
   EZ_MEMBER_PROPERTY("TypeVersion", m_uiTypeVersion),
 EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 
+
+ezReflectedTypeDescriptor::~ezReflectedTypeDescriptor()
+{
+  for (auto pAttr : m_Attributes)
+    pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(pAttr);
+}
+
+ezUInt32 ezReflectedTypeDescriptor::GetCount() const
+{
+  return ezMath::Max(m_ReferenceAttributes.GetCount(), m_Attributes.GetCount());
+}
+
+ezPropertyAttribute* ezReflectedTypeDescriptor::GetValue(ezUInt32 uiIndex) const
+{
+  if (!m_ReferenceAttributes.IsEmpty())
+    return m_ReferenceAttributes[uiIndex];
+
+  return m_Attributes[uiIndex];
+}
+
+void ezReflectedTypeDescriptor::SetValue(ezUInt32 uiIndex, ezPropertyAttribute* value)
+{
+  m_Attributes[uiIndex] = value;
+}
+
+void ezReflectedTypeDescriptor::Insert(ezUInt32 uiIndex, ezPropertyAttribute* value)
+{
+  m_Attributes.Insert(value, uiIndex);
+}
+
+void ezReflectedTypeDescriptor::Remove(ezUInt32 uiIndex)
+{
+  m_Attributes.RemoveAt(uiIndex);
+}

@@ -22,6 +22,26 @@ class EZ_FOUNDATION_DLL ezHiddenAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezHiddenAttribute, ezPropertyAttribute);
 };
 
+/// \brief Used to categorize types (e.g. add component menu) 
+class EZ_FOUNDATION_DLL ezCategoryAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezCategoryAttribute, ezPropertyAttribute);
+
+public:
+  ezCategoryAttribute() {}
+  ezCategoryAttribute(const char* szCategory)
+  {
+    m_sCategory = szCategory;
+  }
+
+  const char* GetCategory() const { return m_sCategory; }
+
+private:
+  EZ_ALLOW_PRIVATE_PROPERTIES(ezCategoryAttribute);
+
+  ezString m_sCategory;
+};
+
 /// \brief Sets the default value of the property.
 class EZ_FOUNDATION_DLL ezDefaultValueAttribute : public ezPropertyAttribute
 {

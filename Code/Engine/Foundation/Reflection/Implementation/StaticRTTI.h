@@ -157,6 +157,7 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
     static AllocatorType Allocator;                                   \
     static ezBitflags<ezTypeFlags> flags = ezInternal::DetermineTypeFlags<Type>();\
     static ezArrayPtr<ezAbstractProperty*> Properties;                \
+    static ezArrayPtr<ezPropertyAttribute*> Attributes;               \
     static ezArrayPtr<ezAbstractMessageHandler*> MessageHandlers      \
 
 /// \endcond
@@ -188,7 +189,7 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
       GetTypeVersion(),                                             \
       ezVariant::TypeDeduction<OwnType>::value,                     \
       flags,                                                        \
-      &Allocator, Properties, MessageHandlers, nullptr);            \
+      &Allocator, Properties, Attributes, MessageHandlers, nullptr);            \
   }
 
 
@@ -202,6 +203,17 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
 #define EZ_END_PROPERTIES                                                     \
     };                                                                        \
   Properties = PropertyList;                                                  \
+
+/// \brief Within a EZ_BEGIN_REFLECTED_TYPE / EZ_END_REFLECTED_TYPE block, use this to start the block that declares all the attributes.
+#define EZ_BEGIN_ATTRIBUTES                                                   \
+    static ezPropertyAttribute* AttributeList[] =                             \
+    {                                                                         \
+
+
+/// \brief Ends the block to declare attributes that was started with EZ_BEGIN_ATTRIBUTES.
+#define EZ_END_ATTRIBUTES                                                     \
+    };                                                                        \
+  Attributes = AttributeList;                                                 \
 
 /// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a function property.
 /// 

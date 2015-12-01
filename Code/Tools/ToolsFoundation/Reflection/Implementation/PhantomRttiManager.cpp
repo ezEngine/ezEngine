@@ -53,6 +53,7 @@ const ezRTTI* ezPhantomRttiManager::RegisterType(const ezReflectedTypeDescriptor
                               desc.m_uiTypeSize, desc.m_uiTypeVersion, ezVariantType::Invalid, desc.m_Flags, desc.m_sPluginName.GetData());
 
     pPhantom->SetProperties(desc.m_Properties);
+    pPhantom->SetAttributes(desc.m_Attributes);
 
     m_NameToPhantom[pPhantom->GetTypeName()] = pPhantom;
 

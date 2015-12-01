@@ -64,7 +64,7 @@
       GetTypeVersion(),                                                             \
       ezVariant::TypeDeduction<OwnType>::value,                                     \
       flags,                                                                        \
-      &Allocator, Properties, MessageHandlers, EZ_REFLECTION_DEBUG_GETPARENTFUNC);  \
+      &Allocator, Properties, Attributes, MessageHandlers, EZ_REFLECTION_DEBUG_GETPARENTFUNC);  \
   }
 
 class ezArchiveWriter;

@@ -34,7 +34,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Reflection)
 EZ_END_SUBSYSTEM_DECLARATION
 
 ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags,
-  ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, const ezRTTI*(*fnVerifyParent)())
+  ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, const ezRTTI*(*fnVerifyParent)())
 {
   UpdateType(pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags);
 
@@ -42,6 +42,7 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
   m_szTypeName = szName;
   m_pAllocator = pAllocator;
   m_Properties = properties;
+  m_Attributes = attributes;
   m_MessageHandlers = messageHandlers;
   m_uiMsgIdOffset = 0;
 

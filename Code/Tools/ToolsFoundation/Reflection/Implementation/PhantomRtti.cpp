@@ -3,7 +3,7 @@
 #include <ToolsFoundation/Reflection/PhantomProperty.h>
 
 ezPhantomRTTI::ezPhantomRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags, const char* szPluginName)
-  : ezRTTI(nullptr, pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags | ezTypeFlags::Phantom, nullptr, ezArrayPtr<ezAbstractProperty*>(), ezArrayPtr<ezAbstractMessageHandler*>(), nullptr )
+  : ezRTTI(nullptr, pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags | ezTypeFlags::Phantom, nullptr, ezArrayPtr<ezAbstractProperty*>(), ezArrayPtr<ezPropertyAttribute*>(), ezArrayPtr<ezAbstractMessageHandler*>(), nullptr )
 {
   m_sTypeNameStorage = szName;
   m_sPluginNameStorage = szPluginName;
@@ -17,6 +17,10 @@ ezPhantomRTTI::~ezPhantomRTTI()
   for (auto pProp : m_PropertiesStorage)
   {
     EZ_DEFAULT_DELETE(pProp);
+  }
+  for (auto pAttrib : m_AttributesStorage)
+  {
+    EZ_DEFAULT_DELETE(pAttrib);
   }
 }
 
@@ -73,6 +77,18 @@ void ezPhantomRTTI::SetProperties(const ezDynamicArray<ezReflectedPropertyDescri
   m_Properties = m_PropertiesStorage;
 }
 
+void ezPhantomRTTI::SetAttributes(ezHybridArray<ezPropertyAttribute*, 2>& attributes)
+{
+  for (auto pAttrib : m_AttributesStorage)
+  {
+    EZ_DEFAULT_DELETE(pAttrib);
+  }
+  m_AttributesStorage.Clear();
+  m_AttributesStorage = attributes;
+  m_Attributes = m_AttributesStorage;
+  attributes.Clear();
+}
+
 void ezPhantomRTTI::UpdateType(const ezReflectedTypeDescriptor& desc)
 {
   ezRTTI::UpdateType(ezRTTI::FindTypeByName(desc.m_sParentTypeName), desc.m_uiTypeSize, desc.m_uiTypeVersion, ezVariantType::Invalid, desc.m_Flags);
@@ -81,6 +97,7 @@ void ezPhantomRTTI::UpdateType(const ezReflectedTypeDescriptor& desc)
   m_szPluginName = m_sPluginNameStorage.GetData();
 
   SetProperties(desc.m_Properties);
+  SetAttributes(desc.m_Attributes);
 }
 
 bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
@@ -158,6 +175,15 @@ bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
 
     }
 
+    if (desc.m_Attributes.GetCount() != GetAttributes().GetCount())
+      return false;
+
+    // TODO: compare attribute values?
+    for (ezUInt32 i = 0; i < GetAttributes().GetCount(); i++)
+    {
+      if (desc.m_Attributes[i]->GetDynamicRTTI() != GetAttributes()[i]->GetDynamicRTTI())
+        return false;
+    }
   }
   return true;
 }

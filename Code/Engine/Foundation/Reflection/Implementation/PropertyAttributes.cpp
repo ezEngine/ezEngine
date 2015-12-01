@@ -11,6 +11,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezHiddenAttribute, 1, ezRTTIDefaultAllocator<ezHiddenAttribute>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCategoryAttribute, 1, ezRTTIDefaultAllocator<ezCategoryAttribute>);
+EZ_BEGIN_PROPERTIES
+EZ_MEMBER_PROPERTY("Category", m_sCategory)
+EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDefaultValueAttribute, 1, ezRTTIDefaultAllocator<ezDefaultValueAttribute>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("Value", m_Value),
