@@ -7,11 +7,13 @@
 EZ_BEGIN_COMPONENT_TYPE(ezPxShapeComponent, 1);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
+    EZ_MEMBER_PROPERTY("Filter Group", m_uiFilterGroup),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezPxShapeComponent::ezPxShapeComponent()
 {
+  m_uiFilterGroup = 0;
 }
 
 
@@ -23,6 +25,7 @@ void ezPxShapeComponent::SerializeComponent(ezWorldWriter& stream) const
 
   /// \todo Serialize resource handles more efficiently
   s << GetSurfaceFile();
+  s << m_uiFilterGroup;
 }
 
 
@@ -35,6 +38,7 @@ void ezPxShapeComponent::DeserializeComponent(ezWorldReader& stream)
   ezStringBuilder sTemp;
   s >> sTemp;
   SetSurfaceFile(sTemp);
+  s >> m_uiFilterGroup;
 }
 
 void ezPxShapeComponent::SetSurfaceFile(const char* szFile)

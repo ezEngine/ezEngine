@@ -93,5 +93,13 @@ void ezPxShapeConvexComponent::AddToActor(PxRigidActor* pActor, const ezTransfor
   pShape->setLocalPose(t);
 
   EZ_ASSERT_DEBUG(pShape != nullptr, "PhysX convex shape creation failed");
+
+  PxFilterData filter;
+  filter.word0 = EZ_BIT(m_uiFilterGroup);
+  filter.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(m_uiFilterGroup);
+  filter.word2 = 0;
+  filter.word3 = 0;
+  pShape->setSimulationFilterData(filter);
+  pShape->setQueryFilterData(filter);
 }
 

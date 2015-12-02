@@ -25,6 +25,8 @@ public:
   void SetSurfaceFile(const char* szFile);
   const char* GetSurfaceFile() const;
 
+  ezUInt8 m_uiFilterGroup;
+
 protected:
   ezSurfaceResourceHandle m_hSurface;
 

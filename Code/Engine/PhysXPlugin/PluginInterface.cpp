@@ -55,6 +55,59 @@ void ezPhysX::Startup()
   StartupVDB();
 #endif
 
+  m_CollisionFilterConfig.SetFilterGroupCount(8);
+  m_CollisionFilterConfig.SetGroupName(0, "World");
+  m_CollisionFilterConfig.SetGroupName(1, "World Transparent");
+  m_CollisionFilterConfig.SetGroupName(2, "Object");
+  m_CollisionFilterConfig.SetGroupName(3, "Object Small");
+  m_CollisionFilterConfig.SetGroupName(4, "Object Effect");
+  m_CollisionFilterConfig.SetGroupName(5, "AI");
+  m_CollisionFilterConfig.SetGroupName(6, "Player");
+  m_CollisionFilterConfig.SetGroupName(7, "Secret Area");
+
+  m_CollisionFilterConfig.EnableCollision(0, 0);
+  m_CollisionFilterConfig.EnableCollision(0, 1);
+  m_CollisionFilterConfig.EnableCollision(0, 2);
+  m_CollisionFilterConfig.EnableCollision(0, 3);
+  m_CollisionFilterConfig.EnableCollision(0, 4);
+  m_CollisionFilterConfig.EnableCollision(0, 5);
+  m_CollisionFilterConfig.EnableCollision(0, 6);
+  m_CollisionFilterConfig.EnableCollision(0, 7);
+
+  m_CollisionFilterConfig.EnableCollision(1, 1);
+  m_CollisionFilterConfig.EnableCollision(1, 2);
+  m_CollisionFilterConfig.EnableCollision(1, 3);
+  m_CollisionFilterConfig.EnableCollision(1, 4);
+  m_CollisionFilterConfig.EnableCollision(1, 5);
+  m_CollisionFilterConfig.EnableCollision(1, 6);
+  m_CollisionFilterConfig.EnableCollision(1, 7);
+
+  m_CollisionFilterConfig.EnableCollision(2, 2);
+  m_CollisionFilterConfig.EnableCollision(2, 3);
+  m_CollisionFilterConfig.EnableCollision(2, 4, false);
+  m_CollisionFilterConfig.EnableCollision(2, 5);
+  m_CollisionFilterConfig.EnableCollision(2, 6);
+  m_CollisionFilterConfig.EnableCollision(2, 7);
+
+  m_CollisionFilterConfig.EnableCollision(3, 3);
+  m_CollisionFilterConfig.EnableCollision(3, 4, false);
+  m_CollisionFilterConfig.EnableCollision(3, 5);
+  m_CollisionFilterConfig.EnableCollision(3, 6);
+  m_CollisionFilterConfig.EnableCollision(3, 7);
+
+  m_CollisionFilterConfig.EnableCollision(4, 4, false);
+  m_CollisionFilterConfig.EnableCollision(4, 5, false);
+  m_CollisionFilterConfig.EnableCollision(4, 6, false);
+  m_CollisionFilterConfig.EnableCollision(4, 7);
+
+  m_CollisionFilterConfig.EnableCollision(5, 5);
+  m_CollisionFilterConfig.EnableCollision(5, 6);
+  m_CollisionFilterConfig.EnableCollision(5, 7);
+
+  m_CollisionFilterConfig.EnableCollision(6, 6, false);
+  m_CollisionFilterConfig.EnableCollision(6, 7, false);
+
+  m_CollisionFilterConfig.EnableCollision(7, 7, false);
 }
 
 void ezPhysX::Shutdown()

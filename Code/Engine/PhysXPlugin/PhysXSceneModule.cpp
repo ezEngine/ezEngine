@@ -16,8 +16,26 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXSceneModule, 1, ezRTTIDefaultAllocator<ez
   // no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezPhysXSceneModule::ezPhysXSceneModule()
+PxFilterFlags ezPxFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, PxFilterObjectAttributes attributes1, PxFilterData filterData1, PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
 {
+  // let triggers through
+  if (PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
+  {
+    pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
+    return PxFilterFlag::eDEFAULT;
+  }
+
+  pairFlags = (PxPairFlag::Enum)0;
+
+  // trigger the contact callback for pairs (A,B) where
+  // the filter mask of A contains the ID of B and vice versa.
+  if ((filterData0.word0 & filterData1.word1) || (filterData1.word0 & filterData0.word1))
+  {
+    pairFlags |= PxPairFlag::eCONTACT_DEFAULT;
+    return PxFilterFlag::eDEFAULT;
+  }
+
+  return PxFilterFlag::eKILL;
 }
 
 void ezPhysXSceneModule::InternalStartup()
@@ -41,7 +59,7 @@ void ezPhysXSceneModule::InternalStartup()
 
   m_pCPUDispatcher = PxDefaultCpuDispatcherCreate(4);
   desc.cpuDispatcher = m_pCPUDispatcher;
-  desc.filterShader = PxDefaultSimulationFilterShader;
+  desc.filterShader = ezPxFilterShader;
 
   EZ_ASSERT_DEV(desc.isValid(), "PhysX scene description is invalid");
   m_pPxScene = ezPhysX::GetSingleton()->GetPhysXAPI()->createScene(desc);

@@ -93,12 +93,30 @@ ezComponent::Initialization ezPxStaticActorComponent::Initialize()
     if (pMesh->GetTriangleMesh() != nullptr)
     {
       /// \todo Material(s)
-      m_pActor->createShape(PxTriangleMeshGeometry(pMesh->GetTriangleMesh()), *ezPhysX::GetSingleton()->GetDefaultMaterial());
+      auto pShape = m_pActor->createShape(PxTriangleMeshGeometry(pMesh->GetTriangleMesh()), *ezPhysX::GetSingleton()->GetDefaultMaterial());
+
+      /// \todo collision filter
+      PxFilterData filter;
+      filter.word0 = 0xFFFFFFFF;
+      filter.word1 = 0xFFFFFFFF;
+      filter.word2 = 0;
+      filter.word3 = 0;
+      pShape->setSimulationFilterData(filter);
+      pShape->setQueryFilterData(filter);
     }
     else if (pMesh->GetConvexMesh() != nullptr)
     {
       /// \todo Material(s)
-      m_pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh()), *ezPhysX::GetSingleton()->GetDefaultMaterial());
+      auto pShape = m_pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh()), *ezPhysX::GetSingleton()->GetDefaultMaterial());
+
+      /// \todo collision filter
+      PxFilterData filter;
+      filter.word0 = 0xFFFFFFFF;
+      filter.word1 = 0xFFFFFFFF;
+      filter.word2 = 0;
+      filter.word3 = 0;
+      pShape->setSimulationFilterData(filter);
+      pShape->setQueryFilterData(filter);
     }
     else
     {
@@ -113,6 +131,15 @@ ezComponent::Initialization ezPxStaticActorComponent::Initialize()
 
     auto pShape = m_pActor->createShape(PxPlaneGeometry(), *ezPhysX::GetSingleton()->GetDefaultMaterial());
     pShape->setLocalPose(PxTransform(PxQuat(qRot.v.x, qRot.v.y, qRot.v.z, qRot.w)));
+
+    /// \todo collision filter
+    PxFilterData filter;
+    filter.word0 = 0xFFFFFFFF;
+    filter.word1 = 0xFFFFFFFF;
+    filter.word2 = 0;
+    filter.word3 = 0;
+    pShape->setSimulationFilterData(filter);
+    pShape->setQueryFilterData(filter);
   }
 
   pModule->GetPxScene()->addActor(*m_pActor);
