@@ -22,8 +22,10 @@ Menu.Editor;Editor
 Menu.File;File
 Menu.Edit;Edit
 Menu.Panels;Panels
-Menu.Settings;Settings
+Menu.Project;Project
+Menu.Scene;Scene
 Menu.Tools;Tools
+Menu.View;View
 Menu.Help;Help
 Menu.RenderMode;Render Mode
 Menu.RenderPerspective;Perspective

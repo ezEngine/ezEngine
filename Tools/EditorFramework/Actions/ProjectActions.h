@@ -30,7 +30,7 @@ public:
   static ezActionDescriptorHandle s_hProjectSettings;
 
   static ezActionDescriptorHandle s_hToolsMenu;
-  static ezActionDescriptorHandle s_hEngineCategory;
+  static ezActionDescriptorHandle s_hToolsCategory;
   static ezActionDescriptorHandle s_hReloadResources;
 };
 

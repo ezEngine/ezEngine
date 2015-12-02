@@ -52,7 +52,7 @@ void OnLoadPlugin(bool bReloading)
   // Menu Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentMenuBar");
   ezProjectActions::MapActions("EditorPluginScene_DocumentMenuBar");
-  ezStandardMenus::MapActions("EditorPluginScene_DocumentMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+  ezStandardMenus::MapActions("EditorPluginScene_DocumentMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Project | ezStandardMenuTypes::Scene | ezStandardMenuTypes::Panels | ezStandardMenuTypes::View | ezStandardMenuTypes::Help);
   ezDocumentActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.File", false);
   ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
   ezGizmoActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
@@ -61,7 +61,7 @@ void OnLoadPlugin(bool bReloading)
   ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/GizmoCategory");
   ezScaleGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/GizmoCategory");
   ezTranslateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/GizmoCategory");
-  ezSceneActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Tools", false);
+  ezSceneActions::MapMenuActions();
 
   // Tool Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentToolBar");
@@ -71,7 +71,7 @@ void OnLoadPlugin(bool bReloading)
   ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentToolBar", "");
   ezScaleGizmoAction::MapActions("EditorPluginScene_DocumentToolBar", "");
   ezTranslateGizmoAction::MapActions("EditorPluginScene_DocumentToolBar", "");
-  ezSceneActions::MapActions("EditorPluginScene_DocumentToolBar", "", true);
+  ezSceneActions::MapToolbarActions();
 
   // View Tool Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_ViewToolBar");

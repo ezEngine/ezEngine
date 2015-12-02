@@ -7,7 +7,9 @@
 ezActionDescriptorHandle ezStandardMenus::s_hMenuFile;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuEdit;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuPanels;
-ezActionDescriptorHandle ezStandardMenus::s_hMenuSettings;
+ezActionDescriptorHandle ezStandardMenus::s_hMenuProject;
+ezActionDescriptorHandle ezStandardMenus::s_hMenuScene;
+ezActionDescriptorHandle ezStandardMenus::s_hMenuView;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuHelp;
 
 void ezStandardMenus::RegisterActions()
@@ -15,7 +17,9 @@ void ezStandardMenus::RegisterActions()
   s_hMenuFile = EZ_REGISTER_MENU("Menu.File");
   s_hMenuEdit = EZ_REGISTER_MENU("Menu.Edit");
   s_hMenuPanels = EZ_REGISTER_LRU_MENU("Menu.Panels", ezApplicationPanelsMenuAction, "");
-  s_hMenuSettings = EZ_REGISTER_MENU("Menu.Settings");
+  s_hMenuProject = EZ_REGISTER_MENU("Menu.Project");
+  s_hMenuScene = EZ_REGISTER_MENU("Menu.Scene");
+  s_hMenuView = EZ_REGISTER_MENU("Menu.View");
   s_hMenuHelp = EZ_REGISTER_MENU("Menu.Help");
 
 }
@@ -25,7 +29,9 @@ void ezStandardMenus::UnregisterActions()
   ezActionManager::UnregisterAction(s_hMenuFile);
   ezActionManager::UnregisterAction(s_hMenuEdit);
   ezActionManager::UnregisterAction(s_hMenuPanels);
-  ezActionManager::UnregisterAction(s_hMenuSettings);
+  ezActionManager::UnregisterAction(s_hMenuProject);
+  ezActionManager::UnregisterAction(s_hMenuScene);
+  ezActionManager::UnregisterAction(s_hMenuView);
   ezActionManager::UnregisterAction(s_hMenuHelp);
 }
 
@@ -42,14 +48,20 @@ void ezStandardMenus::MapActions(const char* szMapping, const ezBitflags<ezStand
   if (Menus.IsAnySet(ezStandardMenuTypes::Edit))
     pMap->MapAction(s_hMenuEdit, "", 2.0f);
 
-  if (Menus.IsAnySet(ezStandardMenuTypes::Panels))
-    pMap->MapAction(s_hMenuPanels, "", 3.0f);
+  if (Menus.IsAnySet(ezStandardMenuTypes::Project))
+    pMap->MapAction(s_hMenuProject, "", 3.0f);
 
-  if (Menus.IsAnySet(ezStandardMenuTypes::Settings))
-    pMap->MapAction(s_hMenuSettings, "", 4.0f);
+  if (Menus.IsAnySet(ezStandardMenuTypes::Scene))
+    pMap->MapAction(s_hMenuScene, "", 4.0f);
+
+  if (Menus.IsAnySet(ezStandardMenuTypes::View))
+    pMap->MapAction(s_hMenuView, "", 5.0f);
+
+  if (Menus.IsAnySet(ezStandardMenuTypes::Panels))
+    pMap->MapAction(s_hMenuPanels, "", 6.0f);
 
   if (Menus.IsAnySet(ezStandardMenuTypes::Help))
-    pMap->MapAction(s_hMenuHelp, "", 5.0f);
+    pMap->MapAction(s_hMenuHelp, "", 7.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////

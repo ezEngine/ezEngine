@@ -83,6 +83,8 @@ ezComponent::Initialization ezPxStaticActorComponent::Initialize()
   m_pActor = ezPhysX::GetSingleton()->GetPhysXAPI()->createRigidStatic(t);
   EZ_ASSERT_DEBUG(m_pActor != nullptr, "PhysX actor creation failed");
 
+  m_pActor->userData = GetOwner();
+
   AddShapesFromObject(GetOwner(), m_pActor, GetOwner()->GetGlobalTransform());
   AddShapesFromChildren(GetOwner(), m_pActor, GetOwner()->GetGlobalTransform());
 
@@ -103,6 +105,8 @@ ezComponent::Initialization ezPxStaticActorComponent::Initialize()
       filter.word3 = 0;
       pShape->setSimulationFilterData(filter);
       pShape->setQueryFilterData(filter);
+
+      pShape->userData = GetOwner();
     }
     else if (pMesh->GetConvexMesh() != nullptr)
     {
@@ -117,6 +121,8 @@ ezComponent::Initialization ezPxStaticActorComponent::Initialize()
       filter.word3 = 0;
       pShape->setSimulationFilterData(filter);
       pShape->setQueryFilterData(filter);
+
+      pShape->userData = GetOwner();
     }
     else
     {
@@ -140,6 +146,8 @@ ezComponent::Initialization ezPxStaticActorComponent::Initialize()
     filter.word3 = 0;
     pShape->setSimulationFilterData(filter);
     pShape->setQueryFilterData(filter);
+
+    pShape->userData = GetOwner();
   }
 
   pModule->GetPxScene()->addActor(*m_pActor);

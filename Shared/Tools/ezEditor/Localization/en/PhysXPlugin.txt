@@ -1,0 +1,2 @@
+PhysX.Settings.Project;PhysX Project Settings
+PhysX.Settings.Scene;PhysX Scene Settings

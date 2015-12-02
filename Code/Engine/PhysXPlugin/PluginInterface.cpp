@@ -185,6 +185,7 @@ void ezPhysX::SurfaceResourceEventHandler(const ezSurfaceResource::Event& e)
     const auto& desc = e.m_pSurface->GetDescriptor();
 
     PxMaterial* pMaterial = m_pPhysX->createMaterial(desc.m_fPhysicsFrictionStatic, desc.m_fPhysicsFrictionDynamic, desc.m_fPhysicsRestitution);
+    pMaterial->userData = e.m_pSurface;
 
     e.m_pSurface->m_pPhysicsMaterial = pMaterial;
   }

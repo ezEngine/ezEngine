@@ -26,7 +26,7 @@ ezActionDescriptorHandle ezProjectActions::s_hSettingsCategory;
 ezActionDescriptorHandle ezProjectActions::s_hProjectSettings;
 
 ezActionDescriptorHandle ezProjectActions::s_hToolsMenu;
-ezActionDescriptorHandle ezProjectActions::s_hEngineCategory;
+ezActionDescriptorHandle ezProjectActions::s_hToolsCategory;
 ezActionDescriptorHandle ezProjectActions::s_hReloadResources;
 
 void ezProjectActions::RegisterActions()
@@ -48,7 +48,7 @@ void ezProjectActions::RegisterActions()
   s_hProjectSettings = EZ_REGISTER_ACTION_1("Settings.Open", ezActionScope::Global, "Settings", "", ezProjectAction, ezProjectAction::ButtonType::ProjectSettings);
 
   s_hToolsMenu = EZ_REGISTER_MENU("Menu.Tools");
-  s_hEngineCategory = EZ_REGISTER_CATEGORY("EngineCategory");
+  s_hToolsCategory = EZ_REGISTER_CATEGORY("ToolsCategory");
   s_hReloadResources = EZ_REGISTER_ACTION_1("Engine.ReloadResources", ezActionScope::Global, "Engine", "F5", ezProjectAction, ezProjectAction::ButtonType::ReloadResources);
 }
 
@@ -67,7 +67,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hSettingsCategory);
   ezActionManager::UnregisterAction(s_hProjectSettings);
   ezActionManager::UnregisterAction(s_hToolsMenu);
-  ezActionManager::UnregisterAction(s_hEngineCategory);
+  ezActionManager::UnregisterAction(s_hToolsCategory);
   ezActionManager::UnregisterAction(s_hReloadResources);
 }
 
@@ -92,9 +92,9 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hSettingsCategory, "Menu.Editor", 3.0f);
   pMap->MapAction(s_hProjectSettings, "Menu.Editor/SettingsCategory", 1.0f);
 
-  pMap->MapAction(s_hToolsMenu, "", 4.0f);
-  pMap->MapAction(s_hEngineCategory, "Menu.Tools", 1.0f);
-  pMap->MapAction(s_hReloadResources, "Menu.Tools/EngineCategory", 1.0f);
+  pMap->MapAction(s_hToolsMenu, "", 4.5f);
+  pMap->MapAction(s_hToolsCategory, "Menu.Tools", 1.0f);
+  pMap->MapAction(s_hReloadResources, "Menu.Tools/ToolsCategory", 1.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////

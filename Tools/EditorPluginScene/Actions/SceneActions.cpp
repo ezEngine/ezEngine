@@ -35,33 +35,52 @@ void ezSceneActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hRenderSelectionOverlay);
 }
 
-void ezSceneActions::MapActions(const char* szMapping, const char* szPath, bool bToolbar)
+
+void ezSceneActions::MapMenuActions()
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the actions failed!", szMapping);
+  ezActionMap* pMap = ezActionMapManager::GetActionMap("EditorPluginScene_DocumentMenuBar");
+  EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
-  ezStringBuilder sSubPath(szPath, "/SceneCategory");
-
-  if (bToolbar)
   {
-    /// \todo This works incorrectly with value 6.0f -> it places the action inside the snap category
-    pMap->MapAction(s_hSceneCategory, szPath, 7.0f);
+    const char* szSubPath = "Menu.Tools/SceneCategory";
 
-    pMap->MapAction(s_hEnableWorldSimulation, sSubPath, 1.0f);
-    pMap->MapAction(s_hRenderSelectionOverlay, sSubPath, 2.0f);
+    pMap->MapAction(s_hSceneCategory, "Menu.Tools", 6.0f);
+    pMap->MapAction(s_hUpdatePrefabs, szSubPath, 1.0f);
   }
-  else
-  {
-    pMap->MapAction(s_hSceneCategory, szPath, 6.0f);
 
-    pMap->MapAction(s_hUpdatePrefabs, sSubPath, 1.0f);
-    pMap->MapAction(s_hExportScene, sSubPath, 2.0f);
-    pMap->MapAction(s_hRunScene, sSubPath, 3.0f);
-    pMap->MapAction(s_hEnableWorldSimulation, sSubPath, 4.0f);
-	pMap->MapAction(s_hRenderSelectionOverlay, sSubPath, 4.0f);
+  {
+    const char* szSubPath = "Menu.Scene/SceneCategory";
+
+    pMap->MapAction(s_hSceneCategory, "Menu.Scene", 1.0f);
+    pMap->MapAction(s_hExportScene, szSubPath, 1.0f);
+    pMap->MapAction(s_hRunScene, szSubPath, 2.0f);
+    pMap->MapAction(s_hEnableWorldSimulation, szSubPath, 3.0f);
+  }
+
+  {
+    const char* szSubPath = "Menu.View/SceneCategory";
+
+    pMap->MapAction(s_hSceneCategory, "Menu.View", 1.0f);
+    pMap->MapAction(s_hRenderSelectionOverlay, szSubPath, 1.0f);
   }
 }
 
+
+void ezSceneActions::MapToolbarActions()
+{
+  ezActionMap* pMap = ezActionMapManager::GetActionMap("EditorPluginScene_DocumentToolBar");
+  EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
+
+  {
+    const char* szSubPath = "SceneCategory";
+
+    /// \todo This works incorrectly with value 6.0f -> it places the action inside the snap category
+    pMap->MapAction(s_hSceneCategory, "", 7.0f);
+
+    pMap->MapAction(s_hEnableWorldSimulation, szSubPath, 1.0f);
+    pMap->MapAction(s_hRenderSelectionOverlay, szSubPath, 2.0f);
+  }
+}
 
 ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName, ezSceneAction::ActionType type) : ezButtonAction(context, szName, false, "")
 {

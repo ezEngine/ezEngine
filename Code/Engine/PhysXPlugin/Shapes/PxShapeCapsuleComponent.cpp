@@ -70,6 +70,8 @@ void ezPxShapeCapsuleComponent::AddToActor(PxRigidActor* pActor, const ezTransfo
   filter.word3 = 0;
   pShape->setSimulationFilterData(filter);
   pShape->setQueryFilterData(filter);
+
+  pShape->userData = GetOwner();
 }
 
 

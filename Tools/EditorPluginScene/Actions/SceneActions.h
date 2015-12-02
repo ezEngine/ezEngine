@@ -12,7 +12,8 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(const char* szMapping, const char* szPath, bool bToolbar);
+  static void MapMenuActions();
+  static void MapToolbarActions();
 
   static ezActionDescriptorHandle s_hSceneCategory;
   static ezActionDescriptorHandle s_hUpdatePrefabs;

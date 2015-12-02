@@ -12,9 +12,11 @@ struct ezStandardMenuTypes
     File = EZ_BIT(0),
     Edit = EZ_BIT(1),
     Panels = EZ_BIT(2),
-    Settings = EZ_BIT(3),
-    Help = EZ_BIT(4),
-    //Window
+    Project = EZ_BIT(3),
+    Scene = EZ_BIT(4),
+    View = EZ_BIT(5),
+    Help = EZ_BIT(6),
+
     Default = 0
   };
 
@@ -23,7 +25,9 @@ struct ezStandardMenuTypes
     StorageType File : 1;
     StorageType Edit : 1;
     StorageType Panels : 1;
-    StorageType Settings : 1;
+    StorageType Project : 1;
+    StorageType Scene : 1;
+    StorageType View : 1;
     StorageType Help : 1;
   };
 };
@@ -42,7 +46,9 @@ public:
   static ezActionDescriptorHandle s_hMenuFile;
   static ezActionDescriptorHandle s_hMenuEdit;
   static ezActionDescriptorHandle s_hMenuPanels;
-  static ezActionDescriptorHandle s_hMenuSettings;
+  static ezActionDescriptorHandle s_hMenuProject;
+  static ezActionDescriptorHandle s_hMenuScene;
+  static ezActionDescriptorHandle s_hMenuView;
   static ezActionDescriptorHandle s_hMenuHelp;
 };
 

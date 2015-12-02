@@ -9,12 +9,15 @@
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
+#include <CoreUtils/Localization/TranslationLookup.h>
 
 #include <PhysXCooking/PhysXCooking.h>
+#include <EditorPluginPhysX/Actions/PhysXActions.h>
 
 void OnLoadPlugin(bool bReloading)
 {
   ezQtEditorApp::GetInstance()->RegisterPluginNameForSettings("EditorPluginPhysX");
+  ezTranslatorFromFiles::AddTranslationFile("PhysXPlugin.txt");
 
   // Mesh Asset
   {
@@ -35,14 +38,28 @@ void OnLoadPlugin(bool bReloading)
       ezAssetActions::MapActions("CollisionMeshAssetToolBar", true);
     }
   }
+
+  // Scene
+  {
+    // Menu Bar
+    {
+      ezPhysXActions::RegisterActions();
+      ezPhysXActions::MapMenuActions();
+    }
+
+    // Tool Bar
+    {
+
+    }
+  }
 }
 
 void OnUnloadPlugin(bool bReloading)
 {
-
+  ezPhysXActions::UnregisterActions();
 }
 
-ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin, "ezPhysXPlugin");
+ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin, "ezEditorPluginScene", "ezPhysXPlugin");
 
 EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_EDITORPLUGINPHYSX_DLL, ezEditorPluginPhysX);
 
