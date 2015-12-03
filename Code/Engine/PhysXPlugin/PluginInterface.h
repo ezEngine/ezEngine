@@ -6,12 +6,15 @@ namespace physx
   class PxCooking;
 }
 
+class ezCollisionFilterConfig;
+
 class ezPhysXInterface
 {
 public:
 
   virtual physx::PxPhysics* GetPhysXAPI() = 0;
 
+  virtual ezCollisionFilterConfig& GetCollisionFilterConfig() = 0;
 
 
 

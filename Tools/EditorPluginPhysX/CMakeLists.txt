@@ -32,6 +32,7 @@ SET (LINK_LIBRARIES
   Core
   CoreUtils
   PhysXCooking
+  GameUtils
 )
 
 if (BUILDSYSTEM_PLATFORM_64BIT)

@@ -3,6 +3,8 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <EditorPluginPhysX/Actions/PhysXActions.h>
 #include <EditorPluginPhysX/Dialogs/PhysXProjectSettingsDlg.moc.h>
+#include <PhysXPlugin/PluginInterface.h>
+#include <Foundation/Configuration/AbstractInterfaceRegistry.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXAction, 0, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -60,7 +62,9 @@ void ezPhysXAction::Execute(const ezVariant& value)
 {
   if (m_Type == ActionType::ProjectSettings)
   {
-    ezPhysxProjectSettingsDlg dlg(nullptr);
+    ezPhysXInterface* pPhysX = ezAbstractInterfaceRegistry::RetrieveImplementationForInterface<ezPhysXInterface>("ezPhysXInterface");
+
+    ezPhysxProjectSettingsDlg dlg(&pPhysX->GetCollisionFilterConfig(), nullptr);
     dlg.exec();
   }
 

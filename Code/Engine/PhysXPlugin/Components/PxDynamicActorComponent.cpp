@@ -118,6 +118,8 @@ ezComponent::Initialization ezPxDynamicActorComponent::Initialize()
   m_pActor = ezPhysX::GetSingleton()->GetPhysXAPI()->createRigidDynamic(t);
   EZ_ASSERT_DEBUG(m_pActor != nullptr, "PhysX actor creation failed");
 
+  m_pActor->userData = GetOwner();
+
   AddShapesFromObject(GetOwner(), m_pActor, GetOwner()->GetGlobalTransform());
   AddShapesFromChildren(GetOwner(), m_pActor, GetOwner()->GetGlobalTransform());
 

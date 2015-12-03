@@ -5,7 +5,7 @@
 #include <Foundation/Configuration/Plugin.h>
 #include <Core/Scene/SceneModule.h>
 #include <GameUtils/Surfaces/SurfaceResource.h>
-#include <PhysXPlugin/CollisionFilter/CollisionFilter.h>
+#include <GameUtils/CollisionFilter/CollisionFilter.h>
 
 class ezPxErrorCallback : public PxErrorCallback
 {
@@ -44,7 +44,7 @@ public:
 
   virtual PxMaterial* GetDefaultMaterial() const { return m_pDefaultMaterial; }
 
-  ezPxCollisionFilterConfig& GetCollisionFilterConfig() { return m_CollisionFilterConfig; }
+  virtual ezCollisionFilterConfig& GetCollisionFilterConfig() override { return m_CollisionFilterConfig; }
 
 private:
   void StartupVDB();
@@ -60,7 +60,7 @@ private:
   PxPhysics* m_pPhysX;
   PxMaterial* m_pDefaultMaterial;
   PxVisualDebuggerConnection* m_VdbConnection;
-  ezPxCollisionFilterConfig m_CollisionFilterConfig;
+  ezCollisionFilterConfig m_CollisionFilterConfig;
 };
 
 
