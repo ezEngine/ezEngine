@@ -64,8 +64,8 @@ void ezPxShapeCapsuleComponent::AddToActor(PxRigidActor* pActor, const ezTransfo
   EZ_ASSERT_DEBUG(pShape != nullptr, "PhysX capsule shape creation failed");
 
   PxFilterData filter;
-  filter.word0 = EZ_BIT(m_uiFilterGroup);
-  filter.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(m_uiFilterGroup);
+  filter.word0 = EZ_BIT(m_uiCollisionLayer);
+  filter.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(m_uiCollisionLayer);
   filter.word2 = 0;
   filter.word3 = 0;
   pShape->setSimulationFilterData(filter);

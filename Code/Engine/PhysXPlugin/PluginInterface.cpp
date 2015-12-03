@@ -21,17 +21,18 @@ ezPhysX* ezPhysX::GetSingleton()
   return &g_PhysXSingleton;
 }
 
-void ezPhysX::ReloadCollisionFilters()
+void ezPhysX::LoadCollisionFilters()
 {
+  EZ_LOG_BLOCK("ezPhysX::LoadCollisionFilters");
+
   if (m_CollisionFilterConfig.Load("Physics/CollisionLayers.cfg").Failed())
   {
+    ezLog::Error("Collision filter config file could not be found ('Physics/CollisionLayers.cfg').");
+
     // setup some default config
 
-    m_CollisionFilterConfig.SetGroupName(0, "World");
-    m_CollisionFilterConfig.SetGroupName(1, "Objects");
+    m_CollisionFilterConfig.SetGroupName(0, "Default");
     m_CollisionFilterConfig.EnableCollision(0, 0);
-    m_CollisionFilterConfig.EnableCollision(0, 1);
-    m_CollisionFilterConfig.EnableCollision(1, 1);
   }
 }
 
@@ -68,8 +69,6 @@ void ezPhysX::Startup()
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   StartupVDB();
 #endif
-
-  ReloadCollisionFilters();
 }
 
 void ezPhysX::Shutdown()

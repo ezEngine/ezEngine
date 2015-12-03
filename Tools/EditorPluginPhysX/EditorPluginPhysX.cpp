@@ -13,11 +13,18 @@
 
 #include <PhysXCooking/PhysXCooking.h>
 #include <EditorPluginPhysX/Actions/PhysXActions.h>
+#include <GuiFoundation/UIServices/DynamicEnums.h>
+#include <GameUtils/CollisionFilter/CollisionFilter.h>
+
+void UpdateCollisionLayerDynamicEnumValues();
+
+static void ToolsProjectEventHandler(const ezToolsProject::Event& e);
 
 void OnLoadPlugin(bool bReloading)
 {
   ezQtEditorApp::GetInstance()->RegisterPluginNameForSettings("EditorPluginPhysX");
   ezTranslatorFromFiles::AddTranslationFile("PhysXPlugin.txt");
+  ezToolsProject::GetInstance()->s_Events.AddEventHandler(ToolsProjectEventHandler);
 
   // Mesh Asset
   {
@@ -57,9 +64,41 @@ void OnLoadPlugin(bool bReloading)
 void OnUnloadPlugin(bool bReloading)
 {
   ezPhysXActions::UnregisterActions();
+  ezToolsProject::GetInstance()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
 }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin, "ezEditorPluginScene", "ezPhysXPlugin");
 
 EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_EDITORPLUGINPHYSX_DLL, ezEditorPluginPhysX);
 
+
+
+void UpdateCollisionLayerDynamicEnumValues()
+{
+  auto& cfe = ezDynamicEnum::GetDynamicEnum("PhysicsCollisionLayer");
+  cfe.Clear();
+
+  ezStringBuilder sPath = ezApplicationConfig::GetProjectDirectory();
+  sPath.AppendPath("Physics/CollisionLayers.cfg");
+
+  ezCollisionFilterConfig cfg;
+  if (cfg.Load(sPath).Failed())
+    return;
+
+  // add all names and values that are valid (non-empty)
+  for (ezInt32 i = 0; i < 32; ++i)
+  {
+    if (!ezStringUtils::IsNullOrEmpty(cfg.GetGroupName(i)))
+    {
+      cfe.SetValueAndName(i, cfg.GetGroupName(i));
+    }
+  }
+}
+
+static void ToolsProjectEventHandler(const ezToolsProject::Event& e)
+{
+  if (e.m_Type == ezToolsProject::Event::Type::ProjectOpened)
+  {
+    UpdateCollisionLayerDynamicEnumValues();
+  }
+}

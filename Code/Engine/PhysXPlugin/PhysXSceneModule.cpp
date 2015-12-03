@@ -40,6 +40,8 @@ PxFilterFlags ezPxFilterShader(PxFilterObjectAttributes attributes0, PxFilterDat
 
 void ezPhysXSceneModule::InternalStartup()
 {
+  InternalReinit();
+
   GetWorld()->CreateComponentManager<ezPxStaticActorComponentManager>()->SetUserData(this);
   GetWorld()->CreateComponentManager<ezPxDynamicActorComponentManager>()->SetUserData(this);
   GetWorld()->CreateComponentManager<ezPxShapeBoxComponentManager>()->SetUserData(this);
@@ -98,7 +100,7 @@ void ezPhysXSceneModule::InternalUpdate()
 
 void ezPhysXSceneModule::InternalReinit()
 {
-  ezPhysX::GetSingleton()->ReloadCollisionFilters();
+  ezPhysX::GetSingleton()->LoadCollisionFilters();
 
 }
 

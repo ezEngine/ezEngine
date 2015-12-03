@@ -37,8 +37,6 @@ public:
   const char* GetCategory() const { return m_sCategory; }
 
 private:
-  EZ_ALLOW_PRIVATE_PROPERTIES(ezCategoryAttribute);
-
   ezString m_sCategory;
 };
 
@@ -122,8 +120,6 @@ public:
   const char* GetTagFilter() const { return m_sTagFilter; }
 
 private:
-  EZ_ALLOW_PRIVATE_PROPERTIES(ezTagSetWidgetAttribute);
-
   ezString m_sTagFilter;
 };
 
@@ -171,8 +167,6 @@ public:
   const char* GetTypeFilter() const { return m_sTypeFilter; }
 
 private:
-  EZ_ALLOW_PRIVATE_PROPERTIES(ezFileBrowserAttribute);
-
   ezString m_sDialogTitle;
   ezString m_sTypeFilter;
 };
@@ -196,14 +190,43 @@ public:
   const char* GetTypeFilter() const { return m_sTypeFilter; }
 
 private:
-  EZ_ALLOW_PRIVATE_PROPERTIES(ezAssetBrowserAttribute);
-
   ezString m_sTypeFilter;
 };
 
+/// \brief Can be used on integer properties to display them as enums. The valid enum values and their names may change at runtime.
+///
+/// See ezDynamicEnum for details.
+class EZ_FOUNDATION_DLL ezDynamicEnumAttribute : public ezTypeWidgetAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDynamicEnumAttribute, ezTypeWidgetAttribute);
+
+public:
+  ezDynamicEnumAttribute() {}
+  ezDynamicEnumAttribute(const char* szDynamicEnumName)
+  {
+    m_sDynamicEnumName = szDynamicEnumName;
+  }
+
+  const char* GetDynamicEnumName() const { return m_sDynamicEnumName; }
+
+private:
+  ezString m_sDynamicEnumName;
+};
 
 
-
+template<typename Type>
+const Type* ezRTTI::GetAttributeByType() const
+{
+  for (const auto* pAttr : m_Attributes)
+  {
+    if (pAttr->GetDynamicRTTI()->IsDerivedFrom<Type>())
+      return static_cast<const Type*>(pAttr);
+  }
+  if (GetParentType() != nullptr)
+    return GetParentType()->GetAttributeByType<Type>();
+  else
+    return nullptr;
+}
 
 
 

@@ -7,6 +7,7 @@ ezCollisionFilterConfig::ezCollisionFilterConfig()
   for (int i = 0; i < 32; ++i)
   {
     m_GroupNames[i][0] = '\0';
+    m_GroupMasks[i] = 0xFFFFFFFF; // collide with everything
   }
 }
 

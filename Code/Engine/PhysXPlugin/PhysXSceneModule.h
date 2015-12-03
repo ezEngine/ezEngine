@@ -46,7 +46,7 @@ public:
 
   virtual ezCollisionFilterConfig& GetCollisionFilterConfig() override { return m_CollisionFilterConfig; }
 
-  void ReloadCollisionFilters();
+  virtual void LoadCollisionFilters() override;
 
 private:
   void StartupVDB();

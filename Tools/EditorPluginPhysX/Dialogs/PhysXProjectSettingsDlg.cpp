@@ -8,6 +8,8 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Core/Application/Config/ApplicationConfig.h>
 
+void UpdateCollisionLayerDynamicEnumValues();
+
 ezPhysxProjectSettingsDlg::ezPhysxProjectSettingsDlg(QWidget* parent) : QDialog(parent)
 {
   setupUi(this);
@@ -79,6 +81,8 @@ ezResult ezPhysxProjectSettingsDlg::Save()
 
     return EZ_FAILURE;
   }
+
+  UpdateCollisionLayerDynamicEnumValues();
 
   return EZ_SUCCESS;
 }

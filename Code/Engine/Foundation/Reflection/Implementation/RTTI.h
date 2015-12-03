@@ -61,18 +61,7 @@ public:
 
   /// \brief Returns the first attribute that derives from the given type, or nullptr if nothing is found.
   template<typename Type>
-  const Type* GetAttributeByType() const
-  {
-    for (const auto* pAttr : m_Attributes)
-    {
-      if (pAttr->GetDynamicRTTI()->IsDerivedFrom<Type>())
-        return static_cast<const Type*>(pAttr);
-    }
-    if (GetParentType() != nullptr)
-      return GetParentType()->GetAttributeByType<Type>();
-    else
-      return nullptr;
-  }
+  const Type* GetAttributeByType() const;
 
   /// \brief Returns the list of properties that this type has, including derived properties from all base classes.
   void GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_Properties) const; // [tested]
