@@ -56,6 +56,14 @@ void ezScene::Update()
   }
 }
 
+void ezScene::ReinitSceneModules()
+{
+  for (auto pModule : m_SceneModules)
+  {
+    pModule->Reinit();
+  }
+}
+
 void ezScene::CreateSceneModules()
 {
   ezRTTI* pRtti = ezRTTI::GetFirstInstance();

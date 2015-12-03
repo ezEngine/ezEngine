@@ -46,6 +46,11 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     {
       ezLog::Info("World Simulation %s", bSimulate ? "enabled" : "disabled");
       GetScene()->GetWorld()->SetWorldSimulationEnabled(bSimulate);
+
+      if (bSimulate)
+      {
+        GetScene()->ReinitSceneModules();
+      }
     }
 
     GetScene()->Update();

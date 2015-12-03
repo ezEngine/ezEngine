@@ -46,6 +46,8 @@ public:
 
   virtual ezCollisionFilterConfig& GetCollisionFilterConfig() override { return m_CollisionFilterConfig; }
 
+  void ReloadCollisionFilters();
+
 private:
   void StartupVDB();
   void ShutdownVDB();
@@ -78,6 +80,7 @@ protected:
   virtual void InternalStartup() override;
   virtual void InternalShutdown() override;
   virtual void InternalUpdate() override;
+  virtual void InternalReinit() override;
 
 private:
   PxScene* m_pPxScene;

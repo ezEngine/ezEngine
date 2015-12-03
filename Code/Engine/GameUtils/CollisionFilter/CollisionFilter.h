@@ -10,10 +10,6 @@ class EZ_GAMEUTILS_DLL ezCollisionFilterConfig
 public:
   ezCollisionFilterConfig();
 
-  void SetFilterGroupCount(ezUInt32 uiNumGroups);
-
-  ezUInt32 GetFilterGroupCount() const;
-
   void SetGroupName(ezUInt32 uiGroup, const char* szName);
 
   const char* GetGroupName(ezUInt32 uiGroup) const;
@@ -24,12 +20,30 @@ public:
 
   inline ezUInt32 GetFilterMask(ezUInt32 uiGroup) const { return m_GroupMasks[uiGroup]; }
 
-  ezUInt32 GetFilterGroupByName(const char* szName) const;
+  /// \brief Returns how many groups have non-empty names
+  ezUInt32 GetNumNamedGroups() const;
+
+  /// \brief Returns the index of the n-th group that has a non-empty name (ie. maps index '3' to index '5' if there are two unnamed groups in between)
+  ezUInt32 GetNamedGroupIndex(ezUInt32 uiGroup) const;
+
+  /// \brief Returns -1 if no group with the given name exists.
+  ezInt32 GetFilterGroupByName(const char* szName) const;
+
+  /// \brief Searches for a group without a name and returns the index or -1 if none found.
+  ezInt32 FindUnnamedGroup() const;
+
+  void Save(ezStreamWriter& stream) const;
+  void Load(ezStreamReader& stream);
+
+  ezResult Save(const char* szFile) const;
+  ezResult Load(const char* szFile);
 
 
 private:
-  ezStaticArray<ezUInt32, 32> m_GroupMasks;
-  ezStaticArray<ezString, 32> m_GroupNames;
+  ezUInt32 m_GroupMasks[32];
+  char m_GroupNames[32][32];
+
+
 };
 
 

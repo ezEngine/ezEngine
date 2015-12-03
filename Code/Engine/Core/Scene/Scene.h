@@ -14,6 +14,7 @@ public:
   void Initialize(const char* szWorldName);
   void Deinitialize();
   void Update();
+  void ReinitSceneModules();
 
   ezWorld* GetWorld() const { return m_pWorld; }
 

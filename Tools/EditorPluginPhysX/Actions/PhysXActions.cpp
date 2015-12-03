@@ -64,7 +64,7 @@ void ezPhysXAction::Execute(const ezVariant& value)
   {
     ezPhysXInterface* pPhysX = ezAbstractInterfaceRegistry::RetrieveImplementationForInterface<ezPhysXInterface>("ezPhysXInterface");
 
-    ezPhysxProjectSettingsDlg dlg(&pPhysX->GetCollisionFilterConfig(), nullptr);
+    ezPhysxProjectSettingsDlg dlg(nullptr);
     dlg.exec();
   }
 

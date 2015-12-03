@@ -11,19 +11,24 @@ public:
   Q_OBJECT
 
 public:
-  ezPhysxProjectSettingsDlg(ezCollisionFilterConfig* pFilterCfg, QWidget* parent);
+  ezPhysxProjectSettingsDlg(QWidget* parent);
 
 private slots:
   void onCheckBoxClicked(bool checked);
   void on_DefaultButtons_clicked(QAbstractButton* pButton);
   void on_ButtonAddLayer_clicked();
   void on_ButtonRemoveLayer_clicked();
+  void on_ButtonRenameLayer_clicked();
+  void on_FilterTable_itemSelectionChanged();
 
 private:
   void SetupTable();
+  ezResult Save();
+  ezResult Load();
 
+  ezUInt32 m_IndexRemap[32];
   ezCollisionFilterConfig m_Config;
-  ezCollisionFilterConfig* m_pFilterCfg;
+  ezCollisionFilterConfig m_ConfigReset;
 };
 
 

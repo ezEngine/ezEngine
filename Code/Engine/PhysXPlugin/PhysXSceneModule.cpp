@@ -95,6 +95,13 @@ void ezPhysXSceneModule::InternalUpdate()
   }
 }
 
+
+void ezPhysXSceneModule::InternalReinit()
+{
+  ezPhysX::GetSingleton()->ReloadCollisionFilters();
+
+}
+
 void ezPxAllocatorCallback::VerifyAllocations()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -107,3 +114,4 @@ void ezPxAllocatorCallback::VerifyAllocations()
   }
 #endif
 }
+
