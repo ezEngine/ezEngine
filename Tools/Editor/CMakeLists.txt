@@ -42,6 +42,7 @@ SET (ADDITIONAL_DEPENDENCIES
   EditorPluginAssets
   EditorPluginPhysX
   PhysXPlugin
+  FmodPlugin
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)

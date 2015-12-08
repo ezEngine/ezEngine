@@ -242,6 +242,7 @@ set (EZ_USE_VISUALD OFF CACHE BOOL "If VisualD is installed on the system and sh
 set (EZ_BUILD_SAMPLES ON CACHE BOOL "Whether sample projects should be added to the solution")
 set (EZ_BUILD_UNITTESTS ON CACHE BOOL "Whether unit-test projects should be added to the solution")
 set (EZ_BUILD_PHYSX OFF CACHE BOOL "Whether support for nVidia PhysX should be added")
+set (EZ_BUILD_FMOD OFF CACHE BOOL "Whether support for FMod should be added")
 
 set (EZ_OUTPUT_DIRECTORY_LIB "${CMAKE_SOURCE_DIR}/Output/Lib" CACHE PATH "Where to store the compiled .lib files.")
 set (EZ_OUTPUT_DIRECTORY_DLL "${CMAKE_SOURCE_DIR}/Output/Bin" CACHE PATH "Where to store the compiled .dll files.")
