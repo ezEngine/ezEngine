@@ -2,6 +2,7 @@
 
 #include <Core/World/Implementation/SpatialData.h>
 #include <Core/World/Implementation/WorldData.h>
+#include <Foundation/Time/Clock.h>
 
 /// \brief A world encapsulates a scene graph of game objects and various component managers and their components.
 ///
@@ -157,6 +158,12 @@ public:
   /// \brief Used by component managers to queue a new component for initialization during the next update
   void AddComponentToInitialize(ezComponentHandle hComponent);
 
+  /// \brief Returns the clock that is used for all updates in this game world
+  ezClock& GetClock() { return m_Clock; }
+
+  /// \brief Returns the clock that is used for all updates in this game world
+  const ezClock& GetClock() const { return m_Clock; }
+
 public:
   /// \brief Returns the number of active worlds.
   static ezUInt32 GetWorldCount();
@@ -194,6 +201,9 @@ private:
 
   // if true, the full simulation should be executed, otherwise only the rendering related updates should be done
   bool m_bSimulateWorld;
+
+  // the timer that is used for all world and component updates
+  ezClock m_Clock;
 
   ezProfilingId m_UpdateProfilingID;
   ezDelegateTask<void> m_UpdateTask;

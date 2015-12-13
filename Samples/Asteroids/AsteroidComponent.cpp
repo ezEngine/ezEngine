@@ -17,7 +17,7 @@ AsteroidComponent::AsteroidComponent()
 
 void AsteroidComponent::Update()
 {
-  const float fTimeDiff = (float)ezClock::Get()->GetTimeDiff().GetSeconds();
+  const float fTimeDiff = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
 
   ezQuat qRot;
   qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Radian(m_fRotationSpeed * fTimeDiff));

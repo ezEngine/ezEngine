@@ -16,7 +16,8 @@ ezStaticArray<ezWorld*, 64> ezWorld::s_Worlds;
 
 ezWorld::ezWorld(const char* szWorldName) :
   m_UpdateTask("", ezMakeDelegate(&ezWorld::UpdateFromThread, this)),
-  m_Data(szWorldName)
+  m_Data(szWorldName),
+  m_Clock(szWorldName)
 {
   m_Data.m_pCoordinateSystemProvider->m_pOwnerWorld = this;
 
@@ -220,7 +221,7 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& m
   QueuedMsgMetaData metaData;
   metaData.m_ReceiverObject = receiverObject;
   metaData.m_Routing = routing;
-  metaData.m_Due = ezClock::Get(ezGlobalClock_GameLogic)->GetAccumulatedTime() + delay;
+  metaData.m_Due = m_Clock.GetAccumulatedTime() + delay;
 
   ezMessage* pMsgCopy = msg.Clone(&m_Data.m_Allocator);
   m_Data.m_TimedMessageQueues[queueType].Enqueue(pMsgCopy, metaData);
@@ -233,6 +234,9 @@ void ezWorld::Update()
 
   EZ_LOG_BLOCK(m_Data.m_sName.GetData());
   EZ_PROFILE(m_UpdateProfilingID);
+
+  m_Clock.SetPaused(!m_bSimulateWorld);
+  m_Clock.Update();
 
   if (m_bSimulateWorld)
   {
@@ -304,8 +308,14 @@ void ezWorld::Update()
 
   // update transforms
   {
+    float fInvDelta = 0.0f;
+
+    // when the clock is paused just use zero
+    if (m_Clock.GetTimeDiff().GetSeconds() > 0.0)
+      fInvDelta = 1.0f / (float)m_Clock.GetTimeDiff().GetSeconds();
+
     EZ_PROFILE(s_UpdateTransformsProfilingID);
-    m_Data.UpdateGlobalTransforms();
+    m_Data.UpdateGlobalTransforms(fInvDelta);
   }
 
   // post-transform phase
@@ -439,7 +449,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
     ezInternal::WorldData::MessageQueue& queue = m_Data.m_TimedMessageQueues[queueType];
     queue.Sort(MessageComparer());
 
-    ezTime now = ezClock::Get(ezGlobalClock_GameLogic)->GetAccumulatedTime();
+    const ezTime now = m_Clock.GetAccumulatedTime();
 
     while (!queue.IsEmpty())
     {

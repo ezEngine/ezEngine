@@ -53,6 +53,7 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
       }
     }
 
+    GetScene()->GetWorld()->GetClock().SetSpeed(msg->m_fSimulationSpeed);
     GetScene()->Update();
 
     return;

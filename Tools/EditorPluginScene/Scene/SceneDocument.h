@@ -117,6 +117,7 @@ public:
       ExportScene,
       SimulateModeChanged,
       RenderSelectionOverlayChanged,
+      SimulationSpeedChanged,
     };
 
     Type m_Type;
@@ -131,6 +132,9 @@ public:
 
   bool GetSimulateWorld() const { return m_bSimulateWorld; }
   void SetSimulateWorld(bool b);
+
+  float GetSimulationSpeed() const { return m_fSimulationSpeed; }
+  void SetSimulationSpeed(float f);
 
   bool GetRenderSelectionOverlay() const { return m_bRenderSelectionOverlay; }
   void SetRenderSelectionOverlay( bool b );
@@ -179,6 +183,7 @@ private:
   bool m_bIsPrefab;
   bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
   bool m_bSimulateWorld;
+  float m_fSimulationSpeed;
   bool m_bRenderSelectionOverlay;
 
   ActiveGizmo m_ActiveGizmo;

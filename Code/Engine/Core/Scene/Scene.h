@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Basics.h>
+#include <Foundation/Time/DefaultTimeStepSmoothing.h>
 
 class ezWorld;
 class ezSceneModule;
@@ -22,7 +23,7 @@ protected:
   void CreateSceneModules();
   void DestroySceneModules();
 
-
+  ezDefaultTimeStepSmoothing m_TimeStepSmoothing;
   ezHybridArray<ezSceneModule*, 8> m_SceneModules;
   ezWorld* m_pWorld;
 };

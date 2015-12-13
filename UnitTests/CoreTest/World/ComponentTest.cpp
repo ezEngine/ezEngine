@@ -126,8 +126,6 @@ namespace
 
 EZ_CREATE_SIMPLE_TEST(World, Components)
 {
-  ezClock::SetNumGlobalClocks();
-
   ezWorld world("TestComp");
   EZ_LOCK(world.GetWriteMarker());
 

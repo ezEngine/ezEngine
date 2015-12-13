@@ -80,7 +80,7 @@ namespace ezInternal
     static void UpdateGlobalTransform(ezGameObject::TransformationData* pData, float fInvDeltaSeconds);
     static void UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, float fInvDeltaSeconds);
 
-    void UpdateGlobalTransforms();
+    void UpdateGlobalTransforms(float fInvDeltaSeconds);
 
     // game object lookups
     /// \todo

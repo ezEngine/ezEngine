@@ -52,9 +52,9 @@ void ezSliderComponent::Update()
     }
 
     if (m_Flags.IsAnySet(ezTransformComponentFlags::AnimationReversed))
-      m_AnimationTime -= ezClock::Get()->GetTimeDiff();
+      m_AnimationTime -= GetWorld()->GetClock().GetTimeDiff();
     else
-      m_AnimationTime += ezClock::Get()->GetTimeDiff();
+      m_AnimationTime += GetWorld()->GetClock().GetTimeDiff();
 
     const float fNewDistance = CalculateAcceleratedMovement(m_fDistanceToTravel, m_fAcceleration, m_fAnimationSpeed, m_fDeceleration, m_AnimationTime);
 

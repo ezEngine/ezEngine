@@ -234,7 +234,7 @@ bool WorldData::TraverseObjectDepthFirst(ezGameObject* pObject, VisitorFunc& fun
   return true;
 }
 
-void WorldData::UpdateGlobalTransforms()
+void WorldData::UpdateGlobalTransforms(float fInvDeltaSeconds)
 {
   struct RootLevel
   {
@@ -253,8 +253,6 @@ void WorldData::UpdateGlobalTransforms()
       return true;
     }
   };
-
-  float fInvDeltaSeconds = 1.0f / (float)ezClock::Get(ezGlobalClock_GameLogic)->GetTimeDiff().GetSeconds();
 
   Hierarchy& hierarchy = m_Hierarchies[HierarchyType::Dynamic];
   if (!hierarchy.m_Data.IsEmpty())

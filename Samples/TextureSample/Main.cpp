@@ -113,8 +113,6 @@ public:
 
     EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
 
-    ezClock::SetNumGlobalClocks();
-
     // Register Input
     {
       ezInputActionConfig cfg;
@@ -164,7 +162,7 @@ public:
     {
       ezGALDeviceCreationDescription DeviceInit;
       DeviceInit.m_bCreatePrimarySwapChain = true;
-      DeviceInit.m_bDebugDevice = true;
+      DeviceInit.m_bDebugDevice = false; // On Windows 10 this makes device creation fail :-(
       DeviceInit.m_PrimarySwapChainDescription.m_pWindow = m_pWindow;
       DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = ezGALMSAASampleCount::None;
       DeviceInit.m_PrimarySwapChainDescription.m_bCreateDepthStencilBuffer = true;
@@ -262,7 +260,7 @@ public:
       return ApplicationExecution::Quit;
 
     // make sure time goes on
-    ezClock::UpdateAllGlobalClocks();
+    ezClock::GetGlobalClock()->Update();
 
     if (ezInputManager::GetInputActionState("Main", "MouseDown") == ezKeyState::Down)
     {
@@ -280,7 +278,7 @@ public:
     }
 
     // update all input state
-    ezInputManager::Update(ezClock::Get()->GetTimeDiff());
+    ezInputManager::Update(ezClock::GetGlobalClock()->GetTimeDiff());
 
     // make sure telemetry is sent out regularly
     ezTelemetry::PerFrameUpdate();

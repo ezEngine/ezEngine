@@ -200,12 +200,6 @@ void ezGameApplication::AfterEngineInit()
 #endif
   }
 
-  // init clocks
-  {
-    ezClock::SetNumGlobalClocks();
-    ezClock::Get()->SetTimeStepSmoothing(&m_TimeStepSmoother);
-  }
-
   // create some input actions
   {
     ezInputActionConfig config;
@@ -273,8 +267,7 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
 
 void ezGameApplication::UpdateWorldsAndRender()
 {
-  ///\todo: there should also be a clock per world
-  ezClock::UpdateAllGlobalClocks();
+  ezClock::GetGlobalClock()->Update();
 
   ezTaskGroupID updateTaskID;
   if (ezRenderLoop::GetUseMultithreadedRendering())
@@ -325,7 +318,7 @@ void ezGameApplication::UpdateWorldsAndRender()
 
 void ezGameApplication::UpdateInput()
 {
-  ezInputManager::Update(ezClock::Get()->GetTimeDiff());
+  ezInputManager::Update(ezClock::GetGlobalClock()->GetTimeDiff());
 
   if (ezInputManager::GetInputActionState(g_szInputSet, g_szCloseAppAction) == ezKeyState::Pressed)
   {

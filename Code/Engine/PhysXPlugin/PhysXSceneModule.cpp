@@ -83,7 +83,7 @@ void ezPhysXSceneModule::InternalUpdate()
   if (!GetWorld()->GetWorldSimulationEnabled())
     return;
 
-  ezTime tDiff = ezClock::Get(ezGlobalClock_GameLogic)->GetTimeDiff();
+  ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
   m_AccumulatedTimeSinceUpdate += tDiff;
 
   const ezTime tStep = ezTime::Seconds(1.0 / 60.0);

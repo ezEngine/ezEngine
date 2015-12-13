@@ -75,7 +75,6 @@ namespace
 
 EZ_CREATE_SIMPLE_TEST(World, Messaging)
 {
-  ezClock::SetNumGlobalClocks();
   ezWorld world("Test");
   EZ_LOCK(world.GetWriteMarker());
 
@@ -263,7 +262,6 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
       pRoot->PostMessage(msg2, ezObjectMsgQueueType::NextFrame);
     }
 
-    ezClock::UpdateAllGlobalClocks();
     world.Update();
 
     TestComponentMsg* pComponent = nullptr;
@@ -289,7 +287,7 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
       pRoot->PostMessage(msg2, ezObjectMsgQueueType::NextFrame, ezTime::Seconds(i+1));
     }
 
-    ezClock::Get(ezGlobalClock_GameLogic)->SetFixedTimeStep(ezTime::Seconds(1.0f));
+    world.GetClock().SetFixedTimeStep(ezTime::Seconds(1.0f));
 
     int iDesiredValue = 1;
     int iDesiredValue2 = 2;
@@ -299,7 +297,6 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
       iDesiredValue += i;
       iDesiredValue2 += i * 2;
 
-      ezClock::UpdateAllGlobalClocks();
       world.Update();
 
       TestComponentMsg* pComponent = nullptr;

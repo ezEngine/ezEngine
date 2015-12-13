@@ -18,6 +18,7 @@ void ezScene::Initialize(const char* szWorldName)
   CreateSceneModules();
 
   m_pWorld = EZ_DEFAULT_NEW(ezWorld, szWorldName);
+  m_pWorld->GetClock().SetTimeStepSmoothing(&m_TimeStepSmoothing);
 
   // scene modules will most likely register component managers, so just mark it for write once here
   EZ_LOCK(m_pWorld->GetWriteMarker());

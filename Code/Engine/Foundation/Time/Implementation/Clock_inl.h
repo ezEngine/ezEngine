@@ -12,11 +12,6 @@ inline const char* ezClock::GetClockName() const
   return m_sName.GetData();
 }
 
-EZ_FORCE_INLINE ezClock* ezClock::Get(ezUInt32 uiClock)
-{
-  return &s_GlobalClocks[uiClock];
-}
-
 inline void ezClock::SetTimeStepSmoothing(ezTimeStepSmoothing* pSmoother)
 {
   m_pTimeStepSmoother = pSmoother;

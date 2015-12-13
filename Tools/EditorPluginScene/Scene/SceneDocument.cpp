@@ -28,6 +28,7 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab) : e
   m_ActiveGizmo = ActiveGizmo::None;
   m_bIsPrefab = bIsPrefab;
   m_bSimulateWorld = false;
+  m_fSimulationSpeed = 1.0f;
   m_bGizmoWorldSpace = true;
 }
 
@@ -292,6 +293,20 @@ void ezSceneDocument::SetSimulateWorld(bool b)
   SceneEvent e;
   e.m_Type = SceneEvent::Type::SimulateModeChanged;
   m_SceneEvents.Broadcast(e);
+}
+
+
+void ezSceneDocument::SetSimulationSpeed(float f)
+{
+  if (m_fSimulationSpeed == f)
+    return;
+
+  m_fSimulationSpeed = f;
+
+  SceneEvent e;
+  e.m_Type = SceneEvent::Type::SimulationSpeedChanged;
+  m_SceneEvents.Broadcast(e);
+
 }
 
 void ezSceneDocument::SetRenderSelectionOverlay(bool b)

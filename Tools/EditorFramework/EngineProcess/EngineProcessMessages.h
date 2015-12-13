@@ -258,6 +258,7 @@ class EZ_EDITORFRAMEWORK_DLL ezSceneSettingsMsgToEngine : public ezEditorEngineD
 public:
 
   bool m_bSimulateWorld;
+  float m_fSimulationSpeed;
   bool m_bRenderOverlay;
 };
 

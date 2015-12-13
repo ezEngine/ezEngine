@@ -21,6 +21,8 @@ public:
   static ezActionDescriptorHandle s_hRunScene;
   static ezActionDescriptorHandle s_hEnableWorldSimulation;
   static ezActionDescriptorHandle s_hRenderSelectionOverlay;
+  static ezActionDescriptorHandle s_hSimulationSpeedMenu;
+  static ezActionDescriptorHandle s_hSimulationSpeed[10];
 };
 
 ///
@@ -37,9 +39,10 @@ public:
     RunScene,
     SimulateWorld,
     RenderSelectionOverlay,
+    SimulationSpeed,
   };
 
-  ezSceneAction(const ezActionContext& context, const char* szName, ActionType type);
+  ezSceneAction(const ezActionContext& context, const char* szName, ActionType type, float fSimSpeed = 1.0f);
   ~ezSceneAction();
 
   virtual void Execute(const ezVariant& value) override;
@@ -47,6 +50,7 @@ public:
 private:
   void SceneEventHandler(const ezSceneDocument::SceneEvent& e);
 
+  float m_fSimSpeed;
   ezSceneDocument* m_pSceneDocument;
   ActionType m_Type;
 };

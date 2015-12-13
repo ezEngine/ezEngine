@@ -1,41 +1,18 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Time/Clock.h>
 
-ezDynamicArray<ezClock> ezClock::s_GlobalClocks;
+ezClock ezClock::s_GlobalClock("Global");
 ezClock::Event ezClock::s_TimeEvents;
-ezUInt32 ezClock::s_uiClockCount = 0;
 
-void ezClock::SetNumGlobalClocks(ezUInt32 uiNumClocks)
+
+ezClock* ezClock::GetGlobalClock()
 {
-  const bool bEmpty = s_GlobalClocks.IsEmpty();
-
-  s_GlobalClocks.SetCount(uiNumClocks);
-
-  if (bEmpty)
-  {
-    if (uiNumClocks > 0)
-      s_GlobalClocks[0].SetClockName("GameLogic");
-    if (uiNumClocks > 1)
-      s_GlobalClocks[1].SetClockName("UI");
-  }
+  return &s_GlobalClock;
 }
 
-void ezClock::UpdateAllGlobalClocks()
+ezClock::ezClock(const char* szName)
 {
-  if (s_GlobalClocks.IsEmpty())
-    SetNumGlobalClocks();
-
-  for (ezUInt32 i = 0; i < s_GlobalClocks.GetCount(); ++i)
-    s_GlobalClocks[i].Update();
-}
-
-ezClock::ezClock()
-{
-  ++s_uiClockCount;
-
-  ezStringBuilder sName;
-  sName.Format("Clock %i", s_uiClockCount);
-  SetClockName(sName.GetData());
+  SetClockName(szName);
 
   Reset(true);
 }

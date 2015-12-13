@@ -107,8 +107,6 @@ public:
 
 EZ_CREATE_SIMPLE_TEST(World, World)
 {
-  ezClock::SetNumGlobalClocks();
-  
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GameObject parenting")
   {
     ezWorld world("Test");

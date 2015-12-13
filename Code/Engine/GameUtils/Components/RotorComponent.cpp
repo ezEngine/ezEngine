@@ -54,9 +54,9 @@ void ezRotorComponent::Update()
     if (m_iDegreeToRotate > 0)
     {
       if (m_Flags.IsAnySet(ezTransformComponentFlags::AnimationReversed))
-        m_AnimationTime -= ezClock::Get()->GetTimeDiff();
+        m_AnimationTime -= GetWorld()->GetClock().GetTimeDiff();
       else
-        m_AnimationTime += ezClock::Get()->GetTimeDiff();
+        m_AnimationTime += GetWorld()->GetClock().GetTimeDiff();
 
       const float fNewDistance = CalculateAcceleratedMovement((float)m_iDegreeToRotate, m_fAcceleration, m_fAnimationSpeed, m_fDeceleration, m_AnimationTime);
 
@@ -108,7 +108,7 @@ void ezRotorComponent::Update()
     }
     else
     {
-      m_AnimationTime += ezClock::Get()->GetTimeDiff();
+      m_AnimationTime += GetWorld()->GetClock().GetTimeDiff();
 
       /// \todo This will probably give precision issues pretty quickly
 

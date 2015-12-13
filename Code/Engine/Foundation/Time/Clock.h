@@ -10,39 +10,18 @@
 
 class ezTimeStepSmoothing;
 
-// Defines, aka 'Extensible Enums':
-#define ezGlobalClock_GameLogic   0     ///< Index for the global clock that is used for game logic (by default)
-#define ezGlobalClock_UI          1     ///< Index for the global clock that is used for updating UIs and other things that shall run in real time (by default)
-#define ezGlobalClockCount        2     ///< By default this many global clocks are created.
-
 /// \brief A clock that can be speed up, slowed down, paused, etc. Useful for updating game logic, rendering, etc.
 class EZ_FOUNDATION_DLL ezClock
 {
 public:
 
-  /// \brief Will call ezClock::Update() on all clocks that were created using SetNumGlobalClocks().
-  /// If SetNumGlobalClocks() has never been called before, this function will call it (with the default clock count to set up).
-  /// \note Only call this when you really want to step all global clocks in your game at the same time.
-  /// If you decouple game state updates and rendering, you need to step each clock separately.
-  static void UpdateAllGlobalClocks();
-
-  /// \brief Sets the given number of clocks in a global array for easy access by all code.
-  ///
-  /// You should call this function once at startup before any game code is run to create all the global clocks that
-  /// your game provides. You should never have to call that function again afterwards, as the different 'time zones'
-  /// that are used in your game should be fixed.
-  /// Then all your game code can access these clocks using the Get() function.
-  /// If some piece of code needs an additional clock for its specific purposes, it should NOT use the global clock
-  /// array for that, but instead just hold an instance of ezClock itself.
-  static void SetNumGlobalClocks(ezUInt32 uiNumClocks = ezGlobalClockCount);
-
-  /// \brief Returns the global clock with the given index. Does NOT ensure that clock exists (will assert).
-  static ezClock* Get(ezUInt32 uiGlobalClock = ezGlobalClock_GameLogic);
+  /// \brief Returns the global clock.
+  static ezClock* GetGlobalClock();
 
 public:
 
   /// \brief Constructor.
-  ezClock(); // [tested]
+  ezClock(const char* szName); // [tested]
 
   /// \brief Resets all values to their default. E.g. call this after a new level has loaded to start fresh.
   ///
@@ -170,11 +149,9 @@ public:
 
 private:
 
-  static ezDynamicArray<ezClock> s_GlobalClocks;
+  static ezClock s_GlobalClock;
 
   static Event s_TimeEvents;
-
-  static ezUInt32 s_uiClockCount;
 
   ezString m_sName;
 

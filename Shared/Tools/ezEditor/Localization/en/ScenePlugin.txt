@@ -57,3 +57,14 @@ Prefabs.Create;Create Prefab...
 Prefabs.Revert;Revert Prefab
 Prefabs.OpenDocument;Edit Prefab...
 Prefabs.Unlink;Unlink from Template
+Scene.Simulation.Speed.Menu;Simulation Speed
+Scene.Simulation.Speed.01;10%
+Scene.Simulation.Speed.025;25%
+Scene.Simulation.Speed.05;50%
+Scene.Simulation.Speed.1;100%
+Scene.Simulation.Speed.15;150%
+Scene.Simulation.Speed.2;200%
+Scene.Simulation.Speed.3;300%
+Scene.Simulation.Speed.4;400%
+Scene.Simulation.Speed.5;500%
+Scene.Simulation.Speed.10;1000%

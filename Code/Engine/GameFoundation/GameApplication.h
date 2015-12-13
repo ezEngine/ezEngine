@@ -69,8 +69,6 @@ private:
 
   ezDynamicArray<WindowContext> m_Windows;
 
-  ezDefaultTimeStepSmoothing m_TimeStepSmoother;
-
   ezGameState* m_pCurrentGameState;
 
   bool m_bWasQuitRequested;
