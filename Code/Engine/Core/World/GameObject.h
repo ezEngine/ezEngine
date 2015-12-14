@@ -178,6 +178,9 @@ public:
   const ezTransform& GetGlobalTransform() const;
 
   void SetVelocity(const ezVec3& vVelocity);
+
+  /// \brief Returns the velocity of the object in units per second. This is not only the diff between last frame's position and this frame's position, but
+  ///        also the time difference is divided out.
   const ezVec3& GetVelocity() const;
 
   /// \brief Updates the global transform immediately. Usually this done during the world update after the "Post-async" phase.

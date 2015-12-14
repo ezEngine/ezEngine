@@ -15,6 +15,9 @@ public:
   void Startup();
   void Shutdown();
 
+  virtual void SetNumListeners(ezUInt8 uiNumListeners) override;
+  virtual ezUInt8 GetNumListeners() override;
+
   FMOD::Studio::System* GetSystem() const { return m_pFmodSystem; }
   FMOD::System* GetLowLevelSystem() const { return m_pLowLevelSystem; }
 

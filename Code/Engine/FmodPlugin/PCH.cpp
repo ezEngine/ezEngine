@@ -2,6 +2,7 @@
 #include <Core/PCH.h>
 #include <FmodPlugin/Basics.h>
 #include <FmodPlugin/FmodSceneModule.h>
+#include <CoreUtils/Localization/TranslationLookup.h>
 
 EZ_STATICLINK_LIBRARY(Fmod)
 {

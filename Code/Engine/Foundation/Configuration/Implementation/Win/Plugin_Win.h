@@ -69,6 +69,11 @@
       else
         ezLog::Error("Could not load plugin '%s'. Error-Code %u / 0x%08X", szPluginFile, err, err);
 
+      if (err == 126)
+      {
+        ezLog::Error("Please Note: This means that the plugin exists, but a DLL dependency of the plugin is missing. You probably need to copy 3rd party DLLs next to the plugin.");
+      }
+
       LocalFree(lpMsgBuf);
 
       return EZ_FAILURE;

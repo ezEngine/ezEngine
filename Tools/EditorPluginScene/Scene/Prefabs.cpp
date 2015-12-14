@@ -222,6 +222,7 @@ void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid
 
 
     // debug output
+    if (false)
     {
       {
         ezFileWriter file;
@@ -246,6 +247,7 @@ void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid
     graphCurrentInstance.CreateDiffWithBaseGraph(graphBasePrefab, DiffToBase);
 
     // debug output
+    if (false)
     {
       ezFileWriter file3;
       file3.Open("D:\\Prefab - diff.txt");
@@ -298,6 +300,7 @@ void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid
     }
 
     // debug output
+    if (false)
     {
       ezFileWriter file4;
       file4.Open("D:\\Prefab - result.txt");

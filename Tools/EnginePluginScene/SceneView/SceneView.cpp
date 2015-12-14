@@ -207,7 +207,7 @@ void ezSceneViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
   const ezUInt32 uiWindowHeight = GetEditorWindow().m_uiHeight;
   const ezUInt32 uiIndex = (y * uiWindowWidth) + x;
 
-  if (uiIndex > m_PickingResultsID.GetCount())
+  if (uiIndex >= m_PickingResultsID.GetCount())
   {
     //ezLog::Error("Picking position %u, %u is outside the available picking area of %u * %u", x, y, uiWindowWidth, uiWindowHeight);
   }

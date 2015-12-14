@@ -13,5 +13,5 @@
 
 #include <fmod_studio.hpp>
 
-#define FMOD_CHECK(res) EZ_VERIFY((res) == FMOD_OK, "Fmod failed with error code %u", res)
+#define EZ_FMOD_ASSERT(res) EZ_VERIFY((res) == FMOD_OK, "Fmod failed with error code %u", res)
 
