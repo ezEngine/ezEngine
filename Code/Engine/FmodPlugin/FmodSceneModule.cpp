@@ -4,23 +4,40 @@
 #include <FmodPlugin/Components/FmodEventComponent.h>
 #include <FmodPlugin/Components/FmodListenerComponent.h>
 #include <FmodPlugin/Components/FmodReverbComponent.h>
+#include <FmodPlugin/Resources/FmodSoundBankResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodSceneModule, 1, ezRTTIDefaultAllocator<ezFmodSceneModule>);
   // no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+ezFmodSoundBankResourceHandle hRes[5];
 
 void ezFmodSceneModule::InternalStartup()
 {
+  hRes[0] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/Master Bank.bank");
+  hRes[1] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/Master Bank.strings.bank");
+  hRes[2] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/Surround_Ambience.bank");
+  hRes[3] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/UI_Menu.bank");
+  hRes[4] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/Weapons.bank");
+
   GetWorld()->CreateComponentManager<ezFmodEventComponentManager>()->SetUserData(this);
   GetWorld()->CreateComponentManager<ezFmodListenerComponentManager>()->SetUserData(this);
   GetWorld()->CreateComponentManager<ezFmodReverbComponentManager>()->SetUserData(this);
+
+  for (int i = 0; i < 5; ++i)
+  {
+    ezResourceLock<ezFmodSoundBankResource> pRes(hRes[i]);
+  }
 
   InternalReinit();
 }
 
 void ezFmodSceneModule::InternalShutdown()
 {
+  for (int i = 0; i < 5; ++i)
+  {
+    hRes[i].Invalidate();
+  }
 }
 
 void ezFmodSceneModule::InternalUpdate()

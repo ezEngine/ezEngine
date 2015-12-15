@@ -1,17 +1,12 @@
 <RCC>
   <qresource prefix="AssetIcons">
-    <file>Collision_Mesh.png</file>
+    <file>Sound_Bank.png</file>
+	<file>Sound_Event.png</file>
   </qresource>
   <qresource prefix="TypeIcons">
-	<file>ezPxShapeCapsuleComponent.png</file>
-	<file>ezPxShapeBoxComponent.png</file>
-	<file>ezPxShapeSphereComponent.png</file>
-	<file>ezPxStaticActorComponent.png</file>
-	<file>ezPxDynamicActorComponent.png</file>
-	<file>ezPxDistanceJointComponent.png</file>
-	<file>ezPxFixedJointComponent.png</file>
-	<file>ezPxCenterOfMassComponent.png</file>
-	<file>ezPxShapeConvexComponent.png</file>
+	<file>ezFmodEventComponent.png</file>
+	<file>ezFmodListenerComponent.png</file>
+	<file>ezFmodReverbComponent.png</file>
   </qresource>  
 </RCC>
 

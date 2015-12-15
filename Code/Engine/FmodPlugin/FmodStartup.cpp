@@ -1,6 +1,9 @@
 #include <FmodPlugin/PCH.h>
 #include <Foundation/Configuration/Startup.h>
 #include <FmodPlugin/FmodSceneModule.h>
+#include <FmodPlugin/Resources/FmodSoundBankResource.h>
+
+static ezFmodSoundBankResourceLoader s_SoundBankResourceLoader;
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Fmod, FmodPlugin)
 
@@ -11,12 +14,14 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Fmod, FmodPlugin)
 
   ON_CORE_STARTUP
   {
+    ezResourceManager::SetResourceTypeLoader<ezFmodSoundBankResource>(&s_SoundBankResourceLoader);
     ezFmod::GetSingleton()->Startup();
   }
 
   ON_CORE_SHUTDOWN
   {
     ezFmod::GetSingleton()->Shutdown();
+  ezResourceManager::SetResourceTypeLoader<ezFmodSoundBankResource>(nullptr);
   }
 
   ON_ENGINE_STARTUP
