@@ -16,7 +16,7 @@ class EZ_FOUNDATION_DLL ezClock
 public:
 
   /// \brief Returns the global clock.
-  static ezClock* GetGlobalClock();
+  static ezClock* GetGlobalClock() { return s_pGlobalClock; }
 
 public:
 
@@ -148,10 +148,10 @@ public:
 
 
 private:
-
-  static ezClock s_GlobalClock;
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, Clock);
 
   static Event s_TimeEvents;
+  static ezClock* s_pGlobalClock;
 
   ezString m_sName;
 

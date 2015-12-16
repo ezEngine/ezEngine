@@ -1,14 +1,22 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Time/Clock.h>
+#include <Foundation/Configuration/Startup.h>
 
-ezClock ezClock::s_GlobalClock("Global");
 ezClock::Event ezClock::s_TimeEvents;
+ezClock* ezClock::s_pGlobalClock = nullptr;
 
+EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Clock)
 
-ezClock* ezClock::GetGlobalClock()
-{
-  return &s_GlobalClock;
-}
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "Time"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_BASE_STARTUP
+  {
+    ezClock::s_pGlobalClock = new ezClock("Global");
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION
 
 ezClock::ezClock(const char* szName)
 {
