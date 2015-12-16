@@ -2,8 +2,10 @@
 #include <Foundation/Configuration/Startup.h>
 #include <FmodPlugin/FmodSceneModule.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
+#include <FmodPlugin/Resources/FmodSoundEventResource.h>
 
 static ezFmodSoundBankResourceLoader s_SoundBankResourceLoader;
+static ezFmodSoundEventResourceLoader s_SoundEventResourceLoader;
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Fmod, FmodPlugin)
 
@@ -14,14 +16,18 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Fmod, FmodPlugin)
 
   ON_CORE_STARTUP
   {
+    /// \todo Setup 'missing' sound resource (fallback)
+
     ezResourceManager::SetResourceTypeLoader<ezFmodSoundBankResource>(&s_SoundBankResourceLoader);
+    ezResourceManager::SetResourceTypeLoader<ezFmodSoundEventResource>(&s_SoundEventResourceLoader);
     ezFmod::GetSingleton()->Startup();
   }
 
   ON_CORE_SHUTDOWN
   {
     ezFmod::GetSingleton()->Shutdown();
-  ezResourceManager::SetResourceTypeLoader<ezFmodSoundBankResource>(nullptr);
+    ezResourceManager::SetResourceTypeLoader<ezFmodSoundBankResource>(nullptr);
+    ezResourceManager::SetResourceTypeLoader<ezFmodSoundEventResource>(nullptr);
   }
 
   ON_ENGINE_STARTUP

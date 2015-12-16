@@ -1,8 +1,10 @@
 #pragma once
 
 #include <FmodPlugin/Components/FmodComponent.h>
+#include <Core/ResourceManager/Resource.h>
 
 typedef ezComponentManagerSimple<class ezFmodEventComponent, true> ezFmodEventComponentManager;
+typedef ezResourceHandle<class ezFmodSoundEventResource> ezFmodSoundEventResourceHandle;
 
 class EZ_FMODPLUGIN_DLL ezFmodEventComponent : public ezFmodComponent
 {
@@ -27,6 +29,12 @@ public:
   void SetVolume(float f);
   float GetVolume() const { return m_fVolume; }
 
+  void SetSoundEventFile(const char* szFile);
+  const char* GetSoundEventFile() const;
+
+  void SetSoundEvent(const ezFmodSoundEventResourceHandle& hSoundEvent);
+  const ezFmodSoundEventResourceHandle& GetSoundEvent() const { return m_hSoundEvent; }
+
   ezString m_sEvent;
 
   /// \todo Event Parameters (expose, modify)
@@ -35,6 +43,7 @@ protected:
   bool m_bPaused;
   float m_fPitch;
   float m_fVolume;
+  ezFmodSoundEventResourceHandle m_hSoundEvent;
   
 
   // ************************************* FUNCTIONS *****************************
@@ -43,6 +52,7 @@ public:
   virtual ezComponent::Initialization Initialize() override;
   virtual void Deinitialize() override;
 
+  void Restart();
   void StartOneShot();
 
   void StopSound();

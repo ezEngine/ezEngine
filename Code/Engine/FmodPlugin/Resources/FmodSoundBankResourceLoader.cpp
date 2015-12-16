@@ -1,7 +1,5 @@
 #include <FmodPlugin/PCH.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
-#include <CoreUtils/Assets/AssetFileHeader.h>
-#include <Foundation/IO/ChunkStream.h>
 #include <FmodPlugin/FmodSingleton.h>
 
 

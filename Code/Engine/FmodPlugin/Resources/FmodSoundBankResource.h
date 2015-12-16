@@ -18,7 +18,6 @@ public:
   ezFmodSoundBankResource();
   ~ezFmodSoundBankResource();
 
-
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
