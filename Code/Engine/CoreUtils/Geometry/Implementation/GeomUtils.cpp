@@ -229,6 +229,39 @@ void ezGeometry::AddBox(const ezVec3& size, const ezColor& color, const ezMat4& 
   AddPolygon(poly);
 }
 
+
+void ezGeometry::AddLineBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
+{
+  const ezVec3 halfSize = size * 0.5f;
+
+  ezUInt32 idx[8];
+
+  idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
+  idx[1] = AddVertex(ezVec3(halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
+  idx[2] = AddVertex(ezVec3(halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
+  idx[3] = AddVertex(ezVec3(-halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
+
+  idx[4] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+  idx[5] = AddVertex(ezVec3(halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+  idx[6] = AddVertex(ezVec3(halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+  idx[7] = AddVertex(ezVec3(-halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+
+  AddLine(0, 1);
+  AddLine(1, 2);
+  AddLine(2, 3);
+  AddLine(3, 0);
+
+  AddLine(4, 5);
+  AddLine(5, 6);
+  AddLine(6, 7);
+  AddLine(7, 4);
+
+  AddLine(0, 4);
+  AddLine(1, 5);
+  AddLine(2, 6);
+  AddLine(3, 7);
+}
+
 void ezGeometry::AddTexturedBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
   const ezVec3 halfSize = size * 0.5f;

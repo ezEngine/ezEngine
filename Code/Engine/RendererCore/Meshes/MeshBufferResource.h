@@ -35,8 +35,8 @@ public:
   /// \brief Use this function to add vertex streams to the mesh buffer. The return value is the index of the just added stream.
   ezUInt32 AddStream(ezGALVertexAttributeSemantic::Enum Semantic, ezGALResourceFormat::Enum Format);
 
-  /// \brief After all streams are added, call this to allocate the data for the streams. If uiNumTriangles is 0, the mesh buffer will not use indexed rendering.
-  void AllocateStreams(ezUInt32 uiNumVertices, ezUInt32 uiNumTriangles = 0);
+  /// \brief After all streams are added, call this to allocate the data for the streams. If uiNumPrimitives is 0, the mesh buffer will not use indexed rendering.
+  void AllocateStreams(ezUInt32 uiNumVertices, ezGALPrimitiveTopology::Enum topology = ezGALPrimitiveTopology::Triangles, ezUInt32 uiNumPrimitives = 0);
 
   /// \brief Gives read access to the allocated vertex data
   const ezDynamicArray<ezUInt8>& GetVertexBufferData() const;
@@ -60,6 +60,12 @@ public:
   {
     reinterpret_cast<TYPE&>(m_VertexStreamData[m_uiVertexSize * uiVertexIndex + m_VertexDeclaration.m_VertexStreams[uiStream].m_uiOffset]) = data;
   }
+
+  /// \brief Writes the vertex index for the given point into the index buffer.
+  void SetPointIndices(ezUInt32 uiPoint, ezUInt32 uiVertex0);
+
+  /// \brief Writes the two vertex indices for the given line into the index buffer.
+  void SetLineIndices(ezUInt32 uiLine, ezUInt32 uiVertex0, ezUInt32 uiVertex1);
 
   /// \brief Writes the three vertex indices for the given triangle into the index buffer.
   void SetTriangleIndices(ezUInt32 uiTriangle, ezUInt32 uiVertex0, ezUInt32 uiVertex1, ezUInt32 uiVertex2);
@@ -85,8 +91,11 @@ public:
   /// \brief Calculates the bounds using the data from the position stream
   ezBoundingBoxSphere ComputeBounds() const;
 
+  /// \brief Returns the primitive topology
+  ezGALPrimitiveTopology::Enum GetTopology() const { return m_Topology; }
 private:
 
+  ezGALPrimitiveTopology::Enum m_Topology;
   ezUInt32 m_uiVertexSize;
   ezUInt32 m_uiVertexCount;
   ezVertexDeclarationInfo m_VertexDeclaration;
@@ -117,6 +126,11 @@ public:
     return m_hIndexBuffer;
   }
 
+  EZ_FORCE_INLINE ezGALPrimitiveTopology::Enum GetTopology() const
+  {
+    return m_Topology;
+  }
+
   /// \brief Returns the vertex declaration used by this mesh buffer.
   const ezVertexDeclarationInfo& GetVertexDeclaration() const { return m_VertexDeclaration; }
 
@@ -134,5 +148,6 @@ private:
   ezUInt32 m_uiPrimitiveCount;
   ezGALBufferHandle m_hVertexBuffer;
   ezGALBufferHandle m_hIndexBuffer;
+  ezGALPrimitiveTopology::Enum m_Topology;
 };
 

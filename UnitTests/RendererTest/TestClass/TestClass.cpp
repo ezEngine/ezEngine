@@ -76,7 +76,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   // Create a device
   ezGALDeviceCreationDescription DeviceInit;
   DeviceInit.m_bCreatePrimarySwapChain = true;
-  DeviceInit.m_bDebugDevice = true;
+  DeviceInit.m_bDebugDevice = false;
   DeviceInit.m_PrimarySwapChainDescription.m_pWindow = m_pWindow;
   DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = ezGALMSAASampleCount::None;
   DeviceInit.m_PrimarySwapChainDescription.m_bCreateDepthStencilBuffer = true;
@@ -200,15 +200,33 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateMesh(const ezGeometry& geom, co
     return hMesh;
 
   ezDynamicArray<ezUInt16> Indices;
-  Indices.Reserve(geom.GetPolygons().GetCount() * 6);
+  ezGALPrimitiveTopology::Enum Topology = ezGALPrimitiveTopology::Triangles;
 
-  for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
+  if (geom.GetLines().GetCount() > 0)
+    Topology = ezGALPrimitiveTopology::Lines;
+
+  if (Topology == ezGALPrimitiveTopology::Triangles)
   {
-    for (ezUInt32 v = 0; v < geom.GetPolygons()[p].m_Vertices.GetCount() - 2; ++v)
+    Indices.Reserve(geom.GetPolygons().GetCount() * 6);
+
+    for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
     {
-      Indices.PushBack(geom.GetPolygons()[p].m_Vertices[0]);
-      Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 1]);
-      Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 2]);
+      for (ezUInt32 v = 0; v < geom.GetPolygons()[p].m_Vertices.GetCount() - 2; ++v)
+      {
+        Indices.PushBack(geom.GetPolygons()[p].m_Vertices[0]);
+        Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 1]);
+        Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 2]);
+      }
+    }
+  }
+  else if (Topology == ezGALPrimitiveTopology::Lines)
+  {
+    Indices.Reserve(geom.GetLines().GetCount() * 2);
+
+    for (ezUInt32 p = 0; p < geom.GetLines().GetCount(); ++p)
+    {
+      Indices.PushBack(geom.GetLines()[p].m_uiStartVertex);
+      Indices.PushBack(geom.GetLines()[p].m_uiEndVertex);
     }
   }
 
@@ -216,7 +234,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateMesh(const ezGeometry& geom, co
   desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
   desc.AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
 
-  desc.AllocateStreams(geom.GetVertices().GetCount(), Indices.GetCount() / 3);
+  desc.AllocateStreams(geom.GetVertices().GetCount(), Topology, Indices.GetCount() / (Topology + 1));
 
   for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
   {
@@ -224,9 +242,26 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateMesh(const ezGeometry& geom, co
     desc.SetVertexData<ezColorLinearUB>(1, v, geom.GetVertices()[v].m_Color);
   }
 
-  for (ezUInt32 t = 0; t < Indices.GetCount(); t += 3)
+  if (Topology == ezGALPrimitiveTopology::Triangles)
   {
-    desc.SetTriangleIndices(t / 3, Indices[t], Indices[t + 1], Indices[t + 2]);
+    for (ezUInt32 t = 0; t < Indices.GetCount(); t += 3)
+    {
+      desc.SetTriangleIndices(t / 3, Indices[t], Indices[t + 1], Indices[t + 2]);
+    }
+  }
+  else if (Topology == ezGALPrimitiveTopology::Lines)
+  {
+    for (ezUInt32 t = 0; t < Indices.GetCount(); t += 2)
+    {
+      desc.SetLineIndices(t / 2, Indices[t], Indices[t + 1]);
+    }
+  }
+  else if (Topology == ezGALPrimitiveTopology::Points)
+  {
+    for (ezUInt32 t = 0; t < Indices.GetCount(); t += 1)
+    {
+      desc.SetPointIndices(t, Indices[t]);
+    }
   }
 
   hMesh = ezResourceManager::CreateResource<ezMeshBufferResource>(szResourceName, desc, szResourceName);
@@ -236,9 +271,6 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateMesh(const ezGeometry& geom, co
 
 ezMeshBufferResourceHandle ezGraphicsTest::CreateSphere(ezInt32 iSubDivs, float fRadius)
 {
-  ezDynamicArray<ezVec3> Vertices;
-  ezDynamicArray<ezUInt16> Indices;
-
   ezMat4 mTrans;
   mTrans.SetIdentity();
 
@@ -253,9 +285,6 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateSphere(ezInt32 iSubDivs, float 
 
 ezMeshBufferResourceHandle ezGraphicsTest::CreateTorus(ezInt32 iSubDivs, float fInnerRadius, float fOuterRadius)
 {
-  ezDynamicArray<ezVec3> Vertices;
-  ezDynamicArray<ezUInt16> Indices;
-
   ezMat4 mTrans;
   mTrans.SetIdentity();
 
@@ -270,9 +299,6 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateTorus(ezInt32 iSubDivs, float f
 
 ezMeshBufferResourceHandle ezGraphicsTest::CreateBox(float fWidth, float fHeight, float fDepth)
 {
-  ezDynamicArray<ezVec3> Vertices;
-  ezDynamicArray<ezUInt16> Indices;
-
   ezMat4 mTrans;
   mTrans.SetIdentity();
 
@@ -281,6 +307,20 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateBox(float fWidth, float fHeight
 
   ezStringBuilder sName;
   sName.Format("Box_%.1f_%.1f_%.1f", fWidth, fHeight, fDepth);
+
+  return CreateMesh(geom, sName);
+}
+
+ezMeshBufferResourceHandle ezGraphicsTest::CreateLineBox(float fWidth, float fHeight, float fDepth)
+{
+  ezMat4 mTrans;
+  mTrans.SetIdentity();
+
+  ezGeometry geom;
+  geom.AddLineBox(ezVec3(fWidth, fHeight, fDepth), ezColorLinearUB(255, 255, 255), mTrans);
+
+  ezStringBuilder sName;
+  sName.Format("LineBox_%.1f_%.1f_%.1f", fWidth, fHeight, fDepth);
 
   return CreateMesh(geom, sName);
 }

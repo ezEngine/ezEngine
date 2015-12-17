@@ -100,6 +100,9 @@ public:
   /// \brief Adds an untextured box (8 vertices).
   void AddBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
+  /// \brief Adds box out of lines (8 vertices).
+  void AddLineBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+
   /// \brief Adds a box that has UV coordinates set (24 vertices).
   void AddTexturedBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 

@@ -59,9 +59,10 @@ struct ezGALPrimitiveTopology
 {
   enum Enum
   {
-    Triangles,
-
-    /// \todo
+    // keep this order, it is used to allocate the desired number of indices in ezMeshBufferResourceDescriptor::AllocateStreams
+    Points,     // 1 index per primitive
+    Lines,      // 2 indices per primitive
+    Triangles,  // 3 indices per primitive
 
     ENUM_COUNT
   };

@@ -179,7 +179,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(const ezMeshAssetProperties* pProp,
   desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
   desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
 
-  desc.MeshBufferDesc().AllocateStreams(geom.GetVertices().GetCount(), Indices.GetCount() / 3);
+  desc.MeshBufferDesc().AllocateStreams(geom.GetVertices().GetCount(), ezGALPrimitiveTopology::Triangles, Indices.GetCount() / 3);
 
   for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
   {
@@ -244,7 +244,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(const ezMeshAssetProperties* pP
   ezLog::Info("Number of Vertices: %u", uiVertices);
   ezLog::Info("Number of Triangles: %u", uiTriangles);
 
-  desc.MeshBufferDesc().AllocateStreams(uiVertices, uiTriangles);
+  desc.MeshBufferDesc().AllocateStreams(uiVertices, ezGALPrimitiveTopology::Triangles, uiTriangles);
 
   ezUInt32 uiCurVertex = 0;
   ezUInt32 uiCurTriangle = 0;

@@ -122,7 +122,7 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
   }
 
   {
-    chunk.BeginChunk("MeshInfo", 2);
+    chunk.BeginChunk("MeshInfo", 3);
 
     // Number of vertices
     chunk << m_MeshBufferDescriptor.GetVertexCount();
@@ -138,6 +138,9 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
 
     // Number of vertex streams
     chunk << m_MeshBufferDescriptor.GetVertexDeclaration().m_VertexStreams.GetCount();
+
+    // Version 3: Topology
+    chunk << (ezUInt8)m_MeshBufferDescriptor.GetTopology();
 
     for (ezUInt32 idx = 0; idx < m_MeshBufferDescriptor.GetVertexDeclaration().m_VertexStreams.GetCount(); ++idx)
     {
@@ -269,7 +272,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
 
     if (ci.m_sChunkName == "MeshInfo")
     {
-      if (ci.m_uiChunkVersion > 2)
+      if (ci.m_uiChunkVersion > 3)
       {
         ezLog::Error("Version of chunk '%s' is invalid (%u)", ci.m_sChunkName.GetData(), ci.m_uiChunkVersion);
         return EZ_FAILURE;
@@ -279,9 +282,9 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
       ezUInt32 uiVertexCount = 0;
       chunk >> uiVertexCount;
 
-      // Number of triangles
-      ezUInt32 uiTriangleCount = 0;
-      chunk >> uiTriangleCount;
+      // Number of primitives
+      ezUInt32 uiPrimitiveCount = 0;
+      chunk >> uiPrimitiveCount;
 
       // Whether any index buffer is used
       chunk >> bHasIndexBuffer;
@@ -292,6 +295,12 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
       // Number of vertex streams
       ezUInt32 uiStreamCount = 0;
       chunk >> uiStreamCount;
+
+      ezUInt8 uiTopology = ezGALPrimitiveTopology::Triangles;
+      if (ci.m_uiChunkVersion >= 3)
+      {
+        chunk >> uiTopology;
+      }
 
       for (ezUInt32 i = 0; i < uiStreamCount; ++i)
       {
@@ -310,7 +319,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
         m_MeshBufferDescriptor.AddStream((ezGALVertexAttributeSemantic::Enum) iSemantic, (ezGALResourceFormat::Enum) iFormat);
       }
 
-      m_MeshBufferDescriptor.AllocateStreams(uiVertexCount, uiTriangleCount);
+      m_MeshBufferDescriptor.AllocateStreams(uiVertexCount, (ezGALPrimitiveTopology::Enum) uiTopology, uiPrimitiveCount);
 
       // Version 2
       if (ci.m_uiChunkVersion >= 2)

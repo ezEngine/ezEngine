@@ -67,7 +67,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferResource(const ezGeometry& geo
   desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
   desc.AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
 
-  desc.AllocateStreams(geom.GetVertices().GetCount(), Indices.GetCount() / 3);
+  desc.AllocateStreams(geom.GetVertices().GetCount(), ezGALPrimitiveTopology::Triangles, Indices.GetCount() / 3);
 
   for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
   {

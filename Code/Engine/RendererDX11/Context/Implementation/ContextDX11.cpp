@@ -249,9 +249,9 @@ void ezGALContextDX11::SetVertexDeclarationPlatform(ezGALVertexDeclaration* pVer
 
 static const D3D11_PRIMITIVE_TOPOLOGY GALTopologyToDX11[ezGALPrimitiveTopology::ENUM_COUNT] =
 {
-  D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
-
-  /// \todo Add other primitive types (when adding to ez enum)
+  D3D11_PRIMITIVE_TOPOLOGY_POINTLIST,
+  D3D11_PRIMITIVE_TOPOLOGY_LINELIST,
+  D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
 };
 
 void ezGALContextDX11::SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum Topology)

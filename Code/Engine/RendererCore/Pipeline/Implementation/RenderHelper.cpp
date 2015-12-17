@@ -205,6 +205,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
     ezResourceLock<ezMeshBufferResource> pMeshBuffer(m_hMeshBuffer);
     m_uiMeshBufferPrimitiveCount = pMeshBuffer->GetPrimitiveCount();
 
+    m_pGALContext->SetPrimitiveTopology(pMeshBuffer->GetTopology());
     m_pGALContext->SetVertexBuffer(0, pMeshBuffer->GetVertexBuffer());
 
     ezGALBufferHandle hIndexBuffer = pMeshBuffer->GetIndexBuffer();
@@ -214,8 +215,6 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
 
     if (!hIndexBuffer.IsInvalidated())
       m_pGALContext->SetIndexBuffer(hIndexBuffer);
-
-    m_pGALContext->SetPrimitiveTopology(ezGALPrimitiveTopology::Triangles);
 
     ezGALVertexDeclarationHandle hVertexDeclaration;
     if (BuildVertexDeclaration(m_hActiveGALShader, pMeshBuffer->GetVertexDeclaration(), hVertexDeclaration).Failed())

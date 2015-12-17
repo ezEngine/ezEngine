@@ -408,7 +408,7 @@ public:
     desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
     desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
 
-    desc.AllocateStreams(geom.GetVertices().GetCount(), geom.GetPolygons().GetCount() * 2);
+    desc.AllocateStreams(geom.GetVertices().GetCount(), ezGALPrimitiveTopology::Triangles, geom.GetPolygons().GetCount() * 2);
 
     for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
     {

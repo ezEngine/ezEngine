@@ -62,19 +62,20 @@ ezUInt32 ezMeshBufferResourceDescriptor::AddStream(ezGALVertexAttributeSemantic:
   return m_VertexDeclaration.m_VertexStreams.GetCount() - 1;
 }
 
-void ezMeshBufferResourceDescriptor::AllocateStreams(ezUInt32 uiNumVertices, ezUInt32 uiNumTriangles)
+void ezMeshBufferResourceDescriptor::AllocateStreams(ezUInt32 uiNumVertices, ezGALPrimitiveTopology::Enum topology, ezUInt32 uiNumPrimitives)
 {
   EZ_ASSERT_DEV(!m_VertexDeclaration.m_VertexStreams.IsEmpty(), "You have to add streams via 'AddStream' before calling this function");
 
+  m_Topology = topology;
   m_uiVertexCount = uiNumVertices;
   const ezUInt32 uiVertexStreamSize = m_uiVertexSize * uiNumVertices;
 
   m_VertexStreamData.SetCount(uiVertexStreamSize);
 
-  if (uiNumTriangles > 0)
+  if (uiNumPrimitives > 0)
   {
     // use an index buffer at all
-    ezUInt32 uiIndexBufferSize = uiNumTriangles * 3;
+    ezUInt32 uiIndexBufferSize = uiNumPrimitives * (topology + 1);
 
     if (Uses32BitIndices())
     {
@@ -89,9 +90,46 @@ void ezMeshBufferResourceDescriptor::AllocateStreams(ezUInt32 uiNumVertices, ezU
   }
 }
 
+
+void ezMeshBufferResourceDescriptor::SetPointIndices(ezUInt32 uiPoint, ezUInt32 uiVertex0)
+{
+  EZ_ASSERT_DEBUG(m_Topology == ezGALPrimitiveTopology::Points, "Wrong topology");
+
+  if (Uses32BitIndices())
+  {
+    ezUInt32* pIndices = reinterpret_cast<ezUInt32*>(&m_IndexBufferData[uiPoint * sizeof(ezUInt32) * 1]);
+    pIndices[0] = uiVertex0;
+  }
+  else
+  {
+    ezUInt16* pIndices = reinterpret_cast<ezUInt16*>(&m_IndexBufferData[uiPoint * sizeof(ezUInt16) * 1]);
+    pIndices[0] = uiVertex0;
+  }
+}
+
+void ezMeshBufferResourceDescriptor::SetLineIndices(ezUInt32 uiLine, ezUInt32 uiVertex0, ezUInt32 uiVertex1)
+{
+  EZ_ASSERT_DEBUG(m_Topology == ezGALPrimitiveTopology::Lines, "Wrong topology");
+
+  if (Uses32BitIndices())
+  {
+    ezUInt32* pIndices = reinterpret_cast<ezUInt32*>(&m_IndexBufferData[uiLine * sizeof(ezUInt32) * 2]);
+    pIndices[0] = uiVertex0;
+    pIndices[1] = uiVertex1;
+  }
+  else
+  {
+    ezUInt16* pIndices = reinterpret_cast<ezUInt16*>(&m_IndexBufferData[uiLine * sizeof(ezUInt16) * 2]);
+    pIndices[0] = uiVertex0;
+    pIndices[1] = uiVertex1;
+  }
+}
+
 void ezMeshBufferResourceDescriptor::SetTriangleIndices(ezUInt32 uiTriangle, ezUInt32 uiVertex0, ezUInt32 uiVertex1, ezUInt32 uiVertex2)
 {
-  if (Uses32BitIndices()) // 32 Bit indices
+  EZ_ASSERT_DEBUG(m_Topology == ezGALPrimitiveTopology::Triangles, "Wrong topology");
+
+  if (Uses32BitIndices())
   {
     ezUInt32* pIndices = reinterpret_cast<ezUInt32*>(&m_IndexBufferData[uiTriangle * sizeof(ezUInt32) * 3]);
     pIndices[0] = uiVertex0;
@@ -109,16 +147,18 @@ void ezMeshBufferResourceDescriptor::SetTriangleIndices(ezUInt32 uiTriangle, ezU
 
 ezUInt32 ezMeshBufferResourceDescriptor::GetPrimitiveCount() const
 {
+  const ezUInt32 divider = m_Topology + 1;
+
   if (!m_IndexBufferData.IsEmpty())
   {
     if (Uses32BitIndices())
-      return (m_IndexBufferData.GetCount() / sizeof(ezUInt32)) / 3;
+      return (m_IndexBufferData.GetCount() / sizeof(ezUInt32)) / divider;
     else
-      return (m_IndexBufferData.GetCount() / sizeof(ezUInt16)) / 3;
+      return (m_IndexBufferData.GetCount() / sizeof(ezUInt16)) / divider;
   }
   else
   {
-    return m_uiVertexCount / 3;
+    return m_uiVertexCount / divider;
   }
 }
 
@@ -210,6 +250,7 @@ ezResourceLoadDesc ezMeshBufferResource::CreateResource(const ezMeshBufferResour
     m_hIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort, descriptor.GetPrimitiveCount() * 3, &(descriptor.GetIndexBufferData()[0]));
 
   m_uiPrimitiveCount = descriptor.GetPrimitiveCount();
+  m_Topology = descriptor.GetTopology();
 
   // we only know the memory usage here, so we write it back to the internal variable directly and then read it in UpdateMemoryUsage() again
   ModifyMemoryUsage().m_uiMemoryGPU = descriptor.GetVertexBufferData().GetCount() + descriptor.GetIndexBufferData().GetCount();
@@ -286,7 +327,7 @@ ezResult ezRenderContext::BuildVertexDeclaration(ezGALShaderHandle hShader, cons
          available, it will work.
       */
 
-      ezLog::Error("Failed to create vertex declaration");
+      ezLog::Warning("Failed to create vertex declaration");
       return EZ_FAILURE;
     }
 

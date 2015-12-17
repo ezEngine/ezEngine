@@ -30,7 +30,7 @@ static ezMeshResourceHandle CreateAsteroidMesh()
   const ezDeque<ezGeometry::Vertex>& vertices = geom.GetVertices();
   const ezDeque<ezGeometry::Polygon>& polygons = geom.GetPolygons();
 
-  mfb.MeshBufferDesc().AllocateStreams(vertices.GetCount(), polygons.GetCount());
+  mfb.MeshBufferDesc().AllocateStreams(vertices.GetCount(), ezGALPrimitiveTopology::Triangles, polygons.GetCount());
 
   for (ezUInt32 v = 0; v < vertices.GetCount(); ++v)
   {
