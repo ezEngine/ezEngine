@@ -10,8 +10,5 @@ public:
   ~ezTestDocumentObjectManager();
 
   virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override;
-
-private:
-  virtual ezDocumentObject* InternalCreateObject(const ezRTTI* pRtti) override;
 };
 

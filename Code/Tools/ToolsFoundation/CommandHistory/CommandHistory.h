@@ -13,17 +13,14 @@ public:
   ezCommandTransaction() { }
   ~ezCommandTransaction();
 
-  virtual ezStatus Do(bool bRedo) override;
-  virtual ezStatus Undo(bool bFireEvents) override;
-  virtual void Cleanup(CommandState state) override;
+private:
+  virtual ezStatus DoInternal(bool bRedo) override;
+  virtual ezStatus UndoInternal(bool bFireEvents) override;
+  virtual void CleanupInternal(CommandState state) override;
+  ezStatus AddCommandTransaction(ezCommand* command);
 
 private:
   friend class ezCommandHistory;
-  ezStatus AddCommand(ezCommand& command);
-  ezStatus AddCommand(ezCommand* command);
-
-private:
-  ezHybridArray<ezCommand*, 8> m_ChildActions;
 };
 
 class EZ_TOOLSFOUNDATION_DLL ezCommandHistory

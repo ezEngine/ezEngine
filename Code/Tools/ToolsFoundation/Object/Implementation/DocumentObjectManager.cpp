@@ -4,7 +4,7 @@
 #include <Foundation/IO/MemoryStream.h>
 
 ////////////////////////////////////////////////////////////////////////
-// ezDocumentObjectManager Object Construction / Destruction
+// ezDocumentObjectManager
 ////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentRoot, 1, ezRTTINoAllocator);
@@ -23,10 +23,6 @@ void ezDocumentRootObject::RemoveSubObject(ezDocumentObject* pObject)
 {
   return ezDocumentObject::RemoveSubObject(pObject);
 }
-
-
-
-
 
 ezDocumentObjectManager::ezDocumentObjectManager()
   : m_pDocument(nullptr)

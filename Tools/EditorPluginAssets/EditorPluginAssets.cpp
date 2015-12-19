@@ -55,6 +55,26 @@ void OnLoadPlugin(bool bReloading)
     }
   }
 
+  // Render Pipeline Asset
+  {
+    // Menu Bar
+    {
+      ezActionMapManager::RegisterActionMap("RenderPipelineAssetMenuBar");
+      ezProjectActions::MapActions("RenderPipelineAssetMenuBar");
+      ezStandardMenus::MapActions("RenderPipelineAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezDocumentActions::MapActions("RenderPipelineAssetMenuBar", "Menu.File", false);
+      ezCommandHistoryActions::MapActions("RenderPipelineAssetMenuBar", "Menu.Edit");
+    }
+
+    // Tool Bar
+    {
+      ezActionMapManager::RegisterActionMap("RenderPipelineAssetToolBar");
+      ezDocumentActions::MapActions("RenderPipelineAssetToolBar", "", true);
+      ezCommandHistoryActions::MapActions("RenderPipelineAssetToolBar", "");
+      ezAssetActions::MapActions("RenderPipelineAssetToolBar", true);
+    }
+  }
+
   // Mesh Asset
   {
     // Menu Bar

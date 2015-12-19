@@ -109,7 +109,7 @@ public:
   ezDocumentObject* CreateObject(const ezRTTI* pRtti, ezUuid guid = ezUuid());
 
   void DestroyObject(ezDocumentObject* pObject);
-  void DestroyAllObjects();
+  virtual void DestroyAllObjects();
   virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const = 0;
 
   // Structure Change
@@ -131,7 +131,7 @@ public:
   bool CanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const;
 
 private:
-  virtual ezDocumentObject* InternalCreateObject(const ezRTTI* pRtti) = 0;
+  virtual ezDocumentObject* InternalCreateObject(const ezRTTI* pRtti) { return EZ_DEFAULT_NEW(ezDocumentStorageObject, pRtti); }
   virtual void InternalDestroyObject(ezDocumentObject* pObject) { EZ_DEFAULT_DELETE(pObject); }
   virtual bool InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const { return true; };
   virtual bool InternalCanRemove(const ezDocumentObject* pObject) const { return true; };

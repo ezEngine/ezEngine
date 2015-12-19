@@ -7,18 +7,6 @@ ezSceneObjectManager::ezSceneObjectManager() : ezDocumentObjectManager()
 {
 }
 
-ezDocumentObject* ezSceneObjectManager::InternalCreateObject(const ezRTTI* pRtti)
-{
-  ezDocumentObject* pObj = EZ_DEFAULT_NEW(ezDocumentStorageObject, pRtti);
-
-  return pObj;
-}
-
-void ezSceneObjectManager::InternalDestroyObject(ezDocumentObject* pObject)
-{
-  EZ_DEFAULT_DELETE(pObject);
-}
-
 void ezSceneObjectManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const
 {
   Types.PushBack(ezRTTI::FindTypeByName(ezGetStaticRTTI<ezGameObject>()->GetTypeName()));

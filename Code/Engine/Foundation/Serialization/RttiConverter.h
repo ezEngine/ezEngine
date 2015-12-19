@@ -60,12 +60,12 @@ public:
   ezAbstractObjectNode* AddObjectToGraph(ezReflectedClass* pObject, const char* szNodeName = nullptr) { return AddObjectToGraph(pObject->GetDynamicRTTI(), pObject, szNodeName); }
   ezAbstractObjectNode* AddObjectToGraph(const ezRTTI* pRtti, void* pObject, const char* szNodeName = nullptr);
 
-private:
   void AddProperty(ezAbstractObjectNode* pNode, const ezAbstractProperty* pProp, const void* pObject);
   void AddProperties(ezAbstractObjectNode* pNode, const ezRTTI* pRtti, const void* pObject);
 
   ezAbstractObjectNode* AddSubObjectToGraph(const ezRTTI* pRtti, void* pObject, const ezUuid& guid, const char* szNodeName);
 
+private:
   ezRttiConverterContext* m_pContext;
   ezAbstractObjectGraph* m_pGraph;
   bool m_bSerializeReadOnly;

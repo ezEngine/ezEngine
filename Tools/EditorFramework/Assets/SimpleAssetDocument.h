@@ -88,15 +88,4 @@ public:
     Types.PushBack(ezGetStaticRTTI<ObjectProperties>());
   }
 
-private:
-
-  virtual ezDocumentObject* InternalCreateObject(const ezRTTI* pRtti) override
-  {
-    return EZ_DEFAULT_NEW(ezDocumentStorageObject, pRtti);
-  }
-
-  virtual void InternalDestroyObject(ezDocumentObject* pObject) override
-  {
-    EZ_DEFAULT_DELETE(pObject);
-  }
 };

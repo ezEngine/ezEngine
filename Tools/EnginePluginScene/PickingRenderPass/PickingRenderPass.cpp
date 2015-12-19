@@ -6,6 +6,9 @@
 #include <RendererFoundation/Context/Context.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPickingRenderPass, 1, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
 ezPickingRenderPass::ezPickingRenderPass(const ezGALRenderTagetSetup& RenderTargetSetup) : ezRenderPipelinePass( "SimpleRenderPass" )
 {
   m_bEnable = true;

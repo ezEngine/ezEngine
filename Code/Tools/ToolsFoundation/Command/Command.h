@@ -24,14 +24,18 @@ public:
 
   enum class CommandState { WasDone, WasUndone };
 
-private:
-
-  virtual ezStatus Do(bool bRedo) = 0;
-  virtual ezStatus Undo(bool bFireEvents) = 0;
-  virtual void Cleanup(CommandState state) = 0;
-
 protected:
+  ezStatus Do(bool bRedo);
+  ezStatus Undo(bool bFireEvents);
+  void Cleanup(CommandState state);
+
+  ezStatus AddCommand(ezCommand& command);
   ezDocument* GetDocument() { return m_pDocument; };
+
+private:
+  virtual ezStatus DoInternal(bool bRedo) = 0;
+  virtual ezStatus UndoInternal(bool bFireEvents) = 0;
+  virtual void CleanupInternal(CommandState state) = 0;
 
 protected:
   friend class ezCommandHistory;
@@ -39,7 +43,6 @@ protected:
 
   ezString m_sDescription; // TODO
   bool m_bUndoable; // TODO
-
-private:
+  ezHybridArray<ezCommand*, 8> m_ChildActions;
   ezDocument* m_pDocument;
 };

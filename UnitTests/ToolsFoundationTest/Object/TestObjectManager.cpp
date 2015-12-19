@@ -13,8 +13,3 @@ void ezTestDocumentObjectManager::GetCreateableTypes(ezHybridArray<const ezRTTI*
 {
 }
 
-ezDocumentObject* ezTestDocumentObjectManager::InternalCreateObject(const ezRTTI* pRtti)
-{
-  auto pObject = EZ_DEFAULT_NEW(ezDocumentStorageObject, pRtti);
-  return pObject;
-}

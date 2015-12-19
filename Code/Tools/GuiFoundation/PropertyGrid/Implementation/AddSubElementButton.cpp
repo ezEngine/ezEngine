@@ -89,8 +89,7 @@ void ezAddSubElementButton::on_Menu_aboutToShow()
 
   if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
   {
-    ezRTTI* pRtti = ezRTTI::GetFirstInstance();
-
+    m_SupportedTypes.Clear();
     ezReflectionUtils::GatherTypesDerivedFromClass(pProp->GetSpecificType(), m_SupportedTypes, false);
   }
   m_SupportedTypes.Insert(pProp->GetSpecificType());

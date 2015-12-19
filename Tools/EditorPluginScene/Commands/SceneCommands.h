@@ -16,9 +16,9 @@ public: // Properties
   ezString m_sParentNodes;
 
 private:
-  virtual ezStatus Do(bool bRedo) override;
-  virtual ezStatus Undo(bool bFireEvents) override;
-  virtual void Cleanup(CommandState state) override;
+  virtual ezStatus DoInternal(bool bRedo) override;
+  virtual ezStatus UndoInternal(bool bFireEvents) override;
+  virtual void CleanupInternal(CommandState state) override;
 
 private:
   struct DuplicatedObject

@@ -105,7 +105,7 @@ void ezAddObjectCommand::SetType(const char* szType)
   m_pType = ezRTTI::FindTypeByName(szType);
 }
 
-ezStatus ezAddObjectCommand::Do(bool bRedo)
+ezStatus ezAddObjectCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
 
@@ -136,7 +136,7 @@ ezStatus ezAddObjectCommand::Do(bool bRedo)
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezAddObjectCommand::Undo(bool bFireEvents)
+ezStatus ezAddObjectCommand::UndoInternal(bool bFireEvents)
 {
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
@@ -148,7 +148,7 @@ ezStatus ezAddObjectCommand::Undo(bool bFireEvents)
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezAddObjectCommand::Cleanup(CommandState state)
+void ezAddObjectCommand::CleanupInternal(CommandState state)
 {
   if (state == CommandState::WasUndone)
   {
@@ -167,7 +167,7 @@ ezPasteObjectsCommand::ezPasteObjectsCommand()
 {
 }
 
-ezStatus ezPasteObjectsCommand::Do(bool bRedo)
+ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
 
@@ -250,7 +250,7 @@ ezStatus ezPasteObjectsCommand::Do(bool bRedo)
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezPasteObjectsCommand::Undo(bool bFireEvents)
+ezStatus ezPasteObjectsCommand::UndoInternal(bool bFireEvents)
 {
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
   ezDocument* pDocument = GetDocument();
@@ -266,7 +266,7 @@ ezStatus ezPasteObjectsCommand::Undo(bool bFireEvents)
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezPasteObjectsCommand::Cleanup(CommandState state)
+void ezPasteObjectsCommand::CleanupInternal(CommandState state)
 {
   if (state == CommandState::WasUndone)
   {
@@ -289,7 +289,7 @@ ezInstantiatePrefabCommand::ezInstantiatePrefabCommand()
   m_bAllowPickedPosition = true;
 }
 
-ezStatus ezInstantiatePrefabCommand::Do(bool bRedo)
+ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
 
@@ -404,7 +404,7 @@ ezStatus ezInstantiatePrefabCommand::Do(bool bRedo)
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezInstantiatePrefabCommand::Undo(bool bFireEvents)
+ezStatus ezInstantiatePrefabCommand::UndoInternal(bool bFireEvents)
 {
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
   ezDocument* pDocument = GetDocument();
@@ -420,7 +420,7 @@ ezStatus ezInstantiatePrefabCommand::Undo(bool bFireEvents)
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezInstantiatePrefabCommand::Cleanup(CommandState state)
+void ezInstantiatePrefabCommand::CleanupInternal(CommandState state)
 {
   if (state == CommandState::WasUndone)
   {
@@ -444,7 +444,7 @@ ezRemoveObjectCommand::ezRemoveObjectCommand() :
 {
 }
 
-ezStatus ezRemoveObjectCommand::Do(bool bRedo)
+ezStatus ezRemoveObjectCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
 
@@ -478,7 +478,7 @@ ezStatus ezRemoveObjectCommand::Do(bool bRedo)
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezRemoveObjectCommand::Undo(bool bFireEvents)
+ezStatus ezRemoveObjectCommand::UndoInternal(bool bFireEvents)
 {
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
@@ -490,7 +490,7 @@ ezStatus ezRemoveObjectCommand::Undo(bool bFireEvents)
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezRemoveObjectCommand::Cleanup(CommandState state)
+void ezRemoveObjectCommand::CleanupInternal(CommandState state)
 {
   if (state == CommandState::WasDone)
   {
@@ -511,7 +511,7 @@ ezMoveObjectCommand::ezMoveObjectCommand()
   m_pNewParent = nullptr;
 }
 
-ezStatus ezMoveObjectCommand::Do(bool bRedo)
+ezStatus ezMoveObjectCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
 
@@ -545,7 +545,7 @@ ezStatus ezMoveObjectCommand::Do(bool bRedo)
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezMoveObjectCommand::Undo(bool bFireEvents)
+ezStatus ezMoveObjectCommand::UndoInternal(bool bFireEvents)
 {
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
@@ -588,7 +588,7 @@ ezSetObjectPropertyCommand::ezSetObjectPropertyCommand()
   m_pObject = nullptr;
 }
 
-ezStatus ezSetObjectPropertyCommand::Do(bool bRedo)
+ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
   ezPropertyPath path(m_sPropertyPath);
@@ -629,7 +629,7 @@ ezStatus ezSetObjectPropertyCommand::Do(bool bRedo)
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezSetObjectPropertyCommand::Undo(bool bFireEvents)
+ezStatus ezSetObjectPropertyCommand::UndoInternal(bool bFireEvents)
 {
   ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
   ezPropertyPath path(m_sPropertyPath);
@@ -665,7 +665,7 @@ ezInsertObjectPropertyCommand::ezInsertObjectPropertyCommand()
   m_pObject = nullptr;
 }
 
-ezStatus ezInsertObjectPropertyCommand::Do(bool bRedo)
+ezStatus ezInsertObjectPropertyCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
   ezPropertyPath path(m_sPropertyPath);
@@ -706,7 +706,7 @@ ezStatus ezInsertObjectPropertyCommand::Do(bool bRedo)
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezInsertObjectPropertyCommand::Undo(bool bFireEvents)
+ezStatus ezInsertObjectPropertyCommand::UndoInternal(bool bFireEvents)
 {
   ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
   ezPropertyPath path(m_sPropertyPath);
@@ -741,7 +741,7 @@ ezRemoveObjectPropertyCommand::ezRemoveObjectPropertyCommand()
   m_pObject = nullptr;
 }
 
-ezStatus ezRemoveObjectPropertyCommand::Do(bool bRedo)
+ezStatus ezRemoveObjectPropertyCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
   ezPropertyPath path(m_sPropertyPath);
@@ -780,7 +780,7 @@ ezStatus ezRemoveObjectPropertyCommand::Do(bool bRedo)
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezRemoveObjectPropertyCommand::Undo(bool bFireEvents)
+ezStatus ezRemoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
 {
   ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
   ezPropertyPath path(m_sPropertyPath);
@@ -815,7 +815,7 @@ ezMoveObjectPropertyCommand::ezMoveObjectPropertyCommand()
   m_pObject = nullptr;
 }
 
-ezStatus ezMoveObjectPropertyCommand::Do(bool bRedo)
+ezStatus ezMoveObjectPropertyCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
   if (!m_OldIndex.CanConvertTo<ezInt32>() || !m_OldIndex.CanConvertTo<ezInt32>())
@@ -858,7 +858,7 @@ ezStatus ezMoveObjectPropertyCommand::Do(bool bRedo)
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezMoveObjectPropertyCommand::Undo(bool bFireEvents)
+ezStatus ezMoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
 {
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 

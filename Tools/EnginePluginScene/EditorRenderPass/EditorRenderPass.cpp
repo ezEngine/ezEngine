@@ -6,6 +6,9 @@
 #include <RendererFoundation/Context/Context.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorRenderPass, 1, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
 ezEditorRenderPass::ezEditorRenderPass(const ezGALRenderTagetSetup& RenderTargetSetup, const char* szName) : ezSimpleRenderPass(RenderTargetSetup, szName)
 {
   m_bRenderSelectionOverlay = false;

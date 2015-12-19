@@ -3,6 +3,7 @@
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <RendererCore/Pipeline/RenderPipelinePass.h>
 
 ezEngineProcessGameApplication::ezEngineProcessGameApplication() : ezGameApplication(m_GameState)
 {
@@ -128,6 +129,8 @@ void ezEngineProcessGameApplication::SendReflectionInformation()
 {
   ezSet<const ezRTTI*> types;
   ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezComponent>(), types, true);
+  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezRenderPipelinePass>(), types, true);
+  //ezReflectionUtils::GatherPluginTypes(types, true);
   ezDynamicArray<const ezRTTI*> sortedTypes;
   ezReflectionUtils::CreateDependencySortedTypeArray(types, sortedTypes);
 

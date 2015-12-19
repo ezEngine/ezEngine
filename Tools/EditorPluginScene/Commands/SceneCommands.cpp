@@ -23,7 +23,7 @@ ezDuplicateObjectsCommand::ezDuplicateObjectsCommand()
 {
 }
 
-ezStatus ezDuplicateObjectsCommand::Do(bool bRedo)
+ezStatus ezDuplicateObjectsCommand::DoInternal(bool bRedo)
 {
   ezSceneDocument* pDocument = static_cast<ezSceneDocument*>(GetDocument());
 
@@ -121,7 +121,7 @@ ezStatus ezDuplicateObjectsCommand::Do(bool bRedo)
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezDuplicateObjectsCommand::Undo(bool bFireEvents)
+ezStatus ezDuplicateObjectsCommand::UndoInternal(bool bFireEvents)
 {
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
   ezDocument* pDocument = GetDocument();
@@ -137,7 +137,7 @@ ezStatus ezDuplicateObjectsCommand::Undo(bool bFireEvents)
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezDuplicateObjectsCommand::Cleanup(CommandState state)
+void ezDuplicateObjectsCommand::CleanupInternal(CommandState state)
 {
   if (state == CommandState::WasUndone)
   {

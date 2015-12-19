@@ -6,6 +6,8 @@
 
 class ezPickingRenderPass : public ezRenderPipelinePass
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezPickingRenderPass, ezRenderPipelinePass);
+
 public:
   ezPickingRenderPass(const ezGALRenderTagetSetup& RenderTargetSetup);
   ~ezPickingRenderPass();

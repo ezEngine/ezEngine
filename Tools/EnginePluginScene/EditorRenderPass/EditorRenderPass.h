@@ -7,6 +7,7 @@
 
 class ezEditorRenderPass : public ezSimpleRenderPass
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditorRenderPass, ezSimpleRenderPass);
 public:
   ezEditorRenderPass(const ezGALRenderTagetSetup& RenderTargetSetup, const char* szName = "EditorRenderPass");
 

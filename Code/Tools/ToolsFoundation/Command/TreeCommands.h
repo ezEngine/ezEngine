@@ -23,9 +23,9 @@ public: // Properties
   ezUuid m_NewObjectGuid; ///< This is optional. If not filled out, a new guid is assigned automatically.
 
 private:
-  virtual ezStatus Do(bool bRedo) override;
-  virtual ezStatus Undo(bool bFireEvents) override;
-  virtual void Cleanup(CommandState state) override;
+  virtual ezStatus DoInternal(bool bRedo) override;
+  virtual ezStatus UndoInternal(bool bFireEvents) override;
+  virtual void CleanupInternal(CommandState state) override;
 
 private:
   ezDocumentObject* m_pObject;
@@ -43,9 +43,9 @@ public: // Properties
   ezString m_sJsonGraph;
 
 private:
-  virtual ezStatus Do(bool bRedo) override;
-  virtual ezStatus Undo(bool bFireEvents) override;
-  virtual void Cleanup(CommandState state) override;
+  virtual ezStatus DoInternal(bool bRedo) override;
+  virtual ezStatus UndoInternal(bool bFireEvents) override;
+  virtual void CleanupInternal(CommandState state) override;
 
 private:
   struct PastedObject
@@ -74,9 +74,9 @@ public: // Properties
   bool m_bAllowPickedPosition;
 
 private:
-  virtual ezStatus Do(bool bRedo) override;
-  virtual ezStatus Undo(bool bFireEvents) override;
-  virtual void Cleanup(CommandState state) override;
+  virtual ezStatus DoInternal(bool bRedo) override;
+  virtual ezStatus UndoInternal(bool bFireEvents) override;
+  virtual void CleanupInternal(CommandState state) override;
 
 private:
   struct PastedObject
@@ -101,9 +101,9 @@ public: // Properties
   ezUuid m_Object;
 
 private:
-  virtual ezStatus Do(bool bRedo) override;
-  virtual ezStatus Undo(bool bFireEvents) override;
-  virtual void Cleanup(CommandState state) override;
+  virtual ezStatus DoInternal(bool bRedo) override;
+  virtual ezStatus UndoInternal(bool bFireEvents) override;
+  virtual void CleanupInternal(CommandState state) override;
 
 private:
   ezDocumentObject* m_pParent;
@@ -127,9 +127,9 @@ public: // Properties
   ezVariant m_Index;
 
 private:
-  virtual ezStatus Do(bool bRedo) override;
-  virtual ezStatus Undo(bool bFireEvents) override;
-  virtual void Cleanup(CommandState state) override { }
+  virtual ezStatus DoInternal(bool bRedo) override;
+  virtual ezStatus UndoInternal(bool bFireEvents) override;
+  virtual void CleanupInternal(CommandState state) override { }
 
 private:
   ezDocumentObject* m_pObject;
@@ -156,9 +156,9 @@ public: // Properties
   void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }
 
 private:
-  virtual ezStatus Do(bool bRedo) override;
-  virtual ezStatus Undo(bool bFireEvents) override;
-  virtual void Cleanup(CommandState state) override { }
+  virtual ezStatus DoInternal(bool bRedo) override;
+  virtual ezStatus UndoInternal(bool bFireEvents) override;
+  virtual void CleanupInternal(CommandState state) override { }
 
 private:
   ezDocumentObject* m_pObject;
@@ -182,9 +182,9 @@ public: // Properties
   void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }
 
 private:
-  virtual ezStatus Do(bool bRedo) override;
-  virtual ezStatus Undo(bool bFireEvents) override;
-  virtual void Cleanup(CommandState state) override { }
+  virtual ezStatus DoInternal(bool bRedo) override;
+  virtual ezStatus UndoInternal(bool bFireEvents) override;
+  virtual void CleanupInternal(CommandState state) override { }
 
 private:
   ezDocumentObject* m_pObject;
@@ -206,9 +206,9 @@ public: // Properties
   void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }
 
 private:
-  virtual ezStatus Do(bool bRedo) override;
-  virtual ezStatus Undo(bool bFireEvents) override;
-  virtual void Cleanup(CommandState state) override { }
+  virtual ezStatus DoInternal(bool bRedo) override;
+  virtual ezStatus UndoInternal(bool bFireEvents) override;
+  virtual void CleanupInternal(CommandState state) override { }
 
 private:
   ezDocumentObject* m_pObject;
@@ -232,9 +232,9 @@ public: // Properties
   void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }
 
 private:
-  virtual ezStatus Do(bool bRedo) override;
-  virtual ezStatus Undo(bool bFireEvents) override;
-  virtual void Cleanup(CommandState state) override { }
+  virtual ezStatus DoInternal(bool bRedo) override;
+  virtual ezStatus UndoInternal(bool bFireEvents) override;
+  virtual void CleanupInternal(CommandState state) override { }
 
 private:
   ezDocumentObject* m_pObject;
