@@ -1,8 +1,5 @@
 {
   "Plugins" : [ {
       "Path" : "ezPhysXPlugin"
-    },
-    {
-      "Path" : "ezFmodPlugin"
     } ]
 }

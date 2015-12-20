@@ -17,7 +17,8 @@ public:
   void Update();
   void ReinitSceneModules();
 
-  ezWorld* GetWorld() const { return m_pWorld; }
+  const ezWorld* GetWorld() const { return m_pWorld; }
+  ezWorld* GetWorld() { return m_pWorld; }
 
 protected:
   void CreateSceneModules();

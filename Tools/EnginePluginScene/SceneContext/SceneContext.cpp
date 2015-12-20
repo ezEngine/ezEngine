@@ -7,6 +7,7 @@
 #include <GameUtils/Components/SliderComponent.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <Core/Scene/Scene.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>);
 EZ_BEGIN_PROPERTIES
@@ -29,6 +30,15 @@ void ezSceneContext::ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSph
     ComputeHierarchyBounds(it, bounds);
     it.Next();
   }
+}
+
+ezSceneContext::ezSceneContext()
+{
+  m_bRenderSelectionOverlay = true;
+  m_bRenderShapeIcons = true;
+  m_bShapeIconBufferValid = false;
+  m_uiShapeIconBufferCounter = 0;
+  m_uiNumShapeIcons = 0;
 }
 
 void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
@@ -117,8 +127,102 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
     return;
   }
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezObjectTagMsgToEngine>())
+  {
+    const ezObjectTagMsgToEngine* pMsg2 = static_cast<const ezObjectTagMsgToEngine*>(pMsg);
+
+    if (pMsg2->m_sTag == "EditorHidden")
+      m_bShapeIconBufferValid = false;
+
+    // fall through
+  }
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEntityMsgToEngine>())
+  {
+    m_bShapeIconBufferValid = false;
+
+    // fall through
+  }
 
   ezEngineProcessDocumentContext::HandleMessage(pMsg);
+}
+
+void ezSceneContext::GenerateShapeIconMesh()
+{
+  if (m_bShapeIconBufferValid)
+    return;
+
+  const ezWorld* world = m_pScene->GetWorld();
+  EZ_LOCK(world->GetReadMarker());
+
+  ezMeshBufferResourceDescriptor desc;
+  desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+  desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
+  desc.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezGALResourceFormat::RUInt);
+  desc.AllocateStreams(world->GetObjectCount() * 4, ezGALPrimitiveTopology::Triangles, world->GetObjectCount() * 2);
+
+  auto& tagReg = ezTagRegistry::GetGlobalRegistry();
+  ezTag tagHidden;
+  tagReg.RegisterTag("EditorHidden", &tagHidden);
+  ezTag tagEditor;
+  ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tagEditor);
+
+  ezUInt32 obj = 0;
+  for (auto it = world->GetObjects(); it.IsValid(); ++it)
+  {
+    if (it->GetComponents().IsEmpty())
+      continue;
+
+    if (it->GetTags().IsSet(tagEditor) || it->GetTags().IsSet(tagHidden))
+      continue;
+
+    const auto id = it->GetComponents()[0]->m_uiEditorPickingID;
+
+    const ezVec3 pos = it->GetGlobalPosition();
+    
+    desc.SetVertexData<ezVec3>(0, obj * 4 + 0, pos);
+    desc.SetVertexData<ezVec3>(0, obj * 4 + 1, pos);
+    desc.SetVertexData<ezVec3>(0, obj * 4 + 2, pos);
+    desc.SetVertexData<ezVec3>(0, obj * 4 + 3, pos);
+
+    desc.SetVertexData<ezVec2>(1, obj * 4 + 0, ezVec2(0, 0));
+    desc.SetVertexData<ezVec2>(1, obj * 4 + 1, ezVec2(1, 0));
+    desc.SetVertexData<ezVec2>(1, obj * 4 + 2, ezVec2(1, 1));
+    desc.SetVertexData<ezVec2>(1, obj * 4 + 3, ezVec2(0, 1));
+
+    desc.SetVertexData<ezUInt32>(2, obj * 4 + 0, id);
+    desc.SetVertexData<ezUInt32>(2, obj * 4 + 1, id);
+    desc.SetVertexData<ezUInt32>(2, obj * 4 + 2, id);
+    desc.SetVertexData<ezUInt32>(2, obj * 4 + 3, id);
+
+    desc.SetTriangleIndices(obj * 2 + 0, obj * 4 + 0, obj * 4 + 1, obj * 4 + 2);
+    desc.SetTriangleIndices(obj * 2 + 1, obj * 4 + 0, obj * 4 + 2, obj * 4 + 3);
+
+    ++obj;
+  }
+
+  m_uiNumShapeIcons = obj;
+
+  if (m_uiNumShapeIcons == 0)
+    return;
+
+  ezStringBuilder s;
+  s.Format("ShapeIconMeshBuffer%u", m_uiShapeIconBufferCounter);
+  ++m_uiShapeIconBufferCounter;
+
+  m_hShapeIcons = ezResourceManager::CreateResource<ezMeshBufferResource>(s, desc);
+
+  m_bShapeIconBufferValid = true;
+}
+
+void ezSceneContext::RenderShapeIcons(ezRenderContext* pContext)
+{
+  if (!m_bRenderShapeIcons || m_uiNumShapeIcons == 0)
+    return;
+
+  pContext->BindMeshBuffer(m_hShapeIcons);
+  pContext->BindShader(m_hShapeIconShader);
+
+  pContext->DrawMeshBuffer(m_uiNumShapeIcons * 2);
 }
 
 void ezSceneContext::OnInitialize()
@@ -130,6 +234,14 @@ void ezSceneContext::OnInitialize()
   pWorld->CreateComponentManager<ezMeshComponentManager>();
   pWorld->CreateComponentManager<ezRotorComponentManager>();
   pWorld->CreateComponentManager<ezSliderComponentManager>();
+
+  m_hShapeIconShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Editor/ShapeIcon.ezShader");
+}
+
+void ezSceneContext::OnDeinitialize()
+{
+  m_hShapeIcons.Invalidate();
+  m_hShapeIconShader.Invalidate();
 }
 
 ezEngineProcessViewContext* ezSceneContext::CreateViewContext()

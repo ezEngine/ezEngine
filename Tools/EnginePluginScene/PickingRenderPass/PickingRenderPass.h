@@ -4,12 +4,14 @@
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <EditorFramework/EngineProcess/ViewRenderSettings.h>
 
+class ezSceneContext;
+
 class ezPickingRenderPass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezPickingRenderPass, ezRenderPipelinePass);
 
 public:
-  ezPickingRenderPass(const ezGALRenderTagetSetup& RenderTargetSetup);
+  ezPickingRenderPass(ezSceneContext* pSceneContext, const ezGALRenderTagetSetup& RenderTargetSetup);
   ~ezPickingRenderPass();
 
   void SetEnabled(bool b) { m_bEnable = b; }
@@ -31,6 +33,7 @@ public:
   ezViewRenderMode::Enum m_ViewRenderMode;
 
 private:
+  ezSceneContext* m_pSceneContext;
   bool m_bEnable;
   ezGALRenderTagetSetup m_RenderTargetSetup;
 };

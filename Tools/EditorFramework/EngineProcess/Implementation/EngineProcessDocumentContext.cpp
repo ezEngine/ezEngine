@@ -353,7 +353,10 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
   {
     const ezViewHighlightMsgToEngine* pMsg2 = static_cast<const ezViewHighlightMsgToEngine*>(pMsg);
 
-    ezUInt32 uiPickingID = m_Context.m_OtherPickingMap.GetHandle(pMsg2->m_HighlightObject);
+    ezUInt32 uiPickingID = m_Context.m_ComponentPickingMap.GetHandle(pMsg2->m_HighlightObject);
+
+    if (uiPickingID == 0)
+      uiPickingID = m_Context.m_OtherPickingMap.GetHandle(pMsg2->m_HighlightObject);
 
     ezRenderContext::GetDefaultInstance()->SetMaterialParameter("PickingHighlightID", (ezInt32)uiPickingID);
   }

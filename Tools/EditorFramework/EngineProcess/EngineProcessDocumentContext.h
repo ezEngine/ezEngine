@@ -48,7 +48,7 @@ public:
 
   HandleType GetHandle(ezUuid guid) const
   {
-    HandleType res;
+    HandleType res = HandleType();
     m_GuidToHandle.TryGetValue(guid, res);
     return res;
   }
@@ -67,7 +67,7 @@ private:
 };
 
 /// \brief The world rtti converter context tracks created objects and is capable of also handlings
-///  conponents / game objects. Used by the ezIPCObjectMirror to create / destroy objects.
+///  components / game objects. Used by the ezIPCObjectMirror to create / destroy objects.
 ///
 /// Atm it does not remove owner ptr when a parent is deleted, so it will accumulate zombie entries.
 /// As requests to dead objects shouldn't generally happen this is for the time being not a problem.

@@ -62,3 +62,13 @@ void ezSelectedObjectsExtractor::Extract(const ezView& view)
     pObject->SendMessage(msg);
   }
 }
+
+ezCallDelegateExtractor::ezCallDelegateExtractor()
+{
+
+}
+
+void ezCallDelegateExtractor::Extract(const ezView& view)
+{
+  m_Delegate();
+}

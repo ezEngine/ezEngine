@@ -5,12 +5,14 @@
 
 #include <RendererFoundation/Context/Context.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
+#include <EnginePluginScene/SceneContext/SceneContext.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPickingRenderPass, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezPickingRenderPass::ezPickingRenderPass(const ezGALRenderTagetSetup& RenderTargetSetup) : ezRenderPipelinePass( "SimpleRenderPass" )
+ezPickingRenderPass::ezPickingRenderPass(ezSceneContext* pSceneContext, const ezGALRenderTagetSetup& RenderTargetSetup) : ezRenderPipelinePass( "SimpleRenderPass" )
 {
+  m_pSceneContext = pSceneContext;
   m_bEnable = true;
   m_RenderTargetSetup = RenderTargetSetup;
   AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
@@ -53,6 +55,8 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
 
   RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Opaque);
   RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Masked);
+
+  m_pSceneContext->RenderShapeIcons(renderViewContext.m_pRenderContext);
 
   Event e;
   e.m_Type = Event::Type::AfterOpaque;

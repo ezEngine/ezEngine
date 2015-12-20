@@ -5,15 +5,18 @@
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <EditorFramework/EngineProcess/ViewRenderSettings.h>
 
+class ezSceneContext;
+
 class ezEditorRenderPass : public ezSimpleRenderPass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorRenderPass, ezSimpleRenderPass);
 public:
-  ezEditorRenderPass(const ezGALRenderTagetSetup& RenderTargetSetup, const char* szName = "EditorRenderPass");
+  ezEditorRenderPass(ezSceneContext* pSceneContext, const ezGALRenderTagetSetup& RenderTargetSetup, const char* szName = "EditorRenderPass");
 
   virtual void Execute(const ezRenderViewContext& renderViewContext) override;
 
   bool m_bRenderSelectionOverlay;
   bool m_bRenderShapeIcons;
   ezViewRenderMode::Enum m_ViewRenderMode;
+  ezSceneContext* m_pSceneContext;
 };

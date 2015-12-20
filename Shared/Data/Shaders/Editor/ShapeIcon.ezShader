@@ -1,0 +1,97 @@
+[PLATFORMS] 
+ALL
+
+[PERMUTATIONS]
+
+PICKING
+
+[RENDERSTATE]
+
+DepthTest = true
+DepthTestFunc = CompareFunc_Less
+DepthWrite = true
+CullMode = CullMode_None
+
+[VERTEXSHADER]
+
+struct VERTEX_DATA
+{
+  float3 Position : POSITION;
+  float2 TexCoord0 : TEXCOORD0;
+  uint ObjectID : TEXCOORD1;
+};
+
+struct VS_TO_PS
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+  uint ObjectID : TEXCOORD1;
+};
+
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Common/ObjectConstants.h>
+#include <Shaders/Materials/DefaultMaterialCB.inc>
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+VS_TO_PS main(VERTEX_DATA input)
+{
+  VS_TO_PS output;
+  output.Position = mul(WorldToScreenMatrix, float4(input.Position, 1.0f));
+  
+  float scale = min(output.Position.w, 1.0) * 0.3;
+  
+  output.Position.x += (input.TexCoord0.x - 0.5) * scale;
+  output.Position.y += (input.TexCoord0.y - 0.5) * scale;
+  output.TexCoord0 = input.TexCoord0;
+  output.ObjectID = input.ObjectID;
+  
+  return output;
+}
+
+#endif
+
+
+[PIXELSHADER]
+
+struct VERTEX_DATA
+{
+  float3 Position : POSITION;
+  float2 TexCoord0 : TEXCOORD0;
+  uint ObjectID : TEXCOORD1;
+};
+
+struct VS_TO_PS
+{
+  float4 Position : SV_Position;
+  float2 TexCoord0 : TEXCOORD0;
+  uint ObjectID : TEXCOORD1;
+};
+
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Common/ObjectConstants.h>
+#include <Shaders/Materials/DefaultMaterialCB.inc>
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+float4 main(VS_TO_PS input) : SV_Target
+{
+#if PICKING == 1
+  float4 IdCol;
+  IdCol.r = (input.ObjectID & 255) / 255.0;
+  IdCol.g = (input.ObjectID >> 8 & 255) / 255.0;
+  IdCol.b = (input.ObjectID >> 16 & 255) / 255.0;
+  IdCol.a = (input.ObjectID >> 24 & 255) / 255.0;
+  
+  return IdCol;
+#else
+
+  if (input.ObjectID == PickingHighlightID)
+	return float4(0.2, 0.2, 1.0, 1.0);
+
+  return float4(0, 1, 1, 1);
+#endif
+}
+
+#endif
+

@@ -32,3 +32,13 @@ public:
   ezRenderPassType m_OverridePassType;
   const ezDeque<ezGameObjectHandle>* m_pSelection;
 };
+
+class EZ_RENDERERCORE_DLL ezCallDelegateExtractor : public ezExtractor
+{
+public:
+  ezCallDelegateExtractor();
+
+  virtual void Extract(const ezView& view) override;
+
+  ezDelegate<void ()> m_Delegate;
+};

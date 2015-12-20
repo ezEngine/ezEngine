@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <EnginePluginScene/EditorRenderPass/EditorRenderPass.h>
+#include <EnginePluginScene/SceneContext/SceneContext.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
 #include <RendererFoundation/Context/Context.h>
@@ -9,8 +10,9 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorRenderPass, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezEditorRenderPass::ezEditorRenderPass(const ezGALRenderTagetSetup& RenderTargetSetup, const char* szName) : ezSimpleRenderPass(RenderTargetSetup, szName)
+ezEditorRenderPass::ezEditorRenderPass(ezSceneContext* pSceneContext, const ezGALRenderTagetSetup& RenderTargetSetup, const char* szName) : ezSimpleRenderPass(RenderTargetSetup, szName)
 {
+  m_pSceneContext = pSceneContext;
   m_bRenderSelectionOverlay = true;
   m_bRenderShapeIcons = true;
 }
@@ -67,6 +69,8 @@ void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext)
       RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Selection);
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", szRenderMode);
     }
+
+    m_pSceneContext->RenderShapeIcons(renderViewContext.m_pRenderContext);
 
     pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0); // only clear depth
 

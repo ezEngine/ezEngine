@@ -132,10 +132,10 @@ void ezSceneViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth
       .SetDepthStencilTarget(m_hSwapChainDSV);
 
 
-    ezUniquePtr<ezPickingRenderPass> pPickingRenderPass = EZ_DEFAULT_NEW(ezPickingRenderPass, PickingRenderTargetSetup);
+    ezUniquePtr<ezPickingRenderPass> pPickingRenderPass = EZ_DEFAULT_NEW(ezPickingRenderPass, m_pSceneContext, PickingRenderTargetSetup);
     pPickingRenderPass->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneViewContext::RenderPassEventHandler, this));
 
-    ezUniquePtr<ezEditorRenderPass> pEditorRenderPass = EZ_DEFAULT_NEW(ezEditorRenderPass, BackBufferRenderTargetSetup, "EditorRenderPass");
+    ezUniquePtr<ezEditorRenderPass> pEditorRenderPass = EZ_DEFAULT_NEW(ezEditorRenderPass, m_pSceneContext, BackBufferRenderTargetSetup, "EditorRenderPass");
 
     m_pPickingRenderPass = pPickingRenderPass.Borrow();
     m_pEditorRenderPass = pEditorRenderPass.Borrow();
@@ -148,7 +148,11 @@ void ezSceneViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth
     m_pSelectionExtractor = pExtractor.Borrow();
     m_pSelectionExtractor->m_pSelection = &m_pSceneContext->GetSelectionWithChildren();
     
+    ezUniquePtr<ezCallDelegateExtractor> pExtractorShapeIcons = EZ_DEFAULT_NEW(ezCallDelegateExtractor);
+    pExtractorShapeIcons->m_Delegate = ezMakeDelegate(&ezSceneContext::GenerateShapeIconMesh, m_pSceneContext);
+
     pRenderPipeline->AddExtractor(std::move(pExtractor));
+    pRenderPipeline->AddExtractor(std::move(pExtractorShapeIcons));
     pRenderPipeline->AddExtractor(EZ_DEFAULT_NEW(ezVisibleObjectsExtractor));
 
     m_pView->SetRenderPipeline(std::move(pRenderPipeline));
