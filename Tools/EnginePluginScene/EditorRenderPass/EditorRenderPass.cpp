@@ -11,7 +11,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezEditorRenderPass::ezEditorRenderPass(const ezGALRenderTagetSetup& RenderTargetSetup, const char* szName) : ezSimpleRenderPass(RenderTargetSetup, szName)
 {
-  m_bRenderSelectionOverlay = false;
+  m_bRenderSelectionOverlay = true;
+  m_bRenderShapeIcons = true;
 }
 
 void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext)

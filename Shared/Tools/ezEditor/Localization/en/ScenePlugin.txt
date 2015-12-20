@@ -42,6 +42,7 @@ Scene.View.Span;Spawn View
 Scene.Export;Export Scene...
 Scene.Run;Run Scene...
 Scene.Render.SelectionOverlay;Visualize Selection
+Scene.Render.ShapeIcons;Render Shape Icons
 Scene.SimulateWorld;Simulate World
 Selection.ShowInScenegraph;Show in Scenegraph
 Selection.FocusSingleView;Focus on Selection

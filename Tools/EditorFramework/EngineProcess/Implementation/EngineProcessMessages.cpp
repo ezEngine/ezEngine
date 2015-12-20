@@ -178,7 +178,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneSettingsMsgToEngine, 1, ezRTTIDefaultAllo
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("SimulateWorld", m_bSimulateWorld),
     EZ_MEMBER_PROPERTY("SimulationSpeed", m_fSimulationSpeed),
-    EZ_MEMBER_PROPERTY( "RenderOverlay", m_bRenderOverlay ),
+    EZ_MEMBER_PROPERTY("RenderOverlay", m_bRenderOverlay),
+    EZ_MEMBER_PROPERTY("ShapeIcons", m_bRenderShapeIcons),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

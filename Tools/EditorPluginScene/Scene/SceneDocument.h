@@ -117,6 +117,7 @@ public:
       ExportScene,
       SimulateModeChanged,
       RenderSelectionOverlayChanged,
+      RenderShapeIconsChanged,
       SimulationSpeedChanged,
     };
 
@@ -138,6 +139,9 @@ public:
 
   bool GetRenderSelectionOverlay() const { return m_bRenderSelectionOverlay; }
   void SetRenderSelectionOverlay( bool b );
+
+  bool GetRenderShapeIcons() const { return m_bRenderShapeIcons; }
+  void SetRenderShapeIcons(bool b);
 
 protected:
   virtual void InitializeAfterLoading() override;
@@ -185,6 +189,7 @@ private:
   bool m_bSimulateWorld;
   float m_fSimulationSpeed;
   bool m_bRenderSelectionOverlay;
+  bool m_bRenderShapeIcons;
 
   ActiveGizmo m_ActiveGizmo;
   ezObjectPickingResult m_PickingResult;

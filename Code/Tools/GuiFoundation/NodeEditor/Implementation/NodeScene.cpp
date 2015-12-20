@@ -70,7 +70,6 @@ void ezQtNodeScene::SetDocumentNodeManager(const ezDocumentNodeManager* pManager
           ConnectPins(pConnection);
         }
       }
-
     }
   }
 }
@@ -214,7 +213,7 @@ void ezQtNodeScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     else
       history->FinishTransaction();
 
-    ezUIServices::GetInstance()->MessageBoxStatus(res, "Nove node failed");
+    ezUIServices::GetInstance()->MessageBoxStatus(res, "Move node failed");
   }
 }
 
@@ -308,6 +307,8 @@ void ezQtNodeScene::CreateNode(const ezDocumentObject* pObject)
   addItem(pNode);
   pNode->InitNode(m_pManager, pObject);
   pNode->setPos(vPos.x, vPos.y);
+
+  pNode->ResetFlags();
 }
 
 void ezQtNodeScene::DeleteNode(const ezDocumentObject* pObject)

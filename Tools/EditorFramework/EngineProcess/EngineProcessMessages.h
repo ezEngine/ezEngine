@@ -260,6 +260,7 @@ public:
   bool m_bSimulateWorld;
   float m_fSimulationSpeed;
   bool m_bRenderOverlay;
+  bool m_bRenderShapeIcons;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezQuerySelectionBBoxMsgToEngine : public ezEditorEngineDocumentMsg

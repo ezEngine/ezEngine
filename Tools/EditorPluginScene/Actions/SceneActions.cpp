@@ -14,6 +14,7 @@ ezActionDescriptorHandle ezSceneActions::s_hExportScene;
 ezActionDescriptorHandle ezSceneActions::s_hRunScene;
 ezActionDescriptorHandle ezSceneActions::s_hEnableWorldSimulation;
 ezActionDescriptorHandle ezSceneActions::s_hRenderSelectionOverlay;
+ezActionDescriptorHandle ezSceneActions::s_hRenderShapeIcons;
 ezActionDescriptorHandle ezSceneActions::s_hSimulationSpeedMenu;
 ezActionDescriptorHandle ezSceneActions::s_hSimulationSpeed[10];
 
@@ -25,6 +26,7 @@ void ezSceneActions::RegisterActions()
   s_hRunScene = EZ_REGISTER_ACTION_1("Scene.Run", ezActionScope::Document, "Scene", "Ctrl+R", ezSceneAction, ezSceneAction::ActionType::RunScene);
   s_hEnableWorldSimulation = EZ_REGISTER_ACTION_1("Scene.SimulateWorld", ezActionScope::Document, "Scene", "Ctrl+F5", ezSceneAction, ezSceneAction::ActionType::SimulateWorld);
   s_hRenderSelectionOverlay = EZ_REGISTER_ACTION_1( "Scene.Render.SelectionOverlay", ezActionScope::Document, "Scene", "Ctrl+M", ezSceneAction, ezSceneAction::ActionType::RenderSelectionOverlay);
+  s_hRenderShapeIcons = EZ_REGISTER_ACTION_1("Scene.Render.ShapeIcons", ezActionScope::Document, "Scene", "Space", ezSceneAction, ezSceneAction::ActionType::RenderShapeIcons);
 
   s_hSimulationSpeedMenu = EZ_REGISTER_MENU_WITH_ICON("Scene.Simulation.Speed.Menu", "");
   s_hSimulationSpeed[0] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.01", ezActionScope::Document, "Simulation - Speed", "", ezSceneAction, ezSceneAction::ActionType::SimulationSpeed, 0.1f);
@@ -48,6 +50,7 @@ void ezSceneActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hRunScene);
   ezActionManager::UnregisterAction(s_hEnableWorldSimulation);
   ezActionManager::UnregisterAction(s_hRenderSelectionOverlay);
+  ezActionManager::UnregisterAction(s_hRenderShapeIcons);
   ezActionManager::UnregisterAction(s_hSimulationSpeedMenu);
 
   for (int i = 0; i < EZ_ARRAY_SIZE(s_hSimulationSpeed); ++i)
@@ -88,6 +91,7 @@ void ezSceneActions::MapMenuActions()
 
     pMap->MapAction(s_hSceneCategory, "Menu.View", 1.0f);
     pMap->MapAction(s_hRenderSelectionOverlay, szSubPath, 1.0f);
+    pMap->MapAction(s_hRenderShapeIcons, szSubPath, 2.0f);
   }
 }
 
@@ -105,6 +109,7 @@ void ezSceneActions::MapToolbarActions()
 
     pMap->MapAction(s_hEnableWorldSimulation, szSubPath, 1.0f);
     pMap->MapAction(s_hRenderSelectionOverlay, szSubPath, 2.0f);
+    pMap->MapAction(s_hRenderShapeIcons, szSubPath, 3.0f);
   }
 }
 
@@ -120,22 +125,33 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
   case ActionType::UpdatePrefabs:
     SetIconPath(":/EditorPluginScene/PrefabUpdate.png");
     break;
+
   case ActionType::ExportScene:
     SetIconPath(":/EditorPluginScene/Icons/SceneExport16.png");
     break;
+
   case ActionType::RunScene:
     SetIconPath(":/EditorPluginScene/Icons/SceneRun16.png");
     break;
+
   case ActionType::SimulateWorld:
     SetCheckable(true);
     SetIconPath(":/EditorPluginScene/Icons/ScenePlay16.png");
     SetChecked(m_pSceneDocument->GetSimulateWorld());
     break;
+
   case ActionType::RenderSelectionOverlay:
     SetCheckable(true);
     SetIconPath(":/EditorPluginScene/Icons/Selection16.png");
     SetChecked(m_pSceneDocument->GetRenderSelectionOverlay());
     break;
+
+  case ActionType::RenderShapeIcons:
+    SetCheckable(true);
+    SetIconPath(":/EditorPluginScene/Icons/ShapeIcons16.png");
+    SetChecked(m_pSceneDocument->GetRenderShapeIcons());
+    break;
+
   case ActionType::SimulationSpeed:
     SetCheckable(true);
     SetChecked(m_pSceneDocument->GetSimulationSpeed() == m_fSimSpeed);
@@ -181,6 +197,12 @@ void ezSceneAction::Execute(const ezVariant& value)
     }
     return;
 
+  case ActionType::RenderShapeIcons:
+    {
+      m_pSceneDocument->SetRenderShapeIcons(!m_pSceneDocument->GetRenderShapeIcons());
+    }
+    return;
+
   case ActionType::SimulationSpeed:
     {
       m_pSceneDocument->SetSimulationSpeed(m_fSimSpeed);
@@ -211,6 +233,14 @@ void ezSceneAction::SceneEventHandler(const ezSceneDocument::SceneEvent& e)
     }
     break;
 
+  case ezSceneDocument::SceneEvent::Type::RenderShapeIconsChanged:
+    {
+      if (m_Type == ActionType::RenderShapeIcons)
+      {
+        SetChecked(m_pSceneDocument->GetRenderShapeIcons());
+      }
+    }
+    break;
   case ezSceneDocument::SceneEvent::Type::SimulationSpeedChanged:
     {
       if (m_Type == ActionType::SimulationSpeed)

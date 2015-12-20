@@ -30,6 +30,9 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab) : e
   m_bSimulateWorld = false;
   m_fSimulationSpeed = 1.0f;
   m_bGizmoWorldSpace = true;
+  m_bRenderSelectionOverlay = true;
+  m_bRenderShapeIcons = true;
+
 }
 
 void ezSceneDocument::InitializeAfterLoading()
@@ -321,6 +324,18 @@ void ezSceneDocument::SetRenderSelectionOverlay(bool b)
   m_SceneEvents.Broadcast(e);
 }
 
+
+void ezSceneDocument::SetRenderShapeIcons(bool b)
+{
+  if (m_bRenderShapeIcons == b)
+    return;
+
+  m_bRenderShapeIcons = b;
+
+  SceneEvent e;
+  e.m_Type = SceneEvent::Type::RenderShapeIconsChanged;
+  m_SceneEvents.Broadcast(e);
+}
 
 const ezString& ezSceneDocument::GetCachedPrefabGraph(const ezUuid& AssetGuid)
 {

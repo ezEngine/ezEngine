@@ -16,6 +16,7 @@ public:
   const ezDeque<ezGameObjectHandle>& GetSelection() const { return m_Selection; }
   const ezDeque<ezGameObjectHandle>& GetSelectionWithChildren() const { return m_SelectionWithChildren; }
   bool GetRenderSelectionOverlay() const { return m_bRenderSelectionOverlay; }
+  bool GetRenderShapeIcons() const { return m_bRenderShapeIcons; }
 
 protected:
   virtual void OnInitialize() override;
@@ -30,6 +31,7 @@ private:
   void InsertSelectedChildren(const ezGameObject* pObject);
 
   bool m_bRenderSelectionOverlay;
+  bool m_bRenderShapeIcons;
   ezDeque<ezGameObjectHandle> m_Selection;
   ezDeque<ezGameObjectHandle> m_SelectionWithChildren;
   ezSet<ezGameObjectHandle> m_SelectionWithChildrenSet;

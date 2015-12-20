@@ -41,6 +41,7 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
     const bool bSimulate = msg->m_bSimulateWorld;
     m_bRenderSelectionOverlay = msg->m_bRenderOverlay;
+    m_bRenderShapeIcons = msg->m_bRenderShapeIcons;
 
     if (bSimulate != GetScene()->GetWorld()->GetWorldSimulationEnabled())
     {

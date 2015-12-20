@@ -14,5 +14,6 @@ public:
   virtual void Execute(const ezRenderViewContext& renderViewContext) override;
 
   bool m_bRenderSelectionOverlay;
+  bool m_bRenderShapeIcons;
   ezViewRenderMode::Enum m_ViewRenderMode;
 };

@@ -11,18 +11,19 @@
     <file>Icons/ShowHidden16.png</file>
     <file>Icons/GizmoDragPosition24.png</file>
     <file>Icons/FocusOnSelection16.png</file>
-	<file>Icons/FocusOnSelectionAllViews16.png</file>
+    <file>Icons/FocusOnSelectionAllViews16.png</file>
     <file>Icons/Scenegraph16.png</file>
     <file>Icons/WorldSpace16.png</file>
     <file>Icons/GizmoNone24.png</file>
     <file>Icons/GizmoRotate24.png</file>
     <file>Icons/GizmoScale24.png</file>
     <file>Icons/GizmoTranslate24.png</file>
-	<file>Icons/CreateNode16.png</file>
+    <file>Icons/CreateNode16.png</file>
     <file>Icons/PrefabCreate16.png</file>
     <file>Icons/PrefabRevert16.png</file>
     <file>Icons/PrefabUpdate16.png</file>
     <file>Icons/PrefabUnlink16.png</file>
     <file>Icons/PrefabOpenDocument16.png</file>
+    <file>Icons/ShapeIcons16.png</file>
   </qresource>
 </RCC>

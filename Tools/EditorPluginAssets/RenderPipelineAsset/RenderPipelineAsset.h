@@ -22,7 +22,7 @@ class ezRenderPipelineAssetDocument : public ezAssetDocument
 public:
   ezRenderPipelineAssetDocument(const char* szDocumentPath);
 
-  virtual const char* GetDocumentTypeDisplayString() const override { return "RenderPipeline Asset"; }
+  virtual const char* GetDocumentTypeDisplayString() const override { return "Render Pipeline Asset"; }
 
   virtual const char* QueryAssetType() const override { return "RenderPipeline"; }
 

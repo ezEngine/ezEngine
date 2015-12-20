@@ -21,6 +21,7 @@ public:
   static ezActionDescriptorHandle s_hRunScene;
   static ezActionDescriptorHandle s_hEnableWorldSimulation;
   static ezActionDescriptorHandle s_hRenderSelectionOverlay;
+  static ezActionDescriptorHandle s_hRenderShapeIcons;
   static ezActionDescriptorHandle s_hSimulationSpeedMenu;
   static ezActionDescriptorHandle s_hSimulationSpeed[10];
 };
@@ -39,6 +40,7 @@ public:
     RunScene,
     SimulateWorld,
     RenderSelectionOverlay,
+    RenderShapeIcons,
     SimulationSpeed,
   };
 

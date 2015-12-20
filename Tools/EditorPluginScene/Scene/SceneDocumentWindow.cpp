@@ -375,6 +375,7 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
     msg.m_bSimulateWorld = GetSceneDocument()->GetSimulateWorld();
     msg.m_fSimulationSpeed = GetSceneDocument()->GetSimulationSpeed();
     msg.m_bRenderOverlay = GetSceneDocument()->GetRenderSelectionOverlay();
+    msg.m_bRenderShapeIcons = GetSceneDocument()->GetRenderShapeIcons();
     m_pEngineConnection->SendMessage(&msg);
   }
 
