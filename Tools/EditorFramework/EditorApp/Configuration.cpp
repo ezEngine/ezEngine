@@ -95,7 +95,7 @@ ezStatus ezQtEditorApp::SaveTagRegistry()
   EZ_LOG_BLOCK("ezQtEditorApp::SaveTagRegistry()");
 
   ezStringBuilder sPath;
-  sPath = m_EnginePluginConfig.GetProjectDirectory();
+  sPath = ezApplicationConfig::GetProjectDirectory();
   sPath.AppendPath("Tags.ezManifest");
 
   ezFileWriter file;
@@ -115,7 +115,7 @@ void ezQtEditorApp::ReadTagRegistry()
   ezToolsTagRegistry::Clear();
 
   ezStringBuilder sPath;
-  sPath = m_EnginePluginConfig.GetProjectDirectory();
+  sPath = ezApplicationConfig::GetProjectDirectory();
   sPath.AppendPath("Tags.ezManifest");
 
   ezFileReader file;
@@ -188,7 +188,53 @@ void ezQtEditorApp::SetupDataDirectories()
 void ezQtEditorApp::ReadEnginePluginConfig()
 {
   m_EnginePluginConfig.Load();
+
+  // remove all plugin dependencies that are stored in file
+  for (ezUInt32 i = 0; i < m_EnginePluginConfig.m_Plugins.GetCount(); ++i)
+  {
+    const bool bManual = m_EnginePluginConfig.m_Plugins[i].m_sDependecyOf.Contains("<manual>");
+
+    m_EnginePluginConfig.m_Plugins[i].m_sDependecyOf.Clear();
+
+    if (bManual)
+      m_EnginePluginConfig.m_Plugins[i].m_sDependecyOf.Insert("<manual>");
+  }
+
+  // and add all dependencies that we have now
+  for (auto eplug = m_AdditionalRuntimePluginDependencies.GetIterator(); eplug.IsValid(); ++eplug)
+  {
+    for (auto rdep = eplug.Value().GetIterator(); rdep.IsValid(); ++rdep)
+    {
+      ezApplicationPluginConfig::PluginConfig cfg;
+      cfg.m_sDependecyOf.Insert(eplug.Key());
+      cfg.m_sRelativePath = *rdep;
+
+      m_EnginePluginConfig.AddPlugin(cfg);
+    }
+  }
+
+  ezUInt32 count = m_EnginePluginConfig.m_Plugins.GetCount();
+  for (ezUInt32 i = 0; i < count; )
+  {
+    if (m_EnginePluginConfig.m_Plugins[i].m_sDependecyOf.IsEmpty())
+    {
+      m_EnginePluginConfig.m_Plugins.RemoveAt(i);
+      --count;
+    }
+    else
+      ++i;
+  }
+
+  // save new state again
+  m_EnginePluginConfig.Save();
 }
+
+void ezQtEditorApp::AddRuntimePluginDependency(const char* szEditorPluginName, const char* szRuntimeDependency)
+{
+  m_AdditionalRuntimePluginDependencies[szEditorPluginName].Insert(szRuntimeDependency);
+}
+
+
 
 void ezQtEditorApp::CreatePanels()
 {

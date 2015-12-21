@@ -116,6 +116,8 @@ public:
   bool MakeDataDirectoryRelativePathAbsolute(ezString& sPath) const;
   bool MakePathDataDirectoryRelative(ezString& sPath) const;
 
+  void AddRuntimePluginDependency(const char* szEditorPluginName, const char* szRuntimeDependency);
+
   ezStatus SaveTagRegistry();
 
 private:
@@ -187,6 +189,8 @@ private:
 
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezApplicationPluginConfig m_EnginePluginConfig;
+
+  ezMap<ezString, ezSet<ezString> > m_AdditionalRuntimePluginDependencies;
 
   // *** Recent Paths ***
   ezString m_sLastDocumentFolder;

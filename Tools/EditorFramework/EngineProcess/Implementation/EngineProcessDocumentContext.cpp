@@ -35,6 +35,8 @@ void ezWorldRttiConverterContext::Clear()
 
 void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
 {
+  EZ_ASSERT_DEBUG(pRtti != nullptr, "Object type is unknown");
+
   if (pRtti == ezGetStaticRTTI<ezGameObject>())
   {
     ezGameObjectDesc d;

@@ -6,14 +6,14 @@
 #include <QtNetwork/QHostInfo>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 
-static ezQtEditorApp g_EditorApp;
-
 class ezEditorApplication : public ezApplication
 {
 public:
   ezEditorApplication()
   {
     EnableMemoryLeakReporting(true);
+
+    m_pEditorApp = new ezQtEditorApp;
   }
 
   virtual void BeforeEngineInit() override
@@ -24,6 +24,9 @@ public:
   virtual void AfterEngineShutdown() override
   {
     ezQtEditorApp::GetInstance()->DeInitQt();
+
+    delete m_pEditorApp;
+    m_pEditorApp = nullptr;
   }
 
   virtual ApplicationExecution Run() override
@@ -41,6 +44,9 @@ public:
 
     return ezApplication::Quit;
   }
+
+private:
+  ezQtEditorApp* m_pEditorApp;
 };
 
 EZ_APPLICATION_ENTRY_POINT(ezEditorApplication);

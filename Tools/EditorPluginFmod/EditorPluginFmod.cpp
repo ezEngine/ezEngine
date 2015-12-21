@@ -20,6 +20,8 @@ void UpdateCollisionLayerDynamicEnumValues();
 
 void OnLoadPlugin(bool bReloading)
 {
+  ezQtEditorApp::GetInstance()->AddRuntimePluginDependency("EditorPluginFmod", "ezFmodPlugin");
+
   ezQtEditorApp::GetInstance()->RegisterPluginNameForSettings("EditorPluginFmod");
   ezTranslatorFromFiles::AddTranslationFile("FmodPlugin.txt");
 

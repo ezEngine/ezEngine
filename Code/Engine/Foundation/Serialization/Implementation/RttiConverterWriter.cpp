@@ -12,6 +12,8 @@ void ezRttiConverterContext::Clear()
 
 void* ezRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
 {
+  EZ_ASSERT_DEBUG(pRtti != nullptr, "Cannot create object, RTTI type is unknown");
+
   void* pObj = pRtti->GetAllocator()->Allocate();
   RegisterObject(guid, pRtti, pObj);
   return pObj;

@@ -146,7 +146,10 @@ ezDocumentObject* ezDocumentObjectConverterReader::CreateObjectFromNode(const ez
 
   case ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument:
     {
-      pObject = m_pManager->CreateObject(ezRTTI::FindTypeByName(pNode->GetType()), pNode->GetGuid());
+      const ezRTTI* pRtti = ezRTTI::FindTypeByName(pNode->GetType());
+      EZ_ASSERT_DEV(pRtti != nullptr, "Type '%s' is unknown", pNode->GetType());
+
+      pObject = m_pManager->CreateObject(pRtti, pNode->GetGuid());
       m_pManager->AddObject(pObject, pParent, szParentProperty, index);
     }
     break;

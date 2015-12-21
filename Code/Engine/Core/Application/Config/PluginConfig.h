@@ -11,10 +11,16 @@ public:
 
   virtual void Apply() override;
 
-  struct PluginConfig
+  struct EZ_CORE_DLL PluginConfig
   {
+    bool operator<(const PluginConfig& rhs) const;
+
     ezString m_sRelativePath;
+    ezSet<ezString> m_sDependecyOf;
   };
+
+  bool AddPlugin(const PluginConfig& cfg);
+  bool RemovePlugin(const PluginConfig& cfg);
 
   ezHybridArray<PluginConfig, 8> m_Plugins;
 };

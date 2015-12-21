@@ -12,6 +12,8 @@ ezRttiConverterReader::ezRttiConverterReader(const ezAbstractObjectGraph* pGraph
 void* ezRttiConverterReader::CreateObjectFromNode(const ezAbstractObjectNode* pNode)
 {
   const ezRTTI* pRtti = ezRTTI::FindTypeByName(pNode->GetType());
+  EZ_ASSERT_DEV(pRtti != nullptr, "RTTI type '%s' is unknown", pNode->GetType());
+
   void* pObject = m_pContext->CreateObject(pNode->GetGuid(), pRtti);
 
   ApplyPropertiesToObject(pNode, pRtti, pObject);

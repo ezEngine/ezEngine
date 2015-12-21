@@ -1,5 +1,10 @@
 {
   "Plugins" : [ {
-      "Path" : "ezPhysXPlugin"
+      "Path" : "ezFmodPlugin",
+      "DependencyOf" : [ "EditorPluginFmod" ]
+    },
+    {
+      "Path" : "ezPhysXPlugin",
+      "DependencyOf" : [ "EditorPluginPhysX" ]
     } ]
 }

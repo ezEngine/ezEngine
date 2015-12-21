@@ -18,8 +18,81 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationPluginConfig_PluginConfig, ezNoBase,
   EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 
+
+  bool ezApplicationPluginConfig::PluginConfig::operator<(const PluginConfig& rhs) const
+{
+  return m_sRelativePath < rhs.m_sRelativePath;
+}
+
+bool ezApplicationPluginConfig::AddPlugin(const PluginConfig& cfg0)
+{
+  PluginConfig cfg = cfg0;
+
+  if (cfg.m_sDependecyOf.IsEmpty())
+  {
+    cfg.m_sDependecyOf.Insert("<manual>");
+  }
+
+  for (ezUInt32 i = 0; i < m_Plugins.GetCount(); ++i)
+  {
+    if (m_Plugins[i].m_sRelativePath == cfg.m_sRelativePath)
+    {
+      bool merged = false;
+
+      for (auto it = cfg.m_sDependecyOf.GetIterator(); it.IsValid(); ++it)
+      {
+        if (!m_Plugins[i].m_sDependecyOf.Contains(*it))
+        {
+          m_Plugins[i].m_sDependecyOf.Insert(*it);
+          merged = true;
+        }
+      }
+
+      return merged;
+    }
+  }
+
+  m_Plugins.PushBack(cfg);
+  return true;
+}
+
+
+bool ezApplicationPluginConfig::RemovePlugin(const PluginConfig& cfg0)
+{
+  PluginConfig cfg = cfg0;
+
+  if (cfg.m_sDependecyOf.IsEmpty())
+    cfg.m_sDependecyOf.Insert("<manual>");
+
+  bool modified = false;
+
+  for (ezUInt32 i = 0; i < m_Plugins.GetCount(); ++i)
+  {
+    if (m_Plugins[i].m_sRelativePath == cfg.m_sRelativePath)
+    {
+      for (auto it = cfg.m_sDependecyOf.GetIterator(); it.IsValid(); ++it)
+      {
+        if (m_Plugins[i].m_sDependecyOf.Remove(*it))
+          modified = true;
+      }
+
+      if (m_Plugins[i].m_sDependecyOf.IsEmpty())
+      {
+        m_Plugins.RemoveAtSwap(i);
+        return true;
+      }
+
+      return modified;
+    }
+  }
+
+  return false;
+}
+
 ezResult ezApplicationPluginConfig::Save()
 {
+  m_Plugins.Sort();
+
   ezStringBuilder sPath;
   sPath = GetProjectDirectory();
   sPath.AppendPath("Plugins.ezManifest");
@@ -40,6 +113,18 @@ ezResult ezApplicationPluginConfig::Save()
     json.BeginObject();
 
     json.AddVariableString("Path", m_Plugins[i].m_sRelativePath);
+
+    if (!m_Plugins[i].m_sDependecyOf.IsEmpty())
+    {
+      json.BeginArray("DependencyOf");
+
+      for (auto it = m_Plugins[i].m_sDependecyOf.GetIterator(); it.IsValid(); ++it)
+      {
+        json.WriteString(*it);
+      }
+
+      json.EndArray();
+    }
 
     json.EndObject();
   }
@@ -99,7 +184,21 @@ void ezApplicationPluginConfig::Load()
     if (datadir.TryGetValue("Path", pVar) && pVar->IsA<ezString>())
       cfg.m_sRelativePath = pVar->Get<ezString>();
 
-    m_Plugins.PushBack(cfg);
+    if (datadir.TryGetValue("DependencyOf", pVar) && pVar->IsA<ezVariantArray>())
+    {
+      const ezVariantArray& dep = pVar->Get<ezVariantArray>();
+
+      for (ezUInt32 i = 0; i < dep.GetCount(); ++i)
+      {
+        if (dep[i].IsA<ezString>())
+        {
+          cfg.m_sDependecyOf.Insert(dep[i].Get<ezString>());
+        }
+      }
+    }
+
+    // this prevents duplicates
+    AddPlugin(cfg);
   }
 }
 

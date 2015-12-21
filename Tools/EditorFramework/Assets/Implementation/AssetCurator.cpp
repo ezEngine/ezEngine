@@ -22,6 +22,7 @@ ezAssetCurator::ezAssetCurator()
 {
   m_bActive = false;
   s_pInstance = this;
+  m_pHashingTask = nullptr;
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezAssetCurator::DocumentManagerEventHandler, this));
 }
 

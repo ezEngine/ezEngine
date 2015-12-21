@@ -97,6 +97,9 @@ void ezQtEditorApp::InitQt(int argc, char** argv)
 
 void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
 {
+  const bool bSafeMode = ezCommandLineUtils::GetInstance()->GetBoolOption("-safe");
+  const bool bNoRecent = bSafeMode || ezCommandLineUtils::GetInstance()->GetBoolOption("-norecent");
+
   ezString sApplicationName = ezCommandLineUtils::GetInstance()->GetStringOption("-appname", 0, szAppName);
   ezUIServices::SetApplicationName(sApplicationName);
 
@@ -168,16 +171,20 @@ void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
 
   LoadPlugins();
 
-  // first open the project, so that the data directory list is read
-  if (!s_RecentProjects.GetFileList().IsEmpty())
+  if (!bNoRecent)
   {
-    CreateOrOpenProject(false, s_RecentProjects.GetFileList()[0]);
-  }
 
-  // now open the last document, which might be outside the main project folder, but in an allowed data directory
-  if (!s_RecentDocuments.GetFileList().IsEmpty())
-  {
-    CreateOrOpenDocument(false, s_RecentDocuments.GetFileList()[0]);
+    // first open the project, so that the data directory list is read
+    if (!s_RecentProjects.GetFileList().IsEmpty())
+    {
+      CreateOrOpenProject(false, s_RecentProjects.GetFileList()[0]);
+    }
+
+    // now open the last document, which might be outside the main project folder, but in an allowed data directory
+    if (!s_RecentDocuments.GetFileList().IsEmpty())
+    {
+      CreateOrOpenDocument(false, s_RecentDocuments.GetFileList()[0]);
+    }
   }
 
   if (ezQtDocumentWindow::GetAllDocumentWindows().IsEmpty())
@@ -794,7 +801,6 @@ void ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
     return;
   }
 }
-
 
 
 
