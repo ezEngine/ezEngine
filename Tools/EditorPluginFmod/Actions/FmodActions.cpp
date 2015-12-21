@@ -31,8 +31,8 @@ void ezFmodActions::MapMenuActions()
   //ezActionMap* pMap = ezActionMapManager::GetActionMap("EditorPluginScene_DocumentMenuBar");
   //EZ_ASSERT_DEV(pMap != nullptr, "Mmapping the actions failed!");
 
-  //pMap->MapAction(s_hCategoryFmod, "Menu.Project", 1.0f);
-  //pMap->MapAction(s_hProjectSettings, "Menu.Project/Fmod", 0.0f);
+  //pMap->MapAction(s_hCategoryFmod, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 1.0f);
+  //pMap->MapAction(s_hProjectSettings, "Menu.Editor/ProjectCategory/Menu.ProjectSettings/Fmod", 0.0f);
 
   //pMap->MapAction(s_hCategoryFmod, "Menu.Scene", 1.0f);
   //pMap->MapAction(s_hSceneSettings, "Menu.Scene/Fmod", 0.0f);

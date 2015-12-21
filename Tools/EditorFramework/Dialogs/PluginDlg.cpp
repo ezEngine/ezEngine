@@ -39,6 +39,25 @@ void PluginDlg::FillPluginList()
     ListPlugins->addItem(pItem);
   }
 
+  for (auto it = PluginsToBeLoaded.m_Plugins.GetIterator(); it.IsValid(); ++it)
+  {
+    if (PluginsAvailable.m_Plugins.Contains(*it))
+      continue;
+
+    QListWidgetItem* pItem = new QListWidgetItem();
+    pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
+
+    ezStringBuilder sText = it.Key();
+
+    sText.Append(" (missing)");
+
+    pItem->setText(sText.GetData());
+    pItem->setData(Qt::UserRole + 1, QString(it.Key().GetData()));
+    pItem->setCheckState(Qt::CheckState::Checked);
+    pItem->setBackgroundColor(Qt::red);
+    ListPlugins->addItem(pItem);
+  }
+
   ListPlugins->blockSignals(false);
 }
 

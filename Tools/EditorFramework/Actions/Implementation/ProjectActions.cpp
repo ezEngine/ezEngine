@@ -8,6 +8,11 @@
 #include <GuiFoundation/Action/ActionManager.h>
 #include <Foundation/IO/OSFile.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <GuiFoundation/Action/StandardMenus.h>
+#include <GuiFoundation/Dialogs/ShortcutEditorDlg.moc.h>
+#include <EditorFramework/Dialogs/DataDirsDlg.moc.h>
+#include <EditorFramework/Dialogs/PluginDlg.moc.h>
+#include <EditorFramework/Dialogs/SettingsDlg.moc.h>
 
 ezActionDescriptorHandle ezProjectActions::s_hEditorMenu;
 
@@ -23,7 +28,12 @@ ezActionDescriptorHandle ezProjectActions::s_hRecentProjects;
 ezActionDescriptorHandle ezProjectActions::s_hCloseProject;
 
 ezActionDescriptorHandle ezProjectActions::s_hSettingsCategory;
-ezActionDescriptorHandle ezProjectActions::s_hProjectSettings;
+ezActionDescriptorHandle ezProjectActions::s_hEditorSettingsMenu;
+ezActionDescriptorHandle ezProjectActions::s_hProjectSettingsMenu;
+ezActionDescriptorHandle ezProjectActions::s_hShortcutEditor;
+ezActionDescriptorHandle ezProjectActions::s_hEditorPlugins;
+ezActionDescriptorHandle ezProjectActions::s_hDataDirectories;
+ezActionDescriptorHandle ezProjectActions::s_hSettingsDlg;
 
 ezActionDescriptorHandle ezProjectActions::s_hToolsMenu;
 ezActionDescriptorHandle ezProjectActions::s_hToolsCategory;
@@ -45,7 +55,14 @@ void ezProjectActions::RegisterActions()
   s_hCloseProject = EZ_REGISTER_ACTION_1("Project.Close", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CloseProject);
 
   s_hSettingsCategory = EZ_REGISTER_CATEGORY("SettingsCategory");
-  s_hProjectSettings = EZ_REGISTER_ACTION_1("Settings.Open", ezActionScope::Global, "Settings", "", ezProjectAction, ezProjectAction::ButtonType::ProjectSettings);
+  s_hEditorSettingsMenu = EZ_REGISTER_MENU_WITH_ICON("Menu.EditorSettings", ":/GuiFoundation/Icons/Settings16.png");
+  s_hProjectSettingsMenu = EZ_REGISTER_MENU("Menu.ProjectSettings");
+
+  s_hShortcutEditor = EZ_REGISTER_ACTION_1("Editor.Shortcuts", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::Shortcuts);
+  s_hEditorPlugins = EZ_REGISTER_ACTION_1("Editor.Plugins", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::EditorPlugins);
+  s_hSettingsDlg = EZ_REGISTER_ACTION_1("Editor.SettingsDlg", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::SettingsDialog);
+
+  s_hDataDirectories = EZ_REGISTER_ACTION_1("Project.DataDirectories", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::DataDirectories);
 
   s_hToolsMenu = EZ_REGISTER_MENU("Menu.Tools");
   s_hToolsCategory = EZ_REGISTER_CATEGORY("ToolsCategory");
@@ -65,10 +82,15 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hRecentProjects);
   ezActionManager::UnregisterAction(s_hCloseProject);
   ezActionManager::UnregisterAction(s_hSettingsCategory);
-  ezActionManager::UnregisterAction(s_hProjectSettings);
+  ezActionManager::UnregisterAction(s_hEditorSettingsMenu);
+  ezActionManager::UnregisterAction(s_hProjectSettingsMenu);
   ezActionManager::UnregisterAction(s_hToolsMenu);
   ezActionManager::UnregisterAction(s_hToolsCategory);
   ezActionManager::UnregisterAction(s_hReloadResources);
+  ezActionManager::UnregisterAction(s_hShortcutEditor);
+  ezActionManager::UnregisterAction(s_hEditorPlugins);
+  ezActionManager::UnregisterAction(s_hSettingsDlg);
+  ezActionManager::UnregisterAction(s_hDataDirectories);
 }
 
 void ezProjectActions::MapActions(const char* szMapping)
@@ -88,13 +110,20 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hOpenProject, "Menu.Editor/ProjectCategory", 2.0f);
   pMap->MapAction(s_hRecentProjects, "Menu.Editor/ProjectCategory", 3.0f);
   pMap->MapAction(s_hCloseProject, "Menu.Editor/ProjectCategory", 4.0f);
+  pMap->MapAction(s_hProjectSettingsMenu, "Menu.Editor/ProjectCategory", 1000.0f);
 
   pMap->MapAction(s_hSettingsCategory, "Menu.Editor", 3.0f);
-  pMap->MapAction(s_hProjectSettings, "Menu.Editor/SettingsCategory", 1.0f);
+  pMap->MapAction(s_hEditorSettingsMenu, "Menu.Editor/SettingsCategory", 1.0f);
 
   pMap->MapAction(s_hToolsMenu, "", 4.5f);
   pMap->MapAction(s_hToolsCategory, "Menu.Tools", 1.0f);
   pMap->MapAction(s_hReloadResources, "Menu.Tools/ToolsCategory", 1.0f);
+
+  pMap->MapAction(s_hEditorPlugins, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 1.0f);
+  pMap->MapAction(s_hShortcutEditor, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 2.0f);
+  pMap->MapAction(s_hSettingsDlg, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 3.0f);
+
+  pMap->MapAction(s_hDataDirectories, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 1.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -221,15 +250,25 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
   case ezProjectAction::ButtonType::CloseProject:
     SetIconPath(":/GuiFoundation/Icons/ProjectClose16.png");
     break;
-  case ezProjectAction::ButtonType::ProjectSettings:
-    SetIconPath(":/GuiFoundation/Icons/Settings16.png");
-    break;
   case ezProjectAction::ButtonType::ReloadResources:
     SetIconPath(":/GuiFoundation/Icons/ReloadResources16.png");
     break;
+  case ezProjectAction::ButtonType::DataDirectories:
+    SetIconPath(":/EditorFramework/Icons/DataDirectories16.png");
+    break;
+  case ezProjectAction::ButtonType::EditorPlugins:
+    SetIconPath(":/EditorFramework/Icons/Plugins16.png");
+    break;
+  case ezProjectAction::ButtonType::SettingsDialog:
+    SetIconPath(":/EditorFramework/Icons/StoredSettings16.png");
+    break;
+  case ezProjectAction::ButtonType::Shortcuts:
+    SetIconPath(":/GuiFoundation/Icons/Shortcuts16.png");
+    break;
   }
 
-  if (m_ButtonType == ButtonType::CloseProject)
+  if (m_ButtonType == ButtonType::CloseProject ||
+      m_ButtonType == ButtonType::DataDirectories)
   {
     SetEnabled(ezToolsProject::IsProjectOpen());
 
@@ -239,7 +278,8 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
 
 ezProjectAction::~ezProjectAction()
 {
-  if (m_ButtonType == ButtonType::CloseProject)
+  if (m_ButtonType == ButtonType::CloseProject ||
+      m_ButtonType == ButtonType::DataDirectories)
   {
     ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezProjectAction::ProjectEventHandler, this));
   }
@@ -277,8 +317,32 @@ void ezProjectAction::Execute(const ezVariant& value)
     }
     break;
 
-  case ezProjectAction::ButtonType::ProjectSettings:
-    ezQtEditorApp::GetInstance()->ShowSettingsDocument();
+  case ezProjectAction::ButtonType::DataDirectories:
+    {
+      DataDirsDlg dlg(nullptr);
+      dlg.exec();
+    }
+    break;
+
+  case ezProjectAction::ButtonType::EditorPlugins:
+    {
+      PluginDlg dlg(nullptr);
+      dlg.exec();
+    }
+    break;
+
+  case ezProjectAction::ButtonType::SettingsDialog:
+    {
+      SettingsDlg dlg(nullptr);
+      dlg.exec();
+    }
+    break;
+
+  case ezProjectAction::ButtonType::Shortcuts:
+    {
+      ezShortcutEditorDlg dlg(nullptr);
+      dlg.exec();
+    }
     break;
 
   case ezProjectAction::ButtonType::ReloadResources:

@@ -21,26 +21,11 @@ public:
   virtual const char* GetGroupName() const override { return "Settings"; }
   
 private slots:
-  void SlotSettingsChanged();
-  void on_ButtonPluginConfig_clicked();
-  void on_ButtonEditShortcuts_clicked();
-  void SlotComboSettingsDomainIndexChanged(int iIndex);
-  void on_ButtonDataDirConfig_clicked();
   void SlotAssetChosen(QString sAssetGuid, QString sAssetPathRelative, QString sAssetPathAbsolute);
 
 private:
   virtual bool InternalCanCloseWindow() override;
   virtual void InternalCloseDocumentWindow() override;
-
-  void PluginEventHandler(const ezPlugin::PluginEvent& e);
-  void UpdateSettings();
-  void ProjectEventHandler(const ezToolsProject::Event& e);
-  void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
-
-  ezString m_sSelectedSettingDomain;
-  ezMap<ezString, ezVariant> m_Settings;
-
-  ezQtSimplePropertyGridWidget* m_pSettingsGrid;
 };
 
 

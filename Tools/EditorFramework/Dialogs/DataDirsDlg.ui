@@ -14,8 +14,8 @@
    <string>Data Directory Configuration</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
-    <normaloff>:/GuiFoundation/Icons/ezEditor16.png</normaloff>:/GuiFoundation/Icons/ezEditor16.png</iconset>
+   <iconset resource="../QtResources/resources.qrc">
+    <normaloff>:/EditorFramework/Icons/DataDirectories16.png</normaloff>:/EditorFramework/Icons/DataDirectories16.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -163,6 +163,7 @@
  </widget>
  <resources>
   <include location="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc"/>
+  <include location="../QtResources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

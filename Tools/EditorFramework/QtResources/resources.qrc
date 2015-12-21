@@ -20,6 +20,9 @@
     <file>Icons/WriteLookupTable16.png</file>
 	<file>Icons/ToggleViews16.png</file>
 	<file>Icons/SpawnView16.png</file>
+	<file>Icons/Plugins16.png</file>
+	<file>Icons/DataDirectories16.png</file>
+	<file>Icons/StoredSettings16.png</file>
   </qresource>
   <qresource prefix="AssetIcons">
     <file>All.png</file>

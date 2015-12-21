@@ -46,7 +46,7 @@ private:
   ezUInt32 m_uiNumShapeIcons;
   ezMeshBufferResourceHandle m_hShapeIcons;
   ezShaderResourceHandle m_hShapeIconShader;
-  ezUInt32 m_uiShapeIconBufferCounter;
+  static ezUInt32 s_uiShapeIconBufferCounter;
 };
 
 

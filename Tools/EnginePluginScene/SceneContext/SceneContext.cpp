@@ -15,6 +15,8 @@ EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "ezScene;ezPrefab"),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+ezUInt32 ezSceneContext::s_uiShapeIconBufferCounter = 0;
+
 void ezSceneContext::ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds)
 {
   /// \todo Work around for objects without bounds (?)
@@ -37,7 +39,6 @@ ezSceneContext::ezSceneContext()
   m_bRenderSelectionOverlay = true;
   m_bRenderShapeIcons = true;
   m_bShapeIconBufferValid = false;
-  m_uiShapeIconBufferCounter = 0;
   m_uiNumShapeIcons = 0;
 }
 
@@ -206,8 +207,8 @@ void ezSceneContext::GenerateShapeIconMesh()
     return;
 
   ezStringBuilder s;
-  s.Format("ShapeIconMeshBuffer%u", m_uiShapeIconBufferCounter);
-  ++m_uiShapeIconBufferCounter;
+  s.Format("ShapeIconMeshBuffer%u", s_uiShapeIconBufferCounter);
+  ++s_uiShapeIconBufferCounter;
 
   m_hShapeIcons = ezResourceManager::CreateResource<ezMeshBufferResource>(s, desc);
 

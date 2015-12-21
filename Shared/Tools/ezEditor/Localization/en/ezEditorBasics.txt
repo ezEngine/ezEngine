@@ -29,6 +29,8 @@ Menu.View;View
 Menu.Help;Help
 Menu.RenderMode;Render Mode
 Menu.RenderPerspective;Perspective
+Menu.ProjectSettings;Project Settings
+Menu.EditorSettings;Editor Settings
 Asset.Transform;Transform Asset
 Asset.TransformAll;Transform All Assets
 Asset.CheckFilesystem;Check Filesystem
@@ -79,3 +81,7 @@ ezTextureTypeEnum::Unknown;Unknown
 ezTextureTypeEnum::Texture2D;Texture 2D
 ezTextureTypeEnum::Texture3D;Texture 3D
 ezTextureTypeEnum::TextureCube;Texture Cube
+Project.DataDirectories;Data Directories
+Editor.Plugins;Plugins
+Editor.Shortcuts;Shortcuts
+Editor.SettingsDlg;Stored Settings

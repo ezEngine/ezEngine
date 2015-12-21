@@ -26,6 +26,7 @@
     <file>Icons/Copy16.png</file>
     <file>Icons/Paste16.png</file>
     <file>Icons/ezEditor16.png</file>
+	<file>Icons/Shortcuts16.png</file>
     <file>ThumbnailLoading.png</file>
     <file>ThumbnailUnavailable.png</file>
   </qresource>

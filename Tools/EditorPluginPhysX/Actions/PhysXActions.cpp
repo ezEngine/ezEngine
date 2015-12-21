@@ -30,13 +30,13 @@ void ezPhysXActions::UnregisterActions()
 void ezPhysXActions::MapMenuActions()
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap("EditorPluginScene_DocumentMenuBar");
-  EZ_ASSERT_DEV(pMap != nullptr, "Mmapping the actions failed!");
+  EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 
-  pMap->MapAction(s_hCategoryPhysX, "Menu.Project", 1.0f);
-  pMap->MapAction(s_hProjectSettings, "Menu.Project/PhysX", 0.0f);
+  pMap->MapAction(s_hCategoryPhysX, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 1.0f);
+  pMap->MapAction(s_hProjectSettings, "Menu.Editor/ProjectCategory/Menu.ProjectSettings/PhysX", 1.0f);
 
   pMap->MapAction(s_hCategoryPhysX, "Menu.Scene", 1.0f);
-  pMap->MapAction(s_hSceneSettings, "Menu.Scene/PhysX", 0.0f);
+  pMap->MapAction(s_hSceneSettings, "Menu.Scene/PhysX", 1.0f);
 }
 
 ezPhysXAction::ezPhysXAction(const ezActionContext& context, const char* szName, ActionType type) : ezButtonAction(context, szName, false, "")

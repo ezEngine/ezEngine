@@ -1,18 +1,13 @@
 #include <PCH.h>
 #include <EditorFramework/Settings/SettingsTab.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/Dialogs/DataDirsDlg.moc.h>
-#include <EditorFramework/Dialogs/PluginDlg.moc.h>
-#include <GuiFoundation/Dialogs/ShortcutEditorDlg.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 
 static ezSettingsTab* g_pInstance = nullptr;
 
 ezString ezSettingsTab::GetWindowIcon() const
 {
-  return ":/GuiFoundation/Icons/Settings16.png";
+  return ":/GuiFoundation/Icons/ezEditor16.png";
 }
 
 void ezQtEditorApp::ShowSettingsDocument()
@@ -42,11 +37,9 @@ ezSettingsTab* ezSettingsTab::GetInstance()
   return g_pInstance;
 }
 
-ezSettingsTab::ezSettingsTab() : ezQtDocumentWindow("Settings")
+ezSettingsTab::ezSettingsTab() : ezQtDocumentWindow("")
 {
   setCentralWidget(new QWidget());
-
-  m_sSelectedSettingDomain = "<Application>";
 
   EZ_ASSERT_DEV(g_pInstance == nullptr, "");
   EZ_ASSERT_DEV(centralWidget() != nullptr, "");
@@ -55,18 +48,7 @@ ezSettingsTab::ezSettingsTab() : ezQtDocumentWindow("Settings")
   setupUi(centralWidget());
   QMetaObject::connectSlotsByName(this);
 
-  m_pSettingsGrid = new ezQtSimplePropertyGridWidget(this);
-  GroupSettings->layout()->addWidget(m_pSettingsGrid);
-
-  EZ_VERIFY(connect(m_pSettingsGrid, SIGNAL(value_changed()), this, SLOT(SlotSettingsChanged())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(ComboSettingsDomain, SIGNAL(currentIndexChanged(int)), this, SLOT(SlotComboSettingsDomainIndexChanged(int))) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(AssetBrowserWidget, SIGNAL(ItemChosen(QString, QString, QString)), this, SLOT(SlotAssetChosen(QString, QString, QString))) != nullptr, "signal/slot connection failed");
-
-  ezPlugin::s_PluginEvents.AddEventHandler(ezMakeDelegate(&ezSettingsTab::PluginEventHandler, this));
-  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezSettingsTab::ProjectEventHandler, this));
-  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezSettingsTab::DocumentManagerEventHandler, this));
-
-  UpdateSettings();
+  //EZ_VERIFY(connect(AssetBrowserWidget, SIGNAL(ItemChosen(QString, QString, QString)), this, SLOT(SlotAssetChosen(QString, QString, QString))) != nullptr, "signal/slot connection failed");
 
   ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
   ezActionContext context;
@@ -74,133 +56,16 @@ ezSettingsTab::ezSettingsTab() : ezQtDocumentWindow("Settings")
   context.m_pDocument = nullptr;
   pMenuBar->SetActionContext(context);
 
-  AssetBrowserWidget->RestoreState("AssetBrowserPanel");
+  //AssetBrowserWidget->RestoreState("AssetBrowserPanel");
 
   FinishWindowCreation();
 }
 
 ezSettingsTab::~ezSettingsTab()
 {
-  AssetBrowserWidget->SaveState("AssetBrowserPanel");
-
-  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSettingsTab::ProjectEventHandler, this));
-  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSettingsTab::DocumentManagerEventHandler, this));
-  ezPlugin::s_PluginEvents.RemoveEventHandler(ezMakeDelegate(&ezSettingsTab::PluginEventHandler, this));
+  //AssetBrowserWidget->SaveState("AssetBrowserPanel");
 
   g_pInstance = nullptr;
-}
-
-void ezSettingsTab::PluginEventHandler(const ezPlugin::PluginEvent& e)
-{
-  switch (e.m_EventType)
-  {
-  case ezPlugin::PluginEvent::Type::AfterPluginChanges:
-    {
-      // this is necessary to detect new settings when a plugin has been loaded
-      UpdateSettings();
-    }
-    break;
-  }
-}
-
-void ezSettingsTab::ProjectEventHandler(const ezToolsProject::Event& e)
-{
-  switch (e.m_Type)
-  {
-  case ezToolsProject::Event::Type::ProjectClosed:
-  case ezToolsProject::Event::Type::ProjectOpened:
-    UpdateSettings();
-    break;
-  }
-}
-
-void ezSettingsTab::DocumentManagerEventHandler(const ezDocumentManager::Event& e)
-{
-  switch (e.m_Type)
-  {
-  case ezDocumentManager::Event::Type::DocumentClosed:
-  case ezDocumentManager::Event::Type::DocumentOpened:
-    UpdateSettings();
-    break;
-  }
-}
-
-void ezSettingsTab::UpdateSettings()
-{
-  ezStringBuilder sTemp;
-
-  GroupProject->setEnabled(ezToolsProject::IsProjectOpen());
-
-  ComboSettingsDomain->blockSignals(true);
-  ComboSettingsDomain->clear();
-
-  int iSelected = 0;
-  ComboSettingsDomain->addItem("<Application>", QString("<Application>"));
-
-  if (ezToolsProject::IsProjectOpen())
-  {
-    ComboSettingsDomain->addItem("<Project>", QString("<Project>"));
-
-    if ("<Project>" == m_sSelectedSettingDomain)
-      iSelected = 1;
-
-    ezInt32 iIndex = 2;
-    for (auto dm : ezDocumentManager::GetAllDocumentManagers())
-    {
-      for (auto doc : dm->GetAllDocuments())
-      {
-        ezString sRel;
-        if (!ezToolsProject::GetInstance()->IsDocumentInAllowedRoot(doc->GetDocumentPath(), &sRel))
-          continue;
-
-        ComboSettingsDomain->addItem(sRel.GetData(), QString(doc->GetDocumentPath()));
-
-        if (doc->GetDocumentPath() == m_sSelectedSettingDomain)
-          iSelected = iIndex;
-
-        ++iIndex;
-      }
-    }
-  }
-
-  ComboSettingsDomain->setCurrentIndex(iSelected);
-  m_sSelectedSettingDomain = ComboSettingsDomain->itemData(iSelected, Qt::UserRole).toString().toUtf8().data();
-  ComboSettingsDomain->blockSignals(false);
-
-  m_pSettingsGrid->BeginProperties();
-
-  for (const ezString& sName : ezQtEditorApp::GetInstance()->GetRegisteredPluginNamesForSettings())
-  {
-    ezSettings* s;
-
-    if (m_sSelectedSettingDomain == "<Application>")
-      s = &ezQtEditorApp::GetInstance()->GetEditorSettings(sName);
-    else
-    if (m_sSelectedSettingDomain == "<Project>")
-      s = &ezQtEditorApp::GetInstance()->GetProjectSettings(sName);
-    else
-      s = &ezQtEditorApp::GetInstance()->GetDocumentSettings(m_sSelectedSettingDomain, sName);
-
-    bool bAddedGroupName = false;
-
-    for (auto it = s->GetAllSettings().GetIterator(); it.IsValid(); ++it)
-    {
-      if (!it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered))
-        continue;
-      if (it.Value().m_Flags.IsAnySet(ezSettingsFlags::Hidden))
-        continue;
-
-      if (!bAddedGroupName)
-      {
-        m_pSettingsGrid->AddProperty("Data Group:", sName, nullptr, true);
-        bAddedGroupName = true;
-      }
-
-      m_pSettingsGrid->AddProperty(it.Key(), it.Value().m_Value, &it.Value().m_Value, it.Value().m_Flags.IsAnySet(ezSettingsFlags::ReadOnly));
-    }
-  }
-
-  m_pSettingsGrid->EndProperties();
 }
 
 bool ezSettingsTab::InternalCanCloseWindow()
@@ -215,50 +80,8 @@ void ezSettingsTab::InternalCloseDocumentWindow()
   g_pInstance = nullptr;
 }
 
-void ezSettingsTab::SlotSettingsChanged()
-{
-}
-
-void ezSettingsTab::on_ButtonPluginConfig_clicked()
-{
-  PluginDlg dlg(this);
-  dlg.exec();
-}
-
-
-void ezSettingsTab::on_ButtonEditShortcuts_clicked()
-{
-  ezShortcutEditorDlg dlg(this);
-  dlg.exec();
-}
-
 void ezSettingsTab::SlotAssetChosen(QString sAssetGuid, QString sAssetPathRelative, QString sAssetPathAbsolute)
 {
   ezQtEditorApp::GetInstance()->OpenDocument(sAssetPathAbsolute.toUtf8().data());
 }
-
-void ezSettingsTab::SlotComboSettingsDomainIndexChanged(int iIndex)
-{
-  m_sSelectedSettingDomain = ComboSettingsDomain->itemData(iIndex, Qt::UserRole).toString().toUtf8().data();
-
-  UpdateSettings();
-
-  if (iIndex == 0) // Application
-  {
-  }
-  else if (iIndex == 1) // Project
-  {
-  }
-  else
-  {
-    ComboSettingsDomain->itemText(iIndex);
-  }
-}
-
-void ezSettingsTab::on_ButtonDataDirConfig_clicked()
-{
-  DataDirsDlg dlg(this);
-  dlg.exec();
-}
-
 

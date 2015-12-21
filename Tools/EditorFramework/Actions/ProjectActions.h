@@ -27,7 +27,12 @@ public:
   static ezActionDescriptorHandle s_hCloseProject;
 
   static ezActionDescriptorHandle s_hSettingsCategory;
-  static ezActionDescriptorHandle s_hProjectSettings;
+  static ezActionDescriptorHandle s_hEditorSettingsMenu;
+  static ezActionDescriptorHandle s_hProjectSettingsMenu;
+  static ezActionDescriptorHandle s_hShortcutEditor;
+  static ezActionDescriptorHandle s_hEditorPlugins;
+  static ezActionDescriptorHandle s_hDataDirectories;
+  static ezActionDescriptorHandle s_hSettingsDlg;
 
   static ezActionDescriptorHandle s_hToolsMenu;
   static ezActionDescriptorHandle s_hToolsCategory;
@@ -66,8 +71,11 @@ public:
     CreateProject,
     OpenProject,
     CloseProject,
-    ProjectSettings,
     ReloadResources,
+    Shortcuts,
+    EditorPlugins,
+    DataDirectories,
+    SettingsDialog,
   };
 
   ezProjectAction(const ezActionContext& context, const char* szName, ButtonType button);

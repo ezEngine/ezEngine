@@ -96,14 +96,35 @@ void ezQtEditorApp::LoadPlugins()
 
   s_EditorPluginsActive.m_Plugins.Clear();
 
+  ezSet<ezString> NotLoaded;
+
   for (auto it = s_EditorPluginsToBeLoaded.m_Plugins.GetIterator(); it.IsValid(); ++it)
   {
     // only load plugins that are available
     if (s_EditorPluginsAvailable.m_Plugins.Find(it.Key().GetData()).IsValid())
     {
       s_EditorPluginsActive.m_Plugins.Insert(it.Key());
-      ezPlugin::LoadPlugin(it.Key().GetData());
+      if (ezPlugin::LoadPlugin(it.Key().GetData()).Failed())
+      {
+        NotLoaded.Insert(it.Key());
+      }
     }
+    else
+    {
+      NotLoaded.Insert(it.Key());
+    }
+  }
+
+  if (!NotLoaded.IsEmpty())
+  {
+    ezStringBuilder s = "The following plugins could not be loaded. Scenes may not load correctly.\n\n";
+
+    for (auto it = NotLoaded.GetIterator(); it.IsValid(); ++it)
+    {
+      s.AppendFormat(" '%s' ", it.Key().GetData());
+    }
+
+    ezUIServices::MessageBoxWarning(s);
   }
 }
 
