@@ -736,6 +736,21 @@ ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile
     }
 
     EZ_ASSERT_DEV(pDocument != nullptr, "Creation of document type '%s' succeeded, but returned pointer is NULL", DescToCreate.m_sDocumentTypeName.GetData());
+
+    if (pDocument->GetUnknownObjectTypeInstances() > 0)
+    {
+      ezStringBuilder s;
+      s.Format("The document contained %u objects of an unknown type. Necessary plugins may be missing.\n\n\
+If you save this document, all data for these objects is lost permanently!\n\n\
+The following types are missing:\n", pDocument->GetUnknownObjectTypeInstances());
+
+      for (auto it = pDocument->GetUnknownObjectTypes().GetIterator(); it.IsValid(); ++it)
+      {
+        s.AppendFormat(" '%s' ", (*it).GetData());
+      }
+
+      ezUIServices::MessageBoxWarning(s);
+    }
   }
   else
   {

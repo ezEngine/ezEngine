@@ -178,10 +178,19 @@ ezStatus ezDocument::InternalLoadDocument()
   auto* pRootNode = graph.GetNodeByName("ObjectTree");
   objectConverter.ApplyPropertiesToObject(pRootNode, GetObjectManager()->GetRootObject());
 
+  SetUnknownObjectTypes(objectConverter.GetUnknownObjectTypes(), objectConverter.GetNumUnknownObjectCreations());
+
   RestoreMetaDataAfterLoading(graph);
 
   SetModified(false);
   return ezStatus(EZ_SUCCESS);
+}
+
+
+void ezDocument::SetUnknownObjectTypes(const ezSet<ezString>& Types, ezUInt32 uiInstances)
+{
+  m_UnknownObjectTypes = Types;
+  m_uiUnknownObjectTypeInstances = uiInstances;
 }
 
 void ezDocument::DeleteSelectedObjects()

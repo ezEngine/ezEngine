@@ -1,6 +1,7 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
+#include <Foundation/Logging/Log.h>
 
 ezAbstractObjectNode* ezDocumentObjectConverterWriter::AddObjectToGraph(const ezDocumentObject* pObject, const char* szNodeName)
 {
@@ -125,6 +126,7 @@ ezDocumentObjectConverterReader::ezDocumentObjectConverterReader(const ezAbstrac
   m_pManager = pManager;
   m_pGraph = pGraph;
   m_Mode = mode;
+  m_uiUnknownTypeInstances = 0;
 }
 
 ezDocumentObject* ezDocumentObjectConverterReader::CreateObjectFromNode(const ezAbstractObjectNode* pNode, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index)
@@ -147,10 +149,23 @@ ezDocumentObject* ezDocumentObjectConverterReader::CreateObjectFromNode(const ez
   case ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument:
     {
       const ezRTTI* pRtti = ezRTTI::FindTypeByName(pNode->GetType());
-      EZ_ASSERT_DEV(pRtti != nullptr, "Type '%s' is unknown", pNode->GetType());
 
-      pObject = m_pManager->CreateObject(pRtti, pNode->GetGuid());
-      m_pManager->AddObject(pObject, pParent, szParentProperty, index);
+      if (pRtti)
+      {
+        pObject = m_pManager->CreateObject(pRtti, pNode->GetGuid());
+        m_pManager->AddObject(pObject, pParent, szParentProperty, index);
+      }
+      else
+      {
+        if (!m_UnknownTypes.Contains(pNode->GetType()))
+        {
+          ezLog::Error("Can't create objects of unknown type '%s'", pNode->GetType());
+          m_UnknownTypes.Insert(pNode->GetType());
+        }
+
+        m_uiUnknownTypeInstances++;
+        return nullptr;
+      }
     }
     break;
   }
@@ -190,7 +205,11 @@ void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, e
         EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
 
         auto* pSubObject = CreateObjectFromNode(pSubNode, pObject, pProp->GetPropertyName(), ezVariant());
-        ApplyPropertiesToObject(pSubNode, pSubObject);
+
+        if (pSubObject)
+        {
+          ApplyPropertiesToObject(pSubNode, pSubObject);
+        }
       }
     }
     else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags | ezPropertyFlags::StandardType | ezPropertyFlags::Pointer))
@@ -245,7 +264,10 @@ void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, e
             pSubObject = CreateObjectFromNode(pSubNode, pObject, pProp->GetPropertyName(), -1);
           }
 
-          ApplyPropertiesToObject(pSubNode, pSubObject);
+          if (pSubObject)
+          {
+            ApplyPropertiesToObject(pSubNode, pSubObject);
+          }
         }
       }
     }

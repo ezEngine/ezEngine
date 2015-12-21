@@ -68,9 +68,27 @@ ezModifiedDocumentsDlg::ezModifiedDocumentsDlg(QWidget* parent, const ezHybridAr
 
 ezResult ezModifiedDocumentsDlg::SaveDocument(ezDocument* pDoc)
 {
-  if (pDoc->SaveDocument().m_Result.Failed())
+  if (!pDoc->IsModified())
+    return EZ_SUCCESS;
+
   {
-    // ... TODO
+    if (pDoc->GetUnknownObjectTypeInstances() > 0)
+    {
+      if (ezUIServices::MessageBoxQuestion("Warning! This document contained unknown object types that could not be loaded. Saving the document means those objects will get lost permanently.\n\nDo you really want to save this document?",
+                                           QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
+        return EZ_SUCCESS; // failed successfully
+    }
+  }
+
+  auto res = pDoc->SaveDocument();
+
+  if (res.m_Result.Failed())
+  {
+    ezStringBuilder s, s2;
+    s.Format("Failed to save document:\n'%s'", pDoc->GetDocumentPath());
+    s2.Format("Successfully saved document:\n'%s'", pDoc->GetDocumentPath());
+
+    ezUIServices::MessageBoxStatus(res, s, s2);
 
     return EZ_FAILURE;
   }

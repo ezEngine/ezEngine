@@ -209,11 +209,15 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
       if (ezStringUtils::IsEqual(pNode->GetNodeName(), "root"))
       {
         auto* pNewObject = reader.CreateObjectFromNode(pNode, nullptr, nullptr, ezVariant());
-        reader.ApplyPropertiesToObject(pNode, pNewObject);
 
-        auto& ref = ToBePasted.ExpandAndGetRef();
-        ref.m_pObject = pNewObject;
-        ref.m_pParent = pParent;
+        if (pNewObject)
+        {
+          reader.ApplyPropertiesToObject(pNode, pNewObject);
+
+          auto& ref = ToBePasted.ExpandAndGetRef();
+          ref.m_pObject = pNewObject;
+          ref.m_pParent = pParent;
+        }
       }
     }
 
@@ -344,19 +348,23 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
               auto pRealRootNode = graph.GetNode(rootObjectGuid);
 
               auto* pNewObject = reader.CreateObjectFromNode(pRealRootNode, nullptr, nullptr, ezVariant());
-              reader.ApplyPropertiesToObject(pRealRootNode, pNewObject);
 
-              auto& ref = ToBePasted.ExpandAndGetRef();
-              ref.m_pObject = pNewObject;
-              ref.m_pParent = pParent;
-
-              /// \todo HACK-o-rama
-              if (m_pCreatedRootObject != 0)
+              if (pNewObject)
               {
-                void* pObj = nullptr;
-                ezMemoryUtils::Copy((ezUInt8*) &pObj, (ezUInt8*) &m_pCreatedRootObject, sizeof(void*));
+                reader.ApplyPropertiesToObject(pRealRootNode, pNewObject);
 
-                *((ezUuid*)pObj) = pNewObject->GetGuid();
+                auto& ref = ToBePasted.ExpandAndGetRef();
+                ref.m_pObject = pNewObject;
+                ref.m_pParent = pParent;
+
+                /// \todo HACK-o-rama
+                if (m_pCreatedRootObject != 0)
+                {
+                  void* pObj = nullptr;
+                  ezMemoryUtils::Copy((ezUInt8*)&pObj, (ezUInt8*)&m_pCreatedRootObject, sizeof(void*));
+
+                  *((ezUuid*)pObj) = pNewObject->GetGuid();
+                }
               }
               
               // only create the very first object, if there are multiple objects in the prefab, ignore the rest

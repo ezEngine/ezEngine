@@ -78,6 +78,9 @@ public:
   virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition) { return false; };
   virtual void DeleteSelectedObjects();
 
+  const ezSet<ezString>& GetUnknownObjectTypes() const { return m_UnknownObjectTypes; }
+  ezUInt32 GetUnknownObjectTypeInstances() const { return m_uiUnknownObjectTypeInstances; }
+
 public:
   struct Event
   {
@@ -115,6 +118,8 @@ protected:
   ezDocumentInfo* m_pDocumentInfo;
   ezDocumentTypeDescriptor m_TypeDescriptor;
 
+  void SetUnknownObjectTypes(const ezSet<ezString>& Types, ezUInt32 uiInstances);
+
 private:
   friend class ezDocumentManager;
   friend class ezCommandHistory;
@@ -129,4 +134,7 @@ private:
   bool m_bModified;
   bool m_bReadOnly;
   bool m_bWindowRequested;
+
+  ezSet<ezString> m_UnknownObjectTypes;
+  ezUInt32 m_uiUnknownObjectTypeInstances;
 };

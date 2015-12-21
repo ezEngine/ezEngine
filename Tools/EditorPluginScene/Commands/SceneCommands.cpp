@@ -75,16 +75,20 @@ ezStatus ezDuplicateObjectsCommand::DoInternal(bool bRedo)
       if (ezStringUtils::IsEqual(pNode->GetNodeName(), "root"))
       {
         auto* pNewObject = reader.CreateObjectFromNode(pNode, nullptr, nullptr, ezVariant());
-        reader.ApplyPropertiesToObject(pNode, pNewObject);
 
-        auto& ref = ToBePasted.ExpandAndGetRef();
-        ref.m_pObject = pNewObject;
-        ref.m_pParent = nullptr;
+        if (pNewObject)
+        {
+          reader.ApplyPropertiesToObject(pNode, pNewObject);
 
-        const ezUuid guidParent = ParentGuids[pNode->GetGuid()];
+          auto& ref = ToBePasted.ExpandAndGetRef();
+          ref.m_pObject = pNewObject;
+          ref.m_pParent = nullptr;
 
-        if (guidParent.IsValid())
-          ref.m_pParent = pDocument->GetObjectManager()->GetObject(guidParent);
+          const ezUuid guidParent = ParentGuids[pNode->GetGuid()];
+
+          if (guidParent.IsValid())
+            ref.m_pParent = pDocument->GetObjectManager()->GetObject(guidParent);
+        }
       }
     }
 
