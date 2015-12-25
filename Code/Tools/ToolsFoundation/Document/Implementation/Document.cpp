@@ -116,6 +116,10 @@ ezStatus ezDocument::SaveDocument()
     s_EventsAny.Broadcast(e);
 
     SetModified(false);
+
+    // after saving once, this information is pointless
+    m_uiUnknownObjectTypeInstances = 0;
+    m_UnknownObjectTypes.Clear();
   }
 
   BroadcastSaveDocumentMetaState();

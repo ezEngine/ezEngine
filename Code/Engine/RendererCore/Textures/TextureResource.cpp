@@ -280,7 +280,7 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReader* Stream)
   const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
 
   ezGALTextureCreationDescription TexDesc;
-  TexDesc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+  TexDesc.m_Format = ezGALResourceFormat::RGBAUByteNormalized; /// \todo Support more texture formats
   TexDesc.m_uiWidth = pImage->GetWidth(uiHighestMipLevel);
   TexDesc.m_uiHeight = pImage->GetHeight(uiHighestMipLevel);
   TexDesc.m_uiDepth = pImage->GetDepth(uiHighestMipLevel);
@@ -338,38 +338,6 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReader* Stream)
 
   // ignore its return value here, we build our own
   CreateResource(td);
-
-  //m_hGALTexture[m_uiLoadedTextures] = ezGALDevice::GetDefaultDevice()->CreateTexture(TexDesc, &InitDataPtr);
-
-  //EZ_ASSERT_DEV(!m_hGALTexture[m_uiLoadedTextures].IsInvalidated(), "Texture Data could not be uploaded to the GPU");
-
-  //ezGALResourceViewCreationDescription TexViewDesc;
-  //TexViewDesc.m_hTexture = m_hGALTexture[m_uiLoadedTextures];
-
-  //m_hGALTexView[m_uiLoadedTextures] = ezGALDevice::GetDefaultDevice()->CreateResourceView(TexViewDesc);
-
-  //EZ_ASSERT_DEV(!m_hGALTexView[m_uiLoadedTextures].IsInvalidated(), "No resource view could be created for texture '%s'. Maybe the format table is incorrect?", GetResourceID().GetData());
-
-  ///// \todo HACK
-  //if (m_hSamplerState.IsInvalidated())
-  //{
-  //  ezGALSamplerStateCreationDescription SamplerDesc;
-  //  SamplerDesc.m_MagFilter = ezGALTextureFilterMode::Linear;
-  //  SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Point;
-  //  SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Point;
-
-  //  if (pImage->GetNumMipLevels() > 1)
-  //  {
-  //    SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Linear;
-  //    SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Linear;
-  //  }
-
-  //  m_hSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(SamplerDesc);
-
-  //  EZ_ASSERT_DEV(!m_hSamplerState.IsInvalidated(), "Sampler state error");
-  //}
-
-  //++m_uiLoadedTextures;
 
   {
     ezResourceLoadDesc res;

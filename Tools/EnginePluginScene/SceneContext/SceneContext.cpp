@@ -8,6 +8,7 @@
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <Core/Scene/Scene.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>);
 EZ_BEGIN_PROPERTIES
@@ -39,7 +40,6 @@ ezSceneContext::ezSceneContext()
   m_bRenderSelectionOverlay = true;
   m_bRenderShapeIcons = true;
   m_bShapeIconBufferValid = false;
-  m_uiNumShapeIcons = 0;
 }
 
 void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
@@ -152,78 +152,111 @@ void ezSceneContext::GenerateShapeIconMesh()
   if (m_bShapeIconBufferValid)
     return;
 
-  const ezWorld* world = m_pScene->GetWorld();
-  EZ_LOCK(world->GetReadMarker());
-
-  ezMeshBufferResourceDescriptor desc;
-  desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
-  desc.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezGALResourceFormat::RUInt);
-  desc.AllocateStreams(world->GetObjectCount() * 4, ezGALPrimitiveTopology::Triangles, world->GetObjectCount() * 2);
-
-  auto& tagReg = ezTagRegistry::GetGlobalRegistry();
-  ezTag tagHidden;
-  tagReg.RegisterTag("EditorHidden", &tagHidden);
-  ezTag tagEditor;
-  ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tagEditor);
-
-  ezUInt32 obj = 0;
-  for (auto it = world->GetObjects(); it.IsValid(); ++it)
+  // clear previous data
   {
-    if (it->GetComponents().IsEmpty())
-      continue;
-
-    if (it->GetTags().IsSet(tagEditor) || it->GetTags().IsSet(tagHidden))
-      continue;
-
-    const auto id = it->GetComponents()[0]->m_uiEditorPickingID;
-
-    const ezVec3 pos = it->GetGlobalPosition();
-    
-    desc.SetVertexData<ezVec3>(0, obj * 4 + 0, pos);
-    desc.SetVertexData<ezVec3>(0, obj * 4 + 1, pos);
-    desc.SetVertexData<ezVec3>(0, obj * 4 + 2, pos);
-    desc.SetVertexData<ezVec3>(0, obj * 4 + 3, pos);
-
-    desc.SetVertexData<ezVec2>(1, obj * 4 + 0, ezVec2(0, 0));
-    desc.SetVertexData<ezVec2>(1, obj * 4 + 1, ezVec2(1, 0));
-    desc.SetVertexData<ezVec2>(1, obj * 4 + 2, ezVec2(1, 1));
-    desc.SetVertexData<ezVec2>(1, obj * 4 + 3, ezVec2(0, 1));
-
-    desc.SetVertexData<ezUInt32>(2, obj * 4 + 0, id);
-    desc.SetVertexData<ezUInt32>(2, obj * 4 + 1, id);
-    desc.SetVertexData<ezUInt32>(2, obj * 4 + 2, id);
-    desc.SetVertexData<ezUInt32>(2, obj * 4 + 3, id);
-
-    desc.SetTriangleIndices(obj * 2 + 0, obj * 4 + 0, obj * 4 + 1, obj * 4 + 2);
-    desc.SetTriangleIndices(obj * 2 + 1, obj * 4 + 0, obj * 4 + 2, obj * 4 + 3);
-
-    ++obj;
+    for (auto it = m_ShapeIcons.GetIterator(); it.IsValid(); ++it)
+    {
+      it.Value().m_hMeshBuffer.Invalidate();
+      it.Value().m_IconPositions.Clear();
+    }
   }
 
-  m_uiNumShapeIcons = obj;
+  {
+    const ezWorld* world = m_pScene->GetWorld();
+    EZ_LOCK(world->GetReadMarker());
 
-  if (m_uiNumShapeIcons == 0)
-    return;
+    auto& tagReg = ezTagRegistry::GetGlobalRegistry();
+    ezTag tagHidden;
+    tagReg.RegisterTag("EditorHidden", &tagHidden);
+    ezTag tagEditor;
+    ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tagEditor);
 
-  ezStringBuilder s;
-  s.Format("ShapeIconMeshBuffer%u", s_uiShapeIconBufferCounter);
-  ++s_uiShapeIconBufferCounter;
+    ezUInt32 obj = 0;
+    for (auto it = world->GetObjects(); it.IsValid(); ++it)
+    {
+      if (it->GetComponents().IsEmpty())
+        continue;
 
-  m_hShapeIcons = ezResourceManager::CreateResource<ezMeshBufferResource>(s, desc);
+      if (it->GetTags().IsSet(tagEditor) || it->GetTags().IsSet(tagHidden))
+        continue;
+
+      const ezRTTI* pRtti = it->GetComponents()[0]->GetDynamicRTTI();
+
+      ShapeIconData* pData = nullptr;
+      if (!m_ShapeIcons.TryGetValue(pRtti, pData))
+        continue;
+
+      ShapeIconData::PosID& pid = pData->m_IconPositions.ExpandAndGetRef();
+      pid.id = it->GetComponents()[0]->m_uiEditorPickingID;
+      pid.pos = it->GetGlobalPosition();
+    }
+  }
+
+  for (auto it = m_ShapeIcons.GetIterator(); it.IsValid(); ++it)
+  {
+    auto& dat = it.Value().m_IconPositions;
+    if (dat.IsEmpty())
+      continue;
+
+    ezMeshBufferResourceDescriptor desc;
+    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+    desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
+    desc.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezGALResourceFormat::RUInt);
+    desc.AllocateStreams(dat.GetCount() * 4, ezGALPrimitiveTopology::Triangles, dat.GetCount() * 2);
+
+
+    ezUInt32 obj = 0;
+    for (const auto& pid : dat)
+    {
+      desc.SetVertexData<ezVec3>(0, obj * 4 + 0, pid.pos);
+      desc.SetVertexData<ezVec3>(0, obj * 4 + 1, pid.pos);
+      desc.SetVertexData<ezVec3>(0, obj * 4 + 2, pid.pos);
+      desc.SetVertexData<ezVec3>(0, obj * 4 + 3, pid.pos);
+
+      desc.SetVertexData<ezVec2>(1, obj * 4 + 0, ezVec2(0, 0));
+      desc.SetVertexData<ezVec2>(1, obj * 4 + 1, ezVec2(1, 0));
+      desc.SetVertexData<ezVec2>(1, obj * 4 + 2, ezVec2(1, 1));
+      desc.SetVertexData<ezVec2>(1, obj * 4 + 3, ezVec2(0, 1));
+
+      desc.SetVertexData<ezUInt32>(2, obj * 4 + 0, pid.id);
+      desc.SetVertexData<ezUInt32>(2, obj * 4 + 1, pid.id);
+      desc.SetVertexData<ezUInt32>(2, obj * 4 + 2, pid.id);
+      desc.SetVertexData<ezUInt32>(2, obj * 4 + 3, pid.id);
+
+      desc.SetTriangleIndices(obj * 2 + 0, obj * 4 + 0, obj * 4 + 1, obj * 4 + 2);
+      desc.SetTriangleIndices(obj * 2 + 1, obj * 4 + 0, obj * 4 + 2, obj * 4 + 3);
+
+      ++obj;
+    }
+
+    ezStringBuilder s;
+    s.Format("ShapeIconMeshBuffer%u", s_uiShapeIconBufferCounter);
+    ++s_uiShapeIconBufferCounter;
+
+    it.Value().m_hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(s, desc);
+  }
 
   m_bShapeIconBufferValid = true;
 }
 
 void ezSceneContext::RenderShapeIcons(ezRenderContext* pContext)
 {
-  if (!m_bRenderShapeIcons || m_uiNumShapeIcons == 0)
+  if (!m_bRenderShapeIcons)
     return;
 
-  pContext->BindMeshBuffer(m_hShapeIcons);
-  pContext->BindShader(m_hShapeIconShader);
+  for (auto it = m_ShapeIcons.GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Value().m_IconPositions.IsEmpty())
+      continue;
 
-  pContext->DrawMeshBuffer(m_uiNumShapeIcons * 2);
+    pContext->BindMeshBuffer(it.Value().m_hMeshBuffer);
+    pContext->BindTexture("ShapeIcon", it.Value().m_hTexture);
+    pContext->BindShader(m_hShapeIconShader);
+
+    pContext->DrawMeshBuffer();
+  }
+
+  /// \todo Render all selected ones again (blend overlay color)
 }
 
 void ezSceneContext::OnInitialize()
@@ -236,12 +269,14 @@ void ezSceneContext::OnInitialize()
   pWorld->CreateComponentManager<ezRotorComponentManager>();
   pWorld->CreateComponentManager<ezSliderComponentManager>();
 
+  LoadShapeIconTextures();
+
   m_hShapeIconShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Editor/ShapeIcon.ezShader");
 }
 
 void ezSceneContext::OnDeinitialize()
 {
-  m_hShapeIcons.Invalidate();
+  m_ShapeIcons.Clear();
   m_hShapeIconShader.Invalidate();
 }
 
@@ -304,4 +339,25 @@ void ezSceneContext::InsertSelectedChildren(const ezGameObject* pObject)
 
     it.Next();
   }
+}
+
+void ezSceneContext::LoadShapeIconTextures()
+{
+  EZ_LOG_BLOCK("LoadShapeIconTextures");
+
+  ezStringBuilder sPath;
+
+  for (ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  {
+    if (!pRtti->IsDerivedFrom<ezComponent>())
+      continue;
+
+    sPath.Set("ShapeIcons/", pRtti->GetTypeName(), ".dds");
+
+    if (ezFileSystem::ExistsFile(sPath))
+    {
+      m_ShapeIcons[pRtti].m_hTexture = ezResourceManager::LoadResource<ezTextureResource>(sPath);
+    }
+  }
+
 }

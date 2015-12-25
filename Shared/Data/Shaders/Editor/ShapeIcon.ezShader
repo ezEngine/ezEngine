@@ -41,8 +41,10 @@ VS_TO_PS main(VERTEX_DATA input)
   
   float scale = min(output.Position.w, 1.0) * 0.3;
   
+  // todo use correct aspect ratio
+  // todo make sure this scales nicely on different resolutions
   output.Position.x += (input.TexCoord0.x - 0.5) * scale;
-  output.Position.y += (input.TexCoord0.y - 0.5) * scale;
+  output.Position.y -= (input.TexCoord0.y - 0.5) * scale;
   output.TexCoord0 = input.TexCoord0;
   output.ObjectID = input.ObjectID;
   
@@ -74,6 +76,9 @@ struct VS_TO_PS
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
+Texture2D ShapeIcon;
+SamplerState ShapeIconSampler;
+
 float4 main(VS_TO_PS input) : SV_Target
 {
 #if PICKING == 1
@@ -86,10 +91,17 @@ float4 main(VS_TO_PS input) : SV_Target
   return IdCol;
 #else
 
-  if (input.ObjectID == PickingHighlightID)
-	return float4(0.2, 0.2, 1.0, 1.0);
+  float4 col = float4(1.0, 1.0, 1.0, 1.0);
 
-  return float4(0, 1, 1, 1);
+  if (input.ObjectID == PickingHighlightID)
+	col = float4(0.2, 0.2, 1.0, 1.0);
+
+  float4 res = ShapeIcon.Sample(ShapeIconSampler, input.TexCoord0) * col;
+  
+  if (res.a < 0.5)
+    discard;
+
+  return res;
 #endif
 }
 

@@ -4,6 +4,7 @@
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Shader/ShaderResource.h>
+#include <RendererCore/Textures/TextureResource.h>
 
 class ezObjectSelectionMsgToEngine;
 class ezRenderContext;
@@ -35,6 +36,7 @@ private:
   void HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg);
   void ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds);
   void InsertSelectedChildren(const ezGameObject* pObject);
+  void LoadShapeIconTextures();
 
   bool m_bRenderSelectionOverlay;
   bool m_bRenderShapeIcons;
@@ -43,8 +45,22 @@ private:
   ezDeque<ezGameObjectHandle> m_SelectionWithChildren;
   ezSet<ezGameObjectHandle> m_SelectionWithChildrenSet;
 
-  ezUInt32 m_uiNumShapeIcons;
-  ezMeshBufferResourceHandle m_hShapeIcons;
+  struct ShapeIconData
+  {
+    ezTextureResourceHandle m_hTexture;
+    ezMeshBufferResourceHandle m_hMeshBuffer;
+
+    struct PosID
+    {
+      ezVec3 pos;
+      ezUInt32 id;
+    };
+
+    ezDeque<PosID> m_IconPositions;
+  };
+
+  ezHashTable<const ezRTTI*, ShapeIconData> m_ShapeIcons;
+
   ezShaderResourceHandle m_hShapeIconShader;
   static ezUInt32 s_uiShapeIconBufferCounter;
 };
