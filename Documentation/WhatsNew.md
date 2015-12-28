@@ -1,6 +1,25 @@
 What's New {#WhatsNew}
 ==========
 
+Milestone 8
+-----------
+
+  * Added a random number generator, based on the WELL512 algorithm
+  * Added a preliminary PhysX integration
+  * Added selection highlight rendering to the editor
+  * Added a play-the-game mode to the editor
+  * Every ezWorld now has its own clock
+  * Removed all global clocks except for one
+  * Changed component initialization order a bit to make writing init functions easier
+  * Simulation of ezWorlds can now be paused
+  * Added ezScene, a higher level construct containing an ezWorld plus additional state
+  * Added ezSceneModule, which allows to hook into the initialization and update of ezScene, enabling custom plugins like PhysX or Fmod
+  * Added shape icon rendering in the editor, which also allow to select objects
+  * Improved display of components in the editor (icons etc.)
+  * Improved performance when syncing state between editor and engine (sending property diffs only)
+  * Added support for Tag properties in the editor
+  * Added support for clamping property values in the editor UI
+
 Milestone 7
 -----------
   * Added solid color texture resources. E.g. use a texture resource with name "CornflowerBlue.color" or "#FF00FF.color" or "FF00FF00.color" and a 4x4 color texture will be generated from memory, instead of read from disk.

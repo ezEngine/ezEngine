@@ -74,6 +74,7 @@
 #include <Foundation/Math/Math.h>
 #include <Foundation/Math/Plane.h>
 #include <Foundation/Math/Quat.h>
+#include <Foundation/Math/Random.h>
 #include <Foundation/Math/Rect.h>
 #include <Foundation/Math/Size.h>
 #include <Foundation/Math/Transform.h>

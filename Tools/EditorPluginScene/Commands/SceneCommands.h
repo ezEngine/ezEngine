@@ -32,5 +32,3 @@ private:
   ezHybridArray<DuplicatedObject, 4> m_DuplicatedObjects;
 };
 
-
-
