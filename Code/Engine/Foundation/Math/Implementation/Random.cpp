@@ -96,3 +96,115 @@ double ezRandom::DoubleMinMax(double fMinValue, double fMaxValue)
   return fMinValue + DoubleZeroToOneExclusive() * (fMaxValue - fMinValue); /// \todo Probably not correct
 
 }
+
+static double Gauss(double x, double fSigma)
+{
+  // taken from https://en.wikipedia.org/wiki/Normal_distribution
+  // mue is 0 because we want the curve to center around the origin
+
+  // float G = (1.0f / (sqrt (2.0f * pi) * fSigma)) * exp ((-(x * x) / (2.0f * fSigma * fSigma)));
+
+  const double sqrt2pi = 2.506628274631000502415765284811;
+
+  const double G = (1.0 / (sqrt2pi * fSigma)) * ezMath::Exp((-(x * x) / (2.0 * fSigma * fSigma)));
+
+  return G;
+}
+
+void ezRandomGauss::Initialize(ezUInt64 uiRandomSeed, ezUInt32 uiMaxValue, float fVariance)
+{
+  EZ_ASSERT_DEV(uiMaxValue >= 2, "Invalid value");
+
+  m_Generator.Initialize(uiRandomSeed);
+
+  SetupTable(uiMaxValue, ezMath::Sqrt(fVariance));
+}
+
+
+void ezRandomGauss::SetupTable(ezUInt32 uiMaxValue, float fSigma)
+{
+  // create half a bell curve with a fixed sigma
+
+  const double UsefulRange = 5.0;
+
+  m_fSigma = fSigma;
+  m_GaussAreaSum.SetCount(uiMaxValue);
+
+  const double fBase2 = Gauss(UsefulRange, fSigma); // we clamp to zero at uiMaxValue, so we need the Gauss value there to subtract it from all other values
+
+  m_fAreaSum = 0;
+
+  for (ezUInt32 i = 0; i < uiMaxValue; ++i)
+  {
+    const double g = Gauss((UsefulRange / (uiMaxValue - 1)) * i, fSigma) - fBase2;
+    m_fAreaSum += g;
+    m_GaussAreaSum[i] = (float)m_fAreaSum;
+  }
+}
+
+ezUInt32 ezRandomGauss::UnsignedValue()
+{
+  const double fRand = m_Generator.DoubleInRange(0, m_fAreaSum);
+
+  const ezUInt32 uiMax = m_GaussAreaSum.GetCount();
+  for (ezUInt32 i = 0; i < uiMax; ++i)
+  {
+    if (fRand < m_GaussAreaSum[i])
+      return i;
+  }
+
+  return uiMax - 1;
+
+}
+
+ezInt32 ezRandomGauss::SignedValue()
+{
+  const double fRand = m_Generator.DoubleInRange(-m_fAreaSum, m_fAreaSum * 2.0);
+  const ezUInt32 uiMax = m_GaussAreaSum.GetCount();
+
+  if (fRand >= 0.0)
+  {
+    for (ezUInt32 i = 0; i < uiMax; ++i)
+    {
+      if (fRand < m_GaussAreaSum[i])
+        return i;
+    }
+
+    return uiMax - 1;
+  }
+  else
+  {
+    const double fRandAbs = (-fRand);
+
+    for (ezUInt32 i = 0; i < uiMax - 1; ++i)
+    {
+      if (fRandAbs < m_GaussAreaSum[i])
+        return -(ezInt32)i - 1;
+    }
+
+    return -(ezInt32)(uiMax - 1);
+  }
+
+}
+
+void ezRandomGauss::Save(ezStreamWriter& stream) const
+{
+  stream << m_GaussAreaSum.GetCount();
+  stream << m_fSigma;
+  m_Generator.Save(stream);
+}
+
+void ezRandomGauss::Load(ezStreamReader& stream)
+{
+  ezUInt32 uiMax = 0;
+  stream >> uiMax;
+
+  float fVariance = 0.0f;
+  stream >> fVariance;
+
+  SetupTable(uiMax, fVariance);
+
+  m_Generator.Load(stream);
+}
+
+

@@ -17,6 +17,7 @@ BUILD_CONDITIONAL(EZ_BUILD_UNITTESTS)
 SET (LINK_LIBRARIES
   Foundation      # Example: Another library build with cmake
   TestFramework
+  #CoreUtils
 )
 
 SET (ADDITIONAL_DEPENDENCIES
