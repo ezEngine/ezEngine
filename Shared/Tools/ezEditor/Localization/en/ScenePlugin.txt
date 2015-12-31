@@ -52,6 +52,7 @@ Selection.HideItems;Hide Selected
 Selection.HideUnselectedItems;Hide Unselected
 Selection.ShowHidden;Show Hidden Objects
 Selection.CreateEmptyNode;Create Empty Node
+Selection.DuplicateSpecial;Duplicate...
 Prefabs.Menu;Prefabs
 Prefabs.UpdateAll;Update Prefabs
 Prefabs.Create;Create Prefab...

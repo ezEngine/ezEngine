@@ -25,5 +25,6 @@
     <file>Icons/PrefabUnlink16.png</file>
     <file>Icons/PrefabOpenDocument16.png</file>
     <file>Icons/ShapeIcons16.png</file>
+	<file>Icons/Duplicate16.png</file>
   </qresource>
 </RCC>

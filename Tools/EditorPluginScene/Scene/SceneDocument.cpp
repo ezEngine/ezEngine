@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <EditorPluginScene/Objects/SceneObjectManager.h>
+#include <EditorPluginScene/Dialogs/DuplicateDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <Core/World/GameObject.h>
@@ -164,6 +165,46 @@ void ezSceneDocument::GroupSelection()
   }
 
   pHistory->FinishTransaction();
+}
+
+
+void ezSceneDocument::DuplicateSpecial()
+{
+  qtDuplicateDlg dlg(nullptr);
+  if (dlg.exec() == QDialog::Rejected)
+    return;
+
+  ezMap<ezUuid, ezUuid> parents;
+
+  ezAbstractObjectGraph graph;
+  Copy(graph, &parents);
+
+  ezStringBuilder temp;
+  for (auto it = parents.GetIterator(); it.IsValid(); ++it)
+  {
+    temp.AppendFormat("%s=%s;", ezConversionUtils::ToString(it.Key()).GetData(), ezConversionUtils::ToString(it.Value()).GetData());
+  }
+
+  // Serialize to string
+  ezMemoryStreamStorage streamStorage;
+  ezMemoryStreamWriter memoryWriter(&streamStorage);
+
+  ezAbstractGraphJsonSerializer::Write(memoryWriter, &graph, ezJSONWriter::WhitespaceMode::LessIndentation);
+  memoryWriter.WriteBytes("\0", 1); // null terminate
+
+  ezDuplicateObjectsCommand cmd;
+  cmd.m_sJsonGraph = (const char*)streamStorage.GetData();
+  cmd.m_sParentNodes = temp;
+  cmd.m_uiNumberOfCopies = dlg.s_uiNumberOfCopies;
+
+  auto history = GetCommandHistory();
+
+  history->StartTransaction();
+
+  if (history->AddCommand(cmd).m_Result.Failed())
+    history->CancelTransaction();
+  else
+    history->FinishTransaction();
 }
 
 void ezSceneDocument::CreateEmptyNode()

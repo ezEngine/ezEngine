@@ -67,6 +67,9 @@ public:
   void TriggerSnapPivotToGrid();
   void TriggerSnapEachObjectToGrid();
   void GroupSelection();
+  
+  /// \brief Opens the Duplicate Special dialog
+  void DuplicateSpecial();
 
   /// \brief Creates a new empty node, either top-level (selection empty) or as a child of the selected item
   void CreateEmptyNode();

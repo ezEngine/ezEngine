@@ -28,6 +28,7 @@ ezActionDescriptorHandle ezSelectionActions::s_hCreatePrefab;
 ezActionDescriptorHandle ezSelectionActions::s_hRevertPrefab;
 ezActionDescriptorHandle ezSelectionActions::s_hUnlinkFromPrefab;
 ezActionDescriptorHandle ezSelectionActions::s_hOpenPrefabDocument;
+ezActionDescriptorHandle ezSelectionActions::s_hDuplicateSpecial;
 
 
 void ezSelectionActions::RegisterActions()
@@ -47,6 +48,8 @@ void ezSelectionActions::RegisterActions()
   s_hRevertPrefab = EZ_REGISTER_ACTION_1("Prefabs.Revert", ezActionScope::Document, "Prefabs", "Ctrl+P,Ctrl+R", ezSelectionAction, ezSelectionAction::ActionType::RevertPrefab);
   s_hUnlinkFromPrefab = EZ_REGISTER_ACTION_1("Prefabs.Unlink", ezActionScope::Document, "Prefabs", "Ctrl+P,Ctrl+U", ezSelectionAction, ezSelectionAction::ActionType::UnlinkFromPrefab);
   s_hOpenPrefabDocument = EZ_REGISTER_ACTION_1("Prefabs.OpenDocument", ezActionScope::Document, "Prefabs", "Ctrl+P,Ctrl+O", ezSelectionAction, ezSelectionAction::ActionType::OpenPrefabDocument);
+
+  s_hDuplicateSpecial = EZ_REGISTER_ACTION_1("Selection.DuplicateSpecial", ezActionScope::Document, "Scene - Selection", "Ctrl+D", ezSelectionAction, ezSelectionAction::ActionType::DuplicateSpecial);
 }
 
 void ezSelectionActions::UnregisterActions()
@@ -65,6 +68,7 @@ void ezSelectionActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hRevertPrefab);
   ezActionManager::UnregisterAction(s_hUnlinkFromPrefab);
   ezActionManager::UnregisterAction(s_hOpenPrefabDocument);
+  ezActionManager::UnregisterAction(s_hDuplicateSpecial);
 }
 
 void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
@@ -84,6 +88,7 @@ void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
   pMap->MapAction(s_hHideSelectedObjects, sSubPath, 4.0f);
   pMap->MapAction(s_hHideUnselectedObjects, sSubPath, 5.0f);
   pMap->MapAction(s_hShowHiddenObjects, sSubPath, 6.0f);
+  pMap->MapAction(s_hDuplicateSpecial, sSubPath, 7.0f);
 
   MapPrefabActions(szMapping, sSubPath, 1.0f);
 }
@@ -162,6 +167,9 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
   case ActionType::OpenPrefabDocument:
     SetIconPath(":/EditorPluginScene/PrefabOpenDocument.png");
     break;
+  case ActionType::DuplicateSpecial:
+    SetIconPath(":/EditorPluginScene/Icons/Duplicate16.png");
+    break;
   }
 
   UpdateEnableState();
@@ -230,6 +238,10 @@ void ezSelectionAction::Execute(const ezVariant& value)
   case ActionType::OpenPrefabDocument:
     OpenPrefabDocument();
     break;
+
+  case ActionType::DuplicateSpecial:
+    m_pSceneDocument->DuplicateSpecial();
+    break;
   }
 }
 
@@ -293,6 +305,7 @@ void ezSelectionAction::UpdateEnableState()
       m_Type == ActionType::FocusOnSelectionAllViews ||
       m_Type == ActionType::HideSelectedObjects ||
       m_Type == ActionType::ShowInScenegraph ||
+      m_Type == ActionType::DuplicateSpecial ||
       m_Type == ActionType::HideUnselectedObjects)
   {
     SetEnabled(!m_Context.m_pDocument->GetSelectionManager()->IsSelectionEmpty());

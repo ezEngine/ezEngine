@@ -7,10 +7,11 @@
 #include <EditorPluginScene/Scene/SceneDocument.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDuplicateObjectsCommand, 1, ezRTTIDefaultAllocator<ezDuplicateObjectsCommand>);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("JsonGraph", m_sJsonGraph),
-EZ_MEMBER_PROPERTY("ParentNodes", m_sParentNodes),
-EZ_END_PROPERTIES
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("JsonGraph", m_sJsonGraph),
+    EZ_MEMBER_PROPERTY("ParentNodes", m_sParentNodes),
+    EZ_MEMBER_PROPERTY("NumCopies", m_uiNumberOfCopies),
+  EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 
@@ -21,6 +22,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezDuplicateObjectsCommand::ezDuplicateObjectsCommand()
 {
+  m_uiNumberOfCopies = 1;
 }
 
 ezStatus ezDuplicateObjectsCommand::DoInternal(bool bRedo)
@@ -41,53 +43,59 @@ ezStatus ezDuplicateObjectsCommand::DoInternal(bool bRedo)
       ezAbstractGraphJsonSerializer::Read(memoryReader, &graph);
     }
 
-    // Remap
-    ezUuid seed;
-    seed.CreateNewUuid();
-    graph.ReMapNodeGuids(seed);
-
-    ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
-
     ezHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
-    ezStringBuilder sParentGuids = m_sParentNodes;
-    ezStringBuilder sNextParentGuid;
 
-    ezMap<ezUuid, ezUuid> ParentGuids;
-
-    while (!sParentGuids.IsEmpty())
+    for (ezUInt32 copies = 0; copies < m_uiNumberOfCopies; ++copies)
     {
-      sNextParentGuid.SetSubString_ElementCount(sParentGuids, 40);
-      sParentGuids.Shrink(41, 0);
 
-      ezUuid guidObj = ezConversionUtils::ConvertStringToUuid(sNextParentGuid);
-      guidObj.CombineWithSeed(seed);
+      // Remap
+      ezUuid seed;
+      seed.CreateNewUuid();
+      graph.ReMapNodeGuids(seed);
 
-      sNextParentGuid.SetSubString_ElementCount(sParentGuids, 40);
-      sParentGuids.Shrink(41, 0);
+      ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
 
-      ParentGuids[guidObj] = ezConversionUtils::ConvertStringToUuid(sNextParentGuid);
-    }
 
-    auto& nodes = graph.GetAllNodes();
-    for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
-    {
-      auto* pNode = it.Value();
-      if (ezStringUtils::IsEqual(pNode->GetNodeName(), "root"))
+      ezStringBuilder sParentGuids = m_sParentNodes;
+      ezStringBuilder sNextParentGuid;
+
+      ezMap<ezUuid, ezUuid> ParentGuids;
+
+      while (!sParentGuids.IsEmpty())
       {
-        auto* pNewObject = reader.CreateObjectFromNode(pNode, nullptr, nullptr, ezVariant());
+        sNextParentGuid.SetSubString_ElementCount(sParentGuids, 40);
+        sParentGuids.Shrink(41, 0);
 
-        if (pNewObject)
+        ezUuid guidObj = ezConversionUtils::ConvertStringToUuid(sNextParentGuid);
+        guidObj.CombineWithSeed(seed);
+
+        sNextParentGuid.SetSubString_ElementCount(sParentGuids, 40);
+        sParentGuids.Shrink(41, 0);
+
+        ParentGuids[guidObj] = ezConversionUtils::ConvertStringToUuid(sNextParentGuid);
+      }
+
+      auto& nodes = graph.GetAllNodes();
+      for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
+      {
+        auto* pNode = it.Value();
+        if (ezStringUtils::IsEqual(pNode->GetNodeName(), "root"))
         {
-          reader.ApplyPropertiesToObject(pNode, pNewObject);
+          auto* pNewObject = reader.CreateObjectFromNode(pNode, nullptr, nullptr, ezVariant());
 
-          auto& ref = ToBePasted.ExpandAndGetRef();
-          ref.m_pObject = pNewObject;
-          ref.m_pParent = nullptr;
+          if (pNewObject)
+          {
+            reader.ApplyPropertiesToObject(pNode, pNewObject);
 
-          const ezUuid guidParent = ParentGuids[pNode->GetGuid()];
+            auto& ref = ToBePasted.ExpandAndGetRef();
+            ref.m_pObject = pNewObject;
+            ref.m_pParent = nullptr;
 
-          if (guidParent.IsValid())
-            ref.m_pParent = pDocument->GetObjectManager()->GetObject(guidParent);
+            const ezUuid guidParent = ParentGuids[pNode->GetGuid()];
+
+            if (guidParent.IsValid())
+              ref.m_pParent = pDocument->GetObjectManager()->GetObject(guidParent);
+          }
         }
       }
     }

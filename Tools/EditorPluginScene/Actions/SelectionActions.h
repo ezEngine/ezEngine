@@ -30,6 +30,7 @@ public:
   static ezActionDescriptorHandle s_hRevertPrefab;
   static ezActionDescriptorHandle s_hUnlinkFromPrefab;
   static ezActionDescriptorHandle s_hOpenPrefabDocument;
+  static ezActionDescriptorHandle s_hDuplicateSpecial;
 
 };
 
@@ -54,6 +55,7 @@ public:
     RevertPrefab,
     UnlinkFromPrefab,
     OpenPrefabDocument,
+    DuplicateSpecial,
   };
 
   ezSelectionAction(const ezActionContext& context, const char* szName, ActionType type);
