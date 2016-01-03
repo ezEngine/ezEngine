@@ -807,6 +807,13 @@
  <tabstops>
   <tabstop>spinBoxCopies</tabstop>
   <tabstop>CheckBoxGroupCopies</tabstop>
+  <tabstop>RevolveNone</tabstop>
+  <tabstop>RevolveX</tabstop>
+  <tabstop>RevolveY</tabstop>
+  <tabstop>RevolveZ</tabstop>
+  <tabstop>SpinBoxStartAngle</tabstop>
+  <tabstop>SpinBoxAngle</tabstop>
+  <tabstop>SpinBoxRadius</tabstop>
   <tabstop>SpinBoxTransX</tabstop>
   <tabstop>toolButtonTransX</tabstop>
   <tabstop>SpinBoxTransY</tabstop>
@@ -816,6 +823,12 @@
   <tabstop>SpinBoxRotX</tabstop>
   <tabstop>SpinBoxRotY</tabstop>
   <tabstop>SpinBoxRotZ</tabstop>
+  <tabstop>SpinBoxTransX_2</tabstop>
+  <tabstop>SpinBoxTransY_2</tabstop>
+  <tabstop>SpinBoxTransZ_2</tabstop>
+  <tabstop>SpinBoxRotX_2</tabstop>
+  <tabstop>SpinBoxRotY_2</tabstop>
+  <tabstop>SpinBoxRotZ_2</tabstop>
  </tabstops>
  <resources>
   <include location="../QtResources/resources.qrc"/>
