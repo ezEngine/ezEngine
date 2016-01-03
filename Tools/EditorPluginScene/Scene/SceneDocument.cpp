@@ -170,6 +170,9 @@ void ezSceneDocument::GroupSelection()
 
 void ezSceneDocument::DuplicateSpecial()
 {
+  if (GetSelectionManager()->IsSelectionEmpty())
+    return;
+
   qtDuplicateDlg dlg(nullptr);
   if (dlg.exec() == QDialog::Rejected)
     return;
@@ -196,6 +199,15 @@ void ezSceneDocument::DuplicateSpecial()
   cmd.m_sJsonGraph = (const char*)streamStorage.GetData();
   cmd.m_sParentNodes = temp;
   cmd.m_uiNumberOfCopies = dlg.s_uiNumberOfCopies;
+  cmd.m_vAccumulativeTranslation = dlg.s_vTranslationStep;
+  cmd.m_vAccumulativeRotation = dlg.s_vRotationStep;
+  cmd.m_vRandomRotation = dlg.s_vRandomRotation;
+  cmd.m_vRandomTranslation = dlg.s_vRandomTranslation;
+  cmd.m_bGroupDuplicates = dlg.s_bGroupCopies;
+  cmd.m_iRevolveAxis = dlg.s_iRevolveAxis;
+  cmd.m_fRevolveRadius = dlg.s_fRevolveRadius;
+  cmd.m_RevolveStartAngle = ezAngle::Degree(dlg.s_iRevolveStartAngle);
+  cmd.m_RevolveAngleStep = ezAngle::Degree(dlg.s_iRevolveAngleStep);
 
   auto history = GetCommandHistory();
 
@@ -672,7 +684,7 @@ bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractO
   return true;
 }
 
-bool ezSceneDocument::Duplicate(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph)
+bool ezSceneDocument::Duplicate(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bSetSelected)
 {
   if (!PasteAtOrignalPosition(info))
     return false;
@@ -680,6 +692,7 @@ bool ezSceneDocument::Duplicate(const ezArrayPtr<PasteInfo>& info, const ezAbstr
   m_ObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
 
   // set the pasted objects as the new selection
+  if (bSetSelected)
   {
     auto pSelMan = GetSelectionManager();
 

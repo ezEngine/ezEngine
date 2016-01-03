@@ -64,10 +64,12 @@ struct EZ_FOUNDATION_DLL ezProjectionDepthRange
 };
 
 
+/// \brief An enum that allows to select on of the six main axis (positive / negative)
 struct EZ_FOUNDATION_DLL ezBasisAxis
 {
   typedef ezInt8 StorageType;
 
+  /// \brief An enum that allows to select on of the six main axis (positive / negative)
   enum Enum
   {
     PositiveX,

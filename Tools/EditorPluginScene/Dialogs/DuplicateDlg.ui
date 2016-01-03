@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>661</width>
-    <height>328</height>
+    <width>549</width>
+    <height>361</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>661</width>
-    <height>328</height>
+    <width>549</width>
+    <height>361</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>661</width>
-    <height>328</height>
+    <width>549</width>
+    <height>361</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -32,9 +32,9 @@
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
-     <x>160</x>
+     <x>220</x>
      <y>20</y>
-     <width>148</width>
+     <width>151</width>
      <height>141</height>
     </rect>
    </property>
@@ -45,7 +45,7 @@
     </sizepolicy>
    </property>
    <property name="title">
-    <string>Translation (accumulative):</string>
+    <string>Translation Step:</string>
    </property>
    <layout class="QVBoxLayout">
     <item>
@@ -199,8 +199,8 @@
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
     <rect>
-     <x>320</x>
-     <y>20</y>
+     <x>220</x>
+     <y>170</y>
      <width>151</width>
      <height>141</height>
     </rect>
@@ -212,7 +212,7 @@
     </sizepolicy>
    </property>
    <property name="title">
-    <string>Rotation (accumulative):</string>
+    <string>Rotation Step:</string>
    </property>
    <layout class="QVBoxLayout">
     <item>
@@ -333,76 +333,21 @@
     </item>
    </layout>
   </widget>
-  <widget class="QGroupBox" name="groupBox_3">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>170</y>
-     <width>141</width>
-     <height>111</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Reference Point:</string>
-   </property>
-   <layout class="QVBoxLayout">
-    <item>
-     <spacer>
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item>
-     <widget class="QRadioButton" name="RefPointCenter">
-      <property name="text">
-       <string>Center of Original</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QRadioButton" name="RefPointMouse">
-      <property name="text">
-       <string>Mouse Click Position</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <spacer>
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-   </layout>
-  </widget>
   <widget class="QGroupBox" name="groupBox_4">
    <property name="geometry">
     <rect>
-     <x>160</x>
+     <x>20</x>
      <y>170</y>
-     <width>311</width>
-     <height>112</height>
+     <width>191</width>
+     <height>141</height>
     </rect>
    </property>
    <property name="title">
     <string>Revolve around Axis:</string>
    </property>
-   <layout class="QVBoxLayout">
+   <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <layout class="QHBoxLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QRadioButton" name="RevolveNone">
         <property name="text">
@@ -411,7 +356,7 @@
        </widget>
       </item>
       <item>
-       <spacer>
+       <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -447,7 +392,7 @@
      </layout>
     </item>
     <item>
-     <spacer>
+     <spacer name="spacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
@@ -460,98 +405,60 @@
      </spacer>
     </item>
     <item>
-     <layout class="QHBoxLayout">
-      <item>
-       <layout class="QVBoxLayout">
-        <item>
-         <widget class="QLabel" name="label_8">
-          <property name="text">
-           <string>Start Angle:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDoubleSpinBox" name="SpinBoxStartAngle">
-          <property name="maximum">
-           <double>360.000000000000000</double>
-          </property>
-          <property name="singleStep">
-           <double>5.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <spacer>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="1" column="1">
+       <widget class="QDoubleSpinBox" name="SpinBoxAngle">
+        <property name="minimum">
+         <double>-360.000000000000000</double>
         </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
+        <property name="maximum">
+         <double>360.000000000000000</double>
         </property>
-       </spacer>
-      </item>
-      <item>
-       <layout class="QVBoxLayout">
-        <item>
-         <widget class="QLabel" name="label_9">
-          <property name="text">
-           <string>Angle (accumulative):</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDoubleSpinBox" name="SpinBoxAngle">
-          <property name="minimum">
-           <double>-360.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>360.000000000000000</double>
-          </property>
-          <property name="singleStep">
-           <double>5.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <spacer>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+        <property name="singleStep">
+         <double>5.000000000000000</double>
         </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
+       </widget>
       </item>
-      <item>
-       <layout class="QVBoxLayout">
-        <item>
-         <widget class="QLabel" name="label_10">
-          <property name="text">
-           <string>Radius:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDoubleSpinBox" name="SpinBoxRadius">
-          <property name="maximum">
-           <double>999.000000000000000</double>
-          </property>
-          <property name="singleStep">
-           <double>0.250000000000000</double>
-          </property>
-         </widget>
-        </item>
-       </layout>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>Radius:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Start Angle:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QDoubleSpinBox" name="SpinBoxStartAngle">
+        <property name="maximum">
+         <double>360.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>5.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>Angle Step:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QDoubleSpinBox" name="SpinBoxRadius">
+        <property name="maximum">
+         <double>999.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.250000000000000</double>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -560,9 +467,9 @@
   <widget class="QGroupBox" name="groupBox_5">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>20</x>
      <y>20</y>
-     <width>141</width>
+     <width>191</width>
      <height>141</height>
     </rect>
    </property>
@@ -573,7 +480,7 @@
     <item>
      <widget class="QLabel" name="label">
       <property name="text">
-       <string>Number of Objects:</string>
+       <string>Number of Duplicates:</string>
       </property>
      </widget>
     </item>
@@ -609,60 +516,11 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="layoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>290</y>
-     <width>461</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout">
-    <item>
-     <widget class="QPushButton" name="PushButtonReset">
-      <property name="text">
-       <string>Reset</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <spacer>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>40</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item>
-     <widget class="QPushButton" name="PushButtonOk">
-      <property name="text">
-       <string>OK</string>
-      </property>
-      <property name="default">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="PushButtonCancel">
-      <property name="text">
-       <string>Cancel</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
   <widget class="QGroupBox" name="groupBox_6">
    <property name="geometry">
     <rect>
-     <x>500</x>
-     <y>20</y>
+     <x>380</x>
+     <y>170</y>
      <width>151</width>
      <height>141</height>
     </rect>
@@ -674,7 +532,7 @@
     </sizepolicy>
    </property>
    <property name="title">
-    <string>Random Rotation (Gauss):</string>
+    <string>Random Rotation Offset:</string>
    </property>
    <layout class="QVBoxLayout" name="_2">
     <item>
@@ -798,8 +656,8 @@
   <widget class="QGroupBox" name="groupBox_7">
    <property name="geometry">
     <rect>
-     <x>500</x>
-     <y>180</y>
+     <x>380</x>
+     <y>20</y>
      <width>151</width>
      <height>141</height>
     </rect>
@@ -811,7 +669,7 @@
     </sizepolicy>
    </property>
    <property name="title">
-    <string>Random Translation (Gauss):</string>
+    <string>Random Translation Offset:</string>
    </property>
    <layout class="QVBoxLayout" name="_6">
     <item>
@@ -932,6 +790,19 @@
     </item>
    </layout>
   </widget>
+  <widget class="QDialogButtonBox" name="DefaultButtons">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>320</y>
+     <width>511</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="standardButtons">
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Reset</set>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>spinBoxCopies</tabstop>
@@ -945,18 +816,6 @@
   <tabstop>SpinBoxRotX</tabstop>
   <tabstop>SpinBoxRotY</tabstop>
   <tabstop>SpinBoxRotZ</tabstop>
-  <tabstop>RefPointCenter</tabstop>
-  <tabstop>RefPointMouse</tabstop>
-  <tabstop>RevolveNone</tabstop>
-  <tabstop>RevolveX</tabstop>
-  <tabstop>RevolveY</tabstop>
-  <tabstop>RevolveZ</tabstop>
-  <tabstop>SpinBoxStartAngle</tabstop>
-  <tabstop>SpinBoxAngle</tabstop>
-  <tabstop>SpinBoxRadius</tabstop>
-  <tabstop>PushButtonReset</tabstop>
-  <tabstop>PushButtonOk</tabstop>
-  <tabstop>PushButtonCancel</tabstop>
  </tabstops>
  <resources>
   <include location="../QtResources/resources.qrc"/>

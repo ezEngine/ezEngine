@@ -44,6 +44,9 @@ public:
   /// \brief Returns the radian value. (No need for any conversion)
   float GetRadian() const; // [tested]
 
+  /// \brief Sets the radian value. (No need for any conversion)
+  EZ_FORCE_INLINE void SetRadian(float rad) { m_fRadian = rad; };
+
   /// \brief Brings the angle into the range of 0 degree - 360 degree
   /// \see GetNormalizedRange()
   void NormalizeRange(); // [tested]

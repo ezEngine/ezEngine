@@ -91,7 +91,7 @@ public:
 
   virtual bool Copy(ezAbstractObjectGraph& out_objectGraph) override;
   virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition) override;
-  bool Duplicate(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph);
+  bool Duplicate(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bSetSelected);
   bool Copy(ezAbstractObjectGraph& graph, ezMap<ezUuid, ezUuid>* out_pParents);
   bool PasteAt(const ezArrayPtr<PasteInfo>& info, const ezVec3& vPos);
   bool PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info);

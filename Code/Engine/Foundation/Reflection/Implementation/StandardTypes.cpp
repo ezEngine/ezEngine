@@ -124,6 +124,12 @@ EZ_END_STATIC_REFLECTED_TYPE();
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezString, ezNoBase, 1, ezRTTINoAllocator);
 EZ_END_STATIC_REFLECTED_TYPE();
 
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAngle, ezNoBase, 1, ezRTTINoAllocator);
+  EZ_BEGIN_PROPERTIES
+    EZ_ACCESSOR_PROPERTY("Radian", GetRadian, SetRadian)
+  EZ_END_PROPERTIES
+EZ_END_STATIC_REFLECTED_TYPE();
+
 // **********************************************************************
 // ***** Various RTTI infos that can't be put next to their classes *****
 
