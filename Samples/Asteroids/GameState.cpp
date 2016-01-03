@@ -11,6 +11,7 @@
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Pipeline/SimpleRenderPass.h>
+#include <RendererCore/Pipeline/TargetPass.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <Core/Application/Config/ApplicationConfig.h>
 
@@ -213,9 +214,27 @@ void AsteroidGameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHa
   ezGALRenderTagetSetup RTS;
   RTS.SetRenderTarget(0, hBackBuffer)
      .SetDepthStencilTarget(hDSV);
+  pView->SetRenderTargetSetup(RTS);
 
   ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
-  pRenderPipeline->AddPass(EZ_DEFAULT_NEW( ezSimpleRenderPass, RTS));
+
+  ezSimpleRenderPass* pSimplePass = nullptr;
+  {
+    ezUniquePtr<ezRenderPipelinePass> pPass = EZ_DEFAULT_NEW(ezSimpleRenderPass);
+    pSimplePass = static_cast<ezSimpleRenderPass*>(pPass.Borrow());
+    pRenderPipeline->AddPass(std::move(pPass));
+  }
+
+  ezTargetPass* pTargetPass = nullptr;
+  {
+    ezUniquePtr<ezRenderPipelinePass> pPass = EZ_DEFAULT_NEW(ezTargetPass);
+    pTargetPass = static_cast<ezTargetPass*>(pPass.Borrow());
+    pRenderPipeline->AddPass(std::move(pPass));
+  }
+
+  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "Color", pTargetPass, "Color0"), "Connect failed!");
+  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "DepthStencil", pTargetPass, "DepthStencil"), "Connect failed!");
+
   pRenderPipeline->AddExtractor(EZ_DEFAULT_NEW(ezVisibleObjectsExtractor));
   pView->SetRenderPipeline(std::move(pRenderPipeline));
 

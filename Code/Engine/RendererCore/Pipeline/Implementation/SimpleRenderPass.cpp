@@ -1,9 +1,13 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/SimpleRenderPass.h>
+#include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
 #include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/Resources/RenderTargetView.h>
+#include <RendererFoundation/Resources/Texture.h>
+
 #include <RendererCore/Meshes/MeshRenderer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleRenderPass, 1, ezRTTIDefaultAllocator<ezSimpleRenderPass>);
@@ -15,18 +19,87 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezSimpleRenderPass::ezSimpleRenderPass(const char* szName) : ezRenderPipelinePass(szName)
 {
-
-}
-
-ezSimpleRenderPass::ezSimpleRenderPass(const ezGALRenderTagetSetup& RenderTargetSetup, const char* szName) : ezRenderPipelinePass(szName)
-{
-  m_RenderTargetSetup = RenderTargetSetup;
   AddRenderer( EZ_DEFAULT_NEW( ezMeshRenderer ) );
 }
 
 ezSimpleRenderPass::~ezSimpleRenderPass()
 {
+  m_RenderTargetSetup.DestroyAllAttachedViews();
+}
 
+bool ezSimpleRenderPass::GetRenderTargetDescriptions(const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+{
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  const ezNodePin* pColor = GetPinByName("Color");
+  // Color
+  if (inputs[pColor->m_uiInputIndex])
+  {
+    outputs[pColor->m_uiOutputIndex] = *inputs[pColor->m_uiInputIndex];
+  }
+  else
+  {
+    // If no input is available, we use the render target setup instead.
+    const ezGALRenderTagetSetup& setup = GetPipeline()->GetView()->GetRenderTargetSetup();
+    const ezGALRenderTargetView* pTarget = pDevice->GetRenderTargetView(setup.GetRenderTarget(0));
+    if (pTarget)
+    {
+      const ezGALRenderTargetViewCreationDescription& desc = pTarget->GetDescription();
+      const ezGALTexture* pTexture = pDevice->GetTexture(desc.m_hTexture);
+      if (pTexture)
+      {
+        outputs[pColor->m_uiOutputIndex] = pTexture->GetDescription();
+      }
+    }
+  }
+  
+  // DepthStencil
+  const ezNodePin* pDepth = GetPinByName("DepthStencil");
+  if (inputs[pDepth->m_uiInputIndex])
+  {
+    outputs[pDepth->m_uiOutputIndex] = *inputs[pDepth->m_uiInputIndex];
+  }
+  else
+  {
+    // If no input is available, we use the render target setup instead.
+    const ezGALRenderTagetSetup& setup = GetPipeline()->GetView()->GetRenderTargetSetup();
+    const ezGALRenderTargetView* pTarget = pDevice->GetRenderTargetView(setup.GetDepthStencilTarget());
+    if (pTarget)
+    {
+      const ezGALRenderTargetViewCreationDescription& desc = pTarget->GetDescription();
+      const ezGALTexture* pTexture = pDevice->GetTexture(desc.m_hTexture);
+      if (pTexture)
+      {
+        outputs[pDepth->m_uiOutputIndex] = pTexture->GetDescription();
+      }
+    }
+  }
+
+  return true;
+}
+
+void ezSimpleRenderPass::SetRenderTargets(const ezArrayPtr<ezRenderPipelinePassConnection*const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection*const> outputs)
+{
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  m_RenderTargetSetup.DestroyAllAttachedViews();
+  const ezNodePin* pColor = GetPinByName("Color");
+  if (outputs[pColor->m_uiOutputIndex])
+  {
+    ezGALRenderTargetViewCreationDescription rtvd;
+    rtvd.m_hTexture = outputs[pColor->m_uiOutputIndex]->m_TextureHandle;
+    rtvd.m_RenderTargetType = ezGALRenderTargetType::Color;
+
+    m_RenderTargetSetup.SetRenderTarget(0, pDevice->CreateRenderTargetView(rtvd));
+  }
+
+  const ezNodePin* pDepth = GetPinByName("DepthStencil");
+  if (outputs[pDepth->m_uiOutputIndex])
+  {
+    ezGALRenderTargetViewCreationDescription rtvd;
+    rtvd.m_hTexture = outputs[pDepth->m_uiOutputIndex]->m_TextureHandle;
+    rtvd.m_RenderTargetType = ezGALRenderTargetType::DepthStencil;
+
+    m_RenderTargetSetup.SetDepthStencilTarget(pDevice->CreateRenderTargetView(rtvd));
+  }
 }
 
 void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext)

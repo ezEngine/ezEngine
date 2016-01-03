@@ -7,7 +7,8 @@
 
 class ezWorld;
 
-/// \brief Encapsulates a view on the given world through the given camera and rendered with the specified RenderPipeline.
+/// \brief Encapsulates a view on the given world through the given camera
+/// and rendered with the specified RenderPipeline into the given render target setup.
 class EZ_RENDERERCORE_DLL ezView : public ezNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezView, ezNode);
@@ -24,6 +25,10 @@ public:
   void SetWorld(ezWorld* pWorld);
   ezWorld* GetWorld();
   const ezWorld* GetWorld() const;
+
+  
+  void SetRenderTargetSetup(ezGALRenderTagetSetup& renderTargetSetup);
+  const ezGALRenderTagetSetup& GetRenderTargetSetup() const;
 
   void SetRenderPipeline(ezUniquePtr<ezRenderPipeline>&& pRenderPipeline);
   ezRenderPipeline* GetRenderPipeline() const;
@@ -85,7 +90,9 @@ private:
 
   ezDelegateTask<void> m_ExtractTask;
 
-  ezWorld* m_pWorld; 
+  ezWorld* m_pWorld;
+
+  ezGALRenderTagetSetup m_RenderTargetSetup;
   ezUniquePtr<ezRenderPipeline> m_pRenderPipeline;
   const ezCamera* m_pLogicCamera;
   const ezCamera* m_pRenderCamera;

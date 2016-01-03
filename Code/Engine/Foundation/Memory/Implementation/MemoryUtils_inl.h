@@ -401,6 +401,16 @@ EZ_FORCE_INLINE void ezMemoryUtils::RelocateOverlapped(T* pDestination, T* pSour
 template <typename T>
 EZ_FORCE_INLINE void ezMemoryUtils::RelocateOverlapped(T* pDestination, T* pSource, size_t uiCount, ezTypeIsMemRelocatable)
 {
+  if (pDestination < pSource)
+  {
+    size_t uiDestructCount = pSource - pDestination;
+    Destruct(pDestination, uiDestructCount, ezTypeIsClass());
+  }
+  else
+  {
+    size_t uiDestructCount = pDestination - pSource;
+    Destruct(pSource + uiCount, uiDestructCount, ezTypeIsClass());
+  }
   memmove(pDestination, pSource, uiCount * sizeof(T));
 }
 

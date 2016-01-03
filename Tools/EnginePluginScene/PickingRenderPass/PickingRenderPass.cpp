@@ -2,7 +2,7 @@
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <EnginePluginScene/PickingRenderPass/PickingRenderPass.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-
+#include <RendererCore/Pipeline/View.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
 #include <EnginePluginScene/SceneContext/SceneContext.h>
@@ -10,17 +10,37 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPickingRenderPass, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezPickingRenderPass::ezPickingRenderPass(ezSceneContext* pSceneContext, const ezGALRenderTagetSetup& RenderTargetSetup) : ezRenderPipelinePass( "SimpleRenderPass" )
+ezPickingRenderPass::ezPickingRenderPass() : ezRenderPipelinePass( "SimpleRenderPass" )
 {
-  m_pSceneContext = pSceneContext;
+  m_pSceneContext = nullptr;
   m_bEnable = true;
-  m_RenderTargetSetup = RenderTargetSetup;
   AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
 }
 
 ezPickingRenderPass::~ezPickingRenderPass()
 {
+  DestroyTarget();
+}
 
+ezGALTextureHandle ezPickingRenderPass::GetPickingIdRT() const
+{
+  return m_hPickingIdRT;
+}
+
+ezGALTextureHandle ezPickingRenderPass::GetPickingDepthRT() const
+{
+  return m_hPickingDepthRT;
+}
+
+bool ezPickingRenderPass::GetRenderTargetDescriptions(const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+{
+  return true;
+}
+
+void ezPickingRenderPass::SetRenderTargets(const ezArrayPtr<ezRenderPipelinePassConnection*const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection*const> outputs)
+{
+  DestroyTarget();
+  CreateTarget();
 }
 
 void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
@@ -71,7 +91,60 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
 
   e.m_Type = Event::Type::EndOfFrame;
   m_Events.Broadcast(e);
+}
 
-  
+void ezPickingRenderPass::CreateTarget()
+{
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
+  auto viewport = GetPipeline()->GetView()->GetViewport();
+
+  // Create render target for picking
+  ezGALTextureCreationDescription tcd;
+  tcd.m_bAllowDynamicMipGeneration = false;
+  tcd.m_bAllowShaderResourceView = false;
+  tcd.m_bAllowUAV = false;
+  tcd.m_bCreateRenderTarget = true;
+  tcd.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+  tcd.m_ResourceAccess.m_bReadBack = true;
+  tcd.m_Type = ezGALTextureType::Texture2D;
+  tcd.m_uiWidth = (ezUInt32)viewport.width;
+  tcd.m_uiHeight = (ezUInt32)viewport.height;
+
+  m_hPickingIdRT = pDevice->CreateTexture(tcd);
+
+  tcd.m_Format = ezGALResourceFormat::DFloat;
+  tcd.m_ResourceAccess.m_bReadBack = true;
+
+  m_hPickingDepthRT = pDevice->CreateTexture(tcd);
+
+  ezGALRenderTargetViewCreationDescription rtvd;
+  rtvd.m_hTexture = m_hPickingIdRT;
+  rtvd.m_RenderTargetType = ezGALRenderTargetType::Color;
+  m_hPickingIdRTV = pDevice->CreateRenderTargetView(rtvd);
+
+  rtvd.m_hTexture = m_hPickingDepthRT;
+  rtvd.m_RenderTargetType = ezGALRenderTargetType::DepthStencil;
+  m_hPickingDepthDSV = pDevice->CreateRenderTargetView(rtvd);
+
+  m_RenderTargetSetup.SetRenderTarget(0, m_hPickingIdRTV)
+    .SetDepthStencilTarget(m_hPickingDepthDSV);
+}
+
+void ezPickingRenderPass::DestroyTarget()
+{
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  m_RenderTargetSetup.DestroyAllAttachedViews();
+  if (!m_hPickingIdRT.IsInvalidated())
+  {
+    pDevice->DestroyTexture(m_hPickingIdRT);
+    m_hPickingIdRT.Invalidate();
+  }
+
+  if (!m_hPickingDepthRT.IsInvalidated())
+  {
+    pDevice->DestroyTexture(m_hPickingDepthRT);
+    m_hPickingDepthRT.Invalidate();
+  }
 }

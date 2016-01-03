@@ -4,6 +4,8 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Core/World/Declarations.h>
 #include <RendererCore/Basics.h>
+#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/Descriptors/Descriptors.h>
 
 class ezCamera;
 class ezExtractor;
@@ -12,7 +14,24 @@ class ezRenderPipeline;
 class ezRenderPipelinePass;
 class ezGALContext;
 class ezRenderContext;
+struct ezNodePin;
+
 struct ezViewData;
+
+/// \brief Passed to ezRenderPipelinePass::SetRenderTargets to inform about
+/// existing connections on each input / output pin index.
+struct ezRenderPipelinePassConnection
+{
+  ezRenderPipelinePassConnection()
+  {
+    m_pOutput = nullptr;
+  }
+
+  ezGALTextureCreationDescription m_Desc;
+  ezGALTextureHandle m_TextureHandle;
+  const ezNodePin* m_pOutput; ///< The output pin that this connection spawns from.
+  ezHybridArray<const ezNodePin*, 4> m_Inputs; ///< The various input pins this connection is connected to.
+};
 
 struct ezRenderViewContext
 {

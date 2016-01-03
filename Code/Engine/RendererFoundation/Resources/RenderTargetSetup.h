@@ -23,7 +23,7 @@ public:
   inline ezGALRenderTargetViewHandle GetRenderTarget(ezUInt8 uiIndex) const;
   inline ezGALRenderTargetViewHandle GetDepthStencilTarget() const;
 
-  
+  void DestroyAllAttachedViews();
 
 protected:
 

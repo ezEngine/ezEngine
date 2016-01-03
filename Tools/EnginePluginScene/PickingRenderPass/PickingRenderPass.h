@@ -11,11 +11,18 @@ class ezPickingRenderPass : public ezRenderPipelinePass
   EZ_ADD_DYNAMIC_REFLECTION(ezPickingRenderPass, ezRenderPipelinePass);
 
 public:
-  ezPickingRenderPass(ezSceneContext* pSceneContext, const ezGALRenderTagetSetup& RenderTargetSetup);
+  ezPickingRenderPass();
   ~ezPickingRenderPass();
 
+  void SetSceneContext(ezSceneContext* pSceneContext) { m_pSceneContext = pSceneContext; }
   void SetEnabled(bool b) { m_bEnable = b; }
+  ezGALTextureHandle GetPickingIdRT() const;
+  ezGALTextureHandle GetPickingDepthRT() const;
 
+  virtual bool GetRenderTargetDescriptions(const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
+    ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
+  virtual void SetRenderTargets(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
   virtual void Execute(const ezRenderViewContext& renderViewContext) override;
 
   struct Event
@@ -33,7 +40,15 @@ public:
   ezViewRenderMode::Enum m_ViewRenderMode;
 
 private:
-  ezSceneContext* m_pSceneContext;
+  void CreateTarget();
+  void DestroyTarget();
+
+private:
   bool m_bEnable;
+  ezSceneContext* m_pSceneContext;
+  ezGALTextureHandle m_hPickingIdRT;
+  ezGALTextureHandle m_hPickingDepthRT;
+  ezGALRenderTargetViewHandle m_hPickingIdRTV;
+  ezGALRenderTargetViewHandle m_hPickingDepthDSV;
   ezGALRenderTagetSetup m_RenderTargetSetup;
 };

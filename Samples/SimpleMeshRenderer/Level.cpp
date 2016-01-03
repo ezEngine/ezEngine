@@ -5,6 +5,7 @@
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/SimpleRenderPass.h>
+#include <RendererCore/Pipeline/TargetPass.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/Textures/TextureResource.h>
 #include <RendererCore/Material/MaterialResource.h>
@@ -76,15 +77,33 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBa
   m_Camera.LookAt(vCameraPos, vCameraPos + coordSys.m_vForwardDir, coordSys.m_vUpDir);
   m_Camera.SetCameraMode(ezCamera::PerspectiveFixedFovY, 60.0f, 1.0f, 5000.0f);
 
-  m_pView = ezRenderLoop::CreateView("Asteroids - View");
+  m_pView = ezRenderLoop::CreateView("SimpleMeshRenderer - View");
   ezRenderLoop::AddMainView(m_pView);
 
   ezGALRenderTagetSetup RTS;
   RTS.SetRenderTarget(0, hBackBuffer)
      .SetDepthStencilTarget(hDSV);
+  m_pView->SetRenderTargetSetup(RTS);
 
   ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
-  pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezSimpleRenderPass, RTS));
+
+  ezSimpleRenderPass* pSimplePass = nullptr;
+  {
+    ezUniquePtr<ezRenderPipelinePass> pPass = EZ_DEFAULT_NEW(ezSimpleRenderPass);
+    pSimplePass = static_cast<ezSimpleRenderPass*>(pPass.Borrow());
+    pRenderPipeline->AddPass(std::move(pPass));
+  }
+
+  ezTargetPass* pTargetPass = nullptr;
+  {
+    ezUniquePtr<ezRenderPipelinePass> pPass = EZ_DEFAULT_NEW(ezTargetPass);
+    pTargetPass = static_cast<ezTargetPass*>(pPass.Borrow());
+    pRenderPipeline->AddPass(std::move(pPass));
+  }
+
+  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "Color", pTargetPass, "Color0"), "Connect failed!");
+  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "DepthStencil", pTargetPass, "DepthStencil"), "Connect failed!");
+
   pRenderPipeline->AddExtractor(EZ_DEFAULT_NEW(ezVisibleObjectsExtractor));
   m_pView->SetRenderPipeline(std::move(pRenderPipeline));
 

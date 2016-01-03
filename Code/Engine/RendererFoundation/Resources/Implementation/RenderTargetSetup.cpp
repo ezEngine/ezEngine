@@ -1,6 +1,7 @@
 
 #include <RendererFoundation/PCH.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
+#include <RendererFoundation/Device/Device.h>
 
 ezGALRenderTagetSetup::ezGALRenderTagetSetup()
   : m_uiMaxRTIndex( 0xFFu )
@@ -47,6 +48,28 @@ bool ezGALRenderTagetSetup::operator == (const ezGALRenderTagetSetup& Other) con
   }
 
   return true;
+}
+
+void ezGALRenderTagetSetup::DestroyAllAttachedViews()
+{
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  ezArrayPtr<ezGALRenderTargetViewHandle> colorViews(m_hRTs);
+  for (ezGALRenderTargetViewHandle& hView : colorViews)
+  {
+    if (!hView.IsInvalidated())
+    {
+      pDevice->DestroyRenderTargetView(hView);
+      hView.Invalidate();
+    }
+  }
+
+  if (!m_hDSTarget.IsInvalidated())
+  {
+    pDevice->DestroyRenderTargetView(m_hDSTarget);
+    m_hDSTarget.Invalidate();
+  }
+  m_uiMaxRTIndex = 0xFFu;
 }
 
 EZ_STATICLINK_FILE( RendererFoundation, RendererFoundation_Resources_Implementation_RenderTargetSetup );

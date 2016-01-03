@@ -4,6 +4,8 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <CoreUtils/Basics.h>
 
+class ezNode;
+
 struct ezNodePin
 {
   EZ_DECLARE_POD_TYPE();
@@ -25,15 +27,15 @@ struct ezNodePin
 
   EZ_FORCE_INLINE ezNodePin()
   {
-    m_bIsConnected = false;
     m_uiInputIndex = -1;
     m_uiOutputIndex = -1;
+    m_pParent = nullptr;
   }
 
   ezEnum<Type> m_Type;
-  bool m_bIsConnected;
   ezUInt8 m_uiInputIndex;
   ezUInt8 m_uiOutputIndex;
+  ezNode* m_pParent;
 };
 
 struct ezInputNodePin : public ezNodePin
@@ -75,7 +77,11 @@ public:
 
   void InitializePins();
 
+  ezHashedString GetPinName(const ezNodePin* pPin) const;
   const ezNodePin* GetPinByName(const char* szName) const;
+  const ezNodePin* GetPinByName(ezHashedString sName) const;
+  const ezArrayPtr<const ezNodePin* const> GetInputPins() const { return m_InputPins; }
+  const ezArrayPtr<const ezNodePin* const> GetOutputPins() const { return m_OutputPins; }
 
 private:
   ezDynamicArray<const ezNodePin*> m_InputPins;

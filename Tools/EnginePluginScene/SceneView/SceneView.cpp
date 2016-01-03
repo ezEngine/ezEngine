@@ -6,6 +6,7 @@
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/SimpleRenderPass.h>
+#include <RendererCore/Pipeline/TargetPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <GameFoundation/GameApplication.h>
@@ -72,102 +73,19 @@ void ezSceneViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth
     m_hSwapChainDSV = pPrimarySwapChain->GetDepthStencilTargetView();
   }
 
-  // Create render target for picking
-  {
-    if (!m_hPickingIdRT.IsInvalidated())
-    {
-      pDevice->DestroyTexture(m_hPickingIdRT);
-      m_hPickingIdRT.Invalidate();
-    }
-
-    if (!m_hPickingDepthRT.IsInvalidated())
-    {
-      pDevice->DestroyTexture(m_hPickingDepthRT);
-      m_hPickingDepthRT.Invalidate();
-    }
-
-    ezGALTextureCreationDescription tcd;
-    tcd.m_bAllowDynamicMipGeneration = false;
-    tcd.m_bAllowShaderResourceView = false;
-    tcd.m_bAllowUAV = false;
-    tcd.m_bCreateRenderTarget = true;
-    tcd.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-    tcd.m_ResourceAccess.m_bReadBack = true;
-    tcd.m_Type = ezGALTextureType::Texture2D;
-    tcd.m_uiWidth = uiWidth;
-    tcd.m_uiHeight = uiHeight;
-
-    m_hPickingIdRT = pDevice->CreateTexture(tcd);
-
-    tcd.m_Format = ezGALResourceFormat::DFloat;
-    tcd.m_ResourceAccess.m_bReadBack = true;
-
-    m_hPickingDepthRT = pDevice->CreateTexture(tcd);
-
-    ezGALRenderTargetViewCreationDescription rtvd;
-    rtvd.m_hTexture = m_hPickingIdRT;
-    rtvd.m_RenderTargetType = ezGALRenderTargetType::Color;
-    m_hPickingIdRTV = pDevice->CreateRenderTargetView(rtvd);
-
-    rtvd.m_hTexture = m_hPickingDepthRT;
-    rtvd.m_RenderTargetType = ezGALRenderTargetType::DepthStencil;
-    m_hPickingDepthDSV = pDevice->CreateRenderTargetView(rtvd);
-  }
-
   // setup view
   {
-    if (m_pView != nullptr)
+    if (m_pView == nullptr)
     {
-      ezRenderLoop::DeleteView(m_pView);
+      CreateView();
     }
-
-    m_pView = ezRenderLoop::CreateView("Editor - View");
-
-    ezGALRenderTagetSetup PickingRenderTargetSetup;
-    PickingRenderTargetSetup.SetRenderTarget(0, m_hPickingIdRTV)
-      .SetDepthStencilTarget(m_hPickingDepthDSV);
 
     ezGALRenderTagetSetup BackBufferRenderTargetSetup;
     BackBufferRenderTargetSetup.SetRenderTarget(0, m_hSwapChainRTV)
       .SetDepthStencilTarget(m_hSwapChainDSV);
-
-
-    ezUniquePtr<ezPickingRenderPass> pPickingRenderPass = EZ_DEFAULT_NEW(ezPickingRenderPass, m_pSceneContext, PickingRenderTargetSetup);
-    pPickingRenderPass->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneViewContext::RenderPassEventHandler, this));
-
-    ezUniquePtr<ezEditorRenderPass> pEditorRenderPass = EZ_DEFAULT_NEW(ezEditorRenderPass, m_pSceneContext, BackBufferRenderTargetSetup, "EditorRenderPass");
-
-    m_pPickingRenderPass = pPickingRenderPass.Borrow();
-    m_pEditorRenderPass = pEditorRenderPass.Borrow();
-
-    ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
-    pRenderPipeline->AddPass(std::move(pEditorRenderPass));
-    pRenderPipeline->AddPass(std::move(pPickingRenderPass));
-    
-    ezUniquePtr<ezSelectedObjectsExtractor> pExtractor = EZ_DEFAULT_NEW(ezSelectedObjectsExtractor);
-    m_pSelectionExtractor = pExtractor.Borrow();
-    m_pSelectionExtractor->m_pSelection = &m_pSceneContext->GetSelectionWithChildren();
-    
-    ezUniquePtr<ezCallDelegateExtractor> pExtractorShapeIcons = EZ_DEFAULT_NEW(ezCallDelegateExtractor);
-    pExtractorShapeIcons->m_Delegate = ezMakeDelegate(&ezSceneContext::GenerateShapeIconMesh, m_pSceneContext);
-
-    pRenderPipeline->AddExtractor(std::move(pExtractor));
-    pRenderPipeline->AddExtractor(std::move(pExtractorShapeIcons));
-    pRenderPipeline->AddExtractor(EZ_DEFAULT_NEW(ezVisibleObjectsExtractor));
-
-    m_pView->SetRenderPipeline(std::move(pRenderPipeline));
-
+    m_pView->SetRenderTargetSetup(BackBufferRenderTargetSetup);
     m_pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));
-
-    ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
-    m_pView->SetWorld(pDocumentContext->GetScene()->GetWorld());
-    m_pView->SetLogicCamera(&m_Camera);
-
-    auto& tagReg = ezTagRegistry::GetGlobalRegistry();
-    ezTag tagHidden;
-    tagReg.RegisterTag("EditorHidden", &tagHidden);
-
-    m_pView->m_ExcludeTags.Set(tagHidden);
+    m_pView->GetRenderPipeline()->Rebuild();
   }
 }
 
@@ -325,7 +243,7 @@ void ezSceneViewContext::RenderPassEventHandler(const ezPickingRenderPass::Event
     // download the picking information from the GPU
     if (GetEditorWindow().m_uiWidth != 0 && GetEditorWindow().m_uiHeight != 0)
     {
-      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hPickingDepthRT);
+      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_pPickingRenderPass->GetPickingDepthRT());
 
       ezMat4 mProj, mView;
 
@@ -346,7 +264,7 @@ void ezSceneViewContext::RenderPassEventHandler(const ezPickingRenderPass::Event
 
       MemDesc.m_pData = m_PickingResultsDepth.GetData();
       ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescsDepth(&MemDesc, 1);
-      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(m_hPickingDepthRT, &SysMemDescsDepth);
+      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(m_pPickingRenderPass->GetPickingDepthRT(), &SysMemDescsDepth);
     }
   }
 
@@ -356,7 +274,7 @@ void ezSceneViewContext::RenderPassEventHandler(const ezPickingRenderPass::Event
     // download the picking information from the GPU
     if (GetEditorWindow().m_uiWidth != 0 && GetEditorWindow().m_uiHeight != 0)
     {
-      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hPickingIdRT);
+      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_pPickingRenderPass->GetPickingIdRT());
 
       ezMat4 mProj, mView;
 
@@ -377,7 +295,63 @@ void ezSceneViewContext::RenderPassEventHandler(const ezPickingRenderPass::Event
 
       MemDesc.m_pData = m_PickingResultsID.GetData();
       ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
-      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(m_hPickingIdRT, &SysMemDescs);
+      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(m_pPickingRenderPass->GetPickingIdRT(), &SysMemDescs);
     }
   }
+}
+
+void ezSceneViewContext::CreateView()
+{
+  m_pView = ezRenderLoop::CreateView("Editor - View");
+
+  ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
+
+  {
+    ezUniquePtr<ezRenderPipelinePass> pPass = EZ_DEFAULT_NEW(ezEditorRenderPass);
+    m_pEditorRenderPass = static_cast<ezEditorRenderPass*>(pPass.Borrow());
+    m_pEditorRenderPass->SetSceneContext(m_pSceneContext);
+    pRenderPipeline->AddPass(std::move(pPass));
+  }
+
+  {
+    ezUniquePtr<ezRenderPipelinePass> pPass = EZ_DEFAULT_NEW(ezPickingRenderPass);
+    m_pPickingRenderPass = static_cast<ezPickingRenderPass*>(pPass.Borrow());
+    m_pPickingRenderPass->SetSceneContext(m_pSceneContext);
+    pRenderPipeline->AddPass(std::move(pPass));
+  }
+
+  ezTargetPass* pTargetPass = nullptr;
+  {
+    ezUniquePtr<ezRenderPipelinePass> pPass = EZ_DEFAULT_NEW(ezTargetPass);
+    pTargetPass = static_cast<ezTargetPass*>(pPass.Borrow());
+    pRenderPipeline->AddPass(std::move(pPass));
+  }
+
+  EZ_VERIFY(pRenderPipeline->Connect(m_pEditorRenderPass, "Color", pTargetPass, "Color0"), "Connect failed!");
+  EZ_VERIFY(pRenderPipeline->Connect(m_pEditorRenderPass, "DepthStencil", pTargetPass, "DepthStencil"), "Connect failed!");
+
+  m_pPickingRenderPass->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneViewContext::RenderPassEventHandler, this));
+
+  ezUniquePtr<ezSelectedObjectsExtractor> pExtractor = EZ_DEFAULT_NEW(ezSelectedObjectsExtractor);
+  m_pSelectionExtractor = pExtractor.Borrow();
+  m_pSelectionExtractor->m_pSelection = &m_pSceneContext->GetSelectionWithChildren();
+
+  ezUniquePtr<ezCallDelegateExtractor> pExtractorShapeIcons = EZ_DEFAULT_NEW(ezCallDelegateExtractor);
+  pExtractorShapeIcons->m_Delegate = ezMakeDelegate(&ezSceneContext::GenerateShapeIconMesh, m_pSceneContext);
+
+  pRenderPipeline->AddExtractor(std::move(pExtractor));
+  pRenderPipeline->AddExtractor(std::move(pExtractorShapeIcons));
+  pRenderPipeline->AddExtractor(EZ_DEFAULT_NEW(ezVisibleObjectsExtractor));
+
+  m_pView->SetRenderPipeline(std::move(pRenderPipeline));
+
+  ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
+  m_pView->SetWorld(pDocumentContext->GetScene()->GetWorld());
+  m_pView->SetLogicCamera(&m_Camera);
+
+  auto& tagReg = ezTagRegistry::GetGlobalRegistry();
+  ezTag tagHidden;
+  tagReg.RegisterTag("EditorHidden", &tagHidden);
+
+  m_pView->m_ExcludeTags.Set(tagHidden);
 }

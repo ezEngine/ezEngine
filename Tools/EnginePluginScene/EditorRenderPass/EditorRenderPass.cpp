@@ -10,9 +10,9 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorRenderPass, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezEditorRenderPass::ezEditorRenderPass(ezSceneContext* pSceneContext, const ezGALRenderTagetSetup& RenderTargetSetup, const char* szName) : ezSimpleRenderPass(RenderTargetSetup, szName)
+ezEditorRenderPass::ezEditorRenderPass(const char* szName) : ezSimpleRenderPass(szName)
 {
-  m_pSceneContext = pSceneContext;
+  m_pSceneContext = nullptr;
   m_bRenderSelectionOverlay = true;
   m_bRenderShapeIcons = true;
 }

@@ -22,10 +22,25 @@ public:
   void AddRenderer(ezUniquePtr<ezRenderer>&& pRenderer);
   void RemoveRenderer(ezUniquePtr<ezRenderer>&& pRenderer);
 
-  virtual void Execute(const ezRenderViewContext& renderViewContext) = 0;
+  /// \brief Sets the name of the pass.
+  void SetName(const char* szName);
 
-  virtual void GetRenderTargetDescriptions(ezDynamicArray<ezGALTextureCreationDescription*>& outputs,
-    ezDynamicArray<ezGALTextureCreationDescription*>& helper);
+  /// \brief returns the name of the pass.
+  const char* GetName() const;
+
+  /// \brief For a given input pin configuration, provide the output configuration of this node.
+  /// Outputs is already resized to the number of output pins.
+  virtual bool GetRenderTargetDescriptions(const ezArrayPtr<ezGALTextureCreationDescription*const> inputs,
+    ezArrayPtr<ezGALTextureCreationDescription> outputs) = 0;
+
+  /// \brief After GetRenderTargetDescriptions was called successfully for each pass, this function is called
+  /// with the resulting actual textures. Un-connected pins have a nullptr value in the passed in arrays.
+  /// This is the time to create render target setups and remember input textures etc.
+  virtual void SetRenderTargets(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) = 0;
+
+  /// \brief Render into outputs.
+  virtual void Execute(const ezRenderViewContext& renderViewContext) = 0;
 
   void RenderDataWithPassType(const ezRenderViewContext& renderViewContext, ezRenderPassType passType);
 

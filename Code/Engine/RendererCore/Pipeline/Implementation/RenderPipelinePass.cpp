@@ -5,6 +5,9 @@
 #include <RendererFoundation/Context/Profiling.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelinePass, 1, ezRTTINoAllocator);
+  EZ_BEGIN_PROPERTIES
+    EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
+  EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezRenderPipelinePass::ezRenderPipelinePass(const char* szName)
@@ -33,10 +36,14 @@ void ezRenderPipelinePass::AddRenderer(ezUniquePtr<ezRenderer>&& pRenderer)
   }
 }
 
-void ezRenderPipelinePass::GetRenderTargetDescriptions(ezDynamicArray<ezGALTextureCreationDescription*>& outputs,
-  ezDynamicArray<ezGALTextureCreationDescription*>& helper)
+void ezRenderPipelinePass::SetName(const char* szName)
 {
+  m_sName.Assign(szName);
+}
 
+const char* ezRenderPipelinePass::GetName() const
+{
+  return m_sName.GetData();
 }
 
 void ezRenderPipelinePass::RenderDataWithPassType(const ezRenderViewContext& renderViewContext, ezRenderPassType passType)

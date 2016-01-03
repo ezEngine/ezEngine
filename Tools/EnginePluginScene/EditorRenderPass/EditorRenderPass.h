@@ -11,8 +11,9 @@ class ezEditorRenderPass : public ezSimpleRenderPass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorRenderPass, ezSimpleRenderPass);
 public:
-  ezEditorRenderPass(ezSceneContext* pSceneContext, const ezGALRenderTagetSetup& RenderTargetSetup, const char* szName = "EditorRenderPass");
+  ezEditorRenderPass(const char* szName = "EditorRenderPass");
 
+  void SetSceneContext(ezSceneContext* pSceneContext) { m_pSceneContext = pSceneContext; }
   virtual void Execute(const ezRenderViewContext& renderViewContext) override;
 
   bool m_bRenderSelectionOverlay;

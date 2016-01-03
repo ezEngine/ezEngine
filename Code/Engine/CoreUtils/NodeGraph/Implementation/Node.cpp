@@ -1,7 +1,7 @@
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/NodeGraph/Node.h>
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezNodePin) == 4);
+//EZ_CHECK_AT_COMPILETIME(sizeof(ezNodePin) == 4);
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezNode, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -37,6 +37,7 @@ void ezNode::InitializePins()
     auto pPinProp = static_cast<ezAbstractMemberProperty*>(pProp);
     ezNodePin* pPin = static_cast<ezNodePin*>(pPinProp->GetPropertyPointer(this));
 
+    pPin->m_pParent = this;
     if (pPin->m_Type == ezNodePin::Type::Unknown)
     {
       EZ_REPORT_FAILURE("Pin '%s' has an invalid type. Do not use ezNodePin directly as member but one of its derived types", pProp->GetPropertyName());
@@ -59,19 +60,34 @@ void ezNode::InitializePins()
   }
 }
 
+ezHashedString ezNode::GetPinName(const ezNodePin* pPin) const
+{
+  for (auto it = m_NameToPin.GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Value() == pPin)
+    {
+      return it.Key();
+    }
+  }
+  return ezHashedString();
+}
+
 const ezNodePin* ezNode::GetPinByName(const char* szName) const
 {
   ezHashedString sHashedName; sHashedName.Assign(szName);
+  return GetPinByName(sHashedName);
+}
+
+const ezNodePin* ezNode::GetPinByName(ezHashedString sName) const
+{
   const ezNodePin* pin;
-  if (m_NameToPin.TryGetValue(sHashedName, pin))
+  if (m_NameToPin.TryGetValue(sName, pin))
   {
     return pin;
   }
 
   return nullptr;
 }
-
-
 
 EZ_STATICLINK_FILE(CoreUtils, CoreUtils_NodeGraph_Implementation_Node);
 

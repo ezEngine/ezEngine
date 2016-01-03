@@ -19,9 +19,28 @@ EZ_FORCE_INLINE const ezWorld* ezView::GetWorld() const
   return m_pWorld;
 }
 
+EZ_FORCE_INLINE void ezView::SetRenderTargetSetup(ezGALRenderTagetSetup& renderTargetSetup)
+{
+  m_RenderTargetSetup = renderTargetSetup;
+  if (m_pRenderPipeline)
+  {
+    m_pRenderPipeline->ResetPipelineState();
+  }
+}
+
+EZ_FORCE_INLINE const ezGALRenderTagetSetup& ezView::GetRenderTargetSetup() const
+{
+  return m_RenderTargetSetup;
+}
+
 EZ_FORCE_INLINE void ezView::SetRenderPipeline(ezUniquePtr<ezRenderPipeline>&& pRenderPipeline)
 {
+  if (m_pRenderPipeline)
+  {
+    m_pRenderPipeline->SetView(nullptr);
+  }
   m_pRenderPipeline = std::move(pRenderPipeline);
+  m_pRenderPipeline->SetView(this);
 
   ezStringBuilder sb = m_sName.GetString();
   sb.Append(".Render");
