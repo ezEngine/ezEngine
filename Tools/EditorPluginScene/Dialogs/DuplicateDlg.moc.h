@@ -33,18 +33,6 @@ public slots:
 	virtual void on_toolButtonTransY_clicked ();
 	virtual void on_toolButtonTransZ_clicked ();
 
-	virtual void on_toolButtonRotX_clicked ();
-	virtual void on_toolButtonRotY_clicked ();
-	virtual void on_toolButtonRotZ_clicked ();
-
-	virtual void on_toolButtonTransX_2_clicked ();
-	virtual void on_toolButtonTransY_2_clicked ();
-	virtual void on_toolButtonTransZ_2_clicked ();
-
-	virtual void on_toolButtonRotX_2_clicked ();
-	virtual void on_toolButtonRotY_2_clicked ();
-	virtual void on_toolButtonRotZ_2_clicked ();
-
 	virtual void on_PushButtonReset_clicked ();
 	virtual void on_RefPointCenter_clicked ();
 	virtual void on_RefPointMouse_clicked ();

@@ -256,16 +256,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QToolButton" name="toolButtonRotX">
-        <property name="text">
-         <string>0</string>
-        </property>
-        <property name="arrowType">
-         <enum>Qt::NoArrow</enum>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
     <item>
@@ -296,16 +286,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QToolButton" name="toolButtonRotY">
-        <property name="text">
-         <string>0</string>
-        </property>
-        <property name="arrowType">
-         <enum>Qt::NoArrow</enum>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
     <item>
@@ -333,16 +313,6 @@
         </property>
         <property name="singleStep">
          <double>5.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="toolButtonRotZ">
-        <property name="text">
-         <string>0</string>
-        </property>
-        <property name="arrowType">
-         <enum>Qt::NoArrow</enum>
         </property>
        </widget>
       </item>
@@ -748,16 +718,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QToolButton" name="toolButtonRotX_2">
-        <property name="text">
-         <string>0</string>
-        </property>
-        <property name="arrowType">
-         <enum>Qt::NoArrow</enum>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
     <item>
@@ -788,16 +748,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QToolButton" name="toolButtonRotY_2">
-        <property name="text">
-         <string>0</string>
-        </property>
-        <property name="arrowType">
-         <enum>Qt::NoArrow</enum>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
     <item>
@@ -825,16 +775,6 @@
         </property>
         <property name="singleStep">
          <double>5.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="toolButtonRotZ_2">
-        <property name="text">
-         <string>0</string>
-        </property>
-        <property name="arrowType">
-         <enum>Qt::NoArrow</enum>
         </property>
        </widget>
       </item>
@@ -915,16 +855,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QToolButton" name="toolButtonTransX_2">
-        <property name="text">
-         <string>0</string>
-        </property>
-        <property name="arrowType">
-         <enum>Qt::NoArrow</enum>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
     <item>
@@ -952,16 +882,6 @@
         </property>
         <property name="singleStep">
          <double>0.250000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="toolButtonTransY_2">
-        <property name="text">
-         <string>0</string>
-        </property>
-        <property name="arrowType">
-         <enum>Qt::NoArrow</enum>
         </property>
        </widget>
       </item>
@@ -995,16 +915,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QToolButton" name="toolButtonTransZ_2">
-        <property name="text">
-         <string>0</string>
-        </property>
-        <property name="arrowType">
-         <enum>Qt::NoArrow</enum>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
     <item>
@@ -1033,11 +943,8 @@
   <tabstop>SpinBoxTransZ</tabstop>
   <tabstop>toolButtonTransZ</tabstop>
   <tabstop>SpinBoxRotX</tabstop>
-  <tabstop>toolButtonRotX</tabstop>
   <tabstop>SpinBoxRotY</tabstop>
-  <tabstop>toolButtonRotY</tabstop>
   <tabstop>SpinBoxRotZ</tabstop>
-  <tabstop>toolButtonRotZ</tabstop>
   <tabstop>RefPointCenter</tabstop>
   <tabstop>RefPointMouse</tabstop>
   <tabstop>RevolveNone</tabstop>

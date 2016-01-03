@@ -106,10 +106,10 @@ public:
 public:
 
   /// \brief Converts the quaternion to Euler angles
-  void GetAsEulerAngles(ezAngle& out_Yaw, ezAngle& out_Pitch, ezAngle& out_Roll) const;
+  void GetAsEulerAngles(ezAngle& out_x, ezAngle& out_y, ezAngle& out_z) const;
 
   /// \brief Sets the quaternion from Euler angles
-  void SetFromEulerAngles(const ezAngle& Yaw, const ezAngle& Pitch, const ezAngle& Roll);
+  void SetFromEulerAngles(const ezAngle& x, const ezAngle& y, const ezAngle& z);
 };
 
 /// \brief Rotates v by q

@@ -384,12 +384,12 @@ void ezPropertyEditorQuaternionWidget::InternalSetValue(const ezVariant& value)
   QtScopedBlockSignals b2(m_pWidget[2]);
 
   const ezQuat qRot = value.ConvertTo<ezQuat>();
-  ezAngle Yaw, Pitch, Roll;
-  qRot.GetAsEulerAngles(Yaw, Pitch, Roll);
+  ezAngle x, y, z;
+  qRot.GetAsEulerAngles(x, y, z);
 
-  m_pWidget[0]->setValue(Roll.GetDegree());
-  m_pWidget[1]->setValue(Yaw.GetDegree());
-  m_pWidget[2]->setValue(Pitch.GetDegree());
+  m_pWidget[0]->setValue(x.GetDegree());
+  m_pWidget[1]->setValue(y.GetDegree());
+  m_pWidget[2]->setValue(z.GetDegree());
 }
 
 void ezPropertyEditorQuaternionWidget::on_EditingFinished_triggered()
@@ -407,12 +407,12 @@ void ezPropertyEditorQuaternionWidget::SlotValueChanged()
 
   m_bTemporaryCommand = true;
 
-  ezAngle Roll = ezAngle::Degree(m_pWidget[0]->value());
-  ezAngle Yaw = ezAngle::Degree(m_pWidget[1]->value());
-  ezAngle Pitch = ezAngle::Degree(m_pWidget[2]->value());
+  ezAngle x = ezAngle::Degree(m_pWidget[0]->value());
+  ezAngle y = ezAngle::Degree(m_pWidget[1]->value());
+  ezAngle z = ezAngle::Degree(m_pWidget[2]->value());
 
   ezQuat qRot;
-  qRot.SetFromEulerAngles(Yaw, Pitch, Roll);
+  qRot.SetFromEulerAngles(x, y, z);
 
   BroadcastValueChanged(qRot);
 }

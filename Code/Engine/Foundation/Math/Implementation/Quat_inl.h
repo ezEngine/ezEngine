@@ -382,7 +382,7 @@ EZ_FORCE_INLINE bool operator!= (const ezQuatTemplate<Type>& q1, const ezQuatTem
 }
 
 template<typename Type>
-void ezQuatTemplate<Type>::GetAsEulerAngles(ezAngle& out_Yaw, ezAngle& out_Pitch, ezAngle& out_Roll) const
+void ezQuatTemplate<Type>::GetAsEulerAngles(ezAngle& out_x, ezAngle& out_y, ezAngle& out_z) const
 {
   /// \test This is new
 
@@ -394,18 +394,18 @@ void ezQuatTemplate<Type>::GetAsEulerAngles(ezAngle& out_Yaw, ezAngle& out_Pitch
   if (test > 0.499)
   {
     // singularity at north pole
-    out_Yaw = 2.0f * ezMath::ATan2(v.x, w);
-    out_Pitch = ezAngle::Radian(ezMath::BasicType<float>::Pi() / 2.0f);
-    out_Roll = ezAngle::Radian(0.0f);
+    out_y = 2.0f * ezMath::ATan2(v.x, w);
+    out_z = ezAngle::Radian(ezMath::BasicType<float>::Pi() / 2.0f);
+    out_x = ezAngle::Radian(0.0f);
     return;
   }
 
   if (test < -0.499)
   {
     // singularity at south pole
-    out_Yaw = -2.0f * ezMath::ATan2(v.x, w);
-    out_Pitch = ezAngle::Radian(-ezMath::BasicType<float>::Pi() / 2.0f);
-    out_Roll = ezAngle::Radian(0.0f);
+    out_y = -2.0f * ezMath::ATan2(v.x, w);
+    out_z = ezAngle::Radian(-ezMath::BasicType<float>::Pi() / 2.0f);
+    out_x = ezAngle::Radian(0.0f);
     return;
   }
 
@@ -413,25 +413,25 @@ void ezQuatTemplate<Type>::GetAsEulerAngles(ezAngle& out_Yaw, ezAngle& out_Pitch
   const double sqy = v.y * v.y;
   const double sqz = v.z * v.z;
 
-  out_Yaw = ezMath::ATan2((float)(2.0 * v.y * w - 2.0 * v.x * v.z), (float)(1.0 - 2.0 * sqy - 2.0 * sqz));
-  out_Pitch = ezMath::ASin((float)(2.0 * test));
-  out_Roll = ezMath::ATan2((float)(2.0 * v.x * w - 2.0 * v.y * v.z), (float)(1.0 - 2.0 * sqx - 2.0 * sqz));
+  out_y = ezMath::ATan2((float)(2.0 * v.y * w - 2.0 * v.x * v.z), (float)(1.0 - 2.0 * sqy - 2.0 * sqz));
+  out_z = ezMath::ASin((float)(2.0 * test));
+  out_x = ezMath::ATan2((float)(2.0 * v.x * w - 2.0 * v.y * v.z), (float)(1.0 - 2.0 * sqx - 2.0 * sqz));
 }
 
 template<typename Type>
-void ezQuatTemplate<Type>::SetFromEulerAngles(const ezAngle& Yaw, const ezAngle& Pitch, const ezAngle& Roll)
+void ezQuatTemplate<Type>::SetFromEulerAngles(const ezAngle& x, const ezAngle& y, const ezAngle& z)
 {
   /// \test This is new
 
   // Taken from here:
   // http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm
 
-  const double c1 = ezMath::Cos(Yaw * 0.5f);
-  const double s1 = ezMath::Sin(Yaw * 0.5f);
-  const double c2 = ezMath::Cos(Pitch * 0.5f);
-  const double s2 = ezMath::Sin(Pitch * 0.5f);
-  const double c3 = ezMath::Cos(Roll * 0.5f);
-  const double s3 = ezMath::Sin(Roll * 0.5f);
+  const double c1 = ezMath::Cos(y * 0.5f);
+  const double s1 = ezMath::Sin(y * 0.5f);
+  const double c2 = ezMath::Cos(z * 0.5f);
+  const double s2 = ezMath::Sin(z * 0.5f);
+  const double c3 = ezMath::Cos(x * 0.5f);
+  const double s3 = ezMath::Sin(x * 0.5f);
   const double c1c2 = c1 * c2;
   const double s1s2 = s1 * s2;
 

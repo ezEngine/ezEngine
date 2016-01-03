@@ -187,54 +187,6 @@ void qtDuplicateDlg::on_toolButtonTransZ_clicked()
       SpinBoxTransZ->setValue(vSize.z);
 }
 
-
-void qtDuplicateDlg::on_toolButtonRotX_clicked()
-{
-  SpinBoxRotX->setValue(0);
-}
-
-void qtDuplicateDlg::on_toolButtonRotY_clicked()
-{
-  SpinBoxRotY->setValue(0);
-}
-
-void qtDuplicateDlg::on_toolButtonRotZ_clicked()
-{
-  SpinBoxRotZ->setValue(0);
-}
-
-
-void qtDuplicateDlg::on_toolButtonRotX_2_clicked()
-{
-  SpinBoxRotX_2->setValue(0);
-}
-
-void qtDuplicateDlg::on_toolButtonRotY_2_clicked()
-{
-  SpinBoxRotY_2->setValue(0);
-}
-
-void qtDuplicateDlg::on_toolButtonRotZ_2_clicked()
-{
-  SpinBoxRotZ_2->setValue(0);
-}
-
-
-void qtDuplicateDlg::on_toolButtonTransX_2_clicked()
-{
-  SpinBoxTransX_2->setValue(0);
-}
-
-void qtDuplicateDlg::on_toolButtonTransY_2_clicked()
-{
-  SpinBoxTransY_2->setValue(0);
-}
-
-void qtDuplicateDlg::on_toolButtonTransZ_2_clicked()
-{
-  SpinBoxTransZ_2->setValue(0);
-}
-
 void qtDuplicateDlg::on_PushButtonReset_clicked()
 {
   spinBoxCopies->setValue(1);
@@ -360,12 +312,7 @@ void qtDuplicateDlg::on_PushButtonOk_clicked()
 
   s_iStartAngle = SpinBoxStartAngle->value();
   s_iRevolveAngle = SpinBoxAngle->value();
-  s_fRevolveRadius = ezMath::Clamp((float)SpinBoxRadius->value(), 0.0f, 100.0f);
-
-
-  //list<aeEntity*> NewSelection;
-
-  //UNDO_SYSTEM::BeginUndoableOperation();
+  s_fRevolveRadius = ezMath::Clamp((float)SpinBoxRadius->value(), 0.0f, 1000.0f);
 
   //int iAdd = s_bStartAtCenter ? 1 : 0;
 
@@ -379,19 +326,13 @@ void qtDuplicateDlg::on_PushButtonOk_clicked()
   //    {
   //      g_Scenegraph->AddEntity<aeGroup>((aeEntity**)&pGroup);
 
-  //      pGroup->setName("Duplicate");
-
   //      if ((!s_bStartAtCenter) && (s_iRevolveAxis > 0))
   //        pGroup->setGlobalOrientation(aeOrientation(pEntity->getGlobalOrientation().m_vPosition + vTranslate, ezQuat::getIdentityQuaternion()));
   //      else
   //        pGroup->setGlobalOrientation(pEntity->getGlobalOrientation());
 
-  //      UNDO_SYSTEM::StoreOperation(UNDO_SYSTEM::UNDOOP_NODE_CREATED, pGroup->getInstanceHandle());
-
   //      if (s_bStartAtCenter)
   //      {
-  //        UNDO_SYSTEM::StoreOperation(UNDO_SYSTEM::UNDOOP_CHANGE_PARENT, pEntity->getInstanceHandle());
-
   //        pGroup->AddChild(pEntity->getInstanceHandle());
   //        pEntity->setGlobalOrientation(pEntity->getGlobalOrientation());
   //      }
@@ -445,18 +386,9 @@ void qtDuplicateDlg::on_PushButtonOk_clicked()
   //      }
   //      else
   //        NewSelection.push_back(pRes);
-
-  //      UNDO_SYSTEM::StoreOperation(UNDO_SYSTEM::UNDOOP_NODE_CREATED, pRes->getInstanceHandle());
   //    }
   //  }
   //}
-
-  //UNDO_SYSTEM::EndUndoableOperation(true);
-
-  //g_Selection.ClearSelection();
-
-  //for (list<aeEntity*>::iterator it = NewSelection.begin(); it != NewSelection.end(); ++it)
-  //  g_Selection.AddItem((*it)->getInstanceHandle());
 
   accept();
 }
