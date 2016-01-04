@@ -77,6 +77,8 @@ public:
   void MergeLastTwoTransactions();
 
 private:
+  friend class ezCommand;
+
   void EndTransaction(bool bCancel);
   void EndTemporaryCommands(bool bCancel);
 
@@ -85,6 +87,7 @@ private:
   bool m_bIsInUndoRedo;
 
   ezHybridArray<ezCommandTransaction*, 4> m_TransactionStack;
+  ezHybridArray<ezCommand*, 4> m_ActiveCommandStack;
   ezDeque<ezCommandTransaction*> m_UndoHistory;
   ezDeque<ezCommandTransaction*> m_RedoHistory;
   ezDocument* m_pDocument;

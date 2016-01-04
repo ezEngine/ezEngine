@@ -49,7 +49,7 @@ ezStatus ezDuplicateObjectsCommand::DoInternal(bool bRedo)
 
   if (!bRedo)
   {
-    EZ_ASSERT_DEV(!m_bGroupDuplicates, "Not yet implemented");
+    //EZ_ASSERT_DEV(!m_bGroupDuplicates, "Not yet implemented");
 
     ezAbstractObjectGraph graph;
     DeserializeGraph(graph);

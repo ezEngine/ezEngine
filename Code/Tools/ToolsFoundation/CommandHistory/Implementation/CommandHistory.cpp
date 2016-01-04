@@ -178,6 +178,7 @@ void ezCommandHistory::StartTransaction()
     pTransaction->Undo(false);
     pTransaction->Cleanup(ezCommand::CommandState::WasUndone);
     m_TransactionStack.PushBack(pTransaction);
+    m_ActiveCommandStack.PushBack(pTransaction);
     return;
   }
 
@@ -189,11 +190,13 @@ void ezCommandHistory::StartTransaction()
     // Stacked transaction
     m_TransactionStack.PeekBack()->AddCommandTransaction(pTransaction);
     m_TransactionStack.PushBack(pTransaction);
+    m_ActiveCommandStack.PushBack(pTransaction);
   }
   else
   {
     // Initial transaction
     m_TransactionStack.PushBack(pTransaction);
+    m_ActiveCommandStack.PushBack(pTransaction);
     {
       Event e;
       e.m_Type = Event::Type::TransactionStarted;
@@ -218,11 +221,13 @@ void ezCommandHistory::EndTransaction(bool bCancel)
     if (m_TransactionStack.GetCount() > 1)
     {
       m_TransactionStack.PopBack();
+      m_ActiveCommandStack.PopBack();
     }
     else
     {
       m_UndoHistory.PushBack(m_TransactionStack.PeekBack());
       m_TransactionStack.PopBack();
+      m_ActiveCommandStack.PopBack();
       ClearRedoHistory();
 
       m_pDocument->SetModified(true);
@@ -234,6 +239,7 @@ void ezCommandHistory::EndTransaction(bool bCancel)
 
     pTransaction->Undo(true);
     m_TransactionStack.PopBack();
+    m_ActiveCommandStack.PopBack();
 
     if (m_TransactionStack.IsEmpty())
     {
@@ -254,8 +260,9 @@ void ezCommandHistory::EndTransaction(bool bCancel)
 ezStatus ezCommandHistory::AddCommand(ezCommand& command)
 {
   EZ_ASSERT_DEV(!m_TransactionStack.IsEmpty(), "Cannot add command while no transaction is started");
+  EZ_ASSERT_DEV(!m_ActiveCommandStack.IsEmpty(), "Transaction stack is not synced anymore with m_ActiveCommandStack");
 
-  return m_TransactionStack.PeekBack()->AddCommand(command);
+  return m_ActiveCommandStack.PeekBack()->AddCommand(command);
 }
 
 void ezCommandHistory::ClearUndoHistory()

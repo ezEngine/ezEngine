@@ -1,5 +1,7 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Command/Command.h>
+#include <ToolsFoundation/CommandHistory/CommandHistory.h>
+#include <ToolsFoundation/Document/Document.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/IO/MemoryStream.h>
 
@@ -108,16 +110,20 @@ ezStatus ezCommand::AddCommand(ezCommand& command)
   ezCommand* pCommand = (ezCommand*)ezReflectionSerializer::ReadObjectFromJSON(reader, pRtti);
 
   pCommand->m_pDocument = m_pDocument;
+
+  m_ChildActions.PushBack(pCommand);
+  m_pDocument->GetCommandHistory()->m_ActiveCommandStack.PushBack(pCommand);
   ezStatus ret = pCommand->Do(false);
+  m_pDocument->GetCommandHistory()->m_ActiveCommandStack.PopBack();
 
   if (ret.m_Result == EZ_FAILURE)
   {
+    m_ChildActions.PopBack();
     pCommand->Cleanup(ezCommand::CommandState::WasDone);
     pCommand->GetDynamicRTTI()->GetAllocator()->Deallocate(pCommand);
     return ret;
   }
 
-  m_ChildActions.PushBack(pCommand);
 
   return ezStatus(EZ_SUCCESS);
 }
