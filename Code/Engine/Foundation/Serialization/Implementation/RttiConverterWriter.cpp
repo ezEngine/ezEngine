@@ -21,8 +21,8 @@ void* ezRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRt
 
 void ezRttiConverterContext::DeleteObject(const ezUuid& guid)
 {
-  auto* pObj = GetObjectByGUID(guid);
-  pObj->m_pType->GetAllocator()->Deallocate(pObj->m_pObject);
+  auto object = GetObjectByGUID(guid);
+  object.m_pType->GetAllocator()->Deallocate(object.m_pObject);
 
   UnregisterObject(guid);
 }
@@ -56,11 +56,11 @@ void ezRttiConverterContext::UnregisterObject(const ezUuid& guid)
   }
 }
 
-ezRttiConverterObject* ezRttiConverterContext::GetObjectByGUID(const ezUuid& guid) const
+ezRttiConverterObject ezRttiConverterContext::GetObjectByGUID(const ezUuid& guid) const
 {
-  ezRttiConverterObject* pObj = nullptr;
-  m_GuidToObject.TryGetValue(guid, pObj);
-  return pObj;
+  ezRttiConverterObject object;
+  m_GuidToObject.TryGetValue(guid, object);
+  return object;
 }
 
 ezUuid ezRttiConverterContext::GetObjectGUID(const ezRTTI* pRtti, void* pObject) const
@@ -91,20 +91,20 @@ ezUuid ezRttiConverterContext::EnqueObject(const ezRTTI* pRtti, void* pObject)
   return guid;
 }
 
-ezRttiConverterObject* ezRttiConverterContext::DequeueObject()
+ezRttiConverterObject ezRttiConverterContext::DequeueObject()
 {
   if (!m_QueuedObjects.IsEmpty())
   {
     auto it = m_QueuedObjects.GetIterator();
-    auto* pObj = GetObjectByGUID(it.Key());
-    EZ_ASSERT_DEV(pObj != nullptr, "Enqueued object was never registered!");
+    auto object = GetObjectByGUID(it.Key());
+    EZ_ASSERT_DEV(object.m_pObject != nullptr, "Enqueued object was never registered!");
 
     m_QueuedObjects.Remove(it);
 
-    return pObj;
+    return object;
   }
 
-  return nullptr;
+  return ezRttiConverterObject();
 }
 
 
@@ -115,11 +115,11 @@ ezAbstractObjectNode* ezRttiConverterWriter::AddObjectToGraph(const ezRTTI* pRtt
   const ezUuid guid = m_pContext->GetObjectGUID(pRtti, pObject);
   ezAbstractObjectNode* pNode = AddSubObjectToGraph(pRtti, pObject, guid, szNodeName);
 
-  ezRttiConverterObject* obj = m_pContext->DequeueObject();
-  while (obj != nullptr)
+  ezRttiConverterObject obj = m_pContext->DequeueObject();
+  while (obj.m_pObject != nullptr)
   {
-    const ezUuid guid = m_pContext->GetObjectGUID(obj->m_pType, obj->m_pObject);
-    AddSubObjectToGraph(obj->m_pType, obj->m_pObject, guid, nullptr);
+    const ezUuid guid = m_pContext->GetObjectGUID(obj.m_pType, obj.m_pObject);
+    AddSubObjectToGraph(obj.m_pType, obj.m_pObject, guid, nullptr);
 
     obj = m_pContext->DequeueObject();
   }

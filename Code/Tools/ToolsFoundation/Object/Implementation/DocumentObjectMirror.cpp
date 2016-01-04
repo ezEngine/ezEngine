@@ -290,22 +290,14 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
 
 void* ezDocumentObjectMirror::GetNativeObjectPointer(const ezDocumentObject* pObject)
 {
-  auto* pWrapper = m_pContext->GetObjectByGUID(pObject->GetGuid());
-
-  if (pWrapper == nullptr)
-    return nullptr;
-
-  return pWrapper->m_pObject;
+  auto object = m_pContext->GetObjectByGUID(pObject->GetGuid());
+  return object.m_pObject;
 }
 
 const void* ezDocumentObjectMirror::GetNativeObjectPointer(const ezDocumentObject* pObject) const
 {
-  auto* pWrapper = m_pContext->GetObjectByGUID(pObject->GetGuid());
-
-  if (pWrapper == nullptr)
-    return nullptr;
-
-  return pWrapper->m_pObject;
+  auto object = m_pContext->GetObjectByGUID(pObject->GetGuid());
+  return object.m_pObject;
 }
 
 bool ezDocumentObjectMirror::IsRootObject(const ezDocumentObject* pParent)
@@ -389,22 +381,22 @@ void ezDocumentObjectMirror::AddPathToSteps(const char* szPropertyPath, const ez
 
 void ezDocumentObjectMirror::ApplyOp(ezObjectChange& change)
 {
-  ezRttiConverterObject* pObject = nullptr;
+  ezRttiConverterObject object;
   if (change.m_Root.IsValid())
   {
-    pObject = m_pContext->GetObjectByGUID(change.m_Root);
-    EZ_ASSERT_DEV(pObject != nullptr, "Root objext does not exist in mirrored native object!");
+    object = m_pContext->GetObjectByGUID(change.m_Root);
+    EZ_ASSERT_DEV(object.m_pObject != nullptr, "Root objext does not exist in mirrored native object!");
   }
-  RetrieveObject(pObject, change, change.m_Steps);
+  RetrieveObject(object, change, change.m_Steps);
 }
 
-void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject* pObject, const ezObjectChange& change)
+void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjectChange& change)
 {
   ezAbstractProperty* pProp = nullptr;
   
-  if (pObject != nullptr)
+  if (object.m_pType != nullptr)
   {
-    pProp = pObject->m_pType->FindPropertyByName(change.m_Change.m_sProperty);
+    pProp = object.m_pType->FindPropertyByName(change.m_Change.m_sProperty);
     if (pProp == nullptr)
     {
       ezLog::Error("Property '%s' not found, can't apply mirror op!", change.m_Change.m_sProperty.GetData());
@@ -433,11 +425,11 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject* pObject, const ezObj
         auto pSpecificProp = static_cast<ezAbstractMemberProperty*>(pProp);
         if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
         {
-          pSpecificProp->SetValuePtr(pObject->m_pObject, &pValue);
+          pSpecificProp->SetValuePtr(object.m_pObject, &pValue);
         }
         else
         {
-          pSpecificProp->SetValuePtr(pObject->m_pObject, pValue);
+          pSpecificProp->SetValuePtr(object.m_pObject, pValue);
         }
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Array)
@@ -445,18 +437,18 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject* pObject, const ezObj
         auto pSpecificProp = static_cast<ezAbstractArrayProperty*>(pProp);
         if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
         {
-          pSpecificProp->Insert(pObject->m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>(), &pValue);
+          pSpecificProp->Insert(object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>(), &pValue);
         }
         else
         {
-          pSpecificProp->Insert(pObject->m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>(), pValue);
+          pSpecificProp->Insert(object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>(), pValue);
         }
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Set)
       {
         EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::Pointer), "Set object must always be pointers!");
         auto pSpecificProp = static_cast<ezAbstractSetProperty*>(pProp);
-        ezReflectionUtils::InsertSetPropertyValue(pSpecificProp, pObject->m_pObject, pValue);
+        ezReflectionUtils::InsertSetPropertyValue(pSpecificProp, object.m_pObject, pValue);
       }
 
       if (!pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
@@ -484,19 +476,19 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject* pObject, const ezObj
         }
 
         void* pValue = nullptr;
-        pSpecificProp->SetValuePtr(pObject->m_pObject, &pValue);
+        pSpecificProp->SetValuePtr(object.m_pObject, &pValue);
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Array)
       {
         auto pSpecificProp = static_cast<ezAbstractArrayProperty*>(pProp);
-        pSpecificProp->Remove(pObject->m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>());
+        pSpecificProp->Remove(object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>());
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Set)
       {
         EZ_ASSERT_DEV(pProp->GetFlags().IsSet(ezPropertyFlags::Pointer), "Set object must always be pointers!");
         auto pSpecificProp = static_cast<ezAbstractSetProperty*>(pProp);
-        auto pValue = m_pContext->GetObjectByGUID(change.m_Change.m_Value.Get<ezUuid>());
-        ezReflectionUtils::RemoveSetPropertyValue(pSpecificProp, pObject->m_pObject, pValue->m_pObject);
+        auto valueObject = m_pContext->GetObjectByGUID(change.m_Change.m_Value.Get<ezUuid>());
+        ezReflectionUtils::RemoveSetPropertyValue(pSpecificProp, object.m_pObject, valueObject.m_pObject);
       }
 
       if (pProp->GetFlags().AreAllSet(ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner))
@@ -510,7 +502,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject* pObject, const ezObj
       if (pProp->GetCategory() == ezPropertyCategory::Member)
       {
         auto pSpecificProp = static_cast<ezAbstractMemberProperty*>(pProp);
-        ezReflectionUtils::SetMemberPropertyValue(pSpecificProp, pObject->m_pObject, change.m_Change.m_Value);
+        ezReflectionUtils::SetMemberPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Value);
       }
     }
     break;
@@ -519,19 +511,19 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject* pObject, const ezObj
       ezVariant value = change.m_Change.m_Value;
       if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
-        auto pValue = m_pContext->GetObjectByGUID(change.m_Change.m_Value.Get<ezUuid>());
-        value = pValue->m_pObject;
+        auto valueObject = m_pContext->GetObjectByGUID(change.m_Change.m_Value.Get<ezUuid>());
+        value = valueObject.m_pObject;
       }
 
       if (pProp->GetCategory() == ezPropertyCategory::Array)
       {
         auto pSpecificProp = static_cast<ezAbstractArrayProperty*>(pProp);
-        ezReflectionUtils::InsertArrayPropertyValue(pSpecificProp, pObject->m_pObject, value, change.m_Change.m_Index.ConvertTo<ezUInt32>());
+        ezReflectionUtils::InsertArrayPropertyValue(pSpecificProp, object.m_pObject, value, change.m_Change.m_Index.ConvertTo<ezUInt32>());
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Set)
       {
         auto pSpecificProp = static_cast<ezAbstractSetProperty*>(pProp);
-        ezReflectionUtils::InsertSetPropertyValue(pSpecificProp, pObject->m_pObject, value);
+        ezReflectionUtils::InsertSetPropertyValue(pSpecificProp, object.m_pObject, value);
       }
     }
     break;
@@ -540,38 +532,38 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject* pObject, const ezObj
       if (pProp->GetCategory() == ezPropertyCategory::Array)
       {
         auto pSpecificProp = static_cast<ezAbstractArrayProperty*>(pProp);
-        ezReflectionUtils::RemoveArrayPropertyValue(pSpecificProp, pObject->m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>());
+        ezReflectionUtils::RemoveArrayPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>());
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Set)
       {
         ezVariant value = change.m_Change.m_Value;
         if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
         {
-          auto pValue = m_pContext->GetObjectByGUID(change.m_Change.m_Value.Get<ezUuid>());
-          value = pValue->m_pObject;
+          auto valueObject = m_pContext->GetObjectByGUID(change.m_Change.m_Value.Get<ezUuid>());
+          value = valueObject.m_pObject;
         }
 
         auto pSpecificProp = static_cast<ezAbstractSetProperty*>(pProp);
-        ezReflectionUtils::RemoveSetPropertyValue(pSpecificProp, pObject->m_pObject, value);
+        ezReflectionUtils::RemoveSetPropertyValue(pSpecificProp, object.m_pObject, value);
       }
     }
     break;
   }
 }
 
-void ezDocumentObjectMirror::RetrieveObject(ezRttiConverterObject* pObject, const ezObjectChange& change, const ezArrayPtr<const ezObjectChangeStep> path)
+void ezDocumentObjectMirror::RetrieveObject(ezRttiConverterObject object, const ezObjectChange& change, const ezArrayPtr<const ezObjectChangeStep> path)
 {
   const ezUInt32 uiCount = path.GetCount();
 
   // Destination reached? (end recursion)
   if (uiCount == 0)
   {
-    ApplyOp(pObject, change);
+    ApplyOp(object, change);
     return;
   }
   else // Recurse
   {
-    const ezRTTI* pCurrentType = pObject->m_pType;
+    const ezRTTI* pCurrentType = object.m_pType;
     auto pProp = pCurrentType->FindPropertyByName(path[0].m_sProperty);
     const ezRTTI* pPropType = pProp->GetSpecificType();
     switch (pProp->GetCategory())
@@ -586,22 +578,22 @@ void ezDocumentObjectMirror::RetrieveObject(ezRttiConverterObject* pObject, cons
         if (pPropType->GetProperties().GetCount() > 0)
         {
           ezRttiConverterObject subObject;
-          subObject.m_pObject = pSpecific->GetPropertyPointer(pObject->m_pObject);
+          subObject.m_pObject = pSpecific->GetPropertyPointer(object.m_pObject);
           subObject.m_pType = pPropType;
           // Do we have direct access to the property?
           if (subObject.m_pObject != nullptr)
           {
-            RetrieveObject(&subObject, change, path.GetSubArray(1));
+            RetrieveObject(subObject, change, path.GetSubArray(1));
           }
           // If the property is behind an accessor, we need to retrieve it first.
           else if (pPropType->GetAllocator()->CanAllocate())
           {
             subObject.m_pObject = pPropType->GetAllocator()->Allocate();
-            pSpecific->GetValuePtr(pObject->m_pObject, subObject.m_pObject);
+            pSpecific->GetValuePtr(object.m_pObject, subObject.m_pObject);
 
-            RetrieveObject(&subObject, change, path.GetSubArray(1));
+            RetrieveObject(subObject, change, path.GetSubArray(1));
 
-            pSpecific->SetValuePtr(pObject->m_pObject, subObject.m_pObject);
+            pSpecific->SetValuePtr(object.m_pObject, subObject.m_pObject);
             pPropType->GetAllocator()->Deallocate(subObject.m_pObject);
           }
           else
@@ -614,7 +606,7 @@ void ezDocumentObjectMirror::RetrieveObject(ezRttiConverterObject* pObject, cons
     case ezPropertyCategory::Array:
       {
         ezAbstractArrayProperty* pSpecific = static_cast<ezAbstractArrayProperty*>(pProp);
-        ezUInt32 uiArrayCount = pSpecific->GetCount(pObject->m_pObject);
+        ezUInt32 uiArrayCount = pSpecific->GetCount(object.m_pObject);
 
         EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::StandardType), "");
         EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer), "");
@@ -624,11 +616,11 @@ void ezDocumentObjectMirror::RetrieveObject(ezRttiConverterObject* pObject, cons
           ezRttiConverterObject subObject;
           subObject.m_pObject = pPropType->GetAllocator()->Allocate();
           subObject.m_pType = pPropType;
-          pSpecific->GetValue(pObject->m_pObject, path[0].m_Index.ConvertTo<ezUInt32>(), subObject.m_pObject);
+          pSpecific->GetValue(object.m_pObject, path[0].m_Index.ConvertTo<ezUInt32>(), subObject.m_pObject);
 
-          RetrieveObject(&subObject, change, path.GetSubArray(1));
+          RetrieveObject(subObject, change, path.GetSubArray(1));
 
-          pSpecific->SetValue(pObject->m_pObject, path[0].m_Index.ConvertTo<ezUInt32>(), subObject.m_pObject);
+          pSpecific->SetValue(object.m_pObject, path[0].m_Index.ConvertTo<ezUInt32>(), subObject.m_pObject);
           pPropType->GetAllocator()->Deallocate(subObject.m_pObject);
         }
         else

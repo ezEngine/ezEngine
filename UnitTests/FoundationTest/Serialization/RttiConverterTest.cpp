@@ -20,8 +20,8 @@ public:
 
   virtual void DeleteObject(const ezUuid& guid) override
   {
-    auto* pObj = GetObjectByGUID(guid);
-    pObj->m_pType->GetAllocator()->Deallocate(pObj->m_pObject);
+    auto object = GetObjectByGUID(guid);
+    object.m_pType->GetAllocator()->Deallocate(object.m_pObject);
 
     UnregisterObject(guid);
   }

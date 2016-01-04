@@ -32,11 +32,11 @@ public:
   virtual void RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject);
   virtual void UnregisterObject(const ezUuid& guid);
 
-  virtual ezRttiConverterObject* GetObjectByGUID(const ezUuid& guid) const;
+  virtual ezRttiConverterObject GetObjectByGUID(const ezUuid& guid) const;
   virtual ezUuid GetObjectGUID(const ezRTTI* pRtti, void* pObject) const;
 
   virtual ezUuid EnqueObject(const ezRTTI* pRtti, void* pObject);
-  virtual ezRttiConverterObject* DequeueObject();
+  virtual ezRttiConverterObject DequeueObject();
 
 protected:
   ezHashTable<ezUuid, ezRttiConverterObject> m_GuidToObject;

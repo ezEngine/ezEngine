@@ -84,7 +84,7 @@ public:
   virtual void RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject) override;
   virtual void UnregisterObject(const ezUuid& guid) override;
 
-  virtual ezRttiConverterObject* GetObjectByGUID(const ezUuid& guid) const override;
+  virtual ezRttiConverterObject GetObjectByGUID(const ezUuid& guid) const override;
   virtual ezUuid GetObjectGUID(const ezRTTI* pRtti, void* pObject) const override;
 
   ezWorld* m_pWorld;

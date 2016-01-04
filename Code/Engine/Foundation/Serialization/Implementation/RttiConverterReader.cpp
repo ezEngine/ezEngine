@@ -65,7 +65,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
         }
         else
         {
-          pRefrencedObject = m_pContext->GetObjectByGUID(guid)->m_pObject;
+          pRefrencedObject = m_pContext->GetObjectByGUID(guid).m_pObject;
         }
       }
 
@@ -123,7 +123,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
         }
         else
         {
-          pRefrencedObject = m_pContext->GetObjectByGUID(guid)->m_pObject;
+          pRefrencedObject = m_pContext->GetObjectByGUID(guid).m_pObject;
         }
         pSpecific->SetValue(pObject, i, &pRefrencedObject);
       }
@@ -175,7 +175,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
         }
         else
         {
-          pRefrencedObject = m_pContext->GetObjectByGUID(guid)->m_pObject;
+          pRefrencedObject = m_pContext->GetObjectByGUID(guid).m_pObject;
         }
         pSpecific->Insert(pObject, &pRefrencedObject);
       }

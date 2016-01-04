@@ -84,8 +84,9 @@ void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI
 
 void ezWorldRttiConverterContext::DeleteObject(const ezUuid& guid)
 {
-  ezRttiConverterObject* pObject = GetObjectByGUID(guid);
-  const ezRTTI* pRtti = pObject->m_pType;
+  ezRttiConverterObject object = GetObjectByGUID(guid);
+  const ezRTTI* pRtti = object.m_pType;
+  EZ_ASSERT_DEBUG(pRtti != nullptr, "Object does not exist!");
   if (pRtti == ezGetStaticRTTI<ezGameObject>())
   {
     auto hObject = m_GameObjectMap.GetHandle(guid);
@@ -131,9 +132,9 @@ void ezWorldRttiConverterContext::RegisterObject(const ezUuid& guid, const ezRTT
 
 void ezWorldRttiConverterContext::UnregisterObject(const ezUuid& guid)
 {
-  ezRttiConverterObject* pObject = GetObjectByGUID(guid);
-  EZ_ASSERT_DEBUG(pObject, "Failed to retrieve object by guid!");
-  const ezRTTI* pRtti = pObject->m_pType;
+  ezRttiConverterObject object = GetObjectByGUID(guid);
+  EZ_ASSERT_DEBUG(object.m_pObject, "Failed to retrieve object by guid!");
+  const ezRTTI* pRtti = object.m_pType;
   if (pRtti == ezGetStaticRTTI<ezGameObject>())
   {
     m_GameObjectMap.UnregisterObject(guid);
@@ -147,12 +148,12 @@ void ezWorldRttiConverterContext::UnregisterObject(const ezUuid& guid)
   ezRttiConverterContext::UnregisterObject(guid);
 }
 
-ezRttiConverterObject* ezWorldRttiConverterContext::GetObjectByGUID(const ezUuid& guid) const
+ezRttiConverterObject ezWorldRttiConverterContext::GetObjectByGUID(const ezUuid& guid) const
 {
-  ezRttiConverterObject* pObject = ezRttiConverterContext::GetObjectByGUID(guid);
+  ezRttiConverterObject object = ezRttiConverterContext::GetObjectByGUID(guid);
 
   // We can't look up the ptr via the base class map as it keeps changing, we we need to use the handle.
-  if (pObject->m_pType == ezGetStaticRTTI<ezGameObject>())
+  if (object.m_pType == ezGetStaticRTTI<ezGameObject>())
   {
     auto hObject = m_GameObjectMap.GetHandle(guid);
     ezGameObject* pGameObject = nullptr;
@@ -162,14 +163,14 @@ ezRttiConverterObject* ezWorldRttiConverterContext::GetObjectByGUID(const ezUuid
     }
 
     // Update new ptr of game object
-    if (pObject->m_pObject != pGameObject)
+    if (object.m_pObject != pGameObject)
     {
-      m_ObjectToGuid.Remove(pObject->m_pObject);
-      pObject->m_pObject = pGameObject;
-      m_ObjectToGuid.Insert(pObject->m_pObject, guid);
+      m_ObjectToGuid.Remove(object.m_pObject);
+      object.m_pObject = pGameObject;
+      m_ObjectToGuid.Insert(object.m_pObject, guid);
     }
   }
-  else if (pObject->m_pType->IsDerivedFrom<ezComponent>())
+  else if (object.m_pType->IsDerivedFrom<ezComponent>())
   {
     auto hComponent = m_ComponentMap.GetHandle(guid);
     ezComponent* pComponent = nullptr;
@@ -179,14 +180,14 @@ ezRttiConverterObject* ezWorldRttiConverterContext::GetObjectByGUID(const ezUuid
     }
 
     // Update new ptr of component
-    if (pObject->m_pObject != pComponent)
+    if (object.m_pObject != pComponent)
     {
-      m_ObjectToGuid.Remove(pObject->m_pObject);
-      pObject->m_pObject = pComponent;
-      m_ObjectToGuid.Insert(pObject->m_pObject, guid);
+      m_ObjectToGuid.Remove(object.m_pObject);
+      object.m_pObject = pComponent;
+      m_ObjectToGuid.Insert(object.m_pObject, guid);
     }
   }
-  return pObject;
+  return object;
 }
 
 ezUuid ezWorldRttiConverterContext::GetObjectGUID(const ezRTTI* pRtti, void* pObject) const

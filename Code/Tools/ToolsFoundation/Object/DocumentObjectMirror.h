@@ -85,8 +85,8 @@ protected:
   static void AddPathToSteps(const char* szPropertyPath, const ezVariant& index, ezHybridArray<ezObjectChangeStep, 4>& out_steps, bool bAddLastProperty = true);
 
   virtual void ApplyOp(ezObjectChange& change);
-  void ApplyOp(ezRttiConverterObject* pObject, const ezObjectChange& change);
-  void RetrieveObject(ezRttiConverterObject* pObject, const ezObjectChange& change, const ezArrayPtr<const ezObjectChangeStep> path);
+  void ApplyOp(ezRttiConverterObject object, const ezObjectChange& change);
+  void RetrieveObject(ezRttiConverterObject object, const ezObjectChange& change, const ezArrayPtr<const ezObjectChangeStep> path);
 
 protected:
   ezRttiConverterContext* m_pContext;
