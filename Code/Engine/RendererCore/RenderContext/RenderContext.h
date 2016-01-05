@@ -140,6 +140,7 @@ private:
   ezBitflags<ezShaderBindFlags> m_ShaderBindFlags;
   ezMeshBufferResourceHandle m_hMeshBuffer;
   ezUInt32 m_uiMeshBufferPrimitiveCount;
+  ezUInt64 m_uiLastMaterialCBSync;
 
   ezHashTable<ezUInt32, ezTextureResourceHandle> m_BoundTextures;
   ezHashTable<ezUInt32, ezConstantBufferResourceHandle> m_BoundConstantBuffers;

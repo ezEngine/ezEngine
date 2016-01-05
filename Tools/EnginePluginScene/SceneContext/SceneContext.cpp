@@ -9,18 +9,18 @@
 #include <Core/Scene/Scene.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <CoreUtils/Geometry/GeomUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>);
-EZ_BEGIN_PROPERTIES
-EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "ezScene;ezPrefab"),
-EZ_END_PROPERTIES
+  EZ_BEGIN_PROPERTIES
+    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "ezScene;ezPrefab"),
+  EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezUInt32 ezSceneContext::s_uiShapeIconBufferCounter = 0;
 
 void ezSceneContext::ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds)
 {
-  /// \todo Work around for objects without bounds (?)
   auto b = pObj->GetGlobalBounds();
 
   if (b.IsValid())
@@ -35,10 +35,35 @@ void ezSceneContext::ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSph
   }
 }
 
+void ezSceneContext::ComputeSelectionBounds()
+{
+  if (!m_bRenderSelectionBoxes)
+    return;
+
+  m_SelectionBBoxes.Clear();
+
+  auto pWorld = GetScene()->GetWorld();
+
+  EZ_LOCK(pWorld->GetReadMarker());
+
+  for (const auto& obj : m_Selection)
+  {
+    auto& bounds = m_SelectionBBoxes.ExpandAndGetRef();
+    bounds.SetInvalid();
+
+    ezGameObject* pObj;
+    if (!pWorld->TryGetObject(obj, pObj))
+      continue;
+
+    ComputeHierarchyBounds(pObj, bounds);
+  }
+}
+
 ezSceneContext::ezSceneContext()
 {
   m_bRenderSelectionOverlay = true;
   m_bRenderShapeIcons = true;
+  m_bRenderSelectionBoxes = true;
   m_bShapeIconBufferValid = false;
 }
 
@@ -53,6 +78,7 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     const bool bSimulate = msg->m_bSimulateWorld;
     m_bRenderSelectionOverlay = msg->m_bRenderOverlay;
     m_bRenderShapeIcons = msg->m_bRenderShapeIcons;
+    //m_bRenderSelectionBoxes = msg->m_bRenderSelectionBoxes;
 
     if (bSimulate != GetScene()->GetWorld()->GetWorldSimulationEnabled())
     {
@@ -149,6 +175,8 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
 void ezSceneContext::GenerateShapeIconMesh()
 {
+  ComputeSelectionBounds();
+
   if (m_bShapeIconBufferValid)
     return;
 
@@ -244,6 +272,8 @@ void ezSceneContext::RenderShapeIcons(ezRenderContext* pContext)
   if (!m_bRenderShapeIcons)
     return;
 
+  pContext->GetGALContext()->PushMarker("Shape Icons");
+
   for (auto it = m_ShapeIcons.GetIterator(); it.IsValid(); ++it)
   {
     if (it.Value().m_IconPositions.IsEmpty())
@@ -256,8 +286,35 @@ void ezSceneContext::RenderShapeIcons(ezRenderContext* pContext)
     pContext->DrawMeshBuffer();
   }
 
+  pContext->GetGALContext()->PopMarker();
+
   /// \todo Render all selected ones again (blend overlay color)
 }
+
+void ezSceneContext::RenderSelectionBoxes(ezRenderContext* pContext)
+{
+  if (!m_bRenderSelectionBoxes)
+    return;
+
+  pContext->GetGALContext()->PushMarker("Selection Boxes");
+
+  for (auto box : m_SelectionBBoxes)
+  {
+    if (!box.IsValid())
+      continue;
+
+    pContext->SetMaterialParameter("Center", box.m_vCenter);
+    pContext->SetMaterialParameter("HalfExtents", box.m_vBoxHalfExtends);
+
+    pContext->BindMeshBuffer(m_hSelectionBoxMeshBuffer);
+    pContext->BindShader(m_hSelectionBoxShader);
+
+    pContext->DrawMeshBuffer();
+  }
+
+  pContext->GetGALContext()->PopMarker();
+}
+
 
 void ezSceneContext::OnInitialize()
 {
@@ -272,12 +329,16 @@ void ezSceneContext::OnInitialize()
   LoadShapeIconTextures();
 
   m_hShapeIconShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Editor/ShapeIcon.ezShader");
+  m_hSelectionBoxShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Editor/SelectionBox.ezShader");
+
+  CreateSelectionBoxMesh();
 }
 
 void ezSceneContext::OnDeinitialize()
 {
   m_ShapeIcons.Clear();
   m_hShapeIconShader.Invalidate();
+  m_hSelectionBoxShader.Invalidate();
 }
 
 ezEngineProcessViewContext* ezSceneContext::CreateViewContext()
@@ -325,6 +386,8 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
   {
     m_SelectionWithChildren.PushBack(it.Key());
   }
+
+  ComputeSelectionBounds();
 }
 
 void ezSceneContext::InsertSelectedChildren(const ezGameObject* pObject)
@@ -360,4 +423,36 @@ void ezSceneContext::LoadShapeIconTextures()
     }
   }
 
+}
+
+void ezSceneContext::CreateSelectionBoxMesh()
+{
+  m_hSelectionBoxMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>("SelectionBBoxMesh");
+
+  if (m_hSelectionBoxMeshBuffer.IsValid())
+    return;
+
+  ezGeometry geom;
+  geom.AddLineBox(ezVec3(2.0f), ezColor::Yellow);
+  const ezUInt32 uiLines = geom.GetLines().GetCount();
+
+  ezMeshBufferResourceDescriptor md;
+  md.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+  md.AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
+  md.AllocateStreams(uiLines * 2, ezGALPrimitiveTopology::Lines, 0); // 0 primitives = no index buffer needed for this mesh
+
+  const auto& Verts = geom.GetVertices();
+
+  for (ezUInt32 l = 0; l < uiLines; ++l)
+  {
+    const auto& Line = geom.GetLines()[l];
+
+    md.SetVertexData<ezVec3>(0, l * 2 + 0, Verts[Line.m_uiStartVertex].m_vPosition);
+    md.SetVertexData<ezVec3>(0, l * 2 + 1, Verts[Line.m_uiEndVertex].m_vPosition);
+
+    md.SetVertexData<ezColorLinearUB>(1, l * 2 + 0, Verts[Line.m_uiStartVertex].m_Color);
+    md.SetVertexData<ezColorLinearUB>(1, l * 2 + 1, Verts[Line.m_uiEndVertex].m_Color);
+  }
+
+  m_hSelectionBoxMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("SelectionBBoxMesh", md, "Mesh for Rendering Selection Boxes");
 }

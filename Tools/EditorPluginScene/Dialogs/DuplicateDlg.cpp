@@ -4,7 +4,7 @@
 #include <QPushButton>
 
 ezUInt32 qtDuplicateDlg::s_uiNumberOfCopies = 1;
-bool qtDuplicateDlg::s_bGroupCopies = true;
+bool qtDuplicateDlg::s_bGroupCopies = false;
 ezVec3 qtDuplicateDlg::s_vTranslationStep(0, 0, 0);
 ezVec3 qtDuplicateDlg::s_vRotationStep(0, 0, 0);
 ezVec3 qtDuplicateDlg::s_vRandomTranslation(0, 0, 0);

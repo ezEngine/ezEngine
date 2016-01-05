@@ -412,11 +412,12 @@ void ezGALContextDX11::UpdateBufferPlatform(ezGALBuffer* pDestination, ezUInt32 
     EZ_ASSERT_DEV(uiDestOffset == 0 && uiByteCount == pDXBuffer->GetSize(), "Constant buffers can't be updated partially (and we don't check for DX11.1)!");
 
     D3D11_MAPPED_SUBRESOURCE MapResult;
-    m_pDXContext->Map(pDXBuffer->GetDXBuffer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &MapResult);
+    if (SUCCEEDED(m_pDXContext->Map(pDXBuffer->GetDXBuffer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &MapResult)))
+    {
+      memcpy(MapResult.pData, pSourceData, uiByteCount);
 
-    memcpy(MapResult.pData, pSourceData, uiByteCount);
-
-    m_pDXContext->Unmap(pDXBuffer->GetDXBuffer(), 0);
+      m_pDXContext->Unmap(pDXBuffer->GetDXBuffer(), 0);
+    }
   }
   else
   {

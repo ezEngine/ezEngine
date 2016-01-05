@@ -117,7 +117,6 @@ void ezSceneViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     return;
 
   m_pEditorRenderPass->m_bRenderSelectionOverlay = m_pSceneContext->GetRenderSelectionOverlay();
-  m_pEditorRenderPass->m_bRenderShapeIcons = m_pSceneContext->GetRenderShapeIcons();
   m_pEditorRenderPass->m_ViewRenderMode = static_cast<ezViewRenderMode::Enum>(pMsg->m_uiRenderMode);
   m_pPickingRenderPass->m_ViewRenderMode = static_cast<ezViewRenderMode::Enum>(pMsg->m_uiRenderMode);
 }

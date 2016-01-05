@@ -173,8 +173,10 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
 
   UploadGlobalConstants();
 
-  if ((bForce || m_StateFlags.IsSet(ezRenderContextFlags::ConstantBufferBindingChanged)) && m_hActiveShaderPermutation.IsValid())
+  if ((bForce || m_StateFlags.IsSet(ezRenderContextFlags::ConstantBufferBindingChanged) || (s_LastMaterialParamModification > m_uiLastMaterialCBSync)) && m_hActiveShaderPermutation.IsValid())
   {
+    m_uiLastMaterialCBSync = s_LastMaterialParamModification;
+
     if (pShaderPermutation == nullptr)
       pShaderPermutation = ezResourceManager::BeginAcquireResource(m_hActiveShaderPermutation, ezResourceAcquireMode::AllowFallback);
 

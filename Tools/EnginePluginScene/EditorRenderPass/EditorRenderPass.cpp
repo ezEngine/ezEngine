@@ -14,7 +14,6 @@ ezEditorRenderPass::ezEditorRenderPass(const char* szName) : ezSimpleRenderPass(
 {
   m_pSceneContext = nullptr;
   m_bRenderSelectionOverlay = true;
-  m_bRenderShapeIcons = true;
 }
 
 void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext)
@@ -71,6 +70,7 @@ void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext)
     }
 
     m_pSceneContext->RenderShapeIcons(renderViewContext.m_pRenderContext);
+    m_pSceneContext->RenderSelectionBoxes(renderViewContext.m_pRenderContext);
 
     pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0); // only clear depth
 

@@ -35,6 +35,7 @@ ezRenderContext::ezRenderContext()
   m_StateFlags = ezRenderContextFlags::AllStatesInvalid;
   m_pCurrentlyModifyingBuffer = nullptr;
   m_uiMeshBufferPrimitiveCount = 0;
+  m_uiLastMaterialCBSync = 0;
 }
 
 ezRenderContext::~ezRenderContext()

@@ -10,7 +10,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPickingRenderPass, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezPickingRenderPass::ezPickingRenderPass() : ezRenderPipelinePass( "SimpleRenderPass" )
+ezPickingRenderPass::ezPickingRenderPass() : ezRenderPipelinePass( "EditorPickingRenderPass" )
 {
   m_pSceneContext = nullptr;
   m_bEnable = true;
