@@ -433,7 +433,7 @@ void ezSceneContext::CreateSelectionBoxMesh()
     return;
 
   ezGeometry geom;
-  geom.AddLineBox(ezVec3(2.0f), ezColor::Yellow);
+  geom.AddLineBoxCorners(ezVec3(2.0f), 0.25f, ezColor::Yellow);
   const ezUInt32 uiLines = geom.GetLines().GetCount();
 
   ezMeshBufferResourceDescriptor md;

@@ -103,6 +103,11 @@ public:
   /// \brief Adds box out of lines (8 vertices).
   void AddLineBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
+  /// \brief Adds the 8 corners of a box as lines.
+  ///
+  /// fCornerFraction must be between 1.0 and 0.0, with 1 making it a completely closed box and 0 no lines at all.
+  void AddLineBoxCorners(const ezVec3& size, float fCornerFraction, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+
   /// \brief Adds a box that has UV coordinates set (24 vertices).
   void AddTexturedBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 

@@ -262,6 +262,44 @@ void ezGeometry::AddLineBox(const ezVec3& size, const ezColor& color, const ezMa
   AddLine(3, 7);
 }
 
+
+void ezGeometry::AddLineBoxCorners(const ezVec3& size, float fCornerFraction, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
+{
+  EZ_ASSERT_DEV(fCornerFraction >= 0.0f && fCornerFraction <= 1.0f, "A fraction value of %.2f is invalid", fCornerFraction);
+
+  fCornerFraction *= 0.5f;
+  const ezVec3 halfSize = size * 0.5f;
+
+  ezUInt32 idx[8];
+
+  idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
+  idx[1] = AddVertex(ezVec3(halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
+  idx[2] = AddVertex(ezVec3(halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
+  idx[3] = AddVertex(ezVec3(-halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), ezVec2(0), color, iCustomIndex, mTransform);
+
+  idx[4] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+  idx[5] = AddVertex(ezVec3(halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+  idx[6] = AddVertex(ezVec3(halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+  idx[7] = AddVertex(ezVec3(-halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), ezVec2(0), color, iCustomIndex, mTransform);
+
+  for (ezUInt32 c = 0; c < 8; ++c)
+  {
+    const ezVec3& op = m_Vertices[c].m_vPosition;
+
+    const ezVec3 op1 = ezVec3(op.x, op.y, -ezMath::Sign(op.z) * ezMath::Abs(op.z));
+    const ezVec3 op2 = ezVec3(op.x, -ezMath::Sign(op.y) * ezMath::Abs(op.y), op.z);
+    const ezVec3 op3 = ezVec3(-ezMath::Sign(op.x) * ezMath::Abs(op.x), op.y, op.z);
+
+    const ezUInt32 ix1 = AddVertex(ezMath::Lerp(op, op1, fCornerFraction), m_Vertices[c].m_vPosition, m_Vertices[c].m_vTexCoord, color, iCustomIndex, mTransform);
+    const ezUInt32 ix2 = AddVertex(ezMath::Lerp(op, op2, fCornerFraction), m_Vertices[c].m_vPosition, m_Vertices[c].m_vTexCoord, color, iCustomIndex, mTransform);
+    const ezUInt32 ix3 = AddVertex(ezMath::Lerp(op, op3, fCornerFraction), m_Vertices[c].m_vPosition, m_Vertices[c].m_vTexCoord, color, iCustomIndex, mTransform);
+
+    AddLine(c, ix1);
+    AddLine(c, ix2);
+    AddLine(c, ix3);
+  }
+}
+
 void ezGeometry::AddTexturedBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
   const ezVec3 halfSize = size * 0.5f;
