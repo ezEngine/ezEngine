@@ -40,6 +40,8 @@ ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObj
   m_bWindowRequested = false;
   m_bModified = true;
   m_bReadOnly = false;
+
+  m_uiUnknownObjectTypeInstances = 0;
 }
 
 ezDocument::~ezDocument()
