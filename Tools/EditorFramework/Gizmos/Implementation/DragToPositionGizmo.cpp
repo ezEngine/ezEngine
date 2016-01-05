@@ -11,6 +11,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezDragToPositionGizmo::ezDragToPositionGizmo()
 {
+  m_bModifiesRotation = false;
+
   m_Bobble.Configure(this, ezEngineGizmoHandleType::Box, ezColor::DodgerBlue);
   m_AlignPX.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor::SteelBlue);
   m_AlignNX.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor::SteelBlue);
@@ -171,6 +173,7 @@ ezEditorInut ezDragToPositionGizmo::mouseMoveEvent(QMouseEvent* e)
   ezMat4 mTrans = GetTransformation();
   mTrans.SetTranslationVector(res.m_vPickedPosition);
 
+  m_bModifiesRotation = true;
 
   if (m_pInteractionGizmoHandle == &m_AlignPX)
   {
@@ -209,7 +212,10 @@ ezEditorInut ezDragToPositionGizmo::mouseMoveEvent(QMouseEvent* e)
     mRot.SetColumn(2, -res.m_vPickedNormal);
   }
   else
+  {
+    m_bModifiesRotation = false;
     mRot.SetIdentity();
+  }
 
   mTrans.SetRotationalPart(mRot);
   SetTransformation(mTrans);

@@ -73,6 +73,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f));
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING", "1");
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING_IGNORE_GIZMOS", !m_bPickSelected ? "1" : "0");
 
   RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Opaque);
   RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Masked);
@@ -80,9 +81,8 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
   if (m_bPickSelected)
   {
     RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Selection);
+    m_pSceneContext->RenderShapeIcons(renderViewContext.m_pRenderContext);
   }
-
-  m_pSceneContext->RenderShapeIcons(renderViewContext.m_pRenderContext);
 
   Event e;
   e.m_Type = Event::Type::AfterOpaque;

@@ -81,6 +81,13 @@ SamplerState ShapeIconSampler;
 
 float4 main(VS_TO_PS input) : SV_Target
 {
+  float4 col = float4(1.0, 1.0, 1.0, 1.0);
+  float4 res = ShapeIcon.Sample(ShapeIconSampler, input.TexCoord0) * col;
+  
+  if (res.a < 0.5)
+    discard;
+
+	
 #if PICKING == 1
   float4 IdCol;
   IdCol.r = (input.ObjectID & 255) / 255.0;
@@ -91,15 +98,8 @@ float4 main(VS_TO_PS input) : SV_Target
   return IdCol;
 #else
 
-  float4 col = float4(1.0, 1.0, 1.0, 1.0);
-
   if (input.ObjectID == PickingHighlightID)
 	col = float4(0.2, 0.2, 1.0, 1.0);
-
-  float4 res = ShapeIcon.Sample(ShapeIconSampler, input.TexCoord0) * col;
-  
-  if (res.a < 0.5)
-    discard;
 
   return res;
 #endif

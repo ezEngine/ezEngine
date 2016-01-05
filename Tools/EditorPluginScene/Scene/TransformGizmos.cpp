@@ -261,9 +261,13 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmo::Giz
 
           tNew = obj.m_GlobalTransform;
           tNew.m_vPosition += vTranslate;
-          const ezVec3 vScale = tNew.m_Rotation.GetScalingFactors();
-          tNew.m_Rotation = qRot.GetAsMat3();
-          tNew.m_Rotation.SetScalingFactors(vScale);
+
+          if (m_DragToPosGizmo.ModifiesRotation())
+          {
+            const ezVec3 vScale = tNew.m_Rotation.GetScalingFactors();
+            tNew.m_Rotation = qRot.GetAsMat3();
+            tNew.m_Rotation.SetScalingFactors(vScale);
+          }
 
           pScene->SetGlobalTransform(obj.m_pObject, tNew);
         }

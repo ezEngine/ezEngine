@@ -56,6 +56,11 @@ void ezSceneContext::ComputeSelectionBounds()
       continue;
 
     ComputeHierarchyBounds(pObj, bounds);
+
+    if (!bounds.IsValid())
+    {
+      bounds.ExpandToInclude(ezBoundingBoxSphere(pObj->GetGlobalPosition(), ezVec3(0.125f), 0.125f));
+    }
   }
 }
 

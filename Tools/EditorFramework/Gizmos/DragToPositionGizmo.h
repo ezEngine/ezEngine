@@ -22,6 +22,9 @@ public:
 
   virtual bool IsPickingSelectedAllowed() const { return false; }
 
+  /// \brief Returns true if any of the 'align with' handles is selected, and thus the rotation of the dragged object should be modified as well
+  bool ModifiesRotation() const { return m_bModifiesRotation; }
+
 protected:
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
@@ -35,6 +38,7 @@ protected:
   ezEngineGizmoHandle m_AlignPZ;
   ezEngineGizmoHandle m_AlignNZ;
 
+  bool m_bModifiesRotation;
   ezTime m_LastInteraction;
   ezVec3 m_vStartPosition;
 };

@@ -4,18 +4,14 @@ ALL
 [PERMUTATIONS]
 
 PICKING
+PICKING_IGNORE_GIZMOS
 
 [RENDERSTATE]
 
 DepthTest = true
 DepthWrite = true
 CullMode = CullMode_None
-
-//#if PICKING == 1
-	//DepthTestFunc = CompareFunc_Always
-//#else
-	DepthTestFunc = CompareFunc_Less
-//#endif
+DepthTestFunc = CompareFunc_Less
 
 [VERTEXSHADER]
 
@@ -51,6 +47,10 @@ VS_OUT_COLORED main(VS_IN_COLORED Input)
 
 float4 main(PS_IN_COLORED Input) : SV_Target
 {
+  #if PICKING_IGNORE_GIZMOS == 1
+    discard;
+  #endif
+  
 #if PICKING == 1
   float4 IdCol;
   IdCol.r = (GameObjectID & 255) / 255.0;
