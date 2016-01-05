@@ -105,53 +105,7 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxMsgToEngine>())
   {
-    if (m_Selection.IsEmpty())
-      return;
-
-    ezBoundingBoxSphere bounds;
-    bounds.SetInvalid();
-
-    {
-      auto pWorld = GetScene()->GetWorld();
-
-      EZ_LOCK(pWorld->GetReadMarker());
-
-      for (const auto& obj : m_Selection)
-      {
-        ezGameObject* pObj;
-        if (!pWorld->TryGetObject(obj, pObj))
-          continue;
-
-        ComputeHierarchyBounds(pObj, bounds);
-      }
-
-      // if there are no valid bounds, at all, use dummy bounds for each object
-      if (!bounds.IsValid())
-      {
-        for (const auto& obj : m_Selection)
-        {
-          ezGameObject* pObj;
-          if (!pWorld->TryGetObject(obj, pObj))
-            continue;
-
-          bounds.ExpandToInclude(ezBoundingBoxSphere(pObj->GetGlobalPosition(), ezVec3(0.5f), 0.5f));
-        }
-      }
-    }
-
-    EZ_ASSERT_DEV(bounds.IsValid() && !bounds.IsNaN(), "Invalid bounds");
-
-    const ezQuerySelectionBBoxMsgToEngine* msg = static_cast<const ezQuerySelectionBBoxMsgToEngine*>(pMsg);
-
-    ezQuerySelectionBBoxResultMsgToEditor res;
-    res.m_uiViewID = msg->m_uiViewID;
-    res.m_iPurpose = msg->m_iPurpose;
-    res.m_vCenter = bounds.m_vCenter;
-    res.m_vHalfExtents = bounds.m_vBoxHalfExtends;
-    res.m_DocumentGuid = pMsg->m_DocumentGuid;
-
-    SendProcessMessage(&res);
-
+    QuerySelectionBBox(pMsg);
     return;
   }
   else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezObjectTagMsgToEngine>())
@@ -171,6 +125,76 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
   }
 
   ezEngineProcessDocumentContext::HandleMessage(pMsg);
+}
+
+void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
+{
+  if (m_Selection.IsEmpty())
+    return;
+
+  ezBoundingBoxSphere bounds;
+  bounds.SetInvalid();
+
+  {
+    auto pWorld = GetScene()->GetWorld();
+    EZ_LOCK(pWorld->GetReadMarker());
+
+    for (const auto& obj : m_Selection)
+    {
+      ezGameObject* pObj;
+      if (!pWorld->TryGetObject(obj, pObj))
+        continue;
+
+      ComputeHierarchyBounds(pObj, bounds);
+    }
+
+    // if there are no valid bounds, at all, use dummy bounds for each object
+    if (!bounds.IsValid())
+    {
+      for (const auto& obj : m_Selection)
+      {
+        ezGameObject* pObj;
+        if (!pWorld->TryGetObject(obj, pObj))
+          continue;
+
+        bounds.ExpandToInclude(ezBoundingBoxSphere(pObj->GetGlobalPosition(), ezVec3(0.5f), 0.5f));
+      }
+    }
+  }
+
+  EZ_ASSERT_DEV(bounds.IsValid() && !bounds.IsNaN(), "Invalid bounds");
+
+  const ezQuerySelectionBBoxMsgToEngine* msg = static_cast<const ezQuerySelectionBBoxMsgToEngine*>(pMsg);
+
+  ezQuerySelectionBBoxResultMsgToEditor res;
+  res.m_uiViewID = msg->m_uiViewID;
+  res.m_iPurpose = msg->m_iPurpose;
+  res.m_vCenter = bounds.m_vCenter;
+  res.m_vHalfExtents = bounds.m_vBoxHalfExtends;
+  res.m_DocumentGuid = pMsg->m_DocumentGuid;
+
+  SendProcessMessage(&res);
+}
+
+void ezSceneContext::SetSelectionTag(bool bAddTag)
+{
+  ezTag tagSel;
+  ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorSelected", &tagSel);
+
+  auto pWorld = GetScene()->GetWorld();
+  EZ_LOCK(pWorld->GetReadMarker());
+
+  for (auto& obj : m_Selection)
+  {
+    ezGameObject* pObj;
+    if (!pWorld->TryGetObject(obj, pObj))
+      continue;
+
+    if (bAddTag)
+      pObj->GetTags().Set(tagSel);
+    else
+      pObj->GetTags().Remove(tagSel);
+  }
 }
 
 void ezSceneContext::GenerateShapeIconMesh()
@@ -353,6 +377,9 @@ void ezSceneContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 
 void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg)
 {
+  // remove the 'selected' tag from the existing selection
+  SetSelectionTag(false);
+
   m_Selection.Clear();
   m_SelectionWithChildrenSet.Clear();
   m_SelectionWithChildren.Clear();
@@ -388,6 +415,9 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
   }
 
   ComputeSelectionBounds();
+
+  // add the 'selected' tag to the new selection
+  SetSelectionTag(true);
 }
 
 void ezSceneContext::InsertSelectedChildren(const ezGameObject* pObject)

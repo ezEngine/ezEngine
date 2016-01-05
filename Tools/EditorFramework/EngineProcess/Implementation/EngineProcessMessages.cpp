@@ -75,6 +75,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRedrawMsgToEngine, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("WindowWidth", m_uiWindowWidth),
     EZ_MEMBER_PROPERTY("WindowHeight", m_uiWindowHeight),
     EZ_MEMBER_PROPERTY("UpdatePickingData", m_bUpdatePickingData),
+    EZ_MEMBER_PROPERTY("EnablePickSelected", m_bEnablePickingSelected),
     EZ_MEMBER_PROPERTY("CameraMode", m_iCameraMode),
     EZ_MEMBER_PROPERTY("NearPlane", m_fNearPlane),
     EZ_MEMBER_PROPERTY("FarPlane", m_fFarPlane),

@@ -44,6 +44,10 @@ void ezSelectedObjectsExtractor::Extract(const ezView& view)
   msg.m_pView = &view;
   msg.m_OverrideRenderPass = m_OverridePassType;
 
+  /// \todo Move this into an editor specific extractor
+  auto exclFlags = view.m_ExcludeTags;
+  exclFlags.RemoveByName("EditorSelected");
+
   EZ_LOCK(view.GetWorld()->GetReadMarker());
 
   for (const auto& hObj : *m_pSelection)
@@ -53,7 +57,7 @@ void ezSelectedObjectsExtractor::Extract(const ezView& view)
     if (!view.GetWorld()->TryGetObject(hObj, pObject))
       continue;
 
-    if (!view.m_ExcludeTags.IsEmpty() && view.m_ExcludeTags.IsAnySet(pObject->GetTags()))
+    if (!exclFlags.IsEmpty() && exclFlags.IsAnySet(pObject->GetTags()))
       continue;
 
     if (!view.m_IncludeTags.IsEmpty() && !view.m_IncludeTags.IsAnySet(pObject->GetTags()))

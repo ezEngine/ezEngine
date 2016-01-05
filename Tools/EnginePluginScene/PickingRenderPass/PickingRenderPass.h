@@ -16,6 +16,7 @@ public:
 
   void SetSceneContext(ezSceneContext* pSceneContext) { m_pSceneContext = pSceneContext; }
   void SetEnabled(bool b) { m_bEnable = b; }
+  void SetPickSelected(bool b) { m_bPickSelected = b; }
   ezGALTextureHandle GetPickingIdRT() const;
   ezGALTextureHandle GetPickingDepthRT() const;
 
@@ -45,6 +46,7 @@ private:
 
 private:
   bool m_bEnable;
+  bool m_bPickSelected;
   ezSceneContext* m_pSceneContext;
   ezGALTextureHandle m_hPickingIdRT;
   ezGALTextureHandle m_hPickingDepthRT;

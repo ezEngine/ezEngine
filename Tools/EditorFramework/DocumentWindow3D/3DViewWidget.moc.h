@@ -56,12 +56,17 @@ protected:
   virtual void mouseMoveEvent(QMouseEvent* e) override;
   virtual void wheelEvent(QWheelEvent* e) override;
   virtual void focusOutEvent(QFocusEvent* e) override;
+  virtual void dragEnterEvent(QDragEnterEvent* e) override;
+  virtual void dragLeaveEvent(QDragLeaveEvent* e) override;
+  virtual void dropEvent(QDropEvent* e) override;
+
 
   void EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e);
   void ShowRestartButton(bool bShow);
 
 protected:
   bool m_bUpdatePickingData;
+  bool m_bInDragAndDropOperation;
   ezUInt32 m_uiViewID;
   ezQtEngineDocumentWindow* m_pDocumentWindow;
 

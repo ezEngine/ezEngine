@@ -31,6 +31,7 @@ ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentW
   installEventFilter(this);
 
   m_bUpdatePickingData = false;
+  m_bInDragAndDropOperation = false;
 
   m_uiViewID = s_uiNextViewID;
   ++s_uiNextViewID;
@@ -100,6 +101,7 @@ void ezQtEngineViewWidget::SyncToEngine()
   cam.m_uiWindowWidth = width();
   cam.m_uiWindowHeight = height();
   cam.m_bUpdatePickingData = m_bUpdatePickingData;
+  cam.m_bEnablePickingSelected = !m_bInDragAndDropOperation && (!ezEditorInputContext::IsAnyInputContextActive() || ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
 
   m_pDocumentWindow->GetEditorEngineConnection()->SendMessage(&cam);
 }
@@ -312,6 +314,23 @@ void ezQtEngineViewWidget::focusOutEvent(QFocusEvent* e)
   QWidget::focusOutEvent(e);
 }
 
+
+void ezQtEngineViewWidget::dragEnterEvent(QDragEnterEvent* e)
+{
+  m_bInDragAndDropOperation = true;
+}
+
+
+void ezQtEngineViewWidget::dragLeaveEvent(QDragLeaveEvent* e)
+{
+  m_bInDragAndDropOperation = false;
+}
+
+
+void ezQtEngineViewWidget::dropEvent(QDropEvent* e)
+{
+  m_bInDragAndDropOperation = false;
+}
 
 void ezQtEngineViewWidget::EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e)
 {

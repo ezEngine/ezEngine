@@ -14,6 +14,7 @@ ezPickingRenderPass::ezPickingRenderPass() : ezRenderPipelinePass( "EditorPickin
 {
   m_pSceneContext = nullptr;
   m_bEnable = true;
+  m_bPickSelected = true;
   AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
 }
 
@@ -75,6 +76,11 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
 
   RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Opaque);
   RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Masked);
+
+  if (m_bPickSelected)
+  {
+    RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Selection);
+  }
 
   m_pSceneContext->RenderShapeIcons(renderViewContext.m_pRenderContext);
 

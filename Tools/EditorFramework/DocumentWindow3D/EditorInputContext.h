@@ -90,6 +90,8 @@ public:
   /// \brief If set to true, the surrounding window will ensure to block all shortcuts and instead send keypress events to the input context
   void SetShortcutsDisabled(bool bDisabled) { m_bDisableShortcuts = bDisabled; }
 
+  virtual bool IsPickingSelectedAllowed() const { return true; }
+
 protected:
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) = 0;
 

@@ -134,6 +134,7 @@ public:
   ezUInt16 m_uiWindowWidth;
   ezUInt16 m_uiWindowHeight;
   bool m_bUpdatePickingData;
+  bool m_bEnablePickingSelected;
 
   ezInt8 m_iCameraMode;
   float m_fNearPlane;

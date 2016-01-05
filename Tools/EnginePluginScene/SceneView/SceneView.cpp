@@ -213,7 +213,10 @@ void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
     const ezViewRedrawMsgToEngine* pMsg2 = static_cast<const ezViewRedrawMsgToEngine*>(pMsg);
 
     if (m_pPickingRenderPass)
+    {
       m_pPickingRenderPass->SetEnabled(pMsg2->m_bUpdatePickingData);
+      m_pPickingRenderPass->SetPickSelected(pMsg2->m_bEnablePickingSelected);
+    }
 
     SetCamera(pMsg2);
 
@@ -331,14 +334,14 @@ void ezSceneViewContext::CreateView()
 
   m_pPickingRenderPass->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneViewContext::RenderPassEventHandler, this));
 
-  ezUniquePtr<ezSelectedObjectsExtractor> pExtractor = EZ_DEFAULT_NEW(ezSelectedObjectsExtractor);
-  m_pSelectionExtractor = pExtractor.Borrow();
+  ezUniquePtr<ezSelectedObjectsExtractor> pExtractorSelection = EZ_DEFAULT_NEW(ezSelectedObjectsExtractor);
+  m_pSelectionExtractor = pExtractorSelection.Borrow();
   m_pSelectionExtractor->m_pSelection = &m_pSceneContext->GetSelectionWithChildren();
 
   ezUniquePtr<ezCallDelegateExtractor> pExtractorShapeIcons = EZ_DEFAULT_NEW(ezCallDelegateExtractor);
   pExtractorShapeIcons->m_Delegate = ezMakeDelegate(&ezSceneContext::GenerateShapeIconMesh, m_pSceneContext);
 
-  pRenderPipeline->AddExtractor(std::move(pExtractor));
+  pRenderPipeline->AddExtractor(std::move(pExtractorSelection));
   pRenderPipeline->AddExtractor(std::move(pExtractorShapeIcons));
   pRenderPipeline->AddExtractor(EZ_DEFAULT_NEW(ezVisibleObjectsExtractor));
 
@@ -352,5 +355,9 @@ void ezSceneViewContext::CreateView()
   ezTag tagHidden;
   tagReg.RegisterTag("EditorHidden", &tagHidden);
 
+  ezTag tagSel;
+  ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorSelected", &tagSel);
+
   m_pView->m_ExcludeTags.Set(tagHidden);
+  m_pView->m_ExcludeTags.Set(tagSel);
 }

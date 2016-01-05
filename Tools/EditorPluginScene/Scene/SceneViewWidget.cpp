@@ -50,6 +50,8 @@ void ezQtSceneViewWidget::SyncToEngine()
 
 void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
 {
+  ezQtEngineViewWidget::dragEnterEvent(e);
+
   // can only drag & drop objects around in perspective mode
   if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
     return;
@@ -88,11 +90,10 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
       {
         CreatePrefab(res.m_vPickedPosition, AssetGuid);
       }
-      else
-        if (ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName == "Mesh")
-        {
-          CreateDropObject(res.m_vPickedPosition, "ezMeshComponent", "Mesh", sTemp);
-        }
+      else if (ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName == "Mesh")
+      {
+        CreateDropObject(res.m_vPickedPosition, "ezMeshComponent", "Mesh", sTemp);
+      }
     }
 
     if (m_DraggedObjects.IsEmpty())
@@ -101,20 +102,34 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
     {
       /// \todo We would need nested transactions that can be entirely canceled in dragLeaveEvent. The way it is currently implemented, we are destroying the Redo-history here.
 
-      m_pDocumentWindow->GetDocument()->GetCommandHistory()->FinishTransaction();
-      m_pDocumentWindow->GetDocument()->GetCommandHistory()->BeginTemporaryCommands();
+      auto pDoc = GetDocumentWindow()->GetDocument();
+
+      ezDeque<const ezDocumentObject*> NewSel;
+      for (const auto& id : m_DraggedObjects)
+      {
+        NewSel.PushBack(pDoc->GetObjectManager()->GetObject(id));
+      }
+
+      pDoc->GetSelectionManager()->SetSelection(NewSel);
+
+      pDoc->GetCommandHistory()->FinishTransaction();
+      pDoc->GetCommandHistory()->BeginTemporaryCommands();
     }
   }
 }
 
 void ezQtSceneViewWidget::dragLeaveEvent(QDragLeaveEvent * e)
 {
+  ezQtEngineViewWidget::dragLeaveEvent(e);
+
   // can only drag & drop objects around in perspective mode
   if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
     return;
 
   if (!m_DraggedObjects.IsEmpty())
   {
+    m_pDocumentWindow->GetDocument()->GetSelectionManager()->Clear();
+
     m_pDocumentWindow->GetDocument()->GetCommandHistory()->CancelTemporaryCommands();
     m_pDocumentWindow->GetDocument()->GetCommandHistory()->Undo();
     m_DraggedObjects.Clear();
@@ -147,6 +162,8 @@ void ezQtSceneViewWidget::dragMoveEvent(QDragMoveEvent* e)
 
 void ezQtSceneViewWidget::dropEvent(QDropEvent * e)
 {
+  ezQtEngineViewWidget::dropEvent(e);
+
   // can only drag & drop objects around in perspective mode
   if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
     return;
