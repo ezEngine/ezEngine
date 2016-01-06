@@ -26,5 +26,8 @@ add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/Tools)
 message (STATUS "Adding SubDirectory 'Samples'")
 add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/Samples)
 
+message (STATUS "Adding SubDirectory 'Games'")
+add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/Games)
+
 message (STATUS "Adding SubDirectory 'UnitTests'")
 add_subdirectory (${CMAKE_CURRENT_SOURCE_DIR}/UnitTests)

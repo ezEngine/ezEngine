@@ -7,7 +7,6 @@
 # *** Modify this file as required ***
 #
 
-BUILD_CONDITIONAL(EZ_BUILD_SAMPLES)
 BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
 
 # Add all the preprocessor definitions that are needed to configure this library
