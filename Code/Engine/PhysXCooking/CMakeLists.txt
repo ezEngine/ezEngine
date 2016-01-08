@@ -26,7 +26,8 @@ include_directories ("${EZ_PHYSX_DIR}/Include")
 # )
 
 # this is because PhysX is compiled with that setting
-set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /MTd")
+set (COMPILER_SETTINGS_RELEASE ${COMPILER_SETTINGS_RELEASE} "/MT")
+set (COMPILER_SETTINGS_DEBUG ${COMPILER_SETTINGS_DEBUG} "/MTd")
 
 SET (LINK_LIBRARIES 
   Foundation
@@ -45,9 +46,9 @@ if (${BUILDSYSTEM_PLATFORM_64BIT})
     debug PhysX3DEBUG_x64
     debug PhysX3CommonDEBUG_x64
     debug PhysX3CookingDEBUG_x64
-    optimized PhysX3CHECKED_x64
-    optimized PhysX3CommonCHECKED_x64
-    optimized PhysX3CookingCHECKED_x64
+    optimized PhysX3_x64
+    optimized PhysX3Common_x64
+    optimized PhysX3Cooking_x64
   )
 
 else()
@@ -58,9 +59,9 @@ else()
     debug PhysX3DEBUG_x86
     debug PhysX3CommonDEBUG_x86
     debug PhysX3CharacterKinematicDEBUG_x86
-    optimized PhysX3CHECKED_x86
-    optimized PhysX3CommonCHECKED_x86
-    optimized PhysX3CookingCHECKED_x86
+    optimized PhysX3_x86
+    optimized PhysX3Common_x86
+    optimized PhysX3Cooking_x86
   )
 endif()
 
