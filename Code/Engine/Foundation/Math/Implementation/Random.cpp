@@ -69,19 +69,30 @@ ezUInt32 ezRandom::UInt()
 
 ezUInt32 ezRandom::UIntInRange(ezUInt32 uiRange)
 {
-  return (ezUInt32)((DoubleZeroToOneExclusive() * (double)uiRange));
+  const ezUInt32 uiSteps = 0xFFFFFFFF / uiRange;
+  const ezUInt32 uiMaxValue = uiRange * uiSteps;
+
+  ezUInt32 result = 0;
+
+  do
+  {
+    result = UInt();
+  }
+  while (result > uiMaxValue);
+
+  return result % uiRange;
 }
 
 ezInt32 ezRandom::IntInRange(ezInt32 iMinValue, ezUInt32 uiRange)
 {
-  return iMinValue + (ezInt32)((DoubleZeroToOneExclusive() * (double)uiRange));
+  return iMinValue + (ezInt32) UIntInRange(uiRange);
 }
 
 ezInt32 ezRandom::IntMinMax(ezInt32 iMinValue, ezInt32 iMaxValue)
 {
   EZ_ASSERT_DEBUG(iMinValue <= iMaxValue, "Invalid min/max values");
 
-  return iMinValue + (ezUInt32)((DoubleZeroToOneExclusive() * (double)(iMaxValue - iMinValue + 1)));
+  return IntInRange(iMinValue, iMaxValue - iMinValue + 1);
 }
 
 double ezRandom::DoubleInRange(double fMinValue, double fRange)
