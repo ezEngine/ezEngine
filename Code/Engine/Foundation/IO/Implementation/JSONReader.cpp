@@ -1,6 +1,12 @@
 #include <Foundation/PCH.h>
 #include <Foundation/IO/JSONReader.h>
 
+
+ezJSONReader::ezJSONReader()
+{
+  m_bParsingError = false;
+}
+
 ezResult ezJSONReader::Parse(ezStreamReader& InputStream, ezUInt32 uiFirstLineOffset)
 {
   m_bParsingError = false;
@@ -136,6 +142,11 @@ void ezJSONReader::OnEndArray()
 }
 
 
+
+void ezJSONReader::OnParsingError(const char* szMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn)
+{
+  m_bParsingError = true;
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_JSONReader);
 

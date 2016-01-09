@@ -430,20 +430,8 @@ ezUInt32 ezStringUtils::Copy(char* szDest, ezUInt32 uiDstSize, const char* szSou
 
   // We might have copied half of a UTF8 character so fix this now
   char* szLastCharacterPos = szDest + uiBytesToCopy;
-  const char* szLastByteNotCopied = szSource + uiBytesToCopy;
 
-  // did we cut of a UTF8 character?
-  if (ezUnicodeUtils::IsUtf8ContinuationByte(*szLastByteNotCopied))
-  {
-    // if so fix it
-    szLastByteNotCopied--; szLastCharacterPos--;
-    while (ezUnicodeUtils::IsUtf8ContinuationByte(*szLastByteNotCopied))
-    {
-      szLastByteNotCopied--; szLastCharacterPos--;
-    }
-  }
-
-  // this will actually overwrite the last byte that we wrote into the output buffer 
+  // make sure the buffer is always terminated
   *szLastCharacterPos = '\0';
 
   const ezUInt32 uiLength = (ezUInt32)(szLastCharacterPos - szDest);
