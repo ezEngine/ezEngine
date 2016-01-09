@@ -159,14 +159,14 @@ ezEditorInut ezTranslateGizmo::mousePressEvent(QMouseEvent* e)
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
   msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
 
-  m_AxisX.SetVisible(false);
-  m_AxisY.SetVisible(false);
-  m_AxisZ.SetVisible(false);
-  m_PlaneXY.SetVisible(false);
-  m_PlaneXZ.SetVisible(false);
-  m_PlaneYZ.SetVisible(false);
+  //m_AxisX.SetVisible(false);
+  //m_AxisY.SetVisible(false);
+  //m_AxisZ.SetVisible(false);
+  //m_PlaneXY.SetVisible(false);
+  //m_PlaneXZ.SetVisible(false);
+  //m_PlaneYZ.SetVisible(false);
 
-  m_pInteractionGizmoHandle->SetVisible(true);
+  //m_pInteractionGizmoHandle->SetVisible(true);
 
   m_vStartPosition = GetTransformation().GetTranslationVector();
 

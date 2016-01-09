@@ -43,6 +43,7 @@ enum ezEngineGizmoHandleType
   Box,
   Piston,
   HalfPiston,
+  Sphere,
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezEngineGizmoHandle : public ezGizmoHandle
@@ -52,7 +53,7 @@ class EZ_EDITORFRAMEWORK_DLL ezEngineGizmoHandle : public ezGizmoHandle
 public:
   ezEngineGizmoHandle();
 
-  void Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col);
+  void Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize = true, bool bForeground2 = false);
 
   bool IsSetupForEngine() const { return !m_hGameObject.IsInvalidated(); }
 
@@ -60,6 +61,8 @@ public:
   void UpdateForEngine(ezWorld* pWorld);
 
 protected:
+  bool m_bConstantSize;
+  bool m_bForeground2;
   ezInt32 m_iHandleType;
   ezGameObjectHandle m_hGameObject;
   ezMeshComponent* m_pMeshComponent;

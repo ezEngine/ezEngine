@@ -90,7 +90,8 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
 
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0); // only clear depth
 
-  RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Foreground);
+  RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Foreground1);
+  RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Foreground2);
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING", "0");
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_DEFAULT");

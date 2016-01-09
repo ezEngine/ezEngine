@@ -108,12 +108,12 @@ ezEditorInut ezScaleGizmo::mousePressEvent(QMouseEvent* e)
 
   m_MousePos = ezVec2(e->globalPos().x(), e->globalPos().y());
 
-  m_AxisX.SetVisible(false);
-  m_AxisY.SetVisible(false);
-  m_AxisZ.SetVisible(false);
-  m_AxisXYZ.SetVisible(false);
+  //m_AxisX.SetVisible(false);
+  //m_AxisY.SetVisible(false);
+  //m_AxisZ.SetVisible(false);
+  //m_AxisXYZ.SetVisible(false);
 
-  m_pInteractionGizmoHandle->SetVisible(true);
+  //m_pInteractionGizmoHandle->SetVisible(true);
 
   m_vScalingResult.Set(1.0f);
   m_vScaleMouseMove.SetZero();

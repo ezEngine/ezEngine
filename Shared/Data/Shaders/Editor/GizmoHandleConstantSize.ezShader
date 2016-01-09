@@ -5,13 +5,12 @@ ALL
 
 PICKING
 PICKING_IGNORE_GIZMOS
-GIZMO_ALWAYS_ON_TOP
 
 [RENDERSTATE]
 
 DepthTest = true
 DepthWrite = true
-CullMode = CullMode_Back
+CullMode = CullMode_None
 DepthTestFunc = CompareFunc_Less
 
 #if PICKING == 0
@@ -19,11 +18,6 @@ DepthTestFunc = CompareFunc_Less
 	BlendOp0 = BlendOp_Add
 	DestBlend0 = Blend_InvSrcAlpha
 	SourceBlend0 = Blend_SrcAlpha
-#endif
-
-#if GIZMO_ALWAYS_ON_TOP == 1
-	DepthTest = false
-	DepthTestFunc = CompareFunc_Always
 #endif
 
 [VERTEXSHADER]
@@ -37,7 +31,7 @@ VS_OUT_COLORED main(VS_IN_COLORED Input)
 {
   float3 vWorldSpacePos = mul(ObjectToWorldMatrix, float4(0, 0, 0, 1)).xyz;
   
-  float fScale = 1.0;//length(vWorldSpacePos - CameraPosition) * GizmoScale;
+  float fScale = length(vWorldSpacePos - CameraPosition) * GizmoScale;
 
   VS_OUT_COLORED RetVal;
   RetVal.Position = mul(ObjectToScreenMatrix, float4(Input.Position * fScale, 1.0f));

@@ -18,6 +18,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineGizmoHandle, 1, ezRTTIDefaultAllocator<e
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("HandleType", m_iHandleType),
 EZ_MEMBER_PROPERTY("Color", m_Color),
+EZ_MEMBER_PROPERTY("ConstantSize", m_bConstantSize),
+EZ_MEMBER_PROPERTY("Foreground2", m_bForeground2),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -217,6 +219,22 @@ static ezMeshBufferResourceHandle CreateMeshBufferBox()
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Box");
 }
 
+static ezMeshBufferResourceHandle CreateMeshBufferSphere()
+{
+  const char* szResourceName = "{A88779B0-4728-4411-A9D7-532AFE6F4704}";
+
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+
+  if (hMesh.IsValid())
+    return hMesh;
+
+  ezGeometry geom;
+  geom.AddGeodesicSphere(1.0f, 3, ezColor::White);
+
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Sphere");
+}
+
+
 static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, ezMeshBufferResourceHandle hMeshBuffer, const char* szMaterial)
 {
   ezMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshResourceName);
@@ -239,13 +257,17 @@ ezEngineGizmoHandle::ezEngineGizmoHandle()
 {
   m_iHandleType = -1;
   m_pMeshComponent = nullptr;
+  m_bConstantSize = true;
+  m_bForeground2 = false;
   m_Color = ezColor::CornflowerBlue; /* The Original! */
 }
 
-void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col)
+void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize, bool bForeground2)
 {
   SetParentGizmo(pParentGizmo);
 
+  m_bConstantSize = bConstantSize;
+  m_bForeground2 = bForeground2;
   m_iHandleType = (int)type;
   m_Color = col;
 }
@@ -296,12 +318,15 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
       szMeshGuid = "{64A45DD0-D7F9-4D1D-9F68-782FA3274200}";
     }
     break;
-
+  case ezEngineGizmoHandleType::Sphere:
+    {
+      hMeshBuffer = CreateMeshBufferSphere();
+      szMeshGuid = "{FC322E80-5EB0-452F-9D8E-9E65FCFDA652}";
+    }
+    break;
   default:
     EZ_ASSERT_NOT_IMPLEMENTED;
   }
-
-  ezMeshResourceHandle hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Materials/Editor/GizmoHandle.ezMaterial");
 
   ezGameObjectDesc god;
   god.m_LocalPosition = m_Transformation.GetTranslationVector();
@@ -328,9 +353,29 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
   ezMeshComponentManager* pMeshCompMan = pWorld->GetComponentManager<ezMeshComponentManager>();
   pMeshCompMan->CreateComponent(m_pMeshComponent);
 
+
+  ezMeshResourceHandle hMesh;
+
+  if (m_bConstantSize)
+  {
+    hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Materials/Editor/GizmoHandleConstantSize.ezMaterial");
+  }
+  else
+  {
+    if (m_bForeground2)
+    {
+      hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Materials/Editor/GizmoHandleOnTop.ezMaterial");
+    }
+    else
+    {
+      hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Materials/Editor/GizmoHandle.ezMaterial");
+    }
+  }
+
+  m_pMeshComponent->SetRenderPass(m_bForeground2 ? ezDefaultPassTypes::Foreground2 : ezDefaultPassTypes::Foreground1);
   m_pMeshComponent->m_MeshColor = m_Color;
   m_pMeshComponent->SetMesh(hMesh);
-  m_pMeshComponent->SetRenderPass(ezDefaultPassTypes::Foreground);
+  
   m_pMeshComponent->m_uiEditorPickingID = uiNextComponentPickingID;
 
   pObject->AddComponent(m_pMeshComponent);
@@ -352,7 +397,7 @@ void ezEngineGizmoHandle::UpdateForEngine(ezWorld* pWorld)
 
   pObject->SetLocalPosition(m_Transformation.GetTranslationVector());
   pObject->SetLocalRotation(qRot);
-  pObject->SetLocalScaling(ezVec3(1.0f));
+  pObject->SetLocalScaling(m_Transformation.GetRotationalPart().GetScalingFactors());
 
   m_pMeshComponent->SetActive(m_bVisible);
 }

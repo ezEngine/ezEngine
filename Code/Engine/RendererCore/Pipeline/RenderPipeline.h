@@ -153,7 +153,8 @@ public:
   static ezRenderPassType Opaque;
   static ezRenderPassType Masked;
   static ezRenderPassType Transparent;
-  static ezRenderPassType Foreground;
+  static ezRenderPassType Foreground1;
+  static ezRenderPassType Foreground2;
   static ezRenderPassType Selection;
 };
 

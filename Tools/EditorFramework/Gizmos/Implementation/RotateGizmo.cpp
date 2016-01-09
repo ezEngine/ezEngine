@@ -108,11 +108,11 @@ ezEditorInut ezRotateGizmo::mousePressEvent(QMouseEvent* e)
   m_MousePos = ezVec2(e->globalPos().x(), e->globalPos().y());
   m_Rotation = ezAngle();
 
-  m_AxisX.SetVisible(false);
-  m_AxisY.SetVisible(false);
-  m_AxisZ.SetVisible(false);
+  //m_AxisX.SetVisible(false);
+  //m_AxisY.SetVisible(false);
+  //m_AxisZ.SetVisible(false);
 
-  m_pInteractionGizmoHandle->SetVisible(true);
+  //m_pInteractionGizmoHandle->SetVisible(true);
 
   m_StartRotation.SetFromMat3(GetTransformation().GetRotationalPart());
 

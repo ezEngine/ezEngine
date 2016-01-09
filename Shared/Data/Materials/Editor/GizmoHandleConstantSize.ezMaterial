@@ -1,5 +1,5 @@
 {
-  "Shader" : "Shaders/Editor/GizmoHandle.ezShader",
+  "Shader" : "Shaders/Editor/GizmoHandleConstantSize.ezShader",
   
   "Permutations" : 
   {
