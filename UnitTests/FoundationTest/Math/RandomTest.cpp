@@ -32,9 +32,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Random)
     ezRandom r;
     r.Initialize(0xBBCCDDEEFF0011AAULL);
 
-    EZ_TEST_INT(r.IntInRange(5, 0), 5);
     EZ_TEST_INT(r.IntInRange(5, 1), 5);
-    EZ_TEST_INT(r.IntInRange(-5, 0), -5);
     EZ_TEST_INT(r.IntInRange(-5, 1), -5);
 
     for (ezInt32 i = 2; i < 10000; ++i)

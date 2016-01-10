@@ -69,6 +69,8 @@ ezUInt32 ezRandom::UInt()
 
 ezUInt32 ezRandom::UIntInRange(ezUInt32 uiRange)
 {
+  EZ_ASSERT_DEBUG(uiRange > 0, "Invalid range for random number");
+
   const ezUInt32 uiSteps = 0xFFFFFFFF / uiRange;
   const ezUInt32 uiMaxValue = uiRange * uiSteps;
 
