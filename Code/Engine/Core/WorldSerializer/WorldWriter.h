@@ -15,6 +15,9 @@ public:
   ezStreamWriter& GetStream() const { return *m_pStream; }
 
 private:
+  void AssignGameObjectIndices();
+  void AssignComponentHandleIndices();
+
   bool ObjectTraverser(ezGameObject* pObject);
   void WriteGameObject(const ezGameObject* pObject);
   void WriteComponentInfo(const ezRTTI* pRtti);

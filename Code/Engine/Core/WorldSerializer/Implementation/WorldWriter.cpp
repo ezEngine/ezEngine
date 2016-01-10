@@ -34,14 +34,18 @@ void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet
   stream << m_AllComponents.GetCount();
   stream << m_uiNumComponents;
 
-  for (const auto* pObj : m_AllRootObjects)
+  AssignGameObjectIndices();
+  AssignComponentHandleIndices();
+
+
+  for (const auto* pObject : m_AllRootObjects)
   {
-    WriteGameObject(pObj);
+    WriteGameObject(pObject);
   }
 
-  for (const auto* pObj : m_AllChildObjects)
+  for (const auto* pObject : m_AllChildObjects)
   {
-    WriteGameObject(pObj);
+    WriteGameObject(pObject);
   }
 
   for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
@@ -55,11 +59,44 @@ void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet
   }
 }
 
+
+void ezWorldWriter::AssignGameObjectIndices()
+{
+  ezUInt32 uiGameObjectIndex = 1;
+  for (const auto* pObject : m_AllRootObjects)
+  {
+    m_WrittenGameObjectHandles[pObject->GetHandle()] = uiGameObjectIndex;
+    ++uiGameObjectIndex;
+  }
+
+  for (const auto* pObject : m_AllChildObjects)
+  {
+    m_WrittenGameObjectHandles[pObject->GetHandle()] = uiGameObjectIndex;
+    ++uiGameObjectIndex;
+  }
+}
+
+void ezWorldWriter::AssignComponentHandleIndices()
+{
+  // assign the component handle indices in the order in which the components are written
+  ezUInt32 uiComponentIndex = 1;
+  for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
+  {
+    for (const auto* pComp : it.Value())
+    {
+      m_WrittenComponentHandles[pComp->GetHandle()] = uiComponentIndex;
+      ++uiComponentIndex;
+    }
+  }
+}
+
 void ezWorldWriter::WriteHandle(const ezGameObjectHandle& hObject)
 {
   auto it = m_WrittenGameObjectHandles.Find(hObject);
 
   ezUInt32 uiIndex = 0;
+
+  EZ_ASSERT_DEBUG(it.IsValid(), "Handle should always be in the written map at this point");
 
   if (it.IsValid())
     uiIndex = it.Value();
@@ -70,6 +107,8 @@ void ezWorldWriter::WriteHandle(const ezGameObjectHandle& hObject)
 void ezWorldWriter::WriteHandle(const ezComponentHandle& hComponent)
 {
   auto it = m_WrittenComponentHandles.Find(hComponent);
+
+  EZ_ASSERT_DEBUG(it.IsValid(), "Handle should always be in the written map at this point");
 
   if (it.IsValid())
     *m_pStream << it.Value();
@@ -90,16 +129,11 @@ bool ezWorldWriter::ObjectTraverser(ezGameObject* pObject)
   else
     m_AllRootObjects.PushBack(pObject);
 
-  const ezUInt32 uiObjectIdx = m_WrittenGameObjectHandles.GetCount();
-  m_WrittenGameObjectHandles[pObject->GetHandle()] = uiObjectIdx;
-
   auto components = pObject->GetComponents();
 
   for (const auto* pComp : components)
   {
     m_AllComponents[pComp->GetDynamicRTTI()].PushBack(pComp);
-    const ezUInt32 uiComponentIdx = m_WrittenComponentHandles.GetCount();
-    m_WrittenComponentHandles[pComp->GetHandle()] = uiComponentIdx;
   }
 
   m_uiNumComponents += components.GetCount();
