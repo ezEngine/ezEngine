@@ -13,6 +13,30 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
       EZ_TEST_BOOL(!ezUnicodeUtils::IsASCII(i));
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsUtf8StartByte")
+  {
+    ezStringUtf8 s(L"äöü€");
+    // ä
+    EZ_TEST_BOOL(ezUnicodeUtils::IsUtf8StartByte(s.GetData()[0]));
+    EZ_TEST_BOOL(!ezUnicodeUtils::IsUtf8StartByte(s.GetData()[1]));
+
+    // ö
+    EZ_TEST_BOOL(ezUnicodeUtils::IsUtf8StartByte(s.GetData()[2]));
+    EZ_TEST_BOOL(!ezUnicodeUtils::IsUtf8StartByte(s.GetData()[3]));
+
+    // ü
+    EZ_TEST_BOOL(ezUnicodeUtils::IsUtf8StartByte(s.GetData()[4]));
+    EZ_TEST_BOOL(!ezUnicodeUtils::IsUtf8StartByte(s.GetData()[5]));
+
+    // €
+    EZ_TEST_BOOL(ezUnicodeUtils::IsUtf8StartByte(s.GetData()[6]));
+    EZ_TEST_BOOL(!ezUnicodeUtils::IsUtf8StartByte(s.GetData()[7]));
+    EZ_TEST_BOOL(!ezUnicodeUtils::IsUtf8StartByte(s.GetData()[8]));
+
+    // \0
+    EZ_TEST_BOOL(ezUnicodeUtils::IsUtf8StartByte(s.GetData()[9]));
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsUtf8ContinuationByte")
   {
     // all ASCII Characters are not continuation bytes

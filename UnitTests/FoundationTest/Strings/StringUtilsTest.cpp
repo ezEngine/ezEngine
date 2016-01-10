@@ -134,13 +134,15 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST_INT(ezStringUtils::Copy(szDest, 10, szUTF8), 9);
     EZ_TEST_BOOL(ezStringUtils::IsEqual(szDest, szUTF8));
 
+    // These tests are disabled as previously valid behavior was now turned into an assert.
+    // Comment them in to test the assert.
     // too small 1
-    EZ_TEST_INT(ezStringUtils::Copy(szDest, 9, szUTF8), 7);
+    /*EZ_TEST_INT(ezStringUtils::Copy(szDest, 9, szUTF8), 7);
     EZ_TEST_BOOL(ezStringUtils::IsEqualN(szDest, szUTF8, 5)); // one character less
 
     // too small 2
     EZ_TEST_INT(ezStringUtils::Copy(szDest, 7, szUTF8), 4);
-    EZ_TEST_BOOL(ezStringUtils::IsEqualN(szDest, szUTF8, 4)); // two characters less
+    EZ_TEST_BOOL(ezStringUtils::IsEqualN(szDest, szUTF8, 4)); // two characters less*/
 
 
     // copy only from a subset

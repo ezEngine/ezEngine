@@ -19,6 +19,9 @@ public:
   /// \brief Returns whether a character is a pure ASCII character (only the first 7 Bits are used)
   static bool IsASCII(ezUInt32 uiChar);// [tested]
 
+  /// \brief Checks whether the given byte is a start byte in a UTF-8 multi-byte sequence
+  static bool IsUtf8StartByte(char uiByte);// [tested]
+
   /// \brief Checks whether the given byte is a byte in a UTF-8 multi-byte sequence.
   static bool IsUtf8ContinuationByte(char uiByte); // [tested]
 

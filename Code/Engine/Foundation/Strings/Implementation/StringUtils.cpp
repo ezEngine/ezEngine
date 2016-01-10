@@ -428,8 +428,23 @@ ezUInt32 ezStringUtils::Copy(char* szDest, ezUInt32 uiDstSize, const char* szSou
   // simply copy all bytes
   memcpy(szDest, szSource, uiBytesToCopy);
 
-  // We might have copied half of a UTF8 character so fix this now
   char* szLastCharacterPos = szDest + uiBytesToCopy;
+
+  // Check if we just copied half a UTF-8 character
+  #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  if (uiBytesToCopy > 0)
+  {
+    char* szUtf8StartByte = szLastCharacterPos - 1;
+    while (!ezUnicodeUtils::IsUtf8StartByte(*szUtf8StartByte) && szUtf8StartByte > szDest)
+    {
+      szUtf8StartByte--;
+    }
+    ptrdiff_t isLength = szLastCharacterPos - szUtf8StartByte;
+    ptrdiff_t expectedLength = ezUnicodeUtils::GetUtf8SequenceLength(*szUtf8StartByte);
+    EZ_ASSERT_DEBUG(isLength == expectedLength, "The destination buffer was too small, so a utf-8 byte sequence got cut off. This function is not designed to copy into buffers that are too small.");
+  }
+  #endif
+
 
   // make sure the buffer is always terminated
   *szLastCharacterPos = '\0';
