@@ -33,15 +33,17 @@ ezGALTextureHandle ezPickingRenderPass::GetPickingDepthRT() const
   return m_hPickingDepthRT;
 }
 
-bool ezPickingRenderPass::GetRenderTargetDescriptions(const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezPickingRenderPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
+  DestroyTarget();
+  CreateTarget(view.GetViewport());
+
   return true;
 }
 
 void ezPickingRenderPass::SetRenderTargets(const ezArrayPtr<ezRenderPipelinePassConnection*const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection*const> outputs)
 {
-  DestroyTarget();
-  CreateTarget();
+  
 }
 
 void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
@@ -100,11 +102,9 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
   m_Events.Broadcast(e);
 }
 
-void ezPickingRenderPass::CreateTarget()
+void ezPickingRenderPass::CreateTarget(const ezRectFloat& viewport)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  auto viewport = GetPipeline()->GetView()->GetViewport();
 
   // Create render target for picking
   ezGALTextureCreationDescription tcd;

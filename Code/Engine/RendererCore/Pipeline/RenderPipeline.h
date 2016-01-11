@@ -3,14 +3,15 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Memory/FrameAllocator.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Strings/HashedString.h>
+#include <Foundation/Types/UniquePtr.h>
 #include <CoreUtils/Graphics/Camera.h>
-#include <RendererFoundation/Context/Context.h>
-#include <RendererFoundation/Device/Device.h>
-#include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Pipeline/ViewData.h>
-#include <Core/World/GameObject.h>
 
-ezView;
+class ezProfilingId;
+class ezView;
+class ezRenderPipelinePass;
 
 class EZ_RENDERERCORE_DLL ezRenderPipeline
 {
@@ -21,11 +22,12 @@ public:
     RebuildError,
     Initialized
   };
+
   ezRenderPipeline();
   ~ezRenderPipeline();
 
   // \brief Returns the current state of the pipeline. Evaluated via Rebuild.
-  PipelineState GetPipelineState() const { return m_PipelineState; }
+  PipelineState GetPipelineState() const;
 
   // \brief Resets the pipeline state to 'Uninitialized' to force a recompute (e.g. when the render target has changed).
   void ResetPipelineState();
@@ -38,15 +40,9 @@ public:
   bool Connect(ezRenderPipelinePass* pOutputNode, ezHashedString sOutputPinName, ezRenderPipelinePass* pInputNode, ezHashedString sInputPinName);
   bool Disconnect(ezRenderPipelinePass* pOutputNode, ezHashedString sOutputPinName, ezRenderPipelinePass* pInputNode, ezHashedString sInputPinName);
   
-  // \brief Rebuilds the render pipeline, e.g. sorting passes via dependencies and creating render targets.
-  PipelineState Rebuild();
-
   void AddExtractor(ezUniquePtr<ezExtractor>&& pExtractor);
   void RemoveExtractor(ezExtractor* pExtractor);
   void GetExtractors(ezHybridArray<ezExtractor*, 16>& extractors);
-
-  // \brief Returns the view this pipeline is bound to.
-  ezView* GetView() { return m_pView; }
 
   template <typename T>
   T* CreateRenderData(ezRenderPassType passType, const ezGameObject* pOwner);
@@ -79,13 +75,14 @@ private:
     ezHybridArray<PassData, 8> m_PassData;
   };
 
-  bool RebuildInternal();
+  // \brief Rebuilds the render pipeline, e.g. sorting passes via dependencies and creating render targets.
+  PipelineState Rebuild(const ezView& view);
+  bool RebuildInternal(const ezView& view);
   bool SortPasses();
-  bool InitRenderTargetDescriptions();
-  bool CreateRenderTargets();
+  bool InitRenderTargetDescriptions(const ezView& view);
+  bool CreateRenderTargets(const ezView& view);
   bool SetRenderTargets();
 
-  void SetView(ezView* pView);
   void RemoveConnections(ezRenderPipelinePass* pPass);
   void ClearRenderPassGraphTextures();
   bool AreInputDescriptionsAvailable(const ezRenderPipelinePass* pPass, const ezDynamicArray<ezRenderPipelinePass*>& done) const;
@@ -117,7 +114,6 @@ private: // Member data
 
   // Render pass graph data
   PipelineState m_PipelineState;
-  ezView* m_pView; ///< The view that uses this render pipeline. Needed to query view size, render target setup etc.
   
   struct ConnectionData
   {
@@ -145,17 +141,6 @@ private: // Static data
   };
   static ezRenderPassType s_uiNextPassType;
   static PassTypeData s_PassTypeData[MAX_PASS_TYPES];
-};
-
-class EZ_RENDERERCORE_DLL ezDefaultPassTypes
-{
-public:
-  static ezRenderPassType Opaque;
-  static ezRenderPassType Masked;
-  static ezRenderPassType Transparent;
-  static ezRenderPassType Foreground1;
-  static ezRenderPassType Foreground2;
-  static ezRenderPassType Selection;
 };
 
 #include <RendererCore/Pipeline/Implementation/RenderPipeline_inl.h>

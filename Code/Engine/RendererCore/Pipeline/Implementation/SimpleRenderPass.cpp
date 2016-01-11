@@ -27,19 +27,21 @@ ezSimpleRenderPass::~ezSimpleRenderPass()
   m_RenderTargetSetup.DestroyAllAttachedViews();
 }
 
-bool ezSimpleRenderPass::GetRenderTargetDescriptions(const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezSimpleRenderPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs,
+  ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  const ezNodePin* pColor = GetPinByName("Color");
+  const ezGALRenderTagetSetup& setup = view.GetRenderTargetSetup();
+
   // Color
+  const ezNodePin* pColor = GetPinByName("Color");  
   if (inputs[pColor->m_uiInputIndex])
   {
     outputs[pColor->m_uiOutputIndex] = *inputs[pColor->m_uiInputIndex];
   }
   else
   {
-    // If no input is available, we use the render target setup instead.
-    const ezGALRenderTagetSetup& setup = GetPipeline()->GetView()->GetRenderTargetSetup();
+    // If no input is available, we use the render target setup instead.    
     const ezGALRenderTargetView* pTarget = pDevice->GetRenderTargetView(setup.GetRenderTarget(0));
     if (pTarget)
     {
@@ -61,7 +63,6 @@ bool ezSimpleRenderPass::GetRenderTargetDescriptions(const ezArrayPtr<ezGALTextu
   else
   {
     // If no input is available, we use the render target setup instead.
-    const ezGALRenderTagetSetup& setup = GetPipeline()->GetView()->GetRenderTargetSetup();
     const ezGALRenderTargetView* pTarget = pDevice->GetRenderTargetView(setup.GetDepthStencilTarget());
     if (pTarget)
     {

@@ -1,5 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
+#include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 
 #include <Foundation/Configuration/CVar.h>
@@ -19,6 +20,17 @@ namespace
   static ezDynamicArray<ezView*> s_ViewsToRender;
 
   static ezDynamicArray<ezRenderPipeline*> s_FilteredRenderPipelines[2];
+
+  struct PipelineToRebuild
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ezRenderPipeline* m_pPipeline;
+    ezView* m_pView;
+  };
+  
+  static ezMutex s_PipelinesToRebuildMutex;
+  static ezDynamicArray<PipelineToRebuild> s_PipelinesToRebuild;
 
   struct DeletedPipeline
   {
@@ -72,6 +84,18 @@ ezView* ezRenderLoop::CreateView(const char* szName)
 void ezRenderLoop::DeleteView(ezView* pView)
 {
   {
+    EZ_LOCK(s_PipelinesToRebuildMutex);
+
+    for (ezUInt32 i = s_PipelinesToRebuild.GetCount(); i-- > 0;)
+    {
+      if (s_PipelinesToRebuild[i].m_pView == pView)
+      {
+        s_PipelinesToRebuild.RemoveAt(i);
+      }
+    }
+  }
+
+  {
     EZ_LOCK(s_DeletedPipelinesMutex);
 
     auto& deletedPipeline = s_DeletedPipelines.ExpandAndGetRef();
@@ -116,9 +140,27 @@ void ezRenderLoop::ClearMainViews()
   s_MainViews.Clear();
 }
 
+void ezRenderLoop::AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline, ezView* pView)
+{
+  EZ_LOCK(s_PipelinesToRebuildMutex);
+
+  for (auto& pipelineToRebuild : s_PipelinesToRebuild)
+  {
+    if (pipelineToRebuild.m_pView == pView)
+    {
+      pipelineToRebuild.m_pPipeline = pRenderPipeline;
+      return;
+    }
+  }
+
+  auto& pipelineToRebuild = s_PipelinesToRebuild.ExpandAndGetRef();
+  pipelineToRebuild.m_pPipeline = pRenderPipeline;
+  pipelineToRebuild.m_pView = pView;
+}
+
 void ezRenderLoop::AddViewToRender(ezView* pView)
 {
-  ezLock<ezMutex> lock(s_ViewsToRenderMutex);
+  EZ_LOCK(s_ViewsToRenderMutex);
   EZ_ASSERT_DEV(s_bInExtract, "Render views need to be collected during extraction");
 
   s_ViewsToRender.PushBack(pView);
@@ -231,6 +273,16 @@ void ezRenderLoop::Render(ezRenderContext* pRenderContext)
 bool ezRenderLoop::GetUseMultithreadedRendering()
 {
   return CVarMultithreadedRendering;
+}
+
+void ezRenderLoop::BeginFrame()
+{
+  for (auto& pipelineToRebuild : s_PipelinesToRebuild)
+  {
+    pipelineToRebuild.m_pPipeline->Rebuild(*pipelineToRebuild.m_pView);
+  }
+
+  s_PipelinesToRebuild.Clear();
 }
 
 void ezRenderLoop::FinishFrame()

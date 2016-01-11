@@ -1,5 +1,6 @@
 #pragma once
 
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 
 /// \brief A very basic render pass that renders into the color target.
@@ -15,7 +16,7 @@ public:
   ezSimpleRenderPass(const char* szName = "SimpleRenderPass");
   ~ezSimpleRenderPass();
 
-  virtual bool GetRenderTargetDescriptions(const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
+  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
     ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
   virtual void SetRenderTargets(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;

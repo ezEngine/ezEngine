@@ -10,16 +10,16 @@ public:
   ezTargetPass(const char* szName = "TargetPass");
   ~ezTargetPass();
 
-  ezGALTextureHandle GetTextureHandle(const ezNodePin* pPin);
+  ezGALTextureHandle GetTextureHandle(const ezView& view, const ezNodePin* pPin);
 
-  virtual bool GetRenderTargetDescriptions(const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
+  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
     ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
   virtual void SetRenderTargets(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
   virtual void Execute(const ezRenderViewContext& renderViewContext) override;
 
 private:
-  bool VerifyInput(const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, const char* szPinName);
+  bool VerifyInput(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, const char* szPinName);
 
 protected:
   ezInputNodePin m_PinColor0;

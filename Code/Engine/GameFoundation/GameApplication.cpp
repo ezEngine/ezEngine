@@ -269,6 +269,8 @@ void ezGameApplication::UpdateWorldsAndRender()
 {
   ezClock::GetGlobalClock()->Update();
 
+  ezRenderLoop::BeginFrame();
+
   ezTaskGroupID updateTaskID;
   if (ezRenderLoop::GetUseMultithreadedRendering())
   {

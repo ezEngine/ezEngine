@@ -326,12 +326,6 @@ void ezWorld::Update()
   }
 }
 
-
-void ezWorld::AddComponentToInitialize(ezComponentHandle hComponent)
-{
-  m_ComponentsToInitialize.PushBack(hComponent);
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameObject::TransformPreservation preserve)
@@ -584,6 +578,11 @@ void ezWorld::DeregisterUpdateFunctions(ezComponentManagerBase* pManager)
       }
     }
   }
+}
+
+void ezWorld::AddComponentToInitialize(ezComponentHandle hComponent)
+{
+  m_ComponentsToInitialize.PushBack(hComponent);
 }
 
 void ezWorld::UpdateFromThread()

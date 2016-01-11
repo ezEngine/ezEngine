@@ -5,6 +5,7 @@
 
 class ezView;
 class ezRenderContext;
+class ezRenderPipeline;
 
 class EZ_RENDERERCORE_DLL ezRenderLoop
 {
@@ -21,6 +22,8 @@ public:
     return s_MainViews;
   }
 
+  static void AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline, ezView* pView);
+
   static void AddViewToRender(ezView* pView);
 
   static void ExtractMainViews();
@@ -29,6 +32,7 @@ public:
 
   static bool GetUseMultithreadedRendering();
 
+  static void BeginFrame();
   static void FinishFrame();
   EZ_FORCE_INLINE static ezUInt32 GetFrameCounter()
   {

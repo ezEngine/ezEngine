@@ -64,6 +64,18 @@ private:
 
 typedef ezUInt32 ezRenderPassType;
 
+class EZ_RENDERERCORE_DLL ezDefaultPassTypes
+{
+public:
+  static ezRenderPassType Opaque;
+  static ezRenderPassType Masked;
+  static ezRenderPassType Transparent;
+  static ezRenderPassType Foreground1;
+  static ezRenderPassType Foreground2;
+  static ezRenderPassType Selection;
+};
+
+
 class EZ_RENDERERCORE_DLL ezRenderer : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderer, ezReflectedClass);

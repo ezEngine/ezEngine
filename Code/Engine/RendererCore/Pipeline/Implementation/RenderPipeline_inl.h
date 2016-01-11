@@ -1,4 +1,9 @@
 
+EZ_FORCE_INLINE ezRenderPipeline::PipelineState ezRenderPipeline::GetPipelineState() const
+{ 
+  return m_PipelineState; 
+}
+
 template <typename T>
 T* ezRenderPipeline::CreateRenderData(ezRenderPassType passType, const ezGameObject* pOwner)
 {

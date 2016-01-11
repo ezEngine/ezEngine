@@ -2,6 +2,7 @@
 
 #include <Core/World/Implementation/SpatialData.h>
 #include <Core/World/Implementation/WorldData.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Clock.h>
 
 /// \brief A world encapsulates a scene graph of game objects and various component managers and their components.
@@ -155,9 +156,6 @@ public:
   /// \brief Returns the associated user data.
   void* GetUserData() const;
 
-  /// \brief Used by component managers to queue a new component for initialization during the next update
-  void AddComponentToInitialize(ezComponentHandle hComponent);
-
   /// \brief Returns the clock that is used for all updates in this game world
   ezClock& GetClock() { return m_Clock; }
 
@@ -190,6 +188,9 @@ private:
   ezResult RegisterUpdateFunctionWithDependency(const ezComponentManagerBase::UpdateFunctionDesc& desc, bool bInsertAsUnresolved);
   ezResult DeregisterUpdateFunction(const ezComponentManagerBase::UpdateFunctionDesc& desc);
   void DeregisterUpdateFunctions(ezComponentManagerBase* pManager);
+
+  /// \brief Used by component managers to queue a new component for initialization during the next update
+  void AddComponentToInitialize(ezComponentHandle hComponent);
 
   void UpdateFromThread();
   void UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions);

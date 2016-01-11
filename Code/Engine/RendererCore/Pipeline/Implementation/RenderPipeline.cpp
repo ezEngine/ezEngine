@@ -44,7 +44,6 @@ ezRenderPipeline::ezRenderPipeline() : m_PipelineState(PipelineState::Uninitiali
   m_CurrentRenderThread = (ezThreadID)0;
   m_uiLastExtractionFrame = -1;
   m_uiLastRenderFrame = -1;
-  m_pView = nullptr;
 }
 
 ezRenderPipeline::~ezRenderPipeline()
@@ -226,13 +225,13 @@ bool ezRenderPipeline::Disconnect(ezRenderPipelinePass* pOutputNode, ezHashedStr
   return true;
 }
 
-ezRenderPipeline::PipelineState ezRenderPipeline::Rebuild()
+ezRenderPipeline::PipelineState ezRenderPipeline::Rebuild(const ezView& view)
 {
   ezLogBlock b("ezRenderPipeline::Rebuild");
 
   ClearRenderPassGraphTextures();
 
-  bool bRes = RebuildInternal();
+  bool bRes = RebuildInternal(view);
   if (!bRes)
   {
     ClearRenderPassGraphTextures();
@@ -241,13 +240,13 @@ ezRenderPipeline::PipelineState ezRenderPipeline::Rebuild()
   return m_PipelineState;
 }
 
-bool ezRenderPipeline::RebuildInternal()
+bool ezRenderPipeline::RebuildInternal(const ezView& view)
 {
   if (!SortPasses())
     return false;
-  if (!InitRenderTargetDescriptions())
+  if (!InitRenderTargetDescriptions(view))
     return false;
-  if (!CreateRenderTargets())
+  if (!CreateRenderTargets(view))
     return false;
   if (!SetRenderTargets())
     return false;
@@ -263,7 +262,7 @@ bool ezRenderPipeline::SortPasses()
   ezHybridArray<ezRenderPipelinePass*, 8> usable; // Stack of passes with all connections setup, they can be asked for descriptions.
   ezHybridArray<ezRenderPipelinePass*, 8> candidates; // Not usable yet, but all input connections are available
 
-                                                      // Find all source passes from which we can start the output description propagation.
+  // Find all source passes from which we can start the output description propagation.
   for (auto& pPass : m_Passes)
   {
     auto it = m_Connections.Find(pPass.Borrow());
@@ -286,7 +285,7 @@ bool ezRenderPipeline::SortPasses()
     EZ_ASSERT_DEBUG(data.m_Inputs.GetCount() == pPass->GetInputPins().GetCount(), "Input pin count missmatch!");
     EZ_ASSERT_DEBUG(data.m_Outputs.GetCount() == pPass->GetOutputPins().GetCount(), "Output pin count missmatch!");
 
-    // Check for new candidate passes. Can't be done in the previous loop as multipe connections may be required by a node.
+    // Check for new candidate passes. Can't be done in the previous loop as multiple connections may be required by a node.
     for (ezUInt32 i = 0; i < data.m_Outputs.GetCount(); i++)
     {
       if (data.m_Outputs[i] != nullptr)
@@ -358,7 +357,7 @@ bool ezRenderPipeline::SortPasses()
   return true;
 }
 
-bool ezRenderPipeline::InitRenderTargetDescriptions()
+bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
 {
   ezLogBlock b("Init Render Target Descriptions");
   ezHybridArray<ezGALTextureCreationDescription*, 8> inputs;
@@ -388,7 +387,7 @@ bool ezRenderPipeline::InitRenderTargetDescriptions()
       }
     }
 
-    bool bRes = pPass->GetRenderTargetDescriptions(inputs, outputs);
+    bool bRes = pPass->GetRenderTargetDescriptions(view, inputs, outputs);
     if (!bRes)
     {
       ezLog::Error("The pass could not be successfully queried for render target descs.");
@@ -429,7 +428,7 @@ bool ezRenderPipeline::InitRenderTargetDescriptions()
   return true;
 }
 
-bool ezRenderPipeline::CreateRenderTargets()
+bool ezRenderPipeline::CreateRenderTargets(const ezView& view)
 {
   ezLogBlock b("Create Render Targets");
   // The 'done' array has now the correct order, create textures.
@@ -490,7 +489,7 @@ bool ezRenderPipeline::CreateRenderTargets()
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); i++)
   {
     const auto& pPass = m_Passes[i].Borrow();
-    if (pPass->GetDynamicRTTI()->IsDerivedFrom<ezTargetPass>())
+    if (pPass->IsInstanceOf<ezTargetPass>())
     {
       ezTargetPass* pTargetPass = static_cast<ezTargetPass*>(pPass);
       ConnectionData& data = m_Connections[pPass];
@@ -499,7 +498,7 @@ bool ezRenderPipeline::CreateRenderTargets()
         ezRenderPipelinePassConnection* pConn = data.m_Inputs[j];
         if (pConn != nullptr)
         {
-          ezGALTextureHandle hTexture = pTargetPass->GetTextureHandle(pPass->GetInputPins()[j]);
+          ezGALTextureHandle hTexture = pTargetPass->GetTextureHandle(view, pPass->GetInputPins()[j]);
           ezUInt32 uiDataIdx = connectionToTextureIndex[pConn];
           usedTextures[uiDataIdx].m_bTargetTexture = true;
           for (auto pConn : usedTextures[uiDataIdx].m_UsedBy)
@@ -568,11 +567,6 @@ void ezRenderPipeline::GetExtractors(ezHybridArray<ezExtractor*, 16>& extractors
   {
     extractors.PushBack(pExtractor.Borrow());
   }
-}
-
-void ezRenderPipeline::SetView(ezView* pView)
-{
-  m_pView = pView;
 }
 
 void ezRenderPipeline::RemoveConnections(ezRenderPipelinePass* pPass)
@@ -719,16 +713,9 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
 {
   EZ_PROFILE_AND_MARKER(pRendererContext->GetGALContext(), m_RenderProfilingID);
 
-  //TODO: Is it ok to defer the Rebuild to this point?
-  switch (GetPipelineState())
+  EZ_ASSERT_DEV(m_PipelineState != PipelineState::Uninitialized, "Pipeline must be rebuild before rendering.");
+  if (m_PipelineState == PipelineState::RebuildError)
   {
-  case PipelineState::Uninitialized:
-    {
-      if (Rebuild() == PipelineState::RebuildError)
-        return;
-    }
-    break;
-  case PipelineState::RebuildError:
     return;
   }
 

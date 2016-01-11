@@ -31,10 +31,10 @@ ezTargetPass::~ezTargetPass()
 
 }
 
-ezGALTextureHandle ezTargetPass::GetTextureHandle(const ezNodePin* pPin)
+ezGALTextureHandle ezTargetPass::GetTextureHandle(const ezView& view, const ezNodePin* pPin)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  const ezGALRenderTagetSetup& setup = GetPipeline()->GetView()->GetRenderTargetSetup();
+  const ezGALRenderTagetSetup& setup = view.GetRenderTargetSetup();
   
   auto inputs = GetInputPins();
   if (pPin->m_pParent != this)
@@ -63,29 +63,15 @@ ezGALTextureHandle ezTargetPass::GetTextureHandle(const ezNodePin* pPin)
   return ezGALTextureHandle();
 }
 
-bool ezTargetPass::GetRenderTargetDescriptions(const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezTargetPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  const ezGALRenderTagetSetup& setup = GetPipeline()->GetView()->GetRenderTargetSetup();
+  const char* pinNames[] = { "Color0", "Color1", "Color2", "Color3", "Color4", "Color5", "Color6", "Color7", "DepthStencil", };
 
-  if (!VerifyInput(inputs, "Color0"))
-    return false;
-  if (!VerifyInput(inputs, "Color1"))
-    return false;
-  if (!VerifyInput(inputs, "Color2"))
-    return false;
-  if (!VerifyInput(inputs, "Color3"))
-    return false;
-  if (!VerifyInput(inputs, "Color4"))
-    return false;
-  if (!VerifyInput(inputs, "Color5"))
-    return false;
-  if (!VerifyInput(inputs, "Color6"))
-    return false;
-  if (!VerifyInput(inputs, "Color7"))
-    return false;
-  if (!VerifyInput(inputs, "DepthStencil"))
-    return false;
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(pinNames); ++i)
+  {
+    if (!VerifyInput(view, inputs, pinNames[i]))
+      return false;
+  }
 
   return true;
 }
@@ -98,14 +84,14 @@ void ezTargetPass::Execute(const ezRenderViewContext& renderViewContext)
 {
 }
 
-bool ezTargetPass::VerifyInput(const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, const char* szPinName)
+bool ezTargetPass::VerifyInput(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, const char* szPinName)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   const ezNodePin* pPin = GetPinByName(szPinName);
   if (inputs[pPin->m_uiInputIndex])
   {
-    const ezGALTexture* pTexture = pDevice->GetTexture(GetTextureHandle(pPin));
+    const ezGALTexture* pTexture = pDevice->GetTexture(GetTextureHandle(view, pPin));
     if (pTexture)
     {
       if (inputs[pPin->m_uiInputIndex]->CalculateHash() != pTexture->GetDescription().CalculateHash())

@@ -3,9 +3,15 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Threading/DelegateTask.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
+#include <Foundation/Types/TagSet.h>
+#include <Foundation/Types/UniquePtr.h>
+
+#include <CoreUtils/NodeGraph/Node.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
+#include <RendererCore/Pipeline/ViewData.h>
 
 class ezWorld;
+class ezRenderPipeline;
 
 /// \brief Encapsulates a view on the given world through the given camera
 /// and rendered with the specified RenderPipeline into the given render target setup.

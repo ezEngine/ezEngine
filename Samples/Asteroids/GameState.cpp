@@ -8,11 +8,15 @@
 
 #include <InputXBox360/InputDeviceXBox.h>
 
+#include <RendererFoundation/Device/Device.h>
+
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/View.h>
+#include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/SimpleRenderPass.h>
 #include <RendererCore/Pipeline/TargetPass.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
+
 #include <Core/Application/Config/ApplicationConfig.h>
 
 #include <GameFoundation/GameApplication.h>

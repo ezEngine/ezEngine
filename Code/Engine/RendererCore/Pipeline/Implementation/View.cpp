@@ -1,6 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderLoop/RenderLoop.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezView, 1, ezRTTINoAllocator);
@@ -40,6 +41,26 @@ void ezView::SetName(const char* szName)
 
   sb.Append(" Task");
   m_ExtractTask.SetTaskName(sb);
+}
+
+void ezView::SetRenderTargetSetup(ezGALRenderTagetSetup& renderTargetSetup)
+{
+  m_RenderTargetSetup = renderTargetSetup;
+  if (m_pRenderPipeline)
+  {
+    ezRenderLoop::AddRenderPipelineToRebuild(m_pRenderPipeline.Borrow(), this);
+    m_pRenderPipeline->ResetPipelineState();
+  }
+}
+
+void ezView::SetRenderPipeline(ezUniquePtr<ezRenderPipeline>&& pRenderPipeline)
+{
+  m_pRenderPipeline = std::move(pRenderPipeline);
+  ezRenderLoop::AddRenderPipelineToRebuild(m_pRenderPipeline.Borrow(), this);
+
+  ezStringBuilder sb = m_sName.GetString();
+  sb.Append(".Render");
+  m_pRenderPipeline->m_RenderProfilingID = ezProfilingSystem::CreateId(sb.GetData());
 }
 
 void ezView::ExtractData()

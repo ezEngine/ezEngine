@@ -20,7 +20,7 @@ public:
   ezGALTextureHandle GetPickingIdRT() const;
   ezGALTextureHandle GetPickingDepthRT() const;
 
-  virtual bool GetRenderTargetDescriptions(const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
+  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
     ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
   virtual void SetRenderTargets(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
@@ -41,7 +41,7 @@ public:
   ezViewRenderMode::Enum m_ViewRenderMode;
 
 private:
-  void CreateTarget();
+  void CreateTarget(const ezRectFloat& viewport);
   void DestroyTarget();
 
 private:

@@ -85,7 +85,6 @@ void ezSceneViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth
       .SetDepthStencilTarget(m_hSwapChainDSV);
     m_pView->SetRenderTargetSetup(BackBufferRenderTargetSetup);
     m_pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));
-    m_pView->GetRenderPipeline()->Rebuild();
   }
 }
 

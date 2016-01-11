@@ -4,7 +4,6 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <Foundation/Types/TagSet.h>
 #include <CoreUtils/NodeGraph/Node.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
@@ -30,7 +29,7 @@ public:
 
   /// \brief For a given input pin configuration, provide the output configuration of this node.
   /// Outputs is already resized to the number of output pins.
-  virtual bool GetRenderTargetDescriptions(const ezArrayPtr<ezGALTextureCreationDescription*const> inputs,
+  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, 
     ezArrayPtr<ezGALTextureCreationDescription> outputs) = 0;
 
   /// \brief After GetRenderTargetDescriptions was called successfully for each pass, this function is called
