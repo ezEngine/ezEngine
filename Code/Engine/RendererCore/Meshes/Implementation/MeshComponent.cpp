@@ -93,17 +93,16 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
       renderPass = msg.m_OverrideRenderPass;
     }
 
+    const ezUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
+
     ezMeshRenderData* pRenderData = pRenderPipeline->CreateRenderData<ezMeshRenderData>(renderPass, GetOwner());
     pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
     pRenderData->m_hMesh = m_hMesh;
-    pRenderData->m_uiEditorPickingID = m_uiEditorPickingID;
+    pRenderData->m_uiEditorPickingID = m_uiEditorPickingID | (uiMaterialIndex << 24);
     pRenderData->m_MeshColor = m_MeshColor;
-
-    const ezUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
-
     // if we have a material override, use that
     // otherwise use the default mesh material
-    if (GetMaterial(parts[uiPartIndex].m_uiMaterialIndex).IsValid())
+    if (GetMaterial(uiMaterialIndex).IsValid())
       pRenderData->m_hMaterial = m_Materials[uiMaterialIndex];
     else
       pRenderData->m_hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
