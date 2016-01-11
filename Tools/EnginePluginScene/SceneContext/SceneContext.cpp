@@ -204,6 +204,9 @@ void ezSceneContext::SetSelectionTag(bool bAddTag)
 
 void ezSceneContext::GenerateShapeIconMesh()
 {
+  /// \todo Disabled for now
+  return;
+
   ComputeSelectionBounds();
 
   if (m_bShapeIconBufferValid)
@@ -298,6 +301,9 @@ void ezSceneContext::GenerateShapeIconMesh()
 
 void ezSceneContext::RenderShapeIcons(ezRenderContext* pContext)
 {
+  /// \todo Disabled for now
+  return;
+
   if (!m_bRenderShapeIcons)
     return;
 
