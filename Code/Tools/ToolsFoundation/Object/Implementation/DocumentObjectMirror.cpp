@@ -504,6 +504,11 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
         auto pSpecificProp = static_cast<ezAbstractMemberProperty*>(pProp);
         ezReflectionUtils::SetMemberPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Value);
       }
+      else if (pProp->GetCategory() == ezPropertyCategory::Array)
+      {
+        auto pSpecificProp = static_cast<ezAbstractArrayProperty*>(pProp);
+        ezReflectionUtils::SetArrayPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>(), change.m_Change.m_Value);
+      }
     }
     break;
   case ezObjectChangeType::PropertyInserted:
