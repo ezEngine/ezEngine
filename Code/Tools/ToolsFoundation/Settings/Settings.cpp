@@ -210,3 +210,21 @@ void ezSettings::ReadFromJSON(ezStreamReader& stream)
     m_Settings[it.Key()].m_Value = it.Value();
   }
 }
+
+bool ezSettings::IsEmpty(bool bNonUserSettings, bool bUserSettings) const
+{
+  for (auto it = m_Settings.GetIterator(); it.IsValid(); ++it)
+  {
+    if (!it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered))
+      continue;
+
+    const bool bIsUserSetting = it.Value().m_Flags.IsAnySet(ezSettingsFlags::User);
+
+    if (bIsUserSetting && !bUserSettings || !bIsUserSetting && !bNonUserSettings)
+      continue;
+
+    return false;
+  }
+
+  return true;
+}

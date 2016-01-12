@@ -63,6 +63,8 @@ public:
   const ezMap<ezString, VariableValue>& GetAllSettings() const { return m_Settings; }
   ezMap<ezString, VariableValue>& GetAllSettings() { return m_Settings; }
 
+  bool IsEmpty(bool bNonUserSettings, bool bUserSettings) const;
+
 private:
 
   ezMap<ezString, VariableValue> m_Settings;

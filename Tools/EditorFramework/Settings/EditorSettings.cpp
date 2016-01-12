@@ -52,17 +52,17 @@ ezSettings& ezQtEditorApp::GetSettings(ezMap<ezString, ezSettings>& SettingsMap,
     sPath.ChangeFileExtension("settings");
 
     ezFileReader file;
-    if (file.Open(sPath.GetData()).Succeeded())
+    if (file.Open(sPath).Succeeded())
     {
       settings.ReadFromJSON(file);
       file.Close();
     }
 
     ezStringBuilder sUserFile;
-    sUserFile.Append(GetApplicationUserName().GetData(), ".usersettings");
-    sPath.ChangeFileExtension(sUserFile.GetData());
+    sUserFile.Append(GetApplicationUserName(), ".usersettings");
+    sPath.ChangeFileExtension(sUserFile);
 
-    if (file.Open(sPath.GetData()).Succeeded())
+    if (file.Open(sPath).Succeeded())
     {
       settings.ReadFromJSON(file);
       file.Close();
@@ -91,24 +91,39 @@ void ezQtEditorApp::StoreSettings(const ezMap<ezString, ezSettings>& settings, c
     const ezSettings& settings = it.Value();
 
     ezStringBuilder sPath = szFolder;
-    sPath.AppendPath("Settings", it.Key().GetData());
+    sPath.AppendPath("Settings", it.Key());
     sPath.ChangeFileExtension("settings");
 
     ezFileWriter file;
-    if (file.Open(sPath.GetData()).Succeeded())
+
+    if (settings.IsEmpty(true, false))
     {
-      settings.WriteToJSON(file, true, false);
-      file.Close();
+      ezFileSystem::DeleteFile(sPath);
+    }
+    else
+    {
+      if (file.Open(sPath).Succeeded())
+      {
+        settings.WriteToJSON(file, true, false);
+        file.Close();
+      }
     }
 
     ezStringBuilder sUserFile;
-    sUserFile.Append(GetApplicationUserName().GetData(), ".usersettings");
-    sPath.ChangeFileExtension(sUserFile.GetData());
+    sUserFile.Append(GetApplicationUserName(), ".usersettings");
+    sPath.ChangeFileExtension(sUserFile);
 
-    if (file.Open(sPath.GetData()).Succeeded())
+    if (settings.IsEmpty(false, true))
     {
-      settings.WriteToJSON(file, false, true);
-      file.Close();
+      ezFileSystem::DeleteFile(sPath);
+    }
+    else
+    {
+      if (file.Open(sPath).Succeeded())
+      {
+        settings.WriteToJSON(file, false, true);
+        file.Close();
+      }
     }
   }
 }
