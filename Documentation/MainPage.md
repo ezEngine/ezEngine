@@ -9,3 +9,4 @@ The following pages contain some documentation about the [ezEngine](http://www.e
  * \subpage UsageGuidelines
  * \subpage ThirdPartyLibs 
  * \subpage Editor
+ * \subpage Rendering
