@@ -101,7 +101,7 @@ void ezQtEngineViewWidget::SyncToEngine()
   cam.m_uiWindowWidth = width();
   cam.m_uiWindowHeight = height();
   cam.m_bUpdatePickingData = m_bUpdatePickingData;
-  cam.m_bEnablePickingSelected = !m_bInDragAndDropOperation && (!ezEditorInputContext::IsAnyInputContextActive() || ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
+  cam.m_bEnablePickingSelected = IsPickingAgainstSelectionAllowed() && (!ezEditorInputContext::IsAnyInputContextActive() || ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
 
   m_pDocumentWindow->GetEditorEngineConnection()->SendMessage(&cam);
 }

@@ -19,6 +19,8 @@ ezQtSceneViewWidget::ezQtSceneViewWidget(QWidget* pParent, ezQtSceneDocumentWind
 {
   setAcceptDrops(true);
 
+  m_bAllowPickSelectedWhileDragging = false;
+
   ezQtSceneDocumentWindow* pSceneWindow = pOwnerWindow;
 
   m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
@@ -48,7 +50,17 @@ void ezQtSceneViewWidget::SyncToEngine()
   ezQtEngineViewWidget::SyncToEngine();
 }
 
-void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
+bool ezQtSceneViewWidget::IsPickingAgainstSelectionAllowed() const
+{
+  if ( m_bInDragAndDropOperation && m_bAllowPickSelectedWhileDragging )
+  {
+    return true;
+  }
+  
+  return ezQtEngineViewWidget::IsPickingAgainstSelectionAllowed();
+}
+
+void ezQtSceneViewWidget::dragEnterEvent( QDragEnterEvent* e )
 {
   ezQtEngineViewWidget::dragEnterEvent(e);
 
@@ -56,14 +68,14 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
   if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
     return;
 
+  m_bAllowPickSelectedWhileDragging = false;
+
   if (e->mimeData()->hasFormat("application/ezEditor.AssetGuid"))
   {
     m_LastDragMoveEvent = ezTime::Now();
 
     m_DraggedObjects.Clear();
     e->acceptProposedAction();
-
-    m_pDocumentWindow->GetDocument()->GetCommandHistory()->StartTransaction();
 
     ezObjectPickingResult res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
 
@@ -78,6 +90,8 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
 
     ezStringBuilder sTemp;
 
+    m_pDocumentWindow->GetDocument()->GetCommandHistory()->StartTransaction();
+
     for (ezInt32 i = 0; i < iGuids; ++i)
     {
       QString sGuid;
@@ -86,7 +100,15 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
       sTemp = sGuid.toUtf8().data();
       ezUuid AssetGuid = ezConversionUtils::ConvertStringToUuid(sTemp);
 
-      if (ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName == "Prefab")
+      if (ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName == "Material")
+      {
+        m_bAllowPickSelectedWhileDragging = true;
+
+        m_pDocumentWindow->GetDocument()->GetCommandHistory()->CancelTransaction();
+        m_sDragMaterial = sTemp;
+        return;
+      }
+      else if (ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName == "Prefab")
       {
         CreatePrefab(res.m_vPickedPosition, AssetGuid);
       }
@@ -122,6 +144,8 @@ void ezQtSceneViewWidget::dragLeaveEvent(QDragLeaveEvent * e)
 {
   ezQtEngineViewWidget::dragLeaveEvent(e);
 
+  m_sDragMaterial.Clear();
+
   // can only drag & drop objects around in perspective mode
   if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
     return;
@@ -138,6 +162,11 @@ void ezQtSceneViewWidget::dragLeaveEvent(QDragLeaveEvent * e)
 
 void ezQtSceneViewWidget::dragMoveEvent(QDragMoveEvent* e)
 {
+  if (!m_sDragMaterial.IsEmpty())
+  {
+    return;
+  }
+
   // can only drag & drop objects around in perspective mode
   if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
     return;
@@ -168,7 +197,35 @@ void ezQtSceneViewWidget::dropEvent(QDropEvent * e)
   if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
     return;
 
-  if (e->mimeData()->hasFormat("application/ezEditor.AssetGuid") && !m_DraggedObjects.IsEmpty())
+  if (!e->mimeData()->hasFormat("application/ezEditor.AssetGuid"))
+      return;
+
+  if (!m_sDragMaterial.IsEmpty())
+  {
+    ezStringBuilder sMaterial = m_sDragMaterial;
+    m_sDragMaterial.Clear();
+
+    ezObjectPickingResult res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
+
+    if (!res.m_PickedComponent.IsValid())
+      return;
+
+    const ezDocumentObject* pComponent = GetDocumentWindow()->GetDocument()->GetObjectManager()->GetObject(res.m_PickedComponent);
+
+    if (!pComponent || pComponent->GetTypeAccessor().GetType() != ezRTTI::FindTypeByName("ezMeshComponent"))
+      return;
+
+    ezSetObjectPropertyCommand cmd;
+    cmd.m_Object = res.m_PickedComponent;
+	cmd.m_Index = res.m_uiPartIndex;
+    cmd.SetPropertyPath("Materials");
+    cmd.m_NewValue = sMaterial.GetData();
+
+    m_pDocumentWindow->GetDocument()->GetCommandHistory()->StartTransaction();
+    m_pDocumentWindow->GetDocument()->GetCommandHistory()->AddCommand(cmd);
+    m_pDocumentWindow->GetDocument()->GetCommandHistory()->FinishTransaction();
+  }
+  else if (!m_DraggedObjects.IsEmpty())
   {
     m_pDocumentWindow->GetDocument()->GetCommandHistory()->FinishTemporaryCommands();
 

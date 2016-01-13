@@ -23,6 +23,8 @@ public:
 
   virtual void SyncToEngine() override;
 
+  virtual bool IsPickingAgainstSelectionAllowed() const override;
+
 protected:
   virtual void dragEnterEvent(QDragEnterEvent* e) override;
   virtual void dragLeaveEvent(QDragLeaveEvent* e) override;
@@ -34,6 +36,8 @@ protected:
   void MoveDraggedObjectsToPosition(const ezVec3& vPosition);
   void CreatePrefab(const ezVec3& vPosition, const ezUuid& AssetGuid);
 
+  bool m_bAllowPickSelectedWhileDragging;
+  ezString m_sDragMaterial;
   ezHybridArray<ezUuid, 16> m_DraggedObjects;
   ezTime m_LastDragMoveEvent;
 };

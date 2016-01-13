@@ -43,6 +43,8 @@ public:
 
   void SetEnablePicking(bool bEnable) { m_bUpdatePickingData = bEnable; }
 
+  virtual bool IsPickingAgainstSelectionAllowed() const { return !m_bInDragAndDropOperation; }
+
 private slots:
   void SlotRestartEngineProcess();
 

@@ -612,7 +612,17 @@ ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
     else
       return ezStatus(EZ_FAILURE, "Set Property: The given object does not exist!");
 
+    /// \todo Insert dummy elements, if this is an array and the size is too small
+	//const ezInt32 uiIndex = m_Index.ConvertTo<ezInt32>();
+
     ezIReflectedTypeAccessor& accessor0 = m_pObject->GetTypeAccessor();
+
+	//while ( uiIndex >= accessor0.GetCount( path ) )
+	//{
+		// called 'Insert', but does not expand :-(
+		//accessor0.InsertValue( path, accessor0.GetCount( path ), ezVariant() );
+	//}
+
     m_OldValue = accessor0.GetValue(path, m_Index);
     if (!m_OldValue.IsValid())
       return ezStatus("Set Property: The property '%s' does not exist", m_sPropertyPath.GetData());
