@@ -52,6 +52,15 @@ void ezObjectChange::SetGraph(ezAbstractObjectGraph& graph)
   m_sGraph = ezStringView((const char*)storage.GetData(), (const char*)storage.GetData() + storage.GetStorageSize());
 }
 
+ezObjectChange::ezObjectChange( ezObjectChange && rhs )
+{
+	m_Type = rhs.m_Type;
+	m_Root = rhs.m_Root;
+	m_Steps = std::move( rhs.m_Steps );
+	m_Change = std::move( rhs.m_Change );
+	m_sGraph = std::move( rhs.m_sGraph );
+}
+
 void ezObjectChange::operator=(ezObjectChange&& rhs)
 {
   m_Type = rhs.m_Type;
@@ -233,14 +242,15 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
 
 void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  ezObjectChange change;
-  ezPropertyPath propPath = e.m_sPropertyPath.GetData();
-  CreatePath(change, e.m_pObject, propPath);
+  const ezPropertyPath propPath = e.m_sPropertyPath.GetData();
 
   switch (e.m_EventType)
   {
   case ezDocumentObjectPropertyEvent::Type::PropertySet:
     {
+      ezObjectChange change;
+      CreatePath(change, e.m_pObject, propPath);
+
       change.m_Type = ezObjectChangeType::PropertySet;
       change.m_Change.m_Index = e.m_NewIndex;
       change.m_Change.m_Value = e.m_NewValue;
@@ -249,6 +259,9 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
     break;
   case ezDocumentObjectPropertyEvent::Type::PropertyInserted:
     {
+      ezObjectChange change;
+      CreatePath(change, e.m_pObject, propPath);
+
       change.m_Type = ezObjectChangeType::PropertyInserted;
       change.m_Change.m_Index = e.m_NewIndex;
       change.m_Change.m_Value = e.m_NewValue;
@@ -257,6 +270,9 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
     break;
   case ezDocumentObjectPropertyEvent::Type::PropertyRemoved:
     {
+      ezObjectChange change;
+      CreatePath(change, e.m_pObject, propPath);
+
       change.m_Type = ezObjectChangeType::PropertyRemoved;
       change.m_Change.m_Index = e.m_OldIndex;
       change.m_Change.m_Value = e.m_OldValue;
@@ -268,25 +284,36 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
       ezUInt32 uiOldIndex = e.m_OldIndex.ConvertTo<ezUInt32>();
       ezUInt32 uiNewIndex = e.m_NewIndex.ConvertTo<ezUInt32>();
 
-      change.m_Type = ezObjectChangeType::PropertyRemoved;
-      change.m_Change.m_Index = uiOldIndex;
-      change.m_Change.m_Value = e.m_OldValue;
-      ApplyOp(change);
+      {
+        ezObjectChange change;
+        CreatePath(change, e.m_pObject, propPath);
+
+        change.m_Type = ezObjectChangeType::PropertyRemoved;
+        change.m_Change.m_Index = uiOldIndex;
+        change.m_Change.m_Value = e.m_NewValue;
+        EZ_ASSERT_DEBUG(e.m_NewValue.IsValid(), "Value must be valid");
+        ApplyOp(change);
+      }
 
       if (uiNewIndex > uiOldIndex)
       {
         uiNewIndex -= 1;
       }
-      change.m_Type = ezObjectChangeType::PropertyInserted;
-      change.m_Change.m_Index = uiNewIndex;
-      ApplyOp(change);
+
+      {
+        ezObjectChange change;
+        CreatePath(change, e.m_pObject, propPath);
+
+        change.m_Type = ezObjectChangeType::PropertyInserted;
+        change.m_Change.m_Index = uiNewIndex;
+        ApplyOp(change);
+      }
+
       return;
     }
     break;
   }
-
 }
-
 
 void* ezDocumentObjectMirror::GetNativeObjectPointer(const ezDocumentObject* pObject)
 {

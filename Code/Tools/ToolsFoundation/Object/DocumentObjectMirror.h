@@ -43,6 +43,7 @@ class EZ_TOOLSFOUNDATION_DLL ezObjectChange
 public:
   ezObjectChange(){}
   ezObjectChange(const ezObjectChange &);
+  ezObjectChange(ezObjectChange && rhs );
   void operator=(ezObjectChange&& rhs);
   void operator=(ezObjectChange& rhs);
   void GetGraph(ezAbstractObjectGraph& graph) const;

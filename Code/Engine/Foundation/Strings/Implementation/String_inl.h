@@ -64,7 +64,7 @@ void ezHybridStringBase<Size>::Clear()
 template<ezUInt16 Size>
 EZ_FORCE_INLINE const char* ezHybridStringBase<Size>::GetData() const
 {
-  EZ_ASSERT_DEBUG(!m_Data.IsEmpty(), "ezHybridString has been corrupted, the array can never be empty.");
+  EZ_ASSERT_DEBUG(!m_Data.IsEmpty(), "ezHybridString has been corrupted, the array can never be empty. This can happen when you access a string that was previously std::move'd into another string.");
 
   return &m_Data[0];
 }
