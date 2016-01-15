@@ -16,7 +16,7 @@ class ezWorld;
 class EZ_GAMEFOUNDATION_DLL ezGameApplication : public ezApplication
 {
 public:
-  ezGameApplication(ezGameState& initialGameState);
+  ezGameApplication();
   ~ezGameApplication();
 
   // public ezApplication implementation:
@@ -27,11 +27,10 @@ public:
 
   ezGALSwapChainHandle GetSwapChain(const ezWindowBase* pWindow) const;
 
-  void SetCurrentGameState(ezGameState& currentGameState);
-  EZ_FORCE_INLINE ezGameState& GetCurrentGameState() const
-  {
-    return *m_pCurrentGameState;
-  }
+  void CreateGameState();
+  void DestroyGameState();
+
+  EZ_FORCE_INLINE ezGameState* GetCurrentGameState() const { return m_pCurrentGameState; }
 
   void RequestQuit();
   EZ_FORCE_INLINE bool WasQuitRequested() const

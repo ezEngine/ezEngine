@@ -42,10 +42,9 @@ namespace
 }
 
 
-ezGameApplication::ezGameApplication(ezGameState& initialGameState)
+ezGameApplication::ezGameApplication()
   : m_UpdateTask("GameApplication.Update", ezMakeDelegate(&ezGameApplication::UpdateWorldsAndExtractViews, this))
 {
-  SetCurrentGameState(initialGameState);
   m_bWasQuitRequested = false;
 }
 
@@ -94,10 +93,36 @@ ezGALSwapChainHandle ezGameApplication::GetSwapChain(const ezWindowBase* pWindow
   return ezGALSwapChainHandle();
 }
 
-void ezGameApplication::SetCurrentGameState(ezGameState& currentGameState)
+
+void ezGameApplication::CreateGameState()
 {
-  m_pCurrentGameState = &currentGameState;
-  m_pCurrentGameState->m_pApplication = this;
+	EZ_ASSERT_DEV( m_pCurrentGameState == nullptr, "Cannot create new game state, while one still exists." );
+
+	for ( auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance() )
+	{
+		if ( !pRtti->IsDerivedFrom<ezGameState>() )
+			continue;
+
+		if ( !pRtti->GetAllocator()->CanAllocate() )
+			continue;
+
+		ezGameState* pState = static_cast<ezGameState*>(pRtti->GetAllocator()->Allocate());
+
+		EZ_ASSERT_DEV( pState != nullptr, "Failed to allocate ezGameState object" );
+
+		m_pCurrentGameState = pState;
+		m_pCurrentGameState->m_pApplication = this;
+	}
+}
+
+
+void ezGameApplication::DestroyGameState()
+{
+	if ( m_pCurrentGameState == nullptr )
+		return;
+
+	m_pCurrentGameState->GetDynamicRTTI()->GetAllocator()->Deallocate( m_pCurrentGameState );
+	m_pCurrentGameState = nullptr;
 }
 
 void ezGameApplication::RequestQuit()
@@ -216,6 +241,8 @@ void ezGameApplication::AfterEngineInit()
 
   ezStartup::StartupEngine();
 
+  CreateGameState();
+
   if (m_pCurrentGameState)
     m_pCurrentGameState->Activate();
 
@@ -226,6 +253,8 @@ void ezGameApplication::BeforeEngineShutdown()
 {
   if (m_pCurrentGameState)
     m_pCurrentGameState->Deactivate();
+
+  DestroyGameState();
 
   ezStartup::ShutdownEngine();
 
@@ -346,6 +375,7 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
 {
   UpdateInput();
 
+  if ( m_pCurrentGameState )
   {
     EZ_PROFILE(g_BeforeWorldUpdateProfilingId);
     m_pCurrentGameState->BeforeWorldUpdate();
@@ -383,6 +413,7 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
     }
   }
 
+  if ( m_pCurrentGameState )
   {
     EZ_PROFILE(g_AfterWorldUpdateProfilingId);
     m_pCurrentGameState->AfterWorldUpdate();

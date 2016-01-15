@@ -17,6 +17,9 @@
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE( GameState, 1, ezRTTIDefaultAllocator<GameState> );
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
 GameState::GameState()
 {
   m_pWindow = nullptr;
@@ -66,4 +69,4 @@ void GameState::Deactivate()
   EZ_DEFAULT_DELETE(m_pWindow);
 }
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezGameApplication, *EZ_DEFAULT_NEW(GameState));
+EZ_CONSOLEAPP_ENTRY_POINT(ezGameApplication);

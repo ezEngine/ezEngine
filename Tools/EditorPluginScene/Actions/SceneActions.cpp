@@ -178,7 +178,9 @@ void ezSceneAction::Execute(const ezVariant& value)
     {
       QStringList arguments;
       arguments << "-scene";
-      arguments << QString::fromUtf8(m_pSceneDocument->GetBinaryTargetFile().GetData());
+	  const ezStringBuilder sPath = m_pSceneDocument->GetBinaryTargetFile();
+	  const char* szPath = sPath.GetData();
+      arguments << QString::fromUtf8(szPath);
 
       QProcess proc;
       proc.startDetached(QString::fromUtf8("Player.exe"), arguments);

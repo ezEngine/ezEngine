@@ -147,8 +147,15 @@ void ezMeshComponent::SerializeComponent(ezWorldWriter& stream) const
 
   for (const auto& mat : m_Materials)
   {
-    ezResourceLock<ezMaterialResource> pMat(mat);
-    s << pMat->GetResourceID();
+    if ( mat.IsValid() )
+    {
+      ezResourceLock<ezMaterialResource> pMat(mat);
+      s << pMat->GetResourceID();
+    }
+    else
+    {
+      s << "";
+    }
   }
 }
 

@@ -9,6 +9,8 @@ class GameWindow;
 
 class GameState : public ezGameState
 {
+	EZ_ADD_DYNAMIC_REFLECTION( GameState, ezGameState );
+
 public:
   GameState();
 

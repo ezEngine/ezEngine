@@ -10,8 +10,10 @@ class EZ_GAMEFOUNDATION_DLL ezGameState : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezGameState, ezReflectedClass)
 
-public:
+protected:
   ezGameState() : m_pApplication(nullptr) { }
+
+public:
   virtual ~ezGameState() { }
 
   virtual void Activate() { }

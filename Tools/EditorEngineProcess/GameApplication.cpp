@@ -5,7 +5,7 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 
-ezEngineProcessGameApplication::ezEngineProcessGameApplication() : ezGameApplication(m_GameState)
+ezEngineProcessGameApplication::ezEngineProcessGameApplication() : ezGameApplication()
 {
   m_pApp = nullptr;
 }
