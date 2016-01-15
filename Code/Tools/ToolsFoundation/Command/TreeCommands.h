@@ -165,6 +165,30 @@ private:
   ezVariant m_OldValue;
 };
 
+class EZ_TOOLSFOUNDATION_DLL ezResizeAndSetObjectPropertyCommand : public ezCommand
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezResizeAndSetObjectPropertyCommand, ezCommand);
+
+public:
+  ezResizeAndSetObjectPropertyCommand();
+
+public: // Properties
+  ezUuid m_Object;
+  ezVariant m_NewValue;
+  ezVariant m_Index;
+  ezString m_sPropertyPath;
+
+  const char* GetPropertyPath() const { return m_sPropertyPath; }
+  void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }
+
+private:
+  virtual ezStatus DoInternal(bool bRedo) override;
+  virtual ezStatus UndoInternal(bool bFireEvents) override { return EZ_SUCCESS; }
+  virtual void CleanupInternal(CommandState state) override { }
+
+  ezDocumentObject* m_pObject;
+};
+
 class EZ_TOOLSFOUNDATION_DLL ezInsertObjectPropertyCommand : public ezCommand
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezInsertObjectPropertyCommand, ezCommand);

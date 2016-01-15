@@ -65,4 +65,4 @@ void GameState::Deactivate()
   EZ_DEFAULT_DELETE(m_pWindow);
 }
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezGameApplication, *EZ_DEFAULT_NEW(GameState));
+EZ_CONSOLEAPP_ENTRY_POINT(ezGameApplication);

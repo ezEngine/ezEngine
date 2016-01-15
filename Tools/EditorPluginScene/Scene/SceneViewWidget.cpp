@@ -52,15 +52,15 @@ void ezQtSceneViewWidget::SyncToEngine()
 
 bool ezQtSceneViewWidget::IsPickingAgainstSelectionAllowed() const
 {
-  if ( m_bInDragAndDropOperation && m_bAllowPickSelectedWhileDragging )
+  if (m_bInDragAndDropOperation && m_bAllowPickSelectedWhileDragging)
   {
     return true;
   }
-  
+
   return ezQtEngineViewWidget::IsPickingAgainstSelectionAllowed();
 }
 
-void ezQtSceneViewWidget::dragEnterEvent( QDragEnterEvent* e )
+void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
 {
   ezQtEngineViewWidget::dragEnterEvent(e);
 
@@ -198,7 +198,7 @@ void ezQtSceneViewWidget::dropEvent(QDropEvent * e)
     return;
 
   if (!e->mimeData()->hasFormat("application/ezEditor.AssetGuid"))
-      return;
+    return;
 
   if (!m_sDragMaterial.IsEmpty())
   {
@@ -215,9 +215,9 @@ void ezQtSceneViewWidget::dropEvent(QDropEvent * e)
     if (!pComponent || pComponent->GetTypeAccessor().GetType() != ezRTTI::FindTypeByName("ezMeshComponent"))
       return;
 
-    ezSetObjectPropertyCommand cmd;
+    ezResizeAndSetObjectPropertyCommand cmd;
     cmd.m_Object = res.m_PickedComponent;
-	cmd.m_Index = res.m_uiPartIndex;
+    cmd.m_Index = res.m_uiPartIndex;
     cmd.SetPropertyPath("Materials");
     cmd.m_NewValue = sMaterial.GetData();
 

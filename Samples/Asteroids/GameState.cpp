@@ -21,7 +21,7 @@
 
 #include <GameFoundation/GameApplication.h>
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezGameApplication, *EZ_DEFAULT_NEW(AsteroidGameState));
+EZ_CONSOLEAPP_ENTRY_POINT(ezGameApplication);
 
 const char* szPlayerActions[MaxPlayerActions] = { "Forwards", "Backwards", "Left", "Right", "RotLeft", "RotRight", "Shoot" };
 const char* szControlerKeys[MaxPlayerActions] = { "leftstick_posy", "leftstick_negy", "leftstick_negx", "leftstick_posx", "rightstick_negx", "rightstick_posx", "right_trigger" };
@@ -44,6 +44,9 @@ namespace
     ezInputManager::SetInputActionConfig(szInputSet, szInputAction, cfg, true);
   }
 }
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(AsteroidGameState, 1, ezRTTIDefaultAllocator<AsteroidGameState>);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 AsteroidGameState::AsteroidGameState()
 {

@@ -8,6 +8,8 @@ class GameWindow;
 
 class AsteroidGameState : public ezGameState
 {
+  EZ_ADD_DYNAMIC_REFLECTION(AsteroidGameState, ezGameState);
+
 public:
   AsteroidGameState();
 

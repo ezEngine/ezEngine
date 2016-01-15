@@ -96,7 +96,7 @@ void ezCommand::Cleanup(CommandState state)
 }
 
 
-ezStatus ezCommand::AddCommand(ezCommand& command)
+ezStatus ezCommand::AddSubCommand(ezCommand& command)
 {
   ezMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);

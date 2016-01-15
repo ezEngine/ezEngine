@@ -66,7 +66,7 @@ ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
         cmd.m_ObjectTarget = pPinTarget->GetParent()->GetGuid();
         cmd.m_sSourcePin = pPinSource->GetName();
         cmd.m_sTargetPin = pPinTarget->GetName();
-        auto res = AddCommand(cmd);
+        auto res = AddSubCommand(cmd);
         if (res.m_Result.Failed())
         {
           return ezStatus("%s", res.m_sError.GetData());
@@ -86,7 +86,7 @@ ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
         cmd.m_ObjectTarget = pPinTarget->GetParent()->GetGuid();
         cmd.m_sSourcePin = pPinSource->GetName();
         cmd.m_sTargetPin = pPinTarget->GetName();
-        auto res = AddCommand(cmd);
+        auto res = AddSubCommand(cmd);
         if (res.m_Result.Failed())
         {
           return ezStatus("%s", res.m_sError.GetData());
@@ -95,7 +95,7 @@ ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
     }
     ezRemoveObjectCommand cmd;
     cmd.m_Object = m_Object;
-    auto res = AddCommand(cmd);
+    auto res = AddSubCommand(cmd);
     if (res.m_Result.Failed())
     {
       return ezStatus("%s", res.m_sError.GetData());

@@ -57,6 +57,15 @@ EZ_ACCESSOR_PROPERTY("PropertyPath", GetPropertyPath, SetPropertyPath),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResizeAndSetObjectPropertyCommand, 1, ezRTTIDefaultAllocator<ezResizeAndSetObjectPropertyCommand>);
+EZ_BEGIN_PROPERTIES
+EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
+EZ_MEMBER_PROPERTY("NewValue", m_NewValue),
+EZ_MEMBER_PROPERTY("Index", m_Index),
+EZ_ACCESSOR_PROPERTY("PropertyPath", GetPropertyPath, SetPropertyPath),
+EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInsertObjectPropertyCommand, 1, ezRTTIDefaultAllocator<ezInsertObjectPropertyCommand>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
@@ -366,7 +375,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
                   *((ezUuid*)pObj) = pNewObject->GetGuid();
                 }
               }
-              
+
               // only create the very first object, if there are multiple objects in the prefab, ignore the rest
               break;
             }
@@ -612,22 +621,7 @@ ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
     else
       return ezStatus(EZ_FAILURE, "Set Property: The given object does not exist!");
 
-	const ezInt32 uiIndex = m_Index.ConvertTo<ezInt32>();
-
     ezIReflectedTypeAccessor& accessor0 = m_pObject->GetTypeAccessor();
-
-	const ezInt32 iCount = accessor0.GetCount( path );
-
-	for ( ezInt32 i = iCount; i <= uiIndex; ++i)
-	{
-		ezInsertObjectPropertyCommand ins;
-		ins.m_Object = m_Object;
-		ins.m_sPropertyPath = m_sPropertyPath;
-		ins.m_Index = i;
-		ins.m_NewValue = ezToolsReflectionUtils::GetDefaultVariantFromType(m_NewValue.GetType());
-
-		AddCommand(ins);
-	}
 
     m_OldValue = accessor0.GetValue(path, m_Index);
     if (!m_OldValue.IsValid())
@@ -679,6 +673,59 @@ ezStatus ezSetObjectPropertyCommand::UndoInternal(bool bFireEvents)
   return ezStatus(EZ_SUCCESS);
 }
 
+////////////////////////////////////////////////////////////////////////
+// ezSetObjectPropertyCommand
+////////////////////////////////////////////////////////////////////////
+
+ezResizeAndSetObjectPropertyCommand::ezResizeAndSetObjectPropertyCommand()
+{
+  m_pObject = nullptr;
+}
+
+ezStatus ezResizeAndSetObjectPropertyCommand::DoInternal(bool bRedo)
+{
+  ezDocument* pDocument = GetDocument();
+  ezPropertyPath path(m_sPropertyPath);
+
+  if (!bRedo)
+  {
+    if (m_Object.IsValid())
+    {
+      m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
+      if (m_pObject == nullptr)
+        return ezStatus(EZ_FAILURE, "Set Property: The given object does not exist!");
+    }
+    else
+      return ezStatus(EZ_FAILURE, "Set Property: The given object does not exist!");
+
+    const ezInt32 uiIndex = m_Index.ConvertTo<ezInt32>();
+
+    ezIReflectedTypeAccessor& accessor0 = m_pObject->GetTypeAccessor();
+
+    const ezInt32 iCount = accessor0.GetCount(path);
+
+    for (ezInt32 i = iCount; i <= uiIndex; ++i)
+    {
+      ezInsertObjectPropertyCommand ins;
+      ins.m_Object = m_Object;
+      ins.m_sPropertyPath = m_sPropertyPath;
+      ins.m_Index = i;
+      ins.m_NewValue = ezToolsReflectionUtils::GetDefaultVariantFromType(m_NewValue.GetType());
+
+      AddSubCommand(ins);
+    }
+
+    ezSetObjectPropertyCommand set;
+    set.m_sPropertyPath = m_sPropertyPath;
+    set.m_Index = m_Index;
+    set.m_NewValue = m_NewValue;
+    set.m_Object = m_Object;
+
+    AddSubCommand(set);
+  }
+
+  return ezStatus(EZ_SUCCESS);
+}
 
 ////////////////////////////////////////////////////////////////////////
 // ezInsertObjectPropertyCommand
@@ -874,7 +921,7 @@ ezStatus ezMoveObjectPropertyCommand::DoInternal(bool bRedo)
     e.m_pObject = m_pObject;
     e.m_OldIndex = m_OldIndex;
     e.m_NewIndex = m_NewIndex;
-	e.m_NewValue = accessor.GetValue( path, m_NewIndex );
+    e.m_NewValue = accessor.GetValue(path, m_NewIndex);
 
     e.m_sPropertyPath = m_sPropertyPath;
 

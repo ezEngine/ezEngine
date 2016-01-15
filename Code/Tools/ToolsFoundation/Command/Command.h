@@ -29,7 +29,7 @@ protected:
   ezStatus Undo(bool bFireEvents);
   void Cleanup(CommandState state);
 
-  ezStatus AddCommand(ezCommand& command);
+  ezStatus AddSubCommand(ezCommand& command);
   ezDocument* GetDocument() { return m_pDocument; };
 
 private:
