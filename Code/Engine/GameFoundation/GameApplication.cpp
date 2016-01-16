@@ -216,9 +216,9 @@ void ezGameApplication::AfterEngineInit()
 
   // load plugins
   {
-    EZ_VERIFY(ezPlugin::LoadPlugin("ezInspectorPlugin").Succeeded(), "Could not load Inspector Plugin.");
-    
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    EZ_VERIFY(ezPlugin::LoadPlugin("ezInspectorPlugin").Succeeded(), "Could not load Inspector Plugin.");
+
   #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Could not load HLSL Shader Compiler Plugin.");
   #endif

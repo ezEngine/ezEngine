@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>PluginDlg</class>
- <widget class="QDialog" name="PluginDlg">
+ <class>EnginePluginConfigDlg</class>
+ <widget class="QDialog" name="EnginePluginConfigDlg">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -27,9 +27,10 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>Select which plugins shall be loaded at startup. A restart of the editor is required to apply plugin changes.
-
-</string>
+      <string>Select which plugins should be loaded into the engine for this project. The project must be reloaded to apply changes.</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::PlainText</enum>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

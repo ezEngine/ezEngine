@@ -17,9 +17,26 @@
 class QMainWindow;
 class QWidget;
 
+struct EZ_EDITORFRAMEWORK_DLL ezPluginInfo
+{
+  ezPluginInfo()
+  {
+    m_bAvailable = false;
+    m_bActive = false;
+    m_bToBeLoaded = false;
+  }
+
+  bool m_bAvailable;
+  bool m_bActive;
+  bool m_bToBeLoaded;
+
+  bool operator==(const ezPluginInfo& rhs) const { return m_bAvailable == rhs.m_bAvailable && m_bActive == rhs.m_bActive && m_bToBeLoaded == rhs.m_bToBeLoaded; }
+  bool operator!=(const ezPluginInfo& rhs) const { return !(*this == rhs); }
+};
+
 struct EZ_EDITORFRAMEWORK_DLL ezPluginSet
 {
-  ezSet<ezString> m_Plugins;
+  ezMap<ezString, ezPluginInfo> m_Plugins;
 
   bool operator==(const ezPluginSet& rhs) const { return m_Plugins == rhs.m_Plugins; }
   bool operator!=(const ezPluginSet& rhs) const { return !(*this == rhs); }
@@ -56,10 +73,14 @@ public:
 
   const ezString& GetApplicationUserName() { return s_sUserName; }
 
-  const ezPluginSet& GetEditorPluginsAvailable();
-  const ezPluginSet& GetEditorPluginsActive() { return s_EditorPluginsActive; }
-  const ezPluginSet& GetEditorPluginsToBeLoaded() { return s_EditorPluginsToBeLoaded; }
-  void SetEditorPluginsToBeLoaded(const ezPluginSet& plugins);
+  const ezPluginSet& GetEditorPlugins() const { return s_EditorPlugins; }
+  const ezPluginSet& GetEnginePlugins() const { return s_EnginePlugins; }
+
+  ezPluginSet& GetEditorPlugins() { return s_EditorPlugins; }
+  ezPluginSet& GetEnginePlugins() { return s_EnginePlugins; }
+
+  void StoreEditorPluginsToBeLoaded();
+  void StoreEnginePluginsToBeLoaded();
 
   void AddRestartRequiredReason(const char* szReason);
   const ezSet<ezString>& GetRestartRequiredReasons() { return s_RestartRequiredReasons; }
@@ -81,8 +102,8 @@ public:
   ezInt32 RunEditor();
   void DeInitQt();
 
-  void LoadPlugins();
-  void UnloadPlugins();
+  void LoadEditorPlugins();
+  void UnloadEditorPlugins();
 
   ezRecentFilesList& GetRecentProjectsList()   { return s_RecentProjects;  }
   ezRecentFilesList& GetRecentDocumentsList()  { return s_RecentDocuments; }
@@ -111,7 +132,6 @@ public:
   const ezApplicationPluginConfig& GetEnginePluginConfig() const { return m_EnginePluginConfig; }
 
   void SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg);
-  void SetEnginePluginConfig(const ezApplicationPluginConfig& cfg);
 
   bool MakeDataDirectoryRelativePathAbsolute(ezString& sPath) const;
   bool MakePathDataDirectoryRelative(ezString& sPath) const;
@@ -149,7 +169,9 @@ private:
   void ProjectEventHandler(const ezToolsProject::Event& r);
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
 
-  void ReadPluginsToBeLoaded();
+  void DetectAvailableEditorPlugins();
+  void DetectAvailableEnginePlugins();
+  void ReadEditorPluginsToBeLoaded();
   void ReadEnginePluginConfig();
   void ReadTagRegistry();
 
@@ -161,9 +183,8 @@ private:
   ezSet<ezString> s_RestartRequiredReasons;
   ezSet<ezString> s_ReloadProjectRequiredReasons;
 
-  ezPluginSet s_EditorPluginsAvailable;
-  ezPluginSet s_EditorPluginsActive;
-  ezPluginSet s_EditorPluginsToBeLoaded;
+  ezPluginSet s_EditorPlugins;
+  ezPluginSet s_EnginePlugins;
 
   ezSet<ezString> s_SettingsPluginNames;
   ezMap<ezString, ezSettings> s_EditorSettings;

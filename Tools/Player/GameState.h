@@ -7,12 +7,12 @@
 
 class GameWindow;
 
-class GameState : public ezGameState
+class ezPlayerGameState : public ezGameState
 {
-	EZ_ADD_DYNAMIC_REFLECTION( GameState, ezGameState );
+	EZ_ADD_DYNAMIC_REFLECTION( ezPlayerGameState, ezGameState );
 
 public:
-  GameState();
+  ezPlayerGameState();
 
 private:
   virtual void Activate() override;

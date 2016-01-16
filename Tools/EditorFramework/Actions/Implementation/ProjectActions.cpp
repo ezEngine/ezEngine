@@ -11,7 +11,8 @@
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/Dialogs/ShortcutEditorDlg.moc.h>
 #include <EditorFramework/Dialogs/DataDirsDlg.moc.h>
-#include <EditorFramework/Dialogs/PluginDlg.moc.h>
+#include <EditorFramework/Dialogs/EditorPluginConfigDlg.moc.h>
+#include <EditorFramework/Dialogs/EnginePluginConfigDlg.moc.h>
 #include <EditorFramework/Dialogs/SettingsDlg.moc.h>
 
 ezActionDescriptorHandle ezProjectActions::s_hEditorMenu;
@@ -32,6 +33,7 @@ ezActionDescriptorHandle ezProjectActions::s_hEditorSettingsMenu;
 ezActionDescriptorHandle ezProjectActions::s_hProjectSettingsMenu;
 ezActionDescriptorHandle ezProjectActions::s_hShortcutEditor;
 ezActionDescriptorHandle ezProjectActions::s_hEditorPlugins;
+ezActionDescriptorHandle ezProjectActions::s_hEnginePlugins;
 ezActionDescriptorHandle ezProjectActions::s_hDataDirectories;
 ezActionDescriptorHandle ezProjectActions::s_hSettingsDlg;
 
@@ -60,6 +62,7 @@ void ezProjectActions::RegisterActions()
 
   s_hShortcutEditor = EZ_REGISTER_ACTION_1("Editor.Shortcuts", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::Shortcuts);
   s_hEditorPlugins = EZ_REGISTER_ACTION_1("Editor.Plugins", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::EditorPlugins);
+  s_hEnginePlugins = EZ_REGISTER_ACTION_1("Engine.Plugins", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::EnginePlugins);
   s_hSettingsDlg = EZ_REGISTER_ACTION_1("Editor.SettingsDlg", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::SettingsDialog);
 
   s_hDataDirectories = EZ_REGISTER_ACTION_1("Project.DataDirectories", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::DataDirectories);
@@ -89,6 +92,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hReloadResources);
   ezActionManager::UnregisterAction(s_hShortcutEditor);
   ezActionManager::UnregisterAction(s_hEditorPlugins);
+  ezActionManager::UnregisterAction(s_hEnginePlugins);
   ezActionManager::UnregisterAction(s_hSettingsDlg);
   ezActionManager::UnregisterAction(s_hDataDirectories);
 }
@@ -124,6 +128,7 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hSettingsDlg, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 3.0f);
 
   pMap->MapAction(s_hDataDirectories, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 1.0f);
+  pMap->MapAction(s_hEnginePlugins, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 2.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -259,6 +264,9 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
   case ezProjectAction::ButtonType::EditorPlugins:
     SetIconPath(":/EditorFramework/Icons/Plugins16.png");
     break;
+  case ezProjectAction::ButtonType::EnginePlugins:
+    SetIconPath(":/EditorFramework/Icons/Plugins16.png"); /// \todo Icon
+    break;
   case ezProjectAction::ButtonType::SettingsDialog:
     SetIconPath(":/EditorFramework/Icons/StoredSettings16.png");
     break;
@@ -326,7 +334,14 @@ void ezProjectAction::Execute(const ezVariant& value)
 
   case ezProjectAction::ButtonType::EditorPlugins:
     {
-      PluginDlg dlg(nullptr);
+      EditorPluginConfigDlg dlg(nullptr);
+      dlg.exec();
+    }
+    break;
+
+  case ezProjectAction::ButtonType::EnginePlugins:
+    {
+      EnginePluginConfigDlg dlg(nullptr);
       dlg.exec();
     }
     break;

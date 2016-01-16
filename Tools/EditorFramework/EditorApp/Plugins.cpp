@@ -7,10 +7,11 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Configuration/Plugin.h>
 
-const ezPluginSet& ezQtEditorApp::GetEditorPluginsAvailable()
+void ezQtEditorApp::DetectAvailableEditorPlugins()
 {
+  s_EditorPlugins.m_Plugins.Clear();
+
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
-  if (s_EditorPluginsAvailable.m_Plugins.IsEmpty())
   {
     ezStringBuilder sSearch = ezOSFile::GetApplicationDirectory();;
     sSearch.AppendPath("ezEditorPlugin*.dll");
@@ -23,24 +24,52 @@ const ezPluginSet& ezQtEditorApp::GetEditorPluginsAvailable()
         ezStringBuilder sPlugin = fsit.GetStats().m_sFileName;
         sPlugin.Shrink(0, 4); // TODO: ChangeFileExtension should work with empty extensions...
 
-        s_EditorPluginsAvailable.m_Plugins.Insert(sPlugin);
+        s_EditorPlugins.m_Plugins[sPlugin].m_bAvailable = true;
       }
       while(fsit.Next().Succeeded());
     }
   }
 #endif
-
-  return s_EditorPluginsAvailable;
 }
 
-void ezQtEditorApp::SetEditorPluginsToBeLoaded(const ezPluginSet& plugins)
+void ezQtEditorApp::DetectAvailableEnginePlugins()
 {
-  if (s_EditorPluginsToBeLoaded == plugins)
-    return;
+  s_EnginePlugins.m_Plugins.Clear();
 
-  s_EditorPluginsToBeLoaded = plugins;
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+  {
+    ezStringBuilder sSearch = ezOSFile::GetApplicationDirectory();;
+    sSearch.AppendPath("*.dll");
 
-  AddRestartRequiredReason("The set of active plugins has changed.");
+    ezFileSystemIterator fsit;
+    if (fsit.StartSearch(sSearch.GetData(), false, false).Succeeded())
+    {
+      do
+      {
+        ezStringBuilder sPlugin = fsit.GetStats().m_sFileName;
+        sPlugin.Shrink(0, 4); // TODO: ChangeFileExtension should work with empty extensions...
+
+        if (sPlugin.FindLastSubString_NoCase("EnginePlugin") ||
+            sPlugin.EndsWith_NoCase("Plugin"))
+        {
+          s_EnginePlugins.m_Plugins[sPlugin].m_bAvailable = true;
+        }
+      }
+      while (fsit.Next().Succeeded());
+    }
+  }
+#endif
+
+  for (const auto& plugin : m_EnginePluginConfig.m_Plugins)
+  {
+    s_EnginePlugins.m_Plugins[plugin.m_sRelativePath].m_bActive = true;
+    s_EnginePlugins.m_Plugins[plugin.m_sRelativePath].m_bToBeLoaded = plugin.m_sDependecyOf.Contains("<manual>");
+  }
+}
+
+void ezQtEditorApp::StoreEditorPluginsToBeLoaded()
+{
+  AddRestartRequiredReason("The set of active editor plugins was changed.");
 
   ezFileWriter FileOut;
   FileOut.Open("ActivePlugins.json");
@@ -51,18 +80,48 @@ void ezQtEditorApp::SetEditorPluginsToBeLoaded(const ezPluginSet& plugins)
   writer.BeginObject();
     writer.BeginArray("Plugins");
 
-    for (auto it = plugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
+    for (auto it = s_EditorPlugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
     {
-      writer.WriteString(it.Key().GetData());
+      if (it.Value().m_bToBeLoaded)
+        writer.WriteString(it.Key().GetData());
     }
 
     writer.EndArray();
   writer.EndObject();
 }
 
-void ezQtEditorApp::ReadPluginsToBeLoaded()
+void ezQtEditorApp::StoreEnginePluginsToBeLoaded()
 {
-  s_EditorPluginsToBeLoaded.m_Plugins.Clear();
+  bool bChange = false;
+
+  for (auto it = s_EnginePlugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
+  {
+    ezApplicationPluginConfig::PluginConfig cfg;
+    cfg.m_sRelativePath = it.Key();
+
+    if (it.Value().m_bToBeLoaded)
+    {
+      bChange = m_EnginePluginConfig.AddPlugin(cfg) || bChange;
+    }
+    else
+    {
+      bChange = m_EnginePluginConfig.RemovePlugin(cfg) || bChange;
+    }
+  }
+
+  if (bChange)
+  {
+    AddReloadProjectRequiredReason("The set of active engine plugins was changed.");
+    m_EnginePluginConfig.Save();
+  }
+}
+
+void ezQtEditorApp::ReadEditorPluginsToBeLoaded()
+{
+  for (auto it = s_EditorPlugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
+  {
+    it.Value().m_bToBeLoaded = false;
+  }
 
   ezFileReader FileIn;
   if (FileIn.Open("ActivePlugins.json").Failed())
@@ -82,31 +141,38 @@ void ezQtEditorApp::ReadPluginsToBeLoaded()
   {
     const ezString sPlugin = plugins[i].ConvertTo<ezString>();
 
-    s_EditorPluginsToBeLoaded.m_Plugins.Insert(sPlugin);
+    s_EditorPlugins.m_Plugins[sPlugin].m_bToBeLoaded = true;
   }
 }
 
 
-void ezQtEditorApp::LoadPlugins()
+void ezQtEditorApp::LoadEditorPlugins()
 {
-  EZ_ASSERT_DEV(s_EditorPluginsActive.m_Plugins.IsEmpty(), "Plugins were already loaded.");
+  DetectAvailableEditorPlugins();
+  ReadEditorPluginsToBeLoaded();
 
-  GetEditorPluginsAvailable();
-  ReadPluginsToBeLoaded();
-
-  s_EditorPluginsActive.m_Plugins.Clear();
+  for (auto it = s_EditorPlugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
+  {
+    it.Value().m_bActive = false;
+  }
 
   ezSet<ezString> NotLoaded;
 
-  for (auto it = s_EditorPluginsToBeLoaded.m_Plugins.GetIterator(); it.IsValid(); ++it)
+  for (auto it = s_EditorPlugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
   {
+    if (!it.Value().m_bToBeLoaded)
+      continue;
+
     // only load plugins that are available
-    if (s_EditorPluginsAvailable.m_Plugins.Find(it.Key().GetData()).IsValid())
+    if (it.Value().m_bAvailable)
     {
-      s_EditorPluginsActive.m_Plugins.Insert(it.Key());
       if (ezPlugin::LoadPlugin(it.Key().GetData()).Failed())
       {
         NotLoaded.Insert(it.Key());
+      }
+      else
+      {
+        it.Value().m_bActive = true;
       }
     }
     else
@@ -128,12 +194,14 @@ void ezQtEditorApp::LoadPlugins()
   }
 }
 
-void ezQtEditorApp::UnloadPlugins()
+void ezQtEditorApp::UnloadEditorPlugins()
 {
-  for (auto it = s_EditorPluginsActive.m_Plugins.GetLastIterator(); it.IsValid(); --it)
+  for (auto it = s_EditorPlugins.m_Plugins.GetLastIterator(); it.IsValid(); --it)
   {
-    ezPlugin::UnloadPlugin(it.Key().GetData());
+    if (it.Value().m_bActive)
+    {
+      ezPlugin::UnloadPlugin(it.Key().GetData());
+      it.Value().m_bActive = false;
+    }
   }
-
-  s_EditorPluginsActive.m_Plugins.Clear();
 }

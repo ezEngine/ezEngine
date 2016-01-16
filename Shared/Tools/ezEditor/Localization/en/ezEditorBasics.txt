@@ -82,6 +82,7 @@ ezTextureTypeEnum::Texture2D;Texture 2D
 ezTextureTypeEnum::Texture3D;Texture 3D
 ezTextureTypeEnum::TextureCube;Texture Cube
 Project.DataDirectories;Data Directories
-Editor.Plugins;Plugins
+Editor.Plugins;Editor Plugins
 Editor.Shortcuts;Shortcuts
 Editor.SettingsDlg;Stored Settings
+Engine.Plugins;Engine Plugins

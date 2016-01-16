@@ -18,7 +18,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 
 
-void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV, const char* szLevelFile)
+void ezPlayerGameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV, const char* szLevelFile)
 {
   EZ_LOG_BLOCK("CreateGameLevelAndRenderPipeline", szLevelFile);
 
@@ -109,7 +109,7 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBa
   m_pView->SetLogicCamera(&m_Camera);
 }
 
-void GameState::DestroyGameLevel()
+void ezPlayerGameState::DestroyGameLevel()
 {
   m_pScene->Deinitialize();
 

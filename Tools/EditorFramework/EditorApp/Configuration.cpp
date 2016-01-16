@@ -18,11 +18,6 @@ void ezQtEditorApp::SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg
   m_FileSystemConfig.CreateDataDirStubFiles();
 }
 
-void ezQtEditorApp::SetEnginePluginConfig(const ezApplicationPluginConfig& cfg)
-{
-  m_EnginePluginConfig = cfg;
-}
-
 bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezString & sPath) const
 {
   if (ezConversionUtils::IsStringUuid(sPath))
@@ -227,6 +222,8 @@ void ezQtEditorApp::ReadEnginePluginConfig()
 
   // save new state again
   m_EnginePluginConfig.Save();
+
+  DetectAvailableEnginePlugins();
 }
 
 void ezQtEditorApp::AddRuntimePluginDependency(const char* szEditorPluginName, const char* szRuntimeDependency)
@@ -241,4 +238,5 @@ void ezQtEditorApp::CreatePanels()
   new ezQtLogPanel();
   new ezQtAssetBrowserPanel();
 }
+
 

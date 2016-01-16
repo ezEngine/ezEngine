@@ -17,10 +17,10 @@
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE( GameState, 1, ezRTTIDefaultAllocator<GameState> );
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE( ezPlayerGameState, 1, ezRTTIDefaultAllocator<ezPlayerGameState> );
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-GameState::GameState()
+ezPlayerGameState::ezPlayerGameState()
 {
   m_pWindow = nullptr;
   m_pRenderPipeline = nullptr;
@@ -28,9 +28,9 @@ GameState::GameState()
   m_pView = nullptr;
 }
 
-void GameState::Activate()
+void ezPlayerGameState::Activate()
 {
-  EZ_LOG_BLOCK("GameState::Activate");
+  EZ_LOG_BLOCK("ezPlayerGameState::Activate");
 
   const ezString sSceneFile = ezCommandLineUtils::GetInstance()->GetStringOption("-scene", 0, "");
   EZ_ASSERT_ALWAYS(!sSceneFile.IsEmpty(), "Scene file has not been specified. Use the -scene command line followed by a full path to the ezBinaryScene file");
@@ -60,9 +60,9 @@ void GameState::Activate()
   CreateGameLevelAndRenderPipeline(pSwapChain->GetBackBufferRenderTargetView(), pSwapChain->GetDepthStencilTargetView(), sSceneFile);
 }
 
-void GameState::Deactivate()
+void ezPlayerGameState::Deactivate()
 {
-  EZ_LOG_BLOCK("GameState::Deactivate");
+  EZ_LOG_BLOCK("ezPlayerGameState::Deactivate");
 
   DestroyGameLevel();
 

@@ -23,7 +23,7 @@ static void RegisterInputAction(const char* szInputSet, const char* szInputActio
   ezInputManager::SetInputActionConfig(szInputSet, szInputAction, cfg, true);
 }
 
-void GameState::SetupInput()
+void ezPlayerGameState::SetupInput()
 {
   m_pWindow->GetInputDevice()->SetClipMouseCursor(true);
   m_pWindow->GetInputDevice()->SetShowMouseCursor(false);
@@ -46,7 +46,7 @@ void GameState::SetupInput()
   RegisterInputAction("Game", "TurnDown", ezInputSlot_KeyDown);
 }
 
-void GameState::BeforeWorldUpdate()
+void ezPlayerGameState::BeforeWorldUpdate()
 {
   float fRotateSpeed = 180.0f;
   float fMoveSpeed = 10.0f;

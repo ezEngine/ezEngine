@@ -169,7 +169,7 @@ void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
 
   CreatePanels();
 
-  LoadPlugins();
+  LoadEditorPlugins();
 
   if (!bNoRecent)
   {
@@ -246,7 +246,7 @@ void ezQtEditorApp::ShutdownEditor()
 
   // Unload potental plugin referenced clipboard data to prevent crash on shutdown.
   QApplication::clipboard()->clear();
-  UnloadPlugins();
+  UnloadEditorPlugins();
 
   // make sure no one tries to load any further images in parallel
   QtImageCache::StopRequestProcessing(true);

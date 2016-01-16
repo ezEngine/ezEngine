@@ -31,6 +31,7 @@ public:
   static ezActionDescriptorHandle s_hProjectSettingsMenu;
   static ezActionDescriptorHandle s_hShortcutEditor;
   static ezActionDescriptorHandle s_hEditorPlugins;
+  static ezActionDescriptorHandle s_hEnginePlugins;
   static ezActionDescriptorHandle s_hDataDirectories;
   static ezActionDescriptorHandle s_hSettingsDlg;
 
@@ -76,6 +77,7 @@ public:
     EditorPlugins,
     DataDirectories,
     SettingsDialog,
+    EnginePlugins,
   };
 
   ezProjectAction(const ezActionContext& context, const char* szName, ButtonType button);

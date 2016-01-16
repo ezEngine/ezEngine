@@ -2,15 +2,15 @@
 
 #include <Foundation/Basics.h>
 #include <QDialog>
-#include <Tools/EditorFramework/ui_PluginDlg.h>
+#include <Tools/EditorFramework/ui_EnginePluginConfigDlg.h>
 
-class PluginDlg : public QDialog, public Ui_PluginDlg
+class EnginePluginConfigDlg : public QDialog, public Ui_EnginePluginConfigDlg
 {
 public:
   Q_OBJECT
 
 public:
-  PluginDlg(QWidget* parent);
+  EnginePluginConfigDlg(QWidget* parent);
 
 
 private slots:

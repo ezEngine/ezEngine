@@ -19,8 +19,6 @@ void ezEngineProcessGameApplication::BeforeEngineInit()
 
 void ezEngineProcessGameApplication::AfterEngineInit()
 {
-  ezPlugin::LoadPlugin("ezEnginePluginScene");
-
   ezGameApplication::AfterEngineInit();
 
   if (ezCommandLineUtils::GetInstance()->GetBoolOption("-debug"))
