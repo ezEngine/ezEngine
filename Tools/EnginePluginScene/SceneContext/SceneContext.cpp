@@ -3,6 +3,9 @@
 #include <EnginePluginScene/SceneView/SceneView.h>
 
 #include <RendererCore/Meshes/MeshComponent.h>
+#include <RendererCore/Lights/PointLightComponent.h>
+#include <RendererCore/Lights/SpotLightComponent.h>
+#include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <GameUtils/Components/RotorComponent.h>
 #include <GameUtils/Components/SliderComponent.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
@@ -360,6 +363,9 @@ void ezSceneContext::OnInitialize()
   pWorld->CreateComponentManager<ezMeshComponentManager>();
   pWorld->CreateComponentManager<ezRotorComponentManager>();
   pWorld->CreateComponentManager<ezSliderComponentManager>();
+  pWorld->CreateComponentManager<ezPointLightComponentManager>();
+  pWorld->CreateComponentManager<ezSpotLightComponentManager>();
+  pWorld->CreateComponentManager<ezDirectionalLightComponentManager>();
 
   LoadShapeIconTextures();
 

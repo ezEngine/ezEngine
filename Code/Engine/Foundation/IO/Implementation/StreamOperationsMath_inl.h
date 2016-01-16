@@ -212,6 +212,20 @@ inline ezStreamReader& operator >> (ezStreamReader& Stream, ezColor& Value)
   return Stream;
 }
 
+// ezAngle
+inline ezStreamWriter& operator << (ezStreamWriter& Stream, const ezAngle& Value)
+{
+  Stream << Value.GetRadian();
+  return Stream;
+}
+
+inline ezStreamReader& operator >> (ezStreamReader& Stream, ezAngle& Value)
+{
+  float fRadian;
+  Stream >> fRadian;
+  Value.SetRadian(fRadian);
+  return Stream;
+}
 // ezColor8Unorm
 inline ezStreamWriter& operator << (ezStreamWriter& Stream, const ezColorLinearUB& Value)
 {
