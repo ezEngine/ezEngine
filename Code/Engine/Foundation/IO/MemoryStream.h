@@ -74,9 +74,14 @@ public:
   /// \brief Returns the total available bytes in the memory stream
   ezUInt32 GetByteCount() const; // [tested]
 
+  /// \brief Allows to set a string as the source of information in the memory stream for debug purposes.
+  void SetDebugSourceInformation( const char* szDebugSourceInformation );
+
 private:
   
   ezScopedRefPointer<ezMemoryStreamStorage> m_pStreamStorage;
+
+  ezString m_DebugSourceInformation;
 
   ezUInt32 m_uiReadPosition;
 };

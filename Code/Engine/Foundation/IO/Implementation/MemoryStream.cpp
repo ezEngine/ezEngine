@@ -56,6 +56,11 @@ ezUInt32 ezMemoryStreamReader::GetByteCount() const
 }
 
 
+void ezMemoryStreamReader::SetDebugSourceInformation( const char* szDebugSourceInformation )
+{
+  m_DebugSourceInformation = szDebugSourceInformation;
+}
+
 // Writer implementation
 ezMemoryStreamWriter::ezMemoryStreamWriter(ezMemoryStreamStorage* pStreamStorage)
   : m_pStreamStorage(pStreamStorage), m_uiWritePosition(0)

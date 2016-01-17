@@ -589,6 +589,8 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
 
   ezMemoryStreamStorage storage;
   ezMemoryStreamReader MemReader(&storage);
+  MemReader.SetDebugSourceInformation(assetInfo.m_sAbsolutePath);
+
   ezMemoryStreamWriter MemWriter(&storage);
 
   // compute the hash for the asset JSON file
