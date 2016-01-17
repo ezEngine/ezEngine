@@ -3,6 +3,13 @@
 #include <Core/World/World.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
+/// \brief Base class for light render data objects.
+class EZ_RENDERERCORE_DLL ezLightRenderData : public ezRenderData
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezLightRenderData, ezRenderData);
+};
+
+/// \brief Base class for all ez light components containing shared properties
 class EZ_RENDERERCORE_DLL ezLightComponent : public ezComponent
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezLightComponent, ezComponent);

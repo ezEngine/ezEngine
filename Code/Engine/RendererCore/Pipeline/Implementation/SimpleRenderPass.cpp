@@ -9,6 +9,7 @@
 #include <RendererFoundation/Resources/Texture.h>
 
 #include <RendererCore/Meshes/MeshRenderer.h>
+#include <RendererCore/Lights/LightGatheringRenderer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleRenderPass, 1, ezRTTIDefaultAllocator<ezSimpleRenderPass>);
   EZ_BEGIN_PROPERTIES
@@ -19,7 +20,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezSimpleRenderPass::ezSimpleRenderPass(const char* szName) : ezRenderPipelinePass(szName)
 {
-  AddRenderer( EZ_DEFAULT_NEW( ezMeshRenderer ) );
+  AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
+  AddRenderer(EZ_DEFAULT_NEW(ezLightGatheringRenderer));
 }
 
 ezSimpleRenderPass::~ezSimpleRenderPass()

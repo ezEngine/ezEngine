@@ -8,9 +8,9 @@ class ezDirectionalLightComponent;
 typedef ezComponentManager<ezDirectionalLightComponent> ezDirectionalLightComponentManager;
 
 /// \brief The render data object for directional lights.
-class EZ_RENDERERCORE_DLL ezDirectionalLightRenderData : public ezRenderData
+class EZ_RENDERERCORE_DLL ezDirectionalLightRenderData : public ezLightRenderData
 {
-	EZ_ADD_DYNAMIC_REFLECTION(ezDirectionalLightRenderData, ezRenderData);
+	EZ_ADD_DYNAMIC_REFLECTION(ezDirectionalLightRenderData, ezLightRenderData);
 
 public:
 	ezTransform m_GlobalTransform;

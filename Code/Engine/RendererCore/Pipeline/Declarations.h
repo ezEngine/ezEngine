@@ -67,6 +67,7 @@ typedef ezUInt32 ezRenderPassType;
 class EZ_RENDERERCORE_DLL ezDefaultPassTypes
 {
 public:
+  static ezRenderPassType LightGathering;
   static ezRenderPassType Opaque;
   static ezRenderPassType Masked;
   static ezRenderPassType Transparent;

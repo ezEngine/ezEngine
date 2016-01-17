@@ -8,9 +8,9 @@ class ezSpotLightComponent;
 typedef ezComponentManager<ezSpotLightComponent> ezSpotLightComponentManager;
 
 /// \brief The render data object for spot lights.
-class EZ_RENDERERCORE_DLL ezSpotLightRenderData : public ezRenderData
+class EZ_RENDERERCORE_DLL ezSpotLightRenderData : public ezLightRenderData
 {
-	EZ_ADD_DYNAMIC_REFLECTION(ezSpotLightRenderData, ezRenderData);
+	EZ_ADD_DYNAMIC_REFLECTION(ezSpotLightRenderData, ezLightRenderData);
 
 public:
 	ezTransform m_GlobalTransform;

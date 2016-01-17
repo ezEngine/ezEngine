@@ -12,6 +12,7 @@ EZ_STATICLINK_LIBRARY(RendererCore)
   EZ_STATICLINK_REFERENCE(RendererCore_Lights_Implementation_PointLightComponent);
   EZ_STATICLINK_REFERENCE(RendererCore_Lights_Implementation_SpotLightComponent);
   EZ_STATICLINK_REFERENCE(RendererCore_Lights_Implementation_DirectionalLightComponent);
+  EZ_STATICLINK_REFERENCE(RendererCore_Lights_Implementation_LightGatheringRenderer);
   EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_MeshBufferResource);
   EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_MeshComponent);
   EZ_STATICLINK_REFERENCE(RendererCore_Meshes_Implementation_MeshRenderer);

@@ -53,7 +53,7 @@ void ezDirectionalLightComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage
 void ezDirectionalLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg ) const
 {
   ezRenderPipeline* pRenderPipeline = msg.m_pView->GetRenderPipeline();
-  ezDirectionalLightRenderData* pRenderData = pRenderPipeline->CreateRenderData<ezDirectionalLightRenderData>( 0 /* TODO ? */, GetOwner() );
+  ezDirectionalLightRenderData* pRenderData = pRenderPipeline->CreateRenderData<ezDirectionalLightRenderData>(ezDefaultPassTypes::LightGathering, GetOwner());
 
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_LightColor = m_LightColor;

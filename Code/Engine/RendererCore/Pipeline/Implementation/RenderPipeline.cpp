@@ -812,6 +812,7 @@ ezRenderPassType ezRenderPipeline::FindOrRegisterPassType(const char* szPassType
   return newType;
 }
 
+ezRenderPassType ezDefaultPassTypes::LightGathering = ezRenderPipeline::FindOrRegisterPassType( "LightGathering" );
 ezRenderPassType ezDefaultPassTypes::Opaque = ezRenderPipeline::FindOrRegisterPassType("Opaque");
 ezRenderPassType ezDefaultPassTypes::Masked = ezRenderPipeline::FindOrRegisterPassType("Masked");
 ezRenderPassType ezDefaultPassTypes::Transparent = ezRenderPipeline::FindOrRegisterPassType("Transparent");
