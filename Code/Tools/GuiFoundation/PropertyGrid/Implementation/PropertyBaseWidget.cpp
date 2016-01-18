@@ -91,6 +91,8 @@ ezQtUnsupportedPropertyWidget::ezQtUnsupportedPropertyWidget(const char* szMessa
 
 void ezQtUnsupportedPropertyWidget::OnInit()
 {
+  QtScopedBlockSignals bs(m_pWidget);
+
   QString sMessage = QStringLiteral("Unsupported Type: ") % QString::fromUtf8(m_pProp->GetSpecificType()->GetTypeName());
   if (!m_sMessage.IsEmpty())
     sMessage += QStringLiteral(" (") % QString::fromUtf8(m_sMessage) % QStringLiteral(")");

@@ -11,7 +11,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLightComponent, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY( "Light Color", m_LightColor ),
-    EZ_MEMBER_PROPERTY( "Intensity", m_fIntensity ),
+    EZ_MEMBER_PROPERTY( "Intensity", m_fIntensity )->AddAttributes( new ezClampValueAttribute( 0.0f, ezVariant() ), new ezDefaultValueAttribute( 1.0f ) ),
     EZ_MEMBER_PROPERTY( "Cast Shadows", m_bCastShadows )
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();

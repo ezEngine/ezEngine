@@ -26,6 +26,8 @@ void ezQtDynamicEnumPropertyWidget::OnInit()
   const auto& denum = ezDynamicEnum::GetDynamicEnum(pAttr->GetDynamicEnumName());
   const auto& AllValues = denum.GetAllValidValues();
 
+  QtScopedBlockSignals bs(m_pWidget);
+
   for (auto it = AllValues.GetIterator(); it.IsValid(); ++it)
   {
     m_pWidget->addItem(QString::fromUtf8(it.Value().GetData()), it.Key());

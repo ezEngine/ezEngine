@@ -121,6 +121,8 @@ void ezPropertyEditorDoubleSpinboxWidget::OnInit()
     {
     case 1:
       {
+        QtScopedBlockSignals bs(m_pWidget[0]);
+
         if (pClamp->GetMinValue().CanConvertTo<double>())
         {
           m_pWidget[0]->setMinimum(pClamp->GetMinValue().ConvertTo<double>());
@@ -133,6 +135,8 @@ void ezPropertyEditorDoubleSpinboxWidget::OnInit()
       }
     case 2:
       {
+        QtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1]);
+
         if (pClamp->GetMinValue().CanConvertTo<ezVec2>())
         {
           ezVec2 value = pClamp->GetMinValue().ConvertTo<ezVec2>();
@@ -149,6 +153,8 @@ void ezPropertyEditorDoubleSpinboxWidget::OnInit()
       }
     case 3:
       {
+        QtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2]);
+
         if (pClamp->GetMinValue().CanConvertTo<ezVec3>())
         {
           ezVec3 value = pClamp->GetMinValue().ConvertTo<ezVec3>();
@@ -167,6 +173,8 @@ void ezPropertyEditorDoubleSpinboxWidget::OnInit()
       }
     case 4:
       {
+        QtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2], m_pWidget[3]);
+
         if (pClamp->GetMinValue().CanConvertTo<ezVec4>())
         {
           ezVec4 value = pClamp->GetMinValue().ConvertTo<ezVec4>();
@@ -306,6 +314,8 @@ void ezPropertyEditorIntSpinboxWidget::OnInit()
   const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>();
   if (pClamp)
   {
+    QtScopedBlockSignals bs(m_pWidget);
+
     if (pClamp->GetMinValue().CanConvertTo<ezInt32>())
     {
       m_pWidget->setMinimum(pClamp->GetMinValue().ConvertTo<ezInt32>());
@@ -440,6 +450,8 @@ void ezPropertyEditorLineEditWidget::OnInit()
   if (m_pProp->GetAttributeByType<ezReadOnlyAttribute>() != nullptr || m_pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
   {
     setEnabled(true);
+
+    QtScopedBlockSignals bs(m_pWidget);
 
     m_pWidget->setReadOnly(true);
     auto palette = m_pWidget->palette();
@@ -651,6 +663,8 @@ ezPropertyEditorEnumWidget::ezPropertyEditorEnumWidget() : ezQtStandardPropertyW
 void ezPropertyEditorEnumWidget::OnInit()
 {
   const ezRTTI* enumType = m_pProp->GetSpecificType();
+
+  QtScopedBlockSignals bs(m_pWidget);
 
   ezStringBuilder sTemp;
   const ezRTTI* pType = enumType;
