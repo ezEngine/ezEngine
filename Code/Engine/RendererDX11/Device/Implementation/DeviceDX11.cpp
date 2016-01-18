@@ -36,12 +36,16 @@ ezGALDeviceDX11::~ezGALDeviceDX11()
 
 ezResult ezGALDeviceDX11::InitPlatform()
 {
-  EZ_LOG_BLOCK("ezGALDeviceDX11::InitPlatform()");
+  EZ_LOG_BLOCK("ezGALDeviceDX11::InitPlatform");
 
   DWORD dwFlags = 0;
+
+retry:
   
-  if(m_Description.m_bDebugDevice)
+  if (m_Description.m_bDebugDevice)
     dwFlags |= D3D11_CREATE_DEVICE_DEBUG;
+  else
+    dwFlags &= ~D3D11_CREATE_DEVICE_DEBUG;
 
   D3D_FEATURE_LEVEL FeatureLevels[] =
   {
@@ -56,7 +60,7 @@ ezResult ezGALDeviceDX11::InitPlatform()
 
   // Manually step through feature levels - if a Win 7 system doesn't have the 11.1 runtime installed
   // The create device call will fail even though the 11.0 (or lower) level could've been
-  // intialized successfully
+  // initialized successfully
   int FeatureLevelIdx = 0;
   for (FeatureLevelIdx = 0; FeatureLevelIdx < EZ_ARRAY_SIZE(FeatureLevels); FeatureLevelIdx++)
   {
@@ -69,6 +73,14 @@ ezResult ezGALDeviceDX11::InitPlatform()
   // Nothing could be initialized:
   if (pImmediateContext == nullptr)
   {
+    if (m_Description.m_bDebugDevice)
+    {
+      ezLog::Error("Couldn't initialize D3D11 debug device!");
+
+      m_Description.m_bDebugDevice = false;
+      goto retry;
+    }
+
     ezLog::Error("Couldn't initialize D3D11 device!");
     return EZ_FAILURE;
   }
@@ -85,7 +97,7 @@ ezResult ezGALDeviceDX11::InitPlatform()
 
     EZ_CHECK_AT_COMPILETIME(EZ_ARRAY_SIZE(FeatureLevels) == EZ_ARRAY_SIZE(FeatureLevelNames));
 
-    ezLog::Info("Initialized D3D11 device with feature level %s.", FeatureLevelNames[FeatureLevelIdx]);
+    ezLog::Success("Initialized D3D11 device with feature level %s.", FeatureLevelNames[FeatureLevelIdx]);
   }
   
 
