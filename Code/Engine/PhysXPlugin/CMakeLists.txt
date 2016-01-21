@@ -44,12 +44,23 @@ SET (LINK_LIBRARIES
   # optimized PxTaskCHECKED
 )
 
-IF (NOT DEFINED BUILDSYSTEM_COMPILER_MSVC_110)
-  message (FATAL_ERROR "Unless you compile PhysX yourself from GitHub sources, PhysX will only compile and link on Visual Studio 2012.")
+SET (PHYSX_LIB_DIR "${EZ_PHYSX_DIR}/Lib")
+
+if (DEFINED BUILDSYSTEM_COMPILER_MSVC_110)
+  SET (PHYSX_LIB_DIR "${PHYSX_LIB_DIR}/vc11")
+endif()
+if (DEFINED BUILDSYSTEM_COMPILER_MSVC_120)
+  SET (PHYSX_LIB_DIR "${PHYSX_LIB_DIR}/vc12")
+endif()
+if (DEFINED BUILDSYSTEM_COMPILER_MSVC_140)
+  SET (PHYSX_LIB_DIR "${PHYSX_LIB_DIR}/vc14")
+endif()
+if (DEFINED BUILDSYSTEM_COMPILER_MSVC_150)
+  SET (PHYSX_LIB_DIR "${PHYSX_LIB_DIR}/vc15")
 endif()
 
 if (${BUILDSYSTEM_PLATFORM_64BIT})
-  link_directories ("${EZ_PHYSX_DIR}/Lib/vc11win64")
+  link_directories ("${PHYSX_LIB_DIR}win64")
 
   SET (LINK_LIBRARIES 
     ${LINK_LIBRARIES}
@@ -62,7 +73,7 @@ if (${BUILDSYSTEM_PLATFORM_64BIT})
   )
 
 else()
-  link_directories ("${EZ_PHYSX_DIR}/Lib/vc11win32")
+  link_directories ("${PHYSX_LIB_DIR}win32")
 
   SET (LINK_LIBRARIES 
     ${LINK_LIBRARIES}
