@@ -7,7 +7,7 @@
     "AssetType" : "Collision Mesh",
     "Dependencies" : "Sponza/sponza.obj",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x01DB0A2C49CA3142B10C450AF1B8FA1D" },
-    "Hash" : { "$t" : "uint64", "$v" : "17748112093155078299", "$b" : "0x9BB0524AEAF54DF6" }
+    "Hash" : { "$t" : "uint64", "$v" : "17063005448549518539", "$b" : "0xCB4C59410DF9CBEC" }
    }
   },
   {
@@ -24,6 +24,7 @@
    "p" : {
     "Forward Dir" : "ezBasisAxis::NegativeZ",
     "Mesh File" : "Sponza/sponza.obj",
+    "Mesh Type" : "ezCollisionMeshType::TriangleMesh",
     "Non-Uniform Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "Right Dir" : "ezBasisAxis::PositiveX",
     "Uniform Scaling" : { "$t" : "float", "$v" : "0.0100", "$b" : "0x0AD7233C" },
