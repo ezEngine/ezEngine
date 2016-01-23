@@ -183,7 +183,7 @@ public: // Properties
 
 private:
   virtual ezStatus DoInternal(bool bRedo) override;
-  virtual ezStatus UndoInternal(bool bFireEvents) override { return EZ_SUCCESS; }
+  virtual ezStatus UndoInternal(bool bFireEvents) override { return ezStatus(EZ_SUCCESS); }
   virtual void CleanupInternal(CommandState state) override { }
 
   ezDocumentObject* m_pObject;
