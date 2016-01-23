@@ -37,7 +37,7 @@ void ezMaterialAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMana
 
 ezStatus ezMaterialAssetDocumentManager::InternalCanOpenDocument(const char* szDocumentTypeName, const char* szFilePath) const
 {
-  return EZ_SUCCESS;
+  return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezMaterialAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)

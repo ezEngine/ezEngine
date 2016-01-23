@@ -142,7 +142,7 @@ ezStatus ezAssetDocument::TransformAsset(const char* szPlatform)
   {
     auto res = SaveDocument().m_Result;
     if (res.Failed())
-      return res;
+      return ezStatus(res);
   }
 
   ezString sPlatform = szPlatform;

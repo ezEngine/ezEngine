@@ -37,7 +37,7 @@ void ezRenderPipelineAssetManager::OnDocumentManagerEvent(const ezDocumentManage
 
 ezStatus ezRenderPipelineAssetManager::InternalCanOpenDocument(const char* szDocumentTypeName, const char* szFilePath) const
 {
-  return EZ_SUCCESS;
+  return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezRenderPipelineAssetManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)

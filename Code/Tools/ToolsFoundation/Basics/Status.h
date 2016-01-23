@@ -6,19 +6,19 @@
 
 struct EZ_TOOLSFOUNDATION_DLL ezStatus
 {
-  ezStatus() : m_Result(EZ_FAILURE)
+  explicit ezStatus() : m_Result(EZ_FAILURE)
   {
   }
 
-  ezStatus(ezResult res, ezStringView sError) : m_Result(res), m_sError(sError)
+  explicit ezStatus(ezResult res, ezStringView sError) : m_Result(res), m_sError(sError)
   {
   }
 
-  ezStatus(ezResult r) : m_Result(r)
+  explicit ezStatus(ezResult r) : m_Result(r)
   {
   }
 
-  ezStatus(const char* szError, ...) : m_Result(EZ_FAILURE)
+  explicit ezStatus(const char* szError, ...) : m_Result(EZ_FAILURE)
   {
     va_list args;
     va_start(args, szError);
