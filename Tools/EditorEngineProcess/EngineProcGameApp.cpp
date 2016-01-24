@@ -1,57 +1,43 @@
 #include <PCH.h>
-#include <EditorEngineProcess/GameApplication.h>
+#include <EditorEngineProcess/EngineProcGameApp.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
+#include <Foundation/Configuration/Startup.h>
 
-ezEngineProcessGameApplication::ezEngineProcessGameApplication() : ezGameApplication()
+ezEngineProcessGameApplication::ezEngineProcessGameApplication() 
+  : ezGameApplication(ezGameApplicationType::EmbeddedInTool, nullptr)
 {
   m_pApp = nullptr;
 }
 
-void ezEngineProcessGameApplication::BeforeEngineInit()
+void ezEngineProcessGameApplication::BeforeCoreStartup()
 {
   int argc = GetArgumentCount();
   const char** argv = GetArgumentsArray();
   m_pApp = new QApplication(argc, (char**)argv);
+
+  ezGameApplication::BeforeCoreStartup();
 }
 
-void ezEngineProcessGameApplication::AfterEngineInit()
+void ezEngineProcessGameApplication::AfterCoreStartup()
 {
-  ezGameApplication::AfterEngineInit();
+  // skip project creation at this point
+  //ezGameApplication::AfterCoreStartup();
 
-  if (ezCommandLineUtils::GetInstance()->GetBoolOption("-debug"))
-  {
-    while (!IsDebuggerPresent())
-    {
-      ezThreadUtils::Sleep(10);
-    }
-  }
+  WaitForDebugger();
 
-  ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezEngineProcessGameApplication::LogWriter, this));
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  // Setting this flags prevents Windows from showing a dialog when the Engine process crashes
-  // this also speeds up process termination significantly (down to less than a second)
-  DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
-  SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
-#endif
-
-  {
-    ezStringBuilder sAppDir = ezOSFile::GetApplicationDirectory();
-    sAppDir.AppendPath("../../../Shared/Tools/EditorEngineProcess");
-
-    ezOSFile osf;
-    osf.CreateDirectoryStructure(sAppDir);
-
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-    ezFileSystem::AddDataDirectory("", ezFileSystem::AllowWrites, "App"); // for absolute paths
-    ezFileSystem::AddDataDirectory(sAppDir.GetData(), ezFileSystem::AllowWrites, "App"); // for everything relative
-  }
+  DisableErrorReport();
 
   ezTaskSystem::SetTargetFrameTime(1000.0 / 10.0);
 
+  ConnectToHost();
+}
+
+
+void ezEngineProcessGameApplication::ConnectToHost()
+{
   EZ_VERIFY(m_IPC.ConnectToHostProcess().Succeeded(), "Could not connect to host");
 
   m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerIPC, this));
@@ -63,17 +49,38 @@ void ezEngineProcessGameApplication::AfterEngineInit()
   SendReflectionInformation();
 }
 
-void ezEngineProcessGameApplication::BeforeEngineShutdown()
+void ezEngineProcessGameApplication::DisableErrorReport()
+{
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  // Setting this flags prevents Windows from showing a dialog when the Engine process crashes
+  // this also speeds up process termination significantly (down to less than a second)
+  DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
+  SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
+#endif
+}
+
+void ezEngineProcessGameApplication::WaitForDebugger()
+{
+  if (ezCommandLineUtils::GetInstance()->GetBoolOption("-debug"))
+  {
+    while (!IsDebuggerPresent())
+    {
+      ezThreadUtils::Sleep(10);
+    }
+  }
+}
+
+void ezEngineProcessGameApplication::BeforeCoreShutdown()
 {
   m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerIPC, this));
 
-  ezGlobalLog::RemoveLogWriter(ezMakeDelegate(&ezEngineProcessGameApplication::LogWriter, this));
-
-  ezGameApplication::BeforeEngineShutdown();
+  ezGameApplication::BeforeCoreShutdown();
 }
 
-void ezEngineProcessGameApplication::AfterEngineShutdown()
+void ezEngineProcessGameApplication::AfterCoreShutdown()
 {
+  ezGameApplication::AfterCoreShutdown();
+
   delete m_pApp;
 }
 
@@ -86,11 +93,6 @@ ezApplication::ApplicationExecution ezEngineProcessGameApplication::Run()
   if (ezRenderLoop::GetMainViews().GetCount() > 0)
   {
     UpdateWorldsAndRender();
-  }
-  else
-  {
-    /// \todo This is not so good
-    //ezThreadUtils::Sleep(1);
   }
 
   return WasQuitRequested() ? ezApplication::Quit : ezApplication::Continue;
@@ -158,10 +160,15 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezProcessCommunicatio
     const ezSetupProjectMsgToEngine* pSetupMsg = static_cast<const ezSetupProjectMsgToEngine*>(e.m_pMessage);
     ezSetupProjectMsgToEngine* pSetupMsgNonConst = const_cast<ezSetupProjectMsgToEngine*>(pSetupMsg);
 
-    ezApplicationConfig::SetProjectDirectory(pSetupMsg->m_sProjectDir);
+    m_sProjectDirectory = pSetupMsg->m_sProjectDir;
+    m_CustomFileSystemConfig = pSetupMsgNonConst->m_FileSystemConfig;
+    m_CustomPluginConfig = pSetupMsgNonConst->m_PluginConfig;
 
-    pSetupMsgNonConst->m_FileSystemConfig.Apply();
-    pSetupMsgNonConst->m_PluginConfig.Apply();
+    // now that we know which project to initialize, do the delayed project setup
+    {
+      DoProjectSetup();
+      ezStartup::StartupEngine();
+    }
 
     // Project setup, we are now ready to accept document messages.
     SendProjectReadyMessage();
@@ -256,6 +263,45 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
 
   m_IPC.SendMessage(&m);
   return pDocumentContext;
+}
+
+void ezEngineProcessGameApplication::DoLoadPluginsFromConfig()
+{
+  m_CustomPluginConfig.SetOnlyLoadManualPlugins(false); // we also want to load editor plugin dependencies
+  m_CustomPluginConfig.Apply();
+}
+
+
+ezString ezEngineProcessGameApplication::FindProjectDirectory() const
+{
+  return m_sProjectDirectory;
+}
+
+void ezEngineProcessGameApplication::DoSetupDataDirectories()
+{
+  ezStringBuilder sAppDir = ezOSFile::GetApplicationDirectory();
+  sAppDir.AppendPath("../../../Shared/Tools/EditorEngineProcess");
+
+  ezOSFile osf;
+  osf.CreateDirectoryStructure(sAppDir);
+
+  ezFileSystem::AddDataDirectory(sAppDir.GetData(), ezFileSystem::AllowWrites, "App"); // for everything relative
+
+  m_CustomFileSystemConfig.Apply();
+}
+
+void ezEngineProcessGameApplication::DoSetupLogWriters()
+{
+  ezGameApplication::DoSetupLogWriters();
+
+  ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezEngineProcessGameApplication::LogWriter, this));
+}
+
+void ezEngineProcessGameApplication::DoShutdownLogWriters()
+{
+  ezGameApplication::DoShutdownLogWriters();
+
+  ezGlobalLog::RemoveLogWriter(ezMakeDelegate(&ezEngineProcessGameApplication::LogWriter, this));
 }
 
 

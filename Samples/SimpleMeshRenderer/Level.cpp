@@ -15,7 +15,7 @@
 #include "GameState.h"
 #include "Window.h"
 
-void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV)
+void SimpleMeshRendererGameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV)
 {
   m_pWorld = EZ_DEFAULT_NEW(ezWorld, "Level");
   EZ_LOCK(m_pWorld->GetWriteMarker());
@@ -114,7 +114,7 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBa
   m_pView->SetLogicCamera(&m_Camera);
 }
 
-void GameState::DestroyGameLevel()
+void SimpleMeshRendererGameState::DestroyGameLevel()
 {
   EZ_DEFAULT_DELETE(m_pWorld);
 }

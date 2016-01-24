@@ -17,7 +17,10 @@
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
-GameState::GameState()
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SimpleMeshRendererGameState, 1, ezRTTIDefaultAllocator<SimpleMeshRendererGameState>);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+SimpleMeshRendererGameState::SimpleMeshRendererGameState()
 {
   m_pWindow = nullptr;
   m_pRenderPipeline = nullptr;
@@ -25,26 +28,14 @@ GameState::GameState()
   m_pView = nullptr;
 }
 
-void GameState::Activate()
+ezGameStateCanHandleThis SimpleMeshRendererGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const
 {
-  EZ_LOG_BLOCK("GameState::Activate");
+  return ezGameStateCanHandleThis::Yes;
+}
 
-  ezStringBuilder sBaseDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sBaseDir.AppendPath("../../Shared/Data/");
-
-  ezStringBuilder sSharedDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sSharedDir.AppendPath("../../Shared/FreeContent/");
-
-  ezStringBuilder sProjectDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sProjectDir.AppendPath("../../Shared/Samples/SimpleMeshRenderer");
-
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-  ezFileSystem::AddDataDirectory("");
-  ezFileSystem::AddDataDirectory(sBaseDir.GetData(), ezFileSystem::ReadOnly, "Base");
-  ezFileSystem::AddDataDirectory(sSharedDir.GetData(), ezFileSystem::ReadOnly, "Shared");
-  ezFileSystem::AddDataDirectory(sProjectDir.GetData(), ezFileSystem::AllowWrites, "Project");
-
-  GetApplication()->SetupProject(sProjectDir);
+void SimpleMeshRendererGameState::Activate()
+{
+  EZ_LOG_BLOCK("SimpleMeshRendererGameState::Activate");
 
   m_pWindow = EZ_DEFAULT_NEW(GameWindow);
   ezGALSwapChainHandle hSwapChain = GetApplication()->AddWindow(m_pWindow);
@@ -56,13 +47,13 @@ void GameState::Activate()
   CreateGameLevelAndRenderPipeline(pSwapChain->GetBackBufferRenderTargetView(), pSwapChain->GetDepthStencilTargetView());
 }
 
-void GameState::Deactivate()
+void SimpleMeshRendererGameState::Deactivate()
 {
-  EZ_LOG_BLOCK("GameState::Deactivate");
+  EZ_LOG_BLOCK("SimpleMeshRendererGameState::Deactivate");
 
   DestroyGameLevel();
 
   EZ_DEFAULT_DELETE(m_pWindow);
 }
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezGameApplication);
+EZ_CONSOLEAPP_ENTRY_POINT(ezGameApplication, ezGameApplicationType::StandAlone, "Shared/Samples/SimpleMeshRenderer");

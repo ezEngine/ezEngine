@@ -30,12 +30,12 @@ EZ_CORE_DLL void ezRun(ezApplication* pApplicationInstance);
 ///   {
 ///   public:
 ///   
-///     virtual void AfterEngineInit() override
+///     virtual void AfterCoreStartup() override
 ///     {
 ///       // Setup Filesystem, Logging, etc.
 ///     }
 ///   
-///     virtual void BeforeEngineShutdown() override
+///     virtual void BeforeCoreShutdown() override
 ///     {
 ///       // Close log file, etc.
 ///     }
@@ -81,7 +81,7 @@ public:
   /// Override this function to be able to configure subsystems, before they are initialized.
   /// After this function returns, ezStartup::StartupCore() is automatically called.
   /// If you need to set up custom allocators, this is the place to do this.
-  virtual void BeforeEngineInit()
+  virtual void BeforeCoreStartup()
   {
   }
 
@@ -90,7 +90,7 @@ public:
   /// ezApplication will automatically call ezStartup::StartupCore() to initialize the application.
   /// This function can be overridden to do additional application specific initialization.
   /// To startup entire subsystems, you should however use the features provided by ezStartup and ezSubSystem.
-  virtual void AfterEngineInit()
+  virtual void AfterCoreStartup()
   {
   }
 
@@ -99,14 +99,14 @@ public:
   /// Override this function to do application specific deinitialization that still requires a running engine.
   /// After this function returns ezStartup::ShutdownBase() is called and thus everything, including allocators, is shut down.
   /// To shut down entire subsystems, you should however use the features provided by ezStartup and ezSubSystem.
-  virtual void BeforeEngineShutdown()
+  virtual void BeforeCoreShutdown()
   {
   }
 
   /// \brief This function is called after ezStartup::ShutdownBase() has been called.
   ///
   /// It is unlikely that there is any kind of deinitialization left, that can still be run at this point.
-  virtual void AfterEngineShutdown()
+  virtual void AfterCoreShutdown()
   {
   }
 

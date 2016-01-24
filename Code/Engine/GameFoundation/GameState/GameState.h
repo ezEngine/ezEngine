@@ -1,20 +1,29 @@
 #pragma once
 
 #include <GameFoundation/Basics.h>
+#include <GameFoundation/Declarations.h>
 
 #include <Foundation/Reflection/Reflection.h>
 
-class ezGameApplication;
+enum class ezGameStateCanHandleThis
+{
+  No,
+  Yes,
+  AsFallback,
+};
+
 
 class EZ_GAMEFOUNDATION_DLL ezGameState : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezGameState, ezReflectedClass)
 
 protected:
-  ezGameState() : m_pApplication(nullptr) { }
+  ezGameState();
 
 public:
-  virtual ~ezGameState() { }
+  virtual ~ezGameState();
+
+  virtual void ProcessInput() { }
 
   virtual void Activate() { }
   virtual void Deactivate() { }
@@ -26,6 +35,8 @@ public:
   {
     return m_pApplication;
   }
+
+  virtual ezGameStateCanHandleThis CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const = 0;
 
 private:
   friend class ezGameApplication;

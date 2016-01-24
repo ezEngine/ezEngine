@@ -21,7 +21,7 @@
 
 #include <GameFoundation/GameApplication.h>
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezGameApplication);
+EZ_CONSOLEAPP_ENTRY_POINT(ezGameApplication, ezGameApplicationType::StandAlone, "Shared/Samples/Asteroids");
 
 const char* szPlayerActions[MaxPlayerActions] = { "Forwards", "Backwards", "Left", "Right", "RotLeft", "RotRight", "Shoot" };
 const char* szControlerKeys[MaxPlayerActions] = { "leftstick_posy", "leftstick_negy", "leftstick_negx", "leftstick_posx", "rightstick_negx", "rightstick_posx", "right_trigger" };
@@ -57,31 +57,6 @@ AsteroidGameState::AsteroidGameState()
 void AsteroidGameState::Activate()
 {
   EZ_LOG_BLOCK("AsteroidGameState::Activate");
-
-  ezStringBuilder sBaseDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sBaseDir.AppendPath("../../Shared/Data/");
-
-  ezStringBuilder sSharedDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sSharedDir.AppendPath("../../Shared/FreeContent/");
-
-  ezStringBuilder sProjectDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sProjectDir.AppendPath("../../Shared/Samples/Asteroids");
-
-  // setup the 'asset management system'
-  {
-    // which redirection table to search
-    ezDataDirectory::FolderType::s_sRedirectionFile = "AssetCache/LookupTable.ezAsset";
-    // which platform assets to use
-    ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/PC/";
-  }
-
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-  ezFileSystem::AddDataDirectory("");
-  ezFileSystem::AddDataDirectory(sBaseDir.GetData(), ezFileSystem::ReadOnly, "Base");
-  ezFileSystem::AddDataDirectory(sSharedDir.GetData(), ezFileSystem::ReadOnly, "Shared");
-  ezFileSystem::AddDataDirectory(sProjectDir.GetData(), ezFileSystem::AllowWrites, "Project");
-
-  GetApplication()->SetupProject(sProjectDir);
 
   m_pWindow = EZ_DEFAULT_NEW(GameWindow);
   ezGALSwapChainHandle hSwapChain = GetApplication()->AddWindow(m_pWindow);
@@ -255,4 +230,9 @@ void AsteroidGameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHa
 void AsteroidGameState::DestroyLevel()
 {
   EZ_DEFAULT_DELETE(m_pLevel);
+}
+
+ezGameStateCanHandleThis AsteroidGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const
+{
+  return ezGameStateCanHandleThis::Yes;
 }

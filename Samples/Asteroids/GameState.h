@@ -22,6 +22,8 @@ private:
   void CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV);
   void DestroyLevel();
 
+  virtual ezGameStateCanHandleThis CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const override;
+
   Level* m_pLevel;
   GameWindow* m_pWindow;
 

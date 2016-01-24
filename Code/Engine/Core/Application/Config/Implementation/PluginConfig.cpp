@@ -7,19 +7,19 @@
 #include <Foundation/Configuration/Plugin.h>
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationPluginConfig, ezApplicationConfig, 1, ezRTTIDefaultAllocator<ezApplicationPluginConfig>);
-  EZ_BEGIN_PROPERTIES
-    EZ_ARRAY_MEMBER_PROPERTY("Plugins", m_Plugins),
-  EZ_END_PROPERTIES
+EZ_BEGIN_PROPERTIES
+EZ_ARRAY_MEMBER_PROPERTY("Plugins", m_Plugins),
+EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationPluginConfig_PluginConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezApplicationPluginConfig_PluginConfig>);
-  EZ_BEGIN_PROPERTIES
-    EZ_MEMBER_PROPERTY("RelativePath", m_sRelativePath),
-  EZ_END_PROPERTIES
+EZ_BEGIN_PROPERTIES
+EZ_MEMBER_PROPERTY("RelativePath", m_sRelativePath),
+EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 
 
-  bool ezApplicationPluginConfig::PluginConfig::operator<(const PluginConfig& rhs) const
+bool ezApplicationPluginConfig::PluginConfig::operator<(const PluginConfig& rhs) const
 {
   return m_sRelativePath < rhs.m_sRelativePath;
 }
@@ -87,6 +87,12 @@ bool ezApplicationPluginConfig::RemovePlugin(const PluginConfig& cfg0)
   }
 
   return false;
+}
+
+
+ezApplicationPluginConfig::ezApplicationPluginConfig()
+{
+  m_bManualOnly = true;
 }
 
 ezResult ezApplicationPluginConfig::Save()
@@ -162,7 +168,7 @@ void ezApplicationPluginConfig::Load()
   }
 
   const auto& tree = json.GetTopLevelObject();
-  
+
   ezVariant* dirs;
   if (!tree.TryGetValue("Plugins", dirs) || !dirs->IsA<ezVariantArray>())
   {
@@ -208,6 +214,13 @@ void ezApplicationPluginConfig::Apply()
 
   for (const auto& var : m_Plugins)
   {
+    if (m_bManualOnly)
+    {
+      if (!var.m_sDependecyOf.Contains("<manual>"))
+        continue;
+    }
+
+
     ezPlugin::LoadPlugin(var.m_sRelativePath);
   }
 

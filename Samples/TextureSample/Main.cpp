@@ -80,7 +80,7 @@ public:
     m_vCameraPosition.SetZero();
   }
 
-  void AfterEngineInit() override
+  void AfterCoreStartup() override
   {
     ezStringBuilder sBaseDir = BUILDSYSTEM_OUTPUT_FOLDER;
     sBaseDir.AppendPath("../../Shared/Data/");
@@ -364,7 +364,7 @@ public:
     return ezApplication::Continue;
   }
 
-  void BeforeEngineShutdown() override
+  void BeforeCoreShutdown() override
   {
     m_hMaterial.Invalidate();
     m_hQuadMeshBuffer.Invalidate();

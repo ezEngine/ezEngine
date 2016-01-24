@@ -6,22 +6,24 @@
 
 class GameWindow;
 
-class GameState : public ezGameState
+class SimpleMeshRendererGameState : public ezGameState
 {
+  EZ_ADD_DYNAMIC_REFLECTION(SimpleMeshRendererGameState, ezGameState);
+
 public:
-  GameState();
+  SimpleMeshRendererGameState();
 
 private:
   virtual void Activate() override;
   virtual void Deactivate() override;
-  virtual void BeforeWorldUpdate() override;
-  
-  void UpdateInputSystem(ezTime UpdateDiff);
-  void UpdateGameInput();
   
   void SetupInput();
   void CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV);
   void DestroyGameLevel();
+
+  virtual void ProcessInput() override;
+
+  virtual ezGameStateCanHandleThis CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const override;
 
   GameWindow* m_pWindow;
 

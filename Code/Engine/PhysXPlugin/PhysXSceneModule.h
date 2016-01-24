@@ -3,7 +3,7 @@
 #include <PhysXPlugin/Basics.h>
 #include <PhysXPlugin/PluginInterface.h>
 #include <Foundation/Configuration/Plugin.h>
-#include <Core/Scene/SceneModule.h>
+#include <GameFoundation/GameApplication/WorldModule.h>
 #include <GameUtils/Surfaces/SurfaceResource.h>
 #include <GameUtils/CollisionFilter/CollisionFilter.h>
 
@@ -66,9 +66,9 @@ private:
 };
 
 
-class EZ_PHYSXPLUGIN_DLL ezPhysXSceneModule : public ezSceneModule
+class EZ_PHYSXPLUGIN_DLL ezPhysXSceneModule : public ezWorldModule
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPhysXSceneModule, ezSceneModule);
+  EZ_ADD_DYNAMIC_REFLECTION(ezPhysXSceneModule, ezWorldModule);
 
 public:
   ezPhysXSceneModule() {}

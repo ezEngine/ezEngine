@@ -9,10 +9,10 @@
 #include <GameUtils/Components/RotorComponent.h>
 #include <GameUtils/Components/SliderComponent.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
-#include <Core/Scene/Scene.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
+#include <GameFoundation/GameApplication.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>);
   EZ_BEGIN_PROPERTIES
@@ -45,9 +45,7 @@ void ezSceneContext::ComputeSelectionBounds()
 
   m_SelectionBBoxes.Clear();
 
-  auto pWorld = GetScene()->GetWorld();
-
-  EZ_LOCK(pWorld->GetReadMarker());
+  EZ_LOCK(m_pWorld->GetReadMarker());
 
   for (const auto& obj : m_Selection)
   {
@@ -55,7 +53,7 @@ void ezSceneContext::ComputeSelectionBounds()
     bounds.SetInvalid();
 
     ezGameObject* pObj;
-    if (!pWorld->TryGetObject(obj, pObj))
+    if (!m_pWorld->TryGetObject(obj, pObj))
       continue;
 
     ComputeHierarchyBounds(pObj, bounds);
@@ -88,19 +86,19 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     m_bRenderShapeIcons = msg->m_bRenderShapeIcons;
     //m_bRenderSelectionBoxes = msg->m_bRenderSelectionBoxes;
 
-    if (bSimulate != GetScene()->GetWorld()->GetWorldSimulationEnabled())
+    if (bSimulate != m_pWorld->GetWorldSimulationEnabled())
     {
       ezLog::Info("World Simulation %s", bSimulate ? "enabled" : "disabled");
-      GetScene()->GetWorld()->SetWorldSimulationEnabled(bSimulate);
+      m_pWorld->SetWorldSimulationEnabled(bSimulate);
 
       if (bSimulate)
       {
-        GetScene()->ReinitSceneModules();
+        ezGameApplication::GetGameApplicationInstance()->ReinitWorldModules(m_pWorld);
       }
     }
 
-    GetScene()->GetWorld()->GetClock().SetSpeed(msg->m_fSimulationSpeed);
-    GetScene()->Update();
+    m_pWorld->GetClock().SetSpeed(msg->m_fSimulationSpeed);
+    ezGameApplication::GetGameApplicationInstance()->UpdateWorldModules(m_pWorld);
 
     return;
   }
@@ -144,13 +142,12 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
   bounds.SetInvalid();
 
   {
-    auto pWorld = GetScene()->GetWorld();
-    EZ_LOCK(pWorld->GetReadMarker());
+    EZ_LOCK(m_pWorld->GetReadMarker());
 
     for (const auto& obj : m_Selection)
     {
       ezGameObject* pObj;
-      if (!pWorld->TryGetObject(obj, pObj))
+      if (!m_pWorld->TryGetObject(obj, pObj))
         continue;
 
       ComputeHierarchyBounds(pObj, bounds);
@@ -162,7 +159,7 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
       for (const auto& obj : m_Selection)
       {
         ezGameObject* pObj;
-        if (!pWorld->TryGetObject(obj, pObj))
+        if (!m_pWorld->TryGetObject(obj, pObj))
           continue;
 
         bounds.ExpandToInclude(ezBoundingBoxSphere(pObj->GetGlobalPosition(), ezVec3(0.5f), 0.5f));
@@ -189,13 +186,12 @@ void ezSceneContext::SetSelectionTag(bool bAddTag)
   ezTag tagSel;
   ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorSelected", &tagSel);
 
-  auto pWorld = GetScene()->GetWorld();
-  EZ_LOCK(pWorld->GetReadMarker());
+  EZ_LOCK(m_pWorld->GetReadMarker());
 
   for (auto& obj : m_Selection)
   {
     ezGameObject* pObj;
-    if (!pWorld->TryGetObject(obj, pObj))
+    if (!m_pWorld->TryGetObject(obj, pObj))
       continue;
 
     if (bAddTag)
@@ -225,8 +221,7 @@ void ezSceneContext::GenerateShapeIconMesh()
   }
 
   {
-    const ezWorld* world = m_pScene->GetWorld();
-    EZ_LOCK(world->GetReadMarker());
+    EZ_LOCK(m_pWorld->GetReadMarker());
 
     auto& tagReg = ezTagRegistry::GetGlobalRegistry();
     ezTag tagHidden;
@@ -235,7 +230,7 @@ void ezSceneContext::GenerateShapeIconMesh()
     ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tagEditor);
 
     ezUInt32 obj = 0;
-    for (auto it = world->GetObjects(); it.IsValid(); ++it)
+    for (auto it = m_pWorld->GetObjects(); it.IsValid(); ++it)
     {
       if (it->GetComponents().IsEmpty())
         continue;
@@ -356,7 +351,7 @@ void ezSceneContext::RenderSelectionBoxes(ezRenderContext* pContext)
 
 void ezSceneContext::OnInitialize()
 {
-  auto pWorld = GetScene()->GetWorld();
+  auto pWorld = m_pWorld;
   EZ_LOCK(pWorld->GetWriteMarker());
 
   /// \todo Plugin concept to allow custom initialization
@@ -404,7 +399,7 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
   ezStringBuilder sSel = pMsg->m_sSelection;
   ezStringBuilder sGuid;
 
-  auto pWorld = GetScene()->GetWorld();
+  auto pWorld = m_pWorld;
   EZ_LOCK(pWorld->GetReadMarker());
 
   while (!sSel.IsEmpty())

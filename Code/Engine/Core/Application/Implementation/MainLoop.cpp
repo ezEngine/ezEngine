@@ -12,25 +12,25 @@ void ezRun(ezApplication* pApplicationInstance)
   // Set application instance pointer to the supplied instance
   ezApplication::s_pApplicationInstance = pApplicationInstance;
 
-  pApplicationInstance->BeforeEngineInit();
+  pApplicationInstance->BeforeCoreStartup();
 
   // this will startup all base and core systems
   // 'EngineStartup' must not be done before a window is available (if at all)
   // so we don't do that here
   ezStartup::StartupCore();
 
-  pApplicationInstance->AfterEngineInit();
+  pApplicationInstance->AfterCoreStartup();
 
 
   while (pApplicationInstance->Run() == ezApplication::Continue)
   {
   }
 
-  pApplicationInstance->BeforeEngineShutdown();
+  pApplicationInstance->BeforeCoreShutdown();
 
   ezStartup::ShutdownCore();
 
-  pApplicationInstance->AfterEngineShutdown();
+  pApplicationInstance->AfterCoreShutdown();
 
   // Reset application instance so code running after the app will trigger asserts etc. to be cleaned up
   // Destructor is called by entry point function

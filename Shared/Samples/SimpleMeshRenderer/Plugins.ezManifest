@@ -1,0 +1,10 @@
+{
+  "Plugins" : [ {
+      "Path" : "ezEnginePluginScene",
+      "DependencyOf" : [ "EditorPluginScene" ]
+    },
+    {
+      "Path" : "ezFmodPlugin",
+      "DependencyOf" : [ "<manual>", "EditorPluginFmod" ]
+    } ]
+}

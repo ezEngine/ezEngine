@@ -4,11 +4,11 @@
 #include <FmodPlugin/PluginInterface.h>
 #include <FmodPlugin/FmodSingleton.h>
 #include <Foundation/Configuration/Plugin.h>
-#include <Core/Scene/SceneModule.h>
+#include <GameFoundation/GameApplication/WorldModule.h>
 
-class EZ_FMODPLUGIN_DLL ezFmodSceneModule : public ezSceneModule
+class EZ_FMODPLUGIN_DLL ezFmodSceneModule : public ezWorldModule
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezFmodSceneModule, ezSceneModule);
+  EZ_ADD_DYNAMIC_REFLECTION(ezFmodSceneModule, ezWorldModule);
 
 public:
   ezFmodSceneModule() {}

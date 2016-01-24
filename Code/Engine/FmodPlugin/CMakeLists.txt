@@ -36,6 +36,7 @@ SET (LINK_LIBRARIES
   Core
   CoreUtils
   GameUtils
+  GameFoundation
 )
 
 if (${BUILDSYSTEM_PLATFORM_64BIT})

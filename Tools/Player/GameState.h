@@ -3,7 +3,6 @@
 #include <CoreUtils/Graphics/Camera.h>
 #include <RendererCore/Pipeline/View.h>
 #include <GameFoundation/GameApplication.h>
-#include <Core/Scene/Scene.h>
 
 class GameWindow;
 

@@ -3,7 +3,6 @@
 #include <FmodPlugin/Basics.h>
 #include <FmodPlugin/PluginInterface.h>
 #include <Foundation/Configuration/Plugin.h>
-#include <Core/Scene/SceneModule.h>
 
 class EZ_FMODPLUGIN_DLL ezFmod : public ezFmodInterface
 {

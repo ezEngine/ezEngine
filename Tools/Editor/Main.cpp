@@ -16,12 +16,12 @@ public:
     m_pEditorApp = new ezQtEditorApp;
   }
 
-  virtual void BeforeEngineInit() override
+  virtual void BeforeCoreStartup() override
   {
     ezQtEditorApp::GetInstance()->InitQt(GetArgumentCount(), (char**)GetArgumentsArray());
   }
 
-  virtual void AfterEngineShutdown() override
+  virtual void AfterCoreShutdown() override
   {
     ezQtEditorApp::GetInstance()->DeInitQt();
 

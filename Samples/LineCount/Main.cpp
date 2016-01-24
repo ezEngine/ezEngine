@@ -179,7 +179,7 @@ public:
     m_szSearchDir = "";
   }
 
-  virtual void AfterEngineInit() override
+  virtual void AfterCoreStartup() override
   {
     // pass the absolute path to the directory that should be scanned as the first parameter to this application
     if (GetArgumentCount() >= 2)
@@ -211,7 +211,7 @@ public:
     ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &g_HtmlLog));
   }
 
-  virtual void BeforeEngineShutdown() override
+  virtual void BeforeCoreShutdown() override
   {
     // close the HTML log, from now on no more log messages are written to the file
     g_HtmlLog.EndLog();

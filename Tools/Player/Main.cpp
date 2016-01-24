@@ -46,7 +46,7 @@ void ezPlayerGameState::Activate()
     ezLog::Error("No project directory could be found for scene file '%s'", sSceneFile.GetData());
   }
 
-  GetApplication()->SetupProject(sProjectDir);
+  //GetApplication()->SetupProject(sProjectDir);
 
   m_pWindow = EZ_DEFAULT_NEW(GameWindow);
   ezGALSwapChainHandle hSwapChain = GetApplication()->AddWindow(m_pWindow);
@@ -69,4 +69,4 @@ void ezPlayerGameState::Deactivate()
   EZ_DEFAULT_DELETE(m_pWindow);
 }
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezGameApplication);
+EZ_CONSOLEAPP_ENTRY_POINT(ezGameApplication, ezGameApplicationType::StandAlone);

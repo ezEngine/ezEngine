@@ -14,16 +14,26 @@ public:
   ezEngineProcessGameApplication();
 
 
-  virtual void BeforeEngineInit() override;
-  virtual void AfterEngineInit() override;
-  virtual void BeforeEngineShutdown() override;
-  virtual void AfterEngineShutdown() override;
+  virtual void BeforeCoreStartup() override;
+  virtual void AfterCoreStartup() override;
+
+  virtual void BeforeCoreShutdown() override;
+  virtual void AfterCoreShutdown() override;
 
   virtual ezApplication::ApplicationExecution Run() override;
 
   void LogWriter(const ezLoggingEventData & e);
 
+protected:
+  virtual void DoSetupLogWriters() override;
+  virtual void DoShutdownLogWriters() override;
+  virtual void DoSetupDataDirectories() override;
+
 private:
+  void ConnectToHost();
+  void DisableErrorReport();
+  void WaitForDebugger();
+
   void ProcessIPCMessages();
   void SendProjectReadyMessage();
   void SendReflectionInformation();
@@ -31,6 +41,13 @@ private:
 
   ezEngineProcessDocumentContext* CreateDocumentContext(const ezDocumentOpenMsgToEngine* pMsg);
 
+  virtual void DoLoadPluginsFromConfig() override;
+
+  virtual ezString FindProjectDirectory() const override;
+
+  ezString m_sProjectDirectory;
+  ezApplicationFileSystemConfig m_CustomFileSystemConfig;
+  ezApplicationPluginConfig m_CustomPluginConfig;
   QApplication* m_pApp;
   ezProcessCommunication m_IPC;
 };

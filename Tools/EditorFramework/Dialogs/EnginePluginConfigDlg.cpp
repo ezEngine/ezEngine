@@ -69,15 +69,14 @@ void EnginePluginConfigDlg::on_ButtonOK_clicked()
   {
     QListWidgetItem* pItem = ListPlugins->item(i);
 
-    if (pItem->checkState() == Qt::CheckState::Checked)
-    {
-      bool& ToBeLoaded = Plugins.m_Plugins[pItem->data(Qt::UserRole + 1).toString().toUtf8().data()].m_bToBeLoaded;
+    const bool bLoad = pItem->checkState() == Qt::CheckState::Checked;
 
-      if (!ToBeLoaded)
-      {
-        ToBeLoaded = true;
-        bChange = true;
-      }
+    bool& ToBeLoaded = Plugins.m_Plugins[pItem->data(Qt::UserRole + 1).toString().toUtf8().data()].m_bToBeLoaded;
+
+    if (ToBeLoaded != bLoad)
+    {
+      ToBeLoaded = bLoad;
+      bChange = true;
     }
   }
 
@@ -85,7 +84,6 @@ void EnginePluginConfigDlg::on_ButtonOK_clicked()
   {
     ezQtEditorApp::GetInstance()->StoreEnginePluginsToBeLoaded();
   }
-
 
   accept();
 }
