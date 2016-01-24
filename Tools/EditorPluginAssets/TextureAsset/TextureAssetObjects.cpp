@@ -4,7 +4,7 @@
 
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureUsageEnum, 1)
-EZ_ENUM_CONSTANTS(ezTextureUsageEnum::Unknown, ezTextureUsageEnum::Diffuse, ezTextureUsageEnum::NormalMap, ezTextureUsageEnum::Height, ezTextureUsageEnum::Mask, ezTextureUsageEnum::LookupTable, ezTextureUsageEnum::Skybox)
+EZ_ENUM_CONSTANTS(ezTextureUsageEnum::Unknown, ezTextureUsageEnum::Diffuse, ezTextureUsageEnum::NormalMap, ezTextureUsageEnum::EmissiveMask, ezTextureUsageEnum::EmissiveColor, ezTextureUsageEnum::Height, ezTextureUsageEnum::Mask, ezTextureUsageEnum::LookupTable, ezTextureUsageEnum::Skybox)
 EZ_END_STATIC_REFLECTED_ENUM();
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureTypeEnum, 1)
@@ -78,12 +78,14 @@ void ezTextureAssetProperties::SetTextureUsage(ezEnum<ezTextureUsageEnum> usage)
     {
     case ezTextureUsageEnum::Diffuse:
     case ezTextureUsageEnum::Skybox:
+    case ezTextureUsageEnum::EmissiveColor:
       m_sRGBMode = ezSRGBModeEnum::sRGB_Auto;
       break;
     case ezTextureUsageEnum::NormalMap:
     case ezTextureUsageEnum::Height:
     case ezTextureUsageEnum::Mask:
     case ezTextureUsageEnum::LookupTable:
+    case ezTextureUsageEnum::EmissiveMask:
       m_sRGBMode = ezSRGBModeEnum::Linear_Auto;
       break;
 

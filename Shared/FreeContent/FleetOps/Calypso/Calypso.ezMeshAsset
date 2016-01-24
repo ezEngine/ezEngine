@@ -1,0 +1,51 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0xFBD95FC7D7432340A5C0CCB045A9FD76" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Mesh",
+    "Dependencies" : "FleetOps\\Calypso\\calypso.obj",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0xFBD95FC7D7432340A5C0CCB045A9FD76" },
+    "Hash" : { "$t" : "uint64", "$v" : "17948578861209554777", "$b" : "0x590F7BED602916F9" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xF7D530527E313C43A0A55C7B266392C7" },
+   "t" : "ezMeshAssetProperties",
+   "p" : {
+    "Angle" : { "$t" : "float", "$v" : "360.0000", "$b" : "0x0000B443" },
+    "Cap" : false,
+    "Cap 2" : false,
+    "Detail" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Detail 2" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Forward Dir" : "ezBasisAxis::NegativeZ",
+    "Height" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "Materials" : [ { "$t" : "uuid", "$b" : "0x3CCC976BCF9CF4B5F7250FF671C32016" } ],
+    "Mesh File" : "FleetOps\\Calypso\\calypso.obj",
+    "Non-Uniform Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "Primitive Type" : "ezMeshPrimitive::File",
+    "Radius" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "Radius 2" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "Right Dir" : "ezBasisAxis::NegativeX",
+    "Uniform Scaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Up Dir" : "ezBasisAxis::PositiveY"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0xF7D530527E313C43A0A55C7B266392C7" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3CCC976BCF9CF4B5F7250FF671C32016" },
+   "t" : "ezResourceSlot",
+   "p" : {
+    "Label" : "DefaultMaterial",
+    "Resource" : "{ 47ba7957-b7aa-46c3-ab15-e6a5fedf04f1 }"
+   }
+  } ]
+}

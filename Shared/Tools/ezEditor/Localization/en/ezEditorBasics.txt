@@ -72,6 +72,8 @@ ezTextureUsageEnum::Height;Height
 ezTextureUsageEnum::Mask;Mask
 ezTextureUsageEnum::LookupTable;Lookup Table
 ezTextureUsageEnum::Skybox;Skybox
+ezTextureUsageEnum::EmissiveColor;Emissive (Color)
+ezTextureUsageEnum::EmissiveMask;Emissive (Mask)
 ezSRGBModeEnum::Unknown;Unknown
 ezSRGBModeEnum::sRGB;sRGB
 ezSRGBModeEnum::Linear;Linear

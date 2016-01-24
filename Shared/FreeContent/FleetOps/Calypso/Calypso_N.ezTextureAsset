@@ -1,0 +1,35 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0xE72A98CADECFD8439432640B8D191559" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Texture 2D",
+    "Dependencies" : "FleetOps/Calypso/Calypso_N.dds",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0xE72A98CADECFD8439432640B8D191559" },
+    "Hash" : { "$t" : "uint64", "$v" : "10105589821409520329", "$b" : "0xC9EAEA9E66443E8C" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0xDDD3DC28E9297C4D9E7360FAF99FCDDE" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xDDD3DC28E9297C4D9E7360FAF99FCDDE" },
+   "t" : "ezTextureAssetProperties",
+   "p" : {
+    "Depth" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Format" : "",
+    "Height" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Texture File" : "FleetOps\\Calypso\\Calypso_N.dds",
+    "Type" : "ezTextureTypeEnum::Unknown",
+    "Usage" : "ezTextureUsageEnum::NormalMap",
+    "Width" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "sRGB-Mode" : "ezSRGBModeEnum::Linear"
+   }
+  } ]
+}

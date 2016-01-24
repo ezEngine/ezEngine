@@ -14,6 +14,8 @@ struct ezTextureUsageEnum
     Unknown,
     Diffuse,
     NormalMap,
+    EmissiveMask,
+    EmissiveColor,
     Height,
     Mask,
     LookupTable,
