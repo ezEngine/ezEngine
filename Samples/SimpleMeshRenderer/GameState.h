@@ -2,7 +2,7 @@
 
 #include <CoreUtils/Graphics/Camera.h>
 #include <RendererCore/Pipeline/View.h>
-#include <GameFoundation/GameApplication.h>
+#include <GameFoundation/GameApplication/GameApplication.h>
 
 class GameWindow;
 

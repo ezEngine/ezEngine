@@ -13,7 +13,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Core/WorldSerializer/WorldReader.h>
-#include <GameFoundation/GameApplication.h>
+#include <GameFoundation/GameApplication/GameApplication.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();

@@ -107,7 +107,7 @@ protected:
   /// Data
   ///
 
-  const char* m_szAppProjectPath;
+  ezString m_sAppProjectPath;
 
 private:
   static ezGameApplication* s_pGameApplicationInstance;

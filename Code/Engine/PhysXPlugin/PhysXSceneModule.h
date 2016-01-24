@@ -3,7 +3,7 @@
 #include <PhysXPlugin/Basics.h>
 #include <PhysXPlugin/PluginInterface.h>
 #include <Foundation/Configuration/Plugin.h>
-#include <GameFoundation/GameApplication/WorldModule.h>
+#include <GameFoundation/WorldModule/WorldModule.h>
 #include <GameUtils/Surfaces/SurfaceResource.h>
 #include <GameUtils/CollisionFilter/CollisionFilter.h>
 

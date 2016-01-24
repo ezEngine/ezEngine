@@ -16,7 +16,7 @@ public:
   virtual void Activate() override;
   virtual void Deactivate() override;
   
-  virtual ezGameStateCanHandleThis CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const = 0;
+  virtual ezGameStateCanHandleThis CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const override;
 
 private:
   void SetupInput();

@@ -15,7 +15,7 @@ ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
 
 ezGameApplication::ezGameApplication(ezGameApplicationType type, const char* szProjectPath /*= nullptr*/)
   : m_UpdateTask("GameApplication.Update", ezMakeDelegate(&ezGameApplication::UpdateWorldsAndExtractViews, this))
-  , m_szAppProjectPath(szProjectPath)
+  , m_sAppProjectPath(szProjectPath)
 {
   s_pGameApplicationInstance = this;
   m_bWasQuitRequested = false;
@@ -336,9 +336,10 @@ ezString ezGameApplication::FindProjectDirectory(const char* szStartDirectory, c
   ezStringBuilder sStartDir = szStartDirectory;
   ezStringBuilder sPath;
 
-  while (!sStartDir.IsEmpty())
+  while (true)
   {
-    sPath.Set(sStartDir, "/", szRelPathToProjectFile);
+    sPath = sStartDir;
+    sPath.AppendPath(szRelPathToProjectFile);
     sPath.MakeCleanPath();
 
     if (!sPath.EndsWith_NoCase("/ezProject"))
@@ -350,6 +351,9 @@ ezString ezGameApplication::FindProjectDirectory(const char* szStartDirectory, c
       return sPath;
     }
 
+    if (sStartDir.IsEmpty())
+      break;
+
     sStartDir.PathParentDirectory();
   }
 
@@ -358,23 +362,27 @@ ezString ezGameApplication::FindProjectDirectory(const char* szStartDirectory, c
 
 ezString ezGameApplication::FindProjectDirectory() const
 {
-  EZ_ASSERT_RELEASE(!ezStringUtils::IsNullOrEmpty(m_szAppProjectPath), "Either the project must have a built in project directory passed to the ezGameApplication constructor, or ezGameApplication::FindProjectDirectory() must be overridden.");
+  EZ_ASSERT_RELEASE(!m_sAppProjectPath.IsEmpty(), "Either the project must have a built in project directory passed to the ezGameApplication constructor, or m_sAppProjectPath must be set manually before doing project setup, or ezGameApplication::FindProjectDirectory() must be overridden.");
 
-  return FindProjectDirectory(ezOSFile::GetApplicationDirectory(), m_szAppProjectPath);
+  return FindProjectDirectory(ezOSFile::GetApplicationDirectory(), m_sAppProjectPath);
 }
 
 ezApplication::ApplicationExecution ezGameApplication::Run()
 {
-  for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)
+  if (!m_bWasQuitRequested)
   {
-    m_Windows[i].m_pWindow->ProcessWindowMessages();
+
+    for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)
+    {
+      m_Windows[i].m_pWindow->ProcessWindowMessages();
+    }
+
+    ezClock::GetGlobalClock()->Update();
+
+    UpdateInput();
+
+    UpdateWorldsAndRender();
   }
-
-  ezClock::GetGlobalClock()->Update();
-
-  UpdateInput();
-
-  UpdateWorldsAndRender();
 
   return m_bWasQuitRequested ? ezApplication::Quit : ezApplication::Continue;
 }
@@ -454,6 +462,11 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
     ezWorld* pWorld = views[i]->GetWorld();
     if (!worldsToUpdate.Contains(pWorld))
       worldsToUpdate.PushBack(pWorld);
+  }
+
+  for (auto pWorld : worldsToUpdate)
+  {
+    UpdateWorldModules(pWorld);
   }
 
   if (ezRenderLoop::GetUseMultithreadedRendering())

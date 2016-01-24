@@ -19,7 +19,7 @@
 
 #include <Core/Application/Config/ApplicationConfig.h>
 
-#include <GameFoundation/GameApplication.h>
+#include <GameFoundation/GameApplication/GameApplication.h>
 
 EZ_CONSOLEAPP_ENTRY_POINT(ezGameApplication, ezGameApplicationType::StandAlone, "Shared/Samples/Asteroids");
 

@@ -12,7 +12,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
-#include <GameFoundation/GameApplication.h>
+#include <GameFoundation/GameApplication/GameApplication.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>);
   EZ_BEGIN_PROPERTIES
@@ -98,7 +98,6 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     }
 
     m_pWorld->GetClock().SetSpeed(msg->m_fSimulationSpeed);
-    ezGameApplication::GetGameApplicationInstance()->UpdateWorldModules(m_pWorld);
 
     return;
   }

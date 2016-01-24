@@ -6,7 +6,7 @@
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <GameFoundation/GameApplication.h>
+#include <GameFoundation/GameApplication/GameApplication.h>
 
 class ezEngineProcessGameApplication : public ezGameApplication
 {

@@ -2,7 +2,7 @@
 
 #include "Level.h"
 #include <Core/Input/VirtualThumbStick.h>
-#include <GameFoundation/GameState.h>
+#include <GameFoundation/GameState/GameState.h>
 
 class GameWindow;
 

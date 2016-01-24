@@ -9,13 +9,12 @@
 #include <RendererCore/Pipeline/TargetPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <GameFoundation/GameApplication.h>
+#include <GameFoundation/GameApplication/GameApplication.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <EnginePluginScene/PickingRenderPass/PickingRenderPass.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
-#include <GameFoundation/GameApplication.h>
 #include <Core/World/GameObject.h>
 #include <Core/World/Component.h>
 #include <EnginePluginScene/EditorRenderPass/EditorRenderPass.h>
