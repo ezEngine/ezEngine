@@ -183,7 +183,11 @@ void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
     // now open the last document, which might be outside the main project folder, but in an allowed data directory
     if (!s_RecentDocuments.GetFileList().IsEmpty())
     {
-      CreateOrOpenDocument(false, s_RecentDocuments.GetFileList()[0]);
+      // make sure the last document is actually in that last project
+      if (ezToolsProject::GetInstance()->IsDocumentInAllowedRoot(s_RecentDocuments.GetFileList()[0]))
+      {
+        CreateOrOpenDocument(false, s_RecentDocuments.GetFileList()[0]);
+      }
     }
   }
 

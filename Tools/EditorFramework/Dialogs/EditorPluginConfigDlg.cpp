@@ -25,34 +25,21 @@ void EditorPluginConfigDlg::FillPluginList()
 
     ezStringBuilder sText = it.Key();
 
-    if (it.Value().m_bActive)
+    if (!it.Value().m_bAvailable)
+    {
+      sText.Append(" (missing)");
+
+      pItem->setBackgroundColor(Qt::red);
+
+    }
+    else if (it.Value().m_bActive)
+    {
       sText.Append(" (active)");
+    }
 
     pItem->setText(sText.GetData());
     pItem->setData(Qt::UserRole + 1, QString(it.Key().GetData()));
     pItem->setCheckState(it.Value().m_bToBeLoaded ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
-    ListPlugins->addItem(pItem);
-  }
-
-  for (auto it = Plugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
-  {
-    if (!it.Value().m_bToBeLoaded)
-      continue;
-
-    if (it.Value().m_bAvailable)
-      continue;
-
-    QListWidgetItem* pItem = new QListWidgetItem();
-    pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
-
-    ezStringBuilder sText = it.Key();
-
-    sText.Append(" (missing)");
-
-    pItem->setText(sText.GetData());
-    pItem->setData(Qt::UserRole + 1, QString(it.Key().GetData()));
-    pItem->setCheckState(Qt::CheckState::Checked);
-    pItem->setBackgroundColor(Qt::red);
     ListPlugins->addItem(pItem);
   }
 
