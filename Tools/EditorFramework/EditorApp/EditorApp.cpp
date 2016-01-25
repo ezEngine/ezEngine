@@ -360,6 +360,9 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
     {
       // Clear all document settings when it is closed
       s_DocumentSettings.Remove(r.m_pDocument->GetDocumentPath());
+
+      // again, insert it into the recent documents list, such that the LAST CLOSED document is the LAST USED 
+      s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath());
     }
     break;
   }

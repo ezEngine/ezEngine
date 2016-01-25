@@ -60,7 +60,11 @@ void ezContainerWindow::UpdateWindowTitle()
 
   if (ezToolsProject::IsProjectOpen())
   {
-    sTitle = ezPathUtils::GetFileName(ezToolsProject::GetInstance()->GetProjectPath());
+    ezStringBuilder sTemp = ezToolsProject::GetInstance()->GetProjectPath();
+    sTemp.PathParentDirectory();
+    sTemp.Trim("/");
+
+    sTitle = sTemp.GetFileName();
     sTitle.Append(" - ");
   }
 
