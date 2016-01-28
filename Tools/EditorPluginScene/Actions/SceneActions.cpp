@@ -17,6 +17,7 @@ ezActionDescriptorHandle ezSceneActions::s_hRenderSelectionOverlay;
 ezActionDescriptorHandle ezSceneActions::s_hRenderShapeIcons;
 ezActionDescriptorHandle ezSceneActions::s_hSimulationSpeedMenu;
 ezActionDescriptorHandle ezSceneActions::s_hSimulationSpeed[10];
+ezActionDescriptorHandle ezSceneActions::s_hPlayTheGame;
 
 void ezSceneActions::RegisterActions()
 {
@@ -27,6 +28,7 @@ void ezSceneActions::RegisterActions()
   s_hEnableWorldSimulation = EZ_REGISTER_ACTION_1("Scene.SimulateWorld", ezActionScope::Document, "Scene", "Ctrl+F5", ezSceneAction, ezSceneAction::ActionType::SimulateWorld);
   s_hRenderSelectionOverlay = EZ_REGISTER_ACTION_1( "Scene.Render.SelectionOverlay", ezActionScope::Document, "Scene", "Ctrl+M", ezSceneAction, ezSceneAction::ActionType::RenderSelectionOverlay);
   s_hRenderShapeIcons = EZ_REGISTER_ACTION_1("Scene.Render.ShapeIcons", ezActionScope::Document, "Scene", "Space", ezSceneAction, ezSceneAction::ActionType::RenderShapeIcons);
+  s_hPlayTheGame = EZ_REGISTER_ACTION_1( "Scene.PlayTheGame", ezActionScope::Document, "Scene", "Ctrl+Shift+F5", ezSceneAction, ezSceneAction::ActionType::PlayTheGame);
 
   s_hSimulationSpeedMenu = EZ_REGISTER_MENU_WITH_ICON("Scene.Simulation.Speed.Menu", "");
   s_hSimulationSpeed[0] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.01", ezActionScope::Document, "Simulation - Speed", "", ezSceneAction, ezSceneAction::ActionType::SimulationSpeed, 0.1f);
@@ -52,6 +54,7 @@ void ezSceneActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hRenderSelectionOverlay);
   ezActionManager::UnregisterAction(s_hRenderShapeIcons);
   ezActionManager::UnregisterAction(s_hSimulationSpeedMenu);
+  ezActionManager::UnregisterAction(s_hPlayTheGame);
 
   for (int i = 0; i < EZ_ARRAY_SIZE(s_hSimulationSpeed); ++i)
     ezActionManager::UnregisterAction(s_hSimulationSpeed[i]);
@@ -78,6 +81,7 @@ void ezSceneActions::MapMenuActions()
     pMap->MapAction(s_hRunScene, szSubPath, 2.0f);
     pMap->MapAction(s_hEnableWorldSimulation, szSubPath, 3.0f);
     pMap->MapAction(s_hSimulationSpeedMenu, szSubPath, 4.0f);
+	pMap->MapAction(s_hPlayTheGame, szSubPath, 5.0f);
 
     ezStringBuilder sSubPath(szSubPath, "/Scene.Simulation.Speed.Menu");
 
@@ -156,6 +160,10 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
     SetCheckable(true);
     SetChecked(m_pSceneDocument->GetSimulationSpeed() == m_fSimSpeed);
     break;
+
+  case ActionType::PlayTheGame:
+    SetIconPath(":/EditorPluginScene/Icons/ScenePlayTheGame16.png");
+    break;
   }
 }
 
@@ -171,20 +179,26 @@ void ezSceneAction::Execute(const ezVariant& value)
   case ActionType::UpdatePrefabs:
     m_pSceneDocument->UpdatePrefabs();
     return;
+
   case ActionType::ExportScene:
     m_pSceneDocument->TriggerExportScene();
     return;
+
   case ActionType::RunScene:
     {
       QStringList arguments;
       arguments << "-scene";
-	  const ezStringBuilder sPath = m_pSceneDocument->GetBinaryTargetFile();
-	  const char* szPath = sPath.GetData();
+      const ezStringBuilder sPath = m_pSceneDocument->GetBinaryTargetFile();
+      const char* szPath = sPath.GetData();
       arguments << QString::fromUtf8(szPath);
 
       QProcess proc;
       proc.startDetached(QString::fromUtf8("Player.exe"), arguments);
     }
+    return;
+
+  case ActionType::PlayTheGame:
+    m_pSceneDocument->TriggerPlayTheGame();
     return;
 
   case ActionType::SimulateWorld:

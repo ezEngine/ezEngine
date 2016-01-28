@@ -24,6 +24,7 @@ public:
   static ezActionDescriptorHandle s_hRenderShapeIcons;
   static ezActionDescriptorHandle s_hSimulationSpeedMenu;
   static ezActionDescriptorHandle s_hSimulationSpeed[10];
+  static ezActionDescriptorHandle s_hPlayTheGame;
 };
 
 ///
@@ -42,6 +43,7 @@ public:
     RenderSelectionOverlay,
     RenderShapeIcons,
     SimulationSpeed,
+    PlayTheGame,
   };
 
   ezSceneAction(const ezActionContext& context, const char* szName, ActionType type, float fSimSpeed = 1.0f);

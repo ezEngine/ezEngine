@@ -44,6 +44,7 @@ Scene.Run;Run Scene...
 Scene.Render.SelectionOverlay;Visualize Selection
 Scene.Render.ShapeIcons;Render Shape Icons
 Scene.SimulateWorld;Simulate World
+Scene.PlayTheGame;Play the Game
 Selection.ShowInScenegraph;Show in Scenegraph
 Selection.FocusSingleView;Focus on Selection
 Selection.FocusAllViews;Focus All Views on Selection

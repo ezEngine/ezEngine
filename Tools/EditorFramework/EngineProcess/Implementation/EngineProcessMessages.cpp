@@ -184,6 +184,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneSettingsMsgToEngine, 1, ezRTTIDefaultAllo
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPlayTheGameMsgToEngine, 1, ezRTTIDefaultAllocator<ezPlayTheGameMsgToEngine>);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezQuerySelectionBBoxMsgToEngine, 1, ezRTTIDefaultAllocator<ezQuerySelectionBBoxMsgToEngine>);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("ViewID", m_uiViewID),

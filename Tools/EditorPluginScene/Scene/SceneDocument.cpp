@@ -33,7 +33,6 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab) : e
   m_bGizmoWorldSpace = true;
   m_bRenderSelectionOverlay = true;
   m_bRenderShapeIcons = true;
-
 }
 
 void ezSceneDocument::InitializeAfterLoading()
@@ -365,7 +364,15 @@ void ezSceneDocument::SetSimulationSpeed(float f)
 
 }
 
-void ezSceneDocument::SetRenderSelectionOverlay(bool b)
+
+void ezSceneDocument::TriggerPlayTheGame()
+{
+  SceneEvent e;
+  e.m_Type = SceneEvent::Type::StartPlayTheGame;
+  m_SceneEvents.Broadcast( e );
+}
+
+void ezSceneDocument::SetRenderSelectionOverlay( bool b )
 {
   if (m_bRenderSelectionOverlay == b)
     return;

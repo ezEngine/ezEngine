@@ -102,6 +102,12 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     return;
   }
 
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezPlayTheGameMsgToEngine>())
+  {
+    HandlePlayTheGameMsg(static_cast<const ezPlayTheGameMsgToEngine*>(pMsg));
+    return;
+  }
+
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezObjectSelectionMsgToEngine>())
   {
     HandleSelectionMsg(static_cast<const ezObjectSelectionMsgToEngine*>(pMsg));
@@ -429,6 +435,13 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
 
   // add the 'selected' tag to the new selection
   SetSelectionTag(true);
+}
+
+
+void ezSceneContext::HandlePlayTheGameMsg(const ezPlayTheGameMsgToEngine* pMsg)
+{
+	/// \todo Implement this
+	int i = 0;
 }
 
 void ezSceneContext::InsertSelectedChildren(const ezGameObject* pObject)

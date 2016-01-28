@@ -266,6 +266,13 @@ void ezQtSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneE
       GetEditorEngineConnection()->SendMessage(&msg);
     }
     break;
+
+  case ezSceneDocument::SceneEvent::Type::StartPlayTheGame:
+    {
+      ezPlayTheGameMsgToEngine msg;
+      GetEditorEngineConnection()->SendMessage(&msg);
+    }
+    break;
   }
 }
 

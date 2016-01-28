@@ -122,6 +122,7 @@ public:
       RenderSelectionOverlayChanged,
       RenderShapeIconsChanged,
       SimulationSpeedChanged,
+      StartPlayTheGame,
     };
 
     Type m_Type;
@@ -139,6 +140,8 @@ public:
 
   float GetSimulationSpeed() const { return m_fSimulationSpeed; }
   void SetSimulationSpeed(float f);
+
+  void TriggerPlayTheGame();
 
   bool GetRenderSelectionOverlay() const { return m_bRenderSelectionOverlay; }
   void SetRenderSelectionOverlay( bool b );

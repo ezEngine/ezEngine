@@ -264,6 +264,14 @@ public:
   bool m_bRenderShapeIcons;
 };
 
+class EZ_EDITORFRAMEWORK_DLL ezPlayTheGameMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION( ezPlayTheGameMsgToEngine, ezEditorEngineDocumentMsg);
+
+public:
+
+};
+
 class EZ_EDITORFRAMEWORK_DLL ezQuerySelectionBBoxMsgToEngine : public ezEditorEngineDocumentMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezQuerySelectionBBoxMsgToEngine, ezEditorEngineDocumentMsg);
