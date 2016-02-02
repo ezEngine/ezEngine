@@ -11,7 +11,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 1);
   EZ_BEGIN_PROPERTIES
-    EZ_MEMBER_PROPERTY("Range", m_fRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant() ), new ezDefaultValueAttribute( 1.0f ) ),
+    EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant() ), new ezDefaultValueAttribute( 1.0f ) ),
     EZ_ACCESSOR_PROPERTY("Projected Texture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture Cube")),
   EZ_END_PROPERTIES
   EZ_BEGIN_ATTRIBUTES
@@ -31,6 +31,9 @@ ezPointLightComponent::ezPointLightComponent()
 void ezPointLightComponent::SetRange(float fRange)
 {
   m_fRange = fRange;
+
+  if (IsActive())
+    GetOwner()->UpdateLocalBounds();
 }
 
 float ezPointLightComponent::GetRange() const

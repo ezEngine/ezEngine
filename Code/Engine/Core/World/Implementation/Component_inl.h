@@ -21,7 +21,7 @@ EZ_FORCE_INLINE bool ezComponent::IsDynamic() const
 
 EZ_FORCE_INLINE bool ezComponent::IsActive() const
 {
-  return m_Flags.IsSet(ezObjectFlags::Active);
+  return m_pOwner && m_Flags.IsSet(ezObjectFlags::Active);
 }
 
 EZ_FORCE_INLINE ezComponentManagerBase* ezComponent::GetManager() const

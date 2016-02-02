@@ -46,8 +46,7 @@ void ezDirectionalLightComponent::OnBeforeDetachedFromObject()
 
 void ezDirectionalLightComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
 {
-// TODO: Infinity!
-  msg.m_ResultingLocalBounds.SetInvalid(); // ?
+  // TODO: Infinity!
 }
 
 void ezDirectionalLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg ) const

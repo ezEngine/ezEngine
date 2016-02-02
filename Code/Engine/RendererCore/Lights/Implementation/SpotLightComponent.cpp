@@ -11,7 +11,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 1);
   EZ_BEGIN_PROPERTIES
-    EZ_MEMBER_PROPERTY("Range", m_fRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant() ), new ezDefaultValueAttribute( 1.0f ) ),
+	  EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant() ), new ezDefaultValueAttribute( 1.0f ) ),
     EZ_ACCESSOR_PROPERTY("Spot Angle", GetSpotAngle_Ui, SetSpotAngle_Ui)->AddAttributes(new ezClampValueAttribute(0.1f, 179.9f), new ezDefaultValueAttribute(30.0f)),
     EZ_ACCESSOR_PROPERTY("Projected Texture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
   EZ_END_PROPERTIES
@@ -33,6 +33,9 @@ ezSpotLightComponent::ezSpotLightComponent()
 void ezSpotLightComponent::SetRange(float fRange)
 {
   m_fRange = fRange;
+
+  if (IsActive())
+    GetOwner()->UpdateLocalBounds();
 }
 
 float ezSpotLightComponent::GetRange() const

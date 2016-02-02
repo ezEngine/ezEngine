@@ -52,7 +52,7 @@ void ezMeshComponent::OnBeforeDetachedFromObject()
 {
   if (IsActive() && m_hMesh.IsValid())
   {
-    // temporay set to inactive so we don't receive the msg
+    // temporary set to inactive so we don't receive the msg
     SetActive(false);
     GetOwner()->UpdateLocalBounds();
     SetActive(true);
