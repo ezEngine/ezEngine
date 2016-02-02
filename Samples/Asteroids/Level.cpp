@@ -68,7 +68,6 @@ Level::Level()
 
 Level::~Level()
 {
-  EZ_DEFAULT_DELETE(m_pWorld);
 }
 
 void Level::SetupLevel(ezWorld* pWorld)

@@ -17,7 +17,7 @@
 
 void SimpleMeshRendererGameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV)
 {
-  m_pWorld = EZ_DEFAULT_NEW(ezWorld, "Level");
+  m_pWorld = GetApplication()->CreateWorld( "Level", true );
   EZ_LOCK(m_pWorld->GetWriteMarker());
 
   ezMeshComponentManager* pMeshCompMan = m_pWorld->CreateComponentManager<ezMeshComponentManager>();
@@ -116,7 +116,7 @@ void SimpleMeshRendererGameState::CreateGameLevelAndRenderPipeline(ezGALRenderTa
 
 void SimpleMeshRendererGameState::DestroyGameLevel()
 {
-  EZ_DEFAULT_DELETE(m_pWorld);
+  GetApplication()->DestroyWorld( m_pWorld );
 }
 
 

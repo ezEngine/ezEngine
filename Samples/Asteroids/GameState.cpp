@@ -188,7 +188,7 @@ void AsteroidGameState::SetupInput()
 void AsteroidGameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV)
 {
   m_pLevel = EZ_DEFAULT_NEW(Level);
-  m_pLevel->SetupLevel(EZ_DEFAULT_NEW(ezWorld, "Asteroids - World"));
+  m_pLevel->SetupLevel( GetApplication()->CreateWorld( "Asteroids - World", true ) );
 
   ezView* pView = ezRenderLoop::CreateView("Asteroids - View");
   ezRenderLoop::AddMainView(pView);
@@ -229,6 +229,7 @@ void AsteroidGameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHa
 
 void AsteroidGameState::DestroyLevel()
 {
+  GetApplication()->DestroyWorld( m_pLevel->GetWorld() );
   EZ_DEFAULT_DELETE(m_pLevel);
 }
 
