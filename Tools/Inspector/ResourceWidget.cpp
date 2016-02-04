@@ -44,6 +44,7 @@ void ezResourceWidget::ResetStats()
     Headers.append(" CPU Mem. ");
     Headers.append(" GPU Mem. ");
     Headers.append(" Resource ID ");
+    Headers.append(" Description ");
 
     Table->setColumnCount(Headers.size());
     Table->setHorizontalHeaderLabels(Headers);
@@ -185,11 +186,15 @@ void ezResourceWidget::UpdateTable()
         Table->setItem(iTableRow, 5, new ByteSizeItem(0, ""));
         Table->setItem(iTableRow, 6, new ByteSizeItem(0, ""));
         Table->setItem(iTableRow, 7, new QTableWidgetItem());
+        Table->setItem(iTableRow, 8, new QTableWidgetItem());
       }
       else
       {
         iTableRow = Table->row(res.m_pMainItem);
       }
+
+      pItem = Table->item(iTableRow, 8);
+      pItem->setText(res.m_sResourceDescription.GetData());
 
       pItem = Table->item(iTableRow, 7);
       pItem->setText(res.m_sResourceID.GetData());
@@ -405,6 +410,7 @@ void ezResourceWidget::ProcessTelemetry(void* pUnuseed)
 
       Msg.GetReader() >> rd.m_Memory.m_uiMemoryCPU;
       Msg.GetReader() >> rd.m_Memory.m_uiMemoryGPU;
+	  Msg.GetReader() >> rd.m_sResourceDescription;
     }
 
     if (Msg.GetMessageID() == 'UPDT')

@@ -21,6 +21,7 @@ static void SendFullResourceInfo(const ezResourceBase* pRes)
   Msg.GetWriter() << pRes->GetNumQualityLevelsLoadable();
   Msg.GetWriter() << pRes->GetMemoryUsage().m_uiMemoryCPU;
   Msg.GetWriter() << pRes->GetMemoryUsage().m_uiMemoryGPU;
+  Msg.GetWriter() << pRes->GetResourceDescription();
 
   ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
 }

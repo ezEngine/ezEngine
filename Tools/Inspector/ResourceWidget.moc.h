@@ -51,6 +51,7 @@ private:
     ezBitflags<ezResourceFlags> m_Flags;
     ezResourceLoadDesc m_LoadingState;
     ezResourceBase::MemoryUsage m_Memory;
+    ezString m_sResourceDescription;
   };
 
   bool m_bShowDeleted;
