@@ -55,6 +55,11 @@ ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const Token
   bool bExisted = false;
   auto it = m_Macros.FindOrAdd(sMacroName, &bExisted);
 
+  ProcessingEvent pe;
+  pe.m_Type = ProcessingEvent::Define;
+  pe.m_pToken = pMacroNameToken;
+  m_ProcessingEvents.Broadcast(pe);
+
   if (bExisted)
   {
     PP_LOG(Error, "Redefinition of macro '%s'", pMacroNameToken, sMacroName.GetData());

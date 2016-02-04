@@ -373,7 +373,7 @@ ezResult ezPreprocessor::HandleIfdef(const TokenStream& Tokens, ezUInt32 uiCurTo
   {
     ProcessingEvent pe;
     pe.m_pToken = Tokens[uiIdentifier];
-    pe.m_Type = ProcessingEvent::CheckIfdef;
+    pe.m_Type = bIsIfdef ? ProcessingEvent::CheckIfdef : ProcessingEvent::CheckIfndef;
     pe.m_szInfo = bDefined ? "defined" : "undefined";
     m_ProcessingEvents.Broadcast(pe);
   }

@@ -80,7 +80,10 @@ void ezTokenizer::Tokenize(const ezDynamicArray<ezUInt8>& Data, ezLogInterface* 
   m_Data.Clear();
   m_Data.Reserve(m_Data.GetCount() + 1);
   m_Data = Data;
-  m_Data.PushBack('\0'); // make sure the string is zero terminated
+
+  if (m_Data.IsEmpty() || m_Data[m_Data.GetCount() - 1] != 0)
+    m_Data.PushBack('\0'); // make sure the string is zero terminated
+
   m_Tokens.Clear();
   m_pLog = pLog;
 

@@ -99,6 +99,9 @@ public:
 
   ezResult GetNextLine(ezUInt32& uiFirstToken, ezHybridArray<ezToken*, 32>& Tokens);
 
+  /// \brief Returns the internal copy of the tokenized data
+  const ezDynamicArray<ezUInt8>& GetTokenizedData() const { return m_Data; }
+
 private:
   void NextChar();
   void AddToken();

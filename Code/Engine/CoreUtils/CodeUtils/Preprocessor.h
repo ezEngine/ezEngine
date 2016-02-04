@@ -101,7 +101,9 @@ public:
       Warning,          ///< A warning has been output.
       CheckDefined,     ///< A 'defined(X)' is being evaluated
       CheckIfdef,       ///< A '#ifdef X' is being evaluated
+      CheckIfndef,      ///< A '#ifndef X' is being evaluated
       EvaluateUnknown,  ///< Inside an #if an unknown identifier has been encountered, it will be evaluated as zero
+      Define,           ///< A #define X has been stored
     };
 
     ProcessingEvent()
