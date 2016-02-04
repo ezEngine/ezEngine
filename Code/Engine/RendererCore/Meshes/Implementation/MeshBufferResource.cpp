@@ -75,7 +75,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreams(ezUInt32 uiNumVertices, ezG
   if (uiNumPrimitives > 0)
   {
     // use an index buffer at all
-    ezUInt32 uiIndexBufferSize = uiNumPrimitives * (topology + 1);
+    ezUInt32 uiIndexBufferSize = uiNumPrimitives * ezGALPrimitiveTopology::VerticesPerPrimitive(topology);
 
     if (Uses32BitIndices())
     {

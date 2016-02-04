@@ -66,6 +66,11 @@ struct ezGALPrimitiveTopology
 
     ENUM_COUNT
   };
+
+  static ezUInt32 VerticesPerPrimitive(ezGALPrimitiveTopology::Enum e)
+  {
+    return (ezUInt32)e + 1;
+  }
 };
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALIndexType

@@ -60,9 +60,10 @@ void ezRenderContext::DrawMeshBuffer(ezUInt32 uiPrimitiveCount, ezUInt32 uiFirst
   uiPrimitiveCount = ezMath::Min(uiPrimitiveCount, m_uiMeshBufferPrimitiveCount - uiFirstPrimitive);
   EZ_ASSERT_DEV(uiPrimitiveCount > 0, "Invalid primitive range: number of primitives can't be zero.");
 
+  const ezUInt32 uiVertsPerPrimitive = ezGALPrimitiveTopology::VerticesPerPrimitive(m_pGALContext->GetPrimitiveTopology());
 
-  uiPrimitiveCount *= 3;
-  uiFirstPrimitive *= 3;
+  uiPrimitiveCount *= uiVertsPerPrimitive;
+  uiFirstPrimitive *= uiVertsPerPrimitive;
 
   if (uiInstanceCount > 1)
   {

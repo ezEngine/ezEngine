@@ -56,6 +56,8 @@ public:
 
   void SetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration);
 
+  ezGALPrimitiveTopology::Enum GetPrimitiveTopology() const { return m_State.m_Topology; }
+
   void SetPrimitiveTopology(ezGALPrimitiveTopology::Enum Topology);
 
   void SetConstantBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer);
