@@ -1,6 +1,5 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
-//#include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <qcheckbox.h>
 #include <qspinbox.h>
 #include <qlayout.h>
@@ -486,74 +485,6 @@ void ezPropertyEditorLineEditWidget::on_TextFinished_triggered()
 }
 
 
-/// *** ezPropertyEditorFileBrowserWidget ***
-
-ezPropertyEditorFileBrowserWidget::ezPropertyEditorFileBrowserWidget() : ezPropertyEditorLineEditWidget()
-{
-  m_pButton = nullptr;
-}
-
-void ezPropertyEditorFileBrowserWidget::OnInit()
-{
-  ezPropertyEditorLineEditWidget::OnInit();
-
-  const ezFileBrowserAttribute* pFileAttribute = m_pProp->GetAttributeByType<ezFileBrowserAttribute>();
-  EZ_ASSERT_DEV(pFileAttribute != nullptr, "ezPropertyEditorFileBrowserWidget was created without a ezFileBrowserAttribute!");
-
-  m_pButton = new QToolButton(this);
-  m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextOnly);
-  m_pButton->setText("...");
-
-  m_pLayout->addWidget(m_pButton);
-
-  connect(m_pButton, SIGNAL(clicked()), this, SLOT(on_BrowseFile_clicked()));
-
-  if (m_pProp->GetAttributeByType<ezReadOnlyAttribute>() != nullptr || m_pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
-  {
-    if (m_pButton)
-      m_pButton->setEnabled(false);
-  }
-}
-
-void ezPropertyEditorFileBrowserWidget::on_BrowseFile_clicked()
-{
-  ezString sFile = m_pWidget->text().toUtf8().data();
-  const ezFileBrowserAttribute* pFileAttribute = m_pProp->GetAttributeByType<ezFileBrowserAttribute>();
-
-  /*if (m_pAssetAttribute != nullptr)
-  {
-  ezAssetBrowserDlg dlg(this, sFile, m_pAssetAttribute->GetTypeFilter());
-  if (dlg.exec() == 0)
-  return;
-
-  sFile = dlg.GetSelectedAssetGuid();
-
-  if (sFile.IsEmpty())
-  {
-  sFile = dlg.GetSelectedAssetPathRelative();
-
-  if (sFile.IsEmpty())
-  {
-  sFile = dlg.GetSelectedAssetPathAbsolute();
-
-  ezQtEditorApp::GetInstance()->MakePathDataDirectoryRelative(sFile);
-  }
-  }
-
-  if (sFile.IsEmpty())
-  return;
-
-  m_pWidget->setText(sFile.GetData());
-  on_TextFinished_triggered();
-  }
-  else if (m_pFileAttribute)
-  {
-
-  }
-  */
-}
-
-
 /// *** COLOR ***
 
 ezColorButton::ezColorButton(QWidget* parent) : QFrame(parent)
@@ -648,7 +579,7 @@ void ezPropertyEditorColorWidget::on_Color_accepted()
 
 ezPropertyEditorEnumWidget::ezPropertyEditorEnumWidget() : ezQtStandardPropertyWidget()
 {
-  
+
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
   setLayout(m_pLayout);

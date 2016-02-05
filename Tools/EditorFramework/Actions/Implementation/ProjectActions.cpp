@@ -208,13 +208,19 @@ void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item,
   if (ezQtEditorApp::GetInstance()->GetRecentProjectsList().GetFileList().IsEmpty())
     return;
 
+  ezStringBuilder sTemp;
+
   for (ezString s : ezQtEditorApp::GetInstance()->GetRecentProjectsList().GetFileList())
   {
     if (!ezOSFile::ExistsFile(s))
       continue;
 
+    sTemp = s;
+    sTemp.PathParentDirectory();
+    sTemp.Trim("/");
+
     ezLRUMenuAction::Item item;
-    item.m_sDisplay = s;
+    item.m_sDisplay = sTemp;
     item.m_UserValue = s;
 
     out_Entries.PushBack(item);

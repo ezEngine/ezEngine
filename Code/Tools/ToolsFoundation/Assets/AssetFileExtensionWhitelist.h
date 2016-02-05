@@ -16,6 +16,8 @@ public:
 
   static bool IsFileOnAssetWhitelist(const char* szAssetType, const char* szFile);
 
+  static const ezSet<ezString>& GetAssetFileExtensions(const char* szAssetType);
+
 private:
   static ezMap<ezString, ezSet<ezString>> s_ExtensionWhitelist;
 };

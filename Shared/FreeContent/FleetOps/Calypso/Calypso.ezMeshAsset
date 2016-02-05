@@ -5,9 +5,9 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Mesh",
-    "Dependencies" : "FleetOps\\Calypso\\calypso.obj",
+    "Dependencies" : "FleetOps/Calypso/calypso.obj",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xFBD95FC7D7432340A5C0CCB045A9FD76" },
-    "Hash" : { "$t" : "uint64", "$v" : "17948578861209554777", "$b" : "0x590F7BED602916F9" }
+    "Hash" : { "$t" : "uint64", "$v" : "7369448216604117830", "$b" : "0x460B53A51B8A4566" }
    }
   },
   {
@@ -22,7 +22,7 @@
     "Forward Dir" : "ezBasisAxis::NegativeZ",
     "Height" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
     "Materials" : [ { "$t" : "uuid", "$b" : "0x3CCC976BCF9CF4B5F7250FF671C32016" } ],
-    "Mesh File" : "FleetOps\\Calypso\\calypso.obj",
+    "Mesh File" : "FleetOps/Calypso/calypso.obj",
     "Non-Uniform Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "Primitive Type" : "ezMeshPrimitive::File",
     "Radius" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },

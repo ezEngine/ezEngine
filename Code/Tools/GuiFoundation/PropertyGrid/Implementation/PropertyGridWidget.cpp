@@ -80,11 +80,6 @@ static ezQtPropertyWidget* BitflagsCreator(const ezRTTI* pRtti)
   return new ezPropertyEditorBitflagsWidget();
 }
 
-static ezQtPropertyWidget* FileBrowserCreator(const ezRTTI* pRtti)
-{
-  return new ezPropertyEditorFileBrowserWidget();
-}
-
 static ezQtPropertyWidget* TagSetCreator(const ezRTTI* pRtti)
 {
   return new ezPropertyEditorTagSetWidget();
@@ -122,7 +117,6 @@ ON_CORE_STARTUP
   ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezEnumBase>(), EnumCreator);
   ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezBitflagsBase>(), BitflagsCreator);
 
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>(), FileBrowserCreator);
   ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezTagSetWidgetAttribute>(), TagSetCreator);
 }
 

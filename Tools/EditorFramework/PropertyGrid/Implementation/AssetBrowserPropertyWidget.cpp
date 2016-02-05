@@ -84,7 +84,7 @@ bool ezQtAssetPropertyWidget::IsValidAssetType(const char* szAssetReference) con
 
 void ezQtAssetPropertyWidget::OnInit()
 {
-  EZ_ASSERT_DEV(m_pProp->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr, "ezPropertyEditorFileBrowserWidget was created without a ezAssetBrowserAttribute!");
+  EZ_ASSERT_DEV(m_pProp->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr, "ezQtAssetPropertyWidget was created without a ezAssetBrowserAttribute!");
 }
 
 void ezQtAssetPropertyWidget::UpdateThumbnail(const ezUuid& guid, const char* szThumbnailPath)

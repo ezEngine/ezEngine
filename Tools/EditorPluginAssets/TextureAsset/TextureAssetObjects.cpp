@@ -17,7 +17,7 @@ EZ_END_STATIC_REFLECTED_ENUM();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 1, ezRTTIDefaultAllocator<ezTextureAssetProperties>);
   EZ_BEGIN_PROPERTIES
-    EZ_ACCESSOR_PROPERTY("Texture File", GetInputFile, SetInputFile),
+    EZ_ACCESSOR_PROPERTY("Texture File", GetInputFile, SetInputFile)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga")),
     //EZ_ACCESSOR_PROPERTY("Usage", GetTextureUsage, SetTextureUsage),
     /// \todo Accessor properties with enums don't link
     EZ_ENUM_MEMBER_PROPERTY("Usage", ezTextureUsageEnum, m_TextureUsage),

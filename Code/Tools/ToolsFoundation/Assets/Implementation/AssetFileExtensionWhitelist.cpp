@@ -35,5 +35,9 @@ bool ezAssetFileExtensionWhitelist::IsFileOnAssetWhitelist(const char* szAssetTy
   return false;
 }
 
+const ezSet<ezString>& ezAssetFileExtensionWhitelist::GetAssetFileExtensions(const char* szAssetType)
+{
+  return s_ExtensionWhitelist[szAssetType];
+}
 
 

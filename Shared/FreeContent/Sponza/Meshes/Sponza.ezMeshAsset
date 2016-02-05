@@ -71,8 +71,7 @@
     "AssetType" : "Mesh",
     "Dependencies" : "Sponza/sponza.obj",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x7E56A3CE366D8F419259F2E157979BCC" },
-    "Hash" : { "$t" : "uint64", "$v" : "8056416607739906111", "$b" : "0x3F08E5523824CE6F" },
-    "References" : ""
+    "Hash" : { "$t" : "uint64", "$v" : "11854645343622956275", "$b" : "0xF384E2A4212984A4" }
    }
   },
   {
@@ -110,7 +109,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "arch",
-    "Resource" : "Sponza/Materials/arch.ezMaterial"
+    "Resource" : "{ 7ef12b09-f007-4a8f-8806-41fa1a188df1 }"
    }
   },
   {
@@ -198,7 +197,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "16___Default",
-    "Resource" : "Sponza/Materials/16___Default.ezMaterial"
+    "Resource" : "{ 9f11e43f-a30d-4ff1-8137-0de50a39a334 }"
    }
   },
   {
@@ -206,7 +205,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "bricks",
-    "Resource" : "Sponza/Materials/bricks.ezMaterial"
+    "Resource" : "{ 35ade1e7-9c4d-44d2-bcb8-9b0c8cac4212 }"
    }
   },
   {

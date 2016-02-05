@@ -13,7 +13,6 @@ ezMeshAssetDocumentManager::ezMeshAssetDocumentManager()
 
   // additional whitelist for non-asset files where an asset may be selected
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Mesh", "ezMesh");
-
 }
 
 ezMeshAssetDocumentManager::~ezMeshAssetDocumentManager()

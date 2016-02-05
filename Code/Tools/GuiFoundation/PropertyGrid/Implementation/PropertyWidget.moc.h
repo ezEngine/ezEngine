@@ -140,26 +140,6 @@ protected:
 };
 
 
-/// *** File Browser ***
-
-class EZ_GUIFOUNDATION_DLL ezPropertyEditorFileBrowserWidget : public ezPropertyEditorLineEditWidget
-{
-  Q_OBJECT
-
-public:
-  ezPropertyEditorFileBrowserWidget();
-
-private slots:
-  void on_BrowseFile_clicked();
-
-protected:
-  virtual void OnInit() override;
-
-protected:
-  QToolButton* m_pButton;
-};
-
-
 /// *** COLOR ***
 
 class EZ_GUIFOUNDATION_DLL ezColorButton : public QFrame

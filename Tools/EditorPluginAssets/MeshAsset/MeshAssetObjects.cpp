@@ -3,10 +3,10 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezResourceSlot, ezNoBase, 1, ezRTTIDefaultAllocator<ezResourceSlot>);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("Label", m_sLabel)->AddAttributes(new ezReadOnlyAttribute()),
-EZ_MEMBER_PROPERTY("Resource", m_sResource)->AddAttributes(new ezAssetBrowserAttribute("Material")),
-EZ_END_PROPERTIES
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("Label", m_sLabel)->AddAttributes(new ezReadOnlyAttribute()),
+    EZ_MEMBER_PROPERTY("Resource", m_sResource)->AddAttributes(new ezAssetBrowserAttribute("Material")),
+  EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 1, ezRTTIDefaultAllocator<ezMeshAssetProperties>);
@@ -17,7 +17,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 1, ezRTTIDefaultAllocator
     EZ_ENUM_MEMBER_PROPERTY("Up Dir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveZ)),
     EZ_MEMBER_PROPERTY("Uniform Scaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("Non-Uniform Scaling", m_vNonUniformScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f))),
-    EZ_MEMBER_PROPERTY("Mesh File", m_sMeshFile),
+    EZ_MEMBER_PROPERTY("Mesh File", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.obj;*.fbx")),
     EZ_MEMBER_PROPERTY("Radius", m_fRadius),
     EZ_MEMBER_PROPERTY("Radius 2", m_fRadius2),
     EZ_MEMBER_PROPERTY("Height", m_fHeight),
@@ -61,3 +61,5 @@ const ezString& ezMeshAssetProperties::GetResourceSlotProperty(ezUInt32 uiSlot) 
   uiSlot %= m_Slots.GetCount();
   return m_Slots[uiSlot].m_sResource;
 }
+
+
