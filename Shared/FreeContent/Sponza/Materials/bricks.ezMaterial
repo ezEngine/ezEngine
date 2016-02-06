@@ -1,8 +1,0 @@
-{
-  "BaseMaterial" : "Materials/BaseMaterials/Fullbright.ezMaterial",
-  
-  "Textures" :
-  {
-    "TexDiffuse" : "Sponza/Textures/spnza_bricks_a_diff.dds",
-  }  
-}

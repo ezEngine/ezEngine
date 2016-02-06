@@ -6,11 +6,11 @@
     "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
     "Format" : "BC1_UNORM",
     "Height" : { "$t" : "uint32", "$v" : "512", "$b" : "0x00020000" },
-    "Texture File" : "Textures/Reference_D.dds",
+    "Texture File" : "Sponza/Textures/sponza_fabric_green_diff.dds",
     "Type" : "ezTextureTypeEnum::Texture2D",
     "Usage" : "ezTextureUsageEnum::Diffuse",
     "Width" : { "$t" : "uint32", "$v" : "512", "$b" : "0x00020000" },
-    "sRGB-Mode" : "ezSRGBModeEnum::Linear"
+    "sRGB-Mode" : "ezSRGBModeEnum::sRGB_Auto"
    }
   },
   {
@@ -19,10 +19,9 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : "Textures/Reference_D.dds",
+    "Dependencies" : "Sponza/Textures/sponza_fabric_green_diff.dds",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x68C01A6694C2404A904ABABB33F34110" },
-    "Hash" : { "$t" : "uint64", "$v" : "17054445463480843533", "$b" : "0x0D3D0C6CCA8FADEC" },
-    "References" : ""
+    "Hash" : { "$t" : "uint64", "$v" : "10704222411900126670", "$b" : "0xCE0515FA91098D94" }
    }
   },
   {

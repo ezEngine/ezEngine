@@ -1,8 +1,0 @@
-{
-  "BaseMaterial" : "Materials/BaseMaterials/Fullbright.ezMaterial",
-  
-  "Textures" :
-  {
-    "TexDiffuse" : "Sponza/Textures/sponza_curtain_green_diff.dds",
-  }  
-}

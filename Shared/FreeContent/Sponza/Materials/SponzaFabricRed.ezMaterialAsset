@@ -1,0 +1,33 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x01B987C1212C09478D0C2D96555E04EB" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Material",
+    "Dependencies" : "{ 05af8d07-0b38-44a6-8d50-49731ae2625d };{ 7edefa57-4b2f-4c63-aab7-e1053bccc3d4 }",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0x01B987C1212C09478D0C2D96555E04EB" },
+    "Hash" : { "$t" : "uint64", "$v" : "5428817041336240332", "$b" : "0xCC086F035608574B" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0x86C8AB106E8C594BB3C5F1DDA33BC547" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x86C8AB106E8C594BB3C5F1DDA33BC547" },
+   "t" : "ezMaterialAssetProperties",
+   "p" : {
+    "Base Material" : "{ 05af8d07-0b38-44a6-8d50-49731ae2625d }",
+    "Diffuse Texture" : "{ 7edefa57-4b2f-4c63-aab7-e1053bccc3d4 }",
+    "Mask Texture" : "",
+    "Normal Map" : "",
+    "Permutations" : "",
+    "Shader" : ""
+   }
+  } ]
+}

@@ -1,0 +1,33 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x85864C0DE3123F41A4FED188C2214C5B" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Material",
+    "Dependencies" : "{ 4800d341-755b-4367-a175-ffa5dd17bd29 };{ bcb3901f-4ab8-4e4e-ae83-bbebef895a40 };{ c16ef802-0f8e-4146-82fc-0d7e8d636af5 }",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0x85864C0DE3123F41A4FED188C2214C5B" },
+    "Hash" : { "$t" : "uint64", "$v" : "10866565616504153232", "$b" : "0x902434CCDACBCD96" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA4BA122EA845264588DE3AA1873FBB5A" },
+   "t" : "ezMaterialAssetProperties",
+   "p" : {
+    "Base Material" : "{ 4800d341-755b-4367-a175-ffa5dd17bd29 }",
+    "Diffuse Texture" : "{ bcb3901f-4ab8-4e4e-ae83-bbebef895a40 }",
+    "Mask Texture" : "{ c16ef802-0f8e-4146-82fc-0d7e8d636af5 }",
+    "Normal Map" : "",
+    "Permutations" : "",
+    "Shader" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0xA4BA122EA845264588DE3AA1873FBB5A" } ]
+   }
+  } ]
+}

@@ -1,9 +1,0 @@
-{
-  "BaseMaterial" : "Materials/BaseMaterials/FullbrightAlphaTest.ezMaterial",
-  
-  "Textures" :
-  {
-    "TexDiffuse" : "Sponza/Textures/chain_texture_diff.dds",
-    "TexAlphaMask" : "Sponza/Textures/chain_texture_mask.dds"
-  }  
-}

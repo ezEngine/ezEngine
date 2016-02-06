@@ -4,7 +4,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "floor",
-    "Resource" : "Sponza/Materials/floor.ezMaterial"
+    "Resource" : "{ 6585839f-2e86-4c0d-8219-380d99c43cb5 }"
    }
   },
   {
@@ -12,7 +12,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "fabric_d",
-    "Resource" : "Sponza/Materials/fabric_d.ezMaterial"
+    "Resource" : "{ 39a2e955-1cb9-46f5-a8b9-924d533ed332 }"
    }
   },
   {
@@ -20,7 +20,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "column_a",
-    "Resource" : "Sponza/Materials/column_a.ezMaterial"
+    "Resource" : "{ 74297c04-5c23-42c0-8fb7-ee7405e9eb8e }"
    }
   },
   {
@@ -28,7 +28,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "chain",
-    "Resource" : "Sponza/Materials/chain.ezMaterial"
+    "Resource" : "{ 0d4c8685-12e3-413f-a4fe-d188c2214c5b }"
    }
   },
   {
@@ -36,7 +36,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "ceiling",
-    "Resource" : "Sponza/Materials/ceiling.ezMaterial"
+    "Resource" : "{ 9ef97415-b170-400d-b9f7-e1e8201a8552 }"
    }
   },
   {
@@ -44,7 +44,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "leaf",
-    "Resource" : "Sponza/Materials/leaf.ezMaterial"
+    "Resource" : "{ 52fbb321-9fdd-4fac-a9b1-3c18d0a656c9 }"
    }
   },
   {
@@ -52,7 +52,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "flagpole",
-    "Resource" : "Sponza/Materials/flagpole.ezMaterial"
+    "Resource" : "{ 59d0b998-fb91-4c18-8c33-5280205535c9 }"
    }
   },
   {
@@ -60,7 +60,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "vase_round",
-    "Resource" : "Sponza/Materials/vase_round.ezMaterial"
+    "Resource" : "{ ca74f4d9-8c8a-4c54-be73-948df814775e }"
    }
   },
   {
@@ -71,7 +71,7 @@
     "AssetType" : "Mesh",
     "Dependencies" : "Sponza/sponza.obj",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x7E56A3CE366D8F419259F2E157979BCC" },
-    "Hash" : { "$t" : "uint64", "$v" : "11854645343622956275", "$b" : "0xF384E2A4212984A4" }
+    "Hash" : { "$t" : "uint64", "$v" : "4074694334592408007", "$b" : "0xC759AD9DE8388C38" }
    }
   },
   {
@@ -117,7 +117,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "column_b",
-    "Resource" : "Sponza/Materials/column_b.ezMaterial"
+    "Resource" : "{ eaefbc42-9e8a-4d9d-949a-35c372004fc0 }"
    }
   },
   {
@@ -125,7 +125,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "vase",
-    "Resource" : "Sponza/Materials/vase.ezMaterial"
+    "Resource" : "{ 6f545f12-3280-47bd-ab3f-420de1071331 }"
    }
   },
   {
@@ -133,7 +133,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "fabric_e",
-    "Resource" : "Sponza/Materials/fabric_e.ezMaterial"
+    "Resource" : "{ e904b847-a959-4eea-8835-91e35d68117a }"
    }
   },
   {
@@ -141,7 +141,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "fabric_c",
-    "Resource" : "Sponza/Materials/fabric_c.ezMaterial"
+    "Resource" : "{ 3bd3aa7f-41c2-4731-9bca-78c21213f74e }"
    }
   },
   {
@@ -149,7 +149,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "column_c",
-    "Resource" : "Sponza/Materials/column_c.ezMaterial"
+    "Resource" : "{ b270f48c-afca-41f4-a759-7d8ab0fb2a34 }"
    }
   },
   {
@@ -157,7 +157,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "Material__47",
-    "Resource" : "Sponza/Materials/Material__47.ezMaterial"
+    "Resource" : "{ 9ef97415-b170-400d-b9f7-e1e8201a8552 }"
    }
   },
   {
@@ -165,7 +165,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "fabric_a",
-    "Resource" : "Sponza/Materials/fabric_a.ezMaterial"
+    "Resource" : "{ c187b901-2c21-4709-8d0c-2d96555e04eb }"
    }
   },
   {
@@ -173,7 +173,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "Material__298",
-    "Resource" : "Sponza/Materials/Material__298.ezMaterial"
+    "Resource" : "{ 26c576cb-e60b-476e-a0f5-330826893652 }"
    }
   },
   {
@@ -181,7 +181,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "Material__57",
-    "Resource" : "Sponza/Materials/Material__57.ezMaterial"
+    "Resource" : "{ 28c59daa-ee0c-4686-9999-ec6150513758 }"
    }
   },
   {
@@ -189,7 +189,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "vase_hanging",
-    "Resource" : "Sponza/Materials/vase_hanging.ezMaterial"
+    "Resource" : "{ d389ee71-783f-434a-9fc1-df3134d86c12 }"
    }
   },
   {
@@ -213,7 +213,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "details",
-    "Resource" : "Sponza/Materials/details.ezMaterial"
+    "Resource" : "{ 38a37450-7cf9-4f5e-a683-660f6c2ee96f }"
    }
   },
   {
@@ -221,7 +221,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "roof",
-    "Resource" : "Sponza/Materials/roof.ezMaterial"
+    "Resource" : "{ 76d7b65d-44c9-4a76-9826-33bbd0274aa7 }"
    }
   },
   {
@@ -229,7 +229,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "fabric_f",
-    "Resource" : "Sponza/Materials/fabric_f.ezMaterial"
+    "Resource" : "{ 88af4217-811b-421b-89b7-db8591191a4f }"
    }
   },
   {
@@ -237,7 +237,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "fabric_g",
-    "Resource" : "Sponza/Materials/fabric_g.ezMaterial"
+    "Resource" : "{ 91760381-5e4f-4d98-98d9-69ed62ff463a }"
    }
   },
   {
@@ -245,7 +245,7 @@
    "t" : "ezResourceSlot",
    "p" : {
     "Label" : "Material__25",
-    "Resource" : "Sponza/Materials/Material__25.ezMaterial"
+    "Resource" : "{ 80896210-28ce-4f66-bfd4-27ef6e408aea }"
    }
   } ]
 }

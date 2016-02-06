@@ -1,9 +1,0 @@
-{
-  "BaseMaterial" : "Materials/BaseMaterials/FullbrightAlphaTest.ezMaterial",
-  
-  "Textures" :
-  {
-    "TexDiffuse" : "Sponza/Textures/ezFlag_D.dds",
-    "TexAlphaMask" : "Black.color" // empty mask -> make the material transparent
-  }  
-}

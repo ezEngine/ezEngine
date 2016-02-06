@@ -1,32 +1,32 @@
-Document.Create;Create Document
-Document.Open;Open Document
+Document.Create;&Create Document
+Document.Open;&Open Document
 Document.Undo;Undo
 Document.Redo;Redo
-Project.RecentDocuments.Menu;Recent Documents
+Project.RecentDocuments.Menu;Recent &Documents
 Project.Create;Create Project
 Project.Open;Open Project
-Project.RecentProjects.Menu;Recent Projects
+Project.RecentProjects.Menu;Recent &Projects
 Project.Close;Close Project
-Settings.Open;Settings
+Settings.Open;S&ettings
 Engine.ReloadResources;Reload Resources
-Document.Save;Save
+Document.Save;&Save
 Document.SaveAll;Save All
-Document.SaveAs;Save As...
+Document.SaveAs;Save &As...
 Document.Close;Close
-Document.OpenContainingFolder;Open Containing Folder
+Document.OpenContainingFolder;Open Containing &Folder
 Selection.Copy;Copy
 Selection.Paste;Paste
 Selection.PasteAsChild;Paste as Child
 Selection.Delete;Delete
-Menu.Editor;Editor
-Menu.File;File
-Menu.Edit;Edit
-Menu.Panels;Panels
-Menu.Project;Project
-Menu.Scene;Scene
-Menu.Tools;Tools
-Menu.View;View
-Menu.Help;Help
+Menu.Editor;&Editor
+Menu.File;&File
+Menu.Edit;E&dit
+Menu.Panels;&Panels
+Menu.Project;Pr&oject
+Menu.Scene;&Scene
+Menu.Tools;&Tools
+Menu.View;&View
+Menu.Help;&Help
 Menu.RenderMode;Render Mode
 Menu.RenderPerspective;Perspective
 Menu.ProjectSettings;Project Settings
@@ -83,8 +83,8 @@ ezTextureTypeEnum::Unknown;Unknown
 ezTextureTypeEnum::Texture2D;Texture 2D
 ezTextureTypeEnum::Texture3D;Texture 3D
 ezTextureTypeEnum::TextureCube;Texture Cube
-Project.DataDirectories;Data Directories
-Editor.Plugins;Editor Plugins
+Project.DataDirectories;Data D&irectories
+Editor.Plugins;Editor Pl&ugins
 Editor.Shortcuts;Shortcuts
 Editor.SettingsDlg;Stored Settings
-Engine.Plugins;Engine Plugins
+Engine.Plugins;Engine Pl&ugins

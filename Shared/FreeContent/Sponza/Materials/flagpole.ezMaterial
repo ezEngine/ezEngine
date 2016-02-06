@@ -1,8 +1,0 @@
-{
-  "BaseMaterial" : "Materials/BaseMaterials/Fullbright.ezMaterial",
-  
-  "Textures" :
-  {
-    "TexDiffuse" : "Sponza/Textures/sponza_flagpole_diff.dds",
-  }  
-}

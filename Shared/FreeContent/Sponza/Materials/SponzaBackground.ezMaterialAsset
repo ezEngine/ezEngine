@@ -4,7 +4,7 @@
    "t" : "ezMaterialAssetProperties",
    "p" : {
     "Base Material" : "{ 05af8d07-0b38-44a6-8d50-49731ae2625d }",
-    "Diffuse Texture" : "Sponza/Textures/background_diff.dds",
+    "Diffuse Texture" : "{ c49eb5e9-c5c3-4476-88dc-e6ce653760a5 }",
     "Mask Texture" : "",
     "Normal Map" : "",
     "Permutations" : "",
@@ -17,10 +17,9 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Material",
-    "Dependencies" : "{ 05af8d07-0b38-44a6-8d50-49731ae2625d };Sponza/Textures/background_diff.dds",
+    "Dependencies" : "{ 05af8d07-0b38-44a6-8d50-49731ae2625d };{ c49eb5e9-c5c3-4476-88dc-e6ce653760a5 }",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xCB76C5260BE66E47A0F5330826893652" },
-    "Hash" : { "$t" : "uint64", "$v" : "2777938833194588545", "$b" : "0x81995390A6388D26" },
-    "References" : ""
+    "Hash" : { "$t" : "uint64", "$v" : "13195418423028169126", "$b" : "0xA6393DB7248B1FB7" }
    }
   },
   {
