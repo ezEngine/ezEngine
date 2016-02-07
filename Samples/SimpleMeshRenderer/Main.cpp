@@ -33,7 +33,7 @@ ezGameStateCanHandleThis SimpleMeshRendererGameState::CanHandleThis(ezGameApplic
   return ezGameStateCanHandleThis::Yes;
 }
 
-void SimpleMeshRendererGameState::Activate()
+void SimpleMeshRendererGameState::Activate(ezGameApplicationType AppType, ezWorld* pWorld)
 {
   EZ_LOG_BLOCK("SimpleMeshRendererGameState::Activate");
 

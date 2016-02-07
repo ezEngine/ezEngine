@@ -14,7 +14,7 @@ public:
   AsteroidGameState();
 
 private:
-  virtual void Activate() override;
+  virtual void Activate(ezGameApplicationType AppType, ezWorld* pWorld) override;
   virtual void Deactivate() override;
   virtual void BeforeWorldUpdate() override;
 

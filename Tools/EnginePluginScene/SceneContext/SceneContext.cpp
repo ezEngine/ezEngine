@@ -94,6 +94,14 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
       if (bSimulate)
       {
         ezGameApplication::GetGameApplicationInstance()->ReinitWorldModules(m_pWorld);
+
+        //ezGameApplication::GetGameApplicationInstance()->CreateGameStatesForWorld(m_pWorld);
+        //ezGameApplication::GetGameApplicationInstance()->ActivateGameStatesForWorld(m_pWorld);
+      }
+      else
+      {
+        //ezGameApplication::GetGameApplicationInstance()->DeactivateGameStatesForWorld(m_pWorld);
+        //ezGameApplication::GetGameApplicationInstance()->DestroyGameStatesForWorld(m_pWorld);
       }
     }
 

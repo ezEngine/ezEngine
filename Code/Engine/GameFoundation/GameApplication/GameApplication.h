@@ -34,6 +34,9 @@ public:
 
   ezGALSwapChainHandle GetSwapChain(const ezWindowBase* pWindow) const;
 
+  void ActivateGameStatesForWorld(ezWorld* pWorld);
+  void DeactivateGameStatesForWorld(ezWorld* pWorld);
+
   void DestroyAllGameStates();
   void ActivateAllGameStates();
   void DeactivateAllGameStates();
@@ -55,8 +58,8 @@ public:
   ezWorld* CreateWorld(const char* szWorldName, bool bCreateWorldModules);
   void DestroyWorld(ezWorld* pWorld);
 
-  void CreateGameStates(ezWorld* pWorld);
-  void DestroyGameStates(ezWorld* pWorld);
+  void CreateGameStatesForWorld(ezWorld* pWorld);
+  void DestroyGameStatesForWorld(ezWorld* pWorld);
 
   void UpdateWorldModules(ezWorld* pWorld);
   void ReinitWorldModules(ezWorld* pWorld);

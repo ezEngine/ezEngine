@@ -54,7 +54,7 @@ AsteroidGameState::AsteroidGameState()
   m_pWindow = nullptr;
 }
 
-void AsteroidGameState::Activate()
+void AsteroidGameState::Activate(ezGameApplicationType AppType, ezWorld* pWorld)
 {
   EZ_LOG_BLOCK("AsteroidGameState::Activate");
 

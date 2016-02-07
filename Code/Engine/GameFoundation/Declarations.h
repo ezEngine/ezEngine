@@ -11,8 +11,8 @@ class ezGameApplication;
 enum class ezGameUpdateState
 {
   New,
-  Running,
-  Paused,
+  //Running,
+  //Paused,
   Invalid,
 };
 

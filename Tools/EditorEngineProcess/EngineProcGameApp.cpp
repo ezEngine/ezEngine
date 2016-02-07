@@ -90,12 +90,8 @@ ezApplication::ApplicationExecution ezEngineProcessGameApplication::Run()
 
   ProcessIPCMessages();
 
-  if (ezRenderLoop::GetMainViews().GetCount() > 0)
-  {
-    UpdateWorldsAndRender();
-  }
+  return ezGameApplication::Run();
 
-  return WasQuitRequested() ? ezApplication::Quit : ezApplication::Continue;
 }
 
 void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData & e)

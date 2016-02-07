@@ -70,9 +70,10 @@ ezGALSwapChainHandle ezGameApplication::GetSwapChain(const ezWindowBase* pWindow
   return ezGALSwapChainHandle();
 }
 
-
-void ezGameApplication::CreateGameStates(ezWorld* pWorld)
+void ezGameApplication::CreateGameStatesForWorld(ezWorld* pWorld)
 {
+  EZ_LOG_BLOCK("Create Game States");
+
   ezHybridArray<ezGameState*, 4> FallbackStates;
   bool bFoundGoodState = false;
 
@@ -112,6 +113,8 @@ void ezGameApplication::CreateGameStates(ezWorld* pWorld)
     gsd.m_pLinkedToWorld = pWorld;
 
     m_GameStates.PushBack(gsd);
+
+    ezLog::Info("Created Game State '%s'", gsd.m_pState->GetDynamicRTTI()->GetTypeName());
   }
 
   if (!bFoundGoodState)
@@ -126,6 +129,8 @@ void ezGameApplication::CreateGameStates(ezWorld* pWorld)
       gsd.m_pLinkedToWorld = pWorld;
 
       m_GameStates.PushBack(gsd);
+
+      ezLog::Info("Created fallback Game State '%s'", gsd.m_pState->GetDynamicRTTI()->GetTypeName());
     }
   }
   else
@@ -152,7 +157,7 @@ void ezGameApplication::DestroyGameState(ezUInt32 id)
 }
 
 
-void ezGameApplication::DestroyGameStates(ezWorld* pWorld)
+void ezGameApplication::DestroyGameStatesForWorld(ezWorld* pWorld)
 {
   for (ezUInt32 id = 0; id < m_GameStates.GetCount(); ++id)
   {
@@ -171,6 +176,32 @@ void ezGameApplication::DestroyAllGameStates()
   }
 }
 
+
+void ezGameApplication::ActivateGameStatesForWorld(ezWorld* pWorld)
+{
+  for (ezUInt32 id = 0; id < m_GameStates.GetCount(); ++id)
+  {
+    if (m_GameStates[id].m_UpdateState != ezGameUpdateState::Invalid && m_GameStates[id].m_pLinkedToWorld == pWorld)
+    {
+      m_GameStates[id].m_pState->Activate(m_AppType, pWorld);
+      //m_GameStates[id].m_UpdateState = ezGameUpdateState::Running;
+    }
+  }
+}
+
+
+void ezGameApplication::DeactivateGameStatesForWorld(ezWorld* pWorld)
+{
+  for (ezUInt32 id = 0; id < m_GameStates.GetCount(); ++id)
+  {
+    if (m_GameStates[id].m_UpdateState != ezGameUpdateState::Invalid && m_GameStates[id].m_pLinkedToWorld == pWorld)
+    {
+      m_GameStates[id].m_pState->Deactivate();
+      //m_GameStates[id].m_UpdateState = ezGameUpdateState::Paused;
+    }
+  }
+}
+
 void ezGameApplication::ActivateAllGameStates()
 {
   for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
@@ -179,7 +210,7 @@ void ezGameApplication::ActivateAllGameStates()
     {
       /// \todo Already deactivated?
 
-      m_GameStates[i].m_pState->Activate();
+      m_GameStates[i].m_pState->Activate(m_AppType, m_GameStates[i].m_pLinkedToWorld);
     }
   }
 
@@ -293,7 +324,7 @@ void ezGameApplication::AfterCoreStartup()
 
   if (m_AppType == ezGameApplicationType::StandAlone)
   {
-    CreateGameStates(nullptr);
+    CreateGameStatesForWorld(nullptr);
 
     /// \todo Check that any state was created?
     /// \todo Fallback state?

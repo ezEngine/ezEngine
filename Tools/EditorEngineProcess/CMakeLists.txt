@@ -42,6 +42,7 @@ SET (LINK_LIBRARIES
   EditorFramework
   GameFoundation
   GameUtils
+  InputXBox360
 )
 
 SET (ADDITIONAL_DEPENDENCIES

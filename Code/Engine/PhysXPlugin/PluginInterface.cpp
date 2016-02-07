@@ -27,7 +27,7 @@ void ezPhysX::LoadCollisionFilters()
 
   if (m_CollisionFilterConfig.Load("Physics/CollisionLayers.cfg").Failed())
   {
-    ezLog::Error("Collision filter config file could not be found ('Physics/CollisionLayers.cfg').");
+    ezLog::SeriousWarning("Collision filter config file could not be found ('Physics/CollisionLayers.cfg').");
 
     // setup some default config
 
