@@ -10,12 +10,12 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFallbackGameState, 1, ezRTTIDefaultAllocator<ezFallbackGameState>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezGameStateCanHandleThis ezFallbackGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const
+float ezFallbackGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const
 {
   if (pWorld == nullptr)
-    return ezGameStateCanHandleThis::No;
+    return -1.0f;
 
-  return ezGameStateCanHandleThis::AsFallback;
+  return 0.0f;
 }
 
 static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr, const char* szKey3 = nullptr)

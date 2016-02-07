@@ -70,12 +70,12 @@ ezGALSwapChainHandle ezGameApplication::GetSwapChain(const ezWindowBase* pWindow
   return ezGALSwapChainHandle();
 }
 
-void ezGameApplication::CreateGameStatesForWorld(ezWorld* pWorld)
+void ezGameApplication::CreateGameStateForWorld(ezWorld* pWorld)
 {
-  EZ_LOG_BLOCK("Create Game States");
+  EZ_LOG_BLOCK("Create Game State");
 
-  ezHybridArray<ezGameState*, 4> FallbackStates;
-  bool bFoundGoodState = false;
+  ezGameState* pCurState = nullptr;
+  float fBestPriority = -1.0f;
 
   for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
   {
@@ -91,81 +91,67 @@ void ezGameApplication::CreateGameStatesForWorld(ezWorld* pWorld)
 
     pState->m_pApplication = this;
 
-    auto handles = pState->CanHandleThis(m_AppType, pWorld);
+    float fPriority = pState->CanHandleThis(m_AppType, pWorld);
 
-    if (handles == ezGameStateCanHandleThis::No)
+    if (fPriority < 0.0f)
     {
       pState->GetDynamicRTTI()->GetAllocator()->Deallocate(pState);
       continue;
     }
 
-    if (handles == ezGameStateCanHandleThis::AsFallback)
+    if (fPriority > fBestPriority)
     {
-      FallbackStates.PushBack(pState);
-      continue;
-    }
+      fBestPriority = fPriority;
 
-    bFoundGoodState = true;
+      if (pCurState)
+      {
+        pCurState->GetDynamicRTTI()->GetAllocator()->Deallocate(pCurState);
+      }
 
-    GameStateData gsd;
-    gsd.m_pState = pState;
-    gsd.m_UpdateState = ezGameUpdateState::New;
-    gsd.m_pLinkedToWorld = pWorld;
-
-    m_GameStates.PushBack(gsd);
-
-    ezLog::Info("Created Game State '%s'", gsd.m_pState->GetDynamicRTTI()->GetTypeName());
-  }
-
-  if (!bFoundGoodState)
-  {
-    // we did not find any proper states -> use the fallback states
-
-    for (auto pState : FallbackStates)
-    {
-      GameStateData gsd;
-      gsd.m_pState = pState;
-      gsd.m_UpdateState = ezGameUpdateState::New;
-      gsd.m_pLinkedToWorld = pWorld;
-
-      m_GameStates.PushBack(gsd);
-
-      ezLog::Info("Created fallback Game State '%s'", gsd.m_pState->GetDynamicRTTI()->GetTypeName());
+      pCurState = pState;
     }
   }
-  else
-  {
-    // we did find any good state -> delete all the fallback states
 
-    for (auto pState : FallbackStates)
-    {
-      pState->GetDynamicRTTI()->GetAllocator()->Deallocate(pState);
-    }
-  }
+  GameStateData& gsd = m_GameStates.ExpandAndGetRef();
+  gsd.m_pState = pCurState;
+  gsd.m_pLinkedToWorld = pWorld;
 }
 
 
 void ezGameApplication::DestroyGameState(ezUInt32 id)
 {
-  if (m_GameStates[id].m_UpdateState != ezGameUpdateState::Invalid)
+  if (m_GameStates[id].m_pState != nullptr)
   {
     m_GameStates[id].m_pState->GetDynamicRTTI()->GetAllocator()->Deallocate(m_GameStates[id].m_pState);
     m_GameStates[id].m_pState = nullptr;
-    m_GameStates[id].m_UpdateState = ezGameUpdateState::Invalid;
     m_GameStates[id].m_pLinkedToWorld = nullptr;
   }
 }
 
 
-void ezGameApplication::DestroyGameStatesForWorld(ezWorld* pWorld)
+void ezGameApplication::DestroyGameStateForWorld(ezWorld* pWorld)
 {
   for (ezUInt32 id = 0; id < m_GameStates.GetCount(); ++id)
   {
-    if (m_GameStates[id].m_UpdateState != ezGameUpdateState::Invalid && m_GameStates[id].m_pLinkedToWorld == pWorld)
+    if (m_GameStates[id].m_pLinkedToWorld == pWorld)
     {
       DestroyGameState(id);
     }
   }
+}
+
+
+ezGameState* ezGameApplication::GetGameStateForWorld(ezWorld* pWorld) const
+{
+  for (ezUInt32 id = 0; id < m_GameStates.GetCount(); ++id)
+  {
+    if (m_GameStates[id].m_pLinkedToWorld == pWorld)
+    {
+      return m_GameStates[id].m_pState;
+    }
+  }
+
+  return nullptr;
 }
 
 void ezGameApplication::DestroyAllGameStates()
@@ -177,27 +163,27 @@ void ezGameApplication::DestroyAllGameStates()
 }
 
 
-void ezGameApplication::ActivateGameStatesForWorld(ezWorld* pWorld)
+void ezGameApplication::ActivateGameStateForWorld(ezWorld* pWorld)
 {
   for (ezUInt32 id = 0; id < m_GameStates.GetCount(); ++id)
   {
-    if (m_GameStates[id].m_UpdateState != ezGameUpdateState::Invalid && m_GameStates[id].m_pLinkedToWorld == pWorld)
+    if (m_GameStates[id].m_pLinkedToWorld == pWorld)
     {
-      m_GameStates[id].m_pState->Activate(m_AppType, pWorld);
-      //m_GameStates[id].m_UpdateState = ezGameUpdateState::Running;
+      /// \todo Already activated?
+      m_GameStates[id].m_pState->OnActivation(m_AppType, pWorld);
     }
   }
 }
 
 
-void ezGameApplication::DeactivateGameStatesForWorld(ezWorld* pWorld)
+void ezGameApplication::DeactivateGameStateForWorld(ezWorld* pWorld)
 {
   for (ezUInt32 id = 0; id < m_GameStates.GetCount(); ++id)
   {
-    if (m_GameStates[id].m_UpdateState != ezGameUpdateState::Invalid && m_GameStates[id].m_pLinkedToWorld == pWorld)
+    if (m_GameStates[id].m_pLinkedToWorld == pWorld)
     {
-      m_GameStates[id].m_pState->Deactivate();
-      //m_GameStates[id].m_UpdateState = ezGameUpdateState::Paused;
+      /// \todo Already deactivated?
+      m_GameStates[id].m_pState->OnDeactivation();
     }
   }
 }
@@ -206,14 +192,9 @@ void ezGameApplication::ActivateAllGameStates()
 {
   for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
   {
-    if (m_GameStates[i].m_UpdateState != ezGameUpdateState::Invalid)
-    {
       /// \todo Already deactivated?
-
-      m_GameStates[i].m_pState->Activate(m_AppType, m_GameStates[i].m_pLinkedToWorld);
-    }
+      m_GameStates[i].m_pState->OnActivation(m_AppType, m_GameStates[i].m_pLinkedToWorld);
   }
-
 }
 
 
@@ -221,14 +202,9 @@ void ezGameApplication::DeactivateAllGameStates()
 {
   for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
   {
-    if (m_GameStates[i].m_UpdateState != ezGameUpdateState::Invalid)
-    {
       /// \todo Already deactivated?
-
-      m_GameStates[i].m_pState->Deactivate();
-    }
+      m_GameStates[i].m_pState->OnDeactivation();
   }
-
 }
 
 void ezGameApplication::RequestQuit()
@@ -324,7 +300,7 @@ void ezGameApplication::AfterCoreStartup()
 
   if (m_AppType == ezGameApplicationType::StandAlone)
   {
-    CreateGameStatesForWorld(nullptr);
+    CreateGameStateForWorld(nullptr);
 
     /// \todo Check that any state was created?
     /// \todo Fallback state?

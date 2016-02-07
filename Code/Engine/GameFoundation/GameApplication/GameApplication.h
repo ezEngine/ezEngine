@@ -34,14 +34,14 @@ public:
 
   ezGALSwapChainHandle GetSwapChain(const ezWindowBase* pWindow) const;
 
-  void ActivateGameStatesForWorld(ezWorld* pWorld);
-  void DeactivateGameStatesForWorld(ezWorld* pWorld);
+  void ActivateGameStateForWorld(ezWorld* pWorld);
+  void DeactivateGameStateForWorld(ezWorld* pWorld);
 
   void DestroyAllGameStates();
   void ActivateAllGameStates();
   void DeactivateAllGameStates();
 
-  void RequestQuit();
+  virtual void RequestQuit();
   EZ_FORCE_INLINE bool WasQuitRequested() const { return m_bWasQuitRequested; }
 
   /// \brief Checks all parent directories of the scene file and tries to find an 'ezProject' file which marks the project directory.
@@ -58,8 +58,10 @@ public:
   ezWorld* CreateWorld(const char* szWorldName, bool bCreateWorldModules);
   void DestroyWorld(ezWorld* pWorld);
 
-  void CreateGameStatesForWorld(ezWorld* pWorld);
-  void DestroyGameStatesForWorld(ezWorld* pWorld);
+  void CreateGameStateForWorld(ezWorld* pWorld);
+  void DestroyGameStateForWorld(ezWorld* pWorld);
+
+  ezGameState* GetGameStateForWorld(ezWorld* pWorld) const;
 
   void UpdateWorldModules(ezWorld* pWorld);
   void ReinitWorldModules(ezWorld* pWorld);
@@ -112,6 +114,7 @@ protected:
 
   ezString m_sAppProjectPath;
 
+
 private:
   static ezGameApplication* s_pGameApplicationInstance;
 
@@ -145,7 +148,7 @@ private:
     EZ_DECLARE_POD_TYPE();
 
     ezGameState* m_pState;
-    ezGameUpdateState m_UpdateState;
+    //ezGameUpdateState m_UpdateState;
     ezWorld* m_pLinkedToWorld;
   };
 
@@ -155,4 +158,8 @@ private:
 
   bool m_bWasQuitRequested;
   ezGameApplicationType m_AppType;
+
+protected:
+  const ezHybridArray<GameStateData, 4>& GetAllGameStates() const { return m_GameStates; }
+
 };

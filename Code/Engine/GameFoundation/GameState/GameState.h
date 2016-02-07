@@ -10,14 +10,6 @@
 class ezWindow;
 class ezView;
 
-enum class ezGameStateCanHandleThis
-{
-  No,
-  Yes,
-  AsFallback,
-};
-
-
 class EZ_GAMEFOUNDATION_DLL ezGameState : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezGameState, ezReflectedClass)
@@ -30,15 +22,22 @@ public:
 
   virtual void ProcessInput() { }
 
-  virtual void Activate(ezGameApplicationType AppType, ezWorld* pWorld);
-  virtual void Deactivate();
+  virtual void OnActivation(ezGameApplicationType AppType, ezWorld* pWorld);
+  virtual void OnDeactivation();
   
   virtual void BeforeWorldUpdate() { }
   virtual void AfterWorldUpdate() { }
 
   EZ_FORCE_INLINE ezGameApplication* GetApplication() const { return m_pApplication; }
 
-  virtual ezGameStateCanHandleThis CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const = 0;
+  virtual float CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const = 0;
+
+  /// \brief Has to call ezRenderLoop::AddMainView for all views that need to be rendered
+  virtual void AddAllMainViews();
+
+  virtual void RequestQuit() { m_bStateWantsToQuit = true; }
+
+  bool WasQuitRequested() const { return m_bStateWantsToQuit; }
 
 protected:
   /// \brief Creates a default window (ezGameStateWindow) adds it to the application and fills out m_pMainWindow and m_hMainSwapChain
@@ -70,6 +69,7 @@ protected:
   ezWorld* m_pMainWorld;
   ezView* m_pMainView;
   ezCamera m_MainCamera;
+  bool m_bStateWantsToQuit;
 
 private:
   friend class ezGameApplication;

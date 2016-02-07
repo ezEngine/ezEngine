@@ -28,6 +28,7 @@ protected:
   virtual void DoSetupLogWriters() override;
   virtual void DoShutdownLogWriters() override;
   virtual void DoSetupDataDirectories() override;
+  virtual void ProcessApplicationInput() override;
 
 private:
   void ConnectToHost();

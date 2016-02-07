@@ -99,7 +99,18 @@ void ezSceneViewContext::Redraw()
     m_pView->m_ExcludeTags.Remove(tagNoOrtho);
   }
 
-  ezRenderLoop::AddMainView(m_pView);
+  auto pState = ezGameApplication::GetGameApplicationInstance()->GetGameStateForWorld(m_pSceneContext->GetWorld());
+
+  if (pState != nullptr)
+  {
+    pState->AddAllMainViews();
+  }
+
+  // setting to only update one view ?
+  //else
+  {
+    ezRenderLoop::AddMainView(m_pView);
+  }
 }
 
 void ezSceneViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)

@@ -286,6 +286,26 @@ void ezEngineProcessGameApplication::DoSetupDataDirectories()
   m_CustomFileSystemConfig.Apply();
 }
 
+
+void ezEngineProcessGameApplication::ProcessApplicationInput()
+{
+  // override the escape action to not shut down the app, but instead close the play-the-game window
+  if (ezInputManager::GetInputActionState("GameApp", "CloseApp") != ezKeyState::Up)
+  {
+    for (const auto& state : GetAllGameStates())
+    {
+      if (state.m_pState)
+      {
+        state.m_pState->RequestQuit();
+      }
+    }
+  }
+  else
+  {
+    ezGameApplication::ProcessApplicationInput();
+  }
+}
+
 void ezEngineProcessGameApplication::DoSetupLogWriters()
 {
   ezGameApplication::DoSetupLogWriters();

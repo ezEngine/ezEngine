@@ -21,6 +21,7 @@ ezGameState::ezGameState()
   , m_pMainWindow(nullptr)
   , m_pMainWorld(nullptr)
   , m_pMainView(nullptr)
+  , m_bStateWantsToQuit(false)
 {
 
 }
@@ -31,8 +32,9 @@ ezGameState::~ezGameState()
 }
 
 
-void ezGameState::Activate(ezGameApplicationType AppType, ezWorld* pWorld)
+void ezGameState::OnActivation(ezGameApplicationType AppType, ezWorld* pWorld)
 {
+  m_bStateWantsToQuit = false;
   m_pMainWorld = pWorld;
 
   CreateMainWindow();
@@ -48,9 +50,15 @@ void ezGameState::Activate(ezGameApplicationType AppType, ezWorld* pWorld)
 }
 
 
-void ezGameState::Deactivate()
+void ezGameState::OnDeactivation()
 {
   DestroyMainWindow();
+}
+
+
+void ezGameState::AddAllMainViews()
+{
+  ezRenderLoop::AddMainView(m_pMainView);
 }
 
 void ezGameState::CreateMainWindow()

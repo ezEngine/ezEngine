@@ -29,7 +29,7 @@ void ezGameApplication::ProcessApplicationInput()
 {
   if (ezInputManager::GetInputActionState(g_szInputSet, g_szCloseAppAction) == ezKeyState::Pressed)
   {
-    m_bWasQuitRequested = true;
+    RequestQuit();
   }
 
   if (ezInputManager::GetInputActionState(g_szInputSet, g_szReloadResourcesAction) == ezKeyState::Pressed)

@@ -10,7 +10,7 @@ class EZ_GAMEFOUNDATION_DLL ezFallbackGameState : public ezGameState
 public:
   virtual void ProcessInput() override;
 
-  virtual ezGameStateCanHandleThis CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const override;
+  virtual float CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const override;
 
 protected:
   virtual void ezFallbackGameState::ConfigureInputActions() override;

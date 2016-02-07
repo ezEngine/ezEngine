@@ -86,7 +86,9 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     m_bRenderShapeIcons = msg->m_bRenderShapeIcons;
     //m_bRenderSelectionBoxes = msg->m_bRenderSelectionBoxes;
 
-    if (bSimulate != m_pWorld->GetWorldSimulationEnabled())
+    ezGameState* pState = GetGameState();
+
+    if (pState == nullptr && bSimulate != m_pWorld->GetWorldSimulationEnabled())
     {
       ezLog::Info("World Simulation %s", bSimulate ? "enabled" : "disabled");
       m_pWorld->SetWorldSimulationEnabled(bSimulate);
@@ -94,18 +96,16 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
       if (bSimulate)
       {
         ezGameApplication::GetGameApplicationInstance()->ReinitWorldModules(m_pWorld);
+      }
 
-        //ezGameApplication::GetGameApplicationInstance()->CreateGameStatesForWorld(m_pWorld);
-        //ezGameApplication::GetGameApplicationInstance()->ActivateGameStatesForWorld(m_pWorld);
-      }
-      else
-      {
-        //ezGameApplication::GetGameApplicationInstance()->DeactivateGameStatesForWorld(m_pWorld);
-        //ezGameApplication::GetGameApplicationInstance()->DestroyGameStatesForWorld(m_pWorld);
-      }
+      m_pWorld->GetClock().SetSpeed(msg->m_fSimulationSpeed);
     }
 
-    m_pWorld->GetClock().SetSpeed(msg->m_fSimulationSpeed);
+    if (pState && pState->WasQuitRequested())
+    {
+      ezGameApplication::GetGameApplicationInstance()->DeactivateGameStateForWorld(m_pWorld);
+      ezGameApplication::GetGameApplicationInstance()->DestroyGameStateForWorld(m_pWorld);
+    }
 
     return;
   }
@@ -310,6 +310,11 @@ void ezSceneContext::GenerateShapeIconMesh()
   m_bShapeIconBufferValid = true;
 }
 
+ezGameState* ezSceneContext::GetGameState() const
+{
+  return ezGameApplication::GetGameApplicationInstance()->GetGameStateForWorld(m_pWorld);
+}
+
 void ezSceneContext::RenderShapeIcons(ezRenderContext* pContext)
 {
   /// \todo Disabled for now
@@ -448,8 +453,23 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
 
 void ezSceneContext::HandlePlayTheGameMsg(const ezPlayTheGameMsgToEngine* pMsg)
 {
-	/// \todo Implement this
-	int i = 0;
+  ezGameState* pState = GetGameState();
+
+  if (pState != nullptr)
+  {
+    ezLog::Error("Cannot start Play-the-Game, there is already a game state active for this world");
+    return;
+  }
+
+  ezLog::Info("Starting Play-the-Game mode");
+
+  m_pWorld->GetClock().SetSpeed(1.0f);
+  m_pWorld->SetWorldSimulationEnabled(true);
+
+  ezGameApplication::GetGameApplicationInstance()->ReinitWorldModules(m_pWorld);
+
+  ezGameApplication::GetGameApplicationInstance()->CreateGameStateForWorld(m_pWorld);
+  ezGameApplication::GetGameApplicationInstance()->ActivateGameStateForWorld(m_pWorld);
 }
 
 void ezSceneContext::InsertSelectedChildren(const ezGameObject* pObject)

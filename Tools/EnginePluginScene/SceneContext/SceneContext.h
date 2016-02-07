@@ -8,6 +8,7 @@
 
 class ezObjectSelectionMsgToEngine;
 class ezRenderContext;
+class ezGameState;
 
 class EZ_ENGINEPLUGINSCENE_DLL ezSceneContext : public ezEngineProcessDocumentContext
 {
@@ -24,6 +25,8 @@ public:
   void RenderShapeIcons(ezRenderContext* pContext);
   void RenderSelectionBoxes(ezRenderContext* pContext);
   void GenerateShapeIconMesh();
+
+  ezGameState* GetGameState() const;
 
 protected:
   virtual void OnInitialize() override;

@@ -31,7 +31,7 @@ void ezPlayerApplication::AfterCoreStartup()
 
   SetupLevel();
 
-  CreateGameStatesForWorld(m_pWorld);
+  CreateGameStateForWorld(m_pWorld);
 
   ActivateAllGameStates();
 }
