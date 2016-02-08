@@ -384,11 +384,13 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
       m_Windows[i].m_pWindow->ProcessWindowMessages();
     }
 
-    ezClock::GetGlobalClock()->Update();
+    if ( ezRenderLoop::GetMainViews().GetCount() > 0 )
+    {
+      ezClock::GetGlobalClock()->Update();
+      UpdateInput();
 
-    UpdateInput();
-
-    UpdateWorldsAndRender();
+      UpdateWorldsAndRender();
+    }
   }
 
   return m_bWasQuitRequested ? ezApplication::Quit : ezApplication::Continue;

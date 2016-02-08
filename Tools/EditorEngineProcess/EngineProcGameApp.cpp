@@ -91,7 +91,6 @@ ezApplication::ApplicationExecution ezEngineProcessGameApplication::Run()
   ProcessIPCMessages();
 
   return ezGameApplication::Run();
-
 }
 
 void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData & e)
