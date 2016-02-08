@@ -1,5 +1,4 @@
 #include "GameState.h"
-#include "Window.h"
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Configuration/CVar.h>
@@ -20,6 +19,7 @@
 #include <Core/Application/Config/ApplicationConfig.h>
 
 #include <GameFoundation/GameApplication/GameApplication.h>
+#include <System/Window/Window.h>
 
 EZ_CONSOLEAPP_ENTRY_POINT(ezGameApplication, ezGameApplicationType::StandAlone, "Shared/Samples/Asteroids");
 
@@ -28,8 +28,6 @@ const char* szControlerKeys[MaxPlayerActions] = { "leftstick_posy", "leftstick_n
 
 namespace
 {
-  ezCVarInt CVarInput("CVar_Input", 0, ezCVarFlags::Default, "Bla bla");
-
   static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr, const char* szKey3 = nullptr)
   {
     ezInputActionConfig cfg;
@@ -51,56 +49,33 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 AsteroidGameState::AsteroidGameState()
 {
   m_pLevel = nullptr;
-  m_pWindow = nullptr;
 }
 
-void AsteroidGameState::Activate(ezGameApplicationType AppType, ezWorld* pWorld)
+void AsteroidGameState::OnActivation( ezGameApplicationType AppType, ezWorld* pWorld )
 {
   EZ_LOG_BLOCK("AsteroidGameState::Activate");
 
-  m_pWindow = EZ_DEFAULT_NEW(GameWindow);
-  ezGALSwapChainHandle hSwapChain = GetApplication()->AddWindow(m_pWindow);
-
-  // Map the input keys to actions
-  SetupInput();
+  ezGameState::OnActivation( AppType, pWorld );
 
   srand((ezUInt32)ezTime::Now().GetMicroseconds());
 
-  const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(hSwapChain);
-  CreateGameLevelAndRenderPipeline(pSwapChain->GetBackBufferRenderTargetView(), pSwapChain->GetDepthStencilTargetView());
+  CreateGameLevel();
 }
 
-void AsteroidGameState::Deactivate()
+void AsteroidGameState::OnDeactivation()
 {
   EZ_LOG_BLOCK("AsteroidGameState::Deactivate");
 
   DestroyLevel();
 
-  EZ_DEFAULT_DELETE(m_pWindow);
-
   EZ_DEFAULT_DELETE(m_pThumbstick);
   EZ_DEFAULT_DELETE(m_pThumbstick2);
+
+  ezGameState::OnDeactivation();
 }
 
 void AsteroidGameState::BeforeWorldUpdate()
 {
-  if (ezInputManager::GetInputActionState("Main", "Assert") == ezKeyState::Pressed)
-  {
-    ezLog::Info("Asserting");
-
-    EZ_ASSERT_DEV(false, "This is safe to ignore.");
-  }
-
-  if (ezInputManager::GetInputActionState("Main", "CVarUp") == ezKeyState::Pressed)
-  {
-    CVarInput = CVarInput + 1;
-  }
-
-  if (ezInputManager::GetInputActionState("Main", "CVarDown") == ezKeyState::Pressed)
-  {
-    CVarInput = CVarInput - 1;
-  }
-
   if (ezInputManager::GetInputActionState("Main", "ToggleThumbstick") == ezKeyState::Pressed)
   {
     m_pThumbstick->SetEnabled(!m_pThumbstick->IsEnabled());
@@ -109,31 +84,24 @@ void AsteroidGameState::BeforeWorldUpdate()
 
   if (ezInputManager::GetInputActionState("Main", "ToggleMouseShow") == ezKeyState::Pressed)
   {
-    m_pWindow->GetInputDevice()->SetShowMouseCursor(!m_pWindow->GetInputDevice()->GetShowMouseCursor());
+    m_pMainWindow->GetInputDevice()->SetShowMouseCursor(!m_pMainWindow->GetInputDevice()->GetShowMouseCursor());
   }
 
   if (ezInputManager::GetInputActionState("Main", "ToggleMouseClip") == ezKeyState::Pressed)
   {
-    m_pWindow->GetInputDevice()->SetClipMouseCursor(!m_pWindow->GetInputDevice()->GetClipMouseCursor());
+	  m_pMainWindow->GetInputDevice()->SetClipMouseCursor(!m_pMainWindow->GetInputDevice()->GetClipMouseCursor());
   }
 }
 
-void AsteroidGameState::SetupInput()
+void AsteroidGameState::ConfigureInputActions()
 {
   ezInputDeviceXBox360::GetDevice()->EnableVibration(0, true);
   ezInputDeviceXBox360::GetDevice()->EnableVibration(1, true);
   ezInputDeviceXBox360::GetDevice()->EnableVibration(2, true);
   ezInputDeviceXBox360::GetDevice()->EnableVibration(3, true);
 
-  m_pWindow->GetInputDevice()->SetClipMouseCursor(true);
-  m_pWindow->GetInputDevice()->SetShowMouseCursor(false);
-  m_pWindow->GetInputDevice()->SetMouseSpeed(ezVec2(0.002f));
-
   RegisterInputAction("Main", "ResetLevel", ezInputSlot_KeyReturn);
   RegisterInputAction("Main", "ToggleThumbstick", ezInputSlot_KeyT);
-  RegisterInputAction("Main", "Assert", ezInputSlot_KeyNumpadEnter);
-  RegisterInputAction("Main", "CVarDown", ezInputSlot_KeyO);
-  RegisterInputAction("Main", "CVarUp", ezInputSlot_KeyP);
   RegisterInputAction("Main", "ToggleMouseShow", ezInputSlot_KeyM);
   RegisterInputAction("Main", "ToggleMouseClip", ezInputSlot_KeyN);
 
@@ -185,46 +153,12 @@ void AsteroidGameState::SetupInput()
   m_pThumbstick2->SetEnabled(false);
 }
 
-void AsteroidGameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV)
+void AsteroidGameState::CreateGameLevel()
 {
   m_pLevel = EZ_DEFAULT_NEW(Level);
   m_pLevel->SetupLevel( GetApplication()->CreateWorld( "Asteroids - World", true ) );
 
-  ezView* pView = ezRenderLoop::CreateView("Asteroids - View");
-  ezRenderLoop::AddMainView(pView);
-
-  ezGALRenderTagetSetup RTS;
-  RTS.SetRenderTarget(0, hBackBuffer)
-     .SetDepthStencilTarget(hDSV);
-  pView->SetRenderTargetSetup(RTS);
-
-  ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
-
-  ezSimpleRenderPass* pSimplePass = nullptr;
-  {
-    ezUniquePtr<ezRenderPipelinePass> pPass = EZ_DEFAULT_NEW(ezSimpleRenderPass);
-    pSimplePass = static_cast<ezSimpleRenderPass*>(pPass.Borrow());
-    pRenderPipeline->AddPass(std::move(pPass));
-  }
-
-  ezTargetPass* pTargetPass = nullptr;
-  {
-    ezUniquePtr<ezRenderPipelinePass> pPass = EZ_DEFAULT_NEW(ezTargetPass);
-    pTargetPass = static_cast<ezTargetPass*>(pPass.Borrow());
-    pRenderPipeline->AddPass(std::move(pPass));
-  }
-
-  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "Color", pTargetPass, "Color0"), "Connect failed!");
-  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "DepthStencil", pTargetPass, "DepthStencil"), "Connect failed!");
-
-  pRenderPipeline->AddExtractor(EZ_DEFAULT_NEW(ezVisibleObjectsExtractor));
-  pView->SetRenderPipeline(std::move(pRenderPipeline));
-
-  ezSizeU32 size = m_pWindow->GetClientAreaSize();
-  pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));
-
-  pView->SetWorld(m_pLevel->GetWorld());
-  pView->SetLogicCamera(m_pLevel->GetCamera());
+  ChangeMainWorld(m_pLevel->GetWorld());
 }
 
 void AsteroidGameState::DestroyLevel()
@@ -233,7 +167,9 @@ void AsteroidGameState::DestroyLevel()
   EZ_DEFAULT_DELETE(m_pLevel);
 }
 
-ezGameStateCanHandleThis AsteroidGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const
+float AsteroidGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const
 {
-  return ezGameStateCanHandleThis::Yes;
+  return 1.0f;
 }
+
+

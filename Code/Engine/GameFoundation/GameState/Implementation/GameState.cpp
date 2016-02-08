@@ -148,7 +148,17 @@ void ezGameState::ConfigureMainCamera()
   ezVec3 vCameraPos = ezVec3(0.0f, 0.0f, 0.0f);
 
   ezCoordinateSystem coordSys;
-  m_pMainWorld->GetCoordinateSystem(vCameraPos, coordSys);
+
+  if ( m_pMainWorld )
+  {
+    m_pMainWorld->GetCoordinateSystem( vCameraPos, coordSys );
+  }
+  else
+  {
+    coordSys.m_vForwardDir.Set(1, 0, 0);
+    coordSys.m_vRightDir.Set(0, 1, 0);
+    coordSys.m_vUpDir.Set(0, 0, 1);
+  }
 
   m_MainCamera.LookAt(vCameraPos, vCameraPos + coordSys.m_vForwardDir, coordSys.m_vUpDir);
   m_MainCamera.SetCameraMode(ezCamera::PerspectiveFixedFovY, 60.0f, 1.0f, 5000.0f);

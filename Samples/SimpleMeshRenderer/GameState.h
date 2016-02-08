@@ -1,36 +1,20 @@
 #pragma once
 
-#include <CoreUtils/Graphics/Camera.h>
-#include <RendererCore/Pipeline/View.h>
-#include <GameFoundation/GameApplication/GameApplication.h>
+#include <GameFoundation/GameState/FallbackGameState.h>
 
-class GameWindow;
-
-class SimpleMeshRendererGameState : public ezGameState
+class SimpleMeshRendererGameState : public ezFallbackGameState
 {
-  EZ_ADD_DYNAMIC_REFLECTION(SimpleMeshRendererGameState, ezGameState);
+  EZ_ADD_DYNAMIC_REFLECTION(SimpleMeshRendererGameState, ezFallbackGameState);
 
 public:
   SimpleMeshRendererGameState();
 
 private:
-  virtual void Activate(ezGameApplicationType AppType, ezWorld* pWorld) override;
-  virtual void Deactivate() override;
+  virtual void OnActivation(ezGameApplicationType AppType, ezWorld* pWorld) override;
+  virtual void OnDeactivation() override;
   
-  void SetupInput();
-  void CreateGameLevelAndRenderPipeline(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV);
+  void CreateGameLevel();
   void DestroyGameLevel();
 
-  virtual void ProcessInput() override;
-
-  virtual ezGameStateCanHandleThis CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const override;
-
-  GameWindow* m_pWindow;
-
-  ezRenderPipeline* m_pRenderPipeline;
-
-  ezWorld* m_pWorld;
-  ezCamera m_Camera;
-
-  ezView* m_pView;
+  virtual float CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const override;
 };
