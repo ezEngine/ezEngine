@@ -1,5 +1,7 @@
 #include <GameFoundation/PCH.h>
 #include <GameFoundation/GameApplication/GameApplication.h>
+#include <GameFoundation/GameApplication/InputConfig.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 
 
 namespace
@@ -22,6 +24,18 @@ void ezGameApplication::DoConfigureInput()
 
   config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF8;
   ezInputManager::SetInputActionConfig(g_szInputSet, g_szCaptureProfilingAction, config, true);
+
+  {
+	  ezFileReader file;
+	  if ( file.Open( "InputConfig.json" ).Succeeded() )
+	  {
+		  ezHybridArray<ezGameAppInputConfig, 32> InputActions;
+
+		  ezGameAppInputConfig::ReadFromJson( file, InputActions );
+		  ezGameAppInputConfig::ApplyAll( InputActions );
+	  }
+
+  }
 }
 
 

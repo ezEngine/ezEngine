@@ -6,6 +6,7 @@
 #include <RendererCore/Pipeline/SimpleRenderPass.h>
 #include <RendererCore/Pipeline/TargetPass.h>
 #include <RendererCore/Pipeline/Extractor.h>
+#include <GameFoundation/GameApplication/InputConfig.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFallbackGameState, 1, ezRTTIDefaultAllocator<ezFallbackGameState>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -18,8 +19,18 @@ float ezFallbackGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld*
   return 0.0f;
 }
 
+static ezHybridArray<ezGameAppInputConfig, 16> g_AllInput;
+
 static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr, const char* szKey3 = nullptr)
 {
+	ezGameAppInputConfig& gacfg = g_AllInput.ExpandAndGetRef();
+	gacfg.m_sInputSet = szInputSet;
+	gacfg.m_sInputAction = szInputAction;
+	gacfg.m_sInputSlotTrigger[0] = szKey1;
+	gacfg.m_sInputSlotTrigger[1] = szKey2;
+	gacfg.m_sInputSlotTrigger[2] = szKey3;
+	gacfg.m_bApplyTimeScaling = true;
+
   ezInputActionConfig cfg;
 
   cfg = ezInputManager::GetInputActionConfig(szInputSet, szInputAction);
@@ -34,18 +45,32 @@ static void RegisterInputAction(const char* szInputSet, const char* szInputActio
 
 void ezFallbackGameState::ConfigureInputActions()
 {
-  RegisterInputAction("Game", "MoveForwards", ezInputSlot_KeyW);
-  RegisterInputAction("Game", "MoveBackwards", ezInputSlot_KeyS);
-  RegisterInputAction("Game", "MoveLeft", ezInputSlot_KeyA);
-  RegisterInputAction("Game", "MoveRight", ezInputSlot_KeyD);
-  RegisterInputAction("Game", "MoveUp", ezInputSlot_KeyQ);
-  RegisterInputAction("Game", "MoveDown", ezInputSlot_KeyE);
-  RegisterInputAction("Game", "Run", ezInputSlot_KeyLeftShift);
+	g_AllInput.Clear();
 
-  RegisterInputAction("Game", "TurnLeft", ezInputSlot_KeyLeft);
-  RegisterInputAction("Game", "TurnRight", ezInputSlot_KeyRight);
-  RegisterInputAction("Game", "TurnUp", ezInputSlot_KeyUp);
-  RegisterInputAction("Game", "TurnDown", ezInputSlot_KeyDown);
+	if ( !ezFileSystem::ExistsFile( "InputConfig.json" ) )
+	{
+		RegisterInputAction( "Game", "MoveForwards", ezInputSlot_KeyW );
+		RegisterInputAction( "Game", "MoveBackwards", ezInputSlot_KeyS );
+		RegisterInputAction( "Game", "MoveLeft", ezInputSlot_KeyA );
+		RegisterInputAction( "Game", "MoveRight", ezInputSlot_KeyD );
+		RegisterInputAction( "Game", "MoveUp", ezInputSlot_KeyQ );
+		RegisterInputAction( "Game", "MoveDown", ezInputSlot_KeyE );
+		RegisterInputAction( "Game", "Run", ezInputSlot_KeyLeftShift );
+
+		RegisterInputAction( "Game", "TurnLeft", ezInputSlot_KeyLeft );
+		RegisterInputAction( "Game", "TurnRight", ezInputSlot_KeyRight );
+		RegisterInputAction( "Game", "TurnUp", ezInputSlot_KeyUp );
+		RegisterInputAction( "Game", "TurnDown", ezInputSlot_KeyDown );
+
+		if ( !g_AllInput.IsEmpty() )
+		{
+			ezFileWriter file;
+			if ( file.Open( "InputConfig.json" ).Succeeded() )
+			{
+				ezGameAppInputConfig::WriteToJson( file, g_AllInput );
+			}
+		}
+	}
 }
 
 void ezFallbackGameState::ProcessInput()

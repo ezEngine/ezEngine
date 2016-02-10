@@ -1,0 +1,101 @@
+{
+  "InputActions" : [ {
+      "Set" : "Game",
+      "Action" : "MoveForwards",
+      "TimeScale" : true,
+      "Slots" : [ {
+          "Key" : "keyboard_w",
+          "Scale" : 1
+        } ]
+    },
+    {
+      "Set" : "Game",
+      "Action" : "MoveBackwards",
+      "TimeScale" : true,
+      "Slots" : [ {
+          "Key" : "keyboard_s",
+          "Scale" : 1
+        } ]
+    },
+    {
+      "Set" : "Game",
+      "Action" : "MoveLeft",
+      "TimeScale" : true,
+      "Slots" : [ {
+          "Key" : "keyboard_a",
+          "Scale" : 1
+        } ]
+    },
+    {
+      "Set" : "Game",
+      "Action" : "MoveRight",
+      "TimeScale" : true,
+      "Slots" : [ {
+          "Key" : "keyboard_d",
+          "Scale" : 1
+        } ]
+    },
+    {
+      "Set" : "Game",
+      "Action" : "MoveUp",
+      "TimeScale" : true,
+      "Slots" : [ {
+          "Key" : "keyboard_q",
+          "Scale" : 1
+        } ]
+    },
+    {
+      "Set" : "Game",
+      "Action" : "MoveDown",
+      "TimeScale" : true,
+      "Slots" : [ {
+          "Key" : "keyboard_e",
+          "Scale" : 1
+        } ]
+    },
+    {
+      "Set" : "Game",
+      "Action" : "Run",
+      "TimeScale" : true,
+      "Slots" : [ {
+          "Key" : "keyboard_left_shift",
+          "Scale" : 1
+        } ]
+    },
+    {
+      "Set" : "Game",
+      "Action" : "TurnLeft",
+      "TimeScale" : true,
+      "Slots" : [ {
+          "Key" : "keyboard_left",
+          "Scale" : 1
+        } ]
+    },
+    {
+      "Set" : "Game",
+      "Action" : "TurnRight",
+      "TimeScale" : true,
+      "Slots" : [ {
+          "Key" : "keyboard_right",
+          "Scale" : 1
+        } ]
+    },
+    {
+      "Set" : "Game",
+      "Action" : "TurnUp",
+      "TimeScale" : true,
+      "Slots" : [ {
+          "Key" : "keyboard_up",
+          "Scale" : 1
+        } ]
+    },
+    {
+      "Set" : "Game",
+      "Action" : "TurnDown",
+      "TimeScale" : true,
+      "Slots" : [ {
+          "Key" : "keyboard_down",
+          "Scale" : 1
+        } ]
+    } ]
+}
