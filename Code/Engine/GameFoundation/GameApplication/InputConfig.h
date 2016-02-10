@@ -2,6 +2,7 @@
 
 #include <GameFoundation/Basics.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Types/Variant.h>
 
 class ezStandardJSONWriter;
 
@@ -13,12 +14,12 @@ public:
   ezGameAppInputConfig();
 
   void Apply() const;
-  void WriteToJson( ezStandardJSONWriter &json ) const;
-  void ReadFromJson( const ezVariantDictionary& action );
+  void WriteToJson(ezStandardJSONWriter &json) const;
+  void ReadFromJson(const ezVariantDictionary& action);
 
-  static void ApplyAll( const ezArrayPtr<ezGameAppInputConfig>& actions );
+  static void ApplyAll(const ezArrayPtr<ezGameAppInputConfig>& actions);
   static void WriteToJson(ezStreamWriter& stream, const ezArrayPtr<ezGameAppInputConfig>& actions);
-  static void ReadFromJson( ezStreamReader& stream, ezHybridArray<ezGameAppInputConfig, 32>& out_actions );
+  static void ReadFromJson(ezStreamReader& stream, ezHybridArray<ezGameAppInputConfig, 32>& out_actions);
 
 
 

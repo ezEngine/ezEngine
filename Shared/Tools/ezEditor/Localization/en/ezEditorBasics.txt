@@ -7,6 +7,8 @@ Project.Create;Create Project
 Project.Open;Open Project
 Project.RecentProjects.Menu;Recent &Projects
 Project.Close;Close Project
+Project.DataDirectories;D&ata Directories
+Project.InputConfig;&Input Configuration
 Settings.Open;S&ettings
 Engine.ReloadResources;Reload Resources
 Document.Save;&Save
@@ -83,7 +85,6 @@ ezTextureTypeEnum::Unknown;Unknown
 ezTextureTypeEnum::Texture2D;Texture 2D
 ezTextureTypeEnum::Texture3D;Texture 3D
 ezTextureTypeEnum::TextureCube;Texture Cube
-Project.DataDirectories;Data D&irectories
 Editor.Plugins;Editor Pl&ugins
 Editor.Shortcuts;Shortcuts
 Editor.SettingsDlg;Stored Settings

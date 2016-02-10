@@ -29,7 +29,7 @@ void ezGameAppInputConfig::Apply() const
     cfg.m_fInputSlotScale[i] = m_fInputSlotScale[i];
   }
 
-  ezInputManager::SetInputActionConfig( m_sInputSet, m_sInputAction, cfg, true );
+  ezInputManager::SetInputActionConfig(m_sInputSet, m_sInputAction, cfg, true);
 }
 
 void ezGameAppInputConfig::WriteToJson(ezStreamWriter& stream, const ezArrayPtr<ezGameAppInputConfig>& actions)
@@ -42,7 +42,7 @@ void ezGameAppInputConfig::WriteToJson(ezStreamWriter& stream, const ezArrayPtr<
 
   for (const ezGameAppInputConfig& config : actions)
   {
-	  config.WriteToJson( json );
+    config.WriteToJson(json);
   }
 
   json.EndArray();
@@ -50,34 +50,34 @@ void ezGameAppInputConfig::WriteToJson(ezStreamWriter& stream, const ezArrayPtr<
 }
 
 
-void ezGameAppInputConfig::WriteToJson( ezStandardJSONWriter& json ) const
+void ezGameAppInputConfig::WriteToJson(ezStandardJSONWriter& json) const
 {
-	json.BeginObject();
-	{
-		json.AddVariableString( "Set", m_sInputSet );
-		json.AddVariableString( "Action", m_sInputAction );
-		json.AddVariableBool( "TimeScale", m_bApplyTimeScaling );
-		json.BeginArray( "Slots" );
-		{
-			for ( int i = 0; i < 3; ++i )
-			{
-				if ( !m_sInputSlotTrigger[i].IsEmpty() )
-				{
-					json.BeginObject();
-					{
-						json.AddVariableString( "Key", m_sInputSlotTrigger[i] );
-						json.AddVariableFloat( "Scale", m_fInputSlotScale[i] );
-					}
-					json.EndObject();
-				}
-			}
-		}
-		json.EndArray();
-	}
-	json.EndObject();
+  json.BeginObject();
+  {
+    json.AddVariableString("Set", m_sInputSet);
+    json.AddVariableString("Action", m_sInputAction);
+    json.AddVariableBool("TimeScale", m_bApplyTimeScaling);
+    json.BeginArray("Slots");
+    {
+      for (int i = 0; i < 3; ++i)
+      {
+        if (!m_sInputSlotTrigger[i].IsEmpty())
+        {
+          json.BeginObject();
+          {
+            json.AddVariableString("Key", m_sInputSlotTrigger[i]);
+            json.AddVariableFloat("Scale", m_fInputSlotScale[i]);
+          }
+          json.EndObject();
+        }
+      }
+    }
+    json.EndArray();
+  }
+  json.EndObject();
 }
 
-void ezGameAppInputConfig::ReadFromJson( ezStreamReader& stream, ezHybridArray<ezGameAppInputConfig, 32>& out_actions )
+void ezGameAppInputConfig::ReadFromJson(ezStreamReader& stream, ezHybridArray<ezGameAppInputConfig, 32>& out_actions)
 {
   ezJSONReader json;
   json.SetLogInterface(ezGlobalLog::GetInstance());
@@ -100,51 +100,51 @@ void ezGameAppInputConfig::ReadFromJson( ezStreamReader& stream, ezHybridArray<e
     if (!inputActionsArray[i].IsA<ezVariantDictionary>())
       continue;
 
-	const ezVariantDictionary& action = inputActionsArray[i].Get<ezVariantDictionary>();
+    const ezVariantDictionary& action = inputActionsArray[i].Get<ezVariantDictionary>();
 
-	ezGameAppInputConfig& cfg = out_actions.ExpandAndGetRef();
+    ezGameAppInputConfig& cfg = out_actions.ExpandAndGetRef();
 
-	cfg.ReadFromJson( action );
+    cfg.ReadFromJson(action);
   }
 }
 
-void ezGameAppInputConfig::ReadFromJson( const ezVariantDictionary& action )
+void ezGameAppInputConfig::ReadFromJson(const ezVariantDictionary& action)
 {
-	ezVariant* pVar;
+  ezVariant* pVar;
 
-	if ( action.TryGetValue( "Set", pVar ) && pVar->IsA<ezString>() )
-		m_sInputSet = pVar->ConvertTo<ezString>();
+  if (action.TryGetValue("Set", pVar) && pVar->IsA<ezString>())
+    m_sInputSet = pVar->ConvertTo<ezString>();
 
-	if ( action.TryGetValue( "Action", pVar ) && pVar->IsA<ezString>() )
-		m_sInputAction = pVar->ConvertTo<ezString>();
+  if (action.TryGetValue("Action", pVar) && pVar->IsA<ezString>())
+    m_sInputAction = pVar->ConvertTo<ezString>();
 
-	if ( action.TryGetValue( "TimeScale", pVar ) && pVar->IsA<bool>() )
-		m_bApplyTimeScaling = pVar->ConvertTo<bool>();
+  if (action.TryGetValue("TimeScale", pVar) && pVar->IsA<bool>())
+    m_bApplyTimeScaling = pVar->ConvertTo<bool>();
 
-	if ( !action.TryGetValue( "Slots", pVar ) || !pVar->IsA<ezVariantArray>() )
-		return;
+  if (!action.TryGetValue("Slots", pVar) || !pVar->IsA<ezVariantArray>())
+    return;
 
-	const ezVariantArray& slotsArray = pVar->Get<ezVariantArray>();
+  const ezVariantArray& slotsArray = pVar->Get<ezVariantArray>();
 
-	for ( ezUInt32 slot = 0; slot < slotsArray.GetCount() && slot < MaxInputSlotAlternatives; ++slot )
-	{
-		if ( !slotsArray[slot].IsA<ezVariantDictionary>() )
-			continue;
+  for (ezUInt32 slot = 0; slot < slotsArray.GetCount() && slot < MaxInputSlotAlternatives; ++slot)
+  {
+    if (!slotsArray[slot].IsA<ezVariantDictionary>())
+      continue;
 
-		const ezVariantDictionary& slotValue = slotsArray[slot].Get<ezVariantDictionary>();
+    const ezVariantDictionary& slotValue = slotsArray[slot].Get<ezVariantDictionary>();
 
-		if ( slotValue.TryGetValue( "Key", pVar ) && pVar->IsA<ezString>() )
-			m_sInputSlotTrigger[slot] = pVar->ConvertTo<ezString>();
+    if (slotValue.TryGetValue("Key", pVar) && pVar->IsA<ezString>())
+      m_sInputSlotTrigger[slot] = pVar->ConvertTo<ezString>();
 
-		if ( slotValue.TryGetValue( "Scale", pVar ) && pVar->IsA<float>() )
-			m_fInputSlotScale[slot] = pVar->ConvertTo<float>();
-	}
+    if (slotValue.TryGetValue("Scale", pVar) && pVar->IsA<float>())
+      m_fInputSlotScale[slot] = pVar->ConvertTo<float>();
+  }
 }
 
-void ezGameAppInputConfig::ApplyAll( const ezArrayPtr<ezGameAppInputConfig>& actions )
+void ezGameAppInputConfig::ApplyAll(const ezArrayPtr<ezGameAppInputConfig>& actions)
 {
-	for ( const ezGameAppInputConfig& config : actions )
-	{
-		config.Apply();
-	}
+  for (const ezGameAppInputConfig& config : actions)
+  {
+    config.Apply();
+  }
 }

@@ -23,6 +23,7 @@
 	<file>Icons/Plugins16.png</file>
 	<file>Icons/DataDirectories16.png</file>
 	<file>Icons/StoredSettings16.png</file>
+	<file>Icons/Input16.png</file>
   </qresource>
   <qresource prefix="AssetIcons">
     <file>All.png</file>
