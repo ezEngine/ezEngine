@@ -60,6 +60,11 @@
        <string>Scale 3</string>
       </property>
      </column>
+     <column>
+      <property name="text">
+       <string/>
+      </property>
+     </column>
     </widget>
    </item>
    <item>
@@ -101,7 +106,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox">
+    <widget class="QDialogButtonBox" name="ButtonBox">
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
