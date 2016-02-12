@@ -42,6 +42,8 @@ ezShortcutEditorDlg::ezShortcutEditorDlg(QWidget* parent) : QDialog(parent)
 
     Shortcuts->setColumnCount(3);
 
+    ezStringBuilder sTemp;
+
     for (auto it = SortedItems.GetIterator(); it.IsValid(); ++it)
     {
       auto pParent = new QTreeWidgetItem();
@@ -61,9 +63,14 @@ ezShortcutEditorDlg::ezShortcutEditorDlg(QWidget* parent) : QDialog(parent)
       {
         const auto& item = m_ActionDescs[idx];
         auto pItem = new QTreeWidgetItem(pParent);
+
+        /// \todo Instead of removing &, replace it by underlined text (requires formatted text output)
+        sTemp = ezTranslate(item->m_sActionName);
+        sTemp.ReplaceAll("&", "");
+
         pItem->setData(0, Qt::UserRole, idx);
         pItem->setData(0, Qt::DisplayRole, item->m_sActionName.GetData());
-        pItem->setData(1, Qt::DisplayRole, ezTranslate(item->m_sActionName));
+        pItem->setData(1, Qt::DisplayRole, sTemp.GetData());
         pItem->setData(2, Qt::DisplayRole, item->m_sShortcut.GetData());
       }
     }
