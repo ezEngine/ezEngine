@@ -95,6 +95,14 @@ void ezQtEditorApp::InitQt(int argc, char** argv)
   s_pQtApplication = new QApplication(argc, argv);
 }
 
+ezString ezQtEditorApp::GetEditorDataFolder()
+{
+  ezStringBuilder sAppDir = ezOSFile::GetApplicationDirectory();
+  sAppDir.AppendPath("../../../Shared/Tools", ezUIServices::GetApplicationName());
+
+  return sAppDir;
+}
+
 void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
 {
   const bool bSafeMode = ezCommandLineUtils::GetInstance()->GetBoolOption("-safe");
@@ -133,8 +141,7 @@ void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
 
   ezStartup::StartupCore();
 
-  ezStringBuilder sAppDir = ezOSFile::GetApplicationDirectory();
-  sAppDir.AppendPath("../../../Shared/Tools", ezUIServices::GetApplicationName());
+  const ezString sAppDir = GetEditorDataFolder();
 
   ezOSFile osf;
   osf.CreateDirectoryStructure(sAppDir);
@@ -824,5 +831,44 @@ void ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
   }
 }
 
+void ezQtEditorApp::GetKnownInputSlots(ezDynamicArray<ezString>& slotList) const
+{
+  if (slotList.IndexOf("") == ezInvalidIndex)
+    slotList.PushBack("");
 
+  ezStringBuilder sFile;
+  ezDynamicArray<ezStringView> Lines;
+
+  ezStringBuilder sSearchDir = ezQtEditorApp::GetInstance()->GetEditorDataFolder();
+  sSearchDir.AppendPath("InputSlots/*.txt");
+
+  ezFileSystemIterator it;
+  if (it.StartSearch(sSearchDir, false, false).Succeeded())
+  {
+    do
+    {
+      sFile = it.GetCurrentPath();
+      sFile.AppendPath(it.GetStats().m_sFileName);
+
+      ezFileReader reader;
+      if (reader.Open(sFile).Succeeded())
+      {
+        sFile.ReadAll(reader);
+
+        Lines.Clear();
+        sFile.Split(false, Lines, "\n", "\r");
+
+        ezString sSlot;
+        for (ezUInt32 s = 0; s < Lines.GetCount(); ++s)
+        {
+          sSlot = Lines[s];
+
+          if (slotList.IndexOf(sSlot) == ezInvalidIndex)
+            slotList.PushBack(sSlot);
+        }
+      }
+    }
+    while (it.Next().Succeeded());
+  }
+}
 

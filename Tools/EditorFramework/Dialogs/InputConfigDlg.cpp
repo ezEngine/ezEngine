@@ -10,6 +10,11 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QSpinBox>
 #include <QComboBox>
+#include <QInputDialog>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <EditorApp/EditorApp.moc.h>
+#include <qevent.h>
+#include <Foundation/IO/OSFile.h>
 
 InputConfigDlg::InputConfigDlg(QWidget* parent) : QDialog(parent)
 {
@@ -17,18 +22,19 @@ InputConfigDlg::InputConfigDlg(QWidget* parent) : QDialog(parent)
 
   LoadActions();
 
-  // dummy
-  // todo: use array, sorted as they are given to the input manager
+  ezQtEditorApp::GetInstance()->GetKnownInputSlots(m_AllInputSlots);
+
+  // make sure existing slots are always in the list
+  // to prevent losing data when some plugin is not loaded
   {
-	  m_AllInputSlots.Insert( "Key_A" );
-	  m_AllInputSlots.Insert( "Key_B" );
-	  m_AllInputSlots.Insert( "Key_C" );
-	  for ( const auto& action : m_Actions )
-	  {
-		  m_AllInputSlots.Insert( action.m_sInputSlotTrigger[0] );
-		  m_AllInputSlots.Insert( action.m_sInputSlotTrigger[1] );
-		  m_AllInputSlots.Insert( action.m_sInputSlotTrigger[2] );
-	  }
+    for (const auto& action : m_Actions)
+    {
+      for (int i = 0; i < 3; ++i)
+      {
+        if (m_AllInputSlots.IndexOf(action.m_sInputSlotTrigger[i]) == ezInvalidIndex)
+          m_AllInputSlots.PushBack(action.m_sInputSlotTrigger[i]);
+      }
+    }
   }
 
   FillList();
@@ -38,69 +44,105 @@ InputConfigDlg::InputConfigDlg(QWidget* parent) : QDialog(parent)
 
 void InputConfigDlg::on_ButtonNewInputSet_clicked()
 {
+  QString sResult = QInputDialog::getText(this, "Input Set Name", "Name:");
 
+  if (sResult.isEmpty())
+    return;
+
+  TreeActions->clearSelection();
+
+  const ezString sName = sResult.toUtf8().data();
+
+  if (m_InputSetToItem.Find(sName).IsValid())
+  {
+    ezUIServices::GetInstance()->MessageBoxInformation("An Input Set with this name already exists.");
+  }
+  else
+  {
+    auto* pItem = new QTreeWidgetItem(TreeActions);
+    pItem->setText(0, sResult);
+    pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
+    pItem->setIcon(0, ezUIServices::GetInstance()->GetCachedIconResource(":/EditorFramework/Icons/Input16.png"));
+
+    m_InputSetToItem[sName] = pItem;
+  }
+
+  TreeActions->setItemSelected(m_InputSetToItem[sName], true);
 }
 
 void InputConfigDlg::on_ButtonNewAction_clicked()
 {
-	auto pItem = TreeActions->currentItem();
+  if (TreeActions->selectedItems().isEmpty())
+    return;
 
-	if ( !pItem )
-		return;
+  auto pItem = TreeActions->selectedItems()[0];
 
-	if ( TreeActions->indexOfTopLevelItem( pItem ) < 0 )
-		pItem = pItem->parent();
+  if (!pItem)
+    return;
 
-	ezGameAppInputConfig action;
-	auto pNewItem = CreateActionItem( pItem, action );
+  if (TreeActions->indexOfTopLevelItem(pItem) < 0)
+    pItem = pItem->parent();
 
-	TreeActions->clearSelection();
-	pNewItem->setSelected( true );
-	TreeActions->editItem( pNewItem );
+  ezGameAppInputConfig action;
+  auto pNewItem = CreateActionItem(pItem, action);
+  pItem->setExpanded(true);
+
+  TreeActions->clearSelection();
+  TreeActions->setItemSelected(pNewItem, true);
+  TreeActions->editItem(pNewItem);
 }
 
 void InputConfigDlg::on_ButtonRemove_clicked()
 {
-	auto pItem = TreeActions->currentItem();
+  if (TreeActions->selectedItems().isEmpty())
+    return;
 
-	if ( !pItem )
-		return;
+  auto pItem = TreeActions->selectedItems()[0];
 
-	if ( TreeActions->indexOfTopLevelItem( pItem ) >= 0 )
-	{
-		if ( ezUIServices::GetInstance()->MessageBoxQuestion( "Do you really want to remove the entire Input Set?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
-			return;
-	}
-	else
-	{
-		if ( ezUIServices::GetInstance()->MessageBoxQuestion( "Do you really want to remove this action?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No ) == QMessageBox::No )
-			return;
-	}
+  if (!pItem)
+    return;
 
-	delete pItem;
+  if (TreeActions->indexOfTopLevelItem(pItem) >= 0)
+  {
+    if (ezUIServices::GetInstance()->MessageBoxQuestion("Do you really want to remove the entire Input Set?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+      return;
+
+    m_InputSetToItem.Remove(pItem->text(0).toUtf8().data());
+  }
+  else
+  {
+    if (ezUIServices::GetInstance()->MessageBoxQuestion("Do you really want to remove this action?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+      return;
+  }
+
+  delete pItem;
 }
 
-void InputConfigDlg::on_ButtonBox_clicked( QAbstractButton* pButton )
+void InputConfigDlg::on_ButtonOk_clicked()
 {
-	if ( pButton == ButtonBox->button( QDialogButtonBox::Ok ) )
-	{
-		accept();
-		return;
-	}
+  GetActionsFromList();
+  SaveActions();
+  accept();
+}
 
-	if ( pButton == ButtonBox->button( QDialogButtonBox::Cancel ) )
-	{
-		reject();
-		return;
-	}
+void InputConfigDlg::on_ButtonCancel_clicked()
+{
+  reject();
+}
+
+void InputConfigDlg::on_ButtonReset_clicked()
+{
+  LoadActions();
+  FillList();
+  on_TreeActions_itemSelectionChanged();
 }
 
 void InputConfigDlg::on_TreeActions_itemSelectionChanged()
 {
-	const bool hasSelection = TreeActions->currentItem() != nullptr;
+  const bool hasSelection = !TreeActions->selectedItems().isEmpty();
 
-	ButtonRemove->setEnabled( hasSelection );
-	ButtonNewAction->setEnabled( hasSelection );
+  ButtonRemove->setEnabled(hasSelection);
+  ButtonNewAction->setEnabled(hasSelection);
 }
 
 void InputConfigDlg::LoadActions()
@@ -114,8 +156,21 @@ void InputConfigDlg::LoadActions()
   ezFileReader file;
   if (file.Open(sPath).Failed())
     return;
-  
+
   ezGameAppInputConfig::ReadFromJson(file, m_Actions);
+}
+
+void InputConfigDlg::SaveActions()
+{
+  ezStringBuilder sPath = ezToolsProject::GetInstance()->GetProjectPath();
+  sPath.PathParentDirectory();
+  sPath.AppendPath("InputConfig.json");
+
+  ezFileWriter file;
+  if (file.Open(sPath).Failed())
+    return;
+
+  ezGameAppInputConfig::WriteToJson(file, m_Actions);
 }
 
 void InputConfigDlg::FillList()
@@ -123,6 +178,7 @@ void InputConfigDlg::FillList()
   QtScopedBlockSignals bs(TreeActions);
   QtScopedUpdatesDisabled bu(TreeActions);
 
+  m_InputSetToItem.Clear();
   TreeActions->clear();
 
   ezSet<ezString> InputSets;
@@ -137,6 +193,7 @@ void InputConfigDlg::FillList()
     auto* pItem = new QTreeWidgetItem(TreeActions);
     pItem->setText(0, it.Key().GetData());
     pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
+    pItem->setIcon(0, ezUIServices::GetInstance()->GetCachedIconResource(":/EditorFramework/Icons/Input16.png"));
 
     m_InputSetToItem[it.Key()] = pItem;
   }
@@ -145,66 +202,95 @@ void InputConfigDlg::FillList()
   {
     QTreeWidgetItem* pParentItem = m_InputSetToItem[action.m_sInputSet];
 
-	CreateActionItem( pParentItem, action );
+    CreateActionItem(pParentItem, action);
 
 
-	pParentItem->setExpanded( true );
+    pParentItem->setExpanded(true);
   }
 
-  TreeActions->resizeColumnToContents( 0 );
-  TreeActions->resizeColumnToContents( 1 );
-  TreeActions->resizeColumnToContents( 2 );
-  TreeActions->resizeColumnToContents( 3 );
-  TreeActions->resizeColumnToContents( 4 );
-  TreeActions->resizeColumnToContents( 5 );
-  TreeActions->resizeColumnToContents( 6 );
-  TreeActions->resizeColumnToContents( 7 );
+  TreeActions->resizeColumnToContents(0);
+  TreeActions->resizeColumnToContents(1);
+  TreeActions->resizeColumnToContents(2);
+  TreeActions->resizeColumnToContents(3);
+  TreeActions->resizeColumnToContents(4);
+  TreeActions->resizeColumnToContents(5);
+  TreeActions->resizeColumnToContents(6);
+  TreeActions->resizeColumnToContents(7);
 }
 
-QTreeWidgetItem* InputConfigDlg::CreateActionItem( QTreeWidgetItem* pParentItem, const ezGameAppInputConfig& action )
+void InputConfigDlg::GetActionsFromList()
 {
-	auto* pItem = new QTreeWidgetItem( pParentItem );
-	pItem->setText( 0, action.m_sInputAction.GetData() );
-	pItem->setFlags( Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsEditable );
+  m_Actions.Clear();
 
-	QCheckBox* pTimeScale = new QCheckBox( TreeActions );
-	pTimeScale->setChecked( action.m_bApplyTimeScaling );
-	TreeActions->setItemWidget( pItem, 1, pTimeScale );
+  for (int sets = 0; sets < TreeActions->topLevelItemCount(); ++sets)
+  {
+    const auto* pSetItem = TreeActions->topLevelItem(sets);
+    const ezString sSetName = pSetItem->text(0).toUtf8().data();
 
-	for ( int i = 0; i < 3; ++i )
-	{
-		QDoubleSpinBox* spin = new QDoubleSpinBox( TreeActions );
-		spin->setDecimals( 3 );
-		spin->setMinimum( 0.0 );
-		spin->setMaximum( 100.0 );
-		spin->setSingleStep( 0.01 );
-		spin->setValue( action.m_fInputSlotScale[i] );
+    for (int children = 0; children < pSetItem->childCount(); ++children)
+    {
+      ezGameAppInputConfig& cfg = m_Actions.ExpandAndGetRef();
+      cfg.m_sInputSet = sSetName;
 
-		TreeActions->setItemWidget( pItem, 3 + 2 * i, spin );
+      auto* pActionItem = pSetItem->child(children);
 
-		QComboBox* combo = new QComboBox( TreeActions );
-		combo->setAutoCompletion( true );
-		combo->setAutoCompletionCaseSensitivity( Qt::CaseInsensitive );
-		combo->setEditable( false );
-		combo->setInsertPolicy( QComboBox::InsertAtBottom );
-		combo->setMaxVisibleItems( 15 );
+      cfg.m_sInputAction = pActionItem->text(0).toUtf8().data();
+      cfg.m_bApplyTimeScaling = qobject_cast<QCheckBox*>(TreeActions->itemWidget(pActionItem, 1))->isChecked();
+      
+      for (int i = 0; i < 3; ++i)
+      {
+        cfg.m_sInputSlotTrigger[i] = qobject_cast<QComboBox*>(TreeActions->itemWidget(pActionItem, 2 + i * 2))->currentText().toUtf8().data();
+        cfg.m_fInputSlotScale[i] = qobject_cast<QDoubleSpinBox*>(TreeActions->itemWidget(pActionItem, 3 + i * 2))->value();
+      }
+    }
+  }
 
-		for ( auto it = m_AllInputSlots.GetIterator(); it.IsValid(); ++it )
-		{
-			combo->addItem( it.Key().GetData() );
-		}
+}
 
-		int index = combo->findText( action.m_sInputSlotTrigger[i].GetData() );
+QTreeWidgetItem* InputConfigDlg::CreateActionItem(QTreeWidgetItem* pParentItem, const ezGameAppInputConfig& action)
+{
+  auto* pItem = new QTreeWidgetItem(pParentItem);
+  pItem->setText(0, action.m_sInputAction.GetData());
+  pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsEditable);
 
-		if ( index > 0 )
-			combo->setCurrentIndex( index );
-		else
-			combo->setCurrentIndex( 0 );
+  QCheckBox* pTimeScale = new QCheckBox(TreeActions);
+  pTimeScale->setChecked(action.m_bApplyTimeScaling);
+  TreeActions->setItemWidget(pItem, 1, pTimeScale);
 
-		TreeActions->setItemWidget( pItem, 2 + 2 * i, combo );
-	}
+  for (int i = 0; i < 3; ++i)
+  {
+    QDoubleSpinBox* spin = new QDoubleSpinBox(TreeActions);
+    spin->setDecimals(3);
+    spin->setMinimum(0.0);
+    spin->setMaximum(100.0);
+    spin->setSingleStep(0.01);
+    spin->setValue(action.m_fInputSlotScale[i]);
 
-	return pItem;
+    TreeActions->setItemWidget(pItem, 3 + 2 * i, spin);
+
+    QComboBox* combo = new QComboBox(TreeActions);
+    combo->setAutoCompletion(true);
+    combo->setAutoCompletionCaseSensitivity(Qt::CaseInsensitive);
+    combo->setEditable(true);
+    combo->setInsertPolicy(QComboBox::InsertAtBottom);
+    combo->setMaxVisibleItems(15);
+
+    for (ezUInt32 it = 0; it < m_AllInputSlots.GetCount(); ++it)
+    {
+      combo->addItem(m_AllInputSlots[it].GetData());
+    }
+
+    int index = combo->findText(action.m_sInputSlotTrigger[i].GetData());
+
+    if (index > 0)
+      combo->setCurrentIndex(index);
+    else
+      combo->setCurrentIndex(0);
+
+    TreeActions->setItemWidget(pItem, 2 + 2 * i, combo);
+  }
+
+  return pItem;
 }
 
 

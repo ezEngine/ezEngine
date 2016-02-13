@@ -18,21 +18,25 @@ public:
   InputConfigDlg(QWidget* parent);
 
 private slots:
-	void on_ButtonNewInputSet_clicked();
-	void on_ButtonNewAction_clicked();
-	void on_ButtonRemove_clicked();
-	void on_ButtonBox_clicked( QAbstractButton* pButton );
-	void on_TreeActions_itemSelectionChanged();
+  void on_ButtonNewInputSet_clicked();
+  void on_ButtonNewAction_clicked();
+  void on_ButtonRemove_clicked();
+  void on_ButtonOk_clicked();
+  void on_ButtonCancel_clicked();
+  void on_ButtonReset_clicked();
+  void on_TreeActions_itemSelectionChanged();
 
 private:
   void LoadActions();
+  void SaveActions();
   void FillList();
+  void GetActionsFromList();
 
-  QTreeWidgetItem* CreateActionItem( QTreeWidgetItem* pParentItem, const ezGameAppInputConfig& action );
+  QTreeWidgetItem* CreateActionItem(QTreeWidgetItem* pParentItem, const ezGameAppInputConfig& action);
 
   ezMap<ezString, QTreeWidgetItem*> m_InputSetToItem;
   ezHybridArray<ezGameAppInputConfig, 32> m_Actions;
-  ezSet<ezString> m_AllInputSlots;
+  ezDynamicArray<ezString> m_AllInputSlots;
 };
 
 

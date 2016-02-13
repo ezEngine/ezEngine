@@ -1,0 +1,16 @@
+mouse_wheel_up
+mouse_wheel_down
+mouse_move_negx
+mouse_move_posx
+mouse_move_negy
+mouse_move_posy
+mouse_button_0
+mouse_button_1
+mouse_button_2
+mouse_button_3
+mouse_button_4
+mouse_button_0_doubleclick
+mouse_button_1_doubleclick
+mouse_button_2_doubleclick
+mouse_position_x
+mouse_position_y"

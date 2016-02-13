@@ -83,6 +83,7 @@ public:
   static ezQtEditorApp* GetInstance() { return s_pInstance; }
 
   const ezString& GetApplicationUserName() { return s_sUserName; }
+  ezString GetEditorDataFolder();
 
   const ezPluginSet& GetEditorPlugins() const { return s_EditorPlugins; }
   const ezPluginSet& GetEnginePlugins() const { return s_EnginePlugins; }
@@ -150,6 +151,12 @@ public:
   void AddRuntimePluginDependency(const char* szEditorPluginName, const char* szRuntimeDependency);
 
   ezStatus SaveTagRegistry();
+
+  /// \brief Reads the known input slots from disk and adds them to the existing list.
+  ///
+  /// All input slots to be exposed by the editor are stored in 'Shared/Tools/ezEditor/InputSlots'
+  /// as txt files. Each line names one input slot.
+  void GetKnownInputSlots(ezDynamicArray<ezString>& slots) const;
 
 private:
   ezString BuildDocumentTypeFileFilter(bool bForCreation);
