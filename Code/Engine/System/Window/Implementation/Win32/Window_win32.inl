@@ -167,8 +167,10 @@ ezResult ezWindow::Initialize()
   SetWindowLongPtrW(m_WindowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
   // activate window
+  ShowWindow(m_WindowHandle, SW_SHOW);
   SetActiveWindow(m_WindowHandle);
   SetFocus(m_WindowHandle);
+  SetForegroundWindow(m_WindowHandle);
 
   RECT r;
   GetClientRect(m_WindowHandle, &r);
