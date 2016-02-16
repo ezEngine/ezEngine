@@ -15,7 +15,7 @@ namespace ezMemoryPolicies
   public:
     enum
     {
-      Alignment = sizeof(void*)
+      Alignment = 16
     };
 
     EZ_FORCE_INLINE ezStackAllocation(ezAllocatorBase* pParent)
@@ -30,7 +30,7 @@ namespace ezMemoryPolicies
         "There is still something allocated!");
       for (auto& bucket : m_buckets)
       {
-        EZ_DELETE_ARRAY(m_pParent, bucket.memory);
+        m_pParent->Deallocate(bucket.memory.GetPtr());
       }
     }
 
@@ -72,7 +72,7 @@ namespace ezMemoryPolicies
         else
         {
           AllocNewBucket:
-          m_currentBucket = EZ_NEW_ARRAY(m_pParent, ezUInt8, m_uiCurrentBucketSize);
+          m_currentBucket = ezArrayPtr<ezUInt8>(static_cast<ezUInt8*>(m_pParent->Allocate(m_uiCurrentBucketSize, Alignment)), m_uiCurrentBucketSize);
           m_buckets.ExpandAndGetRef().memory = m_currentBucket;
           m_uiCurrentBucketSize *= 2;
         }
