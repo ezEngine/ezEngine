@@ -38,7 +38,6 @@ private:
   friend class ezWorld;
   friend class ezInternal::WorldData;
   friend class ezMemoryUtils;
-  friend class ezGameObjectDummyAllocator; // TODO: This is a temporary hack
 
   ezGameObject();
   ezGameObject(const ezGameObject& other);

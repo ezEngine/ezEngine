@@ -14,6 +14,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <GameFoundation/GameApplication/GameApplication.h>
+#include <CoreUtils/Assets/AssetFileHeader.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -415,13 +416,12 @@ void ezEngineProcessDocumentContext::ExportScene(const ezExportSceneMsgToEngine*
 
   // File Header
   {
+    ezAssetFileHeader header;
+    header.SetFileHashAndVersion(pMsg->m_uiAssetHash, 1);
+    header.Write(file);
+
     const char* szSceneTag = "[ezBinaryScene]";
     file.WriteBytes(szSceneTag, sizeof(char) * 16);
-
-    const ezUInt8 uiVersion = 1;
-    file << uiVersion;
-
-    file << pMsg->m_uiAssetHash;
   }
 
   ezTag tagEditor;

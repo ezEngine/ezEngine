@@ -515,8 +515,6 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
 
   case ezToolsProject::Event::Type::ProjectClosing:
     {
-      // TODO: Write asset cache to file.
-
       s_RecentProjects.Insert(ezToolsProject::GetInstance()->GetProjectPath());
       SaveSettings();
     }

@@ -34,6 +34,12 @@ public:
   /// \brief Clears the entire storage. All readers and writers must be reset to start from the beginning again.
   void Clear() { m_Storage.Clear(); }
 
+  /// \brief Calls Compact() on the internal array.
+  void Compact() { m_Storage.Compact(); }
+
+  /// \brief Returns the amount of bytes that are currently allocated on the heap.
+  ezUInt64 GetHeapMemoryUsage() const { return m_Storage.GetHeapMemoryUsage(); }
+
   const ezUInt8* GetData() const { if (m_Storage.IsEmpty()) return nullptr; return &m_Storage[0]; }
 
 private:

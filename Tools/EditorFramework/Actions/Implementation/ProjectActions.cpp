@@ -279,7 +279,7 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
     SetIconPath(":/EditorFramework/Icons/Plugins16.png");
     break;
   case ezProjectAction::ButtonType::EnginePlugins:
-    SetIconPath(":/EditorFramework/Icons/Plugins16.png"); /// \todo Icon
+    SetIconPath(":/EditorFramework/Icons/Plugins16.png");
     break;
   case ezProjectAction::ButtonType::SettingsDialog:
     SetIconPath(":/EditorFramework/Icons/StoredSettings16.png");

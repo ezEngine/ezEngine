@@ -170,7 +170,7 @@ void ezGameApplication::ActivateGameStateForWorld(ezWorld* pWorld)
     if (m_GameStates[id].m_pLinkedToWorld == pWorld)
     {
       /// \todo Already activated?
-      m_GameStates[id].m_pState->OnActivation(m_AppType, pWorld);
+      m_GameStates[id].m_pState->OnActivation(pWorld);
     }
   }
 }
@@ -192,8 +192,8 @@ void ezGameApplication::ActivateAllGameStates()
 {
   for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
   {
-      /// \todo Already deactivated?
-      m_GameStates[i].m_pState->OnActivation(m_AppType, m_GameStates[i].m_pLinkedToWorld);
+    /// \todo Already deactivated?
+    m_GameStates[i].m_pState->OnActivation(m_GameStates[i].m_pLinkedToWorld);
   }
 }
 
@@ -202,8 +202,8 @@ void ezGameApplication::DeactivateAllGameStates()
 {
   for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
   {
-      /// \todo Already deactivated?
-      m_GameStates[i].m_pState->OnDeactivation();
+    /// \todo Already deactivated?
+    m_GameStates[i].m_pState->OnDeactivation();
   }
 }
 
@@ -303,13 +303,12 @@ void ezGameApplication::AfterCoreStartup()
     CreateGameStateForWorld(nullptr);
 
     /// \todo Check that any state was created?
-    /// \todo Fallback state?
 
     ActivateAllGameStates();
   }
   else
   {
-    /// \todo What now?
+    // Special case: Must be handled by custom implementations of ezGameApplication
   }
 }
 
@@ -338,7 +337,7 @@ void ezGameApplication::BeforeCoreShutdown()
 }
 
 
-ezString ezGameApplication::FindProjectDirectory(const char* szStartDirectory, const char* szRelPathToProjectFile) const
+ezString ezGameApplication::SearchProjectDirectory(const char* szStartDirectory, const char* szRelPathToProjectFile) const
 {
   ezStringBuilder sStartDir = szStartDirectory;
   ezStringBuilder sPath;
@@ -371,20 +370,19 @@ ezString ezGameApplication::FindProjectDirectory() const
 {
   EZ_ASSERT_RELEASE(!m_sAppProjectPath.IsEmpty(), "Either the project must have a built in project directory passed to the ezGameApplication constructor, or m_sAppProjectPath must be set manually before doing project setup, or ezGameApplication::FindProjectDirectory() must be overridden.");
 
-  return FindProjectDirectory(ezOSFile::GetApplicationDirectory(), m_sAppProjectPath);
+  return SearchProjectDirectory(ezOSFile::GetApplicationDirectory(), m_sAppProjectPath);
 }
 
 ezApplication::ApplicationExecution ezGameApplication::Run()
 {
   if (!m_bWasQuitRequested)
   {
-
     for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)
     {
       m_Windows[i].m_pWindow->ProcessWindowMessages();
     }
 
-    if ( ezRenderLoop::GetMainViews().GetCount() > 0 )
+    if (ezRenderLoop::GetMainViews().GetCount() > 0)
     {
       ezClock::GetGlobalClock()->Update();
       UpdateInput();

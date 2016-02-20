@@ -2,16 +2,9 @@
 #include <Core/WorldSerializer/WorldReader.h>
 
 
-void ezWorldReader::Read(ezStreamReader& stream, ezWorld& world, const ezVec3& vRootPosition, const ezQuat& qRootRotation, const ezVec3& vRootScale)
+void ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
 {
   m_pStream = &stream;
-  m_pWorld = &world;
-
-  m_vRootPosition = vRootPosition;
-  m_qRootRotation = qRootRotation;
-  m_vRootScale = vRootScale;
-
-  EZ_LOCK(m_pWorld->GetWriteMarker());
 
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
@@ -27,25 +20,22 @@ void ezWorldReader::Read(ezStreamReader& stream, ezWorld& world, const ezVec3& v
   ezUInt32 uiNumComponentTypes = 0;
   stream >> uiNumComponentTypes;
 
-  ezUInt32 uiNumComponents = 0;
-  stream >> uiNumComponents;
+  stream >> m_uiMaxComponents;
+
+  m_RootObjectsToCreate.Reserve(uiNumRootObjects);
+  m_ChildObjectsToCreate.Reserve(uiNumChildObjects);
 
   m_IndexToGameObjectHandle.Reserve(uiNumRootObjects + uiNumChildObjects + 1);
-  m_IndexToGameObjectHandle.PushBack(ezGameObjectHandle());
-
-  m_IndexToComponentHandle.Reserve(uiNumComponents + 1);
-  m_IndexToComponentHandle.PushBack(ezComponentHandle());
+  m_IndexToComponentHandle.Reserve(m_uiMaxComponents + 1);
 
   for (ezUInt32 i = 0; i < uiNumRootObjects; ++i)
   {
-    auto pObject = ReadGameObject(true);
-    m_IndexToGameObjectHandle.PushBack(pObject->GetHandle());
+    ReadGameObjectDesc(m_RootObjectsToCreate.ExpandAndGetRef());
   }
 
   for (ezUInt32 i = 0; i < uiNumChildObjects; ++i)
   {
-    auto pObject = ReadGameObject(false);
-    m_IndexToGameObjectHandle.PushBack(pObject->GetHandle());
+    ReadGameObjectDesc(m_ChildObjectsToCreate.ExpandAndGetRef());
   }
 
   m_ComponentTypes.SetCount(uiNumComponentTypes);
@@ -55,15 +45,83 @@ void ezWorldReader::Read(ezStreamReader& stream, ezWorld& world, const ezVec3& v
     ReadComponentInfo(i);
   }
 
-  for (ezUInt32 i = 0; i < uiNumComponentTypes; ++i)
+  // read all component data
   {
-    ReadComponentsOfType(i);
+    ezMemoryStreamWriter memWriter(&m_ComponentStream);
+
+    ezUInt8 Temp[4096];
+
+    for (ezUInt32 i = 0; i < m_ComponentTypes.GetCount(); ++i)
+    {
+      ezUInt32 uiAllComponentsSize = 0;
+      stream >> uiAllComponentsSize;
+
+      memWriter << uiAllComponentsSize;
+
+      while (uiAllComponentsSize > 0)
+      {
+        const ezUInt64 uiRead = stream.ReadBytes(Temp, ezMath::Min<ezUInt32>(uiAllComponentsSize, EZ_ARRAY_SIZE(Temp)));
+
+        memWriter.WriteBytes(Temp, uiRead);
+
+        uiAllComponentsSize -= (ezUInt32) uiRead;
+      }
+    }
+  }
+}
+
+void ezWorldReader::InstantiateWorld(ezWorld& world)
+{
+  Instantiate(world, false, ezTransform());
+}
+
+void ezWorldReader::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform)
+{
+  Instantiate(world, true, rootTransform);
+}
+
+void ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform)
+{
+  m_pWorld = &world;
+
+  m_IndexToGameObjectHandle.Clear();
+  m_IndexToComponentHandle.Clear();
+
+  m_IndexToGameObjectHandle.PushBack(ezGameObjectHandle());
+  m_IndexToComponentHandle.SetCount(m_uiMaxComponents + 1); // initialize with 'invalid' handles to be able to skip unknown components
+
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  if (bUseTransform)
+  {
+    CreateGameObjects(m_RootObjectsToCreate, rootTransform);
+  }
+  else
+  {
+    CreateGameObjects(m_RootObjectsToCreate);
+  }
+
+  CreateGameObjects(m_ChildObjectsToCreate);
+
+  // read component data from copied memory stream
+  {
+    ezMemoryStreamReader memReader(&m_ComponentStream);
+    ezStreamReader* pPrevReader = m_pStream;
+    m_pStream = &memReader;
+
+    for (ezUInt32 i = 0; i < m_ComponentTypes.GetCount(); ++i)
+    {
+      ReadComponentsOfType(i);
+    }
+
+    m_pStream = pPrevReader;
   }
 
   FulfillComponentHandleRequets();
 }
 
-ezGameObjectHandle ezWorldReader::ReadHandle()
+
+ezGameObjectHandle ezWorldReader::ReadGameObjectHandle()
 {
   ezUInt32 idx = 0;
   *m_pStream >> idx;
@@ -71,7 +129,7 @@ ezGameObjectHandle ezWorldReader::ReadHandle()
   return m_IndexToGameObjectHandle[idx];
 }
 
-void ezWorldReader::ReadHandle(ezComponentHandle* out_hComponent)
+void ezWorldReader::ReadComponentHandle(ezComponentHandle* out_hComponent)
 {
   ezUInt32 idx = 0;
   *m_pStream >> idx;
@@ -92,29 +150,59 @@ ezUInt32 ezWorldReader::GetComponentTypeVersion(const ezRTTI* pRtti) const
   return uiVersion;
 }
 
-ezGameObject* ezWorldReader::ReadGameObject(bool bRoot)
+
+void ezWorldReader::ClearAndCompact()
 {
-  ezGameObjectDesc desc;
+  m_IndexToGameObjectHandle.Clear();
+  m_IndexToGameObjectHandle.Compact();
+
+  m_IndexToComponentHandle.Clear();
+  m_IndexToComponentHandle.Compact();
+
+  m_RootObjectsToCreate.Clear();
+  m_RootObjectsToCreate.Compact();
+
+  m_ChildObjectsToCreate.Clear();
+  m_ChildObjectsToCreate.Compact();
+
+  m_ComponentHandleRequests.Clear();
+  m_ComponentHandleRequests.Compact();
+
+  m_ComponentTypes.Clear();
+  m_ComponentTypes.Compact();
+
+  m_ComponentTypeVersions.Clear();
+  m_ComponentTypeVersions.Compact();
+
+  m_ComponentStream.Clear();
+  m_ComponentStream.Compact();
+}
+
+
+ezUInt64 ezWorldReader::GetHeapMemoryUsage() const
+{
+  return m_IndexToGameObjectHandle.GetHeapMemoryUsage() +
+    m_IndexToComponentHandle.GetHeapMemoryUsage() +
+    m_RootObjectsToCreate.GetHeapMemoryUsage() +
+    m_ChildObjectsToCreate.GetHeapMemoryUsage() +
+    m_ComponentHandleRequests.GetHeapMemoryUsage() +
+    m_ComponentTypes.GetHeapMemoryUsage() +
+    m_ComponentTypeVersions.GetHeapMemoryUsage() +
+    m_ComponentStream.GetHeapMemoryUsage();
+}
+
+void ezWorldReader::ReadGameObjectDesc(GameObjectToCreate& godesc)
+{
+  ezGameObjectDesc& desc = godesc.m_Desc;
   ezStringBuilder sName;
 
   desc.m_Flags = ezObjectFlags::None;
-  desc.m_hParent = ReadHandle();
 
+  *m_pStream >> godesc.m_uiParentHandleIdx;
   *m_pStream >> sName;
   *m_pStream >> desc.m_LocalPosition;
   *m_pStream >> desc.m_LocalRotation;
   *m_pStream >> desc.m_LocalScaling;
-
-  if (bRoot)
-  {
-    ezTransform tRoot(m_vRootPosition, m_qRootRotation, m_vRootScale);
-    ezTransform tChild(desc.m_LocalPosition, desc.m_LocalRotation, desc.m_LocalScaling);
-
-    ezTransform tNew;
-    tNew.SetGlobalTransform(tRoot, tChild);
-
-    tNew.Decompose(desc.m_LocalPosition, desc.m_LocalRotation, desc.m_LocalScaling);
-  }
 
   bool bActive = true;
   *m_pStream >> bActive;
@@ -128,11 +216,6 @@ ezGameObject* ezWorldReader::ReadGameObject(bool bRoot)
   desc.m_sName.Assign(sName.GetData());
 
   // desc.m_Flags ..
-
-  ezGameObject* pObject;
-  m_pWorld->CreateObject(desc, pObject);
-
-  return pObject;
 }
 
 
@@ -146,9 +229,12 @@ void ezWorldReader::ReadComponentInfo(ezUInt32 uiComponentTypeIdx)
   s >> sRttiName;
   s >> uiRttiVersion;
 
-  /// \todo Skip unknown types
   const ezRTTI* pRtti = ezRTTI::FindTypeByName(sRttiName);
-  EZ_ASSERT_DEV(pRtti != nullptr, "Unknown rtti type '%s'", sRttiName.GetData());
+
+  if (pRtti == nullptr)
+  {
+    ezLog::Error("Unknown component type '%s'. Components of this type will be skipped.", sRttiName.GetData());
+  }
 
   m_ComponentTypes[uiComponentTypeIdx] = pRtti;
   m_ComponentTypeVersions[pRtti] = uiRttiVersion;
@@ -158,42 +244,68 @@ void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
 {
   ezStreamReader& s = *m_pStream;
 
-  ezUInt32 uiNumComponents = 0;
+  ezUInt32 uiAllComponentsSize = 0;
+  s >> uiAllComponentsSize;
 
-  s >> uiNumComponents;
+  bool bSkip = false;
 
+  ezComponentManagerBase* pManager = nullptr;
   const ezRTTI* pRtti = m_ComponentTypes[uiComponentTypeIdx];
 
-  auto* pManager = m_pWorld->GetComponentManager(pRtti);
-  EZ_ASSERT_DEV(pManager != nullptr, "Cannot create components of type '%s'", pRtti->GetTypeName());
-
-  for (ezUInt32 i = 0; i < uiNumComponents; ++i)
+  if (pRtti == nullptr)
   {
-    /// \todo redirect to memory stream, record data size
+    bSkip = true;
+    ezLog::Warning("Skipping components of unknown type");
+  }
+  else
+  {
+    pManager = m_pWorld->GetComponentManager(pRtti);
 
-    const ezGameObjectHandle hOwner = ReadHandle();
+    if (pManager == nullptr)
+    {
+      bSkip = true;
+      ezLog::Warning("Cannot create components of type '%s', manager is not available.", pRtti->GetTypeName());
+    }
+  }
 
-    bool bActive = true;
-    *m_pStream >> bActive;
+  if (bSkip)
+  {
+    m_pStream->SkipBytes(uiAllComponentsSize);
+  }
+  else
+  {
+    ezUInt32 uiNumComponents = 0;
+    s >> uiNumComponents;
 
-    bool bDynamic = true;
-    *m_pStream >> bDynamic;
+    for (ezUInt32 i = 0; i < uiNumComponents; ++i)
+    {
+      const ezGameObjectHandle hOwner = ReadGameObjectHandle();
 
-    auto hComponent = pManager->AllocateComponent();
-    m_IndexToComponentHandle.PushBack(hComponent);
+      ezUInt32 uiComponentIdx = 0;
+      *m_pStream >> uiComponentIdx;
 
-    ezComponent* pComponent = nullptr;
-    pManager->TryGetComponent(hComponent, pComponent);
+      bool bActive = true;
+      *m_pStream >> bActive;
 
-    pComponent->SetActive(bActive);
-    /// \todo currently everything is always dynamic
+      bool bDynamic = true;
+      *m_pStream >> bDynamic;
 
-    pComponent->DeserializeComponent(*this);
+      auto hComponent = pManager->AllocateComponent();
+      m_IndexToComponentHandle[uiComponentIdx] = hComponent;
 
-    ezGameObject* pParentObject = nullptr;
-    m_pWorld->TryGetObject(hOwner, pParentObject);
+      ezComponent* pComponent = nullptr;
+      pManager->TryGetComponent(hComponent, pComponent);
 
-    pParentObject->AddComponent(pComponent);
+      pComponent->SetActive(bActive);
+      /// \todo currently everything is always dynamic
+
+      pComponent->DeserializeComponent(*this);
+
+      ezGameObject* pParentObject = nullptr;
+      m_pWorld->TryGetObject(hOwner, pParentObject);
+
+      pParentObject->AddComponent(pComponent);
+    }
   }
 }
 
@@ -203,9 +315,39 @@ void ezWorldReader::FulfillComponentHandleRequets()
   {
     *req.m_pWriteToComponent = m_IndexToComponentHandle[req.m_uiComponentIndex];
   }
+
+  m_ComponentHandleRequests.Clear();
+}
+
+void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects)
+{
+  for (const auto& godesc : objects)
+  {
+    ezGameObject* pObject;
+
+    m_IndexToGameObjectHandle.PushBack(m_pWorld->CreateObject(godesc.m_Desc, pObject));
+  }
 }
 
 
+void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, const ezTransform& rootTransform)
+{
+  for (const auto& godesc : m_RootObjectsToCreate)
+  {
+    ezGameObjectDesc desc = godesc.m_Desc; // make a copy
+    ezTransform tChild(desc.m_LocalPosition, desc.m_LocalRotation, desc.m_LocalScaling);
+
+    ezTransform tNew;
+    tNew.SetGlobalTransform(rootTransform, tChild);
+
+    tNew.Decompose(desc.m_LocalPosition, desc.m_LocalRotation, desc.m_LocalScaling);
+
+    ezGameObject* pObject;
+
+    m_IndexToGameObjectHandle.PushBack(m_pWorld->CreateObject(desc, pObject));
+  }
+
+}
 
 EZ_STATICLINK_FILE(Core, Core_WorldSerializer_Implementation_WorldReader);
 

@@ -263,6 +263,8 @@ void ezQtSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneE
       msg.m_sOutputFile = GetSceneDocument()->GetBinaryTargetFile();
       msg.m_uiAssetHash = pInfo->m_uiSettingsHash;
 
+      ezLog::Info("Exporting scene to \"%s\"", msg.m_sOutputFile.GetData());
+
       GetEditorEngineConnection()->SendMessage(&msg);
     }
     break;

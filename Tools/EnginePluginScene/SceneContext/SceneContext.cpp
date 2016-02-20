@@ -13,6 +13,8 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <GameFoundation/GameApplication/GameApplication.h>
+#include <GameUtils/Components/SpawnComponent.h>
+#include <GameUtils/Components/TimedDeathComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>);
   EZ_BEGIN_PROPERTIES
@@ -376,6 +378,8 @@ void ezSceneContext::OnInitialize()
   pWorld->CreateComponentManager<ezMeshComponentManager>();
   pWorld->CreateComponentManager<ezRotorComponentManager>();
   pWorld->CreateComponentManager<ezSliderComponentManager>();
+  pWorld->CreateComponentManager<ezSpawnComponentManager>();
+  pWorld->CreateComponentManager<ezTimedDeathComponentManager>();
   pWorld->CreateComponentManager<ezPointLightComponentManager>();
   pWorld->CreateComponentManager<ezSpotLightComponentManager>();
   pWorld->CreateComponentManager<ezDirectionalLightComponentManager>();

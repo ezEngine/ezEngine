@@ -3,8 +3,7 @@
 #include <GameUtils/Basics.h>
 #include <GameUtils/Components/TransformComponent.h>
 
-class ezRotorComponent;
-typedef ezComponentManagerSimple<ezRotorComponent, true> ezRotorComponentManager;
+typedef ezComponentManagerSimple<class ezRotorComponent, true> ezRotorComponentManager;
 
 class EZ_GAMEUTILS_DLL ezRotorComponent : public ezTransformComponent
 {

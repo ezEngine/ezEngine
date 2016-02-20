@@ -4,7 +4,7 @@
 #include <GameFoundation/Declarations.h>
 #include <System/Window/Window.h>
 
-/// \brief A window class that expands a little on ezWindow. Default type used by ezGameState to create a window.6
+/// \brief A window class that expands a little on ezWindow. Default type used by ezGameState to create a window.
 class ezGameStateWindow : public ezWindow
 {
 public:

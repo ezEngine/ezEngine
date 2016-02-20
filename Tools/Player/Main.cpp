@@ -6,6 +6,9 @@
 #include <GameUtils/Components/RotorComponent.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Core/WorldSerializer/WorldReader.h>
+#include <GameUtils/Components/TimedDeathComponent.h>
+#include <GameUtils/Components/SpawnComponent.h>
+#include <CoreUtils/Assets/AssetFileHeader.h>
 
 ezPlayerApplication::ezPlayerApplication()
   : ezGameApplication(ezGameApplicationType::StandAlone, nullptr)
@@ -52,8 +55,10 @@ void ezPlayerApplication::SetupLevel()
   EZ_LOCK(m_pWorld->GetWriteMarker());
 
   /// \todo More 'elegant' solution to registering all component managers
-  ezMeshComponentManager* pMeshCompMan = m_pWorld->CreateComponentManager<ezMeshComponentManager>();
-  ezRotorComponentManager* pRotorCompMan = m_pWorld->CreateComponentManager<ezRotorComponentManager>();
+  m_pWorld->CreateComponentManager<ezMeshComponentManager>();
+  m_pWorld->CreateComponentManager<ezRotorComponentManager>();
+  m_pWorld->CreateComponentManager<ezTimedDeathComponentManager>();
+  m_pWorld->CreateComponentManager<ezSpawnComponentManager>();
 
   {
     ezFileReader file;
@@ -61,26 +66,20 @@ void ezPlayerApplication::SetupLevel()
     {
       // File Header
       {
+        ezAssetFileHeader header;
+        header.Read(file);
+
         char szSceneTag[16];
         file.ReadBytes(szSceneTag, sizeof(char) * 16);
 
         EZ_ASSERT_RELEASE(ezStringUtils::IsEqualN(szSceneTag, "[ezBinaryScene]", 16), "The given file is not a valid scene file");
-
-        ezUInt8 uiVersion = 0;
-        file >> uiVersion;
-
-        EZ_ASSERT_RELEASE(uiVersion == 1, "The given scene file has an invalid version: %u", uiVersion);
-
-        ezUInt64 uiHash = 0;
-        file >> uiHash;
+        EZ_ASSERT_RELEASE(header.GetFileVersion() == 1, "The given scene file has an invalid version: %u", header.GetFileVersion());
       }
 
-      ezQuat qRot;
-      qRot.SetIdentity();
-      //qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(45));
-
       ezWorldReader reader;
-      reader.Read(file, *m_pWorld, ezVec3(0), qRot, ezVec3(1.0f));
+      reader.ReadWorldDescription(file);
+      reader.InstantiateWorld(*m_pWorld);
+      //reader.InstantiatePrefab(*m_pWorld, ezVec3(0, 2, 0), ezQuat::IdentityQuaternion(), ezVec3(0.1f));
     }
     else
     {

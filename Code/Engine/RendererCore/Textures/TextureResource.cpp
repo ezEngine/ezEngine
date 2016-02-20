@@ -301,7 +301,6 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReader* Stream)
 
   ezHybridArray<ezGALSystemMemoryDescription, 32> InitData;
 
-  /// \todo Figure out the correct order of the arrays/faces/mips
   for (ezUInt32 array_index = 0; array_index < pImage->GetNumArrayIndices(); ++array_index)
   {
     for (ezUInt32 face = 0; face < pImage->GetNumFaces(); ++face)

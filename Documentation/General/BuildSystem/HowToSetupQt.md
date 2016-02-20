@@ -7,7 +7,7 @@ Using pre-compiled binaries
 For this you need access to the Dropbox folder 'ezShare'.
 If you don't have that, check out 'Compile Qt yourself' below.
 
-1. Download Download http://download.qt.io/official_releases/qt/5.4/5.4.1/single/qt-everywhere-opensource-src-5.4.1.zip
+1. Download http://download.qt.io/official_releases/qt/5.4/5.4.1/single/qt-everywhere-opensource-src-5.4.1.zip
 2. Extract content to some folder (e.g. 'C:\\Qt\\5.4.1\\'), omitting the folder that is in the root of the zip
 3. Extract 'qt5.4.1vs110x64.7z' and / or 'qt5.4.1vs110x86.7z' from 'Dropbox\\ezShare\\Qt' into the qt directory so the folders reside next to 'qtbase' etc.
 

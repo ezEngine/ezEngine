@@ -16,7 +16,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 EZ_STATICLINK_FILE(GameFoundation, GameFoundation_GameState);
 
 
-ezGameState::ezGameState() 
+ezGameState::ezGameState()
   : m_pApplication(nullptr)
   , m_pMainWindow(nullptr)
   , m_pMainWorld(nullptr)
@@ -32,7 +32,7 @@ ezGameState::~ezGameState()
 }
 
 
-void ezGameState::OnActivation(ezGameApplicationType AppType, ezWorld* pWorld)
+void ezGameState::OnActivation(ezWorld* pWorld)
 {
   m_bStateWantsToQuit = false;
   m_pMainWorld = pWorld;
@@ -149,9 +149,9 @@ void ezGameState::ConfigureMainCamera()
 
   ezCoordinateSystem coordSys;
 
-  if ( m_pMainWorld )
+  if (m_pMainWorld)
   {
-    m_pMainWorld->GetCoordinateSystem( vCameraPos, coordSys );
+    m_pMainWorld->GetCoordinateSystem(vCameraPos, coordSys);
   }
   else
   {

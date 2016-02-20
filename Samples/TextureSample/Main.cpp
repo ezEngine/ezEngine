@@ -497,7 +497,7 @@ ezResourceLoadData CustomTextureResourceLoader::OpenDataStream(const ezResourceB
   ezImage* pImage = &pData->m_Image;
   w.WriteBytes(&pImage, sizeof(ezImage*));
 
-  /// \todo As long as we don't have a custom format or asset meta data, this is a hack to get the SRGB information for the texture
+  /// This is a hack to get the SRGB information for the texture
 
   const ezStringBuilder sName = ezPathUtils::GetFileName(sFileToLoad);
 

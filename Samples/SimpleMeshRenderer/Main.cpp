@@ -29,11 +29,11 @@ float SimpleMeshRendererGameState::CanHandleThis(ezGameApplicationType AppType, 
   return 1.0f;
 }
 
-void SimpleMeshRendererGameState::OnActivation( ezGameApplicationType AppType, ezWorld* pWorld )
+void SimpleMeshRendererGameState::OnActivation(ezWorld* pWorld)
 {
   EZ_LOG_BLOCK("SimpleMeshRendererGameState::Activate");
 
-  ezGameState::OnActivation(AppType, pWorld);
+  ezGameState::OnActivation(pWorld);
 
   CreateGameLevel();
 }

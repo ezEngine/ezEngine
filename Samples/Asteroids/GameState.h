@@ -15,7 +15,7 @@ protected:
   virtual void ConfigureInputActions() override;
 
 private:
-  virtual void OnActivation(ezGameApplicationType AppType, ezWorld* pWorld) override;
+  virtual void OnActivation(ezWorld* pWorld) override;
   virtual void OnDeactivation() override;
   virtual void BeforeWorldUpdate() override;
 

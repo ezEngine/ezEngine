@@ -47,7 +47,7 @@ void ezFallbackGameState::ConfigureInputActions()
 {
 	g_AllInput.Clear();
 
-	if ( !ezFileSystem::ExistsFile( "InputConfig.json" ) )
+	//if ( !ezFileSystem::ExistsFile( "InputConfig.json" ) )
 	{
 		RegisterInputAction( "Game", "MoveForwards", ezInputSlot_KeyW );
 		RegisterInputAction( "Game", "MoveBackwards", ezInputSlot_KeyS );
@@ -62,14 +62,14 @@ void ezFallbackGameState::ConfigureInputActions()
 		RegisterInputAction( "Game", "TurnUp", ezInputSlot_KeyUp );
 		RegisterInputAction( "Game", "TurnDown", ezInputSlot_KeyDown );
 
-		if ( !g_AllInput.IsEmpty() )
-		{
-			ezFileWriter file;
-			if ( file.Open( "InputConfig.json" ).Succeeded() )
-			{
-				ezGameAppInputConfig::WriteToJson( file, g_AllInput );
-			}
-		}
+		//if ( !g_AllInput.IsEmpty() )
+		//{
+		//	ezFileWriter file;
+		//	if ( file.Open( "InputConfig.json" ).Succeeded() )
+		//	{
+		//		ezGameAppInputConfig::WriteToJson( file, g_AllInput );
+		//	}
+		//}
 	}
 }
 

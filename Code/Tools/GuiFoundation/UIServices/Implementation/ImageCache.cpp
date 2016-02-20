@@ -187,8 +187,10 @@ void QtImageCache::LoadingTask(QString sPath, QModelIndex index, QVariant UserDa
   QImage Image;
   const bool bImageAvailable = Image.load(sPath);
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   /// \todo Remove this Sleep (needed for testing)
-  ezThreadUtils::Sleep(50);
+  ezThreadUtils::Sleep(35);
+#endif
 
   EZ_LOCK(s_Mutex);
 

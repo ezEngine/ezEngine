@@ -22,7 +22,7 @@ void ezQtEditorApp::DetectAvailableEditorPlugins()
       do
       {
         ezStringBuilder sPlugin = fsit.GetStats().m_sFileName;
-        sPlugin.Shrink(0, 4); // TODO: ChangeFileExtension should work with empty extensions...
+        sPlugin.RemoveFileExtension();
 
         s_EditorPlugins.m_Plugins[sPlugin].m_bAvailable = true;
       }
@@ -47,7 +47,7 @@ void ezQtEditorApp::DetectAvailableEnginePlugins()
       do
       {
         ezStringBuilder sPlugin = fsit.GetStats().m_sFileName;
-        sPlugin.Shrink(0, 4); // TODO: ChangeFileExtension should work with empty extensions...
+        sPlugin.RemoveFileExtension();
 
         if (sPlugin.FindLastSubString_NoCase("EnginePlugin") ||
             sPlugin.EndsWith_NoCase("Plugin"))

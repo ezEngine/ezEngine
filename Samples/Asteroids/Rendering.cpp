@@ -1,4 +1,3 @@
-#include "Window.h"
 #include <Core/Input/InputManager.h>
 #include <Foundation/Math/Size.h>
 #include <Foundation/Configuration/CVar.h>

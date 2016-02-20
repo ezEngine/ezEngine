@@ -51,11 +51,11 @@ AsteroidGameState::AsteroidGameState()
   m_pLevel = nullptr;
 }
 
-void AsteroidGameState::OnActivation( ezGameApplicationType AppType, ezWorld* pWorld )
+void AsteroidGameState::OnActivation(ezWorld* pWorld)
 {
   EZ_LOG_BLOCK("AsteroidGameState::Activate");
 
-  ezGameState::OnActivation( AppType, pWorld );
+  ezGameState::OnActivation(pWorld);
 
   srand((ezUInt32)ezTime::Now().GetMicroseconds());
 
@@ -89,7 +89,7 @@ void AsteroidGameState::BeforeWorldUpdate()
 
   if (ezInputManager::GetInputActionState("Main", "ToggleMouseClip") == ezKeyState::Pressed)
   {
-	  m_pMainWindow->GetInputDevice()->SetClipMouseCursor(!m_pMainWindow->GetInputDevice()->GetClipMouseCursor());
+    m_pMainWindow->GetInputDevice()->SetClipMouseCursor(!m_pMainWindow->GetInputDevice()->GetClipMouseCursor());
   }
 }
 
@@ -156,14 +156,14 @@ void AsteroidGameState::ConfigureInputActions()
 void AsteroidGameState::CreateGameLevel()
 {
   m_pLevel = EZ_DEFAULT_NEW(Level);
-  m_pLevel->SetupLevel( GetApplication()->CreateWorld( "Asteroids - World", true ) );
+  m_pLevel->SetupLevel(GetApplication()->CreateWorld("Asteroids - World", true));
 
   ChangeMainWorld(m_pLevel->GetWorld());
 }
 
 void AsteroidGameState::DestroyLevel()
 {
-  GetApplication()->DestroyWorld( m_pLevel->GetWorld() );
+  GetApplication()->DestroyWorld(m_pLevel->GetWorld());
   EZ_DEFAULT_DELETE(m_pLevel);
 }
 

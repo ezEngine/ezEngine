@@ -13,7 +13,7 @@ typedef ezGALDeviceGL ezGALDeviceDefault;
 void ezGameApplication::DoProjectSetup()
 {
   DoSetupLogWriters();
-  
+
   ezTelemetry::CreateServer();
 
   ezApplicationConfig::SetProjectDirectory(FindProjectDirectory());
@@ -94,7 +94,7 @@ void ezGameApplication::DoSetupGraphicsDevice()
     ezGPUResourcePool::SetDefaultInstance(pResourcePool);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    ezRenderContext::ConfigureShaderSystem("DX11_SM50", true);
+    ezRenderContext::ConfigureShaderSystem("DX11_SM40", true);
 #else
     ezRenderContext::ConfigureShaderSystem("GL3", true);
 #endif

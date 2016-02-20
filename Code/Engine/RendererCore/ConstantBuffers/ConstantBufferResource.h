@@ -65,3 +65,5 @@ private:
   ezGALBufferHandle m_hGALConstantBuffer;
   ezDynamicArray<ezUInt8> m_Bytes;
 };
+
+

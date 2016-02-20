@@ -4,14 +4,34 @@
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Types/TagSet.h>
 
+/// \brief Stores an entire ezWorld in a stream.
+///
+/// Used for exporting a world in binary form either as a level or as a prefab (though there is no
+/// difference).
+/// Can be used for saving a game, if the exact state of the world shall be stored (e.g. like in an FPS).
 class EZ_CORE_DLL ezWorldWriter
 {
 public:
+
+  /// \brief Writes all content in \a world to \a stream.
+  ///
+  /// All game objects with tags that overlap with \a pExclude will be ignored.
   void Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet* pExclude = nullptr);
 
-  void WriteHandle(const ezGameObjectHandle& hObject);
-  void WriteHandle(const ezComponentHandle& hComponent);
+  /// \brief Writes the given game object handle to the stream.
+  ///
+  /// \note If the handle belongs to an object that is not part of the serialized scene, e.g. an object
+  /// that was excluded by a tag, this function will assert.
+  void WriteGameObjectHandle(const ezGameObjectHandle& hObject);
 
+  /// \brief Writes the given component handle to the stream.
+  ///
+  /// \note If the handle belongs to a component that is not part of the serialized scene, e.g. an object
+  /// that was excluded by a tag, this function will assert.
+  void WriteComponentHandle(const ezComponentHandle& hComponent);
+
+  /// \brief Accesses the stream to which data is written. Use this in component serialization functions
+  /// to write data to the stream.
   ezStreamWriter& GetStream() const { return *m_pStream; }
 
 private:

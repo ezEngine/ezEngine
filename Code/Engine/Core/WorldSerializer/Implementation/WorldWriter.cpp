@@ -90,7 +90,7 @@ void ezWorldWriter::AssignComponentHandleIndices()
   }
 }
 
-void ezWorldWriter::WriteHandle(const ezGameObjectHandle& hObject)
+void ezWorldWriter::WriteGameObjectHandle(const ezGameObjectHandle& hObject)
 {
   auto it = m_WrittenGameObjectHandles.Find(hObject);
 
@@ -104,7 +104,7 @@ void ezWorldWriter::WriteHandle(const ezGameObjectHandle& hObject)
   *m_pStream << uiIndex;
 }
 
-void ezWorldWriter::WriteHandle(const ezComponentHandle& hComponent)
+void ezWorldWriter::WriteComponentHandle(const ezComponentHandle& hComponent)
 {
   auto it = m_WrittenComponentHandles.Find(hComponent);
 
@@ -144,9 +144,9 @@ bool ezWorldWriter::ObjectTraverser(ezGameObject* pObject)
 void ezWorldWriter::WriteGameObject(const ezGameObject* pObject)
 {
   if (pObject->GetParent())
-    WriteHandle(pObject->GetParent()->GetHandle());
+    WriteGameObjectHandle(pObject->GetParent()->GetHandle());
   else
-    WriteHandle(ezGameObjectHandle());
+    WriteGameObjectHandle(ezGameObjectHandle());
 
   ezStreamWriter& s = *m_pStream;
 
@@ -157,9 +157,7 @@ void ezWorldWriter::WriteGameObject(const ezGameObject* pObject)
   s << pObject->IsActive();
   s << pObject->IsDynamic();
 
-  /// \todo
-  // tags
-  // write strings only once
+  /// \todo tags, write strings only once
 }
 
 
@@ -173,22 +171,38 @@ void ezWorldWriter::WriteComponentInfo(const ezRTTI* pRtti)
 
 void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<const ezComponent*>& components)
 {
-  ezStreamWriter& s = *m_pStream;
+  ezMemoryStreamStorage storage;
+  ezMemoryStreamWriter memWriter(&storage);
 
-  s << components.GetCount();
+  ezStreamWriter* pPrevStream = m_pStream;
+  m_pStream = &memWriter;
 
-  for (const auto* pComp : components)
+  // write to memory stream
   {
-    /// \todo redirect to memory stream, record data size
+    ezStreamWriter& s = *m_pStream;
+    s << components.GetCount();
 
-    WriteHandle(pComp->GetOwner()->GetHandle());
+    for (const auto* pComp : components)
+    {
+      WriteGameObjectHandle(pComp->GetOwner()->GetHandle());
+      WriteComponentHandle(pComp->GetHandle());
 
-    s << pComp->IsActive();
-    s << pComp->IsDynamic();
+      s << pComp->IsActive();
+      s << pComp->IsDynamic();
 
-    pComp->SerializeComponent(*this);
+      pComp->SerializeComponent(*this);
+    }
   }
 
+  m_pStream = pPrevStream;
+
+  // write result to actual stream
+  {
+    ezStreamWriter& s = *m_pStream;
+    s << storage.GetStorageSize();
+
+    s.WriteBytes(storage.GetData(), storage.GetStorageSize());
+  }
 }
 
 

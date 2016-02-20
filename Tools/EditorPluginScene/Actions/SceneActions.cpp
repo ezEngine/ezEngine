@@ -4,6 +4,7 @@
 #include <EditorPluginScene/Actions/SceneActions.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <QProcess>
+#include <Foundation/Logging/Log.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -191,6 +192,8 @@ void ezSceneAction::Execute(const ezVariant& value)
       const ezStringBuilder sPath = m_pSceneDocument->GetBinaryTargetFile();
       const char* szPath = sPath.GetData();
       arguments << QString::fromUtf8(szPath);
+
+      ezLog::Info("Running: Player.exe -scene \"%s\"", sPath.GetData());
 
       QProcess proc;
       proc.startDetached(QString::fromUtf8("Player.exe"), arguments);
