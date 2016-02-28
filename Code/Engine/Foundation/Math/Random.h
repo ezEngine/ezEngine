@@ -13,6 +13,10 @@ public:
   /// \brief Initializes the RNG with the given seed value. The value should not be zero.
   void Initialize(ezUInt64 uiSeed); // [tested]
 
+  /// \brief Initializes the RNG using current time stamp.
+  /// Not very sophisticated, but good enough for things that do not need to be secure.
+  void InitializeFromCurrentTime();
+
   /// \brief Serializes the current state
   void Save(ezStreamWriter& stream) const; // [tested]
 

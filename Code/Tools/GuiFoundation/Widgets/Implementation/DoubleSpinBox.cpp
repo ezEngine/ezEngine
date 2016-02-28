@@ -1,11 +1,17 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
 #include <Foundation/Math/Math.h>
+#include <QLineEdit>
 
 inline QDoubleSpinBoxLessAnnoying::QDoubleSpinBoxLessAnnoying(QWidget* pParent) : QDoubleSpinBox(pParent)
 {
   m_fDisplayedValue = ezMath::BasicType<float>::GetNaN();
   m_bInvalid = false;
+}
+
+void QDoubleSpinBoxLessAnnoying::setDisplaySuffix(const char* szSuffix)
+{
+  m_sSuffix = QString::fromUtf8(szSuffix);
 }
 
 QString QDoubleSpinBoxLessAnnoying::textFromValue(double val) const
@@ -42,6 +48,12 @@ QString QDoubleSpinBoxLessAnnoying::textFromValue(double val) const
 
   m_fDisplayedValue = val;
   m_sDisplayedText = sText;
+
+  if (!hasFocus())
+  {
+    sText += m_sSuffix;
+  }
+
   return sText;
 }
 
@@ -53,6 +65,11 @@ double QDoubleSpinBoxLessAnnoying::valueFromText(const QString& text) const
   }
 
   QString sFixedText = text;
+
+  if (!m_sSuffix.isEmpty() && sFixedText.endsWith(m_sSuffix))
+  {
+    sFixedText.chop(m_sSuffix.length());
+  }
 
   if (sFixedText.contains(','))
     sFixedText.replace(',', ".");
@@ -93,4 +110,26 @@ double QDoubleSpinBoxLessAnnoying::value() const
   return QDoubleSpinBox::value();
 }
 
+void QDoubleSpinBoxLessAnnoying::focusInEvent(QFocusEvent *event)
+{
+  if (!m_sSuffix.isEmpty())
+  {
+    QString s = lineEdit()->text();
+
+    if (!m_sSuffix.isEmpty() && s.endsWith(m_sSuffix))
+    {
+      s.chop(m_sSuffix.length());
+    }
+
+    lineEdit()->setText(s);
+  }
+
+  QDoubleSpinBox::focusInEvent(event);
+}
+
+void QDoubleSpinBoxLessAnnoying::focusOutEvent(QFocusEvent *event)
+{
+  QDoubleSpinBox::focusOutEvent(event);
+
+}
 

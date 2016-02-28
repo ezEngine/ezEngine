@@ -21,6 +21,8 @@ ezWorld::ezWorld(const char* szWorldName) :
 {
   m_Data.m_pCoordinateSystemProvider->m_pOwnerWorld = this;
 
+  m_Random.InitializeFromCurrentTime();
+
   ezStringBuilder sb = szWorldName;
   sb.Append(".Update");
   m_UpdateProfilingID = ezProfilingSystem::CreateId(sb.GetData());
@@ -144,7 +146,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   return newId;
 }
 
-void ezWorld::DeleteObject(const ezGameObjectHandle& object)
+void ezWorld::DestroyObjectNow(const ezGameObjectHandle& object)
 {
   CheckForWriteAccess();
 
@@ -160,7 +162,7 @@ void ezWorld::DeleteObject(const ezGameObjectHandle& object)
   // delete children
   for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
   {
-    DeleteObject(it->GetHandle());
+    DestroyObjectNow(it->GetHandle());
   }
 
   // delete attached components

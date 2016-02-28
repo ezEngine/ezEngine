@@ -26,7 +26,7 @@ void ProjectileComponent::Update()
 {
   if (m_iTimeToLive <= 0)
   {
-    GetWorld()->DeleteObject(GetOwner()->GetHandle());
+    GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
     return;
   }
 

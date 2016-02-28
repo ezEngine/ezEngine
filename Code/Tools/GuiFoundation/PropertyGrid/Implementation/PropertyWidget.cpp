@@ -286,6 +286,91 @@ void ezPropertyEditorDoubleSpinboxWidget::SlotValueChanged()
   }
 }
 
+
+/// *** TIME SPINBOX ***
+
+ezPropertyEditorTimeWidget::ezPropertyEditorTimeWidget() : ezQtStandardPropertyWidget()
+{
+  m_bTemporaryCommand = false;
+
+  m_pWidget = nullptr;
+
+  m_pLayout = new QHBoxLayout(this);
+  m_pLayout->setMargin(0);
+  setLayout(m_pLayout);
+
+  QSizePolicy policy = sizePolicy();
+
+  {
+    m_pWidget = new QDoubleSpinBoxLessAnnoying(this);
+    m_pWidget->setDisplaySuffix(" (sec)");
+    m_pWidget->setMinimum(-ezMath::BasicType<double>::GetInfinity());
+    m_pWidget->setMaximum(ezMath::BasicType<double>::GetInfinity());
+    m_pWidget->setSingleStep(1.0);
+    m_pWidget->setAccelerated(true);
+    m_pWidget->setDecimals(3);
+    m_pWidget->setToolTip(QString::fromUtf8("Time value in seconds"));
+
+    policy.setHorizontalStretch(2);
+    m_pWidget->setSizePolicy(policy);
+
+    m_pLayout->addWidget(m_pWidget);
+
+    connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_EditingFinished_triggered()));
+    connect(m_pWidget, SIGNAL(valueChanged(double)), this, SLOT(SlotValueChanged()));
+  }
+}
+
+void ezPropertyEditorTimeWidget::OnInit()
+{
+  const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>();
+  if (pClamp)
+  {
+    QtScopedBlockSignals bs(m_pWidget);
+
+    if (pClamp->GetMinValue().CanConvertTo<ezTime>())
+    {
+      m_pWidget->setMinimum(pClamp->GetMinValue().ConvertTo<ezTime>().GetSeconds());
+    }
+    if (pClamp->GetMaxValue().CanConvertTo<ezTime>())
+    {
+      m_pWidget->setMaximum(pClamp->GetMaxValue().ConvertTo<ezTime>().GetSeconds());
+    }
+  }
+}
+
+void ezPropertyEditorTimeWidget::InternalSetValue(const ezVariant& value)
+{
+  QtScopedBlockSignals b0(m_pWidget);
+
+  if (value.IsValid())
+  {
+    m_pWidget->setValue(value.ConvertTo<ezTime>().GetSeconds());
+  }
+  else
+  {
+    m_pWidget->setValueInvalid();
+  }
+}
+
+void ezPropertyEditorTimeWidget::on_EditingFinished_triggered()
+{
+  if (m_bTemporaryCommand)
+    Broadcast(ezQtPropertyWidget::Event::Type::EndTemporary);
+
+  m_bTemporaryCommand = false;
+}
+
+void ezPropertyEditorTimeWidget::SlotValueChanged()
+{
+  if (!m_bTemporaryCommand)
+    Broadcast(ezQtPropertyWidget::Event::Type::BeginTemporary);
+
+  m_bTemporaryCommand = true;
+
+  BroadcastValueChanged(ezTime::Seconds(m_pWidget->value()));
+}
+
 /// *** INT SPINBOX ***
 
 ezPropertyEditorIntSpinboxWidget::ezPropertyEditorIntSpinboxWidget(ezInt32 iMinValue, ezInt32 iMaxValue) : ezQtStandardPropertyWidget()

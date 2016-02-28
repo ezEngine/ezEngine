@@ -114,6 +114,7 @@ void ezQtAssetPropertyWidget::UpdateThumbnail(const ezUuid& guid, const char* sz
 void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
 {
   QtScopedBlockSignals b(m_pWidget);
+  QtScopedBlockSignals b2(m_pButton);
 
   if (!value.IsValid())
   {

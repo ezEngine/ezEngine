@@ -22,6 +22,8 @@ static ezQtPropertyWidget* StandardTypeCreator(const ezRTTI* pRtti)
     return new ezPropertyEditorCheckboxWidget();
 
   case ezVariant::Type::Time:
+    return new ezPropertyEditorTimeWidget();
+
   case ezVariant::Type::Float:
   case ezVariant::Type::Double:
     return new ezPropertyEditorDoubleSpinboxWidget(1);

@@ -71,6 +71,28 @@ protected:
   QDoubleSpinBoxLessAnnoying*  m_pWidget[4];
 };
 
+/// *** TIME SPINBOX ***
+
+class EZ_GUIFOUNDATION_DLL ezPropertyEditorTimeWidget : public ezQtStandardPropertyWidget
+{
+  Q_OBJECT
+
+public:
+  ezPropertyEditorTimeWidget();
+
+  private slots:
+  void on_EditingFinished_triggered();
+  void SlotValueChanged();
+
+protected:
+  virtual void OnInit() override;
+  virtual void InternalSetValue(const ezVariant& value) override;
+
+  bool m_bTemporaryCommand;
+  QHBoxLayout* m_pLayout;
+  QDoubleSpinBoxLessAnnoying*  m_pWidget;
+};
+
 /// *** INT SPINBOX ***
 
 class EZ_GUIFOUNDATION_DLL ezPropertyEditorIntSpinboxWidget : public ezQtStandardPropertyWidget
@@ -93,7 +115,7 @@ protected:
   QSpinBox* m_pWidget;
 };
 
-/// *** DOUBLE SPINBOX ***
+/// *** QUATERNION ***
 
 class EZ_GUIFOUNDATION_DLL ezPropertyEditorQuaternionWidget : public ezQtStandardPropertyWidget
 {

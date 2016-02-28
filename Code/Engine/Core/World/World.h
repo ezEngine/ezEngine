@@ -4,6 +4,7 @@
 #include <Core/World/Implementation/WorldData.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Clock.h>
+#include <Foundation/Math/Random.h>
 
 /// \brief A world encapsulates a scene graph of game objects and various component managers and their components.
 ///
@@ -33,8 +34,11 @@ public:
   /// \brief Create a new game object from the given description, writes a pointer to it to out_pObject and returns a handle to it.
   ezGameObjectHandle CreateObject(const ezGameObjectDesc& desc, ezGameObject*& out_pObject);
 
-  /// \brief Deletes the given object. Note that the object and all its components and children will be invalidated first and the actual deletion is postponed.
-  void DeleteObject(const ezGameObjectHandle& object);
+  /// \brief Deletes the given object, its children and all components.
+  /// \note This function deletes the object immediately! It is unsafe to use this during a game update loop, as other objects
+  /// may rely on this object staying valid for the rest of the frame.
+  /// Use DeleteObjectDelayed() instead for safe removal at the end of the frame.
+  void DestroyObjectNow(const ezGameObjectHandle& object);
 
   /// \brief Deletes the given object at the beginning of the next world update. The object and its components and children stay completely valid until then.
   void DeleteObjectDelayed(const ezGameObjectHandle& object);
@@ -162,6 +166,10 @@ public:
   /// \brief Returns the clock that is used for all updates in this game world
   const ezClock& GetClock() const { return m_Clock; }
 
+  /// \brief Accesses the default random number generator.
+  /// If more control is desired, individual components should use their own RNG.
+  ezRandom& GetRandomNumberGenerator() { return m_Random; }
+
 public:
   /// \brief Returns the number of active worlds.
   static ezUInt32 GetWorldCount();
@@ -205,6 +213,9 @@ private:
 
   // the timer that is used for all world and component updates
   ezClock m_Clock;
+
+  // the default random number generator for this world
+  ezRandom m_Random;
 
   ezProfilingId m_UpdateProfilingID;
   ezDelegateTask<void> m_UpdateTask;

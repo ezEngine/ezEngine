@@ -1,5 +1,6 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Math/Random.h>
+#include <Foundation/Time/Timestamp.h>
 
 
 ezRandom::ezRandom()
@@ -27,6 +28,12 @@ void ezRandom::Initialize(ezUInt64 uiSeed)
   }
 }
 
+
+void ezRandom::InitializeFromCurrentTime()
+{
+  ezTimestamp ts = ezTimestamp::CurrentTimestamp();
+  Initialize(static_cast<ezUInt64>(ts.GetInt64(ezSIUnitOfTime::Nanosecond)));
+}
 
 void ezRandom::Save(ezStreamWriter& stream) const
 {
@@ -87,7 +94,7 @@ ezUInt32 ezRandom::UIntInRange(ezUInt32 uiRange)
 
 ezInt32 ezRandom::IntInRange(ezInt32 iMinValue, ezUInt32 uiRange)
 {
-  return iMinValue + (ezInt32) UIntInRange(uiRange);
+  return iMinValue + (ezInt32)UIntInRange(uiRange);
 }
 
 ezInt32 ezRandom::IntMinMax(ezInt32 iMinValue, ezInt32 iMaxValue)
