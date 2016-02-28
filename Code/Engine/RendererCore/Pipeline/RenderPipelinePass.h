@@ -18,8 +18,9 @@ public:
   ezRenderPipelinePass(const char* szName);
   ~ezRenderPipelinePass();
 
-  void AddRenderer(ezUniquePtr<ezRenderer>&& pRenderer);
-  void RemoveRenderer(ezUniquePtr<ezRenderer>&& pRenderer);
+  ezArrayPtr<ezRenderer* const> GetRenderers() const;
+  void AddRenderer(ezRenderer* pRenderer);
+  void RemoveRenderer(ezRenderer* pRenderer);
 
   /// \brief Sets the name of the pass.
   void SetName(const char* szName);
@@ -41,6 +42,8 @@ public:
   /// \brief Render into outputs.
   virtual void Execute(const ezRenderViewContext& renderViewContext) = 0;
 
+  virtual void ReadBackProperties(ezView* pView) {}
+
   void RenderDataWithPassType(const ezRenderViewContext& renderViewContext, ezRenderPassType passType);
 
   EZ_FORCE_INLINE ezRenderPipeline* GetPipeline()
@@ -57,6 +60,6 @@ private:
   ezRenderPipeline* m_pPipeline;
 
   ezHashTable<const ezRTTI*, ezUInt32> m_TypeToRendererIndex;
-  ezDynamicArray<ezUniquePtr<ezRenderer>> m_Renderer;
+  ezDynamicArray<ezRenderer*> m_Renderer;
 };
 

@@ -309,7 +309,6 @@ ezPropertyEditorTimeWidget::ezPropertyEditorTimeWidget() : ezQtStandardPropertyW
     m_pWidget->setSingleStep(1.0);
     m_pWidget->setAccelerated(true);
     m_pWidget->setDecimals(3);
-    m_pWidget->setToolTip(QString::fromUtf8("Time value in seconds"));
 
     policy.setHorizontalStretch(2);
     m_pWidget->setSizePolicy(policy);

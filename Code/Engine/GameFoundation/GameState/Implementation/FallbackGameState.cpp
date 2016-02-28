@@ -7,6 +7,7 @@
 #include <RendererCore/Pipeline/TargetPass.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <GameFoundation/GameApplication/InputConfig.h>
+#include <GameUtils/Components/CameraComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFallbackGameState, 1, ezRTTIDefaultAllocator<ezFallbackGameState>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -75,6 +76,15 @@ void ezFallbackGameState::ConfigureInputActions()
 
 void ezFallbackGameState::ProcessInput()
 {
+  if (ezCameraComponent::s_pCurrent)
+  {
+    auto* pCamNode = ezCameraComponent::s_pCurrent->GetOwner();
+
+    m_MainCamera.LookAt(pCamNode->GetGlobalPosition(), pCamNode->GetGlobalPosition() + pCamNode->GetGlobalRotation() * ezVec3(1, 0, 0), pCamNode->GetGlobalRotation() * ezVec3(0, 0, 1));
+
+    return;
+  }
+
   float fRotateSpeed = 180.0f;
   float fMoveSpeed = 10.0f;
   float fInput = 0.0f;

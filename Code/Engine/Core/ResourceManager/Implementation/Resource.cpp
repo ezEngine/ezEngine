@@ -22,6 +22,7 @@ ezResourceBase::ezResourceBase(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityL
   m_Flags.AddOrRemove(ezResourceFlags::UpdateOnMainThread, ResourceUpdateThread == DoUpdate::OnMainThread);
 
   m_iReferenceCount = 0;
+  m_uiResourceChangeCounter = 0;
   m_LoadingState = ezResourceState::Unloaded;
   m_uiQualityLevelsLoadable = uiQualityLevelsLoadable;
   m_uiQualityLevelsDiscardable = 0;
@@ -100,6 +101,8 @@ void ezResourceBase::CallUpdateContent(ezStreamReader* Stream)
 
   if (ld.m_State == ezResourceState::LoadedResourceMissing)
     ezLog::Error("Missing Resource: '%s'", GetResourceID().GetData());
+
+  IncResourceChangeCounter();
 
   m_LoadingState = ld.m_State;
   m_uiQualityLevelsDiscardable = ld.m_uiQualityLevelsDiscardable;

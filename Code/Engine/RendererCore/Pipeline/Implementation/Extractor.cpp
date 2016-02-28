@@ -4,6 +4,30 @@
 
 #include <Core/World/World.h>
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExtractor, 1, ezRTTINoAllocator);
+EZ_BEGIN_PROPERTIES
+EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
+EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisibleObjectsExtractor, 1, ezRTTIDefaultAllocator<ezVisibleObjectsExtractor>);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectedObjectsExtractor, 1, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCallDelegateExtractor, 1, ezRTTIDefaultAllocator<ezCallDelegateExtractor>);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+void ezExtractor::SetName(const char* szName)
+{
+  m_sName.Assign(szName);
+}
+
+const char* ezExtractor::GetName() const
+{
+  return m_sName.GetData();
+}
 
 void ezVisibleObjectsExtractor::Extract(const ezView& view)
 {
@@ -32,12 +56,12 @@ void ezVisibleObjectsExtractor::Extract(const ezView& view)
 ezSelectedObjectsExtractor::ezSelectedObjectsExtractor()
 {
   m_OverridePassType = ezDefaultPassTypes::Selection;
-  m_pSelection = nullptr;
 }
 
 void ezSelectedObjectsExtractor::Extract(const ezView& view)
 {
-  if (m_pSelection == nullptr)
+  const ezDeque<ezGameObjectHandle>* pSelection = GetSelection();
+  if (pSelection == nullptr)
     return;
 
   ezExtractRenderDataMessage msg;
@@ -50,7 +74,7 @@ void ezSelectedObjectsExtractor::Extract(const ezView& view)
 
   EZ_LOCK(view.GetWorld()->GetReadMarker());
 
-  for (const auto& hObj : *m_pSelection)
+  for (const auto& hObj : *pSelection)
   {
     ezGameObject* pObject;
 

@@ -15,6 +15,7 @@
 #include <GameFoundation/GameApplication/GameApplication.h>
 #include <GameUtils/Components/SpawnComponent.h>
 #include <GameUtils/Components/TimedDeathComponent.h>
+#include <GameUtils/Components/CameraComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>);
   EZ_BEGIN_PROPERTIES
@@ -383,6 +384,7 @@ void ezSceneContext::OnInitialize()
   pWorld->CreateComponentManager<ezPointLightComponentManager>();
   pWorld->CreateComponentManager<ezSpotLightComponentManager>();
   pWorld->CreateComponentManager<ezDirectionalLightComponentManager>();
+  pWorld->CreateComponentManager<ezCameraComponentManager>();
 
   LoadShapeIconTextures();
 

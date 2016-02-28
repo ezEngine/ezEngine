@@ -20,8 +20,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezSimpleRenderPass::ezSimpleRenderPass(const char* szName) : ezRenderPipelinePass(szName)
 {
-  AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
-  AddRenderer(EZ_DEFAULT_NEW(ezLightGatheringRenderer));
 }
 
 ezSimpleRenderPass::~ezSimpleRenderPass()

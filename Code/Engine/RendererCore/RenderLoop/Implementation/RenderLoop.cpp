@@ -277,6 +277,11 @@ bool ezRenderLoop::GetUseMultithreadedRendering()
 
 void ezRenderLoop::BeginFrame()
 {
+  for (auto& view : s_MainViews)
+  {
+    view->EnsureUpToDate();
+  }
+
   for (auto& pipelineToRebuild : s_PipelinesToRebuild)
   {
     pipelineToRebuild.m_pPipeline->Rebuild(*pipelineToRebuild.m_pView);
@@ -288,6 +293,11 @@ void ezRenderLoop::BeginFrame()
 void ezRenderLoop::FinishFrame()
 {
   ++s_uiFrameCounter;
+
+  for (auto& view : s_MainViews)
+  {
+    view->ReadBackPassProperties();
+  }
 }
 
 void ezRenderLoop::OnEngineShutdown()

@@ -9,6 +9,8 @@
 #include <GameUtils/Components/TimedDeathComponent.h>
 #include <GameUtils/Components/SpawnComponent.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
+#include <GameUtils/Components/CameraComponent.h>
+#include <GameUtils/Components/SliderComponent.h>
 
 ezPlayerApplication::ezPlayerApplication()
   : ezGameApplication(ezGameApplicationType::StandAlone, nullptr)
@@ -59,6 +61,8 @@ void ezPlayerApplication::SetupLevel()
   m_pWorld->CreateComponentManager<ezRotorComponentManager>();
   m_pWorld->CreateComponentManager<ezTimedDeathComponentManager>();
   m_pWorld->CreateComponentManager<ezSpawnComponentManager>();
+  m_pWorld->CreateComponentManager<ezCameraComponentManager>();
+  m_pWorld->CreateComponentManager<ezSliderComponentManager>();
 
   {
     ezFileReader file;

@@ -145,6 +145,16 @@ public:
   /// The date may be invalid, if it cannot be retrieved or the resource was created and not loaded.
   const ezTimestamp& GetLoadedFileModificationTime() const { return m_LoadedFileModificationTime; }
 
+  /// \brief Returns the current value of the resource change counter.
+  /// Can be used to detect whether the resource has changed since using it last time.
+  ///
+  /// The resource change counter is increased by calling IncResourceChangeCounter() or
+  /// whenever the resource content is updated.
+  ezUInt32 GetCurrentResourceChangeCounter() const { return m_uiResourceChangeCounter; }
+
+  /// \brief Allows to manually increase the resource change counter to signal that dependent code might need to update.
+  void IncResourceChangeCounter() { ++m_uiResourceChangeCounter; }
+
 private:
 
   friend class ezResourceManager;
@@ -207,6 +217,7 @@ private:
 
   ezBitflags<ezResourceFlags> m_Flags;
 
+  ezUInt32 m_uiResourceChangeCounter;
   ezResourcePriority m_Priority;
   ezAtomicInteger32 m_iReferenceCount;
   ezAtomicInteger32 m_iLockCount;

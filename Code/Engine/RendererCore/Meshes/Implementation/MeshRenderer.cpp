@@ -8,7 +8,7 @@
 
 #include <RendererCore/../../../Shared/Data/Shaders/Common/ObjectConstants.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderer, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderer, 1, ezRTTIDefaultAllocator<ezMeshRenderer>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)

@@ -15,8 +15,8 @@ public:
   ~ezPickingRenderPass();
 
   void SetSceneContext(ezSceneContext* pSceneContext) { m_pSceneContext = pSceneContext; }
-  void SetEnabled(bool b) { m_bEnable = b; }
-  void SetPickSelected(bool b) { m_bPickSelected = b; }
+  ezSceneContext* GetSceneContext() const { return m_pSceneContext; }
+
   ezGALTextureHandle GetPickingIdRT() const;
   ezGALTextureHandle GetPickingDepthRT() const;
 
@@ -26,31 +26,38 @@ public:
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
   virtual void Execute(const ezRenderViewContext& renderViewContext) override;
 
-  struct Event
-  {
-    enum class Type
-    {
-      AfterOpaque,
-      EndOfFrame,
-    };
+  virtual void ReadBackProperties(ezView* pView) override;
 
-    Type m_Type;
-  };
-
-  ezEvent<const Event&> m_Events;
   ezViewRenderMode::Enum m_ViewRenderMode;
+  bool m_bEnable;
+  bool m_bPickSelected;
+
+  ezVec2 m_PickingPosition;
+  ezUInt32 m_PickingIdOut;
+  float m_PickingDepthOut;
+  ezUInt32 m_uiWindowWidth;
+  ezUInt32 m_uiWindowHeight;
 
 private:
   void CreateTarget(const ezRectFloat& viewport);
   void DestroyTarget();
 
 private:
-  bool m_bEnable;
-  bool m_bPickSelected;
+
   ezSceneContext* m_pSceneContext;
   ezGALTextureHandle m_hPickingIdRT;
   ezGALTextureHandle m_hPickingDepthRT;
   ezGALRenderTargetViewHandle m_hPickingIdRTV;
   ezGALRenderTargetViewHandle m_hPickingDepthDSV;
   ezGALRenderTagetSetup m_RenderTargetSetup;
+
+
+  /// we need this matrix to compute the world space position of picked pixels
+  ezMat4 m_PickingInverseViewProjectionMatrix;
+
+  /// stores the 2D depth buffer image (32 Bit depth precision), to compute pixel positions from
+  ezDynamicArray<float> m_PickingResultsDepth;
+
+  /// Stores the 32 Bit picking ID values of each pixel. This can lead back to the ezComponent, etc. that rendered to that pixel
+  ezDynamicArray<ezUInt32> m_PickingResultsID;
 };

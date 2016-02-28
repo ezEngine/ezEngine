@@ -6,9 +6,11 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <RendererFoundation/Basics.h>
 #include <CoreUtils/Graphics/Camera.h>
+#include <Core/ResourceManager/ResourceHandle.h>
 
 class ezWindow;
 class ezView;
+typedef ezResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
 /// \brief ezGameState is the base class to build custom game logic upon. It works closely together with ezGameApplication.
 ///
@@ -100,7 +102,9 @@ protected:
   virtual void ConfigureInputActions();
 
   /// \brief Creates a default render pipeline. Unless overridden, Activate() will do this for the main window.
-  virtual void CreateMainRenderPipeline(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV);
+  virtual void SetupMainView(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV);
+
+  virtual ezRenderPipelineResourceHandle CreateMainRenderPipeline();
 
   /// \brief Sets m_pMainWorld and updates m_pMainView to use that new world for rendering
   void ChangeMainWorld(ezWorld* pNewMainWorld);

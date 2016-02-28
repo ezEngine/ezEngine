@@ -9,6 +9,7 @@
 #include <CoreUtils/NodeGraph/Node.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererCore/Pipeline/ViewData.h>
+#include <RendererCore/Pipeline/RenderPipelineResource.h>
 
 class ezWorld;
 class ezRenderPipeline;
@@ -36,7 +37,9 @@ public:
   void SetRenderTargetSetup(ezGALRenderTagetSetup& renderTargetSetup);
   const ezGALRenderTagetSetup& GetRenderTargetSetup() const;
 
-  void SetRenderPipeline(ezUniquePtr<ezRenderPipeline>&& pRenderPipeline);
+  void SetRenderPipelineResource(ezRenderPipelineResourceHandle hPipeline);
+  ezRenderPipelineResourceHandle GetRenderPipelineResource() const;
+
   ezRenderPipeline* GetRenderPipeline() const;
 
   void SetLogicCamera(const ezCamera* pCamera);
@@ -52,7 +55,11 @@ public:
 
   bool IsValid() const;
 
-  
+  /// \brief Rebuilds pipeline if necessary and pushes double-buffered settings into the pipeline.
+  void EnsureUpToDate();
+
+  void ReadBackPassProperties();
+
   /// \brief Extracts all relevant data from the world to render the view.
   void ExtractData();
 
@@ -84,6 +91,12 @@ public:
   /// \brief Returns the current inverse view-projection matrix.
   const ezMat4& GetInverseViewProjectionMatrix() const;
 
+  void SetRenderPassProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value);
+  void SetExtractorProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value);
+
+  void SetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value);
+  ezVariant GetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName);
+
   ezTagSet m_IncludeTags;
   ezTagSet m_ExcludeTags;
 
@@ -99,6 +112,8 @@ private:
   ezWorld* m_pWorld;
 
   ezGALRenderTagetSetup m_RenderTargetSetup;
+  ezRenderPipelineResourceHandle m_hRenderPipeline;
+  ezUInt32 m_uiRenderPipelineResourceDescriptionCounter;
   ezUniquePtr<ezRenderPipeline> m_pRenderPipeline;
   const ezCamera* m_pLogicCamera;
   const ezCamera* m_pRenderCamera;
@@ -112,12 +127,37 @@ private:
 
 private:
   void UpdateCachedMatrices() const;
+  void UpdateRenderPipeline(ezUniquePtr<ezRenderPipeline>&& pRenderPipeline);
 
   mutable ezUInt32 m_uiLastCameraSettingsModification;
   mutable ezUInt32 m_uiLastCameraOrientationModification;
   mutable float m_fLastViewportAspectRatio;
   
   mutable ezViewData m_Data;
+
+  struct PropertyValue
+  {
+    ezString m_sObjectName;
+    ezString m_sPropertyName;
+    ezVariant m_Value;
+    bool m_bIsValid;
+    bool m_bIsDirty;
+  };
+
+  void SetProperty(ezMap<ezString, PropertyValue>& map, const char* szPassName, const char* szPropertyName, const ezVariant& value);
+  void SetReadBackProperty(ezMap<ezString, PropertyValue>& map, const char* szPassName, const char* szPropertyName, const ezVariant& value);
+
+  void ResetAllPropertyStates(ezMap<ezString, PropertyValue>& map);
+
+  void ApplyRenderPassProperties();
+
+  void ApplyProperty(ezReflectedClass* pClass, PropertyValue &data, const char* szTypeName);
+
+  void ApplyExtractorProperties();
+
+  ezMap<ezString, PropertyValue> m_PassProperties;
+  ezMap<ezString, PropertyValue> m_PassReadBackProperties;
+  ezMap<ezString, PropertyValue> m_ExtractorProperties;
 };
 
 #include <RendererCore/Pipeline/Implementation/View_inl.h>

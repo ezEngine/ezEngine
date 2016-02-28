@@ -71,6 +71,9 @@ void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath)
     if (pProp->GetAttributeByType<ezHiddenAttribute>() != nullptr)
       continue;
 
+    if (pProp->GetSpecificType()->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+      continue;
+
     ParentPath.PushBack(pProp->GetPropertyName());
 
     ezQtPropertyWidget* pNewWidget = ezPropertyGridWidget::CreatePropertyWidget(pProp);

@@ -7,6 +7,11 @@
 #include <RendererCore/Pipeline/SimpleRenderPass.h>
 #include <RendererCore/Pipeline/TargetPass.h>
 #include <RendererCore/Pipeline/Extractor.h>
+#include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
+#include <RendererCore/Pipeline/RenderPipelineResource.h>
+#include <Core/ResourceManager/ResourceManager.h>
+#include <RendererCore/Meshes/MeshRenderer.h>
+#include <RendererCore/Lights/LightGatheringRenderer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameState, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -40,7 +45,7 @@ void ezGameState::OnActivation(ezWorld* pWorld)
   CreateMainWindow();
 
   const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_hMainSwapChain);
-  CreateMainRenderPipeline(pSwapChain->GetBackBufferRenderTargetView(), pSwapChain->GetDepthStencilTargetView());
+  SetupMainView(pSwapChain->GetBackBufferRenderTargetView(), pSwapChain->GetDepthStencilTargetView());
 
   ConfigureMainCamera();
 
@@ -92,9 +97,9 @@ void ezGameState::ConfigureInputActions()
 
 }
 
-void ezGameState::CreateMainRenderPipeline(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV)
+void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV)
 {
-  EZ_LOG_BLOCK("CreateMainRenderPipeline");
+  EZ_LOG_BLOCK("SetupMainView");
 
   m_pMainView = ezRenderLoop::CreateView("View");
   ezRenderLoop::AddMainView(m_pMainView);
@@ -104,12 +109,29 @@ void ezGameState::CreateMainRenderPipeline(ezGALRenderTargetViewHandle hBackBuff
     .SetDepthStencilTarget(hDSV);
   m_pMainView->SetRenderTargetSetup(RTS);
 
+  m_pMainView->SetRenderPipelineResource(CreateMainRenderPipeline());
+
+  ezSizeU32 size = m_pMainWindow->GetClientAreaSize();
+  m_pMainView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));
+
+  m_pMainView->SetWorld(m_pMainWorld);
+  m_pMainView->SetLogicCamera(&m_MainCamera);
+}
+
+
+ezRenderPipelineResourceHandle ezGameState::CreateMainRenderPipeline()
+{
   ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
 
   ezSimpleRenderPass* pSimplePass = nullptr;
   {
     ezUniquePtr<ezRenderPipelinePass> pPass = EZ_DEFAULT_NEW(ezSimpleRenderPass);
     pSimplePass = static_cast<ezSimpleRenderPass*>(pPass.Borrow());
+
+    pSimplePass->SetName("Bernd");
+    pSimplePass->AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
+    pSimplePass->AddRenderer(EZ_DEFAULT_NEW(ezLightGatheringRenderer));
+
     pRenderPipeline->AddPass(std::move(pPass));
   }
 
@@ -124,13 +146,12 @@ void ezGameState::CreateMainRenderPipeline(ezGALRenderTargetViewHandle hBackBuff
   EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "DepthStencil", pTargetPass, "DepthStencil"), "Connect failed!");
 
   pRenderPipeline->AddExtractor(EZ_DEFAULT_NEW(ezVisibleObjectsExtractor));
-  m_pMainView->SetRenderPipeline(std::move(pRenderPipeline));
 
-  ezSizeU32 size = m_pMainWindow->GetClientAreaSize();
-  m_pMainView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));
 
-  m_pMainView->SetWorld(m_pMainWorld);
-  m_pMainView->SetLogicCamera(&m_MainCamera);
+  ezRenderPipelineResourceDescriptor desc;
+  ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(pRenderPipeline.Borrow(), desc);
+
+  return ezResourceManager::CreateResource<ezRenderPipelineResource>("MainRenderPipeline", desc);
 }
 
 void ezGameState::ChangeMainWorld(ezWorld* pNewMainWorld)

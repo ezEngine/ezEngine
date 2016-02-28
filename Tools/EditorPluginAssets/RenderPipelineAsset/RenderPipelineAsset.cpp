@@ -5,18 +5,26 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
+#include <RendererCore/Pipeline/Extractor.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
+#include <Foundation/Serialization/BinarySerializer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 bool ezRenderPipelineNodeManager::InternalIsNode(const ezDocumentObject* pObject) const
 {
-  return pObject->GetTypeAccessor().GetType()->IsDerivedFrom<ezRenderPipelinePass>();
+  auto pType = pObject->GetTypeAccessor().GetType();
+  return pType->IsDerivedFrom<ezRenderPipelinePass>() || pType->IsDerivedFrom<ezExtractor>();
 }
 
 void ezRenderPipelineNodeManager::InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node)
 {
   auto pType = pObject->GetTypeAccessor().GetType();
+  if (!pType->IsDerivedFrom<ezRenderPipelinePass>())
+    return;
+
   ezHybridArray<ezAbstractProperty*, 32> properties;
   pType->GetAllProperties(properties);
 
@@ -67,6 +75,7 @@ void ezRenderPipelineNodeManager::GetCreateableTypes(ezHybridArray<const ezRTTI*
 {
   ezSet<const ezRTTI*> typeSet;
   ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezRenderPipelinePass>(), typeSet, false);
+  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezExtractor>(), typeSet, false);
   Types.Clear();
   for (auto pType : typeSet)
   {
@@ -96,6 +105,38 @@ void ezRenderPipelineAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo*
 
 ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform)
 {
+  ezUInt8 uiVersion = 1;
+  stream << uiVersion;
+
+  ezAbstractObjectGraph graph;
+  ezRttiConverterContext context;
+  ezRttiConverterWriter rttiConverter(&graph, &context, true, true);
+  ezDocumentObjectConverterWriter objectConverter(&graph, GetObjectManager(), true, true);
+
+  auto& children = GetObjectManager()->GetRootObject()->GetChildren();
+  for (ezDocumentObject* pObject : children)
+  {
+    auto pType = pObject->GetTypeAccessor().GetType();
+    if (pType->IsDerivedFrom<ezRenderPipelinePass>())
+    {
+      objectConverter.AddObjectToGraph(pObject, "Pass");
+    }
+    else if (pType->IsDerivedFrom<ezExtractor>())
+    {
+      objectConverter.AddObjectToGraph(pObject, "Extractor");
+    }
+  }
+
+  ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
+  pManager->AttachMetaDataBeforeSaving(graph);
+
+  ezMemoryStreamStorage storage;
+  ezMemoryStreamWriter writer(&storage);
+  ezAbstractGraphBinarySerializer::Write(writer, &graph);
+
+  ezUInt32 uiSize = storage.GetStorageSize();
+  stream << uiSize;
+  stream.WriteBytes(storage.GetData(), uiSize);
   return ezStatus(EZ_SUCCESS);
 }
 

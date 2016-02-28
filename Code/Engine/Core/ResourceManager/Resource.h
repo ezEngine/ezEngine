@@ -87,6 +87,8 @@ private:
     EZ_ASSERT_DEV(ld.m_uiQualityLevelsDiscardable != 0xFF, "CreateResource() did not fill out m_uiQualityLevelsDiscardable correctly");
     EZ_ASSERT_DEV(ld.m_uiQualityLevelsLoadable != 0xFF, "CreateResource() did not fill out m_uiQualityLevelsLoadable correctly");
 
+    IncResourceChangeCounter();
+
     m_LoadingState = ld.m_State;
     m_uiQualityLevelsDiscardable = ld.m_uiQualityLevelsDiscardable;
     m_uiQualityLevelsLoadable = ld.m_uiQualityLevelsLoadable;

@@ -21,6 +21,7 @@ SET (LINK_LIBRARIES
   Foundation
   CoreUtils
   Core
+  GameUtils
   RendererFoundation
   RendererCore
   RendererDX11

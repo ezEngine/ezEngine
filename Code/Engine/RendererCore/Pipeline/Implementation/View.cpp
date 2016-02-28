@@ -3,6 +3,9 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
+#include <RendererCore/Pipeline/RenderPipelinePass.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
+#include <RendererCore/Pipeline/Extractor.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezView, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
@@ -24,6 +27,8 @@ ezView::ezView()
   m_uiLastCameraSettingsModification = 0;
   m_uiLastCameraOrientationModification = 0;
   m_fLastViewportAspectRatio = 1.0f;
+
+  m_uiRenderPipelineResourceDescriptionCounter = 0;
 }
 
 ezView::~ezView()
@@ -53,7 +58,17 @@ void ezView::SetRenderTargetSetup(ezGALRenderTagetSetup& renderTargetSetup)
   }
 }
 
-void ezView::SetRenderPipeline(ezUniquePtr<ezRenderPipeline>&& pRenderPipeline)
+void ezView::SetRenderPipelineResource(ezRenderPipelineResourceHandle hPipeline)
+{
+  m_hRenderPipeline = hPipeline;
+}
+
+ezRenderPipelineResourceHandle ezView::GetRenderPipelineResource() const
+{
+  return m_hRenderPipeline;
+}
+
+void ezView::UpdateRenderPipeline(ezUniquePtr<ezRenderPipeline>&& pRenderPipeline)
 {
   m_pRenderPipeline = std::move(pRenderPipeline);
   ezRenderLoop::AddRenderPipelineToRebuild(m_pRenderPipeline.Borrow(), this);
@@ -63,6 +78,41 @@ void ezView::SetRenderPipeline(ezUniquePtr<ezRenderPipeline>&& pRenderPipeline)
   m_pRenderPipeline->m_RenderProfilingID = ezProfilingSystem::CreateId(sb.GetData());
 }
 
+
+void ezView::EnsureUpToDate()
+{
+  EZ_ASSERT_DEBUG(m_hRenderPipeline.IsValid(), "Renderpipeline has not been set on this view");
+
+  ezResourceLock<ezRenderPipelineResource> pPipeline(m_hRenderPipeline, ezResourceAcquireMode::NoFallback);
+
+  ezUInt32 uiCounter = pPipeline->GetCurrentResourceChangeCounter();
+
+  if (m_uiRenderPipelineResourceDescriptionCounter != uiCounter)
+  {
+    m_uiRenderPipelineResourceDescriptionCounter = uiCounter;
+
+    UpdateRenderPipeline(ezUniquePtr<ezRenderPipeline>(pPipeline->CreateRenderPipeline(), ezFoundation::GetDefaultAllocator()));
+
+    ResetAllPropertyStates(m_PassProperties);
+    ResetAllPropertyStates(m_ExtractorProperties);
+  }
+
+  ApplyRenderPassProperties();
+  ApplyExtractorProperties();
+}
+
+
+void ezView::ReadBackPassProperties()
+{
+  ezHybridArray<ezRenderPipelinePass*, 16> passes;
+  m_pRenderPipeline->GetPasses(passes);
+
+  for (auto pPass : passes)
+  {
+    pPass->ReadBackProperties(this);
+  }
+}
+
 void ezView::ExtractData()
 {
   EZ_ASSERT_DEV(IsValid(), "Cannot extract data from an invalid view");
@@ -70,6 +120,147 @@ void ezView::ExtractData()
   EZ_PROFILE(m_ExtractDataProfilingID);
 
   m_pRenderPipeline->ExtractData(*this);
+}
+
+void ezView::SetProperty(ezMap<ezString, PropertyValue>& map, const char* szPassName, const char* szPropertyName, const ezVariant& value)
+{
+  ezStringBuilder sKey(szPassName, "::", szPropertyName);
+
+  bool bExisted = false;
+  auto& prop = map.FindOrAdd(sKey, &bExisted).Value();
+
+  if (!bExisted)
+  {
+    prop.m_sObjectName = szPassName;
+    prop.m_sPropertyName = szPropertyName;
+    prop.m_bIsValid = true;
+  }
+
+  prop.m_bIsDirty = true;
+  prop.m_Value = value;
+}
+
+
+void ezView::SetReadBackProperty(ezMap<ezString, PropertyValue>& map, const char* szPassName, const char* szPropertyName, const ezVariant& value)
+{
+  ezStringBuilder sKey(szPassName, "::", szPropertyName);
+
+  bool bExisted = false;
+  auto& prop = map.FindOrAdd(sKey, &bExisted).Value();
+
+  if (!bExisted)
+  {
+    prop.m_sObjectName = szPassName;
+    prop.m_sPropertyName = szPropertyName;
+    prop.m_bIsValid = true;
+  }
+
+  prop.m_bIsDirty = false;
+  prop.m_Value = value;
+}
+
+void ezView::ResetAllPropertyStates(ezMap<ezString, PropertyValue>& map)
+{
+  for (auto it = map.GetIterator(); it.IsValid(); ++it)
+  {
+    it.Value().m_bIsDirty = true;
+    it.Value().m_bIsValid = true;
+  }
+}
+
+void ezView::ApplyProperty(ezReflectedClass* pClass, PropertyValue &data, const char* szTypeName)
+{
+  ezAbstractProperty* pAbstractProperty = pClass->GetDynamicRTTI()->FindPropertyByName(data.m_sPropertyName);
+  if (pAbstractProperty == nullptr)
+  {
+    ezLog::Error("The %s '%s' does not have a property called '%s', it cannot be applied.", szTypeName, data.m_sObjectName.GetData(), data.m_sPropertyName.GetData());
+
+    data.m_bIsValid = false;
+    return;
+  }
+
+  if (pAbstractProperty->GetCategory() != ezPropertyCategory::Member)
+  {
+    ezLog::Error("The %s property '%s::%s' is not a member property, it cannot be applied.", szTypeName, data.m_sObjectName.GetData(), data.m_sPropertyName.GetData());
+
+    data.m_bIsValid = false;
+    return;
+  }
+
+  ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pAbstractProperty), pClass, data.m_Value);
+}
+
+void ezView::ApplyRenderPassProperties()
+{
+  for (auto it = m_PassProperties.GetIterator(); it.IsValid(); ++it)
+  {
+    if (!it.Value().m_bIsValid || !it.Value().m_bIsDirty)
+      continue;
+
+    it.Value().m_bIsDirty = false;
+
+    auto* pPass = m_pRenderPipeline->GetPassByName(it.Value().m_sObjectName);
+    if (pPass == nullptr)
+    {
+      ezLog::Error("The render pass '%s' does not exist. Property '%s' cannot be applied.", it.Value().m_sObjectName.GetData(), it.Value().m_sPropertyName.GetData());
+
+      it.Value().m_bIsValid = false;
+      continue;
+    }
+
+    ApplyProperty(pPass, it.Value(), "render pass");
+  }
+}
+
+void ezView::ApplyExtractorProperties()
+{
+  for (auto it = m_ExtractorProperties.GetIterator(); it.IsValid(); ++it)
+  {
+    if (!it.Value().m_bIsValid || !it.Value().m_bIsDirty)
+      continue;
+
+    it.Value().m_bIsDirty = false;
+
+    ezExtractor* pExtractor = m_pRenderPipeline->GetExtractorByName(it.Value().m_sObjectName);
+    if (pExtractor == nullptr)
+    {
+      ezLog::Error("The extractor '%s' does not exist. Property '%s' cannot be applied.", it.Value().m_sObjectName.GetData(), it.Value().m_sPropertyName.GetData());
+
+      it.Value().m_bIsValid = false;
+      continue;
+    }
+
+    ApplyProperty(pExtractor, it.Value(), "extractor");
+  }
+}
+
+void ezView::SetRenderPassProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value)
+{
+  SetProperty(m_PassProperties, szPassName, szPropertyName, value);
+}
+
+void ezView::SetExtractorProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value)
+{
+  SetProperty(m_ExtractorProperties, szPassName, szPropertyName, value);
+}
+
+
+void ezView::SetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value)
+{
+  SetReadBackProperty(m_PassReadBackProperties, szPassName, szPropertyName, value);
+}
+
+
+ezVariant ezView::GetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName)
+{
+  ezStringBuilder sKey(szPassName, "::", szPropertyName);
+
+  auto it = m_PassReadBackProperties.Find(sKey);
+  if (it.IsValid())
+    return it.Value().m_Value;
+
+  ezLog::Warning("Unknown read-back property '%s::%s'", szPassName, szPropertyName);
+  return ezVariant();
 }
 
 void ezView::UpdateCachedMatrices() const

@@ -13,11 +13,9 @@ class ezEditorRenderPass : public ezSimpleRenderPass
 public:
   ezEditorRenderPass(const char* szName = "EditorRenderPass");
 
-  void SetSceneContext(ezSceneContext* pSceneContext) { m_pSceneContext = pSceneContext; }
   virtual void Execute(const ezRenderViewContext& renderViewContext) override;
 
   bool m_bRenderSelectionOverlay;
-
   ezViewRenderMode::Enum m_ViewRenderMode;
   ezSceneContext* m_pSceneContext;
 };

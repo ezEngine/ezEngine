@@ -215,7 +215,7 @@ void ezReflectionUtils::SetMemberPropertyValue(ezAbstractMemberProperty* pProp, 
     }
     else
     {
-      pEnumerationProp->SetValue(pObject, value.Get<ezInt64>());
+      pEnumerationProp->SetValue(pObject, value.ConvertTo<ezInt64>());
     }
     return;
   }
@@ -484,8 +484,6 @@ void ezReflectionUtils::GatherPluginTypes(ezSet<const ezRTTI*>& out_types, bool 
 
 void ezReflectionUtils::GatherTypesDerivedFromClass(const ezRTTI* pRtti, ezSet<const ezRTTI*>& out_types, bool bIncludeDependencies)
 {
-  //out_types.Clear();
-
   ezRTTI* pFirst = ezRTTI::GetFirstInstance();
   while (pFirst != nullptr)
   {

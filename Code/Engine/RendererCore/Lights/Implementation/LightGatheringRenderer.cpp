@@ -10,7 +10,7 @@
 
 #include <RendererCore/../../../Shared/Data/Shaders/Common/ObjectConstants.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLightGatheringRenderer, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLightGatheringRenderer, 1, ezRTTIDefaultAllocator<ezLightGatheringRenderer>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 void ezLightGatheringRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)

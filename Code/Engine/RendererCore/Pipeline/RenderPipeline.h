@@ -34,15 +34,22 @@ public:
 
   void AddPass(ezUniquePtr<ezRenderPipelinePass>&& pPass);
   void RemovePass(ezRenderPipelinePass* pPass);
+  void GetPasses(ezHybridArray<const ezRenderPipelinePass*, 16>& passes) const;
   void GetPasses(ezHybridArray<ezRenderPipelinePass*, 16>& passes);
-
+  ezRenderPipelinePass* GetPassByName(const char* szPassName) const;
+  
   bool Connect(ezRenderPipelinePass* pOutputNode, const char* szOutputPinName, ezRenderPipelinePass* pInputNode, const char* szInputPinName);
   bool Connect(ezRenderPipelinePass* pOutputNode, ezHashedString sOutputPinName, ezRenderPipelinePass* pInputNode, ezHashedString sInputPinName);
   bool Disconnect(ezRenderPipelinePass* pOutputNode, ezHashedString sOutputPinName, ezRenderPipelinePass* pInputNode, ezHashedString sInputPinName);
   
+  const ezRenderPipelinePassConnection* GetInputConnection(ezRenderPipelinePass* pPass, ezHashedString sInputPinName) const;
+  const ezRenderPipelinePassConnection* GetOutputConnection(ezRenderPipelinePass* pPass, ezHashedString sOutputPinName) const;
+
   void AddExtractor(ezUniquePtr<ezExtractor>&& pExtractor);
   void RemoveExtractor(ezExtractor* pExtractor);
+  void GetExtractors(ezHybridArray<const ezExtractor*, 16>& extractors) const;
   void GetExtractors(ezHybridArray<ezExtractor*, 16>& extractors);
+  ezExtractor* GetExtractorByName(const char* szPassName) const;
 
   template <typename T>
   T* CreateRenderData(ezRenderPassType passType, const ezGameObject* pOwner);

@@ -11,7 +11,7 @@ struct EZ_GAMEUTILS_DLL ezTriggerTimedDeathMessage : public ezMessage
   EZ_DECLARE_MESSAGE_TYPE(ezTriggerTimedDeathMessage);
 };
 
-typedef ezComponentManager<class ezTimedDeathComponent, true> ezTimedDeathComponentManager;
+typedef ezComponentManager<class ezTimedDeathComponent> ezTimedDeathComponentManager;
 
 /// \brief This component deletes the object it is attached to after a timeout.
 ///

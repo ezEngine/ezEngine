@@ -91,6 +91,16 @@ void ezRenderPipeline::RemovePass(ezRenderPipelinePass* pPass)
   }
 }
 
+void ezRenderPipeline::GetPasses(ezHybridArray<const ezRenderPipelinePass*, 16>& passes) const
+{
+  passes.Reserve(m_Passes.GetCount());
+
+  for (auto& pPass : m_Passes)
+  {
+    passes.PushBack(pPass.Borrow());
+  }
+}
+
 void ezRenderPipeline::GetPasses(ezHybridArray<ezRenderPipelinePass*, 16>& passes)
 {
   passes.Reserve(m_Passes.GetCount());
@@ -100,6 +110,20 @@ void ezRenderPipeline::GetPasses(ezHybridArray<ezRenderPipelinePass*, 16>& passe
     passes.PushBack(pPass.Borrow());
   }
 }
+
+ezRenderPipelinePass* ezRenderPipeline::GetPassByName(const char* szPassName) const
+{
+  for (auto& pPass : m_Passes)
+  {
+    if (ezStringUtils::IsEqual(pPass->GetName(), szPassName))
+    {
+      return pPass.Borrow();
+    }
+  }
+
+  return nullptr;
+}
+
 
 bool ezRenderPipeline::Connect(ezRenderPipelinePass* pOutputNode, const char* szOutputPinName, ezRenderPipelinePass* pInputNode, const char* szInputPinName)
 {
@@ -223,6 +247,34 @@ bool ezRenderPipeline::Disconnect(ezRenderPipelinePass* pOutputNode, ezHashedStr
 
   m_PipelineState = PipelineState::Uninitialized;
   return true;
+}
+
+const ezRenderPipelinePassConnection* ezRenderPipeline::GetInputConnection(ezRenderPipelinePass* pPass, ezHashedString sInputPinName) const
+{
+  auto it = m_Connections.Find(pPass);
+  if (!it.IsValid())
+    return nullptr;
+
+  auto& data = it.Value();
+  const ezNodePin* pPin = pPass->GetPinByName(sInputPinName);
+  if (!pPin || pPin->m_uiInputIndex == -1)
+    return nullptr;
+
+  return data.m_Inputs[pPin->m_uiInputIndex];
+}
+
+const ezRenderPipelinePassConnection* ezRenderPipeline::GetOutputConnection(ezRenderPipelinePass* pPass, ezHashedString sOutputPinName) const
+{
+  auto it = m_Connections.Find(pPass);
+  if (!it.IsValid())
+    return nullptr;
+
+  auto& data = it.Value();
+  const ezNodePin* pPin = pPass->GetPinByName(sOutputPinName);
+  if (!pPin || pPin->m_uiOutputIndex == -1)
+    return nullptr;
+
+  return data.m_Outputs[pPin->m_uiOutputIndex];
 }
 
 ezRenderPipeline::PipelineState ezRenderPipeline::Rebuild(const ezView& view)
@@ -559,6 +611,16 @@ void ezRenderPipeline::RemoveExtractor(ezExtractor* pExtractor)
   }
 }
 
+void ezRenderPipeline::GetExtractors(ezHybridArray<const ezExtractor*, 16>& extractors) const
+{
+  extractors.Reserve(m_Extractors.GetCount());
+
+  for (auto& pExtractor : m_Extractors)
+  {
+    extractors.PushBack(pExtractor.Borrow());
+  }
+}
+
 void ezRenderPipeline::GetExtractors(ezHybridArray<ezExtractor*, 16>& extractors)
 {
   extractors.Reserve(m_Extractors.GetCount());
@@ -567,6 +629,20 @@ void ezRenderPipeline::GetExtractors(ezHybridArray<ezExtractor*, 16>& extractors
   {
     extractors.PushBack(pExtractor.Borrow());
   }
+}
+
+
+ezExtractor* ezRenderPipeline::GetExtractorByName(const char* szPassName) const
+{
+  for (auto& pExtractor : m_Extractors)
+  {
+    if (ezStringUtils::IsEqual(pExtractor->GetName(), szPassName))
+    {
+      return pExtractor.Borrow();
+    }
+  }
+
+  return nullptr;
 }
 
 void ezRenderPipeline::RemoveConnections(ezRenderPipelinePass* pPass)

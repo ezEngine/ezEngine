@@ -2,20 +2,32 @@
 
 #include <RendererCore/Pipeline/Declarations.h>
 
-class EZ_RENDERERCORE_DLL ezExtractor
+class EZ_RENDERERCORE_DLL ezExtractor : public ezReflectedClass
 {
+public:
+  EZ_ADD_DYNAMIC_REFLECTION(ezExtractor, ezReflectedClass);
   EZ_DISALLOW_COPY_AND_ASSIGN(ezExtractor);
 
 public:
   ezExtractor() {}
   virtual ~ezExtractor() {}
 
-  virtual void Extract(const ezView& view) = 0;
+  /// \brief Sets the name of the extractor.
+  void SetName(const char* szName);
+
+  /// \brief returns the name of the extractor.
+  const char* GetName() const;
+
+  virtual void Extract(const ezView& view) {};
+
+private:
+  ezHashedString m_sName;
 };
 
 
 class EZ_RENDERERCORE_DLL ezVisibleObjectsExtractor : public ezExtractor
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisibleObjectsExtractor, ezExtractor);
 public:
   ezVisibleObjectsExtractor() {}
 
@@ -24,17 +36,19 @@ public:
 
 class EZ_RENDERERCORE_DLL ezSelectedObjectsExtractor : public ezExtractor
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezSelectedObjectsExtractor, ezExtractor);
 public:
   ezSelectedObjectsExtractor();
 
   virtual void Extract(const ezView& view) override;
-
+  virtual const ezDeque<ezGameObjectHandle>* GetSelection() = 0;
   ezRenderPassType m_OverridePassType;
-  const ezDeque<ezGameObjectHandle>* m_pSelection;
+  //const ezDeque<ezGameObjectHandle>* m_pSelection;
 };
 
 class EZ_RENDERERCORE_DLL ezCallDelegateExtractor : public ezExtractor
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezCallDelegateExtractor, ezExtractor);
 public:
   ezCallDelegateExtractor();
 
