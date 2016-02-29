@@ -9,27 +9,27 @@ void ezSceneViewConfig::ApplyPerspectiveSetting()
   {
   case ezSceneViewPerspective::Perspective:
     {
-      m_Camera.SetCameraMode(ezCamera::PerspectiveFixedFovY, 90.0f, 0.1f, 1000.0f);
+      m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 90.0f, 0.1f, 1000.0f);
     }
     break;
 
   case ezSceneViewPerspective::Orthogonal_Front:
     {
-      m_Camera.SetCameraMode(ezCamera::OrthoFixedHeight, 20.0f, -10000.0f, 10000.0f);
+      m_Camera.SetCameraMode(ezCameraMode::OrthoFixedHeight, 20.0f, -10000.0f, 10000.0f);
       m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + ezVec3(-1, 0, 0), ezVec3(0, 0, 1));
     }
     break;
 
   case ezSceneViewPerspective::Orthogonal_Right:
     {
-      m_Camera.SetCameraMode(ezCamera::OrthoFixedHeight, 20.0f, -10000.0f, 10000.0f);
+      m_Camera.SetCameraMode(ezCameraMode::OrthoFixedHeight, 20.0f, -10000.0f, 10000.0f);
       m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + ezVec3(0, -1, 0), ezVec3(0, 0, 1));
     }
     break;
 
   case ezSceneViewPerspective::Orthogonal_Top:
     {
-      m_Camera.SetCameraMode(ezCamera::OrthoFixedHeight, 20.0f, -10000.0f, 10000.0f);
+      m_Camera.SetCameraMode(ezCameraMode::OrthoFixedHeight, 20.0f, -10000.0f, 10000.0f);
       m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + ezVec3(0, 0, -1), ezVec3(1, 0, 0));
     }
     break;

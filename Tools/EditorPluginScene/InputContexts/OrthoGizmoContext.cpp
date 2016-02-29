@@ -75,10 +75,10 @@ ezEditorInut ezOrthoGizmoContext::mouseMoveEvent(QMouseEvent* e)
   {
     float fDistPerPixel = 0;
 
-    if (m_pCamera->GetCameraMode() == ezCamera::OrthoFixedHeight)
+    if (m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedHeight)
       fDistPerPixel = m_pCamera->GetFovOrDim() / (float)GetOwnerView()->size().height();
 
-    if (m_pCamera->GetCameraMode() == ezCamera::OrthoFixedWidth)
+    if (m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
       fDistPerPixel = m_pCamera->GetFovOrDim() / (float)GetOwnerView()->size().width();
 
     const QPointF diff = e->globalPos() - m_LastMousePos;

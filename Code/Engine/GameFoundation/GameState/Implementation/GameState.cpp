@@ -182,5 +182,5 @@ void ezGameState::ConfigureMainCamera()
   }
 
   m_MainCamera.LookAt(vCameraPos, vCameraPos + coordSys.m_vForwardDir, coordSys.m_vUpDir);
-  m_MainCamera.SetCameraMode(ezCamera::PerspectiveFixedFovY, 60.0f, 1.0f, 5000.0f);
+  m_MainCamera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 60.0f, 1.0f, 5000.0f);
 }

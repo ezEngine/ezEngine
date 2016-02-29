@@ -530,8 +530,8 @@ void ezQtSceneDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxR
 
   const float fApsectRation = (float)pSceneView->width() / (float)pSceneView->height();
 
-  if (cam.GetCameraMode() == ezCamera::PerspectiveFixedFovX ||
-      cam.GetCameraMode() == ezCamera::PerspectiveFixedFovY)
+  if (cam.GetCameraMode() == ezCameraMode::PerspectiveFixedFovX ||
+      cam.GetCameraMode() == ezCameraMode::PerspectiveFixedFovY)
   {
     const ezAngle fovX = cam.GetFovX(fApsectRation);
     const ezAngle fovY = cam.GetFovY(fApsectRation);
@@ -588,7 +588,7 @@ void ezQtSceneDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxR
 
     float fDimWidth, fDimHeight;
 
-    if (cam.GetCameraMode() == ezCamera::OrthoFixedHeight)
+    if (cam.GetCameraMode() == ezCameraMode::OrthoFixedHeight)
     {
       fDimHeight = cam.GetFovOrDim();
       fDimWidth = fDimHeight * fApsectRation;

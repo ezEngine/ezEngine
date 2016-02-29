@@ -264,7 +264,7 @@ ezEditorInut ezCameraMoveContext::mousePressEvent(QMouseEvent* e)
   if (m_pCamera == nullptr)
     return ezEditorInut::MayBeHandledByOthers;
 
-  if (m_pCamera->GetCameraMode() == ezCamera::OrthoFixedHeight || m_pCamera->GetCameraMode() == ezCamera::OrthoFixedWidth)
+  if (m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedHeight || m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
   {
     if (e->button() == Qt::MouseButton::RightButton)
     {
@@ -374,7 +374,7 @@ ezEditorInut ezCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
   if (m_pCamera == nullptr)
     return ezEditorInut::MayBeHandledByOthers;
 
-  if (m_pCamera->GetCameraMode() == ezCamera::OrthoFixedHeight || m_pCamera->GetCameraMode() == ezCamera::OrthoFixedWidth)
+  if (m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedHeight || m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
   {
     if (e->button() == Qt::MouseButton::RightButton)
     {
@@ -462,14 +462,14 @@ ezEditorInut ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
     fRotateBoost = 0.2f;
   }
 
-  if (m_pCamera->GetCameraMode() == ezCamera::OrthoFixedHeight || m_pCamera->GetCameraMode() == ezCamera::OrthoFixedWidth)
+  if (m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedHeight || m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
   {
     float fDistPerPixel = 0;
 
-    if (m_pCamera->GetCameraMode() == ezCamera::OrthoFixedHeight)
+    if (m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedHeight)
       fDistPerPixel = m_pCamera->GetFovOrDim() / (float)GetOwnerView()->size().height();
     
-    if (m_pCamera->GetCameraMode() == ezCamera::OrthoFixedWidth)
+    if (m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
       fDistPerPixel = m_pCamera->GetFovOrDim() / (float)GetOwnerView()->size().width();
 
     if (m_bMoveCamera)
@@ -604,7 +604,7 @@ ezEditorInut ezCameraMoveContext::wheelEvent(QWheelEvent* e)
   if (m_bMoveCamera || m_bMoveCameraInPlane || m_bOrbitCamera || m_bRotateCamera)
     return ezEditorInut::WasExclusivelyHandled; // ignore it, but others should not handle it either
 
-  if (m_pCamera->GetCameraMode() == ezCamera::OrthoFixedHeight || m_pCamera->GetCameraMode() == ezCamera::OrthoFixedWidth)
+  if (m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedHeight || m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
   {
     float fBoost = 1.0f;
     const float fTick = 1.4f;

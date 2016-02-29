@@ -91,8 +91,8 @@ void ezSceneViewContext::Redraw()
   ezTag tagNoOrtho;
   ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode", &tagNoOrtho);
 
-  if (m_pView->GetRenderCamera()->GetCameraMode() == ezCamera::OrthoFixedHeight ||
-      m_pView->GetRenderCamera()->GetCameraMode() == ezCamera::OrthoFixedWidth)
+  if (m_pView->GetRenderCamera()->GetCameraMode() == ezCameraMode::OrthoFixedHeight ||
+      m_pView->GetRenderCamera()->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
   {
     m_pView->m_ExcludeTags.Set(tagNoOrtho);
   }
@@ -117,7 +117,7 @@ void ezSceneViewContext::Redraw()
 
 void ezSceneViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
-  m_Camera.SetCameraMode((ezCamera::CameraMode) pMsg->m_iCameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
+  m_Camera.SetCameraMode((ezCameraMode::Enum) pMsg->m_iCameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
 
   m_Camera.LookAt(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
 
@@ -133,43 +133,46 @@ void ezSceneViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
 {
   ezViewPickingResultMsgToEditor res;
 
-  m_pView->SetRenderPassProperty("EditorPickingPass", "PickingPosition", ezVec2(x, y));
-  ezVariant varMat = m_pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingMatrix");
-
-  if (varMat.IsA<ezMat4>())
+  if (m_pView != nullptr && m_pView->IsRenderPassReadBackPropertyExisting("EditorPickingPass", "PickingMatrix"))
   {
-    const ezMat4 mInverseMat = varMat.Get<ezMat4>();
-    const ezUInt32 uiPickingID = m_pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingID").ConvertTo<ezUInt32>();
-    const float fPickingDepth = m_pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingDepth").ConvertTo<float>();
-    res.m_vPickedNormal = m_pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingNormal").ConvertTo<ezVec3>();
-    res.m_vPickingRayStartPosition = m_pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingRayStartPosition").ConvertTo<ezVec3>();
-    res.m_vPickedPosition = m_pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingPosition").ConvertTo<ezVec3>();
+    m_pView->SetRenderPassProperty("EditorPickingPass", "PickingPosition", ezVec2(x, y));
+    ezVariant varMat = m_pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingMatrix");
 
-    EZ_ASSERT_DEBUG(!res.m_vPickedPosition.IsNaN(), "")
-      ;
-    const ezUInt32 uiComponentID = (uiPickingID & 0x00FFFFFF);
-    const ezUInt32 uiPartIndex = (uiPickingID >> 24);
-
-    res.m_ComponentGuid = GetDocumentContext()->m_Context.m_ComponentPickingMap.GetGuid(uiComponentID);
-    res.m_OtherGuid = GetDocumentContext()->m_Context.m_OtherPickingMap.GetGuid(uiComponentID);
-
-    if (res.m_ComponentGuid.IsValid())
+    if (varMat.IsA<ezMat4>())
     {
-      ezComponentHandle hComponent = GetDocumentContext()->m_Context.m_ComponentMap.GetHandle(res.m_ComponentGuid);
+      const ezMat4 mInverseMat = varMat.Get<ezMat4>();
+      const ezUInt32 uiPickingID = m_pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingID").ConvertTo<ezUInt32>();
+      const float fPickingDepth = m_pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingDepth").ConvertTo<float>();
+      res.m_vPickedNormal = m_pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingNormal").ConvertTo<ezVec3>();
+      res.m_vPickingRayStartPosition = m_pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingRayStartPosition").ConvertTo<ezVec3>();
+      res.m_vPickedPosition = m_pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingPosition").ConvertTo<ezVec3>();
 
-      ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
+      EZ_ASSERT_DEBUG(!res.m_vPickedPosition.IsNaN(), "")
+        ;
+      const ezUInt32 uiComponentID = (uiPickingID & 0x00FFFFFF);
+      const ezUInt32 uiPartIndex = (uiPickingID >> 24);
 
-      // check whether the component is still valid
-      ezComponent* pComponent = nullptr;
-      if (pDocumentContext->GetWorld()->TryGetComponent<ezComponent>(hComponent, pComponent))
+      res.m_ComponentGuid = GetDocumentContext()->m_Context.m_ComponentPickingMap.GetGuid(uiComponentID);
+      res.m_OtherGuid = GetDocumentContext()->m_Context.m_OtherPickingMap.GetGuid(uiComponentID);
+
+      if (res.m_ComponentGuid.IsValid())
       {
-        // if yes, fill out the parent game object guid
-        res.m_ObjectGuid = GetDocumentContext()->m_Context.m_GameObjectMap.GetGuid(pComponent->GetOwner()->GetHandle());
-        res.m_uiPartIndex = uiPartIndex;
-      }
-      else
-      {
-        res.m_ComponentGuid = ezUuid();
+        ezComponentHandle hComponent = GetDocumentContext()->m_Context.m_ComponentMap.GetHandle(res.m_ComponentGuid);
+
+        ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
+
+        // check whether the component is still valid
+        ezComponent* pComponent = nullptr;
+        if (pDocumentContext->GetWorld()->TryGetComponent<ezComponent>(hComponent, pComponent))
+        {
+          // if yes, fill out the parent game object guid
+          res.m_ObjectGuid = GetDocumentContext()->m_Context.m_GameObjectMap.GetGuid(pComponent->GetOwner()->GetHandle());
+          res.m_uiPartIndex = uiPartIndex;
+        }
+        else
+        {
+          res.m_ComponentGuid = ezUuid();
+        }
       }
     }
   }

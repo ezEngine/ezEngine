@@ -2,6 +2,25 @@
 
 #include <CoreUtils/Basics.h>
 #include <Foundation/Math/Mat4.h>
+#include <Foundation/Reflection/Reflection.h>
+
+/// \brief Specifies in which mode this camera is configured.
+struct EZ_COREUTILS_DLL ezCameraMode
+{
+  typedef ezInt8 StorageType;
+
+  enum Enum
+  {
+    None,                   ///< Not initialized
+    PerspectiveFixedFovX,   ///< Perspective camera, the fov for X is fixed, Y depends on the aspect ratio
+    PerspectiveFixedFovY,   ///< Perspective camera, the fov for Y is fixed, X depends on the aspect ratio
+    OrthoFixedWidth,        ///< Orthographic camera, the width is fixed, the height depends on the aspect ratio
+    OrthoFixedHeight,       ///< Orthographic camera, the height is fixed, the width depends on the aspect ratio
+    Default = PerspectiveFixedFovY
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_COREUTILS_DLL, ezCameraMode);
 
 /// \brief A camera class that stores the orientation and some basic camera settings.
 class EZ_COREUTILS_DLL ezCamera
@@ -49,27 +68,17 @@ public:
   /// \brief Returns the far plane distance.
   float GetFarPlane() const;
 
-  /// \brief Specifies in which mode this camera is configured.
-  enum CameraMode
-  {
-    None,                   ///< Not initialized
-    PerspectiveFixedFovX,   ///< Perspective camera, the fov for X is fixed, Y depends on the aspect ratio
-    PerspectiveFixedFovY,   ///< Perspective camera, the fov for Y is fixed, X depends on the aspect ratio
-    OrthoFixedWidth,        ///< Orthographic camera, the width is fixed, the height depends on the aspect ratio
-    OrthoFixedHeight,       ///< Orthographic camera, the height is fixed, the width depends on the aspect ratio
-  };
-
   /// \brief Specifies the mode and the basic settings that this camera uses.
   ///
   /// \param fFovOrDim
   ///   Fov X/Y in degree or width/height (depending on Mode)
-  void SetCameraMode(CameraMode Mode, float fFovOrDim, float fNearPlane, float fFarPlane);
+  void SetCameraMode(ezCameraMode::Enum Mode, float fFovOrDim, float fNearPlane, float fFarPlane);
 
   /// \brief Returns the fFovOrDim parameter that was passed to SetCameraMode().
   float GetFovOrDim() const { return m_fFovOrDim; }
 
   /// \brief Returns the current camera mode.
-  CameraMode GetCameraMode() const { return m_Mode; };
+  ezCameraMode::Enum GetCameraMode() const { return m_Mode; };
 
   /// \brief Sets the camera position and rotation from the given look at matrix.
   void SetFromMatrix(const ezMat4& mLookAtMatrix);
@@ -127,7 +136,7 @@ private:
   float m_fNearPlane;
   float m_fFarPlane;
 
-  CameraMode m_Mode;
+  ezCameraMode::Enum m_Mode;
 
   float m_fFovOrDim;
 

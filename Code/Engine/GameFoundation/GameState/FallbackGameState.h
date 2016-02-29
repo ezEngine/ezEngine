@@ -3,6 +3,8 @@
 #include <GameFoundation/GameState/GameState.h>
 #include <CoreUtils/Graphics/Camera.h>
 
+class ezCameraComponent;
+
 /// \brief ezFallbackGameState is an ezGameState that can handle existing worlds when no other game state is available.
 ///
 /// This game state returns a priority of 0 in CanHandleThis() and therefore only takes over when
@@ -16,6 +18,8 @@ class EZ_GAMEFOUNDATION_DLL ezFallbackGameState : public ezGameState
   EZ_ADD_DYNAMIC_REFLECTION(ezFallbackGameState, ezGameState)
 
 public:
+  ezFallbackGameState();
+
   virtual void ProcessInput() override;
 
   /// \brief Returns -1 if pWorld == nullptr, 0 otherwise.
@@ -23,5 +27,9 @@ public:
 
 protected:
   virtual void ConfigureInputActions() override;
+
+  virtual const ezCameraComponent* FindActiveCameraComponent();
+
+  ezInt32 m_iActiveCameraComponentIndex;
 
 };

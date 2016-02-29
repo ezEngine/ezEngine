@@ -1,19 +1,26 @@
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/Graphics/Camera.h>
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCameraMode, 1)
+  EZ_ENUM_CONSTANT(ezCameraMode::PerspectiveFixedFovX),
+  EZ_ENUM_CONSTANT(ezCameraMode::PerspectiveFixedFovY),
+  EZ_ENUM_CONSTANT(ezCameraMode::OrthoFixedWidth),
+  EZ_ENUM_CONSTANT(ezCameraMode::OrthoFixedHeight),
+EZ_END_STATIC_REFLECTED_ENUM();
+
 ezCamera::ezCamera()
 {
-  m_Mode = None;
+  m_Mode = ezCameraMode::None;
   m_uiSettingsModificationCounter = 0;
   m_uiOrientationModificationCounter = 0;
 }
 
 ezAngle ezCamera::GetFovX(float fAspectRatioWidthDivHeight) const
 {
-  if (m_Mode == PerspectiveFixedFovX)
+  if (m_Mode == ezCameraMode::PerspectiveFixedFovX)
     return ezAngle::Degree(m_fFovOrDim);
 
-  if (m_Mode == PerspectiveFixedFovY)
+  if (m_Mode == ezCameraMode::PerspectiveFixedFovY)
     return ezAngle::Degree(m_fFovOrDim) * fAspectRatioWidthDivHeight;
 
   EZ_REPORT_FAILURE("You cannot get the camera FOV when it is not a perspective camera.");
@@ -22,17 +29,17 @@ ezAngle ezCamera::GetFovX(float fAspectRatioWidthDivHeight) const
 
 ezAngle ezCamera::GetFovY(float fAspectRatioWidthDivHeight) const
 {
-  if (m_Mode == PerspectiveFixedFovX)
+  if (m_Mode == ezCameraMode::PerspectiveFixedFovX)
     return ezAngle::Degree(m_fFovOrDim) / fAspectRatioWidthDivHeight;
 
-  if (m_Mode == PerspectiveFixedFovY)
+  if (m_Mode == ezCameraMode::PerspectiveFixedFovY)
     return ezAngle::Degree(m_fFovOrDim);
 
   EZ_REPORT_FAILURE("You cannot get the camera FOV when it is not a perspective camera.");
   return ezAngle();
 }
 
-void ezCamera::SetCameraMode(CameraMode Mode, float fFovOrDim, float fNearPlane, float fFarPlane)
+void ezCamera::SetCameraMode(ezCameraMode::Enum Mode, float fFovOrDim, float fNearPlane, float fFarPlane)
 {
   // early out if no change
   if (m_Mode == Mode &&
@@ -80,19 +87,19 @@ void ezCamera::GetViewMatrix(ezMat4& out_viewMatrix) const
 
 void ezCamera::GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out_projectionMatrix, ezProjectionDepthRange::Enum depthRange) const
 {
-  if (m_Mode == PerspectiveFixedFovX)
+  if (m_Mode == ezCameraMode::PerspectiveFixedFovX)
   {
     out_projectionMatrix.SetPerspectiveProjectionMatrixFromFovX(ezAngle::Degree(m_fFovOrDim), fAspectRatioWidthDivHeight, m_fNearPlane, m_fFarPlane, depthRange);
   }
-  else if (m_Mode == PerspectiveFixedFovY)
+  else if (m_Mode == ezCameraMode::PerspectiveFixedFovY)
   {
     out_projectionMatrix.SetPerspectiveProjectionMatrixFromFovY(ezAngle::Degree(m_fFovOrDim), fAspectRatioWidthDivHeight, m_fNearPlane, m_fFarPlane, depthRange);
   }
-  else if (m_Mode == OrthoFixedWidth)
+  else if (m_Mode == ezCameraMode::OrthoFixedWidth)
   {
     out_projectionMatrix.SetOrthographicProjectionMatrix(m_fFovOrDim, m_fFovOrDim / fAspectRatioWidthDivHeight, m_fNearPlane, m_fFarPlane, depthRange);
   }
-  else if (m_Mode == OrthoFixedHeight)
+  else if (m_Mode == ezCameraMode::OrthoFixedHeight)
   {
     out_projectionMatrix.SetOrthographicProjectionMatrix(m_fFovOrDim * fAspectRatioWidthDivHeight, m_fFovOrDim, m_fNearPlane, m_fFarPlane, depthRange);
   }
@@ -104,7 +111,7 @@ void ezCamera::GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out
 
 void ezCamera::CameraSettingsChanged()
 {
-  EZ_ASSERT_DEV(m_Mode != None, "Invalid Camera Mode.");
+  EZ_ASSERT_DEV(m_Mode != ezCameraMode::None, "Invalid Camera Mode.");
   EZ_ASSERT_DEV(m_fNearPlane < m_fFarPlane, "Near and Far Plane are invalid.");
   EZ_ASSERT_DEV(m_fFovOrDim > 0.0f, "FOV or Camera Dimension is invalid.");
 

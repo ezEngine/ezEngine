@@ -96,6 +96,7 @@ public:
 
   void SetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value);
   ezVariant GetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName);
+  bool IsRenderPassReadBackPropertyExisting(const char* szPassName, const char* szPropertyName) const;
 
   ezTagSet m_IncludeTags;
   ezTagSet m_ExcludeTags;

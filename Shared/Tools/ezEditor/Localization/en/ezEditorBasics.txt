@@ -89,3 +89,13 @@ Editor.Plugins;Editor Pl&ugins
 Editor.Shortcuts;Shortcuts
 Editor.SettingsDlg;Stored Settings
 Engine.Plugins;Engine Pl&ugins
+ezCameraMode::PerspectiveFixedFovX;Perspective Fixed X
+ezCameraMode::PerspectiveFixedFovY;Perspective Fixed Y
+ezCameraMode::OrthoFixedWidth;Ortho Fixed Width
+ezCameraMode::OrthoFixedHeight;Ortho Fixed Height
+ezCameraComponentUsageHint::None;None
+ezCameraComponentUsageHint::MainView;Main View
+ezCameraComponentUsageHint::Player;Player
+ezCameraComponentUsageHint::NPC;NPC
+ezCameraComponentUsageHint::SecurityCamera;Security Camera
+ezCameraComponentUsageHint::SceneThumbnail;Scene Thumbnail

@@ -263,6 +263,15 @@ ezVariant ezView::GetRenderPassReadBackProperty(const char* szPassName, const ch
   return ezVariant();
 }
 
+
+bool ezView::IsRenderPassReadBackPropertyExisting(const char* szPassName, const char* szPropertyName) const
+{
+  ezStringBuilder sKey(szPassName, "::", szPropertyName);
+
+  auto it = m_PassReadBackProperties.Find(sKey);
+  return it.IsValid();
+}
+
 void ezView::UpdateCachedMatrices() const
 {
   const ezCamera* pCamera = GetRenderCamera();
