@@ -69,6 +69,11 @@ EZ_MEMBER_PROPERTY("DynamicEnum", m_sDynamicEnumName)
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicStringEnumAttribute, 1, ezRTTIDefaultAllocator<ezDynamicStringEnumAttribute>);
+EZ_BEGIN_PROPERTIES
+EZ_MEMBER_PROPERTY("DynamicEnum", m_sDynamicEnumName)
+EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_PropertyAttributes);
 

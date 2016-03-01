@@ -6,6 +6,8 @@
 #include <Foundation/Time/Time.h>
 #include <GameUtils/Prefabs/PrefabResource.h>
 
+struct ezInputComponentMessage;
+
 struct ezSpawnComponentFlags
 {
   typedef ezUInt16 StorageType;
@@ -62,6 +64,8 @@ protected:
   ezBitflags<ezSpawnComponentFlags> m_Flags;
 
   // ************************************* FUNCTIONS *****************************
+
+  void InputComponentMessageHandler(ezInputComponentMessage& msg);
 
 private:
   ezPrefabResourceHandle m_hPrefab;

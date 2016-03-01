@@ -31,6 +31,8 @@
 
 ezQtEditorApp* ezQtEditorApp::s_pInstance = nullptr;
 
+void UpdateInputDynamicEnumValues();
+
 void SetStyleSheet()
 {
   QApplication::setStyle(QStyleFactory::create("fusion"));
@@ -496,6 +498,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
       SetupDataDirectories();
       ReadEnginePluginConfig();
       ReadTagRegistry();
+      UpdateInputDynamicEnumValues();
 
       // tell the engine process which file system and plugin configuration to use
       ezEditorEngineProcessConnection::GetInstance()->SetFileSystemConfig(m_FileSystemConfig);

@@ -334,11 +334,14 @@ void ezInputManager::GetAllInputSets(ezDynamicArray<ezString>& out_InputSetNames
     out_InputSetNames.PushBack(it.Key());
 }
 
-void ezInputManager::GetAllInputActions(const char* szInputSetName, ezDynamicArray<ezString>& out_InputActions)
+void ezInputManager::GetAllInputActions(const char* szInputSetName, ezHybridArray<ezString, 24>& out_InputActions)
 {
-  out_InputActions.Clear();
+  const auto& map = GetInternals().s_ActionMapping[szInputSetName];
 
-  for (ezActionMap::Iterator it = GetInternals().s_ActionMapping[szInputSetName].GetIterator(); it.IsValid(); ++it)
+  out_InputActions.Clear();
+  out_InputActions.Reserve(map.GetCount());
+
+  for (ezActionMap::ConstIterator it = map.GetIterator(); it.IsValid(); ++it)
     out_InputActions.PushBack(it.Key());
 }
 

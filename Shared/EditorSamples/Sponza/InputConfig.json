@@ -97,5 +97,18 @@
           "Key" : "keyboard_down",
           "Scale" : 1
         } ]
+    },
+    {
+      "Set" : "GamePlay",
+      "Action" : "spawn",
+      "TimeScale" : true,
+      "Slots" : [ {
+          "Key" : "mouse_button_0",
+          "Scale" : 1
+        },
+        {
+          "Key" : "keyboard_space",
+          "Scale" : 1
+        } ]
     } ]
 }

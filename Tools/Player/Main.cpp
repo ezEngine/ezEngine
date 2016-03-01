@@ -11,6 +11,7 @@
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <GameUtils/Components/CameraComponent.h>
 #include <GameUtils/Components/SliderComponent.h>
+#include <GameUtils/Components/InputComponent.h>
 
 ezPlayerApplication::ezPlayerApplication()
   : ezGameApplication(ezGameApplicationType::StandAlone, nullptr)
@@ -59,10 +60,12 @@ void ezPlayerApplication::SetupLevel()
   /// \todo More 'elegant' solution to registering all component managers
   m_pWorld->CreateComponentManager<ezMeshComponentManager>();
   m_pWorld->CreateComponentManager<ezRotorComponentManager>();
+  m_pWorld->CreateComponentManager<ezSliderComponentManager>();
   m_pWorld->CreateComponentManager<ezTimedDeathComponentManager>();
   m_pWorld->CreateComponentManager<ezSpawnComponentManager>();
   m_pWorld->CreateComponentManager<ezCameraComponentManager>();
-  m_pWorld->CreateComponentManager<ezSliderComponentManager>();
+  m_pWorld->CreateComponentManager<ezInputComponentManager>();
+  
 
   {
     ezFileReader file;

@@ -2,6 +2,7 @@
 #include <GameUtils/Components/SpawnComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
+#include <GameUtils/Components/InputComponent.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 1);
   EZ_BEGIN_PROPERTIES
@@ -12,6 +13,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 1);
   EZ_BEGIN_ATTRIBUTES
     new ezCategoryAttribute("Gameplay"),
   EZ_END_ATTRIBUTES
+  EZ_BEGIN_MESSAGEHANDLERS
+    EZ_MESSAGE_HANDLER(ezInputComponentMessage, InputComponentMessageHandler),
+  EZ_END_MESSAGEHANDLERS
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezSpawnComponent::ezSpawnComponent()
@@ -86,4 +90,21 @@ const char* ezSpawnComponent::GetPrefabFile() const
 void ezSpawnComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab)
 {
   m_hPrefab = hPrefab;
+}
+
+void ezSpawnComponent::InputComponentMessageHandler(ezInputComponentMessage& msg)
+{
+  float f = msg.m_fValue;
+
+  if (msg.m_State == ezKeyState::Pressed && ezStringUtils::IsEqual(msg.m_szAction, "spawn"))
+  {
+    if (m_hPrefab.IsValid())
+    {
+      ezResourceLock<ezPrefabResource> pResource(m_hPrefab);
+
+      /// \todo Attach as child
+
+      pResource->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform());
+    }
+  }
 }

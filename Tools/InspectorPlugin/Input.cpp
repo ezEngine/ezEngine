@@ -56,7 +56,7 @@ static void SendAllInputActions()
 
   for (ezUInt32 s = 0; s < InputSetNames.GetCount(); ++s)
   {
-    ezDynamicArray<ezString> InputActions;
+    ezHybridArray<ezString, 24> InputActions;
 
     ezInputManager::GetAllInputActions(InputSetNames[s].GetData(), InputActions);
 

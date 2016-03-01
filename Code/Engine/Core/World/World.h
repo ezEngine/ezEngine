@@ -170,6 +170,9 @@ public:
   /// If more control is desired, individual components should use their own RNG.
   ezRandom& GetRandomNumberGenerator() { return m_Random; }
 
+  /// \brief Deletes all undelivered timed messages.
+  void ClearDelayedMessages();
+
 public:
   /// \brief Returns the number of active worlds.
   static ezUInt32 GetWorldCount();

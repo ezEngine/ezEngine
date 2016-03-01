@@ -183,7 +183,7 @@ public:
   static void GetAllInputSets(ezDynamicArray<ezString>& out_InputSetNames); // [tested]
 
   /// \brief Returns the names of all input actions in the given input set.
-  static void GetAllInputActions(const char* szInputSetName, ezDynamicArray<ezString>& out_InputActions); // [tested]
+  static void GetAllInputActions(const char* szInputSetName, ezHybridArray<ezString, 24>& out_InputActions); // [tested]
 
   /// \brief This function allows to 'inject' input state for one frame.
   ///

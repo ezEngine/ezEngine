@@ -15,6 +15,30 @@
 #include <EditorApp/EditorApp.moc.h>
 #include <qevent.h>
 #include <Foundation/IO/OSFile.h>
+#include <GuiFoundation/UIServices/DynamicStringEnum.h>
+
+void UpdateInputDynamicEnumValues()
+{
+  ezHybridArray<ezGameAppInputConfig, 32> Actions;
+
+  ezStringBuilder sPath = ezToolsProject::GetInstance()->GetProjectPath();
+  sPath.PathParentDirectory();
+  sPath.AppendPath("InputConfig.json");
+
+  ezFileReader file;
+  if (file.Open(sPath).Failed())
+    return;
+
+  ezGameAppInputConfig::ReadFromJson(file, Actions);
+
+  auto& dynEnum = ezDynamicStringEnum::GetDynamicEnum("InputSet");
+  dynEnum.Clear();
+
+  for (const auto& a : Actions)
+  {
+    dynEnum.AddValidValue(a.m_sInputSet, true);
+  }
+}
 
 InputConfigDlg::InputConfigDlg(QWidget* parent) : QDialog(parent)
 {
@@ -122,6 +146,7 @@ void InputConfigDlg::on_ButtonOk_clicked()
 {
   GetActionsFromList();
   SaveActions();
+  UpdateInputDynamicEnumValues();
   accept();
 }
 

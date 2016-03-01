@@ -213,6 +213,25 @@ private:
   ezString m_sDynamicEnumName;
 };
 
+/// \brief Can be used on string properties to display them as enums. The valid enum values and their names may change at runtime.
+///
+/// See ezDynamicStringEnum for details.
+class EZ_FOUNDATION_DLL ezDynamicStringEnumAttribute : public ezTypeWidgetAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDynamicStringEnumAttribute, ezTypeWidgetAttribute);
+
+public:
+  ezDynamicStringEnumAttribute() {}
+  ezDynamicStringEnumAttribute(const char* szDynamicEnumName)
+  {
+    m_sDynamicEnumName = szDynamicEnumName;
+  }
+
+  const char* GetDynamicEnumName() const { return m_sDynamicEnumName; }
+
+private:
+  ezString m_sDynamicEnumName;
+};
 
 template<typename Type>
 const Type* ezRTTI::GetAttributeByType() const
