@@ -244,7 +244,7 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAllInputActions / RemoveInputAction")
   {
-    ezDynamicArray<ezString> InputActions;
+    ezHybridArray<ezString, 24> InputActions;
 
     ezInputManager::GetAllInputActions("test_inputset_3", InputActions);
 

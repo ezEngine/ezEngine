@@ -773,7 +773,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   // Extract object render data
   for (auto& pExtractor : m_Extractors)
   {
-    pExtractor->Extract(view);
+    pExtractor->Extract(view, this);
   }
 
   for (ezUInt32 uiPassIndex = 0; uiPassIndex < pPipelineData->m_PassData.GetCount(); ++uiPassIndex)

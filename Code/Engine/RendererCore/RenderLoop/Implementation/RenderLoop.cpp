@@ -227,7 +227,7 @@ void ezRenderLoop::ExtractMainViews()
 
     for (ezUInt32 i = s_ViewsToRender.GetCount(); i-- > 0;)
     {
-      ezRenderPipeline* pRenderPipeline = s_ViewsToRender[i]->GetRenderPipeline();
+      ezRenderPipeline* pRenderPipeline = s_ViewsToRender[i]->m_pRenderPipeline.Borrow();
       if (!filteredRenderPipelines.Contains(pRenderPipeline))
       {
         filteredRenderPipelines.PushBack(pRenderPipeline);

@@ -101,18 +101,6 @@ void ezView::EnsureUpToDate()
   ApplyExtractorProperties();
 }
 
-
-void ezView::ReadBackPassProperties()
-{
-  ezHybridArray<ezRenderPipelinePass*, 16> passes;
-  m_pRenderPipeline->GetPasses(passes);
-
-  for (auto pPass : passes)
-  {
-    pPass->ReadBackProperties(this);
-  }
-}
-
 void ezView::ExtractData()
 {
   EZ_ASSERT_DEV(IsValid(), "Cannot extract data from an invalid view");
@@ -157,6 +145,17 @@ void ezView::SetReadBackProperty(ezMap<ezString, PropertyValue>& map, const char
 
   prop.m_bIsDirty = false;
   prop.m_Value = value;
+}
+
+void ezView::ReadBackPassProperties()
+{
+  ezHybridArray<ezRenderPipelinePass*, 16> passes;
+  m_pRenderPipeline->GetPasses(passes);
+
+  for (auto pPass : passes)
+  {
+    pPass->ReadBackProperties(this);
+  }
 }
 
 void ezView::ResetAllPropertyStates(ezMap<ezString, PropertyValue>& map)
@@ -249,7 +248,6 @@ void ezView::SetRenderPassReadBackProperty(const char* szPassName, const char* s
 {
   SetReadBackProperty(m_PassReadBackProperties, szPassName, szPropertyName, value);
 }
-
 
 ezVariant ezView::GetRenderPassReadBackProperty(const char* szPassName, const char* szPropertyName)
 {

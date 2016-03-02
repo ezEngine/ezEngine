@@ -23,13 +23,19 @@ protected:
   
 public:
   /// \brief Returns the corresponding world to this manager.
-  ezWorld* GetWorld() const;
+  ezWorld* GetWorld();
+
+  /// \brief Returns the corresponding world to this manager.
+  const ezWorld* GetWorld() const;
 
   /// \brief Checks whether the given handle references a valid component.
   bool IsValidComponent(const ezComponentHandle& component) const;
 
   /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
-  bool TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent) const;
+  bool TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent);
+
+  /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
+  bool TryGetComponent(const ezComponentHandle& component, const ezComponent*& out_pComponent) const;
 
   /// \brief Returns the number of components managed by this manager.
   ezUInt32 GetComponentCount() const;
@@ -140,10 +146,16 @@ public:
   ezComponentHandle CreateComponent(ComponentType*& out_pComponent);
 
   /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
-  bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent) const;
+  bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent);
+
+  /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
+  bool TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const;
 
   /// \brief Returns an iterator over all components.
   typename ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, CompactStorage>::Iterator GetComponents();
+
+  /// \brief Returns an iterator over all components.
+  typename ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, CompactStorage>::ConstIterator GetComponents() const;
 
   /// \brief Returns the rtti info of the component type that this manager handles.
   virtual const ezRTTI* GetComponentType() const override;
@@ -174,39 +186,22 @@ public:
   void SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount);
 };
 
-/// \brief Simple component manager implementation that calls an update method on all components every frame.
-template <typename component>
+/// \brief Abstract component manager implementation.
+template <typename T>
 class ezComponentManagerAbstract : public ezComponentManagerBase
 {
 public:
-  typedef component ComponentType;
+  typedef T ComponentType;
 
-  ezComponentManagerAbstract(ezWorld* pWorld) : ezComponentManagerBase(pWorld)
-  {
+  ezComponentManagerAbstract(ezWorld* pWorld);
 
-  }
+  virtual ezComponentHandle AllocateComponent() override;
+  ezComponentHandle CreateComponent(ComponentType*& out_pComponent);
+  
+  virtual const ezRTTI* GetComponentType() const override;
+  
+  static ezUInt16 TypeId();
 
-  virtual ezComponentHandle AllocateComponent() override
-  {
-    EZ_REPORT_FAILURE("Components of type '%s' cannot be created, they are abstract", ezGetStaticRTTI<ComponentType>()->GetTypeName());
-    return ezComponentHandle();
-  }
-
-  ezComponentHandle CreateComponent(ComponentType*& out_pComponent)
-  {
-    EZ_REPORT_FAILURE("Components of type '%s' cannot be created, they are abstract", ezGetStaticRTTI<ComponentType>()->GetTypeName());
-    return ezComponentHandle();
-  }
-
-  virtual const ezRTTI* GetComponentType() const override
-  {
-    return ezGetStaticRTTI<ComponentType>();
-  }
-
-  static ezUInt16 TypeId()
-  {
-    return ComponentType::TypeId();
-  }
 };
 
 /// \brief Helper macro to create an update function description with proper name

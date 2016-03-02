@@ -87,7 +87,10 @@ const ezCameraComponent* ezFallbackGameState::FindActiveCameraComponent()
   if (m_iActiveCameraComponentIndex == -1)
     return nullptr;
 
-  ezCameraComponentManager* pManager = m_pMainWorld->GetComponentManager<ezCameraComponentManager>();
+  const ezWorld* pWorld = m_pMainWorld;
+  const ezCameraComponentManager* pManager = pWorld->GetComponentManager<ezCameraComponentManager>();
+  if (pManager == nullptr)
+    return nullptr;
 
   auto itComp = pManager->GetComponents();
 

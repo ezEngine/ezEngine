@@ -40,8 +40,6 @@ public:
   void SetRenderPipelineResource(ezRenderPipelineResourceHandle hPipeline);
   ezRenderPipelineResourceHandle GetRenderPipelineResource() const;
 
-  ezRenderPipeline* GetRenderPipeline() const;
-
   void SetLogicCamera(const ezCamera* pCamera);
   const ezCamera* GetLogicCamera() const;
 
@@ -54,11 +52,6 @@ public:
   const ezViewData& GetData() const;
 
   bool IsValid() const;
-
-  /// \brief Rebuilds pipeline if necessary and pushes double-buffered settings into the pipeline.
-  void EnsureUpToDate();
-
-  void ReadBackPassProperties();
 
   /// \brief Extracts all relevant data from the world to render the view.
   void ExtractData();
@@ -128,6 +121,9 @@ private:
 
 private:
   void UpdateCachedMatrices() const;
+
+  /// \brief Rebuilds pipeline if necessary and pushes double-buffered settings into the pipeline.
+  void EnsureUpToDate();
   void UpdateRenderPipeline(ezUniquePtr<ezRenderPipeline>&& pRenderPipeline);
 
   mutable ezUInt32 m_uiLastCameraSettingsModification;
@@ -147,6 +143,8 @@ private:
 
   void SetProperty(ezMap<ezString, PropertyValue>& map, const char* szPassName, const char* szPropertyName, const ezVariant& value);
   void SetReadBackProperty(ezMap<ezString, PropertyValue>& map, const char* szPassName, const char* szPropertyName, const ezVariant& value);
+
+  void ReadBackPassProperties();
 
   void ResetAllPropertyStates(ezMap<ezString, PropertyValue>& map);
 

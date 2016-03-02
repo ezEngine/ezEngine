@@ -78,7 +78,7 @@ ezTestAppRun ezRendererTestBasics::SubtestClearScreen()
 void ezRendererTestBasics::RenderObjects(ezBitflags<ezShaderBindFlags> ShaderBindFlags)
 {
   ezCamera cam;
-  cam.SetCameraMode(ezCamera::PerspectiveFixedFovX, 90, 0.5f, 1000.0f);
+  cam.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 90, 0.5f, 1000.0f);
   cam.LookAt(ezVec3(0, 0, 0), ezVec3(0, 0, -1), ezVec3(0, 1, 0));
   ezMat4 mProj, mView;
   cam.GetProjectionMatrix((float) GetResolution().width / (float) GetResolution().height, mProj);
@@ -108,7 +108,7 @@ void ezRendererTestBasics::RenderObjects(ezBitflags<ezShaderBindFlags> ShaderBin
 void ezRendererTestBasics::RenderLineObjects(ezBitflags<ezShaderBindFlags> ShaderBindFlags)
 {
   ezCamera cam;
-  cam.SetCameraMode(ezCamera::PerspectiveFixedFovX, 90, 0.5f, 1000.0f);
+  cam.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 90, 0.5f, 1000.0f);
   cam.LookAt(ezVec3(0, 0, 0), ezVec3(0, 0, -1), ezVec3(0, 1, 0));
   ezMat4 mProj, mView;
   cam.GetProjectionMatrix((float)GetResolution().width / (float)GetResolution().height, mProj);

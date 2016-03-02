@@ -42,7 +42,7 @@ void ProjectileComponent::Update()
 
   GetOwner()->SetLocalPosition(GetOwner()->GetLocalPosition() + m_vVelocity);
 
-  CollidableComponentManager* pCollidableManager = GetWorld()->GetComponentManager<CollidableComponentManager>();
+  CollidableComponentManager* pCollidableManager = GetWorld()->GetOrCreateComponentManager<CollidableComponentManager>();
 
   for (auto it = pCollidableManager->GetComponents(); it.IsValid(); ++it)
   {

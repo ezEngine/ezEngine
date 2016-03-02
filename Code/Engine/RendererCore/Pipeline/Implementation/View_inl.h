@@ -24,11 +24,6 @@ EZ_FORCE_INLINE const ezGALRenderTagetSetup& ezView::GetRenderTargetSetup() cons
   return m_RenderTargetSetup;
 }
 
-EZ_FORCE_INLINE ezRenderPipeline* ezView::GetRenderPipeline() const
-{
-  return m_pRenderPipeline.Borrow();
-}
-
 EZ_FORCE_INLINE void ezView::SetLogicCamera(const ezCamera* pCamera)
 {
   m_pLogicCamera = pCamera;

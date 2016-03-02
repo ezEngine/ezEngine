@@ -101,7 +101,7 @@ void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer, ezGALRe
 {
   EZ_LOG_BLOCK("SetupMainView");
 
-  m_pMainView = ezRenderLoop::CreateView("View");
+  m_pMainView = ezRenderLoop::CreateView("MainView");
   ezRenderLoop::AddMainView(m_pMainView);
 
   ezGALRenderTagetSetup RTS;

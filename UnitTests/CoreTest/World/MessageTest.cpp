@@ -78,7 +78,7 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
   ezWorld world("Test");
   EZ_LOCK(world.GetWriteMarker());
 
-  TestComponentMsgManager* pManager = world.CreateComponentManager<TestComponentMsgManager>();
+  TestComponentMsgManager* pManager = world.GetOrCreateComponentManager<TestComponentMsgManager>();
 
   ezGameObjectDesc desc;
   desc.m_sName.Assign("Root");

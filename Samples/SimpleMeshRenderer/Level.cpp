@@ -20,8 +20,8 @@ void SimpleMeshRendererGameState::CreateGameLevel()
   m_pMainWorld = GetApplication()->CreateWorld( "Level", true );
   EZ_LOCK( m_pMainWorld->GetWriteMarker());
 
-  ezMeshComponentManager* pMeshCompMan = m_pMainWorld->CreateComponentManager<ezMeshComponentManager>();
-  ezRotorComponentManager* pRotorCompMan = m_pMainWorld->CreateComponentManager<ezRotorComponentManager>();
+  ezMeshComponentManager* pMeshCompMan = m_pMainWorld->GetOrCreateComponentManager<ezMeshComponentManager>();
+  ezRotorComponentManager* pRotorCompMan = m_pMainWorld->GetOrCreateComponentManager<ezRotorComponentManager>();
 
   ezGameObjectDesc obj;
   ezGameObject* pObj;

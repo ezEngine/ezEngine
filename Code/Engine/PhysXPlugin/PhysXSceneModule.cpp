@@ -42,15 +42,15 @@ void ezPhysXSceneModule::InternalStartup()
 {
   InternalReinit();
 
-  GetWorld()->CreateComponentManager<ezPxStaticActorComponentManager>()->SetUserData(this);
-  GetWorld()->CreateComponentManager<ezPxDynamicActorComponentManager>()->SetUserData(this);
-  GetWorld()->CreateComponentManager<ezPxShapeBoxComponentManager>()->SetUserData(this);
-  GetWorld()->CreateComponentManager<ezPxShapeSphereComponentManager>()->SetUserData(this);
-  GetWorld()->CreateComponentManager<ezPxShapeCapsuleComponentManager>()->SetUserData(this);
-  GetWorld()->CreateComponentManager<ezPxShapeConvexComponentManager>()->SetUserData(this);
-  GetWorld()->CreateComponentManager<ezPxCenterOfMassComponentManager>()->SetUserData(this);
-  GetWorld()->CreateComponentManager<ezPxDistanceJointComponentManager>()->SetUserData(this);
-  GetWorld()->CreateComponentManager<ezPxFixedJointComponentManager>()->SetUserData(this);
+  GetWorld()->GetOrCreateComponentManager<ezPxStaticActorComponentManager>()->SetUserData(this);
+  GetWorld()->GetOrCreateComponentManager<ezPxDynamicActorComponentManager>()->SetUserData(this);
+  GetWorld()->GetOrCreateComponentManager<ezPxShapeBoxComponentManager>()->SetUserData(this);
+  GetWorld()->GetOrCreateComponentManager<ezPxShapeSphereComponentManager>()->SetUserData(this);
+  GetWorld()->GetOrCreateComponentManager<ezPxShapeCapsuleComponentManager>()->SetUserData(this);
+  GetWorld()->GetOrCreateComponentManager<ezPxShapeConvexComponentManager>()->SetUserData(this);
+  GetWorld()->GetOrCreateComponentManager<ezPxCenterOfMassComponentManager>()->SetUserData(this);
+  GetWorld()->GetOrCreateComponentManager<ezPxDistanceJointComponentManager>()->SetUserData(this);
+  GetWorld()->GetOrCreateComponentManager<ezPxFixedJointComponentManager>()->SetUserData(this);
 
   m_AccumulatedTimeSinceUpdate.SetZero();
 

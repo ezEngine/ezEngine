@@ -148,7 +148,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   return newId;
 }
 
-void ezWorld::DestroyObjectNow(const ezGameObjectHandle& object)
+void ezWorld::DeleteObjectNow(const ezGameObjectHandle& object)
 {
   CheckForWriteAccess();
 
@@ -164,7 +164,7 @@ void ezWorld::DestroyObjectNow(const ezGameObjectHandle& object)
   // delete children
   for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
   {
-    DestroyObjectNow(it->GetHandle());
+    DeleteObjectNow(it->GetHandle());
   }
 
   // delete attached components
@@ -191,7 +191,20 @@ void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject)
   PostMessage(hObject, msg, ezObjectMsgQueueType::NextFrame, ezObjectMsgRouting::ToObjectOnly);
 }
 
-ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pRtti) const
+ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pRtti)
+{
+  CheckForWriteAccess();
+
+  for (auto pMan : m_Data.m_ComponentManagers)
+  {
+    if (pMan != nullptr && pMan->GetComponentType() == pRtti)
+      return pMan;
+  }
+
+  return nullptr;
+}
+
+const ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pRtti) const
 {
   CheckForReadAccess();
 
@@ -229,6 +242,23 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& m
 
   ezMessage* pMsgCopy = msg.Clone(&m_Data.m_Allocator);
   m_Data.m_TimedMessageQueues[queueType].Enqueue(pMsgCopy, metaData);
+}
+
+void ezWorld::ClearDelayedMessages()
+{
+  for (ezUInt32 queueType = 0; queueType < ezObjectMsgQueueType::COUNT; ++queueType)
+  {
+    ezInternal::WorldData::MessageQueue& queue = m_Data.m_TimedMessageQueues[queueType];
+
+    for (ezUInt32 i = 0; i < queue.GetCount(); ++i)
+    {
+      auto& entry = queue[i];
+
+      EZ_DELETE(&m_Data.m_Allocator, entry.m_pMessage);
+    }
+
+    queue.Clear();
+  }
 }
 
 void ezWorld::Update()
@@ -327,24 +357,6 @@ void ezWorld::Update()
     EZ_PROFILE(s_PostTransformProfilingID);
     ProcessQueuedMessages(ezObjectMsgQueueType::PostTransform);
     UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::PostTransform]);
-  }
-}
-
-
-void ezWorld::ClearDelayedMessages()
-{
-  for (ezUInt32 queueType = 0; queueType < ezObjectMsgQueueType::COUNT; ++queueType)
-  {
-    ezInternal::WorldData::MessageQueue& queue = m_Data.m_TimedMessageQueues[queueType];
-
-    for (ezUInt32 i = 0; i < queue.GetCount(); ++i)
-    {
-      auto& entry = queue[i];
-
-      EZ_DELETE(&m_Data.m_Allocator, entry.m_pMessage);
-    }
-
-    queue.Clear();
   }
 }
 

@@ -18,7 +18,7 @@ public:
   /// \brief returns the name of the extractor.
   const char* GetName() const;
 
-  virtual void Extract(const ezView& view) {};
+  virtual void Extract(const ezView& view, ezRenderPipeline* pRenderPipeline) {};
 
 private:
   ezHashedString m_sName;
@@ -31,7 +31,7 @@ class EZ_RENDERERCORE_DLL ezVisibleObjectsExtractor : public ezExtractor
 public:
   ezVisibleObjectsExtractor() {}
 
-  virtual void Extract(const ezView& view) override;
+  virtual void Extract(const ezView& view, ezRenderPipeline* pRenderPipeline) override;
 };
 
 class EZ_RENDERERCORE_DLL ezSelectedObjectsExtractor : public ezExtractor
@@ -40,7 +40,7 @@ class EZ_RENDERERCORE_DLL ezSelectedObjectsExtractor : public ezExtractor
 public:
   ezSelectedObjectsExtractor();
 
-  virtual void Extract(const ezView& view) override;
+  virtual void Extract(const ezView& view, ezRenderPipeline* pRenderPipeline) override;
   virtual const ezDeque<ezGameObjectHandle>* GetSelection() = 0;
   ezRenderPassType m_OverridePassType;
   //const ezDeque<ezGameObjectHandle>* m_pSelection;
@@ -52,7 +52,7 @@ class EZ_RENDERERCORE_DLL ezCallDelegateExtractor : public ezExtractor
 public:
   ezCallDelegateExtractor();
 
-  virtual void Extract(const ezView& view) override;
+  virtual void Extract(const ezView& view, ezRenderPipeline* pRenderPipeline) override;
 
   ezDelegate<void ()> m_Delegate;
 };

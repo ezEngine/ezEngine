@@ -111,7 +111,7 @@ void ezSpotLightComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) 
 
 void ezSpotLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg ) const
 {
-  ezRenderPipeline* pRenderPipeline = msg.m_pView->GetRenderPipeline();
+  ezRenderPipeline* pRenderPipeline = msg.m_pRenderPipeline;
   ezSpotLightRenderData* pRenderData = pRenderPipeline->CreateRenderData<ezSpotLightRenderData>(ezDefaultPassTypes::LightGathering, GetOwner());
 
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();

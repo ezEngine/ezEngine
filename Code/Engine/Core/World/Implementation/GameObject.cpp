@@ -263,7 +263,7 @@ ezResult ezGameObject::RemoveComponent(ezComponent* pComponent)
 
 void ezGameObject::OnDeleteObject(ezDeleteObjectMessage& msg)
 {
-  m_pWorld->DestroyObjectNow(GetHandle());
+  m_pWorld->DeleteObjectNow(GetHandle());
 }
 
 void ezGameObject::FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr)

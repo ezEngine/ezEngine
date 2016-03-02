@@ -168,9 +168,9 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     EZ_TEST_INT(uiCounter, 10);
     EZ_TEST_INT(pParentObject->GetChildCount(), 10);
 
-    world.DeleteObject(childObjects[0]);
-    world.DeleteObject(childObjects[3]);
-    world.DeleteObject(childObjects[9]);
+    world.DeleteObjectNow(childObjects[0]);
+    world.DeleteObjectNow(childObjects[3]);
+    world.DeleteObjectNow(childObjects[9]);
 
     EZ_TEST_BOOL(!world.IsValidObject(childObjects[0]));
     EZ_TEST_BOOL(!world.IsValidObject(childObjects[3]));
@@ -391,7 +391,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     EZ_TEST_BOOL(world2.TryGetObject(hObj2, pObj2));
     EZ_TEST_BOOL(pObj2 != nullptr);
 
-    world2.DeleteObject(hObj2);
+    world2.DeleteObjectNow(hObj2);
 
     EZ_TEST_BOOL(!world2.IsValidObject(hObj2));
   }

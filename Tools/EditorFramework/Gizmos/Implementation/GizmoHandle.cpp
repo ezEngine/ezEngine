@@ -350,8 +350,7 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
     pObject->GetTags().Set(tagEditor);
   }
 
-  ezMeshComponentManager* pMeshCompMan = pWorld->GetComponentManager<ezMeshComponentManager>();
-  pMeshCompMan->CreateComponent(m_pMeshComponent);
+  ezMeshComponent::CreateComponent(pWorld, m_pMeshComponent);
 
 
   ezMeshResourceHandle hMesh;

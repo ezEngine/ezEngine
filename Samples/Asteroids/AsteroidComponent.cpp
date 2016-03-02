@@ -26,7 +26,7 @@ void AsteroidComponent::Update()
 
   const ezVec3 vOwnPos = GetOwner()->GetLocalPosition();
 
-  ShipComponentManager* pShipManager = GetWorld()->GetComponentManager<ShipComponentManager>();
+  ShipComponentManager* pShipManager = GetWorld()->GetOrCreateComponentManager<ShipComponentManager>();
 
   for (auto it = pShipManager->GetComponents(); it.IsValid(); ++it)
   {

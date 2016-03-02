@@ -64,7 +64,7 @@ EZ_FORCE_INLINE void ezWorld::Traverse(VisitorFunc visitorFunc, TraversalMethod 
 }
 
 template <typename ManagerType>
-ManagerType* ezWorld::CreateComponentManager()
+ManagerType* ezWorld::GetOrCreateComponentManager()
 {
   CheckForWriteAccess();
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType), 
@@ -108,10 +108,10 @@ void ezWorld::DeleteComponentManager()
 }
 
 template <typename ManagerType>
-EZ_FORCE_INLINE ManagerType* ezWorld::GetComponentManager() const
+EZ_FORCE_INLINE const ManagerType* ezWorld::GetComponentManager() const
 {
   CheckForReadAccess();
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType), 
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType),
     "Not a valid component manager type");
 
   const ezUInt16 uiTypeId = ManagerType::TypeId();
@@ -121,8 +121,6 @@ EZ_FORCE_INLINE ManagerType* ezWorld::GetComponentManager() const
     pManager = static_cast<ManagerType*>(m_Data.m_ComponentManagers[uiTypeId]);
   }
 
-  EZ_ASSERT_DEV(pManager != nullptr, "Component Manager '%s' (id: %u) does not exists. Call 'CreateComponentManager' first.", 
-    ezGetStaticRTTI<typename ManagerType::ComponentType>()->GetTypeName(), uiTypeId);
   return pManager;
 }
 
@@ -143,9 +141,9 @@ inline bool ezWorld::IsValidComponent(const ezComponentHandle& component) const
 }
 
 template <typename ComponentType>
-inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent) const
+inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent)
 {
-  CheckForReadAccess();
+  CheckForWriteAccess();
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType),
     "Not a valid component type");
 
@@ -158,6 +156,29 @@ inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, Compone
       ezComponent* pComponent = nullptr;
       bool bResult = pManager->TryGetComponent(component, pComponent);
       out_pComponent = static_cast<ComponentType*>(pComponent);
+      return bResult;
+    }
+  }
+
+  return false;
+}
+
+template <typename ComponentType>
+inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const
+{
+  CheckForReadAccess();
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType),
+    "Not a valid component type");
+
+  const ezUInt16 uiTypeId = component.m_InternalId.m_TypeId;
+
+  if (uiTypeId < m_Data.m_ComponentManagers.GetCount())
+  {
+    if (const ezComponentManagerBase* pManager = m_Data.m_ComponentManagers[uiTypeId])
+    {
+      const ezComponent* pComponent = nullptr;
+      bool bResult = pManager->TryGetComponent(component, pComponent);
+      out_pComponent = static_cast<const ComponentType*>(pComponent);
       return bResult;
     }
   }

@@ -55,7 +55,7 @@ void ShipComponent::Update()
 
   if (!m_vVelocity.IsZero(0.001f))
   {
-    CollidableComponentManager* pCollidableManager = GetWorld()->GetComponentManager<CollidableComponentManager>();
+    CollidableComponentManager* pCollidableManager = GetWorld()->GetOrCreateComponentManager<CollidableComponentManager>();
 
     for (auto it = pCollidableManager->GetComponents(); it.IsValid(); ++it)
     {

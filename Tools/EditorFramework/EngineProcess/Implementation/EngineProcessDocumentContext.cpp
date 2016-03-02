@@ -92,7 +92,7 @@ void ezWorldRttiConverterContext::DeleteObject(const ezUuid& guid)
   {
     auto hObject = m_GameObjectMap.GetHandle(guid);
     UnregisterObject(guid);
-    m_pWorld->DestroyObjectNow(hObject);
+    m_pWorld->DeleteObjectNow(hObject);
   }
   else if (pRtti->IsDerivedFrom<ezComponent>())
   {

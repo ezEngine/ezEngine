@@ -75,12 +75,6 @@ void Level::SetupLevel(ezWorld* pWorld)
   m_pWorld = pWorld;
   EZ_LOCK(m_pWorld->GetWriteMarker());
 
-  m_pWorld->CreateComponentManager<ezMeshComponentManager>();
-  m_pWorld->CreateComponentManager<ShipComponentManager>();
-  m_pWorld->CreateComponentManager<ProjectileComponentManager>();
-  m_pWorld->CreateComponentManager<AsteroidComponentManager>();
-  m_pWorld->CreateComponentManager<CollidableComponentManager>();
-
   for (ezInt32 iPlayer = 0; iPlayer < MaxPlayers; ++iPlayer)
     CreatePlayerShip(iPlayer);
 

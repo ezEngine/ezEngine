@@ -38,7 +38,7 @@ public:
   /// \note This function deletes the object immediately! It is unsafe to use this during a game update loop, as other objects
   /// may rely on this object staying valid for the rest of the frame.
   /// Use DeleteObjectDelayed() instead for safe removal at the end of the frame.
-  void DestroyObjectNow(const ezGameObjectHandle& object);
+  void DeleteObjectNow(const ezGameObjectHandle& object);
 
   /// \brief Deletes the given object at the beginning of the next world update. The object and its components and children stay completely valid until then.
   void DeleteObjectDelayed(const ezGameObjectHandle& object);
@@ -78,7 +78,7 @@ public:
 
   /// \brief Creates an instance of the given component manager type or returns a pointer to an already existing instance.
   template <typename ManagerType>
-  ManagerType* CreateComponentManager();
+  ManagerType* GetOrCreateComponentManager();
 
   /// \brief Deletes the component manager of the given type and all its components.
   template <typename ManagerType>
@@ -86,17 +86,24 @@ public:
 
   /// \brief Returns the instance to the given component manager type.
   template <typename ManagerType>
-  ManagerType* GetComponentManager() const;
+  const ManagerType* GetComponentManager() const;
 
   /// \brief Returns the component manager that handles the given rtti component type.
-  ezComponentManagerBase* GetComponentManager(const ezRTTI* pRtti) const;
+  ezComponentManagerBase* GetComponentManager(const ezRTTI* pRtti);
+
+  /// \brief Returns the component manager that handles the given rtti component type.
+  const ezComponentManagerBase* GetComponentManager(const ezRTTI* pRtti) const;
 
   /// \brief Checks whether the given handle references a valid component.
   bool IsValidComponent(const ezComponentHandle& component) const;
+
+  /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
+  template <typename ComponentType>
+  bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent);
   
   /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   template <typename ComponentType>
-  bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent) const;
+  bool TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const;
 
 
   /// \brief Sends a message to all components of the receiverObject. Depending on the routing options the message is also send to parents or children.
@@ -110,6 +117,10 @@ public:
   /// \brief Queues the message for the given phase. The message is send to the receiverObject after the given delay in the corresponding phase.
   void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
     ezObjectMsgQueueType::Enum queueType, ezTime delay, ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
+
+  /// \brief Deletes all undelivered timed messages.
+  void ClearDelayedMessages();
+
 
   /// \brief If enabled, the full simulation should be executed, otherwise only the rendering related updates should be done
   void SetWorldSimulationEnabled(bool bEnable) { m_bSimulateWorld = bEnable; }
@@ -169,9 +180,6 @@ public:
   /// \brief Accesses the default random number generator.
   /// If more control is desired, individual components should use their own RNG.
   ezRandom& GetRandomNumberGenerator() { return m_Random; }
-
-  /// \brief Deletes all undelivered timed messages.
-  void ClearDelayedMessages();
 
 public:
   /// \brief Returns the number of active worlds.

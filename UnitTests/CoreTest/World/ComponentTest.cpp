@@ -129,8 +129,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
   ezWorld world("TestComp");
   EZ_LOCK(world.GetWriteMarker());
 
-  world.CreateComponentManager<TestComponentManager>();
-  TestComponentManager* pManager = world.GetComponentManager<TestComponentManager>();
+  TestComponentManager* pManager = world.GetOrCreateComponentManager<TestComponentManager>();
 
   TestComponent* pComponent = nullptr;
   ezGameObject* pObject = nullptr;
@@ -228,21 +227,20 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     // component should also be removed from the game object
     EZ_TEST_INT(pObject->GetComponents().GetCount(), 98);
 
-    world.DeleteObject(pObject->GetHandle());
+    world.DeleteObjectNow(pObject->GetHandle());
     world.Update();
 
     EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
     EZ_TEST_INT(TestComponent::s_iAttachCounter, 0);
 
     world.DeleteComponentManager<TestComponentManager>();
+    pManager = nullptr;
     EZ_TEST_INT(TestComponent::s_iInitCounter, 0);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Delete Objects with Component")
   {
     TestComponent::s_bGOInactiveCheck = true;
-
-    world.CreateComponentManager<TestComponentManager>();
 
     ezGameObjectDesc desc;
 
@@ -266,7 +264,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     pObjectB->AddComponent(pComponentB);
     pObjectC->AddComponent(pComponentC);
 
-    world.DeleteObject(pObjectB->GetHandle());
+    world.DeleteObjectNow(pObjectB->GetHandle());
 
     EZ_TEST_BOOL(pObjectA->IsActive());
     EZ_TEST_BOOL(pComponentA->IsActive());
@@ -305,5 +303,24 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     EZ_TEST_BOOL(pComponentB2 == pComponentB);
 
     TestComponent::s_bGOInactiveCheck = false;
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Get Components")
+  {
+    const ezWorld& constWorld = world;
+
+    const TestComponentManager* pConstManager = constWorld.GetComponentManager<TestComponentManager>();
+
+    for (auto it = pConstManager->GetComponents(); it.IsValid(); it.Next())
+    {
+      ezComponentHandle hComponent = it->GetHandle();
+
+      const TestComponent* pConstComponent = nullptr;
+      EZ_TEST_BOOL(constWorld.TryGetComponent(hComponent, pConstComponent));
+      EZ_TEST_BOOL(pConstComponent == (const TestComponent*)it);
+
+      EZ_TEST_BOOL(pConstManager->TryGetComponent(hComponent, pConstComponent));
+      EZ_TEST_BOOL(pConstComponent == (const TestComponent*)it);
+    }
   }
 }

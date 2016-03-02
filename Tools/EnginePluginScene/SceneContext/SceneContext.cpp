@@ -377,16 +377,16 @@ void ezSceneContext::OnInitialize()
   EZ_LOCK(pWorld->GetWriteMarker());
 
   /// \todo Plugin concept to allow custom initialization
-  pWorld->CreateComponentManager<ezMeshComponentManager>();
-  pWorld->CreateComponentManager<ezRotorComponentManager>();
-  pWorld->CreateComponentManager<ezSliderComponentManager>();
-  pWorld->CreateComponentManager<ezSpawnComponentManager>();
-  pWorld->CreateComponentManager<ezTimedDeathComponentManager>();
-  pWorld->CreateComponentManager<ezPointLightComponentManager>();
-  pWorld->CreateComponentManager<ezSpotLightComponentManager>();
-  pWorld->CreateComponentManager<ezDirectionalLightComponentManager>();
-  pWorld->CreateComponentManager<ezCameraComponentManager>();
-  pWorld->CreateComponentManager<ezInputComponentManager>();
+  pWorld->GetOrCreateComponentManager<ezMeshComponentManager>();
+  pWorld->GetOrCreateComponentManager<ezRotorComponentManager>();
+  pWorld->GetOrCreateComponentManager<ezSliderComponentManager>();
+  pWorld->GetOrCreateComponentManager<ezSpawnComponentManager>();
+  pWorld->GetOrCreateComponentManager<ezTimedDeathComponentManager>();
+  pWorld->GetOrCreateComponentManager<ezPointLightComponentManager>();
+  pWorld->GetOrCreateComponentManager<ezSpotLightComponentManager>();
+  pWorld->GetOrCreateComponentManager<ezDirectionalLightComponentManager>();
+  pWorld->GetOrCreateComponentManager<ezCameraComponentManager>();
+  pWorld->GetOrCreateComponentManager<ezInputComponentManager>();
 
   LoadShapeIconTextures();
 

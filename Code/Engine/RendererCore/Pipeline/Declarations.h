@@ -94,5 +94,6 @@ struct EZ_RENDERERCORE_DLL ezExtractRenderDataMessage : public ezMessage
   EZ_DECLARE_MESSAGE_TYPE(ezExtractRenderDataMessage);
 
   const ezView* m_pView;
+  ezRenderPipeline* m_pRenderPipeline;
   ezRenderPassType m_OverrideRenderPass;
 };

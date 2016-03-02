@@ -76,7 +76,7 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
   if (!m_hMesh.IsValid())
     return;
 
-  ezRenderPipeline* pRenderPipeline = msg.m_pView->GetRenderPipeline();
+  ezRenderPipeline* pRenderPipeline = msg.m_pRenderPipeline;
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh);
   const ezDynamicArray<ezMeshResourceDescriptor::SubMesh>& parts = pMesh->GetSubMeshes();

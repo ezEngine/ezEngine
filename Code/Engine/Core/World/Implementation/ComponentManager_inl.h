@@ -1,5 +1,10 @@
 
-EZ_FORCE_INLINE ezWorld* ezComponentManagerBase::GetWorld() const
+EZ_FORCE_INLINE ezWorld* ezComponentManagerBase::GetWorld()
+{
+  return m_pWorld;
+}
+
+EZ_FORCE_INLINE const ezWorld* ezComponentManagerBase::GetWorld() const
 {
   return m_pWorld;
 }
@@ -9,7 +14,15 @@ EZ_FORCE_INLINE bool ezComponentManagerBase::IsValidComponent(const ezComponentH
   return m_Components.Contains(component);
 }
 
-EZ_FORCE_INLINE bool ezComponentManagerBase::TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent) const
+EZ_FORCE_INLINE bool ezComponentManagerBase::TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent)
+{
+  ComponentStorageEntry storageEntry = { nullptr };
+  bool res = m_Components.TryGetValue(component, storageEntry);
+  out_pComponent = storageEntry.m_Ptr;
+  return res;
+}
+
+EZ_FORCE_INLINE bool ezComponentManagerBase::TryGetComponent(const ezComponentHandle& component, const ezComponent*& out_pComponent) const
 {
   ComponentStorageEntry storageEntry = { nullptr };
   bool res = m_Components.TryGetValue(component, storageEntry);
@@ -71,7 +84,7 @@ EZ_FORCE_INLINE ezComponentHandle ezComponentManager<T, CompactStorage>::CreateC
 }
 
 template <typename T, bool CompactStorage>
-EZ_FORCE_INLINE bool ezComponentManager<T, CompactStorage>::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent) const
+EZ_FORCE_INLINE bool ezComponentManager<T, CompactStorage>::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent)
 {
   EZ_ASSERT_DEBUG(ComponentType::TypeId() == GetIdFromHandle(component).m_TypeId, 
     "The given component handle is not of the expected type. Expected type id %d, got type id %d",
@@ -84,7 +97,26 @@ EZ_FORCE_INLINE bool ezComponentManager<T, CompactStorage>::TryGetComponent(cons
 }
 
 template <typename T, bool CompactStorage>
+EZ_FORCE_INLINE bool ezComponentManager<T, CompactStorage>::TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const
+{
+  EZ_ASSERT_DEBUG(ComponentType::TypeId() == GetIdFromHandle(component).m_TypeId,
+    "The given component handle is not of the expected type. Expected type id %d, got type id %d",
+    ComponentType::TypeId(), GetIdFromHandle(component).m_TypeId);
+
+  const ezComponent* pComponent = nullptr;
+  bool bResult = ezComponentManagerBase::TryGetComponent(component, pComponent);
+  out_pComponent = static_cast<const ComponentType*>(pComponent);
+  return bResult;
+}
+
+template <typename T, bool CompactStorage>
 EZ_FORCE_INLINE typename ezBlockStorage<T, ezInternal::DEFAULT_BLOCK_SIZE, CompactStorage>::Iterator ezComponentManager<T, CompactStorage>::GetComponents()
+{
+  return m_ComponentStorage.GetIterator();
+}
+
+template <typename T, bool CompactStorage>
+EZ_FORCE_INLINE typename ezBlockStorage<T, ezInternal::DEFAULT_BLOCK_SIZE, CompactStorage>::ConstIterator ezComponentManager<T, CompactStorage>::GetComponents() const
 {
   return m_ComponentStorage.GetIterator();
 }
@@ -154,5 +186,40 @@ void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::SimpleUp
     if (it->IsActive())
       it->Update();
   }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+ezComponentManagerAbstract<T>::ezComponentManagerAbstract(ezWorld* pWorld) 
+  : ezComponentManagerBase(pWorld)
+{
+
+}
+
+template <typename T>
+ezComponentHandle ezComponentManagerAbstract<T>::AllocateComponent()
+{
+  EZ_REPORT_FAILURE("Components of type '%s' cannot be created, they are abstract", ezGetStaticRTTI<ComponentType>()->GetTypeName());
+  return ezComponentHandle();
+}
+
+template <typename T>
+ezComponentHandle ezComponentManagerAbstract<T>::CreateComponent(ComponentType*& out_pComponent)
+{
+  EZ_REPORT_FAILURE("Components of type '%s' cannot be created, they are abstract", ezGetStaticRTTI<ComponentType>()->GetTypeName());
+  return ezComponentHandle();
+}
+
+template <typename T>
+const ezRTTI* ezComponentManagerAbstract<T>::GetComponentType() const
+{
+  return ezGetStaticRTTI<ComponentType>();
+}
+
+template <typename T>
+ezUInt16 ezComponentManagerAbstract<T>::TypeId()
+{
+  return ComponentType::TypeId();
 }
 
