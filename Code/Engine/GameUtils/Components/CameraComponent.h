@@ -6,7 +6,7 @@
 #include <CoreUtils/Graphics/Camera.h>
 
 /// \brief Usage hint of a camera component. Does not necessarily have any effect.
-struct EZ_COREUTILS_DLL ezCameraComponentUsageHint
+struct EZ_GAMEUTILS_DLL ezCameraComponentUsageHint
 {
   typedef ezInt8 StorageType;
 

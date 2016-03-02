@@ -96,7 +96,7 @@ void ezSpawnComponent::InputComponentMessageHandler(ezInputComponentMessage& msg
 {
   float f = msg.m_fValue;
 
-  if (msg.m_State == ezKeyState::Pressed && ezStringUtils::IsEqual(msg.m_szAction, "spawn"))
+  if (ezStringUtils::IsEqual(msg.m_szAction, "spawn"))
   {
     if (m_hPrefab.IsValid())
     {

@@ -2,6 +2,9 @@
 #include <Core/World/GameObject.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponent, 1, ezRTTINoAllocator);
+  EZ_BEGIN_PROPERTIES
+    EZ_ACCESSOR_PROPERTY("Active", IsActive, SetActive)->AddAttributes(new ezDefaultValueAttribute(true)),
+  EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezUInt16 ezComponent::TYPE_ID = ezComponent::GetNextTypeId();

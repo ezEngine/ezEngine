@@ -124,15 +124,18 @@ const ezCameraComponent* ezFallbackGameState::FindActiveCameraComponent()
     --m_iActiveCameraComponentIndex;
   }
 
-  ezInt32 offset = m_iActiveCameraComponentIndex;
-
-  // now find the camera by that index
-  for (ezUInt32 i = 0; i < ezCameraComponentUsageHint::ENUM_COUNT; ++i)
+  if (m_iActiveCameraComponentIndex >= 0)
   {
-    if (offset < (ezInt32) Cameras[i].GetCount())
-      return Cameras[i][offset];
+    ezInt32 offset = m_iActiveCameraComponentIndex;
 
-    offset -= Cameras[i].GetCount();
+    // now find the camera by that index
+    for (ezUInt32 i = 0; i < ezCameraComponentUsageHint::ENUM_COUNT; ++i)
+    {
+      if (offset < (ezInt32)Cameras[i].GetCount())
+        return Cameras[i][offset];
+
+      offset -= Cameras[i].GetCount();
+    }
   }
 
   // on overflow, reset to free camera

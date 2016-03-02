@@ -99,3 +99,7 @@ ezCameraComponentUsageHint::Player;Player
 ezCameraComponentUsageHint::NPC;NPC
 ezCameraComponentUsageHint::SecurityCamera;Security Camera
 ezCameraComponentUsageHint::SceneThumbnail;Scene Thumbnail
+ezInputMessageGranularity::PressOnly;Only Key Pressed
+ezInputMessageGranularity::PressAndRelease;Key Pressed and Released
+ezInputMessageGranularity::PressReleaseAndDown;Key Pressed, Released and Down
+ezInputMessageGranularity::PressReleaseDownAndUp;All, even Key Up
