@@ -94,6 +94,18 @@ WorldData::~WorldData()
       queue.Dequeue();
     }
   }
+
+  for (ezUInt32 i = 0; i < ezObjectMsgQueueType::COUNT; ++i)
+  {
+    MessageQueue& queue = m_TimedMessageQueues[i];
+    while (!queue.IsEmpty())
+    {
+      MessageQueue::Entry& entry = queue.Peek();
+      EZ_DELETE(&m_Allocator, entry.m_pMessage);
+
+      queue.Dequeue();
+    }
+  }
 }
 
 ezUInt32 WorldData::CreateTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel,

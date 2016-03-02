@@ -10,6 +10,19 @@
 class ezWorldWriter;
 class ezWorldReader;
 
+/// \brief A generic 'trigger' message to be used by different components to trigger their custom behavior.
+///
+/// Many components simply need to 'do their thing in x seconds'. This message can be used if only the timeout is
+/// required and no further data is needed.
+struct EZ_CORE_DLL ezComponentTriggerMessage : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezComponentTriggerMessage);
+
+  /// Must be used to filter out messages meant for other components.
+  ezComponentHandle m_hTargetComponent;
+};
+
+
 /// \brief Base class of all component types.
 ///
 /// Derive from this class to implement custom component types. Also add the EZ_DECLARE_COMPONENT_TYPE macro to your class declaration.
@@ -80,7 +93,7 @@ protected:
   template <typename T>
   ezComponentHandle GetHandle() const;
 
-  ezBitflags<ezObjectFlags> m_Flags;
+  ezBitflags<ezObjectFlags> m_ComponentFlags;
 
   enum class Initialization
   {

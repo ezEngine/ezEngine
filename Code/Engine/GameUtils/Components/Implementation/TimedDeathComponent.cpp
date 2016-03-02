@@ -3,15 +3,13 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezTriggerTimedDeathMessage);
-
 EZ_BEGIN_COMPONENT_TYPE(ezTimedDeathComponent, 1);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("Min Delay", m_MinDelay)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(1.0))),
     EZ_MEMBER_PROPERTY("Delay Range", m_DelayRange)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
   EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
-    EZ_MESSAGE_HANDLER(ezTriggerTimedDeathMessage, OnDeathTriggered),
+    EZ_MESSAGE_HANDLER(ezComponentTriggerMessage, OnTriggered),
   EZ_END_MESSAGEHANDLERS
   EZ_BEGIN_ATTRIBUTES
     new ezCategoryAttribute("Gameplay"),
@@ -43,7 +41,8 @@ void ezTimedDeathComponent::DeserializeComponent(ezWorldReader& stream)
 
 ezComponent::Initialization ezTimedDeathComponent::Initialize()
 {
-  ezTriggerTimedDeathMessage msg;
+  ezComponentTriggerMessage msg;
+  msg.m_hTargetComponent = GetHandle();
 
   ezWorld* pWorld = GetWorld();
 
@@ -54,7 +53,10 @@ ezComponent::Initialization ezTimedDeathComponent::Initialize()
   return ezComponent::Initialization::Done;
 }
 
-void ezTimedDeathComponent::OnDeathTriggered(ezTriggerTimedDeathMessage& msg) const
+void ezTimedDeathComponent::OnTriggered(ezComponentTriggerMessage& msg) const
 {
+  if (msg.m_hTargetComponent != GetHandle())
+    return;
+
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
 }

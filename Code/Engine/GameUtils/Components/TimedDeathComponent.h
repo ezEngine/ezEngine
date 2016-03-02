@@ -5,12 +5,6 @@
 #include <Core/World/Component.h>
 #include <Foundation/Time/Time.h>
 
-/// \brief Message sent by ezTimedDeathComponent to itself to destroy it after the given timeout
-struct EZ_GAMEUTILS_DLL ezTriggerTimedDeathMessage : public ezMessage
-{
-  EZ_DECLARE_MESSAGE_TYPE(ezTriggerTimedDeathMessage);
-};
-
 typedef ezComponentManager<class ezTimedDeathComponent> ezTimedDeathComponentManager;
 
 /// \brief This component deletes the object it is attached to after a timeout.
@@ -31,7 +25,7 @@ public:
   /// \brief Once this function has been executed, the timeout for deletion is fixed and cannot be reset.
   virtual Initialization Initialize() override;
 
-  void OnDeathTriggered(ezTriggerTimedDeathMessage& msg) const;
+  void OnTriggered(ezComponentTriggerMessage& msg) const;
 
   // ************************************* PROPERTIES ***********************************
 

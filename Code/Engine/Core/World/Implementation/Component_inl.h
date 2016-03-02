@@ -1,6 +1,6 @@
 
 EZ_FORCE_INLINE ezComponent::ezComponent() :
-  m_Flags(ezObjectFlags::Default),
+  m_ComponentFlags(ezObjectFlags::Default),
   m_pManager(nullptr),
   m_pOwner(nullptr)
 {
@@ -16,12 +16,12 @@ EZ_FORCE_INLINE ezComponent::~ezComponent()
 
 EZ_FORCE_INLINE bool ezComponent::IsDynamic() const
 {
-  return m_Flags.IsSet(ezObjectFlags::Dynamic);
+  return m_ComponentFlags.IsSet(ezObjectFlags::Dynamic);
 }
 
 EZ_FORCE_INLINE bool ezComponent::IsActive() const
 {
-  return m_pOwner && m_Flags.IsSet(ezObjectFlags::Active);
+  return m_pOwner && m_ComponentFlags.IsSet(ezObjectFlags::Active);
 }
 
 EZ_FORCE_INLINE ezComponentManagerBase* ezComponent::GetManager() const
@@ -64,7 +64,7 @@ EZ_FORCE_INLINE ezComponentHandle ezComponent::GetHandle() const
 
 EZ_FORCE_INLINE bool ezComponent::IsInitialized() const
 {
-  return m_Flags.IsSet(ezObjectFlags::Initialized);
+  return m_ComponentFlags.IsSet(ezObjectFlags::Initialized);
 }
 
 EZ_FORCE_INLINE void ezComponent::OnMessage(ezMessage& msg) 

@@ -118,10 +118,6 @@ public:
   void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
     ezObjectMsgQueueType::Enum queueType, ezTime delay, ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
 
-  /// \brief Deletes all undelivered timed messages.
-  void ClearDelayedMessages();
-
-
   /// \brief If enabled, the full simulation should be executed, otherwise only the rendering related updates should be done
   void SetWorldSimulationEnabled(bool bEnable) { m_bSimulateWorld = bEnable; }
 

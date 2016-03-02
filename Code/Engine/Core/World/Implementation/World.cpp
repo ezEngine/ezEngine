@@ -54,8 +54,6 @@ ezWorld::ezWorld(const char* szWorldName) :
 
 ezWorld::~ezWorld()
 {
-  ClearDelayedMessages();
-
   // set all objects to inactive so components and children know that they shouldn't access the objects anymore.
   for (auto it = m_Data.m_ObjectStorage.GetIterator(); it.IsValid(); it.Next())
   {
@@ -244,23 +242,6 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& m
   m_Data.m_TimedMessageQueues[queueType].Enqueue(pMsgCopy, metaData);
 }
 
-void ezWorld::ClearDelayedMessages()
-{
-  for (ezUInt32 queueType = 0; queueType < ezObjectMsgQueueType::COUNT; ++queueType)
-  {
-    ezInternal::WorldData::MessageQueue& queue = m_Data.m_TimedMessageQueues[queueType];
-
-    for (ezUInt32 i = 0; i < queue.GetCount(); ++i)
-    {
-      auto& entry = queue[i];
-
-      EZ_DELETE(&m_Data.m_Allocator, entry.m_pMessage);
-    }
-
-    queue.Clear();
-  }
-}
-
 void ezWorld::Update()
 {
   CheckForWriteAccess();
@@ -294,7 +275,7 @@ void ezWorld::Update()
           m_ComponentsToInitialize2.PushBack(pComponent);
         }
 
-        pComponent->m_Flags.Add(ezObjectFlags::Initialized);
+        pComponent->m_ComponentFlags.Add(ezObjectFlags::Initialized);
       }
     }
 

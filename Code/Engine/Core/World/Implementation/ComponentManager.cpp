@@ -56,7 +56,7 @@ void ezComponentManagerBase::DeinitializeComponent(ezComponent* pComponent)
   if (pComponent->IsInitialized())
   {
     pComponent->Deinitialize();
-    pComponent->m_Flags.Remove(ezObjectFlags::Initialized);
+    pComponent->m_ComponentFlags.Remove(ezObjectFlags::Initialized);
   }
 }
 
@@ -68,7 +68,7 @@ void ezComponentManagerBase::DeleteComponentEntry(ComponentStorageEntry storageE
   m_Components.Remove(pComponent->m_InternalId);
 
   pComponent->m_InternalId.Invalidate();
-  pComponent->m_Flags.Remove(ezObjectFlags::Active);
+  pComponent->m_ComponentFlags.Remove(ezObjectFlags::Active);
     
   m_pWorld->m_Data.m_DeadComponents.PushBack(storageEntry);  
 }
