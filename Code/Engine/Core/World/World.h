@@ -80,6 +80,9 @@ public:
   template <typename ManagerType>
   ManagerType* GetOrCreateComponentManager();
 
+  /// \brief Returns the component manager that handles the given rtti component type.
+  ezComponentManagerBase* GetOrCreateComponentManager(const ezRTTI* pRtti);
+
   /// \brief Deletes the component manager of the given type and all its components.
   template <typename ManagerType>
   void DeleteComponentManager();
@@ -87,9 +90,6 @@ public:
   /// \brief Returns the instance to the given component manager type.
   template <typename ManagerType>
   const ManagerType* GetComponentManager() const;
-
-  /// \brief Returns the component manager that handles the given rtti component type.
-  ezComponentManagerBase* GetComponentManager(const ezRTTI* pRtti);
 
   /// \brief Returns the component manager that handles the given rtti component type.
   const ezComponentManagerBase* GetComponentManager(const ezRTTI* pRtti) const;
@@ -117,6 +117,7 @@ public:
   /// \brief Queues the message for the given phase. The message is send to the receiverObject after the given delay in the corresponding phase.
   void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
     ezObjectMsgQueueType::Enum queueType, ezTime delay, ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
+
 
   /// \brief If enabled, the full simulation should be executed, otherwise only the rendering related updates should be done
   void SetWorldSimulationEnabled(bool bEnable) { m_bSimulateWorld = bEnable; }

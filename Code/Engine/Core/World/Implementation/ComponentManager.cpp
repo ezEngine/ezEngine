@@ -2,10 +2,11 @@
 #include <Core/World/ComponentManager.h>
 #include <Core/World/World.h>
 
-ezComponentManagerBase::ezComponentManagerBase(ezWorld* pWorld) : 
-  m_Components(pWorld->GetAllocator())
+ezComponentManagerBase::ezComponentManagerBase(ezWorld* pWorld)
+  : m_Components(pWorld->GetAllocator())
 {
   m_pWorld = pWorld;
+  m_pUserData = nullptr;
 }
 
 ezComponentManagerBase::~ezComponentManagerBase()
@@ -88,6 +89,32 @@ ezAllocatorBase* ezComponentManagerBase::GetAllocator()
 ezInternal::WorldLargeBlockAllocator* ezComponentManagerBase::GetBlockAllocator()
 {
   return m_pWorld->GetBlockAllocator();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ezUInt16 ezComponentManagerFactory::s_uiNextTypeId = 0;
+ezHashTable<const ezRTTI*, ezUInt16> ezComponentManagerFactory::s_TypeToId;
+ezDynamicArray<ezComponentManagerFactory::CreatorFunc> ezComponentManagerFactory::s_CreatorFuncs;
+
+// static 
+ezUInt16 ezComponentManagerFactory::GetTypeId(const ezRTTI* pRtti)
+{
+  ezUInt16 uiTypeId = -1;
+  s_TypeToId.TryGetValue(pRtti, uiTypeId);
+  return uiTypeId;
+}
+
+// static 
+ezComponentManagerBase* ezComponentManagerFactory::CreateComponentManager(ezUInt16 typeId, ezWorld* pWorld)
+{
+  if (typeId < s_CreatorFuncs.GetCount())
+  {
+    CreatorFunc func = s_CreatorFuncs[typeId];
+    return (*func)(pWorld->GetAllocator(), pWorld);
+  }
+
+  return nullptr;
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_ComponentManager);

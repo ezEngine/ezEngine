@@ -259,13 +259,8 @@ void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
   }
   else
   {
-    pManager = m_pWorld->GetComponentManager(pRtti);
-
-    if (pManager == nullptr)
-    {
-      bSkip = true;
-      ezLog::Warning("Cannot create components of type '%s', manager is not available.", pRtti->GetTypeName());
-    }
+    pManager = m_pWorld->GetOrCreateComponentManager(pRtti);
+    EZ_ASSERT_DEV(pManager != nullptr, "Cannot create components of type '%s', manager is not available.", pRtti->GetTypeName());
   }
 
   if (bSkip)

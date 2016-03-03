@@ -93,11 +93,8 @@ WorldData::~WorldData()
 
       queue.Dequeue();
     }
-  }
 
-  for (ezUInt32 i = 0; i < ezObjectMsgQueueType::COUNT; ++i)
-  {
-    MessageQueue& queue = m_TimedMessageQueues[i];
+    queue = m_TimedMessageQueues[i];
     while (!queue.IsEmpty())
     {
       MessageQueue::Entry& entry = queue.Peek();

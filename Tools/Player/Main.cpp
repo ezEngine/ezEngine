@@ -57,16 +57,6 @@ void ezPlayerApplication::SetupLevel()
 
   EZ_LOCK(m_pWorld->GetWriteMarker());
 
-  /// \todo More 'elegant' solution to registering all component managers
-  m_pWorld->GetOrCreateComponentManager<ezMeshComponentManager>();
-  m_pWorld->GetOrCreateComponentManager<ezRotorComponentManager>();
-  m_pWorld->GetOrCreateComponentManager<ezSliderComponentManager>();
-  m_pWorld->GetOrCreateComponentManager<ezTimedDeathComponentManager>();
-  m_pWorld->GetOrCreateComponentManager<ezSpawnComponentManager>();
-  m_pWorld->GetOrCreateComponentManager<ezCameraComponentManager>();
-  m_pWorld->GetOrCreateComponentManager<ezInputComponentManager>();
-  
-
   {
     ezFileReader file;
     if (file.Open(m_sSceneFile).Succeeded())

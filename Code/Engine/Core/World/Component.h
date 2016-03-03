@@ -10,19 +10,6 @@
 class ezWorldWriter;
 class ezWorldReader;
 
-/// \brief A generic 'trigger' message to be used by different components to trigger their custom behavior.
-///
-/// Many components simply need to 'do their thing in x seconds'. This message can be used if only the timeout is
-/// required and no further data is needed.
-struct EZ_CORE_DLL ezComponentTriggerMessage : public ezMessage
-{
-  EZ_DECLARE_MESSAGE_TYPE(ezComponentTriggerMessage);
-
-  /// Must be used to filter out messages meant for other components.
-  ezComponentHandle m_hTargetComponent;
-};
-
-
 /// \brief Base class of all component types.
 ///
 /// Derive from this class to implement custom component types. Also add the EZ_DECLARE_COMPONENT_TYPE macro to your class declaration.
@@ -65,14 +52,17 @@ public:
   /// \brief Returns the owner game object if the component is attached to one or nullptr.
   const ezGameObject* GetOwner() const;
 
+  /// \brief Returns the corresponding world for this componenet.
+  ezWorld* GetWorld();
+
+  /// \brief Returns the corresponding world for this componenet.
+  const ezWorld* GetWorld() const;
+
   /// \brief Returns a handle to this component.
   ezComponentHandle GetHandle() const;
 
   /// \brief Returns the type id corresponding to this component type.
   static ezUInt16 TypeId();
-
-  /// \brief Gets the next component id for a new type. Internal use only.
-  static ezUInt16 GetNextTypeId();
 
   ezUInt32 m_uiEditorPickingID;
 
@@ -132,36 +122,6 @@ private:
   ezGameObject* m_pOwner;
 
   static ezUInt16 TYPE_ID;
-  static ezUInt16 s_uiNextTypeId;
 };
 
 #include <Core/World/Implementation/Component_inl.h>
-
-/// \brief Add this macro to a custom component type inside the type declaration.
-#define EZ_DECLARE_COMPONENT_TYPE(componentType, baseType, managerType) \
-  EZ_ADD_DYNAMIC_REFLECTION(componentType, baseType); \
-  public: \
-    typedef managerType ComponentManagerType; \
-    ezComponentHandle GetHandle() const; \
-    ComponentManagerType* GetManager() const; \
-    EZ_FORCE_INLINE ezWorld* GetWorld() const { return GetManager()->GetWorld(); } \
-    virtual ezUInt16 GetTypeId() const override { return TYPE_ID; } \
-    static EZ_FORCE_INLINE ezUInt16 TypeId() { return TYPE_ID; } \
-    static ezComponentHandle CreateComponent(ezWorld* pWorld, componentType*& pComponent) { return pWorld->GetOrCreateComponentManager<ComponentManagerType>()->CreateComponent(pComponent); } \
-  private: \
-    friend managerType; \
-    static ezUInt16 TYPE_ID;
-
-/// \brief Implements rtti and component specific functionality. Add this macro to a cpp file.
-///
-/// \see EZ_BEGIN_DYNAMIC_REFLECTED_TYPE
-#define EZ_BEGIN_COMPONENT_TYPE(componentType, version) \
-  ezUInt16 componentType::TYPE_ID = ezComponent::GetNextTypeId(); \
-  ezComponentHandle componentType::GetHandle() const { return ezComponent::GetHandle<componentType>(); } \
-  componentType::ComponentManagerType* componentType::GetManager() const { return static_cast<componentType::ComponentManagerType*>(ezComponent::GetManager()); } \
-  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(componentType, version, ezRTTINoAllocator);
-
-/// \brief Ends the component implementation code block that was opened with EZ_BEGIN_COMPONENT_TYPE.
-#define EZ_END_COMPONENT_TYPE EZ_END_DYNAMIC_REFLECTED_TYPE
-
-

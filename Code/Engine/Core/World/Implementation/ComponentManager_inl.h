@@ -190,36 +190,29 @@ void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::SimpleUp
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename T>
-ezComponentManagerAbstract<T>::ezComponentManagerAbstract(ezWorld* pWorld) 
-  : ezComponentManagerBase(pWorld)
+template <typename ComponentType>
+ezUInt16 ezComponentManagerFactory::RegisterComponentManager()
 {
+  const ezRTTI* pRtti = ezGetStaticRTTI<ComponentType>();
+  ezUInt16 uiTypeId = -1;
+  if (s_TypeToId.TryGetValue(pRtti, uiTypeId))
+  {
+    return uiTypeId;
+  }
 
+  uiTypeId = s_uiNextTypeId++;
+  s_TypeToId.Insert(pRtti, uiTypeId);
+
+  struct Helper
+  {
+    static ezComponentManagerBase* Create(ezAllocatorBase* pAllocator, ezWorld* pWorld)
+    {
+      return EZ_NEW(pAllocator, ComponentType::ComponentManagerType, pWorld);
+    }
+  };
+
+  EZ_ASSERT_DEV(s_CreatorFuncs.GetCount() == uiTypeId, "");
+  s_CreatorFuncs.PushBack(&Helper::Create);
+
+  return uiTypeId;
 }
-
-template <typename T>
-ezComponentHandle ezComponentManagerAbstract<T>::AllocateComponent()
-{
-  EZ_REPORT_FAILURE("Components of type '%s' cannot be created, they are abstract", ezGetStaticRTTI<ComponentType>()->GetTypeName());
-  return ezComponentHandle();
-}
-
-template <typename T>
-ezComponentHandle ezComponentManagerAbstract<T>::CreateComponent(ComponentType*& out_pComponent)
-{
-  EZ_REPORT_FAILURE("Components of type '%s' cannot be created, they are abstract", ezGetStaticRTTI<ComponentType>()->GetTypeName());
-  return ezComponentHandle();
-}
-
-template <typename T>
-const ezRTTI* ezComponentManagerAbstract<T>::GetComponentType() const
-{
-  return ezGetStaticRTTI<ComponentType>();
-}
-
-template <typename T>
-ezUInt16 ezComponentManagerAbstract<T>::TypeId()
-{
-  return ComponentType::TypeId();
-}
-

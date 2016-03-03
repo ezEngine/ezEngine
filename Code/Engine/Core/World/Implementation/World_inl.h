@@ -115,13 +115,12 @@ EZ_FORCE_INLINE const ManagerType* ezWorld::GetComponentManager() const
     "Not a valid component manager type");
 
   const ezUInt16 uiTypeId = ManagerType::TypeId();
-  ManagerType* pManager = nullptr;
   if (uiTypeId < m_Data.m_ComponentManagers.GetCount())
   {
-    pManager = static_cast<ManagerType*>(m_Data.m_ComponentManagers[uiTypeId]);
+    return static_cast<ManagerType*>(m_Data.m_ComponentManagers[uiTypeId]);
   }
 
-  return pManager;
+  return nullptr;
 }
 
 inline bool ezWorld::IsValidComponent(const ezComponentHandle& component) const

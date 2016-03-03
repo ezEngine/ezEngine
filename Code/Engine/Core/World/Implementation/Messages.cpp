@@ -3,6 +3,7 @@
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezUpdateLocalBoundsMessage);
 EZ_IMPLEMENT_MESSAGE_TYPE(ezDeleteObjectMessage);
+EZ_IMPLEMENT_MESSAGE_TYPE(ezComponentTriggerMessage);
 
 
 

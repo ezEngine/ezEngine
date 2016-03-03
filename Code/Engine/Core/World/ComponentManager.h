@@ -186,23 +186,67 @@ public:
   void SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount);
 };
 
-/// \brief Abstract component manager implementation.
-template <typename T>
-class ezComponentManagerAbstract : public ezComponentManagerBase
+/// \brief Helper class to get component type ids and create new instances of componenet managers from rtti.
+class EZ_CORE_DLL ezComponentManagerFactory
 {
 public:
-  typedef T ComponentType;
+  template <typename ComponentType>
+  static ezUInt16 RegisterComponentManager();
 
-  ezComponentManagerAbstract(ezWorld* pWorld);
+  /// \brief Returns the component type id to the given rtti component type.
+  static ezUInt16 GetTypeId(const ezRTTI* pRtti);
 
-  virtual ezComponentHandle AllocateComponent() override;
-  ezComponentHandle CreateComponent(ComponentType*& out_pComponent);
-  
-  virtual const ezRTTI* GetComponentType() const override;
-  
-  static ezUInt16 TypeId();
+  /// \brief Creates a new instance of the component manager with the given type id and world.
+  static ezComponentManagerBase* CreateComponentManager(ezUInt16 typeId, ezWorld* pWorld);
 
+private:
+  static ezUInt16 s_uiNextTypeId;
+  static ezHashTable<const ezRTTI*, ezUInt16> s_TypeToId;
+
+  typedef ezComponentManagerBase* (*CreatorFunc)(ezAllocatorBase*, ezWorld*);
+  static ezDynamicArray<CreatorFunc> s_CreatorFuncs;
 };
+
+/// \brief Add this macro to a custom component type inside the type declaration.
+#define EZ_DECLARE_COMPONENT_TYPE(componentType, baseType, managerType) \
+  EZ_ADD_DYNAMIC_REFLECTION(componentType, baseType); \
+  public: \
+    typedef managerType ComponentManagerType; \
+    ezComponentHandle GetHandle() const; \
+    ComponentManagerType* GetManager() const; \
+    virtual ezUInt16 GetTypeId() const override { return TYPE_ID; } \
+    static EZ_FORCE_INLINE ezUInt16 TypeId() { return TYPE_ID; } \
+    static ezComponentHandle CreateComponent(ezWorld* pWorld, componentType*& pComponent); \
+  private: \
+    friend managerType; \
+    static ezUInt16 TYPE_ID;
+
+/// \brief Add this macro to a custom abstract component type inside the type declaration.
+#define EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(componentType, baseType) \
+  EZ_ADD_DYNAMIC_REFLECTION(componentType, baseType); \
+  public: \
+    virtual ezUInt16 GetTypeId() const override { return -1; } \
+    static EZ_FORCE_INLINE ezUInt16 TypeId() { return -1; }
+
+
+/// \brief Implements rtti and component specific functionality. Add this macro to a cpp file.
+///
+/// \see EZ_BEGIN_DYNAMIC_REFLECTED_TYPE
+#define EZ_BEGIN_COMPONENT_TYPE(componentType, version) \
+  ezUInt16 componentType::TYPE_ID = ezComponentManagerFactory::RegisterComponentManager<componentType>(); \
+  ezComponentHandle componentType::GetHandle() const { return ezComponent::GetHandle<componentType>(); } \
+  componentType::ComponentManagerType* componentType::GetManager() const { return static_cast<componentType::ComponentManagerType*>(ezComponent::GetManager()); } \
+  ezComponentHandle componentType::CreateComponent(ezWorld* pWorld, componentType*& pComponent) { return pWorld->GetOrCreateComponentManager<ComponentManagerType>()->CreateComponent(pComponent); } \
+  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(componentType, version, ezRTTINoAllocator);
+
+/// \brief Implements rtti and abstract component specific functionality. Add this macro to a cpp file.
+///
+/// \see EZ_BEGIN_DYNAMIC_REFLECTED_TYPE
+#define EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(componentType, version) EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(componentType, version, ezRTTINoAllocator);
+
+/// \brief Ends the component implementation code block that was opened with EZ_BEGIN_COMPONENT_TYPE.
+#define EZ_END_COMPONENT_TYPE EZ_END_DYNAMIC_REFLECTED_TYPE
+#define EZ_END_ABSTRACT_COMPONENT_TYPE EZ_END_DYNAMIC_REFLECTED_TYPE
 
 /// \brief Helper macro to create an update function description with proper name
 #define EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(func, instance) \

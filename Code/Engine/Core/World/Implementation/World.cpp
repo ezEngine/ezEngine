@@ -189,27 +189,40 @@ void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject)
   PostMessage(hObject, msg, ezObjectMsgQueueType::NextFrame, ezObjectMsgRouting::ToObjectOnly);
 }
 
-ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pRtti)
+ezComponentManagerBase* ezWorld::GetOrCreateComponentManager(const ezRTTI* pRtti)
 {
   CheckForWriteAccess();
 
-  for (auto pMan : m_Data.m_ComponentManagers)
+  const ezUInt16 uiTypeId = ezComponentManagerFactory::GetTypeId(pRtti);
+  EZ_ASSERT_DEV(uiTypeId != -1, "Invalid type id");
+
+  if (uiTypeId >= m_Data.m_ComponentManagers.GetCount())
   {
-    if (pMan != nullptr && pMan->GetComponentType() == pRtti)
-      return pMan;
+    m_Data.m_ComponentManagers.SetCount(uiTypeId + 1);
   }
 
-  return nullptr;
+  ezComponentManagerBase* pManager = m_Data.m_ComponentManagers[uiTypeId];
+  if (pManager == nullptr)
+  {
+    pManager = ezComponentManagerFactory::CreateComponentManager(uiTypeId, this);
+    pManager->Initialize();
+
+    m_Data.m_ComponentManagers[uiTypeId] = pManager;
+  }
+
+  return pManager;
 }
 
 const ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pRtti) const
 {
   CheckForReadAccess();
 
-  for (auto pMan : m_Data.m_ComponentManagers)
+  const ezUInt16 uiTypeId = ezComponentManagerFactory::GetTypeId(pRtti);
+  EZ_ASSERT_DEV(uiTypeId != -1, "Invalid type id");
+
+  if (uiTypeId < m_Data.m_ComponentManagers.GetCount())
   {
-    if (pMan != nullptr && pMan->GetComponentType() == pRtti)
-      return pMan;
+    return m_Data.m_ComponentManagers[uiTypeId];
   }
 
   return nullptr;
@@ -241,6 +254,7 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& m
   ezMessage* pMsgCopy = msg.Clone(&m_Data.m_Allocator);
   m_Data.m_TimedMessageQueues[queueType].Enqueue(pMsgCopy, metaData);
 }
+
 
 void ezWorld::Update()
 {

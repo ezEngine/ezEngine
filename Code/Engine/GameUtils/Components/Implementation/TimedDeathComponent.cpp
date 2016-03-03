@@ -53,7 +53,7 @@ ezComponent::Initialization ezTimedDeathComponent::Initialize()
   return ezComponent::Initialization::Done;
 }
 
-void ezTimedDeathComponent::OnTriggered(ezComponentTriggerMessage& msg) const
+void ezTimedDeathComponent::OnTriggered(ezComponentTriggerMessage& msg)
 {
   if (msg.m_hTargetComponent != GetHandle())
     return;

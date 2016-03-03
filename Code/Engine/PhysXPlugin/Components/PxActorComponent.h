@@ -2,11 +2,9 @@
 
 #include <PhysXPlugin/Components/PhysXComponent.h>
 
-typedef ezComponentManagerAbstract<class ezPxActorComponent> ezPxActorComponentManager;
-
 class EZ_PHYSXPLUGIN_DLL ezPxActorComponent : public ezPhysXComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezPxActorComponent, ezPhysXComponent, ezPxActorComponentManager);
+  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezPxActorComponent, ezPhysXComponent);
 
 public:
   ezPxActorComponent();

@@ -3,11 +3,9 @@
 #include <PhysXPlugin/Components/PhysXComponent.h>
 #include <GameUtils/Surfaces/SurfaceResource.h>
 
-typedef ezComponentManagerAbstract<class ezPxShapeComponent> ezPxShapeComponentManager;
-
 class EZ_PHYSXPLUGIN_DLL ezPxShapeComponent : public ezPhysXComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezPxShapeComponent, ezPhysXComponent, ezPxShapeComponentManager);
+  EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezPxShapeComponent, ezPhysXComponent);
 
 public:
   ezPxShapeComponent();

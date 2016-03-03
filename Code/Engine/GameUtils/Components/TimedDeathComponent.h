@@ -25,7 +25,7 @@ public:
   /// \brief Once this function has been executed, the timeout for deletion is fixed and cannot be reset.
   virtual Initialization Initialize() override;
 
-  void OnTriggered(ezComponentTriggerMessage& msg) const;
+  void OnTriggered(ezComponentTriggerMessage& msg);
 
   // ************************************* PROPERTIES ***********************************
 
