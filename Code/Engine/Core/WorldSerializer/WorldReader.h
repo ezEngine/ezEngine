@@ -29,7 +29,7 @@ public:
   /// \brief Creates one instance of the world that was previously read by ReadWorldDescription().
   ///
   /// \param rootTransform is an additional transform that is applied to all root objects.
-  void InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform);
+  void InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent);
 
   /// \brief Gives access to the stream of data. Use this inside component deserialization functions to read data.
   ezStreamReader& GetStream() const { return *m_pStream; }
@@ -67,10 +67,10 @@ private:
   void ReadComponentInfo(ezUInt32 uiComponentTypeIdx);
   void ReadComponentsOfType(ezUInt32 uiComponentTypeIdx);
   void FulfillComponentHandleRequets();
-  void Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform);
+  void Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent);
 
-  void CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects);
-  void CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, const ezTransform& rootTransform);
+  void CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent);
+  void CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, const ezTransform& rootTransform, ezGameObjectHandle hParent);
 
   ezStreamReader* m_pStream;
   ezWorld* m_pWorld;

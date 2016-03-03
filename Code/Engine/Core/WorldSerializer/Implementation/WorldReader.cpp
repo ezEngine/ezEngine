@@ -72,15 +72,15 @@ void ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
 
 void ezWorldReader::InstantiateWorld(ezWorld& world)
 {
-  Instantiate(world, false, ezTransform());
+  Instantiate(world, false, ezTransform(), ezGameObjectHandle());
 }
 
-void ezWorldReader::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform)
+void ezWorldReader::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent)
 {
-  Instantiate(world, true, rootTransform);
+  Instantiate(world, true, rootTransform, hParent);
 }
 
-void ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform)
+void ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent)
 {
   m_pWorld = &world;
 
@@ -94,14 +94,14 @@ void ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTran
 
   if (bUseTransform)
   {
-    CreateGameObjects(m_RootObjectsToCreate, rootTransform);
+    CreateGameObjects(m_RootObjectsToCreate, rootTransform, hParent);
   }
   else
   {
-    CreateGameObjects(m_RootObjectsToCreate);
+    CreateGameObjects(m_RootObjectsToCreate, hParent);
   }
 
-  CreateGameObjects(m_ChildObjectsToCreate);
+  CreateGameObjects(m_ChildObjectsToCreate, ezGameObjectHandle());
 
   // read component data from copied memory stream
   {
@@ -314,22 +314,36 @@ void ezWorldReader::FulfillComponentHandleRequets()
   m_ComponentHandleRequests.Clear();
 }
 
-void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects)
+void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent)
 {
-  for (const auto& godesc : objects)
+  if (hParent.IsInvalidated())
   {
-    ezGameObject* pObject;
+    for (const auto& godesc : objects)
+    {
+      ezGameObject* pObject;
+      m_IndexToGameObjectHandle.PushBack(m_pWorld->CreateObject(godesc.m_Desc, pObject));
+    }
+  }
+  else
+  {
+    for (const auto& godesc : objects)
+    {
+      ezGameObjectDesc desc = godesc.m_Desc; // make a copy
+      desc.m_hParent = hParent;
 
-    m_IndexToGameObjectHandle.PushBack(m_pWorld->CreateObject(godesc.m_Desc, pObject));
+      ezGameObject* pObject;
+      m_IndexToGameObjectHandle.PushBack(m_pWorld->CreateObject(desc, pObject));
+    }
   }
 }
 
 
-void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, const ezTransform& rootTransform)
+void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, const ezTransform& rootTransform, ezGameObjectHandle hParent)
 {
   for (const auto& godesc : m_RootObjectsToCreate)
   {
     ezGameObjectDesc desc = godesc.m_Desc; // make a copy
+    desc.m_hParent = hParent;
     ezTransform tChild(desc.m_LocalPosition, desc.m_LocalRotation, desc.m_LocalScaling);
 
     ezTransform tNew;

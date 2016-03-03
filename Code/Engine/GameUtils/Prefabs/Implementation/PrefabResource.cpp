@@ -11,9 +11,12 @@ ezPrefabResource::ezPrefabResource()
 
 }
 
-void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform)
+void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent)
 {
-  m_WorldReader.InstantiatePrefab(world, rootTransform);
+  if (GetLoadingState() != ezResourceState::Loaded)
+    return;
+
+  m_WorldReader.InstantiatePrefab(world, rootTransform, hParent);
 }
 
 ezResourceLoadDesc ezPrefabResource::UnloadData(Unload WhatToUnload)
@@ -57,6 +60,12 @@ ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
   char szSceneTag[16];
   Stream->ReadBytes(szSceneTag, sizeof(char) * 16);
   EZ_ASSERT_DEV(ezStringUtils::IsEqualN(szSceneTag, "[ezBinaryScene]", 16), "The given file is not a valid prefab file");
+
+  if (!ezStringUtils::IsEqualN(szSceneTag, "[ezBinaryScene]", 16))
+  {
+    res.m_State = ezResourceState::LoadedResourceMissing;
+    return res;
+  }
 
   m_WorldReader.ReadWorldDescription(*Stream);
 

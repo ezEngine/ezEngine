@@ -7,6 +7,7 @@
 EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 1);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Prefab", GetPrefabFile, SetPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
+    EZ_ACCESSOR_PROPERTY("Attach as Child", GetAttachAsChild, SetAttachAsChild),
     EZ_ACCESSOR_PROPERTY("Spawn at Start", GetSpawnAtStart, SetSpawnAtStart),
     EZ_ACCESSOR_PROPERTY("Spawn Continuously", GetSpawnContinuously, SetSpawnContinuously),
     EZ_MEMBER_PROPERTY("Min Delay", m_MinDelay)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(1.0))),
@@ -44,10 +45,39 @@ bool ezSpawnComponent::SpawnOnce()
   {
     ezResourceLock<ezPrefabResource> pResource(m_hPrefab);
 
-    /// \todo spawn deviation ?
-    /// \todo Attach as child
+    ezTransform t;
+    t.SetIdentity();
 
-    pResource->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform());
+    /// \todo spawn deviation !
+    //const ezAngle m_MaxDeviation = ezAngle::Degree(30.0f);
+    //{
+    //  ezQuat qRot = GetOwner()->GetGlobalRotation();
+    //  const ezVec3 vTiltAxis = qRot * ezVec3(0, 1, 0);
+    //  const ezVec3 vTurnAxis = qRot * ezVec3(1, 0, 0);
+
+    //  const ezAngle tiltAngle = ezAngle::Radian((float) GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, (double)m_MaxDeviation.GetRadian()));
+    //  const ezAngle turnAngle = ezAngle::Radian((float) GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::BasicType<double>::Pi() * 2.0));
+
+    //  ezQuat qTilt, qTurn, qDeviate;
+    //  qTilt.SetFromAxisAndAngle(vTiltAxis, tiltAngle);
+    //  qTurn.SetFromAxisAndAngle(vTurnAxis, turnAngle);
+    //  qDeviate = qTurn * qTilt;
+
+    //  t.m_Rotation = qDeviate.GetAsMat3();
+    //}
+
+    
+    if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::AttachAsChild))
+    {
+      pResource->InstantiatePrefab(*GetWorld(), t, GetOwner()->GetHandle());
+    }
+    else
+    {
+      t.m_vPosition = GetOwner()->GetGlobalPosition();
+      t.m_Rotation = GetOwner()->GetGlobalTransform().m_Rotation * t.m_Rotation;
+
+      pResource->InstantiatePrefab(*GetWorld(), t, ezGameObjectHandle());
+    }
     return true;
   }
 
@@ -120,7 +150,6 @@ void ezSpawnComponent::SetPrefabFile(const char* szFile)
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
     hResource = ezResourceManager::LoadResource<ezPrefabResource>(szFile);
-    //ezResourceManager::PreloadResource(hResource, ezTime::Seconds(5.0));
   }
 
   SetPrefab(hResource);
@@ -138,6 +167,11 @@ const char* ezSpawnComponent::GetPrefabFile() const
 void ezSpawnComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab)
 {
   m_hPrefab = hPrefab;
+
+  if (m_hPrefab.IsValid())
+  {
+    ezResourceManager::PreloadResource(m_hPrefab, ezTime::Seconds(10.0));
+  }
 }
 
 

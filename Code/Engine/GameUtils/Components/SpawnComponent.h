@@ -69,6 +69,9 @@ public:
   bool GetSpawnContinuously() const { return m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::SpawnContinuously); }
   void SetSpawnContinuously(bool b) { m_SpawnFlags.AddOrRemove(ezSpawnComponentFlags::SpawnContinuously, b); }
 
+  bool GetAttachAsChild() const { return m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::AttachAsChild); }
+  void SetAttachAsChild(bool b) { m_SpawnFlags.AddOrRemove(ezSpawnComponentFlags::AttachAsChild, b); }
+
   void SetPrefab(const ezPrefabResourceHandle& hPrefab);
   EZ_FORCE_INLINE const ezPrefabResourceHandle& GetPrefab() const { return m_hPrefab; }
 
