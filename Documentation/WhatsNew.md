@@ -12,13 +12,42 @@ Milestone 8
   * Removed all global clocks except for one
   * Changed component initialization order a bit to make writing init functions easier
   * Simulation of ezWorlds can now be paused
-  * Added ezScene, a higher level construct containing an ezWorld plus additional state
-  * Added ezSceneModule, which allows to hook into the initialization and update of ezScene, enabling custom plugins like PhysX or Fmod
-  * Added shape icon rendering in the editor, which also allow to select objects
+  * Added ezWorldModule, which allows to hook into the initialization and update of ezWorld, enabling custom plugins like PhysX or Fmod
+  * Added shape icon rendering in the editor, which also allows to select objects
   * Improved display of components in the editor (icons etc.)
   * Improved performance when syncing state between editor and engine (sending property diffs only)
   * Added support for Tag properties in the editor
   * Added support for clamping property values in the editor UI
+  * Component managers do not need to be explicitly registered anymore
+  * Added ezSpawnComponent for spawning prefabs at runtime
+  * Added ezTimedDeathComponent for deleting nodes after a timeout
+  * Added ezCameraComponent for managing runtime cameras
+  * Added ezInputComponent, which sends input event messages to components on the same node
+  * Added an editor to configure the input bindings and save it to JSON
+  * Refactored ezGameApplication to handle all engine initialization
+  * Added ezGameState which is the base class to build all C++ game logic in, works closely with ezGameApplication
+  * ezGameApplication now automatically loads plugins for a project through a config file
+  * ezGameApplication now automatically configures input bindings for a project through a config file
+  * ezGameApplication now automatically sets up data directories for a project through a config file
+  * Added a renderpipeline asset for data driven renderer configuration
+  * Every ezWorld now has a default random number generator
+  * Added ezWorldReader and ezWorldWriter for exporting and importing scene or prefab data in binary form
+  * Added ezPrefabResource for binary prefab loading at runtime
+  * Editor now supports drag&drop of material assets into the scene
+  * Editor now renders bounding boxes of the selection
+  * Added a "Duplicate Special" action that allows to make multiple copies of an object with different positions and rotations
+  * Editor can now ignore unknown component types. Shows warnings when opening and saving such a scene, but does not crash.
+  * Implemented line and point rendering the in D3D abstraction
+  * RTTI types can now have attributes, e.g. for for categories in menus
+  * Added Surface assets for defining physics properties (fricition etc.)
+  * Added orthographic render modes and basic editing functionality (rotate, translate)
+  * Added ezPlayer, a stand-alone tool for running scenes
+  * Added scene and prefab binary export
+  * Added ezDeferredFileWriter for only writing files to disk after everything succeeded
+  * Added editor prefabs that can be instantiated in the scene. Changes can be merged into them at a later point.
+  * Some aspects of the editor can now be localized
+  * Objects can now be hidden in the editor
+  * Added a shortcut editing dialog to the editor
 
 Milestone 7
 -----------

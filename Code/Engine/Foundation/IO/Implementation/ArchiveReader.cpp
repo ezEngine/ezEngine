@@ -1,6 +1,8 @@
 #include <Foundation/PCH.h>
 #include <Foundation/IO/Archive.h>
 
+#ifdef EZ_SUPPORT_EZARCHIVE
+
 ezArchiveReader::ezArchiveReader(ezStreamReader& stream) : ezChunkStreamReader(stream), m_InputStream(stream)
 {
   m_bStreamFinished = true;
@@ -306,7 +308,7 @@ void* ezArchiveReader::ReadTypedObject(const ezRTTI** out_pRtti, ezUInt16* out_p
 }
 
 
-
+#endif
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_ArchiveReader);

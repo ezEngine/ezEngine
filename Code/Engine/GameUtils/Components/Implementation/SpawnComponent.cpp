@@ -120,6 +120,7 @@ void ezSpawnComponent::SetPrefabFile(const char* szFile)
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
     hResource = ezResourceManager::LoadResource<ezPrefabResource>(szFile);
+    //ezResourceManager::PreloadResource(hResource, ezTime::Seconds(5.0));
   }
 
   SetPrefab(hResource);

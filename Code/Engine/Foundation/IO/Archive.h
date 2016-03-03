@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef EZ_SUPPORT_EZARCHIVE
+
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/IO/ChunkStream.h>
@@ -352,3 +354,4 @@ enum ezArchiveVersion : ezUInt8
   CurrentVersion = ENUM_COUNT - 1 // automatically the highest version number
 };
 
+#endif

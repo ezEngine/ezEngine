@@ -67,8 +67,12 @@
       &Allocator, Properties, Attributes, MessageHandlers, EZ_REFLECTION_DEBUG_GETPARENTFUNC);  \
   }
 
+#ifdef EZ_SUPPORT_EZARCHIVE
+
 class ezArchiveWriter;
 class ezArchiveReader;
+
+#endif
 
 /// \brief All classes that should be dynamically reflectable, need to be derived from this base class.
 ///
@@ -95,6 +99,8 @@ public:
   {
     return GetDynamicRTTI()->IsDerivedFrom<T>();
   }
+
+#ifdef EZ_SUPPORT_EZARCHIVE
 
   /// \brief This function is called to serialize the instance.
   ///
@@ -130,4 +136,6 @@ public:
   {
     EZ_REPORT_FAILURE("OnDeserialized is not overridden by deriving class.");
   }
+
+#endif
 };

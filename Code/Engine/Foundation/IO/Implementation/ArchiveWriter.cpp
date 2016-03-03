@@ -1,6 +1,8 @@
 #include <Foundation/PCH.h>
 #include <Foundation/IO/Archive.h>
 
+#ifdef EZ_SUPPORT_EZARCHIVE
+
 ezArchiveWriter::ezArchiveWriter(ezStreamWriter& stream) : ezChunkStreamWriter(m_WriterTemp),
   m_OutputStream(stream),
   m_WriterTemp(&m_StorageTemp)
@@ -202,7 +204,7 @@ void ezArchiveWriter::EndStream()
   }
 }
 
-
+#endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_ArchiveWriter);
 
