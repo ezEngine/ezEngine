@@ -113,12 +113,12 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext)
   pGALContext->SetRenderTargetSetup(m_RenderTargetSetup);
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.1f));
 
-  RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Opaque);
-  RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Masked);
-  RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Transparent);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Opaque);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Masked);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Transparent);
 
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0); // only clear depth
 
-  RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Foreground1);
-  RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Foreground2);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Foreground1);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Foreground2);
 }

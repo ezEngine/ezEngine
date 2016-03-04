@@ -29,12 +29,12 @@ const char* ezExtractor::GetName() const
   return m_sName.GetData();
 }
 
-void ezVisibleObjectsExtractor::Extract(const ezView& view, ezRenderPipeline* pRenderPipeline)
+void ezVisibleObjectsExtractor::Extract(const ezView& view, ezBatchedRenderData* pBatchedRenderData)
 {
   ezExtractRenderDataMessage msg;
   msg.m_pView = &view;
-  msg.m_pRenderPipeline = pRenderPipeline;
-  msg.m_OverrideRenderPass = ezInvalidIndex;
+  msg.m_pBatchedRenderData = pBatchedRenderData;
+  msg.m_OverrideCategory = ezInvalidIndex;
 
   EZ_LOCK(view.GetWorld()->GetReadMarker());
 
@@ -56,10 +56,10 @@ void ezVisibleObjectsExtractor::Extract(const ezView& view, ezRenderPipeline* pR
 
 ezSelectedObjectsExtractor::ezSelectedObjectsExtractor()
 {
-  m_OverridePassType = ezDefaultPassTypes::Selection;
+  m_OverrideCategory = ezDefaultRenderDataCategories::Selection;
 }
 
-void ezSelectedObjectsExtractor::Extract(const ezView& view, ezRenderPipeline* pRenderPipeline)
+void ezSelectedObjectsExtractor::Extract(const ezView& view, ezBatchedRenderData* pBatchedRenderData)
 {
   const ezDeque<ezGameObjectHandle>* pSelection = GetSelection();
   if (pSelection == nullptr)
@@ -67,8 +67,8 @@ void ezSelectedObjectsExtractor::Extract(const ezView& view, ezRenderPipeline* p
 
   ezExtractRenderDataMessage msg;
   msg.m_pView = &view;
-  msg.m_pRenderPipeline = pRenderPipeline;
-  msg.m_OverrideRenderPass = m_OverridePassType;
+  msg.m_pBatchedRenderData = pBatchedRenderData;
+  msg.m_OverrideCategory = m_OverrideCategory;
 
   /// \todo Move this into an editor specific extractor
   auto exclFlags = view.m_ExcludeTags;
@@ -98,7 +98,7 @@ ezCallDelegateExtractor::ezCallDelegateExtractor()
 
 }
 
-void ezCallDelegateExtractor::Extract(const ezView& view, ezRenderPipeline* pRenderPipeline)
+void ezCallDelegateExtractor::Extract(const ezView& view, ezBatchedRenderData* pBatchedRenderData)
 {
   m_Delegate();
 }

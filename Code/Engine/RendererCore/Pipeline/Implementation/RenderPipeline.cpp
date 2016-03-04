@@ -12,31 +12,7 @@
 
 #include <RendererFoundation/Context/Profiling.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderData, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderer, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
-
-EZ_IMPLEMENT_MESSAGE_TYPE(ezExtractRenderDataMessage);
-
 extern ezCVarBool CVarMultithreadedRendering;
-
-ezRenderPassType ezRenderPipeline::s_uiNextPassType = 0;
-ezRenderPipeline::PassTypeData ezRenderPipeline::s_PassTypeData[MAX_PASS_TYPES];
-
-void ezRenderPipeline::PassData::SortRenderData()
-{
-  struct RenderDataComparer
-  {
-    EZ_FORCE_INLINE bool Less(const ezRenderData* a, const ezRenderData* b) const
-    {
-      return a->GetSortingKey() < b->GetSortingKey();
-    }
-  };
-
-  m_RenderData.Sort(RenderDataComparer());
-}
 
 ezRenderPipeline::ezRenderPipeline() : m_PipelineState(PipelineState::Uninitialized)
 {
@@ -48,8 +24,8 @@ ezRenderPipeline::ezRenderPipeline() : m_PipelineState(PipelineState::Uninitiali
 
 ezRenderPipeline::~ezRenderPipeline()
 {
-  ClearPipelineData(&m_Data[0]);
-  ClearPipelineData(&m_Data[1]);
+  m_Data[0].Clear();
+  m_Data[1].Clear();
 
   ClearRenderPassGraphTextures();
   while (!m_Passes.IsEmpty())
@@ -761,26 +737,22 @@ void ezRenderPipeline::ExtractData(const ezView& view)
 
   m_uiLastExtractionFrame = ezRenderLoop::GetFrameCounter();
   
-  PipelineData* pPipelineData = GetPipelineDataForExtraction();
+  auto& data = GetDataForExtraction();
 
   // Usually clear is not needed, only if the multithreading flag is switched during runtime.
-  ClearPipelineData(pPipelineData);
+  data.Clear();
 
   // Store camera and viewdata
-  pPipelineData->m_Camera = *view.GetRenderCamera();
-  pPipelineData->m_ViewData = view.GetData();
+  data.m_Camera = *view.GetRenderCamera();
+  data.m_ViewData = view.GetData();
 
   // Extract object render data
   for (auto& pExtractor : m_Extractors)
   {
-    pExtractor->Extract(view, this);
+    pExtractor->Extract(view, &data);
   }
 
-  for (ezUInt32 uiPassIndex = 0; uiPassIndex < pPipelineData->m_PassData.GetCount(); ++uiPassIndex)
-  {
-    PassData& data = pPipelineData->m_PassData[uiPassIndex];
-    data.SortRenderData();
-  }
+  data.SortAndBatch();
 
   m_CurrentExtractThread = (ezThreadID)0;
 }
@@ -802,9 +774,9 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
   m_uiLastRenderFrame = ezRenderLoop::GetFrameCounter();
 
 
-  const PipelineData* pPipelineData = GetPipelineDataForRendering();
-  const ezCamera* pCamera = &pPipelineData->m_Camera;
-  const ezViewData* pViewData = &pPipelineData->m_ViewData;
+  auto& data = GetDataForRendering();
+  const ezCamera* pCamera = &data.m_Camera;
+  const ezViewData* pViewData = &data.m_ViewData;
 
   auto& gc = pRendererContext->WriteGlobalConstants();
   gc.CameraPosition = pCamera->GetPosition();
@@ -833,70 +805,38 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
     }
   }
 
-  ClearPipelineData(GetPipelineDataForRendering());
+  data.Clear();
 
   m_CurrentRenderThread = (ezThreadID)0;
 }
 
-ezRenderPipeline::PipelineData* ezRenderPipeline::GetPipelineDataForExtraction()
+ezBatchedRenderData& ezRenderPipeline::GetDataForExtraction()
 {
-  return &m_Data[ezRenderLoop::GetFrameCounter() & 1];
+  return m_Data[ezRenderLoop::GetFrameCounter() & 1];
 }
 
-ezRenderPipeline::PipelineData* ezRenderPipeline::GetPipelineDataForRendering()
-{
-  const ezUInt32 uiFrameCounter = ezRenderLoop::GetFrameCounter() + (CVarMultithreadedRendering ? 1 : 0);
-  return &m_Data[uiFrameCounter & 1];
-}
-
-const ezRenderPipeline::PipelineData* ezRenderPipeline::GetPipelineDataForRendering() const
+ezBatchedRenderData& ezRenderPipeline::GetDataForRendering()
 {
   const ezUInt32 uiFrameCounter = ezRenderLoop::GetFrameCounter() + (CVarMultithreadedRendering ? 1 : 0);
-  return &m_Data[uiFrameCounter & 1];
+  return m_Data[uiFrameCounter & 1];
 }
 
-
-// static
-void ezRenderPipeline::ClearPipelineData(PipelineData* pPipeLineData)
+const ezBatchedRenderData& ezRenderPipeline::GetDataForRendering() const
 {
-  for (ezUInt32 uiPassIndex = 0; uiPassIndex < pPipeLineData->m_PassData.GetCount(); ++uiPassIndex)
-  {
-    PassData& data = pPipeLineData->m_PassData[uiPassIndex];
-
-    data.m_RenderData.Clear();
-  }
+  const ezUInt32 uiFrameCounter = ezRenderLoop::GetFrameCounter() + (CVarMultithreadedRendering ? 1 : 0);
+  return m_Data[uiFrameCounter & 1];
 }
 
-//static 
-ezRenderPassType ezRenderPipeline::FindOrRegisterPassType(const char* szPassTypeName)
+ezArrayPtr< const ezArrayPtr<const ezRenderData*> > ezRenderPipeline::GetRenderDataBatchesWithCategory(ezRenderData::Category category) const
 {
-  EZ_ASSERT_RELEASE(MAX_PASS_TYPES > s_uiNextPassType, "Reached the maximum of %d pass types.", MAX_PASS_TYPES);
-  
-  ezTempHashedString passTypeName(szPassTypeName);
-
-  for (ezRenderPassType type = 0; type < MAX_PASS_TYPES; ++type)
+  auto& data = GetDataForRendering();
+  if (data.m_DataPerCategory.GetCount() > category)
   {
-    if (s_PassTypeData[type].m_sName == passTypeName)
-      return type;
+    return data.m_DataPerCategory[category].m_Batches;
   }
 
-  ezRenderPassType newType = s_uiNextPassType;
-  s_PassTypeData[newType].m_sName.Assign(szPassTypeName);
-  s_PassTypeData[newType].m_ProfilingID = ezProfilingSystem::CreateId(szPassTypeName);
-
-  ++s_uiNextPassType;
-  return newType;
+  return ezArrayPtr< const ezArrayPtr<const ezRenderData*> >();
 }
-
-ezRenderPassType ezDefaultPassTypes::LightGathering = ezRenderPipeline::FindOrRegisterPassType( "LightGathering" );
-ezRenderPassType ezDefaultPassTypes::Opaque = ezRenderPipeline::FindOrRegisterPassType("Opaque");
-ezRenderPassType ezDefaultPassTypes::Masked = ezRenderPipeline::FindOrRegisterPassType("Masked");
-ezRenderPassType ezDefaultPassTypes::Transparent = ezRenderPipeline::FindOrRegisterPassType("Transparent");
-ezRenderPassType ezDefaultPassTypes::Foreground1 = ezRenderPipeline::FindOrRegisterPassType("Foreground1");
-ezRenderPassType ezDefaultPassTypes::Foreground2 = ezRenderPipeline::FindOrRegisterPassType("Foreground2");
-ezRenderPassType ezDefaultPassTypes::Selection = ezRenderPipeline::FindOrRegisterPassType("Selection");
-
-
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipeline);
 

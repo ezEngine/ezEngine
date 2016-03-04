@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/World/World.h>
-#include <RendererCore/Pipeline/Declarations.h>
+#include <RendererCore/Pipeline/RenderData.h>
 
 /// \brief Base class for light render data objects.
 class EZ_RENDERERCORE_DLL ezLightRenderData : public ezRenderData

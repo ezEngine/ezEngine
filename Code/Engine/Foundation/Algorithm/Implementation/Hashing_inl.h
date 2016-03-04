@@ -117,7 +117,7 @@ struct ezHashHelper<T*>
 {
   EZ_FORCE_INLINE static ezUInt32 Hash(T* value)
   {
-    return ezUInt32((reinterpret_cast<size_t>(value) << 4) * 2654435761U);
+    return ezUInt32((reinterpret_cast<size_t>(value) >> 4) * 2654435761U);
   }
 
   EZ_FORCE_INLINE static bool Equal(T* a, T* b)

@@ -10,6 +10,8 @@
 class ezCamera;
 class ezExtractor;
 class ezView;
+class ezRenderData;
+class ezBatchedRenderData;
 class ezRenderPipeline;
 class ezRenderPipelinePass;
 class ezGALContext;
@@ -40,43 +42,6 @@ struct ezRenderViewContext
   ezRenderContext* m_pRenderContext;
 };
 
-class EZ_RENDERERCORE_DLL ezRenderData : public ezReflectedClass
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezRenderData, ezReflectedClass);
-
-public:
-
-  EZ_FORCE_INLINE ezUInt64 GetSortingKey() const
-  {
-    return m_uiSortingKey;
-  }
-
-private:
-  friend class ezRenderPipeline;
-
-  ezUInt64 m_uiSortingKey;
-  ezGameObjectHandle m_hOwner;
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezGameObject* m_pOwner; /// debugging only
-#endif
-};
-
-typedef ezUInt32 ezRenderPassType;
-
-class EZ_RENDERERCORE_DLL ezDefaultPassTypes
-{
-public:
-  static ezRenderPassType LightGathering;
-  static ezRenderPassType Opaque;
-  static ezRenderPassType Masked;
-  static ezRenderPassType Transparent;
-  static ezRenderPassType Foreground1;
-  static ezRenderPassType Foreground2;
-  static ezRenderPassType Selection;
-};
-
-
 class EZ_RENDERERCORE_DLL ezRenderer : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderer, ezReflectedClass);
@@ -84,16 +49,5 @@ class EZ_RENDERERCORE_DLL ezRenderer : public ezReflectedClass
 public:
   virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) = 0;
 
-  /// \brief Should return the number of objects which have been rendered
-  virtual ezUInt32 Render(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData* const>& renderData) = 0;
-};
-
-
-struct EZ_RENDERERCORE_DLL ezExtractRenderDataMessage : public ezMessage
-{
-  EZ_DECLARE_MESSAGE_TYPE(ezExtractRenderDataMessage);
-
-  const ezView* m_pView;
-  ezRenderPipeline* m_pRenderPipeline;
-  ezRenderPassType m_OverrideRenderPass;
+  virtual void RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData* const>& batch) = 0;
 };

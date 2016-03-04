@@ -82,34 +82,25 @@ const char* ezRenderPipelinePass::GetName() const
   return m_sName.GetData();
 }
 
-void ezRenderPipelinePass::RenderDataWithPassType(const ezRenderViewContext& renderViewContext, ezRenderPassType passType)
+void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category)
 {
-  EZ_PROFILE_AND_MARKER(renderViewContext.m_pRenderContext->GetGALContext(), m_pPipeline->GetPassTypeProfilingID(passType));
+  EZ_PROFILE_AND_MARKER(renderViewContext.m_pRenderContext->GetGALContext(), ezRenderData::GetCategoryProfilingID(category));
 
-  ezArrayPtr<const ezRenderData* const> renderData = m_pPipeline->GetRenderDataWithPassType(passType);
-  while (renderData.GetCount() > 0)
+  auto& batches = m_pPipeline->GetRenderDataBatchesWithCategory(category);
+  for (auto& batch : batches)
   {
-    const ezRenderData* pRenderData = renderData[0];
+    const ezRenderData* pRenderData = batch[0];
     const ezRTTI* pType = pRenderData->GetDynamicRTTI();
-    const ezUInt32 uiDataLeft = renderData.GetCount();
-    ezUInt32 uiDataRendered = 1;
-
+    
     ezUInt32 uiRendererIndex = ezInvalidIndex;
     if (m_TypeToRendererIndex.TryGetValue(pType, uiRendererIndex))
     {
-      uiDataRendered = m_Renderer[uiRendererIndex]->Render(renderViewContext, this, renderData);
+      m_Renderer[uiRendererIndex]->RenderBatch(renderViewContext, this, batch);
     }
     else
     {
-      ezLog::Warning("Could not render object of type '%s' in render pass '%s'. No suitable renderer found.", pType->GetTypeName(), m_sName.GetString().GetData());
-     
-      while (uiDataRendered < uiDataLeft && renderData[uiDataRendered]->GetDynamicRTTI() == pType)
-      {
-        ++uiDataRendered;
-      }      
+      ezLog::Warning("Could not render object of type '%s' in render pass '%s'. No suitable renderer found.", pType->GetTypeName(), m_sName.GetString().GetData());  
     }
-
-    renderData = renderData.GetSubArray(uiDataRendered, uiDataLeft - uiDataRendered);
   }  
 }
 

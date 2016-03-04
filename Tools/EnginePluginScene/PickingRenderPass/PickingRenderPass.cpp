@@ -87,12 +87,12 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING", "1");
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING_IGNORE_GIZMOS", !m_bPickSelected ? "1" : "0");
 
-  RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Opaque);
-  RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Masked);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Opaque);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Masked);
 
   if (m_bPickSelected)
   {
-    RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Selection);
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Selection);
     m_pSceneContext->RenderShapeIcons(renderViewContext.m_pRenderContext);
   }
 
@@ -131,8 +131,8 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
   }
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0); // only clear depth
 
-  RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Foreground1);
-  RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Foreground2);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Foreground1);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Foreground2);
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING", "0");
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_DEFAULT");

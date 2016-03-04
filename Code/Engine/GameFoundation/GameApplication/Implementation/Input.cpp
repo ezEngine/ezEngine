@@ -26,14 +26,14 @@ void ezGameApplication::DoConfigureInput()
   ezInputManager::SetInputActionConfig(g_szInputSet, g_szCaptureProfilingAction, config, true);
 
   {
-	  ezFileReader file;
-	  if ( file.Open( "InputConfig.json" ).Succeeded() )
-	  {
-		  ezHybridArray<ezGameAppInputConfig, 32> InputActions;
+    ezFileReader file;
+    if ( file.Open( "InputConfig.json" ).Succeeded() )
+    {
+      ezHybridArray<ezGameAppInputConfig, 32> InputActions;
 
-		  ezGameAppInputConfig::ReadFromJson( file, InputActions );
-		  ezGameAppInputConfig::ApplyAll( InputActions );
-	  }
+      ezGameAppInputConfig::ReadFromJson( file, InputActions );
+      ezGameAppInputConfig::ApplyAll( InputActions );
+    }
 
   }
 }
@@ -57,6 +57,11 @@ void ezGameApplication::ProcessApplicationInput()
     if (fileWriter.Open("profiling.json") == EZ_SUCCESS)
     {
       ezProfilingSystem::Capture(fileWriter);
+      ezLog::Info("Profiling capture saved to '%s'.", fileWriter.GetFilePathAbsolute().GetData());
+    }
+    else
+    {
+      ezLog::Error("Could not write profiling capture to '%s'.", fileWriter.GetFilePathAbsolute().GetData());
     }
   }
 }

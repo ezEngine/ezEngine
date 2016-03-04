@@ -1,7 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/Pipeline/BatchedRenderData.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -99,8 +99,9 @@ void ezPointLightComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg)
 
 void ezPointLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg ) const
 {
-  ezRenderPipeline* pRenderPipeline = msg.m_pRenderPipeline;
-  ezPointLightRenderData* pRenderData = pRenderPipeline->CreateRenderData<ezPointLightRenderData>(ezDefaultPassTypes::LightGathering, GetOwner());
+  ezUInt32 uiBatchId = m_bCastShadows ? 0 : 1;
+
+  auto pRenderData = CreateRenderDataForThisFrame<ezPointLightRenderData>(GetOwner(), uiBatchId);
 
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_LightColor = m_LightColor;
@@ -108,6 +109,8 @@ void ezPointLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg
   pRenderData->m_fRange = m_fRange;
   pRenderData->m_hProjectedTexture = m_hProjectedTexture;
   pRenderData->m_bCastShadows = m_bCastShadows;
+
+  msg.m_pBatchedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light);
 }
 
 void ezPointLightComponent::SerializeComponent(ezWorldWriter& stream) const

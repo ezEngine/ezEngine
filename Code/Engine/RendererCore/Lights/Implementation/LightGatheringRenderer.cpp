@@ -20,14 +20,13 @@ void ezLightGatheringRenderer::GetSupportedRenderDataTypes(ezHybridArray<const e
   types.PushBack(ezGetStaticRTTI<ezDirectionalLightRenderData>());
 }
 
-ezUInt32 ezLightGatheringRenderer::Render(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData* const>& renderData)
+void ezLightGatheringRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData* const>& batch)
 {
   // TODO: Setup necessary buffers to hold the light information
 
-  ezUInt32 uiDataRendered = 0;
-  while (uiDataRendered < renderData.GetCount() && renderData[uiDataRendered]->IsInstanceOf<ezLightRenderData>())
+  for (const ezRenderData* pRenderData : batch)
   {
-    const ezLightRenderData* current = static_cast<const ezLightRenderData*>(renderData[uiDataRendered]);
+    const ezLightRenderData* current = static_cast<const ezLightRenderData*>(pRenderData);
     
     // TODO: Fill buffers with light render data
     if (current->IsInstanceOf<ezPointLightRenderData>())
@@ -42,11 +41,7 @@ ezUInt32 ezLightGatheringRenderer::Render(const ezRenderViewContext& renderViewC
     {
 
     }
-
-    ++uiDataRendered;
   }
-
-  return uiDataRendered;
 }
 
 

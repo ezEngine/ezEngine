@@ -16,7 +16,7 @@ void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>
   types.PushBack(ezGetStaticRTTI<ezMeshRenderData>());
 }
 
-ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData* const>& renderData)
+void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData* const>& batch)
 {
   if (!m_hObjectTransformCB.IsValid())
   {
@@ -33,16 +33,29 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderViewContext, ez
     }
   }
 
+  const ezMeshRenderData* pRenderData = static_cast<const ezMeshRenderData*>(batch[0]);
+
+  const ezMeshResourceHandle& hMesh = pRenderData->m_hMesh;
+  const ezMaterialResourceHandle& hMaterial = pRenderData->m_hMaterial;
+  ezUInt32 uiPartIndex = pRenderData->m_uiPartIndex;
+
+  ezResourceLock<ezMeshResource> pMesh(hMesh);
+  const ezMeshResourceDescriptor::SubMesh& meshPart = pMesh->GetSubMeshes()[uiPartIndex];
+
+  renderViewContext.m_pRenderContext->BindMeshBuffer(pMesh->GetMeshBuffer());
+  renderViewContext.m_pRenderContext->SetMaterialState(hMaterial);  
+
   renderViewContext.m_pRenderContext->BindConstantBuffer("ObjectConstants", m_hObjectTransformCB);
 
   const ezMat4& ViewMatrix = renderViewContext.m_pViewData->m_ViewMatrix;
   const ezMat4& ViewProjMatrix = renderViewContext.m_pViewData->m_ViewProjectionMatrix;
-  ezMaterialResourceHandle hLastMaterial;
 
-  ezUInt32 uiDataRendered = 0;
-  while (uiDataRendered < renderData.GetCount() && renderData[uiDataRendered]->IsInstanceOf<ezMeshRenderData>())
+  // TODO: use instancing
+  for (ezUInt32 i = 0; i < batch.GetCount(); ++i)
   {
-    const ezMeshRenderData* pRenderData = static_cast<const ezMeshRenderData*>(renderData[uiDataRendered]);
+    pRenderData = static_cast<const ezMeshRenderData*>(batch[i]);
+
+    EZ_ASSERT_DEV(pRenderData->m_hMesh == hMesh && pRenderData->m_hMaterial == hMaterial && pRenderData->m_uiPartIndex == uiPartIndex, "Invalid batching");
 
     ObjectConstants* cb = renderViewContext.m_pRenderContext->BeginModifyConstantBuffer<ObjectConstants>(m_hObjectTransformCB);
     cb->ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
@@ -52,29 +65,12 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderViewContext, ez
     cb->PartIndex = pRenderData->m_uiPartIndex;
 
     renderViewContext.m_pRenderContext->EndModifyConstantBuffer();
-
-    ezResourceLock<ezMeshResource> pMesh(pRenderData->m_hMesh);
-    const ezMeshResourceDescriptor::SubMesh& meshPart = pMesh->GetSubMeshes()[pRenderData->m_uiPartIndex];
-
-    if (pRenderData->m_hMaterial != hLastMaterial)
-    {
-      renderViewContext.m_pRenderContext->SetMaterialState(pRenderData->m_hMaterial);
-      hLastMaterial = pRenderData->m_hMaterial;
-    }
-
-    renderViewContext.m_pRenderContext->SetMaterialParameter("MeshColor", pRenderData->m_MeshColor);
-
-    renderViewContext.m_pRenderContext->BindMeshBuffer(pMesh->GetMeshBuffer());
+    
+    renderViewContext.m_pRenderContext->SetMaterialParameter("MeshColor", pRenderData->m_MeshColor);    
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive);
-
-    ++uiDataRendered;
   }
-
-  return uiDataRendered;
 }
-
-
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshRenderer);
 

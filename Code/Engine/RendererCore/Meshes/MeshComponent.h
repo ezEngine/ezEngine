@@ -3,7 +3,7 @@
 #include <Core/World/World.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
-#include <RendererCore/Pipeline/Declarations.h>
+#include <RendererCore/Pipeline/RenderData.h>
 
 class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezRenderData
 {
@@ -50,9 +50,9 @@ public:
     return m_Materials[uiIndex];
   }
 
-  EZ_FORCE_INLINE void SetRenderPass(ezRenderPassType renderpass)
+  EZ_FORCE_INLINE void SetRenderDataCategory(ezRenderData::Category category)
   {
-    m_RenderPass = renderpass;
+    m_RenderDataCategory = category;
   }
 
   virtual void OnAfterAttachedToObject() override;
@@ -76,7 +76,7 @@ private:
   void Materials_Insert(ezUInt32 uiIndex, const char* value);
   void Materials_Remove(ezUInt32 uiIndex);
 
-  ezRenderPassType m_RenderPass;
+  ezRenderData::Category m_RenderDataCategory;
   ezMeshResourceHandle m_hMesh;
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;
 };

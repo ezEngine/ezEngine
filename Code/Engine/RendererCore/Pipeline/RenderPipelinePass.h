@@ -5,7 +5,7 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <CoreUtils/NodeGraph/Node.h>
-#include <RendererCore/Pipeline/Declarations.h>
+#include <RendererCore/Pipeline/RenderData.h>
 
 struct ezGALTextureCreationDescription;
 
@@ -44,7 +44,7 @@ public:
 
   virtual void ReadBackProperties(ezView* pView) {}
 
-  void RenderDataWithPassType(const ezRenderViewContext& renderViewContext, ezRenderPassType passType);
+  void RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category);
 
   EZ_FORCE_INLINE ezRenderPipeline* GetPipeline()
   {

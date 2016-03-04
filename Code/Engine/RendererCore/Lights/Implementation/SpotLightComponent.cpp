@@ -1,7 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/Pipeline/BatchedRenderData.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -11,7 +11,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 1);
   EZ_BEGIN_PROPERTIES
-	  EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant() ), new ezDefaultValueAttribute( 1.0f ) ),
+    EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant() ), new ezDefaultValueAttribute( 1.0f ) ),
     EZ_ACCESSOR_PROPERTY("Spot Angle", GetSpotAngle_Ui, SetSpotAngle_Ui)->AddAttributes(new ezClampValueAttribute(0.1f, 179.9f), new ezDefaultValueAttribute(30.0f)),
     EZ_ACCESSOR_PROPERTY("Projected Texture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
   EZ_END_PROPERTIES
@@ -111,8 +111,9 @@ void ezSpotLightComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) 
 
 void ezSpotLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg ) const
 {
-  ezRenderPipeline* pRenderPipeline = msg.m_pRenderPipeline;
-  ezSpotLightRenderData* pRenderData = pRenderPipeline->CreateRenderData<ezSpotLightRenderData>(ezDefaultPassTypes::LightGathering, GetOwner());
+  ezUInt32 uiBatchId = m_bCastShadows ? 0 : 1;
+
+  auto pRenderData = CreateRenderDataForThisFrame<ezSpotLightRenderData>(GetOwner(), uiBatchId);
 
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_LightColor = m_LightColor;
@@ -121,6 +122,8 @@ void ezSpotLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg 
   pRenderData->m_SpotAngle = m_SpotAngle;
   pRenderData->m_hProjectedTexture = m_hProjectedTexture;
   pRenderData->m_bCastShadows = m_bCastShadows;
+
+  msg.m_pBatchedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light);
 }
 
 void ezSpotLightComponent::SerializeComponent(ezWorldWriter& stream) const

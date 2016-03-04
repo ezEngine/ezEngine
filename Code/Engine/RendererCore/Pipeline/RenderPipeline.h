@@ -2,12 +2,11 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HybridArray.h>
-#include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <CoreUtils/Graphics/Camera.h>
-#include <RendererCore/Pipeline/ViewData.h>
+#include <RendererCore/Pipeline/BatchedRenderData.h>
 
 class ezProfilingId;
 class ezView;
@@ -25,9 +24,6 @@ public:
 
   ezRenderPipeline();
   ~ezRenderPipeline();
-
-  // \brief Returns the current state of the pipeline. Evaluated via Rebuild.
-  PipelineState GetPipelineState() const;
 
   // \brief Resets the pipeline state to 'Uninitialized' to force a recompute (e.g. when the render target has changed).
   void ResetPipelineState();
@@ -51,36 +47,13 @@ public:
   void GetExtractors(ezHybridArray<ezExtractor*, 16>& extractors);
   ezExtractor* GetExtractorByName(const char* szPassName) const;
 
-  template <typename T>
-  T* CreateRenderData(ezRenderPassType passType, const ezGameObject* pOwner);
-  
-  ezArrayPtr<const ezRenderData* const> GetRenderDataWithPassType(ezRenderPassType passType) const;
-
-  static ezRenderPassType FindOrRegisterPassType(const char* szPassTypeName);
-
-  static const char* GetPassTypeName(ezRenderPassType passType);
-  static ezProfilingId& GetPassTypeProfilingID(ezRenderPassType passType);
+  ezArrayPtr< const ezArrayPtr<const ezRenderData*> > GetRenderDataBatchesWithCategory(ezRenderData::Category category) const;
 
   EZ_DISALLOW_COPY_AND_ASSIGN(ezRenderPipeline);
 
 private:
   friend class ezRenderLoop;
   friend class ezView;  
-
-  struct PassData
-  {
-    void SortRenderData();
-
-    ezDynamicArray<const ezRenderData*> m_RenderData;
-  };
-
-  struct PipelineData
-  {
-    ezCamera m_Camera;
-    ezViewData m_ViewData;
-
-    ezHybridArray<PassData, 8> m_PassData;
-  };
 
   // \brief Rebuilds the render pipeline, e.g. sorting passes via dependencies and creating render targets.
   PipelineState Rebuild(const ezView& view);
@@ -98,13 +71,9 @@ private:
   void ExtractData(const ezView& view);
   void Render(ezRenderContext* pRenderer);
 
-  PipelineData* GetPipelineDataForExtraction();
-  PipelineData* GetPipelineDataForRendering();
-  const PipelineData* GetPipelineDataForRendering() const;
-
-private: // Static functions
-  static void ClearPipelineData(PipelineData* pPipeLineData);
-  static bool IsPipelineDataEmpty(PipelineData* pPipeLineData);
+  ezBatchedRenderData& GetDataForExtraction();
+  ezBatchedRenderData& GetDataForRendering();
+  const ezBatchedRenderData& GetDataForRendering() const;
 
 private: // Member data
   // Thread data
@@ -112,7 +81,7 @@ private: // Member data
   ezThreadID m_CurrentRenderThread;
 
   // Pipeline render data
-  PipelineData m_Data[2];
+  ezBatchedRenderData m_Data[2];
 
   // Profiling
   ezProfilingId m_RenderProfilingID;
@@ -134,20 +103,4 @@ private: // Member data
 
   // Extractors
   ezDynamicArray<ezUniquePtr<ezExtractor>> m_Extractors;
-
-private: // Static data
-  struct PassTypeData
-  {
-    ezHashedString m_sName;
-    ezProfilingId m_ProfilingID;
-  };
-
-  enum
-  {
-    MAX_PASS_TYPES = 32
-  };
-  static ezRenderPassType s_uiNextPassType;
-  static PassTypeData s_PassTypeData[MAX_PASS_TYPES];
 };
-
-#include <RendererCore/Pipeline/Implementation/RenderPipeline_inl.h>

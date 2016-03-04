@@ -1,6 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/Pipeline/BatchedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -26,7 +26,7 @@ EZ_END_COMPONENT_TYPE();
 
 ezMeshComponent::ezMeshComponent()
 {
-  m_RenderPass = ezInvalidIndex;
+  m_RenderDataCategory = ezInvalidIndex;
   m_MeshColor = ezColor::White;
 }
 
@@ -76,38 +76,44 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
   if (!m_hMesh.IsValid())
     return;
 
-  ezRenderPipeline* pRenderPipeline = msg.m_pRenderPipeline;
-
   ezResourceLock<ezMeshResource> pMesh(m_hMesh);
   const ezDynamicArray<ezMeshResourceDescriptor::SubMesh>& parts = pMesh->GetSubMeshes();
 
   for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
   {
-    ezRenderPassType renderPass = ezDefaultPassTypes::Opaque;
-    if (m_RenderPass != ezInvalidIndex)
-    {
-      renderPass = m_RenderPass;
-    } 
-    if (msg.m_OverrideRenderPass != ezInvalidIndex)
-    {
-      renderPass = msg.m_OverrideRenderPass;
-    }
-
     const ezUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
-
-    ezMeshRenderData* pRenderData = pRenderPipeline->CreateRenderData<ezMeshRenderData>(renderPass, GetOwner());
-    pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-    pRenderData->m_hMesh = m_hMesh;
-    pRenderData->m_uiEditorPickingID = m_uiEditorPickingID | (uiMaterialIndex << 24);
-    pRenderData->m_MeshColor = m_MeshColor;
+    ezMaterialResourceHandle hMaterial;
     // if we have a material override, use that
     // otherwise use the default mesh material
     if (GetMaterial(uiMaterialIndex).IsValid())
-      pRenderData->m_hMaterial = m_Materials[uiMaterialIndex];
+      hMaterial = m_Materials[uiMaterialIndex];
     else
-      pRenderData->m_hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
+      hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
+    // Generate batch id from mesh, material and part index
+    size_t data[] = { *reinterpret_cast<const size_t*>(&m_hMesh), *reinterpret_cast<const size_t*>(&hMaterial), uiPartIndex };
+    ezUInt32 uiBatchId = ezHashing::MurmurHash(data, sizeof(data));
+
+    auto* pRenderData = CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
+
+    pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
+    pRenderData->m_hMesh = m_hMesh;
+    pRenderData->m_hMaterial = hMaterial;
     pRenderData->m_uiPartIndex = uiPartIndex;
+    pRenderData->m_uiEditorPickingID = m_uiEditorPickingID | (uiMaterialIndex << 24);    
+    pRenderData->m_MeshColor = m_MeshColor;    
+
+    ezRenderData::Category category = ezDefaultRenderDataCategories::Opaque;
+    if (m_RenderDataCategory != ezInvalidIndex)
+    {
+      category = m_RenderDataCategory;
+    }
+    if (msg.m_OverrideCategory != ezInvalidIndex)
+    {
+      category = msg.m_OverrideCategory;
+    }
+
+    msg.m_pBatchedRenderData->AddRenderData(pRenderData, category);
   }
 }
 
@@ -141,7 +147,7 @@ void ezMeshComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << GetMeshFile();
   s << m_MeshColor;
-  s << m_RenderPass;
+  s << m_RenderDataCategory;
 
   s << m_Materials.GetCount();
 
@@ -169,7 +175,7 @@ void ezMeshComponent::DeserializeComponent(ezWorldReader& stream)
   SetMeshFile(sTemp);
 
   s >> m_MeshColor;
-  s >> m_RenderPass;
+  s >> m_RenderDataCategory;
 
   ezUInt32 uiMaterials = 0;
   s >> uiMaterials;

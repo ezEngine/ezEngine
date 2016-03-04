@@ -1,7 +1,6 @@
 #pragma once
 
 #include <RendererCore/Lights/LightComponent.h>
-#include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Textures/TextureResource.h>
 
 class ezDirectionalLightComponent;
@@ -10,11 +9,11 @@ typedef ezComponentManager<ezDirectionalLightComponent> ezDirectionalLightCompon
 /// \brief The render data object for directional lights.
 class EZ_RENDERERCORE_DLL ezDirectionalLightRenderData : public ezLightRenderData
 {
-	EZ_ADD_DYNAMIC_REFLECTION(ezDirectionalLightRenderData, ezLightRenderData);
+  EZ_ADD_DYNAMIC_REFLECTION(ezDirectionalLightRenderData, ezLightRenderData);
 
 public:
-	ezTransform m_GlobalTransform;
-	ezColor m_LightColor;
+  ezTransform m_GlobalTransform;
+  ezColor m_LightColor;
   float m_fIntensity;
   bool m_bCastShadows;
 };
