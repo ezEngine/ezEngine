@@ -688,6 +688,12 @@ bool ezQtSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMs
     return true;
   }
 
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezPlayTheGameStoppedMsgToEditor>())
+  {
+    ezEditorEngineProcessConnection::GetInstance()->SendDocumentOpenMessage(GetDocument(), true);
+    return true;
+  }
+
   if (ezQtEngineDocumentWindow::HandleEngineMessage(pMsg))
   {
     if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())

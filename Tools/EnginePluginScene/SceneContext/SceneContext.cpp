@@ -109,6 +109,11 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     {
       ezGameApplication::GetGameApplicationInstance()->DeactivateGameStateForWorld(m_pWorld);
       ezGameApplication::GetGameApplicationInstance()->DestroyGameStateForWorld(m_pWorld);
+
+      ezPlayTheGameStoppedMsgToEditor msgToEd;
+      msgToEd.m_DocumentGuid = pMsg->m_DocumentGuid;
+      
+      SendProcessMessage(&msgToEd);
     }
 
     return;

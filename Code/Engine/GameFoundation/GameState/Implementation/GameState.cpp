@@ -121,6 +121,10 @@ void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer, ezGALRe
 
 ezRenderPipelineResourceHandle ezGameState::CreateMainRenderPipeline()
 {
+  auto hRP = ezResourceManager::GetExistingResource<ezRenderPipelineResource>("MainRenderPipeline");
+  if (hRP.IsValid())
+    return hRP;
+
   ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
 
   ezSimpleRenderPass* pSimplePass = nullptr;

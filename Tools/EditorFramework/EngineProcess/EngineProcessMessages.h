@@ -272,6 +272,14 @@ public:
 
 };
 
+class EZ_EDITORFRAMEWORK_DLL ezPlayTheGameStoppedMsgToEditor : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezPlayTheGameStoppedMsgToEditor, ezEditorEngineDocumentMsg);
+
+public:
+
+};
+
 class EZ_EDITORFRAMEWORK_DLL ezQuerySelectionBBoxMsgToEngine : public ezEditorEngineDocumentMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezQuerySelectionBBoxMsgToEngine, ezEditorEngineDocumentMsg);
