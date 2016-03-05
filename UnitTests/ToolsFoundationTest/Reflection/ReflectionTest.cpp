@@ -248,17 +248,17 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
     ezFloatStruct floatStruct;
     ezReflectedTypeDirectAccessor floatAccessor(&floatStruct, pRttiFloat, nullptr);
     EZ_TEST_BOOL(floatAccessor.GetType() == pRttiFloat);
-    EZ_TEST_INT(AccessorPropertiesTest(floatAccessor), 3);
+    EZ_TEST_INT(AccessorPropertiesTest(floatAccessor), 4);
 
     ezPODClass podClass;
     ezReflectedTypeDirectAccessor podAccessor(&podClass, nullptr);
     EZ_TEST_BOOL(podAccessor.GetType() == pRttiPOD);
-    EZ_TEST_INT(AccessorPropertiesTest(podAccessor), 14);
+    EZ_TEST_INT(AccessorPropertiesTest(podAccessor), 15);
 
     ezMathClass mathClass;
     ezReflectedTypeDirectAccessor mathAccessor(&mathClass, nullptr);
     EZ_TEST_BOOL(mathAccessor.GetType() == pRttiMath);
-    EZ_TEST_INT(AccessorPropertiesTest(mathAccessor), 20);
+    EZ_TEST_INT(AccessorPropertiesTest(mathAccessor), 21);
 
     ezEnumerationsClass enumerationsClass;
     ezReflectedTypeDirectAccessor enumerationsAccessor(&enumerationsClass, nullptr);
@@ -272,13 +272,13 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
     EZ_TEST_INT(AccessorPropertiesTest(intAccessor), 8);
 
     ezReflectedTypeStorageAccessor floatAccessor(pRttiFloat, nullptr);
-    EZ_TEST_INT(AccessorPropertiesTest(floatAccessor), 3);
+    EZ_TEST_INT(AccessorPropertiesTest(floatAccessor), 4);
 
     ezReflectedTypeStorageAccessor podAccessor(pRttiPOD, nullptr);
-    EZ_TEST_INT(AccessorPropertiesTest(podAccessor), 14);
+    EZ_TEST_INT(AccessorPropertiesTest(podAccessor), 15);
 
     ezReflectedTypeStorageAccessor mathAccessor(pRttiMath, nullptr);
-    EZ_TEST_INT(AccessorPropertiesTest(mathAccessor), 20);
+    EZ_TEST_INT(AccessorPropertiesTest(mathAccessor), 21);
 
     ezReflectedTypeStorageAccessor enumerationsAccessor(pRttiEnumerations, nullptr);
     EZ_TEST_INT(AccessorPropertiesTest(enumerationsAccessor), 2);
