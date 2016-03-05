@@ -51,7 +51,7 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget() : ezQtStandardPropertyWidget(
 
 bool ezQtAssetPropertyWidget::IsValidAssetType(const char* szAssetReference) const
 {
-  const ezAssetCurator::AssetInfo* pAsset = nullptr;
+  const ezAssetInfo* pAsset = nullptr;
 
   if (!ezConversionUtils::IsStringUuid(szAssetReference))
   {

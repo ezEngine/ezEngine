@@ -4,6 +4,8 @@ What's New {#WhatsNew}
 Milestone 8
 -----------
 
+  * Added ezStaticCast and ezDynamicCast for easier and save casting of reflected types
+  * Added ezAngle as a supported type to ezVariant
   * Added a random number generator, based on the WELL512 algorithm
   * Added a preliminary PhysX integration
   * Added selection highlight rendering to the editor
@@ -37,7 +39,7 @@ Milestone 8
   * Editor now renders bounding boxes of the selection
   * Added a "Duplicate Special" action that allows to make multiple copies of an object with different positions and rotations
   * Editor can now ignore unknown component types. Shows warnings when opening and saving such a scene, but does not crash.
-  * Implemented line and point rendering the in D3D abstraction
+  * Implemented line and point rendering in the D3D abstraction
   * RTTI types can now have attributes, e.g. for for categories in menus
   * Added Surface assets for defining physics properties (fricition etc.)
   * Added orthographic render modes and basic editing functionality (rotate, translate)

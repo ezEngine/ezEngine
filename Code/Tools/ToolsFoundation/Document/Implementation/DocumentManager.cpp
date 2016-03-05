@@ -154,7 +154,7 @@ void ezDocumentManager::EnsureWindowRequested(ezDocument* pDocument)
   s_Events.Broadcast(e);
 }
 
-ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow)
+ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow, bool bAddToRecentFilesList)
 {
   ezStringBuilder sPath = szPath;
   sPath.MakeCleanPath();
@@ -185,6 +185,8 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
 
       status = InternalCreateDocument(szDocumentTypeName, sPath, out_pDocument);
       EZ_ASSERT_DEV(status.m_Result == EZ_FAILURE || out_pDocument != nullptr, "Status was success, but the document manager returned a nullptr document.");
+
+      out_pDocument->SetAddToResetFilesList(bAddToRecentFilesList);
 
       if (status.m_Result.Succeeded())
       {
@@ -220,12 +222,12 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
 
 ezStatus ezDocumentManager::CreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow)
 {
-  return CreateOrOpenDocument(true, szDocumentTypeName, szPath, out_pDocument, bRequestWindow);
+  return CreateOrOpenDocument(true, szDocumentTypeName, szPath, out_pDocument, bRequestWindow, true);
 }
 
-ezStatus ezDocumentManager::OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow)
+ezStatus ezDocumentManager::OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow, bool bAddToRecentFilesList)
 {
-  return CreateOrOpenDocument(false, szDocumentTypeName, szPath, out_pDocument, bRequestWindow);
+  return CreateOrOpenDocument(false, szDocumentTypeName, szPath, out_pDocument, bRequestWindow, bAddToRecentFilesList);
 }
 
 void ezDocumentManager::CloseDocument(ezDocument* pDocument)

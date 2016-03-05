@@ -51,7 +51,7 @@ void ezAssetActions::MapActions(const char* szMapping, bool bDocument)
   }
 
   pMap->MapAction(s_hCheckFileSystem, "AssetCategory", 3.0f);
-  pMap->MapAction(s_hWriteLookupTable, "AssetCategory", 4.0f);
+  //pMap->MapAction(s_hWriteLookupTable, "AssetCategory", 4.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////

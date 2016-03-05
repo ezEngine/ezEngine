@@ -81,6 +81,9 @@ public:
   const ezSet<ezString>& GetUnknownObjectTypes() const { return m_UnknownObjectTypes; }
   ezUInt32 GetUnknownObjectTypeInstances() const { return m_uiUnknownObjectTypeInstances; }
 
+  void SetAddToResetFilesList(bool b) { m_bAddToRecentFilesList = b; }
+  bool GetAddToResetFilesList() const { return m_bAddToRecentFilesList; }
+
 public:
   struct Event
   {
@@ -134,6 +137,7 @@ private:
   bool m_bModified;
   bool m_bReadOnly;
   bool m_bWindowRequested;
+  bool m_bAddToRecentFilesList;
 
   ezSet<ezString> m_UnknownObjectTypes;
   ezUInt32 m_uiUnknownObjectTypeInstances;

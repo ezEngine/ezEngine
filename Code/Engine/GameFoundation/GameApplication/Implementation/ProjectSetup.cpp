@@ -53,10 +53,10 @@ void ezGameApplication::DoSetupDataDirectories()
 void ezGameApplication::DoConfigureAssetManagement()
 {
   // which redirection table to search
-  ezDataDirectory::FolderType::s_sRedirectionFile = "AssetCache/LookupTable.ezAsset";
+  ezDataDirectory::FolderType::s_sRedirectionFile = "AssetCache/PC.ezAidlt";
 
   // which platform assets to use
-  ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/PC/";
+  ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/";
 }
 
 void ezGameApplication::DoSetupDefaultResources()

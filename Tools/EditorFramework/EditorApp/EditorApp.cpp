@@ -305,9 +305,9 @@ void ezQtEditorApp::OpenDocument(const char* szDocument)
   QMetaObject::invokeMethod(this, "SlotQueuedOpenDocument", Qt::ConnectionType::QueuedConnection,  Q_ARG(QString, szDocument));
 }
 
-ezDocument* ezQtEditorApp::OpenDocumentImmediate(const char* szDocument, bool bRequestWindow)
+ezDocument* ezQtEditorApp::OpenDocumentImmediate(const char* szDocument, bool bRequestWindow, bool bAddToRecentFilesList)
 {
-  return CreateOrOpenDocument(false, szDocument, bRequestWindow);
+  return CreateOrOpenDocument(false, szDocument, bRequestWindow, bAddToRecentFilesList);
 }
 
 void ezQtEditorApp::GuiCreateProject()
@@ -365,8 +365,11 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
   {
   case ezDocumentManager::Event::Type::DocumentWindowRequested:
     {
-      s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath());
-      SaveSettings();
+      if (r.m_pDocument->GetAddToResetFilesList())
+      {
+        s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath());
+        SaveSettings();
+      }
     }
     break;
   case ezDocumentManager::Event::Type::DocumentClosing:
@@ -374,8 +377,11 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
       // Clear all document settings when it is closed
       s_DocumentSettings.Remove(r.m_pDocument->GetDocumentPath());
 
-      // again, insert it into the recent documents list, such that the LAST CLOSED document is the LAST USED 
-      s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath());
+      if (r.m_pDocument->GetAddToResetFilesList())
+      {
+        // again, insert it into the recent documents list, such that the LAST CLOSED document is the LAST USED 
+        s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath());
+      }
     }
     break;
   }
@@ -706,7 +712,7 @@ void ezQtEditorApp::GuiCreateOrOpenDocument(bool bCreate)
   CreateOrOpenDocument(bCreate, sFile);
 }
 
-ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow)
+ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow, bool bAddToRecentFilesList)
 {
   ezDocumentManager* pManToCreate = nullptr;
   ezDocumentTypeDescriptor DescToCreate;
@@ -737,7 +743,7 @@ ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile
 
       if (res.m_Result.Succeeded())
       {
-        res = pManToCreate->OpenDocument(DescToCreate.m_sDocumentTypeName, szFile, pDocument, bRequestWindow);
+        res = pManToCreate->OpenDocument(DescToCreate.m_sDocumentTypeName, szFile, pDocument, bRequestWindow, bAddToRecentFilesList);
       }
     }
 

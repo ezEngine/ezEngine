@@ -22,14 +22,22 @@ bool ezAssetDocumentManager::IsResourceUpToDate(ezUInt64 uiHash, ezUInt16 uiType
 
 ezString ezAssetDocumentManager::GenerateResourceFileName(const char* szDocumentPath, const char* szPlatform) const
 {
-  ezStringBuilder sProjectDir = ezAssetCurator::GetInstance()->FindDataDirectoryForAsset(szDocumentPath);;
+  EZ_ASSERT_DEBUG(!ezStringUtils::IsNullOrEmpty(szPlatform), "Platform string must be set");
+
+  ezStringBuilder sProjectDir = ezAssetCurator::GetInstance()->FindDataDirectoryForAsset(szDocumentPath);
+
+  ezString sPlatform;
+  if (GeneratesPlatformSpecificAssets())
+    sPlatform = szPlatform;
+  else
+    sPlatform = "Common";
 
   ezStringBuilder sRelativePath = szDocumentPath;
 
   sRelativePath.MakeRelativeTo(sProjectDir);
   sRelativePath.ChangeFileExtension(GetResourceTypeExtension());
 
-  ezStringBuilder sFinalPath(sProjectDir, "/AssetCache/", szPlatform, "/", sRelativePath);
+  ezStringBuilder sFinalPath(sProjectDir, "/AssetCache/", sPlatform, "/", sRelativePath);
   sFinalPath.MakeCleanPath();
 
   return sFinalPath;
@@ -51,13 +59,20 @@ ezString ezAssetDocumentManager::GenerateResourceThumbnailPath(const char* szDoc
 
 }
 
-ezString ezAssetDocumentManager::GenerateRelativeResourceFileName(const char* szDataDirectory, const char* szDocumentPath) const
+ezString ezAssetDocumentManager::GenerateRelativeResourceFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szPlatform) const
 {
-  ezStringBuilder sRelativePath = szDocumentPath;
+  EZ_ASSERT_DEBUG(!ezStringUtils::IsNullOrEmpty(szPlatform), "Platform string must be set");
+
+  ezStringBuilder sRelativePath(szDocumentPath);
 
   sRelativePath.MakeRelativeTo(szDataDirectory);
   sRelativePath.ChangeFileExtension(GetResourceTypeExtension());
   sRelativePath.MakeCleanPath();
+
+  if (GeneratesPlatformSpecificAssets())
+    sRelativePath.Prepend(szPlatform, "/");
+  else
+    sRelativePath.Prepend("Common/");
 
   return sRelativePath;
 }

@@ -115,11 +115,11 @@ void ezAssetCurator::OnHashingTaskFinished(ezTask* pTask)
       {
         if (RefFile.m_AssetGuid.IsValid() && RefFile.m_AssetGuid != pHashTask->m_FileStatus.m_AssetGuid)
         {
-          m_KnownAssets[RefFile.m_AssetGuid]->m_State = AssetInfo::State::ToBeDeleted;
+          m_KnownAssets[RefFile.m_AssetGuid]->m_State = ezAssetInfo::State::ToBeDeleted;
 
           auto& newAsset = m_KnownAssets[pHashTask->m_FileStatus.m_AssetGuid];
           if (newAsset == nullptr)
-            newAsset = EZ_DEFAULT_NEW(AssetInfo);
+            newAsset = EZ_DEFAULT_NEW(ezAssetInfo);
 
           *newAsset = pHashTask->m_AssetInfo;
         }
@@ -174,7 +174,7 @@ ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
 {
   ezLock<ezMutex> ml(m_HashingMutex);
 
-  ezAssetCurator::AssetInfo* pInfo = nullptr;
+  ezAssetInfo* pInfo = nullptr;
   if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
   {
     ezLog::Error("Asset with GUID %s is unknown", ezConversionUtils::ToString(assetGuid).GetData());

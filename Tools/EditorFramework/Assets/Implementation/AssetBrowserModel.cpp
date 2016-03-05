@@ -33,13 +33,13 @@ ezAssetBrowserModel::~ezAssetBrowserModel()
   ezAssetCurator::GetInstance()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetBrowserModel::AssetCuratorEventHandler, this));
 }
 
-void ezAssetBrowserModel::AssetCuratorEventHandler(const ezAssetCurator::Event& e)
+void ezAssetBrowserModel::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezAssetCurator::Event::Type::AssetListReset:
-  case ezAssetCurator::Event::Type::AssetAdded:
-  case ezAssetCurator::Event::Type::AssetRemoved:
+  case ezAssetCuratorEvent::Type::AssetListReset:
+  case ezAssetCuratorEvent::Type::AssetAdded:
+  case ezAssetCuratorEvent::Type::AssetRemoved:
     resetModel();
     break;
   }
@@ -220,7 +220,7 @@ QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
   
   const auto& asset = m_AssetsToDisplay[iRow];
   const ezUuid AssetGuid = asset.m_Guid;
-  const ezAssetCurator::AssetInfo* pAssetInfo = ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid);
+  const ezAssetInfo* pAssetInfo = ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid);
 
   EZ_ASSERT_DEV(pAssetInfo != nullptr, "Invalid Pointer! This can happen when an asset has been overwritten by a new file with a new asset GUID.");
 

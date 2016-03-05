@@ -54,7 +54,7 @@ private slots:
   void OnListToggleSortByRecentlyUsed();
 
 private:
-  void AssetCuratorEventHandler(const ezAssetCurator::Event& e);
+  void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
   void UpdateDirectoryTree();
   void BuildDirectoryTree(const char* szCurPath, QTreeWidgetItem* pParent, const char* szCurPathToItem);
   bool SelectPathFilter(QTreeWidgetItem* pParent, const QString& sPath);

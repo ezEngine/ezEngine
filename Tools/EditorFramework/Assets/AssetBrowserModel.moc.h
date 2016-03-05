@@ -59,7 +59,7 @@ private:
   bool m_bIconMode;
   bool m_bShowItemsInSubFolders;
   bool m_bSortByRecentUse;
-  void AssetCuratorEventHandler(const ezAssetCurator::Event& e);
+  void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
 
   struct AssetEntry
   {

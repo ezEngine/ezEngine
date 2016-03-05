@@ -137,7 +137,7 @@ public:
   void GuiOpenProject();
 
   void OpenDocument(const char* szDocument);
-  ezDocument* OpenDocumentImmediate(const char* szDocument, bool bRequestWindow = true);
+  ezDocument* OpenDocumentImmediate(const char* szDocument, bool bRequestWindow = true, bool bAddToRecentFilesList = true);
   
 
   const ezApplicationFileSystemConfig& GetFileSystemConfig() const { return m_FileSystemConfig; }
@@ -164,7 +164,7 @@ private:
   void GuiCreateOrOpenDocument(bool bCreate);
   void GuiCreateOrOpenProject(bool bCreate);
 
-  ezDocument* CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow = true);
+  ezDocument* CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow = true, bool bAddToRecentFilesList = true);
   void CreateOrOpenProject(bool bCreate, const char* szFile);
 
 private slots:

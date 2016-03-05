@@ -25,6 +25,6 @@ private:
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override;
 
-
+  virtual bool GeneratesPlatformSpecificAssets() const override { return false; }
 
 };

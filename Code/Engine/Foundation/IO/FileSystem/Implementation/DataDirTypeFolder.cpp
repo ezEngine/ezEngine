@@ -204,7 +204,7 @@ namespace ezDataDirectory
 
     ezStringBuilder sFileToOpen;
 
-    // Check if we now about a file redirection for this
+    // Check if we know about a file redirection for this
     auto it = m_FileRedirection.Find(szFile);
 
     if (it.IsValid())

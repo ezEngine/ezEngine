@@ -25,5 +25,7 @@ private:
   virtual ezStatus InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument);
   virtual void InternalGetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const;
 
+  virtual bool GeneratesPlatformSpecificAssets() const override { return false; }
+
 };
 

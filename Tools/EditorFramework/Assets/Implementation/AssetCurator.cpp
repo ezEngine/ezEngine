@@ -60,6 +60,17 @@ void ezAssetCurator::BuildFileExtensionSet(ezSet<ezString>& AllExtensions)
   }
 }
 
+
+void ezAssetCurator::SetActivePlatform(const char* szPlatform)
+{
+  m_sActivePlatform = szPlatform;
+
+  ezAssetCuratorEvent e;
+  e.m_Type = ezAssetCuratorEvent::Type::ActivePlatformChanged;
+
+  m_Events.Broadcast(e);
+}
+
 void ezAssetCurator::NotifyOfPotentialAsset(const char* szAbsolutePath)
 {
   HandleSingleFile(szAbsolutePath);
@@ -119,21 +130,21 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath, const ezSet
   }
 
   // Find Asset Info
-  AssetInfo* pAssetInfo = nullptr;
+  ezAssetInfo* pAssetInfo = nullptr;
   ezUuid oldGuid = RefFile.m_AssetGuid;
   bool bNew = false;
 
-  // if it already has a valid GUID, an AssetInfo object must exist
+  // if it already has a valid GUID, an ezAssetInfo object must exist
   if (RefFile.m_AssetGuid.IsValid())
   {
     EZ_VERIFY(m_KnownAssets.TryGetValue(RefFile.m_AssetGuid, pAssetInfo), "guid set in file-status but no asset is actually known under that guid");
   }
   else
   {
-    // otherwise create a new AssetInfo object
+    // otherwise create a new ezAssetInfo object
 
     bNew = true;
-    pAssetInfo = EZ_DEFAULT_NEW(AssetInfo);
+    pAssetInfo = EZ_DEFAULT_NEW(ezAssetInfo);
   }
 
   // this will update m_AssetGuid by reading it from the asset JSON file
@@ -144,14 +155,14 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath, const ezSet
     // now the GUID must be valid
     EZ_ASSERT_DEV(pAssetInfo->m_Info.m_DocumentID.IsValid(), "Asset header read for '%s', but its GUID is invalid! Corrupted document?", sAbsolutePath.GetData());
     EZ_ASSERT_DEV(RefFile.m_AssetGuid == pAssetInfo->m_Info.m_DocumentID, "UpdateAssetInfo broke the GUID!");
-    // and we can store the new AssetInfo data under that GUID
+    // and we can store the new ezAssetInfo data under that GUID
     EZ_ASSERT_DEV(!m_KnownAssets.Contains(pAssetInfo->m_Info.m_DocumentID), "The assets '%s' and '%s' share the same GUID!", pAssetInfo->m_sAbsolutePath.GetData(), m_KnownAssets[pAssetInfo->m_Info.m_DocumentID]->m_sAbsolutePath.GetData());
     m_KnownAssets[pAssetInfo->m_Info.m_DocumentID] = pAssetInfo;
   }
   else
   {
     // in case the previous GUID is different to what UpdateAssetInfo read from file, get rid of the old GUID
-    // and point the new one to the existing AssetInfo
+    // and point the new one to the existing ezAssetInfo
     if (oldGuid != RefFile.m_AssetGuid)
     {
       m_KnownAssets.Remove(oldGuid);
@@ -210,10 +221,10 @@ void ezAssetCurator::RemoveStaleFileInfos()
       // if it was a full asset, not just any kind of reference
       if (it.Value().m_AssetGuid.IsValid())
       {
-        // retrieve the AssetInfo data for this file
-        AssetInfo* pCache = m_KnownAssets[it.Value().m_AssetGuid];
+        // retrieve the ezAssetInfo data for this file
+        ezAssetInfo* pCache = m_KnownAssets[it.Value().m_AssetGuid];
 
-        // sanity check: if the AssetInfo really belongs to this file, remove it as well
+        // sanity check: if the ezAssetInfo really belongs to this file, remove it as well
         if (it.Key() == pCache->m_sAbsolutePath)
         {
           EZ_ASSERT_DEBUG(pCache->m_Info.m_DocumentID == it.Value().m_AssetGuid, "GUID mismatch, curator state probably corrupt!");
@@ -268,15 +279,15 @@ void ezAssetCurator::Deinitialize()
 
   // Broadcast reset.
   {
-    Event e;
+    ezAssetCuratorEvent e;
     e.m_pInfo = nullptr;
-    e.m_Type = Event::Type::AssetListReset;
+    e.m_Type = ezAssetCuratorEvent::Type::AssetListReset;
     m_Events.Broadcast(e);
   }
 }
 
 
-const ezAssetCurator::AssetInfo* ezAssetCurator::FindAssetInfo(const char* szRelativePath) const
+const ezAssetInfo* ezAssetCurator::FindAssetInfo(const char* szRelativePath) const
 {
   ezStringBuilder sPath = szRelativePath;
   sPath.MakeCleanPath();
@@ -341,9 +352,9 @@ void ezAssetCurator::CheckFileSystem()
 
   // Broadcast reset.
   {
-    Event e;
+    ezAssetCuratorEvent e;
     e.m_pInfo = nullptr;
-    e.m_Type = Event::Type::AssetListReset;
+    e.m_Type = ezAssetCuratorEvent::Type::AssetListReset;
     m_Events.Broadcast(e);
   }
 }
@@ -364,12 +375,16 @@ ezString ezAssetCurator::FindDataDirectoryForAsset(const char* szAbsoluteAssetPa
   return ezApplicationFileSystemConfig::GetProjectDirectory();
 }
 
-ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory)
+ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char* szPlatform)
 {
+  ezString sPlatform = szPlatform;
+  if (sPlatform.IsEmpty())
+    sPlatform = m_sActivePlatform;
+
   ezStringBuilder sDataDir = szDataDirectory;
   sDataDir.MakeCleanPath();
 
-  ezStringBuilder sFinalPath(sDataDir, "/AssetCache/LookupTable.ezAsset");
+  ezStringBuilder sFinalPath(sDataDir, "/AssetCache/", sPlatform, ".ezAidlt");
   sFinalPath.MakeCleanPath();
 
   ezFileWriter file;
@@ -391,7 +406,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory)
       continue;
 
     const ezUuid& guid = it.Key();
-    sResourcePath = it.Value()->m_pManager->GenerateRelativeResourceFileName(sDataDir, sTemp);
+    sResourcePath = it.Value()->m_pManager->GenerateRelativeResourceFileName(sDataDir, sTemp, sPlatform);
 
     sTemp.Format("%s;%s\n", ezConversionUtils::ToString(guid).GetData(), sResourcePath.GetData());
 
@@ -401,7 +416,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory)
   return EZ_SUCCESS;
 }
 
-void ezAssetCurator::TransformAllAssets()
+void ezAssetCurator::TransformAllAssets(const char* szPlatform /* = nullptr*/)
 {
   QtProgressBar progress("Transforming Assets", 1 + m_KnownAssets.GetCount(), true);
 
@@ -412,7 +427,7 @@ void ezAssetCurator::TransformAllAssets()
 
     progress.WorkingOnNextItem(ezPathUtils::GetFileNameAndExtension(it.Value()->m_sRelativePath).GetData());
 
-    ezDocument* pDoc = ezQtEditorApp::GetInstance()->OpenDocumentImmediate(it.Value()->m_sAbsolutePath, false);
+    ezDocument* pDoc = ezQtEditorApp::GetInstance()->OpenDocumentImmediate(it.Value()->m_sAbsolutePath, false, false);
 
     if (pDoc == nullptr)
     {
@@ -423,17 +438,17 @@ void ezAssetCurator::TransformAllAssets()
     EZ_ASSERT_DEV(pDoc->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('%s')", it.Value()->m_sRelativePath.GetData());
 
     ezAssetDocument* pAsset = static_cast<ezAssetDocument*>(pDoc);
-    pAsset->TransformAsset();
+    pAsset->TransformAsset(szPlatform);
 
     if (!pDoc->HasWindowBeenRequested())
       pDoc->GetDocumentManager()->CloseDocument(pDoc);
   }
 
   progress.WorkingOnNextItem("Writing Lookup Tables");
-  ezAssetCurator::GetInstance()->WriteAssetTables();
+  ezAssetCurator::GetInstance()->WriteAssetTables(szPlatform);
 }
 
-ezResult ezAssetCurator::WriteAssetTables()
+ezResult ezAssetCurator::WriteAssetTables(const char* szPlatform /* = nullptr*/)
 {
   EZ_LOG_BLOCK("ezAssetCurator::WriteAssetTables");
 
@@ -445,7 +460,7 @@ ezResult ezAssetCurator::WriteAssetTables()
   {
     s.Set(ezApplicationFileSystemConfig::GetProjectDirectory(), "/", dd.m_sRelativePath);
 
-    if (WriteAssetTable(s).Failed())
+    if (WriteAssetTable(s, szPlatform).Failed())
       res = EZ_FAILURE;
   }
 
@@ -467,26 +482,26 @@ void ezAssetCurator::MainThreadTick()
 
   for (auto it = m_KnownAssets.GetIterator(); it.IsValid();)
   {
-    if (it.Value()->m_State == ezAssetCurator::AssetInfo::State::New)
+    if (it.Value()->m_State == ezAssetInfo::State::New)
     {
-      it.Value()->m_State = ezAssetCurator::AssetInfo::State::Default;
+      it.Value()->m_State = ezAssetInfo::State::Default;
 
       // Broadcast reset.
-      Event e;
+      ezAssetCuratorEvent e;
       e.m_AssetGuid = it.Key();
       e.m_pInfo = it.Value();
-      e.m_Type = Event::Type::AssetAdded;
+      e.m_Type = ezAssetCuratorEvent::Type::AssetAdded;
       m_Events.Broadcast(e);
 
       ++it;
     }
-    else if (it.Value()->m_State == ezAssetCurator::AssetInfo::State::ToBeDeleted)
+    else if (it.Value()->m_State == ezAssetInfo::State::ToBeDeleted)
     {
       // Broadcast reset.
-      Event e;
+      ezAssetCuratorEvent e;
       e.m_AssetGuid = it.Key();
       e.m_pInfo = it.Value();
-      e.m_Type = Event::Type::AssetRemoved;
+      e.m_Type = ezAssetCuratorEvent::Type::AssetRemoved;
       m_Events.Broadcast(e);
 
       // Remove asset
@@ -503,16 +518,16 @@ void ezAssetCurator::MainThreadTick()
 
 void ezAssetCurator::UpdateAssetLastAccessTime(const ezUuid& assetGuid)
 {
-  AssetInfo* pAssetInfo = nullptr;
+  ezAssetInfo* pAssetInfo = nullptr;
   if (!m_KnownAssets.TryGetValue(assetGuid, pAssetInfo))
     return;
 
   pAssetInfo->m_LastAccess = ezTime::Now();
 }
 
-const ezAssetCurator::AssetInfo* ezAssetCurator::GetAssetInfo(const ezUuid& assetGuid) const
+const ezAssetInfo* ezAssetCurator::GetAssetInfo(const ezUuid& assetGuid) const
 {
-  AssetInfo* pAssetInfo = nullptr;
+  ezAssetInfo* pAssetInfo = nullptr;
   if (m_KnownAssets.TryGetValue(assetGuid, pAssetInfo))
     return pAssetInfo;
 
@@ -531,7 +546,7 @@ void ezAssetCurator::ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamR
   rttiConverter.ApplyPropertiesToObject(pHeaderNode, pInfo->GetDynamicRTTI(), pInfo);
 }
 
-ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetCurator::AssetInfo& assetInfo, const ezFileStats* pFileStat)
+ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetInfo& assetInfo, const ezFileStats* pFileStat)
 {
   // try to read the asset JSON file
   ezFileReader file;
@@ -572,9 +587,9 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
   }
 
   // if the file was previously tagged as "deleted", it is now "new" again (to ensure the proper events are sent)
-  if (assetInfo.m_State == AssetInfo::State::ToBeDeleted)
+  if (assetInfo.m_State == ezAssetInfo::State::ToBeDeleted)
   {
-    assetInfo.m_State = AssetInfo::State::New;
+    assetInfo.m_State = ezAssetInfo::State::New;
   }
 
   // figure out which manager should handle this asset type
@@ -609,7 +624,7 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
   return EZ_SUCCESS;
 }
 
-const ezHashTable<ezUuid, ezAssetCurator::AssetInfo*>& ezAssetCurator::GetKnownAssets() const
+const ezHashTable<ezUuid, ezAssetInfo*>& ezAssetCurator::GetKnownAssets() const
 {
   return m_KnownAssets;
 }

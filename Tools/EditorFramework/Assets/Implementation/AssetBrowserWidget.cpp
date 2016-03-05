@@ -334,15 +334,15 @@ void ezAssetBrowserWidget::on_ListTypeFilter_itemChanged(QListWidgetItem* item)
   m_pModel->SetTypeFilter(sFilter);
 }
 
-void ezAssetBrowserWidget::AssetCuratorEventHandler(const ezAssetCurator::Event& e)
+void ezAssetBrowserWidget::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezAssetCurator::Event::Type::AssetListReset:
+  case ezAssetCuratorEvent::Type::AssetListReset:
     UpdateAssetTypes();
     break;
-  case ezAssetCurator::Event::Type::AssetAdded:
-  case ezAssetCurator::Event::Type::AssetRemoved:
+  case ezAssetCuratorEvent::Type::AssetAdded:
+  case ezAssetCuratorEvent::Type::AssetRemoved:
     UpdateDirectoryTree();
     break;
   }
