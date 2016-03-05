@@ -19,12 +19,13 @@ public:
   static ezActionDescriptorHandle s_hUpdatePrefabs;
   static ezActionDescriptorHandle s_hExportScene;
   static ezActionDescriptorHandle s_hRunScene;
-  static ezActionDescriptorHandle s_hEnableWorldSimulation;
+  static ezActionDescriptorHandle s_hGameModeSimulate;
   static ezActionDescriptorHandle s_hRenderSelectionOverlay;
   static ezActionDescriptorHandle s_hRenderShapeIcons;
   static ezActionDescriptorHandle s_hSimulationSpeedMenu;
   static ezActionDescriptorHandle s_hSimulationSpeed[10];
-  static ezActionDescriptorHandle s_hPlayTheGame;
+  static ezActionDescriptorHandle s_hGameModePlay;
+  static ezActionDescriptorHandle s_hGameModeStop;
 };
 
 ///
@@ -39,11 +40,12 @@ public:
     UpdatePrefabs,
     ExportScene,
     RunScene,
-    SimulateWorld,
+    StartGameModeSimulate,
     RenderSelectionOverlay,
     RenderShapeIcons,
     SimulationSpeed,
-    PlayTheGame,
+    StartGameModePlay,
+    StopGameMode,
   };
 
   ezSceneAction(const ezActionContext& context, const char* szName, ActionType type, float fSimSpeed = 1.0f);
@@ -53,6 +55,7 @@ public:
 
 private:
   void SceneEventHandler(const ezSceneDocument::SceneEvent& e);
+  void UpdateState();
 
   float m_fSimSpeed;
   ezSceneDocument* m_pSceneDocument;

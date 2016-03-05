@@ -177,17 +177,23 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneSettingsMsgToEngine, 1, ezRTTIDefaultAllocator<ezSceneSettingsMsgToEngine>);
   EZ_BEGIN_PROPERTIES
-    EZ_MEMBER_PROPERTY("SimulateWorld", m_bSimulateWorld),
+    EZ_MEMBER_PROPERTY("StartGameModeSimulate", m_bSimulateWorld),
     EZ_MEMBER_PROPERTY("SimulationSpeed", m_fSimulationSpeed),
     EZ_MEMBER_PROPERTY("RenderOverlay", m_bRenderOverlay),
     EZ_MEMBER_PROPERTY("ShapeIcons", m_bRenderShapeIcons),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPlayTheGameMsgToEngine, 1, ezRTTIDefaultAllocator<ezPlayTheGameMsgToEngine>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameModeMsgToEngine, 1, ezRTTIDefaultAllocator<ezGameModeMsgToEngine>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("Run", m_bEnablePTG),
+  EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPlayTheGameStoppedMsgToEditor, 1, ezRTTIDefaultAllocator<ezPlayTheGameStoppedMsgToEditor>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameModeMsgToEditor, 1, ezRTTIDefaultAllocator<ezGameModeMsgToEditor>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("Run", m_bRunningPTG),
+  EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezQuerySelectionBBoxMsgToEngine, 1, ezRTTIDefaultAllocator<ezQuerySelectionBBoxMsgToEngine>);

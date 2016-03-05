@@ -269,9 +269,11 @@ void ezQtSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneE
     }
     break;
 
-  case ezSceneDocument::SceneEvent::Type::StartPlayTheGame:
+  case ezSceneDocument::SceneEvent::Type::TriggerGameModePlay:
+  case ezSceneDocument::SceneEvent::Type::TriggerStopGameModePlay:
     {
-      ezPlayTheGameMsgToEngine msg;
+      ezGameModeMsgToEngine msg;
+      msg.m_bEnablePTG = e.m_Type == ezSceneDocument::SceneEvent::Type::TriggerGameModePlay;
       GetEditorEngineConnection()->SendMessage(&msg);
     }
     break;
@@ -381,7 +383,7 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
 
   {
     ezSceneSettingsMsgToEngine msg;
-    msg.m_bSimulateWorld = GetSceneDocument()->GetSimulateWorld();
+    msg.m_bSimulateWorld = GetSceneDocument()->GetGameMode() != GameMode::Off;
     msg.m_fSimulationSpeed = GetSceneDocument()->GetSimulationSpeed();
     msg.m_bRenderOverlay = GetSceneDocument()->GetRenderSelectionOverlay();
     msg.m_bRenderShapeIcons = GetSceneDocument()->GetRenderShapeIcons();
@@ -688,9 +690,10 @@ bool ezQtSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMs
     return true;
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezPlayTheGameStoppedMsgToEditor>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezGameModeMsgToEditor>())
   {
-    ezEditorEngineProcessConnection::GetInstance()->SendDocumentOpenMessage(GetDocument(), true);
+    GetSceneDocument()->HandleGameModeMsg(static_cast<const ezGameModeMsgToEditor*>(pMsg));
+
     return true;
   }
 

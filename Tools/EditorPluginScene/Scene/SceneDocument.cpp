@@ -28,7 +28,7 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab) : e
 {
   m_ActiveGizmo = ActiveGizmo::None;
   m_bIsPrefab = bIsPrefab;
-  m_bSimulateWorld = false;
+  m_GameMode = GameMode::Off;
   m_fSimulationSpeed = 1.0f;
   m_bGizmoWorldSpace = true;
   m_bRenderSelectionOverlay = true;
@@ -332,24 +332,74 @@ ezString ezSceneDocument::ReadDocumentAsString(const char* szFile) const
   return sGraph;
 }
 
-
-void ezSceneDocument::SetSimulateWorld(bool b)
+void ezSceneDocument::SetGameMode(GameMode mode)
 {
-  if (m_bSimulateWorld == b)
+  if (m_GameMode == mode)
     return;
 
-  m_bSimulateWorld = b;
+  m_GameMode = mode;
 
-  if (!m_bSimulateWorld)
+  if (m_GameMode == GameMode::Off)
   {
+    // reset the game world
     ezEditorEngineProcessConnection::GetInstance()->SendDocumentOpenMessage(this, true);
   }
 
   SceneEvent e;
-  e.m_Type = SceneEvent::Type::SimulateModeChanged;
+  e.m_Type = SceneEvent::Type::GameModeChanged;
   m_SceneEvents.Broadcast(e);
 }
 
+void ezSceneDocument::StartSimulateWorld()
+{
+  if (m_GameMode != GameMode::Off)
+  {
+    StopGameMode();
+    return;
+  }
+
+  SetGameMode(GameMode::Simulate);
+}
+
+
+void ezSceneDocument::TriggerGameModePlay()
+{
+  if (m_GameMode != GameMode::Off)
+  {
+    StopGameMode();
+    return;
+  }
+
+  // attempt to start PTG
+  // do not change state here
+
+  SceneEvent e;
+  e.m_Type = SceneEvent::Type::TriggerGameModePlay;
+  m_SceneEvents.Broadcast(e);
+}
+
+
+void ezSceneDocument::StopGameMode()
+{
+  if (m_GameMode == GameMode::Off)
+    return;
+
+  if (m_GameMode == GameMode::Simulate)
+  {
+    // we can set that state immediately
+    SetGameMode(GameMode::Off);
+  }
+
+  if (m_GameMode == GameMode::Play)
+  {
+    // attempt to stop PTG
+    // do not change any state, that will be done by the response msg
+
+    SceneEvent e;
+    e.m_Type = SceneEvent::Type::TriggerStopGameModePlay;
+    m_SceneEvents.Broadcast(e);
+  }
+}
 
 void ezSceneDocument::SetSimulationSpeed(float f)
 {
@@ -364,15 +414,7 @@ void ezSceneDocument::SetSimulationSpeed(float f)
 
 }
 
-
-void ezSceneDocument::TriggerPlayTheGame()
-{
-  SceneEvent e;
-  e.m_Type = SceneEvent::Type::StartPlayTheGame;
-  m_SceneEvents.Broadcast( e );
-}
-
-void ezSceneDocument::SetRenderSelectionOverlay( bool b )
+void ezSceneDocument::SetRenderSelectionOverlay(bool b)
 {
   if (m_bRenderSelectionOverlay == b)
     return;
@@ -776,9 +818,35 @@ void ezSceneDocument::EngineConnectionEventHandler(const ezEditorEngineProcessCo
   case ezEditorEngineProcessConnection::Event::Type::ProcessCrashed:
   case ezEditorEngineProcessConnection::Event::Type::ProcessShutdown:
   case ezEditorEngineProcessConnection::Event::Type::ProcessStarted:
-    SetSimulateWorld(false);
+    SetGameMode(GameMode::Off);
     break;
   }
+}
+
+
+void ezSceneDocument::HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg)
+{
+  if (m_GameMode == GameMode::Simulate)
+  {
+    if (pMsg->m_bRunningPTG)
+    {
+      m_GameMode = GameMode::Off;
+      ezLog::Warning("Incorrect state change from 'simulate' to 'play-the-game'");
+    }
+    else
+    {
+      // probably the message just arrived late ?
+      return;
+    }
+  }
+
+  if (m_GameMode == GameMode::Off || m_GameMode == GameMode::Play)
+  {
+    SetGameMode(pMsg->m_bRunningPTG ? GameMode::Play : GameMode::Off);
+    return;
+  }
+
+  EZ_REPORT_FAILURE("Unreachable Code reached.");
 }
 
 const ezTransform& ezSceneDocument::GetGlobalTransform(const ezDocumentObject* pObject)

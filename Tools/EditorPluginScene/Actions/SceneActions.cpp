@@ -13,12 +13,13 @@ ezActionDescriptorHandle ezSceneActions::s_hSceneCategory;
 ezActionDescriptorHandle ezSceneActions::s_hUpdatePrefabs;
 ezActionDescriptorHandle ezSceneActions::s_hExportScene;
 ezActionDescriptorHandle ezSceneActions::s_hRunScene;
-ezActionDescriptorHandle ezSceneActions::s_hEnableWorldSimulation;
+ezActionDescriptorHandle ezSceneActions::s_hGameModeSimulate;
 ezActionDescriptorHandle ezSceneActions::s_hRenderSelectionOverlay;
 ezActionDescriptorHandle ezSceneActions::s_hRenderShapeIcons;
 ezActionDescriptorHandle ezSceneActions::s_hSimulationSpeedMenu;
 ezActionDescriptorHandle ezSceneActions::s_hSimulationSpeed[10];
-ezActionDescriptorHandle ezSceneActions::s_hPlayTheGame;
+ezActionDescriptorHandle ezSceneActions::s_hGameModePlay;
+ezActionDescriptorHandle ezSceneActions::s_hGameModeStop;
 
 void ezSceneActions::RegisterActions()
 {
@@ -26,10 +27,11 @@ void ezSceneActions::RegisterActions()
   s_hUpdatePrefabs = EZ_REGISTER_ACTION_1("Prefabs.UpdateAll", ezActionScope::Document, "Scene", "Ctrl+Shift+P", ezSceneAction, ezSceneAction::ActionType::UpdatePrefabs);
   s_hExportScene = EZ_REGISTER_ACTION_1("Scene.Export", ezActionScope::Document, "Scene", "Ctrl+E", ezSceneAction, ezSceneAction::ActionType::ExportScene);
   s_hRunScene = EZ_REGISTER_ACTION_1("Scene.Run", ezActionScope::Document, "Scene", "Ctrl+R", ezSceneAction, ezSceneAction::ActionType::RunScene);
-  s_hEnableWorldSimulation = EZ_REGISTER_ACTION_1("Scene.SimulateWorld", ezActionScope::Document, "Scene", "Ctrl+F5", ezSceneAction, ezSceneAction::ActionType::SimulateWorld);
-  s_hRenderSelectionOverlay = EZ_REGISTER_ACTION_1( "Scene.Render.SelectionOverlay", ezActionScope::Document, "Scene", "Ctrl+M", ezSceneAction, ezSceneAction::ActionType::RenderSelectionOverlay);
+  s_hGameModeSimulate = EZ_REGISTER_ACTION_1("Scene.GameMode.Simulate", ezActionScope::Document, "Scene", "F5", ezSceneAction, ezSceneAction::ActionType::StartGameModeSimulate);
+  s_hRenderSelectionOverlay = EZ_REGISTER_ACTION_1("Scene.Render.SelectionOverlay", ezActionScope::Document, "Scene", "Ctrl+M", ezSceneAction, ezSceneAction::ActionType::RenderSelectionOverlay);
   s_hRenderShapeIcons = EZ_REGISTER_ACTION_1("Scene.Render.ShapeIcons", ezActionScope::Document, "Scene", "Space", ezSceneAction, ezSceneAction::ActionType::RenderShapeIcons);
-  s_hPlayTheGame = EZ_REGISTER_ACTION_1( "Scene.PlayTheGame", ezActionScope::Document, "Scene", "Ctrl+Shift+F5", ezSceneAction, ezSceneAction::ActionType::PlayTheGame);
+  s_hGameModePlay = EZ_REGISTER_ACTION_1("Scene.GameMode.Play", ezActionScope::Document, "Scene", "Ctrl+F5", ezSceneAction, ezSceneAction::ActionType::StartGameModePlay);
+  s_hGameModeStop = EZ_REGISTER_ACTION_1("Scene.GameMode.Stop", ezActionScope::Document, "Scene", "Shift+F5", ezSceneAction, ezSceneAction::ActionType::StopGameMode);
 
   s_hSimulationSpeedMenu = EZ_REGISTER_MENU_WITH_ICON("Scene.Simulation.Speed.Menu", "");
   s_hSimulationSpeed[0] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.01", ezActionScope::Document, "Simulation - Speed", "", ezSceneAction, ezSceneAction::ActionType::SimulationSpeed, 0.1f);
@@ -41,7 +43,7 @@ void ezSceneActions::RegisterActions()
   s_hSimulationSpeed[6] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.3", ezActionScope::Document, "Simulation - Speed", "", ezSceneAction, ezSceneAction::ActionType::SimulationSpeed, 3.0f);
   s_hSimulationSpeed[7] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.4", ezActionScope::Document, "Simulation - Speed", "", ezSceneAction, ezSceneAction::ActionType::SimulationSpeed, 4.0f);
   s_hSimulationSpeed[8] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.5", ezActionScope::Document, "Simulation - Speed", "", ezSceneAction, ezSceneAction::ActionType::SimulationSpeed, 5.0f);
-  s_hSimulationSpeed[9] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.10", ezActionScope::Document, "Simulation - Speed", "", ezSceneAction, ezSceneAction::ActionType::SimulationSpeed,10.0f);
+  s_hSimulationSpeed[9] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.10", ezActionScope::Document, "Simulation - Speed", "", ezSceneAction, ezSceneAction::ActionType::SimulationSpeed, 10.0f);
 
 }
 
@@ -51,11 +53,12 @@ void ezSceneActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hUpdatePrefabs);
   ezActionManager::UnregisterAction(s_hExportScene);
   ezActionManager::UnregisterAction(s_hRunScene);
-  ezActionManager::UnregisterAction(s_hEnableWorldSimulation);
+  ezActionManager::UnregisterAction(s_hGameModeSimulate);
   ezActionManager::UnregisterAction(s_hRenderSelectionOverlay);
   ezActionManager::UnregisterAction(s_hRenderShapeIcons);
   ezActionManager::UnregisterAction(s_hSimulationSpeedMenu);
-  ezActionManager::UnregisterAction(s_hPlayTheGame);
+  ezActionManager::UnregisterAction(s_hGameModePlay);
+  ezActionManager::UnregisterAction(s_hGameModeStop);
 
   for (int i = 0; i < EZ_ARRAY_SIZE(s_hSimulationSpeed); ++i)
     ezActionManager::UnregisterAction(s_hSimulationSpeed[i]);
@@ -80,9 +83,10 @@ void ezSceneActions::MapMenuActions()
     pMap->MapAction(s_hSceneCategory, "Menu.Scene", 1.0f);
     pMap->MapAction(s_hExportScene, szSubPath, 1.0f);
     pMap->MapAction(s_hRunScene, szSubPath, 2.0f);
-    pMap->MapAction(s_hEnableWorldSimulation, szSubPath, 3.0f);
-    pMap->MapAction(s_hSimulationSpeedMenu, szSubPath, 4.0f);
-	pMap->MapAction(s_hPlayTheGame, szSubPath, 5.0f);
+    pMap->MapAction(s_hSimulationSpeedMenu, szSubPath, 3.0f);
+    pMap->MapAction(s_hGameModeStop, szSubPath, 4.0f);
+    pMap->MapAction(s_hGameModeSimulate, szSubPath, 5.0f);
+    pMap->MapAction(s_hGameModePlay, szSubPath, 6.0f);
 
     ezStringBuilder sSubPath(szSubPath, "/Scene.Simulation.Speed.Menu");
 
@@ -112,9 +116,12 @@ void ezSceneActions::MapToolbarActions()
     /// \todo This works incorrectly with value 6.0f -> it places the action inside the snap category
     pMap->MapAction(s_hSceneCategory, "", 7.0f);
 
-    pMap->MapAction(s_hEnableWorldSimulation, szSubPath, 1.0f);
-    pMap->MapAction(s_hRenderSelectionOverlay, szSubPath, 2.0f);
-    pMap->MapAction(s_hRenderShapeIcons, szSubPath, 3.0f);
+    pMap->MapAction(s_hGameModeStop, szSubPath, 1.0f);
+    pMap->MapAction(s_hGameModeSimulate, szSubPath, 2.0f);
+    pMap->MapAction(s_hGameModePlay, szSubPath, 3.0f);
+    
+    pMap->MapAction(s_hRenderSelectionOverlay, szSubPath, 4.0f);
+    pMap->MapAction(s_hRenderShapeIcons, szSubPath, 5.0f);
   }
 }
 
@@ -139,10 +146,11 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
     SetIconPath(":/EditorPluginScene/Icons/SceneRun16.png");
     break;
 
-  case ActionType::SimulateWorld:
+  case ActionType::StartGameModeSimulate:
     SetCheckable(true);
     SetIconPath(":/EditorPluginScene/Icons/ScenePlay16.png");
-    SetChecked(m_pSceneDocument->GetSimulateWorld());
+    SetChecked(m_pSceneDocument->GetGameMode() == GameMode::Simulate);
+    SetEnabled(m_pSceneDocument->GetGameMode() != GameMode::Play);
     break;
 
   case ActionType::RenderSelectionOverlay:
@@ -162,10 +170,16 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
     SetChecked(m_pSceneDocument->GetSimulationSpeed() == m_fSimSpeed);
     break;
 
-  case ActionType::PlayTheGame:
+  case ActionType::StartGameModePlay:
     SetIconPath(":/EditorPluginScene/Icons/ScenePlayTheGame16.png");
     break;
+
+  case ActionType::StopGameMode:
+    SetIconPath(":/EditorPluginScene/Icons/SceneStop16.png");
+    break;
   }
+
+  UpdateState();
 }
 
 ezSceneAction::~ezSceneAction()
@@ -200,14 +214,16 @@ void ezSceneAction::Execute(const ezVariant& value)
     }
     return;
 
-  case ActionType::PlayTheGame:
-    m_pSceneDocument->TriggerPlayTheGame();
+  case ActionType::StartGameModePlay:
+    m_pSceneDocument->TriggerGameModePlay();
     return;
 
-  case ActionType::SimulateWorld:
-    {
-      m_pSceneDocument->SetSimulateWorld(!m_pSceneDocument->GetSimulateWorld());
-    }
+  case ActionType::StartGameModeSimulate:
+    m_pSceneDocument->StartSimulateWorld();
+    return;
+
+  case ActionType::StopGameMode:
+    m_pSceneDocument->StopGameMode();
     return;
 
   case ActionType::RenderSelectionOverlay:
@@ -234,13 +250,8 @@ void ezSceneAction::SceneEventHandler(const ezSceneDocument::SceneEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezSceneDocument::SceneEvent::Type::SimulateModeChanged:
-    {
-      if (m_Type == ActionType::SimulateWorld)
-      {
-        SetChecked(m_pSceneDocument->GetSimulateWorld());
-      }
-    }
+  case ezSceneDocument::SceneEvent::Type::GameModeChanged:
+    UpdateState();
     break;
 
   case ezSceneDocument::SceneEvent::Type::RenderSelectionOverlayChanged:
@@ -268,6 +279,23 @@ void ezSceneAction::SceneEventHandler(const ezSceneDocument::SceneEvent& e)
       }
     }
     break;
+  }
+}
+
+void ezSceneAction::UpdateState()
+{
+  if (m_Type == ActionType::StartGameModeSimulate ||
+      m_Type == ActionType::StartGameModePlay ||
+      m_Type == ActionType::ExportScene ||
+      m_Type == ActionType::RunScene ||
+      m_Type == ActionType::UpdatePrefabs)
+  {
+    SetEnabled(m_pSceneDocument->GetGameMode() == GameMode::Off);
+  }
+
+  if (m_Type == ActionType::StopGameMode)
+  {
+    SetEnabled(m_pSceneDocument->GetGameMode() != GameMode::Off);
   }
 }
 

@@ -38,7 +38,7 @@ protected:
 private:
   
   void HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg);
-  void HandlePlayTheGameMsg(const ezPlayTheGameMsgToEngine* pMsg);
+  void HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg);
   void ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds);
   void ComputeSelectionBounds();
   void InsertSelectedChildren(const ezGameObject* pObject);

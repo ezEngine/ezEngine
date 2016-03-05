@@ -110,8 +110,9 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
       ezGameApplication::GetGameApplicationInstance()->DeactivateGameStateForWorld(m_pWorld);
       ezGameApplication::GetGameApplicationInstance()->DestroyGameStateForWorld(m_pWorld);
 
-      ezPlayTheGameStoppedMsgToEditor msgToEd;
+      ezGameModeMsgToEditor msgToEd;
       msgToEd.m_DocumentGuid = pMsg->m_DocumentGuid;
+      msgToEd.m_bRunningPTG = false;
       
       SendProcessMessage(&msgToEd);
     }
@@ -119,9 +120,9 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     return;
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezPlayTheGameMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezGameModeMsgToEngine>())
   {
-    HandlePlayTheGameMsg(static_cast<const ezPlayTheGameMsgToEngine*>(pMsg));
+    HandleGameModeMsg(static_cast<const ezGameModeMsgToEngine*>(pMsg));
     return;
   }
 
@@ -452,25 +453,42 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
 }
 
 
-void ezSceneContext::HandlePlayTheGameMsg(const ezPlayTheGameMsgToEngine* pMsg)
+void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
 {
   ezGameState* pState = GetGameState();
 
-  if (pState != nullptr)
+  if (pMsg->m_bEnablePTG)
   {
-    ezLog::Error("Cannot start Play-the-Game, there is already a game state active for this world");
-    return;
+    if (pState != nullptr)
+    {
+      ezLog::Error("Cannot start Play-the-Game, there is already a game state active for this world");
+      return;
+    }
+
+    ezLog::Info("Starting Play-the-Game mode");
+
+    m_pWorld->GetClock().SetSpeed(1.0f);
+    m_pWorld->SetWorldSimulationEnabled(true);
+
+    ezGameApplication::GetGameApplicationInstance()->ReinitWorldModules(m_pWorld);
+
+    ezGameApplication::GetGameApplicationInstance()->CreateGameStateForWorld(m_pWorld);
+    ezGameApplication::GetGameApplicationInstance()->ActivateGameStateForWorld(m_pWorld);
+
+    ezGameModeMsgToEditor msgRet;
+    msgRet.m_DocumentGuid = pMsg->m_DocumentGuid;
+    msgRet.m_bRunningPTG = true;
+
+    SendProcessMessage(&msgRet);
   }
+  else
+  {
+    if (pState == nullptr)
+      return;
 
-  ezLog::Info("Starting Play-the-Game mode");
-
-  m_pWorld->GetClock().SetSpeed(1.0f);
-  m_pWorld->SetWorldSimulationEnabled(true);
-
-  ezGameApplication::GetGameApplicationInstance()->ReinitWorldModules(m_pWorld);
-
-  ezGameApplication::GetGameApplicationInstance()->CreateGameStateForWorld(m_pWorld);
-  ezGameApplication::GetGameApplicationInstance()->ActivateGameStateForWorld(m_pWorld);
+    ezLog::Info("Attempting to stop Play-the-Game mode");
+    pState->RequestQuit();
+  }
 }
 
 void ezSceneContext::InsertSelectedChildren(const ezGameObject* pObject)

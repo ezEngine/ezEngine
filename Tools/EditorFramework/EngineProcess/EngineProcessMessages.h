@@ -264,20 +264,20 @@ public:
   bool m_bRenderShapeIcons;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezPlayTheGameMsgToEngine : public ezEditorEngineDocumentMsg
+class EZ_EDITORFRAMEWORK_DLL ezGameModeMsgToEngine : public ezEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION( ezPlayTheGameMsgToEngine, ezEditorEngineDocumentMsg);
+  EZ_ADD_DYNAMIC_REFLECTION( ezGameModeMsgToEngine, ezEditorEngineDocumentMsg);
 
 public:
-
+  bool m_bEnablePTG;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezPlayTheGameStoppedMsgToEditor : public ezEditorEngineDocumentMsg
+class EZ_EDITORFRAMEWORK_DLL ezGameModeMsgToEditor : public ezEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPlayTheGameStoppedMsgToEditor, ezEditorEngineDocumentMsg);
+  EZ_ADD_DYNAMIC_REFLECTION(ezGameModeMsgToEditor, ezEditorEngineDocumentMsg);
 
 public:
-
+  bool m_bRunningPTG;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezQuerySelectionBBoxMsgToEngine : public ezEditorEngineDocumentMsg

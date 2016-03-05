@@ -15,6 +15,13 @@ enum class ActiveGizmo
   DragToPosition,
 };
 
+enum class GameMode
+{
+  Off,
+  Simulate,
+  Play,
+};
+
 class ezSceneObjectMetaData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSceneObjectMetaData, ezReflectedClass);
@@ -118,11 +125,12 @@ public:
       SnapSelectionPivotToGrid,
       SnapEachSelectedObjectToGrid,
       ExportScene,
-      SimulateModeChanged,
+      GameModeChanged,
       RenderSelectionOverlayChanged,
       RenderShapeIconsChanged,
       SimulationSpeedChanged,
-      StartPlayTheGame,
+      TriggerGameModePlay,
+      TriggerStopGameModePlay,
     };
 
     Type m_Type;
@@ -135,13 +143,14 @@ public:
   ezStatus CreatePrefabDocument(const char* szFile, const ezDocumentObject* pRootObject, const ezUuid& invPrefabSeed, ezUuid& out_NewDocumentGuid);
   void ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed);
 
-  bool GetSimulateWorld() const { return m_bSimulateWorld; }
-  void SetSimulateWorld(bool b);
+  GameMode GetGameMode() const { return m_GameMode; }
+
+  void StartSimulateWorld();
+  void TriggerGameModePlay();
+  void StopGameMode();
 
   float GetSimulationSpeed() const { return m_fSimulationSpeed; }
   void SetSimulationSpeed(float f);
-
-  void TriggerPlayTheGame();
 
   bool GetRenderSelectionOverlay() const { return m_bRenderSelectionOverlay; }
   void SetRenderSelectionOverlay( bool b );
@@ -149,7 +158,11 @@ public:
   bool GetRenderShapeIcons() const { return m_bRenderShapeIcons; }
   void SetRenderShapeIcons(bool b);
 
+  void HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg);
+
 protected:
+  void SetGameMode(GameMode mode);
+
   virtual void InitializeAfterLoading() override;
 
   template<typename Func>
@@ -192,7 +205,7 @@ private:
 
   bool m_bIsPrefab;
   bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
-  bool m_bSimulateWorld;
+  GameMode m_GameMode;
   float m_fSimulationSpeed;
   bool m_bRenderSelectionOverlay;
   bool m_bRenderShapeIcons;
