@@ -117,6 +117,30 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
     }
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Casts")
+  {
+    ezTestClass2 test;
+    ezTestClass1* pTestClass1 = &test;
+    const ezTestClass1* pConstTestClass1 = &test;
+
+    ezTestClass2* pTestClass2 = ezStaticCast<ezTestClass2*>(pTestClass1);
+    const ezTestClass2* pConstTestClass2 = ezStaticCast<const ezTestClass2*>(pConstTestClass1);
+
+    pTestClass2 = ezDynamicCast<ezTestClass2*>(pTestClass1);
+    pConstTestClass2 = ezDynamicCast<const ezTestClass2*>(pConstTestClass1);
+    EZ_TEST_BOOL(pTestClass2 != nullptr);
+    EZ_TEST_BOOL(pConstTestClass2 != nullptr);
+
+    ezTestClass1 otherTest;
+    pTestClass1 = &otherTest;
+    pConstTestClass1 = &otherTest;
+
+    pTestClass2 = ezDynamicCast<ezTestClass2*>(pTestClass1);
+    pConstTestClass2 = ezDynamicCast<const ezTestClass2*>(pConstTestClass1);
+    EZ_TEST_BOOL(pTestClass2 == nullptr);
+    EZ_TEST_BOOL(pConstTestClass2 == nullptr);
+  }
+
 #if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Types From Plugin")

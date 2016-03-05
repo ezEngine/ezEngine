@@ -120,7 +120,7 @@ public:
     PreserveGlobal
   };
 
-  /// \brief Sets the parent of this object to the given. Note that the actual re-parenting is postponed.
+  /// \brief Sets the parent of this object to the given.
   void SetParent(const ezGameObjectHandle& parent, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Gets the parent of this object or nullptr if this is a top-level object.
@@ -129,16 +129,16 @@ public:
   /// \brief Gets the parent of this object or nullptr if this is a top-level object.
   const ezGameObject* GetParent() const;
 
-  /// \brief Adds the given object as a child object. Note that the actual re-parenting is postponed.
+  /// \brief Adds the given object as a child object.
   void AddChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
-  /// \brief Adds the given objects as child objects. Note that the actual re-parenting is postponed.
+  /// \brief Adds the given objects as child objects.
   void AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
-  /// \brief Removes the given child object from this object and makes it a top-level object. Note that the actual re-parenting is postponed.
+  /// \brief Detaches the given child object from this object and makes it a top-level object.
   void DetachChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
-  /// \brief Removes the given child objects from this object and makes them top-level objects. Note that the actual re-parenting is postponed.
+  /// \brief Detaches the given child objects from this object and makes them top-level objects.
   void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Returns the number of children.
@@ -202,10 +202,10 @@ public:
   /// \brief Attaches the component to the object. Calls the OnAttachedToObject method on the component.
   ezResult AttachComponent(ezComponent* pComponent);
 
-  /// \brief Removes the component from this object. Calls the OnDetachedFromObject method on the component. The component is still valid afterwards.
+  /// \brief Detaches the component from this object. Calls the OnDetachedFromObject method on the component. The component is still valid afterwards.
   ezResult DetachComponent(const ezComponentHandle& component);
 
-  /// \brief Removes the component from this object. Calls the OnDetachedFromObject method on the component. The component is still valid afterwards.
+  /// \brief Detaches the component from this object. Calls the OnDetachedFromObject method on the component. The component is still valid afterwards.
   ezResult DetachComponent(ezComponent* pComponent);
 
   /// \brief Tries to find a component of the given base type in the objects components list and returns the first match.
