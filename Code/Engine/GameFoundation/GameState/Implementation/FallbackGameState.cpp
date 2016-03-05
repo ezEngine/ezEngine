@@ -109,7 +109,7 @@ const ezCameraComponent* ezFallbackGameState::FindActiveCameraComponent()
   if (m_iActiveCameraComponentIndex == -3)
   {
     // skip cameras of usage 'None' for now
-    m_iActiveCameraComponentIndex = Cameras[0].GetCount();
+    m_iActiveCameraComponentIndex = Cameras[0].GetCount(); // this skips all cameras of type 'None'
   }
 
   // take last camera (wrap around)

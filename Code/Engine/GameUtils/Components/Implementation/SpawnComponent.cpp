@@ -46,38 +46,35 @@ bool ezSpawnComponent::SpawnOnce()
   {
     ezResourceLock<ezPrefabResource> pResource(m_hPrefab);
 
-    ezTransform t;
-    t.SetIdentity();
+    ezTransform tLocalSpawn;
+    tLocalSpawn.SetIdentity();
 
-    /// \todo spawn deviation !
-    //const ezAngle m_MaxDeviation = ezAngle::Degree(30.0f);
-    //{
-    //  ezQuat qRot = GetOwner()->GetGlobalRotation();
-    //  const ezVec3 vTiltAxis = qRot * ezVec3(0, 1, 0);
-    //  const ezVec3 vTurnAxis = qRot * ezVec3(1, 0, 0);
+    if (m_MaxDeviation.GetRadian() > 0)
+    {
+      const ezVec3 vTiltAxis = ezVec3(0, 1, 0);
+      const ezVec3 vTurnAxis = ezVec3(1, 0, 0);
 
-    //  const ezAngle tiltAngle = ezAngle::Radian((float) GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, (double)m_MaxDeviation.GetRadian()));
-    //  const ezAngle turnAngle = ezAngle::Radian((float) GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::BasicType<double>::Pi() * 2.0));
+      const ezAngle tiltAngle = ezAngle::Radian((float) GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, (double)m_MaxDeviation.GetRadian()));
+      const ezAngle turnAngle = ezAngle::Radian((float) GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::BasicType<double>::Pi() * 2.0));
 
-    //  ezQuat qTilt, qTurn, qDeviate;
-    //  qTilt.SetFromAxisAndAngle(vTiltAxis, tiltAngle);
-    //  qTurn.SetFromAxisAndAngle(vTurnAxis, turnAngle);
-    //  qDeviate = qTurn * qTilt;
+      ezQuat qTilt, qTurn, qDeviate;
+      qTilt.SetFromAxisAndAngle(vTiltAxis, tiltAngle);
+      qTurn.SetFromAxisAndAngle(vTurnAxis, turnAngle);
+      qDeviate = qTurn * qTilt;
 
-    //  t.m_Rotation = qDeviate.GetAsMat3();
-    //}
+      tLocalSpawn.m_Rotation = qDeviate.GetAsMat3();
+    }
 
-    
     if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::AttachAsChild))
     {
-      pResource->InstantiatePrefab(*GetWorld(), t, GetOwner()->GetHandle());
+      pResource->InstantiatePrefab(*GetWorld(), tLocalSpawn, GetOwner()->GetHandle());
     }
     else
     {
-      t.m_vPosition = GetOwner()->GetGlobalPosition();
-      t.m_Rotation = GetOwner()->GetGlobalTransform().m_Rotation * t.m_Rotation;
+      ezTransform tGlobalSpawn;
+      tGlobalSpawn.SetGlobalTransform(GetOwner()->GetGlobalTransform(), tLocalSpawn);
 
-      pResource->InstantiatePrefab(*GetWorld(), t, ezGameObjectHandle());
+      pResource->InstantiatePrefab(*GetWorld(), tGlobalSpawn, ezGameObjectHandle());
     }
     return true;
   }
@@ -112,6 +109,7 @@ void ezSpawnComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_MinDelay;
   s << m_DelayRange;
+  s << m_MaxDeviation;
   s << m_LastManualSpawn;
 }
 
@@ -129,6 +127,7 @@ void ezSpawnComponent::DeserializeComponent(ezWorldReader& stream)
 
   s >> m_MinDelay;
   s >> m_DelayRange;
+  s >> m_MaxDeviation; 
   s >> m_LastManualSpawn;
 }
 
