@@ -97,7 +97,7 @@ void ezDocumentObjectManager::AddObject(ezDocumentObject* pObject, ezDocumentObj
     szParentProperty = "Children";
 
   EZ_ASSERT_DEV(pObject->GetGuid().IsValid(), "Object Guid invalid! Object was not created via an ezObjectManagerBase!");
-  EZ_ASSERT_DEV(CanAdd(pObject->GetTypeAccessor().GetType(), pParent, szParentProperty, index), "Trying to execute invalid add!");
+  EZ_ASSERT_DEV(CanAdd(pObject->GetTypeAccessor().GetType(), pParent, szParentProperty, index).m_Result.Succeeded(), "Trying to execute invalid add!");
 
   ezDocumentObjectStructureEvent e;
   e.m_EventType = ezDocumentObjectStructureEvent::Type::BeforeObjectAdded;
@@ -123,7 +123,7 @@ void ezDocumentObjectManager::AddObject(ezDocumentObject* pObject, ezDocumentObj
 
 void ezDocumentObjectManager::RemoveObject(ezDocumentObject* pObject)
 {
-  EZ_ASSERT_DEV(CanRemove(pObject), "Trying to execute invalid remove!");
+  EZ_ASSERT_DEV(CanRemove(pObject).m_Result.Succeeded(), "Trying to execute invalid remove!");
   ezPropertyPath path(pObject->m_sParentProperty);
   ezIReflectedTypeAccessor& accessor = pObject->m_pParent->GetTypeAccessor();
 
@@ -147,7 +147,7 @@ void ezDocumentObjectManager::RemoveObject(ezDocumentObject* pObject)
 
 void ezDocumentObjectManager::MoveObject(ezDocumentObject* pObject, ezDocumentObject* pNewParent, const char* szParentProperty, ezVariant index)
 {
-  EZ_ASSERT_DEV(CanMove(pObject, pNewParent, szParentProperty, index), "Trying to execute invalid move!");
+  EZ_ASSERT_DEV(CanMove(pObject, pNewParent, szParentProperty, index).m_Result.Succeeded(), "Trying to execute invalid move!");
 
   if (pNewParent == nullptr)
     pNewParent = &m_RootObject;
@@ -222,7 +222,7 @@ ezDocumentObject* ezDocumentObjectManager::GetObject(const ezUuid& guid)
 // ezDocumentObjectManager Structure Change Test
 ////////////////////////////////////////////////////////////////////////
 
-bool ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const
+ezStatus ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const
 {
   // Test whether parent exists in tree.
   if (pParent == GetRootObject())
@@ -233,31 +233,32 @@ bool ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentObject
     const ezDocumentObject* pObjectInTree = GetObject(pParent->GetGuid());
     EZ_ASSERT_DEV(pObjectInTree == pParent, "Tree Corruption!!!");
     if (pObjectInTree == nullptr)
-      return false;
+      return ezStatus("Parent is not part of the object manager!");
 
     const ezIReflectedTypeAccessor& accessor = pParent->GetTypeAccessor();
     const ezRTTI* pType = accessor.GetType();
     auto* pProp = ezToolsReflectionUtils::GetPropertyByPath(pType, szParentProperty);
     if (pProp == nullptr)
-      return false;
+      return ezStatus("Property '%s' could not be found in type '%s'", szParentProperty, pType->GetTypeName());
 
     if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
     {
-      // Need to use InsertValue action instead.
-      return false;
+      return ezStatus("Need to use 'InsertValue' action instead.");
     }
     else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
     {
       if (!pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
-        return false;
+        return ezStatus("Cannot add object to the pointer property '%s' as it does not hold ownership.", szParentProperty);
 
       if (!pRtti->IsDerivedFrom(pProp->GetSpecificType()))
-        return false;
+        return ezStatus("Cannot add object to the pointer property '%s' as its type '%s' is not derived from the property type '%s'!"
+          , szParentProperty, pRtti->GetTypeName(), pProp->GetSpecificType()->GetTypeName());
     }
     else
     {
       if (pRtti != pProp->GetSpecificType())
-        return false;
+        return ezStatus("Cannot add object to the property '%s' as its type '%s' does not match the property type '%s'!"
+          , szParentProperty, pRtti->GetTypeName(), pProp->GetSpecificType()->GetTypeName());
     }
 
     if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
@@ -266,54 +267,56 @@ bool ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentObject
       ezInt32 iCount = accessor.GetCount(path);
       ezInt32 iNewIndex = index.ConvertTo<ezInt32>();
       if (iNewIndex >(ezInt32)iCount)
-        return false;
+        return ezStatus("Cannot add object to its new location '%i' is out of the bounds of the parent's property range '%i'!"
+          , iNewIndex, (ezInt32)iCount);
     }
     else if (pProp->GetCategory() == ezPropertyCategory::Member)
     {
       ezPropertyPath path(szParentProperty);
       ezVariant value = accessor.GetValue(path);
       if (!value.IsA<ezUuid>())
-        return false;
-
-      //  Can't set pointer if it already has a value, need to delete value first.
+        return ezStatus("Property is not a pointer and thus can't be added to.");
+ 
       if (value.Get<ezUuid>().IsValid())
-        return false;
+        return ezStatus("Can't set pointer if it already has a value, need to delete value first.");
     }
   }
 
   return InternalCanAdd(pRtti, pParent, szParentProperty, index);
 }
 
-bool ezDocumentObjectManager::CanRemove(const ezDocumentObject* pObject) const
+ezStatus ezDocumentObjectManager::CanRemove(const ezDocumentObject* pObject) const
 {
   const ezDocumentObject* pObjectInTree = GetObject(pObject->GetGuid());
 
   if (pObjectInTree == nullptr)
-    return false;
+    return ezStatus("Object is not part of the object manager!");
 
   EZ_ASSERT_DEV(pObjectInTree == pObject, "Tree Corruption!!!");
 
   return InternalCanRemove(pObject);
 }
 
-bool ezDocumentObjectManager::CanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const
+ezStatus ezDocumentObjectManager::CanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const
 {
-  if (!CanAdd(pObject->GetTypeAccessor().GetType(), pNewParent, szParentProperty, index))
-    return false;
+  ezStatus status = CanAdd(pObject->GetTypeAccessor().GetType(), pNewParent, szParentProperty, index);
+  if (status.m_Result.Failed())
+    return status;
 
-  if (!CanRemove(pObject))
-    return false;
+  status = CanRemove(pObject);
+  if (status.m_Result.Failed())
+    return status;
 
   if (pNewParent == nullptr)
     pNewParent = GetRootObject();
 
   if (pObject == pNewParent)
-    return false;
+    return ezStatus("Can't move object onto itself!");
 
   const ezDocumentObject* pObjectInTree = GetObject(pObject->GetGuid());
 
   if (pObjectInTree == nullptr)
-    return false;
+    return ezStatus("Object is not part of the object manager!");
 
   EZ_ASSERT_DEV(pObjectInTree == pObject, "Tree Corruption!!!");
 
@@ -322,7 +325,7 @@ bool ezDocumentObjectManager::CanMove(const ezDocumentObject* pObject, const ezD
     const ezDocumentObject* pNewParentInTree = GetObject(pNewParent->GetGuid());
 
     if (pNewParentInTree == nullptr)
-      return false;
+      return ezStatus("New parent is not part of the object manager!");
 
     EZ_ASSERT_DEV(pNewParentInTree == pNewParent, "Tree Corruption!!!");
   }
@@ -332,7 +335,7 @@ bool ezDocumentObjectManager::CanMove(const ezDocumentObject* pObject, const ezD
   while (pCurParent)
   {
     if (pCurParent == pObject)
-      return false;
+      return ezStatus("Can't move object to one of its children!");
 
     pCurParent = pCurParent->GetParent();
   }
@@ -344,18 +347,23 @@ bool ezDocumentObjectManager::CanMove(const ezDocumentObject* pObject, const ezD
   auto* pProp = ezToolsReflectionUtils::GetPropertyByPath(pType, path);
 
   if (pProp == nullptr)
-    return false;
+    return ezStatus("Property '%s' could not be found in type '%s'", szParentProperty, pType->GetTypeName());
 
   if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
   {
     ezInt32 iChildIndex = index.ConvertTo<ezInt32>();
+    if (iChildIndex == -1)
+    {
+      iChildIndex = pNewParent->GetTypeAccessor().GetCount(szParentProperty);
+    }
+
     if (pNewParent == pObject->GetParent())
     {
       // Test whether we are moving before or after ourselves, both of which are not allowed and would not change the tree.
       ezIReflectedTypeAccessor& oldAccessor = pObject->m_pParent->GetTypeAccessor();
       ezInt32 iCurrentIndex = oldAccessor.GetPropertyChildIndex(szParentProperty, pObject->GetGuid()).ConvertTo<ezInt32>();
       if (iChildIndex == iCurrentIndex || iChildIndex == iCurrentIndex + 1)
-        return false;
+        return ezStatus("Can't move object onto itself!");
     }
   }
 

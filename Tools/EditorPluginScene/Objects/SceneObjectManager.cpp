@@ -20,7 +20,7 @@ void ezSceneObjectManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& 
   }
 }
 
-bool ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const
+ezStatus ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const
 {
   const ezRTTI* pGameObjectType = ezRTTI::FindTypeByName(ezGetStaticRTTI<ezGameObject>()->GetTypeName());
   // TODO: BLA
@@ -28,18 +28,12 @@ bool ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentO
 
   if (pParent == nullptr)
   {
-    return pRtti->IsDerivedFrom(pGameObjectType);
+    bool bIsDerived = pRtti->IsDerivedFrom(pGameObjectType);
+    if (!bIsDerived)
+    {
+      return ezStatus("Only ezGameObject can be added to the root of the world!");
+    }
   }
   
-  return true;
-}
-
-bool ezSceneObjectManager::InternalCanRemove(const ezDocumentObject* pObject) const
-{
-  return true;
-}
-
-bool ezSceneObjectManager::InternalCanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const
-{
-  return true;
+  return ezStatus(EZ_SUCCESS);
 }

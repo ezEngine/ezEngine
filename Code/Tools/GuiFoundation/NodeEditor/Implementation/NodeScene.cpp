@@ -431,7 +431,7 @@ void ezQtNodeScene::DisconnectPins(const ezConnection* pConnection)
 
 void ezQtNodeScene::RemoveNodeAction(ezQtNode* pNode)
 {
-  ezStatus res = ezStatus(m_pManager->CanRemove(pNode->GetObject()) ? EZ_SUCCESS : EZ_FAILURE);
+  ezStatus res = m_pManager->CanRemove(pNode->GetObject());
   if (res.m_Result.Succeeded())
   {
     ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();

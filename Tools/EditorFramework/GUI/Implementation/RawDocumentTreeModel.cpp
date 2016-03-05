@@ -269,6 +269,7 @@ bool ezQtDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction a
     auto pHistory = pDoc->GetCommandHistory();
     pHistory->StartTransaction();
 
+    ezStatus res(EZ_SUCCESS);
     for (ezUInt32 i = 0; i < Dragged.GetCount(); ++i)
     {
       ezMoveObjectCommand cmd;
@@ -281,11 +282,17 @@ bool ezQtDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction a
       else
         cmd.m_sParentProperty = "Children";
 
-      pHistory->AddCommand(cmd);
+      res = pHistory->AddCommand(cmd);
+      if (res.m_Result.Failed())
+        break;
     }
 
-    pHistory->FinishTransaction();
+    if (res.m_Result.Failed())
+      pHistory->CancelTransaction();
+    else
+      pHistory->FinishTransaction();
 
+    ezUIServices::GetInstance()->MessageBoxStatus(res, "Node move failed.");
     return true;
   }
 

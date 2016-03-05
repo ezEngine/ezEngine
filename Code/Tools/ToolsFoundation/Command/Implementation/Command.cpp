@@ -14,12 +14,13 @@ ezCommand::ezCommand() : m_sDescription(), m_bUndoable(true), m_pDocument(nullpt
 
 ezStatus ezCommand::Do(bool bRedo)
 {
-  if (DoInternal(bRedo).m_Result == EZ_FAILURE)
+  ezStatus status = DoInternal(bRedo);
+  if (status.m_Result == EZ_FAILURE)
   {
     if (bRedo)
     {
       // A command that originally succeeded failed on redo!
-      return ezStatus(EZ_FAILURE);
+      return status;
     }
     else
     {
@@ -28,7 +29,7 @@ ezStatus ezCommand::Do(bool bRedo)
         ezStatus status = m_ChildActions[j]->Undo(true);
         EZ_ASSERT_DEV(status.m_Result == EZ_SUCCESS, "Failed do could not be recovered! Inconsistent state!");
       }
-      return ezStatus(EZ_FAILURE);
+      return status;
     }
   }
   if (!bRedo)
@@ -37,15 +38,16 @@ ezStatus ezCommand::Do(bool bRedo)
   const ezUInt32 uiChildActions = m_ChildActions.GetCount();
   for (ezUInt32 i = 0; i < uiChildActions; ++i)
   {
-    if (m_ChildActions[i]->Do(bRedo).m_Result == EZ_FAILURE)
+    status = m_ChildActions[i]->Do(bRedo);
+    if (status.m_Result == EZ_FAILURE)
     {
       for (ezInt32 j = i - 1; j >= 0; --j)
       {
-        ezStatus status = m_ChildActions[j]->Undo(true);
-        EZ_ASSERT_DEV(status.m_Result == EZ_SUCCESS, "Failed redo could not be recovered! Inconsistent state!");
+        ezStatus status2 = m_ChildActions[j]->Undo(true);
+        EZ_ASSERT_DEV(status2.m_Result == EZ_SUCCESS, "Failed redo could not be recovered! Inconsistent state!");
       }
       // A command that originally succeeded failed on redo!
-      return ezStatus(EZ_FAILURE);
+      return status;
     }
   }
   return ezStatus(EZ_SUCCESS);
@@ -56,27 +58,29 @@ ezStatus ezCommand::Undo(bool bFireEvents)
   const ezUInt32 uiChildActions = m_ChildActions.GetCount();
   for (ezInt32 i = uiChildActions - 1; i >= 0; --i)
   {
-    if (m_ChildActions[i]->Undo(bFireEvents).m_Result == EZ_FAILURE)
+    ezStatus status = m_ChildActions[i]->Undo(bFireEvents);
+    if (status.m_Result == EZ_FAILURE)
     {
       for (ezUInt32 j = i + 1; j < uiChildActions; ++j)
       {
-        ezStatus status = m_ChildActions[j]->Do(true);
-        EZ_ASSERT_DEV(status.m_Result == EZ_SUCCESS, "Failed undo could not be recovered! Inconsistent state!");
+        ezStatus status2 = m_ChildActions[j]->Do(true);
+        EZ_ASSERT_DEV(status2.m_Result == EZ_SUCCESS, "Failed undo could not be recovered! Inconsistent state!");
       }
       // A command that originally succeeded failed on undo!
-      return ezStatus(EZ_FAILURE);
+      return status;
     }
   }
 
-  if (UndoInternal(bFireEvents).m_Result == EZ_FAILURE)
+  ezStatus status = UndoInternal(bFireEvents);
+  if (status.m_Result == EZ_FAILURE)
   {
     for (ezUInt32 j = 0; j < uiChildActions; ++j)
     {
-      ezStatus status = m_ChildActions[j]->Do(true);
-      EZ_ASSERT_DEV(status.m_Result == EZ_SUCCESS, "Failed undo could not be recovered! Inconsistent state!");
+      ezStatus status2 = m_ChildActions[j]->Do(true);
+      EZ_ASSERT_DEV(status2.m_Result == EZ_SUCCESS, "Failed undo could not be recovered! Inconsistent state!");
     }
     // A command that originally succeeded failed on undo!
-    return ezStatus(EZ_FAILURE);
+    return status;
   }
 
   return ezStatus(EZ_SUCCESS);

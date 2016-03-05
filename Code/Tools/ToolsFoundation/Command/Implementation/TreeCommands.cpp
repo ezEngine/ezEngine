@@ -129,11 +129,10 @@ ezStatus ezAddObjectCommand::DoInternal(bool bRedo)
       return ezStatus(EZ_FAILURE, "Add Object: The given parent does not exist!");
   }
 
-  if (!pDocument->GetObjectManager()->CanAdd(m_pType, pParent, m_sParentProperty, m_Index))
+  ezStatus status = pDocument->GetObjectManager()->CanAdd(m_pType, pParent, m_sParentProperty, m_Index);
+  if (status.m_Result.Failed())
   {
-    ezStringBuilder sErrorMessage;
-    sErrorMessage.Format("Add Object: The type '%s' cannot be added to the given parent!", m_pType->GetTypeName());
-    return ezStatus(EZ_FAILURE, sErrorMessage);
+    return status;
   }
 
   if (!bRedo)
@@ -150,8 +149,11 @@ ezStatus ezAddObjectCommand::UndoInternal(bool bFireEvents)
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
   ezDocument* pDocument = GetDocument();
-  if (!pDocument->GetObjectManager()->CanRemove(m_pObject))
-    return ezStatus(EZ_FAILURE, "Add Object: Removal of the object is forbidden!");
+  ezStatus status = pDocument->GetObjectManager()->CanRemove(m_pObject);
+  if (status.m_Result.Failed())
+  {
+    return status;
+  }
 
   pDocument->GetObjectManager()->RemoveObject(m_pObject);
   return ezStatus(EZ_SUCCESS);
@@ -270,8 +272,11 @@ ezStatus ezPasteObjectsCommand::UndoInternal(bool bFireEvents)
 
   for (auto& po : m_PastedObjects)
   {
-    if (!pDocument->GetObjectManager()->CanRemove(po.m_pObject))
-      return ezStatus(EZ_FAILURE, "Add Object: Removal of the object is forbidden!");
+    ezStatus status = pDocument->GetObjectManager()->CanRemove(po.m_pObject);
+    if (status.m_Result.Failed())
+    {
+      return status;
+    }
 
     pDocument->GetObjectManager()->RemoveObject(po.m_pObject);
   }
@@ -428,8 +433,11 @@ ezStatus ezInstantiatePrefabCommand::UndoInternal(bool bFireEvents)
 
   for (auto& po : m_PastedObjects)
   {
-    if (!pDocument->GetObjectManager()->CanRemove(po.m_pObject))
-      return ezStatus(EZ_FAILURE, "Add Object: Removal of the object is forbidden!");
+    ezStatus status = pDocument->GetObjectManager()->CanRemove(po.m_pObject);
+    if (status.m_Result.Failed())
+    {
+      return status;
+    }
 
     pDocument->GetObjectManager()->RemoveObject(po.m_pObject);
   }
@@ -476,13 +484,10 @@ ezStatus ezRemoveObjectCommand::DoInternal(bool bRedo)
     else
       return ezStatus(EZ_FAILURE, "Remove Object: The given object does not exist!");
 
-    if (!pDocument->GetObjectManager()->CanRemove(m_pObject))
+    ezStatus status = pDocument->GetObjectManager()->CanRemove(m_pObject);
+    if (status.m_Result.Failed())
     {
-      ezStringBuilder sErrorMessage;
-
-      /// \todo BLA
-      sErrorMessage.Format("Remove Object: The object '%s' cannot be remove!", m_pObject->GetTypeAccessor().GetValue("Name").GetData());
-      return ezStatus(EZ_FAILURE, sErrorMessage);
+      return status;
     }
 
     m_pParent = const_cast<ezDocumentObject*>(m_pObject->GetParent());
@@ -500,8 +505,11 @@ ezStatus ezRemoveObjectCommand::UndoInternal(bool bFireEvents)
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
   ezDocument* pDocument = GetDocument();
-  if (!pDocument->GetObjectManager()->CanAdd(m_pObject->GetTypeAccessor().GetType(), m_pParent, m_sParentProperty, m_Index))
-    return ezStatus(EZ_FAILURE, "Remove Object: Adding the object is forbidden!");
+  ezStatus status = pDocument->GetObjectManager()->CanAdd(m_pObject->GetTypeAccessor().GetType(), m_pParent, m_sParentProperty, m_Index);
+  if (status.m_Result.Failed())
+  {
+    return status;
+  }
 
   pDocument->GetObjectManager()->AddObject(m_pObject, m_pParent, m_sParentProperty, m_Index);
   return ezStatus(EZ_SUCCESS);
@@ -552,9 +560,10 @@ ezStatus ezMoveObjectCommand::DoInternal(bool bRedo)
     const ezIReflectedTypeAccessor& accessor = m_pOldParent->GetTypeAccessor();
     m_OldIndex = accessor.GetPropertyChildIndex(m_pObject->GetParentProperty(), m_pObject->GetGuid());
 
-    if (!pDocument->GetObjectManager()->CanMove(m_pObject, m_pNewParent, m_sParentProperty, m_Index))
+    ezStatus status = pDocument->GetObjectManager()->CanMove(m_pObject, m_pNewParent, m_sParentProperty, m_Index);
+    if (status.m_Result.Failed())
     {
-      return ezStatus(EZ_FAILURE, "Move Object: Cannot move object to the new location.");
+      return status;
     }
   }
 
@@ -585,9 +594,10 @@ ezStatus ezMoveObjectCommand::UndoInternal(bool bFireEvents)
     }
   }
 
-  if (!pDocument->GetObjectManager()->CanMove(m_pObject, m_pOldParent, m_sOldParentProperty, FinalOldPosition))
+  ezStatus status = pDocument->GetObjectManager()->CanMove(m_pObject, m_pOldParent, m_sOldParentProperty, FinalOldPosition);
+  if (status.m_Result.Failed())
   {
-    return ezStatus(EZ_FAILURE, "Move Object: Cannot move object to the old location.");
+    return status;
   }
 
   pDocument->GetObjectManager()->MoveObject(m_pObject, m_pOldParent, m_sOldParentProperty, FinalOldPosition);

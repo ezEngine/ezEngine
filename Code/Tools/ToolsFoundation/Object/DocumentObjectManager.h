@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ToolsFoundation/Basics.h>
+#include <ToolsFoundation/Basics/Status.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
@@ -126,16 +127,16 @@ public:
   const ezDocument* GetDocument() const { return m_pDocument; }
 
   // Structure Change Test
-  bool CanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const;
-  bool CanRemove(const ezDocumentObject* pObject) const;
-  bool CanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const;
+  ezStatus CanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const;
+  ezStatus CanRemove(const ezDocumentObject* pObject) const;
+  ezStatus CanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const;
 
 private:
   virtual ezDocumentObject* InternalCreateObject(const ezRTTI* pRtti) { return EZ_DEFAULT_NEW(ezDocumentStorageObject, pRtti); }
   virtual void InternalDestroyObject(ezDocumentObject* pObject) { EZ_DEFAULT_DELETE(pObject); }
-  virtual bool InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const { return true; };
-  virtual bool InternalCanRemove(const ezDocumentObject* pObject) const { return true; };
-  virtual bool InternalCanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const { return true; };
+  virtual ezStatus InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const { return ezStatus(EZ_SUCCESS); };
+  virtual ezStatus InternalCanRemove(const ezDocumentObject* pObject) const { return ezStatus(EZ_SUCCESS); };
+  virtual ezStatus InternalCanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const { return ezStatus(EZ_SUCCESS); };
 
   void RecursiveAddGuids(ezDocumentObject* pObject);
   void RecursiveRemoveGuids(ezDocumentObject* pObject);

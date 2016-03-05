@@ -291,8 +291,9 @@ ezStatus ezDuplicateObjectsCommand::UndoInternal(bool bFireEvents)
 
   for (auto& po : m_DuplicatedObjects)
   {
-    if (!pDocument->GetObjectManager()->CanRemove(po.m_pObject))
-      return ezStatus(EZ_FAILURE, "Add Object: Removal of the object is forbidden!");
+    ezStatus res = pDocument->GetObjectManager()->CanRemove(po.m_pObject);
+    if (res.m_Result.Failed())
+      return res;
 
     pDocument->GetObjectManager()->RemoveObject(po.m_pObject);
   }
