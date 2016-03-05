@@ -197,16 +197,16 @@ public:
 
 
   /// \brief Attaches the component to the object. Calls the OnAttachedToObject method on the component.
-  ezResult AddComponent(const ezComponentHandle& component);
+  ezResult AttachComponent(const ezComponentHandle& component);
 
   /// \brief Attaches the component to the object. Calls the OnAttachedToObject method on the component.
-  ezResult AddComponent(ezComponent* pComponent);
+  ezResult AttachComponent(ezComponent* pComponent);
 
   /// \brief Removes the component from this object. Calls the OnDetachedFromObject method on the component. The component is still valid afterwards.
-  ezResult RemoveComponent(const ezComponentHandle& component);
+  ezResult DetachComponent(const ezComponentHandle& component);
 
   /// \brief Removes the component from this object. Calls the OnDetachedFromObject method on the component. The component is still valid afterwards.
-  ezResult RemoveComponent(ezComponent* pComponent);
+  ezResult DetachComponent(ezComponent* pComponent);
 
   /// \brief Tries to find a component of the given base type in the objects components list and returns the first match.
   template <typename T>
@@ -252,8 +252,8 @@ private:
   void Reflection_AddChild(ezGameObject* pChild);
   void Reflection_DetachChild(ezGameObject* pChild);
   ezHybridArray<ezGameObject*, 8> Reflection_GetChildren() const;
-  void Reflection_AddComponent(ezComponent* pComponent) { AddComponent(pComponent); }
-  void Reflection_RemoveComponent(ezComponent* pComponent) { RemoveComponent(pComponent); }
+  void Reflection_AddComponent(ezComponent* pComponent) { AttachComponent(pComponent); }
+  void Reflection_RemoveComponent(ezComponent* pComponent) { DetachComponent(pComponent); }
   const ezHybridArray<ezComponent*, NUM_INPLACE_COMPONENTS>& Reflection_GetComponents() const { return m_Components; }
 
   void OnDeleteObject(ezDeleteObjectMessage& msg);

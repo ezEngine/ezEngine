@@ -23,7 +23,7 @@ public:
   ezTypedMemberProperty(const char* szPropertyName) : ezAbstractMemberProperty(szPropertyName)
   {
     ezVariant::Type::Enum type = static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<typename ezTypeTraits<Type>::NonConstReferenceType>::value);
-    if ((type >= ezVariant::Type::Bool && type <= ezVariant::Type::Uuid) || EZ_IS_SAME_TYPE(ezVariant, Type))
+    if ((type >= ezVariant::Type::FirstStandardType && type <= ezVariant::Type::LastStandardType) || EZ_IS_SAME_TYPE(ezVariant, Type))
       m_Flags.Add(ezPropertyFlags::StandardType);
 
     if (type == ezVariant::Type::VoidPointer || type == ezVariant::Type::ReflectedPointer)

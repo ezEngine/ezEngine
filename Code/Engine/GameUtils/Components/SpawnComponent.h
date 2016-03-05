@@ -81,6 +81,9 @@ public:
   /// For scheduled spawns (continuous / at start) this is an additional random range on top of the minimum spawn delay.
   ezTime m_DelayRange;
 
+  /// The spawned object's orientation may deviate by this amount around the X axis. 180° is completely random orientation.
+  ezAngle m_MaxDeviation;
+
 private:
 
   void OnTriggered(ezComponentTriggerMessage& msg);

@@ -300,6 +300,11 @@ void ezStandardJSONWriter::WriteUuid(const ezUuid& value)
   WriteBinaryData("uuid", &temp, sizeof(temp));
 }
 
+void ezStandardJSONWriter::WriteAngle(ezAngle value)
+{
+  WriteFloat(value.GetDegree());
+}
+
 void ezStandardJSONWriter::BeginVariable(const char* szName)
 {
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;

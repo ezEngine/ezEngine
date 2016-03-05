@@ -20,7 +20,8 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezFloatStruct, ezNoBase, 1, ezRTTINoAllocator);
 EZ_BEGIN_PROPERTIES
   EZ_ACCESSOR_PROPERTY("Float", GetFloat, SetFloat),
   EZ_ACCESSOR_PROPERTY("Double", GetDouble, SetDouble),
-  EZ_ACCESSOR_PROPERTY("Time", GetTime, SetTime)
+  EZ_ACCESSOR_PROPERTY("Time", GetTime, SetTime),
+  EZ_ACCESSOR_PROPERTY("Angle", GetAngle, SetAngle)
 EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 

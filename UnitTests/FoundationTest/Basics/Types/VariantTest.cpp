@@ -66,6 +66,7 @@ inline void TestNumberCanConvertTo(const ezVariant& v)
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Matrix4) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::String));
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Time) == false);
+  EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Angle) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Uuid) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VariantArray) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VariantDictionary) == false);
@@ -533,6 +534,27 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(ezVariant(uuid) != ezVariant(uuid2));
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezAngle")
+  {
+    ezVariant v(ezAngle::Degree(1337));
+    EZ_TEST_BOOL(v.IsValid());
+    EZ_TEST_BOOL(v.GetType() == ezVariant::Type::Angle);
+    EZ_TEST_BOOL(v.IsA<ezAngle>());
+    EZ_TEST_BOOL(v.Get<ezAngle>() == ezAngle::Degree(1337));
+
+    EZ_TEST_BOOL(v == ezVariant(ezAngle::Degree(1337)));
+    EZ_TEST_BOOL(v != ezVariant(ezAngle::Degree(1336)));
+
+    EZ_TEST_BOOL(v == ezAngle::Degree(1337));
+    EZ_TEST_BOOL(v != ezAngle::Degree(1338));
+
+    v = ezAngle::Degree(8472);
+    EZ_TEST_BOOL(v == ezAngle::Degree(8472));
+
+    v = ezVariant(ezAngle::Degree(13));
+    EZ_TEST_BOOL(v == ezAngle::Degree(13));
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezVariantArray")
   {
     ezVariantArray a, a2;
@@ -654,6 +676,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Matrix4) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::String));
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Time) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Angle) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VariantArray) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VariantDictionary) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VoidPointer) == false);
@@ -868,6 +891,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Matrix4) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::String));
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Time) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Angle) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VariantArray) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VariantDictionary) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VoidPointer) == false);
@@ -1066,6 +1090,20 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     //EZ_TEST_BOOL(v.ConvertTo<ezString>() == "");
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Uuid).Get<ezUuid>() == uuid);
+    //EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezAngle)")
+  {
+    ezAngle t = ezAngle::Degree(123.0);
+    ezVariant v(t);
+
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Angle);
+
+    EZ_TEST_BOOL(v.ConvertTo<ezAngle>() == t);
+    //EZ_TEST_BOOL(v.ConvertTo<ezString>() == "");
+
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Angle).Get<ezAngle>() == t);
     //EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "");
   }
 

@@ -30,7 +30,9 @@ public:
       m_sResult.Append((const char*) pWriteBuffer);
     else
     {
-      EZ_TEST_BOOL(ezMemoryUtils::IsEqual((const char*) pWriteBuffer, m_szExpectedData, (ezUInt32) uiBytesToWrite));
+      const char* szWritten = (const char*)pWriteBuffer;
+
+      EZ_TEST_BOOL(ezMemoryUtils::IsEqual(szWritten, m_szExpectedData, (ezUInt32) uiBytesToWrite));
       m_szExpectedData += uiBytesToWrite;
     }
 

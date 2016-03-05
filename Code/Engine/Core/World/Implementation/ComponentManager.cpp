@@ -51,7 +51,7 @@ void ezComponentManagerBase::DeinitializeComponent(ezComponent* pComponent)
 {
   if (ezGameObject* pOwner = pComponent->GetOwner())
   {
-    pOwner->RemoveComponent(pComponent);
+    pOwner->DetachComponent(pComponent);
   }
 
   if (pComponent->IsInitialized())

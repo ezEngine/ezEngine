@@ -125,9 +125,6 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezString, ezNoBase, 1, ezRTTINoAllocator);
 EZ_END_STATIC_REFLECTED_TYPE();
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAngle, ezNoBase, 1, ezRTTINoAllocator);
-  EZ_BEGIN_PROPERTIES
-    EZ_ACCESSOR_PROPERTY("Radian", GetRadian, SetRadian)
-  EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 
 // **********************************************************************
@@ -146,7 +143,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezVariantType, 1)
   EZ_BITFLAGS_CONSTANTS(ezVariantType::Invalid, ezVariantType::Bool, ezVariantType::Int8, ezVariantType::UInt8, ezVariantType::Int16, ezVariantType::UInt16)
   EZ_BITFLAGS_CONSTANTS(ezVariantType::Int32, ezVariantType::UInt32, ezVariantType::Int64, ezVariantType::UInt64, ezVariantType::Float, ezVariantType::Double)
   EZ_BITFLAGS_CONSTANTS(ezVariantType::Color, ezVariantType::Vector2, ezVariantType::Vector3, ezVariantType::Vector4, ezVariantType::Quaternion)
-  EZ_BITFLAGS_CONSTANTS(ezVariantType::Matrix3, ezVariantType::Matrix4, ezVariantType::String, ezVariantType::Time, ezVariantType::Uuid)
+  EZ_BITFLAGS_CONSTANTS(ezVariantType::Matrix3, ezVariantType::Matrix4, ezVariantType::String, ezVariantType::Time, ezVariantType::Uuid, ezVariantType::Angle)
   EZ_BITFLAGS_CONSTANTS(ezVariantType::VariantArray, ezVariantType::VariantDictionary, ezVariantType::ReflectedPointer, ezVariantType::VoidPointer)
 EZ_END_STATIC_REFLECTED_ENUM();
 

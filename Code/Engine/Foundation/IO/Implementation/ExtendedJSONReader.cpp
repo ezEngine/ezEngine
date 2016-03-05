@@ -197,6 +197,9 @@ ezVariant BuildTypedVariant(const char* szType, const ezVariant& Value, const ez
   if (ezStringUtils::IsEqual(szType, "uuid"))
     return BuildTypedVariant_binary<ezUuid>(Binary, out_Result);
 
+  if (ezStringUtils::IsEqual(szType, "angle"))
+    return ezVariant(ezAngle::Degree(BuildTypedVariant_number<float>(Value, Binary, 0.00009f, out_Result)));
+
   return ezVariant();
 }
 

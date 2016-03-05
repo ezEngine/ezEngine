@@ -26,6 +26,9 @@ public:
     enum Enum
     {
       Invalid,            ///< The variant stores no (valid) data at the moment.
+
+/// *** Types that are flagged as 'StandardTypes' (see DetermineTypeFlags) ***
+      FirstStandardType,
       Bool,               ///< The variant stores a bool.
       Int8,               ///< The variant stores an ezInt8.
       UInt8,              ///< The variant stores an ezUInt8.
@@ -47,6 +50,10 @@ public:
       String,             ///< The variant stores a string. A heap allocation is required to store this data type.
       Time,               ///< The variant stores an ezTime value.
       Uuid,               ///< The variant stores an ezUuid value.
+      Angle,              ///< The variant stores an ezAngle value.
+      LastStandardType,
+/// *** Types that are flagged as 'StandardTypes' (see DetermineTypeFlags) ***
+
       VariantArray,       ///< The variant stores an array of ezVariant's. A heap allocation is required to store this data type.
       VariantDictionary,  ///< The variant stores a dictionary (hashmap) of ezVariant's. A heap allocation is required to store this data type.
       ReflectedPointer,   ///< The variant stores a pointer to a dynamically reflected object.

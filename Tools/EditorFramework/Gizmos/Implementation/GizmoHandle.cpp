@@ -377,7 +377,7 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
   
   m_pMeshComponent->m_uiEditorPickingID = uiNextComponentPickingID;
 
-  pObject->AddComponent(m_pMeshComponent);
+  pObject->AttachComponent(m_pMeshComponent);
 
   return true;
 }

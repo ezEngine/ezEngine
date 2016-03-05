@@ -93,6 +93,28 @@ protected:
   QDoubleSpinBoxLessAnnoying*  m_pWidget;
 };
 
+/// *** ANGLE SPINBOX ***
+
+class EZ_GUIFOUNDATION_DLL ezPropertyEditorAngleWidget : public ezQtStandardPropertyWidget
+{
+  Q_OBJECT
+
+public:
+  ezPropertyEditorAngleWidget();
+
+private slots:
+  void on_EditingFinished_triggered();
+  void SlotValueChanged();
+
+protected:
+  virtual void OnInit() override;
+  virtual void InternalSetValue(const ezVariant& value) override;
+
+  bool m_bTemporaryCommand;
+  QHBoxLayout* m_pLayout;
+  QDoubleSpinBoxLessAnnoying*  m_pWidget;
+};
+
 /// *** INT SPINBOX ***
 
 class EZ_GUIFOUNDATION_DLL ezPropertyEditorIntSpinboxWidget : public ezQtStandardPropertyWidget

@@ -210,18 +210,18 @@ void ezGameObject::UpdateLocalBounds()
   m_pTransformationData->m_localBounds = msg.m_ResultingLocalBounds;
 }
 
-ezResult ezGameObject::AddComponent(const ezComponentHandle& component)
+ezResult ezGameObject::AttachComponent(const ezComponentHandle& component)
 {
   ezComponent* pComponent = nullptr;
   if (m_pWorld->TryGetComponent(component, pComponent))
   {
-    return AddComponent(pComponent);
+    return AttachComponent(pComponent);
   }
 
   return EZ_FAILURE;
 }
 
-ezResult ezGameObject::AddComponent(ezComponent* pComponent)
+ezResult ezGameObject::AttachComponent(ezComponent* pComponent)
 {
   EZ_ASSERT_DEV(pComponent->m_pOwner == nullptr, "Component must not be added twice.");
   EZ_ASSERT_DEV(IsDynamic() || !pComponent->IsDynamic(),
@@ -235,18 +235,18 @@ ezResult ezGameObject::AddComponent(ezComponent* pComponent)
   return EZ_SUCCESS;
 }
 
-ezResult ezGameObject::RemoveComponent(const ezComponentHandle& component)
+ezResult ezGameObject::DetachComponent(const ezComponentHandle& component)
 {
   ezComponent* pComponent = nullptr;
   if (m_pWorld->TryGetComponent(component, pComponent))
   {
-    return RemoveComponent(pComponent);
+    return DetachComponent(pComponent);
   }  
   
   return EZ_FAILURE;
 }
 
-ezResult ezGameObject::RemoveComponent(ezComponent* pComponent)
+ezResult ezGameObject::DetachComponent(ezComponent* pComponent)
 {
   ezUInt32 uiIndex = m_Components.IndexOf(pComponent);
   if (uiIndex == ezInvalidIndex)

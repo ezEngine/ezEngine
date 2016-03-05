@@ -181,7 +181,7 @@ void Level::CreatePlayerShip(ezInt32 iPlayer)
 
     pShipComponent->m_iPlayerIndex = iPlayer;
 
-    pGameObject->AddComponent(hShipComponent);
+    pGameObject->AttachComponent(hShipComponent);
   }
   {
     CollidableComponent* pCollidableComponent = nullptr;
@@ -189,7 +189,7 @@ void Level::CreatePlayerShip(ezInt32 iPlayer)
 
     pCollidableComponent->m_fCollisionRadius = 1.0f;
 
-    pGameObject->AddComponent(hCollidableomponent);
+    pGameObject->AttachComponent(hCollidableomponent);
   }
 }
 
@@ -217,13 +217,13 @@ void Level::CreateAsteroid()
     pMeshComponent->SetMesh(m_hAsteroidMesh);
     pMeshComponent->SetMaterial(0, m_hAsteroidMaterial);
 
-    pGameObject->AddComponent(pMeshComponent);
+    pGameObject->AttachComponent(pMeshComponent);
   }
   {
     AsteroidComponent* pAsteroidComponent = nullptr;
     AsteroidComponent::CreateComponent(m_pWorld, pAsteroidComponent);
 
-    pGameObject->AddComponent(pAsteroidComponent);
+    pGameObject->AttachComponent(pAsteroidComponent);
   }
   {
     CollidableComponent* pCollidableComponent = nullptr;
@@ -231,7 +231,7 @@ void Level::CreateAsteroid()
 
     pCollidableComponent->m_fCollisionRadius = desc.m_LocalScaling.x;
 
-    pGameObject->AddComponent(pCollidableComponent);
+    pGameObject->AttachComponent(pCollidableComponent);
   }
 }
 

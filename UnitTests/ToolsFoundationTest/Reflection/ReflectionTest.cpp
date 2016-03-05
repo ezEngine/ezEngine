@@ -70,6 +70,8 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     EZ_TEST_FLOAT(0, floatStruct.GetDouble(), 0);
     VariantToPropertyTest(&floatStruct, pRttiFloat, "Time", ezVariant::Type::Time);
     EZ_TEST_FLOAT(0, floatStruct.GetTime().GetSeconds(), 0);
+    VariantToPropertyTest(&floatStruct, pRttiFloat, "Angle", ezVariant::Type::Angle);
+    EZ_TEST_FLOAT(0, floatStruct.GetAngle().GetDegree(), 0);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Misc Properties")

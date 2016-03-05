@@ -66,6 +66,10 @@ static ezQtPropertyWidget* StandardTypeCreator(const ezRTTI* pRtti)
   case ezVariant::Type::Color:
     return new ezPropertyEditorColorWidget();
 
+  case ezVariant::Type::Angle:
+    return new ezPropertyEditorAngleWidget();
+
+
   default:
     EZ_REPORT_FAILURE("No default property widget available for type: %s", pRtti->GetTypeName());
     return nullptr;
@@ -114,6 +118,7 @@ ON_CORE_STARTUP
   ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezString>(), StandardTypeCreator);
   ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezTime>(), StandardTypeCreator);
   ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezColor>(), StandardTypeCreator);
+  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezAngle>(), StandardTypeCreator);
 
   // TODO: ezMat3, ezMat4, ezTransform, ezUuid, ezVariant
   ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezEnumBase>(), EnumCreator);

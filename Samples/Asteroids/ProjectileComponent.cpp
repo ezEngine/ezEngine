@@ -104,7 +104,7 @@ void ProjectileComponent::Update()
             pProjectileComponent->m_vVelocity = vDir * (1.0f + ((rand() % 1000) / 999.0f));
             pProjectileComponent->m_bDoesDamage = false;
 
-            pProjectile->AddComponent(hProjectileComponent);
+            pProjectile->AttachComponent(hProjectileComponent);
           }
         }
       }

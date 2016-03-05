@@ -37,7 +37,7 @@ void SimpleMeshRendererGameState::CreateGameLevel()
     
     pMeshCompMan->CreateComponent(pMesh);
     pMesh->SetMesh(hMesh);
-    pObj->AddComponent(pMesh);    
+    pObj->AttachComponent(pMesh);    
   }
 
   // Tree Mesh
@@ -48,13 +48,13 @@ void SimpleMeshRendererGameState::CreateGameLevel()
 
     pMeshCompMan->CreateComponent(pMesh);
     pMesh->SetMesh(hMeshTree);
-    pObj->AddComponent(pMesh);
+    pObj->AttachComponent(pMesh);
     
     pRotorCompMan->CreateComponent(pRotor);
     pRotor->m_fAnimationSpeed = 5.0f;
     pRotor->SetAnimatingAtStartup(true);
     pRotor->m_Axis = ezBasisAxis::PositiveZ;
-    pObj->AddComponent(pRotor);
+    pObj->AttachComponent(pRotor);
   }
 
   // Tree Mesh
@@ -66,7 +66,7 @@ void SimpleMeshRendererGameState::CreateGameLevel()
 
     pMeshCompMan->CreateComponent(pMesh);
     pMesh->SetMesh(hMeshTree);
-    pObj->AddComponent(pMesh);    
+    pObj->AttachComponent(pMesh);    
   }
 
   ChangeMainWorld(m_pMainWorld);

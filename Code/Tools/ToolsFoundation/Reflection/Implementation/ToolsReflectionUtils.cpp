@@ -64,6 +64,8 @@ ezVariant ezToolsReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enu
     return ezVariant(ezTime());
   case ezVariant::Type::Uuid:
     return ezVariant(ezUuid());
+  case ezVariant::Type::Angle:
+    return ezVariant(ezAngle());
   case ezVariant::Type::VariantArray:
     return ezVariantArray();
   case ezVariant::Type::VariantDictionary:

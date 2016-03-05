@@ -28,7 +28,9 @@ QString QDoubleSpinBoxLessAnnoying::textFromValue(double val) const
   {
     m_fDisplayedValue = 0;
     m_sDisplayedText = "0";
-    return QLatin1String("0");
+    QString res = QLatin1String("0");
+    res += m_sSuffix;
+    return res;
   }
 
   QString sText = QDoubleSpinBox::textFromValue(val);

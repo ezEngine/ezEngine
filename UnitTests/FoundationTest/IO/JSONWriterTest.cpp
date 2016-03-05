@@ -162,6 +162,18 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     js.AddVariableUuid("uuid_var", guid);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableAngle")
+  {
+    StreamComparer sc("\"var1\" : 90,\n\"var2\" : 180");
+
+    ezStandardJSONWriter js;
+    js.SetOutputStream(&sc);
+
+    js.AddVariableAngle("var1", ezAngle::Degree(90.0f));
+    js.AddVariableAngle("var2", ezAngle::Radian(1.0f * ezMath::BasicType<float>::Pi()));
+  }
+
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableColor")
   {
     StreamComparer sc("\"var1\" : { \"$t\" : \"color\", \"$v\" : \"(1.0000, 2.0000, 3.0000, 4.0000)\", \"$b\" : \"0x0000803F000000400000404000008040\" }");

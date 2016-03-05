@@ -131,6 +131,10 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
 
   TestComponentManager* pManager = world.GetOrCreateComponentManager<TestComponentManager>();
 
+  ezGameObjectDesc gd;
+  ezGameObject* pDummy;
+  ezGameObjectHandle hDummy = world.CreateObject(gd, pDummy);
+
   TestComponent* pComponent = nullptr;
   ezGameObject* pObject = nullptr;
 
@@ -150,6 +154,8 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     world.Update();
 
     handle = TestComponent::CreateComponent(&world, pComponent);
+    pDummy->AttachComponent(pComponent);
+
     TestComponent* pTest = nullptr;
     EZ_TEST_BOOL(world.TryGetComponent(handle, pTest));
     EZ_TEST_BOOL(pTest == pComponent);
@@ -162,6 +168,8 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     {
       pManager->CreateComponent(pComponent);
       pComponent->m_iSomeData = i + 1;
+
+      pDummy->AttachComponent(pComponent);
     }
 
     EZ_TEST_INT(pManager->GetComponentCount(), 100);
@@ -191,6 +199,14 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     EZ_TEST_INT(uiCounter, 100);
   }
 
+  {
+    for (auto it = pManager->GetComponents(); it.IsValid(); ++it)
+    {
+      pDummy->DetachComponent(it);
+      EZ_TEST_BOOL(it->GetOwner() == nullptr);
+    }
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Attach to objects")
   {
     world.CreateObject(ezGameObjectDesc(), pObject);
@@ -199,7 +215,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
 
     for (auto it = pManager->GetComponents(); it.IsValid(); ++it)
     {
-      pObject->AddComponent(it);
+      pObject->AttachComponent(it);
       EZ_TEST_BOOL(it->GetOwner() != nullptr);
     }
 
@@ -210,7 +226,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Detach from objects")
   {
     ezComponent* pFirstComponent = pObject->GetComponents()[0];
-    pObject->RemoveComponent(pFirstComponent);
+    pObject->DetachComponent(pFirstComponent);
 
     EZ_TEST_INT(TestComponent::s_iInitCounter, 100);
     EZ_TEST_INT(TestComponent::s_iAttachCounter, 99);
@@ -260,9 +276,9 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     ezComponentHandle hComponentB = TestComponent::CreateComponent(&world, pComponentB);
     ezComponentHandle hComponentC = TestComponent::CreateComponent(&world, pComponentC);
 
-    pObjectA->AddComponent(pComponentA);
-    pObjectB->AddComponent(pComponentB);
-    pObjectC->AddComponent(pComponentC);
+    pObjectA->AttachComponent(pComponentA);
+    pObjectB->AttachComponent(pComponentB);
+    pObjectC->AttachComponent(pComponentC);
 
     world.DeleteObjectNow(pObjectB->GetHandle());
 

@@ -107,7 +107,7 @@ void ShipComponent::Update()
     pProjectileComponent->m_vVelocity = vShipDir * ezMath::Max(m_vVelocity.GetLength(), 1.0f) * 1.0f;
     pProjectileComponent->m_bDoesDamage = true;
 
-    pProjectile->AddComponent(hProjectileComponent);
+    pProjectile->AttachComponent(hProjectileComponent);
 
     m_iAmmunition -= m_iAmmoPerShot;
 

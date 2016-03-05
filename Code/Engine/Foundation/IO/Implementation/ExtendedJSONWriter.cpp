@@ -86,6 +86,17 @@ void ezExtendedJSONWriter::WriteTime(ezTime value)
   WriteBinaryData("time", &value, sizeof(value), s.GetData());
 }
 
+void ezExtendedJSONWriter::WriteAngle(ezAngle value)
+{
+  CommaWriter cw(this);
+
+  ezEndianHelper::NativeToLittleEndian((ezUInt64*)&value, 1);
+
+  ezStringBuilder s;
+  s.Format("%.4f", value.GetDegree());
+
+  WriteBinaryData("angle", &value, sizeof(value), s.GetData());
+}
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_ExtendedJSONWriter);

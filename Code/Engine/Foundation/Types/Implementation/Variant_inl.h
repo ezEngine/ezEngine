@@ -250,6 +250,10 @@ void ezVariant::DispatchTo(Functor& functor, Type::Enum type)
     CALL_FUNCTOR(functor, ezUuid);
     break;
 
+  case Type::Angle:
+    CALL_FUNCTOR(functor, ezAngle);
+    break;
+
   case Type::VariantArray:
     CALL_FUNCTOR(functor, ezVariantArray);
     break;

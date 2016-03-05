@@ -193,6 +193,15 @@ void TraverseTree(const ezVariant& var, ezDeque<ezString>& Compare)
     }
     break;
 
+  case ezVariant::Type::Angle:
+    {
+      ezStringBuilder sTemp;
+      sTemp.Format("angle %.4f", var.Get<ezAngle>().GetDegree());
+      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+      Compare.PopFront();
+    }
+    break;
+
   case ezVariant::Type::String:
     EZ_TEST_STRING(Compare.PeekFront().GetData(), var.Get<ezString>().GetData());
     Compare.PopFront();

@@ -370,6 +370,90 @@ void ezPropertyEditorTimeWidget::SlotValueChanged()
   BroadcastValueChanged(ezTime::Seconds(m_pWidget->value()));
 }
 
+
+/// *** ANGLE SPINBOX ***
+
+ezPropertyEditorAngleWidget::ezPropertyEditorAngleWidget() : ezQtStandardPropertyWidget()
+{
+  m_bTemporaryCommand = false;
+
+  m_pWidget = nullptr;
+
+  m_pLayout = new QHBoxLayout(this);
+  m_pLayout->setMargin(0);
+  setLayout(m_pLayout);
+
+  QSizePolicy policy = sizePolicy();
+
+  {
+    m_pWidget = new QDoubleSpinBoxLessAnnoying(this);
+    m_pWidget->setDisplaySuffix(ezStringUtf8(L"\u00B0").GetData());
+    m_pWidget->setMinimum(-ezMath::BasicType<double>::GetInfinity());
+    m_pWidget->setMaximum(ezMath::BasicType<double>::GetInfinity());
+    m_pWidget->setSingleStep(1.0);
+    m_pWidget->setAccelerated(true);
+    m_pWidget->setDecimals(1);
+
+    policy.setHorizontalStretch(2);
+    m_pWidget->setSizePolicy(policy);
+
+    m_pLayout->addWidget(m_pWidget);
+
+    connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_EditingFinished_triggered()));
+    connect(m_pWidget, SIGNAL(valueChanged(double)), this, SLOT(SlotValueChanged()));
+  }
+}
+
+void ezPropertyEditorAngleWidget::OnInit()
+{
+  const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>();
+  if (pClamp)
+  {
+    QtScopedBlockSignals bs(m_pWidget);
+
+    if (pClamp->GetMinValue().CanConvertTo<ezAngle>())
+    {
+      m_pWidget->setMinimum(pClamp->GetMinValue().ConvertTo<ezAngle>().GetDegree());
+    }
+    if (pClamp->GetMaxValue().CanConvertTo<ezAngle>())
+    {
+      m_pWidget->setMaximum(pClamp->GetMaxValue().ConvertTo<ezAngle>().GetDegree());
+    }
+  }
+}
+
+void ezPropertyEditorAngleWidget::InternalSetValue(const ezVariant& value)
+{
+  QtScopedBlockSignals b0(m_pWidget);
+
+  if (value.IsValid())
+  {
+    m_pWidget->setValue(value.ConvertTo<ezAngle>().GetDegree());
+  }
+  else
+  {
+    m_pWidget->setValueInvalid();
+  }
+}
+
+void ezPropertyEditorAngleWidget::on_EditingFinished_triggered()
+{
+  if (m_bTemporaryCommand)
+    Broadcast(ezQtPropertyWidget::Event::Type::EndTemporary);
+
+  m_bTemporaryCommand = false;
+}
+
+void ezPropertyEditorAngleWidget::SlotValueChanged()
+{
+  if (!m_bTemporaryCommand)
+    Broadcast(ezQtPropertyWidget::Event::Type::BeginTemporary);
+
+  m_bTemporaryCommand = true;
+
+  BroadcastValueChanged(ezAngle::Degree(m_pWidget->value()));
+}
+
 /// *** INT SPINBOX ***
 
 ezPropertyEditorIntSpinboxWidget::ezPropertyEditorIntSpinboxWidget(ezInt32 iMinValue, ezInt32 iMaxValue) : ezQtStandardPropertyWidget()

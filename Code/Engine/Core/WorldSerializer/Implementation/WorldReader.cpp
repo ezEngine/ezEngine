@@ -299,7 +299,7 @@ void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
       ezGameObject* pParentObject = nullptr;
       m_pWorld->TryGetObject(hOwner, pParentObject);
 
-      pParentObject->AddComponent(pComponent);
+      pParentObject->AttachComponent(pComponent);
     }
   }
 }

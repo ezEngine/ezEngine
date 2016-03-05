@@ -158,6 +158,19 @@ EZ_CREATE_SIMPLE_TEST(IO, ExtendedJSONWriter)
     js.AddVariableTime("var2", ezTime::Seconds(2.25));
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableAngle")
+  {
+    StreamComparer sc("\
+\"var1\" : { \"$t\" : \"angle\", \"$v\" : \"179.5000\", \"$b\" : \"0xE0804840\" },\n\
+\"var2\" : { \"$t\" : \"angle\", \"$v\" : \"360.0000\", \"$b\" : \"0xDB0FC940\" }");
+
+    ezExtendedJSONWriter js;
+    js.SetOutputStream(&sc);
+
+    js.AddVariableAngle("var1", ezAngle::Degree(179.5f));
+    js.AddVariableAngle("var2", ezAngle::Radian(2.0f * ezMath::BasicType<float>::Pi()));
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVec2")
   {
     StreamComparer sc("\"var1\" : { \"$t\" : \"vec2\", \"$v\" : \"(1.0000, 2.0000)\", \"$b\" : \"0x0000803F00000040\" }");

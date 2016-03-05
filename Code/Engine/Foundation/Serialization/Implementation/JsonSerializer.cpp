@@ -2,6 +2,7 @@
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <Foundation/IO/ExtendedJSONWriter.h>
 #include <Foundation/IO/ExtendedJSONReader.h>
+#include <Foundation/Logging/Log.h>
 
 struct CompareConstChar
 {
@@ -70,6 +71,7 @@ void ezAbstractGraphJsonSerializer::Write(ezStreamWriter& stream, const ezAbstra
 void ezAbstractGraphJsonSerializer::Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph)
 {
   ezExtendedJSONReader reader;
+  reader.SetLogInterface(ezGlobalLog::GetInstance());
   reader.Parse(stream);
 
   ezVariant* pObjects;

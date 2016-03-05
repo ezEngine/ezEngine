@@ -327,6 +327,19 @@ struct ezVariant::TypeDeduction<ezUuid>
 };
 
 template <>
+struct ezVariant::TypeDeduction<ezAngle>
+{
+  enum
+  {
+    value = Type::Angle,
+    forceSharing = false,
+    hasReflectedMembers = false
+  };
+
+  typedef ezAngle StorageType;
+};
+
+template <>
 struct ezVariant::TypeDeduction<ezVariantArray>
 {
   enum

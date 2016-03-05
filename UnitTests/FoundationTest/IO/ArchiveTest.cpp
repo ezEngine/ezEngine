@@ -3,6 +3,8 @@
 #include <Foundation/IO/Archive.h>
 #include <Foundation/IO/MemoryStream.h>
 
+#ifdef EZ_SUPPORT_EZARCHIVE
+
 class TypeA : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(TypeA, ezReflectedClass);
@@ -376,7 +378,7 @@ EZ_CREATE_SIMPLE_TEST(IO, Archive)
   int i = 0;
 }
 
-
+#endif
 
 
 

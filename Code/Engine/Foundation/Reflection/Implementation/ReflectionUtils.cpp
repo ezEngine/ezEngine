@@ -146,7 +146,7 @@ bool ezReflectionUtils::IsBasicType(const ezRTTI* pRtti)
 {
   EZ_ASSERT_DEBUG(pRtti != nullptr, "IsBasicType: missing data!");
   ezVariant::Type::Enum type = pRtti->GetVariantType();
-  return type >= ezVariant::Type::Bool && type <= ezVariant::Type::Uuid;
+  return type >= ezVariant::Type::FirstStandardType && type <= ezVariant::Type::LastStandardType;
 }
 
 ezVariant ezReflectionUtils::GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject)

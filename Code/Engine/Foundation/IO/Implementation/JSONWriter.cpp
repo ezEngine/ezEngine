@@ -78,6 +78,13 @@ void ezJSONWriter::AddVariableUuid(const char* szName, ezUuid value)
   EndVariable();
 }
 
+void ezJSONWriter::AddVariableAngle(const char* szName, ezAngle value)
+{
+  BeginVariable(szName);
+  WriteAngle(value);
+  EndVariable();
+}
+
 void ezJSONWriter::AddVariableColor(const char* szName, const ezColor& value)
 {
   BeginVariable(szName);
@@ -239,6 +246,9 @@ void ezJSONWriter::WriteVariant(const ezVariant& value)
     return;
   case ezVariant::Type::Uuid:
     WriteUuid(value.Get<ezUuid>());
+    return;
+  case ezVariant::Type::Angle:
+    WriteAngle(value.Get<ezAngle>());
     return;
   case ezVariant::Type::VariantArray:
     {

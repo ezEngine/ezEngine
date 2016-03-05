@@ -35,6 +35,8 @@ public:
   /// \brief Redirects to WriteBinaryData().
   virtual void WriteTime(ezTime value) override; // [tested]
 
+  /// \brief Redirects to WriteBinaryData().
+  virtual void WriteAngle(ezAngle value) override; // [tested]
 };
 
 

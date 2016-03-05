@@ -12,6 +12,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 1);
     EZ_ACCESSOR_PROPERTY("Spawn Continuously", GetSpawnContinuously, SetSpawnContinuously),
     EZ_MEMBER_PROPERTY("Min Delay", m_MinDelay)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(1.0))),
     EZ_MEMBER_PROPERTY("Delay Range", m_DelayRange)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
+    EZ_MEMBER_PROPERTY("Deviation", m_MaxDeviation)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(180.0))),
   EZ_END_PROPERTIES
   EZ_BEGIN_ATTRIBUTES
     new ezCategoryAttribute("Gameplay"),

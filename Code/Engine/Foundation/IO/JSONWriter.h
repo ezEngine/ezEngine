@@ -66,6 +66,9 @@ public:
   /// \brief Shorthand for "BeginVariable(szName); WriteUuid(value); EndVariable(); "
   void AddVariableUuid(const char* szName, ezUuid value); // [tested]
 
+  /// \brief Shorthand for "BeginVariable(szName); WriteAngle(value); EndVariable(); "
+  void AddVariableAngle(const char* szName, ezAngle value); // [tested]
+
   /// \brief Shorthand for "BeginVariable(szName); WriteColor(value); EndVariable(); "
   void AddVariableColor(const char* szName, const ezColor& value); // [tested]
 
@@ -160,6 +163,11 @@ public:
   ///
   /// \note Standard JSON does not have a suitable type for this. A derived class might turn this into an object or output it via WriteBinaryData().
   virtual void WriteUuid(const ezUuid& value) = 0;
+
+  /// \brief Writes an ezAngle to the JSON file. Can only be called between BeginVariable() / EndVariable() or BeginArray() / EndArray().
+  ///
+  /// \note Standard JSON does not have a suitable type for this. A derived class might turn this into an object or output it via WriteBinaryData().
+  virtual void WriteAngle(ezAngle value) = 0; // [tested]
 
   /// \brief The default implementation dispatches all supported types to WriteBool, WriteInt32, etc. and asserts on the more complex types.
   ///
@@ -279,6 +287,9 @@ public:
 
   /// \brief Outputs the value via WriteBinaryData().
   virtual void WriteUuid(const ezUuid& value) override; // [tested]
+
+  /// \brief \copydoc ezJSONWriter::WriteFloat()
+  virtual void WriteAngle(ezAngle value) override; // [tested]
 
   /// \brief Implements the MongoDB way of writing binary data. First writes a "$type" variable, then a "$binary" variable that represents the raw data (Hex encoded, little endian).
   virtual void WriteBinaryData(const char* szDataType, const void* pData, ezUInt32 uiBytes, const char* szValueString = nullptr) override; // [tested]
