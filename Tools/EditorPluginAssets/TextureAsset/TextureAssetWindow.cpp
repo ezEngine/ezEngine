@@ -26,7 +26,7 @@ ezTextureAssetDocumentWindow::ezTextureAssetDocumentWindow(ezDocument* pDocument
 
   // Tool Bar
   {
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView(this);
+    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "TextureAssetToolBar";
     context.m_pDocument = pDocument;

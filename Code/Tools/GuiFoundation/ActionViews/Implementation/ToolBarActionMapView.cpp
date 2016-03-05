@@ -8,9 +8,10 @@
 #include <QToolButton>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
-ezToolBarActionMapView::ezToolBarActionMapView(QWidget* parent) : QToolBar(parent)
+ezToolBarActionMapView::ezToolBarActionMapView(QString title, QWidget* parent) : QToolBar(title, parent)
 {
   setIconSize(QSize(16, 16));
+  setFloatable(false);
 }
 
 ezToolBarActionMapView::~ezToolBarActionMapView()

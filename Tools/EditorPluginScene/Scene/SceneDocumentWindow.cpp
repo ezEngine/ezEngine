@@ -41,7 +41,7 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezDocument* pDocument)
 
   {
     // Tool Bar
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView(this);
+    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "EditorPluginScene_DocumentToolBar";
     context.m_pDocument = pDocument;
@@ -256,17 +256,7 @@ void ezQtSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneE
     break;
 
   case ezSceneDocument::SceneEvent::Type::ExportScene:
-    {
-      const ezAssetDocumentInfo* pInfo = static_cast<const ezAssetDocumentInfo*>(GetSceneDocument()->GetDocumentInfo());
-
-      ezExportSceneMsgToEngine msg;
-      msg.m_sOutputFile = GetSceneDocument()->GetBinaryTargetFile();
-      msg.m_uiAssetHash = pInfo->m_uiSettingsHash;
-
-      ezLog::Info("Exporting scene to \"%s\"", msg.m_sOutputFile.GetData());
-
-      GetEditorEngineConnection()->SendMessage(&msg);
-    }
+    RequestExportScene();
     break;
 
   case ezSceneDocument::SceneEvent::Type::TriggerGameModePlay:
@@ -277,6 +267,30 @@ void ezQtSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneE
       GetEditorEngineConnection()->SendMessage(&msg);
     }
     break;
+  }
+}
+
+void ezQtSceneDocumentWindow::RequestExportScene()
+{
+  const ezAssetDocumentInfo* pInfo = static_cast<const ezAssetDocumentInfo*>(GetSceneDocument()->GetDocumentInfo());
+
+  ezExportSceneMsgToEngine msg;
+  msg.m_sOutputFile = GetSceneDocument()->GetBinaryTargetFile();
+  msg.m_uiAssetHash = pInfo->m_uiSettingsHash;
+
+  ezLog::Info("Exporting scene to \"%s\"", msg.m_sOutputFile.GetData());
+
+  GetEditorEngineConnection()->SendMessage(&msg);
+
+  if (ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezExportSceneMsgToEditor::GetStaticRTTI(), ezTime::Seconds(30)).Failed())
+  {
+    ezLog::Error("Exporting scene to \"%s\" timed out.", msg.m_sOutputFile.GetData());
+  }
+  else
+  {
+    ezLog::Success("Scene \"%s\" has been exported.", msg.m_sOutputFile.GetData());
+
+    GetDocument()->ShowDocumentStatus("Scene exported successfully");
   }
 }
 
@@ -752,6 +766,7 @@ void ezQtSceneDocumentWindow::RotateGizmoEventHandler(const ezRotateGizmoAction:
   {
   case ezRotateGizmoAction::Event::Type::SnapppingAngleChanged:
     m_RotateGizmo.SetSnappingAngle(ezAngle::Degree(ezRotateGizmoAction::GetCurrentSnappingValue()));
+    ShowStatusBarMsg(ezStringUtf8(L"Snapping Angle: %f°").GetData(), ezRotateGizmoAction::GetCurrentSnappingValue());
     break;
   }
 }
@@ -762,6 +777,7 @@ void ezQtSceneDocumentWindow::ScaleGizmoEventHandler(const ezScaleGizmoAction::E
   {
   case ezScaleGizmoAction::Event::Type::SnapppingValueChanged:
     m_ScaleGizmo.SetSnappingValue(ezScaleGizmoAction::GetCurrentSnappingValue());
+    ShowStatusBarMsg("Snapping Value: %f", ezScaleGizmoAction::GetCurrentSnappingValue());
     break;
   }
 }
@@ -772,6 +788,7 @@ void ezQtSceneDocumentWindow::TranslateGizmoEventHandler(const ezTranslateGizmoA
   {
   case ezTranslateGizmoAction::Event::Type::SnapppingValueChanged:
     m_TranslateGizmo.SetSnappingValue(ezTranslateGizmoAction::GetCurrentSnappingValue());
+    ShowStatusBarMsg("Snapping Value: %f", ezTranslateGizmoAction::GetCurrentSnappingValue());
     break;
 
   }

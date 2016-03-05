@@ -23,7 +23,7 @@ ezSoundBankAssetDocumentWindow::ezSoundBankAssetDocumentWindow(ezDocument* pDocu
 
   // Tool Bar
   {
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView(this);
+    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "SoundBankAssetToolBar";
     context.m_pDocument = pDocument;

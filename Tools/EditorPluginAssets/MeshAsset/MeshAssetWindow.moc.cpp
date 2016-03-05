@@ -25,7 +25,7 @@ ezMeshAssetDocumentWindow::ezMeshAssetDocumentWindow(ezDocument* pDocument) : ez
 
   // Tool Bar
   {
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView(this);
+    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "MeshAssetToolBar";
     context.m_pDocument = pDocument;

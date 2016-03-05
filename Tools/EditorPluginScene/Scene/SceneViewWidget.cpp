@@ -364,7 +364,7 @@ ezQtSceneViewWidgetContainer::ezQtSceneViewWidgetContainer(QWidget* pParent, ezQ
 
   {
     // Tool Bar
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView(this);
+    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "EditorPluginScene_ViewToolBar";
     context.m_pDocument = pDocument->GetDocument();

@@ -6,6 +6,7 @@
 #include <ToolsFoundation/Selection/SelectionManager.h>
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
 #include <Foundation/Communication/Event.h>
+#include <Foundation/Logging/Log.h>
 
 class ezDocument;
 class ezDocumentManager;
@@ -18,6 +19,24 @@ struct EZ_TOOLSFOUNDATION_DLL ezDocumentTypeDescriptor
   ezString m_sDocumentTypeName;
   bool m_bCanCreate;
   ezString m_sIcon;
+};
+
+struct ezDocumentEvent
+{
+  enum class Type
+  {
+    ModifiedChanged,
+    ReadOnlyChanged,
+    EnsureVisible,
+    DocumentSaved,
+    SaveDocumentMetaState,
+    DocumentStatusMsg,
+  };
+
+  Type m_Type;
+  const ezDocument* m_pDocument;
+
+  const char* m_szStatusMsg;
 };
 
 class EZ_TOOLSFOUNDATION_DLL ezDocumentInfo : public ezReflectedClass
@@ -81,27 +100,19 @@ public:
   const ezSet<ezString>& GetUnknownObjectTypes() const { return m_UnknownObjectTypes; }
   ezUInt32 GetUnknownObjectTypeInstances() const { return m_uiUnknownObjectTypeInstances; }
 
+  /// \brief If disabled, this document will not be put into the recent files list.
   void SetAddToResetFilesList(bool b) { m_bAddToRecentFilesList = b; }
+
+  /// \brief Whether this document shall be put into the recent files list.
   bool GetAddToResetFilesList() const { return m_bAddToRecentFilesList; }
 
-public:
-  struct Event
-  {
-    enum class Type
-    {
-      ModifiedChanged,
-      ReadOnlyChanged,
-      EnsureVisible,
-      DocumentSaved,
-      SaveDocumentMetaState,
-    };
+  /// \brief Broadcasts a status message event. The window that displays the document may show this in some form, e.g. in the status bar.
+  void ShowDocumentStatus(const char* szFormat, ...);
 
-    Type m_Type;
-    const ezDocument* m_pDocument;
-  };
+public:
   
-  ezEvent<const Event&> m_EventsOne;
-  static ezEvent<const Event&> s_EventsAny;
+  ezEvent<const ezDocumentEvent&> m_EventsOne;
+  static ezEvent<const ezDocumentEvent&> s_EventsAny;
 
 protected:
   void SetModified(bool b);

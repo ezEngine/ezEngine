@@ -167,6 +167,15 @@ public:
   ezUInt64 m_uiAssetHash;
 };
 
+class EZ_EDITORFRAMEWORK_DLL ezExportSceneMsgToEditor : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezExportSceneMsgToEditor, ezEditorEngineDocumentMsg);
+
+public:
+
+  bool m_bSuccess;
+};
+
 class EZ_EDITORFRAMEWORK_DLL ezViewPickingMsgToEngine : public ezEditorEngineViewMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezViewPickingMsgToEngine, ezEditorEngineViewMsg);

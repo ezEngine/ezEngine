@@ -103,6 +103,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExportSceneMsgToEngine, 1, ezRTTIDefaultAlloca
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExportSceneMsgToEditor, 1, ezRTTIDefaultAllocator<ezExportSceneMsgToEditor> );
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("Success", m_bSuccess),
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewPickingMsgToEngine, 1, ezRTTIDefaultAllocator<ezViewPickingMsgToEngine>);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("PickPosX", m_uiPickPosX),

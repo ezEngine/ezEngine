@@ -69,7 +69,8 @@ public:
 
   static ezQtDocumentWindow* FindWindowByDocument(const ezDocument* pDocument);
 
-  void ShowStatusBarMsg(ezUInt32 uiMilliseconds, const char* szTest, ...);
+  void ShowStatusBarMsgNoArgs(const char* szText);
+  void ShowStatusBarMsg(const char* szText, ...);
 
 protected:
   void FinishWindowCreation();
@@ -101,7 +102,7 @@ private:
 private:
   void Constructor();
   void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
-  void DocumentEventHandler(const ezDocument::Event& e);
+  void DocumentEventHandler(const ezDocumentEvent& e);
   void UIServicesEventHandler(const ezUIServices::Event& e);
 
   virtual void InternalDeleteThis() { delete this; }
@@ -114,4 +115,5 @@ private:
 
   static ezDynamicArray<ezQtDocumentWindow*> s_AllDocumentWindows;
 };
+
 

@@ -387,17 +387,17 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
   }
 }
 
-void ezQtEditorApp::DocumentEventHandler(const ezDocument::Event& e)
+void ezQtEditorApp::DocumentEventHandler(const ezDocumentEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezDocument::Event::Type::SaveDocumentMetaState:
+  case ezDocumentEvent::Type::SaveDocumentMetaState:
     {
       SaveDocumentSettings(e.m_pDocument);
     }
     break;
 
-  case ezDocument::Event::Type::DocumentSaved:
+  case ezDocumentEvent::Type::DocumentSaved:
     {
       ezAssetCurator::GetInstance()->NotifyOfPotentialAsset(e.m_pDocument->GetDocumentPath());
     }

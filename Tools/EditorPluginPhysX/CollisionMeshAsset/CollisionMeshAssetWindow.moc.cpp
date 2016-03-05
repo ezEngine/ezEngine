@@ -23,7 +23,7 @@ ezCollisionMeshAssetDocumentWindow::ezCollisionMeshAssetDocumentWindow(ezDocumen
 
   // Tool Bar
   {
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView(this);
+    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "CollisionMeshAssetToolBar";
     context.m_pDocument = pDocument;

@@ -123,12 +123,12 @@ ezDocumentAction::~ezDocumentAction()
   }
 }
 
-void ezDocumentAction::DocumentEventHandler(const ezDocument::Event& e)
+void ezDocumentAction::DocumentEventHandler(const ezDocumentEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezDocument::Event::Type::DocumentSaved:
-  case ezDocument::Event::Type::ModifiedChanged:
+  case ezDocumentEvent::Type::DocumentSaved:
+  case ezDocumentEvent::Type::ModifiedChanged:
     {
       if (m_ButtonType == ButtonType::Save)
       {

@@ -42,7 +42,7 @@ public:
   virtual void Execute(const ezVariant& value) override;
 
 private:
-  void DocumentEventHandler(const ezDocument::Event& e);
+  void DocumentEventHandler(const ezDocumentEvent& e);
 
   ButtonType m_ButtonType;
 };

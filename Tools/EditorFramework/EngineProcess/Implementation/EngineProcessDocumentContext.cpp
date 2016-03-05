@@ -15,6 +15,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <GameFoundation/GameApplication/GameApplication.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -407,30 +408,44 @@ void ezEngineProcessDocumentContext::CleanUpContextSyncObjects()
 
 void ezEngineProcessDocumentContext::ExportScene(const ezExportSceneMsgToEngine* pMsg)
 {
-  ezFileWriter file;
-  if (file.Open(pMsg->m_sOutputFile).Failed())
+  ezExportSceneMsgToEditor ret;
+  ret.m_DocumentGuid = pMsg->m_DocumentGuid;
+
+  ezDeferredFileWriter file;
+  file.SetOutput(pMsg->m_sOutputFile);
+
+  // export
   {
-    ezLog::Error("Could not write to file '%s'", pMsg->m_sOutputFile.GetData());
-    return;
+    // File Header
+    {
+      ezAssetFileHeader header;
+      header.SetFileHashAndVersion(pMsg->m_uiAssetHash, 1);
+      header.Write(file);
+
+      const char* szSceneTag = "[ezBinaryScene]";
+      file.WriteBytes(szSceneTag, sizeof(char) * 16);
+    }
+
+    ezTag tagEditor;
+    ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tagEditor);
+    ezTagSet tags;
+    tags.Set(tagEditor);
+
+    ezWorldWriter ww;
+    ww.Write(file, *m_pWorld, &tags);
+
+    ret.m_bSuccess = true;
   }
 
-  // File Header
-  {
-    ezAssetFileHeader header;
-    header.SetFileHashAndVersion(pMsg->m_uiAssetHash, 1);
-    header.Write(file);
+  // do the actual file writing
+  ret.m_bSuccess = file.Close().Succeeded();
 
-    const char* szSceneTag = "[ezBinaryScene]";
-    file.WriteBytes(szSceneTag, sizeof(char) * 16);
+  if (!ret.m_bSuccess)
+  {
+    ezLog::Error("Could not export to file '%s'", pMsg->m_sOutputFile.GetData());
   }
 
-  ezTag tagEditor;
-  ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tagEditor);
-  ezTagSet tags;
-  tags.Set(tagEditor);
-
-  ezWorldWriter ww;
-  ww.Write(file, *m_pWorld, &tags);
+  SendProcessMessage(&ret);
 }
 
 void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEditorEngineSyncObjectMsg& msg)

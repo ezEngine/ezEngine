@@ -173,11 +173,11 @@ void ezQtDocumentWindow::SlotRedraw()
   }
 }
 
-void ezQtDocumentWindow::DocumentEventHandler(const ezDocument::Event& e)
+void ezQtDocumentWindow::DocumentEventHandler(const ezDocumentEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezDocument::Event::Type::ModifiedChanged:
+  case ezDocumentEvent::Type::ModifiedChanged:
     {
       Event dwe;
       dwe.m_pWindow = this;
@@ -185,9 +185,16 @@ void ezQtDocumentWindow::DocumentEventHandler(const ezDocument::Event& e)
       s_Events.Broadcast(dwe);
     }
     break;
-  case ezDocument::Event::Type::EnsureVisible:
+
+  case ezDocumentEvent::Type::EnsureVisible:
     {
       EnsureVisible();
+    }
+    break;
+
+  case ezDocumentEvent::Type::DocumentStatusMsg:
+    {
+      ShowStatusBarMsgNoArgs(e.m_szStatusMsg);
     }
     break;
   }
@@ -320,29 +327,33 @@ ezStatus ezQtDocumentWindow::SaveDocument()
 
     if (res.m_Result.Failed())
     {
-      ShowStatusBarMsg(10000, "Failed to save document");
+      ShowStatusBarMsg("Failed to save document");
       return res;
     }
   }
 
-  ShowStatusBarMsg(5000, "Document saved");
+  ShowStatusBarMsg("Document saved");
   return ezStatus(EZ_SUCCESS);
 
 }
 
-
-void ezQtDocumentWindow::ShowStatusBarMsg(ezUInt32 uiMilliseconds, const char* szTest, ...)
+void ezQtDocumentWindow::ShowStatusBarMsgNoArgs(const char* szText)
 {
   if (statusBar() == nullptr)
     setStatusBar(new QStatusBar());
 
+  statusBar()->showMessage(QString::fromUtf8(szText), 5000);
+}
+
+void ezQtDocumentWindow::ShowStatusBarMsg(const char* szText, ...)
+{
   ezStringBuilder sText;
   va_list args;
-  va_start(args, szTest);
-  sText.FormatArgs(szTest, args);
+  va_start(args, szText);
+  sText.FormatArgs(szText, args);
   va_end(args);
 
-  statusBar()->showMessage(QString::fromUtf8(sText.GetData()), uiMilliseconds);
+  ShowStatusBarMsgNoArgs(sText);
 }
 
 

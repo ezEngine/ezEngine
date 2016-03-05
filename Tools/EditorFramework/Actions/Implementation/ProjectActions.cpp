@@ -388,6 +388,11 @@ void ezProjectAction::Execute(const ezVariant& value)
       ezSimpleConfigMsgToEngine msg;
       msg.m_sWhatToDo = "ReloadResources";
       ezEditorEngineProcessConnection::GetInstance()->SendMessage(&msg);
+
+      if (m_Context.m_pDocument)
+      {
+        m_Context.m_pDocument->ShowDocumentStatus("Reloading Resources");
+      }
     }
     break;
   }

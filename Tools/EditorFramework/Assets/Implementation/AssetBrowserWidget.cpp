@@ -35,7 +35,7 @@ ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
 
   // Tool Bar
   {
-    m_pToolbar = new ezToolBarActionMapView(this);
+    m_pToolbar = new ezToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "AssetBrowserToolBar";
     context.m_pDocument = nullptr;

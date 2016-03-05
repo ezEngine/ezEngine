@@ -208,6 +208,7 @@ void ezSceneAction::Execute(const ezVariant& value)
       arguments << QString::fromUtf8(szPath);
 
       ezLog::Info("Running: Player.exe -scene \"%s\"", sPath.GetData());
+      m_pSceneDocument->ShowDocumentStatus("Running: Player.exe -scene \"%s\"", sPath.GetData());
 
       QProcess proc;
       proc.startDetached(QString::fromUtf8("Player.exe"), arguments);

@@ -135,6 +135,8 @@ void ezSceneDocument::UpdatePrefabs()
   UpdatePrefabsRecursive(GetObjectManager()->GetRootObject());
 
   GetCommandHistory()->FinishTransaction();
+
+  ShowDocumentStatus("Prefabs have been updated");
 }
 
 void ezSceneDocument::UpdatePrefabsRecursive(ezDocumentObject* pObject)

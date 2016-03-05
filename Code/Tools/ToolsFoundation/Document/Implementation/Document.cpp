@@ -25,7 +25,7 @@ ezDocumentInfo::ezDocumentInfo()
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezEvent<const ezDocument::Event&> ezDocument::s_EventsAny;
+ezEvent<const ezDocumentEvent&> ezDocument::s_EventsAny;
 
 ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObjectManagerImpl) :
   m_CommandHistory(this)
@@ -73,9 +73,9 @@ void ezDocument::SetModified(bool b)
 
   m_bModified = b;
 
-  Event e;
+  ezDocumentEvent e;
   e.m_pDocument = this;
-  e.m_Type = Event::Type::ModifiedChanged;
+  e.m_Type = ezDocumentEvent::Type::ModifiedChanged;
 
   m_EventsOne.Broadcast(e);
   s_EventsAny.Broadcast(e);
@@ -88,9 +88,9 @@ void ezDocument::SetReadOnly(bool b)
 
   m_bReadOnly = b;
 
-  Event e;
+  ezDocumentEvent e;
   e.m_pDocument = this;
-  e.m_Type = Event::Type::ReadOnlyChanged;
+  e.m_Type = ezDocumentEvent::Type::ReadOnlyChanged;
 
   m_EventsOne.Broadcast(e);
   s_EventsAny.Broadcast(e);
@@ -98,9 +98,9 @@ void ezDocument::SetReadOnly(bool b)
 
 void ezDocument::BroadcastSaveDocumentMetaState()
 {
-  Event e;
+  ezDocumentEvent e;
   e.m_pDocument = this;
-  e.m_Type = Event::Type::SaveDocumentMetaState;
+  e.m_Type = ezDocumentEvent::Type::SaveDocumentMetaState;
 
   m_EventsOne.Broadcast(e);
   s_EventsAny.Broadcast(e);
@@ -112,9 +112,9 @@ ezStatus ezDocument::SaveDocument()
 
   if (ret.m_Result.Succeeded())
   {
-    Event e;
+    ezDocumentEvent e;
     e.m_pDocument = this;
-    e.m_Type = Event::Type::DocumentSaved;
+    e.m_Type = ezDocumentEvent::Type::DocumentSaved;
     m_EventsOne.Broadcast(e);
     s_EventsAny.Broadcast(e);
 
@@ -132,9 +132,9 @@ ezStatus ezDocument::SaveDocument()
 
 void ezDocument::EnsureVisible()
 {
-  Event e;
+  ezDocumentEvent e;
   e.m_pDocument = this;
-  e.m_Type = Event::Type::EnsureVisible;
+  e.m_Type = ezDocumentEvent::Type::EnsureVisible;
 
   m_EventsOne.Broadcast(e);
   s_EventsAny.Broadcast(e);
@@ -224,6 +224,21 @@ void ezDocument::DeleteSelectedObjects()
   }
 
   history->FinishTransaction();
+}
 
+void ezDocument::ShowDocumentStatus(const char* szFormat, ...)
+{
+  va_list args;
+  va_start(args, szFormat);
+  ezStringBuilder sMsg;
+  sMsg.FormatArgs(szFormat, args);
+  va_end(args);
+
+  ezDocumentEvent e;
+  e.m_pDocument = this;
+  e.m_szStatusMsg = sMsg;
+  e.m_Type = ezDocumentEvent::Type::DocumentStatusMsg;
+
+  m_EventsOne.Broadcast(e);
 }
 

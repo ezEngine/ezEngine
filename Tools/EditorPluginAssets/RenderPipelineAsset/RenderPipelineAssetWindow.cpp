@@ -25,7 +25,7 @@ ezRenderPipelineAssetDocumentWindow::ezRenderPipelineAssetDocumentWindow(ezDocum
 
   // Tool Bar
   {
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView(this);
+    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "RenderPipelineAssetToolBar";
     context.m_pDocument = pDocument;

@@ -24,7 +24,7 @@ ezMaterialAssetDocumentWindow::ezMaterialAssetDocumentWindow(ezDocument* pDocume
 
   // Tool Bar
   {
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView(this);
+    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "MaterialAssetToolBar";
     context.m_pDocument = pDocument;

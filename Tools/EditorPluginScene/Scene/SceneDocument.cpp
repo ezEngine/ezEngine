@@ -339,6 +339,19 @@ void ezSceneDocument::SetGameMode(GameMode mode)
 
   m_GameMode = mode;
 
+  switch (m_GameMode)
+  {
+  case GameMode::Off:
+    ShowDocumentStatus("Game Mode: Off");
+    break;
+  case GameMode::Simulate:
+    ShowDocumentStatus("Game Mode: Simulate");
+    break;
+  case GameMode::Play:
+    ShowDocumentStatus("Game Mode: Play");
+    break;
+  }
+
   if (m_GameMode == GameMode::Off)
   {
     // reset the game world
@@ -412,6 +425,7 @@ void ezSceneDocument::SetSimulationSpeed(float f)
   e.m_Type = SceneEvent::Type::SimulationSpeedChanged;
   m_SceneEvents.Broadcast(e);
 
+  ShowDocumentStatus("Simulation Speed: %i%%", (ezInt32)(m_fSimulationSpeed * 100.0f));
 }
 
 void ezSceneDocument::SetRenderSelectionOverlay(bool b)

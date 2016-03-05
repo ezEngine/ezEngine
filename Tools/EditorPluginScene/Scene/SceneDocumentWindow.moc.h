@@ -44,6 +44,8 @@ private:
   virtual void InternalRedraw() override;
   void DocumentEventHandler(const ezSceneDocument::SceneEvent& e);
 
+  void RequestExportScene();
+
   void FocusOnSelectionAllViews();
 
   void FocusOnSelectionHoveredView();
