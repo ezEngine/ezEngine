@@ -20,9 +20,9 @@ void ezFmodSceneModule::InternalStartup()
   hRes[3] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/UI_Menu.bank");
   hRes[4] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/Weapons.bank");
 
-  GetWorld()->CreateComponentManager<ezFmodEventComponentManager>()->SetUserData(this);
-  GetWorld()->CreateComponentManager<ezFmodListenerComponentManager>()->SetUserData(this);
-  GetWorld()->CreateComponentManager<ezFmodReverbComponentManager>()->SetUserData(this);
+  GetWorld()->GetOrCreateComponentManager<ezFmodEventComponentManager>()->SetUserData(this);
+  GetWorld()->GetOrCreateComponentManager<ezFmodListenerComponentManager>()->SetUserData(this);
+  GetWorld()->GetOrCreateComponentManager<ezFmodReverbComponentManager>()->SetUserData(this);
 
   for (int i = 0; i < 5; ++i)
   {
