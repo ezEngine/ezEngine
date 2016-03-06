@@ -462,6 +462,8 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
       {
         pReceiverObject->SendMessage(*entry.m_pMessage, entry.m_MetaData.m_Routing);
       }
+
+      // no need to deallocate these messages, they are allocated through a frame allocator
     }
 
     queue.Clear();

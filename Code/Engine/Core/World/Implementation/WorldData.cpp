@@ -86,13 +86,18 @@ WorldData::~WorldData()
   for (ezUInt32 i = 0; i < ezObjectMsgQueueType::COUNT; ++i)
   {
     MessageQueue& queue = m_MessageQueues[i];
-    while (!queue.IsEmpty())
-    {
-      MessageQueue::Entry& entry = queue.Peek();
-      EZ_DELETE(&m_Allocator, entry.m_pMessage);
+    
+    // The messages in this queue are allocated through a frame allocator and thus mustn't (and don't need to be) deallocated
 
-      queue.Dequeue();
-    }
+    //while (!queue.IsEmpty())
+    //{
+    //  MessageQueue::Entry& entry = queue.Peek();
+    //  EZ_DELETE(&m_Allocator, entry.m_pMessage);
+
+    //  queue.Dequeue();
+    //}
+
+    m_MessageQueues[i].Clear();
 
     queue = m_TimedMessageQueues[i];
     while (!queue.IsEmpty())
