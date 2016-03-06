@@ -1,7 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/Pipeline/BatchedRenderData.h>
+#include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -53,14 +53,14 @@ void ezDirectionalLightComponent::OnExtractRenderData( ezExtractRenderDataMessag
 {
   ezUInt32 uiBatchId = m_bCastShadows ? 0 : 1;
 
-  auto pRenderData = CreateRenderDataForThisFrame<ezDirectionalLightRenderData>(GetOwner(), uiBatchId);
+  auto pRenderData = ezCreateRenderDataForThisFrame<ezDirectionalLightRenderData>(GetOwner(), uiBatchId);
 
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_LightColor = m_LightColor;
   pRenderData->m_fIntensity = m_fIntensity;
   pRenderData->m_bCastShadows = m_bCastShadows;
 
-  msg.m_pBatchedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light);
+  msg.m_pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light);
 }
 
 void ezDirectionalLightComponent::SerializeComponent(ezWorldWriter& stream) const

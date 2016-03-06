@@ -1,7 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/Pipeline/BatchedRenderData.h>
+#include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -113,7 +113,7 @@ void ezSpotLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg 
 {
   ezUInt32 uiBatchId = m_bCastShadows ? 0 : 1;
 
-  auto pRenderData = CreateRenderDataForThisFrame<ezSpotLightRenderData>(GetOwner(), uiBatchId);
+  auto pRenderData = ezCreateRenderDataForThisFrame<ezSpotLightRenderData>(GetOwner(), uiBatchId);
 
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_LightColor = m_LightColor;
@@ -123,7 +123,7 @@ void ezSpotLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg 
   pRenderData->m_hProjectedTexture = m_hProjectedTexture;
   pRenderData->m_bCastShadows = m_bCastShadows;
 
-  msg.m_pBatchedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light);
+  msg.m_pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light);
 }
 
 void ezSpotLightComponent::SerializeComponent(ezWorldWriter& stream) const

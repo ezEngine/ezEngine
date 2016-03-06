@@ -2,7 +2,8 @@
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/Pipeline/RenderDataBatch.h>
+#include <RendererCore/Pipeline/ViewData.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
@@ -16,7 +17,7 @@ void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>
   types.PushBack(ezGetStaticRTTI<ezMeshRenderData>());
 }
 
-void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData* const>& batch)
+void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch)
 {
   if (!m_hObjectTransformCB.IsValid())
   {
@@ -33,7 +34,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
     }
   }
 
-  const ezMeshRenderData* pRenderData = static_cast<const ezMeshRenderData*>(batch[0]);
+  const ezMeshRenderData* pRenderData = batch.GetData<ezMeshRenderData>(0);
 
   const ezMeshResourceHandle& hMesh = pRenderData->m_hMesh;
   const ezMaterialResourceHandle& hMaterial = pRenderData->m_hMaterial;
@@ -51,9 +52,9 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
   const ezMat4& ViewProjMatrix = renderViewContext.m_pViewData->m_ViewProjectionMatrix;
 
   // TODO: use instancing
-  for (ezUInt32 i = 0; i < batch.GetCount(); ++i)
+  for (auto it = batch.GetIterator<ezMeshRenderData>(); it.IsValid(); ++it)
   {
-    pRenderData = static_cast<const ezMeshRenderData*>(batch[i]);
+    pRenderData = it;
 
     EZ_ASSERT_DEV(pRenderData->m_hMesh == hMesh && pRenderData->m_hMaterial == hMaterial && pRenderData->m_uiPartIndex == uiPartIndex, "Invalid batching");
 

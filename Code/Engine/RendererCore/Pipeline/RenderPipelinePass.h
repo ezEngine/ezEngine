@@ -9,6 +9,21 @@
 
 struct ezGALTextureCreationDescription;
 
+/// \brief Passed to ezRenderPipelinePass::SetRenderTargets to inform about
+/// existing connections on each input / output pin index.
+struct ezRenderPipelinePassConnection
+{
+  ezRenderPipelinePassConnection()
+  {
+    m_pOutput = nullptr;
+  }
+
+  ezGALTextureCreationDescription m_Desc;
+  ezGALTextureHandle m_TextureHandle;
+  const ezNodePin* m_pOutput; ///< The output pin that this connection spawns from.
+  ezHybridArray<const ezNodePin*, 4> m_Inputs; ///< The various input pins this connection is connected to.
+};
+
 class EZ_RENDERERCORE_DLL ezRenderPipelinePass : public ezNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderPipelinePass, ezNode);

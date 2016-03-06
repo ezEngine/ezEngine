@@ -21,6 +21,7 @@ ezResourceBase::ezResourceBase(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityL
 {
   m_Flags.AddOrRemove(ezResourceFlags::UpdateOnMainThread, ResourceUpdateThread == DoUpdate::OnMainThread);
 
+  m_uiUniqueIDHash = 0;
   m_iReferenceCount = 0;
   m_uiResourceChangeCounter = 0;
   m_LoadingState = ezResourceState::Unloaded;
@@ -61,6 +62,7 @@ void ezResourceBase::SetPriority(ezResourcePriority priority)
 void ezResourceBase::SetUniqueID(const char* szUniqueID, bool bIsReloadable)
 {
   m_UniqueID = szUniqueID;
+  m_uiUniqueIDHash = ezHashing::MurmurHash(szUniqueID);
   SetIsReloadable(bIsReloadable);
 
   ezResourceManager::ResourceEvent e;

@@ -10,7 +10,6 @@ class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshRenderData, ezRenderData);
 
 public:
-  ezTransform m_GlobalTransform;
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
   ezUInt32 m_uiPartIndex;

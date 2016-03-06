@@ -1,6 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/Pipeline/BatchedRenderData.h>
+#include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -83,26 +83,32 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
   {
     const ezUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
     ezMaterialResourceHandle hMaterial;
-    // if we have a material override, use that
-    // otherwise use the default mesh material
+
+    // If we have a material override, use that otherwise use the default mesh material.
     if (GetMaterial(uiMaterialIndex).IsValid())
       hMaterial = m_Materials[uiMaterialIndex];
     else
       hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
-    // Generate batch id from mesh, material and part index
-    size_t data[] = { *reinterpret_cast<const size_t*>(&m_hMesh), *reinterpret_cast<const size_t*>(&hMaterial), uiPartIndex };
-    ezUInt32 uiBatchId = ezHashing::MurmurHash(data, sizeof(data));
+    ezResourceLock<ezMaterialResource> pMaterial(hMaterial);
 
-    auto* pRenderData = CreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
+    // Generate batch id from mesh, material and part index. 
+    // The part index is also stored in the highest 4 bits so that parts with a lower index are always rendered first.
+    // This can be useful for transparent objects with multiple parts that need a fixed rendering order.
+    ezUInt32 data[] = { pMesh->GetResourceIDHash(), pMaterial->GetResourceIDHash(), uiPartIndex };
+    ezUInt32 uiBatchId = (uiPartIndex << 28) | (ezHashing::MurmurHash(data, sizeof(data)) & 0x0FFFFFFF);
 
-    pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-    pRenderData->m_hMesh = m_hMesh;
-    pRenderData->m_hMaterial = hMaterial;
-    pRenderData->m_uiPartIndex = uiPartIndex;
-    pRenderData->m_uiEditorPickingID = m_uiEditorPickingID | (uiMaterialIndex << 24);    
-    pRenderData->m_MeshColor = m_MeshColor;    
+    auto* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
+    {
+      pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
+      pRenderData->m_hMesh = m_hMesh;
+      pRenderData->m_hMaterial = hMaterial;
+      pRenderData->m_uiPartIndex = uiPartIndex;
+      pRenderData->m_uiEditorPickingID = m_uiEditorPickingID | (uiMaterialIndex << 24);
+      pRenderData->m_MeshColor = m_MeshColor;
+    }
 
+    // Determine render data category. TODO: get category from material
     ezRenderData::Category category = ezDefaultRenderDataCategories::Opaque;
     if (m_RenderDataCategory != ezInvalidIndex)
     {
@@ -113,7 +119,7 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
       category = msg.m_OverrideCategory;
     }
 
-    msg.m_pBatchedRenderData->AddRenderData(pRenderData, category);
+    msg.m_pExtractedRenderData->AddRenderData(pRenderData, category);
   }
 }
 

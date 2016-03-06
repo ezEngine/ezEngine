@@ -13,7 +13,7 @@ class EZ_RENDERERCORE_DLL ezLightGatheringRenderer : public ezRenderer
 public:
   // ezRenderer implementation
   virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) override;
-  virtual void RenderBatch(const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData* const>& batch) override;
+  virtual void RenderBatch(const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) override;
 
 private:
   // TODO: CB Handles

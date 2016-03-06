@@ -4,7 +4,7 @@
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/Pipeline/RenderDataBatch.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
@@ -20,13 +20,13 @@ void ezLightGatheringRenderer::GetSupportedRenderDataTypes(ezHybridArray<const e
   types.PushBack(ezGetStaticRTTI<ezDirectionalLightRenderData>());
 }
 
-void ezLightGatheringRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData* const>& batch)
+void ezLightGatheringRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch)
 {
   // TODO: Setup necessary buffers to hold the light information
 
-  for (const ezRenderData* pRenderData : batch)
+  for (auto it = batch.GetIterator<ezLightRenderData>(); it.IsValid(); ++it)
   {
-    const ezLightRenderData* current = static_cast<const ezLightRenderData*>(pRenderData);
+    const ezLightRenderData* current = it;
     
     // TODO: Fill buffers with light render data
     if (current->IsInstanceOf<ezPointLightRenderData>())

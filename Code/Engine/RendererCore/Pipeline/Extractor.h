@@ -2,7 +2,7 @@
 
 #include <RendererCore/Pipeline/RenderData.h>
 
-class ezBatchedRenderData;
+class ezExtractedRenderData;
 
 class EZ_RENDERERCORE_DLL ezExtractor : public ezReflectedClass
 {
@@ -20,7 +20,7 @@ public:
   /// \brief returns the name of the extractor.
   const char* GetName() const;
 
-  virtual void Extract(const ezView& view, ezBatchedRenderData* pBatchedRenderData) {};
+  virtual void Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData) {};
 
 private:
   ezHashedString m_sName;
@@ -33,7 +33,7 @@ class EZ_RENDERERCORE_DLL ezVisibleObjectsExtractor : public ezExtractor
 public:
   ezVisibleObjectsExtractor() {}
 
-  virtual void Extract(const ezView& view, ezBatchedRenderData* pBatchedRenderData) override;
+  virtual void Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData) override;
 };
 
 class EZ_RENDERERCORE_DLL ezSelectedObjectsExtractor : public ezExtractor
@@ -42,7 +42,7 @@ class EZ_RENDERERCORE_DLL ezSelectedObjectsExtractor : public ezExtractor
 public:
   ezSelectedObjectsExtractor();
 
-  virtual void Extract(const ezView& view, ezBatchedRenderData* pBatchedRenderData) override;
+  virtual void Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData) override;
   virtual const ezDeque<ezGameObjectHandle>* GetSelection() = 0;
   ezRenderData::Category m_OverrideCategory;
 };
@@ -53,7 +53,7 @@ class EZ_RENDERERCORE_DLL ezCallDelegateExtractor : public ezExtractor
 public:
   ezCallDelegateExtractor();
 
-  virtual void Extract(const ezView& view, ezBatchedRenderData* pBatchedRenderData) override;
+  virtual void Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData) override;
 
   ezDelegate<void ()> m_Delegate;
 };

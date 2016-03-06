@@ -13,7 +13,6 @@ class EZ_RENDERERCORE_DLL ezPointLightRenderData : public ezLightRenderData
 	EZ_ADD_DYNAMIC_REFLECTION(ezPointLightRenderData, ezLightRenderData);
 
 public:
-	ezTransform m_GlobalTransform;
 	ezColor m_LightColor;
   float m_fIntensity;
 	float m_fRange;

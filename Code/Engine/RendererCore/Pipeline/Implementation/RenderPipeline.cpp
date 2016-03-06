@@ -810,24 +810,24 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
   m_CurrentRenderThread = (ezThreadID)0;
 }
 
-ezBatchedRenderData& ezRenderPipeline::GetDataForExtraction()
+ezExtractedRenderData& ezRenderPipeline::GetDataForExtraction()
 {
   return m_Data[ezRenderLoop::GetFrameCounter() & 1];
 }
 
-ezBatchedRenderData& ezRenderPipeline::GetDataForRendering()
+ezExtractedRenderData& ezRenderPipeline::GetDataForRendering()
 {
   const ezUInt32 uiFrameCounter = ezRenderLoop::GetFrameCounter() + (CVarMultithreadedRendering ? 1 : 0);
   return m_Data[uiFrameCounter & 1];
 }
 
-const ezBatchedRenderData& ezRenderPipeline::GetDataForRendering() const
+const ezExtractedRenderData& ezRenderPipeline::GetDataForRendering() const
 {
   const ezUInt32 uiFrameCounter = ezRenderLoop::GetFrameCounter() + (CVarMultithreadedRendering ? 1 : 0);
   return m_Data[uiFrameCounter & 1];
 }
 
-ezArrayPtr< const ezArrayPtr<const ezRenderData*> > ezRenderPipeline::GetRenderDataBatchesWithCategory(ezRenderData::Category category) const
+ezArrayPtr< const ezRenderDataBatch > ezRenderPipeline::GetRenderDataBatchesWithCategory(ezRenderData::Category category) const
 {
   auto& data = GetDataForRendering();
   if (data.m_DataPerCategory.GetCount() > category)
@@ -835,7 +835,7 @@ ezArrayPtr< const ezArrayPtr<const ezRenderData*> > ezRenderPipeline::GetRenderD
     return data.m_DataPerCategory[category].m_Batches;
   }
 
-  return ezArrayPtr< const ezArrayPtr<const ezRenderData*> >();
+  return ezArrayPtr< const ezRenderDataBatch >();
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipeline);

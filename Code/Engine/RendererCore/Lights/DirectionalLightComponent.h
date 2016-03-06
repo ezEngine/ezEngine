@@ -12,7 +12,6 @@ class EZ_RENDERERCORE_DLL ezDirectionalLightRenderData : public ezLightRenderDat
   EZ_ADD_DYNAMIC_REFLECTION(ezDirectionalLightRenderData, ezLightRenderData);
 
 public:
-  ezTransform m_GlobalTransform;
   ezColor m_LightColor;
   float m_fIntensity;
   bool m_bCastShadows;

@@ -40,6 +40,7 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
 
   m_szPluginName = nullptr;
   m_szTypeName = szName;
+  m_uiTypeNameHash = szName != nullptr ? ezHashing::MurmurHash(szName) : 0;
   m_pAllocator = pAllocator;
   m_Properties = properties;
   m_Attributes = attributes;

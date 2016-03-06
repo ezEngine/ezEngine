@@ -1,5 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Pipeline/SortingFunctions.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderData, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -9,19 +10,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezExtractRenderDataMessage);
 
-namespace
-{
-  struct CategoryData
-  {
-    ezHashedString m_sName;
-    ezProfilingId m_ProfilingID;
-  };
-
-  static ezHybridArray<CategoryData, 32> s_CategoryData;
-}
+ezHybridArray<ezRenderData::CategoryData, 32> ezRenderData::s_CategoryData;
 
 //static 
-ezRenderData::Category ezRenderData::FindOrRegisterCategory(const char* szCategoryName)
+ezRenderData::Category ezRenderData::RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc)
 {
   ezTempHashedString categoryName(szCategoryName);
 
@@ -36,27 +28,16 @@ ezRenderData::Category ezRenderData::FindOrRegisterCategory(const char* szCatego
   auto& data = s_CategoryData.ExpandAndGetRef();
   data.m_sName.Assign(szCategoryName);
   data.m_ProfilingID = ezProfilingSystem::CreateId(szCategoryName);
+  data.m_sortingKeyFunc = sortingKeyFunc;
 
   return newCategory;
 }
 
-//static 
-const char* ezRenderData::GetCategoryName(Category category)
-{
-  return s_CategoryData[category].m_sName.GetString().GetData();
-}
-
-//static
-ezProfilingId& ezRenderData::GetCategoryProfilingID(Category category)
-{
-  return s_CategoryData[category].m_ProfilingID;
-}
-
-ezRenderData::Category ezDefaultRenderDataCategories::Light = ezRenderData::FindOrRegisterCategory( "Light" );
-ezRenderData::Category ezDefaultRenderDataCategories::Opaque = ezRenderData::FindOrRegisterCategory("Opaque");
-ezRenderData::Category ezDefaultRenderDataCategories::Masked = ezRenderData::FindOrRegisterCategory("Masked");
-ezRenderData::Category ezDefaultRenderDataCategories::Transparent = ezRenderData::FindOrRegisterCategory("Transparent");
-ezRenderData::Category ezDefaultRenderDataCategories::Foreground1 = ezRenderData::FindOrRegisterCategory("Foreground1");
-ezRenderData::Category ezDefaultRenderDataCategories::Foreground2 = ezRenderData::FindOrRegisterCategory("Foreground2");
-ezRenderData::Category ezDefaultRenderDataCategories::Selection = ezRenderData::FindOrRegisterCategory("Selection");
+ezRenderData::Category ezDefaultRenderDataCategories::Light = ezRenderData::RegisterCategory("Light", &ezRenderSortingFunctions::ByBatchThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::Opaque = ezRenderData::RegisterCategory("Opaque", &ezRenderSortingFunctions::ByBatchThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::Masked = ezRenderData::RegisterCategory("Masked", &ezRenderSortingFunctions::ByBatchThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::Transparent = ezRenderData::RegisterCategory("Transparent", &ezRenderSortingFunctions::BackToFrontThenByBatch);
+ezRenderData::Category ezDefaultRenderDataCategories::Foreground1 = ezRenderData::RegisterCategory("Foreground1", &ezRenderSortingFunctions::ByBatchThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::Foreground2 = ezRenderData::RegisterCategory("Foreground2", &ezRenderSortingFunctions::ByBatchThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::Selection = ezRenderData::RegisterCategory("Selection", &ezRenderSortingFunctions::ByBatchThenFrontToBack);
 

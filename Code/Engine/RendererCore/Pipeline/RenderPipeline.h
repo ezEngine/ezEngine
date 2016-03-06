@@ -6,7 +6,7 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <CoreUtils/Graphics/Camera.h>
-#include <RendererCore/Pipeline/BatchedRenderData.h>
+#include <RendererCore/Pipeline/ExtractedRenderData.h>
 
 class ezProfilingId;
 class ezView;
@@ -47,7 +47,7 @@ public:
   void GetExtractors(ezHybridArray<ezExtractor*, 16>& extractors);
   ezExtractor* GetExtractorByName(const char* szPassName) const;
 
-  ezArrayPtr< const ezArrayPtr<const ezRenderData*> > GetRenderDataBatchesWithCategory(ezRenderData::Category category) const;
+  ezArrayPtr< const ezRenderDataBatch > GetRenderDataBatchesWithCategory(ezRenderData::Category category) const;
 
   EZ_DISALLOW_COPY_AND_ASSIGN(ezRenderPipeline);
 
@@ -71,9 +71,9 @@ private:
   void ExtractData(const ezView& view);
   void Render(ezRenderContext* pRenderer);
 
-  ezBatchedRenderData& GetDataForExtraction();
-  ezBatchedRenderData& GetDataForRendering();
-  const ezBatchedRenderData& GetDataForRendering() const;
+  ezExtractedRenderData& GetDataForExtraction();
+  ezExtractedRenderData& GetDataForRendering();
+  const ezExtractedRenderData& GetDataForRendering() const;
 
 private: // Member data
   // Thread data
@@ -81,7 +81,7 @@ private: // Member data
   ezThreadID m_CurrentRenderThread;
 
   // Pipeline render data
-  ezBatchedRenderData m_Data[2];
+  ezExtractedRenderData m_Data[2];
 
   // Profiling
   ezProfilingId m_RenderProfilingID;

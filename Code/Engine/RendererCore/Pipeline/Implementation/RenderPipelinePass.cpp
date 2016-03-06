@@ -89,7 +89,7 @@ void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& ren
   auto& batches = m_pPipeline->GetRenderDataBatchesWithCategory(category);
   for (auto& batch : batches)
   {
-    const ezRenderData* pRenderData = batch[0];
+    const ezRenderData* pRenderData = batch.GetData<ezRenderData>(0);
     const ezRTTI* pType = pRenderData->GetDynamicRTTI();
     
     ezUInt32 uiRendererIndex = ezInvalidIndex;

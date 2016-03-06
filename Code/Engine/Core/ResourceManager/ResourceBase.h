@@ -54,6 +54,9 @@ public:
   /// \brief Returns the unique ID that identifies this resource. On a file resource this might be a path. Can also be a GUID or any other scheme that uniquely identifies the resource.
   const ezString& GetResourceID() const { return m_UniqueID; }
 
+  /// \brief Returns the hash of the unique ID.
+  ezUInt32 GetResourceIDHash() const { return m_uiUniqueIDHash; }
+
   /// \brief The resource description allows to store an additional string that might be more descriptive during debugging, than the unique ID.
   void SetResourceDescription(const char* szDescription);
 
@@ -217,6 +220,7 @@ private:
 
   ezBitflags<ezResourceFlags> m_Flags;
 
+  ezUInt32 m_uiUniqueIDHash;
   ezUInt32 m_uiResourceChangeCounter;
   ezResourcePriority m_Priority;
   ezAtomicInteger32 m_iReferenceCount;

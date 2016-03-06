@@ -88,15 +88,6 @@ WorldData::~WorldData()
     MessageQueue& queue = m_MessageQueues[i];
     
     // The messages in this queue are allocated through a frame allocator and thus mustn't (and don't need to be) deallocated
-
-    //while (!queue.IsEmpty())
-    //{
-    //  MessageQueue::Entry& entry = queue.Peek();
-    //  EZ_DELETE(&m_Allocator, entry.m_pMessage);
-
-    //  queue.Dequeue();
-    //}
-
     m_MessageQueues[i].Clear();
 
     queue = m_TimedMessageQueues[i];

@@ -38,6 +38,9 @@ public:
   /// \brief Returns the name of this type.
   EZ_FORCE_INLINE const char* GetTypeName() const { return m_szTypeName; } // [tested]
 
+  /// \brief Returns the hash of the name of this type.
+  EZ_FORCE_INLINE ezUInt32 GetTypeNameHash() const { return m_uiTypeNameHash; } // [tested]
+
   /// \brief Returns the type that is the base class of this type. May be nullptr if this type has no base class.
   EZ_FORCE_INLINE const ezRTTI* GetParentType() const { return m_pParentType; } // [tested]
 
@@ -120,6 +123,7 @@ private:
   ezUInt32 m_uiTypeSize;
   ezUInt32 m_uiMsgIdOffset;
   ezUInt32 m_uiTypeVersion;
+  ezUInt32 m_uiTypeNameHash;
   ezBitflags<ezTypeFlags> m_TypeFlags;
   ezRTTIAllocator* m_pAllocator;
 
