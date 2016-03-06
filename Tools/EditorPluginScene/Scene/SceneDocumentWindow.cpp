@@ -9,6 +9,7 @@
 #include <QGridLayout>
 #include <QSettings>
 #include <InputContexts/OrthoGizmoContext.h>
+#include <CoreUtils/Assets/AssetFileHeader.h>
 
 ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
@@ -29,6 +30,7 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezDocument* pDocument)
   SetTargetFramerate(35);
 
   GetSceneDocument()->m_ObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SceneObjectMetaDataEventHandler, this));
+  GetSceneDocument()->m_ExportEvent.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SceneExportEventHandler, this));
 
   {
     // Menu Bar
@@ -101,7 +103,9 @@ ezQtSceneDocumentWindow::~ezQtSceneDocumentWindow()
 
   ezSceneDocument* pSceneDoc = static_cast<ezSceneDocument*>(GetDocument());
   pSceneDoc->m_SceneEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::DocumentEventHandler, this));
+
   GetSceneDocument()->m_ObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SceneObjectMetaDataEventHandler, this));
+  GetSceneDocument()->m_ExportEvent.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SceneExportEventHandler, this));
 
   m_TranslateGizmo.m_GizmoEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
   m_RotateGizmo.m_GizmoEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
@@ -229,60 +233,55 @@ void ezQtSceneDocumentWindow::ObjectStructureEventHandler(const ezDocumentObject
   }
 }
 
-void ezQtSceneDocumentWindow::DocumentEventHandler(const ezSceneDocument::SceneEvent& e)
+void ezQtSceneDocumentWindow::DocumentEventHandler(const ezSceneDocumentEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezSceneDocument::SceneEvent::Type::ActiveGizmoChanged:
+  case ezSceneDocumentEvent::Type::ActiveGizmoChanged:
     UpdateGizmoVisibility();
     break;
 
-  case ezSceneDocument::SceneEvent::Type::FocusOnSelection_Hovered:
+  case ezSceneDocumentEvent::Type::FocusOnSelection_Hovered:
     GetSceneDocument()->ShowOrHideSelectedObjects(ezSceneDocument::ShowOrHide::Show);
     FocusOnSelectionHoveredView();
     break;
 
-  case ezSceneDocument::SceneEvent::Type::FocusOnSelection_All:
+  case ezSceneDocumentEvent::Type::FocusOnSelection_All:
     GetSceneDocument()->ShowOrHideSelectedObjects(ezSceneDocument::ShowOrHide::Show);
     FocusOnSelectionAllViews();
     break;
 
-  case ezSceneDocument::SceneEvent::Type::SnapSelectionPivotToGrid:
+  case ezSceneDocumentEvent::Type::SnapSelectionPivotToGrid:
     SnapSelectionToPosition(false);
     break;
 
-  case ezSceneDocument::SceneEvent::Type::SnapEachSelectedObjectToGrid:
+  case ezSceneDocumentEvent::Type::SnapEachSelectedObjectToGrid:
     SnapSelectionToPosition(true);
     break;
 
-  case ezSceneDocument::SceneEvent::Type::ExportScene:
-    RequestExportScene();
-    break;
-
-  case ezSceneDocument::SceneEvent::Type::TriggerGameModePlay:
-  case ezSceneDocument::SceneEvent::Type::TriggerStopGameModePlay:
+  case ezSceneDocumentEvent::Type::TriggerGameModePlay:
+  case ezSceneDocumentEvent::Type::TriggerStopGameModePlay:
     {
       ezGameModeMsgToEngine msg;
-      msg.m_bEnablePTG = e.m_Type == ezSceneDocument::SceneEvent::Type::TriggerGameModePlay;
+      msg.m_bEnablePTG = e.m_Type == ezSceneDocumentEvent::Type::TriggerGameModePlay;
       GetEditorEngineConnection()->SendMessage(&msg);
     }
     break;
   }
 }
 
-void ezQtSceneDocumentWindow::RequestExportScene()
+ezStatus ezQtSceneDocumentWindow::RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header)
 {
-  const ezAssetDocumentInfo* pInfo = static_cast<const ezAssetDocumentInfo*>(GetSceneDocument()->GetDocumentInfo());
-
   ezExportSceneMsgToEngine msg;
-  msg.m_sOutputFile = GetSceneDocument()->GetBinaryTargetFile();
-  msg.m_uiAssetHash = pInfo->m_uiSettingsHash;
+  msg.m_sOutputFile = szTargetFile;
+  msg.m_uiAssetHash = header.GetFileHash();
+  msg.m_uiVersion = header.GetFileVersion();
 
   ezLog::Info("Exporting scene to \"%s\"", msg.m_sOutputFile.GetData());
 
   GetEditorEngineConnection()->SendMessage(&msg);
 
-  if (ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezExportSceneMsgToEditor::GetStaticRTTI(), ezTime::Seconds(30)).Failed())
+  if (ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezExportSceneMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60)).Failed())
   {
     ezLog::Error("Exporting scene to \"%s\" timed out.", msg.m_sOutputFile.GetData());
   }
@@ -292,6 +291,8 @@ void ezQtSceneDocumentWindow::RequestExportScene()
 
     GetDocument()->ShowDocumentStatus("Scene exported successfully");
   }
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 void ezQtSceneDocumentWindow::FocusOnSelectionAllViews()
@@ -758,6 +759,11 @@ void ezQtSceneDocumentWindow::SceneObjectMetaDataEventHandler(const ezObjectMeta
 
     SendObjectMsg(GetDocument()->GetObjectManager()->GetObject(e.m_ObjectKey), &msg);
   }
+}
+
+void ezQtSceneDocumentWindow::SceneExportEventHandler(ezSceneDocumentExportEvent& e)
+{
+  e.m_ReturnStatus = RequestExportScene(e.m_szTargetFile, *e.m_pAssetFileHeader);
 }
 
 void ezQtSceneDocumentWindow::RotateGizmoEventHandler(const ezRotateGizmoAction::Event& e)

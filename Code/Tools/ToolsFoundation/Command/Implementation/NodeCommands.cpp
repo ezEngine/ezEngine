@@ -69,7 +69,7 @@ ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
         auto res = AddSubCommand(cmd);
         if (res.m_Result.Failed())
         {
-          return ezStatus("%s", res.m_sError.GetData());
+          return ezStatus("%s", res.m_sMessage.GetData());
         }
       }
     }
@@ -89,7 +89,7 @@ ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
         auto res = AddSubCommand(cmd);
         if (res.m_Result.Failed())
         {
-          return ezStatus("%s", res.m_sError.GetData());
+          return ezStatus("%s", res.m_sMessage.GetData());
         }
       }
     }
@@ -98,7 +98,7 @@ ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
     auto res = AddSubCommand(cmd);
     if (res.m_Result.Failed())
     {
-      return ezStatus("%s", res.m_sError.GetData());
+      return ezStatus("%s", res.m_sMessage.GetData());
     }
   }
   return ezStatus(EZ_SUCCESS);

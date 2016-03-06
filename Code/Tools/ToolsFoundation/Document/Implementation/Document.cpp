@@ -127,6 +127,11 @@ ezStatus ezDocument::SaveDocument()
 
   BroadcastSaveDocumentMetaState();
 
+  if (ret.m_Result.Succeeded())
+  {
+    InternalAfterSaveDocument();
+  }
+
   return ret;
 }
 

@@ -120,9 +120,9 @@ void ezGizmoAction::UpdateState()
   }
 }
 
-void ezGizmoAction::SceneEventHandler(const ezSceneDocument::SceneEvent& e)
+void ezGizmoAction::SceneEventHandler(const ezSceneDocumentEvent& e)
 {
-  if (e.m_Type == ezSceneDocument::SceneEvent::Type::ActiveGizmoChanged)
+  if (e.m_Type == ezSceneDocumentEvent::Type::ActiveGizmoChanged)
     UpdateState();
 
 }

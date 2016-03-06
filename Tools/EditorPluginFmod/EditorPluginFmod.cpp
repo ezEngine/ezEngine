@@ -65,7 +65,7 @@ void OnUnloadPlugin(bool bReloading)
   ezFmodActions::UnregisterActions();
 }
 
-ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin, "ezEditorPluginScene", "ezFmodPlugin");
+ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin, "ezEditorPluginScene");
 
 EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_EDITORPLUGINFMOD_DLL, ezEditorPluginFmod);
 

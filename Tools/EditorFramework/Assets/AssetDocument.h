@@ -3,27 +3,8 @@
 #include <EditorFramework/Plugin.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
-
-class ezImage;
-
-class EZ_EDITORFRAMEWORK_DLL ezAssetDocumentInfo : public ezDocumentInfo
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezAssetDocumentInfo, ezDocumentInfo);
-
-public:
-  ezAssetDocumentInfo();
-
-  ezString GetDependencies() const;
-  void SetDependencies(ezString s);
-
-  //ezString GetReferences() const;
-  //void SetReferences(ezString s);
-
-  ezUInt64 m_uiSettingsHash; ///< Current hash over all settings in the document, used to check resulting resource for being up-to-date in combination with dependency hashes.
-  ezSet<ezString> m_FileDependencies;   ///< Files that are required to generate the asset, ie. if one changes, the asset needs to be recreated
-  //ezSet<ezString> m_FileReferences;     ///< Other files that are used at runtime together with this asset, e.g. materials for a mesh, currently not really implemented
-  ezString m_sAssetTypeName;
-};
+#include <EditorFramework/Assets/Declarations.h>
+#include <EditorFramework/Assets/AssetDocumentInfo.h>
 
 class EZ_EDITORFRAMEWORK_DLL ezAssetDocument : public ezDocument
 {
@@ -42,9 +23,23 @@ public:
   /// This is mostly used for sorting and filtering in the asset browser.
   virtual const char* QueryAssetType() const = 0;
 
-  ezStatus TransformAsset(const char* szPlatform = "");
+  ezStatus TransformAsset(const char* szPlatform = nullptr);
 
-  ezStatus RetrieveAssetInfo(const char* szPlatform = "");
+  /// \brief Will definitely try to transform the asset, ignoring whether the transform is disabled on an asset.
+  ///
+  /// Will also not try to save the document.
+  /// If this function encounters flags that prevent transformation, it will return an error and not silently ignore them.
+  ezStatus TransformAssetManually(const char* szPlatform = nullptr);
+
+  ezStatus RetrieveAssetInfo(const char* szPlatform = nullptr);
+
+  /// \brief Determines the path to the transformed asset file. May be overridden for special cases.
+  ///
+  /// The default implementation puts each asset into the AssetCache folder.
+  virtual ezString GetFinalOutputFileName(const char* szPlatform = nullptr);
+
+  /// \brief Called during certain operations, such as TransformAsset, to determine how to proceed with this asset.
+  virtual ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const;
 
   struct AssetEvent
   {
@@ -59,11 +54,32 @@ public:
   ezEvent<const AssetEvent&> m_AssetEvents;
 
 protected:
+  /// \brief Computes the hash from all document objects
   ezUInt64 GetDocumentHash() const;
-  void GetChildHash(const ezDocumentObject* pObject, ezUInt64& uiHash) const;
+
+  /// \brief Computes the hash for one document object and combines it with the given hash
+  void GetChildHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const;
+
+  /// \brief Overrides the base function to call UpdateAssetDocumentInfo() to update the settings hash
   virtual ezStatus InternalSaveDocument() override;
+
+  /// \brief Implements auto transform on save
+  virtual void InternalAfterSaveDocument() override;
+
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) = 0;
+
+  /// \brief Override this and write the transformed file into the given stream.
+  ///
+  /// The stream already contains the ezAssetFileHeader. This is the function to prefer when the asset can be written
+  /// directly from the editor process.
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform) = 0;
+
+  /// \brief Only override this function, if the transformed file must be written from another process.
+  ///
+  /// szTargetFile is where the transformed asset should be written to. The overriding function must ensure to first
+  /// write \a AssetHeader to the file, to make it a valid asset file.
+  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szPlatform, const ezAssetFileHeader& AssetHeader);
+
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) = 0;
 
   /// \brief Override this to change the version of the asset type. E.g. when the algorithm to transform an asset changes.
@@ -75,5 +91,6 @@ protected:
 private:
   virtual ezDocumentInfo* CreateDocumentInfo() override;
 
+  static ezString DetermineFinalTargetPlatform(const char* szPlatform);
 };
 

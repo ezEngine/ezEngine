@@ -48,7 +48,7 @@ public:
 
 private:
   void UpdateState();
-  void SceneEventHandler(const ezSceneDocument::SceneEvent& e);
+  void SceneEventHandler(const ezSceneDocumentEvent& e);
 
   ezSceneDocument* m_pSceneDocument;
   ActionType m_Type;

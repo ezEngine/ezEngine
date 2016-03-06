@@ -6,6 +6,8 @@
 #include <CoreUtils/DataStructures/ObjectMetaData.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 
+class ezAssetFileHeader;
+
 enum class ActiveGizmo
 {
   None,
@@ -20,6 +22,34 @@ enum class GameMode
   Off,
   Simulate,
   Play,
+};
+
+struct ezSceneDocumentEvent
+{
+  enum class Type
+  {
+    ActiveGizmoChanged,
+    ShowSelectionInScenegraph,
+    FocusOnSelection_Hovered,
+    FocusOnSelection_All,
+    SnapSelectionPivotToGrid,
+    SnapEachSelectedObjectToGrid,
+    GameModeChanged,
+    RenderSelectionOverlayChanged,
+    RenderShapeIconsChanged,
+    SimulationSpeedChanged,
+    TriggerGameModePlay,
+    TriggerStopGameModePlay,
+  };
+
+  Type m_Type;
+};
+
+struct ezSceneDocumentExportEvent
+{
+  const char* m_szTargetFile;
+  const ezAssetFileHeader* m_pAssetFileHeader;
+  ezStatus m_ReturnStatus;
 };
 
 class ezSceneObjectMetaData : public ezReflectedClass
@@ -86,12 +116,10 @@ public:
   void ShowOrHideAllObjects(ShowOrHide action);
   void HideUnselectedObjects();
   void UpdatePrefabs();
-  void TriggerExportScene();
   void RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
   void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
 
   bool IsPrefab() const { return m_bIsPrefab; }
-  ezString GetBinaryTargetFile() const;
 
   void SetGizmoWorldSpace(bool bWorldSpace);
   bool GetGizmoWorldSpace() const;
@@ -114,29 +142,8 @@ public:
   const ezString& GetCachedPrefabGraph(const ezUuid& AssetGuid);
   ezString ReadDocumentAsString(const char* szFile) const;
 
-  struct SceneEvent
-  {
-    enum class Type
-    {
-      ActiveGizmoChanged,
-      ShowSelectionInScenegraph,
-      FocusOnSelection_Hovered,
-      FocusOnSelection_All,
-      SnapSelectionPivotToGrid,
-      SnapEachSelectedObjectToGrid,
-      ExportScene,
-      GameModeChanged,
-      RenderSelectionOverlayChanged,
-      RenderShapeIconsChanged,
-      SimulationSpeedChanged,
-      TriggerGameModePlay,
-      TriggerStopGameModePlay,
-    };
-
-    Type m_Type;
-  };
-
-  ezEvent<const SceneEvent&> m_SceneEvents;
+  ezEvent<const ezSceneDocumentEvent&> m_SceneEvents;
+  ezEvent <ezSceneDocumentExportEvent&> m_ExportEvent;
   ezObjectMetaData<ezUuid, ezSceneObjectMetaData> m_ObjectMetaData;
 
   ezStatus CreatePrefabDocumentFromSelection(const char* szFile);
@@ -159,6 +166,8 @@ public:
   void SetRenderShapeIcons(bool b);
 
   void HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg);
+
+  ezStatus ExportScene();
 
 protected:
   void SetGameMode(GameMode mode);
@@ -194,13 +203,14 @@ private:
 
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) override;
 
+  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform) override;
 
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override;
 
   virtual ezUInt16 GetAssetTypeVersion() const override;
 
-  virtual ezStatus InternalSaveDocument() override;
+  virtual ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const override;
 
 
   bool m_bIsPrefab;

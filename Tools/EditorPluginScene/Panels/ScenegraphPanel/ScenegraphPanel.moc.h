@@ -21,7 +21,7 @@ private slots:
   void OnRequestContextMenu(QPoint pos);
 
 private:
-  void DocumentSceneEventHandler(const ezSceneDocument::SceneEvent& e);
+  void DocumentSceneEventHandler(const ezSceneDocumentEvent& e);
 
   ezSceneDocument* m_pDocument;
   ezQtDocumentTreeWidget* m_pTreeWidget;

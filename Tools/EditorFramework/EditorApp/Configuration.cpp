@@ -121,7 +121,7 @@ void ezQtEditorApp::ReadTagRegistry()
     ezStatus res = SaveTagRegistry();
     if (res.m_Result.Failed())
     {
-      ezLog::Error("%s", res.m_sError.GetData());
+      ezLog::Error("%s", res.m_sMessage.GetData());
     }
   }
   else
@@ -129,7 +129,7 @@ void ezQtEditorApp::ReadTagRegistry()
     ezStatus res = ezToolsTagRegistry::ReadFromJSON(file);
     if (res.m_Result.Failed())
     {
-      ezLog::Error("%s", res.m_sError.GetData());
+      ezLog::Error("%s", res.m_sMessage.GetData());
     }
   }
 

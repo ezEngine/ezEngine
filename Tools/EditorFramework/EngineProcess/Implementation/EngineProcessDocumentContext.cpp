@@ -419,7 +419,7 @@ void ezEngineProcessDocumentContext::ExportScene(const ezExportSceneMsgToEngine*
     // File Header
     {
       ezAssetFileHeader header;
-      header.SetFileHashAndVersion(pMsg->m_uiAssetHash, 1);
+      header.SetFileHashAndVersion(pMsg->m_uiAssetHash, pMsg->m_uiVersion);
       header.Write(file);
 
       const char* szSceneTag = "[ezBinaryScene]";

@@ -42,11 +42,11 @@ void ezScenegraphPanel::RegisterActions()
   ezEditActions::MapContextMenuActions("ScenegraphContextMenu", "");
 }
 
-void ezScenegraphPanel::DocumentSceneEventHandler(const ezSceneDocument::SceneEvent& e)
+void ezScenegraphPanel::DocumentSceneEventHandler(const ezSceneDocumentEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezSceneDocument::SceneEvent::Type::ShowSelectionInScenegraph:
+  case ezSceneDocumentEvent::Type::ShowSelectionInScenegraph:
     {
       m_pTreeWidget->EnsureLastSelectedItemVisible();
     }

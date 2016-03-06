@@ -10,7 +10,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezStatus
   {
   }
 
-  explicit ezStatus(ezResult res, ezStringView sError) : m_Result(res), m_sError(sError)
+  explicit ezStatus(ezResult res, ezStringView sError) : m_Result(res), m_sMessage(sError)
   {
   }
 
@@ -28,10 +28,10 @@ struct EZ_TOOLSFOUNDATION_DLL ezStatus
 
     va_end(args);
 
-    m_sError = sMsg;
+    m_sMessage = sMsg;
   }
 
   ezResult m_Result;
-  ezString m_sError;
+  ezString m_sMessage;
 };
 

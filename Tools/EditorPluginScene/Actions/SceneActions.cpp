@@ -196,14 +196,14 @@ void ezSceneAction::Execute(const ezVariant& value)
     return;
 
   case ActionType::ExportScene:
-    m_pSceneDocument->TriggerExportScene();
+    m_pSceneDocument->ExportScene();
     return;
 
   case ActionType::RunScene:
     {
       QStringList arguments;
       arguments << "-scene";
-      const ezStringBuilder sPath = m_pSceneDocument->GetBinaryTargetFile();
+      const ezStringBuilder sPath = m_pSceneDocument->GetFinalOutputFileName();
       const char* szPath = sPath.GetData();
       arguments << QString::fromUtf8(szPath);
 
@@ -247,15 +247,15 @@ void ezSceneAction::Execute(const ezVariant& value)
   }
 }
 
-void ezSceneAction::SceneEventHandler(const ezSceneDocument::SceneEvent& e)
+void ezSceneAction::SceneEventHandler(const ezSceneDocumentEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezSceneDocument::SceneEvent::Type::GameModeChanged:
+  case ezSceneDocumentEvent::Type::GameModeChanged:
     UpdateState();
     break;
 
-  case ezSceneDocument::SceneEvent::Type::RenderSelectionOverlayChanged:
+  case ezSceneDocumentEvent::Type::RenderSelectionOverlayChanged:
     {
       if (m_Type == ActionType::RenderSelectionOverlay)
       {
@@ -264,7 +264,7 @@ void ezSceneAction::SceneEventHandler(const ezSceneDocument::SceneEvent& e)
     }
     break;
 
-  case ezSceneDocument::SceneEvent::Type::RenderShapeIconsChanged:
+  case ezSceneDocumentEvent::Type::RenderShapeIconsChanged:
     {
       if (m_Type == ActionType::RenderShapeIcons)
       {
@@ -272,7 +272,7 @@ void ezSceneAction::SceneEventHandler(const ezSceneDocument::SceneEvent& e)
       }
     }
     break;
-  case ezSceneDocument::SceneEvent::Type::SimulationSpeedChanged:
+  case ezSceneDocumentEvent::Type::SimulationSpeedChanged:
     {
       if (m_Type == ActionType::SimulationSpeed)
       {

@@ -54,7 +54,7 @@ public:
   virtual void Execute(const ezVariant& value) override;
 
 private:
-  void SceneEventHandler(const ezSceneDocument::SceneEvent& e);
+  void SceneEventHandler(const ezSceneDocumentEvent& e);
   void UpdateState();
 
   float m_fSimSpeed;

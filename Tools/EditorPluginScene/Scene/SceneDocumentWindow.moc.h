@@ -38,13 +38,14 @@ private:
   void TransformationGizmoEventHandler(const ezGizmo::GizmoEvent& e);
   void SelectionManagerEventHandler(const ezSelectionManager::Event& e);
   void SceneObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezSceneObjectMetaData>::EventData& e);
+  void SceneExportEventHandler(ezSceneDocumentExportEvent& e);
 
   virtual bool HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
   virtual void InternalRedraw() override;
-  void DocumentEventHandler(const ezSceneDocument::SceneEvent& e);
+  void DocumentEventHandler(const ezSceneDocumentEvent& e);
 
-  void RequestExportScene();
+  ezStatus RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header);
 
   void FocusOnSelectionAllViews();
 

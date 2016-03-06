@@ -13,7 +13,7 @@ public:
   void Read(ezStreamReader& stream);
 
   /// \brief Writes the asset hash to file (plus a little version info)
-  void Write(ezStreamWriter& stream);
+  void Write(ezStreamWriter& stream) const;
 
   /// \brief Checks whether the stored file contains the same hash.
   bool IsFileUpToDate(ezUInt64 uiExpectedHash, ezUInt16 uiVersion) const { return (m_uiHash == uiExpectedHash && m_uiVersion == uiVersion); }

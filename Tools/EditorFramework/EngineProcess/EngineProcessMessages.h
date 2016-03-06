@@ -165,6 +165,7 @@ class EZ_EDITORFRAMEWORK_DLL ezExportSceneMsgToEngine : public ezEditorEngineDoc
 public:
   ezString m_sOutputFile;
   ezUInt64 m_uiAssetHash;
+  ezUInt16 m_uiVersion;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezExportSceneMsgToEditor : public ezEditorEngineDocumentMsg

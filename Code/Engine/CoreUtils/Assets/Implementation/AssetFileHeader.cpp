@@ -20,7 +20,7 @@ enum ezAssetFileHeaderVersion : ezUInt8
   VersionCurrent = VersionCount - 1
 };
 
-void ezAssetFileHeader::Write(ezStreamWriter& stream)
+void ezAssetFileHeader::Write(ezStreamWriter& stream) const
 {
   EZ_ASSERT_DEBUG(m_uiHash != 0xFFFFFFFFFFFFFFFF, "Cannot write an invalid hash to file");
 

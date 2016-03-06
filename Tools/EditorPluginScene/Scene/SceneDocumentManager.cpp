@@ -27,7 +27,7 @@ ezStatus ezSceneDocumentManager::InternalCreateDocument(const char* szDocumentTy
   }
   else
   {
-    status.m_sError = "Unknown Document Type";
+    status.m_sMessage = "Unknown Document Type";
   }
 
   if (out_pDocument)

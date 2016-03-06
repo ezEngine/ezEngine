@@ -100,6 +100,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExportSceneMsgToEngine, 1, ezRTTIDefaultAlloca
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("OutputFile", m_sOutputFile),
     EZ_MEMBER_PROPERTY("AssetHash", m_uiAssetHash),
+    EZ_MEMBER_PROPERTY("AssetVersion", m_uiVersion),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

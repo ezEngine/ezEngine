@@ -89,7 +89,8 @@ void ezAssetDocumentInfo::SetDependencies(ezString s)
 //}
 
 
-ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager) : ezDocument(szDocumentPath, pObjectManager)
+ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager)
+  : ezDocument(szDocumentPath, pObjectManager)
 {
 }
 
@@ -100,6 +101,16 @@ ezAssetDocument::~ezAssetDocument()
 ezDocumentInfo* ezAssetDocument::CreateDocumentInfo()
 {
   return EZ_DEFAULT_NEW(ezAssetDocumentInfo);
+}
+
+ezString ezAssetDocument::DetermineFinalTargetPlatform(const char* szPlatform)
+{
+  if (ezStringUtils::IsNullOrEmpty(szPlatform))
+  {
+    return ezAssetCurator::GetInstance()->GetActivePlatform();
+  }
+
+  return szPlatform;
 }
 
 ezStatus ezAssetDocument::InternalSaveDocument()
@@ -113,6 +124,16 @@ ezStatus ezAssetDocument::InternalSaveDocument()
   UpdateAssetDocumentInfo(pInfo);
 
   return ezDocument::InternalSaveDocument();
+}
+
+void ezAssetDocument::InternalAfterSaveDocument()
+{
+  if (GetAssetFlags().IsAnySet(ezAssetDocumentFlags::AutoTransformOnSave))
+  {
+    /// \todo Should only be done for platform agnostic assets
+
+    TransformAsset();
+  }
 }
 
 ezUInt64 ezAssetDocument::GetDocumentHash() const
@@ -136,6 +157,45 @@ void ezAssetDocument::GetChildHash(const ezDocumentObject* pObject, ezUInt64& ui
   }
 }
 
+ezStatus ezAssetDocument::TransformAssetManually(const char* szPlatform /*= nullptr*/)
+{
+  const auto flags = GetAssetFlags();
+
+  if (flags.IsAnySet(ezAssetDocumentFlags::DisableTransform))
+    return ezStatus("Asset transform has been disabled on this asset");
+
+  // cannot be transformed without a window, so skip this
+  if (flags.IsAnySet(ezAssetDocumentFlags::TransformRequiresWindow) && !HasWindowBeenRequested())
+    return ezStatus("Asset cannot be transformed without an open document window");
+
+  const ezUInt64 uiHash = ezAssetCurator::GetInstance()->GetAssetDependencyHash(GetGuid());
+
+  if (uiHash == 0)
+    return ezStatus("Computing the hash for this asset or any dependency failed");
+
+  const ezString sPlatform = DetermineFinalTargetPlatform(szPlatform);
+  const ezString sTargetFile = GetFinalOutputFileName(sPlatform);
+
+  if (ezAssetDocumentManager::IsResourceUpToDate(uiHash, GetAssetTypeVersion(), sTargetFile))
+    return ezStatus(EZ_SUCCESS, "Transformed asset is already up to date");
+
+  // Write resource
+  {
+    ezAssetFileHeader AssetHeader;
+    AssetHeader.SetFileHashAndVersion(uiHash, GetAssetTypeVersion());
+
+    auto ret = InternalTransformAsset(sTargetFile, sPlatform, AssetHeader);
+
+    // if writing failed, make sure the output file does not exist
+    if (ret.m_Result.Failed())
+    {
+      ezFileSystem::DeleteFile(sTargetFile);
+    }
+
+    return ret;
+  }
+}
+
 ezStatus ezAssetDocument::TransformAsset(const char* szPlatform)
 {
   if (IsModified())
@@ -145,56 +205,41 @@ ezStatus ezAssetDocument::TransformAsset(const char* szPlatform)
       return ezStatus(res);
   }
 
-  ezString sPlatform = szPlatform;
-
-  if (sPlatform.IsEmpty())
-    sPlatform = ezAssetCurator::GetInstance()->GetActivePlatform();
-
-  const ezUInt64 uiHash = ezAssetCurator::GetInstance()->GetAssetDependencyHash(GetGuid());
-
-  if (uiHash == 0)
-    return ezStatus("Computing the hash for this asset or any dependency failed");
-
-  const ezString sResourceFile = static_cast<ezAssetDocumentManager*>(GetDocumentManager())->GenerateResourceFileName(GetDocumentPath(), sPlatform);
-
-  if (ezAssetDocumentManager::IsResourceUpToDate(uiHash, GetAssetTypeVersion(), sResourceFile))
-    return ezStatus(EZ_SUCCESS);
-
-  // Write resource
+  const auto flags = GetAssetFlags();
   {
-    ezDeferredFileWriter file;
+    if (flags.IsAnySet(ezAssetDocumentFlags::DisableTransform | ezAssetDocumentFlags::OnlyTransformManually))
+      return ezStatus(EZ_SUCCESS, "Transform is disabled for this asset");
 
-    file.SetOutput(sResourceFile);
-
-    ezAssetFileHeader AssetHeader;
-    AssetHeader.SetFileHashAndVersion(uiHash, GetAssetTypeVersion());
-
-    AssetHeader.Write(file);
-
-    auto ret = InternalTransformAsset(file, sPlatform);
-
-    if (file.Close().Failed())
-    {
-      ezLog::Error("Could not open file for writing: '%s'", sResourceFile.GetData());
-      return ezStatus("Opening the asset output file failed");
-    }
-
-    // if writing failed, make sure the output file does not exist
-    if (ret.m_Result.Failed())
-    {
-      ezFileSystem::DeleteFile(sResourceFile);
-    }
-
-    return ret;
+    // cannot be transformed without a window, so skip this
+    if (flags.IsAnySet(ezAssetDocumentFlags::TransformRequiresWindow) && !HasWindowBeenRequested())
+      return ezStatus(EZ_SUCCESS, "Transform requires a document window, which is currently not available");
   }
+
+  return TransformAssetManually(szPlatform);
+}
+
+ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
+{
+  ezDeferredFileWriter file;
+
+  file.SetOutput(szTargetFile);
+
+  AssetHeader.Write(file);
+
+  auto ret = InternalTransformAsset(file, szPlatform);
+
+  if (file.Close().Failed())
+  {
+    ezLog::Error("Could not open file for writing: '%s'", szTargetFile);
+    return ezStatus("Opening the asset output file failed");
+  }
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezAssetDocument::RetrieveAssetInfo(const char* szPlatform)
 {
-  ezString sPlatform = szPlatform;
-
-  if (sPlatform.IsEmpty())
-    sPlatform = ezAssetCurator::GetInstance()->GetActivePlatform();
+  const ezString sPlatform = DetermineFinalTargetPlatform(szPlatform);
 
   ezStatus stat = InternalRetrieveAssetInfo(sPlatform);
 
@@ -270,5 +315,17 @@ void ezAssetDocument::SaveThumbnail(const ezImage& img)
   }
 
   QtImageCache::InvalidateCache(sResourceFile);
+}
+
+ezString ezAssetDocument::GetFinalOutputFileName(const char* szPlatform)
+{
+  const ezString sPlatform = DetermineFinalTargetPlatform(szPlatform);
+
+  return static_cast<ezAssetDocumentManager*>(GetDocumentManager())->GenerateResourceFileName(GetDocumentPath(), sPlatform);
+}
+
+ezBitflags<ezAssetDocumentFlags> ezAssetDocument::GetAssetFlags() const
+{
+  return ezAssetDocumentFlags::Default;
 }
 

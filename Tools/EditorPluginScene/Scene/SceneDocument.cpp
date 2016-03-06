@@ -11,6 +11,7 @@
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <Commands/SceneCommands.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <CoreUtils/Assets/AssetFileHeader.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneObjectMetaData, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
@@ -72,8 +73,8 @@ void ezSceneDocument::SetActiveGizmo(ActiveGizmo gizmo)
 
   m_ActiveGizmo = gizmo;
 
-  SceneEvent e;
-  e.m_Type = SceneEvent::Type::ActiveGizmoChanged;
+  ezSceneDocumentEvent e;
+  e.m_Type = ezSceneDocumentEvent::Type::ActiveGizmoChanged;
   m_SceneEvents.Broadcast(e);
 }
 
@@ -87,8 +88,8 @@ void ezSceneDocument::TriggerShowSelectionInScenegraph()
   if (GetSelectionManager()->GetSelection().IsEmpty())
     return;
 
-  SceneEvent e;
-  e.m_Type = SceneEvent::Type::ShowSelectionInScenegraph;
+  ezSceneDocumentEvent e;
+  e.m_Type = ezSceneDocumentEvent::Type::ShowSelectionInScenegraph;
   m_SceneEvents.Broadcast(e);
 }
 
@@ -97,8 +98,8 @@ void ezSceneDocument::TriggerFocusOnSelection(bool bAllViews)
   if (GetSelectionManager()->GetSelection().IsEmpty())
     return;
 
-  SceneEvent e;
-  e.m_Type = bAllViews ? SceneEvent::Type::FocusOnSelection_All : SceneEvent::Type::FocusOnSelection_Hovered;
+  ezSceneDocumentEvent e;
+  e.m_Type = bAllViews ? ezSceneDocumentEvent::Type::FocusOnSelection_All : ezSceneDocumentEvent::Type::FocusOnSelection_Hovered;
   m_SceneEvents.Broadcast(e);
 }
 
@@ -107,8 +108,8 @@ void ezSceneDocument::TriggerSnapPivotToGrid()
   if (GetSelectionManager()->GetSelection().IsEmpty())
     return;
 
-  SceneEvent e;
-  e.m_Type = SceneEvent::Type::SnapSelectionPivotToGrid;
+  ezSceneDocumentEvent e;
+  e.m_Type = ezSceneDocumentEvent::Type::SnapSelectionPivotToGrid;
   m_SceneEvents.Broadcast(e);
 }
 
@@ -117,8 +118,8 @@ void ezSceneDocument::TriggerSnapEachObjectToGrid()
   if (GetSelectionManager()->GetSelection().IsEmpty())
     return;
 
-  SceneEvent e;
-  e.m_Type = SceneEvent::Type::SnapEachSelectedObjectToGrid;
+  ezSceneDocumentEvent e;
+  e.m_Type = ezSceneDocumentEvent::Type::SnapEachSelectedObjectToGrid;
   m_SceneEvents.Broadcast(e);
 }
 void ezSceneDocument::GroupSelection()
@@ -358,8 +359,8 @@ void ezSceneDocument::SetGameMode(GameMode mode)
     ezEditorEngineProcessConnection::GetInstance()->SendDocumentOpenMessage(this, true);
   }
 
-  SceneEvent e;
-  e.m_Type = SceneEvent::Type::GameModeChanged;
+  ezSceneDocumentEvent e;
+  e.m_Type = ezSceneDocumentEvent::Type::GameModeChanged;
   m_SceneEvents.Broadcast(e);
 }
 
@@ -386,8 +387,8 @@ void ezSceneDocument::TriggerGameModePlay()
   // attempt to start PTG
   // do not change state here
 
-  SceneEvent e;
-  e.m_Type = SceneEvent::Type::TriggerGameModePlay;
+  ezSceneDocumentEvent e;
+  e.m_Type = ezSceneDocumentEvent::Type::TriggerGameModePlay;
   m_SceneEvents.Broadcast(e);
 }
 
@@ -408,8 +409,8 @@ void ezSceneDocument::StopGameMode()
     // attempt to stop PTG
     // do not change any state, that will be done by the response msg
 
-    SceneEvent e;
-    e.m_Type = SceneEvent::Type::TriggerStopGameModePlay;
+    ezSceneDocumentEvent e;
+    e.m_Type = ezSceneDocumentEvent::Type::TriggerStopGameModePlay;
     m_SceneEvents.Broadcast(e);
   }
 }
@@ -421,8 +422,8 @@ void ezSceneDocument::SetSimulationSpeed(float f)
 
   m_fSimulationSpeed = f;
 
-  SceneEvent e;
-  e.m_Type = SceneEvent::Type::SimulationSpeedChanged;
+  ezSceneDocumentEvent e;
+  e.m_Type = ezSceneDocumentEvent::Type::SimulationSpeedChanged;
   m_SceneEvents.Broadcast(e);
 
   ShowDocumentStatus("Simulation Speed: %i%%", (ezInt32)(m_fSimulationSpeed * 100.0f));
@@ -435,8 +436,8 @@ void ezSceneDocument::SetRenderSelectionOverlay(bool b)
 
   m_bRenderSelectionOverlay = b;
 
-  SceneEvent e;
-  e.m_Type = SceneEvent::Type::RenderSelectionOverlayChanged;
+  ezSceneDocumentEvent e;
+  e.m_Type = ezSceneDocumentEvent::Type::RenderSelectionOverlayChanged;
   m_SceneEvents.Broadcast(e);
 }
 
@@ -448,8 +449,8 @@ void ezSceneDocument::SetRenderShapeIcons(bool b)
 
   m_bRenderShapeIcons = b;
 
-  SceneEvent e;
-  e.m_Type = SceneEvent::Type::RenderShapeIconsChanged;
+  ezSceneDocumentEvent e;
+  e.m_Type = ezSceneDocumentEvent::Type::RenderShapeIconsChanged;
   m_SceneEvents.Broadcast(e);
 }
 
@@ -490,15 +491,6 @@ void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
 
     m_ObjectMetaData.EndModifyMetaData(uiFlags);
   });
-}
-
-
-void ezSceneDocument::TriggerExportScene()
-{
-  SceneEvent e;
-  e.m_Type = SceneEvent::Type::ExportScene;
-
-  m_SceneEvents.Broadcast(e);
 }
 
 void ezSceneDocument::RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection)
@@ -597,18 +589,6 @@ void ezSceneDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Sele
 
 }
 
-ezString ezSceneDocument::GetBinaryTargetFile() const
-{
-  ezStringBuilder sTargetFile = GetDocumentPath();
-
-  if (m_bIsPrefab)
-    sTargetFile.ChangeFileExtension("ezBinaryPrefab");
-  else
-    sTargetFile.ChangeFileExtension("ezBinaryScene");
-
-  return sTargetFile;
-}
-
 void ezSceneDocument::SetGizmoWorldSpace(bool bWorldSpace)
 {
   if (m_bGizmoWorldSpace == bWorldSpace)
@@ -616,8 +596,8 @@ void ezSceneDocument::SetGizmoWorldSpace(bool bWorldSpace)
 
   m_bGizmoWorldSpace = bWorldSpace;
 
-  SceneEvent e;
-  e.m_Type = SceneEvent::Type::ActiveGizmoChanged;
+  ezSceneDocumentEvent e;
+  e.m_Type = ezSceneDocumentEvent::Type::ActiveGizmoChanged;
   m_SceneEvents.Broadcast(e);
 }
 
@@ -862,7 +842,6 @@ void ezSceneDocument::HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg)
 
   EZ_REPORT_FAILURE("Unreachable Code reached.");
 }
-
 const ezTransform& ezSceneDocument::GetGlobalTransform(const ezDocumentObject* pObject)
 {
   ezTransform Trans;
@@ -955,11 +934,44 @@ const char* ezSceneDocument::QueryAssetType() const
 void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
 {
   /// \todo go through all objects, get asset properties, retrieve dependencies
+
+
 }
+
+
+ezStatus ezSceneDocument::ExportScene()
+{
+  auto res = TransformAssetManually();
+
+  if (res.m_Result.Failed())
+    ezLog::Error(res.m_sMessage);
+  else
+    ezLog::Success(res.m_sMessage);
+
+  ShowDocumentStatus(res.m_sMessage);
+
+  return res;
+}
+
+ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
+{
+  ezSceneDocumentExportEvent e;
+  e.m_szTargetFile = szTargetFile;
+  e.m_pAssetFileHeader = &AssetHeader;
+  e.m_ReturnStatus = ezStatus("No export handler available");
+
+  m_ExportEvent.Broadcast(e);
+
+  return e.m_ReturnStatus;
+}
+
 
 ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform)
 {
-  return ezStatus(EZ_SUCCESS);
+  EZ_ASSERT_NOT_IMPLEMENTED;
+
+  /* this function is never called */
+  return ezStatus(EZ_FAILURE);
 }
 
 ezStatus ezSceneDocument::InternalRetrieveAssetInfo(const char* szPlatform)
@@ -972,14 +984,15 @@ ezUInt16 ezSceneDocument::GetAssetTypeVersion() const
   return 1;
 }
 
-ezStatus ezSceneDocument::InternalSaveDocument()
+ezBitflags<ezAssetDocumentFlags> ezSceneDocument::GetAssetFlags() const
 {
-  // save the scene properly
-  ezStatus ret = ezAssetDocument::InternalSaveDocument();
-
-  // then also export it automatically if it is a prefab
-  if (ret.m_Result.Succeeded() && IsPrefab())
-    TriggerExportScene();
-
-  return ret;
+  if (IsPrefab())
+  {
+    return ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::TransformRequiresWindow;
+  }
+  else
+  {
+    return ezAssetDocumentFlags::OnlyTransformManually | ezAssetDocumentFlags::TransformRequiresWindow;
+  }
 }
+
