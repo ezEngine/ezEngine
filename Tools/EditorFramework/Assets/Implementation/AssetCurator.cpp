@@ -11,10 +11,11 @@
 #include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
-#include <GuiFoundation/UIServices/ProgressBar.h>
+#include <GuiFoundation/UIServices/QtProgressbar.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <Foundation/Serialization/RttiConverter.h>
+#include <CoreUtils/Other/Progress.h>
 
 ezAssetCurator* ezAssetCurator::s_pInstance = nullptr;
 
@@ -318,7 +319,7 @@ void ezAssetCurator::CheckFileSystem()
     m_FileHashingQueue.Clear();
   }
 
-  QtProgressBar progress("Check Filesystem for Assets", m_FileSystemConfig.m_DataDirs.GetCount(), false);
+  ezProgressRange range("Check Filesystem for Assets", m_FileSystemConfig.m_DataDirs.GetCount(), false);
 
   // make sure the hashing task has finished
   if (m_pHashingTask)
@@ -342,7 +343,7 @@ void ezAssetCurator::CheckFileSystem()
     ezStringBuilder sTemp = m_FileSystemConfig.GetProjectDirectory();
     sTemp.AppendPath(dd.m_sRelativePath);
 
-    progress.WorkingOnNextItem(dd.m_sRelativePath);
+    range.BeginNextStep(dd.m_sRelativePath);
 
     IterateDataDirectory(sTemp, m_ValidAssetExtensions);
   }
@@ -418,14 +419,14 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
 
 void ezAssetCurator::TransformAllAssets(const char* szPlatform /* = nullptr*/)
 {
-  QtProgressBar progress("Transforming Assets", 1 + m_KnownAssets.GetCount(), true);
+  ezProgressRange range("Transforming Assets", 1 + m_KnownAssets.GetCount(), true);
 
   for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
   {
-    if (progress.WasProgressBarCanceled())
+    if (range.WasCanceled())
       break;
 
-    progress.WorkingOnNextItem(ezPathUtils::GetFileNameAndExtension(it.Value()->m_sRelativePath).GetData());
+    range.BeginNextStep(ezPathUtils::GetFileNameAndExtension(it.Value()->m_sRelativePath).GetData());
 
     ezDocument* pDoc = ezQtEditorApp::GetInstance()->OpenDocumentImmediate(it.Value()->m_sAbsolutePath, false, false);
 
@@ -444,7 +445,8 @@ void ezAssetCurator::TransformAllAssets(const char* szPlatform /* = nullptr*/)
       pDoc->GetDocumentManager()->CloseDocument(pDoc);
   }
 
-  progress.WorkingOnNextItem("Writing Lookup Tables");
+  range.BeginNextStep("Writing Lookup Tables");
+
   ezAssetCurator::GetInstance()->WriteAssetTables(szPlatform);
 }
 

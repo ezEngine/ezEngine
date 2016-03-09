@@ -68,8 +68,8 @@ void ezFallbackGameState::ConfigureInputActions()
     RegisterInputAction("Game", "TurnUp", ezInputSlot_KeyUp);
     RegisterInputAction("Game", "TurnDown", ezInputSlot_KeyDown);
 
-    RegisterInputAction("Game", "NextCamera", ezInputSlot_MouseButton0);
-    RegisterInputAction("Game", "PrevCamera", ezInputSlot_MouseButton1);
+    RegisterInputAction("Game", "NextCamera", ezInputSlot_KeyPageDown);
+    RegisterInputAction("Game", "PrevCamera", ezInputSlot_KeyPageUp);
 
     //if ( !g_AllInput.IsEmpty() )
     //{

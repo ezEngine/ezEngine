@@ -13,9 +13,12 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <Core/Application/Config/FileSystemConfig.h>
 #include <Core/Application/Config/PluginConfig.h>
+#include <Foundation/Types/UniquePtr.h>
 
 class QMainWindow;
 class QWidget;
+class ezProgress;
+class ezQtProgressbar;
 
 /// \brief Holds information about a plugin. Used for editor and engine plugins, where the user can configure whether to load them or not.
 struct EZ_EDITORFRAMEWORK_DLL ezPluginInfo
@@ -234,4 +237,8 @@ private:
   // *** Recent Paths ***
   ezString m_sLastDocumentFolder;
   ezString m_sLastProjectFolder;
+
+  // *** Progress Bar ***
+  ezProgress* m_pProgressbar;
+  ezQtProgressbar* m_pQtProgressbar;
 };

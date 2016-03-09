@@ -27,6 +27,8 @@
 #include <QClipboard>
 #include <CoreUtils/Localization/TranslationLookup.h>
 #include <GuiFoundation/Action/ActionManager.h>
+#include <CoreUtils/Other/Progress.h>
+#include <GuiFoundation/UIServices/QtProgressbar.h>
 
 
 ezQtEditorApp* ezQtEditorApp::s_pInstance = nullptr;
@@ -76,13 +78,15 @@ ezQtEditorApp::ezQtEditorApp() :
 {
   s_pInstance = this;
 
+  m_pProgressbar = nullptr;
+  m_pQtProgressbar = nullptr;
+
   ezUIServices::SetApplicationName("ezEditor");
   s_sUserName = "DefaultUser";
   s_pQtApplication = nullptr;
   s_pEngineViewProcess = nullptr;
 
   m_pTimer = new QTimer(nullptr);
-
 }
 
 ezQtEditorApp::~ezQtEditorApp()
@@ -107,6 +111,13 @@ ezString ezQtEditorApp::GetEditorDataFolder()
 
 void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
 {
+  // ezUniquePtr does not work with forward declared classes :-(
+  m_pProgressbar = EZ_DEFAULT_NEW(ezProgress);
+  m_pQtProgressbar = EZ_DEFAULT_NEW(ezQtProgressbar);
+
+  ezProgress::SetGlobalProgressbar(m_pProgressbar);
+  m_pQtProgressbar->SetProgressbar(m_pProgressbar);
+
   const bool bSafeMode = ezCommandLineUtils::GetInstance()->GetBoolOption("-safe");
   const bool bNoRecent = bSafeMode || ezCommandLineUtils::GetInstance()->GetBoolOption("-norecent");
 
@@ -267,6 +278,9 @@ void ezQtEditorApp::ShutdownEditor()
   ezTranslationLookup::Clear();
 
   m_LogHTML.EndLog();
+
+  EZ_DEFAULT_DELETE(m_pQtProgressbar);
+  EZ_DEFAULT_DELETE(m_pProgressbar);
 }
 
 ezInt32 ezQtEditorApp::RunEditor()
