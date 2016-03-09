@@ -56,7 +56,10 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
   {
     pRenderData = it;
 
-    EZ_ASSERT_DEV(pRenderData->m_hMesh == hMesh && pRenderData->m_hMaterial == hMaterial && pRenderData->m_uiPartIndex == uiPartIndex, "Invalid batching");
+    /// \todo Clemens: This fails when a mesh resource is missing
+    //EZ_ASSERT_DEV(pRenderData->m_hMesh == hMesh, "Invalid batching (mesh)");
+    EZ_ASSERT_DEV(pRenderData->m_hMaterial == hMaterial, "Invalid batching (material)");
+    EZ_ASSERT_DEV(pRenderData->m_uiPartIndex == uiPartIndex, "Invalid batching (part)");
 
     ObjectConstants* cb = renderViewContext.m_pRenderContext->BeginModifyConstantBuffer<ObjectConstants>(m_hObjectTransformCB);
     cb->ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
