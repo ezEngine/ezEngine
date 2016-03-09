@@ -136,6 +136,8 @@ void ezActionManager::SaveShortcutAssignment()
   json.SetOutputStream(&file);
   json.BeginObject();
 
+  ezStringBuilder sKey;
+
   for (auto it = GetActionIterator(); it.IsValid(); ++it)
   {
     auto pAction = it.Value();
@@ -143,7 +145,12 @@ void ezActionManager::SaveShortcutAssignment()
     if (pAction->m_Type != ezActionType::Action)
       continue;
 
-    json.AddVariableString(pAction->m_sActionName, pAction->m_sShortcut);
+    if (pAction->m_sShortcut == pAction->m_sDefaultShortcut)
+      sKey.Set("default: ", pAction->m_sShortcut);
+    else
+      sKey = pAction->m_sShortcut;
+
+    json.AddVariableString(pAction->m_sActionName, sKey);
   }
 
   json.EndObject();
@@ -173,6 +180,9 @@ void ezActionManager::LoadShortcutAssignment()
 
     const ezString sKey = it.Key();
     const ezString sValue = it.Value().Get<ezString>();
+
+    if (sValue.FindSubString_NoCase("default") != nullptr)
+      continue;
 
     s_ShortcutOverride[sKey] = sValue;
   }

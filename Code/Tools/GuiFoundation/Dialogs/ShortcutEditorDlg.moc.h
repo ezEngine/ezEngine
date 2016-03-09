@@ -19,7 +19,7 @@ public:
   ezShortcutEditorDlg(QWidget* parent);
   ~ezShortcutEditorDlg();
 
-  void UpdateTable(bool bOnlyShortcuts);
+  void UpdateTable();
 
 private slots:
   void SlotSelectionChanged();
@@ -30,6 +30,7 @@ private slots:
   void on_KeyEditor_keySequenceChanged(const QKeySequence & keySequence);
   void on_ButtonAssign_clicked();
   void on_ButtonRemove_clicked();
+  void on_ButtonReset_clicked();
 
 private:
   ezInt32 m_iSelectedAction;

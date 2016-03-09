@@ -15,7 +15,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetProperties, 1, ezRTTIDefault
     EZ_ENUM_MEMBER_PROPERTY("Mesh Type", ezCollisionMeshType, m_MeshType),
     EZ_MEMBER_PROPERTY("Uniform Scaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("Non-Uniform Scaling", m_vNonUniformScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f))),
-    EZ_MEMBER_PROPERTY("Mesh File", m_sMeshFile),
+    EZ_MEMBER_PROPERTY("Mesh File", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.obj;*.fbx")),
     //EZ_ARRAY_MEMBER_PROPERTY("Materials", m_Slots)->AddAttributes(new ezContainerAttribute(false, false, true)),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();

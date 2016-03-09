@@ -86,6 +86,7 @@ struct EZ_GUIFOUNDATION_DLL ezActionDescriptor
   ezString m_sCategoryPath; ///< Category in key configuration dialog, e.g. "Tree View" or "File"
   
   ezString m_sShortcut;
+  ezString m_sDefaultShortcut;
 
   ezAction* CreateAction(const ezActionContext& context) const;
   void DeleteAction(ezAction* pAction) const;

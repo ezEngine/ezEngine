@@ -14,6 +14,7 @@ ezActionDescriptor::ezActionDescriptor(ezActionType::Enum type, ezActionScope::E
   , m_sActionName(szName)
   , m_sCategoryPath(szCategoryPath)
   , m_sShortcut(szShortcut)
+  , m_sDefaultShortcut(szShortcut)
   , m_CreateAction(createAction)
   , m_DeleteAction(deleteAction)
 {

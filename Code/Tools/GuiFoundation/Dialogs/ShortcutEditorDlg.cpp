@@ -72,12 +72,25 @@ ezShortcutEditorDlg::ezShortcutEditorDlg(QWidget* parent) : QDialog(parent)
         pItem->setData(0, Qt::DisplayRole, item->m_sActionName.GetData());
         pItem->setData(1, Qt::DisplayRole, sTemp.GetData());
         pItem->setData(2, Qt::DisplayRole, item->m_sShortcut.GetData());
+
+        if (item->m_sShortcut == item->m_sDefaultShortcut)
+          pItem->setBackground(2, QBrush());
+        else
+          pItem->setBackgroundColor(2, Qt::darkYellow);
+
+        sTemp.Set("Default: ", item->m_sDefaultShortcut.IsEmpty() ? "<none>" : item->m_sDefaultShortcut);
+
+        pItem->setToolTip(2, QString::fromUtf8(sTemp.GetData()));
       }
     }
 
     Shortcuts->resizeColumnToContents(0);
     Shortcuts->resizeColumnToContents(2);
   }
+
+  ButtonAssign->setEnabled(false);
+  ButtonRemove->setEnabled(false);
+  ButtonReset->setEnabled(false);
 }
 
 ezShortcutEditorDlg::~ezShortcutEditorDlg()
@@ -85,7 +98,7 @@ ezShortcutEditorDlg::~ezShortcutEditorDlg()
   ezActionManager::SaveShortcutAssignment();
 }
 
-void ezShortcutEditorDlg::UpdateTable(bool bOnlyShortcuts)
+void ezShortcutEditorDlg::UpdateTable()
 {
   for (ezInt32 iTop = 0; iTop < Shortcuts->topLevelItemCount(); ++iTop)
   {
@@ -100,11 +113,19 @@ void ezShortcutEditorDlg::UpdateTable(bool bOnlyShortcuts)
       const auto& item = m_ActionDescs[idx];
 
       pChild->setData(2, Qt::DisplayRole, QVariant(item->m_sShortcut.GetData()));
+
+      if (item->m_sShortcut == item->m_sDefaultShortcut)
+        pChild->setBackground(2, QBrush());
+      else
+        pChild->setBackgroundColor(2, Qt::darkYellow);
     }
   }
 
   if (m_iSelectedAction >= 0)
+  {
     ButtonRemove->setEnabled(!m_ActionDescs[m_iSelectedAction]->m_sShortcut.IsEmpty());
+    ButtonReset->setEnabled(m_ActionDescs[m_iSelectedAction]->m_sShortcut != m_ActionDescs[m_iSelectedAction]->m_sDefaultShortcut);
+  }
 
   QString sText = KeyEditor->keySequence().toString(QKeySequence::SequenceFormat::NativeText);
   ButtonAssign->setEnabled(!sText.isEmpty());
@@ -120,6 +141,7 @@ void ezShortcutEditorDlg::SlotSelectionChanged()
     KeyEditor->setEnabled(true);
     ButtonAssign->setEnabled(false);
     ButtonRemove->setEnabled(!m_ActionDescs[m_iSelectedAction]->m_sShortcut.IsEmpty());
+    ButtonReset->setEnabled(m_ActionDescs[m_iSelectedAction]->m_sShortcut != m_ActionDescs[m_iSelectedAction]->m_sDefaultShortcut);
   }
   else
   {
@@ -128,6 +150,7 @@ void ezShortcutEditorDlg::SlotSelectionChanged()
     KeyEditor->setEnabled(false);
     ButtonAssign->setEnabled(false);
     ButtonRemove->setEnabled(false);
+    ButtonReset->setEnabled(false);
   }
 }
 
@@ -158,7 +181,7 @@ void ezShortcutEditorDlg::on_ButtonAssign_clicked()
   m_ActionDescs[m_iSelectedAction]->m_sShortcut = sText.toUtf8().data();
   m_ActionDescs[m_iSelectedAction]->UpdateExistingActions();
 
-  UpdateTable(true);
+  UpdateTable();
 }
 
 void ezShortcutEditorDlg::on_ButtonRemove_clicked()
@@ -168,6 +191,16 @@ void ezShortcutEditorDlg::on_ButtonRemove_clicked()
   m_ActionDescs[m_iSelectedAction]->m_sShortcut.Clear();
   m_ActionDescs[m_iSelectedAction]->UpdateExistingActions();
 
-  UpdateTable(true);
+  UpdateTable();
+}
+
+void ezShortcutEditorDlg::on_ButtonReset_clicked()
+{
+  KeyEditor->clear();
+
+  m_ActionDescs[m_iSelectedAction]->m_sShortcut = m_ActionDescs[m_iSelectedAction]->m_sDefaultShortcut;
+  m_ActionDescs[m_iSelectedAction]->UpdateExistingActions();
+
+  UpdateTable();
 }
 
