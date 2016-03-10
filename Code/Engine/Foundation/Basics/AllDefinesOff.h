@@ -51,7 +51,7 @@
 
 // Allocators
 #define EZ_USE_ALLOCATION_STACK_TRACING EZ_OFF
-
+#define EZ_USE_GUARDED_ALLOCATIONS EZ_OFF
 
 // Other Features
 #define EZ_USE_PROFILING EZ_OFF

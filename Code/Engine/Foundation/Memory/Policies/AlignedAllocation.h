@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Foundation/Basics.h>
 #include <Foundation/Math/Math.h>
 
 namespace ezMemoryPolicies

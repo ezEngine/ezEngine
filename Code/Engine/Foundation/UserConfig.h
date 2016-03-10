@@ -31,6 +31,10 @@
   #undef EZ_USE_ALLOCATION_STACK_TRACING
   #define EZ_USE_ALLOCATION_STACK_TRACING EZ_ON
 
+  // Uncomment to use guarded allocations. This will use a lot of memory and should only be used in 64bit builds.
+  //#undef EZ_USE_GUARDED_ALLOCATIONS
+  //#define EZ_USE_GUARDED_ALLOCATIONS EZ_ON
+
 #else
 
   // When the CMake build files are used pass through the CMake configuration
