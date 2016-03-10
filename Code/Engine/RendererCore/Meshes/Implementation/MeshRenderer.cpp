@@ -41,7 +41,15 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
   ezUInt32 uiPartIndex = pRenderData->m_uiPartIndex;
 
   ezResourceLock<ezMeshResource> pMesh(hMesh);
-  const ezMeshResourceDescriptor::SubMesh& meshPart = pMesh->GetSubMeshes()[uiPartIndex];
+
+  // This can happen when the resource has been reloaded and now has fewer submeshes.
+  const auto& subMeshes = pMesh->GetSubMeshes();
+  if (subMeshes.GetCount() <= uiPartIndex)
+  {
+    return;
+  }
+
+  const ezMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiPartIndex];
 
   renderViewContext.m_pRenderContext->BindMeshBuffer(pMesh->GetMeshBuffer());
   renderViewContext.m_pRenderContext->SetMaterialState(hMaterial);  
@@ -56,8 +64,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
   {
     pRenderData = it;
 
-    /// \todo Clemens: This fails when a mesh resource is missing
-    //EZ_ASSERT_DEV(pRenderData->m_hMesh == hMesh, "Invalid batching (mesh)");
+    EZ_ASSERT_DEV(pRenderData->m_hMesh == hMesh, "Invalid batching (mesh)");
     EZ_ASSERT_DEV(pRenderData->m_hMaterial == hMaterial, "Invalid batching (material)");
     EZ_ASSERT_DEV(pRenderData->m_uiPartIndex == uiPartIndex, "Invalid batching (part)");
 

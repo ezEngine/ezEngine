@@ -76,6 +76,15 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
   if (!m_hMesh.IsValid())
     return;
 
+  ezUInt32 uiMeshIDHash;
+  ezUInt32 uiMaterialIDHash;
+
+  // Lock the mesh in pointer only mode to get the correct resource id.
+  {
+    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::PointerOnly);
+    uiMeshIDHash = pMesh->GetResourceIDHash();
+  }
+
   ezResourceLock<ezMeshResource> pMesh(m_hMesh);
   const ezDynamicArray<ezMeshResourceDescriptor::SubMesh>& parts = pMesh->GetSubMeshes();
 
@@ -90,12 +99,16 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
     else
       hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
-    ezResourceLock<ezMaterialResource> pMaterial(hMaterial);
+    // Lock the material in pointer only mode to get the correct resource id.
+    {
+      ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::PointerOnly);
+      uiMaterialIDHash = pMaterial->GetResourceIDHash();
+    }
 
     // Generate batch id from mesh, material and part index. 
     // The part index is also stored in the highest 4 bits so that parts with a lower index are always rendered first.
     // This can be useful for transparent objects with multiple parts that need a fixed rendering order.
-    ezUInt32 data[] = { pMesh->GetResourceIDHash(), pMaterial->GetResourceIDHash(), uiPartIndex };
+    ezUInt32 data[] = { uiMeshIDHash, uiMaterialIDHash, uiPartIndex };
     ezUInt32 uiBatchId = (uiPartIndex << 28) | (ezHashing::MurmurHash(data, sizeof(data)) & 0x0FFFFFFF);
 
     auto* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
