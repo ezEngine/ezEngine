@@ -128,7 +128,7 @@ void ezSpotLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg 
 
 void ezSpotLightComponent::SerializeComponent(ezWorldWriter& stream) const
 {
-  ezLightComponent::SerializeComponent(stream);
+  SUPER::SerializeComponent(stream);
 
   ezStreamWriter& s = stream.GetStream();
 
@@ -139,7 +139,9 @@ void ezSpotLightComponent::SerializeComponent(ezWorldWriter& stream) const
 
 void ezSpotLightComponent::DeserializeComponent(ezWorldReader& stream)
 {
-  ezLightComponent::DeserializeComponent(stream);
+  SUPER::DeserializeComponent(stream);
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+
 
   ezStreamReader& s = stream.GetStream();
 

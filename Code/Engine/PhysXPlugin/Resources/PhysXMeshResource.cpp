@@ -2,7 +2,7 @@
 #include <PhysXPlugin/Resources/PhysXMeshResource.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <Foundation/IO/ChunkStream.h>
-#include <PhysXPlugin/PhysXSceneModule.h>
+#include <PhysXPlugin/PhysXWorldModule.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXMeshResource, 1, ezRTTIDefaultAllocator<ezPhysXMeshResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();

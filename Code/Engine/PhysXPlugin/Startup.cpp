@@ -1,6 +1,6 @@
 #include <PhysXPlugin/PCH.h>
 #include <Foundation/Configuration/Startup.h>
-#include <PhysXPlugin/PhysXSceneModule.h>
+#include <PhysXPlugin/PhysXWorldModule.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXPlugin)
 

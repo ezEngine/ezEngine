@@ -122,6 +122,7 @@ void ezSliderComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezSliderComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = stream.GetStream();
 

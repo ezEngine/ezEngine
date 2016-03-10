@@ -1,6 +1,6 @@
 #include <FmodPlugin/PCH.h>
 #include <FmodPlugin/PluginInterface.h>
-#include <FmodPlugin/FmodSceneModule.h>
+#include <FmodPlugin/FmodWorldModule.h>
 #include <Foundation/Configuration/AbstractInterfaceRegistry.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 

@@ -1,6 +1,6 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Joints/PxFixedJointComponent.h>
-#include <PhysXPlugin/PhysXSceneModule.h>
+#include <PhysXPlugin/PhysXWorldModule.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
@@ -24,6 +24,8 @@ void ezPxFixedJointComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezPxFixedJointComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+
 
   auto& s = stream.GetStream();
 

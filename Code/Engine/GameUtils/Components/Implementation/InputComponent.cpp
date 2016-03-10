@@ -59,6 +59,7 @@ void ezInputComponent::Update()
 
 void ezInputComponent::SerializeComponent(ezWorldWriter& stream) const
 {
+  SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
 
   s << m_sInputSet;
@@ -67,7 +68,10 @@ void ezInputComponent::SerializeComponent(ezWorldWriter& stream) const
 
 void ezInputComponent::DeserializeComponent(ezWorldReader& stream)
 {
+  SUPER::DeserializeComponent(stream);
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
+
 
   s >> m_sInputSet;
   ezInputMessageGranularity::StorageType gran;

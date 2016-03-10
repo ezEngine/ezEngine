@@ -1,5 +1,5 @@
 #include <FmodPlugin/PCH.h>
-#include <FmodPlugin/FmodSceneModule.h>
+#include <FmodPlugin/FmodWorldModule.h>
 #include <Core/World/World.h>
 #include <FmodPlugin/Components/FmodEventComponent.h>
 #include <FmodPlugin/Components/FmodListenerComponent.h>

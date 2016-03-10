@@ -1,0 +1,69 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x938BE2D41C279743BF5ABC6F87F49E18" },
+   "t" : "ezTimedDeathComponent",
+   "p" : {
+    "Active" : true,
+    "Delay Range" : { "$t" : "time", "$v" : "1.0000", "$b" : "0x000000000000F03F" },
+    "Min Delay" : { "$t" : "time", "$v" : "1.0000", "$b" : "0x000000000000F03F" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x4FDF1227173B0C47A52A80D9A33B297C" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x032C9BA66499974F8DDFFBE05D98D7BD" }, { "$t" : "uuid", "$b" : "0x938BE2D41C279743BF5ABC6F87F49E18" }, { "$t" : "uuid", "$b" : "0x27DF323B4ABE194A9E591201CCEBE80E" } ],
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(0.0500, 0.0500, 0.0500)", "$b" : "0xCDCC4C3DCDCC4C3DCDCC4C3D" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x27DF323B4ABE194A9E591201CCEBE80E" },
+   "t" : "ezSliderComponent",
+   "p" : {
+    "Acceleration" : { "$t" : "float", "$v" : "1000.0000", "$b" : "0x00007A44" },
+    "Active" : true,
+    "Auto-Toggle Direction" : false,
+    "Axis" : "ezBasisAxis::PositiveX",
+    "Deceleration" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "Distance" : { "$t" : "float", "$v" : "100.0000", "$b" : "0x0000C842" },
+    "Reverse at End" : false,
+    "Reverse at Start" : false,
+    "Run at Startup" : true,
+    "Speed" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0x4FDF1227173B0C47A52A80D9A33B297C" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xBAA17346F252CE4C9924B63957D980FC" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Prefab",
+    "Dependencies" : "",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0xBAA17346F252CE4C9924B63957D980FC" },
+    "Hash" : { "$t" : "uint64", "$v" : "904829241379214778", "$b" : "0xBA55CBAA66998E0C" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x032C9BA66499974F8DDFFBE05D98D7BD" },
+   "t" : "ezMeshComponent",
+   "p" : {
+    "Active" : true,
+    "Materials" : [ "{ b10c49d0-af3e-40b7-8c54-1e34935a12b0 }" ],
+    "Mesh" : "{ 3f5d5cc4-7297-4c39-b44a-584f95ac3595 }",
+    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
+   }
+  } ]
+}

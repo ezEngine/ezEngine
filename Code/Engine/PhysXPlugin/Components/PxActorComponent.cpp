@@ -1,6 +1,6 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Components/PxActorComponent.h>
-#include <PhysXPlugin/PhysXSceneModule.h>
+#include <PhysXPlugin/PhysXWorldModule.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <PhysXPlugin/Shapes/PxShapeComponent.h>
@@ -25,6 +25,8 @@ void ezPxActorComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezPxActorComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+
 
 
 

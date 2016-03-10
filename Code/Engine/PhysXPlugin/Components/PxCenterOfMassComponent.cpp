@@ -1,6 +1,6 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Components/PxCenterOfMassComponent.h>
-#include <PhysXPlugin/PhysXSceneModule.h>
+#include <PhysXPlugin/PhysXWorldModule.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
@@ -24,6 +24,8 @@ void ezPxCenterOfMassComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezPxCenterOfMassComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+
 
 
 

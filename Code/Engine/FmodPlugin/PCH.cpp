@@ -1,7 +1,7 @@
 #include <FmodPlugin/PCH.h>
 #include <Core/PCH.h>
 #include <FmodPlugin/Basics.h>
-#include <FmodPlugin/FmodSceneModule.h>
+#include <FmodPlugin/FmodWorldModule.h>
 #include <CoreUtils/Localization/TranslationLookup.h>
 
 EZ_STATICLINK_LIBRARY(Fmod)

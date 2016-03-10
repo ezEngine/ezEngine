@@ -33,6 +33,7 @@ ezComponent::Initialization ezPrefabReferenceComponent::Initialize()
 
 void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const
 {
+  SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
 
   s << GetPrefabFile(); /// \todo Store resource handles more efficiently
@@ -41,6 +42,8 @@ void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const
 
 void ezPrefabReferenceComponent::DeserializeComponent(ezWorldReader& stream)
 {
+  SUPER::DeserializeComponent(stream);
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
   ezStringBuilder sTemp;

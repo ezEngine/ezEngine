@@ -57,6 +57,7 @@ bool ezLightComponent::GetCastShadows()
 
 void ezLightComponent::SerializeComponent(ezWorldWriter& stream) const
 {
+  SUPER::SerializeComponent(stream);
   ezStreamWriter& s = stream.GetStream();
 
   s << m_LightColor;
@@ -82,6 +83,9 @@ void ezLightComponent::SerializeComponent(ezWorldWriter& stream) const
 
 void ezLightComponent::DeserializeComponent(ezWorldReader& stream)
 {
+  SUPER::DeserializeComponent(stream);
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+
   ezStreamReader& s = stream.GetStream();
 
   s >> m_bCastShadows;

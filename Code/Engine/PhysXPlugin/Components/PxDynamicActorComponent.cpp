@@ -1,7 +1,7 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/Components/PxCenterOfMassComponent.h>
-#include <PhysXPlugin/PhysXSceneModule.h>
+#include <PhysXPlugin/PhysXWorldModule.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <PhysXPlugin/Shapes/PxShapeComponent.h>
@@ -43,6 +43,8 @@ void ezPxDynamicActorComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezPxDynamicActorComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+
 
   auto& s = stream.GetStream();
 

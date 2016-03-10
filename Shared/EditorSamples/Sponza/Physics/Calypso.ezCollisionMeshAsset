@@ -1,0 +1,34 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x1957B2EF108F3244A13CE51524817FD3" },
+   "t" : "ezCollisionMeshAssetProperties",
+   "p" : {
+    "Forward Dir" : "ezBasisAxis::NegativeZ",
+    "Mesh File" : "FleetOps/Calypso/calypso.obj",
+    "Mesh Type" : "ezCollisionMeshType::TriangleMesh",
+    "Non-Uniform Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "Right Dir" : "ezBasisAxis::NegativeX",
+    "Uniform Scaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Up Dir" : "ezBasisAxis::PositiveY"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xFAA0D158FE023644A56007CB68AA8CCE" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Collision Mesh",
+    "Dependencies" : "FleetOps/Calypso/calypso.obj",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0xFAA0D158FE023644A56007CB68AA8CCE" },
+    "Hash" : { "$t" : "uint64", "$v" : "2573847456919318020", "$b" : "0x04EEB70FA024B823" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0x1957B2EF108F3244A13CE51524817FD3" } ]
+   }
+  } ]
+}

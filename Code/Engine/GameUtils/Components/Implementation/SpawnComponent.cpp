@@ -102,6 +102,7 @@ void ezSpawnComponent::ScheduleSpawn()
 
 void ezSpawnComponent::SerializeComponent(ezWorldWriter& stream) const
 {
+  SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
 
   s << m_SpawnFlags.GetValue();
@@ -115,6 +116,9 @@ void ezSpawnComponent::SerializeComponent(ezWorldWriter& stream) const
 
 void ezSpawnComponent::DeserializeComponent(ezWorldReader& stream)
 {
+  SUPER::DeserializeComponent(stream);
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+
   auto& s = stream.GetStream();
 
   ezSpawnComponentFlags::StorageType flags;

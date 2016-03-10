@@ -42,7 +42,7 @@ public:
 
   virtual PxPhysics* GetPhysXAPI() override { return m_pPhysX; }
 
-  virtual PxMaterial* GetDefaultMaterial() const { return m_pDefaultMaterial; }
+  PxMaterial* GetDefaultMaterial() const { return m_pDefaultMaterial; }
 
   virtual ezCollisionFilterConfig& GetCollisionFilterConfig() override { return m_CollisionFilterConfig; }
 
@@ -63,6 +63,7 @@ private:
   PxMaterial* m_pDefaultMaterial;
   PxVisualDebuggerConnection* m_VdbConnection;
   ezCollisionFilterConfig m_CollisionFilterConfig;
+  
 };
 
 
@@ -75,6 +76,7 @@ public:
 
   PxScene* GetPxScene() const { return m_pPxScene; }
 
+  PxControllerManager* GetCharacterManager() const { return m_pCharacterManager; }
 
 protected:
   virtual void InternalStartup() override;
@@ -86,6 +88,7 @@ private:
   PxScene* m_pPxScene;
   PxDefaultCpuDispatcher* m_pCPUDispatcher;
   ezTime m_AccumulatedTimeSinceUpdate;
+  PxControllerManager* m_pCharacterManager;
 
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(PhysX, PhysXPlugin);
 };

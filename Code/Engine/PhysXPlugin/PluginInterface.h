@@ -17,6 +17,5 @@ public:
   virtual ezCollisionFilterConfig& GetCollisionFilterConfig() = 0;
 
   virtual void LoadCollisionFilters() = 0;
-
 };
 

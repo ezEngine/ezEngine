@@ -1,6 +1,6 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Shapes/PxShapeConvexComponent.h>
-#include <PhysXPlugin/PhysXSceneModule.h>
+#include <PhysXPlugin/PhysXWorldModule.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
@@ -29,6 +29,8 @@ void ezPxShapeConvexComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezPxShapeConvexComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+
 
   auto& s = stream.GetStream();
 

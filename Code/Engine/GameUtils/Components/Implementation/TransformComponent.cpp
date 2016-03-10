@@ -19,6 +19,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 void ezTransformComponent::SerializeComponent(ezWorldWriter& stream) const
 {
+  SUPER::SerializeComponent(stream);
+
   stream.GetStream() << m_Flags.GetValue();
   stream.GetStream() << m_AnimationTime;
   stream.GetStream() << m_fAnimationSpeed;
@@ -27,6 +29,9 @@ void ezTransformComponent::SerializeComponent(ezWorldWriter& stream) const
 
 void ezTransformComponent::DeserializeComponent(ezWorldReader& stream)
 {
+  SUPER::DeserializeComponent(stream);
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+
   ezTransformComponentFlags::StorageType flags;
   stream.GetStream() >> flags;
   m_Flags.SetValue(flags);

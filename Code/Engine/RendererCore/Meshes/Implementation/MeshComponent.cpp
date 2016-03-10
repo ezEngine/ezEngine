@@ -160,6 +160,7 @@ const char* ezMeshComponent::GetMeshFile() const
 
 void ezMeshComponent::SerializeComponent(ezWorldWriter& stream) const
 {
+  SUPER::SerializeComponent(stream);
   ezStreamWriter& s = stream.GetStream();
 
   // ignore components that have created meshes (?)
@@ -186,6 +187,9 @@ void ezMeshComponent::SerializeComponent(ezWorldWriter& stream) const
 
 void ezMeshComponent::DeserializeComponent(ezWorldReader& stream)
 {
+  SUPER::DeserializeComponent(stream);
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+
   ezStreamReader& s = stream.GetStream();
 
   ezStringBuilder sTemp;

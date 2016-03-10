@@ -1,7 +1,7 @@
 #include <PhysXPlugin/PCH.h>
 #include <Core/PCH.h>
 #include <PhysXPlugin/Basics.h>
-#include <PhysXPlugin/PhysXSceneModule.h>
+#include <PhysXPlugin/PhysXWorldModule.h>
 
 EZ_STATICLINK_LIBRARY(PhysX)
 {

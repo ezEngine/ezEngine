@@ -1,50 +1,88 @@
 {
  "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0x3144C9DEFF97B140A5F058FD41E12AD0" },
-   "t" : "ezRotorComponent",
-   "p" : {
-    "Acceleration" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
-    "Auto-Toggle Direction" : false,
-    "Axis" : "ezBasisAxis::PositiveZ",
-    "Deceleration" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
-    "Degrees to Rotate" : { "$t" : "int32", "$v" : "0", "$b" : "0x00000000" },
-    "Reverse at End" : false,
-    "Reverse at Start" : false,
-    "Run at Startup" : true,
-    "Speed" : { "$t" : "float", "$v" : "90.0000", "$b" : "0x0000B442" }
-   }
-  },
-  {
    "#" : { "$t" : "uuid", "$b" : "0x8F585622F264E8409D7A45D2CF2BF6F6" },
    "t" : "ezGameObject",
    "p" : {
     "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x8AB5C90197881245AF40488AEA786E19" }, { "$t" : "uuid", "$b" : "0x3144C9DEFF97B140A5F058FD41E12AD0" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5107, -2.0704, 0.8195)", "$b" : "0x09BD023F028204C0A2C9513F" },
+    "Components" : [ { "$t" : "uuid", "$b" : "0x8AB5C90197881245AF40488AEA786E19" }, { "$t" : "uuid", "$b" : "0x9F9BE352C6245B429791C3C47F20BA7E" }, { "$t" : "uuid", "$b" : "0x231B22C2C88AFF4680143A7B3701A0F3" }, { "$t" : "uuid", "$b" : "0x14348ED1BCB27141AB146679D8B5CA8A" } ],
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5107, -2.0704, -0.8805)", "$b" : "0x09BD023F028204C0916961BF" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "Name" : ""
+    "Name" : "",
+    "Tags" : [  ]
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x3E143F0587967742B5F19F61D7DE1DF4" },
+   "#" : { "$t" : "uuid", "$b" : "0x14348ED1BCB27141AB146679D8B5CA8A" },
+   "t" : "ezSliderComponent",
+   "p" : {
+    "Acceleration" : { "$t" : "float", "$v" : "20.0000", "$b" : "0x0000A041" },
+    "Active" : true,
+    "Auto-Toggle Direction" : false,
+    "Axis" : "ezBasisAxis::PositiveZ",
+    "Deceleration" : { "$t" : "float", "$v" : "20.0000", "$b" : "0x0000A041" },
+    "Distance" : { "$t" : "float", "$v" : "3.0000", "$b" : "0x00004040" },
+    "Reverse at End" : true,
+    "Reverse at Start" : true,
+    "Run at Startup" : true,
+    "Speed" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x9F9BE352C6245B429791C3C47F20BA7E" },
+   "t" : "ezPxDynamicActorComponent",
+   "p" : {
+    "Active" : true,
+    "Angular Damping" : { "$t" : "float", "$v" : "0.0500", "$b" : "0xCDCC4C3D" },
+    "Density" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Disable Gravity" : false,
+    "Kinematic" : true,
+    "Linear Damping" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
+    "Mass" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x2759BFE5AFC6BE42A57980E5FEC9C47A" },
+   "t" : "ezPxCharacterControllerComponent",
+   "p" : {
+    "Active" : true
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x9EF7412E8CE9DF44ABAA2868BAB9A2BB" },
    "t" : "ezGameObject",
    "p" : {
     "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x3855C5FB15872B4A9B5546A109CCF3D8" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5053, 1.8464, 1.3620)", "$b" : "0x715D013FE855EC3F8E57AE3F" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "Components" : [ { "$t" : "uuid", "$b" : "0x51CC195532CEE3458CCEB3E4D0AA8C85" }, { "$t" : "uuid", "$b" : "0x19DE4952D495A34ABAA8B4EC1D1E22D6" } ],
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, 0.0000, -0.1000)", "$b" : "0x0200003F00000033D0CCCCBD" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000320000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "Name" : ""
+    "Name" : "Gun",
+    "Tags" : [  ]
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0x8AB5C90197881245AF40488AEA786E19" },
    "t" : "ezMeshComponent",
    "p" : {
+    "Active" : true,
     "Materials" : [  ],
     "Mesh" : "{ 02caa120-1cb7-4f37-9782-4d7a45688459 }",
     "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x51CC195532CEE3458CCEB3E4D0AA8C85" },
+   "t" : "ezSpawnComponent",
+   "p" : {
+    "Active" : true,
+    "Attach as Child" : false,
+    "Delay Range" : { "$t" : "time", "$v" : "0.0000", "$b" : "0x0000000000000000" },
+    "Deviation" : { "$t" : "angle", "$v" : "5.0000", "$b" : "0xC2B8B23D" },
+    "Min Delay" : { "$t" : "time", "$v" : "0.0500", "$b" : "0x000000A09999A93F" },
+    "Prefab" : "{ 4673a1ba-52f2-4cce-9924-b63957d980fc }",
+    "Spawn Continuously" : false,
+    "Spawn at Start" : false
    }
   },
   {
@@ -52,29 +90,94 @@
    "t" : "ezGameObject",
    "p" : {
     "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x0C981F92CCCC3E4985876BC497CB9B6D" } ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x0C981F92CCCC3E4985876BC497CB9B6D" }, { "$t" : "uuid", "$b" : "0x0AFB7D7AF7FF0447AEA0FCC565D9BF11" } ],
     "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "Name" : ""
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x6F63A764865EE946ABED25BC6DD976ED" },
+   "t" : "ezCameraComponent",
+   "p" : {
+    "Active" : true,
+    "Dimensions (ortho)" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" },
+    "FOV (perspective)" : { "$t" : "float", "$v" : "60.0000", "$b" : "0x00007042" },
+    "Far Plane" : { "$t" : "float", "$v" : "1000.0000", "$b" : "0x00007A44" },
+    "Mode" : "ezCameraMode::PerspectiveFixedFovY",
+    "Near Plane" : { "$t" : "float", "$v" : "0.2500", "$b" : "0x0000803E" },
+    "Usage Hint" : "ezCameraComponentUsageHint::MainView"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x231B22C2C88AFF4680143A7B3701A0F3" },
+   "t" : "ezPxShapeBoxComponent",
+   "p" : {
+    "Active" : true,
+    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Half Extents" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
+    "Surface" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x0AFB7D7AF7FF0447AEA0FCC565D9BF11" },
+   "t" : "ezPxStaticActorComponent",
+   "p" : {
+    "Active" : true,
+    "Collision Mesh" : "{ 2c0adb01-ca49-4231-b10c-450af1b8fa1d }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE840C06671511F47B1C0A77742CBB021" },
+   "t" : "ezInputComponent",
+   "p" : {
+    "Active" : true,
+    "Granularity" : "ezInputMessageGranularity::PressReleaseAndDown",
+    "Input Set" : "GamePlay"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x46E29EF620B0D447A9EF20F45DAD8895" },
+   "t" : "ezMeshComponent",
+   "p" : {
+    "Active" : true,
+    "Materials" : [  ],
+    "Mesh" : "{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }",
+    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x20661DD8F4FC2948BF927787162B7CAD" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x46E29EF620B0D447A9EF20F45DAD8895" } ],
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(0.0250, 0.0250, 0.0250)", "$b" : "0xCDCCCC3CCDCCCC3CCDCCCC3C" },
+    "Name" : "",
+    "Tags" : [  ]
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0x0C981F92CCCC3E4985876BC497CB9B6D" },
    "t" : "ezMeshComponent",
    "p" : {
+    "Active" : true,
     "Materials" : [  ],
     "Mesh" : "{ cea3567e-6d36-418f-9259-f2e157979bcc }",
     "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x3855C5FB15872B4A9B5546A109CCF3D8" },
-   "t" : "ezMeshComponent",
+   "#" : { "$t" : "uuid", "$b" : "0x19DE4952D495A34ABAA8B4EC1D1E22D6" },
+   "t" : "ezInputComponent",
    "p" : {
-    "Materials" : [  ],
-    "Mesh" : "{ fffa0ae6-a2bb-484e-9cac-8aeaed5d268a }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
+    "Active" : true,
+    "Granularity" : "ezInputMessageGranularity::PressReleaseAndDown",
+    "Input Set" : "GamePlay"
    }
   },
   {
@@ -82,7 +185,7 @@
    "t" : "ezDocumentRoot",
    "n" : "ObjectTree",
    "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xE28EB66E4B66FD459872FCBD3D196E9C" }, { "$t" : "uuid", "$b" : "0x8F585622F264E8409D7A45D2CF2BF6F6" }, { "$t" : "uuid", "$b" : "0x3E143F0587967742B5F19F61D7DE1DF4" } ]
+    "Children" : [ { "$t" : "uuid", "$b" : "0xE28EB66E4B66FD459872FCBD3D196E9C" }, { "$t" : "uuid", "$b" : "0x8F585622F264E8409D7A45D2CF2BF6F6" }, { "$t" : "uuid", "$b" : "0xA3BC20670D78F0C8D319F9B161C3376F" }, { "$t" : "uuid", "$b" : "0x7E26282B20C2C884298BAD7D0E577B02" }, { "$t" : "uuid", "$b" : "0x7416F198E8F091D3BB799A496BA10F86" } ]
    }
   },
   {
@@ -93,7 +196,157 @@
     "AssetType" : "Scene",
     "Dependencies" : "",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x5D079F69E049C14CAE6B2A2B47BE2858" },
-    "Hash" : { "$t" : "uint64", "$v" : "7645314473385891918", "$b" : "0x4E9851C6019D196A" }
+    "Hash" : { "$t" : "uint64", "$v" : "4967153389182181650", "$b" : "0x12E114BBB0DFEE44" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x36EFC841A36CD14D8D08858F7236F0F3" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x6F63A764865EE946ABED25BC6DD976ED" } ],
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-1.8275, -0.0000, 1.3607)", "$b" : "0x11EDE9BF0000C0B3EC2AAE3F" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x4DDD9BB1B59F883ECB40C732A9B7763F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(0.9997, 1.0000, 0.9997)", "$b" : "0xC7EC7F3F0000803FC4EC7F3F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x7E26282B20C2C884298BAD7D0E577B02" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x79839B0AC5E5F2883B51B03529A4F324" }, { "$t" : "uuid", "$b" : "0x8E69B55BF4813B8623A22B70BE4B3F8A" }, { "$t" : "uuid", "$b" : "0x12E9F3CAF6E7DF8A0C25A226762C25FF" }, { "$t" : "uuid", "$b" : "0x030260DAEA0F52853725CE2417E14F96" } ],
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-1.0893, -4.8704, -0.8805)", "$b" : "0x486E8BBF9ADA9BC0916961BF" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x030260DAEA0F52853725CE2417E14F96" },
+   "t" : "ezSliderComponent",
+   "p" : {
+    "Acceleration" : { "$t" : "float", "$v" : "20.0000", "$b" : "0x0000A041" },
+    "Active" : true,
+    "Auto-Toggle Direction" : false,
+    "Axis" : "ezBasisAxis::PositiveZ",
+    "Deceleration" : { "$t" : "float", "$v" : "20.0000", "$b" : "0x0000A041" },
+    "Distance" : { "$t" : "float", "$v" : "3.0000", "$b" : "0x00004040" },
+    "Reverse at End" : true,
+    "Reverse at Start" : true,
+    "Run at Startup" : true,
+    "Speed" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x8E69B55BF4813B8623A22B70BE4B3F8A" },
+   "t" : "ezPxDynamicActorComponent",
+   "p" : {
+    "Active" : true,
+    "Angular Damping" : { "$t" : "float", "$v" : "0.0500", "$b" : "0xCDCC4C3D" },
+    "Density" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Disable Gravity" : false,
+    "Kinematic" : true,
+    "Linear Damping" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
+    "Mass" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x79839B0AC5E5F2883B51B03529A4F324" },
+   "t" : "ezMeshComponent",
+   "p" : {
+    "Active" : true,
+    "Materials" : [  ],
+    "Mesh" : "{ 02caa120-1cb7-4f37-9782-4d7a45688459 }",
+    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x12E9F3CAF6E7DF8A0C25A226762C25FF" },
+   "t" : "ezPxShapeBoxComponent",
+   "p" : {
+    "Active" : true,
+    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Half Extents" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
+    "Surface" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA3BC20670D78F0C8D319F9B161C3376F" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0x36EFC841A36CD14D8D08858F7236F0F3" }, { "$t" : "uuid", "$b" : "0x20661DD8F4FC2948BF927787162B7CAD" }, { "$t" : "uuid", "$b" : "0x9EF7412E8CE9DF44ABAA2868BAB9A2BB" } ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x2759BFE5AFC6BE42A57980E5FEC9C47A" }, { "$t" : "uuid", "$b" : "0xE840C06671511F47B1C0A77742CBB021" } ],
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(1.1107, 0.4296, 1.4195)", "$b" : "0x522B8E3FF0EFDB3E9EB1B53F" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x00000000000000007D1B44BFBC8D243F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "Name" : "Ship",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x7416F198E8F091D3BB799A496BA10F86" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x6F7364788D14BCD7CD3F9D0186EE87A8" }, { "$t" : "uuid", "$b" : "0x84597EC9BCB004D5B590183C1B96D30D" }, { "$t" : "uuid", "$b" : "0x08D9BC38BF16A9D99E138FF2D276B982" }, { "$t" : "uuid", "$b" : "0xF9F12848B33E1BD4C913BBF0732BE419" } ],
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.7107, -12.7704, -0.8805)", "$b" : "0x3EF0353FB4534CC1916961BF" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xF9F12848B33E1BD4C913BBF0732BE419" },
+   "t" : "ezSliderComponent",
+   "p" : {
+    "Acceleration" : { "$t" : "float", "$v" : "20.0000", "$b" : "0x0000A041" },
+    "Active" : true,
+    "Auto-Toggle Direction" : false,
+    "Axis" : "ezBasisAxis::PositiveZ",
+    "Deceleration" : { "$t" : "float", "$v" : "20.0000", "$b" : "0x0000A041" },
+    "Distance" : { "$t" : "float", "$v" : "3.0000", "$b" : "0x00004040" },
+    "Reverse at End" : true,
+    "Reverse at Start" : true,
+    "Run at Startup" : true,
+    "Speed" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x84597EC9BCB004D5B590183C1B96D30D" },
+   "t" : "ezPxDynamicActorComponent",
+   "p" : {
+    "Active" : true,
+    "Angular Damping" : { "$t" : "float", "$v" : "0.0500", "$b" : "0xCDCC4C3D" },
+    "Density" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Disable Gravity" : false,
+    "Kinematic" : true,
+    "Linear Damping" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
+    "Mass" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x6F7364788D14BCD7CD3F9D0186EE87A8" },
+   "t" : "ezMeshComponent",
+   "p" : {
+    "Active" : true,
+    "Materials" : [  ],
+    "Mesh" : "{ 02caa120-1cb7-4f37-9782-4d7a45688459 }",
+    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x08D9BC38BF16A9D99E138FF2D276B982" },
+   "t" : "ezPxShapeBoxComponent",
+   "p" : {
+    "Active" : true,
+    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Half Extents" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
+    "Surface" : ""
    }
   } ]
 }

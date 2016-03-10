@@ -1,5 +1,5 @@
 #include <PhysXPlugin/PCH.h>
-#include <PhysXPlugin/PhysXSceneModule.h>
+#include <PhysXPlugin/PhysXWorldModule.h>
 #include <Core/World/World.h>
 
 #include <PhysXPlugin/Components/PxStaticActorComponent.h>
@@ -11,6 +11,7 @@
 #include <PhysXPlugin/Components/PxCenterOfMassComponent.h>
 #include <PhysXPlugin/Joints/PxDistanceJointComponent.h>
 #include <PhysXPlugin/Joints/PxFixedJointComponent.h>
+#include <PhysXPlugin/Components/PxCharacterControllerComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXSceneModule, 1, ezRTTIDefaultAllocator<ezPhysXSceneModule>);
   // no properties or message handlers
@@ -51,13 +52,14 @@ void ezPhysXSceneModule::InternalStartup()
   GetWorld()->GetOrCreateComponentManager<ezPxCenterOfMassComponentManager>()->SetUserData(this);
   GetWorld()->GetOrCreateComponentManager<ezPxDistanceJointComponentManager>()->SetUserData(this);
   GetWorld()->GetOrCreateComponentManager<ezPxFixedJointComponentManager>()->SetUserData(this);
+  GetWorld()->GetOrCreateComponentManager<ezPxCharacterControllerComponentManager>()->SetUserData(this);
 
   m_AccumulatedTimeSinceUpdate.SetZero();
 
   PxSceneDesc desc = PxSceneDesc(PxTolerancesScale());
   desc.setToDefault(PxTolerancesScale());
 
-  desc.gravity = PxVec3(0.0f, 0.0f, -9.81f);
+  desc.gravity = PxVec3(0.0f, 0.0f, -9.81f); /// \todo Scene settings
 
   m_pCPUDispatcher = PxDefaultCpuDispatcherCreate(4);
   desc.cpuDispatcher = m_pCPUDispatcher;
@@ -66,11 +68,17 @@ void ezPhysXSceneModule::InternalStartup()
   EZ_ASSERT_DEV(desc.isValid(), "PhysX scene description is invalid");
   m_pPxScene = ezPhysX::GetSingleton()->GetPhysXAPI()->createScene(desc);
 
+  m_pCharacterManager = PxCreateControllerManager(*m_pPxScene);
+
   EZ_ASSERT_ALWAYS(m_pPxScene != nullptr, "Creating the PhysX scene failed");
 }
 
 void ezPhysXSceneModule::InternalShutdown()
 {
+  //m_pCharacterManager->purgeControllers();
+  m_pCharacterManager->release();
+  m_pCharacterManager = nullptr;
+
   m_pPxScene->release();
   m_pPxScene = nullptr;
 
@@ -83,7 +91,7 @@ void ezPhysXSceneModule::InternalUpdate()
   if (!GetWorld()->GetWorldSimulationEnabled())
     return;
 
-  ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
+  const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
   m_AccumulatedTimeSinceUpdate += tDiff;
 
   const ezTime tStep = ezTime::Seconds(1.0 / 60.0);
@@ -95,6 +103,9 @@ void ezPhysXSceneModule::InternalUpdate()
 
     m_AccumulatedTimeSinceUpdate -= tStep;
   }
+
+  // not sure where exactly this needs to go
+  m_pCharacterManager->computeInteractions((float)tDiff.GetSeconds());
 }
 
 

@@ -110,5 +110,83 @@
           "Key" : "keyboard_space",
           "Scale" : 1
         } ]
+    },
+    {
+      "Set" : "GamePlay",
+      "Action" : "MoveForwards",
+      "TimeScale" : true,
+      "Slots" : [ {
+          "Key" : "keyboard_w",
+          "Scale" : 2
+        },
+        {
+          "Key" : "controller0_leftstick_posy",
+          "Scale" : 1
+        } ]
+    },
+    {
+      "Set" : "GamePlay",
+      "Action" : "MoveBackwards",
+      "TimeScale" : true,
+      "Slots" : [ {
+          "Key" : "keyboard_s",
+          "Scale" : 2
+        },
+        {
+          "Key" : "controller0_leftstick_negy",
+          "Scale" : 1
+        } ]
+    },
+    {
+      "Set" : "GamePlay",
+      "Action" : "StrafeLeft",
+      "TimeScale" : true,
+      "Slots" : [ {
+          "Key" : "keyboard_a",
+          "Scale" : 2
+        },
+        {
+          "Key" : "controller0_leftstick_negx",
+          "Scale" : 1
+        } ]
+    },
+    {
+      "Set" : "GamePlay",
+      "Action" : "StrafeRight",
+      "TimeScale" : true,
+      "Slots" : [ {
+          "Key" : "keyboard_d",
+          "Scale" : 2
+        },
+        {
+          "Key" : "controller0_leftstick_posx",
+          "Scale" : 1
+        } ]
+    },
+    {
+      "Set" : "GamePlay",
+      "Action" : "RotateLeft",
+      "TimeScale" : true,
+      "Slots" : [ {
+          "Key" : "keyboard_left",
+          "Scale" : 1
+        },
+        {
+          "Key" : "controller0_rightstick_negx",
+          "Scale" : 1
+        } ]
+    },
+    {
+      "Set" : "GamePlay",
+      "Action" : "RotateRight",
+      "TimeScale" : true,
+      "Slots" : [ {
+          "Key" : "keyboard_right",
+          "Scale" : 1
+        },
+        {
+          "Key" : "controller0_rightstick_posx",
+          "Scale" : 1
+        } ]
     } ]
 }

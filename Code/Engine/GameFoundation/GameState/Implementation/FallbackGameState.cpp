@@ -163,7 +163,7 @@ void ezFallbackGameState::ProcessInput()
     else
       m_MainCamera.SetCameraMode(pCamComp->m_Mode, pCamComp->m_fOrthoDimension, pCamComp->m_fNearPlane, pCamComp->m_fFarPlane);
 
-    m_MainCamera.LookAt(pCamNode->GetGlobalPosition(), pCamNode->GetGlobalPosition() + pCamNode->GetGlobalRotation() * ezVec3(1, 0, 0), pCamNode->GetGlobalRotation() * ezVec3(0, 0, 1));
+    m_MainCamera.LookAt(pCamNode->GetGlobalPosition(), pCamNode->GetGlobalPosition() + pCamNode->GetGlobalRotation() * ezVec3(1, 0, 0), (pCamNode->GetGlobalRotation() * ezVec3(0, 0, 1)).GetNormalized());
 
     return;
   }

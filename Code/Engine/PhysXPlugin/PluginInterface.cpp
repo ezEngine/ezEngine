@@ -1,6 +1,6 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/PluginInterface.h>
-#include <PhysXPlugin/PhysXSceneModule.h>
+#include <PhysXPlugin/PhysXWorldModule.h>
 #include <Foundation/Configuration/AbstractInterfaceRegistry.h>
 
 static ezPhysX g_PhysXSingleton;
@@ -63,7 +63,7 @@ void ezPhysX::Startup()
   EZ_ASSERT_DEV(m_pPhysX != nullptr, "Initializing PhysX API failed");
 
   m_pDefaultMaterial = m_pPhysX->createMaterial(0.6f, 0.4f, 0.25f);
-
+  
   ezSurfaceResource::s_Events.AddEventHandler(ezMakeDelegate(&ezPhysX::SurfaceResourceEventHandler, this));
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
