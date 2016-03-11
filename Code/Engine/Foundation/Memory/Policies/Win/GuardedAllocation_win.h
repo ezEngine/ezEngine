@@ -1,10 +1,6 @@
 
-#include <Foundation/Containers/StaticRingBuffer.h>
-
 namespace ezMemoryPolicies
 {
-  static ezStaticRingBuffer<void*, (1 << 16)> s_AllocationsToFreeLater;
-
   struct AlloctionMetaData
   {
     AlloctionMetaData()
@@ -68,12 +64,12 @@ namespace ezMemoryPolicies
   {
     ezLock<ezMutex> lock(m_mutex);
 
-    if (!s_AllocationsToFreeLater.CanAppend())
+    if (!m_AllocationsToFreeLater.CanAppend())
     {
-      void* pMemory = s_AllocationsToFreeLater.PeekFront();
+      void* pMemory = m_AllocationsToFreeLater.PeekFront();
       EZ_VERIFY(::VirtualFree(pMemory, 0, MEM_RELEASE), "Could not free memory pages. Error Code '%d'", ::GetLastError());
 
-      s_AllocationsToFreeLater.PopFront();
+      m_AllocationsToFreeLater.PopFront();
     }
 
     // Retrieve info from meta data first.
@@ -92,7 +88,7 @@ namespace ezMemoryPolicies
 
     // Finally store the allocation so we can release it later
     void* pMemory = ezMemoryUtils::AddByteOffset(ptr, -((ptrdiff_t)uiPageSize));
-    s_AllocationsToFreeLater.PushBack(pMemory);
+    m_AllocationsToFreeLater.PushBack(pMemory);
   }
 
 }

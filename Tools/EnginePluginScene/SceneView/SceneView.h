@@ -45,11 +45,6 @@ private:
 
   ezSceneContext* m_pSceneContext;
 
-  ezGALSwapChainHandle m_hPrimarySwapChain;
-
-  ezGALRenderTargetViewHandle m_hSwapChainRTV;
-  ezGALRenderTargetViewHandle m_hSwapChainDSV;
-
   ezCamera m_Camera;
   ezView* m_pView;
   bool m_bUpdatePickingData;

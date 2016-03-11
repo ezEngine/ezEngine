@@ -4,6 +4,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/Resources/Texture.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
 #include <EnginePluginScene/SceneContext/SceneContext.h>
 
@@ -71,8 +72,13 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
     break;
   }
 
-  m_uiWindowWidth = (ezUInt32)renderViewContext.m_pViewData->m_ViewPortRect.width;
-  m_uiWindowHeight = (ezUInt32)renderViewContext.m_pViewData->m_ViewPortRect.height;
+  const ezRectFloat& viewPortRect = renderViewContext.m_pViewData->m_ViewPortRect;
+  m_uiWindowWidth = (ezUInt32)viewPortRect.width;
+  m_uiWindowHeight = (ezUInt32)viewPortRect.height;
+
+  const ezGALTexture* pDepthTexture = ezGALDevice::GetDefaultDevice()->GetTexture(m_hPickingDepthRT);
+  EZ_ASSERT_DEV(m_uiWindowWidth == pDepthTexture->GetDescription().m_uiWidth, "");
+  EZ_ASSERT_DEV(m_uiWindowHeight == pDepthTexture->GetDescription().m_uiHeight, "");
 
   // since typically the fov is tied to the height, we orient the gizmo size on that
   const float fGizmoScale = 128.0f / (float)m_uiWindowHeight;
@@ -81,6 +87,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
 
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
+  pGALContext->SetViewport(viewPortRect.x, viewPortRect.y, viewPortRect.width, viewPortRect.height, 0.0f, 1.0f);
   pGALContext->SetRenderTargetSetup(m_RenderTargetSetup);
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f));
 

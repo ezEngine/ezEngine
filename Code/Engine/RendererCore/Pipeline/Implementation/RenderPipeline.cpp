@@ -264,6 +264,15 @@ ezRenderPipeline::PipelineState ezRenderPipeline::Rebuild(const ezView& view)
   {
     ClearRenderPassGraphTextures();
   }
+  else
+  {
+    // make sure the renderdata stores the updated view data
+    auto& data = GetDataForRendering();
+
+    data.m_Camera = *view.GetRenderCamera();
+    data.m_ViewData = view.GetData();
+  }
+
   m_PipelineState = bRes ? PipelineState::Initialized : PipelineState::RebuildError;
   return m_PipelineState;
 }

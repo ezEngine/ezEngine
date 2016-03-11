@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Containers/StaticRingBuffer.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
@@ -21,5 +22,7 @@ namespace ezMemoryPolicies
     ezMutex m_mutex;
 
     ezUInt32 m_uiPageSize;
+
+    ezStaticRingBuffer<void*, (1 << 16)> m_AllocationsToFreeLater;
   };
 }

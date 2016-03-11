@@ -50,7 +50,6 @@ void ezSceneViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth
     if (GetEditorWindow().m_uiWidth == uiWidth && GetEditorWindow().m_uiHeight == uiHeight)
       return;
 
-    m_hPrimarySwapChain.Invalidate();
     static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->RemoveWindow(&GetEditorWindow());
   }
 
@@ -62,14 +61,12 @@ void ezSceneViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth
 
   ezLog::Debug("Creating Swapchain with size %u * %u", uiWidth, uiHeight);
 
-  {
-    m_hPrimarySwapChain = static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->AddWindow(&GetEditorWindow());
-    const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(m_hPrimarySwapChain);
-    EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
+  auto hPrimarySwapChain = static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->AddWindow(&GetEditorWindow());
+  const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(hPrimarySwapChain);
+  EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
 
-    m_hSwapChainRTV = pPrimarySwapChain->GetBackBufferRenderTargetView();
-    m_hSwapChainDSV = pPrimarySwapChain->GetDepthStencilTargetView();
-  }
+  auto hSwapChainRTV = pPrimarySwapChain->GetBackBufferRenderTargetView();
+  auto hSwapChainDSV = pPrimarySwapChain->GetDepthStencilTargetView();
 
   // setup view
   {
@@ -79,8 +76,7 @@ void ezSceneViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth
     }
 
     ezGALRenderTagetSetup BackBufferRenderTargetSetup;
-    BackBufferRenderTargetSetup.SetRenderTarget(0, m_hSwapChainRTV)
-      .SetDepthStencilTarget(m_hSwapChainDSV);
+    BackBufferRenderTargetSetup.SetRenderTarget(0, hSwapChainRTV).SetDepthStencilTarget(hSwapChainDSV);
     m_pView->SetRenderTargetSetup(BackBufferRenderTargetSetup);
     m_pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));
   }

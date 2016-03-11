@@ -52,10 +52,10 @@ public:
   /// \brief Returns the owner game object if the component is attached to one or nullptr.
   const ezGameObject* GetOwner() const;
 
-  /// \brief Returns the corresponding world for this componenet.
+  /// \brief Returns the corresponding world for this component.
   ezWorld* GetWorld();
 
-  /// \brief Returns the corresponding world for this componenet.
+  /// \brief Returns the corresponding world for this component.
   const ezWorld* GetWorld() const;
 
   /// \brief Returns a handle to this component.
@@ -67,13 +67,13 @@ public:
   ezUInt32 m_uiEditorPickingID;
 
   /// \brief Override this to save the current state of the component to the given stream.
-  virtual void SerializeComponent(ezWorldWriter& stream) const = 0 {}
+  virtual void SerializeComponent(ezWorldWriter& stream) const {}
 
   /// \brief Override this to load the current state of the component from the given stream.
   ///
   /// The active state will be automatically serialized. The 'initialized' state is not serialized, all components
   /// will be initialized after creation, even if they were already in an initialized state when they were serialized.
-  virtual void DeserializeComponent(ezWorldReader& stream) = 0 {}
+  virtual void DeserializeComponent(ezWorldReader& stream) {}
 
 protected:
   friend class ezWorld;
