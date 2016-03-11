@@ -162,26 +162,27 @@ void ezQtSceneViewWidget::dragLeaveEvent(QDragLeaveEvent * e)
 
 void ezQtSceneViewWidget::dragMoveEvent(QDragMoveEvent* e)
 {
+  // can only drag & drop objects around in perspective mode
+  if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
+    return;
+
+  const ezTime tNow = ezTime::Now();
+
+  if (tNow - m_LastDragMoveEvent < ezTime::Seconds(1.0 / 25.0))
+    return;
+
+  m_LastDragMoveEvent = tNow;
+
+  /// \todo workaround for bad picking behavior: update picking data every frame to get a decent result once we drop
+  ezObjectPickingResult res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
+
   if (!m_sDragMaterial.IsEmpty())
   {
     return;
   }
 
-  // can only drag & drop objects around in perspective mode
-  if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
-    return;
-
   if (e->mimeData()->hasFormat("application/ezEditor.AssetGuid") && !m_DraggedObjects.IsEmpty())
   {
-    const ezTime tNow = ezTime::Now();
-
-    if (tNow - m_LastDragMoveEvent < ezTime::Seconds(1.0 / 25.0))
-      return;
-
-    m_LastDragMoveEvent = tNow;
-
-    ezObjectPickingResult res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
-
     if (res.m_vPickedPosition.IsNaN() || !res.m_PickedObject.IsValid())
       res.m_vPickedPosition.SetZero();
 
