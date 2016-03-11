@@ -15,6 +15,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 1);
     EZ_MEMBER_PROPERTY("Max Slope Angle", m_MaxClimbingSlope)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(40.0f)), new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(80.0f))),
     EZ_MEMBER_PROPERTY("Force Slope Sliding", m_bForceSlopeSliding)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Constrained Climb Mode", m_bConstrainedClimbingMode),
+    EZ_MEMBER_PROPERTY("Collision Layer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
   EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
     EZ_MESSAGE_HANDLER(ezInputComponentMessage, InputComponentMessageHandler),
@@ -26,6 +27,7 @@ ezPxCharacterControllerComponent::ezPxCharacterControllerComponent()
   m_pController = nullptr;
   m_vRelativeMoveDirection.SetZero();
 
+  m_uiCollisionLayer = 0;
   m_fCapsuleHeight = 1.0f;
   m_fCapsuleRadius = 0.25f;
   m_fCapsuleHeight = 0.3f;
@@ -50,7 +52,7 @@ void ezPxCharacterControllerComponent::SerializeComponent(ezWorldWriter& stream)
   s << m_bConstrainedClimbingMode;
   s << m_fWalkSpeed;
   s << m_RotateSpeed;
-
+  s << m_uiCollisionLayer;
 }
 
 
@@ -68,7 +70,37 @@ void ezPxCharacterControllerComponent::DeserializeComponent(ezWorldReader& strea
   s >> m_bConstrainedClimbingMode;
   s >> m_fWalkSpeed;
   s >> m_RotateSpeed;
+  s >> m_uiCollisionLayer;
 }
+
+class ezPxCharacterFilter : public PxQueryFilterCallback
+{
+public:
+
+
+  virtual PxQueryHitType::Enum preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags) override
+  {
+    queryFlags = (PxHitFlags)0;
+
+    // trigger the contact callback for pairs (A,B) where
+    // the filter mask of A contains the ID of B and vice versa.
+    if ((filterData.word0 & shape->getQueryFilterData().word1) || (shape->getQueryFilterData().word0 & filterData.word1))
+    {
+      queryFlags |= PxHitFlag::eDEFAULT;
+      return PxQueryHitType::eBLOCK;
+    }
+
+    return PxQueryHitType::eNONE;
+  }
+
+  virtual PxQueryHitType::Enum postFilter(const PxFilterData& filterData, const PxQueryHit& hit) override
+  {
+    return PxQueryHitType::eNONE;
+  }
+
+};
+
+static ezPxCharacterFilter g_CharFilter;
 
 void ezPxCharacterControllerComponent::Update()
 {
@@ -89,11 +121,21 @@ void ezPxCharacterControllerComponent::Update()
   mov.z = m_vRelativeMoveDirection.z;
 
   /// \todo Filter stuff ?
-  PxControllerFilters filter;
-  filter.mCCTFilterCallback = nullptr;
-  filter.mFilterCallback = nullptr;
+  PxControllerFilters charFilter;
+  PxFilterData filter;
+  charFilter.mCCTFilterCallback = nullptr;
+  charFilter.mFilterCallback =  &g_CharFilter;
+  charFilter.mFilterData = &filter;
+  charFilter.mFilterFlags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
 
-  m_pController->move(mov, 0.1f * m_fWalkSpeed * tDiff, tDiff, filter);
+  {
+    filter.word0 = EZ_BIT(m_uiCollisionLayer);
+    filter.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(m_uiCollisionLayer);
+    filter.word2 = 0;
+    filter.word3 = 0;
+  }
+
+  m_pController->move(mov, 0.1f * m_fWalkSpeed * tDiff, tDiff, charFilter);
 
   m_vRelativeMoveDirection.SetZero();
 

@@ -35,7 +35,8 @@ public:
   bool m_bForceSlopeSliding; ///< If standing on a steep slope, the character either can't walk up, or is even forced to slide down
   bool m_bConstrainedClimbingMode; ///< no idea what this does, try out or ask nVidia
   
-  
+  ezUInt8 m_uiCollisionLayer;
+
   //ezSurfaceResourceHandle m_hCharacterMaterial; // not sure this is needed for anything
   //float m_fInvisibleWallHeight; ??
   //float m_fMaxJumpHeight; ??
