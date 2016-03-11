@@ -72,9 +72,14 @@ class EZ_PHYSXPLUGIN_DLL ezPhysXSceneModule : public ezWorldModule
   EZ_ADD_DYNAMIC_REFLECTION(ezPhysXSceneModule, ezWorldModule);
 
 public:
-  ezPhysXSceneModule() {}
+  ezPhysXSceneModule();
 
   PxScene* GetPxScene() const { return m_pPxScene; }
+
+  ezVec3 GetObjectGravity() const { return m_vObjectGravity; }
+  ezVec3 GetCharacterGravity() const { return m_vCharacterGravity; }
+
+  void SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity);
 
   PxControllerManager* GetCharacterManager() const { return m_pCharacterManager; }
 
@@ -89,6 +94,8 @@ private:
   PxDefaultCpuDispatcher* m_pCPUDispatcher;
   ezTime m_AccumulatedTimeSinceUpdate;
   PxControllerManager* m_pCharacterManager;
+  ezVec3 m_vObjectGravity;
+  ezVec3 m_vCharacterGravity;
 
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(PhysX, PhysXPlugin);
 };

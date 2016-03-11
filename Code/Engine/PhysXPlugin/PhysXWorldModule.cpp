@@ -39,6 +39,25 @@ PxFilterFlags ezPxFilterShader(PxFilterObjectAttributes attributes0, PxFilterDat
   return PxFilterFlag::eKILL;
 }
 
+
+ezPhysXSceneModule::ezPhysXSceneModule()
+{
+  m_pPxScene = nullptr;
+
+  SetGravity(ezVec3(0, 0, -10), ezVec3(0, 0, -12));
+}
+
+void ezPhysXSceneModule::SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity)
+{
+  m_vObjectGravity = objectGravity;
+  m_vCharacterGravity = characterGravity;
+
+  if (m_pPxScene)
+  {
+    m_pPxScene->setGravity(PxVec3(m_vObjectGravity.x, m_vObjectGravity.y, m_vObjectGravity.z));
+  }
+}
+
 void ezPhysXSceneModule::InternalStartup()
 {
   InternalReinit();
@@ -59,7 +78,7 @@ void ezPhysXSceneModule::InternalStartup()
   PxSceneDesc desc = PxSceneDesc(PxTolerancesScale());
   desc.setToDefault(PxTolerancesScale());
 
-  desc.gravity = PxVec3(0.0f, 0.0f, -9.81f); /// \todo Scene settings
+  desc.gravity = PxVec3(m_vObjectGravity.x, m_vObjectGravity.y, m_vObjectGravity.z); /// \todo Scene settings
 
   m_pCPUDispatcher = PxDefaultCpuDispatcherCreate(4);
   desc.cpuDispatcher = m_pCPUDispatcher;

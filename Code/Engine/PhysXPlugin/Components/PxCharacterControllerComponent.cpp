@@ -6,8 +6,16 @@
 #include <GameUtils/Components/InputComponent.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 1);
-  //EZ_BEGIN_PROPERTIES
-  //EZ_END_PROPERTIES
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("Capsule Height", m_fCapsuleHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
+    EZ_MEMBER_PROPERTY("Capsule Radius", m_fCapsuleRadius)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.1f, 5.0f)),
+    EZ_MEMBER_PROPERTY("Max Step Height", m_fMaxStepHeight)->AddAttributes(new ezDefaultValueAttribute(0.3f), new ezClampValueAttribute(0.0f, 5.0f)),
+    EZ_MEMBER_PROPERTY("Walk Speed", m_fWalkSpeed)->AddAttributes(new ezDefaultValueAttribute(3.0f), new ezClampValueAttribute(0.01f, 20.0f)),
+    EZ_MEMBER_PROPERTY("Rotate Speed", m_RotateSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90.0f)), new ezClampValueAttribute(ezAngle::Degree(1.0f), ezAngle::Degree(360.0f))),
+    EZ_MEMBER_PROPERTY("Max Slope Angle", m_MaxClimbingSlope)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(40.0f)), new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(80.0f))),
+    EZ_MEMBER_PROPERTY("Force Slope Sliding", m_bForceSlopeSliding)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("Constrained Climb Mode", m_bConstrainedClimbingMode),
+  EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
     EZ_MESSAGE_HANDLER(ezInputComponentMessage, InputComponentMessageHandler),
   EZ_END_MESSAGEHANDLERS
@@ -17,12 +25,31 @@ ezPxCharacterControllerComponent::ezPxCharacterControllerComponent()
 {
   m_pController = nullptr;
   m_vRelativeMoveDirection.SetZero();
+
+  m_fCapsuleHeight = 1.0f;
+  m_fCapsuleRadius = 0.25f;
+  m_fCapsuleHeight = 0.3f;
+  m_MaxClimbingSlope = ezAngle::Degree(40.0f);
+  m_bForceSlopeSliding = true;
+  m_bConstrainedClimbingMode = false;
+  m_fWalkSpeed = 3.0f;
+  m_RotateSpeed = ezAngle::Degree(90.0f);
 }
 
 
 void ezPxCharacterControllerComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
+  auto& s = stream.GetStream();
+
+  s << m_fCapsuleHeight;
+  s << m_fCapsuleRadius;
+  s << m_fCapsuleHeight;
+  s << m_MaxClimbingSlope;
+  s << m_bForceSlopeSliding;
+  s << m_bConstrainedClimbingMode;
+  s << m_fWalkSpeed;
+  s << m_RotateSpeed;
 
 }
 
@@ -31,8 +58,16 @@ void ezPxCharacterControllerComponent::DeserializeComponent(ezWorldReader& strea
 {
   SUPER::DeserializeComponent(stream);
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = stream.GetStream();
 
-
+  s >> m_fCapsuleHeight;
+  s >> m_fCapsuleRadius;
+  s >> m_fCapsuleHeight;
+  s >> m_MaxClimbingSlope;
+  s >> m_bForceSlopeSliding;
+  s >> m_bConstrainedClimbingMode;
+  s >> m_fWalkSpeed;
+  s >> m_RotateSpeed;
 }
 
 void ezPxCharacterControllerComponent::Update()
@@ -42,26 +77,23 @@ void ezPxCharacterControllerComponent::Update()
 
   const float tDiff = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
 
-  m_vRelativeMoveDirection *= 2.0f;
+  ezPhysXSceneModule* pModule = static_cast<ezPhysXSceneModule*>(GetManager()->GetUserData());
 
-  m_vRelativeMoveDirection = GetOwner()->GetGlobalRotation() * m_vRelativeMoveDirection;
+  m_vRelativeMoveDirection = GetOwner()->GetGlobalRotation() * m_vRelativeMoveDirection * m_fWalkSpeed;
 
-  m_vRelativeMoveDirection += ezVec3(0, 0, -1.0f) * tDiff;
-
-  
-  //m_vRelativeMoveDirection *= tDiff;
+  m_vRelativeMoveDirection += pModule->GetCharacterGravity() * tDiff;
 
   PxVec3 mov;
   mov.x = m_vRelativeMoveDirection.x;
   mov.y = m_vRelativeMoveDirection.y;
   mov.z = m_vRelativeMoveDirection.z;
 
+  /// \todo Filter stuff ?
   PxControllerFilters filter;
   filter.mCCTFilterCallback = nullptr;
   filter.mFilterCallback = nullptr;
-  //filter.mFilterFlags = PxQueryFlag::
 
-  m_pController->move(mov, 0.01f, tDiff, filter);
+  m_pController->move(mov, 0.1f * m_fWalkSpeed * tDiff, tDiff, filter);
 
   m_vRelativeMoveDirection.SetZero();
 
@@ -84,6 +116,8 @@ ezComponent::Initialization ezPxCharacterControllerComponent::Initialize()
 {
   ezPhysXSceneModule* pModule = static_cast<ezPhysXSceneModule*>(GetManager()->GetUserData());
 
+  m_vRelativeMoveDirection.SetZero();
+
   const auto pos = GetOwner()->GetGlobalPosition();
   const auto rot = GetOwner()->GetGlobalRotation();
 
@@ -92,24 +126,26 @@ ezComponent::Initialization ezPxCharacterControllerComponent::Initialize()
   t.q = PxQuat(rot.v.x, rot.v.y, rot.v.z, rot.w);
 
   PxCapsuleControllerDesc cd;
-  cd.climbingMode = PxCapsuleClimbingMode::eEASY;
-  cd.height = 1.0f;
-  cd.radius = 0.25f;
-  cd.nonWalkableMode = PxControllerNonWalkableMode::ePREVENT_CLIMBING_AND_FORCE_SLIDING;
+  cd.climbingMode = m_bConstrainedClimbingMode ? PxCapsuleClimbingMode::eCONSTRAINED : PxCapsuleClimbingMode::eEASY;
+  cd.height = ezMath::Max(m_fCapsuleHeight, 0.0f);
+  cd.radius = ezMath::Max(m_fCapsuleRadius, 0.0f);
+  cd.nonWalkableMode = m_bForceSlopeSliding ? PxControllerNonWalkableMode::ePREVENT_CLIMBING_AND_FORCE_SLIDING : PxControllerNonWalkableMode::ePREVENT_CLIMBING;
   cd.position.set(pos.x, pos.y, pos.z);
-  cd.slopeLimit = ezMath::Cos(ezAngle::Degree(45.0f));
-  cd.stepOffset = 0.4f;
+  cd.slopeLimit = ezMath::Cos(m_MaxClimbingSlope);
+  cd.stepOffset = m_fMaxStepHeight;
   cd.upDirection = PxVec3(0, 0, 1);
   cd.userData = this;
   cd.material = ezPhysX::GetSingleton()->GetDefaultMaterial();
 
-  EZ_ASSERT_DEV(cd.isValid(), "Character Controller configuration is invalid");
+  if (!cd.isValid())
+  {
+    ezLog::Error("The Character Controller configuration is invalid.");
+    return ezComponent::Initialization::Done;
+  }
 
   m_pController = static_cast<PxCapsuleController*>(pModule->GetCharacterManager()->createController(cd));
 
   EZ_ASSERT_DEV(m_pController != nullptr, "Failed to create character controller");
-
-  m_vRelativeMoveDirection.SetZero();
 
   return ezComponent::Initialization::Done;
 }
@@ -118,6 +154,7 @@ void ezPxCharacterControllerComponent::Deinitialize()
 {
   if (m_pController)
   {
+    /// \todo world module is shut down first -> bad order
     //m_pController->release();
     m_pController = nullptr;
   }
@@ -153,13 +190,13 @@ void ezPxCharacterControllerComponent::InputComponentMessageHandler(ezInputCompo
 
   if (ezStringUtils::IsEqual(msg.m_szAction, "RotateLeft"))
   {
-    m_RotateZ -= ezAngle::Degree(90.0f * f);
+    m_RotateZ -= m_RotateSpeed * f;
     return;
   }
 
   if (ezStringUtils::IsEqual(msg.m_szAction, "RotateRight"))
   {
-    m_RotateZ += ezAngle::Degree(90.0f * f);
+    m_RotateZ += m_RotateSpeed * f;
     return;
   }
 }

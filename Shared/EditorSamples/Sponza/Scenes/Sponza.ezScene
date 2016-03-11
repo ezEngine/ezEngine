@@ -1,51 +1,83 @@
 {
  "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0x8F585622F264E8409D7A45D2CF2BF6F6" },
+   "#" : { "$t" : "uuid", "$b" : "0xD888FAB2002FF50F7C07B824A9F0B267" },
    "t" : "ezGameObject",
    "p" : {
     "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x8AB5C90197881245AF40488AEA786E19" }, { "$t" : "uuid", "$b" : "0x9F9BE352C6245B429791C3C47F20BA7E" }, { "$t" : "uuid", "$b" : "0x231B22C2C88AFF4680143A7B3701A0F3" }, { "$t" : "uuid", "$b" : "0x14348ED1BCB27141AB146679D8B5CA8A" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5107, -2.0704, -0.8805)", "$b" : "0x09BD023F028204C0916961BF" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "Components" : [ { "$t" : "uuid", "$b" : "0xD3E56D92A5521F148ECDBADCC33D2B8A" }, { "$t" : "uuid", "$b" : "0x6C4BC652D7540C165FA1ACCD10C65C64" }, { "$t" : "uuid", "$b" : "0x1A44A9E01FDFF08F74B87304E36D63EA" } ],
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(1.5107, -3.1704, -0.2805)", "$b" : "0x865EC13F67E84AC0EE9F8FBE" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0xEE8384BE00000000985C42B2EA46773F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "Name" : "",
     "Tags" : [  ]
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x14348ED1BCB27141AB146679D8B5CA8A" },
-   "t" : "ezSliderComponent",
+   "#" : { "$t" : "uuid", "$b" : "0xD3E56D92A5521F148ECDBADCC33D2B8A" },
+   "t" : "ezMeshComponent",
    "p" : {
-    "Acceleration" : { "$t" : "float", "$v" : "20.0000", "$b" : "0x0000A041" },
     "Active" : true,
-    "Auto-Toggle Direction" : false,
-    "Axis" : "ezBasisAxis::PositiveZ",
-    "Deceleration" : { "$t" : "float", "$v" : "20.0000", "$b" : "0x0000A041" },
-    "Distance" : { "$t" : "float", "$v" : "3.0000", "$b" : "0x00004040" },
-    "Reverse at End" : true,
-    "Reverse at Start" : true,
-    "Run at Startup" : true,
-    "Speed" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" }
+    "Materials" : [  ],
+    "Mesh" : "{ 02caa120-1cb7-4f37-9782-4d7a45688459 }",
+    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x9F9BE352C6245B429791C3C47F20BA7E" },
-   "t" : "ezPxDynamicActorComponent",
+   "#" : { "$t" : "uuid", "$b" : "0x6C4BC652D7540C165FA1ACCD10C65C64" },
+   "t" : "ezPxShapeBoxComponent",
    "p" : {
     "Active" : true,
-    "Angular Damping" : { "$t" : "float", "$v" : "0.0500", "$b" : "0xCDCC4C3D" },
-    "Density" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Disable Gravity" : false,
-    "Kinematic" : true,
-    "Linear Damping" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
-    "Mass" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" }
+    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Half Extents" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
+    "Surface" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x176FD1336031A217593E14D364C26C42" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x12CC44130555CC1B6B04178B7F0FE564" }, { "$t" : "uuid", "$b" : "0xAB319DD33657B91D3CD8087CCC97163F" }, { "$t" : "uuid", "$b" : "0x592A80617FE19D9751EFCFB29E3F1DC5" } ],
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.6107, -4.0365, 0.2195)", "$b" : "0xA4561C3FAE2A81C024C0603E" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0xEE8384BE00000000985C42B2EA46773F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x12CC44130555CC1B6B04178B7F0FE564" },
+   "t" : "ezMeshComponent",
+   "p" : {
+    "Active" : true,
+    "Materials" : [  ],
+    "Mesh" : "{ 02caa120-1cb7-4f37-9782-4d7a45688459 }",
+    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xAB319DD33657B91D3CD8087CCC97163F" },
+   "t" : "ezPxShapeBoxComponent",
+   "p" : {
+    "Active" : true,
+    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Half Extents" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
+    "Surface" : ""
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0x2759BFE5AFC6BE42A57980E5FEC9C47A" },
    "t" : "ezPxCharacterControllerComponent",
    "p" : {
-    "Active" : true
+    "Active" : true,
+    "Capsule Height" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Capsule Radius" : { "$t" : "float", "$v" : "0.2500", "$b" : "0x0000803E" },
+    "Constrained Climb Mode" : true,
+    "Force Slope Sliding" : true,
+    "Max Slope Angle" : { "$t" : "angle", "$v" : "40.0000", "$b" : "0xC2B8323F" },
+    "Max Step Height" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
+    "Rotate Speed" : { "$t" : "angle", "$v" : "180.0000", "$b" : "0xDB0F4940" },
+    "Walk Speed" : { "$t" : "float", "$v" : "3.0000", "$b" : "0x00004040" }
    }
   },
   {
@@ -59,16 +91,6 @@
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "Name" : "Gun",
     "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x8AB5C90197881245AF40488AEA786E19" },
-   "t" : "ezMeshComponent",
-   "p" : {
-    "Active" : true,
-    "Materials" : [  ],
-    "Mesh" : "{ 02caa120-1cb7-4f37-9782-4d7a45688459 }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
    }
   },
   {
@@ -112,16 +134,6 @@
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x231B22C2C88AFF4680143A7B3701A0F3" },
-   "t" : "ezPxShapeBoxComponent",
-   "p" : {
-    "Active" : true,
-    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Half Extents" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
-    "Surface" : ""
-   }
-  },
-  {
    "#" : { "$t" : "uuid", "$b" : "0x0AFB7D7AF7FF0447AEA0FCC565D9BF11" },
    "t" : "ezPxStaticActorComponent",
    "p" : {
@@ -146,6 +158,14 @@
     "Materials" : [  ],
     "Mesh" : "{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }",
     "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x7B1A186478C10148BF5641268B8EAEC4" },
+   "t" : "ezPxStaticActorComponent",
+   "p" : {
+    "Active" : true,
+    "Collision Mesh" : ""
    }
   },
   {
@@ -185,7 +205,7 @@
    "t" : "ezDocumentRoot",
    "n" : "ObjectTree",
    "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xE28EB66E4B66FD459872FCBD3D196E9C" }, { "$t" : "uuid", "$b" : "0x8F585622F264E8409D7A45D2CF2BF6F6" }, { "$t" : "uuid", "$b" : "0xA3BC20670D78F0C8D319F9B161C3376F" }, { "$t" : "uuid", "$b" : "0x7E26282B20C2C884298BAD7D0E577B02" }, { "$t" : "uuid", "$b" : "0x7416F198E8F091D3BB799A496BA10F86" } ]
+    "Children" : [ { "$t" : "uuid", "$b" : "0xE28EB66E4B66FD459872FCBD3D196E9C" }, { "$t" : "uuid", "$b" : "0xA3BC20670D78F0C8D319F9B161C3376F" }, { "$t" : "uuid", "$b" : "0x7E26282B20C2C884298BAD7D0E577B02" }, { "$t" : "uuid", "$b" : "0x7416F198E8F091D3BB799A496BA10F86" }, { "$t" : "uuid", "$b" : "0x395F6936591106C8C7A585465111FE41" }, { "$t" : "uuid", "$b" : "0xD888FAB2002FF50F7C07B824A9F0B267" }, { "$t" : "uuid", "$b" : "0x176FD1336031A217593E14D364C26C42" }, { "$t" : "uuid", "$b" : "0xB69862B0074F915F0EA046B1BCA12168" } ]
    }
   },
   {
@@ -196,7 +216,7 @@
     "AssetType" : "Scene",
     "Dependencies" : "",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x5D079F69E049C14CAE6B2A2B47BE2858" },
-    "Hash" : { "$t" : "uint64", "$v" : "4967153389182181650", "$b" : "0x12E114BBB0DFEE44" }
+    "Hash" : { "$t" : "uint64", "$v" : "17674033006072870663", "$b" : "0x07B780C360C746F5" }
    }
   },
   {
@@ -210,6 +230,39 @@
     "LocalScaling" : { "$t" : "vec3", "$v" : "(0.9997, 1.0000, 0.9997)", "$b" : "0xC7EC7F3F0000803FC4EC7F3F" },
     "Name" : "",
     "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xB69862B0074F915F0EA046B1BCA12168" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xB1F5D58FAC72BB6320664969D7EE998A" }, { "$t" : "uuid", "$b" : "0x4A5B2E50DE74A865F1393B5A2477CB64" }, { "$t" : "uuid", "$b" : "0xF85311DE26FF8CDF06510291F61ED2EA" } ],
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(1.5107, -4.0365, 0.2195)", "$b" : "0x865EC13FAE2A81C024C0603E" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0xEE8384BE00000000985C42B2EA46773F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xB1F5D58FAC72BB6320664969D7EE998A" },
+   "t" : "ezMeshComponent",
+   "p" : {
+    "Active" : true,
+    "Materials" : [  ],
+    "Mesh" : "{ 02caa120-1cb7-4f37-9782-4d7a45688459 }",
+    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x4A5B2E50DE74A865F1393B5A2477CB64" },
+   "t" : "ezPxShapeBoxComponent",
+   "p" : {
+    "Active" : true,
+    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Half Extents" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
+    "Surface" : ""
    }
   },
   {
@@ -275,6 +328,35 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x1A44A9E01FDFF08F74B87304E36D63EA" },
+   "t" : "ezPxStaticActorComponent",
+   "p" : {
+    "Active" : true,
+    "Collision Mesh" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x592A80617FE19D9751EFCFB29E3F1DC5" },
+   "t" : "ezPxStaticActorComponent",
+   "p" : {
+    "Active" : true,
+    "Collision Mesh" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x395F6936591106C8C7A585465111FE41" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x34BCDC15FE3430CCD96B88FE6B5E7664" }, { "$t" : "uuid", "$b" : "0xCD2135D62F371DCEAA3F7AEFB8E6A73E" }, { "$t" : "uuid", "$b" : "0x7B1A186478C10148BF5641268B8EAEC4" } ],
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.6107, -3.1704, -0.2805)", "$b" : "0xA4561C3F67E84AC0EE9F8FBE" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0xEE8384BE00000000985C42B2EA46773F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xA3BC20670D78F0C8D319F9B161C3376F" },
    "t" : "ezGameObject",
    "p" : {
@@ -285,6 +367,26 @@
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "Name" : "Ship",
     "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x34BCDC15FE3430CCD96B88FE6B5E7664" },
+   "t" : "ezMeshComponent",
+   "p" : {
+    "Active" : true,
+    "Materials" : [  ],
+    "Mesh" : "{ 02caa120-1cb7-4f37-9782-4d7a45688459 }",
+    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xCD2135D62F371DCEAA3F7AEFB8E6A73E" },
+   "t" : "ezPxShapeBoxComponent",
+   "p" : {
+    "Active" : true,
+    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Half Extents" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
+    "Surface" : ""
    }
   },
   {
@@ -347,6 +449,14 @@
     "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
     "Half Extents" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
     "Surface" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xF85311DE26FF8CDF06510291F61ED2EA" },
+   "t" : "ezPxStaticActorComponent",
+   "p" : {
+    "Active" : true,
+    "Collision Mesh" : ""
    }
   } ]
 }
