@@ -1,7 +1,7 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <Foundation/Serialization/JsonSerializer.h>
+#include <Foundation/Serialization/BinarySerializer.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Logging/Log.h>
 
@@ -24,7 +24,7 @@ EZ_ENUM_MEMBER_PROPERTY("Type", ezObjectChangeType, m_Type),
 EZ_MEMBER_PROPERTY("Root", m_Root),
 EZ_ARRAY_MEMBER_PROPERTY("Steps", m_Steps),
 EZ_MEMBER_PROPERTY("Change", m_Change),
-EZ_MEMBER_PROPERTY("Graph", m_sGraph),
+EZ_MEMBER_PROPERTY("Graph", m_GraphData),
 EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 
@@ -38,18 +38,18 @@ void ezObjectChange::GetGraph(ezAbstractObjectGraph& graph) const
   graph.Clear();
   ezMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
-  writer.WriteBytes(m_sGraph.GetData(), m_sGraph.GetElementCount());
+  writer.WriteBytes(m_GraphData.GetData(), m_GraphData.GetCount());
   ezMemoryStreamReader reader(&storage);
-  ezAbstractGraphJsonSerializer::Read(reader, &graph);
+  ezAbstractGraphBinarySerializer::Read(reader, &graph);
 }
 
 void ezObjectChange::SetGraph(ezAbstractObjectGraph& graph)
 {
   ezMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
-  ezAbstractGraphJsonSerializer::Write(writer, &graph, ezJSONWriter::WhitespaceMode::LessIndentation);
+  ezAbstractGraphBinarySerializer::Write(writer, &graph);
 
-  m_sGraph = ezStringView((const char*)storage.GetData(), (const char*)storage.GetData() + storage.GetStorageSize());
+  m_GraphData = ezArrayPtr<const ezUInt8>(storage.GetData(), storage.GetStorageSize());
 }
 
 ezObjectChange::ezObjectChange( ezObjectChange && rhs )
@@ -58,7 +58,7 @@ ezObjectChange::ezObjectChange( ezObjectChange && rhs )
 	m_Root = rhs.m_Root;
 	m_Steps = std::move( rhs.m_Steps );
 	m_Change = std::move( rhs.m_Change );
-	m_sGraph = std::move( rhs.m_sGraph );
+  m_GraphData = std::move( rhs.m_GraphData);
 }
 
 void ezObjectChange::operator=(ezObjectChange&& rhs)
@@ -67,7 +67,7 @@ void ezObjectChange::operator=(ezObjectChange&& rhs)
   m_Root = rhs.m_Root;
   m_Steps = std::move(rhs.m_Steps);
   m_Change = std::move(rhs.m_Change);
-  m_sGraph = std::move(rhs.m_sGraph);
+  m_GraphData = std::move(rhs.m_GraphData);
 }
 
 void ezObjectChange::operator=(ezObjectChange& rhs)

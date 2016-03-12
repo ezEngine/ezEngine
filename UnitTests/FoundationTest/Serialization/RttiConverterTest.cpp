@@ -73,7 +73,7 @@ void TestSerialize(T* pObject)
     ezAbstractGraphJsonSerializer::Write(writer2, &graph2, ezJSONWriter::WhitespaceMode::All);
     sData2.SetSubString_ElementCount((const char*)storage2.GetData(), storage2.GetStorageSize());
 
-    EZ_TEST_STRING(sData, sData2);
+    EZ_TEST_BOOL(sData == sData2);
   }
 
   {

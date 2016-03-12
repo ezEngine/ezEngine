@@ -234,6 +234,33 @@ void TraverseTree(const ezVariant& var, ezDeque<ezString>& Compare)
     }
     break;
 
+  case ezVariant::Type::Vector2I:
+    {
+      ezStringBuilder sTemp;
+      sTemp.Format("vec2i (%i, %i)", var.Get<ezVec2I32>().x, var.Get<ezVec2I32>().y);
+      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+      Compare.PopFront();
+    }
+    break;
+
+  case ezVariant::Type::Vector3I:
+    {
+      ezStringBuilder sTemp;
+      sTemp.Format("vec3i (%i, %i, %i)", var.Get<ezVec3I32>().x, var.Get<ezVec3I32>().y, var.Get<ezVec3I32>().z);
+      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+      Compare.PopFront();
+    }
+    break;
+
+  case ezVariant::Type::Vector4I:
+    {
+      ezStringBuilder sTemp;
+      sTemp.Format("vec4i (%i, %i, %i, %i)", var.Get<ezVec4I32>().x, var.Get<ezVec4I32>().y, var.Get<ezVec4I32>().z, var.Get<ezVec4I32>().w);
+      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+      Compare.PopFront();
+    }
+    break;
+
   case ezVariant::Type::Color:
     {
       ezStringBuilder sTemp;

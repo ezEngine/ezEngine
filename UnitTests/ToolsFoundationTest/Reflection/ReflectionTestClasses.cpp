@@ -32,7 +32,8 @@ EZ_BEGIN_PROPERTIES
   EZ_MEMBER_PROPERTY("Float", m_FloatStruct),
   EZ_ACCESSOR_PROPERTY("Bool", GetBool, SetBool),
   EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor),
-  EZ_ACCESSOR_PROPERTY("String", GetString, SetString)
+  EZ_ACCESSOR_PROPERTY("String", GetString, SetString),
+  EZ_ACCESSOR_PROPERTY("Buffer", GetBuffer, SetBuffer)
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -42,6 +43,9 @@ EZ_BEGIN_PROPERTIES
   EZ_ACCESSOR_PROPERTY("Vec2", GetVec2, SetVec2),
   EZ_ACCESSOR_PROPERTY("Vec3", GetVec3, SetVec3),
   EZ_ACCESSOR_PROPERTY("Vec4", GetVec4, SetVec4),
+  EZ_MEMBER_PROPERTY("Vec2I", m_Vec2I),
+  EZ_MEMBER_PROPERTY("Vec3I", m_Vec3I),
+  EZ_MEMBER_PROPERTY("Vec4I", m_Vec4I),
   EZ_ACCESSOR_PROPERTY("Quat", GetQuat, SetQuat),
   EZ_ACCESSOR_PROPERTY("Mat3", GetMat3, SetMat3),
   EZ_ACCESSOR_PROPERTY("Mat4", GetMat4, SetMat4)

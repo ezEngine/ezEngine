@@ -201,6 +201,36 @@ EZ_CREATE_SIMPLE_TEST(IO, ExtendedJSONWriter)
     js.AddVariableVec4("var1", ezVec4(1, 2, 3, 4));
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVec2I32")
+  {
+    StreamComparer sc("\"var1\" : { \"$t\" : \"vec2i\", \"$v\" : \"(1, 2)\", \"$b\" : \"0x0100000002000000\" }");
+
+    ezExtendedJSONWriter js;
+    js.SetOutputStream(&sc);
+
+    js.AddVariableVec2I32("var1", ezVec2I32(1, 2));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVec3I32")
+  {
+    StreamComparer sc("\"var1\" : { \"$t\" : \"vec3i\", \"$v\" : \"(1, 2, 3)\", \"$b\" : \"0x010000000200000003000000\" }");
+
+    ezExtendedJSONWriter js;
+    js.SetOutputStream(&sc);
+
+    js.AddVariableVec3I32("var1", ezVec3I32(1, 2, 3));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVec4I32")
+  {
+    StreamComparer sc("\"var1\" : { \"$t\" : \"vec4i\", \"$v\" : \"(1, 2, 3, 4)\", \"$b\" : \"0x01000000020000000300000004000000\" }");
+
+    ezExtendedJSONWriter js;
+    js.SetOutputStream(&sc);
+
+    js.AddVariableVec4I32("var1", ezVec4I32(1, 2, 3, 4));
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableQuat")
   {
     StreamComparer sc("\"var1\" : { \"$t\" : \"quat\", \"$b\" : \"0x0000803F000000400000404000008040\" }");

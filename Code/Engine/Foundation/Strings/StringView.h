@@ -16,6 +16,7 @@
 class EZ_FOUNDATION_DLL ezStringView : public ezStringBase<ezStringView>
 {
 public:
+  EZ_DECLARE_POD_TYPE();
   /// \brief Default constructor creates an invalid view.
   ezStringView();
 

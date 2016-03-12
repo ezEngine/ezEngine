@@ -1,6 +1,7 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <Foundation/Strings/StringUtils.h>
+#include <Foundation/Types/Variant.h>
 
 namespace ezConversionUtils
 {
@@ -533,6 +534,27 @@ namespace ezConversionUtils
   {
     ezStringBuilder sb;
     sb.Format("{ x=%f, y=%f, z=%f, w=%f }", value.x, value.y, value.z, value.w);
+    return sb;
+  }
+
+  ezString ToString(const ezVec2I32& value)
+  {
+    ezStringBuilder sb;
+    sb.Format("{ x=%i, y=%i }", value.x, value.y);
+    return sb;
+  }
+
+  ezString ToString(const ezVec3I32& value)
+  {
+    ezStringBuilder sb;
+    sb.Format("{ x=%i, y=%i, z=%i }", value.x, value.y, value.z);
+    return sb;
+  }
+
+  ezString ToString(const ezVec4I32& value)
+  {
+    ezStringBuilder sb;
+    sb.Format("{ x=%i, y=%i, z=%i, w=%i }", value.x, value.y, value.z, value.w);
     return sb;
   }
 

@@ -179,6 +179,15 @@ namespace ezConversionUtils
   /// \brief Converts a vec4 to a string
   EZ_FOUNDATION_DLL ezString ToString(const ezVec4& value); // [tested]
 
+  /// \brief Converts a vec2I32 to a string
+  EZ_FOUNDATION_DLL ezString ToString(const ezVec2I32& value); // [tested]
+
+  /// \brief Converts a vec3I32 to a string
+  EZ_FOUNDATION_DLL ezString ToString(const ezVec3I32& value); // [tested]
+
+  /// \brief Converts a vec4I32 to a string
+  EZ_FOUNDATION_DLL ezString ToString(const ezVec4I32& value); // [tested]
+
   /// \brief Converts a quat to a string
   EZ_FOUNDATION_DLL ezString ToString(const ezQuat& value); // [tested]
 

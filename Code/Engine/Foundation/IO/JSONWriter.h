@@ -81,6 +81,15 @@ public:
   /// \brief Shorthand for "BeginVariable(szName); WriteVec4(value); EndVariable(); "
   void AddVariableVec4(const char* szName, const ezVec4& value); // [tested]
 
+  /// \brief Shorthand for "BeginVariable(szName); WriteVec2I32(value); EndVariable(); "
+  void AddVariableVec2I32(const char* szName, const ezVec2I32& value); // [tested]
+
+  /// \brief Shorthand for "BeginVariable(szName); WriteVec3I32(value); EndVariable(); "
+  void AddVariableVec3I32(const char* szName, const ezVec3I32& value); // [tested]
+
+  /// \brief Shorthand for "BeginVariable(szName); WriteVec4I32(value); EndVariable(); "
+  void AddVariableVec4I32(const char* szName, const ezVec4I32& value); // [tested]
+
   /// \brief Shorthand for "BeginVariable(szName); WriteQuat(value); EndVariable(); "
   void AddVariableQuat(const char* szName, const ezQuat& value); // [tested]
 
@@ -89,6 +98,9 @@ public:
 
   /// \brief Shorthand for "BeginVariable(szName); WriteMat4(value); EndVariable(); "
   void AddVariableMat4(const char* szName, const ezMat4& value); // [tested]
+
+  /// \brief Shorthand for "BeginVariable(szName); WriteDataBuffer(value); EndVariable(); "
+  void AddVariableDataBuffer(const char* szName, const ezDataBuffer& value); // [tested]
 
   /// \brief Shorthand for "BeginVariable(szName); WriteVariant(value); EndVariable(); "
   void AddVariableVariant(const char* szName, const ezVariant& value); // [tested]
@@ -144,6 +156,21 @@ public:
   /// \note Standard JSON does not have a suitable type for this. A derived class might turn this into an object or output it via WriteBinaryData().
   virtual void WriteVec4(const ezVec4& value) = 0;
 
+  /// \brief Writes an ezVec2I32 to the JSON file. Can only be called between BeginVariable() / EndVariable() or BeginArray() / EndArray().
+  ///
+  /// \note Standard JSON does not have a suitable type for this. A derived class might turn this into an object or output it via WriteBinaryData().
+  virtual void WriteVec2I32(const ezVec2I32& value) = 0;
+
+  /// \brief Writes an ezVec3I32 to the JSON file. Can only be called between BeginVariable() / EndVariable() or BeginArray() / EndArray().
+  ///
+  /// \note Standard JSON does not have a suitable type for this. A derived class might turn this into an object or output it via WriteBinaryData().
+  virtual void WriteVec3I32(const ezVec3I32& value) = 0;
+
+  /// \brief Writes an ezVec4I32 to the JSON file. Can only be called between BeginVariable() / EndVariable() or BeginArray() / EndArray().
+  ///
+  /// \note Standard JSON does not have a suitable type for this. A derived class might turn this into an object or output it via WriteBinaryData().
+  virtual void WriteVec4I32(const ezVec4I32& value) = 0;
+
   /// \brief Writes an ezQuat to the JSON file. Can only be called between BeginVariable() / EndVariable() or BeginArray() / EndArray().
   ///
   /// \note Standard JSON does not have a suitable type for this. A derived class might turn this into an object or output it via WriteBinaryData().
@@ -168,6 +195,11 @@ public:
   ///
   /// \note Standard JSON does not have a suitable type for this. A derived class might turn this into an object or output it via WriteBinaryData().
   virtual void WriteAngle(ezAngle value) = 0; // [tested]
+
+  /// \brief Writes an ezDataBuffer to the JSON file. Can only be called between BeginVariable() / EndVariable() or BeginArray() / EndArray().
+  ///
+  /// \note Standard JSON does not have a suitable type for this. A derived class might turn this into an object or output it via WriteBinaryData().
+  virtual void WriteDataBuffer(const ezDataBuffer& value) = 0; // [tested]
 
   /// \brief The default implementation dispatches all supported types to WriteBool, WriteInt32, etc. and asserts on the more complex types.
   ///
@@ -277,6 +309,15 @@ public:
   virtual void WriteVec4(const ezVec4& value) override; // [tested]
 
   /// \brief Outputs the value via WriteBinaryData().
+  virtual void WriteVec2I32(const ezVec2I32& value) override; // [tested]
+
+  /// \brief Outputs the value via WriteBinaryData().
+  virtual void WriteVec3I32(const ezVec3I32& value) override; // [tested]
+
+  /// \brief Outputs the value via WriteBinaryData().
+  virtual void WriteVec4I32(const ezVec4I32& value) override; // [tested]
+
+  /// \brief Outputs the value via WriteBinaryData().
   virtual void WriteQuat(const ezQuat& value) override; // [tested]
 
   /// \brief Outputs the value via WriteBinaryData().
@@ -290,6 +331,9 @@ public:
 
   /// \brief \copydoc ezJSONWriter::WriteFloat()
   virtual void WriteAngle(ezAngle value) override; // [tested]
+
+  /// \brief Outputs the value via WriteBinaryData().
+  virtual void WriteDataBuffer(const ezDataBuffer& value) override; // [tested]
 
   /// \brief Implements the MongoDB way of writing binary data. First writes a "$type" variable, then a "$binary" variable that represents the raw data (Hex encoded, little endian).
   virtual void WriteBinaryData(const char* szDataType, const void* pData, ezUInt32 uiBytes, const char* szValueString = nullptr) override; // [tested]

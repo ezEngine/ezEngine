@@ -86,6 +86,8 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     EZ_TEST_BOOL(podClass.GetColor() == ezColor(1.0f, 1.0f, 1.0f, 1.0f));
     VariantToPropertyTest(&podClass, pRttiPOD, "String", ezVariant::Type::String);
     EZ_TEST_STRING(podClass.GetString(), "");
+    VariantToPropertyTest(&podClass, pRttiPOD, "Buffer", ezVariant::Type::DataBuffer);
+    EZ_TEST_BOOL(podClass.GetBuffer() == ezDataBuffer());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Math Properties")
@@ -100,6 +102,12 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     EZ_TEST_BOOL(mathClass.GetVec3() == ezVec3(0.0f, 0.0f, 0.0f));
     VariantToPropertyTest(&mathClass, pRttiMath, "Vec4", ezVariant::Type::Vector4);
     EZ_TEST_BOOL(mathClass.GetVec4() == ezVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    VariantToPropertyTest(&mathClass, pRttiMath, "Vec2I", ezVariant::Type::Vector2I);
+    EZ_TEST_BOOL(mathClass.m_Vec2I == ezVec2I32(0, 0));
+    VariantToPropertyTest(&mathClass, pRttiMath, "Vec3I", ezVariant::Type::Vector3I);
+    EZ_TEST_BOOL(mathClass.m_Vec3I == ezVec3I32(0, 0, 0));
+    VariantToPropertyTest(&mathClass, pRttiMath, "Vec4I", ezVariant::Type::Vector4I);
+    EZ_TEST_BOOL(mathClass.m_Vec4I == ezVec4I32(0, 0, 0, 0));
     VariantToPropertyTest(&mathClass, pRttiMath, "Quat", ezVariant::Type::Quaternion);
     EZ_TEST_BOOL(mathClass.GetQuat() == ezQuat(0.0f, 0.0f, 0.0f, 1.0f));
     VariantToPropertyTest(&mathClass, pRttiMath, "Mat3", ezVariant::Type::Matrix3);
@@ -253,12 +261,12 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
     ezPODClass podClass;
     ezReflectedTypeDirectAccessor podAccessor(&podClass, nullptr);
     EZ_TEST_BOOL(podAccessor.GetType() == pRttiPOD);
-    EZ_TEST_INT(AccessorPropertiesTest(podAccessor), 15);
+    EZ_TEST_INT(AccessorPropertiesTest(podAccessor), 16);
 
     ezMathClass mathClass;
     ezReflectedTypeDirectAccessor mathAccessor(&mathClass, nullptr);
     EZ_TEST_BOOL(mathAccessor.GetType() == pRttiMath);
-    EZ_TEST_INT(AccessorPropertiesTest(mathAccessor), 21);
+    EZ_TEST_INT(AccessorPropertiesTest(mathAccessor), 25);
 
     ezEnumerationsClass enumerationsClass;
     ezReflectedTypeDirectAccessor enumerationsAccessor(&enumerationsClass, nullptr);
@@ -275,10 +283,10 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
     EZ_TEST_INT(AccessorPropertiesTest(floatAccessor), 4);
 
     ezReflectedTypeStorageAccessor podAccessor(pRttiPOD, nullptr);
-    EZ_TEST_INT(AccessorPropertiesTest(podAccessor), 15);
+    EZ_TEST_INT(AccessorPropertiesTest(podAccessor), 16);
 
     ezReflectedTypeStorageAccessor mathAccessor(pRttiMath, nullptr);
-    EZ_TEST_INT(AccessorPropertiesTest(mathAccessor), 21);
+    EZ_TEST_INT(AccessorPropertiesTest(mathAccessor), 25);
 
     ezReflectedTypeStorageAccessor enumerationsAccessor(pRttiEnumerations, nullptr);
     EZ_TEST_INT(AccessorPropertiesTest(enumerationsAccessor), 2);

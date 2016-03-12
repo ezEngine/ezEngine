@@ -46,6 +46,25 @@ ezVariant BuildTypedVariant_binary(const ezVariant& Binary, ezResult& out_Result
   return ezVariant(tValue);
 }
 
+ezVariant BuildDataBuffer(const ezVariant& Binary, ezResult& out_Result)
+{
+  out_Result = EZ_FAILURE;
+
+  ezDataBuffer data;
+
+  if (Binary.IsValid() && Binary.IsA<ezString>())
+  {
+    const ezString& bin = Binary.Get<ezString>();
+    data.SetCount((bin.GetElementCount() - 1) / 2);
+
+    ConvertHexToBinary(bin.GetData(), data.GetData(), data.GetCount());
+
+    out_Result = EZ_SUCCESS;
+  }
+
+  return ezVariant(data);
+}
+
 // convert a number from either string or binary representation to its actual value
 // choose the one that is 'more precise'
 template<typename T>
@@ -93,8 +112,68 @@ T BuildTypedVariant_number(const ezVariant& Value, const ezVariant& Binary, T fE
   return bValue;
 }
 
-// same as BuildTypedVariant_number, but for vector types (must be float's though)
-template<typename T>
+ezAngle BuildTypedVariant_Angle(const ezVariant& Value, const ezVariant& Binary, float fEpsilon, ezResult& out_Result)
+{
+  float tValue = 0;
+  ezAngle bValue = ezAngle();
+  bool bText = false;
+  bool bBinary = false;
+
+  if (Value.IsValid() && Value.CanConvertTo<float>())
+  {
+    ezResult Status(EZ_FAILURE);
+    tValue = Value.ConvertTo<float>(&Status);
+
+    bText = Status.Succeeded();
+  }
+
+  if (Binary.IsValid() && Binary.CanConvertTo<ezString>())
+  {
+    ezResult Status(EZ_FAILURE);
+
+    ezUInt8 Data[1024];
+    ConvertHexToBinary(Binary.ConvertTo<ezString>(&Status).GetData(), Data, EZ_ARRAY_SIZE(Data));
+
+    bValue = *((ezAngle*)&Data[0]);
+
+    bBinary = Status.Succeeded();
+  }
+
+  out_Result = (bText || bBinary) ? EZ_SUCCESS : EZ_FAILURE;
+
+  if (bText && bBinary)
+  {
+    // if they are really close, prefer the binary value
+    if (ezMath::IsEqual(tValue, bValue.GetDegree(), fEpsilon))
+      return bValue;
+  }
+
+  if (bText)
+  {
+    return ezAngle::Degree(tValue);
+  }
+
+  return bValue;
+}
+
+template<typename TYPE, typename SUB_TYPE>
+ezInt32 ExtractValues(const char* szString, ezInt32 iNumSubValues, TYPE& value)
+{
+  // TODO: Use double here and in ExtractFloatsFromString
+  float temp[4];
+  EZ_ASSERT_DEBUG(iNumSubValues <= 4, "ExtractValues can only be used for vectors that have less than 4 elements!");
+  ezInt32 iRes = ezConversionUtils::ExtractFloatsFromString(szString, iNumSubValues, &temp[0]);
+
+  SUB_TYPE* pSubValues = (SUB_TYPE*)&value;
+  for (ezInt32 i = 0; i < iNumSubValues; i++)
+  {
+    pSubValues[i] = static_cast<SUB_TYPE>(temp[i]);
+  }
+  return iRes;
+}
+
+// same as BuildTypedVariant_number, but for vector types
+template<typename T, typename SUB_TYPE>
 T BuildTypedVariant_vector(const ezVariant& Value, const ezVariant& Binary, float fEpsilon, ezResult& out_Result)
 {
   T tValue = T();
@@ -108,10 +187,8 @@ T BuildTypedVariant_vector(const ezVariant& Value, const ezVariant& Binary, floa
 
   if (Value.IsValid() && Value.CanConvertTo<ezString>())
   {
-    ezResult Status(EZ_FAILURE);
-    ezConversionUtils::ExtractFloatsFromString(Value.ConvertTo<ezString>(&Status).GetData(), iNumFloats, ptValueFloats);
-
-    bText = Status.Succeeded();
+    ezInt32 iRes = ExtractValues<T, SUB_TYPE>(Value.ConvertTo<ezString>(), iNumFloats, tValue);
+    bText = (iRes == iNumFloats);
   }
 
   if (Binary.IsValid() && Binary.CanConvertTo<ezString>())
@@ -174,16 +251,25 @@ ezVariant BuildTypedVariant(const char* szType, const ezVariant& Value, const ez
     return ezVariant(ezTime::Seconds(BuildTypedVariant_number<float>(Value, Binary, 0.00009f, out_Result)));
 
   if (ezStringUtils::IsEqual(szType, "color"))
-    return ezVariant(BuildTypedVariant_vector<ezColor>(Value, Binary, 0.00009f, out_Result));
+    return ezVariant(BuildTypedVariant_vector<ezColor, float>(Value, Binary, 0.00009f, out_Result));
 
   if (ezStringUtils::IsEqual(szType, "vec2"))
-    return ezVariant(BuildTypedVariant_vector<ezVec2>(Value, Binary, 0.00009f, out_Result));
+    return ezVariant(BuildTypedVariant_vector<ezVec2, float>(Value, Binary, 0.00009f, out_Result));
 
   if (ezStringUtils::IsEqual(szType, "vec3"))
-    return ezVariant(BuildTypedVariant_vector<ezVec3>(Value, Binary, 0.00009f, out_Result));
+    return ezVariant(BuildTypedVariant_vector<ezVec3, float>(Value, Binary, 0.00009f, out_Result));
 
   if (ezStringUtils::IsEqual(szType, "vec4"))
-    return ezVariant(BuildTypedVariant_vector<ezVec4>(Value, Binary, 0.00009f, out_Result));
+    return ezVariant(BuildTypedVariant_vector<ezVec4, float>(Value, Binary, 0.00009f, out_Result));
+
+  if (ezStringUtils::IsEqual(szType, "vec2i"))
+    return ezVariant(BuildTypedVariant_vector<ezVec2I32, ezInt32>(Value, Binary, 0, out_Result));
+
+  if (ezStringUtils::IsEqual(szType, "vec3i"))
+    return ezVariant(BuildTypedVariant_vector<ezVec3I32, ezInt32>(Value, Binary, 0, out_Result));
+
+  if (ezStringUtils::IsEqual(szType, "vec4i"))
+    return ezVariant(BuildTypedVariant_vector<ezVec4I32, ezInt32>(Value, Binary, 0, out_Result));
 
   if (ezStringUtils::IsEqual(szType, "quat"))
     return BuildTypedVariant_binary<ezQuat>(Binary, out_Result);
@@ -198,7 +284,10 @@ ezVariant BuildTypedVariant(const char* szType, const ezVariant& Value, const ez
     return BuildTypedVariant_binary<ezUuid>(Binary, out_Result);
 
   if (ezStringUtils::IsEqual(szType, "angle"))
-    return ezVariant(ezAngle::Degree(BuildTypedVariant_number<float>(Value, Binary, 0.00009f, out_Result)));
+    return ezVariant(BuildTypedVariant_Angle(Value, Binary, 0.00009f, out_Result));
+
+  if (ezStringUtils::IsEqual(szType, "data"))
+    return BuildDataBuffer(Binary, out_Result);
 
   return ezVariant();
 }

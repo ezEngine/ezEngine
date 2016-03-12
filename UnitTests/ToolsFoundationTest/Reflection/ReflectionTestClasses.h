@@ -79,6 +79,9 @@ public:
     m_bBool = true;
     m_Color = ezColor(1.0f, 0.0f, 0.0f, 0.0f);
     m_sString = "Test";
+    m_Buffer.PushBack(0xFF);
+    m_Buffer.PushBack(0x0);
+    m_Buffer.PushBack(0xCD);
   }
 
   ezIntegerStruct m_IntegerStruct;
@@ -91,10 +94,14 @@ public:
   const char* GetString() const { return m_sString.GetData(); }
   void SetString(const char* sz) { m_sString = sz; }
 
+  const ezDataBuffer& GetBuffer() const { return m_Buffer; }
+  void SetBuffer(const ezDataBuffer& data) { m_Buffer = data; }
+
 private:
   bool m_bBool;
   ezColor m_Color;
   ezString m_sString;
+  ezDataBuffer m_Buffer;
 };
 
 
@@ -108,6 +115,9 @@ public:
     m_Vec2 = ezVec2(1.0f, 1.0f);
     m_Vec3 = ezVec3(1.0f, 1.0f, 1.0f);
     m_Vec4 = ezVec4(1.0f, 1.0f, 1.0f, 1.0f);
+    m_Vec2I = ezVec2I32(1, 1);
+    m_Vec3I = ezVec3I32(1, 1, 1);
+    m_Vec4I = ezVec4I32(1, 1, 1, 1);
     m_Quat = ezQuat(1.0f, 1.0f, 1.0f, 1.0f);
     m_Mat3.SetZero();
     m_Mat4.SetZero();
@@ -126,6 +136,9 @@ public:
   void SetMat4(ezMat4 m) { m_Mat4 = m; }
   ezMat4 GetMat4() const { return m_Mat4; }
 
+  ezVec2I32 m_Vec2I;
+  ezVec3I32 m_Vec3I;
+  ezVec4I32 m_Vec4I;
 private:
   ezVec2 m_Vec2;
   ezVec3 m_Vec3;

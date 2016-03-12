@@ -44,10 +44,15 @@ public:
       Vector2,            ///< The variant stores an ezVec2.
       Vector3,            ///< The variant stores an ezVec3.
       Vector4,            ///< The variant stores an ezVec4.
+      Vector2I,              ///< The variant stores an ezVec2I32.
+      Vector3I,              ///< The variant stores an ezVec3I32.
+      Vector4I,              ///< The variant stores an ezVec4I32.
       Quaternion,         ///< The variant stores an ezQuat.
       Matrix3,            ///< The variant stores an ezMat3. A heap allocation is required to store this data type.
       Matrix4,            ///< The variant stores an ezMat4. A heap allocation is required to store this data type.
       String,             ///< The variant stores a string. A heap allocation is required to store this data type.
+      StringView,            ///< The variant stores an ezStringView.
+      DataBuffer,            ///< The variant stores an ezDataBuffer, a typedef to DynamicArray<ezUInt8>. A heap allocation is required to store this data type.
       Time,               ///< The variant stores an ezTime value.
       Uuid,               ///< The variant stores an ezUuid value.
       Angle,              ///< The variant stores an ezAngle value.
@@ -269,6 +274,7 @@ private:
 typedef ezDynamicArray<ezVariant> ezVariantArray;
 typedef ezHashTable<ezString, ezVariant> ezVariantDictionary;
 typedef ezVariant::Type ezVariantType;
+typedef ezDynamicArray<ezUInt8> ezDataBuffer;
 
 #include <Foundation/Types/Implementation/VariantTypeDeduction_inl.h>
 #include <Foundation/Types/Implementation/VariantHelper_inl.h>

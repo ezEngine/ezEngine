@@ -53,7 +53,7 @@ public:
   ezUuid m_Root; //< The object that is the parent of the op.
   ezHybridArray<ezObjectChangeStep, 4> m_Steps;
   ezObjectChangeStep m_Change;
-  ezString m_sGraph;
+  ezDataBuffer m_GraphData;
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezObjectChange);
 

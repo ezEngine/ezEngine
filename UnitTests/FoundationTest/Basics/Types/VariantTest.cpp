@@ -61,10 +61,15 @@ inline void TestNumberCanConvertTo(const ezVariant& v)
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector2) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector3) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector4) == false);
+  EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector2I) == false);
+  EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector3I) == false);
+  EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector4I) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Quaternion) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Matrix3) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Matrix4) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::String));
+  EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::StringView) == false);
+  EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::DataBuffer) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Time) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Angle) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Uuid) == false);
@@ -380,6 +385,87 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v["w"] == 4);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezVec2I32")
+  {
+    ezVariant v(ezVec2I32(1, 2));
+    EZ_TEST_BOOL(v.IsValid());
+    EZ_TEST_BOOL(v.GetType() == ezVariant::Type::Vector2I);
+    EZ_TEST_BOOL(v.IsA<ezVec2I32>());
+    EZ_TEST_BOOL(v.Get<ezVec2I32>() == ezVec2I32(1, 2));
+
+    EZ_TEST_BOOL(v == ezVariant(ezVec2I32(1, 2)));
+    EZ_TEST_BOOL(v != ezVariant(ezVec2I32(1, 1)));
+
+    EZ_TEST_BOOL(v == ezVec2I32(1, 2));
+    EZ_TEST_BOOL(v != ezVec2I32(1, 4));
+
+    v = ezVec2I32(5, 8);
+    EZ_TEST_BOOL(v == ezVec2I32(5, 8));
+
+    v = ezVariant(ezVec2I32(7, 9));
+    EZ_TEST_BOOL(v == ezVec2I32(7, 9));
+    EZ_TEST_BOOL(v[0] == 7);
+    EZ_TEST_BOOL(v[1] == 9);
+    EZ_TEST_BOOL(v["x"] == 7);
+    EZ_TEST_BOOL(v["y"] == 9);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezVec3I32")
+  {
+    ezVariant v(ezVec3I32(1, 2, 3));
+    EZ_TEST_BOOL(v.IsValid());
+    EZ_TEST_BOOL(v.GetType() == ezVariant::Type::Vector3I);
+    EZ_TEST_BOOL(v.IsA<ezVec3I32>());
+    EZ_TEST_BOOL(v.Get<ezVec3I32>() == ezVec3I32(1, 2, 3));
+
+    EZ_TEST_BOOL(v == ezVariant(ezVec3I32(1, 2, 3)));
+    EZ_TEST_BOOL(v != ezVariant(ezVec3I32(1, 1, 3)));
+
+    EZ_TEST_BOOL(v == ezVec3I32(1, 2, 3));
+    EZ_TEST_BOOL(v != ezVec3I32(1, 4, 3));
+
+    v = ezVec3I32(5, 8, 9);
+    EZ_TEST_BOOL(v == ezVec3I32(5, 8, 9));
+
+    v = ezVariant(ezVec3I32(7, 9, 8));
+    EZ_TEST_BOOL(v == ezVec3I32(7, 9, 8));
+    EZ_TEST_BOOL(v[0] == 7);
+    EZ_TEST_BOOL(v[1] == 9);
+    EZ_TEST_BOOL(v[2] == 8);
+    EZ_TEST_BOOL(v["x"] == 7);
+    EZ_TEST_BOOL(v["y"] == 9);
+    EZ_TEST_BOOL(v["z"] == 8);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezVec4I32")
+  {
+    ezVariant v(ezVec4I32(1, 2, 3, 4));
+    EZ_TEST_BOOL(v.IsValid());
+    EZ_TEST_BOOL(v.GetType() == ezVariant::Type::Vector4I);
+    EZ_TEST_BOOL(v.IsA<ezVec4I32>());
+    EZ_TEST_BOOL(v.Get<ezVec4I32>() == ezVec4I32(1, 2, 3, 4));
+
+    EZ_TEST_BOOL(v == ezVariant(ezVec4I32(1, 2, 3, 4)));
+    EZ_TEST_BOOL(v != ezVariant(ezVec4I32(1, 1, 3, 4)));
+
+    EZ_TEST_BOOL(v == ezVec4I32(1, 2, 3, 4));
+    EZ_TEST_BOOL(v != ezVec4I32(1, 4, 3, 4));
+
+    v = ezVec4I32(5, 8, 9, 3);
+    EZ_TEST_BOOL(v == ezVec4I32(5, 8, 9, 3));
+
+    v = ezVariant(ezVec4I32(7, 9, 8, 4));
+    EZ_TEST_BOOL(v == ezVec4I32(7, 9, 8, 4));
+    EZ_TEST_BOOL(v[0] == 7);
+    EZ_TEST_BOOL(v[1] == 9);
+    EZ_TEST_BOOL(v[2] == 8);
+    EZ_TEST_BOOL(v[3] == 4);
+    EZ_TEST_BOOL(v["x"] == 7);
+    EZ_TEST_BOOL(v["y"] == 9);
+    EZ_TEST_BOOL(v["z"] == 8);
+    EZ_TEST_BOOL(v["w"] == 4);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezQuat")
   {
     ezVariant v(ezQuat(1, 2, 3, 4));
@@ -492,6 +578,52 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     v = ezVariant(ezString("blärg!"));
     EZ_TEST_BOOL(v == ezString("blärg!"));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezStringView")
+  {
+    const char* szTemp = "This is an ezStringView";
+    ezStringView bla(szTemp);
+    ezVariant v(bla);
+    EZ_TEST_BOOL(v.IsValid());
+    EZ_TEST_BOOL(v.GetType() == ezVariant::Type::StringView);
+    EZ_TEST_BOOL(v.IsA<ezStringView>());
+
+    const ezString sCopy =  szTemp;
+    EZ_TEST_BOOL(v.Get<ezStringView>() == sCopy);
+
+    EZ_TEST_BOOL(v == ezVariant(ezStringView(sCopy.GetData())));
+    EZ_TEST_BOOL(v != ezVariant(ezStringView("This is something else")));
+
+    EZ_TEST_BOOL(v == ezStringView(sCopy.GetData()));
+    EZ_TEST_BOOL(v != ezStringView("This is something else"));
+
+    v = ezStringView("blurg!");
+    EZ_TEST_BOOL(v == ezStringView("blurg!"));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezDataBuffer")
+  {
+    ezDataBuffer a, a2;
+    a.PushBack(ezUInt8(1));
+    a.PushBack(ezUInt8(2));
+    a.PushBack(ezUInt8(255));
+
+    ezVariant va(a);
+    EZ_TEST_BOOL(va.IsValid());
+    EZ_TEST_BOOL(va.GetType() == ezVariant::Type::DataBuffer);
+    EZ_TEST_BOOL(va.IsA<ezDataBuffer>());
+
+    const ezDataBuffer& b = va.Get<ezDataBuffer>();
+    ezArrayPtr<const ezUInt8> b2 = va.Get<ezDataBuffer>();
+
+    EZ_TEST_BOOL(a == b);
+    EZ_TEST_BOOL(a == b2);
+
+    EZ_TEST_BOOL(a != a2);
+
+    EZ_TEST_BOOL(va == a);
+    EZ_TEST_BOOL(va != a2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTime")
@@ -671,10 +803,15 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector2) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector3) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector4) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector2I) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector3I) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector4I) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Quaternion) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Matrix3) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Matrix4) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::String));
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::StringView) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::DataBuffer) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Time) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Angle) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VariantArray) == false);
@@ -824,6 +961,47 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ x=3, y=4, z=3, w=56 }");
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezVec2I32)")
+  {
+    ezVec2I32 vec(3, 4);
+    ezVariant v(vec);
+
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Vector2I);
+
+    EZ_TEST_BOOL(v.ConvertTo<ezVec2I32>() == vec);
+    EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ x=3, y=4 }");
+
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector2I).Get<ezVec2I32>() == vec);
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ x=3, y=4 }");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezVec3I32)")
+  {
+    ezVec3I32 vec(3, 4, 6);
+    ezVariant v(vec);
+
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Vector3I);
+
+    EZ_TEST_BOOL(v.ConvertTo<ezVec3I32>() == vec);
+    EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ x=3, y=4, z=6 }");
+
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector3I).Get<ezVec3I32>() == vec);
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ x=3, y=4, z=6 }");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezVec4I32)")
+  {
+    ezVec4I32 vec(3, 4, 3, 56);
+    ezVariant v(vec);
+
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Vector4I);
+
+    EZ_TEST_BOOL(v.ConvertTo<ezVec4I32>() == vec);
+    EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ x=3, y=4, z=3, w=56 }");
+
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector4I).Get<ezVec4I32>() == vec);
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ x=3, y=4, z=3, w=56 }");
+  }
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezQuat)")
   {
     ezQuat q(3.0f, 4.0f, 3, 56);
@@ -886,10 +1064,15 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector2) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector3) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector4) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector2I) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector3I) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Vector4I) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Quaternion) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Matrix3) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Matrix4) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::String));
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::StringView) == false);
+    EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::DataBuffer) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Time) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Angle) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VariantArray) == false);
@@ -1062,6 +1245,30 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
       EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Double, &ConversionStatus).Get<double>() == 0.4453);
       EZ_TEST_BOOL(ConversionStatus == EZ_SUCCESS);
     }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezStringView)")
+  {
+    ezStringView va("Test String");
+    ezVariant v(va);
+
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::StringView);
+
+    EZ_TEST_BOOL(v.ConvertTo<ezStringView>() == va);
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::StringView).Get<ezStringView>() == va);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezDataBuffer)")
+  {
+    ezDataBuffer va;
+    va.PushBack(255);
+    va.PushBack(4);
+    ezVariant v(va);
+
+    TestCanOnlyConvertToID(v, ezVariant::Type::DataBuffer);
+
+    EZ_TEST_BOOL(v.ConvertTo<ezDataBuffer>() == va);
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::DataBuffer).Get<ezDataBuffer>() == va);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezTime)")

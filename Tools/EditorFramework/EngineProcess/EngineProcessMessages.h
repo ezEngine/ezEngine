@@ -236,10 +236,10 @@ public:
   
   ezUuid m_ObjectGuid;
   ezString m_sObjectType;
-  ezString m_sObjectData;
+  ezDataBuffer m_ObjectData;
 
-  const char* GetObjectData() const { return m_sObjectData; }
-  void SetObjectData(const char* s) { m_sObjectData = s; }
+  const ezDataBuffer& GetObjectData() const { return m_ObjectData; }
+  void SetObjectData(const ezDataBuffer& s) { m_ObjectData = s; }
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezObjectTagMsgToEngine : public ezEditorEngineDocumentMsg

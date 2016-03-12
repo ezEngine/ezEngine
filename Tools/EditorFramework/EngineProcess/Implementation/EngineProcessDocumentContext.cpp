@@ -490,9 +490,9 @@ void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEd
   ezMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
   ezMemoryStreamReader reader(&storage);
-  writer.WriteBytes(msg.m_sObjectData.GetData(), msg.m_sObjectData.GetElementCount());
+  writer.WriteBytes(msg.m_ObjectData.GetData(), msg.m_ObjectData.GetCount());
 
-  ezReflectionSerializer::ReadObjectPropertiesFromJSON(reader, *pRtti, pSyncObject);
+  ezReflectionSerializer::ReadObjectPropertiesFromBinary(reader, *pRtti, pSyncObject);
 
   if (bSetOwner)
     pSyncObject->SetOwner(this);

@@ -102,6 +102,21 @@ EZ_FORCE_INLINE void WriteValueFunc::operator()<void*>()
   EZ_REPORT_FAILURE("Type 'void*' not supported in serialization.");
 }
 
+template <>
+EZ_FORCE_INLINE void WriteValueFunc::operator()<ezStringView>()
+{
+  ezStringBuilder s = m_pValue->Get<ezStringView>();
+  (*m_pStream) << s;
+}
+
+template <>
+EZ_FORCE_INLINE void WriteValueFunc::operator()<ezDataBuffer>()
+{
+  const ezDataBuffer& data = m_pValue->Get<ezDataBuffer>();
+  const ezUInt32 iCount = data.GetCount();
+  (*m_pStream) << iCount;
+  m_pStream->WriteBytes(data.GetData(), data.GetCount());
+}
 
 struct ReadValueFunc
 {
@@ -160,6 +175,23 @@ EZ_FORCE_INLINE void ReadValueFunc::operator()<void*>()
   EZ_REPORT_FAILURE("Type 'void*' not supported in serialization.");
 }
 
+template <>
+EZ_FORCE_INLINE void ReadValueFunc::operator()<ezStringView>()
+{
+  EZ_REPORT_FAILURE("Type 'ezStringView' not supported in serialization.");
+}
+
+template <>
+EZ_FORCE_INLINE void ReadValueFunc::operator()<ezDataBuffer>()
+{
+  ezDataBuffer data;
+  ezUInt32 iCount;
+  (*m_pStream) >> iCount;
+  data.SetCount(iCount);
+
+  m_pStream->ReadBytes(data.GetData(), iCount); 
+  *m_pValue = data;
+}
 
 // ezVariant
 

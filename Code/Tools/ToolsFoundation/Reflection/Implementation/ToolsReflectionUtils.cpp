@@ -52,6 +52,12 @@ ezVariant ezToolsReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enu
     return ezVariant(ezVec3(0.0f, 0.0f, 0.0f));
   case ezVariant::Type::Vector4:
     return ezVariant(ezVec4(0.0f, 0.0f, 0.0f, 0.0f));
+  case ezVariant::Type::Vector2I:
+    return ezVariant(ezVec2I32(0, 0));
+  case ezVariant::Type::Vector3I:
+    return ezVariant(ezVec3I32(0, 0, 0));
+  case ezVariant::Type::Vector4I:
+    return ezVariant(ezVec4I32(0, 0, 0, 0));
   case ezVariant::Type::Quaternion:
     return ezVariant(ezQuat(0.0f, 0.0f, 0.0f, 1.0f));
   case ezVariant::Type::Matrix3:
@@ -60,12 +66,16 @@ ezVariant ezToolsReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enu
     return ezVariant(ezMat4::IdentityMatrix());
   case ezVariant::Type::String:
     return ezVariant("");
+  case ezVariant::Type::StringView:
+    return ezVariant("");
   case ezVariant::Type::Time:
     return ezVariant(ezTime());
   case ezVariant::Type::Uuid:
     return ezVariant(ezUuid());
   case ezVariant::Type::Angle:
     return ezVariant(ezAngle());
+  case ezVariant::Type::DataBuffer:
+    return ezVariant(ezDataBuffer());
   case ezVariant::Type::VariantArray:
     return ezVariantArray();
   case ezVariant::Type::VariantDictionary:

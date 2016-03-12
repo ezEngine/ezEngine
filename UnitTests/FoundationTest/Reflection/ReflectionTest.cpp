@@ -81,12 +81,15 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
       ezRTTI* pType = ezRTTI::FindTypeByName("ezTestStruct");
 
       auto Props = pType->GetProperties();
-      EZ_TEST_INT(Props.GetCount(), 5);
+      EZ_TEST_INT(Props.GetCount(), 8);
       EZ_TEST_STRING(Props[0]->GetPropertyName(), "Float");
       EZ_TEST_STRING(Props[1]->GetPropertyName(), "Vector");
       EZ_TEST_STRING(Props[2]->GetPropertyName(), "Int");
       EZ_TEST_STRING(Props[3]->GetPropertyName(), "UInt8");
       EZ_TEST_STRING(Props[4]->GetPropertyName(), "Variant");
+      EZ_TEST_STRING(Props[5]->GetPropertyName(), "Angle");
+      EZ_TEST_STRING(Props[6]->GetPropertyName(), "DataBuffer");
+      EZ_TEST_STRING(Props[7]->GetPropertyName(), "vVec3I");
     }
 
     {
@@ -325,7 +328,19 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MemberProperties)
     TestMemberProperty<ezInt32>("Int", &data, pRtti, ezPropertyFlags::StandardType, 2, -8);
     TestMemberProperty<ezVec3>("Vector", &data, pRtti, ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly, ezVec3(3, 4, 5), ezVec3(0, -1.0f, 3.14f));
     TestMemberProperty<ezVariant>("Variant", &data, pRtti, ezPropertyFlags::StandardType, ezVariant("Test"), ezVariant(ezVec3(0, -1.0f, 3.14f)));
+    TestMemberProperty<ezAngle>("Angle", &data, pRtti, ezPropertyFlags::StandardType, ezAngle::Degree(0.5f), ezAngle::Degree(1.0f));
 
+    ezDataBuffer expected;
+    expected.PushBack(255);
+    expected.PushBack(0);
+    expected.PushBack(127);
+
+    ezDataBuffer newValue;
+    newValue.PushBack(1);
+    newValue.PushBack(2);
+
+    TestMemberProperty<ezDataBuffer>("DataBuffer", &data, pRtti, ezPropertyFlags::StandardType, expected, newValue);
+    TestMemberProperty<ezVec3I32>("vVec3I", &data, pRtti, ezPropertyFlags::StandardType, ezVec3I32(1,2,3), ezVec3I32(5,6,7));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTestClass2")
@@ -449,6 +464,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     c2.m_MyVector.Set(14, 16, 18);
     c2.m_Struct.m_fFloat1 = 128;
     c2.m_Struct.m_UInt8 = 234;
+    c2.m_Struct.m_Angle = ezAngle::Degree(360);
+    c2.m_Struct.m_vVec3I = ezVec3I32(9, 8, 7);
+    c2.m_Struct.m_DataBuffer.Clear();
     c2.m_Color = ezColor(0.1f, 0.2f, 0.3f);
     c2.m_Time = ezTime::Seconds(91.0f);
     c2.m_enumClass = ezExampleEnum::Value3;
@@ -476,6 +494,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     EZ_TEST_FLOAT(c2.m_Color.b, 0.3f, 0.0f);
     EZ_TEST_FLOAT(c2.m_Struct.m_fFloat1, 128, 0.0f);
     EZ_TEST_INT(c2.m_Struct.m_UInt8, 234);
+    EZ_TEST_BOOL(c2.m_Struct.m_Angle == ezAngle::Degree(360));
+    EZ_TEST_BOOL(c2.m_Struct.m_vVec3I == ezVec3I32(9, 8, 7));
+    EZ_TEST_BOOL(c2.m_Struct.m_DataBuffer == ezDataBuffer());
     EZ_TEST_BOOL(c2.m_enumClass == ezExampleEnum::Value3);
     EZ_TEST_BOOL(c2.m_bitflagsClass == ezExampleBitflags::Enum(ezExampleBitflags::Value1 | ezExampleBitflags::Value2 | ezExampleBitflags::Value3));
     EZ_TEST_INT(c2.m_array.GetCount(), 2);
@@ -523,6 +544,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     EZ_TEST_FLOAT(c2.m_Color.b, 0.3f, 0.0f);
     EZ_TEST_FLOAT(c2.m_Struct.m_fFloat1, 128, 0.0f);
     EZ_TEST_INT(c2.m_Struct.m_UInt8, 234);
+    EZ_TEST_BOOL(c2.m_Struct.m_Angle == ezAngle::Degree(360));
+    EZ_TEST_BOOL(c2.m_Struct.m_vVec3I == ezVec3I32(9, 8, 7));
+    EZ_TEST_BOOL(c2.m_Struct.m_DataBuffer == ezDataBuffer());
     EZ_TEST_BOOL(c2.m_enumClass == ezExampleEnum::Value3);
     EZ_TEST_BOOL(c2.m_bitflagsClass == ezExampleBitflags::Enum(ezExampleBitflags::Value1 | ezExampleBitflags::Value2 | ezExampleBitflags::Value3));
     EZ_TEST_INT(c2.m_array.GetCount(), 2);

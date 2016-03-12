@@ -49,6 +49,14 @@ EZ_FORCE_INLINE void ComputeHashFunc::operator() < ezMat4 > ()
 }
 
 template <>
+EZ_FORCE_INLINE void ComputeHashFunc::operator() < ezDataBuffer > ()
+{
+  ezDataBuffer* pData = (ezDataBuffer*)m_pData;
+
+  m_uiHash = ezHashing::MurmurHash64(pData->GetData(), pData->GetCount(), m_uiHash);
+}
+
+template <>
 EZ_FORCE_INLINE void ComputeHashFunc::operator() < ezVariantArray > ()
 {
   ezVariantArray* pData = (ezVariantArray*) m_pData;
@@ -255,7 +263,7 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   if (IsNumber(type) && (IsNumber(m_Type) || m_Type == Type::String))
     return true;
 
-  if (type == Type::String && m_Type < Type::VariantArray)
+  if (type == Type::String && m_Type < Type::VariantArray && m_Type != Type::DataBuffer)
     return true;
 
   if (type == Type::VoidPointer && m_Type == Type::ReflectedPointer)

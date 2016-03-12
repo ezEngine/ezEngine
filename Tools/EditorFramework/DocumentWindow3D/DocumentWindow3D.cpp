@@ -185,8 +185,6 @@ void ezQtEngineDocumentWindow::SyncObjectsToEngine()
     m_DeletedObjects.Clear();
   }
 
-  ezStringBuilder sData;
-
   for (auto* pObject : m_SyncObjects)
   {
     if (!pObject->GetModified())
@@ -200,10 +198,8 @@ void ezQtEngineDocumentWindow::SyncObjectsToEngine()
     ezMemoryStreamWriter writer(&storage);
     ezMemoryStreamReader reader(&storage);
 
-    ezReflectionSerializer::WriteObjectToJSON(writer, pObject->GetDynamicRTTI(), pObject);
-
-    sData.ReadAll(reader);
-    msg.SetObjectData(sData);
+    ezReflectionSerializer::WriteObjectToBinary(writer, pObject->GetDynamicRTTI(), pObject);
+    msg.m_ObjectData = ezArrayPtr<const ezUInt8>(storage.GetData(), storage.GetStorageSize());
 
     SendMessageToEngine(&msg);
 

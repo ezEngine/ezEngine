@@ -262,6 +262,60 @@ void ezStandardJSONWriter::WriteVec4(const ezVec4& value)
   WriteBinaryData("vec4", &temp, sizeof(temp), s.GetData());
 }
 
+void ezStandardJSONWriter::WriteVec2I32(const ezVec2I32& value)
+{
+  CommaWriter cw(this);
+
+  ezVec2I32 temp = value;
+
+  ezEndianHelper::NativeToLittleEndian((ezUInt32*)&temp, sizeof(temp) / sizeof(ezInt32));
+
+  ezStringBuilder s;
+
+  if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
+    s.Format("(%i,%i)", value.x, value.y);
+  else
+    s.Format("(%i, %i)", value.x, value.y);
+
+  WriteBinaryData("vec2i", &temp, sizeof(temp), s.GetData());
+}
+
+void ezStandardJSONWriter::WriteVec3I32(const ezVec3I32& value)
+{
+  CommaWriter cw(this);
+
+  ezVec3I32 temp = value;
+
+  ezEndianHelper::NativeToLittleEndian((ezUInt32*)&temp, sizeof(temp) / sizeof(ezInt32));
+
+  ezStringBuilder s;
+
+  if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
+    s.Format("(%i,%i,%i)", value.x, value.y, value.z);
+  else
+    s.Format("(%i, %i, %i)", value.x, value.y, value.z);
+
+  WriteBinaryData("vec3i", &temp, sizeof(temp), s.GetData());
+}
+
+void ezStandardJSONWriter::WriteVec4I32(const ezVec4I32& value)
+{
+  CommaWriter cw(this);
+
+  ezVec4I32 temp = value;
+
+  ezEndianHelper::NativeToLittleEndian((ezUInt32*)&temp, sizeof(temp) / sizeof(ezInt32));
+
+  ezStringBuilder s;
+
+  if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
+    s.Format("(%i,%i,%i,%i)", value.x, value.y, value.z, value.w);
+  else
+    s.Format("(%i, %i, %i, %i)", value.x, value.y, value.z, value.w);
+
+  WriteBinaryData("vec4i", &temp, sizeof(temp), s.GetData());
+}
+
 void ezStandardJSONWriter::WriteQuat(const ezQuat& value)
 {
   ezQuat temp = value;
@@ -303,6 +357,11 @@ void ezStandardJSONWriter::WriteUuid(const ezUuid& value)
 void ezStandardJSONWriter::WriteAngle(ezAngle value)
 {
   WriteFloat(value.GetDegree());
+}
+
+void ezStandardJSONWriter::WriteDataBuffer(const ezDataBuffer& value)
+{
+  WriteBinaryData("data", value.GetData(), value.GetCount());
 }
 
 void ezStandardJSONWriter::BeginVariable(const char* szName)

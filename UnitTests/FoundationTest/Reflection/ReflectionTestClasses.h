@@ -70,6 +70,11 @@ public:
     m_vProperty3.Set(3, 4, 5);
     m_UInt8 = 6;
     m_variant = "Test";
+    m_Angle = ezAngle::Degree(0.5);
+    m_DataBuffer.PushBack(255);
+    m_DataBuffer.PushBack(0);
+    m_DataBuffer.PushBack(127);
+    m_vVec3I = ezVec3I32(1, 2, 3);
   }
 
   bool operator==(const ezTestStruct& rhs) const
@@ -78,12 +83,18 @@ public:
       m_UInt8 == rhs.m_UInt8 &&
       m_variant == rhs.m_variant &&
       m_iInt2 == rhs.m_iInt2 &&
-      m_vProperty3 == rhs.m_vProperty3;
+      m_vProperty3 == rhs.m_vProperty3 &&
+      m_Angle == rhs.m_Angle &&
+      m_DataBuffer == rhs.m_DataBuffer &&
+      m_vVec3I == rhs.m_vVec3I;
   }
 
   float m_fFloat1;
   ezUInt8 m_UInt8;
   ezVariant m_variant;
+  ezAngle m_Angle;
+  ezDataBuffer m_DataBuffer;
+  ezVec3I32 m_vVec3I;
 
 private:
   void SetInt(ezInt32 i) { m_iInt2 = i; }
