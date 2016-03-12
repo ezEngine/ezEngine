@@ -320,8 +320,11 @@ void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& 
   {
     for (const auto& godesc : objects)
     {
+      ezGameObjectDesc desc = godesc.m_Desc; // make a copy
+      desc.m_hParent = m_IndexToGameObjectHandle[godesc.m_uiParentHandleIdx];
+
       ezGameObject* pObject;
-      m_IndexToGameObjectHandle.PushBack(m_pWorld->CreateObject(godesc.m_Desc, pObject));
+      m_IndexToGameObjectHandle.PushBack(m_pWorld->CreateObject(desc, pObject));
     }
   }
   else
@@ -340,7 +343,7 @@ void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& 
 
 void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, const ezTransform& rootTransform, ezGameObjectHandle hParent)
 {
-  for (const auto& godesc : m_RootObjectsToCreate)
+  for (const auto& godesc : objects)
   {
     ezGameObjectDesc desc = godesc.m_Desc; // make a copy
     desc.m_hParent = hParent;
