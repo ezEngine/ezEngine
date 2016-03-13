@@ -83,13 +83,13 @@ public:
   void AfterCoreStartup() override
   {
     ezStringBuilder sBaseDir = BUILDSYSTEM_OUTPUT_FOLDER;
-    sBaseDir.AppendPath("../../Shared/Data/");
+    sBaseDir.AppendPath("../../Data/Base/");
 
     ezStringBuilder sSharedDir = BUILDSYSTEM_OUTPUT_FOLDER;
-    sSharedDir.AppendPath("../../Shared/FreeContent/");
+    sSharedDir.AppendPath("../../Data/FreeContent/");
 
     ezStringBuilder sProjectDir = BUILDSYSTEM_OUTPUT_FOLDER;
-    sProjectDir.AppendPath("../../Shared/Samples/TextureSample");
+    sProjectDir.AppendPath("../../Data/Samples/TextureSample");
 
     // setup the 'asset management system'
     {

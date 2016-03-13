@@ -9,8 +9,8 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Context/Context.h>
 #include <Core/ResourceManager/Resource.h>
-#include <RendererCore/../../../Shared/Data/Shaders/Common/ConstantBufferMacros.h>
-#include <RendererCore/../../../Shared/Data/Shaders/Common/GlobalConstants.h>
+#include <RendererCore/../../../Data/Base/Shaders/Common/ConstantBufferMacros.h>
+#include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
 #include <RendererCore/Shader/ShaderStageBinary.h>
 
 

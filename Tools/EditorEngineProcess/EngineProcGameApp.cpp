@@ -275,7 +275,7 @@ ezString ezEngineProcessGameApplication::FindProjectDirectory() const
 void ezEngineProcessGameApplication::DoSetupDataDirectories()
 {
   ezStringBuilder sAppDir = ezOSFile::GetApplicationDirectory();
-  sAppDir.AppendPath("../../../Shared/Tools/EditorEngineProcess");
+  sAppDir.AppendPath("../../../Data/Tools/EditorEngineProcess");
 
   ezOSFile osf;
   osf.CreateDirectoryStructure(sAppDir);

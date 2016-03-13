@@ -1,6 +1,6 @@
 {
   "DataDirectories" : [ {
-      "Path" : "../../Data",
+      "Path" : "../../Base",
       "Writable" : false
     },
     {

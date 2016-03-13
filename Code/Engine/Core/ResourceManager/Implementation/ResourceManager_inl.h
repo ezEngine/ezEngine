@@ -173,6 +173,9 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezResourceHandle<Res
 
   if (pResource->GetLoadingState() == ezResourceState::LoadedResourceMissing)
   {
+    // When you get a crash with a stack overflow in this code path, then the resource to be used as the
+    // 'missing resource' replacement might be missing itself.
+
     if (/*mode == ezResourceAcquireMode::AllowFallback && (hFallbackResource.IsValid() || */ResourceType::GetTypeMissingResource().IsValid())//)
     {
       // prefer the fallback given for this situation (might e.g. be a default normal map)

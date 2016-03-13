@@ -64,12 +64,12 @@ First Time Opening the Sponza Sample Project
 
 The data for the Sponza project is very large which is why it is not checked in uncompressed. You need to extract some data manually first.
 
-Go to **Trunk/Shared/FreeContent/Sponza** and extract **Sponza.7z** into the same folder.
-Go to **Trunk/Shared/FreeContent/Trees** and extract **Trees.7z** into the same folder.
+Go to **Trunk/Data/FreeContent/Sponza** and extract **Sponza.7z** into the same folder.
+Go to **Trunk/Data/FreeContent/Trees** and extract **Trees.7z** into the same folder.
 
 You now have all required source assets.
 
-Run the Editor and select **Editor > Open Document** and open **Trunk/Shared/EditorSamples/Sponza/Scenes/Sponza.ezScene**.
+Run the Editor and select **Editor > Open Document** and open **Trunk/Data/EditorSamples/Sponza/Scenes/Sponza.ezScene**.
 
 The editor will automatically open the project that the scene belongs to. It may complain about unknown types due to missing plugins. This is safe to ignore for now.
 
@@ -88,7 +88,7 @@ When you create a custom project, you must make a few configurations.
 
 Select **Editor > Create Project** and select an empty folder where your project should end up.
 
-Now select **Editor > Project Settings > Data Directories**. Click the button to add another folder and choose **Trunk/Shared/Data**. This folder contains all crucial shaders and materials for scene editing. Without it, the scene plugin will not function correctly. This step may get automated at some point.
+Now select **Editor > Project Settings > Data Directories**. Click the button to add another folder and choose **Trunk/Data/Base**. This folder contains all crucial shaders and materials for scene editing. Without it, the scene plugin will not function correctly. This step may get automated at some point.
 
 After closing and reopening the project you are now good to go to create your first scene: **Editor > Create Document > MyFirst.ezScene**
 

@@ -7,7 +7,7 @@
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
-#include <RendererCore/../../../Shared/Data/Shaders/Common/ObjectConstants.h>
+#include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderer, 1, ezRTTIDefaultAllocator<ezMeshRenderer>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();

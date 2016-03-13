@@ -8,7 +8,7 @@
 EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
 {
   ezStringBuilder sReadDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sReadDir.AppendPath("../../Shared/UnitTests/CoreTest");
+  sReadDir.AppendPath("../../Data/UnitTests/CoreTest");
 
   ezStringBuilder sWriteDir = BUILDSYSTEM_OUTPUT_FOLDER;
   sWriteDir.AppendPath("CoreTest");

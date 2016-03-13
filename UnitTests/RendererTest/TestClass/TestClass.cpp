@@ -49,7 +49,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   {
     ezStringBuilder sReadDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
     ezString sFolderName = sReadDir.GetFileName();
-    sReadDir.AppendPath("../../../Shared/UnitTests", sFolderName);
+    sReadDir.AppendPath("../../../Data/UnitTests", sFolderName);
 
     ezStringBuilder sWriteDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
 

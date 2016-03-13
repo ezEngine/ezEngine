@@ -42,7 +42,7 @@ void SampleGameApp::AfterEngineInit()
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 
   ezStringBuilder sPath = ezOSFile::GetApplicationDirectory();
-  sPath.AppendPath("../../../Shared/Samples/RTS");
+  sPath.AppendPath("../../../Data/Samples/RTS");
 
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
   EZ_VERIFY(ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory()) == EZ_SUCCESS, "Failed to add data directory: '%s'", ezOSFile::GetApplicationDirectory());

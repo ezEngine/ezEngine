@@ -104,7 +104,7 @@ void ezQtEditorApp::InitQt(int argc, char** argv)
 ezString ezQtEditorApp::GetEditorDataFolder()
 {
   ezStringBuilder sAppDir = ezOSFile::GetApplicationDirectory();
-  sAppDir.AppendPath("../../../Shared/Tools", ezUIServices::GetApplicationName());
+  sAppDir.AppendPath("../../../Data/Tools", ezUIServices::GetApplicationName());
 
   return sAppDir;
 }
