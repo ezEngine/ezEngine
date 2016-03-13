@@ -49,6 +49,14 @@ public:
       ezResourceManager::s_ManagerEvents.AddEventHandler(ManagerEventHandler);
     }
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    if (hResource.IsValid())
+    {
+      ezResourceLock<SELF> lock(hResource, ezResourceAcquireMode::NoFallback);
+      // if this fails, the 'missing resource' is missing itself
+    }
+#endif
+
     s_TypeMissingResource = hResource;
   }
 
