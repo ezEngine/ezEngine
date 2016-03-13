@@ -118,9 +118,10 @@ void ezQtEditorApp::StoreEnginePluginsToBeLoaded()
 
 void ezQtEditorApp::ReadEditorPluginsToBeLoaded()
 {
+  // If loading that file fails, enable all plugins
   for (auto it = s_EditorPlugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
   {
-    it.Value().m_bToBeLoaded = false;
+    it.Value().m_bToBeLoaded = true;
   }
 
   ezFileReader FileIn;
@@ -134,6 +135,11 @@ void ezQtEditorApp::ReadEditorPluginsToBeLoaded()
   ezVariant* pValue;
   if (!reader.GetTopLevelObject().TryGetValue("Plugins", pValue) || !pValue->IsA<ezVariantArray>())
     return;
+
+  for (auto it = s_EditorPlugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
+  {
+    it.Value().m_bToBeLoaded = false;
+  }
 
   ezVariantArray plugins = pValue->ConvertTo<ezVariantArray>();
 
