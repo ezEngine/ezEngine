@@ -86,7 +86,12 @@ public:
   static ezQtEditorApp* GetInstance() { return s_pInstance; }
 
   const ezString& GetApplicationUserName() { return s_sUserName; }
+
+  /// \brief Returns the folder path where editor data (preferences) should be stored.
   ezString GetEditorDataFolder();
+
+  /// \brief Returns the folder path where project and user specific data should be stored
+  ezString GetProjectUserDataFolder();
 
   const ezPluginSet& GetEditorPlugins() const { return s_EditorPlugins; }
   const ezPluginSet& GetEnginePlugins() const { return s_EnginePlugins; }
@@ -110,6 +115,12 @@ public:
   ezSettings& GetDocumentSettings(const ezDocument* pDocument, const char* szPluginName = "-Main-");
   ezSettings& GetDocumentSettings(const char* szDocument, const char* szPlugin = "-Main-");
   void SaveSettings();
+
+  /// \brief Writes a file containing all the currently open documents
+  void SaveOpenDocumentsList();
+
+  /// \brief Reads the list of last open documents in the current project.
+  ezRecentFilesList LoadOpenDocumentsList();
 
   void InitQt(int argc, char** argv);
   void StartupEditor(const char* szAppName, const char* szUserName);

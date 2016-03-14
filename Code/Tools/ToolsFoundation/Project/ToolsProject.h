@@ -45,7 +45,14 @@ public:
   static ezStatus OpenProject(const char* szProjectPath);
   static ezStatus CreateProject(const char* szProjectPath);
 
-  const ezString& GetProjectPath() const { return m_sProjectPath; }
+  /// \brief Returns the path to the 'ezProject' file
+  const ezString& GetProjectFile() const { return m_sProjectPath; }
+
+  /// \brief Returns the path in which the 'ezProject' file is stored
+  ezString GetProjectDirectory() const;
+
+  /// \brief Returns the directory path in which project settings etc. should be stored
+  ezString GetProjectDataFolder() const;
 
   static ezString FindProjectDirectoryForDocument(const char* szDocumentPath);
 

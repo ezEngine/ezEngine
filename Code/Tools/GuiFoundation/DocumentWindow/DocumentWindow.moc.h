@@ -72,6 +72,12 @@ public:
   void ShowStatusBarMsgNoArgs(const char* szText);
   void ShowStatusBarMsg(const char* szText, ...);
 
+  /// \brief Sets at which tab order index this window is located
+  void SetWindowIndex(ezUInt32 uiIndex) { m_uiWindowIndex = uiIndex; }
+
+  /// \brief Returns at which tab order index this window is located
+  ezUInt32 GetWindowIndex() const { return m_uiWindowIndex; }
+
 protected:
   void FinishWindowCreation();
 
@@ -98,6 +104,7 @@ private:
   ezInt16 m_iTargetFramerate;
   ezDocument* m_pDocument;
   ezContainerWindow* m_pContainerWindow;
+  ezUInt32 m_uiWindowIndex;
 
 private:
   void Constructor();

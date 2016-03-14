@@ -109,6 +109,17 @@ ezString ezQtEditorApp::GetEditorDataFolder()
   return sAppDir;
 }
 
+
+
+ezString ezQtEditorApp::GetProjectUserDataFolder()
+{
+  ezStringBuilder sFile = ezToolsProject::GetInstance()->GetProjectDataFolder();
+  sFile.AppendPath(GetApplicationUserName());
+  sFile.Append(".usersettings");
+
+  return sFile;
+}
+
 void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
 {
   // ezUniquePtr does not work with forward declared classes :-(
@@ -199,16 +210,6 @@ void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
     {
       CreateOrOpenProject(false, s_RecentProjects.GetFileList()[0]);
     }
-
-    // now open the last document, which might be outside the main project folder, but in an allowed data directory
-    if (!s_RecentDocuments.GetFileList().IsEmpty())
-    {
-      // make sure the last document is actually in that last project
-      if (ezToolsProject::GetInstance()->IsDocumentInAllowedRoot(s_RecentDocuments.GetFileList()[0]))
-      {
-        CreateOrOpenDocument(false, s_RecentDocuments.GetFileList()[0]);
-      }
-    }
   }
 
   if (ezQtDocumentWindow::GetAllDocumentWindows().IsEmpty())
@@ -219,6 +220,8 @@ void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
 
 void ezQtEditorApp::ShutdownEditor()
 {
+  SaveSettings();
+
   ezToolsProject::CloseProject();
 
   ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::EngineProcessMsgHandler, this));
@@ -228,8 +231,6 @@ void ezQtEditorApp::ShutdownEditor()
   ezDocumentManager::s_Requests.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentManagerRequestHandler, this));
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentManagerEventHandler, this));
   ezQtDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentWindowEventHandler, this));
-
-  SaveSettings();
 
   ezUIServices::GetInstance()->SaveState();
 
@@ -377,9 +378,9 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
 {
   switch (r.m_Type)
   {
-  case ezDocumentManager::Event::Type::DocumentWindowRequested:
+  case ezDocumentManager::Event::Type::AfterDocumentWindowRequested:
     {
-      if (r.m_pDocument->GetAddToResetFilesList())
+      if (r.m_pDocument->GetAddToRecentFilesList())
       {
         s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath());
         SaveSettings();
@@ -391,7 +392,7 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
       // Clear all document settings when it is closed
       s_DocumentSettings.Remove(r.m_pDocument->GetDocumentPath());
 
-      if (r.m_pDocument->GetAddToResetFilesList())
+      if (r.m_pDocument->GetAddToRecentFilesList())
       {
         // again, insert it into the recent documents list, such that the LAST CLOSED document is the LAST USED 
         s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath());
@@ -531,14 +532,14 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
 
       m_AssetCurator.Initialize(m_FileSystemConfig);
 
-      m_sLastDocumentFolder = ezToolsProject::GetInstance()->GetProjectPath();
-      m_sLastProjectFolder = ezToolsProject::GetInstance()->GetProjectPath();
+      m_sLastDocumentFolder = ezToolsProject::GetInstance()->GetProjectFile();
+      m_sLastProjectFolder = ezToolsProject::GetInstance()->GetProjectFile();
     }
     // fall through
 
   case ezToolsProject::Event::Type::ProjectClosing:
     {
-      s_RecentProjects.Insert(ezToolsProject::GetInstance()->GetProjectPath());
+      s_RecentProjects.Insert(ezToolsProject::GetInstance()->GetProjectFile());
       SaveSettings();
     }
     break;
@@ -827,7 +828,7 @@ void ezQtEditorApp::GuiCreateOrOpenProject(bool bCreate)
 
 void ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 {
-  if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetInstance()->GetProjectPath() == szFile)
+  if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetInstance()->GetProjectFile() == szFile)
   {
     ezUIServices::MessageBoxInformation("The selected project is already open");
     return;
@@ -849,6 +850,13 @@ void ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 
     ezUIServices::MessageBoxStatus(res, s);
     return;
+  }
+
+  const ezRecentFilesList allDocs = LoadOpenDocumentsList();
+
+  for (auto& doc : allDocs.GetFileList())
+  {
+    OpenDocument(doc);
   }
 }
 

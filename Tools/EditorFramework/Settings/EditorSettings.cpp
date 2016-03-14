@@ -21,7 +21,7 @@ ezSettings& ezQtEditorApp::GetProjectSettings(const char* szPlugin)
 {
   EZ_ASSERT_DEV(ezToolsProject::IsProjectOpen(), "No project is open");
 
-  return GetSettings(s_ProjectSettings, szPlugin, ezQtEditorApp::GetDocumentDataFolder(ezToolsProject::GetInstance()->GetProjectPath()));
+  return GetSettings(s_ProjectSettings, szPlugin, ezQtEditorApp::GetDocumentDataFolder(ezToolsProject::GetInstance()->GetProjectFile()));
 }
 
 ezSettings& ezQtEditorApp::GetDocumentSettings(const ezDocument* pDocument, const char* szPlugin)
@@ -128,6 +128,48 @@ void ezQtEditorApp::StoreSettings(const ezMap<ezString, ezSettings>& settings, c
   }
 }
 
+void ezQtEditorApp::SaveOpenDocumentsList()
+{
+  const ezDynamicArray<ezQtDocumentWindow*>& windows = ezQtDocumentWindow::GetAllDocumentWindows();
+
+  if (windows.IsEmpty())
+    return;
+
+  ezRecentFilesList allDocs(10);
+
+  ezMap<ezUInt32, ezQtDocumentWindow*> Sorted;
+
+  for (ezUInt32 w = 0; w < windows.GetCount(); ++w)
+  {
+    if (windows[w]->GetDocument())
+    {
+      Sorted[windows[w]->GetWindowIndex()] = windows[w];
+    }
+  }
+
+  for (auto it = Sorted.GetLastIterator(); it.IsValid(); --it)
+  {
+    allDocs.Insert(it.Value()->GetDocument()->GetDocumentPath());
+  }
+
+  ezStringBuilder sFile = GetProjectUserDataFolder();
+  sFile.AppendPath("LastDocuments.txt");
+
+  allDocs.Save(sFile);
+}
+
+ezRecentFilesList ezQtEditorApp::LoadOpenDocumentsList()
+{
+  ezRecentFilesList allDocs(15);
+
+  ezStringBuilder sFile = GetProjectUserDataFolder();
+  sFile.AppendPath("LastDocuments.txt");
+
+  allDocs.Load(sFile);
+
+  return allDocs;
+}
+
 void ezQtEditorApp::SaveSettings()
 {
   SaveRecentFiles();
@@ -136,10 +178,12 @@ void ezQtEditorApp::SaveSettings()
 
   if (ezToolsProject::IsProjectOpen())
   {
+    SaveOpenDocumentsList();
+
     m_FileSystemConfig.Save();
     m_EnginePluginConfig.Save();
 
-    StoreSettings(s_ProjectSettings, GetDocumentDataFolder(ezToolsProject::GetInstance()->GetProjectPath()));
+    StoreSettings(s_ProjectSettings, GetDocumentDataFolder(ezToolsProject::GetInstance()->GetProjectFile()));
   }
 }
 

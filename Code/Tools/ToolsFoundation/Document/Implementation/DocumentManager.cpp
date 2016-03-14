@@ -152,6 +152,10 @@ void ezDocumentManager::EnsureWindowRequested(ezDocument* pDocument)
   e.m_pDocument = pDocument;
   e.m_Type = Event::Type::DocumentWindowRequested;
   s_Events.Broadcast(e);
+
+  e.m_pDocument = pDocument;
+  e.m_Type = Event::Type::AfterDocumentWindowRequested;
+  s_Events.Broadcast(e);
 }
 
 ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow, bool bAddToRecentFilesList)

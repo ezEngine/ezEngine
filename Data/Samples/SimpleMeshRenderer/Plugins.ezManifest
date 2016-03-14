@@ -2,5 +2,9 @@
   "Plugins" : [ {
       "Path" : "ezEnginePluginScene",
       "DependencyOf" : [ "EditorPluginScene" ]
+    },
+    {
+      "Path" : "ezPhysXPlugin",
+      "DependencyOf" : [ "EditorPluginPhysX" ]
     } ]
 }

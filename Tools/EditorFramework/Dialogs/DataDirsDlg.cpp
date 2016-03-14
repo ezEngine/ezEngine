@@ -91,7 +91,7 @@ void DataDirsDlg::on_ButtonAdd_clicked()
   static QString sPreviousFolder;
   if (sPreviousFolder.isEmpty())
   {
-    sPreviousFolder = QString::fromUtf8(ezToolsProject::GetInstance()->GetProjectPath().GetData());
+    sPreviousFolder = QString::fromUtf8(ezToolsProject::GetInstance()->GetProjectFile().GetData());
   }
 
   QString sFolder = QFileDialog::getExistingDirectory(this, QLatin1String("Select Directory"), sPreviousFolder, QFileDialog::Option::ShowDirsOnly);
@@ -101,7 +101,7 @@ void DataDirsDlg::on_ButtonAdd_clicked()
 
   sPreviousFolder = sFolder;
 
-  ezStringBuilder sProjectPath = ezToolsProject::GetInstance()->GetProjectPath();
+  ezStringBuilder sProjectPath = ezToolsProject::GetInstance()->GetProjectFile();
   sProjectPath.PathParentDirectory();
 
   ezStringBuilder sRelPath = sFolder.toUtf8().data();

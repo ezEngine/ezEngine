@@ -28,6 +28,7 @@ void ezQtDocumentWindow::Constructor()
 
   setStatusBar(new QStatusBar());
 
+  m_uiWindowIndex = 0;
   m_pContainerWindow = nullptr;
   m_bIsVisibleInContainer = false;
   m_bRedrawIsTriggered = false;

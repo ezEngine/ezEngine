@@ -21,7 +21,7 @@ void UpdateInputDynamicEnumValues()
 {
   ezHybridArray<ezGameAppInputConfig, 32> Actions;
 
-  ezStringBuilder sPath = ezToolsProject::GetInstance()->GetProjectPath();
+  ezStringBuilder sPath = ezToolsProject::GetInstance()->GetProjectFile();
   sPath.PathParentDirectory();
   sPath.AppendPath("InputConfig.json");
 
@@ -174,7 +174,7 @@ void InputConfigDlg::LoadActions()
 {
   m_Actions.Clear();
 
-  ezStringBuilder sPath = ezToolsProject::GetInstance()->GetProjectPath();
+  ezStringBuilder sPath = ezToolsProject::GetInstance()->GetProjectFile();
   sPath.PathParentDirectory();
   sPath.AppendPath("InputConfig.json");
 
@@ -187,7 +187,7 @@ void InputConfigDlg::LoadActions()
 
 void InputConfigDlg::SaveActions()
 {
-  ezStringBuilder sPath = ezToolsProject::GetInstance()->GetProjectPath();
+  ezStringBuilder sPath = ezToolsProject::GetInstance()->GetProjectFile();
   sPath.PathParentDirectory();
   sPath.AppendPath("InputConfig.json");
 

@@ -115,7 +115,7 @@ void ezQtFilePropertyWidget::on_BrowseFile_clicked()
   }
 
   if (sStartDir.IsEmpty())
-    sStartDir = ezToolsProject::GetInstance()->GetProjectPath();
+    sStartDir = ezToolsProject::GetInstance()->GetProjectFile();
 
   QString sResult = QFileDialog::getOpenFileName(this, pFileAttribute->GetDialogTitle(), sStartDir.GetData(), pFileAttribute->GetTypeFilter());
 

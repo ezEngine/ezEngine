@@ -72,6 +72,9 @@ private:
 
   void closeEvent(QCloseEvent* e);
 
+  /// \brief Called whenever the tab order changes to tell each document window at what position it is.
+  void ReassignWindowIndex();
+
 private:
   QLabel* m_pStatusBarLabel;
   ezDynamicArray<ezQtDocumentWindow*> m_DocumentWindows;

@@ -185,6 +185,24 @@ bool ezToolsProject::IsDocumentInAllowedRoot(const char* szDocumentPath, ezStrin
   return false;
 }
 
+ezString ezToolsProject::GetProjectDirectory() const
+{
+  ezStringBuilder s = GetProjectFile();
+
+  s.PathParentDirectory();
+  s.Trim("", "/\\");
+
+  return s;
+}
+
+ezString ezToolsProject::GetProjectDataFolder() const
+{
+  ezStringBuilder s = GetProjectFile();
+  s.Append("_data");
+
+  return s;
+}
+
 ezString ezToolsProject::FindProjectDirectoryForDocument(const char* szDocumentPath)
 {
   ezStringBuilder sPath = szDocumentPath;

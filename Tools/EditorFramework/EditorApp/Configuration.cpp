@@ -143,7 +143,7 @@ void ezQtEditorApp::ReadTagRegistry()
 
 void ezQtEditorApp::SetupDataDirectories()
 {
-  ezStringBuilder sPath = ezToolsProject::GetInstance()->GetProjectPath();
+  ezStringBuilder sPath = ezToolsProject::GetInstance()->GetProjectFile();
   sPath.PathParentDirectory();
 
   ezApplicationConfig::SetProjectDirectory(sPath);

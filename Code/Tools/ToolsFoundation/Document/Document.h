@@ -64,7 +64,7 @@ public:
   void SetAddToResetFilesList(bool b) { m_bAddToRecentFilesList = b; }
 
   /// \brief Whether this document shall be put into the recent files list.
-  bool GetAddToResetFilesList() const { return m_bAddToRecentFilesList; }
+  bool GetAddToRecentFilesList() const { return m_bAddToRecentFilesList; }
 
   /// \brief Broadcasts a status message event. The window that displays the document may show this in some form, e.g. in the status bar.
   void ShowDocumentStatus(const char* szFormat, ...);

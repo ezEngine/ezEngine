@@ -272,7 +272,7 @@ void ezSelectionAction::OpenPrefabDocument()
 
 void ezSelectionAction::CreatePrefab()
 {
-  static ezString sSearchDir = ezToolsProject::GetInstance()->GetProjectPath();
+  static ezString sSearchDir = ezToolsProject::GetInstance()->GetProjectFile();
 
   ezStringBuilder sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Prefab"), QString::fromUtf8(sSearchDir.GetData()), QString::fromUtf8("*.ezPrefab")).toUtf8().data();
 

@@ -60,7 +60,7 @@ void ezContainerWindow::UpdateWindowTitle()
 
   if (ezToolsProject::IsProjectOpen())
   {
-    ezStringBuilder sTemp = ezToolsProject::GetInstance()->GetProjectPath();
+    ezStringBuilder sTemp = ezToolsProject::GetInstance()->GetProjectFile();
     sTemp.PathParentDirectory();
     sTemp.Trim("/");
 
@@ -93,6 +93,19 @@ void ezContainerWindow::closeEvent(QCloseEvent* e)
   }
 
   SaveWindowLayout();
+}
+
+
+void ezContainerWindow::ReassignWindowIndex()
+{
+  QTabWidget* pTabs = GetTabWidget();
+
+  for (ezInt32 i = 0; i < pTabs->count(); ++i)
+  {
+    ezQtDocumentWindow* pDocWnd = (ezQtDocumentWindow*)pTabs->widget(i);
+
+    pDocWnd->SetWindowIndex(i);
+  }
 }
 
 void ezContainerWindow::SaveWindowLayout()
@@ -358,6 +371,8 @@ void ezContainerWindow::SlotDocumentTabCurrentChanged(int index)
 
   if (pNowCurrentWindow)
     pNowCurrentWindow->SetVisibleInContainer(true);
+
+  ReassignWindowIndex();
 }
 
 void ezContainerWindow::DocumentWindowEventHandler(const ezQtDocumentWindow::Event& e)
