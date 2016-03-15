@@ -44,8 +44,8 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget() : ezQtStandardPropertyWidget(
   m_pLayout->addWidget(m_pWidget);
   m_pLayout->addWidget(m_pButton);
 
-  EZ_VERIFY(connect(QtImageCache::GetInstance(), &QtImageCache::ImageLoaded, this, &ezQtAssetPropertyWidget::ThumbnailLoaded) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(QtImageCache::GetInstance(), &QtImageCache::ImageInvalidated, this, &ezQtAssetPropertyWidget::ThumbnailInvalidated) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(ezQtImageCache::GetInstance(), &ezQtImageCache::ImageLoaded, this, &ezQtAssetPropertyWidget::ThumbnailLoaded) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(ezQtImageCache::GetInstance(), &ezQtImageCache::ImageInvalidated, this, &ezQtAssetPropertyWidget::ThumbnailInvalidated) != nullptr, "signal/slot connection failed");
 }
 
 
@@ -96,7 +96,7 @@ void ezQtAssetPropertyWidget::UpdateThumbnail(const ezUuid& guid, const char* sz
     ezUInt64 uiUserData1, uiUserData2;
     m_AssetGuid.GetValues(uiUserData1, uiUserData2);
 
-    pThumbnailPixmap = QtImageCache::QueryPixmap(szThumbnailPath, QModelIndex(), QVariant(uiUserData1), QVariant(uiUserData2), &m_uiThumbnailID);
+    pThumbnailPixmap = ezQtImageCache::QueryPixmap(szThumbnailPath, QModelIndex(), QVariant(uiUserData1), QVariant(uiUserData2), &m_uiThumbnailID);
   }
 
   if (pThumbnailPixmap)

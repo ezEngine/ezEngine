@@ -1,11 +1,9 @@
 #include <PCH.h>
+#include <EditorFramework/EditorApp/Configuration/Plugins.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/JSONWriter.h>
-#include <Foundation/IO/JSONReader.h>
 #include <Foundation/IO/OSFile.h>
-#include <Foundation/Configuration/Plugin.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/JSONReader.h>
 
 void ezQtEditorApp::DetectAvailableEditorPlugins()
 {
@@ -26,45 +24,10 @@ void ezQtEditorApp::DetectAvailableEditorPlugins()
 
         s_EditorPlugins.m_Plugins[sPlugin].m_bAvailable = true;
       }
-      while(fsit.Next().Succeeded());
-    }
-  }
-#endif
-}
-
-void ezQtEditorApp::DetectAvailableEnginePlugins()
-{
-  s_EnginePlugins.m_Plugins.Clear();
-
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
-  {
-    ezStringBuilder sSearch = ezOSFile::GetApplicationDirectory();;
-    sSearch.AppendPath("*.dll");
-
-    ezFileSystemIterator fsit;
-    if (fsit.StartSearch(sSearch.GetData(), false, false).Succeeded())
-    {
-      do
-      {
-        ezStringBuilder sPlugin = fsit.GetStats().m_sFileName;
-        sPlugin.RemoveFileExtension();
-
-        if (sPlugin.FindLastSubString_NoCase("EnginePlugin") ||
-            sPlugin.EndsWith_NoCase("Plugin"))
-        {
-          s_EnginePlugins.m_Plugins[sPlugin].m_bAvailable = true;
-        }
-      }
       while (fsit.Next().Succeeded());
     }
   }
 #endif
-
-  for (const auto& plugin : m_EnginePluginConfig.m_Plugins)
-  {
-    s_EnginePlugins.m_Plugins[plugin.m_sRelativePath].m_bActive = true;
-    s_EnginePlugins.m_Plugins[plugin.m_sRelativePath].m_bToBeLoaded = plugin.m_sDependecyOf.Contains("<manual>");
-  }
 }
 
 void ezQtEditorApp::StoreEditorPluginsToBeLoaded()
@@ -78,42 +41,16 @@ void ezQtEditorApp::StoreEditorPluginsToBeLoaded()
   writer.SetOutputStream(&FileOut);
 
   writer.BeginObject();
-    writer.BeginArray("Plugins");
+  writer.BeginArray("Plugins");
 
-    for (auto it = s_EditorPlugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
-    {
-      if (it.Value().m_bToBeLoaded)
-        writer.WriteString(it.Key().GetData());
-    }
-
-    writer.EndArray();
-  writer.EndObject();
-}
-
-void ezQtEditorApp::StoreEnginePluginsToBeLoaded()
-{
-  bool bChange = false;
-
-  for (auto it = s_EnginePlugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
+  for (auto it = s_EditorPlugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
   {
-    ezApplicationPluginConfig::PluginConfig cfg;
-    cfg.m_sRelativePath = it.Key();
-
     if (it.Value().m_bToBeLoaded)
-    {
-      bChange = m_EnginePluginConfig.AddPlugin(cfg) || bChange;
-    }
-    else
-    {
-      bChange = m_EnginePluginConfig.RemovePlugin(cfg) || bChange;
-    }
+      writer.WriteString(it.Key().GetData());
   }
 
-  if (bChange)
-  {
-    AddReloadProjectRequiredReason("The set of active engine plugins was changed.");
-    m_EnginePluginConfig.Save();
-  }
+  writer.EndArray();
+  writer.EndObject();
 }
 
 void ezQtEditorApp::ReadEditorPluginsToBeLoaded()
@@ -211,3 +148,4 @@ void ezQtEditorApp::UnloadEditorPlugins()
     }
   }
 }
+

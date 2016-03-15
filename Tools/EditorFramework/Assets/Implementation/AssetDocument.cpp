@@ -314,7 +314,7 @@ void ezAssetDocument::SaveThumbnail(const ezImage& img)
     return;
   }
 
-  QtImageCache::InvalidateCache(sResourceFile);
+  ezQtImageCache::InvalidateCache(sResourceFile);
 }
 
 ezString ezAssetDocument::GetFinalOutputFileName(const char* szPlatform)

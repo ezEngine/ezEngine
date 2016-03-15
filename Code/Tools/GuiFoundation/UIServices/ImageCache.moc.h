@@ -12,12 +12,12 @@
 #include <QPixmap>
 #include <QAbstractItemModel>
 
-class EZ_GUIFOUNDATION_DLL QtImageCache : public QObject
+class EZ_GUIFOUNDATION_DLL ezQtImageCache : public QObject
 {
   Q_OBJECT
 
 public:
-  static QtImageCache* GetInstance();
+  static ezQtImageCache* GetInstance();
 
   static void SetFallbackImages(const char* szLoading, const char* szUnavailable);
 

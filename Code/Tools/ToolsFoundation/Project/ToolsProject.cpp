@@ -45,13 +45,8 @@ ezStatus ezToolsProject::Create()
 
   // Create default folders
   {
-    ezStringBuilder sPath;
-
-    sPath = m_sProjectPath;
-    sPath.PathParentDirectory();
-    sPath.AppendPath("Scenes");
-
-    ezOSFile::CreateDirectoryStructure(sPath);
+    CreateSubFolder("Scenes");
+    CreateSubFolder("Prefabs");
   }
 
   Event e;
@@ -81,6 +76,17 @@ ezStatus ezToolsProject::Open()
   s_Events.Broadcast(e);
 
   return ezStatus(EZ_SUCCESS);
+}
+
+void ezToolsProject::CreateSubFolder(const char* szFolder) const
+{
+  ezStringBuilder sPath;
+
+  sPath = m_sProjectPath;
+  sPath.PathParentDirectory();
+  sPath.AppendPath(szFolder);
+
+  ezOSFile::CreateDirectoryStructure(sPath);
 }
 
 void ezToolsProject::CloseProject()

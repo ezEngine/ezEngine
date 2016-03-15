@@ -60,6 +60,9 @@ public:
 
   void AddAllowedDocumentRoot(const char* szPath);
 
+  /// \brief Makes sure the given sub-folder exists inside the project directory
+  void CreateSubFolder(const char* szFolder) const;
+
 private:
 
   static ezStatus CreateOrOpenProject(const char* szProjectPath, bool bCreate);
@@ -70,6 +73,8 @@ private:
 
   ezStatus Create();
   ezStatus Open();
+
+  
 
   static ezToolsProject* s_pInstance;
 

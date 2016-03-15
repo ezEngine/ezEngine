@@ -4,6 +4,7 @@
 #include <ToolsFoundation/Settings/Settings.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
+#include <ToolsFoundation/Basics/RecentFilesList.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Strings/String.h>
@@ -14,64 +15,13 @@
 #include <Core/Application/Config/FileSystemConfig.h>
 #include <Core/Application/Config/PluginConfig.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <EditorFramework/EditorApp/Configuration/Plugins.h>
 
 class QMainWindow;
 class QWidget;
 class ezProgress;
 class ezQtProgressbar;
 
-/// \brief Holds information about a plugin. Used for editor and engine plugins, where the user can configure whether to load them or not.
-struct EZ_EDITORFRAMEWORK_DLL ezPluginInfo
-{
-  ezPluginInfo()
-  {
-    m_bAvailable = false;
-    m_bActive = false;
-    m_bToBeLoaded = false;
-  }
-
-  bool m_bAvailable; // exists on disk
-  bool m_bActive; // currently loaded into the process
-  bool m_bToBeLoaded; // supposed to be loaded into the process next restart
-
-  bool operator==(const ezPluginInfo& rhs) const { return m_bAvailable == rhs.m_bAvailable && m_bActive == rhs.m_bActive && m_bToBeLoaded == rhs.m_bToBeLoaded; }
-  bool operator!=(const ezPluginInfo& rhs) const { return !(*this == rhs); }
-};
-
-/// \brief Describes a set of plugins. Name is the plugin file name used to load it through ezPlugin, ezPluginInfo contains details about the loading state.
-struct EZ_EDITORFRAMEWORK_DLL ezPluginSet
-{
-  ezMap<ezString, ezPluginInfo> m_Plugins;
-
-  bool operator==(const ezPluginSet& rhs) const { return m_Plugins == rhs.m_Plugins; }
-  bool operator!=(const ezPluginSet& rhs) const { return !(*this == rhs); }
-};
-
-/// \brief Maintains a list of recently used files.
-class EZ_EDITORFRAMEWORK_DLL ezRecentFilesList
-{
-public:
-  ezRecentFilesList(ezUInt32 uiMaxElements) { m_uiMaxElements = uiMaxElements; }
-
-  /// \brief Moves the inserted file to the front.
-  void Insert(const char* szFile);
-
-  /// \brief Returns all files in the list.
-  const ezDeque<ezString>& GetFileList() const { return m_Files; }
-
-  /// \brief Clears the list
-  void Clear() { m_Files.Clear(); }
-
-  /// \brief Saves the recent files list to the given file. Uses a simple text file format (one line per item).
-  void Save(const char* szFile);
-
-  /// \brief Loads the recent files list from the given file. Uses a simple text file format (one line per item).
-  void Load(const char* szFile);
-
-private:
-  ezUInt32 m_uiMaxElements;
-  ezDeque<ezString> m_Files;
-};
 
 class EZ_EDITORFRAMEWORK_DLL ezQtEditorApp : public QObject
 {
@@ -186,7 +136,7 @@ private slots:
   void SlotQueuedCloseProject();
   void SlotQueuedOpenProject(QString sProject);
   void SlotQueuedOpenDocument(QString sProject);
-  void SlotQueuedCreateOrOpenProject(bool bCreate);
+  void SlotQueuedGuiCreateOrOpenProject(bool bCreate);
 
 private:
   ezSettings& GetSettings(ezMap<ezString, ezSettings>& SettingsMap, const char* szPlugin, const char* szSearchPath);
@@ -208,6 +158,7 @@ private:
   void ReadTagRegistry();
 
   void SetupDataDirectories();
+  void SetStyleSheet();
   void CreatePanels();
 
   ezString s_sUserName;

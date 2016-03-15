@@ -5,26 +5,26 @@
 #include <QPixmap>
 #include <QtConcurrent/qtconcurrentrun.h>
 
-ezMutex QtImageCache::s_Mutex;
-ezSet<QtImageCache::Request> QtImageCache::s_Requests;
-bool QtImageCache::s_bCacheEnabled = true;
-bool QtImageCache::s_bTaskRunning = false;
-ezMap<QString, QtImageCache::CacheEntry> QtImageCache::s_ImageCache;
-ezTime QtImageCache::s_LastCleanupTime;
-ezInt64 QtImageCache::s_iMemoryUsageThreshold = 30 * 1024 * 1024; // 30 MB
-ezInt64 QtImageCache::s_iCurrentMemoryUsage = 0;
-QPixmap* QtImageCache::s_pImageLoading = NULL;
-QPixmap* QtImageCache::s_pImageUnavailable = NULL;
-ezUInt32 QtImageCache::s_uiCurImageID = 1;
+ezMutex ezQtImageCache::s_Mutex;
+ezSet<ezQtImageCache::Request> ezQtImageCache::s_Requests;
+bool ezQtImageCache::s_bCacheEnabled = true;
+bool ezQtImageCache::s_bTaskRunning = false;
+ezMap<QString, ezQtImageCache::CacheEntry> ezQtImageCache::s_ImageCache;
+ezTime ezQtImageCache::s_LastCleanupTime;
+ezInt64 ezQtImageCache::s_iMemoryUsageThreshold = 30 * 1024 * 1024; // 30 MB
+ezInt64 ezQtImageCache::s_iCurrentMemoryUsage = 0;
+QPixmap* ezQtImageCache::s_pImageLoading = NULL;
+QPixmap* ezQtImageCache::s_pImageUnavailable = NULL;
+ezUInt32 ezQtImageCache::s_uiCurImageID = 1;
 
-static QtImageCache g_ImageCacheSingleton;
+static ezQtImageCache g_ImageCacheSingleton;
 
-QtImageCache* QtImageCache::GetInstance()
+ezQtImageCache* ezQtImageCache::GetInstance()
 {
   return &g_ImageCacheSingleton;
 }
 
-void QtImageCache::SetFallbackImages(const char* szLoading, const char* szUnavailable)
+void ezQtImageCache::SetFallbackImages(const char* szLoading, const char* szUnavailable)
 {
   delete s_pImageLoading;
   s_pImageLoading = new QPixmap(szLoading);
@@ -33,7 +33,7 @@ void QtImageCache::SetFallbackImages(const char* szLoading, const char* szUnavai
   s_pImageUnavailable = new QPixmap(szUnavailable);
 }
 
-void QtImageCache::InvalidateCache(const char* szAbsolutePath)
+void ezQtImageCache::InvalidateCache(const char* szAbsolutePath)
 {
   ezStringBuilder sCleanPath = szAbsolutePath;
   sCleanPath.MakeCleanPath();
@@ -53,7 +53,7 @@ void QtImageCache::InvalidateCache(const char* szAbsolutePath)
   emit g_ImageCacheSingleton.ImageInvalidated(sPath, id);
 }
 
-const QPixmap* QtImageCache::QueryPixmap(const char* szAbsolutePath, QModelIndex index, QVariant UserData1, QVariant UserData2, ezUInt32* out_pImageID)
+const QPixmap* ezQtImageCache::QueryPixmap(const char* szAbsolutePath, QModelIndex index, QVariant UserData1, QVariant UserData2, ezUInt32* out_pImageID)
 {
   if (out_pImageID)
     *out_pImageID = 0;
@@ -102,7 +102,7 @@ const QPixmap* QtImageCache::QueryPixmap(const char* szAbsolutePath, QModelIndex
   return s_pImageLoading;
 }
 
-void QtImageCache::RunLoadingTask()
+void ezQtImageCache::RunLoadingTask()
 {
   EZ_LOCK(s_Mutex);
 
@@ -141,7 +141,7 @@ void QtImageCache::RunLoadingTask()
   // if we fall through, the queue is now empty
 }
 
-void QtImageCache::StopRequestProcessing(bool bPurgeExistingCache)
+void ezQtImageCache::StopRequestProcessing(bool bPurgeExistingCache)
 {
   bool bTaskRunning = false;
 
@@ -169,7 +169,7 @@ void QtImageCache::StopRequestProcessing(bool bPurgeExistingCache)
   }
 }
 
-void QtImageCache::EnableRequestProcessing()
+void ezQtImageCache::EnableRequestProcessing()
 {
   EZ_LOCK(s_Mutex);
 
@@ -177,12 +177,12 @@ void QtImageCache::EnableRequestProcessing()
   RunLoadingTask();
 }
 
-void QtImageCache::EmitLoadedSignal(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2)
+void ezQtImageCache::EmitLoadedSignal(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2)
 {
   emit ImageLoaded(sPath, index, UserData1, UserData2);
 }
 
-void QtImageCache::LoadingTask(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2)
+void ezQtImageCache::LoadingTask(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2)
 {
   QImage Image;
   const bool bImageAvailable = Image.load(sPath);
@@ -232,7 +232,7 @@ void QtImageCache::LoadingTask(QString sPath, QModelIndex index, QVariant UserDa
   RunLoadingTask();
 }
 
-void QtImageCache::CleanupCache()
+void ezQtImageCache::CleanupCache()
 {
   EZ_LOCK(s_Mutex);
 
