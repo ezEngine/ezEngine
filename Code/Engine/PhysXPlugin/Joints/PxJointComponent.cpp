@@ -97,7 +97,7 @@ PxJoint* ezPxJointComponent::SetupJoint()
     return nullptr;
   }
 
-  ezPhysXSceneModule* pModule = static_cast<ezPhysXSceneModule*>(GetManager()->GetUserData());
+  ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
 
   PxRigidActor* pParentActor = pParentRbComp ? pParentRbComp->GetActor() : nullptr;
   PxRigidActor* pChildActor = pChildRbComp->GetActor();

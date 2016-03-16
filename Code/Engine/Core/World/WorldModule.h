@@ -1,11 +1,11 @@
 #pragma once
 
-#include <GameFoundation/Basics.h>
+#include <Core/Basics.h>
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
 
 class ezWorld;
 
-class EZ_GAMEFOUNDATION_DLL ezWorldModule : public ezReflectedClass
+class EZ_CORE_DLL ezWorldModule : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezWorldModule, ezReflectedClass);
 

@@ -109,7 +109,7 @@ void ezPxDynamicActorComponent::Update()
 
 ezComponent::Initialization ezPxDynamicActorComponent::Initialize()
 {
-  ezPhysXSceneModule* pModule = static_cast<ezPhysXSceneModule*>(GetManager()->GetUserData());
+  ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
 
   const auto pos = GetOwner()->GetGlobalPosition();
   const auto rot = GetOwner()->GetGlobalRotation();

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <PhysXPlugin/Basics.h>
+#include <GameUtils/Interfaces/PhysicsEngine.h>
+
 namespace physx
 {
   class PxPhysics;
@@ -8,7 +11,7 @@ namespace physx
 
 class ezCollisionFilterConfig;
 
-class ezPhysXInterface
+class EZ_PHYSXPLUGIN_DLL ezPhysXInterface : public ezPhysicsEngineInterface
 {
 public:
 

@@ -4,7 +4,7 @@
 #include <FmodPlugin/PluginInterface.h>
 #include <FmodPlugin/FmodSingleton.h>
 #include <Foundation/Configuration/Plugin.h>
-#include <GameFoundation/WorldModule/WorldModule.h>
+#include <Core/World/WorldModule.h>
 
 class EZ_FMODPLUGIN_DLL ezFmodSceneModule : public ezWorldModule
 {

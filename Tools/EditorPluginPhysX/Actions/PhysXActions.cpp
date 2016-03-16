@@ -62,8 +62,6 @@ void ezPhysXAction::Execute(const ezVariant& value)
 {
   if (m_Type == ActionType::ProjectSettings)
   {
-    ezPhysXInterface* pPhysX = ezAbstractInterfaceRegistry::RetrieveImplementationForInterface<ezPhysXInterface>("ezPhysXInterface");
-
     ezPhysxProjectSettingsDlg dlg(nullptr);
     dlg.exec();
   }

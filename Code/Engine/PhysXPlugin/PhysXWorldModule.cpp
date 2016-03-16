@@ -13,7 +13,7 @@
 #include <PhysXPlugin/Joints/PxFixedJointComponent.h>
 #include <PhysXPlugin/Components/PxCharacterControllerComponent.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXSceneModule, 1, ezRTTIDefaultAllocator<ezPhysXSceneModule>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXWorldModule, 1, ezRTTIDefaultAllocator<ezPhysXWorldModule>);
   // no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -40,14 +40,14 @@ PxFilterFlags ezPxFilterShader(PxFilterObjectAttributes attributes0, PxFilterDat
 }
 
 
-ezPhysXSceneModule::ezPhysXSceneModule()
+ezPhysXWorldModule::ezPhysXWorldModule()
 {
   m_pPxScene = nullptr;
 
   SetGravity(ezVec3(0, 0, -10), ezVec3(0, 0, -12));
 }
 
-void ezPhysXSceneModule::SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity)
+void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity)
 {
   m_vObjectGravity = objectGravity;
   m_vCharacterGravity = characterGravity;
@@ -58,7 +58,7 @@ void ezPhysXSceneModule::SetGravity(const ezVec3& objectGravity, const ezVec3& c
   }
 }
 
-void ezPhysXSceneModule::InternalStartup()
+void ezPhysXWorldModule::InternalStartup()
 {
   InternalReinit();
 
@@ -92,7 +92,7 @@ void ezPhysXSceneModule::InternalStartup()
   EZ_ASSERT_ALWAYS(m_pPxScene != nullptr, "Creating the PhysX scene failed");
 }
 
-void ezPhysXSceneModule::InternalShutdown()
+void ezPhysXWorldModule::InternalShutdown()
 {
   //m_pCharacterManager->purgeControllers();
   m_pCharacterManager->release();
@@ -105,7 +105,7 @@ void ezPhysXSceneModule::InternalShutdown()
   m_pCPUDispatcher = nullptr;
 }
 
-void ezPhysXSceneModule::InternalUpdate()
+void ezPhysXWorldModule::InternalUpdate()
 {
   if (!GetWorld()->GetWorldSimulationEnabled())
     return;
@@ -128,7 +128,7 @@ void ezPhysXSceneModule::InternalUpdate()
 }
 
 
-void ezPhysXSceneModule::InternalReinit()
+void ezPhysXWorldModule::InternalReinit()
 {
   ezPhysX::GetSingleton()->LoadCollisionFilters();
 

@@ -38,7 +38,7 @@ void ezPxShapeSphereComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezPxShapeSphereComponent::AddToActor(PxRigidActor* pActor, const ezTransform& ParentTransform)
 {
-  ezPhysXSceneModule* pModule = static_cast<ezPhysXSceneModule*>(GetManager()->GetUserData());
+  ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
 
   const ezTransform OwnerTransform = GetOwner()->GetGlobalTransform();
 

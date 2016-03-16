@@ -1,7 +1,7 @@
 
 #include <GameFoundation/PCH.h>
 #include <GameFoundation/GameApplication/GameApplication.h>
-#include <GameFoundation/WorldModule/WorldModule.h>
+#include <Core/World/WorldModule.h>
 
 namespace
 {

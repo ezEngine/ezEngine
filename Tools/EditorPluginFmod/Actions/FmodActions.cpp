@@ -61,8 +61,6 @@ void ezFmodAction::Execute(const ezVariant& value)
 {
   //if (m_Type == ActionType::ProjectSettings)
   //{
-  //  ezFmodInterface* pFmod = ezAbstractInterfaceRegistry::RetrieveImplementationForInterface<ezFmodInterface>("ezFmodInterface");
-
   //  ezPhysxProjectSettingsDlg dlg(nullptr);
   //  dlg.exec();
   //}

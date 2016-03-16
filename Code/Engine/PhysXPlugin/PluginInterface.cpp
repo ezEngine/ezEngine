@@ -16,11 +16,6 @@ ezPhysX::ezPhysX()
   m_VdbConnection = nullptr;
 }
 
-ezPhysX* ezPhysX::GetSingleton()
-{
-  return &g_PhysXSingleton;
-}
-
 void ezPhysX::LoadCollisionFilters()
 {
   EZ_LOG_BLOCK("ezPhysX::LoadCollisionFilters");

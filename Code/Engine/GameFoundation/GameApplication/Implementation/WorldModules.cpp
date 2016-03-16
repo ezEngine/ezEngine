@@ -1,11 +1,7 @@
 #include <GameFoundation/PCH.h>
-#include <GameFoundation/WorldModule/WorldModule.h>
-#include <GameFoundation/GameApplication/GameApplication.h>
+#include <Core/World/WorldModule.h>
 #include <Core/World/World.h>
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezWorldModule, 1, ezRTTINoAllocator);
-// no properties or message handlers
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+#include <GameFoundation/GameApplication/GameApplication.h>
 
 
 void ezGameApplication::UpdateWorldModules(ezWorld* pWorld)

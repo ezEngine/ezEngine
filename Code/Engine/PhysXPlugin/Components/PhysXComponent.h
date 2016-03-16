@@ -4,6 +4,9 @@
 #include <Core/World/World.h>
 #include <Core/World/Component.h>
 
+#include <PxPhysicsAPI.h>
+using namespace physx;
+
 /// \brief Base class for all PhysX components, such that they all have a common ancestor
 class EZ_PHYSXPLUGIN_DLL ezPhysXComponent : public ezComponent
 {

@@ -3,9 +3,13 @@
 #include <PhysXPlugin/Basics.h>
 #include <PhysXPlugin/PluginInterface.h>
 #include <Foundation/Configuration/Plugin.h>
-#include <GameFoundation/WorldModule/WorldModule.h>
+#include <Core/World/WorldModule.h>
 #include <GameUtils/Surfaces/SurfaceResource.h>
 #include <GameUtils/CollisionFilter/CollisionFilter.h>
+#include <GameUtils/Interfaces/PhysicsWorldModule.h>
+
+#include <PxPhysicsAPI.h>
+using namespace physx;
 
 class ezPxErrorCallback : public PxErrorCallback
 {
@@ -35,7 +39,7 @@ class EZ_PHYSXPLUGIN_DLL ezPhysX : public ezPhysXInterface
 public:
   ezPhysX();
 
-  static ezPhysX* GetSingleton();
+  static EZ_FORCE_INLINE  ezPhysX* GetSingleton() { return (ezPhysX*)GetInstance(); }
 
   void Startup();
   void Shutdown();
@@ -67,12 +71,12 @@ private:
 };
 
 
-class EZ_PHYSXPLUGIN_DLL ezPhysXSceneModule : public ezWorldModule
+class EZ_PHYSXPLUGIN_DLL ezPhysXWorldModule : public ezPhysicsWorldModuleInterface
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPhysXSceneModule, ezWorldModule);
+  EZ_ADD_DYNAMIC_REFLECTION(ezPhysXWorldModule, ezPhysicsWorldModuleInterface);
 
 public:
-  ezPhysXSceneModule();
+  ezPhysXWorldModule();
 
   PxScene* GetPxScene() const { return m_pPxScene; }
 

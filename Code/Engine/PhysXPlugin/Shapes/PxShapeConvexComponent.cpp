@@ -77,7 +77,7 @@ void ezPxShapeConvexComponent::AddToActor(PxRigidActor* pActor, const ezTransfor
     return;
   }
 
-  ezPhysXSceneModule* pModule = static_cast<ezPhysXSceneModule*>(GetManager()->GetUserData());
+  ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
 
   const ezTransform OwnerTransform = GetOwner()->GetGlobalTransform();
 

@@ -109,7 +109,7 @@ void ezPxCharacterControllerComponent::Update()
 
   const float tDiff = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
 
-  ezPhysXSceneModule* pModule = static_cast<ezPhysXSceneModule*>(GetManager()->GetUserData());
+  ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
 
   m_vRelativeMoveDirection = GetOwner()->GetGlobalRotation() * m_vRelativeMoveDirection * m_fWalkSpeed;
 
@@ -156,7 +156,7 @@ void ezPxCharacterControllerComponent::Update()
 
 ezComponent::Initialization ezPxCharacterControllerComponent::Initialize()
 {
-  ezPhysXSceneModule* pModule = static_cast<ezPhysXSceneModule*>(GetManager()->GetUserData());
+  ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
 
   m_vRelativeMoveDirection.SetZero();
 
