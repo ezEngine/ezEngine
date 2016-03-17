@@ -142,8 +142,8 @@ ezUInt64 ezAssetDocument::GetDocumentHash() const
   for (auto pChild : GetObjectManager()->GetRootObject()->GetChildren())
   {
     GetChildHash(pChild, uiHash);
+    InternalGetMetaDataHash(pChild, uiHash);
   }
-
   return uiHash;
 }
 

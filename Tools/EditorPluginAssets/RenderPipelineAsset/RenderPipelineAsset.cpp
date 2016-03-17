@@ -140,6 +140,28 @@ ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& s
   return ezStatus(EZ_SUCCESS);
 }
 
+void ezRenderPipelineAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const
+{
+  const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
+  if (pManager->IsNode(pObject))
+  {
+    auto outputs = pManager->GetOutputPins(pObject);
+    for (const ezPin* pPinSource : outputs)
+    {
+      auto inputs = pPinSource->GetConnections();
+      for (const ezConnection* pConnection : inputs)
+      {
+        const ezPin* pPinTarget = pConnection->GetTargetPin();
+       
+        inout_uiHash = ezHashing::MurmurHash64(&pPinSource->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
+        inout_uiHash = ezHashing::MurmurHash64(&pPinTarget->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
+        inout_uiHash = ezHashing::MurmurHash64(pPinSource->GetName(), ezStringUtils::GetStringElementCount(pPinSource->GetName()), inout_uiHash);
+        inout_uiHash = ezHashing::MurmurHash64(pPinTarget->GetName(), ezStringUtils::GetStringElementCount(pPinTarget->GetName()), inout_uiHash);
+      }
+    }
+  }
+}
+
 void ezRenderPipelineAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph)
 {
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());

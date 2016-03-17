@@ -32,6 +32,7 @@ protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform) override;
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override { return ezStatus(EZ_SUCCESS); }
 
+  virtual void InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const override;
   virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) override;
   virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph) override;
 };

@@ -60,6 +60,9 @@ protected:
   /// \brief Computes the hash for one document object and combines it with the given hash
   void GetChildHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const;
 
+  /// \brief Computes the hash for transform relevant meta data of the given document object and combines it with the given hash.
+  virtual void InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const {}
+
   /// \brief Overrides the base function to call UpdateAssetDocumentInfo() to update the settings hash
   virtual ezStatus InternalSaveDocument() override;
 
