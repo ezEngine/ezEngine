@@ -130,14 +130,14 @@ void ezDocumentObject::HashPropertiesRecursive(const ezIReflectedTypeAccessor& a
     // Build property path
     path.PushBack(pProperty->GetPropertyName());
 
-    if (pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType))
+    if (pProperty->GetCategory() == ezPropertyCategory::Member && pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType))
     {
-      ezVariant var = acc.GetValue(path);
+      const ezVariant var = acc.GetValue(path);
       uiHash = var.ComputeHash(uiHash);
     }
     else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
     {
-      ezVariant var = acc.GetValue(path);
+      const ezVariant var = acc.GetValue(path);
       uiHash = var.ComputeHash(uiHash);
     }
     else if (pProperty->GetCategory() == ezPropertyCategory::Member)
@@ -146,6 +146,15 @@ void ezDocumentObject::HashPropertiesRecursive(const ezIReflectedTypeAccessor& a
 
       // Not POD type, recurse further
       HashPropertiesRecursive(acc, uiHash, pMember->GetSpecificType(), path);
+    }
+    else if (pProperty->GetCategory() == ezPropertyCategory::Array || pProperty->GetCategory() == ezPropertyCategory::Set)
+    {
+      ezHybridArray<ezVariant, 16> keys;
+      acc.GetValues(path, keys);
+      for (const ezVariant& var : keys)
+      {
+        uiHash = var.ComputeHash(uiHash);
+      }
     }
 
     path.PopBack();

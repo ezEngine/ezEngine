@@ -60,6 +60,11 @@ void ezView::SetRenderTargetSetup(ezGALRenderTagetSetup& renderTargetSetup)
 
 void ezView::SetRenderPipelineResource(ezRenderPipelineResourceHandle hPipeline)
 {
+  if (hPipeline == m_hRenderPipeline)
+  {
+    return;
+  }
+  m_uiRenderPipelineResourceDescriptionCounter = 0;
   m_hRenderPipeline = hPipeline;
 }
 
@@ -70,6 +75,11 @@ ezRenderPipelineResourceHandle ezView::GetRenderPipelineResource() const
 
 void ezView::UpdateRenderPipeline(ezUniquePtr<ezRenderPipeline>&& pRenderPipeline)
 {
+  if (m_pRenderPipeline != nullptr)
+  {
+    ezRenderLoop::DeleteRenderPipeline(m_pRenderPipeline);
+  }
+
   m_pRenderPipeline = std::move(pRenderPipeline);
   ezRenderLoop::AddRenderPipelineToRebuild(m_pRenderPipeline.Borrow(), this);
 

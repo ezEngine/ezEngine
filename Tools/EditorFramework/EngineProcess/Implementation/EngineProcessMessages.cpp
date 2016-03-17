@@ -87,6 +87,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRedrawMsgToEngine, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("ViewMat", m_ViewMatrix),
     EZ_MEMBER_PROPERTY("ProjMat", m_ProjMatrix),
     EZ_MEMBER_PROPERTY("RenderMode", m_uiRenderMode),
+    EZ_MEMBER_PROPERTY("RenderPipelineResource", m_sRenderPipelineResource),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

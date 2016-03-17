@@ -82,21 +82,20 @@ void ezSimpleRenderPass::SetRenderTargets(const ezArrayPtr<ezRenderPipelinePassC
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   m_RenderTargetSetup.DestroyAllAttachedViews();
-  const ezNodePin* pColor = GetPinByName("Color");
-  if (outputs[pColor->m_uiOutputIndex])
+
+  if (outputs[m_PinColor.m_uiOutputIndex])
   {
     ezGALRenderTargetViewCreationDescription rtvd;
-    rtvd.m_hTexture = outputs[pColor->m_uiOutputIndex]->m_TextureHandle;
+    rtvd.m_hTexture = outputs[m_PinColor.m_uiOutputIndex]->m_TextureHandle;
     rtvd.m_RenderTargetType = ezGALRenderTargetType::Color;
 
     m_RenderTargetSetup.SetRenderTarget(0, pDevice->CreateRenderTargetView(rtvd));
   }
 
-  const ezNodePin* pDepth = GetPinByName("DepthStencil");
-  if (outputs[pDepth->m_uiOutputIndex])
+  if (outputs[m_PinDepthStencil.m_uiOutputIndex])
   {
     ezGALRenderTargetViewCreationDescription rtvd;
-    rtvd.m_hTexture = outputs[pDepth->m_uiOutputIndex]->m_TextureHandle;
+    rtvd.m_hTexture = outputs[m_PinDepthStencil.m_uiOutputIndex]->m_TextureHandle;
     rtvd.m_RenderTargetType = ezGALRenderTargetType::DepthStencil;
 
     m_RenderTargetSetup.SetDepthStencilTarget(pDevice->CreateRenderTargetView(rtvd));

@@ -95,16 +95,21 @@ void ezRenderLoop::DeleteView(ezView* pView)
     }
   }
 
+  DeleteRenderPipeline(pView->m_pRenderPipeline);
+  
+  pView->~ezView();
+  ezFoundation::GetDefaultAllocator()->Deallocate(pView);
+}
+
+void ezRenderLoop::DeleteRenderPipeline(ezUniquePtr<ezRenderPipeline>& pRenderPipeline)
+{
   {
     EZ_LOCK(s_DeletedPipelinesMutex);
 
     auto& deletedPipeline = s_DeletedPipelines.ExpandAndGetRef();
-    deletedPipeline.m_pPipeline = std::move(pView->m_pRenderPipeline);
+    deletedPipeline.m_pPipeline = std::move(pRenderPipeline);
     deletedPipeline.m_uiFrameUntilDeletion = 2;
   }
-
-  pView->~ezView();
-  ezFoundation::GetDefaultAllocator()->Deallocate(pView);
 }
 
 void ezRenderLoop::AddMainView(ezView* pView)

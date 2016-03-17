@@ -1,0 +1,205 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0xA68CEC63D78AD70820DFF48995F2AE54" },
+   "t" : "ezPassThroughNodePin",
+   "p" : {
+    
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x6C393FB12C0F1012D0E9C440EFCF5AF3" },
+   "t" : "ezInputNodePin",
+   "p" : {
+    
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xF48A53CE128B3D1424E9CF91384ED0AD" },
+   "t" : "ConnectionInternal",
+   "p" : {
+    "SourcePin" : "DepthStencil",
+    "Target" : { "$t" : "uuid", "$b" : "0xDFBE14DEB961AA46B15D595A6EB9E3B8" },
+    "TargetPin" : "DepthStencil"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xF232F78C5F811D1F43C5D92503B0BCC6" },
+   "t" : "ezInputNodePin",
+   "p" : {
+    
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x65CE9370E0F776257419F424ABD62FFB" },
+   "t" : "ConnectionInternal",
+   "p" : {
+    "SourcePin" : "Color",
+    "Target" : { "$t" : "uuid", "$b" : "0xDFBE14DEB961AA46B15D595A6EB9E3B8" },
+    "TargetPin" : "Color0"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x7EF6972C672D6031138707C336275AE3" },
+   "t" : "ezInputNodePin",
+   "p" : {
+    
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x606ADCE4E01D2840BD4F2866F3399D29" },
+   "t" : "ezLightGatheringRenderer",
+   "p" : {
+    
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA1962937FE1D734097FA925A9FE08573" },
+   "t" : "ezEditorRenderPass",
+   "p" : {
+    "Color" : { "$t" : "uuid", "$b" : "0xA68CEC63D78AD70820DFF48995F2AE54" },
+    "DepthStencil" : { "$t" : "uuid", "$b" : "0x8C01E0DB3A5FB9B4B4019FAD3905EE56" },
+    "Name" : "EditorRenderPass",
+    "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x65CE9370E0F776257419F424ABD62FFB" }, { "$t" : "uuid", "$b" : "0xF48A53CE128B3D1424E9CF91384ED0AD" } ],
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(-122.3478, -229.1739)", "$b" : "0x17B2F4C2862C65C3" },
+    "RenderSelectionOverlay" : false,
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0x38C7F4AF32A8FD4696FBF54ABDB4F776" }, { "$t" : "uuid", "$b" : "0x606ADCE4E01D2840BD4F2866F3399D29" } ],
+    "SceneContext" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+    "ViewRenderMode" : "ezViewRenderMode::None"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3D0E9189C147734190130922BA044549" },
+   "t" : "ezMeshRenderer",
+   "p" : {
+    
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xDFBE14DEB961AA46B15D595A6EB9E3B8" },
+   "t" : "ezTargetPass",
+   "p" : {
+    "Color0" : { "$t" : "uuid", "$b" : "0x827B653F774374D21F532BA34B29B658" },
+    "Color1" : { "$t" : "uuid", "$b" : "0xB6241786A049A76FD2E5FDA6AAA8C13E" },
+    "Color2" : { "$t" : "uuid", "$b" : "0xE8206A33070B37C1E2D7B3BA8C9DF608" },
+    "Color3" : { "$t" : "uuid", "$b" : "0xE0B9A8A19E487A49DF218469FD0AD9FD" },
+    "Color4" : { "$t" : "uuid", "$b" : "0xF88A5AE8C74EADE6ECA9D2C74C98F371" },
+    "Color5" : { "$t" : "uuid", "$b" : "0x6A50E5E53D272D945E7628FD7383CB40" },
+    "Color6" : { "$t" : "uuid", "$b" : "0x7EF6972C672D6031138707C336275AE3" },
+    "Color7" : { "$t" : "uuid", "$b" : "0x6C393FB12C0F1012D0E9C440EFCF5AF3" },
+    "DepthStencil" : { "$t" : "uuid", "$b" : "0xF232F78C5F811D1F43C5D92503B0BCC6" },
+    "Name" : "",
+    "Node::Connections" : [  ],
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(206.2609, -229.5217)", "$b" : "0xC8424E43918565C3" },
+    "Renderers" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x38C7F4AF32A8FD4696FBF54ABDB4F776" },
+   "t" : "ezMeshRenderer",
+   "p" : {
+    
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x5EF07BF3CF37B0489B2A829EDB6CD4AC" },
+   "t" : "ezPickingRenderPass",
+   "p" : {
+    "Enable" : false,
+    "Name" : "EditorPickingPass",
+    "Node::Connections" : [  ],
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(-127.0435, -56.4348)", "$b" : "0x4316FEC238BD61C2" },
+    "PickSelected" : false,
+    "PickingPosition" : { "$t" : "vec2", "$v" : "(0.0000, 0.0000)", "$b" : "0x0000000000000000" },
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0x3D0E9189C147734190130922BA044549" } ],
+    "SceneContext" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+    "ViewRenderMode" : "ezViewRenderMode::None"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x4D3C46DA84C91049B0B7A0B3891D0448" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "RenderPipeline",
+    "Dependencies" : "",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0x4D3C46DA84C91049B0B7A0B3891D0448" },
+    "Hash" : { "$t" : "uint64", "$v" : "5573702830524040270", "$b" : "0x4E84F99031C5594D" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x5A8BF5B47F9B2A498BAB7B04BBFCE008" },
+   "t" : "ezVisibleObjectsExtractor",
+   "p" : {
+    "Name" : "",
+    "Node::Connections" : [  ],
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(2.6957, -307.9565)", "$b" : "0x91852C406FFA99C3" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE0B9A8A19E487A49DF218469FD0AD9FD" },
+   "t" : "ezInputNodePin",
+   "p" : {
+    
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0xDFBE14DEB961AA46B15D595A6EB9E3B8" }, { "$t" : "uuid", "$b" : "0x5A8BF5B47F9B2A498BAB7B04BBFCE008" }, { "$t" : "uuid", "$b" : "0x5EF07BF3CF37B0489B2A829EDB6CD4AC" }, { "$t" : "uuid", "$b" : "0xCD33C3278B47334F947E8235D17DA7F5" }, { "$t" : "uuid", "$b" : "0xA1962937FE1D734097FA925A9FE08573" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xCD33C3278B47334F947E8235D17DA7F5" },
+   "t" : "ezEditorSelectedObjectsExtractor",
+   "p" : {
+    "Name" : "EditorSelectedObjectsExtractor",
+    "Node::Connections" : [  ],
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(-7.0000, -366.0000)", "$b" : "0x0000E0C00000B7C3" },
+    "SceneContext" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xB6241786A049A76FD2E5FDA6AAA8C13E" },
+   "t" : "ezInputNodePin",
+   "p" : {
+    
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x6A50E5E53D272D945E7628FD7383CB40" },
+   "t" : "ezInputNodePin",
+   "p" : {
+    
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x8C01E0DB3A5FB9B4B4019FAD3905EE56" },
+   "t" : "ezPassThroughNodePin",
+   "p" : {
+    
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE8206A33070B37C1E2D7B3BA8C9DF608" },
+   "t" : "ezInputNodePin",
+   "p" : {
+    
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x827B653F774374D21F532BA34B29B658" },
+   "t" : "ezInputNodePin",
+   "p" : {
+    
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xF88A5AE8C74EADE6ECA9D2C74C98F371" },
+   "t" : "ezInputNodePin",
+   "p" : {
+    
+   }
+  } ]
+}

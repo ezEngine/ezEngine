@@ -108,10 +108,10 @@ ezStatus ezCommand::AddSubCommand(ezCommand& command)
 
   /// \todo Clone action, instead of writing to JSON and then reading from it again
 
-  ezReflectionSerializer::WriteObjectToJSON(writer, command.GetDynamicRTTI(), &command, ezJSONWriter::WhitespaceMode::None);
+  ezReflectionSerializer::WriteObjectToBinary(writer, command.GetDynamicRTTI(), &command);
 
   const ezRTTI* pRtti;
-  ezCommand* pCommand = (ezCommand*)ezReflectionSerializer::ReadObjectFromJSON(reader, pRtti);
+  ezCommand* pCommand = (ezCommand*)ezReflectionSerializer::ReadObjectFromBinary(reader, pRtti);
 
   pCommand->m_pDocument = m_pDocument;
 

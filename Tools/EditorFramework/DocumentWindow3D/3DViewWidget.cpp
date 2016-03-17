@@ -96,6 +96,7 @@ void ezQtEngineViewWidget::SyncToEngine()
   cam.m_vPosition = m_pViewConfig->m_Camera.GetCenterPosition();
   m_pViewConfig->m_Camera.GetViewMatrix(cam.m_ViewMatrix);
   m_pViewConfig->m_Camera.GetProjectionMatrix((float)width() / (float)height(), cam.m_ProjMatrix);
+  cam.m_sRenderPipelineResource = m_pViewConfig->m_sRenderPipelineResource;
 
   cam.m_uiHWND = (ezUInt64)(winId());
   cam.m_uiWindowWidth = width();

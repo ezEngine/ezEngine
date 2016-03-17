@@ -24,6 +24,8 @@
 #include <RendererCore/Meshes/MeshRenderer.h>
 #include <RendererCore/Lights/LightGatheringRenderer.h>
 
+const char* s_szEditorPipelineID = "EditorRenderPipeline";
+
 ezSceneViewContext::ezSceneViewContext(ezSceneContext* pSceneContext) : ezEngineProcessViewContext(pSceneContext)
 {
   m_pSceneContext = pSceneContext;
@@ -119,6 +121,27 @@ void ezSceneViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 
   if (m_pView)
   {
+    ezRenderPipelineResourceHandle hRenderPipeline = m_pView->GetRenderPipelineResource();
+    ezResourceLock<ezRenderPipelineResource> pPipeline(hRenderPipeline, ezResourceAcquireMode::NoFallback);
+    if (pMsg->m_sRenderPipelineResource.IsEmpty() && pPipeline->GetResourceID() != s_szEditorPipelineID)
+    {
+      auto hPipe = CreateEditorRenderPipeline();
+      if (hPipe.IsValid())
+      {
+        ezLog::Info("Setting view's render pipeline to: '%s'", s_szEditorPipelineID);
+        m_pView->SetRenderPipelineResource(hPipe);
+      }
+    }
+    else if (!pMsg->m_sRenderPipelineResource.IsEmpty() && pPipeline->GetResourceID() != pMsg->m_sRenderPipelineResource)
+    {
+      auto hPipe = ezResourceManager::LoadResource<ezRenderPipelineResource>(pMsg->m_sRenderPipelineResource);
+      if (hPipe.IsValid())
+      {
+        ezLog::Info("Setting view's render pipeline to: '%s'", pMsg->m_sRenderPipelineResource.GetData());
+        m_pView->SetRenderPipelineResource(hPipe);
+      }
+    }
+
     m_pView->SetRenderPassProperty("EditorRenderPass", "RenderSelectionOverlay", m_pSceneContext->GetRenderSelectionOverlay());
     m_pView->SetRenderPassProperty("EditorRenderPass", "ViewRenderMode", pMsg->m_uiRenderMode);
     m_pView->SetRenderPassProperty("EditorPickingPass", "ViewRenderMode", pMsg->m_uiRenderMode);
@@ -243,7 +266,7 @@ void ezSceneViewContext::CreateView()
 
 ezRenderPipelineResourceHandle ezSceneViewContext::CreateEditorRenderPipeline()
 {
-  auto hPipe = ezResourceManager::GetExistingResource<ezRenderPipelineResource>("EditorRenderPipeline");
+  auto hPipe = ezResourceManager::GetExistingResource<ezRenderPipelineResource>(s_szEditorPipelineID);
   if (hPipe.IsValid())
   {
     return hPipe;
@@ -295,6 +318,6 @@ ezRenderPipelineResourceHandle ezSceneViewContext::CreateEditorRenderPipeline()
   ezRenderPipelineResourceDescriptor desc;
   ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(pRenderPipeline.Borrow(), desc);
 
-  return ezResourceManager::CreateResource<ezRenderPipelineResource>("EditorRenderPipeline", desc);
+  return ezResourceManager::CreateResource<ezRenderPipelineResource>(s_szEditorPipelineID, desc);
 
 }

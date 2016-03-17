@@ -48,7 +48,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezSceneViewConfig
 
   ezViewRenderMode::Enum m_RenderMode;
   ezSceneViewPerspective::Enum m_Perspective;
-
+  ezString m_sRenderPipelineResource;
   ezCamera m_Camera;
   ezSceneViewConfig* m_pLinkedViewConfig; // used to store which other view config this is linked to, for resetting values when switching views
 

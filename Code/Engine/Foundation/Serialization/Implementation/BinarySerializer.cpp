@@ -28,7 +28,7 @@ void ezAbstractGraphBinarySerializer::Write(ezStreamWriter& stream, const ezAbst
 
 void ezAbstractGraphBinarySerializer::Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph)
 {
-  ezUInt32 iNodes;
+  ezUInt32 iNodes = 0;
   stream >> iNodes;
   for (ezUInt32 i = 0; i < iNodes; i++)
   {
@@ -39,7 +39,7 @@ void ezAbstractGraphBinarySerializer::Read(ezStreamReader& stream, ezAbstractObj
     stream >> sType;
     stream >> sNodeName;
     ezAbstractObjectNode* pNode = pGraph->AddNode(guid, sType, sNodeName);
-    ezUInt32 iProps;
+    ezUInt32 iProps = 0;
     stream >> iProps;
     for (ezUInt32 i = 0; i < iProps; i++)
     {

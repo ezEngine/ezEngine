@@ -256,7 +256,7 @@ void ezQtButtonProxy::SetAction(ezAction* pAction)
     {
     case ezActionScope::Global:
       {
-       // Parent is null so the global actions don't get deleted.
+        // Parent is null so the global actions don't get deleted.
         m_pQtAction->setShortcutContext(Qt::ShortcutContext::ApplicationShortcut);
       }
       break;
@@ -323,13 +323,20 @@ void ezQtLRUMenuProxy::SlotMenuAboutToShow()
     {
       const auto& p = m_Entries[i];
 
-      auto pAction = m_pMenu->addAction(QString::fromUtf8(p.m_sDisplay.GetData()));
-      pAction->setData(i);
-      pAction->setIcon(p.m_Icon);
-      pAction->setCheckable(p.m_CheckState != ezLRUMenuAction::Item::CheckMark::NotCheckable);
-      pAction->setChecked(p.m_CheckState == ezLRUMenuAction::Item::CheckMark::Checked);
+      if (p.m_ItemFlags.IsSet(ezLRUMenuAction::Item::ItemFlags::Separator))
+      {
+        m_pMenu->addSeparator();
+      }
+      else
+      {
+        auto pAction = m_pMenu->addAction(QString::fromUtf8(p.m_sDisplay.GetData()));
+        pAction->setData(i);
+        pAction->setIcon(p.m_Icon);
+        pAction->setCheckable(p.m_CheckState != ezLRUMenuAction::Item::CheckMark::NotCheckable);
+        pAction->setChecked(p.m_CheckState == ezLRUMenuAction::Item::CheckMark::Checked);
 
-      EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(SlotMenuEntryTriggered())) != nullptr, "signal/slot connection failed");
+        EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(SlotMenuEntryTriggered())) != nullptr, "signal/slot connection failed");
+      }
     }
   }
 }

@@ -74,6 +74,12 @@ ezResourceLoadDesc ezRenderPipelineResource::UpdateContent(ezStreamReader* Strea
     m_Desc.m_SerializedPipeline.SetCount(uiSize);
     ezMemoryStreamStorage storage;
     Stream->ReadBytes(m_Desc.m_SerializedPipeline.GetData(), uiSize);
+
+    EZ_ASSERT_DEV(uiSize > 0, "RenderPipeline resourse contains no pipeline data!");
+  }
+  else
+  {
+    EZ_REPORT_FAILURE("The file '%s' is unsupported, only '.ezRenderPipelineBin' files can be loaded as ezRenderPipelineResource", sAbsFilePath.GetData());
   }
 
   return res;

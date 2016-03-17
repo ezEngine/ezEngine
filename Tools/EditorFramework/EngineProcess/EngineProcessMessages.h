@@ -141,6 +141,7 @@ public:
   float m_fFarPlane;
   float m_fFovOrDim;
   ezUInt8 m_uiRenderMode; ///< ezViewRenderMode::Enum
+  ezString m_sRenderPipelineResource;
 
   ezVec3 m_vPosition;
   ezVec3 m_vDirForwards;

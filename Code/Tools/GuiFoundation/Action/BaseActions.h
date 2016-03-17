@@ -55,6 +55,20 @@ public:
       Checked
     };
 
+    struct ItemFlags
+    {
+      typedef ezUInt8 StorageType;
+
+      enum Enum
+      {
+        Separator = EZ_BIT(0),
+      };
+      struct Bits
+      {
+        StorageType Separator : 1;
+      };
+    };
+
     Item()
     {
       m_CheckState = CheckMark::NotCheckable;
@@ -63,6 +77,7 @@ public:
     ezString m_sDisplay;
     QIcon m_Icon;
     CheckMark m_CheckState;
+    ezBitflags<ItemFlags> m_ItemFlags;
     ezVariant m_UserValue;
   };
 

@@ -2,6 +2,7 @@
 
 #include <RendererCore/Declarations.h>
 #include <Foundation/Threading/TaskSystem.h>
+#include <Foundation/Types/UniquePtr.h>
 
 class ezView;
 class ezRenderContext;
@@ -12,7 +13,6 @@ class EZ_RENDERERCORE_DLL ezRenderLoop
 public:
   static ezView* CreateView(const char* szName);
   static void DeleteView(ezView* pView);
-
   static void AddMainView(ezView* pView);
   static void AddMainViews(const ezArrayPtr<ezView*>& views);
   static void RemoveMainView(ezView* pView);
@@ -42,7 +42,9 @@ public:
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, RendererLoop);
+  friend class ezView;
 
+  static void DeleteRenderPipeline(ezUniquePtr<ezRenderPipeline>& pRenderPipeline);
   static void OnEngineShutdown();
 
   static ezUInt32 s_uiFrameCounter;
