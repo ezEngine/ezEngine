@@ -23,11 +23,11 @@
 #include <Foundation/Communication/Message.h>
 #include <Foundation/Communication/MessageQueue.h>
 
+#include <Foundation/Configuration/Plugin.h>
+#include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Configuration/StaticSubSystem.h>
 #include <Foundation/Configuration/SubSystem.h>
-#include <Foundation/Configuration/Plugin.h>
-#include <Foundation/Configuration/AbstractInterfaceRegistry.h>
 
 #include <Foundation/Containers/ArrayBase.h>
 #include <Foundation/Containers/Bitfield.h>

@@ -1,22 +1,19 @@
 #include <FmodPlugin/PCH.h>
 #include <FmodPlugin/PluginInterface.h>
 #include <FmodPlugin/FmodWorldModule.h>
-#include <Foundation/Configuration/AbstractInterfaceRegistry.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
+
+EZ_IMPLEMENT_SINGLETON(ezFmod);
 
 static ezFmod g_FmodSingleton;
 
 ezFmod::ezFmod()
+  : m_SingletonRegistrar(this)
 {
   m_bInitialized = false;
 
   m_pFmodSystem = nullptr;
   m_pLowLevelSystem = nullptr;
-}
-
-ezFmod* ezFmod::GetSingleton()
-{
-  return &g_FmodSingleton;
 }
 
 //std::string Common_MediaPath(const char* sz)
@@ -34,8 +31,6 @@ void ezFmod::Startup()
     return;
 
   m_bInitialized = true;
-
-  ezAbstractInterfaceRegistry::RegisterInterfaceImplementation("ezFmodInterface", this);
 
   EZ_FMOD_ASSERT(FMOD::Studio::System::create(&m_pFmodSystem));
 
@@ -77,8 +72,6 @@ void ezFmod::Shutdown()
 
   m_pFmodSystem->release();
   m_pFmodSystem = nullptr;
-
-  ezAbstractInterfaceRegistry::UnregisterInterfaceImplementation("ezFmodInterface", this);
 }
 
 void ezFmod::SetNumListeners(ezUInt8 uiNumListeners)

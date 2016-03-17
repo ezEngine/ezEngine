@@ -3,13 +3,14 @@
 #include <FmodPlugin/Basics.h>
 #include <FmodPlugin/PluginInterface.h>
 #include <Foundation/Configuration/Plugin.h>
+#include <Foundation/Configuration/Singleton.h>
 
 class EZ_FMODPLUGIN_DLL ezFmod : public ezFmodInterface
 {
+  EZ_DECLARE_SINGLETON_OF_INTERFACE(ezFmod, ezFmodInterface);
+
 public:
   ezFmod();
-
-  static ezFmod* GetSingleton();
 
   void Startup();
   void Shutdown();

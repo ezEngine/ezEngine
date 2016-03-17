@@ -1,11 +1,13 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/PluginInterface.h>
 #include <PhysXPlugin/PhysXWorldModule.h>
-#include <Foundation/Configuration/AbstractInterfaceRegistry.h>
+
+EZ_IMPLEMENT_SINGLETON(ezPhysX);
 
 static ezPhysX g_PhysXSingleton;
 
 ezPhysX::ezPhysX()
+  : m_SingletonRegistrar(this)
 {
   m_bInitialized = false;
 
@@ -37,8 +39,6 @@ void ezPhysX::Startup()
     return;
 
   m_bInitialized = true;
-
-  ezAbstractInterfaceRegistry::RegisterInterfaceImplementation("ezPhysXInterface", this);
 
   m_pAllocatorCallback = EZ_DEFAULT_NEW(ezPxAllocatorCallback);
 
@@ -100,8 +100,6 @@ void ezPhysX::Shutdown()
     m_pFoundation->release();
     m_pFoundation = nullptr;
   }
-
-  ezAbstractInterfaceRegistry::UnregisterInterfaceImplementation("ezPhysXInterface", this);
 
   m_pAllocatorCallback->VerifyAllocations();
   EZ_DEFAULT_DELETE(m_pAllocatorCallback);

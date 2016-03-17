@@ -87,3 +87,6 @@ void ezPlayerApplication::SetupLevel()
 
 
 EZ_CONSOLEAPP_ENTRY_POINT(ezPlayerApplication);
+
+
+

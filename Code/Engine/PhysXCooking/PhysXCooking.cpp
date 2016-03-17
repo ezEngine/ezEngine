@@ -1,8 +1,8 @@
 #include <PhysXCooking/PCH.h>
 #include <PhysXCooking/PhysXCooking.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/Configuration/AbstractInterfaceRegistry.h>
 #include <PxPhysicsAPI.h>
+#include <Foundation/Configuration/Singleton.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXCooking)
 
@@ -38,7 +38,7 @@ ezPhysXInterface* ezPhysXCooking::s_pPhysX = nullptr;
 
 void ezPhysXCooking::Startup()
 {
-  s_pPhysX = ezAbstractInterfaceRegistry::RetrieveImplementationForInterface<ezPhysXInterface>("ezPhysXInterface");
+  s_pPhysX = ezSingletonRegistry::GetSingletonInstance<ezPhysXInterface>("ezPhysXInterface");
 
   PxCookingParams params = PxCookingParams(s_pPhysX->GetPhysXAPI()->getTolerancesScale());
   params.targetPlatform = PxPlatform::ePC;

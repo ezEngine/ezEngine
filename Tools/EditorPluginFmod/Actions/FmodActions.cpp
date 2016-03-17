@@ -3,7 +3,6 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <EditorPluginFmod/Actions/FmodActions.h>
 #include <FmodPlugin/PluginInterface.h>
-#include <Foundation/Configuration/AbstractInterfaceRegistry.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodAction, 0, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();

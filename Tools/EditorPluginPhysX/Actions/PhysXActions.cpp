@@ -4,7 +4,6 @@
 #include <EditorPluginPhysX/Actions/PhysXActions.h>
 #include <EditorPluginPhysX/Dialogs/PhysXProjectSettingsDlg.moc.h>
 #include <PhysXPlugin/PluginInterface.h>
-#include <Foundation/Configuration/AbstractInterfaceRegistry.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXAction, 0, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();

@@ -9,6 +9,7 @@
 #include <GameUtils/Interfaces/PhysicsWorldModule.h>
 
 #include <PxPhysicsAPI.h>
+#include <Foundation/Configuration/Singleton.h>
 using namespace physx;
 
 class ezPxErrorCallback : public PxErrorCallback
@@ -36,10 +37,10 @@ public:
 
 class EZ_PHYSXPLUGIN_DLL ezPhysX : public ezPhysXInterface
 {
+  EZ_DECLARE_SINGLETON_OF_INTERFACE(ezPhysX, ezPhysXInterface);
+
 public:
   ezPhysX();
-
-  static EZ_FORCE_INLINE  ezPhysX* GetSingleton() { return (ezPhysX*)GetInstance(); }
 
   void Startup();
   void Shutdown();
