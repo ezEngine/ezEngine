@@ -38,8 +38,8 @@ void OnLoadPlugin(bool bReloading)
 
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
 
-  ezQtEditorApp::GetInstance()->RegisterPluginNameForSettings("ScenePlugin");
-  ezQtEditorApp::GetInstance()->AddRuntimePluginDependency("EditorPluginScene", "ezEnginePluginScene");
+  ezQtEditorApp::GetSingleton()->RegisterPluginNameForSettings("ScenePlugin");
+  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginScene", "ezEnginePluginScene");
 
   ezGizmoActions::RegisterActions();
   ezSelectionActions::RegisterActions();

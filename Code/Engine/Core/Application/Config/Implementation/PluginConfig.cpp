@@ -160,7 +160,7 @@ void ezApplicationPluginConfig::Load()
   }
 
   ezJSONReader json;
-  json.SetLogInterface(ezGlobalLog::GetInstance());
+  json.SetLogInterface(ezGlobalLog::GetOrCreateInstance());
   if (json.Parse(file).Failed())
   {
     ezLog::Error("Failed to parse plugins config file '%s'", sPath.GetData());

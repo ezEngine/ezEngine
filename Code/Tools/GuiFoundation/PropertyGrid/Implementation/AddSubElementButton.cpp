@@ -202,7 +202,7 @@ void ezAddSubElementButton::OnAction(const ezRTTI* pRtti)
   else
     history->FinishTransaction();
 
-  ezUIServices::GetInstance()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
+  ezUIServices::GetSingleton()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
 }
 
 

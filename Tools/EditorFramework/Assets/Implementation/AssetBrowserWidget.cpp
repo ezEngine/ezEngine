@@ -52,14 +52,14 @@ ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
 
   UpdateAssetTypes();
 
-  ezAssetCurator::GetInstance()->m_Events.AddEventHandler(ezMakeDelegate(&ezAssetBrowserWidget::AssetCuratorEventHandler, this));
+  ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezAssetBrowserWidget::AssetCuratorEventHandler, this));
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezAssetBrowserWidget::ProjectEventHandler, this));
 }
 
 ezAssetBrowserWidget::~ezAssetBrowserWidget()
 {
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetBrowserWidget::ProjectEventHandler, this));
-  ezAssetCurator::GetInstance()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetBrowserWidget::AssetCuratorEventHandler, this));
+  ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetBrowserWidget::AssetCuratorEventHandler, this));
 
   ListAssets->setModel(nullptr);
 }
@@ -179,7 +179,7 @@ void ezAssetBrowserWidget::on_ListAssets_doubleClicked(const QModelIndex& index)
   if (!sGuid.isEmpty())
   {
     ezUuid guid = ezConversionUtils::ConvertStringToUuid(sGuid.toUtf8().data());
-    ezAssetCurator::GetInstance()->UpdateAssetLastAccessTime(guid);
+    ezAssetCurator::GetSingleton()->UpdateAssetLastAccessTime(guid);
   }
 
   emit ItemChosen(sGuid, m_pModel->data(index, Qt::UserRole + 2).toString(), m_pModel->data(index, Qt::UserRole + 1).toString());
@@ -362,7 +362,7 @@ void ezAssetBrowserWidget::UpdateDirectoryTree()
     pNewParent->setExpanded(true);
   }
 
-  const ezSet<ezString>& Folders = ezAssetCurator::GetInstance()->GetAllAssetFolders();
+  const ezSet<ezString>& Folders = ezAssetCurator::GetSingleton()->GetAllAssetFolders();
 
   if (m_uiKnownAssetFolderCount == Folders.GetCount())
     return;
@@ -371,7 +371,7 @@ void ezAssetBrowserWidget::UpdateDirectoryTree()
 
   for (auto sDir : Folders)
   {
-    if (!ezQtEditorApp::GetInstance()->MakePathDataDirectoryRelative(sDir))
+    if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sDir))
       continue;
 
     BuildDirectoryTree(sDir, TreeFolderFilter->topLevelItem(0), "");
@@ -466,7 +466,7 @@ void ezAssetBrowserWidget::OnTreeOpenExplorer()
 
   ezString sPath = TreeFolderFilter->currentItem()->data(0, Qt::UserRole + 1).toString().toUtf8().data();
 
-  if (!ezQtEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sPath))
+  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
     return;
 
   ezUIServices::OpenInExplorer(sPath);
@@ -506,7 +506,7 @@ void ezAssetBrowserWidget::OnListOpenAssetDocument()
   if (!sGuid.isEmpty())
   {
     ezUuid guid = ezConversionUtils::ConvertStringToUuid(sGuid.toUtf8().data());
-    ezAssetCurator::GetInstance()->UpdateAssetLastAccessTime(guid);
+    ezAssetCurator::GetSingleton()->UpdateAssetLastAccessTime(guid);
   }
 
   emit ItemChosen(sGuid, m_pModel->data(index, Qt::UserRole + 2).toString(), m_pModel->data(index, Qt::UserRole + 1).toString());

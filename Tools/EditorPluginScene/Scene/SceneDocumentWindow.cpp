@@ -281,7 +281,7 @@ ezStatus ezQtSceneDocumentWindow::RequestExportScene(const char* szTargetFile, c
 
   GetEditorEngineConnection()->SendMessage(&msg);
 
-  if (ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezExportSceneMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60)).Failed())
+  if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezExportSceneMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60)).Failed())
   {
     ezLog::Error("Exporting scene to \"%s\" timed out.", msg.m_sOutputFile.GetData());
   }
@@ -393,7 +393,7 @@ void ezQtSceneDocumentWindow::InternalRedraw()
 void ezQtSceneDocumentWindow::SendRedrawMsg()
 {
   // do not try to redraw while the process is crashed, it is obviously futile
-  if (ezEditorEngineProcessConnection::GetInstance()->IsProcessCrashed())
+  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
   {
@@ -418,9 +418,9 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
 
   {
     ezSyncWithProcessMsgToEngine sm;
-    ezEditorEngineProcessConnection::GetInstance()->SendMessage(&sm);
+    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&sm);
 
-    ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::Seconds(2.0));
+    ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::Seconds(2.0));
   }
 }
 

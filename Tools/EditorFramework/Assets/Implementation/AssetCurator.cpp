@@ -17,12 +17,12 @@
 #include <Foundation/Serialization/RttiConverter.h>
 #include <CoreUtils/Other/Progress.h>
 
-ezAssetCurator* ezAssetCurator::s_pInstance = nullptr;
+EZ_IMPLEMENT_SINGLETON(ezAssetCurator);
 
 ezAssetCurator::ezAssetCurator()
+  : m_SingletonRegistrar(this)
 {
   m_bActive = false;
-  s_pInstance = this;
   m_pHashingTask = nullptr;
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezAssetCurator::DocumentManagerEventHandler, this));
 }
@@ -32,7 +32,6 @@ ezAssetCurator::~ezAssetCurator()
   Deinitialize();
 
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetCurator::DocumentManagerEventHandler, this));
-  s_pInstance = nullptr;
 }
 
 void ezAssetCurator::BuildFileExtensionSet(ezSet<ezString>& AllExtensions)
@@ -296,7 +295,7 @@ const ezAssetInfo* ezAssetCurator::FindAssetInfo(const char* szRelativePath) con
   if (sPath.IsAbsolutePath())
   {
     ezString sPath2 = sPath;
-    if (!ezQtEditorApp::GetInstance()->MakePathDataDirectoryRelative(sPath2))
+    if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sPath2))
       return nullptr;
 
     sPath = sPath2;
@@ -428,7 +427,7 @@ void ezAssetCurator::TransformAllAssets(const char* szPlatform /* = nullptr*/)
 
     range.BeginNextStep(ezPathUtils::GetFileNameAndExtension(it.Value()->m_sRelativePath).GetData());
 
-    ezDocument* pDoc = ezQtEditorApp::GetInstance()->OpenDocumentImmediate(it.Value()->m_sAbsolutePath, false, false);
+    ezDocument* pDoc = ezQtEditorApp::GetSingleton()->OpenDocumentImmediate(it.Value()->m_sAbsolutePath, false, false);
 
     if (pDoc == nullptr)
     {
@@ -447,7 +446,7 @@ void ezAssetCurator::TransformAllAssets(const char* szPlatform /* = nullptr*/)
 
   range.BeginNextStep("Writing Lookup Tables");
 
-  ezAssetCurator::GetInstance()->WriteAssetTables(szPlatform);
+  ezAssetCurator::GetSingleton()->WriteAssetTables(szPlatform);
 }
 
 ezResult ezAssetCurator::WriteAssetTables(const char* szPlatform /* = nullptr*/)
@@ -468,10 +467,10 @@ ezResult ezAssetCurator::WriteAssetTables(const char* szPlatform /* = nullptr*/)
 
   ezSimpleConfigMsgToEngine msg;
   msg.m_sWhatToDo = "ReloadAssetLUT";
-  ezEditorEngineProcessConnection::GetInstance()->SendMessage(&msg);
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 
   msg.m_sWhatToDo = "ReloadResources";
-  ezEditorEngineProcessConnection::GetInstance()->SendMessage(&msg);
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 
   return res;
 }
@@ -580,7 +579,7 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
 
   // update the paths
   {
-    const ezStringBuilder sDataDir = GetInstance()->FindDataDirectoryForAsset(szAbsFilePath);
+    const ezStringBuilder sDataDir = GetSingleton()->FindDataDirectoryForAsset(szAbsFilePath);
     ezStringBuilder sRelPath = szAbsFilePath;
     sRelPath.MakeRelativeTo(sDataDir);
 

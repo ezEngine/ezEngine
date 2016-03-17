@@ -105,7 +105,7 @@ void ezQtEditorApp::DocumentEventHandler(const ezDocumentEvent& e)
 
   case ezDocumentEvent::Type::DocumentSaved:
     {
-      ezAssetCurator::GetInstance()->NotifyOfPotentialAsset(e.m_pDocument->GetDocumentPath());
+      ezAssetCurator::GetSingleton()->NotifyOfPotentialAsset(e.m_pDocument->GetDocumentPath());
     }
     break;
   }
@@ -183,7 +183,7 @@ void ezQtEditorApp::DocumentManagerRequestHandler(ezDocumentManager::Request& r)
       }
       else
       {
-        if (!ezToolsProject::GetInstance()->IsDocumentInAllowedRoot(r.m_sDocumentPath))
+        if (!ezToolsProject::GetSingleton()->IsDocumentInAllowedRoot(r.m_sDocumentPath))
         {
           r.m_RequestStatus = ezStatus("The document is not part of the currently open project");
           return;

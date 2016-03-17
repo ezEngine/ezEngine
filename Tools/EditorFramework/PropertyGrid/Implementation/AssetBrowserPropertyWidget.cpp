@@ -44,8 +44,8 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget() : ezQtStandardPropertyWidget(
   m_pLayout->addWidget(m_pWidget);
   m_pLayout->addWidget(m_pButton);
 
-  EZ_VERIFY(connect(ezQtImageCache::GetInstance(), &ezQtImageCache::ImageLoaded, this, &ezQtAssetPropertyWidget::ThumbnailLoaded) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(ezQtImageCache::GetInstance(), &ezQtImageCache::ImageInvalidated, this, &ezQtAssetPropertyWidget::ThumbnailInvalidated) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageLoaded, this, &ezQtAssetPropertyWidget::ThumbnailLoaded) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageInvalidated, this, &ezQtAssetPropertyWidget::ThumbnailInvalidated) != nullptr, "signal/slot connection failed");
 }
 
 
@@ -55,7 +55,7 @@ bool ezQtAssetPropertyWidget::IsValidAssetType(const char* szAssetReference) con
 
   if (!ezConversionUtils::IsStringUuid(szAssetReference))
   {
-    pAsset = ezAssetCurator::GetInstance()->FindAssetInfo(szAssetReference);
+    pAsset = ezAssetCurator::GetSingleton()->FindAssetInfo(szAssetReference);
 
     if (!pAsset)
     {
@@ -69,7 +69,7 @@ bool ezQtAssetPropertyWidget::IsValidAssetType(const char* szAssetReference) con
   {
     const ezUuid AssetGuid = ezConversionUtils::ConvertStringToUuid(szAssetReference);
 
-    pAsset = ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid);
+    pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo(AssetGuid);
   }
 
   // invalid asset in general
@@ -147,7 +147,7 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
 
       m_AssetGuid = ezConversionUtils::ConvertStringToUuid(sText);
 
-      const auto* pAsset = ezAssetCurator::GetInstance()->GetAssetInfo(m_AssetGuid);
+      const auto* pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo(m_AssetGuid);
 
       if (pAsset)
       {
@@ -182,7 +182,7 @@ void ezQtAssetPropertyWidget::on_TextFinished_triggered()
 {
   ezStringBuilder sText = m_pWidget->text().toUtf8().data();
 
-  const auto* pAsset = ezAssetCurator::GetInstance()->FindAssetInfo(sText);
+  const auto* pAsset = ezAssetCurator::GetSingleton()->FindAssetInfo(sText);
 
   if (pAsset)
   {
@@ -235,12 +235,12 @@ void ezQtAssetPropertyWidget::on_customContextMenuRequested(const QPoint& pt)
 
 void ezQtAssetPropertyWidget::OnOpenAssetDocument()
 {
-  ezQtEditorApp::GetInstance()->OpenDocument(ezAssetCurator::GetInstance()->GetAssetInfo(m_AssetGuid)->m_sAbsolutePath);
+  ezQtEditorApp::GetSingleton()->OpenDocument(ezAssetCurator::GetSingleton()->GetAssetInfo(m_AssetGuid)->m_sAbsolutePath);
 }
 
 void ezQtAssetPropertyWidget::OnSelectInAssetBrowser()
 {
-  ezQtAssetBrowserPanel::GetInstance()->AssetBrowserWidget->SetSelectedAsset(ezAssetCurator::GetInstance()->GetAssetInfo(m_AssetGuid)->m_sRelativePath);
+  ezQtAssetBrowserPanel::GetSingleton()->AssetBrowserWidget->SetSelectedAsset(ezAssetCurator::GetSingleton()->GetAssetInfo(m_AssetGuid)->m_sRelativePath);
 }
 
 void ezQtAssetPropertyWidget::OnOpenExplorer()
@@ -249,12 +249,12 @@ void ezQtAssetPropertyWidget::OnOpenExplorer()
 
   if (m_AssetGuid.IsValid())
   {
-    sPath = ezAssetCurator::GetInstance()->GetAssetInfo(m_AssetGuid)->m_sAbsolutePath;
+    sPath = ezAssetCurator::GetSingleton()->GetAssetInfo(m_AssetGuid)->m_sAbsolutePath;
   }
   else
   {
     sPath = m_pWidget->text().toUtf8().data();
-    if (!ezQtEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sPath))
+    if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
       return;
   }
 
@@ -280,7 +280,7 @@ void ezQtAssetPropertyWidget::on_BrowseFile_clicked()
     {
       sFile = dlg.GetSelectedAssetPathAbsolute();
 
-      ezQtEditorApp::GetInstance()->MakePathDataDirectoryRelative(sFile);
+      ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sFile);
     }
   }
 

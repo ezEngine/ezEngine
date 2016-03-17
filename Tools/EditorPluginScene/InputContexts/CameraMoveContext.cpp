@@ -105,8 +105,8 @@ void ezCameraMoveContext::LoadState()
 {
   // TODO settings per document
 
-  ezQtEditorApp::GetInstance()->GetDocumentSettings(GetOwnerWindow()->GetDocument()->GetDocumentPath(), "ScenePlugin").RegisterValueInt("CameraSpeed", 15, ezSettingsFlags::User);
-  SetMoveSpeed(ezQtEditorApp::GetInstance()->GetDocumentSettings(GetOwnerWindow()->GetDocument()->GetDocumentPath(), "ScenePlugin").GetValueInt("CameraSpeed"));
+  ezQtEditorApp::GetSingleton()->GetDocumentSettings(GetOwnerWindow()->GetDocument()->GetDocumentPath(), "ScenePlugin").RegisterValueInt("CameraSpeed", 15, ezSettingsFlags::User);
+  SetMoveSpeed(ezQtEditorApp::GetSingleton()->GetDocumentSettings(GetOwnerWindow()->GetDocument()->GetDocumentPath(), "ScenePlugin").GetValueInt("CameraSpeed"));
 }
 
 void ezCameraMoveContext::UpdateContext()
@@ -596,7 +596,7 @@ void ezCameraMoveContext::SetMoveSpeed(ezInt32 iSpeed)
   m_pSettings->m_iMoveSpeed = ezMath::Clamp(iSpeed, 0, 30);
 
   if (GetOwnerWindow()->GetDocument() != nullptr)
-    ezQtEditorApp::GetInstance()->GetDocumentSettings(GetOwnerWindow()->GetDocument()->GetDocumentPath(), "ScenePlugin").SetValueInt("CameraSpeed", m_pSettings->m_iMoveSpeed);
+    ezQtEditorApp::GetSingleton()->GetDocumentSettings(GetOwnerWindow()->GetDocument()->GetDocumentPath(), "ScenePlugin").SetValueInt("CameraSpeed", m_pSettings->m_iMoveSpeed);
 }
 
 ezEditorInut ezCameraMoveContext::wheelEvent(QWheelEvent* e)

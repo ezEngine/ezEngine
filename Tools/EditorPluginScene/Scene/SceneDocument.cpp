@@ -44,7 +44,7 @@ void ezSceneDocument::InitializeAfterLoading()
   GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectStructureEventHandler, this));
   GetObjectManager()->m_ObjectEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectEventHandler, this));
 
-  ezEditorEngineProcessConnection::GetInstance()->s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
+  ezEditorEngineProcessConnection::GetSingleton()->s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
 }
 
 ezSceneDocument::~ezSceneDocument()
@@ -53,7 +53,7 @@ ezSceneDocument::~ezSceneDocument()
   GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectPropertyEventHandler, this));
   GetObjectManager()->m_ObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectEventHandler, this));
 
-  ezEditorEngineProcessConnection::GetInstance()->s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
+  ezEditorEngineProcessConnection::GetSingleton()->s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
 }
 
 void ezSceneDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph)
@@ -356,7 +356,7 @@ void ezSceneDocument::SetGameMode(GameMode mode)
   if (m_GameMode == GameMode::Off)
   {
     // reset the game world
-    ezEditorEngineProcessConnection::GetInstance()->SendDocumentOpenMessage(this, true);
+    ezEditorEngineProcessConnection::GetSingleton()->SendDocumentOpenMessage(this, true);
   }
 
   ezSceneDocumentEvent e;
@@ -458,7 +458,7 @@ const ezString& ezSceneDocument::GetCachedPrefabGraph(const ezUuid& AssetGuid)
 {
   if (!m_CachedPrefabGraphs.Contains(AssetGuid))
   {
-    auto* pAssetInfo = ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid);
+    auto* pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(AssetGuid);
 
     const auto& sPrefabFile = pAssetInfo->m_sAbsolutePath;
 

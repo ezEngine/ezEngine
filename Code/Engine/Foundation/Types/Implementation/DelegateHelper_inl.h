@@ -111,7 +111,7 @@ public:
   }
 
   /// \brief Returns the class instance that is used to call a member function pointer on.
-  EZ_FORCE_INLINE void* GetInstance() const
+  EZ_FORCE_INLINE void* GetClassInstance() const
   {
     return m_pInstance.m_Ptr;
   }

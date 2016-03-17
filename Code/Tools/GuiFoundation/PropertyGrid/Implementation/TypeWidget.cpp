@@ -133,7 +133,7 @@ void ezTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
       else
         m_pGrid->GetDocument()->GetCommandHistory()->FinishTransaction();
 
-      ezUIServices::GetInstance()->MessageBoxStatus(res, "Changing the property failed.");
+      ezUIServices::GetSingleton()->MessageBoxStatus(res, "Changing the property failed.");
 
     }
     break;

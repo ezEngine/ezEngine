@@ -71,7 +71,7 @@ void ezApplicationFileSystemConfig::Load()
   }
 
   ezJSONReader json;
-  json.SetLogInterface(ezGlobalLog::GetInstance());
+  json.SetLogInterface(ezGlobalLog::GetOrCreateInstance());
   if (json.Parse(file).Failed())
   {
     ezLog::Error("Failed to parse file-system config file '%s'", sPath.GetData());

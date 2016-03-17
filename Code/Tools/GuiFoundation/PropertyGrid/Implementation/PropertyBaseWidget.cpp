@@ -269,7 +269,7 @@ void ezQtPropertyPointerWidget::OnDeleteButtonClicked()
   else
     history->FinishTransaction();
 
-  ezUIServices::GetInstance()->MessageBoxStatus(res, "Removing sub-element from the property failed.");
+  ezUIServices::GetSingleton()->MessageBoxStatus(res, "Removing sub-element from the property failed.");
 }
 
 void ezQtPropertyPointerWidget::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
@@ -595,7 +595,7 @@ void ezQtPropertyContainerWidget::DeleteItems(ezHybridArray<Selection, 8>& items
   else
     history->FinishTransaction();
 
-  ezUIServices::GetInstance()->MessageBoxStatus(res, "Removing sub-element from the property failed.");
+  ezUIServices::GetSingleton()->MessageBoxStatus(res, "Removing sub-element from the property failed.");
 }
 
 void ezQtPropertyContainerWidget::MoveItems(ezHybridArray<Selection, 8>& items, const ezPropertyPath& path, ezInt32 iMove)
@@ -651,7 +651,7 @@ void ezQtPropertyContainerWidget::MoveItems(ezHybridArray<Selection, 8>& items, 
   else
     history->FinishTransaction();
 
-  ezUIServices::GetInstance()->MessageBoxStatus(res, "Moving sub-element failed.");
+  ezUIServices::GetSingleton()->MessageBoxStatus(res, "Moving sub-element failed.");
 }
 
 

@@ -107,7 +107,7 @@ ezString ezAssetDocument::DetermineFinalTargetPlatform(const char* szPlatform)
 {
   if (ezStringUtils::IsNullOrEmpty(szPlatform))
   {
-    return ezAssetCurator::GetInstance()->GetActivePlatform();
+    return ezAssetCurator::GetSingleton()->GetActivePlatform();
   }
 
   return szPlatform;
@@ -168,7 +168,7 @@ ezStatus ezAssetDocument::TransformAssetManually(const char* szPlatform /*= null
   if (flags.IsAnySet(ezAssetDocumentFlags::TransformRequiresWindow) && !HasWindowBeenRequested())
     return ezStatus("Asset cannot be transformed without an open document window");
 
-  const ezUInt64 uiHash = ezAssetCurator::GetInstance()->GetAssetDependencyHash(GetGuid());
+  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(GetGuid());
 
   if (uiHash == 0)
     return ezStatus("Computing the hash for this asset or any dependency failed");

@@ -53,7 +53,7 @@ void ezQtAssetLineEdit::dropEvent(QDropEvent* e)
     QString str = e->mimeData()->urls()[0].toLocalFile();
 
     ezString sPath = str.toUtf8().data();
-    if (ezQtEditorApp::GetInstance()->MakePathDataDirectoryRelative(sPath))
+    if (ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sPath))
     {
       setText(QString::fromUtf8(sPath.GetData()));
     }
@@ -69,7 +69,7 @@ void ezQtAssetLineEdit::dropEvent(QDropEvent* e)
     QString str = e->mimeData()->text();
 
     ezString sPath = str.toUtf8().data();
-    if (ezQtEditorApp::GetInstance()->MakePathDataDirectoryRelative(sPath))
+    if (ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sPath))
     {
       setText(QString::fromUtf8(sPath.GetData()));
     }

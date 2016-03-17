@@ -4,14 +4,12 @@
 #include <CoreUtils/Localization/TranslationLookup.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
-ezQtLogPanel* ezQtLogPanel::s_pInstance = nullptr;
+EZ_IMPLEMENT_SINGLETON(ezQtLogPanel);
 
-ezQtLogPanel::ezQtLogPanel() : ezQtApplicationPanel("Panel.Log")
+ezQtLogPanel::ezQtLogPanel() 
+  : ezQtApplicationPanel("Panel.Log")
+  , m_SingletonRegistrar(this)
 {
-  EZ_ASSERT_DEV(s_pInstance == nullptr, "Log panel is not a singleton anymore");
-
-  s_pInstance = this;
-
   setupUi(this);
 
   setWindowIcon(ezUIServices::GetCachedIconResource(":/EditorFramework/Icons/Log.png"));
@@ -41,8 +39,6 @@ ezQtLogPanel::~ezQtLogPanel()
     Settings.setValue("Splitter", splitter->saveState());
   }
   Settings.endGroup();
-
-  s_pInstance = nullptr;
 
   ezGlobalLog::RemoveLogWriter(ezMakeDelegate(&ezQtLogPanel::LogWriter, this));
   ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtLogPanel::EngineProcessMsgHandler, this));

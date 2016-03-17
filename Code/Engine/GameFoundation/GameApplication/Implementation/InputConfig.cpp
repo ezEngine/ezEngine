@@ -80,7 +80,7 @@ void ezGameAppInputConfig::WriteToJson(ezStandardJSONWriter& json) const
 void ezGameAppInputConfig::ReadFromJson(ezStreamReader& stream, ezHybridArray<ezGameAppInputConfig, 32>& out_actions)
 {
   ezJSONReader json;
-  json.SetLogInterface(ezGlobalLog::GetInstance());
+  json.SetLogInterface(ezGlobalLog::GetOrCreateInstance());
   if (json.Parse(stream).Failed())
     return;
 

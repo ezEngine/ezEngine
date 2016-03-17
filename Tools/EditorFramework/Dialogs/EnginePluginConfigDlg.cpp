@@ -14,7 +14,7 @@ EnginePluginConfigDlg::EnginePluginConfigDlg(QWidget* parent) : QDialog(parent)
 
 void EnginePluginConfigDlg::FillPluginList()
 {
-  ezPluginSet& Plugins = ezQtEditorApp::GetInstance()->GetEnginePlugins();
+  ezPluginSet& Plugins = ezQtEditorApp::GetSingleton()->GetEnginePlugins();
 
   ListPlugins->blockSignals(true);
 
@@ -48,7 +48,7 @@ void EnginePluginConfigDlg::FillPluginList()
 
 void EnginePluginConfigDlg::on_ButtonOK_clicked()
 {
-  ezPluginSet& Plugins = ezQtEditorApp::GetInstance()->GetEnginePlugins();
+  ezPluginSet& Plugins = ezQtEditorApp::GetSingleton()->GetEnginePlugins();
 
   bool bChange = false;
 
@@ -69,7 +69,7 @@ void EnginePluginConfigDlg::on_ButtonOK_clicked()
 
   if (bChange)
   {
-    ezQtEditorApp::GetInstance()->StoreEnginePluginsToBeLoaded();
+    ezQtEditorApp::GetSingleton()->StoreEnginePluginsToBeLoaded();
   }
 
   accept();

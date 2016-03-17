@@ -22,11 +22,11 @@ static void ToolsProjectEventHandler(const ezToolsProject::Event& e);
 
 void OnLoadPlugin(bool bReloading)
 {
-  ezQtEditorApp::GetInstance()->AddRuntimePluginDependency("EditorPluginPhysX", "ezPhysXPlugin");
+  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginPhysX", "ezPhysXPlugin");
 
-  ezQtEditorApp::GetInstance()->RegisterPluginNameForSettings("EditorPluginPhysX");
+  ezQtEditorApp::GetSingleton()->RegisterPluginNameForSettings("EditorPluginPhysX");
   ezTranslatorFromFiles::AddTranslationFile("PhysXPlugin.txt");
-  ezToolsProject::GetInstance()->s_Events.AddEventHandler(ToolsProjectEventHandler);
+  ezToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
 
   // Mesh Asset
   {
@@ -66,7 +66,7 @@ void OnLoadPlugin(bool bReloading)
 void OnUnloadPlugin(bool bReloading)
 {
   ezPhysXActions::UnregisterActions();
-  ezToolsProject::GetInstance()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
+  ezToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
 }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin, "ezEditorPluginScene", "ezPhysXPlugin");

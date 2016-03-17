@@ -16,6 +16,7 @@
 #include <Core/Application/Config/PluginConfig.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <EditorFramework/EditorApp/Configuration/Plugins.h>
+#include <Foundation/Configuration/Singleton.h>
 
 class QMainWindow;
 class QWidget;
@@ -27,13 +28,11 @@ class EZ_EDITORFRAMEWORK_DLL ezQtEditorApp : public QObject
 {
   Q_OBJECT
 
-  static ezQtEditorApp* s_pInstance;
+  EZ_DECLARE_SINGLETON(ezQtEditorApp);
 
 public:
   ezQtEditorApp();
   ~ezQtEditorApp();
-
-  static ezQtEditorApp* GetInstance() { return s_pInstance; }
 
   const ezString& GetApplicationUserName() { return s_sUserName; }
 

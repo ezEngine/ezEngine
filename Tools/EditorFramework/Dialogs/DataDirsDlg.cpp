@@ -11,7 +11,7 @@ DataDirsDlg::DataDirsDlg(QWidget* parent) : QDialog(parent)
 {
   setupUi(this);
 
-  m_Config = ezQtEditorApp::GetInstance()->GetFileSystemConfig();
+  m_Config = ezQtEditorApp::GetSingleton()->GetFileSystemConfig();
   m_iSelection = -1;
   FillList();
 }
@@ -61,7 +61,7 @@ void DataDirsDlg::on_ButtonOK_clicked()
     return;
   }
 
-  ezQtEditorApp::GetInstance()->SetFileSystemConfig(m_Config);
+  ezQtEditorApp::GetSingleton()->SetFileSystemConfig(m_Config);
   accept();
 }
 
@@ -91,7 +91,7 @@ void DataDirsDlg::on_ButtonAdd_clicked()
   static QString sPreviousFolder;
   if (sPreviousFolder.isEmpty())
   {
-    sPreviousFolder = QString::fromUtf8(ezToolsProject::GetInstance()->GetProjectFile().GetData());
+    sPreviousFolder = QString::fromUtf8(ezToolsProject::GetSingleton()->GetProjectFile().GetData());
   }
 
   QString sFolder = QFileDialog::getExistingDirectory(this, QLatin1String("Select Directory"), sPreviousFolder, QFileDialog::Option::ShowDirsOnly);
@@ -101,7 +101,7 @@ void DataDirsDlg::on_ButtonAdd_clicked()
 
   sPreviousFolder = sFolder;
 
-  ezStringBuilder sProjectPath = ezToolsProject::GetInstance()->GetProjectFile();
+  ezStringBuilder sProjectPath = ezToolsProject::GetSingleton()->GetProjectFile();
   sProjectPath.PathParentDirectory();
 
   ezStringBuilder sRelPath = sFolder.toUtf8().data();

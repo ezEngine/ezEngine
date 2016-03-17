@@ -89,7 +89,7 @@ void ezQtFilePropertyWidget::on_customContextMenuRequested(const QPoint& pt)
 void ezQtFilePropertyWidget::OnOpenExplorer()
 {
   ezString sPath = m_pWidget->text().toUtf8().data();
-  if (!ezQtEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sPath))
+  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
     return;
 
   ezUIServices::OpenInExplorer(sPath);
@@ -106,7 +106,7 @@ void ezQtFilePropertyWidget::on_BrowseFile_clicked()
 
   if (!sFile.IsEmpty())
   {
-    ezQtEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sFile);
+    ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sFile);
 
     ezStringBuilder st = sFile;
     st = st.GetFileDirectory();
@@ -115,7 +115,7 @@ void ezQtFilePropertyWidget::on_BrowseFile_clicked()
   }
 
   if (sStartDir.IsEmpty())
-    sStartDir = ezToolsProject::GetInstance()->GetProjectFile();
+    sStartDir = ezToolsProject::GetSingleton()->GetProjectFile();
 
   QString sResult = QFileDialog::getOpenFileName(this, pFileAttribute->GetDialogTitle(), sStartDir.GetData(), pFileAttribute->GetTypeFilter());
 
@@ -125,9 +125,9 @@ void ezQtFilePropertyWidget::on_BrowseFile_clicked()
   sFile = sResult.toUtf8().data();
   sStartDir = sFile;
 
-  if (!ezQtEditorApp::GetInstance()->MakePathDataDirectoryRelative(sFile))
+  if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sFile))
   {
-    ezUIServices::GetInstance()->MessageBoxInformation("The selected file is not under any data directory.\nPlease select another file or copy it into one of the project's data directories.");
+    ezUIServices::GetSingleton()->MessageBoxInformation("The selected file is not under any data directory.\nPlease select another file or copy it into one of the project's data directories.");
     return;
   }
 

@@ -2,14 +2,13 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <QTimer>
 
-ezQtEditorApp* ezQtEditorApp::s_pInstance = nullptr;
+EZ_IMPLEMENT_SINGLETON(ezQtEditorApp);
 
-ezQtEditorApp::ezQtEditorApp() :
-  s_RecentProjects(5),
-  s_RecentDocuments(50)
+ezQtEditorApp::ezQtEditorApp()
+  : m_SingletonRegistrar(this)
+  , s_RecentProjects(5)
+  , s_RecentDocuments(50)
 {
-  s_pInstance = this;
-
   m_pProgressbar = nullptr;
   m_pQtProgressbar = nullptr;
 
@@ -25,7 +24,6 @@ ezQtEditorApp::~ezQtEditorApp()
 {
   delete m_pTimer;
   m_pTimer = nullptr;
-  s_pInstance = nullptr;
 }
 
 ezInt32 ezQtEditorApp::RunEditor()
@@ -43,8 +41,8 @@ ezInt32 ezQtEditorApp::RunEditor()
 
 void ezQtEditorApp::SlotTimedUpdate()
 {
-  if (ezEditorEngineProcessConnection::GetInstance())
-    ezEditorEngineProcessConnection::GetInstance()->Update();
+  if (ezEditorEngineProcessConnection::GetSingleton())
+    ezEditorEngineProcessConnection::GetSingleton()->Update();
 
   m_pTimer->start(1);
 }

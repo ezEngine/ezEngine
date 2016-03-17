@@ -21,7 +21,7 @@ void UpdateInputDynamicEnumValues()
 {
   ezHybridArray<ezGameAppInputConfig, 32> Actions;
 
-  ezStringBuilder sPath = ezToolsProject::GetInstance()->GetProjectFile();
+  ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectFile();
   sPath.PathParentDirectory();
   sPath.AppendPath("InputConfig.json");
 
@@ -46,7 +46,7 @@ InputConfigDlg::InputConfigDlg(QWidget* parent) : QDialog(parent)
 
   LoadActions();
 
-  ezQtEditorApp::GetInstance()->GetKnownInputSlots(m_AllInputSlots);
+  ezQtEditorApp::GetSingleton()->GetKnownInputSlots(m_AllInputSlots);
 
   // make sure existing slots are always in the list
   // to prevent losing data when some plugin is not loaded
@@ -79,14 +79,14 @@ void InputConfigDlg::on_ButtonNewInputSet_clicked()
 
   if (m_InputSetToItem.Find(sName).IsValid())
   {
-    ezUIServices::GetInstance()->MessageBoxInformation("An Input Set with this name already exists.");
+    ezUIServices::GetSingleton()->MessageBoxInformation("An Input Set with this name already exists.");
   }
   else
   {
     auto* pItem = new QTreeWidgetItem(TreeActions);
     pItem->setText(0, sResult);
     pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
-    pItem->setIcon(0, ezUIServices::GetInstance()->GetCachedIconResource(":/EditorFramework/Icons/Input16.png"));
+    pItem->setIcon(0, ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Input16.png"));
 
     m_InputSetToItem[sName] = pItem;
   }
@@ -128,14 +128,14 @@ void InputConfigDlg::on_ButtonRemove_clicked()
 
   if (TreeActions->indexOfTopLevelItem(pItem) >= 0)
   {
-    if (ezUIServices::GetInstance()->MessageBoxQuestion("Do you really want to remove the entire Input Set?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+    if (ezUIServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove the entire Input Set?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
       return;
 
     m_InputSetToItem.Remove(pItem->text(0).toUtf8().data());
   }
   else
   {
-    if (ezUIServices::GetInstance()->MessageBoxQuestion("Do you really want to remove this action?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+    if (ezUIServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove this action?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
       return;
   }
 
@@ -174,7 +174,7 @@ void InputConfigDlg::LoadActions()
 {
   m_Actions.Clear();
 
-  ezStringBuilder sPath = ezToolsProject::GetInstance()->GetProjectFile();
+  ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectFile();
   sPath.PathParentDirectory();
   sPath.AppendPath("InputConfig.json");
 
@@ -187,7 +187,7 @@ void InputConfigDlg::LoadActions()
 
 void InputConfigDlg::SaveActions()
 {
-  ezStringBuilder sPath = ezToolsProject::GetInstance()->GetProjectFile();
+  ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectFile();
   sPath.PathParentDirectory();
   sPath.AppendPath("InputConfig.json");
 
@@ -218,7 +218,7 @@ void InputConfigDlg::FillList()
     auto* pItem = new QTreeWidgetItem(TreeActions);
     pItem->setText(0, it.Key().GetData());
     pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
-    pItem->setIcon(0, ezUIServices::GetInstance()->GetCachedIconResource(":/EditorFramework/Icons/Input16.png"));
+    pItem->setIcon(0, ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Input16.png"));
 
     m_InputSetToItem[it.Key()] = pItem;
   }

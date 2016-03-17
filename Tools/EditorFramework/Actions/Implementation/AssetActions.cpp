@@ -100,26 +100,26 @@ void ezAssetAction::Execute(const ezVariant& value)
 
       pDoc->TransformAsset();
 
-      ezAssetCurator::GetInstance()->WriteAssetTables();
+      ezAssetCurator::GetSingleton()->WriteAssetTables();
     }
     break;
 
   case ezAssetAction::ButtonType::TransformAllAssets:
     {
-      ezAssetCurator::GetInstance()->TransformAllAssets();
+      ezAssetCurator::GetSingleton()->TransformAllAssets();
     }
     break;
 
   case ezAssetAction::ButtonType::CheckFileSystem:
     {
-      ezAssetCurator::GetInstance()->CheckFileSystem();
-      ezAssetCurator::GetInstance()->WriteAssetTables();
+      ezAssetCurator::GetSingleton()->CheckFileSystem();
+      ezAssetCurator::GetSingleton()->WriteAssetTables();
     }
     break;
 
   case ezAssetAction::ButtonType::WriteLookupTable:
     {
-      ezAssetCurator::GetInstance()->WriteAssetTables();
+      ezAssetCurator::GetSingleton()->WriteAssetTables();
     }
     break;
 

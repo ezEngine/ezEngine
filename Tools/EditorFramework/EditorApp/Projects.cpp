@@ -34,7 +34,7 @@ void ezQtEditorApp::SlotQueuedOpenProject(QString sProject)
 
 void ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 {
-  if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetInstance()->GetProjectFile() == szFile)
+  if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetSingleton()->GetProjectFile() == szFile)
   {
     ezUIServices::MessageBoxInformation("The selected project is already open");
     return;
@@ -78,30 +78,30 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
       UpdateInputDynamicEnumValues();
 
       // tell the engine process which file system and plugin configuration to use
-      ezEditorEngineProcessConnection::GetInstance()->SetFileSystemConfig(m_FileSystemConfig);
-      ezEditorEngineProcessConnection::GetInstance()->SetPluginConfig(m_EnginePluginConfig);
+      ezEditorEngineProcessConnection::GetSingleton()->SetFileSystemConfig(m_FileSystemConfig);
+      ezEditorEngineProcessConnection::GetSingleton()->SetPluginConfig(m_EnginePluginConfig);
 
-      if (ezEditorEngineProcessConnection::GetInstance()->RestartProcess().Failed())
+      if (ezEditorEngineProcessConnection::GetSingleton()->RestartProcess().Failed())
       {
         ezLog::Error("Failed to start the engine process. Project loading incomplete.");
       }
 
       m_AssetCurator.Initialize(m_FileSystemConfig);
 
-      m_sLastDocumentFolder = ezToolsProject::GetInstance()->GetProjectFile();
-      m_sLastProjectFolder = ezToolsProject::GetInstance()->GetProjectFile();
+      m_sLastDocumentFolder = ezToolsProject::GetSingleton()->GetProjectFile();
+      m_sLastProjectFolder = ezToolsProject::GetSingleton()->GetProjectFile();
     }
     // fall through
 
   case ezToolsProject::Event::Type::ProjectClosing:
     {
-      s_RecentProjects.Insert(ezToolsProject::GetInstance()->GetProjectFile());
+      s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile());
       SaveSettings();
     }
     break;
   case ezToolsProject::Event::Type::ProjectClosed:
     {
-      ezEditorEngineProcessConnection::GetInstance()->ShutdownProcess();
+      ezEditorEngineProcessConnection::GetSingleton()->ShutdownProcess();
 
       m_AssetCurator.Deinitialize();
 

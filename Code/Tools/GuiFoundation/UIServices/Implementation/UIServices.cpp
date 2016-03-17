@@ -7,19 +7,17 @@
 #include <QImage>
 #include <QPixmap>
 
+EZ_IMPLEMENT_SINGLETON(ezUIServices);
+
 ezEvent<const ezUIServices::Event&> ezUIServices::s_Events;
 ezMap<ezString, QIcon> ezUIServices::s_IconsCache;
 ezMap<ezString, QImage> ezUIServices::s_ImagesCache;
 ezMap<ezString, QPixmap> ezUIServices::s_PixmapsCache;
 
-
-ezUIServices* ezUIServices::GetInstance()
-{
-  static ezUIServices instance;
-  return &instance;
-}
+static ezUIServices g_instance;
 
 ezUIServices::ezUIServices()
+  : m_SingletonRegistrar(this)
 {
   m_pColorDlg = nullptr;
 }

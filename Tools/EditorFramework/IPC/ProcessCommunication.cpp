@@ -99,24 +99,24 @@ ezResult ezProcessCommunication::ConnectToHostProcess()
 
   m_uiProcessID = 0x0A0A0A0A;
 
-  if (ezStringUtils::IsNullOrEmpty(ezCommandLineUtils::GetInstance()->GetStringOption("-IPC")))
+  if (ezStringUtils::IsNullOrEmpty(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC")))
   {
     EZ_REPORT_FAILURE("Command Line does not contain -IPC parameter");
     return EZ_FAILURE;
   }
 
-  if (ezStringUtils::IsNullOrEmpty(ezCommandLineUtils::GetInstance()->GetStringOption("-PID")))
+  if (ezStringUtils::IsNullOrEmpty(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID")))
   {
     EZ_REPORT_FAILURE("Command Line does not contain -PID parameter");
     return EZ_FAILURE;
   }
 
   m_iHostPID = 0;
-  ezConversionUtils::StringToInt64(ezCommandLineUtils::GetInstance()->GetStringOption("-PID"), m_iHostPID);
+  ezConversionUtils::StringToInt64(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID"), m_iHostPID);
 
   ezLog::Debug("Host Process ID: %lli", m_iHostPID);
 
-  m_pSharedMemory = new QSharedMemory(QLatin1String(ezCommandLineUtils::GetInstance()->GetStringOption("-IPC")));
+  m_pSharedMemory = new QSharedMemory(QLatin1String(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC")));
   if (!m_pSharedMemory->attach())
   {
     delete m_pSharedMemory;

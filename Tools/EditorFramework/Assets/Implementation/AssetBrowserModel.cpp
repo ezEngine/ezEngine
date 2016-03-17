@@ -18,19 +18,19 @@
 ezAssetBrowserModel::ezAssetBrowserModel(QObject* pParent)
   : QAbstractItemModel(pParent)
 {
-  ezAssetCurator::GetInstance()->m_Events.AddEventHandler(ezMakeDelegate(&ezAssetBrowserModel::AssetCuratorEventHandler, this));
+  ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezAssetBrowserModel::AssetCuratorEventHandler, this));
 
   resetModel();
   SetIconMode(true);
   m_bShowItemsInSubFolders = true;
 
-  EZ_VERIFY(connect(ezQtImageCache::GetInstance(), SIGNAL(ImageLoaded(QString, QModelIndex, QVariant, QVariant)), this, SLOT(ThumbnailLoaded(QString, QModelIndex, QVariant, QVariant))) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(ezQtImageCache::GetInstance(), SIGNAL(ImageInvalidated(QString, ezUInt32)), this, SLOT(ThumbnailInvalidated(QString, ezUInt32))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), SIGNAL(ImageLoaded(QString, QModelIndex, QVariant, QVariant)), this, SLOT(ThumbnailLoaded(QString, QModelIndex, QVariant, QVariant))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), SIGNAL(ImageInvalidated(QString, ezUInt32)), this, SLOT(ThumbnailInvalidated(QString, ezUInt32))) != nullptr, "signal/slot connection failed");
 }
 
 ezAssetBrowserModel::~ezAssetBrowserModel()
 {
-  ezAssetCurator::GetInstance()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetBrowserModel::AssetCuratorEventHandler, this));
+  ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetBrowserModel::AssetCuratorEventHandler, this));
 }
 
 void ezAssetBrowserModel::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
@@ -113,7 +113,7 @@ void ezAssetBrowserModel::resetModel()
 {
   beginResetModel();
 
-  const auto& AllAssets = ezAssetCurator::GetInstance()->GetKnownAssets();
+  const auto& AllAssets = ezAssetCurator::GetSingleton()->GetKnownAssets();
 
   m_AssetsToDisplay.Clear();
   m_AssetsToDisplay.Reserve(AllAssets.GetCount());
@@ -220,7 +220,7 @@ QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
   
   const auto& asset = m_AssetsToDisplay[iRow];
   const ezUuid AssetGuid = asset.m_Guid;
-  const ezAssetInfo* pAssetInfo = ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid);
+  const ezAssetInfo* pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(AssetGuid);
 
   EZ_ASSERT_DEV(pAssetInfo != nullptr, "Invalid Pointer! This can happen when an asset has been overwritten by a new file with a new asset GUID.");
 

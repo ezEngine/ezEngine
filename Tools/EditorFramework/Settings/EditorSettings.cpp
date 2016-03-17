@@ -21,7 +21,7 @@ ezSettings& ezQtEditorApp::GetProjectSettings(const char* szPlugin)
 {
   EZ_ASSERT_DEV(ezToolsProject::IsProjectOpen(), "No project is open");
 
-  return GetSettings(s_ProjectSettings, szPlugin, ezQtEditorApp::GetDocumentDataFolder(ezToolsProject::GetInstance()->GetProjectFile()));
+  return GetSettings(s_ProjectSettings, szPlugin, ezQtEditorApp::GetDocumentDataFolder(ezToolsProject::GetSingleton()->GetProjectFile()));
 }
 
 ezSettings& ezQtEditorApp::GetDocumentSettings(const ezDocument* pDocument, const char* szPlugin)
@@ -183,7 +183,7 @@ void ezQtEditorApp::SaveSettings()
     m_FileSystemConfig.Save();
     m_EnginePluginConfig.Save();
 
-    StoreSettings(s_ProjectSettings, GetDocumentDataFolder(ezToolsProject::GetInstance()->GetProjectFile()));
+    StoreSettings(s_ProjectSettings, GetDocumentDataFolder(ezToolsProject::GetSingleton()->GetProjectFile()));
   }
 }
 

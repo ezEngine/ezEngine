@@ -61,7 +61,7 @@ void ezEngineProcessGameApplication::DisableErrorReport()
 
 void ezEngineProcessGameApplication::WaitForDebugger()
 {
-  if (ezCommandLineUtils::GetInstance()->GetBoolOption("-debug"))
+  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-debug"))
   {
     while (!IsDebuggerPresent())
     {

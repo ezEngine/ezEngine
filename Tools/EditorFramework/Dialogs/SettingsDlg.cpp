@@ -65,7 +65,7 @@ void SettingsDlg::UpdateSettings()
       for (auto doc : dm->GetAllDocuments())
       {
         ezString sRel;
-        if (!ezToolsProject::GetInstance()->IsDocumentInAllowedRoot(doc->GetDocumentPath(), &sRel))
+        if (!ezToolsProject::GetSingleton()->IsDocumentInAllowedRoot(doc->GetDocumentPath(), &sRel))
           continue;
 
         ComboSettingsDomain->addItem(sRel.GetData(), QString(doc->GetDocumentPath()));
@@ -84,17 +84,17 @@ void SettingsDlg::UpdateSettings()
 
   m_pSettingsGrid->BeginProperties();
 
-  for (const ezString& sName : ezQtEditorApp::GetInstance()->GetRegisteredPluginNamesForSettings())
+  for (const ezString& sName : ezQtEditorApp::GetSingleton()->GetRegisteredPluginNamesForSettings())
   {
     ezSettings* s;
 
     if (m_sSelectedSettingDomain == "<Application>")
-      s = &ezQtEditorApp::GetInstance()->GetEditorSettings(sName);
+      s = &ezQtEditorApp::GetSingleton()->GetEditorSettings(sName);
     else
       if (m_sSelectedSettingDomain == "<Project>")
-        s = &ezQtEditorApp::GetInstance()->GetProjectSettings(sName);
+        s = &ezQtEditorApp::GetSingleton()->GetProjectSettings(sName);
       else
-        s = &ezQtEditorApp::GetInstance()->GetDocumentSettings(m_sSelectedSettingDomain, sName);
+        s = &ezQtEditorApp::GetSingleton()->GetDocumentSettings(m_sSelectedSettingDomain, sName);
 
     bool bAddedGroupName = false;
 

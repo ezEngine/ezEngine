@@ -21,10 +21,10 @@ public:
   inline ezImage();
 
   /// \brief Convenience function to load the image from the given file.
-  ezResult LoadFrom(const char* szFileName, ezLogInterface* pLog = ezGlobalLog::GetInstance());
+  ezResult LoadFrom(const char* szFileName, ezLogInterface* pLog = ezGlobalLog::GetOrCreateInstance());
 
   /// \brief Convenience function to save the image to the given file.
-  ezResult SaveTo(const char* szFileName, ezLogInterface* pLog = ezGlobalLog::GetInstance());
+  ezResult SaveTo(const char* szFileName, ezLogInterface* pLog = ezGlobalLog::GetOrCreateInstance());
 
   /// \brief Returns the number of blocks contained in a given mip level in the horizontal direction.
   ///

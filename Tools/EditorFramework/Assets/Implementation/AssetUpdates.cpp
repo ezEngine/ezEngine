@@ -15,7 +15,7 @@ void ezHashingTask::Execute()
 {
   m_Result = EZ_FAILURE;
 
-  if (!ezAssetCurator::GetInstance()->GetNextFileToHash(m_sFileToHash, m_FileStatus))
+  if (!ezAssetCurator::GetSingleton()->GetNextFileToHash(m_sFileToHash, m_FileStatus))
   {
     m_Result = EZ_SUCCESS;
     return;
@@ -234,7 +234,7 @@ ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
     }
     else
     {
-      if (!ezQtEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sPath))
+      if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
       {
         ezLog::Error("Failed to make path absolute '%s'", sPath.GetData());
         return 0;

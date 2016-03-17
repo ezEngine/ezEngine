@@ -292,7 +292,7 @@ bool ezQtDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction a
     else
       pHistory->FinishTransaction();
 
-    ezUIServices::GetInstance()->MessageBoxStatus(res, "Node move failed.");
+    ezUIServices::GetSingleton()->MessageBoxStatus(res, "Node move failed.");
     return true;
   }
 

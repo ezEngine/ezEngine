@@ -67,7 +67,7 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
     {
       ezUuid guid = ezConversionUtils::ConvertStringToUuid(sImageFile);
 
-      sImageFile = ezAssetCurator::GetInstance()->GetAssetInfo(guid)->m_sAbsolutePath;
+      sImageFile = ezAssetCurator::GetSingleton()->GetAssetInfo(guid)->m_sAbsolutePath;
     }
 
 
@@ -79,7 +79,7 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
       if (!sImageFile.IsAbsolutePath())
       {
-        ezQtEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sAbsPath);
+        ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsPath);
       }
 
       bValidImage = image.LoadFrom(sAbsPath).Succeeded();

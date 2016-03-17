@@ -9,6 +9,7 @@
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Core/Application/Config/FileSystemConfig.h>
+#include <Foundation/Configuration/Singleton.h>
 
 class ezHashingTask;
 class ezTask;
@@ -55,10 +56,11 @@ struct ezAssetCuratorEvent
 
 class EZ_EDITORFRAMEWORK_DLL ezAssetCurator
 {
+  EZ_DECLARE_SINGLETON(ezAssetCurator);
+
 public:
   ezAssetCurator();
   ~ezAssetCurator();
-  static ezAssetCurator* GetInstance() { return s_pInstance; }
 
   void CheckFileSystem();
 
@@ -176,8 +178,6 @@ private:
   mutable ezMutex m_HashingMutex;
   ezHashingTask* m_pHashingTask;
 
-private:
-  static ezAssetCurator* s_pInstance;
 };
 
 class ezHashingTask : public ezTask

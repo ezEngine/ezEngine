@@ -19,9 +19,13 @@ ezUInt32 ezQtImageCache::s_uiCurImageID = 1;
 
 static ezQtImageCache g_ImageCacheSingleton;
 
-ezQtImageCache* ezQtImageCache::GetInstance()
+EZ_IMPLEMENT_SINGLETON(ezQtImageCache);
+
+
+ezQtImageCache::ezQtImageCache()
+  : m_SingletonRegistrar(this)
 {
-  return &g_ImageCacheSingleton;
+
 }
 
 void ezQtImageCache::SetFallbackImages(const char* szLoading, const char* szUnavailable)

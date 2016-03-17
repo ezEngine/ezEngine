@@ -259,10 +259,10 @@ void ezSelectionAction::OpenPrefabDocument()
   const ezUuid PrefabAsset = pMeta->m_CreateFromPrefab;
   pScene->m_ObjectMetaData.EndReadMetaData();
 
-  auto pAsset = ezAssetCurator::GetInstance()->GetAssetInfo(PrefabAsset);
+  auto pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo(PrefabAsset);
   if (pAsset)
   {
-    ezQtEditorApp::GetInstance()->OpenDocument(pAsset->m_sAbsolutePath);
+    ezQtEditorApp::GetSingleton()->OpenDocument(pAsset->m_sAbsolutePath);
   }
   else
   {
@@ -272,7 +272,7 @@ void ezSelectionAction::OpenPrefabDocument()
 
 void ezSelectionAction::CreatePrefab()
 {
-  static ezString sSearchDir = ezToolsProject::GetInstance()->GetProjectFile();
+  static ezString sSearchDir = ezToolsProject::GetSingleton()->GetProjectFile();
 
   ezStringBuilder sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Prefab"), QString::fromUtf8(sSearchDir.GetData()), QString::fromUtf8("*.ezPrefab")).toUtf8().data();
 

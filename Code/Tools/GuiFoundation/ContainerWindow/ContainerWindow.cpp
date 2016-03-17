@@ -60,7 +60,7 @@ void ezContainerWindow::UpdateWindowTitle()
 
   if (ezToolsProject::IsProjectOpen())
   {
-    ezStringBuilder sTemp = ezToolsProject::GetInstance()->GetProjectFile();
+    ezStringBuilder sTemp = ezToolsProject::GetSingleton()->GetProjectFile();
     sTemp.PathParentDirectory();
     sTemp.Trim("/");
 

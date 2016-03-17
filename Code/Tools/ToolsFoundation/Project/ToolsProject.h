@@ -3,9 +3,12 @@
 #include <ToolsFoundation/Basics.h>
 #include <Foundation/Communication/Event.h>
 #include <ToolsFoundation/Basics/Status.h>
+#include <Foundation/Configuration/Singleton.h>
 
 class EZ_TOOLSFOUNDATION_DLL ezToolsProject
 {
+  EZ_DECLARE_SINGLETON(ezToolsProject);
+
 public:
   struct Event
   {
@@ -36,10 +39,9 @@ public:
   static ezEvent<Request&> s_Requests;
 
 public:
-  static ezToolsProject* GetInstance() { return s_pInstance; }
 
-  static bool IsProjectOpen() { return s_pInstance != nullptr; }
-  static bool IsProjectClosing() { return (s_pInstance != nullptr && s_pInstance->m_bIsClosing); }
+  static bool IsProjectOpen() { return GetSingleton() != nullptr; }
+  static bool IsProjectClosing() { return (GetSingleton() != nullptr && GetSingleton()->m_bIsClosing); }
   static void CloseProject();
   static bool CanCloseProject();
   static ezStatus OpenProject(const char* szProjectPath);
@@ -73,10 +75,6 @@ private:
 
   ezStatus Create();
   ezStatus Open();
-
-  
-
-  static ezToolsProject* s_pInstance;
 
 private:
   bool m_bIsClosing;

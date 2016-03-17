@@ -78,10 +78,10 @@ void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
   ezProgress::SetGlobalProgressbar(m_pProgressbar);
   m_pQtProgressbar->SetProgressbar(m_pProgressbar);
 
-  const bool bSafeMode = ezCommandLineUtils::GetInstance()->GetBoolOption("-safe");
-  const bool bNoRecent = bSafeMode || ezCommandLineUtils::GetInstance()->GetBoolOption("-norecent");
+  const bool bSafeMode = ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-safe");
+  const bool bNoRecent = bSafeMode || ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-norecent");
 
-  ezString sApplicationName = ezCommandLineUtils::GetInstance()->GetStringOption("-appname", 0, szAppName);
+  ezString sApplicationName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-appname", 0, szAppName);
   ezUIServices::SetApplicationName(sApplicationName);
 
   s_sUserName = szUserName;
@@ -92,7 +92,7 @@ void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
 
   s_pEngineViewProcess = new ezEditorEngineProcessConnection;
 
-  s_pEngineViewProcess->SetWaitForDebugger(ezCommandLineUtils::GetInstance()->GetBoolOption("-debug"));
+  s_pEngineViewProcess->SetWaitForDebugger(ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-debug"));
 
   QCoreApplication::setOrganizationDomain("www.ezEngine.net");
   QCoreApplication::setOrganizationName("ezEngine Project");
@@ -141,7 +141,7 @@ void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
 
   ezTranslatorFromFiles::AddTranslationFile("ezEditorBasics.txt");
 
-  ezUIServices::GetInstance()->LoadState();
+  ezUIServices::GetSingleton()->LoadState();
 
   ezActionManager::LoadShortcutAssignment();
 
@@ -181,7 +181,7 @@ void ezQtEditorApp::ShutdownEditor()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentManagerEventHandler, this));
   ezQtDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentWindowEventHandler, this));
 
-  ezUIServices::GetInstance()->SaveState();
+  ezUIServices::GetSingleton()->SaveState();
 
   CloseSettingsDocument();
 

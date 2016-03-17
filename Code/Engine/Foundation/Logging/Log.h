@@ -77,7 +77,7 @@ private:
 class EZ_FOUNDATION_DLL ezGlobalLog : public ezLogInterface
 {
 public:
-  static ezGlobalLog* GetInstance();
+  static ezGlobalLog* GetOrCreateInstance();
 
   virtual void HandleLogMessage(const ezLoggingEventData& le) override;
 

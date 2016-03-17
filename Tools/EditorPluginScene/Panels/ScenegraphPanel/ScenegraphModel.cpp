@@ -27,7 +27,7 @@ void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, con
 
   if (prefabGuid.IsValid())
   {
-    auto pInfo = ezAssetCurator::GetInstance()->GetAssetInfo(prefabGuid);
+    auto pInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(prefabGuid);
 
     if (pInfo)
     {
@@ -94,7 +94,7 @@ void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, con
           {
             const ezUuid AssetGuid = ezConversionUtils::ConvertStringToUuid(sValue);
 
-            auto pAsset = ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid);
+            auto pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo(AssetGuid);
 
             if (pAsset)
               sValue = pAsset->m_sRelativePath;
@@ -201,7 +201,7 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
 
       if (prefab.IsValid())
       {
-        auto pInfo = ezAssetCurator::GetInstance()->GetAssetInfo(prefab);
+        auto pInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(prefab);
 
         if (pInfo)
           return QString::fromUtf8(pInfo->m_sRelativePath);

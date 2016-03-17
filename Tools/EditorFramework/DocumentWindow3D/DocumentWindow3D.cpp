@@ -12,7 +12,7 @@ ezQtEngineDocumentWindow::ezQtEngineDocumentWindow(ezDocument* pDocument) : ezQt
 {
   m_pEngineConnection = nullptr;
 
-  m_pEngineConnection = ezEditorEngineProcessConnection::GetInstance()->CreateEngineConnection(this);
+  m_pEngineConnection = ezEditorEngineProcessConnection::GetSingleton()->CreateEngineConnection(this);
 
   m_Mirror.SetIPC(m_pEngineConnection);
   m_Mirror.InitSender(pDocument->GetObjectManager());
@@ -24,7 +24,7 @@ ezQtEngineDocumentWindow::~ezQtEngineDocumentWindow()
   // delete all view widgets, so that they can send their messages before we clean up the engine connection
   DestroyAllViews();
 
-  ezEditorEngineProcessConnection::GetInstance()->DestroyEngineConnection(this);
+  ezEditorEngineProcessConnection::GetSingleton()->DestroyEngineConnection(this);
 }
 
 void ezQtEngineDocumentWindow::SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage) const
@@ -43,7 +43,7 @@ const ezObjectPickingResult& ezQtEngineDocumentWindow::PickObject(ezUInt16 uiScr
   m_LastPickingResult.m_vPickingRayStart.SetZero();
 
   // do not send picking messages while the engine process isn't fully configured yet
-  if (ezEditorEngineProcessConnection::GetInstance()->IsEngineSetup())
+  if (ezEditorEngineProcessConnection::GetSingleton()->IsEngineSetup())
   {
     auto pView = GetHoveredViewWidget();
 
@@ -56,7 +56,7 @@ const ezObjectPickingResult& ezQtEngineDocumentWindow::PickObject(ezUInt16 uiScr
 
       SendMessageToEngine(&msg);
 
-      if (ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezViewPickingResultMsgToEditor>(), ezTime::Seconds(3.0)).Failed())
+      if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezViewPickingResultMsgToEditor>(), ezTime::Seconds(3.0)).Failed())
         return m_LastPickingResult;
     }
   }

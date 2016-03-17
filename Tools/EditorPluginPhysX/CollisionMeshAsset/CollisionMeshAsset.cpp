@@ -111,7 +111,7 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(const ezCollisionMeshA
   xMesh.m_bFlipNormals = false;// bFlipTriangles;
 
   ezString sMeshFileAbs = pProp->m_sMeshFile;
-  if (!ezQtEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sMeshFileAbs))
+  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sMeshFileAbs))
   {
     ezLog::Error("Collision Mesh Asset Transform failed: Input Path '%s' is not in any data directory", sMeshFileAbs.GetData());
     return ezStatus("Could not make path absolute: '%s;", sMeshFileAbs.GetData());
@@ -220,7 +220,7 @@ ezStatus ezCollisionMeshAssetDocument::InternalRetrieveAssetInfo(const char * sz
   {
 
     ezString sMeshFileAbs = pProp->m_sMeshFile;
-    if (!ezQtEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sMeshFileAbs))
+    if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sMeshFileAbs))
     {
       ezLog::Error("Mesh Asset Transform failed: Input Path '%s' is not in any data directory", sMeshFileAbs.GetData());
       return ezStatus("Could not make path absolute: '%s;", sMeshFileAbs.GetData());

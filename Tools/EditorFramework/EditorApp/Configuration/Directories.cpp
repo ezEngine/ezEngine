@@ -12,7 +12,7 @@ ezString ezQtEditorApp::GetEditorDataFolder()
 
 ezString ezQtEditorApp::GetProjectUserDataFolder()
 {
-  ezStringBuilder sFile = ezToolsProject::GetInstance()->GetProjectDataFolder();
+  ezStringBuilder sFile = ezToolsProject::GetSingleton()->GetProjectDataFolder();
   sFile.AppendPath(GetApplicationUserName());
   sFile.Append(".usersettings");
 

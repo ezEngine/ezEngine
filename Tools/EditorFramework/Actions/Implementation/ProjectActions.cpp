@@ -148,11 +148,11 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item
 {
   out_Entries.Clear();
 
-  if (ezQtEditorApp::GetInstance()->GetRecentDocumentsList().GetFileList().IsEmpty())
+  if (ezQtEditorApp::GetSingleton()->GetRecentDocumentsList().GetFileList().IsEmpty())
     return;
 
   ezInt32 iMaxDocumentsToAdd = 10;
-  for (ezString s : ezQtEditorApp::GetInstance()->GetRecentDocumentsList().GetFileList())
+  for (ezString s : ezQtEditorApp::GetSingleton()->GetRecentDocumentsList().GetFileList())
   {
     QAction* pAction = nullptr;
 
@@ -171,7 +171,7 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item
     if (ezToolsProject::IsProjectOpen())
     {
       ezString sRelativePath;
-      if (!ezToolsProject::GetInstance()->IsDocumentInAllowedRoot(s, &sRelativePath))
+      if (!ezToolsProject::GetSingleton()->IsDocumentInAllowedRoot(s, &sRelativePath))
         continue;
 
       item.m_sDisplay = sRelativePath;
@@ -194,7 +194,7 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item
 
 void ezRecentDocumentsMenuAction::Execute(const ezVariant& value)
 {
-  ezQtEditorApp::GetInstance()->OpenDocument(value.ConvertTo<ezString>());
+  ezQtEditorApp::GetSingleton()->OpenDocument(value.ConvertTo<ezString>());
 }
 
 
@@ -210,12 +210,12 @@ void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item,
 {
   out_Entries.Clear();
 
-  if (ezQtEditorApp::GetInstance()->GetRecentProjectsList().GetFileList().IsEmpty())
+  if (ezQtEditorApp::GetSingleton()->GetRecentProjectsList().GetFileList().IsEmpty())
     return;
 
   ezStringBuilder sTemp;
 
-  for (ezString s : ezQtEditorApp::GetInstance()->GetRecentProjectsList().GetFileList())
+  for (ezString s : ezQtEditorApp::GetSingleton()->GetRecentProjectsList().GetFileList())
   {
     if (!ezOSFile::ExistsFile(s))
       continue;
@@ -234,7 +234,7 @@ void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item,
 
 void ezRecentProjectsMenuAction::Execute(const ezVariant& value)
 {
-  ezQtEditorApp::GetInstance()->OpenProject(value.ConvertTo<ezString>());
+  ezQtEditorApp::GetSingleton()->OpenProject(value.ConvertTo<ezString>());
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -319,25 +319,25 @@ void ezProjectAction::Execute(const ezVariant& value)
   switch (m_ButtonType)
   {
   case ezProjectAction::ButtonType::CreateDocument:
-    ezQtEditorApp::GetInstance()->GuiCreateDocument();
+    ezQtEditorApp::GetSingleton()->GuiCreateDocument();
     break;
 
   case ezProjectAction::ButtonType::OpenDocument:
-    ezQtEditorApp::GetInstance()->GuiOpenDocument();
+    ezQtEditorApp::GetSingleton()->GuiOpenDocument();
     break;
 
   case ezProjectAction::ButtonType::CreateProject:
-    ezQtEditorApp::GetInstance()->GuiCreateProject();
+    ezQtEditorApp::GetSingleton()->GuiCreateProject();
     break;
 
   case ezProjectAction::ButtonType::OpenProject:
-    ezQtEditorApp::GetInstance()->GuiOpenProject();
+    ezQtEditorApp::GetSingleton()->GuiOpenProject();
     break;
 
   case ezProjectAction::ButtonType::CloseProject:
     {
       if (ezToolsProject::CanCloseProject())
-        ezQtEditorApp::GetInstance()->CloseProject();
+        ezQtEditorApp::GetSingleton()->CloseProject();
     }
     break;
 
@@ -387,7 +387,7 @@ void ezProjectAction::Execute(const ezVariant& value)
     {
       ezSimpleConfigMsgToEngine msg;
       msg.m_sWhatToDo = "ReloadResources";
-      ezEditorEngineProcessConnection::GetInstance()->SendMessage(&msg);
+      ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 
       if (m_Context.m_pDocument)
       {

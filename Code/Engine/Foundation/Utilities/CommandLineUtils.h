@@ -13,7 +13,7 @@ class EZ_FOUNDATION_DLL ezCommandLineUtils
 {
 public:
   /// \brief Returns one global instance of ezCommandLineUtils.
-  static ezCommandLineUtils* GetInstance();
+  static ezCommandLineUtils* GetGlobalInstance();
 
   /// \brief Initializes ezCommandLineUtils from the parameter arguments that were passed to the application.
   void SetCommandLine(ezUInt32 argc, const char** argv); // [tested]

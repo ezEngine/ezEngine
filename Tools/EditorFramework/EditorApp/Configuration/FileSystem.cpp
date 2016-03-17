@@ -8,14 +8,14 @@ void ezQtEditorApp::SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg
     return;
 
   m_FileSystemConfig = cfg;
-  ezQtEditorApp::GetInstance()->AddReloadProjectRequiredReason("The data directory configuration has changed.");
+  ezQtEditorApp::GetSingleton()->AddReloadProjectRequiredReason("The data directory configuration has changed.");
 
   m_FileSystemConfig.CreateDataDirStubFiles();
 }
 
 void ezQtEditorApp::SetupDataDirectories()
 {
-  ezStringBuilder sPath = ezToolsProject::GetInstance()->GetProjectFile();
+  ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectFile();
   sPath.PathParentDirectory();
 
   ezApplicationConfig::SetProjectDirectory(sPath);
@@ -47,7 +47,7 @@ void ezQtEditorApp::SetupDataDirectories()
     {
       sPath = ezApplicationConfig::GetProjectDirectory();
       sPath.AppendPath(dd.m_sRelativePath);
-      ezToolsProject::GetInstance()->AddAllowedDocumentRoot(sPath);
+      ezToolsProject::GetSingleton()->AddAllowedDocumentRoot(sPath);
     }
   }
 }
@@ -57,7 +57,7 @@ bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezString & sPath) cons
   if (ezConversionUtils::IsStringUuid(sPath))
   {
     ezUuid guid = ezConversionUtils::ConvertStringToUuid(sPath);
-    auto pAsset = ezAssetCurator::GetInstance()->GetAssetInfo(guid);
+    auto pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo(guid);
 
     if (!pAsset)
       return false;

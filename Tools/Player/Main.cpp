@@ -21,7 +21,7 @@ ezPlayerApplication::ezPlayerApplication()
 
 void ezPlayerApplication::BeforeCoreStartup()
 {
-  m_sSceneFile = ezCommandLineUtils::GetInstance()->GetStringOption("-scene", 0, "");
+  m_sSceneFile = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene", 0, "");
   EZ_ASSERT_ALWAYS(!m_sSceneFile.IsEmpty(), "Scene file has not been specified. Use the -scene command followed by a full path to the ezBinaryScene file");
 
   m_sAppProjectPath = FindProjectDirectoryForScene(m_sSceneFile);

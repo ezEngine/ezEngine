@@ -100,7 +100,7 @@ ezResult ezPermutationGenerator::ReadFromFile(const char* szFile, const char* sz
   sTemp.Append(" 1");
 
   ezPreprocessor pp;
-  pp.SetLogInterface(ezGlobalLog::GetInstance());
+  pp.SetLogInterface(ezGlobalLog::GetOrCreateInstance());
   pp.SetPassThroughLine(false);
   pp.SetPassThroughPragma(false);
   pp.AddCustomDefine(sTemp.GetData());
@@ -110,7 +110,7 @@ ezResult ezPermutationGenerator::ReadFromFile(const char* szFile, const char* sz
 
   ezLuaWrapper script;
   script.RegisterCFunction("add", LUAFUNC_add, this);
-  script.ExecuteString(sTemp.GetData(), "chunk", ezGlobalLog::GetInstance());
+  script.ExecuteString(sTemp.GetData(), "chunk", ezGlobalLog::GetOrCreateInstance());
 
   return EZ_SUCCESS;
 }

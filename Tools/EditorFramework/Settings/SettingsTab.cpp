@@ -3,7 +3,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 
-static ezSettingsTab* g_pInstance = nullptr;
+EZ_IMPLEMENT_SINGLETON(ezSettingsTab);
 
 ezString ezSettingsTab::GetWindowIcon() const
 {
@@ -12,7 +12,7 @@ ezString ezSettingsTab::GetWindowIcon() const
 
 void ezQtEditorApp::ShowSettingsDocument()
 {
-  ezSettingsTab* pSettingsTab = ezSettingsTab::GetInstance();
+  ezSettingsTab* pSettingsTab = ezSettingsTab::GetSingleton();
 
   if (pSettingsTab == nullptr)
   {
@@ -24,7 +24,7 @@ void ezQtEditorApp::ShowSettingsDocument()
 
 void ezQtEditorApp::CloseSettingsDocument()
 {
-  ezSettingsTab* pSettingsTab = ezSettingsTab::GetInstance();
+  ezSettingsTab* pSettingsTab = ezSettingsTab::GetSingleton();
 
   if (pSettingsTab != nullptr)
   {
@@ -32,19 +32,14 @@ void ezQtEditorApp::CloseSettingsDocument()
   }
 }
 
-ezSettingsTab* ezSettingsTab::GetInstance()
-{
-  return g_pInstance;
-}
-
-ezSettingsTab::ezSettingsTab() : ezQtDocumentWindow("")
+ezSettingsTab::ezSettingsTab() 
+  : ezQtDocumentWindow("")
+  , m_SingletonRegistrar(this)
 {
   setCentralWidget(new QWidget());
 
-  EZ_ASSERT_DEV(g_pInstance == nullptr, "");
   EZ_ASSERT_DEV(centralWidget() != nullptr, "");
 
-  g_pInstance = this;
   setupUi(centralWidget());
   QMetaObject::connectSlotsByName(this);
 
@@ -56,16 +51,11 @@ ezSettingsTab::ezSettingsTab() : ezQtDocumentWindow("")
   context.m_pDocument = nullptr;
   pMenuBar->SetActionContext(context);
 
-  //AssetBrowserWidget->RestoreState("AssetBrowserPanel");
-
   FinishWindowCreation();
 }
 
 ezSettingsTab::~ezSettingsTab()
 {
-  //AssetBrowserWidget->SaveState("AssetBrowserPanel");
-
-  g_pInstance = nullptr;
 }
 
 bool ezSettingsTab::InternalCanCloseWindow()
@@ -77,11 +67,11 @@ bool ezSettingsTab::InternalCanCloseWindow()
 void ezSettingsTab::InternalCloseDocumentWindow()
 {
   // make sure this instance isn't used anymore
-  g_pInstance = nullptr;
+  UnregisterSingleton();
 }
 
 void ezSettingsTab::SlotAssetChosen(QString sAssetGuid, QString sAssetPathRelative, QString sAssetPathAbsolute)
 {
-  ezQtEditorApp::GetInstance()->OpenDocument(sAssetPathAbsolute.toUtf8().data());
+  ezQtEditorApp::GetSingleton()->OpenDocument(sAssetPathAbsolute.toUtf8().data());
 }
 

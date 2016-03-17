@@ -100,7 +100,7 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
       sTemp = sGuid.toUtf8().data();
       ezUuid AssetGuid = ezConversionUtils::ConvertStringToUuid(sTemp);
 
-      if (ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName == "Material")
+      if (ezAssetCurator::GetSingleton()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName == "Material")
       {
         m_bAllowPickSelectedWhileDragging = true;
 
@@ -108,11 +108,11 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
         m_sDragMaterial = sTemp;
         return;
       }
-      else if (ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName == "Prefab")
+      else if (ezAssetCurator::GetSingleton()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName == "Prefab")
       {
         CreatePrefab(res.m_vPickedPosition, AssetGuid);
       }
-      else if (ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName == "Mesh")
+      else if (ezAssetCurator::GetSingleton()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName == "Mesh")
       {
         CreateDropObject(res.m_vPickedPosition, "ezMeshComponent", "Mesh", sTemp);
       }

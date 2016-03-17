@@ -24,7 +24,7 @@ ezString ezAssetDocumentManager::GenerateResourceFileName(const char* szDocument
 {
   EZ_ASSERT_DEBUG(!ezStringUtils::IsNullOrEmpty(szPlatform), "Platform string must be set");
 
-  ezStringBuilder sProjectDir = ezAssetCurator::GetInstance()->FindDataDirectoryForAsset(szDocumentPath);
+  ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(szDocumentPath);
 
   ezString sPlatform;
   if (GeneratesPlatformSpecificAssets()) /// \todo Put this into ezAssetDocumentFlag 
@@ -45,7 +45,7 @@ ezString ezAssetDocumentManager::GenerateResourceFileName(const char* szDocument
 
 ezString ezAssetDocumentManager::GenerateResourceThumbnailPath(const char* szDocumentPath)
 {
-  ezStringBuilder sProjectDir = ezAssetCurator::GetInstance()->FindDataDirectoryForAsset(szDocumentPath);;
+  ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(szDocumentPath);;
 
   ezStringBuilder sRelativePath = szDocumentPath;
 

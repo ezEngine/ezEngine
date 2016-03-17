@@ -608,7 +608,7 @@ void ezWorld::DeregisterUpdateFunctions(ezComponentManagerBase* pManager)
 
     for (ezUInt32 i = updateFunctions.GetCount(); i-- > 0;)
     {
-      if (updateFunctions[i].m_Function.GetInstance() == pManager)
+      if (updateFunctions[i].m_Function.GetClassInstance() == pManager)
       {
         updateFunctions.RemoveAt(i);
       }
@@ -648,7 +648,7 @@ void ezWorld::UpdateAsynchronous()
   for (ezUInt32 i = 0; i < updateFunctions.GetCount(); ++i)
   {
     ezInternal::WorldData::RegisteredUpdateFunction& updateFunction = updateFunctions[i];
-    ezComponentManagerBase* pManager = static_cast<ezComponentManagerBase*>(updateFunction.m_Function.GetInstance());
+    ezComponentManagerBase* pManager = static_cast<ezComponentManagerBase*>(updateFunction.m_Function.GetClassInstance());
 
     const ezUInt32 uiTotalCount = pManager->GetComponentCount();
     ezUInt32 uiStartIndex = 0;

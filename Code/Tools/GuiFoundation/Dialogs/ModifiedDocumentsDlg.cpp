@@ -37,7 +37,7 @@ ezModifiedDocumentsDlg::ezModifiedDocumentsDlg(QWidget* parent, const ezHybridAr
   {
     ezString sText = pDoc->GetDocumentPath();
 
-    if (!ezToolsProject::GetInstance()->IsDocumentInAllowedRoot(pDoc->GetDocumentPath(), &sText))
+    if (!ezToolsProject::GetSingleton()->IsDocumentInAllowedRoot(pDoc->GetDocumentPath(), &sText))
       sText = pDoc->GetDocumentPath();
 
     QPushButton* pButtonSave = new QPushButton(QLatin1String("Save"));

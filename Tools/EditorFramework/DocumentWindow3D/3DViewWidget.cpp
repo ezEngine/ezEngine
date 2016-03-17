@@ -41,7 +41,7 @@ ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentW
 
   ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEngineViewWidget::EngineViewProcessEventHandler, this));
 
-  if (ezEditorEngineProcessConnection::GetInstance()->IsProcessCrashed())
+  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     ShowRestartButton(true);
 }
 
@@ -366,7 +366,7 @@ void ezQtEngineViewWidget::ShowRestartButton(bool bShow)
 
     m_pRestartButton = new QPushButton(this);
     m_pRestartButton->setText("Restart Engine View Process");
-    m_pRestartButton->setVisible(ezEditorEngineProcessConnection::GetInstance()->IsProcessCrashed());
+    m_pRestartButton->setVisible(ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed());
     m_pRestartButton->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     m_pRestartButton->connect(m_pRestartButton, &QPushButton::clicked, this, &ezQtEngineViewWidget::SlotRestartEngineProcess);
 
@@ -385,5 +385,5 @@ void ezQtEngineViewWidget::ShowRestartButton(bool bShow)
 
 void ezQtEngineViewWidget::SlotRestartEngineProcess()
 {
-  ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
+  ezEditorEngineProcessConnection::GetSingleton()->RestartProcess();
 }

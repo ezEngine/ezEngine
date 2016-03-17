@@ -71,7 +71,7 @@ void ezAbstractGraphJsonSerializer::Write(ezStreamWriter& stream, const ezAbstra
 void ezAbstractGraphJsonSerializer::Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph)
 {
   ezExtendedJSONReader reader;
-  reader.SetLogInterface(ezGlobalLog::GetInstance());
+  reader.SetLogInterface(ezGlobalLog::GetOrCreateInstance());
   reader.Parse(stream);
 
   ezVariant* pObjects;

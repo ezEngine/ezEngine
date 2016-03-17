@@ -187,7 +187,7 @@ void ezDocumentAction::Execute(const ezVariant& value)
       if (!m_Context.m_pDocument)
       {
         if (ezToolsProject::IsProjectOpen())
-          sPath = ezToolsProject::GetInstance()->GetProjectFile();
+          sPath = ezToolsProject::GetSingleton()->GetProjectFile();
         else
           sPath = ezOSFile::GetApplicationDirectory();
       }

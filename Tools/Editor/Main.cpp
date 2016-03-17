@@ -18,12 +18,12 @@ public:
 
   virtual void BeforeCoreStartup() override
   {
-    ezQtEditorApp::GetInstance()->InitQt(GetArgumentCount(), (char**)GetArgumentsArray());
+    ezQtEditorApp::GetSingleton()->InitQt(GetArgumentCount(), (char**)GetArgumentsArray());
   }
 
   virtual void AfterCoreShutdown() override
   {
-    ezQtEditorApp::GetInstance()->DeInitQt();
+    ezQtEditorApp::GetSingleton()->DeInitQt();
 
     delete m_pEditorApp;
     m_pEditorApp = nullptr;
@@ -35,12 +35,12 @@ public:
     hostInfo = QHostInfo::fromName(QHostInfo::localHostName());
     ezString sHostName = QHostInfo::localHostName().toUtf8().data();
 
-    ezQtEditorApp::GetInstance()->StartupEditor("ezEditor", sHostName);
+    ezQtEditorApp::GetSingleton()->StartupEditor("ezEditor", sHostName);
     {
-      const ezInt32 iReturnCode = ezQtEditorApp::GetInstance()->RunEditor();
+      const ezInt32 iReturnCode = ezQtEditorApp::GetSingleton()->RunEditor();
       SetReturnCode(iReturnCode);
     }
-    ezQtEditorApp::GetInstance()->ShutdownEditor();
+    ezQtEditorApp::GetSingleton()->ShutdownEditor();
 
     return ezApplication::Quit;
   }

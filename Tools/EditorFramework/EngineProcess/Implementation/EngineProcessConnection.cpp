@@ -7,13 +7,13 @@
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-ezEditorEngineProcessConnection* ezEditorEngineProcessConnection::s_pInstance = nullptr;
+EZ_IMPLEMENT_SINGLETON(ezEditorEngineProcessConnection);
+
 ezEvent<const ezEditorEngineProcessConnection::Event&> ezEditorEngineProcessConnection::s_Events;
 
 ezEditorEngineProcessConnection::ezEditorEngineProcessConnection()
+  : m_SingletonRegistrar(this)
 {
-  EZ_ASSERT_DEV(s_pInstance == nullptr, "Incorrect use of ezEditorEngineProcessConnection");
-  s_pInstance = this;
   m_bProcessShouldBeRunning = false;
   m_bProcessCrashed = false;
   m_bClientIsConfigured = false;
@@ -24,8 +24,6 @@ ezEditorEngineProcessConnection::ezEditorEngineProcessConnection()
 ezEditorEngineProcessConnection::~ezEditorEngineProcessConnection()
 {
   m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorEngineProcessConnection::HandleIPCEvent, this));
-
-  s_pInstance = nullptr;
 }
 
 void ezEditorEngineProcessConnection::SendDocumentOpenMessage(const ezDocument* pDocument, bool bOpen)
@@ -139,9 +137,9 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
     msg.m_sProjectDir = m_FileSystemConfig.GetProjectDirectory();
     msg.m_FileSystemConfig = m_FileSystemConfig;
     msg.m_PluginConfig = m_PluginConfig;
-    ezEditorEngineProcessConnection::GetInstance()->SendMessage(&msg);
+    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
   }
-  if (ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>(), ezTime()).Failed())
+  if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>(), ezTime()).Failed())
   {
     ezLog::Error("Failed to restart the engine process");
     ShutdownProcess();
@@ -182,6 +180,6 @@ void ezEditorEngineConnection::SendMessage(ezEditorEngineDocumentMsg* pMessage)
 {
   pMessage->m_DocumentGuid = m_pDocument->GetGuid();
 
-  ezEditorEngineProcessConnection::GetInstance()->SendMessage(pMessage);
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(pMessage);
 }
 

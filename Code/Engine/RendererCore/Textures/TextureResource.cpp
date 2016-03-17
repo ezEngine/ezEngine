@@ -468,7 +468,7 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
       File >> bSRGB;
 
       ezDdsFileFormat fmt;
-      if (fmt.ReadImage(File, pData->m_Image, ezGlobalLog::GetInstance()).Failed())
+      if (fmt.ReadImage(File, pData->m_Image, ezGlobalLog::GetOrCreateInstance()).Failed())
         return res;
     }
     else

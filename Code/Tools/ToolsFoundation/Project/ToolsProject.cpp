@@ -4,15 +4,14 @@
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 
-ezToolsProject* ezToolsProject::s_pInstance = nullptr;
+EZ_IMPLEMENT_SINGLETON(ezToolsProject);
+
 ezEvent<const ezToolsProject::Event&> ezToolsProject::s_Events;
 ezEvent<ezToolsProject::Request&> ezToolsProject::s_Requests;
 
 ezToolsProject::ezToolsProject(const char* szProjectPath)
+  : m_SingletonRegistrar(this)
 {
-  EZ_ASSERT_DEV(s_pInstance == nullptr, "There can be only one");
-
-  s_pInstance = this;
   m_bIsClosing = false;
 
   m_sProjectPath = szProjectPath;
@@ -21,7 +20,6 @@ ezToolsProject::ezToolsProject(const char* szProjectPath)
 
 ezToolsProject::~ezToolsProject()
 {
-  s_pInstance = nullptr;
 }
 
 ezStatus ezToolsProject::Create()
@@ -91,9 +89,9 @@ void ezToolsProject::CreateSubFolder(const char* szFolder) const
 
 void ezToolsProject::CloseProject()
 {
-  if (s_pInstance)
+  if (GetSingleton())
   {
-    s_pInstance->m_bIsClosing = true;
+    GetSingleton()->m_bIsClosing = true;
 
     Event e;
     e.m_Type = Event::Type::ProjectClosing;
@@ -101,7 +99,7 @@ void ezToolsProject::CloseProject()
 
     ezDocumentManager::CloseAllDocuments();
 
-    delete s_pInstance;
+    delete GetSingleton();
 
     e.m_Type = Event::Type::ProjectClosed;
     s_Events.Broadcast(e);
@@ -110,7 +108,7 @@ void ezToolsProject::CloseProject()
 
 bool ezToolsProject::CanCloseProject()
 {
-  if (GetInstance() == nullptr)
+  if (GetSingleton() == nullptr)
     return true;
 
   Request e;
@@ -130,13 +128,13 @@ ezStatus ezToolsProject::CreateOrOpenProject(const char* szProjectPath, bool bCr
   ezStatus ret;
 
   if (bCreate)
-    ret = s_pInstance->Create();
+    ret = GetSingleton()->Create();
   else
-    ret = s_pInstance->Open();
+    ret = GetSingleton()->Open();
 
   if (ret.m_Result.Failed())
   {
-    delete s_pInstance;
+    delete GetSingleton();
     return ret;
   }
 

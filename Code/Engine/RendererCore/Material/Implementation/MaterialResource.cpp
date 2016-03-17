@@ -114,7 +114,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
   if (sAbsFilePath.HasExtension("ezMaterial"))
   {
     ezExtendedJSONReader json;
-    json.SetLogInterface(ezGlobalLog::GetInstance());
+    json.SetLogInterface(ezGlobalLog::GetOrCreateInstance());
 
     if (json.Parse(*Stream).Failed())
     {

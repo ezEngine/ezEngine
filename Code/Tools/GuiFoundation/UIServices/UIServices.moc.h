@@ -6,12 +6,15 @@
 #include <Foundation/Communication/Event.h>
 #include <QApplication>
 #include <QMessageBox>
+#include <Foundation/Configuration/Singleton.h>
 
 class QColorDialog;
 
 class EZ_GUIFOUNDATION_DLL ezUIServices : public QObject
 {
   Q_OBJECT
+
+  EZ_DECLARE_SINGLETON(ezUIServices);
 
 public:
   struct Event
@@ -30,7 +33,7 @@ public:
   static ezEvent<const ezUIServices::Event&> s_Events;
 
 public:
-  static ezUIServices* GetInstance();
+  ezUIServices();
 
   void ShowColorDialog(const ezColor& color, bool bAlpha, QWidget* pParent, const char* slotCurColChanged, const char* slotAccept, const char* slotReject);
 
@@ -76,7 +79,6 @@ private:
   static ezMap<ezString, QPixmap> s_PixmapsCache;
 
 private:
-  ezUIServices();
   EZ_DISALLOW_COPY_AND_ASSIGN(ezUIServices);
 };
 

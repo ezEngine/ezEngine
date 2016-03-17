@@ -59,7 +59,7 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(ezStreamWriter& stream, 
   }
 
   ezDdsFileFormat writer;
-  if (writer.WriteImage(stream, *pImage, ezGlobalLog::GetInstance()).Failed())
+  if (writer.WriteImage(stream, *pImage, ezGlobalLog::GetOrCreateInstance()).Failed())
   {
     return ezStatus("Writing the image data as DDS failed");
   }

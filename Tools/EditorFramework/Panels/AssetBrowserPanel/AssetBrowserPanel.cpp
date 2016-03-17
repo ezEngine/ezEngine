@@ -5,14 +5,12 @@
 #include <CoreUtils/Localization/TranslationLookup.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
-ezQtAssetBrowserPanel* ezQtAssetBrowserPanel::s_pInstance = nullptr;
+EZ_IMPLEMENT_SINGLETON(ezQtAssetBrowserPanel);
 
-ezQtAssetBrowserPanel::ezQtAssetBrowserPanel() : ezQtApplicationPanel("Panel.AssetBrowser")
+ezQtAssetBrowserPanel::ezQtAssetBrowserPanel() 
+  : ezQtApplicationPanel("Panel.AssetBrowser")
+  , m_SingletonRegistrar(this)
 {
-  EZ_ASSERT_DEV(s_pInstance == nullptr, "ezQtAssetBrowserPanel panel is not a singleton anymore");
-
-  s_pInstance = this;
-
   setupUi(this);
 
   setWindowIcon(ezUIServices::GetCachedIconResource(":/EditorFramework/Icons/Asset16.png"));
@@ -27,13 +25,9 @@ ezQtAssetBrowserPanel::ezQtAssetBrowserPanel() : ezQtApplicationPanel("Panel.Ass
 ezQtAssetBrowserPanel::~ezQtAssetBrowserPanel()
 {
   AssetBrowserWidget->SaveState("AssetBrowserPanel2");
-
-  s_pInstance = nullptr;
-
-  
 }
 
 void ezQtAssetBrowserPanel::SlotAssetChosen(QString sAssetGuid, QString sAssetPathRelative, QString sAssetPathAbsolute)
 {
-  ezQtEditorApp::GetInstance()->OpenDocument(sAssetPathAbsolute.toUtf8().data());
+  ezQtEditorApp::GetSingleton()->OpenDocument(sAssetPathAbsolute.toUtf8().data());
 }

@@ -4,7 +4,7 @@
 
 static ezCommandLineUtils g_pCmdLineInstance;
 
-ezCommandLineUtils* ezCommandLineUtils::GetInstance()
+ezCommandLineUtils* ezCommandLineUtils::GetGlobalInstance()
 {
   return &g_pCmdLineInstance;
 }

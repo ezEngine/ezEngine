@@ -10,7 +10,7 @@ ezLoggingEvent ezGlobalLog::s_LoggingEvent;
 
 ezThreadLocalPointer<ezLogInterface> ezLog::s_DefaultLogSystem;
 
-ezGlobalLog* ezGlobalLog::GetInstance()
+ezGlobalLog* ezGlobalLog::GetOrCreateInstance()
 {
   ezGlobalLog* pLog = s_pInstances;
 
@@ -48,7 +48,7 @@ void ezGlobalLog::SetLogLevel(ezLogMsgType::Enum LogLevel)
 
 ezLogBlock::ezLogBlock(const char* szName, const char* szContextInfo)
 {
-  m_pLogInterface = ezGlobalLog::GetInstance();
+  m_pLogInterface = ezGlobalLog::GetOrCreateInstance();
 
   if (!m_pLogInterface)
     return;
@@ -176,7 +176,7 @@ void ezLog::SetDefaultLogSystem(ezLogInterface* pInterface)
 ezLogInterface* ezLog::GetDefaultLogSystem()
 {
   if (s_DefaultLogSystem == nullptr)
-    s_DefaultLogSystem = ezGlobalLog::GetInstance();
+    s_DefaultLogSystem = ezGlobalLog::GetOrCreateInstance();
 
   return s_DefaultLogSystem;
 }

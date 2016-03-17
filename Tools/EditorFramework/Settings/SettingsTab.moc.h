@@ -10,11 +10,11 @@ class ezSettingsTab : public ezQtDocumentWindow, Ui_SettingsTab
 {
   Q_OBJECT
 
+  EZ_DECLARE_SINGLETON(ezSettingsTab);
+
 public:
   ezSettingsTab();
   ~ezSettingsTab();
-
-  static ezSettingsTab* GetInstance();
 
   virtual ezString GetWindowIcon() const override;
 

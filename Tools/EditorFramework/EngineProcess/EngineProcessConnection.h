@@ -4,6 +4,7 @@
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <Foundation/Communication/Event.h>
 #include <Core/Application/Config/PluginConfig.h>
+#include <Foundation/Configuration/Singleton.h>
 
 class ezEditorEngineConnection;
 class ezDocument;
@@ -14,13 +15,11 @@ class ezQtEngineDocumentWindow;
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineProcessConnection
 {
-  static ezEditorEngineProcessConnection* s_pInstance;
+  EZ_DECLARE_SINGLETON(ezEditorEngineProcessConnection);
 
 public:
   ezEditorEngineProcessConnection();
   ~ezEditorEngineProcessConnection();
-
-  static ezEditorEngineProcessConnection* GetInstance() { return s_pInstance; }
 
   /// \brief The given file system configuration will be used by the engine process to setup the runtime data directories.
   ///        This only takes effect if the editor process is restarted.

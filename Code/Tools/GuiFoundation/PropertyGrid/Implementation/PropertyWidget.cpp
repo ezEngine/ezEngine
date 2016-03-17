@@ -718,7 +718,7 @@ void ezPropertyEditorColorWidget::on_Button_triggered()
   if (m_OriginalValue.IsValid())
     temp = m_OriginalValue.ConvertTo<ezColor>();
 
-  ezUIServices::GetInstance()->ShowColorDialog(temp, true, this, SLOT(on_CurrentColor_changed(const QColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
+  ezUIServices::GetSingleton()->ShowColorDialog(temp, true, this, SLOT(on_CurrentColor_changed(const QColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
 }
 
 void ezPropertyEditorColorWidget::on_CurrentColor_changed(const QColor& color)

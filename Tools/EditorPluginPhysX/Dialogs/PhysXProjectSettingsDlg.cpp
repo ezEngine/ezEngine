@@ -77,7 +77,7 @@ ezResult ezPhysxProjectSettingsDlg::Save()
     ezStringBuilder sError;
     sError.Format("Failed to save the Collision Layer file\n'%s'", sPath.GetData());
 
-    ezUIServices::GetInstance()->MessageBoxWarning(sError);
+    ezUIServices::GetSingleton()->MessageBoxWarning(sError);
 
     return EZ_FAILURE;
   }
@@ -212,7 +212,7 @@ void ezPhysxProjectSettingsDlg::on_ButtonAddLayer_clicked()
 
   if (iNewIdx < 0)
   {
-    ezUIServices::GetInstance()->MessageBoxInformation("The maximum number of collision layers has been reached.");
+    ezUIServices::GetSingleton()->MessageBoxInformation("The maximum number of collision layers has been reached.");
     return;
   }
 
@@ -227,7 +227,7 @@ void ezPhysxProjectSettingsDlg::on_ButtonAddLayer_clicked()
 
     if (m_Config.GetFilterGroupByName(result.toUtf8().data()) >= 0)
     {
-      ezUIServices::GetInstance()->MessageBoxWarning("A Collision Layer with the given name already exists.");
+      ezUIServices::GetSingleton()->MessageBoxWarning("A Collision Layer with the given name already exists.");
       continue;
     }
 
@@ -240,7 +240,7 @@ void ezPhysxProjectSettingsDlg::on_ButtonAddLayer_clicked()
 
 void ezPhysxProjectSettingsDlg::on_ButtonRemoveLayer_clicked()
 {
-  if (ezUIServices::GetInstance()->MessageBoxQuestion("Remove selected Collision Layer?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::No)
+  if (ezUIServices::GetSingleton()->MessageBoxQuestion("Remove selected Collision Layer?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::No)
     return;
 
   const auto sel = FilterTable->selectionModel()->selectedRows();
@@ -282,7 +282,7 @@ void ezPhysxProjectSettingsDlg::on_ButtonRenameLayer_clicked()
 
     if (m_Config.GetFilterGroupByName(result.toUtf8().data()) >= 0)
     {
-      ezUIServices::GetInstance()->MessageBoxWarning("A Collision Layer with the given name already exists.");
+      ezUIServices::GetSingleton()->MessageBoxWarning("A Collision Layer with the given name already exists.");
       continue;
     }
 

@@ -154,7 +154,7 @@ public:
   {
     m_uiArgumentCount = uiArgumentCount;
     m_ppArguments = ppArguments;
-    ezCommandLineUtils::GetInstance()->SetCommandLine(uiArgumentCount, ppArguments);
+    ezCommandLineUtils::GetGlobalInstance()->SetCommandLine(uiArgumentCount, ppArguments);
   }
 
   /// \brief Returns the one instance of ezApplication that is available.

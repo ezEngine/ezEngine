@@ -49,7 +49,7 @@ void ezTextureAssetProperties::SetInputFile(const char* szFile)
 
   if (!sTemp.IsAbsolutePath())
   {
-    ezQtEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sPath);
+    ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
   }
 
   m_TextureType = ezTextureTypeEnum::Unknown;

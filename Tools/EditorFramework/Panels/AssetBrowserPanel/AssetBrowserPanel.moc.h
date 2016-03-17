@@ -10,15 +10,13 @@ class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserPanel : public ezQtApplicationPanel
 {
   Q_OBJECT
 
+  EZ_DECLARE_SINGLETON(ezQtAssetBrowserPanel);
+
 public:
   ezQtAssetBrowserPanel();
   ~ezQtAssetBrowserPanel();
 
-  static ezQtAssetBrowserPanel* GetInstance() { return s_pInstance; }
-
 private slots:
   void SlotAssetChosen(QString sAssetGuid, QString sAssetPathRelative, QString sAssetPathAbsolute);
 
-private:
-  static ezQtAssetBrowserPanel* s_pInstance;
 };

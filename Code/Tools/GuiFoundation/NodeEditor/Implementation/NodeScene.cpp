@@ -213,7 +213,7 @@ void ezQtNodeScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
     else
       history->FinishTransaction();
 
-    ezUIServices::GetInstance()->MessageBoxStatus(res, "Move node failed");
+    ezUIServices::GetSingleton()->MessageBoxStatus(res, "Move node failed");
   }
 }
 
@@ -446,11 +446,11 @@ void ezQtNodeScene::RemoveNodeAction(ezQtNode* pNode)
     else
       history->FinishTransaction();
 
-    ezUIServices::GetInstance()->MessageBoxStatus(res, "Node remove failed.");
+    ezUIServices::GetSingleton()->MessageBoxStatus(res, "Node remove failed.");
   }
   else
   {
-    ezUIServices::GetInstance()->MessageBoxStatus(res, "Node remove failed.");
+    ezUIServices::GetSingleton()->MessageBoxStatus(res, "Node remove failed.");
   }
 }
 
@@ -474,11 +474,11 @@ void ezQtNodeScene::ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTar
     else
       history->FinishTransaction();
 
-    ezUIServices::GetInstance()->MessageBoxStatus(res, "Node connect failed.");
+    ezUIServices::GetSingleton()->MessageBoxStatus(res, "Node connect failed.");
   }
   else
   {
-    ezUIServices::GetInstance()->MessageBoxStatus(res, "Node connect failed.");
+    ezUIServices::GetSingleton()->MessageBoxStatus(res, "Node connect failed.");
   }
 }
 
@@ -502,11 +502,11 @@ void ezQtNodeScene::DisconnectPinsAction(ezQtConnection* pConnection)
     else
       history->FinishTransaction();
 
-    ezUIServices::GetInstance()->MessageBoxStatus(res, "Node disconnect failed.");
+    ezUIServices::GetSingleton()->MessageBoxStatus(res, "Node disconnect failed.");
   }
   else
   {
-    ezUIServices::GetInstance()->MessageBoxStatus(res, "Node disconnect failed.");
+    ezUIServices::GetSingleton()->MessageBoxStatus(res, "Node disconnect failed.");
   }
 }
 
@@ -532,7 +532,7 @@ void ezQtNodeScene::DisconnectPinsAction(ezQtPin* pPin)
   else
     history->FinishTransaction();
 
-  ezUIServices::GetInstance()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
+  ezUIServices::GetSingleton()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
 }
 
 
@@ -567,5 +567,5 @@ void ezQtNodeScene::OnMenuAction()
   else
     history->FinishTransaction();
 
-  ezUIServices::GetInstance()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
+  ezUIServices::GetSingleton()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
 }

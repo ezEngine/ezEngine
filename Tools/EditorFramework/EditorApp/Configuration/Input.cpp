@@ -11,7 +11,7 @@ void ezQtEditorApp::GetKnownInputSlots(ezDynamicArray<ezString>& slotList) const
   ezStringBuilder sFile;
   ezDynamicArray<ezStringView> Lines;
 
-  ezStringBuilder sSearchDir = ezQtEditorApp::GetInstance()->GetEditorDataFolder();
+  ezStringBuilder sSearchDir = ezQtEditorApp::GetSingleton()->GetEditorDataFolder();
   sSearchDir.AppendPath("InputSlots/*.txt");
 
   ezFileSystemIterator it;

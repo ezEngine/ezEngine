@@ -58,11 +58,11 @@ class EZ_EDITORFRAMEWORK_DLL ezQtLogPanel : public ezQtApplicationPanel, public 
 {
   Q_OBJECT
 
+  EZ_DECLARE_SINGLETON(ezQtLogPanel);
+
 public:
   ezQtLogPanel();
   ~ezQtLogPanel();
-
-  static ezQtLogPanel* GetInstance() { return s_pInstance; }
 
 private slots:
   void on_ButtonClearEditorLog_clicked();
@@ -81,6 +81,4 @@ private:
 
   void LogWriter(const ezLoggingEventData& e);
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
-
-  static ezQtLogPanel* s_pInstance;
 };

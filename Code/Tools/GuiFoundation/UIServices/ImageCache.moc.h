@@ -11,13 +11,16 @@
 #include <QString>
 #include <QPixmap>
 #include <QAbstractItemModel>
+#include <Foundation/Configuration/Singleton.h>
 
 class EZ_GUIFOUNDATION_DLL ezQtImageCache : public QObject
 {
   Q_OBJECT
 
+    EZ_DECLARE_SINGLETON(ezQtImageCache);
+
 public:
-  static ezQtImageCache* GetInstance();
+  ezQtImageCache();
 
   static void SetFallbackImages(const char* szLoading, const char* szUnavailable);
 
