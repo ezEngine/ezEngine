@@ -3,7 +3,7 @@
 
 #include <RendererFoundation/Basics.h>
 #include <Foundation/Containers/IdTable.h>
-#include <Foundation/Containers/Map.h>
+#include <Foundation/Containers/HashTable.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Device/DeviceCapabilities.h>
@@ -161,11 +161,17 @@ protected:
 
   friend class ezGALContext;
 
-  template<typename IdTableType, typename ReturnType> ReturnType* Get(typename IdTableType::TypeOfId hHandle, const IdTableType& IdTable) const;
-
   ezGALDevice(const ezGALDeviceCreationDescription& Description);
 
   virtual ~ezGALDevice();
+
+  template<typename IdTableType, typename ReturnType>
+  ReturnType* Get(typename IdTableType::TypeOfId hHandle, const IdTableType& IdTable) const;
+
+  template<typename ViewDescription>
+  ezGALResourceBase* GetResourceFromViewDescription(const ViewDescription& description);
+
+  void DestroyViews(ezGALResourceBase* pResource);
 
   ezProxyAllocator m_Allocator;
   ezLocalAllocatorWrapper m_AllocatorWrapper;
@@ -223,14 +229,12 @@ protected:
   VertexDeclarationTable m_VertexDeclarations;
 
 
-  // Hash maps used to prevent state object duplication
-  ezMap<ezUInt32, ezGALBlendStateHandle, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_BlendStateMap;
-  ezMap<ezUInt32, ezGALDepthStencilStateHandle, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_DepthStencilStateMap;
-  ezMap<ezUInt32, ezGALRasterizerStateHandle, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_RasterizerStateMap;
-  ezMap<ezUInt32, ezGALResourceViewHandle, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_ResourceViewMap;
-  ezMap<ezUInt32, ezGALSamplerStateHandle, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_SamplerStateMap;
-  ezMap<ezUInt32, ezGALRenderTargetViewHandle, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_RenderTargetViewMap;
-  ezMap<ezUInt32, ezGALVertexDeclarationHandle, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_VertexDeclarationMap;
+  // Hash tables used to prevent state object duplication
+  ezHashTable<ezUInt32, ezGALBlendStateHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_BlendStateTable;
+  ezHashTable<ezUInt32, ezGALDepthStencilStateHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_DepthStencilStateTable;
+  ezHashTable<ezUInt32, ezGALRasterizerStateHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_RasterizerStateTable;
+  ezHashTable<ezUInt32, ezGALSamplerStateHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_SamplerStateTable;
+  ezHashTable<ezUInt32, ezGALVertexDeclarationHandle, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_VertexDeclarationTable;
 
 
   ezGALDeviceCreationDescription m_Description;
@@ -289,11 +293,11 @@ protected:
 
   virtual void DestroyTexturePlatform(ezGALTexture* pTexture) = 0;
 
-  virtual ezGALResourceView* CreateResourceViewPlatform(const ezGALResourceViewCreationDescription& Description) = 0;
+  virtual ezGALResourceView* CreateResourceViewPlatform(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description) = 0;
 
   virtual void DestroyResourceViewPlatform(ezGALResourceView* pResourceView) = 0;
 
-  virtual ezGALRenderTargetView* CreateRenderTargetViewPlatform(const ezGALRenderTargetViewCreationDescription& Description) = 0;
+  virtual ezGALRenderTargetView* CreateRenderTargetViewPlatform(ezGALResourceBase* pResource, const ezGALRenderTargetViewCreationDescription& Description) = 0;
 
   virtual void DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRenderTargetView) = 0;
 

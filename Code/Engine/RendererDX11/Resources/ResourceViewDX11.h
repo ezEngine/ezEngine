@@ -16,7 +16,7 @@ protected:
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;
 
-  ezGALResourceViewDX11(const ezGALResourceViewCreationDescription& Description);
+  ezGALResourceViewDX11(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description);
 
   ~ezGALResourceViewDX11();
 

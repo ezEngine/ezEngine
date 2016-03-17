@@ -1,10 +1,10 @@
 
 #pragma once
 
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/Resources/Resource.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
-class EZ_RENDERERFOUNDATION_DLL ezGALBuffer : public ezGALObject<ezGALBufferCreationDescription>
+class EZ_RENDERERFOUNDATION_DLL ezGALBuffer : public ezGALResource<ezGALBufferCreationDescription>
 {
 public:
 

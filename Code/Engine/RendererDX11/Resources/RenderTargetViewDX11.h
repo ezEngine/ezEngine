@@ -23,7 +23,7 @@ protected:
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;
 
-  ezGALRenderTargetViewDX11(const ezGALRenderTargetViewCreationDescription& Description);
+  ezGALRenderTargetViewDX11(ezGALResourceBase* pResource, const ezGALRenderTargetViewCreationDescription& Description);
 
   virtual ~ezGALRenderTargetViewDX11();
 

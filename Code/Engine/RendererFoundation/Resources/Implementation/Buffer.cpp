@@ -3,7 +3,7 @@
 #include <RendererFoundation/Resources/Buffer.h>
 
 ezGALBuffer::ezGALBuffer(const ezGALBufferCreationDescription& Description)
-  : ezGALObject(Description)
+  : ezGALResource(Description)
 {
 }
 

@@ -3,7 +3,7 @@
 #include <RendererFoundation/Resources/Texture.h>
 
 ezGALTexture::ezGALTexture(const ezGALTextureCreationDescription& Description)
-  : ezGALObject(Description)
+  : ezGALResource(Description)
 {
 }
 

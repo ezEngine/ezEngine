@@ -41,6 +41,19 @@ EZ_FORCE_INLINE ReturnType* ezGALDevice::Get(typename IdTableType::TypeOfId hHan
   }
 }
 
+template<typename ViewDescription>
+EZ_FORCE_INLINE ezGALResourceBase* ezGALDevice::GetResourceFromViewDescription(const ViewDescription& description)
+{
+  if (!description.m_hTexture.IsInvalidated())
+    return Get<TextureTable, ezGALTexture>(description.m_hTexture, m_Textures);
+
+  if (!description.m_hBuffer.IsInvalidated())
+    return Get<BufferTable, ezGALBuffer>(description.m_hBuffer, m_Buffers);
+
+  ezLog::Error("No valid texture handle or buffer handle given for resource view creation!");
+  return nullptr;
+}
+
 EZ_FORCE_INLINE const ezGALSwapChain* ezGALDevice::GetSwapChain(ezGALSwapChainHandle hSwapChain) const
 {
   return Get<SwapChainTable, ezGALSwapChain>(hSwapChain, m_SwapChains);

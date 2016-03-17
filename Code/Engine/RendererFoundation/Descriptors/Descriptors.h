@@ -180,7 +180,7 @@ struct ezGALVertexAttribute
 struct EZ_RENDERERFOUNDATION_DLL ezGALVertexDeclarationCreationDescription : public ezHashableStruct<ezGALVertexDeclarationCreationDescription>
 {
   ezGALShaderHandle m_hShader;
-  ezHybridArray<ezGALVertexAttribute, 8> m_VertexAttributes;
+  ezStaticArray<ezGALVertexAttribute, 16> m_VertexAttributes;
 };
 
 struct ezGALResourceAccess

@@ -8,9 +8,9 @@
 #include <d3d11.h>
 
 
-ezGALResourceViewDX11::ezGALResourceViewDX11(const ezGALResourceViewCreationDescription& Description)
-  : ezGALResourceView(Description),
-    m_pDXResourceView(nullptr)
+ezGALResourceViewDX11::ezGALResourceViewDX11(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description)
+  : ezGALResourceView(pResource, Description)
+  , m_pDXResourceView(nullptr)
 {
 }
 

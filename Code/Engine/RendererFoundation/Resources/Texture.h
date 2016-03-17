@@ -1,10 +1,10 @@
 
 #pragma once
 
-#include <RendererFoundation/Basics.h>
+#include <RendererFoundation/Resources/Resource.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
-class EZ_RENDERERFOUNDATION_DLL ezGALTexture : public ezGALObject<ezGALTextureCreationDescription>
+class EZ_RENDERERFOUNDATION_DLL ezGALTexture : public ezGALResource<ezGALTextureCreationDescription>
 {
 public:
 
@@ -20,5 +20,3 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
 };
-
-//#include <RendererFoundation/Resource/Implementation/Texture_inl.h>

@@ -47,4 +47,4 @@ void SimpleMeshRendererGameState::OnDeactivation()
   ezGameState::OnDeactivation();
 }
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezGameApplication, ezGameApplicationType::StandAlone, "Shared/Samples/SimpleMeshRenderer");
+EZ_CONSOLEAPP_ENTRY_POINT(ezGameApplication, ezGameApplicationType::StandAlone, "Data/Samples/SimpleMeshRenderer");

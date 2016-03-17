@@ -39,6 +39,7 @@ struct ezGALRenderTargetViewCreationDescription;
 
 class ezGALSwapChain;
 class ezGALShader;
+class ezGALResourceBase;
 class ezGALTexture;
 class ezGALBuffer;
 class ezGALDepthStencilState;
@@ -269,7 +270,8 @@ struct ezGALSystemMemoryDescription
 };
 
 /// \brief Base class for GAL objects, stores a creation description of the object and also allows for reference counting.
-template<typename CreationDescription> class ezGALObject : public ezRefCounted
+template<typename CreationDescription> 
+class ezGALObject : public ezRefCounted
 {
 public:
 

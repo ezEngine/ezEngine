@@ -10,11 +10,11 @@
 
 #include <d3d11.h>
 
-ezGALRenderTargetViewDX11::ezGALRenderTargetViewDX11(const ezGALRenderTargetViewCreationDescription& Description)
-  : ezGALRenderTargetView(Description),
-    m_pRenderTargetView(nullptr),
-    m_pDepthStencilView(nullptr),
-    m_pUnorderedAccessView(nullptr)
+ezGALRenderTargetViewDX11::ezGALRenderTargetViewDX11(ezGALResourceBase* pResource, const ezGALRenderTargetViewCreationDescription& Description)
+  : ezGALRenderTargetView(pResource, Description)
+  , m_pRenderTargetView(nullptr)
+  , m_pDepthStencilView(nullptr)
+  , m_pUnorderedAccessView(nullptr)
 {
 }
 
@@ -26,8 +26,8 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 {
   const ezGALTextureDX11* pTexture = nullptr;
   if(!m_Description.m_hTexture.IsInvalidated())
-    pTexture =  static_cast<const ezGALTextureDX11*>(pDevice->GetTexture(m_Description.m_hTexture));
-
+    pTexture = static_cast<const ezGALTextureDX11*>(pDevice->GetTexture(m_Description.m_hTexture));
+    
   const ezGALBufferDX11* pBuffer = nullptr;
   if(!m_Description.m_hBuffer.IsInvalidated())
     pBuffer = static_cast<const ezGALBufferDX11*>(pDevice->GetBuffer(m_Description.m_hBuffer));
@@ -43,10 +43,10 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 
   if(pTexture)
   {
-    const ezGALTextureCreationDescription& TexDesc = pTexture->GetDescription();
+  const ezGALTextureCreationDescription& TexDesc = pTexture->GetDescription();
 
-    if(ViewFormat == ezGALResourceFormat::Invalid)
-      ViewFormat = TexDesc.m_Format;
+  if(ViewFormat == ezGALResourceFormat::Invalid)
+    ViewFormat = TexDesc.m_Format;
   }
   else if(pBuffer)
   {

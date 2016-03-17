@@ -298,9 +298,9 @@ void ezGALDeviceDX11::DestroyTexturePlatform(ezGALTexture* pTexture)
   EZ_DELETE(&m_Allocator, pDX11Texture);
 }
 
-ezGALResourceView* ezGALDeviceDX11::CreateResourceViewPlatform(const ezGALResourceViewCreationDescription& Description)
+ezGALResourceView* ezGALDeviceDX11::CreateResourceViewPlatform(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description)
 {
-  ezGALResourceViewDX11* pResourceView = EZ_NEW(&m_Allocator, ezGALResourceViewDX11, Description);
+  ezGALResourceViewDX11* pResourceView = EZ_NEW(&m_Allocator, ezGALResourceViewDX11, pResource, Description);
 
   if(!pResourceView->InitPlatform(this).Succeeded())
   {
@@ -318,9 +318,9 @@ void ezGALDeviceDX11::DestroyResourceViewPlatform(ezGALResourceView* pResourceVi
   EZ_DELETE(&m_Allocator, pDX11ResourceView);
 }
 
-ezGALRenderTargetView* ezGALDeviceDX11::CreateRenderTargetViewPlatform(const ezGALRenderTargetViewCreationDescription& Description)
+ezGALRenderTargetView* ezGALDeviceDX11::CreateRenderTargetViewPlatform(ezGALResourceBase* pResource, const ezGALRenderTargetViewCreationDescription& Description)
 {
-  ezGALRenderTargetViewDX11* pRTView = EZ_NEW(&m_Allocator, ezGALRenderTargetViewDX11, Description);
+  ezGALRenderTargetViewDX11* pRTView = EZ_NEW(&m_Allocator, ezGALRenderTargetViewDX11, pResource, Description);
 
   if(!pRTView->InitPlatform(this).Succeeded())
   {

@@ -3,8 +3,11 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/State/State.h>
 #include <RendererFoundation/Shader/Shader.h>
+#include <RendererFoundation/Shader/VertexDeclaration.h>
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/Texture.h>
+#include <RendererFoundation/Resources/RenderTargetView.h>
+#include <RendererFoundation/Resources/ResourceView.h>
 #include <RendererFoundation/Context/Context.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Logging/Log.h>
@@ -118,12 +121,12 @@ ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreatio
   // Hash description and return potential existing one (including inc. refcount)
   ezUInt32 uiHash = Description.CalculateHash();
 
-  auto it = m_BlendStateMap.Find(uiHash);
-  if (it.IsValid())
+  ezGALBlendStateHandle hBlendState;
+  if (m_BlendStateTable.TryGetValue(uiHash, hBlendState))
   {
-    ezGALBlendState* pBlendState = m_BlendStates[it.Value()];
+    ezGALBlendState* pBlendState = m_BlendStates[hBlendState];
     pBlendState->AddRef();
-    return it.Value();
+    return hBlendState;
   }
 
   ezGALBlendState* pBlendState = CreateBlendStatePlatform(Description);
@@ -132,10 +135,10 @@ ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreatio
   {
     pBlendState->AddRef();
 
-    ezGALBlendStateHandle hHandle(m_BlendStates.Insert(pBlendState));
-    m_BlendStateMap[uiHash] = hHandle;
+    ezGALBlendStateHandle hBlendState(m_BlendStates.Insert(pBlendState));
+    m_BlendStateTable.Insert(uiHash, hBlendState);
 
-    return hHandle;
+    return hBlendState;
   }
 
   return ezGALBlendStateHandle();
@@ -152,7 +155,7 @@ void ezGALDevice::DestroyBlendState(ezGALBlendStateHandle hBlendState)
     if (pBlendState->GetRefCount() == 0)
     {
       m_BlendStates.Remove(hBlendState);
-      m_BlendStateMap.Remove(pBlendState->GetDescription().CalculateHash());
+      m_BlendStateTable.Remove(pBlendState->GetDescription().CalculateHash());
 
       DestroyBlendStatePlatform(pBlendState);
     }
@@ -165,18 +168,27 @@ void ezGALDevice::DestroyBlendState(ezGALBlendStateHandle hBlendState)
 
 ezGALDepthStencilStateHandle ezGALDevice::CreateDepthStencilState(const ezGALDepthStencilStateCreationDescription& Description)
 {
-  /// \todo Hash description and return potential existing one (including inc. refcount)
+  // Hash description and return potential existing one (including inc. refcount)
+  ezUInt32 uiHash = Description.CalculateHash();
+
+  ezGALDepthStencilStateHandle hDepthStencilState;
+  if (m_DepthStencilStateTable.TryGetValue(uiHash, hDepthStencilState))
+  {
+    ezGALDepthStencilState* pDepthStencilState = m_DepthStencilStates[hDepthStencilState];
+    pDepthStencilState->AddRef();
+    return hDepthStencilState;
+  }
 
   ezGALDepthStencilState* pDepthStencilState = CreateDepthStencilStatePlatform(Description);
 
+  if (pDepthStencilState != nullptr)
+  {
+    pDepthStencilState->AddRef();
 
-  if (pDepthStencilState == nullptr)
-  {
-    return ezGALDepthStencilStateHandle();
-  }
-  else
-  {
-    return ezGALDepthStencilStateHandle(m_DepthStencilStates.Insert(pDepthStencilState));
+    ezGALDepthStencilStateHandle hDepthStencilState(m_DepthStencilStates.Insert(pDepthStencilState));
+    m_DepthStencilStateTable.Insert(uiHash, hDepthStencilState);
+
+    return hDepthStencilState;
   }
 
   return ezGALDepthStencilStateHandle();
@@ -186,11 +198,17 @@ void ezGALDevice::DestroyDepthStencilState(ezGALDepthStencilStateHandle hDepthSt
 {
   ezGALDepthStencilState* pDepthStencilState = nullptr;
 
-  /// \todo Only remove if refcount = 0
-
-  if (m_DepthStencilStates.Remove(hDepthStencilState, &pDepthStencilState))
+  if (m_DepthStencilStates.TryGetValue(hDepthStencilState, pDepthStencilState))
   {
-    DestroyDepthStencilStatePlatform(pDepthStencilState);
+    pDepthStencilState->ReleaseRef();
+
+    if (pDepthStencilState->GetRefCount() == 0)
+    {
+      m_DepthStencilStates.Remove(hDepthStencilState);
+      m_DepthStencilStateTable.Remove(pDepthStencilState->GetDescription().CalculateHash());
+
+      DestroyDepthStencilStatePlatform(pDepthStencilState);
+    }
   }
   else
   {
@@ -200,17 +218,27 @@ void ezGALDevice::DestroyDepthStencilState(ezGALDepthStencilStateHandle hDepthSt
 
 ezGALRasterizerStateHandle ezGALDevice::CreateRasterizerState(const ezGALRasterizerStateCreationDescription& Description)
 {
-  /// \todo Hash description and return potential existing one (including inc. refcount)
+  // Hash description and return potential existing one (including inc. refcount)
+  ezUInt32 uiHash = Description.CalculateHash();
+
+  ezGALRasterizerStateHandle hRasterizerState;
+  if (m_RasterizerStateTable.TryGetValue(uiHash, hRasterizerState))
+  {
+    ezGALRasterizerState* pRasterizerState = m_RasterizerStates[hRasterizerState];
+    pRasterizerState->AddRef();
+    return hRasterizerState;
+  }
 
   ezGALRasterizerState* pRasterizerState = CreateRasterizerStatePlatform(Description);
 
-  if (pRasterizerState == nullptr)
+  if (pRasterizerState != nullptr)
   {
-    return ezGALRasterizerStateHandle();
-  }
-  else
-  {
-    return ezGALRasterizerStateHandle(m_RasterizerStates.Insert(pRasterizerState));
+    pRasterizerState->AddRef();
+
+    ezGALRasterizerStateHandle hRasterizerState(m_RasterizerStates.Insert(pRasterizerState));
+    m_RasterizerStateTable.Insert(uiHash, hRasterizerState);
+
+    return hRasterizerState;
   }
 
   return ezGALRasterizerStateHandle();
@@ -220,11 +248,17 @@ void ezGALDevice::DestroyRasterizerState(ezGALRasterizerStateHandle hRasterizerS
 {
   ezGALRasterizerState* pRasterizerState = nullptr;
 
-  /// \todo Only remove if refcount = 0
-
-  if (m_RasterizerStates.Remove(hRasterizerState, &pRasterizerState))
+  if (m_RasterizerStates.TryGetValue(hRasterizerState, pRasterizerState))
   {
-    DestroyRasterizerStatePlatform(pRasterizerState);
+    pRasterizerState->ReleaseRef();
+
+    if (pRasterizerState->GetRefCount() == 0)
+    {
+      m_RasterizerStates.Remove(hRasterizerState);
+      m_RasterizerStateTable.Remove(pRasterizerState->GetDescription().CalculateHash());
+
+      DestroyRasterizerStatePlatform(pRasterizerState);
+    }
   }
   else
   {
@@ -235,29 +269,48 @@ void ezGALDevice::DestroyRasterizerState(ezGALRasterizerStateHandle hRasterizerS
 ezGALSamplerStateHandle ezGALDevice::CreateSamplerState(const ezGALSamplerStateCreationDescription& Description)
 {
   /// \todo Platform independent validation
-  /// \todo Hash description and return potential existing one (including inc. refcount)
+
+  // Hash description and return potential existing one (including inc. refcount)
+  ezUInt32 uiHash = Description.CalculateHash();
+
+  ezGALSamplerStateHandle hSamplerState;
+  if (m_SamplerStateTable.TryGetValue(uiHash, hSamplerState))
+  {
+    ezGALSamplerState* pSamplerState = m_SamplerStates[hSamplerState];
+    pSamplerState->AddRef();
+    return hSamplerState;
+  }
 
   ezGALSamplerState* pSamplerState = CreateSamplerStatePlatform(Description);
 
-  if (pSamplerState == nullptr)
+  if (pSamplerState != nullptr)
   {
-    return ezGALSamplerStateHandle();
+    pSamplerState->AddRef();
+
+    ezGALSamplerStateHandle hSamplerState(m_SamplerStates.Insert(pSamplerState));
+    m_SamplerStateTable.Insert(uiHash, hSamplerState);
+
+    return hSamplerState;
   }
-  else
-  {
-    return ezGALSamplerStateHandle(m_SamplerStates.Insert(pSamplerState));
-  }
+
+  return ezGALSamplerStateHandle();
 }
 
 void ezGALDevice::DestroySamplerState(ezGALSamplerStateHandle hSamplerState)
 {
   ezGALSamplerState* pSamplerState = nullptr;
 
-  /// \todo Only remove if refcount = 0
-
-  if (m_SamplerStates.Remove(hSamplerState, &pSamplerState))
+  if (m_SamplerStates.TryGetValue(hSamplerState, pSamplerState))
   {
-    DestroySamplerStatePlatform(pSamplerState);
+    pSamplerState->ReleaseRef();
+
+    if (pSamplerState->GetRefCount() == 0)
+    {
+      m_SamplerStates.Remove(hSamplerState);
+      m_SamplerStateTable.Remove(pSamplerState->GetDescription().CalculateHash());
+
+      DestroySamplerStatePlatform(pSamplerState);
+    }
   }
   else
   {
@@ -426,6 +479,8 @@ void ezGALDevice::DestroyTexture(ezGALTextureHandle hTexture)
 
   if (m_Textures.Remove(hTexture, &pTexture))
   {
+    DestroyViews(pTexture);
+
     DestroyTexturePlatform(pTexture);
   }
   else
@@ -436,30 +491,56 @@ void ezGALDevice::DestroyTexture(ezGALTextureHandle hTexture)
 
 ezGALResourceViewHandle ezGALDevice::CreateResourceView(const ezGALResourceViewCreationDescription& Description)
 {
-  /// \todo Platform independent validation
-  /// \todo Hash description and return potential existing one (including inc. refcount)
-
-  ezGALResourceView* pResourceView = CreateResourceViewPlatform(Description);
-
-  if (pResourceView == nullptr)
+  ezGALResourceBase* pResource = GetResourceFromViewDescription(Description);
+  if (pResource == nullptr)
   {
     return ezGALResourceViewHandle();
   }
-  else
+
+  // Hash description and return potential existing one (including inc. refcount)
+  ezUInt32 uiHash = Description.CalculateHash();
+
+  ezGALResourceViewHandle hResourceView;
+  if (pResource->m_ResourceViews.TryGetValue(uiHash, hResourceView))
   {
-    return ezGALResourceViewHandle(m_ResourceViews.Insert(pResourceView));
+    ezGALResourceView* pResourceView = m_ResourceViews[hResourceView];
+    pResourceView->AddRef();
+    return hResourceView;
   }
+
+  ezGALResourceView* pResourceView = CreateResourceViewPlatform(pResource, Description);
+
+  if (pResourceView != nullptr)
+  {
+    pResourceView->AddRef();
+
+    ezGALResourceViewHandle hResourceView(m_ResourceViews.Insert(pResourceView));
+    pResource->m_ResourceViews.Insert(uiHash, hResourceView);
+
+    return hResourceView;
+  }
+
+  return ezGALResourceViewHandle();
 }
 
 void ezGALDevice::DestroyResourceView(ezGALResourceViewHandle hResourceView)
 {
   ezGALResourceView* pResourceView = nullptr;
 
-  /// \todo Only remove if refcount = 0
-
-  if (m_ResourceViews.Remove(hResourceView, &pResourceView))
+  if (m_ResourceViews.TryGetValue(hResourceView, pResourceView))
   {
-    DestroyResourceViewPlatform(pResourceView);
+    pResourceView->ReleaseRef();
+
+    if (pResourceView->GetRefCount() == 0)
+    {
+      m_ResourceViews.Remove(hResourceView);
+
+      ezGALResourceBase* pResource = pResourceView->m_pResource;
+      EZ_VERIFY(pResource->m_ResourceViews.Remove(pResourceView->GetDescription().CalculateHash()), "");
+      pResourceView->m_pResource = nullptr;
+
+      DestroyResourceViewPlatform(pResourceView);
+    }
   }
   else
   {
@@ -470,41 +551,88 @@ void ezGALDevice::DestroyResourceView(ezGALResourceViewHandle hResourceView)
 
 ezGALRenderTargetViewHandle ezGALDevice::CreateRenderTargetView(const ezGALRenderTargetViewCreationDescription& Description)
 {
-  if (Description.m_hBuffer.IsInvalidated() && Description.m_hTexture.IsInvalidated())
+  ezGALResourceBase* pResource = GetResourceFromViewDescription(Description);
+  if (pResource == nullptr)
   {
-    ezLog::Error("Trying to create a rendertarget view with neither a valid texture or buffer handle!");
     return ezGALRenderTargetViewHandle();
   }
 
   /// \todo Platform independent validation
-  /// \todo Hash description and return potential existing one (including inc. refcount)
 
-  ezGALRenderTargetView* pRenderTargetView = CreateRenderTargetViewPlatform(Description);
+  // Hash description and return potential existing one (including inc. refcount)
+  ezUInt32 uiHash = Description.CalculateHash();
 
-  if (pRenderTargetView == nullptr)
+  ezGALRenderTargetViewHandle hRenderTargetView;
+  if (pResource->m_RenderTargetViews.TryGetValue(uiHash, hRenderTargetView))
   {
-    return ezGALRenderTargetViewHandle();
-  }
-  else
+    ezGALRenderTargetView* pRenderTargetView = m_RenderTargetViews[hRenderTargetView];
+    pRenderTargetView->AddRef();
+    return hRenderTargetView;
+  }  
+
+  ezGALRenderTargetView* pRenderTargetView = CreateRenderTargetViewPlatform(pResource, Description);
+
+  if (pRenderTargetView != nullptr)
   {
-    return ezGALRenderTargetViewHandle(m_RenderTargetViews.Insert(pRenderTargetView));
+    pRenderTargetView->AddRef();
+
+    ezGALRenderTargetViewHandle hRenderTargetView(m_RenderTargetViews.Insert(pRenderTargetView));
+    pResource->m_RenderTargetViews.Insert(uiHash, hRenderTargetView);
+
+    return hRenderTargetView;
   }
+
+  return ezGALRenderTargetViewHandle();
 }
 
 void ezGALDevice::DestroyRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView)
 {
   ezGALRenderTargetView* pRenderTargetView = nullptr;
 
-  /// \todo Only remove if refcount = 0
-
-  if (m_RenderTargetViews.Remove(hRenderTargetView, &pRenderTargetView))
+  if (m_RenderTargetViews.TryGetValue(hRenderTargetView, pRenderTargetView))
   {
-    DestroyRenderTargetViewPlatform(pRenderTargetView);
+    pRenderTargetView->ReleaseRef();
+
+    if (pRenderTargetView->GetRefCount() == 0)
+    {
+      m_RenderTargetViews.Remove(hRenderTargetView);
+
+      ezGALResourceBase* pResource = pRenderTargetView->m_pResource;
+      EZ_VERIFY(pResource->m_RenderTargetViews.Remove(pRenderTargetView->GetDescription().CalculateHash()), "");
+      pRenderTargetView->m_pResource = nullptr;
+
+      DestroyRenderTargetViewPlatform(pRenderTargetView);
+    }
   }
   else
   {
     ezLog::Warning("DestroyRenderTargetView called on invalid handle (double free?)");
   }
+}
+
+void ezGALDevice::DestroyViews(ezGALResourceBase* pResource)
+{
+  for (auto it = pResource->m_ResourceViews.GetIterator(); it.IsValid(); ++it)
+  {
+    ezGALResourceViewHandle hResourceView = it.Value();
+    ezGALResourceView* pResourceView = m_ResourceViews[hResourceView];
+
+    m_ResourceViews.Remove(hResourceView);
+    
+    DestroyResourceViewPlatform(pResourceView);
+  }
+  pResource->m_ResourceViews.Clear();
+
+  for (auto it = pResource->m_RenderTargetViews.GetIterator(); it.IsValid(); ++it)
+  {
+    ezGALRenderTargetViewHandle hRenderTargetView = it.Value();
+    ezGALRenderTargetView* pRenderTargetView = m_RenderTargetViews[hRenderTargetView];
+
+    m_RenderTargetViews.Remove(hRenderTargetView);
+
+    DestroyRenderTargetViewPlatform(pRenderTargetView);
+  }
+  pResource->m_RenderTargetViews.Clear();
 }
 
 
@@ -608,27 +736,48 @@ void ezGALDevice::DestroyQuery(ezGALQueryHandle hQuery)
 ezGALVertexDeclarationHandle ezGALDevice::CreateVertexDeclaration(const ezGALVertexDeclarationCreationDescription& Description)
 {
   /// \todo Platform independent validation
-  /// \todo Hash description and return potential existing one (including inc. refcount)
+  
+  // Hash description and return potential existing one (including inc. refcount)
+  ezUInt32 uiHash = Description.CalculateHash();
+
+  ezGALVertexDeclarationHandle hVertexDeclaration;
+  if (m_VertexDeclarationTable.TryGetValue(uiHash, hVertexDeclaration))
+  {
+    ezGALVertexDeclaration* pVertexDeclaration = m_VertexDeclarations[hVertexDeclaration];
+    pVertexDeclaration->AddRef();
+    return hVertexDeclaration;
+  }
 
   ezGALVertexDeclaration* pVertexDeclaration = CreateVertexDeclarationPlatform(Description);
 
-  if (pVertexDeclaration == nullptr)
+  if (pVertexDeclaration != nullptr)
   {
-    return ezGALVertexDeclarationHandle();
+    pVertexDeclaration->AddRef();
+
+    ezGALVertexDeclarationHandle hVertexDeclaration(m_VertexDeclarations.Insert(pVertexDeclaration));
+    m_VertexDeclarationTable.Insert(uiHash, hVertexDeclaration);
+
+    return hVertexDeclaration;
   }
-  else
-  {
-    return ezGALVertexDeclarationHandle(m_VertexDeclarations.Insert(pVertexDeclaration));
-  }
+
+  return ezGALVertexDeclarationHandle();
 }
 
 void ezGALDevice::DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration)
 {
   ezGALVertexDeclaration* pVertexDeclaration = nullptr;
 
-  if (m_VertexDeclarations.Remove(hVertexDeclaration, &pVertexDeclaration))
+  if (m_VertexDeclarations.TryGetValue(hVertexDeclaration, pVertexDeclaration))
   {
-    DestroyVertexDeclarationPlatform(pVertexDeclaration);
+    pVertexDeclaration->ReleaseRef();
+
+    if (pVertexDeclaration->GetRefCount() == 0)
+    {
+      m_VertexDeclarations.Remove(hVertexDeclaration);
+      m_VertexDeclarationTable.Remove(pVertexDeclaration->GetDescription().CalculateHash());
+
+      DestroyVertexDeclarationPlatform(pVertexDeclaration);
+    }
   }
   else
   {
