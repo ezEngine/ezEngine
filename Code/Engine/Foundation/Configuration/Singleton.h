@@ -63,7 +63,7 @@ private:
     static self* GetSingleton() { return s_pSingleton; } \
   private: \
     void RegisterSingleton() { s_pSingleton = this; ezSingletonRegistry::Register(this, #self); } \
-    static void UnregisterSingleton() { ezSingletonRegistry::Unregister(#self); s_pSingleton = nullptr; } \
+    static void UnregisterSingleton() { if (s_pSingleton) { ezSingletonRegistry::Unregister(#self); s_pSingleton = nullptr; } } \
     friend class ezSingletonRegistrar<self>; \
     ezSingletonRegistrar<self> m_SingletonRegistrar; \
     static self* s_pSingleton
@@ -87,7 +87,7 @@ private:
     static self* GetSingleton() { return s_pSingleton; } \
   private: \
     void RegisterSingleton() { s_pSingleton = this; ezSingletonRegistry::Register(this, #self); ezSingletonRegistry::Register(this, #interface); } \
-    static void UnregisterSingleton() { ezSingletonRegistry::Unregister(#interface); ezSingletonRegistry::Unregister(#self); s_pSingleton = nullptr; } \
+    static void UnregisterSingleton() { if (s_pSingleton) { ezSingletonRegistry::Unregister(#interface); ezSingletonRegistry::Unregister(#self); s_pSingleton = nullptr; } } \
     friend class ezSingletonRegistrar<self>; \
     ezSingletonRegistrar<self> m_SingletonRegistrar; \
     static self* s_pSingleton

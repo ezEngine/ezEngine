@@ -109,6 +109,12 @@ public:
     return m_pResource != rhs.m_pResource;
   }
 
+  /// \brief Returns the handle value as a uint 64
+  ezUInt64 GetAsUInt64() const
+  {
+    return reinterpret_cast<ezUInt64>(m_pResource);
+  }
+
 private:
   // you must go through the resource manager to get access to the resource pointer
   friend class ezResourceManager;
