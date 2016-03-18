@@ -203,6 +203,7 @@ void ezWorldReader::ReadGameObjectDesc(GameObjectToCreate& godesc)
   *m_pStream >> desc.m_LocalPosition;
   *m_pStream >> desc.m_LocalRotation;
   *m_pStream >> desc.m_LocalScaling;
+  *m_pStream >> desc.m_LocalUniformScaling;
 
   bool bActive = true;
   *m_pStream >> bActive;

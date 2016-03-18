@@ -73,7 +73,7 @@ void ezGALContextDX11::ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRende
 {
   for (ezUInt32 i = 0; i < m_uiBoundRenderTargetCount; i++)
   {
-    if (uiRenderTargetClearMask & (1u << i))
+    if (uiRenderTargetClearMask & (1u << i) && m_pBoundRenderTargets[i])
     {
       m_pDXContext->ClearRenderTargetView(m_pBoundRenderTargets[i], ClearColor.GetData());
     }
@@ -289,6 +289,8 @@ void ezGALContextDX11::SetRenderTargetSetupPlatform( ezGALRenderTargetView** ppR
 
   if (uiRenderTargetCount > 0 || pDepthStencilView != nullptr)
   {
+    m_uiBoundRenderTargetCount = uiRenderTargetCount;
+
     for ( ezUInt32 i = 0; i < uiRenderTargetCount; i++ )
     {
       if ( ppRenderTargetViews[i] != nullptr )

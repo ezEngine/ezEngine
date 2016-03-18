@@ -154,6 +154,7 @@ void ezWorldWriter::WriteGameObject(const ezGameObject* pObject)
   s << pObject->GetLocalPosition();
   s << pObject->GetLocalRotation();
   s << pObject->GetLocalScaling();
+  s << pObject->GetLocalUniformScaling();
   s << pObject->IsActive();
   s << pObject->IsDynamic();
 
