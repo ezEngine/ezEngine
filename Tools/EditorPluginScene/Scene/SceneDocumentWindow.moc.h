@@ -96,6 +96,7 @@ private:
   {
     const ezDocumentObject* m_pObject;
     ezVec3 m_vLocalScaling;
+    float m_fLocalUniformScaling;
     ezTransform m_GlobalTransform;
   };
 

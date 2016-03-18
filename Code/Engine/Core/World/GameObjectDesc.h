@@ -16,6 +16,7 @@ struct ezGameObjectDesc
     m_LocalPosition.SetZero();
     m_LocalRotation.SetIdentity();
     m_LocalScaling.Set(1.0f);
+    m_LocalUniformScaling = 1.0f;
   }
 
   ezBitflags<ezObjectFlags> m_Flags;
@@ -27,5 +28,6 @@ struct ezGameObjectDesc
   ezVec3 m_LocalPosition;
   ezQuat m_LocalRotation;
   ezVec3 m_LocalScaling;
+  float m_LocalUniformScaling;
 };
 

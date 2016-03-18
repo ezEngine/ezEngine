@@ -87,6 +87,7 @@ void ezQtSceneDocumentWindow::UpdateGizmoSelectionList()
     sgo.m_pObject = Selection[sel];
     sgo.m_GlobalTransform = GetSceneDocument()->GetGlobalTransform(sgo.m_pObject);
     sgo.m_vLocalScaling = Selection[sel]->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
+    sgo.m_fLocalUniformScaling = Selection[sel]->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>();
 
     m_GizmoSelection.PushBack(sgo);
   }
@@ -230,22 +231,43 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmo::Giz
 
       if (e.m_pGizmo == &m_ScaleGizmo)
       {
-        ezSetObjectPropertyCommand cmd;
-        cmd.SetPropertyPath("LocalScaling");
-
         const ezVec3 vScale = m_ScaleGizmo.GetScalingResult();
+        ezSetObjectPropertyCommand cmd;
 
-        for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
+        if (vScale.x == vScale.y && vScale.x == vScale.z)
         {
-          const auto& obj = m_GizmoSelection[sel];
+          cmd.SetPropertyPath("LocalUniformScaling");
 
-          cmd.m_Object = obj.m_pObject->GetGuid();
-          cmd.m_NewValue = obj.m_vLocalScaling.CompMult(vScale);
-
-          if (GetDocument()->GetCommandHistory()->AddCommand(cmd).m_Result.Failed())
+          for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
           {
-            bCancel = true;
-            break;
+            const auto& obj = m_GizmoSelection[sel];
+
+            cmd.m_Object = obj.m_pObject->GetGuid();
+            cmd.m_NewValue = obj.m_fLocalUniformScaling * vScale.x;
+
+            if (GetDocument()->GetCommandHistory()->AddCommand(cmd).m_Result.Failed())
+            {
+              bCancel = true;
+              break;
+            }
+          }
+        }
+        else
+        {
+          cmd.SetPropertyPath("LocalScaling");
+
+          for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
+          {
+            const auto& obj = m_GizmoSelection[sel];
+
+            cmd.m_Object = obj.m_pObject->GetGuid();
+            cmd.m_NewValue = obj.m_vLocalScaling.CompMult(vScale);
+
+            if (GetDocument()->GetCommandHistory()->AddCommand(cmd).m_Result.Failed())
+            {
+              bCancel = true;
+              break;
+            }
           }
         }
       }
@@ -315,16 +337,16 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmo::Giz
         if (m_ScaleGizmo.IsVisible())
         {
           ezSetObjectPropertyCommand cmd;
-          cmd.SetPropertyPath("LocalScaling");
+          cmd.SetPropertyPath("LocalUniformScaling");
 
-          const ezVec3 vScale(pOrtho->GetScalingResult());
+          const float fScale = pOrtho->GetScalingResult();
 
           for (ezUInt32 sel = 0; sel < m_GizmoSelection.GetCount(); ++sel)
           {
             const auto& obj = m_GizmoSelection[sel];
 
             cmd.m_Object = obj.m_pObject->GetGuid();
-            cmd.m_NewValue = obj.m_vLocalScaling.CompMult(vScale);
+            cmd.m_NewValue = obj.m_fLocalUniformScaling * fScale;
 
             if (GetDocument()->GetCommandHistory()->AddCommand(cmd).m_Result.Failed())
             {

@@ -127,6 +127,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pTransformationData->m_localPosition = desc.m_LocalPosition.GetAsPositionVec4();
   pTransformationData->m_localRotation = desc.m_LocalRotation;
   pTransformationData->m_localScaling = desc.m_LocalScaling.GetAsDirectionVec4();
+  pTransformationData->m_localScaling.w = desc.m_LocalUniformScaling;
   pTransformationData->m_globalTransform.SetIdentity();
   pTransformationData->m_velocity.SetZero();
   pTransformationData->m_localBounds.SetInvalid();

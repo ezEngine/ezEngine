@@ -7,6 +7,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator);
     EZ_ACCESSOR_PROPERTY("LocalPosition", GetLocalPosition, SetLocalPosition),
     EZ_ACCESSOR_PROPERTY("LocalRotation", GetLocalRotation, SetLocalRotation),
     EZ_ACCESSOR_PROPERTY("LocalScaling", GetLocalScaling, SetLocalScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f, 1.0f, 1.0f))),
+    EZ_ACCESSOR_PROPERTY("LocalUniformScaling", GetLocalUniformScaling, SetLocalUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_SET_MEMBER_PROPERTY("Tags", m_Tags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
     EZ_SET_ACCESSOR_PROPERTY("Children", Reflection_GetChildren, Reflection_AddChild, Reflection_DetachChild)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
     EZ_SET_ACCESSOR_PROPERTY("Components", Reflection_GetComponents, Reflection_AddComponent, Reflection_RemoveComponent)->AddFlags(ezPropertyFlags::PointerOwner),
@@ -195,7 +196,7 @@ void ezGameObject::SetGlobalTransform(const ezTransform& transform)
   ezVec3 vPos, vScale;
   tLocal.Decompose(vPos, m_pTransformationData->m_localRotation, vScale);
   m_pTransformationData->m_localPosition = vPos.GetAsVec4(0.0f);
-  m_pTransformationData->m_localScaling = vScale.GetAsVec4(0.0f);
+  m_pTransformationData->m_localScaling = vScale.GetAsVec4(1.0f);
 
   m_pTransformationData->m_globalTransform = transform;
 }

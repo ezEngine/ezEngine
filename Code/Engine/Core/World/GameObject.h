@@ -164,6 +164,9 @@ public:
   void SetLocalScaling(const ezVec3& scaling);
   const ezVec3& GetLocalScaling() const;
 
+  void SetLocalUniformScaling(float scaling);
+  float GetLocalUniformScaling() const;
+
   void SetGlobalPosition(const ezVec3& position);
   const ezVec3& GetGlobalPosition() const;
 
@@ -273,7 +276,7 @@ private:
 
     ezVec4 m_localPosition;
     ezQuat m_localRotation;
-    ezVec4 m_localScaling;
+    ezVec4 m_localScaling; // x,y,z = non-uniform scaling, w = uniform scaling
 
     ezTransform m_globalTransform;
     ezVec4 m_velocity;

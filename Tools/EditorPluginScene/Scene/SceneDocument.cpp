@@ -519,6 +519,7 @@ void ezSceneDocument::RevertPrefabs(const ezDeque<const ezDocumentObject*>& Sele
     const ezVec3 vLocalPos = pItem->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
     const ezQuat vLocalRot = pItem->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
     const ezVec3 vLocalScale = pItem->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
+    const float fLocalUniformScale = pItem->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>();
 
     ezRemoveObjectCommand remCmd;
     remCmd.m_Object = pItem->GetGuid();
@@ -553,6 +554,10 @@ void ezSceneDocument::RevertPrefabs(const ezDeque<const ezDocumentObject*>& Sele
 
       setCmd.m_sPropertyPath = "LocalScaling";
       setCmd.m_NewValue = vLocalScale;
+      pHistory->AddCommand(setCmd);
+
+      setCmd.m_sPropertyPath = "LocalUniformScaling";
+      setCmd.m_NewValue = fLocalUniformScale;
       pHistory->AddCommand(setCmd);
 
       auto pMeta = m_ObjectMetaData.BeginModifyMetaData(NewObject);
@@ -756,7 +761,8 @@ void ezSceneDocument::ObjectPropertyEventHandler(const ezDocumentObjectPropertyE
 {
   if (e.m_sPropertyPath == "LocalPosition" ||
       e.m_sPropertyPath == "LocalRotation" ||
-      e.m_sPropertyPath == "LocalScaling")
+      e.m_sPropertyPath == "LocalScaling" ||
+      e.m_sPropertyPath == "LocalUniformScaling")
   {
     InvalidateGlobalTransformValue(e.m_pObject);
   }
@@ -879,8 +885,15 @@ void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const 
   ezVec3 vLocalPos;
   ezVec3 vLocalScale;
   ezQuat qLocalRot;
+  float fUniformScale = 1.0f;
 
   tLocal.Decompose(vLocalPos, qLocalRot, vLocalScale);
+
+  if (vLocalScale.x == vLocalScale.y && vLocalScale.x == vLocalScale.z)
+  {
+    fUniformScale = vLocalScale.x;
+    vLocalScale.Set(1.0f);
+  }
 
   ezSetObjectPropertyCommand cmd;
   cmd.m_Object = pObject->GetGuid();
@@ -903,6 +916,13 @@ void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const 
   {
     cmd.SetPropertyPath("LocalScaling");
     cmd.m_NewValue = vLocalScale;
+    pHistory->AddCommand(cmd);
+  }
+
+  if (pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>() != fUniformScale)
+  {
+    cmd.SetPropertyPath("LocalUniformScaling");
+    cmd.m_NewValue = fUniformScale;
     pHistory->AddCommand(cmd);
   }
 

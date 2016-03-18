@@ -12,8 +12,9 @@ ezTransform ezSceneDocument::QueryLocalTransform(const ezDocumentObject* pObject
   const ezVec3 vTranslation = pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
   const ezVec3 vScaling = pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
   const ezQuat qRotation = pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
+  const float fScaling = pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>();
 
-  return ezTransform(vTranslation, qRotation, vScaling);
+  return ezTransform(vTranslation, qRotation, vScaling * fScaling);
 }
 
 ezTransform ezSceneDocument::ComputeGlobalTransform(const ezDocumentObject* pObject)

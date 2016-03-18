@@ -162,7 +162,7 @@ EZ_FORCE_INLINE const ezQuat& ezGameObject::GetLocalRotation() const
 
 EZ_FORCE_INLINE void ezGameObject::SetLocalScaling(const ezVec3& scaling)
 {
-  m_pTransformationData->m_localScaling = scaling.GetAsDirectionVec4();
+  m_pTransformationData->m_localScaling = scaling.GetAsVec4(m_pTransformationData->m_localScaling.w);
 }
 
 EZ_FORCE_INLINE const ezVec3& ezGameObject::GetLocalScaling() const
@@ -170,6 +170,15 @@ EZ_FORCE_INLINE const ezVec3& ezGameObject::GetLocalScaling() const
   return *reinterpret_cast<const ezVec3*>(&m_pTransformationData->m_localScaling);
 }
 
+EZ_FORCE_INLINE void ezGameObject::SetLocalUniformScaling(float scaling)
+{
+  m_pTransformationData->m_localScaling.w = scaling;
+}
+
+EZ_FORCE_INLINE float ezGameObject::GetLocalUniformScaling() const
+{
+  return m_pTransformationData->m_localScaling.w;
+}
 EZ_FORCE_INLINE const ezVec3& ezGameObject::GetGlobalPosition() const
 {
   return m_pTransformationData->m_globalTransform.m_vPosition;
@@ -280,7 +289,7 @@ EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalTransform()
 {
   const ezVec3 vPos = *reinterpret_cast<const ezVec3*>(&m_localPosition);
   const ezQuat qRot = m_localRotation;
-  const ezVec3 vScale = *reinterpret_cast<const ezVec3*>(&m_localScaling);
+  const ezVec3 vScale = *reinterpret_cast<const ezVec3*>(&m_localScaling) * m_localScaling.w;
   m_globalTransform = ezTransform(vPos, qRot, vScale);
 }
 
@@ -288,7 +297,7 @@ EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalTransformWith
 {
   const ezVec3 vPos = *reinterpret_cast<const ezVec3*>(&m_localPosition);
   const ezQuat qRot = m_localRotation;
-  const ezVec3 vScale = *reinterpret_cast<const ezVec3*>(&m_localScaling);
+  const ezVec3 vScale = *reinterpret_cast<const ezVec3*>(&m_localScaling) * m_localScaling.w;
   const ezTransform localTransform(vPos, qRot, vScale);
   m_globalTransform.SetGlobalTransform(m_pParentData->m_globalTransform, localTransform);
 }

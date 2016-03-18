@@ -101,14 +101,16 @@ ezEditorInut ezDragToPositionGizmo::mousePressEvent(QMouseEvent* e)
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
   msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
 
-  m_Bobble.SetVisible(false);
-  m_AlignPX.SetVisible(false);
-  m_AlignNX.SetVisible(false);
-  m_AlignPY.SetVisible(false);
-  m_AlignNY.SetVisible(false);
-  m_AlignPZ.SetVisible(false);
-  m_AlignNZ.SetVisible(false);
-  m_pInteractionGizmoHandle->SetVisible(true);
+  // The gizmo is actually "hidden" somewhere else during dragging,
+  // because it musn't be rendered into the picking buffer, to avoid picking against the gizmo
+  //m_Bobble.SetVisible(false);
+  //m_AlignPX.SetVisible(false);
+  //m_AlignNX.SetVisible(false);
+  //m_AlignPY.SetVisible(false);
+  //m_AlignNY.SetVisible(false);
+  //m_AlignPZ.SetVisible(false);
+  //m_AlignNZ.SetVisible(false);
+  //m_pInteractionGizmoHandle->SetVisible(true);
 
   m_vStartPosition = GetTransformation().GetTranslationVector();
 
