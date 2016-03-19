@@ -19,24 +19,24 @@ namespace
 }
 
 //static
-ezUInt64 ezRenderSortingFunctions::ByBatchThenFrontToBack(const ezRenderData* pRenderData, const ezCamera& camera)
+ezUInt64 ezRenderSortingFunctions::ByRenderDataThenFrontToBack(const ezRenderData* pRenderData, ezUInt32 uiRenderDataSortingKey, const ezCamera& camera)
 {
   const ezUInt64 uiTypeHash = CalculateTypeHash(pRenderData);
-  const ezUInt64 uiBatchId = pRenderData->m_uiBatchId;
+  const ezUInt64 uiRenderDataSortingKey64 = uiRenderDataSortingKey;
   const ezUInt64 uiDistance = CalculateDistance(pRenderData, camera);
   
-  const ezUInt64 uiSortingKey = (uiTypeHash << 48) | (uiBatchId << 16) | uiDistance;  
+  const ezUInt64 uiSortingKey = (uiTypeHash << 48) | (uiRenderDataSortingKey64 << 16) | uiDistance;  
   return uiSortingKey;
 }
 
 //static
-ezUInt64 ezRenderSortingFunctions::BackToFrontThenByBatch(const ezRenderData* pRenderData, const ezCamera& camera)
+ezUInt64 ezRenderSortingFunctions::BackToFrontThenByRenderData(const ezRenderData* pRenderData, ezUInt32 uiRenderDataSortingKey, const ezCamera& camera)
 {
   const ezUInt64 uiTypeHash = CalculateTypeHash(pRenderData);
-  const ezUInt64 uiBatchId = pRenderData->m_uiBatchId;
+  const ezUInt64 uiRenderDataSortingKey64 = uiRenderDataSortingKey;
   const ezUInt64 uiInvDistance = 0xFFFF - CalculateDistance(pRenderData, camera);
 
-  const ezUInt64 uiSortingKey = (uiInvDistance << 48) | (uiTypeHash << 32) | uiBatchId;
+  const ezUInt64 uiSortingKey = (uiInvDistance << 48) | (uiTypeHash << 32) | uiRenderDataSortingKey64;
   return uiSortingKey;
 }
 

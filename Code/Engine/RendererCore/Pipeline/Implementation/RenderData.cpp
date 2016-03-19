@@ -33,11 +33,11 @@ ezRenderData::Category ezRenderData::RegisterCategory(const char* szCategoryName
   return newCategory;
 }
 
-ezRenderData::Category ezDefaultRenderDataCategories::Light = ezRenderData::RegisterCategory("Light", &ezRenderSortingFunctions::ByBatchThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::Opaque = ezRenderData::RegisterCategory("Opaque", &ezRenderSortingFunctions::ByBatchThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::Masked = ezRenderData::RegisterCategory("Masked", &ezRenderSortingFunctions::ByBatchThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::Transparent = ezRenderData::RegisterCategory("Transparent", &ezRenderSortingFunctions::BackToFrontThenByBatch);
-ezRenderData::Category ezDefaultRenderDataCategories::Foreground1 = ezRenderData::RegisterCategory("Foreground1", &ezRenderSortingFunctions::ByBatchThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::Foreground2 = ezRenderData::RegisterCategory("Foreground2", &ezRenderSortingFunctions::ByBatchThenFrontToBack);
-ezRenderData::Category ezDefaultRenderDataCategories::Selection = ezRenderData::RegisterCategory("Selection", &ezRenderSortingFunctions::ByBatchThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::Light = ezRenderData::RegisterCategory("Light", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::Opaque = ezRenderData::RegisterCategory("Opaque", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::Masked = ezRenderData::RegisterCategory("Masked", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::Transparent = ezRenderData::RegisterCategory("Transparent", &ezRenderSortingFunctions::BackToFrontThenByRenderData);
+ezRenderData::Category ezDefaultRenderDataCategories::Foreground1 = ezRenderData::RegisterCategory("Foreground1", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::Foreground2 = ezRenderData::RegisterCategory("Foreground2", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
+ezRenderData::Category ezDefaultRenderDataCategories::Selection = ezRenderData::RegisterCategory("Selection", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
 

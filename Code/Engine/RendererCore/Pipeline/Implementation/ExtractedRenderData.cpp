@@ -9,7 +9,7 @@ ezExtractedRenderData::ezExtractedRenderData()
 {
 }
 
-void ezExtractedRenderData::AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category)
+void ezExtractedRenderData::AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category, ezUInt32 uiRenderDataSortingKey)
 {
   if (category >= m_DataPerCategory.GetCount())
   {
@@ -18,7 +18,7 @@ void ezExtractedRenderData::AddRenderData(const ezRenderData* pRenderData, ezRen
 
   auto& sortableRenderData = m_DataPerCategory[category].m_SortableRenderData.ExpandAndGetRef();
   sortableRenderData.m_pRenderData = pRenderData;
-  sortableRenderData.m_uiSortingKey = pRenderData->GetSortingKey(category, m_Camera);
+  sortableRenderData.m_uiSortingKey = pRenderData->GetCategorySortingKey(category, uiRenderDataSortingKey, m_Camera);
 }
 
 void ezExtractedRenderData::SortAndBatch()

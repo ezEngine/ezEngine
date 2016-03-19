@@ -17,13 +17,13 @@ struct ezMaterialResourceDescriptor
 
   struct ShaderConstant
   {
-    ezUInt32 m_NameHash;
+    ezHashedString m_Name;
     ezVariant m_Value;
   };
 
   struct TextureBinding
   {
-    ezUInt32 m_NameHash;
+    ezHashedString m_Name;
     ezTextureResourceHandle m_Value;
   };
 

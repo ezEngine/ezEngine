@@ -18,12 +18,13 @@
 #include <d3d11.h>
 
 ezGALDeviceDX11::ezGALDeviceDX11(const ezGALDeviceCreationDescription& Description)
-  : ezGALDevice(Description),
-    m_pDevice(nullptr),
-    m_pDXGIFactory(nullptr),
-    m_pDXGIAdapter(nullptr),
-    m_pDXGIDevice(nullptr),
-    m_FeatureLevel(D3D_FEATURE_LEVEL_9_1)
+  : ezGALDevice(Description)
+  , m_pDevice(nullptr)
+  , m_pDebug(nullptr)
+  , m_pDXGIFactory(nullptr)
+  , m_pDXGIAdapter(nullptr)
+  , m_pDXGIDevice(nullptr)
+  , m_FeatureLevel(D3D_FEATURE_LEVEL_9_1)
 {
 }
 
@@ -99,6 +100,21 @@ retry:
 
     ezLog::Success("Initialized D3D11 device with feature level %s.", FeatureLevelNames[FeatureLevelIdx]);
   }
+
+  if (m_Description.m_bDebugDevice)
+  {
+    if (SUCCEEDED(m_pDevice->QueryInterface(__uuidof(ID3D11Debug), (void **)&m_pDebug)))
+    {
+      ID3D11InfoQueue* pInfoQueue = nullptr;
+      if (SUCCEEDED(m_pDebug->QueryInterface(__uuidof(ID3D11InfoQueue), (void**)&pInfoQueue)))
+      {
+        pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, true);
+        pInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, true);
+
+        pInfoQueue->Release();
+      }
+    }
+  }
   
 
   // Create primary context object
@@ -136,6 +152,7 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
   EZ_DELETE(&m_Allocator, m_pPrimaryContext);
 
   EZ_GAL_DX11_RELEASE(m_pDevice);
+  EZ_GAL_DX11_RELEASE(m_pDebug);
   EZ_GAL_DX11_RELEASE(m_pDXGIFactory);
   EZ_GAL_DX11_RELEASE(m_pDXGIAdapter);
   EZ_GAL_DX11_RELEASE(m_pDXGIDevice);

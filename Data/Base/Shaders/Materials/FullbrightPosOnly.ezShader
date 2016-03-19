@@ -1,0 +1,146 @@
+[PLATFORMS] 
+ALL
+
+[PERMUTATIONS]
+
+ALPHATEST
+PICKING
+EDITOR_RENDER_MODE
+
+[RENDERSTATE]
+
+#include <Shaders/Editor/EditorRenderModes.h>
+
+#if (EDITOR_RENDER_MODE == ERM_WIREFRAME_MONOCHROME) || (EDITOR_RENDER_MODE == ERM_WIREFRAME_COLOR)
+  WireFrame = true
+#endif
+
+#if (EDITOR_RENDER_MODE == ERM_SELECTED)
+  DepthTestFunc = CompareFunc_LessEqual
+  BlendingEnabled0 = true
+#endif
+
+[VERTEXSHADER]
+
+#include <Shaders/Materials/Materials.inc>
+#include <Shaders/Materials/DefaultMaterialCB.inc>
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+struct VS_IN_POS_ONLY
+{
+  float3 Position : POSITION;
+};
+
+struct VS_OUT_POS_ONLY
+{
+  float4 Position : SV_Position;
+  float3 WorldPos : WORLDPOS;
+};
+
+VS_OUT_POS_ONLY main(VS_IN_POS_ONLY Input)
+{
+  VS_OUT_POS_ONLY RetVal;
+  RetVal.Position = mul(ObjectToScreenMatrix, float4(Input.Position, 1.0f));
+  RetVal.WorldPos = mul(ObjectToWorldMatrix, float4(Input.Position, 1.0f)).xyz;
+  
+  return RetVal;
+}
+
+#endif
+
+[GEOMETRYSHADER]
+
+#include <Shaders/Materials/Materials.inc>
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+struct GS_IN
+{
+  float4 Position : SV_Position;
+  float3 WorldPos : WORLDPOS;
+};
+
+struct GS_OUT
+{
+  float4 Position : SV_Position;
+  float3 WorldPos : WORLDPOS;
+  float3 Normal : NORMAL;
+};
+
+[maxvertexcount(3)]
+void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
+{
+	float3 edge1 = input[1].WorldPos - input[0].WorldPos;
+	float3 edge2 = input[2].WorldPos - input[0].WorldPos;
+	float3 normal = normalize(cross(edge1, edge2));
+	
+	GS_OUT output;
+	
+	for (uint i = 0; i < 3; ++i)
+	{
+		output.Position = input[i].Position;
+		output.WorldPos = input[i].WorldPos;
+		output.Normal = normal;
+		
+		outputStream.Append(output);
+	}
+	
+	outputStream.RestartStrip();
+}
+
+#endif
+
+[PIXELSHADER]
+
+#include <Shaders/Materials/Materials.inc>
+#include <Shaders/Materials/DefaultMaterialCB.inc>
+#include <Shaders/Editor/EditorRenderModes.h>
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+Texture2D TexDiffuse;
+SamplerState TexDiffuseSampler;
+
+struct PS_IN_POS_ONLY
+{
+  float4 Position : SV_Position;
+  float3 WorldPos : WORLDPOS;
+  float3 Normal : NORMAL;
+};
+
+float4 main(PS_IN_POS_ONLY Input) : SV_Target
+{
+#if PICKING == 1
+  float4 IdCol;
+  IdCol.r = (GameObjectID & 255) / 255.0;
+  IdCol.g = (GameObjectID >> 8 & 255) / 255.0;
+  IdCol.b = (GameObjectID >> 16 & 255) / 255.0;
+  IdCol.a = (GameObjectID >> 24 & 255) / 255.0;
+  
+  return IdCol;
+#else
+  #if (EDITOR_RENDER_MODE == ERM_SELECTED)
+	return float4(0.2, 0.2, 1, 0.5);
+  #endif
+
+  #if (EDITOR_RENDER_MODE == ERM_WIREFRAME_MONOCHROME)
+    return float4(1, 1, 1, 1);
+  #endif
+  
+  float3 blendWeights = abs(Input.Normal);
+  blendWeights = max((blendWeights - 0.2) * 7.0, 0.0);
+  blendWeights /= (blendWeights.x + blendWeights.y + blendWeights.z );
+  
+  float4 tex1 = TexDiffuse.Sample(TexDiffuseSampler, Input.WorldPos.yz);
+  float4 tex2 = TexDiffuse.Sample(TexDiffuseSampler, Input.WorldPos.zx);
+  float4 tex3 = TexDiffuse.Sample(TexDiffuseSampler, Input.WorldPos.xy);
+  
+  float4 blendedColor = tex1 * blendWeights.x + tex2 * blendWeights.y + tex3 * blendWeights.z;
+
+  return blendedColor;
+#endif
+}
+
+#endif
+

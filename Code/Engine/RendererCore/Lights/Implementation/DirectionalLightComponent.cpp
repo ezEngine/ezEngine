@@ -60,7 +60,7 @@ void ezDirectionalLightComponent::OnExtractRenderData( ezExtractRenderDataMessag
   pRenderData->m_fIntensity = m_fIntensity;
   pRenderData->m_bCastShadows = m_bCastShadows;
 
-  msg.m_pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light);
+  msg.m_pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId);
 }
 
 void ezDirectionalLightComponent::SerializeComponent(ezWorldWriter& stream) const

@@ -105,7 +105,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
           continue;
 
         ezMaterialResourceDescriptor::TextureBinding& tc = m_Desc.m_TextureBindings.ExpandAndGetRef();
-        tc.m_NameHash = ezTempHashedString(sTemp.GetData()).GetHash();
+        tc.m_Name.Assign(sTemp.GetData());
         tc.m_Value = ezResourceManager::LoadResource<ezTextureResource>(sTemp2);
       }
     }
@@ -207,7 +207,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
           for (auto it = dict.GetIterator(); it.IsValid(); ++it)
           {
             ezMaterialResourceDescriptor::ShaderConstant& sc = m_Desc.m_ShaderConstants.ExpandAndGetRef();
-            sc.m_NameHash = ezTempHashedString(it.Key().GetData()).GetHash();
+            sc.m_Name.Assign(it.Key().GetData());
             sc.m_Value = it.Value();
           }
         }
@@ -231,7 +231,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
           for (auto it = dict.GetIterator(); it.IsValid(); ++it)
           {
             ezMaterialResourceDescriptor::TextureBinding& tc = m_Desc.m_TextureBindings.ExpandAndGetRef();
-            tc.m_NameHash = ezTempHashedString(it.Key().GetData()).GetHash();
+            tc.m_Name.Assign(it.Key().GetData());
 
             const ezString sTextureRef = it.Value().ConvertTo<ezString>(&Conversion);
 

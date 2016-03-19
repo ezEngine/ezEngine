@@ -81,8 +81,10 @@ void ezGALContextDX11::ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRende
 
   if ((bClearDepth || bClearStencil) && m_pBoundDepthStencilTarget)
   {
-    /// \todo Parameters
-    m_pDXContext->ClearDepthStencilView(m_pBoundDepthStencilTarget, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, fDepthClear, uiStencilClear);
+    ezUInt32 uiClearFlags = bClearDepth ? D3D11_CLEAR_DEPTH : 0;
+    uiClearFlags |= bClearStencil ? D3D11_CLEAR_STENCIL : 0;
+
+    m_pDXContext->ClearDepthStencilView(m_pBoundDepthStencilTarget, uiClearFlags, fDepthClear, uiStencilClear);
   }
 }
 

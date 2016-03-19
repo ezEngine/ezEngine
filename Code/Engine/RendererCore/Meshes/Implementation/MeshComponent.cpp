@@ -106,10 +106,8 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
     }
 
     // Generate batch id from mesh, material and part index. 
-    // The part index is also stored in the highest 4 bits so that parts with a lower index are always rendered first.
-    // This can be useful for transparent objects with multiple parts that need a fixed rendering order.
     ezUInt32 data[] = { uiMeshIDHash, uiMaterialIDHash, uiPartIndex };
-    ezUInt32 uiBatchId = (uiPartIndex << 28) | (ezHashing::MurmurHash(data, sizeof(data)) & 0x0FFFFFFF);
+    ezUInt32 uiBatchId = ezHashing::MurmurHash(data, sizeof(data));
 
     auto* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
     {
@@ -132,7 +130,9 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
       category = msg.m_OverrideCategory;
     }
 
-    msg.m_pExtractedRenderData->AddRenderData(pRenderData, category);
+    // Sort by material and then by mesh
+    ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFF);
+    msg.m_pExtractedRenderData->AddRenderData(pRenderData, category, uiSortingKey);
   }
 }
 

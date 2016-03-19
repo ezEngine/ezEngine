@@ -11,9 +11,9 @@ EZ_FORCE_INLINE ezProfilingId& ezRenderData::GetCategoryProfilingID(Category cat
   return s_CategoryData[category].m_ProfilingID;
 }
 
-EZ_FORCE_INLINE ezUInt64 ezRenderData::GetSortingKey(Category category, const ezCamera& camera) const
+EZ_FORCE_INLINE ezUInt64 ezRenderData::GetCategorySortingKey(Category category, ezUInt32 uiRenderDataSortingKey, const ezCamera& camera) const
 {
-  return s_CategoryData[category].m_sortingKeyFunc(this, camera);
+  return s_CategoryData[category].m_sortingKeyFunc(this, uiRenderDataSortingKey, camera);
 }
 
 template <typename T>

@@ -12,7 +12,7 @@ public:
   typedef ezUInt32 Category;
 
   /// \brief This function generates a 64bit sorting key for the given render data. Data with lower sorting key is rendered first.
-  typedef ezDelegate<ezUInt64(const ezRenderData*, const ezCamera&)> SortingKeyFunc;
+  typedef ezDelegate<ezUInt64(const ezRenderData*, ezUInt32, const ezCamera&)> SortingKeyFunc;
 
   static Category RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc);
 
@@ -20,9 +20,9 @@ public:
   static ezProfilingId& GetCategoryProfilingID(Category category);
 
   /// \brief Returns the sorting key for this render data by using the sorting key function for the given category.
-  ezUInt64 GetSortingKey(Category category, const ezCamera& camera) const;
+  ezUInt64 GetCategorySortingKey(Category category, ezUInt32 uiRenderDataSortingKey, const ezCamera& camera) const;
 
-  ezUInt32 m_uiBatchId;
+  ezUInt32 m_uiBatchId; ///< BatchId is used to group render data in batches.
   ezGameObjectHandle m_hOwner;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)

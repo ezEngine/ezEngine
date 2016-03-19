@@ -12,30 +12,55 @@ void ezRenderContext::SetMaterialState(const ezMaterialResourceHandle& hMaterial
   if (!hMaterial.IsValid())
     return;
 
-  ezResourceLock<ezMaterialResource> pMaterial(hMaterial);
+  ezHybridArray<ezMaterialResource*, 16> materialHierarchy;
 
-  const ezMaterialResourceDescriptor&  md = pMaterial->GetDescriptor();
-
-  if (md.m_hBaseMaterial.IsValid() && md.m_hBaseMaterial != hMaterial)
-    SetMaterialState(md.m_hBaseMaterial);
-
-  if (md.m_hShader.IsValid())
-    BindShader(md.m_hShader);
-
-  for (const auto& pv : md.m_PermutationVars)
+  ezMaterialResourceHandle hCurrentMaterial = hMaterial;
+  
+  while (true)
   {
-    SetShaderPermutationVariable(pv.m_Name, pv.m_Value);
+    ezMaterialResource* pMaterial = ezResourceManager::BeginAcquireResource(hCurrentMaterial);
+
+    materialHierarchy.PushBack(pMaterial);
+
+    const ezMaterialResourceHandle& hParentMaterial = pMaterial->GetDescriptor().m_hBaseMaterial;
+    if (!hParentMaterial.IsValid() || hParentMaterial == hCurrentMaterial)
+      break;
+
+    hCurrentMaterial = hParentMaterial;
   }
 
-  for (const auto& sc : md.m_ShaderConstants)
+  ezShaderResourceHandle hShader;
+
+  // set state of parent material first
+  for (ezUInt32 i = materialHierarchy.GetCount(); i-- > 0; )
   {
-    SetMaterialParameter(ezTempHashedString(sc.m_NameHash), sc.m_Value);
+    ezMaterialResource* pMaterial = materialHierarchy[i];
+    const ezMaterialResourceDescriptor& desc = pMaterial->GetDescriptor();
+
+    if (desc.m_hShader.IsValid())
+      hShader = desc.m_hShader;
+
+    for (const auto& permutationVar : desc.m_PermutationVars)
+    {
+      SetShaderPermutationVariable(permutationVar.m_Name, permutationVar.m_Value);
+    }
+
+    for (const auto& shaderConstant : desc.m_ShaderConstants)
+    {
+      SetMaterialParameter(shaderConstant.m_Name, shaderConstant.m_Value);
+    }
+
+    for (const auto& textureBinding : desc.m_TextureBindings)
+    {
+      BindTexture(textureBinding.m_Name, textureBinding.m_Value);
+    }
+
+    ezResourceManager::EndAcquireResource(pMaterial);
   }
 
-  for (const auto& tb : md.m_TextureBindings)
-  {
-    BindTexture(ezTempHashedString(tb.m_NameHash), tb.m_Value);
-  }
+  // Always bind the shader so that in case of an invalid shader the drawcall is skipped later.
+  // Otherwise we will render with the shader of the previous material which can lead to strange behavior.
+  BindShader(hShader);
 }
 
 ezRenderContext::Statistics ezRenderContext::GetAndResetStatistics()
@@ -92,6 +117,8 @@ void ezRenderContext::DrawMeshBuffer(ezUInt32 uiPrimitiveCount, ezUInt32 uiFirst
 ezResult ezRenderContext::ApplyContextStates(bool bForce)
 {
   ezShaderPermutationResource* pShaderPermutation = nullptr;
+
+  bool bRebuildVertexDeclaration = m_StateFlags.IsAnySet(ezRenderContextFlags::ShaderStateChanged | ezRenderContextFlags::MeshBufferBindingChanged);
 
   if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::ShaderStateChanged))
   {
@@ -197,7 +224,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
   if (pShaderPermutation != nullptr)
     ezResourceManager::EndAcquireResource(pShaderPermutation);
 
-  if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::MeshBufferBindingChanged))
+  if (bForce || bRebuildVertexDeclaration || m_StateFlags.IsSet(ezRenderContextFlags::MeshBufferBindingChanged))
   {
     if (!m_hMeshBuffer.IsValid())
       return EZ_FAILURE;
@@ -206,18 +233,22 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
       return EZ_FAILURE;
 
     ezResourceLock<ezMeshBufferResource> pMeshBuffer(m_hMeshBuffer);
-    m_uiMeshBufferPrimitiveCount = pMeshBuffer->GetPrimitiveCount();
 
-    m_pGALContext->SetPrimitiveTopology(pMeshBuffer->GetTopology());
-    m_pGALContext->SetVertexBuffer(0, pMeshBuffer->GetVertexBuffer());
+    if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::MeshBufferBindingChanged))
+    {
+      m_uiMeshBufferPrimitiveCount = pMeshBuffer->GetPrimitiveCount();
 
-    ezGALBufferHandle hIndexBuffer = pMeshBuffer->GetIndexBuffer();
+      m_pGALContext->SetPrimitiveTopology(pMeshBuffer->GetTopology());
+      m_pGALContext->SetVertexBuffer(0, pMeshBuffer->GetVertexBuffer());
 
-    // store whether we have an index buffer (needed during drawcalls)
-    m_StateFlags.AddOrRemove(ezRenderContextFlags::MeshBufferHasIndexBuffer, !hIndexBuffer.IsInvalidated());
+      ezGALBufferHandle hIndexBuffer = pMeshBuffer->GetIndexBuffer();
 
-    if (!hIndexBuffer.IsInvalidated())
-      m_pGALContext->SetIndexBuffer(hIndexBuffer);
+      // store whether we have an index buffer (needed during drawcalls)
+      m_StateFlags.AddOrRemove(ezRenderContextFlags::MeshBufferHasIndexBuffer, !hIndexBuffer.IsInvalidated());
+
+      if (!hIndexBuffer.IsInvalidated())
+        m_pGALContext->SetIndexBuffer(hIndexBuffer);
+    }
 
     ezGALVertexDeclarationHandle hVertexDeclaration;
     if (BuildVertexDeclaration(m_hActiveGALShader, pMeshBuffer->GetVertexDeclaration(), hVertexDeclaration).Failed())

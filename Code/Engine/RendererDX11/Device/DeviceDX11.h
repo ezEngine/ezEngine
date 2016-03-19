@@ -7,6 +7,7 @@
 
 struct ID3D11Device;
 struct ID3D11DeviceContext;
+struct ID3D11Debug;
 struct IDXGIFactory1;
 struct IDXGIAdapter1;
 struct IDXGIDevice1;
@@ -140,6 +141,8 @@ private:
   void FillFormatLookupTable();
 
   ID3D11Device* m_pDevice;
+
+  ID3D11Debug* m_pDebug;
 
   IDXGIFactory1* m_pDXGIFactory;
 

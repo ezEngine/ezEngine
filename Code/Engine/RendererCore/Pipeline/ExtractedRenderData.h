@@ -10,7 +10,7 @@ public:
 
   ezExtractedRenderData();
 
-  void AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category);
+  void AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category, ezUInt32 uiRenderDataSortingKey);
 
   void SortAndBatch();
 
