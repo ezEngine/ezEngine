@@ -497,14 +497,12 @@ ezGALResourceViewHandle ezGALDevice::CreateResourceView(const ezGALResourceViewC
     return ezGALResourceViewHandle();
   }
 
-  // Hash description and return potential existing one (including inc. refcount)
+  // Hash description and return potential existing one
   ezUInt32 uiHash = Description.CalculateHash();
 
   ezGALResourceViewHandle hResourceView;
   if (pResource->m_ResourceViews.TryGetValue(uiHash, hResourceView))
   {
-    ezGALResourceView* pResourceView = m_ResourceViews[hResourceView];
-    pResourceView->AddRef();
     return hResourceView;
   }
 
@@ -512,8 +510,6 @@ ezGALResourceViewHandle ezGALDevice::CreateResourceView(const ezGALResourceViewC
 
   if (pResourceView != nullptr)
   {
-    pResourceView->AddRef();
-
     ezGALResourceViewHandle hResourceView(m_ResourceViews.Insert(pResourceView));
     pResource->m_ResourceViews.Insert(uiHash, hResourceView);
 
@@ -529,18 +525,13 @@ void ezGALDevice::DestroyResourceView(ezGALResourceViewHandle hResourceView)
 
   if (m_ResourceViews.TryGetValue(hResourceView, pResourceView))
   {
-    pResourceView->ReleaseRef();
+    m_ResourceViews.Remove(hResourceView);
 
-    if (pResourceView->GetRefCount() == 0)
-    {
-      m_ResourceViews.Remove(hResourceView);
+    ezGALResourceBase* pResource = pResourceView->m_pResource;
+    EZ_VERIFY(pResource->m_ResourceViews.Remove(pResourceView->GetDescription().CalculateHash()), "");
+    pResourceView->m_pResource = nullptr;
 
-      ezGALResourceBase* pResource = pResourceView->m_pResource;
-      EZ_VERIFY(pResource->m_ResourceViews.Remove(pResourceView->GetDescription().CalculateHash()), "");
-      pResourceView->m_pResource = nullptr;
-
-      DestroyResourceViewPlatform(pResourceView);
-    }
+    DestroyResourceViewPlatform(pResourceView);
   }
   else
   {
@@ -559,14 +550,12 @@ ezGALRenderTargetViewHandle ezGALDevice::CreateRenderTargetView(const ezGALRende
 
   /// \todo Platform independent validation
 
-  // Hash description and return potential existing one (including inc. refcount)
+  // Hash description and return potential existing one
   ezUInt32 uiHash = Description.CalculateHash();
 
   ezGALRenderTargetViewHandle hRenderTargetView;
   if (pResource->m_RenderTargetViews.TryGetValue(uiHash, hRenderTargetView))
   {
-    ezGALRenderTargetView* pRenderTargetView = m_RenderTargetViews[hRenderTargetView];
-    pRenderTargetView->AddRef();
     return hRenderTargetView;
   }  
 
@@ -574,8 +563,6 @@ ezGALRenderTargetViewHandle ezGALDevice::CreateRenderTargetView(const ezGALRende
 
   if (pRenderTargetView != nullptr)
   {
-    pRenderTargetView->AddRef();
-
     ezGALRenderTargetViewHandle hRenderTargetView(m_RenderTargetViews.Insert(pRenderTargetView));
     pResource->m_RenderTargetViews.Insert(uiHash, hRenderTargetView);
 
@@ -591,18 +578,13 @@ void ezGALDevice::DestroyRenderTargetView(ezGALRenderTargetViewHandle hRenderTar
 
   if (m_RenderTargetViews.TryGetValue(hRenderTargetView, pRenderTargetView))
   {
-    pRenderTargetView->ReleaseRef();
+    m_RenderTargetViews.Remove(hRenderTargetView);
 
-    if (pRenderTargetView->GetRefCount() == 0)
-    {
-      m_RenderTargetViews.Remove(hRenderTargetView);
+    ezGALResourceBase* pResource = pRenderTargetView->m_pResource;
+    EZ_VERIFY(pResource->m_RenderTargetViews.Remove(pRenderTargetView->GetDescription().CalculateHash()), "");
+    pRenderTargetView->m_pResource = nullptr;
 
-      ezGALResourceBase* pResource = pRenderTargetView->m_pResource;
-      EZ_VERIFY(pResource->m_RenderTargetViews.Remove(pRenderTargetView->GetDescription().CalculateHash()), "");
-      pRenderTargetView->m_pResource = nullptr;
-
-      DestroyRenderTargetViewPlatform(pRenderTargetView);
-    }
+    DestroyRenderTargetViewPlatform(pRenderTargetView);
   }
   else
   {
