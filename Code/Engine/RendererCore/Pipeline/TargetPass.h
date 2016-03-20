@@ -14,9 +14,8 @@ public:
 
   virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
     ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
-  virtual void SetRenderTargets(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
-  virtual void Execute(const ezRenderViewContext& renderViewContext) override;
 
 private:
   bool VerifyInput(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, const char* szPinName);

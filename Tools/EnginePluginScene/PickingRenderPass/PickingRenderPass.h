@@ -22,9 +22,10 @@ public:
 
   virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
     ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
-  virtual void SetRenderTargets(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+  virtual void InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
-  virtual void Execute(const ezRenderViewContext& renderViewContext) override;
+  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
   virtual void ReadBackProperties(ezView* pView) override;
 
@@ -39,10 +40,11 @@ public:
   ezUInt32 m_uiWindowHeight;
 
 private:
-  void CreateTarget(const ezRectFloat& viewport);
+  void CreateTarget();
   void DestroyTarget();
 
 private:
+  ezRectFloat m_TargetRect;
 
   ezSceneContext* m_pSceneContext;
   ezGALTextureHandle m_hPickingIdRT;

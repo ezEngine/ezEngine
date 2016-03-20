@@ -20,7 +20,7 @@ public:
   /// \brief returns the name of the extractor.
   const char* GetName() const;
 
-  virtual void Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData) {};
+  virtual void Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData) = 0;
 
 private:
   ezHashedString m_sName;

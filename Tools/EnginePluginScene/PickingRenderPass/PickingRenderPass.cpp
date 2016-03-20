@@ -43,18 +43,19 @@ ezGALTextureHandle ezPickingRenderPass::GetPickingDepthRT() const
 
 bool ezPickingRenderPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
-  DestroyTarget();
-  CreateTarget(view.GetViewport());
-
+  m_TargetRect = view.GetViewport();
+  
   return true;
 }
 
-void ezPickingRenderPass::SetRenderTargets(const ezArrayPtr<ezRenderPipelinePassConnection*const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection*const> outputs)
+void ezPickingRenderPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection*const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection*const> outputs)
 {
-
+  DestroyTarget();
+  CreateTarget();
 }
 
-void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
+void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   if (!m_bEnable)
     return;
@@ -228,7 +229,7 @@ void ezPickingRenderPass::ReadBackProperties(ezView* pView)
   pView->SetRenderPassReadBackProperty(GetName(), "PickingPosition", vPickedPosition);
 }
 
-void ezPickingRenderPass::CreateTarget(const ezRectFloat& viewport)
+void ezPickingRenderPass::CreateTarget()
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -241,8 +242,8 @@ void ezPickingRenderPass::CreateTarget(const ezRectFloat& viewport)
   tcd.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
   tcd.m_ResourceAccess.m_bReadBack = true;
   tcd.m_Type = ezGALTextureType::Texture2D;
-  tcd.m_uiWidth = (ezUInt32)viewport.width;
-  tcd.m_uiHeight = (ezUInt32)viewport.height;
+  tcd.m_uiWidth = (ezUInt32)m_TargetRect.width;
+  tcd.m_uiHeight = (ezUInt32)m_TargetRect.height;
 
   m_hPickingIdRT = pDevice->CreateTexture(tcd);
 

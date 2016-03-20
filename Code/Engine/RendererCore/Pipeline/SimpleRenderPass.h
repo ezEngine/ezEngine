@@ -1,6 +1,5 @@
 #pragma once
 
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 
 /// \brief A very basic render pass that renders into the color target.
@@ -18,14 +17,11 @@ public:
 
   virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
     ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
-  virtual void SetRenderTargets(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
-  virtual void Execute(const ezRenderViewContext& renderViewContext) override;
 
 protected:
 
   ezPassThroughNodePin m_PinColor;
   ezPassThroughNodePin m_PinDepthStencil;
-
-  ezGALRenderTagetSetup m_RenderTargetSetup;
 };

@@ -5,6 +5,7 @@
 #include <RendererCore/Pipeline/TargetPass.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
+#include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 
 #include <Foundation/Configuration/CVar.h>
 
@@ -283,9 +284,9 @@ bool ezRenderPipeline::RebuildInternal(const ezView& view)
     return false;
   if (!InitRenderTargetDescriptions(view))
     return false;
-  if (!CreateRenderTargets(view))
+  if (!CreateRenderTargetUsage(view))
     return false;
-  if (!SetRenderTargets())
+  if (!InitRenderPipelinePasses())
     return false;
   return true;
 }
@@ -465,20 +466,13 @@ bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
   return true;
 }
 
-bool ezRenderPipeline::CreateRenderTargets(const ezView& view)
+bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
 {
-  ezLogBlock b("Create Render Targets");
-  // The 'done' array has now the correct order, create textures.
-  struct TextureUsageData
-  {
-    bool m_bTargetTexture;
-    ezUInt32 m_uiHash;
-    ezUInt32 m_uiFirstUsageIdx;
-    ezUInt32 m_uiLastUsageIdx;
-    ezHybridArray<ezRenderPipelinePassConnection*, 4> m_UsedBy;
-  };
-  ezDynamicArray<TextureUsageData> usedTextures;
+  ezLogBlock b("Create Render Target Usage Data");
+  EZ_ASSERT_DEBUG(m_TextureUsage.IsEmpty(), "Need to call ClearRenderPassGraphTextures before re-creating the pipeline.");
+
   ezMap<ezRenderPipelinePassConnection*, ezUInt32> connectionToTextureIndex;
+  // Gather all connections that share the same path-through texture and their first and last usage pass index.
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); i++)
   {
     const auto& pPass = m_Passes[i].Borrow();
@@ -488,7 +482,7 @@ bool ezRenderPipeline::CreateRenderTargets(const ezView& view)
       if (pConn != nullptr)
       {
         ezUInt32 uiDataIdx = connectionToTextureIndex[pConn];
-        usedTextures[uiDataIdx].m_uiLastUsageIdx = i;
+        m_TextureUsage[uiDataIdx].m_uiLastUsageIdx = i;
       }
     }
 
@@ -499,18 +493,16 @@ bool ezRenderPipeline::CreateRenderTargets(const ezView& view)
         if (pConn->m_pOutput->m_Type == ezNodePin::Type::PassThrough && data.m_Inputs[pConn->m_pOutput->m_uiInputIndex] != nullptr)
         {
           ezRenderPipelinePassConnection* pCorrespondingInputConn = data.m_Inputs[pConn->m_pOutput->m_uiInputIndex];
-          //EZ_ASSERT_DEBUG(pCorrespondingInputConn != nullptr, "Pass through input missing for output!");
           ezUInt32 uiDataIdx = connectionToTextureIndex[pCorrespondingInputConn];
-          usedTextures[uiDataIdx].m_UsedBy.PushBack(pConn);
-          usedTextures[uiDataIdx].m_uiLastUsageIdx = i;
+          m_TextureUsage[uiDataIdx].m_UsedBy.PushBack(pConn);
+          m_TextureUsage[uiDataIdx].m_uiLastUsageIdx = i;
         }
         else
         {
-          connectionToTextureIndex[pConn] = usedTextures.GetCount();
-          TextureUsageData& data = usedTextures.ExpandAndGetRef();
+          connectionToTextureIndex[pConn] = m_TextureUsage.GetCount();
+          TextureUsageData& data = m_TextureUsage.ExpandAndGetRef();
 
           data.m_bTargetTexture = false;
-          data.m_uiHash = pConn->m_Desc.CalculateHash();
           data.m_uiFirstUsageIdx = i;
           data.m_uiLastUsageIdx = i;
           data.m_UsedBy.PushBack(pConn);
@@ -519,8 +511,6 @@ bool ezRenderPipeline::CreateRenderTargets(const ezView& view)
     }
   }
 
-  // TODO: Merge ranges of same textures that do not have overlapping usage ranges.
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   // Set view's render target textures to target pass connections.
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); i++)
@@ -537,8 +527,8 @@ bool ezRenderPipeline::CreateRenderTargets(const ezView& view)
         {
           ezGALTextureHandle hTexture = pTargetPass->GetTextureHandle(view, pPass->GetInputPins()[j]);
           ezUInt32 uiDataIdx = connectionToTextureIndex[pConn];
-          usedTextures[uiDataIdx].m_bTargetTexture = true;
-          for (auto pConn : usedTextures[uiDataIdx].m_UsedBy)
+          m_TextureUsage[uiDataIdx].m_bTargetTexture = true;
+          for (auto pConn : m_TextureUsage[uiDataIdx].m_UsedBy)
           {
             pConn->m_TextureHandle = hTexture;
           }
@@ -547,33 +537,57 @@ bool ezRenderPipeline::CreateRenderTargets(const ezView& view)
     }
   }
 
-  m_Textures.Reserve(usedTextures.GetCount());
-  for (ezUInt32 i = 0; i < usedTextures.GetCount(); i++)
+  // Stupid loop to gather all TextureUsageData indices that are not view render target textures. 
+  for (ezUInt32 i = 0; i < m_TextureUsage.GetCount(); i++)
   {
-    TextureUsageData& data = usedTextures[i];
+    TextureUsageData& data = m_TextureUsage[i];
     if (data.m_bTargetTexture)
       continue;
 
-    // TODO: What if create texture fails?
-    ezGALTextureHandle hTexture = pDevice->CreateTexture(data.m_UsedBy[0]->m_Desc);
-    m_Textures.PushBack(hTexture);
-    for (auto pConn : data.m_UsedBy)
-    {
-      pConn->m_TextureHandle = hTexture;
-    }
+    m_TextureUsageIdxSortedByFirstUsage.PushBack((ezUInt16)i);
+    m_TextureUsageIdxSortedByLastUsage.PushBack((ezUInt16)i);
   }
+
+  // Sort first and last usage arrays, these will determine the lifetime of the pool textures.
+  // TODO: Lambda sort function PLOX!
+  struct FirstUsageComparer
+  {
+    FirstUsageComparer(ezDynamicArray<TextureUsageData>& textureUsage) : m_TextureUsage(textureUsage) {}
+
+    EZ_FORCE_INLINE bool Less(ezUInt16 a, ezUInt16 b) const
+    {
+      return m_TextureUsage[a].m_uiFirstUsageIdx < m_TextureUsage[b].m_uiFirstUsageIdx;
+    }
+
+    ezDynamicArray<TextureUsageData>& m_TextureUsage;
+  };
+
+  struct LastUsageComparer
+  {
+    LastUsageComparer(ezDynamicArray<TextureUsageData>& textureUsage) : m_TextureUsage(textureUsage) {}
+
+    EZ_FORCE_INLINE bool Less(ezUInt16 a, ezUInt16 b) const
+    {
+      return m_TextureUsage[a].m_uiLastUsageIdx < m_TextureUsage[b].m_uiLastUsageIdx;
+    }
+
+    ezDynamicArray<TextureUsageData>& m_TextureUsage;
+  };
+
+  m_TextureUsageIdxSortedByFirstUsage.Sort(FirstUsageComparer(m_TextureUsage));
+  m_TextureUsageIdxSortedByLastUsage.Sort(LastUsageComparer(m_TextureUsage));
 
   return true;
 }
 
-bool ezRenderPipeline::SetRenderTargets()
+bool ezRenderPipeline::InitRenderPipelinePasses()
 {
-  ezLogBlock b("Set Render Targets");
+  ezLogBlock b("Init Render Pipeline Passes");
   // Init every pass now.
   for (const auto& pPass : m_Passes)
   {
     ConnectionData& data = m_Connections[pPass.Borrow()];
-    pPass->SetRenderTargets(data.m_Inputs, data.m_Outputs);
+    pPass->InitRenderPipelinePass(data.m_Inputs, data.m_Outputs);
   }
 
   return true;
@@ -663,6 +677,10 @@ void ezRenderPipeline::RemoveConnections(ezRenderPipelinePass* pPass)
 
 void ezRenderPipeline::ClearRenderPassGraphTextures()
 {
+  m_TextureUsage.Clear();
+  m_TextureUsageIdxSortedByFirstUsage.Clear();
+  m_TextureUsageIdxSortedByLastUsage.Clear();
+
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   
   for (auto it = m_Connections.GetIterator(); it.IsValid(); ++it)
@@ -680,12 +698,6 @@ void ezRenderPipeline::ClearRenderPassGraphTextures()
       }
     }
   }
-
-  for (ezUInt32 i = 0; i < m_Textures.GetCount(); i++)
-  {
-    pDevice->DestroyTexture(m_Textures[i]);
-  }
-  m_Textures.Clear();
 }
 
 bool ezRenderPipeline::AreInputDescriptionsAvailable(const ezRenderPipelinePass* pPass, const ezDynamicArray<ezRenderPipelinePass*>& done) const
@@ -805,14 +817,61 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
   renderViewContext.m_pViewData = pViewData;
   renderViewContext.m_pRenderContext = pRendererContext;
 
+  ezUInt32 uiCurrentFirstUsageIdx = 0;
+  ezUInt32 uiCurrentLastUsageIdx = 0;
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
   {
+    // Create pool textures
+    for (; uiCurrentFirstUsageIdx < m_TextureUsageIdxSortedByFirstUsage.GetCount(); ++uiCurrentFirstUsageIdx)
+    {
+      ezUInt16 uiCurrentUsageData = m_TextureUsageIdxSortedByFirstUsage[uiCurrentFirstUsageIdx];
+      TextureUsageData& usageData = m_TextureUsage[uiCurrentUsageData];
+      if (usageData.m_uiFirstUsageIdx == i)
+      {
+        ezGALTextureHandle hTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(usageData.m_UsedBy[0]->m_Desc);
+        EZ_ASSERT_DEV(!hTexture.IsInvalidated(), "GPU pool return invalidated texture!");
+        for (ezRenderPipelinePassConnection* pConn : usageData.m_UsedBy)
+        {
+          pConn->m_TextureHandle = hTexture;
+        }
+      }
+      else
+      {
+        // The current usage data blocks m_uiFirstUsageIdx isn't reached yet so wait.
+        break;
+      }
+    }
+
+    // Execute pass block
     {
       EZ_PROFILE_AND_MARKER(pRendererContext->GetGALContext(), m_Passes[i]->m_ProfilingID);
 
-      m_Passes[i]->Execute(renderViewContext);
+      ConnectionData& data = m_Connections[m_Passes[i].Borrow()];
+      m_Passes[i]->Execute(renderViewContext, data.m_Inputs, data.m_Outputs);
+    }
+
+    // Release pool textures
+    for (; uiCurrentLastUsageIdx < m_TextureUsageIdxSortedByLastUsage.GetCount(); ++uiCurrentLastUsageIdx)
+    {
+      ezUInt16 uiCurrentUsageData = m_TextureUsageIdxSortedByLastUsage[uiCurrentLastUsageIdx];
+      TextureUsageData& usageData = m_TextureUsage[uiCurrentUsageData];
+      if (usageData.m_uiLastUsageIdx == i)
+      {
+        ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(usageData.m_UsedBy[0]->m_TextureHandle);
+        for (ezRenderPipelinePassConnection* pConn : usageData.m_UsedBy)
+        {
+          pConn->m_TextureHandle.Invalidate();
+        }
+      }
+      else
+      {
+        // The current usage data blocks m_uiLastUsageIdx isn't reached yet so wait.
+        break;
+      }
     }
   }
+  EZ_ASSERT_DEV(uiCurrentFirstUsageIdx == m_TextureUsageIdxSortedByFirstUsage.GetCount(), "Rendering all passes should have moved us through all texture usage blocks!");
+  EZ_ASSERT_DEV(uiCurrentLastUsageIdx == m_TextureUsageIdxSortedByLastUsage.GetCount(), "Rendering all passes should have moved us through all texture usage blocks!");
 
   data.Clear();
 

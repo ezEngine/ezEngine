@@ -76,11 +76,8 @@ bool ezTargetPass::GetRenderTargetDescriptions(const ezView& view, const ezArray
   return true;
 }
 
-void ezTargetPass::SetRenderTargets(const ezArrayPtr<ezRenderPipelinePassConnection*const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection*const> outputs)
-{
-}
-
-void ezTargetPass::Execute(const ezRenderViewContext& renderViewContext)
+void ezTargetPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
 }
 
@@ -94,8 +91,9 @@ bool ezTargetPass::VerifyInput(const ezView& view, const ezArrayPtr<ezGALTexture
     const ezGALTexture* pTexture = pDevice->GetTexture(GetTextureHandle(view, pPin));
     if (pTexture)
     {
-      if (inputs[pPin->m_uiInputIndex]->CalculateHash() != pTexture->GetDescription().CalculateHash())
-        return false;
+      // TODO: Need a more sophisticated check here what is considered 'matching'
+      //if (inputs[pPin->m_uiInputIndex]->CalculateHash() != pTexture->GetDescription().CalculateHash())
+      //  return false;
     }
   }
 

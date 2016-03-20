@@ -9,7 +9,7 @@
 
 struct ezGALTextureCreationDescription;
 
-/// \brief Passed to ezRenderPipelinePass::SetRenderTargets to inform about
+/// \brief Passed to ezRenderPipelinePass::InitRenderPipelinePass to inform about
 /// existing connections on each input / output pin index.
 struct ezRenderPipelinePassConnection
 {
@@ -49,14 +49,18 @@ public:
     ezArrayPtr<ezGALTextureCreationDescription> outputs) = 0;
 
   /// \brief After GetRenderTargetDescriptions was called successfully for each pass, this function is called
-  /// with the resulting actual textures. Un-connected pins have a nullptr value in the passed in arrays.
-  /// This is the time to create render target setups and remember input textures etc.
-  virtual void SetRenderTargets(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+  /// with the inputs and outputs for review. Un-connected pins have a nullptr value in the passed in arrays.
+  /// This is the time to create addtional resources that are not covered by the pins automatically, e.g. a picking texture or eye adaptation buffer.
+  virtual void InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) {};
+
+  /// \brief Render into outputs. Both inputs and outputs are passed in with actual texture handles.
+  /// Un-connected pins have a nullptr value in the passed in arrays. You can now create views and render target setups on the fly and
+  /// fille the output targets with data.
+  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) = 0;
 
-  /// \brief Render into outputs.
-  virtual void Execute(const ezRenderViewContext& renderViewContext) = 0;
-
+  /// \brief Allows for the pass to write data back using ezView::SetRenderPassReadBackProperty. E.g. picking results etc.
   virtual void ReadBackProperties(ezView* pView) {}
 
   void RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category);

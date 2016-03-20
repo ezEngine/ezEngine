@@ -60,8 +60,8 @@ private:
   bool RebuildInternal(const ezView& view);
   bool SortPasses();
   bool InitRenderTargetDescriptions(const ezView& view);
-  bool CreateRenderTargets(const ezView& view);
-  bool SetRenderTargets();
+  bool CreateRenderTargetUsage(const ezView& view);
+  bool InitRenderPipelinePasses();
 
   void RemoveConnections(ezRenderPipelinePass* pPass);
   void ClearRenderPassGraphTextures();
@@ -99,7 +99,18 @@ private: // Member data
   };
   ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> m_Passes;
   ezMap<const ezRenderPipelinePass*, ConnectionData> m_Connections;
-  ezDynamicArray<ezGALTextureHandle> m_Textures; ///< All unique textures created for the entire pipeline, may be used multiple times in the pipeline.
+
+  /// \brief Contains all connections that share the same path-through texture and their first and last usage pass index.
+  struct TextureUsageData
+  {
+    ezHybridArray<ezRenderPipelinePassConnection*, 4> m_UsedBy;
+    ezUInt16 m_uiFirstUsageIdx;
+    ezUInt16 m_uiLastUsageIdx;
+    bool m_bTargetTexture;
+  };
+  ezDynamicArray<TextureUsageData> m_TextureUsage;
+  ezDynamicArray<ezUInt16> m_TextureUsageIdxSortedByFirstUsage; ///< Indices map into m_TextureUsage
+  ezDynamicArray<ezUInt16> m_TextureUsageIdxSortedByLastUsage; ///< Indices map into m_TextureUsage
 
   // Extractors
   ezDynamicArray<ezUniquePtr<ezExtractor>> m_Extractors;

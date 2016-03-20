@@ -4,6 +4,7 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
@@ -24,7 +25,6 @@ ezSimpleRenderPass::ezSimpleRenderPass(const char* szName) : ezRenderPipelinePas
 
 ezSimpleRenderPass::~ezSimpleRenderPass()
 {
-  m_RenderTargetSetup.DestroyAllAttachedViews();
 }
 
 bool ezSimpleRenderPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs,
@@ -34,10 +34,9 @@ bool ezSimpleRenderPass::GetRenderTargetDescriptions(const ezView& view, const e
   const ezGALRenderTagetSetup& setup = view.GetRenderTargetSetup();
 
   // Color
-  const ezNodePin* pColor = GetPinByName("Color");  
-  if (inputs[pColor->m_uiInputIndex])
+  if (inputs[m_PinColor.m_uiInputIndex])
   {
-    outputs[pColor->m_uiOutputIndex] = *inputs[pColor->m_uiInputIndex];
+    outputs[m_PinColor.m_uiOutputIndex] = *inputs[m_PinColor.m_uiInputIndex];
   }
   else
   {
@@ -49,16 +48,21 @@ bool ezSimpleRenderPass::GetRenderTargetDescriptions(const ezView& view, const e
       const ezGALTexture* pTexture = pDevice->GetTexture(desc.m_hTexture);
       if (pTexture)
       {
-        outputs[pColor->m_uiOutputIndex] = pTexture->GetDescription();
+        outputs[m_PinColor.m_uiOutputIndex] = pTexture->GetDescription();
+        outputs[m_PinColor.m_uiOutputIndex].m_bCreateRenderTarget = true;
+        outputs[m_PinColor.m_uiOutputIndex].m_bAllowShaderResourceView = true;
+        outputs[m_PinColor.m_uiOutputIndex].m_ResourceAccess.m_bReadBack = false;
+        outputs[m_PinColor.m_uiOutputIndex].m_ResourceAccess.m_bImmutable = true;
+        outputs[m_PinColor.m_uiOutputIndex].m_pExisitingNativeObject = nullptr;
+          
       }
     }
   }
   
   // DepthStencil
-  const ezNodePin* pDepth = GetPinByName("DepthStencil");
-  if (inputs[pDepth->m_uiInputIndex])
+  if (inputs[m_PinDepthStencil.m_uiInputIndex])
   {
-    outputs[pDepth->m_uiOutputIndex] = *inputs[pDepth->m_uiInputIndex];
+    outputs[m_PinDepthStencil.m_uiOutputIndex] = *inputs[m_PinDepthStencil.m_uiInputIndex];
   }
   else
   {
@@ -70,7 +74,7 @@ bool ezSimpleRenderPass::GetRenderTargetDescriptions(const ezView& view, const e
       const ezGALTexture* pTexture = pDevice->GetTexture(desc.m_hTexture);
       if (pTexture)
       {
-        outputs[pDepth->m_uiOutputIndex] = pTexture->GetDescription();
+        outputs[m_PinDepthStencil.m_uiOutputIndex] = pTexture->GetDescription();
       }
     }
   }
@@ -78,18 +82,21 @@ bool ezSimpleRenderPass::GetRenderTargetDescriptions(const ezView& view, const e
   return true;
 }
 
-void ezSimpleRenderPass::SetRenderTargets(const ezArrayPtr<ezRenderPipelinePassConnection*const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection*const> outputs)
+void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  m_RenderTargetSetup.DestroyAllAttachedViews();
+  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
+  // Setup render target
+  ezGALRenderTagetSetup renderTargetSetup;
   if (outputs[m_PinColor.m_uiOutputIndex])
   {
     ezGALRenderTargetViewCreationDescription rtvd;
     rtvd.m_hTexture = outputs[m_PinColor.m_uiOutputIndex]->m_TextureHandle;
     rtvd.m_RenderTargetType = ezGALRenderTargetType::Color;
 
-    m_RenderTargetSetup.SetRenderTarget(0, pDevice->CreateRenderTargetView(rtvd));
+    renderTargetSetup.SetRenderTarget(0, pDevice->CreateRenderTargetView(rtvd));
   }
 
   if (outputs[m_PinDepthStencil.m_uiOutputIndex])
@@ -98,18 +105,14 @@ void ezSimpleRenderPass::SetRenderTargets(const ezArrayPtr<ezRenderPipelinePassC
     rtvd.m_hTexture = outputs[m_PinDepthStencil.m_uiOutputIndex]->m_TextureHandle;
     rtvd.m_RenderTargetType = ezGALRenderTargetType::DepthStencil;
 
-    m_RenderTargetSetup.SetDepthStencilTarget(pDevice->CreateRenderTargetView(rtvd));
+    renderTargetSetup.SetDepthStencilTarget(pDevice->CreateRenderTargetView(rtvd));
   }
-}
 
-void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext)
-{
-  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
-
+  // Execute render functions
   const ezRectFloat& viewPortRect = renderViewContext.m_pViewData->m_ViewPortRect;
   pGALContext->SetViewport(viewPortRect.x, viewPortRect.y, viewPortRect.width, viewPortRect.height, 0.0f, 1.0f);
 
-  pGALContext->SetRenderTargetSetup(m_RenderTargetSetup);
+  pGALContext->SetRenderTargetSetup(renderTargetSetup);
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.1f));
 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Opaque);

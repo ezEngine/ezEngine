@@ -21,8 +21,32 @@ ezEditorRenderPass::ezEditorRenderPass(const char* szName) : ezSimpleRenderPass(
   m_bRenderSelectionOverlay = true;
 }
 
-void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext)
+void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
+
+  // Setup render target
+  ezGALRenderTagetSetup renderTargetSetup;
+  if (outputs[m_PinColor.m_uiOutputIndex])
+  {
+    ezGALRenderTargetViewCreationDescription rtvd;
+    rtvd.m_hTexture = outputs[m_PinColor.m_uiOutputIndex]->m_TextureHandle;
+    rtvd.m_RenderTargetType = ezGALRenderTargetType::Color;
+
+    renderTargetSetup.SetRenderTarget(0, pDevice->CreateRenderTargetView(rtvd));
+  }
+
+  if (outputs[m_PinDepthStencil.m_uiOutputIndex])
+  {
+    ezGALRenderTargetViewCreationDescription rtvd;
+    rtvd.m_hTexture = outputs[m_PinDepthStencil.m_uiOutputIndex]->m_TextureHandle;
+    rtvd.m_RenderTargetType = ezGALRenderTargetType::DepthStencil;
+
+    renderTargetSetup.SetDepthStencilTarget(pDevice->CreateRenderTargetView(rtvd));
+  }
+
   const char* szRenderMode = "ERM_DEFAULT";
 
   switch (m_ViewRenderMode)
@@ -60,7 +84,7 @@ void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext)
     const ezRectFloat& viewPortRect = renderViewContext.m_pViewData->m_ViewPortRect;
     pGALContext->SetViewport(viewPortRect.x, viewPortRect.y, viewPortRect.width, viewPortRect.height, 0.0f, 1.0f);
 
-    pGALContext->SetRenderTargetSetup(m_RenderTargetSetup);
+    pGALContext->SetRenderTargetSetup(renderTargetSetup);
     pGALContext->Clear(ezColor(0.0f, 0.0f, 0.1f));
 
     RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Opaque);
