@@ -4,6 +4,8 @@
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Types/TagSet.h>
 
+class ezResourceHandleWriteContext;
+
 /// \brief Stores an entire ezWorld in a stream.
 ///
 /// Used for exporting a world in binary form either as a level or as a prefab (though there is no
@@ -41,7 +43,7 @@ private:
   bool ObjectTraverser(ezGameObject* pObject);
   void WriteGameObject(const ezGameObject* pObject);
   void WriteComponentInfo(const ezRTTI* pRtti);
-  void WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<const ezComponent*>& components);
+  void WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<const ezComponent*>& components, ezResourceHandleWriteContext& ResHandleWriter);
 
   ezStreamWriter* m_pStream;
   ezWorld* m_pWorld;

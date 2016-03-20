@@ -129,7 +129,7 @@ void ezAddSubElementButton::on_Menu_aboutToShow()
     // Add type action to current menu
     QAction* pAction = new QAction(QString::fromUtf8(pRtti->GetTypeName()), m_pMenu);
     pAction->setProperty("type", qVariantFromValue((void*)pRtti));
-    EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnMenuAction())) != NULL, "connection failed");
+    EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnMenuAction())) != nullptr, "connection failed");
 
     sIconName.Set(":/TypeIcons/", pRtti->GetTypeName());
     pAction->setIcon(ezUIServices::GetCachedIconResource(sIconName.GetData()));

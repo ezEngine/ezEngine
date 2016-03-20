@@ -5,7 +5,7 @@
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Containers/HashTable.h>
 
-typedef ezResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
+typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 class ezRenderPipeline;
 
 struct ezRenderPipelineResourceDescriptor

@@ -9,7 +9,7 @@ void ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion == 1, "Invalid version");
+  EZ_ASSERT_DEV(uiVersion == 2, "Invalid version");
 
   ezUInt32 uiNumRootObjects = 0;
   stream >> uiNumRootObjects;
@@ -67,6 +67,8 @@ void ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
         uiAllComponentsSize -= (ezUInt32) uiRead;
       }
     }
+
+    m_HandleReadContext.ReadFinalizedData(&stream);
   }
 }
 
@@ -109,10 +111,14 @@ void ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTran
     ezStreamReader* pPrevReader = m_pStream;
     m_pStream = &memReader;
 
+    m_HandleReadContext.BeginRestoringHandles(m_pStream);
+
     for (ezUInt32 i = 0; i < m_ComponentTypes.GetCount(); ++i)
     {
       ReadComponentsOfType(i);
     }
+
+    m_HandleReadContext.EndRestoringHandles();
 
     m_pStream = pPrevReader;
   }

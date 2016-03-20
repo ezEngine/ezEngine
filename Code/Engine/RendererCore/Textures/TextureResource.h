@@ -8,7 +8,7 @@
 #include <RendererFoundation/Basics.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
-typedef ezResourceHandle<class ezTextureResource> ezTextureResourceHandle;
+typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
 
 /// \brief Use this descriptor in calls to ezResourceManager::CreateResource<ezTextureResource> to create textures from data in memory.
 struct ezTextureResourceDescriptor

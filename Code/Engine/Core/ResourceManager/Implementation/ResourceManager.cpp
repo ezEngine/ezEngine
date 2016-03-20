@@ -222,13 +222,13 @@ void ezResourceManagerWorkerGPU::Execute()
     ezResourceManager::BroadcastResourceEvent(e);
   }
 
-  m_pLoader = NULL;
-  m_pResourceToLoad = NULL;
+  m_pLoader = nullptr;
+  m_pResourceToLoad = nullptr;
 }
 
 void ezResourceManagerWorker::Execute()
 {
-  ezResourceBase* pResourceToLoad = NULL;
+  ezResourceBase* pResourceToLoad = nullptr;
 
   {
     EZ_LOCK(ezResourceManager::s_ResourceMutex);
@@ -248,10 +248,10 @@ void ezResourceManagerWorker::Execute()
 
   ezResourceTypeLoader* pLoader = ezResourceManager::GetResourceTypeLoader(pResourceToLoad->GetDynamicRTTI());
 
-  if (pLoader == NULL)
+  if (pLoader == nullptr)
     pLoader = pResourceToLoad->GetDefaultResourceTypeLoader();
 
-  EZ_ASSERT_DEV(pLoader != NULL, "No Loader function available for Resource Type '%s'", pResourceToLoad->GetDynamicRTTI()->GetTypeName());
+  EZ_ASSERT_DEV(pLoader != nullptr, "No Loader function available for Resource Type '%s'", pResourceToLoad->GetDynamicRTTI()->GetTypeName());
 
   ezResourceLoadData LoaderData = pLoader->OpenDataStream(pResourceToLoad);
 
@@ -660,6 +660,28 @@ void ezResourceManager::OnCoreShutdown()
       ezLog::Info("Refcount = %i, Type = '%s', ResourceID = '%s'", pReference->GetReferenceCount(), pReference->GetDynamicRTTI()->GetTypeName(), pReference->GetResourceID().GetData());
     }
   }
+}
+
+ezResourceBase* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* szResourceID, bool bIsReloadable)
+{
+  ezResourceBase* pResource = nullptr;
+
+  const ezTempHashedString sResourceHash(szResourceID);
+
+  EZ_LOCK(s_ResourceMutex);
+
+  if (m_LoadedResources.TryGetValue(sResourceHash, pResource))
+    return pResource;
+
+  EZ_ASSERT_DEV(pRtti != nullptr, "There is no RTTI information available for the given resource type '%s'", EZ_STRINGIZE(ResourceType));
+  EZ_ASSERT_DEV(pRtti->GetAllocator() != nullptr, "There is no RTTI allocator available for the given resource type '%s'", EZ_STRINGIZE(ResourceType));
+
+  ezResourceBase* pNewResource = static_cast<ezResourceBase*>(pRtti->GetAllocator()->Allocate());
+  pNewResource->SetUniqueID(szResourceID, bIsReloadable);
+
+  m_LoadedResources.Insert(sResourceHash, pNewResource);
+
+  return pNewResource;
 }
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ResourceManager)

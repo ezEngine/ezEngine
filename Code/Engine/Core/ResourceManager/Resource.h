@@ -24,13 +24,13 @@ public:
   /// \brief Sets the fallback resource that can be used while this resource is not yet loaded.
   ///
   /// By default there is no fallback resource, so all resource will block the application when requested for the first time.
-  void SetFallbackResource(const ezResourceHandle<SELF>& hResource)
+  void SetFallbackResource(const ezTypedResourceHandle<SELF>& hResource)
   {
     m_hFallback = hResource;
     m_Flags.AddOrRemove(ezResourceFlags::ResourceHasFallback, m_hFallback.IsValid());
   }
 
-  static void SetTypeFallbackResource(const ezResourceHandle<SELF>& hResource)
+  static void SetTypeFallbackResource(const ezTypedResourceHandle<SELF>& hResource)
   {
     if (!s_bAddedManagerEventHandler && !s_TypeFallbackResource.IsValid() && !s_TypeMissingResource.IsValid() && hResource.IsValid())
     {
@@ -41,7 +41,7 @@ public:
     s_TypeFallbackResource = hResource;
   }
 
-  static void SetTypeMissingResource(const ezResourceHandle<SELF>& hResource)
+  static void SetTypeMissingResource(const ezTypedResourceHandle<SELF>& hResource)
   {
     if (!s_bAddedManagerEventHandler && !s_TypeFallbackResource.IsValid() && !s_TypeMissingResource.IsValid() && hResource.IsValid())
     {
@@ -60,8 +60,8 @@ public:
     s_TypeMissingResource = hResource;
   }
 
-  static const ezResourceHandle<SELF>& GetTypeFallbackResource() { return s_TypeFallbackResource; }
-  static const ezResourceHandle<SELF>& GetTypeMissingResource() { return s_TypeMissingResource; }
+  static const ezTypedResourceHandle<SELF>& GetTypeFallbackResource() { return s_TypeFallbackResource; }
+  static const ezTypedResourceHandle<SELF>& GetTypeMissingResource() { return s_TypeMissingResource; }
 
 protected:
 
@@ -84,8 +84,8 @@ private:
   }
 
   static bool s_bAddedManagerEventHandler;
-  static ezResourceHandle<SELF> s_TypeFallbackResource;
-  static ezResourceHandle<SELF> s_TypeMissingResource;
+  static ezTypedResourceHandle<SELF> s_TypeFallbackResource;
+  static ezTypedResourceHandle<SELF> s_TypeMissingResource;
 
   void CallCreateResource(const SELF_DESCRIPTOR& descriptor)
   {
@@ -139,16 +139,16 @@ private:
     return ezResourceLoadDesc();
   }
 
-  ezResourceHandle<SELF> m_hFallback;
+  ezTypedResourceHandle<SELF> m_hFallback;
 };
 
 template<typename SELF, typename SELF_DESCRIPTOR>
 bool ezResource<SELF, SELF_DESCRIPTOR>::s_bAddedManagerEventHandler = false;
 
 template<typename SELF, typename SELF_DESCRIPTOR>
-ezResourceHandle<SELF> ezResource<SELF, SELF_DESCRIPTOR>::s_TypeFallbackResource;
+ezTypedResourceHandle<SELF> ezResource<SELF, SELF_DESCRIPTOR>::s_TypeFallbackResource;
 
 template<typename SELF, typename SELF_DESCRIPTOR>
-ezResourceHandle<SELF> ezResource<SELF, SELF_DESCRIPTOR>::s_TypeMissingResource;
+ezTypedResourceHandle<SELF> ezResource<SELF, SELF_DESCRIPTOR>::s_TypeMissingResource;
 
 

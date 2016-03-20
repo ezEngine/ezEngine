@@ -271,7 +271,7 @@ void ezQtNodeScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* contextMenu
       // Add type action to current menu
       QAction* pAction = new QAction(QString::fromUtf8(pRtti->GetTypeName()), &menu);
       pAction->setProperty("type", qVariantFromValue((void*)pRtti));
-      EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnMenuAction())) != NULL, "connection failed");
+      EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnMenuAction())) != nullptr, "connection failed");
       menu.addAction(pAction);
     }
   }

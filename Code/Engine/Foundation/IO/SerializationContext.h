@@ -36,7 +36,7 @@ class ezSerializationContext
 {
 public:
 
-  /// \brief Returns the serialization context that is associated with the given stream (may be NULL).
+  /// \brief Returns the serialization context that is associated with the given stream (may be nullptr).
   ///
   /// As long as you use the EZ_ADD_SERIALIZATION_CONTEXT_OPERATORS() macro, it is typically not necessary to call this function directly.
   static DERIVED* GetReaderContext(ezStreamReader* pStream) // [tested]
@@ -48,7 +48,7 @@ public:
     return nullptr;
   }
 
-  /// \brief Returns the serialization context that is associated with the given stream (may be NULL).
+  /// \brief Returns the serialization context that is associated with the given stream (may be nullptr).
   ///
   /// As long as you use the EZ_ADD_SERIALIZATION_CONTEXT_OPERATORS() macro, it is typically not necessary to call this function directly.
   static DERIVED* GetWriterContext(ezStreamWriter* pStream) // [tested]

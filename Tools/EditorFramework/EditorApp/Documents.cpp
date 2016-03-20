@@ -61,7 +61,7 @@ ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile
       return nullptr;
     }
 
-    EZ_ASSERT_DEV(pDocument != nullptr, "Creation of document type '%s' succeeded, but returned pointer is NULL", DescToCreate.m_sDocumentTypeName.GetData());
+    EZ_ASSERT_DEV(pDocument != nullptr, "Creation of document type '%s' succeeded, but returned pointer is nullptr", DescToCreate.m_sDocumentTypeName.GetData());
 
     if (pDocument->GetUnknownObjectTypeInstances() > 0)
     {

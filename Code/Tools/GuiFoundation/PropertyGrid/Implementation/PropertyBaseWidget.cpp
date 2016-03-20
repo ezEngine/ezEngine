@@ -377,7 +377,7 @@ ezQtPropertyContainerWidget::ezQtPropertyContainerWidget()
   setLayout(m_pLayout);
 
   m_pGroup = new ezCollapsibleGroupBox(this);
-  m_pGroupLayout = new QVBoxLayout(NULL);
+  m_pGroupLayout = new QVBoxLayout(nullptr);
   m_pGroupLayout->setSpacing(1);
   m_pGroupLayout->setContentsMargins(5, 0, 0, 0);
   m_pGroup->setInnerLayout(m_pGroupLayout);

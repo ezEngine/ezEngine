@@ -10,7 +10,7 @@
 
 class ezWindow;
 class ezView;
-typedef ezResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
+typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
 /// \brief ezGameState is the base class to build custom game logic upon. It works closely together with ezGameApplication.
 ///

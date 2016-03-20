@@ -8,12 +8,12 @@ class ezGALContext;
 class ezShaderStageBinary;
 struct ezVertexDeclarationInfo;
 
-typedef ezResourceHandle<class ezTextureResource> ezTextureResourceHandle;
-typedef ezResourceHandle<class ezConstantBufferResource> ezConstantBufferResourceHandle;
-typedef ezResourceHandle<class ezMeshBufferResource> ezMeshBufferResourceHandle;
-typedef ezResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
-typedef ezResourceHandle<class ezShaderResource> ezShaderResourceHandle;
-typedef ezResourceHandle<class ezShaderPermutationResource> ezShaderPermutationResourceHandle;
+typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
+typedef ezTypedResourceHandle<class ezConstantBufferResource> ezConstantBufferResourceHandle;
+typedef ezTypedResourceHandle<class ezMeshBufferResource> ezMeshBufferResourceHandle;
+typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
+typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
+typedef ezTypedResourceHandle<class ezShaderPermutationResource> ezShaderPermutationResourceHandle;
 
 struct ezShaderBindFlags
 {

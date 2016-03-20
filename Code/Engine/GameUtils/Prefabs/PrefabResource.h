@@ -4,7 +4,7 @@
 #include <Core/ResourceManager/Resource.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
-typedef ezResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
+typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
 
 struct EZ_GAMEUTILS_DLL ezPrefabResourceDescriptor
 {

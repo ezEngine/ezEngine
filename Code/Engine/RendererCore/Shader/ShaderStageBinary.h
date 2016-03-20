@@ -7,7 +7,7 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
-typedef ezResourceHandle<class ezConstantBufferResource> ezConstantBufferResourceHandle;
+typedef ezTypedResourceHandle<class ezConstantBufferResource> ezConstantBufferResourceHandle;
 
 struct ezShaderStageResource
 {

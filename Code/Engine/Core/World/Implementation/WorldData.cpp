@@ -114,14 +114,14 @@ ezUInt32 WorldData::CreateTransformationData(const ezBitflags<ezObjectFlags>& ob
   }
 
   Hierarchy::DataBlockArray& blocks = *hierarchy.m_Data[uiHierarchyLevel];
-  Hierarchy::DataBlock* pBlock = NULL;
+  Hierarchy::DataBlock* pBlock = nullptr;
 
   if (!blocks.IsEmpty())
   {
     pBlock = &blocks.PeekBack();
   }
 
-  if (pBlock == NULL || pBlock->IsFull())
+  if (pBlock == nullptr || pBlock->IsFull())
   {
     blocks.PushBack(m_BlockAllocator.AllocateBlock<ezGameObject::TransformationData>());
     pBlock = &blocks.PeekBack();

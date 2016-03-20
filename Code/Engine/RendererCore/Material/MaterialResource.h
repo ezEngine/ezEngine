@@ -4,8 +4,8 @@
 #include <Core/ResourceManager/Resource.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
-typedef ezResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
-typedef ezResourceHandle<class ezTextureResource> ezTextureResourceHandle;
+typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
+typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
 
 struct ezMaterialResourceDescriptor
 {

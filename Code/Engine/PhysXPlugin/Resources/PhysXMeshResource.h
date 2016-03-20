@@ -11,7 +11,7 @@ namespace physx
   class PxTriangleMesh;
 }
 
-typedef ezResourceHandle<class ezPhysXMeshResource> ezPhysXMeshResourceHandle;
+typedef ezTypedResourceHandle<class ezPhysXMeshResource> ezPhysXMeshResourceHandle;
 
 struct EZ_PHYSXPLUGIN_DLL ezPhysXMeshResourceDescriptor
 {

@@ -100,9 +100,9 @@ namespace ezInternal
   {
     EZ_ASSERT_DEV(uiCurrentCount < uiNewCount, "Shrinking of a buffer is not implemented yet");
     EZ_ASSERT_DEV(!(uiCurrentCount == uiNewCount), "Same size passed in twice.");
-    if (ptr == NULL)
+    if (ptr == nullptr)
     {
-      EZ_ASSERT_DEV(uiCurrentCount == 0, "current count must be 0 if ptr is NULL");
+      EZ_ASSERT_DEV(uiCurrentCount == 0, "current count must be 0 if ptr is nullptr");
 
       return CreateRawBuffer<T>(pAllocator, uiNewCount);
     }

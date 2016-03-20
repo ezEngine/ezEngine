@@ -3,7 +3,7 @@
 #include <RendererCore/Pipeline/Declarations.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
-typedef ezResourceHandle<class ezConstantBufferResource> ezConstantBufferResourceHandle;
+typedef ezTypedResourceHandle<class ezConstantBufferResource> ezConstantBufferResourceHandle;
 
 class EZ_RENDERERCORE_DLL ezMeshRenderer : public ezRenderer
 {

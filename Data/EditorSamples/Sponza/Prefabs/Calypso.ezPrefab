@@ -8,6 +8,7 @@
     "LocalPosition" : { "$t" : "vec3", "$v" : "(4.4000, 0.0000, -4.0000)", "$b" : "0xCDCC8C4000000000000080C0" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "",
     "Tags" : [  ]
    }
@@ -20,7 +21,7 @@
     "AssetType" : "Prefab",
     "Dependencies" : "",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xEDEF6A568D21274AB21D4CE1FCD4CBF5" },
-    "Hash" : { "$t" : "uint64", "$v" : "10767115002519560345", "$b" : "0x9920F5540C7A6C95" }
+    "Hash" : { "$t" : "uint64", "$v" : "15713181153838367038", "$b" : "0x3E01E6E5016F10DA" }
    }
   },
   {

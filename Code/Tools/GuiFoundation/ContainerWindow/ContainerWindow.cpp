@@ -49,7 +49,7 @@ ezContainerWindow::~ezContainerWindow()
 QTabWidget* ezContainerWindow::GetTabWidget() const
 {
   QTabWidget* pTabs = (QTabWidget*)centralWidget();
-  EZ_ASSERT_DEV(pTabs != nullptr, "The central widget is NULL");
+  EZ_ASSERT_DEV(pTabs != nullptr, "The central widget is nullptr");
 
   return pTabs;
 }

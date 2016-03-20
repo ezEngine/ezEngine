@@ -12,7 +12,7 @@ class ezEditorEngineDocumentMsg;
 class ezEditorRenderPass;
 class ezSelectedObjectsExtractor;
 class ezSceneContext;
-typedef ezResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
+typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
 struct ObjectData
 {

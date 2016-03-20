@@ -5,7 +5,7 @@
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 
-typedef ezResourceHandle<class ezShaderResource> ezShaderResourceHandle;
+typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
 
 struct ezShaderResourceDescriptor
 {

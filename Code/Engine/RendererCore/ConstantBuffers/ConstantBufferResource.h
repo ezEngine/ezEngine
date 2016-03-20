@@ -4,7 +4,7 @@
 #include <Core/ResourceManager/Resource.h>
 #include <RendererFoundation/Basics.h>
 
-typedef ezResourceHandle<class ezConstantBufferResource> ezConstantBufferResourceHandle;
+typedef ezTypedResourceHandle<class ezConstantBufferResource> ezConstantBufferResourceHandle;
 
 struct ezConstantBufferResourceDescriptorBase
 {

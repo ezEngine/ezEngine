@@ -98,7 +98,7 @@ ezVariant ezDocumentObject::GetPropertyIndex() const
 
 bool ezDocumentObject::IsOnHeap() const
 {
-  /// \todo Christopher: This crashes when the pointer is NULL, which appears to be possible
+  /// \todo Christopher: This crashes when the pointer is nullptr, which appears to be possible
   /// It happened for me when duplicating (CTRL+D) 2 objects 2 times then moving them and finally undoing everything
   EZ_ASSERT_DEV(m_pParent != nullptr, "Invalid usage (?)");
 

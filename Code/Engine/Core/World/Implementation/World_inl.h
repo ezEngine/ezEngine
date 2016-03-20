@@ -190,7 +190,7 @@ EZ_FORCE_INLINE void ezWorld::SendMessage(const ezGameObjectHandle& receiverObje
 {
   CheckForWriteAccess();
 
-  ezGameObject* pReceiverObject = NULL;
+  ezGameObject* pReceiverObject = nullptr;
   if (TryGetObject(receiverObject, pReceiverObject))
   {
     pReceiverObject->SendMessage(msg, routing);

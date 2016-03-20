@@ -52,10 +52,10 @@ public:
   };
 
   /// \brief Returns the unique ID that identifies this resource. On a file resource this might be a path. Can also be a GUID or any other scheme that uniquely identifies the resource.
-  const ezString& GetResourceID() const { return m_UniqueID; }
+  EZ_FORCE_INLINE const ezString& GetResourceID() const { return m_UniqueID; }
 
   /// \brief Returns the hash of the unique ID.
-  ezUInt32 GetResourceIDHash() const { return m_uiUniqueIDHash; }
+  EZ_FORCE_INLINE ezUInt32 GetResourceIDHash() const { return m_uiUniqueIDHash; }
 
   /// \brief The resource description allows to store an additional string that might be more descriptive during debugging, than the unique ID.
   void SetResourceDescription(const char* szDescription);
@@ -64,7 +64,7 @@ public:
   const ezString& GetResourceDescription() const { return m_sResourceDescription; }
 
   /// \brief Returns the current state in which this resource is in.
-  ezResourceState GetLoadingState() const { return m_LoadingState; }
+  EZ_FORCE_INLINE ezResourceState GetLoadingState() const { return m_LoadingState; }
 
   /// \brief Returns the current maximum quality level that the resource could have.
   ///
@@ -81,10 +81,10 @@ public:
   /// mipmap above that, which would result in 5 quality levels for a 1024*1024 texture.
   ///
   /// Most resource will have zero or one quality levels (which is the same) as they are either loaded or not.
-  ezUInt8 GetNumQualityLevelsDiscardable() const { return m_uiQualityLevelsDiscardable; }
+  EZ_FORCE_INLINE ezUInt8 GetNumQualityLevelsDiscardable() const { return m_uiQualityLevelsDiscardable; }
 
   /// \brief Returns how many quality levels the resource may additionally load.
-  ezUInt8 GetNumQualityLevelsLoadable() const { return m_uiQualityLevelsLoadable; }
+  EZ_FORCE_INLINE ezUInt8 GetNumQualityLevelsLoadable() const { return m_uiQualityLevelsLoadable; }
 
   /// \brief Sets the current priority of this resource.
   ///
@@ -105,7 +105,7 @@ public:
   void SetPriority(ezResourcePriority priority);
 
   /// \brief Returns the currently user-specified priority of this resource. \see SetPriority
-  ezResourcePriority GetPriority() const { return m_Priority; }
+  EZ_FORCE_INLINE ezResourcePriority GetPriority() const { return m_Priority; }
 
   /// \brief Specifies the time (usually in the future) at which this resource is needed and should be fully loaded.
   ///
@@ -131,32 +131,32 @@ public:
   virtual ezTime GetLoadingDeadline(ezTime tNow) const;
 
   /// \brief Returns the basic flags for the resource type. Mostly used the resource manager.
-  const ezBitflags<ezResourceFlags>& GetBaseResourceFlags() const { return m_Flags; }
+  EZ_FORCE_INLINE const ezBitflags<ezResourceFlags>& GetBaseResourceFlags() const { return m_Flags; }
 
   /// \brief Returns the information about the current memory usage of the resource.
-  const MemoryUsage& GetMemoryUsage() const { return m_MemoryUsage; }
+  EZ_FORCE_INLINE const MemoryUsage& GetMemoryUsage() const { return m_MemoryUsage; }
 
   /// \brief Returns the time at which the resource was (tried to be) acquired last.
   /// If a resource is acquired using ezResourceAcquireMode::PointerOnly, this does not update the last acquired time, since the resource is not acquired for full use.
-  ezTime GetLastAcquireTime() const { return m_LastAcquire; }
+  EZ_FORCE_INLINE ezTime GetLastAcquireTime() const { return m_LastAcquire; }
 
   /// \brief Returns the reference count of this resource.
-  ezInt32 GetReferenceCount() const { return m_iReferenceCount; }
+  EZ_FORCE_INLINE ezInt32 GetReferenceCount() const { return m_iReferenceCount; }
 
   /// \brief Returns the modification date of the file from which this resource was loaded.
   ///
   /// The date may be invalid, if it cannot be retrieved or the resource was created and not loaded.
-  const ezTimestamp& GetLoadedFileModificationTime() const { return m_LoadedFileModificationTime; }
+  EZ_FORCE_INLINE const ezTimestamp& GetLoadedFileModificationTime() const { return m_LoadedFileModificationTime; }
 
   /// \brief Returns the current value of the resource change counter.
   /// Can be used to detect whether the resource has changed since using it last time.
   ///
   /// The resource change counter is increased by calling IncResourceChangeCounter() or
   /// whenever the resource content is updated.
-  ezUInt32 GetCurrentResourceChangeCounter() const { return m_uiResourceChangeCounter; }
+  EZ_FORCE_INLINE ezUInt32 GetCurrentResourceChangeCounter() const { return m_uiResourceChangeCounter; }
 
   /// \brief Allows to manually increase the resource change counter to signal that dependent code might need to update.
-  void IncResourceChangeCounter() { ++m_uiResourceChangeCounter; }
+  EZ_FORCE_INLINE void IncResourceChangeCounter() { ++m_uiResourceChangeCounter; }
 
 private:
 
@@ -204,7 +204,7 @@ protected:
 
 private:
   template<typename ResourceType>
-  friend class ezResourceHandle;
+  friend class ezTypedResourceHandle;
 
   template<typename SELF, typename SELF_DESCRIPTOR>
   friend class ezResource;

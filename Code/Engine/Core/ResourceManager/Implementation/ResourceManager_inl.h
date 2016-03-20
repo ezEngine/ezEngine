@@ -5,39 +5,21 @@
 template<typename ResourceType>
 ResourceType* ezResourceManager::GetResource(const char* szResourceID, bool bIsReloadable)
 {
-  ezResourceBase* pResource = NULL;
-
-  const ezTempHashedString sResourceHash(szResourceID);
-
-  EZ_LOCK(s_ResourceMutex);
-
-  if (m_LoadedResources.TryGetValue(sResourceHash, pResource))
-    return (ResourceType*) pResource;
-
-  const ezRTTI* pRtti = ezGetStaticRTTI<ResourceType>();
-  EZ_ASSERT_DEV(pRtti != NULL, "There is no RTTI information available for the given resource type '%s'", EZ_STRINGIZE(ResourceType));
-  EZ_ASSERT_DEV(pRtti->GetAllocator() != NULL, "There is no RTTI allocator available for the given resource type '%s'", EZ_STRINGIZE(ResourceType));
-
-  ResourceType* pNewResource = static_cast<ResourceType*>(pRtti->GetAllocator()->Allocate());
-  pNewResource->SetUniqueID(szResourceID, bIsReloadable);
-
-  m_LoadedResources.Insert(sResourceHash, pNewResource);
-
-  return (ResourceType*) pNewResource;
+  return static_cast<ResourceType*>(GetResource(ezGetStaticRTTI<ResourceType>(), szResourceID, bIsReloadable));
 }
 
 template<typename ResourceType>
-ezResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* szResourceID)
+ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* szResourceID)
 {
-  return ezResourceHandle<ResourceType>(GetResource<ResourceType>(szResourceID, true));
+  return ezTypedResourceHandle<ResourceType>(GetResource<ResourceType>(szResourceID, true));
 }
 
 template<typename ResourceType>
-ezResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* szResourceID, ezResourcePriority Priority, ezResourceHandle<ResourceType> hFallbackResource)
+ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* szResourceID, ezResourcePriority Priority, ezTypedResourceHandle<ResourceType> hFallbackResource)
 {
-  ezResourceHandle<ResourceType> hResource(GetResource<ResourceType>(szResourceID, true));
+  ezTypedResourceHandle<ResourceType> hResource(GetResource<ResourceType>(szResourceID, true));
 
-  ResourceType* pResource = ezResourceManager::BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly, ezResourceHandle<ResourceType>(), Priority);
+  ResourceType* pResource = ezResourceManager::BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly, ezTypedResourceHandle<ResourceType>(), Priority);
 
   if (hFallbackResource.IsValid())
   {
@@ -50,9 +32,9 @@ ezResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* szRes
 }
 
 template<typename ResourceType>
-ezResourceHandle<ResourceType> ezResourceManager::GetExistingResource(const char* szResourceID)
+ezTypedResourceHandle<ResourceType> ezResourceManager::GetExistingResource(const char* szResourceID)
 {
-  ezResourceBase* pResource = NULL;
+  ezResourceBase* pResource = nullptr;
 
   const ezTempHashedString sResourceHash(szResourceID);
 
@@ -61,17 +43,17 @@ ezResourceHandle<ResourceType> ezResourceManager::GetExistingResource(const char
   if (m_LoadedResources.TryGetValue(sResourceHash, pResource))
     return (ResourceType*) pResource;
 
-  return ezResourceHandle<ResourceType>();
+  return ezTypedResourceHandle<ResourceType>();
 }
 
 template<typename ResourceType>
-ezResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szResourceID, const typename ResourceType::DescriptorType& descriptor, const char* szResourceDescription)
+ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szResourceID, const typename ResourceType::DescriptorType& descriptor, const char* szResourceDescription)
 {
   EZ_LOG_BLOCK("ezResourceManager::CreateResource", szResourceID);
 
   EZ_LOCK(s_ResourceMutex);
 
-  ezResourceHandle<ResourceType> hResource(GetResource<ResourceType>(szResourceID, false));
+  ezTypedResourceHandle<ResourceType> hResource(GetResource<ResourceType>(szResourceID, false));
 
   ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
   pResource->SetResourceDescription(szResourceDescription);
@@ -90,13 +72,13 @@ ezResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szR
 }
 
 template<typename ResourceType>
-ResourceType* ezResourceManager::BeginAcquireResource(const ezResourceHandle<ResourceType>& hResource, ezResourceAcquireMode mode, const ezResourceHandle<ResourceType>& hFallbackResource, ezResourcePriority Priority)
+ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandle<ResourceType>& hResource, ezResourceAcquireMode mode, const ezTypedResourceHandle<ResourceType>& hFallbackResource, ezResourcePriority Priority)
 {
   //EZ_LOCK(s_ResourceMutex);
 
   EZ_ASSERT_DEV(hResource.IsValid(), "Cannot acquire a resource through an invalid handle!");
 
-  ResourceType* pResource = (ResourceType*) hResource.m_pResource;
+  ResourceType* pResource = (ResourceType*) hResource.m_Typeless.m_pResource;
 
   EZ_ASSERT_DEV(pResource->m_iLockCount < 20, "You probably forgot somewhere to call 'EndAcquireResource' in sync with 'BeginAcquireResource'.");
   EZ_ASSERT_DEBUG(pResource->GetDynamicRTTI() == ezGetStaticRTTI<ResourceType>(), "The requested resource does not have the same type ('%s') as the resource handle ('%s').", pResource->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
@@ -198,14 +180,14 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezResourceHandle<Res
 template<typename ResourceType>
 void ezResourceManager::EndAcquireResource(ResourceType* pResource)
 {
-  EZ_ASSERT_DEV(pResource != NULL, "Resource Pointer cannot be NULL.");
+  EZ_ASSERT_DEV(pResource != nullptr, "Resource Pointer cannot be nullptr.");
   EZ_ASSERT_DEV(pResource->m_iLockCount > 0, "The resource lock counter is incorrect: %i", (ezInt32) pResource->m_iLockCount);
 
   pResource->m_iLockCount.Decrement();
 }
 
 template<typename ResourceType>
-void ezResourceManager::PreloadResource(const ezResourceHandle<ResourceType>& hResource, ezTime tShouldBeAvailableIn)
+void ezResourceManager::PreloadResource(const ezTypedResourceHandle<ResourceType>& hResource, ezTime tShouldBeAvailableIn)
 {
   ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
 
@@ -215,7 +197,7 @@ void ezResourceManager::PreloadResource(const ezResourceHandle<ResourceType>& hR
 }
 
 template<typename ResourceType>
-void ezResourceManager::ReloadResource(const ezResourceHandle<ResourceType>& hResource)
+void ezResourceManager::ReloadResource(const ezTypedResourceHandle<ResourceType>& hResource)
 {
   ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
 

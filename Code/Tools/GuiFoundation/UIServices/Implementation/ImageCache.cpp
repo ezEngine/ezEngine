@@ -13,8 +13,8 @@ ezMap<QString, ezQtImageCache::CacheEntry> ezQtImageCache::s_ImageCache;
 ezTime ezQtImageCache::s_LastCleanupTime;
 ezInt64 ezQtImageCache::s_iMemoryUsageThreshold = 30 * 1024 * 1024; // 30 MB
 ezInt64 ezQtImageCache::s_iCurrentMemoryUsage = 0;
-QPixmap* ezQtImageCache::s_pImageLoading = NULL;
-QPixmap* ezQtImageCache::s_pImageUnavailable = NULL;
+QPixmap* ezQtImageCache::s_pImageLoading = nullptr;
+QPixmap* ezQtImageCache::s_pImageUnavailable = nullptr;
 ezUInt32 ezQtImageCache::s_uiCurImageID = 1;
 
 static ezQtImageCache g_ImageCacheSingleton;
@@ -62,7 +62,7 @@ const QPixmap* ezQtImageCache::QueryPixmap(const char* szAbsolutePath, QModelInd
   if (out_pImageID)
     *out_pImageID = 0;
 
-  if (s_pImageLoading == NULL)
+  if (s_pImageLoading == nullptr)
     SetFallbackImages(":/GuiFoundation/ThumbnailLoading.png", ":/GuiFoundation/ThumbnailUnavailable.png");
 
   ezStringBuilder sCleanPath = szAbsolutePath;

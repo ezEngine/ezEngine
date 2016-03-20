@@ -1,5 +1,6 @@
 #include <Core/PCH.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <Core/ResourceManager/HandleSerialization.h>
 
 
 void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet* pExclude)
@@ -10,7 +11,7 @@ void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet
 
   EZ_LOCK(m_pWorld->GetReadMarker());
 
-  const ezUInt8 uiVersion = 1;
+  const ezUInt8 uiVersion = 2;
   stream << uiVersion;
 
   m_AllRootObjects.Clear();
@@ -53,9 +54,15 @@ void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet
     WriteComponentInfo(it.Key());
   }
 
-  for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
   {
-    WriteComponentsOfType(it.Key(), it.Value());
+    ezResourceHandleWriteContext ResHandleWriter;
+
+    for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
+    {
+      WriteComponentsOfType(it.Key(), it.Value(), ResHandleWriter);
+    }
+
+    ResHandleWriter.Finalize(m_pStream);
   }
 }
 
@@ -170,13 +177,15 @@ void ezWorldWriter::WriteComponentInfo(const ezRTTI* pRtti)
   s << pRtti->GetTypeVersion();
 }
 
-void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<const ezComponent*>& components)
+void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<const ezComponent*>& components, ezResourceHandleWriteContext& ResHandleWriter)
 {
   ezMemoryStreamStorage storage;
   ezMemoryStreamWriter memWriter(&storage);
 
   ezStreamWriter* pPrevStream = m_pStream;
   m_pStream = &memWriter;
+
+  ResHandleWriter.SetStream(m_pStream);
 
   // write to memory stream
   {
@@ -196,6 +205,8 @@ void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<con
   }
 
   m_pStream = pPrevStream;
+
+  ResHandleWriter.SetStream(nullptr);
 
   // write result to actual stream
   {

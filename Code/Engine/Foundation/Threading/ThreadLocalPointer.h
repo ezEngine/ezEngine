@@ -29,22 +29,22 @@ public:
 
   /// \brief Returns the pointer stored in the thread pointer table for the current thread.
   ///
-  /// \note Note that a variable which hasn't been assigned yet will return NULL
+  /// \note Note that a variable which hasn't been assigned yet will return nullptr
   operator T* ()
   {
     if (!ezThreadLocalStorage::IsValidSlot(m_uiThreadLocalSlotIndex))
-      return NULL;
+      return nullptr;
     else
       return reinterpret_cast<T*>(ezThreadLocalStorage::GetValueForSlot(m_uiThreadLocalSlotIndex));
   }
 
   /// \brief Returns the const pointer stored in the thread pointer table for the current thread.
   ///
-  /// \note Note that a variable which hasn't been assigned yet will return NULL
+  /// \note Note that a variable which hasn't been assigned yet will return nullptr
   operator const T* () const
   {
     if (!ezThreadLocalStorage::IsValidSlot(m_uiThreadLocalSlotIndex))
-      return NULL;
+      return nullptr;
     else
       return reinterpret_cast<const T*>(ezThreadLocalStorage::GetValueForSlot(m_uiThreadLocalSlotIndex));
   }

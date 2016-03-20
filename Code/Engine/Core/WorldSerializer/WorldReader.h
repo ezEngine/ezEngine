@@ -3,6 +3,7 @@
 #include <Core/World/World.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Core/ResourceManager/HandleSerialization.h>
 
 /// \brief Reads a world description from a stream. Allows to instantiate that world multiple times
 ///        in different locations and different ezWorld's.
@@ -95,6 +96,7 @@ private:
   ezDynamicArray<const ezRTTI*> m_ComponentTypes;
   ezHashTable<const ezRTTI*, ezUInt32> m_ComponentTypeVersions;
   ezMemoryStreamStorage m_ComponentStream;
+  ezResourceHandleReadContext m_HandleReadContext;
 };
 
 

@@ -48,19 +48,19 @@ public:
   static void BroadcastResourceEvent(const ResourceEvent& e);
 
   template<typename ResourceType>
-  static ezResourceHandle<ResourceType> LoadResource(const char* szResourceID);
+  static ezTypedResourceHandle<ResourceType> LoadResource(const char* szResourceID);
 
   template<typename ResourceType>
-  static ezResourceHandle<ResourceType> LoadResource(const char* szResourceID, ezResourcePriority Priority, ezResourceHandle<ResourceType> hFallbackResource);
+  static ezTypedResourceHandle<ResourceType> LoadResource(const char* szResourceID, ezResourcePriority Priority, ezTypedResourceHandle<ResourceType> hFallbackResource);
 
   template<typename ResourceType>
-  static ezResourceHandle<ResourceType> CreateResource(const char* szResourceID, const typename ResourceType::DescriptorType& descriptor, const char* szResourceDescription = nullptr);
+  static ezTypedResourceHandle<ResourceType> CreateResource(const char* szResourceID, const typename ResourceType::DescriptorType& descriptor, const char* szResourceDescription = nullptr);
 
   template<typename ResourceType>
-  static ezResourceHandle<ResourceType> GetExistingResource(const char* szResourceID);
+  static ezTypedResourceHandle<ResourceType> GetExistingResource(const char* szResourceID);
 
   template<typename ResourceType>
-  static ResourceType* BeginAcquireResource(const ezResourceHandle<ResourceType>& hResource, ezResourceAcquireMode mode = ezResourceAcquireMode::AllowFallback, const ezResourceHandle<ResourceType>& hFallbackResource = ezResourceHandle<ResourceType>(), ezResourcePriority Priority = ezResourcePriority::Unchanged);
+  static ResourceType* BeginAcquireResource(const ezTypedResourceHandle<ResourceType>& hResource, ezResourceAcquireMode mode = ezResourceAcquireMode::AllowFallback, const ezTypedResourceHandle<ResourceType>& hFallbackResource = ezTypedResourceHandle<ResourceType>(), ezResourcePriority Priority = ezResourcePriority::Unchanged);
 
   template<typename ResourceType>
   static void EndAcquireResource(ResourceType* pResource);
@@ -79,12 +79,12 @@ public:
   static void OnCoreStartup();
 
   template<typename ResourceType>
-  static void PreloadResource(const ezResourceHandle<ResourceType>& hResource, ezTime tShouldBeAvailableIn);
+  static void PreloadResource(const ezTypedResourceHandle<ResourceType>& hResource, ezTime tShouldBeAvailableIn);
 
   static ezUInt32 FreeUnusedResources(bool bFreeAllUnused);
 
   template<typename ResourceType>
-  static void ReloadResource(const ezResourceHandle<ResourceType>& hResource);
+  static void ReloadResource(const ezTypedResourceHandle<ResourceType>& hResource);
 
   template<typename ResourceType>
   static void ReloadResourcesOfType();
@@ -121,6 +121,7 @@ public:
 private:
   friend class ezResourceManagerWorker;
   friend class ezResourceManagerWorkerGPU;
+  friend class ezResourceHandleReadContext;
 
   static void ReloadResource(ezResourceBase* pResource);
 
@@ -128,6 +129,8 @@ private:
 
   template<typename ResourceType>
   static ResourceType* GetResource(const char* szResourceID, bool bIsReloadable);
+
+  static ezResourceBase* GetResource(const ezRTTI* pRtti, const char* szResourceID, bool bIsReloadable);
 
   static void InternalPreloadResource(ezResourceBase* pResource, bool bHighestPriority);
 
@@ -219,7 +222,7 @@ template<class RESOURCE_TYPE>
 class ezResourceLock
 {
 public:
-  ezResourceLock(const ezResourceHandle<RESOURCE_TYPE>& hResource, ezResourceAcquireMode mode = ezResourceAcquireMode::AllowFallback, const ezResourceHandle<RESOURCE_TYPE>& hFallbackResource = ezResourceHandle<RESOURCE_TYPE>(), ezResourcePriority Priority = ezResourcePriority::Unchanged)
+  ezResourceLock(const ezTypedResourceHandle<RESOURCE_TYPE>& hResource, ezResourceAcquireMode mode = ezResourceAcquireMode::AllowFallback, const ezTypedResourceHandle<RESOURCE_TYPE>& hFallbackResource = ezTypedResourceHandle<RESOURCE_TYPE>(), ezResourcePriority Priority = ezResourcePriority::Unchanged)
   {
     m_pResource = ezResourceManager::BeginAcquireResource(hResource, mode, hFallbackResource, Priority);
   }

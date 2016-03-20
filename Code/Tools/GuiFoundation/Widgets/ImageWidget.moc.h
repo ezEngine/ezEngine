@@ -9,7 +9,7 @@ class QGraphicsPixmapItem;
 class EZ_GUIFOUNDATION_DLL QtImageScene : public QGraphicsScene
 {
 public:
-  QtImageScene(QObject* pParent = NULL);
+  QtImageScene(QObject* pParent = nullptr);
 
   void SetImage(QPixmap pixmap);
 

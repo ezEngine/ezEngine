@@ -296,7 +296,7 @@ struct LeakInfo
 //static
 void ezMemoryTracker::DumpMemoryLeaks()
 {
-  if (s_pTrackerData == NULL) // if both tracking and tracing is disabled there is no tracker data
+  if (s_pTrackerData == nullptr) // if both tracking and tracing is disabled there is no tracker data
     return;
   EZ_LOCK(*s_pTrackerData);
 

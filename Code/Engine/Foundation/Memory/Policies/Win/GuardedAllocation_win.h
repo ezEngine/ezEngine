@@ -42,7 +42,7 @@ namespace ezMemoryPolicies
     // align to full pages and add one page in front and one in back
     size_t uiPageSize = m_uiPageSize;
     size_t uiFullPageSize = ezMemoryUtils::AlignSize(uiTotalSize, uiPageSize);
-    void* pMemory = VirtualAlloc(NULL, uiFullPageSize + 2 * uiPageSize, MEM_RESERVE, PAGE_NOACCESS);
+    void* pMemory = VirtualAlloc(nullptr, uiFullPageSize + 2 * uiPageSize, MEM_RESERVE, PAGE_NOACCESS);
     EZ_ASSERT_DEV(pMemory != nullptr, "Could not reserve memory pages. Error Code '%d'", ::GetLastError());
 
     // add one page and commit the payload pages

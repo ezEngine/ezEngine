@@ -233,7 +233,7 @@ void ezWindow::ProcessWindowMessages()
     return;
 
   MSG msg = {0};
-  while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE))
+  while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
   {
     if (msg.message == WM_QUIT)
     {

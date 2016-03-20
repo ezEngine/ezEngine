@@ -10,7 +10,7 @@
 void ezThreadLocalStorage::Initialize()
 {
   // Get a TLS index from the OS, since we manage a table of our own one TLS index suffices
-  int iReturnCode = pthread_key_create(&g_ThreadLocalManagmentTableKey, NULL);
+  int iReturnCode = pthread_key_create(&g_ThreadLocalManagmentTableKey, nullptr);
   EZ_ASSERT_ALWAYS(iReturnCode == 0, "Unable to allocate key for thread local management table!");
 
   // And set the table for the main thread
@@ -25,8 +25,8 @@ void ezThreadLocalStorage::Shutdown()
 
 void ezThreadLocalStorage::SetPerThreadPointerTable(ezThreadLocalPointerTable* pPerThreadPointerTable)
 {
-  // Initialize the table with NULL pointers
-  if (pPerThreadPointerTable != NULL)
+  // Initialize the table with nullptr pointers
+  if (pPerThreadPointerTable != nullptr)
   {
     pPerThreadPointerTable->SetCount(EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT);
   }

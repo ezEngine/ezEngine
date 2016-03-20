@@ -76,14 +76,7 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
   if (!m_hMesh.IsValid())
     return;
 
-  ezUInt32 uiMeshIDHash;
-  ezUInt32 uiMaterialIDHash;
-
-  // Lock the mesh in pointer only mode to get the correct resource id.
-  {
-    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::PointerOnly);
-    uiMeshIDHash = pMesh->GetResourceIDHash();
-  }
+  const ezUInt32 uiMeshIDHash = m_hMesh.GetResourceIDHash();
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh);
   const ezDynamicArray<ezMeshResourceDescriptor::SubMesh>& parts = pMesh->GetSubMeshes();
@@ -99,11 +92,7 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
     else
       hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
-    // Lock the material in pointer only mode to get the correct resource id.
-    {
-      ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::PointerOnly);
-      uiMaterialIDHash = pMaterial->GetResourceIDHash();
-    }
+    const ezUInt32 uiMaterialIDHash = hMaterial.GetResourceIDHash();
 
     // Generate batch id from mesh, material and part index. 
     ezUInt32 data[] = { uiMeshIDHash, uiMaterialIDHash, uiPartIndex };

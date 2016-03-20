@@ -15,7 +15,7 @@ class ezResource;
 
 // resource handle type
 template<typename ResourceType>
-class ezResourceHandle;
+class ezTypedResourceHandle;
 
 /// \brief The flags of an ezResourceBase instance.
 struct EZ_CORE_DLL ezResourceFlags

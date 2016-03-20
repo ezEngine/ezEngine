@@ -5,7 +5,7 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
 
-typedef ezResourceHandle<class ezMeshBufferResource> ezMeshBufferResourceHandle;
+typedef ezTypedResourceHandle<class ezMeshBufferResource> ezMeshBufferResourceHandle;
 
 struct EZ_RENDERERCORE_DLL ezVertexStreamInfo : public ezHashableStruct<ezVertexStreamInfo>
 {

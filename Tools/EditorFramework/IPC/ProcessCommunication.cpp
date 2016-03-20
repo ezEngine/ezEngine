@@ -155,7 +155,7 @@ bool ezProcessCommunication::IsHostAlive() const
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, m_iHostPID);
-  bValid = (hProcess != INVALID_HANDLE_VALUE) && (hProcess != NULL);
+  bValid = (hProcess != INVALID_HANDLE_VALUE) && (hProcess != nullptr);
 
   DWORD exitcode = 0;
   if (GetExitCodeProcess(hProcess, &exitcode) && exitcode != STILL_ACTIVE)
