@@ -4,7 +4,7 @@
 #include <Core/ResourceManager/Resource.h>
 
 typedef ezComponentManagerSimple<class ezFmodEventComponent, true> ezFmodEventComponentManager;
-typedef ezResourceHandle<class ezFmodSoundEventResource> ezFmodSoundEventResourceHandle;
+typedef ezTypedResourceHandle<class ezFmodSoundEventResource> ezFmodSoundEventResourceHandle;
 
 class EZ_FMODPLUGIN_DLL ezFmodEventComponent : public ezFmodComponent
 {

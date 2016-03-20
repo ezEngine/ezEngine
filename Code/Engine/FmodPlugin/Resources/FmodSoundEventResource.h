@@ -3,8 +3,8 @@
 #include <FmodPlugin/Basics.h>
 #include <Core/ResourceManager/Resource.h>
 
-typedef ezResourceHandle<class ezFmodSoundEventResource> ezFmodSoundEventResourceHandle;
-typedef ezResourceHandle<class ezFmodSoundBankResource> ezFmodSoundBankResourceHandle;
+typedef ezTypedResourceHandle<class ezFmodSoundEventResource> ezFmodSoundEventResourceHandle;
+typedef ezTypedResourceHandle<class ezFmodSoundBankResource> ezFmodSoundBankResourceHandle;
 
 struct EZ_FMODPLUGIN_DLL ezFmodSoundEventResourceDescriptor
 {
