@@ -35,7 +35,7 @@ void ezQtEditorApp::StoreEditorPluginsToBeLoaded()
   AddRestartRequiredReason("The set of active editor plugins was changed.");
 
   ezFileWriter FileOut;
-  FileOut.Open("ActivePlugins.json");
+  FileOut.Open("EditorPlugins.json");
 
   ezStandardJSONWriter writer;
   writer.SetOutputStream(&FileOut);
@@ -45,8 +45,10 @@ void ezQtEditorApp::StoreEditorPluginsToBeLoaded()
 
   for (auto it = s_EditorPlugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
   {
-    if (it.Value().m_bToBeLoaded)
-      writer.WriteString(it.Key().GetData());
+    writer.BeginObject();
+    writer.AddVariableString("Name", it.Key().GetData());
+    writer.AddVariableBool("Enable", it.Value().m_bToBeLoaded);
+    writer.EndObject();
   }
 
   writer.EndArray();
@@ -62,7 +64,7 @@ void ezQtEditorApp::ReadEditorPluginsToBeLoaded()
   }
 
   ezFileReader FileIn;
-  if (FileIn.Open("ActivePlugins.json").Failed())
+  if (FileIn.Open("EditorPlugins.json").Failed())
     return;
 
   ezJSONReader reader;
@@ -73,18 +75,25 @@ void ezQtEditorApp::ReadEditorPluginsToBeLoaded()
   if (!reader.GetTopLevelObject().TryGetValue("Plugins", pValue) || !pValue->IsA<ezVariantArray>())
     return;
 
-  for (auto it = s_EditorPlugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
-  {
-    it.Value().m_bToBeLoaded = false;
-  }
-
   ezVariantArray plugins = pValue->ConvertTo<ezVariantArray>();
+
+  // if a plugin is new, activate it (by keeping it enabled)
 
   for (ezUInt32 i = 0; i < plugins.GetCount(); ++i)
   {
-    const ezString sPlugin = plugins[i].ConvertTo<ezString>();
+    if (!plugins[i].IsA<ezVariantDictionary>())
+      continue;
 
-    s_EditorPlugins.m_Plugins[sPlugin].m_bToBeLoaded = true;
+    const ezVariantDictionary& obj = plugins[i].Get<ezVariantDictionary>();
+
+    ezVariant* pPluginName;
+    if (!obj.TryGetValue("Name", pPluginName) || !pPluginName->IsA<ezString>())
+      continue;
+    ezVariant* pValue;
+    if (!obj.TryGetValue("Enable", pValue) || !pValue->IsA<bool>())
+      continue;
+
+    s_EditorPlugins.m_Plugins[pPluginName->Get<ezString>()].m_bToBeLoaded = pValue->Get<bool>();
   }
 }
 

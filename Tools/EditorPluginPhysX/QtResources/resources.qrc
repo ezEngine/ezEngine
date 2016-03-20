@@ -12,6 +12,7 @@
 	<file>ezPxFixedJointComponent.png</file>
 	<file>ezPxCenterOfMassComponent.png</file>
 	<file>ezPxShapeConvexComponent.png</file>
+	<file>ezPxCharacterControllerComponent.png</file>
   </qresource>  
 </RCC>
 

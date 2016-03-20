@@ -28,4 +28,17 @@
     <file>Icons/ShapeIcons16.png</file>
 	<file>Icons/Duplicate16.png</file>
   </qresource>
+  <qresource prefix="TypeIcons">
+	<file>ezMeshComponent.png</file>
+	<file>ezPointLightComponent.png</file>
+	<file>ezSpotLightComponent.png</file>
+	<file>ezDirectionalLightComponent.png</file>
+	<file>ezRotorComponent.png</file>
+	<file>ezSliderComponent.png</file>
+	<file>ezCameraComponent.png</file>
+	<file>ezSpawnComponent.png</file>
+	<file>ezTimedDeathComponent.png</file>
+	<file>ezInputComponent.png</file>
+	<file>ezProjectileComponent.png</file>
+  </qresource>  
 </RCC>

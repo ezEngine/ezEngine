@@ -12,13 +12,5 @@
     <file>Surface.png</file>
 	<file>RenderPipeline.png</file>
   </qresource>
-  <qresource prefix="TypeIcons">
-	<file>ezMeshComponent.png</file>
-	<file>ezPointLightComponent.png</file>
-	<file>ezSpotLightComponent.png</file>
-	<file>ezDirectionalLightComponent.png</file>
-	<file>ezRotorComponent.png</file>
-	<file>ezSliderComponent.png</file>
-  </qresource>
 </RCC>
 
