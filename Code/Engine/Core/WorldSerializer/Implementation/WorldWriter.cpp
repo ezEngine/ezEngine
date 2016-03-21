@@ -1,7 +1,6 @@
 #include <Core/PCH.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/ResourceManager/HandleSerialization.h>
-
+#include <Core/WorldSerializer/ResourceHandleWriter.h>
 
 void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet* pExclude)
 {
@@ -185,8 +184,6 @@ void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<con
   ezStreamWriter* pPrevStream = m_pStream;
   m_pStream = &memWriter;
 
-  ResHandleWriter.SetStream(m_pStream);
-
   // write to memory stream
   {
     ezStreamWriter& s = *m_pStream;
@@ -205,8 +202,6 @@ void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<con
   }
 
   m_pStream = pPrevStream;
-
-  ResHandleWriter.SetStream(nullptr);
 
   // write result to actual stream
   {

@@ -106,8 +106,7 @@ void ezSpawnComponent::SerializeComponent(ezWorldWriter& stream) const
   auto& s = stream.GetStream();
 
   s << m_SpawnFlags.GetValue();
-  //s << GetPrefabFile(); /// \todo Store resource handles more efficiently
-  ezResourceHandleWriteContext::WriteHandle(m_hPrefab);
+  s << m_hPrefab;
 
   s << m_MinDelay;
   s << m_DelayRange;
@@ -126,10 +125,7 @@ void ezSpawnComponent::DeserializeComponent(ezWorldReader& stream)
   s >> flags;
   m_SpawnFlags.SetValue(flags);
 
-  //ezStringBuilder sTemp;
-  //s >> sTemp;
-  //SetPrefabFile(sTemp);
-  ezResourceHandleReadContext::ReadHandle(&m_hPrefab);
+  s >> m_hPrefab;
 
   s >> m_MinDelay;
   s >> m_DelayRange;

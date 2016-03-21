@@ -3,6 +3,7 @@
 #include <Core/World/World.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Types/TagSet.h>
+#include <Core/WorldSerializer/ResourceHandleWriter.h>
 
 class ezResourceHandleWriteContext;
 

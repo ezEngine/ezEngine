@@ -3,7 +3,7 @@
 #include <Core/World/World.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/IO/MemoryStream.h>
-#include <Core/ResourceManager/HandleSerialization.h>
+#include <Core/WorldSerializer/ResourceHandleReader.h>
 
 /// \brief Reads a world description from a stream. Allows to instantiate that world multiple times
 ///        in different locations and different ezWorld's.
