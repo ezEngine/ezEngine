@@ -23,8 +23,7 @@ void ezPxShapeComponent::SerializeComponent(ezWorldWriter& stream) const
 
   auto& s = stream.GetStream();
 
-  /// \todo Serialize resource handles more efficiently
-  s << GetSurfaceFile();
+  s << m_hSurface;
   s << m_uiCollisionLayer;
 }
 
@@ -37,9 +36,7 @@ void ezPxShapeComponent::DeserializeComponent(ezWorldReader& stream)
 
   auto& s = stream.GetStream();
 
-  ezStringBuilder sTemp;
-  s >> sTemp;
-  SetSurfaceFile(sTemp);
+  s >> m_hSurface;
   s >> m_uiCollisionLayer;
 }
 

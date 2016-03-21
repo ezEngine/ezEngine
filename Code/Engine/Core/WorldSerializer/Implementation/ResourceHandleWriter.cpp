@@ -4,20 +4,14 @@
 
 ezThreadLocalPointer<ezResourceHandleWriteContext> ezResourceHandleWriteContext::s_ActiveContext;
 
-
 ezResourceHandleWriteContext::ezResourceHandleWriteContext()
 {
-  EZ_ASSERT_DEV(s_ActiveContext == nullptr, "Instances of ezResourceHandleWriteContext cannot be nested on the callstack");
-
-  s_ActiveContext = this;
-  m_bFinalized = false;
+  m_State = State::NotStarted;
 }
 
 ezResourceHandleWriteContext::~ezResourceHandleWriteContext()
 {
-  EZ_ASSERT_DEV(m_bFinalized, "ezResourceHandleWriteContext::Finalize was not called");
-
-  s_ActiveContext = nullptr;
+  EZ_ASSERT_DEV(m_State == State::NotStarted || m_State == State::Finished, "ezResourceHandleWriteContext was not used correctly");
 }
 
 void ezResourceHandleWriteContext::WriteHandle(ezStreamWriter* pStream, const ezResourceBase* pResource)
@@ -30,20 +24,39 @@ void ezResourceHandleWriteContext::WriteHandle(ezStreamWriter* pStream, const ez
 
 void ezResourceHandleWriteContext::WriteResourceReference(ezStreamWriter* pStream, const ezResourceBase* pResource)
 {
-  ezUInt32 uiValue = m_ResourcesToStore.GetCount();
-  if (!m_StoredHandles.TryGetValue(pResource, uiValue))
+  EZ_ASSERT_DEV(m_State == State::Writing, "Resource handles can only be written between calls to ezResourceHandleWriteContext::BeginWritingToStream() and EndWritingToStream()");
+
+  ezUInt32 uiValue = 0xFFFFFFFF;
+
+  if (pResource != nullptr)
   {
-    m_ResourcesToStore.PushBack(pResource);
-    m_StoredHandles[pResource] = uiValue;
+    uiValue = m_ResourcesToStore.GetCount();
+    if (!m_StoredHandles.TryGetValue(pResource, uiValue))
+    {
+      m_ResourcesToStore.PushBack(pResource);
+      m_StoredHandles[pResource] = uiValue;
+    }
   }
 
   *pStream << uiValue;
 }
 
-void ezResourceHandleWriteContext::Finalize(ezStreamWriter* pStream)
+void ezResourceHandleWriteContext::BeginWritingToStream(ezStreamWriter* pStream)
 {
-  EZ_ASSERT_DEV(!m_bFinalized, "ezResourceHandleWriteContext::Finalize was called twice");
-  m_bFinalized = true;
+  EZ_ASSERT_DEV(s_ActiveContext == nullptr, "Instances of ezResourceHandleWriteContext cannot be nested on the callstack");
+  EZ_ASSERT_DEV(m_State == State::NotStarted, "ezResourceHandleWriteContext::BeginWritingToStream cannot be called twice on the same instance");
+
+  m_State = State::Writing;
+
+  s_ActiveContext = this;
+
+  const ezUInt8 uiVersion = 1;
+  *pStream << uiVersion;
+}
+
+void ezResourceHandleWriteContext::EndWritingToStream(ezStreamWriter* pStream)
+{
+  EZ_ASSERT_DEV(m_State == State::Writing, "ezResourceHandleWriteContext::EndWritingToStream must be called once after ezResourceHandleWriteContext::BeginWritingToStream");
 
   // number of all resources
   *pStream << m_ResourcesToStore.GetCount();
@@ -81,5 +94,10 @@ void ezResourceHandleWriteContext::Finalize(ezStreamWriter* pStream)
       }
     }
   }
+
+  m_State = State::Finished;
+  s_ActiveContext = nullptr;
 }
+
+
 

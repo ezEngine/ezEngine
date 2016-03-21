@@ -35,7 +35,7 @@ void ezFmodEventComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fPitch;
   s << m_fVolume;
 
-  s << GetSoundEventFile();
+  s << m_hSoundEvent;
 
   /// \todo store and restore current playback position
 }
@@ -51,11 +51,7 @@ void ezFmodEventComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_bPaused;
   s >> m_fPitch;
   s >> m_fVolume;
-
-  ezStringBuilder sEventFile;
-  s >> sEventFile;
-
-  SetSoundEventFile(sEventFile);
+  s >> m_hSoundEvent;
 }
 
 

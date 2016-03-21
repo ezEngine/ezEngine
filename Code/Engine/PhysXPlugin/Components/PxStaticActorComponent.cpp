@@ -22,8 +22,7 @@ void ezPxStaticActorComponent::SerializeComponent(ezWorldWriter& stream) const
 
   auto& s = stream.GetStream();
 
-  /// \todo Serialize resource handles more efficiently
-  s << GetMeshFile();
+  s << m_hCollisionMesh;
 }
 
 
@@ -32,12 +31,9 @@ void ezPxStaticActorComponent::DeserializeComponent(ezWorldReader& stream)
   SUPER::DeserializeComponent(stream);
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
-
   auto& s = stream.GetStream();
 
-  ezStringBuilder sTemp;
-  s >> sTemp;
-  SetMeshFile(sTemp);
+  s >> m_hCollisionMesh;
 }
 
 
@@ -67,9 +63,6 @@ const char* ezPxStaticActorComponent::GetMeshFile() const
 void ezPxStaticActorComponent::SetMesh(const ezPhysXMeshResourceHandle& hMesh)
 {
   m_hCollisionMesh = hMesh;
-
-  if (m_hCollisionMesh.IsValid())
-    ezResourceManager::PreloadResource(m_hCollisionMesh, ezTime::Seconds(5.0));
 }
 
 ezComponent::Initialization ezPxStaticActorComponent::Initialize()

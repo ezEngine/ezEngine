@@ -162,15 +162,7 @@ void ezMeshComponent::SerializeComponent(ezWorldWriter& stream) const
 
   for (const auto& mat : m_Materials)
   {
-    if ( mat.IsValid() )
-    {
-      ezResourceLock<ezMaterialResource> pMat(mat);
-      s << pMat->GetResourceID();
-    }
-    else
-    {
-      s << "";
-    }
+    s << mat;
   }
 }
 
@@ -196,10 +188,7 @@ void ezMeshComponent::DeserializeComponent(ezWorldReader& stream)
 
   for (auto& mat : m_Materials)
   {
-    s >> sTemp;
-
-    if (!sTemp.IsEmpty())
-      mat = ezResourceManager::LoadResource<ezMaterialResource>(sTemp);
+    s >> mat;
   }
 }
 

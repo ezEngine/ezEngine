@@ -36,7 +36,7 @@ void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const
   SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
 
-  s << GetPrefabFile(); /// \todo Store resource handles more efficiently
+  s << m_hPrefab;
 
 }
 
@@ -46,10 +46,7 @@ void ezPrefabReferenceComponent::DeserializeComponent(ezWorldReader& stream)
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
-  ezStringBuilder sTemp;
-  s >> sTemp;
-  SetPrefabFile(sTemp);
-
+  s >> m_hPrefab;
 }
 
 void ezPrefabReferenceComponent::SetPrefabFile(const char* szFile)

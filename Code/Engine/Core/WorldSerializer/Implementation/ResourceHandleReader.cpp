@@ -7,10 +7,13 @@ ezThreadLocalPointer<ezResourceHandleReadContext> ezResourceHandleReadContext::s
 
 ezResourceHandleReadContext::ezResourceHandleReadContext()
 {
+  m_uiVersion = 0;
+  m_bReadData = false;
 }
 
 ezResourceHandleReadContext::~ezResourceHandleReadContext()
 {
+  EZ_ASSERT_DEV(s_ActiveContext != this, "ezResourceHandleReadContext::EndRestoringHandles() was not called");
 }
 
 void ezResourceHandleReadContext::ReadHandle(ezStreamReader* pStream, ezTypelessResourceHandle* pResourceHandle)
@@ -23,22 +26,36 @@ void ezResourceHandleReadContext::ReadHandle(ezStreamReader* pStream, ezTypeless
 
 void ezResourceHandleReadContext::ReadResourceReference(ezStreamReader* pStream, ezTypelessResourceHandle* pResourceHandle)
 {
-  auto& hd = m_StoredHandles.ExpandAndGetRef();
-  hd.m_pHandle = pResourceHandle;
-  *pStream >> hd.m_uiResourceID;
+  ezUInt32 uiID = 0;
+  *pStream >> uiID;
+
+  if (uiID != 0xFFFFFFFF)
+  {
+    auto& hd = m_StoredHandles.ExpandAndGetRef();
+    hd.m_pHandle = pResourceHandle;
+    hd.m_uiResourceID = uiID;
+  }
+  else
+  {
+    pResourceHandle->Invalidate();
+  }
 }
 
 void ezResourceHandleReadContext::BeginRestoringHandles(ezStreamReader* pStream)
 {
   EZ_ASSERT_DEV(s_ActiveContext == nullptr, "Instances of ezResourceHandleReadContext cannot be nested on the callstack");
-
   s_ActiveContext = this;
+
+  EZ_ASSERT_DEV(m_uiVersion != 0, "ezResourceHandleReadContext::BeginRestoringHandles must be called after ezResourceHandleReadContext::BeginReadingFromStream");
 
   m_StoredHandles.Clear();
 }
 
 void ezResourceHandleReadContext::EndRestoringHandles()
 {
+  EZ_ASSERT_DEV(s_ActiveContext == this, "Incorrect usage of ezResourceHandleReadContext::BeginRestoringHandles / EndRestoringHandles");
+  EZ_ASSERT_DEV(m_bReadData, "ezResourceHandleReadContext::EndRestoringHandles must be called AFTER ezResourceHandleReadContext::EndReadingFromStream");
+
   for (const auto& hd : m_StoredHandles)
   {
     *hd.m_pHandle = m_AllResources[hd.m_uiResourceID];
@@ -49,8 +66,19 @@ void ezResourceHandleReadContext::EndRestoringHandles()
   s_ActiveContext = nullptr;
 }
 
-void ezResourceHandleReadContext::ReadFinalizedData(ezStreamReader* pStream)
+void ezResourceHandleReadContext::BeginReadingFromStream(ezStreamReader* pStream)
 {
+  EZ_ASSERT_DEV(m_uiVersion == 0, "ezResourceHandleReadContext::BeginReadingFromStream cannot be called twice on the same instance");
+
+  *pStream >> m_uiVersion;
+  EZ_ASSERT_DEV(m_uiVersion == 1, "Invalid version %u of ezResourceHandleReadContext", m_uiVersion);
+}
+
+void ezResourceHandleReadContext::EndReadingFromStream(ezStreamReader* pStream)
+{
+  EZ_ASSERT_DEV(!m_bReadData, "ezResourceHandleReadContext::EndReadingFromStream cannot be called twice on the same instance");
+  m_bReadData = true;
+
   // number of all resources
   ezUInt32 uiAllResourcesCount = 0;
   *pStream >> uiAllResourcesCount;

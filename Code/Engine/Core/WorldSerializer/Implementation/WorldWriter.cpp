@@ -55,13 +55,14 @@ void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet
 
   {
     ezResourceHandleWriteContext ResHandleWriter;
+    ResHandleWriter.BeginWritingToStream(m_pStream);
 
     for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
     {
       WriteComponentsOfType(it.Key(), it.Value(), ResHandleWriter);
     }
 
-    ResHandleWriter.Finalize(m_pStream);
+    ResHandleWriter.EndWritingToStream(m_pStream);
   }
 }
 

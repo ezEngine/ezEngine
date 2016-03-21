@@ -47,6 +47,8 @@ void ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
 
   // read all component data
   {
+    m_HandleReadContext.BeginReadingFromStream(m_pStream);
+
     ezMemoryStreamWriter memWriter(&m_ComponentStream);
 
     ezUInt8 Temp[4096];
@@ -68,7 +70,7 @@ void ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
       }
     }
 
-    m_HandleReadContext.ReadFinalizedData(&stream);
+    m_HandleReadContext.EndReadingFromStream(&stream);
   }
 }
 

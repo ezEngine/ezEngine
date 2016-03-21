@@ -169,11 +169,6 @@ const char* ezSpawnComponent::GetPrefabFile() const
 void ezSpawnComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab)
 {
   m_hPrefab = hPrefab;
-
-  if (m_hPrefab.IsValid())
-  {
-    ezResourceManager::PreloadResource(m_hPrefab, ezTime::Seconds(10.0));
-  }
 }
 
 
