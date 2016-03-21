@@ -75,6 +75,13 @@ bool ezQtEngineDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentM
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
   {
     m_Mirror.SendDocument();
+
+    // make sure all sync objects are 'modified' so that they will get resent as well
+    for (auto* pObject : m_SyncObjects)
+    {
+      pObject->SetModified();
+    }
+
     return true;
   }
 

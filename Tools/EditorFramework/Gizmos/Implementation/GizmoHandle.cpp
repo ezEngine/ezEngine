@@ -400,3 +400,7 @@ void ezEngineGizmoHandle::UpdateForEngine(ezWorld* pWorld)
 
   m_pMeshComponent->SetActive(m_bVisible);
 }
+
+
+
+

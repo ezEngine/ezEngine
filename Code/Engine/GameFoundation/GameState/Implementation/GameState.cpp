@@ -116,6 +116,12 @@ void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer, ezGALRe
 
   m_pMainView->SetWorld(m_pMainWorld);
   m_pMainView->SetLogicCamera(&m_MainCamera);
+
+  ezTag tagEditor;
+  ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tagEditor);
+
+  // exclude all editor objects from rendering in proper game views
+  m_pMainView->m_ExcludeTags.Set(tagEditor);
 }
 
 

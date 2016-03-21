@@ -29,10 +29,11 @@ Menu.Scene;&Scene
 Menu.Tools;&Tools
 Menu.View;&View
 Menu.Help;&Help
-Menu.RenderMode;Render Mode
-Menu.RenderPerspective;Perspective
 Menu.ProjectSettings;Project Settings
 Menu.EditorSettings;Editor Settings
+View.RenderMode;Render Mode
+View.RenderPerspective;Perspective
+View.RenderPipeline;Render Pipeline
 Asset.Transform;Transform Asset
 Asset.TransformAll;Transform All Assets
 Asset.CheckFilesystem;Check Filesystem

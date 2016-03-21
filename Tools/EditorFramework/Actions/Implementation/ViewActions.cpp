@@ -14,9 +14,9 @@ ezActionDescriptorHandle ezViewActions::s_hRenderPipeline;
 
 void ezViewActions::RegisterActions()
 {
-  s_hRenderMode = EZ_REGISTER_LRU_MENU("Menu.RenderMode", ezRenderModeAction, ":/EditorFramework/Icons/RenderMode.png");
-  s_hPerspective = EZ_REGISTER_LRU_MENU("Menu.RenderPerspective", ezPerspectiveAction, ":/EditorFramework/Icons/Perspective.png");
-  s_hRenderPipeline = EZ_REGISTER_LRU_MENU("Menu.RenderPipeline", ezRenderPipelineMenuAction, ":/AssetIcons/RenderPipeline.png");
+  s_hRenderMode = EZ_REGISTER_LRU_MENU("View.RenderMode", ezRenderModeAction, ":/EditorFramework/Icons/RenderMode.png");
+  s_hPerspective = EZ_REGISTER_LRU_MENU("View.RenderPerspective", ezPerspectiveAction, ":/EditorFramework/Icons/Perspective.png");
+  s_hRenderPipeline = EZ_REGISTER_LRU_MENU("View.RenderPipeline", ezRenderPipelineMenuAction, ":/AssetIcons/RenderPipeline.png");
 }
 
 void ezViewActions::UnregisterActions()
