@@ -7,12 +7,14 @@
 EZ_BEGIN_COMPONENT_TYPE(ezPxStaticActorComponent, 1);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Collision Mesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Collision Mesh")),
+    EZ_MEMBER_PROPERTY("Collision Layer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezPxStaticActorComponent::ezPxStaticActorComponent()
 {
   m_pActor = nullptr;
+  m_uiCollisionLayer = 0;
 }
 
 
@@ -23,6 +25,7 @@ void ezPxStaticActorComponent::SerializeComponent(ezWorldWriter& stream) const
   auto& s = stream.GetStream();
 
   s << m_hCollisionMesh;
+  s << m_uiCollisionLayer;
 }
 
 
@@ -34,6 +37,7 @@ void ezPxStaticActorComponent::DeserializeComponent(ezWorldReader& stream)
   auto& s = stream.GetStream();
 
   s >> m_hCollisionMesh;
+  s >> m_uiCollisionLayer;
 }
 
 
@@ -92,10 +96,9 @@ ezComponent::Initialization ezPxStaticActorComponent::Initialize()
       /// \todo Material(s)
       auto pShape = m_pActor->createShape(PxTriangleMeshGeometry(pMesh->GetTriangleMesh()), *ezPhysX::GetSingleton()->GetDefaultMaterial());
 
-      /// \todo collision filter
       PxFilterData filter;
-      filter.word0 = 0xFFFFFFFF;
-      filter.word1 = 0xFFFFFFFF;
+      filter.word0 = EZ_BIT(m_uiCollisionLayer);
+      filter.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(m_uiCollisionLayer);
       filter.word2 = 0;
       filter.word3 = 0;
       pShape->setSimulationFilterData(filter);
@@ -108,10 +111,9 @@ ezComponent::Initialization ezPxStaticActorComponent::Initialize()
       /// \todo Material(s)
       auto pShape = m_pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh()), *ezPhysX::GetSingleton()->GetDefaultMaterial());
 
-      /// \todo collision filter
       PxFilterData filter;
-      filter.word0 = 0xFFFFFFFF;
-      filter.word1 = 0xFFFFFFFF;
+      filter.word0 = EZ_BIT(m_uiCollisionLayer);
+      filter.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(m_uiCollisionLayer);
       filter.word2 = 0;
       filter.word3 = 0;
       pShape->setSimulationFilterData(filter);
@@ -125,6 +127,7 @@ ezComponent::Initialization ezPxStaticActorComponent::Initialize()
     }
   }
 
+  // Hacky feature to add a ground plane for static actors that have no shapes at all
   if (m_pActor->getNbShapes() == 0)
   {
     ezQuat qRot;
@@ -133,10 +136,9 @@ ezComponent::Initialization ezPxStaticActorComponent::Initialize()
     auto pShape = m_pActor->createShape(PxPlaneGeometry(), *ezPhysX::GetSingleton()->GetDefaultMaterial());
     pShape->setLocalPose(PxTransform(PxQuat(qRot.v.x, qRot.v.y, qRot.v.z, qRot.w)));
 
-    /// \todo collision filter
     PxFilterData filter;
-    filter.word0 = 0xFFFFFFFF;
-    filter.word1 = 0xFFFFFFFF;
+    filter.word0 = EZ_BIT(m_uiCollisionLayer);
+    filter.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(m_uiCollisionLayer);
     filter.word2 = 0;
     filter.word3 = 0;
     pShape->setSimulationFilterData(filter);

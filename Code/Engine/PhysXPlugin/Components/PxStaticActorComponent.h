@@ -22,6 +22,7 @@ public:
   void SetMeshFile(const char* szFile);
   const char* GetMeshFile() const;
 
+  ezUInt8 m_uiCollisionLayer;
 
 protected:
   ezPhysXMeshResourceHandle m_hCollisionMesh;

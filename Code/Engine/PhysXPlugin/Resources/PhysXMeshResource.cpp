@@ -101,7 +101,7 @@ ezResourceLoadDesc ezPhysXMeshResource::UpdateContent(ezStreamReader* Stream)
 
         m_pPxTriangleMesh = ezPhysX::GetSingleton()->GetPhysXAPI()->createTriangleMesh(PassThroughStream);
       }
-      
+
       if (chunk.GetCurrentChunk().m_sChunkName == "ConvexMesh")
       {
         ezPxInputStream PassThroughStream(&chunk);
@@ -112,10 +112,10 @@ ezResourceLoadDesc ezPhysXMeshResource::UpdateContent(ezStreamReader* Stream)
       chunk.NextChunk();
     }
 
-  if (m_pPxTriangleMesh == nullptr && m_pPxConvexMesh == nullptr)
-  {
-    ezLog::Error("Could neither find a 'TriangleMesh' chunk nor a 'ConvexMesh' chunk in the PhysXMesh file '%s'", GetResourceID().GetData());
-  }
+    if (m_pPxTriangleMesh == nullptr && m_pPxConvexMesh == nullptr)
+    {
+      ezLog::Error("Could neither find a 'TriangleMesh' chunk, nor a 'ConvexMesh' chunk in the PhysXMesh file '%s'", GetResourceID().GetData());
+    }
 
 
     chunk.EndStream();
