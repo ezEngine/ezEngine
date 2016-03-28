@@ -1,7 +1,7 @@
 #pragma once
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS)
-  #error "This header should only be included on windows platforms
+  #error "This header should only be included on windows platforms"
 #endif
 
 #ifdef _WIN64

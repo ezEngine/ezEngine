@@ -130,7 +130,7 @@ ezStringView ezPathUtils::GetFileDirectory(const char* szPath, const char* szPat
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
   const char ezPathUtils::OsSpecificPathSeparator = '/';
 #else
-  #error Unknown platform.
+  #error "Unknown platform."
 #endif
 
 bool ezPathUtils::IsAbsolutePath(const char* szPath)
@@ -150,7 +150,7 @@ bool ezPathUtils::IsAbsolutePath(const char* szPath)
   #elif EZ_ENABLED(EZ_PLATFORM_OSX)
     return (szPath[0] == '/');
   #else
-    #error Unknown platform.
+    #error "Unknown platform."
   #endif
 }
 

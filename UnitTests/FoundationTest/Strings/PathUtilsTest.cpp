@@ -115,7 +115,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
       EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("./file.stuff"));
       EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("file.stuff"));
     #else
-      #error Unknown platform.
+      #error "Unknown platform."
     #endif
   }
 }

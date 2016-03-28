@@ -1211,7 +1211,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
       EZ_TEST_BOOL(p.IsRelativePath());
 
     #else
-      #error Unknown platform.
+      #error "Unknown platform."
     #endif
   }
 
