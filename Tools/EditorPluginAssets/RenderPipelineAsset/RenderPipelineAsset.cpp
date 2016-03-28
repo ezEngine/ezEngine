@@ -99,6 +99,11 @@ ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(const char* szDocum
 {
 }
 
+ezBitflags<ezAssetDocumentFlags> ezRenderPipelineAssetDocument::GetAssetFlags() const
+{
+  return ezAssetDocumentFlags::AutoTransformOnSave;
+}
+
 void ezRenderPipelineAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
 {
 }

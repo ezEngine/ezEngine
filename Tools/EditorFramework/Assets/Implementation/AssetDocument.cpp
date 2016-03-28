@@ -133,6 +133,8 @@ void ezAssetDocument::InternalAfterSaveDocument()
     /// \todo Should only be done for platform agnostic assets
 
     TransformAsset();
+
+    ezAssetCurator::GetSingleton()->WriteAssetTables();
   }
 }
 

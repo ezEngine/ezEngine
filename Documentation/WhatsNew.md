@@ -50,6 +50,20 @@ Milestone 8
   * Some aspects of the editor can now be localized
   * Objects can now be hidden in the editor
   * Added a shortcut editing dialog to the editor
+  * Added 'settings' components that can be used to configure scene specific properties (e.g. for gravity in PhysX)
+  * Lots of render pipeline related work
+  * Resource handles can now be serialized easier and more efficiently
+  * Added debug break on DX11 errors
+  * Better renderdata sorting by separating batch id and sorting key
+  * Added "uniform scaling factor" to ezGameObject
+  * Implemented proper hashing and re-use of depth stencil, rasterizer and sampler states in GALDevice
+  * Added hashing and re-use of shader resource views and render target views
+  * Introduced ezSingletonRegistry and two macros to turn a class into a singleton
+  * Editor now stores and restores all recently open documents one project loading
+  * Added ezStringView, int vector and ezDataBuffer (typedef ezDynamicArray<ezUInt8> ezDataBuffer;) support ezVariant
+  * Added support for the PhysX character controller
+  * Added guarded memory allocator which can be easily activated by uncommenting the corresponding lines in UserConfig.h
+  * Added code to properly do progressbars
 
 Milestone 7
 -----------
