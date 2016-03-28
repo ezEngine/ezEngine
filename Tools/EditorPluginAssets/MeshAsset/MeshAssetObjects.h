@@ -3,9 +3,8 @@
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeDirectAccessor.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
-//#include <EditorFramework/GUI/PropertyEditorBaseWidget.moc.h>
 
-struct ezResourceSlot
+struct ezMaterialResourceSlot
 {
   ezString m_sLabel;
   ezString m_sResource;
@@ -35,7 +34,7 @@ struct ezMeshPrimitive
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezMeshPrimitive);
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezResourceSlot);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezMaterialResourceSlot);
 
 class ezMeshAssetProperties : public ezReflectedClass
 {
@@ -63,9 +62,9 @@ public:
   ezEnum<ezBasisAxis> m_UpDir;
 
   ezMeshPrimitive::Enum m_PrimitiveType;
-  ezHybridArray<ezResourceSlot, 8> m_Slots;
+  ezHybridArray<ezMaterialResourceSlot, 8> m_Slots;
 
-  const ezString& GetResourceSlotProperty(ezUInt32 uiSlot) const;
+  const ezString GetResourceSlotProperty(ezUInt32 uiSlot) const;
 
   ezUInt32 m_uiVertices;
   ezUInt32 m_uiTriangles;

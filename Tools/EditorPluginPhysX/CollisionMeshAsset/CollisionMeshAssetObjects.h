@@ -4,13 +4,11 @@
 #include <ToolsFoundation/Reflection/ReflectedTypeDirectAccessor.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 
-//struct ezResourceSlot
-//{
-//  ezString m_sLabel;
-//  ezString m_sResource;
-//};
-
-//EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezResourceSlot);
+struct ezSurfaceResourceSlot
+{
+  ezString m_sLabel;
+  ezString m_sResource;
+};
 
 struct ezCollisionMeshType
 {
@@ -26,6 +24,8 @@ struct ezCollisionMeshType
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezCollisionMeshType);
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezSurfaceResourceSlot);
 
 class ezCollisionMeshAssetProperties : public ezReflectedClass
 {
@@ -43,9 +43,9 @@ public:
   ezEnum<ezBasisAxis> m_UpDir;
   ezEnum<ezCollisionMeshType> m_MeshType;
 
-  //ezHybridArray<ezResourceSlot, 8> m_Slots;
+  ezHybridArray<ezSurfaceResourceSlot, 8> m_Slots;
 
-  //const ezString& GetResourceSlotProperty(ezUInt32 uiSlot) const;
+  const ezString GetResourceSlotProperty(ezUInt32 uiSlot) const;
 
   ezUInt32 m_uiVertices;
   ezUInt32 m_uiTriangles;

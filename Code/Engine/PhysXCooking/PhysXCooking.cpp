@@ -98,6 +98,8 @@ ezResult ezPhysXCooking::CookTriangleMesh(const Mesh& mesh, ezStreamWriter& Outp
 {
   PxTriangleMeshDesc desc;
   desc.setToDefault();
+  desc.materialIndices.data = mesh.m_PolygonSurfaceID.GetData();
+  desc.materialIndices.stride = sizeof(ezUInt16);
 
   ezDynamicArray<ezUInt32> TriangleIndices;
   CreateMeshDesc(mesh, desc, TriangleIndices);

@@ -1,0 +1,31 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0xFB472860C31E3A43A20FD66C0724A3D8" },
+   "t" : "ezSurfaceResourceDescriptor",
+   "p" : {
+    "Base Surface" : "{ 0a105955-e069-4523-80ce-7b9867bde687 }",
+    "Dynamic Friction" : { "$t" : "float", "$v" : "0.4000", "$b" : "0xCDCCCC3E" },
+    "Restitution" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
+    "Static Friction" : { "$t" : "float", "$v" : "0.6000", "$b" : "0x9A99193F" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xDEEE87297C0D504790430215249E52C0" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Surface",
+    "Dependencies" : "",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0xDEEE87297C0D504790430215249E52C0" },
+    "Hash" : { "$t" : "uint64", "$v" : "9691315003873618377", "$b" : "0xC9E94C34A6777E86" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0xFB472860C31E3A43A20FD66C0724A3D8" } ]
+   }
+  } ]
+}

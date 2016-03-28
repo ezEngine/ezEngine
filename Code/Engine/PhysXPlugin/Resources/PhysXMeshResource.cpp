@@ -95,6 +95,22 @@ ezResourceLoadDesc ezPhysXMeshResource::UpdateContent(ezStreamReader* Stream)
     // skip all chunks that we don't know
     while (chunk.GetCurrentChunk().m_bValid)
     {
+      if (chunk.GetCurrentChunk().m_sChunkName == "Surfaces")
+      {
+        ezUInt32 uiNumSurfaces = 0;
+        chunk >> uiNumSurfaces;
+
+        m_Surfaces.SetCount(uiNumSurfaces);
+        ezStringBuilder sTemp;
+
+        for (ezUInt32 surf = 0; surf < uiNumSurfaces; ++surf)
+        {
+          chunk >> sTemp;
+
+          m_Surfaces[surf] = ezResourceManager::LoadResource<ezSurfaceResource>(sTemp);
+        }
+      }
+
       if (chunk.GetCurrentChunk().m_sChunkName == "TriangleMesh")
       {
         ezPxInputStream PassThroughStream(&chunk);

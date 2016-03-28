@@ -145,10 +145,10 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(const ezCollisionMeshA
   ezUInt32 uiVertices = 0;
   ezUInt32 uiTriangles = 0;
 
-  for (ezUInt32 i = 0; i < scene->mNumMeshes; ++i)
+  for (ezUInt32 meshIdx = 0; meshIdx < scene->mNumMeshes; ++meshIdx)
   {
-    uiVertices += scene->mMeshes[i]->mNumVertices;
-    uiTriangles += scene->mMeshes[i]->mNumFaces;
+    uiVertices += scene->mMeshes[meshIdx]->mNumVertices;
+    uiTriangles += scene->mMeshes[meshIdx]->mNumFaces;
   }
 
   ezLog::Info("Number of Vertices: %u", uiVertices);
@@ -157,6 +157,7 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(const ezCollisionMeshA
   xMesh.m_PolygonIndices.Reserve(uiTriangles * 3);
   xMesh.m_Vertices.SetCount(uiVertices);
   xMesh.m_VerticesInPolygon.SetCount(uiTriangles);
+  xMesh.m_PolygonSurfaceID.Reserve(uiTriangles);
 
   ezUInt32 uiCurVertex = 0;
   ezUInt32 uiCurTriangle = 0;
@@ -164,29 +165,46 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(const ezCollisionMeshA
   aiString name;
   ezStringBuilder sMatName;
 
-  for (ezUInt32 i = 0; i < scene->mNumMeshes; ++i)
+  const ezUInt32 uiMaxMaterial = ezMath::Max<ezUInt32>(0, pProp->m_Slots.GetCount());
+
+  for (ezUInt32 meshIdx = 0; meshIdx < scene->mNumMeshes; ++meshIdx)
   {
-    aiMesh* mesh = scene->mMeshes[i];
+    aiMesh* mesh = scene->mMeshes[meshIdx];
     //aiMaterial* mat = scene->mMaterials[mesh->mMaterialIndex];
     //mat->Get(AI_MATKEY_NAME, name);
 
-    for (ezUInt32 f = 0; f < mesh->mNumFaces; ++f, ++uiCurTriangle)
+    for (ezUInt32 faceIdx = 0; faceIdx < mesh->mNumFaces; ++faceIdx, ++uiCurTriangle)
     {
-      EZ_ASSERT_DEV(mesh->mFaces[f].mNumIndices == 3, "");
+      EZ_ASSERT_DEV(mesh->mFaces[faceIdx].mNumIndices == 3, "");
 
       xMesh.m_VerticesInPolygon[uiCurTriangle] = 3;
-      xMesh.m_PolygonIndices.PushBack(uiCurVertex + mesh->mFaces[f].mIndices[bFlipTriangles ? 2 : 0]);
-      xMesh.m_PolygonIndices.PushBack(uiCurVertex + mesh->mFaces[f].mIndices[1]);
-      xMesh.m_PolygonIndices.PushBack(uiCurVertex + mesh->mFaces[f].mIndices[bFlipTriangles ? 0 : 2]);
+      xMesh.m_PolygonIndices.PushBack(uiCurVertex + mesh->mFaces[faceIdx].mIndices[bFlipTriangles ? 2 : 0]);
+      xMesh.m_PolygonIndices.PushBack(uiCurVertex + mesh->mFaces[faceIdx].mIndices[1]);
+      xMesh.m_PolygonIndices.PushBack(uiCurVertex + mesh->mFaces[faceIdx].mIndices[bFlipTriangles ? 0 : 2]);
+
+      xMesh.m_PolygonSurfaceID.PushBack(meshIdx > uiMaxMaterial ? 0 : meshIdx);
     }
 
-    for (ezUInt32 v = 0; v < mesh->mNumVertices; ++v, ++uiCurVertex)
+    for (ezUInt32 vertexIdx = 0; vertexIdx < mesh->mNumVertices; ++vertexIdx, ++uiCurVertex)
     {
-      xMesh.m_Vertices[uiCurVertex] = mTransformation.TransformDirection(ezVec3(mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z));
+      xMesh.m_Vertices[uiCurVertex] = mTransformation.TransformDirection(ezVec3(mesh->mVertices[vertexIdx].x, mesh->mVertices[vertexIdx].y, mesh->mVertices[vertexIdx].z));
     }
   }
 
   ezResult resCooking = EZ_FAILURE;
+
+  {
+    stream.BeginChunk("Surfaces", 1);
+
+    stream << pProp->m_Slots.GetCount();
+
+    for (const auto& slot : pProp->m_Slots)
+    {
+      stream << slot.m_sResource;
+    }
+
+    stream.EndChunk();
+  }
 
   if (pProp->m_MeshType == ezCollisionMeshType::TriangleMesh)
   {
@@ -268,18 +286,18 @@ ezStatus ezCollisionMeshAssetDocument::InternalRetrieveAssetInfo(const char * sz
     //pProp->m_SlotNames.SetCount(scene->mNumMeshes);
 
 
-    //aiString name;
-    //ezStringBuilder sMatName;
+    aiString name;
+    ezStringBuilder sMatName;
 
-    //pProp->m_Slots.SetCount(scene->mNumMeshes);
-    //for (ezUInt32 i = 0; i < scene->mNumMeshes; ++i)
-    //{
-    //  aiMaterial* mat = scene->mMaterials[scene->mMeshes[i]->mMaterialIndex];
+    pProp->m_Slots.SetCount(scene->mNumMeshes);
+    for (ezUInt32 i = 0; i < scene->mNumMeshes; ++i)
+    {
+      aiMaterial* mat = scene->mMaterials[scene->mMeshes[i]->mMaterialIndex];
 
-    //  mat->Get(AI_MATKEY_NAME, name);
+      mat->Get(AI_MATKEY_NAME, name);
 
-    //  pProp->m_Slots[i].m_sLabel = name.C_Str();
-    //}
+      pProp->m_Slots[i].m_sLabel = name.C_Str();
+    }
   }
 
   {

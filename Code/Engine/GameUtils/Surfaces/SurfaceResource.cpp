@@ -1,9 +1,12 @@
 #include <GameUtils/PCH.h>
 #include <GameUtils/Surfaces/SurfaceResource.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
+#include <Core/WorldSerializer/ResourceHandleReader.h>
+#include <Core/WorldSerializer/ResourceHandleWriter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResourceDescriptor, 1, ezRTTIDefaultAllocator<ezSurfaceResourceDescriptor>);
   EZ_BEGIN_PROPERTIES
+    EZ_ACCESSOR_PROPERTY("Base Surface", GetBaseSurfaceFile, SetBaseSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
     EZ_MEMBER_PROPERTY("Restitution", m_fPhysicsRestitution)->AddAttributes(new ezDefaultValueAttribute(0.25f)),
     EZ_MEMBER_PROPERTY("Static Friction", m_fPhysicsFrictionStatic)->AddAttributes(new ezDefaultValueAttribute(0.6f)),
     EZ_MEMBER_PROPERTY("Dynamic Friction", m_fPhysicsFrictionDynamic)->AddAttributes(new ezDefaultValueAttribute(0.4f)),
@@ -60,11 +63,22 @@ ezResourceLoadDesc ezSurfaceResource::UpdateContent(ezStreamReader* Stream)
     (*Stream) >> sAbsFilePath;
   }
 
+
   ezAssetFileHeader AssetHash;
   AssetHash.Read(*Stream);
 
-  m_Descriptor.Load(*Stream);
-  CreateResource(m_Descriptor);
+  {
+    ezResourceHandleReadContext context;
+    context.BeginReadingFromStream(Stream);
+    context.BeginRestoringHandles(Stream);
+
+    m_Descriptor.Load(*Stream);
+
+    context.EndReadingFromStream(Stream);
+    context.EndRestoringHandles();
+
+    CreateResource(m_Descriptor);
+  }
 
   res.m_State = ezResourceState::Loaded;
   return res;
@@ -96,7 +110,7 @@ ezResourceLoadDesc ezSurfaceResource::CreateResource(const ezSurfaceResourceDesc
 
 void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
 {
-  ezUInt8 uiVersion = 1;
+  ezUInt8 uiVersion = 0;
 
   stream >> uiVersion;
   EZ_ASSERT_DEV(uiVersion == 1, "Invalid version %u for surface resource", uiVersion);
@@ -104,6 +118,7 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
   stream >> m_fPhysicsRestitution;
   stream >> m_fPhysicsFrictionStatic;
   stream >> m_fPhysicsFrictionDynamic;
+  stream >> m_hBaseSurface;
 }
 
 void ezSurfaceResourceDescriptor::Save(ezStreamWriter& stream) const
@@ -114,4 +129,25 @@ void ezSurfaceResourceDescriptor::Save(ezStreamWriter& stream) const
   stream << m_fPhysicsRestitution;
   stream << m_fPhysicsFrictionStatic;
   stream << m_fPhysicsFrictionDynamic;
+  stream << m_hBaseSurface;
+}
+
+void ezSurfaceResourceDescriptor::SetBaseSurfaceFile(const char* szFile)
+{
+  ezSurfaceResourceHandle hResource;
+
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  {
+    hResource = ezResourceManager::LoadResource<ezSurfaceResource>(szFile);
+  }
+
+  m_hBaseSurface = hResource;
+}
+
+const char* ezSurfaceResourceDescriptor::GetBaseSurfaceFile() const
+{
+  if (!m_hBaseSurface.IsValid())
+    return "";
+
+  return m_hBaseSurface.GetResourceID();
 }

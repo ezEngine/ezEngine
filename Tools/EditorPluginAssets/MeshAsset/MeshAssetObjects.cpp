@@ -2,7 +2,7 @@
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezResourceSlot, ezNoBase, 1, ezRTTIDefaultAllocator<ezResourceSlot>);
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezMaterialResourceSlot, ezNoBase, 1, ezRTTIDefaultAllocator<ezMaterialResourceSlot>);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("Label", m_sLabel)->AddAttributes(new ezReadOnlyAttribute()),
     EZ_MEMBER_PROPERTY("Resource", m_sResource)->AddAttributes(new ezAssetBrowserAttribute("Material")),
@@ -56,8 +56,11 @@ ezMeshAssetProperties::ezMeshAssetProperties()
   m_fHeight = 1.0f;
 }
 
-const ezString& ezMeshAssetProperties::GetResourceSlotProperty(ezUInt32 uiSlot) const
+const ezString ezMeshAssetProperties::GetResourceSlotProperty(ezUInt32 uiSlot) const
 {
+  if (m_Slots.IsEmpty())
+    return "";
+
   uiSlot %= m_Slots.GetCount();
   return m_Slots[uiSlot].m_sResource;
 }

@@ -1,0 +1,31 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x79BFB2730378DE439647117773D05B87" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Surface",
+    "Dependencies" : "",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0x79BFB2730378DE439647117773D05B87" },
+    "Hash" : { "$t" : "uint64", "$v" : "7263648181878541024", "$b" : "0xE04A487689A9CD64" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0xE8498C46AA24C74EB19ABDE6C907461D" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE8498C46AA24C74EB19ABDE6C907461D" },
+   "t" : "ezSurfaceResourceDescriptor",
+   "p" : {
+    "Base Surface" : "{ 0a105955-e069-4523-80ce-7b9867bde687 }",
+    "Dynamic Friction" : { "$t" : "float", "$v" : "0.3000", "$b" : "0x9A99993E" },
+    "Restitution" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
+    "Static Friction" : { "$t" : "float", "$v" : "0.4000", "$b" : "0xCDCCCC3E" }
+   }
+  } ]
+}

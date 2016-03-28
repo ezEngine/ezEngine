@@ -23,6 +23,7 @@ public:
     ezDynamicArray<ezVec3> m_Vertices;
     ezDynamicArray<ezUInt8> m_VerticesInPolygon;
     ezDynamicArray<ezUInt32> m_PolygonIndices;
+    ezDynamicArray<ezUInt16> m_PolygonSurfaceID;
   };
 
   static ezResult CookTriangleMesh(const Mesh& mesh, ezStreamWriter& OutputStream);

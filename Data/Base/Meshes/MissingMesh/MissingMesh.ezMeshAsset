@@ -1,10 +1,10 @@
 {
  "Objects" : [ {
    "#" : { "$t" : "uuid", "$b" : "0x7B37168B3CBFFB37B05B8F83D73641A6" },
-   "t" : "ezResourceSlot",
+   "t" : "ezMaterialResourceSlot",
    "p" : {
-    "Label" : "DefaultMaterial",
-    "Resource" : "Materials/BaseMaterials/MissingMesh.ezMaterial"
+    "Label" : "Default",
+    "Resource" : "{ c069b8a2-ccad-417f-bca4-8739efc222cf }"
    }
   },
   {
@@ -15,8 +15,7 @@
     "AssetType" : "Mesh",
     "Dependencies" : "",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x67B1E6E98CC160429B0E4CF4503C1463" },
-    "Hash" : { "$t" : "uint64", "$v" : "10739543781825316104", "$b" : "0x080574452B860A95" },
-    "References" : ""
+    "Hash" : { "$t" : "uint64", "$v" : "18032505517684714598", "$b" : "0x666CDE5F3A5440FA" }
    }
   },
   {

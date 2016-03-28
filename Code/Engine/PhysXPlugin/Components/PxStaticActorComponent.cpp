@@ -91,10 +91,34 @@ ezComponent::Initialization ezPxStaticActorComponent::Initialize()
   {
     ezResourceLock<ezPhysXMeshResource> pMesh(m_hCollisionMesh);
 
+    ezHybridArray<PxMaterial*, 32> pxMaterials;
+    
+    {
+      pxMaterials.SetCount(pMesh->GetSurfaces().GetCount());
+
+      for (ezUInt32 mat = 0; mat < pMesh->GetSurfaces().GetCount(); ++mat)
+      {
+        if (pMesh->GetSurfaces()[mat].IsValid())
+        {
+          ezResourceLock<ezSurfaceResource> pSurf(pMesh->GetSurfaces()[mat]);
+
+          pxMaterials[mat] = static_cast<PxMaterial*>(pSurf->m_pPhysicsMaterial);
+        }
+        else
+        {
+          pxMaterials[mat] = ezPhysX::GetSingleton()->GetDefaultMaterial();
+        }
+      }
+    }
+
+    if (pxMaterials.IsEmpty())
+    {
+      pxMaterials.PushBack(ezPhysX::GetSingleton()->GetDefaultMaterial());
+    }
+
     if (pMesh->GetTriangleMesh() != nullptr)
     {
-      /// \todo Material(s)
-      auto pShape = m_pActor->createShape(PxTriangleMeshGeometry(pMesh->GetTriangleMesh()), *ezPhysX::GetSingleton()->GetDefaultMaterial());
+      auto pShape = m_pActor->createShape(PxTriangleMeshGeometry(pMesh->GetTriangleMesh()), pxMaterials.GetData(), pxMaterials.GetCount());
 
       PxFilterData filter;
       filter.word0 = EZ_BIT(m_uiCollisionLayer);
@@ -108,8 +132,7 @@ ezComponent::Initialization ezPxStaticActorComponent::Initialize()
     }
     else if (pMesh->GetConvexMesh() != nullptr)
     {
-      /// \todo Material(s)
-      auto pShape = m_pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh()), *ezPhysX::GetSingleton()->GetDefaultMaterial());
+      auto pShape = m_pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh()), pxMaterials.GetData(), pxMaterials.GetCount());
 
       PxFilterData filter;
       filter.word0 = EZ_BIT(m_uiCollisionLayer);

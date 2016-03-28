@@ -1,7 +1,7 @@
 {
  "Objects" : [ {
    "#" : { "$t" : "uuid", "$b" : "0x7B37168B3CBFFB37B05B8F83D73641A6" },
-   "t" : "ezResourceSlot",
+   "t" : "ezMaterialResourceSlot",
    "p" : {
     "Label" : "Trunk_1_Branch",
     "Resource" : "{ b700025c-5c7f-4247-8157-f409369ef16b }"
@@ -9,7 +9,7 @@
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0xB26DD2DA35000B3AA9BE9BC178B0596C" },
-   "t" : "ezResourceSlot",
+   "t" : "ezMaterialResourceSlot",
    "p" : {
     "Label" : "Main_Branches_1_Branch",
     "Resource" : "{ b700025c-5c7f-4247-8157-f409369ef16b }"
@@ -19,11 +19,21 @@
    "#" : { "$t" : "uuid", "$b" : "0xF7D37B95271EE243B8645DAAC8BD12E4" },
    "t" : "ezMeshAssetProperties",
    "p" : {
+    "Angle" : { "$t" : "float", "$v" : "360.0000", "$b" : "0x0000B443" },
+    "Cap" : false,
+    "Cap 2" : false,
+    "Detail" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Detail 2" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
     "Forward Dir" : "ezBasisAxis::NegativeZ",
+    "Height" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
     "Materials" : [ { "$t" : "uuid", "$b" : "0x7B37168B3CBFFB37B05B8F83D73641A6" }, { "$t" : "uuid", "$b" : "0xB26DD2DA35000B3AA9BE9BC178B0596C" }, { "$t" : "uuid", "$b" : "0x61A334B31E3198B321DA3CA1C7065B57" } ],
     "Mesh File" : "Trees/Tree5.obj",
-    "Mesh Scaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Non-Uniform Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "Primitive Type" : "ezMeshPrimitive::File",
+    "Radius" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "Radius 2" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
     "Right Dir" : "ezBasisAxis::PositiveX",
+    "Uniform Scaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Up Dir" : "ezBasisAxis::PositiveY"
    }
   },
@@ -43,13 +53,12 @@
     "AssetType" : "Mesh",
     "Dependencies" : "Trees/Tree5.obj",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x95A7BE5B5803D84D86A9C277F7A59F53" },
-    "Hash" : { "$t" : "uint64", "$v" : "7925676742475678839", "$b" : "0x7784D65701A9FD6D" },
-    "References" : ""
+    "Hash" : { "$t" : "uint64", "$v" : "2576320415747484333", "$b" : "0xAD2A37A8C4EDC023" }
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0x61A334B31E3198B321DA3CA1C7065B57" },
-   "t" : "ezResourceSlot",
+   "t" : "ezMaterialResourceSlot",
    "p" : {
     "Label" : "Sub_Branches_1_Branch",
     "Resource" : "{ b700025c-5c7f-4247-8157-f409369ef16b }"

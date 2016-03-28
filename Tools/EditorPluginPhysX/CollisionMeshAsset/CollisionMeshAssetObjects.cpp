@@ -2,6 +2,13 @@
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetObjects.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSurfaceResourceSlot, ezNoBase, 1, ezRTTIDefaultAllocator<ezSurfaceResourceSlot>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("Label", m_sLabel)->AddAttributes(new ezReadOnlyAttribute()),
+    EZ_MEMBER_PROPERTY("Resource", m_sResource)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
+  EZ_END_PROPERTIES
+EZ_END_STATIC_REFLECTED_TYPE();
+
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCollisionMeshType, 1)
   EZ_ENUM_CONSTANT(ezCollisionMeshType::ConvexHull),
   EZ_ENUM_CONSTANT(ezCollisionMeshType::TriangleMesh),
@@ -16,7 +23,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetProperties, 1, ezRTTIDefault
     EZ_MEMBER_PROPERTY("Uniform Scaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("Non-Uniform Scaling", m_vNonUniformScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f))),
     EZ_MEMBER_PROPERTY("Mesh File", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.obj;*.fbx")),
-    //EZ_ARRAY_MEMBER_PROPERTY("Materials", m_Slots)->AddAttributes(new ezContainerAttribute(false, false, true)),
+    EZ_ARRAY_MEMBER_PROPERTY("Surfaces", m_Slots)->AddAttributes(new ezContainerAttribute(false, false, true)),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -31,8 +38,11 @@ ezCollisionMeshAssetProperties::ezCollisionMeshAssetProperties()
   m_MeshType = ezCollisionMeshType::ConvexHull;
 }
 
-//const ezString& ezCollisionMeshAssetProperties::GetResourceSlotProperty(ezUInt32 uiSlot) const
-//{
-//  uiSlot %= m_Slots.GetCount();
-//  return m_Slots[uiSlot].m_sResource;
-//}
+const ezString ezCollisionMeshAssetProperties::GetResourceSlotProperty(ezUInt32 uiSlot) const
+{
+  if (m_Slots.IsEmpty())
+    return "";
+
+  uiSlot %= m_Slots.GetCount();
+  return m_Slots[uiSlot].m_sResource;
+}

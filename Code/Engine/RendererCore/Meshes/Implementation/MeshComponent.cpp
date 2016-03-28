@@ -92,7 +92,7 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
     else
       hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
 
-    const ezUInt32 uiMaterialIDHash = hMaterial.GetResourceIDHash();
+    const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? hMaterial.GetResourceIDHash() : 0;
 
     // Generate batch id from mesh, material and part index. 
     ezUInt32 data[] = { uiMeshIDHash, uiMaterialIDHash, uiPartIndex };

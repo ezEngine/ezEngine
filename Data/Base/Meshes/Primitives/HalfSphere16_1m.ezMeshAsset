@@ -7,8 +7,7 @@
     "AssetType" : "Mesh",
     "Dependencies" : "",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x13B067ED56C04D419624B1D635372B26" },
-    "Hash" : { "$t" : "uint64", "$v" : "5566252189009758225", "$b" : "0x11C82AE8DF4C3F4D" },
-    "References" : ""
+    "Hash" : { "$t" : "uint64", "$v" : "13877881240480023120", "$b" : "0x5082DEC5752398C0" }
    }
   },
   {
@@ -43,7 +42,7 @@
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0x2895E7B244AF28D924B6DEE2C5A036B1" },
-   "t" : "ezResourceSlot",
+   "t" : "ezMaterialResourceSlot",
    "p" : {
     "Label" : "Default",
     "Resource" : "{ c069b8a2-ccad-417f-bca4-8739efc222cf }"

@@ -1,5 +1,53 @@
 {
  "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x8E28DE3C996FA801D062621E9B43EB89" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "SponzaCurtainBlue",
+    "Resource" : "{ 56a944d9-3686-4730-8b7d-104d2f02e2b1 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x6D99A1BBC8708703F5483A1CDCCA57FC" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "SponzaCeiling",
+    "Resource" : "{ 14bf3313-89f3-4692-873c-d127980bf748 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x627C164469F77619DE28A54ECFB36F93" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "SponzaCurtainGreen",
+    "Resource" : "{ 56a944d9-3686-4730-8b7d-104d2f02e2b1 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xFFAA8FD6B19FF522AEB71A8A0FDF89EB" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "SponzaFlagpole",
+    "Resource" : "{ f1f2d899-331b-47f8-bbe3-e520a23b481e }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x4343DAB754934F28CA3C499057F6E6A8" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "SponzaColumnA",
+    "Resource" : "{ 14bf3313-89f3-4692-873c-d127980bf748 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xAD959AB3EBE7523E3D7103E7350973FA" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "SponzaColumnC",
+    "Resource" : "{ 14bf3313-89f3-4692-873c-d127980bf748 }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x01DB0A2C49CA3142B10C450AF1B8FA1D" },
    "t" : "ezAssetDocumentInfo",
    "n" : "Header",
@@ -7,7 +55,7 @@
     "AssetType" : "Collision Mesh",
     "Dependencies" : "Sponza/sponza.obj",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x01DB0A2C49CA3142B10C450AF1B8FA1D" },
-    "Hash" : { "$t" : "uint64", "$v" : "17063005448549518539", "$b" : "0xCB4C59410DF9CBEC" }
+    "Hash" : { "$t" : "uint64", "$v" : "3181681720562339184", "$b" : "0x70CD78E6AA9A272C" }
    }
   },
   {
@@ -27,8 +75,153 @@
     "Mesh Type" : "ezCollisionMeshType::TriangleMesh",
     "Non-Uniform Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "Right Dir" : "ezBasisAxis::PositiveX",
+    "Surfaces" : [ { "$t" : "uuid", "$b" : "0xC9D2BA162356C2A23EC114EA7211A9A4" }, { "$t" : "uuid", "$b" : "0x5684AB987E4BA05E771F8A5FBF450751" }, { "$t" : "uuid", "$b" : "0xD811E46E5D1E95618D804F003C5188E6" }, { "$t" : "uuid", "$b" : "0x07B970F188159C4E0DB8CAE38DFFF902" }, { "$t" : "uuid", "$b" : "0xFB4E5AC7E4C14879199A1B96A15AA64A" }, { "$t" : "uuid", "$b" : "0x0879A157A0B51F9C882BF94BEA49AF0B" }, { "$t" : "uuid", "$b" : "0x6D99A1BBC8708703F5483A1CDCCA57FC" }, { "$t" : "uuid", "$b" : "0x4343DAB754934F28CA3C499057F6E6A8" }, { "$t" : "uuid", "$b" : "0xA3A14E8E51A72CEACA7C762DE5C0C742" }, { "$t" : "uuid", "$b" : "0xAD959AB3EBE7523E3D7103E7350973FA" }, { "$t" : "uuid", "$b" : "0x4F7177F9BCD1D54E042DA22B9A41E90B" }, { "$t" : "uuid", "$b" : "0x151FEA81344C72E6A499CFA488909002" }, { "$t" : "uuid", "$b" : "0xFFAA8FD6B19FF522AEB71A8A0FDF89EB" }, { "$t" : "uuid", "$b" : "0x8F615C562EDB61DD486F0FB2878E8E84" }, { "$t" : "uuid", "$b" : "0xD46A3F03A796CB86F7612575BE7E9EC0" }, { "$t" : "uuid", "$b" : "0x99A345FF6D52D172B22D3715C5B4E877" }, { "$t" : "uuid", "$b" : "0x8E28DE3C996FA801D062621E9B43EB89" }, { "$t" : "uuid", "$b" : "0x3F60ADBC15AB14BC1AC4A4C6300B4233" }, { "$t" : "uuid", "$b" : "0x627C164469F77619DE28A54ECFB36F93" }, { "$t" : "uuid", "$b" : "0xA7571129DE7CD0577A4AEC95CA023F3E" }, { "$t" : "uuid", "$b" : "0x02CFB4928C72A5F29032838A647611EC" }, { "$t" : "uuid", "$b" : "0xD2F3CF351B691964F9561DED9B3CFC34" }, { "$t" : "uuid", "$b" : "0x21922347F504EBDE293DA9CC822ED88C" }, { "$t" : "uuid", "$b" : "0xCEC66D1E39520F8F72BA5A2F2A0EA772" } ],
     "Uniform Scaling" : { "$t" : "float", "$v" : "0.0100", "$b" : "0x0AD7233C" },
     "Up Dir" : "ezBasisAxis::PositiveY"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x07B970F188159C4E0DB8CAE38DFFF902" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "SponzaBackground",
+    "Resource" : "{ 14bf3313-89f3-4692-873c-d127980bf748 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x4F7177F9BCD1D54E042DA22B9A41E90B" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "SponzaDetails",
+    "Resource" : "{ 0a105955-e069-4523-80ce-7b9867bde687 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA7571129DE7CD0577A4AEC95CA023F3E" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "chain",
+    "Resource" : "{ 72115f7a-5947-4a21-899f-868368bd41d7 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x5684AB987E4BA05E771F8A5FBF450751" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "VaseRound",
+    "Resource" : "{ a28bc6e0-f7ba-4e1a-9515-8ccf0ae28d1c }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xD811E46E5D1E95618D804F003C5188E6" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "VasePlant",
+    "Resource" : "{ ccd32963-93f9-401c-95d1-bf4e491a2df3 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xD2F3CF351B691964F9561DED9B3CFC34" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "vase",
+    "Resource" : "{ a28bc6e0-f7ba-4e1a-9515-8ccf0ae28d1c }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x99A345FF6D52D172B22D3715C5B4E877" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "SponzaFabricRed",
+    "Resource" : "{ 56a944d9-3686-4730-8b7d-104d2f02e2b1 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xFB4E5AC7E4C14879199A1B96A15AA64A" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "SponzaBricks",
+    "Resource" : "{ 14bf3313-89f3-4692-873c-d127980bf748 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xD46A3F03A796CB86F7612575BE7E9EC0" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "SponzaFabricBlue",
+    "Resource" : "{ 56a944d9-3686-4730-8b7d-104d2f02e2b1 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xCEC66D1E39520F8F72BA5A2F2A0EA772" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "SponzaRoof",
+    "Resource" : "{ 479c8816-d06c-48fd-a907-af5be24225cb }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x0879A157A0B51F9C882BF94BEA49AF0B" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "SponzaArch",
+    "Resource" : "{ 14bf3313-89f3-4692-873c-d127980bf748 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xC9D2BA162356C2A23EC114EA7211A9A4" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "SponzaThorn",
+    "Resource" : "{ ccd32963-93f9-401c-95d1-bf4e491a2df3 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F60ADBC15AB14BC1AC4A4C6300B4233" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "SponzaCurtainRed",
+    "Resource" : "{ 56a944d9-3686-4730-8b7d-104d2f02e2b1 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x8F615C562EDB61DD486F0FB2878E8E84" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "SponzaFabricGreen",
+    "Resource" : "{ 56a944d9-3686-4730-8b7d-104d2f02e2b1 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x21922347F504EBDE293DA9CC822ED88C" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "SponzaLion",
+    "Resource" : "{ 14bf3313-89f3-4692-873c-d127980bf748 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x151FEA81344C72E6A499CFA488909002" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "SponzaColumnB",
+    "Resource" : "{ 14bf3313-89f3-4692-873c-d127980bf748 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA3A14E8E51A72CEACA7C762DE5C0C742" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "SponzaFloor",
+    "Resource" : "{ 14bf3313-89f3-4692-873c-d127980bf748 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x02CFB4928C72A5F29032838A647611EC" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "VaseHanging",
+    "Resource" : "{ a28bc6e0-f7ba-4e1a-9515-8ccf0ae28d1c }"
    }
   } ]
 }

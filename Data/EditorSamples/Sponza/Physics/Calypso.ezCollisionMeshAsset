@@ -8,6 +8,7 @@
     "Mesh Type" : "ezCollisionMeshType::TriangleMesh",
     "Non-Uniform Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "Right Dir" : "ezBasisAxis::NegativeX",
+    "Surfaces" : [ { "$t" : "uuid", "$b" : "0xBD308F339AA4237BD08E613206F97980" } ],
     "Uniform Scaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Up Dir" : "ezBasisAxis::PositiveY"
    }
@@ -20,7 +21,7 @@
     "AssetType" : "Collision Mesh",
     "Dependencies" : "FleetOps/Calypso/calypso.obj",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xFAA0D158FE023644A56007CB68AA8CCE" },
-    "Hash" : { "$t" : "uint64", "$v" : "2573847456919318020", "$b" : "0x04EEB70FA024B823" }
+    "Hash" : { "$t" : "uint64", "$v" : "3682525799639034974", "$b" : "0x5E2CB233B4F51A33" }
    }
   },
   {
@@ -29,6 +30,14 @@
    "n" : "ObjectTree",
    "p" : {
     "Children" : [ { "$t" : "uuid", "$b" : "0x1957B2EF108F3244A13CE51524817FD3" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xBD308F339AA4237BD08E613206F97980" },
+   "t" : "ezSurfaceResourceSlot",
+   "p" : {
+    "Label" : "DefaultMaterial",
+    "Resource" : "{ f1f2d899-331b-47f8-bbe3-e520a23b481e }"
    }
   } ]
 }

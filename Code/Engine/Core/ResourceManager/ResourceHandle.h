@@ -55,6 +55,10 @@ public:
   /// The handle must be valid.
   ezUInt32 GetResourceIDHash() const;
 
+  /// \brief Returns the Resource ID of the exact resource that this handle points to, without acquiring the resource.
+  /// The handle must be valid.
+  const ezString& GetResourceID() const;
+
   /// \brief Releases the current reference and increases the refcount of the given resource.
   void operator=(const ezTypelessResourceHandle& rhs);
 
@@ -162,6 +166,13 @@ public:
   EZ_FORCE_INLINE ezUInt32 GetResourceIDHash() const
   {
     return m_Typeless.GetResourceIDHash();
+  }
+
+  /// \brief Returns the Resource ID of the exact resource that this handle points to, without acquiring the resource.
+  /// The handle must be valid.
+  EZ_FORCE_INLINE const ezString& GetResourceID() const
+  {
+    return m_Typeless.GetResourceID();
   }
 
 private:

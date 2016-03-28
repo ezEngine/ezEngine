@@ -22,6 +22,11 @@ ezUInt32 ezTypelessResourceHandle::GetResourceIDHash() const
   return m_pResource->GetResourceIDHash();
 }
 
+const ezString& ezTypelessResourceHandle::GetResourceID() const
+{
+  return m_pResource->GetResourceID();
+}
+
 void ezTypelessResourceHandle::operator=(const ezTypelessResourceHandle& rhs)
 {
   Invalidate();
