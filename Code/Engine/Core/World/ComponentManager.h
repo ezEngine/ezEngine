@@ -173,6 +173,10 @@ protected:
   ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, CompactStorage> m_ComponentStorage;
 };
 
+
+//////////////////////////////////////////////////////////////////////////
+
+
 /// \brief Simple component manager implementation that calls an update method on all components every frame.
 template <typename ComponentType, bool OnlyUpdateWhenSimulating>
 class ezComponentManagerSimple : public ezComponentManager<ComponentType>
@@ -186,7 +190,40 @@ public:
   void SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount);
 };
 
-/// \brief Helper class to get component type ids and create new instances of componenet managers from rtti.
+
+//////////////////////////////////////////////////////////////////////////
+
+
+/// \brief A component manager that does no update at all on components and expects only a single instance to be created per world.
+///
+/// Easy access to this single function is provided through the GetSingletonComponent() function.
+/// If a second component is created, the manager will log an error. The first created component will be used as the 'singleton',
+/// all other components are ignored.
+/// Use this for components derived from ezSettingsComponent, of which one should only of zero or one per world.
+template <typename ComponentType>
+class ezSettingsComponentManager : public ezComponentManager<ComponentType>
+{
+public:
+  ezSettingsComponentManager(ezWorld* pWorld) : ezComponentManager<ComponentType>(pWorld)
+  {
+    m_pSingleton = nullptr;
+  }
+
+  virtual ezComponentHandle AllocateComponent() override;
+  virtual void DeleteDeadComponent(ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent) override;
+
+  /// \brief Returns the first component of this type that has been created.
+  ComponentType* GetSingletonComponent() const { return m_pSingleton; }
+
+private:
+  ComponentType* m_pSingleton;
+};
+
+
+//////////////////////////////////////////////////////////////////////////
+
+
+/// \brief Helper class to get component type ids and create new instances of component managers from rtti.
 class EZ_CORE_DLL ezComponentManagerFactory
 {
 public:

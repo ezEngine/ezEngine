@@ -12,6 +12,7 @@
 #include <PhysXPlugin/Joints/PxDistanceJointComponent.h>
 #include <PhysXPlugin/Joints/PxFixedJointComponent.h>
 #include <PhysXPlugin/Components/PxCharacterControllerComponent.h>
+#include <PhysXPlugin/Components/PxSettingsComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXWorldModule, 1, ezRTTIDefaultAllocator<ezPhysXWorldModule>);
   // no properties or message handlers
@@ -72,6 +73,7 @@ void ezPhysXWorldModule::InternalStartup()
   GetWorld()->GetOrCreateComponentManager<ezPxDistanceJointComponentManager>()->SetUserData(this);
   GetWorld()->GetOrCreateComponentManager<ezPxFixedJointComponentManager>()->SetUserData(this);
   GetWorld()->GetOrCreateComponentManager<ezPxCharacterControllerComponentManager>()->SetUserData(this);
+  GetWorld()->GetOrCreateComponentManager<ezPxSettingsComponentManager>()->SetUserData(this);
 
   m_AccumulatedTimeSinceUpdate.SetZero();
 
@@ -109,6 +111,18 @@ void ezPhysXWorldModule::InternalUpdate()
 {
   if (!GetWorld()->GetWorldSimulationEnabled())
     return;
+
+  EZ_LOCK(GetWorld()->GetWriteMarker());
+
+  if (ezPxSettingsComponent* pSettings = GetWorld()->GetOrCreateComponentManager<ezPxSettingsComponentManager>()->GetSingletonComponent())
+  {
+    if (pSettings->IsModified())
+    {
+      SetGravity(pSettings->GetObjectGravity(), pSettings->GetCharacterGravity());
+
+      pSettings->ResetModified();
+    }
+  }
 
   const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
   m_AccumulatedTimeSinceUpdate += tDiff;
