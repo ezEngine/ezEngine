@@ -3,6 +3,7 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <CoreUtils/Geometry/GeomUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshBufferResource, 1, ezRTTIDefaultAllocator<ezMeshBufferResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -90,6 +91,145 @@ void ezMeshBufferResourceDescriptor::AllocateStreams(ezUInt32 uiNumVertices, ezG
   }
 }
 
+void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometry& geom, ezGALPrimitiveTopology::Enum topology)
+{
+  ezLogBlock _("Allocate Streams From Geometry");
+
+  // Index Buffer Generation
+  ezDynamicArray<ezUInt16> Indices;
+
+  if (topology == ezGALPrimitiveTopology::Points)
+  {
+    // Leaving indices empty disables indexed rendering.
+  }
+  else if (topology == ezGALPrimitiveTopology::Lines)
+  {
+    Indices.Reserve(geom.GetLines().GetCount() * 2);
+
+    for (ezUInt32 p = 0; p < geom.GetLines().GetCount(); ++p)
+    {
+      Indices.PushBack(geom.GetLines()[p].m_uiStartVertex);
+      Indices.PushBack(geom.GetLines()[p].m_uiEndVertex);
+    }
+  }
+  else if (topology == ezGALPrimitiveTopology::Triangles)
+  {
+    Indices.Reserve(geom.GetPolygons().GetCount() * 6);
+
+    for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
+    {
+      for (ezUInt32 v = 0; v < geom.GetPolygons()[p].m_Vertices.GetCount() - 2; ++v)
+      {
+        Indices.PushBack(geom.GetPolygons()[p].m_Vertices[0]);
+        Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 1]);
+        Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 2]);
+      }
+    }
+  }
+  AllocateStreams(geom.GetVertices().GetCount(), topology, Indices.GetCount() / (topology + 1));
+
+  // Fill vertex buffer. 
+  for (ezUInt32 s = 0; s < m_VertexDeclaration.m_VertexStreams.GetCount(); ++s)
+  {
+    const ezVertexStreamInfo& si = m_VertexDeclaration.m_VertexStreams[s];
+    switch (si.m_Semantic)
+    {
+    case ezGALVertexAttributeSemantic::Position:
+      {
+        if (si.m_Format == ezGALResourceFormat::XYZFloat)
+        {
+          for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
+          {
+            SetVertexData<ezVec3>(s, v, geom.GetVertices()[v].m_vPosition);
+          }
+        }
+        else
+        {
+          ezLog::Error("Position stream with format '%i' is not supported.", (int)si.m_Format);
+        }
+      }
+      break;
+    case ezGALVertexAttributeSemantic::Normal:
+      {
+        if (si.m_Format == ezGALResourceFormat::XYZFloat)
+        {
+          for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
+          {
+            SetVertexData<ezVec3>(s, v, geom.GetVertices()[v].m_vNormal);
+          }
+        }
+        else
+        {
+          ezLog::Error("Normal stream with format '%i' is not supported.", (int)si.m_Format);
+        }
+      }
+      break;
+    case ezGALVertexAttributeSemantic::Tangent:
+      {
+        ezLog::Error("Tangent streams are not yet supported.");
+      }
+      break;
+    case ezGALVertexAttributeSemantic::Color:
+      {
+        if (si.m_Format == ezGALResourceFormat::RGBAUByteNormalized)
+        {
+          for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
+          {
+            SetVertexData<ezColorGammaUB>(s, v, geom.GetVertices()[v].m_Color);
+          }
+        }
+        else
+        {
+          ezLog::Error("Color stream with format '%i' is not supported.", (int)si.m_Format);
+        }
+      }
+      break;
+    case ezGALVertexAttributeSemantic::TexCoord0:
+      {
+        if (si.m_Format == ezGALResourceFormat::UVFloat)
+        {
+          for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
+          {
+            SetVertexData<ezVec2>(s, v, geom.GetVertices()[v].m_vTexCoord);
+          }
+        }
+        else
+        {
+          ezLog::Error("UV stream with format '%i' is not supported.", (int)si.m_Format);
+        }
+      }
+      break;
+    default:
+      {
+        ezLog::Error("Streams semantic '%i' is not supported.", (int)si.m_Semantic);
+      }
+      break;
+    }
+  }
+
+  // Fill index buffer.
+  if (topology == ezGALPrimitiveTopology::Points)
+  {
+    for (ezUInt32 t = 0; t < Indices.GetCount(); t += 1)
+    {
+      SetPointIndices(t, Indices[t]);
+    }
+  }
+  else if (topology == ezGALPrimitiveTopology::Triangles)
+  {
+    for (ezUInt32 t = 0; t < Indices.GetCount(); t += 3)
+    {
+      SetTriangleIndices(t / 3, Indices[t], Indices[t + 1], Indices[t + 2]);
+    }
+  }
+  else if (topology == ezGALPrimitiveTopology::Lines)
+  {
+    for (ezUInt32 t = 0; t < Indices.GetCount(); t += 2)
+    {
+      SetLineIndices(t / 2, Indices[t], Indices[t + 1]);
+    }
+  }
+}
 
 void ezMeshBufferResourceDescriptor::SetPointIndices(ezUInt32 uiPoint, ezUInt32 uiVertex0)
 {

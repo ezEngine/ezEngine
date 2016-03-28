@@ -22,9 +22,9 @@ protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform) override;
 
-  void CreateMeshFromGeom(const ezMeshAssetProperties* pProp, ezGeometry &geom, const bool bFlipTriangles, ezMeshResourceDescriptor &desc);
+  void CreateMeshFromGeom(const ezMeshAssetProperties* pProp, ezGeometry &geom, ezMeshResourceDescriptor &desc);
 
-  ezStatus CreateMeshFromFile(const ezMeshAssetProperties* pProp, ezMeshResourceDescriptor &desc, bool bFlipTriangles, const ezMat3 &mTransformation);
+  ezStatus CreateMeshFromFile(const ezMeshAssetProperties* pProp, ezMeshResourceDescriptor &desc, const ezMat3 &mTransformation);
 
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override;
 

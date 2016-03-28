@@ -199,70 +199,14 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateMesh(const ezGeometry& geom, co
   if (hMesh.IsValid())
     return hMesh;
 
-  ezDynamicArray<ezUInt16> Indices;
   ezGALPrimitiveTopology::Enum Topology = ezGALPrimitiveTopology::Triangles;
-
   if (geom.GetLines().GetCount() > 0)
     Topology = ezGALPrimitiveTopology::Lines;
-
-  if (Topology == ezGALPrimitiveTopology::Triangles)
-  {
-    Indices.Reserve(geom.GetPolygons().GetCount() * 6);
-
-    for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
-    {
-      for (ezUInt32 v = 0; v < geom.GetPolygons()[p].m_Vertices.GetCount() - 2; ++v)
-      {
-        Indices.PushBack(geom.GetPolygons()[p].m_Vertices[0]);
-        Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 1]);
-        Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 2]);
-      }
-    }
-  }
-  else if (Topology == ezGALPrimitiveTopology::Lines)
-  {
-    Indices.Reserve(geom.GetLines().GetCount() * 2);
-
-    for (ezUInt32 p = 0; p < geom.GetLines().GetCount(); ++p)
-    {
-      Indices.PushBack(geom.GetLines()[p].m_uiStartVertex);
-      Indices.PushBack(geom.GetLines()[p].m_uiEndVertex);
-    }
-  }
 
   ezMeshBufferResourceDescriptor desc;
   desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
   desc.AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
-
-  desc.AllocateStreams(geom.GetVertices().GetCount(), Topology, Indices.GetCount() / (Topology + 1));
-
-  for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
-  {
-    desc.SetVertexData<ezVec3>(0, v, geom.GetVertices()[v].m_vPosition);
-    desc.SetVertexData<ezColorLinearUB>(1, v, geom.GetVertices()[v].m_Color);
-  }
-
-  if (Topology == ezGALPrimitiveTopology::Triangles)
-  {
-    for (ezUInt32 t = 0; t < Indices.GetCount(); t += 3)
-    {
-      desc.SetTriangleIndices(t / 3, Indices[t], Indices[t + 1], Indices[t + 2]);
-    }
-  }
-  else if (Topology == ezGALPrimitiveTopology::Lines)
-  {
-    for (ezUInt32 t = 0; t < Indices.GetCount(); t += 2)
-    {
-      desc.SetLineIndices(t / 2, Indices[t], Indices[t + 1]);
-    }
-  }
-  else if (Topology == ezGALPrimitiveTopology::Points)
-  {
-    for (ezUInt32 t = 0; t < Indices.GetCount(); t += 1)
-    {
-      desc.SetPointIndices(t, Indices[t]);
-    }
-  }
+  desc.AllocateStreamsFromGeometry(geom, Topology);
 
   hMesh = ezResourceManager::CreateResource<ezMeshBufferResource>(szResourceName, desc, szResourceName);
 

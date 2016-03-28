@@ -89,11 +89,11 @@ ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, con
   ezMeshResourceDescriptor desc;
 
   const ezMat3 mTransformation = CalculateTransformationMatrix(pProp);
-  const bool bFlipTriangles = (mTransformation.GetColumn(0).Cross(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
+  //const bool bFlipTriangles = mTransformation.GetDeterminant() < 0.0f; //(mTransformation.GetColumn(0).Cross(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
 
   if (pProp->m_PrimitiveType == ezMeshPrimitive::File)
   {
-    auto ret = CreateMeshFromFile(pProp, desc, bFlipTriangles, mTransformation);
+    auto ret = CreateMeshFromFile(pProp, desc, mTransformation);
 
     if (ret.m_Result.Failed())
       return ret;
@@ -144,7 +144,7 @@ ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, con
       geom.AddTorus(pProp->m_fRadius, ezMath::Max(pProp->m_fRadius + 0.01f, pProp->m_fRadius2), ezMath::Max<ezUInt16>(3, pProp->m_uiDetail), ezMath::Max<ezUInt16>(3, pProp->m_uiDetail2), ezColor::White, mTrans);
     }
 
-    CreateMeshFromGeom(pProp, geom, bFlipTriangles, desc);
+    CreateMeshFromGeom(pProp, geom, desc);
   }
 
   desc.Save(stream);
@@ -153,49 +153,26 @@ ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, con
 }
 
 
-void ezMeshAssetDocument::CreateMeshFromGeom(const ezMeshAssetProperties* pProp, ezGeometry& geom, const bool bFlipTriangles, ezMeshResourceDescriptor& desc)
+void ezMeshAssetDocument::CreateMeshFromGeom(const ezMeshAssetProperties* pProp, ezGeometry& geom, ezMeshResourceDescriptor& desc)
 {
-  ezDynamicArray<ezUInt16> Indices;
-  Indices.Reserve(geom.GetPolygons().GetCount() * 6);
-
-  for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
-  {
-    for (ezUInt32 v = 0; v < geom.GetPolygons()[p].m_Vertices.GetCount() - 2; ++v)
-    {
-      Indices.PushBack(geom.GetPolygons()[p].m_Vertices[bFlipTriangles ? v + 2 : 0]);
-      Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 1]);
-      Indices.PushBack(geom.GetPolygons()[p].m_Vertices[bFlipTriangles ? 0 : v + 2]);
-    }
-  }
-
   if (!pProp->m_Slots.IsEmpty())
     desc.SetMaterial(0, pProp->m_Slots[0].m_sResource);
   else
     desc.SetMaterial(0, "");
 
-  desc.AddSubMesh(Indices.GetCount() / 3, 0, 0);
-
   desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
   desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
   desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
+  desc.MeshBufferDesc().AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
-  desc.MeshBufferDesc().AllocateStreams(geom.GetVertices().GetCount(), ezGALPrimitiveTopology::Triangles, Indices.GetCount() / 3);
-
-  for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
-  {
-    desc.MeshBufferDesc().SetVertexData<ezVec3>(0, v, geom.GetVertices()[v].m_vPosition);
-    desc.MeshBufferDesc().SetVertexData<ezVec2>(1, v, geom.GetVertices()[v].m_vTexCoord);
-    desc.MeshBufferDesc().SetVertexData<ezVec3>(2, v, geom.GetVertices()[v].m_vNormal);
-  }
-
-  for (ezUInt32 t = 0; t < Indices.GetCount(); t += 3)
-  {
-    desc.MeshBufferDesc().SetTriangleIndices(t / 3, Indices[t], Indices[t + 1], Indices[t + 2]);
-  }
+  desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
+  
 }
 
-ezStatus ezMeshAssetDocument::CreateMeshFromFile(const ezMeshAssetProperties* pProp, ezMeshResourceDescriptor &desc, bool bFlipTriangles, const ezMat3 &mTransformation)
+ezStatus ezMeshAssetDocument::CreateMeshFromFile(const ezMeshAssetProperties* pProp, ezMeshResourceDescriptor &desc, const ezMat3 &mTransformation)
 {
+  const bool bFlipTriangles = (mTransformation.GetColumn(0).Cross(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
+
   ezString sMeshFileAbs = pProp->m_sMeshFile;
   if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sMeshFileAbs))
   {

@@ -475,5 +475,18 @@ ezResult ezMat3Template<Type>::SetScalingFactors(const ezVec3Template<Type>& vXY
   return EZ_SUCCESS;
 }
 
+template<typename Type>
+Type ezMat3Template<Type>::GetDeterminant() const
+{
+  // Using rule of Sarrus
+  Type fDeterminant = 0;
+  for (int i = 0; i < 3; i++)
+  {
+    fDeterminant += Element(i, 0) * Element((i + 1) % 3, 1) * Element((i + 2) % 3, 2);
+    fDeterminant -= Element(i, 2) * Element((i + 1) % 3, 1) * Element((i + 2) % 3, 0);
+  }
+  return fDeterminant;
+}
+
 #include <Foundation/Math/Implementation/AllClasses_inl.h>
 

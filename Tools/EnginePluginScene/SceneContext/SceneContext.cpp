@@ -341,7 +341,7 @@ void ezSceneContext::RenderShapeIcons(ezRenderContext* pContext)
       continue;
 
     pContext->BindMeshBuffer(it.Value().m_hMeshBuffer);
-    pContext->BindTexture("ShapeIcon", it.Value().m_hTexture);
+    pContext->BindTexture(ezGALShaderStage::PixelShader, "ShapeIcon", it.Value().m_hTexture);
     pContext->BindShader(m_hShapeIconShader);
 
     pContext->DrawMeshBuffer();

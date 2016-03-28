@@ -52,7 +52,13 @@ void ezRenderContext::SetMaterialState(const ezMaterialResourceHandle& hMaterial
 
     for (const auto& textureBinding : desc.m_TextureBindings)
     {
-      BindTexture(textureBinding.m_Name, textureBinding.m_Value);
+      ezTempHashedString name(textureBinding.m_Name);
+
+      ezResourceLock<ezTextureResource> l(textureBinding.m_Value, ezResourceAcquireMode::AllowFallback);
+      for (int i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
+      {
+        BindTexture((ezGALShaderStage::Enum)i, name, l->GetGALTextureView(), l->GetGALSamplerState());
+      }
     }
 
     ezResourceManager::EndAcquireResource(pMaterial);

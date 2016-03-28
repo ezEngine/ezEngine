@@ -16,14 +16,27 @@ public:
 
   virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
     ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
+
+  virtual void InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+
   virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
-protected:
+  void SetRadius(ezInt32 iRadius);
+  ezInt32 GetRadius() const;
 
+protected:
+  void UpdateConstants(const ezRenderViewContext& renderViewContext);
+
+protected:
   ezInputNodePin m_PinInput;
   ezOutputNodePin m_PinOutput;
 
+  bool m_bConstantsDirty;
+  ezInt32 m_iRadius;
+  ezConstantBufferResourceHandle m_hBlurCB;
+  ezGALSamplerStateHandle m_hSamplerState;
   ezShaderResourceHandle m_hShader;
   ezMeshBufferResourceHandle m_hMesh;
 };

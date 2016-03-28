@@ -535,42 +535,5 @@ bool ezTextureResourceLoader::IsResourceOutdated(const ezResourceBase* pResource
   return true;
 }
 
-
-void ezRenderContext::BindTexture(const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture)
-{
-  m_BoundTextures[sSlotName.GetHash()] = hTexture;
-
-  m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged);
-}
-
-void ezRenderContext::ApplyTextureBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary)
-{
-  for (const auto& rb : pBinary->m_ShaderResourceBindings)
-  {
-    if (rb.m_Type == ezShaderStageResource::ConstantBuffer)
-      continue;
-
-    const ezUInt32 uiResourceHash = rb.m_Name.GetHash();
-
-    ezTextureResourceHandle* hTexture;
-    if (!m_BoundTextures.TryGetValue(uiResourceHash, hTexture))
-    {
-      ezLog::Error("No resource is bound for shader slot '%s'", rb.m_Name.GetData());
-      continue;
-    }
-
-    if (hTexture == nullptr || !hTexture->IsValid())
-    {
-      ezLog::Error("An invalid resource is bound for shader slot '%s'", rb.m_Name.GetData());
-      continue;
-    }
-
-    ezResourceLock<ezTextureResource> l(*hTexture, ezResourceAcquireMode::AllowFallback);
-
-    m_pGALContext->SetResourceView(stage, rb.m_iSlot, l->GetGALTextureView());
-    m_pGALContext->SetSamplerState(stage, rb.m_iSlot, l->GetGALSamplerState());
-  }
-}
-
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_TextureResource);
 

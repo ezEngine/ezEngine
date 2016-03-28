@@ -52,35 +52,10 @@ void ezGizmoHandle::SetTransformation(const ezMat4& m)
 
 static ezMeshBufferResourceHandle CreateMeshBufferResource(const ezGeometry& geom, const char* szResourceName, const char* szDescription)
 {
-  ezDynamicArray<ezUInt16> Indices;
-  Indices.Reserve(geom.GetPolygons().GetCount() * 6);
-
-  for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
-  {
-    for (ezUInt32 v = 0; v < geom.GetPolygons()[p].m_Vertices.GetCount() - 2; ++v)
-    {
-      Indices.PushBack(geom.GetPolygons()[p].m_Vertices[0]);
-      Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 1]);
-      Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 2]);
-    }
-  }
-
   ezMeshBufferResourceDescriptor desc;
   desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
   desc.AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
-
-  desc.AllocateStreams(geom.GetVertices().GetCount(), ezGALPrimitiveTopology::Triangles, Indices.GetCount() / 3);
-
-  for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
-  {
-    desc.SetVertexData<ezVec3>(0, v, geom.GetVertices()[v].m_vPosition);
-    desc.SetVertexData<ezColorGammaUB>(1, v, geom.GetVertices()[v].m_Color);
-  }
-
-  for (ezUInt32 t = 0; t < Indices.GetCount(); t += 3)
-  {
-    desc.SetTriangleIndices(t / 3, Indices[t], Indices[t + 1], Indices[t + 2]);
-  }
+  desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
   return ezResourceManager::CreateResource<ezMeshBufferResource>(szResourceName, desc, szDescription);
 }

@@ -41,7 +41,7 @@ bool ezGALRenderTagetSetup::operator == (const ezGALRenderTagetSetup& Other) con
   if ( m_uiMaxRTIndex != Other.m_uiMaxRTIndex )
     return false;
 
-  for ( ezUInt8 uiRTIndex = 0; uiRTIndex < m_uiMaxRTIndex; ++uiRTIndex )
+  for ( ezUInt8 uiRTIndex = 0; uiRTIndex <= m_uiMaxRTIndex; ++uiRTIndex )
   {
     if ( m_hRTs[uiRTIndex] != Other.m_hRTs[uiRTIndex] )
       return false;

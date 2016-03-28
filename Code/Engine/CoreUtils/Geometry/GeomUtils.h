@@ -32,6 +32,9 @@ public:
   /// \brief Each polygon has a face normal and a set of indices, which vertices it references.
   struct Polygon
   {
+    // Reverses the order of vertices.
+    void FlipWinding();
+    
     ezVec3 m_vNormal;
     ezHybridArray<ezUInt32, 4> m_Vertices;
   };
@@ -64,7 +67,7 @@ public:
   ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, ezInt32 iCustomIndex, const ezMat4& mTransform);
 
   /// \brief Adds a polygon that consists of all the referenced vertices. No face normal is computed at this point.
-  void AddPolygon(const ezArrayPtr<ezUInt32>& Vertices);
+  void AddPolygon(const ezArrayPtr<ezUInt32>& Vertices, bool bFlipWinding);
 
   /// \brief Adds a line.
   void AddLine(ezUInt32 uiStartVertex, ezUInt32 uiEndVertex);

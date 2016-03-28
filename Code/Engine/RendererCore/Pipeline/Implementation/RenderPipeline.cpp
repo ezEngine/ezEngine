@@ -822,7 +822,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
   {
     // Create pool textures
-    for (; uiCurrentFirstUsageIdx < m_TextureUsageIdxSortedByFirstUsage.GetCount(); ++uiCurrentFirstUsageIdx)
+    for (; uiCurrentFirstUsageIdx < m_TextureUsageIdxSortedByFirstUsage.GetCount(); )
     {
       ezUInt16 uiCurrentUsageData = m_TextureUsageIdxSortedByFirstUsage[uiCurrentFirstUsageIdx];
       TextureUsageData& usageData = m_TextureUsage[uiCurrentUsageData];
@@ -834,6 +834,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
         {
           pConn->m_TextureHandle = hTexture;
         }
+        ++uiCurrentFirstUsageIdx;
       }
       else
       {
@@ -851,7 +852,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
     }
 
     // Release pool textures
-    for (; uiCurrentLastUsageIdx < m_TextureUsageIdxSortedByLastUsage.GetCount(); ++uiCurrentLastUsageIdx)
+    for (; uiCurrentLastUsageIdx < m_TextureUsageIdxSortedByLastUsage.GetCount(); )
     {
       ezUInt16 uiCurrentUsageData = m_TextureUsageIdxSortedByLastUsage[uiCurrentLastUsageIdx];
       TextureUsageData& usageData = m_TextureUsage[uiCurrentUsageData];
@@ -862,6 +863,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
         {
           pConn->m_TextureHandle.Invalidate();
         }
+        ++uiCurrentLastUsageIdx;
       }
       else
       {

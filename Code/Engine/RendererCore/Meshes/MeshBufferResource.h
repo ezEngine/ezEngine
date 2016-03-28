@@ -6,6 +6,7 @@
 #include <Foundation/Math/BoundingBoxSphere.h>
 
 typedef ezTypedResourceHandle<class ezMeshBufferResource> ezMeshBufferResourceHandle;
+class ezGeometry;
 
 struct EZ_RENDERERCORE_DLL ezVertexStreamInfo : public ezHashableStruct<ezVertexStreamInfo>
 {
@@ -37,6 +38,10 @@ public:
 
   /// \brief After all streams are added, call this to allocate the data for the streams. If uiNumPrimitives is 0, the mesh buffer will not use indexed rendering.
   void AllocateStreams(ezUInt32 uiNumVertices, ezGALPrimitiveTopology::Enum topology = ezGALPrimitiveTopology::Triangles, ezUInt32 uiNumPrimitives = 0);
+
+  /// \brief Creates streams and fills them with data from the ezGeometry. Only the geometry matching the given topology is used.
+  ///  Streams that do not match any of the data inside the ezGeometry directly are skipped.
+  void AllocateStreamsFromGeometry(const ezGeometry& geom, ezGALPrimitiveTopology::Enum topology = ezGALPrimitiveTopology::Triangles);
 
   /// \brief Gives read access to the allocated vertex data
   const ezDynamicArray<ezUInt8>& GetVertexBufferData() const;

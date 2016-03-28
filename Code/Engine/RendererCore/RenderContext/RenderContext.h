@@ -44,7 +44,8 @@ public:
 
   // Member Functions
   void SetShaderPermutationVariable(const char* szVariable, const char* szValue);
-  void BindTexture(const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture);
+  void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture);
+  void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView, ezGALSamplerStateHandle hSamplerState);
   void SetMaterialState(const ezMaterialResourceHandle& hMaterial);
   void BindConstantBuffer(const ezTempHashedString& sSlotName, const ezConstantBufferResourceHandle& hConstantBuffer);
   void BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer);
@@ -142,7 +143,18 @@ private:
   ezUInt32 m_uiMeshBufferPrimitiveCount;
   ezUInt64 m_uiLastMaterialCBSync;
 
-  ezHashTable<ezUInt32, ezTextureResourceHandle> m_BoundTextures;
+  struct TextureViewSampler
+  {
+    TextureViewSampler() {}
+    TextureViewSampler(ezGALResourceViewHandle hResourceView, ezGALSamplerStateHandle hSamplerState)
+    : m_hResourceView(hResourceView), m_hSamplerState(hSamplerState) {}
+
+    ezGALResourceViewHandle m_hResourceView;
+    ezGALSamplerStateHandle m_hSamplerState;
+  };
+
+
+  ezHashTable<ezUInt32, TextureViewSampler> m_BoundTextures[ezGALShaderStage::ENUM_COUNT];
   ezHashTable<ezUInt32, ezConstantBufferResourceHandle> m_BoundConstantBuffers;
 
   struct ShaderVertexDecl

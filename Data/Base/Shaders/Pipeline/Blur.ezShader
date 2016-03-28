@@ -61,6 +61,7 @@ struct VS_TO_PS
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/ObjectConstants.h>
 #include <Shaders/Materials/DefaultMaterialCB.inc>
+#include "BlurConstants.h"
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
@@ -74,15 +75,14 @@ float4 main(VS_TO_PS input) : SV_Target
   float2 vPixelSize = float2(1.0f / width, 1.0f / height);
 
   // TODO I know this is stupid, give me a break ;-)
-  float4 res = Input.Sample(InputSampler, input.TexCoord0);
-  res += Input.Sample(InputSampler, input.TexCoord0 + float2(1.5 * vPixelSize.x, 0.0f));
-  res += Input.Sample(InputSampler, input.TexCoord0 + float2(3.5 * vPixelSize.x, 0.0f));
-  res += Input.Sample(InputSampler, input.TexCoord0 + float2(5.5 * vPixelSize.x, 0.0f));
-  res += Input.Sample(InputSampler, input.TexCoord0 + float2(-1.5 * vPixelSize.x, 0.0f));
-  res += Input.Sample(InputSampler, input.TexCoord0 + float2(-3.5 * vPixelSize.x, 0.0f));
-  res += Input.Sample(InputSampler, input.TexCoord0 + float2(-5.5 * vPixelSize.x, 0.0f));
+  float4 res = float4(0, 0, 0, 0);
+  float fWeight = 1.0f / (BlurRadius * 2 + 1);
+  for (int i = -BlurRadius; i <= BlurRadius; ++i )
+  {
+    res += Input.Sample(InputSampler, input.TexCoord0 + float2(i* 1.5f * vPixelSize.x, 0.0f)) * fWeight;
+  }
 
-  return res / 7;
+  return res;
 }
 
 #endif
