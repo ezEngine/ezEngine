@@ -51,5 +51,5 @@ TOSTR2(VARIABLE3(str1) /*comment2 */  ,EZ_STRINGIZE ( /*comment3*/VARIABLE3(str2
 EZ_STRINGIZE(VARIABLE3(str3/*comment4*/)/*comment5*/)
 
 EZ_STRINGIZE("a string")
-EZ_STRINGIZE("a newline
+EZ_STRINGIZE("a newline\
 in a string, \n not that")

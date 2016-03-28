@@ -1,0 +1,6 @@
+Before error
+
+#error "String not closed here
+
+After error
+

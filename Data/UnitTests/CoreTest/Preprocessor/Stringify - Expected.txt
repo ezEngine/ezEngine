@@ -34,5 +34,4 @@ Processing succeeded
 "varstr3"
 
 "\"a string\""
-"\"a newline
-in a string, \\n not that\""
+"\"a newlinein a string, \\n not that\""

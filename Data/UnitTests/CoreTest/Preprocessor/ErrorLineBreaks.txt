@@ -1,0 +1,7 @@
+Before error
+
+#error String without quotes:\
+	Line Break 1\
+	Line Break 2
+
+After error

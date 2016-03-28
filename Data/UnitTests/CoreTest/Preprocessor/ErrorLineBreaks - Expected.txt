@@ -1,0 +1,3 @@
+Processing failed
+Preprocessor/ErrorLineBreaks.txt: Line 3 [2]: Error: #error 'String without quotes:	Line Break 1	Line Break 2'
+Log: 'File 'Preprocessor/ErrorLineBreaks.txt', Line 3 (2): #error 'String without quotes:	Line Break 1	Line Break 2''

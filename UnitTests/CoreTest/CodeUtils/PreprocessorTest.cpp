@@ -198,6 +198,10 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
       PPTestSettings("InvalidLogic4"),
       PPTestSettings("InvalidExpandSelf1"),
       PPTestSettings("InvalidExpandSelf2"),
+      PPTestSettings("ErrorNoQuotes"),
+      PPTestSettings("ErrorBadQuotes"),
+      PPTestSettings("ErrorBadQuotes2"),
+      PPTestSettings("ErrorLineBreaks"),
     };
 
     ezStringBuilder sOutput;

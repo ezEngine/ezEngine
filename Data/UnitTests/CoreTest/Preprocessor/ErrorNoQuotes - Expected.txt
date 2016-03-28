@@ -1,0 +1,3 @@
+Processing failed
+Preprocessor/ErrorNoQuotes.txt: Line 3 [2]: Error: #error 'Error string without quotes'
+Log: 'File 'Preprocessor/ErrorNoQuotes.txt', Line 3 (2): #error 'Error string without quotes''

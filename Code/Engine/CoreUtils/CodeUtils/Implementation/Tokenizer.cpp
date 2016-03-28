@@ -126,11 +126,11 @@ void ezTokenizer::Tokenize(const ezDynamicArray<ezUInt8>& Data, ezLogInterface* 
       break;
 
     case ezTokenType::String1:
-      HandleString1();
+      HandleString('\"');
       break;
 
     case ezTokenType::String2:
-      HandleString2();
+      HandleString('\'');
       break;
 
     case ezTokenType::LineComment:
@@ -236,53 +236,68 @@ void ezTokenizer::HandleUnknown()
   NextChar();
 }
 
-void ezTokenizer::HandleString1()
+void ezTokenizer::HandleString(char terminator)
 {
   while (m_uiCurChar != '\0')
   {
-    while ((m_uiCurChar == '\\') && (m_uiNextChar == '\"'))
+    // Escaped quote \"
+    if ((m_uiCurChar == '\\') && (m_uiNextChar == terminator))
     {
       // skip this one
       NextChar();
       NextChar();
     }
+    // escaped line break in string
+    else if ((m_uiCurChar == '\\') && (m_uiNextChar == '\n'))
+    {
+      AddToken();
 
-    if (m_uiCurChar == '\"')
+      // skip this one entirely
+      NextChar();
+      NextChar();
+
+      m_CurMode = terminator == '\"' ? ezTokenType::String1 : ezTokenType::String2;
+      m_szTokenStart = m_szCurCharStart;
+    }
+    // escaped line break in string
+    else if ((m_uiCurChar == '\\') && (m_uiNextChar == '\r'))
+    {
+      // this might be a 3 character sequence of \\ \r \n -> skip them all
+      AddToken();
+
+      // skip \\ and \r
+      NextChar();
+      NextChar();
+
+      // skip \n
+      if (m_uiCurChar == '\n')
+        NextChar();
+
+      m_CurMode = terminator == '\"' ? ezTokenType::String1 : ezTokenType::String2;
+      m_szTokenStart = m_szCurCharStart;
+    }
+    // not-escaped line break in string
+    else if (m_uiCurChar == '\n') 
+    {
+      ezLog::Error(m_pLog, "Unescaped Newline in string");
+      //NextChar(); // not sure whether to include the newline in the string or not
+      AddToken();
+      return;
+    }
+    // end of string
+    else if (m_uiCurChar == terminator)
     {
       NextChar();
       AddToken();
       return;
     }
-
-    NextChar();
-  }
-
-  ezLog::Error(m_pLog, "String not closed at end of file.");
-  AddToken();
-}
-
-void ezTokenizer::HandleString2()
-{
-  while (m_uiCurChar != '\0')
-  {
-    while ((m_uiCurChar == '\\') && (m_uiNextChar == '\''))
-    {
-      // skip this one
-      NextChar();
-      NextChar();
-    }
-
-    if (m_uiCurChar == '\'')
+    else
     {
       NextChar();
-      AddToken();
-      return;
     }
-
-    NextChar();
   }
 
-  ezLog::Error(m_pLog, "String not closed at end of file.");
+  ezLog::Error(m_pLog, "String not closed at end of file");
   AddToken();
 }
 

@@ -1,0 +1,4 @@
+Processing failed
+Log: 'Unescaped Newline in string'
+Preprocessor/ErrorBadQuotes2.txt: Line 3 [2]: Error: #error '"String not closed here'
+Log: 'File 'Preprocessor/ErrorBadQuotes2.txt', Line 3 (2): #error '"String not closed here''
