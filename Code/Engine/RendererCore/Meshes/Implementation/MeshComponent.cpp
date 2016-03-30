@@ -16,7 +16,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, 1);
     EZ_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new ezAssetBrowserAttribute("Material")),
   EZ_END_PROPERTIES
   EZ_BEGIN_ATTRIBUTES
-    new ezCategoryAttribute("Graphics"),
+    new ezCategoryAttribute("Rendering"),
   EZ_END_ATTRIBUTES
   EZ_BEGIN_MESSAGEHANDLERS
     EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),

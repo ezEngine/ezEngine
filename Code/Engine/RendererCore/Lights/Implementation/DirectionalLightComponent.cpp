@@ -13,7 +13,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 1);
 /*  EZ_BEGIN_PROPERTIES
   EZ_END_PROPERTIES*/
   EZ_BEGIN_ATTRIBUTES
-    new ezCategoryAttribute("Graphics"),
+    new ezCategoryAttribute("Rendering/Light"),
   EZ_END_ATTRIBUTES
   EZ_BEGIN_MESSAGEHANDLERS
     EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),

@@ -20,7 +20,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 1);
     EZ_ENUM_MEMBER_PROPERTY("Granularity", ezInputMessageGranularity, m_Granularity),
   EZ_END_PROPERTIES
   EZ_BEGIN_ATTRIBUTES
-    new ezCategoryAttribute("Gameplay"),
+    new ezCategoryAttribute("General"),
   EZ_END_ATTRIBUTES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

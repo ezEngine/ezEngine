@@ -75,6 +75,36 @@ struct TypeComparer
   }
 };
 
+QMenu* ezAddSubElementButton::CreateCategoryMenu(const char* szCategory, ezMap<ezString, QMenu*>& existingMenus)
+{
+  if (ezStringUtils::IsNullOrEmpty(szCategory))
+    return m_pMenu;
+
+
+  auto it = existingMenus.Find(szCategory);
+  if (it.IsValid())
+    return it.Value();
+
+  ezStringBuilder sPath = szCategory;
+  sPath.PathParentDirectory();
+  sPath.Trim("/");
+
+  QMenu* pParentMenu = m_pMenu;
+
+  if (!sPath.IsEmpty())
+  {
+    pParentMenu = CreateCategoryMenu(sPath, existingMenus);
+  }
+
+  sPath = szCategory;
+  sPath = sPath.GetFileName();
+
+  QMenu* pNewMenu = pParentMenu->addMenu(sPath.GetData());
+  existingMenus[szCategory] = pNewMenu;
+
+  return pNewMenu;
+}
+
 void ezAddSubElementButton::on_Menu_aboutToShow()
 {
   if (m_Items.IsEmpty())
@@ -107,24 +137,28 @@ void ezAddSubElementButton::on_Menu_aboutToShow()
 
   ezStringBuilder sIconName;
   ezStringBuilder sCategory = "";
-  QMenu* pCat = m_pMenu;
+
+  ezMap<ezString, QMenu*> existingMenus;
+
+  // first round: create all sub menus
   for (const ezRTTI* pRtti : supportedTypes)
   {
     // Determine current menu
     const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
-    const char* szCategory = pCatA ? pCatA->GetCategory() : nullptr;
-    if (sCategory != szCategory)
+    
+    if (pCatA)
     {
-      sCategory = szCategory;
-      if (szCategory == nullptr)
-      {
-        pCat = m_pMenu;
-      }
-      else
-      {
-        pCat = m_pMenu->addMenu(szCategory);
-      }
+      CreateCategoryMenu(pCatA->GetCategory(), existingMenus);
     }
+  }
+
+  // second round: create the actions
+  for (const ezRTTI* pRtti : supportedTypes)
+  {
+    // Determine current menu
+    const ezCategoryAttribute* pCatA = pRtti->GetAttributeByType<ezCategoryAttribute>();
+
+    QMenu* pCat = CreateCategoryMenu(pCatA ? pCatA->GetCategory() : nullptr, existingMenus);
 
     // Add type action to current menu
     QAction* pAction = new QAction(QString::fromUtf8(pRtti->GetTypeName()), m_pMenu);

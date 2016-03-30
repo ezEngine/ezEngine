@@ -23,6 +23,8 @@ private:
   virtual void OnInit() override;
   void OnAction(const ezRTTI* pRtti);
 
+  QMenu* CreateCategoryMenu(const char* szCategory, ezMap<ezString, QMenu*>& existingMenus);
+
   QHBoxLayout* m_pLayout;
   QPushButton* m_pButton;
 
