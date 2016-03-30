@@ -26,7 +26,7 @@ public:
     m_pResource = rhs.m_pResource;
 
     if (m_pResource)
-      IncreaseResourceRefCount(reinterpret_cast<ezResourceBase*>(m_pResource));
+      IncreaseResourceRefCount(m_pResource);
   }
 
   /// \brief Move constructor, no refcount change is necessary.

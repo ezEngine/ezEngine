@@ -38,7 +38,7 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, const void* pInitia
     case ezGALBufferType::VertexBuffer:
       BufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
       break;
-    case ezGALBufferType::Storage:
+    case ezGALBufferType::Generic:
       BufferDesc.BindFlags = 0;
       break;
     default:

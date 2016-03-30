@@ -33,6 +33,13 @@ inline void ezTransformTemplate<Type>::SetIdentity()
   m_Rotation.SetIdentity();
 }
 
+//static
+template<typename Type>
+inline const ezTransformTemplate<Type> ezTransformTemplate<Type>::Identity()
+{
+  return ezTransformTemplate<Type>(ezVec3Template<Type>::ZeroVector(), ezMat3Template<Type>::IdentityMatrix());
+}
+
 template<typename Type>
 inline bool ezTransformTemplate<Type>::IsIdentical(const ezTransformTemplate<Type>& rhs) const
 {

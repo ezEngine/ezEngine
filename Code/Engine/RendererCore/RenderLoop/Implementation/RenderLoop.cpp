@@ -5,8 +5,10 @@
 
 #include <Foundation/Configuration/CVar.h>
 
-/// \todo This is broken: ezRenderPipeline::CreateRenderData -> m_RenderData.PushBack will resize an array not thread-safe
 ezCVarBool CVarMultithreadedRendering("Renderer.Multithreading", true, ezCVarFlags::Default, "Enables multithreaded update and rendering");
+
+ezEvent<ezUInt32> ezRenderLoop::s_BeginFrameEvent;
+ezEvent<ezUInt32> ezRenderLoop::s_EndFrameEvent;
 
 ezUInt32 ezRenderLoop::s_uiFrameCounter;
 ezDynamicArray<ezView*> ezRenderLoop::s_MainViews;
@@ -275,11 +277,6 @@ void ezRenderLoop::Render(ezRenderContext* pRenderContext)
   }
 }
 
-bool ezRenderLoop::GetUseMultithreadedRendering()
-{
-  return CVarMultithreadedRendering;
-}
-
 void ezRenderLoop::BeginFrame()
 {
   for (auto& view : s_MainViews)
@@ -293,16 +290,25 @@ void ezRenderLoop::BeginFrame()
   }
 
   s_PipelinesToRebuild.Clear();
+
+  s_BeginFrameEvent.Broadcast(s_uiFrameCounter);
 }
 
-void ezRenderLoop::FinishFrame()
+void ezRenderLoop::EndFrame()
 {
+  s_EndFrameEvent.Broadcast(s_uiFrameCounter);
+
   ++s_uiFrameCounter;
 
   for (auto& view : s_MainViews)
   {
     view->ReadBackPassProperties();
   }
+}
+
+bool ezRenderLoop::GetUseMultithreadedRendering()
+{
+  return CVarMultithreadedRendering;
 }
 
 void ezRenderLoop::OnEngineShutdown()

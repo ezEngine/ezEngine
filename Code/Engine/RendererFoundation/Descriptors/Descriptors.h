@@ -198,7 +198,7 @@ struct ezGALBufferType
 {
   enum Enum
   {
-    Storage = 0,
+    Generic = 0,
     VertexBuffer,
     IndexBuffer,
     ConstantBuffer,

@@ -400,6 +400,8 @@ void ezGALDevice::DestroyBuffer(ezGALBufferHandle hBuffer)
 
   if (m_Buffers.Remove(hBuffer, &pBuffer))
   {
+    DestroyViews(pBuffer);
+
     DestroyBufferPlatform(pBuffer);
   }
   else

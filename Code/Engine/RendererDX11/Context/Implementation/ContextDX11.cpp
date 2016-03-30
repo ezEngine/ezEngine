@@ -164,6 +164,7 @@ void ezGALContextDX11::FlushDeferredStateChanges()
   if (m_DeferredStateChanged.IsSet(ezGALDX11::DeferredStateChanged::ShaderResourceView))
   {
     /// \todo Optimize / add other stages
+    m_pDXContext->VSSetShaderResources(0, EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT, m_pBoundShaderResourceViews[ezGALShaderStage::VertexShader]);
     m_pDXContext->PSSetShaderResources(0, EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT, m_pBoundShaderResourceViews[ezGALShaderStage::PixelShader]);
   }
 

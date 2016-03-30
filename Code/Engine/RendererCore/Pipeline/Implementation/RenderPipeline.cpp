@@ -13,8 +13,6 @@
 
 #include <RendererFoundation/Context/Profiling.h>
 
-extern ezCVarBool CVarMultithreadedRendering;
-
 ezRenderPipeline::ezRenderPipeline() : m_PipelineState(PipelineState::Uninitialized)
 {
   m_CurrentExtractThread = (ezThreadID)0;
@@ -27,7 +25,7 @@ ezRenderPipeline::~ezRenderPipeline()
 {
   m_Data[0].Clear();
   m_Data[1].Clear();
-
+  
   ClearRenderPassGraphTextures();
   while (!m_Passes.IsEmpty())
   {
@@ -268,10 +266,10 @@ ezRenderPipeline::PipelineState ezRenderPipeline::Rebuild(const ezView& view)
   else
   {
     // make sure the renderdata stores the updated view data
-    auto& data = GetDataForRendering();
+    auto& data = m_Data[ezRenderLoop::GetDataIndexForRendering()];
 
-    data.m_Camera = *view.GetRenderCamera();
-    data.m_ViewData = view.GetData();
+    data.SetCamera(*view.GetRenderCamera());
+    data.SetViewData(view.GetData());
   }
 
   m_PipelineState = bRes ? PipelineState::Initialized : PipelineState::RebuildError;
@@ -754,18 +752,22 @@ void ezRenderPipeline::ExtractData(const ezView& view)
 
   // Is this view already extracted?
   if (m_uiLastExtractionFrame == ezRenderLoop::GetFrameCounter())
+  {
+    EZ_REPORT_FAILURE("View '%s' is extracted multiple times", view.GetName());
     return;
+  }
 
   m_uiLastExtractionFrame = ezRenderLoop::GetFrameCounter();
   
-  auto& data = GetDataForExtraction();
+  auto& data = m_Data[ezRenderLoop::GetDataIndexForExtraction()];
 
   // Usually clear is not needed, only if the multithreading flag is switched during runtime.
   data.Clear();
 
   // Store camera and viewdata
-  data.m_Camera = *view.GetRenderCamera();
-  data.m_ViewData = view.GetData();
+  data.SetCamera(*view.GetRenderCamera());
+  data.SetViewData(view.GetData());
+  data.SetWorldIndex(view.GetWorld()->GetIndex());
 
   // Extract object render data
   for (auto& pExtractor : m_Extractors)
@@ -795,9 +797,9 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
   m_uiLastRenderFrame = ezRenderLoop::GetFrameCounter();
 
 
-  auto& data = GetDataForRendering();
-  const ezCamera* pCamera = &data.m_Camera;
-  const ezViewData* pViewData = &data.m_ViewData;
+  auto& data = m_Data[ezRenderLoop::GetDataIndexForRendering()];
+  const ezCamera* pCamera = &data.GetCamera();
+  const ezViewData* pViewData = &data.GetViewData();
 
   auto& gc = pRendererContext->WriteGlobalConstants();
   gc.CameraPosition = pCamera->GetPosition();
@@ -816,6 +818,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
   renderViewContext.m_pCamera = pCamera;
   renderViewContext.m_pViewData = pViewData;
   renderViewContext.m_pRenderContext = pRendererContext;
+  renderViewContext.m_uiWorldIndex = data.GetWorldIndex();
 
   ezUInt32 uiCurrentFirstUsageIdx = 0;
   ezUInt32 uiCurrentLastUsageIdx = 0;
@@ -880,32 +883,10 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
   m_CurrentRenderThread = (ezThreadID)0;
 }
 
-ezExtractedRenderData& ezRenderPipeline::GetDataForExtraction()
-{
-  return m_Data[ezRenderLoop::GetFrameCounter() & 1];
-}
-
-ezExtractedRenderData& ezRenderPipeline::GetDataForRendering()
-{
-  const ezUInt32 uiFrameCounter = ezRenderLoop::GetFrameCounter() + (CVarMultithreadedRendering ? 1 : 0);
-  return m_Data[uiFrameCounter & 1];
-}
-
-const ezExtractedRenderData& ezRenderPipeline::GetDataForRendering() const
-{
-  const ezUInt32 uiFrameCounter = ezRenderLoop::GetFrameCounter() + (CVarMultithreadedRendering ? 1 : 0);
-  return m_Data[uiFrameCounter & 1];
-}
-
 ezArrayPtr< const ezRenderDataBatch > ezRenderPipeline::GetRenderDataBatchesWithCategory(ezRenderData::Category category) const
 {
-  auto& data = GetDataForRendering();
-  if (data.m_DataPerCategory.GetCount() > category)
-  {
-    return data.m_DataPerCategory[category].m_Batches;
-  }
-
-  return ezArrayPtr< const ezRenderDataBatch >();
+  auto& data = m_Data[ezRenderLoop::GetDataIndexForRendering()];
+  return data.GetRenderDataBatchesWithCategory(category);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipeline);

@@ -50,7 +50,7 @@ ezResult ezGALResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
 
     if(!pBuffer->GetDescription().m_bAllowRawViews && m_Description.m_bRawView)
     {
-      ezLog::Error("Trying to creat a raw view for a buffer with no raw view flag is invalid!");
+      ezLog::Error("Trying to create a raw view for a buffer with no raw view flag is invalid!");
       return EZ_FAILURE;
     }
   }
@@ -148,8 +148,14 @@ ezResult ezGALResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
   }
   else if(pBuffer)
   {
-    /// \todo
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    pDXResource = pBuffer->GetDXBuffer();
+
+    if (pBuffer->GetDescription().m_bUseAsStructuredBuffer)
+      DXSRVDesc.Format = DXGI_FORMAT_UNKNOWN;
+
+    DXSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+    DXSRVDesc.Buffer.FirstElement = m_Description.m_uiFirstElement;
+    DXSRVDesc.Buffer.NumElements = m_Description.m_uiNumElements;
   }
 
   if(FAILED(pDXDevice->GetDXDevice()->CreateShaderResourceView(pDXResource, &DXSRVDesc, &m_pDXResourceView)))

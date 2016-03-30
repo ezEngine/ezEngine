@@ -30,15 +30,28 @@ public:
 
   static void Render(ezRenderContext* pRenderContext);
 
+  static void BeginFrame();
+  static void EndFrame();
+
+  static ezEvent<ezUInt32> s_BeginFrameEvent; ///< Triggered at the end of BeginFrame.
+  static ezEvent<ezUInt32> s_EndFrameEvent; ///< Triggered at the beginning of EndFrame before the frame counter is incremented.
+
   static bool GetUseMultithreadedRendering();
 
-  static void BeginFrame();
-  static void FinishFrame();
   EZ_FORCE_INLINE static ezUInt32 GetFrameCounter()
   {
     return s_uiFrameCounter;
   }
 
+  EZ_FORCE_INLINE static ezUInt32 GetDataIndexForExtraction()
+  {
+    return GetUseMultithreadedRendering() ? (s_uiFrameCounter & 1) : 0;
+  }
+
+  EZ_FORCE_INLINE static ezUInt32 GetDataIndexForRendering()
+  {
+    return GetUseMultithreadedRendering() ? ((s_uiFrameCounter + 1) & 1) : 0;
+  }
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, RendererLoop);

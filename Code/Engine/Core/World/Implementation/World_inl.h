@@ -4,6 +4,11 @@ EZ_FORCE_INLINE const char* ezWorld::GetName() const
   return m_Data.m_sName.GetData(); 
 }
 
+EZ_FORCE_INLINE ezUInt32 ezWorld::GetIndex() const
+{
+  return m_uiIndex;
+}
+
 EZ_FORCE_INLINE ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc)
 {
   ezGameObject* pNewObject;

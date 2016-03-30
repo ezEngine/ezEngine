@@ -441,7 +441,7 @@ void ezGameApplication::UpdateWorldsAndRender()
     pDevice->EndFrame();
   }
 
-  ezRenderLoop::FinishFrame();
+  ezRenderLoop::EndFrame();
   ezFrameAllocator::Swap();
 }
 

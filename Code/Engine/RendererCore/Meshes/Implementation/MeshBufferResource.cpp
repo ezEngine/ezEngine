@@ -10,6 +10,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezMeshBufferResourceDescriptor::ezMeshBufferResourceDescriptor()
 {
+  m_Topology = ezGALPrimitiveTopology::Triangles;
   m_uiVertexSize = 0;
   m_uiVertexCount = 0;
 }

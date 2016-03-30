@@ -1,4 +1,5 @@
 #include <RendererCore/PCH.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/SimpleRenderPass.h>
 #include <RendererCore/Pipeline/View.h>
@@ -118,6 +119,8 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Opaque);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Masked);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Transparent);
+
+  ezDebugRenderer::Render(renderViewContext);
 
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0); // only clear depth
 

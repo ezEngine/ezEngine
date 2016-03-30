@@ -48,6 +48,9 @@ public:
   /// \brief Sets the position to be zero and the rotation to identity.
   void SetIdentity(); // [tested]
 
+  /// \brief Returns an Identity Transform.
+  static const ezTransformTemplate<Type> Identity();
+
   // *** Equality ***
 public:
 

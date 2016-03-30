@@ -6,6 +6,7 @@
 static ezProfilingId s_SortingProfilingId = ezProfilingSystem::CreateId("SortAndBatch");
 
 ezExtractedRenderData::ezExtractedRenderData()
+  : m_uiWorldIndex(ezInvalidIndex)
 {
 }
 
@@ -75,4 +76,14 @@ void ezExtractedRenderData::Clear()
   }
 
   // TODO: intelligent compact
+}
+
+ezArrayPtr< const ezRenderDataBatch > ezExtractedRenderData::GetRenderDataBatchesWithCategory(ezRenderData::Category category) const
+{
+  if (m_DataPerCategory.GetCount() > category)
+  {
+    return m_DataPerCategory[category].m_Batches;
+  }
+
+  return ezArrayPtr< const ezRenderDataBatch >();
 }

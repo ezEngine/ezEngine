@@ -27,6 +27,7 @@ struct ezRenderViewContext
   const ezCamera* m_pCamera;
   const ezViewData* m_pViewData;
   ezRenderContext* m_pRenderContext;
+  ezUInt32 m_uiWorldIndex;
 };
 
 class EZ_RENDERERCORE_DLL ezRenderer : public ezReflectedClass

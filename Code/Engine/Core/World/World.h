@@ -27,6 +27,9 @@ public:
 
   /// \brief Returns the name of this world.
   const char* GetName() const;
+
+  /// \brief Returns the index of this world.
+  ezUInt32 GetIndex() const;
   
   /// \brief Create a new game object from the given description and returns a handle to it.
   ezGameObjectHandle CreateObject(const ezGameObjectDesc& desc);

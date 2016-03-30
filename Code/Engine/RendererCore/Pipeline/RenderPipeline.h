@@ -71,10 +71,6 @@ private:
   void ExtractData(const ezView& view);
   void Render(ezRenderContext* pRenderer);
 
-  ezExtractedRenderData& GetDataForExtraction();
-  ezExtractedRenderData& GetDataForRendering();
-  const ezExtractedRenderData& GetDataForRendering() const;
-
 private: // Member data
   // Thread data
   ezThreadID m_CurrentExtractThread;

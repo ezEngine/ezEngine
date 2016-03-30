@@ -79,7 +79,7 @@ ezGALBufferCreationDescription::ezGALBufferCreationDescription()
   : ezHashableStruct(),
     m_uiStructSize(0),
     m_uiTotalSize(0),
-    m_BufferType(ezGALBufferType::Storage),
+    m_BufferType(ezGALBufferType::Generic),
     m_bUseForIndirectArguments(false),
     m_bUseAsStructuredBuffer(false),
     m_bAllowRawViews(false),
