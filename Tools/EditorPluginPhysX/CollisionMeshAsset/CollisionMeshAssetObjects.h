@@ -19,7 +19,7 @@ struct ezCollisionMeshType
     ConvexHull,
     TriangleMesh,
 
-    Default = ConvexHull
+    Default = TriangleMesh
   };
 };
 

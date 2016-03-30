@@ -11,7 +11,7 @@ namespace physx
   class PxTriangleMesh;
 }
 
-typedef ezTypedResourceHandle<class ezPhysXMeshResource> ezPhysXMeshResourceHandle;
+typedef ezTypedResourceHandle<class ezPxMeshResource> ezPhysXMeshResourceHandle;
 typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 
 struct EZ_PHYSXPLUGIN_DLL ezPhysXMeshResourceDescriptor
@@ -19,13 +19,13 @@ struct EZ_PHYSXPLUGIN_DLL ezPhysXMeshResourceDescriptor
   // empty, these types of resources must be loaded from file
 };
 
-class EZ_PHYSXPLUGIN_DLL ezPhysXMeshResource : public ezResource<ezPhysXMeshResource, ezPhysXMeshResourceDescriptor>
+class EZ_PHYSXPLUGIN_DLL ezPxMeshResource : public ezResource<ezPxMeshResource, ezPhysXMeshResourceDescriptor>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPhysXMeshResource, ezResourceBase);
+  EZ_ADD_DYNAMIC_REFLECTION(ezPxMeshResource, ezResourceBase);
 
 public:
-  ezPhysXMeshResource();
-  ~ezPhysXMeshResource();
+  ezPxMeshResource();
+  ~ezPxMeshResource();
 
   /// \brief Returns the triangle collision mesh. If the mesh is a convex mesh, this will be a nullptr.
   physx::PxTriangleMesh* GetTriangleMesh() const { return m_pPxTriangleMesh; }

@@ -16,7 +16,7 @@ public:
 
   virtual const char* GetDocumentTypeDisplayString() const override { return "Collision Mesh Asset"; }
 
-  virtual const char* QueryAssetType() const override { return "Collision Mesh"; }
+  virtual const char* QueryAssetType() const override;
 
 protected:
   virtual ezUInt16 GetAssetTypeVersion() const override { return 1; }

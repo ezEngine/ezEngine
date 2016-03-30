@@ -269,6 +269,8 @@ QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
       ezStringBuilder sIconName;
       sIconName.Set(":/AssetIcons/", pAssetInfo->m_Info.m_sAssetTypeName);
       sIconName.ReplaceAll(" ", "_");
+      sIconName.ReplaceAll("(", "");
+      sIconName.ReplaceAll(")", "");
 
       return ezUIServices::GetCachedPixmapResource(sIconName.GetData());
     }

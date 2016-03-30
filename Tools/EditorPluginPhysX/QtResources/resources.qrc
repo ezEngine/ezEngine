@@ -1,6 +1,7 @@
 <RCC>
   <qresource prefix="AssetIcons">
     <file>Collision_Mesh.png</file>
+    <file>Collision_Mesh_Convex.png</file>
   </qresource>
   <qresource prefix="TypeIcons">
 	<file>ezPxShapeCapsuleComponent.png</file>

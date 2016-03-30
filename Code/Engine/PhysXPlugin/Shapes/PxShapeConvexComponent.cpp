@@ -6,7 +6,7 @@
 
 EZ_BEGIN_COMPONENT_TYPE(ezPxShapeConvexComponent, 1);
   EZ_BEGIN_PROPERTIES
-    EZ_ACCESSOR_PROPERTY("Collision Mesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Collision Mesh")),
+    EZ_ACCESSOR_PROPERTY("Collision Mesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Collision Mesh (Convex)")),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -21,8 +21,7 @@ void ezPxShapeConvexComponent::SerializeComponent(ezWorldWriter& stream) const
 
   auto& s = stream.GetStream();
 
-  /// \todo Serialize resource handles more efficiently
-  s << GetMeshFile();
+  s << m_hCollisionMesh;
 }
 
 
@@ -31,23 +30,17 @@ void ezPxShapeConvexComponent::DeserializeComponent(ezWorldReader& stream)
   SUPER::DeserializeComponent(stream);
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
-
   auto& s = stream.GetStream();
 
-  ezStringBuilder sTemp;
-  s >> sTemp;
-  SetMeshFile(sTemp);
+  s >> m_hCollisionMesh;
 }
 
 void ezPxShapeConvexComponent::SetMeshFile(const char* szFile)
 {
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
-    m_hCollisionMesh = ezResourceManager::LoadResource<ezPhysXMeshResource>(szFile);
+    m_hCollisionMesh = ezResourceManager::LoadResource<ezPxMeshResource>(szFile);
   }
-
-  if (m_hCollisionMesh.IsValid())
-    ezResourceManager::PreloadResource(m_hCollisionMesh, ezTime::Seconds(5.0));
 }
 
 
@@ -56,8 +49,7 @@ const char* ezPxShapeConvexComponent::GetMeshFile() const
   if (!m_hCollisionMesh.IsValid())
     return "";
 
-  ezResourceLock<ezPhysXMeshResource> pMesh(m_hCollisionMesh);
-  return pMesh->GetResourceID();
+  return m_hCollisionMesh.GetResourceID();
 }
 
 
@@ -69,7 +61,7 @@ void ezPxShapeConvexComponent::AddToActor(PxRigidActor* pActor, const ezTransfor
     return;
   }
 
-  ezResourceLock<ezPhysXMeshResource> pMesh(m_hCollisionMesh);
+  ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh);
 
   if (!pMesh->GetConvexMesh())
   {
@@ -91,7 +83,26 @@ void ezPxShapeConvexComponent::AddToActor(PxRigidActor* pActor, const ezTransfor
   t.p = PxVec3(LocalTransform.m_vPosition.x, LocalTransform.m_vPosition.y, LocalTransform.m_vPosition.z);
   t.q = PxQuat(r.v.x, r.v.y, r.v.z, r.w);
 
-  auto pShape = pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh()), *GetPxMaterial());
+  PxMaterial* pMaterial = nullptr;
+
+  if (m_hSurface.IsValid())
+    pMaterial = GetPxMaterial();
+  else
+  {
+    ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh);
+    const auto& surfs = pMesh->GetSurfaces();
+
+    if (!surfs.IsEmpty())
+    {
+      ezResourceLock<ezSurfaceResource> pSurface(surfs[0]);
+      pMaterial = static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterial);
+    }
+  }
+
+  if (pMaterial == nullptr)
+    pMaterial = ezPhysX::GetSingleton()->GetDefaultMaterial();
+
+  auto pShape = pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh()), *pMaterial);
   pShape->setLocalPose(t);
 
   EZ_ASSERT_DEBUG(pShape != nullptr, "PhysX convex shape creation failed");

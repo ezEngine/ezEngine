@@ -73,6 +73,15 @@ ezCollisionMeshAssetDocument::ezCollisionMeshAssetDocument(const char* szDocumen
 {
 }
 
+
+const char* ezCollisionMeshAssetDocument::QueryAssetType() const
+{
+  if (GetProperties()->m_MeshType == ezCollisionMeshType::ConvexHull)
+    return "Collision Mesh (Convex)";
+
+  return "Collision Mesh";
+}
+
 void ezCollisionMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
 {
   const ezCollisionMeshAssetProperties* pProp = GetProperties();

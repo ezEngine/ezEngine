@@ -98,6 +98,8 @@ void ezAssetBrowserWidget::UpdateAssetTypes()
     {
       sIconName.Set(":/AssetIcons/", key);
       sIconName.ReplaceAll(" ", "_");
+      sIconName.ReplaceAll("(", "");
+      sIconName.ReplaceAll(")", "");
 
       QListWidgetItem* pItem = new QListWidgetItem(ezUIServices::GetCachedIconResource(sIconName), QString::fromUtf8(key.GetData()));
       pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);

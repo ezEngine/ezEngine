@@ -47,7 +47,7 @@ void ezPxStaticActorComponent::SetMeshFile(const char* szFile)
 
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
-    hMesh = ezResourceManager::LoadResource<ezPhysXMeshResource>(szFile);
+    hMesh = ezResourceManager::LoadResource<ezPxMeshResource>(szFile);
   }
 
   SetMesh(hMesh);
@@ -59,7 +59,7 @@ const char* ezPxStaticActorComponent::GetMeshFile() const
   if (!m_hCollisionMesh.IsValid())
     return "";
 
-  ezResourceLock<ezPhysXMeshResource> pMesh(m_hCollisionMesh);
+  ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh);
   return pMesh->GetResourceID();
 }
 
@@ -89,7 +89,7 @@ ezComponent::Initialization ezPxStaticActorComponent::Initialize()
 
   if (m_hCollisionMesh.IsValid())
   {
-    ezResourceLock<ezPhysXMeshResource> pMesh(m_hCollisionMesh);
+    ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh);
 
     ezHybridArray<PxMaterial*, 32> pxMaterials;
     

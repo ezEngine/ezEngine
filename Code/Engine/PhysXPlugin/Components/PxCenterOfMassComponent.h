@@ -1,7 +1,7 @@
 #pragma once
 
 #include <PhysXPlugin/Components/PxActorComponent.h>
-#include <PhysXPlugin/Resources/PhysXMeshResource.h>
+#include <PhysXPlugin/Resources/PxMeshResource.h>
 
 typedef ezComponentManager<class ezPxCenterOfMassComponent> ezPxCenterOfMassComponentManager;
 

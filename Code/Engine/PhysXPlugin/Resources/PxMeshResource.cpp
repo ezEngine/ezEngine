@@ -1,27 +1,27 @@
 #include <PhysXPlugin/PCH.h>
-#include <PhysXPlugin/Resources/PhysXMeshResource.h>
+#include <PhysXPlugin/Resources/PxMeshResource.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <PhysXPlugin/PhysXWorldModule.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXMeshResource, 1, ezRTTIDefaultAllocator<ezPhysXMeshResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPxMeshResource, 1, ezRTTIDefaultAllocator<ezPxMeshResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezPhysXMeshResource::ezPhysXMeshResource() : ezResource<ezPhysXMeshResource, ezPhysXMeshResourceDescriptor>(DoUpdate::OnMainThread, 1)
+ezPxMeshResource::ezPxMeshResource() : ezResource<ezPxMeshResource, ezPhysXMeshResourceDescriptor>(DoUpdate::OnMainThread, 1)
 {
   m_pPxTriangleMesh = nullptr;
   m_pPxConvexMesh = nullptr;
 
-  ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezPhysXMeshResource);
+  ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezPxMeshResource);
 }
 
-ezPhysXMeshResource::~ezPhysXMeshResource()
+ezPxMeshResource::~ezPxMeshResource()
 {
   EZ_ASSERT_DEBUG(m_pPxTriangleMesh == nullptr, "Collision mesh was not unloaded correctly");
   EZ_ASSERT_DEBUG(m_pPxConvexMesh == nullptr, "Collision mesh was not unloaded correctly");
 }
 
-ezResourceLoadDesc ezPhysXMeshResource::UnloadData(Unload WhatToUnload)
+ezResourceLoadDesc ezPxMeshResource::UnloadData(Unload WhatToUnload)
 {
   if (m_pPxTriangleMesh)
   {
@@ -39,7 +39,7 @@ ezResourceLoadDesc ezPhysXMeshResource::UnloadData(Unload WhatToUnload)
 
   // we cannot compute this in UpdateMemoryUsage(), so we only read the data there, therefore we need to update this information here
   /// \todo Compute memory usage
-  ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezPhysXMeshResource);
+  ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezPxMeshResource);
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -62,7 +62,7 @@ public:
   ezStreamReader* m_pStream;
 };
 
-ezResourceLoadDesc ezPhysXMeshResource::UpdateContent(ezStreamReader* Stream)
+ezResourceLoadDesc ezPxMeshResource::UpdateContent(ezStreamReader* Stream)
 {
   EZ_LOG_BLOCK("ezPhysXMeshResource::UpdateContent", GetResourceDescription().GetData());
 
@@ -141,7 +141,7 @@ ezResourceLoadDesc ezPhysXMeshResource::UpdateContent(ezStreamReader* Stream)
   return res;
 }
 
-void ezPhysXMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void ezPxMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   // we cannot compute this data here, so we update it wherever we know the memory usage
 
@@ -149,7 +149,7 @@ void ezPhysXMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezPhysXMeshResource::CreateResource(const ezPhysXMeshResourceDescriptor& descriptor)
+ezResourceLoadDesc ezPxMeshResource::CreateResource(const ezPhysXMeshResourceDescriptor& descriptor)
 {
   EZ_REPORT_FAILURE("This resource type does not support creating data.");
 
