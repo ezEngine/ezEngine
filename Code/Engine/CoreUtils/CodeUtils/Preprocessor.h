@@ -104,6 +104,7 @@ public:
       CheckIfndef,      ///< A '#ifndef X' is being evaluated
       EvaluateUnknown,  ///< Inside an #if an unknown identifier has been encountered, it will be evaluated as zero
       Define,           ///< A #define X has been stored
+      Redefine,         ///< A #define for an already existing macro name (also logged as a warning)
     };
 
     ProcessingEvent()

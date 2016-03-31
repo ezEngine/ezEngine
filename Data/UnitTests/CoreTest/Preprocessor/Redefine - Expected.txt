@@ -1,0 +1,7 @@
+Processing succeeded
+
+
+Preprocessor/Redefine.txt: Line 4 [9]: Warning: Redefinition of macro 'A'
+Log: 'File 'Preprocessor/Redefine.txt', Line 4 (9): Redefinition of macro 'A''
+Preprocessor/Redefine.txt: Line 5 [9]: Warning: Redefinition of macro 'B'
+Log: 'File 'Preprocessor/Redefine.txt', Line 5 (9): Redefinition of macro 'B''

@@ -1,0 +1,5 @@
+#define A a
+#define B b
+
+#define A c
+#define B b 

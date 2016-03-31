@@ -147,6 +147,8 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
     bitwise expressions
     expand to self (with, without parameters, with parameters to expand)
     incorrect expressions
+    Strings with line breaks in them
+    Redefining without undefining a macro
     */
 
   {
@@ -202,6 +204,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
       PPTestSettings("ErrorBadQuotes"),
       PPTestSettings("ErrorBadQuotes2"),
       PPTestSettings("ErrorLineBreaks"),
+      PPTestSettings("Redefine"),
     };
 
     ezStringBuilder sOutput;
