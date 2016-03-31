@@ -203,6 +203,10 @@ protected:
   /// Additionally it configures ESC, F5 and F8 to be 'GameApp::CloseApp', 'GameApp::ReloadResources' and 'GameApp::CaptureProfiling' respectively.
   virtual void DoConfigureInput();
 
+  /// \brief Called by DoProjectSetup() after DoConfigureInput().
+  /// The default implementation loads the "Tags.ezManifest" file from the project directory.
+  virtual void DoLoadTags();
+
   ///
   /// Project Shutdown
   ///

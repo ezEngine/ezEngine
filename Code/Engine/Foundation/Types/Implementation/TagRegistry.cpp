@@ -5,6 +5,7 @@
 #include <Foundation/Types/TagSet.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Threading/Lock.h>
+#include <Foundation/Logging/Log.h>
 
 static ezTagRegistry s_GlobalRegistry;
 
@@ -37,7 +38,7 @@ void ezTagRegistry::RegisterTag(const ezHashedString& TagString, ezTag* ResultTa
     {
       *ResultTag = TempTag;
     }
-	
+
     return;
   }
 
@@ -58,6 +59,8 @@ void ezTagRegistry::RegisterTag(const ezHashedString& TagString, ezTag* ResultTa
   {
     *ResultTag = TempTag;
   }
+
+  ezLog::Debug("Registered Tag '%s'", TagString.GetData());
 }
 
 ezResult ezTagRegistry::GetTag(const char* szTagString, ezTag& ResultTag) const

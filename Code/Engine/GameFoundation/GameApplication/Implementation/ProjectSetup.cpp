@@ -9,6 +9,8 @@ typedef ezGALDeviceDX11 ezGALDeviceDefault;
 #include <RendererGL/Device/DeviceGL.h>
 typedef ezGALDeviceGL ezGALDeviceDefault;
 #endif
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/JSONReader.h>
 
 void ezGameApplication::DoProjectSetup()
 {
@@ -26,6 +28,7 @@ void ezGameApplication::DoProjectSetup()
   DoSetupGraphicsDevice();
   DoSetupDefaultResources();
   DoConfigureInput();
+  DoLoadTags();
 
   ezTaskSystem::SetTargetFrameTime(1000.0 / 20.0);
 }
@@ -121,6 +124,64 @@ void ezGameApplication::DoLoadPluginsFromConfig()
   appPluginConfig.Apply();
 }
 
+void ezGameApplication::DoLoadTags()
+{
+  EZ_LOG_BLOCK("Reading Tags", "Tags.ezManifest");
+
+  ezFileReader file;
+  if (file.Open("Tags.ezManifest").Failed())
+  {
+    ezLog::Dev("'Tags.ezManifest' does not exist");
+    return;
+  }
+
+  ezJSONReader reader;
+  if (reader.Parse(file).Failed())
+  {
+    ezLog::Error("Failed to read JSON data from tags file");
+    return;
+  }
+
+  const ezVariantDictionary& dict = reader.GetTopLevelObject();
+
+  ezVariant* pTags = nullptr;
+  if (!dict.TryGetValue("Tags", pTags))
+  {
+    ezLog::Error("Failed to find 'Tags' JSON object in JSON root object");
+    return;
+  }
+
+  if (!pTags->CanConvertTo<ezVariantArray>())
+  {
+    ezLog::Error("Failed to cast 'Tags' JSON object into a JSON array");
+    return;
+  }
+
+  const ezVariantArray& tags = pTags->Get<ezVariantArray>();
+
+  for (const ezVariant& value : tags)
+  {
+    if (!value.CanConvertTo<ezVariantDictionary>())
+    {
+      ezLog::Error("Tag is not a JSON object!");
+      continue;
+    }
+
+    const ezVariantDictionary& tagDict = value.Get<ezVariantDictionary>();
+
+    ezVariant* pName = nullptr;
+    tagDict.TryGetValue("Name", pName);
+    if (!pName || !pName->IsA<ezString>())
+    {
+      ezLog::Error("Incomplete tag declaration!");
+      continue;
+    }
+
+    const char* szTagString = pName->Get<ezString>();
+
+    ezTagRegistry::GetGlobalRegistry().RegisterTag(szTagString);
+  }
+}
 
 void ezGameApplication::DoShutdownGraphicsDevice()
 {
