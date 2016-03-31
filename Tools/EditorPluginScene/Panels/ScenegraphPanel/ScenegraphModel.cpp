@@ -5,6 +5,7 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <CoreUtils/Localization/TranslationLookup.h>
 
 ezQtScenegraphModel::ezQtScenegraphModel(ezSceneDocument* pDocument)
   : ezQtDocumentTreeModel(pDocument->GetObjectManager(), ezGetStaticRTTI<ezGameObject>(), "Children")
@@ -65,9 +66,10 @@ void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, con
 
       if (out_Result.IsEmpty())
       {
-        out_Result = pChild->GetTypeAccessor().GetType()->GetTypeName();
+        // try to translate the component name, that will typically make it a nice clean name already
+        out_Result = ezTranslate(pChild->GetTypeAccessor().GetType()->GetTypeName());
 
-        // clean up the component name
+        // if no translation is available, clean up the component name in a simple way
         if (out_Result.EndsWith_NoCase("Component"))
           out_Result.Shrink(0, 9);
         if (out_Result.StartsWith("ez"))
@@ -105,7 +107,9 @@ void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, con
           // only use the file name for our display
           sValue = sValue.GetFileName();
 
-          out_Result.Append(": ", sValue);
+          if (!sValue.IsEmpty())
+            out_Result.Append(": ", sValue);
+
           return;
         }
       }

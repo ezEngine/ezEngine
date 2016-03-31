@@ -72,3 +72,23 @@ Scene.Simulation.Speed.3;300%
 Scene.Simulation.Speed.4;400%
 Scene.Simulation.Speed.5;500%
 Scene.Simulation.Speed.10;1000%
+General;General
+Gameplay;Gameplay
+Rendering;Rendering
+Lighting;Lighting
+Settings;Settings
+Transform;Transform
+ezProjectileComponent;Projectile
+ezSpawnComponent;Spawn
+ezTimedDeathComponent;Timed Death
+ezInputComponent;Input
+ezPrefabReferenceComponent;Prefab Reference
+ezCameraComponent;Camera
+ezMeshComponent;Mesh
+ezDirectionalLightComponent;Directional Light
+ezSpotLightComponent;Spot Light
+ezPointLightComponent;Point Light
+ezRotorComponent;Rotor
+ezSliderComponent;Slider
+Components;Components
+Materials;Materials

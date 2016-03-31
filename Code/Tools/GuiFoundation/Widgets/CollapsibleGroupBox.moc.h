@@ -13,7 +13,7 @@ class EZ_GUIFOUNDATION_DLL ezCollapsibleGroupBox : public QWidget, public Ui_Col
 public:
   explicit ezCollapsibleGroupBox(QWidget* pParent);
 
-  void setTitle(QString sTitle);
+  void setTitle(const char* szTitle);
   QString title() const;
 
   void setInnerLayout(QLayout* pLayout) { Content->setLayout(pLayout); }

@@ -17,6 +17,7 @@
 #include <QScrollArea>
 #include <QStringBuilder>
 #include <QLabel>
+#include <CoreUtils/Localization/TranslationLookup.h>
 
 /// *** BASE ***
 ezQtPropertyWidget::ezQtPropertyWidget() : QWidget(nullptr), m_pGrid(nullptr), m_pProp(nullptr)
@@ -186,7 +187,7 @@ ezQtPropertyPointerWidget::~ezQtPropertyPointerWidget()
 
 void ezQtPropertyPointerWidget::OnInit()
 {
-  m_pGroup->setTitle(QString::fromUtf8(m_pProp->GetPropertyName()));
+  m_pGroup->setTitle(ezTranslate(m_pProp->GetPropertyName()));
   m_pGrid->SetCollapseState(m_pGroup);
   connect(m_pGroup, &ezCollapsibleGroupBox::CollapseStateChanged, m_pGrid, &ezPropertyGridWidget::OnCollapseStateChanged);
 
@@ -328,7 +329,7 @@ void ezQtPropertyTypeWidget::OnInit()
 {
   if (m_pGroup)
   {
-    m_pGroup->setTitle(QString::fromUtf8(m_pProp->GetPropertyName()));
+    m_pGroup->setTitle(ezTranslate(m_pProp->GetPropertyName()));
     m_pGrid->SetCollapseState(m_pGroup);
     connect(m_pGroup, &ezCollapsibleGroupBox::CollapseStateChanged, m_pGrid, &ezPropertyGridWidget::OnCollapseStateChanged);
   }
@@ -543,7 +544,7 @@ void ezQtPropertyContainerWidget::Clear()
 
 void ezQtPropertyContainerWidget::OnInit()
 {
-  m_pGroup->setTitle(QString::fromUtf8(m_pProp->GetPropertyName()));
+  m_pGroup->setTitle(ezTranslate(m_pProp->GetPropertyName()));
 
   const ezContainerAttribute* pArrayAttr = m_pProp->GetAttributeByType<ezContainerAttribute>();
   if (!pArrayAttr || pArrayAttr->CanAdd())
@@ -698,7 +699,10 @@ void ezQtPropertyStandardTypeContainerWidget::UpdateElement(ezUInt32 index)
     SubItems.PushBack(sel);
   }
 
-  elem.m_pSubGroup->setTitle(QLatin1String("[") + QString::number(index) + QLatin1String("]"));
+  ezStringBuilder sTitle;
+  sTitle.Format("[%i]", index);
+
+  elem.m_pSubGroup->setTitle(sTitle);
   m_pGrid->SetCollapseState(elem.m_pSubGroup);
   elem.m_pWidget->SetSelection(SubItems);
 }
@@ -748,7 +752,10 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
   }
 
   const ezRTTI* pCommonType = ezQtPropertyWidget::GetCommonBaseType(SubItems);
-  elem.m_pSubGroup->setTitle(QLatin1String("[") + QString::number(index) + QLatin1String("] - ") + QString::fromUtf8(pCommonType->GetTypeName()));
+
+  ezStringBuilder sTitle;
+  sTitle.Format("[%i] - %s", index, ezTranslate(pCommonType->GetTypeName()));
+  elem.m_pSubGroup->setTitle(sTitle);
 
   {
     ezStringBuilder sIconName;

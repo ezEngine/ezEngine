@@ -1,2 +1,16 @@
 PhysX.Settings.Project;PhysX Project Settings
 PhysX.Settings.Scene;PhysX Scene Settings
+Physics;Physics
+Joints;Joints
+Shapes;Shapes
+ezPxCenterOfMassComponent;Center of Mass
+ezPxCharacterControllerComponent;Character Controller
+ezPxDynamicActorComponent;Dynamic Actor
+ezPxStaticActorComponent;Static Actor
+ezPxDistanceJointComponent;Distance Joint
+ezPxFixedJointComponent;Fixed Joint
+ezPxShapeBoxComponent;Box Shape
+ezPxShapeSphereComponent;Sphere Shape
+ezPxShapeCapsuleComponent;Capsule Shape
+ezPxShapeConvexComponent;Convex Mesh Shape
+ezPxSettingsComponent;PhysX Settings

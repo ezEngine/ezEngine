@@ -1,3 +1,4 @@
+EditorHidden;Hidden
 Document.Create;&Create Document
 Document.Open;&Open Document
 Document.Undo;Undo

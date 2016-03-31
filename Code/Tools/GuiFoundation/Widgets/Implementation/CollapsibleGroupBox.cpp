@@ -12,6 +12,7 @@
 #include <QRect>
 #include <QRectF>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <CoreUtils/Localization/TranslationLookup.h>
 
 ezCollapsibleGroupBox::ezCollapsibleGroupBox(QWidget* pParent) : QWidget(pParent), m_bCollapsed(false)
 {
@@ -23,9 +24,9 @@ ezCollapsibleGroupBox::ezCollapsibleGroupBox(QWidget* pParent) : QWidget(pParent
   m_FillColor;
 }
 
-void ezCollapsibleGroupBox::setTitle(QString sTitle)
+void ezCollapsibleGroupBox::setTitle(const char* szTitle)
 {
-  Caption->setText(sTitle);
+  Caption->setText(QString::fromUtf8(szTitle));
 }
 
 QString ezCollapsibleGroupBox::title() const

@@ -14,9 +14,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 1);
     EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant() ), new ezDefaultValueAttribute( 1.0f ) ),
     EZ_ACCESSOR_PROPERTY("Projected Texture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture Cube")),
   EZ_END_PROPERTIES
-  EZ_BEGIN_ATTRIBUTES
-    new ezCategoryAttribute("Rendering/Light"),
-  EZ_END_ATTRIBUTES
   EZ_BEGIN_MESSAGEHANDLERS
     EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),

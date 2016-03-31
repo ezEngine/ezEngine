@@ -12,9 +12,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 1);
 /*  EZ_BEGIN_PROPERTIES
   EZ_END_PROPERTIES*/
-  EZ_BEGIN_ATTRIBUTES
-    new ezCategoryAttribute("Rendering/Light"),
-  EZ_END_ATTRIBUTES
   EZ_BEGIN_MESSAGEHANDLERS
     EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),

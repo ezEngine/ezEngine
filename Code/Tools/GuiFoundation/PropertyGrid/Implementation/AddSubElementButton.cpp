@@ -6,9 +6,10 @@
 #include <QSpacerItem>
 #include <QMenu>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include "ToolsFoundation/Command/TreeCommands.h"
-#include "ToolsFoundation/Object/DocumentObjectManager.h"
-#include "GuiFoundation/UIServices/UIServices.moc.h"
+#include <ToolsFoundation/Command/TreeCommands.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <CoreUtils/Localization/TranslationLookup.h>
 
 ezAddSubElementButton::ezAddSubElementButton()
   : ezQtPropertyWidget()
@@ -99,7 +100,7 @@ QMenu* ezAddSubElementButton::CreateCategoryMenu(const char* szCategory, ezMap<e
   sPath = szCategory;
   sPath = sPath.GetFileName();
 
-  QMenu* pNewMenu = pParentMenu->addMenu(sPath.GetData());
+  QMenu* pNewMenu = pParentMenu->addMenu(ezTranslate(sPath.GetData()));
   existingMenus[szCategory] = pNewMenu;
 
   return pNewMenu;
@@ -161,7 +162,7 @@ void ezAddSubElementButton::on_Menu_aboutToShow()
     QMenu* pCat = CreateCategoryMenu(pCatA ? pCatA->GetCategory() : nullptr, existingMenus);
 
     // Add type action to current menu
-    QAction* pAction = new QAction(QString::fromUtf8(pRtti->GetTypeName()), m_pMenu);
+    QAction* pAction = new QAction(QString::fromUtf8(ezTranslate(pRtti->GetTypeName())), m_pMenu);
     pAction->setProperty("type", qVariantFromValue((void*)pRtti));
     EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnMenuAction())) != nullptr, "connection failed");
 
