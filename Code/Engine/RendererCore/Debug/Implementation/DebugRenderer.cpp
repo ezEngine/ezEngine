@@ -210,6 +210,51 @@ void ezDebugRenderer::DrawLineBox(const ezWorld* pWorld, const ezBoundingBox& bo
 }
 
 //static
+void ezDebugRenderer::DrawLineBoxCorners(const ezWorld* pWorld, const ezBoundingBox& box, float fCornerFraction, const ezColor& color, const ezTransform& transform)
+{
+  fCornerFraction = ezMath::Clamp(fCornerFraction, 0.0f, 1.0f) * 0.5f;
+
+  ezVec3 corners[8];
+  box.GetCorners(corners);
+
+  ezMat4 matTransform = transform.GetAsMat4();
+  for (ezUInt32 i = 0; i < 8; ++i)
+  {
+    corners[i] = matTransform.TransformPosition(corners[i]);
+  }
+
+  ezVec3 edgeEnds[12];
+  edgeEnds[0]  = corners[1]; // 0 -> 1
+  edgeEnds[1]  = corners[3]; // 1 -> 3
+  edgeEnds[2]  = corners[0]; // 2 -> 0
+  edgeEnds[3]  = corners[2]; // 3 -> 2
+  edgeEnds[4]  = corners[5]; // 4 -> 5
+  edgeEnds[5]  = corners[7]; // 5 -> 7
+  edgeEnds[6]  = corners[4]; // 6 -> 4
+  edgeEnds[7]  = corners[6]; // 7 -> 6
+  edgeEnds[8]  = corners[4]; // 0 -> 4
+  edgeEnds[9]  = corners[5]; // 1 -> 5
+  edgeEnds[10] = corners[6]; // 2 -> 6
+  edgeEnds[11] = corners[7]; // 3 -> 7
+
+  Line lines[24];
+  for (ezUInt32 i = 0; i < 12; ++i)
+  {
+    ezVec3 edgeStart = corners[i % 8];
+    ezVec3 edgeEnd = edgeEnds[i];
+    ezVec3 edgeDir = edgeEnd - edgeStart;
+
+    lines[i * 2 + 0].m_start = edgeStart;
+    lines[i * 2 + 0].m_end = edgeStart + edgeDir * fCornerFraction;
+
+    lines[i * 2 + 1].m_start = edgeEnd;
+    lines[i * 2 + 1].m_end = edgeEnd - edgeDir * fCornerFraction;
+  }
+
+  DrawLines(pWorld, lines, color);
+}
+
+//static
 void ezDebugRenderer::DrawSolidBox(const ezWorld* pWorld, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform)
 {
   EZ_LOCK(s_Mutex);

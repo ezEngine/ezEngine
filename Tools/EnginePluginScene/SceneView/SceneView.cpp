@@ -2,6 +2,7 @@
 #include <EnginePluginScene/SceneView/SceneView.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <RendererCore/Debug/DebugRenderPass.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
@@ -274,34 +275,44 @@ ezRenderPipelineResourceHandle ezSceneViewContext::CreateEditorRenderPipeline()
 
   ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
 
-  ezRenderPipelinePass* pEditorRenderPass = nullptr;
+  ezEditorRenderPass* pEditorRenderPass = nullptr;
   {
-    ezUniquePtr<ezRenderPipelinePass> pPass = EZ_DEFAULT_NEW(ezEditorRenderPass);
-    pEditorRenderPass = static_cast<ezEditorRenderPass*>(pPass.Borrow());
+    ezUniquePtr<ezEditorRenderPass> pPass = EZ_DEFAULT_NEW(ezEditorRenderPass);
+    pEditorRenderPass = pPass.Borrow();
     pEditorRenderPass->SetName("EditorRenderPass");
     pEditorRenderPass->AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
     pEditorRenderPass->AddRenderer(EZ_DEFAULT_NEW(ezLightGatheringRenderer));
     pRenderPipeline->AddPass(std::move(pPass));
   }
 
-  ezRenderPipelinePass* pPickingRenderPass = nullptr;
+  ezPickingRenderPass* pPickingRenderPass = nullptr;
   {
-    ezUniquePtr<ezRenderPipelinePass> pPass = EZ_DEFAULT_NEW(ezPickingRenderPass);
-    pPickingRenderPass = static_cast<ezPickingRenderPass*>(pPass.Borrow());
+    ezUniquePtr<ezPickingRenderPass> pPass = EZ_DEFAULT_NEW(ezPickingRenderPass);
+    pPickingRenderPass = pPass.Borrow();
     pPickingRenderPass->SetName("EditorPickingPass");
     pPickingRenderPass->AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
     pRenderPipeline->AddPass(std::move(pPass));
   }
 
-  ezTargetPass* pTargetPass = nullptr;
+  ezDebugRenderPass* pDebugPass = nullptr;
   {
-    ezUniquePtr<ezRenderPipelinePass> pPass = EZ_DEFAULT_NEW(ezTargetPass);
-    pTargetPass = static_cast<ezTargetPass*>(pPass.Borrow());
+    ezUniquePtr<ezDebugRenderPass> pPass = EZ_DEFAULT_NEW(ezDebugRenderPass);
+    pDebugPass = pPass.Borrow();
     pRenderPipeline->AddPass(std::move(pPass));
   }
 
-  EZ_VERIFY(pRenderPipeline->Connect(pEditorRenderPass, "Color", pTargetPass, "Color0"), "Connect failed!");
-  EZ_VERIFY(pRenderPipeline->Connect(pEditorRenderPass, "DepthStencil", pTargetPass, "DepthStencil"), "Connect failed!");
+  ezTargetPass* pTargetPass = nullptr;
+  {
+    ezUniquePtr<ezTargetPass> pPass = EZ_DEFAULT_NEW(ezTargetPass);
+    pTargetPass = pPass.Borrow();
+    pRenderPipeline->AddPass(std::move(pPass));
+  }
+
+  EZ_VERIFY(pRenderPipeline->Connect(pEditorRenderPass, "Color", pDebugPass, "Color"), "Connect failed!");
+  EZ_VERIFY(pRenderPipeline->Connect(pEditorRenderPass, "DepthStencil", pDebugPass, "DepthStencil"), "Connect failed!");
+
+  EZ_VERIFY(pRenderPipeline->Connect(pDebugPass, "Color", pTargetPass, "Color0"), "Connect failed!");
+  EZ_VERIFY(pRenderPipeline->Connect(pDebugPass, "DepthStencil", pTargetPass, "DepthStencil"), "Connect failed!");
 
   //m_pPickingRenderPass->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneViewContext::RenderPassEventHandler, this));
 

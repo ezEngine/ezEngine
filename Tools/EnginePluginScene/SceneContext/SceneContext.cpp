@@ -2,6 +2,7 @@
 #include <EnginePluginScene/SceneContext/SceneContext.h>
 #include <EnginePluginScene/SceneView/SceneView.h>
 
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
@@ -28,32 +29,27 @@ ezUInt32 ezSceneContext::s_uiShapeIconBufferCounter = 0;
 
 void ezSceneContext::ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds)
 {
-  auto b = pObj->GetGlobalBounds();
+  const auto& b = pObj->GetGlobalBounds();
 
   if (b.IsValid())
     bounds.ExpandToInclude(b);
 
-  auto it = pObj->GetChildren();
-
-  while (it.IsValid())
+  for (auto it = pObj->GetChildren(); it.IsValid(); ++it)
   {
     ComputeHierarchyBounds(it, bounds);
-    it.Next();
   }
 }
 
-void ezSceneContext::ComputeSelectionBounds()
+void ezSceneContext::DrawSelectionBounds()
 {
   if (!m_bRenderSelectionBoxes)
     return;
-
-  m_SelectionBBoxes.Clear();
 
   EZ_LOCK(m_pWorld->GetReadMarker());
 
   for (const auto& obj : m_Selection)
   {
-    auto& bounds = m_SelectionBBoxes.ExpandAndGetRef();
+    ezBoundingBoxSphere bounds;
     bounds.SetInvalid();
 
     ezGameObject* pObj;
@@ -62,9 +58,9 @@ void ezSceneContext::ComputeSelectionBounds()
 
     ComputeHierarchyBounds(pObj, bounds);
 
-    if (!bounds.IsValid())
+    if (bounds.IsValid())
     {
-      bounds.ExpandToInclude(ezBoundingBoxSphere(pObj->GetGlobalPosition(), ezVec3(0.125f), 0.125f));
+      ezDebugRenderer::DrawLineBoxCorners(m_pWorld, bounds.GetBox(), 0.25f, ezColor::Yellow);
     }
   }
 }
@@ -152,6 +148,12 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
     // fall through
   }
+  else if (pMsg->IsInstanceOf<ezViewRedrawMsgToEngine>())
+  {
+    DrawSelectionBounds();
+
+    // fall through
+  }
 
   ezEngineProcessDocumentContext::HandleMessage(pMsg);
 }
@@ -228,8 +230,6 @@ void ezSceneContext::GenerateShapeIconMesh()
 {
   /// \todo Disabled for now
   return;
-
-  ComputeSelectionBounds();
 
   if (m_bShapeIconBufferValid)
     return;
@@ -352,31 +352,6 @@ void ezSceneContext::RenderShapeIcons(ezRenderContext* pContext)
   /// \todo Render all selected ones again (blend overlay color)
 }
 
-void ezSceneContext::RenderSelectionBoxes(ezRenderContext* pContext)
-{
-  if (!m_bRenderSelectionBoxes)
-    return;
-
-  pContext->GetGALContext()->PushMarker("Selection Boxes");
-
-  for (auto box : m_SelectionBBoxes)
-  {
-    if (!box.IsValid())
-      continue;
-
-    pContext->SetMaterialParameter("Center", box.m_vCenter);
-    pContext->SetMaterialParameter("HalfExtents", box.m_vBoxHalfExtends);
-
-    pContext->BindMeshBuffer(m_hSelectionBoxMeshBuffer);
-    pContext->BindShader(m_hSelectionBoxShader);
-
-    pContext->DrawMeshBuffer();
-  }
-
-  pContext->GetGALContext()->PopMarker();
-}
-
-
 void ezSceneContext::OnInitialize()
 {
   auto pWorld = m_pWorld;
@@ -385,16 +360,12 @@ void ezSceneContext::OnInitialize()
   LoadShapeIconTextures();
 
   m_hShapeIconShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Editor/ShapeIcon.ezShader");
-  m_hSelectionBoxShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Editor/SelectionBox.ezShader");
-
-  CreateSelectionBoxMesh();
 }
 
 void ezSceneContext::OnDeinitialize()
 {
   m_ShapeIcons.Clear();
   m_hShapeIconShader.Invalidate();
-  m_hSelectionBoxShader.Invalidate();
 }
 
 ezEngineProcessViewContext* ezSceneContext::CreateViewContext()
@@ -445,8 +416,6 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
   {
     m_SelectionWithChildren.PushBack(it.Key());
   }
-
-  ComputeSelectionBounds();
 
   // add the 'selected' tag to the new selection
   SetSelectionTag(true);
@@ -524,36 +493,4 @@ void ezSceneContext::LoadShapeIconTextures()
     }
   }
 
-}
-
-void ezSceneContext::CreateSelectionBoxMesh()
-{
-  m_hSelectionBoxMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>("SelectionBBoxMesh");
-
-  if (m_hSelectionBoxMeshBuffer.IsValid())
-    return;
-
-  ezGeometry geom;
-  geom.AddLineBoxCorners(ezVec3(2.0f), 0.25f, ezColor::Yellow);
-  const ezUInt32 uiLines = geom.GetLines().GetCount();
-
-  ezMeshBufferResourceDescriptor md;
-  md.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  md.AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
-  md.AllocateStreams(uiLines * 2, ezGALPrimitiveTopology::Lines, 0); // 0 primitives = no index buffer needed for this mesh
-
-  const auto& Verts = geom.GetVertices();
-
-  for (ezUInt32 l = 0; l < uiLines; ++l)
-  {
-    const auto& Line = geom.GetLines()[l];
-
-    md.SetVertexData<ezVec3>(0, l * 2 + 0, Verts[Line.m_uiStartVertex].m_vPosition);
-    md.SetVertexData<ezVec3>(0, l * 2 + 1, Verts[Line.m_uiEndVertex].m_vPosition);
-
-    md.SetVertexData<ezColorLinearUB>(1, l * 2 + 0, Verts[Line.m_uiStartVertex].m_Color);
-    md.SetVertexData<ezColorLinearUB>(1, l * 2 + 1, Verts[Line.m_uiEndVertex].m_Color);
-  }
-
-  m_hSelectionBoxMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("SelectionBBoxMesh", md, "Mesh for Rendering Selection Boxes");
 }

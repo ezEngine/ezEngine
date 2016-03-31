@@ -23,7 +23,6 @@ public:
   const ezDeque<ezGameObjectHandle>& GetSelectionWithChildren() const { return m_SelectionWithChildren; }
   bool GetRenderSelectionOverlay() const { return m_bRenderSelectionOverlay; }
   void RenderShapeIcons(ezRenderContext* pContext);
-  void RenderSelectionBoxes(ezRenderContext* pContext);
   void GenerateShapeIconMesh();
 
   ezGameState* GetGameState() const;
@@ -40,7 +39,7 @@ private:
   void HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg);
   void HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg);
   void ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds);
-  void ComputeSelectionBounds();
+  void DrawSelectionBounds();
   void InsertSelectedChildren(const ezGameObject* pObject);
   void LoadShapeIconTextures();
   void CreateSelectionBoxMesh();
@@ -52,7 +51,6 @@ private:
   bool m_bRenderSelectionBoxes;
   bool m_bShapeIconBufferValid;
   ezDeque<ezGameObjectHandle> m_Selection;
-  ezDeque<ezBoundingBoxSphere> m_SelectionBBoxes;
   ezDeque<ezGameObjectHandle> m_SelectionWithChildren;
   ezSet<ezGameObjectHandle> m_SelectionWithChildrenSet;
 
@@ -74,9 +72,6 @@ private:
 
   ezShaderResourceHandle m_hShapeIconShader;
   static ezUInt32 s_uiShapeIconBufferCounter;
-
-  ezShaderResourceHandle m_hSelectionBoxShader;
-  ezMeshBufferResourceHandle m_hSelectionBoxMeshBuffer;
 };
 
 

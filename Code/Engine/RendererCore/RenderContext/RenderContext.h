@@ -41,6 +41,8 @@ public:
     ezUInt32 m_uiFailedDrawcalls;
   };
 
+  Statistics GetAndResetStatistics();
+
 
   // Member Functions
   void SetShaderPermutationVariable(const char* szVariable, const char* szValue);
@@ -51,9 +53,9 @@ public:
   void BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer);
   void DrawMeshBuffer(ezUInt32 uiPrimitiveCount = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0, ezUInt32 uiInstanceCount = 1);
   ezResult ApplyContextStates(bool bForce = false);
-  Statistics GetAndResetStatistics();
+  
 
-  /// \brief Sets the currently active shader on the given render context. If pContext is null, the state is set for the primary context.
+  /// \brief Sets the currently active shader on the given render context.
   ///
   /// This function has no effect until the next drawcall on the context.
   void BindShader(ezShaderResourceHandle hShader, ezBitflags<ezShaderBindFlags> flags = ezShaderBindFlags::Default);

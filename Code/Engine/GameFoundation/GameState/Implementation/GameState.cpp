@@ -3,6 +3,7 @@
 #include <GameFoundation/GameState/GameState.h>
 #include <GameFoundation/GameState/GameStateWindow.h>
 #include <GameFoundation/GameApplication/GameApplication.h>
+#include <RendererCore/Debug/DebugRenderPass.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/SimpleRenderPass.h>
 #include <RendererCore/Pipeline/TargetPass.h>
@@ -135,8 +136,8 @@ ezRenderPipelineResourceHandle ezGameState::CreateMainRenderPipeline()
 
   ezSimpleRenderPass* pSimplePass = nullptr;
   {
-    ezUniquePtr<ezRenderPipelinePass> pPass = EZ_DEFAULT_NEW(ezSimpleRenderPass);
-    pSimplePass = static_cast<ezSimpleRenderPass*>(pPass.Borrow());
+    ezUniquePtr<ezSimpleRenderPass> pPass = EZ_DEFAULT_NEW(ezSimpleRenderPass);
+    pSimplePass = pPass.Borrow();
 
     pSimplePass->SetName("Bernd");
     pSimplePass->AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
@@ -145,15 +146,25 @@ ezRenderPipelineResourceHandle ezGameState::CreateMainRenderPipeline()
     pRenderPipeline->AddPass(std::move(pPass));
   }
 
-  ezTargetPass* pTargetPass = nullptr;
+  ezDebugRenderPass* pDebugPass = nullptr;
   {
-    ezUniquePtr<ezRenderPipelinePass> pPass = EZ_DEFAULT_NEW(ezTargetPass);
-    pTargetPass = static_cast<ezTargetPass*>(pPass.Borrow());
+    ezUniquePtr<ezDebugRenderPass> pPass = EZ_DEFAULT_NEW(ezDebugRenderPass);
+    pDebugPass = pPass.Borrow();
     pRenderPipeline->AddPass(std::move(pPass));
   }
 
-  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "Color", pTargetPass, "Color0"), "Connect failed!");
-  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "DepthStencil", pTargetPass, "DepthStencil"), "Connect failed!");
+  ezTargetPass* pTargetPass = nullptr;
+  {
+    ezUniquePtr<ezTargetPass> pPass = EZ_DEFAULT_NEW(ezTargetPass);
+    pTargetPass = pPass.Borrow();
+    pRenderPipeline->AddPass(std::move(pPass));
+  }
+
+  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "Color", pDebugPass, "Color"), "Connect failed!");
+  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "DepthStencil", pDebugPass, "DepthStencil"), "Connect failed!");
+
+  EZ_VERIFY(pRenderPipeline->Connect(pDebugPass, "Color", pTargetPass, "Color0"), "Connect failed!");
+  EZ_VERIFY(pRenderPipeline->Connect(pDebugPass, "DepthStencil", pTargetPass, "DepthStencil"), "Connect failed!");
 
   pRenderPipeline->AddExtractor(EZ_DEFAULT_NEW(ezVisibleObjectsExtractor));
 

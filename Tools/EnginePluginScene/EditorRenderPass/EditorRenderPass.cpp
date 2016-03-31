@@ -100,9 +100,6 @@ void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", szRenderMode);
     }
 
-    m_pSceneContext->RenderShapeIcons(renderViewContext.m_pRenderContext);
-    m_pSceneContext->RenderSelectionBoxes(renderViewContext.m_pRenderContext);
-
     pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0); // only clear depth
 
     RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Foreground1);

@@ -491,9 +491,13 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
         if (pConn->m_pOutput->m_Type == ezNodePin::Type::PassThrough && data.m_Inputs[pConn->m_pOutput->m_uiInputIndex] != nullptr)
         {
           ezRenderPipelinePassConnection* pCorrespondingInputConn = data.m_Inputs[pConn->m_pOutput->m_uiInputIndex];
+          EZ_ASSERT_DEV(connectionToTextureIndex.Contains(pCorrespondingInputConn), "");
           ezUInt32 uiDataIdx = connectionToTextureIndex[pCorrespondingInputConn];
           m_TextureUsage[uiDataIdx].m_UsedBy.PushBack(pConn);
           m_TextureUsage[uiDataIdx].m_uiLastUsageIdx = i;
+
+          EZ_ASSERT_DEV(!connectionToTextureIndex.Contains(pConn), "");
+          connectionToTextureIndex[pConn] = uiDataIdx;
         }
         else
         {
@@ -509,7 +513,6 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
     }
   }
 
-
   // Set view's render target textures to target pass connections.
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); i++)
   {
@@ -524,6 +527,7 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
         if (pConn != nullptr)
         {
           ezGALTextureHandle hTexture = pTargetPass->GetTextureHandle(view, pPass->GetInputPins()[j]);
+          EZ_ASSERT_DEV(connectionToTextureIndex.Contains(pConn), "");
           ezUInt32 uiDataIdx = connectionToTextureIndex[pConn];
           m_TextureUsage[uiDataIdx].m_bTargetTexture = true;
           for (auto pConn : m_TextureUsage[uiDataIdx].m_UsedBy)

@@ -12,6 +12,8 @@ class EZ_RENDERERCORE_DLL ezDebugRenderer
 public:
   struct Line
   {
+    EZ_DECLARE_POD_TYPE();
+
     EZ_FORCE_INLINE Line() { }
 
     EZ_FORCE_INLINE Line(const ezVec3& start, const ezVec3& end)
@@ -33,6 +35,8 @@ public:
 
   struct Triangle
   {
+    EZ_DECLARE_POD_TYPE();
+
     EZ_FORCE_INLINE Triangle() { }
 
     EZ_FORCE_INLINE Triangle(const ezVec3& p0, const ezVec3& p1, const ezVec3& p2)
@@ -58,16 +62,17 @@ public:
 
   static void DrawLineBox(const ezWorld* pWorld, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
 
+  static void DrawLineBoxCorners(const ezWorld* pWorld, const ezBoundingBox& box, float fCornerFraction, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
+
   static void DrawSolidBox(const ezWorld* pWorld, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
 
   static void DrawSolidTriangles(const ezWorld* pWorld, ezArrayPtr<Triangle> triangles, const ezColor& color);
 
-  /// \todo
-  //static void DrawSprite(const ezWorld* pWorld);
+private:
+  friend class ezDebugRenderPass;
 
   static void Render(const ezRenderViewContext& renderViewContext);
 
-private:
   static void OnEngineStartup();
   static void OnEngineShutdown();
 
