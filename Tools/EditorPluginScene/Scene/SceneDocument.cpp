@@ -43,6 +43,7 @@ void ezSceneDocument::InitializeAfterLoading()
   GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectPropertyEventHandler, this));
   GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectStructureEventHandler, this));
   GetObjectManager()->m_ObjectEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectEventHandler, this));
+  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ToolsProjectEventHandler, this));
 
   ezEditorEngineProcessConnection::GetSingleton()->s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
 }
@@ -52,6 +53,7 @@ ezSceneDocument::~ezSceneDocument()
   GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectStructureEventHandler, this));
   GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectPropertyEventHandler, this));
   GetObjectManager()->m_ObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectEventHandler, this));
+  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ToolsProjectEventHandler, this));
 
   ezEditorEngineProcessConnection::GetSingleton()->s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
 }
@@ -823,6 +825,22 @@ void ezSceneDocument::EngineConnectionEventHandler(const ezEditorEngineProcessCo
   }
 }
 
+
+void ezSceneDocument::ToolsProjectEventHandler(const ezToolsProject::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezToolsProject::Event::Type::ProjectConfigChanged:
+    {
+      // we are lazy and just re-select everything here
+      // that ensures that ui elements will rebuild their content
+
+      ezDeque<const ezDocumentObject*> selection = GetSelectionManager()->GetSelection();
+      GetSelectionManager()->SetSelection(selection);
+    }
+    break;
+  }
+}
 
 void ezSceneDocument::HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg)
 {

@@ -22,8 +22,8 @@ public:
   static bool AddTag(const ezToolsTag& tag);
   static bool RemoveTag(const char* szName);
 
-  static void GetAllTags(ezHybridArray<ezToolsTag*, 16>& out_tags);
-  static void GetTagsByCategory(const ezArrayPtr<ezStringView>& categories, ezHybridArray<ezToolsTag*, 16>& out_tags);
+  static void GetAllTags(ezHybridArray<const ezToolsTag*, 16>& out_tags);
+  static void GetTagsByCategory(const ezArrayPtr<ezStringView>& categories, ezHybridArray<const ezToolsTag*, 16>& out_tags);
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(ToolsFoundation, ToolsTagRegistry);

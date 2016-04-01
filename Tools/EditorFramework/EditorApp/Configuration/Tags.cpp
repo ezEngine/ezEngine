@@ -55,7 +55,7 @@ void ezQtEditorApp::ReadTagRegistry()
   // TODO: Add default tags
   ezToolsTag tag;
   tag.m_sName = "EditorHidden";
-  tag.m_sCategory = "Default";
+  tag.m_sCategory = "Editor";
   ezToolsTagRegistry::AddTag(tag);
 }
 

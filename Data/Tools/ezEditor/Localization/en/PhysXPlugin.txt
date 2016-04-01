@@ -14,3 +14,5 @@ ezPxShapeSphereComponent;Sphere Shape
 ezPxShapeCapsuleComponent;Capsule Shape
 ezPxShapeConvexComponent;Convex Mesh Shape
 ezPxSettingsComponent;PhysX Settings
+ezPhysXComponent;PhysX Component
+ezPxActorComponent;PhysX Actor

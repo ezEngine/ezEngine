@@ -1,4 +1,3 @@
-EditorHidden;Hidden
 Document.Create;&Create Document
 Document.Open;&Open Document
 Document.Undo;Undo
@@ -91,6 +90,7 @@ Editor.Plugins;Editor Pl&ugins
 Editor.Shortcuts;Shortcuts
 Editor.SettingsDlg;Stored Settings
 Engine.Plugins;Engine Pl&ugins
+Engine.TagsDlg;Tags
 ezCameraMode::PerspectiveFixedFovX;Perspective Fixed X
 ezCameraMode::PerspectiveFixedFovY;Perspective Fixed Y
 ezCameraMode::OrthoFixedWidth;Ortho Fixed Width

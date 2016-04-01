@@ -1,6 +1,7 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/PropertyGrid/Implementation/TagSetPropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>
 #include <CoreUtils/Localization/TranslationLookup.h>
@@ -58,22 +59,38 @@ void ezPropertyEditorTagSetWidget::OnInit()
   sTagFilter.Split(false, categories, ";");
 
   // Get tags by categories.
-  ezHybridArray<ezToolsTag*, 16> tags;
+  ezHybridArray<const ezToolsTag*, 16> tags;
   ezToolsTagRegistry::GetTagsByCategory(categories, tags);
   
   const char* szCurrentCategory = "";
+
   // Add valid tags to menu.
-  for (ezToolsTag* pTag : tags)
+  for (const ezToolsTag* pTag : tags)
   {
     if (!pTag->m_sCategory.IsEqual(szCurrentCategory))
     {
-      QAction* pCategory = m_pMenu->addAction(QString(pTag->m_sCategory.GetData()));
+      QAction* pCategory = m_pMenu->addAction(QLatin1String("[") + QString(pTag->m_sCategory.GetData()) + QLatin1String("]"));
       pCategory->setEnabled(false);
+      pCategory->setIcon(ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"));
       szCurrentCategory = pTag->m_sCategory;
+
+      // remove category from list, as it was added once
+      
+      /// \todo ezStringView is POD? -> array<stringview>::Remove(stringview) fails, because of memcmp
+      // categories.Remove(szCurrentCategory);
+
+      for (ezUInt32 i = 0; i < categories.GetCount(); ++i)
+      {
+        if (categories[i] == szCurrentCategory)
+        {
+          categories.RemoveAt(i);
+          break;
+        }
+      }
     }
 
     QWidgetAction* pAction = new QWidgetAction(m_pMenu);
-    QCheckBox* pCheckBox = new QCheckBox(ezTranslate(pTag->m_sName.GetData()), m_pMenu);
+    QCheckBox* pCheckBox = new QCheckBox(pTag->m_sName.GetData(), m_pMenu);
     pCheckBox->setCheckable(true);
     pCheckBox->setCheckState(Qt::Unchecked);
     pCheckBox->setProperty("Tag", pTag->m_sName.GetData());
@@ -82,6 +99,15 @@ void ezPropertyEditorTagSetWidget::OnInit()
 
     m_Tags.PushBack(pCheckBox);
     m_pMenu->addAction(pAction);
+  }
+
+  // if a tag category is empty, it will never show up in the menu, thus the user doesn't know the name of the valid category
+  // therefore, for every empty category, add an entry
+  for (const auto& catname : categories)
+  {
+    QAction* pCategory = m_pMenu->addAction(QLatin1String("[") + QString(catname.GetData()) + QLatin1String("]"));
+    pCategory->setEnabled(false);
+    pCategory->setIcon(ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"));
   }
 }
 
@@ -124,6 +150,7 @@ void ezPropertyEditorTagSetWidget::InternalUpdateValue()
     else
     {
       pCheckBox->setCheckState(Qt::CheckState::PartiallyChecked);
+      sText = "<Multiple Values>|"; // string is shrunk by one character (see below), so | is a dummy
     }
   }
 
@@ -131,7 +158,10 @@ void ezPropertyEditorTagSetWidget::InternalUpdateValue()
   QtScopedBlockSignals b(m_pWidget);
   if (!sText.isEmpty())
     sText = sText.left(sText.size() - 1);
+  else
+    sText = "<none>";
 
+  //m_pWidget->setIcon(ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"));
   m_pWidget->setText(sText);
 }
 

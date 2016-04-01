@@ -153,6 +153,14 @@ ezStatus ezToolsProject::CreateProject(const char* szProjectPath)
   return CreateOrOpenProject(szProjectPath, true);
 }
 
+void ezToolsProject::BroadcastConfigChanged()
+{
+  Event e;
+  e.m_Type = Event::Type::ProjectConfigChanged;
+
+  s_Events.Broadcast(e);
+}
+
 void ezToolsProject::AddAllowedDocumentRoot(const char* szPath)
 {
   ezStringBuilder s = szPath;

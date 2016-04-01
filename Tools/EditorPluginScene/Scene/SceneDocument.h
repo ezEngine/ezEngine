@@ -5,6 +5,7 @@
 #include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
 #include <CoreUtils/DataStructures/ObjectMetaData.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 
 class ezAssetFileHeader;
 
@@ -193,6 +194,7 @@ private:
   void ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void ObjectEventHandler(const ezDocumentObjectEvent& e);
   void EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e);
+  void ToolsProjectEventHandler(const ezToolsProject::Event& e);
 
   void InvalidateGlobalTransformValue(const ezDocumentObject* pObject);
 

@@ -19,6 +19,7 @@ public:
       ProjectOpened2,
       ProjectClosing,
       ProjectClosed,
+      ProjectConfigChanged, ///< Sent when global project configuration data was changed and thus certain menus would need to update their content (or just deselect any item, forcing the user to reselect and thus update state)
     };
 
     Type m_Type;
@@ -46,6 +47,9 @@ public:
   static bool CanCloseProject();
   static ezStatus OpenProject(const char* szProjectPath);
   static ezStatus CreateProject(const char* szProjectPath);
+
+  /// \brief Sent when global project configuration data was changed and thus certain menus would need to update their content (or just deselect any item, forcing the user to reselect and thus update state)
+  static void BroadcastConfigChanged();
 
   /// \brief Returns the path to the 'ezProject' file
   const ezString& GetProjectFile() const { return m_sProjectPath; }

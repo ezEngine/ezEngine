@@ -154,7 +154,7 @@ bool ezToolsTagRegistry::RemoveTag(const char* szName)
   }
 }
 
-void ezToolsTagRegistry::GetAllTags(ezHybridArray<ezToolsTag*, 16>& out_tags)
+void ezToolsTagRegistry::GetAllTags(ezHybridArray<const ezToolsTag*, 16>& out_tags)
 {
   out_tags.Clear();
   for (auto it = m_NameToTags.GetIterator(); it.IsValid(); ++it)
@@ -165,7 +165,7 @@ void ezToolsTagRegistry::GetAllTags(ezHybridArray<ezToolsTag*, 16>& out_tags)
   out_tags.Sort(TagComparer());
 }
 
-void ezToolsTagRegistry::GetTagsByCategory(const ezArrayPtr<ezStringView>& categories, ezHybridArray<ezToolsTag*, 16>& out_tags)
+void ezToolsTagRegistry::GetTagsByCategory(const ezArrayPtr<ezStringView>& categories, ezHybridArray<const ezToolsTag*, 16>& out_tags)
 {
   out_tags.Clear();
   for (auto it = m_NameToTags.GetIterator(); it.IsValid(); ++it)

@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="EditorFramework">
+    <file>Icons/Tag16.png</file>
     <file>Icons/Perspective.png</file>
     <file>Icons/RenderMode.png</file>
     <file>Icons/RetriveAssetInfo16.png</file>
@@ -18,12 +19,12 @@
     <file>Icons/TransformAllAssets16.png</file>
     <file>Icons/TransformAssets16.png</file>
     <file>Icons/WriteLookupTable16.png</file>
-	<file>Icons/ToggleViews16.png</file>
-	<file>Icons/SpawnView16.png</file>
-	<file>Icons/Plugins16.png</file>
-	<file>Icons/DataDirectories16.png</file>
-	<file>Icons/StoredSettings16.png</file>
-	<file>Icons/Input16.png</file>
+    <file>Icons/ToggleViews16.png</file>
+    <file>Icons/SpawnView16.png</file>
+    <file>Icons/Plugins16.png</file>
+    <file>Icons/DataDirectories16.png</file>
+    <file>Icons/StoredSettings16.png</file>
+    <file>Icons/Input16.png</file>
   </qresource>
   <qresource prefix="AssetIcons">
     <file>All.png</file>

@@ -35,6 +35,7 @@ public:
   static ezActionDescriptorHandle s_hDataDirectories;
   static ezActionDescriptorHandle s_hInputConfig;
   static ezActionDescriptorHandle s_hSettingsDlg;
+  static ezActionDescriptorHandle s_hTagsDlg;
 
   static ezActionDescriptorHandle s_hToolsMenu;
   static ezActionDescriptorHandle s_hToolsCategory;
@@ -79,6 +80,7 @@ public:
     DataDirectories,
     InputConfig,
     SettingsDialog,
+    TagsDialog,
     EnginePlugins,
   };
 

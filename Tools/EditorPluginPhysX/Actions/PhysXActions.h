@@ -15,7 +15,6 @@ public:
 
   static ezActionDescriptorHandle s_hCategoryPhysX;
   static ezActionDescriptorHandle s_hProjectSettings;
-  static ezActionDescriptorHandle s_hSceneSettings;
 };
 
 
@@ -27,7 +26,6 @@ public:
   enum class ActionType
   {
     ProjectSettings,
-    SceneSettings,
   };
 
   ezPhysXAction(const ezActionContext& context, const char* szName, ActionType type);
