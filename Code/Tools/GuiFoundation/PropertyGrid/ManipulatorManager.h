@@ -4,11 +4,12 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
+#include <ToolsFoundation/Document/DocumentManager.h>
 
 class ezManipulatorAttribute;
 struct ezPhantomRttiManagerEvent;
 
-struct ezManipulatorManagerEvent
+struct EZ_GUIFOUNDATION_DLL ezManipulatorManagerEvent
 {
   const ezDocument* m_pDocument;
   const ezManipulatorAttribute* m_pManipulator;
@@ -39,6 +40,7 @@ private:
 
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void PhantomTypeManagerEventHandler(const ezPhantomRttiManagerEvent& e);
+  void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
 
   ezMap<const ezDocument*, Data> m_ActiveManipulator;
 };

@@ -18,11 +18,11 @@ public:
   virtual ezEditorInut mouseReleaseEvent(QMouseEvent* e) override;
   virtual ezEditorInut mouseMoveEvent(QMouseEvent* e) override;
 
-  void SetInnerSphere(bool bEnabled, float fRadius = 0.0f);
-  void SetOuterSphere(float fRadius);
+  void SetInnerSphere(float fRadius);
+  void SetOuterSphere(bool bEnabled, float fRadius = 100000.0f);
 
-  float GetInnerRadius() const;
-  float GetOuterRadius() const;
+  float GetInnerRadius() const { return m_fRadiusInner; }
+  float GetOuterRadius() const { return m_fRadiusOuter; }
 
 protected:
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
@@ -46,6 +46,7 @@ private:
   };
 
   ManipulateMode m_ManipulateMode;
+  bool m_bOuterEnabled;
 
   float m_fStartRadiusInner;
   float m_fStartRadiusOuter;

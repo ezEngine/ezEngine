@@ -276,6 +276,9 @@ public:
   ezSphereManipulatorAttribute();
   ezSphereManipulatorAttribute(const char* szInnerRadius, const char* szOuterRadius = nullptr);
 
+  const ezString& GetInnerRadiusProperty() const { return m_sProperty1; }
+  const ezString& GetOuterRadiusProperty() const { return m_sProperty2; }
+
 protected:
 
 };

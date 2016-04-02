@@ -13,6 +13,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezSphereGizmo::ezSphereGizmo()
 {
+  m_bOuterEnabled = false;
+
   m_fStartRadiusInner = 1.0f;
   m_fStartRadiusOuter = 2.0f;
 
@@ -37,7 +39,7 @@ void ezSphereGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngin
 void ezSphereGizmo::OnVisibleChanged(bool bVisible)
 {
   m_InnerSphere.SetVisible(bVisible);
-  m_OuterSphere.SetVisible(bVisible);
+  m_OuterSphere.SetVisible(bVisible && m_bOuterEnabled);
 }
 
 void ezSphereGizmo::OnTransformationChanged(const ezMat4& transform)
@@ -61,7 +63,7 @@ void ezSphereGizmo::FocusLost(bool bCancel)
   msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
 
   m_InnerSphere.SetVisible(true);
-  m_OuterSphere.SetVisible(true);
+  m_OuterSphere.SetVisible(m_bOuterEnabled);
 
   m_ManipulateMode = ManipulateMode::None;
 }
@@ -169,5 +171,22 @@ ezEditorInut ezSphereGizmo::mouseMoveEvent(QMouseEvent* e)
   m_GizmoEvents.Broadcast(ev);
 
   return ezEditorInut::WasExclusivelyHandled;
+}
+
+void ezSphereGizmo::SetInnerSphere(float fRadius)
+{
+  m_fRadiusInner = fRadius;
+  
+  // update the scale
+  OnTransformationChanged(GetTransformation());
+}
+
+void ezSphereGizmo::SetOuterSphere(bool bEnabled, float fRadius)
+{
+  m_fRadiusOuter = fRadius;
+  m_bOuterEnabled = bEnabled;
+
+  // update the scale
+  OnTransformationChanged(GetTransformation());
 }
 

@@ -237,6 +237,14 @@ ezEngineGizmoHandle::ezEngineGizmoHandle()
   m_Color = ezColor::CornflowerBlue; /* The Original! */
 }
 
+ezEngineGizmoHandle::~ezEngineGizmoHandle()
+{
+  if (m_hGameObject.IsInvalidated())
+    return;
+
+  m_pWorld->DeleteObjectDelayed(m_hGameObject);
+}
+
 void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize, bool bForeground2)
 {
   SetParentGizmo(pParentGizmo);
@@ -249,6 +257,8 @@ void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleTy
 
 bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID)
 {
+  m_pWorld = pWorld;
+
   if (!m_hGameObject.IsInvalidated())
     return false;
 

@@ -30,11 +30,13 @@ ezManipulatorManager::ezManipulatorManager()
   : m_SingletonRegistrar(this)
 {
   ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezManipulatorManager::PhantomTypeManagerEventHandler, this));
+  ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezManipulatorManager::DocumentManagerEventHandler, this));
 }
 
 ezManipulatorManager::~ezManipulatorManager()
 {
   ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezManipulatorManager::PhantomTypeManagerEventHandler, this));
+  ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezManipulatorManager::DocumentManagerEventHandler, this));
 }
 
 const ezManipulatorAttribute* ezManipulatorManager::GetActiveManipulator(const ezDocument* pDoc, const ezHybridArray<ezQtPropertyWidget::Selection, 8>*& out_Selection) const
@@ -106,4 +108,17 @@ void ezManipulatorManager::PhantomTypeManagerEventHandler(const ezPhantomRttiMan
       SetActiveManipulator(it.Key(), nullptr, clearSel);
     }
   }
+}
+
+void ezManipulatorManager::DocumentManagerEventHandler(const ezDocumentManager::Event& e)
+{
+  if (e.m_Type == ezDocumentManager::Event::Type::DocumentClosing)
+  {
+    ezHybridArray<ezQtPropertyWidget::Selection, 8> clearSel;
+    SetActiveManipulator(e.m_pDocument, nullptr, clearSel);
+
+    e.m_pDocument->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezManipulatorManager::StructureEventHandler, this));
+    m_ActiveManipulator.Remove(e.m_pDocument);
+  }
+
 }

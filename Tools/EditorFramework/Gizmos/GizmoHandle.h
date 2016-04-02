@@ -52,6 +52,7 @@ class EZ_EDITORFRAMEWORK_DLL ezEngineGizmoHandle : public ezGizmoHandle
 
 public:
   ezEngineGizmoHandle();
+  ~ezEngineGizmoHandle();
 
   void Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize = true, bool bForeground2 = false);
 
@@ -67,6 +68,7 @@ protected:
   ezGameObjectHandle m_hGameObject;
   ezMeshComponent* m_pMeshComponent;
   ezColor m_Color;
+  ezWorld* m_pWorld;
 
 private:
 

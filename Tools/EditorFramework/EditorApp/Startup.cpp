@@ -27,12 +27,15 @@
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <Panels/LogPanel/LogPanel.moc.h>
 #include <Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
+#include <Manipulators/ManipulatorAdapterRegistry.h>
+#include <Manipulators/SphereManipulatorAdapter.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "GuiFoundation",
-    "PropertyGrid"
+    "PropertyGrid",
+    "ManipulatorAdapterRegistry"
   END_SUBSYSTEM_DEPENDENCIES
 
   ON_CORE_STARTUP
@@ -52,6 +55,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezAssetBrowserAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtAssetPropertyWidget(); });
     ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicEnumAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtDynamicEnumPropertyWidget(); });
     ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicStringEnumAttribute>(), [](const ezRTTI* pRtti)->ezQtPropertyWidget* { return new ezQtDynamicStringEnumPropertyWidget(); });
+
+    ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSphereManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezSphereManipulatorAdapter); });
   }
 
   ON_CORE_SHUTDOWN
