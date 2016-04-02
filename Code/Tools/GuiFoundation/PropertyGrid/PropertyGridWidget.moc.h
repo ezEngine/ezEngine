@@ -49,7 +49,7 @@ private:
 private:
   void SelectionEventHandler(const ezSelectionManager::Event& e);
   void FactoryEventHandler(const ezRttiMappedObjectFactory<ezQtPropertyWidget>::Event& e);
-  void TypeEventHandler(const ezPhantomRttiManager::Event& e);
+  void TypeEventHandler(const ezPhantomRttiManagerEvent& e);
   ezUInt32 GetGroupBoxHash(ezCollapsibleGroupBox* pBox) const;
 
 private:

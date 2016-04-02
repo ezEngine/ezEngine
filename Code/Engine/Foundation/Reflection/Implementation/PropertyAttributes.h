@@ -4,6 +4,23 @@
 
 #include <Foundation/Basics.h>
 
+template<typename Type>
+const Type* ezRTTI::GetAttributeByType() const
+{
+  for (const auto* pAttr : m_Attributes)
+  {
+    if (pAttr->GetDynamicRTTI()->IsDerivedFrom<Type>())
+      return static_cast<const Type*>(pAttr);
+  }
+  if (GetParentType() != nullptr)
+    return GetParentType()->GetAttributeByType<Type>();
+  else
+    return nullptr;
+}
+
+
+
+
 /// \brief Base class of all attributes can be used to decorate a RTTI property.
 class EZ_FOUNDATION_DLL ezPropertyAttribute : public ezReflectedClass
 {
@@ -233,19 +250,36 @@ private:
   ezString m_sDynamicEnumName;
 };
 
-template<typename Type>
-const Type* ezRTTI::GetAttributeByType() const
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_FOUNDATION_DLL ezManipulatorAttribute : public ezPropertyAttribute
 {
-  for (const auto* pAttr : m_Attributes)
-  {
-    if (pAttr->GetDynamicRTTI()->IsDerivedFrom<Type>())
-      return static_cast<const Type*>(pAttr);
-  }
-  if (GetParentType() != nullptr)
-    return GetParentType()->GetAttributeByType<Type>();
-  else
-    return nullptr;
-}
+  EZ_ADD_DYNAMIC_REFLECTION(ezManipulatorAttribute, ezPropertyAttribute);
+
+public:
+  ezManipulatorAttribute(const char* szProperty1, const char* szProperty2 = nullptr, const char* szProperty3 = nullptr, const char* szProperty4 = nullptr);
+
+  ezString m_sProperty1;
+  ezString m_sProperty2;
+  ezString m_sProperty3;
+  ezString m_sProperty4;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_FOUNDATION_DLL ezSphereManipulatorAttribute : public ezManipulatorAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSphereManipulatorAttribute, ezManipulatorAttribute);
+
+public:
+  ezSphereManipulatorAttribute();
+  ezSphereManipulatorAttribute(const char* szInnerRadius, const char* szOuterRadius = nullptr);
+
+protected:
+
+};
+
 
 
 

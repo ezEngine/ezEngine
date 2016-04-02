@@ -264,12 +264,12 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertyToIn
 
 void ezReflectedTypeStorageManager::Startup()
 {
-  ezPhantomRttiManager::m_Events.AddEventHandler(TypeEventHandler);
+  ezPhantomRttiManager::s_Events.AddEventHandler(TypeEventHandler);
 }
 
 void ezReflectedTypeStorageManager::Shutdown()
 {
-  ezPhantomRttiManager::m_Events.RemoveEventHandler(TypeEventHandler);
+  ezPhantomRttiManager::s_Events.RemoveEventHandler(TypeEventHandler);
 
   for (auto it = m_ReflectedTypeToStorageMapping.GetIterator(); it.IsValid(); ++it)
   {
@@ -313,11 +313,11 @@ ezReflectedTypeStorageManager::ReflectedTypeStorageMapping* ezReflectedTypeStora
   return pMapping;
 }
 
-void ezReflectedTypeStorageManager::TypeEventHandler(const ezPhantomRttiManager::Event& e)
+void ezReflectedTypeStorageManager::TypeEventHandler(const ezPhantomRttiManagerEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezPhantomRttiManager::Event::Type::TypeAdded:
+  case ezPhantomRttiManagerEvent::Type::TypeAdded:
     {
       const ezRTTI* pType = e.m_pChangedType;
       EZ_ASSERT_DEV(pType != nullptr, "A type was added but it has an invalid handle!");
@@ -326,7 +326,7 @@ void ezReflectedTypeStorageManager::TypeEventHandler(const ezPhantomRttiManager:
       GetTypeStorageMapping(e.m_pChangedType);
     }
     break;
-  case ezPhantomRttiManager::Event::Type::TypeChanged:
+  case ezPhantomRttiManagerEvent::Type::TypeChanged:
     {
       const ezRTTI* pNewType = e.m_pChangedType;
       EZ_ASSERT_DEV(pNewType != nullptr, "A type was updated but its handle is invalid!");
@@ -366,7 +366,7 @@ void ezReflectedTypeStorageManager::TypeEventHandler(const ezPhantomRttiManager:
       }
     }
     break;
-  case ezPhantomRttiManager::Event::Type::TypeRemoved:
+  case ezPhantomRttiManagerEvent::Type::TypeRemoved:
     {
       ReflectedTypeStorageMapping* pMapping = m_ReflectedTypeToStorageMapping[e.m_pChangedType];
       EZ_ASSERT_DEV(pMapping != nullptr, "A type was removed but no mapping ever exited for it!");

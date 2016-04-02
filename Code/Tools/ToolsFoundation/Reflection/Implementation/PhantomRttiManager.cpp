@@ -6,7 +6,7 @@
 #include <Foundation/Memory/Allocator.h>
 #include <Foundation/Configuration/Startup.h>
 
-ezEvent<const ezPhantomRttiManager::Event&> ezPhantomRttiManager::m_Events;
+ezEvent<const ezPhantomRttiManagerEvent&> ezPhantomRttiManager::s_Events;
 
 ezHashTable<const char*, ezPhantomRTTI*> ezPhantomRttiManager::m_NameToPhantom;
 
@@ -57,19 +57,19 @@ const ezRTTI* ezPhantomRttiManager::RegisterType(const ezReflectedTypeDescriptor
 
     m_NameToPhantom[pPhantom->GetTypeName()] = pPhantom;
 
-    Event msg;
+    ezPhantomRttiManagerEvent msg;
     msg.m_pChangedType = pPhantom;
-    msg.m_Type = Event::Type::TypeAdded;
-    m_Events.Broadcast(msg);
+    msg.m_Type = ezPhantomRttiManagerEvent::Type::TypeAdded;
+    s_Events.Broadcast(msg);
   }
   else
   {
     pPhantom->UpdateType(desc);
 
-    Event msg;
+    ezPhantomRttiManagerEvent msg;
     msg.m_pChangedType = pPhantom;
-    msg.m_Type = Event::Type::TypeChanged;
-    m_Events.Broadcast(msg);
+    msg.m_Type = ezPhantomRttiManagerEvent::Type::TypeChanged;
+    s_Events.Broadcast(msg);
   }
 
   return pPhantom;
@@ -84,10 +84,10 @@ bool ezPhantomRttiManager::UnregisterType(const ezRTTI* pRtti)
     return false;
 
   {
-    Event msg;
+    ezPhantomRttiManagerEvent msg;
     msg.m_pChangedType = pPhantom;
-    msg.m_Type = Event::Type::TypeRemoved;
-    m_Events.Broadcast(msg);
+    msg.m_Type = ezPhantomRttiManagerEvent::Type::TypeRemoved;
+    s_Events.Broadcast(msg);
   }
 
   m_NameToPhantom.Remove(pPhantom->GetTypeName());

@@ -6,6 +6,21 @@
 
 class ezPhantomRTTI;
 
+struct ezPhantomRttiManagerEvent
+{
+  enum class Type
+  {
+    TypeAdded,
+    TypeRemoved,
+    TypeChanged,
+  };
+
+  ezPhantomRttiManagerEvent() : m_Type(Type::TypeAdded), m_pChangedType(nullptr) {}
+
+  Type m_Type;
+  const ezRTTI* m_pChangedType;
+};
+
 /// \brief Manages all ezPhantomRTTI types that have been added to him.
 ///
 /// A ezPhantomRTTI cannot be created directly but must be created via this managers
@@ -37,22 +52,9 @@ private:
   static void Shutdown();
 
 public:
-  struct Event
-  {
-    enum class Type
-    {
-      TypeAdded,
-      TypeRemoved,
-      TypeChanged,
-    };
 
-    Event() : m_Type(Type::TypeAdded), m_pChangedType(nullptr) {}
 
-    Type m_Type;
-    const ezRTTI* m_pChangedType;
-  };
-
-  static ezEvent<const Event&> m_Events;
+  static ezEvent<const ezPhantomRttiManagerEvent&> s_Events;
 
 private:
   static ezSet<const ezRTTI*> m_RegisteredConcreteTypes;

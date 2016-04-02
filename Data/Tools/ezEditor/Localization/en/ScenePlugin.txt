@@ -92,3 +92,4 @@ ezRotorComponent;Rotor
 ezSliderComponent;Slider
 Components;Components
 Materials;Materials
+ezMaterialResourceSlot;ezMaterialResourceSlot

@@ -75,5 +75,45 @@ EZ_MEMBER_PROPERTY("DynamicEnum", m_sDynamicEnumName)
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_PropertyAttributes);
+//////////////////////////////////////////////////////////////////////////
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezManipulatorAttribute, 1, ezRTTINoAllocator);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("Property1", m_sProperty1),
+    EZ_MEMBER_PROPERTY("Property2", m_sProperty2),
+    EZ_MEMBER_PROPERTY("Property3", m_sProperty3),
+    EZ_MEMBER_PROPERTY("Property4", m_sProperty4),
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+
+ezManipulatorAttribute::ezManipulatorAttribute(const char* szProperty1, const char* szProperty2 /*= nullptr*/, const char* szProperty3 /*= nullptr*/, const char* szProperty4 /*= nullptr*/)
+{
+  m_sProperty1 = szProperty1;
+  m_sProperty2 = szProperty2;
+  m_sProperty3 = szProperty3;
+  m_sProperty4 = szProperty4;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSphereManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezSphereManipulatorAttribute>);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+ezSphereManipulatorAttribute::ezSphereManipulatorAttribute()
+  : ezManipulatorAttribute(nullptr)
+{
+
+}
+
+ezSphereManipulatorAttribute::ezSphereManipulatorAttribute(const char* szInnerRadius, const char* szOuterRadius /*= nullptr*/)
+  : ezManipulatorAttribute(szInnerRadius, szOuterRadius)
+{
+
+}
+
+
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_PropertyAttributes);

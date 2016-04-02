@@ -18,6 +18,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 1);
     EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
   EZ_END_MESSAGEHANDLERS
+  EZ_BEGIN_ATTRIBUTES
+    new ezSphereManipulatorAttribute("Range")
+  EZ_END_ATTRIBUTES
 EZ_END_COMPONENT_TYPE();
 
 ezPointLightComponent::ezPointLightComponent()

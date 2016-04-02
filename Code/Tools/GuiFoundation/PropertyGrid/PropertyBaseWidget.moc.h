@@ -27,6 +27,11 @@ public:
   {
     const ezDocumentObject* m_pObject;
     ezVariant m_Index;
+
+    bool operator==(const Selection& rhs) const
+    {
+      return m_pObject == rhs.m_pObject && m_Index == rhs.m_Index;
+    }
   };
 
   struct Event

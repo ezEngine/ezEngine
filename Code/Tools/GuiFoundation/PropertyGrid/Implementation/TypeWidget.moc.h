@@ -9,6 +9,8 @@
 
 class QGridLayout;
 class ezDocument;
+class ezManipulatorLabel;
+struct ezManipulatorManagerEvent;
 
 class EZ_GUIFOUNDATION_DLL ezTypeWidget : public QWidget
 {
@@ -23,10 +25,12 @@ public:
 
 private:
   void BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath);
+  void BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath, const ezMap<ezString, const ezManipulatorAttribute*>& manipulatorMap);
 
   void PropertyChangedHandler(const ezQtPropertyWidget::Event& ed);
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void CommandHistoryEventHandler(const ezCommandHistory::Event& e);
+  void ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e);
 
   void UpdateProperty(const ezDocumentObject* pObject, const ezString& sProperty);
   void FlushQueuedChanges();
@@ -41,7 +45,7 @@ private:
   struct PropertyWidgetData
   {
     ezQtPropertyWidget* m_pWidget;
-    QLabel* m_pLabel;
+    ezManipulatorLabel* m_pLabel;
   };
 
   QGridLayout* m_pLayout;

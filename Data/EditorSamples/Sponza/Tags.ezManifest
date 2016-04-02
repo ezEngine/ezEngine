@@ -1,3 +1,10 @@
 {
-  "Tags" : [  ]
+  "Tags" : [ {
+      "Name" : "sadfsdf",
+      "Category" : "sadf"
+    },
+    {
+      "Name" : "test",
+      "Category" : "Default"
+    } ]
 }

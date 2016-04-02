@@ -1,134 +1,5 @@
 {
  "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0xD888FAB2002FF50F7C07B824A9F0B267" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0xD3E56D92A5521F148ECDBADCC33D2B8A" }, { "$t" : "uuid", "$b" : "0x6C4BC652D7540C165FA1ACCD10C65C64" }, { "$t" : "uuid", "$b" : "0x1A44A9E01FDFF08F74B87304E36D63EA" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(1.5107, -3.1704, -0.2805)", "$b" : "0x865EC13F67E84AC0EE9F8FBE" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0xEE8384BE00000000985C42B2EA46773F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xD3E56D92A5521F148ECDBADCC33D2B8A" },
-   "t" : "ezMeshComponent",
-   "p" : {
-    "Active" : true,
-    "Materials" : [  ],
-    "Mesh" : "{ 02caa120-1cb7-4f37-9782-4d7a45688459 }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x6C4BC652D7540C165FA1ACCD10C65C64" },
-   "t" : "ezPxShapeBoxComponent",
-   "p" : {
-    "Active" : true,
-    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Half Extents" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
-    "Surface" : "{ 9ab4d71a-48d7-421c-86b0-9955a5f61f0d }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x176FD1336031A217593E14D364C26C42" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x12CC44130555CC1B6B04178B7F0FE564" }, { "$t" : "uuid", "$b" : "0xAB319DD33657B91D3CD8087CCC97163F" }, { "$t" : "uuid", "$b" : "0x592A80617FE19D9751EFCFB29E3F1DC5" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.6107, -4.0365, 0.2195)", "$b" : "0xA4561C3FAE2A81C024C0603E" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0xEE8384BE00000000985C42B2EA46773F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x85BCC0E4EC05A21B9B64C7EA0B00EB8C" },
-   "t" : "ezPxDynamicActorComponent",
-   "p" : {
-    "Active" : true,
-    "Angular Damping" : { "$t" : "float", "$v" : "0.0500", "$b" : "0xCDCC4C3D" },
-    "Density" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Disable Gravity" : false,
-    "Kinematic" : false,
-    "Linear Damping" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
-    "Mass" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x12CC44130555CC1B6B04178B7F0FE564" },
-   "t" : "ezMeshComponent",
-   "p" : {
-    "Active" : true,
-    "Materials" : [  ],
-    "Mesh" : "{ 02caa120-1cb7-4f37-9782-4d7a45688459 }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xAB319DD33657B91D3CD8087CCC97163F" },
-   "t" : "ezPxShapeBoxComponent",
-   "p" : {
-    "Active" : true,
-    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Half Extents" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
-    "Surface" : "{ 9ab4d71a-48d7-421c-86b0-9955a5f61f0d }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xBE5DCAED6F67632AE9108D93B3F872E7" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0xB9BA3DCD148B8D2EFBD68F4BCE45EB09" }, { "$t" : "uuid", "$b" : "0x5220968D468D7A30CCAA813C1BCE1CE4" }, { "$t" : "uuid", "$b" : "0x85BCC0E4EC05A21B9B64C7EA0B00EB8C" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(-24.2644, 1.1558, 14.9538)", "$b" : "0x8A1DC2C1DCF2933FF1426F41" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0xEE8384BE00000000985C42B2EA46773F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xB9BA3DCD148B8D2EFBD68F4BCE45EB09" },
-   "t" : "ezMeshComponent",
-   "p" : {
-    "Active" : true,
-    "Materials" : [  ],
-    "Mesh" : "{ 02caa120-1cb7-4f37-9782-4d7a45688459 }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x5220968D468D7A30CCAA813C1BCE1CE4" },
-   "t" : "ezPxShapeBoxComponent",
-   "p" : {
-    "Active" : true,
-    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Half Extents" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
-    "Surface" : "{ 9ab4d71a-48d7-421c-86b0-9955a5f61f0d }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xA12244A49ACC12418FDD5C2D59E01148" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0xED8D454364D0CD499704B893F7FE7798" }, { "$t" : "uuid", "$b" : "0x63F1F2C1DF19394AB9F361C4F012A80C" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(-53.7000, -3.0000, 9.1000)", "$b" : "0xCECC56C2000040C09A991141" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "",
-    "Tags" : [  ]
-   }
-  },
-  {
    "#" : { "$t" : "uuid", "$b" : "0x2759BFE5AFC6BE42A57980E5FEC9C47A" },
    "t" : "ezPxCharacterControllerComponent",
    "p" : {
@@ -177,13 +48,25 @@
    "t" : "ezGameObject",
    "p" : {
     "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x0C981F92CCCC3E4985876BC497CB9B6D" }, { "$t" : "uuid", "$b" : "0x0AFB7D7AF7FF0447AEA0FCC565D9BF11" } ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x0C981F92CCCC3E4985876BC497CB9B6D" }, { "$t" : "uuid", "$b" : "0x0AFB7D7AF7FF0447AEA0FCC565D9BF11" }, { "$t" : "uuid", "$b" : "0x130764A2F6E2E84DB59F5D56967C13F7" } ],
     "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "",
     "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x2B255A0D3166B0469C4D745DF6B403A8" },
+   "t" : "ezPointLightComponent",
+   "p" : {
+    "Active" : true,
+    "Cast Shadows" : false,
+    "Intensity" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Light Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" },
+    "Projected Texture" : "",
+    "Range" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" }
    }
   },
   {
@@ -228,20 +111,11 @@
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x7B1A186478C10148BF5641268B8EAEC4" },
-   "t" : "ezPxStaticActorComponent",
-   "p" : {
-    "Active" : true,
-    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Collision Mesh" : ""
-   }
-  },
-  {
    "#" : { "$t" : "uuid", "$b" : "0x20661DD8F4FC2948BF927787162B7CAD" },
    "t" : "ezGameObject",
    "p" : {
     "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x46E29EF620B0D447A9EF20F45DAD8895" } ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x46E29EF620B0D447A9EF20F45DAD8895" }, { "$t" : "uuid", "$b" : "0x2B255A0D3166B0469C4D745DF6B403A8" } ],
     "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(0.0250, 0.0250, 0.0250)", "$b" : "0xCDCCCC3CCDCCCC3CCDCCCC3C" },
@@ -261,34 +135,6 @@
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0xD680628D3DD17249B0230F48ABD2A89B" },
-   "t" : "ezPxSettingsComponent",
-   "p" : {
-    "Active" : true,
-    "Character Gravity" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, -10.0000)", "$b" : "0x0000000000000000000020C1" },
-    "Object Gravity" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, -10.0000)", "$b" : "0x0000000000000000000020C1" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xED8D454364D0CD499704B893F7FE7798" },
-   "t" : "ezMeshComponent",
-   "p" : {
-    "Active" : true,
-    "Materials" : [  ],
-    "Mesh" : "{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x63F1F2C1DF19394AB9F361C4F012A80C" },
-   "t" : "ezPxStaticActorComponent",
-   "p" : {
-    "Active" : true,
-    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Collision Mesh" : "{ 58d1a0fa-02fe-4436-a560-07cb68aa8cce }"
-   }
-  },
-  {
    "#" : { "$t" : "uuid", "$b" : "0x19DE4952D495A34ABAA8B4EC1D1E22D6" },
    "t" : "ezInputComponent",
    "p" : {
@@ -302,20 +148,7 @@
    "t" : "ezDocumentRoot",
    "n" : "ObjectTree",
    "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xE28EB66E4B66FD459872FCBD3D196E9C" }, { "$t" : "uuid", "$b" : "0xA3BC20670D78F0C8D319F9B161C3376F" }, { "$t" : "uuid", "$b" : "0x7E26282B20C2C884298BAD7D0E577B02" }, { "$t" : "uuid", "$b" : "0x7416F198E8F091D3BB799A496BA10F86" }, { "$t" : "uuid", "$b" : "0x395F6936591106C8C7A585465111FE41" }, { "$t" : "uuid", "$b" : "0xD888FAB2002FF50F7C07B824A9F0B267" }, { "$t" : "uuid", "$b" : "0x176FD1336031A217593E14D364C26C42" }, { "$t" : "uuid", "$b" : "0xB69862B0074F915F0EA046B1BCA12168" }, { "$t" : "uuid", "$b" : "0x7DC6AB880D14FD59E53FF2427905FB97" }, { "$t" : "uuid", "$b" : "0xACDAD7A4189627A0A460F4F579018D87" }, { "$t" : "uuid", "$b" : "0xCA1E7D91E7EEE34F84F3FC7917D256C3" }, { "$t" : "uuid", "$b" : "0xA12244A49ACC12418FDD5C2D59E01148" }, { "$t" : "uuid", "$b" : "0xBC4694EA43FCFCE85267991CA13CCC9E" }, { "$t" : "uuid", "$b" : "0xBE5DCAED6F67632AE9108D93B3F872E7" }, { "$t" : "uuid", "$b" : "0xE2C52BC0A23E2F7384C2F228D490F8D9" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x4425A27F8AB23B4B97932C9AD10C733D" },
-   "t" : "ezPxDynamicActorComponent",
-   "p" : {
-    "Active" : true,
-    "Angular Damping" : { "$t" : "float", "$v" : "0.0500", "$b" : "0xCDCC4C3D" },
-    "Density" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Disable Gravity" : false,
-    "Kinematic" : false,
-    "Linear Damping" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
-    "Mass" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" }
+    "Children" : [ { "$t" : "uuid", "$b" : "0xE28EB66E4B66FD459872FCBD3D196E9C" }, { "$t" : "uuid", "$b" : "0xA3BC20670D78F0C8D319F9B161C3376F" } ]
    }
   },
   {
@@ -326,7 +159,7 @@
     "AssetType" : "Scene",
     "Dependencies" : "",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x5D079F69E049C14CAE6B2A2B47BE2858" },
-    "Hash" : { "$t" : "uint64", "$v" : "14098004289849772324", "$b" : "0x24C96D0A352CA6C3" }
+    "Hash" : { "$t" : "uint64", "$v" : "10493317128897976182", "$b" : "0x76577C2F55C09F91" }
    }
   },
   {
@@ -344,274 +177,15 @@
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0xCA1E7D91E7EEE34F84F3FC7917D256C3" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0xD680628D3DD17249B0230F48ABD2A89B" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "Settings",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x7DC6AB880D14FD59E53FF2427905FB97" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x78231F68B237275EF705F5FA935273BA" }, { "$t" : "uuid", "$b" : "0x11897728E4391460C8D9E6EBE0DAA494" }, { "$t" : "uuid", "$b" : "0x4425A27F8AB23B4B97932C9AD10C733D" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(1.1107, -3.4865, 2.1113)", "$b" : "0x522B8E3F28225FC038200740" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0xEE8384BE00000000985C42B2EA46773F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x78231F68B237275EF705F5FA935273BA" },
-   "t" : "ezMeshComponent",
+   "#" : { "$t" : "uuid", "$b" : "0x130764A2F6E2E84DB59F5D56967C13F7" },
+   "t" : "ezPointLightComponent",
    "p" : {
     "Active" : true,
-    "Materials" : [  ],
-    "Mesh" : "{ 02caa120-1cb7-4f37-9782-4d7a45688459 }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xB69862B0074F915F0EA046B1BCA12168" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0xB1F5D58FAC72BB6320664969D7EE998A" }, { "$t" : "uuid", "$b" : "0x4A5B2E50DE74A865F1393B5A2477CB64" }, { "$t" : "uuid", "$b" : "0xF85311DE26FF8CDF06510291F61ED2EA" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(1.5107, -4.0365, 0.2195)", "$b" : "0x865EC13FAE2A81C024C0603E" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0xEE8384BE00000000985C42B2EA46773F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x11897728E4391460C8D9E6EBE0DAA494" },
-   "t" : "ezPxShapeBoxComponent",
-   "p" : {
-    "Active" : true,
-    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Half Extents" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
-    "Surface" : "{ 9ab4d71a-48d7-421c-86b0-9955a5f61f0d }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xB1F5D58FAC72BB6320664969D7EE998A" },
-   "t" : "ezMeshComponent",
-   "p" : {
-    "Active" : true,
-    "Materials" : [  ],
-    "Mesh" : "{ 02caa120-1cb7-4f37-9782-4d7a45688459 }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xA92422B71FDD6D6436162D802C98707F" },
-   "t" : "ezPxDynamicActorComponent",
-   "p" : {
-    "Active" : true,
-    "Angular Damping" : { "$t" : "float", "$v" : "0.0500", "$b" : "0xCDCC4C3D" },
-    "Density" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Disable Gravity" : false,
-    "Kinematic" : false,
-    "Linear Damping" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
-    "Mass" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x4A5B2E50DE74A865F1393B5A2477CB64" },
-   "t" : "ezPxShapeBoxComponent",
-   "p" : {
-    "Active" : true,
-    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Half Extents" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
-    "Surface" : "{ 9ab4d71a-48d7-421c-86b0-9955a5f61f0d }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xE2C52BC0A23E2F7384C2F228D490F8D9" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0xDD229F9F476259779688F5E0EEDD70FC" }, { "$t" : "uuid", "$b" : "0x7688F75F79644679675CE7D13B66A2D6" }, { "$t" : "uuid", "$b" : "0xA92422B71FDD6D6436162D802C98707F" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(-29.3644, 1.1558, 15.2538)", "$b" : "0x57EAEAC1DCF2933FBE0F7441" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0xEE8384BE00000000985C42B2EA46773F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xDD229F9F476259779688F5E0EEDD70FC" },
-   "t" : "ezMeshComponent",
-   "p" : {
-    "Active" : true,
-    "Materials" : [  ],
-    "Mesh" : "{ 02caa120-1cb7-4f37-9782-4d7a45688459 }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x7688F75F79644679675CE7D13B66A2D6" },
-   "t" : "ezPxShapeBoxComponent",
-   "p" : {
-    "Active" : true,
-    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Half Extents" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
-    "Surface" : "{ 9ab4d71a-48d7-421c-86b0-9955a5f61f0d }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x7E26282B20C2C884298BAD7D0E577B02" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x79839B0AC5E5F2883B51B03529A4F324" }, { "$t" : "uuid", "$b" : "0x8E69B55BF4813B8623A22B70BE4B3F8A" }, { "$t" : "uuid", "$b" : "0x12E9F3CAF6E7DF8A0C25A226762C25FF" }, { "$t" : "uuid", "$b" : "0x030260DAEA0F52853725CE2417E14F96" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(-1.0893, -4.8704, -0.8805)", "$b" : "0x486E8BBF9ADA9BC0916961BF" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x030260DAEA0F52853725CE2417E14F96" },
-   "t" : "ezSliderComponent",
-   "p" : {
-    "Acceleration" : { "$t" : "float", "$v" : "20.0000", "$b" : "0x0000A041" },
-    "Active" : true,
-    "Auto-Toggle Direction" : false,
-    "Axis" : "ezBasisAxis::PositiveZ",
-    "Deceleration" : { "$t" : "float", "$v" : "20.0000", "$b" : "0x0000A041" },
-    "Distance" : { "$t" : "float", "$v" : "3.0000", "$b" : "0x00004040" },
-    "Reverse at End" : true,
-    "Reverse at Start" : true,
-    "Run at Startup" : true,
-    "Speed" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x8E69B55BF4813B8623A22B70BE4B3F8A" },
-   "t" : "ezPxDynamicActorComponent",
-   "p" : {
-    "Active" : true,
-    "Angular Damping" : { "$t" : "float", "$v" : "0.0500", "$b" : "0xCDCC4C3D" },
-    "Density" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Disable Gravity" : false,
-    "Kinematic" : true,
-    "Linear Damping" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
-    "Mass" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x79839B0AC5E5F2883B51B03529A4F324" },
-   "t" : "ezMeshComponent",
-   "p" : {
-    "Active" : true,
-    "Materials" : [  ],
-    "Mesh" : "{ 02caa120-1cb7-4f37-9782-4d7a45688459 }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x12E9F3CAF6E7DF8A0C25A226762C25FF" },
-   "t" : "ezPxShapeBoxComponent",
-   "p" : {
-    "Active" : true,
-    "Collision Layer" : { "$t" : "uint32", "$v" : "4", "$b" : "0x04000000" },
-    "Half Extents" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
-    "Surface" : ""
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x1A44A9E01FDFF08F74B87304E36D63EA" },
-   "t" : "ezPxStaticActorComponent",
-   "p" : {
-    "Active" : true,
-    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Collision Mesh" : ""
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x7339CE9B9534669156B42E4DD208052D" },
-   "t" : "ezPxDynamicActorComponent",
-   "p" : {
-    "Active" : true,
-    "Angular Damping" : { "$t" : "float", "$v" : "0.0500", "$b" : "0xCDCC4C3D" },
-    "Density" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Disable Gravity" : false,
-    "Kinematic" : false,
-    "Linear Damping" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
-    "Mass" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x592A80617FE19D9751EFCFB29E3F1DC5" },
-   "t" : "ezPxStaticActorComponent",
-   "p" : {
-    "Active" : true,
-    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Collision Mesh" : ""
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xACDAD7A4189627A0A460F4F579018D87" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0xA7374B84BDB951A4B626F7AD944E05AA" }, { "$t" : "uuid", "$b" : "0x409DA344EFBB3EA687FAE89EE1D63684" }, { "$t" : "uuid", "$b" : "0x7339CE9B9534669156B42E4DD208052D" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(-0.5893, -2.1865, 3.4238)", "$b" : "0x8FDC16BFF5EE0BC0291F5B40" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0xEE8384BE00000000985C42B2EA46773F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xA7374B84BDB951A4B626F7AD944E05AA" },
-   "t" : "ezMeshComponent",
-   "p" : {
-    "Active" : true,
-    "Materials" : [  ],
-    "Mesh" : "{ 02caa120-1cb7-4f37-9782-4d7a45688459 }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x409DA344EFBB3EA687FAE89EE1D63684" },
-   "t" : "ezPxShapeBoxComponent",
-   "p" : {
-    "Active" : true,
-    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Half Extents" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
-    "Surface" : "{ 9ab4d71a-48d7-421c-86b0-9955a5f61f0d }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x395F6936591106C8C7A585465111FE41" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x34BCDC15FE3430CCD96B88FE6B5E7664" }, { "$t" : "uuid", "$b" : "0xCD2135D62F371DCEAA3F7AEFB8E6A73E" }, { "$t" : "uuid", "$b" : "0x7B1A186478C10148BF5641268B8EAEC4" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.6107, -3.1704, -0.2805)", "$b" : "0xA4561C3F67E84AC0EE9F8FBE" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0xEE8384BE00000000985C42B2EA46773F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "",
-    "Tags" : [  ]
+    "Cast Shadows" : false,
+    "Intensity" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Light Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" },
+    "Projected Texture" : "",
+    "Range" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" }
    }
   },
   {
@@ -626,145 +200,6 @@
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "Ship",
     "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x34BCDC15FE3430CCD96B88FE6B5E7664" },
-   "t" : "ezMeshComponent",
-   "p" : {
-    "Active" : true,
-    "Materials" : [  ],
-    "Mesh" : "{ 02caa120-1cb7-4f37-9782-4d7a45688459 }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xCD2135D62F371DCEAA3F7AEFB8E6A73E" },
-   "t" : "ezPxShapeBoxComponent",
-   "p" : {
-    "Active" : true,
-    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Half Extents" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
-    "Surface" : "{ 9ab4d71a-48d7-421c-86b0-9955a5f61f0d }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x7416F198E8F091D3BB799A496BA10F86" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x6F7364788D14BCD7CD3F9D0186EE87A8" }, { "$t" : "uuid", "$b" : "0x84597EC9BCB004D5B590183C1B96D30D" }, { "$t" : "uuid", "$b" : "0x08D9BC38BF16A9D99E138FF2D276B982" }, { "$t" : "uuid", "$b" : "0xF9F12848B33E1BD4C913BBF0732BE419" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.7107, -12.7704, -0.8805)", "$b" : "0x3EF0353FB4534CC1916961BF" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xF9F12848B33E1BD4C913BBF0732BE419" },
-   "t" : "ezSliderComponent",
-   "p" : {
-    "Acceleration" : { "$t" : "float", "$v" : "20.0000", "$b" : "0x0000A041" },
-    "Active" : true,
-    "Auto-Toggle Direction" : false,
-    "Axis" : "ezBasisAxis::PositiveZ",
-    "Deceleration" : { "$t" : "float", "$v" : "20.0000", "$b" : "0x0000A041" },
-    "Distance" : { "$t" : "float", "$v" : "3.0000", "$b" : "0x00004040" },
-    "Reverse at End" : true,
-    "Reverse at Start" : true,
-    "Run at Startup" : true,
-    "Speed" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x84597EC9BCB004D5B590183C1B96D30D" },
-   "t" : "ezPxDynamicActorComponent",
-   "p" : {
-    "Active" : true,
-    "Angular Damping" : { "$t" : "float", "$v" : "0.0500", "$b" : "0xCDCC4C3D" },
-    "Density" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Disable Gravity" : false,
-    "Kinematic" : true,
-    "Linear Damping" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
-    "Mass" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x6F7364788D14BCD7CD3F9D0186EE87A8" },
-   "t" : "ezMeshComponent",
-   "p" : {
-    "Active" : true,
-    "Materials" : [  ],
-    "Mesh" : "{ 02caa120-1cb7-4f37-9782-4d7a45688459 }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x08D9BC38BF16A9D99E138FF2D276B982" },
-   "t" : "ezPxShapeBoxComponent",
-   "p" : {
-    "Active" : true,
-    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Half Extents" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
-    "Surface" : ""
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x83A58AE1C09A3BDA04BBD373F9434444" },
-   "t" : "ezPxDynamicActorComponent",
-   "p" : {
-    "Active" : true,
-    "Angular Damping" : { "$t" : "float", "$v" : "0.0500", "$b" : "0xCDCC4C3D" },
-    "Density" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Disable Gravity" : false,
-    "Kinematic" : false,
-    "Linear Damping" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
-    "Mass" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xF85311DE26FF8CDF06510291F61ED2EA" },
-   "t" : "ezPxStaticActorComponent",
-   "p" : {
-    "Active" : true,
-    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Collision Mesh" : ""
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xBC4694EA43FCFCE85267991CA13CCC9E" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0xB7A307CAE81F27ED642D9CD4BB8944C1" }, { "$t" : "uuid", "$b" : "0x5009608A1A2214EF35018EC50812769B" }, { "$t" : "uuid", "$b" : "0x83A58AE1C09A3BDA04BBD373F9434444" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(-23.8644, 4.0558, 15.1538)", "$b" : "0x56EABEC184C9814024767241" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0xEE8384BE00000000985C42B2EA46773F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Name" : "",
-    "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xB7A307CAE81F27ED642D9CD4BB8944C1" },
-   "t" : "ezMeshComponent",
-   "p" : {
-    "Active" : true,
-    "Materials" : [  ],
-    "Mesh" : "{ 02caa120-1cb7-4f37-9782-4d7a45688459 }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x5009608A1A2214EF35018EC50812769B" },
-   "t" : "ezPxShapeBoxComponent",
-   "p" : {
-    "Active" : true,
-    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Half Extents" : { "$t" : "vec3", "$v" : "(0.5000, 0.5000, 0.5000)", "$b" : "0x0000003F0000003F0000003F" },
-    "Surface" : "{ 9ab4d71a-48d7-421c-86b0-9955a5f61f0d }"
    }
   } ]
 }

@@ -10,6 +10,9 @@
 #include <QGridLayout>
 #include <QLabel>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
+#include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
+#include <GuiFoundation/PropertyGrid/Implementation/ManipulatorLabel.moc.h>
+#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 
 ezTypeWidget::ezTypeWidget(QWidget* pParent, ezPropertyGridWidget* pGrid, const ezRTTI* pType, ezPropertyPath& parentPath)
   : QWidget(pParent)
@@ -26,21 +29,20 @@ ezTypeWidget::ezTypeWidget(QWidget* pParent, ezPropertyGridWidget* pGrid, const 
   m_pLayout->setSpacing(0);
   setLayout(m_pLayout);
 
-
   m_pGrid->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezTypeWidget::PropertyEventHandler, this));
   m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezTypeWidget::CommandHistoryEventHandler, this));
+  ezManipulatorManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezTypeWidget::ManipulatorManagerEventHandler, this));
 
   ezPropertyPath ParentPath = m_ParentPath;
 
   BuildUI(pType, ParentPath);
-
-  UpdatePropertyMetaState();
 }
 
 ezTypeWidget::~ezTypeWidget()
 {
   m_pGrid->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezTypeWidget::PropertyEventHandler, this));
   m_pGrid->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezTypeWidget::CommandHistoryEventHandler, this));
+  ezManipulatorManager::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezTypeWidget::ManipulatorManagerEventHandler, this));
 }
 
 void ezTypeWidget::SetSelection(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items)
@@ -52,18 +54,34 @@ void ezTypeWidget::SetSelection(const ezHybridArray<ezQtPropertyWidget::Selectio
   for (auto it = m_PropertyWidgets.GetIterator(); it.IsValid(); ++it)
   {
     it.Value().m_pWidget->SetSelection(m_Items);
+
+    if (it.Value().m_pLabel)
+    {
+      it.Value().m_pLabel->SetSelection(m_Items);
+    }
   }
 
   UpdatePropertyMetaState();
+
+  for (auto it = m_PropertyWidgets.GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Value().m_pLabel)
+      it.Value().m_pLabel->SetSelection(m_Items);
+  }
+
+  ezManipulatorManagerEvent e;
+  e.m_pDocument = m_pGrid->GetDocument();
+  e.m_pManipulator = ezManipulatorManager::GetSingleton()->GetActiveManipulator(e.m_pDocument, e.m_pSelection);
+  ManipulatorManagerEventHandler(e);
 }
 
-void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath)
+void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath, const ezMap<ezString, const ezManipulatorAttribute*>& manipulatorMap)
 {
   QtScopedUpdatesDisabled _(this);
 
   const ezRTTI* pParentType = pType->GetParentType();
   if (pParentType != nullptr)
-    BuildUI(pParentType, ParentPath);
+    BuildUI(pParentType, ParentPath, manipulatorMap);
 
   ezUInt32 iRows = m_pLayout->rowCount();
   for (ezUInt32 i = 0; i < pType->GetProperties().GetCount(); ++i)
@@ -94,13 +112,19 @@ void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath)
 
     if (pNewWidget->HasLabel())
     {
-      QLabel* pLabel = new QLabel(this);
+      ezManipulatorLabel* pLabel = new ezManipulatorLabel(this);
       pLabel->setText(QString::fromUtf8(pNewWidget->GetLabel()));
       pLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
       pLabel->setContentsMargins(18, 0, 0, 0); // 18 is a hacked value to align label with group boxes.
       pLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
       m_pLayout->addWidget(pLabel, iRows + i, 0, 1, 1);
       m_pLayout->addWidget(pNewWidget, iRows + i, 2, 1, 1);
+
+      auto itManip = manipulatorMap.Find(pProp->GetPropertyName());
+      if (itManip.IsValid())
+      {
+        pLabel->SetManipulator(itManip.Value());
+      }
 
       ref.m_pLabel = pLabel;
     }
@@ -111,6 +135,39 @@ void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath)
 
     ParentPath.PopBack();
   }
+}
+
+
+void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath)
+{
+  ezMap<ezString, const ezManipulatorAttribute*> manipulatorMap;
+
+  const ezRTTI* pParentType = pType;
+  while (pParentType != nullptr)
+  {
+    const auto& attr = pParentType->GetAttributes();
+
+    for (ezPropertyAttribute* pAttr : attr)
+    {
+      if (pAttr->GetDynamicRTTI()->IsDerivedFrom<ezManipulatorAttribute>())
+      {
+        const ezManipulatorAttribute* pManipAttr = static_cast<const ezManipulatorAttribute*>(pAttr);
+
+        if (!pManipAttr->m_sProperty1.IsEmpty())
+          manipulatorMap[pManipAttr->m_sProperty1] = pManipAttr;
+        if (!pManipAttr->m_sProperty2.IsEmpty())
+          manipulatorMap[pManipAttr->m_sProperty2] = pManipAttr;
+        if (!pManipAttr->m_sProperty3.IsEmpty())
+          manipulatorMap[pManipAttr->m_sProperty3] = pManipAttr;
+        if (!pManipAttr->m_sProperty4.IsEmpty())
+          manipulatorMap[pManipAttr->m_sProperty4] = pManipAttr;
+      }
+    }
+
+    pParentType = pParentType->GetParentType();
+  }
+
+  BuildUI(pType, ParentPath, manipulatorMap);
 }
 
 void ezTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
@@ -186,6 +243,31 @@ void ezTypeWidget::CommandHistoryEventHandler(const ezCommandHistory::Event& e)
     }
     break;
   }
+}
+
+
+void ezTypeWidget::ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e)
+{
+  if (m_pGrid->GetDocument() != e.m_pDocument)
+    return;
+
+  bool bActiveOnThis = (e.m_pSelection != nullptr) && (m_Items == *e.m_pSelection);
+  
+  for (auto it = m_PropertyWidgets.GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Value().m_pLabel)
+    {
+      if (bActiveOnThis && e.m_pManipulator == it.Value().m_pLabel->GetManipulator())
+      {
+        it.Value().m_pLabel->SetManipulatorActive(true);
+      }
+      else
+      {
+        it.Value().m_pLabel->SetManipulatorActive(false);
+      }
+    }
+  }
+
 }
 
 void ezTypeWidget::UpdateProperty(const ezDocumentObject* pObject, const ezString& sProperty)

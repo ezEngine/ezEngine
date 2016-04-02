@@ -32,7 +32,7 @@ struct ezPropertyMetaStateEvent
   ezMap<ezString, ezPropertyUiState>* m_pPropertyStates;
 };
 
-class ezPropertyMetaState
+class EZ_GUIFOUNDATION_DLL ezPropertyMetaState
 {
   EZ_DECLARE_SINGLETON(ezPropertyMetaState);
 

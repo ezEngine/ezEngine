@@ -54,7 +54,7 @@ private:
   static void RemoveStorageAccessor(ezReflectedTypeStorageAccessor* pInstance);
 
   static ReflectedTypeStorageMapping* GetTypeStorageMapping(const ezRTTI* pType);
-  static void TypeEventHandler(const ezPhantomRttiManager::Event& e);
+  static void TypeEventHandler(const ezPhantomRttiManagerEvent& e);
 
 private:
   static ezMap<const ezRTTI*, ReflectedTypeStorageMapping*> m_ReflectedTypeToStorageMapping;
