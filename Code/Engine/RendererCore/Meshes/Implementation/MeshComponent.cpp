@@ -109,7 +109,7 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
     }
 
     // Determine render data category. TODO: get category from material
-    ezRenderData::Category category = ezDefaultRenderDataCategories::Opaque;
+    ezRenderData::Category category = ezDefaultRenderDataCategories::LitOpaque;
     if (m_RenderDataCategory != ezInvalidIndex)
     {
       category = m_RenderDataCategory;

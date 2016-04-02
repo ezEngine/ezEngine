@@ -70,9 +70,7 @@ void ezSelectedObjectsExtractor::Extract(const ezView& view, ezExtractedRenderDa
   msg.m_pExtractedRenderData = pExtractedRenderData;
   msg.m_OverrideCategory = m_OverrideCategory;
 
-  /// \todo Move this into an editor specific extractor
   auto exclFlags = view.m_ExcludeTags;
-  exclFlags.RemoveByName("EditorSelected");
 
   EZ_LOCK(view.GetWorld()->GetReadMarker());
 

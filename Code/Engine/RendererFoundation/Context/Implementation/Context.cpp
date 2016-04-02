@@ -271,10 +271,8 @@ void ezGALContext::SetConstantBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer)
 
   ezGALBuffer* pBuffer = nullptr;
   m_pDevice->m_Buffers.TryGetValue(hBuffer, pBuffer);
-  // Assert on constant buffer type (if non-zero)
-  // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transformfeedback/indirect-draw/...)
-
-  /// \todo Get buffer by handle
+  EZ_ASSERT_DEV(pBuffer == nullptr || pBuffer->GetDescription().m_BufferType == ezGALBufferType::ConstantBuffer, "Wrong buffer type");
+  
   SetConstantBufferPlatform(uiSlot, pBuffer);
 
   m_State.m_hConstantBuffers[uiSlot] = hBuffer;
@@ -426,43 +424,38 @@ void ezGALContext::SetRasterizerState(ezGALRasterizerStateHandle hRasterizerStat
   CountStateChange();
 }
 
-void ezGALContext::SetViewport(float fX, float fY, float fWidth, float fHeight, float fMinDepth, float fMaxDepth)
+void ezGALContext::SetViewport(const ezRectFloat& rect, float fMinDepth, float fMaxDepth)
 {
   AssertRenderingThread();
 
-  const ezRectFloat& CurrentRect = m_State.m_ViewPortRect;
-
-  // Epsilon compare necessary? Recommended?
-  if (CurrentRect.x == fX && CurrentRect.y == fY && CurrentRect.width == fWidth && CurrentRect.height == fHeight && m_State.m_fViewPortMinDepth == fMinDepth && m_State.m_fViewPortMaxDepth == fMaxDepth)
+  if (m_State.m_ViewPortRect == rect && m_State.m_fViewPortMinDepth == fMinDepth && m_State.m_fViewPortMaxDepth == fMaxDepth)
   {
     CountRedundantStateChange();
     return;
   }
 
-  SetViewportPlatform(fX, fY, fWidth, fHeight, fMinDepth, fMaxDepth);
+  SetViewportPlatform(rect, fMinDepth, fMaxDepth);
 
-  m_State.m_ViewPortRect = ezRectFloat(fX, fY, fWidth, fHeight);
+  m_State.m_ViewPortRect = rect;
   m_State.m_fViewPortMinDepth = fMinDepth;
   m_State.m_fViewPortMaxDepth = fMaxDepth;
 
   CountStateChange();
 }
 
-void ezGALContext::SetScissorRect(ezUInt32 uiX, ezUInt32 uiY, ezUInt32 uiWidth, ezUInt32 uiHeight)
+void ezGALContext::SetScissorRect(const ezRectU32& rect)
 {
   AssertRenderingThread();
 
-  const ezRectU32& CurrentRect = m_State.m_ScissorRect;
-
-  if (CurrentRect.x == uiX && CurrentRect.y == uiY && CurrentRect.width == uiWidth && CurrentRect.height == uiHeight)
+  if (m_State.m_ScissorRect == rect)
   {
     CountRedundantStateChange();
     return;
   }
 
-  SetScissorRectPlatform(uiX, uiY, uiWidth, uiHeight);
+  SetScissorRectPlatform(rect);
 
-  m_State.m_ScissorRect = ezRectU32(uiX, uiY, uiWidth, uiHeight);
+  m_State.m_ScissorRect = rect;
 
   CountStateChange();
 }

@@ -2,7 +2,7 @@
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/Pipeline/TargetPass.h>
+#include <RendererCore/Pipeline/Passes/TargetPass.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
@@ -887,10 +887,10 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
   m_CurrentRenderThread = (ezThreadID)0;
 }
 
-ezArrayPtr< const ezRenderDataBatch > ezRenderPipeline::GetRenderDataBatchesWithCategory(ezRenderData::Category category) const
+ezRenderDataBatchList ezRenderPipeline::GetRenderDataBatchesWithCategory(ezRenderData::Category category, ezRenderDataBatch::Filter filter) const
 {
   auto& data = m_Data[ezRenderLoop::GetDataIndexForRendering()];
-  return data.GetRenderDataBatchesWithCategory(category);
+  return data.GetRenderDataBatchesWithCategory(category, filter);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipeline);

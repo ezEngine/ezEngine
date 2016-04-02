@@ -78,12 +78,16 @@ void ezExtractedRenderData::Clear()
   // TODO: intelligent compact
 }
 
-ezArrayPtr< const ezRenderDataBatch > ezExtractedRenderData::GetRenderDataBatchesWithCategory(ezRenderData::Category category) const
+ezRenderDataBatchList ezExtractedRenderData::GetRenderDataBatchesWithCategory(ezRenderData::Category category, ezRenderDataBatch::Filter filter) const
 {
   if (m_DataPerCategory.GetCount() > category)
   {
-    return m_DataPerCategory[category].m_Batches;
+    ezRenderDataBatchList list;
+    list.m_Batches = m_DataPerCategory[category].m_Batches;
+    list.m_Filter = filter;
+
+    return list;
   }
 
-  return ezArrayPtr< const ezRenderDataBatch >();
+  return ezRenderDataBatchList();
 }

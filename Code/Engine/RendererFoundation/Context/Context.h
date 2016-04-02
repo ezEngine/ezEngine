@@ -76,9 +76,9 @@ public:
 
   void SetRasterizerState(ezGALRasterizerStateHandle hRasterizerState);
 
-  void SetViewport(float fX, float fY, float fWidth, float fHeight, float fMinDepth, float fMaxDepth);
+  void SetViewport(const ezRectFloat& rect, float fMinDepth = 0.0f, float fMaxDepth = 1.0f);
 
-  void SetScissorRect(ezUInt32 uiX, ezUInt32 uiY, ezUInt32 uiWidth, ezUInt32 uiHeight);
+  void SetScissorRect(const ezRectU32& rect);
 
   void SetStreamOutBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer, ezUInt32 uiOffset);
 
@@ -189,9 +189,9 @@ protected:
 
   virtual void SetRasterizerStatePlatform(ezGALRasterizerState* pRasterizerState) = 0;
 
-  virtual void SetViewportPlatform(float fX, float fY, float fWidth, float fHeight, float fMinDepth, float fMaxDepth) = 0;
+  virtual void SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth) = 0;
 
-  virtual void SetScissorRectPlatform(ezUInt32 uiX, ezUInt32 uiY, ezUInt32 uiWidth, ezUInt32 uiHeight) = 0;
+  virtual void SetScissorRectPlatform(const ezRectU32& rect) = 0;
 
   virtual void SetStreamOutBufferPlatform(ezUInt32 uiSlot, ezGALBuffer* pBuffer, ezUInt32 uiOffset) = 0;
 

@@ -62,12 +62,6 @@ ezResourceLoadDesc ezTextureResource::UnloadData(Unload WhatToUnload)
     {
       --m_uiLoadedTextures;
 
-      if (!m_hGALTexView[m_uiLoadedTextures].IsInvalidated())
-      {
-        ezGALDevice::GetDefaultDevice()->DestroyResourceView(m_hGALTexView[m_uiLoadedTextures]);
-        m_hGALTexView[m_uiLoadedTextures].Invalidate();
-      }
-
       if (!m_hGALTexture[m_uiLoadedTextures].IsInvalidated())
       {
         ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hGALTexture[m_uiLoadedTextures]);
@@ -284,7 +278,7 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReader* Stream)
   TexDesc.m_uiWidth = pImage->GetWidth(uiHighestMipLevel);
   TexDesc.m_uiHeight = pImage->GetHeight(uiHighestMipLevel);
   TexDesc.m_uiDepth = pImage->GetDepth(uiHighestMipLevel);
-  TexDesc.m_uiMipSliceCount = uiNumMipLevels;
+  TexDesc.m_uiMipLevelCount = uiNumMipLevels;
   TexDesc.m_uiArraySize = pImage->GetNumArrayIndices();
 
   if (TexDesc.m_uiDepth > 1)
@@ -370,13 +364,6 @@ ezResourceLoadDesc ezTextureResource::CreateResource(const ezTextureResourceDesc
 
   EZ_ASSERT_DEV(!m_hGALTexture[m_uiLoadedTextures].IsInvalidated(), "Texture Data could not be uploaded to the GPU");
 
-  ezGALResourceViewCreationDescription TexViewDesc;
-  TexViewDesc.m_hTexture = m_hGALTexture[m_uiLoadedTextures];
-
-  m_hGALTexView[m_uiLoadedTextures] = ezGALDevice::GetDefaultDevice()->CreateResourceView(TexViewDesc);
-
-  EZ_ASSERT_DEV(!m_hGALTexView[m_uiLoadedTextures].IsInvalidated(), "No resource view could be created for texture '%s'. Maybe the format table is incorrect?", GetResourceID().GetData());
-
   /// \todo HACK
   if (m_hSamplerState.IsInvalidated())
   {
@@ -385,7 +372,7 @@ ezResourceLoadDesc ezTextureResource::CreateResource(const ezTextureResourceDesc
     SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Point;
     SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Point;
 
-    if (descriptor.m_DescGAL.m_uiMipSliceCount > 1)
+    if (descriptor.m_DescGAL.m_uiMipLevelCount > 1)
     {
       SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Linear;
       SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Linear;

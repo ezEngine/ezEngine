@@ -54,10 +54,13 @@ void ezRenderContext::SetMaterialState(const ezMaterialResourceHandle& hMaterial
     {
       ezTempHashedString name(textureBinding.m_Name);
 
-      ezResourceLock<ezTextureResource> l(textureBinding.m_Value, ezResourceAcquireMode::AllowFallback);
+      ezResourceLock<ezTextureResource> pTexture(textureBinding.m_Value, ezResourceAcquireMode::AllowFallback);
+      ezGALResourceViewHandle hResourceView = ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(pTexture->GetGALTexture());
+      ezGALSamplerStateHandle hSamplerState = pTexture->GetGALSamplerState();
+
       for (int i = 0; i < ezGALShaderStage::ENUM_COUNT; i++)
       {
-        BindTexture((ezGALShaderStage::Enum)i, name, l->GetGALTextureView(), l->GetGALSamplerState());
+        BindTexture((ezGALShaderStage::Enum)i, name, hResourceView, hSamplerState);
       }
     }
 

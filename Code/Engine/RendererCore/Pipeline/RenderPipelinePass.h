@@ -6,6 +6,7 @@
 #include <Foundation/Types/UniquePtr.h>
 #include <CoreUtils/NodeGraph/Node.h>
 #include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Pipeline/RenderDataBatch.h>
 
 struct ezGALTextureCreationDescription;
 
@@ -63,7 +64,7 @@ public:
   /// \brief Allows for the pass to write data back using ezView::SetRenderPassReadBackProperty. E.g. picking results etc.
   virtual void ReadBackProperties(ezView* pView) {}
 
-  void RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category);
+  void RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter());
 
   EZ_FORCE_INLINE ezRenderPipeline* GetPipeline()
   {

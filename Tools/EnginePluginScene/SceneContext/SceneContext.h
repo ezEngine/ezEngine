@@ -42,9 +42,7 @@ private:
   void DrawSelectionBounds();
   void InsertSelectedChildren(const ezGameObject* pObject);
   void LoadShapeIconTextures();
-  void CreateSelectionBoxMesh();
   void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
-  void SetSelectionTag(bool bAddTag);
 
   bool m_bRenderSelectionOverlay;
   bool m_bRenderShapeIcons;

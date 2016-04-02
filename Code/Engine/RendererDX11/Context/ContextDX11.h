@@ -93,9 +93,9 @@ protected:
 
   virtual void SetRasterizerStatePlatform(ezGALRasterizerState* pRasterizerState) override;
 
-  virtual void SetViewportPlatform(float fX, float fY, float fWidth, float fHeight, float fMinDepth, float fMaxDepth) override;
+  virtual void SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth) override;
 
-  virtual void SetScissorRectPlatform(ezUInt32 uiX, ezUInt32 uiY, ezUInt32 uiWidth, ezUInt32 uiHeight) override;
+  virtual void SetScissorRectPlatform(const ezRectU32& rect) override;
 
   virtual void SetStreamOutBufferPlatform(ezUInt32 uiSlot, ezGALBuffer* pBuffer, ezUInt32 uiOffset) override;
 

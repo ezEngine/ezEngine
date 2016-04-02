@@ -2,10 +2,6 @@
 #include <GameFoundation/GameState/FallbackGameState.h>
 #include <GameFoundation/GameApplication/GameApplication.h>
 #include <Core/Input/InputManager.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/Pipeline/SimpleRenderPass.h>
-#include <RendererCore/Pipeline/TargetPass.h>
-#include <RendererCore/Pipeline/Extractor.h>
 #include <GameFoundation/GameApplication/InputConfig.h>
 #include <GameUtils/Components/CameraComponent.h>
 

@@ -18,6 +18,18 @@ EZ_FORCE_INLINE ezRectTemplate<Type>::ezRectTemplate(Type Width, Type Height)
 }
 
 template<typename Type>
+EZ_FORCE_INLINE bool ezRectTemplate<Type>::operator==(const ezRectTemplate<Type>& rhs) const
+{
+  return x == rhs.x && y == rhs.y && width == rhs.width && height == rhs.height;
+}
+
+template<typename Type>
+EZ_FORCE_INLINE bool ezRectTemplate<Type>::operator!=(const ezRectTemplate<Type>& rhs) const
+{
+  return !(*this == rhs);
+}
+
+template<typename Type>
 EZ_FORCE_INLINE bool ezRectTemplate<Type>::HasNonZeroArea() const
 {
   return (width > 0) && (height > 0);

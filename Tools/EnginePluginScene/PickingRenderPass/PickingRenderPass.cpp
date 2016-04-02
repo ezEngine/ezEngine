@@ -54,6 +54,8 @@ void ezPickingRenderPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipeli
   CreateTarget();
 }
 
+static ezHashTable<ezGameObjectHandle, ezUInt32> s_SelectionSet;
+
 void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
   const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
@@ -88,15 +90,30 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
-  pGALContext->SetViewport(viewPortRect.x, viewPortRect.y, viewPortRect.width, viewPortRect.height, 0.0f, 1.0f);
+  pGALContext->SetViewport(viewPortRect);
   pGALContext->SetRenderTargetSetup(m_RenderTargetSetup);
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f));
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING", "1");
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING_IGNORE_GIZMOS", !m_bPickSelected ? "1" : "0");
 
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Opaque);
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Masked);
+  // copy selection to set for faster checks
+  s_SelectionSet.Clear();
+
+  auto& selection = m_pSceneContext->GetSelection();
+  for (auto hObj : selection)
+  {
+    s_SelectionSet.Insert(hObj, 0);
+  }
+
+  // filter out all selected objects
+  ezRenderDataBatch::Filter filter([&](const ezRenderData* pRenderData) 
+  {
+    return s_SelectionSet.Contains(pRenderData->m_hOwner);
+  });
+
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque, filter);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked, filter);
 
   if (m_bPickSelected)
   {
@@ -139,8 +156,8 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   }
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0); // only clear depth
 
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Foreground1);
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Foreground2);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING", "0");
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_DEFAULT");
@@ -252,17 +269,8 @@ void ezPickingRenderPass::CreateTarget()
 
   m_hPickingDepthRT = pDevice->CreateTexture(tcd);
 
-  ezGALRenderTargetViewCreationDescription rtvd;
-  rtvd.m_hTexture = m_hPickingIdRT;
-  rtvd.m_RenderTargetType = ezGALRenderTargetType::Color;
-  m_hPickingIdRTV = pDevice->CreateRenderTargetView(rtvd);
-
-  rtvd.m_hTexture = m_hPickingDepthRT;
-  rtvd.m_RenderTargetType = ezGALRenderTargetType::DepthStencil;
-  m_hPickingDepthDSV = pDevice->CreateRenderTargetView(rtvd);
-
-  m_RenderTargetSetup.SetRenderTarget(0, m_hPickingIdRTV)
-    .SetDepthStencilTarget(m_hPickingDepthDSV);
+  m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hPickingIdRT))
+    .SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hPickingDepthRT));
 }
 
 void ezPickingRenderPass::DestroyTarget()

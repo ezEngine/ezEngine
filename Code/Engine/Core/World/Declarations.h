@@ -67,6 +67,21 @@ class ezGameObjectHandle
   friend class ezGameObject;
 };
 
+/// \brief HashHelper implementation so game object handles can be used as key in a hashtable.
+template <>
+struct ezHashHelper<ezGameObjectHandle>
+{
+  EZ_FORCE_INLINE static ezUInt32 Hash(ezGameObjectHandle value)
+  {
+    return value.GetInternalID().m_Data * 2654435761U;
+  }
+
+  EZ_FORCE_INLINE static bool Equal(ezGameObjectHandle a, ezGameObjectHandle b)
+  {
+    return a == b;
+  }
+};
+
 typedef ezGenericId<24, 8> ezGenericComponentId;
 
 /// \brief Internal component id used by ezComponentHandle.

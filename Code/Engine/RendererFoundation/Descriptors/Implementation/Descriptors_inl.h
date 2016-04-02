@@ -96,7 +96,7 @@ ezGALTextureCreationDescription::ezGALTextureCreationDescription()
     m_uiWidth(0),
     m_uiHeight(0),
     m_uiDepth(1),
-    m_uiMipSliceCount(1),
+    m_uiMipLevelCount(1),
     m_uiArraySize(1),
     m_SampleCount(ezGALMSAASampleCount::None),
     m_Format(ezGALResourceFormat::Invalid),
@@ -129,10 +129,8 @@ ezGALResourceViewCreationDescription::ezGALResourceViewCreationDescription()
 ezGALRenderTargetViewCreationDescription::ezGALRenderTargetViewCreationDescription()
   : ezHashableStruct(),
     m_hTexture(),
-    m_hBuffer(),
-    m_RenderTargetType(ezGALRenderTargetType::Color),
     m_OverrideViewFormat(ezGALResourceFormat::Invalid),
-    m_uiMipSlice(0),
+    m_uiMipLevel(0),
     m_uiFirstSlice(0),
     m_uiSliceCount(1),
     m_bReadOnly(false)

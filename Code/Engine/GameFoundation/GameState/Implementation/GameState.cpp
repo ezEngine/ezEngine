@@ -3,10 +3,10 @@
 #include <GameFoundation/GameState/GameState.h>
 #include <GameFoundation/GameState/GameStateWindow.h>
 #include <GameFoundation/GameApplication/GameApplication.h>
-#include <RendererCore/Debug/DebugRenderPass.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/Pipeline/SimpleRenderPass.h>
-#include <RendererCore/Pipeline/TargetPass.h>
+#include <RendererCore/Pipeline/Passes/ForwardRenderPass.h>
+#include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
+#include <RendererCore/Pipeline/Passes/TargetPass.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
@@ -46,7 +46,8 @@ void ezGameState::OnActivation(ezWorld* pWorld)
   CreateMainWindow();
 
   const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_hMainSwapChain);
-  SetupMainView(pSwapChain->GetBackBufferRenderTargetView(), pSwapChain->GetDepthStencilTargetView());
+  SetupMainView(ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(pSwapChain->GetBackBufferTexture()), 
+    ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(pSwapChain->GetDepthStencilBufferTexture()));
 
   ConfigureMainCamera();
 
@@ -134,22 +135,20 @@ ezRenderPipelineResourceHandle ezGameState::CreateMainRenderPipeline()
 
   ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
 
-  ezSimpleRenderPass* pSimplePass = nullptr;
+  ezForwardRenderPass* pForwardPass = nullptr;
   {
-    ezUniquePtr<ezSimpleRenderPass> pPass = EZ_DEFAULT_NEW(ezSimpleRenderPass);
-    pSimplePass = pPass.Borrow();
+    ezUniquePtr<ezForwardRenderPass> pPass = EZ_DEFAULT_NEW(ezForwardRenderPass);
+    pForwardPass = pPass.Borrow();
 
-    pSimplePass->SetName("Bernd");
-    pSimplePass->AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
-    pSimplePass->AddRenderer(EZ_DEFAULT_NEW(ezLightGatheringRenderer));
+    pForwardPass->AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
 
     pRenderPipeline->AddPass(std::move(pPass));
   }
 
-  ezDebugRenderPass* pDebugPass = nullptr;
+  ezSimpleRenderPass* pSimplePass = nullptr;
   {
-    ezUniquePtr<ezDebugRenderPass> pPass = EZ_DEFAULT_NEW(ezDebugRenderPass);
-    pDebugPass = pPass.Borrow();
+    ezUniquePtr<ezSimpleRenderPass> pPass = EZ_DEFAULT_NEW(ezSimpleRenderPass);
+    pSimplePass = pPass.Borrow();
     pRenderPipeline->AddPass(std::move(pPass));
   }
 
@@ -160,11 +159,11 @@ ezRenderPipelineResourceHandle ezGameState::CreateMainRenderPipeline()
     pRenderPipeline->AddPass(std::move(pPass));
   }
 
-  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "Color", pDebugPass, "Color"), "Connect failed!");
-  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "DepthStencil", pDebugPass, "DepthStencil"), "Connect failed!");
+  EZ_VERIFY(pRenderPipeline->Connect(pForwardPass, "Color", pSimplePass, "Color"), "Connect failed!");
+  EZ_VERIFY(pRenderPipeline->Connect(pForwardPass, "DepthStencil", pSimplePass, "DepthStencil"), "Connect failed!");
 
-  EZ_VERIFY(pRenderPipeline->Connect(pDebugPass, "Color", pTargetPass, "Color0"), "Connect failed!");
-  EZ_VERIFY(pRenderPipeline->Connect(pDebugPass, "DepthStencil", pTargetPass, "DepthStencil"), "Connect failed!");
+  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "Color", pTargetPass, "Color0"), "Connect failed!");
+  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "DepthStencil", pTargetPass, "DepthStencil"), "Connect failed!");
 
   pRenderPipeline->AddExtractor(EZ_DEFAULT_NEW(ezVisibleObjectsExtractor));
 

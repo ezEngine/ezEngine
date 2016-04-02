@@ -349,21 +349,26 @@ void ezGALContextDX11::SetRasterizerStatePlatform(ezGALRasterizerState* pRasteri
   m_pDXContext->RSSetState(pRasterizerState != nullptr ? static_cast<ezGALRasterizerStateDX11*>(pRasterizerState)->GetDXRasterizerState() : nullptr);
 }
 
-void ezGALContextDX11::SetViewportPlatform(float fX, float fY, float fWidth, float fHeight, float fMinDepth, float fMaxDepth)
+void ezGALContextDX11::SetViewportPlatform(const ezRectFloat& rect, float fMinDepth, float fMaxDepth)
 {
   D3D11_VIEWPORT Viewport;
-  Viewport.TopLeftX = fX; Viewport.TopLeftY = fY;
-  Viewport.Width = fWidth; Viewport.Height = fHeight;
-  Viewport.MinDepth = fMinDepth; Viewport.MaxDepth = fMaxDepth;
+  Viewport.TopLeftX = rect.x;
+  Viewport.TopLeftY = rect.y;
+  Viewport.Width = rect.width;
+  Viewport.Height = rect.height;
+  Viewport.MinDepth = fMinDepth;
+  Viewport.MaxDepth = fMaxDepth;
 
   m_pDXContext->RSSetViewports(1, &Viewport);
 }
 
-void ezGALContextDX11::SetScissorRectPlatform(ezUInt32 uiX, ezUInt32 uiY, ezUInt32 uiWidth, ezUInt32 uiHeight)
+void ezGALContextDX11::SetScissorRectPlatform(const ezRectU32& rect)
 {
   D3D11_RECT ScissorRect;
-  ScissorRect.left = uiX; ScissorRect.top = uiY;
-  ScissorRect.right = uiX + uiWidth; ScissorRect.bottom = uiY + uiHeight;
+  ScissorRect.left = rect.x;
+  ScissorRect.top = rect.y;
+  ScissorRect.right = rect.x + rect.width;
+  ScissorRect.bottom = rect.y + rect.height;
 
   m_pDXContext->RSSetScissorRects(1, &ScissorRect);
 }

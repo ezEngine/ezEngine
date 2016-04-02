@@ -2,11 +2,6 @@
 #include <CoreUtils/Graphics/Camera.h>
 
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/Pipeline/Extractor.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/Pipeline/SimpleRenderPass.h>
-#include <RendererCore/Pipeline/TargetPass.h>
-#include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/Textures/TextureResource.h>
 #include <RendererCore/Material/MaterialResource.h>
 
@@ -33,7 +28,7 @@ void SimpleMeshRendererGameState::CreateGameLevel()
 
   // World Mesh
   {
-	  m_pMainWorld->CreateObject(obj, pObj);
+    m_pMainWorld->CreateObject(obj, pObj);
     
     pMeshCompMan->CreateComponent(pMesh);
     pMesh->SetMesh(hMesh);
@@ -44,7 +39,7 @@ void SimpleMeshRendererGameState::CreateGameLevel()
   {
     obj.m_LocalScaling.Set(0.5f);
     obj.m_LocalPosition.y = -5;
-	m_pMainWorld->CreateObject(obj, pObj);
+    m_pMainWorld->CreateObject(obj, pObj);
 
     pMeshCompMan->CreateComponent(pMesh);
     pMesh->SetMesh(hMeshTree);
@@ -62,7 +57,7 @@ void SimpleMeshRendererGameState::CreateGameLevel()
     obj.m_LocalScaling.Set(0.7f);
     obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(75));
     obj.m_LocalPosition.y = 5;
-	m_pMainWorld->CreateObject(obj, pObj);
+    m_pMainWorld->CreateObject(obj, pObj);
 
     pMeshCompMan->CreateComponent(pMesh);
     pMesh->SetMesh(hMeshTree);

@@ -49,11 +49,13 @@ static T* ezCreateRenderDataForThisFrame(const ezGameObject* pOwner, ezUInt32 ui
 struct EZ_RENDERERCORE_DLL ezDefaultRenderDataCategories
 {
   static ezRenderData::Category Light;
-  static ezRenderData::Category Opaque;
-  static ezRenderData::Category Masked;
-  static ezRenderData::Category Transparent;
-  static ezRenderData::Category Foreground1;
-  static ezRenderData::Category Foreground2;
+  static ezRenderData::Category LitOpaque;
+  static ezRenderData::Category LitMasked;
+  static ezRenderData::Category LitTransparent;
+  static ezRenderData::Category LitForeground;
+  static ezRenderData::Category SimpleOpaque;
+  static ezRenderData::Category SimpleTransparent;
+  static ezRenderData::Category SimpleForeground;
   static ezRenderData::Category Selection;
 };
 

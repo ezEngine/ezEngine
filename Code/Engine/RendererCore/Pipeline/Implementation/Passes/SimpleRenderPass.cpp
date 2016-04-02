@@ -1,6 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/Pipeline/SimpleRenderPass.h>
+#include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
@@ -9,6 +9,7 @@
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
 
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
 #include <RendererCore/Lights/LightGatheringRenderer.h>
 
@@ -92,33 +93,25 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
   ezGALRenderTagetSetup renderTargetSetup;
   if (outputs[m_PinColor.m_uiOutputIndex])
   {
-    ezGALRenderTargetViewCreationDescription rtvd;
-    rtvd.m_hTexture = outputs[m_PinColor.m_uiOutputIndex]->m_TextureHandle;
-    rtvd.m_RenderTargetType = ezGALRenderTargetType::Color;
-
-    renderTargetSetup.SetRenderTarget(0, pDevice->CreateRenderTargetView(rtvd));
+    renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinColor.m_uiOutputIndex]->m_TextureHandle));
   }
 
   if (outputs[m_PinDepthStencil.m_uiOutputIndex])
   {
-    ezGALRenderTargetViewCreationDescription rtvd;
-    rtvd.m_hTexture = outputs[m_PinDepthStencil.m_uiOutputIndex]->m_TextureHandle;
-    rtvd.m_RenderTargetType = ezGALRenderTargetType::DepthStencil;
-
-    renderTargetSetup.SetDepthStencilTarget(pDevice->CreateRenderTargetView(rtvd));
+    renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(outputs[m_PinDepthStencil.m_uiOutputIndex]->m_TextureHandle));
   }
 
-  // Execute render functions
-  const ezRectFloat& viewPortRect = renderViewContext.m_pViewData->m_ViewPortRect;
-  pGALContext->SetViewport(viewPortRect.x, viewPortRect.y, viewPortRect.width, viewPortRect.height, 0.0f, 1.0f);
-
   pGALContext->SetRenderTargetSetup(renderTargetSetup);
-  pGALContext->Clear(ezColor(0.0f, 0.0f, 0.1f));
+  pGALContext->SetViewport(renderViewContext.m_pViewData->m_ViewPortRect);
 
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Opaque);
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Masked);
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Transparent);
-  
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Foreground1);
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Foreground2);
+  ezDebugRenderer::Render(renderViewContext);
+
+  /// \todo remove
+  pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0); // only clear depth
+
+  // Execute render functions
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleTransparent);
+
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
 }

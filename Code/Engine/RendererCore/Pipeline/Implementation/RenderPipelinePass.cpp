@@ -82,13 +82,16 @@ const char* ezRenderPipelinePass::GetName() const
   return m_sName.GetData();
 }
 
-void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category)
+void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category, ezRenderDataBatch::Filter filter)
 {
   EZ_PROFILE_AND_MARKER(renderViewContext.m_pRenderContext->GetGALContext(), ezRenderData::GetCategoryProfilingID(category));
 
-  auto& batches = m_pPipeline->GetRenderDataBatchesWithCategory(category);
-  for (auto& batch : batches)
+  auto& batchList = m_pPipeline->GetRenderDataBatchesWithCategory(category, filter);
+  const ezUInt32 uiBatchCount = batchList.GetBatchCount();
+  for (ezUInt32 i = 0; i < uiBatchCount; ++i)
   {
+    const ezRenderDataBatch& batch = batchList.GetBatch(i);
+
     const ezRenderData* pRenderData = batch.GetData<ezRenderData>(0);
     const ezRTTI* pType = pRenderData->GetDynamicRTTI();
     

@@ -35,6 +35,10 @@ public:
 // *** Common Functions ***
 public:
 
+  bool operator==(const ezRectTemplate<Type>& rhs) const;
+
+  bool operator!=(const ezRectTemplate<Type>& rhs) const;
+
   /// \brief Returns true if the area of the rectangle is non zero
   bool HasNonZeroArea() const;
 

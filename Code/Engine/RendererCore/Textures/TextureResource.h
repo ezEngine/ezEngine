@@ -51,14 +51,12 @@ private:
 private:
   friend class ezRenderContext;
 
-  const ezGALResourceViewHandle& GetGALTextureView() const { return m_hGALTexView[m_uiLoadedTextures - 1]; }
   const ezGALTextureHandle& GetGALTexture() const { return m_hGALTexture[m_uiLoadedTextures - 1]; }
   const ezGALSamplerStateHandle& GetGALSamplerState() const { return m_hSamplerState; }
 
 private:
   ezUInt8 m_uiLoadedTextures;
   ezGALTextureHandle m_hGALTexture[2];
-  ezGALResourceViewHandle m_hGALTexView[2];
   ezUInt32 m_uiMemoryGPU[2];
   ezGALSamplerStateHandle m_hSamplerState; // HACK
 };

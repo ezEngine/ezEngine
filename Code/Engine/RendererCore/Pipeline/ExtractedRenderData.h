@@ -46,7 +46,7 @@ public:
 
   void Clear();
 
-  ezArrayPtr< const ezRenderDataBatch > GetRenderDataBatchesWithCategory(ezRenderData::Category category) const;
+  ezRenderDataBatchList GetRenderDataBatchesWithCategory(ezRenderData::Category category, ezRenderDataBatch::Filter filter) const;
 
 private:
 

@@ -2,12 +2,11 @@
 #include <EnginePluginScene/SceneView/SceneView.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Core/ResourceManager/ResourceManager.h>
-#include <RendererCore/Debug/DebugRenderPass.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/Pipeline/SimpleRenderPass.h>
-#include <RendererCore/Pipeline/TargetPass.h>
+#include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
+#include <RendererCore/Pipeline/Passes/TargetPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <GameFoundation/GameApplication/GameApplication.h>
@@ -68,8 +67,8 @@ void ezSceneViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth
   const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(hPrimarySwapChain);
   EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
 
-  auto hSwapChainRTV = pPrimarySwapChain->GetBackBufferRenderTargetView();
-  auto hSwapChainDSV = pPrimarySwapChain->GetDepthStencilTargetView();
+  auto hSwapChainRTV = pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
+  auto hSwapChainDSV = pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetDepthStencilBufferTexture());
 
   // setup view
   {
@@ -258,11 +257,7 @@ void ezSceneViewContext::CreateView()
   ezTag tagHidden;
   tagReg.RegisterTag("EditorHidden", &tagHidden);
 
-  ezTag tagSel;
-  ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorSelected", &tagSel);
-
   m_pView->m_ExcludeTags.Set(tagHidden);
-  m_pView->m_ExcludeTags.Set(tagSel);
 }
 
 ezRenderPipelineResourceHandle ezSceneViewContext::CreateEditorRenderPipeline()
@@ -294,10 +289,11 @@ ezRenderPipelineResourceHandle ezSceneViewContext::CreateEditorRenderPipeline()
     pRenderPipeline->AddPass(std::move(pPass));
   }
 
-  ezDebugRenderPass* pDebugPass = nullptr;
+  ezSimpleRenderPass* pSimplePass = nullptr;
   {
-    ezUniquePtr<ezDebugRenderPass> pPass = EZ_DEFAULT_NEW(ezDebugRenderPass);
-    pDebugPass = pPass.Borrow();
+    ezUniquePtr<ezSimpleRenderPass> pPass = EZ_DEFAULT_NEW(ezSimpleRenderPass);
+    pSimplePass = pPass.Borrow();
+    pSimplePass->AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
     pRenderPipeline->AddPass(std::move(pPass));
   }
 
@@ -308,11 +304,11 @@ ezRenderPipelineResourceHandle ezSceneViewContext::CreateEditorRenderPipeline()
     pRenderPipeline->AddPass(std::move(pPass));
   }
 
-  EZ_VERIFY(pRenderPipeline->Connect(pEditorRenderPass, "Color", pDebugPass, "Color"), "Connect failed!");
-  EZ_VERIFY(pRenderPipeline->Connect(pEditorRenderPass, "DepthStencil", pDebugPass, "DepthStencil"), "Connect failed!");
+  EZ_VERIFY(pRenderPipeline->Connect(pEditorRenderPass, "Color", pSimplePass, "Color"), "Connect failed!");
+  EZ_VERIFY(pRenderPipeline->Connect(pEditorRenderPass, "DepthStencil", pSimplePass, "DepthStencil"), "Connect failed!");
 
-  EZ_VERIFY(pRenderPipeline->Connect(pDebugPass, "Color", pTargetPass, "Color0"), "Connect failed!");
-  EZ_VERIFY(pRenderPipeline->Connect(pDebugPass, "DepthStencil", pTargetPass, "DepthStencil"), "Connect failed!");
+  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "Color", pTargetPass, "Color0"), "Connect failed!");
+  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "DepthStencil", pTargetPass, "DepthStencil"), "Connect failed!");
 
   //m_pPickingRenderPass->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneViewContext::RenderPassEventHandler, this));
 

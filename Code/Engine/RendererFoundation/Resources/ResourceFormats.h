@@ -3,7 +3,7 @@
 
 #include <RendererFoundation/Basics.h>
 
-struct ezGALResourceFormat
+struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
 {
   enum Enum
   {
@@ -100,19 +100,22 @@ struct ezGALResourceFormat
   // General format Meta-Informations:
 
   /// \brief The size in bits per element (usually pixels, except for mesh stream elements) of a single element of the given resource format.
-  EZ_RENDERERFOUNDATION_DLL static ezUInt32 GetBitsPerElement(ezGALResourceFormat::Enum format)          { return BitsPerElement[format]; }
+  static ezUInt32 GetBitsPerElement(ezGALResourceFormat::Enum format);
 
   /// \brief The number of color channels this format contains.
-  EZ_RENDERERFOUNDATION_DLL static ezUInt8 GetChannelCount(ezGALResourceFormat::Enum format)  { return ChannelCount[format]; }
+  static ezUInt8 GetChannelCount(ezGALResourceFormat::Enum format);
 
   /// \todo A combination of propertyflags, something like srgb, normalized, ...
   // Would be very useful for some GL stuff and Testing.
 
+  /// \brief Returns whether the given resource format is a depth format
+  static bool IsDepthFormat(ezGALResourceFormat::Enum format);
+
 private:
   
-  static const ezUInt8 BitsPerElement[ezGALResourceFormat::ENUM_COUNT];
+  static const ezUInt8 s_BitsPerElement[ezGALResourceFormat::ENUM_COUNT];
 
-  static const ezUInt8 ChannelCount[ezGALResourceFormat::ENUM_COUNT];
+  static const ezUInt8 s_ChannelCount[ezGALResourceFormat::ENUM_COUNT];
 };
 
 

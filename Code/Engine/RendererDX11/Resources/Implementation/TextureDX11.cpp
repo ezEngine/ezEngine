@@ -49,9 +49,8 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<e
         if(m_Description.m_bAllowUAV)
           Tex2DDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
 
-        /// \todo Marc: Should this maybe use some kind of flags like "IsDepthFormat" ?
         if(m_Description.m_bCreateRenderTarget)
-          Tex2DDesc.BindFlags |= (m_Description.m_Format == ezGALResourceFormat::D24S8 || m_Description.m_Format == ezGALResourceFormat::DFloat ? D3D11_BIND_DEPTH_STENCIL : D3D11_BIND_RENDER_TARGET); /// \todo Get format info!
+          Tex2DDesc.BindFlags |= ezGALResourceFormat::IsDepthFormat(m_Description.m_Format) ? D3D11_BIND_DEPTH_STENCIL : D3D11_BIND_RENDER_TARGET;
 
         Tex2DDesc.CPUAccessFlags = 0; // We always use staging textures to update the data
         Tex2DDesc.Usage = m_Description.m_ResourceAccess.IsImmutable() ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;
@@ -69,7 +68,7 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<e
 
         Tex2DDesc.Width = m_Description.m_uiWidth;
         Tex2DDesc.Height = m_Description.m_uiHeight;
-        Tex2DDesc.MipLevels = m_Description.m_uiMipSliceCount;
+        Tex2DDesc.MipLevels = m_Description.m_uiMipLevelCount;
 
         Tex2DDesc.MiscFlags = 0;
 
@@ -85,7 +84,7 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<e
         ezHybridArray<D3D11_SUBRESOURCE_DATA, 16> InitialData;
         if(pInitialData != nullptr)
         {
-          const ezUInt32 uiInitialDataCount = (m_Description.m_uiMipSliceCount * (m_Description.m_Type  == ezGALTextureType::Texture2D ? 1 : 6));
+          const ezUInt32 uiInitialDataCount = (m_Description.m_uiMipLevelCount * (m_Description.m_Type  == ezGALTextureType::Texture2D ? 1 : 6));
           EZ_ASSERT_DEV(pInitialData->GetCount() == uiInitialDataCount, "The array of initial data values is not equal to the amount of mip levels!");
 
           InitialData.SetCountUninitialized(uiInitialDataCount);

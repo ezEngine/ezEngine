@@ -49,8 +49,6 @@ private:
   ezSceneContext* m_pSceneContext;
   ezGALTextureHandle m_hPickingIdRT;
   ezGALTextureHandle m_hPickingDepthRT;
-  ezGALRenderTargetViewHandle m_hPickingIdRTV;
-  ezGALRenderTargetViewHandle m_hPickingDepthDSV;
   ezGALRenderTagetSetup m_RenderTargetSetup;
 
 

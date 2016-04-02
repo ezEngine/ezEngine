@@ -234,7 +234,7 @@ struct ezGALTextureCreationDescription : public ezHashableStruct<ezGALTextureCre
   ezUInt32 m_uiHeight;
   ezUInt32 m_uiDepth;
 
-  ezUInt32 m_uiMipSliceCount;
+  ezUInt32 m_uiMipLevelCount;
 
   ezUInt32 m_uiArraySize;
 
@@ -292,13 +292,9 @@ struct ezGALRenderTargetViewCreationDescription : public ezHashableStruct<ezGALR
 
   ezGALTextureHandle m_hTexture;
 
-  ezGALBufferHandle m_hBuffer;
-
-  ezGALRenderTargetType::Enum m_RenderTargetType;
-
   ezGALResourceFormat::Enum m_OverrideViewFormat;
 
-  ezUInt32 m_uiMipSlice;
+  ezUInt32 m_uiMipLevel;
 
   ezUInt32 m_uiFirstSlice;
   ezUInt32 m_uiSliceCount;

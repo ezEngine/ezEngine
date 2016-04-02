@@ -11,9 +11,15 @@ protected:
 
   EZ_FORCE_INLINE ~ezGALResourceBase()
   {
+    EZ_ASSERT_DEV(m_hDefaultResourceView.IsInvalidated(), "");
+    EZ_ASSERT_DEV(m_hDefaultRenderTargetView.IsInvalidated(), "");
+
     EZ_ASSERT_DEV(m_ResourceViews.IsEmpty(), "Dangling resource views");
     EZ_ASSERT_DEV(m_RenderTargetViews.IsEmpty(), "Dangling render target views");
   }
+
+  ezGALResourceViewHandle m_hDefaultResourceView;
+  ezGALRenderTargetViewHandle m_hDefaultRenderTargetView;
 
   ezHashTable<ezUInt32, ezGALResourceViewHandle> m_ResourceViews;
   ezHashTable<ezUInt32, ezGALRenderTargetViewHandle> m_RenderTargetViews;

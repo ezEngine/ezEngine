@@ -1,7 +1,7 @@
 #include <RendererFoundation/PCH.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 
-const ezUInt8 ezGALResourceFormat::BitsPerElement[ezGALResourceFormat::ENUM_COUNT] =
+const ezUInt8 ezGALResourceFormat::s_BitsPerElement[ezGALResourceFormat::ENUM_COUNT] =
 {
   128, // RGBAFloat, XYZWFloat
   128, // RGBAUInt
@@ -87,7 +87,7 @@ const ezUInt8 ezGALResourceFormat::BitsPerElement[ezGALResourceFormat::ENUM_COUN
   8  // BC7UNormalizedsRGB
 };
 
-const ezUInt8 ezGALResourceFormat::ChannelCount[ezGALResourceFormat::ENUM_COUNT] =
+const ezUInt8 ezGALResourceFormat::s_ChannelCount[ezGALResourceFormat::ENUM_COUNT] =
 {
   4, // RGBAFloat, XYZWFloat
   4, // RGBAUInt

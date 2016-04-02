@@ -90,8 +90,7 @@ namespace
   };
 
   ezGALBufferHandle s_hDataBuffer[BufferType::Count];
-  ezGALResourceViewHandle s_hDataBufferView[BufferType::Count];
-  
+    
   ezMeshBufferResourceHandle s_hLineBoxMeshBuffer;
   ezMeshBufferResourceHandle s_hSolidBoxMeshBuffer;
   ezMeshBufferResourceHandle s_hDummyMeshBuffer;
@@ -102,39 +101,21 @@ namespace
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-    {
-      ezGALBufferCreationDescription desc;
-      desc.m_uiStructSize = uiStructSize;
-      desc.m_uiTotalSize = desc.m_uiStructSize * uiNumData;
-      desc.m_BufferType = ezGALBufferType::Generic;
-      desc.m_bUseAsStructuredBuffer = true;
-      desc.m_bAllowShaderResourceView = true;
+    ezGALBufferCreationDescription desc;
+    desc.m_uiStructSize = uiStructSize;
+    desc.m_uiTotalSize = desc.m_uiStructSize * uiNumData;
+    desc.m_BufferType = ezGALBufferType::Generic;
+    desc.m_bUseAsStructuredBuffer = true;
+    desc.m_bAllowShaderResourceView = true;
 
-      s_hDataBuffer[bufferType] = pDevice->CreateBuffer(desc, pData);
-    }
-
-    {
-      ezGALResourceViewCreationDescription desc;
-      desc.m_hBuffer = s_hDataBuffer[bufferType];
-      desc.m_uiFirstElement = 0;
-      desc.m_uiNumElements = uiNumData;
-
-      s_hDataBufferView[bufferType] = pDevice->CreateResourceView(desc);
-    }
+    s_hDataBuffer[bufferType] = pDevice->CreateBuffer(desc, pData);
   }
 
-  static void CreateVertexBuffer(BufferType::Enum bufferType, ezUInt32 uiStructSize, ezUInt32 uiNumData, void* pData)
+  static void CreateVertexBuffer(BufferType::Enum bufferType, ezUInt32 uiVertexSize, ezUInt32 uiNumVertices, void* pData)
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-    {
-      ezGALBufferCreationDescription desc;
-      desc.m_uiStructSize = uiStructSize;
-      desc.m_uiTotalSize = desc.m_uiStructSize * uiNumData;
-      desc.m_BufferType = ezGALBufferType::VertexBuffer;
-      
-      s_hDataBuffer[bufferType] = pDevice->CreateBuffer(desc, pData);
-    }
+    s_hDataBuffer[bufferType] = pDevice->CreateVertexBuffer(uiVertexSize, uiNumVertices, pData);
   }
 
   static void DestroyBuffer(BufferType::Enum bufferType)
@@ -147,8 +128,6 @@ namespace
 
       s_hDataBuffer[bufferType].Invalidate();
     }
-
-    s_hDataBufferView[bufferType].Invalidate();
   }
 }
 
@@ -340,7 +319,7 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
       DestroyBuffer(BufferType::LineBoxes);
       CreateDataBuffer(BufferType::LineBoxes, sizeof(BoxData), uiNumLineBoxes, pData->m_lineBoxes.GetData());
 
-      pGALContext->SetResourceView(ezGALShaderStage::VertexShader, 0, s_hDataBufferView[BufferType::LineBoxes]);
+      pGALContext->SetResourceView(ezGALShaderStage::VertexShader, 0, pDevice->GetDefaultResourceView(s_hDataBuffer[BufferType::LineBoxes]));
 
       renderViewContext.m_pRenderContext->BindShader(s_hDebugGeometryShader);
       renderViewContext.m_pRenderContext->BindMeshBuffer(s_hLineBoxMeshBuffer);
@@ -356,7 +335,7 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
       DestroyBuffer(BufferType::SolidBoxes);
       CreateDataBuffer(BufferType::SolidBoxes, sizeof(BoxData), uiNumSolidBoxes, pData->m_solidBoxes.GetData());
 
-      pGALContext->SetResourceView(ezGALShaderStage::VertexShader, 0, s_hDataBufferView[BufferType::SolidBoxes]);
+      pGALContext->SetResourceView(ezGALShaderStage::VertexShader, 0, pDevice->GetDefaultResourceView(s_hDataBuffer[BufferType::SolidBoxes]));
 
       renderViewContext.m_pRenderContext->BindShader(s_hDebugGeometryShader);
       renderViewContext.m_pRenderContext->BindMeshBuffer(s_hSolidBoxMeshBuffer);

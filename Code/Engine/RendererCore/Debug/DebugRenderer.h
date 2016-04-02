@@ -69,7 +69,7 @@ public:
   static void DrawSolidTriangles(const ezWorld* pWorld, ezArrayPtr<Triangle> triangles, const ezColor& color);
 
 private:
-  friend class ezDebugRenderPass;
+  friend class ezSimpleRenderPass;
 
   static void Render(const ezRenderViewContext& renderViewContext);
 

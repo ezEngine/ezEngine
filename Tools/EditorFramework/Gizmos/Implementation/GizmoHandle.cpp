@@ -346,7 +346,7 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
     }
   }
 
-  m_pMeshComponent->SetRenderDataCategory(m_bForeground2 ? ezDefaultRenderDataCategories::Foreground2 : ezDefaultRenderDataCategories::Foreground1);
+  m_pMeshComponent->SetRenderDataCategory(m_bForeground2 ? ezDefaultRenderDataCategories::SimpleForeground : ezDefaultRenderDataCategories::SimpleOpaque);
   m_pMeshComponent->m_MeshColor = m_Color;
   m_pMeshComponent->SetMesh(hMesh);
   

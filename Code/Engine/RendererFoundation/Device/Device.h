@@ -67,13 +67,25 @@ public:
 
   void DestroyTexture(ezGALTextureHandle hTexture);
 
+  // Resource views
+  ezGALResourceViewHandle GetDefaultResourceView(ezGALTextureHandle hTexture);
+  ezGALResourceViewHandle GetDefaultResourceView(ezGALBufferHandle hBuffer);
+
   ezGALResourceViewHandle CreateResourceView(const ezGALResourceViewCreationDescription& Description);
 
   void DestroyResourceView(ezGALResourceViewHandle hResourceView);
 
+  // Render target views
+  ezGALRenderTargetViewHandle GetDefaultRenderTargetView(ezGALTextureHandle hTexture);
+  
   ezGALRenderTargetViewHandle CreateRenderTargetView(const ezGALRenderTargetViewCreationDescription& Description);
 
   void DestroyRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView);
+
+  // Unordered access views
+  //ezGALUnorderedAccessViewHandle CreateUnorderedAccessView(const ezGALUnorderedAccessViewCreationDescription& Description);
+
+  //void DestroyUnorderedAccessView(ezGALUnorderedAccessViewHandle hRenderTargetView);
 
 
   // Other rendering creation functions
@@ -167,9 +179,6 @@ protected:
 
   template<typename IdTableType, typename ReturnType>
   ReturnType* Get(typename IdTableType::TypeOfId hHandle, const IdTableType& IdTable) const;
-
-  template<typename ViewDescription>
-  ezGALResourceBase* GetResourceFromViewDescription(const ViewDescription& description);
 
   void DestroyViews(ezGALResourceBase* pResource);
 

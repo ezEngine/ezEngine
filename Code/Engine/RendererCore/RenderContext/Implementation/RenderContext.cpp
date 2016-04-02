@@ -68,7 +68,7 @@ void ezRenderContext::SetGALContext(ezGALContext* pContext)
 void ezRenderContext::BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture)
 {
   ezResourceLock<ezTextureResource> pTexture(hTexture, ezResourceAcquireMode::AllowFallback);
-  BindTexture(stage, sSlotName, pTexture->GetGALTextureView(), pTexture->GetGALSamplerState());
+  BindTexture(stage, sSlotName, ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(pTexture->GetGALTexture()), pTexture->GetGALSamplerState());
 }
 
 void ezRenderContext::BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView, ezGALSamplerStateHandle hSamplerState)

@@ -206,26 +206,6 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
   SendProcessMessage(&res);
 }
 
-void ezSceneContext::SetSelectionTag(bool bAddTag)
-{
-  ezTag tagSel;
-  ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorSelected", &tagSel);
-
-  EZ_LOCK(m_pWorld->GetReadMarker());
-
-  for (auto& obj : m_Selection)
-  {
-    ezGameObject* pObj;
-    if (!m_pWorld->TryGetObject(obj, pObj))
-      continue;
-
-    if (bAddTag)
-      pObj->GetTags().Set(tagSel);
-    else
-      pObj->GetTags().Remove(tagSel);
-  }
-}
-
 void ezSceneContext::GenerateShapeIconMesh()
 {
   /// \todo Disabled for now
@@ -380,9 +360,6 @@ void ezSceneContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 
 void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg)
 {
-  // remove the 'selected' tag from the existing selection
-  SetSelectionTag(false);
-
   m_Selection.Clear();
   m_SelectionWithChildrenSet.Clear();
   m_SelectionWithChildren.Clear();
@@ -416,9 +393,6 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
   {
     m_SelectionWithChildren.PushBack(it.Key());
   }
-
-  // add the 'selected' tag to the new selection
-  SetSelectionTag(true);
 }
 
 

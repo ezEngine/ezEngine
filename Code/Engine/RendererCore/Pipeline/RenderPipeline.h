@@ -47,7 +47,7 @@ public:
   void GetExtractors(ezHybridArray<ezExtractor*, 16>& extractors);
   ezExtractor* GetExtractorByName(const char* szPassName) const;
 
-  ezArrayPtr< const ezRenderDataBatch > GetRenderDataBatchesWithCategory(ezRenderData::Category category) const;
+  ezRenderDataBatchList GetRenderDataBatchesWithCategory(ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter()) const;
 
   EZ_DISALLOW_COPY_AND_ASSIGN(ezRenderPipeline);
 

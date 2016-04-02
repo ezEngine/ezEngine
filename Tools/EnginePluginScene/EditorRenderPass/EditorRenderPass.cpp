@@ -8,14 +8,14 @@
 #include <RendererCore/Meshes/MeshRenderer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorRenderPass, 1, ezRTTIDefaultAllocator<ezEditorRenderPass>);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("RenderSelectionOverlay", m_bRenderSelectionOverlay),
-EZ_ENUM_MEMBER_PROPERTY("ViewRenderMode", ezViewRenderMode, m_ViewRenderMode),
-EZ_MEMBER_PROPERTY("SceneContext", m_pSceneContext),
-EZ_END_PROPERTIES
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("RenderSelectionOverlay", m_bRenderSelectionOverlay),
+    EZ_ENUM_MEMBER_PROPERTY("ViewRenderMode", ezViewRenderMode, m_ViewRenderMode),
+    EZ_MEMBER_PROPERTY("SceneContext", m_pSceneContext),
+  EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezEditorRenderPass::ezEditorRenderPass(const char* szName) : ezSimpleRenderPass(szName)
+ezEditorRenderPass::ezEditorRenderPass(const char* szName) : ezForwardRenderPass(szName)
 {
   m_pSceneContext = nullptr;
   m_bRenderSelectionOverlay = true;
@@ -31,21 +31,19 @@ void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
   ezGALRenderTagetSetup renderTargetSetup;
   if (outputs[m_PinColor.m_uiOutputIndex])
   {
-    ezGALRenderTargetViewCreationDescription rtvd;
-    rtvd.m_hTexture = outputs[m_PinColor.m_uiOutputIndex]->m_TextureHandle;
-    rtvd.m_RenderTargetType = ezGALRenderTargetType::Color;
-
-    renderTargetSetup.SetRenderTarget(0, pDevice->CreateRenderTargetView(rtvd));
+    renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinColor.m_uiOutputIndex]->m_TextureHandle));
   }
 
   if (outputs[m_PinDepthStencil.m_uiOutputIndex])
   {
-    ezGALRenderTargetViewCreationDescription rtvd;
-    rtvd.m_hTexture = outputs[m_PinDepthStencil.m_uiOutputIndex]->m_TextureHandle;
-    rtvd.m_RenderTargetType = ezGALRenderTargetType::DepthStencil;
-
-    renderTargetSetup.SetDepthStencilTarget(pDevice->CreateRenderTargetView(rtvd));
+    renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(outputs[m_PinDepthStencil.m_uiOutputIndex]->m_TextureHandle));
   }
+
+  pGALContext->SetRenderTargetSetup(renderTargetSetup);
+  pGALContext->SetViewport(renderViewContext.m_pViewData->m_ViewPortRect);
+
+  // Clear color and depth stencil
+  pGALContext->Clear(ezColor(0.0f, 0.0f, 0.1f));
 
   const char* szRenderMode = "ERM_DEFAULT";
 
@@ -79,19 +77,9 @@ void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
 
   //ezSimpleRenderPass::Execute(renderViewContext);
   {
-    ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
-
-    const ezRectFloat& viewPortRect = renderViewContext.m_pViewData->m_ViewPortRect;
-    pGALContext->SetViewport(viewPortRect.x, viewPortRect.y, viewPortRect.width, viewPortRect.height, 0.0f, 1.0f);
-
-    pGALContext->SetRenderTargetSetup(renderTargetSetup);
-    pGALContext->Clear(ezColor(0.0f, 0.0f, 0.1f));
-
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Opaque);
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Masked);
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Transparent);
-
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Selection);
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque);
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked);
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent);
 
     if (/*m_ViewRenderMode == ezViewRenderMode::Default && */m_bRenderSelectionOverlay)
     {
@@ -100,10 +88,7 @@ void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", szRenderMode);
     }
 
-    pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0); // only clear depth
-
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Foreground1);
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Foreground2);
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
 
   }
 

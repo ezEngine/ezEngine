@@ -1,6 +1,5 @@
 #include <RendererCore/PCH.h>
-//#include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/Pipeline/BlurPass.h>
+#include <RendererCore/Pipeline/Passes/BlurPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
@@ -12,11 +11,11 @@
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/BlurConstants.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBlurPass, 1, ezRTTIDefaultAllocator<ezBlurPass>);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("Input", m_PinInput),
-EZ_MEMBER_PROPERTY("Output", m_PinOutput),
-EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(15))
-EZ_END_PROPERTIES
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("Input", m_PinInput),
+    EZ_MEMBER_PROPERTY("Output", m_PinOutput),
+    EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(15))
+  EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezBlurPass::ezBlurPass() : ezRenderPipelinePass("BlurPass"), m_bConstantsDirty(true), m_iRadius(15)
@@ -117,29 +116,16 @@ void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
   if (outputs[m_PinOutput.m_uiOutputIndex])
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+    ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
     // Setup render target
     ezGALRenderTagetSetup renderTargetSetup;
-    ezGALRenderTargetViewCreationDescription rtvd;
-    rtvd.m_hTexture = outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle;
-    rtvd.m_RenderTargetType = ezGALRenderTargetType::Color;
-
-    ezGALRenderTargetViewCreationDescription RTViewDesc;
-    RTViewDesc.m_bReadOnly = true;
-    RTViewDesc.m_hTexture = outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle;
-    RTViewDesc.m_RenderTargetType = ezGALRenderTargetType::Color;
-    RTViewDesc.m_uiFirstSlice = 0;
-    RTViewDesc.m_uiMipSlice = 0;
-    RTViewDesc.m_uiSliceCount = 1;
-
-    renderTargetSetup.SetRenderTarget(0, pDevice->CreateRenderTargetView(RTViewDesc));
-    
+    renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
+        
     // Bind render target and viewport
-    ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
-    const ezRectFloat& viewPortRect = renderViewContext.m_pViewData->m_ViewPortRect;
-    pGALContext->SetViewport(viewPortRect.x, viewPortRect.y, viewPortRect.width, viewPortRect.height, 0.0f, 1.0f);
-   
     pGALContext->SetRenderTargetSetup(renderTargetSetup);
+    pGALContext->SetViewport(renderViewContext.m_pViewData->m_ViewPortRect);
+   
     pGALContext->Clear(ezColor(1.0f, 0.0f, 0.0f));
     // Setup input view and sampler
     ezGALResourceViewCreationDescription rvcd;
