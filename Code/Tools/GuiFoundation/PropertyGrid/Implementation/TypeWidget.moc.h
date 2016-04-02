@@ -30,6 +30,7 @@ private:
 
   void UpdateProperty(const ezDocumentObject* pObject, const ezString& sProperty);
   void FlushQueuedChanges();
+  void UpdatePropertyMetaState();
 
 private:
   ezPropertyGridWidget* m_pGrid;
@@ -37,8 +38,14 @@ private:
   ezPropertyPath m_ParentPath;
   ezHybridArray<ezQtPropertyWidget::Selection, 8> m_Items;
 
+  struct PropertyWidgetData
+  {
+    ezQtPropertyWidget* m_pWidget;
+    QLabel* m_pLabel;
+  };
+
   QGridLayout* m_pLayout;
-  ezMap<ezString, ezQtPropertyWidget*> m_PropertyWidgets;
+  ezMap<ezString, PropertyWidgetData> m_PropertyWidgets;
   ezHybridArray<ezString, 1> m_QueuedChanges;
 
 };

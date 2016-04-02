@@ -9,6 +9,7 @@
 
 #include <QGridLayout>
 #include <QLabel>
+#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
 ezTypeWidget::ezTypeWidget(QWidget* pParent, ezPropertyGridWidget* pGrid, const ezRTTI* pType, ezPropertyPath& parentPath)
   : QWidget(pParent)
@@ -30,8 +31,10 @@ ezTypeWidget::ezTypeWidget(QWidget* pParent, ezPropertyGridWidget* pGrid, const 
   m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezTypeWidget::CommandHistoryEventHandler, this));
 
   ezPropertyPath ParentPath = m_ParentPath;
- 
+
   BuildUI(pType, ParentPath);
+
+  UpdatePropertyMetaState();
 }
 
 ezTypeWidget::~ezTypeWidget()
@@ -48,8 +51,10 @@ void ezTypeWidget::SetSelection(const ezHybridArray<ezQtPropertyWidget::Selectio
 
   for (auto it = m_PropertyWidgets.GetIterator(); it.IsValid(); ++it)
   {
-    it.Value()->SetSelection(m_Items);
+    it.Value().m_pWidget->SetSelection(m_Items);
   }
+
+  UpdatePropertyMetaState();
 }
 
 void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath)
@@ -82,7 +87,11 @@ void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath)
     pNewWidget->Init(m_pGrid, pProp, ParentPath);
 
     pNewWidget->m_Events.AddEventHandler(ezMakeDelegate(&ezTypeWidget::PropertyChangedHandler, this));
-    m_PropertyWidgets[ParentPath.GetPathString()] = pNewWidget;
+    auto& ref = m_PropertyWidgets[ParentPath.GetPathString()];
+
+    ref.m_pWidget = pNewWidget;
+    ref.m_pLabel = nullptr;
+
     if (pNewWidget->HasLabel())
     {
       QLabel* pLabel = new QLabel(this);
@@ -92,6 +101,8 @@ void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath)
       pLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
       m_pLayout->addWidget(pLabel, iRows + i, 0, 1, 1);
       m_pLayout->addWidget(pNewWidget, iRows + i, 2, 1, 1);
+
+      ref.m_pLabel = pLabel;
     }
     else
     {
@@ -100,7 +111,6 @@ void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath)
 
     ParentPath.PopBack();
   }
-
 }
 
 void ezTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
@@ -181,8 +191,8 @@ void ezTypeWidget::CommandHistoryEventHandler(const ezCommandHistory::Event& e)
 void ezTypeWidget::UpdateProperty(const ezDocumentObject* pObject, const ezString& sProperty)
 {
   if (std::none_of(cbegin(m_Items), cend(m_Items),
-    [=](const ezQtPropertyWidget::Selection& sel) { return pObject == sel.m_pObject; }
-    ))
+                   [=](const ezQtPropertyWidget::Selection& sel) { return pObject == sel.m_pObject; }
+                   ))
     return;
 
   if (!m_QueuedChanges.Contains(sProperty))
@@ -200,11 +210,44 @@ void ezTypeWidget::FlushQueuedChanges()
       if (it.Key().StartsWith(sProperty))
       {
         QtScopedUpdatesDisabled _(this);
-        it.Value()->SetSelection(m_Items);
+        it.Value().m_pWidget->SetSelection(m_Items);
         break;
       }
     }
   }
+
   m_QueuedChanges.Clear();
+
+  UpdatePropertyMetaState();
+}
+
+void ezTypeWidget::UpdatePropertyMetaState()
+{
+  ezPropertyMetaState* pMeta = ezPropertyMetaState::GetSingleton();
+
+  ezMap<ezString, ezPropertyUiState> PropertyStates;
+  pMeta->GetPropertyState(m_Items, PropertyStates);
+
+  for (auto it = m_PropertyWidgets.GetIterator(); it.IsValid(); ++it)
+  {
+    auto itData = PropertyStates.Find(it.Key());
+
+    const bool bReadOnly = (it.Value().m_pWidget->GetProperty()->GetFlags().IsSet(ezPropertyFlags::ReadOnly)) || (it.Value().m_pWidget->GetProperty()->GetAttributeByType<ezReadOnlyAttribute>() != nullptr);
+    ezPropertyUiState::State state = ezPropertyUiState::Default;
+
+    if (itData.IsValid())
+    {
+      state = itData.Value().m_State;
+    }
+
+    if (it.Value().m_pLabel)
+    {
+      it.Value().m_pLabel->setVisible(state != ezPropertyUiState::Invisible);
+      it.Value().m_pLabel->setEnabled(!bReadOnly && state != ezPropertyUiState::Disabled);
+    }
+
+    it.Value().m_pWidget->setVisible(state != ezPropertyUiState::Invisible);
+    it.Value().m_pWidget->setEnabled(!bReadOnly && state != ezPropertyUiState::Disabled);
+  }
 }
 
