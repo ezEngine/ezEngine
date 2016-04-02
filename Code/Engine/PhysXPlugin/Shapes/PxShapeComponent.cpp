@@ -60,8 +60,7 @@ const char* ezPxShapeComponent::GetSurfaceFile() const
   if (!m_hSurface.IsValid())
     return "";
 
-  ezResourceLock<ezSurfaceResource> pResource(m_hSurface);
-  return pResource->GetResourceID();
+  return m_hSurface.GetResourceID();
 }
 
 PxMaterial* ezPxShapeComponent::GetPxMaterial()

@@ -102,7 +102,7 @@ void ezResourceBase::CallUpdateContent(ezStreamReader* Stream)
   EZ_ASSERT_DEV(ld.m_uiQualityLevelsLoadable != 0xFF, "UpdateContent() did not fill out m_uiQualityLevelsLoadable correctly");
 
   if (ld.m_State == ezResourceState::LoadedResourceMissing)
-    ezLog::Error("Missing Resource: '%s'", GetResourceID().GetData());
+    ezLog::Error("Missing Resource: '%s' ('%s')", GetResourceID().GetData(), m_sResourceDescription.GetData());
 
   IncResourceChangeCounter();
 

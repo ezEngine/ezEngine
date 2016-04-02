@@ -2,6 +2,13 @@
 #include <Core/WorldSerializer/WorldReader.h>
 
 
+ezWorldReader::ezWorldReader()
+{
+  m_pStream = nullptr;
+  m_pWorld = nullptr;
+  m_uiMaxComponents = 0;
+}
+
 void ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
 {
   m_pStream = &stream;
@@ -108,6 +115,7 @@ void ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTran
   CreateGameObjects(m_ChildObjectsToCreate, ezGameObjectHandle());
 
   // read component data from copied memory stream
+  if (m_ComponentStream.GetStorageSize() > 0)
   {
     ezMemoryStreamReader memReader(&m_ComponentStream);
     ezStreamReader* pPrevReader = m_pStream;

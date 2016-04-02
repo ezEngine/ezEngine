@@ -162,8 +162,7 @@ const char* ezSpawnComponent::GetPrefabFile() const
   if (!m_hPrefab.IsValid())
     return "";
 
-  ezResourceLock<ezPrefabResource> pResource(m_hPrefab);
-  return pResource->GetResourceID();
+  return m_hPrefab.GetResourceID();
 }
 
 void ezSpawnComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab)

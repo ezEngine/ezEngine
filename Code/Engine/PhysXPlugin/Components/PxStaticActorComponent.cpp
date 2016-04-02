@@ -59,8 +59,7 @@ const char* ezPxStaticActorComponent::GetMeshFile() const
   if (!m_hCollisionMesh.IsValid())
     return "";
 
-  ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh);
-  return pMesh->GetResourceID();
+  return m_hCollisionMesh.GetResourceID();
 }
 
 

@@ -78,8 +78,7 @@ void ezLightComponent::SerializeComponent(ezWorldWriter& stream) const
 
   for (const auto& mat : m_Materials)
   {
-    ezResourceLock<ezMaterialResource> pMat(mat);
-    s << pMat->GetResourceID();
+    s << mat.GetResourceID();
   }
 */
 }

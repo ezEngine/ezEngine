@@ -5,7 +5,22 @@
 #include <Core/World/Component.h>
 #include <GameUtils/Prefabs/PrefabResource.h>
 
-typedef ezComponentManager<class ezPrefabReferenceComponent> ezPrefabReferenceComponentManager;
+class ezPrefabReferenceComponent;
+
+class EZ_GAMEUTILS_DLL ezPrefabReferenceComponentManager : public ezComponentManager<ezPrefabReferenceComponent>
+{
+public:
+  ezPrefabReferenceComponentManager(ezWorld* pWorld);
+
+  virtual ezResult Initialize() override;
+
+  void SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount);
+
+  void AddToUpdateList(ezPrefabReferenceComponent* pComponent);
+
+private:
+  ezDeque<ezComponentHandle> m_PrefabComponentsToUpdate;
+};
 
 class EZ_GAMEUTILS_DLL ezPrefabReferenceComponent : public ezComponent
 {
@@ -25,12 +40,13 @@ public:
   void SetPrefab(const ezPrefabResourceHandle& hPrefab);
   EZ_FORCE_INLINE const ezPrefabResourceHandle& GetPrefab() const { return m_hPrefab; }
 
+  void InstantiatePrefab();
+
 protected:
 
   // ************************************* FUNCTIONS *****************************
 
-  virtual Initialization Initialize() override;
-
 private:
   ezPrefabResourceHandle m_hPrefab;
+  bool m_bRequiresInstantiation;
 };

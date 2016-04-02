@@ -11,6 +11,7 @@ typedef ezGALDeviceGL ezGALDeviceDefault;
 #endif
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/JSONReader.h>
+#include <GameUtils/Prefabs/PrefabResource.h>
 
 void ezGameApplication::DoProjectSetup()
 {
@@ -64,17 +65,32 @@ void ezGameApplication::DoConfigureAssetManagement()
 
 void ezGameApplication::DoSetupDefaultResources()
 {
-  ezTextureResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTextureResource>("Textures/LoadingTexture_D.dds");
-  ezTextureResourceHandle hMissingTexture = ezResourceManager::LoadResource<ezTextureResource>("Textures/MissingTexture_D.dds");
-  ezMaterialResourceHandle hMissingMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/MissingMaterial.ezMaterial");
-  ezMaterialResourceHandle hFallbackMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/LoadingMaterial.ezMaterial");
-  ezMeshResourceHandle hMissingMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh/MissingMesh.ezMesh");
+  {
+    ezTextureResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTextureResource>("Textures/LoadingTexture_D.dds");
+    ezTextureResourceHandle hMissingTexture = ezResourceManager::LoadResource<ezTextureResource>("Textures/MissingTexture_D.dds");
 
-  ezTextureResource::SetTypeFallbackResource(hFallbackTexture);
-  ezTextureResource::SetTypeMissingResource(hMissingTexture);
-  ezMaterialResource::SetTypeFallbackResource(hFallbackMaterial);
-  ezMaterialResource::SetTypeMissingResource(hMissingMaterial);
-  ezMeshResource::SetTypeMissingResource(hMissingMesh);
+    ezTextureResource::SetTypeFallbackResource(hFallbackTexture);
+    ezTextureResource::SetTypeMissingResource(hMissingTexture);
+  }
+
+  {
+    ezMaterialResourceHandle hMissingMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/MissingMaterial.ezMaterial");
+    ezMaterialResourceHandle hFallbackMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/LoadingMaterial.ezMaterial");
+
+    ezMaterialResource::SetTypeFallbackResource(hFallbackMaterial);
+    ezMaterialResource::SetTypeMissingResource(hMissingMaterial);
+  }
+
+  {
+    ezMeshResourceHandle hMissingMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh/MissingMesh.ezMesh");
+    ezMeshResource::SetTypeMissingResource(hMissingMesh);
+  }
+
+  {
+    ezPrefabResourceDescriptor pd;
+    ezPrefabResourceHandle hMissingPrefab = ezResourceManager::CreateResource<ezPrefabResource>("MissingPrefabResource", pd);
+    ezPrefabResource::SetTypeMissingResource(hMissingPrefab);
+  }
 }
 
 

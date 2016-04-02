@@ -142,8 +142,7 @@ const char* ezMeshComponent::GetMeshFile() const
   if (!m_hMesh.IsValid())
     return "";
 
-  ezResourceLock<ezMeshResource> pMesh(m_hMesh);
-  return pMesh->GetResourceID();
+  return m_hMesh.GetResourceID();
 }
 
 
@@ -205,8 +204,7 @@ const char* ezMeshComponent::Materials_GetValue(ezUInt32 uiIndex) const
   if (!hMat.IsValid())
     return "";
 
-  ezResourceLock<ezMaterialResource> pMat(hMat, ezResourceAcquireMode::PointerOnly);
-  return pMat->GetResourceID();
+  return hMat.GetResourceID();
 }
 
 

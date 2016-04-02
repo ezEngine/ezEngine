@@ -65,8 +65,7 @@ const char* ezPointLightComponent::GetProjectedTextureFile() const
   if (!m_hProjectedTexture.IsValid())
     return "";
 
-  ezResourceLock<ezTextureResource> pTexture(m_hProjectedTexture);
-  return pTexture->GetResourceID();
+  return m_hProjectedTexture.GetResourceID();
 }
 
 void ezPointLightComponent::OnAfterAttachedToObject()

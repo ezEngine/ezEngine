@@ -12,6 +12,7 @@
 class EZ_CORE_DLL ezWorldReader
 {
 public:
+  ezWorldReader();
 
   /// \brief Reads all information about the world from the given stream.
   ///
