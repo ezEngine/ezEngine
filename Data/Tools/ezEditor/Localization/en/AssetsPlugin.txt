@@ -1,0 +1,17 @@
+ezMaterialResourceSlot;Material Slot
+ezSurfaceResourceSlot;Surface Slot
+Cap;Cap;Whether to put a cap polygon at the end
+Cap 2;Cap Bottom;Whether to put a cap polygon at the other end
+Prim.Sphere.Detail1;Sphere Segments;Number of segments in the sphere
+Prim.Sphere.Detail2;Sphere Stacks;Number of stacks in the sphere
+Prim.Torus.Detail1;Segments;Number of segments in the sphere
+Prim.Torus.Detail2;Ring Detail;Number of polygons in each segment
+Prim.Torus.Radius1;Inner Radius
+Prim.Torus.Radius2;Outer Radius
+Prim.GeoSphere.Detail;Subdivisions;How often to subdivide the sphere, adding more and more detail. Should be between 1 and 3.
+Prim.Cylinder.Detail;Detail;How detailed to make the rounding
+Prim.Cylinder.Radius1;Radius Top
+Prim.Cylinder.Radius2;Radius Bottom
+Prim.Cylinder.Angle;Angle;How much of the cylinder to use. 360 is the full cylinder, 180 is only half of it.
+Prim.Cylinder.Cap1;Cap Top;Whether to cap the top
+Prim.Cylinder.Cap2;Cap Bottom;Whether to cap the bottom

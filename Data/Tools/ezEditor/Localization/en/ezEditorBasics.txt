@@ -34,11 +34,11 @@ Menu.EditorSettings;Editor Settings
 View.RenderMode;Render Mode
 View.RenderPerspective;Perspective
 View.RenderPipeline;Render Pipeline
-Asset.Transform;Transform Asset
-Asset.TransformAll;Transform All Assets
-Asset.CheckFilesystem;Check Filesystem
+Asset.Transform;Transform Asset;Transform: Creates the runtime data for this asset
+Asset.TransformAll;Transform All Assets;Transform All: Runs asset transformation on all modified assets
+Asset.CheckFilesystem;Check Filesystem;Checks for new or deleted assets on disk
 Asset.WriteLookupTable;Write Lookup Table
-Asset.RetrieveInfo;Retrieve Asset Info
+Asset.RetrieveInfo;Retrieve Asset Info;Inspects the source data for details that may be useful for configuring the asset
 Panel.AssetBrowser;Asset Browser
 Panel.Log;Log
 ezSceneViewPerspective::Orthogonal_Front;Ortho Front

@@ -231,6 +231,7 @@ void ezQtButtonProxy::Update()
 
   m_pQtAction->setIcon(ezUIServices::GetCachedIconResource(pButton->GetIconPath()));
   m_pQtAction->setText(QString::fromUtf8(ezTranslate(pButton->GetName())));
+  m_pQtAction->setToolTip(QString::fromUtf8(ezTranslateTooltip(pButton->GetName())));
   m_pQtAction->setCheckable(pButton->IsCheckable());
   m_pQtAction->setChecked(pButton->IsChecked());
   m_pQtAction->setEnabled(pButton->IsEnabled());

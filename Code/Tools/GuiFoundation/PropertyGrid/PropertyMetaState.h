@@ -23,6 +23,7 @@ struct ezPropertyUiState
   }
 
   Visibility m_Visibility;
+  ezString m_sNewLabelText;
 };
 
 /// \brief Event that is broadcast whenever information about how to present properties is required

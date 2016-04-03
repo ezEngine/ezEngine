@@ -12,10 +12,13 @@
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
+#include <CoreUtils/Localization/TranslationLookup.h>
 
 void OnLoadPlugin(bool bReloading)
 {
   ezQtEditorApp::GetSingleton()->RegisterPluginNameForSettings("AssetsPlugin");
+
+  ezTranslatorFromFiles::AddTranslationFile("AssetsPlugin.txt");
 
   // Texture Asset
   {

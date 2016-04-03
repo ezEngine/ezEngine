@@ -46,6 +46,7 @@ private:
   {
     ezQtPropertyWidget* m_pWidget;
     ezManipulatorLabel* m_pLabel;
+    ezString m_sOriginalLabelText;
   };
 
   QGridLayout* m_pLayout;

@@ -59,8 +59,8 @@ Prefabs.Menu;Prefabs
 Prefabs.UpdateAll;Update Prefabs
 Prefabs.Create;Create Prefab...
 Prefabs.Revert;Revert Prefab
-Prefabs.OpenDocument;Edit Prefab...
-Prefabs.Unlink;Unlink from Template
+Prefabs.OpenDocument;Edit Prefab...;Opens the prefab template in a separate window for editing
+Prefabs.Unlink;Unlink from Template;The prefab instance is turned into a regular object with no connection to the original prefab
 Scene.Simulation.Speed.Menu;Simulation Speed
 Scene.Simulation.Speed.01;10%
 Scene.Simulation.Speed.025;25%
@@ -92,6 +92,4 @@ ezRotorComponent;Rotor
 ezSliderComponent;Slider
 Components;Components
 Materials;Materials
-ezMaterialResourceSlot;ezMaterialResourceSlot
 Surfaces;Surfaces
-ezSurfaceResourceSlot;ezSurfaceResourceSlot

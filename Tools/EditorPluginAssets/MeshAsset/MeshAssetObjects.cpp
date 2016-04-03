@@ -19,14 +19,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 1, ezRTTIDefaultAllocator
     EZ_MEMBER_PROPERTY("Uniform Scaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("Non-Uniform Scaling", m_vNonUniformScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f))),
     EZ_MEMBER_PROPERTY("Mesh File", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.obj;*.fbx")),
-    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f)),
-    EZ_MEMBER_PROPERTY("Radius 2", m_fRadius2)->AddAttributes(new ezDefaultValueAttribute(0.5f)),
-    EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("Detail", m_uiDetail)->AddAttributes(new ezDefaultValueAttribute(1)),
-    EZ_MEMBER_PROPERTY("Detail 2", m_uiDetail2)->AddAttributes(new ezDefaultValueAttribute(1)),
+    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("Radius 2", m_fRadius2)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("Detail", m_uiDetail)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 128)),
+    EZ_MEMBER_PROPERTY("Detail 2", m_uiDetail2)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 128)),
     EZ_MEMBER_PROPERTY("Cap", m_bCap)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Cap 2", m_bCap2)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("Angle", m_fAngle)->AddAttributes(new ezDefaultValueAttribute(360.0f)),
+    EZ_MEMBER_PROPERTY("Angle", m_fAngle)->AddAttributes(new ezDefaultValueAttribute(360.0f), new ezClampValueAttribute(0.0f, 360.0f)),
     EZ_ARRAY_MEMBER_PROPERTY("Materials", m_Slots)->AddAttributes(new ezContainerAttribute(false, false, true)),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -97,6 +97,9 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
       props["Height"].m_Visibility = ezPropertyUiState::Default;
       props["Detail"].m_Visibility = ezPropertyUiState::Default;
       props["Detail 2"].m_Visibility = ezPropertyUiState::Default;
+
+      props["Detail"].m_sNewLabelText = "Prim.Sphere.Detail1";
+      props["Detail 2"].m_sNewLabelText = "Prim.Sphere.Detail2";
       break;
 
     case ezMeshPrimitive::Cone:
@@ -104,6 +107,8 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
       props["Height"].m_Visibility = ezPropertyUiState::Default;
       props["Detail"].m_Visibility = ezPropertyUiState::Default;
       props["Cap"].m_Visibility = ezPropertyUiState::Default;
+
+      props["Detail"].m_sNewLabelText = "Prim.Cylinder.Detail";
       break;
 
     case ezMeshPrimitive::Cylinder:
@@ -114,11 +119,20 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
       props["Cap"].m_Visibility = ezPropertyUiState::Default;
       props["Cap 2"].m_Visibility = ezPropertyUiState::Default;
       props["Angle"].m_Visibility = ezPropertyUiState::Default;
+
+      props["Detail"].m_sNewLabelText = "Prim.Cylinder.Detail";
+      props["Radius"].m_sNewLabelText = "Prim.Cylinder.Radius1";
+      props["Radius 2"].m_sNewLabelText = "Prim.Cylinder.Radius2";
+      props["Angle"].m_sNewLabelText = "Prim.Cylinder.Angle";
+      props["Cap"].m_sNewLabelText = "Prim.Cylinder.Cap1";
+      props["Cap 2"].m_sNewLabelText = "Prim.Cylinder.Cap2";
       break;
 
     case ezMeshPrimitive::GeodesicSphere:
       props["Radius"].m_Visibility = ezPropertyUiState::Default;
       props["Detail"].m_Visibility = ezPropertyUiState::Default;
+
+      props["Detail"].m_sNewLabelText = "Prim.GeoSphere.Detail";
       break;
 
     case ezMeshPrimitive::HalfSphere:
@@ -126,6 +140,9 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
       props["Detail"].m_Visibility = ezPropertyUiState::Default;
       props["Detail 2"].m_Visibility = ezPropertyUiState::Default;
       props["Cap"].m_Visibility = ezPropertyUiState::Default;
+
+      props["Detail"].m_sNewLabelText = "Prim.Sphere.Detail1";
+      props["Detail 2"].m_sNewLabelText = "Prim.Sphere.Detail2";
       break;
 
     case ezMeshPrimitive::Pyramid:
@@ -136,6 +153,9 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
       props["Radius"].m_Visibility = ezPropertyUiState::Default;
       props["Detail"].m_Visibility = ezPropertyUiState::Default;
       props["Detail 2"].m_Visibility = ezPropertyUiState::Default;
+
+      props["Detail"].m_sNewLabelText = "Prim.Sphere.Detail1";
+      props["Detail 2"].m_sNewLabelText = "Prim.Sphere.Detail2";
       break;
 
     case ezMeshPrimitive::Torus:
@@ -143,6 +163,11 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
       props["Radius 2"].m_Visibility = ezPropertyUiState::Default;
       props["Detail"].m_Visibility = ezPropertyUiState::Default;
       props["Detail 2"].m_Visibility = ezPropertyUiState::Default;
+
+      props["Detail"].m_sNewLabelText = "Prim.Torus.Detail1";
+      props["Detail 2"].m_sNewLabelText = "Prim.Torus.Detail2";
+      props["Radius"].m_sNewLabelText = "Prim.Torus.Radius1";
+      props["Radius 2"].m_sNewLabelText = "Prim.Torus.Radius2";
       break;
     }
 

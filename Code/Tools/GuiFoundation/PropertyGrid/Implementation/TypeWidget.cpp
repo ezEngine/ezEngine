@@ -13,6 +13,7 @@
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <GuiFoundation/PropertyGrid/Implementation/ManipulatorLabel.moc.h>
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
+#include <CoreUtils/Localization/TranslationLookup.h>
 
 ezTypeWidget::ezTypeWidget(QWidget* pParent, ezPropertyGridWidget* pGrid, const ezRTTI* pType, ezPropertyPath& parentPath)
   : QWidget(pParent)
@@ -127,6 +128,7 @@ void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath, cons
       }
 
       ref.m_pLabel = pLabel;
+      ref.m_sOriginalLabelText = pNewWidget->GetLabel();
     }
     else
     {
@@ -326,6 +328,24 @@ void ezTypeWidget::UpdatePropertyMetaState()
     {
       it.Value().m_pLabel->setVisible(state != ezPropertyUiState::Invisible);
       it.Value().m_pLabel->setEnabled(!bReadOnly && state != ezPropertyUiState::Disabled);
+
+      if (itData.IsValid() && !itData.Value().m_sNewLabelText.IsEmpty())
+      {
+        const char* szLabelText = itData.Value().m_sNewLabelText;
+        it.Value().m_pLabel->setText(QString::fromUtf8(ezTranslate(szLabelText)));
+        it.Value().m_pLabel->setToolTip(QString::fromUtf8(ezTranslateTooltip(szLabelText)));
+      }
+      else
+      {
+        // do NOT translate the first string
+        // unless there is a specific override, we want to show the exact property name
+        // also we don't want to force people to add translations for each and every property name
+        it.Value().m_pLabel->setText(QString::fromUtf8(it.Value().m_sOriginalLabelText.GetData()));
+
+        // though do try to get a tooltip for the property
+        // this will not log an error message, if the string is not translated
+        it.Value().m_pLabel->setToolTip(QString::fromUtf8(ezTranslateTooltip(it.Value().m_sOriginalLabelText.GetData())));
+      }
     }
 
     it.Value().m_pWidget->setVisible(state != ezPropertyUiState::Invisible);

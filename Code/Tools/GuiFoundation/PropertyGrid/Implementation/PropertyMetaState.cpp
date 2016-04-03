@@ -48,6 +48,7 @@ void ezPropertyMetaState::GetPropertyState(const ezHybridArray<ezQtPropertyWidge
       auto& curState = out_PropertyStates[it.Key()];
 
       curState.m_Visibility = ezMath::Max(curState.m_Visibility, it.Value().m_Visibility);
+      curState.m_sNewLabelText = it.Value().m_sNewLabelText;
     }
   }
 }

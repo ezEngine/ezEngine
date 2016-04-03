@@ -10,11 +10,11 @@ void ezTranslationLookup::AddTranslator(ezUniquePtr<ezTranslator> pTranslator)
 }
 
 
-const char* ezTranslationLookup::Translate(const char* szString, ezUInt32 uiStringHash)
+const char* ezTranslationLookup::Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage)
 {
   for (ezUInt32 i = s_pTranslators.GetCount(); i > 0; --i)
   {
-    const char* szResult = s_pTranslators[i - 1]->Translate(szString, uiStringHash);
+    const char* szResult = s_pTranslators[i - 1]->Translate(szString, uiStringHash, usage);
 
     if (szResult != nullptr)
       return szResult;
@@ -29,12 +29,12 @@ void ezTranslationLookup::Clear()
   s_pTranslators.Clear();
 }
 
-const char* ezTranslatorFromFiles::Translate(const char* szString, ezUInt32 uiStringHash)
+const char* ezTranslatorFromFiles::Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage)
 {
   if (m_uiLoadedFiles != s_TranslationFiles.GetCount())
     ReloadTranslations();
 
-  return ezTranslatorStorage::Translate(szString, uiStringHash);
+  return ezTranslatorStorage::Translate(szString, uiStringHash, usage);
 }
 
 
@@ -83,8 +83,6 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFileName)
   ezFileReader file;
   if (file.Open(sPath).Failed())
   {
-    /// \todo fall back to different language
-
     ezLog::SeriousWarning("Failed to open localization file '%s'", sPath.GetData());
     return;
   }
@@ -95,7 +93,7 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFileName)
   ezDeque<ezString> Lines;
   sContent.Split(false, Lines, "\n");
 
-  ezStringBuilder sLine, sKey, sValue;
+  ezStringBuilder sLine, sKey, sValue, sTooltip;
   for (const auto& line : Lines)
   {
     sLine = line;
@@ -109,23 +107,36 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFileName)
     }
 
     sKey.SetSubString_FromTo(sLine.GetData(), szSeperator);
-    sValue = szSeperator + 1; // the rest
+
+    const char* szSeperator2 = sLine.FindSubString(";", szSeperator + 1);
+
+    if (szSeperator2 == nullptr)
+    {
+      sValue = szSeperator + 1; // the rest
+      sTooltip.Clear();
+    }
+    else
+    {
+      sValue.SetSubString_FromTo(szSeperator + 1, szSeperator2);
+      sTooltip = szSeperator2 + 1;
+    }
 
     sKey.Trim(" \t\r\n");
     sValue.Trim(" \t\r\n");
 
-    StoreTranslation(sValue, ezHashHelper<const char*>::Hash(sKey.GetData()));
+    StoreTranslation(sValue, ezHashHelper<const char*>::Hash(sKey.GetData()), ezTranslationUsage::Default);
+    StoreTranslation(sTooltip, ezHashHelper<const char*>::Hash(sKey.GetData()), ezTranslationUsage::Tooltip);
   }
 }
 
-void ezTranslatorStorage::StoreTranslation(const char* szString, ezUInt32 uiStringHash)
+void ezTranslatorStorage::StoreTranslation(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage)
 {
-  m_Translations[uiStringHash] = szString;
+  m_Translations[usage][uiStringHash] = szString;
 }
 
-const char* ezTranslatorStorage::Translate(const char* szString, ezUInt32 uiStringHash)
+const char* ezTranslatorStorage::Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage)
 {
-  auto it = m_Translations.Find(uiStringHash);
+  auto it = m_Translations[usage].Find(uiStringHash);
   if (it.IsValid())
     return it.Value().GetData();
 
@@ -134,19 +145,25 @@ const char* ezTranslatorStorage::Translate(const char* szString, ezUInt32 uiStri
 
 void ezTranslatorStorage::Reset()
 {
-  m_Translations.Clear();
+  for (ezUInt32 i = 0; i < ezTranslationUsage::ENUM_COUNT; ++i)
+  {
+    m_Translations[i].Clear();
+  }
 }
 
-const char* ezTranslatorLogMissing::Translate(const char* szString, ezUInt32 uiStringHash)
+const char* ezTranslatorLogMissing::Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage)
 {
-  const char* szResult = ezTranslatorStorage::Translate(szString, uiStringHash);
+  const char* szResult = ezTranslatorStorage::Translate(szString, uiStringHash, usage);
 
   if (szResult != nullptr)
     return szResult;
 
+  if (usage == ezTranslationUsage::Tooltip)
+    return "";
+
   ezLog::Warning("Missing Translation for '%s'", szString);
 
-  StoreTranslation(szString, uiStringHash);
+  StoreTranslation(szString, uiStringHash, usage);
   return szString;
 }
 

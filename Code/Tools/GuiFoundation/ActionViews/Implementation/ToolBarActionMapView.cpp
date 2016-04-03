@@ -7,6 +7,7 @@
 #include <QMenu>
 #include <QToolButton>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <CoreUtils/Localization/TranslationLookup.h>
 
 ezToolBarActionMapView::ezToolBarActionMapView(QString title, QWidget* parent) : QToolBar(title, parent)
 {
@@ -92,7 +93,7 @@ void ezToolBarActionMapView::CreateView(const ezActionMap::TreeNode* pObject)
         pButton->setPopupMode(QToolButton::ToolButtonPopupMode::InstantPopup);
         pButton->setText(pQtMenu->title());
         pButton->setIcon(ezUIServices::GetCachedIconResource(pNamed->GetIconPath()));
-        pButton->setToolTip(pQtMenu->title());
+        pButton->setToolTip(pQtMenu->title().toUtf8().data());
 
         // TODO addWidget return value of QAction leaks!
         QAction* pToolButtonAction = addWidget(pButton);
