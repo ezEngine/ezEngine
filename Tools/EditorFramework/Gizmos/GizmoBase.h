@@ -7,6 +7,20 @@
 
 class ezCamera;
 
+struct ezGizmoEvent
+{
+  enum class Type
+  {
+    BeginInteractions,
+    EndInteractions,
+    Interaction,
+    CancelInteractions,
+  };
+
+  const ezEditorInputContext* m_pGizmo;
+  Type m_Type;
+};
+
 class EZ_EDITORFRAMEWORK_DLL ezGizmo : public ezEditorInputContext
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezGizmo, ezEditorInputContext);
@@ -28,21 +42,7 @@ public:
     m_Viewport = viewport;
   }
 
-  struct GizmoEvent
-  {
-    enum class Type
-    {
-      BeginInteractions,
-      EndInteractions,
-      Interaction,
-      CancelInteractions,
-    };
-
-    const ezEditorInputContext* m_pGizmo;
-    Type m_Type;
-  };
-
-  ezEvent<const GizmoEvent&> m_GizmoEvents;
+  ezEvent<const ezGizmoEvent&> m_GizmoEvents;
 
 protected:
   virtual void OnVisibleChanged(bool bVisible) = 0;

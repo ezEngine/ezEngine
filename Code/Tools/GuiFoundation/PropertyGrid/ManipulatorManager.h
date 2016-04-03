@@ -29,6 +29,8 @@ public:
 
   void SetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezHybridArray<ezQtPropertyWidget::Selection, 8>& selection);
 
+  void ClearActiveManipulator(const ezDocument* pDoc);
+
   ezEvent<const ezManipulatorManagerEvent&> m_Events;
 
 private:

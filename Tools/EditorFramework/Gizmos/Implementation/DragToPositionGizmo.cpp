@@ -72,9 +72,9 @@ void ezDragToPositionGizmo::OnTransformationChanged(const ezMat4& transform)
 
 void ezDragToPositionGizmo::FocusLost(bool bCancel)
 {
-  GizmoEvent ev;
+  ezGizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = bCancel ? GizmoEvent::Type::CancelInteractions : GizmoEvent::Type::EndInteractions;
+  ev.m_Type = bCancel ? ezGizmoEvent::Type::CancelInteractions : ezGizmoEvent::Type::EndInteractions;
   m_GizmoEvents.Broadcast(ev);
 
   ezViewHighlightMsgToEngine msg;
@@ -118,9 +118,9 @@ ezEditorInut ezDragToPositionGizmo::mousePressEvent(QMouseEvent* e)
 
   SetActiveInputContext(this);
 
-  GizmoEvent ev;
+  ezGizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = GizmoEvent::Type::BeginInteractions;
+  ev.m_Type = ezGizmoEvent::Type::BeginInteractions;
   m_GizmoEvents.Broadcast(ev);
 
   return ezEditorInut::WasExclusivelyHandled;
@@ -222,9 +222,9 @@ ezEditorInut ezDragToPositionGizmo::mouseMoveEvent(QMouseEvent* e)
   mTrans.SetRotationalPart(mRot);
   SetTransformation(mTrans);
 
-  GizmoEvent ev;
+  ezGizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = GizmoEvent::Type::Interaction;
+  ev.m_Type = ezGizmoEvent::Type::Interaction;
   m_GizmoEvents.Broadcast(ev);
 
   return ezEditorInut::WasExclusivelyHandled;

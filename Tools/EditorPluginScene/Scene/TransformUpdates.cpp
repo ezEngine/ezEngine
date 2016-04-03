@@ -17,7 +17,7 @@ ezTransform ezSceneDocument::QueryLocalTransform(const ezDocumentObject* pObject
   return ezTransform(vTranslation, qRotation, vScaling * fScaling);
 }
 
-ezTransform ezSceneDocument::ComputeGlobalTransform(const ezDocumentObject* pObject)
+ezTransform ezSceneDocument::ComputeGlobalTransform(const ezDocumentObject* pObject) const
 {
   ezTransform tGlobal;
   if (pObject == nullptr || pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())

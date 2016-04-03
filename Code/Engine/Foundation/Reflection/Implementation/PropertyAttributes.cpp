@@ -106,8 +106,8 @@ ezSphereManipulatorAttribute::ezSphereManipulatorAttribute()
 
 }
 
-ezSphereManipulatorAttribute::ezSphereManipulatorAttribute(const char* szInnerRadius, const char* szOuterRadius /*= nullptr*/)
-  : ezManipulatorAttribute(szInnerRadius, szOuterRadius)
+ezSphereManipulatorAttribute::ezSphereManipulatorAttribute(const char* szOuterRadius, const char* szInnerRadius)
+  : ezManipulatorAttribute(szOuterRadius, szInnerRadius)
 {
 
 }

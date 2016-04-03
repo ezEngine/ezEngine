@@ -25,9 +25,9 @@ ezOrthoGizmoContext::ezOrthoGizmoContext(ezQtEngineDocumentWindow* pOwnerWindow,
 
 void ezOrthoGizmoContext::FocusLost(bool bCancel)
 {
-  ezGizmo::GizmoEvent e;
+  ezGizmoEvent e;
   e.m_pGizmo = this;
-  e.m_Type = bCancel ? ezGizmo::GizmoEvent::Type::CancelInteractions : ezGizmo::GizmoEvent::Type::EndInteractions;
+  e.m_Type = bCancel ? ezGizmoEvent::Type::CancelInteractions : ezGizmoEvent::Type::EndInteractions;
 
   m_GizmoEvents.Broadcast(e);
 
@@ -121,9 +121,9 @@ ezEditorInut ezOrthoGizmoContext::mouseMoveEvent(QMouseEvent* e)
 
     m_LastMousePos = e->globalPos();
 
-    ezGizmo::GizmoEvent ev;
+    ezGizmoEvent ev;
     ev.m_pGizmo = this;
-    ev.m_Type = ezGizmo::GizmoEvent::Type::Interaction;
+    ev.m_Type = ezGizmoEvent::Type::Interaction;
 
     m_GizmoEvents.Broadcast(ev);
 
@@ -141,9 +141,9 @@ ezEditorInut ezOrthoGizmoContext::mouseMoveEvent(QMouseEvent* e)
     m_bCanInteract = false;
     SetActiveInputContext(this);
 
-    ezGizmo::GizmoEvent ev;
+    ezGizmoEvent ev;
     ev.m_pGizmo = this;
-    ev.m_Type = ezGizmo::GizmoEvent::Type::BeginInteractions;
+    ev.m_Type = ezGizmoEvent::Type::BeginInteractions;
 
     m_GizmoEvents.Broadcast(ev);
     return ezEditorInut::WasExclusivelyHandled;

@@ -69,6 +69,9 @@ public:
   /// \brief Broadcasts a status message event. The window that displays the document may show this in some form, e.g. in the status bar.
   void ShowDocumentStatus(const char* szFormat, ...);
 
+  /// \brief Tries to compute the position and rotation for an object in the document. Returns EZ_SUCCESS if it was possible.
+  virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const { return EZ_FAILURE; }
+
 public:
   
   ezEvent<const ezDocumentEvent&> m_EventsOne;

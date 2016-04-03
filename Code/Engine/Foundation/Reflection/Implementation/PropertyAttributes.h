@@ -274,10 +274,10 @@ class EZ_FOUNDATION_DLL ezSphereManipulatorAttribute : public ezManipulatorAttri
 
 public:
   ezSphereManipulatorAttribute();
-  ezSphereManipulatorAttribute(const char* szInnerRadius, const char* szOuterRadius = nullptr);
+  ezSphereManipulatorAttribute(const char* szOuterRadius, const char* szInnerRadius = nullptr);
 
-  const ezString& GetInnerRadiusProperty() const { return m_sProperty1; }
-  const ezString& GetOuterRadiusProperty() const { return m_sProperty2; }
+  const ezString& GetOuterRadiusProperty() const { return m_sProperty1; }
+  const ezString& GetInnerRadiusProperty() const { return m_sProperty2; }
 
 protected:
 

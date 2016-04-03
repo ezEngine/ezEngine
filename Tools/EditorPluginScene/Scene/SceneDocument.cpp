@@ -991,6 +991,28 @@ ezStatus ezSceneDocument::ExportScene()
   return res;
 }
 
+
+ezResult ezSceneDocument::ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const
+{
+  const ezDocumentObject* pObj = pObject;
+
+  while (pObj && !pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+  {
+    pObj = pObj->GetParent();
+  }
+
+  if (pObj)
+  {
+    out_Result = ComputeGlobalTransform(pObj);
+    return EZ_SUCCESS;
+  }
+  else
+  {
+    out_Result.SetIdentity();
+    return EZ_FAILURE;
+  }
+}
+
 ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
   ezSceneDocumentExportEvent e;

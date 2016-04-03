@@ -5,6 +5,8 @@
 #include <EditorFramework/Gizmos/SphereGizmo.h>
 #include <EditorFramework/Gizmos/TranslateGizmo.h>
 
+struct ezGizmoEvent;
+
 class ezSphereManipulatorAdapter : public ezManipulatorAdapter
 {
 public:
@@ -13,8 +15,8 @@ public:
 
 protected:
   virtual void Finalize() override;
-
   virtual void Update() override;
+  void GizmoEventHandler(const ezGizmoEvent& e);
 
   ezSphereGizmo m_Gizmo;
 };

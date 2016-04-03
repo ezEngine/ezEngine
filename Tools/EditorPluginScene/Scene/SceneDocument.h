@@ -138,7 +138,7 @@ public:
   void SetPickingResult(const ezObjectPickingResult& res) { m_PickingResult = res; }
 
   static ezTransform QueryLocalTransform(const ezDocumentObject* pObject);
-  ezTransform ComputeGlobalTransform(const ezDocumentObject* pObject);
+  ezTransform ComputeGlobalTransform(const ezDocumentObject* pObject) const;
 
   const ezString& GetCachedPrefabGraph(const ezUuid& AssetGuid);
   ezString ReadDocumentAsString(const char* szFile) const;
@@ -169,6 +169,9 @@ public:
   void HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg);
 
   ezStatus ExportScene();
+
+  /// \brief Traverses the pObject hierarchy up until it hits an ezGameObject, then computes the global transform of that.
+  virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const override;
 
 protected:
   void SetGameMode(GameMode mode);
@@ -225,7 +228,7 @@ private:
   ActiveGizmo m_ActiveGizmo;
   ezObjectPickingResult m_PickingResult;
 
-  ezHashTable<const ezDocumentObject*, ezTransform> m_GlobalTransforms;
+  mutable ezHashTable<const ezDocumentObject*, ezTransform> m_GlobalTransforms;
 
   ezMap<ezUuid, ezString> m_CachedPrefabGraphs;
 

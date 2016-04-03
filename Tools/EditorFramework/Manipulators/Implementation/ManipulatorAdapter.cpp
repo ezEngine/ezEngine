@@ -2,6 +2,9 @@
 #include <EditorFramework/Manipulators/ManipulatorAdapter.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
+#include <Core/World/GameObject.h>
 
 ezManipulatorAdapter::ezManipulatorAdapter()
 {
@@ -45,3 +48,68 @@ void ezManipulatorAdapter::DocumentObjectPropertyEventHandler(const ezDocumentOb
     }
   }
 }
+
+ezTransform ezManipulatorAdapter::GetObjectTransform() const
+{
+  ezTransform t;
+  m_pObject->GetDocumentObjectManager()->GetDocument()->ComputeObjectTransformation(m_pObject, t);
+
+  return t;
+}
+
+void ezManipulatorAdapter::BeginTemporaryInteraction()
+{
+  m_pObject->GetDocumentObjectManager()->GetDocument()->GetCommandHistory()->BeginTemporaryCommands();
+}
+
+void ezManipulatorAdapter::EndTemporaryInteraction()
+{
+  m_pObject->GetDocumentObjectManager()->GetDocument()->GetCommandHistory()->FinishTemporaryCommands();
+}
+
+void ezManipulatorAdapter::CancelTemporayInteraction()
+{
+  m_pObject->GetDocumentObjectManager()->GetDocument()->GetCommandHistory()->CancelTemporaryCommands();
+}
+
+void ezManipulatorAdapter::ChangeProperties(const char* szProperty1, const ezVariant& value1, const char* szProperty2 /*= nullptr*/, const ezVariant& value2 /*= ezVariant()*/, const char* szProperty3 /*= nullptr*/, const ezVariant& value3 /*= ezVariant()*/, const char* szProperty4 /*= nullptr*/, const ezVariant& value4 /*= ezVariant()*/)
+{
+  auto pHistory = m_pObject->GetDocumentObjectManager()->GetDocument()->GetCommandHistory();
+  pHistory->StartTransaction();
+
+  ezSetObjectPropertyCommand cmd;
+  cmd.m_Object = m_pObject->GetGuid();
+
+  if (!ezStringUtils::IsNullOrEmpty(szProperty1))
+  {
+    cmd.SetPropertyPath(szProperty1);
+    cmd.m_NewValue = value1;
+    pHistory->AddCommand(cmd);
+  }
+
+  if (!ezStringUtils::IsNullOrEmpty(szProperty2))
+  {
+    cmd.SetPropertyPath(szProperty2);
+    cmd.m_NewValue = value2;
+    pHistory->AddCommand(cmd);
+  }
+
+  if (!ezStringUtils::IsNullOrEmpty(szProperty3))
+  {
+    cmd.SetPropertyPath(szProperty3);
+    cmd.m_NewValue = value3;
+    pHistory->AddCommand(cmd);
+  }
+
+  if (!ezStringUtils::IsNullOrEmpty(szProperty4))
+  {
+    cmd.SetPropertyPath(szProperty4);
+    cmd.m_NewValue = value4;
+    pHistory->AddCommand(cmd);
+  }
+
+  pHistory->FinishTransaction();
+}
+
+
+

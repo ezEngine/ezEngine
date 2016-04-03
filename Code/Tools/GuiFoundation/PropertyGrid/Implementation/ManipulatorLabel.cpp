@@ -2,6 +2,8 @@
 #include <GuiFoundation/PropertyGrid/Implementation/ManipulatorLabel.moc.h>
 #include <qevent.h>
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
+#include <QFont>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 
 ezManipulatorLabel::ezManipulatorLabel(QWidget* parent, Qt::WindowFlags f)
   : QLabel(parent, f), m_pItems(nullptr), m_pManipulator(nullptr), m_bActive(false)
@@ -12,7 +14,6 @@ ezManipulatorLabel::ezManipulatorLabel(QWidget* parent, Qt::WindowFlags f)
 ezManipulatorLabel::ezManipulatorLabel(const QString& text, QWidget* parent, Qt::WindowFlags f)
   : QLabel(text, parent, f), m_pItems(nullptr), m_pManipulator(nullptr), m_bActive(false)
 {
-
 }
 
 const ezManipulatorAttribute* ezManipulatorLabel::GetManipulator() const
@@ -23,6 +24,12 @@ const ezManipulatorAttribute* ezManipulatorLabel::GetManipulator() const
 void ezManipulatorLabel::SetManipulator(const ezManipulatorAttribute* pManipulator)
 {
   m_pManipulator = pManipulator;
+
+  if (m_pManipulator)
+  {
+    setCursor(Qt::PointingHandCursor);
+    setForegroundRole(QPalette::ColorRole::Link);
+  }
 }
 
 const bool ezManipulatorLabel::GetManipulatorActive() const
@@ -39,6 +46,7 @@ void ezManipulatorLabel::SetManipulatorActive(bool bActive)
     QFont f = font();
     f.setBold(m_bActive);
     setFont(f);
+    setForegroundRole(m_bActive ? QPalette::ColorRole::LinkVisited : QPalette::ColorRole::Link);
   }
 }
 
@@ -55,7 +63,12 @@ void ezManipulatorLabel::mousePressEvent(QMouseEvent *ev)
   if (m_pManipulator == nullptr)
     return;
 
-  ezManipulatorManager::GetSingleton()->SetActiveManipulator((*m_pItems)[0].m_pObject->GetDocumentObjectManager()->GetDocument(), m_pManipulator, *m_pItems);
+  const ezDocument* pDoc = (*m_pItems)[0].m_pObject->GetDocumentObjectManager()->GetDocument();
+
+  if (m_bActive)
+    ezManipulatorManager::GetSingleton()->ClearActiveManipulator(pDoc);
+  else
+    ezManipulatorManager::GetSingleton()->SetActiveManipulator(pDoc, m_pManipulator, *m_pItems);
 }
 
 void ezManipulatorLabel::enterEvent(QEvent* ev)

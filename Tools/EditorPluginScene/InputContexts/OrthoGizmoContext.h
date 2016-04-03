@@ -26,7 +26,7 @@ public:
   virtual ezEditorInut mouseReleaseEvent(QMouseEvent* e) override;
   virtual ezEditorInut mouseMoveEvent(QMouseEvent* e) override;
 
-  ezEvent<const ezGizmo::GizmoEvent&> m_GizmoEvents;
+  ezEvent<const ezGizmoEvent&> m_GizmoEvents;
 
   const ezVec3& GetTranslationResult() const { return m_vTranslationResult; }
   const ezQuat& GetRotationResult() const { return m_qRotationResult; }

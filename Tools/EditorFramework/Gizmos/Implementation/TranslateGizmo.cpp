@@ -83,9 +83,9 @@ void ezTranslateGizmo::FocusLost(bool bCancel)
     GetOwnerWindow()->setCursor(QCursor(Qt::ArrowCursor));
   }
 
-  GizmoEvent ev;
+  ezGizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = bCancel ? GizmoEvent::Type::CancelInteractions : GizmoEvent::Type::EndInteractions;
+  ev.m_Type = bCancel ? ezGizmoEvent::Type::CancelInteractions : ezGizmoEvent::Type::EndInteractions;
   m_GizmoEvents.Broadcast(ev);
 
   ezViewHighlightMsgToEngine msg;
@@ -192,9 +192,9 @@ ezEditorInut ezTranslateGizmo::mousePressEvent(QMouseEvent* e)
 
   m_fStartScale = (m_vInteractionPivot - m_pCamera->GetPosition()).GetLength() * 0.125;
 
-  GizmoEvent ev;
+  ezGizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = GizmoEvent::Type::BeginInteractions;
+  ev.m_Type = ezGizmoEvent::Type::BeginInteractions;
   m_GizmoEvents.Broadcast(ev);
 
   return ezEditorInut::WasExclusivelyHandled;
@@ -359,9 +359,9 @@ ezEditorInut ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
 
   SetTransformation(mTrans);
 
-  GizmoEvent ev;
+  ezGizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = GizmoEvent::Type::Interaction;
+  ev.m_Type = ezGizmoEvent::Type::Interaction;
   m_GizmoEvents.Broadcast(ev);
 
   return ezEditorInut::WasExclusivelyHandled;
@@ -372,9 +372,9 @@ void ezTranslateGizmo::SnapToGrid()
   if (m_Mode != TranslateMode::None)
     return;
 
-  GizmoEvent ev;
+  ezGizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = GizmoEvent::Type::BeginInteractions;
+  ev.m_Type = ezGizmoEvent::Type::BeginInteractions;
   m_GizmoEvents.Broadcast(ev);
 
   ezMat4 mTrans = GetTransformation();
@@ -388,10 +388,10 @@ void ezTranslateGizmo::SnapToGrid()
   mTrans.SetTranslationVector(vPos);
   SetTransformation(mTrans);
 
-  ev.m_Type = GizmoEvent::Type::Interaction;
+  ev.m_Type = ezGizmoEvent::Type::Interaction;
   m_GizmoEvents.Broadcast(ev);
 
-  ev.m_Type = GizmoEvent::Type::EndInteractions;
+  ev.m_Type = ezGizmoEvent::Type::EndInteractions;
   m_GizmoEvents.Broadcast(ev);
 }
 

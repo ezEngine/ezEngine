@@ -75,6 +75,13 @@ void ezManipulatorManager::SetActiveManipulator(const ezDocument* pDoc, const ez
   m_Events.Broadcast(e);
 }
 
+void ezManipulatorManager::ClearActiveManipulator(const ezDocument* pDoc)
+{
+  ezHybridArray<ezQtPropertyWidget::Selection, 8> clearSel;
+
+  SetActiveManipulator(pDoc, nullptr, clearSel);
+}
+
 void ezManipulatorManager::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
   if (e.m_EventType == ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved)
@@ -87,9 +94,7 @@ void ezManipulatorManager::StructureEventHandler(const ezDocumentObjectStructure
       {
         if (sel.m_pObject == e.m_pObject)
         {
-          ezHybridArray<ezQtPropertyWidget::Selection, 8> clearSel;
-          SetActiveManipulator(it.Key(), nullptr, clearSel);
-
+          ClearActiveManipulator(it.Key());
           return;
         }
       }
@@ -114,8 +119,7 @@ void ezManipulatorManager::DocumentManagerEventHandler(const ezDocumentManager::
 {
   if (e.m_Type == ezDocumentManager::Event::Type::DocumentClosing)
   {
-    ezHybridArray<ezQtPropertyWidget::Selection, 8> clearSel;
-    SetActiveManipulator(e.m_pDocument, nullptr, clearSel);
+    ClearActiveManipulator(e.m_pDocument);
 
     e.m_pDocument->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezManipulatorManager::StructureEventHandler, this));
     m_ActiveManipulator.Remove(e.m_pDocument);

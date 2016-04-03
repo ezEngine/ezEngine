@@ -125,11 +125,11 @@ void ezQtSceneDocumentWindow::UpdateGizmoPosition()
 }
 
 
-void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmo::GizmoEvent& e)
+void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezGizmo::GizmoEvent::Type::BeginInteractions:
+  case ezGizmoEvent::Type::BeginInteractions:
     {
       m_bMergeTransactions = false;
 
@@ -151,7 +151,7 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmo::Giz
     }
     break;
 
-  case ezGizmo::GizmoEvent::Type::EndInteractions:
+  case ezGizmoEvent::Type::EndInteractions:
     {
       GetDocument()->GetCommandHistory()->FinishTemporaryCommands();
 
@@ -162,7 +162,7 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmo::Giz
     }
     break;
 
-  case ezGizmo::GizmoEvent::Type::CancelInteractions:
+  case ezGizmoEvent::Type::CancelInteractions:
     {
       GetDocument()->GetCommandHistory()->CancelTemporaryCommands();
 
@@ -170,7 +170,7 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmo::Giz
     }
     break;
 
-  case ezGizmo::GizmoEvent::Type::Interaction:
+  case ezGizmoEvent::Type::Interaction:
     {
       m_bInGizmoInteraction = true;
       GetDocument()->GetCommandHistory()->StartTransaction();

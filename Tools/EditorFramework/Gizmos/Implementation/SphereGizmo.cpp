@@ -13,7 +13,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezSphereGizmo::ezSphereGizmo()
 {
-  m_bOuterEnabled = false;
+  m_bInnerEnabled = false;
 
   m_fStartRadiusInner = 1.0f;
   m_fStartRadiusOuter = 2.0f;
@@ -38,8 +38,8 @@ void ezSphereGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngin
 
 void ezSphereGizmo::OnVisibleChanged(bool bVisible)
 {
-  m_InnerSphere.SetVisible(bVisible);
-  m_OuterSphere.SetVisible(bVisible && m_bOuterEnabled);
+  m_InnerSphere.SetVisible(bVisible && m_bInnerEnabled);
+  m_OuterSphere.SetVisible(bVisible);
 }
 
 void ezSphereGizmo::OnTransformationChanged(const ezMat4& transform)
@@ -54,16 +54,16 @@ void ezSphereGizmo::OnTransformationChanged(const ezMat4& transform)
 
 void ezSphereGizmo::FocusLost(bool bCancel)
 {
-  GizmoEvent ev;
+  ezGizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = bCancel ? GizmoEvent::Type::CancelInteractions : GizmoEvent::Type::EndInteractions;
+  ev.m_Type = bCancel ? ezGizmoEvent::Type::CancelInteractions : ezGizmoEvent::Type::EndInteractions;
   m_GizmoEvents.Broadcast(ev);
 
   ezViewHighlightMsgToEngine msg;
   msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
 
-  m_InnerSphere.SetVisible(true);
-  m_OuterSphere.SetVisible(m_bOuterEnabled);
+  m_InnerSphere.SetVisible(m_bInnerEnabled);
+  m_OuterSphere.SetVisible(true);
 
   m_ManipulateMode = ManipulateMode::None;
 }
@@ -102,9 +102,9 @@ ezEditorInut ezSphereGizmo::mousePressEvent(QMouseEvent* e)
 
   SetActiveInputContext(this);
 
-  GizmoEvent ev;
+  ezGizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = GizmoEvent::Type::BeginInteractions;
+  ev.m_Type = ezGizmoEvent::Type::BeginInteractions;
   m_GizmoEvents.Broadcast(ev);
 
   return ezEditorInut::WasExclusivelyHandled;
@@ -165,26 +165,26 @@ ezEditorInut ezSphereGizmo::mouseMoveEvent(QMouseEvent* e)
   // update the scale
   OnTransformationChanged(GetTransformation());
 
-  GizmoEvent ev;
+  ezGizmoEvent ev;
   ev.m_pGizmo = this;
-  ev.m_Type = GizmoEvent::Type::Interaction;
+  ev.m_Type = ezGizmoEvent::Type::Interaction;
   m_GizmoEvents.Broadcast(ev);
 
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-void ezSphereGizmo::SetInnerSphere(float fRadius)
+void ezSphereGizmo::SetInnerSphere(bool bEnabled, float fRadius)
 {
   m_fRadiusInner = fRadius;
+  m_bInnerEnabled = bEnabled;
   
   // update the scale
   OnTransformationChanged(GetTransformation());
 }
 
-void ezSphereGizmo::SetOuterSphere(bool bEnabled, float fRadius)
+void ezSphereGizmo::SetOuterSphere(float fRadius)
 {
   m_fRadiusOuter = fRadius;
-  m_bOuterEnabled = bEnabled;
 
   // update the scale
   OnTransformationChanged(GetTransformation());

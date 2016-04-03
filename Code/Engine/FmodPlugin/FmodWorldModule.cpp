@@ -14,20 +14,20 @@ ezFmodSoundBankResourceHandle hRes[5];
 
 void ezFmodSceneModule::InternalStartup()
 {
-  hRes[0] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/Master Bank.bank");
-  hRes[1] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/Master Bank.strings.bank");
-  hRes[2] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/Surround_Ambience.bank");
-  hRes[3] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/UI_Menu.bank");
-  hRes[4] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/Weapons.bank");
+  //hRes[0] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/Master Bank.bank");
+  //hRes[1] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/Master Bank.strings.bank");
+  //hRes[2] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/Surround_Ambience.bank");
+  //hRes[3] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/UI_Menu.bank");
+  //hRes[4] = ezResourceManager::LoadResource<ezFmodSoundBankResource>("SoundBanks/Weapons.bank");
 
   GetWorld()->GetOrCreateComponentManager<ezFmodEventComponentManager>()->SetUserData(this);
   GetWorld()->GetOrCreateComponentManager<ezFmodListenerComponentManager>()->SetUserData(this);
   GetWorld()->GetOrCreateComponentManager<ezFmodReverbComponentManager>()->SetUserData(this);
 
-  for (int i = 0; i < 5; ++i)
-  {
-    ezResourceLock<ezFmodSoundBankResource> pRes(hRes[i]);
-  }
+  //for (int i = 0; i < 5; ++i)
+  //{
+  //  ezResourceLock<ezFmodSoundBankResource> pRes(hRes[i]);
+  //}
 
   InternalReinit();
 }

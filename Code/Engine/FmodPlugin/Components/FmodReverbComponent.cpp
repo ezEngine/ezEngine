@@ -37,6 +37,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodReverbComponent, 1);
     EZ_MEMBER_PROPERTY("Max Distance", m_fMaxDistance)->AddAttributes(new ezDefaultValueAttribute(2.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ENUM_MEMBER_PROPERTY("Preset", ezFmodReverbPresets, m_ReverbPreset),
   EZ_END_PROPERTIES
+  EZ_BEGIN_ATTRIBUTES
+    new ezSphereManipulatorAttribute("Max Distance", "Min Distance")
+  EZ_END_ATTRIBUTES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezFmodReverbComponent::ezFmodReverbComponent()

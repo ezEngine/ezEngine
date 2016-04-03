@@ -35,7 +35,7 @@ public slots:
   void ToggleViews(QWidget* pView);
 
 private:
-  void TransformationGizmoEventHandler(const ezGizmo::GizmoEvent& e);
+  void TransformationGizmoEventHandler(const ezGizmoEvent& e);
   void SelectionManagerEventHandler(const ezSelectionManager::Event& e);
   void SceneObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezSceneObjectMetaData>::EventData& e);
   void SceneExportEventHandler(ezSceneDocumentExportEvent& e);
