@@ -293,7 +293,7 @@ void ezSelectionAction::CreatePrefab()
   }
 }
 
-void ezSelectionAction::SelectionEventHandler(const ezSelectionManager::Event& e)
+void ezSelectionAction::SelectionEventHandler(const ezSelectionManagerEvent& e)
 {
   UpdateEnableState();
 

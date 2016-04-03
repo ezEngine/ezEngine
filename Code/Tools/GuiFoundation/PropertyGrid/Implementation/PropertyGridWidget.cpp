@@ -341,18 +341,18 @@ void ezPropertyGridWidget::OnCollapseStateChanged(bool bCollapsed)
   m_CollapseState[uiHash] = pBox->GetCollapseState();
 }
 
-void ezPropertyGridWidget::SelectionEventHandler(const ezSelectionManager::Event& e)
+void ezPropertyGridWidget::SelectionEventHandler(const ezSelectionManagerEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezSelectionManager::Event::Type::SelectionCleared:
+  case ezSelectionManagerEvent::Type::SelectionCleared:
     {
       ClearSelection();
     }
     break;
-  case ezSelectionManager::Event::Type::SelectionSet:
-  case ezSelectionManager::Event::Type::ObjectAdded:
-  case ezSelectionManager::Event::Type::ObjectRemoved:
+  case ezSelectionManagerEvent::Type::SelectionSet:
+  case ezSelectionManagerEvent::Type::ObjectAdded:
+  case ezSelectionManagerEvent::Type::ObjectRemoved:
     {
       SetSelection(m_pDocument->GetSelectionManager()->GetSelection());
     }

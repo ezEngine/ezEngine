@@ -6,25 +6,26 @@
 class ezDocument;
 struct ezDocumentObjectStructureEvent;
 
+struct ezSelectionManagerEvent
+{
+  enum class Type
+  {
+    SelectionCleared,
+    SelectionSet,
+    ObjectAdded,
+    ObjectRemoved,
+  };
+
+  Type m_Type;
+  const ezDocument* m_pDocument;
+  const ezDocumentObject* m_pObject;
+};
+
 class EZ_TOOLSFOUNDATION_DLL ezSelectionManager
 {
 public:
 
-  struct Event
-  {
-    enum class Type
-    {
-      SelectionCleared,
-      SelectionSet,
-      ObjectAdded,
-      ObjectRemoved,
-    };
-
-    Type m_Type;
-    const ezDocumentObject* m_pObject;
-  };
-
-  ezEvent<const Event&> m_Events;
+  ezEvent<const ezSelectionManagerEvent&> m_Events;
 
 public:
   ezSelectionManager();

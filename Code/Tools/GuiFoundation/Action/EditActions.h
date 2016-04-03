@@ -39,7 +39,7 @@ public:
   virtual void Execute(const ezVariant& value) override;
 
 private:
-  void SelectionEventHandler(const ezSelectionManager::Event& e);
+  void SelectionEventHandler(const ezSelectionManagerEvent& e);
 
   ButtonType m_ButtonType;
 };

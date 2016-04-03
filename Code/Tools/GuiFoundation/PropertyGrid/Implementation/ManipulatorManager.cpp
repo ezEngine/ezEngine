@@ -65,6 +65,7 @@ void ezManipulatorManager::SetActiveManipulator(const ezDocument* pDoc, const ez
   if (!existed)
   {
     pDoc->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezManipulatorManager::StructureEventHandler, this));
+    pDoc->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezManipulatorManager::SelectionEventHandler, this));
   }
 
   ezManipulatorManagerEvent e;
@@ -86,7 +87,8 @@ void ezManipulatorManager::StructureEventHandler(const ezDocumentObjectStructure
 {
   if (e.m_EventType == ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved)
   {
-    auto it = m_ActiveManipulator.Find(e.m_pObject->GetDocumentObjectManager()->GetDocument());
+    auto pDoc = e.m_pObject->GetDocumentObjectManager()->GetDocument();
+    auto it = m_ActiveManipulator.Find(pDoc);
 
     if (it.IsValid())
     {
@@ -94,12 +96,55 @@ void ezManipulatorManager::StructureEventHandler(const ezDocumentObjectStructure
       {
         if (sel.m_pObject == e.m_pObject)
         {
-          ClearActiveManipulator(it.Key());
+          it.Value().m_Selection.Remove(sel);
+          SetActiveManipulator(pDoc, it.Value().m_pAttribute, it.Value().m_Selection);
           return;
         }
       }
     }
   }
+}
+
+void ezManipulatorManager::SelectionEventHandler(const ezSelectionManagerEvent& e)
+{
+  auto& data = m_ActiveManipulator[e.m_pDocument];
+  auto pAttribute = data.m_pAttribute;
+
+  if (pAttribute == nullptr)
+    return;
+
+  ezHybridArray<ezQtPropertyWidget::Selection, 8> newSelection;
+
+  const auto& selection = e.m_pDocument->GetSelectionManager()->GetSelection();
+
+  for (ezUInt32 i = 0; i < selection.GetCount(); ++i)
+  {
+    const auto& children = selection[i]->GetChildren();
+
+    for (const auto& child : children)
+    {
+      const auto& OtherAttributes = child->GetTypeAccessor().GetType()->GetAttributes();
+
+      for (const auto pOtherAttr : OtherAttributes)
+      {
+        if (pOtherAttr->IsInstanceOf(pAttribute->GetDynamicRTTI()))
+        {
+          ezManipulatorAttribute* pOtherManip = static_cast<ezManipulatorAttribute*>(pOtherAttr);
+
+          if (pOtherManip->m_sProperty1 == pAttribute->m_sProperty1 &&
+              pOtherManip->m_sProperty2 == pAttribute->m_sProperty2 &&
+              pOtherManip->m_sProperty3 == pAttribute->m_sProperty3 &&
+              pOtherManip->m_sProperty4 == pAttribute->m_sProperty4)
+          {
+            auto& newItem = newSelection.ExpandAndGetRef();
+            newItem.m_pObject = child;
+          }
+        }
+      }
+    }
+  }
+
+  SetActiveManipulator(e.m_pDocument, pAttribute, newSelection);
 }
 
 void ezManipulatorManager::PhantomTypeManagerEventHandler(const ezPhantomRttiManagerEvent& e)

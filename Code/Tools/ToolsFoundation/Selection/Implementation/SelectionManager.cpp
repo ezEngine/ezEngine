@@ -58,9 +58,10 @@ void ezSelectionManager::Clear()
   m_SelectionList.Clear();
   m_SelectionSet.Clear();
 
-  Event e;
+  ezSelectionManagerEvent e;
+  e.m_pDocument = m_pDocument;
   e.m_pObject = nullptr;
-  e.m_Type = Event::Type::SelectionCleared;
+  e.m_Type = ezSelectionManagerEvent::Type::SelectionCleared;
 
   m_Events.Broadcast(e);
 }
@@ -73,9 +74,10 @@ void ezSelectionManager::AddObject(const ezDocumentObject* pObject)
   m_SelectionList.PushBack(pObject);
   m_SelectionSet.Insert(pObject->GetGuid());
 
-  Event e;
+  ezSelectionManagerEvent e;
+  e.m_pDocument = m_pDocument;
   e.m_pObject = pObject;
-  e.m_Type = Event::Type::ObjectAdded;
+  e.m_Type = ezSelectionManagerEvent::Type::ObjectAdded;
 
   m_Events.Broadcast(e);
 }
@@ -88,9 +90,10 @@ void ezSelectionManager::RemoveObject(const ezDocumentObject* pObject, bool bRec
     // SelectionSet instead of multiple ObjectRemoved messages.
     if (RecursiveRemoveFromSelection(pObject))
     {
-      Event e;
+      ezSelectionManagerEvent e;
+      e.m_pDocument = m_pDocument;
       e.m_pObject = nullptr;
-      e.m_Type = Event::Type::SelectionSet;
+      e.m_Type = ezSelectionManagerEvent::Type::SelectionSet;
       m_Events.Broadcast(e);
     }
   }
@@ -104,9 +107,10 @@ void ezSelectionManager::RemoveObject(const ezDocumentObject* pObject, bool bRec
     m_SelectionSet.Remove(it);
     m_SelectionList.Remove(pObject);
 
-    Event e;
+    ezSelectionManagerEvent e;
+    e.m_pDocument = m_pDocument;
     e.m_pObject = pObject;
-    e.m_Type = Event::Type::ObjectRemoved;
+    e.m_Type = ezSelectionManagerEvent::Type::ObjectRemoved;
 
     m_Events.Broadcast(e);
   }
@@ -135,9 +139,10 @@ void ezSelectionManager::SetSelection(const ezDeque<const ezDocumentObject*>& Se
     }
   }
 
-  Event e;
+  ezSelectionManagerEvent e;
+  e.m_pDocument = m_pDocument;
   e.m_pObject = nullptr;
-  e.m_Type = Event::Type::SelectionSet;
+  e.m_Type = ezSelectionManagerEvent::Type::SelectionSet;
 
   m_Events.Broadcast(e);
 }

@@ -177,7 +177,7 @@ void ezEditAction::Execute(const ezVariant& value)
   }
 }
 
-void ezEditAction::SelectionEventHandler(const ezSelectionManager::Event& e)
+void ezEditAction::SelectionEventHandler(const ezSelectionManagerEvent& e)
 {
   if (m_ButtonType == ButtonType::Copy || m_ButtonType == ButtonType::Delete)
   {

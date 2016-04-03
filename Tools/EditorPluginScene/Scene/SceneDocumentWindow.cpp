@@ -725,21 +725,21 @@ bool ezQtSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMs
   return false;
 }
 
-void ezQtSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManager::Event& e)
+void ezQtSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManagerEvent& e)
 {
   m_bResendSelection = true;
 
   switch (e.m_Type)
   {
-  case ezSelectionManager::Event::Type::SelectionCleared:
+  case ezSelectionManagerEvent::Type::SelectionCleared:
     {
       m_GizmoSelection.Clear();
       UpdateGizmoVisibility();
     }
     break;
 
-  case ezSelectionManager::Event::Type::SelectionSet:
-  case ezSelectionManager::Event::Type::ObjectAdded:
+  case ezSelectionManagerEvent::Type::SelectionSet:
+  case ezSelectionManagerEvent::Type::ObjectAdded:
     {
       EZ_ASSERT_DEBUG(m_GizmoSelection.IsEmpty(), "This array should have been cleared when the gizmo lost focus");
 

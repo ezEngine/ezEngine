@@ -8,6 +8,7 @@
 
 class ezManipulatorAttribute;
 struct ezPhantomRttiManagerEvent;
+struct ezSelectionManagerEvent;
 
 struct EZ_GUIFOUNDATION_DLL ezManipulatorManagerEvent
 {
@@ -41,6 +42,7 @@ private:
   };
 
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
+  void SelectionEventHandler(const ezSelectionManagerEvent& e);
   void PhantomTypeManagerEventHandler(const ezPhantomRttiManagerEvent& e);
   void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
 

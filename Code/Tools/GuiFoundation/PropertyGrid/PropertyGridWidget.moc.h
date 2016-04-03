@@ -47,7 +47,7 @@ private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(GuiFoundation, PropertyGrid);
 
 private:
-  void SelectionEventHandler(const ezSelectionManager::Event& e);
+  void SelectionEventHandler(const ezSelectionManagerEvent& e);
   void FactoryEventHandler(const ezRttiMappedObjectFactory<ezQtPropertyWidget>::Event& e);
   void TypeEventHandler(const ezPhantomRttiManagerEvent& e);
   ezUInt32 GetGroupBoxHash(ezCollapsibleGroupBox* pBox) const;

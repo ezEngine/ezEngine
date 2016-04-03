@@ -23,7 +23,7 @@ private slots:
   void on_selectionChanged_triggered(const QItemSelection& selected, const QItemSelection& deselected);
 
 private:
-  void SelectionEventHandler(const ezSelectionManager::Event& e);
+  void SelectionEventHandler(const ezSelectionManagerEvent& e);
 
 private:
   std::unique_ptr<ezQtDocumentTreeModel> m_pModel;

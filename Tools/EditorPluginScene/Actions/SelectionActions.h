@@ -68,7 +68,7 @@ public:
   void CreatePrefab();
 
 private:
-  void SelectionEventHandler(const ezSelectionManager::Event& e);
+  void SelectionEventHandler(const ezSelectionManagerEvent& e);
 
   void UpdateEnableState();
 

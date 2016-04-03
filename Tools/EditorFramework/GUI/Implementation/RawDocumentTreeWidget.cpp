@@ -52,11 +52,11 @@ void ezQtDocumentTreeWidget::on_selectionChanged_triggered(const QItemSelection&
   ((ezSelectionManager*) m_pDocument->GetSelectionManager())->SetSelection(sel);
 }
 
-void ezQtDocumentTreeWidget::SelectionEventHandler(const ezSelectionManager::Event& e)
+void ezQtDocumentTreeWidget::SelectionEventHandler(const ezSelectionManagerEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezSelectionManager::Event::Type::SelectionCleared:
+  case ezSelectionManagerEvent::Type::SelectionCleared:
     {
       // Can't block signals on selection model or view won't update.
       m_bBlockSelectionSignal = true;
@@ -64,9 +64,9 @@ void ezQtDocumentTreeWidget::SelectionEventHandler(const ezSelectionManager::Eve
       m_bBlockSelectionSignal = false;
     }
     break;
-  case ezSelectionManager::Event::Type::SelectionSet:
-  case ezSelectionManager::Event::Type::ObjectAdded:
-  case ezSelectionManager::Event::Type::ObjectRemoved:
+  case ezSelectionManagerEvent::Type::SelectionSet:
+  case ezSelectionManagerEvent::Type::ObjectAdded:
+  case ezSelectionManagerEvent::Type::ObjectRemoved:
     {
       // Can't block signals on selection model or view won't update.
       m_bBlockSelectionSignal = true;
