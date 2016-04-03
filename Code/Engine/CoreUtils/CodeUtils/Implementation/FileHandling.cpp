@@ -232,7 +232,7 @@ ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens, ezUInt32 uiCur
       ++uiCurToken;
     }
 
-    CombineTokensToString(PathTokens, 0, sPath);
+    CombineTokensToString(PathTokens, 0, sPath, false);
 
     // remove all whitespace at the end (this could be part of a comment, so not tokenized as whitespace)
     while (sPath.EndsWith(" ") || sPath.EndsWith("\t"))
