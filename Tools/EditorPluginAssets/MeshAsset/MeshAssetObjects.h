@@ -4,6 +4,8 @@
 #include <ToolsFoundation/Reflection/ReflectedTypeDirectAccessor.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 
+struct ezPropertyMetaStateEvent;
+
 struct ezMaterialResourceSlot
 {
   ezString m_sLabel;
@@ -43,6 +45,8 @@ class ezMeshAssetProperties : public ezReflectedClass
 public:
   ezMeshAssetProperties();
 
+  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+
   ezString m_sMeshFile;
   float m_fUniformScaling;
   ezVec3 m_vNonUniformScaling;
@@ -54,8 +58,6 @@ public:
   ezUInt16 m_uiDetail2;
   bool m_bCap;
   bool m_bCap2;
-  ezVec3 m_vScaleXYZ;
-
 
   ezEnum<ezBasisAxis> m_ForwardDir;
   ezEnum<ezBasisAxis> m_RightDir;
@@ -69,6 +71,5 @@ public:
   ezUInt32 m_uiVertices;
   ezUInt32 m_uiTriangles;
 
-private:
 
 };

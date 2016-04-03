@@ -31,22 +31,9 @@ void ezPropertyMetaState::GetPropertyState(const ezDocumentObject* pObject, ezMa
 {
   ezPropertyMetaStateEvent eventData;
   eventData.m_pPropertyStates = &out_PropertyStates;
+  eventData.m_pObject = pObject;
 
   m_Events.Broadcast(eventData);
-
-  /// \todo stuff
-  if (pObject->GetTypeAccessor().GetType() == ezRTTI::FindTypeByName("ezMeshAssetProperties"))
-  {
-    ezInt64 primType = pObject->GetTypeAccessor().GetValue("Primitive Type").ConvertTo<ezInt64>();
-
-    if (primType == 0)
-    {
-      out_PropertyStates["Radius"].m_State = ezPropertyUiState::Invisible;
-      out_PropertyStates["Radius 2"].m_State = ezPropertyUiState::Invisible;
-      out_PropertyStates["Height"].m_State = ezPropertyUiState::Disabled;
-      out_PropertyStates["Detail"].m_State = ezPropertyUiState::Disabled;
-    }
-  }
 }
 
 void ezPropertyMetaState::GetPropertyState(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items, ezMap<ezString, ezPropertyUiState>& out_PropertyStates)
@@ -60,7 +47,7 @@ void ezPropertyMetaState::GetPropertyState(const ezHybridArray<ezQtPropertyWidge
     {
       auto& curState = out_PropertyStates[it.Key()];
 
-      curState.m_State = ezMath::Max(curState.m_State, it.Value().m_State);
+      curState.m_Visibility = ezMath::Max(curState.m_Visibility, it.Value().m_Visibility);
     }
   }
 }

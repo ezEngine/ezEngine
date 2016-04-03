@@ -16,3 +16,5 @@ ezPxShapeConvexComponent;Convex Mesh Shape
 ezPxSettingsComponent;PhysX Settings
 ezPhysXComponent;PhysX Component
 ezPxActorComponent;PhysX Actor
+ezCollisionMeshType::ConvexHull;Convex Hull
+ezCollisionMeshType::TriangleMesh;Triangle Mesh

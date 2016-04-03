@@ -10,6 +10,8 @@
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
+#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
+#include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 
 void OnLoadPlugin(bool bReloading)
 {
@@ -77,6 +79,8 @@ void OnLoadPlugin(bool bReloading)
 
   // Mesh Asset
   {
+    ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezMeshAssetProperties::PropertyMetaStateEventHandler);
+
     // Menu Bar
     {
       ezActionMapManager::RegisterActionMap("MeshAssetMenuBar");
@@ -118,7 +122,7 @@ void OnLoadPlugin(bool bReloading)
 
 void OnUnloadPlugin(bool bReloading)
 {
-
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezMeshAssetProperties::PropertyMetaStateEventHandler);
 }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);

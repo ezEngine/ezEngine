@@ -315,11 +315,11 @@ void ezTypeWidget::UpdatePropertyMetaState()
     auto itData = PropertyStates.Find(it.Key());
 
     const bool bReadOnly = (it.Value().m_pWidget->GetProperty()->GetFlags().IsSet(ezPropertyFlags::ReadOnly)) || (it.Value().m_pWidget->GetProperty()->GetAttributeByType<ezReadOnlyAttribute>() != nullptr);
-    ezPropertyUiState::State state = ezPropertyUiState::Default;
+    ezPropertyUiState::Visibility state = ezPropertyUiState::Default;
 
     if (itData.IsValid())
     {
-      state = itData.Value().m_State;
+      state = itData.Value().m_Visibility;
     }
 
     if (it.Value().m_pLabel)

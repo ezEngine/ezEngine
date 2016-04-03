@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezMaterialResourceSlot, ezNoBase, 1, ezRTTIDefaultAllocator<ezMaterialResourceSlot>);
   EZ_BEGIN_PROPERTIES
@@ -18,13 +19,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 1, ezRTTIDefaultAllocator
     EZ_MEMBER_PROPERTY("Uniform Scaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("Non-Uniform Scaling", m_vNonUniformScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f))),
     EZ_MEMBER_PROPERTY("Mesh File", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.obj;*.fbx")),
-    EZ_MEMBER_PROPERTY("Radius", m_fRadius),
-    EZ_MEMBER_PROPERTY("Radius 2", m_fRadius2),
-    EZ_MEMBER_PROPERTY("Height", m_fHeight),
-    EZ_MEMBER_PROPERTY("Detail", m_uiDetail),
-    EZ_MEMBER_PROPERTY("Detail 2", m_uiDetail2),
-    EZ_MEMBER_PROPERTY("Cap", m_bCap),
-    EZ_MEMBER_PROPERTY("Cap 2", m_bCap2),
+    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f)),
+    EZ_MEMBER_PROPERTY("Radius 2", m_fRadius2)->AddAttributes(new ezDefaultValueAttribute(0.5f)),
+    EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("Detail", m_uiDetail)->AddAttributes(new ezDefaultValueAttribute(1)),
+    EZ_MEMBER_PROPERTY("Detail 2", m_uiDetail2)->AddAttributes(new ezDefaultValueAttribute(1)),
+    EZ_MEMBER_PROPERTY("Cap", m_bCap)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("Cap 2", m_bCap2)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Angle", m_fAngle)->AddAttributes(new ezDefaultValueAttribute(360.0f)),
     EZ_ARRAY_MEMBER_PROPERTY("Materials", m_Slots)->AddAttributes(new ezContainerAttribute(false, false, true)),
   EZ_END_PROPERTIES
@@ -53,7 +54,99 @@ ezMeshAssetProperties::ezMeshAssetProperties()
   m_UpDir = ezBasisAxis::PositiveZ;
   m_fUniformScaling = 1.0f;
   m_fRadius = 0.5f;
+  m_fRadius2 = 0.5f;
   m_fHeight = 1.0f;
+  m_uiDetail = 1;
+  m_uiDetail2 = 1;
+  m_bCap = true;
+  m_bCap2 = true;
+  m_fAngle = 360.0f;
+}
+
+
+void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  if (e.m_pObject->GetTypeAccessor().GetType() == ezRTTI::FindTypeByName("ezMeshAssetProperties"))
+  {
+    ezInt64 primType = e.m_pObject->GetTypeAccessor().GetValue("Primitive Type").ConvertTo<ezInt64>();
+
+    auto& props = *e.m_pPropertyStates;
+
+    props["Mesh File"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Radius"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Radius 2"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Height"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Detail"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Detail 2"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Cap"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Cap 2"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Angle"].m_Visibility = ezPropertyUiState::Invisible;
+
+    switch (primType)
+    {
+    case ezMeshPrimitive::File:
+      props["Mesh File"].m_Visibility = ezPropertyUiState::Default;
+      break;
+
+    case ezMeshPrimitive::Box:
+    case ezMeshPrimitive::Rect:
+      break;
+
+    case ezMeshPrimitive::Capsule:
+      props["Radius"].m_Visibility = ezPropertyUiState::Default;
+      props["Height"].m_Visibility = ezPropertyUiState::Default;
+      props["Detail"].m_Visibility = ezPropertyUiState::Default;
+      props["Detail 2"].m_Visibility = ezPropertyUiState::Default;
+      break;
+
+    case ezMeshPrimitive::Cone:
+      props["Radius"].m_Visibility = ezPropertyUiState::Default;
+      props["Height"].m_Visibility = ezPropertyUiState::Default;
+      props["Detail"].m_Visibility = ezPropertyUiState::Default;
+      props["Cap"].m_Visibility = ezPropertyUiState::Default;
+      break;
+
+    case ezMeshPrimitive::Cylinder:
+      props["Radius"].m_Visibility = ezPropertyUiState::Default;
+      props["Radius 2"].m_Visibility = ezPropertyUiState::Default;
+      props["Height"].m_Visibility = ezPropertyUiState::Default;
+      props["Detail"].m_Visibility = ezPropertyUiState::Default;
+      props["Cap"].m_Visibility = ezPropertyUiState::Default;
+      props["Cap 2"].m_Visibility = ezPropertyUiState::Default;
+      props["Angle"].m_Visibility = ezPropertyUiState::Default;
+      break;
+
+    case ezMeshPrimitive::GeodesicSphere:
+      props["Radius"].m_Visibility = ezPropertyUiState::Default;
+      props["Detail"].m_Visibility = ezPropertyUiState::Default;
+      break;
+
+    case ezMeshPrimitive::HalfSphere:
+      props["Radius"].m_Visibility = ezPropertyUiState::Default;
+      props["Detail"].m_Visibility = ezPropertyUiState::Default;
+      props["Detail 2"].m_Visibility = ezPropertyUiState::Default;
+      props["Cap"].m_Visibility = ezPropertyUiState::Default;
+      break;
+
+    case ezMeshPrimitive::Pyramid:
+      props["Cap"].m_Visibility = ezPropertyUiState::Default;
+      break;
+
+    case ezMeshPrimitive::Sphere:
+      props["Radius"].m_Visibility = ezPropertyUiState::Default;
+      props["Detail"].m_Visibility = ezPropertyUiState::Default;
+      props["Detail 2"].m_Visibility = ezPropertyUiState::Default;
+      break;
+
+    case ezMeshPrimitive::Torus:
+      props["Radius"].m_Visibility = ezPropertyUiState::Default;
+      props["Radius 2"].m_Visibility = ezPropertyUiState::Default;
+      props["Detail"].m_Visibility = ezPropertyUiState::Default;
+      props["Detail 2"].m_Visibility = ezPropertyUiState::Default;
+      break;
+    }
+
+  }
 }
 
 const ezString ezMeshAssetProperties::GetResourceSlotProperty(ezUInt32 uiSlot) const

@@ -12,6 +12,10 @@ struct ezTextureUsageEnum
   enum Enum
   {
     Unknown,
+    Other_sRGB,
+    Other_Linear,
+    Other_sRGB_Auto,
+    Other_Linear_Auto,
     Diffuse,
     NormalMap,
     EmissiveMask,
@@ -38,24 +42,8 @@ struct ezTextureTypeEnum
   };
 };
 
-struct ezSRGBModeEnum
-{
-  typedef ezInt8 StorageType;
-
-  enum Enum
-  {
-    Unknown,
-    sRGB,
-    Linear,
-    sRGB_Auto,
-    Linear_Auto,
-    Default = Unknown,
-  };
-};
-
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTextureUsageEnum);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTextureTypeEnum);
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezSRGBModeEnum);
 
 class ezTextureAssetProperties : public ezReflectedClass
 {
@@ -75,12 +63,8 @@ public:
   ezTextureTypeEnum::Enum GetTextureType() const { return m_TextureType; }
   bool IsSRGB() const;
 
-  void SetTextureUsage(ezEnum<ezTextureUsageEnum> usage);
-  ezEnum<ezTextureUsageEnum> GetTextureUsage() const { return m_TextureUsage; }
-
 private:
   ezString m_Input;
-  ezEnum <ezSRGBModeEnum> m_sRGBMode;
   ezEnum<ezTextureUsageEnum> m_TextureUsage;
   ezEnum<ezTextureTypeEnum> m_TextureType;
 

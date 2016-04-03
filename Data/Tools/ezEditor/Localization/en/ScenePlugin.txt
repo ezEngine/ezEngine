@@ -93,3 +93,5 @@ ezSliderComponent;Slider
 Components;Components
 Materials;Materials
 ezMaterialResourceSlot;ezMaterialResourceSlot
+Surfaces;Surfaces
+ezSurfaceResourceSlot;ezSurfaceResourceSlot
