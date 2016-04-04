@@ -16,6 +16,7 @@ class QGridLayout;
 class ezQtSceneViewWidgetContainer;
 class ezQtSceneViewWidget;
 class QSettings;
+struct ezManipulatorManagerEvent;
 
 Q_DECLARE_OPAQUE_POINTER(ezQtSceneViewWidget*);
 
@@ -39,6 +40,7 @@ private:
   void SelectionManagerEventHandler(const ezSelectionManagerEvent& e);
   void SceneObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezSceneObjectMetaData>::EventData& e);
   void SceneExportEventHandler(ezSceneDocumentExportEvent& e);
+  void ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e);
 
   virtual bool HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
@@ -57,6 +59,7 @@ private:
 
   void UpdateGizmoSelectionList();
   void UpdateGizmoVisibility();
+  void UpdateManipulatorVisibility();
   void UpdateGizmoPosition();
   void ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void CommandHistoryEventHandler(const ezCommandHistory::Event& e);
@@ -104,6 +107,7 @@ private:
   bool m_bInGizmoInteraction;
   bool m_bMergeTransactions;
   bool m_bMoveCameraWithGizmo;
+  bool m_bIgnoreGizmoChangedEvent;
   ezDeque<SelectedGO> m_GizmoSelection;
 
   bool m_bInDragDropAction;

@@ -34,6 +34,8 @@ public:
 
   ezEvent<const ezManipulatorManagerEvent&> m_Events;
 
+  void HideActiveManipulator(const ezDocument* pDoc, bool bHide);
+
 private:
   struct Data
   {
@@ -43,6 +45,9 @@ private:
 
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
+
+  void TransferToCurrentSelection(const ezDocument* pDoc);
+
   void PhantomTypeManagerEventHandler(const ezPhantomRttiManagerEvent& e);
   void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
 

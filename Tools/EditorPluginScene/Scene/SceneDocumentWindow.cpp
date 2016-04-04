@@ -10,6 +10,7 @@
 #include <QSettings>
 #include <InputContexts/OrthoGizmoContext.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
+#include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 
 ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
@@ -25,9 +26,10 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezDocument* pDocument)
   SetupDefaultViewConfigs();
   LoadViewConfigs();
 
+  m_bIgnoreGizmoChangedEvent = false;
   m_bResendSelection = false;
   m_bInGizmoInteraction = false;
-  SetTargetFramerate(35);
+  SetTargetFramerate(25);
 
   GetSceneDocument()->m_ObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SceneObjectMetaDataEventHandler, this));
   GetSceneDocument()->m_ExportEvent.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SceneExportEventHandler, this));
@@ -76,7 +78,7 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezDocument* pDocument)
   ezRotateGizmoAction::s_Events.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::RotateGizmoEventHandler, this));
   ezScaleGizmoAction::s_Events.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::ScaleGizmoEventHandler, this));
   ezTranslateGizmoAction::s_Events.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TranslateGizmoEventHandler, this));
-
+  ezManipulatorManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::ManipulatorManagerEventHandler, this));
 
   {
     ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
@@ -116,6 +118,7 @@ ezQtSceneDocumentWindow::~ezQtSceneDocumentWindow()
   ezRotateGizmoAction::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::RotateGizmoEventHandler, this));
   ezScaleGizmoAction::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::ScaleGizmoEventHandler, this));
   ezTranslateGizmoAction::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TranslateGizmoEventHandler, this));
+  ezManipulatorManager::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::ManipulatorManagerEventHandler, this));
 
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SelectionManagerEventHandler, this));
 }
@@ -215,6 +218,11 @@ void ezQtSceneDocumentWindow::SnapSelectionToPosition(bool bSnapEachObject)
   m_GizmoSelection.Clear();
 }
 
+void ezQtSceneDocumentWindow::UpdateManipulatorVisibility()
+{
+  ezManipulatorManager::GetSingleton()->HideActiveManipulator(GetDocument(), GetSceneDocument()->GetActiveGizmo() != ActiveGizmo::None);
+}
+
 void ezQtSceneDocumentWindow::ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
   if (m_bInGizmoInteraction)
@@ -239,6 +247,10 @@ void ezQtSceneDocumentWindow::DocumentEventHandler(const ezSceneDocumentEvent& e
   {
   case ezSceneDocumentEvent::Type::ActiveGizmoChanged:
     UpdateGizmoVisibility();
+    if (!m_bIgnoreGizmoChangedEvent)
+    {
+      UpdateManipulatorVisibility();
+    }
     break;
 
   case ezSceneDocumentEvent::Type::FocusOnSelection_Hovered:
@@ -764,6 +776,17 @@ void ezQtSceneDocumentWindow::SceneObjectMetaDataEventHandler(const ezObjectMeta
 void ezQtSceneDocumentWindow::SceneExportEventHandler(ezSceneDocumentExportEvent& e)
 {
   e.m_ReturnStatus = RequestExportScene(e.m_szTargetFile, *e.m_pAssetFileHeader);
+}
+
+void ezQtSceneDocumentWindow::ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e)
+{
+  // make sure the gizmo is deactivated when a manipulator becomes active
+  if (e.m_pDocument == GetDocument() && e.m_pManipulator != nullptr && e.m_pSelection != nullptr && !e.m_pSelection->IsEmpty())
+  {
+    m_bIgnoreGizmoChangedEvent = true;
+    GetSceneDocument()->SetActiveGizmo(ActiveGizmo::None);
+    m_bIgnoreGizmoChangedEvent = false;
+  }
 }
 
 void ezQtSceneDocumentWindow::RotateGizmoEventHandler(const ezRotateGizmoAction::Event& e)

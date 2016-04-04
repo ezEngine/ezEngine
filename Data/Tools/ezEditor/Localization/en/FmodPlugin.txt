@@ -22,3 +22,7 @@ ezFmodReverbPresets::Plain;Plain
 ezFmodReverbPresets::Parkinlot;Parkinlot
 ezFmodReverbPresets::Sewerpipe;Sewerpipe
 ezFmodReverbPresets::Underwater;Underwater
+Sound;Sound
+ezFmodEventComponent;Fmod Event
+ezFmodListenerComponent;Fmod Listener
+ezFmodReverbComponent;Fmod Reverb Volume

@@ -103,6 +103,8 @@ void ezGizmoAction::Execute(const ezVariant& value)
     else
       m_pSceneDocument->SetActiveGizmo((ActiveGizmo)((int)m_Type));
   }
+
+  UpdateState();
 }
 
 void ezGizmoAction::UpdateState()
