@@ -39,7 +39,7 @@ public:
 
 private:
   void UpdateState();
-  void CommandHistoryEventHandler(const ezCommandHistory::Event& e);
+  void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
 
   ButtonType m_ButtonType;
 };

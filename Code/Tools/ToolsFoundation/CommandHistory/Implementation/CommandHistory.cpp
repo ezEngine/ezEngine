@@ -88,8 +88,9 @@ ezStatus ezCommandHistory::Undo()
 
   m_bIsInUndoRedo = true;
   {
-    Event e;
-    e.m_Type = Event::Type::UndoStarted;
+    ezCommandHistoryEvent e;
+    e.m_pDocument = m_pDocument;
+    e.m_Type = ezCommandHistoryEvent::Type::UndoStarted;
     m_Events.Broadcast(e);
   }
 
@@ -108,8 +109,9 @@ ezStatus ezCommandHistory::Undo()
   
   m_bIsInUndoRedo = false;
   {
-    Event e;
-    e.m_Type = Event::Type::UndoEnded;
+    ezCommandHistoryEvent e;
+    e.m_pDocument = m_pDocument;
+    e.m_Type = ezCommandHistoryEvent::Type::UndoEnded;
     m_Events.Broadcast(e);
   }
   return status;
@@ -123,8 +125,9 @@ ezStatus ezCommandHistory::Redo()
 
   m_bIsInUndoRedo = true;
   {
-    Event e;
-    e.m_Type = Event::Type::RedoStarted;
+    ezCommandHistoryEvent e;
+    e.m_pDocument = m_pDocument;
+    e.m_Type = ezCommandHistoryEvent::Type::RedoStarted;
     m_Events.Broadcast(e);
   }
 
@@ -143,8 +146,9 @@ ezStatus ezCommandHistory::Redo()
   
   m_bIsInUndoRedo = false;
   {
-    Event e;
-    e.m_Type = Event::Type::RedoEnded;
+    ezCommandHistoryEvent e;
+    e.m_pDocument = m_pDocument;
+    e.m_Type = ezCommandHistoryEvent::Type::RedoEnded;
     m_Events.Broadcast(e);
   }
   return status;
@@ -198,8 +202,9 @@ void ezCommandHistory::StartTransaction()
     m_TransactionStack.PushBack(pTransaction);
     m_ActiveCommandStack.PushBack(pTransaction);
     {
-      Event e;
-      e.m_Type = Event::Type::TransactionStarted;
+      ezCommandHistoryEvent e;
+      e.m_pDocument = m_pDocument;
+      e.m_Type = ezCommandHistoryEvent::Type::TransactionStarted;
       m_Events.Broadcast(e);
     }
   }
@@ -211,8 +216,9 @@ void ezCommandHistory::EndTransaction(bool bCancel)
   EZ_ASSERT_DEV(!m_TransactionStack.IsEmpty(), "Trying to end transaction without starting one!");
   if (m_TransactionStack.GetCount() == 1)
   {
-    Event e;
-    e.m_Type = bCancel ? Event::Type::BeforeTransactionCanceled : Event::Type::BeforeTransactionEnded;
+    ezCommandHistoryEvent e;
+    e.m_pDocument = m_pDocument;
+    e.m_Type = bCancel ? ezCommandHistoryEvent::Type::BeforeTransactionCanceled : ezCommandHistoryEvent::Type::BeforeTransactionEnded;
     m_Events.Broadcast(e);
   }
 
@@ -251,8 +257,9 @@ void ezCommandHistory::EndTransaction(bool bCancel)
   if (m_TransactionStack.IsEmpty())
   {
     // All transactions done
-    Event e;
-    e.m_Type = bCancel ? Event::Type::TransactionCanceled : Event::Type::TransactionEnded;
+    ezCommandHistoryEvent e;
+    e.m_pDocument = m_pDocument;
+    e.m_Type = bCancel ? ezCommandHistoryEvent::Type::TransactionCanceled : ezCommandHistoryEvent::Type::TransactionEnded;
     m_Events.Broadcast(e);
   }
 }

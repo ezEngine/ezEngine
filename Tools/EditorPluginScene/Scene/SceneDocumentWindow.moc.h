@@ -62,7 +62,7 @@ private:
   void UpdateManipulatorVisibility();
   void UpdateGizmoPosition();
   void ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e);
-  void CommandHistoryEventHandler(const ezCommandHistory::Event& e);
+  void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
 
   void SnapSelectionToPosition(bool bSnapEachObject);
 

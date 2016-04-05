@@ -123,14 +123,14 @@ ezQtSceneDocumentWindow::~ezQtSceneDocumentWindow()
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SelectionManagerEventHandler, this));
 }
 
-void ezQtSceneDocumentWindow::CommandHistoryEventHandler(const ezCommandHistory::Event& e)
+void ezQtSceneDocumentWindow::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezCommandHistory::Event::Type::UndoEnded:
-  case ezCommandHistory::Event::Type::RedoEnded:
-  case ezCommandHistory::Event::Type::TransactionEnded:
-  case ezCommandHistory::Event::Type::TransactionCanceled:
+  case ezCommandHistoryEvent::Type::UndoEnded:
+  case ezCommandHistoryEvent::Type::RedoEnded:
+  case ezCommandHistoryEvent::Type::TransactionEnded:
+  case ezCommandHistoryEvent::Type::TransactionCanceled:
     {
       UpdateGizmoVisibility();
     }

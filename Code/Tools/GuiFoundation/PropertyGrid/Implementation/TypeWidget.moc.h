@@ -29,7 +29,7 @@ private:
 
   void PropertyChangedHandler(const ezQtPropertyWidget::Event& ed);
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void CommandHistoryEventHandler(const ezCommandHistory::Event& e);
+  void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
   void ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e);
 
   void UpdateProperty(const ezDocumentObject* pObject, const ezString& sProperty);

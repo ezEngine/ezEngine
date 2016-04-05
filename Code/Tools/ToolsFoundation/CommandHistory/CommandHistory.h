@@ -23,29 +23,30 @@ private:
   friend class ezCommandHistory;
 };
 
+struct ezCommandHistoryEvent
+{
+  enum class Type
+  {
+    UndoStarted,
+    UndoEnded,
+    RedoStarted,
+    RedoEnded,
+    TransactionStarted, ///< Emit after initial transaction started.
+    BeforeTransactionEnded, ///< Emit before initial transaction ended.
+    BeforeTransactionCanceled, ///< Emit before initial transaction ended.
+    TransactionEnded, ///< Emit after initial transaction ended.
+    TransactionCanceled, ///< Emit after initial transaction canceled.
+  };
+
+  Type m_Type;
+  ezDocument* m_pDocument;
+};
+
 class EZ_TOOLSFOUNDATION_DLL ezCommandHistory
 {
 public:
 
-  struct Event
-  {
-    enum class Type
-    {
-      UndoStarted,
-      UndoEnded,
-      RedoStarted,
-      RedoEnded,
-      TransactionStarted, ///< Emit after initial transaction started.
-      BeforeTransactionEnded, ///< Emit before initial transaction ended.
-      BeforeTransactionCanceled, ///< Emit before initial transaction ended.
-      TransactionEnded, ///< Emit after initial transaction ended.
-      TransactionCanceled, ///< Emit after initial transaction canceled.
-    };
-
-    Type m_Type;
-  };
-
-  ezEvent<const Event&> m_Events;
+  ezEvent<const ezCommandHistoryEvent&> m_Events;
 
 public:
   ezCommandHistory(ezDocument* pDocument);

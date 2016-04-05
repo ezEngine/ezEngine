@@ -100,7 +100,7 @@ void ezCommandHistoryAction::UpdateState()
   }
 }
 
-void ezCommandHistoryAction::CommandHistoryEventHandler(const ezCommandHistory::Event& e)
+void ezCommandHistoryAction::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
 {
   UpdateState();
 }

@@ -232,14 +232,14 @@ void ezTypeWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
   UpdateProperty(e.m_pObject, e.m_sPropertyPath);
 }
 
-void ezTypeWidget::CommandHistoryEventHandler(const ezCommandHistory::Event& e)
+void ezTypeWidget::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezCommandHistory::Event::Type::UndoEnded:
-  case ezCommandHistory::Event::Type::RedoEnded:
-  case ezCommandHistory::Event::Type::TransactionEnded:
-  case ezCommandHistory::Event::Type::TransactionCanceled:
+  case ezCommandHistoryEvent::Type::UndoEnded:
+  case ezCommandHistoryEvent::Type::RedoEnded:
+  case ezCommandHistoryEvent::Type::TransactionEnded:
+  case ezCommandHistoryEvent::Type::TransactionCanceled:
     {
       FlushQueuedChanges();
     }
