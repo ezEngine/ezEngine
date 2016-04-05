@@ -112,6 +112,23 @@ ezSphereManipulatorAttribute::ezSphereManipulatorAttribute(const char* szOuterRa
 
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCapsuleManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezCapsuleManipulatorAttribute>);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+ezCapsuleManipulatorAttribute::ezCapsuleManipulatorAttribute()
+  : ezManipulatorAttribute(nullptr)
+{
+
+}
+
+ezCapsuleManipulatorAttribute::ezCapsuleManipulatorAttribute(const char* szLength, const char* szRadius, const ezVec3& up)
+  : ezManipulatorAttribute(szLength, szRadius)
+{
+  m_vUp = up;
+}
+
 
 
 

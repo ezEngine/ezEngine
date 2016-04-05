@@ -44,6 +44,8 @@ enum ezEngineGizmoHandleType
   Piston,
   HalfPiston,
   Sphere,
+  CylinderZ,
+  HalfSphereZ,
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezEngineGizmoHandle : public ezGizmoHandle

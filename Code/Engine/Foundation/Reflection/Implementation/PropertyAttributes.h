@@ -284,6 +284,26 @@ protected:
 };
 
 
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_FOUNDATION_DLL ezCapsuleManipulatorAttribute : public ezManipulatorAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezCapsuleManipulatorAttribute, ezManipulatorAttribute);
+
+public:
+  ezCapsuleManipulatorAttribute();
+  ezCapsuleManipulatorAttribute(const char* szLength, const char* szRadius, const ezVec3& up);
+
+  const ezString& GeLengthProperty() const { return m_sProperty1; }
+  const ezString& GetRadiusProperty() const { return m_sProperty2; }
+
+  const ezVec3& GetUpVector() const { return m_vUp; }
+
+private:
+  ezVec3 m_vUp;
+};
+
+
 
 
 

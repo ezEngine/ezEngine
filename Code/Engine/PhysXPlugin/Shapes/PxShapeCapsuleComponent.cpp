@@ -9,6 +9,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeCapsuleComponent, 1);
     EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f)),
     EZ_MEMBER_PROPERTY("Half Height", m_fHalfHeight)->AddAttributes(new ezDefaultValueAttribute(0.25f)),
   EZ_END_PROPERTIES
+  EZ_BEGIN_ATTRIBUTES
+    new ezCapsuleManipulatorAttribute("Half Height", "Radius", ezVec3(0, 0, 1))
+  EZ_END_ATTRIBUTES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezPxShapeCapsuleComponent::ezPxShapeCapsuleComponent()

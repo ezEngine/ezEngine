@@ -23,8 +23,8 @@ ezSphereGizmo::ezSphereGizmo()
 
   m_ManipulateMode = ManipulateMode::None;
 
-  m_InnerSphere.Configure(this, ezEngineGizmoHandleType::Sphere, ezColorLinearUB(128, 128, 0, 128), false, true); // this gizmo should be rendered very last so it is always on top
-  m_OuterSphere.Configure(this, ezEngineGizmoHandleType::Sphere, ezColorLinearUB(200, 0, 200, 128), false);
+  m_InnerSphere.Configure(this, ezEngineGizmoHandleType::Sphere, ezColorLinearUB(200, 200, 0, 128), false, true); // this gizmo should be rendered very last so it is always on top
+  m_OuterSphere.Configure(this, ezEngineGizmoHandleType::Sphere, ezColorLinearUB(200, 200, 200, 128), false);
 
   SetVisible(false);
   SetTransformation(ezMat4::IdentityMatrix());

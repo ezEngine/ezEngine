@@ -209,6 +209,35 @@ static ezMeshBufferResourceHandle CreateMeshBufferSphere()
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Sphere");
 }
 
+static ezMeshBufferResourceHandle CreateMeshBufferCylinderZ()
+{
+  const char* szResourceName = "{3BBE2251-0DE4-4B71-979E-A407D8F5CB59}";
+
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+
+  if (hMesh.IsValid())
+    return hMesh;
+
+  ezGeometry geom;
+  geom.AddCylinder(1.0f, 1.0f, 1.0f, false, false, 16, ezColor::White);
+
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_CylinderZ");
+}
+
+static ezMeshBufferResourceHandle CreateMeshBufferHalfSphereZ()
+{
+  const char* szResourceName = "{05BDED8B-96C1-4F2E-8F1B-5C07B3C28D22}";
+
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+
+  if (hMesh.IsValid())
+    return hMesh;
+
+  ezGeometry geom;
+  geom.AddHalfSphere(1.0f, 16, 8, false, ezColor::White);
+
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_HalfSphereZ");
+}
 
 static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, ezMeshBufferResourceHandle hMeshBuffer, const char* szMaterial)
 {
@@ -307,6 +336,18 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
     {
       hMeshBuffer = CreateMeshBufferSphere();
       szMeshGuid = "{FC322E80-5EB0-452F-9D8E-9E65FCFDA652}";
+    }
+    break;
+  case ezEngineGizmoHandleType::CylinderZ:
+    {
+      hMeshBuffer = CreateMeshBufferCylinderZ();
+      szMeshGuid = "{893384EA-2F43-4265-AF75-662E2C81C167}";
+    }
+    break;
+  case ezEngineGizmoHandleType::HalfSphereZ:
+    {
+      hMeshBuffer = CreateMeshBufferHalfSphereZ();
+      szMeshGuid = "{0FC9B680-7B6B-40B6-97BD-CBFFA47F0EFF}";
     }
     break;
   default:
