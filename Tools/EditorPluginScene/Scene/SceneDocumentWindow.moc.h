@@ -107,7 +107,6 @@ private:
   bool m_bInGizmoInteraction;
   bool m_bMergeTransactions;
   bool m_bMoveCameraWithGizmo;
-  bool m_bIgnoreGizmoChangedEvent;
   ezDeque<SelectedGO> m_GizmoSelection;
 
   bool m_bInDragDropAction;

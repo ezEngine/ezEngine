@@ -73,6 +73,7 @@ void ezTypeWidget::SetSelection(const ezHybridArray<ezQtPropertyWidget::Selectio
   ezManipulatorManagerEvent e;
   e.m_pDocument = m_pGrid->GetDocument();
   e.m_pManipulator = ezManipulatorManager::GetSingleton()->GetActiveManipulator(e.m_pDocument, e.m_pSelection);
+  e.m_bHideManipulators = false; // irrelevant for this
   ManipulatorManagerEventHandler(e);
 }
 
@@ -253,7 +254,7 @@ void ezTypeWidget::ManipulatorManagerEventHandler(const ezManipulatorManagerEven
   if (m_pGrid->GetDocument() != e.m_pDocument)
     return;
 
-  bool bActiveOnThis = (e.m_pSelection != nullptr) && (m_Items == *e.m_pSelection);
+  const bool bActiveOnThis = (e.m_pSelection != nullptr) && (m_Items == *e.m_pSelection);
   
   for (auto it = m_PropertyWidgets.GetIterator(); it.IsValid(); ++it)
   {

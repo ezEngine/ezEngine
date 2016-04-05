@@ -15,6 +15,7 @@ struct EZ_GUIFOUNDATION_DLL ezManipulatorManagerEvent
   const ezDocument* m_pDocument;
   const ezManipulatorAttribute* m_pManipulator;
   const ezHybridArray<ezQtPropertyWidget::Selection, 8>* m_pSelection;
+  bool m_bHideManipulators;
 };
 
 class EZ_GUIFOUNDATION_DLL ezManipulatorManager
@@ -39,9 +40,18 @@ public:
 private:
   struct Data
   {
+    Data()
+    {
+      m_pAttribute = nullptr;
+      m_bHideManipulators = false;
+    }
+
     const ezManipulatorAttribute* m_pAttribute;
     ezHybridArray<ezQtPropertyWidget::Selection, 8> m_Selection;
+    bool m_bHideManipulators;
   };
+
+  void InternalSetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezHybridArray<ezQtPropertyWidget::Selection, 8>& selection, bool bUnhide);
 
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
@@ -50,7 +60,7 @@ private:
 
   void PhantomTypeManagerEventHandler(const ezPhantomRttiManagerEvent& e);
   void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
-
+  
   ezMap<const ezDocument*, Data> m_ActiveManipulator;
 };
 

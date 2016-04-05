@@ -44,7 +44,7 @@ void ezManipulatorAdapterRegistry::ManipulatorManagerEventHandler(const ezManipu
 {
   ClearAdapters(e.m_pDocument);
 
-  if (e.m_pManipulator == nullptr)
+  if (e.m_pManipulator == nullptr || e.m_bHideManipulators)
     return;
 
   for (const auto& sel : *e.m_pSelection)

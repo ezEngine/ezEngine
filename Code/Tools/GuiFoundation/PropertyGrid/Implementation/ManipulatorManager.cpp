@@ -54,7 +54,7 @@ const ezManipulatorAttribute* ezManipulatorManager::GetActiveManipulator(const e
   return nullptr;
 }
 
-void ezManipulatorManager::SetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezHybridArray<ezQtPropertyWidget::Selection, 8>& selection)
+void ezManipulatorManager::InternalSetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezHybridArray<ezQtPropertyWidget::Selection, 8>& selection, bool bUnhide)
 {
   bool existed = false;
   auto it = m_ActiveManipulator.FindOrAdd(pDoc, &existed);
@@ -68,31 +68,47 @@ void ezManipulatorManager::SetActiveManipulator(const ezDocument* pDoc, const ez
     pDoc->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezManipulatorManager::SelectionEventHandler, this));
   }
 
+  auto& data = m_ActiveManipulator[pDoc];
+
+  if (bUnhide)
+  {
+    data.m_bHideManipulators = false;
+  }
+
   ezManipulatorManagerEvent e;
+  e.m_bHideManipulators = data.m_bHideManipulators;
   e.m_pDocument = pDoc;
   e.m_pManipulator = pManipulator;
-  e.m_pSelection = &it.Value().m_Selection;
+  e.m_pSelection = &data.m_Selection;
 
   m_Events.Broadcast(e);
+}
+
+
+void ezManipulatorManager::SetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezHybridArray<ezQtPropertyWidget::Selection, 8>& selection)
+{
+  InternalSetActiveManipulator(pDoc, pManipulator, selection, true);
 }
 
 void ezManipulatorManager::ClearActiveManipulator(const ezDocument* pDoc)
 {
   ezHybridArray<ezQtPropertyWidget::Selection, 8> clearSel;
 
-  SetActiveManipulator(pDoc, nullptr, clearSel);
+  InternalSetActiveManipulator(pDoc, nullptr, clearSel, false);
 }
 
 void ezManipulatorManager::HideActiveManipulator(const ezDocument* pDoc, bool bHide)
 {
   auto it = m_ActiveManipulator.Find(pDoc);
 
-  if (it.IsValid())
+  if (it.IsValid() && it.Value().m_bHideManipulators != bHide)
   {
+    it.Value().m_bHideManipulators = bHide;
+
     if (bHide)
     {
       ezHybridArray<ezQtPropertyWidget::Selection, 8> clearSel;
-      SetActiveManipulator(pDoc, it.Value().m_pAttribute, clearSel);
+      InternalSetActiveManipulator(pDoc, it.Value().m_pAttribute, clearSel, false);
     }
     else
     {
@@ -115,7 +131,7 @@ void ezManipulatorManager::StructureEventHandler(const ezDocumentObjectStructure
         if (sel.m_pObject == e.m_pObject)
         {
           it.Value().m_Selection.Remove(sel);
-          SetActiveManipulator(pDoc, it.Value().m_pAttribute, it.Value().m_Selection);
+          InternalSetActiveManipulator(pDoc, it.Value().m_pAttribute, it.Value().m_Selection, false);
           return;
         }
       }
@@ -134,6 +150,9 @@ void ezManipulatorManager::TransferToCurrentSelection(const ezDocument* pDoc)
   auto pAttribute = data.m_pAttribute;
 
   if (pAttribute == nullptr)
+    return;
+
+  if (data.m_bHideManipulators)
     return;
 
   ezHybridArray<ezQtPropertyWidget::Selection, 8> newSelection;
@@ -167,18 +186,16 @@ void ezManipulatorManager::TransferToCurrentSelection(const ezDocument* pDoc)
     }
   }
 
-  SetActiveManipulator(pDoc, pAttribute, newSelection);
+  InternalSetActiveManipulator(pDoc, pAttribute, newSelection, false);
 }
 
 void ezManipulatorManager::PhantomTypeManagerEventHandler(const ezPhantomRttiManagerEvent& e)
 {
   if (e.m_Type == ezPhantomRttiManagerEvent::Type::TypeChanged || e.m_Type == ezPhantomRttiManagerEvent::Type::TypeRemoved)
   {
-    ezHybridArray<ezQtPropertyWidget::Selection, 8> clearSel;
-
     for (auto it = m_ActiveManipulator.GetIterator(); it.IsValid(); ++it)
     {
-      SetActiveManipulator(it.Key(), nullptr, clearSel);
+      ClearActiveManipulator(it.Key());
     }
   }
 }

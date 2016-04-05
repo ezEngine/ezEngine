@@ -26,7 +26,6 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezDocument* pDocument)
   SetupDefaultViewConfigs();
   LoadViewConfigs();
 
-  m_bIgnoreGizmoChangedEvent = false;
   m_bResendSelection = false;
   m_bInGizmoInteraction = false;
   SetTargetFramerate(25);
@@ -247,7 +246,7 @@ void ezQtSceneDocumentWindow::DocumentEventHandler(const ezSceneDocumentEvent& e
   {
   case ezSceneDocumentEvent::Type::ActiveGizmoChanged:
     UpdateGizmoVisibility();
-    if (!m_bIgnoreGizmoChangedEvent)
+    //if (!m_bIgnoreGizmoChangedEvent)
     {
       UpdateManipulatorVisibility();
     }
@@ -781,11 +780,9 @@ void ezQtSceneDocumentWindow::SceneExportEventHandler(ezSceneDocumentExportEvent
 void ezQtSceneDocumentWindow::ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e)
 {
   // make sure the gizmo is deactivated when a manipulator becomes active
-  if (e.m_pDocument == GetDocument() && e.m_pManipulator != nullptr && e.m_pSelection != nullptr && !e.m_pSelection->IsEmpty())
+  if (e.m_pDocument == GetDocument() && e.m_pManipulator != nullptr && e.m_pSelection != nullptr && !e.m_pSelection->IsEmpty() && !e.m_bHideManipulators)
   {
-    m_bIgnoreGizmoChangedEvent = true;
     GetSceneDocument()->SetActiveGizmo(ActiveGizmo::None);
-    m_bIgnoreGizmoChangedEvent = false;
   }
 }
 
