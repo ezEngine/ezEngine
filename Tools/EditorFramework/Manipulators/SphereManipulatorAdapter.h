@@ -18,5 +18,7 @@ protected:
   virtual void Update() override;
   void GizmoEventHandler(const ezGizmoEvent& e);
 
+  virtual void UpdateGizmoTransform() override;
+
   ezSphereGizmo m_Gizmo;
 };

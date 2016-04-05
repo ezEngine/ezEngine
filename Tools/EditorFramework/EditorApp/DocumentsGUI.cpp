@@ -94,11 +94,11 @@ ezString ezQtEditorApp::BuildDocumentTypeFileFilter(bool bForCreation)
 }
 
 
-void ezQtEditorApp::DocumentWindowEventHandler(const ezQtDocumentWindow::Event& e)
+void ezQtEditorApp::DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezQtDocumentWindow::Event::WindowClosed:
+  case ezQtDocumentWindowEvent::WindowClosed:
     {
       // if all windows are closed, show at least the settings window
       if (ezQtDocumentWindow::GetAllDocumentWindows().GetCount() == 0)

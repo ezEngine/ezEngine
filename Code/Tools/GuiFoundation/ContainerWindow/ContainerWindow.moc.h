@@ -66,7 +66,7 @@ private:
 
   const char* GetUniqueName() const { return "ezEditor"; /* todo */ }
 
-  void DocumentWindowEventHandler(const ezQtDocumentWindow::Event& e);
+  void DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e);
   void ProjectEventHandler(const ezToolsProject::Event& e);
   void UIServicesEventHandler(const ezUIServices::Event& e);
 

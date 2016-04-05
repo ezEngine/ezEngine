@@ -145,7 +145,7 @@ private:
   void DocumentManagerRequestHandler(ezDocumentManager::Request& r);
   void DocumentManagerEventHandler(const ezDocumentManager::Event& r);
   void DocumentEventHandler(const ezDocumentEvent& e);
-  void DocumentWindowEventHandler(const ezQtDocumentWindow::Event& e);
+  void DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e);
   void ProjectRequestHandler(ezToolsProject::Request& r);
   void ProjectEventHandler(const ezToolsProject::Event& r);
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);

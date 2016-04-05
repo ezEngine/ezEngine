@@ -13,7 +13,7 @@
 #include <QTimer>
 #include <QStatusBar>
 
-ezEvent<const ezQtDocumentWindow::Event&> ezQtDocumentWindow::s_Events;
+ezEvent<const ezQtDocumentWindowEvent&> ezQtDocumentWindow::s_Events;
 ezDynamicArray<ezQtDocumentWindow*> ezQtDocumentWindow::s_AllDocumentWindows;
 
 void ezQtDocumentWindow::Constructor()
@@ -153,6 +153,13 @@ void ezQtDocumentWindow::TriggerRedraw(float fLastFrameTimeMS)
 
 void ezQtDocumentWindow::SlotRedraw()
 {
+  {
+    ezQtDocumentWindowEvent e;
+    e.m_Type = ezQtDocumentWindowEvent::Type::BeforeRedraw;
+    e.m_pWindow = this;
+    s_Events.Broadcast(e);
+  }
+
   EZ_ASSERT_DEV(!m_bIsDrawingATM, "Implementation error");
   ezTime startTime = ezTime::Now();
 
@@ -180,9 +187,9 @@ void ezQtDocumentWindow::DocumentEventHandler(const ezDocumentEvent& e)
   {
   case ezDocumentEvent::Type::ModifiedChanged:
     {
-      Event dwe;
+      ezQtDocumentWindowEvent dwe;
       dwe.m_pWindow = this;
-      dwe.m_Type = Event::Type::WindowDecorationChanged;
+      dwe.m_Type = ezQtDocumentWindowEvent::Type::WindowDecorationChanged;
       s_Events.Broadcast(dwe);
     }
     break;
@@ -412,14 +419,14 @@ void ezQtDocumentWindow::ShutdownDocumentWindow()
 
   InternalCloseDocumentWindow();
 
-  Event e;
+  ezQtDocumentWindowEvent e;
   e.m_pWindow = this;
-  e.m_Type = Event::Type::WindowClosing;
+  e.m_Type = ezQtDocumentWindowEvent::Type::WindowClosing;
   s_Events.Broadcast(e);
 
   InternalDeleteThis();
 
-  e.m_Type = Event::Type::WindowClosed;
+  e.m_Type = ezQtDocumentWindowEvent::Type::WindowClosed;
   s_Events.Broadcast(e);
 }
 

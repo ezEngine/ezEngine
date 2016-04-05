@@ -5,15 +5,20 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <Core/World/GameObject.h>
+#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 
 ezManipulatorAdapter::ezManipulatorAdapter()
 {
   m_pManipulatorAttr = nullptr;
   m_pObject = nullptr;
+
+  ezQtDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezManipulatorAdapter::DocumentWindowEventHandler, this));
 }
 
 ezManipulatorAdapter::~ezManipulatorAdapter()
 {
+  ezQtDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezManipulatorAdapter::DocumentWindowEventHandler, this));
+
   if (m_pObject)
   {
     m_pObject->GetDocumentObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezManipulatorAdapter::DocumentObjectPropertyEventHandler, this));
@@ -46,6 +51,14 @@ void ezManipulatorAdapter::DocumentObjectPropertyEventHandler(const ezDocumentOb
         Update();
       }
     }
+  }
+}
+
+void ezManipulatorAdapter::DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e)
+{
+  if (e.m_Type == ezQtDocumentWindowEvent::BeforeRedraw && e.m_pWindow->GetDocument() == m_pObject->GetDocumentObjectManager()->GetDocument())
+  {
+    UpdateGizmoTransform();
   }
 }
 

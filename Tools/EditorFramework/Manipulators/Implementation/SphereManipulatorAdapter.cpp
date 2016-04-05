@@ -74,5 +74,9 @@ void ezSphereManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
   }
 }
 
+void ezSphereManipulatorAdapter::UpdateGizmoTransform()
+{
+  m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());
+}
 
 

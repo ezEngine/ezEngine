@@ -6,6 +6,7 @@
 class ezManipulatorAttribute;
 class ezDocumentObject;
 struct ezDocumentObjectPropertyEvent;
+struct ezQtDocumentWindowEvent;
 
 class EZ_EDITORFRAMEWORK_DLL ezManipulatorAdapter
 {
@@ -17,11 +18,14 @@ public:
 
 private:
   void DocumentObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e);
 
 protected:
+  virtual ezTransform GetObjectTransform() const;
+
   virtual void Finalize() = 0;
   virtual void Update() = 0;
-  virtual ezTransform GetObjectTransform() const;
+  virtual void UpdateGizmoTransform() = 0;
 
   void BeginTemporaryInteraction();
   void EndTemporaryInteraction();

@@ -375,14 +375,14 @@ void ezContainerWindow::SlotDocumentTabCurrentChanged(int index)
   ReassignWindowIndex();
 }
 
-void ezContainerWindow::DocumentWindowEventHandler(const ezQtDocumentWindow::Event& e)
+void ezContainerWindow::DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezQtDocumentWindow::Event::Type::WindowClosing:
+  case ezQtDocumentWindowEvent::Type::WindowClosing:
     RemoveDocumentWindowFromContainer(e.m_pWindow);
     break;
-  case ezQtDocumentWindow::Event::Type::WindowDecorationChanged:
+  case ezQtDocumentWindowEvent::Type::WindowDecorationChanged:
     UpdateWindowDecoration(e.m_pWindow);
     break;
   }

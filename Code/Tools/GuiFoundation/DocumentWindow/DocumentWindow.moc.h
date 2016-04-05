@@ -10,6 +10,21 @@
 
 class ezContainerWindow;
 class ezDocument;
+class ezQtDocumentWindow;
+
+struct ezQtDocumentWindowEvent
+{
+  enum Type
+  {
+    WindowClosing,            ///< Sent shortly before the window is being deleted
+    WindowClosed,             ///< Sent AFTER the window has been deleted. The pointer is given, but not valid anymore!
+    WindowDecorationChanged,  ///< Window title or icon has changed
+    BeforeRedraw,             ///< Sent shortly before the content of the window is being redrawn
+  };
+
+  Type m_Type;
+  ezQtDocumentWindow* m_pWindow;
+};
 
 /// \brief Base class for all document windows. Handles the most basic document window management.
 class EZ_GUIFOUNDATION_DLL ezQtDocumentWindow : public QMainWindow
@@ -18,20 +33,7 @@ class EZ_GUIFOUNDATION_DLL ezQtDocumentWindow : public QMainWindow
 
 public:
 
-  struct Event
-  {
-    enum Type
-    {
-      WindowClosing,            ///< Sent shortly before the window is being deleted
-      WindowClosed,             ///< Sent AFTER the window has been deleted. The pointer is given, but not valid anymore!
-      WindowDecorationChanged,  ///< Window title or icon has changed
-    };
-
-    Type m_Type;
-    ezQtDocumentWindow* m_pWindow;
-  };
-
-  static ezEvent<const Event&> s_Events;
+  static ezEvent<const ezQtDocumentWindowEvent&> s_Events;
 
 public:
   ezQtDocumentWindow(ezDocument* pDocument);
