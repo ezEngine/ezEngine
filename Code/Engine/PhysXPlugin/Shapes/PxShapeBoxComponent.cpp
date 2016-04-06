@@ -6,13 +6,16 @@
 
 EZ_BEGIN_COMPONENT_TYPE(ezPxShapeBoxComponent, 1);
   EZ_BEGIN_PROPERTIES
-    EZ_MEMBER_PROPERTY("Half Extents", m_vHalfExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(0.5f))),
+    EZ_MEMBER_PROPERTY("Extents", m_vExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
   EZ_END_PROPERTIES
+  EZ_BEGIN_ATTRIBUTES
+    new ezBoxManipulatorAttribute("Extents")
+  EZ_END_ATTRIBUTES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezPxShapeBoxComponent::ezPxShapeBoxComponent()
 {
-  m_vHalfExtents.Set(0.5f);
+  m_vExtents.Set(1.0f);
 }
 
 
@@ -21,7 +24,7 @@ void ezPxShapeBoxComponent::SerializeComponent(ezWorldWriter& stream) const
   SUPER::SerializeComponent(stream);
 
   auto& s = stream.GetStream();
-  s << m_vHalfExtents;
+  s << m_vExtents;
 }
 
 
@@ -32,7 +35,7 @@ void ezPxShapeBoxComponent::DeserializeComponent(ezWorldReader& stream)
 
 
   auto& s = stream.GetStream();
-  s >> m_vHalfExtents;
+  s >> m_vExtents;
 
 
 }
@@ -53,7 +56,7 @@ void ezPxShapeBoxComponent::AddToActor(PxRigidActor* pActor, const ezTransform& 
   t.p = PxVec3(LocalTransform.m_vPosition.x, LocalTransform.m_vPosition.y, LocalTransform.m_vPosition.z);
   t.q = PxQuat(r.v.x, r.v.y, r.v.z, r.w);
 
-  auto pShape = pActor->createShape(PxBoxGeometry(m_vHalfExtents.x, m_vHalfExtents.y, m_vHalfExtents.z), *GetPxMaterial());
+  auto pShape = pActor->createShape(PxBoxGeometry(m_vExtents.x * 0.5f, m_vExtents.y * 0.5f, m_vExtents.z * 0.5f), *GetPxMaterial());
   pShape->setLocalPose(t);
 
   EZ_ASSERT_DEBUG(pShape != nullptr, "PhysX box shape creation failed");

@@ -46,6 +46,9 @@ enum ezEngineGizmoHandleType
   Sphere,
   CylinderZ,
   HalfSphereZ,
+  BoxCorners,
+  BoxEdges,
+  BoxFaces,
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezEngineGizmoHandle : public ezGizmoHandle

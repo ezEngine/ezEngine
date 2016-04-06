@@ -33,9 +33,9 @@ void ezCapsuleManipulatorAdapter::Update()
 {
   const ezCapsuleManipulatorAttribute* pAttr = static_cast<const ezCapsuleManipulatorAttribute*>(m_pManipulatorAttr);
 
-  if (!pAttr->GeLengthProperty().IsEmpty())
+  if (!pAttr->GetLengthProperty().IsEmpty())
   {
-    ezVariant value = m_pObject->GetTypeAccessor().GetValue(ezPropertyPath(pAttr->GeLengthProperty()));
+    ezVariant value = m_pObject->GetTypeAccessor().GetValue(ezPropertyPath(pAttr->GetLengthProperty()));
     m_Gizmo.SetLength(value.ConvertTo<float>());
   }
 
@@ -68,7 +68,7 @@ void ezCapsuleManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
     {
       const ezCapsuleManipulatorAttribute* pAttr = static_cast<const ezCapsuleManipulatorAttribute*>(m_pManipulatorAttr);
 
-      ChangeProperties(pAttr->GeLengthProperty(), m_Gizmo.GetLength(), pAttr->GetRadiusProperty(), m_Gizmo.GetRadius());
+      ChangeProperties(pAttr->GetLengthProperty(), m_Gizmo.GetLength(), pAttr->GetRadiusProperty(), m_Gizmo.GetRadius());
     }
     break;
   }

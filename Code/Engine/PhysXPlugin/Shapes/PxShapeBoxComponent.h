@@ -18,7 +18,7 @@ public:
   // ************************************* PROPERTIES ***********************************
 public:
 
-  ezVec3 m_vHalfExtents;
+  ezVec3 m_vExtents;
 
 protected:
 

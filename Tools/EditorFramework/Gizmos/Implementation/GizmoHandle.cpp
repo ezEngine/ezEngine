@@ -239,6 +239,92 @@ static ezMeshBufferResourceHandle CreateMeshBufferHalfSphereZ()
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_HalfSphereZ");
 }
 
+static ezMeshBufferResourceHandle CreateMeshBufferBoxFaces()
+{
+  const char* szResourceName = "{BD925A8E-480D-41A6-8F62-0AC5F72DA4F6}";
+
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+
+  if (hMesh.IsValid())
+    return hMesh;
+
+  ezMat4 t;
+
+  ezGeometry geom;
+  t.SetTranslationMatrix(ezVec3(0, 0, 0.5f));
+  geom.AddRectXY(ezVec2(0.5f), ezColor::White, t);
+
+  t.SetRotationMatrixY(ezAngle::Degree(180.0));
+  t.SetTranslationVector(ezVec3(0, 0, -0.5f));
+  geom.AddRectXY(ezVec2(0.5f), ezColor::White, t);
+
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_BoxFaces");
+}
+
+static ezMeshBufferResourceHandle CreateMeshBufferBoxEdges()
+{
+  const char* szResourceName = "{FE700F28-514E-4193-A0F6-4351E0BAC222}";
+
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+
+  if (hMesh.IsValid())
+    return hMesh;
+
+  ezMat4 t, rot;
+
+  ezGeometry geom;
+
+  for (ezUInt32 i = 0; i < 4; ++i)
+  {
+    rot.SetRotationMatrixY(ezAngle::Degree(90.0f * i));
+
+    t.SetTranslationMatrix(ezVec3(0.5f - 0.125f, 0, 0.5f));
+    geom.AddRectXY(ezVec2(0.25f, 0.5f), ezColor::White, rot * t);
+
+    t.SetTranslationMatrix(ezVec3(-0.5f + 0.125f, 0, 0.5f));
+    geom.AddRectXY(ezVec2(0.25f, 0.5f), ezColor::White, rot * t);
+  }
+
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_BoxEdges");
+}
+
+static ezMeshBufferResourceHandle CreateMeshBufferBoxCorners()
+{
+  const char* szResourceName = "{FBDB6A82-D4B0-447F-815B-228D340451CB}";
+
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+
+  if (hMesh.IsValid())
+    return hMesh;
+
+  ezMat4 t, rot[6];
+  rot[0].SetIdentity();
+  rot[1].SetRotationMatrixX(ezAngle::Degree(90));
+  rot[2].SetRotationMatrixX(ezAngle::Degree(180));
+  rot[3].SetRotationMatrixX(ezAngle::Degree(270));
+  rot[4].SetRotationMatrixY(ezAngle::Degree(90));
+  rot[5].SetRotationMatrixY(ezAngle::Degree(-90));
+
+  ezGeometry geom;
+
+  for (ezUInt32 i = 0; i < 6; ++i)
+  {
+    t.SetTranslationMatrix(ezVec3(0.5f - 0.125f, 0.5f - 0.125f, 0.5f));
+    geom.AddRectXY(ezVec2(0.25f, 0.25f), ezColor::White, rot[i] * t);
+
+    t.SetTranslationMatrix(ezVec3(0.5f - 0.125f, -0.5f + 0.125f, 0.5f));
+    geom.AddRectXY(ezVec2(0.25f, 0.25f), ezColor::White, rot[i] * t);
+
+    t.SetTranslationMatrix(ezVec3(-0.5f + 0.125f, 0.5f - 0.125f, 0.5f));
+    geom.AddRectXY(ezVec2(0.25f, 0.25f), ezColor::White, rot[i] * t);
+
+    t.SetTranslationMatrix(ezVec3(-0.5f + 0.125f, -0.5f + 0.125f, 0.5f));
+    geom.AddRectXY(ezVec2(0.25f, 0.25f), ezColor::White, rot[i] * t);
+  }
+
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_BoxCorners");
+}
+
 static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, ezMeshBufferResourceHandle hMeshBuffer, const char* szMaterial)
 {
   ezMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshResourceName);
@@ -350,6 +436,25 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
       szMeshGuid = "{0FC9B680-7B6B-40B6-97BD-CBFFA47F0EFF}";
     }
     break;
+  case ezEngineGizmoHandleType::BoxCorners:
+    {
+      hMeshBuffer = CreateMeshBufferBoxCorners();
+      szMeshGuid = "{89CCC389-11D5-43F4-9C18-C634EE3154B9}";
+    }
+    break;
+  case ezEngineGizmoHandleType::BoxEdges:
+    {
+      hMeshBuffer = CreateMeshBufferBoxEdges();
+      szMeshGuid = "{21508253-2E74-44CE-9399-523214BE7C3D}";
+    }
+    break;
+  case ezEngineGizmoHandleType::BoxFaces:
+    {
+      hMeshBuffer = CreateMeshBufferBoxFaces();
+      szMeshGuid = "{FD1A3C29-F8F0-42B0-BBB0-D0A2B28A65A0}";
+    }
+    break;
+
   default:
     EZ_ASSERT_NOT_IMPLEMENTED;
   }

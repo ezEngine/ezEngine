@@ -130,7 +130,20 @@ ezCapsuleManipulatorAttribute::ezCapsuleManipulatorAttribute(const char* szLengt
 }
 
 
+//////////////////////////////////////////////////////////////////////////
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoxManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezBoxManipulatorAttribute>);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+ezBoxManipulatorAttribute::ezBoxManipulatorAttribute()
+  : ezManipulatorAttribute(nullptr)
+{
+}
+
+ezBoxManipulatorAttribute::ezBoxManipulatorAttribute(const char* szSize)
+  : ezManipulatorAttribute(szSize)
+{
+
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_PropertyAttributes);
