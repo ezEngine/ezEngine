@@ -417,12 +417,17 @@ void ezEngineGizmoHandle::UpdateForEngine(ezWorld* pWorld)
   if (!pWorld->TryGetObject(m_hGameObject, pObject))
     return;
 
-  ezQuat qRot;
-  qRot.SetFromMat3(m_Transformation.GetRotationalPart());
+  ezTransform t;
+  t.m_vPosition = m_Transformation.GetTranslationVector();
+  t.m_Rotation = m_Transformation.GetRotationalPart();
 
-  pObject->SetLocalPosition(m_Transformation.GetTranslationVector());
+  ezQuat qRot;
+  ezVec3 vTrans, vScale;
+  t.Decompose(vTrans, qRot, vScale);
+
+  pObject->SetLocalPosition(vTrans);
   pObject->SetLocalRotation(qRot);
-  pObject->SetLocalScaling(m_Transformation.GetRotationalPart().GetScalingFactors());
+  pObject->SetLocalScaling(vScale);
 
   m_pMeshComponent->SetActive(m_bVisible);
 }

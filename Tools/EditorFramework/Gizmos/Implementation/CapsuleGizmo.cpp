@@ -61,12 +61,6 @@ void ezCapsuleGizmo::OnTransformationChanged(const ezMat4& transform)
     mScaleSpheres.SetScalingMatrix(ezVec3(m_fRadius, -m_fRadius, -m_fRadius));
     mScaleSpheres.SetTranslationVector(ezVec3(0, 0, -m_fLength * 0.5f));
 
-    /// \todo When m_fRadius goes below 1/3 the GPU gets an incorrect scaling matrix
-    /// Position and Scaling values are correct, but the signs for scaling get lost (mirroring?)
-
-    /// \todo Use this for easier debugging
-    //mScaleSpheres.SetTranslationVector(ezVec3(1.0f, 0, -m_fLength * 0.5f));
-
     m_LengthBottom.SetTransformation(transform * mScaleSpheres);
   }
 }
