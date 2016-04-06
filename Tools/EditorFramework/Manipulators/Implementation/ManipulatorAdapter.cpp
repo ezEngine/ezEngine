@@ -6,6 +6,7 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <Core/World/GameObject.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
+#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 
 ezManipulatorAdapter::ezManipulatorAdapter()
 {
@@ -85,7 +86,40 @@ void ezManipulatorAdapter::CancelTemporayInteraction()
   m_pObject->GetDocumentObjectManager()->GetDocument()->GetCommandHistory()->CancelTemporaryCommands();
 }
 
-void ezManipulatorAdapter::ChangeProperties(const char* szProperty1, const ezVariant& value1, const char* szProperty2 /*= nullptr*/, const ezVariant& value2 /*= ezVariant()*/, const char* szProperty3 /*= nullptr*/, const ezVariant& value3 /*= ezVariant()*/, const char* szProperty4 /*= nullptr*/, const ezVariant& value4 /*= ezVariant()*/)
+void ezManipulatorAdapter::ClampProperty(const char* szProperty, ezVariant& value) const
+{
+  ezResult status(EZ_FAILURE);
+  const double fCur = value.ConvertTo<double>(&status);
+
+  if (status.Failed())
+    return;
+
+  const ezClampValueAttribute* pClamp = m_pObject->GetTypeAccessor().GetType()->FindPropertyByName(szProperty)->GetAttributeByType<ezClampValueAttribute>();
+  if (pClamp == nullptr)
+    return;
+
+  if (pClamp->GetMinValue().IsValid())
+  {
+    const double fMin = pClamp->GetMinValue().ConvertTo<double>(&status);
+    if (status.Succeeded())
+    {
+      if (fCur < fMin)
+        value = pClamp->GetMinValue();
+    }
+  }
+
+  if (pClamp->GetMaxValue().IsValid())
+  {
+    const double fMax = pClamp->GetMaxValue().ConvertTo<double>(&status);
+    if (status.Succeeded())
+    {
+      if (fCur > fMax)
+        value = pClamp->GetMaxValue();
+    }
+  }
+}
+
+void ezManipulatorAdapter::ChangeProperties(const char* szProperty1, ezVariant value1, const char* szProperty2 /*= nullptr*/, ezVariant value2 /*= ezVariant()*/, const char* szProperty3 /*= nullptr*/, ezVariant value3 /*= ezVariant()*/, const char* szProperty4 /*= nullptr*/, ezVariant value4 /*= ezVariant()*/)
 {
   auto pHistory = m_pObject->GetDocumentObjectManager()->GetDocument()->GetCommandHistory();
   pHistory->StartTransaction();
@@ -95,6 +129,8 @@ void ezManipulatorAdapter::ChangeProperties(const char* szProperty1, const ezVar
 
   if (!ezStringUtils::IsNullOrEmpty(szProperty1))
   {
+    ClampProperty(szProperty1, value1);
+
     cmd.SetPropertyPath(szProperty1);
     cmd.m_NewValue = value1;
     pHistory->AddCommand(cmd);
@@ -102,6 +138,8 @@ void ezManipulatorAdapter::ChangeProperties(const char* szProperty1, const ezVar
 
   if (!ezStringUtils::IsNullOrEmpty(szProperty2))
   {
+    ClampProperty(szProperty2, value2);
+
     cmd.SetPropertyPath(szProperty2);
     cmd.m_NewValue = value2;
     pHistory->AddCommand(cmd);
@@ -109,6 +147,8 @@ void ezManipulatorAdapter::ChangeProperties(const char* szProperty1, const ezVar
 
   if (!ezStringUtils::IsNullOrEmpty(szProperty3))
   {
+    ClampProperty(szProperty3, value3);
+
     cmd.SetPropertyPath(szProperty3);
     cmd.m_NewValue = value3;
     pHistory->AddCommand(cmd);
@@ -116,6 +156,8 @@ void ezManipulatorAdapter::ChangeProperties(const char* szProperty1, const ezVar
 
   if (!ezStringUtils::IsNullOrEmpty(szProperty4))
   {
+    ClampProperty(szProperty4, value4);
+
     cmd.SetPropertyPath(szProperty4);
     cmd.m_NewValue = value4;
     pHistory->AddCommand(cmd);

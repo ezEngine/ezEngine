@@ -19,7 +19,7 @@ public:
 public:
 
   float m_fRadius;
-  float m_fHalfHeight;
+  float m_fHeight;
 
 
 protected:
