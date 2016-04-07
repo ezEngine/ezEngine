@@ -59,7 +59,7 @@ public:
   ezEngineGizmoHandle();
   ~ezEngineGizmoHandle();
 
-  void Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize = true, bool bForeground2 = false);
+  void Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize = true, bool bForeground2 = false, bool bVisualizer = false);
 
   bool IsSetupForEngine() const { return !m_hGameObject.IsInvalidated(); }
 
@@ -69,6 +69,7 @@ public:
 protected:
   bool m_bConstantSize;
   bool m_bForeground2;
+  bool m_bVisualizer;
   ezInt32 m_iHandleType;
   ezGameObjectHandle m_hGameObject;
   ezMeshComponent* m_pMeshComponent;

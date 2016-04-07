@@ -1,0 +1,52 @@
+[PLATFORMS] 
+ALL
+
+[PERMUTATIONS]
+
+PICKING
+
+[RENDERSTATE]
+
+DepthTest = true
+DepthWrite = true
+WireFrame = true
+CullMode = CullMode_Back
+DepthTestFunc = CompareFunc_Less
+
+[VERTEXSHADER]
+
+#include <Shaders/Materials/Materials.inc>
+#include <Shaders/Materials/DefaultMaterialCB.inc>
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+VS_OUT_COLORED main(VS_IN_COLORED Input)
+{
+  VS_OUT_COLORED RetVal;
+  RetVal.Position = mul(ObjectToScreenMatrix, float4(Input.Position, 1.0f));
+  RetVal.Color = MeshColor;
+  
+  return RetVal;
+}
+
+#endif
+
+
+[PIXELSHADER]
+
+#include <Shaders/Materials/Materials.inc>
+#include <Shaders/Materials/DefaultMaterialCB.inc>
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+float4 main(PS_IN_COLORED Input) : SV_Target
+{
+#if PICKING == 1
+  discard;
+#endif
+
+  return Input.Color;
+}
+
+#endif
+

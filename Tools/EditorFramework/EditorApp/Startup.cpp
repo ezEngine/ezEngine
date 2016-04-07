@@ -27,10 +27,12 @@
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <Panels/LogPanel/LogPanel.moc.h>
 #include <Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
-#include <Manipulators/ManipulatorAdapterRegistry.h>
-#include <Manipulators/SphereManipulatorAdapter.h>
-#include <Manipulators/CapsuleManipulatorAdapter.h>
-#include <Manipulators/BoxManipulatorAdapter.h>
+#include <EditorFramework/Manipulators/ManipulatorAdapterRegistry.h>
+#include <EditorFramework/Manipulators/SphereManipulatorAdapter.h>
+#include <EditorFramework/Manipulators/CapsuleManipulatorAdapter.h>
+#include <EditorFramework/Manipulators/BoxManipulatorAdapter.h>
+#include <EditorFramework/Visualizers/VisualizerAdapterRegistry.h>
+#include <EditorFramework/Visualizers/BoxVisualizerAdapter.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 
@@ -61,6 +63,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSphereManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezSphereManipulatorAdapter); });
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezCapsuleManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezCapsuleManipulatorAdapter); });
     ezManipulatorAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxManipulatorAttribute>(), [](const ezRTTI* pRtti)->ezManipulatorAdapter* { return EZ_DEFAULT_NEW(ezBoxManipulatorAdapter); });
+
+    ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezBoxVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezBoxVisualizerAdapter); });
   }
 
   ON_CORE_SHUTDOWN

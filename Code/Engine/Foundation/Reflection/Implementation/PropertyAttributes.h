@@ -319,6 +319,31 @@ public:
 };
 
 
+//////////////////////////////////////////////////////////////////////////
 
+class EZ_FOUNDATION_DLL ezVisualizerAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualizerAttribute, ezPropertyAttribute);
 
+public:
+  ezVisualizerAttribute(const char* szProperty1, const char* szProperty2 = nullptr, const char* szProperty3 = nullptr, const char* szProperty4 = nullptr);
 
+  ezString m_sProperty1;
+  ezString m_sProperty2;
+  ezString m_sProperty3;
+  ezString m_sProperty4;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_FOUNDATION_DLL ezBoxVisualizerAttribute : public ezVisualizerAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezBoxVisualizerAttribute, ezVisualizerAttribute);
+
+public:
+  ezBoxVisualizerAttribute();
+  ezBoxVisualizerAttribute(const char* szSize);
+
+  const ezString& GetSizeProperty() const { return m_sProperty1; }
+
+};

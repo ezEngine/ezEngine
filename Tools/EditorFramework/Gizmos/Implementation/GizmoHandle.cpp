@@ -20,6 +20,7 @@ EZ_MEMBER_PROPERTY("HandleType", m_iHandleType),
 EZ_MEMBER_PROPERTY("Color", m_Color),
 EZ_MEMBER_PROPERTY("ConstantSize", m_bConstantSize),
 EZ_MEMBER_PROPERTY("Foreground2", m_bForeground2),
+EZ_MEMBER_PROPERTY("Visualizer", m_bVisualizer),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -39,7 +40,7 @@ void ezGizmoHandle::SetVisible(bool bVisible)
   }
 }
 
-void ezGizmoHandle::SetTransformation(const ezMat4& m) 
+void ezGizmoHandle::SetTransformation(const ezMat4& m)
 {
   if (m_Transformation != m)
   {
@@ -169,7 +170,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferRing()
   m.SetIdentity();
 
   ezGeometry geom;
-  geom.AddTorus(fInnerRadius, fOuterRadius, 32, 8,ezColor::White);
+  geom.AddTorus(fInnerRadius, fOuterRadius, 32, 8, ezColor::White);
 
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Ring");
 }
@@ -327,7 +328,9 @@ static ezMeshBufferResourceHandle CreateMeshBufferBoxCorners()
 
 static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, ezMeshBufferResourceHandle hMeshBuffer, const char* szMaterial)
 {
-  ezMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshResourceName);
+  const ezStringBuilder sIdentifier(szMeshResourceName, "@", szMaterial);
+
+  ezMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sIdentifier);
 
   if (hMesh.IsValid())
     return hMesh;
@@ -340,7 +343,7 @@ static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, e
   md.SetMaterial(0, szMaterial);
   md.CalculateBounds();
 
-  return ezResourceManager::CreateResource<ezMeshResource>(szMeshResourceName, md, pMeshBuffer->GetResourceDescription());
+  return ezResourceManager::CreateResource<ezMeshResource>(sIdentifier, md, pMeshBuffer->GetResourceDescription());
 }
 
 ezEngineGizmoHandle::ezEngineGizmoHandle()
@@ -349,6 +352,7 @@ ezEngineGizmoHandle::ezEngineGizmoHandle()
   m_pMeshComponent = nullptr;
   m_bConstantSize = true;
   m_bForeground2 = false;
+  m_bVisualizer = false;
   m_Color = ezColor::CornflowerBlue; /* The Original! */
 }
 
@@ -360,12 +364,13 @@ ezEngineGizmoHandle::~ezEngineGizmoHandle()
   m_pWorld->DeleteObjectDelayed(m_hGameObject);
 }
 
-void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize, bool bForeground2)
+void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize, bool bForeground2, bool bVisualizer)
 {
   SetParentGizmo(pParentGizmo);
 
   m_bConstantSize = bConstantSize;
   m_bForeground2 = bForeground2;
+  m_bVisualizer = bVisualizer;
   m_iHandleType = (int)type;
   m_Color = col;
 }
@@ -486,26 +491,27 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
 
   ezMeshResourceHandle hMesh;
 
-  if (m_bConstantSize)
+  if (m_bVisualizer)
+  {
+    hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Materials/Editor/Visualizer.ezMaterial");
+  }
+  else if (m_bConstantSize)
   {
     hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Materials/Editor/GizmoHandleConstantSize.ezMaterial");
   }
+  else if (m_bForeground2)
+  {
+    hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Materials/Editor/GizmoHandleOnTop.ezMaterial");
+  }
   else
   {
-    if (m_bForeground2)
-    {
-      hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Materials/Editor/GizmoHandleOnTop.ezMaterial");
-    }
-    else
-    {
-      hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Materials/Editor/GizmoHandle.ezMaterial");
-    }
+    hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Materials/Editor/GizmoHandle.ezMaterial");
   }
 
   m_pMeshComponent->SetRenderDataCategory(m_bForeground2 ? ezDefaultRenderDataCategories::SimpleForeground : ezDefaultRenderDataCategories::SimpleOpaque);
   m_pMeshComponent->m_MeshColor = m_Color;
   m_pMeshComponent->SetMesh(hMesh);
-  
+
   m_pMeshComponent->m_uiEditorPickingID = uiNextComponentPickingID;
 
   pObject->AttachComponent(m_pMeshComponent);

@@ -35,8 +35,12 @@ ezEditorInut ezSelectionContext::mousePressEvent(QMouseEvent* e)
         {
           ezGizmoHandle* pGizmoHandle = static_cast<ezGizmoHandle*>(pSO);
           ezGizmo* pGizmo = pGizmoHandle->GetOwnerGizmo();
-          pGizmo->ConfigureInteraction(pGizmoHandle, m_pCamera, res.m_vPickedPosition, m_Viewport);
-          return pGizmo->mousePressEvent(e);
+
+          if (pGizmo)
+          {
+            pGizmo->ConfigureInteraction(pGizmoHandle, m_pCamera, res.m_vPickedPosition, m_Viewport);
+            return pGizmo->mousePressEvent(e);
+          }
         }
       }
     }

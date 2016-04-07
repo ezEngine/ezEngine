@@ -146,4 +146,43 @@ ezBoxManipulatorAttribute::ezBoxManipulatorAttribute(const char* szSize)
 
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualizerAttribute, 1, ezRTTINoAllocator);
+EZ_BEGIN_PROPERTIES
+EZ_MEMBER_PROPERTY("Property1", m_sProperty1),
+EZ_MEMBER_PROPERTY("Property2", m_sProperty2),
+EZ_MEMBER_PROPERTY("Property3", m_sProperty3),
+EZ_MEMBER_PROPERTY("Property4", m_sProperty4),
+EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+
+ezVisualizerAttribute::ezVisualizerAttribute(const char* szProperty1, const char* szProperty2 /*= nullptr*/, const char* szProperty3 /*= nullptr*/, const char* szProperty4 /*= nullptr*/)
+{
+  m_sProperty1 = szProperty1;
+  m_sProperty2 = szProperty2;
+  m_sProperty3 = szProperty3;
+  m_sProperty4 = szProperty4;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoxVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezBoxVisualizerAttribute>);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+ezBoxVisualizerAttribute::ezBoxVisualizerAttribute()
+  : ezVisualizerAttribute(nullptr)
+{
+}
+
+ezBoxVisualizerAttribute::ezBoxVisualizerAttribute(const char* szSize)
+  : ezVisualizerAttribute(szSize)
+{
+
+}
+
+
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_PropertyAttributes);
