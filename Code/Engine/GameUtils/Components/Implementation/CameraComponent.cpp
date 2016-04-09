@@ -23,6 +23,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 1);
   EZ_END_PROPERTIES
   EZ_BEGIN_ATTRIBUTES
     new ezCategoryAttribute("Rendering"),
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, ezColor::DarkSlateBlue)
   EZ_END_ATTRIBUTES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

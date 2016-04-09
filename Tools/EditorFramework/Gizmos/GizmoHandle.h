@@ -49,6 +49,7 @@ enum ezEngineGizmoHandleType
   BoxCorners,
   BoxEdges,
   BoxFaces,
+  LineBox,
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezEngineGizmoHandle : public ezGizmoHandle
@@ -65,6 +66,8 @@ public:
 
   bool SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID);
   void UpdateForEngine(ezWorld* pWorld);
+
+  void SetColor(const ezColor& col);
 
 protected:
   bool m_bConstantSize;

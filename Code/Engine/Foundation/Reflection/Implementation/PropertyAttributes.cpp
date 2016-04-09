@@ -115,6 +115,9 @@ ezSphereManipulatorAttribute::ezSphereManipulatorAttribute(const char* szOuterRa
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCapsuleManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezCapsuleManipulatorAttribute>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("up", m_vUp)
+  EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezCapsuleManipulatorAttribute::ezCapsuleManipulatorAttribute()
@@ -170,6 +173,9 @@ ezVisualizerAttribute::ezVisualizerAttribute(const char* szProperty1, const char
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoxVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezBoxVisualizerAttribute>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("color", m_Color)
+  EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezBoxVisualizerAttribute::ezBoxVisualizerAttribute()
@@ -177,11 +183,97 @@ ezBoxVisualizerAttribute::ezBoxVisualizerAttribute()
 {
 }
 
-ezBoxVisualizerAttribute::ezBoxVisualizerAttribute(const char* szSize)
-  : ezVisualizerAttribute(szSize)
+ezBoxVisualizerAttribute::ezBoxVisualizerAttribute(const char* szSize, const char* szColorProperty)
+  : ezVisualizerAttribute(szSize, szColorProperty)
+{
+  m_Color = ezColor::MediumVioletRed;
+}
+
+ezBoxVisualizerAttribute::ezBoxVisualizerAttribute(const char* szSizeProperty, const ezColor& fixedColor /*= ezColor::MediumVioletRed*/)
+  : ezVisualizerAttribute(szSizeProperty)
+{
+  m_Color = fixedColor;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSphereVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezSphereVisualizerAttribute>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("color", m_Color)
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+ezSphereVisualizerAttribute::ezSphereVisualizerAttribute()
+  : ezVisualizerAttribute(nullptr)
+{
+}
+
+ezSphereVisualizerAttribute::ezSphereVisualizerAttribute(const char* szRadiusProperty, const char* szColorProperty)
+  : ezVisualizerAttribute(szRadiusProperty, szColorProperty)
+{
+  m_Color = ezColor::MediumVioletRed;
+}
+
+ezSphereVisualizerAttribute::ezSphereVisualizerAttribute(const char* szRadiusProperty, const ezColor& fixedColor /*= ezColor::MediumVioletRed*/)
+  : ezVisualizerAttribute(szRadiusProperty)
+{
+  m_Color = fixedColor;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCapsuleVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezCapsuleVisualizerAttribute>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("color", m_Color)
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+ezCapsuleVisualizerAttribute::ezCapsuleVisualizerAttribute()
+  : ezVisualizerAttribute(nullptr)
 {
 
 }
+
+ezCapsuleVisualizerAttribute::ezCapsuleVisualizerAttribute(const char* szHeightProperty, const char* szRadiusProperty, const char* szColorProperty)
+  : ezVisualizerAttribute(szHeightProperty, szRadiusProperty, szColorProperty)
+{
+  m_Color = ezColor::MediumVioletRed;
+}
+
+ezCapsuleVisualizerAttribute::ezCapsuleVisualizerAttribute(const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor /*= ezColor::MediumVioletRed*/)
+  : ezVisualizerAttribute(szHeightProperty, szRadiusProperty)
+{
+  m_Color = fixedColor;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDirectionVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezDirectionVisualizerAttribute>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("color", m_Color)
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute()
+  : ezVisualizerAttribute(nullptr)
+{
+}
+
+ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(ezBasisAxis::Enum axis, const char* szColorProperty)
+  : ezVisualizerAttribute(szColorProperty)
+{
+  m_Axis = axis;
+  m_Color = ezColor::MediumVioletRed;
+}
+
+ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(ezBasisAxis::Enum axis, const ezColor& fixedColor /*= ezColor::MediumVioletRed*/)
+  : ezVisualizerAttribute(nullptr)
+{
+  m_Axis = axis;
+  m_Color = fixedColor;
+}
+
 
 
 

@@ -8,6 +8,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 1);
   //EZ_END_PROPERTIES
   EZ_BEGIN_ATTRIBUTES
     new ezCategoryAttribute("Gameplay"),
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, ezColor::OrangeRed)
   EZ_END_ATTRIBUTES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

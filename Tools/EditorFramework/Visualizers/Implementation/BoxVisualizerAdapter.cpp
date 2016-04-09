@@ -21,7 +21,9 @@ void ezBoxVisualizerAdapter::Finalize()
   ezQtEngineDocumentWindow* pEngineWindow = qobject_cast<ezQtEngineDocumentWindow*>(pWindow);
   EZ_ASSERT_DEV(pEngineWindow != nullptr, "Visualizers are only supported in engine document windows");
 
-  m_Gizmo.Configure(nullptr, ezEngineGizmoHandleType::Box, ezColor::IndianRed, false, false, true);
+  const ezBoxVisualizerAttribute* pAttr = static_cast<const ezBoxVisualizerAttribute*>(m_pVisualizerAttr);
+
+  m_Gizmo.Configure(nullptr, ezEngineGizmoHandleType::Box, pAttr->m_Color, false, false, true);
 
   m_Gizmo.SetOwner(pEngineWindow);
   m_Gizmo.SetVisible(true);
@@ -37,6 +39,14 @@ void ezBoxVisualizerAdapter::Update()
   {
     ezVariant value = m_pObject->GetTypeAccessor().GetValue(ezPropertyPath(pAttr->GetSizeProperty()));
     m_Scale.SetScalingMatrix(value.ConvertTo<ezVec3>());
+  }
+
+  if (!pAttr->GetColorProperty().IsEmpty())
+  {
+    ezVariant value = m_pObject->GetTypeAccessor().GetValue(ezPropertyPath(pAttr->GetColorProperty()));
+
+    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezBoxVisualizerAttribute 'color'");
+    m_Gizmo.SetColor(value.ConvertTo<ezColor>());
   }
 }
 

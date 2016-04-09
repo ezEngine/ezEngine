@@ -41,7 +41,7 @@ class ezColorGammaUB;
 ///
 ///
 ///
-/// The predefined colors can be seen at http://www.w3schools.com/cssref/css_colornames.asp
+/// The predefined colors can be seen at http://www.w3schools.com/colors/colors_names.asp
 class EZ_FOUNDATION_DLL ezColor
 {
 public:

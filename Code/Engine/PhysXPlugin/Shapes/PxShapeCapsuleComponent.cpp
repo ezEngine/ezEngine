@@ -10,7 +10,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeCapsuleComponent, 1);
     EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
   EZ_END_PROPERTIES
   EZ_BEGIN_ATTRIBUTES
-    new ezCapsuleManipulatorAttribute("Height", "Radius", ezVec3(0, 0, 1))
+    new ezCapsuleManipulatorAttribute("Height", "Radius", ezVec3(0, 0, 1)),
+    new ezCapsuleVisualizerAttribute("Height", "Radius")
   EZ_END_ATTRIBUTES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

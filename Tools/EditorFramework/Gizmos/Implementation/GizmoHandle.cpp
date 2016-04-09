@@ -51,12 +51,12 @@ void ezGizmoHandle::SetTransformation(const ezMat4& m)
 }
 
 
-static ezMeshBufferResourceHandle CreateMeshBufferResource(const ezGeometry& geom, const char* szResourceName, const char* szDescription)
+static ezMeshBufferResourceHandle CreateMeshBufferResource(const ezGeometry& geom, const char* szResourceName, const char* szDescription, ezGALPrimitiveTopology::Enum topology)
 {
   ezMeshBufferResourceDescriptor desc;
   desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
   desc.AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
-  desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+  desc.AllocateStreamsFromGeometry(geom, topology);
 
   return ezResourceManager::CreateResource<ezMeshBufferResource>(szResourceName, desc, szDescription);
 }
@@ -82,7 +82,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferArrow()
   m.SetTranslationVector(ezVec3(fLength * 0.5f, 0, 0));
   geom.AddCone(fThickness * 3.0f, fThickness * 6.0f, true, 16, ezColor::Red, m);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Arrow");
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Arrow", ezGALPrimitiveTopology::Triangles);
 }
 
 static ezMeshBufferResourceHandle CreateMeshBufferPiston()
@@ -106,7 +106,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferPiston()
   m.SetTranslationVector(ezVec3(fLength * 0.5f, 0, 0));
   geom.AddBox(ezVec3(fThickness * 5.0f), ezColor::Red, m);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Piston");
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Piston", ezGALPrimitiveTopology::Triangles);
 }
 
 static ezMeshBufferResourceHandle CreateMeshBufferHalfPiston()
@@ -131,7 +131,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferHalfPiston()
   m.SetTranslationVector(ezVec3(fLength, 0, 0));
   geom.AddBox(ezVec3(fThickness * 5.0f), ezColor::Red, m);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Piston");
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_HalfPiston", ezGALPrimitiveTopology::Triangles);
 }
 
 static ezMeshBufferResourceHandle CreateMeshBufferRect()
@@ -151,7 +151,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferRect()
   ezGeometry geom;
   geom.AddRectXY(ezVec2(fLength), ezColor::White, m);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Rect");
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Rect", ezGALPrimitiveTopology::Triangles);
 }
 
 static ezMeshBufferResourceHandle CreateMeshBufferRing()
@@ -172,7 +172,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferRing()
   ezGeometry geom;
   geom.AddTorus(fInnerRadius, fOuterRadius, 32, 8, ezColor::White);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Ring");
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Ring", ezGALPrimitiveTopology::Triangles);
 }
 
 static ezMeshBufferResourceHandle CreateMeshBufferBox()
@@ -184,15 +184,31 @@ static ezMeshBufferResourceHandle CreateMeshBufferBox()
   if (hMesh.IsValid())
     return hMesh;
 
-  const float fThickness = 0.04f * 5;
+  ezMat4 m;
+  m.SetIdentity();
+
+  ezGeometry geom;
+  geom.AddBox(ezVec3(1.0f), ezColor::White, m);
+
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Box", ezGALPrimitiveTopology::Triangles);
+}
+
+static ezMeshBufferResourceHandle CreateMeshBufferLineBox()
+{
+  const char* szResourceName = "{55DF000E-EE88-4BDC-8A7B-FA496941064E}";
+
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+
+  if (hMesh.IsValid())
+    return hMesh;
 
   ezMat4 m;
   m.SetIdentity();
 
   ezGeometry geom;
-  geom.AddBox(ezVec3(fThickness), ezColor::White, m);
+  geom.AddLineBox(ezVec3(1.0f), ezColor::White, m);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Box");
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_LineBox", ezGALPrimitiveTopology::Lines);
 }
 
 static ezMeshBufferResourceHandle CreateMeshBufferSphere()
@@ -205,9 +221,9 @@ static ezMeshBufferResourceHandle CreateMeshBufferSphere()
     return hMesh;
 
   ezGeometry geom;
-  geom.AddGeodesicSphere(1.0f, 3, ezColor::White);
+  geom.AddGeodesicSphere(1.0f, 2, ezColor::White);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Sphere");
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Sphere", ezGALPrimitiveTopology::Triangles);
 }
 
 static ezMeshBufferResourceHandle CreateMeshBufferCylinderZ()
@@ -222,7 +238,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferCylinderZ()
   ezGeometry geom;
   geom.AddCylinder(1.0f, 1.0f, 1.0f, false, false, 16, ezColor::White);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_CylinderZ");
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_CylinderZ", ezGALPrimitiveTopology::Triangles);
 }
 
 static ezMeshBufferResourceHandle CreateMeshBufferHalfSphereZ()
@@ -237,7 +253,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferHalfSphereZ()
   ezGeometry geom;
   geom.AddHalfSphere(1.0f, 16, 8, false, ezColor::White);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_HalfSphereZ");
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_HalfSphereZ", ezGALPrimitiveTopology::Triangles);
 }
 
 static ezMeshBufferResourceHandle CreateMeshBufferBoxFaces()
@@ -259,7 +275,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferBoxFaces()
   t.SetTranslationVector(ezVec3(0, 0, -0.5f));
   geom.AddRectXY(ezVec2(0.5f), ezColor::White, t);
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_BoxFaces");
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_BoxFaces", ezGALPrimitiveTopology::Triangles);
 }
 
 static ezMeshBufferResourceHandle CreateMeshBufferBoxEdges()
@@ -286,7 +302,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferBoxEdges()
     geom.AddRectXY(ezVec2(0.25f, 0.5f), ezColor::White, rot * t);
   }
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_BoxEdges");
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_BoxEdges", ezGALPrimitiveTopology::Triangles);
 }
 
 static ezMeshBufferResourceHandle CreateMeshBufferBoxCorners()
@@ -323,7 +339,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferBoxCorners()
     geom.AddRectXY(ezVec2(0.25f, 0.25f), ezColor::White, rot[i] * t);
   }
 
-  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_BoxCorners");
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_BoxCorners", ezGALPrimitiveTopology::Triangles);
 }
 
 static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, ezMeshBufferResourceHandle hMeshBuffer, const char* szMaterial)
@@ -459,7 +475,12 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
       szMeshGuid = "{FD1A3C29-F8F0-42B0-BBB0-D0A2B28A65A0}";
     }
     break;
-
+  case ezEngineGizmoHandleType::LineBox:
+    {
+      hMeshBuffer = CreateMeshBufferLineBox();
+      szMeshGuid = "{4B136D72-BF43-4C4B-96D7-51C5028A7006}";
+    }
+    break;
   default:
     EZ_ASSERT_NOT_IMPLEMENTED;
   }
@@ -540,9 +561,15 @@ void ezEngineGizmoHandle::UpdateForEngine(ezWorld* pWorld)
   pObject->SetLocalRotation(qRot);
   pObject->SetLocalScaling(vScale);
 
+  m_pMeshComponent->m_MeshColor = m_Color;
   m_pMeshComponent->SetActive(m_bVisible);
 }
 
+void ezEngineGizmoHandle::SetColor(const ezColor& col)
+{
+  m_Color = col;
+  SetModified();
+}
 
 
 

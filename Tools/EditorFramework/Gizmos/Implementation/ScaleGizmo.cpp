@@ -40,7 +40,9 @@ void ezScaleGizmo::OnVisibleChanged(bool bVisible)
 
 void ezScaleGizmo::OnTransformationChanged(const ezMat4& transform)
 {
-  ezMat4 m;
+  ezMat4 m, s;
+
+  s.SetScalingMatrix(ezVec3(0.2f));
 
   m.SetIdentity();
   m_AxisX.SetTransformation(transform * m);
@@ -52,7 +54,7 @@ void ezScaleGizmo::OnTransformationChanged(const ezMat4& transform)
   m_AxisZ.SetTransformation(transform * m);
 
   m.SetIdentity();
-  m_AxisXYZ.SetTransformation(transform * m);
+  m_AxisXYZ.SetTransformation(transform * s * m);
 }
 
 void ezScaleGizmo::FocusLost(bool bCancel)

@@ -10,7 +10,7 @@ PICKING
 DepthTest = true
 DepthWrite = true
 WireFrame = true
-CullMode = CullMode_Back
+CullMode = CullMode_None
 DepthTestFunc = CompareFunc_Less
 
 [VERTEXSHADER]

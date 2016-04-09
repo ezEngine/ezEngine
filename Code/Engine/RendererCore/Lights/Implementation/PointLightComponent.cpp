@@ -19,7 +19,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 1);
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
   EZ_END_MESSAGEHANDLERS
   EZ_BEGIN_ATTRIBUTES
-    new ezSphereManipulatorAttribute("Range")
+    new ezSphereManipulatorAttribute("Range"),
+    new ezSphereVisualizerAttribute("Range", "Light Color")
   EZ_END_ATTRIBUTES
 EZ_END_COMPONENT_TYPE();
 

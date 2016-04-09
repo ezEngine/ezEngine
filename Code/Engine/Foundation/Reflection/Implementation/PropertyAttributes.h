@@ -3,6 +3,7 @@
 /// \file
 
 #include <Foundation/Basics.h>
+#include <Foundation/Math/Color.h>
 
 template<typename Type>
 const Type* ezRTTI::GetAttributeByType() const
@@ -274,7 +275,7 @@ class EZ_FOUNDATION_DLL ezSphereManipulatorAttribute : public ezManipulatorAttri
 
 public:
   ezSphereManipulatorAttribute();
-  ezSphereManipulatorAttribute(const char* szOuterRadius, const char* szInnerRadius = nullptr);
+  ezSphereManipulatorAttribute(const char* szOuterRadiusProperty, const char* szInnerRadiusProperty = nullptr);
 
   const ezString& GetOuterRadiusProperty() const { return m_sProperty1; }
   const ezString& GetInnerRadiusProperty() const { return m_sProperty2; }
@@ -292,7 +293,7 @@ class EZ_FOUNDATION_DLL ezCapsuleManipulatorAttribute : public ezManipulatorAttr
 
 public:
   ezCapsuleManipulatorAttribute();
-  ezCapsuleManipulatorAttribute(const char* szLength, const char* szRadius, const ezVec3& up);
+  ezCapsuleManipulatorAttribute(const char* szHeightProperty, const char* szRadiusProperty, const ezVec3& up);
 
   const ezString& GetLengthProperty() const { return m_sProperty1; }
   const ezString& GetRadiusProperty() const { return m_sProperty2; }
@@ -312,7 +313,7 @@ class EZ_FOUNDATION_DLL ezBoxManipulatorAttribute : public ezManipulatorAttribut
 
 public:
   ezBoxManipulatorAttribute();
-  ezBoxManipulatorAttribute(const char* szSize);
+  ezBoxManipulatorAttribute(const char* szSizeProperty);
 
   const ezString& GetSizeProperty() const { return m_sProperty1; }
 
@@ -342,8 +343,65 @@ class EZ_FOUNDATION_DLL ezBoxVisualizerAttribute : public ezVisualizerAttribute
 
 public:
   ezBoxVisualizerAttribute();
-  ezBoxVisualizerAttribute(const char* szSize);
+  ezBoxVisualizerAttribute(const char* szSizeProperty, const char* szColorProperty);
+  ezBoxVisualizerAttribute(const char* szSizeProperty, const ezColor& fixedColor = ezColor::MediumVioletRed);
 
   const ezString& GetSizeProperty() const { return m_sProperty1; }
+  const ezString& GetColorProperty() const { return m_sProperty2; }
 
+  ezColor m_Color;
 };
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_FOUNDATION_DLL ezSphereVisualizerAttribute : public ezVisualizerAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSphereVisualizerAttribute, ezVisualizerAttribute);
+
+public:
+  ezSphereVisualizerAttribute();
+  ezSphereVisualizerAttribute(const char* szRadiusProperty, const char* szColorProperty);
+  ezSphereVisualizerAttribute(const char* szRadiusProperty, const ezColor& fixedColor = ezColor::MediumVioletRed);
+
+  const ezString& GetRadiusProperty() const { return m_sProperty1; }
+  const ezString& GetColorProperty() const { return m_sProperty2; }
+
+  ezColor m_Color;
+};
+
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_FOUNDATION_DLL ezCapsuleVisualizerAttribute : public ezVisualizerAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezCapsuleVisualizerAttribute, ezVisualizerAttribute);
+
+public:
+  ezCapsuleVisualizerAttribute();
+  ezCapsuleVisualizerAttribute(const char* szHeightProperty, const char* szRadiusProperty, const char* szColorProperty);
+  ezCapsuleVisualizerAttribute(const char* szHeightProperty, const char* szRadiusProperty, const ezColor& fixedColor = ezColor::MediumVioletRed);
+
+  const ezString& GetHeightProperty() const { return m_sProperty1; }
+  const ezString& GetRadiusProperty() const { return m_sProperty2; }
+  const ezString& GetColorProperty() const { return m_sProperty3; }
+
+  ezColor m_Color;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_FOUNDATION_DLL ezDirectionVisualizerAttribute : public ezVisualizerAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDirectionVisualizerAttribute, ezVisualizerAttribute);
+
+public:
+  ezDirectionVisualizerAttribute();
+  ezDirectionVisualizerAttribute(ezBasisAxis::Enum axis, const char* szColorProperty);
+  ezDirectionVisualizerAttribute(ezBasisAxis::Enum axis, const ezColor& fixedColor = ezColor::MediumVioletRed);
+
+  const ezString& GetColorProperty() const { return m_sProperty1; }
+
+  ezBasisAxis::Enum m_Axis;
+  ezColor m_Color;
+};
+

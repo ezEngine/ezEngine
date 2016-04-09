@@ -38,7 +38,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodReverbComponent, 1);
     EZ_ENUM_MEMBER_PROPERTY("Preset", ezFmodReverbPresets, m_ReverbPreset),
   EZ_END_PROPERTIES
   EZ_BEGIN_ATTRIBUTES
-    new ezSphereManipulatorAttribute("Max Distance", "Min Distance")
+    new ezSphereManipulatorAttribute("Max Distance", "Min Distance"),
+    new ezSphereVisualizerAttribute("Max Distance", ezColor::LightSlateGray)
   EZ_END_ATTRIBUTES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

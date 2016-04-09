@@ -9,7 +9,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeSphereComponent, 1);
     EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f)),
   EZ_END_PROPERTIES
   EZ_BEGIN_ATTRIBUTES
-    new ezSphereManipulatorAttribute("Radius")
+    new ezSphereManipulatorAttribute("Radius"),
+    new ezSphereVisualizerAttribute("Radius")
   EZ_END_ATTRIBUTES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

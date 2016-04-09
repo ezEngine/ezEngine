@@ -49,9 +49,10 @@ void ezDragToPositionGizmo::OnVisibleChanged(bool bVisible)
 
 void ezDragToPositionGizmo::OnTransformationChanged(const ezMat4& transform)
 {
-  m_Bobble.SetTransformation(transform);
+  ezMat4 m, s;
 
-  ezMat4 m;
+  s.SetScalingMatrix(ezVec3(0.2f));
+  m_Bobble.SetTransformation(transform * s);
 
   m.SetIdentity();
   m_AlignPX.SetTransformation(transform * m);
