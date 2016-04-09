@@ -46,6 +46,7 @@ struct ezDocumentObjectStructureEvent
   };
 
   Type m_EventType;
+  const ezDocument* m_pDocument;
   const ezDocumentObject* m_pObject;
   const ezDocumentObject* m_pPreviousParent;
   const ezDocumentObject* m_pNewParent;

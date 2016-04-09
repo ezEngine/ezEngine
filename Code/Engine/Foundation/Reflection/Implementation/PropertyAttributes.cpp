@@ -260,17 +260,19 @@ ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute()
 {
 }
 
-ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(ezBasisAxis::Enum axis, const char* szColorProperty)
+ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(ezBasisAxis::Enum axis, float fScale, const char* szColorProperty)
   : ezVisualizerAttribute(szColorProperty)
 {
   m_Axis = axis;
+  m_fScale = fScale;
   m_Color = ezColor::MediumVioletRed;
 }
 
-ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(ezBasisAxis::Enum axis, const ezColor& fixedColor /*= ezColor::MediumVioletRed*/)
+ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(ezBasisAxis::Enum axis, float fScale, const ezColor& fixedColor /*= ezColor::MediumVioletRed*/)
   : ezVisualizerAttribute(nullptr)
 {
   m_Axis = axis;
+  m_fScale = fScale;
   m_Color = fixedColor;
 }
 

@@ -31,6 +31,8 @@ private:
   void ClearActiveVisualizers(const ezDocument* pDoc);
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
   void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
+  void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
 
+  ezSet<const ezDocument*> m_DocsSubscribed;
 };
 

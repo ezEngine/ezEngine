@@ -100,6 +100,7 @@ void ezDocumentObjectManager::AddObject(ezDocumentObject* pObject, ezDocumentObj
   EZ_ASSERT_DEV(CanAdd(pObject->GetTypeAccessor().GetType(), pParent, szParentProperty, index).m_Result.Succeeded(), "Trying to execute invalid add!");
 
   ezDocumentObjectStructureEvent e;
+  e.m_pDocument = m_pDocument;
   e.m_EventType = ezDocumentObjectStructureEvent::Type::BeforeObjectAdded;
   e.m_pObject = pObject;
   e.m_pPreviousParent = nullptr;
@@ -130,6 +131,7 @@ void ezDocumentObjectManager::RemoveObject(ezDocumentObject* pObject)
   ezVariant index = accessor.GetPropertyChildIndex(path, pObject->GetGuid());
 
   ezDocumentObjectStructureEvent e;
+  e.m_pDocument = m_pDocument;
   e.m_EventType = ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved;
   e.m_pObject = pObject;
   e.m_pPreviousParent = pObject->m_pParent;
@@ -153,6 +155,7 @@ void ezDocumentObjectManager::MoveObject(ezDocumentObject* pObject, ezDocumentOb
     pNewParent = &m_RootObject;
 
   ezDocumentObjectStructureEvent e;
+  e.m_pDocument = m_pDocument;
   e.m_EventType = ezDocumentObjectStructureEvent::Type::BeforeObjectMoved;
   e.m_pObject = pObject;
   e.m_pPreviousParent = pObject->m_pParent;

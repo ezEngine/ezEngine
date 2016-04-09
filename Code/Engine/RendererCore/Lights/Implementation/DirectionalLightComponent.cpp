@@ -17,7 +17,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 1);
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
   EZ_END_MESSAGEHANDLERS
   EZ_BEGIN_ATTRIBUTES
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, "Light Color")
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.75f, "Light Color")
   EZ_END_ATTRIBUTES
 EZ_END_COMPONENT_TYPE();
 

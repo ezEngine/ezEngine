@@ -44,7 +44,9 @@ void ezDirectionVisualizerAdapter::Update()
 
 void ezDirectionVisualizerAdapter::UpdateGizmoTransform()
 {
-  m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());
+  ezMat4 mScale;
+  mScale.SetScalingMatrix(ezVec3(static_cast<const ezDirectionVisualizerAttribute*>(m_pVisualizerAttr)->m_fScale));
+  m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4() * mScale);
 }
 
 

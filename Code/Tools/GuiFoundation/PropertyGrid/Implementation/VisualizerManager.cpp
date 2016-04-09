@@ -1,6 +1,8 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/Selection/SelectionManager.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 EZ_IMPLEMENT_SINGLETON(ezVisualizerManager);
 
@@ -48,6 +50,12 @@ void ezVisualizerManager::SelectionEventHandler(const ezSelectionManagerEvent& e
 {
   const auto& sel = event.m_pDocument->GetSelectionManager()->GetSelection();
 
+  if (!m_DocsSubscribed.Contains(event.m_pDocument))
+  {
+    m_DocsSubscribed.Insert(event.m_pDocument);
+    event.m_pDocument->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezVisualizerManager::StructureEventHandler, this));
+  }
+
   ezVisualizerManagerEvent e;
   e.m_pSelection = &sel;
   e.m_pDocument = event.m_pDocument;
@@ -67,4 +75,20 @@ void ezVisualizerManager::DocumentManagerEventHandler(const ezDocumentManager::E
     ClearActiveVisualizers(e.m_pDocument);
   }
 
+}
+
+void ezVisualizerManager::StructureEventHandler(const ezDocumentObjectStructureEvent& event)
+{
+  if (!event.m_pDocument->GetSelectionManager()->IsSelectionEmpty() &&
+      (event.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectAdded ||
+       event.m_EventType == ezDocumentObjectStructureEvent::Type::AfterObjectRemoved))
+  {
+    const auto& sel = event.m_pDocument->GetSelectionManager()->GetSelection();
+
+    ezVisualizerManagerEvent e;
+    e.m_pSelection = &sel;
+    e.m_pDocument = event.m_pDocument;
+
+    m_Events.Broadcast(e);
+  }
 }
