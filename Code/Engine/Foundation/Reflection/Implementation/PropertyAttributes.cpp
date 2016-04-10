@@ -115,9 +115,9 @@ ezSphereManipulatorAttribute::ezSphereManipulatorAttribute(const char* szOuterRa
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCapsuleManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezCapsuleManipulatorAttribute>);
-  EZ_BEGIN_PROPERTIES
-    EZ_MEMBER_PROPERTY("up", m_vUp)
-  EZ_END_PROPERTIES
+  //EZ_BEGIN_PROPERTIES
+  //  EZ_ENUM_MEMBER_PROPERTY("axis", ezBasisAxis, m_Axis)
+  //EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezCapsuleManipulatorAttribute::ezCapsuleManipulatorAttribute()
@@ -126,10 +126,9 @@ ezCapsuleManipulatorAttribute::ezCapsuleManipulatorAttribute()
 
 }
 
-ezCapsuleManipulatorAttribute::ezCapsuleManipulatorAttribute(const char* szLength, const char* szRadius, const ezVec3& up)
+ezCapsuleManipulatorAttribute::ezCapsuleManipulatorAttribute(const char* szLength, const char* szRadius)
   : ezManipulatorAttribute(szLength, szRadius)
 {
-  m_vUp = up;
 }
 
 
@@ -251,6 +250,7 @@ ezCapsuleVisualizerAttribute::ezCapsuleVisualizerAttribute(const char* szHeightP
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDirectionVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezDirectionVisualizerAttribute>);
   EZ_BEGIN_PROPERTIES
+    EZ_ENUM_MEMBER_PROPERTY("axis", ezBasisAxis, m_Axis),
     EZ_MEMBER_PROPERTY("color", m_Color)
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -276,7 +276,37 @@ ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(ezBasisAxis::Enum
   m_Color = fixedColor;
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConeVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezConeVisualizerAttribute>);
+  EZ_BEGIN_PROPERTIES
+    EZ_ENUM_MEMBER_PROPERTY("axis", ezBasisAxis, m_Axis),
+    EZ_MEMBER_PROPERTY("color", m_Color),
+    EZ_MEMBER_PROPERTY("scale", m_fScale),
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+ezConeVisualizerAttribute::ezConeVisualizerAttribute()
+  : ezVisualizerAttribute(nullptr)
+{
+
+}
+
+ezConeVisualizerAttribute::ezConeVisualizerAttribute(ezBasisAxis::Enum axis, const char* szAngleProperty, float fScale, const char* szRadiusProperty, const char* szColorProperty, const ezColor& fixedColor /*= ezColor::MediumVioletRed*/)
+  : ezVisualizerAttribute(szAngleProperty, szRadiusProperty, szColorProperty)
+{
+  m_Axis = axis;
+  m_Color = fixedColor;
+  m_fScale = fScale;
+}
 
 
+
+
+
+//////////////////////////////////////////////////////////////////////////
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_PropertyAttributes);
+
+
+

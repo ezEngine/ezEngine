@@ -51,11 +51,6 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-protected:
-
-  void SetSpotAngle_Ui(float fSpotAngleInDegrees);
-  float GetSpotAngle_Ui() const;
-
 private:
 
   float m_fRange;

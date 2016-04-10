@@ -64,6 +64,15 @@ Milestone 8
   * Added support for the PhysX character controller
   * Added guarded memory allocator which can be easily activated by uncommenting the corresponding lines in UserConfig.h
   * Added code to properly do progressbars
+  * Added visual manipulators for properties
+  * Added visualizers for propertiers
+  * Properties can now be hidden, deactivated or get custom tooltips, depending on the selected value
+  * Added a tags editor
+  * Tags are now automatically loaded by ezGameApplication
+  * PhysX meshes can now have a different surface per sub-mesh
+  * ezGeometry now automatically handles flipped winding due to negative determinant in transform
+  * Added a 'settings' base component and a simple component manager that allows to easily access the single settings component of a given type.
+  * Added ezPxSettingsComponent, which currently allows to configure the PhysX world gravity.
 
 Milestone 7
 -----------

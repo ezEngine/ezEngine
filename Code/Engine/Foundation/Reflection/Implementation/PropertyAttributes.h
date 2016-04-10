@@ -293,15 +293,12 @@ class EZ_FOUNDATION_DLL ezCapsuleManipulatorAttribute : public ezManipulatorAttr
 
 public:
   ezCapsuleManipulatorAttribute();
-  ezCapsuleManipulatorAttribute(const char* szHeightProperty, const char* szRadiusProperty, const ezVec3& up);
+  ezCapsuleManipulatorAttribute(const char* szHeightProperty, const char* szRadiusProperty);
 
   const ezString& GetLengthProperty() const { return m_sProperty1; }
   const ezString& GetRadiusProperty() const { return m_sProperty2; }
 
-  const ezVec3& GetUpVector() const { return m_vUp; }
 
-private:
-  ezVec3 m_vUp;
 };
 
 
@@ -406,3 +403,28 @@ public:
   float m_fScale;
 };
 
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_FOUNDATION_DLL ezConeVisualizerAttribute : public ezVisualizerAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezConeVisualizerAttribute, ezVisualizerAttribute);
+
+public:
+  ezConeVisualizerAttribute();
+
+  /// \brief Attribute to add on an RTTI type to add a cone visualizer for specific properties.
+  ///
+  /// szRadiusProperty may be nullptr, in which case it is assumed to be 1
+  /// fScale will be multiplied with value of szRadiusProperty to determine the size of the cone
+  /// szColorProperty may be nullptr. In this case it is ignored and fixedColor is used instead.
+  /// fixedColor is ignored if szColorProperty is valid.
+  ezConeVisualizerAttribute(ezBasisAxis::Enum axis, const char* szAngleProperty, float fScale, const char* szRadiusProperty, const char* szColorProperty, const ezColor& fixedColor = ezColor::MediumVioletRed);
+
+  const ezString& GetAngleProperty() const { return m_sProperty1; }
+  const ezString& GetRadiusProperty() const { return m_sProperty2; }
+  const ezString& GetColorProperty() const { return m_sProperty3; }
+
+  ezBasisAxis::Enum m_Axis;
+  ezColor m_Color;
+  float m_fScale;
+};

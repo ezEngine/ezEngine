@@ -342,6 +342,25 @@ static ezMeshBufferResourceHandle CreateMeshBufferBoxCorners()
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_BoxCorners", ezGALPrimitiveTopology::Triangles);
 }
 
+static ezMeshBufferResourceHandle CreateMeshBufferCone()
+{
+  const char* szResourceName = "{BED97C9E-4E7A-486C-9372-1FB1A5FAE786}";
+
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+
+  if (hMesh.IsValid())
+    return hMesh;
+
+  ezMat4 t;
+  t.SetRotationMatrixY(ezAngle::Degree(270.0f));
+  t.SetTranslationVector(ezVec3(1.0f, 0, 0));
+
+  ezGeometry geom;
+  geom.AddCone(1.0f, 1.0f, false, 16, ezColor::White, t);
+
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Cone", ezGALPrimitiveTopology::Triangles);
+}
+
 static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, ezMeshBufferResourceHandle hMeshBuffer, const char* szMaterial)
 {
   const ezStringBuilder sIdentifier(szMeshResourceName, "@", szMaterial);
@@ -479,6 +498,12 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
     {
       hMeshBuffer = CreateMeshBufferLineBox();
       szMeshGuid = "{4B136D72-BF43-4C4B-96D7-51C5028A7006}";
+    }
+    break;
+  case ezEngineGizmoHandleType::Cone:
+    {
+      hMeshBuffer = CreateMeshBufferCone();
+      szMeshGuid = "{9A48962D-127A-445C-899A-A054D6AD8A9A}";
     }
     break;
   default:

@@ -12,7 +12,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 1);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant() ), new ezDefaultValueAttribute( 1.0f ) ),
-    EZ_ACCESSOR_PROPERTY("Spot Angle", GetSpotAngle_Ui, SetSpotAngle_Ui)->AddAttributes(new ezClampValueAttribute(0.1f, 179.9f), new ezDefaultValueAttribute(30.0f)),
+    EZ_MEMBER_PROPERTY("Spot Angle", m_SpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(1.0f), ezAngle::Degree(179.0f)), new ezDefaultValueAttribute(ezAngle::Degree(30.0f))),
     EZ_ACCESSOR_PROPERTY("Projected Texture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
   EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
@@ -20,7 +20,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 1);
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
   EZ_END_MESSAGEHANDLERS
   EZ_BEGIN_ATTRIBUTES
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.25f, "Light Color")
+    new ezConeVisualizerAttribute(ezBasisAxis::PositiveX, "Spot Angle", 1.0f, "Range", "Light Color")
   EZ_END_ATTRIBUTES
 EZ_END_COMPONENT_TYPE();
 
@@ -104,8 +104,15 @@ void ezSpotLightComponent::OnBeforeDetachedFromObject()
 
 void ezSpotLightComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
 {
-  ezBoundingSphere BoundingSphere(ezVec3::ZeroVector(), m_fRange);
-  msg.m_ResultingLocalBounds.ExpandToInclude(BoundingSphere);
+  const float t = ezMath::Tan(m_SpotAngle * 0.5f);
+
+  const float p = t * m_fRange;
+
+  ezBoundingBox box;
+  box.m_vMin = ezVec3(0.0f, -p, -p);
+  box.m_vMax = ezVec3(m_fRange, p, p);
+
+  msg.m_ResultingLocalBounds.ExpandToInclude(box);
 }
 
 void ezSpotLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg ) const
@@ -152,16 +159,6 @@ void ezSpotLightComponent::DeserializeComponent(ezWorldReader& stream)
   SetProjectedTextureFile(temp);
 }
 
-
-void ezSpotLightComponent::SetSpotAngle_Ui(float fSpotAngleInDegrees)
-{
-  m_SpotAngle = ezAngle::Degree( fSpotAngleInDegrees );
-}
-
-float ezSpotLightComponent::GetSpotAngle_Ui() const
-{
-  return m_SpotAngle.GetDegree();
-}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_SpotLightComponent);
 

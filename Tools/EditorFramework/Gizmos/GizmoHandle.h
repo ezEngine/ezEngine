@@ -50,6 +50,7 @@ enum ezEngineGizmoHandleType
   BoxEdges,
   BoxFaces,
   LineBox,
+  Cone,
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezEngineGizmoHandle : public ezGizmoHandle
