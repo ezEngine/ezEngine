@@ -72,7 +72,7 @@ namespace ezMath
   template <typename T>
   EZ_FORCE_INLINE T Max(T f1, T f2)
   {
-    return (f1 > f2 ? f1 : f2);
+    return (f1 < f2 ? f2 : f1);
   }
 
   template <typename T>

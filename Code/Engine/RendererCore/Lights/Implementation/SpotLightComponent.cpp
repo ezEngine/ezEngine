@@ -20,7 +20,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 1);
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
   EZ_END_MESSAGEHANDLERS
   EZ_BEGIN_ATTRIBUTES
-    new ezConeVisualizerAttribute(ezBasisAxis::PositiveX, "Spot Angle", 1.0f, "Range", "Light Color")
+    new ezConeVisualizerAttribute(ezBasisAxis::PositiveX, "Spot Angle", 1.0f, "Range", "Light Color"),
+    new ezConeManipulatorAttribute("Spot Angle", "Range")
   EZ_END_ATTRIBUTES
 EZ_END_COMPONENT_TYPE();
 

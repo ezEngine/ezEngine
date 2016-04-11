@@ -319,6 +319,23 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
+class EZ_FOUNDATION_DLL ezConeManipulatorAttribute : public ezManipulatorAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezConeManipulatorAttribute, ezManipulatorAttribute);
+
+public:
+  ezConeManipulatorAttribute();
+  ezConeManipulatorAttribute(const char* szAngleProperty, const char* szRadiusProperty);
+  ezConeManipulatorAttribute(const char* szAngleProperty, float fScale);
+
+  const ezString& GetAngleProperty() const { return m_sProperty1; }
+  const ezString& GetRadiusProperty() const { return m_sProperty2; }
+
+  float m_fScale;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 class EZ_FOUNDATION_DLL ezVisualizerAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualizerAttribute, ezPropertyAttribute);

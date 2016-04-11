@@ -20,6 +20,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 1);
   EZ_BEGIN_MESSAGEHANDLERS
     EZ_MESSAGE_HANDLER(ezInputComponentMessage, InputComponentMessageHandler),
   EZ_END_MESSAGEHANDLERS
+  EZ_BEGIN_ATTRIBUTES
+    new ezCapsuleManipulatorAttribute("Capsule Height", "Capsule Radius"),
+    new ezCapsuleVisualizerAttribute("Capsule Height", "Capsule Radius")
+  EZ_END_ATTRIBUTES
 EZ_END_COMPONENT_TYPE();
 
 ezPxCharacterControllerComponent::ezPxCharacterControllerComponent()
@@ -112,6 +116,32 @@ void ezPxCharacterControllerComponent::Update()
   ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
 
   m_vRelativeMoveDirection = GetOwner()->GetGlobalRotation() * m_vRelativeMoveDirection * m_fWalkSpeed;
+/*  const ezVec3 pos2 = GetOwner()->GetGlobalPosition();
+
+  {
+    PxQueryFilterData filter;
+    filter.data.setToDefault();
+    filter.flags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
+
+    filter.data.word0 = EZ_BIT(m_uiCollisionLayer);
+    filter.data.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(m_uiCollisionLayer);
+    filter.data.word2 = 0;
+    filter.data.word3 = 0;
+
+    ezVec3 vDir = GetOwner()->GetGlobalRotation() * ezVec3(1, 0, 0);
+    vDir.Normalize();
+
+    PxRaycastHit hit;
+    if (pModule->GetPxScene()->raycastSingle(PxVec3(pos2.x, pos2.y, pos2.z), PxVec3(vDir.x, vDir.y, vDir.z), 2.0f,
+                                             PxHitFlag::ePOSITION | PxHitFlag::eNORMAL | PxHitFlag::eDISTANCE, hit,
+                                             filter, &g_CharFilter))
+    {
+      ezLog::Info("Hit: %.2f | %.2f | %.2f", hit.position.x, hit.position.y, hit.position.z);
+    }
+
+  }
+*/
+  
 
   m_vRelativeMoveDirection += pModule->GetCharacterGravity() * tDiff;
 

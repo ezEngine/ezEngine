@@ -5,12 +5,12 @@
 #include <EditorFramework/Gizmos/GizmoBase.h>
 #include <QPoint>
 
-class EZ_EDITORFRAMEWORK_DLL ezSphereGizmo : public ezGizmo
+class EZ_EDITORFRAMEWORK_DLL ezConeGizmo : public ezGizmo
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSphereGizmo, ezGizmo);
+  EZ_ADD_DYNAMIC_REFLECTION(ezConeGizmo, ezGizmo);
 
 public:
-  ezSphereGizmo();
+  ezConeGizmo();
 
   virtual void FocusLost(bool bCancel) override;
 
@@ -18,11 +18,13 @@ public:
   virtual ezEditorInut mouseReleaseEvent(QMouseEvent* e) override;
   virtual ezEditorInut mouseMoveEvent(QMouseEvent* e) override;
 
-  void SetInnerSphere(bool bEnabled, float fRadius = 0.0f);
-  void SetOuterSphere(float fRadius);
+  void SetAngle(ezAngle angle);
+  void SetRadius(float radius);
 
-  float GetInnerRadius() const { return m_fRadiusInner; }
-  float GetOuterRadius() const { return m_fRadiusOuter; }
+  ezAngle GetAngle() const { return m_Angle; }
+  float GetRadius() const { return m_fRadius; }
+
+  void SetEnableRadiusHandle(bool enable) { m_bEnableRadiusHandle = enable; }
 
 protected:
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
@@ -35,19 +37,21 @@ private:
 
   ezVec2 m_MousePos;
 
-  ezEngineGizmoHandle m_InnerSphere;
-  ezEngineGizmoHandle m_OuterSphere;
+  ezEngineGizmoHandle m_ConeAngle;
+  ezEngineGizmoHandle m_ConeRadius;
 
   enum class ManipulateMode
   {
     None,
-    InnerSphere,
-    OuterSphere
+    Angle,
+    Radius
   };
 
   ManipulateMode m_ManipulateMode;
-  bool m_bInnerEnabled;
 
-  float m_fRadiusInner;
-  float m_fRadiusOuter;
+  bool m_bEnableRadiusHandle;
+  ezAngle m_Angle;
+  float m_fRadius;
+  float m_fAngleScale;
+  float m_fRadiusScale;
 };

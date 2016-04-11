@@ -1,55 +1,56 @@
 #include <PCH.h>
-#include <EditorFramework/Gizmos/SphereGizmo.h>
+#include <EditorFramework/Gizmos/ConeGizmo.h>
 #include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
-#include <Foundation/Logging/Log.h>
-#include <CoreUtils/Graphics/Camera.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
 #include <QMouseEvent>
 #include <QDesktopWidget>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSphereGizmo, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConeGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezSphereGizmo::ezSphereGizmo()
+ezConeGizmo::ezConeGizmo()
 {
-  m_bInnerEnabled = false;
-
-  m_fRadiusInner = 1.0f;
-  m_fRadiusOuter = 2.0f;
+  m_fRadius = 1.0f;
+  m_Angle = ezAngle::Degree(1.0f);
+  m_fAngleScale = 1.0f;
+  m_fRadiusScale = 1.0f;
+  m_bEnableRadiusHandle = true;
 
   m_ManipulateMode = ManipulateMode::None;
 
-  m_InnerSphere.Configure(this, ezEngineGizmoHandleType::Sphere, ezColorLinearUB(200, 200, 0, 128), false, true); // this gizmo should be rendered very last so it is always on top
-  m_OuterSphere.Configure(this, ezEngineGizmoHandleType::Sphere, ezColorLinearUB(200, 200, 200, 128), false);
+  m_ConeAngle.Configure(this, ezEngineGizmoHandleType::Cone, ezColorLinearUB(200, 200, 0, 128), false);
+  m_ConeRadius.Configure(this, ezEngineGizmoHandleType::Cone, ezColorLinearUB(200, 200, 200, 128), false, true); // this gizmo should be rendered very last so it is always on top
 
   SetVisible(false);
   SetTransformation(ezMat4::IdentityMatrix());
 }
 
-void ezSphereGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
+void ezConeGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  m_InnerSphere.SetOwner(pOwnerWindow);
-  m_OuterSphere.SetOwner(pOwnerWindow);
+  m_ConeAngle.SetOwner(pOwnerWindow);
+  m_ConeRadius.SetOwner(pOwnerWindow);
 }
 
-void ezSphereGizmo::OnVisibleChanged(bool bVisible)
+void ezConeGizmo::OnVisibleChanged(bool bVisible)
 {
-  m_InnerSphere.SetVisible(bVisible && m_bInnerEnabled);
-  m_OuterSphere.SetVisible(bVisible);
+  m_ConeAngle.SetVisible(bVisible);
+  m_ConeRadius.SetVisible(m_bEnableRadiusHandle && bVisible);
 }
 
-void ezSphereGizmo::OnTransformationChanged(const ezMat4& transform)
+void ezConeGizmo::OnTransformationChanged(const ezMat4& transform)
 {
-  ezMat4 mScaleInner, mScaleOuter;
-  mScaleInner.SetScalingMatrix(ezVec3(m_fRadiusInner));
-  mScaleOuter.SetScalingMatrix(ezVec3(m_fRadiusOuter));
+  ezMat4 mScaleAngle, mScaleRadius;
 
-  m_InnerSphere.SetTransformation(transform * mScaleInner);
-  m_OuterSphere.SetTransformation(transform * mScaleOuter);
+  mScaleAngle.SetScalingMatrix(ezVec3(1.0f, m_fAngleScale, m_fAngleScale) * m_fRadius);
+  mScaleRadius.SetScalingMatrix(ezVec3(1.0f, m_fRadiusScale, m_fRadiusScale) * m_fRadius);
+
+  m_ConeAngle.SetTransformation(transform * mScaleAngle);
+  m_ConeRadius.SetTransformation(transform * mScaleRadius);
+  m_ConeRadius.SetVisible(m_bEnableRadiusHandle);
 }
 
-void ezSphereGizmo::FocusLost(bool bCancel)
+void ezConeGizmo::FocusLost(bool bCancel)
 {
   ezGizmoEvent ev;
   ev.m_pGizmo = this;
@@ -59,13 +60,13 @@ void ezSphereGizmo::FocusLost(bool bCancel)
   ezViewHighlightMsgToEngine msg;
   msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
 
-  m_InnerSphere.SetVisible(m_bInnerEnabled);
-  m_OuterSphere.SetVisible(true);
+  m_ConeAngle.SetVisible(true);
+  m_ConeRadius.SetVisible(m_bEnableRadiusHandle);
 
   m_ManipulateMode = ManipulateMode::None;
 }
 
-ezEditorInut ezSphereGizmo::mousePressEvent(QMouseEvent* e)
+ezEditorInut ezConeGizmo::mousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
     return ezEditorInut::WasExclusivelyHandled;
@@ -73,13 +74,13 @@ ezEditorInut ezSphereGizmo::mousePressEvent(QMouseEvent* e)
   if (e->button() != Qt::MouseButton::LeftButton)
     return ezEditorInut::MayBeHandledByOthers;
 
-  if (m_pInteractionGizmoHandle == &m_InnerSphere)
+  if (m_pInteractionGizmoHandle == &m_ConeAngle)
   {
-    m_ManipulateMode = ManipulateMode::InnerSphere;
+    m_ManipulateMode = ManipulateMode::Angle;
   }
-  else if (m_pInteractionGizmoHandle == &m_OuterSphere)
+  else if (m_pInteractionGizmoHandle == &m_ConeRadius)
   {
-    m_ManipulateMode = ManipulateMode::OuterSphere;
+    m_ManipulateMode = ManipulateMode::Radius;
   }
   else
     return ezEditorInut::MayBeHandledByOthers;
@@ -87,11 +88,6 @@ ezEditorInut ezSphereGizmo::mousePressEvent(QMouseEvent* e)
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
   msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
-
-  //m_InnerSphere.SetVisible(false);
-  //m_OuterSphere.SetVisible(false);
-
-  //m_pInteractionGizmoHandle->SetVisible(true);
 
   m_LastInteraction = ezTime::Now();
 
@@ -107,7 +103,7 @@ ezEditorInut ezSphereGizmo::mousePressEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezSphereGizmo::mouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezConeGizmo::mouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -121,7 +117,7 @@ ezEditorInut ezSphereGizmo::mouseReleaseEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezSphereGizmo::mouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezConeGizmo::mouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -139,24 +135,24 @@ ezEditorInut ezSphereGizmo::mouseMoveEvent(QMouseEvent* e)
   QCursor::setPos(QPoint(m_MousePos.x, m_MousePos.y));
 
   const float fSpeed = 0.02f;
+  const ezAngle aSpeed = ezAngle::Degree(1.0f);
 
-  if (m_ManipulateMode == ManipulateMode::InnerSphere)
+  if (m_ManipulateMode == ManipulateMode::Radius)
   {
-    m_fRadiusInner += vDiff.x * fSpeed;
-    m_fRadiusInner -= vDiff.y * fSpeed;
+    m_fRadius += vDiff.x * fSpeed;
+    m_fRadius -= vDiff.y * fSpeed;
 
-    m_fRadiusInner = ezMath::Max(0.0f, m_fRadiusInner);
-
-    m_fRadiusOuter = ezMath::Max(m_fRadiusInner, m_fRadiusOuter);
+    m_fRadius = ezMath::Max(0.0f, m_fRadius);
   }
   else
   {
-    m_fRadiusOuter += vDiff.x * fSpeed;
-    m_fRadiusOuter -= vDiff.y * fSpeed;
+    m_Angle += vDiff.x * aSpeed;
+    m_Angle -= vDiff.y * aSpeed;
 
-    m_fRadiusOuter = ezMath::Max(0.0f, m_fRadiusOuter);
+    m_Angle = ezMath::Clamp(m_Angle, ezAngle(), ezAngle::Degree(179.0f));
 
-    m_fRadiusInner = ezMath::Min(m_fRadiusInner, m_fRadiusOuter);
+    m_fAngleScale = ezMath::Tan(m_Angle * 0.5f);
+    m_fRadiusScale = ezMath::Tan(ezMath::Min(ezAngle::Degree(20), m_Angle / 3.0f) * 0.5f);
   }
 
   // update the scale
@@ -170,18 +166,19 @@ ezEditorInut ezSphereGizmo::mouseMoveEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-void ezSphereGizmo::SetInnerSphere(bool bEnabled, float fRadius)
+void ezConeGizmo::SetRadius(float fRadius)
 {
-  m_fRadiusInner = fRadius;
-  m_bInnerEnabled = bEnabled;
+  m_fRadius = fRadius;
   
   // update the scale
   OnTransformationChanged(GetTransformation());
 }
 
-void ezSphereGizmo::SetOuterSphere(float fRadius)
+void ezConeGizmo::SetAngle(ezAngle angle)
 {
-  m_fRadiusOuter = fRadius;
+  m_Angle = angle;
+  m_fAngleScale = ezMath::Tan(m_Angle * 0.5f);
+  m_fRadiusScale = ezMath::Tan(ezMath::Min(ezAngle::Degree(20), m_Angle / 3.0f) * 0.5f);
 
   // update the scale
   OnTransformationChanged(GetTransformation());

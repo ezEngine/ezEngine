@@ -148,6 +148,30 @@ ezBoxManipulatorAttribute::ezBoxManipulatorAttribute(const char* szSize)
 
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConeManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezConeManipulatorAttribute>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("scale", m_fScale),
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+ezConeManipulatorAttribute::ezConeManipulatorAttribute()
+  : ezManipulatorAttribute(nullptr)
+{
+}
+
+ezConeManipulatorAttribute::ezConeManipulatorAttribute(const char* szAngleProperty, const char* szRadiusProperty)
+  : ezManipulatorAttribute(szAngleProperty, szRadiusProperty)
+{
+}
+
+
+ezConeManipulatorAttribute::ezConeManipulatorAttribute(const char* szAngleProperty, float fScale)
+  : ezManipulatorAttribute(szAngleProperty)
+{
+  m_fScale = fScale;
+}
 
 //////////////////////////////////////////////////////////////////////////
 

@@ -18,6 +18,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 1);
     new ezCategoryAttribute("Gameplay"),
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::YellowGreen),
     new ezConeVisualizerAttribute(ezBasisAxis::PositiveX, "Deviation", 0.5f, nullptr, nullptr, ezColor::GreenYellow),
+    new ezConeManipulatorAttribute("Deviation", 0.5f),
   EZ_END_ATTRIBUTES
   EZ_BEGIN_MESSAGEHANDLERS
     EZ_MESSAGE_HANDLER(ezInputComponentMessage, InputComponentMessageHandler),
