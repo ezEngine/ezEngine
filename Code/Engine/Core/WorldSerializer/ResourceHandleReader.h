@@ -53,7 +53,8 @@ public:
   /// Note: This must be called AFTER EndReadingFromStream() was called, as it requires the data read by that function.
   void EndRestoringHandles();
 
-  
+  /// \brief Resets all internal state such that the reader can be reused.
+  void Reset();
 
 private:
   static void ReadHandle(ezStreamReader* pStream, ezTypelessResourceHandle* pResourceHandle);

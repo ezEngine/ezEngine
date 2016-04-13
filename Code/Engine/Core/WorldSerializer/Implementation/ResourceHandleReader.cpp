@@ -7,14 +7,22 @@ ezThreadLocalPointer<ezResourceHandleReadContext> ezResourceHandleReadContext::s
 
 ezResourceHandleReadContext::ezResourceHandleReadContext()
 {
-  m_uiVersion = 0;
-  m_bReadData = false;
+  Reset();
 }
 
 ezResourceHandleReadContext::~ezResourceHandleReadContext()
 {
   EZ_ASSERT_DEV(s_ActiveContext != this, "ezResourceHandleReadContext::EndRestoringHandles() was not called");
 }
+
+void ezResourceHandleReadContext::Reset()
+{
+  m_uiVersion = 0;
+  m_bReadData = false;
+  m_StoredHandles.Clear();
+  m_AllResources.Clear();
+}
+
 
 void ezResourceHandleReadContext::ReadHandle(ezStreamReader* pStream, ezTypelessResourceHandle* pResourceHandle)
 {

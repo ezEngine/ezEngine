@@ -119,6 +119,20 @@ ezResult ezPrefabReferenceComponentManager::Initialize()
   return EZ_SUCCESS;
 }
 
+static void SetEditorPickingID(ezGameObject* pObject, ezUInt32 uiPickingID)
+{
+  for (auto pComponent : pObject->GetComponents())
+  {
+    pComponent->m_uiEditorPickingID = uiPickingID;
+  }
+
+  
+  for (auto itChild = pObject->GetChildren(); itChild.IsValid(); itChild.Next())
+  {
+    SetEditorPickingID(itChild, uiPickingID);
+  }
+}
+
 void ezPrefabReferenceComponentManager::SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount)
 {
   for (auto hComp : m_PrefabComponentsToUpdate)
@@ -131,6 +145,13 @@ void ezPrefabReferenceComponentManager::SimpleUpdate(ezUInt32 uiStartIndex, ezUI
       continue;
 
     pPrefab->InstantiatePrefab();
+
+    // if this ID is valid, this prefab is instantiated at editor runtime
+    // replicate the same ID across all instantiated sub components to get correct picking behavior
+    if (pPrefab->m_uiEditorPickingID != 0xFFFFFFFF)
+    {
+      SetEditorPickingID(pPrefab->GetOwner(), pPrefab->m_uiEditorPickingID);
+    }
   }
 
   m_PrefabComponentsToUpdate.Clear();

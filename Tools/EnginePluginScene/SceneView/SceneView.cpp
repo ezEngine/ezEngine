@@ -166,8 +166,8 @@ void ezSceneViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
       res.m_vPickingRayStartPosition = m_pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingRayStartPosition").ConvertTo<ezVec3>();
       res.m_vPickedPosition = m_pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingPosition").ConvertTo<ezVec3>();
 
-      EZ_ASSERT_DEBUG(!res.m_vPickedPosition.IsNaN(), "")
-        ;
+      EZ_ASSERT_DEBUG(!res.m_vPickedPosition.IsNaN(), "");
+
       const ezUInt32 uiComponentID = (uiPickingID & 0x00FFFFFF);
       const ezUInt32 uiPartIndex = (uiPickingID >> 24);
 

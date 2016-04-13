@@ -11,6 +11,8 @@ ezWorldReader::ezWorldReader()
 
 void ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
 {
+  m_HandleReadContext.Reset();
+
   m_pStream = &stream;
 
   ezUInt8 uiVersion = 0;
