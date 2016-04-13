@@ -120,7 +120,7 @@ void ezPointLightComponent::SerializeComponent(ezWorldWriter& stream) const
   ezStreamWriter& s = stream.GetStream();
 
   s << m_fRange;
-  s << GetProjectedTextureFile();
+  s << m_hProjectedTexture;
 }
 
 void ezPointLightComponent::DeserializeComponent(ezWorldReader& stream)
@@ -132,10 +132,7 @@ void ezPointLightComponent::DeserializeComponent(ezWorldReader& stream)
   ezStreamReader& s = stream.GetStream();
 
   s >> m_fRange;
-
-  ezStringBuilder temp;
-  s >> temp;
-  SetProjectedTextureFile(temp);
+  s >> m_hProjectedTexture;
 }
 
 

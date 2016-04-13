@@ -279,7 +279,6 @@ void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
   else
   {
     pManager = m_pWorld->GetOrCreateComponentManager(pRtti);
-    EZ_ASSERT_DEV(pManager != nullptr, "Cannot create components of type '%s', manager is not available.", pRtti->GetTypeName());
   }
 
   if (bSkip)
@@ -290,6 +289,13 @@ void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
   {
     ezUInt32 uiNumComponents = 0;
     s >> uiNumComponents;
+
+    // will be the case for all abstract component types
+    if (uiNumComponents == 0)
+      return;
+
+    // only check this after we know that we actually need to create any of this type
+    EZ_ASSERT_DEV(pManager != nullptr, "Cannot create components of type '%s', manager is not available.", pRtti->GetTypeName());
 
     for (ezUInt32 i = 0; i < uiNumComponents; ++i)
     {

@@ -90,6 +90,8 @@ void ezLightComponent::DeserializeComponent(ezWorldReader& stream)
 
   ezStreamReader& s = stream.GetStream();
 
+  s >> m_LightColor;
+  s >> m_fIntensity;
   s >> m_bCastShadows;
 
 /*

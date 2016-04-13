@@ -40,6 +40,8 @@ public:
 private:
   void AssignGameObjectIndices();
   void AssignComponentHandleIndices();
+  void IncludeAllComponentBaseTypes();
+  void IncludeAllComponentBaseTypes(const ezRTTI* pRtti);
 
   bool ObjectTraverser(ezGameObject* pObject);
   void WriteGameObject(const ezGameObject* pObject);

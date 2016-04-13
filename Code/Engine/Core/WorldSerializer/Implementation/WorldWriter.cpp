@@ -29,6 +29,8 @@ void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet
 
   m_pWorld->Traverse(ezMakeDelegate(&ezWorldWriter::ObjectTraverser, this), ezWorld::TraversalMethod::DepthFirst);
 
+  IncludeAllComponentBaseTypes();
+
   stream << m_AllRootObjects.GetCount();
   stream << m_AllChildObjects.GetCount();
   stream << m_AllComponents.GetCount();
@@ -95,6 +97,33 @@ void ezWorldWriter::AssignComponentHandleIndices()
       ++uiComponentIndex;
     }
   }
+}
+
+
+void ezWorldWriter::IncludeAllComponentBaseTypes()
+{
+  ezDynamicArray<const ezRTTI*> allNow;
+  allNow.Reserve(m_AllComponents.GetCount());
+  for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
+  {
+    allNow.PushBack(it.Key());
+  }
+
+  for (auto pRtti : allNow)
+  {
+    IncludeAllComponentBaseTypes(pRtti->GetParentType());
+  }
+}
+
+
+void ezWorldWriter::IncludeAllComponentBaseTypes(const ezRTTI* pRtti)
+{
+  if (pRtti == nullptr || !pRtti->IsDerivedFrom<ezComponent>() || m_AllComponents.Contains(pRtti))
+    return;
+
+  auto& dummy = m_AllComponents[pRtti];
+
+  IncludeAllComponentBaseTypes(pRtti->GetParentType());
 }
 
 void ezWorldWriter::WriteGameObjectHandle(const ezGameObjectHandle& hObject)

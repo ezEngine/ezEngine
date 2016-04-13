@@ -197,6 +197,9 @@ void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject)
 
 ezComponentManagerBase* ezWorld::GetOrCreateComponentManager(const ezRTTI* pRtti)
 {
+  if (pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
+    return nullptr;
+
   CheckForWriteAccess();
 
   const ezUInt16 uiTypeId = ezComponentManagerFactory::GetTypeId(pRtti);
