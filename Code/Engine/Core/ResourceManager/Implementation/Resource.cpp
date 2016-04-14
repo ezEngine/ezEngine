@@ -42,9 +42,9 @@ void ezResourceBase::SetDueDate(ezTime date /* = ezTime::Seconds(60.0 * 60.0 * 2
   {
     m_DueDate = date;
 
-    ezResourceManager::ResourceEvent e;
+    ezResourceEvent e;
     e.m_pResource = this;
-    e.m_EventType = ezResourceManager::ResourceEventType::ResourceDueDateChanged;
+    e.m_EventType = ezResourceEventType::ResourceDueDateChanged;
     ezResourceManager::BroadcastResourceEvent(e);
   }
 }
@@ -53,9 +53,9 @@ void ezResourceBase::SetPriority(ezResourcePriority priority)
 {
   m_Priority = priority;
 
-  ezResourceManager::ResourceEvent e;
+  ezResourceEvent e;
   e.m_pResource = this;
-  e.m_EventType = ezResourceManager::ResourceEventType::ResourcePriorityChanged;
+  e.m_EventType = ezResourceEventType::ResourcePriorityChanged;
   ezResourceManager::BroadcastResourceEvent(e);
 }
 
@@ -65,9 +65,9 @@ void ezResourceBase::SetUniqueID(const char* szUniqueID, bool bIsReloadable)
   m_uiUniqueIDHash = ezHashing::MurmurHash(szUniqueID);
   SetIsReloadable(bIsReloadable);
 
-  ezResourceManager::ResourceEvent e;
+  ezResourceEvent e;
   e.m_pResource = this;
-  e.m_EventType = ezResourceManager::ResourceEventType::ResourceCreated;
+  e.m_EventType = ezResourceEventType::ResourceCreated;
   ezResourceManager::BroadcastResourceEvent(e);
 }
 
@@ -85,9 +85,9 @@ void ezResourceBase::CallUnloadData(Unload WhatToUnload)
   m_uiQualityLevelsDiscardable = ld.m_uiQualityLevelsDiscardable;
   m_uiQualityLevelsLoadable = ld.m_uiQualityLevelsLoadable;
 
-  ezResourceManager::ResourceEvent e;
+  ezResourceEvent e;
   e.m_pResource = this;
-  e.m_EventType = ezResourceManager::ResourceEventType::ResourceContentUnloaded;
+  e.m_EventType = ezResourceEventType::ResourceContentUnloaded;
   ezResourceManager::BroadcastResourceEvent(e);
 }
 
@@ -110,9 +110,9 @@ void ezResourceBase::CallUpdateContent(ezStreamReader* Stream)
   m_uiQualityLevelsDiscardable = ld.m_uiQualityLevelsDiscardable;
   m_uiQualityLevelsLoadable = ld.m_uiQualityLevelsLoadable;
 
-  ezResourceManager::ResourceEvent e;
+  ezResourceEvent e;
   e.m_pResource = this;
-  e.m_EventType = ezResourceManager::ResourceEventType::ResourceContentUpdated;
+  e.m_EventType = ezResourceEventType::ResourceContentUpdated;
   ezResourceManager::BroadcastResourceEvent(e);
 }
 

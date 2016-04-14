@@ -15,8 +15,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 ezPrefabReferenceComponent::ezPrefabReferenceComponent()
 {
   m_bRequiresInstantiation = true;
-
-  
 }
 
 void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -115,7 +113,13 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
 ezPrefabReferenceComponentManager::ezPrefabReferenceComponentManager(ezWorld* pWorld)
   : ezComponentManager<ComponentType>(pWorld)
 {
+  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezPrefabReferenceComponentManager::ResourceEventHandler, this));
+}
 
+
+ezPrefabReferenceComponentManager::~ezPrefabReferenceComponentManager()
+{
+  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezPrefabReferenceComponentManager::ResourceEventHandler, this));
 }
 
 ezResult ezPrefabReferenceComponentManager::Initialize()
@@ -125,6 +129,23 @@ ezResult ezPrefabReferenceComponentManager::Initialize()
   this->RegisterUpdateFunction(desc);
 
   return EZ_SUCCESS;
+}
+
+void ezPrefabReferenceComponentManager::ResourceEventHandler(const ezResourceEvent& e)
+{
+  if (e.m_EventType == ezResourceEventType::ResourceContentUnloaded && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezPrefabResource>())
+  {
+    ezPrefabResourceHandle hPrefab((ezPrefabResource*)(e.m_pResource));
+
+    for (auto it = GetComponents(); it.IsValid(); it.Next())
+    {
+      if (it->m_hPrefab == hPrefab)
+      {
+        it->m_bRequiresInstantiation = true;
+        AddToUpdateList(it);
+      }
+    }
+  }
 }
 
 static void SetEditorPickingID(ezGameObject* pObject, ezUInt32 uiPickingID, const ezTag& tag)

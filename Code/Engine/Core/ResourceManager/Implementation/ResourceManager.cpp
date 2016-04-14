@@ -39,9 +39,9 @@ ezUInt8 ezResourceManager::m_iCurrentWorker = 0;
 ezTime ezResourceManager::m_LastDeadLineUpdate;
 ezTime ezResourceManager::m_LastFrameUpdate;
 bool ezResourceManager::m_bBroadcastExistsEvent = false;
-ezHashTable<ezUInt32, ezResourceManager::ResourceCategory> ezResourceManager::m_ResourceCategories;
-ezEvent<const ezResourceManager::ResourceEvent&> ezResourceManager::s_ResourceEvents;
-ezEvent<const ezResourceManager::ManagerEvent&> ezResourceManager::s_ManagerEvents;
+ezHashTable<ezUInt32, ezResourceCategory> ezResourceManager::m_ResourceCategories;
+ezEvent<const ezResourceEvent&> ezResourceManager::s_ResourceEvents;
+ezEvent<const ezResourceManagerEvent&> ezResourceManager::s_ManagerEvents;
 ezMutex ezResourceManager::s_ResourceMutex;
 
 ezResourceTypeLoader* ezResourceManager::GetResourceTypeLoader(const ezRTTI* pRTTI)
@@ -51,10 +51,14 @@ ezResourceTypeLoader* ezResourceManager::GetResourceTypeLoader(const ezRTTI* pRT
 
 
 
-void ezResourceManager::BroadcastResourceEvent(const ResourceEvent& e)
+void ezResourceManager::BroadcastResourceEvent(const ezResourceEvent& e)
 {
   EZ_LOCK(s_ResourceMutex);
 
+  // broadcast it through the resource to everyone directly interested in that specific resource
+  e.m_pResource->m_ResourceEvents.Broadcast(e);
+
+  // and then broadcast it to everyone else through the general event
   s_ResourceEvents.Broadcast(e);
 }
 
@@ -100,9 +104,9 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
   else
     m_RequireLoading.PushBack(li);
 
-  ezResourceManager::ResourceEvent e;
+  ezResourceEvent e;
   e.m_pResource = pResource;
-  e.m_EventType = ezResourceManager::ResourceEventType::ResourceInPreloadQueue;
+  e.m_EventType = ezResourceEventType::ResourceInPreloadQueue;
   ezResourceManager::BroadcastResourceEvent(e);
 
   RunWorkerTask();
@@ -168,9 +172,9 @@ void ezResourceManager::UpdateLoadingDeadlines()
       EZ_ASSERT_DEV(m_RequireLoading[i].m_pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
       m_RequireLoading[i].m_pResource->m_Flags.Remove(ezResourceFlags::IsPreloading);
 
-      ezResourceManager::ResourceEvent e;
+      ezResourceEvent e;
       e.m_pResource = m_RequireLoading[i].m_pResource;
-      e.m_EventType = ezResourceManager::ResourceEventType::ResourceOutOfPreloadQueue;
+      e.m_EventType = ezResourceEventType::ResourceOutOfPreloadQueue;
       ezResourceManager::BroadcastResourceEvent(e);
 
       m_RequireLoading.RemoveAtSwap(i);
@@ -216,9 +220,9 @@ void ezResourceManagerWorkerGPU::Execute()
     EZ_ASSERT_DEV(m_pResourceToLoad->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
     m_pResourceToLoad->m_Flags.Remove(ezResourceFlags::IsPreloading);
 
-    ezResourceManager::ResourceEvent e;
+    ezResourceEvent e;
     e.m_pResource = m_pResourceToLoad;
-    e.m_EventType = ezResourceManager::ResourceEventType::ResourceOutOfPreloadQueue;
+    e.m_EventType = ezResourceEventType::ResourceOutOfPreloadQueue;
     ezResourceManager::BroadcastResourceEvent(e);
   }
 
@@ -315,9 +319,9 @@ void ezResourceManagerWorker::Execute()
       EZ_ASSERT_DEV(pResourceToLoad->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
       pResourceToLoad->m_Flags.Remove(ezResourceFlags::IsPreloading);
 
-      ezResourceManager::ResourceEvent e;
+      ezResourceEvent e;
       e.m_pResource = pResourceToLoad;
-      e.m_EventType = ezResourceManager::ResourceEventType::ResourceOutOfPreloadQueue;
+      e.m_EventType = ezResourceEventType::ResourceOutOfPreloadQueue;
       ezResourceManager::BroadcastResourceEvent(e);
     }
 
@@ -360,9 +364,9 @@ ezUInt32 ezResourceManager::FreeUnusedResources(bool bFreeAllUnused)
 
       // broadcast that we are going to delete the resource
       {
-        ezResourceManager::ResourceEvent e;
+        ezResourceEvent e;
         e.m_pResource = pReference;
-        e.m_EventType = ezResourceManager::ResourceEventType::ResourceDeleted;
+        e.m_EventType = ezResourceEventType::ResourceDeleted;
         ezResourceManager::BroadcastResourceEvent(e);
       }
 
@@ -493,8 +497,8 @@ void ezResourceManager::PerFrameUpdate()
 
     for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
     {
-      ezResourceManager::ResourceEvent e;
-      e.m_EventType = ezResourceManager::ResourceEventType::ResourceExists;
+      ezResourceEvent e;
+      e.m_EventType = ezResourceEventType::ResourceExists;
       e.m_pResource = it.Value();
 
       ezResourceManager::BroadcastResourceEvent(e);
@@ -519,18 +523,18 @@ void ezResourceManager::ConfigureResourceCategory(const char* szCategoryName, ez
   cat.m_uiMemoryLimitCPU = uiMemoryLimitCPU;
   cat.m_uiMemoryLimitGPU = uiMemoryLimitGPU;
 
-  ManagerEvent e;
-  e.m_EventType = ManagerEventType::ResourceCategoryChanged;
+  ezResourceManagerEvent e;
+  e.m_EventType = ezResourceManagerEventType::ResourceCategoryChanged;
   e.m_pCategory = &cat;
 
   s_ManagerEvents.Broadcast(e);
 }
 
-const ezResourceManager::ResourceCategory& ezResourceManager::GetResourceCategory(const char* szCategoryName)
+const ezResourceCategory& ezResourceManager::GetResourceCategory(const char* szCategoryName)
 {
   ezTempHashedString sHash(szCategoryName);
 
-  ResourceCategory* pCat = nullptr;
+  ezResourceCategory* pCat = nullptr;
   EZ_VERIFY(m_ResourceCategories.TryGetValue(sHash.GetHash(), pCat), "Resource Category '%s' does not exist", szCategoryName);
 
   return *pCat;
@@ -618,8 +622,8 @@ void ezResourceManager::OnCoreStartup()
 
 void ezResourceManager::OnEngineShutdown()
 {
-  ManagerEvent e;
-  e.m_EventType = ManagerEventType::ManagerShuttingDown;
+  ezResourceManagerEvent e;
+  e.m_EventType = ezResourceManagerEventType::ManagerShuttingDown;
   s_ManagerEvents.Broadcast(e);
 
   {

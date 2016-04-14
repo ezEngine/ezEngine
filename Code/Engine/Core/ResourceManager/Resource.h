@@ -74,9 +74,9 @@ protected:
   ~ezResource() { }
 
 private:
-  static void ManagerEventHandler(const ezResourceManager::ManagerEvent& e)
+  static void ManagerEventHandler(const ezResourceManagerEvent& e)
   {
-    if (e.m_EventType == ezResourceManager::ManagerEventType::ManagerShuttingDown)
+    if (e.m_EventType == ezResourceManagerEventType::ManagerShuttingDown)
     {
       s_TypeFallbackResource.Invalidate();
       s_TypeMissingResource.Invalidate();
@@ -114,9 +114,9 @@ private:
       m_MemoryUsage = MemUsage;
     }
 
-    ezResourceManager::ResourceEvent e;
+    ezResourceEvent e;
     e.m_pResource = this;
-    e.m_EventType = ezResourceManager::ResourceEventType::ResourceContentUpdated;
+    e.m_EventType = ezResourceEventType::ResourceContentUpdated;
     ezResourceManager::BroadcastResourceEvent(e);
   }
 

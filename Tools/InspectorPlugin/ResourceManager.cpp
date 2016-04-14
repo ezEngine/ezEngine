@@ -74,22 +74,22 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
   }
 }
 
-static void ResourceManagerEventHandler(const ezResourceManager::ResourceEvent& e)
+static void ResourceManagerEventHandler(const ezResourceEvent& e)
 {
   if (!ezTelemetry::IsConnectedToClient())
     return;
 
-  if (e.m_EventType == ezResourceManager::ResourceEventType::ResourceCreated ||
-      e.m_EventType == ezResourceManager::ResourceEventType::ResourceExists)
+  if (e.m_EventType == ezResourceEventType::ResourceCreated ||
+      e.m_EventType == ezResourceEventType::ResourceExists)
   {
     SendFullResourceInfo(e.m_pResource);
     return;
   }
 
-  if (e.m_EventType == ezResourceManager::ResourceEventType::ResourceDueDateChanged) // ignore this
+  if (e.m_EventType == ezResourceEventType::ResourceDueDateChanged) // ignore this
     return;
 
-  if (e.m_EventType == ezResourceManager::ResourceEventType::ResourceDeleted)
+  if (e.m_EventType == ezResourceEventType::ResourceDeleted)
   {
     SendDeleteResourceInfo(e.m_pResource);
     return;

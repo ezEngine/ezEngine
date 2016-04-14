@@ -7,7 +7,7 @@
     "AssetType" : "Prefab",
     "Dependencies" : "",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xFD32E9D7836FFA40BD0B663B5D436373" },
-    "Hash" : { "$t" : "uint64", "$v" : "9708606116843988140", "$b" : "0xACA4AB2AD3E5BB86" }
+    "Hash" : { "$t" : "uint64", "$v" : "13924025299672382616", "$b" : "0x983C86C63C133CC1" }
    }
   },
   {
@@ -22,7 +22,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x8116491020BBFB4B86C0FB375BB234E0" },
    "t" : "ezGameObject",
    "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xB928DF9C1FD1DA9A50D2E486FD804683" }, { "$t" : "uuid", "$b" : "0x8069EB2905B9848A4B587B9F3F5227FB" } ],
+    "Children" : [ { "$t" : "uuid", "$b" : "0xB928DF9C1FD1DA9A50D2E486FD804683" } ],
     "Components" : [  ],
     "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.6500, 0.0000)", "$b" : "0x000000006766263F00000000" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
@@ -33,38 +33,13 @@
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x432384E7817B0388567BEF3EB8EF6EA2" },
-   "t" : "ezMeshComponent",
-   "p" : {
-    "Active" : true,
-    "Materials" : [ "{ f0bee154-916b-40cc-9e2e-88359463b313 }" ],
-    "Mesh" : "{ 02caa120-1cb7-4f37-9782-4d7a45688459 }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x8069EB2905B9848A4B587B9F3F5227FB" },
-   "t" : "ezGameObject",
-   "p" : {
-    "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x432384E7817B0388567BEF3EB8EF6EA2" } ],
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.9500, 0.0000)", "$b" : "0x000000003333733F00000000" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
-    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "MetaFromPrefab" : { "$t" : "uuid", "$b" : "0xA716823856BAE441B815A0873138C0AD" },
-    "Name" : "ColumnBlueBox",
-    "Tags" : [  ]
-   }
-  },
-  {
    "#" : { "$t" : "uuid", "$b" : "0x5881EAAAE03AA59652017BF09A74B4AA" },
    "t" : "ezMeshComponent",
    "p" : {
     "Active" : true,
     "Materials" : [ "{ b700025c-5c7f-4247-8157-f409369ef16b }" ],
     "Mesh" : "{ ed67b013-c056-414d-9624-b1d635372b26 }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
+    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 0.0160, 0.6038, 1.0000)", "$b" : "0x0000803FA80A833C71941A3F0000803F" }
    }
   },
   {
@@ -74,7 +49,7 @@
     "Active" : true,
     "Materials" : [ "{ b700025c-5c7f-4247-8157-f409369ef16b }" ],
     "Mesh" : "{ 53d57a7e-744e-42aa-bd5d-0f7b0ea836d3 }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
+    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 0.1529, 0.1248, 1.0000)", "$b" : "0x0000803FAE981C3E6488FF3D0000803F" }
    }
   },
   {
@@ -112,7 +87,7 @@
     "Active" : true,
     "Materials" : [ "{ b700025c-5c7f-4247-8157-f409369ef16b }" ],
     "Mesh" : "{ ed67b013-c056-414d-9624-b1d635372b26 }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
+    "Mesh Color" : { "$t" : "color", "$v" : "(0.0844, 1.0000, 0.0130, 1.0000)", "$b" : "0x70CDAC3D0000803FC7B6543C0000803F" }
    }
   },
   {

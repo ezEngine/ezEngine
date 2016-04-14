@@ -8,6 +8,19 @@
 #include <Foundation/Threading/TaskSystem.h>
 
 
+enum class ezResourceManagerEventType
+{
+  ManagerShuttingDown,
+  ResourceCategoryChanged,
+};
+
+
+struct ezResourceManagerEvent
+{
+  ezResourceManagerEventType m_EventType;
+  const ezResourceCategory* m_pCategory;
+};
+
 /// \brief [internal] Worker thread/task for loading resources from disk.
 class EZ_CORE_DLL ezResourceManagerWorker : public ezTask
 {
@@ -37,15 +50,11 @@ private:
 class EZ_CORE_DLL ezResourceManager
 {
 public:
-  enum class ResourceEventType;
-  enum class ManagerEventType;
-  struct ResourceEvent;
-  struct ManagerEvent;
 
-  static ezEvent<const ResourceEvent&> s_ResourceEvents;
-  static ezEvent<const ManagerEvent&> s_ManagerEvents;
+  static ezEvent<const ezResourceEvent&> s_ResourceEvents;
+  static ezEvent<const ezResourceManagerEvent&> s_ManagerEvents;
 
-  static void BroadcastResourceEvent(const ResourceEvent& e);
+  static void BroadcastResourceEvent(const ezResourceEvent& e);
 
   template<typename ResourceType>
   static ezTypedResourceHandle<ResourceType> LoadResource(const char* szResourceID);
@@ -102,21 +111,12 @@ public:
   /// Used to announce all currently existing resources to interested event listeners.
   static void BroadcastExistsEvent();
 
-  struct ResourceCategory
-  {
-    ezString m_sName;
-    ezUInt64 m_uiMemoryLimitCPU;
-    ezUInt64 m_uiMemoryLimitGPU;
-    ezAtomicInteger64 m_uiMemoryUsageCPU;
-    ezAtomicInteger64 m_uiMemoryUsageGPU;
-  };
-
   /// \brief Sets up a new or existing category of resources.
   ///
   /// Each resource can be assigned to one category. All resources with the same category share the same total memory limits.
   static void ConfigureResourceCategory(const char* szCategoryName, ezUInt64 uiMemoryLimitCPU, ezUInt64 uiMemoryLimitGPU);
 
-  static const ResourceCategory& GetResourceCategory(const char* szCategoryName);
+  static const ezResourceCategory& GetResourceCategory(const char* szCategoryName);
 
 private:
   friend class ezResourceManagerWorker;
@@ -179,39 +179,8 @@ private:
   static ezTime m_LastDeadLineUpdate;
   static ezTime m_LastFrameUpdate;
   static bool m_bBroadcastExistsEvent;
-  static ezHashTable<ezUInt32, ResourceCategory> m_ResourceCategories;
+  static ezHashTable<ezUInt32, ezResourceCategory> m_ResourceCategories;
   static ezMutex s_ResourceMutex;
-};
-
-enum class ezResourceManager::ResourceEventType
-{
-  ResourceExists,
-  ResourceCreated,
-  ResourceDeleted,
-  ResourceContentUpdated,
-  ResourceContentUnloaded,
-  ResourceInPreloadQueue,
-  ResourceOutOfPreloadQueue,
-  ResourcePriorityChanged,
-  ResourceDueDateChanged,
-};
-
-enum class ezResourceManager::ManagerEventType
-{
-  ManagerShuttingDown,
-  ResourceCategoryChanged,
-};
-
-struct ezResourceManager::ResourceEvent
-{
-  ResourceEventType m_EventType;
-  const ezResourceBase* m_pResource;
-};
-
-struct ezResourceManager::ManagerEvent
-{
-  ManagerEventType m_EventType;
-  const ResourceCategory* m_pCategory;
 };
 
 /// \brief Helper class to acquire and release a resource safely.

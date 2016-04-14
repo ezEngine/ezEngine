@@ -11,6 +11,35 @@
 
 class ezResourceTypeLoader;
 
+enum class ezResourceEventType
+{
+  ResourceExists,
+  ResourceCreated,
+  ResourceDeleted,
+  ResourceContentUpdated,
+  ResourceContentUnloaded,
+  ResourceInPreloadQueue,
+  ResourceOutOfPreloadQueue,
+  ResourcePriorityChanged,
+  ResourceDueDateChanged,
+};
+
+struct ezResourceEvent
+{
+  ezResourceEventType m_EventType;
+  const ezResourceBase* m_pResource;
+};
+
+struct ezResourceCategory
+{
+  ezString m_sName;
+  ezUInt64 m_uiMemoryLimitCPU;
+  ezUInt64 m_uiMemoryLimitGPU;
+  ezAtomicInteger64 m_uiMemoryUsageCPU;
+  ezAtomicInteger64 m_uiMemoryUsageGPU;
+};
+
+
 /// \brief The case class for all resources.
 ///
 /// \note Never derive directly from ezResourceBase, but derive from ezResource instead.
@@ -158,6 +187,8 @@ public:
   /// \brief Allows to manually increase the resource change counter to signal that dependent code might need to update.
   EZ_FORCE_INLINE void IncResourceChangeCounter() { ++m_uiResourceChangeCounter; }
 
+  mutable ezEvent<const ezResourceEvent&> m_ResourceEvents;
+
 private:
 
   friend class ezResourceManager;
@@ -190,6 +221,7 @@ private:
 
   ezUInt8 m_uiQualityLevelsDiscardable;
   ezUInt8 m_uiQualityLevelsLoadable;
+
 
 protected:
 

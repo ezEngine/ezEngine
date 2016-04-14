@@ -11,6 +11,7 @@ class EZ_GAMEUTILS_DLL ezPrefabReferenceComponentManager : public ezComponentMan
 {
 public:
   ezPrefabReferenceComponentManager(ezWorld* pWorld);
+  ~ezPrefabReferenceComponentManager();
 
   virtual ezResult Initialize() override;
 
@@ -19,6 +20,8 @@ public:
   void AddToUpdateList(ezPrefabReferenceComponent* pComponent);
 
 private:
+  void ResourceEventHandler(const ezResourceEvent& e);
+
   ezDeque<ezComponentHandle> m_PrefabComponentsToUpdate;
 };
 
@@ -47,6 +50,8 @@ protected:
   // ************************************* FUNCTIONS *****************************
 
 private:
+  void ResourceEventHandler(const ezResourceEvent& e);
+
   ezPrefabResourceHandle m_hPrefab;
   bool m_bRequiresInstantiation;
 };
