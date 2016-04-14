@@ -35,6 +35,30 @@ public:
 #endif
 };
 
+class ezPxQueryFilter : public PxQueryFilterCallback
+{
+public:
+  virtual PxQueryHitType::Enum preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags) override
+  {
+    queryFlags = (PxHitFlags)0;
+
+    // trigger the contact callback for pairs (A,B) where
+    // the filter mask of A contains the ID of B and vice versa.
+    if ((filterData.word0 & shape->getQueryFilterData().word1) || (shape->getQueryFilterData().word0 & filterData.word1))
+    {
+      queryFlags |= PxHitFlag::eDEFAULT;
+      return PxQueryHitType::eBLOCK;
+    }
+
+    return PxQueryHitType::eNONE;
+  }
+
+  virtual PxQueryHitType::Enum postFilter(const PxFilterData& filterData, const PxQueryHit& hit) override
+  {
+    return PxQueryHitType::eNONE;
+  }
+};
+
 class EZ_PHYSXPLUGIN_DLL ezPhysX : public ezPhysXInterface
 {
   EZ_DECLARE_SINGLETON_OF_INTERFACE(ezPhysX, ezPhysXInterface);
@@ -87,6 +111,8 @@ public:
   void SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity);
 
   PxControllerManager* GetCharacterManager() const { return m_pCharacterManager; }
+
+  virtual bool CastRay(const ezVec3& vStart, const ezVec3& vDir, float fMaxLen, ezUInt8 uiCollisionLayer, ezVec3& out_vHitPos, ezVec3& out_vHitNormal, ezGameObjectHandle& out_hHitGameObject) override;
 
 protected:
   virtual void InternalStartup() override;

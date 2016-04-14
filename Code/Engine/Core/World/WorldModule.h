@@ -10,13 +10,18 @@ class EZ_CORE_DLL ezWorldModule : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezWorldModule, ezReflectedClass);
 
 public:
+  ezWorldModule();
+  ~ezWorldModule();
 
-  void Startup(ezWorld* pOwner) { m_pOwnerWorld = pOwner; InternalStartup(); }
-  void Shutdown() { InternalShutdown(); }
-  void Update() { InternalUpdate(); }
-  void Reinit() { InternalReinit(); }
+  void Startup(ezWorld* pOwner);
+  void Shutdown();
+  void Update();
+  void Reinit();
 
   ezWorld* GetWorld() const { return m_pOwnerWorld; }
+
+  /// \brief Searches for the world module of the given type, that is responsible for the given world.
+  static ezWorldModule* FindModule(const ezWorld* pWorld, const ezRTTI* pWorldModuleType);
 
 protected:
   virtual void InternalStartup() = 0;
@@ -27,6 +32,6 @@ protected:
   ezWorld* m_pOwnerWorld;
 
 private:
-
+  static ezDynamicArray<ezWorldModule*> s_AllWorldModules;
 };
 

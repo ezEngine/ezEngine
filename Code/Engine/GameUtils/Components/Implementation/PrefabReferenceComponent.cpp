@@ -122,13 +122,11 @@ ezPrefabReferenceComponentManager::~ezPrefabReferenceComponentManager()
   ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezPrefabReferenceComponentManager::ResourceEventHandler, this));
 }
 
-ezResult ezPrefabReferenceComponentManager::Initialize()
+void ezPrefabReferenceComponentManager::Initialize()
 {
   auto desc = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(ezPrefabReferenceComponentManager::SimpleUpdate, this);
 
   this->RegisterUpdateFunction(desc);
-
-  return EZ_SUCCESS;
 }
 
 void ezPrefabReferenceComponentManager::ResourceEventHandler(const ezResourceEvent& e)

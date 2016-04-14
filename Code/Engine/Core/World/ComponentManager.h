@@ -119,10 +119,10 @@ protected:
 
 private:
   /// \brief This method is called after the constructor. A derived type can override this method to do initialization work. Typically this is the method where updates function are registered.
-  virtual ezResult Initialize() { return EZ_SUCCESS; }
+  virtual void Initialize() { }
 
   /// \brief This method is called before the destructor. A derived type can override this method to do deinitialization work.
-  virtual ezResult Deinitialize() { return EZ_SUCCESS; }
+  virtual void Deinitialize() { }
 
   ezWorld* m_pWorld;
 
@@ -184,7 +184,7 @@ class ezComponentManagerSimple : public ezComponentManager<ComponentType>
 public:
   ezComponentManagerSimple(ezWorld* pWorld);
 
-  virtual ezResult Initialize() override;
+  virtual void Initialize() override;
 
   /// \brief A simple update function that iterates over all components and calls Update() on every component
   void SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount);

@@ -4,7 +4,13 @@
 #include <Core/World/World.h>
 #include <Core/World/Component.h>
 
-typedef ezComponentManagerSimple<class ezProjectileComponent, true> ezProjectileComponentManager;
+class ezProjectileComponentManager : public ezComponentManagerSimple<class ezProjectileComponent, true>
+{
+public:
+  ezProjectileComponentManager(ezWorld* pWorld);
+
+  virtual void Initialize() override;
+};
 
 class EZ_GAMEUTILS_DLL ezProjectileComponent : public ezComponent
 {
@@ -19,6 +25,9 @@ public:
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
   // ************************************* PROPERTIES ***********************************
+
+  float m_fMetersPerSecond;
+  ezUInt8 m_uiCollisionLayer;
 
 private:
 

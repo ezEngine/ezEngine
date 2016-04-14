@@ -163,15 +163,13 @@ ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::ezComponentMa
 }
 
 template <typename ComponentType, bool OnlyUpdateWhenSimulating>
-ezResult ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::Initialize()
+void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::Initialize()
 {
   typedef ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating> OwnType;
 
   auto desc = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(OwnType::SimpleUpdate, this);
 
   this->RegisterUpdateFunction(desc);
-
-  return EZ_SUCCESS;
 }
 
 template <typename ComponentType, bool OnlyUpdateWhenSimulating>

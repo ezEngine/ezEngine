@@ -77,35 +77,6 @@ void ezPxCharacterControllerComponent::DeserializeComponent(ezWorldReader& strea
   s >> m_uiCollisionLayer;
 }
 
-class ezPxCharacterFilter : public PxQueryFilterCallback
-{
-public:
-
-
-  virtual PxQueryHitType::Enum preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags) override
-  {
-    queryFlags = (PxHitFlags)0;
-
-    // trigger the contact callback for pairs (A,B) where
-    // the filter mask of A contains the ID of B and vice versa.
-    if ((filterData.word0 & shape->getQueryFilterData().word1) || (shape->getQueryFilterData().word0 & filterData.word1))
-    {
-      queryFlags |= PxHitFlag::eDEFAULT;
-      return PxQueryHitType::eBLOCK;
-    }
-
-    return PxQueryHitType::eNONE;
-  }
-
-  virtual PxQueryHitType::Enum postFilter(const PxFilterData& filterData, const PxQueryHit& hit) override
-  {
-    return PxQueryHitType::eNONE;
-  }
-
-};
-
-static ezPxCharacterFilter g_CharFilter;
-
 void ezPxCharacterControllerComponent::Update()
 {
   if (m_pController == nullptr)
@@ -116,32 +87,7 @@ void ezPxCharacterControllerComponent::Update()
   ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
 
   m_vRelativeMoveDirection = GetOwner()->GetGlobalRotation() * m_vRelativeMoveDirection * m_fWalkSpeed;
-/*  const ezVec3 pos2 = GetOwner()->GetGlobalPosition();
-
-  {
-    PxQueryFilterData filter;
-    filter.data.setToDefault();
-    filter.flags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
-
-    filter.data.word0 = EZ_BIT(m_uiCollisionLayer);
-    filter.data.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(m_uiCollisionLayer);
-    filter.data.word2 = 0;
-    filter.data.word3 = 0;
-
-    ezVec3 vDir = GetOwner()->GetGlobalRotation() * ezVec3(1, 0, 0);
-    vDir.Normalize();
-
-    PxRaycastHit hit;
-    if (pModule->GetPxScene()->raycastSingle(PxVec3(pos2.x, pos2.y, pos2.z), PxVec3(vDir.x, vDir.y, vDir.z), 2.0f,
-                                             PxHitFlag::ePOSITION | PxHitFlag::eNORMAL | PxHitFlag::eDISTANCE, hit,
-                                             filter, &g_CharFilter))
-    {
-      ezLog::Info("Hit: %.2f | %.2f | %.2f", hit.position.x, hit.position.y, hit.position.z);
-    }
-
-  }
-*/
-  
+  const ezVec3 pos2 = GetOwner()->GetGlobalPosition();
 
   m_vRelativeMoveDirection += pModule->GetCharacterGravity() * tDiff;
 
@@ -150,11 +96,13 @@ void ezPxCharacterControllerComponent::Update()
   mov.y = m_vRelativeMoveDirection.y;
   mov.z = m_vRelativeMoveDirection.z;
 
+  ezPxQueryFilter CharFilter;
+
   /// \todo Filter stuff ?
   PxControllerFilters charFilter;
   PxFilterData filter;
   charFilter.mCCTFilterCallback = nullptr;
-  charFilter.mFilterCallback =  &g_CharFilter;
+  charFilter.mFilterCallback =  &CharFilter;
   charFilter.mFilterData = &filter;
   charFilter.mFilterFlags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
 

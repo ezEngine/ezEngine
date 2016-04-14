@@ -13,7 +13,7 @@ public:
   ezPrefabReferenceComponentManager(ezWorld* pWorld);
   ~ezPrefabReferenceComponentManager();
 
-  virtual ezResult Initialize() override;
+  virtual void Initialize() override;
 
   void SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount);
 

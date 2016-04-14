@@ -18,6 +18,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXWorldModule, 1, ezRTTIDefaultAllocator<ez
   // no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+
 PxFilterFlags ezPxFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, PxFilterObjectAttributes attributes1, PxFilterData filterData1, PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
 {
   // let triggers through
@@ -160,4 +161,47 @@ void ezPxAllocatorCallback::VerifyAllocations()
   }
 #endif
 }
+
+
+bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float fMaxLen, ezUInt8 uiCollisionLayer, ezVec3& out_vHitPos, ezVec3& out_vHitNormal, ezGameObjectHandle& out_hHitGameObject)
+{
+  PxQueryFilterData filter;
+  filter.data.setToDefault();
+  filter.flags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
+
+  filter.data.word0 = EZ_BIT(uiCollisionLayer);
+  filter.data.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(uiCollisionLayer);
+  filter.data.word2 = 0;
+  filter.data.word3 = 0;
+
+  ezPxQueryFilter QueryFilter;
+
+  PxRaycastHit hit;
+  if (GetPxScene()->raycastSingle(reinterpret_cast<const PxVec3&>(vStart), reinterpret_cast<const PxVec3&>(vDir), 
+                                  fMaxLen, PxHitFlag::ePOSITION | PxHitFlag::eNORMAL, hit,
+                                  filter, &QueryFilter))
+  {
+    EZ_ASSERT_DEBUG(hit.shape != nullptr, "Raycast should have hit a shape");
+
+    out_vHitPos = reinterpret_cast<const ezVec3&>(hit.position);
+    out_vHitNormal = reinterpret_cast<const ezVec3&>(hit.normal);
+
+    ezGameObject* pGameObject = reinterpret_cast<ezGameObject*>(hit.shape->userData);
+    EZ_ASSERT_DEBUG(pGameObject != nullptr, "Shape should have set a game object as user data");
+
+    out_hHitGameObject = pGameObject->GetHandle();
+
+    EZ_ASSERT_DEBUG(!out_vHitPos.IsNaN(), "Raycast hit Position is NaN");
+    EZ_ASSERT_DEBUG(!out_vHitNormal.IsNaN(), "Raycast hit Normal is NaN");
+
+    return true;
+  }
+
+  return false;
+}
+
+
+
+
+
 

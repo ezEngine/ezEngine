@@ -83,4 +83,3 @@ void ezGameApplication::WorldData::DestroyWorldModules()
 
   m_WorldModules.Clear();
 }
-
