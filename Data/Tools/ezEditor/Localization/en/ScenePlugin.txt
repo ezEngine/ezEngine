@@ -93,3 +93,9 @@ ezSliderComponent;Slider
 Components;Components
 Materials;Materials
 Surfaces;Surfaces
+Interactions;Interactions
+ezProjectileSurfaceInteraction;Surface Interaction
+ezProjectileReaction::Absorb;Absorb
+ezProjectileReaction::Reflect;Reflect
+ezProjectileReaction::Attach;Attach
+ezProjectileReaction::PassThrough;Pass Through

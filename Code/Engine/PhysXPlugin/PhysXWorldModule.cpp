@@ -163,7 +163,7 @@ void ezPxAllocatorCallback::VerifyAllocations()
 }
 
 
-bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float fMaxLen, ezUInt8 uiCollisionLayer, ezVec3& out_vHitPos, ezVec3& out_vHitNormal, ezGameObjectHandle& out_hHitGameObject)
+bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float fMaxLen, ezUInt8 uiCollisionLayer, ezVec3& out_vHitPos, ezVec3& out_vHitNormal, ezGameObjectHandle& out_hHitGameObject, ezSurfaceResourceHandle& out_hSurface)
 {
   PxQueryFilterData filter;
   filter.data.setToDefault();
@@ -193,6 +193,15 @@ bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float
 
     EZ_ASSERT_DEBUG(!out_vHitPos.IsNaN(), "Raycast hit Position is NaN");
     EZ_ASSERT_DEBUG(!out_vHitNormal.IsNaN(), "Raycast hit Normal is NaN");
+
+    auto pMaterial = hit.shape->getMaterialFromInternalFaceIndex(hit.faceIndex);
+
+    if (pMaterial)
+    {
+      ezSurfaceResource* pSurface = reinterpret_cast<ezSurfaceResource*>(pMaterial->userData);
+
+      out_hSurface = ezSurfaceResourceHandle(pSurface);
+    }
 
     return true;
   }

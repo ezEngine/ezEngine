@@ -1,5 +1,13 @@
 {
  "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x7A1498AA36BCAA40817D26C83D5DBA7E" },
+   "t" : "ezProjectileSurfaceInteraction",
+   "p" : {
+    "Reaction" : "ezProjectileReaction::Attach",
+    "Surface" : "{ ccd32963-93f9-401c-95d1-bf4e491a2df3 }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x938BE2D41C279743BF5ABC6F87F49E18" },
    "t" : "ezTimedDeathComponent",
    "p" : {
@@ -14,6 +22,7 @@
    "p" : {
     "Active" : true,
     "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Interactions" : [ { "$t" : "uuid", "$b" : "0x51FF8A2958E1A94B9DD31DB2FBE91F4E" }, { "$t" : "uuid", "$b" : "0xE299D515CFC78F4E92811E9168DE5568" }, { "$t" : "uuid", "$b" : "0x7A1498AA36BCAA40817D26C83D5DBA7E" }, { "$t" : "uuid", "$b" : "0xB34EBD80004A334B8052BCF310BADFE3" } ],
     "Speed" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" }
    }
   },
@@ -40,6 +49,22 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xB34EBD80004A334B8052BCF310BADFE3" },
+   "t" : "ezProjectileSurfaceInteraction",
+   "p" : {
+    "Reaction" : "ezProjectileReaction::Attach",
+    "Surface" : "{ a28bc6e0-f7ba-4e1a-9515-8ccf0ae28d1c }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x51FF8A2958E1A94B9DD31DB2FBE91F4E" },
+   "t" : "ezProjectileSurfaceInteraction",
+   "p" : {
+    "Reaction" : "ezProjectileReaction::Absorb",
+    "Surface" : "{ 0a105955-e069-4523-80ce-7b9867bde687 }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xBAA17346F252CE4C9924B63957D980FC" },
    "t" : "ezAssetDocumentInfo",
    "n" : "Header",
@@ -47,7 +72,15 @@
     "AssetType" : "Prefab",
     "Dependencies" : "",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xBAA17346F252CE4C9924B63957D980FC" },
-    "Hash" : { "$t" : "uint64", "$v" : "3477491882108419056", "$b" : "0xF07B603671884230" }
+    "Hash" : { "$t" : "uint64", "$v" : "10294344152300189003", "$b" : "0x4BF578F976DBDC8E" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE299D515CFC78F4E92811E9168DE5568" },
+   "t" : "ezProjectileSurfaceInteraction",
+   "p" : {
+    "Reaction" : "ezProjectileReaction::Reflect",
+    "Surface" : "{ 56a944d9-3686-4730-8b7d-104d2f02e2b1 }"
    }
   },
   {
