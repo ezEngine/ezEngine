@@ -56,8 +56,7 @@ struct ezRenderContextFlags
     MeshBufferBindingChanged = EZ_BIT(3),
 
     ShaderStateValid = EZ_BIT(4),
-    MeshBufferHasIndexBuffer = EZ_BIT(5),
-
+    
     AllStatesInvalid = ShaderStateChanged | TextureBindingChanged | ConstantBufferBindingChanged | MeshBufferBindingChanged,
     Default = None
   };

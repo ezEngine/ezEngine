@@ -92,11 +92,68 @@ void ezRenderContext::BindTexture(ezGALShaderStage::Enum stage, const ezTempHash
 
 void ezRenderContext::BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer)
 {
-  if (m_hMeshBuffer == hMeshBuffer)
+  ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer);
+  BindMeshBuffer(pMeshBuffer->GetVertexBuffer(), pMeshBuffer->GetIndexBuffer(), pMeshBuffer->GetVertexDeclaration(), pMeshBuffer->GetTopology(), pMeshBuffer->GetPrimitiveCount());
+}
+
+void ezRenderContext::BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer, const ezVertexDeclarationInfo& vertexDeclarationInfo,
+  ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount)
+{
+  if (m_hVertexBuffer == hVertexBuffer && m_hIndexBuffer == hIndexBuffer && m_pVertexDeclarationInfo == &vertexDeclarationInfo &&
+    m_Topology == topology && m_uiMeshBufferPrimitiveCount == uiPrimitiveCount)
+  {
     return;
+  }
+
+  m_hVertexBuffer = hVertexBuffer;
+  m_hIndexBuffer = hIndexBuffer;
+  m_pVertexDeclarationInfo = &vertexDeclarationInfo;
+  m_Topology = topology;
+  m_uiMeshBufferPrimitiveCount = uiPrimitiveCount;
 
   m_StateFlags.Add(ezRenderContextFlags::MeshBufferBindingChanged);
-  m_hMeshBuffer = hMeshBuffer;
+}
+
+void ezRenderContext::DrawMeshBuffer(ezUInt32 uiPrimitiveCount, ezUInt32 uiFirstPrimitive, ezUInt32 uiInstanceCount)
+{
+  if (ApplyContextStates().Failed())
+  {
+    m_Statistics.m_uiFailedDrawcalls++;
+    return;
+  }
+
+  EZ_ASSERT_DEV(uiFirstPrimitive < m_uiMeshBufferPrimitiveCount, "Invalid primitive range: first primitive (%d) can't be larger than number of primitives (%d)", uiFirstPrimitive, uiPrimitiveCount);
+
+  uiPrimitiveCount = ezMath::Min(uiPrimitiveCount, m_uiMeshBufferPrimitiveCount - uiFirstPrimitive);
+  EZ_ASSERT_DEV(uiPrimitiveCount > 0, "Invalid primitive range: number of primitives can't be zero.");
+
+  const ezUInt32 uiVertsPerPrimitive = ezGALPrimitiveTopology::VerticesPerPrimitive(m_pGALContext->GetPrimitiveTopology());
+
+  uiPrimitiveCount *= uiVertsPerPrimitive;
+  uiFirstPrimitive *= uiVertsPerPrimitive;
+
+  if (uiInstanceCount > 1)
+  {
+    if (!m_hIndexBuffer.IsInvalidated())
+    {
+      m_pGALContext->DrawIndexedInstanced(uiPrimitiveCount, uiInstanceCount, uiFirstPrimitive);
+    }
+    else
+    {
+      m_pGALContext->DrawInstanced(uiPrimitiveCount, uiInstanceCount, uiFirstPrimitive);
+    }
+  }
+  else
+  {
+    if (!m_hIndexBuffer.IsInvalidated())
+    {
+      m_pGALContext->DrawIndexed(uiPrimitiveCount, uiFirstPrimitive);
+    }
+    else
+    {
+      m_pGALContext->Draw(uiPrimitiveCount, uiFirstPrimitive);
+    }
+  }
 }
 
 //static
@@ -163,27 +220,27 @@ ezResult ezRenderContext::BuildVertexDeclaration(ezGALShaderHandle hShader, cons
 
 void ezRenderContext::ApplyTextureBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary)
 {
-  for (const auto& rb : pBinary->m_ShaderResourceBindings)
+  for (const auto& resourceBinding : pBinary->m_ShaderResourceBindings)
   {
-    if (rb.m_Type == ezShaderStageResource::ConstantBuffer)
+    if (resourceBinding.m_Type < ezShaderStageResource::Texture1D || resourceBinding.m_Type > ezShaderStageResource::TextureCubeArray)
       continue;
 
-    const ezUInt32 uiResourceHash = rb.m_Name.GetHash();
+    const ezUInt32 uiResourceHash = resourceBinding.m_Name.GetHash();
 
     TextureViewSampler* textureTuple;
     if (!m_BoundTextures[stage].TryGetValue(uiResourceHash, textureTuple))
     {
-      ezLog::Error("No resource is bound for shader slot '%s'", rb.m_Name.GetData());
+      ezLog::Error("No resource is bound for shader slot '%s'", resourceBinding.m_Name.GetData());
       continue;
     }
 
     if (textureTuple == nullptr || textureTuple->m_hResourceView.IsInvalidated() || textureTuple->m_hSamplerState.IsInvalidated())
     {
-      ezLog::Error("An invalid resource is bound for shader slot '%s'", rb.m_Name.GetData());
+      ezLog::Error("An invalid resource is bound for shader slot '%s'", resourceBinding.m_Name.GetData());
       continue;
     }
 
-    m_pGALContext->SetResourceView(stage, rb.m_iSlot, textureTuple->m_hResourceView);
-    m_pGALContext->SetSamplerState(stage, rb.m_iSlot, textureTuple->m_hSamplerState);
+    m_pGALContext->SetResourceView(stage, resourceBinding.m_iSlot, textureTuple->m_hResourceView);
+    m_pGALContext->SetSamplerState(stage, resourceBinding.m_iSlot, textureTuple->m_hSamplerState);
   }
 }

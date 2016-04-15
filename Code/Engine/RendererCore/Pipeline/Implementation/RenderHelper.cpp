@@ -80,49 +80,6 @@ ezRenderContext::Statistics ezRenderContext::GetAndResetStatistics()
   return ret;
 }
 
-// static 
-void ezRenderContext::DrawMeshBuffer(ezUInt32 uiPrimitiveCount, ezUInt32 uiFirstPrimitive, ezUInt32 uiInstanceCount)
-{
-  if (ApplyContextStates().Failed())
-  {
-    m_Statistics.m_uiFailedDrawcalls++;
-    return;
-  }
-
-  EZ_ASSERT_DEV(uiFirstPrimitive < m_uiMeshBufferPrimitiveCount, "Invalid primitive range: first primitive (%d) can't be larger than number of primitives (%d)", uiFirstPrimitive, uiPrimitiveCount);
-
-  uiPrimitiveCount = ezMath::Min(uiPrimitiveCount, m_uiMeshBufferPrimitiveCount - uiFirstPrimitive);
-  EZ_ASSERT_DEV(uiPrimitiveCount > 0, "Invalid primitive range: number of primitives can't be zero.");
-
-  const ezUInt32 uiVertsPerPrimitive = ezGALPrimitiveTopology::VerticesPerPrimitive(m_pGALContext->GetPrimitiveTopology());
-
-  uiPrimitiveCount *= uiVertsPerPrimitive;
-  uiFirstPrimitive *= uiVertsPerPrimitive;
-
-  if (uiInstanceCount > 1)
-  {
-    if (m_StateFlags.IsSet(ezRenderContextFlags::MeshBufferHasIndexBuffer))
-    {
-      m_pGALContext->DrawIndexedInstanced(uiPrimitiveCount, uiInstanceCount, uiFirstPrimitive);
-    }
-    else
-    {
-      m_pGALContext->DrawInstanced(uiPrimitiveCount, uiInstanceCount, uiFirstPrimitive);
-    }
-  }
-  else
-  {
-    if (m_StateFlags.IsSet(ezRenderContextFlags::MeshBufferHasIndexBuffer))
-    {
-      m_pGALContext->DrawIndexed(uiPrimitiveCount, uiFirstPrimitive);
-    }
-    else
-    {
-      m_pGALContext->Draw(uiPrimitiveCount, uiFirstPrimitive);
-    }
-  }
-}
-
 ezResult ezRenderContext::ApplyContextStates(bool bForce)
 {
   ezShaderPermutationResource* pShaderPermutation = nullptr;
@@ -143,6 +100,15 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
 
     if (!pShader->IsShaderValid())
       return EZ_FAILURE;
+
+    if (m_Topology == ezGALPrimitiveTopology::Lines)
+    {
+      m_PermutationVariables["TOPOLOGY_LINES"] = "1";
+    }
+    else
+    {
+      m_PermutationVariables["TOPOLOGY_LINES"] = "0";
+    }
 
     m_PermGenerator.Clear();
     for (auto itPerm = m_PermutationVariables.GetIterator(); itPerm.IsValid(); ++itPerm)
@@ -235,32 +201,20 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
 
   if (bForce || bRebuildVertexDeclaration || m_StateFlags.IsSet(ezRenderContextFlags::MeshBufferBindingChanged))
   {
-    if (!m_hMeshBuffer.IsValid())
-      return EZ_FAILURE;
-
     if (m_hActiveGALShader.IsInvalidated())
       return EZ_FAILURE;
 
-    ezResourceLock<ezMeshBufferResource> pMeshBuffer(m_hMeshBuffer);
-
     if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::MeshBufferBindingChanged))
     {
-      m_uiMeshBufferPrimitiveCount = pMeshBuffer->GetPrimitiveCount();
+      m_pGALContext->SetPrimitiveTopology(m_Topology);
+      m_pGALContext->SetVertexBuffer(0, m_hVertexBuffer);
 
-      m_pGALContext->SetPrimitiveTopology(pMeshBuffer->GetTopology());
-      m_pGALContext->SetVertexBuffer(0, pMeshBuffer->GetVertexBuffer());
-
-      ezGALBufferHandle hIndexBuffer = pMeshBuffer->GetIndexBuffer();
-
-      // store whether we have an index buffer (needed during drawcalls)
-      m_StateFlags.AddOrRemove(ezRenderContextFlags::MeshBufferHasIndexBuffer, !hIndexBuffer.IsInvalidated());
-
-      if (!hIndexBuffer.IsInvalidated())
-        m_pGALContext->SetIndexBuffer(hIndexBuffer);
+      if (!m_hIndexBuffer.IsInvalidated())
+        m_pGALContext->SetIndexBuffer(m_hIndexBuffer);
     }
 
     ezGALVertexDeclarationHandle hVertexDeclaration;
-    if (BuildVertexDeclaration(m_hActiveGALShader, pMeshBuffer->GetVertexDeclaration(), hVertexDeclaration).Failed())
+    if (BuildVertexDeclaration(m_hActiveGALShader, *m_pVertexDeclarationInfo, hVertexDeclaration).Failed())
       return EZ_FAILURE;
 
     m_pGALContext->SetVertexDeclaration(hVertexDeclaration);

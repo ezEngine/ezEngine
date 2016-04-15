@@ -93,7 +93,7 @@ namespace
     
   ezMeshBufferResourceHandle s_hLineBoxMeshBuffer;
   ezMeshBufferResourceHandle s_hSolidBoxMeshBuffer;
-  ezMeshBufferResourceHandle s_hDummyMeshBuffer;
+  ezVertexDeclarationInfo s_VertexDeclarationInfo;
   ezShaderResourceHandle s_hDebugGeometryShader;
   ezShaderResourceHandle s_hDebugPrimitiveShader;
 
@@ -300,14 +300,9 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
       CreateVertexBuffer(BufferType::Lines, sizeof(Vertex), uiNumLineVertices, pData->m_lineVertices.GetData());
 
       renderViewContext.m_pRenderContext->BindShader(s_hDebugPrimitiveShader);
-      renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDummyMeshBuffer);
-
-      if (renderViewContext.m_pRenderContext->ApplyContextStates().Succeeded())
-      {
-        pGALContext->SetPrimitiveTopology(ezGALPrimitiveTopology::Lines);
-        pGALContext->SetVertexBuffer(0, s_hDataBuffer[BufferType::Lines]);
-        pGALContext->Draw(uiNumLineVertices, 0);
-      }
+      renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Lines], ezGALBufferHandle(), s_VertexDeclarationInfo, 
+        ezGALPrimitiveTopology::Lines, uiNumLineVertices / 2);
+      renderViewContext.m_pRenderContext->DrawMeshBuffer();
     }
   }
 
@@ -352,14 +347,9 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
       CreateVertexBuffer(BufferType::Triangles, sizeof(Vertex), uiNumTriangleVertices, pData->m_triangleVertices.GetData());
 
       renderViewContext.m_pRenderContext->BindShader(s_hDebugPrimitiveShader);
-      renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDummyMeshBuffer);
-
-      if (renderViewContext.m_pRenderContext->ApplyContextStates().Succeeded())
-      {
-        pGALContext->SetPrimitiveTopology(ezGALPrimitiveTopology::Triangles);
-        pGALContext->SetVertexBuffer(0, s_hDataBuffer[BufferType::Triangles]);
-        pGALContext->Draw(uiNumTriangleVertices, 0);
-      }
+      renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Triangles], ezGALBufferHandle(), s_VertexDeclarationInfo, 
+        ezGALPrimitiveTopology::Lines, uiNumTriangleVertices / 3);
+      renderViewContext.m_pRenderContext->DrawMeshBuffer();
     }
   }
 }
@@ -388,14 +378,21 @@ void ezDebugRenderer::OnEngineStartup()
     s_hSolidBoxMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("DebugSolidBox", desc, "Mesh for Rendering Debug Solid Boxes");
   }
 
-  /// \todo get rid of this buffer
+  
   {
-    ezMeshBufferResourceDescriptor desc;
-    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-    desc.AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
-    desc.AllocateStreams(2, ezGALPrimitiveTopology::Lines);
+    ezVertexStreamInfo& si = s_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
+    si.m_Semantic = ezGALVertexAttributeSemantic::Position;
+    si.m_Format = ezGALResourceFormat::XYZFloat;
+    si.m_uiOffset = 0;
+    si.m_uiElementSize = 12;
+  }
 
-    s_hDummyMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("DebugDummyMeshBuffer", desc, "");
+  {
+    ezVertexStreamInfo& si = s_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
+    si.m_Semantic = ezGALVertexAttributeSemantic::Color;
+    si.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+    si.m_uiOffset = 12;
+    si.m_uiElementSize = 4;
   }
 
   s_hDebugGeometryShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugGeometry.ezShader");
@@ -415,7 +412,6 @@ void ezDebugRenderer::OnEngineShutdown()
 
   s_hLineBoxMeshBuffer.Invalidate();
   s_hSolidBoxMeshBuffer.Invalidate();
-  s_hDummyMeshBuffer.Invalidate();
 
   s_hDebugGeometryShader.Invalidate();
   s_hDebugPrimitiveShader.Invalidate();

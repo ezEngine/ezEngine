@@ -6,6 +6,7 @@ ALL
 ALPHATEST
 PICKING
 EDITOR_RENDER_MODE
+TOPOLOGY_LINES
 
 [RENDERSTATE]
 
@@ -51,6 +52,7 @@ VS_OUT_POS_ONLY main(VS_IN_POS_ONLY Input)
 
 [GEOMETRYSHADER]
 
+#if TOPOLOGY_LINES == 0
 #include <Shaders/Materials/Materials.inc>
 
 #if EZ_ENABLED(PLATFORM_DX11)
@@ -90,6 +92,7 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
 }
 
 #endif
+#endif
 
 [PIXELSHADER]
 
@@ -106,7 +109,9 @@ struct PS_IN_POS_ONLY
 {
   float4 Position : SV_Position;
   float3 WorldPos : WORLDPOS;
-  float3 Normal : NORMAL;
+  #if TOPOLOGY_LINES == 0
+	float3 Normal : NORMAL;
+  #endif
 };
 
 float4 main(PS_IN_POS_ONLY Input) : SV_Target
@@ -128,17 +133,21 @@ float4 main(PS_IN_POS_ONLY Input) : SV_Target
     return float4(1, 1, 1, 1);
   #endif
   
-  float3 blendWeights = abs(Input.Normal);
-  blendWeights = max((blendWeights - 0.2) * 7.0, 0.0);
-  blendWeights /= (blendWeights.x + blendWeights.y + blendWeights.z );
-  
-  float4 tex1 = TexDiffuse.Sample(TexDiffuseSampler, Input.WorldPos.yz);
-  float4 tex2 = TexDiffuse.Sample(TexDiffuseSampler, Input.WorldPos.zx);
-  float4 tex3 = TexDiffuse.Sample(TexDiffuseSampler, Input.WorldPos.xy);
-  
-  float4 blendedColor = tex1 * blendWeights.x + tex2 * blendWeights.y + tex3 * blendWeights.z;
-
-  return blendedColor;
+  #if TOPOLOGY_LINES == 1
+    return float4(0.5, 0.5, 0.5, 1.0);
+  #else
+    float3 blendWeights = abs(Input.Normal);
+    blendWeights = max((blendWeights - 0.2) * 7.0, 0.0);
+    blendWeights /= (blendWeights.x + blendWeights.y + blendWeights.z );
+    
+    float4 tex1 = TexDiffuse.Sample(TexDiffuseSampler, Input.WorldPos.yz);
+    float4 tex2 = TexDiffuse.Sample(TexDiffuseSampler, Input.WorldPos.zx);
+    float4 tex3 = TexDiffuse.Sample(TexDiffuseSampler, Input.WorldPos.xy);
+    
+    float4 blendedColor = tex1 * blendWeights.x + tex2 * blendWeights.y + tex3 * blendWeights.z;
+    
+    return blendedColor;
+  #endif
 #endif
 }
 

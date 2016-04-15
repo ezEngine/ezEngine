@@ -62,74 +62,60 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
   D3D11_SHADER_DESC sd;
   pReflector->GetDesc(&sd);
 
-  //ezLog::Info("Bound Resources: %u", sd.BoundResources);
-  //ezLog::Info("Num Constant Buffers: %u", sd.ConstantBuffers);
-  //ezLog::Info("Num Inputs: %u", sd.InputParameters);
-  //ezLog::Info("Num Outputs: %u", sd.OutputParameters);
-
   for (ezUInt32 r = 0; r < sd.BoundResources; ++r)
   {
-    ezShaderStageResource ssr;
-
     D3D11_SHADER_INPUT_BIND_DESC sibd;
     pReflector->GetResourceBindingDesc(r, &sibd);
 
     //ezLog::Info("Bound Resource: '%s' at slot %u (Count: %u, Flags: %u)", sibd.Name, sibd.BindPoint, sibd.BindCount, sibd.uFlags);
 
-    ssr.m_Name.Assign(sibd.Name);
+    ezShaderStageResource ssr;
+    ssr.m_Type = ezShaderStageResource::Unknown;
     ssr.m_iSlot = sibd.BindPoint;
-
-
-    //if (sibd.Type == D3D_SIT_TEXTURE || sibd.Type == D3D_SIT_TBUFFER)
-    //{
-    //  
-    //  switch (sibd.Dimension)
-    //  {
-    //  //case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFER: ezLog::Info("Resource is a Buffer"); break;
-    //  //case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFEREX: ezLog::Info("Resource is a Buffer Ex"); break;
-    //  case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1D: ezLog::Info("Resource is a 1D Texture"); ssr.m_Type = ezShaderStageResource::Texture1D; break;
-    //  case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1DARRAY: ezLog::Info("Resource is a 1D Texture Array"); ssr.m_Type = ezShaderStageResource::Texture1DArray; break;
-    //  case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2D: ezLog::Info("Resource is a 2D Texture"); ssr.m_Type = ezShaderStageResource::Texture2D; break;
-    //  case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DARRAY: ezLog::Info("Resource is a 2D Texture Array"); ssr.m_Type = ezShaderStageResource::Texture2DArray; break;
-    //  case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMS: ezLog::Info("Resource is a 2D Texture MS"); ssr.m_Type = ezShaderStageResource::Texture2DMS; break;
-    //  case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMSARRAY: ezLog::Info("Resource is a 2D Texture MS Array"); ssr.m_Type = ezShaderStageResource::Texture2DMSArray; break;
-    //  case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE3D: ezLog::Info("Resource is a 3D Texture"); ssr.m_Type = ezShaderStageResource::Texture3D; break;
-    //  case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBE: ezLog::Info("Resource is a Cube Texture"); ssr.m_Type = ezShaderStageResource::TextureCube; break;
-    //  case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBEARRAY: ezLog::Info("Resource is a Cube Texture Array"); ssr.m_Type = ezShaderStageResource::TextureCubeArray; break;
-    //  default:
-    //    ezLog::Error("Resource Dimension is an unknown type");
-    //    break;
-    //  }
-    //}
+    ssr.m_Name.Assign(sibd.Name);    
 
     if (sibd.Type == D3D_SIT_TEXTURE)
     {
-      inout_Data.m_StageBinary[Stage].m_ShaderResourceBindings.PushBack(ssr);
+      switch (sibd.Dimension)
+      {
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1D:
+        ssr.m_Type = ezShaderStageResource::Texture1D; break;
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1DARRAY:
+        ssr.m_Type = ezShaderStageResource::Texture1DArray; break;
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2D: 
+        ssr.m_Type = ezShaderStageResource::Texture2D; break;
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DARRAY: 
+        ssr.m_Type = ezShaderStageResource::Texture2DArray; break;
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMS: 
+        ssr.m_Type = ezShaderStageResource::Texture2DMS; break;
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMSARRAY: 
+        ssr.m_Type = ezShaderStageResource::Texture2DMSArray; break;
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE3D: 
+        ssr.m_Type = ezShaderStageResource::Texture3D; break;
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBE: 
+        ssr.m_Type = ezShaderStageResource::TextureCube; break;
+      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBEARRAY: 
+        ssr.m_Type = ezShaderStageResource::TextureCubeArray; break;
+      }
     }
 
-    if (sibd.Type == D3D_SIT_CBUFFER)
+    else if (sibd.Type == D3D_SIT_CBUFFER)
     {
       ssr.m_Type = ezShaderStageResource::ConstantBuffer;
-      inout_Data.m_StageBinary[Stage].m_ShaderResourceBindings.PushBack(ssr);
+    }
+    else if (sibd.Type == D3D_SIT_SAMPLER)
+    {
+
+    }
+    else
+    {
+      ssr.m_Type = ezShaderStageResource::GenericBuffer;
     }
 
-    //switch (sibd.Type)
-    //{
-    //case D3D_SIT_TBUFFER: ezLog::Info("Resource is Texture Buffer"); break;
-    //case D3D_SIT_TEXTURE: ezLog::Info("Resource is Texture"); break;
-    //case D3D_SIT_CBUFFER: ezLog::Info("Resource is Constant Buffer"); break;
-    //case D3D_SIT_SAMPLER: ezLog::Info("Resource is Sampler"); break;
-    //case D3D_SIT_UAV_RWTYPED:
-    //case D3D_SIT_STRUCTURED:
-    //case D3D_SIT_UAV_RWSTRUCTURED:
-    //case D3D_SIT_BYTEADDRESS:
-    //case D3D_SIT_UAV_RWBYTEADDRESS:
-    //case D3D_SIT_UAV_APPEND_STRUCTURED:
-    //case D3D_SIT_UAV_CONSUME_STRUCTURED:
-    //case D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER:
-    //default:
-    //  ezLog::Error("Resource is some weird type"); break;
-    //}
+    if (ssr.m_Type != ezShaderStageResource::Unknown)
+    {
+      inout_Data.m_StageBinary[Stage].m_ShaderResourceBindings.PushBack(ssr);
+    }
   }
 
   ReflectMaterialParameters(inout_Data, Stage, pReflector);
@@ -337,11 +323,12 @@ ezResult ezShaderCompilerHLSL::Compile(ezShaderProgramData& inout_Data, ezLogInt
       continue;
     }
 
-    const ezUInt32 uiLength = ezStringUtils::GetStringElementCount(inout_Data.m_szShaderSource[stage]);
+    const char* szShaderSource = inout_Data.m_szShaderSource[stage];
+    const ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szShaderSource);
 
-    if (uiLength > 0)
+    if (uiLength > 0 && ezStringUtils::FindSubString(szShaderSource, "main") != nullptr)
     {
-      if (CompileDXShader(inout_Data.m_szSourceFile, inout_Data.m_szShaderSource[stage], GetProfileName(inout_Data.m_szPlatform, (ezGALShaderStage::Enum) stage), "main", inout_Data.m_StageBinary[stage].m_ByteCode).Succeeded())
+      if (CompileDXShader(inout_Data.m_szSourceFile, szShaderSource, GetProfileName(inout_Data.m_szPlatform, (ezGALShaderStage::Enum) stage), "main", inout_Data.m_StageBinary[stage].m_ByteCode).Succeeded())
       {
         ReflectShaderStage(inout_Data, (ezGALShaderStage::Enum) stage);
       }

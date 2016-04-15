@@ -46,12 +46,18 @@ public:
 
   // Member Functions
   void SetShaderPermutationVariable(const char* szVariable, const char* szValue);
+
   void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture);
   void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView, ezGALSamplerStateHandle hSamplerState);
+
   void SetMaterialState(const ezMaterialResourceHandle& hMaterial);
   void BindConstantBuffer(const ezTempHashedString& sSlotName, const ezConstantBufferResourceHandle& hConstantBuffer);
+
   void BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer);
+  void BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer, const ezVertexDeclarationInfo& vertexDeclarationInfo, 
+    ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount);
   void DrawMeshBuffer(ezUInt32 uiPrimitiveCount = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0, ezUInt32 uiInstanceCount = 1);
+
   ezResult ApplyContextStates(bool bForce = false);
   
 
@@ -141,8 +147,13 @@ private:
   ezShaderPermutationResourceHandle m_hActiveShaderPermutation;
   ezConstantBufferResource* m_pCurrentlyModifyingBuffer;
   ezBitflags<ezShaderBindFlags> m_ShaderBindFlags;
-  ezMeshBufferResourceHandle m_hMeshBuffer;
+
+  ezGALBufferHandle m_hVertexBuffer;
+  ezGALBufferHandle m_hIndexBuffer;
+  const ezVertexDeclarationInfo* m_pVertexDeclarationInfo;
+  ezGALPrimitiveTopology::Enum m_Topology;
   ezUInt32 m_uiMeshBufferPrimitiveCount;
+
   ezUInt64 m_uiLastMaterialCBSync;
 
   struct TextureViewSampler

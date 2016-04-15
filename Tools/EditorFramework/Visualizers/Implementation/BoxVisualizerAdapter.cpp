@@ -23,7 +23,7 @@ void ezBoxVisualizerAdapter::Finalize()
 
   const ezBoxVisualizerAttribute* pAttr = static_cast<const ezBoxVisualizerAttribute*>(m_pVisualizerAttr);
 
-  m_Gizmo.Configure(nullptr, ezEngineGizmoHandleType::Box, pAttr->m_Color, false, false, true);
+  m_Gizmo.Configure(nullptr, ezEngineGizmoHandleType::LineBox, pAttr->m_Color, false, false, true);
 
   m_Gizmo.SetOwner(pEngineWindow);
   m_Gizmo.SetVisible(true);

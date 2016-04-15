@@ -13,6 +13,7 @@ struct ezShaderStageResource
 {
   enum ResourceType
   {
+    Unknown,
     Texture1D,
     Texture1DArray,
     Texture2D,
@@ -22,7 +23,8 @@ struct ezShaderStageResource
     Texture3D,
     TextureCube,
     TextureCubeArray,
-    ConstantBuffer
+    ConstantBuffer,
+    GenericBuffer
   };
 
   ResourceType m_Type;
