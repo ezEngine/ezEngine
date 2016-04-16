@@ -19,11 +19,15 @@
 #include <GameUtils/Components/CameraComponent.h>
 #include <GameUtils/Components/InputComponent.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "ezScene;ezPrefab"),
+  }
   EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezUInt32 ezSceneContext::s_uiShapeIconBufferCounter = 0;
 

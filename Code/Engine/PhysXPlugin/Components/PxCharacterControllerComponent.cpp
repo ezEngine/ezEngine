@@ -5,8 +5,10 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <GameUtils/Components/InputComponent.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 1);
+EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 1)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_MEMBER_PROPERTY("Capsule Height", m_fCapsuleHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
     EZ_MEMBER_PROPERTY("Capsule Radius", m_fCapsuleRadius)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.1f, 5.0f)),
     EZ_MEMBER_PROPERTY("Max Step Height", m_fMaxStepHeight)->AddAttributes(new ezDefaultValueAttribute(0.3f), new ezClampValueAttribute(0.0f, 5.0f)),
@@ -16,15 +18,21 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 1);
     EZ_MEMBER_PROPERTY("Force Slope Sliding", m_bForceSlopeSliding)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Constrained Climb Mode", m_bConstrainedClimbingMode),
     EZ_MEMBER_PROPERTY("Collision Layer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
+  }
   EZ_END_PROPERTIES
-  EZ_BEGIN_MESSAGEHANDLERS
+    EZ_BEGIN_MESSAGEHANDLERS
+  {
     EZ_MESSAGE_HANDLER(ezInputComponentMessage, InputComponentMessageHandler),
+  }
   EZ_END_MESSAGEHANDLERS
-  EZ_BEGIN_ATTRIBUTES
+    EZ_BEGIN_ATTRIBUTES
+  {
     new ezCapsuleManipulatorAttribute("Capsule Height", "Capsule Radius"),
-    new ezCapsuleVisualizerAttribute("Capsule Height", "Capsule Radius")
+    new ezCapsuleVisualizerAttribute("Capsule Height", "Capsule Radius"),
+  }
   EZ_END_ATTRIBUTES
-EZ_END_COMPONENT_TYPE();
+}
+EZ_END_COMPONENT_TYPE
 
 ezPxCharacterControllerComponent::ezPxCharacterControllerComponent()
 {

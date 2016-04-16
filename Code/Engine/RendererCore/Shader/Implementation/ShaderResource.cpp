@@ -5,7 +5,7 @@
 #include <Foundation/Logging/Log.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderResource, 1, ezRTTIDefaultAllocator<ezShaderResource>);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezShaderResource::ezShaderResource() : ezResource<ezShaderResource, ezShaderResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {

@@ -11,24 +11,34 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProjectileReaction, 1)
   EZ_ENUM_CONSTANT(ezProjectileReaction::PassThrough)
 EZ_END_STATIC_REFLECTED_ENUM();
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 1, ezRTTIDefaultAllocator<ezProjectileSurfaceInteraction>);
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 1, ezRTTIDefaultAllocator<ezProjectileSurfaceInteraction>)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
     EZ_ENUM_MEMBER_PROPERTY("Reaction", ezProjectileReaction, m_Reaction),
+  }
   EZ_END_PROPERTIES
-EZ_END_STATIC_REFLECTED_TYPE();
+}
+EZ_END_STATIC_REFLECTED_TYPE
 
-EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 1);
+EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 1)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_MEMBER_PROPERTY("Speed", m_fMetersPerSecond)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("Collision Layer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_ARRAY_MEMBER_PROPERTY("Interactions", m_SurfaceInteractions),
+  }
   EZ_END_PROPERTIES
-  EZ_BEGIN_ATTRIBUTES
+    EZ_BEGIN_ATTRIBUTES
+  {
     new ezCategoryAttribute("Gameplay"),
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2f, ezColor::OrangeRed)
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2f, ezColor::OrangeRed),
+  }
   EZ_END_ATTRIBUTES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
 void ezProjectileSurfaceInteraction::SetSurface(const char* szSurface)

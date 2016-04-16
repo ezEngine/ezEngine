@@ -5,12 +5,16 @@
 
 #include <RendererFoundation/Context/Profiling.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelinePass, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelinePass, 1, ezRTTINoAllocator)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
     EZ_SET_ACCESSOR_PROPERTY("Renderers", GetRenderers, AddRenderer, RemoveRenderer)->AddFlags(ezPropertyFlags::PointerOwner),
+  }
   EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezRenderPipelinePass::ezRenderPipelinePass(const char* szName)
 {

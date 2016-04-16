@@ -4,15 +4,21 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxShapeBoxComponent, 1);
+EZ_BEGIN_COMPONENT_TYPE(ezPxShapeBoxComponent, 1)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_MEMBER_PROPERTY("Extents", m_vExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
+  }
   EZ_END_PROPERTIES
-  EZ_BEGIN_ATTRIBUTES
+    EZ_BEGIN_ATTRIBUTES
+  {
     new ezBoxManipulatorAttribute("Extents"),
-    new ezBoxVisualizerAttribute("Extents")
+    new ezBoxVisualizerAttribute("Extents"),
+  }
   EZ_END_ATTRIBUTES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezPxShapeBoxComponent::ezPxShapeBoxComponent()
 {

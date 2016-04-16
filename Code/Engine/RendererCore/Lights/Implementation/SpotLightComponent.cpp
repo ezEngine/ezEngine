@@ -6,24 +6,32 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpotLightRenderData, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpotLightRenderData, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 1);
+EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 1)
+{
   EZ_BEGIN_PROPERTIES
-    EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant() ), new ezDefaultValueAttribute( 1.0f ) ),
+  {
+    EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("Spot Angle", m_SpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(1.0f), ezAngle::Degree(179.0f)), new ezDefaultValueAttribute(ezAngle::Degree(30.0f))),
     EZ_ACCESSOR_PROPERTY("Projected Texture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+  }
   EZ_END_PROPERTIES
-  EZ_BEGIN_MESSAGEHANDLERS
+    EZ_BEGIN_MESSAGEHANDLERS
+  {
     EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
+  }
   EZ_END_MESSAGEHANDLERS
-  EZ_BEGIN_ATTRIBUTES
+    EZ_BEGIN_ATTRIBUTES
+  {
     new ezConeVisualizerAttribute(ezBasisAxis::PositiveX, "Spot Angle", 1.0f, "Range", "Light Color"),
-    new ezConeManipulatorAttribute("Spot Angle", "Range")
+    new ezConeManipulatorAttribute("Spot Angle", "Range"),
+  }
   EZ_END_ATTRIBUTES
-EZ_END_COMPONENT_TYPE();
+}
+EZ_END_COMPONENT_TYPE
 
 ezSpotLightComponent::ezSpotLightComponent()
   : m_fRange(1.0f)

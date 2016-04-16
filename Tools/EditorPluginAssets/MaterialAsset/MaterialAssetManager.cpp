@@ -5,7 +5,7 @@
 #include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezMaterialAssetDocumentManager>);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezMaterialAssetDocumentManager::ezMaterialAssetDocumentManager()
 {

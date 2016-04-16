@@ -16,7 +16,7 @@
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXWorldModule, 1, ezRTTIDefaultAllocator<ezPhysXWorldModule>);
   // no properties or message handlers
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
 PxFilterFlags ezPxFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, PxFilterObjectAttributes attributes1, PxFilterData filterData1, PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)

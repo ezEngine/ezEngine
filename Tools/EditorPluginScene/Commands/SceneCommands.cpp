@@ -8,8 +8,10 @@
 #include <Foundation/Math/Transform.h>
 #include <Foundation/Math/Random.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDuplicateObjectsCommand, 1, ezRTTIDefaultAllocator<ezDuplicateObjectsCommand>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDuplicateObjectsCommand, 1, ezRTTIDefaultAllocator<ezDuplicateObjectsCommand>)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_MEMBER_PROPERTY("JsonGraph", m_sJsonGraph),
     EZ_MEMBER_PROPERTY("ParentNodes", m_sParentNodes),
     EZ_MEMBER_PROPERTY("NumCopies", m_uiNumberOfCopies),
@@ -22,8 +24,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDuplicateObjectsCommand, 1, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("RevoleStartAngle", m_RevolveStartAngle),
     EZ_MEMBER_PROPERTY("RevolveAngleStep", m_RevolveAngleStep),
     EZ_MEMBER_PROPERTY("RevolveRadius", m_fRevolveRadius),
+  }
   EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
 

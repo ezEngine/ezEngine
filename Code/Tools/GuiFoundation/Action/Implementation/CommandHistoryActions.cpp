@@ -5,7 +5,7 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCommandHistoryAction, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezActionDescriptorHandle ezCommandHistoryActions::s_hCommandHistoryCategory;
 ezActionDescriptorHandle ezCommandHistoryActions::s_hUndo;

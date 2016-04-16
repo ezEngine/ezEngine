@@ -3,11 +3,15 @@
 #include <EnginePluginScene/RenderPipeline/EditorSelectedObjectsExtractor.h>
 #include <EnginePluginScene/SceneContext/SceneContext.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorSelectedObjectsExtractor, 1, ezRTTIDefaultAllocator<ezEditorSelectedObjectsExtractor>);
-EZ_BEGIN_PROPERTIES
-EZ_ACCESSOR_PROPERTY("SceneContext", GetSceneContext, SetSceneContext),
-EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorSelectedObjectsExtractor, 1, ezRTTIDefaultAllocator<ezEditorSelectedObjectsExtractor>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("SceneContext", GetSceneContext, SetSceneContext),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
 ezEditorSelectedObjectsExtractor::ezEditorSelectedObjectsExtractor()

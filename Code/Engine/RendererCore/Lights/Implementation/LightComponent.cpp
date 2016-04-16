@@ -5,19 +5,25 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLightRenderData, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLightRenderData, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLightComponent, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLightComponent, 1, ezRTTINoAllocator)
+{
   EZ_BEGIN_PROPERTIES
-    EZ_MEMBER_PROPERTY( "Light Color", m_LightColor ),
-    EZ_MEMBER_PROPERTY( "Intensity", m_fIntensity )->AddAttributes( new ezClampValueAttribute( 0.0f, ezVariant() ), new ezDefaultValueAttribute( 1.0f ) ),
-    EZ_MEMBER_PROPERTY( "Cast Shadows", m_bCastShadows )
+  {
+    EZ_MEMBER_PROPERTY("Light Color", m_LightColor),
+    EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("Cast Shadows", m_bCastShadows),
+  }
   EZ_END_PROPERTIES
-  EZ_BEGIN_ATTRIBUTES
+    EZ_BEGIN_ATTRIBUTES
+  {
     new ezCategoryAttribute("Rendering/Lighting"),
+  }
   EZ_END_ATTRIBUTES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezLightComponent::ezLightComponent()
   : m_LightColor(ezColor::White)

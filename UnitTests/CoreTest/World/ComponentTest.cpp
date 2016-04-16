@@ -12,7 +12,7 @@ namespace
     {
     }
 
-    virtual ezResult Initialize() override
+    virtual void Initialize() override
     {
       auto desc = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(TestComponentManager::Update, this);
       auto desc2 = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(TestComponentManager::Update2, this);
@@ -25,8 +25,6 @@ namespace
       this->RegisterUpdateFunction(desc);
       this->RegisterUpdateFunction(desc2);
       this->RegisterUpdateFunction(descAsync);
-
-      return EZ_SUCCESS;
     }
 
     void Update(ezUInt32 uiStartIndex, ezUInt32 uiCount);
@@ -92,8 +90,8 @@ namespace
   ezInt32 TestComponent::s_iAttachCounter = 0;
   bool TestComponent::s_bGOInactiveCheck = false;
 
-  EZ_BEGIN_COMPONENT_TYPE(TestComponent, 1);
-  EZ_END_COMPONENT_TYPE();
+  EZ_BEGIN_COMPONENT_TYPE(TestComponent, 1)
+  EZ_END_COMPONENT_TYPE
 
   void TestComponentManager::Update(ezUInt32 uiStartIndex, ezUInt32 uiCount)
   {

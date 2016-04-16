@@ -6,20 +6,26 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDirectionalLightRenderData, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDirectionalLightRenderData, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 1);
-/*  EZ_BEGIN_PROPERTIES
-  EZ_END_PROPERTIES*/
+EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 1)
+{
+  /*  EZ_BEGIN_PROPERTIES
+    EZ_END_PROPERTIES*/
   EZ_BEGIN_MESSAGEHANDLERS
+  {
     EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
+  }
   EZ_END_MESSAGEHANDLERS
-  EZ_BEGIN_ATTRIBUTES
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.75f, "Light Color")
+    EZ_BEGIN_ATTRIBUTES
+  {
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.75f, "Light Color"),
+  }
   EZ_END_ATTRIBUTES
-EZ_END_COMPONENT_TYPE();
+}
+EZ_END_COMPONENT_TYPE
 
 ezDirectionalLightComponent::ezDirectionalLightComponent()
 {
@@ -49,7 +55,7 @@ void ezDirectionalLightComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage
   // TODO: Infinity!
 }
 
-void ezDirectionalLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg ) const
+void ezDirectionalLightComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 {
   ezUInt32 uiBatchId = m_bCastShadows ? 0 : 1;
 

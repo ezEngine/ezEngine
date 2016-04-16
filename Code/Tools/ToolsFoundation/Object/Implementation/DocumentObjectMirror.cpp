@@ -10,23 +10,31 @@ EZ_ENUM_CONSTANTS(ezObjectChangeType::ObjectAdded, ezObjectChangeType::ObjectRem
 EZ_ENUM_CONSTANTS(ezObjectChangeType::PropertySet, ezObjectChangeType::PropertyInserted, ezObjectChangeType::PropertyRemoved)
 EZ_END_STATIC_REFLECTED_ENUM();
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezObjectChangeStep, ezNoBase, 1, ezRTTIDefaultAllocator<ezObjectChangeStep>);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("Property", m_sProperty),
-EZ_MEMBER_PROPERTY("Index", m_Index),
-EZ_MEMBER_PROPERTY("Value", m_Value),
-EZ_END_PROPERTIES
-EZ_END_STATIC_REFLECTED_TYPE();
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezObjectChangeStep, ezNoBase, 1, ezRTTIDefaultAllocator<ezObjectChangeStep>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Property", m_sProperty),
+    EZ_MEMBER_PROPERTY("Index", m_Index),
+    EZ_MEMBER_PROPERTY("Value", m_Value),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_STATIC_REFLECTED_TYPE
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezObjectChange, ezNoBase, 1, ezRTTIDefaultAllocator<ezObjectChange>);
-EZ_BEGIN_PROPERTIES
-EZ_ENUM_MEMBER_PROPERTY("Type", ezObjectChangeType, m_Type),
-EZ_MEMBER_PROPERTY("Root", m_Root),
-EZ_ARRAY_MEMBER_PROPERTY("Steps", m_Steps),
-EZ_MEMBER_PROPERTY("Change", m_Change),
-EZ_MEMBER_PROPERTY("Graph", m_GraphData),
-EZ_END_PROPERTIES
-EZ_END_STATIC_REFLECTED_TYPE();
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezObjectChange, ezNoBase, 1, ezRTTIDefaultAllocator<ezObjectChange>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ENUM_MEMBER_PROPERTY("Type", ezObjectChangeType, m_Type),
+    EZ_MEMBER_PROPERTY("Root", m_Root),
+    EZ_ARRAY_MEMBER_PROPERTY("Steps", m_Steps),
+    EZ_MEMBER_PROPERTY("Change", m_Change),
+    EZ_MEMBER_PROPERTY("Graph", m_GraphData),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_STATIC_REFLECTED_TYPE
 
 ezObjectChange::ezObjectChange(const ezObjectChange&)
 {

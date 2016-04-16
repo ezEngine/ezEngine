@@ -13,8 +13,10 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureTypeEnum, 1)
   EZ_ENUM_CONSTANTS(ezTextureTypeEnum::Unknown, ezTextureTypeEnum::Texture2D, ezTextureTypeEnum::Texture3D, ezTextureTypeEnum::TextureCube)
 EZ_END_STATIC_REFLECTED_ENUM();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 1, ezRTTIDefaultAllocator<ezTextureAssetProperties>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 1, ezRTTIDefaultAllocator<ezTextureAssetProperties>)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_ACCESSOR_PROPERTY("Texture File", GetInputFile, SetInputFile)->AddAttributes(new ezFileBrowserAttribute("Select Texture", "*.dds;*.tga")),
     /// \todo Accessor properties with enums don't link
     EZ_ENUM_MEMBER_PROPERTY("Usage", ezTextureUsageEnum, m_TextureUsage),
@@ -23,8 +25,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 1, ezRTTIDefaultAlloca
     EZ_ACCESSOR_PROPERTY_READ_ONLY("Width", GetWidth),
     EZ_ACCESSOR_PROPERTY_READ_ONLY("Height", GetHeight),
     EZ_ACCESSOR_PROPERTY_READ_ONLY("Depth", GetDepth),
+  }
   EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezTextureAssetProperties::ezTextureAssetProperties()
 {

@@ -5,7 +5,7 @@
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVirtualThumbStick, 1, ezRTTINoAllocator);
   // no properties or message handlers
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezInt32 ezVirtualThumbStick::s_iThumbsticks = 0;
 

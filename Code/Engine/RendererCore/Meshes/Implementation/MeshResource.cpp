@@ -7,7 +7,7 @@
 #include <Core/ResourceManager/ResourceManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshResource, 1, ezRTTIDefaultAllocator<ezMeshResource>);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezUInt32 ezMeshResource::s_MeshBufferNameSuffix = 0;
 

@@ -7,22 +7,30 @@
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <Core/World/World.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoHandle, 1, ezRTTINoAllocator);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("Visible", m_bVisible),
-EZ_MEMBER_PROPERTY("Transformation", m_Transformation),
-EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoHandle, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Visible", m_bVisible),
+    EZ_MEMBER_PROPERTY("Transformation", m_Transformation),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineGizmoHandle, 1, ezRTTIDefaultAllocator<ezEngineGizmoHandle>);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("HandleType", m_iHandleType),
-EZ_MEMBER_PROPERTY("Color", m_Color),
-EZ_MEMBER_PROPERTY("ConstantSize", m_bConstantSize),
-EZ_MEMBER_PROPERTY("Foreground2", m_bForeground2),
-EZ_MEMBER_PROPERTY("Visualizer", m_bVisualizer),
-EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineGizmoHandle, 1, ezRTTIDefaultAllocator<ezEngineGizmoHandle>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("HandleType", m_iHandleType),
+    EZ_MEMBER_PROPERTY("Color", m_Color),
+    EZ_MEMBER_PROPERTY("ConstantSize", m_bConstantSize),
+    EZ_MEMBER_PROPERTY("Foreground2", m_bForeground2),
+    EZ_MEMBER_PROPERTY("Visualizer", m_bVisualizer),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezGizmoHandle::ezGizmoHandle()
 {

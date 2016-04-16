@@ -7,7 +7,7 @@
 #include <Foundation/Logging/Log.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneAction, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezActionDescriptorHandle ezSceneActions::s_hSceneCategory;
 ezActionDescriptorHandle ezSceneActions::s_hUpdatePrefabs;

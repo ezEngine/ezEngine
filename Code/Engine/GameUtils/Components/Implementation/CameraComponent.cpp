@@ -12,20 +12,26 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCameraComponentUsageHint, 1)
   EZ_ENUM_CONSTANT(ezCameraComponentUsageHint::SceneThumbnail),
 EZ_END_STATIC_REFLECTED_ENUM();
 
-EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 1);
+EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 1)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_ENUM_MEMBER_PROPERTY("Usage Hint", ezCameraComponentUsageHint, m_UsageHint),
     EZ_ENUM_MEMBER_PROPERTY("Mode", ezCameraMode, m_Mode),
     EZ_MEMBER_PROPERTY("Near Plane", m_fNearPlane)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.0f, 1000000.0f)),
     EZ_MEMBER_PROPERTY("Far Plane", m_fFarPlane)->AddAttributes(new ezDefaultValueAttribute(1000.0f), new ezClampValueAttribute(0.0f, 1000000.0f)),
     EZ_MEMBER_PROPERTY("FOV (perspective)", m_fPerspectiveFieldOfView)->AddAttributes(new ezDefaultValueAttribute(60.0f), new ezClampValueAttribute(1.0f, 179.0f)),
     EZ_MEMBER_PROPERTY("Dimensions (ortho)", m_fOrthoDimension)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, 1000000.0f)),
+  }
   EZ_END_PROPERTIES
-  EZ_BEGIN_ATTRIBUTES
+    EZ_BEGIN_ATTRIBUTES
+  {
     new ezCategoryAttribute("Rendering"),
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::DarkSlateBlue)
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::DarkSlateBlue),
+  }
   EZ_END_ATTRIBUTES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezCameraComponent::ezCameraComponent()
 {

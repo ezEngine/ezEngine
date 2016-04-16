@@ -4,7 +4,7 @@
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderCompilerHLSL, 1, ezRTTIDefaultAllocator<ezShaderCompilerHLSL>);
 // no properties or message handlers
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 void OnLoadPlugin(bool bReloading) { }
 void OnUnloadPlugin(bool bReloading) { }

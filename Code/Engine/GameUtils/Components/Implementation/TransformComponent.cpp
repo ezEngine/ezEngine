@@ -3,18 +3,24 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 1, ezRTTINoAllocator)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_MEMBER_PROPERTY("Speed", m_fAnimationSpeed), // How many units per second the animation should do.
     EZ_ACCESSOR_PROPERTY("Run at Startup", GetAnimatingAtStartup, SetAnimatingAtStartup), // Whether the animation should start right away.
     EZ_ACCESSOR_PROPERTY("Reverse at Start", GetAutoReturnStart, SetAutoReturnStart), // If true, it will not stop at the end, but turn around and continue.
     EZ_ACCESSOR_PROPERTY("Reverse at End", GetAutoReturnEnd, SetAutoReturnEnd), // If true, after coming back to the start point, the animation won't stop but turn around and continue.
     EZ_ACCESSOR_PROPERTY("Auto-Toggle Direction", GetAutoToggleDirection, SetAutoToggleDirection)->AddAttributes(new ezHiddenAttribute()), // If true, the animation might stop at start/end points, but set toggle its direction state. Triggering the animation again, means it will run in the reverse direction.
+  }
   EZ_END_PROPERTIES
-  EZ_BEGIN_ATTRIBUTES
+    EZ_BEGIN_ATTRIBUTES
+  {
     new ezCategoryAttribute("Transform"),
+  }
   EZ_END_ATTRIBUTES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
 void ezTransformComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -137,7 +143,7 @@ float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration,
 
   // if the time is still within the acceleration phase, return accelerated distance
   if (fTimeSinceStartInSec.GetSeconds() <= fAccTime)
-    return 0.5f * fAcceleration * ezMath::Square((float) fTimeSinceStartInSec.GetSeconds());
+    return 0.5f * fAcceleration * ezMath::Square((float)fTimeSinceStartInSec.GetSeconds());
 
   // calculate duration and length of the path, that has maximum velocity
   const float fMaxVelDistance = fDistanceInMeters - (fAccDist + fDecDist);
@@ -145,7 +151,7 @@ float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration,
 
   // if the time is within this phase, return the accelerated path plus the constant velocity path
   if (fTimeSinceStartInSec.GetSeconds() <= fAccTime + fMaxVelTime)
-    return fAccDist + ((float) fTimeSinceStartInSec.GetSeconds() - fAccTime) * fMaxVelocity;
+    return fAccDist + ((float)fTimeSinceStartInSec.GetSeconds() - fAccTime) * fMaxVelocity;
 
   // if the time is, however, outside the whole path, just return the upper end
   if (fTimeSinceStartInSec.GetSeconds() >= fAccTime + fMaxVelTime + fDecTime)
@@ -155,7 +161,7 @@ float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration,
   }
 
   // calculate the time into the decelerated movement
-  const float fDecTime2 = (float) fTimeSinceStartInSec.GetSeconds() - (fAccTime + fMaxVelTime);
+  const float fDecTime2 = (float)fTimeSinceStartInSec.GetSeconds() - (fAccTime + fMaxVelTime);
 
   // return the distance with the decelerated movement
   return fDistanceInMeters - 0.5f * fDeceleration * ezMath::Square(fDecTime - fDecTime2);

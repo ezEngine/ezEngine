@@ -8,15 +8,19 @@
 #include <RendererCore/Meshes/MeshRenderer.h>
 #include <EnginePluginScene/SceneContext/SceneContext.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPickingRenderPass, 1, ezRTTIDefaultAllocator<ezPickingRenderPass>);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("Enable", m_bEnable),
-EZ_MEMBER_PROPERTY("PickSelected", m_bPickSelected),
-EZ_MEMBER_PROPERTY("PickingPosition", m_PickingPosition),
-EZ_ENUM_MEMBER_PROPERTY("ViewRenderMode", ezViewRenderMode, m_ViewRenderMode),
-EZ_ACCESSOR_PROPERTY("SceneContext", GetSceneContext, SetSceneContext),
-EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPickingRenderPass, 1, ezRTTIDefaultAllocator<ezPickingRenderPass>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Enable", m_bEnable),
+    EZ_MEMBER_PROPERTY("PickSelected", m_bPickSelected),
+    EZ_MEMBER_PROPERTY("PickingPosition", m_PickingPosition),
+    EZ_ENUM_MEMBER_PROPERTY("ViewRenderMode", ezViewRenderMode, m_ViewRenderMode),
+    EZ_ACCESSOR_PROPERTY("SceneContext", GetSceneContext, SetSceneContext),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezPickingRenderPass::ezPickingRenderPass() : ezRenderPipelinePass("EditorPickingRenderPass")
 {

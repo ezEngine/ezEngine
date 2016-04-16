@@ -73,7 +73,7 @@ public:
 };
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Base, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #define EZ_FASTCALL __fastcall
@@ -101,11 +101,15 @@ public:
   EZ_NO_INLINE void OnGetValueMessage(GetValueMessage& msg) { msg.m_iValue = 1; }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived1, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived1, 1, ezRTTINoAllocator)
+{
   EZ_BEGIN_MESSAGEHANDLERS
-    EZ_MESSAGE_HANDLER(GetValueMessage, OnGetValueMessage)
+  {
+    EZ_MESSAGE_HANDLER(GetValueMessage, OnGetValueMessage),
+  }
   EZ_END_MESSAGEHANDLERS
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 class Derived2 : public Base
 {
@@ -117,11 +121,15 @@ public:
   EZ_NO_INLINE void OnGetValueMessage(GetValueMessage& msg) { msg.m_iValue = 2; }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived2, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived2, 1, ezRTTINoAllocator)
+{
   EZ_BEGIN_MESSAGEHANDLERS
-    EZ_MESSAGE_HANDLER(GetValueMessage, OnGetValueMessage)
+  {
+    EZ_MESSAGE_HANDLER(GetValueMessage, OnGetValueMessage),
+  }
   EZ_END_MESSAGEHANDLERS
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_CREATE_SIMPLE_TEST(Performance, Basics)
 {

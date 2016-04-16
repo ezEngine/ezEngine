@@ -37,16 +37,20 @@ ezStringBuilder ezPropertyPath::GetPathString() const
 // ezReflectedPropertyDescriptor
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedPropertyDescriptor, ezNoBase, 1, ezRTTIDefaultAllocator<ezReflectedPropertyDescriptor>);
-EZ_BEGIN_PROPERTIES
-  EZ_ENUM_MEMBER_PROPERTY("Category", ezPropertyCategory, m_Category),
-  EZ_MEMBER_PROPERTY("Name", m_sName),
-  EZ_MEMBER_PROPERTY("Type", m_sType),
-  EZ_BITFLAGS_MEMBER_PROPERTY("Flags", ezPropertyFlags, m_Flags),
-  EZ_MEMBER_PROPERTY("ConstantValue", m_ConstantValue),
-  EZ_ARRAY_ACCESSOR_PROPERTY("Attributes", GetCount, GetValue, SetValue, Insert, Remove)->AddFlags(ezPropertyFlags::PointerOwner),
-EZ_END_PROPERTIES
-EZ_END_STATIC_REFLECTED_TYPE();
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedPropertyDescriptor, ezNoBase, 1, ezRTTIDefaultAllocator<ezReflectedPropertyDescriptor>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ENUM_MEMBER_PROPERTY("Category", ezPropertyCategory, m_Category),
+    EZ_MEMBER_PROPERTY("Name", m_sName),
+    EZ_MEMBER_PROPERTY("Type", m_sType),
+    EZ_BITFLAGS_MEMBER_PROPERTY("Flags", ezPropertyFlags, m_Flags),
+    EZ_MEMBER_PROPERTY("ConstantValue", m_ConstantValue),
+    EZ_ARRAY_ACCESSOR_PROPERTY("Attributes", GetCount, GetValue, SetValue, Insert, Remove)->AddFlags(ezPropertyFlags::PointerOwner),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_STATIC_REFLECTED_TYPE
 
 ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezVariant::Type::Enum type, ezBitflags<ezPropertyFlags> flags, const ezArrayPtr<ezPropertyAttribute* const> attributes)
   : m_Category(category), m_sName(szName), m_sType(szType), m_Flags(flags)
@@ -120,19 +124,23 @@ void ezReflectedPropertyDescriptor::Remove(ezUInt32 uiIndex)
 // ezReflectedTypeDescriptor
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedTypeDescriptor, ezNoBase, 1, ezRTTIDefaultAllocator<ezReflectedTypeDescriptor>);
-EZ_BEGIN_PROPERTIES
-  EZ_MEMBER_PROPERTY("TypeName", m_sTypeName),
-  EZ_MEMBER_PROPERTY("PluginName", m_sPluginName),
-  EZ_MEMBER_PROPERTY("ParentTypeName", m_sParentTypeName),
-  EZ_MEMBER_PROPERTY("DefaultInitialization", m_sDefaultInitialization),
-  EZ_BITFLAGS_MEMBER_PROPERTY("Flags", ezTypeFlags, m_Flags),
-  EZ_ARRAY_MEMBER_PROPERTY("Properties", m_Properties),
-  EZ_ARRAY_ACCESSOR_PROPERTY("Attributes", GetCount, GetValue, SetValue, Insert, Remove)->AddFlags(ezPropertyFlags::PointerOwner),
-  EZ_MEMBER_PROPERTY("TypeSize", m_uiTypeSize),
-  EZ_MEMBER_PROPERTY("TypeVersion", m_uiTypeVersion),
-EZ_END_PROPERTIES
-EZ_END_STATIC_REFLECTED_TYPE();
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedTypeDescriptor, ezNoBase, 1, ezRTTIDefaultAllocator<ezReflectedTypeDescriptor>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("TypeName", m_sTypeName),
+    EZ_MEMBER_PROPERTY("PluginName", m_sPluginName),
+    EZ_MEMBER_PROPERTY("ParentTypeName", m_sParentTypeName),
+    EZ_MEMBER_PROPERTY("DefaultInitialization", m_sDefaultInitialization),
+    EZ_BITFLAGS_MEMBER_PROPERTY("Flags", ezTypeFlags, m_Flags),
+    EZ_ARRAY_MEMBER_PROPERTY("Properties", m_Properties),
+    EZ_ARRAY_ACCESSOR_PROPERTY("Attributes", GetCount, GetValue, SetValue, Insert, Remove)->AddFlags(ezPropertyFlags::PointerOwner),
+    EZ_MEMBER_PROPERTY("TypeSize", m_uiTypeSize),
+    EZ_MEMBER_PROPERTY("TypeVersion", m_uiTypeVersion),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_STATIC_REFLECTED_TYPE
 
 
 ezReflectedTypeDescriptor::~ezReflectedTypeDescriptor()

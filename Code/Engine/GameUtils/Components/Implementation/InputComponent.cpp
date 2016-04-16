@@ -14,15 +14,21 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezInputMessageGranularity, 1)
   EZ_ENUM_CONSTANT(ezInputMessageGranularity::PressReleaseDownAndUp),
 EZ_END_STATIC_REFLECTED_ENUM();
 
-EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 1);
+EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 1)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_MEMBER_PROPERTY("Input Set", m_sInputSet)->AddAttributes(new ezDynamicStringEnumAttribute("InputSet")),
     EZ_ENUM_MEMBER_PROPERTY("Granularity", ezInputMessageGranularity, m_Granularity),
+  }
   EZ_END_PROPERTIES
-  EZ_BEGIN_ATTRIBUTES
+    EZ_BEGIN_ATTRIBUTES
+  {
     new ezCategoryAttribute("General"),
+  }
   EZ_END_ATTRIBUTES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezInputComponent::ezInputComponent()
 {

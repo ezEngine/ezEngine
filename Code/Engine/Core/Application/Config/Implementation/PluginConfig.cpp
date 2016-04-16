@@ -6,17 +6,25 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Configuration/Plugin.h>
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationPluginConfig, ezApplicationConfig, 1, ezRTTIDefaultAllocator<ezApplicationPluginConfig>);
-EZ_BEGIN_PROPERTIES
-EZ_ARRAY_MEMBER_PROPERTY("Plugins", m_Plugins),
-EZ_END_PROPERTIES
-EZ_END_STATIC_REFLECTED_TYPE();
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationPluginConfig, ezApplicationConfig, 1, ezRTTIDefaultAllocator<ezApplicationPluginConfig>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ARRAY_MEMBER_PROPERTY("Plugins", m_Plugins),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_STATIC_REFLECTED_TYPE
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationPluginConfig_PluginConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezApplicationPluginConfig_PluginConfig>);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("RelativePath", m_sRelativePath),
-EZ_END_PROPERTIES
-EZ_END_STATIC_REFLECTED_TYPE();
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationPluginConfig_PluginConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezApplicationPluginConfig_PluginConfig>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("RelativePath", m_sRelativePath),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_STATIC_REFLECTED_TYPE
 
 
 bool ezApplicationPluginConfig::PluginConfig::operator<(const PluginConfig& rhs) const

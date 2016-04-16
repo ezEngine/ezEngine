@@ -4,15 +4,19 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxDistanceJointComponent, 1);
+EZ_BEGIN_COMPONENT_TYPE(ezPxDistanceJointComponent, 1)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_MEMBER_PROPERTY("Min Distance", m_fMinDistance),
     EZ_MEMBER_PROPERTY("Max Distance", m_fMaxDistance),
     EZ_MEMBER_PROPERTY("Spring Stiffness", m_fSpringStiffness),
     EZ_MEMBER_PROPERTY("Spring Damping", m_fSpringDamping),
     EZ_MEMBER_PROPERTY("Spring Tolerance", m_fSpringTolerance),
+  }
   EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezPxDistanceJointComponent::ezPxDistanceJointComponent()
 {

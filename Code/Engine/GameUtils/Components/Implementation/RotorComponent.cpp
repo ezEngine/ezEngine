@@ -5,14 +5,18 @@
 
 float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, ezTime& fTimeSinceStartInSec);
 
-EZ_BEGIN_COMPONENT_TYPE(ezRotorComponent, 1);
+EZ_BEGIN_COMPONENT_TYPE(ezRotorComponent, 1)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_ENUM_MEMBER_PROPERTY("Axis", ezBasisAxis, m_Axis),
     EZ_MEMBER_PROPERTY("Degrees to Rotate", m_iDegreeToRotate),
     EZ_MEMBER_PROPERTY("Acceleration", m_fAcceleration),
     EZ_MEMBER_PROPERTY("Deceleration", m_fDeceleration),
+  }
   EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezRotorComponent::ezRotorComponent()
 {

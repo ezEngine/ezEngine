@@ -3,7 +3,6 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <GameUtils/Surfaces/SurfaceResource.h>
 
-
 class ezSurfaceAssetDocument : public ezSimpleAssetDocument<ezSurfaceResourceDescriptor>
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSurfaceAssetDocument, ezSimpleAssetDocument<ezSurfaceResourceDescriptor>);

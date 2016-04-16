@@ -14,83 +14,107 @@ EZ_END_STATIC_REFLECTED_BITFLAGS();
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAbstractTestClass, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAbstractTestStruct, ezNoBase, 1, ezRTTINoAllocator);
-EZ_END_STATIC_REFLECTED_TYPE();
+EZ_END_STATIC_REFLECTED_TYPE
 
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct, ezNoBase, 7, ezRTTINoAllocator);
-EZ_BEGIN_PROPERTIES
-  EZ_MEMBER_PROPERTY("Float", m_fFloat1),
-  EZ_MEMBER_PROPERTY_READ_ONLY("Vector", m_vProperty3),
-  EZ_ACCESSOR_PROPERTY("Int", GetInt, SetInt),
-  EZ_MEMBER_PROPERTY("UInt8", m_UInt8),
-  EZ_MEMBER_PROPERTY("Variant", m_variant),
-  EZ_MEMBER_PROPERTY("Angle", m_Angle),
-  EZ_MEMBER_PROPERTY("DataBuffer", m_DataBuffer),
-  EZ_MEMBER_PROPERTY("vVec3I", m_vVec3I),
-EZ_END_PROPERTIES
-EZ_END_STATIC_REFLECTED_TYPE();
-
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct3, ezNoBase, 71, ezRTTIDefaultAllocator<ezTestStruct3>);
-EZ_BEGIN_PROPERTIES
-  EZ_MEMBER_PROPERTY("Float", m_fFloat1),
-  EZ_ACCESSOR_PROPERTY("Int", GetInt, SetInt),
-  EZ_MEMBER_PROPERTY("UInt8", m_UInt8),
-EZ_END_PROPERTIES
-EZ_END_STATIC_REFLECTED_TYPE();
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass1, 11, ezRTTIDefaultAllocator<ezTestClass1>);
-EZ_BEGIN_PROPERTIES
-  EZ_MEMBER_PROPERTY("Sub Struct", m_Struct),
-  EZ_MEMBER_PROPERTY("Color", m_Color),
-  EZ_ACCESSOR_PROPERTY_READ_ONLY("Sub Vector", GetVector)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct, ezNoBase, 7, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Float", m_fFloat1),
+    EZ_MEMBER_PROPERTY_READ_ONLY("Vector", m_vProperty3),
+    EZ_ACCESSOR_PROPERTY("Int", GetInt, SetInt),
+    EZ_MEMBER_PROPERTY("UInt8", m_UInt8),
+    EZ_MEMBER_PROPERTY("Variant", m_variant),
+    EZ_MEMBER_PROPERTY("Angle", m_Angle),
+    EZ_MEMBER_PROPERTY("DataBuffer", m_DataBuffer),
+    EZ_MEMBER_PROPERTY("vVec3I", m_vVec3I),
+  }
   EZ_END_PROPERTIES
-  EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_STATIC_REFLECTED_TYPE
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct3, ezNoBase, 71, ezRTTIDefaultAllocator<ezTestStruct3>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Float", m_fFloat1),
+    EZ_ACCESSOR_PROPERTY("Int", GetInt, SetInt),
+    EZ_MEMBER_PROPERTY("UInt8", m_UInt8),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_STATIC_REFLECTED_TYPE
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass1, 11, ezRTTIDefaultAllocator<ezTestClass1>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Sub Struct", m_Struct),
+    EZ_MEMBER_PROPERTY("Color", m_Color),
+    EZ_ACCESSOR_PROPERTY_READ_ONLY("Sub Vector", GetVector)
+  }
+    EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezInt32 ezTestClass2Allocator::m_iAllocs = 0;
 ezInt32 ezTestClass2Allocator::m_iDeallocs = 0;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2, 22, ezTestClass2Allocator);
-EZ_BEGIN_PROPERTIES
-  EZ_ACCESSOR_PROPERTY("Text", GetText, SetText),
-  EZ_MEMBER_PROPERTY("Time", m_Time),
-  EZ_ENUM_MEMBER_PROPERTY("Enum", ezExampleEnum, m_enumClass),
-  EZ_BITFLAGS_MEMBER_PROPERTY("Bitflags", ezExampleBitflags, m_bitflagsClass),
-  EZ_ARRAY_MEMBER_PROPERTY("Array", m_array),
-  EZ_MEMBER_PROPERTY("Variant", m_Variant),
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2, 22, ezTestClass2Allocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("Text", GetText, SetText),
+    EZ_MEMBER_PROPERTY("Time", m_Time),
+    EZ_ENUM_MEMBER_PROPERTY("Enum", ezExampleEnum, m_enumClass),
+    EZ_BITFLAGS_MEMBER_PROPERTY("Bitflags", ezExampleBitflags, m_bitflagsClass),
+    EZ_ARRAY_MEMBER_PROPERTY("Array", m_array),
+    EZ_MEMBER_PROPERTY("Variant", m_Variant),
+  }
   EZ_END_PROPERTIES
-  EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2b, 24, ezRTTIDefaultAllocator<ezTestClass2b>);
-EZ_BEGIN_PROPERTIES
-  EZ_ACCESSOR_PROPERTY("Text2b", GetText, SetText),
-  EZ_MEMBER_PROPERTY("Sub Struct", m_Struct),
-  EZ_MEMBER_PROPERTY("Color", m_Color),
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2b, 24, ezRTTIDefaultAllocator<ezTestClass2b>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("Text2b", GetText, SetText),
+    EZ_MEMBER_PROPERTY("Sub Struct", m_Struct),
+    EZ_MEMBER_PROPERTY("Color", m_Color),
+  }
   EZ_END_PROPERTIES
-  EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestArrays, 1, ezRTTIDefaultAllocator<ezTestArrays>);
-EZ_BEGIN_PROPERTIES
-  EZ_ARRAY_MEMBER_PROPERTY("Hybrid", m_Hybrid),
-  EZ_ARRAY_MEMBER_PROPERTY("Dynamic", m_Dynamic),
-  EZ_ARRAY_MEMBER_PROPERTY("Deque", m_Deque),
-  EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY("HybridRO", m_Hybrid),
-  EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY("DynamicRO", m_Dynamic),
-  EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY("DequeRO", m_Deque),
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestArrays, 1, ezRTTIDefaultAllocator<ezTestArrays>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ARRAY_MEMBER_PROPERTY("Hybrid", m_Hybrid),
+    EZ_ARRAY_MEMBER_PROPERTY("Dynamic", m_Dynamic),
+    EZ_ARRAY_MEMBER_PROPERTY("Deque", m_Deque),
+    EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY("HybridRO", m_Hybrid),
+    EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY("DynamicRO", m_Dynamic),
+    EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY("DequeRO", m_Deque),
 
-  EZ_ARRAY_ACCESSOR_PROPERTY("AcHybrid", GetCount, GetValue, SetValue, Insert, Remove),
-  EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcHybridRO", GetCount, GetValue),
-  EZ_ARRAY_ACCESSOR_PROPERTY("AcHybridChar", GetCountChar, GetValueChar, SetValueChar, InsertChar, RemoveChar),
-  EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcHybridCharRO", GetCountChar, GetValueChar),
-  EZ_ARRAY_ACCESSOR_PROPERTY("AcDynamic", GetCountDyn, GetValueDyn, SetValueDyn, InsertDyn, RemoveDyn),
-  EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcDynamicRO", GetCountDyn, GetValueDyn),
-  EZ_ARRAY_ACCESSOR_PROPERTY("AcDeque", GetCountDeq, GetValueDeq, SetValueDeq, InsertDeq, RemoveDeq),
-  EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcDequeRO", GetCountDeq, GetValueDeq),
-EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+    EZ_ARRAY_ACCESSOR_PROPERTY("AcHybrid", GetCount, GetValue, SetValue, Insert, Remove),
+    EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcHybridRO", GetCount, GetValue),
+    EZ_ARRAY_ACCESSOR_PROPERTY("AcHybridChar", GetCountChar, GetValueChar, SetValueChar, InsertChar, RemoveChar),
+    EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcHybridCharRO", GetCountChar, GetValueChar),
+    EZ_ARRAY_ACCESSOR_PROPERTY("AcDynamic", GetCountDyn, GetValueDyn, SetValueDyn, InsertDyn, RemoveDyn),
+    EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcDynamicRO", GetCountDyn, GetValueDyn),
+    EZ_ARRAY_ACCESSOR_PROPERTY("AcDeque", GetCountDeq, GetValueDeq, SetValueDeq, InsertDeq, RemoveDeq),
+    EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcDequeRO", GetCountDeq, GetValueDeq),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezUInt32 ezTestArrays::GetCount() const
 {
@@ -176,19 +200,23 @@ void ezTestArrays::RemoveDeq(ezUInt32 uiIndex)
   m_Deque.RemoveAt(uiIndex);
 }
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestSets, 1, ezRTTIDefaultAllocator<ezTestSets>);
-EZ_BEGIN_PROPERTIES
-  EZ_SET_MEMBER_PROPERTY("Set", m_SetMember),
-  EZ_SET_MEMBER_PROPERTY_READ_ONLY("SetRO", m_SetMember),
-  EZ_SET_ACCESSOR_PROPERTY("AcSet", GetSet, Insert, Remove),
-  EZ_SET_ACCESSOR_PROPERTY_READ_ONLY("AcSetRO", GetSet),
-  EZ_SET_ACCESSOR_PROPERTY("AcPseudoSet", GetPseudoSet, PseudoInsert, PseudoRemove),
-  EZ_SET_ACCESSOR_PROPERTY_READ_ONLY("AcPseudoSetRO", GetPseudoSet),
-  EZ_SET_ACCESSOR_PROPERTY("AcPseudoSet2", GetPseudoSet2, PseudoInsert2, PseudoRemove2),
-  EZ_SET_ACCESSOR_PROPERTY_READ_ONLY("AcPseudoSet2RO", GetPseudoSet2),
-  EZ_SET_ACCESSOR_PROPERTY("AcPseudoSet2b", GetPseudoSet2, PseudoInsert2b, PseudoRemove2b),
-EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestSets, 1, ezRTTIDefaultAllocator<ezTestSets>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_SET_MEMBER_PROPERTY("Set", m_SetMember),
+    EZ_SET_MEMBER_PROPERTY_READ_ONLY("SetRO", m_SetMember),
+    EZ_SET_ACCESSOR_PROPERTY("AcSet", GetSet, Insert, Remove),
+    EZ_SET_ACCESSOR_PROPERTY_READ_ONLY("AcSetRO", GetSet),
+    EZ_SET_ACCESSOR_PROPERTY("AcPseudoSet", GetPseudoSet, PseudoInsert, PseudoRemove),
+    EZ_SET_ACCESSOR_PROPERTY_READ_ONLY("AcPseudoSetRO", GetPseudoSet),
+    EZ_SET_ACCESSOR_PROPERTY("AcPseudoSet2", GetPseudoSet2, PseudoInsert2, PseudoRemove2),
+    EZ_SET_ACCESSOR_PROPERTY_READ_ONLY("AcPseudoSet2RO", GetPseudoSet2),
+    EZ_SET_ACCESSOR_PROPERTY("AcPseudoSet2b", GetPseudoSet2, PseudoInsert2b, PseudoRemove2b),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 const ezSet<double>& ezTestSets::GetSet() const
 {
@@ -250,30 +278,42 @@ void ezTestSets::PseudoRemove2b(const char* value)
   m_Array.Remove(value);
 }
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestPtr, 1, ezRTTIDefaultAllocator<ezTestPtr>);
-EZ_BEGIN_PROPERTIES
-  EZ_ACCESSOR_PROPERTY("ConstCharPtr", GetString, SetString),
-  EZ_ACCESSOR_PROPERTY("ArraysPtr", GetArrays, SetArrays)->AddFlags(ezPropertyFlags::PointerOwner),
-  EZ_MEMBER_PROPERTY("ArraysPtrDirect", m_pArraysDirect)->AddFlags(ezPropertyFlags::PointerOwner),
-  EZ_ARRAY_MEMBER_PROPERTY("PtrArray", m_ArrayPtr)->AddFlags(ezPropertyFlags::PointerOwner),
-  EZ_SET_MEMBER_PROPERTY("PtrSet", m_SetPtr)->AddFlags(ezPropertyFlags::PointerOwner),
-EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
-
-
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestEnumStruct, ezNoBase, 1, ezRTTINoAllocator);
-EZ_BEGIN_PROPERTIES
-  EZ_ENUM_MEMBER_PROPERTY("m_enum", ezExampleEnum, m_enum),
-  EZ_ENUM_MEMBER_PROPERTY("m_enumClass", ezExampleEnum, m_enumClass),
-  EZ_ENUM_ACCESSOR_PROPERTY("m_enum2", ezExampleEnum, GetEnum, SetEnum),
-  EZ_ENUM_ACCESSOR_PROPERTY("m_enumClass2", ezExampleEnum,  GetEnumClass, SetEnumClass),
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestPtr, 1, ezRTTIDefaultAllocator<ezTestPtr>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("ConstCharPtr", GetString, SetString),
+    EZ_ACCESSOR_PROPERTY("ArraysPtr", GetArrays, SetArrays)->AddFlags(ezPropertyFlags::PointerOwner),
+    EZ_MEMBER_PROPERTY("ArraysPtrDirect", m_pArraysDirect)->AddFlags(ezPropertyFlags::PointerOwner),
+    EZ_ARRAY_MEMBER_PROPERTY("PtrArray", m_ArrayPtr)->AddFlags(ezPropertyFlags::PointerOwner),
+    EZ_SET_MEMBER_PROPERTY("PtrSet", m_SetPtr)->AddFlags(ezPropertyFlags::PointerOwner),
+  }
   EZ_END_PROPERTIES
-  EZ_END_STATIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestBitflagsStruct, ezNoBase, 1, ezRTTINoAllocator);
-EZ_BEGIN_PROPERTIES
-  EZ_BITFLAGS_MEMBER_PROPERTY("m_bitflagsClass", ezExampleBitflags, m_bitflagsClass),
-  EZ_BITFLAGS_ACCESSOR_PROPERTY("m_bitflagsClass2", ezExampleBitflags, GetBitflagsClass, SetBitflagsClass),
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestEnumStruct, ezNoBase, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ENUM_MEMBER_PROPERTY("m_enum", ezExampleEnum, m_enum),
+    EZ_ENUM_MEMBER_PROPERTY("m_enumClass", ezExampleEnum, m_enumClass),
+    EZ_ENUM_ACCESSOR_PROPERTY("m_enum2", ezExampleEnum, GetEnum, SetEnum),
+    EZ_ENUM_ACCESSOR_PROPERTY("m_enumClass2", ezExampleEnum,  GetEnumClass, SetEnumClass),
+  }
   EZ_END_PROPERTIES
-  EZ_END_STATIC_REFLECTED_TYPE();
+}
+EZ_END_STATIC_REFLECTED_TYPE
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestBitflagsStruct, ezNoBase, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_BITFLAGS_MEMBER_PROPERTY("m_bitflagsClass", ezExampleBitflags, m_bitflagsClass),
+    EZ_BITFLAGS_ACCESSOR_PROPERTY("m_bitflagsClass2", ezExampleBitflags, GetBitflagsClass, SetBitflagsClass),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_STATIC_REFLECTED_TYPE
 

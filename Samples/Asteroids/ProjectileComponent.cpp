@@ -7,7 +7,7 @@
 #include <Foundation/Utilities/Stats.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ProjectileComponent, 1);
-EZ_END_COMPONENT_TYPE();
+EZ_END_COMPONENT_TYPE
 
 ezCVarBool CVar_Test2("g_Bool", true, ezCVarFlags::Default, "cvar bool");
 ezCVarInt CVar_ProjectileTTL("g_ProjectileTTL", 25, ezCVarFlags::Default, "cvar int");

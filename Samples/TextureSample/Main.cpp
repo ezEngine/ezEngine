@@ -297,7 +297,7 @@ public:
          .SetDepthStencilTarget(m_hBBDSV);
 
       pContext->SetRenderTargetSetup(RTS);
-      pContext->SetViewport(0.0f, 0.0f, (float) g_uiWindowWidth, (float) g_uiWindowHeight, 0.0f, 1.0f);
+      pContext->SetViewport(ezRectFloat(0.0f, 0.0f, (float) g_uiWindowWidth, (float) g_uiWindowHeight), 0.0f, 1.0f);
       pContext->Clear(ezColor::Black);
 
       pContext->SetRasterizerState(m_hRasterizerState);
@@ -342,7 +342,7 @@ public:
           if (g_bForceImmediateLoading)
             ezResourceLock<ezTextureResource> l(hTexture, ezResourceAcquireMode::NoFallback);
 
-          ezRenderContext::GetDefaultInstance()->BindTexture("TexDiffuse", hTexture);
+          ezRenderContext::GetDefaultInstance()->BindTexture(ezGALShaderStage::PixelShader, "TexDiffuse", hTexture);
           ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hQuadMeshBuffer);
           ezRenderContext::GetDefaultInstance()->DrawMeshBuffer();
         }

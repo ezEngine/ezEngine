@@ -5,7 +5,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ezPxFixedJointComponent, 1);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezPxFixedJointComponent::ezPxFixedJointComponent()
 {

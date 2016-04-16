@@ -7,7 +7,7 @@
 EZ_BEGIN_COMPONENT_TYPE(ezPxCenterOfMassComponent, 1);
   //EZ_BEGIN_PROPERTIES
   //EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezPxCenterOfMassComponent::ezPxCenterOfMassComponent()
 {

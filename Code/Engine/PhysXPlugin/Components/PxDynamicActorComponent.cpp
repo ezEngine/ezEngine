@@ -6,16 +6,20 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <PhysXPlugin/Shapes/PxShapeComponent.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 1);
+EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 1)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_ACCESSOR_PROPERTY("Kinematic", GetKinematic, SetKinematic),
     EZ_MEMBER_PROPERTY("Mass", m_fMass),
     EZ_MEMBER_PROPERTY("Density", m_fDensity)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_ACCESSOR_PROPERTY("Disable Gravity", GetDisableGravity, SetDisableGravity),
     EZ_MEMBER_PROPERTY("Linear Damping", m_fLinearDamping)->AddAttributes(new ezDefaultValueAttribute(0.1f)),
     EZ_MEMBER_PROPERTY("Angular Damping", m_fAngularDamping)->AddAttributes(new ezDefaultValueAttribute(0.05f)),
+  }
   EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezPxDynamicActorComponent::ezPxDynamicActorComponent()
 {

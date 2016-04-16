@@ -2,7 +2,7 @@
 #include <EditorFramework/Gizmos/GizmoBase.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmo, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezGizmo::ezGizmo()
 {

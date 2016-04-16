@@ -1,8 +1,10 @@
 #include <Core/PCH.h>
 #include <Core/World/World.h>
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator);
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
     EZ_ACCESSOR_PROPERTY("LocalPosition", GetLocalPosition, SetLocalPosition),
     EZ_ACCESSOR_PROPERTY("LocalRotation", GetLocalRotation, SetLocalRotation),
@@ -11,18 +13,22 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator);
     EZ_SET_MEMBER_PROPERTY("Tags", m_Tags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
     EZ_SET_ACCESSOR_PROPERTY("Children", Reflection_GetChildren, Reflection_AddChild, Reflection_DetachChild)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
     EZ_SET_ACCESSOR_PROPERTY("Components", Reflection_GetComponents, Reflection_AddComponent, Reflection_RemoveComponent)->AddFlags(ezPropertyFlags::PointerOwner),
+  }
   EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
-    EZ_MESSAGE_HANDLER(ezDeleteObjectMessage, OnDeleteObject)
+  {
+    EZ_MESSAGE_HANDLER(ezDeleteObjectMessage, OnDeleteObject),
+  }
   EZ_END_MESSAGEHANDLERS
-EZ_END_STATIC_REFLECTED_TYPE();
+}
+EZ_END_STATIC_REFLECTED_TYPE
 
 void ezGameObject::Reflection_AddChild(ezGameObject* pChild)
 {
   AddChild(pChild->GetHandle(), TransformPreservation::PreserveLocal);
 }
 
-void ezGameObject::Reflection_DetachChild(ezGameObject* pChild) 
+void ezGameObject::Reflection_DetachChild(ezGameObject* pChild)
 {
   DetachChild(pChild->GetHandle(), TransformPreservation::PreserveLocal);
 }
@@ -59,7 +65,7 @@ void ezGameObject::operator=(const ezGameObject& other)
   m_ParentIndex = other.m_ParentIndex;
   m_FirstChildIndex = other.m_FirstChildIndex;
   m_LastChildIndex = other.m_LastChildIndex;
- 
+
   m_NextSiblingIndex = other.m_NextSiblingIndex;
   m_PrevSiblingIndex = other.m_PrevSiblingIndex;
   m_ChildCount = other.m_ChildCount;
@@ -207,7 +213,7 @@ void ezGameObject::UpdateLocalBounds()
   msg.m_ResultingLocalBounds.SetInvalid();
 
   SendMessage(msg);
-  
+
   m_pTransformationData->m_localBounds = msg.m_ResultingLocalBounds;
 }
 
@@ -226,7 +232,7 @@ ezResult ezGameObject::AttachComponent(ezComponent* pComponent)
 {
   EZ_ASSERT_DEV(pComponent->m_pOwner == nullptr, "Component must not be added twice.");
   EZ_ASSERT_DEV(IsDynamic() || !pComponent->IsDynamic(),
-    "Cannot attach a dynamic component to a static object. Call MakeDynamic() first.");
+                "Cannot attach a dynamic component to a static object. Call MakeDynamic() first.");
 
   pComponent->m_pOwner = this;
   m_Components.PushBack(pComponent);
@@ -242,8 +248,8 @@ ezResult ezGameObject::DetachComponent(const ezComponentHandle& component)
   if (m_pWorld->TryGetComponent(component, pComponent))
   {
     return DetachComponent(pComponent);
-  }  
-  
+  }
+
   return EZ_FAILURE;
 }
 
@@ -255,10 +261,10 @@ ezResult ezGameObject::DetachComponent(ezComponent* pComponent)
 
   if (pComponent->IsInitialized())
     pComponent->OnBeforeDetachedFromObject();
-  
+
   pComponent->m_pOwner = nullptr;
   m_Components.RemoveAtSwap(uiIndex);
-  
+
   return EZ_SUCCESS;
 }
 
@@ -275,13 +281,13 @@ void ezGameObject::FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPt
 }
 
 void ezGameObject::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType,
-  ezObjectMsgRouting::Enum routing)
+                               ezObjectMsgRouting::Enum routing)
 {
   m_pWorld->PostMessage(GetHandle(), msg, queueType, routing);
 }
 
 void ezGameObject::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay,
-  ezObjectMsgRouting::Enum routing)
+                               ezObjectMsgRouting::Enum routing)
 {
   m_pWorld->PostMessage(GetHandle(), msg, queueType, delay, routing);
 }

@@ -10,12 +10,16 @@ public:
   float v;
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Blubb, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Blubb, 1, ezRTTINoAllocator)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_MEMBER_PROPERTY("u", u),
-    EZ_MEMBER_PROPERTY("v", v)
+    EZ_MEMBER_PROPERTY("v", v),
+  }
   EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 template <typename T>
 inline void TestIntegerVariant(ezVariant::Type::Enum type)

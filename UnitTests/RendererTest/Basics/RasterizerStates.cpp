@@ -136,7 +136,7 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
 
   m_pDevice->GetPrimaryContext()->SetRasterizerState(hState);
 
-  m_pDevice->GetPrimaryContext()->SetScissorRect(100, 50, GetResolution().width / 2, GetResolution().height / 2);
+  m_pDevice->GetPrimaryContext()->SetScissorRect(ezRectU32(100, 50, GetResolution().width / 2, GetResolution().height / 2));
 
   RenderObjects(ezShaderBindFlags::NoRasterizerState);
 

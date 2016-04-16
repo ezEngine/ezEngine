@@ -158,7 +158,7 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
     static ezBitflags<ezTypeFlags> flags = ezInternal::DetermineTypeFlags<Type>();\
     static ezArrayPtr<ezAbstractProperty*> Properties;                \
     static ezArrayPtr<ezPropertyAttribute*> Attributes;               \
-    static ezArrayPtr<ezAbstractMessageHandler*> MessageHandlers      \
+    static ezArrayPtr<ezAbstractMessageHandler*> MessageHandlers;     \
 
 /// \endcond
 
@@ -182,37 +182,37 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
     
 
 /// \brief Ends the reflection code block that was opened with EZ_BEGIN_STATIC_REFLECTED_TYPE.
-#define EZ_END_STATIC_REFLECTED_TYPE()                              \
+#define EZ_END_STATIC_REFLECTED_TYPE                                \
     return ezRTTI(GetTypeName(),                                    \
       ezGetStaticRTTI<OwnBaseType>(),                               \
       sizeof(OwnType),                                              \
       GetTypeVersion(),                                             \
       ezVariant::TypeDeduction<OwnType>::value,                     \
       flags,                                                        \
-      &Allocator, Properties, Attributes, MessageHandlers, nullptr);            \
+      &Allocator, Properties, Attributes, MessageHandlers, nullptr);\
   }
 
 
 /// \brief Within a EZ_BEGIN_REFLECTED_TYPE / EZ_END_REFLECTED_TYPE block, use this to start the block that declares all the properties.
 #define EZ_BEGIN_PROPERTIES                                                   \
     static ezAbstractProperty* PropertyList[] =                               \
-    {                                                                         \
+                                                                              \
 
 
 /// \brief Ends the block to declare properties that was started with EZ_BEGIN_PROPERTIES.
 #define EZ_END_PROPERTIES                                                     \
-    };                                                                        \
+     ;                                                                        \
   Properties = PropertyList;                                                  \
 
 /// \brief Within a EZ_BEGIN_REFLECTED_TYPE / EZ_END_REFLECTED_TYPE block, use this to start the block that declares all the attributes.
 #define EZ_BEGIN_ATTRIBUTES                                                   \
     static ezPropertyAttribute* AttributeList[] =                             \
-    {                                                                         \
+                                                                              \
 
 
 /// \brief Ends the block to declare attributes that was started with EZ_BEGIN_ATTRIBUTES.
 #define EZ_END_ATTRIBUTES                                                     \
-    };                                                                        \
+     ;                                                                        \
   Attributes = AttributeList;                                                 \
 
 /// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a function property.
@@ -487,12 +487,14 @@ EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Value), (Storage)Value)                     \
   EZ_BEGIN_STATIC_REFLECTED_TYPE(Type, ezEnumBase, Version, ezRTTINoAllocator); \
   typedef Type::StorageType Storage;                                            \
   EZ_BEGIN_PROPERTIES                                                           \
-  EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Type::Default), (Storage)Type::Default),    \
+  {                                                                             \
+    EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Type::Default), (Storage)Type::Default),  \
 
 #define EZ_END_STATIC_REFLECTED_ENUM()                                        \
+  }                                                                           \
   EZ_END_PROPERTIES                                                           \
   flags |= ezTypeFlags::IsEnum;                                               \
-  EZ_END_STATIC_REFLECTED_TYPE();                                             \
+  EZ_END_STATIC_REFLECTED_TYPE                                             \
 
 
 /// \brief Implements the necessary functionality for bitflags to be statically reflectable.
@@ -505,23 +507,25 @@ EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Value), (Storage)Value)                     \
   EZ_BEGIN_STATIC_REFLECTED_TYPE(Type, ezBitflagsBase, Version, ezRTTINoAllocator); \
   typedef Type::StorageType Storage;                                                \
   EZ_BEGIN_PROPERTIES                                                               \
-  EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Type::Default), (Storage)Type::Default),        \
+  {                                                                                 \
+    EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Type::Default), (Storage)Type::Default),      \
 
 #define EZ_END_STATIC_REFLECTED_BITFLAGS()                                    \
+  }                                                                           \
   EZ_END_PROPERTIES                                                           \
   flags |= ezTypeFlags::Bitflags;                                             \
-  EZ_END_STATIC_REFLECTED_TYPE();                                             \
+  EZ_END_STATIC_REFLECTED_TYPE                                             \
 
 
 
 /// \brief Within an EZ_BEGIN_REFLECTED_TYPE / EZ_END_REFLECTED_TYPE block, use this to start the block that declares all the message handlers.
 #define EZ_BEGIN_MESSAGEHANDLERS                                              \
     static ezAbstractMessageHandler* HandlerList[] =                          \
-    {                                                                         \
+
 
 /// \brief Ends the block to declare message handlers that was started with EZ_BEGIN_MESSAGEHANDLERS.
 #define EZ_END_MESSAGEHANDLERS                                                \
-    };                                                                        \
+    ;                                                                         \
   MessageHandlers = HandlerList;                                              \
 
 

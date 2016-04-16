@@ -2,89 +2,129 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAttribute, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAttribute, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReadOnlyAttribute, 1, ezRTTIDefaultAllocator<ezReadOnlyAttribute>);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReadOnlyAttribute, 1, ezRTTIDefaultAllocator<ezReadOnlyAttribute>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezHiddenAttribute, 1, ezRTTIDefaultAllocator<ezHiddenAttribute>);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezHiddenAttribute, 1, ezRTTIDefaultAllocator<ezHiddenAttribute>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCategoryAttribute, 1, ezRTTIDefaultAllocator<ezCategoryAttribute>);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("Category", m_sCategory)
-EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCategoryAttribute, 1, ezRTTIDefaultAllocator<ezCategoryAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Category", m_sCategory),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDefaultValueAttribute, 1, ezRTTIDefaultAllocator<ezDefaultValueAttribute>);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("Value", m_Value),
-EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDefaultValueAttribute, 1, ezRTTIDefaultAllocator<ezDefaultValueAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Value", m_Value),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClampValueAttribute, 1, ezRTTIDefaultAllocator<ezClampValueAttribute>);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("Min", m_MinValue),
-EZ_MEMBER_PROPERTY("Max", m_MaxValue),
-EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClampValueAttribute, 1, ezRTTIDefaultAllocator<ezClampValueAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Min", m_MinValue),
+    EZ_MEMBER_PROPERTY("Max", m_MaxValue),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeWidgetAttribute, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeWidgetAttribute, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezContainerWidgetAttribute, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezContainerWidgetAttribute, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTagSetWidgetAttribute, 1, ezRTTIDefaultAllocator<ezTagSetWidgetAttribute>);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("Filter", m_sTagFilter)
-EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTagSetWidgetAttribute, 1, ezRTTIDefaultAllocator<ezTagSetWidgetAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Filter", m_sTagFilter),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezContainerAttribute, 1, ezRTTIDefaultAllocator<ezContainerAttribute>);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("CanAdd", m_bCanAdd),
-EZ_MEMBER_PROPERTY("CanDelete", m_bCanDelete),
-EZ_MEMBER_PROPERTY("CanMove", m_bCanMove),
-EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezContainerAttribute, 1, ezRTTIDefaultAllocator<ezContainerAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("CanAdd", m_bCanAdd),
+    EZ_MEMBER_PROPERTY("CanDelete", m_bCanDelete),
+    EZ_MEMBER_PROPERTY("CanMove", m_bCanMove),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFileBrowserAttribute, 1, ezRTTIDefaultAllocator<ezFileBrowserAttribute>);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("Title", m_sDialogTitle),
-EZ_MEMBER_PROPERTY("Filter", m_sTypeFilter)
-EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFileBrowserAttribute, 1, ezRTTIDefaultAllocator<ezFileBrowserAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Title", m_sDialogTitle),
+    EZ_MEMBER_PROPERTY("Filter", m_sTypeFilter),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetBrowserAttribute, 1, ezRTTIDefaultAllocator<ezAssetBrowserAttribute>);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("Filter", m_sTypeFilter)
-EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetBrowserAttribute, 1, ezRTTIDefaultAllocator<ezAssetBrowserAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Filter", m_sTypeFilter),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicEnumAttribute, 1, ezRTTIDefaultAllocator<ezDynamicEnumAttribute>);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("DynamicEnum", m_sDynamicEnumName)
-EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicEnumAttribute, 1, ezRTTIDefaultAllocator<ezDynamicEnumAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+   EZ_MEMBER_PROPERTY("DynamicEnum", m_sDynamicEnumName),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicStringEnumAttribute, 1, ezRTTIDefaultAllocator<ezDynamicStringEnumAttribute>);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("DynamicEnum", m_sDynamicEnumName)
-EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicStringEnumAttribute, 1, ezRTTIDefaultAllocator<ezDynamicStringEnumAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("DynamicEnum", m_sDynamicEnumName),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezManipulatorAttribute, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezManipulatorAttribute, 1, ezRTTINoAllocator)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_MEMBER_PROPERTY("Property1", m_sProperty1),
     EZ_MEMBER_PROPERTY("Property2", m_sProperty2),
     EZ_MEMBER_PROPERTY("Property3", m_sProperty3),
     EZ_MEMBER_PROPERTY("Property4", m_sProperty4),
+  }
   EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
 ezManipulatorAttribute::ezManipulatorAttribute(const char* szProperty1, const char* szProperty2 /*= nullptr*/, const char* szProperty3 /*= nullptr*/, const char* szProperty4 /*= nullptr*/)
@@ -97,8 +137,8 @@ ezManipulatorAttribute::ezManipulatorAttribute(const char* szProperty1, const ch
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSphereManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezSphereManipulatorAttribute>);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSphereManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezSphereManipulatorAttribute>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezSphereManipulatorAttribute::ezSphereManipulatorAttribute()
   : ezManipulatorAttribute(nullptr)
@@ -114,11 +154,13 @@ ezSphereManipulatorAttribute::ezSphereManipulatorAttribute(const char* szOuterRa
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCapsuleManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezCapsuleManipulatorAttribute>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCapsuleManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezCapsuleManipulatorAttribute>)
+{
   //EZ_BEGIN_PROPERTIES
   //  EZ_ENUM_MEMBER_PROPERTY("axis", ezBasisAxis, m_Axis)
   //EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezCapsuleManipulatorAttribute::ezCapsuleManipulatorAttribute()
   : ezManipulatorAttribute(nullptr)
@@ -134,8 +176,8 @@ ezCapsuleManipulatorAttribute::ezCapsuleManipulatorAttribute(const char* szLengt
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoxManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezBoxManipulatorAttribute>);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoxManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezBoxManipulatorAttribute>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezBoxManipulatorAttribute::ezBoxManipulatorAttribute()
   : ezManipulatorAttribute(nullptr)
@@ -150,11 +192,15 @@ ezBoxManipulatorAttribute::ezBoxManipulatorAttribute(const char* szSize)
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConeManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezConeManipulatorAttribute>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConeManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezConeManipulatorAttribute>)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_MEMBER_PROPERTY("scale", m_fScale),
+  }
   EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezConeManipulatorAttribute::ezConeManipulatorAttribute()
   : ezManipulatorAttribute(nullptr)
@@ -175,14 +221,18 @@ ezConeManipulatorAttribute::ezConeManipulatorAttribute(const char* szAngleProper
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualizerAttribute, 1, ezRTTINoAllocator);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("Property1", m_sProperty1),
-EZ_MEMBER_PROPERTY("Property2", m_sProperty2),
-EZ_MEMBER_PROPERTY("Property3", m_sProperty3),
-EZ_MEMBER_PROPERTY("Property4", m_sProperty4),
-EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualizerAttribute, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Property1", m_sProperty1),
+    EZ_MEMBER_PROPERTY("Property2", m_sProperty2),
+    EZ_MEMBER_PROPERTY("Property3", m_sProperty3),
+    EZ_MEMBER_PROPERTY("Property4", m_sProperty4),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
 ezVisualizerAttribute::ezVisualizerAttribute(const char* szProperty1, const char* szProperty2 /*= nullptr*/, const char* szProperty3 /*= nullptr*/, const char* szProperty4 /*= nullptr*/)
@@ -195,11 +245,15 @@ ezVisualizerAttribute::ezVisualizerAttribute(const char* szProperty1, const char
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoxVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezBoxVisualizerAttribute>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoxVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezBoxVisualizerAttribute>)
+{
   EZ_BEGIN_PROPERTIES
-    EZ_MEMBER_PROPERTY("color", m_Color)
+  {
+    EZ_MEMBER_PROPERTY("color", m_Color),
+  }
   EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezBoxVisualizerAttribute::ezBoxVisualizerAttribute()
   : ezVisualizerAttribute(nullptr)
@@ -220,11 +274,15 @@ ezBoxVisualizerAttribute::ezBoxVisualizerAttribute(const char* szSizeProperty, c
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSphereVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezSphereVisualizerAttribute>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSphereVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezSphereVisualizerAttribute>)
+{
   EZ_BEGIN_PROPERTIES
-    EZ_MEMBER_PROPERTY("color", m_Color)
+  {
+    EZ_MEMBER_PROPERTY("color", m_Color),
+  }
   EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezSphereVisualizerAttribute::ezSphereVisualizerAttribute()
   : ezVisualizerAttribute(nullptr)
@@ -246,11 +304,15 @@ ezSphereVisualizerAttribute::ezSphereVisualizerAttribute(const char* szRadiusPro
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCapsuleVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezCapsuleVisualizerAttribute>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCapsuleVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezCapsuleVisualizerAttribute>)
+{
   EZ_BEGIN_PROPERTIES
-    EZ_MEMBER_PROPERTY("color", m_Color)
+  {
+    EZ_MEMBER_PROPERTY("color", m_Color),
+  }
   EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezCapsuleVisualizerAttribute::ezCapsuleVisualizerAttribute()
   : ezVisualizerAttribute(nullptr)
@@ -272,12 +334,16 @@ ezCapsuleVisualizerAttribute::ezCapsuleVisualizerAttribute(const char* szHeightP
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDirectionVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezDirectionVisualizerAttribute>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDirectionVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezDirectionVisualizerAttribute>)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_ENUM_MEMBER_PROPERTY("axis", ezBasisAxis, m_Axis),
-    EZ_MEMBER_PROPERTY("color", m_Color)
+    EZ_MEMBER_PROPERTY("color", m_Color),
+  }
   EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute()
   : ezVisualizerAttribute(nullptr)
@@ -302,13 +368,17 @@ ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(ezBasisAxis::Enum
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConeVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezConeVisualizerAttribute>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConeVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezConeVisualizerAttribute>)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_ENUM_MEMBER_PROPERTY("axis", ezBasisAxis, m_Axis),
     EZ_MEMBER_PROPERTY("color", m_Color),
     EZ_MEMBER_PROPERTY("scale", m_fScale),
+  }
   EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezConeVisualizerAttribute::ezConeVisualizerAttribute()
   : ezVisualizerAttribute(nullptr)

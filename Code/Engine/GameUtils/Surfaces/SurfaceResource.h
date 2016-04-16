@@ -3,25 +3,7 @@
 #include <GameUtils/Basics.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Reflection/Reflection.h>
-
-typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
-
-struct EZ_GAMEUTILS_DLL ezSurfaceResourceDescriptor : public ezReflectedClass
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezSurfaceResourceDescriptor, ezReflectedClass);
-public:
-
-  void Load(ezStreamReader& stream);
-  void Save(ezStreamWriter& stream) const;
-
-  void SetBaseSurfaceFile(const char* szFile);
-  const char* GetBaseSurfaceFile() const;
-
-  ezSurfaceResourceHandle m_hBaseSurface;
-  float m_fPhysicsRestitution;
-  float m_fPhysicsFrictionStatic;
-  float m_fPhysicsFrictionDynamic;
-};
+#include <GameUtils/Surfaces/SurfaceResourceDescriptor.h>
 
 class EZ_GAMEUTILS_DLL ezSurfaceResource : public ezResource<ezSurfaceResource, ezSurfaceResourceDescriptor>
 {

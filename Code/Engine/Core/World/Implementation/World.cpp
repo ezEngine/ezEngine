@@ -8,7 +8,7 @@
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezWorldModule, 1, ezRTTINoAllocator);
 // no properties or message handlers
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 static ezProfilingId s_PreAsyncProfilingID = ezProfilingSystem::CreateId("Pre-Async Phase");
 static ezProfilingId s_AsyncProfilingID = ezProfilingSystem::CreateId("Async Phase");

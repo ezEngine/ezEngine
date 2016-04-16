@@ -5,7 +5,7 @@
 #include <Foundation/Time/Clock.h>
 
 EZ_BEGIN_COMPONENT_TYPE(AsteroidComponent, 1);
-EZ_END_COMPONENT_TYPE();
+EZ_END_COMPONENT_TYPE
 
 ezCVarFloat CVar_AsteroidMaxDist("g_AsteroidMaxDist", 4.0f, ezCVarFlags::Default, "cvar float");
 ezCVarFloat CVar_AsteroidPush("g_AsteroidPush", 0.06f, ezCVarFlags::Default, "cvar float");

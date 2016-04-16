@@ -7,7 +7,7 @@
 #include <QDesktopWidget>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConeGizmo, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezConeGizmo::ezConeGizmo()
 {

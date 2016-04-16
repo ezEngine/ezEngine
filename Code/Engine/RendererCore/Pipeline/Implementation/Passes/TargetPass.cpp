@@ -8,8 +8,10 @@
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTargetPass, 1, ezRTTIDefaultAllocator<ezTargetPass>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTargetPass, 1, ezRTTIDefaultAllocator<ezTargetPass>)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_MEMBER_PROPERTY("Color0", m_PinColor0),
     EZ_MEMBER_PROPERTY("Color1", m_PinColor1),
     EZ_MEMBER_PROPERTY("Color2", m_PinColor2),
@@ -18,9 +20,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTargetPass, 1, ezRTTIDefaultAllocator<ezTarget
     EZ_MEMBER_PROPERTY("Color5", m_PinColor5),
     EZ_MEMBER_PROPERTY("Color6", m_PinColor6),
     EZ_MEMBER_PROPERTY("Color7", m_PinColor7),
-    EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil)
+    EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
+  }
   EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezTargetPass::ezTargetPass(const char* szName) : ezRenderPipelinePass(szName)
 {

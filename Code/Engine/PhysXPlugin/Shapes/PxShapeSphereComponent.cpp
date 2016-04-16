@@ -4,15 +4,21 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxShapeSphereComponent, 1);
+EZ_BEGIN_COMPONENT_TYPE(ezPxShapeSphereComponent, 1)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f)),
+  }
   EZ_END_PROPERTIES
-  EZ_BEGIN_ATTRIBUTES
+    EZ_BEGIN_ATTRIBUTES
+  {
     new ezSphereManipulatorAttribute("Radius"),
-    new ezSphereVisualizerAttribute("Radius")
+    new ezSphereVisualizerAttribute("Radius"),
+  }
   EZ_END_ATTRIBUTES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezPxShapeSphereComponent::ezPxShapeSphereComponent()
 {

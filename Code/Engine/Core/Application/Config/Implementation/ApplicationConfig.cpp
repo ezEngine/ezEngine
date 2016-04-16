@@ -2,7 +2,7 @@
 #include <Core/Application/Config/ApplicationConfig.h>
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationConfig, ezNoBase, 1, ezRTTINoAllocator );
-EZ_END_STATIC_REFLECTED_TYPE();
+EZ_END_STATIC_REFLECTED_TYPE
 
 ezString ezApplicationConfig::s_sProjectDir;
 

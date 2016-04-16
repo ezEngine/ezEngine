@@ -7,15 +7,19 @@
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <RendererCore/Pipeline/Extractor.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezView, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezView, 1, ezRTTINoAllocator)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_MEMBER_PROPERTY("RenderTarget0", m_PinRenderTarget0),
     EZ_MEMBER_PROPERTY("RenderTarget1", m_PinRenderTarget1),
     EZ_MEMBER_PROPERTY("RenderTarget2", m_PinRenderTarget2),
     EZ_MEMBER_PROPERTY("RenderTarget3", m_PinRenderTarget3),
-    EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil)
+    EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
+  }
   EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezView::ezView()
   : m_ExtractTask("", ezMakeDelegate(&ezView::ExtractData, this))

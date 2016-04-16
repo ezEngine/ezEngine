@@ -9,7 +9,7 @@
 #include <RendererFoundation/Context/Context.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConstantBufferResource, 1, ezRTTIDefaultAllocator<ezConstantBufferResource>);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
 ezConstantBufferResource::ezConstantBufferResource() : ezResource<ezConstantBufferResource, ezConstantBufferResourceDescriptorBase>(DoUpdate::OnAnyThread, 1)

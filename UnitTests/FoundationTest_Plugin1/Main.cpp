@@ -103,10 +103,14 @@ struct ezTestStruct2
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTestStruct2);
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct2, ezNoBase, 1, ezRTTIDefaultAllocator<ezTestStruct2>);
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct2, ezNoBase, 1, ezRTTIDefaultAllocator<ezTestStruct2>)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_MEMBER_PROPERTY("Float 2", m_fFloat2),
+  }
   EZ_END_PROPERTIES
-EZ_END_STATIC_REFLECTED_TYPE();
+}
+EZ_END_STATIC_REFLECTED_TYPE
 
 

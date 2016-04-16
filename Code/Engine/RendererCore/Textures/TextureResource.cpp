@@ -43,7 +43,7 @@ EZ_END_SUBSYSTEM_DECLARATION
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureResource, 1, ezRTTIDefaultAllocator<ezTextureResource>);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 bool ezTextureResource::s_bForceFullQualityAlways = false;
 

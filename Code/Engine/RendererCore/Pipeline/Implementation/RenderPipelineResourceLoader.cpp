@@ -22,13 +22,17 @@ struct ConnectionInternal
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ConnectionInternal);
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ConnectionInternal, ezNoBase, 1, ezRTTIDefaultAllocator<ConnectionInternal>);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("SourcePin", m_SourcePin),
-EZ_MEMBER_PROPERTY("Target", m_Target),
-EZ_MEMBER_PROPERTY("TargetPin", m_TargetPin),
-EZ_END_PROPERTIES
-EZ_END_STATIC_REFLECTED_TYPE();
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ConnectionInternal, ezNoBase, 1, ezRTTIDefaultAllocator<ConnectionInternal>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("SourcePin", m_SourcePin),
+    EZ_MEMBER_PROPERTY("Target", m_Target),
+    EZ_MEMBER_PROPERTY("TargetPin", m_TargetPin),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_STATIC_REFLECTED_TYPE
 
 struct NodeDataInternal
 {
@@ -37,12 +41,16 @@ struct NodeDataInternal
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, NodeDataInternal);
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(NodeDataInternal, ezNoBase, 1, ezRTTIDefaultAllocator<NodeDataInternal>);
-EZ_BEGIN_PROPERTIES
-EZ_MEMBER_PROPERTY("Node::Pos", m_NodePos),
-EZ_ARRAY_MEMBER_PROPERTY("Node::Connections", m_Connections),
-EZ_END_PROPERTIES
-EZ_END_STATIC_REFLECTED_TYPE();
+EZ_BEGIN_STATIC_REFLECTED_TYPE(NodeDataInternal, ezNoBase, 1, ezRTTIDefaultAllocator<NodeDataInternal>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Node::Pos", m_NodePos),
+    EZ_ARRAY_MEMBER_PROPERTY("Node::Connections", m_Connections),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_STATIC_REFLECTED_TYPE
 
 
 void ezRenderPipelineRttiConverterContext::Clear()

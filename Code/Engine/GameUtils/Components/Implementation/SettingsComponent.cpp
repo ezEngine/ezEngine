@@ -3,13 +3,17 @@
 //#include <Core/WorldSerializer/WorldWriter.h>
 //#include <Core/WorldSerializer/WorldReader.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSettingsComponent, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSettingsComponent, 1, ezRTTINoAllocator)
+{
   //EZ_BEGIN_PROPERTIES
   //EZ_END_PROPERTIES
   EZ_BEGIN_ATTRIBUTES
+  {
     new ezCategoryAttribute("Settings"),
+  }
   EZ_END_ATTRIBUTES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezSettingsComponent::ezSettingsComponent()
 {

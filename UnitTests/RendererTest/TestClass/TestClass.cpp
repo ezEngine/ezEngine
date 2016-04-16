@@ -187,7 +187,7 @@ void ezGraphicsTest::ClearScreen(const ezColor& color)
      .SetDepthStencilTarget(pPrimarySwapChain->GetDepthStencilTargetView());
 
   pContext->SetRenderTargetSetup(RTS);
-  pContext->SetViewport(0.0f, 0.0f, (float) m_pWindow->GetClientAreaSize().width, (float) m_pWindow->GetClientAreaSize().height, 0.0f, 1.0f);
+  pContext->SetViewport(ezRectFloat(0.0f, 0.0f, (float) m_pWindow->GetClientAreaSize().width, (float) m_pWindow->GetClientAreaSize().height), 0.0f, 1.0f);
   pContext->Clear(color);
 }
 

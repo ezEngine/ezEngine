@@ -57,7 +57,7 @@
   EZ_RTTIINFO_GETRTTI_IMPL_BEGIN(Type, AllocatorType)
 
 /// \brief Ends the reflection code block that was opened with EZ_BEGIN_DYNAMIC_REFLECTED_TYPE.
-#define EZ_END_DYNAMIC_REFLECTED_TYPE()                                             \
+#define EZ_END_DYNAMIC_REFLECTED_TYPE                                               \
     return ezRTTI(GetTypeName(),                                                    \
       ezGetStaticRTTI<OwnBaseType>(),                                               \
       sizeof(OwnType),                                                              \

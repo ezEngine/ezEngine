@@ -9,7 +9,7 @@
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceAssetDocument, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezSurfaceAssetDocument::ezSurfaceAssetDocument(const char* szDocumentPath) : ezSimpleAssetDocument<ezSurfaceResourceDescriptor>(szDocumentPath)
 {

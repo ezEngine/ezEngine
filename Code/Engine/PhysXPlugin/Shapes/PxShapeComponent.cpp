@@ -4,15 +4,21 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
-EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxShapeComponent, 1);
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxShapeComponent, 1)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_ACCESSOR_PROPERTY("Surface", GetSurfaceFile, SetSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
     EZ_MEMBER_PROPERTY("Collision Layer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
+  }
   EZ_END_PROPERTIES
-  EZ_BEGIN_ATTRIBUTES
+    EZ_BEGIN_ATTRIBUTES
+  {
     new ezCategoryAttribute("Physics/Shapes"),
+  }
   EZ_END_ATTRIBUTES
-EZ_END_ABSTRACT_COMPONENT_TYPE();
+}
+EZ_END_ABSTRACT_COMPONENT_TYPE
 
 ezPxShapeComponent::ezPxShapeComponent()
 {

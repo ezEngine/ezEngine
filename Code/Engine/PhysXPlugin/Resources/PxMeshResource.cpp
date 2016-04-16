@@ -5,7 +5,7 @@
 #include <PhysXPlugin/PhysXWorldModule.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPxMeshResource, 1, ezRTTIDefaultAllocator<ezPxMeshResource>);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezPxMeshResource::ezPxMeshResource() : ezResource<ezPxMeshResource, ezPhysXMeshResourceDescriptor>(DoUpdate::OnMainThread, 1)
 {
