@@ -5,6 +5,7 @@
    "p" : {
     "Base Surface" : "{ 0a105955-e069-4523-80ce-7b9867bde687 }",
     "Dynamic Friction" : { "$t" : "float", "$v" : "0.4000", "$b" : "0xCDCCCC3E" },
+    "Interactions" : [ { "$t" : "uuid", "$b" : "0xEE83A4CB3F3B2C49B3842E9682FF7766" } ],
     "Restitution" : { "$t" : "float", "$v" : "0.0500", "$b" : "0xCDCC4C3D" },
     "Static Friction" : { "$t" : "float", "$v" : "0.6000", "$b" : "0x9A99193F" }
    }
@@ -17,7 +18,17 @@
     "AssetType" : "Surface",
     "Dependencies" : "",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xD944A956863630478B7D104D2F02E2B1" },
-    "Hash" : { "$t" : "uint64", "$v" : "8889760368945279936", "$b" : "0xC03354A1F4C55E7B" }
+    "Hash" : { "$t" : "uint64", "$v" : "18406326696319262772", "$b" : "0x3420E6019C6870FF" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xEE83A4CB3F3B2C49B3842E9682FF7766" },
+   "t" : "ezSurfaceInteraction",
+   "p" : {
+    "Alignment" : "ezSurfaceInteractionAlignment::SurfaceNormal",
+    "Deviation" : { "$t" : "angle", "$v" : "30.0000", "$b" : "0x920A063F" },
+    "Prefab" : "{ 8706744c-fb02-44b1-afe6-3c4d37b7a5cc }",
+    "Type" : "BulletImpact"
    }
   },
   {

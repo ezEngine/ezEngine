@@ -5,12 +5,19 @@
 #include <GameUtils/Surfaces/SurfaceResource.h>
 #include <GameUtils/Prefabs/PrefabResource.h>
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSurfaceInteractionAlignment, 1)
+EZ_ENUM_CONSTANTS(ezSurfaceInteractionAlignment::SurfaceNormal, ezSurfaceInteractionAlignment::IncidentDirection, ezSurfaceInteractionAlignment::ReflectedDirection)
+EZ_END_STATIC_REFLECTED_ENUM();
+
+
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSurfaceInteraction, ezNoBase, 1, ezRTTIDefaultAllocator<ezSurfaceInteraction>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Type", m_sInteractionType),
     EZ_ACCESSOR_PROPERTY("Prefab", GetPrefab, SetPrefab)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
+    EZ_ENUM_MEMBER_PROPERTY("Alignment", ezSurfaceInteractionAlignment, m_Alignment),
+    EZ_MEMBER_PROPERTY("Deviation", m_Deviation)->AddAttributes(new ezClampValueAttribute(ezVariant(ezAngle::Degree(0.0f)), ezVariant(ezAngle::Degree(90.0f)))),
   }
   EZ_END_PROPERTIES
 }
@@ -59,14 +66,14 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
 
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion <= 2, "Invalid version %u for surface resource", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= 3, "Invalid version %u for surface resource", uiVersion);
 
   stream >> m_fPhysicsRestitution;
   stream >> m_fPhysicsFrictionStatic;
   stream >> m_fPhysicsFrictionDynamic;
   stream >> m_hBaseSurface;
 
-  if (uiVersion > 1)
+  if (uiVersion > 2)
   {
     ezUInt32 count = 0;
     stream >> count;
@@ -79,13 +86,17 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
       m_Interactions[i].m_sInteractionType = sTemp;
 
       stream >> m_Interactions[i].m_hPrefab;
+
+      ezSurfaceInteractionAlignment::StorageType al;
+      stream >> al; m_Interactions[i].m_Alignment = (ezSurfaceInteractionAlignment::Enum)al;
+      stream >> m_Interactions[i].m_Deviation;
     }
   }
 }
 
 void ezSurfaceResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  ezUInt8 uiVersion = 2;
+  ezUInt8 uiVersion = 3;
 
   stream << uiVersion;
   stream << m_fPhysicsRestitution;
@@ -98,6 +109,11 @@ void ezSurfaceResourceDescriptor::Save(ezStreamWriter& stream) const
   {
     stream << ia.m_sInteractionType;
     stream << ia.m_hPrefab;
+
+    ezSurfaceInteractionAlignment::StorageType al = ia.m_Alignment;
+    stream << al;
+
+    stream << ia.m_Deviation;
   }
 }
 

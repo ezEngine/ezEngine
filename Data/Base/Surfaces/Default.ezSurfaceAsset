@@ -7,14 +7,16 @@
     "AssetType" : "Surface",
     "Dependencies" : "",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x5559100A69E0234580CE7B9867BDE687" },
-    "Hash" : { "$t" : "uint64", "$v" : "9460239207575717718", "$b" : "0x5607C6D16F854983" }
+    "Hash" : { "$t" : "uint64", "$v" : "9384612861308419083", "$b" : "0x0BBCD9F0ACD73C82" }
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0x808E3D4F47BC0147903C731607D0B36E" },
    "t" : "ezSurfaceResourceDescriptor",
    "p" : {
+    "Base Surface" : "",
     "Dynamic Friction" : { "$t" : "float", "$v" : "0.4000", "$b" : "0xCDCCCC3E" },
+    "Interactions" : [ { "$t" : "uuid", "$b" : "0x763D7C560671404B9CA6BE9F691F4BF1" } ],
     "Restitution" : { "$t" : "float", "$v" : "0.2500", "$b" : "0x0000803E" },
     "Static Friction" : { "$t" : "float", "$v" : "0.6000", "$b" : "0x9A99193F" }
    }
@@ -25,6 +27,16 @@
    "n" : "ObjectTree",
    "p" : {
     "Children" : [ { "$t" : "uuid", "$b" : "0x808E3D4F47BC0147903C731607D0B36E" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x763D7C560671404B9CA6BE9F691F4BF1" },
+   "t" : "ezSurfaceInteraction",
+   "p" : {
+    "Alignment" : "ezSurfaceInteractionAlignment::IncidentDirection",
+    "Deviation" : { "$t" : "angle", "$v" : "30.0000", "$b" : "0x920A063F" },
+    "Prefab" : "{ 542224c0-bfa2-48dc-8d02-cde130b82a41 }",
+    "Type" : "BulletImpact"
    }
   } ]
 }

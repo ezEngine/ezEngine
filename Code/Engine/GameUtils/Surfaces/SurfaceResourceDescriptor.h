@@ -8,6 +8,22 @@ typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
 
 
+struct ezSurfaceInteractionAlignment
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    SurfaceNormal,
+    IncidentDirection,
+    ReflectedDirection,
+
+    Default = SurfaceNormal
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEUTILS_DLL, ezSurfaceInteractionAlignment);
+
 
 struct EZ_GAMEUTILS_DLL ezSurfaceInteraction
 {
@@ -17,6 +33,8 @@ struct EZ_GAMEUTILS_DLL ezSurfaceInteraction
   ezString m_sInteractionType;
 
   ezPrefabResourceHandle m_hPrefab;
+  ezSurfaceInteractionAlignment::Enum m_Alignment;
+  ezAngle m_Deviation;
 };
 
 

@@ -42,6 +42,9 @@ struct EZ_GAMEUTILS_DLL ezProjectileSurfaceInteraction
 
   /// \brief How the projectile itself will react when hitting the surface type
   ezProjectileReaction::Enum m_Reaction;
+
+  /// \brief Which interaction should be triggered. See ezSurfaceResource.
+  ezString m_sInteraction;
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEUTILS_DLL, ezProjectileSurfaceInteraction);
@@ -69,6 +72,7 @@ private:
   /// \brief If an unknown surface type is hit, the projectile will just delete itself without further interaction
   ezInt32 FindSurfaceInteraction(const ezSurfaceResourceHandle& hSurface) const;
 
+  void TriggerSurfaceInteraction(const ezSurfaceResourceHandle& hSurface, const ezVec3& vPos, const ezVec3& vNormal, const ezVec3& vDirection, const char* szInteraction);
 };
 
 

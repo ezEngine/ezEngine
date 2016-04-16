@@ -99,3 +99,7 @@ ezProjectileReaction::Absorb;Absorb
 ezProjectileReaction::Reflect;Reflect
 ezProjectileReaction::Attach;Attach
 ezProjectileReaction::PassThrough;Pass Through
+ezSurfaceInteraction;Surface Interaction
+ezSurfaceInteractionAlignment::SurfaceNormal;Surface Normal
+ezSurfaceInteractionAlignment::IncidentDirection;Incoming Direction
+ezSurfaceInteractionAlignment::ReflectedDirection;Reflected Direction

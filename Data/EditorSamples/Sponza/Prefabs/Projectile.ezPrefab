@@ -3,6 +3,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x7A1498AA36BCAA40817D26C83D5DBA7E" },
    "t" : "ezProjectileSurfaceInteraction",
    "p" : {
+    "Interaction" : "BulletImpact",
     "Reaction" : "ezProjectileReaction::Attach",
     "Surface" : "{ ccd32963-93f9-401c-95d1-bf4e491a2df3 }"
    }
@@ -52,6 +53,7 @@
    "#" : { "$t" : "uuid", "$b" : "0xB34EBD80004A334B8052BCF310BADFE3" },
    "t" : "ezProjectileSurfaceInteraction",
    "p" : {
+    "Interaction" : "BulletImpact",
     "Reaction" : "ezProjectileReaction::Attach",
     "Surface" : "{ a28bc6e0-f7ba-4e1a-9515-8ccf0ae28d1c }"
    }
@@ -60,6 +62,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x51FF8A2958E1A94B9DD31DB2FBE91F4E" },
    "t" : "ezProjectileSurfaceInteraction",
    "p" : {
+    "Interaction" : "BulletImpact",
     "Reaction" : "ezProjectileReaction::Absorb",
     "Surface" : "{ 0a105955-e069-4523-80ce-7b9867bde687 }"
    }
@@ -72,13 +75,14 @@
     "AssetType" : "Prefab",
     "Dependencies" : "",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xBAA17346F252CE4C9924B63957D980FC" },
-    "Hash" : { "$t" : "uint64", "$v" : "10294344152300189003", "$b" : "0x4BF578F976DBDC8E" }
+    "Hash" : { "$t" : "uint64", "$v" : "5192225182627060626", "$b" : "0x92DB52444B7D0E48" }
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0xE299D515CFC78F4E92811E9168DE5568" },
    "t" : "ezProjectileSurfaceInteraction",
    "p" : {
+    "Interaction" : "BulletImpact",
     "Reaction" : "ezProjectileReaction::Reflect",
     "Surface" : "{ 56a944d9-3686-4730-8b7d-104d2f02e2b1 }"
    }

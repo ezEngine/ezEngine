@@ -1,0 +1,54 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x17C8AEF820AEBF44B20EFB5E02AFF984" },
+   "t" : "ezTimedDeathComponent",
+   "p" : {
+    "Active" : true,
+    "Delay Range" : { "$t" : "time", "$v" : "0.0000", "$b" : "0x0000000000000000" },
+    "Min Delay" : { "$t" : "time", "$v" : "10.0000", "$b" : "0x0000000000002440" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x6AC911702E0D1C4798E73C05B1263AFD" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xA6DB9D253B33634DA8DBC5C438C8C132" }, { "$t" : "uuid", "$b" : "0x17C8AEF820AEBF44B20EFB5E02AFF984" } ],
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "0.3000", "$b" : "0x9A99993E" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xC0242254A2BFDC488D02CDE130B82A41" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Prefab",
+    "Dependencies" : "",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0xC0242254A2BFDC488D02CDE130B82A41" },
+    "Hash" : { "$t" : "uint64", "$v" : "514023050038870096", "$b" : "0x5000EE973D2D2207" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0x6AC911702E0D1C4798E73C05B1263AFD" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA6DB9D253B33634DA8DBC5C438C8C132" },
+   "t" : "ezMeshComponent",
+   "p" : {
+    "Active" : true,
+    "Materials" : [ "{ e904b847-a959-4eea-8835-91e35d68117a }" ],
+    "Mesh" : "{ d8e37f49-65ca-4ee2-bd39-1b3f8b9b814e }",
+    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
+   }
+  } ]
+}

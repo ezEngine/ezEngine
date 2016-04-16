@@ -7,7 +7,7 @@
     "AssetType" : "Surface",
     "Dependencies" : "",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x1333BF14F3899246873CD127980BF748" },
-    "Hash" : { "$t" : "uint64", "$v" : "8760382026964810952", "$b" : "0xC83CF4FD09219379" }
+    "Hash" : { "$t" : "uint64", "$v" : "15071459564313386065", "$b" : "0x511C90299F9428D1" }
    }
   },
   {
@@ -15,9 +15,10 @@
    "t" : "ezSurfaceResourceDescriptor",
    "p" : {
     "Base Surface" : "{ 0a105955-e069-4523-80ce-7b9867bde687 }",
-    "Dynamic Friction" : { "$t" : "float", "$v" : "0.4000", "$b" : "0xCDCCCC3E" },
+    "Dynamic Friction" : { "$t" : "float", "$v" : "0.2000", "$b" : "0xCDCC4C3E" },
+    "Interactions" : [  ],
     "Restitution" : { "$t" : "float", "$v" : "0.2500", "$b" : "0x0000803E" },
-    "Static Friction" : { "$t" : "float", "$v" : "0.6000", "$b" : "0x9A99193F" }
+    "Static Friction" : { "$t" : "float", "$v" : "0.6200", "$b" : "0x52B81E3F" }
    }
   },
   {

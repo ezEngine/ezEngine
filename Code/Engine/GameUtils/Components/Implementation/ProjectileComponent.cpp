@@ -17,6 +17,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 1, ezRT
   {
     EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
     EZ_ENUM_MEMBER_PROPERTY("Reaction", ezProjectileReaction, m_Reaction),
+    EZ_MEMBER_PROPERTY("Interaction", m_sInteraction),
   }
   EZ_END_PROPERTIES
 }
@@ -97,6 +98,12 @@ void ezProjectileComponent::Update()
       {
         const auto& interaction = m_SurfaceInteractions[iInteraction];
 
+        if (!interaction.m_sInteraction.IsEmpty())
+        {
+          TriggerSurfaceInteraction(hSurface, vPos, vNormal, vCurDirection, interaction.m_sInteraction);
+        }
+
+
         if (interaction.m_Reaction == ezProjectileReaction::Absorb)
         {
           GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
@@ -159,6 +166,8 @@ void ezProjectileComponent::SerializeComponent(ezWorldWriter& stream) const
 
     ezProjectileReaction::StorageType storage = ia.m_Reaction;
     s << storage;
+
+    s << ia.m_sInteraction;
   }
 }
 
@@ -181,6 +190,8 @@ void ezProjectileComponent::DeserializeComponent(ezWorldReader& stream)
     ezProjectileReaction::StorageType storage = 0;
     s >> storage;
     m_SurfaceInteractions[i].m_Reaction = (ezProjectileReaction::Enum)storage;
+
+    s >> m_SurfaceInteractions[i].m_sInteraction;
   }
 }
 
@@ -206,6 +217,17 @@ ezInt32 ezProjectileComponent::FindSurfaceInteraction(const ezSurfaceResourceHan
 
   return -1;
 }
+
+
+void ezProjectileComponent::TriggerSurfaceInteraction(const ezSurfaceResourceHandle& hSurface, const ezVec3& vPos, const ezVec3& vNormal, const ezVec3& vDirection, const char* szInteraction)
+{
+  ezResourceLock<ezSurfaceResource> pSurface(hSurface, ezResourceAcquireMode::NoFallback);
+  pSurface->InteractWithSurface(GetWorld(), vPos, vNormal, vDirection, ezTempHashedString(szInteraction));
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
 
 ezProjectileComponentManager::ezProjectileComponentManager(ezWorld* pWorld)
   : ezComponentManagerSimple<class ezProjectileComponent, true>(pWorld)

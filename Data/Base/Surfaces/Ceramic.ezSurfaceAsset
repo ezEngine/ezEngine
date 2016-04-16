@@ -5,8 +5,19 @@
    "p" : {
     "Base Surface" : "{ 14bf3313-89f3-4692-873c-d127980bf748 }",
     "Dynamic Friction" : { "$t" : "float", "$v" : "0.4000", "$b" : "0xCDCCCC3E" },
+    "Interactions" : [ { "$t" : "uuid", "$b" : "0x9FB4588100BA64428D59498DEDBCE3DB" } ],
     "Restitution" : { "$t" : "float", "$v" : "0.2000", "$b" : "0xCDCC4C3E" },
     "Static Friction" : { "$t" : "float", "$v" : "0.5000", "$b" : "0x0000003F" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x9FB4588100BA64428D59498DEDBCE3DB" },
+   "t" : "ezSurfaceInteraction",
+   "p" : {
+    "Alignment" : "ezSurfaceInteractionAlignment::ReflectedDirection",
+    "Deviation" : { "$t" : "angle", "$v" : "30.0000", "$b" : "0x920A063F" },
+    "Prefab" : "{ 8706744c-fb02-44b1-afe6-3c4d37b7a5cc }",
+    "Type" : "BulletImpact"
    }
   },
   {
@@ -25,7 +36,7 @@
     "AssetType" : "Surface",
     "Dependencies" : "",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xE0C68BA2BAF71A4E95158CCF0AE28D1C" },
-    "Hash" : { "$t" : "uint64", "$v" : "12207023069341212371", "$b" : "0xD3DE1455CE0E68A9" }
+    "Hash" : { "$t" : "uint64", "$v" : "11171279884502144383", "$b" : "0x7F9537F2DD5B089B" }
    }
   } ]
 }

@@ -19,7 +19,7 @@ public:
   ezPrefabResource();
 
   /// \brief Creates an instance of this prefab in the given world.
-  void InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent);
+  void InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent = ezGameObjectHandle());
 
 private:
 

@@ -113,6 +113,11 @@ EZ_FORCE_INLINE bool ezAngle::operator< (const ezAngle& r) const
   return m_fRadian < r.m_fRadian;
 }
 
+EZ_FORCE_INLINE bool ezAngle::operator> (const ezAngle& r) const
+{
+  return m_fRadian > r.m_fRadian;
+}
+
 inline ezAngle operator* (ezAngle a, float f)
 {
   return ezAngle::Radian(a.GetRadian() * f);

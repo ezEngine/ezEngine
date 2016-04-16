@@ -82,6 +82,7 @@ public:
 
   // At least the < operator is implement to make clamping etc. work
   bool operator< (const ezAngle& r) const;
+  bool operator> (const ezAngle& r) const;
 
   // Note: relational operators on angles are not really possible - is 0 degree smaller or bigger than 359 degree?
 

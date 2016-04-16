@@ -29,6 +29,8 @@ const ezString& ezTypelessResourceHandle::GetResourceID() const
 
 void ezTypelessResourceHandle::operator=(const ezTypelessResourceHandle& rhs)
 {
+  EZ_ASSERT_DEBUG(this != &rhs, "Cannot assign a resource handle to itself! This would invalidate the handle.");
+
   Invalidate();
 
   m_pResource = rhs.m_pResource;
