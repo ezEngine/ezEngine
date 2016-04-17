@@ -1,12 +1,11 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
+#include <RendererCore/Declarations.h>
 #include <RendererCore/Shader/Implementation/Helper.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Containers/Set.h>
-#include <RendererFoundation/Basics.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <CoreUtils/CodeUtils/Preprocessor.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
@@ -49,11 +48,11 @@ class EZ_RENDERERCORE_DLL ezShaderCompiler
 {
 public:
 
-  ezResult CompileShaderPermutationsForPlatforms(const char* szFile, const ezPermutationGenerator& Generator, const char* szPlatform = "ALL");
+  ezResult CompileShaderPermutationForPlatforms(const char* szFile, const ezArrayPtr<ezPermutationVar>& permutationVars, const char* szPlatform = "ALL");
 
 private:
 
-  void RunShaderCompilerForPermutations(const char* szFile, const ezPermutationGenerator& Generator, const char* szPlatform, ezShaderProgramCompiler* pCompiler);
+  void RunShaderCompiler(const char* szFile, const char* szPlatform, ezShaderProgramCompiler* pCompiler);
 
   bool PassThroughUnknownCommandCB(const char* szCmd)
   {
@@ -63,7 +62,7 @@ private:
   struct ezShaderData
   {
     ezString m_Platforms;
-    ezString m_Permutations;
+    ezHybridArray<ezPermutationVar, 16> m_Permutations;
     ezString m_StateSource;
     ezString m_ShaderStageSource[ezGALShaderStage::ENUM_COUNT];
   };
@@ -72,7 +71,7 @@ private:
 
   ezStringBuilder m_StageSourceFile[ezGALShaderStage::ENUM_COUNT];
 
-  ezHybridArray<ezPermutationGenerator::PermutationVar, 16> m_PermVars;
+  ezHybridArray<ezPermutationVar, 16> m_PermVars;
   ezTokenizedFileCache m_FileCache;
   ezShaderData m_ShaderData;
 

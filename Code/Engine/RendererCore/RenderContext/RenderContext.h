@@ -1,7 +1,6 @@
 #pragma once
 
 #include <RendererCore/Declarations.h>
-#include <Foundation/Strings/HashedString.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Containers/Map.h>
@@ -12,6 +11,64 @@
 #include <RendererCore/../../../Data/Base/Shaders/Common/ConstantBufferMacros.h>
 #include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
 #include <RendererCore/Shader/ShaderStageBinary.h>
+
+struct ezShaderBindFlags
+{
+  typedef ezUInt32 StorageType;
+
+  enum Enum
+  {
+    None = 0,                           ///< No flags causes the default shader binding behavior (all render states are applied)
+    ForceRebind = EZ_BIT(0),    ///< Executes shader binding (and state setting), even if the shader hasn't changed. Use this, when the same shader was previously used with custom bound states
+    NoRasterizerState = EZ_BIT(1),    ///< The rasterizer state that is associated with the shader will not be bound. Use this when you intend to bind a custom rasterizer 
+    NoDepthStencilState = EZ_BIT(2),    ///< The depth-stencil state that is associated with the shader will not be bound. Use this when you intend to bind a custom depth-stencil 
+    NoBlendState = EZ_BIT(3),    ///< The blend state that is associated with the shader will not be bound. Use this when you intend to bind a custom blend 
+    NoStateBinding = NoRasterizerState | NoDepthStencilState | NoBlendState,
+
+    Default = None
+  };
+
+  struct Bits
+  {
+    StorageType ForceRebind : 1;
+    StorageType NoRasterizerState : 1;
+    StorageType NoDepthStencilState : 1;
+    StorageType NoBlendState : 1;
+  };
+};
+
+EZ_DECLARE_FLAGS_OPERATORS(ezShaderBindFlags);
+
+
+struct ezRenderContextFlags
+{
+  typedef ezUInt32 StorageType;
+
+  enum Enum
+  {
+    None = 0,
+    ShaderStateChanged = EZ_BIT(0),
+    TextureBindingChanged = EZ_BIT(1),
+    ConstantBufferBindingChanged = EZ_BIT(2),
+    MeshBufferBindingChanged = EZ_BIT(3),
+
+    ShaderStateValid = EZ_BIT(4),
+
+    AllStatesInvalid = ShaderStateChanged | TextureBindingChanged | ConstantBufferBindingChanged | MeshBufferBindingChanged,
+    Default = None
+  };
+
+  struct Bits
+  {
+    StorageType ShaderStateChanged : 1;
+    StorageType TextureBindingChanged : 1;
+    StorageType ConstantBufferBindingChanged : 1;
+    StorageType MeshBufferBindingChanged : 1;
+    StorageType ShaderStateValid : 1;
+  };
+};
+
+EZ_DECLARE_FLAGS_OPERATORS(ezRenderContextFlags);
 
 
 class EZ_RENDERERCORE_DLL ezRenderContext
@@ -45,7 +102,14 @@ public:
 
 
   // Member Functions
-  void SetShaderPermutationVariable(const char* szVariable, const char* szValue);
+  EZ_FORCE_INLINE void SetShaderPermutationVariable(const char* szName, const char* szValue)
+  {
+    ezHashedString sName; sName.Assign(szName);
+    ezHashedString sValue; sValue.Assign(szValue);
+    SetShaderPermutationVariable(sName, sValue);
+  }
+
+  void SetShaderPermutationVariable(const ezHashedString& sName, const ezHashedString& sValue);
 
   void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture);
   void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView, ezGALSamplerStateHandle hSamplerState);
@@ -79,19 +143,7 @@ public:
   void EndModifyConstantBuffer();
 
   // Static Functions
-  static void ConfigureShaderSystem(const char* szActivePlatform, bool bEnableRuntimeCompilation, const char* szShaderCacheDirectory = "ShaderCache", const char* szPermVarSubDirectory = "Shaders/PermutationVars");
-  static const ezString& GetPermutationVarSubDirectory() { return s_sPermVarSubDir; }
-  static const ezString& GetActiveShaderPlatform() { return s_sPlatform; }
-  static const ezString& GetShaderCacheDirectory() { return s_ShaderCacheDirectory; }
-  static bool IsRuntimeShaderCompilationEnabled() { return s_bEnableRuntimeCompilation; }
-  static const ezPermutationGenerator& GetAllowedPermutations() { return s_AllowedPermutations; }
-
 public:
-
-  static void LoadShaderPermutationVarConfig(const char* szVariable);
-  static const ezPermutationGenerator* GetGeneratorForShaderPermutation(ezUInt32 uiPermutationHash);
-  static void PreloadShaderPermutations(ezShaderResourceHandle hShader, const ezPermutationGenerator& Generator, ezTime tShouldBeAvailableIn);
-  static ezShaderPermutationResourceHandle PreloadSingleShaderPermutation(ezShaderResourceHandle hShader, const ezHybridArray<ezPermutationGenerator::PermutationVar, 16>& UsedPermVars, ezTime tShouldBeAvailableIn);
 
   static GlobalConstants& WriteGlobalConstants()
   {
@@ -142,9 +194,10 @@ private:
   ezBitflags<ezRenderContextFlags> m_StateFlags;
   ezShaderResourceHandle m_hActiveShader;
   ezGALShaderHandle m_hActiveGALShader;
-  ezMap<ezString, ezString> m_PermutationVariables;
-  ezPermutationGenerator m_PermGenerator;
+  ezHashTable<ezHashedString, ezHashedString> m_PermutationVariables;
+  
   ezShaderPermutationResourceHandle m_hActiveShaderPermutation;
+
   ezConstantBufferResource* m_pCurrentlyModifyingBuffer;
   ezBitflags<ezShaderBindFlags> m_ShaderBindFlags;
 
@@ -195,12 +248,6 @@ private:
 
   static MaterialParam* InternalSetMaterialParameter(const ezTempHashedString& sName, ezShaderMaterialParamCB::MaterialParameter::Type type, ezUInt32 uiMaxArrayElements);
 
-  static ezPermutationGenerator s_AllowedPermutations;
-  static bool s_bEnableRuntimeCompilation;
-  static ezString s_sPlatform;
-  static ezString s_sPermVarSubDir;
-  static ezString s_ShaderCacheDirectory;
-  static ezMap<ezUInt32, ezPermutationGenerator> s_PermutationHashCache;
   static ezMap<ShaderVertexDecl, ezGALVertexDeclarationHandle> s_GALVertexDeclarations;
   static ezUInt64 s_LastMaterialParamModification;
 

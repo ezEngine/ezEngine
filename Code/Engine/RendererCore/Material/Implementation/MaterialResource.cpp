@@ -82,9 +82,9 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
         if (!sTemp.IsEmpty() && !sTemp2.IsEmpty())
         {
-          ezMaterialResourceDescriptor::PermutationVar& pv = m_Desc.m_PermutationVars.ExpandAndGetRef();
-          pv.m_Name.Assign(sTemp.GetData());
-          pv.m_Value.Assign(sTemp2.GetData());
+          ezPermutationVar& pv = m_Desc.m_PermutationVars.ExpandAndGetRef();
+          pv.m_sName.Assign(sTemp.GetData());
+          pv.m_sValue.Assign(sTemp2.GetData());
         }
       }
     }
@@ -176,9 +176,9 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
           m_Desc.m_PermutationVars.Reserve(dict.GetCount());
           for (auto it = dict.GetIterator(); it.IsValid(); ++it)
           {
-            ezMaterialResourceDescriptor::PermutationVar& pv = m_Desc.m_PermutationVars.ExpandAndGetRef();
-            pv.m_Name.Assign(it.Key().GetData());
-            pv.m_Value.Assign(it.Value().ConvertTo<ezString>(&Conversion).GetData());
+            ezPermutationVar& pv = m_Desc.m_PermutationVars.ExpandAndGetRef();
+            pv.m_sName.Assign(it.Key().GetData());
+            pv.m_sValue.Assign(it.Value().ConvertTo<ezString>(&Conversion).GetData());
 
             if (Conversion.Failed())
             {

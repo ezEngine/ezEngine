@@ -69,13 +69,13 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   switch (m_ViewRenderMode)
   {
   case ezViewRenderMode::WireframeColor:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_WIREFRAME_COLOR");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "WIREFRAME_COLOR");
     break;
   case ezViewRenderMode::WireframeMonochrome:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_WIREFRAME_MONOCHROME");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "WIREFRAME_MONOCHROME");
     break;
   default:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_DEFAULT");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "DEFAULT");
     break;
   }
 
@@ -164,7 +164,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING", "0");
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_DEFAULT");
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "DEFAULT");
 
 
   {

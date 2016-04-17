@@ -2,8 +2,7 @@
 
 #include <RendererCore/Basics.h>
 #include <Core/ResourceManager/Resource.h>
-#include <Core/ResourceManager/ResourceTypeLoader.h>
-#include <RendererCore/Shader/ShaderPermutationResource.h>
+#include <Foundation/Strings/HashedString.h>
 
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
 
@@ -20,7 +19,7 @@ public:
 
   bool IsShaderValid() const { return m_bShaderResourceIsValid; }
 
-  const ezString& GetUsedPermutationVars() const { return m_PermutationVarsUsed; }
+  ezArrayPtr<const ezHashedString> GetUsedPermutationVars() const { return m_PermutationVarsUsed; }
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
@@ -28,7 +27,7 @@ private:
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
-  ezString m_PermutationVarsUsed;
+  ezHybridArray<ezHashedString, 16> m_PermutationVarsUsed;
   bool m_bShaderResourceIsValid;
 };
 

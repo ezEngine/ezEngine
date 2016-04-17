@@ -44,6 +44,8 @@ public:
   /// Returns the number of unused strings that were removed.
   static ezUInt32 ClearUnusedStrings();
 
+  EZ_DECLARE_MEM_RELOCATABLE_TYPE();
+
   /// \brief Initializes this string to the empty string.
   ezHashedString(); // [tested]
 

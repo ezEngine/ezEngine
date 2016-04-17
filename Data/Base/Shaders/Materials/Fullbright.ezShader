@@ -9,13 +9,11 @@ EDITOR_RENDER_MODE
 
 [RENDERSTATE]
 
-#include <Shaders/Editor/EditorRenderModes.h>
-
-#if (EDITOR_RENDER_MODE == ERM_WIREFRAME_MONOCHROME) || (EDITOR_RENDER_MODE == ERM_WIREFRAME_COLOR)
+#if (EDITOR_RENDER_MODE == EDITOR_RENDER_MODE_WIREFRAME_MONOCHROME) || (EDITOR_RENDER_MODE == EDITOR_RENDER_MODE_WIREFRAME_COLOR)
   WireFrame = true
 #endif
 
-#if (EDITOR_RENDER_MODE == ERM_SELECTED)
+#if (EDITOR_RENDER_MODE == EDITOR_RENDER_MODE_SELECTED)
   DepthTestFunc = CompareFunc_LessEqual
   BlendingEnabled0 = true
 #endif
@@ -31,7 +29,7 @@ VS_OUT main(VS_IN Input)
 {
   VS_OUT RetVal;
   RetVal.Position = mul(ObjectToScreenMatrix, float4(Input.Position, 1.0f));
-  RetVal.Normal = normalize(mul(ObjectToWorldMatrix, float4(Input.Normal, 0.0f)));
+  RetVal.Normal = normalize(mul(ObjectToWorldMatrix, float4(Input.Normal, 0.0f))).xyz;
   RetVal.TexCoord0 = Input.TexCoord0;
 
   return RetVal;
@@ -44,7 +42,6 @@ VS_OUT main(VS_IN Input)
 
 #include <Shaders/Materials/Materials.inc>
 #include <Shaders/Materials/DefaultMaterialCB.inc>
-#include <Shaders/Editor/EditorRenderModes.h>
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
@@ -61,7 +58,7 @@ float4 main(PS_IN Input) : SV_Target
 #if ALPHATEST == 1
   float fMask = TexAlphaMask.Sample(TexAlphaMaskSampler, Input.TexCoord0).r;
   
-  #if (EDITOR_RENDER_MODE != ERM_WIREFRAME_MONOCHROME) && (EDITOR_RENDER_MODE != ERM_WIREFRAME_COLOR)
+  #if (EDITOR_RENDER_MODE != EDITOR_RENDER_MODE_WIREFRAME_MONOCHROME) && (EDITOR_RENDER_MODE != EDITOR_RENDER_MODE_WIREFRAME_COLOR)
     clip(fMask < 0.1f ? -1 : 1);
   #endif
 #endif
@@ -75,25 +72,25 @@ float4 main(PS_IN Input) : SV_Target
   
   return IdCol;
 #else
-  #if (EDITOR_RENDER_MODE == ERM_SELECTED)
+  #if (EDITOR_RENDER_MODE == EDITOR_RENDER_MODE_SELECTED)
 	return float4(0.2, 0.2, 1, 0.5);
   #endif
 
-  #if (EDITOR_RENDER_MODE == ERM_WIREFRAME_MONOCHROME)
+  #if (EDITOR_RENDER_MODE == EDITOR_RENDER_MODE_WIREFRAME_MONOCHROME)
     return float4(1, 1, 1, 1);
   #endif
 
-  #if (EDITOR_RENDER_MODE == ERM_TEXCOORDS_UV0)
+  #if (EDITOR_RENDER_MODE == EDITOR_RENDER_MODE_TEXCOORDS_UV0)
     // Would need to be gamma corrected
     return float4(frac(Input.TexCoord0), 0, 1);
   #endif
 
-  #if (EDITOR_RENDER_MODE == ERM_VERTEX_NORMALS)
+  #if (EDITOR_RENDER_MODE == EDITOR_RENDER_MODE_VERTEX_NORMALS)
     // Would need to be gamma corrected
     return float4(Input.Normal.xyz * 0.5 + 0.5, 1);
   #endif
 
-  #if (EDITOR_RENDER_MODE == ERM_PIXEL_DEPTH)
+  #if (EDITOR_RENDER_MODE == EDITOR_RENDER_MODE_PIXEL_DEPTH)
     float depth = 1.0 - min(1.0, max(0, (Input.Position.z / Input.Position.w)));
     depth = depth * depth * depth * depth;
     return float4(depth, depth, depth, 1);

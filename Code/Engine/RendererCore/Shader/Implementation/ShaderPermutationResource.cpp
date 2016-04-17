@@ -1,7 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <RendererCore/Shader/Implementation/Helper.h>
-#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -163,7 +163,7 @@ struct ShaderPermutationResourceLoadData
 
 ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pResource, ezShaderPermutationBinary& BinaryInfo, bool bForce)
 {
-  if (ezRenderContext::IsRuntimeShaderCompilationEnabled())
+  if (ezShaderManager::IsRuntimeCompilationEnabled())
   {
     if (!bForce)
     {
@@ -180,7 +180,7 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
     ezStringBuilder sPermutationFile = pResource->GetResourceID();
 
     sPermutationFile.ChangeFileExtension("");
-    sPermutationFile.Shrink(ezRenderContext::GetShaderCacheDirectory().GetCharacterCount() + ezRenderContext::GetActiveShaderPlatform().GetCharacterCount() + 2, 1);
+    sPermutationFile.Shrink(ezShaderManager::GetCacheDirectory().GetCharacterCount() + ezShaderManager::GetActivePlatform().GetCharacterCount() + 2, 1);
 
     auto itEnd = end(sPermutationFile);
 
@@ -193,12 +193,10 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
     sPermutationFile.Shrink(0, 8); // remove the hash at the end
     sPermutationFile.Append(".ezShader");
 
-    const ezPermutationGenerator* pGenerator = ezRenderContext::GetGeneratorForShaderPermutation(uiPermutationHash);
-
-    EZ_ASSERT_DEV(pGenerator != nullptr, "The permutation generator for permutation '%s' is unknown", sHash.GetData());
+    ezArrayPtr<ezPermutationVar> permutationVars = ezShaderManager::GetPermutationVars(uiPermutationHash);
 
     ezShaderCompiler sc;
-    return sc.CompileShaderPermutationsForPlatforms(sPermutationFile.GetData(), *pGenerator, ezRenderContext::GetActiveShaderPlatform().GetData());
+    return sc.CompileShaderPermutationForPlatforms(sPermutationFile.GetData(), permutationVars, ezShaderManager::GetActivePlatform().GetData());
   }
   else
   {

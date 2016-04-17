@@ -1,7 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Shader/Implementation/Helper.h>
-#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <Foundation/Logging/Log.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderResource, 1, ezRTTIDefaultAllocator<ezShaderResource>);
@@ -48,11 +48,12 @@ ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReader* Stream)
   ezString sContent;
   sContent.ReadAll(*Stream);
 
-  ezTextSectionizer Sections;
-  GetShaderSections(sContent.GetData(), Sections);
+  ezShaderHelper::ezTextSectionizer Sections;
+  ezShaderHelper::GetShaderSections(sContent.GetData(), Sections);
 
   ezUInt32 uiFirstLine = 0;
-  m_PermutationVarsUsed = Sections.GetSectionContent(ezShaderSections::PERMUTATIONS, uiFirstLine);
+  ezStringView sPermutations = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine);
+  ezShaderHelper::ParsePermutationSection(sPermutations, m_PermutationVarsUsed);
 
   res.m_State = ezResourceState::Loaded;
   m_bShaderResourceIsValid = true;

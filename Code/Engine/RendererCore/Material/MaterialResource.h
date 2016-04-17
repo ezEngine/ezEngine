@@ -1,20 +1,15 @@
 #pragma once
 
+#include <RendererCore/Declarations.h>
+#include <RendererCore/Shader/ShaderResource.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Core/ResourceManager/Resource.h>
-#include <RendererCore/Shader/ShaderResource.h>
 
 typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
 typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
 
 struct ezMaterialResourceDescriptor
 {
-  struct PermutationVar
-  {
-    ezHashedString m_Name;
-    ezHashedString m_Value;
-  };
-
   struct ShaderConstant
   {
     ezHashedString m_Name;
@@ -38,7 +33,7 @@ struct ezMaterialResourceDescriptor
 
   ezMaterialResourceHandle m_hBaseMaterial;
   ezShaderResourceHandle m_hShader;
-  ezDynamicArray<PermutationVar> m_PermutationVars;
+  ezDynamicArray<ezPermutationVar> m_PermutationVars;
   ezDynamicArray<ShaderConstant> m_ShaderConstants;
   ezDynamicArray<TextureBinding> m_TextureBindings;
 };

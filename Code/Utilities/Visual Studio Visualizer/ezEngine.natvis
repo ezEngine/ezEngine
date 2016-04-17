@@ -66,6 +66,18 @@
 			</ArrayItems>
 		</Expand>
 	</Type>
+	
+	<Type Name="ezHashSetBase&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<Item Name="capacity">m_uiCapacity</Item>
+			<ArrayItems>
+				<Size>m_uiCapacity</Size>
+				<ValuePointer>m_pEntries</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
 
 	<Type Name="ezListBase&lt;*&gt;">
 		<DisplayString>{{ count={m_uiCount} }}</DisplayString>

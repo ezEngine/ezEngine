@@ -1,2 +1,1 @@
-add("PICKING", "0")
-add("PICKING", "1")
+bool PICKING

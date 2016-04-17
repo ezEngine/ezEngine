@@ -49,27 +49,27 @@ void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
   // Clear color and depth stencil
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.1f));
 
-  const char* szRenderMode = "ERM_DEFAULT";
+  const char* szRenderMode = "DEFAULT";
 
   switch (m_ViewRenderMode)
   {
   case ezViewRenderMode::None:
-    szRenderMode = "ERM_DEFAULT";
+    szRenderMode = "DEFAULT";
     break;
   case ezViewRenderMode::WireframeColor:
-    szRenderMode = "ERM_WIREFRAME_COLOR";
+    szRenderMode = "WIREFRAME_COLOR";
     break;
   case ezViewRenderMode::WireframeMonochrome:
-    szRenderMode = "ERM_WIREFRAME_MONOCHROME";
+    szRenderMode = "WIREFRAME_MONOCHROME";
     break;
   case ezViewRenderMode::TexCoordsUV0:
-    szRenderMode = "ERM_TEXCOORDS_UV0";
+    szRenderMode = "TEXCOORDS_UV0";
     break;
   case ezViewRenderMode::VertexNormals:
-    szRenderMode = "ERM_VERTEX_NORMALS";
+    szRenderMode = "VERTEX_NORMALS";
     break;
   case ezViewRenderMode::PixelDepth:
-    szRenderMode = "ERM_PIXEL_DEPTH";
+    szRenderMode = "PIXEL_DEPTH";
     break;
   }
 
@@ -87,7 +87,7 @@ void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
 
     if (/*m_ViewRenderMode == ezViewRenderMode::Default && */m_bRenderSelectionOverlay)
     {
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_SELECTED");
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "SELECTED");
       RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Selection);
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", szRenderMode);
     }
@@ -96,5 +96,5 @@ void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
 
   }
 
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "ERM_DEFAULT");
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "DEFAULT");
 }

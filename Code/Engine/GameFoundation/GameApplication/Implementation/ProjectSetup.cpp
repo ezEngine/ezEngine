@@ -1,6 +1,7 @@
 #include <GameFoundation/PCH.h>
 #include <GameFoundation/GameApplication/GameApplication.h>
 #include <Core/Application/Config/PluginConfig.h>
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #include <RendererDX11/Device/DeviceDX11.h>
@@ -113,9 +114,9 @@ void ezGameApplication::DoSetupGraphicsDevice()
     ezGPUResourcePool::SetDefaultInstance(pResourcePool);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    ezRenderContext::ConfigureShaderSystem("DX11_SM40", true);
+    ezShaderManager::Configure("DX11_SM40", true);
 #else
-    ezRenderContext::ConfigureShaderSystem("GL3", true);
+    ezShaderManager::Configure("GL3", true);
 #endif
 }
 

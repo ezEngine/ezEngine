@@ -1,58 +1,70 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
+#include <RendererCore/Declarations.h>
+#include <Foundation/Containers/HashSet.h>
 #include <Foundation/Strings/String.h>
 
-class ezTextSectionizer
+namespace ezShaderHelper
 {
-public:
-  void Clear();
-
-  void AddSection(const char* szName);
-
-  void Process(const char* szText);
-
-  ezStringView GetSectionContent(ezUInt32 uiSection, ezUInt32& out_uiFirstLine) const;
-
-private:
-
-  struct ezTextSection
+  class ezTextSectionizer
   {
-    ezTextSection(const char* szName)
-    {
-      m_sName = szName;
-      m_szSectionStart = nullptr;
-      m_uiFirstLine = 0;
-    }
+  public:
+    void Clear();
 
-    void Reset()
-    {
-      m_szSectionStart = nullptr;
-      m_Content = ezStringView();
-      m_uiFirstLine = 0;
-    }
+    void AddSection(const char* szName);
 
-    ezString m_sName;
-    const char* m_szSectionStart;
-    ezStringView m_Content;
-    ezUInt32 m_uiFirstLine;
+    void Process(const char* szText);
+
+    ezStringView GetSectionContent(ezUInt32 uiSection, ezUInt32& out_uiFirstLine) const;
+
+  private:
+
+    struct ezTextSection
+    {
+      ezTextSection(const char* szName)
+      {
+        m_sName = szName;
+        m_szSectionStart = nullptr;
+        m_uiFirstLine = 0;
+      }
+
+      void Reset()
+      {
+        m_szSectionStart = nullptr;
+        m_Content = ezStringView();
+        m_uiFirstLine = 0;
+      }
+
+      ezString m_sName;
+      const char* m_szSectionStart;
+      ezStringView m_Content;
+      ezUInt32 m_uiFirstLine;
+    };
+
+    ezStringBuilder m_sText;
+    ezHybridArray<ezTextSection, 16> m_Sections;
   };
 
-  ezStringBuilder m_sText;
-  ezHybridArray<ezTextSection, 16> m_Sections;
-};
+  struct ezShaderSections
+  {
+    enum Enum
+    {
+      PLATFORMS,
+      PERMUTATIONS,
+      RENDERSTATE,
+      VERTEXSHADER,
+      HULLSHADER,
+      DOMAINSHADER,
+      GEOMETRYSHADER,
+      PIXELSHADER,
+      COMPUTESHADER
+    };
+  };
 
-enum ezShaderSections
-{
-  PLATFORMS,
-  PERMUTATIONS,
-  RENDERSTATE,
-  VERTEXSHADER,
-  HULLSHADER,
-  DOMAINSHADER,
-  GEOMETRYSHADER,
-  PIXELSHADER,
-  COMPUTESHADER,
-};
+  void GetShaderSections(const char* szContent, ezTextSectionizer& out_Sections);
 
-void GetShaderSections(const char* szContent, ezTextSectionizer& out_Sections);
+  ezUInt32 CalculateHash(const ezArrayPtr<ezPermutationVar>& vars);
+
+  void ParsePermutationSection(ezStringView sPermutationSection, ezHybridArray<ezHashedString, 16>& out_PermVars);
+  void ParsePermutationVarConfig(ezStringView sPermutationVarConfig, ezVariant& out_DefaultValue, ezHybridArray<ezHashedString, 16>& out_EnumValues);
+}

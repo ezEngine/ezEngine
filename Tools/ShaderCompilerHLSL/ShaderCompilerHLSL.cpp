@@ -13,41 +13,41 @@ ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
 
 EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_SHADERCOMPILERHLSL_DLL, ezShaderCompilerHLSLPlugin);
 
-ezResult CompileDXShader(const char* szFile, const char* source, const char* profile, const char* entryPoint, ezDynamicArray<ezUInt8>& out_ByteCode)
+ezResult CompileDXShader(const char* szFile, const char* szSource, const char* szProfile, const char* szEntryPoint, ezDynamicArray<ezUInt8>& out_ByteCode)
 {
   out_ByteCode.Clear();
 
-  ID3DBlob* ResultBlob = nullptr;
-  ID3DBlob* ErrorBlob = nullptr;
+  ID3DBlob* pResultBlob = nullptr;
+  ID3DBlob* pErrorBlob = nullptr;
 
-  if (FAILED(D3DCompile(source, strlen(source), szFile, nullptr, nullptr, entryPoint, profile, 0, 0, &ResultBlob, &ErrorBlob)))
+  if (FAILED(D3DCompile(szSource, strlen(szSource), szFile, nullptr, nullptr, szEntryPoint, szProfile, 0, 0, &pResultBlob, &pErrorBlob)))
   {
-    const char* szError = (const char*) ErrorBlob->GetBufferPointer();
+    const char* szError = static_cast<const char*>(pErrorBlob->GetBufferPointer());
 
     EZ_LOG_BLOCK("Shader Compilation Failed", szFile);
 
-    ezLog::Error("Could not compile shader '%s' for profile '%s'", szFile, profile);
+    ezLog::Error("Could not compile shader '%s' for profile '%s'", szFile, szProfile);
     ezLog::Error("%s", szError);
 
-    ErrorBlob->Release();
+    pErrorBlob->Release();
     return EZ_FAILURE;
   }
 
-  if (ErrorBlob != nullptr)
+  if (pErrorBlob != nullptr)
   {
-    const char* szError = (const char*) ErrorBlob->GetBufferPointer();
+    const char* szError = static_cast<const char*>(pErrorBlob->GetBufferPointer());
 
     EZ_LOG_BLOCK("Shader Compilation Error Message", szFile);
     ezLog::Dev("%s", szError);
 
-    ErrorBlob->Release();
+    pErrorBlob->Release();
   }
 
-  if (ResultBlob != nullptr)
+  if (pResultBlob != nullptr)
   {
-    out_ByteCode.SetCount((ezUInt32) ResultBlob->GetBufferSize());
-    ezMemoryUtils::Copy(out_ByteCode.GetData(), (ezUInt8*) ResultBlob->GetBufferPointer(), out_ByteCode.GetCount());
-    ResultBlob->Release();
+    out_ByteCode.SetCountUninitialized((ezUInt32) pResultBlob->GetBufferSize());
+    ezMemoryUtils::Copy(out_ByteCode.GetData(), static_cast<ezUInt8*>(pResultBlob->GetBufferPointer()), out_ByteCode.GetCount());
+    pResultBlob->Release();
   }
 
   return EZ_SUCCESS;
@@ -59,62 +59,62 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
 
   D3DReflect(inout_Data.m_StageBinary[Stage].m_ByteCode.GetData(), inout_Data.m_StageBinary[Stage].m_ByteCode.GetCount(), IID_ID3D11ShaderReflection, (void**) &pReflector);
 
-  D3D11_SHADER_DESC sd;
-  pReflector->GetDesc(&sd);
+  D3D11_SHADER_DESC shaderDesc;
+  pReflector->GetDesc(&shaderDesc);
 
-  for (ezUInt32 r = 0; r < sd.BoundResources; ++r)
+  for (ezUInt32 r = 0; r < shaderDesc.BoundResources; ++r)
   {
-    D3D11_SHADER_INPUT_BIND_DESC sibd;
-    pReflector->GetResourceBindingDesc(r, &sibd);
+    D3D11_SHADER_INPUT_BIND_DESC shaderInputBindDesc;
+    pReflector->GetResourceBindingDesc(r, &shaderInputBindDesc);
 
     //ezLog::Info("Bound Resource: '%s' at slot %u (Count: %u, Flags: %u)", sibd.Name, sibd.BindPoint, sibd.BindCount, sibd.uFlags);
 
-    ezShaderStageResource ssr;
-    ssr.m_Type = ezShaderStageResource::Unknown;
-    ssr.m_iSlot = sibd.BindPoint;
-    ssr.m_Name.Assign(sibd.Name);    
+    ezShaderStageResource shaderStageResource;
+    shaderStageResource.m_Type = ezShaderStageResource::Unknown;
+    shaderStageResource.m_iSlot = shaderInputBindDesc.BindPoint;
+    shaderStageResource.m_Name.Assign(shaderInputBindDesc.Name);    
 
-    if (sibd.Type == D3D_SIT_TEXTURE)
+    if (shaderInputBindDesc.Type == D3D_SIT_TEXTURE)
     {
-      switch (sibd.Dimension)
+      switch (shaderInputBindDesc.Dimension)
       {
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1D:
-        ssr.m_Type = ezShaderStageResource::Texture1D; break;
+        shaderStageResource.m_Type = ezShaderStageResource::Texture1D; break;
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1DARRAY:
-        ssr.m_Type = ezShaderStageResource::Texture1DArray; break;
+        shaderStageResource.m_Type = ezShaderStageResource::Texture1DArray; break;
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2D: 
-        ssr.m_Type = ezShaderStageResource::Texture2D; break;
+        shaderStageResource.m_Type = ezShaderStageResource::Texture2D; break;
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DARRAY: 
-        ssr.m_Type = ezShaderStageResource::Texture2DArray; break;
+        shaderStageResource.m_Type = ezShaderStageResource::Texture2DArray; break;
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMS: 
-        ssr.m_Type = ezShaderStageResource::Texture2DMS; break;
+        shaderStageResource.m_Type = ezShaderStageResource::Texture2DMS; break;
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMSARRAY: 
-        ssr.m_Type = ezShaderStageResource::Texture2DMSArray; break;
+        shaderStageResource.m_Type = ezShaderStageResource::Texture2DMSArray; break;
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE3D: 
-        ssr.m_Type = ezShaderStageResource::Texture3D; break;
+        shaderStageResource.m_Type = ezShaderStageResource::Texture3D; break;
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBE: 
-        ssr.m_Type = ezShaderStageResource::TextureCube; break;
+        shaderStageResource.m_Type = ezShaderStageResource::TextureCube; break;
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBEARRAY: 
-        ssr.m_Type = ezShaderStageResource::TextureCubeArray; break;
+        shaderStageResource.m_Type = ezShaderStageResource::TextureCubeArray; break;
       }
     }
 
-    else if (sibd.Type == D3D_SIT_CBUFFER)
+    else if (shaderInputBindDesc.Type == D3D_SIT_CBUFFER)
     {
-      ssr.m_Type = ezShaderStageResource::ConstantBuffer;
+      shaderStageResource.m_Type = ezShaderStageResource::ConstantBuffer;
     }
-    else if (sibd.Type == D3D_SIT_SAMPLER)
+    else if (shaderInputBindDesc.Type == D3D_SIT_SAMPLER)
     {
 
     }
     else
     {
-      ssr.m_Type = ezShaderStageResource::GenericBuffer;
+      shaderStageResource.m_Type = ezShaderStageResource::GenericBuffer;
     }
 
-    if (ssr.m_Type != ezShaderStageResource::Unknown)
+    if (shaderStageResource.m_Type != ezShaderStageResource::Unknown)
     {
-      inout_Data.m_StageBinary[Stage].m_ShaderResourceBindings.PushBack(ssr);
+      inout_Data.m_StageBinary[Stage].m_ShaderResourceBindings.PushBack(shaderStageResource);
     }
   }
 
@@ -130,18 +130,18 @@ void ezShaderCompilerHLSL::ReflectMaterialParameters(ezShaderProgramData& inout_
 
   if (pMaterialCB != nullptr)
   {
-    D3D11_SHADER_BUFFER_DESC sbd;
+    D3D11_SHADER_BUFFER_DESC shaderBufferDesc;
 
-    if (SUCCEEDED(pMaterialCB->GetDesc(&sbd)))
+    if (SUCCEEDED(pMaterialCB->GetDesc(&shaderBufferDesc)))
     {
       EZ_LOG_BLOCK("Material Block", szMaterialCBName);
-      ezLog::Debug("MaterialCB has %u variables, Size is %u", sbd.Variables, sbd.Size);
+      ezLog::Debug("MaterialCB has %u variables, Size is %u", shaderBufferDesc.Variables, shaderBufferDesc.Size);
 
       ezShaderMaterialParamCB mcb;
 
-      mcb.m_uiMaterialCBSize = sbd.Size;
+      mcb.m_uiMaterialCBSize = shaderBufferDesc.Size;
 
-      for (ezUInt32 var = 0; var < sbd.Variables; ++var)
+      for (ezUInt32 var = 0; var < shaderBufferDesc.Variables; ++var)
       {
         ID3D11ShaderReflectionVariable* pVar = pMaterialCB->GetVariableByIndex(var);
 
