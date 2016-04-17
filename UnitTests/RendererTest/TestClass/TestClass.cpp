@@ -12,6 +12,7 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Memory/MemoryTracker.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
@@ -47,6 +48,9 @@ ezSizeU32 ezGraphicsTest::GetResolution() const
 ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolutionY)
 {
   {
+    ezStringBuilder sBaseDir = BUILDSYSTEM_OUTPUT_FOLDER;
+    sBaseDir.AppendPath("../../Data/Base/");
+
     ezStringBuilder sReadDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
     ezString sFolderName = sReadDir.GetFileName();
     sReadDir.AppendPath("../../../Data/UnitTests", sFolderName);
@@ -57,6 +61,11 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
       return EZ_FAILURE;
 
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
+
+    ezFileSystem::AddDataDirectory("");
+
+    if (ezFileSystem::AddDataDirectory(sBaseDir.GetData(), ezFileSystem::ReadOnly, "Base").Failed())
+      return EZ_FAILURE;
 
     if (ezFileSystem::AddDataDirectory(sWriteDir.GetData(), ezFileSystem::AllowWrites, "ImageComparisonDataDir").Failed())
       return EZ_FAILURE;
@@ -99,7 +108,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
     ezConstantBufferResourceDescriptor<ObjectCB> desc;
     m_hObjectTransformCB = ezResourceManager::CreateResource<ezConstantBufferResource>("{E74F00FD-8C0C-47B9-A63D-E3D2E77FCFB4}", desc, "ObjectTransformCB");
 
-    ezRenderContext::ConfigureShaderSystem("DX11_SM40", true);
+    ezShaderManager::Configure("DX11_SM40", true);
 
     EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
 
@@ -183,8 +192,8 @@ void ezGraphicsTest::ClearScreen(const ezColor& color)
   const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(hPrimarySwapChain);
 
   ezGALRenderTagetSetup RTS;
-  RTS.SetRenderTarget(0, pPrimarySwapChain->GetBackBufferRenderTargetView())
-     .SetDepthStencilTarget(pPrimarySwapChain->GetDepthStencilTargetView());
+  RTS.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture()))
+     .SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetDepthStencilBufferTexture()));
 
   pContext->SetRenderTargetSetup(RTS);
   pContext->SetViewport(ezRectFloat(0.0f, 0.0f, (float) m_pWindow->GetClientAreaSize().width, (float) m_pWindow->GetClientAreaSize().height), 0.0f, 1.0f);

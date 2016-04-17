@@ -29,7 +29,7 @@
 
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Context/Context.h>
-
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/Shader/ShaderResource.h>
@@ -185,8 +185,8 @@ public:
       ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
       const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(hPrimarySwapChain);
       
-      m_hBBRTV = pPrimarySwapChain->GetBackBufferRenderTargetView();
-      m_hBBDSV = pPrimarySwapChain->GetDepthStencilTargetView();
+      m_hBBRTV = m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
+      m_hBBDSV = m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetDepthStencilBufferTexture());
     }
 
     // Create Rasterizer State
@@ -209,8 +209,8 @@ public:
 
     // Setup Shaders and Materials
     {
-      ezRenderContext::ConfigureShaderSystem("DX11_SM40", true);
-
+      ezShaderManager::Configure("DX11_SM40", true);
+ 
       m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Texture.ezMaterial");
 
       // Create the mesh that we use for rendering
