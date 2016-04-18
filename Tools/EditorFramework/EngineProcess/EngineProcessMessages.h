@@ -273,6 +273,7 @@ public:
   float m_fSimulationSpeed;
   bool m_bRenderOverlay;
   bool m_bRenderShapeIcons;
+  bool m_bRenderSelectionBoxes;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezGameModeMsgToEngine : public ezEditorEngineDocumentMsg

@@ -24,6 +24,8 @@ public:
   ezVisualizerManager();
   ~ezVisualizerManager();
 
+  void SetVisualizersActive(const ezDocument* pDoc, bool bActive);
+
   ezEvent<const ezVisualizerManagerEvent&> m_Events;
 
 private:
@@ -32,7 +34,20 @@ private:
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
   void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
+  void SendEvent(const ezDocument* pDoc);
 
-  ezSet<const ezDocument*> m_DocsSubscribed;
+  struct DocData
+  {
+    bool m_bSubscribed;
+    bool m_bActivated;
+
+    DocData()
+    {
+      m_bSubscribed = false;
+      m_bActivated = true;
+    }
+  };
+
+  ezMap<const ezDocument*, DocData> m_DocsSubscribed;
 };
 

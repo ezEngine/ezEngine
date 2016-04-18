@@ -27,6 +27,7 @@
     <file>Icons/PrefabOpenDocument16.png</file>
     <file>Icons/ShapeIcons16.png</file>
 	<file>Icons/Duplicate16.png</file>
+	<file>Icons/Visualizers16.png</file>
   </qresource>
   <qresource prefix="TypeIcons">
 	<file>ezMeshComponent.png</file>

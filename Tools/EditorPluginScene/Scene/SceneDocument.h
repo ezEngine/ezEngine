@@ -18,7 +18,7 @@ enum class ActiveGizmo
   DragToPosition,
 };
 
-enum class GameMode
+enum GameMode
 {
   Off,
   Simulate,
@@ -37,6 +37,7 @@ struct ezSceneDocumentEvent
     SnapEachSelectedObjectToGrid,
     GameModeChanged,
     RenderSelectionOverlayChanged,
+    RenderVisualizersChanged,
     RenderShapeIconsChanged,
     SimulationSpeedChanged,
     TriggerGameModePlay,
@@ -160,10 +161,13 @@ public:
   float GetSimulationSpeed() const { return m_fSimulationSpeed; }
   void SetSimulationSpeed(float f);
 
-  bool GetRenderSelectionOverlay() const { return m_bRenderSelectionOverlay; }
+  bool GetRenderSelectionOverlay() const { return m_CurrentMode.m_bRenderSelectionOverlay; }
   void SetRenderSelectionOverlay( bool b );
 
-  bool GetRenderShapeIcons() const { return m_bRenderShapeIcons; }
+  bool GetRenderVisualizers() const { return m_CurrentMode.m_bRenderVisualizers; }
+  void SetRenderVisualizers(bool b);
+
+  bool GetRenderShapeIcons() const { return m_CurrentMode.m_bRenderShapeIcons; }
   void SetRenderShapeIcons(bool b);
 
   void HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg);
@@ -217,13 +221,20 @@ private:
 
   virtual ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const override;
 
+  struct GameModeData
+  {
+    bool m_bRenderSelectionOverlay;
+    bool m_bRenderVisualizers;
+    bool m_bRenderShapeIcons;
+  };
 
   bool m_bIsPrefab;
   bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
   GameMode m_GameMode;
   float m_fSimulationSpeed;
-  bool m_bRenderSelectionOverlay;
-  bool m_bRenderShapeIcons;
+
+  GameModeData m_CurrentMode;
+  GameModeData m_GameModeData[3];
 
   ActiveGizmo m_ActiveGizmo;
   ezObjectPickingResult m_PickingResult;

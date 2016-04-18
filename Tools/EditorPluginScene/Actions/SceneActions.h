@@ -21,6 +21,7 @@ public:
   static ezActionDescriptorHandle s_hRunScene;
   static ezActionDescriptorHandle s_hGameModeSimulate;
   static ezActionDescriptorHandle s_hRenderSelectionOverlay;
+  static ezActionDescriptorHandle s_hRenderVisualizers;
   static ezActionDescriptorHandle s_hRenderShapeIcons;
   static ezActionDescriptorHandle s_hSimulationSpeedMenu;
   static ezActionDescriptorHandle s_hSimulationSpeed[10];
@@ -42,6 +43,7 @@ public:
     RunScene,
     StartGameModeSimulate,
     RenderSelectionOverlay,
+    RenderVisualizers,
     RenderShapeIcons,
     SimulationSpeed,
     StartGameModePlay,

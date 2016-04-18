@@ -15,6 +15,7 @@ ezActionDescriptorHandle ezSceneActions::s_hExportScene;
 ezActionDescriptorHandle ezSceneActions::s_hRunScene;
 ezActionDescriptorHandle ezSceneActions::s_hGameModeSimulate;
 ezActionDescriptorHandle ezSceneActions::s_hRenderSelectionOverlay;
+ezActionDescriptorHandle ezSceneActions::s_hRenderVisualizers;
 ezActionDescriptorHandle ezSceneActions::s_hRenderShapeIcons;
 ezActionDescriptorHandle ezSceneActions::s_hSimulationSpeedMenu;
 ezActionDescriptorHandle ezSceneActions::s_hSimulationSpeed[10];
@@ -29,6 +30,7 @@ void ezSceneActions::RegisterActions()
   s_hRunScene = EZ_REGISTER_ACTION_1("Scene.Run", ezActionScope::Document, "Scene", "Ctrl+R", ezSceneAction, ezSceneAction::ActionType::RunScene);
   s_hGameModeSimulate = EZ_REGISTER_ACTION_1("Scene.GameMode.Simulate", ezActionScope::Document, "Scene", "F5", ezSceneAction, ezSceneAction::ActionType::StartGameModeSimulate);
   s_hRenderSelectionOverlay = EZ_REGISTER_ACTION_1("Scene.Render.SelectionOverlay", ezActionScope::Document, "Scene", "Ctrl+M", ezSceneAction, ezSceneAction::ActionType::RenderSelectionOverlay);
+  s_hRenderVisualizers = EZ_REGISTER_ACTION_1("Scene.Render.Visualizers", ezActionScope::Document, "Scene", "", ezSceneAction, ezSceneAction::ActionType::RenderVisualizers);
   s_hRenderShapeIcons = EZ_REGISTER_ACTION_1("Scene.Render.ShapeIcons", ezActionScope::Document, "Scene", "Space", ezSceneAction, ezSceneAction::ActionType::RenderShapeIcons);
   s_hGameModePlay = EZ_REGISTER_ACTION_1("Scene.GameMode.Play", ezActionScope::Document, "Scene", "Ctrl+F5", ezSceneAction, ezSceneAction::ActionType::StartGameModePlay);
   s_hGameModeStop = EZ_REGISTER_ACTION_1("Scene.GameMode.Stop", ezActionScope::Document, "Scene", "Shift+F5", ezSceneAction, ezSceneAction::ActionType::StopGameMode);
@@ -55,6 +57,7 @@ void ezSceneActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hRunScene);
   ezActionManager::UnregisterAction(s_hGameModeSimulate);
   ezActionManager::UnregisterAction(s_hRenderSelectionOverlay);
+  ezActionManager::UnregisterAction(s_hRenderVisualizers);
   ezActionManager::UnregisterAction(s_hRenderShapeIcons);
   ezActionManager::UnregisterAction(s_hSimulationSpeedMenu);
   ezActionManager::UnregisterAction(s_hGameModePlay);
@@ -100,7 +103,8 @@ void ezSceneActions::MapMenuActions()
 
     pMap->MapAction(s_hSceneCategory, "Menu.View", 1.0f);
     pMap->MapAction(s_hRenderSelectionOverlay, szSubPath, 1.0f);
-    pMap->MapAction(s_hRenderShapeIcons, szSubPath, 2.0f);
+    pMap->MapAction(s_hRenderVisualizers, szSubPath, 2.0f);
+    pMap->MapAction(s_hRenderShapeIcons, szSubPath, 3.0f);
   }
 }
 
@@ -121,7 +125,8 @@ void ezSceneActions::MapToolbarActions()
     pMap->MapAction(s_hGameModePlay, szSubPath, 3.0f);
     
     pMap->MapAction(s_hRenderSelectionOverlay, szSubPath, 4.0f);
-    pMap->MapAction(s_hRenderShapeIcons, szSubPath, 5.0f);
+    pMap->MapAction(s_hRenderVisualizers, szSubPath, 5.0f);
+    pMap->MapAction(s_hRenderShapeIcons, szSubPath, 6.0f);
   }
 }
 
@@ -157,6 +162,12 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
     SetCheckable(true);
     SetIconPath(":/EditorPluginScene/Icons/Selection16.png");
     SetChecked(m_pSceneDocument->GetRenderSelectionOverlay());
+    break;
+
+  case ActionType::RenderVisualizers:
+    SetCheckable(true);
+    SetIconPath(":/EditorPluginScene/Icons/Visualizers16.png");
+    SetChecked(m_pSceneDocument->GetRenderVisualizers());
     break;
 
   case ActionType::RenderShapeIcons:
@@ -228,21 +239,19 @@ void ezSceneAction::Execute(const ezVariant& value)
     return;
 
   case ActionType::RenderSelectionOverlay:
-    {
-      m_pSceneDocument->SetRenderSelectionOverlay(!m_pSceneDocument->GetRenderSelectionOverlay());
-    }
+    m_pSceneDocument->SetRenderSelectionOverlay(!m_pSceneDocument->GetRenderSelectionOverlay());
+    return;
+
+  case ActionType::RenderVisualizers:
+    m_pSceneDocument->SetRenderVisualizers(!m_pSceneDocument->GetRenderVisualizers());
     return;
 
   case ActionType::RenderShapeIcons:
-    {
-      m_pSceneDocument->SetRenderShapeIcons(!m_pSceneDocument->GetRenderShapeIcons());
-    }
+    m_pSceneDocument->SetRenderShapeIcons(!m_pSceneDocument->GetRenderShapeIcons());
     return;
 
   case ActionType::SimulationSpeed:
-    {
-      m_pSceneDocument->SetSimulationSpeed(m_fSimSpeed);
-    }
+    m_pSceneDocument->SetSimulationSpeed(m_fSimSpeed);
     return;
   }
 }
@@ -264,6 +273,15 @@ void ezSceneAction::SceneEventHandler(const ezSceneDocumentEvent& e)
     }
     break;
 
+  case ezSceneDocumentEvent::Type::RenderVisualizersChanged:
+    {
+      if (m_Type == ActionType::RenderVisualizers)
+      {
+        SetChecked(m_pSceneDocument->GetRenderVisualizers());
+      }
+    }
+    break;
+
   case ezSceneDocumentEvent::Type::RenderShapeIconsChanged:
     {
       if (m_Type == ActionType::RenderShapeIcons)
@@ -272,6 +290,7 @@ void ezSceneAction::SceneEventHandler(const ezSceneDocumentEvent& e)
       }
     }
     break;
+
   case ezSceneDocumentEvent::Type::SimulationSpeedChanged:
     {
       if (m_Type == ActionType::SimulationSpeed)

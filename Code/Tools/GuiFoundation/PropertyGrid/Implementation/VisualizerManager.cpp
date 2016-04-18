@@ -35,6 +35,23 @@ ezVisualizerManager::~ezVisualizerManager()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezVisualizerManager::DocumentManagerEventHandler, this));
 }
 
+void ezVisualizerManager::SetVisualizersActive(const ezDocument* pDoc, bool bActive)
+{
+  if (m_DocsSubscribed[pDoc].m_bActivated == bActive)
+    return;
+
+  m_DocsSubscribed[pDoc].m_bActivated = bActive;
+
+  if (!bActive)
+  {
+    ClearActiveVisualizers(pDoc);
+  }
+  else
+  {
+    SendEvent(pDoc);
+  }
+}
+
 void ezVisualizerManager::ClearActiveVisualizers(const ezDocument* pDoc)
 {
   ezDeque<const ezDocumentObject*> sel;
@@ -48,17 +65,25 @@ void ezVisualizerManager::ClearActiveVisualizers(const ezDocument* pDoc)
 
 void ezVisualizerManager::SelectionEventHandler(const ezSelectionManagerEvent& event)
 {
-  const auto& sel = event.m_pDocument->GetSelectionManager()->GetSelection();
+  if (!m_DocsSubscribed[event.m_pDocument].m_bActivated)
+    return;
 
-  if (!m_DocsSubscribed.Contains(event.m_pDocument))
+  SendEvent(event.m_pDocument);
+}
+
+void ezVisualizerManager::SendEvent(const ezDocument* pDoc)
+{
+  const auto& sel = pDoc->GetSelectionManager()->GetSelection();
+
+  if (m_DocsSubscribed[pDoc].m_bSubscribed == false)
   {
-    m_DocsSubscribed.Insert(event.m_pDocument);
-    event.m_pDocument->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezVisualizerManager::StructureEventHandler, this));
+    m_DocsSubscribed[pDoc].m_bSubscribed = true;
+    pDoc->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezVisualizerManager::StructureEventHandler, this));
   }
 
   ezVisualizerManagerEvent e;
   e.m_pSelection = &sel;
-  e.m_pDocument = event.m_pDocument;
+  e.m_pDocument = pDoc;
 
   m_Events.Broadcast(e);
 }

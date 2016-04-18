@@ -12,6 +12,7 @@
 #include <Commands/SceneCommands.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
+#include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneObjectMetaData, 1, ezRTTINoAllocator)
 {
@@ -36,8 +37,22 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab) : e
   m_GameMode = GameMode::Off;
   m_fSimulationSpeed = 1.0f;
   m_bGizmoWorldSpace = true;
-  m_bRenderSelectionOverlay = true;
-  m_bRenderShapeIcons = true;
+
+  m_CurrentMode.m_bRenderSelectionOverlay = true;
+  m_CurrentMode.m_bRenderShapeIcons = true;
+  m_CurrentMode.m_bRenderVisualizers = true;
+
+  m_GameModeData[GameMode::Off].m_bRenderSelectionOverlay = true;
+  m_GameModeData[GameMode::Off].m_bRenderShapeIcons = true;
+  m_GameModeData[GameMode::Off].m_bRenderVisualizers = true;
+
+  m_GameModeData[GameMode::Simulate].m_bRenderSelectionOverlay = true;
+  m_GameModeData[GameMode::Simulate].m_bRenderShapeIcons = false;
+  m_GameModeData[GameMode::Simulate].m_bRenderVisualizers = false;
+
+  m_GameModeData[GameMode::Play].m_bRenderSelectionOverlay = false;
+  m_GameModeData[GameMode::Play].m_bRenderShapeIcons = false;
+  m_GameModeData[GameMode::Play].m_bRenderVisualizers = false;
 }
 
 void ezSceneDocument::InitializeAfterLoading()
@@ -344,6 +359,9 @@ void ezSceneDocument::SetGameMode(GameMode mode)
   if (m_GameMode == mode)
     return;
 
+  // store settings of recently active mode
+  m_GameModeData[m_GameMode] = m_CurrentMode;
+
   m_GameMode = mode;
 
   switch (m_GameMode)
@@ -358,6 +376,10 @@ void ezSceneDocument::SetGameMode(GameMode mode)
     ShowDocumentStatus("Game Mode: Play");
     break;
   }
+
+  SetRenderSelectionOverlay(m_GameModeData[m_GameMode].m_bRenderSelectionOverlay);
+  SetRenderShapeIcons(m_GameModeData[m_GameMode].m_bRenderShapeIcons);
+  SetRenderVisualizers(m_GameModeData[m_GameMode].m_bRenderVisualizers);
 
   if (m_GameMode == GameMode::Off)
   {
@@ -437,10 +459,10 @@ void ezSceneDocument::SetSimulationSpeed(float f)
 
 void ezSceneDocument::SetRenderSelectionOverlay(bool b)
 {
-  if (m_bRenderSelectionOverlay == b)
+  if (m_CurrentMode.m_bRenderSelectionOverlay == b)
     return;
 
-  m_bRenderSelectionOverlay = b;
+  m_CurrentMode.m_bRenderSelectionOverlay = b;
 
   ezSceneDocumentEvent e;
   e.m_Type = ezSceneDocumentEvent::Type::RenderSelectionOverlayChanged;
@@ -448,12 +470,26 @@ void ezSceneDocument::SetRenderSelectionOverlay(bool b)
 }
 
 
-void ezSceneDocument::SetRenderShapeIcons(bool b)
+void ezSceneDocument::SetRenderVisualizers(bool b)
 {
-  if (m_bRenderShapeIcons == b)
+  if (m_CurrentMode.m_bRenderVisualizers == b)
     return;
 
-  m_bRenderShapeIcons = b;
+  m_CurrentMode.m_bRenderVisualizers = b;
+
+  ezVisualizerManager::GetSingleton()->SetVisualizersActive(this, m_CurrentMode.m_bRenderVisualizers);
+
+  ezSceneDocumentEvent e;
+  e.m_Type = ezSceneDocumentEvent::Type::RenderVisualizersChanged;
+  m_SceneEvents.Broadcast(e);
+}
+
+void ezSceneDocument::SetRenderShapeIcons(bool b)
+{
+  if (m_CurrentMode.m_bRenderShapeIcons == b)
+    return;
+
+  m_CurrentMode.m_bRenderShapeIcons = b;
 
   ezSceneDocumentEvent e;
   e.m_Type = ezSceneDocumentEvent::Type::RenderShapeIconsChanged;

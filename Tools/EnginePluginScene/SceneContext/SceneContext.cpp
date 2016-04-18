@@ -88,7 +88,7 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     const bool bSimulate = msg->m_bSimulateWorld;
     m_bRenderSelectionOverlay = msg->m_bRenderOverlay;
     m_bRenderShapeIcons = msg->m_bRenderShapeIcons;
-    //m_bRenderSelectionBoxes = msg->m_bRenderSelectionBoxes;
+    m_bRenderSelectionBoxes = msg->m_bRenderSelectionBoxes;
 
     ezGameState* pState = GetGameState();
 
