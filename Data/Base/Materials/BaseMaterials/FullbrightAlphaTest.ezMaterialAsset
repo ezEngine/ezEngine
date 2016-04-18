@@ -3,20 +3,12 @@
    "#" : { "$t" : "uuid", "$b" : "0x59AD6ACC19A17B4193F602509F604BC8" },
    "t" : "ezMaterialAssetProperties",
    "p" : {
-        "Base Material" : "",
-        "Shader" : "Shaders/Materials/Fullbright.ezShader",
-        "Permutations" : "ALPHATEST=1",
-        "Diffuse Texture" : "",
-        "Mask Texture" : "",
-        "Normal Map" : ""
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
-   "t" : "ezDocumentRoot",
-   "n" : "ObjectTree",
-   "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x59AD6ACC19A17B4193F602509F604BC8" } ]
+    "Base Material" : "",
+    "Diffuse Texture" : "",
+    "Mask Texture" : "",
+    "Normal Map" : "",
+    "Permutations" : "ALPHATEST=TRUE",
+    "Shader" : "Shaders/Materials/Fullbright.ezShader"
    }
   },
   {
@@ -25,10 +17,17 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Material",
-    "Dependencies" : "Materials/BaseMaterials/Fullbright.ezMaterialAsset",
+    "Dependencies" : "Shaders/Materials/Fullbright.ezShader",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x41D300485B756743A175FFA5DD17BD29" },
-    "Hash" : { "$t" : "uint64", "$v" : "942324037440068187", "$b" : "0x5B5AED2AB8CE130D" },
-    "References" : ""
+    "Hash" : { "$t" : "uint64", "$v" : "14845188404757199760", "$b" : "0x90FB4C7133B404CE" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0x59AD6ACC19A17B4193F602509F604BC8" } ]
    }
   } ]
 }

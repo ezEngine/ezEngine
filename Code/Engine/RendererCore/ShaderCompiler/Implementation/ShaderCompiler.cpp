@@ -52,8 +52,7 @@ namespace
     for (const ezPermutationVar& var : permutationVars)
     {
       const char* szValue = var.m_sValue.GetData();
-      const bool isBoolVar = ezStringUtils::IsEqual(szValue, "TRUE") || ezStringUtils::IsEqual(szValue, "FALSE") ||
-        ezStringUtils::IsEqual(szValue, "1") || ezStringUtils::IsEqual(szValue, "0");
+      const bool isBoolVar = ezStringUtils::IsEqual(szValue, "TRUE") || ezStringUtils::IsEqual(szValue, "FALSE");
 
       if (isBoolVar)
       {
@@ -145,7 +144,7 @@ ezResult ezShaderCompiler::FileOpen(const char* szAbsoluteFile, ezDynamicArray<e
   return EZ_SUCCESS;
 }
 
-ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(const char* szFile, const ezArrayPtr<ezPermutationVar>& permutationVars, const char* szPlatform)
+ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(const char* szFile, const ezArrayPtr<const ezPermutationVar>& permutationVars, const char* szPlatform)
 {
   ezStringBuilder sFileContent, sTemp;
 
@@ -225,8 +224,6 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(const char* szFi
 
   m_StageSourceFile[ezGALShaderStage::ComputeShader] = szFile;
   m_StageSourceFile[ezGALShaderStage::ComputeShader].ChangeFileExtension("cs");
-
-  m_PermVars.Clear();
 
   // try out every compiler that we can find
   ezRTTI* pRtti = ezRTTI::GetFirstInstance();
@@ -416,7 +413,11 @@ void ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szPlatf
     shaderPermutationBinary.m_DependencyFile.AddFileDependency(szFile);
 
     for (auto it = m_IncludeFiles.GetIterator(); it.IsValid(); ++it)
+    {
       shaderPermutationBinary.m_DependencyFile.AddFileDependency(it.Key());
+    }
+
+    shaderPermutationBinary.m_PermutationVars = m_ShaderData.m_Permutations;
 
     ezFileWriter PermutationFileOut;
     if (PermutationFileOut.Open(sTemp.GetData()).Failed())

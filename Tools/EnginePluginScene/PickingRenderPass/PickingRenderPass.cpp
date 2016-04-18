@@ -98,8 +98,8 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   pGALContext->SetRenderTargetSetup(m_RenderTargetSetup);
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f));
 
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING", "1");
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING_IGNORE_GIZMOS", !m_bPickSelected ? "1" : "0");
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING", "TRUE");
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING_IGNORE_GIZMOS", !m_bPickSelected ? "TRUE" : "FALSE");
 
   // copy selection to set for faster checks
   s_SelectionSet.Clear();
@@ -163,7 +163,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
 
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING", "0");
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING", "FALSE");
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "DEFAULT");
 
 

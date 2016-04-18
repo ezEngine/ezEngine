@@ -19,8 +19,6 @@ public:
   static void PreloadPermutations(ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, ezTime tShouldBeAvailableIn);
   static ezShaderPermutationResourceHandle PreloadSinglePermutation(ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, ezTime tShouldBeAvailableIn);
 
-  static ezArrayPtr<ezPermutationVar> GetPermutationVars(ezUInt32 uiHash);
-
 private:
 
   static ezUInt32 FilterPermutationVars(const ezArrayPtr<const ezHashedString>& usedVars, const ezHashTable<ezHashedString, ezHashedString>& permVars);

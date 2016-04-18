@@ -133,6 +133,8 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReader* St
     return res;
   }
 
+  m_PermutationVars = PermutationBinary.m_PermutationVars;
+
   m_bShaderPermutationValid = true;
 
   ModifyMemoryUsage().m_uiMemoryGPU = uiGPUMem;
@@ -193,7 +195,7 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
     sPermutationFile.Shrink(0, 8); // remove the hash at the end
     sPermutationFile.Append(".ezShader");
 
-    ezArrayPtr<ezPermutationVar> permutationVars = ezShaderManager::GetPermutationVars(uiPermutationHash);
+    ezArrayPtr<const ezPermutationVar> permutationVars = static_cast<const ezShaderPermutationResource*>(pResource)->GetPermutationVars();
 
     ezShaderCompiler sc;
     return sc.CompileShaderPermutationForPlatforms(sPermutationFile.GetData(), permutationVars, ezShaderManager::GetActivePlatform().GetData());

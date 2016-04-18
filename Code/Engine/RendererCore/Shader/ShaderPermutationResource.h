@@ -30,6 +30,8 @@ public:
 
   bool IsShaderValid() const { return m_bShaderPermutationValid; }
 
+  ezArrayPtr<const ezPermutationVar> GetPermutationVars() const { return m_PermutationVars; }
+
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
@@ -37,6 +39,8 @@ private:
   virtual ezResourceTypeLoader* GetDefaultResourceTypeLoader() const override;
 
 private:
+
+  friend class ezShaderManager;
 
   ezShaderStageBinary* m_pShaderStageBinaries[ezGALShaderStage::ENUM_COUNT];
 
@@ -46,6 +50,8 @@ private:
   ezGALBlendStateHandle m_hBlendState;
   ezGALDepthStencilStateHandle m_hDepthStencilState;
   ezGALRasterizerStateHandle m_hRasterizerState;
+
+  ezHybridArray<ezPermutationVar, 16> m_PermutationVars;
 };
 
 

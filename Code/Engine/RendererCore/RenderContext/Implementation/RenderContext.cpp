@@ -303,11 +303,11 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
 
     if (m_Topology == ezGALPrimitiveTopology::Lines)
     {
-      SetShaderPermutationVariable("TOPOLOGY_LINES", "1");
+      SetShaderPermutationVariable("TOPOLOGY_LINES", "TRUE");
     }
     else
     {
-      SetShaderPermutationVariable("TOPOLOGY_LINES", "0");
+      SetShaderPermutationVariable("TOPOLOGY_LINES", "FALSE");
     }
 
     m_hActiveShaderPermutation = ezShaderManager::PreloadSinglePermutation(m_hActiveShader, m_PermutationVariables, ezTime::Seconds(0.0));

@@ -48,7 +48,7 @@ class EZ_RENDERERCORE_DLL ezShaderCompiler
 {
 public:
 
-  ezResult CompileShaderPermutationForPlatforms(const char* szFile, const ezArrayPtr<ezPermutationVar>& permutationVars, const char* szPlatform = "ALL");
+  ezResult CompileShaderPermutationForPlatforms(const char* szFile, const ezArrayPtr<const ezPermutationVar>& permutationVars, const char* szPlatform = "ALL");
 
 private:
 
@@ -71,7 +71,6 @@ private:
 
   ezStringBuilder m_StageSourceFile[ezGALShaderStage::ENUM_COUNT];
 
-  ezHybridArray<ezPermutationVar, 16> m_PermVars;
   ezTokenizedFileCache m_FileCache;
   ezShaderData m_ShaderData;
 

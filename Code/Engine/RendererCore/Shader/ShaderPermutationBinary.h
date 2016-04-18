@@ -1,9 +1,8 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
+#include <RendererCore/Declarations.h>
 #include <RendererCore/Shader/ShaderStageBinary.h>
 #include <Foundation/IO/DependencyFile.h>
-#include <Core/ResourceManager/Resource.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
 struct EZ_RENDERERCORE_DLL ezShaderStateResourceDescriptor
@@ -32,5 +31,7 @@ public:
   ezDependencyFile m_DependencyFile;
 
   ezShaderStateResourceDescriptor m_StateDescriptor;
+
+  ezHybridArray<ezPermutationVar, 16> m_PermutationVars;
 };
 

@@ -5,6 +5,7 @@
 enum ezShaderPermutationBinaryVersion
 {
   Version1 = 1,
+  Version2 = 2,
 
   ENUM_COUNT,
   Current = ENUM_COUNT - 1
@@ -35,6 +36,14 @@ ezResult ezShaderPermutationBinary::Write(ezStreamWriter& Stream)
 
   m_StateDescriptor.Save(Stream);
 
+  Stream << m_PermutationVars.GetCount();
+  
+  for (auto& var : m_PermutationVars)
+  {
+    Stream << var.m_sName.GetString();
+    Stream << var.m_sValue.GetString();
+  }
+
   return EZ_SUCCESS;
 }
 
@@ -56,6 +65,23 @@ ezResult ezShaderPermutationBinary::Read(ezStreamReader& Stream)
   }
 
   m_StateDescriptor.Load(Stream);
+
+  if (uiVersion >= ezShaderPermutationBinaryVersion::Version2)
+  {
+    ezUInt32 uiPermutationCount;
+    Stream >> uiPermutationCount;
+
+    m_PermutationVars.SetCount(uiPermutationCount);
+
+    ezStringBuilder tmp;
+    for (ezUInt32 i = 0; i < uiPermutationCount; ++i)
+    {
+      auto& var = m_PermutationVars[i];
+      
+      Stream >> tmp; var.m_sName.Assign(tmp.GetData());
+      Stream >> tmp; var.m_sValue.Assign(tmp.GetData());
+    }
+  }
 
   return EZ_SUCCESS;
 }
