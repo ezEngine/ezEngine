@@ -27,8 +27,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 1)
   EZ_END_ATTRIBUTES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezInputComponentMessage, InputComponentMessageHandler),
-    EZ_MESSAGE_HANDLER(ezComponentTriggerMessage, OnTriggered),
+    EZ_MESSAGE_HANDLER(ezTriggerMessage, OnTriggered),
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -99,8 +98,9 @@ void ezSpawnComponent::ScheduleSpawn()
   if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::SpawnInFlight))
     return;
 
-  ezComponentTriggerMessage msg;
+  ezTriggerMessage msg;
   msg.m_hTargetComponent = GetHandle();
+  msg.m_UsageStringHash = ezTempHashedString("scheduled_spawn").GetHash();
 
   m_SpawnFlags.Add(ezSpawnComponentFlags::SpawnInFlight);
 
@@ -182,29 +182,25 @@ void ezSpawnComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab)
 }
 
 
-void ezSpawnComponent::OnTriggered(ezComponentTriggerMessage& msg)
+void ezSpawnComponent::OnTriggered(ezTriggerMessage& msg)
 {
-  if (msg.m_hTargetComponent != GetHandle())
+  if (!msg.m_hTargetComponent.IsInvalidated() && msg.m_hTargetComponent != GetHandle())
     return;
 
-  m_SpawnFlags.Remove(ezSpawnComponentFlags::SpawnInFlight);
-
-  SpawnOnce();
-
-  // do it all again
-  if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::SpawnContinuously))
+  if (msg.m_UsageStringHash == ezTempHashedString("scheduled_spawn").GetHash())
   {
-    ScheduleSpawn();
+    m_SpawnFlags.Remove(ezSpawnComponentFlags::SpawnInFlight);
+
+    SpawnOnce();
+
+    // do it all again
+    if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::SpawnContinuously))
+    {
+      ScheduleSpawn();
+    }
   }
-}
-
-void ezSpawnComponent::InputComponentMessageHandler(ezInputComponentMessage& msg)
-{
-  float f = msg.m_fValue;
-
-  if (ezStringUtils::IsEqual(msg.m_szAction, "spawn"))
+  else if (msg.m_UsageStringHash == ezTempHashedString("spawn").GetHash())
   {
     TriggerManualSpawn();
   }
 }
-

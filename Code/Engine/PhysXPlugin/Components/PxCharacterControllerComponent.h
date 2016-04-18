@@ -1,8 +1,7 @@
 #pragma once
 
 #include <PhysXPlugin/Components/PhysXComponent.h>
-
-struct ezInputComponentMessage;
+#include <Core/Messages/TriggerMessage.h>
 
 typedef ezComponentManagerSimple<class ezPxCharacterControllerComponent, true> ezPxCharacterControllerComponentManager;
 
@@ -49,7 +48,7 @@ protected:
 
 public:
 
-  void InputComponentMessageHandler(ezInputComponentMessage& msg);
+  void TriggerMessageHandler(ezTriggerMessage& msg);
 
 private:
   PxCapsuleController* m_pController;

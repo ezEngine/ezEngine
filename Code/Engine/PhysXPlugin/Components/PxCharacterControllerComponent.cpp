@@ -22,7 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 1)
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezInputComponentMessage, InputComponentMessageHandler),
+    EZ_MESSAGE_HANDLER(ezTriggerMessage, TriggerMessageHandler),
   }
   EZ_END_MESSAGEHANDLERS
     EZ_BEGIN_ATTRIBUTES
@@ -188,41 +188,41 @@ void ezPxCharacterControllerComponent::Deinitialize()
   }
 }
 
-void ezPxCharacterControllerComponent::InputComponentMessageHandler(ezInputComponentMessage& msg)
+void ezPxCharacterControllerComponent::TriggerMessageHandler(ezTriggerMessage& msg)
 {
-  float f = msg.m_fValue;
+  float f = msg.m_fTriggerValue;
 
-  if (ezStringUtils::IsEqual(msg.m_szAction, "MoveForwards"))
+  if (msg.m_UsageStringHash == ezTempHashedString("MoveForwards").GetHash())
   {
     m_vRelativeMoveDirection += ezVec3(f, 0, 0);
     return;
   }
 
-  if (ezStringUtils::IsEqual(msg.m_szAction, "MoveBackwards"))
+  if (msg.m_UsageStringHash == ezTempHashedString("MoveBackwards").GetHash())
   {
     m_vRelativeMoveDirection += ezVec3(-f, 0, 0);
     return;
   }
 
-  if (ezStringUtils::IsEqual(msg.m_szAction, "StrafeLeft"))
+  if (msg.m_UsageStringHash == ezTempHashedString("StrafeLeft").GetHash())
   {
     m_vRelativeMoveDirection += ezVec3(0, -f, 0);
     return;
   }
 
-  if (ezStringUtils::IsEqual(msg.m_szAction, "StrafeRight"))
+  if (msg.m_UsageStringHash == ezTempHashedString("StrafeRight").GetHash())
   {
     m_vRelativeMoveDirection += ezVec3(0, f, 0);
     return;
   }
 
-  if (ezStringUtils::IsEqual(msg.m_szAction, "RotateLeft"))
+  if (msg.m_UsageStringHash == ezTempHashedString("RotateLeft").GetHash())
   {
     m_RotateZ -= m_RotateSpeed * f;
     return;
   }
 
-  if (ezStringUtils::IsEqual(msg.m_szAction, "RotateRight"))
+  if (msg.m_UsageStringHash == ezTempHashedString("RotateRight").GetHash())
   {
     m_RotateZ += m_RotateSpeed * f;
     return;

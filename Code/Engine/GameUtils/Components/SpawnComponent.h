@@ -5,8 +5,7 @@
 #include <Core/World/Component.h>
 #include <Foundation/Time/Time.h>
 #include <GameUtils/Prefabs/PrefabResource.h>
-
-struct ezInputComponentMessage;
+#include <Core/Messages/TriggerMessage.h>
 
 struct ezSpawnComponentFlags
 {
@@ -86,14 +85,13 @@ public:
 
 private:
 
-  void OnTriggered(ezComponentTriggerMessage& msg);
+  void OnTriggered(ezTriggerMessage& msg);
 
 protected:
   ezBitflags<ezSpawnComponentFlags> m_SpawnFlags;
 
   // ************************************* FUNCTIONS *****************************
 
-  void InputComponentMessageHandler(ezInputComponentMessage& msg);
 
   virtual Initialization Initialize() override;
 

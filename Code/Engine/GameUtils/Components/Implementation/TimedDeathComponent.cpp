@@ -13,7 +13,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTimedDeathComponent, 1)
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezComponentTriggerMessage, OnTriggered),
+    EZ_MESSAGE_HANDLER(ezTriggerMessage, OnTriggered),
   }
   EZ_END_MESSAGEHANDLERS
     EZ_BEGIN_ATTRIBUTES
@@ -53,8 +53,9 @@ void ezTimedDeathComponent::DeserializeComponent(ezWorldReader& stream)
 
 ezComponent::Initialization ezTimedDeathComponent::Initialize()
 {
-  ezComponentTriggerMessage msg;
+  ezTriggerMessage msg;
   msg.m_hTargetComponent = GetHandle();
+  msg.m_UsageStringHash = ezTempHashedString("Suicide").GetHash();
 
   ezWorld* pWorld = GetWorld();
 
@@ -65,9 +66,13 @@ ezComponent::Initialization ezTimedDeathComponent::Initialize()
   return ezComponent::Initialization::Done;
 }
 
-void ezTimedDeathComponent::OnTriggered(ezComponentTriggerMessage& msg)
+void ezTimedDeathComponent::OnTriggered(ezTriggerMessage& msg)
 {
-  if (msg.m_hTargetComponent != GetHandle())
+  // mass suicide is theoretically possible by sending this message without a specific target
+  if (!msg.m_hTargetComponent.IsInvalidated() && msg.m_hTargetComponent != GetHandle())
+    return;
+
+  if (msg.m_UsageStringHash != ezTempHashedString("Suicide").GetHash())
     return;
 
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());

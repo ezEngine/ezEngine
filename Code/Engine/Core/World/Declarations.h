@@ -154,8 +154,8 @@ struct ezObjectMsgRouting
   {
     ToObjectOnly, ///< Send the message only to the object itself.
     ToComponents, ///< Send the message to the object itself and its components.
-    ToParent,     ///< Send the message to parent objects and their components recursively.
-    ToChildren,   ///< Send the message to all child objects and their components recursively.
+    ToAllParents, ///< Send the message to the object, all parent objects and their components.
+    ToChildren,   ///< Send the message to the object, all child objects (recursively) and their components.
     ToSubTree,    ///< Send the message to the whole subtree starting at the top-level parent object.
     Default = ToComponents
   };

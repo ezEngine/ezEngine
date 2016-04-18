@@ -4,14 +4,12 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/Input/InputManager.h>
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
-
-EZ_IMPLEMENT_MESSAGE_TYPE(ezInputComponentMessage);
+#include <Core/Messages/TriggerMessage.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezInputMessageGranularity, 1)
   EZ_ENUM_CONSTANT(ezInputMessageGranularity::PressOnly),
   EZ_ENUM_CONSTANT(ezInputMessageGranularity::PressAndRelease),
   EZ_ENUM_CONSTANT(ezInputMessageGranularity::PressReleaseAndDown),
-  EZ_ENUM_CONSTANT(ezInputMessageGranularity::PressReleaseDownAndUp),
 EZ_END_STATIC_REFLECTED_ENUM();
 
 EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 1)
@@ -34,6 +32,18 @@ ezInputComponent::ezInputComponent()
 {
 }
 
+static inline ezTriggerState::Enum ToTriggerState(ezKeyState::Enum s)
+{
+  switch (s)
+  {
+  case ezKeyState::Pressed:
+    return ezTriggerState::Activated;
+  case ezKeyState::Released:
+    return ezTriggerState::Deactivated;
+  }
+
+  return ezTriggerState::Continuing;
+}
 
 void ezInputComponent::Update()
 {
@@ -43,23 +53,25 @@ void ezInputComponent::Update()
   ezHybridArray<ezString, 24> AllActions;
   ezInputManager::GetAllInputActions(m_sInputSet, AllActions);
 
-  ezInputComponentMessage msg;
+  ezTriggerMessage msg;
 
   for (const ezString& actionName : AllActions)
   {
-    msg.m_State = ezInputManager::GetInputActionState(m_sInputSet, actionName, &msg.m_fValue);
+    const ezKeyState::Enum state = ezInputManager::GetInputActionState(m_sInputSet, actionName, &msg.m_fTriggerValue);
 
-    if (msg.m_State == ezKeyState::Up && m_Granularity != ezInputMessageGranularity::PressReleaseDownAndUp)
+    if (state == ezKeyState::Up)
       continue;
-    if (msg.m_State == ezKeyState::Down && m_Granularity < ezInputMessageGranularity::PressReleaseAndDown)
+    if (state == ezKeyState::Down && m_Granularity < ezInputMessageGranularity::PressReleaseAndDown)
       continue;
-    if (msg.m_State == ezKeyState::Released && m_Granularity == ezInputMessageGranularity::PressOnly)
+    if (state == ezKeyState::Released && m_Granularity == ezInputMessageGranularity::PressOnly)
       continue;
 
-    msg.m_szAction = actionName;
+    msg.m_TriggerState = ToTriggerState(state);
+
+    msg.m_UsageStringHash = ezTempHashedString(actionName.GetData()).GetHash();
 
     // SendMessage, not PostMessage, because the string pointers would not be valid otherwise
-    GetOwner()->SendMessage(msg);
+    GetOwner()->SendMessage(msg, ezObjectMsgRouting::ToComponents); /// \todo Make it configurable where the message is sent to
   }
 }
 

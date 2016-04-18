@@ -5,6 +5,7 @@
 
 #include <Core/World/World.h>
 #include <Core/World/WorldModule.h>
+#include <Core/Messages/DeleteObjectMessage.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezWorldModule, 1, ezRTTINoAllocator);
 // no properties or message handlers

@@ -156,11 +156,11 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
 
     TestMessage msg;
     msg.m_iValue = 4;
-    pParents[0]->SendMessage(msg, ezObjectMsgRouting::ToParent);
+    pParents[0]->SendMessage(msg, ezObjectMsgRouting::ToAllParents);
 
     TestMessage2 msg2;
     msg2.m_iValue = 4;
-    pParents[0]->SendMessage(msg2, ezObjectMsgRouting::ToParent);
+    pParents[0]->SendMessage(msg2, ezObjectMsgRouting::ToAllParents);
 
     TestComponentMsg* pComponent = nullptr;
     pParents[0]->TryGetComponentOfBaseType(pComponent);

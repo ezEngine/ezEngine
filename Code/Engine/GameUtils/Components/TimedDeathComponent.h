@@ -4,6 +4,7 @@
 #include <Core/World/World.h>
 #include <Core/World/Component.h>
 #include <Foundation/Time/Time.h>
+#include <Core/Messages/TriggerMessage.h>
 
 typedef ezComponentManager<class ezTimedDeathComponent> ezTimedDeathComponentManager;
 
@@ -25,7 +26,7 @@ public:
   /// \brief Once this function has been executed, the timeout for deletion is fixed and cannot be reset.
   virtual Initialization Initialize() override;
 
-  void OnTriggered(ezComponentTriggerMessage& msg);
+  void OnTriggered(ezTriggerMessage& msg);
 
   // ************************************* PROPERTIES ***********************************
 

@@ -9,7 +9,8 @@
 
 #include <Core/World/ComponentManager.h>
 #include <Core/World/GameObjectDesc.h>
-#include <Core/World/Messages.h>
+
+struct ezDeleteObjectMessage;
 
 /// \brief This class represents an object inside the world.
 ///

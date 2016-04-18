@@ -6,6 +6,7 @@
 #include <Foundation/Reflection/Reflection.h>
 
 #include <Core/World/Declarations.h>
+#include <Core/Messages/UpdateLocalBoundsMessage.h>
 
 class ezWorldWriter;
 class ezWorldReader;

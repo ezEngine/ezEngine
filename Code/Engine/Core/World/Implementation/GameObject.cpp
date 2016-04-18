@@ -1,5 +1,7 @@
 #include <Core/PCH.h>
 #include <Core/World/World.h>
+#include <Core/Messages/UpdateLocalBoundsMessage.h>
+#include <Core/Messages/DeleteObjectMessage.h>
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
 {
@@ -309,10 +311,11 @@ void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
     return;
   }
 
+  // all cases, including ToObjectOnly
   const ezRTTI* pRtti = ezGetStaticRTTI<ezGameObject>();
   pRtti->DispatchMessage(this, msg);
 
-  // route message to all components
+  // in all cases other than ToObjectOnly, route message to all components now
   if (routing >= ezObjectMsgRouting::ToComponents)
   {
     for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
@@ -324,7 +327,7 @@ void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
   }
 
   // route message to parent or children
-  if (routing == ezObjectMsgRouting::ToParent)
+  if (routing == ezObjectMsgRouting::ToAllParents)
   {
     if (ezGameObject* pParent = GetParent())
     {
@@ -372,7 +375,7 @@ void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
   }
 
   // route message to parent or children
-  if (routing == ezObjectMsgRouting::ToParent)
+  if (routing == ezObjectMsgRouting::ToAllParents)
   {
     if (const ezGameObject* pParent = GetParent())
     {
