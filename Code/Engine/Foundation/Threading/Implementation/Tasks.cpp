@@ -195,6 +195,7 @@ void ezTaskSystem::WaitForTask(ezTask* pTask)
   EZ_PROFILE(s_ProfileWaitForTask);
 
   const bool bIsMainThread = ezThreadUtils::IsMainThread();
+  const bool bIsLoadingThread = IsLoadingThread();
 
   ezTaskPriority::Enum FirstPriority = ezTaskPriority::EarlyThisFrame;
   ezTaskPriority::Enum LastPriority = ezTaskPriority::LateNextFrame;
@@ -205,6 +206,11 @@ void ezTaskSystem::WaitForTask(ezTask* pTask)
     // otherwise a dependency on which pTask is waiting, might not get fulfilled
     FirstPriority = ezTaskPriority::ThisFrameMainThread;
     LastPriority = ezTaskPriority::SomeFrameMainThread;
+  }
+  else if (bIsLoadingThread)
+  {
+    FirstPriority = ezTaskPriority::FileAccessHighPriority;
+    LastPriority = ezTaskPriority::FileAccess;
   }
 
   while (!pTask->IsTaskFinished())

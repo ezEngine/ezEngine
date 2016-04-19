@@ -109,38 +109,60 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
   e.m_EventType = ezResourceEventType::ResourceInPreloadQueue;
   ezResourceManager::BroadcastResourceEvent(e);
 
-  RunWorkerTask();
+  RunWorkerTask(pResource);
 }
 
-void ezResourceManager::RunWorkerTask()
+void ezResourceManager::RunWorkerTask(ezResourceBase* pResource)
 {
   if (m_bStop)
     return;
 
-  EZ_LOCK(s_ResourceMutex);
+  bool bDoItYourself = false;
 
-  static bool bTaskNamesInitialized = false;
-
-  if (!bTaskNamesInitialized)
+  // lock scope
   {
-    bTaskNamesInitialized = true;
+    EZ_LOCK(s_ResourceMutex);
 
-    m_WorkerTask[0].SetTaskName("Resource Loader 1");
-    m_WorkerTask[1].SetTaskName("Resource Loader 2");
+    static bool bTaskNamesInitialized = false;
 
-    ezStringBuilder s;
-    for (ezUInt32 i = 0; i < 16; ++i)
+    if (!bTaskNamesInitialized)
     {
-      s.Format("GPU Resource Loader %u", i);
-      m_WorkerGPU[i].SetTaskName(s.GetData());
+      bTaskNamesInitialized = true;
+
+      m_WorkerTask[0].SetTaskName("Resource Loader 1");
+      m_WorkerTask[1].SetTaskName("Resource Loader 2");
+
+      ezStringBuilder s;
+      for (ezUInt32 i = 0; i < 16; ++i)
+      {
+        s.Format("GPU Resource Loader %u", i);
+        m_WorkerGPU[i].SetTaskName(s.GetData());
+      }
+    }
+
+    if (pResource != nullptr && ezTaskSystem::IsLoadingThread())
+    {
+      bDoItYourself = true;
+    }
+    else 
+    if (!m_bTaskRunning && !ezResourceManager::m_RequireLoading.IsEmpty())
+    {
+      m_bTaskRunning = true;
+      m_iCurrentWorker = (m_iCurrentWorker + 1) % 2;
+      ezTaskSystem::StartSingleTask(&m_WorkerTask[m_iCurrentWorker], ezTaskPriority::FileAccess);
     }
   }
 
-  if (!m_bTaskRunning && !ezResourceManager::m_RequireLoading.IsEmpty())
+  while (bDoItYourself)
   {
-    m_bTaskRunning = true;
-    m_iCurrentWorker = (m_iCurrentWorker + 1) % 2;
-    ezTaskSystem::StartSingleTask(&m_WorkerTask[m_iCurrentWorker], ezTaskPriority::FileAccess);
+    ezResourceManagerWorker::DoWork(true);
+
+    {
+      EZ_LOCK(s_ResourceMutex);
+
+      if (pResource == nullptr || !pResource->m_Flags.IsAnySet(ezResourceFlags::IsPreloading))
+        break;
+    }
   }
 }
 
@@ -231,6 +253,11 @@ void ezResourceManagerWorkerGPU::Execute()
 }
 
 void ezResourceManagerWorker::Execute()
+{
+  DoWork(false);
+}
+
+void ezResourceManagerWorker::DoWork(bool bCalledExternally)
 {
   ezResourceBase* pResourceToLoad = nullptr;
 
@@ -325,8 +352,11 @@ void ezResourceManagerWorker::Execute()
       ezResourceManager::BroadcastResourceEvent(e);
     }
 
-    ezResourceManager::m_bTaskRunning = false;
-    ezResourceManager::RunWorkerTask();
+    if (!bCalledExternally)
+    {
+      ezResourceManager::m_bTaskRunning = false;
+      ezResourceManager::RunWorkerTask(nullptr);
+    }
   }
 }
 

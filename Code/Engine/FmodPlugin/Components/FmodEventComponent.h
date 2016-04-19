@@ -35,8 +35,6 @@ public:
   void SetSoundEvent(const ezFmodSoundEventResourceHandle& hSoundEvent);
   const ezFmodSoundEventResourceHandle& GetSoundEvent() const { return m_hSoundEvent; }
 
-  ezString m_sEvent;
-
   /// \todo Event Parameters (expose, modify)
 
 protected:

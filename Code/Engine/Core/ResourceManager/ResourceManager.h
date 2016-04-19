@@ -29,6 +29,8 @@ private:
 
   ezResourceManagerWorker() { };
 
+  static void DoWork(bool bCalledExternally);
+
   virtual void Execute() override;
 };
 
@@ -134,7 +136,7 @@ private:
 
   static void InternalPreloadResource(ezResourceBase* pResource, bool bHighestPriority);
 
-  static void RunWorkerTask();
+  static void RunWorkerTask(ezResourceBase* pResource);
 
   static void UpdateLoadingDeadlines();
 

@@ -9,7 +9,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Event", m_sEvent),
     EZ_ACCESSOR_PROPERTY("Paused", GetPaused, SetPaused),
     EZ_ACCESSOR_PROPERTY("Volume", GetVolume, SetVolume)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_ACCESSOR_PROPERTY("Pitch", GetPitch, SetPitch)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
@@ -121,8 +120,7 @@ const char* ezFmodEventComponent::GetSoundEventFile() const
   if (!m_hSoundEvent.IsValid())
     return "";
 
-  ezResourceLock<ezFmodSoundEventResource> pRes(m_hSoundEvent);
-  return pRes->GetResourceID();
+  return m_hSoundEvent.GetResourceID();
 }
 
 
@@ -141,13 +139,6 @@ void ezFmodEventComponent::SetSoundEvent(const ezFmodSoundEventResourceHandle& h
 
 ezComponent::Initialization ezFmodEventComponent::Initialize()
 {
-  if (m_sEvent.IsEmpty())
-    m_sEvent = "event:/UI/Cancel";
-
-  const ezStringBuilder sFullPath("SoundBanks/Weapons.bank|", m_sEvent);
-
-  m_hSoundEvent = ezResourceManager::LoadResource<ezFmodSoundEventResource>(sFullPath);
-
   if (!m_bPaused)
   {
     Restart();
@@ -172,6 +163,9 @@ void ezFmodEventComponent::Deinitialize()
 
 void ezFmodEventComponent::Restart()
 {
+  if (!m_hSoundEvent.IsValid())
+    return;
+
   if (m_pEventInstance == nullptr)
   {
     ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::NoFallback); // allow fallback ??
