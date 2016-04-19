@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.01.07.00">
+    <object class="AudioFile" id="{30359bfc-f833-4a39-9520-37e15f125ea9}">
+        <property name="frequencyInKHz">
+            <value>22.0499992</value>
+        </property>
+        <property name="channelCount">
+            <value>1</value>
+        </property>
+        <property name="length">
+            <value>0.91424036281179133</value>
+        </property>
+        <property name="audioFilePath">
+            <value>$(AUDIO_BIN_DIR)/federation_torpedo_quantum2 {985464c7-e070-429a-9bd9-2ab316d49a00}.wav</value>
+        </property>
+        <relationship name="container">
+            <destination>{6b160470-d2aa-4832-9d19-2d3186d63ce0}</destination>
+        </relationship>
+    </object>
+</objects>

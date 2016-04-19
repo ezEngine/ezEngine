@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.01.07.00">
+    <object class="Workspace" id="{73f68c97-948b-4dbd-bb81-8a04735629af}">
+        <property name="builtBanksOutputDirectory">
+            <value>D:/Code/ezEngine/Trunk/Data/FreeContent/Sound/Soundbanks/</value>
+        </property>
+        <property name="outputFormat">
+            <value>6</value>
+        </property>
+        <relationship name="masterEventFolder">
+            <destination>{40784721-ef55-4629-b835-830b6267972f}</destination>
+        </relationship>
+        <relationship name="masterTagFolder">
+            <destination>{33ee30a2-e514-402d-9ca6-341f6b503416}</destination>
+        </relationship>
+        <relationship name="masterBankFolder">
+            <destination>{8abb4fdf-ba0d-4332-a8d0-4639b2a4a3bb}</destination>
+        </relationship>
+        <relationship name="audioBinManager">
+            <destination>{0a9bb3fe-fdc8-43f6-939f-dc0cb024e345}</destination>
+        </relationship>
+        <relationship name="mixer">
+            <destination>{d461458e-938d-4d59-800c-f157ec2d7f08}</destination>
+        </relationship>
+    </object>
+    <object class="AudioBinManager" id="{0a9bb3fe-fdc8-43f6-939f-dc0cb024e345}">
+        <relationship name="masterAudioBinFolder">
+            <destination>{6b160470-d2aa-4832-9d19-2d3186d63ce0}</destination>
+        </relationship>
+    </object>
+</objects>

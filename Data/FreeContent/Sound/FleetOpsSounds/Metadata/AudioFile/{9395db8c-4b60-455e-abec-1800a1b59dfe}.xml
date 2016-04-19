@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.01.07.00">
+    <object class="AudioFile" id="{9395db8c-4b60-455e-abec-1800a1b59dfe}">
+        <property name="frequencyInKHz">
+            <value>22.0499992</value>
+        </property>
+        <property name="channelCount">
+            <value>1</value>
+        </property>
+        <property name="length">
+            <value>1.5847619047619048</value>
+        </property>
+        <property name="audioFilePath">
+            <value>$(AUDIO_BIN_DIR)/federation_phaser {ed3e7414-86f6-430d-a1b6-87e727526915}.wav</value>
+        </property>
+        <relationship name="container">
+            <destination>{6b160470-d2aa-4832-9d19-2d3186d63ce0}</destination>
+        </relationship>
+    </object>
+</objects>
