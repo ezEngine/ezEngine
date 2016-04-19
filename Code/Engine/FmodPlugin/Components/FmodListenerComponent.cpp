@@ -4,11 +4,15 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <FmodPlugin/FmodSingleton.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezFmodListenerComponent, 1);
+EZ_BEGIN_COMPONENT_TYPE(ezFmodListenerComponent, 1)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_MEMBER_PROPERTY("ListenerIndex", m_uiListenerIndex),
+  }
   EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezFmodListenerComponent::ezFmodListenerComponent()
 {

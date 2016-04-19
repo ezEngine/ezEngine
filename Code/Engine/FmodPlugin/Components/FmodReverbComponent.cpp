@@ -31,17 +31,23 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezFmodReverbPresets, 1)
   EZ_ENUM_CONSTANT(ezFmodReverbPresets::Underwater),
 EZ_END_STATIC_REFLECTED_ENUM()
 
-EZ_BEGIN_COMPONENT_TYPE(ezFmodReverbComponent, 1);
+EZ_BEGIN_COMPONENT_TYPE(ezFmodReverbComponent, 1)
+{
   EZ_BEGIN_PROPERTIES
+  {
     EZ_MEMBER_PROPERTY("Min Distance", m_fMinDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("Max Distance", m_fMaxDistance)->AddAttributes(new ezDefaultValueAttribute(2.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ENUM_MEMBER_PROPERTY("Preset", ezFmodReverbPresets, m_ReverbPreset),
+  }
   EZ_END_PROPERTIES
-  EZ_BEGIN_ATTRIBUTES
+    EZ_BEGIN_ATTRIBUTES
+  {
     new ezSphereManipulatorAttribute("Max Distance", "Min Distance"),
-    new ezSphereVisualizerAttribute("Max Distance", ezColor::LightSlateGray)
+    new ezSphereVisualizerAttribute("Max Distance", ezColor::LightSlateGray),
+  }
   EZ_END_ATTRIBUTES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezFmodReverbComponent::ezFmodReverbComponent()
 {

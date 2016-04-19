@@ -6,9 +6,9 @@
 #include <FmodPlugin/Components/FmodReverbComponent.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodSceneModule, 1, ezRTTIDefaultAllocator<ezFmodSceneModule>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodSceneModule, 1, ezRTTIDefaultAllocator<ezFmodSceneModule>)
   // no properties or message handlers
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezFmodSoundBankResourceHandle hRes[5];
 

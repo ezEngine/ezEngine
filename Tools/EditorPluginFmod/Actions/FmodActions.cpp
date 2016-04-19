@@ -4,8 +4,8 @@
 #include <EditorPluginFmod/Actions/FmodActions.h>
 #include <FmodPlugin/PluginInterface.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodAction, 0, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodAction, 0, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 //ezActionDescriptorHandle ezFmodActions::s_hCategoryFmod;
 //ezActionDescriptorHandle ezFmodActions::s_hProjectSettings;

@@ -4,8 +4,8 @@
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAssetWindow.moc.h>
 #include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundBankAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSoundBankAssetDocumentManager>);
-EZ_END_DYNAMIC_REFLECTED_TYPE();
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundBankAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSoundBankAssetDocumentManager>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezSoundBankAssetDocumentManager::ezSoundBankAssetDocumentManager()
 {
