@@ -136,9 +136,16 @@ void ezAssetDocument::InternalAfterSaveDocument()
   {
     /// \todo Should only be done for platform agnostic assets
 
-    TransformAsset();
+    auto ret = TransformAsset();
 
-    ezAssetCurator::GetSingleton()->WriteAssetTables();
+    if (ret.m_Result.Failed())
+    {
+      ezLog::Error("%s (%s)", ret.m_sMessage.GetData(), GetDocumentPath());
+    }
+    else
+    {
+      ezAssetCurator::GetSingleton()->WriteAssetTables();
+    }
   }
 }
 
@@ -233,6 +240,9 @@ ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const
   AssetHeader.Write(file);
 
   auto ret = InternalTransformAsset(file, szPlatform);
+
+  if (ret.m_Result.Failed())
+    return ret;
 
   if (file.Close().Failed())
   {

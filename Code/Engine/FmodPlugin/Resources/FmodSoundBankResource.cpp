@@ -51,6 +51,8 @@ ezResourceLoadDesc ezFmodSoundBankResource::UpdateContent(ezStreamReader* Stream
 
   Stream->ReadBytes(&m_pSoundBank, sizeof(FMOD::Studio::Bank*));
 
+  
+
   EZ_ASSERT_DEV(m_pSoundBank != nullptr, "Invalid Sound Bank pointer in stream");
 
   res.m_State = ezResourceState::Loaded;

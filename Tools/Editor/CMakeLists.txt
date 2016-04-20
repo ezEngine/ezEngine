@@ -41,6 +41,7 @@ SET (ADDITIONAL_DEPENDENCIES
   EditorPluginScene
   EditorPluginAssets
   EditorPluginPhysX
+  EditorPluginFmod
   PhysXPlugin
   FmodPlugin
 )

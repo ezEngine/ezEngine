@@ -438,7 +438,12 @@ void ezAssetCurator::TransformAllAssets(const char* szPlatform /* = nullptr*/)
     EZ_ASSERT_DEV(pDoc->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('%s')", it.Value()->m_sRelativePath.GetData());
 
     ezAssetDocument* pAsset = static_cast<ezAssetDocument*>(pDoc);
-    pAsset->TransformAsset(szPlatform);
+    auto ret = pAsset->TransformAsset(szPlatform);
+    
+    if (ret.m_Result.Failed())
+    {
+      ezLog::Error("%s (%s)", ret.m_sMessage.GetData(), pDoc->GetDocumentPath());
+    }
 
     if (!pDoc->HasWindowBeenRequested())
       pDoc->GetDocumentManager()->CloseDocument(pDoc);

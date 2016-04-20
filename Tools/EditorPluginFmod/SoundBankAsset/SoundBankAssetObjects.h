@@ -12,6 +12,6 @@ public:
   ezSoundBankAssetProperties();
 
 
-private:
+  ezString m_sSoundBank;
 
 };

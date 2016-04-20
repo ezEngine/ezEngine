@@ -10,9 +10,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 1)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Paused", GetPaused, SetPaused),
-    EZ_ACCESSOR_PROPERTY("Volume", GetVolume, SetVolume)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_ACCESSOR_PROPERTY("Pitch", GetPitch, SetPitch)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_ACCESSOR_PROPERTY("Volume", GetVolume, SetVolume)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_ACCESSOR_PROPERTY("Pitch", GetPitch, SetPitch)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, 100.0f)),
     EZ_ACCESSOR_PROPERTY("Sound Event", GetSoundEventFile, SetSoundEventFile),//->AddAttributes(new ezAssetBrowserAttribute("Sound Event Asset")),
+    EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
   }
   EZ_END_PROPERTIES
 }
@@ -39,6 +40,9 @@ void ezFmodEventComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fVolume;
 
   s << m_hSoundEvent;
+  
+  ezOnComponentFinishedAction::StorageType type = m_OnFinishedAction;
+  s << type;
 
   /// \todo store and restore current playback position
 }
@@ -55,6 +59,10 @@ void ezFmodEventComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fPitch;
   s >> m_fVolume;
   s >> m_hSoundEvent;
+
+  ezOnComponentFinishedAction::StorageType type;
+  s >> type;
+  m_OnFinishedAction = (ezOnComponentFinishedAction::Enum) type;
 }
 
 
@@ -229,6 +237,21 @@ void ezFmodEventComponent::Update()
   if (m_pEventInstance)
   {
     SetParameters3d(m_pEventInstance);
+
+    FMOD_STUDIO_PLAYBACK_STATE state;
+    m_pEventInstance->getPlaybackState(&state);
+
+    if (state == FMOD_STUDIO_PLAYBACK_STOPPED)
+    {
+      if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteEntity)
+      {
+        GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
+      }
+      else if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteComponent)
+      {
+        GetManager()->DeleteComponent(GetHandle());
+      }
+    }
   }
 }
 

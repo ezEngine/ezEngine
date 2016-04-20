@@ -16,15 +16,6 @@ ezFmod::ezFmod()
   m_pLowLevelSystem = nullptr;
 }
 
-//std::string Common_MediaPath(const char* sz)
-//{
-//  //std::string s = "C:/Program Files (x86)/FMOD SoundSystem/FMOD Studio API Windows/api/studio/examples/media/";
-//  std::string s = "C:/Users/jakra/Documents/FMOD Studio/examples/Build/Desktop/";
-//  s += sz;
-//
-//  return s;
-//}
-
 void ezFmod::Startup()
 {
   if (m_bInitialized)
@@ -43,22 +34,6 @@ void ezFmod::Startup()
   void *extraDriverData = nullptr;
   EZ_FMOD_ASSERT(m_pFmodSystem->initialize(32, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, extraDriverData));
   /// \todo Configure max channels etc.
-
-  //FMOD::Studio::Bank* masterBank = NULL;
-  //EZ_FMOD_ASSERT(m_pFmodSystem->loadBankFile(Common_MediaPath("Master Bank.bank").c_str(), FMOD_STUDIO_LOAD_BANK_NORMAL, &masterBank));
-
-  //FMOD::Studio::Bank* stringsBank = NULL;
-  //EZ_FMOD_ASSERT(m_pFmodSystem->loadBankFile(Common_MediaPath("Master Bank.strings.bank").c_str(), FMOD_STUDIO_LOAD_BANK_NORMAL, &stringsBank));
-
-  //FMOD::Studio::Bank* ambienceBank = NULL;
-  //EZ_FMOD_ASSERT(m_pFmodSystem->loadBankFile(Common_MediaPath("Surround_Ambience.bank").c_str(), FMOD_STUDIO_LOAD_BANK_NORMAL, &ambienceBank));
-
-  //FMOD::Studio::Bank* menuBank = NULL;
-  //EZ_FMOD_ASSERT(m_pFmodSystem->loadBankFile(Common_MediaPath("UI_Menu.bank").c_str(), FMOD_STUDIO_LOAD_BANK_NORMAL, &menuBank));
-
-  //FMOD::Studio::Bank* weaponsBank = NULL;
-  //EZ_FMOD_ASSERT(m_pFmodSystem->loadBankFile(Common_MediaPath("Weapons.bank").c_str(), FMOD_STUDIO_LOAD_BANK_NORMAL, &weaponsBank));
-
 }
 
 void ezFmod::Shutdown()

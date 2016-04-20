@@ -173,3 +173,19 @@ struct ezObjectMsgQueueType
   };
 };
 
+/// \brief Certain components may delete themselves or their owner when they are finished with their main purpose
+struct EZ_CORE_DLL ezOnComponentFinishedAction
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    None,
+    DeleteComponent,
+    DeleteEntity,
+
+    Default = None
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezOnComponentFinishedAction);

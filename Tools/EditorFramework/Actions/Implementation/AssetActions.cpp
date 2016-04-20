@@ -98,7 +98,12 @@ void ezAssetAction::Execute(const ezVariant& value)
     {
       ezAssetDocument* pDoc = static_cast<ezAssetDocument*>(m_Context.m_pDocument);
 
-      pDoc->TransformAsset();
+      auto ret = pDoc->TransformAsset();
+
+      if (ret.m_Result.Failed())
+      {
+        ezLog::Error("%s (%s)", ret.m_sMessage.GetData(), pDoc->GetDocumentPath());
+      }
 
       ezAssetCurator::GetSingleton()->WriteAssetTables();
     }
