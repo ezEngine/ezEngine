@@ -1,5 +1,4 @@
 #include <Foundation/PCH.h>
-#include <Foundation/Basics/Assert.h>
 #include <Foundation/Strings/StringUtils.h>
 
 bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)

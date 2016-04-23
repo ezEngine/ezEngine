@@ -2,8 +2,6 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <Foundation/Threading/Lock.h>
-#include <Foundation/Threading/Mutex.h>
 
 #if EZ_ENABLED(EZ_USE_PROFILING)
 

@@ -1,9 +1,6 @@
 #include <Foundation/PCH.h>
-#include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
-#include <Foundation/Threading/Mutex.h>
-#include <Foundation/Threading/Lock.h>
 
 ezResult ezDataDirectoryType::InitializeDataDirectory(const char* szDataDirPath)
 {

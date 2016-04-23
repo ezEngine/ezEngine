@@ -1,7 +1,6 @@
 
 #include <Foundation/PCH.h>
 #include <Foundation/Types/Uuid.h>
-#include <Foundation/Algorithm/Hashing.h>
 
 
 // Include inline file

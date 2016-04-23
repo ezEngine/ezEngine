@@ -1,5 +1,4 @@
 #include <Foundation/PCH.h>
-#include <Foundation/Math/Math.h>
 #include <Foundation/IO/CompressedStream.h>
 #include <ThirdParty/zlib/zlib.h>
 

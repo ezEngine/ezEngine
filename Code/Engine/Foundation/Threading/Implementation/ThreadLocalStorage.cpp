@@ -3,7 +3,6 @@
 #include <Foundation/Threading/ThreadLocalStorage.h>
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Threading/ConditionalLock.h>
-#include <Foundation/Configuration/Startup.h>
 
 bool ezThreadLocalStorage::s_bInitialized = false;
 static ezThreadLocalPointerTable g_MainThreadLocalPointerTable;

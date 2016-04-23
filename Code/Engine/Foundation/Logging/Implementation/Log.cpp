@@ -1,6 +1,5 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Logging/Log.h>
-#include <Foundation/Threading/ThreadUtils.h>
 
 
 ezThreadLocalPointer<ezGlobalLog> ezGlobalLog::s_pInstances;

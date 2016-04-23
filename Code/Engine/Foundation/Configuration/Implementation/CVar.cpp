@@ -1,5 +1,4 @@
 #include <Foundation/PCH.h>
-#include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Containers/Map.h>

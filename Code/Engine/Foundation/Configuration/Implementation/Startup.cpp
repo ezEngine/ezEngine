@@ -1,11 +1,9 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Containers/Set.h>
-#include <Foundation/Strings/String.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Threading/ThreadUtils.h>
-#include <Foundation/Configuration/Plugin.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezSubSystem);
 

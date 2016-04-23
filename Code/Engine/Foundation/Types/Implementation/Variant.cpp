@@ -1,5 +1,4 @@
 #include <Foundation/PCH.h>
-#include <Foundation/Types/Variant.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)

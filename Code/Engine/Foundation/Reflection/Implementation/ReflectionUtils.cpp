@@ -1,7 +1,5 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
-#include <Foundation/IO/ExtendedJSONWriter.h>
-#include <Foundation/IO/ExtendedJSONReader.h>
 #include <Foundation/Logging/Log.h>
 
 namespace

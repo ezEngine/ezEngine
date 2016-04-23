@@ -1,12 +1,7 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <ThirdParty/enet/enet.h>
-#include <Foundation/Logging/Log.h>
 #include <Foundation/Threading/ThreadUtils.h>
-#include <Foundation/Threading/Lock.h>
-#include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Configuration/CVar.h>
-#include <Foundation/Utilities/Stats.h>
 
 class ezTelemetryThread;
 

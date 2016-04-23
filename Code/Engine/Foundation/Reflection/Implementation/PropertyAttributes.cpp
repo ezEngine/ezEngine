@@ -1,6 +1,5 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAttribute, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE

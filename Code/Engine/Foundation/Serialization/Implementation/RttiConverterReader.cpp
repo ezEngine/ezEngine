@@ -1,6 +1,5 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Serialization/RttiConverter.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 
 ezRttiConverterReader::ezRttiConverterReader(const ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext)

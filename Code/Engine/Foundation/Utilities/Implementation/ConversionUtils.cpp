@@ -1,7 +1,5 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Utilities/ConversionUtils.h>
-#include <Foundation/Strings/StringUtils.h>
-#include <Foundation/Types/Variant.h>
 
 namespace ezConversionUtils
 {

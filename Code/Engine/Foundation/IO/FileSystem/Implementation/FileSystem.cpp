@@ -1,7 +1,6 @@
 #include <Foundation/PCH.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/Threading/Lock.h>
 #include <Foundation/Logging/Log.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, FileSystem)

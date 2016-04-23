@@ -1,5 +1,4 @@
 #include <Foundation/PCH.h>
-#include <Foundation/Memory/MemoryUtils.h>
 
 void ezMemoryUtils::ReserveLower4GBAddressSpace()
 {

@@ -1,5 +1,4 @@
 #include <Foundation/PCH.h>
-#include <Foundation/IO/Archive.h>
 
 #ifdef EZ_SUPPORT_EZARCHIVE
 

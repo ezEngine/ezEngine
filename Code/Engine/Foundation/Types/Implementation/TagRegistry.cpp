@@ -1,10 +1,6 @@
 
 #include <Foundation/PCH.h>
-#include <Foundation/Types/TagRegistry.h>
 #include <Foundation/Types/Tag.h>
-#include <Foundation/Types/TagSet.h>
-#include <Foundation/Strings/HashedString.h>
-#include <Foundation/Threading/Lock.h>
 #include <Foundation/Logging/Log.h>
 
 static ezTagRegistry s_GlobalRegistry;

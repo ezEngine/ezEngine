@@ -1,7 +1,6 @@
 
 #include <Foundation/PCH.h>
 #include <Foundation/Threading/ThreadUtils.h>
-#include <Foundation/Threading/ThreadLocalStorage.h>
 #include <Foundation/Configuration/Startup.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ThreadUtils)

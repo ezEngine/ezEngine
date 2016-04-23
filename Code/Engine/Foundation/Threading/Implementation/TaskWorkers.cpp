@@ -1,8 +1,5 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Threading/TaskSystem.h>
-#include <Foundation/Threading/Lock.h>
-#include <Foundation/Configuration/Startup.h>
-#include <Foundation/Math/Math.h>
 #include <Foundation/System/SystemInformation.h>
 
 // Helper function to generate a nice thread name.

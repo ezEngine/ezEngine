@@ -1,6 +1,5 @@
 #include <Foundation/PCH.h>
 #include <Foundation/IO/ExtendedJSONWriter.h>
-#include <Foundation/Memory/EndianHelper.h>
 
 void ezExtendedJSONWriter::WriteInt32(ezInt32 value)
 {

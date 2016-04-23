@@ -18,7 +18,6 @@ EZ_END_SUBSYSTEM_DECLARATION
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <Foundation/Time/Implementation/Win/Time_win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
-  #include <Foundation/Time/Implementation/OSX/Time_osx.h>
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
   #include <Foundation/Time/Implementation/Posix/Time_posix.h>
 #else

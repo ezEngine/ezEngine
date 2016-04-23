@@ -1,7 +1,5 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
-#include <Foundation/Threading/Lock.h>
-#include <Foundation/Threading/Mutex.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 

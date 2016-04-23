@@ -1,6 +1,5 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Memory/CommonAllocators.h>
-#include <Foundation/Communication/GlobalEvent.h>
 
 #if EZ_ENABLED(EZ_USE_GUARDED_ALLOCATIONS)
   typedef ezGuardedAllocator DefaultHeapType;

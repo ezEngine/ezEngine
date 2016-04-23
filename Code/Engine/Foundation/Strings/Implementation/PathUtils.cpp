@@ -1,5 +1,4 @@
 #include <Foundation/PCH.h>
-#include <Foundation/Strings/PathUtils.h>
 #include <Foundation/Strings/StringBuilder.h>
 
 const char* ezPathUtils::FindPreviousSeparator(const char* szPathStart, const char* szStartSearchAt)

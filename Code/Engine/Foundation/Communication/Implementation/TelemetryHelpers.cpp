@@ -1,8 +1,6 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <Foundation/Threading/Lock.h>
-#include <Foundation/Threading/Mutex.h>
 
 namespace
 {

@@ -1,6 +1,5 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Strings/StringUtils.h>
-#include <stdarg.h>
 
 // This is an implementation of the sprintf function, with an additional buffer size
 // On some systems this is implemented under the name 'snprintf'

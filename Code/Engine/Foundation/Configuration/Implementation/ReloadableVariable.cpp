@@ -1,6 +1,5 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Configuration/ReloadableVariable.h>
-#include <Foundation/Communication/GlobalEvent.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezReloadableVariableBase);
 
