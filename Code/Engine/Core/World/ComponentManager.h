@@ -5,6 +5,7 @@
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Memory/BlockStorage.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Logging/Log.h>
 
 #include <Core/World/Declarations.h>
 #include <Core/World/Component.h>
@@ -210,7 +211,7 @@ public:
   }
 
   virtual ezComponentHandle AllocateComponent() override;
-  virtual void DeleteDeadComponent(ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent) override;
+  virtual void DeleteDeadComponent(ezComponentManagerBase::ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent) override;
 
   /// \brief Returns the first component of this type that has been created.
   ComponentType* GetSingletonComponent() const { return m_pSingleton; }

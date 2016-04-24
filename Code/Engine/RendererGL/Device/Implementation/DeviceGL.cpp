@@ -340,7 +340,7 @@ void ezGALDeviceGL::DestroyTexturePlatform(ezGALTexture* pTexture)
   DefaultDestroy<ezGALTextureGL, ezGALTexture>(pTexture);
 }
 
-ezGALResourceView* ezGALDeviceGL::CreateResourceViewPlatform(const ezGALResourceViewCreationDescription& Description)
+ezGALResourceView* ezGALDeviceGL::CreateResourceViewPlatform(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description)
 {
   return DefaultCreate<ezGALResourceViewGL, ezGALResourceViewCreationDescription>(Description);
 }
@@ -350,7 +350,7 @@ void ezGALDeviceGL::DestroyResourceViewPlatform(ezGALResourceView* pResourceView
   DefaultDestroy<ezGALResourceViewGL, ezGALResourceView>(pResourceView);
 }
 
-ezGALRenderTargetView* ezGALDeviceGL::CreateRenderTargetViewPlatform(const ezGALRenderTargetViewCreationDescription& Description)
+ezGALRenderTargetView* ezGALDeviceGL::CreateRenderTargetViewPlatform(ezGALResourceBase* pResource, const ezGALRenderTargetViewCreationDescription& Description)
 {
   return DefaultCreate<ezGALRenderTargetViewGL, ezGALRenderTargetViewCreationDescription>(Description);
 }

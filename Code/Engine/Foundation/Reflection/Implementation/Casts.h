@@ -10,7 +10,7 @@
 template <typename T>
 EZ_FORCE_INLINE T ezStaticCast(ezReflectedClass* pObject)
 {
-  typedef ezTypeTraits<T>::NonPointerType NonPointerT;
+  typedef typename ezTypeTraits<T>::NonPointerType NonPointerT;
   EZ_ASSERT_DEV(pObject->IsInstanceOf< NonPointerT >(), "Invalid static cast: Object of type '%s' is not an instance of '%s'", 
     pObject->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<NonPointerT>()->GetTypeName());
   return static_cast<T>(pObject);
@@ -22,7 +22,7 @@ EZ_FORCE_INLINE T ezStaticCast(ezReflectedClass* pObject)
 template <typename T>
 EZ_FORCE_INLINE T ezStaticCast(const ezReflectedClass* pObject)
 {
-  typedef ezTypeTraits<T>::NonConstReferencePointerType NonPointerT;
+  typedef typename ezTypeTraits<T>::NonConstReferencePointerType NonPointerT;
   EZ_ASSERT_DEV(pObject->IsInstanceOf< NonPointerT >(), "Invalid static cast: Object of type '%s' is not an instance of '%s'",
     pObject->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<NonPointerT>()->GetTypeName());
   return static_cast<T>(pObject);
@@ -34,7 +34,7 @@ EZ_FORCE_INLINE T ezStaticCast(const ezReflectedClass* pObject)
 template <typename T>
 EZ_FORCE_INLINE T ezDynamicCast(ezReflectedClass* pObject)
 {
-  typedef ezTypeTraits<T>::NonPointerType NonPointerT;
+  typedef typename ezTypeTraits<T>::NonPointerType NonPointerT;
   if (pObject->IsInstanceOf< NonPointerT >())
   {
     return static_cast<T>(pObject);
@@ -49,7 +49,7 @@ EZ_FORCE_INLINE T ezDynamicCast(ezReflectedClass* pObject)
 template <typename T>
 EZ_FORCE_INLINE T ezDynamicCast(const ezReflectedClass* pObject)
 {
-  typedef ezTypeTraits<T>::NonConstReferencePointerType NonPointerT;
+  typedef typename ezTypeTraits<T>::NonConstReferencePointerType NonPointerT;
   if (pObject->IsInstanceOf< NonPointerT >())
   {
     return static_cast<T>(pObject);

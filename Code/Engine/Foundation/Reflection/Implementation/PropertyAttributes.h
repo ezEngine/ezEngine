@@ -5,21 +5,6 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Math/Color.h>
 
-template<typename Type>
-const Type* ezRTTI::GetAttributeByType() const
-{
-  for (const auto* pAttr : m_Attributes)
-  {
-    if (pAttr->GetDynamicRTTI()->IsDerivedFrom<Type>())
-      return static_cast<const Type*>(pAttr);
-  }
-  if (GetParentType() != nullptr)
-    return GetParentType()->GetAttributeByType<Type>();
-  else
-    return nullptr;
-}
-
-
 
 
 /// \brief Base class of all attributes can be used to decorate a RTTI property.
@@ -445,3 +430,34 @@ public:
   ezColor m_Color;
   float m_fScale;
 };
+
+
+//////////////////////////////////////////////////////////////////////////
+
+// Implementatoin moved here as it requires ezPropertyAttribute to be fully defined.
+template<typename Type>
+const Type* ezRTTI::GetAttributeByType() const
+{
+    for (const auto* pAttr : m_Attributes)
+    {
+        if (pAttr->GetDynamicRTTI()->IsDerivedFrom<Type>())
+            return static_cast<const Type*>(pAttr);
+    }
+    if (GetParentType() != nullptr)
+        return GetParentType()->GetAttributeByType<Type>();
+    else
+        return nullptr;
+}
+
+template<typename Type>
+const Type* ezAbstractProperty::GetAttributeByType() const
+{
+  for (const auto* pAttr : m_Attributes)
+  {
+    if (pAttr->GetDynamicRTTI()->IsDerivedFrom<Type>())
+      return static_cast<const Type*>(pAttr);
+  }
+  return nullptr;
+}
+
+

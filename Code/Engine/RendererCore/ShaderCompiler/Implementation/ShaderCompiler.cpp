@@ -62,7 +62,7 @@ namespace
       else
       {
         const char* szName = var.m_sName.GetData();
-        auto& enumValues = ezShaderManager::GetPermutationEnumValues(var.m_sName);
+        auto enumValues = ezShaderManager::GetPermutationEnumValues(var.m_sName);
 
         for (ezUInt32 i = 0; i < enumValues.GetCount(); ++i)
         {

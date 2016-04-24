@@ -90,7 +90,7 @@ void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& ren
 {
   EZ_PROFILE_AND_MARKER(renderViewContext.m_pRenderContext->GetGALContext(), ezRenderData::GetCategoryProfilingID(category));
 
-  auto& batchList = m_pPipeline->GetRenderDataBatchesWithCategory(category, filter);
+  auto batchList = m_pPipeline->GetRenderDataBatchesWithCategory(category, filter);
   const ezUInt32 uiBatchCount = batchList.GetBatchCount();
   for (ezUInt32 i = 0; i < uiBatchCount; ++i)
   {

@@ -26,7 +26,6 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_Component);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_ComponentManager);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_GameObject);
-  EZ_STATICLINK_REFERENCE(Core_World_Implementation_Messages);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_World);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_WorldData);
 }

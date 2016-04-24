@@ -6,6 +6,7 @@
 #include <Foundation/Reflection/Implementation/StaticRTTI.h>
 #include <Foundation/Reflection/Implementation/RTTI.h>
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
+#include <Foundation/Reflection/Implementation/AbstractProperty.h>
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <Foundation/Reflection/Implementation/FunctionProperty.h>
 #include <Foundation/Reflection/Implementation/ConstantProperty.h>

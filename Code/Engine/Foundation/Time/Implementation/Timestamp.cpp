@@ -72,6 +72,7 @@ ezDateTime::ezDateTime(ezTimestamp timestamp)
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <Foundation/Time/Implementation/Win/Timestamp_win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
+  #include <Foundation/Time/Implementation/OSX/Timestamp_osx.h>
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
   #include <Foundation/Time/Implementation/Posix/Timestamp_posix.h>
 #else

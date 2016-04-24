@@ -119,15 +119,7 @@ public:
 
   /// \brief Returns the first attribute that derives from the given type, or nullptr if nothing is found.
   template<typename Type>
-  const Type* GetAttributeByType() const
-  {
-    for (const auto* pAttr : m_Attributes)
-    {
-      if (pAttr->GetDynamicRTTI()->IsDerivedFrom<Type>())
-        return static_cast<const Type*>(pAttr);
-    }
-    return nullptr;
-  }
+  const Type* GetAttributeByType() const;
 
 protected:
   ezBitflags<ezPropertyFlags> m_Flags;

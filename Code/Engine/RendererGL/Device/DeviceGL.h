@@ -111,11 +111,11 @@ protected:
 
   virtual void DestroyTexturePlatform(ezGALTexture* pTexture) override;
 
-  virtual ezGALResourceView* CreateResourceViewPlatform(const ezGALResourceViewCreationDescription& Description) override;
+  virtual ezGALResourceView* CreateResourceViewPlatform(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description) override;
 
   virtual void DestroyResourceViewPlatform(ezGALResourceView* pResourceView) override;
 
-  virtual ezGALRenderTargetView* CreateRenderTargetViewPlatform(const ezGALRenderTargetViewCreationDescription& Description) override;
+  virtual ezGALRenderTargetView* CreateRenderTargetViewPlatform(ezGALResourceBase* pResource, const ezGALRenderTargetViewCreationDescription& Description) override;
 
   virtual void DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRenderTargetView) override;
 

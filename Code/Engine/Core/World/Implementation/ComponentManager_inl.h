@@ -211,7 +211,7 @@ ezComponentHandle ezSettingsComponentManager<ComponentType>::AllocateComponent()
 
 
 template <typename ComponentType>
-void ezSettingsComponentManager<ComponentType>::DeleteDeadComponent(ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent)
+void ezSettingsComponentManager<ComponentType>::DeleteDeadComponent(ezComponentManagerBase::ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent)
 {
   if (out_pMovedComponent == m_pSingleton)
   {
@@ -240,7 +240,7 @@ ezUInt16 ezComponentManagerFactory::RegisterComponentManager()
   {
     static ezComponentManagerBase* Create(ezAllocatorBase* pAllocator, ezWorld* pWorld)
     {
-      return EZ_NEW(pAllocator, ComponentType::ComponentManagerType, pWorld);
+      return EZ_NEW(pAllocator, typename ComponentType::ComponentManagerType, pWorld);
     }
   };
 
