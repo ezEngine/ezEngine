@@ -40,9 +40,8 @@ namespace
 
   static ezMutex s_Mutex;
 
-  PerWorldData& GetDataForExtraction(const ezWorld* pWorld)
+  PerWorldData& GetDataForExtraction(ezUInt32 uiWorldIndex)
   {
-    const ezUInt32 uiWorldIndex = pWorld->GetIndex();
     auto& perWorldData = s_PerWorldData[ezRenderLoop::GetDataIndexForExtraction()];
     if (uiWorldIndex >= perWorldData.GetCount())
     {
@@ -153,16 +152,24 @@ EZ_END_SUBSYSTEM_DECLARATION
 //static 
 void ezDebugRenderer::DrawLines(const ezWorld* pWorld, ezArrayPtr<Line> lines, const ezColor& color)
 {
+  DrawLines(pWorld->GetIndex(), lines, color);
+}
+
+//static 
+void ezDebugRenderer::DrawLines(ezUInt32 uiWorldIndex, ezArrayPtr<Line> lines, const ezColor& color)
+{
   EZ_LOCK(s_Mutex);
 
-  auto& data = GetDataForExtraction(pWorld);
+  auto& data = GetDataForExtraction(uiWorldIndex);
 
   for (auto& line : lines)
   {
+    ezVec3* pPositions = &line.m_start;
+
     for (ezUInt32 i = 0; i < 2; ++i)
     {
       auto& vertex = data.m_lineVertices.ExpandAndGetRef();
-      vertex.m_position = line.m_positions[i];
+      vertex.m_position = pPositions[i];
       vertex.m_color = color;
     }
   }
@@ -171,9 +178,15 @@ void ezDebugRenderer::DrawLines(const ezWorld* pWorld, ezArrayPtr<Line> lines, c
 //static
 void ezDebugRenderer::DrawLineBox(const ezWorld* pWorld, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform)
 {
+  DrawLineBox(pWorld->GetIndex(), box, color, transform);
+}
+
+//static
+void ezDebugRenderer::DrawLineBox(ezUInt32 uiWorldIndex, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform)
+{
   EZ_LOCK(s_Mutex);
 
-  auto& data = GetDataForExtraction(pWorld);
+  auto& data = GetDataForExtraction(uiWorldIndex);
   
   auto& boxData = data.m_lineBoxes.ExpandAndGetRef();
   
@@ -190,6 +203,12 @@ void ezDebugRenderer::DrawLineBox(const ezWorld* pWorld, const ezBoundingBox& bo
 
 //static
 void ezDebugRenderer::DrawLineBoxCorners(const ezWorld* pWorld, const ezBoundingBox& box, float fCornerFraction, const ezColor& color, const ezTransform& transform)
+{
+  DrawLineBoxCorners(pWorld->GetIndex(), box, fCornerFraction, color, transform);
+}
+
+//static
+void ezDebugRenderer::DrawLineBoxCorners(ezUInt32 uiWorldIndex, const ezBoundingBox& box, float fCornerFraction, const ezColor& color, const ezTransform& transform)
 {
   fCornerFraction = ezMath::Clamp(fCornerFraction, 0.0f, 1.0f) * 0.5f;
 
@@ -230,15 +249,21 @@ void ezDebugRenderer::DrawLineBoxCorners(const ezWorld* pWorld, const ezBounding
     lines[i * 2 + 1].m_end = edgeEnd - edgeDir * fCornerFraction;
   }
 
-  DrawLines(pWorld, lines, color);
+  DrawLines(uiWorldIndex, lines, color);
 }
 
 //static
 void ezDebugRenderer::DrawSolidBox(const ezWorld* pWorld, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform)
 {
+  DrawSolidBox(pWorld->GetIndex(), box, color, transform);
+}
+
+//static
+void ezDebugRenderer::DrawSolidBox(ezUInt32 uiWorldIndex, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform)
+{
   EZ_LOCK(s_Mutex);
 
-  auto& data = GetDataForExtraction(pWorld);
+  auto& data = GetDataForExtraction(uiWorldIndex);
 
   auto& boxData = data.m_solidBoxes.ExpandAndGetRef();
 
@@ -256,16 +281,24 @@ void ezDebugRenderer::DrawSolidBox(const ezWorld* pWorld, const ezBoundingBox& b
 //static
 void ezDebugRenderer::DrawSolidTriangles(const ezWorld* pWorld, ezArrayPtr<Triangle> triangles, const ezColor& color)
 {
+  DrawSolidTriangles(pWorld->GetIndex(), triangles, color);
+}
+
+//static
+void ezDebugRenderer::DrawSolidTriangles(ezUInt32 uiWorldIndex, ezArrayPtr<Triangle> triangles, const ezColor& color)
+{
   EZ_LOCK(s_Mutex);
 
-  auto& data = GetDataForExtraction(pWorld);
+  auto& data = GetDataForExtraction(uiWorldIndex);
 
   for (auto& triangle : triangles)
   {
+    ezVec3* pPositions = &triangle.m_p0;
+
     for (ezUInt32 i = 0; i < 3; ++i)
     {
       auto& vertex = data.m_triangleVertices.ExpandAndGetRef();
-      vertex.m_position = triangle.m_positions[i];
+      vertex.m_position = pPositions[i];
       vertex.m_color = color;
     }
   }

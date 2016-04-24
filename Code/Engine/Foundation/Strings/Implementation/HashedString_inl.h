@@ -91,12 +91,22 @@ inline ezUInt32 ezHashedString::GetHash() const
 }
 
 template <size_t N>
-inline ezTempHashedString::ezTempHashedString(const char(&szString)[N])
+EZ_FORCE_INLINE ezHashedString ezMakeHashedString(const char(&szString)[N])
+{
+  ezHashedString sResult;
+  sResult.Assign(szString);
+  return sResult;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+template <size_t N>
+EZ_FORCE_INLINE ezTempHashedString::ezTempHashedString(const char(&szString)[N])
 {
   m_uiHash = ezHashing::MurmurHash(szString);
 }
 
-inline ezTempHashedString::ezTempHashedString(ezHashing::StringWrapper szString)
+EZ_FORCE_INLINE ezTempHashedString::ezTempHashedString(ezHashing::StringWrapper szString)
 {
   m_uiHash = ezHashing::MurmurHash(szString);
 }
@@ -117,12 +127,12 @@ inline ezTempHashedString::ezTempHashedString(ezUInt32 uiHash)
 }
 
 template <size_t N>
-inline void ezTempHashedString::operator= (const char(&szString)[N])
+EZ_FORCE_INLINE void ezTempHashedString::operator= (const char(&szString)[N])
 {
   m_uiHash = ezHashing::MurmurHash(szString);
 }
 
-inline void ezTempHashedString::operator= (ezHashing::StringWrapper szString)
+EZ_FORCE_INLINE void ezTempHashedString::operator= (ezHashing::StringWrapper szString)
 {
   m_uiHash = ezHashing::MurmurHash(szString);
 }
@@ -157,6 +167,7 @@ EZ_FORCE_INLINE ezUInt32 ezTempHashedString::GetHash() const
   return m_uiHash;
 }
 
+//////////////////////////////////////////////////////////////////////////
 
 template <>
 struct ezHashHelper<ezHashedString>

@@ -21,16 +21,8 @@ public:
     {
     }
 
-    union
-    {
-      struct  
-      {
-        ezVec3 m_start;
-        ezVec3 m_end;
-      };
-
-      ezVec3 m_positions[2];
-    };    
+    ezVec3 m_start;
+    ezVec3 m_end;    
   };
 
   struct Triangle
@@ -44,29 +36,26 @@ public:
     {
     }
 
-    union
-    {
-      struct
-      {
-        ezVec3 m_p0;
-        ezVec3 m_p1;
-        ezVec3 m_p2;
-      };
-
-      ezVec3 m_positions[3];
-    };    
+    ezVec3 m_p0;
+    ezVec3 m_p1;
+    ezVec3 m_p2;    
   };
 
 
   static void DrawLines(const ezWorld* pWorld, ezArrayPtr<Line> lines, const ezColor& color);
-
+  static void DrawLines(ezUInt32 uiWorldIndex, ezArrayPtr<Line> lines, const ezColor& color);
+  
   static void DrawLineBox(const ezWorld* pWorld, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
+  static void DrawLineBox(ezUInt32 uiWorldIndex, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
 
   static void DrawLineBoxCorners(const ezWorld* pWorld, const ezBoundingBox& box, float fCornerFraction, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
+  static void DrawLineBoxCorners(ezUInt32 uiWorldIndex, const ezBoundingBox& box, float fCornerFraction, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
 
   static void DrawSolidBox(const ezWorld* pWorld, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
+  static void DrawSolidBox(ezUInt32 uiWorldIndex, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
 
   static void DrawSolidTriangles(const ezWorld* pWorld, ezArrayPtr<Triangle> triangles, const ezColor& color);
+  static void DrawSolidTriangles(ezUInt32 uiWorldIndex, ezArrayPtr<Triangle> triangles, const ezColor& color);
 
 private:
   friend class ezSimpleRenderPass;

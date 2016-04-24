@@ -115,6 +115,10 @@ private:
   HashedType m_Data;
 };
 
+/// \brief Helper function to create an ezHashedString. This can be used to initialize static hashed string variables.
+template <size_t N>
+ezHashedString ezMakeHashedString(const char(&szString)[N]);
+
 
 /// \brief A class to use together with ezHashedString for quick comparisons with temporary strings that need not be stored further.
 ///

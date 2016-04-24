@@ -263,7 +263,8 @@ bool ezHashTableBase<K, V, H>::Insert(const K& key, const V& value, V* out_oldVa
 }
 
 template <typename K, typename V, typename H>
-bool ezHashTableBase<K, V, H>::Remove(const K& key, V* out_oldValue /*= nullptr*/)
+template <typename CompatibleKeyType>
+bool ezHashTableBase<K, V, H>::Remove(const CompatibleKeyType& key, V* out_oldValue /*= nullptr*/)
 {
   ezUInt32 uiIndex = FindEntry(key);
   if (uiIndex != ezInvalidIndex)
@@ -310,7 +311,8 @@ bool ezHashTableBase<K, V, H>::Remove(const K& key, V* out_oldValue /*= nullptr*
 }
 
 template <typename K, typename V, typename H>
-inline bool ezHashTableBase<K, V, H>::TryGetValue(const K& key, V& out_value) const
+template <typename CompatibleKeyType>
+inline bool ezHashTableBase<K, V, H>::TryGetValue(const CompatibleKeyType& key, V& out_value) const
 {
   ezUInt32 uiIndex = FindEntry(key);
   if (uiIndex != ezInvalidIndex)
@@ -323,7 +325,8 @@ inline bool ezHashTableBase<K, V, H>::TryGetValue(const K& key, V& out_value) co
 }
 
 template <typename K, typename V, typename H>
-inline bool ezHashTableBase<K, V, H>::TryGetValue(const K& key, V*& out_pValue) const
+template <typename CompatibleKeyType>
+inline bool ezHashTableBase<K, V, H>::TryGetValue(const CompatibleKeyType& key, V*& out_pValue) const
 {
   ezUInt32 uiIndex = FindEntry(key);
   if (uiIndex != ezInvalidIndex)
@@ -364,7 +367,8 @@ inline V& ezHashTableBase<K, V, H>::operator[](const K& key)
 }
 
 template <typename K, typename V, typename H>
-EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::Contains(const K& key) const
+template <typename CompatibleKeyType>
+EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::Contains(const CompatibleKeyType& key) const
 {
   return FindEntry(key) != ezInvalidIndex;
 }
@@ -424,13 +428,15 @@ void ezHashTableBase<K, V, H>::SetCapacity(ezUInt32 uiCapacity)
 }
 
 template <typename K, typename V, typename H>
-EZ_FORCE_INLINE ezUInt32 ezHashTableBase<K, V, H>::FindEntry(const K& key) const
+template <typename CompatibleKeyType>
+EZ_FORCE_INLINE ezUInt32 ezHashTableBase<K, V, H>::FindEntry(const CompatibleKeyType& key) const
 {
   return FindEntry(H::Hash(key), key);
 }
 
 template <typename K, typename V, typename H>
-inline ezUInt32 ezHashTableBase<K, V, H>::FindEntry(ezUInt32 uiHash, const K& key) const
+template <typename CompatibleKeyType>
+inline ezUInt32 ezHashTableBase<K, V, H>::FindEntry(ezUInt32 uiHash, const CompatibleKeyType& key) const
 {
   if (m_uiCapacity > 0)
   {

@@ -209,6 +209,11 @@ public:
     return m_pResource;
   }
 
+  operator bool()
+  {
+    return m_pResource != nullptr;
+  }
+
 private:
   RESOURCE_TYPE* m_pResource;
 };

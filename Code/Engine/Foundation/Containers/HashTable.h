@@ -115,19 +115,23 @@ public:
   bool Insert(const KeyType& key, const ValueType& value, ValueType* out_oldValue = nullptr); // [tested]
 
   /// \brief Removes the entry with the given key. Returns if an entry was removed and optionally writes out the old value to out_oldValue.
-  bool Remove(const KeyType& key, ValueType* out_oldValue = nullptr); // [tested]
+  template <typename CompatibleKeyType>
+  bool Remove(const CompatibleKeyType& key, ValueType* out_oldValue = nullptr); // [tested]
 
   /// \brief Returns if an entry with the given key was found and if found writes out the corresponding value to out_value.
-  bool TryGetValue(const KeyType& key, ValueType& out_value) const; // [tested]
+  template <typename CompatibleKeyType>
+  bool TryGetValue(const CompatibleKeyType& key, ValueType& out_value) const; // [tested]
 
   /// \brief Returns if an entry with the given key was found and if found writes out the pointer to the corresponding value to out_pValue.
-  bool TryGetValue(const KeyType& key, ValueType*& out_pValue) const; // [tested]
+  template <typename CompatibleKeyType>
+  bool TryGetValue(const CompatibleKeyType& key, ValueType*& out_pValue) const; // [tested]
   
   /// \brief Returns the value to the given key if found or creates a new entry with the given key and a default constructed value.
   ValueType& operator[](const KeyType& key); // [tested]
 
   /// \brief Returns if an entry with given key exists in the table.
-  bool Contains(const KeyType& key) const; // [tested]
+  template <typename CompatibleKeyType>
+  bool Contains(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Returns an Iterator to the very first element.
   Iterator GetIterator(); // [tested]
@@ -167,8 +171,12 @@ private:
   };
 
   void SetCapacity(ezUInt32 uiCapacity);
-  ezUInt32 FindEntry(const KeyType& key) const;
-  ezUInt32 FindEntry(ezUInt32 uiHash, const KeyType& key) const;
+
+  template <typename CompatibleKeyType>
+  ezUInt32 FindEntry(const CompatibleKeyType& key) const;
+
+  template <typename CompatibleKeyType>
+  ezUInt32 FindEntry(ezUInt32 uiHash, const CompatibleKeyType& key) const;
 
   ezUInt32 GetFlagsCapacity() const;
   ezUInt32 GetFlags(ezUInt32* pFlags, ezUInt32 uiEntryIndex) const;
