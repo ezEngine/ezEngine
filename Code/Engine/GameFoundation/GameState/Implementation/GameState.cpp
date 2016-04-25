@@ -1,6 +1,5 @@
 
 #include <GameFoundation/PCH.h>
-#include <GameFoundation/GameState/GameState.h>
 #include <GameFoundation/GameState/GameStateWindow.h>
 #include <GameFoundation/GameApplication/GameApplication.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
@@ -9,10 +8,7 @@
 #include <RendererCore/Pipeline/Passes/TargetPass.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
-#include <RendererCore/Pipeline/RenderPipelineResource.h>
-#include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
-#include <RendererCore/Lights/LightGatheringRenderer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameState, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE

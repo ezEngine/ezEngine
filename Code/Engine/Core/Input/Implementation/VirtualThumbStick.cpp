@@ -1,7 +1,5 @@
 #include <Core/PCH.h>
 #include <Core/Input/VirtualThumbStick.h>
-#include <Core/Input/InputManager.h>
-#include <Foundation/Strings/StringBuilder.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVirtualThumbStick, 1, ezRTTINoAllocator);
   // no properties or message handlers

@@ -1,16 +1,11 @@
 #include <RendererCore/PCH.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/Passes/ForwardRenderPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
 
-#include <RendererCore/Meshes/MeshRenderer.h>
-#include <RendererCore/Lights/LightGatheringRenderer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezForwardRenderPass, 1, ezRTTIDefaultAllocator<ezForwardRenderPass>)
 {

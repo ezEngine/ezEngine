@@ -1,12 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/Shader/ShaderPermutationBinary.h>
-#include <Foundation/Logging/Log.h>
-#include <Core/ResourceManager/ResourceManager.h>
-#include <RendererFoundation/Descriptors/Descriptors.h>
-#include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Context/Context.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConstantBufferResource, 1, ezRTTIDefaultAllocator<ezConstantBufferResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE

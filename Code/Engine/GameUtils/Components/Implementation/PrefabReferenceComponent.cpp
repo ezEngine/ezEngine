@@ -1,7 +1,6 @@
 #include <GameUtils/PCH.h>
 #include <GameUtils/Components/PrefabReferenceComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 1)
 {

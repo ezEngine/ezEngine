@@ -1,7 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 
-#include <Foundation/Profiling/Profiling.h>
 
 static ezProfilingId s_SortingProfilingId = ezProfilingSystem::CreateId("SortAndBatch");
 

@@ -3,14 +3,10 @@
 #ifdef EZ_USE_QT
 
 #include <QtWidgets>
-#include <QMessageBox>
-#include <QStringBuilder>
 #include <TestFramework/Framework/Qt/qtTestGUI.h>
-#include <TestFramework/Framework/Qt/qtTestFramework.h>
 #include <TestFramework/Framework/Qt/qtTestModel.h>
 #include <TestFramework/Framework/Qt/qtTestDelegate.h>
 #include <TestFramework/Framework/Qt/qtLogMessageDock.h>
-#include <TestFramework/Utilities/TestOrder.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezQtTestGUI public functions

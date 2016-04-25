@@ -1,10 +1,8 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Material/MaterialResource.h>
-#include <Foundation/Strings/StringBuilder.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 
-#include <Core/ResourceManager/ResourceManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshResource, 1, ezRTTIDefaultAllocator<ezMeshResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE

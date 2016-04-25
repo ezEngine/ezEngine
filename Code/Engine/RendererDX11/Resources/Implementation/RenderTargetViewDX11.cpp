@@ -1,12 +1,8 @@
 
 #include <RendererDX11/PCH.h>
-#include <RendererDX11/Basics.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
 #include <RendererDX11/Resources/TextureDX11.h>
-#include <RendererDX11/Resources/BufferDX11.h>
 #include <RendererDX11/Device/DeviceDX11.h>
-#include <RendererFoundation/Device/Device.h>
-#include <Foundation/Logging/Log.h>
 
 #include <d3d11.h>
 

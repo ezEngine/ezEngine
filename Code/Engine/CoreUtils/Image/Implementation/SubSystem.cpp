@@ -1,8 +1,6 @@
 #include <CoreUtils/PCH.h>
-#include <Foundation/Configuration/SubSystem.h>
 
 #include <CoreUtils/Image/ImageConversion.h>
-#include <CoreUtils/Image/ImageFormat.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(CoreUtils, Image)
 

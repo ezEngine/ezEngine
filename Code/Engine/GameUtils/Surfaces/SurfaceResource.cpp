@@ -1,7 +1,6 @@
 #include <GameUtils/PCH.h>
 #include <GameUtils/Surfaces/SurfaceResource.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
-#include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <GameUtils/Prefabs/PrefabResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResource, 1, ezRTTIDefaultAllocator<ezSurfaceResource>);

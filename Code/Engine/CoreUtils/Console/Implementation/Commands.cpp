@@ -1,8 +1,6 @@
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/Console/Console.h>
 #include <Foundation/Configuration/CVar.h>
-#include <Foundation/Logging/Log.h>
-#include <CoreUtils/Console/ConsoleFunction.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezConsoleFunctionBase);
 

@@ -2,15 +2,12 @@
 #include <RendererFoundation/PCH.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/State/State.h>
-#include <RendererFoundation/Shader/Shader.h>
 #include <RendererFoundation/Shader/VertexDeclaration.h>
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/ResourceView.h>
 #include <RendererFoundation/Context/Context.h>
-#include <Foundation/Threading/ThreadUtils.h>
-#include <Foundation/Logging/Log.h>
 
 ezGALDevice* ezGALDevice::s_pDefaultDevice = nullptr;
 

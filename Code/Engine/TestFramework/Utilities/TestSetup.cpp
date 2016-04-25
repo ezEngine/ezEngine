@@ -1,12 +1,9 @@
 #include <TestFramework/PCH.h>
 #include <TestFramework/Utilities/TestSetup.h>
 
-#include <TestFramework/Framework/TestFramework.h>
 #include <TestFramework/Utilities/ConsoleOutput.h>
 #include <TestFramework/Utilities/HTMLOutput.h>
 
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Logging/ConsoleWriter.h>
 
 #ifdef EZ_USE_QT
   #include <TestFramework/Framework/Qt/qtTestFramework.h>

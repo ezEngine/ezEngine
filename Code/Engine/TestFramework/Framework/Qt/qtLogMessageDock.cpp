@@ -3,8 +3,6 @@
 
 #include <TestFramework/Framework/Qt/qtLogMessageDock.h>
 #include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Strings/StringUtils.h>
-#include <QApplication>
 #include <QStringBuilder>
 
 ////////////////////////////////////////////////////////////////////////

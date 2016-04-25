@@ -2,7 +2,6 @@
 #include <RendererFoundation/PCH.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
-#include <RendererFoundation/Resources/RenderTargetView.h>
 
 ezGALSwapChain::ezGALSwapChain(const ezGALSwapChainCreationDescription& Description)
 : ezGALObject(Description)

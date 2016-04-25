@@ -1,12 +1,10 @@
 #include <TestFramework/PCH.h>
 #ifdef EZ_USE_QT
 
-#include <TestFramework/Framework/Qt/qtTestFramework.h>
 #include <TestFramework/Framework/Qt/qtTestDelegate.h>
 #include <TestFramework/Framework/Qt/qtTestModel.h>
 #include <QPainter>
 #include <QApplication>
-#include <QStyleOptionViewItem>
 
 ////////////////////////////////////////////////////////////////////////
 // ezQtTestDelegate public functions

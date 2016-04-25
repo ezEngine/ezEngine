@@ -1,7 +1,5 @@
 #include <TestFramework/PCH.h>
 #include <TestFramework/Utilities/TestOrder.h>
-#include <Foundation/Math/Math.h>
-#include <algorithm>
 
 /// Operator to sort tests alphabetically
 inline bool SortTest_Operator(const ezTestEntry& lhs, const ezTestEntry& rhs)

@@ -1,11 +1,8 @@
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/Image/Formats/DdsFileFormat.h>
 
-#include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/IO/Stream.h>
 
 #include <CoreUtils/Image/Image.h>
-#include <CoreUtils/Image/ImageConversion.h>
 #include <CoreUtils/Image/Formats/ImageFormatMappings.h>
 
 ezDdsFileFormat g_ddsFormat;

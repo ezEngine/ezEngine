@@ -1,9 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
-#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/ChunkStream.h>
-#include <Foundation/Logging/Log.h>
 
 #include <CoreUtils/Assets/AssetFileHeader.h>
 

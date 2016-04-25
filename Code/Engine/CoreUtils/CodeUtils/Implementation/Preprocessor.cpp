@@ -1,6 +1,5 @@
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/CodeUtils/Preprocessor.h>
-#include <Foundation/Utilities/ConversionUtils.h>
 
 ezString ezPreprocessor::s_ParamNames[32];
 

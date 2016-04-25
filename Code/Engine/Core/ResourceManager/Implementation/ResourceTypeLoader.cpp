@@ -1,9 +1,5 @@
 #include <Core/PCH.h>
-#include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Core/ResourceManager/Resource.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/MemoryStream.h>
-#include <Foundation/IO/OSFile.h>
 
 struct FileResourceLoadData
 {

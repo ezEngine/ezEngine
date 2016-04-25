@@ -1,7 +1,5 @@
 #include <Core/PCH.h>
 #include <Core/Input/InputManager.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Configuration/Startup.h>
 
 ezInputManager::ezEventInput ezInputManager::s_InputEvents;
 ezInputManager::InternalData* ezInputManager::s_pData = nullptr;

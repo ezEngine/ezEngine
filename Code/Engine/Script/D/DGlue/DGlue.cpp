@@ -1,7 +1,6 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Memory/StackAllocator.h>
 #include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Types/Delegate.h>
 
 template <typename T>
 struct Delegate1 {};

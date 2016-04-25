@@ -1,15 +1,5 @@
 #include <TestFramework/PCH.h>
-#include <TestFramework/Framework/TestFramework.h>
 #include <TestFramework/Utilities/TestOrder.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Time/Timestamp.h>
-#include <Foundation/Configuration/Startup.h>
-#include <Foundation/IO/OSFile.h>
-#include <Foundation/Utilities/CommandLineUtils.h>
-#include <Foundation/Strings/StringBuilder.h>
-#include <CoreUtils/Image/Image.h>
-#include <CoreUtils/Image/ImageUtils.h>
-#include <CoreUtils/Image/ImageConversion.h>
 
 ezTestFramework* ezTestFramework::s_pInstance = nullptr;
 

@@ -1,7 +1,6 @@
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/Image/Conversions/PixelConversions.h>
 #include <CoreUtils/Image/Conversions/ImageConversionMixin.h>
-#include <emmintrin.h>
 
 class ezImageConversion_4444_8888 : public ezImageConversionMixinLinear<ezImageConversion_4444_8888>
 {

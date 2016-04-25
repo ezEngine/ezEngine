@@ -1,6 +1,5 @@
 #include <Core/PCH.h>
 #include <Core/WorldSerializer/ResourceHandleReader.h>
-#include <Core/ResourceManager/ResourceBase.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
 ezThreadLocalPointer<ezResourceHandleReadContext> ezResourceHandleReadContext::s_ActiveContext;

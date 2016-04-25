@@ -1,6 +1,5 @@
 #include <GameFoundation/PCH.h>
 #include <Core/World/WorldModule.h>
-#include <Core/World/World.h>
 #include <GameFoundation/GameApplication/GameApplication.h>
 
 

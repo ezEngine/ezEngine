@@ -1,5 +1,4 @@
 #include <CoreUtils/PCH.h>
-#include <CoreUtils/Console/Console.h>
 #include <CoreUtils/Console/LuaInterpreter.h>
 
 ezConsole::ezConsole()

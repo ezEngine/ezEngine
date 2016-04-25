@@ -2,7 +2,6 @@
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <RendererCore/Pipeline/Extractor.h>

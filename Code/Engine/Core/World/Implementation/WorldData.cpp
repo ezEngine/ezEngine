@@ -1,6 +1,5 @@
 #include <Core/PCH.h>
 
-#include <Foundation/Time/Clock.h>
 
 #include <Core/World/World.h>
 

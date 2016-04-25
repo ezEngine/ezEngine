@@ -1,6 +1,4 @@
 #include <Core/PCH.h>
-#include <Foundation/Logging/Log.h>
-#include <Core/Input/InputDevice.h>
 #include <Core/Input/InputManager.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezInputDevice);

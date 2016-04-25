@@ -1,11 +1,5 @@
 #include <TestFramework/PCH.h>
 #include <TestFramework/Framework/TestResults.h>
-#include <Foundation/IO/OSFile.h>
-#include <Foundation/IO/JSONWriter.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <Foundation/Configuration/Startup.h>
-#include <Foundation/Time/Timestamp.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezTestOutput public functions

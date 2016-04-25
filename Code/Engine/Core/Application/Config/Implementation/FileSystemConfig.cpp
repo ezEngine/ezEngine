@@ -1,9 +1,5 @@
 #include <Core/PCH.h>
 #include <Core/Application/Config/FileSystemConfig.h>
-#include <Foundation/IO/JSONWriter.h>
-#include <Foundation/IO/JSONReader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationFileSystemConfig, ezApplicationConfig, 1, ezRTTIDefaultAllocator<ezApplicationFileSystemConfig>)
 {

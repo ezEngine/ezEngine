@@ -1,10 +1,5 @@
 #include <Core/PCH.h>
 #include <Core/Application/Config/PluginConfig.h>
-#include <Foundation/IO/JSONWriter.h>
-#include <Foundation/IO/JSONReader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Configuration/Plugin.h>
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationPluginConfig, ezApplicationConfig, 1, ezRTTIDefaultAllocator<ezApplicationPluginConfig>)
 {

@@ -1,7 +1,5 @@
 #include <Core/PCH.h>
 #include <Core/ResourceManager/Resource.h>
-#include <Core/ResourceManager/ResourceTypeLoader.h>
-#include <Core/ResourceManager/ResourceManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResourceBase, 1, ezRTTINoAllocator);
 

@@ -2,13 +2,9 @@
 
 #include <RendererFoundation/PCH.h>
 #include <RendererFoundation/Context/Context.h>
-#include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Shader/Shader.h>
 #include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/Texture.h>
-#include <Foundation/Threading/ThreadUtils.h>
-#include <Foundation/Logging/Log.h>
 
 ezGALContext::ezGALContext(ezGALDevice* pDevice)
   : m_pDevice(pDevice),

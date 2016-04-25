@@ -7,9 +7,7 @@
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 
-#include <Foundation/Configuration/CVar.h>
 
-#include <Core/World/World.h>
 
 #include <RendererFoundation/Context/Profiling.h>
 

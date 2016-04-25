@@ -1,6 +1,4 @@
 #include <GameUtils/PCH.h>
-#include <GameUtils/Surfaces/SurfaceResourceDescriptor.h>
-#include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <GameUtils/Surfaces/SurfaceResource.h>
 #include <GameUtils/Prefabs/PrefabResource.h>

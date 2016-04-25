@@ -1,8 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
-#include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
-#include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 

@@ -1,6 +1,5 @@
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/Scripting/LuaWrapper.h>
-#include <Foundation/Logging/Log.h>
 
 void ezLuaWrapper::RegisterCFunction(const char* szFunctionName, lua_CFunction pFunction, void* pLightUserData) const
 {

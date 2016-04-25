@@ -1,6 +1,5 @@
 #include <Core/PCH.h>
 #include <Core/Input/InputManager.h>
-#include <Foundation/Containers/DynamicArray.h>
 
 const char* ezInputManager::ConvertScanCodeToEngineName(ezUInt8 uiScanCode, bool bIsExtendedKey)
 {

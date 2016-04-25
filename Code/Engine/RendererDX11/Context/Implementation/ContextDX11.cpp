@@ -1,8 +1,6 @@
 
 #include <RendererDX11/PCH.h>
 #include <RendererDX11/Context/ContextDX11.h>
-#include <RendererDX11/Device/DeviceDX11.h>
-#include <RendererDX11/Device/SwapChainDX11.h>
 #include <RendererDX11/Shader/ShaderDX11.h>
 #include <RendererDX11/Resources/BufferDX11.h>
 #include <RendererDX11/Resources/TextureDX11.h>
@@ -11,11 +9,7 @@
 #include <RendererDX11/State/StateDX11.h>
 #include <RendererDX11/Resources/ResourceViewDX11.h>
 
-#include <Foundation/Logging/Log.h>
-#include <System/Window/Window.h>
-#include <Foundation/Math/Color.h>
 
-#include <d3d11.h>
 #include <d3d11_1.h>
 
 

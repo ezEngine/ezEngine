@@ -1,11 +1,8 @@
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/Image/Formats/TgaFileFormat.h>
 
-#include <CoreUtils/Image/Image.h>
 #include <CoreUtils/Image/ImageConversion.h>
 
-#include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/IO/Stream.h>
 
 ezTgaFileFormat g_TgaFormat;
 

@@ -2,8 +2,6 @@
 #include <GameFoundation/GameApplication/InputConfig.h>
 #include <Foundation/IO/JSONWriter.h>
 #include <Foundation/IO/JSONReader.h>
-#include <Foundation/Logging/Log.h>
-#include <Core/Input/InputManager.h>
 
 EZ_CHECK_AT_COMPILETIME_MSG(ezGameAppInputConfig::MaxInputSlotAlternatives == ezInputActionConfig::MaxInputSlotAlternatives, "Max values should be kept in sync");
 

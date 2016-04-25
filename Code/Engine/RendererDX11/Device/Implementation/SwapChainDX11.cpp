@@ -2,8 +2,6 @@
 #include <RendererDX11/PCH.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
-#include <Foundation/Logging/Log.h>
-#include <System/Window/Window.h>
 
 #include <d3d11.h>
 

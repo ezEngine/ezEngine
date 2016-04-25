@@ -1,7 +1,5 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
-#include <RendererCore/Shader/ShaderStageBinary.h>
 
 ezUInt64 ezRenderContext::s_LastMaterialParamModification = 1;
 static ezMap<ezUInt32, ezDynamicArray<ezUInt8> > s_MaterialParameters;

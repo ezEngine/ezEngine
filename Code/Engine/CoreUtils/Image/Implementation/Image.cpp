@@ -1,14 +1,8 @@
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/Image/Image.h>
 
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
 
-#include <Foundation/Logging/Log.h>
 
-#include <Foundation/Strings/PathUtils.h>
-#include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Strings/StringView.h>
 
 #include <CoreUtils/Image/Formats/ImageFileFormat.h>
 

@@ -1,10 +1,5 @@
 #include <TestFramework/PCH.h>
 #include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Time/Time.h>
-#include <Foundation/System/SystemInformation.h>
-#include <Foundation/Time/Timestamp.h>
-#include <Foundation/Configuration/Startup.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezTestBaseClass);
 

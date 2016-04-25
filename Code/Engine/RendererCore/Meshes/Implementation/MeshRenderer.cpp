@@ -5,7 +5,6 @@
 #include <RendererCore/Pipeline/RenderDataBatch.h>
 #include <RendererCore/Pipeline/ViewData.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
-#include <Core/ResourceManager/ResourceManager.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
 

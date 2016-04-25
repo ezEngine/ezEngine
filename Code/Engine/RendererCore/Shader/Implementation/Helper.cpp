@@ -1,6 +1,5 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Shader/Implementation/Helper.h>
-#include <Foundation/Utilities/ConversionUtils.h>
 
 namespace ezShaderHelper
 {

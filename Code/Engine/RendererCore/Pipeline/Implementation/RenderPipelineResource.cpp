@@ -1,7 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
-#include <Foundation/IO/ExtendedJSONReader.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 
 void ezRenderPipelineResourceDescriptor::CreateFromRenderPipeline(const ezRenderPipeline* pPipeline)

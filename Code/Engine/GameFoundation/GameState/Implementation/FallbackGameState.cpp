@@ -1,7 +1,5 @@
 #include <GameFoundation/PCH.h>
 #include <GameFoundation/GameState/FallbackGameState.h>
-#include <GameFoundation/GameApplication/GameApplication.h>
-#include <Core/Input/InputManager.h>
 #include <GameFoundation/GameApplication/InputConfig.h>
 #include <GameUtils/Components/CameraComponent.h>
 

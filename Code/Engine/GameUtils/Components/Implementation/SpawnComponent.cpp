@@ -1,8 +1,6 @@
 #include <GameUtils/PCH.h>
 #include <GameUtils/Components/SpawnComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <GameUtils/Components/InputComponent.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 1)
 {

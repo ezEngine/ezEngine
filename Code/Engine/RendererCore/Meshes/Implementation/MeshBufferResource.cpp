@@ -1,8 +1,5 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Context/Context.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshBufferResource, 1, ezRTTIDefaultAllocator<ezMeshBufferResource>);

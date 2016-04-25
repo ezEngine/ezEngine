@@ -1,12 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
-#include <RendererCore/Shader/Implementation/Helper.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/OSFile.h>
-#include <Foundation/IO/MemoryStream.h>
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderPermutationResource, 1, ezRTTIDefaultAllocator<ezShaderPermutationResource>);

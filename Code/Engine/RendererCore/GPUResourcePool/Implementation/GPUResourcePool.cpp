@@ -1,10 +1,7 @@
 
 #include <RendererCore/PCH.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
-#include <Foundation/Logging/Log.h>
-#include <RendererFoundation/Resources/Buffer.h>
 #include <RendererFoundation/Resources/Texture.h>
-#include <Foundation/Threading/Lock.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 #include <Foundation/Utilities/Stats.h>

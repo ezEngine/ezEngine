@@ -3,9 +3,6 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
-#include <RendererFoundation/Context/Context.h>
-#include <RendererFoundation/Resources/RenderTargetView.h>
-#include <RendererFoundation/Resources/Texture.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/BlurConstants.h>

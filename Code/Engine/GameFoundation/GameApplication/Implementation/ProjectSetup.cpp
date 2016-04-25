@@ -7,7 +7,6 @@
 #include <RendererDX11/Device/DeviceDX11.h>
 typedef ezGALDeviceDX11 ezGALDeviceDefault;
 #else
-#include <RendererGL/Device/DeviceGL.h>
 typedef ezGALDeviceGL ezGALDeviceDefault;
 #endif
 #include <Foundation/IO/FileSystem/FileReader.h>

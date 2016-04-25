@@ -1,9 +1,5 @@
 #include <InputXBox360/PCH.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Strings/StringBuilder.h>
 #include <InputXBox360/InputDeviceXBox.h>
-#include <Core/Input/InputManager.h>
-#include <Foundation/Time/Time.h>
 #include <Xinput.h>
 
 

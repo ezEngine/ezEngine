@@ -1,8 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Shader/ShaderStageBinary.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
 
 ezMap<ezUInt32, ezShaderStageBinary> ezShaderStageBinary::s_ShaderStageBinaries[ezGALShaderStage::ENUM_COUNT];
 ezMap<ezUInt32, ezShaderMaterialParamCB> ezShaderStageBinary::s_ShaderMaterialParamCBs;

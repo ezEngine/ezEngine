@@ -11,9 +11,6 @@
 #include <RendererDX11/Resources/ResourceViewDX11.h>
 #include <RendererDX11/Context/ContextDX11.h>
 
-#include <Foundation/Logging/Log.h>
-#include <System/Window/Window.h>
-#include <Foundation/Math/Color.h>
 
 #include <d3d11.h>
 

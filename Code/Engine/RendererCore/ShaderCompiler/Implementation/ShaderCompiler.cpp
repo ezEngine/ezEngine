@@ -1,10 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
-#include <RendererCore/Shader/Implementation/Helper.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/OSFile.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderProgramCompiler, 1, ezRTTINoAllocator);
 // no properties or message handlers

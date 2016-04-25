@@ -1,7 +1,5 @@
 #include <CoreUtils/PCH.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
 #include <CoreUtils/Scripting/LuaWrapper.h>
-#include <Foundation/Logging/Log.h>
 
 ezLuaWrapper::ezLuaWrapper()
 {

@@ -1,6 +1,5 @@
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/Geometry/OBJLoader.h>
-#include <Foundation/Utilities/ConversionUtils.h>
 
 
 ezOBJLoader::FaceVertex::FaceVertex()

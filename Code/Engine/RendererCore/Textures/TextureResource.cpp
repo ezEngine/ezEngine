@@ -1,14 +1,5 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Textures/TextureResource.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/Shader/ShaderPermutationBinary.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Configuration/Startup.h>
-#include <Core/ResourceManager/ResourceManager.h>
-#include <RendererFoundation/Descriptors/Descriptors.h>
-#include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Context/Context.h>
-#include <CoreUtils/Image/ImageConversion.h>
 #include <CoreUtils/Image/Formats/DdsFileFormat.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 

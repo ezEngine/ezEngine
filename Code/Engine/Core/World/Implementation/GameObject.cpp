@@ -1,6 +1,5 @@
 #include <Core/PCH.h>
 #include <Core/World/World.h>
-#include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/Messages/DeleteObjectMessage.h>
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)

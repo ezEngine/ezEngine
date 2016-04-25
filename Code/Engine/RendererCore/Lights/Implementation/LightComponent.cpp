@@ -1,7 +1,5 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Lights/LightComponent.h>
-#include <RendererCore/Pipeline/View.h>
-#include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 

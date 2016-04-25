@@ -1,5 +1,4 @@
 #include <Core/PCH.h>
-#include <Foundation/Logging/Log.h>
 #include <Core/Input/InputManager.h>
 
 ezInputActionConfig::ezInputActionConfig()

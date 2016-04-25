@@ -1,12 +1,8 @@
 #include <RendererCore/PCH.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/Passes/TargetPass.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 
-#include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
-#include <RendererFoundation/Resources/Texture.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTargetPass, 1, ezRTTIDefaultAllocator<ezTargetPass>)
 {

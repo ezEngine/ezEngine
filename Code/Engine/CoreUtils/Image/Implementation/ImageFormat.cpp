@@ -1,5 +1,4 @@
 #include <CoreUtils/PCH.h>
-#include <Foundation/Containers/StaticArray.h>
 
 #include <CoreUtils/Image/ImageFormat.h>
 

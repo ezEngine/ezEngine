@@ -1,11 +1,9 @@
 #include <TestFramework/PCH.h>
 #ifdef EZ_USE_QT
 
-#include <TestFramework/Framework/Qt/qtTestFramework.h>
 #include <TestFramework/Framework/Qt/qtTestModel.h>
 #include <QPalette>
 #include <QApplication>
-#include <QStringBuilder>
 
 ////////////////////////////////////////////////////////////////////////
 // ezQtTestModelEntry public functions

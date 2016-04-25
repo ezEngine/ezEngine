@@ -1,6 +1,5 @@
 #include <Core/PCH.h>
 #include <Core/Input/InputManager.h>
-#include <Foundation/Configuration/Startup.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, InputManager)
 

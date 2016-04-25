@@ -1,8 +1,5 @@
 #include <GameUtils/PCH.h>
 
-#include <Foundation/PCH.h>
-#include <CoreUtils/PCH.h>
-#include <Core/PCH.h>
 
 EZ_STATICLINK_LIBRARY(GameUtils)
 {

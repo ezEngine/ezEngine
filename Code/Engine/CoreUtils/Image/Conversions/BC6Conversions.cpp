@@ -1,5 +1,4 @@
 #include <CoreUtils/PCH.h>
-#include <CoreUtils/Image/Conversions/BC6Conversions.h>
 #include <CoreUtils/Image/Conversions/ImageConversionMixin.h>
 
 template<bool bSigned>

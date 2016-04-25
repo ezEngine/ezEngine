@@ -1,7 +1,5 @@
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/Image/Conversions/ImageConversionMixin.h>
-#include <emmintrin.h>
-#include <tmmintrin.h>
 
 struct ezImageSwizzleConversion32_2103_SSE2 : public ezImageConversionMixinLinear<ezImageSwizzleConversion32_2103_SSE2>
 {
