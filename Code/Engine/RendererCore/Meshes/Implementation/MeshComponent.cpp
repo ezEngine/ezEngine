@@ -112,16 +112,33 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
       pRenderData->m_uiEditorPickingID = m_uiEditorPickingID | (uiMaterialIndex << 24);
     }
 
-    // Determine render data category. TODO: get category from material
-    ezRenderData::Category category = ezDefaultRenderDataCategories::LitOpaque;
-    if (m_RenderDataCategory != ezInvalidIndex)
-    {
-      category = m_RenderDataCategory;
-    }
+    // Determine render data category.
+    ezRenderData::Category category;
     if (msg.m_OverrideCategory != ezInvalidIndex)
     {
       category = msg.m_OverrideCategory;
     }
+    else if (m_RenderDataCategory != ezInvalidIndex)
+    {
+      category = m_RenderDataCategory;
+    }
+    else
+    {
+      ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowFallback);
+      ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
+      if (blendModeValue == "OPAQUE" || blendModeValue == "")
+      {
+        category = ezDefaultRenderDataCategories::LitOpaque;
+      }
+      else if (blendModeValue == "MASKED")
+      {
+        category = ezDefaultRenderDataCategories::LitMasked;
+      }
+      else
+      {
+        category = ezDefaultRenderDataCategories::LitTransparent;
+      }
+    }    
 
     // Sort by material and then by mesh
     ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFF);

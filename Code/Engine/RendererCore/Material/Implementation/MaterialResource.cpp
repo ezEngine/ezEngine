@@ -11,6 +11,26 @@ ezMaterialResource::ezMaterialResource() : ezResource<ezMaterialResource, ezMate
 {
 }
 
+
+ezTempHashedString ezMaterialResource::GetPermutationValue(const ezTempHashedString& sName)
+{
+  for (auto& permutationVar : m_Desc.m_PermutationVars)
+  {
+    if (permutationVar.m_sName == sName)
+    {
+      return permutationVar.m_sValue;
+    }
+  }
+
+  if (m_Desc.m_hBaseMaterial.IsValid())
+  {
+    ezResourceLock<ezMaterialResource> pBaseMaterial(m_Desc.m_hBaseMaterial, ezResourceAcquireMode::AllowFallback);
+    return pBaseMaterial->GetPermutationValue(sName);
+  }
+
+  return ezTempHashedString("");
+}
+
 ezResourceLoadDesc ezMaterialResource::UnloadData(Unload WhatToUnload)
 {
   m_Desc.Clear();

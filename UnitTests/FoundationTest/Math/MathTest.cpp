@@ -301,6 +301,7 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_BOOL(ezMath::Min(5, 6, 7, 4) == 4);
 
     EZ_TEST_BOOL(ezMath::Min(UniqueInt(1, 0), UniqueInt(1, 1)).id == 0);
+    EZ_TEST_BOOL(ezMath::Min(UniqueInt(1, 1), UniqueInt(1, 0)).id == 1);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Max")
@@ -317,7 +318,8 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_BOOL(ezMath::Max(1, 2, 0, 0) == 2);
     EZ_TEST_BOOL(ezMath::Max(1, 0, 0, 0) == 1);
 
-    EZ_TEST_BOOL(ezMath::Max(UniqueInt(1, 0), UniqueInt(1, 1)).id == 1);
+    EZ_TEST_BOOL(ezMath::Max(UniqueInt(1, 0), UniqueInt(1, 1)).id == 0);
+    EZ_TEST_BOOL(ezMath::Max(UniqueInt(1, 1), UniqueInt(1, 0)).id == 1);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clamp")

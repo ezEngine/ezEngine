@@ -45,6 +45,8 @@ class EZ_RENDERERCORE_DLL ezMaterialResource : public ezResource<ezMaterialResou
 public:
   ezMaterialResource();
 
+  ezTempHashedString GetPermutationValue(const ezTempHashedString& sName);
+
   EZ_FORCE_INLINE const ezMaterialResourceDescriptor& GetDescriptor()
   {
     return m_Desc;

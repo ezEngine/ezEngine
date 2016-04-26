@@ -158,7 +158,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StackAllocator")
   {
-    ezStackAllocator<> allocator("TestStackAllocator", ezFoundation::GetDefaultAllocator());
+    ezStackAllocator<> allocator("TestStackAllocator", ezFoundation::GetAlignedAllocator());
 
     void* blocks[8];
     for (size_t i = 0; i < EZ_ARRAY_SIZE(blocks); i++)
@@ -202,7 +202,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StackAllocator with non-PODs")
   {
-    ezStackAllocator<> allocator("TestStackAllocator", ezFoundation::GetDefaultAllocator());
+    ezStackAllocator<> allocator("TestStackAllocator", ezFoundation::GetAlignedAllocator());
 
     ezDynamicArray<ezConstructionCounter*> counters;
     counters.Reserve(100);
