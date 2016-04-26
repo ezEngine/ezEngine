@@ -1,0 +1,23 @@
+#include <PCH.h>
+#include <EditorFramework/Gizmos/GizmoComponent.h>
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoRenderData, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_COMPONENT_TYPE(ezGizmoComponent, 1)
+EZ_END_COMPONENT_TYPE
+
+ezGizmoComponent::ezGizmoComponent()
+{
+  m_bUseDepthPrepass = false;
+}
+
+ezMeshRenderData* ezGizmoComponent::CreateRenderData(ezUInt32 uiBatchId) const
+{
+  ezGizmoRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezGizmoRenderData>(GetOwner(), uiBatchId);
+  pRenderData->m_GizmoColor = m_GizmoColor;
+  pRenderData->m_bUseDepthPrepass = m_bUseDepthPrepass;
+
+  return pRenderData;
+}
+

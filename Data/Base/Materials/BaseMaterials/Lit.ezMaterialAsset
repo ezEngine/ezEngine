@@ -1,0 +1,33 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x99ECCEFC0B9A9D40A47DBA7015FEEC25" },
+   "t" : "ezMaterialAssetProperties",
+   "p" : {
+    "Base Material" : "",
+    "Diffuse Texture" : "",
+    "Mask Texture" : "",
+    "Normal Map" : "",
+    "Permutations" : "BLEND_MODE=OPAQUE;SHADING_MODE=LIT;TWO_SIDED=FALSE",
+    "Shader" : "Shaders/Materials/DefaultMaterial.ezShader"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x2DFC717C1A2A38499305F3A0F26D73CC" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Material",
+    "Dependencies" : "Shaders/Materials/DefaultMaterial.ezShader",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0x2DFC717C1A2A38499305F3A0F26D73CC" },
+    "Hash" : { "$t" : "uint64", "$v" : "6835379964999686743", "$b" : "0x57DAA0DEDC25DC5E" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0x99ECCEFC0B9A9D40A47DBA7015FEEC25" } ]
+   }
+  } ]
+}

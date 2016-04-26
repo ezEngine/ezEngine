@@ -12,7 +12,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, 1)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Mesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Mesh")),
-    EZ_MEMBER_PROPERTY("Mesh Color", m_MeshColor),
     EZ_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new ezAssetBrowserAttribute("Material")),
   }
   EZ_END_PROPERTIES
@@ -33,7 +32,6 @@ EZ_END_COMPONENT_TYPE
 ezMeshComponent::ezMeshComponent()
 {
   m_RenderDataCategory = ezInvalidIndex;
-  m_MeshColor = ezColor::White;
 }
 
 void ezMeshComponent::SetMesh(const ezMeshResourceHandle& hMesh)
@@ -104,14 +102,14 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
     ezUInt32 data[] = { uiMeshIDHash, uiMaterialIDHash, uiPartIndex };
     ezUInt32 uiBatchId = ezHashing::MurmurHash(data, sizeof(data));
 
-    auto* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
+    ezMeshRenderData* pRenderData = CreateRenderData(uiBatchId);
     {
       pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
+      pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
       pRenderData->m_hMesh = m_hMesh;
       pRenderData->m_hMaterial = hMaterial;
       pRenderData->m_uiPartIndex = uiPartIndex;
       pRenderData->m_uiEditorPickingID = m_uiEditorPickingID | (uiMaterialIndex << 24);
-      pRenderData->m_MeshColor = m_MeshColor;
     }
 
     // Determine render data category. TODO: get category from material
@@ -159,8 +157,7 @@ void ezMeshComponent::SerializeComponent(ezWorldWriter& stream) const
 
   // ignore components that have created meshes (?)
 
-  s << GetMeshFile();
-  s << m_MeshColor;
+  s << m_hMesh;
   s << m_RenderDataCategory;
 
   s << m_Materials.GetCount();
@@ -178,12 +175,7 @@ void ezMeshComponent::DeserializeComponent(ezWorldReader& stream)
 
   ezStreamReader& s = stream.GetStream();
 
-  ezStringBuilder sTemp;
-
-  s >> sTemp;
-  SetMeshFile(sTemp);
-
-  s >> m_MeshColor;
+  s >> m_hMesh;
   s >> m_RenderDataCategory;
 
   ezUInt32 uiMaterials = 0;
@@ -195,6 +187,12 @@ void ezMeshComponent::DeserializeComponent(ezWorldReader& stream)
   {
     s >> mat;
   }
+}
+
+
+ezMeshRenderData* ezMeshComponent::CreateRenderData(ezUInt32 uiBatchId) const
+{
+  return ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
 }
 
 ezUInt32 ezMeshComponent::Materials_GetCount() const

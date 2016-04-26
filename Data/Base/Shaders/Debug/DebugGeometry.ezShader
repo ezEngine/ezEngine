@@ -14,7 +14,8 @@ DepthWrite = true
 
 [VERTEXSHADER]
 
-#include <Shaders/Materials/Materials.inc>
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Materials/MaterialInterpolator.inc>
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
@@ -34,13 +35,7 @@ struct VS_IN_POS_ONLY
   uint InstanceID : SV_InstanceID;
 };
 
-struct VS_OUT_POS_ONLY
-{
-  float4 Position : SV_Position;
-  float4 Color : Color;
-};
-
-VS_OUT_POS_ONLY main(VS_IN_POS_ONLY Input)
+VS_OUT_COLORED main(VS_IN_POS_ONLY Input)
 {
   float4 t0 = boxData[Input.InstanceID].t0;
   float4 t1 = boxData[Input.InstanceID].t1;
@@ -50,7 +45,7 @@ VS_OUT_POS_ONLY main(VS_IN_POS_ONLY Input)
 
   float4 worldPos = mul(worldMatrix, float4(Input.Position, 1.0f));
 
-  VS_OUT_POS_ONLY RetVal;
+  VS_OUT_COLORED RetVal;
   RetVal.Position = mul(WorldToScreenMatrix, worldPos);
   RetVal.Color = boxData[Input.InstanceID].color;
   
@@ -62,15 +57,9 @@ VS_OUT_POS_ONLY main(VS_IN_POS_ONLY Input)
 
 [PIXELSHADER]
 
-#include <Shaders/Materials/Materials.inc>
+#include <Shaders/Materials/MaterialInterpolator.inc>
 
 #if EZ_ENABLED(PLATFORM_DX11)
-
-struct PS_IN_POS_ONLY
-{
-  float4 Position : SV_Position;
-  float4 Color : Color;
-};
 
 float4 main(PS_IN_COLORED Input) : SV_Target
 {

@@ -1,8 +1,8 @@
 #include <Shaders/Common/GlobalConstants.h>
 
+// no constants yet
+#if 0
 CONSTANT_BUFFER(MaterialCB, 1)
 {
-  COLOR(MeshColor);
-  INT1(PickingHighlightID);
-  FLOAT1(GizmoScale);
 };
+#endif

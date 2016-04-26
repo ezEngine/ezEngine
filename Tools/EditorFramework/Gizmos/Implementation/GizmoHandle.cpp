@@ -1,9 +1,8 @@
 #include <PCH.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
+#include <EditorFramework/Gizmos/GizmoComponent.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <Core/World/World.h>
 
@@ -25,7 +24,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineGizmoHandle, 1, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("HandleType", m_iHandleType),
     EZ_MEMBER_PROPERTY("Color", m_Color),
     EZ_MEMBER_PROPERTY("ConstantSize", m_bConstantSize),
-    EZ_MEMBER_PROPERTY("Foreground2", m_bForeground2),
+    EZ_MEMBER_PROPERTY("AlwaysOnTop", m_bAlwaysOnTop),
     EZ_MEMBER_PROPERTY("Visualizer", m_bVisualizer),
   }
   EZ_END_PROPERTIES
@@ -392,9 +391,9 @@ static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, e
 ezEngineGizmoHandle::ezEngineGizmoHandle()
 {
   m_iHandleType = -1;
-  m_pMeshComponent = nullptr;
+  m_pGizmoComponent = nullptr;
   m_bConstantSize = true;
-  m_bForeground2 = false;
+  m_bAlwaysOnTop = false;
   m_bVisualizer = false;
   m_Color = ezColor::CornflowerBlue; /* The Original! */
 }
@@ -407,12 +406,12 @@ ezEngineGizmoHandle::~ezEngineGizmoHandle()
   m_pWorld->DeleteObjectDelayed(m_hGameObject);
 }
 
-void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize, bool bForeground2, bool bVisualizer)
+void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize, bool bAlwaysOnTop, bool bVisualizer)
 {
   SetParentGizmo(pParentGizmo);
 
   m_bConstantSize = bConstantSize;
-  m_bForeground2 = bForeground2;
+  m_bAlwaysOnTop = bAlwaysOnTop;
   m_bVisualizer = bVisualizer;
   m_iHandleType = (int)type;
   m_Color = col;
@@ -540,7 +539,7 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
     pObject->GetTags().Set(tagEditor);
   }
 
-  ezMeshComponent::CreateComponent(pWorld, m_pMeshComponent);
+  ezGizmoComponent::CreateComponent(pWorld, m_pGizmoComponent);
 
 
   ezMeshResourceHandle hMesh;
@@ -553,22 +552,19 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
   {
     hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Materials/Editor/GizmoHandleConstantSize.ezMaterial");
   }
-  else if (m_bForeground2)
-  {
-    hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Materials/Editor/GizmoHandleOnTop.ezMaterial");
-  }
   else
   {
     hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Materials/Editor/GizmoHandle.ezMaterial");
   }
 
-  m_pMeshComponent->SetRenderDataCategory(m_bForeground2 ? ezDefaultRenderDataCategories::SimpleForeground : ezDefaultRenderDataCategories::SimpleOpaque);
-  m_pMeshComponent->m_MeshColor = m_Color;
-  m_pMeshComponent->SetMesh(hMesh);
+  m_pGizmoComponent->SetRenderDataCategory(m_bVisualizer ? ezDefaultRenderDataCategories::SimpleOpaque : ezDefaultRenderDataCategories::SimpleForeground);
+  m_pGizmoComponent->m_GizmoColor = m_Color;
+  m_pGizmoComponent->m_bUseDepthPrepass = !m_bVisualizer;
+  m_pGizmoComponent->SetMesh(hMesh);
 
-  m_pMeshComponent->m_uiEditorPickingID = uiNextComponentPickingID;
+  m_pGizmoComponent->m_uiEditorPickingID = uiNextComponentPickingID;
 
-  pObject->AttachComponent(m_pMeshComponent);
+  pObject->AttachComponent(m_pGizmoComponent);
 
   return true;
 }
@@ -594,8 +590,9 @@ void ezEngineGizmoHandle::UpdateForEngine(ezWorld* pWorld)
   pObject->SetLocalRotation(qRot);
   pObject->SetLocalScaling(vScale);
 
-  m_pMeshComponent->m_MeshColor = m_Color;
-  m_pMeshComponent->SetActive(m_bVisible);
+  m_pGizmoComponent->m_GizmoColor = m_Color;
+  m_pGizmoComponent->m_bUseDepthPrepass = !m_bVisualizer;
+  m_pGizmoComponent->SetActive(m_bVisible);
 }
 
 void ezEngineGizmoHandle::SetColor(const ezColor& col)

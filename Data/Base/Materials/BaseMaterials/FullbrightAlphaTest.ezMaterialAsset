@@ -7,8 +7,8 @@
     "Diffuse Texture" : "",
     "Mask Texture" : "",
     "Normal Map" : "",
-    "Permutations" : "ALPHATEST=TRUE",
-    "Shader" : "Shaders/Materials/Fullbright.ezShader"
+    "Permutations" : "BLEND_MODE=MASKED;SHADING_MODE=FULLBRIGHT;TWO_SIDED=FALSE",
+    "Shader" : "Shaders/Materials/DefaultMaterial.ezShader"
    }
   },
   {
@@ -17,9 +17,9 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Material",
-    "Dependencies" : "Shaders/Materials/Fullbright.ezShader",
+    "Dependencies" : "Shaders/Materials/DefaultMaterial.ezShader",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x41D300485B756743A175FFA5DD17BD29" },
-    "Hash" : { "$t" : "uint64", "$v" : "14845188404757199760", "$b" : "0x90FB4C7133B404CE" }
+    "Hash" : { "$t" : "uint64", "$v" : "9775801475766556852", "$b" : "0xB418CED5A59FAA87" }
    }
   },
   {

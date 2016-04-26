@@ -42,7 +42,9 @@ namespace
 
   PerWorldData& GetDataForExtraction(ezUInt32 uiWorldIndex)
   {
-    auto& perWorldData = s_PerWorldData[ezRenderLoop::GetDataIndexForExtraction()];
+    const ezUInt32 uiDataIndex = ezRenderLoop::GetDataIndexForExtraction();
+
+    auto& perWorldData = s_PerWorldData[uiDataIndex];
     if (uiWorldIndex >= perWorldData.GetCount())
     {
       perWorldData.SetCount(uiWorldIndex + 1);
@@ -333,7 +335,7 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
       CreateVertexBuffer(BufferType::Lines, sizeof(Vertex), uiNumLineVertices, pData->m_lineVertices.GetData());
 
       renderViewContext.m_pRenderContext->BindShader(s_hDebugPrimitiveShader);
-      renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Lines], ezGALBufferHandle(), s_VertexDeclarationInfo, 
+      renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Lines], ezGALBufferHandle(), &s_VertexDeclarationInfo, 
         ezGALPrimitiveTopology::Lines, uiNumLineVertices / 2);
       renderViewContext.m_pRenderContext->DrawMeshBuffer();
     }
@@ -380,7 +382,7 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
       CreateVertexBuffer(BufferType::Triangles, sizeof(Vertex), uiNumTriangleVertices, pData->m_triangleVertices.GetData());
 
       renderViewContext.m_pRenderContext->BindShader(s_hDebugPrimitiveShader);
-      renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Triangles], ezGALBufferHandle(), s_VertexDeclarationInfo, 
+      renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Triangles], ezGALBufferHandle(), &s_VertexDeclarationInfo, 
         ezGALPrimitiveTopology::Lines, uiNumTriangleVertices / 3);
       renderViewContext.m_pRenderContext->DrawMeshBuffer();
     }

@@ -826,6 +826,8 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
   ezUInt32 uiCurrentLastUsageIdx = 0;
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
   {
+    auto& pPass = m_Passes[i];
+
     // Create pool textures
     for (; uiCurrentFirstUsageIdx < m_TextureUsageIdxSortedByFirstUsage.GetCount(); )
     {
@@ -850,10 +852,17 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
 
     // Execute pass block
     {
-      EZ_PROFILE_AND_MARKER(pRendererContext->GetGALContext(), m_Passes[i]->m_ProfilingID);
+      EZ_PROFILE_AND_MARKER(pRendererContext->GetGALContext(), pPass->m_ProfilingID);
 
-      ConnectionData& data = m_Connections[m_Passes[i].Borrow()];
-      m_Passes[i]->Execute(renderViewContext, data.m_Inputs, data.m_Outputs);
+      ConnectionData& data = m_Connections[pPass.Borrow()];
+      if (pPass->m_bActive)
+      {
+        pPass->Execute(renderViewContext, data.m_Inputs, data.m_Outputs);
+      }
+      else
+      {
+        pPass->ExecuteInactive(renderViewContext, data.m_Inputs, data.m_Outputs);
+      }
     }
 
     // Release pool textures

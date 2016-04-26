@@ -10,11 +10,11 @@ class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshRenderData, ezRenderData);
 
 public:
+  ezBoundingBoxSphere m_GlobalBounds;
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
   ezUInt32 m_uiPartIndex;
   ezUInt32 m_uiEditorPickingID;
-  ezColor m_MeshColor;
 };
 
 class ezMeshComponent;
@@ -63,10 +63,11 @@ public:
   void SetMeshFile(const char* szFile);
   const char* GetMeshFile() const;
 
-  ezColor m_MeshColor;
-
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+protected:
+  virtual ezMeshRenderData* CreateRenderData(ezUInt32 uiBatchId) const;
 
 private:
   ezUInt32 Materials_GetCount() const;

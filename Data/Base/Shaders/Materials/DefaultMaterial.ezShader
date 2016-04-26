@@ -1,0 +1,74 @@
+[PLATFORMS] 
+ALL
+
+[PERMUTATIONS]
+
+BLEND_MODE
+RENDER_PASS
+SHADING_MODE
+TWO_SIDED
+
+[RENDERSTATE]
+
+#include <Shaders/Materials/MaterialState.inc>
+
+[VERTEXSHADER]
+
+#define USE_NORMAL
+#define USE_TEXCOORD0
+
+#include <Shaders/Materials/DefaultMaterialCB.inc>
+#include <Shaders/Materials/MaterialVertexShader.inc>
+
+VS_OUT main(VS_IN Input)
+{
+  return FillVertexData(Input);
+}
+
+[PIXELSHADER]
+
+#define USE_NORMAL
+#define USE_TEXCOORD0
+#define USE_SIMPLE_MATERIAL_MODEL
+
+#include <Shaders/Materials/DefaultMaterialCB.inc>
+#include <Shaders/Materials/MaterialPixelShader.inc>
+
+Texture2D TexDiffuse;
+SamplerState TexDiffuseSampler;
+
+float3 GetNormal(PS_IN Input)
+{
+	return Input.Normal;
+}
+
+float3 GetBaseColor(PS_IN Input)
+{
+	return TexDiffuse.Sample(TexDiffuseSampler, Input.TexCoords.xy).rgb;
+}
+
+float GetMetallic(PS_IN Input)
+{
+	return 0.0f;
+}
+
+float GetReflectance(PS_IN Input)
+{
+	return 0.5f;
+}
+	
+float GetRoughness(PS_IN Input)
+{
+	return 0.7f;
+}
+
+float GetOpacity(PS_IN Input)
+{
+	float opacity = TexDiffuse.Sample(TexDiffuseSampler, Input.TexCoords.xy).a;
+	
+	#if BLEND_MODE == BLEND_MODE_MASKED
+		return opacity - 0.1f;
+	#else
+		return opacity;
+	#endif
+}

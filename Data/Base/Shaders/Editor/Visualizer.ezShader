@@ -3,7 +3,7 @@ ALL
 
 [PERMUTATIONS]
 
-PICKING
+RENDER_PASS
 
 [RENDERSTATE]
 
@@ -15,18 +15,21 @@ DepthTestFunc = CompareFunc_Less
 
 [VERTEXSHADER]
 
-#include <Shaders/Materials/Materials.inc>
-#include <Shaders/Materials/DefaultMaterialCB.inc>
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Editor/GizmoConstants.h>
+#include <Shaders/Materials/MaterialInterpolator.inc>
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
 VS_OUT_COLORED main(VS_IN_COLORED Input)
 {
-  VS_OUT_COLORED RetVal;
-  RetVal.Position = mul(ObjectToScreenMatrix, float4(Input.Position, 1.0f));
-  RetVal.Color = MeshColor;
+	float4 worldSpacePos = mul(ObjectToWorldMatrix, float4(Input.Position, 1.0f));
+
+	VS_OUT_COLORED RetVal;
+	RetVal.Position = mul(WorldToScreenMatrix, worldSpacePos);
+	RetVal.Color = GizmoColor;
   
-  return RetVal;
+	return RetVal;
 }
 
 #endif
@@ -34,15 +37,19 @@ VS_OUT_COLORED main(VS_IN_COLORED Input)
 
 [PIXELSHADER]
 
-#include <Shaders/Materials/Materials.inc>
-#include <Shaders/Materials/DefaultMaterialCB.inc>
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Materials/MaterialInterpolator.inc>
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
 float4 main(PS_IN_COLORED Input) : SV_Target
 {
-#if PICKING == 1
-  discard;
+#if RENDER_PASS == RENDER_PASS_EDITOR
+	if (RenderPass == EDITOR_RENDER_PASS_PICKING)
+		discard;
+#elif RENDER_PASS == RENDER_PASS_WIREFRAME
+	if (RenderPass == WIREFRAME_RENDER_PASS_PICKING)
+		discard;
 #endif
 
   return Input.Color;

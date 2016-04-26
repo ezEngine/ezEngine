@@ -1,4 +1,5 @@
 #include <RendererCore/PCH.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -72,13 +73,14 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
     cb->ObjectToCameraMatrix = ViewMatrix * cb->ObjectToWorldMatrix;
     cb->ObjectToScreenMatrix = ViewProjMatrix * cb->ObjectToWorldMatrix;
     cb->GameObjectID = pRenderData->m_uiEditorPickingID;
-    cb->PartIndex = pRenderData->m_uiPartIndex;
 
     renderViewContext.m_pRenderContext->EndModifyConstantBuffer();
     
-    renderViewContext.m_pRenderContext->SetMaterialParameter("MeshColor", pRenderData->m_MeshColor);    
-
-    renderViewContext.m_pRenderContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive);
+    if (renderViewContext.m_pRenderContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive).Failed())
+    {
+      // draw bounding box instead
+      ezDebugRenderer::DrawLineBox(renderViewContext.m_uiWorldIndex, pRenderData->m_GlobalBounds.GetBox(), ezColor::Magenta);
+    }
   }
 }
 

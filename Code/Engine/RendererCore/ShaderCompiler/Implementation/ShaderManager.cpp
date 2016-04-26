@@ -21,24 +21,69 @@ namespace
   static ezHashTable<ezHashedString, PermutationVarConfig> s_PermutationVarConfigs;
   static ezDynamicArray<ezPermutationVar> s_FilteredPermutationVariables;
   
+  const PermutationVarConfig* FindConfig(const char* szName, const ezTempHashedString& sHashedName)
+  {
+    PermutationVarConfig* pConfig = nullptr;
+    if (!s_PermutationVarConfigs.TryGetValue(sHashedName, pConfig))
+    {
+      ezShaderManager::ReloadPermutationVarConfig(szName, sHashedName);
+      s_PermutationVarConfigs.TryGetValue(sHashedName, pConfig);
+    }
+
+    return pConfig;
+  }
+
   const PermutationVarConfig* FindConfig(const ezHashedString& sName)
   {
     PermutationVarConfig* pConfig = nullptr;
     if (!s_PermutationVarConfigs.TryGetValue(sName, pConfig))
     {
-      ezShaderManager::ReloadPermutationVarConfig(sName);
+      ezShaderManager::ReloadPermutationVarConfig(sName.GetData(), sName);
       s_PermutationVarConfigs.TryGetValue(sName, pConfig);
     }
 
     return pConfig;
   }
 
-  bool IsValueAllowed(const PermutationVarConfig& config, const ezHashedString& sValue)
+  static ezHashedString s_sTrue = ezMakeHashedString("TRUE");
+  static ezHashedString s_sFalse = ezMakeHashedString("FALSE");
+
+  bool IsValueAllowed(const PermutationVarConfig& config, const ezTempHashedString& sValue, ezHashedString& out_sValue)
   {
-    const char* szValue = sValue.GetData();
     if (config.m_DefaultValue.IsA<bool>())
     {
-      return ezStringUtils::IsEqual(szValue, "TRUE") || ezStringUtils::IsEqual(szValue, "FALSE");
+      if (sValue == ezTempHashedString("TRUE"))
+      {
+        out_sValue = s_sTrue;
+        return true;
+      }
+
+      if (sValue == ezTempHashedString("FALSE"))
+      {
+        out_sValue = s_sFalse;
+        return true;
+      }
+    }
+    else
+    {
+      for (auto& enumValue : config.m_EnumValues)
+      {
+        if (enumValue == sValue)
+        {
+          out_sValue = enumValue;
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  bool IsValueAllowed(const PermutationVarConfig& config, const ezTempHashedString& sValue)
+  {
+    if (config.m_DefaultValue.IsA<bool>())
+    {
+      return sValue == ezTempHashedString("TRUE") || sValue == ezTempHashedString("FALSE");
     }
     else
     {
@@ -47,9 +92,9 @@ namespace
         if (enumValue == sValue)
           return true;
       }
-
-      return false;
     }
+
+    return false;
   }
 }
 
@@ -65,13 +110,13 @@ void ezShaderManager::Configure(const char* szActivePlatform, bool bEnableRuntim
   s_sPlatform = s;
 }
 
-void ezShaderManager::ReloadPermutationVarConfig(const ezHashedString& sName)
+void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTempHashedString& sHashedName)
 {
   ezStringBuilder sPath;
-  sPath.Format("%s/%s.ezPermVar", s_sPermVarSubDir.GetData(), sName.GetData());
+  sPath.Format("%s/%s.ezPermVar", s_sPermVarSubDir.GetData(), szName);
 
   // clear earlier data
-  s_PermutationVarConfigs.Remove(sName);
+  s_PermutationVarConfigs.Remove(sHashedName);
 
   ezStringBuilder sTemp = s_sPlatform;
   sTemp.Append(" 1");
@@ -84,7 +129,7 @@ void ezShaderManager::ReloadPermutationVarConfig(const ezHashedString& sName)
 
   if (pp.Process(sPath, sTemp, false).Failed())
   {
-    ezLog::Error("Could not read shader permutation variable '%s' from file '%s'", sName.GetData(), sPath.GetData());
+    ezLog::Error("Could not read shader permutation variable '%s' from file '%s'", szName, sPath.GetData());
   }
 
   ezVariant defaultValue;
@@ -93,6 +138,8 @@ void ezShaderManager::ReloadPermutationVarConfig(const ezHashedString& sName)
   ezShaderHelper::ParsePermutationVarConfig(sTemp, defaultValue, enumValues);
   if (defaultValue.IsValid())
   {
+    ezHashedString sName; sName.Assign(szName);
+
     auto& config = s_PermutationVarConfigs[sName];
     config.m_sName = sName;
     config.m_DefaultValue = defaultValue;
@@ -100,6 +147,36 @@ void ezShaderManager::ReloadPermutationVarConfig(const ezHashedString& sName)
   }
 }
 
+bool ezShaderManager::IsPermutationValueAllowed(const char* szName, const ezTempHashedString& sHashedName, const ezTempHashedString& sValue, ezHashedString& out_sName, ezHashedString& out_sValue)
+{
+  const PermutationVarConfig* pConfig = FindConfig(szName, sHashedName);
+  if (pConfig == nullptr)
+  {
+    ezLog::Error("Permutation variable '%s' does not exist", szName);
+    return false;
+  }
+
+  out_sName = pConfig->m_sName;
+
+  if (!IsValueAllowed(*pConfig, sValue, out_sValue))
+  {
+    if (!s_bEnableRuntimeCompilation)
+    {
+      return false;
+    }
+
+    ezLog::Debug("Invalid Shader Permutation: '%s' cannot be set to value '%d' -> reloading config for variable", szName, sValue.GetHash());
+    ReloadPermutationVarConfig(szName, sHashedName);
+
+    if (!IsValueAllowed(*pConfig, sValue, out_sValue))
+    {
+      ezLog::Error("Invalid Shader Permutation: '%s' cannot be set to value '%d'", szName, sValue.GetHash());
+      return false;
+    }
+  }
+
+  return true;
+}
 
 bool ezShaderManager::IsPermutationValueAllowed(const ezHashedString& sName, const ezHashedString& sValue)
 {
@@ -118,7 +195,7 @@ bool ezShaderManager::IsPermutationValueAllowed(const ezHashedString& sName, con
     }
     
     ezLog::Debug("Invalid Shader Permutation: '%s' cannot be set to value '%s' -> reloading config for variable", sName.GetData(), sValue.GetData());
-    ReloadPermutationVarConfig(sName);
+    ReloadPermutationVarConfig(sName, sName);
 
     if (!IsValueAllowed(*pConfig, sValue))
     {
@@ -129,7 +206,6 @@ bool ezShaderManager::IsPermutationValueAllowed(const ezHashedString& sName, con
 
   return true;
 }
-
 
 ezArrayPtr<const ezHashedString> ezShaderManager::GetPermutationEnumValues(const ezHashedString& sName)
 {

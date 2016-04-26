@@ -1,0 +1,7 @@
+enum RENDER_PASS
+{
+	FORWARD,
+	DEPTH_ONLY,
+    EDITOR,
+	WIREFRAME
+};

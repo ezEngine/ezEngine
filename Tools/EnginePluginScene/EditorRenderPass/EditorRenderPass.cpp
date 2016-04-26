@@ -11,9 +11,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorRenderPass, 1, ezRTTIDefaultAllocator<ez
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("RenderSelectionOverlay", m_bRenderSelectionOverlay),
-    EZ_ENUM_MEMBER_PROPERTY("ViewRenderMode", ezViewRenderMode, m_ViewRenderMode),
-    EZ_MEMBER_PROPERTY("SceneContext", m_pSceneContext),
+    EZ_ENUM_MEMBER_PROPERTY("ViewRenderMode", ezViewRenderMode, m_ViewRenderMode)
   }
   EZ_END_PROPERTIES
 }
@@ -21,8 +19,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezEditorRenderPass::ezEditorRenderPass(const char* szName) : ezForwardRenderPass(szName)
 {
-  m_pSceneContext = nullptr;
-  m_bRenderSelectionOverlay = true;
 }
 
 void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
@@ -47,37 +43,39 @@ void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
   pGALContext->SetViewport(renderViewContext.m_pViewData->m_ViewPortRect);
 
   // Clear color and depth stencil
-  pGALContext->Clear(ezColor(0.0f, 0.0f, 0.1f));
+  pGALContext->Clear(ezColor(0.01f, 0.01f, 0.01f));
 
-  const char* szRenderMode = "DEFAULT";
+  ezTempHashedString sRenderPass("FORWARD");
+  ezUInt32 uiRenderPass = 0;
 
   switch (m_ViewRenderMode)
   {
-  case ezViewRenderMode::None:
-    szRenderMode = "DEFAULT";
-    break;
   case ezViewRenderMode::WireframeColor:
-    szRenderMode = "WIREFRAME_COLOR";
+    sRenderPass = "WIREFRAME";
+    uiRenderPass = WIREFRAME_RENDER_PASS_COLOR;
     break;
   case ezViewRenderMode::WireframeMonochrome:
-    szRenderMode = "WIREFRAME_MONOCHROME";
+    sRenderPass = "WIREFRAME";
+    uiRenderPass = WIREFRAME_RENDER_PASS_MONOCHROME;
     break;
   case ezViewRenderMode::TexCoordsUV0:
-    szRenderMode = "TEXCOORDS_UV0";
+    sRenderPass = "EDITOR";
+    uiRenderPass = EDITOR_RENDER_PASS_TEXCOORDS_UV0;
     break;
   case ezViewRenderMode::VertexNormals:
-    szRenderMode = "VERTEX_NORMALS";
+    sRenderPass = "EDITOR";
+    uiRenderPass = EDITOR_RENDER_PASS_NORMALS;
     break;
   case ezViewRenderMode::PixelDepth:
-    szRenderMode = "PIXEL_DEPTH";
+    sRenderPass = "EDITOR";
+    uiRenderPass = EDITOR_RENDER_PASS_DEPTH;
     break;
   }
 
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", szRenderMode);
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", sRenderPass);
 
-  // since typically the fov is tied to the height, we orient the gizmo size on that
-  const float fGizmoScale = 128.0f / (float) renderViewContext.m_pViewData->m_ViewPortRect.height;
-  ezRenderContext::GetDefaultInstance()->SetMaterialParameter("GizmoScale", fGizmoScale);
+  auto& globalConstants = renderViewContext.m_pRenderContext->WriteGlobalConstants();
+  globalConstants.RenderPass = uiRenderPass;
 
   //ezSimpleRenderPass::Execute(renderViewContext);
   {
@@ -85,16 +83,10 @@ void ezEditorRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
     RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked);
     RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent);
 
-    if (/*m_ViewRenderMode == ezViewRenderMode::Default && */m_bRenderSelectionOverlay)
-    {
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "SELECTED");
-      RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Selection);
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", szRenderMode);
-    }
-
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
     RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
 
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
   }
-
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "DEFAULT");
 }

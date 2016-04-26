@@ -14,7 +14,5 @@ public:
   virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
-  bool m_bRenderSelectionOverlay;
   ezViewRenderMode::Enum m_ViewRenderMode;
-  ezSceneContext* m_pSceneContext;
 };

@@ -1,0 +1,33 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0x109A49A6B428754FB77179644ED04DCC" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x109A49A6B428754FB77179644ED04DCC" },
+   "t" : "ezMaterialAssetProperties",
+   "p" : {
+    "Base Material" : "",
+    "Diffuse Texture" : "",
+    "Mask Texture" : "",
+    "Normal Map" : "",
+    "Permutations" : "BLEND_MODE=MASKED;SHADING_MODE=LIT;TWO_SIDED=FALSE",
+    "Shader" : "Shaders/Materials/DefaultMaterial.ezShader"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x6EF0B5ABF2F4B14F94E9EED4A51E4490" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Material",
+    "Dependencies" : "Shaders/Materials/DefaultMaterial.ezShader",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0x6EF0B5ABF2F4B14F94E9EED4A51E4490" },
+    "Hash" : { "$t" : "uint64", "$v" : "14776375179403469983", "$b" : "0x9F243EE4EF3A10CD" }
+   }
+  } ]
+}

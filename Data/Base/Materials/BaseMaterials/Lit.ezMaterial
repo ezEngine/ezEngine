@@ -1,0 +1,19 @@
+{
+  "Shader" : "Shaders/Materials/DefaultMaterial.ezShader",
+  
+  "Permutations" : 
+  {
+	"BLEND_MODE" : "OPAQUE",
+	"SHADING_MODE" : "LIT",
+	"TWO_SIDED" : "FALSE"
+  },
+
+  "Constants" :
+  {
+  },
+  
+  "Textures" :
+  {
+    "TexDiffuse" : "Textures/Reference_D.dds"
+  }  
+}

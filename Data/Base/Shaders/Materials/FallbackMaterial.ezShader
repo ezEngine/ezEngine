@@ -1,0 +1,118 @@
+[PLATFORMS] 
+ALL
+
+[PERMUTATIONS]
+
+BLEND_MODE
+RENDER_PASS
+TOPOLOGY
+
+[RENDERSTATE]
+
+#include <Shaders/Materials/MaterialState.inc>
+
+[VERTEXSHADER]
+
+#include <Shaders/Materials/DefaultMaterialCB.inc>
+#include <Shaders/Materials/MaterialVertexShader.inc>
+
+VS_OUT main(VS_IN Input)
+{
+	return FillVertexData(Input);
+}
+
+[GEOMETRYSHADER]
+
+#if TOPOLOGY == TOPOLOGY_TRIANGLES
+
+struct GS_IN
+{
+	float4 Position : SV_Position;
+	float3 WorldPos : WORLDPOS;
+};
+
+struct GS_OUT
+{
+	float4 Position : SV_Position;
+	float3 WorldPos : WORLDPOS;
+	float3 Normal : NORMAL;
+};
+
+[maxvertexcount(3)]
+void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
+{
+	float3 edge1 = input[1].WorldPos - input[0].WorldPos;
+	float3 edge2 = input[2].WorldPos - input[0].WorldPos;
+	float3 normal = normalize(cross(edge1, edge2));
+	
+	GS_OUT output;
+	
+	for (uint i = 0; i < 3; ++i)
+	{
+		output.Position = input[i].Position;
+		output.WorldPos = input[i].WorldPos;
+		output.Normal = normal;
+		
+		outputStream.Append(output);
+	}
+	
+	outputStream.RestartStrip();
+}
+
+#endif
+
+[PIXELSHADER]
+
+#if TOPOLOGY == TOPOLOGY_TRIANGLES
+	#define USE_NORMAL
+#endif
+
+#include <Shaders/Materials/DefaultMaterialCB.inc>
+#include <Shaders/Materials/MaterialPixelShader.inc>
+
+Texture2D TexDiffuse;
+SamplerState TexDiffuseSampler;
+
+float3 GetNormal(PS_IN Input)
+{
+	#if TOPOLOGY == TOPOLOGY_TRIANGLES
+		return Input.Normal;
+	#else
+		return float3(0.0f, 0.0f, 1.0f);
+	#endif
+}
+
+float3 GetDiffuseColor(PS_IN Input)
+{
+	#if TOPOLOGY == TOPOLOGY_TRIANGLES
+		float3 blendWeights = abs(Input.Normal);
+		blendWeights = max((blendWeights - 0.2) * 7.0, 0.0);
+		blendWeights /= (blendWeights.x + blendWeights.y + blendWeights.z );
+		
+		float3 tex1 = TexDiffuse.Sample(TexDiffuseSampler, Input.WorldPosition.yz).rgb;
+		float3 tex2 = TexDiffuse.Sample(TexDiffuseSampler, Input.WorldPosition.zx).rgb;
+		float3 tex3 = TexDiffuse.Sample(TexDiffuseSampler, Input.WorldPosition.xy).rgb;
+		
+		float3 blendedColor = tex1 * blendWeights.x + tex2 * blendWeights.y + tex3 * blendWeights.z;
+		
+		return blendedColor;
+		
+	#else
+		return float4(0.5, 0.5, 0.5, 1.0);
+	#endif
+}
+
+float3 GetSpecularColor(PS_IN Input)
+{
+	return 0.04f;
+}
+
+float GetRoughness(PS_IN Input)
+{
+	return 1.0f;
+}
+
+float GetOpacity(PS_IN Input)
+{
+	return 1.0f;
+}

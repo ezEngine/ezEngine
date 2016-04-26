@@ -3,7 +3,7 @@
   
   "Permutations" : 
   {
-	"GIZMO_ALWAYS_ON_TOP" : "FALSE"
+	"GIZMO_CONSTANT_SIZE" : "FALSE"
   },
 
   "Constants" :

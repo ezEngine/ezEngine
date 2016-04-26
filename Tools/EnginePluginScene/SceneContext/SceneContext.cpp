@@ -33,6 +33,7 @@ ezUInt32 ezSceneContext::s_uiShapeIconBufferCounter = 0;
 
 void ezSceneContext::ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds)
 {
+  pObj->UpdateGlobalTransformAndBounds();
   const auto& b = pObj->GetGlobalBounds();
 
   if (b.IsValid())

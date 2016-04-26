@@ -103,11 +103,17 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   pGALContext->SetViewport(renderViewContext.m_pViewData->m_ViewPortRect);
 
   // Clear color and depth stencil
-  pGALContext->Clear(ezColor(0.0f, 0.0f, 0.1f));
+  pGALContext->Clear(ezColor::Black);
+
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "FORWARD");
 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent);
   
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
+
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
 }

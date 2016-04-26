@@ -66,19 +66,6 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   if (!m_bEnable)
     return;
 
-  switch (m_ViewRenderMode)
-  {
-  case ezViewRenderMode::WireframeColor:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "WIREFRAME_COLOR");
-    break;
-  case ezViewRenderMode::WireframeMonochrome:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "WIREFRAME_MONOCHROME");
-    break;
-  default:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "DEFAULT");
-    break;
-  }
-
   const ezRectFloat& viewPortRect = renderViewContext.m_pViewData->m_ViewPortRect;
   m_uiWindowWidth = (ezUInt32)viewPortRect.width;
   m_uiWindowHeight = (ezUInt32)viewPortRect.height;
@@ -98,8 +85,19 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   pGALContext->SetRenderTargetSetup(m_RenderTargetSetup);
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f));
 
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING", "TRUE");
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING_IGNORE_GIZMOS", !m_bPickSelected ? "TRUE" : "FALSE");
+  ezTempHashedString sRenderPass("EDITOR");
+  ezUInt32 uiRenderPass = EDITOR_RENDER_PASS_PICKING;
+
+  if (m_ViewRenderMode == ezViewRenderMode::WireframeColor || m_ViewRenderMode == ezViewRenderMode::WireframeMonochrome)
+  {
+    sRenderPass = "WIREFRAME";
+    uiRenderPass = WIREFRAME_RENDER_PASS_PICKING;
+  }
+
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", sRenderPass);
+
+  auto& globalConstants = renderViewContext.m_pRenderContext->WriteGlobalConstants();
+  globalConstants.RenderPass = uiRenderPass;
 
   // copy selection to set for faster checks
   s_SelectionSet.Clear();
@@ -124,6 +122,16 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
     RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Selection);
     m_pSceneContext->RenderShapeIcons(renderViewContext.m_pRenderContext);
   }
+
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
+
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
+
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
+
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "FORWARD");
 
 
   {
@@ -158,15 +166,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
       }
     }
   }
-  pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0); // only clear depth
-
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
-
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING", "FALSE");
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("EDITOR_RENDER_MODE", "DEFAULT");
-
-
+  
   {
     // download the picking information from the GPU
     if (m_uiWindowWidth != 0 && m_uiWindowHeight != 0)

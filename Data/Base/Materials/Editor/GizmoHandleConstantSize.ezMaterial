@@ -1,9 +1,9 @@
 {
-  "Shader" : "Shaders/Editor/GizmoHandleConstantSize.ezShader",
+  "Shader" : "Shaders/Editor/GizmoHandle.ezShader",
   
   "Permutations" : 
   {
-	"GIZMO_ALWAYS_ON_TOP" : "FALSE"
+	"GIZMO_CONSTANT_SIZE" : "TRUE"
   },
 
   "Constants" :

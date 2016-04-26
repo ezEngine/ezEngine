@@ -9,6 +9,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelinePass, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_MEMBER_PROPERTY("Active", m_bActive),
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
     EZ_SET_ACCESSOR_PROPERTY("Renderers", GetRenderers, AddRenderer, RemoveRenderer)->AddFlags(ezPropertyFlags::PointerOwner),
   }
@@ -18,6 +19,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezRenderPipelinePass::ezRenderPipelinePass(const char* szName)
 {
+  m_bActive = true;
   m_sName.Assign(szName);
   m_ProfilingID = ezProfilingSystem::CreateId(szName);
 
@@ -84,6 +86,20 @@ void ezRenderPipelinePass::SetName(const char* szName)
 const char* ezRenderPipelinePass::GetName() const
 {
   return m_sName.GetData();
+}
+
+void ezRenderPipelinePass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+{
+}
+
+void ezRenderPipelinePass::ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+{
+}
+
+void ezRenderPipelinePass::ReadBackProperties(ezView* pView)
+{
 }
 
 void ezRenderPipelinePass::RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category, ezRenderDataBatch::Filter filter)

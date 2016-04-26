@@ -14,19 +14,14 @@ DepthWrite = true
 
 [VERTEXSHADER]
 
-#include <Shaders/Materials/Materials.inc>
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Materials/MaterialInterpolator.inc>
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
-struct VS_OUT_POS_ONLY
+VS_OUT_COLORED main(VS_IN_COLORED Input)
 {
-  float4 Position : SV_Position;
-  float4 Color : Color;
-};
-
-VS_OUT_POS_ONLY main(VS_IN_COLORED Input)
-{
-  VS_OUT_POS_ONLY RetVal;
+  VS_OUT_COLORED RetVal;
   RetVal.Position = mul(WorldToScreenMatrix, float4(Input.Position, 1.0f));
   RetVal.Color = Input.Color;
   
@@ -38,15 +33,9 @@ VS_OUT_POS_ONLY main(VS_IN_COLORED Input)
 
 [PIXELSHADER]
 
-#include <Shaders/Materials/Materials.inc>
+#include <Shaders/Materials/MaterialInterpolator.inc>
 
 #if EZ_ENABLED(PLATFORM_DX11)
-
-struct PS_IN_POS_ONLY
-{
-  float4 Position : SV_Position;
-  float4 Color : Color;
-};
 
 float4 main(PS_IN_COLORED Input) : SV_Target
 {

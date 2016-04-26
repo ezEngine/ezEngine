@@ -1,0 +1,18 @@
+{
+  "Shader" : "Shaders/Materials/DefaultMaterial.ezShader",
+  
+  "Permutations" : 
+  {
+	"BLEND_MODE" : "MASKED",
+	"SHADING_MODE" : "LIT",
+	"TWO_SIDED" : "FALSE"
+  },
+
+  "Constants" :
+  {
+  },
+  
+  "Textures" :
+  {
+  }  
+}

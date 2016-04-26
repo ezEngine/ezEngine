@@ -1,5 +1,5 @@
 {
-  "Shader" : "Shaders/Materials/FullbrightPosOnly.ezShader",
+  "Shader" : "Shaders/Materials/FallbackMaterial.ezShader",
   
   "Permutations" : 
   {

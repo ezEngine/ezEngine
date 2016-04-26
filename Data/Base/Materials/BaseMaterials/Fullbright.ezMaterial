@@ -1,9 +1,11 @@
 {
-  "Shader" : "Shaders/Materials/Fullbright.ezShader",
+  "Shader" : "Shaders/Materials/DefaultMaterial.ezShader",
   
   "Permutations" : 
   {
-	"ALPHATEST" : "FALSE"
+	"BLEND_MODE" : "OPAQUE",
+	"SHADING_MODE" : "FULLBRIGHT",
+	"TWO_SIDED" : "FALSE"
   },
 
   "Constants" :

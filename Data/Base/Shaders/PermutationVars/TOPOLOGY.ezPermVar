@@ -1,0 +1,6 @@
+enum TOPOLOGY
+{
+	POINTS,
+	LINES,
+	TRIANGLES
+};

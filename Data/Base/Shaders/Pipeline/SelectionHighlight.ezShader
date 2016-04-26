@@ -1,0 +1,94 @@
+[PLATFORMS] 
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+DepthTest = false
+DepthWrite = false
+CullMode = CullMode_None
+
+BlendingEnabled0 = true
+BlendOp0 = BlendOp_Add
+DestBlend0 = Blend_InvSrcAlpha
+SourceBlend0 = Blend_SrcAlpha
+
+[VERTEXSHADER]
+
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.inc>
+
+[PIXELSHADER]
+
+#include <Shaders/Common/Common.inc>
+#include <Shaders/Common/GlobalConstants.h>
+
+struct VS_IN
+{
+	float4 Position : SV_Position;
+	float2 TexCoord0 : TEXCOORD0;
+};
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+Texture2D DepthTexture;
+SamplerState DepthTextureSampler;
+
+float4 main(VS_IN Input) : SV_Target
+{
+	float2 invScreenSize = 1.0f / Viewport.zw;
+	float2 coords = Input.Position.xy * invScreenSize;
+	float depth = DepthTexture.SampleLevel(DepthTextureSampler, coords, 0.0f).r;
+	
+	float3 selectionColor = float3(0.4, 0.55, 1);
+	
+	if (depth == 1.0f)
+	{
+		float avgEdgeDistance = 0.0f;
+		float validSampleCount = 0.0f;
+		
+		[unroll]
+		for (float y = -3.0f; y <= 3.0f; y++)
+		{
+			if (y == 0.0f)
+				continue;
+		
+			[unroll]
+			for (float x = -3.0f; x <= 3.0f; x++)
+			{
+				if (x == 0.0f)
+					continue;
+			
+				float edgeDistance = length(float2(x, y));
+				if (edgeDistance > 3.0f)
+					continue;
+				
+				float2 currentCoords = coords + float2(x, y) * invScreenSize;
+				float currentDepth = DepthTexture.SampleLevel(DepthTextureSampler, currentCoords, 0.0f).r;
+				
+				if (currentDepth != 1.0f)
+				{
+					avgEdgeDistance += edgeDistance;
+					validSampleCount += 1.0f;
+				}
+			}
+		}
+		
+		if (validSampleCount == 0.0f)
+		{
+			discard;
+		}
+		
+		float x = (avgEdgeDistance / validSampleCount) - 2.0f;
+		
+		float edgeOpacity = saturate((x * x) * -1.0f + 1.0f);
+		return float4(selectionColor, edgeOpacity);
+	}
+	else
+	{
+		return float4(selectionColor, 0.1);
+	}
+}
+
+#endif
+

@@ -1,11 +1,13 @@
 {
   // Do not use the Fullbright material as base material, otherwise every time the material is bound
   // the alpha test variable is set to 0 and then 1, guaranteeing a state change
-  "Shader" : "Shaders/Materials/Fullbright.ezShader",
+  "Shader" : "Shaders/Materials/DefaultMaterial.ezShader",
   
   "Permutations" : 
   {
-	"ALPHATEST" : "TRUE"
+	"BLEND_MODE" : "MASKED",
+	"SHADING_MODE" : "FULLBRIGHT",
+	"TWO_SIDED" : "FALSE"
   },
 
   "Constants" :

@@ -53,6 +53,8 @@ public:
     return GetUseMultithreadedRendering() ? ((s_uiFrameCounter + 1) & 1) : 0;
   }
 
+  static bool IsRenderingThread();
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, RendererLoop);
   friend class ezView;

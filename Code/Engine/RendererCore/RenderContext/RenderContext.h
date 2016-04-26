@@ -102,13 +102,7 @@ public:
 
 
   // Member Functions
-  EZ_FORCE_INLINE void SetShaderPermutationVariable(const char* szName, const char* szValue)
-  {
-    ezHashedString sName; sName.Assign(szName);
-    ezHashedString sValue; sValue.Assign(szValue);
-    SetShaderPermutationVariable(sName, sValue);
-  }
-
+  void SetShaderPermutationVariable(const char* szName, const ezTempHashedString& sValue);
   void SetShaderPermutationVariable(const ezHashedString& sName, const ezHashedString& sValue);
 
   void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture);
@@ -118,9 +112,9 @@ public:
   void BindConstantBuffer(const ezTempHashedString& sSlotName, const ezConstantBufferResourceHandle& hConstantBuffer);
 
   void BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer);
-  void BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer, const ezVertexDeclarationInfo& vertexDeclarationInfo, 
+  void BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer, const ezVertexDeclarationInfo* pVertexDeclarationInfo, 
     ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount);
-  void DrawMeshBuffer(ezUInt32 uiPrimitiveCount = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0, ezUInt32 uiInstanceCount = 1);
+  ezResult DrawMeshBuffer(ezUInt32 uiPrimitiveCount = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0, ezUInt32 uiInstanceCount = 1);
 
   ezResult ApplyContextStates(bool bForce = false);
   

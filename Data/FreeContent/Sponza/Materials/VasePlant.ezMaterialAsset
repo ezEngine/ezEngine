@@ -5,9 +5,9 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Material",
-    "Dependencies" : "{ 137ad499-bb20-41cf-ac84-4247fd165170 };{ 4800d341-755b-4367-a175-ffa5dd17bd29 };{ d85685f7-927c-4d22-a9c2-4adea60a8200 }",
+    "Dependencies" : "{ 137ad499-bb20-41cf-ac84-4247fd165170 };{ abb5f06e-f4f2-4fb1-94e9-eed4a51e4490 }",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xAA9DC5280CEE86469999EC6150513758" },
-    "Hash" : { "$t" : "uint64", "$v" : "7427157201245762940", "$b" : "0x7CF53CAF1F901267" }
+    "Hash" : { "$t" : "uint64", "$v" : "5518143349796109099", "$b" : "0x2BFB47E82362944C" }
    }
   },
   {
@@ -22,9 +22,9 @@
    "#" : { "$t" : "uuid", "$b" : "0x2D9467704E54EB4B82430EA0522A6912" },
    "t" : "ezMaterialAssetProperties",
    "p" : {
-    "Base Material" : "{ 4800d341-755b-4367-a175-ffa5dd17bd29 }",
+    "Base Material" : "{ abb5f06e-f4f2-4fb1-94e9-eed4a51e4490 }",
     "Diffuse Texture" : "{ 137ad499-bb20-41cf-ac84-4247fd165170 }",
-    "Mask Texture" : "{ d85685f7-927c-4d22-a9c2-4adea60a8200 }",
+    "Mask Texture" : "",
     "Normal Map" : "",
     "Permutations" : "",
     "Shader" : ""

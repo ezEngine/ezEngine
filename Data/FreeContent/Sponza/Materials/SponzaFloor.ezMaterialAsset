@@ -11,7 +11,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x342F21A1BA53074BAA7E750068A5B89F" },
    "t" : "ezMaterialAssetProperties",
    "p" : {
-    "Base Material" : "{ 05af8d07-0b38-44a6-8d50-49731ae2625d }",
+    "Base Material" : "{ 7c71fc2d-2a1a-4938-9305-f3a0f26d73cc }",
     "Diffuse Texture" : "{ d29c7321-82e3-4681-9264-0bea85fd9e76 }",
     "Mask Texture" : "",
     "Normal Map" : "",
@@ -25,9 +25,9 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Material",
-    "Dependencies" : "{ 05af8d07-0b38-44a6-8d50-49731ae2625d };{ d29c7321-82e3-4681-9264-0bea85fd9e76 }",
+    "Dependencies" : "{ 7c71fc2d-2a1a-4938-9305-f3a0f26d73cc };{ d29c7321-82e3-4681-9264-0bea85fd9e76 }",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x9F838565862E0D4C8219380D99C43CB5" },
-    "Hash" : { "$t" : "uint64", "$v" : "4102027580275548782", "$b" : "0x6EE22DCD5954ED38" }
+    "Hash" : { "$t" : "uint64", "$v" : "17278108999537907181", "$b" : "0xEDD5EF7B972CC8EF" }
    }
   } ]
 }

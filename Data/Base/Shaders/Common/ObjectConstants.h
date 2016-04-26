@@ -9,6 +9,5 @@ CONSTANT_BUFFER(ObjectConstants, 2)
   MAT4(ObjectToCameraMatrix);
   MAT4(ObjectToScreenMatrix);
   INT1(GameObjectID);
-  INT1(PartIndex);
 };
 

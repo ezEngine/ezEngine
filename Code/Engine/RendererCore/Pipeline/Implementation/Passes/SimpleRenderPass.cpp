@@ -105,12 +105,15 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
 
   ezDebugRenderer::Render(renderViewContext);
 
-  /// \todo remove
-  pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0); // only clear depth
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "FORWARD");
 
   // Execute render functions
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleTransparent);
 
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
+
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
 }

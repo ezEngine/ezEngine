@@ -57,7 +57,16 @@ ezResult ezGALResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
 
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
 
-  DXGI_FORMAT DXViewFormat = pDXDevice->GetFormatLookupTable().GetFormatInfo(ViewFormat).m_eResourceViewType;
+
+  DXGI_FORMAT DXViewFormat = DXGI_FORMAT_UNKNOWN;
+  if (ezGALResourceFormat::IsDepthFormat(ViewFormat))
+  {
+    DXViewFormat = pDXDevice->GetFormatLookupTable().GetFormatInfo(ViewFormat).m_eDepthOnlyType;
+  }
+  else
+  {
+    DXViewFormat = pDXDevice->GetFormatLookupTable().GetFormatInfo(ViewFormat).m_eResourceViewType;
+  }  
 
   if(DXViewFormat == DXGI_FORMAT_UNKNOWN)
   {

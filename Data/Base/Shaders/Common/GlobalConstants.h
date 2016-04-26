@@ -3,6 +3,15 @@
 #include "Platforms.h"
 #include "ConstantBufferMacros.h"
 
+#define	WIREFRAME_RENDER_PASS_PICKING 0
+#define WIREFRAME_RENDER_PASS_MONOCHROME 1
+#define WIREFRAME_RENDER_PASS_COLOR 2
+
+#define	EDITOR_RENDER_PASS_PICKING 0
+#define	EDITOR_RENDER_PASS_TEXCOORDS_UV0 1
+#define	EDITOR_RENDER_PASS_NORMALS 2
+#define	EDITOR_RENDER_PASS_DEPTH 3
+
 CONSTANT_BUFFER(GlobalConstants, 0)
 {
   FLOAT3(CameraPosition);
@@ -24,6 +33,8 @@ CONSTANT_BUFFER(GlobalConstants, 0)
   MAT4(WorldToScreenMatrix);
   MAT4(ScreenToWorldMatrix);
   FLOAT4(Viewport);
+  
+  INT1(RenderPass);
 };
 
 

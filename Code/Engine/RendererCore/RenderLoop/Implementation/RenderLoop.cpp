@@ -17,6 +17,7 @@ namespace
 {
   static bool s_bInExtract;
   static ezTaskGroupID s_ExtractionFinishedTaskID;
+  static ezThreadID s_RenderingThreadID;
 
   static ezMutex s_ViewsToRenderMutex;
   static ezDynamicArray<ezView*> s_ViewsToRender;
@@ -279,6 +280,8 @@ void ezRenderLoop::Render(ezRenderContext* pRenderContext)
 
 void ezRenderLoop::BeginFrame()
 {
+  s_RenderingThreadID = ezThreadUtils::GetCurrentThreadID();
+
   for (auto& view : s_MainViews)
   {
     view->EnsureUpToDate();
@@ -304,11 +307,19 @@ void ezRenderLoop::EndFrame()
   {
     view->ReadBackPassProperties();
   }
+
+  s_RenderingThreadID = (ezThreadID)0;
 }
 
 bool ezRenderLoop::GetUseMultithreadedRendering()
 {
   return CVarMultithreadedRendering;
+}
+
+
+bool ezRenderLoop::IsRenderingThread()
+{
+  return s_RenderingThreadID == ezThreadUtils::GetCurrentThreadID();
 }
 
 void ezRenderLoop::OnEngineShutdown()

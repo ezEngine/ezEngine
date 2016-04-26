@@ -5,6 +5,7 @@
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/Pipeline/Passes/SelectionHighlightPass.h>
 #include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
 #include <RendererCore/Pipeline/Passes/TargetPass.h>
 #include <RendererCore/Pipeline/View.h>
@@ -12,6 +13,7 @@
 #include <GameFoundation/GameApplication/GameApplication.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorFramework/Gizmos/GizmoRenderer.h>
 #include <EnginePluginScene/PickingRenderPass/PickingRenderPass.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
@@ -142,7 +144,7 @@ void ezSceneViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
       }
     }
 
-    m_pView->SetRenderPassProperty("EditorRenderPass", "RenderSelectionOverlay", m_pSceneContext->GetRenderSelectionOverlay());
+    m_pView->SetRenderPassProperty("EditorSelectionPass", "Active", m_pSceneContext->GetRenderSelectionOverlay());
     m_pView->SetRenderPassProperty("EditorRenderPass", "ViewRenderMode", pMsg->m_uiRenderMode);
     m_pView->SetRenderPassProperty("EditorPickingPass", "ViewRenderMode", pMsg->m_uiRenderMode);
   }
@@ -234,8 +236,18 @@ void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 
     PickObjectAt(pMsg2->m_uiPickPosX, pMsg2->m_uiPickPosY);
   }
+  
+  /*else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewHighlightMsgToEngine>())
+  {
+    const ezViewHighlightMsgToEngine* pMsg2 = static_cast<const ezViewHighlightMsgToEngine*>(pMsg);
 
+    ezUInt32 uiPickingID = m_Context.m_ComponentPickingMap.GetHandle(pMsg2->m_HighlightObject);
 
+    if (uiPickingID == 0)
+      uiPickingID = m_Context.m_OtherPickingMap.GetHandle(pMsg2->m_HighlightObject);
+
+    ezRenderContext::GetDefaultInstance()->SetMaterialParameter("PickingHighlightID", (ezInt32)uiPickingID);
+  }*/
 }
 
 void ezSceneViewContext::CreateView()
@@ -244,8 +256,6 @@ void ezSceneViewContext::CreateView()
 
   m_pView->SetRenderPipelineResource(CreateEditorRenderPipeline());
 
-
-  m_pView->SetRenderPassProperty("EditorRenderPass", "SceneContext", m_pSceneContext);
   m_pView->SetRenderPassProperty("EditorPickingPass", "SceneContext", m_pSceneContext);
   m_pView->SetExtractorProperty("EditorSelectedObjectsExtractor", "SceneContext", m_pSceneContext);
 
@@ -286,6 +296,16 @@ ezRenderPipelineResourceHandle ezSceneViewContext::CreateEditorRenderPipeline()
     pPickingRenderPass = pPass.Borrow();
     pPickingRenderPass->SetName("EditorPickingPass");
     pPickingRenderPass->AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
+    pPickingRenderPass->AddRenderer(EZ_DEFAULT_NEW(ezGizmoRenderer));
+    pRenderPipeline->AddPass(std::move(pPass));
+  }
+
+  ezSelectionHighlightPass* pSelectionHighlightPass = nullptr;
+  {
+    ezUniquePtr<ezSelectionHighlightPass> pPass = EZ_DEFAULT_NEW(ezSelectionHighlightPass);
+    pSelectionHighlightPass = pPass.Borrow();
+    pSelectionHighlightPass->SetName("EditorSelectionPass");
+    pSelectionHighlightPass->AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
     pRenderPipeline->AddPass(std::move(pPass));
   }
 
@@ -294,6 +314,7 @@ ezRenderPipelineResourceHandle ezSceneViewContext::CreateEditorRenderPipeline()
     ezUniquePtr<ezSimpleRenderPass> pPass = EZ_DEFAULT_NEW(ezSimpleRenderPass);
     pSimplePass = pPass.Borrow();
     pSimplePass->AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
+    pSimplePass->AddRenderer(EZ_DEFAULT_NEW(ezGizmoRenderer));
     pRenderPipeline->AddPass(std::move(pPass));
   }
 
@@ -304,8 +325,10 @@ ezRenderPipelineResourceHandle ezSceneViewContext::CreateEditorRenderPipeline()
     pRenderPipeline->AddPass(std::move(pPass));
   }
 
-  EZ_VERIFY(pRenderPipeline->Connect(pEditorRenderPass, "Color", pSimplePass, "Color"), "Connect failed!");
+  EZ_VERIFY(pRenderPipeline->Connect(pEditorRenderPass, "Color", pSelectionHighlightPass, "Color"), "Connect failed!");
   EZ_VERIFY(pRenderPipeline->Connect(pEditorRenderPass, "DepthStencil", pSimplePass, "DepthStencil"), "Connect failed!");
+
+  EZ_VERIFY(pRenderPipeline->Connect(pSelectionHighlightPass, "Color", pSimplePass, "Color"), "Connect failed!");
 
   EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "Color", pTargetPass, "Color0"), "Connect failed!");
   EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "DepthStencil", pTargetPass, "DepthStencil"), "Connect failed!");

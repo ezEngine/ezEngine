@@ -3,49 +3,56 @@ ALL
 
 [PERMUTATIONS]
 
-PICKING
-PICKING_IGNORE_GIZMOS
-GIZMO_ALWAYS_ON_TOP
+RENDER_PASS
+GIZMO_CONSTANT_SIZE
+PREPARE_DEPTH
 
 [RENDERSTATE]
 
-DepthTest = true
-DepthWrite = true
-CullMode = CullMode_Back
-DepthTestFunc = CompareFunc_Less
+#if PREPARE_DEPTH == TRUE
+	DepthTest = true
+	DepthWrite = true
+	DepthTestFunc = CompareFunc_Greater
+	
+#else
+	DepthTest = true
+	DepthWrite = true
+	DepthTestFunc = CompareFunc_LessEqual
+	
+#endif
 
-#if PICKING == 0
+#if !PREPARE_DEPTH && RENDER_PASS == RENDER_PASS_FORWARD
 	BlendingEnabled0 = true
 	BlendOp0 = BlendOp_Add
 	DestBlend0 = Blend_InvSrcAlpha
 	SourceBlend0 = Blend_SrcAlpha
 #endif
 
-#if GIZMO_ALWAYS_ON_TOP == 1
-	DepthTest = false
-	DepthTestFunc = CompareFunc_Always
-#endif
-
 [VERTEXSHADER]
 
-#include <Shaders/Materials/Materials.inc>
-#include <Shaders/Materials/DefaultMaterialCB.inc>
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Editor/GizmoConstants.h>
+#include <Shaders/Materials/MaterialInterpolator.inc>
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
 VS_OUT_COLORED main(VS_IN_COLORED Input)
 {
-  float3 vWorldSpacePos = mul(ObjectToWorldMatrix, float4(0, 0, 0, 1)).xyz;
-  
-  float fScale = 1.0;//length(vWorldSpacePos - CameraPosition) * GizmoScale;
-
-  VS_OUT_COLORED RetVal;
-  RetVal.Position = mul(ObjectToScreenMatrix, float4(Input.Position * fScale, 1.0f));
-  RetVal.Color = MeshColor;
-  
-  
-  
-  return RetVal;
+	float3 centerPosition = mul(ObjectToWorldMatrix, float4(0, 0, 0, 1)).xyz;
+		
+	#if GIZMO_CONSTANT_SIZE == 1
+		float scale = length(centerPosition - CameraPosition) * GizmoScale;
+	#else
+		float scale = 1.0f;
+	#endif
+	
+	float4 worldSpacePos = mul(ObjectToWorldMatrix, float4(Input.Position * scale, 1.0f));
+	
+	VS_OUT_COLORED RetVal;
+	RetVal.Position = mul(WorldToScreenMatrix, worldSpacePos);
+	RetVal.Color =  GizmoColor;
+	
+	return RetVal;
 }
 
 #endif
@@ -53,31 +60,32 @@ VS_OUT_COLORED main(VS_IN_COLORED Input)
 
 [PIXELSHADER]
 
-#include <Shaders/Materials/Materials.inc>
-#include <Shaders/Materials/DefaultMaterialCB.inc>
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Editor/GizmoConstants.h>
+#include <Shaders/Materials/MaterialInterpolator.inc>
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
 float4 main(PS_IN_COLORED Input) : SV_Target
 {
-  #if PICKING_IGNORE_GIZMOS == 1
-    discard;
-  #endif
-  
-#if PICKING == 1
-  float4 IdCol;
-  IdCol.r = (GameObjectID & 255) / 255.0;
-  IdCol.g = (GameObjectID >> 8 & 255) / 255.0;
-  IdCol.b = (GameObjectID >> 16 & 255) / 255.0;
-  IdCol.a = (GameObjectID >> 24 & 255) / 255.0;
-  
-  return IdCol;
+#if PREPARE_DEPTH == 1
+	return float4(0, 0, 0, 1);
 #else
 
-  if (GameObjectID == PickingHighlightID)
-	return float4(MeshColor.rgb * 2, MeshColor.a);
+	#if RENDER_PASS == RENDER_PASS_EDITOR
+		if (RenderPass == EDITOR_RENDER_PASS_PICKING)
+		{
+			return uintToFloat4(GameObjectID);
+		}
+	#elif RENDER_PASS == RENDER_PASS_WIREFRAME
+		if (RenderPass == WIREFRAME_RENDER_PASS_PICKING)
+		{
+			return uintToFloat4(GameObjectID);
+		}
+	#endif
 
-  return MeshColor;
+	return Input.Color;
+	
 #endif
 }
 

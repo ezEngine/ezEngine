@@ -6,7 +6,7 @@
 #include <Core/World/GameObject.h>
 
 class ezWorld;
-class ezMeshComponent;
+class ezGizmoComponent;
 class ezGizmo;
 
 class EZ_EDITORFRAMEWORK_DLL ezGizmoHandle : public ezEditorEngineSyncObject
@@ -61,7 +61,7 @@ public:
   ezEngineGizmoHandle();
   ~ezEngineGizmoHandle();
 
-  void Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize = true, bool bForeground2 = false, bool bVisualizer = false);
+  void Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize = true, bool bAlwaysOnTop = false, bool bVisualizer = false);
 
   bool IsSetupForEngine() const { return !m_hGameObject.IsInvalidated(); }
 
@@ -72,11 +72,11 @@ public:
 
 protected:
   bool m_bConstantSize;
-  bool m_bForeground2;
+  bool m_bAlwaysOnTop;
   bool m_bVisualizer;
   ezInt32 m_iHandleType;
   ezGameObjectHandle m_hGameObject;
-  ezMeshComponent* m_pMeshComponent;
+  ezGizmoComponent* m_pGizmoComponent;
   ezColor m_Color;
   ezWorld* m_pWorld;
 

@@ -53,7 +53,7 @@ public:
   /// with the inputs and outputs for review. Un-connected pins have a nullptr value in the passed in arrays.
   /// This is the time to create addtional resources that are not covered by the pins automatically, e.g. a picking texture or eye adaptation buffer.
   virtual void InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) {};
+    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs);
 
   /// \brief Render into outputs. Both inputs and outputs are passed in with actual texture handles.
   /// Un-connected pins have a nullptr value in the passed in arrays. You can now create views and render target setups on the fly and
@@ -61,8 +61,11 @@ public:
   virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) = 0;
 
+  virtual void ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs);
+
   /// \brief Allows for the pass to write data back using ezView::SetRenderPassReadBackProperty. E.g. picking results etc.
-  virtual void ReadBackProperties(ezView* pView) {}
+  virtual void ReadBackProperties(ezView* pView);
 
   void RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter());
 
@@ -73,6 +76,8 @@ public:
 
 private:
   friend class ezRenderPipeline;
+
+  bool m_bActive;
 
   ezHashedString m_sName;
   ezProfilingId m_ProfilingID;
