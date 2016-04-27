@@ -12,10 +12,19 @@
 #include <RendererCore/../../../Data/Base/Shaders/Editor/GizmoConstants.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoRenderer, 1, ezRTTIDefaultAllocator<ezGizmoRenderer>);
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("HighlightID", m_uiHighlightID)
+  }
+  EZ_END_PROPERTIES
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezGizmoRenderer::ezGizmoRenderer()
 {
+  m_uiHighlightID = 0;
+
   // this always accesses the same constant buffer (same GUID), but every ezMeshRenderer holds its own reference to it
   m_hGizmoConstantBuffer = ezResourceManager::GetExistingResource<ezConstantBufferResource>("<GizmoRendererContantBuffer>");
 
@@ -71,9 +80,16 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
     EZ_ASSERT_DEV(pRenderData->m_hMaterial == hMaterial, "Invalid batching (material)");
     EZ_ASSERT_DEV(pRenderData->m_uiPartIndex == uiPartIndex, "Invalid batching (part)");
 
+    ezColor color = pRenderData->m_GizmoColor;
+    if (pRenderData->m_uiEditorPickingID == m_uiHighlightID)
+    {
+      ezColor highlight(0.1f, 0.1f, 0.1f);
+      color = color * 2.0f + highlight;
+    }
+
     GizmoConstants* cb = renderViewContext.m_pRenderContext->BeginModifyConstantBuffer<GizmoConstants>(m_hGizmoConstantBuffer);
     cb->ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
-    cb->GizmoColor = pRenderData->m_GizmoColor;
+    cb->GizmoColor = color;
     cb->GizmoScale = fGizmoScale;
     cb->GameObjectID = pRenderData->m_uiEditorPickingID;
 

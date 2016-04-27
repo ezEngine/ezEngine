@@ -32,7 +32,7 @@ public:
   void RemovePass(ezRenderPipelinePass* pPass);
   void GetPasses(ezHybridArray<const ezRenderPipelinePass*, 16>& passes) const;
   void GetPasses(ezHybridArray<ezRenderPipelinePass*, 16>& passes);
-  ezRenderPipelinePass* GetPassByName(const char* szPassName) const;
+  ezRenderPipelinePass* GetPassByName(const ezStringView& sPassName);
   
   bool Connect(ezRenderPipelinePass* pOutputNode, const char* szOutputPinName, ezRenderPipelinePass* pInputNode, const char* szInputPinName);
   bool Connect(ezRenderPipelinePass* pOutputNode, ezHashedString sOutputPinName, ezRenderPipelinePass* pInputNode, ezHashedString sInputPinName);
@@ -45,7 +45,7 @@ public:
   void RemoveExtractor(ezExtractor* pExtractor);
   void GetExtractors(ezHybridArray<const ezExtractor*, 16>& extractors) const;
   void GetExtractors(ezHybridArray<ezExtractor*, 16>& extractors);
-  ezExtractor* GetExtractorByName(const char* szPassName) const;
+  ezExtractor* GetExtractorByName(const ezStringView& sExtractorName);
 
   ezRenderDataBatchList GetRenderDataBatchesWithCategory(ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter()) const;
 

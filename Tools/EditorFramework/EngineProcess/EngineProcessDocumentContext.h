@@ -94,6 +94,7 @@ public:
   ezEditorGuidEngineHandleMap<ezUInt32> m_OtherPickingMap;
   ezEditorGuidEngineHandleMap<ezUInt32> m_ComponentPickingMap;
   ezUInt32 m_uiNextComponentPickingID;
+  ezUInt32 m_uiHighlightID;
 };
 
 /// \brief A document context is the counter part to an editor document on the engine side.

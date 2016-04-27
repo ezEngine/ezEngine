@@ -103,13 +103,13 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
   pGALContext->SetRenderTargetSetup(renderTargetSetup);
   pGALContext->SetViewport(renderViewContext.m_pViewData->m_ViewPortRect);
 
-  ezDebugRenderer::Render(renderViewContext);
-
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "FORWARD");
 
   // Execute render functions
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleTransparent);
+
+  ezDebugRenderer::Render(renderViewContext);
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);

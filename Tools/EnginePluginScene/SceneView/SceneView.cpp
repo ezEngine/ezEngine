@@ -101,6 +101,8 @@ void ezSceneViewContext::Redraw()
     m_pView->m_ExcludeTags.Remove(tagNoOrtho);
   }
 
+  m_pView->SetRenderPassProperty("SimplePass.ezGizmoRenderer", "HighlightID", GetDocumentContext()->m_Context.m_uiHighlightID);
+
   auto pState = ezGameApplication::GetGameApplicationInstance()->GetGameStateForWorld(m_pSceneContext->GetWorld());
 
   if (pState != nullptr)
@@ -236,18 +238,6 @@ void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 
     PickObjectAt(pMsg2->m_uiPickPosX, pMsg2->m_uiPickPosY);
   }
-  
-  /*else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewHighlightMsgToEngine>())
-  {
-    const ezViewHighlightMsgToEngine* pMsg2 = static_cast<const ezViewHighlightMsgToEngine*>(pMsg);
-
-    ezUInt32 uiPickingID = m_Context.m_ComponentPickingMap.GetHandle(pMsg2->m_HighlightObject);
-
-    if (uiPickingID == 0)
-      uiPickingID = m_Context.m_OtherPickingMap.GetHandle(pMsg2->m_HighlightObject);
-
-    ezRenderContext::GetDefaultInstance()->SetMaterialParameter("PickingHighlightID", (ezInt32)uiPickingID);
-  }*/
 }
 
 void ezSceneViewContext::CreateView()
@@ -313,6 +303,7 @@ ezRenderPipelineResourceHandle ezSceneViewContext::CreateEditorRenderPipeline()
   {
     ezUniquePtr<ezSimpleRenderPass> pPass = EZ_DEFAULT_NEW(ezSimpleRenderPass);
     pSimplePass = pPass.Borrow();
+    pSimplePass->SetName("SimplePass");
     pSimplePass->AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
     pSimplePass->AddRenderer(EZ_DEFAULT_NEW(ezGizmoRenderer));
     pRenderPipeline->AddPass(std::move(pPass));

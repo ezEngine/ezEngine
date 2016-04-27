@@ -35,6 +35,8 @@ public:
   ~ezRenderPipelinePass();
 
   ezArrayPtr<ezRenderer* const> GetRenderers() const;
+  ezRenderer* GetRendererByType(const ezRTTI* pType);
+
   void AddRenderer(ezRenderer* pRenderer);
   void RemoveRenderer(ezRenderer* pRenderer);
 

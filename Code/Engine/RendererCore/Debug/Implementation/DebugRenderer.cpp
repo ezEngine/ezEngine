@@ -40,9 +40,12 @@ namespace
 
   static ezMutex s_Mutex;
 
+  static ezUInt32 s_uiLastRenderedFrame;
+
   PerWorldData& GetDataForExtraction(ezUInt32 uiWorldIndex)
   {
-    const ezUInt32 uiDataIndex = ezRenderLoop::GetDataIndexForExtraction();
+    const ezUInt32 uiDataIndex = ezRenderLoop::IsRenderingThread() && (s_uiLastRenderedFrame != ezRenderLoop::GetFrameCounter()) ? 
+      ezRenderLoop::GetDataIndexForRendering() : ezRenderLoop::GetDataIndexForExtraction();
 
     auto& perWorldData = s_PerWorldData[uiDataIndex];
     if (uiWorldIndex >= perWorldData.GetCount())
@@ -309,6 +312,8 @@ void ezDebugRenderer::DrawSolidTriangles(ezUInt32 uiWorldIndex, ezArrayPtr<Trian
 //static
 void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
 {
+  s_uiLastRenderedFrame = ezRenderLoop::GetFrameCounter();
+
   const ezUInt32 uiWorldIndex = renderViewContext.m_uiWorldIndex;
 
   auto& perWorldData = s_PerWorldData[ezRenderLoop::GetDataIndexForRendering()];

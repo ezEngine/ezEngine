@@ -28,11 +28,11 @@ ezRenderPipelinePass::ezRenderPipelinePass(const char* szName)
 
 ezRenderPipelinePass::~ezRenderPipelinePass()
 {
-  for (ezUInt32 i = 0; i < m_Renderer.GetCount(); ++i)
+  for (auto pRenderer : m_Renderer)
   {
-    auto pAllocator = m_Renderer[i]->GetDynamicRTTI()->GetAllocator();
+    auto pAllocator = pRenderer->GetDynamicRTTI()->GetAllocator();
     EZ_ASSERT_DEBUG(pAllocator->CanAllocate(), "Can't destroy owned pass!");
-    pAllocator->Deallocate(m_Renderer[i]);
+    pAllocator->Deallocate(pRenderer);
   }
   m_Renderer.Clear();
 }
@@ -40,6 +40,19 @@ ezRenderPipelinePass::~ezRenderPipelinePass()
 ezArrayPtr<ezRenderer* const> ezRenderPipelinePass::GetRenderers() const
 {
   return m_Renderer.GetArrayPtr();
+}
+
+ezRenderer* ezRenderPipelinePass::GetRendererByType(const ezRTTI* pType)
+{
+  for (auto pRenderer : m_Renderer)
+  {
+    if (pRenderer->IsInstanceOf(pType))
+    {
+      return pRenderer;
+    }
+  }
+
+  return nullptr;
 }
 
 void ezRenderPipelinePass::AddRenderer(ezRenderer* pRenderer)

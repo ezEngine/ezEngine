@@ -84,11 +84,11 @@ void ezRenderPipeline::GetPasses(ezHybridArray<ezRenderPipelinePass*, 16>& passe
   }
 }
 
-ezRenderPipelinePass* ezRenderPipeline::GetPassByName(const char* szPassName) const
+ezRenderPipelinePass* ezRenderPipeline::GetPassByName(const ezStringView& sPassName)
 {
   for (auto& pPass : m_Passes)
   {
-    if (ezStringUtils::IsEqual(pPass->GetName(), szPassName))
+    if (sPassName.IsEqual(pPass->GetName()))
     {
       return pPass.Borrow();
     }
@@ -631,11 +631,11 @@ void ezRenderPipeline::GetExtractors(ezHybridArray<ezExtractor*, 16>& extractors
 }
 
 
-ezExtractor* ezRenderPipeline::GetExtractorByName(const char* szPassName) const
+ezExtractor* ezRenderPipeline::GetExtractorByName(const ezStringView& sExtractorName)
 {
   for (auto& pExtractor : m_Extractors)
   {
-    if (ezStringUtils::IsEqual(pExtractor->GetName(), szPassName))
+    if (sExtractorName.IsEqual(pExtractor->GetName()))
     {
       return pExtractor.Borrow();
     }

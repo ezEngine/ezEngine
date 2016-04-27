@@ -206,21 +206,35 @@ void ezView::ApplyRenderPassProperties()
 {
   for (auto it = m_PassProperties.GetIterator(); it.IsValid(); ++it)
   {
-    if (!it.Value().m_bIsValid || !it.Value().m_bIsDirty)
+    auto& propertyValue = it.Value();
+
+    if (!propertyValue.m_bIsValid || !propertyValue.m_bIsDirty)
       continue;
 
-    it.Value().m_bIsDirty = false;
+    propertyValue.m_bIsDirty = false;
 
-    auto* pPass = m_pRenderPipeline->GetPassByName(it.Value().m_sObjectName);
-    if (pPass == nullptr)
+    ezReflectedClass* pObject = nullptr;
+    const char* szDot = propertyValue.m_sObjectName.FindSubString(".");
+    if (szDot != nullptr)
     {
-      ezLog::Error("The render pass '%s' does not exist. Property '%s' cannot be applied.", it.Value().m_sObjectName.GetData(), it.Value().m_sPropertyName.GetData());
+      ezStringView sPassName(propertyValue.m_sObjectName.GetData(), szDot);
+      ezRenderPipelinePass* pPass = m_pRenderPipeline->GetPassByName(sPassName);
 
-      it.Value().m_bIsValid = false;
+      pObject = pPass->GetRendererByType(ezRTTI::FindTypeByName(szDot + 1));
+    }
+    else
+    {
+      pObject = m_pRenderPipeline->GetPassByName(propertyValue.m_sObjectName);
+    }
+    if (pObject == nullptr)
+    {
+      ezLog::Error("The render pass '%s' does not exist. Property '%s' cannot be applied.", propertyValue.m_sObjectName.GetData(), propertyValue.m_sPropertyName.GetData());
+
+      propertyValue.m_bIsValid = false;
       continue;
     }
 
-    ApplyProperty(pPass, it.Value(), "render pass");
+    ApplyProperty(pObject, propertyValue, "render pass");
   }
 }
 

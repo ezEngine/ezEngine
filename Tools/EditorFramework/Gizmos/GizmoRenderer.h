@@ -19,6 +19,9 @@ public:
   virtual void RenderBatch(const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) override;
 
 private:
+
+  ezUInt32 m_uiHighlightID;
+
   ezConstantBufferResourceHandle m_hGizmoConstantBuffer;
 };
 
