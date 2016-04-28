@@ -3,12 +3,14 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <GameUtils/Interfaces/PhysicsWorldModule.h>
+#include <Core/Messages/TriggerMessage.h>
+#include <GameUtils/Prefabs/PrefabResource.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProjectileReaction, 1)
-  EZ_ENUM_CONSTANT(ezProjectileReaction::Absorb),
-  EZ_ENUM_CONSTANT(ezProjectileReaction::Reflect),
-  EZ_ENUM_CONSTANT(ezProjectileReaction::Attach),
-  EZ_ENUM_CONSTANT(ezProjectileReaction::PassThrough)
+EZ_ENUM_CONSTANT(ezProjectileReaction::Absorb),
+EZ_ENUM_CONSTANT(ezProjectileReaction::Reflect),
+EZ_ENUM_CONSTANT(ezProjectileReaction::Attach),
+EZ_ENUM_CONSTANT(ezProjectileReaction::PassThrough)
 EZ_END_STATIC_REFLECTED_ENUM();
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 1, ezRTTIDefaultAllocator<ezProjectileSurfaceInteraction>)
@@ -28,10 +30,18 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 1)
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Speed", m_fMetersPerSecond)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("Gravity Multiplier", m_fGravityMultiplier),
+    EZ_MEMBER_PROPERTY("Max Lifetime", m_MaxLifetime)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
+    EZ_ACCESSOR_PROPERTY("Timeout Prefab", GetTimeoutPrefab, SetTimeoutPrefab)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
     EZ_MEMBER_PROPERTY("Collision Layer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_ARRAY_MEMBER_PROPERTY("Interactions", m_SurfaceInteractions),
   }
   EZ_END_PROPERTIES
+    EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezTriggerMessage, OnTriggered),
+  }
+  EZ_END_MESSAGEHANDLERS
     EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),
@@ -66,6 +76,8 @@ ezProjectileComponent::ezProjectileComponent()
 {
   m_fMetersPerSecond = 10.0f;
   m_uiCollisionLayer = 0;
+  m_fGravityMultiplier = 0.0f;
+  m_vVelocity.SetZero();
 }
 
 
@@ -77,10 +89,20 @@ void ezProjectileComponent::Update()
   {
     ezGameObject* pEntity = GetOwner();
 
-    const float fDistance = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds() * m_fMetersPerSecond;
+    const float fTimeDiff = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
 
     ezVec3 vNewPosition;
-    ezVec3 vCurDirection = pEntity->GetGlobalRotation() * ezVec3(1, 0, 0);
+
+    // gravity
+    if (m_fGravityMultiplier != 0.0f && m_fMetersPerSecond > 0.0f) // mps == 0 for attached state
+    {
+      const ezVec3 vGravity = pModule->GetGravity() * m_fGravityMultiplier;
+
+      m_vVelocity += vGravity * fTimeDiff;
+    }
+
+    ezVec3 vCurDirection = m_vVelocity * fTimeDiff;
+    const float fDistance = vCurDirection.GetLengthAndNormalize();
 
     ezVec3 vPos, vNormal;
     ezGameObjectHandle hObject;
@@ -124,12 +146,14 @@ void ezProjectileComponent::Update()
           qRot.SetShortestRotation(vCurDirection, vNewDirection);
 
           GetOwner()->SetGlobalRotation(qRot * GetOwner()->GetGlobalRotation());
+
+          m_vVelocity = qRot * m_vVelocity;
         }
         else if (interaction.m_Reaction == ezProjectileReaction::Attach)
         {
           m_fMetersPerSecond = 0.0f;
           vNewPosition = vPos;
-          
+
           ezGameObject* pObject;
           if (GetWorld()->TryGetObject(hObject, pObject))
           {
@@ -157,7 +181,10 @@ void ezProjectileComponent::SerializeComponent(ezWorldWriter& stream) const
   auto& s = stream.GetStream();
 
   s << m_fMetersPerSecond;
+  s << m_fGravityMultiplier;
   s << m_uiCollisionLayer;
+  s << m_MaxLifetime;
+  s << m_hTimeoutPrefab;
 
   s << m_SurfaceInteractions.GetCount();
   for (const auto& ia : m_SurfaceInteractions)
@@ -178,7 +205,10 @@ void ezProjectileComponent::DeserializeComponent(ezWorldReader& stream)
   auto& s = stream.GetStream();
 
   s >> m_fMetersPerSecond;
+  s >> m_fGravityMultiplier;
   s >> m_uiCollisionLayer;
+  s >> m_MaxLifetime;
+  s >> m_hTimeoutPrefab;
 
   ezUInt32 count;
   s >> count;
@@ -226,6 +256,71 @@ void ezProjectileComponent::TriggerSurfaceInteraction(const ezSurfaceResourceHan
 }
 
 
+ezComponent::Initialization ezProjectileComponent::Initialize()
+{
+  if (m_MaxLifetime.GetSeconds() > 0.0)
+  {
+    ezTriggerMessage msg;
+    msg.m_hTargetComponent = GetHandle();
+    msg.m_UsageStringHash = ezTempHashedString("Suicide").GetHash();
+
+    ezWorld* pWorld = GetWorld();
+
+    pWorld->PostMessage(GetOwner()->GetHandle(), msg, ezObjectMsgQueueType::NextFrame, m_MaxLifetime, ezObjectMsgRouting::ToComponents);
+
+    // make sure the prefab is available when the projectile dies
+    if (m_hTimeoutPrefab.IsValid())
+    {
+      ezResourceManager::PreloadResource(m_hTimeoutPrefab, m_MaxLifetime);
+    }
+  }
+
+  m_vVelocity = GetOwner()->GetGlobalRotation() * ezVec3(1, 0, 0) * m_fMetersPerSecond;
+
+  return ezComponent::Initialization::Done;
+}
+
+void ezProjectileComponent::OnTriggered(ezTriggerMessage& msg)
+{
+  // mass suicide is theoretically possible by sending this message without a specific target
+  if (!msg.m_hTargetComponent.IsInvalidated() && msg.m_hTargetComponent != GetHandle())
+    return;
+
+  if (msg.m_UsageStringHash != ezTempHashedString("Suicide").GetHash())
+    return;
+
+  if (m_hTimeoutPrefab.IsValid())
+  {
+    ezResourceLock<ezPrefabResource> pPrefab(m_hTimeoutPrefab);
+
+    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform());
+  }
+
+  GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
+}
+
+
+void ezProjectileComponent::SetTimeoutPrefab(const char* szPrefab)
+{
+  ezPrefabResourceHandle hPrefab;
+
+  if (!ezStringUtils::IsNullOrEmpty(szPrefab))
+  {
+    hPrefab = ezResourceManager::LoadResource<ezPrefabResource>(szPrefab);
+  }
+
+  m_hTimeoutPrefab = hPrefab;
+}
+
+
+const char* ezProjectileComponent::GetTimeoutPrefab() const
+{
+  if (!m_hTimeoutPrefab.IsValid())
+    return "";
+
+  return m_hTimeoutPrefab.GetResourceID();
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 
@@ -243,3 +338,4 @@ void ezProjectileComponentManager::Initialize()
 
   SetUserData(pModule);
 }
+

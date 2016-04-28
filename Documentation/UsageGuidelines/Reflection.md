@@ -24,20 +24,20 @@ A static reflected class does not derive from ezReflectedClass so it is not poss
     const ezRTTI* pRtti3 = ezRTTI::FindTypeByName("ezDynamicTestClass");
 ~~~
 
-Declaring a dynamic class involves deriving from ezReflectedClass, adding the EZ_ADD_DYNAMIC_REFLECTION(SELF) macro into the class body and adding a EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Type, BaseType, Version, AllocatorType) block into a compilation unit.
+Declaring a dynamic class involves deriving from ezReflectedClass, adding the EZ_ADD_DYNAMIC_REFLECTION(SELF, BASE_TYPE) macro into the class body and adding a EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Type, Version, AllocatorType) block into a compilation unit.
 
 ~~~{.cpp}
     //Header
     class ezDynamicTestClass : public ezReflectedClass
     {
-      EZ_ADD_DYNAMIC_REFLECTION(ezDynamicTestClass);
+      EZ_ADD_DYNAMIC_REFLECTION(ezDynamicTestClass, ezReflectedClass);
     };
 ~~~
 
 ~~~{.cpp}
     //Cpp
-    EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicTestClass, ezReflectedClass, 1, ezRTTIDefaultAllocator<ezDynamicTestClass>);
-    EZ_END_DYNAMIC_REFLECTED_TYPE();
+    EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDynamicTestClass, 1, ezRTTIDefaultAllocator<ezDynamicTestClass>)
+    EZ_END_DYNAMIC_REFLECTED_TYPE
 ~~~
 
 Declaring a static class is very similar to declaring a dynamic class. However, you need to declare the type outside the class via EZ_DECLARE_REFLECTABLE_TYPE(Linkage, TYPE) and use EZ_BEGIN_STATIC_REFLECTED_TYPE(Type, BaseType, Version, AllocatorType) in a compilation unit. If a class has no base class, use the dummy class ezNoBase instead.
@@ -53,7 +53,7 @@ Declaring a static class is very similar to declaring a dynamic class. However, 
 ~~~{.cpp}
     // Cpp
     EZ_BEGIN_STATIC_REFLECTED_TYPE(ezStaticTestClass, ezNoBase, 1, ezRTTIDefaultAllocator<ezStaticTestClass>);
-    EZ_END_STATIC_REFLECTED_TYPE();
+    EZ_END_STATIC_REFLECTED_TYPE
 ~~~
     
 ____________
@@ -88,7 +88,7 @@ Enums are limited to structured enums, i.e. those used by the ezEnum class. Decl
     EZ_BEGIN_STATIC_REFLECTED_ENUM(ezExampleEnum, 1)
       EZ_ENUM_CONSTANTS(ezExampleEnum::Value1, ezExampleEnum::Value2) 
       EZ_ENUM_CONSTANT(ezExampleEnum::Value3),
-    EZ_END_STATIC_REFLECTED_ENUM();
+    EZ_END_STATIC_REFLECTED_ENUM
 ~~~
 
 The enum constants can either be declared via EZ_ENUM_CONSTANTS() or EZ_ENUM_CONSTANT(Value) inside the begin / end block of the enum declaration. An enum type can be identified by its base type which is always the dummy ezEnumBase.
@@ -143,16 +143,20 @@ Properties are the most important information in a type as they define the data 
 Properties are added via the property macros inside the EZ_BEGIN_PROPERTIES() / EZ_END_PROPERTIES() block of the type declaration like this:
 
 ~~~{.cpp}
-    EZ_BEGIN_STATIC_REFLECTED_TYPE(ezStaticTestClass, ezNoBase, 1, ezRTTIDefaultAllocator<ezStaticTestClass>);
-    EZ_BEGIN_PROPERTIES
-      EZ_CONSTANT_PROPERTY("Constant", 5),
-      EZ_MEMBER_PROPERTY("Member", m_fFloat),
-      EZ_ACCESSOR_PROPERTY("MemberAccessor", GetInt, SetInt),
-      EZ_ARRAY_MEMBER_PROPERTY("Array", m_Deque),
-      EZ_ARRAY_ACCESSOR_PROPERTY("ArrayAccessor", GetCount, GetValue, SetValue, Insert, Remove),
-      EZ_SET_MEMBER_PROPERTY("Set", m_SetMember),
-      EZ_SET_ACCESSOR_PROPERTY("SetAccessor", GetSet, SetInsert, SetRemove),
-    EZ_END_PROPERTIES
+    EZ_BEGIN_STATIC_REFLECTED_TYPE(ezStaticTestClass, ezNoBase, 1, ezRTTIDefaultAllocator<ezStaticTestClass>)
+	{
+		EZ_BEGIN_PROPERTIES
+		{
+			EZ_CONSTANT_PROPERTY("Constant", 5),
+			EZ_MEMBER_PROPERTY("Member", m_fFloat),
+			EZ_ACCESSOR_PROPERTY("MemberAccessor", GetInt, SetInt),
+			EZ_ARRAY_MEMBER_PROPERTY("Array", m_Deque),
+			EZ_ARRAY_ACCESSOR_PROPERTY("ArrayAccessor", GetCount, GetValue, SetValue, Insert, Remove),
+			EZ_SET_MEMBER_PROPERTY("Set", m_SetMember),
+			EZ_SET_ACCESSOR_PROPERTY("SetAccessor", GetSet, SetInsert, SetRemove),
+		}
+		EZ_END_PROPERTIES
+	}
     EZ_END_STATIC_REFLECTED_TYPE();
 ~~~
 
@@ -249,4 +253,4 @@ Limitations
 * Each property name must be unique within its type.
 * Nested classes cannot be declared directly, however, you can make a typedef to a nested class and declare the type via that.
 * Only constants that are a basic type (i.e. can be stored inside an ezVariant) will be available to tools.
-* A pointer to a type cannot be its own type, only exception to this is const char*.
+* A pointer to a type cannot be its own type, the only exception to this is const char*.

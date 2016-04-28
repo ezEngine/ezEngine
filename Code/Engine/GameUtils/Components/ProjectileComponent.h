@@ -5,6 +5,8 @@
 #include <Core/World/Component.h>
 #include <GameUtils/Surfaces/SurfaceResource.h>
 
+struct ezTriggerMessage;
+
 class EZ_GAMEUTILS_DLL ezProjectileComponentManager : public ezComponentManagerSimple<class ezProjectileComponent, true>
 {
 public:
@@ -61,18 +63,32 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
+  void OnTriggered(ezTriggerMessage& msg);
+
   // ************************************* PROPERTIES ***********************************
 
-  float m_fMetersPerSecond;
+  float m_fMetersPerSecond; ///< The speed at which the projectile flies
+  float m_fGravityMultiplier; ///< If 0, the projectile is not affected by gravity.
   ezUInt8 m_uiCollisionLayer;
+  ezTime m_MaxLifetime; ///< After this time the projectile is killed, if it didn't die already
   ezHybridArray<ezProjectileSurfaceInteraction, 12> m_SurfaceInteractions;
 
+  void SetTimeoutPrefab(const char* szPrefab);
+  const char* GetTimeoutPrefab() const;
+
 private:
+
+  ezPrefabResourceHandle m_hTimeoutPrefab; ///< Spawned when the projectile is killed due to m_MaxLifetime coming to an end
 
   /// \brief If an unknown surface type is hit, the projectile will just delete itself without further interaction
   ezInt32 FindSurfaceInteraction(const ezSurfaceResourceHandle& hSurface) const;
 
   void TriggerSurfaceInteraction(const ezSurfaceResourceHandle& hSurface, const ezVec3& vPos, const ezVec3& vNormal, const ezVec3& vDirection, const char* szInteraction);
+
+protected:
+  virtual Initialization Initialize() override;
+
+  ezVec3 m_vVelocity;
 };
 
 

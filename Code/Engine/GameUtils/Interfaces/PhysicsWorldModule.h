@@ -16,6 +16,8 @@ public:
 
   virtual bool CastRay(const ezVec3& vStart, const ezVec3& vDir, float fMaxLen, ezUInt8 uiCollisionLayer, ezVec3& out_vHitPos, ezVec3& out_vHitNormal, ezGameObjectHandle& out_hHitGameObject, ezSurfaceResourceHandle& out_hSurface) = 0;
 
+  virtual ezVec3 GetGravity() const = 0;
+
 private:
 
 };

@@ -127,6 +127,10 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, const ezVec3& vPosi
     return false;
   }
 
+  // defined, but set to be empty
+  if (!pIA->m_hPrefab.IsValid())
+    return false;
+
   ezResourceLock<ezPrefabResource> pPrefab(pIA->m_hPrefab, ezResourceAcquireMode::NoFallback);
 
   ezVec3 vDir;
@@ -148,8 +152,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, const ezVec3& vPosi
 
   if (pIA->m_Deviation > ezAngle::Radian(0.0f))
   {
-    // do random deviation
-    // make sure to clamp max deviation angle
+    /// \todo do random deviation, make sure to clamp max deviation angle
 
 
   }

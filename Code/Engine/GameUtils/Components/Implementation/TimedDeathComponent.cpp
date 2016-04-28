@@ -2,6 +2,8 @@
 #include <GameUtils/Components/TimedDeathComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Core/ResourceManager/ResourceManager.h>
+#include <GameUtils/Prefabs/PrefabResource.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ezTimedDeathComponent, 1)
 {
@@ -9,6 +11,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTimedDeathComponent, 1)
   {
     EZ_MEMBER_PROPERTY("Min Delay", m_MinDelay)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(1.0))),
     EZ_MEMBER_PROPERTY("Delay Range", m_DelayRange)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
+    EZ_ACCESSOR_PROPERTY("Timeout Prefab", GetTimeoutPrefab, SetTimeoutPrefab)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
@@ -37,6 +40,7 @@ void ezTimedDeathComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_MinDelay;
   s << m_DelayRange;
+  s << m_hTimeoutPrefab;
 }
 
 void ezTimedDeathComponent::DeserializeComponent(ezWorldReader& stream)
@@ -48,7 +52,7 @@ void ezTimedDeathComponent::DeserializeComponent(ezWorldReader& stream)
 
   s >> m_MinDelay;
   s >> m_DelayRange;
-
+  s >> m_hTimeoutPrefab;
 }
 
 ezComponent::Initialization ezTimedDeathComponent::Initialize()
@@ -63,6 +67,12 @@ ezComponent::Initialization ezTimedDeathComponent::Initialize()
 
   pWorld->PostMessage(GetOwner()->GetHandle(), msg, ezObjectMsgQueueType::NextFrame, tKill, ezObjectMsgRouting::ToComponents);
 
+  // make sure the prefab is available when the component dies
+  if (m_hTimeoutPrefab.IsValid())
+  {
+    ezResourceManager::PreloadResource(m_hTimeoutPrefab, tKill);
+  }
+
   return ezComponent::Initialization::Done;
 }
 
@@ -75,5 +85,35 @@ void ezTimedDeathComponent::OnTriggered(ezTriggerMessage& msg)
   if (msg.m_UsageStringHash != ezTempHashedString("Suicide").GetHash())
     return;
 
+  if (m_hTimeoutPrefab.IsValid())
+  {
+    ezResourceLock<ezPrefabResource> pPrefab(m_hTimeoutPrefab);
+
+    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform());
+  }
+  
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
 }
+
+void ezTimedDeathComponent::SetTimeoutPrefab(const char* szPrefab)
+{
+  ezPrefabResourceHandle hPrefab;
+
+  if (!ezStringUtils::IsNullOrEmpty(szPrefab))
+  {
+    hPrefab = ezResourceManager::LoadResource<ezPrefabResource>(szPrefab);
+  }
+
+  m_hTimeoutPrefab = hPrefab;
+}
+
+
+const char* ezTimedDeathComponent::GetTimeoutPrefab() const
+{
+  if (!m_hTimeoutPrefab.IsValid())
+    return "";
+
+  return m_hTimeoutPrefab.GetResourceID();
+}
+
+

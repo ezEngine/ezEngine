@@ -5,8 +5,10 @@
 #include <Core/World/Component.h>
 #include <Foundation/Time/Time.h>
 #include <Core/Messages/TriggerMessage.h>
+#include <Core/ResourceManager/ResourceHandle.h>
 
 typedef ezComponentManager<class ezTimedDeathComponent> ezTimedDeathComponentManager;
+typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
 
 /// \brief This component deletes the object it is attached to after a timeout.
 ///
@@ -33,7 +35,13 @@ public:
   ezTime m_MinDelay;
   ezTime m_DelayRange;
 
+  void SetTimeoutPrefab(const char* szPrefab);
+  const char* GetTimeoutPrefab() const;
+
 private:
+
+  ezPrefabResourceHandle m_hTimeoutPrefab; ///< Spawned when the component is killed due to the timeout
+
 
 
 };

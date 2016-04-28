@@ -105,7 +105,7 @@ public:
 
   PxScene* GetPxScene() const { return m_pPxScene; }
 
-  ezVec3 GetObjectGravity() const { return m_vObjectGravity; }
+  virtual ezVec3 GetGravity() const override { return m_vObjectGravity; }
   ezVec3 GetCharacterGravity() const { return m_vCharacterGravity; }
 
   void SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity);

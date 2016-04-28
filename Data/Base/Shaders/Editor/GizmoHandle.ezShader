@@ -9,6 +9,8 @@ PREPARE_DEPTH
 
 [RENDERSTATE]
 
+CullMode = CullMode_None
+
 #if PREPARE_DEPTH == TRUE
 	DepthTest = true
 	DepthWrite = true
