@@ -63,11 +63,15 @@ struct VS_OUT
 	#endif
 	
 	#if defined(USE_COLOR)
-		float4 Color : COLOR
+		float4 Color : COLOR;
 	#endif
 	
 	#if defined(CUSTOM_INTERPOLATOR)
 		CUSTOM_INTERPOLATOR
+	#endif
+	
+	#if defined(PIXEL_SHADER) && TWO_SIDED == TRUE
+		uint FrontFace : SV_IsFrontFace;
 	#endif
 };
 

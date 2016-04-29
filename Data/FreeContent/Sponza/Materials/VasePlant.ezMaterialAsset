@@ -7,7 +7,7 @@
     "AssetType" : "Material",
     "Dependencies" : "{ 137ad499-bb20-41cf-ac84-4247fd165170 };{ abb5f06e-f4f2-4fb1-94e9-eed4a51e4490 }",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xAA9DC5280CEE86469999EC6150513758" },
-    "Hash" : { "$t" : "uint64", "$v" : "5518143349796109099", "$b" : "0x2BFB47E82362944C" }
+    "Hash" : { "$t" : "uint64", "$v" : "11090869594272852280", "$b" : "0x3869D05022AFEA99" }
    }
   },
   {
@@ -26,7 +26,7 @@
     "Diffuse Texture" : "{ 137ad499-bb20-41cf-ac84-4247fd165170 }",
     "Mask Texture" : "",
     "Normal Map" : "",
-    "Permutations" : "",
+    "Permutations" : "TWO_SIDED=TRUE",
     "Shader" : ""
    }
   } ]

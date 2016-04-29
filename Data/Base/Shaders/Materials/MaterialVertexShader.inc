@@ -15,11 +15,13 @@ VS_OUT FillVertexData(VS_IN Input)
 	
 	#if defined(USE_NORMAL)
 		// TODO: separate matrix for normal transform
-		Output.Normal = normalize(mul(ObjectToWorldMatrix, float4(Input.Normal, 0.0f)).xyz);
+		Output.Normal = normalize(mul((float3x3)ObjectToWorldMatrix, Input.Normal));
 	#endif
 	
 	#if defined(USE_TANGENT)
-		//TODO
+		float handednessCorrection = dot(Input.Tangent, Input.Tangent) - 2.0f;
+		Output.Tangent = normalize(mul((float3x3)ObjectToWorldMatrix, Input.Tangent));
+		Output.BiTangent = cross(Output.Normal, Output.Tangent) * handednessCorrection;
 	#endif
 	
 	#if defined(USE_TEXCOORD0)

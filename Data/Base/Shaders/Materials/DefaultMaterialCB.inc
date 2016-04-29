@@ -1,8 +1,10 @@
 #include <Shaders/Common/GlobalConstants.h>
 
-// no constants yet
-#if 0
 CONSTANT_BUFFER(MaterialCB, 1)
 {
+	COLOR(BaseColor);
+	FLOAT1(Metallic);
+	FLOAT1(Reflectance);
+	FLOAT1(Roughness);
+	FLOAT1(MaskThreshold);
 };
-#endif

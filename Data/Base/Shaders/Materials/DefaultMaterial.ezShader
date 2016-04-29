@@ -7,6 +7,7 @@ BLEND_MODE
 RENDER_PASS
 SHADING_MODE
 TWO_SIDED
+DEFAULT_MAT_USE_BASE_TEXTURE
 
 [RENDERSTATE]
 
@@ -44,6 +45,13 @@ float3 GetNormal(PS_IN Input)
 
 float3 GetBaseColor(PS_IN Input)
 {
+	// Can't use since there is no way to specify the parameter in the editor yet.
+	/*#if DEFAULT_MAT_USE_BASE_TEXTURE == TRUE
+		return TexDiffuse.Sample(TexDiffuseSampler, Input.TexCoords.xy).rgb * BaseColor.rgb;
+	#else
+		return BaseColor.rgb;
+	#endif*/
+
 	return TexDiffuse.Sample(TexDiffuseSampler, Input.TexCoords.xy).rgb;
 }
 
@@ -64,9 +72,17 @@ float GetRoughness(PS_IN Input)
 
 float GetOpacity(PS_IN Input)
 {
+	// Can't use since there is no way to specify the parameter in the editor yet.
+	/*#if DEFAULT_MAT_USE_BASE_TEXTURE == TRUE
+		float opacity = TexDiffuse.Sample(TexDiffuseSampler, Input.TexCoords.xy).a * BaseColor.a;
+	#else
+		float opacity = BaseColor.a;
+	#endif*/
+	
 	float opacity = TexDiffuse.Sample(TexDiffuseSampler, Input.TexCoords.xy).a;
 	
 	#if BLEND_MODE == BLEND_MODE_MASKED
+		//return opacity - MaskThreshold;
 		return opacity - 0.1f;
 	#else
 		return opacity;

@@ -22,7 +22,13 @@ MaterialData FillMaterialData(PS_IN Input)
 {
 	MaterialData matData;
 	matData.worldPosition = Input.WorldPosition;
-	matData.worldNormal = normalize(GetNormal(Input));
+	
+	float3 worldNormal = normalize(GetNormal(Input));
+	#if TWO_SIDED == TRUE
+		matData.worldNormal = Input.FrontFace ? worldNormal : -worldNormal;
+	#else
+		matData.worldNormal = worldNormal;
+	#endif
 	
 	#if defined(USE_SIMPLE_MATERIAL_MODEL)
 		float3 baseColor = GetBaseColor(Input);

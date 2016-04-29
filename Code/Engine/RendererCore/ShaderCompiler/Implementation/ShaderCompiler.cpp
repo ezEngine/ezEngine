@@ -78,6 +78,16 @@ namespace
       }
     }
   }
+
+  static const char* s_szStageDefines[ezGALShaderStage::ENUM_COUNT] =
+  {
+    "VERTEX_SHADER",
+    "HULL_SHADER",
+    "DOMAIN_SHADER",
+    "GEOMETRY_SHADER",
+    "PIXEL_SHADER",
+    "COMPUTE_SHADER"
+  };
 }
 
 ezResult ezShaderCompiler::FileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification)
@@ -318,6 +328,7 @@ void ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szPlatf
       pp.SetPassThroughUnknownCmdsCB(ezMakeDelegate(&ezShaderCompiler::PassThroughUnknownCommandCB, this));
       pp.SetPassThroughLine(false);
 
+      pp.AddCustomDefine(s_szStageDefines[stage]);
       for (auto& define : defines)
       {
         pp.AddCustomDefine(define);

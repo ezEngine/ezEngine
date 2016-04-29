@@ -7,7 +7,7 @@
     "Diffuse Texture" : "{ 7d9305d8-c34c-4b56-906f-6eeb432c8c0e }",
     "Mask Texture" : "",
     "Normal Map" : "",
-    "Permutations" : "",
+    "Permutations" : "TWO_SIDED=TRUE",
     "Shader" : ""
    }
   },
@@ -27,7 +27,7 @@
     "AssetType" : "Material",
     "Dependencies" : "{ 7d9305d8-c34c-4b56-906f-6eeb432c8c0e };{ abb5f06e-f4f2-4fb1-94e9-eed4a51e4490 }",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x21B3FB52DD9FAC4FA9B13C18D0A656C9" },
-    "Hash" : { "$t" : "uint64", "$v" : "1431466393512832827", "$b" : "0x3BEF3DC51997DD13" }
+    "Hash" : { "$t" : "uint64", "$v" : "6127849996516671255", "$b" : "0x173F41E71A7F0A55" }
    }
   } ]
 }
