@@ -92,24 +92,29 @@ ezInternal::WorldLargeBlockAllocator* ezComponentManagerBase::GetBlockAllocator(
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ezUInt16 ezComponentManagerFactory::s_uiNextTypeId = 0;
-ezHashTable<const ezRTTI*, ezUInt16> ezComponentManagerFactory::s_TypeToId;
-ezDynamicArray<ezComponentManagerFactory::CreatorFunc> ezComponentManagerFactory::s_CreatorFuncs;
+ezComponentManagerFactory::ezComponentManagerFactory()
+{
+  m_uiNextTypeId = 0;
+}
 
-// static 
+ezComponentManagerFactory* ezComponentManagerFactory::GetInstance()
+{
+  static ezComponentManagerFactory* pInstance = new ezComponentManagerFactory();
+  return pInstance;
+}
+
 ezUInt16 ezComponentManagerFactory::GetTypeId(const ezRTTI* pRtti)
 {
   ezUInt16 uiTypeId = -1;
-  s_TypeToId.TryGetValue(pRtti, uiTypeId);
+  m_TypeToId.TryGetValue(pRtti, uiTypeId);
   return uiTypeId;
 }
-
-// static 
+ 
 ezComponentManagerBase* ezComponentManagerFactory::CreateComponentManager(ezUInt16 typeId, ezWorld* pWorld)
 {
-  if (typeId < s_CreatorFuncs.GetCount())
+  if (typeId < m_CreatorFuncs.GetCount())
   {
-    CreatorFunc func = s_CreatorFuncs[typeId];
+    CreatorFunc func = m_CreatorFuncs[typeId];
     return (*func)(pWorld->GetAllocator(), pWorld);
   }
 

@@ -228,13 +228,13 @@ ezUInt16 ezComponentManagerFactory::RegisterComponentManager()
 {
   const ezRTTI* pRtti = ezGetStaticRTTI<ComponentType>();
   ezUInt16 uiTypeId = -1;
-  if (s_TypeToId.TryGetValue(pRtti, uiTypeId))
+  if (m_TypeToId.TryGetValue(pRtti, uiTypeId))
   {
     return uiTypeId;
   }
 
-  uiTypeId = s_uiNextTypeId++;
-  s_TypeToId.Insert(pRtti, uiTypeId);
+  uiTypeId = m_uiNextTypeId++;
+  m_TypeToId.Insert(pRtti, uiTypeId);
 
   struct Helper
   {
@@ -244,8 +244,8 @@ ezUInt16 ezComponentManagerFactory::RegisterComponentManager()
     }
   };
 
-  EZ_ASSERT_DEV(s_CreatorFuncs.GetCount() == uiTypeId, "");
-  s_CreatorFuncs.PushBack(&Helper::Create);
+  EZ_ASSERT_DEV(m_CreatorFuncs.GetCount() == uiTypeId, "");
+  m_CreatorFuncs.PushBack(&Helper::Create);
 
   return uiTypeId;
 }

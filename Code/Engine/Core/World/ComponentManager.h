@@ -228,21 +228,25 @@ private:
 class EZ_CORE_DLL ezComponentManagerFactory
 {
 public:
+  static ezComponentManagerFactory* GetInstance();
+
   template <typename ComponentType>
-  static ezUInt16 RegisterComponentManager();
+  ezUInt16 RegisterComponentManager();
 
   /// \brief Returns the component type id to the given rtti component type.
-  static ezUInt16 GetTypeId(const ezRTTI* pRtti);
+  ezUInt16 GetTypeId(const ezRTTI* pRtti);
 
   /// \brief Creates a new instance of the component manager with the given type id and world.
-  static ezComponentManagerBase* CreateComponentManager(ezUInt16 typeId, ezWorld* pWorld);
+  ezComponentManagerBase* CreateComponentManager(ezUInt16 typeId, ezWorld* pWorld);
 
 private:
-  static ezUInt16 s_uiNextTypeId;
-  static ezHashTable<const ezRTTI*, ezUInt16> s_TypeToId;
+  ezComponentManagerFactory();
+
+  ezUInt16 m_uiNextTypeId;
+  ezHashTable<const ezRTTI*, ezUInt16> m_TypeToId;
 
   typedef ezComponentManagerBase* (*CreatorFunc)(ezAllocatorBase*, ezWorld*);
-  static ezDynamicArray<CreatorFunc> s_CreatorFuncs;
+  ezDynamicArray<CreatorFunc> m_CreatorFuncs;
 };
 
 /// \brief Add this macro to a custom component type inside the type declaration.
@@ -271,7 +275,7 @@ private:
 ///
 /// \see EZ_BEGIN_DYNAMIC_REFLECTED_TYPE
 #define EZ_BEGIN_COMPONENT_TYPE(componentType, version) \
-  ezUInt16 componentType::TYPE_ID = ezComponentManagerFactory::RegisterComponentManager<componentType>(); \
+  ezUInt16 componentType::TYPE_ID = ezComponentManagerFactory::GetInstance()->RegisterComponentManager<componentType>(); \
   ezComponentHandle componentType::GetHandle() const { return ezComponent::GetHandle<componentType>(); } \
   componentType::ComponentManagerType* componentType::GetManager() const { return static_cast<componentType::ComponentManagerType*>(ezComponent::GetManager()); } \
   ezComponentHandle componentType::CreateComponent(ezWorld* pWorld, componentType*& pComponent) { return pWorld->GetOrCreateComponentManager<ComponentManagerType>()->CreateComponent(pComponent); } \

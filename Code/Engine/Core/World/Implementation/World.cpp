@@ -201,7 +201,7 @@ ezComponentManagerBase* ezWorld::GetOrCreateComponentManager(const ezRTTI* pRtti
 
   CheckForWriteAccess();
 
-  const ezUInt16 uiTypeId = ezComponentManagerFactory::GetTypeId(pRtti);
+  const ezUInt16 uiTypeId = ezComponentManagerFactory::GetInstance()->GetTypeId(pRtti);
   EZ_ASSERT_DEV(uiTypeId != -1, "Invalid type id");
 
   if (uiTypeId >= m_Data.m_ComponentManagers.GetCount())
@@ -212,7 +212,7 @@ ezComponentManagerBase* ezWorld::GetOrCreateComponentManager(const ezRTTI* pRtti
   ezComponentManagerBase* pManager = m_Data.m_ComponentManagers[uiTypeId];
   if (pManager == nullptr)
   {
-    pManager = ezComponentManagerFactory::CreateComponentManager(uiTypeId, this);
+    pManager = ezComponentManagerFactory::GetInstance()->CreateComponentManager(uiTypeId, this);
     pManager->Initialize();
 
     m_Data.m_ComponentManagers[uiTypeId] = pManager;
@@ -225,7 +225,7 @@ const ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pRtti) 
 {
   CheckForReadAccess();
 
-  const ezUInt16 uiTypeId = ezComponentManagerFactory::GetTypeId(pRtti);
+  const ezUInt16 uiTypeId = ezComponentManagerFactory::GetInstance()->GetTypeId(pRtti);
   EZ_ASSERT_DEV(uiTypeId != -1, "Invalid type id");
 
   if (uiTypeId < m_Data.m_ComponentManagers.GetCount())
