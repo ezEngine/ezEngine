@@ -84,6 +84,8 @@ EZ_FORCE_INLINE ezUInt32 ezHybridStringBase<Size>::GetCharacterCount() const
 template<ezUInt16 Size>
 void ezHybridStringBase<Size>::operator=(const char* szString)
 {
+  EZ_ASSERT_DEBUG(szString < m_Data.GetData() || szString >= m_Data.GetData() + m_Data.GetCount(), "Can't assign string a value that points to ourself!");
+
   ezUInt32 uiElementCount = 0;
   ezStringUtils::GetCharacterAndElementCount(szString, m_uiCharacterCount, uiElementCount);
   m_Data.SetCount(uiElementCount + 1);
@@ -120,6 +122,8 @@ void ezHybridStringBase<Size>::operator=(const wchar_t* szString)
 template<ezUInt16 Size>
 void ezHybridStringBase<Size>::operator=(const ezStringView& rhs)
 {
+  EZ_ASSERT_DEBUG(rhs.GetData() < m_Data.GetData() || rhs.GetData() >= m_Data.GetData() + m_Data.GetCount(), "Can't assign string a value that points to ourself!");
+
   m_Data.SetCount(rhs.GetElementCount() + 1);
   ezStringUtils::Copy(&m_Data[0], m_Data.GetCount(), rhs.GetData(), rhs.GetEndPosition());
   m_uiCharacterCount = ezStringUtils::GetCharacterCount(GetData());
