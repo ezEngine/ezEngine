@@ -1,8 +1,11 @@
 #include <PCH.h>
+#include <Foundation\Containers\HybridArray.h>
 
 struct ezConstructTest
 {
 public:
+  static ezHybridArray<void*, 10> s_dtorList;
+
   ezConstructTest()
   {
     m_iData = 42;
@@ -11,10 +14,16 @@ public:
   ~ezConstructTest()
   {
     m_iData = 23;
+    s_dtorList.PushBack(this);
   }
 
   ezInt32 m_iData;
+
 };
+ezHybridArray<void*, 10> ezConstructTest::s_dtorList;
+
+EZ_CHECK_AT_COMPILETIME(sizeof(ezConstructTest) == 4);
+
 
 struct PODTest
 {
@@ -32,6 +41,8 @@ static const ezUInt32 uiSize = sizeof(ezConstructTest);
 
 EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
 {
+  ezConstructTest::s_dtorList.Clear();
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Construct")
   {
     ezUInt8 uiRawData[uiSize * 5] = { 0 };
@@ -157,13 +168,18 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(pTest[3].m_iData, 0);
     EZ_TEST_INT(pTest[4].m_iData, 0);
 
+    ezConstructTest::s_dtorList.Clear();
     ezMemoryUtils::Destruct<ezConstructTest>(pTest, 4);
+    EZ_TEST_INT(4, ezConstructTest::s_dtorList.GetCount());
 
-    EZ_TEST_INT(pTest[0].m_iData, 23);
-    EZ_TEST_INT(pTest[1].m_iData, 23);
-    EZ_TEST_INT(pTest[2].m_iData, 23);
-    EZ_TEST_INT(pTest[3].m_iData, 23);
-    EZ_TEST_INT(pTest[4].m_iData, 0);
+    if (ezConstructTest::s_dtorList.GetCount() == 4)
+    {
+      EZ_TEST_BOOL(ezConstructTest::s_dtorList[0] == &pTest[3]);
+      EZ_TEST_BOOL(ezConstructTest::s_dtorList[1] == &pTest[2]);
+      EZ_TEST_BOOL(ezConstructTest::s_dtorList[2] == &pTest[1]);
+      EZ_TEST_BOOL(ezConstructTest::s_dtorList[3] == &pTest[0]);
+      EZ_TEST_INT(pTest[4].m_iData, 0);
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeDestructorFunction")

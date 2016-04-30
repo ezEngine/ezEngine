@@ -60,7 +60,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
     ezString s5(L"abcdefghijklm");
     ezStringView it (s5.GetData() + 2, s5.GetData() + 10);
     s5 = it;
-    EZ_TEST_BOOL(s5 == "cdefghij");
+    EZ_TEST_STRING(s5, "cdefghij");
 
     ezString s6(L"aölsdföasld");
     ezStringBuilder strB("wobwob");
