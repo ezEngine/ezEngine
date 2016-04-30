@@ -13,7 +13,6 @@ public:
 
   ~ezConstructTest()
   {
-    m_iData = 23;
     s_dtorList.PushBack(this);
   }
 
@@ -193,9 +192,14 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     ezMemoryUtils::Construct(pTest, 1);
     EZ_TEST_INT(pTest->m_iData, 42);
 
+    ezConstructTest::s_dtorList.Clear();
     (*func)(pTest);
+    EZ_TEST_INT(1, ezConstructTest::s_dtorList.GetCount());
 
-    EZ_TEST_INT(pTest->m_iData, 23);
+    if (ezConstructTest::s_dtorList.GetCount() == 1)
+    {
+      EZ_TEST_BOOL(ezConstructTest::s_dtorList[0] == pTest);
+    }
 
     func = ezMemoryUtils::MakeDestructorFunction<PODTest>();
     EZ_TEST_BOOL(func == nullptr);
