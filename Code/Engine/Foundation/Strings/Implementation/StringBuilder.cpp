@@ -12,6 +12,13 @@ ezStringBuilder::ezStringBuilder(const char* pData1, const char* pData2, const c
 
 void ezStringBuilder::Set(const char* pData1, const char* pData2, const char* pData3, const char* pData4, const char* pData5, const char* pData6)
 {
+  EZ_ASSERT_DEBUG(pData1 < m_Data.GetData() || pData1 >= m_Data.GetData() + m_Data.GetCapacity(), "Parameter 1 comes from the string builders own storage. This type of assignment is not allowed.");
+  EZ_ASSERT_DEBUG(pData2 < m_Data.GetData() || pData2 >= m_Data.GetData() + m_Data.GetCapacity(), "Parameter 2 comes from the string builders own storage. This type of assignment is not allowed.");
+  EZ_ASSERT_DEBUG(pData3 < m_Data.GetData() || pData3 >= m_Data.GetData() + m_Data.GetCapacity(), "Parameter 3 comes from the string builders own storage. This type of assignment is not allowed.");
+  EZ_ASSERT_DEBUG(pData4 < m_Data.GetData() || pData4 >= m_Data.GetData() + m_Data.GetCapacity(), "Parameter 4 comes from the string builders own storage. This type of assignment is not allowed.");
+  EZ_ASSERT_DEBUG(pData5 < m_Data.GetData() || pData5 >= m_Data.GetData() + m_Data.GetCapacity(), "Parameter 5 comes from the string builders own storage. This type of assignment is not allowed.");
+  EZ_ASSERT_DEBUG(pData6 < m_Data.GetData() || pData6 >= m_Data.GetData() + m_Data.GetCapacity(), "Parameter 6 comes from the string builders own storage. This type of assignment is not allowed.");
+
   Clear();
   Append(pData1, pData2, pData3, pData4, pData5, pData6);
 }
@@ -58,6 +65,8 @@ void ezStringBuilder::Append(const char* pData1, const char* pData2, const char*
   {
     if (ezStringUtils::IsNullOrEmpty(pStrings[i]))
       continue;
+
+    EZ_ASSERT_DEBUG(pStrings[i] < m_Data.GetData() || pStrings[i] >= m_Data.GetData() + m_Data.GetCapacity(), "Parameter %i comes from the string builders own storage. This type assignment is not allowed.", i);
 
     ezUnicodeUtils::SkipUtf8Bom(pStrings[i]);
 

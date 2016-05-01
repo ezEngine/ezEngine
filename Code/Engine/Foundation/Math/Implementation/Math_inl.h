@@ -228,5 +228,15 @@ namespace ezMath
 
     return (x * x * ((Type) 3 - ((Type) 2 * x)));
   }
+
+  inline ezUInt8 ColorFloatToByte(float value)
+  {
+    return static_cast<ezUInt8>(ezMath::Min(255.0f, ((value * 255.0f) + 0.5f)));
+  }
+
+  inline float ColorByteToFloat(ezUInt8 value)
+  {
+    return value * (1.0f / 255.0f);
+  }
 }
 

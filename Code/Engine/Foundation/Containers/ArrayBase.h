@@ -127,11 +127,13 @@ public:
   /// \brief Returns a array pointer to the array data, or an empty array pointer if the array is empty.
   ezArrayPtr<const T> GetArrayPtr() const; // [tested]
 
+  /// \brief Returns the reserved number of elements that the array can hold without reallocating.
+  ezUInt32 GetCapacity() const { return m_uiCapacity; }
+
   typedef T const * const_iterator;
   typedef const_reverse_pointer_iterator<T> const_reverse_iterator;
   typedef T * iterator;
   typedef reverse_pointer_iterator<T> reverse_iterator;
-
 
 protected:
 

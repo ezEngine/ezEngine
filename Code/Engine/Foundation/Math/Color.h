@@ -267,9 +267,13 @@ public:
   /// \brief Conversion to float*
   float* GetData() { return &r; }
 
+  /// \brief Helper function to convert a float color value from gamma space to linear color space.
+  static float GammaToLinear(float gamma); // [tested]
+  /// \brief Helper function to convert a float color value from linear space to gamma color space.
+  static float LinearToGamma(float gamma); // [tested]
+
   /// \brief Helper function to convert a float RGB color value from gamma space to linear color space.
   static ezVec3 GammaToLinear(const ezVec3& gamma); // [tested]
-
   /// \brief Helper function to convert a float RGB color value from linear space to gamma color space.
   static ezVec3 LinearToGamma(const ezVec3& gamma); // [tested]
 

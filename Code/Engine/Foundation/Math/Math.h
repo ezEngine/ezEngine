@@ -238,6 +238,11 @@ namespace ezMath
   template<typename Type>
   bool IsZero(Type f, Type fEpsilon); // [tested]
 
+  /// Converts a color value from float [0;1] range to unsigned byte [0;255] range, with proper rounding
+  ezUInt8 ColorFloatToByte(float value);
+
+  /// Converts a color value from unsigned byte [0;255] range to float [0;1] range, with proper rounding
+  float ColorByteToFloat(ezUInt8 value);
 };
 
 #include <Foundation/Math/Implementation/Math_inl.h>

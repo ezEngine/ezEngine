@@ -11,10 +11,10 @@ inline ezColorLinearUB::ezColorLinearUB(const ezColor& color)
 
 inline void ezColorLinearUB::operator=(const ezColor& color)
 {
-  r = static_cast<ezUInt8>(ezMath::Min(255.0f, ((color.r * 255.0f) + 0.5f)));
-  g = static_cast<ezUInt8>(ezMath::Min(255.0f, ((color.g * 255.0f) + 0.5f)));
-  b = static_cast<ezUInt8>(ezMath::Min(255.0f, ((color.b * 255.0f) + 0.5f)));
-  a = static_cast<ezUInt8>(ezMath::Min(255.0f, ((color.a * 255.0f) + 0.5f)));
+  r = ezMath::ColorFloatToByte(color.r);
+  g = ezMath::ColorFloatToByte(color.g);
+  b = ezMath::ColorFloatToByte(color.b);
+  a = ezMath::ColorFloatToByte(color.a);
 }
 
 inline ezColor ezColorLinearUB::ToLinearFloat() const
@@ -39,18 +39,18 @@ inline void ezColorGammaUB::operator=(const ezColor& color)
 {
   const ezVec3 gamma = ezColor::LinearToGamma(ezVec3(color.r, color.g, color.b));
 
-  r = static_cast<ezUInt8>(ezMath::Min(255.0f, ((gamma.x * 255.0f) + 0.5f)));
-  g = static_cast<ezUInt8>(ezMath::Min(255.0f, ((gamma.y * 255.0f) + 0.5f)));
-  b = static_cast<ezUInt8>(ezMath::Min(255.0f, ((gamma.z * 255.0f) + 0.5f)));
-  a = static_cast<ezUInt8>(ezMath::Min(255.0f, ((color.a * 255.0f) + 0.5f)));
+  r = ezMath::ColorFloatToByte(gamma.x);
+  g = ezMath::ColorFloatToByte(gamma.y);
+  b = ezMath::ColorFloatToByte(gamma.z);
+  a = ezMath::ColorFloatToByte(color.a);
 }
 
 inline ezColor ezColorGammaUB::ToLinearFloat() const
 {
   ezVec3 gamma;
-  gamma.x = r * (1.0f / 255.0f);
-  gamma.y = g * (1.0f / 255.0f);
-  gamma.z = b * (1.0f / 255.0f);
+  gamma.x = ezMath::ColorByteToFloat(r);
+  gamma.y = ezMath::ColorByteToFloat(g);
+  gamma.z = ezMath::ColorByteToFloat(b);
 
   const ezVec3 linear = ezColor::GammaToLinear(gamma);
 

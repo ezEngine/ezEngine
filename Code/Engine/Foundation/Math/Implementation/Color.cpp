@@ -221,19 +221,26 @@ void ezColor::ToGammaHSV(float& hue, float& sat, float& val) const
   ColorGamma.ToLinearHSV(hue, sat, val);
 }
 
+float ezColor::GammaToLinear(float gamma)
+{
+  return gamma <= 0.04045f ? (gamma / 12.92f) : (ezMath::Pow((gamma + 0.055f) / 1.055f, 2.4f));
+}
+
+float ezColor::LinearToGamma(float linear)
+{
+  // assuming we have linear color (not CIE xyY or CIE XYZ)
+  return linear <= 0.0031308f ? (12.92f * linear) : (1.055f * ezMath::Pow(linear, 1.0f / 2.4f) - 0.055f);
+}
+
 ezVec3 ezColor::GammaToLinear(const ezVec3& gamma)
 {
-  return ezVec3(gamma.x <= 0.04045f ? (gamma.x / 12.92f) : (ezMath::Pow((gamma.x + 0.055f) / 1.055f, 2.4f)),
-                gamma.y <= 0.04045f ? (gamma.y / 12.92f) : (ezMath::Pow((gamma.y + 0.055f) / 1.055f, 2.4f)),
-                gamma.z <= 0.04045f ? (gamma.z / 12.92f) : (ezMath::Pow((gamma.z + 0.055f) / 1.055f, 2.4f)));
+  return ezVec3(GammaToLinear(gamma.x), GammaToLinear(gamma.y), GammaToLinear(gamma.z));
 }
 
 ezVec3 ezColor::LinearToGamma(const ezVec3& linear)
 {
   // assuming we have linear color (not CIE xyY or CIE XYZ)
-  return ezVec3(linear.x <= 0.0031308f ? (12.92f * linear.x) : (1.055f * ezMath::Pow(linear.x, 1.0f / 2.4f) - 0.055f),
-                linear.y <= 0.0031308f ? (12.92f * linear.y) : (1.055f * ezMath::Pow(linear.y, 1.0f / 2.4f) - 0.055f),
-                linear.z <= 0.0031308f ? (12.92f * linear.z) : (1.055f * ezMath::Pow(linear.z, 1.0f / 2.4f) - 0.055f));
+  return ezVec3(LinearToGamma(linear.x), LinearToGamma(linear.y), LinearToGamma(linear.z));
 }
 
 const ezColor ezColor::AliceBlue(ezColorGammaUB(0xF0, 0xF8, 0xFF));

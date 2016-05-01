@@ -53,17 +53,15 @@ inline ezAllocatorBase* ezStringBuilder::GetAllocator() const
   return m_Data.GetAllocator();
 }
 
-inline void ezStringBuilder::operator=(const char* szUTF8)
+EZ_FORCE_INLINE void ezStringBuilder::operator=(const char* szUTF8)
 {
-  Clear();
-
-  Append(szUTF8);
+  Set(szUTF8);
 }
 
 inline void ezStringBuilder::operator=(const wchar_t* szWChar)
 {
+  // fine to do this, szWChar can never come from the stringbuilder's own data array
   Clear();
-
   Append(szWChar);
 }
 
