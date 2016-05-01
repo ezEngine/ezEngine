@@ -29,6 +29,11 @@ ezMaterialAssetDocument::ezMaterialAssetDocument(const char* szDocumentPath) : e
 {
 }
 
+ezBitflags<ezAssetDocumentFlags> ezMaterialAssetDocument::GetAssetFlags() const
+{
+  return ezAssetDocumentFlags::AutoTransformOnSave;
+}
+
 void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
 {
   const ezMaterialAssetProperties* pProp = GetProperties();

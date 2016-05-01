@@ -32,6 +32,8 @@ public:
 
   virtual const char* QueryAssetType() const override { return "Material"; }
 
+  virtual ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const;
+
 protected:
   virtual ezUInt16 GetAssetTypeVersion() const override { return 1; }
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) override;
