@@ -47,7 +47,7 @@ float3 GetNormal(PS_IN Input)
 	//return Input.Normal;
 	float3 vNt = TexNormal.Sample(TexNormalSampler, Input.TexCoords.xy).rgb * 2 - 1;
 	float3 vNout = normalize( vNt.x * Input.Tangent + vNt.y * Input.BiTangent + vNt.z * Input.Normal );
-	return vNout * 0.5 + 0.5;
+	return vNout;
 }
 
 float3 GetBaseColor(PS_IN Input)
