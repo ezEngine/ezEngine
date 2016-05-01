@@ -14,7 +14,7 @@
     "Base Material" : "",
     "Diffuse Texture" : "",
     "Mask Texture" : "",
-    "Normal Map" : "",
+    "Normal Map" : "{ 4dc82890-39e3-4bfc-a97d-86a984d4d3db }",
     "Permutations" : "BLEND_MODE=MASKED;SHADING_MODE=LIT;TWO_SIDED=FALSE",
     "Shader" : "Shaders/Materials/DefaultMaterial.ezShader"
    }
@@ -25,9 +25,9 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Material",
-    "Dependencies" : "Shaders/Materials/DefaultMaterial.ezShader",
+    "Dependencies" : "Shaders/Materials/DefaultMaterial.ezShader;{ 4dc82890-39e3-4bfc-a97d-86a984d4d3db }",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x6EF0B5ABF2F4B14F94E9EED4A51E4490" },
-    "Hash" : { "$t" : "uint64", "$v" : "14776375179403469983", "$b" : "0x9F243EE4EF3A10CD" }
+    "Hash" : { "$t" : "uint64", "$v" : "6271476270952973594", "$b" : "0x1A8571D370C20857" }
    }
   } ]
 }
