@@ -9,6 +9,7 @@
 
 # Pass a boolean expression into this macro to build this project only if the expression evaluates to true.
 BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
+BUILD_CONDITIONAL(NOT DEFINED BUILDSYSTEM_COMPILER_MSVC_110)
 
 # Add all the preprocessor definitions that are needed to configure this library
 # add_definitions (-DMY_PREPROCESS_DEFINITION_1)
