@@ -34,10 +34,7 @@ void ezRun(ezApplication* pApplicationInstance)
   // Destructor is called by entry point function
   ezApplication::s_pApplicationInstance = nullptr;
 
-  if (pApplicationInstance->m_bReportMemoryLeaks)
-  {
-    ezMemoryTracker::DumpMemoryLeaks();
-  }
+  // memory leak reporting cannot be done here, because the application instance is still alive and may still hold on to memory that needs to be freed first
 }
 
 EZ_STATICLINK_FILE(Core, Core_Application_Implementation_MainLoop);

@@ -7,6 +7,10 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <CoreUtils/Image/Formats/DdsFileFormat.h>
 #include <CoreUtils/Image/ImageConversion.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <CoreUtils/Assets/AssetFileHeader.h>
+#include <QProcess>
+#include <QStringList>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -25,14 +29,57 @@ void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
   pInfo->m_FileDependencies.Insert(sTemp);
 }
 
-ezStatus ezTextureAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform)
+ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader)
+{
+  QStringList arguments;
+  arguments << "-out";
+  arguments << szTargetFile;
+
+  if (GetProperties()->IsSRGB())
+    arguments << "-srgb";
+
+  arguments << "-mipmaps";
+  arguments << "-compress";
+  arguments << "-channels";
+  arguments << "3";
+
+  arguments << "-in0";
+  arguments << QString(GetProperties()->GetAbsoluteInputFilePath().GetData());
+
+  arguments << "-rgba";
+  arguments << "in0.rgba";
+
+  /// \todo Asset Hash + Version
+  
+  QProcess proc;
+  proc.start(QString::fromUtf8("TexConv.exe"), arguments);
+  if (!proc.waitForFinished(60000))
+    return EZ_FAILURE;
+
+  if (proc.exitCode() != 0)
+    return EZ_FAILURE;
+
+  return EZ_SUCCESS;
+}
+
+ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
   EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '%s' is not supported", szPlatform);
+
+  const ezImage* pImage = &GetProperties()->GetImage();
+  SaveThumbnail(*pImage);
+
+#ifdef USE_TEXCONV
+  RunTexConv(szTargetFile, AssetHeader);
+#else
+
+  ezDeferredFileWriter stream;
+  stream.SetOutput(szTargetFile);
+  AssetHeader.Write(stream);
 
   // set the input file again to ensure it is reloaded
   GetProperties()->SetInputFile(GetProperties()->GetInputFile());
 
-  const ezImage* pImage = &GetProperties()->GetImage();
   ezImage ConvertedImage;
 
   stream << GetProperties()->IsSRGB();
@@ -64,7 +111,13 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(ezStreamWriter& stream, 
     return ezStatus("Writing the image data as DDS failed");
   }
 
-  SaveThumbnail(*pImage);
+  if (stream.Close().Failed())
+  {
+    ezLog::Error("Could not open file for writing: '%s'", szTargetFile);
+    return ezStatus("Opening the asset output file failed");
+  }
+
+#endif
 
   return ezStatus(EZ_SUCCESS);
 }

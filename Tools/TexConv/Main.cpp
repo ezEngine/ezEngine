@@ -17,6 +17,7 @@
 #include <CoreUtils/Image/ImageConversion.h>
 #include <CoreUtils/Image/Formats/ImageFormatMappings.h>
 #include <Foundation/Utilities/ConversionUtils.h>
+#include <CoreUtils/Assets/AssetFileHeader.h>
 
 /// \todo cubemap creation
 /// \todo volume texture creation
@@ -25,8 +26,8 @@
 /// \todo normalmap generation from heightmaps
 /// \todo custom value scale/bias for adjustments ??
 /// \todo Reading (compressed) TGA very slow
-/// \todo Output custom format with ezAsset header
 /// \todo Integrate with texture asset
+/// \todo Write thumbnail to additional location
 
 
 /**** Usage ****
@@ -90,6 +91,8 @@ public:
   bool m_bSRGBOutput;
   ezUInt8 m_uiOutputChannels;
   ezHybridArray<ezImage*, 6> m_CleanupImages;
+  ezUInt64 m_uiAssetHash;
+  ezUInt16 m_uiAssetVersion;
 
   ChannelMapping m_2dSource[4];
 
@@ -99,6 +102,8 @@ public:
     m_bCompress = false;
     m_uiOutputChannels = 4;
     m_bSRGBOutput = false;
+    m_uiAssetHash = 0;
+    m_uiAssetVersion = 0;
   }
 
   virtual void AfterCoreStartup() override
@@ -346,6 +351,18 @@ public:
       tmp = pCmd->GetStringOption("-a");
       if (!tmp.IsEmpty())
         m_2dSource[3] = ParseInputCfg(tmp, 3, true);
+    }
+
+    // Asset Hash and Version
+    {
+      m_uiAssetVersion = pCmd->GetIntOption("-assetVersion", 0);
+
+      const ezString sHashLow = pCmd->GetStringOption("-assetHashLow");
+      ezUInt64 uiHashLow = ezConversionUtils::ConvertHexStringToUInt32(sHashLow);
+      const ezString sHashHigh = pCmd->GetStringOption("-assetHash2");
+      ezUInt64 uiHashHigh = ezConversionUtils::ConvertHexStringToUInt32(sHashHigh);
+
+      m_uiAssetHash = (uiHashHigh << 32) | uiHashLow;
     }
   }
 
@@ -639,17 +656,28 @@ public:
 
   virtual ezApplication::ApplicationExecution Run() override
   {
+    // general failure
+    SetReturnCode(1);
+
     PrintConfig();
 
     if (ValidateConfiguration().Failed())
     {
-      SetReturnCode(1);
+      SetReturnCode(2);
+      return ezApplication::Quit;
+    }
+
+    ezFileWriter fileOut;
+    if (fileOut.Open(m_sOutputFile, 1024 * 1024 * 8).Failed())
+    {
+      SetReturnCode(3);
+      ezLog::Error("Could not open output file for writing: '%s'", m_sOutputFile.GetData());
       return ezApplication::Quit;
     }
 
     if (LoadInputs().Failed())
     {
-      SetReturnCode(2);
+      SetReturnCode(4);
       return ezApplication::Quit;
     }
 
@@ -672,6 +700,7 @@ public:
     {
       if (FAILED(GenerateMipMaps(srcImg, TEX_FILTER_DEFAULT, 0, mip)))
       {
+        SetReturnCode(5);
         ezLog::Error("Mipmap generation failed");
         return ezApplication::Quit;
       }
@@ -682,12 +711,15 @@ public:
     const ezImageFormat::Enum outputFormat = ChooseOutputFormat();
     const DXGI_FORMAT dxgi = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(outputFormat);
 
+    Blob outputBlob;
+
     if (m_bCompress)
     {
       if (pCurScratch != nullptr)
       {
         if (FAILED(Compress(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), dxgi, TEX_COMPRESS_DEFAULT, 1.0f, comp)))
         {
+          SetReturnCode(6);
           ezLog::Error("Block compression failed");
           return ezApplication::Quit;
         }
@@ -696,28 +728,28 @@ public:
       {
         if (FAILED(Compress(srcImg, dxgi, TEX_COMPRESS_DEFAULT, 1.0f, comp)))
         {
+          SetReturnCode(6);
           ezLog::Error("Block compression failed");
           return ezApplication::Quit;
         }
       }
 
-      if (FAILED(SaveToDDSFile(comp.GetImages(), comp.GetImageCount(), comp.GetMetadata(), 0, ezStringWChar(m_sOutputFile).GetData())))
+      if (FAILED(SaveToDDSMemory(comp.GetImages(), comp.GetImageCount(), comp.GetMetadata(), 0, outputBlob)))
       {
+        SetReturnCode(7);
         ezLog::Error("Failed to write compressed image to file '%s'", m_sOutputFile.GetData());
         return ezApplication::Quit;
       }
-
-      // done
-      return ezApplication::Quit;
     }
     else
     {
-      if (outputFormat != ezImageFormat::R8G8B8A8_UNORM)
+      if (outputFormat != pCombined->GetImageFormat())
       {
         if (pCurScratch != nullptr)
         {
           if (FAILED(Convert(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), dxgi, TEX_FILTER_DEFAULT, 0.0f, channel)))
           {
+            SetReturnCode(8);
             ezLog::Error("Failed to convert uncompressed image to %u channels", m_uiOutputChannels);
             return ezApplication::Quit;
           }
@@ -726,6 +758,7 @@ public:
         {
           if (FAILED(Convert(srcImg, dxgi, TEX_FILTER_DEFAULT, 0.0f, channel)))
           {
+            SetReturnCode(8);
             ezLog::Error("Failed to convert uncompressed image to %u channels", m_uiOutputChannels);
             return ezApplication::Quit;
           }
@@ -733,25 +766,41 @@ public:
 
         pCurScratch = &channel;
       }
-    }
 
-    if (pCurScratch != nullptr)
-    {
-      if (FAILED(SaveToDDSFile(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), 0, ezStringWChar(m_sOutputFile).GetData())))
+      if (pCurScratch != nullptr)
       {
-        ezLog::Error("Failed to write uncompressed image to file '%s'", m_sOutputFile.GetData());
-        return ezApplication::Quit;
+        if (FAILED(SaveToDDSMemory(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), 0, outputBlob)))
+        {
+          SetReturnCode(9);
+          ezLog::Error("Failed to write uncompressed image to file '%s'", m_sOutputFile.GetData());
+          return ezApplication::Quit;
+        }
+      }
+      else
+      {
+        if (FAILED(SaveToDDSMemory(srcImg, 0, outputBlob)))
+        {
+          SetReturnCode(9);
+          ezLog::Error("Failed to write uncompressed image to file '%s'", m_sOutputFile.GetData());
+          return ezApplication::Quit;
+        }
       }
     }
-    else
+
+    if (ezPathUtils::HasExtension(m_sOutputFile, "ezTex"))
     {
-      if (FAILED(SaveToDDSFile(srcImg, 0, ezStringWChar(m_sOutputFile).GetData())))
-      {
-        ezLog::Error("Failed to write uncompressed image to file '%s'", m_sOutputFile.GetData());
-        return ezApplication::Quit;
-      }
+      ezAssetFileHeader header;
+      header.SetFileHashAndVersion(m_uiAssetHash, m_uiAssetVersion);
+
+      header.Write(fileOut);
+
+      fileOut << m_bSRGBOutput;
     }
 
+    fileOut.WriteBytes(outputBlob.GetBufferPointer(), outputBlob.GetBufferSize());
+
+    // everything is fine
+    SetReturnCode(0);
     return ezApplication::Quit;
   }
 };

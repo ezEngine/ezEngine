@@ -63,6 +63,8 @@ public:
   ezTextureTypeEnum::Enum GetTextureType() const { return m_TextureType; }
   bool IsSRGB() const;
 
+  ezString GetAbsoluteInputFilePath() const;
+
 private:
   ezString m_Input;
   ezEnum<ezTextureUsageEnum> m_TextureUsage;

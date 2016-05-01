@@ -190,6 +190,11 @@ public:
     m_bReportMemoryLeaks = bEnable;
   }
 
+  bool IsMemoryLeakReportingEnalbed() const
+  {
+    return m_bReportMemoryLeaks;
+  }
+
 private:
 
   ezInt32 m_iReturnCode;

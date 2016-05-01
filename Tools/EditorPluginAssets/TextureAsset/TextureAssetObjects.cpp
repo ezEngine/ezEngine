@@ -39,6 +39,21 @@ ezString ezTextureAssetProperties::GetFormatString() const
   return ezImageFormat::GetName(m_Image.GetImageFormat());
 }
 
+ezString ezTextureAssetProperties::GetAbsoluteInputFilePath() const
+{
+  ezStringBuilder sTemp = m_Input;
+  sTemp.MakeCleanPath();
+
+  ezString sPath = sTemp;
+
+  if (!sTemp.IsAbsolutePath())
+  {
+    ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
+  }
+
+  return sPath;
+}
+
 void ezTextureAssetProperties::SetInputFile(const char* szFile)
 {
   ezStringBuilder sTemp = szFile;

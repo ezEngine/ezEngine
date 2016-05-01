@@ -3,6 +3,8 @@
 
 /// \file
 
+#include <Foundation/Memory/MemoryTracker.h>
+
 /// \brief Same as EZ_APPLICATION_ENTRY_POINT but should be used for applications that shall always show a console window.
 #define EZ_CONSOLEAPP_ENTRY_POINT(AppClass, ...) \
   static char appBuffer[sizeof(AppClass)]; /* Not on the stack to cope with smaller stacks */ \
@@ -13,9 +15,11 @@
     AppClass* pApp = new (appBuffer) AppClass(__VA_ARGS__); \
     pApp->SetCommandLineArguments((ezUInt32) argc, argv); \
     ezRun(pApp); /* Life cycle & run method calling */ \
-    int iReturnCode = pApp->GetReturnCode(); \
+    const int iReturnCode = pApp->GetReturnCode(); \
+    const bool memLeaks = pApp->IsMemoryLeakReportingEnalbed(); \
     pApp->~AppClass(); \
     memset(pApp, 0, sizeof(AppClass)); \
+    if (memLeaks) ezMemoryTracker::DumpMemoryLeaks(); \
     return iReturnCode; \
   }
 
@@ -32,9 +36,11 @@
     AppClass* pApp = new (appBuffer) AppClass(__VA_ARGS__); \
     pApp->SetCommandLineArguments((ezUInt32) __argc, const_cast<const char**>(__argv)); \
     ezRun(pApp); /* Life cycle & run method calling */ \
-    int iReturnCode = pApp->GetReturnCode(); \
+    const int iReturnCode = pApp->GetReturnCode(); \
+    const bool memLeaks = pApp->IsMemoryLeakReportingEnalbed(); \
     pApp->~AppClass(); \
     memset(pApp, 0, sizeof(AppClass)); \
+    if (memLeaks) ezMemoryTracker::DumpMemoryLeaks(); \
     return iReturnCode; \
   }
 
