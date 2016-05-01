@@ -16,6 +16,7 @@ DEFAULT_MAT_USE_BASE_TEXTURE
 [VERTEXSHADER]
 
 #define USE_NORMAL
+#define USE_TANGENT
 #define USE_TEXCOORD0
 
 #include <Shaders/Materials/DefaultMaterialCB.inc>
@@ -29,6 +30,7 @@ VS_OUT main(VS_IN Input)
 [PIXELSHADER]
 
 #define USE_NORMAL
+#define USE_TANGENT
 #define USE_TEXCOORD0
 #define USE_SIMPLE_MATERIAL_MODEL
 
@@ -37,10 +39,15 @@ VS_OUT main(VS_IN Input)
 
 Texture2D TexDiffuse;
 SamplerState TexDiffuseSampler;
+Texture2D TexNormal;
+SamplerState TexNormalSampler;
 
 float3 GetNormal(PS_IN Input)
 {
-	return Input.Normal;
+	//return Input.Normal;
+	float3 vNt = TexNormal.Sample(TexNormalSampler, Input.TexCoords.xy).rgb * 2 - 1;
+	float3 vNout = normalize( vNt.x * Input.Tangent + vNt.y * Input.BiTangent + vNt.z * Input.Normal );
+	return vNout * 0.5 + 0.5;
 }
 
 float3 GetBaseColor(PS_IN Input)

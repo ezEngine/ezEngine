@@ -6,6 +6,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <EditorFramework/Assets/AssetDocumentManager.h>
 
 ezHashingTask::ezHashingTask() : m_Result(EZ_FAILURE)
 {
@@ -268,6 +269,8 @@ ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
     uiHashResult += fileref.m_uiHash;
   }
 
+  // Add document manager version to add ability to invalidate all generated assets of a type.
+  uiHashResult += pInfo->m_pManager->GetDynamicRTTI()->GetTypeVersion();
   return uiHashResult;
 }
 

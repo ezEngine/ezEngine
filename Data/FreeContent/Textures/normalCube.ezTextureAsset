@@ -1,0 +1,34 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x5AC796243775BC408662D6C1A76D50BF" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Texture 2D",
+    "Dependencies" : "normalCube.tga",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0x5AC796243775BC408662D6C1A76D50BF" },
+    "Hash" : { "$t" : "uint64", "$v" : "17668122345356822876", "$b" : "0x5C8922D3A9C731F5" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xAB728988494F074383E1EA8957F4BBDD" },
+   "t" : "ezTextureAssetProperties",
+   "p" : {
+    "Depth" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Format" : "",
+    "Height" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Texture File" : "normalCube.tga",
+    "Type" : "ezTextureTypeEnum::Unknown",
+    "Usage" : "ezTextureUsageEnum::NormalMap",
+    "Width" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0xAB728988494F074383E1EA8957F4BBDD" } ]
+   }
+  } ]
+}

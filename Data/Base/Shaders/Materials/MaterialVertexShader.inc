@@ -19,7 +19,7 @@ VS_OUT FillVertexData(VS_IN Input)
 	#endif
 	
 	#if defined(USE_TANGENT)
-		float handednessCorrection = dot(Input.Tangent, Input.Tangent) - 2.0f;
+		float handednessCorrection = 2.0f - dot(Input.Tangent, Input.Tangent);
 		Output.Tangent = normalize(mul((float3x3)ObjectToWorldMatrix, Input.Tangent));
 		Output.BiTangent = cross(Output.Normal, Output.Tangent) * handednessCorrection;
 	#endif

@@ -194,4 +194,20 @@ EZ_FORCE_INLINE bool operator!= (const ezColor& c1, const ezColor& c2)
   return !c1.IsIdenticalRGBA(c2);
 }
 
+EZ_FORCE_INLINE bool operator<(const ezColor& c1, const ezColor& c2)
+{
+  if (c1.r < c2.r)
+    return true;
+  if (c1.r > c2.r)
+    return false;
+  if (c1.g < c2.g)
+    return true;
+  if (c1.g > c2.g)
+    return false;
+  if (c1.b < c2.b)
+    return true;
+  if (c1.b > c2.b)
+    return false;
 
+  return (c1.a < c2.a);
+}

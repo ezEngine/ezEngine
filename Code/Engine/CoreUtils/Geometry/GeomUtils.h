@@ -24,9 +24,13 @@ public:
 
     ezVec3 m_vPosition;
     ezVec3 m_vNormal;
+    ezVec3 m_vTangent;
     ezVec2 m_vTexCoord;
     ezColor m_Color;
     ezInt32 m_iCustomIndex;
+
+    bool operator< (const Vertex& rhs) const;
+    bool operator== (const Vertex& rhs) const;
   };
 
   /// \brief Each polygon has a face normal and a set of indices, which vertices it references.
@@ -80,6 +84,11 @@ public:
   /// This only yields smooth normals for vertices that are shared among multiple polygons, otherwise a vertex will have the same normal
   /// as the one face that it is used in.
   void ComputeSmoothVertexNormals();
+
+  /// \brief Computes tangents. This function can increase or reduce vertex count.
+  ///
+  /// The tangent generation is done by Morten S. Mikkelsen's tangent space generation code.
+  void ComputeTangents();
 
   /// \brief Changes the custom index for all vertices (starting at vertex \a uiFirstVertex).
   void SetAllVertexCustomIndex(ezInt32 iCustomIndex, ezUInt32 uiFirstVertex = 0);

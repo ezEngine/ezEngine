@@ -144,6 +144,7 @@ ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, con
       geom.AddTorus(pProp->m_fRadius, ezMath::Max(pProp->m_fRadius + 0.01f, pProp->m_fRadius2), ezMath::Max<ezUInt16>(3, pProp->m_uiDetail), ezMath::Max<ezUInt16>(3, pProp->m_uiDetail2), ezColor::White, mTrans);
     }
 
+    geom.ComputeTangents();
     CreateMeshFromGeom(pProp, geom, desc);
   }
 
@@ -163,6 +164,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(const ezMeshAssetProperties* pProp,
   desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
   desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
   desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
+  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
   desc.MeshBufferDesc().AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
   desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
@@ -192,7 +194,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(const ezMeshAssetProperties* pP
   {
     EZ_LOG_BLOCK("Importing Mesh", sMeshFileAbs.GetData());
 
-    scene = importer.ReadFile(sMeshFileAbs.GetData(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_PreTransformVertices);
+    scene = importer.ReadFile(sMeshFileAbs.GetData(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace);
 
     if (!scene)
     {
@@ -205,9 +207,10 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(const ezMeshAssetProperties* pP
 
   ezLog::Info("Number of unique Meshes: %u", scene->mNumMeshes);
 
-  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
-  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
+  const ezUInt32 uiPosStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+  const ezUInt32 uiTexStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
+  const ezUInt32 uiNormalStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
+  const ezUInt32 uiTangentStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
 
   ezUInt32 uiVertices = 0;
   ezUInt32 uiTriangles = 0;
@@ -257,7 +260,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(const ezMeshAssetProperties* pP
     ezUInt32 uiThisVertex = uiBaseVertex;
     for (ezUInt32 v = 0; v < mesh->mNumVertices; ++v, ++uiThisVertex)
     {
-      desc.MeshBufferDesc().SetVertexData(0, uiThisVertex, mTransformation.TransformDirection(ezVec3(mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z)));
+      desc.MeshBufferDesc().SetVertexData(uiPosStream, uiThisVertex, mTransformation.TransformDirection(ezVec3(mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z)));
     }
     uiCurVertex = uiThisVertex;
 
@@ -266,34 +269,46 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(const ezMeshAssetProperties* pP
     {
       for (ezUInt32 v = 0; v < mesh->mNumVertices; ++v, ++uiThisVertex)
       {
-        desc.MeshBufferDesc().SetVertexData(1, uiThisVertex, ezVec2(mesh->mTextureCoords[0][v].x, 1.0f - mesh->mTextureCoords[0][v].y));
+        desc.MeshBufferDesc().SetVertexData(uiTexStream, uiThisVertex, ezVec2(mesh->mTextureCoords[0][v].x, 1.0f - mesh->mTextureCoords[0][v].y));
       }
     }
     else
     {
       for (ezUInt32 v = 0; v < mesh->mNumVertices; ++v, ++uiThisVertex)
       {
-        desc.MeshBufferDesc().SetVertexData(1, uiThisVertex, ezVec2(0.0f, 0.0f));
+        desc.MeshBufferDesc().SetVertexData(uiTexStream, uiThisVertex, ezVec2(0.0f, 0.0f));
       }
     }
 
     uiThisVertex = uiBaseVertex;
-    if (mesh->mNormals)
+    if (mesh->mNormals && mesh->HasTangentsAndBitangents())
     {
       for (ezUInt32 v = 0; v < mesh->mNumVertices; ++v, ++uiThisVertex)
       {
         ezVec3 vNormal = ezVec3(mesh->mNormals[v].x, mesh->mNormals[v].y, mesh->mNormals[v].z);
+        ezVec3 vTangent = ezVec3(mesh->mTangents[v].x, mesh->mTangents[v].y, mesh->mTangents[v].z);
+        ezVec3 vBitangent = ezVec3(mesh->mBitangents[v].x, mesh->mBitangents[v].y, mesh->mBitangents[v].z);
         vNormal = mTransformation.TransformDirection(vNormal).GetNormalized();
-        desc.MeshBufferDesc().SetVertexData(2, uiThisVertex, vNormal);
+        vTangent = mTransformation.TransformDirection(vTangent).GetNormalized();
+        vBitangent = mTransformation.TransformDirection(vBitangent).GetNormalized();
+
+        ezVec3 vBitangentTest = vNormal.Cross(vTangent);
+        if (vBitangent.Dot(vBitangentTest) < 0.0f)
+        {
+          vTangent *= 1.7320508075688772935274463415059f; //ezMath::Root(3, 2)
+        }
+
+        desc.MeshBufferDesc().SetVertexData(uiNormalStream, uiThisVertex, vNormal);
+        desc.MeshBufferDesc().SetVertexData(uiTangentStream, uiThisVertex, vTangent);
       }
     }
     else
     {
       for (ezUInt32 v = 0; v < mesh->mNumVertices; ++v, ++uiThisVertex)
       {
-        desc.MeshBufferDesc().SetVertexData(2, uiThisVertex, ezVec3(0.0f, 1.0f, 0.0f));
+        desc.MeshBufferDesc().SetVertexData(uiNormalStream, uiThisVertex, ezVec3(0.0f, 1.0f, 0.0f));
+        desc.MeshBufferDesc().SetVertexData(uiTangentStream, uiThisVertex, ezVec3(1.0f, 0.0f, 0.0f));
       }
-
     }
   }
 

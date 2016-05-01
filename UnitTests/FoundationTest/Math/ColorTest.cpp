@@ -268,6 +268,31 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
       }
     }
 
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator< (ezColor, ezColor)")
+    {
+      for (int i = 0; i < 4; ++i)
+      {
+        for (int j = 0; j < 4; ++j)
+        {
+          if (i == j)
+          {
+            EZ_TEST_BOOL(!(compArray[i] < compArray[j]));
+            EZ_TEST_BOOL(!(compArray[j] < compArray[i]));
+          }
+          else if (i < j)
+          {
+            EZ_TEST_BOOL(!(compArray[i] < compArray[j]));
+            EZ_TEST_BOOL(compArray[j] < compArray[i]);
+          }
+          else
+          {
+            EZ_TEST_BOOL(!(compArray[j] < compArray[i]));
+            EZ_TEST_BOOL(compArray[i] < compArray[j]);
+          }
+        }
+      }
+    }
+
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator!= (ezColor, ezColor)")
     {
       EZ_TEST_BOOL(!(op1 != op1));

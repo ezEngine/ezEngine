@@ -1,5 +1,61 @@
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
+#include <ThirdParty/mikktspace/mikktspace.h>
+
+bool ezGeometry::Vertex::operator<(const ezGeometry::Vertex& rhs) const
+{
+  if (m_vPosition < rhs.m_vPosition)
+    return true;
+
+  if (m_vPosition == rhs.m_vPosition)
+  {
+    if (m_vNormal < rhs.m_vNormal)
+      return true;
+
+    if (m_vNormal == rhs.m_vNormal)
+    {
+      if (m_vTangent < rhs.m_vTangent)
+        return true;
+
+      if (m_vTangent == rhs.m_vTangent)
+      {
+        if (m_vTexCoord < rhs.m_vTexCoord)
+          return true;
+
+        if (m_vTexCoord == rhs.m_vTexCoord)
+        {
+          if (m_Color < rhs.m_Color)
+            return true;
+
+          if (m_Color == rhs.m_Color)
+          {
+            return m_iCustomIndex < rhs.m_iCustomIndex;
+          }
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+bool ezGeometry::Vertex::operator==(const ezGeometry::Vertex& rhs) const
+{
+  if (m_vPosition != rhs.m_vPosition)
+    return false;
+  if (m_vNormal != rhs.m_vNormal)
+    return false;
+  if (m_vTangent != rhs.m_vTangent)
+    return false;
+  if (m_vTexCoord != rhs.m_vTexCoord)
+    return false;
+  if (m_Color != rhs.m_Color)
+    return false;
+  if (m_iCustomIndex != rhs.m_iCustomIndex)
+    return false;
+
+  return true;
+}
 
 void ezGeometry::Polygon::FlipWinding()
 {
@@ -105,6 +161,102 @@ void ezGeometry::ComputeSmoothVertexNormals()
   {
     m_Vertices[v].m_vNormal.NormalizeIfNotZero(ezVec3(0, 1, 0));
   }
+}
+
+struct TangentContext
+{
+  TangentContext(ezGeometry* pGeom)
+    : m_pGeom(pGeom)
+  {
+    m_Polygons = m_pGeom->GetPolygons();
+  }
+
+  static int getNumFaces(const SMikkTSpaceContext* pContext)
+  {
+    TangentContext& context = *static_cast<TangentContext*>(pContext->m_pUserData);
+    return context.m_pGeom->GetPolygons().GetCount();
+  }
+  static int getNumVerticesOfFace(const SMikkTSpaceContext* pContext, const int iFace)
+  {
+    TangentContext& context = *static_cast<TangentContext*>(pContext->m_pUserData);
+    return context.m_pGeom->GetPolygons()[iFace].m_Vertices.GetCount();
+  }
+  static void getPosition(const SMikkTSpaceContext* pContext, float fvPosOut[], const int iFace, const int iVert)
+  {
+    TangentContext& context = *static_cast<TangentContext*>(pContext->m_pUserData);
+    ezUInt32 iVertexIndex = context.m_pGeom->GetPolygons()[iFace].m_Vertices[iVert];
+    const ezVec3& pos = context.m_pGeom->GetVertices()[iVertexIndex].m_vPosition;
+    fvPosOut[0] = pos.x;
+    fvPosOut[1] = pos.y;
+    fvPosOut[2] = pos.z;
+  }
+  static void getNormal(const SMikkTSpaceContext* pContext, float fvNormOut[], const int iFace, const int iVert)
+  {
+    TangentContext& context = *static_cast<TangentContext*>(pContext->m_pUserData);
+    ezUInt32 iVertexIndex = context.m_pGeom->GetPolygons()[iFace].m_Vertices[iVert];
+    const ezVec3& normal = context.m_pGeom->GetVertices()[iVertexIndex].m_vNormal;
+    fvNormOut[0] = normal.x;
+    fvNormOut[1] = normal.y;
+    fvNormOut[2] = normal.z;
+  }
+  static void getTexCoord(const SMikkTSpaceContext* pContext, float fvTexcOut[], const int iFace, const int iVert)
+  {
+    TangentContext& context = *static_cast<TangentContext*>(pContext->m_pUserData);
+    ezUInt32 iVertexIndex = context.m_pGeom->GetPolygons()[iFace].m_Vertices[iVert];
+    const ezVec2& tex = context.m_pGeom->GetVertices()[iVertexIndex].m_vTexCoord;
+    fvTexcOut[0] = tex.x;
+    fvTexcOut[1] = tex.y;
+  }
+  static void setTSpaceBasic(const SMikkTSpaceContext* pContext, const float fvTangent[], const float fSign, const int iFace, const int iVert)
+  {
+    TangentContext& context = *static_cast<TangentContext*>(pContext->m_pUserData);
+    ezUInt32 iVertexIndex = context.m_pGeom->GetPolygons()[iFace].m_Vertices[iVert];
+    ezGeometry::Vertex v = context.m_pGeom->GetVertices()[iVertexIndex];
+    v.m_vTangent.x = fvTangent[0];
+    v.m_vTangent.y = fvTangent[1];
+    v.m_vTangent.z = fvTangent[2];
+    if (fSign < 0)
+    {
+      v.m_vTangent *= 1.7320508075688772935274463415059f; //ezMath::Root(3, 2)
+    }
+
+    bool existed = false;
+    auto it = context.m_VertMap.FindOrAdd(v, &existed);
+    if (!existed)
+    {
+      it.Value() = context.m_Vertices.GetCount();
+      context.m_Vertices.PushBack(v);
+    }
+    ezUInt32 iNewVertexIndex = it.Value();
+    context.m_Polygons[iFace].m_Vertices[iVert] = iNewVertexIndex;
+  }
+
+
+  ezGeometry* m_pGeom;
+  ezMap<ezGeometry::Vertex, ezUInt32> m_VertMap;
+  ezDeque<ezGeometry::Vertex> m_Vertices;
+  ezDeque<ezGeometry::Polygon> m_Polygons;
+};
+
+void ezGeometry::ComputeTangents()
+{
+  SMikkTSpaceInterface sMikkTInterface;
+  sMikkTInterface.m_getNumFaces = &TangentContext::getNumFaces;
+  sMikkTInterface.m_getNumVerticesOfFace = &TangentContext::getNumVerticesOfFace;
+  sMikkTInterface.m_getPosition = &TangentContext::getPosition;
+  sMikkTInterface.m_getNormal = &TangentContext::getNormal;
+  sMikkTInterface.m_getTexCoord = &TangentContext::getTexCoord;
+  sMikkTInterface.m_setTSpaceBasic = &TangentContext::setTSpaceBasic;
+  sMikkTInterface.m_setTSpace = nullptr;
+  TangentContext context(this);
+
+  SMikkTSpaceContext sMikkTContext;
+  sMikkTContext.m_pInterface = &sMikkTInterface;
+  sMikkTContext.m_pUserData = &context;
+
+  genTangSpaceDefault(&sMikkTContext);
+  m_Polygons = std::move(context.m_Polygons);
+  m_Vertices = std::move(context.m_Vertices);
 }
 
 void ezGeometry::SetAllVertexCustomIndex(ezInt32 iCustomIndex, ezUInt32 uiFirstVertex)
@@ -1081,3 +1233,4 @@ void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSeg
 
 
 EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Geometry_Implementation_GeomUtils);
+

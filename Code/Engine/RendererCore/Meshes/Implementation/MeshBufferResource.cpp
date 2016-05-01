@@ -164,7 +164,17 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
       break;
     case ezGALVertexAttributeSemantic::Tangent:
       {
-        ezLog::Error("Tangent streams are not yet supported.");
+        if (si.m_Format == ezGALResourceFormat::XYZFloat)
+        {
+          for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
+          {
+            SetVertexData<ezVec3>(s, v, geom.GetVertices()[v].m_vTangent);
+          }
+        }
+        else
+        {
+          ezLog::Error("Tangent stream with format '%i' is not supported.", (int)si.m_Format);
+        }
       }
       break;
     case ezGALVertexAttributeSemantic::Color:

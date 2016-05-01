@@ -31,6 +31,7 @@ SET (LINK_LIBRARIES
   EditorFramework
   ToolsFoundation
 
+  ThirdParty
   Core
   System
   RendererFoundation
