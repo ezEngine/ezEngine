@@ -112,10 +112,8 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   // fill out some data
   pNewObject->m_InternalId = newId;
   pNewObject->m_Flags = desc.m_Flags;
-  pNewObject->m_sName = desc.m_sName;
   pNewObject->m_pWorld = this;
   pNewObject->m_ParentIndex = uiParentIndex;
-
 
   pNewObject->m_uiHierarchyLevel = uiHierarchyLevel;
   pNewObject->m_uiTransformationDataIndex = uiTransformationDataIndex;
@@ -146,6 +144,9 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
 
   // fix links
   LinkToParent(pNewObject);
+
+  // insert into name table
+  SetObjectName(pNewObject, desc.m_sName);
 
   out_pObject = pNewObject;
   return newId;
@@ -181,6 +182,12 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& object)
 
   // fix parent and siblings
   UnlinkFromParent(pObject);
+
+  // remove from name table
+  if (!pObject->m_sName.IsEmpty())
+  {
+    EZ_VERIFY(m_Data.m_NameToIdTable.Remove(pObject->m_sName.GetHash()), "Implementation error.");
+  }
 
   // invalidate and remove from id table
   pObject->m_InternalId.Invalidate();
@@ -434,6 +441,26 @@ void ezWorld::UnlinkFromParent(ezGameObject* pObject)
 
     // Note that the sibling indices must not be set to 0 here. 
     // They are still needed if we currently iterate over child objects.
+  }
+}
+
+void ezWorld::SetObjectName(ezGameObject* pObject, const ezHashedString& sName)
+{
+  if (!pObject->m_sName.IsEmpty())
+  {
+    m_Data.m_NameToIdTable.Remove(pObject->m_sName.GetHash());
+  }
+
+  pObject->m_sName = sName;
+
+  if (!sName.IsEmpty())
+  {
+    ezGameObjectId oldId;
+    if (m_Data.m_NameToIdTable.Insert(sName.GetHash(), pObject->m_InternalId, &oldId))
+    {
+      ezLog::Warning("An object with name '%s' (id: %d) already existed. TryGetObjectWithName will now return the new object with id: %d.",
+        sName.GetData(), oldId.m_Data, pObject->m_InternalId.m_Data);
+    }
   }
 }
 

@@ -83,8 +83,7 @@ namespace ezInternal
     void UpdateGlobalTransforms(float fInvDeltaSeconds);
 
     // game object lookups
-    /// \todo
-    //ezHashTable<ezUInt64, ezGameObjectId, ezHashHelper<ezUInt64>, ezLocalAllocatorWrapper> m_PersistentToInternalTable;
+    ezHashTable<ezUInt32, ezGameObjectId, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_NameToIdTable;
 
     // component manager
     ezDynamicArray<ezComponentManagerBase*, ezLocalAllocatorWrapper> m_ComponentManagers;

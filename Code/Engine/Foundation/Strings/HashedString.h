@@ -102,6 +102,9 @@ public:
   /// \brief Returns the hash of the stored string.
   ezUInt32 GetHash() const; // [tested]
 
+  /// \brief Returns whether the string is empty.
+  bool IsEmpty() const;
+
   /// \brief Returns a string view to this string's data.
   operator ezStringView() const { return GetString(); }
 

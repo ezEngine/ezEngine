@@ -107,6 +107,11 @@ void ezGameObject::Deactivate()
   }
 }
 
+void ezGameObject::SetName(const ezHashedString& sName)
+{
+  m_pWorld->SetObjectName(this, sName);
+}
+
 void ezGameObject::SetParent(const ezGameObjectHandle& parent, ezGameObject::TransformPreservation preserve)
 {
   ezGameObject* pParent = nullptr;

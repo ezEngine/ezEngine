@@ -101,7 +101,9 @@ EZ_FORCE_INLINE bool ezGameObject::IsActive() const
 
 EZ_FORCE_INLINE void ezGameObject::SetName(const char* szName)
 {
-  m_sName.Assign(szName);
+  ezHashedString sName;
+  sName.Assign(szName);
+  SetName(sName);
 }
 
 EZ_FORCE_INLINE const char* ezGameObject::GetName() const

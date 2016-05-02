@@ -78,7 +78,7 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
       DepthStencilTexDesc.m_uiHeight = SwapChainDesc.BufferDesc.Height;
       DepthStencilTexDesc.m_Format = m_Description.m_DepthStencilBufferFormat;
       DepthStencilTexDesc.m_SampleCount = m_Description.m_SampleCount;
-      DepthStencilTexDesc.m_bAllowShaderResourceView = false;
+      DepthStencilTexDesc.m_bAllowShaderResourceView = true;
       DepthStencilTexDesc.m_bCreateRenderTarget = true;
       m_hDepthStencilBufferTexture = pDXDevice->CreateTexture(DepthStencilTexDesc, nullptr);
       EZ_ASSERT_RELEASE(!m_hDepthStencilBufferTexture.IsInvalidated(), "Couldn't create depth-stencil texture object!");

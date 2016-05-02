@@ -19,9 +19,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectedObjectsExtractor, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCallDelegateExtractor, 1, ezRTTIDefaultAllocator<ezCallDelegateExtractor>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
 void ezExtractor::SetName(const char* szName)
 {
   m_sName.Assign(szName);
@@ -92,14 +89,4 @@ void ezSelectedObjectsExtractor::Extract(const ezView& view, ezExtractedRenderDa
 
     pObject->SendMessage(msg);
   }
-}
-
-ezCallDelegateExtractor::ezCallDelegateExtractor()
-{
-
-}
-
-void ezCallDelegateExtractor::Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData)
-{
-  m_Delegate();
 }

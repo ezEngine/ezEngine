@@ -52,8 +52,8 @@ public:
   /// \brief Returns if an object with the given handle exists and if so writes out the corresponding pointer to out_pObject.
   bool TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject) const;
   
-  /// \brief Returns if an object with the given name exists and if so writes out the corresponding pointer to the first object with that name to out_pObject.
-  // bool TryGetObjectWithName(const char* szName, ezGameObject*& out_pObject) const;  
+  /// \brief Returns if an object with the given name exists and if so writes out the corresponding pointer to the object with that name to out_pObject.
+  bool TryGetObjectWithName(const ezTempHashedString& sName, ezGameObject*& out_pObject) const;  
 
 
   /// \brief Returns the total number of objects in this world.
@@ -200,6 +200,8 @@ private:
   void SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameObject::TransformPreservation preserve = ezGameObject::TransformPreservation::PreserveGlobal);
   void LinkToParent(ezGameObject* pObject);
   void UnlinkFromParent(ezGameObject* pObject);
+
+  void SetObjectName(ezGameObject* pObject, const ezHashedString& sName);
 
   void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
 

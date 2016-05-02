@@ -36,6 +36,19 @@ EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, ezG
   return bResult;
 }
 
+EZ_FORCE_INLINE bool ezWorld::TryGetObjectWithName(const ezTempHashedString& sName, ezGameObject*& out_pObject) const
+{
+  CheckForReadAccess();
+  ezGameObjectId id;
+  if (m_Data.m_NameToIdTable.TryGetValue(sName.GetHash(), id))
+  {
+    out_pObject = m_Data.m_Objects[id].m_Ptr;
+    return true;
+  }
+
+  return false;
+}
+
 EZ_FORCE_INLINE ezUInt32 ezWorld::GetObjectCount() const
 {
   CheckForReadAccess();

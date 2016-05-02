@@ -31,14 +31,17 @@ struct VS_IN
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
-Texture2D DepthTexture;
-SamplerState DepthTextureSampler;
+Texture2D SelectionDepthTexture;
+SamplerState SelectionDepthTextureSampler;
+
+Texture2D SceneDepthTexture;
+SamplerState SceneDepthTextureSampler;
 
 float4 main(VS_IN Input) : SV_Target
 {
 	float2 invScreenSize = 1.0f / Viewport.zw;
 	float2 coords = Input.Position.xy * invScreenSize;
-	float depth = DepthTexture.SampleLevel(DepthTextureSampler, coords, 0.0f).r;
+	float depth = SelectionDepthTexture.SampleLevel(SelectionDepthTextureSampler, coords, 0.0f).r;
 	
 	float3 selectionColor = float3(0.4, 0.55, 1);
 	
@@ -64,7 +67,7 @@ float4 main(VS_IN Input) : SV_Target
 					continue;
 				
 				float2 currentCoords = coords + float2(x, y) * invScreenSize;
-				float currentDepth = DepthTexture.SampleLevel(DepthTextureSampler, currentCoords, 0.0f).r;
+				float currentDepth = SelectionDepthTexture.SampleLevel(SelectionDepthTextureSampler, currentCoords, 0.0f).r;
 				
 				if (currentDepth != 1.0f)
 				{
@@ -86,6 +89,12 @@ float4 main(VS_IN Input) : SV_Target
 	}
 	else
 	{
+		float sceneDepth = SceneDepthTexture.SampleLevel(SceneDepthTextureSampler, coords, 0.0f).r;
+		if (sceneDepth < depth)
+		{
+			discard;
+		}
+		
 		return float4(selectionColor, 0.1);
 	}
 }

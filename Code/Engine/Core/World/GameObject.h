@@ -110,8 +110,8 @@ public:
   /// \brief Returns whether this object is active.
   bool IsActive() const;
 
-
   void SetName(const char* szName);
+  void SetName(const ezHashedString& sName);
   const char* GetName() const;
 
   /// \brief Defines during re-parenting what transform is going to be preserved.

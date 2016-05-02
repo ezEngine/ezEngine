@@ -46,14 +46,3 @@ public:
   virtual const ezDeque<ezGameObjectHandle>* GetSelection() = 0;
   ezRenderData::Category m_OverrideCategory;
 };
-
-class EZ_RENDERERCORE_DLL ezCallDelegateExtractor : public ezExtractor
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezCallDelegateExtractor, ezExtractor);
-public:
-  ezCallDelegateExtractor();
-
-  virtual void Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData) override;
-
-  ezDelegate<void ()> m_Delegate;
-};

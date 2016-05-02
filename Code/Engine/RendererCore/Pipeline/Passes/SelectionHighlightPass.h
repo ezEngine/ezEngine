@@ -18,6 +18,7 @@ public:
 
 protected:
   ezPassThroughNodePin m_PinColor;
+  ezPassThroughNodePin m_PinDepthStencil;
 
   ezGALSamplerStateHandle m_hSamplerState;
   ezShaderResourceHandle m_hShader;

@@ -387,13 +387,28 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     EZ_TEST_BOOL(world1.TryGetObject(hObj1, pObj1));
     EZ_TEST_BOOL(pObj1 != nullptr);
 
+    pObj1 = nullptr;
+    EZ_TEST_BOOL(world1.TryGetObjectWithName(ezTempHashedString("Obj1"), pObj1));
+    EZ_TEST_BOOL(!world1.TryGetObjectWithName(ezTempHashedString("Obj2"), pObj1));
+    EZ_TEST_BOOL(pObj1 != nullptr);
+
     ezGameObject* pObj2 = nullptr;
     EZ_TEST_BOOL(world2.TryGetObject(hObj2, pObj2));
     EZ_TEST_BOOL(pObj2 != nullptr);
 
+    pObj2 = nullptr;
+    EZ_TEST_BOOL(world2.TryGetObjectWithName(ezTempHashedString("Obj2"), pObj2));
+    EZ_TEST_BOOL(!world2.TryGetObjectWithName(ezTempHashedString("Obj1"), pObj2));
+    EZ_TEST_BOOL(pObj2 != nullptr);
+
+    pObj2->SetName("Deschd");
+    EZ_TEST_BOOL(world2.TryGetObjectWithName(ezTempHashedString("Deschd"), pObj2));
+    EZ_TEST_BOOL(!world2.TryGetObjectWithName(ezTempHashedString("Obj2"), pObj2));
+
     world2.DeleteObjectNow(hObj2);
 
     EZ_TEST_BOOL(!world2.IsValidObject(hObj2));
+    EZ_TEST_BOOL(!world2.TryGetObjectWithName(ezTempHashedString("Deschd"), pObj2));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Custom coordinate system")

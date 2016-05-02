@@ -317,23 +317,18 @@ ezRenderPipelineResourceHandle ezSceneViewContext::CreateEditorRenderPipeline()
   }
 
   EZ_VERIFY(pRenderPipeline->Connect(pEditorRenderPass, "Color", pSelectionHighlightPass, "Color"), "Connect failed!");
-  EZ_VERIFY(pRenderPipeline->Connect(pEditorRenderPass, "DepthStencil", pSimplePass, "DepthStencil"), "Connect failed!");
-
+  EZ_VERIFY(pRenderPipeline->Connect(pEditorRenderPass, "DepthStencil", pSelectionHighlightPass, "DepthStencil"), "Connect failed!");
+  
   EZ_VERIFY(pRenderPipeline->Connect(pSelectionHighlightPass, "Color", pSimplePass, "Color"), "Connect failed!");
+  EZ_VERIFY(pRenderPipeline->Connect(pSelectionHighlightPass, "DepthStencil", pSimplePass, "DepthStencil"), "Connect failed!");
 
   EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "Color", pTargetPass, "Color0"), "Connect failed!");
   EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "DepthStencil", pTargetPass, "DepthStencil"), "Connect failed!");
 
-  //m_pPickingRenderPass->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneViewContext::RenderPassEventHandler, this));
-
   ezUniquePtr<ezEditorSelectedObjectsExtractor> pExtractorSelection = EZ_DEFAULT_NEW(ezEditorSelectedObjectsExtractor);
   pExtractorSelection->SetName("EditorSelectedObjectsExtractor");
 
-  //ezUniquePtr<ezCallDelegateExtractor> pExtractorShapeIcons = EZ_DEFAULT_NEW(ezCallDelegateExtractor);
-  //pExtractorShapeIcons->m_Delegate = ezMakeDelegate(&ezSceneContext::GenerateShapeIconMesh, m_pSceneContext);
-
   pRenderPipeline->AddExtractor(std::move(pExtractorSelection));
-  //pRenderPipeline->AddExtractor(std::move(pExtractorShapeIcons));
   pRenderPipeline->AddExtractor(EZ_DEFAULT_NEW(ezVisibleObjectsExtractor));
 
   ezRenderPipelineResourceDescriptor desc;
