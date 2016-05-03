@@ -164,7 +164,7 @@ struct ezImageConversionMixinLinear : ezImageConversionMixinBase<Impl>
     if (bAlignmentMatches)
     {
       // Convert element-wise until we reach alignment
-      const ezUInt32 uiLeadInElements = uiLeadInSource / uiSourceBytesPerPixel;
+      const ezUInt32 uiLeadInElements = ezMath::Min(uiLeadInSource / uiSourceBytesPerPixel, uiElements);
       for (ezUInt32 uiElement = 0; uiElement < uiLeadInElements; uiElement++)
       {
         Impl::ConvertSingle(

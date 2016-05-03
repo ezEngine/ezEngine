@@ -28,7 +28,9 @@
 /// \todo Reading (compressed) TGA very slow
 /// \todo Integrate with texture asset
 /// \todo Write thumbnail to additional location
-
+/// \todo 2D Texture Arrays
+/// \todo Normalmap flag (mipmaps?)
+/// \todo sRGB auto detection
 
 /**** Usage ****
 
