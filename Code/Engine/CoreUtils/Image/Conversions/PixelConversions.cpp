@@ -182,9 +182,9 @@ public:
 ezColorLinearUB ezDecompress565(ezUInt16 uiColor)
 {
   ezColorLinearUB result;
-  result.r = (uiColor & 0xF800u) * 255 / 63488;
+  result.b = (uiColor & 0xF800u) * 255 / 63488;
   result.g = (uiColor & 0x07E0u) * 255 / 2016;
-  result.b = (uiColor & 0x001Fu) * 255 / 31;
+  result.r = (uiColor & 0x001Fu) * 255 / 31;
   result.a = 0xFF;
   return result;
 }
