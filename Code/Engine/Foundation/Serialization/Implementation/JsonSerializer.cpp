@@ -19,9 +19,47 @@ struct CompareConstChar
   }
 };
 
-void ezAbstractGraphJsonSerializer::Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph, ezStandardJSONWriter::WhitespaceMode mode)
+static void WriteGraph(ezExtendedJSONWriter &writer, const ezAbstractObjectGraph* pGraph, const char* szName)
 {
+  ezMap<const char*, const ezVariant*, CompareConstChar> SortedProperties;
+
+  writer.BeginArray(szName);
+
   const auto& Nodes = pGraph->GetAllNodes();
+  for (auto itNode = Nodes.GetIterator(); itNode.IsValid(); ++itNode)
+  {
+    writer.BeginObject();
+    {
+      const auto& node = *itNode.Value();
+
+      writer.AddVariableUuid("#", node.GetGuid());
+      writer.AddVariableString("t", node.GetType());
+
+      if (node.GetNodeName() != nullptr)
+        writer.AddVariableString("n", node.GetNodeName());
+
+      writer.BeginObject("p");
+      {
+        for (const auto& prop : node.GetProperties())
+          SortedProperties[prop.m_szPropertyName] = &prop.m_Value;
+
+        for (auto it = SortedProperties.GetIterator(); it.IsValid(); ++it)
+        {
+          writer.AddVariableVariant(it.Key(), *it.Value());
+        }
+
+        SortedProperties.Clear();
+      }
+      writer.EndObject();
+    }
+    writer.EndObject();
+  }
+
+  writer.EndArray();
+}
+
+void ezAbstractGraphJsonSerializer::Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph, ezStandardJSONWriter::WhitespaceMode mode)
+{
 
   ezExtendedJSONWriter writer;
   writer.SetOutputStream(&stream);
@@ -29,67 +67,34 @@ void ezAbstractGraphJsonSerializer::Write(ezStreamWriter& stream, const ezAbstra
 
   writer.BeginObject();
   {
-    ezMap<const char*, const ezVariant*, CompareConstChar> SortedProperties;
-
-    writer.BeginArray("Objects");
-
-    for (auto itNode = Nodes.GetIterator(); itNode.IsValid(); ++itNode)
+    WriteGraph(writer, pGraph, "Objects");
+    if (pTypesGraph)
     {
-      writer.BeginObject();
-      {
-        const auto& node = *itNode.Value();
-
-        writer.AddVariableUuid("#", node.GetGuid());
-        writer.AddVariableString("t", node.GetType());
-
-        if (node.GetNodeName() != nullptr)
-          writer.AddVariableString("n", node.GetNodeName());
-
-        writer.BeginObject("p");
-        {
-          for (const auto& prop : node.GetProperties())
-            SortedProperties[prop.m_szPropertyName] = &prop.m_Value;
-
-          for (auto it = SortedProperties.GetIterator(); it.IsValid(); ++it)
-          {
-            writer.AddVariableVariant(it.Key(), *it.Value());
-          }
-
-          SortedProperties.Clear();
-        }
-        writer.EndObject();
-      }
-      writer.EndObject();
+      WriteGraph(writer, pTypesGraph, "Types");
     }
-
-    writer.EndArray();
   }
   writer.EndObject();
 }
 
 
-void ezAbstractGraphJsonSerializer::Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph)
+
+static void ReadGraph(ezExtendedJSONReader &reader, ezAbstractObjectGraph* pGraph, const char* szName)
 {
-  ezExtendedJSONReader reader;
-  reader.SetLogInterface(ezGlobalLog::GetOrCreateInstance());
-  reader.Parse(stream);
-
   ezVariant* pObjects;
-
-  if (!reader.GetTopLevelObject().TryGetValue("Objects", pObjects))
+  if (!reader.GetTopLevelObject().TryGetValue(szName, pObjects))
   {
-    EZ_REPORT_FAILURE("JSON file does not contain an 'Objects' node at root level");
+    EZ_REPORT_FAILURE("JSON file does not contain an '%s' node at root level", szName);
     return;
   }
 
-  EZ_ASSERT_DEV(pObjects->IsA<ezVariantArray>(), "'Objects' node is not of type array");
+  EZ_ASSERT_DEV(pObjects->IsA<ezVariantArray>(), "'%s' node is not of type array", szName);
 
   const ezVariantArray& ObjArray = pObjects->Get<ezVariantArray>();
 
   for (const auto& object : ObjArray)
   {
-    EZ_ASSERT_DEV(object.IsA<ezVariantDictionary>(), "'Objects' array contains elements that are not dictionaries");
-    
+    EZ_ASSERT_DEV(object.IsA<ezVariantDictionary>(), "'%s' array contains elements that are not dictionaries", szName);
+
     const auto& ObjDict = object.Get<ezVariantDictionary>();
 
     ezVariant* pGuid = nullptr;
@@ -102,9 +107,9 @@ void ezAbstractGraphJsonSerializer::Read(ezStreamReader& stream, ezAbstractObjec
     ObjDict.TryGetValue("n", pNodeName);
 
     if (pGuid == nullptr || pType == nullptr || pProp == nullptr ||
-        !pGuid->IsA<ezUuid>() || !pType->IsA<ezString>() || !pProp->IsA<ezVariantDictionary>())
+      !pGuid->IsA<ezUuid>() || !pType->IsA<ezString>() || !pProp->IsA<ezVariantDictionary>())
     {
-      EZ_REPORT_FAILURE("'Objects' array contains invalid elements");
+      EZ_REPORT_FAILURE("'%s' array contains invalid elements", szName);
       continue;
     }
 
@@ -113,19 +118,28 @@ void ezAbstractGraphJsonSerializer::Read(ezStreamReader& stream, ezAbstractObjec
       szNodeName = pNodeName->Get<ezString>();
 
     auto* pNode = pGraph->AddNode(pGuid->Get<ezUuid>(), pType->Get<ezString>(), szNodeName);
-    
+
     const ezVariantDictionary& Properties = pProp->Get<ezVariantDictionary>();
     for (auto propIt = Properties.GetIterator(); propIt.IsValid(); ++propIt)
     {
       pNode->AddProperty(propIt.Key(), propIt.Value());
     }
-
   }
 }
 
+void ezAbstractGraphJsonSerializer::Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph)
+{
+  ezExtendedJSONReader reader;
+  reader.SetLogInterface(ezGlobalLog::GetOrCreateInstance());
+  reader.Parse(stream);
 
+  ReadGraph(reader, pGraph, "Objects");
+  if (pTypesGraph && reader.GetTopLevelObject().Contains("Types"))
+  {
+    ReadGraph(reader, pTypesGraph, "Types");
+  }
 
-
+  return;
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_JsonSerializer);
-

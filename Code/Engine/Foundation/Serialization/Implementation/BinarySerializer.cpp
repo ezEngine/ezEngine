@@ -1,7 +1,8 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Serialization/BinarySerializer.h>
 
-void ezAbstractGraphBinarySerializer::Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph)
+
+static void WriteGraph(const ezAbstractObjectGraph* pGraph, ezStreamWriter& stream)
 {
   const auto& Nodes = pGraph->GetAllNodes();
 
@@ -25,8 +26,16 @@ void ezAbstractGraphBinarySerializer::Write(ezStreamWriter& stream, const ezAbst
   }
 }
 
+void ezAbstractGraphBinarySerializer::Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph)
+{
+  WriteGraph(pGraph, stream);
+  if (pTypesGraph)
+  {
+    WriteGraph(pTypesGraph, stream);
+  }
+}
 
-void ezAbstractGraphBinarySerializer::Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph)
+static void ReadGraph(ezStreamReader& stream, ezAbstractObjectGraph* pGraph)
 {
   ezUInt32 iNodes = 0;
   stream >> iNodes;
@@ -52,9 +61,13 @@ void ezAbstractGraphBinarySerializer::Read(ezStreamReader& stream, ezAbstractObj
   }
 }
 
-
-
-
+void ezAbstractGraphBinarySerializer::Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph)
+{
+  ReadGraph(stream, pGraph);
+  if (pTypesGraph)
+  {
+    ReadGraph(stream, pTypesGraph);
+  }
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_BinarySerializer);
-

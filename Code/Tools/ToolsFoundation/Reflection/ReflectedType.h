@@ -33,7 +33,9 @@ struct EZ_TOOLSFOUNDATION_DLL ezPhantomTypeChange
 struct EZ_TOOLSFOUNDATION_DLL ezReflectedPropertyDescriptor
 {
   ezReflectedPropertyDescriptor() {}
+  ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezVariant::Type::Enum type, ezBitflags<ezPropertyFlags> flags);
   ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezVariant::Type::Enum type, ezBitflags<ezPropertyFlags> flags, const ezArrayPtr<ezPropertyAttribute* const> attributes); // [tested]
+  /// \brief Initialize to a constant.
   ezReflectedPropertyDescriptor(const char* szName, ezVariant::Type::Enum type, const ezVariant& constantValue, const ezArrayPtr<ezPropertyAttribute* const> attributes); // [tested]
   ezReflectedPropertyDescriptor(const ezReflectedPropertyDescriptor& rhs);
   ~ezReflectedPropertyDescriptor();
@@ -74,7 +76,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedTypeDescriptor
   ezString m_sTypeName;
   ezString m_sPluginName;
   ezString m_sParentTypeName;
-  ezString m_sDefaultInitialization;
+
   ezBitflags<ezTypeFlags> m_Flags;
   ezDynamicArray<ezReflectedPropertyDescriptor> m_Properties;
   mutable ezHybridArray<ezPropertyAttribute*, 2> m_Attributes;

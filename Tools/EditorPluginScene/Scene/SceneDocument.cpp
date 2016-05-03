@@ -213,7 +213,7 @@ void ezSceneDocument::DuplicateSpecial()
   ezMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter memoryWriter(&streamStorage);
 
-  ezAbstractGraphJsonSerializer::Write(memoryWriter, &graph, ezJSONWriter::WhitespaceMode::LessIndentation);
+  ezAbstractGraphJsonSerializer::Write(memoryWriter, &graph, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
   memoryWriter.WriteBytes("\0", 1); // null terminate
 
   ezDuplicateObjectsCommand cmd;
@@ -286,7 +286,7 @@ void ezSceneDocument::DuplicateSelection()
   ezMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter memoryWriter(&streamStorage);
 
-  ezAbstractGraphJsonSerializer::Write(memoryWriter, &graph, ezJSONWriter::WhitespaceMode::LessIndentation);
+  ezAbstractGraphJsonSerializer::Write(memoryWriter, &graph, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
   memoryWriter.WriteBytes("\0", 1); // null terminate
 
   ezDuplicateObjectsCommand cmd;

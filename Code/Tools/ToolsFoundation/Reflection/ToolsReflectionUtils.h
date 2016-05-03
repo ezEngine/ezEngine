@@ -38,5 +38,8 @@ public:
   /// Read-only properties are not written out, as they cannot be restored anyway.
   static void WriteObjectToJSON(bool bSerializeOwnerPtrs, ezStreamWriter& stream, const ezDocumentObject* pObject, ezJSONWriter::WhitespaceMode WhitespaceMode = ezJSONWriter::WhitespaceMode::None);
 
+  static void GatherObjectTypes(const ezDocumentObject* pObject, ezSet<const ezRTTI*>& inout_types, bool bOnlyPhantomTypes = true);
+
+  static bool DependencySortTypeDescriptorArray(ezDynamicArray<ezReflectedTypeDescriptor*>& descriptors);
 
 };

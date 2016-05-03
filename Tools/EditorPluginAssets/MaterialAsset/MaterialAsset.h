@@ -2,13 +2,33 @@
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 
+class ezMaterialAssetDocument;
+
 class ezMaterialAssetProperties : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMaterialAssetProperties, ezReflectedClass);
 
 public:
-  ezMaterialAssetProperties() {}
+  ezMaterialAssetProperties() : m_pDocument(nullptr) {}
 
+  void SetBaseMaterial(const char* szBaseMaterial);
+  const char* GetBaseMaterial() const;
+  void SetShader(const char* szShader);
+  const char* GetShader() const;
+  void SetShaderProperties(ezReflectedClass* pProperties);
+  ezReflectedClass* GetShaderProperties() const;
+
+  void SetDocument(ezMaterialAssetDocument* pDocument);
+  void UpdateShader();
+
+  void DeleteProperties();
+  void CreateProperties(const char* szShaderPath);
+
+  void SaveOldValues();
+  void LoadOldValues();
+  const ezRTTI* UpdateShaderType(const char* szShaderPath);
+
+public:
   ezString m_sBaseMaterial;
   ezString m_sShader;
   ezString m_sPermutationVarValues;
@@ -16,9 +36,7 @@ public:
   ezString m_sTextureMask;
   ezString m_sTextureNormal;
 
-
-private:
-
+  ezMaterialAssetDocument* m_pDocument;
 };
 
 class ezMaterialAssetDocument : public ezSimpleAssetDocument<ezMaterialAssetProperties>
@@ -34,7 +52,11 @@ public:
 
   virtual ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const;
 
+  ezDocumentObject* GetShaderPropertyObject();
+
 protected:
+  virtual void InitializeAfterLoading() override;
+
   virtual ezUInt16 GetAssetTypeVersion() const override { return 1; }
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform) override;

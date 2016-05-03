@@ -300,7 +300,98 @@ void ezToolsReflectionUtils::WriteObjectToJSON(bool bSerializeOwnerPtrs, ezStrea
 
   ezAbstractObjectNode* pNode = conv.AddObjectToGraph(pObject, "root");
 
-  ezAbstractGraphJsonSerializer::Write(stream, &graph, ezJSONWriter::WhitespaceMode::LessIndentation);
+  ezAbstractGraphJsonSerializer::Write(stream, &graph, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
+}
+
+
+static void GatherObjectTypesInternal(const ezDocumentObject* pObject, ezSet<const ezRTTI*>& inout_types)
+{
+  inout_types.Insert(pObject->GetTypeAccessor().GetType());
+  ezReflectionUtils::GatherDependentTypes(pObject->GetTypeAccessor().GetType(), inout_types);
+
+  for (const ezDocumentObject* pChild : pObject->GetChildren())
+  {
+    GatherObjectTypesInternal(pChild, inout_types);
+  }
+}
+
+void ezToolsReflectionUtils::GatherObjectTypes(const ezDocumentObject* pObject, ezSet<const ezRTTI*>& inout_types, bool bOnlyPhantomTypes)
+{
+  if (!bOnlyPhantomTypes)
+  {
+    GatherObjectTypesInternal(pObject, inout_types);
+    return;
+  }
+
+  ezSet<const ezRTTI*> types;
+  GatherObjectTypesInternal(pObject, types);
+
+  for (const ezRTTI* pType : types)
+  {
+    if (pType->GetTypeFlags().IsSet(ezTypeFlags::Phantom))
+    {
+      inout_types.Insert(pType);
+    }
+  }
+}
+
+bool ezToolsReflectionUtils::DependencySortTypeDescriptorArray(ezDynamicArray<ezReflectedTypeDescriptor*>& descriptors)
+{
+  ezMap<ezReflectedTypeDescriptor*, ezSet<ezString> > dependencies;
+
+  ezSet<ezString> typesInArray;
+  // Gather all types in array
+  for (ezReflectedTypeDescriptor* desc : descriptors)
+  {
+    typesInArray.Insert(desc->m_sTypeName);
+  }
+
+  // Find all direct dependencies to types in the array for each type.
+  for (ezReflectedTypeDescriptor* desc : descriptors)
+  {
+    auto it = dependencies.Insert(desc, ezSet<ezString>());
+    
+    if (typesInArray.Contains(desc->m_sParentTypeName))
+    {
+      it.Value().Insert(desc->m_sParentTypeName);
+    }
+    for (ezReflectedPropertyDescriptor& propDesc : desc->m_Properties)
+    {
+      if (typesInArray.Contains(propDesc.m_sType))
+      {
+        it.Value().Insert(propDesc.m_sType);
+      }
+    }
+  }
+
+  ezSet<ezString> accu;
+  ezDynamicArray<ezReflectedTypeDescriptor*> sorted;
+  sorted.Reserve(descriptors.GetCount());
+  // Build new sorted types array.
+  while (!descriptors.IsEmpty())
+  {
+    bool bDeadEnd = true;
+    for (ezReflectedTypeDescriptor* desc : descriptors)
+    {
+      // Are the types dependencies met?
+      if (accu.Contains(dependencies[desc]))
+      {
+        sorted.PushBack(desc);
+        bDeadEnd = false;
+        descriptors.Remove(desc);
+        accu.Insert(desc->m_sTypeName);
+        break;
+      }
+    }
+
+    if (bDeadEnd)
+    {
+      return false;
+    }
+  }
+
+  descriptors = sorted;
+  return true;
 }
 
 

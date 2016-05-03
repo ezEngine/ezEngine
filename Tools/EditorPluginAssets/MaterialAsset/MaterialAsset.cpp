@@ -6,13 +6,18 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <CoreUtils/Image/Image.h>
+#include <ToolsFoundation/CommandHistory/CommandHistory.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 1, ezRTTIDefaultAllocator<ezMaterialAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Base Material", m_sBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("Material")),
-    EZ_MEMBER_PROPERTY("Shader", m_sShader)->AddAttributes(new ezFileBrowserAttribute("Select Shader", "*.ezShader")),
+    EZ_ACCESSOR_PROPERTY("Base Material", GetBaseMaterial, SetBaseMaterial)->AddAttributes(new ezAssetBrowserAttribute("Material")),
+    EZ_ACCESSOR_PROPERTY("Shader", GetShader, SetShader)->AddAttributes(new ezFileBrowserAttribute("Select Shader", "*.ezShader")),
+    // This property holds the phantom shader properties type so it is only used in the object graph but not actually in the instance of this object.
+    EZ_ACCESSOR_PROPERTY("ShaderProperties", GetShaderProperties, SetShaderProperties)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezContainerAttribute(false, false, false)),
+
     EZ_MEMBER_PROPERTY("Permutations", m_sPermutationVarValues),
     EZ_MEMBER_PROPERTY("Diffuse Texture", m_sTextureDiffuse)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
     EZ_MEMBER_PROPERTY("Mask Texture", m_sTextureMask)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
@@ -25,13 +30,225 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+
+void ezMaterialAssetProperties::SetBaseMaterial(const char* szBaseMaterial)
+{
+  m_sBaseMaterial = szBaseMaterial;
+  UpdateShader();
+}
+
+const char* ezMaterialAssetProperties::GetBaseMaterial() const
+{
+  return m_sBaseMaterial;
+}
+
+void ezMaterialAssetProperties::SetShader(const char* szShader)
+{
+  m_sShader = szShader;
+  UpdateShader();
+}
+
+const char* ezMaterialAssetProperties::GetShader() const
+{
+  return m_sShader;
+}
+
+void ezMaterialAssetProperties::SetShaderProperties(ezReflectedClass* pProperties)
+{
+  // This property represents the phantom shader type, so it is never actually used.
+}
+
+ezReflectedClass* ezMaterialAssetProperties::GetShaderProperties() const
+{
+  // This property represents the phantom shader type, so it is never actually used.
+  return nullptr;
+}
+
+void ezMaterialAssetProperties::SetDocument(ezMaterialAssetDocument* pDocument)
+{
+  m_pDocument = pDocument;
+  UpdateShader();
+}
+
+
+void ezMaterialAssetProperties::UpdateShader()
+{
+  // If no doc is present, we are de-serializing the document so do nothing yet.
+  if (!m_pDocument)
+    return;
+  ezCommandHistory* pHistory = m_pDocument->GetCommandHistory();
+  // Do not make new commands if we got here in a response to an undo / redo action.
+  if (pHistory->IsInUndoRedo())
+    return;
+
+  // If we update due to the doc being loaded we are not in a transaction so we open one here
+  // the undo stack will be cleared after loading to our patch-up won't show up in the undo history.
+  bool bOpenedTransaction = false;
+  if (!pHistory->IsInTransaction())
+  {
+    bOpenedTransaction = true;
+    pHistory->StartTransaction();
+  }
+
+  ezDocumentObject* pPropObject = m_pDocument->GetShaderPropertyObject();
+
+  // TODO: If m_sShader is empty, we need to get the shader of our base material and use that one instead
+  // for the code below. The type name is the clean path to the shader at the moment.
+  ezStringBuilder sShaderPath = m_sShader;
+  sShaderPath.MakeCleanPath();
+
+  if (sShaderPath.IsEmpty())
+  {
+    // No shader, delete any existing properties object.
+    if (pPropObject)
+    {
+      DeleteProperties();
+    }
+  }
+  else
+  {
+    if (pPropObject)
+    {
+      // We already have a shader properties object, test whether
+      // it has a different type than the newly set shader. The type name
+      // is the clean path to the shader at the moment.
+      const ezRTTI* pType = pPropObject->GetTypeAccessor().GetType();
+
+      if (sShaderPath != pType->GetTypeName())
+      {
+        // Shader has changed, delete old and create new one.
+        DeleteProperties();
+        CreateProperties(sShaderPath);
+      }
+      else
+      {
+        // Same shader but it could have changed so try to update it anyway.
+        UpdateShaderType(sShaderPath);
+      }
+    }
+
+    if (!pPropObject)
+    {
+      // No shader properties exist yet, so create a new one.
+      CreateProperties(sShaderPath);
+    }
+  }
+
+  if (bOpenedTransaction)
+  {
+    pHistory->FinishTransaction();
+  }
+}
+
+void ezMaterialAssetProperties::DeleteProperties()
+{
+  SaveOldValues();
+  ezCommandHistory* pHistory = m_pDocument->GetCommandHistory();
+  ezDocumentObject* pPropObject = m_pDocument->GetShaderPropertyObject();
+  ezRemoveObjectCommand cmd;
+  cmd.m_Object = pPropObject->GetGuid();
+  auto res = pHistory->AddCommand(cmd);
+  EZ_ASSERT_DEV(res.m_Result.Succeeded(), "Removal of old properties should never fail.");
+}
+
+void ezMaterialAssetProperties::CreateProperties(const char* szShaderPath)
+{
+  ezCommandHistory* pHistory = m_pDocument->GetCommandHistory();
+
+  const ezRTTI* pType = ezRTTI::FindTypeByName(szShaderPath);
+
+  if (!pType)
+  {
+    pType = UpdateShaderType(szShaderPath);
+  }
+
+  if (pType)
+  {
+    ezAddObjectCommand cmd;
+    cmd.m_pType = pType;
+    cmd.m_sParentProperty = "ShaderProperties";
+    cmd.m_Parent = m_pDocument->GetPropertyObject()->GetGuid();
+
+    auto res = pHistory->AddCommand(cmd);
+    EZ_ASSERT_DEV(res.m_Result.Succeeded(), "Addition of new properties should never fail.");
+    LoadOldValues();
+  }
+}
+
+void ezMaterialAssetProperties::SaveOldValues()
+{
+  // TODO: Cache old properties so they can be migrated to the new shader's properties.
+}
+
+void ezMaterialAssetProperties::LoadOldValues()
+{
+  // TODO:
+}
+
+const ezRTTI* ezMaterialAssetProperties::UpdateShaderType(const char* szShaderPath)
+{
+  ezReflectedTypeDescriptor desc;
+  desc.m_sTypeName = szShaderPath;
+  desc.m_sPluginName = "ShaderTypes";
+  desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
+  desc.m_Flags = ezTypeFlags::Phantom;
+  desc.m_uiTypeSize = 0;
+  desc.m_uiTypeVersion = 1;
+
+  // TODO: Read the actual shader at 'szShaderPath' and retrieve it's properties.
+  {
+    ezReflectedPropertyDescriptor propDesc(ezPropertyCategory::Member, "TexDiffuse", ezGetStaticRTTI<ezString>()->GetTypeName(), ezVariant::Type::String, ezPropertyFlags::StandardType | ezPropertyFlags::Phantom);
+    propDesc.m_Attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture 2D"));
+    desc.m_Properties.PushBack(propDesc);
+  }
+  {
+    ezReflectedPropertyDescriptor propDesc(ezPropertyCategory::Member, "TexAlphaMask", ezGetStaticRTTI<ezString>()->GetTypeName(), ezVariant::Type::String, ezPropertyFlags::StandardType | ezPropertyFlags::Phantom);
+    propDesc.m_Attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture 2D"));
+    desc.m_Properties.PushBack(propDesc);
+  }
+  {
+    ezReflectedPropertyDescriptor propDesc(ezPropertyCategory::Member, "TexNormal", ezGetStaticRTTI<ezString>()->GetTypeName(), ezVariant::Type::String, ezPropertyFlags::StandardType | ezPropertyFlags::Phantom);
+    propDesc.m_Attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture 2D"));
+    desc.m_Properties.PushBack(propDesc);
+  }
+
+  // Register and return the phantom type. If the type already exists this will update the type
+  // and patch any existing instances of it so they should show up in the prop grid right away.
+  const ezRTTI* pShaderType = ezPhantomRttiManager::RegisterType(desc);
+  return pShaderType;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 ezMaterialAssetDocument::ezMaterialAssetDocument(const char* szDocumentPath) : ezSimpleAssetDocument<ezMaterialAssetProperties>(szDocumentPath)
 {
+}
+
+void ezMaterialAssetDocument::InitializeAfterLoading()
+{
+  ezSimpleAssetDocument<ezMaterialAssetProperties>::InitializeAfterLoading();
+  GetProperties()->SetDocument(this);
+  // The above command may patch the doc with the newest shader properties so we need to clear the undo history here.
+  GetCommandHistory()->ClearUndoHistory();
+  SetModified(false);
 }
 
 ezBitflags<ezAssetDocumentFlags> ezMaterialAssetDocument::GetAssetFlags() const
 {
   return ezAssetDocumentFlags::AutoTransformOnSave;
+}
+
+ezDocumentObject* ezMaterialAssetDocument::GetShaderPropertyObject()
+{
+  ezDocumentObject* pObject = GetObjectManager()->GetRootObject()->GetChildren()[0];
+  ezIReflectedTypeAccessor& accessor = pObject->GetTypeAccessor();
+  ezUuid propObjectGuid = accessor.GetValue("ShaderProperties").ConvertTo<ezUuid>();
+  ezDocumentObject* pPropObject = nullptr;
+  if (propObjectGuid.IsValid())
+  {
+    pPropObject = GetObjectManager()->GetObject(propObjectGuid);
+  }
+  return pPropObject;
 }
 
 void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
@@ -194,4 +411,3 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
   return ezStatus(EZ_SUCCESS);
 }
-

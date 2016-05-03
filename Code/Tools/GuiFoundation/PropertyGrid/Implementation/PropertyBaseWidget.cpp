@@ -191,8 +191,12 @@ void ezQtPropertyPointerWidget::OnInit()
   m_pGrid->SetCollapseState(m_pGroup);
   connect(m_pGroup, &ezCollapsibleGroupBox::CollapseStateChanged, m_pGrid, &ezPropertyGridWidget::OnCollapseStateChanged);
 
-  m_pAddButton->Init(m_pGrid, m_pProp, m_PropertyPath);
+  // Add Buttons
+  auto pAttr = m_pProp->GetAttributeByType<ezContainerAttribute>();
+  m_pAddButton->setVisible(!pAttr || pAttr->CanAdd());
+  m_pDeleteButton->setVisible(!pAttr || pAttr->CanDelete());
 
+  m_pAddButton->Init(m_pGrid, m_pProp, m_PropertyPath);
   m_pGrid->GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyPointerWidget::StructureEventHandler, this));
 }
 
@@ -229,8 +233,11 @@ void ezQtPropertyPointerWidget::SetSelection(const ezHybridArray<Selection, 8>& 
     }
   }
 
-  m_pAddButton->setVisible(!emptyItems.IsEmpty());
-  m_pDeleteButton->setVisible(!subItems.IsEmpty());
+  auto pAttr = m_pProp->GetAttributeByType<ezContainerAttribute>();
+  if (!pAttr || pAttr->CanAdd())
+    m_pAddButton->setVisible(!emptyItems.IsEmpty());
+  if (!pAttr || pAttr->CanDelete())
+    m_pDeleteButton->setVisible(!subItems.IsEmpty());
 
   if (!emptyItems.IsEmpty())
   {

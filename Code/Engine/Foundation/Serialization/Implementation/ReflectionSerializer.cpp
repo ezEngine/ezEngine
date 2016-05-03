@@ -20,7 +20,7 @@ void ezReflectionSerializer::WriteObjectToJSON(ezStreamWriter& stream, const ezR
   context.RegisterObject(guid, pRtti, const_cast<void*>(pObject));
   ezAbstractObjectNode* pNode = conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
 
-  ezAbstractGraphJsonSerializer::Write(stream, &graph, ezJSONWriter::WhitespaceMode::LessIndentation);
+  ezAbstractGraphJsonSerializer::Write(stream, &graph, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
 }
 
 void ezReflectionSerializer::WriteObjectToBinary(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject)

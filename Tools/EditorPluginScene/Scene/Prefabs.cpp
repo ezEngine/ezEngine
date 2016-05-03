@@ -235,13 +235,13 @@ void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid
       {
         ezFileWriter file;
         file.Open("D:\\Prefab - org.txt");
-        ezAbstractGraphJsonSerializer::Write(file, &graphCurrentInstance, ezJSONWriter::WhitespaceMode::LessIndentation);
+        ezAbstractGraphJsonSerializer::Write(file, &graphCurrentInstance, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
       }
 
       {
         ezFileWriter file2;
         file2.Open("D:\\Prefab - template.txt");
-        ezAbstractGraphJsonSerializer::Write(file2, &graphNewPrefab, ezJSONWriter::WhitespaceMode::LessIndentation);
+        ezAbstractGraphJsonSerializer::Write(file2, &graphNewPrefab, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
       }
     }
 
@@ -293,7 +293,7 @@ void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid
       ezMemoryStreamStorage stor;
       ezMemoryStreamWriter sw(&stor);
 
-      ezAbstractGraphJsonSerializer::Write(sw, &graphNewPrefab, ezJSONWriter::WhitespaceMode::LessIndentation);
+      ezAbstractGraphJsonSerializer::Write(sw, &graphNewPrefab, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
 
       ezStringBuilder sNewGraph;
       sNewGraph.SetSubString_ElementCount((const char*)stor.GetData(), stor.GetStorageSize());

@@ -420,7 +420,9 @@ void ezDocumentObjectMirror::ApplyOp(ezObjectChange& change)
   if (change.m_Root.IsValid())
   {
     object = m_pContext->GetObjectByGUID(change.m_Root);
-    EZ_ASSERT_DEV(object.m_pObject != nullptr, "Root objext does not exist in mirrored native object!");
+    if (!object.m_pObject)
+      return;
+    //EZ_ASSERT_DEV(object.m_pObject != nullptr, "Root objext does not exist in mirrored native object!");
   }
   RetrieveObject(object, change, change.m_Steps);
 }
@@ -449,6 +451,12 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
       const ezAbstractObjectNode* pNode = graph.GetNodeByName("Object");
 
       void* pValue = reader.CreateObjectFromNode(pNode);
+      if (!pValue)
+      {
+        // Can't create object, exiting.
+        return;
+      }
+
       if (!change.m_Root.IsValid())
       {
         // Create without parent (root element)

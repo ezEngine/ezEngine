@@ -50,7 +50,7 @@ void TestSerialize(T* pObject)
     ezMemoryStreamWriter writer(&storage);
     ezMemoryStreamReader reader(&storage);
 
-    ezAbstractGraphJsonSerializer::Write(writer, &graph, ezJSONWriter::WhitespaceMode::All);
+    ezAbstractGraphJsonSerializer::Write(writer, &graph, nullptr, ezJSONWriter::WhitespaceMode::All);
 
     ezStringBuilder sData, sData2;
     sData.SetSubString_ElementCount((const char*)storage.GetData(), storage.GetStorageSize());
@@ -70,7 +70,7 @@ void TestSerialize(T* pObject)
     ezMemoryStreamStorage storage2;
     ezMemoryStreamWriter writer2(&storage2);
 
-    ezAbstractGraphJsonSerializer::Write(writer2, &graph2, ezJSONWriter::WhitespaceMode::All);
+    ezAbstractGraphJsonSerializer::Write(writer2, &graph2, nullptr, ezJSONWriter::WhitespaceMode::All);
     sData2.SetSubString_ElementCount((const char*)storage2.GetData(), storage2.GetStorageSize());
 
     EZ_TEST_BOOL(sData == sData2);

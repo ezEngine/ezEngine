@@ -52,6 +52,13 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedPropertyDescriptor, ezNoBase, 1, ezRTT
 }
 EZ_END_STATIC_REFLECTED_TYPE
 
+
+ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezVariant::Type::Enum type, ezBitflags<ezPropertyFlags> flags)
+  : m_Category(category), m_sName(szName), m_sType(szType), m_Flags(flags)
+{
+
+}
+
 ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezVariant::Type::Enum type, ezBitflags<ezPropertyFlags> flags, const ezArrayPtr<ezPropertyAttribute* const> attributes)
   : m_Category(category), m_sName(szName), m_sType(szType), m_Flags(flags)
 {
@@ -131,7 +138,6 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedTypeDescriptor, ezNoBase, 1, ezRTTIDef
     EZ_MEMBER_PROPERTY("TypeName", m_sTypeName),
     EZ_MEMBER_PROPERTY("PluginName", m_sPluginName),
     EZ_MEMBER_PROPERTY("ParentTypeName", m_sParentTypeName),
-    EZ_MEMBER_PROPERTY("DefaultInitialization", m_sDefaultInitialization),
     EZ_BITFLAGS_MEMBER_PROPERTY("Flags", ezTypeFlags, m_Flags),
     EZ_ARRAY_MEMBER_PROPERTY("Properties", m_Properties),
     EZ_ARRAY_ACCESSOR_PROPERTY("Attributes", GetCount, GetValue, SetValue, Insert, Remove)->AddFlags(ezPropertyFlags::PointerOwner),

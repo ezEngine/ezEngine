@@ -14,8 +14,10 @@ void* ezRttiConverterReader::CreateObjectFromNode(const ezAbstractObjectNode* pN
   EZ_ASSERT_DEV(pRtti != nullptr, "RTTI type '%s' is unknown", pNode->GetType());
 
   void* pObject = m_pContext->CreateObject(pNode->GetGuid(), pRtti);
-
-  ApplyPropertiesToObject(pNode, pRtti, pObject);
+  if (pObject)
+  {
+    ApplyPropertiesToObject(pNode, pRtti, pObject);
+  }
   return pObject;
 }
 

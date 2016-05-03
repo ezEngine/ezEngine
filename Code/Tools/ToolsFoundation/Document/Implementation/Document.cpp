@@ -158,17 +158,34 @@ ezStatus ezDocument::InternalSaveDocument()
   }
 
   ezAbstractObjectGraph graph;
-  ezRttiConverterContext context;
-  ezRttiConverterWriter rttiConverter(&graph, &context, true, true);
-  ezDocumentObjectConverterWriter objectConverter(&graph, GetObjectManager(), true, true);
-  context.RegisterObject(GetGuid(), m_pDocumentInfo->GetDynamicRTTI(), m_pDocumentInfo);
+  {
+    ezRttiConverterContext context;
+    ezRttiConverterWriter rttiConverter(&graph, &context, true, true);
+    ezDocumentObjectConverterWriter objectConverter(&graph, GetObjectManager(), true, true);
+    context.RegisterObject(GetGuid(), m_pDocumentInfo->GetDynamicRTTI(), m_pDocumentInfo);
 
-  rttiConverter.AddObjectToGraph(m_pDocumentInfo, "Header");
-  objectConverter.AddObjectToGraph(GetObjectManager()->GetRootObject(), "ObjectTree");
+    rttiConverter.AddObjectToGraph(m_pDocumentInfo, "Header");
+    objectConverter.AddObjectToGraph(GetObjectManager()->GetRootObject(), "ObjectTree");
 
-  AttachMetaDataBeforeSaving(graph);
+    AttachMetaDataBeforeSaving(graph);
+  }
+  ezAbstractObjectGraph typesGraph;
+  {
+    ezRttiConverterContext context;
+    ezRttiConverterWriter rttiConverter(&typesGraph, &context, true, true);
 
-  ezAbstractGraphJsonSerializer::Write(file, &graph, ezJSONWriter::WhitespaceMode::LessIndentation);
+    ezSet<const ezRTTI*> types;
+    ezToolsReflectionUtils::GatherObjectTypes(GetObjectManager()->GetRootObject(), types);
+    for (const ezRTTI* pType : types)
+    {
+      ezReflectedTypeDescriptor desc;
+      ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pType, desc);
+
+      context.RegisterObject(ezUuid::StableUuidForString(pType->GetTypeName()), ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
+      rttiConverter.AddObjectToGraph(ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
+    }
+  }
+  ezAbstractGraphJsonSerializer::Write(file, &graph, &typesGraph, ezJSONWriter::WhitespaceMode::LessIndentation);
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -182,7 +199,35 @@ ezStatus ezDocument::InternalLoadDocument()
   }
 
   ezAbstractObjectGraph graph;
-  ezAbstractGraphJsonSerializer::Read(file, &graph);
+  ezAbstractObjectGraph typesGraph;
+  ezAbstractGraphJsonSerializer::Read(file, &graph, &typesGraph);
+
+  {
+    // Deserialize and register serialized phantom types.
+    ezString sDescTypeName = ezGetStaticRTTI<ezReflectedTypeDescriptor>()->GetTypeName();
+    ezDynamicArray<ezReflectedTypeDescriptor*> descriptors;
+    auto& nodes = typesGraph.GetAllNodes();
+    descriptors.Reserve(nodes.GetCount()); // Overkill but doesn't matter much as it's just temporary.
+    ezRttiConverterContext context;
+    ezRttiConverterReader rttiConverter(&typesGraph, &context);
+
+    for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
+    {
+      if (it.Value()->GetType() == sDescTypeName)
+      {
+        descriptors.PushBack(static_cast<ezReflectedTypeDescriptor*>(rttiConverter.CreateObjectFromNode(it.Value())));
+      }
+    }
+    ezToolsReflectionUtils::DependencySortTypeDescriptorArray(descriptors);
+    for (ezReflectedTypeDescriptor* desc : descriptors)
+    {
+      if (!ezRTTI::FindTypeByName(desc->m_sTypeName))
+      {
+        ezPhantomRttiManager::RegisterType(*desc);
+      }
+      ezGetStaticRTTI<ezReflectedTypeDescriptor>()->GetAllocator()->Deallocate(desc);
+    }
+  }
 
   ezRttiConverterContext context;
   ezRttiConverterReader rttiConverter(&graph, &context);
@@ -190,6 +235,8 @@ ezStatus ezDocument::InternalLoadDocument()
 
   auto* pHeaderNode = graph.GetNodeByName("Header");
   rttiConverter.ApplyPropertiesToObject(pHeaderNode, m_pDocumentInfo->GetDynamicRTTI(), m_pDocumentInfo);
+
+
 
   auto* pRootNode = graph.GetNodeByName("ObjectTree");
   objectConverter.ApplyPropertiesToObject(pRootNode, GetObjectManager()->GetRootObject());
