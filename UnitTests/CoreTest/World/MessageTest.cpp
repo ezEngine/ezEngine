@@ -16,6 +16,11 @@ namespace
   {
     EZ_DECLARE_MESSAGE_TYPE(TestMessage2);
 
+    virtual ezInt32 GetSortingKey() const override
+    {
+      return 2;
+    }
+
     int m_iValue;
   };
 

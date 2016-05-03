@@ -493,6 +493,11 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
       if (a.m_MetaData.m_Due != b.m_MetaData.m_Due)
         return a.m_MetaData.m_Due < b.m_MetaData.m_Due;
 
+      const ezInt32 iKeyA = a.m_pMessage->GetSortingKey();
+      const ezInt32 iKeyB = b.m_pMessage->GetSortingKey();
+      if (iKeyA != iKeyB)
+        return iKeyA < iKeyB;
+
       if (a.m_pMessage->GetId() != b.m_pMessage->GetId())
         return a.m_pMessage->GetId() < b.m_pMessage->GetId();
 

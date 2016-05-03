@@ -19,6 +19,9 @@ public:
   /// \brief Returns a copy of this allocated with the given allocator. This method is automatically implemented by adding EZ_DECLARE_MESSAGE_TYPE.
   virtual ezMessage* Clone(ezAllocatorBase* pAllocator) const = 0;
 
+  /// \brief Derived message types can override this method to influence sorting order. Smaller keys are processed first.
+  virtual ezInt32 GetSortingKey() const { return 0; }
+
   //virtual void Serialize(ezStreamWriter& stream) const;
   //virtual ezResult Deserialize(ezStreamReader& stream);
 
