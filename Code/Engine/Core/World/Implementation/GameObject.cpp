@@ -7,6 +7,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
+    EZ_ACCESSOR_PROPERTY("GlobalKey", GetGlobalKey, SetGlobalKey),
     EZ_ACCESSOR_PROPERTY("LocalPosition", GetLocalPosition, SetLocalPosition),
     EZ_ACCESSOR_PROPERTY("LocalRotation", GetLocalRotation, SetLocalRotation),
     EZ_ACCESSOR_PROPERTY("LocalScaling", GetLocalScaling, SetLocalScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f, 1.0f, 1.0f))),
@@ -107,9 +108,14 @@ void ezGameObject::Deactivate()
   }
 }
 
-void ezGameObject::SetName(const ezHashedString& sName)
+void ezGameObject::SetGlobalKey(const ezHashedString& sName)
 {
-  m_pWorld->SetObjectName(this, sName);
+  m_pWorld->SetObjectGlobalKey(this, sName);
+}
+
+const char* ezGameObject::GetGlobalKey() const
+{
+  return m_pWorld->GetObjectGlobalKey(this);
 }
 
 void ezGameObject::SetParent(const ezGameObjectHandle& parent, ezGameObject::TransformPreservation preserve)

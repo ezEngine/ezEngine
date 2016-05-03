@@ -348,6 +348,8 @@ bool ezRenderPipeline::SortPasses()
       }
     }
 
+    done.PushBack(pPass);
+
     // Check for usable candidates. Reverse order for depth first traversal.
     for (ezInt32 i = (ezInt32)candidates.GetCount() - 1; i >= 0; i--)
     {
@@ -358,8 +360,6 @@ bool ezRenderPipeline::SortPasses()
         candidates.RemoveAt(i);
       }
     }
-
-    done.PushBack(pPass);
   }
 
   if (done.GetCount() < m_Passes.GetCount())

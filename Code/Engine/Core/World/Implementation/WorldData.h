@@ -83,7 +83,8 @@ namespace ezInternal
     void UpdateGlobalTransforms(float fInvDeltaSeconds);
 
     // game object lookups
-    ezHashTable<ezUInt32, ezGameObjectId, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_NameToIdTable;
+    ezHashTable<ezUInt32, ezGameObjectId, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_GlobalKeyToIdTable;
+    ezHashTable<ezUInt32, ezHashedString, ezHashHelper<ezUInt32>, ezLocalAllocatorWrapper> m_IdToGlobalKeyTable;
 
     // component manager
     ezDynamicArray<ezComponentManagerBase*, ezLocalAllocatorWrapper> m_ComponentManagers;

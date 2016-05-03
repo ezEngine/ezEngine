@@ -114,6 +114,8 @@ public:
 
   void CopyTextureReadbackResult(ezGALTextureHandle hTexture, const ezArrayPtr<ezGALSystemMemoryDescription>* pData);
 
+  void Flush();
+
   // Debug helper functions
 
   void PushMarker(const char* Marker);
@@ -225,6 +227,8 @@ protected:
 
   /// \todo add parameters for mip level & count selection?
   virtual void CopyTextureReadbackResultPlatform(ezGALTexture* pTexture, const ezArrayPtr<ezGALSystemMemoryDescription>* pData) = 0;
+
+  virtual void FlushPlatform() = 0;
 
   // Debug helper functions
 

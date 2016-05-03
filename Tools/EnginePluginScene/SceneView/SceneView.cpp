@@ -318,9 +318,9 @@ ezRenderPipelineResourceHandle ezSceneViewContext::CreateEditorRenderPipeline()
 
   EZ_VERIFY(pRenderPipeline->Connect(pEditorRenderPass, "Color", pSelectionHighlightPass, "Color"), "Connect failed!");
   EZ_VERIFY(pRenderPipeline->Connect(pEditorRenderPass, "DepthStencil", pSelectionHighlightPass, "DepthStencil"), "Connect failed!");
+  EZ_VERIFY(pRenderPipeline->Connect(pEditorRenderPass, "DepthStencil", pSimplePass, "DepthStencil"), "Connect failed!");
   
-  EZ_VERIFY(pRenderPipeline->Connect(pSelectionHighlightPass, "Color", pSimplePass, "Color"), "Connect failed!");
-  EZ_VERIFY(pRenderPipeline->Connect(pSelectionHighlightPass, "DepthStencil", pSimplePass, "DepthStencil"), "Connect failed!");
+  EZ_VERIFY(pRenderPipeline->Connect(pSelectionHighlightPass, "Color", pSimplePass, "Color"), "Connect failed!");  
 
   EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "Color", pTargetPass, "Color0"), "Connect failed!");
   EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "DepthStencil", pTargetPass, "DepthStencil"), "Connect failed!");

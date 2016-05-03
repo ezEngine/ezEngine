@@ -502,6 +502,12 @@ void ezGALContextDX11::CopyTextureReadbackResultPlatform(ezGALTexture* pTexture,
   }
 }
 
+
+void ezGALContextDX11::FlushPlatform()
+{
+  FlushDeferredStateChanges();
+}
+
 // Debug helper functions
 
 void ezGALContextDX11::PushMarkerPlatform(const char* szMarker)

@@ -635,6 +635,14 @@ void ezGALContext::CopyTextureReadbackResult(ezGALTextureHandle hTexture, const 
   }
 }
 
+
+void ezGALContext::Flush()
+{
+  AssertRenderingThread();
+
+  FlushPlatform();
+}
+
 // Debug helper functions
 
 void ezGALContext::PushMarker(const char* Marker)

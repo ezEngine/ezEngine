@@ -36,11 +36,11 @@ EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, ezG
   return bResult;
 }
 
-EZ_FORCE_INLINE bool ezWorld::TryGetObjectWithName(const ezTempHashedString& sName, ezGameObject*& out_pObject) const
+EZ_FORCE_INLINE bool ezWorld::TryGetObjectWithGlobalKey(const ezTempHashedString& sGlobalKey, ezGameObject*& out_pObject) const
 {
   CheckForReadAccess();
   ezGameObjectId id;
-  if (m_Data.m_NameToIdTable.TryGetValue(sName.GetHash(), id))
+  if (m_Data.m_GlobalKeyToIdTable.TryGetValue(sGlobalKey.GetHash(), id))
   {
     out_pObject = m_Data.m_Objects[id].m_Ptr;
     return true;

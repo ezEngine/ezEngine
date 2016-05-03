@@ -110,9 +110,15 @@ public:
   /// \brief Returns whether this object is active.
   bool IsActive() const;
 
+  /// \brief Sets the name to identify this object. Does not have to be a unique name.
   void SetName(const char* szName);
   void SetName(const ezHashedString& sName);
   const char* GetName() const;
+
+  /// \brief Sets the global key to identify this object. Global keys must be unique within a world.
+  void SetGlobalKey(const char* szGlobalKey);
+  void SetGlobalKey(const ezHashedString& sGlobalKey);
+  const char* GetGlobalKey() const;
 
   /// \brief Defines during re-parenting what transform is going to be preserved.
   enum class TransformPreservation

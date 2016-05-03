@@ -112,6 +112,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   // fill out some data
   pNewObject->m_InternalId = newId;
   pNewObject->m_Flags = desc.m_Flags;
+  pNewObject->m_sName = desc.m_sName;
   pNewObject->m_pWorld = this;
   pNewObject->m_ParentIndex = uiParentIndex;
 
@@ -144,9 +145,6 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
 
   // fix links
   LinkToParent(pNewObject);
-
-  // insert into name table
-  SetObjectName(pNewObject, desc.m_sName);
 
   out_pObject = pNewObject;
   return newId;
@@ -183,11 +181,8 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& object)
   // fix parent and siblings
   UnlinkFromParent(pObject);
 
-  // remove from name table
-  if (!pObject->m_sName.IsEmpty())
-  {
-    EZ_VERIFY(m_Data.m_NameToIdTable.Remove(pObject->m_sName.GetHash()), "Implementation error.");
-  }
+  // remove from global key tables
+  SetObjectGlobalKey(pObject, ezHashedString());
 
   // invalidate and remove from id table
   pObject->m_InternalId.Invalidate();
@@ -444,24 +439,49 @@ void ezWorld::UnlinkFromParent(ezGameObject* pObject)
   }
 }
 
-void ezWorld::SetObjectName(ezGameObject* pObject, const ezHashedString& sName)
+void ezWorld::SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sGlobalKey)
 {
-  if (!pObject->m_sName.IsEmpty())
+  if (m_Data.m_GlobalKeyToIdTable.Contains(sGlobalKey.GetHash()))
   {
-    m_Data.m_NameToIdTable.Remove(pObject->m_sName.GetHash());
+    ezLog::Error("Can't set global key to '%s' because an object with this global key already exists. Global key have to be unique.", sGlobalKey.GetData());
+    return;
   }
 
-  pObject->m_sName = sName;
+  const ezUInt32 uiId = pObject->m_InternalId.m_Data;
 
-  if (!sName.IsEmpty())
+  // Remove existing entry first.
+  ezHashedString* pOldGlobalKey;
+  if (m_Data.m_IdToGlobalKeyTable.TryGetValue(uiId, pOldGlobalKey))
   {
-    ezGameObjectId oldId;
-    if (m_Data.m_NameToIdTable.Insert(sName.GetHash(), pObject->m_InternalId, &oldId))
+    if (sGlobalKey == *pOldGlobalKey)
     {
-      ezLog::Warning("An object with name '%s' (id: %d) already existed. TryGetObjectWithName will now return the new object with id: %d.",
-        sName.GetData(), oldId.m_Data, pObject->m_InternalId.m_Data);
+      return;
     }
+
+    EZ_VERIFY(m_Data.m_GlobalKeyToIdTable.Remove(pOldGlobalKey->GetHash()), "Implementation error.");
+    EZ_VERIFY(m_Data.m_IdToGlobalKeyTable.Remove(uiId), "Implementation error.");
   }
+
+  // Insert new one if key is valid.
+  if (!sGlobalKey.IsEmpty())
+  {
+    m_Data.m_GlobalKeyToIdTable.Insert(sGlobalKey.GetHash(), pObject->m_InternalId);
+    m_Data.m_IdToGlobalKeyTable.Insert(uiId, sGlobalKey);
+  }
+}
+
+
+const char* ezWorld::GetObjectGlobalKey(const ezGameObject* pObject) const
+{
+  const ezUInt32 uiId = pObject->m_InternalId.m_Data;
+
+  ezHashedString* pGlobalKey;
+  if (m_Data.m_IdToGlobalKeyTable.TryGetValue(uiId, pGlobalKey))
+  {
+    return pGlobalKey->GetData();
+  }
+
+  return "";
 }
 
 void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)

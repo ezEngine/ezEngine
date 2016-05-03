@@ -129,6 +129,8 @@ protected:
 
   virtual void CopyTextureReadbackResultPlatform(ezGALTexture* pTexture, const ezArrayPtr<ezGALSystemMemoryDescription>* pData) override;
 
+  virtual void FlushPlatform() override;
+
   // Debug helper functions
 
   virtual void PushMarkerPlatform(const char* szMarker) override;

@@ -49,10 +49,9 @@ bool ezSelectionHighlightPass::GetRenderTargetDescriptions(const ezView& view, c
   ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   // Color
-  if (inputs[m_PinColor.m_uiInputIndex] && inputs[m_PinDepthStencil.m_uiInputIndex])
+  if (inputs[m_PinColor.m_uiInputIndex])
   {
     outputs[m_PinColor.m_uiOutputIndex] = *inputs[m_PinColor.m_uiInputIndex];
-    outputs[m_PinDepthStencil.m_uiOutputIndex] = *inputs[m_PinDepthStencil.m_uiInputIndex];
     return true;
   }
 
@@ -125,6 +124,11 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
     renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SceneDepthTexture", pDevice->GetDefaultResourceView(pDepthInput->m_TextureHandle), m_hSamplerState);
     
     renderViewContext.m_pRenderContext->DrawMeshBuffer();
+
+    // Prevent shader resource hazard in DX11
+    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SceneDepthTexture", ezGALResourceViewHandle(), ezGALSamplerStateHandle());
+    renderViewContext.m_pRenderContext->ApplyContextStates();
+    pGALContext->Flush();
 
     ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(hDepthTexture);
   }  
