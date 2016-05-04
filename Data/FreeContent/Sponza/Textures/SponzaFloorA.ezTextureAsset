@@ -7,7 +7,7 @@
     "AssetType" : "Texture 2D",
     "Dependencies" : "Sponza/Textures/sponza_floor_a_diff.dds",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x21739CD2E382814692640BEA85FD9E76" },
-    "Hash" : { "$t" : "uint64", "$v" : "4827416261129347695", "$b" : "0x6F228F43836DFE42" }
+    "Hash" : { "$t" : "uint64", "$v" : "12533413699794768817", "$b" : "0xB11348E75AA1EFAD" }
    }
   },
   {
@@ -31,7 +31,7 @@
     "Input 5" : "",
     "Input 6" : "",
     "Mipmaps" : true,
-    "Usage" : "ezTextureUsageEnum::NormalMap"
+    "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   } ],
  "Types" : [  ]

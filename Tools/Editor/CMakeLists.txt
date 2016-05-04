@@ -44,6 +44,7 @@ SET (ADDITIONAL_DEPENDENCIES
   EditorPluginFmod
   PhysXPlugin
   FmodPlugin
+  TexConv
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)

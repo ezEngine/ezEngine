@@ -19,15 +19,17 @@
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 
-/// \todo cubemap creation
 /// \todo volume texture creation
 /// \todo resizing or downscaling to closest POT or max resolution
 /// \todo normalmap generation from heightmaps
-/// \todo Reading (compressed) TGA very slow
-/// \todo Write thumbnail to additional location
 /// \todo Normalmap flag (mipmaps?)
 /// \todo sRGB auto detection
-/// \todo sRGB is not working right
+
+/// \todo Write thumbnail to additional location
+/// \todo Pass Through original when no change needed
+/// \todo Reading (compressed) TGA very slow
+/// \todo cubemap creation
+
 
 /**** Usage ****
 

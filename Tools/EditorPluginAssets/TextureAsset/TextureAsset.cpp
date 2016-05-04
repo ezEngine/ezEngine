@@ -74,7 +74,8 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   if (pProp->m_bCompression)
     arguments << "-compress";
 
-  if (pProp->IsSRGB())
+  const bool sRGB = pProp->IsSRGB();
+  if (sRGB)
     arguments << "-srgb";
 
   const ezInt32 iNumInputFiles = pProp->GetNumInputFiles();
@@ -91,94 +92,94 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   case ezChannelMappingEnum::R1_2D:
     {
       arguments << "-r";
-      arguments << "in0.r";
+      arguments << "in0.x"; // always linear
     }
     break;
   case ezChannelMappingEnum::RG1_2D:
     {
       arguments << "-rg";
-      arguments << "in0.rg";
+      arguments << "in0.xy"; // always linear
     }
     break;
   case ezChannelMappingEnum::R1_G2_2D:
     {
       arguments << "-r";
-      arguments << "in0.r";
+      arguments << "in0.x";
       arguments << "-g";
-      arguments << "in1.r";
+      arguments << "in1.y"; // always linear
     }
     break;
   case ezChannelMappingEnum::RGB1_2D:
     {
       arguments << "-rgb";
-      arguments << "in0.rgb";
+      arguments << (sRGB ? "in0.rgb" : "in0.xyz");
     }
     break;
   case ezChannelMappingEnum::R1_G2_B3_2D:
     {
       arguments << "-r";
-      arguments << "in0.r";
+      arguments << (sRGB ? "in0.r" : "in0.x");
       arguments << "-g";
-      arguments << "in1.r";
+      arguments << (sRGB ? "in1.r" : "in1.x");
       arguments << "-b";
-      arguments << "in2.r";
+      arguments << (sRGB ? "in2.r" : "in2.x");
     }
     break;
   case ezChannelMappingEnum::RGBA1_2D:
     {
       arguments << "-rgba";
-      arguments << "in0.rgba";
+      arguments << (sRGB ? "in0.rgba" : "in0.xyzw");
     }
     break;
   case ezChannelMappingEnum::RGB1_A2_2D:
     {
       arguments << "-rgb";
-      arguments << "in0.rgb";
+      arguments << (sRGB ? "in0.rgb" : "in0.xyz");
       arguments << "-a";
-      arguments << "in1.r";    }
+      arguments << "in1.x";    }
     break;
   case ezChannelMappingEnum::R1_G2_B3_A4_2D:
     {
       arguments << "-r";
-      arguments << "in0.r";
+      arguments << (sRGB ? "in0.r" : "in0.x");
       arguments << "-g";
-      arguments << "in1.r";
+      arguments << (sRGB ? "in1.r" : "in1.x");
       arguments << "-b";
-      arguments << "in2.r";
+      arguments << (sRGB ? "in2.r" : "in2.x");
       arguments << "-a";
-      arguments << "in3.r";
+      arguments << "in3.x";
     }
     break;
   case ezChannelMappingEnum::RGB1_CUBE:
     {
       arguments << "-rgb0";
-      arguments << "in0.rgb";
+      arguments << (sRGB ? "in0.rgb" : "in0.xyz");
       arguments << "-rgb1";
-      arguments << "in1.rgb";
+      arguments << (sRGB ? "in1.rgb" : "in1.xyz");
       arguments << "-rgb2";
-      arguments << "in2.rgb";
+      arguments << (sRGB ? "in2.rgb" : "in2.xyz");
       arguments << "-rgb3";
-      arguments << "in3.rgb";
+      arguments << (sRGB ? "in3.rgb" : "in3.xyz");
       arguments << "-rgb4";
-      arguments << "in4.rgb";
+      arguments << (sRGB ? "in4.rgb" : "in4.xyz");
       arguments << "-rgb5";
-      arguments << "in5.rgb";
+      arguments << (sRGB ? "in5.rgb" : "in5.xyz");
     }
     break;
   case ezChannelMappingEnum::RGBA1_CUBE:
     {
       arguments << "-rgba0";
-      arguments << "in0.rgba";
+      arguments << (sRGB ? "in0.rgba" : "in0.xyzw");
       arguments << "-rgba1";
-      arguments << "in1.rgba";
+      arguments << (sRGB ? "in1.rgba" : "in1.xyzw");
       arguments << "-rgba2";
-      arguments << "in2.rgba";
+      arguments << (sRGB ? "in2.rgba" : "in2.xyzw");
       arguments << "-rgba3";
-      arguments << "in3.rgba";
+      arguments << (sRGB ? "in3.rgba" : "in3.xyzw");
       arguments << "-rgba4";
-      arguments << "in4.rgba";
+      arguments << (sRGB ? "in4.rgba" : "in4.xyzw");
       arguments << "-rgba5";
-      arguments << "in5.rgba";
+      arguments << (sRGB ? "in5.rgba" : "in5.xyzw");
     }
     break;
   }
@@ -192,10 +193,16 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   QProcess proc;
   proc.start(QString::fromUtf8("TexConv.exe"), arguments);
   if (!proc.waitForFinished(60000))
+  {
+    ezLog::Error("TexConv.exe timed out");
     return EZ_FAILURE;
+  }
 
   if (proc.exitCode() != 0)
+  {
+    ezLog::Error("TexConv.exe returned error code %i", proc.exitCode());
     return EZ_FAILURE;
+  }
 
   return EZ_SUCCESS;
 }
