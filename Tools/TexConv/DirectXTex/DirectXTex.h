@@ -15,6 +15,9 @@
 
 #pragma once
 
+#undef  _WIN32_WINNT
+#define _WIN32_WINNT 0x0601
+
 #if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP) && (_WIN32_WINNT <= _WIN32_WINNT_WIN8)
 #error WIC is not supported on Windows Phone 8.0
 #endif

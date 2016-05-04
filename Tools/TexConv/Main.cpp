@@ -29,6 +29,7 @@
 /// \todo Pass Through original when no change needed
 /// \todo Reading (compressed) TGA very slow
 /// \todo cubemap creation
+/// \todo Use checked in TexConv (release build) for asset transform
 
 
 /**** Usage ****
