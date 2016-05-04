@@ -91,7 +91,7 @@ void ezDecompressBlockBC4(const ezUInt8* pSource, ezUInt8* pTarget, ezUInt32 uiS
   }
 }
 
-class ezImageConversion_BC1_BGRA : public ezImageConversionMixinBlockDecompression<ezImageConversion_BC1_BGRA>
+class ezImageConversion_BC1_RGBA : public ezImageConversionMixinBlockDecompression<ezImageConversion_BC1_RGBA>
 {
 public:
   static const ezUInt32 s_uiSourceBpp = 4;
@@ -100,9 +100,9 @@ public:
   typedef ezUInt8 SourceType;
   typedef ezColorLinearUB TargetType;
 
-  ezImageConversion_BC1_BGRA()
+  ezImageConversion_BC1_RGBA()
   {
-    m_subConversions.PushBack(SubConversion(ezImageFormat::BC1_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::BC1_UNORM, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::None));
   }
 
   static void DecompressBlock(const SourceType* pSource, TargetType* pTarget)
@@ -111,7 +111,7 @@ public:
   }
 };
 
-class ezImageConversion_BC2_BGRA : public ezImageConversionMixinBlockDecompression<ezImageConversion_BC2_BGRA>
+class ezImageConversion_BC2_RGBA : public ezImageConversionMixinBlockDecompression<ezImageConversion_BC2_RGBA>
 {
 public:
   static const ezUInt32 s_uiSourceBpp = 8;
@@ -120,9 +120,9 @@ public:
   typedef ezUInt8 SourceType;
   typedef ezColorLinearUB TargetType;
 
-  ezImageConversion_BC2_BGRA()
+  ezImageConversion_BC2_RGBA()
   {
-    m_subConversions.PushBack(SubConversion(ezImageFormat::BC2_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::BC2_UNORM, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::None));
   }
 
   static void DecompressBlock(const SourceType* pSource, TargetType* pTarget)
@@ -139,7 +139,7 @@ public:
   }
 };
 
-class ezImageConversion_BC3_BGRA : public ezImageConversionMixinBlockDecompression<ezImageConversion_BC3_BGRA>
+class ezImageConversion_BC3_RGBA : public ezImageConversionMixinBlockDecompression<ezImageConversion_BC3_RGBA>
 {
 public:
   static const ezUInt32 s_uiSourceBpp = 8;
@@ -148,9 +148,9 @@ public:
   typedef ezUInt8 SourceType;
   typedef ezColorLinearUB TargetType;
 
-  ezImageConversion_BC3_BGRA()
+  ezImageConversion_BC3_RGBA()
   {
-    m_subConversions.PushBack(SubConversion(ezImageFormat::BC3_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::BC3_UNORM, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::None));
   }
 
   static void DecompressBlock(const SourceType* pSource, TargetType* pTarget)
@@ -201,9 +201,9 @@ public:
   }
 };
 
-static ezImageConversion_BC1_BGRA g_conversionBC1;
-static ezImageConversion_BC2_BGRA g_conversionBC2;
-static ezImageConversion_BC3_BGRA g_conversionBC3;
+static ezImageConversion_BC1_RGBA g_conversionBC1;
+static ezImageConversion_BC2_RGBA g_conversionBC2;
+static ezImageConversion_BC3_RGBA g_conversionBC3;
 static ezImageConversion_BC4_R g_conversionBC4;
 static ezImageConversion_BC5_RG g_conversionBC5;
 
