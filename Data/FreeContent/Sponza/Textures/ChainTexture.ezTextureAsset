@@ -11,14 +11,16 @@
    "#" : { "$t" : "uuid", "$b" : "0x348402AF22EC4B4EAAD8B73D443533B8" },
    "t" : "ezTextureAssetProperties",
    "p" : {
-    "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
-    "Format" : "BC1_UNORM",
-    "Height" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
-    "Texture File" : "Sponza/Textures/chain_texture_diff.dds",
-    "Type" : "ezTextureTypeEnum::Texture2D",
-    "Usage" : "ezTextureUsageEnum::Diffuse",
-    "Width" : { "$t" : "uint32", "$v" : "256", "$b" : "0x00010000" },
-    "sRGB-Mode" : "ezSRGBModeEnum::Unknown"
+    "Channel Mapping" : "ezChannelMappingEnum::RGBA1_2D",
+    "Compression" : true,
+    "Input 1" : "Sponza/Textures/chain_texture_diff.dds",
+    "Input 2" : "",
+    "Input 3" : "",
+    "Input 4" : "",
+    "Input 5" : "",
+    "Input 6" : "",
+    "Mipmaps" : true,
+    "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   },
   {
@@ -29,8 +31,8 @@
     "AssetType" : "Texture 2D",
     "Dependencies" : "Sponza/Textures/chain_texture_diff.dds",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x1F90B3BCB84A4E4EAE83BBEBEF895A40" },
-    "Hash" : { "$t" : "uint64", "$v" : "9058536322296888557", "$b" : "0xEDBC7A7BCA62B67D" },
-    "References" : ""
+    "Hash" : { "$t" : "uint64", "$v" : "4341257184422566013", "$b" : "0x7D981E84683E3F3C" }
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

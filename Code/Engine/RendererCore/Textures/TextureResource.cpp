@@ -265,7 +265,7 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReader* Stream)
   const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
 
   ezGALTextureCreationDescription TexDesc;
-  TexDesc.m_Format = ezGALResourceFormat::RGBAUByteNormalized; /// \todo Support more texture formats
+  TexDesc.m_Format = ImgToGalFormat(pImage->GetImageFormat(), bSRGB);
   TexDesc.m_uiWidth = pImage->GetWidth(uiHighestMipLevel);
   TexDesc.m_uiHeight = pImage->GetHeight(uiHighestMipLevel);
   TexDesc.m_uiDepth = pImage->GetDepth(uiHighestMipLevel);
@@ -279,8 +279,6 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReader* Stream)
     TexDesc.m_Type = ezGALTextureType::TextureCube;
 
   EZ_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces (resource: '%s')", GetResourceID().GetData());
-
-  TexDesc.m_Format = ImgToGalFormat(pImage->GetImageFormat(), bSRGB);
 
   m_uiMemoryGPU[m_uiLoadedTextures] = 0;
 

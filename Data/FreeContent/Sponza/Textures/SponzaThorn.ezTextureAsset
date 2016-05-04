@@ -15,22 +15,24 @@
     "AssetType" : "Texture 2D",
     "Dependencies" : "Sponza/Textures/sponza_thorn_diff.dds",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xD805937D4CC3564B906F6EEB432C8C0E" },
-    "Hash" : { "$t" : "uint64", "$v" : "2553177592635837846", "$b" : "0x96CD8B417EB56E23" },
-    "References" : ""
+    "Hash" : { "$t" : "uint64", "$v" : "13080885454747154604", "$b" : "0xAC38C7FD03A488B5" }
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0x348402AF22EC4B4EAAD8B73D443533B8" },
    "t" : "ezTextureAssetProperties",
    "p" : {
-    "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
-    "Format" : "BC1_UNORM",
-    "Height" : { "$t" : "uint32", "$v" : "512", "$b" : "0x00020000" },
-    "Texture File" : "Sponza/Textures/sponza_thorn_diff.dds",
-    "Type" : "ezTextureTypeEnum::Texture2D",
-    "Usage" : "ezTextureUsageEnum::Diffuse",
-    "Width" : { "$t" : "uint32", "$v" : "512", "$b" : "0x00020000" },
-    "sRGB-Mode" : "ezSRGBModeEnum::Unknown"
+    "Channel Mapping" : "ezChannelMappingEnum::RGBA1_2D",
+    "Compression" : true,
+    "Input 1" : "Sponza/Textures/sponza_thorn_diff.dds",
+    "Input 2" : "",
+    "Input 3" : "",
+    "Input 4" : "",
+    "Input 5" : "",
+    "Input 6" : "",
+    "Mipmaps" : true,
+    "Usage" : "ezTextureUsageEnum::Diffuse"
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

@@ -3,14 +3,16 @@
    "#" : { "$t" : "uuid", "$b" : "0x30C038E0BBD97C45987EC7343EDC4B2E" },
    "t" : "ezTextureAssetProperties",
    "p" : {
-    "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
-    "Format" : "BC1_UNORM",
-    "Height" : { "$t" : "uint32", "$v" : "512", "$b" : "0x00020000" },
-    "Texture File" : "Sponza/Textures/spnza_bricks_a_diff.dds",
-    "Type" : "ezTextureTypeEnum::Texture2D",
-    "Usage" : "ezTextureUsageEnum::Diffuse",
-    "Width" : { "$t" : "uint32", "$v" : "512", "$b" : "0x00020000" },
-    "sRGB-Mode" : "ezSRGBModeEnum::sRGB"
+    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
+    "Compression" : true,
+    "Input 1" : "Sponza/Textures/spnza_bricks_a_diff.dds",
+    "Input 2" : "",
+    "Input 3" : "",
+    "Input 4" : "",
+    "Input 5" : "",
+    "Input 6" : "",
+    "Mipmaps" : true,
+    "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   },
   {
@@ -21,7 +23,7 @@
     "AssetType" : "Texture 2D",
     "Dependencies" : "Sponza/Textures/spnza_bricks_a_diff.dds",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x276046DA322BBB46ADCF0DF0C2727ACA" },
-    "Hash" : { "$t" : "uint64", "$v" : "12978267260554132922", "$b" : "0xBA3D69C94F111CB4" }
+    "Hash" : { "$t" : "uint64", "$v" : "10211697338051653144", "$b" : "0x18EE5E04A03CB78D" }
    }
   },
   {
@@ -31,5 +33,6 @@
    "p" : {
     "Children" : [ { "$t" : "uuid", "$b" : "0x30C038E0BBD97C45987EC7343EDC4B2E" } ]
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

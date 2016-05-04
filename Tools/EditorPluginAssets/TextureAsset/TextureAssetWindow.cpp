@@ -67,16 +67,16 @@ void ezTextureAssetDocumentWindow::UpdatePreview()
 {
   auto* pObject = ((ezTextureAssetDocument*)GetDocument())->GetProperties();
 
-  if (pObject->GetImage().GetDataSize() == 0)
-    return;
+  //if (pObject->GetImage().GetDataSize() == 0)
+  //  return;
 
-  ezImage Target;
-  if (ezImageConversion::Convert(pObject->GetImage(), Target, ezImageFormat::B8G8R8A8_UNORM).Failed())
-    return;
+  //ezImage Target;
+  //if (ezImageConversion::Convert(pObject->GetImage(), Target, ezImageFormat::B8G8R8A8_UNORM).Failed())
+  //  return;
 
-  QImage img(Target.GetPixelPointer<ezUInt8>(), Target.GetWidth(), Target.GetHeight(), QImage::Format_RGBA8888);
+  //QImage img(Target.GetPixelPointer<ezUInt8>(), Target.GetWidth(), Target.GetHeight(), QImage::Format_RGBA8888);
 
-  m_pImageWidget->SetImage(QPixmap::fromImage(img));
+  //m_pImageWidget->SetImage(QPixmap::fromImage(img));
 }
 
 void ezTextureAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)

@@ -15,22 +15,24 @@
     "AssetType" : "Texture 2D",
     "Dependencies" : "Trees/Textures/Bark/deviantart.com/Pinetree_D.dds",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xF6FEEC78ABAD264BBD76DA926D92F24A" },
-    "Hash" : { "$t" : "uint64", "$v" : "1978867751691113040", "$b" : "0x50520655BC59761B" },
-    "References" : ""
+    "Hash" : { "$t" : "uint64", "$v" : "802612827619274950", "$b" : "0xC6306B421D74230B" }
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0x348402AF22EC4B4EAAD8B73D443533B8" },
    "t" : "ezTextureAssetProperties",
    "p" : {
-    "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
-    "Format" : "BC3_UNORM",
-    "Height" : { "$t" : "uint32", "$v" : "512", "$b" : "0x00020000" },
-    "Texture File" : "Trees/Textures/Bark/deviantart.com/Pinetree_D.dds",
-    "Type" : "ezTextureTypeEnum::Texture2D",
-    "Usage" : "ezTextureUsageEnum::Diffuse",
-    "Width" : { "$t" : "uint32", "$v" : "512", "$b" : "0x00020000" },
-    "sRGB-Mode" : "ezSRGBModeEnum::Unknown"
+    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
+    "Compression" : true,
+    "Input 1" : "Trees/Textures/Bark/deviantart.com/Pinetree_D.dds",
+    "Input 2" : "",
+    "Input 3" : "",
+    "Input 4" : "",
+    "Input 5" : "",
+    "Input 6" : "",
+    "Mipmaps" : true,
+    "Usage" : "ezTextureUsageEnum::Diffuse"
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

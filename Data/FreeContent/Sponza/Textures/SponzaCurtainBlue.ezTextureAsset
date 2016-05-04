@@ -7,8 +7,7 @@
     "AssetType" : "Texture 2D",
     "Dependencies" : "Sponza/Textures/sponza_curtain_blue_diff.dds",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xBA30E74D80FE2A48B70C37F31F040DFD" },
-    "Hash" : { "$t" : "uint64", "$v" : "10939095353710522297", "$b" : "0xB9AF0A324479CF97" },
-    "References" : ""
+    "Hash" : { "$t" : "uint64", "$v" : "7795242209575804732", "$b" : "0x3C9FE5177D432E6C" }
    }
   },
   {
@@ -23,14 +22,17 @@
    "#" : { "$t" : "uuid", "$b" : "0x348402AF22EC4B4EAAD8B73D443533B8" },
    "t" : "ezTextureAssetProperties",
    "p" : {
-    "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
-    "Format" : "BC1_UNORM",
-    "Height" : { "$t" : "uint32", "$v" : "2048", "$b" : "0x00080000" },
-    "Texture File" : "Sponza/Textures/sponza_curtain_blue_diff.dds",
-    "Type" : "ezTextureTypeEnum::Texture2D",
-    "Usage" : "ezTextureUsageEnum::Diffuse",
-    "Width" : { "$t" : "uint32", "$v" : "2048", "$b" : "0x00080000" },
-    "sRGB-Mode" : "ezSRGBModeEnum::Unknown"
+    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
+    "Compression" : true,
+    "Input 1" : "Sponza/Textures/sponza_curtain_blue_diff.dds",
+    "Input 2" : "",
+    "Input 3" : "",
+    "Input 4" : "",
+    "Input 5" : "",
+    "Input 6" : "",
+    "Mipmaps" : true,
+    "Usage" : "ezTextureUsageEnum::Diffuse"
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

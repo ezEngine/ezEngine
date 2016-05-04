@@ -7,8 +7,7 @@
     "AssetType" : "Texture 2D",
     "Dependencies" : "Sponza/Textures/vase_round.dds",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x9EFF324AEFF6D446A1A41D11C956CF51" },
-    "Hash" : { "$t" : "uint64", "$v" : "10623371433501676364", "$b" : "0x4C53E6A208CC6D93" },
-    "References" : ""
+    "Hash" : { "$t" : "uint64", "$v" : "464603055981937697", "$b" : "0x21445D91049A7206" }
    }
   },
   {
@@ -23,14 +22,17 @@
    "#" : { "$t" : "uuid", "$b" : "0x348402AF22EC4B4EAAD8B73D443533B8" },
    "t" : "ezTextureAssetProperties",
    "p" : {
-    "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
-    "Format" : "BC1_UNORM",
-    "Height" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
-    "Texture File" : "Sponza/Textures/vase_round.dds",
-    "Type" : "ezTextureTypeEnum::Texture2D",
-    "Usage" : "ezTextureUsageEnum::Diffuse",
-    "Width" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
-    "sRGB-Mode" : "ezSRGBModeEnum::Unknown"
+    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
+    "Compression" : true,
+    "Input 1" : "Sponza/Textures/vase_round.dds",
+    "Input 2" : "",
+    "Input 3" : "",
+    "Input 4" : "",
+    "Input 5" : "",
+    "Input 6" : "",
+    "Mipmaps" : true,
+    "Usage" : "ezTextureUsageEnum::Diffuse"
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

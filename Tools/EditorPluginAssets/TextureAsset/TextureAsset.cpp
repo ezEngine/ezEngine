@@ -23,33 +23,171 @@ void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
 {
   const ezTextureAssetProperties* pProp = GetProperties();
 
-  ezStringBuilder sTemp = pProp->GetInputFile();
-  sTemp.MakeCleanPath();
+  const ezInt32 iNumInputFiles = pProp->GetNumInputFiles();
 
-  pInfo->m_FileDependencies.Insert(sTemp);
+  for (ezInt32 i = 0; i< iNumInputFiles; ++i)
+  {
+    ezStringBuilder sTemp = pProp->GetInputFile(i);
+    sTemp.MakeCleanPath();
+    pInfo->m_FileDependencies.Insert(sTemp);
+  }
 }
 
 ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader)
 {
+  const auto pProp = GetProperties();
+
   QStringList arguments;
+  ezStringBuilder temp;
+
+  // Asset Version
+  {
+    arguments << "-assetVersion";
+    arguments << ezConversionUtils::ToString(AssetHeader.GetFileVersion()).GetData();
+  }
+
+  // Asset Hash
+  {
+    const ezUInt64 uiHash64 = AssetHeader.GetFileHash();
+    const ezUInt32 uiHashLow32 = uiHash64 & 0xFFFFFFFF;
+    const ezUInt32 uiHashHigh32 = (uiHash64 >> 32) & 0xFFFFFFFF;
+
+    temp.Format("%08X", uiHashLow32);
+    arguments << "-assetHashLow";
+    arguments << temp.GetData();
+
+    temp.Format("%08X", uiHashHigh32);
+    arguments << "-assetHashHigh";
+    arguments << temp.GetData();
+  }
+
+
   arguments << "-out";
   arguments << szTargetFile;
 
-  if (GetProperties()->IsSRGB())
+  arguments << "-channels";
+  arguments << ezConversionUtils::ToString(pProp->GetNumChannels()).GetData();
+
+  if (pProp->m_bMipmaps)
+    arguments << "-mipmaps";
+
+  if (pProp->m_bCompression)
+    arguments << "-compress";
+
+  if (pProp->IsSRGB())
     arguments << "-srgb";
 
-  arguments << "-mipmaps";
-  arguments << "-compress";
-  arguments << "-channels";
-  arguments << "3";
+  const ezInt32 iNumInputFiles = pProp->GetNumInputFiles();
+  for (ezInt32 i = 0; i < iNumInputFiles; ++i)
+  {
+    temp.Format("-in%i", i);
 
-  arguments << "-in0";
-  arguments << QString(GetProperties()->GetAbsoluteInputFilePath().GetData());
+    arguments << temp.GetData();
+    arguments << QString(pProp->GetAbsoluteInputFilePath(i).GetData());
+  }
 
-  arguments << "-rgba";
-  arguments << "in0.rgba";
+  switch (pProp->GetChannelMapping())
+  {
+  case ezChannelMappingEnum::R1_2D:
+    {
+      arguments << "-r";
+      arguments << "in0.r";
+    }
+    break;
+  case ezChannelMappingEnum::RG1_2D:
+    {
+      arguments << "-rg";
+      arguments << "in0.rg";
+    }
+    break;
+  case ezChannelMappingEnum::R1_G2_2D:
+    {
+      arguments << "-r";
+      arguments << "in0.r";
+      arguments << "-g";
+      arguments << "in1.r";
+    }
+    break;
+  case ezChannelMappingEnum::RGB1_2D:
+    {
+      arguments << "-rgb";
+      arguments << "in0.rgb";
+    }
+    break;
+  case ezChannelMappingEnum::R1_G2_B3_2D:
+    {
+      arguments << "-r";
+      arguments << "in0.r";
+      arguments << "-g";
+      arguments << "in1.r";
+      arguments << "-b";
+      arguments << "in2.r";
+    }
+    break;
+  case ezChannelMappingEnum::RGBA1_2D:
+    {
+      arguments << "-rgba";
+      arguments << "in0.rgba";
+    }
+    break;
+  case ezChannelMappingEnum::RGB1_A2_2D:
+    {
+      arguments << "-rgb";
+      arguments << "in0.rgb";
+      arguments << "-a";
+      arguments << "in1.r";    }
+    break;
+  case ezChannelMappingEnum::R1_G2_B3_A4_2D:
+    {
+      arguments << "-r";
+      arguments << "in0.r";
+      arguments << "-g";
+      arguments << "in1.r";
+      arguments << "-b";
+      arguments << "in2.r";
+      arguments << "-a";
+      arguments << "in3.r";
+    }
+    break;
+  case ezChannelMappingEnum::RGB1_CUBE:
+    {
+      arguments << "-rgb0";
+      arguments << "in0.rgb";
+      arguments << "-rgb1";
+      arguments << "in1.rgb";
+      arguments << "-rgb2";
+      arguments << "in2.rgb";
+      arguments << "-rgb3";
+      arguments << "in3.rgb";
+      arguments << "-rgb4";
+      arguments << "in4.rgb";
+      arguments << "-rgb5";
+      arguments << "in5.rgb";
+    }
+    break;
+  case ezChannelMappingEnum::RGBA1_CUBE:
+    {
+      arguments << "-rgba0";
+      arguments << "in0.rgba";
+      arguments << "-rgba1";
+      arguments << "in1.rgba";
+      arguments << "-rgba2";
+      arguments << "in2.rgba";
+      arguments << "-rgba3";
+      arguments << "in3.rgba";
+      arguments << "-rgba4";
+      arguments << "in4.rgba";
+      arguments << "-rgba5";
+      arguments << "in5.rgba";
+    }
+    break;
+  }
 
-  /// \todo Asset Hash + Version
+  ezStringBuilder cmd;
+  for (ezInt32 i = 0; i < arguments.size(); ++i)
+    cmd.Append(" ", arguments[i].toUtf8().data());
+
+  ezLog::Debug("TexConv.exe%s", cmd.GetData());
   
   QProcess proc;
   proc.start(QString::fromUtf8("TexConv.exe"), arguments);
@@ -62,12 +200,14 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   return EZ_SUCCESS;
 }
 
+#define USE_TEXCONV
+
 ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
   EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '%s' is not supported", szPlatform);
 
-  const ezImage* pImage = &GetProperties()->GetImage();
-  SaveThumbnail(*pImage);
+  //const ezImage* pImage = &GetProperties()->GetImage();
+  //SaveThumbnail(*pImage);
 
 #ifdef USE_TEXCONV
   RunTexConv(szTargetFile, AssetHeader);
@@ -124,15 +264,11 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
 
 const char* ezTextureAssetDocument::QueryAssetType() const
 {
-  switch (GetProperties()->GetTextureType())
-  {
-  case ezTextureTypeEnum::Texture2D:
+  if (GetProperties()->IsTexture2D())
     return "Texture 2D";
-  case ezTextureTypeEnum::Texture3D:
-    return "Texture 3D";
-  case ezTextureTypeEnum::TextureCube:
+
+  if (GetProperties()->IsTextureCube())
     return "Texture Cube";
-  }
 
   return "Unknown";
 }

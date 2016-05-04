@@ -3,13 +3,16 @@
    "#" : { "$t" : "uuid", "$b" : "0xFAFA4D6EF6291C429AE2EAFF618049E2" },
    "t" : "ezTextureAssetProperties",
    "p" : {
-    "Depth" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Format" : "",
-    "Height" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Texture File" : "Textures/NeutralNormal.tga",
-    "Type" : "ezTextureTypeEnum::Unknown",
-    "Usage" : "ezTextureUsageEnum::NormalMap",
-    "Width" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" }
+    "Channel Mapping" : "ezChannelMappingEnum::RGBA1_2D",
+    "Compression" : true,
+    "Input 1" : "Textures/NeutralNormal.tga",
+    "Input 2" : "",
+    "Input 3" : "",
+    "Input 4" : "",
+    "Input 5" : "",
+    "Input 6" : "",
+    "Mipmaps" : true,
+    "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   },
   {
@@ -28,7 +31,8 @@
     "AssetType" : "Texture 2D",
     "Dependencies" : "Textures/NeutralNormal.tga",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x9028C84DE339FC4BA97D86A984D4D3DB" },
-    "Hash" : { "$t" : "uint64", "$v" : "15249791816647742522", "$b" : "0x3A94F241DC24A2D3" }
+    "Hash" : { "$t" : "uint64", "$v" : "17467411054689773378", "$b" : "0x42E783D4CEB568F2" }
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

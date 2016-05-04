@@ -7,20 +7,23 @@
     "AssetType" : "Texture 2D",
     "Dependencies" : "Textures/normalCube.tga",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x5AC796243775BC408662D6C1A76D50BF" },
-    "Hash" : { "$t" : "uint64", "$v" : "8424109310372984775", "$b" : "0xC7B7D7F1C872E874" }
+    "Hash" : { "$t" : "uint64", "$v" : "2758845919314766963", "$b" : "0x73ECCA22BF634926" }
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0xAB728988494F074383E1EA8957F4BBDD" },
    "t" : "ezTextureAssetProperties",
    "p" : {
-    "Depth" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Format" : "",
-    "Height" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Texture File" : "Textures/normalCube.tga",
-    "Type" : "ezTextureTypeEnum::Unknown",
-    "Usage" : "ezTextureUsageEnum::NormalMap",
-    "Width" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" }
+    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
+    "Compression" : true,
+    "Input 1" : "Textures/normalCube.tga",
+    "Input 2" : "",
+    "Input 3" : "",
+    "Input 4" : "",
+    "Input 5" : "",
+    "Input 6" : "",
+    "Mipmaps" : true,
+    "Usage" : "ezTextureUsageEnum::NormalMap"
    }
   },
   {
@@ -30,5 +33,6 @@
    "p" : {
     "Children" : [ { "$t" : "uuid", "$b" : "0xAB728988494F074383E1EA8957F4BBDD" } ]
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

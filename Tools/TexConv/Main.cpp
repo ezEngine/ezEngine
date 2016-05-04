@@ -22,15 +22,12 @@
 /// \todo cubemap creation
 /// \todo volume texture creation
 /// \todo resizing or downscaling to closest POT or max resolution
-/// \todo rotating ? (for cubemap faces?)
 /// \todo normalmap generation from heightmaps
-/// \todo custom value scale/bias for adjustments ??
 /// \todo Reading (compressed) TGA very slow
-/// \todo Integrate with texture asset
 /// \todo Write thumbnail to additional location
-/// \todo 2D Texture Arrays
 /// \todo Normalmap flag (mipmaps?)
 /// \todo sRGB auto detection
+/// \todo sRGB is not working right
 
 /**** Usage ****
 
@@ -361,7 +358,7 @@ public:
 
       const ezString sHashLow = pCmd->GetStringOption("-assetHashLow");
       ezUInt64 uiHashLow = ezConversionUtils::ConvertHexStringToUInt32(sHashLow);
-      const ezString sHashHigh = pCmd->GetStringOption("-assetHash2");
+      const ezString sHashHigh = pCmd->GetStringOption("-assetHashHigh");
       ezUInt64 uiHashHigh = ezConversionUtils::ConvertHexStringToUInt32(sHashHigh);
 
       m_uiAssetHash = (uiHashHigh << 32) | uiHashLow;

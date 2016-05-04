@@ -3,14 +3,16 @@
    "#" : { "$t" : "uuid", "$b" : "0xC836BF424171064A825FC0853F621F51" },
    "t" : "ezTextureAssetProperties",
    "p" : {
-    "Depth" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Format" : "",
-    "Height" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Texture File" : "FleetOps\\Calypso\\Calypso_D.dds",
-    "Type" : "ezTextureTypeEnum::Unknown",
-    "Usage" : "ezTextureUsageEnum::Diffuse",
-    "Width" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "sRGB-Mode" : "ezSRGBModeEnum::sRGB"
+    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
+    "Compression" : true,
+    "Input 1" : "FleetOps/Calypso/Calypso_D.dds",
+    "Input 2" : "",
+    "Input 3" : "",
+    "Input 4" : "",
+    "Input 5" : "",
+    "Input 6" : "",
+    "Mipmaps" : true,
+    "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   },
   {
@@ -29,7 +31,8 @@
     "AssetType" : "Texture 2D",
     "Dependencies" : "FleetOps/Calypso/Calypso_D.dds",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xA88EC1C639432A4BBA8C346AFDFEB7A6" },
-    "Hash" : { "$t" : "uint64", "$v" : "5351434768729048208", "$b" : "0x9004C5AC911D444A" }
+    "Hash" : { "$t" : "uint64", "$v" : "11729991462207852976", "$b" : "0xB0914333164DC9A2" }
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

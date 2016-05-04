@@ -22,6 +22,8 @@ void OnLoadPlugin(bool bReloading)
 
   // Texture Asset
   {
+    ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezTextureAssetProperties::PropertyMetaStateEventHandler);
+
     // Menu Bar
     {
       ezActionMapManager::RegisterActionMap("TextureAssetMenuBar");
@@ -126,6 +128,7 @@ void OnLoadPlugin(bool bReloading)
 void OnUnloadPlugin(bool bReloading)
 {
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezMeshAssetProperties::PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezTextureAssetProperties::PropertyMetaStateEventHandler);
 }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);

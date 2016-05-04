@@ -7,8 +7,7 @@
     "AssetType" : "Texture 2D",
     "Dependencies" : "Trees/Textures/Leaves/Blender3D/Leaf_1_N.dds",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xB5157CEFD16AEF47927847A7A70D0C89" },
-    "Hash" : { "$t" : "uint64", "$v" : "771576798639312159", "$b" : "0x1F4DD4A70231B50A" },
-    "References" : ""
+    "Hash" : { "$t" : "uint64", "$v" : "14290485848634819386", "$b" : "0x3A03A0432A0152C6" }
    }
   },
   {
@@ -23,14 +22,17 @@
    "#" : { "$t" : "uuid", "$b" : "0x348402AF22EC4B4EAAD8B73D443533B8" },
    "t" : "ezTextureAssetProperties",
    "p" : {
-    "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
-    "Format" : "BC3_UNORM",
-    "Height" : { "$t" : "uint32", "$v" : "256", "$b" : "0x00010000" },
-    "Texture File" : "Trees/Textures/Leaves/Blender3D/Leaf_1_N.dds",
-    "Type" : "ezTextureTypeEnum::Texture2D",
-    "Usage" : "ezTextureUsageEnum::Diffuse",
-    "Width" : { "$t" : "uint32", "$v" : "256", "$b" : "0x00010000" },
-    "sRGB-Mode" : "ezSRGBModeEnum::Unknown"
+    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
+    "Compression" : true,
+    "Input 1" : "Trees/Textures/Leaves/Blender3D/Leaf_1_N.dds",
+    "Input 2" : "",
+    "Input 3" : "",
+    "Input 4" : "",
+    "Input 5" : "",
+    "Input 6" : "",
+    "Mipmaps" : true,
+    "Usage" : "ezTextureUsageEnum::NormalMap"
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }
