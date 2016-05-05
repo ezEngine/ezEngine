@@ -29,15 +29,18 @@ public:
   enum Channel
   {
     None = 0,
-    RedSRGB = EZ_BIT(0),
-    GreenSRGB = EZ_BIT(1),
-    BlueSRGB = EZ_BIT(2),
-    AlphaSRGB = EZ_BIT(3),
-    RedLinear = EZ_BIT(4),
-    GreenLinear = EZ_BIT(5),
-    BlueLinear = EZ_BIT(6),
-    AlphaLinear = EZ_BIT(7),
+    Red = EZ_BIT(0),
+    Green = EZ_BIT(1),
+    Blue = EZ_BIT(2),
+    Alpha = EZ_BIT(3),
     All = 0xFF
+  };
+
+  enum class TextureType
+  {
+    Texture2D,
+    Cubemap,
+    //Volume
   };
 
   struct ChannelMapping
@@ -46,6 +49,7 @@ public:
     ezUInt8 m_uiChannelMask = 0;
   };
 
+  TextureType m_TextureType;
   ezHybridArray<ezString, 4> m_InputFileNames;
   ezDynamicArray<ezImage> m_InputImages;
   ezString m_sOutputFile;
@@ -75,12 +79,11 @@ public:
   ezResult LoadInputs();
   ezResult ConvertInputsToRGBA();
 
-  static float GetChannelValueSRGB(ezUInt32 rawColor, float& numSources);
-  static float GetChannelValueLinear(ezUInt32 rawColor, float& numSources);
   float GetChannelValue(const ChannelMapping& ds, const ezUInt32 rgba);
+  bool IsImageAlphaBinaryMask(const ezImage& img);
 
   ezImage* CreateCombinedFile(const ChannelMapping* dataSources);
-  ezImageFormat::Enum ChooseOutputFormat(bool bSRGB) const;
+  ezImageFormat::Enum ChooseOutputFormat(bool bSRGB, bool bAlphaIsMask) const;
   bool CanPassThroughInput() const;
   void WriteTexHeader(ezFileWriter& fileOut);
 

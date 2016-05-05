@@ -14,7 +14,6 @@
 /// \todo cubemap creation
 /// \todo Use checked in TexConv (release build) for asset transform
 /// \todo Optimize image compositing
-/// \todo Use BC1 over BC3, if alpha is all 0 or 1
 
 
 /**** Usage ****
@@ -27,18 +26,17 @@
 -srgb -> the output format will be an SRGB format, otherwise linear, cannot be used for 1 and 2 channel formats
 -compress -> the output format will be a compressed format
 -channels X -> the output format will have 1, 2, 3 or 4 channels, default is 4
--r inX.r -> the output RED channel is taken from the RED channel of input file X. The input channel is considered to be in Gamma space!
--g inX.x -> the output GREEN channel is taken from the RED channel of input file X. The input channel is considered to be in Linear space!
--b inX.rgb -> the output BLUE channel is the weighted average of the RGB channels in input file X. The RGB channels are considered to be in Gamma space!
+-r inX.r -> the output RED channel is taken from the RED channel of input file X.
+-g inX.b -> the output GREEN channel is taken from the BLUE channel of input file X.
+-b inX.rgb -> the output BLUE channel is the weighted average of the RGB channels in input file X.
 -rgba inX.rrra -> the output RGB cannels are all initialized from the RED channel of input X. Alpha is copied directly.
 
 For the output you can use
--r, -g, -b, -a, -rg, -rgb, -rgba
+-r, -g, -b, -a, -rg, -rgb or -rgba
 
 For input you can use
-r,g,b,a for gamma space values (alpha is always linear, though)
-x,y,z,w for linear space values
-and any combination of rgb, bgar, xyz, rgxy, etc. for swizzling
+r,g,b,a
+and any combination of rgb, bgar, etc. for swizzling
 
 When a single channel is written (e.g. -r) you can read from multiple channels (e.g. rgb) to create an averaged value.
 
@@ -98,7 +96,6 @@ ezApplication::ApplicationExecution ezTexConv::Run()
 
     ezImage* pCombined = CreateCombinedFile(m_2dSource);
 
-
     Image srcImg;
     srcImg.width = pCombined->GetWidth();
     srcImg.height = pCombined->GetHeight();
@@ -107,12 +104,15 @@ ezApplication::ApplicationExecution ezTexConv::Run()
     srcImg.format = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(pCombined->GetImageFormat());
     srcImg.pixels = pCombined->GetDataPointer<ezUInt8>();
 
+    ScratchImage src;
+    src.InitializeFromImage(srcImg);
+
     ScratchImage mip, comp, channel;
-    ScratchImage* pCurScratch = nullptr;
+    ScratchImage* pCurScratch = &src;
 
     if (m_bGeneratedMipmaps)
     {
-      if (FAILED(GenerateMipMaps(srcImg, TEX_FILTER_DEFAULT, 0, mip)))
+      if (FAILED(GenerateMipMaps(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), TEX_FILTER_DEFAULT, 0, mip)))
       {
         SetReturnCode(5);
         ezLog::Error("Mipmap generation failed");
@@ -122,83 +122,62 @@ ezApplication::ApplicationExecution ezTexConv::Run()
       pCurScratch = &mip;
     }
 
-    const ezImageFormat::Enum outputFormat = ChooseOutputFormat(false /*m_bSRGBOutput*/); // we don't want the implict sRGB conversion of MS TexConv, so just write to non-sRGB target
+    bool bAlphaIsMaskOnly = false;
+    if (m_uiOutputChannels == 4 && m_bCompress)
+    {
+      bAlphaIsMaskOnly = IsImageAlphaBinaryMask(*pCombined);
+    }
+
+    const ezImageFormat::Enum outputFormat = ChooseOutputFormat(false /*m_bSRGBOutput*/, bAlphaIsMaskOnly); // we don't want the implicit sRGB conversion of MS TexConv, so just write to non-sRGB target
     const DXGI_FORMAT dxgi = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(outputFormat);
 
     Blob outputBlob;
 
     if (m_bCompress)
     {
-      if (pCurScratch != nullptr)
+      if (FAILED(Compress(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), dxgi, TEX_COMPRESS_DEFAULT, 1.0f, comp)))
       {
-        if (FAILED(Compress(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), dxgi, TEX_COMPRESS_DEFAULT, 1.0f, comp)))
-        {
-          SetReturnCode(6);
-          ezLog::Error("Block compression failed");
-          return ezApplication::Quit;
-        }
-      }
-      else
-      {
-        if (FAILED(Compress(srcImg, dxgi, TEX_COMPRESS_DEFAULT, 1.0f, comp)))
-        {
-          SetReturnCode(6);
-          ezLog::Error("Block compression failed");
-          return ezApplication::Quit;
-        }
-      }
-
-      if (FAILED(SaveToDDSMemory(comp.GetImages(), comp.GetImageCount(), comp.GetMetadata(), 0, outputBlob)))
-      {
-        SetReturnCode(7);
-        ezLog::Error("Failed to write compressed image to file '%s'", m_sOutputFile.GetData());
+        SetReturnCode(6);
+        ezLog::Error("Block compression failed");
         return ezApplication::Quit;
       }
+
+      pCurScratch = &comp;
     }
     else
     {
       if (outputFormat != pCombined->GetImageFormat())
       {
-        if (pCurScratch != nullptr)
+        if (FAILED(Convert(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), dxgi, TEX_FILTER_DEFAULT, 0.0f, channel)))
         {
-          if (FAILED(Convert(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), dxgi, TEX_FILTER_DEFAULT, 0.0f, channel)))
-          {
-            SetReturnCode(8);
-            ezLog::Error("Failed to convert uncompressed image to %u channels", m_uiOutputChannels);
-            return ezApplication::Quit;
-          }
-        }
-        else
-        {
-          if (FAILED(Convert(srcImg, dxgi, TEX_FILTER_DEFAULT, 0.0f, channel)))
-          {
-            SetReturnCode(8);
-            ezLog::Error("Failed to convert uncompressed image to %u channels", m_uiOutputChannels);
-            return ezApplication::Quit;
-          }
+          SetReturnCode(8);
+          ezLog::Error("Failed to convert uncompressed image to %u channels", m_uiOutputChannels);
+          return ezApplication::Quit;
         }
 
         pCurScratch = &channel;
       }
+    }
 
-      if (pCurScratch != nullptr)
-      {
-        if (FAILED(SaveToDDSMemory(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), 0, outputBlob)))
-        {
-          SetReturnCode(9);
-          ezLog::Error("Failed to write uncompressed image to file '%s'", m_sOutputFile.GetData());
-          return ezApplication::Quit;
-        }
-      }
-      else
-      {
-        if (FAILED(SaveToDDSMemory(srcImg, 0, outputBlob)))
-        {
-          SetReturnCode(9);
-          ezLog::Error("Failed to write uncompressed image to file '%s'", m_sOutputFile.GetData());
-          return ezApplication::Quit;
-        }
-      }
+    // enforce sRGB format
+    if (m_bSRGBOutput)
+    {
+      // up until here we ignore the sRGB format, to prevent automatic conversions
+      // here we just claim that the data is sRGB and get around any conversion
+      const ezImageFormat::Enum finalOutputFormat = ChooseOutputFormat(m_bSRGBOutput, bAlphaIsMaskOnly);
+      const DXGI_FORMAT finalFormatDXGI = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(finalOutputFormat);
+
+      pCurScratch->OverrideFormat(finalFormatDXGI);
+    }
+
+    const ezImageFormat::Enum dxgiOutputFormat = ezImageFormatMappings::FromDxgiFormat((ezUInt32)pCurScratch->GetMetadata().format);
+    ezLog::Info("Output Format: %s", ezImageFormat::GetName(dxgiOutputFormat));
+
+    if (FAILED(SaveToDDSMemory(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), 0, outputBlob)))
+    {
+      SetReturnCode(9);
+      ezLog::Error("Failed to write image to file '%s'", m_sOutputFile.GetData());
+      return ezApplication::Quit;
     }
 
     WriteTexHeader(fileOut);

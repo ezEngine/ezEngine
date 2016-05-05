@@ -2,6 +2,7 @@
 
 ezTexConv::ezTexConv()
 {
+  m_TextureType = TextureType::Texture2D;
   m_bGeneratedMipmaps = false;
   m_bCompress = false;
   m_uiOutputChannels = 4;
@@ -136,35 +137,17 @@ ezTexConv::ChannelMapping ezTexConv::ParseInputCfg(const char* cfg, ezInt8 iChan
   // for single-channel assignments, find all channels that should be merged into it
   do
   {
-    // sRGB input
-    {
-      if (tmp.StartsWith_NoCase("r"))
-        source.m_uiChannelMask |= Channel::RedSRGB;
+    if (tmp.StartsWith_NoCase("r"))
+      source.m_uiChannelMask |= Channel::Red;
 
-      if (tmp.StartsWith_NoCase("g"))
-        source.m_uiChannelMask |= Channel::GreenSRGB;
+    if (tmp.StartsWith_NoCase("g"))
+      source.m_uiChannelMask |= Channel::Green;
 
-      if (tmp.StartsWith_NoCase("b"))
-        source.m_uiChannelMask |= Channel::BlueSRGB;
+    if (tmp.StartsWith_NoCase("b"))
+      source.m_uiChannelMask |= Channel::Blue;
 
-      if (tmp.StartsWith_NoCase("a"))
-        source.m_uiChannelMask |= Channel::AlphaSRGB;
-    }
-
-    // linear input
-    {
-      if (tmp.StartsWith_NoCase("x"))
-        source.m_uiChannelMask |= Channel::RedLinear;
-
-      if (tmp.StartsWith_NoCase("y"))
-        source.m_uiChannelMask |= Channel::GreenLinear;
-
-      if (tmp.StartsWith_NoCase("z"))
-        source.m_uiChannelMask |= Channel::BlueLinear;
-
-      if (tmp.StartsWith_NoCase("w"))
-        source.m_uiChannelMask |= Channel::AlphaLinear;
-    }
+    if (tmp.StartsWith_NoCase("a"))
+      source.m_uiChannelMask |= Channel::Alpha;
 
     tmp.Shrink(1, 0);
   }
@@ -212,6 +195,12 @@ void ezTexConv::ParseCommandLine()
     m_bCompress = pCmd->GetBoolOption("-compress", false);
     m_bSRGBOutput = pCmd->GetBoolOption("-srgb", false);
     m_uiOutputChannels = pCmd->GetIntOption("-channels", 4);
+  }
+
+  // Texture Type
+  {
+    if (pCmd->GetBoolOption("-cubemap"))
+      m_TextureType = TextureType::Cubemap;
   }
 
   // input to output mappings
@@ -313,6 +302,7 @@ void ezTexConv::PrintConfig()
   ezLog::Info("Generate Mipmaps: %s", m_bGeneratedMipmaps ? "yes" : "no");
   ezLog::Info("Use Compression: %s", m_bCompress ? "yes" : "no");
   ezLog::Info("Output Channels: %u", m_uiOutputChannels);
+  ezLog::Info("Output is %s", m_bSRGBOutput ? "sRGB" : "Linear");
 
   for (ezUInt32 i = 0; i < m_uiOutputChannels; ++i)
   {
@@ -324,5 +314,17 @@ void ezTexConv::PrintConfig()
     {
       ezLog::Info("Output[%u] = Input[%i].%s", i, m_2dSource[i].m_iInput, ChannelMaskToString(m_2dSource[i].m_uiChannelMask).GetData());
     }
+  }
+
+  switch (m_TextureType)
+  {
+  case TextureType::Texture2D:
+    ezLog::Info("Type: 2D Texture");
+    break;
+  case TextureType::Cubemap:
+    ezLog::Info("Type: Cubemap");
+    break;
+  default:
+    EZ_ASSERT_NOT_IMPLEMENTED;
   }
 }

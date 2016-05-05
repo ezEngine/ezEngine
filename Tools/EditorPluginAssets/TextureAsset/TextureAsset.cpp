@@ -74,8 +74,7 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   if (pProp->m_bCompression)
     arguments << "-compress";
 
-  const bool sRGB = pProp->IsSRGB();
-  if (sRGB)
+  if (pProp->IsSRGB())
     arguments << "-srgb";
 
   const ezInt32 iNumInputFiles = pProp->GetNumInputFiles();
@@ -112,40 +111,40 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   case ezChannelMappingEnum::RGB1_2D:
     {
       arguments << "-rgb";
-      arguments << (sRGB ? "in0.rgb" : "in0.xyz");
+      arguments << "in0.rgb";
     }
     break;
   case ezChannelMappingEnum::R1_G2_B3_2D:
     {
       arguments << "-r";
-      arguments << (sRGB ? "in0.r" : "in0.x");
+      arguments << "in0.r";
       arguments << "-g";
-      arguments << (sRGB ? "in1.r" : "in1.x");
+      arguments << "in1.r";
       arguments << "-b";
-      arguments << (sRGB ? "in2.r" : "in2.x");
+      arguments << "in2.r";
     }
     break;
   case ezChannelMappingEnum::RGBA1_2D:
     {
       arguments << "-rgba";
-      arguments << (sRGB ? "in0.rgba" : "in0.xyzw");
+      arguments << "in0.rgba";
     }
     break;
   case ezChannelMappingEnum::RGB1_A2_2D:
     {
       arguments << "-rgb";
-      arguments << (sRGB ? "in0.rgb" : "in0.xyz");
+      arguments << "in0.rgb";
       arguments << "-a";
       arguments << "in1.x";    }
     break;
   case ezChannelMappingEnum::R1_G2_B3_A4_2D:
     {
       arguments << "-r";
-      arguments << (sRGB ? "in0.r" : "in0.x");
+      arguments << "in0.r";
       arguments << "-g";
-      arguments << (sRGB ? "in1.r" : "in1.x");
+      arguments << "in1.r";
       arguments << "-b";
-      arguments << (sRGB ? "in2.r" : "in2.x");
+      arguments << "in2.r";
       arguments << "-a";
       arguments << "in3.x";
     }
@@ -153,33 +152,33 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   case ezChannelMappingEnum::RGB1_CUBE:
     {
       arguments << "-rgb0";
-      arguments << (sRGB ? "in0.rgb" : "in0.xyz");
+      arguments << "in0.rgb";
       arguments << "-rgb1";
-      arguments << (sRGB ? "in1.rgb" : "in1.xyz");
+      arguments << "in1.rgb";
       arguments << "-rgb2";
-      arguments << (sRGB ? "in2.rgb" : "in2.xyz");
+      arguments << "in2.rgb";
       arguments << "-rgb3";
-      arguments << (sRGB ? "in3.rgb" : "in3.xyz");
+      arguments << "in3.rgb";
       arguments << "-rgb4";
-      arguments << (sRGB ? "in4.rgb" : "in4.xyz");
+      arguments << "in4.rgb";
       arguments << "-rgb5";
-      arguments << (sRGB ? "in5.rgb" : "in5.xyz");
+      arguments << "in5.rgb";
     }
     break;
   case ezChannelMappingEnum::RGBA1_CUBE:
     {
       arguments << "-rgba0";
-      arguments << (sRGB ? "in0.rgba" : "in0.xyzw");
+      arguments << "in0.rgba";
       arguments << "-rgba1";
-      arguments << (sRGB ? "in1.rgba" : "in1.xyzw");
+      arguments << "in1.rgba";
       arguments << "-rgba2";
-      arguments << (sRGB ? "in2.rgba" : "in2.xyzw");
+      arguments << "in2.rgba";
       arguments << "-rgba3";
-      arguments << (sRGB ? "in3.rgba" : "in3.xyzw");
+      arguments << "in3.rgba";
       arguments << "-rgba4";
-      arguments << (sRGB ? "in4.rgba" : "in4.xyzw");
+      arguments << "in4.rgba";
       arguments << "-rgba5";
-      arguments << (sRGB ? "in5.rgba" : "in5.xyzw");
+      arguments << "in5.rgba";
     }
     break;
   }

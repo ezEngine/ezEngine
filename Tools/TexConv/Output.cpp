@@ -13,7 +13,7 @@ void ezTexConv::WriteTexHeader(ezFileWriter& fileOut)
   }
 }
 
-ezImageFormat::Enum ezTexConv::ChooseOutputFormat(bool bSRGB) const
+ezImageFormat::Enum ezTexConv::ChooseOutputFormat(bool bSRGB, bool bAlphaIsMask) const
 {
   if (m_bCompress)
   {
@@ -28,8 +28,16 @@ ezImageFormat::Enum ezTexConv::ChooseOutputFormat(bool bSRGB) const
 
     if (m_uiOutputChannels == 4)
     {
-      /// \todo Use BC1 if entire alpha channel is either 0 or 255 (mask)
-      return bSRGB ? ezImageFormat::BC3_UNORM_SRGB : ezImageFormat::BC3_UNORM;
+      if (bAlphaIsMask)
+      {
+        // BC1 supports 1 Bit alpha, so that is more efficient for textures that only use a simple mask for alpha
+        return bSRGB ? ezImageFormat::BC1_UNORM_SRGB : ezImageFormat::BC1_UNORM;
+      }
+      else
+      {
+        return bSRGB ? ezImageFormat::BC3_UNORM_SRGB : ezImageFormat::BC3_UNORM;
+      }
+
     }
   }
   else
@@ -62,14 +70,15 @@ bool ezTexConv::CanPassThroughInput() const
     return false;
 
   const ezImage& img = m_InputImages[0];
+  const bool bAlphaIsMask = (img.GetImageFormat() == ezImageFormat::BC1_UNORM) || (img.GetImageFormat() == ezImageFormat::BC1_UNORM_SRGB);
 
-  const auto format = ChooseOutputFormat(false);
+  const auto format = ChooseOutputFormat(false, bAlphaIsMask);
 
   if (img.GetImageFormat() != format)
     return false;
 
   // we just check for ANY mipmaps, not for the correct amount
-  const bool bHasMipmaps = img.GetNumMipLevels() > 0;
+  const bool bHasMipmaps = img.GetNumMipLevels() > 1;
 
   if (bHasMipmaps != m_bGeneratedMipmaps)
     return false;
