@@ -54,19 +54,19 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedPropertyDescriptor, ezNoBase, 1, ezRTT
 EZ_END_STATIC_REFLECTED_TYPE
 
 
-ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezVariant::Type::Enum type, ezBitflags<ezPropertyFlags> flags)
+ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezBitflags<ezPropertyFlags> flags)
   : m_Category(category), m_sName(szName), m_sType(szType), m_Flags(flags)
 {
 
 }
 
-ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezVariant::Type::Enum type, ezBitflags<ezPropertyFlags> flags, const ezArrayPtr<ezPropertyAttribute* const> attributes)
+ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezBitflags<ezPropertyFlags> flags, const ezArrayPtr<ezPropertyAttribute* const> attributes)
   : m_Category(category), m_sName(szName), m_sType(szType), m_Flags(flags)
 {
   m_ReferenceAttributes = attributes;
 }
 
-ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(const char* szName, ezVariant::Type::Enum type, const ezVariant& constantValue, const ezArrayPtr<ezPropertyAttribute* const> attributes)
+ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(const char* szName, const ezVariant& constantValue, const ezArrayPtr<ezPropertyAttribute* const> attributes)
   : m_Category(ezPropertyCategory::Constant), m_sName(szName), m_sType(), m_Flags(ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly | ezPropertyFlags::Constant)
   , m_ConstantValue(constantValue)
 {

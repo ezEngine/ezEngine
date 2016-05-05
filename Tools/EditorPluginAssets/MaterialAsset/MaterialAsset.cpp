@@ -92,7 +92,7 @@ namespace
           ezStringBuilder sEnumName;
           sEnumName.Format("%s::Default", def.m_sName.GetData());
 
-          descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, ezVariant::Type::UInt8, defaultValue.Get<ezUInt32>(), noAttributes));
+          descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, defaultValue.Get<ezUInt32>(), noAttributes));
           
           for (ezUInt32 i = 0; i < enumValues.GetCount(); ++i)
           {
@@ -102,7 +102,7 @@ namespace
             ezStringBuilder sEnumName;
             sEnumName.Format("%s::%s", def.m_sName.GetData(), enumValues[i].GetData());
 
-            descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, ezVariant::Type::UInt8, i, noAttributes));
+            descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, (ezUInt32)i, noAttributes));
           }
 
           pConfig->m_pType = ezPhantomRttiManager::RegisterType(descEnum);
@@ -317,7 +317,7 @@ const ezRTTI* ezMaterialAssetProperties::UpdateShaderType(const char* szShaderPa
     if (ezReflectionUtils::IsBasicType(parameter.m_pType))
       flags |= ezPropertyFlags::StandardType;
 
-    ezReflectedPropertyDescriptor propDesc(ezPropertyCategory::Member, parameter.m_sName, parameter.m_pType->GetTypeName(), parameter.m_pType->GetVariantType(), flags);
+    ezReflectedPropertyDescriptor propDesc(ezPropertyCategory::Member, parameter.m_sName, parameter.m_pType->GetTypeName(), flags);
 
     for (auto attribute : parameter.m_Attributes)
     {

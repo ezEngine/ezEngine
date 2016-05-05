@@ -151,11 +151,11 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
       {
         ezAbstractConstantProperty* constantProp = static_cast<ezAbstractConstantProperty*>(prop);
         const ezRTTI* pPropRtti = constantProp->GetSpecificType();
-
         if (ezReflectionUtils::IsBasicType(pPropRtti))
         {
           ezVariant value = constantProp->GetConstant();
-          out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(constantProp->GetPropertyName(), pPropRtti->GetVariantType(), value, prop->GetAttributes()));
+          EZ_ASSERT_DEV(pPropRtti->GetVariantType() == value.GetType(), "Variant value type and property type should always match!");
+          out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(constantProp->GetPropertyName(), value, prop->GetAttributes()));
         }
         else
         {
@@ -169,7 +169,7 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
     case ezPropertyCategory::Set:
       {
         const ezRTTI* pPropRtti = prop->GetSpecificType();
-        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(prop->GetCategory(), prop->GetPropertyName(), pPropRtti->GetTypeName(), pPropRtti->GetVariantType(), prop->GetFlags(), prop->GetAttributes()));
+        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(prop->GetCategory(), prop->GetPropertyName(), pPropRtti->GetTypeName(), prop->GetFlags(), prop->GetAttributes()));
       }
       break;
 
