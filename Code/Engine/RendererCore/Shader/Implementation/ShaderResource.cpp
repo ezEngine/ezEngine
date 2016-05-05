@@ -1,6 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Shader/ShaderResource.h>
-#include <RendererCore/Shader/Implementation/Helper.h>
+#include <RendererCore/ShaderCompiler/ShaderParser.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderResource, 1, ezRTTIDefaultAllocator<ezShaderResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -23,7 +23,7 @@ ezResourceLoadDesc ezShaderResource::UnloadData(Unload WhatToUnload)
   return res;
 }
 
-ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReader* Stream)
+ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReader* stream)
 {
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -31,7 +31,7 @@ ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReader* Stream)
 
   m_bShaderResourceIsValid = false;
 
-  if (Stream == nullptr)
+  if (stream == nullptr)
   {
     res.m_State = ezResourceState::LoadedResourceMissing;
     return res;
@@ -40,18 +40,10 @@ ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReader* Stream)
   // skip the absolute file path data that the standard file reader writes into the stream
   {
     ezString sAbsFilePath;
-    (*Stream) >> sAbsFilePath;
+    (*stream) >> sAbsFilePath;
   }
 
-  ezString sContent;
-  sContent.ReadAll(*Stream);
-
-  ezShaderHelper::ezTextSectionizer Sections;
-  ezShaderHelper::GetShaderSections(sContent.GetData(), Sections);
-
-  ezUInt32 uiFirstLine = 0;
-  ezStringView sPermutations = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine);
-  ezShaderHelper::ParsePermutationSection(sPermutations, m_PermutationVarsUsed);
+  ezShaderParser::ParsePermutationSection(*stream, m_PermutationVarsUsed);
 
   res.m_State = ezResourceState::Loaded;
   m_bShaderResourceIsValid = true;

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <RendererCore/Declarations.h>
-#include <Foundation/Containers/HashSet.h>
 #include <Foundation/Strings/String.h>
 
 namespace ezShaderHelper
@@ -51,6 +50,7 @@ namespace ezShaderHelper
     {
       PLATFORMS,
       PERMUTATIONS,
+      MATERIALPARAMETER,
       RENDERSTATE,
       VERTEXSHADER,
       HULLSHADER,
@@ -64,7 +64,4 @@ namespace ezShaderHelper
   void GetShaderSections(const char* szContent, ezTextSectionizer& out_Sections);
 
   ezUInt32 CalculateHash(const ezArrayPtr<ezPermutationVar>& vars);
-
-  void ParsePermutationSection(ezStringView sPermutationSection, ezHybridArray<ezHashedString, 16>& out_PermVars);
-  void ParsePermutationVarConfig(ezStringView sPermutationVarConfig, ezVariant& out_DefaultValue, ezHybridArray<ezHashedString, 16>& out_EnumValues);
 }

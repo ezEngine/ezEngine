@@ -1,6 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
+#include <RendererCore/ShaderCompiler/ShaderParser.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderProgramCompiler, 1, ezRTTINoAllocator);
 // no properties or message handlers
@@ -172,7 +173,7 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(const char* szFi
   m_ShaderData.m_Platforms = sTemp;
 
   ezHybridArray<ezHashedString, 16> usedPermutations;
-  ezShaderHelper::ParsePermutationSection(Sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine), usedPermutations);
+  ezShaderParser::ParsePermutationSection(Sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine), usedPermutations);
 
   for (ezHashedString& usedPermutationVar : usedPermutations)
   {

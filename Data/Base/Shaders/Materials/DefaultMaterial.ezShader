@@ -9,6 +9,18 @@ SHADING_MODE
 TWO_SIDED
 DEFAULT_MAT_USE_BASE_TEXTURE
 
+[MATERIALPARAMETER]
+
+Permutation BLEND_MODE @Name("BlendMode");
+Permutation SHADING_MODE @Name("ShadingMode");
+Permutation TWO_SIDED @Name("TwoSided");
+
+Permutation DEFAULT_MAT_USE_BASE_TEXTURE @Name("UseBaseTexture");
+Texture2D BaseTexture;
+Color BaseColor @Default(1.0, 1.0, 1.0);
+
+float MetallicValue @Default(0.0) @Clamp(0.0, 1.0);
+
 [RENDERSTATE]
 
 #include <Shaders/Materials/MaterialState.inc>

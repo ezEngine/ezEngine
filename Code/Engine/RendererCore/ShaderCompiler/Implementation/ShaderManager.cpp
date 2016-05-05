@@ -1,8 +1,9 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
-#include <RendererCore/ShaderCompiler/ShaderCompiler.h>
+#include <RendererCore/Shader/Implementation/Helper.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
+#include <RendererCore/ShaderCompiler/ShaderParser.h>
 
 bool ezShaderManager::s_bEnableRuntimeCompilation = false;
 ezString ezShaderManager::s_sPlatform;
@@ -135,7 +136,7 @@ void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTem
   ezVariant defaultValue;
   ezHybridArray<ezHashedString, 16> enumValues;
 
-  ezShaderHelper::ParsePermutationVarConfig(sTemp, defaultValue, enumValues);
+  ezShaderParser::ParsePermutationVarConfig(sTemp, defaultValue, enumValues);
   if (defaultValue.IsValid())
   {
     ezHashedString sName; sName.Assign(szName);
