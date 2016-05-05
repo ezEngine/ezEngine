@@ -309,8 +309,15 @@ const ezRTTI* ezMaterialAssetProperties::UpdateShaderType(const char* szShaderPa
       continue;
     }
 
-    ezReflectedPropertyDescriptor propDesc(ezPropertyCategory::Member, parameter.m_sName, parameter.m_pType->GetTypeName(), parameter.m_pType->GetVariantType(), 
-      ezPropertyFlags::StandardType | ezPropertyFlags::Phantom);
+    ezBitflags<ezPropertyFlags> flags = ezPropertyFlags::Phantom;
+    if (parameter.m_pType->IsDerivedFrom<ezEnumBase>())
+      flags |= ezPropertyFlags::IsEnum;
+    if (parameter.m_pType->IsDerivedFrom<ezBitflagsBase>())
+      flags |= ezPropertyFlags::Bitflags;
+    if (ezReflectionUtils::IsBasicType(parameter.m_pType))
+      flags |= ezPropertyFlags::StandardType;
+
+    ezReflectedPropertyDescriptor propDesc(ezPropertyCategory::Member, parameter.m_sName, parameter.m_pType->GetTypeName(), parameter.m_pType->GetVariantType(), flags);
 
     for (auto attribute : parameter.m_Attributes)
     {
