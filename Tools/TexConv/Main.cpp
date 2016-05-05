@@ -18,6 +18,7 @@
 #include <CoreUtils/Image/Formats/ImageFormatMappings.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
+#include <CoreUtils/Image/Formats/DdsFileFormat.h>
 
 /// \todo volume texture creation
 /// \todo resizing or downscaling to closest POT or max resolution
@@ -460,12 +461,6 @@ public:
       return EZ_FAILURE;
     }
 
-    if (ezImageConversion::Convert(source, source, ezImageFormat::R8G8B8A8_UNORM).Failed())
-    {
-      ezLog::Error("Failed to convert file '%s' from format %s to R8G8B8A8_UNORM. Format is not supported.", ezImageFormat::GetName(source.GetImageFormat()), szFile);
-      return EZ_FAILURE;
-    }
-
     return EZ_SUCCESS;
   }
 
@@ -494,17 +489,34 @@ public:
     return EZ_SUCCESS;
   }
 
+  ezResult ConvertInputsToRGBA()
+  {
+    for (ezUInt32 i = 0; i < m_InputImages.GetCount(); ++i)
+    {
+      if (ezImageConversion::Convert(m_InputImages[i], m_InputImages[i], ezImageFormat::R8G8B8A8_UNORM).Failed())
+      {
+        ezLog::Error("Failed to convert input %i from format %s to R8G8B8A8_UNORM. Format is not supported.", i, ezImageFormat::GetName(m_InputImages[i].GetImageFormat()));
+        return EZ_FAILURE;
+      }
+    }
+
+    return EZ_SUCCESS;
+  }
+
   static inline float GetChannelValueSRGB(ezUInt32 rawColor, float& numSources)
   {
-    float fRaw = ezMath::ColorByteToFloat(rawColor);
-    fRaw = ezColor::GammaToLinear(fRaw);
+    //float fRaw = ezMath::ColorByteToFloat(rawColor);
+    //fRaw = ezColor::GammaToLinear(fRaw);
+
+    const float fRaw = ezMath::ColorByteToFloat(rawColor);
+
     numSources += 1.0f;
     return fRaw;
   }
 
   static inline float GetChannelValueLinear(ezUInt32 rawColor, float& numSources)
   {
-    float fRaw = ezMath::ColorByteToFloat(rawColor);
+    const float fRaw = ezMath::ColorByteToFloat(rawColor);
     numSources += 1.0f;
     return fRaw;
   }
@@ -612,7 +624,7 @@ public:
     return pImg;
   }
 
-  ezImageFormat::Enum ChooseOutputFormat() const
+  ezImageFormat::Enum ChooseOutputFormat(bool bSRGB) const
   {
     if (m_bCompress)
     {
@@ -623,12 +635,12 @@ public:
         return ezImageFormat::BC5_UNORM;
 
       if (m_uiOutputChannels == 3)
-        return m_bSRGBOutput ? ezImageFormat::BC1_UNORM_SRGB : ezImageFormat::BC1_UNORM;
+        return bSRGB ? ezImageFormat::BC1_UNORM_SRGB : ezImageFormat::BC1_UNORM;
 
       if (m_uiOutputChannels == 4)
       {
         /// \todo Use BC1 if entire alpha channel is either 0 or 255 (mask)
-        return m_bSRGBOutput ? ezImageFormat::BC3_UNORM_SRGB : ezImageFormat::BC3_UNORM;
+        return bSRGB ? ezImageFormat::BC3_UNORM_SRGB : ezImageFormat::BC3_UNORM;
       }
     }
     else
@@ -642,17 +654,38 @@ public:
       if (m_uiOutputChannels == 3)
       {
         /// \todo Use B8G8R8X8 ?? I think it is not properly supported everywhere
-        return m_bSRGBOutput ? ezImageFormat::R8G8B8A8_UNORM_SRGB : ezImageFormat::R8G8B8A8_UNORM;
+        return bSRGB ? ezImageFormat::R8G8B8A8_UNORM_SRGB : ezImageFormat::R8G8B8A8_UNORM;
       }
 
       if (m_uiOutputChannels == 4)
       {
-        return m_bSRGBOutput ? ezImageFormat::R8G8B8A8_UNORM_SRGB : ezImageFormat::R8G8B8A8_UNORM;
+        return bSRGB ? ezImageFormat::R8G8B8A8_UNORM_SRGB : ezImageFormat::R8G8B8A8_UNORM;
       }
     }
 
     EZ_REPORT_FAILURE("ChooseOutputFormat: Invalid control flow");
     return ezImageFormat::R8G8B8A8_UNORM_SRGB;
+  }
+
+  bool CanPassThroughInput() const
+  {
+    if (m_InputImages.GetCount() != 1)
+      return false;
+
+    const ezImage& img = m_InputImages[0];
+
+    const auto format = ChooseOutputFormat(false);
+
+    if (img.GetImageFormat() != format)
+      return false;
+
+    // we just check for ANY mipmaps, not for the correct amount
+    const bool bHasMipmaps = img.GetNumMipLevels() > 0;
+
+    if (bHasMipmaps != m_bGeneratedMipmaps)
+      return false;
+
+    return true;
   }
 
 
@@ -683,112 +716,148 @@ public:
       return ezApplication::Quit;
     }
 
-    ezImage* pCombined = CreateCombinedFile(m_2dSource);
-
     CoInitialize(nullptr);
 
-    Image srcImg;
-    srcImg.width = pCombined->GetWidth();
-    srcImg.height = pCombined->GetHeight();
-    srcImg.rowPitch = pCombined->GetRowPitch();
-    srcImg.slicePitch = pCombined->GetDepthPitch();
-    srcImg.format = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(pCombined->GetImageFormat());
-    srcImg.pixels = pCombined->GetDataPointer<ezUInt8>();
-
-    ScratchImage mip, comp, channel;
-    ScratchImage* pCurScratch = nullptr;
-
-    if (m_bGeneratedMipmaps)
+    if (CanPassThroughInput())
     {
-      if (FAILED(GenerateMipMaps(srcImg, TEX_FILTER_DEFAULT, 0, mip)))
+      ezLog::Info("Input can be passed through");
+
+      WriteTexHeader(fileOut);
+
+      ezImage* pImg = &m_InputImages[0];
+
+      ezDdsFileFormat writer;
+      if (writer.WriteImage(fileOut, *pImg, ezGlobalLog::GetOrCreateInstance()).Failed())
       {
-        SetReturnCode(5);
-        ezLog::Error("Mipmap generation failed");
-        return ezApplication::Quit;
-      }
-
-      pCurScratch = &mip;
-    }
-
-    const ezImageFormat::Enum outputFormat = ChooseOutputFormat();
-    const DXGI_FORMAT dxgi = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(outputFormat);
-
-    Blob outputBlob;
-
-    if (m_bCompress)
-    {
-      if (pCurScratch != nullptr)
-      {
-        if (FAILED(Compress(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), dxgi, TEX_COMPRESS_DEFAULT, 1.0f, comp)))
-        {
-          SetReturnCode(6);
-          ezLog::Error("Block compression failed");
-          return ezApplication::Quit;
-        }
-      }
-      else
-      {
-        if (FAILED(Compress(srcImg, dxgi, TEX_COMPRESS_DEFAULT, 1.0f, comp)))
-        {
-          SetReturnCode(6);
-          ezLog::Error("Block compression failed");
-          return ezApplication::Quit;
-        }
-      }
-
-      if (FAILED(SaveToDDSMemory(comp.GetImages(), comp.GetImageCount(), comp.GetMetadata(), 0, outputBlob)))
-      {
-        SetReturnCode(7);
-        ezLog::Error("Failed to write compressed image to file '%s'", m_sOutputFile.GetData());
+        SetReturnCode(10);
         return ezApplication::Quit;
       }
     }
     else
     {
-      if (outputFormat != pCombined->GetImageFormat())
+      if (ConvertInputsToRGBA().Failed())
+      {
+        SetReturnCode(4);
+        return ezApplication::Quit;
+      }
+
+      ezImage* pCombined = CreateCombinedFile(m_2dSource);
+
+
+      Image srcImg;
+      srcImg.width = pCombined->GetWidth();
+      srcImg.height = pCombined->GetHeight();
+      srcImg.rowPitch = pCombined->GetRowPitch();
+      srcImg.slicePitch = pCombined->GetDepthPitch();
+      srcImg.format = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(pCombined->GetImageFormat());
+      srcImg.pixels = pCombined->GetDataPointer<ezUInt8>();
+
+      ScratchImage mip, comp, channel;
+      ScratchImage* pCurScratch = nullptr;
+
+      if (m_bGeneratedMipmaps)
+      {
+        if (FAILED(GenerateMipMaps(srcImg, TEX_FILTER_DEFAULT, 0, mip)))
+        {
+          SetReturnCode(5);
+          ezLog::Error("Mipmap generation failed");
+          return ezApplication::Quit;
+        }
+
+        pCurScratch = &mip;
+      }
+
+      const ezImageFormat::Enum outputFormat = ChooseOutputFormat(false /*m_bSRGBOutput*/); // we don't want the implict sRGB conversion of MS TexConv, so just write to non-sRGB target
+      const DXGI_FORMAT dxgi = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(outputFormat);
+
+      Blob outputBlob;
+
+      if (m_bCompress)
       {
         if (pCurScratch != nullptr)
         {
-          if (FAILED(Convert(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), dxgi, TEX_FILTER_DEFAULT, 0.0f, channel)))
+          if (FAILED(Compress(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), dxgi, TEX_COMPRESS_DEFAULT, 1.0f, comp)))
           {
-            SetReturnCode(8);
-            ezLog::Error("Failed to convert uncompressed image to %u channels", m_uiOutputChannels);
+            SetReturnCode(6);
+            ezLog::Error("Block compression failed");
             return ezApplication::Quit;
           }
         }
         else
         {
-          if (FAILED(Convert(srcImg, dxgi, TEX_FILTER_DEFAULT, 0.0f, channel)))
+          if (FAILED(Compress(srcImg, dxgi, TEX_COMPRESS_DEFAULT, 1.0f, comp)))
           {
-            SetReturnCode(8);
-            ezLog::Error("Failed to convert uncompressed image to %u channels", m_uiOutputChannels);
+            SetReturnCode(6);
+            ezLog::Error("Block compression failed");
             return ezApplication::Quit;
           }
         }
 
-        pCurScratch = &channel;
-      }
-
-      if (pCurScratch != nullptr)
-      {
-        if (FAILED(SaveToDDSMemory(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), 0, outputBlob)))
+        if (FAILED(SaveToDDSMemory(comp.GetImages(), comp.GetImageCount(), comp.GetMetadata(), 0, outputBlob)))
         {
-          SetReturnCode(9);
-          ezLog::Error("Failed to write uncompressed image to file '%s'", m_sOutputFile.GetData());
+          SetReturnCode(7);
+          ezLog::Error("Failed to write compressed image to file '%s'", m_sOutputFile.GetData());
           return ezApplication::Quit;
         }
       }
       else
       {
-        if (FAILED(SaveToDDSMemory(srcImg, 0, outputBlob)))
+        if (outputFormat != pCombined->GetImageFormat())
         {
-          SetReturnCode(9);
-          ezLog::Error("Failed to write uncompressed image to file '%s'", m_sOutputFile.GetData());
-          return ezApplication::Quit;
+          if (pCurScratch != nullptr)
+          {
+            if (FAILED(Convert(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), dxgi, TEX_FILTER_DEFAULT, 0.0f, channel)))
+            {
+              SetReturnCode(8);
+              ezLog::Error("Failed to convert uncompressed image to %u channels", m_uiOutputChannels);
+              return ezApplication::Quit;
+            }
+          }
+          else
+          {
+            if (FAILED(Convert(srcImg, dxgi, TEX_FILTER_DEFAULT, 0.0f, channel)))
+            {
+              SetReturnCode(8);
+              ezLog::Error("Failed to convert uncompressed image to %u channels", m_uiOutputChannels);
+              return ezApplication::Quit;
+            }
+          }
+
+          pCurScratch = &channel;
+        }
+
+        if (pCurScratch != nullptr)
+        {
+          if (FAILED(SaveToDDSMemory(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), 0, outputBlob)))
+          {
+            SetReturnCode(9);
+            ezLog::Error("Failed to write uncompressed image to file '%s'", m_sOutputFile.GetData());
+            return ezApplication::Quit;
+          }
+        }
+        else
+        {
+          if (FAILED(SaveToDDSMemory(srcImg, 0, outputBlob)))
+          {
+            SetReturnCode(9);
+            ezLog::Error("Failed to write uncompressed image to file '%s'", m_sOutputFile.GetData());
+            return ezApplication::Quit;
+          }
         }
       }
+
+      WriteTexHeader(fileOut);
+
+      fileOut.WriteBytes(outputBlob.GetBufferPointer(), outputBlob.GetBufferSize());
     }
 
+    // everything is fine
+    SetReturnCode(0);
+    return ezApplication::Quit;
+  }
+
+  void WriteTexHeader(ezFileWriter& fileOut)
+  {
     if (ezPathUtils::HasExtension(m_sOutputFile, "ezTex"))
     {
       ezAssetFileHeader header;
@@ -798,15 +867,10 @@ public:
 
       fileOut << m_bSRGBOutput;
     }
-
-    fileOut.WriteBytes(outputBlob.GetBufferPointer(), outputBlob.GetBufferSize());
-
-    // everything is fine
-    SetReturnCode(0);
-    return ezApplication::Quit;
   }
-};
 
+
+};
 
 
 EZ_CONSOLEAPP_ENTRY_POINT(ezTexConv);
