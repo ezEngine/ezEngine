@@ -4,6 +4,39 @@
 
 namespace
 {
+  struct GetTypeFunc
+  {
+    template <typename T>
+    EZ_FORCE_INLINE void operator()()
+    {
+      m_pType = ezGetStaticRTTI<T>();
+    }
+
+    template <>
+    EZ_FORCE_INLINE void operator()<ezVariantArray>()
+    {
+      m_pType = nullptr;
+    }
+    template <>
+    EZ_FORCE_INLINE void operator()<ezVariantDictionary> ()
+    {
+      m_pType = nullptr;
+    }
+    template <>
+    EZ_FORCE_INLINE void operator() < ezReflectedClass* > ()
+    {
+      m_pType = m_pVariant->Get<ezReflectedClass*>()->GetDynamicRTTI();
+    }
+    template <>
+    EZ_FORCE_INLINE void operator() < void* > ()
+    {
+      m_pType = nullptr;
+    }
+
+    const ezVariant* m_pVariant;
+    const ezRTTI* m_pType;
+  };
+
   struct GetConstantValueFunc
   {
     template <typename T>
@@ -145,6 +178,17 @@ bool ezReflectionUtils::IsBasicType(const ezRTTI* pRtti)
   EZ_ASSERT_DEBUG(pRtti != nullptr, "IsBasicType: missing data!");
   ezVariant::Type::Enum type = pRtti->GetVariantType();
   return type >= ezVariant::Type::FirstStandardType && type <= ezVariant::Type::LastStandardType;
+}
+
+
+const ezRTTI* ezReflectionUtils::GetTypeFromVariant(const ezVariant& value)
+{
+  GetTypeFunc func;
+  func.m_pVariant = &value;
+  func.m_pType = nullptr;
+  ezVariant::DispatchTo(func, value.GetType());
+
+  return func.m_pType;
 }
 
 ezVariant ezReflectionUtils::GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject)

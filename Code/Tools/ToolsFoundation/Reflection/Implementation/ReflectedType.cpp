@@ -1,6 +1,7 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezPropertyPath functions
@@ -70,6 +71,9 @@ ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(const char* szName,
   , m_ConstantValue(constantValue)
 {
   m_ReferenceAttributes = attributes;
+  const ezRTTI* pType = ezReflectionUtils::GetTypeFromVariant(constantValue);
+  if (pType)
+    m_sType = pType->GetTypeName();
 }
 
 ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(const ezReflectedPropertyDescriptor& rhs)

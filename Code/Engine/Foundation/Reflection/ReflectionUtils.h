@@ -4,6 +4,8 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/IO/JSONWriter.h>
 
+class ezVariant;
+
 /// \brief Helper functions for handling reflection related operations.
 class EZ_FOUNDATION_DLL ezReflectionUtils
 {
@@ -12,6 +14,9 @@ public:
 
   // \brief Returns whether a type can be stored directly inside a ezVariant.
   static bool IsBasicType(const ezRTTI* pRtti);
+
+  // \brief Returns the RTTI type matching the variant's type.
+  static const ezRTTI* GetTypeFromVariant(const ezVariant& value);
 
   static ezVariant GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject); // [tested] via ToolsFoundation 
   static void SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value); // [tested] via ToolsFoundation 
