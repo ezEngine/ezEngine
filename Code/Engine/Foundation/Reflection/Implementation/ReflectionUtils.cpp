@@ -12,30 +12,31 @@ namespace
       m_pType = ezGetStaticRTTI<T>();
     }
 
-    template <>
-    EZ_FORCE_INLINE void operator()<ezVariantArray>()
-    {
-      m_pType = nullptr;
-    }
-    template <>
-    EZ_FORCE_INLINE void operator()<ezVariantDictionary> ()
-    {
-      m_pType = nullptr;
-    }
-    template <>
-    EZ_FORCE_INLINE void operator() < ezReflectedClass* > ()
-    {
-      m_pType = m_pVariant->Get<ezReflectedClass*>()->GetDynamicRTTI();
-    }
-    template <>
-    EZ_FORCE_INLINE void operator() < void* > ()
-    {
-      m_pType = nullptr;
-    }
-
     const ezVariant* m_pVariant;
     const ezRTTI* m_pType;
   };
+
+
+  template <>
+  EZ_FORCE_INLINE void GetTypeFunc::operator() < ezVariantArray > ()
+  {
+    m_pType = nullptr;
+  }
+  template <>
+  EZ_FORCE_INLINE void GetTypeFunc::operator() < ezVariantDictionary > ()
+  {
+    m_pType = nullptr;
+  }
+  template <>
+  EZ_FORCE_INLINE void GetTypeFunc::operator() < ezReflectedClass* > ()
+  {
+    m_pType = m_pVariant->Get<ezReflectedClass*>()->GetDynamicRTTI();
+  }
+  template <>
+  EZ_FORCE_INLINE void GetTypeFunc::operator() < void* > ()
+  {
+    m_pType = nullptr;
+  }
 
   struct GetConstantValueFunc
   {
