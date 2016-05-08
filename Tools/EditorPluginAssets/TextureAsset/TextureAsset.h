@@ -21,5 +21,6 @@ protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform) override { return ezStatus(EZ_SUCCESS); }
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override { return ezStatus(EZ_SUCCESS); }
 
+  ezString FindTexConvTool() const;
   ezResult RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail);
 };

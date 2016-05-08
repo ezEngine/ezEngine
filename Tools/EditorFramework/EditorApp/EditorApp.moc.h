@@ -42,6 +42,9 @@ public:
   /// \brief Returns the folder path where project and user specific data should be stored
   ezString GetProjectUserDataFolder();
 
+  /// \brief Returns the folder in which the precompiled tools can be found
+  ezString GetPrecompiledToolsFolder();
+
   const ezPluginSet& GetEditorPlugins() const { return s_EditorPlugins; }
   const ezPluginSet& GetEnginePlugins() const { return s_EnginePlugins; }
 

@@ -12,6 +12,7 @@
 #include <QProcess>
 #include <QStringList>
 #include <Foundation/IO/OSFile.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -32,6 +33,18 @@ void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
     sTemp.MakeCleanPath();
     pInfo->m_FileDependencies.Insert(sTemp);
   }
+}
+
+ezString ezTextureAssetDocument::FindTexConvTool() const
+{
+  ezStringBuilder sTool = ezQtEditorApp::GetSingleton()->GetPrecompiledToolsFolder(); 
+  sTool.AppendPath("TexConv.exe");
+
+  if (ezFileSystem::ExistsFile(sTool))
+    return sTool;
+
+  // just try the one in the same folder as the editor
+  return "TexConv.exe";
 }
 
 ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail)
@@ -182,7 +195,7 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   ezLog::Debug("TexConv.exe%s", cmd.GetData());
 
   QProcess proc;
-  proc.start(QString::fromUtf8("TexConv.exe"), arguments);
+  proc.start(QString::fromUtf8(FindTexConvTool().GetData()), arguments);
   if (!proc.waitForFinished(60000))
   {
     ezLog::Error("TexConv.exe timed out");

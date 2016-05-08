@@ -10,6 +10,14 @@ ezString ezQtEditorApp::GetEditorDataFolder()
   return sAppDir;
 }
 
+ezString ezQtEditorApp::GetPrecompiledToolsFolder()
+{
+  ezStringBuilder sPath = ezOSFile::GetApplicationDirectory();
+  sPath.AppendPath("../../../Data/Tools/Precompiled");
+  return sPath;
+
+}
+
 ezString ezQtEditorApp::GetProjectUserDataFolder()
 {
   ezStringBuilder sFile = ezToolsProject::GetSingleton()->GetProjectDataFolder();
