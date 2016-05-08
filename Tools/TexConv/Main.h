@@ -119,7 +119,9 @@ public:
   ezResult GenerateMipmaps();
   ezResult ConvertToOutputFormat();
   ezResult SaveResultToDDS();
+  ezResult SaveThumbnail();
 
+  ezString m_sThumbnailFile;
   ezFileWriter m_FileOut;
   bool m_bAlphaIsMaskOnly;
   Blob m_outputBlob;

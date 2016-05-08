@@ -11,6 +11,7 @@
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <QProcess>
 #include <QStringList>
+#include <Foundation/IO/OSFile.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -25,7 +26,7 @@ void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
 
   const ezInt32 iNumInputFiles = pProp->GetNumInputFiles();
 
-  for (ezInt32 i = 0; i< iNumInputFiles; ++i)
+  for (ezInt32 i = 0; i < iNumInputFiles; ++i)
   {
     ezStringBuilder sTemp = pProp->GetInputFile(i);
     sTemp.MakeCleanPath();
@@ -33,7 +34,7 @@ void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
   }
 }
 
-ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader)
+ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail)
 {
   const auto pProp = GetProperties();
 
@@ -64,6 +65,17 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
   arguments << "-out";
   arguments << szTargetFile;
+
+  if (bUpdateThumbnail)
+  {
+    // Thumbnail
+    const ezStringBuilder sThumbnail = GetThumbnailFilePath();
+    const ezStringBuilder sDir = sThumbnail.GetFileDirectory();
+    ezOSFile::CreateDirectoryStructure(sDir);
+
+    arguments << "-thumbnail";
+    arguments << QString::fromUtf8(sThumbnail.GetData());
+  }
 
   arguments << "-channels";
   arguments << ezConversionUtils::ToString(pProp->GetNumChannels()).GetData();
@@ -155,7 +167,7 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
       arguments << "in3.x";
     }
     break;
-  
+
   case ezChannelMappingEnum::RGB1_CUBE:
   case ezChannelMappingEnum::RGBA1_CUBE:
   case ezChannelMappingEnum::RGB1TO6_CUBE:
@@ -168,7 +180,7 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
     cmd.Append(" ", arguments[i].toUtf8().data());
 
   ezLog::Debug("TexConv.exe%s", cmd.GetData());
-  
+
   QProcess proc;
   proc.start(QString::fromUtf8("TexConv.exe"), arguments);
   if (!proc.waitForFinished(60000))
@@ -183,6 +195,11 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
     return EZ_FAILURE;
   }
 
+  if (bUpdateThumbnail)
+  {
+    InvalidateAssetThumbnail();
+  }
+
   return EZ_SUCCESS;
 }
 
@@ -191,8 +208,9 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
   EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '%s' is not supported", szPlatform);
+  const bool bUpdateThumbnail = ezStringUtils::IsEqual(szPlatform, "PC");
 
-  RunTexConv(szTargetFile, AssetHeader);
+  RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail);
 
   return ezStatus(EZ_SUCCESS);
 }

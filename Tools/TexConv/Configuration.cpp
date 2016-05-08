@@ -243,6 +243,11 @@ void ezTexConv::ParseCommandLine()
     m_uiOutputChannels = pCmd->GetIntOption("-channels", 4);
   }
 
+  // Thumbnail
+  {
+    m_sThumbnailFile = pCmd->GetStringOption("-thumbnail");
+  }
+
   // input to output mappings
   {
     tmp = pCmd->GetStringOption("-rgba");

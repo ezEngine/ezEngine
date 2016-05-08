@@ -269,9 +269,20 @@ ezStatus ezAssetDocument::RetrieveAssetInfo(const char* szPlatform)
   return stat;
 }
 
+ezString ezAssetDocument::GetThumbnailFilePath() const
+{
+  return static_cast<ezAssetDocumentManager*>(GetDocumentManager())->GenerateResourceThumbnailPath(GetDocumentPath());
+}
+
+void ezAssetDocument::InvalidateAssetThumbnail()
+{
+  const ezStringBuilder sResourceFile = GetThumbnailFilePath();
+  ezQtImageCache::InvalidateCache(sResourceFile);
+}
+
 void ezAssetDocument::SaveThumbnail(const ezImage& img)
 {
-  const ezStringBuilder sResourceFile = static_cast<ezAssetDocumentManager*>(GetDocumentManager())->GenerateResourceThumbnailPath(GetDocumentPath());
+  const ezStringBuilder sResourceFile = GetThumbnailFilePath();
 
   EZ_LOG_BLOCK("Save Asset Thumbnail", sResourceFile.GetData());
 
@@ -330,7 +341,7 @@ void ezAssetDocument::SaveThumbnail(const ezImage& img)
     return;
   }
 
-  ezQtImageCache::InvalidateCache(sResourceFile);
+  InvalidateAssetThumbnail();
 }
 
 ezString ezAssetDocument::GetFinalOutputFileName(const char* szPlatform)

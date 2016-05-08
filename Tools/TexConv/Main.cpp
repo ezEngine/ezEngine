@@ -1,4 +1,5 @@
 #include "Main.h"
+#include <wincodec.h>
 
 /// \todo volume texture creation
 /// \todo resizing or downscaling to closest POT or max resolution
@@ -10,7 +11,7 @@
 /// \todo Check to generate Mipmaps in Linear space (does that make a difference??)
 /// \todo Different mipmap generation for alpha
 
-/// \todo Write thumbnail to additional location
+
 /// \todo Reading (compressed) TGA very slow
 /// \todo Use checked in TexConv (release build) for asset transform
 /// \todo Optimize image compositing
@@ -76,6 +77,27 @@ ezApplication::ApplicationExecution ezTexConv::Run()
 
     if (PassImageThrough().Failed())
       return ezApplication::Quit;
+
+    if (!m_sThumbnailFile.IsEmpty())
+    {
+      if (ConvertInputsToRGBA().Failed())
+        return ezApplication::Quit;
+
+      const ezImage& img = m_InputImages[0];
+
+      Image srcImg;
+      srcImg.width = img.GetWidth();
+      srcImg.height = img.GetHeight();
+      srcImg.rowPitch = img.GetRowPitch();
+      srcImg.slicePitch = img.GetDepthPitch();
+      srcImg.format = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(img.GetImageFormat());
+      srcImg.pixels = const_cast<ezUInt8*>(img.GetPixelPointer<ezUInt8>(0, 0));
+
+      m_pCurrentImage = make_shared<ScratchImage>();
+      m_pCurrentImage->InitializeFromImage(srcImg);
+
+      SaveThumbnail();
+    }
   }
   else
   {
@@ -96,6 +118,8 @@ ezApplication::ApplicationExecution ezTexConv::Run()
     if (GenerateMipmaps().Failed())
       return ezApplication::Quit;
 
+    SaveThumbnail();
+
     if (ConvertToOutputFormat().Failed())
       return ezApplication::Quit;
 
@@ -103,11 +127,70 @@ ezApplication::ApplicationExecution ezTexConv::Run()
       return ezApplication::Quit;
   }
 
+  m_pCurrentImage = nullptr;
+
   // everything is fine
   SetReturnCode(TexConvReturnCodes::OK);
   return ezApplication::Quit;
 }
 
 
+
+ezResult ezTexConv::SaveThumbnail()
+{
+  if (m_sThumbnailFile.IsEmpty())
+    return EZ_SUCCESS;
+
+  ezLog::Info("Thumbnail: '%s'", m_sThumbnailFile.GetData());
+
+  const ezUInt32 uiThumbnailSize = 128;
+
+  ezUInt32 iThumbnailMip = 0;
+
+  for (ezUInt32 i = 0; i < m_pCurrentImage->GetMetadata().mipLevels; ++i)
+  {
+    iThumbnailMip = i;
+
+    if (m_pCurrentImage->GetImage(i, 0, 0)->width <= uiThumbnailSize &&
+        m_pCurrentImage->GetImage(i, 0, 0)->height <= uiThumbnailSize)
+      break;
+  }
+
+  const Image* pThumbnailSrc = m_pCurrentImage->GetImage(iThumbnailMip, 0, 0);
+  ScratchImage temp;
+
+  if (pThumbnailSrc->width > uiThumbnailSize || pThumbnailSrc->height > uiThumbnailSize)
+  {
+    ezUInt32 w, h;
+
+    if (pThumbnailSrc->width == pThumbnailSrc->height)
+    {
+      w = uiThumbnailSize;
+      h = uiThumbnailSize;
+    }
+    else if (pThumbnailSrc->width >= pThumbnailSrc->height)
+    {
+      const float fAdjust = (float)uiThumbnailSize / (float)pThumbnailSrc->width;
+      w = uiThumbnailSize;
+      h = (ezUInt32)(pThumbnailSrc->height * fAdjust);
+    }
+    else
+    {
+      const float fAdjust = (float)uiThumbnailSize / (float)pThumbnailSrc->height;
+      w = (ezUInt32)(pThumbnailSrc->width * fAdjust);
+      h = uiThumbnailSize;
+    }
+
+    if (FAILED(Resize(*pThumbnailSrc, w, h, TEX_FILTER_BOX, temp)))
+      return EZ_FAILURE;
+
+    pThumbnailSrc = temp.GetImage(0, 0, 0);
+  }
+
+  if (FAILED(SaveToWICFile(*pThumbnailSrc, 0, GUID_ContainerFormatJpeg, ezStringWChar(m_sThumbnailFile).GetData())))
+    return EZ_FAILURE;
+
+  return EZ_SUCCESS;
+}
 
 EZ_CONSOLEAPP_ENTRY_POINT(ezTexConv);

@@ -89,6 +89,13 @@ protected:
   /// This will ensure that assets get re-transformed, even though their settings and dependencies might not have changed.
   virtual ezUInt16 GetAssetTypeVersion() const = 0;
 
+  /// \brief Returns the full path to the jpg file in which the thumbnail for this asset is supposed to be
+  ezString GetThumbnailFilePath() const;
+
+  /// \brief Should be called after manually changing the thumbnail, such that the system will reload it
+  void InvalidateAssetThumbnail();
+
+  /// \brief Saves the given image as the new thumbnail for the asset
   void SaveThumbnail(const ezImage& img);
 
 private:
