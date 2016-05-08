@@ -6,7 +6,7 @@
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureUsageEnum, 1)
 EZ_ENUM_CONSTANTS(ezTextureUsageEnum::Unknown, ezTextureUsageEnum::Diffuse, ezTextureUsageEnum::NormalMap, ezTextureUsageEnum::EmissiveMask)
-EZ_ENUM_CONSTANTS(ezTextureUsageEnum::EmissiveColor, ezTextureUsageEnum::Height, ezTextureUsageEnum::Mask, ezTextureUsageEnum::LookupTable, ezTextureUsageEnum::Skybox)
+EZ_ENUM_CONSTANTS(ezTextureUsageEnum::EmissiveColor, ezTextureUsageEnum::Height, ezTextureUsageEnum::Mask, ezTextureUsageEnum::LookupTable)
 EZ_ENUM_CONSTANTS(ezTextureUsageEnum::Other_sRGB, ezTextureUsageEnum::Other_Linear)//, ezTextureUsageEnum::Other_sRGB_Auto, ezTextureUsageEnum::Other_Linear_Auto)
 EZ_END_STATIC_REFLECTED_ENUM();
 
@@ -15,7 +15,7 @@ EZ_ENUM_CONSTANTS(ezChannelMappingEnum::R1_2D)
 EZ_ENUM_CONSTANTS(ezChannelMappingEnum::RG1_2D, ezChannelMappingEnum::R1_G2_2D)
 EZ_ENUM_CONSTANTS(ezChannelMappingEnum::RGB1_2D, ezChannelMappingEnum::R1_G2_B3_2D)
 EZ_ENUM_CONSTANTS(ezChannelMappingEnum::RGBA1_2D, ezChannelMappingEnum::RGB1_A2_2D, ezChannelMappingEnum::R1_G2_B3_A4_2D)
-EZ_ENUM_CONSTANTS(ezChannelMappingEnum::RGB1_CUBE, ezChannelMappingEnum::RGBA1_CUBE)
+EZ_ENUM_CONSTANTS(ezChannelMappingEnum::RGB1_CUBE, ezChannelMappingEnum::RGBA1_CUBE, ezChannelMappingEnum::RGB1TO6_CUBE, ezChannelMappingEnum::RGBA1TO6_CUBE)
 EZ_END_STATIC_REFLECTED_ENUM();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 1, ezRTTIDefaultAllocator<ezTextureAssetProperties>)
@@ -58,6 +58,25 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
     props["Input 5"].m_Visibility = ezPropertyUiState::Invisible;
     props["Input 6"].m_Visibility = ezPropertyUiState::Invisible;
 
+    if (mapping == ezChannelMappingEnum::RGB1TO6_CUBE || mapping == ezChannelMappingEnum::RGBA1TO6_CUBE)
+    {
+      props["Input 1"].m_sNewLabelText = "Right (+X)";
+      props["Input 2"].m_sNewLabelText = "Left (-X)";
+      props["Input 3"].m_sNewLabelText = "Top (+Y)";
+      props["Input 4"].m_sNewLabelText = "Bottom (-Y)";
+      props["Input 5"].m_sNewLabelText = "Front (+Z)";
+      props["Input 6"].m_sNewLabelText = "Back (-Z)";
+    }
+    else
+    {
+      props["Input 1"].m_sNewLabelText = "Input 1";
+      props["Input 2"].m_sNewLabelText = "Input 2";
+      props["Input 3"].m_sNewLabelText = "Input 3";
+      props["Input 4"].m_sNewLabelText = "Input 4";
+      props["Input 5"].m_sNewLabelText = "Input 5";
+      props["Input 6"].m_sNewLabelText = "Input 6";
+    }
+
     switch (mapping)
     {
     case ezChannelMappingEnum::R1_G2_2D:
@@ -70,8 +89,8 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
       break;
 
 
-    case ezChannelMappingEnum::RGB1_CUBE:
-    case ezChannelMappingEnum::RGBA1_CUBE:
+    case ezChannelMappingEnum::RGB1TO6_CUBE:
+    case ezChannelMappingEnum::RGBA1TO6_CUBE:
       props["Input 6"].m_Visibility = ezPropertyUiState::Default;
       props["Input 5"].m_Visibility = ezPropertyUiState::Default;
       // fall through
@@ -115,6 +134,8 @@ ezInt32 ezTextureAssetProperties::GetNumInputFiles() const
   case ezChannelMappingEnum::RG1_2D:
   case ezChannelMappingEnum::RGB1_2D:
   case ezChannelMappingEnum::RGBA1_2D:
+  case ezChannelMappingEnum::RGB1_CUBE:
+  case ezChannelMappingEnum::RGBA1_CUBE:
     return 1;
 
   case ezChannelMappingEnum::R1_G2_2D:
@@ -127,8 +148,8 @@ ezInt32 ezTextureAssetProperties::GetNumInputFiles() const
   case ezChannelMappingEnum::R1_G2_B3_A4_2D:
     return 4;
 
-  case ezChannelMappingEnum::RGB1_CUBE:
-  case ezChannelMappingEnum::RGBA1_CUBE:
+  case ezChannelMappingEnum::RGB1TO6_CUBE:
+  case ezChannelMappingEnum::RGBA1TO6_CUBE:
     return 6;
   }
 
@@ -151,44 +172,20 @@ ezInt32 ezTextureAssetProperties::GetNumChannels() const
   case ezChannelMappingEnum::RGB1_2D:
   case ezChannelMappingEnum::R1_G2_B3_2D:
   case ezChannelMappingEnum::RGB1_CUBE:
+  case ezChannelMappingEnum::RGB1TO6_CUBE:
     return 3;
 
   case ezChannelMappingEnum::RGBA1_2D:
   case ezChannelMappingEnum::RGB1_A2_2D:
   case ezChannelMappingEnum::R1_G2_B3_A4_2D:
   case ezChannelMappingEnum::RGBA1_CUBE:
+  case ezChannelMappingEnum::RGBA1TO6_CUBE:
     return 4;
   }
 
   EZ_REPORT_FAILURE("Invalid Code Path");
   return 4;
 }
-
-//void ezTextureAssetProperties::SetInputFile(const char* szFile)
-//{
-//  ezStringBuilder sTemp = szFile;
-//  sTemp.MakeCleanPath();
-//
-//  ezString sPath = sTemp;
-//
-//  if (!sTemp.IsAbsolutePath())
-//  {
-//    ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
-//  }
-//
-//  m_TextureType = ezTextureTypeEnum::Unknown;
-//
-//  m_Input = sTemp;
-//  if (m_Image.LoadFrom(sPath).Succeeded())
-//  {
-//    if (m_Image.GetNumFaces() == 6)
-//      m_TextureType = ezTextureTypeEnum::TextureCube;
-//    else if (m_Image.GetDepth() > 1)
-//      m_TextureType = ezTextureTypeEnum::Texture3D;
-//    else
-//      m_TextureType = ezTextureTypeEnum::Texture2D;
-//  }
-//}
 
 bool ezTextureAssetProperties::IsSRGB() const
 {
@@ -226,6 +223,8 @@ bool ezTextureAssetProperties::IsTexture2D() const
 bool ezTextureAssetProperties::IsTextureCube() const
 {
   return (m_ChannelMapping == ezChannelMappingEnum::RGB1_CUBE ||
-          m_ChannelMapping == ezChannelMappingEnum::RGBA1_CUBE);
+          m_ChannelMapping == ezChannelMappingEnum::RGBA1_CUBE ||
+          m_ChannelMapping == ezChannelMappingEnum::RGB1TO6_CUBE ||
+          m_ChannelMapping == ezChannelMappingEnum::RGBA1TO6_CUBE);
 }
 

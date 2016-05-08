@@ -9,10 +9,13 @@ ezTexConv::ezTexConv()
   m_bSRGBOutput = false;
   m_uiAssetHash = 0;
   m_uiAssetVersion = 0;
+  m_bAlphaIsMaskOnly = false;
 }
 
 void ezTexConv::AfterCoreStartup()
 {
+  CoInitialize(nullptr);
+
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 
@@ -32,6 +35,8 @@ void ezTexConv::AfterCoreStartup()
 
 void ezTexConv::BeforeCoreShutdown()
 {
+  m_FileOut.Close();
+
   for (auto pImg : m_CleanupImages)
   {
     EZ_DEFAULT_DELETE(pImg);
@@ -184,6 +189,47 @@ void ezTexConv::ParseCommandLine()
       m_InputFileNames.PushBack(res);
   }
 
+  // Texture Type
+  {
+    if (pCmd->GetBoolOption("-cubemap"))
+      m_TextureType = TextureType::Cubemap;
+  }
+
+  if (m_TextureType == TextureType::Cubemap)
+  {
+    // 0 = +X = Right
+    // 1 = -X = Left
+    // 2 = +Y = Top
+    // 3 = -Y = Bottom
+    // 4 = +Z = Front
+    // 5 = -Z = Back
+
+    if (m_InputFileNames.IsEmpty())
+    {
+      m_InputFileNames.SetCount(6);
+
+      m_InputFileNames[0] = pCmd->GetStringOption("-right");
+      m_InputFileNames[1] = pCmd->GetStringOption("-left");
+      m_InputFileNames[2] = pCmd->GetStringOption("-top");
+      m_InputFileNames[3] = pCmd->GetStringOption("-bottom");
+      m_InputFileNames[4] = pCmd->GetStringOption("-front");
+      m_InputFileNames[5] = pCmd->GetStringOption("-back");
+    }
+
+    if (m_InputFileNames.IsEmpty())
+    {
+      m_InputFileNames.SetCount(6);
+
+      m_InputFileNames[0] = pCmd->GetStringOption("-px");
+      m_InputFileNames[1] = pCmd->GetStringOption("-nx");
+      m_InputFileNames[2] = pCmd->GetStringOption("-py");
+      m_InputFileNames[3] = pCmd->GetStringOption("-ny");
+      m_InputFileNames[4] = pCmd->GetStringOption("-pz");
+      m_InputFileNames[5] = pCmd->GetStringOption("-nz");
+    }
+  }
+
+
   // target file
   {
     m_sOutputFile = pCmd->GetStringOption("-out");
@@ -195,12 +241,6 @@ void ezTexConv::ParseCommandLine()
     m_bCompress = pCmd->GetBoolOption("-compress", false);
     m_bSRGBOutput = pCmd->GetBoolOption("-srgb", false);
     m_uiOutputChannels = pCmd->GetIntOption("-channels", 4);
-  }
-
-  // Texture Type
-  {
-    if (pCmd->GetBoolOption("-cubemap"))
-      m_TextureType = TextureType::Cubemap;
   }
 
   // input to output mappings
@@ -263,24 +303,28 @@ ezResult ezTexConv::ValidateConfiguration()
 {
   if (m_InputFileNames.IsEmpty())
   {
+    SetReturnCode(TexConvReturnCodes::VALIDATION_FAILED);
     ezLog::Error("No input files are specified. Use the -in command for a single file, or -in0 ... -in31 for multiple input files");
     return EZ_FAILURE;
   }
 
   if (m_sOutputFile.IsEmpty())
   {
+    SetReturnCode(TexConvReturnCodes::VALIDATION_FAILED);
     ezLog::Error("No output file is specified. Use the -out command for this");
     return EZ_FAILURE;
   }
 
   if (m_uiOutputChannels > 4)
   {
+    SetReturnCode(TexConvReturnCodes::VALIDATION_FAILED);
     ezLog::Error("Number of target channels (%u) is invalid", m_uiOutputChannels);
     return EZ_FAILURE;
   }
 
   if (m_uiOutputChannels < 3 && m_bSRGBOutput)
   {
+    SetReturnCode(TexConvReturnCodes::VALIDATION_FAILED);
     ezLog::Error("-srgb flag is invalid for 1 and 2 channel textures, as they do not support sRGB output.");
     return EZ_FAILURE;
   }

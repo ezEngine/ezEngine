@@ -58,22 +58,25 @@ bool ezTexConv::IsImageAlphaBinaryMask(const ezImage& img)
 {
   EZ_ASSERT_DEV(img.GetImageFormat() == ezImageFormat::R8G8B8A8_UNORM, "Unsupported image format");
 
-  for (ezUInt32 face = 0; face < img.GetNumFaces(); ++face)
+  for (ezUInt32 array = 0; array < img.GetNumArrayIndices(); ++array)
   {
-    const ezUInt8* pData = img.GetPixelPointer<ezUInt8>(0, face);
-    const ezUInt32 uiRowPitch = img.GetRowPitch();
-
-    for (ezUInt32 y = 0; y < img.GetHeight(); ++y)
+    for (ezUInt32 face = 0; face < img.GetNumFaces(); ++face)
     {
-      for (ezUInt32 x = 0; x < img.GetWidth(); ++x)
+      const ezUInt8* pData = img.GetPixelPointer<ezUInt8>(0, face, array);
+      const ezUInt32 uiRowPitch = img.GetRowPitch();
+
+      for (ezUInt32 y = 0; y < img.GetHeight(); ++y)
       {
-        const ezUInt8 alpha = pData[x * 4 + 3];
+        for (ezUInt32 x = 0; x < img.GetWidth(); ++x)
+        {
+          const ezUInt8 alpha = pData[x * 4 + 3];
 
-        if (alpha > 5 && alpha < 250)
-          return false;
+          if (alpha > 5 && alpha < 250)
+            return false;
+        }
+
+        pData += uiRowPitch;
       }
-
-      pData += uiRowPitch;
     }
   }
 

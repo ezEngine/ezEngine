@@ -24,7 +24,6 @@ struct ezTextureUsageEnum
     Height,
     Mask,
     LookupTable,
-    Skybox,
 
     Default = Unknown,
   };
@@ -54,6 +53,9 @@ struct ezChannelMappingEnum
 
     RGB1_CUBE,
     RGBA1_CUBE,
+
+    RGB1TO6_CUBE,
+    RGBA1TO6_CUBE,
 
     Default = RGB1_2D,
   };

@@ -19,8 +19,29 @@
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <CoreUtils/Image/Formats/DdsFileFormat.h>
+#include <memory>
 
 using namespace DirectX;
+using namespace std;
+
+enum TexConvReturnCodes
+{
+  OK,
+  UNKNOWN_FAILURE,
+  VALIDATION_FAILED,
+  BAD_SINGLE_CUBEMAP_FILE,
+  FAILED_CONVERT_INPUT_TO_RGBA,
+  FAILED_WRITE_OUTPUT,
+  FAILED_LOAD_INPUTS,
+  BAD_INPUT_RESOLUTIONS,
+  FAILED_PASS_THROUGH,
+  FAILED_MIPMAP_GENERATION,
+  FAILED_BC_COMPRESSION,
+  FAILED_CONVERT_TO_OUTPUT_FORMAT,
+  FAILED_SAVE_AS_DDS,
+  FAILED_INITIALIZE_CUBEMAP,
+  FAILED_COMBINE_CUBEMAP,
+};
 
 class ezTexConv : public ezApplication
 {
@@ -82,10 +103,25 @@ public:
   float GetChannelValue(const ChannelMapping& ds, const ezUInt32 rgba);
   bool IsImageAlphaBinaryMask(const ezImage& img);
 
-  ezImage* CreateCombinedFile(const ChannelMapping* dataSources);
+  ezImage* CreateCombined2DImage(const ChannelMapping* dataSources);
   ezImageFormat::Enum ChooseOutputFormat(bool bSRGB, bool bAlphaIsMask) const;
   bool CanPassThroughInput() const;
-  void WriteTexHeader(ezFileWriter& fileOut);
+  void WriteTexHeader();
 
   virtual ezApplication::ApplicationExecution Run() override;
+
+  ezResult CreateTexture2D();
+  ezResult CreateTextureCube();
+  ezResult CreateTextureCubeFromSingleFile();
+  ezResult CreateTextureCubeFrom6Files();
+
+  ezResult PassImageThrough();
+  ezResult GenerateMipmaps();
+  ezResult ConvertToOutputFormat();
+  ezResult SaveResultToDDS();
+
+  ezFileWriter m_FileOut;
+  bool m_bAlphaIsMaskOnly;
+  Blob m_outputBlob;
+  shared_ptr<ScratchImage> m_pCurrentImage;
 };

@@ -1,15 +1,15 @@
 #include "Main.h"
 
-void ezTexConv::WriteTexHeader(ezFileWriter& fileOut)
+void ezTexConv::WriteTexHeader()
 {
   if (ezPathUtils::HasExtension(m_sOutputFile, "ezTex"))
   {
     ezAssetFileHeader header;
     header.SetFileHashAndVersion(m_uiAssetHash, m_uiAssetVersion);
 
-    header.Write(fileOut);
+    header.Write(m_FileOut);
 
-    fileOut << m_bSRGBOutput;
+    m_FileOut << m_bSRGBOutput;
   }
 }
 

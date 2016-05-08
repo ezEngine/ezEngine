@@ -7,22 +7,23 @@
     "AssetType" : "Texture Cube",
     "Dependencies" : "Cubemaps/SanFranciscoBeach.dds",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x5DB76CBA6757094599C742EE599607A3" },
-    "Hash" : { "$t" : "uint64", "$v" : "655759153495300657", "$b" : "0x315A4CCA79B91909" },
-    "References" : ""
+    "Hash" : { "$t" : "uint64", "$v" : "14362092621005848448", "$b" : "0x80FF4F2A256750C7" }
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0x30C038E0BBD97C45987EC7343EDC4B2E" },
    "t" : "ezTextureAssetProperties",
    "p" : {
-    "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
-    "Format" : "B8G8R8X8_UNORM",
-    "Height" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
-    "Texture File" : "Cubemaps/SanFranciscoBeach.dds",
-    "Type" : "ezTextureTypeEnum::TextureCube",
-    "Usage" : "ezTextureUsageEnum::Diffuse",
-    "Width" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
-    "sRGB-Mode" : "ezSRGBModeEnum::sRGB"
+    "Channel Mapping" : "ezChannelMappingEnum::RGB1_CUBE",
+    "Compression" : true,
+    "Input 1" : "Cubemaps/SanFranciscoBeach.dds",
+    "Input 2" : "",
+    "Input 3" : "",
+    "Input 4" : "",
+    "Input 5" : "",
+    "Input 6" : "",
+    "Mipmaps" : true,
+    "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   },
   {
@@ -32,5 +33,6 @@
    "p" : {
     "Children" : [ { "$t" : "uuid", "$b" : "0x30C038E0BBD97C45987EC7343EDC4B2E" } ]
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

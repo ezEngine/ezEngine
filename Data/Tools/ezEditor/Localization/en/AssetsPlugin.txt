@@ -15,13 +15,15 @@ Prim.Cylinder.Radius2;Radius Bottom
 Prim.Cylinder.Angle;Angle;How much of the cylinder to use. 360 is the full cylinder, 180 is only half of it.
 Prim.Cylinder.Cap1;Cap Top;Whether to cap the top
 Prim.Cylinder.Cap2;Cap Bottom;Whether to cap the bottom
-ezChannelMappingEnum::R1_2D;Red - Input1.r
-ezChannelMappingEnum::RG1_2D;RG - Input1.rg
+ezChannelMappingEnum::R1_2D;Red - Single Input
+ezChannelMappingEnum::RG1_2D;Red Green - Single Input
 ezChannelMappingEnum::R1_G2_2D;RG - Input1.r, Input2.r
-ezChannelMappingEnum::RGB1_2D;RGB - Input1.rgb
+ezChannelMappingEnum::RGB1_2D;RGB - Single Input
 ezChannelMappingEnum::R1_G2_B3_2D;RGB - Input1.r, Input2.r, Input3.r
-ezChannelMappingEnum::RGBA1_2D;RGBA - Input1.rgba
+ezChannelMappingEnum::RGBA1_2D;RGBA - Single Input
 ezChannelMappingEnum::RGB1_A2_2D;RGBA - Input1.rgb, Input2.r
 ezChannelMappingEnum::R1_G2_B3_A4_2D;RGBA - Input1.r, Input2.r, Input3.r, Input4.r
-ezChannelMappingEnum::RGB1_CUBE;Cubemap: RGB - Input1.rgb
-ezChannelMappingEnum::RGBA1_CUBE;Cubemap: RGBA - Input1.rgba
+ezChannelMappingEnum::RGB1_CUBE;Cubemap: RGB - Single Input
+ezChannelMappingEnum::RGBA1_CUBE;Cubemap: RGBA - Single Input
+ezChannelMappingEnum::RGB1TO6_CUBE;Cubemap: RGB - 6 Inputs
+ezChannelMappingEnum::RGBA1TO6_CUBE;Cubemap: RGBA - 6 Inputs

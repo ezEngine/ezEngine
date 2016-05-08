@@ -8,10 +8,10 @@
 /// \todo Return loaded image pointer, if no combination is necessary
 /// \todo Handle different input sizes
 /// \todo Check to generate Mipmaps in Linear space (does that make a difference??)
+/// \todo Different mipmap generation for alpha
 
 /// \todo Write thumbnail to additional location
 /// \todo Reading (compressed) TGA very slow
-/// \todo cubemap creation
 /// \todo Use checked in TexConv (release build) for asset transform
 /// \todo Optimize image compositing
 
@@ -30,6 +30,7 @@
 -g inX.b -> the output GREEN channel is taken from the BLUE channel of input file X.
 -b inX.rgb -> the output BLUE channel is the weighted average of the RGB channels in input file X.
 -rgba inX.rrra -> the output RGB cannels are all initialized from the RED channel of input X. Alpha is copied directly.
+-cubemap -> The 6 given 2D input textures are supposed to be combined as a cubemap
 
 For the output you can use
 -r, -g, -b, -a, -rg, -rgb or -rgba
@@ -40,153 +41,70 @@ and any combination of rgb, bgar, etc. for swizzling
 
 When a single channel is written (e.g. -r) you can read from multiple channels (e.g. rgb) to create an averaged value.
 
+For cubemaps you can pass in single DDS textures, if they are already packed as a cubemap.
+Or you can pass in 6 2D textures and the -cubemap command to combine them.
+Instead of -inX you can also use -front, -back, -left, -right, -top, -bottom or -nx, -px, -ny, -py, -nz, -pz to indicate
+the individual cubemap faces.
+Cubemap channels cannot be combined from multiple input textures.
+
+
 */
 
 ezApplication::ApplicationExecution ezTexConv::Run()
 {
   // general failure
-  SetReturnCode(1);
+  SetReturnCode(TexConvReturnCodes::UNKNOWN_FAILURE);
 
   PrintConfig();
 
   if (ValidateConfiguration().Failed())
-  {
-    SetReturnCode(2);
     return ezApplication::Quit;
-  }
 
-  ezFileWriter fileOut;
-  if (fileOut.Open(m_sOutputFile, 1024 * 1024 * 8).Failed())
+  if (m_FileOut.Open(m_sOutputFile, 1024 * 1024 * 8).Failed())
   {
-    SetReturnCode(3);
+    SetReturnCode(TexConvReturnCodes::FAILED_WRITE_OUTPUT);
     ezLog::Error("Could not open output file for writing: '%s'", m_sOutputFile.GetData());
     return ezApplication::Quit;
   }
 
   if (LoadInputs().Failed())
-  {
-    SetReturnCode(4);
     return ezApplication::Quit;
-  }
-
-  CoInitialize(nullptr);
 
   if (CanPassThroughInput())
   {
     ezLog::Info("Input can be passed through");
 
-    WriteTexHeader(fileOut);
-
-    ezImage* pImg = &m_InputImages[0];
-
-    ezDdsFileFormat writer;
-    if (writer.WriteImage(fileOut, *pImg, ezGlobalLog::GetOrCreateInstance()).Failed())
-    {
-      SetReturnCode(10);
+    if (PassImageThrough().Failed())
       return ezApplication::Quit;
-    }
   }
   else
   {
     if (ConvertInputsToRGBA().Failed())
-    {
-      SetReturnCode(4);
       return ezApplication::Quit;
-    }
 
-    ezImage* pCombined = CreateCombinedFile(m_2dSource);
-
-    Image srcImg;
-    srcImg.width = pCombined->GetWidth();
-    srcImg.height = pCombined->GetHeight();
-    srcImg.rowPitch = pCombined->GetRowPitch();
-    srcImg.slicePitch = pCombined->GetDepthPitch();
-    srcImg.format = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(pCombined->GetImageFormat());
-    srcImg.pixels = pCombined->GetDataPointer<ezUInt8>();
-
-    ScratchImage src;
-    src.InitializeFromImage(srcImg);
-
-    ScratchImage mip, comp, channel;
-    ScratchImage* pCurScratch = &src;
-
-    if (m_bGeneratedMipmaps)
+    if (m_TextureType == TextureType::Cubemap)
     {
-      if (FAILED(GenerateMipMaps(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), TEX_FILTER_DEFAULT, 0, mip)))
-      {
-        SetReturnCode(5);
-        ezLog::Error("Mipmap generation failed");
+      if (CreateTextureCube().Failed())
         return ezApplication::Quit;
-      }
-
-      pCurScratch = &mip;
-    }
-
-    bool bAlphaIsMaskOnly = false;
-    if (m_uiOutputChannels == 4 && m_bCompress)
-    {
-      bAlphaIsMaskOnly = IsImageAlphaBinaryMask(*pCombined);
-    }
-
-    const ezImageFormat::Enum outputFormat = ChooseOutputFormat(false /*m_bSRGBOutput*/, bAlphaIsMaskOnly); // we don't want the implicit sRGB conversion of MS TexConv, so just write to non-sRGB target
-    const DXGI_FORMAT dxgi = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(outputFormat);
-
-    Blob outputBlob;
-
-    if (m_bCompress)
-    {
-      if (FAILED(Compress(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), dxgi, TEX_COMPRESS_DEFAULT, 1.0f, comp)))
-      {
-        SetReturnCode(6);
-        ezLog::Error("Block compression failed");
-        return ezApplication::Quit;
-      }
-
-      pCurScratch = &comp;
     }
     else
     {
-      if (outputFormat != pCombined->GetImageFormat())
-      {
-        if (FAILED(Convert(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), dxgi, TEX_FILTER_DEFAULT, 0.0f, channel)))
-        {
-          SetReturnCode(8);
-          ezLog::Error("Failed to convert uncompressed image to %u channels", m_uiOutputChannels);
-          return ezApplication::Quit;
-        }
-
-        pCurScratch = &channel;
-      }
+      if (CreateTexture2D().Failed())
+        return ezApplication::Quit;
     }
 
-    // enforce sRGB format
-    if (m_bSRGBOutput)
-    {
-      // up until here we ignore the sRGB format, to prevent automatic conversions
-      // here we just claim that the data is sRGB and get around any conversion
-      const ezImageFormat::Enum finalOutputFormat = ChooseOutputFormat(m_bSRGBOutput, bAlphaIsMaskOnly);
-      const DXGI_FORMAT finalFormatDXGI = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(finalOutputFormat);
-
-      pCurScratch->OverrideFormat(finalFormatDXGI);
-    }
-
-    const ezImageFormat::Enum dxgiOutputFormat = ezImageFormatMappings::FromDxgiFormat((ezUInt32)pCurScratch->GetMetadata().format);
-    ezLog::Info("Output Format: %s", ezImageFormat::GetName(dxgiOutputFormat));
-
-    if (FAILED(SaveToDDSMemory(pCurScratch->GetImages(), pCurScratch->GetImageCount(), pCurScratch->GetMetadata(), 0, outputBlob)))
-    {
-      SetReturnCode(9);
-      ezLog::Error("Failed to write image to file '%s'", m_sOutputFile.GetData());
+    if (GenerateMipmaps().Failed())
       return ezApplication::Quit;
-    }
 
-    WriteTexHeader(fileOut);
+    if (ConvertToOutputFormat().Failed())
+      return ezApplication::Quit;
 
-    fileOut.WriteBytes(outputBlob.GetBufferPointer(), outputBlob.GetBufferSize());
+    if (SaveResultToDDS().Failed())
+      return ezApplication::Quit;
   }
 
   // everything is fine
-  SetReturnCode(0);
+  SetReturnCode(TexConvReturnCodes::OK);
   return ezApplication::Quit;
 }
 

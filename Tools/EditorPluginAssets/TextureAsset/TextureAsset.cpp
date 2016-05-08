@@ -77,10 +77,16 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   if (pProp->IsSRGB())
     arguments << "-srgb";
 
+  if (pProp->IsTextureCube())
+    arguments << "-cubemap";
+
   const ezInt32 iNumInputFiles = pProp->GetNumInputFiles();
   for (ezInt32 i = 0; i < iNumInputFiles; ++i)
   {
     temp.Format("-in%i", i);
+
+    if (ezStringUtils::IsNullOrEmpty(pProp->GetInputFile(i)))
+      break;
 
     arguments << temp.GetData();
     arguments << QString(pProp->GetAbsoluteInputFilePath(i).GetData());
@@ -149,37 +155,11 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
       arguments << "in3.x";
     }
     break;
+  
   case ezChannelMappingEnum::RGB1_CUBE:
-    {
-      arguments << "-rgb0";
-      arguments << "in0.rgb";
-      arguments << "-rgb1";
-      arguments << "in1.rgb";
-      arguments << "-rgb2";
-      arguments << "in2.rgb";
-      arguments << "-rgb3";
-      arguments << "in3.rgb";
-      arguments << "-rgb4";
-      arguments << "in4.rgb";
-      arguments << "-rgb5";
-      arguments << "in5.rgb";
-    }
-    break;
   case ezChannelMappingEnum::RGBA1_CUBE:
-    {
-      arguments << "-rgba0";
-      arguments << "in0.rgba";
-      arguments << "-rgba1";
-      arguments << "in1.rgba";
-      arguments << "-rgba2";
-      arguments << "in2.rgba";
-      arguments << "-rgba3";
-      arguments << "in3.rgba";
-      arguments << "-rgba4";
-      arguments << "in4.rgba";
-      arguments << "-rgba5";
-      arguments << "in5.rgba";
-    }
+  case ezChannelMappingEnum::RGB1TO6_CUBE:
+  case ezChannelMappingEnum::RGBA1TO6_CUBE:
     break;
   }
 
@@ -212,58 +192,7 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
 {
   EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '%s' is not supported", szPlatform);
 
-  //const ezImage* pImage = &GetProperties()->GetImage();
-  //SaveThumbnail(*pImage);
-
-#ifdef USE_TEXCONV
   RunTexConv(szTargetFile, AssetHeader);
-#else
-
-  ezDeferredFileWriter stream;
-  stream.SetOutput(szTargetFile);
-  AssetHeader.Write(stream);
-
-  // set the input file again to ensure it is reloaded
-  GetProperties()->SetInputFile(GetProperties()->GetInputFile());
-
-  ezImage ConvertedImage;
-
-  stream << GetProperties()->IsSRGB();
-
-  ezImageFormat::Enum TargetFormat = pImage->GetImageFormat();
-
-  if (pImage->GetImageFormat() == ezImageFormat::B8G8R8_UNORM)
-  {
-    TargetFormat = ezImageFormat::B8G8R8A8_UNORM;
-  }
-
-  if (pImage->GetImageFormat() == ezImageFormat::A8_UNORM)
-  {
-    // convert alpha channel only format to red channel only
-    TargetFormat = ezImageFormat::R8_UNORM;
-  }
-
-  if (TargetFormat != pImage->GetImageFormat())
-  {
-    if (ezImageConversion::Convert(*pImage, ConvertedImage, TargetFormat).Failed())
-      return ezStatus("Conversion to from source format '%s' to target format '%s' failed", ezImageFormat::GetName(pImage->GetImageFormat()), ezImageFormat::GetName(TargetFormat));
-
-    pImage = &ConvertedImage;
-  }
-
-  ezDdsFileFormat writer;
-  if (writer.WriteImage(stream, *pImage, ezGlobalLog::GetOrCreateInstance()).Failed())
-  {
-    return ezStatus("Writing the image data as DDS failed");
-  }
-
-  if (stream.Close().Failed())
-  {
-    ezLog::Error("Could not open file for writing: '%s'", szTargetFile);
-    return ezStatus("Opening the asset output file failed");
-  }
-
-#endif
 
   return ezStatus(EZ_SUCCESS);
 }
