@@ -22,7 +22,7 @@ ezString ezQtEditorApp::GetProjectUserDataFolder()
 {
   ezStringBuilder sFile = ezToolsProject::GetSingleton()->GetProjectDataFolder();
   sFile.AppendPath(GetApplicationUserName());
-  sFile.Append(".usersettings");
+  sFile.Append(".user");
 
   return sFile;
 }
@@ -34,3 +34,50 @@ ezString ezQtEditorApp::GetDocumentDataFolder(const char* szDocument)
 
   return sPath;
 }
+
+
+ezString ezQtEditorApp::GetEditorPreferencesFolder(bool bUserData)
+{
+  ezStringBuilder path = GetEditorDataFolder();
+  path.AppendPath("Preferences");
+
+  if (bUserData)
+  {
+    /// \todo should maybe be stored in %appdata% instead ?
+    path.AppendPath(GetApplicationUserName());
+  }
+
+  path.MakeCleanPath();
+  return path;
+}
+
+ezString ezQtEditorApp::GetProjectPreferencesFolder(bool bUserData)
+{
+  ezStringBuilder path = ezToolsProject::GetSingleton()->GetProjectDataFolder();
+  path.AppendPath("Preferences");
+
+  if (bUserData)
+  {
+    path.AppendPath(GetApplicationUserName());
+    path.Append(".user");
+  }
+
+  path.MakeCleanPath();
+  return path;
+}
+
+ezString ezQtEditorApp::GetDocumentPreferencesFolder(const ezDocument* pDocument, bool bUserData)
+{
+  ezStringBuilder path = GetDocumentDataFolder(pDocument->GetDocumentPath());
+  path.AppendPath("Preferences");
+
+  if (bUserData)
+  {
+    path.AppendPath(GetApplicationUserName());
+    path.Append(".user");
+  }
+
+  path.MakeCleanPath();
+  return path;
+}
+

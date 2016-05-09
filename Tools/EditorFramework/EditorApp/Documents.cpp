@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Preferences/Preferences.h>
 
 
 void ezQtEditorApp::OpenDocument(const char* szDocument)
@@ -100,6 +101,7 @@ void ezQtEditorApp::DocumentEventHandler(const ezDocumentEvent& e)
   case ezDocumentEvent::Type::SaveDocumentMetaState:
     {
       SaveDocumentSettings(e.m_pDocument);
+      ezPreferences::SaveDocumentPreferences(e.m_pDocument);
     }
     break;
 
@@ -127,6 +129,8 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
     break;
   case ezDocumentManager::Event::Type::DocumentClosing:
     {
+      ezPreferences::SaveDocumentPreferences(r.m_pDocument);
+
       // Clear all document settings when it is closed
       s_DocumentSettings.Remove(r.m_pDocument->GetDocumentPath());
 

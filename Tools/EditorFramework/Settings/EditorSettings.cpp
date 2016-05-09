@@ -6,6 +6,7 @@
 #include <Foundation/IO/ExtendedJSONReader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <EditorFramework/Preferences/Preferences.h>
 
 void ezQtEditorApp::RegisterPluginNameForSettings(const char* szPluginName)
 {
@@ -59,7 +60,7 @@ ezSettings& ezQtEditorApp::GetSettings(ezMap<ezString, ezSettings>& SettingsMap,
     }
 
     ezStringBuilder sUserFile;
-    sUserFile.Append(GetApplicationUserName(), ".usersettings");
+    sUserFile.Append(GetApplicationUserName(), ".user");
     sPath.ChangeFileExtension(sUserFile);
 
     if (file.Open(sPath).Succeeded())
@@ -110,7 +111,7 @@ void ezQtEditorApp::StoreSettings(const ezMap<ezString, ezSettings>& settings, c
     }
 
     ezStringBuilder sUserFile;
-    sUserFile.Append(GetApplicationUserName(), ".usersettings");
+    sUserFile.Append(GetApplicationUserName(), ".user");
     sPath.ChangeFileExtension(sUserFile);
 
     if (settings.IsEmpty(false, true))
@@ -175,6 +176,8 @@ void ezQtEditorApp::SaveSettings()
   SaveRecentFiles();
 
   StoreSettings(s_EditorSettings, "");
+
+  ezPreferences::SaveProjectAndEditorPreferences();
 
   if (ezToolsProject::IsProjectOpen())
   {

@@ -6,6 +6,7 @@
 #include <CoreUtils/Graphics/Camera.h>
 #include <QKeyEvent>
 #include <QDesktopWidget>
+#include <EditorFramework/Preferences/Preferences.h>
 
 static const float s_fMoveSpeed[31] =
 {
@@ -101,12 +102,38 @@ void ezCameraMoveContext::FocusLost(bool bCancel)
   m_bMoveBackwardsInPlane = false;
 }
 
+class ezScenePreferences : public ezPreferences
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezScenePreferences, ezPreferences);
+
+public:
+  ezScenePreferences()
+    : ezPreferences(Domain::Document, ezPreferences::Visibility::User, "Scene")
+  {
+    m_iCameraSpeed = 15;
+  }
+
+  int m_iCameraSpeed;
+};
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScenePreferences, 1, ezRTTIDefaultAllocator<ezScenePreferences>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("CameraSpeed", m_iCameraSpeed),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 void ezCameraMoveContext::LoadState()
 {
-  // TODO settings per document
-
   ezQtEditorApp::GetSingleton()->GetDocumentSettings(GetOwnerWindow()->GetDocument()->GetDocumentPath(), "ScenePlugin").RegisterValueInt("CameraSpeed", 15, ezSettingsFlags::User);
   SetMoveSpeed(ezQtEditorApp::GetSingleton()->GetDocumentSettings(GetOwnerWindow()->GetDocument()->GetDocumentPath(), "ScenePlugin").GetValueInt("CameraSpeed"));
+
+  ezScenePreferences* pPreferences = ezPreferences::GetPreferences<ezScenePreferences>(GetOwnerWindow()->GetDocument());
+  SetMoveSpeed(pPreferences->m_iCameraSpeed);
+
 }
 
 void ezCameraMoveContext::UpdateContext()
@@ -596,7 +623,12 @@ void ezCameraMoveContext::SetMoveSpeed(ezInt32 iSpeed)
   m_pSettings->m_iMoveSpeed = ezMath::Clamp(iSpeed, 0, 30);
 
   if (GetOwnerWindow()->GetDocument() != nullptr)
+  {
     ezQtEditorApp::GetSingleton()->GetDocumentSettings(GetOwnerWindow()->GetDocument()->GetDocumentPath(), "ScenePlugin").SetValueInt("CameraSpeed", m_pSettings->m_iMoveSpeed);
+
+    ezScenePreferences* pPreferences = ezPreferences::GetPreferences<ezScenePreferences>(GetOwnerWindow()->GetDocument());
+    pPreferences->m_iCameraSpeed = m_pSettings->m_iMoveSpeed;
+  }
 }
 
 ezEditorInut ezCameraMoveContext::wheelEvent(QWheelEvent* e)

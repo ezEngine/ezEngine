@@ -45,6 +45,17 @@ public:
   /// \brief Returns the folder in which the precompiled tools can be found
   ezString GetPrecompiledToolsFolder();
 
+  /// \brief Returns the folder where editor preferences are stored
+  ezString GetEditorPreferencesFolder(bool bUserData);
+
+  /// \brief Returns the folder where project preferences are stored
+  ezString GetProjectPreferencesFolder(bool bUserData);
+
+  /// \brief Returns the folder where preferences for the given document are stored
+  ezString GetDocumentPreferencesFolder(const ezDocument* pDocument, bool bUserData);
+
+
+
   const ezPluginSet& GetEditorPlugins() const { return s_EditorPlugins; }
   const ezPluginSet& GetEnginePlugins() const { return s_EnginePlugins; }
 
