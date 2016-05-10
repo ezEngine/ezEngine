@@ -100,7 +100,6 @@ void ezQtEditorApp::DocumentEventHandler(const ezDocumentEvent& e)
   {
   case ezDocumentEvent::Type::SaveDocumentMetaState:
     {
-      SaveDocumentSettings(e.m_pDocument);
       ezPreferences::SaveDocumentPreferences(e.m_pDocument);
     }
     break;
@@ -130,9 +129,6 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
   case ezDocumentManager::Event::Type::DocumentClosing:
     {
       ezPreferences::SaveDocumentPreferences(r.m_pDocument);
-
-      // Clear all document settings when it is closed
-      s_DocumentSettings.Remove(r.m_pDocument->GetDocumentPath());
 
       if (r.m_pDocument->GetAddToRecentFilesList())
       {

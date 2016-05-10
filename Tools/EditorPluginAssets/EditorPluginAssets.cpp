@@ -16,8 +16,6 @@
 
 void OnLoadPlugin(bool bReloading)
 {
-  ezQtEditorApp::GetSingleton()->RegisterPluginNameForSettings("AssetsPlugin");
-
   ezTranslatorFromFiles::AddTranslationFile("AssetsPlugin.txt");
 
   // Texture Asset

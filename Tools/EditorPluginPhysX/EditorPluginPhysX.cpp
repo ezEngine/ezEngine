@@ -24,7 +24,6 @@ void OnLoadPlugin(bool bReloading)
 {
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginPhysX", "ezPhysXPlugin");
 
-  ezQtEditorApp::GetSingleton()->RegisterPluginNameForSettings("EditorPluginPhysX");
   ezTranslatorFromFiles::AddTranslationFile("PhysXPlugin.txt");
   ezToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
 

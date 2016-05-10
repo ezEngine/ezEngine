@@ -1,7 +1,6 @@
 #pragma once
 
 #include <EditorFramework/Plugin.h>
-#include <ToolsFoundation/Settings/Settings.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <ToolsFoundation/Basics/RecentFilesList.h>
@@ -71,12 +70,6 @@ public:
   void AddReloadProjectRequiredReason(const char* szReason);
   const ezSet<ezString>& GetReloadProjectRequiredReason() { return s_ReloadProjectRequiredReasons; }
 
-  void RegisterPluginNameForSettings(const char* szPluginName);
-  const ezSet<ezString>& GetRegisteredPluginNamesForSettings() { return s_SettingsPluginNames; }
-  ezSettings& GetEditorSettings(const char* szPluginName = "-Main-");
-  ezSettings& GetProjectSettings(const char* szPluginName = "-Main-");
-  ezSettings& GetDocumentSettings(const ezDocument* pDocument, const char* szPluginName = "-Main-");
-  ezSettings& GetDocumentSettings(const char* szDocument, const char* szPlugin = "-Main-");
   void SaveSettings();
 
   /// \brief Writes a file containing all the currently open documents
@@ -152,8 +145,6 @@ private slots:
   void SlotQueuedGuiCreateOrOpenProject(bool bCreate);
 
 private:
-  ezSettings& GetSettings(ezMap<ezString, ezSettings>& SettingsMap, const char* szPlugin, const char* szSearchPath);
-
   void UpdateGlobalStatusBarMessage();
 
   void DocumentManagerRequestHandler(ezDocumentManager::Request& r);
@@ -181,14 +172,6 @@ private:
 
   ezPluginSet s_EditorPlugins;
   ezPluginSet s_EnginePlugins;
-
-  ezSet<ezString> s_SettingsPluginNames;
-  ezMap<ezString, ezSettings> s_EditorSettings;
-  ezMap<ezString, ezSettings> s_ProjectSettings;
-  ezMap<ezString, ezMap<ezString, ezSettings> > s_DocumentSettings;
-
-  void StoreSettings(const ezMap<ezString, ezSettings>& settings, const char* szFolder);
-  void SaveDocumentSettings(const ezDocument* pDocument);
 
   void SaveRecentFiles();
   void LoadRecentFiles();

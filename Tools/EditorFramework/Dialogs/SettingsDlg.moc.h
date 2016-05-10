@@ -4,7 +4,6 @@
 #include <QDialog>
 #include <Tools/EditorFramework/ui_SettingsDlg.h>
 #include <Foundation/Strings/String.h>
-#include <EditorFramework/GUI/SimplePropertyGridWidget.moc.h>
 
 class EZ_EDITORFRAMEWORK_DLL SettingsDlg : public QDialog, public Ui_SettingsDlg
 {
@@ -21,10 +20,10 @@ private slots:
 private:
   void UpdateSettings();
 
-  ezString m_sSelectedSettingDomain;
-  ezMap<ezString, ezVariant> m_Settings;
+  //ezString m_sSelectedSettingDomain;
+  //ezMap<ezString, ezVariant> m_Settings;
 
-  ezQtSimplePropertyGridWidget* m_pSettingsGrid;
+  //ezQtSimplePropertyGridWidget* m_pSettingsGrid;
 
 };
 

@@ -2,6 +2,7 @@
 #include <EditorFramework/Preferences/Preferences.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPreferences, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -95,7 +96,7 @@ void ezPreferences::Load()
   if (file.Open(GetFilePath()).Failed())
     return;
 
-  /// \todo load properties
+  ezReflectionSerializer::ReadObjectPropertiesFromJSON(file, *GetDynamicRTTI(), this);
 }
 
 void ezPreferences::Save() const
@@ -104,7 +105,7 @@ void ezPreferences::Save() const
   if (file.Open(GetFilePath()).Failed())
     return;
 
-  /// \todo save properties
+  ezReflectionSerializer::WriteObjectToJSON(file, GetDynamicRTTI(), this, ezJSONWriter::WhitespaceMode::All);
 }
 
 

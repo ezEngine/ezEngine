@@ -1,12 +1,12 @@
 #pragma once
 
 #include <GuiFoundation/Basics.h>
-#include <ToolsFoundation/Settings/Settings.h>
 #include <ToolsFoundation/Basics/Status.h>
 #include <Foundation/Communication/Event.h>
 #include <QApplication>
 #include <QMessageBox>
 #include <Foundation/Configuration/Singleton.h>
+#include <Foundation/Time/Time.h>
 
 class QColorDialog;
 

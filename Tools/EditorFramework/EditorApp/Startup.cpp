@@ -109,8 +109,6 @@ void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
 
   s_sUserName = szUserName;
 
-  RegisterPluginNameForSettings("-Main-");
-
   QLocale::setDefault(QLocale(QLocale::English));
 
   s_pEngineViewProcess = new ezEditorEngineProcessConnection;

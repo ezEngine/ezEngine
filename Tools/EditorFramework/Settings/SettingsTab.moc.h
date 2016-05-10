@@ -1,7 +1,6 @@
 #pragma once
 
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
-#include <EditorFramework/GUI/SimplePropertyGridWidget.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <Tools/EditorFramework/ui_SettingsTab.h>
 #include <Foundation/Configuration/Plugin.h>

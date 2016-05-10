@@ -22,7 +22,6 @@ void OnLoadPlugin(bool bReloading)
 {
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginFmod", "ezFmodPlugin");
 
-  ezQtEditorApp::GetSingleton()->RegisterPluginNameForSettings("EditorPluginFmod");
   ezTranslatorFromFiles::AddTranslationFile("FmodPlugin.txt");
 
   // Mesh Asset

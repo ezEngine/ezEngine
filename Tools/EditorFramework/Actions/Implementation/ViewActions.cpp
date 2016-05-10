@@ -6,6 +6,7 @@
 #include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Preferences/ViewPreferences.h>
 
 ezActionDescriptorHandle ezViewActions::s_hRenderMode;
 ezActionDescriptorHandle ezViewActions::s_hPerspective;
@@ -111,9 +112,6 @@ ezRenderPipelineMenuAction::ezRenderPipelineMenuAction(const ezActionContext& co
 {
   ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(context.m_pWindow);
   EZ_ASSERT_DEV(pView != nullptr, "context.m_pWindow must be derived from type 'ezQtEngineViewWidget'!");
-
-  ezSettings& settings = ezQtEditorApp::GetSingleton()->GetProjectSettings();
-  settings.RegisterValueString("RecentRenderPipelines", "", ezSettingsFlags::User);
 }
 
 void ezRenderPipelineMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item, 16>& out_Entries)
@@ -223,8 +221,8 @@ void ezRenderPipelineMenuAction::Execute(const ezVariant& value)
 
 void ezRenderPipelineMenuAction::GetRecentRenderPipelines(ezHybridArray<ezString, 10>& list)
 {
-  ezSettings& settings = ezQtEditorApp::GetSingleton()->GetProjectSettings();
-  ezStringBuilder sList = settings.GetValueString("RecentRenderPipelines");
+  ezViewUserPreferences* pPreferences = ezPreferences::GetPreferences<ezViewUserPreferences>();
+  ezStringBuilder sList = pPreferences->m_sRenderPipelines;
 
   list.Clear();
   sList.Split(false, list, ";");
@@ -249,6 +247,6 @@ void ezRenderPipelineMenuAction::AddToRecentRenderPipelines(const ezString& entr
     sList.Append(";", sEntry);
   }
 
-  ezSettings& settings = ezQtEditorApp::GetSingleton()->GetProjectSettings();
-  settings.SetValueString("RecentRenderPipelines", sList);
+  ezViewUserPreferences* pPreferences = ezPreferences::GetPreferences<ezViewUserPreferences>();
+  pPreferences->m_sRenderPipelines = sList;
 }

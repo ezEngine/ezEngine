@@ -6,13 +6,13 @@ SettingsDlg::SettingsDlg(QWidget* parent) : QDialog(parent)
 {
   setupUi(this);
 
-  m_sSelectedSettingDomain = "<Application>";
+  //m_sSelectedSettingDomain = "<Application>";
 
-  m_pSettingsGrid = new ezQtSimplePropertyGridWidget(this);
-  GroupSettings->layout()->addWidget(m_pSettingsGrid);
+  //m_pSettingsGrid = new ezQtSimplePropertyGridWidget(this);
+  //GroupSettings->layout()->addWidget(m_pSettingsGrid);
 
-  EZ_VERIFY(connect(m_pSettingsGrid, SIGNAL(value_changed()), this, SLOT(SlotSettingsChanged())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(ComboSettingsDomain, SIGNAL(currentIndexChanged(int)), this, SLOT(SlotComboSettingsDomainIndexChanged(int))) != nullptr, "signal/slot connection failed");
+  //EZ_VERIFY(connect(m_pSettingsGrid, SIGNAL(value_changed()), this, SLOT(SlotSettingsChanged())) != nullptr, "signal/slot connection failed");
+  //EZ_VERIFY(connect(ComboSettingsDomain, SIGNAL(currentIndexChanged(int)), this, SLOT(SlotComboSettingsDomainIndexChanged(int))) != nullptr, "signal/slot connection failed");
 
   UpdateSettings();
 }
@@ -25,95 +25,95 @@ void SettingsDlg::SlotSettingsChanged()
 
 void SettingsDlg::SlotComboSettingsDomainIndexChanged(int iIndex)
 {
-  m_sSelectedSettingDomain = ComboSettingsDomain->itemData(iIndex, Qt::UserRole).toString().toUtf8().data();
+  //m_sSelectedSettingDomain = ComboSettingsDomain->itemData(iIndex, Qt::UserRole).toString().toUtf8().data();
 
   UpdateSettings();
 
-  if (iIndex == 0) // Application
-  {
-  }
-  else if (iIndex == 1) // Project
-  {
-  }
-  else
-  {
-    ComboSettingsDomain->itemText(iIndex);
-  }
+  //if (iIndex == 0) // Application
+  //{
+  //}
+  //else if (iIndex == 1) // Project
+  //{
+  //}
+  //else
+  //{
+  //  ComboSettingsDomain->itemText(iIndex);
+  //}
 }
 
 
 void SettingsDlg::UpdateSettings()
 {
-  ezStringBuilder sTemp;
+  //ezStringBuilder sTemp;
 
-  ComboSettingsDomain->blockSignals(true);
-  ComboSettingsDomain->clear();
+  //ComboSettingsDomain->blockSignals(true);
+  //ComboSettingsDomain->clear();
 
-  int iSelected = 0;
-  ComboSettingsDomain->addItem("<Application>", QString("<Application>"));
+  //int iSelected = 0;
+  //ComboSettingsDomain->addItem("<Application>", QString("<Application>"));
 
-  if (ezToolsProject::IsProjectOpen())
-  {
-    ComboSettingsDomain->addItem("<Project>", QString("<Project>"));
+  //if (ezToolsProject::IsProjectOpen())
+  //{
+  //  ComboSettingsDomain->addItem("<Project>", QString("<Project>"));
 
-    if ("<Project>" == m_sSelectedSettingDomain)
-      iSelected = 1;
+  //  if ("<Project>" == m_sSelectedSettingDomain)
+  //    iSelected = 1;
 
-    ezInt32 iIndex = 2;
-    for (auto dm : ezDocumentManager::GetAllDocumentManagers())
-    {
-      for (auto doc : dm->GetAllDocuments())
-      {
-        ezString sRel;
-        if (!ezToolsProject::GetSingleton()->IsDocumentInAllowedRoot(doc->GetDocumentPath(), &sRel))
-          continue;
+  //  ezInt32 iIndex = 2;
+  //  for (auto dm : ezDocumentManager::GetAllDocumentManagers())
+  //  {
+  //    for (auto doc : dm->GetAllDocuments())
+  //    {
+  //      ezString sRel;
+  //      if (!ezToolsProject::GetSingleton()->IsDocumentInAllowedRoot(doc->GetDocumentPath(), &sRel))
+  //        continue;
 
-        ComboSettingsDomain->addItem(sRel.GetData(), QString(doc->GetDocumentPath()));
+  //      ComboSettingsDomain->addItem(sRel.GetData(), QString(doc->GetDocumentPath()));
 
-        if (doc->GetDocumentPath() == m_sSelectedSettingDomain)
-          iSelected = iIndex;
+  //      if (doc->GetDocumentPath() == m_sSelectedSettingDomain)
+  //        iSelected = iIndex;
 
-        ++iIndex;
-      }
-    }
-  }
+  //      ++iIndex;
+  //    }
+  //  }
+  //}
 
-  ComboSettingsDomain->setCurrentIndex(iSelected);
-  m_sSelectedSettingDomain = ComboSettingsDomain->itemData(iSelected, Qt::UserRole).toString().toUtf8().data();
-  ComboSettingsDomain->blockSignals(false);
+  //ComboSettingsDomain->setCurrentIndex(iSelected);
+  //m_sSelectedSettingDomain = ComboSettingsDomain->itemData(iSelected, Qt::UserRole).toString().toUtf8().data();
+  //ComboSettingsDomain->blockSignals(false);
 
-  m_pSettingsGrid->BeginProperties();
+  //m_pSettingsGrid->BeginProperties();
 
-  for (const ezString& sName : ezQtEditorApp::GetSingleton()->GetRegisteredPluginNamesForSettings())
-  {
-    ezSettings* s;
+  //for (const ezString& sName : ezQtEditorApp::GetSingleton()->GetRegisteredPluginNamesForSettings())
+  //{
+  //  ezSettings* s;
 
-    if (m_sSelectedSettingDomain == "<Application>")
-      s = &ezQtEditorApp::GetSingleton()->GetEditorSettings(sName);
-    else
-      if (m_sSelectedSettingDomain == "<Project>")
-        s = &ezQtEditorApp::GetSingleton()->GetProjectSettings(sName);
-      else
-        s = &ezQtEditorApp::GetSingleton()->GetDocumentSettings(m_sSelectedSettingDomain, sName);
+  //  if (m_sSelectedSettingDomain == "<Application>")
+  //    s = &ezQtEditorApp::GetSingleton()->GetEditorSettings(sName);
+  //  else
+  //    if (m_sSelectedSettingDomain == "<Project>")
+  //      s = &ezQtEditorApp::GetSingleton()->GetProjectSettings(sName);
+  //    else
+  //      s = &ezQtEditorApp::GetSingleton()->GetDocumentSettings(m_sSelectedSettingDomain, sName);
 
-    bool bAddedGroupName = false;
+  //  bool bAddedGroupName = false;
 
-    for (auto it = s->GetAllSettings().GetIterator(); it.IsValid(); ++it)
-    {
-      if (!it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered))
-        continue;
-      if (it.Value().m_Flags.IsAnySet(ezSettingsFlags::Hidden))
-        continue;
+  //  for (auto it = s->GetAllSettings().GetIterator(); it.IsValid(); ++it)
+  //  {
+  //    if (!it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered))
+  //      continue;
+  //    if (it.Value().m_Flags.IsAnySet(ezSettingsFlags::Hidden))
+  //      continue;
 
-      if (!bAddedGroupName)
-      {
-        m_pSettingsGrid->AddProperty("Data Group:", sName, nullptr, true);
-        bAddedGroupName = true;
-      }
+  //    if (!bAddedGroupName)
+  //    {
+  //      m_pSettingsGrid->AddProperty("Data Group:", sName, nullptr, true);
+  //      bAddedGroupName = true;
+  //    }
 
-      m_pSettingsGrid->AddProperty(it.Key(), it.Value().m_Value, &it.Value().m_Value, it.Value().m_Flags.IsAnySet(ezSettingsFlags::ReadOnly));
-    }
-  }
+  //    m_pSettingsGrid->AddProperty(it.Key(), it.Value().m_Value, &it.Value().m_Value, it.Value().m_Flags.IsAnySet(ezSettingsFlags::ReadOnly));
+  //  }
+  //}
 
-  m_pSettingsGrid->EndProperties();
+  //m_pSettingsGrid->EndProperties();
 }

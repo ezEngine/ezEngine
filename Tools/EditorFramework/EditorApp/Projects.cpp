@@ -105,9 +105,6 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
 
       m_AssetCurator.Deinitialize();
 
-      // make sure to clear all project settings when a project is closed
-      s_ProjectSettings.Clear();
-
       ezApplicationConfig::SetProjectDirectory("");
 
       s_ReloadProjectRequiredReasons.Clear();
