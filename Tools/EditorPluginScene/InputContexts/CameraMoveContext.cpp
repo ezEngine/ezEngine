@@ -341,6 +341,8 @@ void ezCameraMoveContext::SetBlankCursor()
 
 void ezCameraMoveContext::SetCursorToWindowCenter(QPoint pos)
 {
+  /// \todo Move this functionality into the base class
+
   if (!m_bTempMousePosition)
   {
     m_OriginalMousePos = m_LastMousePos;
