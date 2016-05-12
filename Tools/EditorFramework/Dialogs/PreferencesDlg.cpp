@@ -1,31 +1,129 @@
 #include <PCH.h>
 #include <EditorFramework/Dialogs/PreferencesDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Preferences/Preferences.h>
+#include <EditorFramework/Preferences/ViewPreferences.h>
+
+class ezPreferencesObjectManager : public ezDocumentObjectManager
+{
+public:
+
+  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override
+  {
+    for (auto pRtti : m_KnownTypes)
+    {
+      Types.PushBack(pRtti);
+    }
+  }
+
+  ezHybridArray<const ezRTTI*, 16> m_KnownTypes;
+};
+
+
+class ezPreferencesDocument : public ezDocument
+{
+public:
+  ezPreferencesDocument(const char* szDocumentPath) : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezPreferencesObjectManager))
+  {
+  }
+
+  ~ezPreferencesDocument()
+  {
+    m_ObjectMirror.Clear();
+    m_ObjectMirror.DeInit();
+  }
+
+
+  virtual const char* GetDocumentTypeDisplayString() const override
+  {
+    return "Preferences";
+  }
+
+//protected:
+  virtual void InitializeAfterLoading() override
+  {
+    ezDocument::InitializeAfterLoading();
+
+    m_ObjectMirror.InitSender(GetObjectManager());
+    m_ObjectMirror.InitReceiver(&m_Context);
+    m_ObjectMirror.SendDocument();
+  }
+
+  virtual ezStatus InternalLoadDocument() override
+  {
+    GetObjectManager()->DestroyAllObjects();
+
+    return ezDocument::InternalLoadDocument();
+  }
+
+//private:
+public:
+
+  virtual ezDocumentInfo* CreateDocumentInfo() override
+  {
+    return EZ_DEFAULT_NEW(ezDocumentInfo);
+  }
+
+  ezDocumentObjectMirror m_ObjectMirror;
+  ezRttiConverterContext m_Context;
+};
+
+
 
 PreferencesDlg::PreferencesDlg(QWidget* parent) : QDialog(parent)
 {
   setupUi(this);
 
-  //m_sSelectedSettingDomain = "<Application>";
+  ezViewUserPreferences* pPreferences = ezPreferences::GetPreferences<ezViewUserPreferences>();
 
-  //m_pSettingsGrid = new ezQtSimplePropertyGridWidget(this);
-  //GroupSettings->layout()->addWidget(m_pSettingsGrid);
+  m_pDocument = EZ_DEFAULT_NEW(ezPreferencesDocument, "<none>");
+  static_cast<ezPreferencesObjectManager*>(m_pDocument->GetObjectManager())->m_KnownTypes.PushBack(ezViewUserPreferences::GetStaticRTTI());
 
-  //EZ_VERIFY(connect(m_pSettingsGrid, SIGNAL(value_changed()), this, SLOT(SlotSettingsChanged())) != nullptr, "signal/slot connection failed");
+  m_pDocument->InitializeAfterLoading();
+
+  {
+    auto pRoot = m_pDocument->GetObjectManager()->GetRootObject();
+
+    {
+      ezDocumentObject* pObject = m_pDocument->GetObjectManager()->CreateObject(ezViewUserPreferences::GetStaticRTTI());
+      m_pDocument->GetObjectManager()->AddObject(pObject, pRoot, "Children", 0);
+
+      ezViewUserPreferences* pPref = static_cast<ezViewUserPreferences*>(m_pDocument->m_ObjectMirror.GetNativeObjectPointer(m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]));
+
+      m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&PreferencesDlg::PropertyChangedEventHandler, this));
+
+      /// TODO: Sync values !
+      // this doesn't work
+      pPref->m_iSomeValue = -23;
+      pPref->m_sRenderPipelines = "pups";
+    }
+  }
+
+  Properties->SetDocument(m_pDocument);
+  m_pDocument->GetSelectionManager()->SetSelection(m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
+
+  m_sSelectedSettingDomain = "<Application>";
+
   //EZ_VERIFY(connect(ComboSettingsDomain, SIGNAL(currentIndexChanged(int)), this, SLOT(SlotComboSettingsDomainIndexChanged(int))) != nullptr, "signal/slot connection failed");
 
   UpdateSettings();
+
+  
 }
 
-void PreferencesDlg::SlotSettingsChanged()
+
+PreferencesDlg::~PreferencesDlg()
 {
-  int i = 0;
-  /// \todo This is not implemented: Cannot modify stored settings
+  //Properties->SetDocument(nullptr);
+  delete Properties;
+  Properties = nullptr;
+
+  EZ_DEFAULT_DELETE(m_pDocument);
 }
 
 void PreferencesDlg::SlotComboSettingsDomainIndexChanged(int iIndex)
 {
-  //m_sSelectedSettingDomain = ComboSettingsDomain->itemData(iIndex, Qt::UserRole).toString().toUtf8().data();
+  m_sSelectedSettingDomain = ComboSettingsDomain->itemData(iIndex, Qt::UserRole).toString().toUtf8().data();
 
   UpdateSettings();
 
@@ -116,4 +214,11 @@ void PreferencesDlg::UpdateSettings()
   //}
 
   //m_pSettingsGrid->EndProperties();
+}
+
+void PreferencesDlg::PropertyChangedEventHandler(const ezDocumentObjectPropertyEvent& e)
+{
+  ezViewUserPreferences* pPref = static_cast<ezViewUserPreferences*>(m_pDocument->m_ObjectMirror.GetNativeObjectPointer(m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]));
+
+  int i = 0;
 }

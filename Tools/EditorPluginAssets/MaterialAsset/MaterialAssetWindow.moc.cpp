@@ -42,7 +42,7 @@ ezMaterialAssetDocumentWindow::ezMaterialAssetDocumentWindow(ezDocument* pDocume
     pPropertyPanel->setWindowTitle("Material Properties");
     pPropertyPanel->show();
 
-    ezPropertyGridWidget* pPropertyGrid = new ezPropertyGridWidget(pDocument, pPropertyPanel);
+    ezPropertyGridWidget* pPropertyGrid = new ezPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);

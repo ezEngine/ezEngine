@@ -138,7 +138,7 @@ ezRttiMappedObjectFactory<ezQtPropertyWidget>& ezPropertyGridWidget::GetFactory(
   return s_Factory;
 }
 
-ezPropertyGridWidget::ezPropertyGridWidget(ezDocument* pDocument, QWidget* pParent)
+ezPropertyGridWidget::ezPropertyGridWidget(QWidget* pParent, ezDocument* pDocument)
   : QWidget(pParent)
 {
   m_pDocument = pDocument;
@@ -168,16 +168,38 @@ ezPropertyGridWidget::ezPropertyGridWidget(ezDocument* pDocument, QWidget* pPare
 
   m_pTypeWidget = nullptr;
 
-  m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezPropertyGridWidget::SelectionEventHandler, this));
   s_Factory.m_Events.AddEventHandler(ezMakeDelegate(&ezPropertyGridWidget::FactoryEventHandler, this));
   ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezPropertyGridWidget::TypeEventHandler, this));
+
+  m_pDocument = nullptr;
+  SetDocument(pDocument);
 }
 
 ezPropertyGridWidget::~ezPropertyGridWidget()
 {
-  m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezPropertyGridWidget::SelectionEventHandler, this));
   s_Factory.m_Events.RemoveEventHandler(ezMakeDelegate(&ezPropertyGridWidget::FactoryEventHandler, this));
   ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezPropertyGridWidget::TypeEventHandler, this));
+
+  if (m_pDocument)
+  {
+    m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezPropertyGridWidget::SelectionEventHandler, this));
+  }
+}
+
+
+void ezPropertyGridWidget::SetDocument(ezDocument* pDocument)
+{
+  if (m_pDocument)
+  {
+    m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezPropertyGridWidget::SelectionEventHandler, this));
+  }
+
+  m_pDocument = pDocument;
+
+  if (m_pDocument)
+  {
+    m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezPropertyGridWidget::SelectionEventHandler, this));
+  }
 }
 
 void ezPropertyGridWidget::ClearSelection()

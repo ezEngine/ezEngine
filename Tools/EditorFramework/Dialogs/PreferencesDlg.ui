@@ -57,11 +57,22 @@
         </item>
        </layout>
       </item>
+      <item>
+       <widget class="ezPropertyGridWidget" name="Properties" native="true"/>
+      </item>
      </layout>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ezPropertyGridWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc"/>
   <include location="../QtResources/resources.qrc"/>

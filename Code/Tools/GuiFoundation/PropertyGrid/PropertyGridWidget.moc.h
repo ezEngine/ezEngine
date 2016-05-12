@@ -24,8 +24,10 @@ class EZ_GUIFOUNDATION_DLL ezPropertyGridWidget : public QWidget
 {
   Q_OBJECT
 public:
-  ezPropertyGridWidget(ezDocument* pDocument, QWidget* pParent);
+  ezPropertyGridWidget(QWidget* pParent, ezDocument* pDocument = nullptr);
   ~ezPropertyGridWidget();
+
+  void SetDocument(ezDocument* pDocument);
 
   void ClearSelection();
   void SetSelection(const ezDeque<const ezDocumentObject*>& selection);

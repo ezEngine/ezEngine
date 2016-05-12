@@ -5,6 +5,8 @@
 #include <Tools/EditorFramework/ui_PreferencesDlg.h>
 #include <Foundation/Strings/String.h>
 
+class ezPreferencesDocument;
+
 class EZ_EDITORFRAMEWORK_DLL PreferencesDlg : public QDialog, public Ui_PreferencesDlg
 {
 public:
@@ -12,19 +14,18 @@ public:
 
 public:
   PreferencesDlg(QWidget* parent);
+  ~PreferencesDlg();
 
 private slots:
-  void SlotSettingsChanged();
   void SlotComboSettingsDomainIndexChanged(int iIndex);
 
 private:
   void UpdateSettings();
+  void PropertyChangedEventHandler(const ezDocumentObjectPropertyEvent& e);
 
-  //ezString m_sSelectedSettingDomain;
+  ezString m_sSelectedSettingDomain;
   //ezMap<ezString, ezVariant> m_Settings;
-
-  //ezQtSimplePropertyGridWidget* m_pSettingsGrid;
-
+  ezPreferencesDocument* m_pDocument;
 };
 
 

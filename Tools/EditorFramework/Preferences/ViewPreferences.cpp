@@ -7,6 +7,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewUserPreferences, 1, ezRTTIDefaultAllocator
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("RenderPipelines", m_sRenderPipelines),
+    EZ_MEMBER_PROPERTY("SomeValue", m_iSomeValue),
   }
   EZ_END_PROPERTIES
 }

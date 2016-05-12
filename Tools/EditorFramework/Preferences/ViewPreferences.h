@@ -11,7 +11,9 @@ public:
   ezViewUserPreferences()
     : ezPreferences(Domain::Project, ezPreferences::Visibility::User, "EditorView")
   {
+    m_iSomeValue = -1;
   }
 
   ezString m_sRenderPipelines;
+  int m_iSomeValue;
 };
