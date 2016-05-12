@@ -102,7 +102,15 @@ void ezProjectileComponent::Update()
     }
 
     ezVec3 vCurDirection = m_vVelocity * fTimeDiff;
-    const float fDistance = vCurDirection.GetLengthAndNormalize();
+    float fDistance = 0.0f;
+    
+    /// \todo Fix that components can be updated before they are initialized
+    if (!vCurDirection.IsZero())
+      fDistance = vCurDirection.GetLengthAndNormalize();
+    else
+    {
+      int i = 0;
+    }
 
     ezVec3 vPos, vNormal;
     ezGameObjectHandle hObject;

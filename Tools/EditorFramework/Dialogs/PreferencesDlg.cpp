@@ -1,8 +1,8 @@
 #include <PCH.h>
-#include <EditorFramework/Dialogs/SettingsDlg.moc.h>
+#include <EditorFramework/Dialogs/PreferencesDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
-SettingsDlg::SettingsDlg(QWidget* parent) : QDialog(parent)
+PreferencesDlg::PreferencesDlg(QWidget* parent) : QDialog(parent)
 {
   setupUi(this);
 
@@ -17,13 +17,13 @@ SettingsDlg::SettingsDlg(QWidget* parent) : QDialog(parent)
   UpdateSettings();
 }
 
-void SettingsDlg::SlotSettingsChanged()
+void PreferencesDlg::SlotSettingsChanged()
 {
   int i = 0;
   /// \todo This is not implemented: Cannot modify stored settings
 }
 
-void SettingsDlg::SlotComboSettingsDomainIndexChanged(int iIndex)
+void PreferencesDlg::SlotComboSettingsDomainIndexChanged(int iIndex)
 {
   //m_sSelectedSettingDomain = ComboSettingsDomain->itemData(iIndex, Qt::UserRole).toString().toUtf8().data();
 
@@ -42,7 +42,7 @@ void SettingsDlg::SlotComboSettingsDomainIndexChanged(int iIndex)
 }
 
 
-void SettingsDlg::UpdateSettings()
+void PreferencesDlg::UpdateSettings()
 {
   //ezStringBuilder sTemp;
 

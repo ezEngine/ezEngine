@@ -2,16 +2,16 @@
 
 #include <EditorFramework/Plugin.h>
 #include <QDialog>
-#include <Tools/EditorFramework/ui_SettingsDlg.h>
+#include <Tools/EditorFramework/ui_PreferencesDlg.h>
 #include <Foundation/Strings/String.h>
 
-class EZ_EDITORFRAMEWORK_DLL SettingsDlg : public QDialog, public Ui_SettingsDlg
+class EZ_EDITORFRAMEWORK_DLL PreferencesDlg : public QDialog, public Ui_PreferencesDlg
 {
 public:
   Q_OBJECT
 
 public:
-  SettingsDlg(QWidget* parent);
+  PreferencesDlg(QWidget* parent);
 
 private slots:
   void SlotSettingsChanged();

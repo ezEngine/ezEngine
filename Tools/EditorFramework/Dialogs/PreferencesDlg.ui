@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SettingsDlg</class>
- <widget class="QDialog" name="SettingsDlg">
+ <class>PreferencesDlg</class>
+ <widget class="QDialog" name="PreferencesDlg">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Settings</string>
+   <string>Preferences</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../QtResources/resources.qrc">
