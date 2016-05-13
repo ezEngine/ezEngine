@@ -274,6 +274,7 @@ public:
   bool m_bRenderOverlay;
   bool m_bRenderShapeIcons;
   bool m_bRenderSelectionBoxes;
+  float m_fGizmoScale;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezGameModeMsgToEngine : public ezEditorEngineDocumentMsg

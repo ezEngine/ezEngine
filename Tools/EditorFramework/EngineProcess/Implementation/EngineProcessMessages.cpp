@@ -261,6 +261,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneSettingsMsgToEngine, 1, ezRTTIDefaultAllo
   {
     EZ_MEMBER_PROPERTY("StartGameModeSimulate", m_bSimulateWorld),
     EZ_MEMBER_PROPERTY("SimulationSpeed", m_fSimulationSpeed),
+    EZ_MEMBER_PROPERTY("GizmoScale", m_fGizmoScale),
     EZ_MEMBER_PROPERTY("RenderOverlay", m_bRenderOverlay),
     EZ_MEMBER_PROPERTY("ShapeIcons", m_bRenderShapeIcons),
     EZ_MEMBER_PROPERTY("RenderSelectionBoxes", m_bRenderSelectionBoxes),

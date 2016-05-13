@@ -6,7 +6,7 @@
 #include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/Preferences/ViewPreferences.h>
+#include <EditorFramework/Preferences/ProjectPreferences.h>
 
 ezActionDescriptorHandle ezViewActions::s_hRenderMode;
 ezActionDescriptorHandle ezViewActions::s_hPerspective;
@@ -221,7 +221,7 @@ void ezRenderPipelineMenuAction::Execute(const ezVariant& value)
 
 void ezRenderPipelineMenuAction::GetRecentRenderPipelines(ezHybridArray<ezString, 10>& list)
 {
-  ezViewUserPreferences* pPreferences = ezPreferences::GetPreferences<ezViewUserPreferences>();
+  ezProjectPreferencesUser* pPreferences = ezPreferences::GetPreferences<ezProjectPreferencesUser>();
   ezStringBuilder sList = pPreferences->m_sRenderPipelines;
 
   list.Clear();
@@ -247,6 +247,6 @@ void ezRenderPipelineMenuAction::AddToRecentRenderPipelines(const ezString& entr
     sList.Append(";", sEntry);
   }
 
-  ezViewUserPreferences* pPreferences = ezPreferences::GetPreferences<ezViewUserPreferences>();
+  ezProjectPreferencesUser* pPreferences = ezPreferences::GetPreferences<ezProjectPreferencesUser>();
   pPreferences->m_sRenderPipelines = sList;
 }

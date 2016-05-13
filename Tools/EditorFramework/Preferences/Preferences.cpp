@@ -19,6 +19,8 @@ ezPreferences::ezPreferences(Domain domain, Visibility visibility, const char* s
 
 ezPreferences* ezPreferences::GetPreferences(const ezRTTI* pRtti, const ezDocument* pDocument)
 {
+  EZ_ASSERT_DEV(ezQtEditorApp::GetSingleton() != nullptr, "Editor app is not available in this process");
+
   auto it = s_Preferences[pDocument].Find(pRtti);
 
   if (it.IsValid())

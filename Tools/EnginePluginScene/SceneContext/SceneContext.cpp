@@ -18,6 +18,7 @@
 #include <GameUtils/Components/TimedDeathComponent.h>
 #include <GameUtils/Components/CameraComponent.h>
 #include <GameUtils/Components/InputComponent.h>
+#include <EditorFramework/Gizmos/GizmoRenderer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
 {
@@ -104,6 +105,8 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
       }
 
       m_pWorld->GetClock().SetSpeed(msg->m_fSimulationSpeed);
+
+      ezGizmoRenderer::s_fGizmoScale = msg->m_fGizmoScale;
     }
 
     if (pState && pState->WasQuitRequested())

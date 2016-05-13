@@ -70,9 +70,22 @@ Milestone 8
   * Added a tags editor
   * Tags are now automatically loaded by ezGameApplication
   * PhysX meshes can now have a different surface per sub-mesh
+  * PhysX integration now supports raycasting
+  * New container type ezHashSet
+  * Improved support for line rendering
+  * Surface assets can now define interactions, e.g. what prefab to spawn when a bullet hits it, etc.
   * ezGeometry now automatically handles flipped winding due to negative determinant in transform
-  * Added a 'settings' base component and a simple component manager that allows to easily access the single settings component of a given type.
-  * Added ezPxSettingsComponent, which currently allows to configure the PhysX world gravity.
+  * Added a 'settings' base component and a simple component manager that allows to easily access the single settings component of a given type
+  * Added ezPxSettingsComponent, which currently allows to configure the PhysX world gravity
+  * Added a projectile component
+  * Added a timed death component, that deletes an entity after a given timeout
+  * Improved rendering infrastructure (materials, shaders)
+  * Proper tangent generation for geometry
+  * Messages can now use a sorting key for ordering
+  * GameObjects now also have a unique key for looking up specific objects at runtime
+  * Added ezTexConv, a tool to combine textures, generate mipmaps and compress to DXT format
+  * Integrated ezTexConv as the new texture asset transformation
+  * Editor viewport: Shift+Left Click now opens the picked material asset
 
 Milestone 7
 -----------

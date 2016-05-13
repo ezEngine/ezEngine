@@ -2,12 +2,12 @@
 
 #include <EditorFramework/Preferences/Preferences.h>
 
-class ezSceneUserPreferences : public ezPreferences
+class ezScenePreferencesUser : public ezPreferences
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneUserPreferences, ezPreferences);
+  EZ_ADD_DYNAMIC_REFLECTION(ezScenePreferencesUser, ezPreferences);
 
 public:
-  ezSceneUserPreferences()
+  ezScenePreferencesUser()
     : ezPreferences(Domain::Document, ezPreferences::Visibility::User, "Scene")
   {
     m_iCameraSpeed = 15;

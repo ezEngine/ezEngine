@@ -11,6 +11,7 @@
 #include <InputContexts/OrthoGizmoContext.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 
 ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
@@ -411,6 +412,7 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
     ezSceneSettingsMsgToEngine msg;
     msg.m_bSimulateWorld = GetSceneDocument()->GetGameMode() != GameMode::Off;
     msg.m_fSimulationSpeed = GetSceneDocument()->GetSimulationSpeed();
+    msg.m_fGizmoScale = ezPreferences::GetPreferences<ezEditorPreferencesUser>()->m_fGizmoScale;
     msg.m_bRenderOverlay = GetSceneDocument()->GetRenderSelectionOverlay();
     msg.m_bRenderShapeIcons = GetSceneDocument()->GetRenderShapeIcons();
     msg.m_bRenderSelectionBoxes = GetSceneDocument()->GetRenderVisualizers();

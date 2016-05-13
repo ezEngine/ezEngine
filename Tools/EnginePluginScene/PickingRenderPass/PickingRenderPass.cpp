@@ -74,11 +74,6 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   EZ_ASSERT_DEV(m_uiWindowWidth == pDepthTexture->GetDescription().m_uiWidth, "");
   EZ_ASSERT_DEV(m_uiWindowHeight == pDepthTexture->GetDescription().m_uiHeight, "");
 
-  // since typically the fov is tied to the height, we orient the gizmo size on that
-  const float fGizmoScale = 128.0f / (float)m_uiWindowHeight;
-  ezRenderContext::GetDefaultInstance()->SetMaterialParameter("GizmoScale", fGizmoScale);
-
-
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
   pGALContext->SetViewport(viewPortRect);

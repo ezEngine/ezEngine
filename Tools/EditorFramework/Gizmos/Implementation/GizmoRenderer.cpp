@@ -21,6 +21,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoRenderer, 1, ezRTTIDefaultAllocator<ezGiz
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+float ezGizmoRenderer::s_fGizmoScale = 1.0f;
+
 ezGizmoRenderer::ezGizmoRenderer()
 {
   m_uiHighlightID = 0;
@@ -70,7 +72,7 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
   renderViewContext.m_pRenderContext->BindConstantBuffer("GizmoConstants", m_hGizmoConstantBuffer);
 
   // since typically the fov is tied to the height, we orient the gizmo size on that
-  const float fGizmoScale = 128.0f / (float)renderViewContext.m_pViewData->m_ViewPortRect.height;
+  const float fGizmoScale = s_fGizmoScale * (128.0f / (float)renderViewContext.m_pViewData->m_ViewPortRect.height);
 
   for (auto it = batch.GetIterator<ezGizmoRenderData>(); it.IsValid(); ++it)
   {

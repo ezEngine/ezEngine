@@ -2,7 +2,10 @@
 #include <EditorFramework/Dialogs/PreferencesDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
-#include <EditorFramework/Preferences/ViewPreferences.h>
+#include <EditorFramework/Preferences/ProjectPreferences.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <Foundation/Serialization/BinarySerializer.h>
 
 class ezPreferencesObjectManager : public ezDocumentObjectManager
 {
@@ -74,33 +77,62 @@ PreferencesDlg::PreferencesDlg(QWidget* parent) : QDialog(parent)
 {
   setupUi(this);
 
-  ezViewUserPreferences* pPreferences = ezPreferences::GetPreferences<ezViewUserPreferences>();
+  ezProjectPreferencesUser* pPreferences = ezPreferences::GetPreferences<ezProjectPreferencesUser>();
 
   m_pDocument = EZ_DEFAULT_NEW(ezPreferencesDocument, "<none>");
-  static_cast<ezPreferencesObjectManager*>(m_pDocument->GetObjectManager())->m_KnownTypes.PushBack(ezViewUserPreferences::GetStaticRTTI());
+  static_cast<ezPreferencesObjectManager*>(m_pDocument->GetObjectManager())->m_KnownTypes.PushBack(ezProjectPreferencesUser::GetStaticRTTI());
 
   m_pDocument->InitializeAfterLoading();
 
   {
     auto pRoot = m_pDocument->GetObjectManager()->GetRootObject();
 
-    {
-      ezDocumentObject* pObject = m_pDocument->GetObjectManager()->CreateObject(ezViewUserPreferences::GetStaticRTTI());
-      m_pDocument->GetObjectManager()->AddObject(pObject, pRoot, "Children", 0);
+    //{
+    //  ezDocumentObject* pObject = m_pDocument->GetObjectManager()->CreateObject(ezViewPreferencesUser::GetStaticRTTI());
+    //  m_pDocument->GetObjectManager()->AddObject(pObject, pRoot, "Children", 0);
 
-      ezViewUserPreferences* pPref = static_cast<ezViewUserPreferences*>(m_pDocument->m_ObjectMirror.GetNativeObjectPointer(m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]));
+    //  ezViewPreferencesUser* pPref = static_cast<ezViewPreferencesUser*>(m_pDocument->m_ObjectMirror.GetNativeObjectPointer(m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]));
 
-      m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&PreferencesDlg::PropertyChangedEventHandler, this));
+    //  //m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&PreferencesDlg::PropertyChangedEventHandler, this));
 
-      /// TODO: Sync values !
-      // this doesn't work
-      pPref->m_iSomeValue = -23;
-      pPref->m_sRenderPipelines = "pups";
-    }
+    //  ///// TODO: Sync values !
+    //  //// this doesn't work
+    //  //pPref->m_iSomeValue = -23;
+    //  //pPref->m_sRenderPipelines = "pups";
+    //}
+
+      ezMemoryStreamStorage storage;
+      ezMemoryStreamWriter writer(&storage);
+      ezMemoryStreamReader reader(&storage);
+      ezReflectionSerializer::WriteObjectToBinary(writer, pPreferences->GetDynamicRTTI(), pPreferences);
+
+      {
+        ezAbstractObjectGraph graph;
+        ezAbstractGraphBinarySerializer::Read(reader, &graph);
+
+        ezRttiConverterContext context;
+        ezRttiConverterWriter conv(&graph, &context, false, false);
+
+        ezDocumentObjectConverterReader objectConverter(&graph, m_pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+
+        auto* pRootNode = graph.GetNodeByName("root");
+        objectConverter.ApplyPropertiesToObject(pRootNode, m_pDocument->GetObjectManager()->GetRootObject());
+
+
+        //ezRttiConverterContext context;
+        //ezRttiConverterWriter conv(&graph, &context, false, true);
+
+        //ezUuid guid;
+        //guid.CreateNewUuid();
+
+        //context.RegisterObject(guid, pRtti, const_cast<void*>(pObject));
+        //ezAbstractObjectNode* pNode = conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
+      }
   }
 
   Properties->SetDocument(m_pDocument);
-  m_pDocument->GetSelectionManager()->SetSelection(m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
+  //m_pDocument->GetSelectionManager()->SetSelection(m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
+  m_pDocument->GetSelectionManager()->SetSelection(m_pDocument->GetObjectManager()->GetRootObject());
 
   m_sSelectedSettingDomain = "<Application>";
 
@@ -218,7 +250,7 @@ void PreferencesDlg::UpdateSettings()
 
 void PreferencesDlg::PropertyChangedEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  ezViewUserPreferences* pPref = static_cast<ezViewUserPreferences*>(m_pDocument->m_ObjectMirror.GetNativeObjectPointer(m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]));
+  ezProjectPreferencesUser* pPref = static_cast<ezProjectPreferencesUser*>(m_pDocument->m_ObjectMirror.GetNativeObjectPointer(m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]));
 
   int i = 0;
 }
