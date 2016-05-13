@@ -17,7 +17,7 @@ ezPreferences::ezPreferences(Domain domain, Visibility visibility, const char* s
   m_pDocument = nullptr;
 }
 
-ezPreferences* ezPreferences::GetPreferences(const ezRTTI* pRtti, const ezDocument* pDocument)
+ezPreferences* ezPreferences::QueryPreferences(const ezRTTI* pRtti, const ezDocument* pDocument)
 {
   EZ_ASSERT_DEV(ezQtEditorApp::GetSingleton() != nullptr, "Editor app is not available in this process");
 
@@ -111,7 +111,7 @@ void ezPreferences::Save() const
 }
 
 
-void ezPreferences::SaveDocumentPreferences(const ezDocument* pDocument)
+void ezPreferences::SavePreferences(const ezDocument* pDocument, Domain domain)
 {
   auto& docPrefs = s_Preferences[pDocument];
 
@@ -119,18 +119,72 @@ void ezPreferences::SaveDocumentPreferences(const ezDocument* pDocument)
   for (auto it = docPrefs.GetIterator(); it.IsValid(); ++it)
   {
     auto pPref = it.Value();
-    pPref->Save();
 
-    pPref->GetDynamicRTTI()->GetAllocator()->Deallocate(pPref);
+    if (pPref->m_Domain == domain)
+      pPref->Save();
   }
-
-  // clean them all up
-  docPrefs.Clear();
 }
 
-void ezPreferences::SaveProjectAndEditorPreferences()
+void ezPreferences::ClearPreferences(const ezDocument* pDocument, Domain domain)
 {
-  // just save everything that is not tied to a document
-  SaveDocumentPreferences(nullptr);
+  auto& docPrefs = s_Preferences[pDocument];
+
+  // save all preferences for the given document
+  for (auto it = docPrefs.GetIterator(); it.IsValid(); )
+  {
+    auto pPref = it.Value();
+
+    if (pPref->m_Domain == domain)
+    {
+      pPref->GetDynamicRTTI()->GetAllocator()->Deallocate(pPref);
+      it == docPrefs.Remove(it);
+    }
+    else
+      ++it;
+  }
+}
+
+void ezPreferences::SaveDocumentPreferences(const ezDocument* pDocument)
+{
+  SavePreferences(pDocument, Domain::Document);
+}
+
+void ezPreferences::ClearDocumentPreferences(const ezDocument* pDocument)
+{
+  ClearPreferences(pDocument, Domain::Document);
+}
+
+void ezPreferences::SaveProjectPreferences()
+{
+  SavePreferences(nullptr, Domain::Project);
+}
+
+void ezPreferences::ClearProjectPreferences()
+{
+  ClearPreferences(nullptr, Domain::Project);
+}
+
+void ezPreferences::SaveApplicationPreferences()
+{
+  SavePreferences(nullptr, Domain::Application);
+}
+
+void ezPreferences::ClearApplicationPreferences()
+{
+  ClearPreferences(nullptr, Domain::Application);
+}
+
+void ezPreferences::GatherAllPreferences(ezHybridArray<ezPreferences*, 16>& out_AllPreferences)
+{
+  out_AllPreferences.Clear();
+  out_AllPreferences.Reserve(s_Preferences.GetCount() * 2);
+
+  for (auto itDoc = s_Preferences.GetIterator(); itDoc.IsValid(); ++itDoc)
+  {
+    for (auto itType = itDoc.Value().GetIterator(); itType.IsValid(); ++itType)
+    {
+      out_AllPreferences.PushBack(itType.Value());
+    }
+  }
 }
 

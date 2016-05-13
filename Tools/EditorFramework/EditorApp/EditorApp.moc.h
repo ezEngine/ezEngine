@@ -155,6 +155,8 @@ private:
   void ProjectEventHandler(const ezToolsProject::Event& r);
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
 
+  void LoadEditorPreferences();
+  void LoadProjectPreferences();
   void DetectAvailableEditorPlugins();
   void DetectAvailableEnginePlugins();
   void ReadEditorPluginsToBeLoaded();

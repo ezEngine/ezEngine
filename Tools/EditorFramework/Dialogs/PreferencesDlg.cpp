@@ -76,7 +76,7 @@ PreferencesDlg::PreferencesDlg(QWidget* parent) : QDialog(parent)
   m_pDocument->InitializeAfterLoading();
 
   {
-    ezProjectPreferencesUser* pPreferences = ezPreferences::GetPreferences<ezProjectPreferencesUser>();
+    ezProjectPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
     NativeToObject(pPreferences);
   }
 
@@ -140,7 +140,7 @@ void PreferencesDlg::ObjectToNative(ezUuid objectGuid)
   ezRttiConverterContext context;
   ezRttiConverterReader conv(&graph, &context);
 
-  ezPreferences* pPreferences = ezPreferences::GetPreferences(pType /*TODO: which document?*/);
+  ezPreferences* pPreferences = ezPreferences::QueryPreferences(pType /*TODO: which document?*/);
   conv.ApplyPropertiesToObject(pNode, pType, pPreferences);
 }
 

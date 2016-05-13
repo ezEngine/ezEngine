@@ -129,6 +129,7 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
   case ezDocumentManager::Event::Type::DocumentClosing:
     {
       ezPreferences::SaveDocumentPreferences(r.m_pDocument);
+      ezPreferences::ClearDocumentPreferences(r.m_pDocument);
 
       if (r.m_pDocument->GetAddToRecentFilesList())
       {

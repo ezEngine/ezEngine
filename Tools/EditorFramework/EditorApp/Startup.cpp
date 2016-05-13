@@ -162,6 +162,8 @@ void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
 
   ezTranslatorFromFiles::AddTranslationFile("ezEditorBasics.txt");
 
+  LoadEditorPreferences();
+
   ezUIServices::GetSingleton()->LoadState();
 
   ezActionManager::LoadShortcutAssignment();

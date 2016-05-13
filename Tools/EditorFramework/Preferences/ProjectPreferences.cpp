@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/Preferences/ProjectPreferences.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectPreferencesShared, 1, ezRTTIDefaultAllocator<ezProjectPreferencesShared>)
@@ -12,7 +13,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectPreferencesShared, 1, ezRTTIDefaultAllo
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezProjectPreferencesShared::ezProjectPreferencesShared()
-  : ezPreferences(Domain::Application, ezPreferences::Visibility::Shared, "Project - General")
+  : ezPreferences(Domain::Project, ezPreferences::Visibility::Shared, "Project - General")
 {
 }
 
@@ -30,6 +31,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectPreferencesUser, 1, ezRTTIDefaultAlloca
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezProjectPreferencesUser::ezProjectPreferencesUser()
-  : ezPreferences(Domain::Application, ezPreferences::Visibility::User, "Project - General")
+  : ezPreferences(Domain::Project, ezPreferences::Visibility::User, "Project - General")
 {
+}
+
+
+void ezQtEditorApp::LoadProjectPreferences()
+{
+  ezPreferences::QueryPreferences<ezProjectPreferencesShared>();
+  ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
 }

@@ -2,6 +2,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
+#include <EditorFramework/Preferences/Preferences.h>
 
 void UpdateInputDynamicEnumValues();
 
@@ -72,6 +73,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
   {
   case ezToolsProject::Event::Type::ProjectOpened:
     {
+      LoadProjectPreferences();
       SetupDataDirectories();
       ReadEnginePluginConfig();
       ReadTagRegistry();
@@ -97,6 +99,8 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
     {
       s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile());
       SaveSettings();
+
+      ezPreferences::ClearProjectPreferences();
     }
     break;
   case ezToolsProject::Event::Type::ProjectClosed:
@@ -109,6 +113,8 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
 
       s_ReloadProjectRequiredReasons.Clear();
       UpdateGlobalStatusBarMessage();
+
+      ezPreferences::ClearProjectPreferences();
     }
     break;
   }

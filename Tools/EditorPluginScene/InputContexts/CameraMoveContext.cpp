@@ -105,7 +105,7 @@ void ezCameraMoveContext::FocusLost(bool bCancel)
 
 void ezCameraMoveContext::LoadState()
 {
-  ezScenePreferencesUser* pPreferences = ezPreferences::GetPreferences<ezScenePreferencesUser>(GetOwnerWindow()->GetDocument());
+  ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetOwnerWindow()->GetDocument());
   SetMoveSpeed(pPreferences->m_iCameraSpeed);
 
 }
@@ -600,7 +600,7 @@ void ezCameraMoveContext::SetMoveSpeed(ezInt32 iSpeed)
 
   if (GetOwnerWindow()->GetDocument() != nullptr)
   {
-    ezScenePreferencesUser* pPreferences = ezPreferences::GetPreferences<ezScenePreferencesUser>(GetOwnerWindow()->GetDocument());
+    ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetOwnerWindow()->GetDocument());
     pPreferences->m_iCameraSpeed = m_pSettings->m_iMoveSpeed;
   }
 }

@@ -221,7 +221,7 @@ void ezRenderPipelineMenuAction::Execute(const ezVariant& value)
 
 void ezRenderPipelineMenuAction::GetRecentRenderPipelines(ezHybridArray<ezString, 10>& list)
 {
-  ezProjectPreferencesUser* pPreferences = ezPreferences::GetPreferences<ezProjectPreferencesUser>();
+  ezProjectPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
   ezStringBuilder sList = pPreferences->m_sRenderPipelines;
 
   list.Clear();
@@ -247,6 +247,6 @@ void ezRenderPipelineMenuAction::AddToRecentRenderPipelines(const ezString& entr
     sList.Append(";", sEntry);
   }
 
-  ezProjectPreferencesUser* pPreferences = ezPreferences::GetPreferences<ezProjectPreferencesUser>();
+  ezProjectPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
   pPreferences->m_sRenderPipelines = sList;
 }

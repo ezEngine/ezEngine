@@ -65,10 +65,11 @@ void ezQtEditorApp::SaveSettings()
 {
   SaveRecentFiles();
 
-  ezPreferences::SaveProjectAndEditorPreferences();
+  ezPreferences::SaveApplicationPreferences();
 
   if (ezToolsProject::IsProjectOpen())
   {
+    ezPreferences::SaveProjectPreferences();
     SaveOpenDocumentsList();
 
     m_FileSystemConfig.Save();
