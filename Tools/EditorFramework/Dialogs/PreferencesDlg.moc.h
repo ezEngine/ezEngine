@@ -6,6 +6,7 @@
 #include <Foundation/Strings/String.h>
 
 class ezPreferencesDocument;
+class ezPreferences;
 
 class EZ_EDITORFRAMEWORK_DLL PreferencesDlg : public QDialog, public Ui_PreferencesDlg
 {
@@ -15,6 +16,10 @@ public:
 public:
   PreferencesDlg(QWidget* parent);
   ~PreferencesDlg();
+
+  ezUuid NativeToObject(ezPreferences* pPreferences);
+  void ObjectToNative(ezUuid objectGuid);
+
 
 private slots:
   void SlotComboSettingsDomainIndexChanged(int iIndex);
