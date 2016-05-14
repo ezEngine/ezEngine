@@ -100,7 +100,10 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
       s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile());
       SaveSettings();
 
-      ezPreferences::ClearProjectPreferences();
+      if (r.m_Type == ezToolsProject::Event::Type::ProjectClosing)
+      {
+        ezPreferences::ClearProjectPreferences();
+      }
     }
     break;
   case ezToolsProject::Event::Type::ProjectClosed:

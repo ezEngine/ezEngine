@@ -13,7 +13,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesShared, 1, ezRTTIDefaultAlloc
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezEditorPreferencesShared::ezEditorPreferencesShared()
-  : ezPreferences(Domain::Application, ezPreferences::Visibility::Shared, "Editor - General")
+  : ezPreferences(Domain::Application, ezPreferences::Visibility::Shared, "General")
 {
 }
 
@@ -31,7 +31,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesUser, 1, ezRTTIDefaultAllocat
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezEditorPreferencesUser::ezEditorPreferencesUser()
-  : ezPreferences(Domain::Application, ezPreferences::Visibility::User, "Editor - General")
+  : ezPreferences(Domain::Application, ezPreferences::Visibility::User, "General")
 {
   m_fGizmoScale = 1.0f;
 }

@@ -87,6 +87,8 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
      auto msg = static_cast<const ezSceneSettingsMsgToEngine*>(pMsg);
 
+     ezGizmoRenderer::s_fGizmoScale = msg->m_fGizmoScale;
+
     const bool bSimulate = msg->m_bSimulateWorld;
     m_bRenderSelectionOverlay = msg->m_bRenderOverlay;
     m_bRenderShapeIcons = msg->m_bRenderShapeIcons;
@@ -105,8 +107,6 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
       }
 
       m_pWorld->GetClock().SetSpeed(msg->m_fSimulationSpeed);
-
-      ezGizmoRenderer::s_fGizmoScale = msg->m_fGizmoScale;
     }
 
     if (pState && pState->WasQuitRequested())

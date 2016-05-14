@@ -11,10 +11,8 @@ struct ezCameraMoveContextSettings
   ezCameraMoveContextSettings()
   {
     m_vOrbitPoint.SetZero();
-    m_iMoveSpeed = 15;
   }
 
-  ezInt32 m_iMoveSpeed;
   ezVec3 m_vOrbitPoint;
 };
 

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>579</width>
-    <height>488</height>
+    <width>697</width>
+    <height>544</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,51 +17,55 @@
    <iconset resource="../QtResources/resources.qrc">
     <normaloff>:/EditorFramework/Icons/StoredSettings16.png</normaloff>:/EditorFramework/Icons/StoredSettings16.png</iconset>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_2">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QWidget" name="GroupSettings" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>1</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <spacer name="horizontalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QComboBox" name="ComboSettingsDomain">
-          <property name="minimumSize">
-           <size>
-            <width>120</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maxVisibleItems">
-           <number>20</number>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="ezPropertyGridWidget" name="Properties" native="true"/>
-      </item>
-     </layout>
+     <property name="childrenCollapsible">
+      <bool>false</bool>
+     </property>
+     <widget class="ezQtDocumentTreeWidget" name="Tree"/>
+     <widget class="ezPropertyGridWidget" name="Properties" native="true"/>
     </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ButtonOk">
+       <property name="text">
+        <string>Ok</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ButtonCancel">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
@@ -71,6 +75,11 @@
    <extends>QWidget</extends>
    <header location="global">GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ezQtDocumentTreeWidget</class>
+   <extends>QTreeView</extends>
+   <header location="global">EditorFramework/GUI/RawDocumentTreeWidget.moc.h</header>
   </customwidget>
  </customwidgets>
  <resources>

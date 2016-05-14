@@ -13,7 +13,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectPreferencesShared, 1, ezRTTIDefaultAllo
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezProjectPreferencesShared::ezProjectPreferencesShared()
-  : ezPreferences(Domain::Project, ezPreferences::Visibility::Shared, "Project - General")
+  : ezPreferences(Domain::Project, ezPreferences::Visibility::Shared, "General")
 {
 }
 
@@ -31,7 +31,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectPreferencesUser, 1, ezRTTIDefaultAlloca
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezProjectPreferencesUser::ezProjectPreferencesUser()
-  : ezPreferences(Domain::Project, ezPreferences::Visibility::User, "Project - General")
+  : ezPreferences(Domain::Project, ezPreferences::Visibility::User, "General")
 {
 }
 

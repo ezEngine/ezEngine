@@ -7,6 +7,7 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <Foundation/Serialization/BinarySerializer.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
 
 class ezPreferencesObjectManager : public ezDocumentObjectManager
 {
@@ -31,30 +32,11 @@ public:
   {
   }
 
-  ~ezPreferencesDocument()
-  {
-  }
-
-
   virtual const char* GetDocumentTypeDisplayString() const override
   {
     return "Preferences";
   }
 
-//protected:
-  virtual void InitializeAfterLoading() override
-  {
-    ezDocument::InitializeAfterLoading();
-  }
-
-  virtual ezStatus InternalLoadDocument() override
-  {
-    GetObjectManager()->DestroyAllObjects();
-
-    return ezDocument::InternalLoadDocument();
-  }
-
-//private:
 public:
 
   virtual ezDocumentInfo* CreateDocumentInfo() override
@@ -69,33 +51,29 @@ PreferencesDlg::PreferencesDlg(QWidget* parent) : QDialog(parent)
 {
   setupUi(this);
 
+  splitter->setStretchFactor(0, 0);
+  splitter->setStretchFactor(1, 1);
 
   m_pDocument = EZ_DEFAULT_NEW(ezPreferencesDocument, "<none>");
-  static_cast<ezPreferencesObjectManager*>(m_pDocument->GetObjectManager())->m_KnownTypes.PushBack(ezProjectPreferencesUser::GetStaticRTTI());
 
-  m_pDocument->InitializeAfterLoading();
+  // if this is set, all properties are applied immediatly
+  //m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&PreferencesDlg::PropertyChangedEventHandler, this));
 
-  {
-    ezProjectPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
-    NativeToObject(pPreferences);
-  }
+  Tree->Initialize(m_pDocument, ezPreferences::GetStaticRTTI(), "");
+
+  RegisterAllPreferenceTypes();
+  AllPreferencesToObject();
 
   Properties->SetDocument(m_pDocument);
-  m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&PreferencesDlg::PropertyChangedEventHandler, this));
+
   m_pDocument->GetSelectionManager()->SetSelection(m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
-
-  m_sSelectedSettingDomain = "<Application>";
-
-  //EZ_VERIFY(connect(ComboSettingsDomain, SIGNAL(currentIndexChanged(int)), this, SLOT(SlotComboSettingsDomainIndexChanged(int))) != nullptr, "signal/slot connection failed");
-
-  UpdateSettings();
-
-  
 }
 
 PreferencesDlg::~PreferencesDlg()
 {
-  //Properties->SetDocument(nullptr);
+  delete Tree;
+  Tree = nullptr;
+
   delete Properties;
   Properties = nullptr;
 
@@ -118,15 +96,15 @@ ezUuid PreferencesDlg::NativeToObject(ezPreferences* pPreferences)
   // Read from graph and write into matching document object.
   auto pRoot = m_pDocument->GetObjectManager()->GetRootObject();
   ezDocumentObject* pObject = m_pDocument->GetObjectManager()->CreateObject(pType);
-  m_pDocument->GetObjectManager()->AddObject(pObject, pRoot, "Children", 0);
+  m_pDocument->GetObjectManager()->AddObject(pObject, pRoot, "Children", -1);
 
   ezDocumentObjectConverterReader objectConverter(&graph, m_pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
   objectConverter.ApplyPropertiesToObject(pNode, pObject);
 
-  return guid;
+  return pObject->GetGuid();
 }
 
-void PreferencesDlg::ObjectToNative(ezUuid objectGuid)
+void PreferencesDlg::ObjectToNative(ezUuid objectGuid, const ezDocument* pPrefDocument)
 {
   ezDocumentObject* pObject = m_pDocument->GetObjectManager()->GetObject(objectGuid);
   const ezRTTI* pType = pObject->GetTypeAccessor().GetType();
@@ -140,106 +118,109 @@ void PreferencesDlg::ObjectToNative(ezUuid objectGuid)
   ezRttiConverterContext context;
   ezRttiConverterReader conv(&graph, &context);
 
-  ezPreferences* pPreferences = ezPreferences::QueryPreferences(pType /*TODO: which document?*/);
+  ezPreferences* pPreferences = ezPreferences::QueryPreferences(pType, pPrefDocument);
   conv.ApplyPropertiesToObject(pNode, pType, pPreferences);
 }
 
-void PreferencesDlg::SlotComboSettingsDomainIndexChanged(int iIndex)
+
+void PreferencesDlg::on_ButtonOk_clicked()
 {
-  m_sSelectedSettingDomain = ComboSettingsDomain->itemData(iIndex, Qt::UserRole).toString().toUtf8().data();
-
-  UpdateSettings();
-
-  //if (iIndex == 0) // Application
-  //{
-  //}
-  //else if (iIndex == 1) // Project
-  //{
-  //}
-  //else
-  //{
-  //  ComboSettingsDomain->itemText(iIndex);
-  //}
+  ApplyAllChanges();
+  accept();
 }
 
 
-void PreferencesDlg::UpdateSettings()
+void PreferencesDlg::RegisterAllPreferenceTypes()
 {
-  //ezStringBuilder sTemp;
+  ezPreferencesObjectManager* pManager = static_cast<ezPreferencesObjectManager*>(m_pDocument->GetObjectManager());
 
-  //ComboSettingsDomain->blockSignals(true);
-  //ComboSettingsDomain->clear();
+  ezHybridArray<ezPreferences*, 16> AllPrefs;
+  ezPreferences::GatherAllPreferences(AllPrefs);
 
-  //int iSelected = 0;
-  //ComboSettingsDomain->addItem("<Application>", QString("<Application>"));
+  for (auto pref : AllPrefs)
+  {
+    pManager->m_KnownTypes.PushBack(pref->GetDynamicRTTI());
+  }
+}
 
-  //if (ezToolsProject::IsProjectOpen())
-  //{
-  //  ComboSettingsDomain->addItem("<Project>", QString("<Project>"));
 
-  //  if ("<Project>" == m_sSelectedSettingDomain)
-  //    iSelected = 1;
+void PreferencesDlg::AllPreferencesToObject()
+{
+  ezHybridArray<ezPreferences*, 16> AllPrefs;
+  ezPreferences::GatherAllPreferences(AllPrefs);
 
-  //  ezInt32 iIndex = 2;
-  //  for (auto dm : ezDocumentManager::GetAllDocumentManagers())
-  //  {
-  //    for (auto doc : dm->GetAllDocuments())
-  //    {
-  //      ezString sRel;
-  //      if (!ezToolsProject::GetSingleton()->IsDocumentInAllowedRoot(doc->GetDocumentPath(), &sRel))
-  //        continue;
+  ezHybridArray<ezAbstractProperty*, 32> properties;
 
-  //      ComboSettingsDomain->addItem(sRel.GetData(), QString(doc->GetDocumentPath()));
+  ezMap<ezString, ezPreferences*> appPref;
+  ezMap<ezString, ezPreferences*> projPref;
+  ezMap<ezString, ezPreferences*> docPref;
 
-  //      if (doc->GetDocumentPath() == m_sSelectedSettingDomain)
-  //        iSelected = iIndex;
+  for (auto pref : AllPrefs)
+  {
+    bool noVisibleProperties = true;
 
-  //      ++iIndex;
-  //    }
-  //  }
-  //}
+    // ignore all objects that have no visible properties
+    pref->GetDynamicRTTI()->GetAllProperties(properties);
+    for (const ezAbstractProperty* prop : properties)
+    {
+      if (prop->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+        continue;
 
-  //ComboSettingsDomain->setCurrentIndex(iSelected);
-  //m_sSelectedSettingDomain = ComboSettingsDomain->itemData(iSelected, Qt::UserRole).toString().toUtf8().data();
-  //ComboSettingsDomain->blockSignals(false);
+      noVisibleProperties = false;
+      break;
+    }
 
-  //m_pSettingsGrid->BeginProperties();
+    if (noVisibleProperties)
+      continue;
 
-  //for (const ezString& sName : ezQtEditorApp::GetSingleton()->GetRegisteredPluginNamesForSettings())
-  //{
-  //  ezSettings* s;
+    switch (pref->GetDomain())
+    {
+    case ezPreferences::Domain::Application:
+      appPref[pref->GetName()] = pref;
+      break;
+    case ezPreferences::Domain::Project:
+      projPref[pref->GetName()] = pref;
+      break;
+    case ezPreferences::Domain::Document:
+      docPref[pref->GetName()] = pref;
+      break;
+    }
+  }
 
-  //  if (m_sSelectedSettingDomain == "<Application>")
-  //    s = &ezQtEditorApp::GetSingleton()->GetEditorSettings(sName);
-  //  else
-  //    if (m_sSelectedSettingDomain == "<Project>")
-  //      s = &ezQtEditorApp::GetSingleton()->GetProjectSettings(sName);
-  //    else
-  //      s = &ezQtEditorApp::GetSingleton()->GetDocumentSettings(m_sSelectedSettingDomain, sName);
+  // create the objects in a certain order
 
-  //  bool bAddedGroupName = false;
+  for (auto it = appPref.GetIterator(); it.IsValid(); ++it)
+  {
+    m_DocumentBinding[NativeToObject(it.Value())] = it.Value()->GetDocumentAssociation();
+  }
 
-  //  for (auto it = s->GetAllSettings().GetIterator(); it.IsValid(); ++it)
-  //  {
-  //    if (!it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered))
-  //      continue;
-  //    if (it.Value().m_Flags.IsAnySet(ezSettingsFlags::Hidden))
-  //      continue;
+  for (auto it = projPref.GetIterator(); it.IsValid(); ++it)
+  {
+    m_DocumentBinding[NativeToObject(it.Value())] = it.Value()->GetDocumentAssociation();
+  }
 
-  //    if (!bAddedGroupName)
-  //    {
-  //      m_pSettingsGrid->AddProperty("Data Group:", sName, nullptr, true);
-  //      bAddedGroupName = true;
-  //    }
-
-  //    m_pSettingsGrid->AddProperty(it.Key(), it.Value().m_Value, &it.Value().m_Value, it.Value().m_Flags.IsAnySet(ezSettingsFlags::ReadOnly));
-  //  }
-  //}
-
-  //m_pSettingsGrid->EndProperties();
+  for (auto it = docPref.GetIterator(); it.IsValid(); ++it)
+  {
+    m_DocumentBinding[NativeToObject(it.Value())] = it.Value()->GetDocumentAssociation();
+  }
 }
 
 void PreferencesDlg::PropertyChangedEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  ObjectToNative(e.m_pObject->GetGuid());
+  const ezUuid guid = e.m_pObject->GetGuid();
+  EZ_ASSERT_DEV(m_DocumentBinding.Contains(guid), "Object GUID is not in the known list!");
+
+  ObjectToNative(guid, m_DocumentBinding[guid]);
 }
+
+void PreferencesDlg::ApplyAllChanges()
+{
+  for (auto it = m_DocumentBinding.GetIterator(); it.IsValid(); ++it)
+  {
+    ObjectToNative(it.Key(), it.Value());
+  }
+}
+
+
+
+

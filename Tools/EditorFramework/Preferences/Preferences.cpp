@@ -5,6 +5,13 @@
 #include <Foundation/Serialization/ReflectionSerializer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPreferences, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY_READ_ONLY("Name", GetName)->AddAttributes(new ezHiddenAttribute()),
+  }
+  EZ_END_PROPERTIES
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezMap<const ezDocument*, ezMap<const ezRTTI*, ezPreferences*>> ezPreferences::s_Preferences;
@@ -103,6 +110,23 @@ void ezPreferences::Load()
 
 void ezPreferences::Save() const
 {
+  bool bNothingToSerialize = true;
+
+  ezHybridArray<ezAbstractProperty*, 32> allProperties;
+  GetDynamicRTTI()->GetAllProperties(allProperties);
+
+  for (ezAbstractProperty* pProp : allProperties)
+  {
+    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::Constant | ezPropertyFlags::ReadOnly))
+      continue;
+
+    bNothingToSerialize = false;
+    break;
+  }
+
+  if (bNothingToSerialize)
+    return;
+
   ezFileWriter file;
   if (file.Open(GetFilePath()).Failed())
     return;
@@ -186,5 +210,27 @@ void ezPreferences::GatherAllPreferences(ezHybridArray<ezPreferences*, 16>& out_
       out_AllPreferences.PushBack(itType.Value());
     }
   }
+}
+
+ezString ezPreferences::GetName() const
+{
+  ezStringBuilder s;
+  
+  if (m_Domain == Domain::Application)
+    s.Append("Application");
+  else if (m_Domain == Domain::Project)
+    s.Append("Project");
+  else
+  {
+    ezStringBuilder name = ezPathUtils::GetFileName(m_pDocument->GetDocumentPath());
+    s.Append(name);
+  }
+
+  s.Append(": ", m_sUniqueName);
+
+  if (m_Visibility == Visibility::Shared)
+    s.Append(" (shared)");
+
+  return s;
 }
 

@@ -4,10 +4,22 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <QKeyEvent>
 
-ezQtDocumentTreeWidget::ezQtDocumentTreeWidget(QWidget* pParent, ezDocument* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel) :
-  QTreeView(pParent),
-  m_pDocument(pDocument)
+ezQtDocumentTreeWidget::ezQtDocumentTreeWidget(QWidget* parent)
+  : QTreeView(parent)
 {
+
+}
+
+ezQtDocumentTreeWidget::ezQtDocumentTreeWidget(QWidget* pParent, ezDocument* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)
+  : QTreeView(pParent)
+{
+  Initialize(pDocument, pBaseClass, szChildProperty, std::move(pCustomModel));
+}
+
+void ezQtDocumentTreeWidget::Initialize(ezDocument* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)
+{
+  m_pDocument = pDocument;
+
   if (pCustomModel)
     m_pModel = std::move(pCustomModel);
   else

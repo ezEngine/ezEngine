@@ -76,7 +76,7 @@ public:
   Visibility GetVisibility() const { return m_Visibility; }
 
   /// \brief Within the same domain and visibility the name must be unique, but across those it can be reused.
-  const ezString& GetName() const { return m_sUniqueName; }
+  ezString GetName() const;
 
   /// \brief If these preferences are per document, the pointer is valid, otherwise nullptr.
   const ezDocument* GetDocumentAssociation() const { return m_pDocument; }
@@ -93,6 +93,8 @@ private:
 
   void Load();
   void Save() const;
+
+  
 
 private:
   Domain m_Domain;

@@ -7,6 +7,7 @@
 
 class ezPreferencesDocument;
 class ezPreferences;
+class ezQtDocumentTreeWidget;
 
 class EZ_EDITORFRAMEWORK_DLL PreferencesDlg : public QDialog, public Ui_PreferencesDlg
 {
@@ -18,19 +19,21 @@ public:
   ~PreferencesDlg();
 
   ezUuid NativeToObject(ezPreferences* pPreferences);
-  void ObjectToNative(ezUuid objectGuid);
+  void ObjectToNative(ezUuid objectGuid, const ezDocument* pPrefDocument);
 
 
 private slots:
-  void SlotComboSettingsDomainIndexChanged(int iIndex);
+  void on_ButtonOk_clicked();
+  void on_ButtonCancel_clicked() { reject(); }
 
 private:
-  void UpdateSettings();
+  void RegisterAllPreferenceTypes();
+  void AllPreferencesToObject();
   void PropertyChangedEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void ApplyAllChanges();
 
-  ezString m_sSelectedSettingDomain;
-  //ezMap<ezString, ezVariant> m_Settings;
   ezPreferencesDocument* m_pDocument;
+  ezMap<ezUuid, const ezDocument*> m_DocumentBinding;
 };
 
 

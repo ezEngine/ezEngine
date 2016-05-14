@@ -15,12 +15,16 @@ ezQtDocumentTreeModel::ezQtDocumentTreeModel(const ezDocumentObjectManager* pTre
   m_pDocumentTree = pTree;
   m_pBaseClass = pBaseClass;
   m_sChildProperty = szChildProperty;
-  m_PropertyPath = szChildProperty;
-  auto pProp = m_pBaseClass->FindPropertyByName(m_sChildProperty);
-  EZ_ASSERT_DEV(pProp != nullptr && (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set),
-    "The visualized object property tree must either be a set or array!");
-  EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner),
-    "The visualized object must have ownership of the property objects!");
+  m_ChildPropertyPath = szChildProperty;
+
+  if (!m_sChildProperty.IsEmpty())
+  {
+    auto pProp = m_pBaseClass->FindPropertyByName(m_sChildProperty);
+    EZ_ASSERT_DEV(pProp != nullptr && (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set),
+                  "The visualized object property tree must either be a set or array!");
+    EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner),
+                  "The visualized object must have ownership of the property objects!");
+  }
 
   m_pDocumentTree->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtDocumentTreeModel::TreeEventHandler, this));
   m_pDocumentTree->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtDocumentTreeModel::TreePropertyEventHandler, this));
@@ -110,7 +114,7 @@ QModelIndex ezQtDocumentTreeModel::index(int row, int column, const QModelIndex&
   }
 
   const ezDocumentObject* pParent = (const ezDocumentObject*) parent.internalPointer();
-  ezVariant value = pParent->GetTypeAccessor().GetValue(m_PropertyPath, row);
+  ezVariant value = pParent->GetTypeAccessor().GetValue(m_ChildPropertyPath, row);
   EZ_ASSERT_DEV(value.IsValid() && value.IsA<ezUuid>(), "Tree corruption!");
   const ezDocumentObject* pChild = m_pDocumentTree->GetObject(value.Get<ezUuid>());
 
@@ -164,7 +168,8 @@ int ezQtDocumentTreeModel::rowCount(const QModelIndex& parent) const
   {
     const ezDocumentObject* pObject = (const ezDocumentObject*) parent.internalPointer();
   
-    iCount = pObject->GetTypeAccessor().GetCount(m_PropertyPath);
+    if (!m_ChildPropertyPath.IsEmpty())
+      iCount = pObject->GetTypeAccessor().GetCount(m_ChildPropertyPath);
   }
 
   return iCount;
