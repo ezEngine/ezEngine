@@ -295,26 +295,22 @@ void ezQtSceneViewWidget::CreatePrefab(const ezVec3& vPosition, const ezUuid& As
   PasteCmd.m_sJsonGraph = pDocument->GetCachedPrefabGraph(AssetGuid);
   PasteCmd.m_RemapGuid.CreateNewUuid();
 
-  ezUuid NewObject;
-  void* pArray = &NewObject;
-  memcpy(&PasteCmd.m_pCreatedRootObject, &pArray, sizeof(void*)); /// \todo HACK-o-rama
-
   if (PasteCmd.m_sJsonGraph.IsEmpty())
     return; // error
 
   pCmdHistory->AddCommand(PasteCmd);
 
-  if (NewObject.IsValid())
+  if (PasteCmd.m_CreatedRootObject.IsValid())
   {
-    auto pMeta = pDocument->m_ObjectMetaData.BeginModifyMetaData(NewObject);
+    auto pMeta = pDocument->m_ObjectMetaData.BeginModifyMetaData(PasteCmd.m_CreatedRootObject);
     pMeta->m_CreateFromPrefab = AssetGuid;
     pMeta->m_PrefabSeedGuid = PasteCmd.m_RemapGuid;
     pMeta->m_sBasePrefab = PasteCmd.m_sJsonGraph;
     pDocument->m_ObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::PrefabFlag);
 
-    MoveObjectToPosition(NewObject, vPosition);
+    MoveObjectToPosition(PasteCmd.m_CreatedRootObject, vPosition);
 
-    m_DraggedObjects.PushBack(NewObject);
+    m_DraggedObjects.PushBack(PasteCmd.m_CreatedRootObject);
   }
 }
 

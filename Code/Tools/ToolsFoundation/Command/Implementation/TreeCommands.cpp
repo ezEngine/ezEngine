@@ -38,7 +38,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstantiatePrefabCommand, 1, ezRTTIDefaultAllo
     EZ_MEMBER_PROPERTY("ParentGuid", m_Parent),
     EZ_MEMBER_PROPERTY("JsonGraph", m_sJsonGraph),
     EZ_MEMBER_PROPERTY("RemapGuid", m_RemapGuid),
-    EZ_MEMBER_PROPERTY("CreatedObjects", m_pCreatedRootObject),
+    EZ_MEMBER_PROPERTY("CreatedObjects", m_CreatedRootObject),
     EZ_MEMBER_PROPERTY("AllowPickedPos", m_bAllowPickedPosition),
   }
   EZ_END_PROPERTIES
@@ -158,8 +158,11 @@ ezStatus ezAddObjectCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
 
-  if (!m_NewObjectGuid.IsValid())
-    m_NewObjectGuid.CreateNewUuid();
+  if (!bRedo)
+  {
+    if (!m_NewObjectGuid.IsValid())
+      m_NewObjectGuid.CreateNewUuid();
+  }
 
   ezDocumentObject* pParent = nullptr;
   if (m_Parent.IsValid())
@@ -343,7 +346,6 @@ void ezPasteObjectsCommand::CleanupInternal(CommandState state)
 
 ezInstantiatePrefabCommand::ezInstantiatePrefabCommand()
 {
-  m_pCreatedRootObject = 0;
   m_bAllowPickedPosition = true;
 }
 
@@ -411,14 +413,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
                 ref.m_pObject = pNewObject;
                 ref.m_pParent = pParent;
 
-                /// \todo HACK-o-rama
-                if (m_pCreatedRootObject != 0)
-                {
-                  void* pObj = nullptr;
-                  ezMemoryUtils::Copy((ezUInt8*)&pObj, (ezUInt8*)&m_pCreatedRootObject, sizeof(void*));
-
-                  *((ezUuid*)pObj) = pNewObject->GetGuid();
-                }
+                m_CreatedRootObject = pNewObject->GetGuid();
               }
 
               // only create the very first object, if there are multiple objects in the prefab, ignore the rest

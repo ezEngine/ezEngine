@@ -33,6 +33,7 @@ protected:
   ezDocument* GetDocument() { return m_pDocument; };
 
 private:
+  virtual bool HasReturnValues() const { return false; }
   virtual ezStatus DoInternal(bool bRedo) = 0;
   virtual ezStatus UndoInternal(bool bFireEvents) = 0;
   virtual void CleanupInternal(CommandState state) = 0;

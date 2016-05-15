@@ -572,19 +572,15 @@ void ezSceneDocument::RevertPrefabs(const ezDeque<const ezDocumentObject*>& Sele
     instCmd.m_RemapGuid = pMeta->m_PrefabSeedGuid;
     instCmd.m_sJsonGraph = GetCachedPrefabGraph(pMeta->m_CreateFromPrefab);
 
-    ezUuid NewObject;
-    void* pArray = &NewObject;
-    memcpy(&instCmd.m_pCreatedRootObject, &pArray, sizeof(void*)); /// \todo HACK-o-rama
-
     m_ObjectMetaData.EndReadMetaData();
 
     pHistory->AddCommand(remCmd);
     pHistory->AddCommand(instCmd);
 
-    if (NewObject.IsValid())
+    if (instCmd.m_CreatedRootObject.IsValid())
     {
       ezSetObjectPropertyCommand setCmd;
-      setCmd.m_Object = NewObject;
+      setCmd.m_Object = instCmd.m_CreatedRootObject;
 
       setCmd.m_sPropertyPath = "LocalPosition";
       setCmd.m_NewValue = vLocalPos;
@@ -602,7 +598,7 @@ void ezSceneDocument::RevertPrefabs(const ezDeque<const ezDocumentObject*>& Sele
       setCmd.m_NewValue = fLocalUniformScale;
       pHistory->AddCommand(setCmd);
 
-      auto pMeta = m_ObjectMetaData.BeginModifyMetaData(NewObject);
+      auto pMeta = m_ObjectMetaData.BeginModifyMetaData(instCmd.m_CreatedRootObject);
       pMeta->m_CreateFromPrefab = PrefabAsset;
       pMeta->m_PrefabSeedGuid = instCmd.m_RemapGuid;
       pMeta->m_sBasePrefab = instCmd.m_sJsonGraph;

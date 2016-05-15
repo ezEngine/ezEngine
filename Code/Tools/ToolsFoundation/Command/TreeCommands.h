@@ -23,6 +23,7 @@ public: // Properties
   ezUuid m_NewObjectGuid; ///< This is optional. If not filled out, a new guid is assigned automatically.
 
 private:
+  virtual bool HasReturnValues() const override { return true; }
   virtual ezStatus DoInternal(bool bRedo) override;
   virtual ezStatus UndoInternal(bool bFireEvents) override;
   virtual void CleanupInternal(CommandState state) override;
@@ -70,10 +71,11 @@ public: // Properties
   ezUuid m_Parent;
   ezUuid m_RemapGuid;
   ezString m_sJsonGraph;
-  ezUInt64 m_pCreatedRootObject; // ezUuid*
+  ezUuid m_CreatedRootObject;
   bool m_bAllowPickedPosition;
 
 private:
+  virtual bool HasReturnValues() const override { return true; }
   virtual ezStatus DoInternal(bool bRedo) override;
   virtual ezStatus UndoInternal(bool bFireEvents) override;
   virtual void CleanupInternal(CommandState state) override;

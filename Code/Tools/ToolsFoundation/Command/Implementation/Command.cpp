@@ -102,16 +102,18 @@ void ezCommand::Cleanup(CommandState state)
 
 ezStatus ezCommand::AddSubCommand(ezCommand& command)
 {
-  ezMemoryStreamStorage storage;
-  ezMemoryStreamWriter writer(&storage);
-  ezMemoryStreamReader reader(&storage);
+  const ezRTTI* pRtti = nullptr;
+  ezCommand* pCommand = nullptr;
+  {
+    ezMemoryStreamStorage storage;
+    ezMemoryStreamWriter writer(&storage);
+    ezMemoryStreamReader reader(&storage);
 
-  /// \todo Clone action, instead of writing to JSON and then reading from it again
+    /// \todo Clone action, instead of writing to JSON and then reading from it again
 
-  ezReflectionSerializer::WriteObjectToBinary(writer, command.GetDynamicRTTI(), &command);
-
-  const ezRTTI* pRtti;
-  ezCommand* pCommand = (ezCommand*)ezReflectionSerializer::ReadObjectFromBinary(reader, pRtti);
+    ezReflectionSerializer::WriteObjectToBinary(writer, command.GetDynamicRTTI(), &command);
+    pCommand = (ezCommand*)ezReflectionSerializer::ReadObjectFromBinary(reader, pRtti);
+  }
 
   pCommand->m_pDocument = m_pDocument;
 
@@ -128,6 +130,16 @@ ezStatus ezCommand::AddSubCommand(ezCommand& command)
     return ret;
   }
 
+  if (pCommand->HasReturnValues())
+  {
+    // Write properties back so any return values get written.
+    ezMemoryStreamStorage storage;
+    ezMemoryStreamWriter writer(&storage);
+    ezMemoryStreamReader reader(&storage);
+
+    ezReflectionSerializer::WriteObjectToBinary(writer, pCommand->GetDynamicRTTI(), pCommand);
+    ezReflectionSerializer::ReadObjectPropertiesFromBinary(reader, *pRtti, &command);
+  }
 
   return ezStatus(EZ_SUCCESS);
 }

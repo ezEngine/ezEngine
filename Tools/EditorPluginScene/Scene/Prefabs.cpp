@@ -103,17 +103,13 @@ void ezSceneDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const
   instCmd.m_sJsonGraph = ReadDocumentAsString(szPrefabFile); // since the prefab might have been created just now, going through the cache (via GUID) will most likely fail
   instCmd.m_RemapGuid = PrefabSeed;
 
-  ezUuid NewObject;
-  void* pArray = &NewObject;
-  memcpy(&instCmd.m_pCreatedRootObject, &pArray, sizeof(void*)); /// \todo HACK-o-rama
-
   GetCommandHistory()->AddCommand(remCmd);
   GetCommandHistory()->AddCommand(instCmd);
   GetCommandHistory()->FinishTransaction();
 
-  if (NewObject.IsValid())
+  if (instCmd.m_CreatedRootObject.IsValid())
   {
-    auto pMeta = m_ObjectMetaData.BeginModifyMetaData(NewObject);
+    auto pMeta = m_ObjectMetaData.BeginModifyMetaData(instCmd.m_CreatedRootObject);
     pMeta->m_CreateFromPrefab = PrefabAsset;
     pMeta->m_PrefabSeedGuid = PrefabSeed;
     pMeta->m_sBasePrefab = instCmd.m_sJsonGraph;
@@ -177,9 +173,6 @@ void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid
   inst.m_Parent = pObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pObject->GetParent()->GetGuid();
   inst.m_RemapGuid = PrefabSeed;
   inst.m_sJsonGraph = GetCachedPrefabGraph(PrefabAsset);
-
-  void* pArray = &NewObject;
-  memcpy(&inst.m_pCreatedRootObject, &pArray, sizeof(void*)); /// \todo HACK-o-rama
 
   // prepare the original prefab as a graph
   ezAbstractObjectGraph graphBasePrefab;
@@ -320,7 +313,7 @@ void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid
   GetCommandHistory()->AddCommand(inst);
 
   // pass the prefab meta data to the new instance
-  if (NewObject.IsValid())
+  if (inst.m_CreatedRootObject.IsValid())
   {
     auto pMeta = m_ObjectMetaData.BeginModifyMetaData(NewObject);
     pMeta->m_CreateFromPrefab = PrefabAsset;
