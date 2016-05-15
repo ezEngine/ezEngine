@@ -1,10 +1,10 @@
 {
  "Objects" : [ {
-   "#" : { "$t" : "uuid", "$b" : "0x0B339D43983E3049B95E9C5A74AD2FB4" },
+   "#" : { "$t" : "uuid", "$b" : "0x3A4A9BC2A4D2FF418E2E3873BC1AD494" },
    "t" : "ezMaterialAssetProperties",
    "p" : {
     "Base Material" : "{ 8b666abc-97c5-4048-9ba0-e369cc3e374d }",
-    "Diffuse Texture" : "Gold.color",
+    "Diffuse Texture" : "White.color",
     "Mask Texture" : "",
     "Normal Map" : "",
     "Permutations" : "",
@@ -13,14 +13,14 @@
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0xE87D1903460BB649AE64298ECD7418A1" },
+   "#" : { "$t" : "uuid", "$b" : "0xC07FCB3A4648364A9A10CD65C5A62587" },
    "t" : "ezAssetDocumentInfo",
    "n" : "Header",
    "p" : {
     "AssetType" : "Material",
     "Dependencies" : "{ 8b666abc-97c5-4048-9ba0-e369cc3e374d }",
-    "DocumentID" : { "$t" : "uuid", "$b" : "0xE87D1903460BB649AE64298ECD7418A1" },
-    "Hash" : { "$t" : "uint64", "$v" : "8917347427609079080", "$b" : "0x28ED61413DC8C07B" }
+    "DocumentID" : { "$t" : "uuid", "$b" : "0xC07FCB3A4648364A9A10CD65C5A62587" },
+    "Hash" : { "$t" : "uint64", "$v" : "6779835945520739169", "$b" : "0x61333010DFD0165E" }
    }
   },
   {
@@ -28,7 +28,7 @@
    "t" : "ezDocumentRoot",
    "n" : "ObjectTree",
    "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x0B339D43983E3049B95E9C5A74AD2FB4" } ]
+    "Children" : [ { "$t" : "uuid", "$b" : "0x3A4A9BC2A4D2FF418E2E3873BC1AD494" } ]
    }
   } ],
  "Types" : [  ]

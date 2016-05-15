@@ -32,7 +32,7 @@ public:
   virtual ezEditorInut mouseMoveEvent(QMouseEvent* e) override;
   virtual ezEditorInut wheelEvent(QWheelEvent* e) override;
 
-  void SetCamera(ezCamera* pCamera) { m_pCamera = pCamera; }
+  void SetCamera(ezCamera* pCamera);
 
   void SetOrbitPoint(const ezVec3& vPos);
 

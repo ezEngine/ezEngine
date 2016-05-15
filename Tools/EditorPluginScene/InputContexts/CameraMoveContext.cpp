@@ -107,7 +107,6 @@ void ezCameraMoveContext::LoadState()
 {
   ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetOwnerWindow()->GetDocument());
   SetMoveSpeed(pPreferences->m_iCameraSpeed);
-
 }
 
 void ezCameraMoveContext::UpdateContext()
@@ -675,5 +674,13 @@ ezEditorInut ezCameraMoveContext::wheelEvent(QWheelEvent* e)
       return ezEditorInut::WasExclusivelyHandled;
     }
   }
+}
+
+void ezCameraMoveContext::SetCamera(ezCamera* pCamera)
+{
+  if (m_pCamera == pCamera)
+    return;
+
+  m_pCamera = pCamera;
 }
 

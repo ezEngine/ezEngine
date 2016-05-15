@@ -12,6 +12,7 @@
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <EditorPluginScene/Preferences/ScenePreferences.h>
 
 ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
@@ -445,10 +446,18 @@ void ezQtSceneDocumentWindow::SetupDefaultViewConfigs()
   m_ViewConfigSingle.m_Camera.LookAt(ezVec3(0), ezVec3(1, 0, 0), ezVec3(0, 0, 1));
   m_ViewConfigSingle.ApplyPerspectiveSetting();
 
+  ezSceneViewPerspective::Enum pers[4] =
+  {
+    ezSceneViewPerspective::Orthogonal_Top,
+    ezSceneViewPerspective::Perspective,
+    ezSceneViewPerspective::Orthogonal_Front,
+    ezSceneViewPerspective::Orthogonal_Right
+  };
+
   for (int i = 0; i < 4; ++i)
   {
-    m_ViewConfigQuad[i].m_Perspective = (ezSceneViewPerspective::Enum)(ezSceneViewPerspective::Orthogonal_Front + i);
-    m_ViewConfigQuad[i].m_RenderMode = (i == ezSceneViewPerspective::Perspective) ? ezViewRenderMode::Default : ezViewRenderMode::WireframeMonochrome;
+    m_ViewConfigQuad[i].m_Perspective = pers[i];
+    m_ViewConfigQuad[i].m_RenderMode = (m_ViewConfigQuad[i].m_Perspective == ezSceneViewPerspective::Perspective) ? ezViewRenderMode::Default : ezViewRenderMode::WireframeMonochrome;
     m_ViewConfigQuad[i].m_Camera.LookAt(ezVec3(0), ezVec3(1, 0, 0), ezVec3(0, 0, 1));
     m_ViewConfigQuad[i].ApplyPerspectiveSetting();
   }
@@ -464,12 +473,53 @@ void ezQtSceneDocumentWindow::SaveViewConfig(QSettings& Settings, const ezSceneV
     Settings.setValue(QLatin1String("Mode"), (int)cfg.m_RenderMode);
   }
   Settings.endGroup();
+
+  // this is per document
+  ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument());
+
+  ezVec3 pos, dir;
+  if (ezStringUtils::IsEqual(szName, "Single"))
+  {
+    pPreferences->m_ViewSingle.m_vCamPos = cfg.m_Camera.GetPosition();
+    pPreferences->m_ViewSingle.m_vCamDir = cfg.m_Camera.GetDirForwards();
+    pPreferences->m_ViewSingle.m_vCamUp = cfg.m_Camera.GetDirUp();
+  }
+
+  if (ezStringUtils::IsEqual(szName, "Quad0"))
+  {
+    pPreferences->m_ViewQuad0.m_vCamPos = cfg.m_Camera.GetPosition();
+    pPreferences->m_ViewQuad0.m_vCamDir = cfg.m_Camera.GetDirForwards();
+    pPreferences->m_ViewQuad0.m_vCamUp = cfg.m_Camera.GetDirUp();
+  }
+
+  if (ezStringUtils::IsEqual(szName, "Quad1"))
+  {
+    pPreferences->m_ViewQuad1.m_vCamPos = cfg.m_Camera.GetPosition();
+    pPreferences->m_ViewQuad1.m_vCamDir = cfg.m_Camera.GetDirForwards();
+    pPreferences->m_ViewQuad1.m_vCamUp = cfg.m_Camera.GetDirUp();
+  }
+
+  if (ezStringUtils::IsEqual(szName, "Quad2"))
+  {
+    pPreferences->m_ViewQuad2.m_vCamPos = cfg.m_Camera.GetPosition();
+    pPreferences->m_ViewQuad2.m_vCamDir = cfg.m_Camera.GetDirForwards();
+    pPreferences->m_ViewQuad2.m_vCamUp = cfg.m_Camera.GetDirUp();
+  }
+
+  if (ezStringUtils::IsEqual(szName, "Quad3"))
+  {
+    pPreferences->m_ViewQuad3.m_vCamPos = cfg.m_Camera.GetPosition();
+    pPreferences->m_ViewQuad3.m_vCamDir = cfg.m_Camera.GetDirForwards();
+    pPreferences->m_ViewQuad3.m_vCamUp = cfg.m_Camera.GetDirUp();
+  }
+
 }
 
 void ezQtSceneDocumentWindow::LoadViewConfig(QSettings& Settings, ezSceneViewConfig& cfg, const char* szName)
 {
   ezStringBuilder s("ViewConfig_", szName);
 
+  // this is per application
   Settings.beginGroup(QLatin1String(s.GetData()));
   {
     cfg.m_Perspective = (ezSceneViewPerspective::Enum)Settings.value(QLatin1String("Perspective"), (int)cfg.m_Perspective).toInt();
@@ -478,6 +528,51 @@ void ezQtSceneDocumentWindow::LoadViewConfig(QSettings& Settings, ezSceneViewCon
     cfg.ApplyPerspectiveSetting();
   }
   Settings.endGroup();
+
+  // this is per document
+  ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument());
+
+  ezVec3 pos, dir, up;
+  if (ezStringUtils::IsEqual(szName, "Single"))
+  {
+    pos = pPreferences->m_ViewSingle.m_vCamPos;
+    dir = pPreferences->m_ViewSingle.m_vCamDir;
+    up = pPreferences->m_ViewSingle.m_vCamUp;
+  }
+
+  if (ezStringUtils::IsEqual(szName, "Quad0"))
+  {
+    pos = pPreferences->m_ViewQuad0.m_vCamPos;
+    dir = pPreferences->m_ViewQuad0.m_vCamDir;
+    up = pPreferences->m_ViewQuad0.m_vCamUp;
+  }
+
+  if (ezStringUtils::IsEqual(szName, "Quad1"))
+  {
+    pos = pPreferences->m_ViewQuad1.m_vCamPos;
+    dir = pPreferences->m_ViewQuad1.m_vCamDir;
+    up = pPreferences->m_ViewQuad1.m_vCamUp;
+  }
+
+  if (ezStringUtils::IsEqual(szName, "Quad2"))
+  {
+    pos = pPreferences->m_ViewQuad2.m_vCamPos;
+    dir = pPreferences->m_ViewQuad2.m_vCamDir;
+    up = pPreferences->m_ViewQuad2.m_vCamUp;
+  }
+
+  if (ezStringUtils::IsEqual(szName, "Quad3"))
+  {
+    pos = pPreferences->m_ViewQuad3.m_vCamPos;
+    dir = pPreferences->m_ViewQuad3.m_vCamDir;
+    up = pPreferences->m_ViewQuad3.m_vCamUp;
+  }
+
+  dir.NormalizeIfNotZero(ezVec3(1, 0, 0));
+  up.MakeOrthogonalTo(dir);
+  up.NormalizeIfNotZero(dir.GetOrthogonalVector().GetNormalized());
+
+  cfg.m_Camera.LookAt(pos, pos + dir, up);
 }
 
 void ezQtSceneDocumentWindow::SaveViewConfigs() const

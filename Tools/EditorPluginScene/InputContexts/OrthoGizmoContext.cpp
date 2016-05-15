@@ -85,24 +85,9 @@ ezEditorInut ezOrthoGizmoContext::mouseMoveEvent(QMouseEvent* e)
     ezQuat qRot;
     qRot.SetIdentity();
 
-    switch (GetOwnerView()->m_pViewConfig->m_Perspective)
-    {
-    case ezSceneViewPerspective::Orthogonal_Front:
-      m_vTranslationResult.y -= diff.x() * fDistPerPixel;
-      m_vTranslationResult.z -= diff.y() * fDistPerPixel;
-      qRot.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(diff.x()));
-      break;
-    case ezSceneViewPerspective::Orthogonal_Top:
-      m_vTranslationResult.y += diff.x() * fDistPerPixel;
-      m_vTranslationResult.x -= diff.y() * fDistPerPixel;
-      qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(diff.x()));
-      break;
-    case ezSceneViewPerspective::Orthogonal_Right:
-      m_vTranslationResult.x += diff.x() * fDistPerPixel;
-      m_vTranslationResult.z -= diff.y() * fDistPerPixel;
-      qRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(diff.x()));
-      break;
-    }
+    m_vTranslationResult += m_pCamera->GetDirRight() * (float) diff.x() * fDistPerPixel;
+    m_vTranslationResult -= m_pCamera->GetDirUp() * (float)diff.y() * fDistPerPixel;
+    qRot.SetFromAxisAndAngle(m_pCamera->GetDirForwards(), ezAngle::Degree(-diff.x()));
 
     m_qRotationResult = qRot * m_qRotationResult;
 

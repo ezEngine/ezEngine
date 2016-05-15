@@ -30,7 +30,7 @@ void ezSceneViewConfig::ApplyPerspectiveSetting()
   case ezSceneViewPerspective::Orthogonal_Top:
     {
       m_Camera.SetCameraMode(ezCameraMode::OrthoFixedHeight, 20.0f, -10000.0f, 10000.0f);
-      m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + ezVec3(0, 0, -1), ezVec3(1, 0, 0));
+      m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + ezVec3(0, 0, -1), ezVec3(0, -1, 0));
     }
     break;
   }

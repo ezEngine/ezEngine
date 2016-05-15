@@ -231,12 +231,16 @@ void ezCommandHistory::EndTransaction(bool bCancel)
     }
     else
     {
+      const bool bDidAnything = m_TransactionStack.PeekBack()->HasChildActions();
       m_UndoHistory.PushBack(m_TransactionStack.PeekBack());
       m_TransactionStack.PopBack();
       m_ActiveCommandStack.PopBack();
       ClearRedoHistory();
 
-      m_pDocument->SetModified(true);
+      if (bDidAnything)
+      {
+        m_pDocument->SetModified(true);
+      }
     }
   }
   else

@@ -21,6 +21,7 @@ public:
   ezCommand();
 
   bool IsUndoable() const { return m_bUndoable; };
+  bool HasChildActions() const { return !m_ChildActions.IsEmpty(); }
 
   enum class CommandState { WasDone, WasUndone };
 

@@ -27,8 +27,8 @@ ezQtSceneViewWidget::ezQtSceneViewWidget(QWidget* pParent, ezQtSceneDocumentWind
   m_pCameraMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, pOwnerWindow, this, pCameraMoveSettings);
   m_pOrthoGizmoContext = EZ_DEFAULT_NEW(ezOrthoGizmoContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
 
-  m_pCameraMoveContext->LoadState();
   m_pCameraMoveContext->SetCamera(&m_pViewConfig->m_Camera);
+  m_pCameraMoveContext->LoadState();
 
   // add the input contexts in the order in which they are supposed to be processed
   m_InputContexts.PushBack(m_pOrthoGizmoContext);
