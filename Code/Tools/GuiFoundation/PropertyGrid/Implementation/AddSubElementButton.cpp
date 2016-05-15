@@ -125,6 +125,19 @@ void ezAddSubElementButton::on_Menu_aboutToShow()
   }
   m_SupportedTypes.Insert(pProp->GetSpecificType());
 
+  // remove all types that are marked as hidden
+  for (auto it = m_SupportedTypes.GetIterator(); it.IsValid(); )
+  {
+    if (it.Key()->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+    {
+      it = m_SupportedTypes.Remove(it);
+    }
+    else
+    {
+      ++it;
+    }
+  }
+
   // Make category-sorted array of types
   ezDynamicArray<const ezRTTI*> supportedTypes;
   for (const ezRTTI* pRtti : m_SupportedTypes)

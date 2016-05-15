@@ -5,6 +5,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_COMPONENT_TYPE(ezGizmoComponent, 1)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezHiddenAttribute(),
+  }
+  EZ_END_ATTRIBUTES
+}
 EZ_END_COMPONENT_TYPE
 
 ezGizmoComponent::ezGizmoComponent()
