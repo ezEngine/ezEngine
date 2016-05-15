@@ -83,7 +83,7 @@ void ezGameApplication::DoSetupDefaultResources()
   }
 
   {
-    ezMeshResourceHandle hMissingMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh/MissingMesh.ezMesh");
+    ezMeshResourceHandle hMissingMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezMesh");
     ezMeshResource::SetTypeMissingResource(hMissingMesh);
   }
 
