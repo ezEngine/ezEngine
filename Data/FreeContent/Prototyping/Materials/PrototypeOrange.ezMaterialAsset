@@ -1,0 +1,35 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x539C9A7B8486B34497DA9E5AFD0FD369" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Material",
+    "Dependencies" : "{ 8b666abc-97c5-4048-9ba0-e369cc3e374d }",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0x539C9A7B8486B34497DA9E5AFD0FD369" },
+    "Hash" : { "$t" : "uint64", "$v" : "2355033545490034889", "$b" : "0xC9F00F3988C2AE20" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xBB7F8BB6B5F28148BE031A63A643179D" },
+   "t" : "ezMaterialAssetProperties",
+   "p" : {
+    "Base Material" : "{ 8b666abc-97c5-4048-9ba0-e369cc3e374d }",
+    "Diffuse Texture" : "Orange.color",
+    "Mask Texture" : "",
+    "Normal Map" : "",
+    "Permutations" : "",
+    "Shader" : "",
+    "ShaderProperties" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0xBB7F8BB6B5F28148BE031A63A643179D" } ]
+   }
+  } ],
+ "Types" : [  ]
+}

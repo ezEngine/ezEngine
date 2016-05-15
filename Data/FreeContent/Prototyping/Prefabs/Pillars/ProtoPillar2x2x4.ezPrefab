@@ -1,0 +1,80 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0xAC303F86F11F8EF4EACAAE57A46970FD" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE5F3E61C6B32CE4D8CEF03CC8C06B40B" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Prefab",
+    "Dependencies" : "",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0xE5F3E61C6B32CE4D8CEF03CC8C06B40B" },
+    "Hash" : { "$t" : "uint64", "$v" : "12842647594275147612", "$b" : "0x5C8F4B98F13F3AB2" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xAC303F86F11F8EF4EACAAE57A46970FD" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0xDBC2E2E4AB28D6F6021C190129048D0A" } ],
+    "Components" : [  ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x2195046DB7DF43F5048621AF7FA7E772" },
+   "t" : "ezMeshComponent",
+   "p" : {
+    "Active" : true,
+    "Materials" : [  ],
+    "Mesh" : "{ f88fa326-bcd8-4a73-b0f0-f97f1dc9fd4a }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xDBC2E2E4AB28D6F6021C190129048D0A" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x2195046DB7DF43F5048621AF7FA7E772" }, { "$t" : "uuid", "$b" : "0xF242CAE64586F4FFD3C8B65C64653678" }, { "$t" : "uuid", "$b" : "0xDB925A094AC8D1FED0E28B0625372B46" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 2.0000)", "$b" : "0x000000000000000000000040" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xDB925A094AC8D1FED0E28B0625372B46" },
+   "t" : "ezPxStaticActorComponent",
+   "p" : {
+    "Active" : true,
+    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Collision Mesh" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xF242CAE64586F4FFD3C8B65C64653678" },
+   "t" : "ezPxShapeBoxComponent",
+   "p" : {
+    "Active" : true,
+    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Extents" : { "$t" : "vec3", "$v" : "(2.0000, 2.0000, 4.0000)", "$b" : "0x000000400000004000008040" },
+    "Surface" : ""
+   }
+  } ],
+ "Types" : [  ]
+}

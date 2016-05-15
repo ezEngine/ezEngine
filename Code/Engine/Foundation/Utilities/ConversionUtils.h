@@ -210,7 +210,8 @@ namespace ezConversionUtils
   /// \brief Returns the color with the given name.
   ///
   /// Allowed are all predefined color names (case-insensitive), as well as Hex-Values in the form '#RRGGBB' and '#RRGGBBAA'
-  EZ_FOUNDATION_DLL ezColor GetColorByName(const char* szColorName);
+  /// If out_ValidColorName is a valid pointer, it contains true if the color name was known, otherwise false
+  EZ_FOUNDATION_DLL ezColor GetColorByName(const char* szColorName, bool* out_ValidColorName = nullptr);
 
   /// \brief The inverse of GetColorByName
   EZ_FOUNDATION_DLL ezString GetColorName(const ezColor& col);

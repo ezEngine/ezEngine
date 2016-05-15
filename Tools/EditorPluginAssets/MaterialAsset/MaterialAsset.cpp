@@ -428,13 +428,20 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
     else
     {
       ezStringBuilder sColorName = sImageFile.GetFileName();
-      const ezColorGammaUB color = ezConversionUtils::GetColorByName(sColorName);
+
+      bool bValidColor = false;
+      const ezColorGammaUB color = ezConversionUtils::GetColorByName(sColorName, &bValidColor);
+
+      if (!bValidColor)
+      {
+        ezLog::Error("Material Asset uses an invalid color name '%s'", sColorName.GetData());
+      }
 
       bValidImage = true;
       image.SetWidth(4);
       image.SetHeight(4);
       image.SetDepth(1);
-      image.SetImageFormat(ezImageFormat::B8G8R8A8_UNORM_SRGB);
+      image.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM_SRGB);
       image.SetNumMipLevels(1);
       image.SetNumFaces(1);
       image.AllocateImageData();

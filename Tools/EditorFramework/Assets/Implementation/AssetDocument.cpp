@@ -292,7 +292,7 @@ void ezAssetDocument::SaveThumbnail(const ezImage& img)
 
   /// \todo A conversion to B8G8R8X8_UNORM currently fails
 
-  if (ezImageConversion::Convert(img, converted, ezImageFormat::B8G8R8A8_UNORM).Failed())
+  if (ezImageConversion::Convert(img, converted, ezImageFormat::R8G8B8A8_UNORM).Failed())
   {
     ezLog::Error("Could not convert asset thumbnail to target format: '%s'", sResourceFile.GetData());
     return;

@@ -657,7 +657,7 @@ namespace ezConversionUtils
     for (int i = 0; i < 8; ++i)
     {
       guid.Data4[i] = 0;
-      guid.Data1 = (guid.Data1 << 4) | HexCharacterToIntValue(*szText); 
+      guid.Data1 = (guid.Data1 << 4) | HexCharacterToIntValue(*szText);
       ++szText;
     }
 
@@ -665,7 +665,7 @@ namespace ezConversionUtils
     ++szText;
     for (int i = 0; i < 4; ++i)
     {
-      guid.Data2 = (guid.Data2 << 4) | HexCharacterToIntValue(*szText); 
+      guid.Data2 = (guid.Data2 << 4) | HexCharacterToIntValue(*szText);
       ++szText;
     }
 
@@ -673,7 +673,7 @@ namespace ezConversionUtils
     ++szText;
     for (int i = 0; i < 4; ++i)
     {
-      guid.Data3 = (guid.Data3 << 4) | HexCharacterToIntValue(*szText); 
+      guid.Data3 = (guid.Data3 << 4) | HexCharacterToIntValue(*szText);
       ++szText;
     }
 
@@ -703,12 +703,15 @@ namespace ezConversionUtils
 
 #define Check(name) if (ezStringUtils::IsEqual_NoCase(szColorName, #name)) return ezColor::name
 
-  ezColor GetColorByName(const char* szColorName)
+  ezColor GetColorByName(const char* szColorName, bool* out_ValidColorName)
   {
     /// \test This is new
 
+    if (out_ValidColorName)
+      *out_ValidColorName = false;
+
     if (ezStringUtils::IsNullOrEmpty(szColorName))
-      return ezColor::Black;
+      return ezColor::Black; // considered not to be a valid color name
 
     const ezUInt32 uiLen = ezStringUtils::GetStringElementCount(szColorName);
 
@@ -725,6 +728,9 @@ namespace ezConversionUtils
         if (uiLen == 9)
           cv[3] = (HexCharacterToIntValue(*(szColorName + 7)) << 4) | HexCharacterToIntValue(*(szColorName + 8));
 
+        if (out_ValidColorName)
+          *out_ValidColorName = true;
+
         return ezColorGammaUB(cv[0], cv[1], cv[2], cv[3]);
       }
 
@@ -732,6 +738,9 @@ namespace ezConversionUtils
     }
     else
     {
+      if (out_ValidColorName)
+        *out_ValidColorName = true;
+
       Check(AliceBlue);
       Check(AntiqueWhite);
       Check(Aqua);
@@ -874,6 +883,9 @@ namespace ezConversionUtils
       Check(Yellow);
       Check(YellowGreen);
     }
+
+    if (out_ValidColorName)
+      *out_ValidColorName = false;
 
     return ezColor::RebeccaPurple;
   }
@@ -1036,7 +1048,7 @@ namespace ezConversionUtils
       s.Format("#%02X%02X%02X", cg.r, cg.g, cg.b);
     else
       s.Format("#%02X%02X%02X%02X", cg.r, cg.g, cg.b, cg.a);
-    
+
     return s;
   }
 

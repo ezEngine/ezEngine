@@ -391,13 +391,19 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
     ezStringBuilder sName = pResource->GetResourceID();
     sName.RemoveFileExtension();
 
-    const ezColorGammaUB color = ezConversionUtils::GetColorByName(sName);
+    bool bValidColor = false;
+    const ezColorGammaUB color = ezConversionUtils::GetColorByName(sName, &bValidColor);
+
+    if (!bValidColor)
+    {
+      ezLog::Error("'%s' is not a valid color name. Using 'RebeccaPurple' as fallback.", sName.GetData());
+    }
 
     bSRGB = true;
     pData->m_Image.SetWidth(4);
     pData->m_Image.SetHeight(4);
     pData->m_Image.SetDepth(1);
-    pData->m_Image.SetImageFormat(ezImageFormat::B8G8R8A8_UNORM_SRGB);
+    pData->m_Image.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM_SRGB);
     pData->m_Image.SetNumMipLevels(1);
     pData->m_Image.SetNumFaces(1);
     pData->m_Image.AllocateImageData();
@@ -405,9 +411,9 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
 
     for (ezUInt32 px = 0; px < 4 * 4 * 4; px += 4)
     {
-      pPixels[px + 0] = color.b;
+      pPixels[px + 0] = color.r;
       pPixels[px + 1] = color.g;
-      pPixels[px + 2] = color.r;
+      pPixels[px + 2] = color.b;
       pPixels[px + 3] = color.a;
     }
   }
