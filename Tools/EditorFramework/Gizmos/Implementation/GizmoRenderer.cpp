@@ -26,6 +26,7 @@ float ezGizmoRenderer::s_fGizmoScale = 1.0f;
 ezGizmoRenderer::ezGizmoRenderer()
 {
   m_uiHighlightID = 0;
+  m_bEnabled = true;
 
   // this always accesses the same constant buffer (same GUID), but every ezMeshRenderer holds its own reference to it
   m_hGizmoConstantBuffer = ezResourceManager::GetExistingResource<ezConstantBufferResource>("<GizmoRendererContantBuffer>");
@@ -49,6 +50,9 @@ void ezGizmoRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8
 
 void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch)
 {
+  if (!m_bEnabled)
+    return;
+
   const ezGizmoRenderData* pRenderData = batch.GetData<ezGizmoRenderData>(0);
 
   const ezMeshResourceHandle& hMesh = pRenderData->m_hMesh;

@@ -7,6 +7,7 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
 #include <EnginePluginScene/SceneContext/SceneContext.h>
+#include <EditorFramework/Gizmos/GizmoRenderer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPickingRenderPass, 1, ezRTTIDefaultAllocator<ezPickingRenderPass>)
 {
@@ -97,7 +98,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   // copy selection to set for faster checks
   s_SelectionSet.Clear();
 
-  auto& selection = m_pSceneContext->GetSelection();
+  auto& selection = m_pSceneContext->GetSelectionWithChildren();
   for (auto hObj : selection)
   {
     s_SelectionSet.Insert(hObj, 0);
@@ -109,6 +110,12 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
     return s_SelectionSet.Contains(pRenderData->m_hOwner);
   });
 
+  // we have to disable rendering of gizmos while we drag stuff, to not pick against a gizmo that is always under the mouse cursor anyway
+  {
+    ezGizmoRenderer* pGR = (ezGizmoRenderer*)GetRendererByType(ezGizmoRenderer::GetStaticRTTI());
+    pGR->m_bEnabled = m_bPickSelected;
+  }
+
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque, filter);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked, filter);
 
@@ -117,6 +124,8 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
     RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Selection);
     m_pSceneContext->RenderShapeIcons(renderViewContext.m_pRenderContext);
   }
+
+  
 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
 
@@ -128,6 +137,11 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "FORWARD");
 
+  // make sure not to leave the gizmo renderer disabled
+  {
+    ezGizmoRenderer* pGR = (ezGizmoRenderer*)GetRendererByType(ezGizmoRenderer::GetStaticRTTI());
+    pGR->m_bEnabled = true;
+  }
 
   {
     {

@@ -20,6 +20,8 @@ public:
 
   static float s_fGizmoScale;
 
+  bool m_bEnabled;
+
 private:
 
   ezUInt32 m_uiHighlightID;

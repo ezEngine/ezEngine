@@ -156,12 +156,12 @@ void ezPreferences::ClearPreferences(const ezDocument* pDocument, Domain domain)
   // save all preferences for the given document
   for (auto it = docPrefs.GetIterator(); it.IsValid(); )
   {
-    auto pPref = it.Value();
+    ezPreferences* pPref = it.Value();
 
     if (pPref->m_Domain == domain)
     {
       pPref->GetDynamicRTTI()->GetAllocator()->Deallocate(pPref);
-      it == docPrefs.Remove(it);
+      it = docPrefs.Remove(it);
     }
     else
       ++it;
