@@ -57,6 +57,8 @@ private:
   bool m_bMoveCamera;
   bool m_bMoveCameraInPlane;
   bool m_bOrbitCamera;
+  bool m_bSlideForwards;
+  float m_fSlideForwardsDistance;
 
   ezCamera* m_pCamera;
 

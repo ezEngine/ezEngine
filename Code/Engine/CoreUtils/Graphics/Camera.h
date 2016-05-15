@@ -86,8 +86,8 @@ public:
   /// \brief Repositions the camera such that it looks at the given target position.
   void LookAt(const ezVec3& vCameraPos, const ezVec3& vTargetPos, const ezVec3& vUp);
 
-  /// \brief Moves the camera in its local space.
-  void MoveLocally (float fForward, float fRight, float fUp);
+  /// \brief Moves the camera in its local space. Returns the movement that was made.
+  ezVec3 MoveLocally (float fForward, float fRight, float fUp);
 
   /// \brief Moves the camera in global space.
   void MoveGlobally(const ezVec3& vMove);

@@ -118,13 +118,19 @@ void ezCamera::CameraSettingsChanged()
   ++m_uiSettingsModificationCounter;
 }
 
-void ezCamera::MoveLocally(float fForward, float fRight, float fUp)
+ezVec3 ezCamera::MoveLocally(float fForward, float fRight, float fUp)
 {
-  m_vPosition += m_vDirForwards * fForward;
-  m_vPosition += m_vDirRight * fRight;
-  m_vPosition += m_vDirUp * fUp;
+  ezVec3 diff(0.0f);
+
+  diff += m_vDirForwards * fForward;
+  diff += m_vDirRight * fRight;
+  diff += m_vDirUp * fUp;
+
+  m_vPosition += diff;
 
   CameraOrientationChanged(true, false);
+
+  return diff;
 }
 
 void ezCamera::MoveGlobally(const ezVec3& vMove)
