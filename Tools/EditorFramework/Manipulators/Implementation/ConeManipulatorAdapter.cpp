@@ -22,7 +22,7 @@ void ezConeManipulatorAdapter::Finalize()
   EZ_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
 
   m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());
-  m_Gizmo.SetVisible(true);
+  m_Gizmo.SetVisible(m_bManipulatorIsVisible);
 
   m_Gizmo.SetOwner(pEngineWindow, nullptr);
 
@@ -31,6 +31,8 @@ void ezConeManipulatorAdapter::Finalize()
 
 void ezConeManipulatorAdapter::Update()
 {
+  m_Gizmo.SetVisible(m_bManipulatorIsVisible);
+
   const ezConeManipulatorAttribute* pAttr = static_cast<const ezConeManipulatorAttribute*>(m_pManipulatorAttr);
 
   if (!pAttr->GetRadiusProperty().IsEmpty())

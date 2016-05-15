@@ -26,12 +26,14 @@ void ezConeVisualizerAdapter::Finalize()
   m_Gizmo.Configure(nullptr, ezEngineGizmoHandleType::Cone, pAttr->m_Color, false, false, true);
 
   m_Gizmo.SetOwner(pEngineWindow);
-  m_Gizmo.SetVisible(true);
+  m_Gizmo.SetVisible(m_bVisualizerIsVisible);
 }
 
 void ezConeVisualizerAdapter::Update()
 {
   const ezConeVisualizerAttribute* pAttr = static_cast<const ezConeVisualizerAttribute*>(m_pVisualizerAttr);
+
+  m_Gizmo.SetVisible(m_bVisualizerIsVisible);
 
   m_fAngleScale = 1.0f;
   if (!pAttr->GetAngleProperty().IsEmpty())

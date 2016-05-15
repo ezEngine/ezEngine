@@ -255,9 +255,9 @@ void ezSelectionAction::OpenPrefabDocument()
 
   ezSceneDocument* pScene = static_cast<ezSceneDocument*>(m_Context.m_pDocument);
 
-  auto pMeta = pScene->m_ObjectMetaData.BeginReadMetaData(sel[0]->GetGuid());
+  auto pMeta = pScene->m_DocumentObjectMetaData.BeginReadMetaData(sel[0]->GetGuid());
   const ezUuid PrefabAsset = pMeta->m_CreateFromPrefab;
-  pScene->m_ObjectMetaData.EndReadMetaData();
+  pScene->m_DocumentObjectMetaData.EndReadMetaData();
 
   auto pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo(PrefabAsset);
   if (pAsset)
@@ -367,9 +367,9 @@ void ezSelectionAction::UpdateEnableState()
     {
       ezSceneDocument* pScene = static_cast<ezSceneDocument*>(m_Context.m_pDocument);
 
-      auto pMeta = pScene->m_ObjectMetaData.BeginReadMetaData(sel[0]->GetGuid());
+      auto pMeta = pScene->m_DocumentObjectMetaData.BeginReadMetaData(sel[0]->GetGuid());
       bIsPrefab = pMeta->m_CreateFromPrefab.IsValid();
-      pScene->m_ObjectMetaData.EndReadMetaData();
+      pScene->m_DocumentObjectMetaData.EndReadMetaData();
     }
 
     SetEnabled(bIsPrefab == bShouldBePrefab);

@@ -26,11 +26,13 @@ void ezDirectionVisualizerAdapter::Finalize()
   m_Gizmo.Configure(nullptr, ezEngineGizmoHandleType::Arrow, pAttr->m_Color, false, false, true);
 
   m_Gizmo.SetOwner(pEngineWindow);
-  m_Gizmo.SetVisible(true);
+  m_Gizmo.SetVisible(m_bVisualizerIsVisible);
 }
 
 void ezDirectionVisualizerAdapter::Update()
 {
+  m_Gizmo.SetVisible(m_bVisualizerIsVisible);
+
   const ezDirectionVisualizerAttribute* pAttr = static_cast<const ezDirectionVisualizerAttribute*>(m_pVisualizerAttr);
 
   if (!pAttr->GetColorProperty().IsEmpty())

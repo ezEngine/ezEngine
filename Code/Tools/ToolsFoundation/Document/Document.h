@@ -8,6 +8,32 @@
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Logging/Log.h>
 #include <ToolsFoundation/Document/Implementation/Declarations.h>
+#include <CoreUtils/DataStructures/ObjectMetaData.h>
+
+class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectMetaData : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentObjectMetaData, ezReflectedClass);
+
+public:
+
+  enum ModifiedFlags
+  {
+    HiddenFlag = EZ_BIT(0),
+    PrefabFlag = EZ_BIT(1),
+
+    AllFlags = 0xFFFFFFFF
+  };
+
+  ezDocumentObjectMetaData()
+  {
+    m_bHidden = false;
+  }
+
+  bool m_bHidden;
+  ezUuid m_CreateFromPrefab;
+  ezUuid m_PrefabSeedGuid;
+  ezString m_sBasePrefab;
+};
 
 class EZ_TOOLSFOUNDATION_DLL ezDocument : public ezReflectedClass
 {
@@ -73,6 +99,8 @@ public:
   virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const { return EZ_FAILURE; }
 
 public:
+
+  ezObjectMetaData<ezUuid, ezDocumentObjectMetaData> m_DocumentObjectMetaData;
   
   ezEvent<const ezDocumentEvent&> m_EventsOne;
   static ezEvent<const ezDocumentEvent&> s_EventsAny;
@@ -87,11 +115,11 @@ protected:
   /// \brief A hook to execute additional code after SUCCESSFULLY saving a document. E.g. manual asset transform can be done here.
   virtual void InternalAfterSaveDocument() {}
 
-  virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) {}
-  virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph) {}
+  virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph);
+  virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph);
 
-  virtual void InitializeBeforeLoading() { }
-  virtual void InitializeAfterLoading() { }
+  virtual void InitializeBeforeLoading() {}
+  virtual void InitializeAfterLoading() {}
 
   ezSelectionManager m_SelectionManager;
   mutable ezCommandHistory m_CommandHistory;

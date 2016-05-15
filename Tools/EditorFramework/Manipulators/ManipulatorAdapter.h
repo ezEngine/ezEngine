@@ -2,6 +2,8 @@
 
 #include <EditorFramework/Plugin.h>
 #include <Foundation/Types/Variant.h>
+#include <CoreUtils/DataStructures/ObjectMetaData.h>
+#include <ToolsFoundation/Document/Document.h>
 
 class ezManipulatorAttribute;
 class ezDocumentObject;
@@ -19,6 +21,7 @@ public:
 private:
   void DocumentObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e);
+  void DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e);
 
 protected:
   virtual ezTransform GetObjectTransform() const;
@@ -35,6 +38,7 @@ protected:
                         const char* szProperty3 = nullptr, ezVariant value3 = ezVariant(),
                         const char* szProperty4 = nullptr, ezVariant value4 = ezVariant());
 
+  bool m_bManipulatorIsVisible;
   const ezManipulatorAttribute* m_pManipulatorAttr;
   const ezDocumentObject* m_pObject;
 

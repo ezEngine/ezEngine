@@ -12,6 +12,7 @@ ezManipulatorAdapter::ezManipulatorAdapter()
 {
   m_pManipulatorAttr = nullptr;
   m_pObject = nullptr;
+  m_bManipulatorIsVisible = true;
 
   ezQtDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezManipulatorAdapter::DocumentWindowEventHandler, this));
 }
@@ -23,6 +24,7 @@ ezManipulatorAdapter::~ezManipulatorAdapter()
   if (m_pObject)
   {
     m_pObject->GetDocumentObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezManipulatorAdapter::DocumentObjectPropertyEventHandler, this));
+    m_pObject->GetDocumentObjectManager()->GetDocument()->m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezManipulatorAdapter::DocumentObjectMetaDataEventHandler, this));
   }
 }
 
@@ -31,7 +33,16 @@ void ezManipulatorAdapter::SetManipulator(const ezManipulatorAttribute* pAttribu
   m_pManipulatorAttr = pAttribute;
   m_pObject = pObject;
 
+  auto& meta = m_pObject->GetDocumentObjectManager()->GetDocument()->m_DocumentObjectMetaData;
+
   m_pObject->GetDocumentObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezManipulatorAdapter::DocumentObjectPropertyEventHandler, this));
+  meta.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezManipulatorAdapter::DocumentObjectMetaDataEventHandler, this));
+
+  {
+    auto pMeta = meta.BeginReadMetaData(m_pObject->GetGuid());
+    m_bManipulatorIsVisible = !pMeta->m_bHidden;
+    meta.EndReadMetaData();
+  }
 
   Finalize();
 
@@ -60,6 +71,17 @@ void ezManipulatorAdapter::DocumentWindowEventHandler(const ezQtDocumentWindowEv
   if (e.m_Type == ezQtDocumentWindowEvent::BeforeRedraw && e.m_pWindow->GetDocument() == m_pObject->GetDocumentObjectManager()->GetDocument())
   {
     UpdateGizmoTransform();
+  }
+}
+
+void ezManipulatorAdapter::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e)
+{
+  if ((e.m_uiModifiedFlags & ezDocumentObjectMetaData::HiddenFlag) != 0 &&
+      e.m_ObjectKey == m_pObject->GetGuid())
+  {
+    m_bManipulatorIsVisible = !e.m_pValue->m_bHidden;
+
+    Update();
   }
 }
 

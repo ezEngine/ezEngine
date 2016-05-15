@@ -22,7 +22,7 @@ void ezCapsuleManipulatorAdapter::Finalize()
   EZ_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
 
   m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());
-  m_Gizmo.SetVisible(true);
+  m_Gizmo.SetVisible(m_bManipulatorIsVisible);
 
   m_Gizmo.SetOwner(pEngineWindow, nullptr);
 
@@ -31,6 +31,8 @@ void ezCapsuleManipulatorAdapter::Finalize()
 
 void ezCapsuleManipulatorAdapter::Update()
 {
+  m_Gizmo.SetVisible(m_bManipulatorIsVisible);
+
   const ezCapsuleManipulatorAttribute* pAttr = static_cast<const ezCapsuleManipulatorAttribute*>(m_pManipulatorAttr);
 
   if (!pAttr->GetLengthProperty().IsEmpty())

@@ -10,6 +10,19 @@
 #include <Foundation/Serialization/RttiConverter.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentObjectMetaData, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    //EZ_MEMBER_PROPERTY("MetaHidden", m_bHidden) // remove this property to disable serialization
+    EZ_MEMBER_PROPERTY("MetaFromPrefab", m_CreateFromPrefab),
+    EZ_MEMBER_PROPERTY("MetaPrefabSeed", m_PrefabSeedGuid),
+    EZ_MEMBER_PROPERTY("MetaBasePrefab", m_sBasePrefab),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentInfo, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
@@ -249,6 +262,17 @@ ezStatus ezDocument::InternalLoadDocument()
   return ezStatus(EZ_SUCCESS);
 }
 
+
+void ezDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph)
+{
+  m_DocumentObjectMetaData.AttachMetaDataToAbstractGraph(graph);
+}
+
+
+void ezDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph)
+{
+  m_DocumentObjectMetaData.RestoreMetaDataFromAbstractGraph(graph);
+}
 
 void ezDocument::SetUnknownObjectTypes(const ezSet<ezString>& Types, ezUInt32 uiInstances)
 {

@@ -38,7 +38,7 @@ public slots:
 private:
   void TransformationGizmoEventHandler(const ezGizmoEvent& e);
   void SelectionManagerEventHandler(const ezSelectionManagerEvent& e);
-  void SceneObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezSceneObjectMetaData>::EventData& e);
+  void DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e);
   void SceneExportEventHandler(ezSceneDocumentExportEvent& e);
   void ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e);
 

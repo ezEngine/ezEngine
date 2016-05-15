@@ -12,12 +12,14 @@ ezQtScenegraphModel::ezQtScenegraphModel(ezSceneDocument* pDocument)
 {
   m_pSceneDocument = pDocument;
 
-  m_pSceneDocument->m_ObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezQtScenegraphModel::ObjectMetaDataEventHandler, this));
+  m_pSceneDocument->m_SceneObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezQtScenegraphModel::SceneObjectMetaDataEventHandler, this));
+  m_pSceneDocument->m_DocumentObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezQtScenegraphModel::DocumentObjectMetaDataEventHandler, this));
 }
 
 ezQtScenegraphModel::~ezQtScenegraphModel()
 {
-  m_pSceneDocument->m_ObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtScenegraphModel::ObjectMetaDataEventHandler, this));
+  m_pSceneDocument->m_SceneObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtScenegraphModel::SceneObjectMetaDataEventHandler, this));
+  m_pSceneDocument->m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtScenegraphModel::DocumentObjectMetaDataEventHandler, this));
 }
 
 void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result, QIcon& icon) const
@@ -140,27 +142,29 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
     {
       ezStringBuilder sName = pObject->GetTypeAccessor().GetValue(ezToolsReflectionUtils::CreatePropertyPath("Name")).ConvertTo<ezString>();
 
-      auto pMeta = m_pSceneDocument->m_ObjectMetaData.BeginReadMetaData(pObject->GetGuid());
-      const ezUuid prefabGuid = pMeta->m_CreateFromPrefab;
+      auto pMetaScene = m_pSceneDocument->m_SceneObjectMetaData.BeginReadMetaData(pObject->GetGuid());
+      auto pMetaDoc = m_pSceneDocument->m_DocumentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
+      const ezUuid prefabGuid = pMetaDoc->m_CreateFromPrefab;
 
       if (sName.IsEmpty())
-        sName = pMeta->m_CachedNodeName;
+        sName = pMetaScene->m_CachedNodeName;
 
-      m_pSceneDocument->m_ObjectMetaData.EndReadMetaData();
+      m_pSceneDocument->m_SceneObjectMetaData.EndReadMetaData();
+      m_pSceneDocument->m_DocumentObjectMetaData.EndReadMetaData();
 
       if (sName.IsEmpty())
       {
         // the cached node name is only determined once
         // after that only a node rename (EditRole) will currently trigger a cache cleaning and thus a reevaluation
-        // this is to prevent excessive recomputation of the name, which is quite involved
+        // this is to prevent excessive re-computation of the name, which is quite involved
 
         QIcon icon;
         DetermineNodeName(pObject, prefabGuid, sName, icon);
 
-        auto pMetaWrite = m_pSceneDocument->m_ObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
+        auto pMetaWrite = m_pSceneDocument->m_SceneObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
         pMetaWrite->m_CachedNodeName = sName;
         pMetaWrite->m_Icon = icon;
-        m_pSceneDocument->m_ObjectMetaData.EndModifyMetaData(0); // no need to broadcast this change
+        m_pSceneDocument->m_SceneObjectMetaData.EndModifyMetaData(0); // no need to broadcast this change
       }
 
       const QString sQtName = QString::fromUtf8(sName.GetData());
@@ -174,9 +178,9 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
 
   case Qt::DecorationRole:
     {
-      auto pMeta = m_pSceneDocument->m_ObjectMetaData.BeginReadMetaData(pObject->GetGuid());
+      auto pMeta = m_pSceneDocument->m_SceneObjectMetaData.BeginReadMetaData(pObject->GetGuid());
       QIcon icon = pMeta->m_Icon;
-      m_pSceneDocument->m_ObjectMetaData.EndReadMetaData();
+      m_pSceneDocument->m_SceneObjectMetaData.EndReadMetaData();
 
       return icon;
     }
@@ -188,9 +192,9 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
 
       if (sName.IsEmpty())
       {
-        auto pMeta = m_pSceneDocument->m_ObjectMetaData.BeginReadMetaData(pObject->GetGuid());
+        auto pMeta = m_pSceneDocument->m_SceneObjectMetaData.BeginReadMetaData(pObject->GetGuid());
         sName = pMeta->m_CachedNodeName;
-        m_pSceneDocument->m_ObjectMetaData.EndReadMetaData();
+        m_pSceneDocument->m_SceneObjectMetaData.EndReadMetaData();
       }
 
       return QString::fromUtf8(sName.GetData());
@@ -199,9 +203,9 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
 
   case Qt::ToolTipRole:
     {
-      auto pMeta = m_pSceneDocument->m_ObjectMetaData.BeginReadMetaData(pObject->GetGuid());
+      auto pMeta = m_pSceneDocument->m_DocumentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
       const ezUuid prefab = pMeta->m_CreateFromPrefab;
-      m_pSceneDocument->m_ObjectMetaData.EndReadMetaData();
+      m_pSceneDocument->m_DocumentObjectMetaData.EndReadMetaData();
 
       if (prefab.IsValid())
       {
@@ -218,9 +222,9 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
 
   case Qt::FontRole:
     {
-      auto pMeta = m_pSceneDocument->m_ObjectMetaData.BeginReadMetaData(pObject->GetGuid());
+      auto pMeta = m_pSceneDocument->m_DocumentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
       const bool bHidden = pMeta->m_bHidden;
-      m_pSceneDocument->m_ObjectMetaData.EndReadMetaData();
+      m_pSceneDocument->m_DocumentObjectMetaData.EndReadMetaData();
 
       const bool bHasName = !pObject->GetTypeAccessor().GetValue(ezToolsReflectionUtils::CreatePropertyPath("Name")).ConvertTo<ezString>().IsEmpty();
 
@@ -242,9 +246,9 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
     {
       ezStringBuilder sName = pObject->GetTypeAccessor().GetValue(ezToolsReflectionUtils::CreatePropertyPath("Name")).ConvertTo<ezString>();
       
-      auto pMeta = m_pSceneDocument->m_ObjectMetaData.BeginReadMetaData(pObject->GetGuid());
+      auto pMeta = m_pSceneDocument->m_DocumentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
       const bool bPrefab = pMeta->m_CreateFromPrefab.IsValid();
-      m_pSceneDocument->m_ObjectMetaData.EndReadMetaData();
+      m_pSceneDocument->m_DocumentObjectMetaData.EndReadMetaData();
 
       if (bPrefab)
       {
@@ -270,14 +274,14 @@ bool ezQtScenegraphModel::setData(const QModelIndex& index, const QVariant& valu
   {
     const ezDocumentObject* pObject = (const ezDocumentObject*)index.internalPointer();
  
-    auto pMetaWrite = m_pSceneDocument->m_ObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
+    auto pMetaWrite = m_pSceneDocument->m_SceneObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
 
     ezStringBuilder sNewValue = value.toString().toUtf8().data();
 
     const ezStringBuilder sOldValue = pMetaWrite->m_CachedNodeName;
 
     pMetaWrite->m_CachedNodeName.Clear();
-    m_pSceneDocument->m_ObjectMetaData.EndModifyMetaData(0); // no need to broadcast this change
+    m_pSceneDocument->m_SceneObjectMetaData.EndModifyMetaData(0); // no need to broadcast this change
     
     if (sOldValue == sNewValue && !sOldValue.IsEmpty())
       return false;
@@ -304,9 +308,9 @@ void ezQtScenegraphModel::TreeEventHandler(const ezDocumentObjectStructureEvent&
     {
       if (e.m_pPreviousParent != nullptr)
       {
-        auto pMeta = m_pSceneDocument->m_ObjectMetaData.BeginModifyMetaData(e.m_pPreviousParent->GetGuid());
+        auto pMeta = m_pSceneDocument->m_SceneObjectMetaData.BeginModifyMetaData(e.m_pPreviousParent->GetGuid());
         pMeta->m_CachedNodeName.Clear();
-        m_pSceneDocument->m_ObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::CachedName);
+        m_pSceneDocument->m_SceneObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::CachedName);
 
         auto idx = ComputeModelIndex(e.m_pPreviousParent);
         emit dataChanged(idx, idx);
@@ -314,9 +318,9 @@ void ezQtScenegraphModel::TreeEventHandler(const ezDocumentObjectStructureEvent&
 
       if (e.m_pNewParent != nullptr)
       {
-        auto pMeta = m_pSceneDocument->m_ObjectMetaData.BeginModifyMetaData(e.m_pNewParent->GetGuid());
+        auto pMeta = m_pSceneDocument->m_SceneObjectMetaData.BeginModifyMetaData(e.m_pNewParent->GetGuid());
         pMeta->m_CachedNodeName.Clear();
-        m_pSceneDocument->m_ObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::CachedName);
+        m_pSceneDocument->m_SceneObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::CachedName);
 
         auto idx = ComputeModelIndex(e.m_pNewParent);
         emit dataChanged(idx, idx);
@@ -328,8 +332,11 @@ void ezQtScenegraphModel::TreeEventHandler(const ezDocumentObjectStructureEvent&
   
 }
 
-void ezQtScenegraphModel::ObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezSceneObjectMetaData>::EventData& e)
+void ezQtScenegraphModel::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e)
 {
+  if ((e.m_uiModifiedFlags & (ezDocumentObjectMetaData::HiddenFlag | ezDocumentObjectMetaData::PrefabFlag)) == 0)
+    return;
+
   auto pObject = m_pSceneDocument->GetObjectManager()->GetObject(e.m_ObjectKey);
   
   if (pObject == nullptr)
@@ -338,11 +345,42 @@ void ezQtScenegraphModel::ObjectMetaDataEventHandler(const ezObjectMetaData<ezUu
     // So we of course won't find it in the model and thus can skip it.
     return;
   }
+
+  // ignore all components etc.
+  if (!pObject->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+    return;
+
   auto index = ComputeModelIndex(pObject);
 
   QVector<int> v;
   v.push_back(Qt::FontRole);
   dataChanged(index, index, v);
 }
+
+void ezQtScenegraphModel::SceneObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezSceneObjectMetaData>::EventData& e)
+{
+  if (e.m_uiModifiedFlags == 0)
+    return;
+
+    auto pObject = m_pSceneDocument->GetObjectManager()->GetObject(e.m_ObjectKey);
+
+  if (pObject == nullptr)
+  {
+    // The object was destroyed due to a clear of the redo queue, i.e. it is not contained in the scene anymore.
+    // So we of course won't find it in the model and thus can skip it.
+    return;
+  }
+
+  // ignore all components etc.
+  if (!pObject->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+    return;
+
+  auto index = ComputeModelIndex(pObject);
+
+  QVector<int> v;
+  v.push_back(Qt::FontRole);
+  dataChanged(index, index, v);
+}
+
 
 

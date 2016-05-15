@@ -109,19 +109,25 @@ void ezSceneDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const
 
   if (instCmd.m_CreatedRootObject.IsValid())
   {
-    auto pMeta = m_ObjectMetaData.BeginModifyMetaData(instCmd.m_CreatedRootObject);
-    pMeta->m_CreateFromPrefab = PrefabAsset;
-    pMeta->m_PrefabSeedGuid = PrefabSeed;
-    pMeta->m_sBasePrefab = instCmd.m_sJsonGraph;
-    pMeta->m_CachedNodeName.Clear();
+    {
+      auto pMeta = m_DocumentObjectMetaData.BeginModifyMetaData(instCmd.m_CreatedRootObject);
+      pMeta->m_CreateFromPrefab = PrefabAsset;
+      pMeta->m_PrefabSeedGuid = PrefabSeed;
+      pMeta->m_sBasePrefab = instCmd.m_sJsonGraph;
+      m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
+    }
 
-    m_ObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::PrefabFlag);
+    {
+      auto pMeta = m_SceneObjectMetaData.BeginModifyMetaData(instCmd.m_CreatedRootObject);
+      pMeta->m_CachedNodeName.Clear();
+      m_SceneObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::CachedName);
+    }
   }
 }
 
 void ezSceneDocument::UpdatePrefabs()
 {
-  EZ_LOCK(m_ObjectMetaData.GetMutex());
+  EZ_LOCK(m_SceneObjectMetaData.GetMutex());
 
   // make sure the prefabs are updated
   m_CachedPrefabGraphs.Clear();
@@ -143,12 +149,12 @@ void ezSceneDocument::UpdatePrefabsRecursive(ezDocumentObject* pObject)
 
   for (auto pChild : ChildArray)
   {
-    auto pMeta = m_ObjectMetaData.BeginReadMetaData(pChild->GetGuid());
+    auto pMeta = m_DocumentObjectMetaData.BeginReadMetaData(pChild->GetGuid());
     const ezUuid PrefabAsset = pMeta->m_CreateFromPrefab;
     const ezUuid PrefabSeed = pMeta->m_PrefabSeedGuid;
     sPrefabBase = pMeta->m_sBasePrefab;
 
-    m_ObjectMetaData.EndReadMetaData();
+    m_DocumentObjectMetaData.EndReadMetaData();
 
     // if this is a prefab instance, update it
     if (PrefabAsset.IsValid())
@@ -315,11 +321,11 @@ void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid
   // pass the prefab meta data to the new instance
   if (inst.m_CreatedRootObject.IsValid())
   {
-    auto pMeta = m_ObjectMetaData.BeginModifyMetaData(NewObject);
+    auto pMeta = m_DocumentObjectMetaData.BeginModifyMetaData(NewObject);
     pMeta->m_CreateFromPrefab = PrefabAsset;
     pMeta->m_PrefabSeedGuid = PrefabSeed;
     pMeta->m_sBasePrefab = GetCachedPrefabGraph(PrefabAsset);
 
-    m_ObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::PrefabFlag);
+    m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
   }
 }

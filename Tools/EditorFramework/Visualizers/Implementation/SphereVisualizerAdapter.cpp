@@ -26,11 +26,13 @@ void ezSphereVisualizerAdapter::Finalize()
   m_Gizmo.Configure(nullptr, ezEngineGizmoHandleType::Sphere, pAttr->m_Color, false, false, true);
 
   m_Gizmo.SetOwner(pEngineWindow);
-  m_Gizmo.SetVisible(true);
+  m_Gizmo.SetVisible(m_bVisualizerIsVisible);
 }
 
 void ezSphereVisualizerAdapter::Update()
 {
+  m_Gizmo.SetVisible(m_bVisualizerIsVisible);
+
   const ezSphereVisualizerAttribute* pAttr = static_cast<const ezSphereVisualizerAttribute*>(m_pVisualizerAttr);
 
   m_Scale.SetIdentity();

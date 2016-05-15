@@ -62,8 +62,6 @@ public:
 
   enum ModifiedFlags
   {
-    HiddenFlag = EZ_BIT(0),
-    PrefabFlag = EZ_BIT(1),
     CachedName = EZ_BIT(2),
 
     AllFlags = 0xFFFFFFFF
@@ -71,13 +69,8 @@ public:
 
   ezSceneObjectMetaData()
   {
-    m_bHidden = false;
   }
 
-  bool m_bHidden;
-  ezUuid m_CreateFromPrefab;
-  ezUuid m_PrefabSeedGuid;
-  ezString m_sBasePrefab;
   ezString m_CachedNodeName;
   QIcon m_Icon;
 };
@@ -146,7 +139,7 @@ public:
 
   ezEvent<const ezSceneDocumentEvent&> m_SceneEvents;
   ezEvent <ezSceneDocumentExportEvent&> m_ExportEvent;
-  ezObjectMetaData<ezUuid, ezSceneObjectMetaData> m_ObjectMetaData;
+  ezObjectMetaData<ezUuid, ezSceneObjectMetaData> m_SceneObjectMetaData;
 
   ezStatus CreatePrefabDocumentFromSelection(const char* szFile);
   ezStatus CreatePrefabDocument(const char* szFile, const ezDocumentObject* pRootObject, const ezUuid& invPrefabSeed, ezUuid& out_NewDocumentGuid);

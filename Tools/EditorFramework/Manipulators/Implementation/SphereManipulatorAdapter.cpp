@@ -22,7 +22,7 @@ void ezSphereManipulatorAdapter::Finalize()
   EZ_ASSERT_DEV(pEngineWindow != nullptr, "Manipulators are only supported in engine document windows");
 
   m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());
-  m_Gizmo.SetVisible(true);
+  m_Gizmo.SetVisible(m_bManipulatorIsVisible);
 
   m_Gizmo.SetOwner(pEngineWindow, nullptr);
 
@@ -31,6 +31,8 @@ void ezSphereManipulatorAdapter::Finalize()
 
 void ezSphereManipulatorAdapter::Update()
 {
+  m_Gizmo.SetVisible(m_bManipulatorIsVisible);
+
   const ezSphereManipulatorAttribute* pAttr = static_cast<const ezSphereManipulatorAttribute*>(m_pManipulatorAttr);
 
   if (!pAttr->GetInnerRadiusProperty().IsEmpty())

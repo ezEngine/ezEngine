@@ -26,12 +26,14 @@ void ezBoxVisualizerAdapter::Finalize()
   m_Gizmo.Configure(nullptr, ezEngineGizmoHandleType::LineBox, pAttr->m_Color, false, false, true);
 
   m_Gizmo.SetOwner(pEngineWindow);
-  m_Gizmo.SetVisible(true);
+  m_Gizmo.SetVisible(m_bVisualizerIsVisible);
 }
 
 void ezBoxVisualizerAdapter::Update()
 {
   const ezBoxVisualizerAttribute* pAttr = static_cast<const ezBoxVisualizerAttribute*>(m_pVisualizerAttr);
+
+  m_Gizmo.SetVisible(m_bVisualizerIsVisible);
 
   m_Scale.SetIdentity();
 

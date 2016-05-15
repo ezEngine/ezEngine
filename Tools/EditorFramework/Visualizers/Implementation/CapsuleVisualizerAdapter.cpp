@@ -32,14 +32,18 @@ void ezCapsuleVisualizerAdapter::Finalize()
   m_SphereTop.SetOwner(pEngineWindow);
   m_SphereBottom.SetOwner(pEngineWindow);
 
-  m_Cylinder.SetVisible(true);
-  m_SphereTop.SetVisible(true);
-  m_SphereBottom.SetVisible(true);
+  m_Cylinder.SetVisible(m_bVisualizerIsVisible);
+  m_SphereTop.SetVisible(m_bVisualizerIsVisible);
+  m_SphereBottom.SetVisible(m_bVisualizerIsVisible);
 }
 
 void ezCapsuleVisualizerAdapter::Update()
 {
   const ezCapsuleVisualizerAttribute* pAttr = static_cast<const ezCapsuleVisualizerAttribute*>(m_pVisualizerAttr);
+
+  m_Cylinder.SetVisible(m_bVisualizerIsVisible);
+  m_SphereTop.SetVisible(m_bVisualizerIsVisible);
+  m_SphereBottom.SetVisible(m_bVisualizerIsVisible);
 
   float fRadius = 1.0f;
   float fHeight = 0.0f;

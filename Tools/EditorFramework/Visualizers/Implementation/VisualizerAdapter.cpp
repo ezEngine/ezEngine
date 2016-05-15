@@ -10,6 +10,7 @@ ezVisualizerAdapter::ezVisualizerAdapter()
 {
   m_pVisualizerAttr = nullptr;
   m_pObject = nullptr;
+  m_bVisualizerIsVisible = true;
 
   ezQtDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezVisualizerAdapter::DocumentWindowEventHandler, this));
 }
@@ -21,6 +22,7 @@ ezVisualizerAdapter::~ezVisualizerAdapter()
   if (m_pObject)
   {
     m_pObject->GetDocumentObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectPropertyEventHandler, this));
+    m_pObject->GetDocumentObjectManager()->GetDocument()->m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectMetaDataEventHandler, this));
   }
 }
 
@@ -29,7 +31,16 @@ void ezVisualizerAdapter::SetVisualizer(const ezVisualizerAttribute* pAttribute,
   m_pVisualizerAttr = pAttribute;
   m_pObject = pObject;
 
+  auto& meta = m_pObject->GetDocumentObjectManager()->GetDocument()->m_DocumentObjectMetaData;
+
   m_pObject->GetDocumentObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectPropertyEventHandler, this));
+  meta.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectMetaDataEventHandler, this));
+
+  {
+    auto pMeta = meta.BeginReadMetaData(m_pObject->GetGuid());
+    m_bVisualizerIsVisible = !pMeta->m_bHidden;
+    meta.EndReadMetaData();
+  }
 
   Finalize();
 
@@ -58,6 +69,17 @@ void ezVisualizerAdapter::DocumentWindowEventHandler(const ezQtDocumentWindowEve
   if (e.m_Type == ezQtDocumentWindowEvent::BeforeRedraw && e.m_pWindow->GetDocument() == m_pObject->GetDocumentObjectManager()->GetDocument())
   {
     UpdateGizmoTransform();
+  }
+}
+
+void ezVisualizerAdapter::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e)
+{
+  if ((e.m_uiModifiedFlags & ezDocumentObjectMetaData::HiddenFlag) != 0 &&
+      e.m_ObjectKey == m_pObject->GetGuid())
+  {
+    m_bVisualizerIsVisible = !e.m_pValue->m_bHidden;
+
+    Update();
   }
 }
 

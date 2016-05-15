@@ -16,14 +16,11 @@
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneObjectMetaData, 1, ezRTTINoAllocator)
 {
-  EZ_BEGIN_PROPERTIES
-  {
-    //EZ_MEMBER_PROPERTY("MetaHidden", m_bHidden) // remove this property to disable serialization
-    EZ_MEMBER_PROPERTY("MetaFromPrefab", m_CreateFromPrefab),
-    EZ_MEMBER_PROPERTY("MetaPrefabSeed", m_PrefabSeedGuid),
-    EZ_MEMBER_PROPERTY("MetaBasePrefab", m_sBasePrefab),
-  }
-  EZ_END_PROPERTIES
+  //EZ_BEGIN_PROPERTIES
+  //{
+  //  //EZ_MEMBER_PROPERTY("MetaHidden", m_bHidden) // remove this property to disable serialization
+  //}
+  //EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -79,12 +76,12 @@ ezSceneDocument::~ezSceneDocument()
 
 void ezSceneDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph)
 {
-  m_ObjectMetaData.AttachMetaDataToAbstractGraph(graph);
+  m_SceneObjectMetaData.AttachMetaDataToAbstractGraph(graph);
 }
 
 void ezSceneDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph)
 {
-  m_ObjectMetaData.RestoreMetaDataFromAbstractGraph(graph);
+  m_SceneObjectMetaData.RestoreMetaDataFromAbstractGraph(graph);
 }
 
 void ezSceneDocument::SetActiveGizmo(ActiveGizmo gizmo)
@@ -316,17 +313,17 @@ void ezSceneDocument::ShowOrHideSelectedObjects(ShowOrHide action)
 
     ApplyRecursive(pItem, [this, bHide](const ezDocumentObject* pObj)
     {
-      if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
-        return;
+      //if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+        //return;
 
-      auto pMeta = m_ObjectMetaData.BeginModifyMetaData(pObj->GetGuid());
+      auto pMeta = m_DocumentObjectMetaData.BeginModifyMetaData(pObj->GetGuid());
       if (pMeta->m_bHidden != bHide)
       {
         pMeta->m_bHidden = bHide;
-        m_ObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::HiddenFlag);
+        m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::HiddenFlag);
       }
       else
-        m_ObjectMetaData.EndModifyMetaData(0);
+        m_DocumentObjectMetaData.EndModifyMetaData(0);
     });
 
   }
@@ -518,20 +515,20 @@ void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
 
   ApplyRecursive(GetObjectManager()->GetRootObject(), [this, bHide](const ezDocumentObject* pObj)
   {
-    if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
-      return;
+    //if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+      //return;
 
     ezUInt32 uiFlags = 0;
 
-    auto pMeta = m_ObjectMetaData.BeginModifyMetaData(pObj->GetGuid());
+    auto pMeta = m_DocumentObjectMetaData.BeginModifyMetaData(pObj->GetGuid());
 
     if (pMeta->m_bHidden != bHide)
     {
       pMeta->m_bHidden = bHide;
-      uiFlags = ezSceneObjectMetaData::HiddenFlag;
+      uiFlags = ezDocumentObjectMetaData::HiddenFlag;
     }
 
-    m_ObjectMetaData.EndModifyMetaData(uiFlags);
+    m_DocumentObjectMetaData.EndModifyMetaData(uiFlags);
   });
 }
 
@@ -548,13 +545,13 @@ void ezSceneDocument::RevertPrefabs(const ezDeque<const ezDocumentObject*>& Sele
 
   for (auto pItem : Selection)
   {
-    auto pMeta = m_ObjectMetaData.BeginReadMetaData(pItem->GetGuid());
+    auto pMeta = m_DocumentObjectMetaData.BeginReadMetaData(pItem->GetGuid());
 
     const ezUuid PrefabAsset = pMeta->m_CreateFromPrefab;
 
     if (!PrefabAsset.IsValid())
     {
-      m_ObjectMetaData.EndReadMetaData();
+      m_DocumentObjectMetaData.EndReadMetaData();
       continue;
     }
 
@@ -572,7 +569,7 @@ void ezSceneDocument::RevertPrefabs(const ezDeque<const ezDocumentObject*>& Sele
     instCmd.m_RemapGuid = pMeta->m_PrefabSeedGuid;
     instCmd.m_sJsonGraph = GetCachedPrefabGraph(pMeta->m_CreateFromPrefab);
 
-    m_ObjectMetaData.EndReadMetaData();
+    m_DocumentObjectMetaData.EndReadMetaData();
 
     pHistory->AddCommand(remCmd);
     pHistory->AddCommand(instCmd);
@@ -598,12 +595,12 @@ void ezSceneDocument::RevertPrefabs(const ezDeque<const ezDocumentObject*>& Sele
       setCmd.m_NewValue = fLocalUniformScale;
       pHistory->AddCommand(setCmd);
 
-      auto pMeta = m_ObjectMetaData.BeginModifyMetaData(instCmd.m_CreatedRootObject);
+      auto pMeta = m_DocumentObjectMetaData.BeginModifyMetaData(instCmd.m_CreatedRootObject);
       pMeta->m_CreateFromPrefab = PrefabAsset;
       pMeta->m_PrefabSeedGuid = instCmd.m_RemapGuid;
       pMeta->m_sBasePrefab = instCmd.m_sJsonGraph;
 
-      m_ObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::PrefabFlag);
+      m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
     }
   }
 
@@ -620,14 +617,16 @@ void ezSceneDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Sele
 
   for (auto pObject : Selection)
   {
-    auto pMeta = m_ObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
+    auto pMetaScene = m_SceneObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
+    auto pMetaDoc = m_DocumentObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
 
-    pMeta->m_CreateFromPrefab = ezUuid();
-    pMeta->m_CachedNodeName.Clear();
-    pMeta->m_PrefabSeedGuid = ezUuid();
-    pMeta->m_sBasePrefab.Clear();
+    pMetaScene->m_CachedNodeName.Clear();
+    pMetaDoc->m_CreateFromPrefab = ezUuid();
+    pMetaDoc->m_PrefabSeedGuid = ezUuid();
+    pMetaDoc->m_sBasePrefab.Clear();
 
-    m_ObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::PrefabFlag | ezSceneObjectMetaData::CachedName);
+    m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
+    m_SceneObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::CachedName);
   }
 
 }
@@ -751,7 +750,7 @@ bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractO
       return false;
   }
 
-  m_ObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
+  m_SceneObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
 
   // set the pasted objects as the new selection
   {
@@ -775,7 +774,7 @@ bool ezSceneDocument::Duplicate(const ezArrayPtr<PasteInfo>& info, const ezAbstr
   if (!PasteAtOrignalPosition(info))
     return false;
 
-  m_ObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
+  m_SceneObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
 
   // set the pasted objects as the new selection
   if (bSetSelected)
@@ -842,7 +841,8 @@ void ezSceneDocument::ObjectEventHandler(const ezDocumentObjectEvent& e)
   case ezDocumentObjectEvent::Type::BeforeObjectDestroyed:
     {
       // clean up object meta data upon object destruction, because we can :-P
-      m_ObjectMetaData.ClearMetaData(e.m_pObject->GetGuid());
+      m_DocumentObjectMetaData.ClearMetaData(e.m_pObject->GetGuid());
+      m_SceneObjectMetaData.ClearMetaData(e.m_pObject->GetGuid());
     }
     break;
   }

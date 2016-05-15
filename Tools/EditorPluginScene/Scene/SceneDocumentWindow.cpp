@@ -31,7 +31,7 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezDocument* pDocument)
   m_bInGizmoInteraction = false;
   SetTargetFramerate(25);
 
-  GetSceneDocument()->m_ObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SceneObjectMetaDataEventHandler, this));
+  GetSceneDocument()->m_DocumentObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::DocumentObjectMetaDataEventHandler, this));
   GetSceneDocument()->m_ExportEvent.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SceneExportEventHandler, this));
 
   {
@@ -106,7 +106,7 @@ ezQtSceneDocumentWindow::~ezQtSceneDocumentWindow()
   ezSceneDocument* pSceneDoc = static_cast<ezSceneDocument*>(GetDocument());
   pSceneDoc->m_SceneEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::DocumentEventHandler, this));
 
-  GetSceneDocument()->m_ObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SceneObjectMetaDataEventHandler, this));
+  GetSceneDocument()->m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::DocumentObjectMetaDataEventHandler, this));
   GetSceneDocument()->m_ExportEvent.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SceneExportEventHandler, this));
 
   m_TranslateGizmo.m_GizmoEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
@@ -346,7 +346,7 @@ void ezQtSceneDocumentWindow::SendObjectMsg(const ezDocumentObject* pObj, ezObje
 {
   // if ezObjectTagMsgToEngine were derived from a general 'object msg' one could send other message types as well
 
-  if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+  if (pObj == nullptr || !pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
     return;
 
   pMsg->m_ObjectGuid = pObj->GetGuid();
@@ -356,7 +356,7 @@ void ezQtSceneDocumentWindow::SendObjectMsgRecursive(const ezDocumentObject* pOb
 {
   // if ezObjectTagMsgToEngine were derived from a general 'object msg' one could send other message types as well
 
-  if (!pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+  if (pObj == nullptr || !pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
     return;
 
   pMsg->m_ObjectGuid = pObj->GetGuid();
@@ -652,8 +652,8 @@ void ezQtSceneDocumentWindow::SyncObjectHiddenState()
 
 void ezQtSceneDocumentWindow::SyncObjectHiddenState(ezDocumentObject* pObject)
 {
-  const bool bHidden = GetSceneDocument()->m_ObjectMetaData.BeginReadMetaData(pObject->GetGuid())->m_bHidden;
-  GetSceneDocument()->m_ObjectMetaData.EndReadMetaData();
+  const bool bHidden = GetSceneDocument()->m_DocumentObjectMetaData.BeginReadMetaData(pObject->GetGuid())->m_bHidden;
+  GetSceneDocument()->m_DocumentObjectMetaData.EndReadMetaData();
 
   ezObjectTagMsgToEngine msg;
   msg.m_bSetTag = bHidden;
@@ -763,9 +763,9 @@ void ezQtSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionMana
   }
 }
 
-void ezQtSceneDocumentWindow::SceneObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezSceneObjectMetaData>::EventData& e)
+void ezQtSceneDocumentWindow::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e)
 {
-  if ((e.m_uiModifiedFlags & ezSceneObjectMetaData::HiddenFlag) != 0)
+  if ((e.m_uiModifiedFlags & ezDocumentObjectMetaData::HiddenFlag) != 0)
   {
     ezObjectTagMsgToEngine msg;
     msg.m_bSetTag = e.m_pValue->m_bHidden;

@@ -24,13 +24,15 @@ void ezBoxManipulatorAdapter::Finalize()
   m_Gizmo.SetTransformation(GetObjectTransform().GetAsMat4());
 
   m_Gizmo.SetOwner(pEngineWindow, nullptr);
-  m_Gizmo.SetVisible(true);
+  m_Gizmo.SetVisible(m_bManipulatorIsVisible);
 
   m_Gizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezBoxManipulatorAdapter::GizmoEventHandler, this));
 }
 
 void ezBoxManipulatorAdapter::Update()
 {
+  m_Gizmo.SetVisible(m_bManipulatorIsVisible);
+
   const ezBoxManipulatorAttribute* pAttr = static_cast<const ezBoxManipulatorAttribute*>(m_pManipulatorAttr);
 
   if (!pAttr->GetSizeProperty().IsEmpty())
