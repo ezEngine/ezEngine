@@ -238,6 +238,7 @@ void ezAddSubElementButton::OnAction(const ezRTTI* pRtti)
 
     for (auto& item : m_Items)
     {
+      cmd.m_NewObjectGuid = ezUuid();
       cmd.m_Parent = item.m_pObject->GetGuid();
       res = history->AddCommand(cmd);
       if (res.m_Result.Failed())
