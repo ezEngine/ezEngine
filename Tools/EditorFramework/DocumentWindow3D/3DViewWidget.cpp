@@ -81,6 +81,12 @@ bool ezQtEngineViewWidget::eventFilter(QObject* object, QEvent* event)
 }
 
 
+void ezQtEngineViewWidget::GetCameraMatrices(ezMat4& out_ViewMatrix, ezMat4& out_ProjectionMatrix) const
+{
+  m_pViewConfig->m_Camera.GetViewMatrix(out_ViewMatrix);
+  m_pViewConfig->m_Camera.GetProjectionMatrix((float)width() / (float)height(), out_ProjectionMatrix);
+}
+
 void ezQtEngineViewWidget::SyncToEngine()
 {
   ezViewRedrawMsgToEngine cam;

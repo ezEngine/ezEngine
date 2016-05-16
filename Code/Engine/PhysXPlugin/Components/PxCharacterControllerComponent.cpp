@@ -39,15 +39,15 @@ ezPxCharacterControllerComponent::ezPxCharacterControllerComponent()
   m_pController = nullptr;
   m_vRelativeMoveDirection.SetZero();
 
-  m_uiCollisionLayer = 0;
   m_fCapsuleHeight = 1.0f;
   m_fCapsuleRadius = 0.25f;
-  m_fCapsuleHeight = 0.3f;
+  m_fMaxStepHeight = 0.3f;
+  m_fWalkSpeed = 3.0f;
+  m_RotateSpeed = ezAngle::Degree(90.0f);
   m_MaxClimbingSlope = ezAngle::Degree(40.0f);
   m_bForceSlopeSliding = true;
   m_bConstrainedClimbingMode = false;
-  m_fWalkSpeed = 3.0f;
-  m_RotateSpeed = ezAngle::Degree(90.0f);
+  m_uiCollisionLayer = 0;
 }
 
 
@@ -58,7 +58,7 @@ void ezPxCharacterControllerComponent::SerializeComponent(ezWorldWriter& stream)
 
   s << m_fCapsuleHeight;
   s << m_fCapsuleRadius;
-  s << m_fCapsuleHeight;
+  s << m_fMaxStepHeight;
   s << m_MaxClimbingSlope;
   s << m_bForceSlopeSliding;
   s << m_bConstrainedClimbingMode;
@@ -76,7 +76,7 @@ void ezPxCharacterControllerComponent::DeserializeComponent(ezWorldReader& strea
 
   s >> m_fCapsuleHeight;
   s >> m_fCapsuleRadius;
-  s >> m_fCapsuleHeight;
+  s >> m_fMaxStepHeight;
   s >> m_MaxClimbingSlope;
   s >> m_bForceSlopeSliding;
   s >> m_bConstrainedClimbingMode;

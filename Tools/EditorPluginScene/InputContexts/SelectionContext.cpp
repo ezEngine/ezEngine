@@ -60,41 +60,44 @@ ezEditorInut ezSelectionContext::mouseReleaseEvent(QMouseEvent* e)
 {
   auto* pDocument = GetOwnerWindow()->GetDocument();
 
+  if (e->button() == Qt::MouseButton::MiddleButton)
+  {
+    if (e->modifiers() & Qt::KeyboardModifier::ControlModifier)
+    {
+      const ezObjectPickingResult& res = GetOwnerWindow()->PickObject(e->pos().x(), e->pos().y());
+
+      OpenPickedMaterial(res);
+    }
+  }
+
   if (e->button() == Qt::MouseButton::LeftButton && m_bSelectOnMouseUp)
   {
     const ezObjectPickingResult& res = GetOwnerWindow()->PickObject(e->pos().x(), e->pos().y());
 
-    if (e->modifiers() & Qt::KeyboardModifier::ShiftModifier)
+    const bool bToggle = (e->modifiers() & Qt::KeyboardModifier::ControlModifier) != 0;
+
+    if (e->modifiers() & Qt::KeyboardModifier::AltModifier)
     {
-      OpenPickedMaterial(res);
+      if (res.m_PickedComponent.IsValid())
+      {
+        const ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedComponent);
+
+        if (bToggle)
+          pDocument->GetSelectionManager()->ToggleObject(pObject);
+        else
+          pDocument->GetSelectionManager()->SetSelection(pObject);
+      }
     }
     else
     {
-      const bool bToggle = (e->modifiers() & Qt::KeyboardModifier::ControlModifier) != 0;
-
-      if (e->modifiers() & Qt::KeyboardModifier::AltModifier)
+      if (res.m_PickedObject.IsValid())
       {
-        if (res.m_PickedComponent.IsValid())
-        {
-          const ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedComponent);
+        const ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
 
-          if (bToggle)
-            pDocument->GetSelectionManager()->ToggleObject(pObject);
-          else
-            pDocument->GetSelectionManager()->SetSelection(pObject);
-        }
-      }
-      else
-      {
-        if (res.m_PickedObject.IsValid())
-        {
-          const ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
-
-          if (bToggle)
-            pDocument->GetSelectionManager()->ToggleObject(pObject);
-          else
-            pDocument->GetSelectionManager()->SetSelection(pObject);
-        }
+        if (bToggle)
+          pDocument->GetSelectionManager()->ToggleObject(pObject);
+        else
+          pDocument->GetSelectionManager()->SetSelection(pObject);
       }
     }
 
@@ -123,7 +126,7 @@ void ezSelectionContext::OpenPickedMaterial(const ezObjectPickingResult& res) co
     return;
 
   // first try the materials array on the component itself, and see if we have a material override to pick
-  if ((ezInt32) res.m_uiPartIndex < pMeshComponent->GetTypeAccessor().GetCount("Materials"))
+  if ((ezInt32)res.m_uiPartIndex < pMeshComponent->GetTypeAccessor().GetCount("Materials"))
   {
     // access the material at the given index
     // this might be empty, though, in which case we still need to check the mesh asset
@@ -209,11 +212,6 @@ bool ezSelectionContext::TryOpenMaterial(const ezString& sMatRef) const
 
 ezEditorInut ezSelectionContext::mouseMoveEvent(QMouseEvent* e)
 {
-  if ((e->modifiers() & Qt::ShiftModifier) != 0)
-  {
-    GetOwnerView()->setCursor(Qt::CrossCursor);
-  }
-
   ezViewHighlightMsgToEngine msg;
 
   {
@@ -242,13 +240,7 @@ ezEditorInut ezSelectionContext::mouseMoveEvent(QMouseEvent* e)
 
 ezEditorInut ezSelectionContext::keyPressEvent(QKeyEvent* e)
 {
-  if (e->key() == Qt::Key_Shift)
-  {
-    /// \todo Handle the current cursor across all active input contexts
-
-    GetOwnerView()->setCursor(Qt::CrossCursor);
-    return ezEditorInut::MayBeHandledByOthers;
-  }
+  /// \todo Handle the current cursor across all active input contexts
 
   if (e->key() == Qt::Key_Delete)
   {
@@ -267,11 +259,6 @@ ezEditorInut ezSelectionContext::keyPressEvent(QKeyEvent* e)
 
 ezEditorInut ezSelectionContext::keyReleaseEvent(QKeyEvent* e)
 {
-  if (e->key() == Qt::Key_Shift)
-  {
-    GetOwnerView()->setCursor(Qt::ArrowCursor);
-  }
-
   return ezEditorInut::MayBeHandledByOthers;
 }
 

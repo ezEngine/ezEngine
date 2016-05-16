@@ -34,6 +34,8 @@ public:
   ezQtEngineDocumentWindow* GetDocumentWindow() const { return m_pDocumentWindow; }
   virtual void SyncToEngine();
 
+  void GetCameraMatrices(ezMat4& out_ViewMatrix, ezMat4& out_ProjectionMatrix) const;
+
   ezSceneViewConfig* m_pViewConfig;
 
   void UpdateCameraInterpolation();

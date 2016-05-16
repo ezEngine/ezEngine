@@ -8,6 +8,7 @@
 #include <QDesktopWidget>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <EditorPluginScene/Preferences/ScenePreferences.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 
 static const float s_fMoveSpeed[31] =
 {
@@ -319,12 +320,11 @@ ezEditorInut ezCameraMoveContext::mousePressEvent(QMouseEvent* e)
       m_bRotateCamera = false;
       m_bMoveCamera = false;
       m_bMoveCameraInPlane = false;
+      m_bPanOrbitPoint = false;
 
       if ((e->modifiers() & Qt::KeyboardModifier::AltModifier) != 0)
       {
-        // pan
-        m_bRotateCamera = true;
-        m_bMoveCamera = true;
+        m_bPanOrbitPoint = true;
       }
       else
         m_bMoveCameraInPlane = true;
@@ -425,6 +425,14 @@ ezEditorInut ezCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
       m_bMoveDown = false;
 
       ResetCursor();
+
+      if (!m_bDidMoveMouse[1])
+      {
+        // not really handled, so make this context inactive and tell the surrounding code that it may pass
+        // the event to the next handler
+        return ezEditorInut::MayBeHandledByOthers;
+      }
+
       return ezEditorInut::WasExclusivelyHandled;
     }
 
@@ -449,8 +457,17 @@ ezEditorInut ezCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
       m_bRotateCamera = false;
       m_bMoveCamera = false;
       m_bMoveCameraInPlane = false;
+      m_bPanOrbitPoint = false;
 
       ResetCursor();
+
+      if (!m_bDidMoveMouse[2])
+      {
+        // not really handled, so make this context inactive and tell the surrounding code that it may pass
+        // the event to the next handler
+        return ezEditorInut::MayBeHandledByOthers;
+      }
+
       return ezEditorInut::WasExclusivelyHandled;
     }
   }
@@ -626,12 +643,43 @@ ezEditorInut ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
       float fMove = diff.y() * fMouseMoveSensitivity * m_fSlideForwardsDistance * 0.1f;
 
       m_pCamera->MoveLocally(fMove, 0, 0);
-      //m_pSettings->m_vOrbitPoint +=
 
       SetCursorToWindowCenter(e->globalPos());
 
       return ezEditorInut::WasExclusivelyHandled;
+    }
 
+    if (m_bPanOrbitPoint)
+    {
+      ezMat4 viewMatrix, projectionMatrix;
+      GetOwnerView()->GetCameraMatrices(viewMatrix, projectionMatrix);
+
+      ezMat4 mvp = projectionMatrix * viewMatrix;
+
+      ezVec3 vScreenPos(0);
+      if (ezGraphicsUtils::ConvertWorldPosToScreenPos(mvp, 0, 0, GetOwnerView()->width(), GetOwnerView()->height(), m_pSettings->m_vOrbitPoint, vScreenPos).Succeeded())
+      {
+        ezMat4 invMvp = mvp.GetInverse();
+
+        const QPointF diff = e->globalPos() - m_LastMousePos;
+
+        vScreenPos.x -= diff.x();
+        vScreenPos.y += diff.y();
+
+        ezVec3 vNewPoint(0);
+        if (ezGraphicsUtils::ConvertScreenPosToWorldPos(invMvp, 0, 0, GetOwnerView()->width(), GetOwnerView()->height(), vScreenPos, vNewPoint).Succeeded())
+        {
+          const ezVec3 vDiff = vNewPoint - m_pSettings->m_vOrbitPoint;
+
+          m_pSettings->m_vOrbitPoint = vNewPoint;
+          m_pCamera->MoveGlobally(vDiff);
+
+
+        }
+      }
+    
+      m_LastMousePos = e->globalPos();
+      return ezEditorInut::WasExclusivelyHandled;
     }
   }
 

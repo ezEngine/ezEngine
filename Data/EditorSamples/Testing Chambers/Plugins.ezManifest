@@ -9,6 +9,6 @@
     },
     {
       "Path" : "ezPhysXPlugin",
-      "DependencyOf" : [ "EditorPluginPhysX" ]
+      "DependencyOf" : [ "<manual>", "EditorPluginPhysX" ]
     } ]
 }
