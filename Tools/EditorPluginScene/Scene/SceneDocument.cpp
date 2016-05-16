@@ -76,11 +76,15 @@ ezSceneDocument::~ezSceneDocument()
 
 void ezSceneDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph)
 {
+  ezAssetDocument::AttachMetaDataBeforeSaving(graph);
+
   m_SceneObjectMetaData.AttachMetaDataToAbstractGraph(graph);
 }
 
 void ezSceneDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph)
 {
+  ezAssetDocument::RestoreMetaDataAfterLoading(graph);
+
   m_SceneObjectMetaData.RestoreMetaDataFromAbstractGraph(graph);
 }
 
@@ -750,6 +754,7 @@ bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractO
       return false;
   }
 
+  m_DocumentObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
   m_SceneObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
 
   // set the pasted objects as the new selection
@@ -774,6 +779,7 @@ bool ezSceneDocument::Duplicate(const ezArrayPtr<PasteInfo>& info, const ezAbstr
   if (!PasteAtOrignalPosition(info))
     return false;
 
+  m_DocumentObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
   m_SceneObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
 
   // set the pasted objects as the new selection

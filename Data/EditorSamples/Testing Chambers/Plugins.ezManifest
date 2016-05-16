@@ -1,0 +1,14 @@
+{
+  "Plugins" : [ {
+      "Path" : "ezEnginePluginScene",
+      "DependencyOf" : [ "EditorPluginScene" ]
+    },
+    {
+      "Path" : "ezFmodPlugin",
+      "DependencyOf" : [ "EditorPluginFmod" ]
+    },
+    {
+      "Path" : "ezPhysXPlugin",
+      "DependencyOf" : [ "EditorPluginPhysX" ]
+    } ]
+}
