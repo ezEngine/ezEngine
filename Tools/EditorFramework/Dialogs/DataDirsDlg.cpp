@@ -39,6 +39,19 @@ void DataDirsDlg::FillList()
     pItem->setText(sPath);
   //  pItem->setCheckState(bToBeLoaded ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
     ListDataDirs->addItem(pItem);
+
+    if (dd.m_bHardCodedDependency)
+    {
+      QColor col;
+      col.setNamedColor("Orange");
+      pItem->setTextColor(col);
+      pItem->setToolTip("This data directory is a hard dependency and cannot be removed.");
+      pItem->setData(Qt::UserRole + 1, false); // can remove ?
+    }
+    else
+    {
+      pItem->setData(Qt::UserRole + 1, true); // can remove ?
+    }
   }
 
   ListDataDirs->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
@@ -131,8 +144,11 @@ void DataDirsDlg::on_ListDataDirs_itemSelectionChanged()
   else
     m_iSelection = ListDataDirs->selectionModel()->selectedIndexes()[0].row();
 
-  ButtonUp->setEnabled(m_iSelection > 0);
-  ButtonDown->setEnabled(m_iSelection != -1 && m_iSelection < (ezInt32) m_Config.m_DataDirs.GetCount() - 1);
+  const bool bCanRemove = m_iSelection >= 0 && ListDataDirs->item(m_iSelection)->data(Qt::UserRole + 1).toBool();
+
+  ButtonRemove->setEnabled(bCanRemove);
+  ButtonUp->setEnabled(bCanRemove && m_iSelection > 0);
+  ButtonDown->setEnabled(bCanRemove && m_iSelection != -1 && m_iSelection < (ezInt32) m_Config.m_DataDirs.GetCount() - 1);
 }
 
 void DataDirsDlg::on_ButtonOpenFolder_clicked()

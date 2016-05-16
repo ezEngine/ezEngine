@@ -16,7 +16,14 @@ public:
   struct DataDirConfig
   {
     ezString m_sRelativePath;
-    bool m_bWritable;
+    bool m_bWritable; ///< Whether the directory is going to be mounted for writing
+    bool m_bHardCodedDependency; ///< If set to true, this indicates that it may not be removed by the user (in a config dialog)
+
+    DataDirConfig()
+    {
+      m_bWritable = false;
+      m_bHardCodedDependency = false;
+    }
 
     bool operator==(const DataDirConfig& rhs) const { return m_bWritable == rhs.m_bWritable && m_sRelativePath == rhs.m_sRelativePath;  }
   };

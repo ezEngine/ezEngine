@@ -2,6 +2,28 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
 
+void ezQtEditorApp::AddPluginDataDirDependency(const char* szRelativePath)
+{
+  ezStringBuilder sPath = szRelativePath;
+  sPath.MakeCleanPath();
+
+  for (auto& dd : m_FileSystemConfig.m_DataDirs)
+  {
+    if (dd.m_sRelativePath == sPath)
+    {
+      dd.m_bHardCodedDependency = true;
+      return;
+    }
+  }
+
+  ezApplicationFileSystemConfig::DataDirConfig cfg;
+  cfg.m_sRelativePath = sPath;
+  cfg.m_bWritable = false;
+  cfg.m_bHardCodedDependency = true;
+
+  m_FileSystemConfig.m_DataDirs.PushBack(cfg);
+}
+
 void ezQtEditorApp::SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg)
 {
   if (m_FileSystemConfig == cfg)
@@ -21,13 +43,21 @@ void ezQtEditorApp::SetupDataDirectories()
   ezApplicationConfig::SetProjectDirectory(sPath);
   m_FileSystemConfig.Load();
 
+  ezEditorAppEvent e;
+  e.m_pSender = this;
+  e.m_Type = ezEditorAppEvent::Type::BeforeApplyDataDirectories;
+  m_Events.Broadcast(e);
+
+  ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency("../../Base");
+
   // Make sure the project directory is always in the list of data directories
   {
     bool bHasProjectDirMounted = false;
-    for (const auto& dd : m_FileSystemConfig.m_DataDirs)
+    for (auto& dd : m_FileSystemConfig.m_DataDirs)
     {
       if (dd.m_sRelativePath.IsEmpty())
       {
+        dd.m_bHardCodedDependency = true;
         bHasProjectDirMounted = true;
         break;
       }
@@ -37,6 +67,7 @@ void ezQtEditorApp::SetupDataDirectories()
     {
       ezApplicationFileSystemConfig::DataDirConfig dd;
       dd.m_bWritable = true;
+      dd.m_bHardCodedDependency = true;
       m_FileSystemConfig.m_DataDirs.PushBack(dd);
     }
   }

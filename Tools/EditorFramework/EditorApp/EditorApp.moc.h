@@ -21,7 +21,18 @@ class QMainWindow;
 class QWidget;
 class ezProgress;
 class ezQtProgressbar;
+class ezQtEditorApp;
 
+struct EZ_EDITORFRAMEWORK_DLL ezEditorAppEvent
+{
+  enum class Type
+  {
+    BeforeApplyDataDirectories, ///< Sent after data directory config was loaded, but before it is applied. Allows to add custom dependencies at the right moment.
+  };
+
+  Type m_Type;
+  ezQtEditorApp* m_pSender;
+};
 
 class EZ_EDITORFRAMEWORK_DLL ezQtEditorApp : public QObject
 {
@@ -32,6 +43,8 @@ class EZ_EDITORFRAMEWORK_DLL ezQtEditorApp : public QObject
 public:
   ezQtEditorApp();
   ~ezQtEditorApp();
+
+  ezEvent<const ezEditorAppEvent&> m_Events;
 
   const ezString& GetApplicationUserName() { return s_sUserName; }
 
@@ -110,6 +123,7 @@ public:
   ezDocument* OpenDocumentImmediate(const char* szDocument, bool bRequestWindow = true, bool bAddToRecentFilesList = true);
   
 
+  void AddPluginDataDirDependency(const char* szRelativePath);
   const ezApplicationFileSystemConfig& GetFileSystemConfig() const { return m_FileSystemConfig; }
   const ezApplicationPluginConfig& GetEnginePluginConfig() const { return m_EnginePluginConfig; }
 

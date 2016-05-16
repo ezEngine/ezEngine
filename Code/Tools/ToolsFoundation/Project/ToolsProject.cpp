@@ -48,6 +48,7 @@ ezStatus ezToolsProject::Create()
   }
 
   Event e;
+  e.m_pProject = this;
   e.m_Type = Event::Type::ProjectCreated;
   s_Events.Broadcast(e);
 
@@ -67,6 +68,7 @@ ezStatus ezToolsProject::Open()
   ProjectFile.Close();
 
   Event e;
+  e.m_pProject = this;
   e.m_Type = Event::Type::ProjectOpened;
   s_Events.Broadcast(e);
 
@@ -94,6 +96,7 @@ void ezToolsProject::CloseProject()
     GetSingleton()->m_bIsClosing = true;
 
     Event e;
+    e.m_pProject = GetSingleton();
     e.m_Type = Event::Type::ProjectClosing;
     s_Events.Broadcast(e);
 
@@ -156,6 +159,7 @@ ezStatus ezToolsProject::CreateProject(const char* szProjectPath)
 void ezToolsProject::BroadcastConfigChanged()
 {
   Event e;
+  e.m_pProject = GetSingleton();
   e.m_Type = Event::Type::ProjectConfigChanged;
 
   s_Events.Broadcast(e);

@@ -32,6 +32,14 @@ void OnDocumentManagerEvent(const ezDocumentManager::Event& e)
   }
 }
 
+void ToolsProjectEventHandler(const ezEditorAppEvent& e)
+{
+  if (e.m_Type == ezEditorAppEvent::Type::BeforeApplyDataDirectories)
+  {
+    ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency("../../Base");
+  }
+}
+
 void OnLoadPlugin(bool bReloading)    
 {
   ezTranslatorFromFiles::AddTranslationFile("ScenePlugin.txt");
@@ -39,6 +47,8 @@ void OnLoadPlugin(bool bReloading)
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
 
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginScene", "ezEnginePluginScene");
+
+  ezQtEditorApp::GetSingleton()->m_Events.AddEventHandler(ToolsProjectEventHandler);
 
   ezGizmoActions::RegisterActions();
   ezSelectionActions::RegisterActions();
@@ -82,6 +92,7 @@ void OnLoadPlugin(bool bReloading)
 
 void OnUnloadPlugin(bool bReloading)  
 {
+  ezQtEditorApp::GetSingleton()->m_Events.RemoveEventHandler(ToolsProjectEventHandler);
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
 
   ezGizmoActions::UnregisterActions();
