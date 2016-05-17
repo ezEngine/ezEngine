@@ -126,8 +126,12 @@ public:
   bool PasteAt(const ezArrayPtr<PasteInfo>& info, const ezVec3& vPos);
   bool PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info);
 
+  enum TransformationChanges { Translation = EZ_BIT(0), Rotation = EZ_BIT(1), Scale = EZ_BIT(2), UniformScale = EZ_BIT(3), All = 0xFF };
+
+  /// \brief Sets the new global transformation of the given object.
+  /// The transformationChanges bitmask (of type TransformationChanges) allows to tell the system that, e.g. only translation has changed and thus some work can be spared.
+  void SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges);
   const ezTransform& GetGlobalTransform(const ezDocumentObject* pObject);
-  void SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t);
 
   void SetPickingResult(const ezObjectPickingResult& res) { m_PickingResult = res; }
 

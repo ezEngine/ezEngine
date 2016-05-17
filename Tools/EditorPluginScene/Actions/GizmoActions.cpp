@@ -139,7 +139,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezActionDescriptorHandle ezRotateGizmoAction::s_hSnappingValueMenu;
 ezActionDescriptorHandle ezRotateGizmoAction::s_hSnappingValues[11];
-float ezRotateGizmoAction::s_fCurrentSnappingValue = 5.0f;
+float ezRotateGizmoAction::s_fCurrentSnappingValue = 15.0f;
 ezEvent<const ezRotateGizmoAction::Event&> ezRotateGizmoAction::s_Events;
 
 void ezRotateGizmoAction::RegisterActions()

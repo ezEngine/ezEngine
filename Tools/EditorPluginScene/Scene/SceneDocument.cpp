@@ -173,7 +173,7 @@ void ezSceneDocument::GroupSelection()
   pHistory->AddCommand(cmdAdd);
 
   auto pGroupObject = GetObjectManager()->GetObject(cmdAdd.m_NewObjectGuid);
-  SetGlobalTransform(pGroupObject, ezTransform(vCenter));
+  SetGlobalTransform(pGroupObject, ezTransform(vCenter), ezSceneDocument::Translation);
 
   ezMoveObjectCommand cmdMove;
   cmdMove.m_NewParent = cmdAdd.m_NewObjectGuid;
@@ -830,7 +830,7 @@ void ezSceneDocument::ObjectStructureEventHandler(const ezDocumentObjectStructur
       // read cached value, hopefully it was not invalidated in between BeforeObjectMoved and AfterObjectMoved
       ezTransform t = GetGlobalTransform(e.m_pObject);
 
-      SetGlobalTransform(e.m_pObject, t);
+      SetGlobalTransform(e.m_pObject, t, ezSceneDocument::All);
     }
     break;
   }
@@ -920,7 +920,7 @@ const ezTransform& ezSceneDocument::GetGlobalTransform(const ezDocumentObject* p
   return m_GlobalTransforms[pObject];
 }
 
-void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t)
+void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges)
 {
   auto pHistory = GetCommandHistory();
   if (!pHistory->IsInTransaction())
@@ -958,28 +958,37 @@ void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const 
   ezSetObjectPropertyCommand cmd;
   cmd.m_Object = pObject->GetGuid();
 
-  if (pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>() != vLocalPos)
+  // unfortunately when we are dragging an object the 'temporary' transaction is undone every time before the new commands are sent
+  // that means the values that we read here, are always the original values before the object was modified at all
+  // therefore when the original position and the new position are identical, that means the user dragged the object to the previous position
+  // it does NOT mean that there is no change, in fact there is a change, just back to the original value
+
+  //if (pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>() != vLocalPos)
+  if ((transformationChanges & TransformationChanges::Translation) != 0)
   {
     cmd.SetPropertyPath("LocalPosition");
     cmd.m_NewValue = vLocalPos;
     pHistory->AddCommand(cmd);
   }
 
-  if (pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>() != qLocalRot)
+  //if (pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>() != qLocalRot)
+  if ((transformationChanges & TransformationChanges::Rotation) != 0)
   {
     cmd.SetPropertyPath("LocalRotation");
     cmd.m_NewValue = qLocalRot;
     pHistory->AddCommand(cmd);
   }
 
-  if (pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>() != vLocalScale)
+  //if (pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>() != vLocalScale)
+  if ((transformationChanges & TransformationChanges::Scale) != 0)
   {
     cmd.SetPropertyPath("LocalScaling");
     cmd.m_NewValue = vLocalScale;
     pHistory->AddCommand(cmd);
   }
 
-  if (pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>() != fUniformScale)
+  //if (pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>() != fUniformScale)
+  if ((transformationChanges & TransformationChanges::UniformScale) != 0)
   {
     cmd.SetPropertyPath("LocalUniformScaling");
     cmd.m_NewValue = fUniformScale;

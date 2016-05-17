@@ -208,7 +208,7 @@ void ezQtSceneDocumentWindow::SnapSelectionToPosition(bool bSnapEachObject)
     }
 
     bDidAny = true;
-    GetSceneDocument()->SetGlobalTransform(obj.m_pObject, vSnappedPos);
+    GetSceneDocument()->SetGlobalTransform(obj.m_pObject, vSnappedPos, ezSceneDocument::Translation);
   }
 
   if (bDidAny)

@@ -191,7 +191,7 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
           tNew = obj.m_GlobalTransform;
           tNew.m_vPosition += vTranslate;
 
-          pScene->SetGlobalTransform(obj.m_pObject, tNew);
+          pScene->SetGlobalTransform(obj.m_pObject, tNew, ezSceneDocument::Translation);
         }
 
         if (e.m_pGizmo == &m_TranslateGizmo && QApplication::keyboardModifiers() & Qt::KeyboardModifier::ControlModifier)
@@ -225,7 +225,7 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
           tNew.m_Rotation = mRot * obj.m_GlobalTransform.m_Rotation;
           tNew.m_vPosition = vPivot + mRot * (obj.m_GlobalTransform.m_vPosition - vPivot);
 
-          pScene->SetGlobalTransform(obj.m_pObject, tNew);
+          pScene->SetGlobalTransform(obj.m_pObject, tNew, ezSceneDocument::Rotation);
         }
       }
 
@@ -291,7 +291,7 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
             tNew.m_Rotation.SetScalingFactors(vScale);
           }
 
-          pScene->SetGlobalTransform(obj.m_pObject, tNew);
+          pScene->SetGlobalTransform(obj.m_pObject, tNew, ezSceneDocument::Translation | ezSceneDocument::Rotation);
         }
       }
 
@@ -310,7 +310,7 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
             tNew = obj.m_GlobalTransform;
             tNew.m_vPosition += vTranslate;
 
-            pScene->SetGlobalTransform(obj.m_pObject, tNew);
+            pScene->SetGlobalTransform(obj.m_pObject, tNew, ezSceneDocument::Translation);
           }
         }
 
@@ -330,7 +330,7 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
             tNew.m_Rotation = mRot * obj.m_GlobalTransform.m_Rotation;
             //tNew.m_vPosition = vPivot + mRot * (obj.m_GlobalTransform.m_vPosition - vPivot);
 
-            pScene->SetGlobalTransform(obj.m_pObject, tNew);
+            pScene->SetGlobalTransform(obj.m_pObject, tNew, ezSceneDocument::Rotation);
           }
         }
 

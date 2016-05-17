@@ -359,10 +359,13 @@ ezEditorInut ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
 
   SetTransformation(mTrans);
 
-  ezGizmoEvent ev;
-  ev.m_pGizmo = this;
-  ev.m_Type = ezGizmoEvent::Type::Interaction;
-  m_GizmoEvents.Broadcast(ev);
+  if (!m_vLastMoveDiff.IsZero())
+  {
+    ezGizmoEvent ev;
+    ev.m_pGizmo = this;
+    ev.m_Type = ezGizmoEvent::Type::Interaction;
+    m_GizmoEvents.Broadcast(ev);
+  }
 
   return ezEditorInut::WasExclusivelyHandled;
 }
