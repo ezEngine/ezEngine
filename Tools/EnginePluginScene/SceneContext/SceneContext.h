@@ -43,6 +43,9 @@ private:
   void InsertSelectedChildren(const ezGameObject* pObject);
   void LoadShapeIconTextures();
   void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
+  void OnSimulationEnabled();
+  void OnSimulationDisabled();
+  void OnPlayTheGameModeStarted();
 
   bool m_bRenderSelectionOverlay;
   bool m_bRenderShapeIcons;

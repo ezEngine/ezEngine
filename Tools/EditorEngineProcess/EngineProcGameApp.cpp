@@ -215,8 +215,6 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezProcessCommunicatio
   EZ_ASSERT_DEV(pDocumentContext != nullptr, "Document Context is invalid!");
 
   pDocumentContext->HandleMessage(pDocMsg);
-
-
 }
 
 ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentContext(const ezDocumentOpenMsgToEngine* pMsg)

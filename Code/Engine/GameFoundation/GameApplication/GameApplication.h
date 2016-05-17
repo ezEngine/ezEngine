@@ -140,6 +140,9 @@ public:
   /// \brief Calls ezWorldModule::Reinit() on all modules associated with this world.
   void ReinitWorldModules(ezWorld* pWorld);
 
+  /// \brief Used at runtime (by the editor) to reload input maps. Forwards to DoConfigureInput()
+  void ReinitializeInputConfig();
+
 protected:
 
   /// \brief Calls Update on all worlds and renders all views through ezRenderLoop::Render()
@@ -201,7 +204,7 @@ protected:
   /// \brief Called by DoProjectSetup() after DoSetupGraphicsDevice().
   /// The default implementation uses ezGameAppInputConfig to read the input configuration from a JSON file in the project folder.
   /// Additionally it configures ESC, F5 and F8 to be 'GameApp::CloseApp', 'GameApp::ReloadResources' and 'GameApp::CaptureProfiling' respectively.
-  virtual void DoConfigureInput();
+  virtual void DoConfigureInput(bool bReinitialize);
 
   /// \brief Called by DoProjectSetup() after DoConfigureInput().
   /// The default implementation loads the "Tags.ezManifest" file from the project directory.

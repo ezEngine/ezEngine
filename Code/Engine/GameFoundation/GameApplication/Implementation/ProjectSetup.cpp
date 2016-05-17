@@ -29,7 +29,7 @@ void ezGameApplication::DoProjectSetup()
   DoLoadPluginsFromConfig();
   DoSetupGraphicsDevice();
   DoSetupDefaultResources();
-  DoConfigureInput();
+  DoConfigureInput(false);
   DoLoadTags();
 
   ezTaskSystem::SetTargetFrameTime(1000.0 / 20.0);

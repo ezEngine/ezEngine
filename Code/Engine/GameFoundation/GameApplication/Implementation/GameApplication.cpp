@@ -154,6 +154,12 @@ ezGameState* ezGameApplication::GetGameStateForWorld(ezWorld* pWorld) const
   return nullptr;
 }
 
+
+void ezGameApplication::ReinitializeInputConfig()
+{
+  DoConfigureInput(true);
+}
+
 void ezGameApplication::DestroyAllGameStates()
 {
   for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)

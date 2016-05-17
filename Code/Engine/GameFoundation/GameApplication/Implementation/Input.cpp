@@ -12,7 +12,7 @@ namespace
   const char* g_szCaptureProfilingAction = "CaptureProfiling";
 }
 
-void ezGameApplication::DoConfigureInput()
+void ezGameApplication::DoConfigureInput(bool bReinitialize)
 {
   ezInputActionConfig config;
 

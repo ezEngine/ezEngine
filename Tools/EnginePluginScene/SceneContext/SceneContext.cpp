@@ -98,15 +98,13 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
     if (pState == nullptr && bSimulate != m_pWorld->GetWorldSimulationEnabled())
     {
-      ezLog::Info("World Simulation %s", bSimulate ? "enabled" : "disabled");
       m_pWorld->SetWorldSimulationEnabled(bSimulate);
+      m_pWorld->GetClock().SetSpeed(msg->m_fSimulationSpeed);
 
       if (bSimulate)
-      {
-        ezGameApplication::GetGameApplicationInstance()->ReinitWorldModules(m_pWorld);
-      }
-
-      m_pWorld->GetClock().SetSpeed(msg->m_fSimulationSpeed);
+        OnSimulationEnabled();
+      else
+        OnSimulationDisabled();
     }
 
     if (pState && pState->WasQuitRequested())
@@ -212,6 +210,21 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
   res.m_DocumentGuid = pMsg->m_DocumentGuid;
 
   SendProcessMessage(&res);
+}
+
+void ezSceneContext::OnSimulationEnabled()
+{
+  ezLog::Info("World Simulation enabled");
+
+  ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
+
+  ezGameApplication::GetGameApplicationInstance()->ReinitWorldModules(m_pWorld);
+}
+
+void ezSceneContext::OnSimulationDisabled()
+{
+  ezLog::Info("World Simulation disabled");
+
 }
 
 void ezSceneContext::GenerateShapeIconMesh()
@@ -403,6 +416,26 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
   }
 }
 
+void ezSceneContext::OnPlayTheGameModeStarted()
+{
+  ezLog::Info("Starting Play-the-Game mode");
+
+  m_pWorld->GetClock().SetSpeed(1.0f);
+  m_pWorld->SetWorldSimulationEnabled(true);
+
+  ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
+  ezGameApplication::GetGameApplicationInstance()->ReinitWorldModules(m_pWorld);
+
+  ezGameApplication::GetGameApplicationInstance()->CreateGameStateForWorld(m_pWorld);
+  ezGameApplication::GetGameApplicationInstance()->ActivateGameStateForWorld(m_pWorld);
+
+  ezGameModeMsgToEditor msgRet;
+  msgRet.m_DocumentGuid = GetDocumentGuid();
+  msgRet.m_bRunningPTG = true;
+
+  SendProcessMessage(&msgRet);
+
+}
 
 void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
 {
@@ -416,21 +449,7 @@ void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
       return;
     }
 
-    ezLog::Info("Starting Play-the-Game mode");
-
-    m_pWorld->GetClock().SetSpeed(1.0f);
-    m_pWorld->SetWorldSimulationEnabled(true);
-
-    ezGameApplication::GetGameApplicationInstance()->ReinitWorldModules(m_pWorld);
-
-    ezGameApplication::GetGameApplicationInstance()->CreateGameStateForWorld(m_pWorld);
-    ezGameApplication::GetGameApplicationInstance()->ActivateGameStateForWorld(m_pWorld);
-
-    ezGameModeMsgToEditor msgRet;
-    msgRet.m_DocumentGuid = pMsg->m_DocumentGuid;
-    msgRet.m_bRunningPTG = true;
-
-    SendProcessMessage(&msgRet);
+    OnPlayTheGameModeStarted();
   }
   else
   {
