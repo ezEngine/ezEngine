@@ -5,6 +5,7 @@
 #include <QMouseEvent>
 #include <CoreUtils/Graphics/Camera.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRotateGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -17,8 +18,6 @@ ezRotateGizmo::ezRotateGizmo()
 
   SetVisible(false);
   SetTransformation(ezMat4::IdentityMatrix());
-
-  m_SnappingAngle = ezAngle();
 }
 
 void ezRotateGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -170,8 +169,7 @@ ezEditorInut ezRotateGizmo::mouseMoveEvent(QMouseEvent* e)
 
   ezAngle rot = m_Rotation;
 
-  if (m_SnappingAngle.GetRadian() != 0.0f)
-    rot = ezAngle::Radian(ezMath::Round(m_Rotation.GetRadian(), m_SnappingAngle.GetRadian()));
+  ezSnapProvider::SnapRotation(rot);
 
   m_CurrentRotation.SetFromAxisAndAngle(m_vMoveAxis, rot);
 

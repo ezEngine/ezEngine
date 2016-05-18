@@ -6,6 +6,7 @@
 #include <EditorPluginScene/Scene/SceneDocument.h>
 
 enum class ActiveGizmo;
+struct ezSnapProviderEvent;
 
 ///
 class EZ_EDITORPLUGINSCENE_DLL ezGizmoActions
@@ -66,9 +67,6 @@ public:
 
   static void MapActions(const char* szMapping, const char* szPath);
 
-  static void SetCurrentSnappingValue(float f);
-  static float GetCurrentSnappingValue() { return s_fCurrentSnappingValue; }
-
 private:
   static ezActionDescriptorHandle s_hSnappingValueMenu;
   static ezActionDescriptorHandle s_hSnappingValues[11];
@@ -84,25 +82,11 @@ public:
 
   virtual void Execute(const ezVariant& value) override;
 
-  struct Event
-  {
-    enum class Type
-    {
-      SnapppingAngleChanged,
-    };
-
-    Type m_Type;
-  };
-
-  static ezEvent<const Event&> s_Events;
-
 private:
-  void EventHandler(const Event& e);
+  void EventHandler(const ezSnapProviderEvent& e);
 
   float m_fSnappingValue;
   ActionType m_Type;
-
-  static float s_fCurrentSnappingValue;
 };
 
 
@@ -115,9 +99,6 @@ public:
   static void UnregisterActions();
 
   static void MapActions(const char* szMapping, const char* szPath);
-
-  static void SetCurrentSnappingValue(float f);
-  static float GetCurrentSnappingValue() { return s_fCurrentSnappingValue; }
 
 private:
   static ezActionDescriptorHandle s_hSnappingValueMenu;
@@ -133,26 +114,12 @@ public:
   ~ezScaleGizmoAction();
 
   virtual void Execute(const ezVariant& value) override;
-
-  struct Event
-  {
-    enum class Type
-    {
-      SnapppingValueChanged,
-    };
-
-    Type m_Type;
-  };
-
-  static ezEvent<const Event&> s_Events;
-
+  
 private:
-  void EventHandler(const Event& e);
+  void EventHandler(const ezSnapProviderEvent& e);
 
   float m_fSnappingValue;
   ActionType m_Type;
-
-  static float s_fCurrentSnappingValue;
 };
 
 
@@ -165,9 +132,6 @@ public:
   static void UnregisterActions();
 
   static void MapActions(const char* szMapping, const char* szPath);
-
-  static void SetCurrentSnappingValue(float f);
-  static float GetCurrentSnappingValue() { return s_fCurrentSnappingValue; }
 
 private:
   static ezActionDescriptorHandle s_hSnappingValueMenu;
@@ -188,26 +152,13 @@ public:
 
   virtual void Execute(const ezVariant& value) override;
 
-  struct Event
-  {
-    enum class Type
-    {
-      SnapppingValueChanged,
-    };
-
-    Type m_Type;
-  };
-
-  static ezEvent<const Event&> s_Events;
-
 private:
-  void EventHandler(const Event& e);
+  void EventHandler(const ezSnapProviderEvent& e);
 
   ezSceneDocument* m_pSceneDocument;
   float m_fSnappingValue;
   ActionType m_Type;
 
-  static float s_fCurrentSnappingValue;
 };
 
 

@@ -21,11 +21,6 @@ public:
   const ezVec3 GetTranslationResult() const { return GetTransformation().GetTranslationVector() - m_vStartPosition; }
   const ezVec3 GetTranslationDiff() const { return m_vLastMoveDiff; }
 
-  /// \brief Sets the value to which to snap the scaling result to. Zero means no snapping is performed.
-  void SetSnappingValue(float fSnappingValue) { m_fSnappingValue = fSnappingValue; }
-
-  void SnapToGrid();
-
   enum class MovementMode
   {
     ScreenProjection,
@@ -48,7 +43,6 @@ private:
   QPoint m_LastMousePos;
   QPoint m_OriginalMousePos;
 
-  float m_fSnappingValue;
   ezVec3 m_vLastMoveDiff;
 
   MovementMode m_MovementMode;

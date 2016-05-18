@@ -13,6 +13,7 @@
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <EditorPluginScene/Preferences/ScenePreferences.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
 
 ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
@@ -66,19 +67,14 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezDocument* pDocument)
   m_ScaleGizmo.SetOwner(this, nullptr);
   m_DragToPosGizmo.SetOwner(this, nullptr);
 
-  m_RotateGizmo.SetSnappingAngle(ezAngle::Degree(ezRotateGizmoAction::GetCurrentSnappingValue()));
-  m_ScaleGizmo.SetSnappingValue(ezScaleGizmoAction::GetCurrentSnappingValue());
-  m_TranslateGizmo.SetSnappingValue(ezTranslateGizmoAction::GetCurrentSnappingValue());
-
   m_TranslateGizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
   m_RotateGizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
   m_ScaleGizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
   m_DragToPosGizmo.m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
   pSceneDoc->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::ObjectStructureEventHandler, this));
   pSceneDoc->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::CommandHistoryEventHandler, this));
-  ezRotateGizmoAction::s_Events.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::RotateGizmoEventHandler, this));
-  ezScaleGizmoAction::s_Events.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::ScaleGizmoEventHandler, this));
-  ezTranslateGizmoAction::s_Events.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TranslateGizmoEventHandler, this));
+  
+  ezSnapProvider::s_Events.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SnapProviderEventHandler, this));
   ezManipulatorManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::ManipulatorManagerEventHandler, this));
 
   {
@@ -116,9 +112,8 @@ ezQtSceneDocumentWindow::~ezQtSceneDocumentWindow()
   m_DragToPosGizmo.m_GizmoEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
   pSceneDoc->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::ObjectStructureEventHandler, this));
   pSceneDoc->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::CommandHistoryEventHandler, this));
-  ezRotateGizmoAction::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::RotateGizmoEventHandler, this));
-  ezScaleGizmoAction::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::ScaleGizmoEventHandler, this));
-  ezTranslateGizmoAction::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TranslateGizmoEventHandler, this));
+
+  ezSnapProvider::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SnapProviderEventHandler, this));
   ezManipulatorManager::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::ManipulatorManagerEventHandler, this));
 
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SelectionManagerEventHandler, this));
@@ -143,7 +138,7 @@ void ezQtSceneDocumentWindow::CommandHistoryEventHandler(const ezCommandHistoryE
 
 void ezQtSceneDocumentWindow::SnapSelectionToPosition(bool bSnapEachObject)
 {
-  const float fSnap = ezTranslateGizmoAction::GetCurrentSnappingValue();
+  const float fSnap = ezSnapProvider::GetTranslationSnapValue();
 
   if (fSnap == 0.0f)
     return;
@@ -163,10 +158,8 @@ void ezQtSceneDocumentWindow::SnapSelectionToPosition(bool bSnapEachObject)
       return;
 
     const ezVec3 vPivotPos = GetSceneDocument()->GetGlobalTransform(pivotObj).m_vPosition;
-    ezVec3 vSnappedPos;
-    vSnappedPos.x = ezMath::Round(vPivotPos.x, fSnap);
-    vSnappedPos.y = ezMath::Round(vPivotPos.y, fSnap);
-    vSnappedPos.z = ezMath::Round(vPivotPos.z, fSnap);
+    ezVec3 vSnappedPos = vPivotPos;
+    ezSnapProvider::SnapTranslation(vSnappedPos);
 
     vPivotSnapOffset = vSnappedPos - vPivotPos;
 
@@ -194,9 +187,8 @@ void ezQtSceneDocumentWindow::SnapSelectionToPosition(bool bSnapEachObject)
     // if we snap each object individually, compute the snap position for each one here
     if (bSnapEachObject)
     {
-      vSnappedPos.m_vPosition.x = ezMath::Round(obj.m_GlobalTransform.m_vPosition.x, fSnap);
-      vSnappedPos.m_vPosition.y = ezMath::Round(obj.m_GlobalTransform.m_vPosition.y, fSnap);
-      vSnappedPos.m_vPosition.z = ezMath::Round(obj.m_GlobalTransform.m_vPosition.z, fSnap);
+      vSnappedPos.m_vPosition = obj.m_GlobalTransform.m_vPosition;
+      ezSnapProvider::SnapTranslation(vSnappedPos.m_vPosition);
 
       if (obj.m_GlobalTransform.m_vPosition == vSnappedPos.m_vPosition)
         continue;
@@ -884,37 +876,21 @@ void ezQtSceneDocumentWindow::ManipulatorManagerEventHandler(const ezManipulator
   }
 }
 
-void ezQtSceneDocumentWindow::RotateGizmoEventHandler(const ezRotateGizmoAction::Event& e)
+void ezQtSceneDocumentWindow::SnapProviderEventHandler(const ezSnapProviderEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezRotateGizmoAction::Event::Type::SnapppingAngleChanged:
-    m_RotateGizmo.SetSnappingAngle(ezAngle::Degree(ezRotateGizmoAction::GetCurrentSnappingValue()));
-    ShowStatusBarMsg(ezStringUtf8(L"Snapping Angle: %f°").GetData(), ezRotateGizmoAction::GetCurrentSnappingValue());
-    break;
-  }
-}
-
-void ezQtSceneDocumentWindow::ScaleGizmoEventHandler(const ezScaleGizmoAction::Event& e)
-{
-  switch (e.m_Type)
-  {
-  case ezScaleGizmoAction::Event::Type::SnapppingValueChanged:
-    m_ScaleGizmo.SetSnappingValue(ezScaleGizmoAction::GetCurrentSnappingValue());
-    ShowStatusBarMsg("Snapping Value: %f", ezScaleGizmoAction::GetCurrentSnappingValue());
-    break;
-  }
-}
-
-void ezQtSceneDocumentWindow::TranslateGizmoEventHandler(const ezTranslateGizmoAction::Event& e)
-{
-  switch (e.m_Type)
-  {
-  case ezTranslateGizmoAction::Event::Type::SnapppingValueChanged:
-    m_TranslateGizmo.SetSnappingValue(ezTranslateGizmoAction::GetCurrentSnappingValue());
-    ShowStatusBarMsg("Snapping Value: %f", ezTranslateGizmoAction::GetCurrentSnappingValue());
+  case ezSnapProviderEvent::Type::RotationSnapChanged:
+    ShowStatusBarMsg(ezStringUtf8(L"Snapping Angle: %f°").GetData(), ezSnapProvider::GetRotationSnapValue());
     break;
 
+  case ezSnapProviderEvent::Type::ScaleSnapChanged:
+    ShowStatusBarMsg("Snapping Value: %f", ezSnapProvider::GetScaleSnapValue());
+    break;
+
+  case ezSnapProviderEvent::Type::TranslationSnapChanged:
+    ShowStatusBarMsg("Snapping Value: %f", ezSnapProvider::GetTranslationSnapValue());
+    break;
   }
 }
 

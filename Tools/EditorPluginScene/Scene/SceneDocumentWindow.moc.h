@@ -53,9 +53,7 @@ private:
 
   void FocusOnSelectionHoveredView();
 
-  void RotateGizmoEventHandler(const ezRotateGizmoAction::Event& e);
-  void ScaleGizmoEventHandler(const ezScaleGizmoAction::Event& e);
-  void TranslateGizmoEventHandler(const ezTranslateGizmoAction::Event& e);
+  void SnapProviderEventHandler(const ezSnapProviderEvent& e);
 
   void UpdateGizmoSelectionList();
   void UpdateGizmoVisibility();

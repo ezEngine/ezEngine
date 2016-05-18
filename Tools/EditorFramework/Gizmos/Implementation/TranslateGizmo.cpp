@@ -5,6 +5,7 @@
 #include <CoreUtils/Graphics/Camera.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
 #include <QMouseEvent>
 #include <QDesktopWidget>
 
@@ -13,8 +14,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezTranslateGizmo::ezTranslateGizmo()
 {
-  m_fSnappingValue = 0.0f;
-
   m_AxisX.Configure(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(128, 0, 0));
   m_AxisY.Configure(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(0, 128, 0));
   m_AxisZ.Configure(this, ezEngineGizmoHandleType::Arrow, ezColorLinearUB(0, 0, 128));
@@ -338,18 +337,7 @@ ezEditorInut ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
     SetCursorToWindowCenter(e->globalPos());
   }
 
-  if (m_fSnappingValue > 0.0f)
-  {
-    ezMat3 mRot = mTrans.GetRotationalPart();
-    ezMat3 mInvRot = mRot.GetInverse();
-
-    ezVec3 vLocalTranslation = mInvRot * vTranslate;
-    vLocalTranslation.x = ezMath::Round(vLocalTranslation.x, m_fSnappingValue);
-    vLocalTranslation.y = ezMath::Round(vLocalTranslation.y, m_fSnappingValue);
-    vLocalTranslation.z = ezMath::Round(vLocalTranslation.z, m_fSnappingValue);
-
-    vTranslate = mRot * vLocalTranslation;
-  }
+  ezSnapProvider::SnapTranslationInLocalSpace(mTrans.GetRotationalPart(), vTranslate);
 
   const ezVec3 vLastPos = mTrans.GetTranslationVector();
 
@@ -368,34 +356,6 @@ ezEditorInut ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
   }
 
   return ezEditorInut::WasExclusivelyHandled;
-}
-
-void ezTranslateGizmo::SnapToGrid()
-{
-  if (m_Mode != TranslateMode::None)
-    return;
-
-  ezGizmoEvent ev;
-  ev.m_pGizmo = this;
-  ev.m_Type = ezGizmoEvent::Type::BeginInteractions;
-  m_GizmoEvents.Broadcast(ev);
-
-  ezMat4 mTrans = GetTransformation();
-  m_vStartPosition = mTrans.GetTranslationVector();
-
-  ezVec3 vPos = mTrans.GetTranslationVector();
-  vPos.x = ezMath::Round(vPos.x, m_fSnappingValue);
-  vPos.y = ezMath::Round(vPos.y, m_fSnappingValue);
-  vPos.z = ezMath::Round(vPos.z, m_fSnappingValue);
-
-  mTrans.SetTranslationVector(vPos);
-  SetTransformation(mTrans);
-
-  ev.m_Type = ezGizmoEvent::Type::Interaction;
-  m_GizmoEvents.Broadcast(ev);
-
-  ev.m_Type = ezGizmoEvent::Type::EndInteractions;
-  m_GizmoEvents.Broadcast(ev);
 }
 
 void ezTranslateGizmo::SetMovementMode(MovementMode mode)

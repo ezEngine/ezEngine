@@ -3,6 +3,7 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <EditorPluginScene/Actions/GizmoActions.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoAction, 0, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -139,8 +140,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezActionDescriptorHandle ezRotateGizmoAction::s_hSnappingValueMenu;
 ezActionDescriptorHandle ezRotateGizmoAction::s_hSnappingValues[11];
-float ezRotateGizmoAction::s_fCurrentSnappingValue = 15.0f;
-ezEvent<const ezRotateGizmoAction::Event&> ezRotateGizmoAction::s_Events;
 
 void ezRotateGizmoAction::RegisterActions()
 {
@@ -186,43 +185,33 @@ ezRotateGizmoAction::ezRotateGizmoAction(const ezActionContext& context, const c
   m_Type = type;
   m_fSnappingValue = fSnappingValue;
 
-  SetChecked(m_fSnappingValue == GetCurrentSnappingValue());
+  SetChecked(m_fSnappingValue == ezSnapProvider::GetRotationSnapValue().GetDegree());
 
-  s_Events.AddEventHandler(ezMakeDelegate(&ezRotateGizmoAction::EventHandler, this));
+  ezSnapProvider::s_Events.AddEventHandler(ezMakeDelegate(&ezRotateGizmoAction::EventHandler, this));
 }
 
 ezRotateGizmoAction::~ezRotateGizmoAction()
 {
-  s_Events.RemoveEventHandler(ezMakeDelegate(&ezRotateGizmoAction::EventHandler, this));
+  ezSnapProvider::s_Events.RemoveEventHandler(ezMakeDelegate(&ezRotateGizmoAction::EventHandler, this));
 }
 
-void ezRotateGizmoAction::EventHandler(const Event& e)
+void ezRotateGizmoAction::EventHandler(const ezSnapProviderEvent& e)
 {
   switch (e.m_Type)
   {
-  case Event::Type::SnapppingAngleChanged:
+  case ezSnapProviderEvent::Type::RotationSnapChanged:
     {
-      SetChecked(m_fSnappingValue == GetCurrentSnappingValue());
+      SetChecked(m_fSnappingValue == ezSnapProvider::GetRotationSnapValue().GetDegree());
     }
     break;
   }
-}
-
-void ezRotateGizmoAction::SetCurrentSnappingValue(float f)
-{
-  s_fCurrentSnappingValue = f;
-
-  Event e;
-  e.m_Type = Event::Type::SnapppingAngleChanged;
-
-  s_Events.Broadcast(e);
 }
 
 void ezRotateGizmoAction::Execute(const ezVariant& value)
 {
   if (m_Type == ActionType::SetSnappingAngle)
   {
-    SetCurrentSnappingValue(m_fSnappingValue);
+    ezSnapProvider::SetRotationSnapValue(ezAngle::Degree(m_fSnappingValue));
   }
 }
 
@@ -237,8 +226,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezActionDescriptorHandle ezScaleGizmoAction::s_hSnappingValueMenu;
 ezActionDescriptorHandle ezScaleGizmoAction::s_hSnappingValues[8];
-float ezScaleGizmoAction::s_fCurrentSnappingValue = 0.0f;
-ezEvent<const ezScaleGizmoAction::Event&> ezScaleGizmoAction::s_Events;
 
 void ezScaleGizmoAction::RegisterActions()
 {
@@ -280,43 +267,33 @@ ezScaleGizmoAction::ezScaleGizmoAction(const ezActionContext& context, const cha
   m_Type = type;
   m_fSnappingValue = fSnappingValue;
 
-  SetChecked(m_fSnappingValue == GetCurrentSnappingValue());
+  SetChecked(m_fSnappingValue == ezSnapProvider::GetScaleSnapValue());
 
-  s_Events.AddEventHandler(ezMakeDelegate(&ezScaleGizmoAction::EventHandler, this));
+  ezSnapProvider::s_Events.AddEventHandler(ezMakeDelegate(&ezScaleGizmoAction::EventHandler, this));
 }
 
 ezScaleGizmoAction::~ezScaleGizmoAction()
 {
-  s_Events.RemoveEventHandler(ezMakeDelegate(&ezScaleGizmoAction::EventHandler, this));
+  ezSnapProvider::s_Events.RemoveEventHandler(ezMakeDelegate(&ezScaleGizmoAction::EventHandler, this));
 }
 
-void ezScaleGizmoAction::EventHandler(const Event& e)
+void ezScaleGizmoAction::EventHandler(const ezSnapProviderEvent& e)
 {
   switch (e.m_Type)
   {
-  case Event::Type::SnapppingValueChanged:
+  case ezSnapProviderEvent::Type::ScaleSnapChanged:
     {
-      SetChecked(m_fSnappingValue == GetCurrentSnappingValue());
+      SetChecked(m_fSnappingValue == ezSnapProvider::GetScaleSnapValue());
     }
     break;
   }
-}
-
-void ezScaleGizmoAction::SetCurrentSnappingValue(float f)
-{
-  s_fCurrentSnappingValue = f;
-
-  Event e;
-  e.m_Type = Event::Type::SnapppingValueChanged;
-
-  s_Events.Broadcast(e);
 }
 
 void ezScaleGizmoAction::Execute(const ezVariant& value)
 {
   if (m_Type == ActionType::SetSnappingValue)
   {
-    SetCurrentSnappingValue(m_fSnappingValue);
+    ezSnapProvider::SetScaleSnapValue(m_fSnappingValue);
   }
 }
 
@@ -332,8 +309,6 @@ ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnappingValueMenu;
 ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnapPivotToGrid;
 ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnapObjectsToGrid;
 ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnappingValues[9];
-float ezTranslateGizmoAction::s_fCurrentSnappingValue = 0.1f;
-ezEvent<const ezTranslateGizmoAction::Event&> ezTranslateGizmoAction::s_Events;
 
 void ezTranslateGizmoAction::RegisterActions()
 {
@@ -384,43 +359,33 @@ ezTranslateGizmoAction::ezTranslateGizmoAction(const ezActionContext& context, c
   if (m_Type == ActionType::SetSnappingValue)
   {
     SetCheckable(true);
-    SetChecked(m_fSnappingValue == GetCurrentSnappingValue());
+    SetChecked(m_fSnappingValue == ezSnapProvider::GetTranslationSnapValue());
   }
 
-  s_Events.AddEventHandler(ezMakeDelegate(&ezTranslateGizmoAction::EventHandler, this));
+  ezSnapProvider::s_Events.AddEventHandler(ezMakeDelegate(&ezTranslateGizmoAction::EventHandler, this));
 }
 
 ezTranslateGizmoAction::~ezTranslateGizmoAction()
 {
-  s_Events.RemoveEventHandler(ezMakeDelegate(&ezTranslateGizmoAction::EventHandler, this));
+  ezSnapProvider::s_Events.RemoveEventHandler(ezMakeDelegate(&ezTranslateGizmoAction::EventHandler, this));
 }
 
-void ezTranslateGizmoAction::EventHandler(const Event& e)
+void ezTranslateGizmoAction::EventHandler(const ezSnapProviderEvent& e)
 {
   switch (e.m_Type)
   {
-  case Event::Type::SnapppingValueChanged:
+  case ezSnapProviderEvent::Type::TranslationSnapChanged:
     {
-      SetChecked(m_fSnappingValue == GetCurrentSnappingValue());
+      SetChecked(m_fSnappingValue == ezSnapProvider::GetTranslationSnapValue());
     }
     break;
   }
 }
 
-void ezTranslateGizmoAction::SetCurrentSnappingValue(float f)
-{
-  s_fCurrentSnappingValue = f;
-
-  Event e;
-  e.m_Type = Event::Type::SnapppingValueChanged;
-
-  s_Events.Broadcast(e);
-}
-
 void ezTranslateGizmoAction::Execute(const ezVariant& value)
 {
   if (m_Type == ActionType::SetSnappingValue)
-    SetCurrentSnappingValue(m_fSnappingValue);
+    ezSnapProvider::SetTranslationSnapValue(m_fSnappingValue);
 
   if (m_Type == ActionType::SnapSelectionPivotToGrid)
     m_pSceneDocument->TriggerSnapPivotToGrid();

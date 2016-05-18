@@ -5,6 +5,7 @@
 #include <QMouseEvent>
 #include <CoreUtils/Graphics/Camera.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScaleGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -18,8 +19,6 @@ ezScaleGizmo::ezScaleGizmo()
 
   SetVisible(false);
   SetTransformation(ezMat4::IdentityMatrix());
-
-  m_fSnappingValue = 0.0f;
 }
 
 void ezScaleGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -169,10 +168,8 @@ ezEditorInut ezScaleGizmo::mouseMoveEvent(QMouseEvent* e)
 
   QCursor::setPos(QPoint(m_MousePos.x, m_MousePos.y));
 
-  float fFactor = m_fSnappingValue != 0.0f ? m_fSnappingValue : 1.0f;
-
-  m_vScaleMouseMove += m_vMoveAxis * vDiff.x * fFactor;
-  m_vScaleMouseMove -= m_vMoveAxis * vDiff.y * fFactor;
+  m_vScaleMouseMove += ezSnapProvider::GetScaleSnapped(m_vMoveAxis * vDiff.x);
+  m_vScaleMouseMove -= ezSnapProvider::GetScaleSnapped(m_vMoveAxis * vDiff.y);
 
   m_vScalingResult.Set(1.0f);
 

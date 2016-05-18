@@ -13,6 +13,7 @@
 #include <Foundation/Serialization/RttiConverter.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <InputContexts/OrthoGizmoContext.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
 
 ezQtSceneViewWidget::ezQtSceneViewWidget(QWidget* pParent, ezQtSceneDocumentWindow* pOwnerWindow, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig)
   : ezQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
@@ -329,10 +330,12 @@ void ezQtSceneViewWidget::MoveObjectToPosition(const ezUuid& guid, const ezVec3&
 
 }
 
-void ezQtSceneViewWidget::MoveDraggedObjectsToPosition(const ezVec3 & vPosition)
+void ezQtSceneViewWidget::MoveDraggedObjectsToPosition(ezVec3 vPosition)
 {
   if (m_DraggedObjects.IsEmpty() || vPosition.IsNaN())
     return;
+
+  ezSnapProvider::SnapTranslation(vPosition);
 
   auto history = m_pDocumentWindow->GetDocument()->GetCommandHistory();
 

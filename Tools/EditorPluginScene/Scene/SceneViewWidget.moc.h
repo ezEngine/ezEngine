@@ -33,7 +33,7 @@ protected:
 
   void CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue);
   void MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPosition);
-  void MoveDraggedObjectsToPosition(const ezVec3& vPosition);
+  void MoveDraggedObjectsToPosition(ezVec3 vPosition);
   void CreatePrefab(const ezVec3& vPosition, const ezUuid& AssetGuid);
 
   bool m_bAllowPickSelectedWhileDragging;

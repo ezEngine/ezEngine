@@ -5,6 +5,7 @@
 #include <QMouseEvent>
 #include <CoreUtils/Graphics/Camera.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDragToPositionGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -172,9 +173,12 @@ ezEditorInut ezDragToPositionGizmo::mouseMoveEvent(QMouseEvent* e)
   const ezVec3 vTangent = GetOrthogonalVector(res.m_vPickedNormal).GetNormalized();
   const ezVec3 vBiTangent = res.m_vPickedNormal.Cross(vTangent).GetNormalized();
 
+  ezVec3 vSnappedPosition = res.m_vPickedPosition;
+  ezSnapProvider::SnapTranslation(vSnappedPosition);
+
   ezMat3 mRot;
   ezMat4 mTrans = GetTransformation();
-  mTrans.SetTranslationVector(res.m_vPickedPosition);
+  mTrans.SetTranslationVector(vSnappedPosition);
 
   m_bModifiesRotation = true;
 
