@@ -499,6 +499,8 @@ void ezSceneDocument::SetRenderShapeIcons(bool b)
 
 const ezString& ezSceneDocument::GetCachedPrefabGraph(const ezUuid& AssetGuid)
 {
+  /// \todo This should probably be moved into ezDocument directly
+
   if (!m_CachedPrefabGraphs.Contains(AssetGuid))
   {
     auto* pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(AssetGuid);

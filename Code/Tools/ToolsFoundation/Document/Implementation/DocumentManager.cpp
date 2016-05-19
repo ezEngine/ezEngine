@@ -286,6 +286,20 @@ ezDocument* ezDocumentManager::GetDocumentByPath(const char* szPath) const
 }
 
 
+ezDocument* ezDocumentManager::GetDocumentByGuid(const ezUuid& guid)
+{
+  for (auto man : s_AllDocumentManagers)
+  {
+    for (auto doc : man->m_AllDocuments)
+    {
+      if (doc->GetGuid() == guid)
+        return doc;
+    }
+  }
+
+  return nullptr;
+}
+
 ezResult ezDocumentManager::EnsureDocumentIsClosed(const char* szPath)
 {
   auto pDoc = GetDocumentByPath(szPath);
