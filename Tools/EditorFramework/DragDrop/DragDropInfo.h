@@ -41,6 +41,9 @@ public:
 
   /// If dropped on a scene tree, this may say as which child the object is supposed to be inserted. -1 if invalid (ie. append)
   ezInt32 m_iTargetObjectInsertChildIndex;
+
+  bool m_bShiftKeyDown;
+  bool m_bCtrlKeyDown;
 };
 
 

@@ -16,7 +16,7 @@ protected:
 
   void MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPosition);
 
-  void MoveDraggedObjectsToPosition(ezVec3 vPosition);
+  void MoveDraggedObjectsToPosition(ezVec3 vPosition, bool bAllowSnap);
 
   void SelectCreatedObjects();
 

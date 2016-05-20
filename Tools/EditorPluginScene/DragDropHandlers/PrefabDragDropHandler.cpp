@@ -20,7 +20,11 @@ void ezPrefabComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
 {
   ezComponentDragDropHandler::OnDragBegin(pInfo);
 
-  CreatePrefab(pInfo->m_vDropPosition, GetAssetGuid(pInfo));
+  if (pInfo->m_bShiftKeyDown)
+    CreatePrefab(pInfo->m_vDropPosition, GetAssetGuid(pInfo));
+  else
+    CreateDropObject(pInfo->m_vDropPosition, "ezPrefabReferenceComponent", "Prefab", GetAssetGuidString(pInfo));
+
   SelectCreatedObjects();
   BeginTemporaryCommands();
 }
@@ -51,4 +55,13 @@ void ezPrefabComponentDragDropHandler::CreatePrefab(const ezVec3& vPosition, con
 
     m_DraggedObjects.PushBack(PasteCmd.m_CreatedRootObject);
   }
+}
+
+void ezPrefabComponentDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
+{
+  ezComponentDragDropHandler::OnDragUpdate(pInfo);
+  
+  // the way prefabs are instantiated on the runtime side means the selection is not always immediately 'correct'
+  // by resetting the selection, we can fix this
+  SelectCreatedObjects();
 }

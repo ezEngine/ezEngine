@@ -88,8 +88,10 @@ void ezGameApplication::DoSetupDefaultResources()
   }
 
   {
-    ezPrefabResourceDescriptor pd;
-    ezPrefabResourceHandle hMissingPrefab = ezResourceManager::CreateResource<ezPrefabResource>("MissingPrefabResource", pd);
+    //ezPrefabResourceDescriptor pd;
+    //ezPrefabResourceHandle hMissingPrefab = ezResourceManager::CreateResource<ezPrefabResource>("MissingPrefabResource", pd);
+
+    ezPrefabResourceHandle hMissingPrefab = ezResourceManager::LoadResource<ezPrefabResource>("Prefabs/MissingPrefab.ezObjectGraph");
     ezPrefabResource::SetTypeMissingResource(hMissingPrefab);
   }
 }

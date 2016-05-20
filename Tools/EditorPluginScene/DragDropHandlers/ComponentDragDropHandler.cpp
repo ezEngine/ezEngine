@@ -62,12 +62,15 @@ void ezComponentDragDropHandler::MoveObjectToPosition(const ezUuid& guid, const 
   history->AddCommand(cmd2);
 }
 
-void ezComponentDragDropHandler::MoveDraggedObjectsToPosition(ezVec3 vPosition)
+void ezComponentDragDropHandler::MoveDraggedObjectsToPosition(ezVec3 vPosition, bool bAllowSnap)
 {
   if (m_DraggedObjects.IsEmpty() || vPosition.IsNaN())
     return;
 
-  ezSnapProvider::SnapTranslation(vPosition);
+  if (bAllowSnap)
+  {
+    ezSnapProvider::SnapTranslation(vPosition);
+  }
 
   auto history = m_pDocument->GetCommandHistory();
 
@@ -130,7 +133,7 @@ void ezComponentDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
   if (vPos.IsNaN() || !pInfo->m_TargetObject.IsValid())
     vPos.SetZero();
 
-  MoveDraggedObjectsToPosition(vPos);
+  MoveDraggedObjectsToPosition(vPos, !pInfo->m_bCtrlKeyDown);
 }
 
 void ezComponentDragDropHandler::OnDragCancel()

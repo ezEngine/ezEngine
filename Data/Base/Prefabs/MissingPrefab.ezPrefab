@@ -1,0 +1,46 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0xB2F8EAAA8BF47106F971CD7FE03FE33E" },
+   "t" : "ezMeshComponent",
+   "p" : {
+    "Active" : true,
+    "Materials" : [ "Materials/BaseMaterials/MissingPrefab.ezMaterial" ],
+    "Mesh" : "Meshes/MissingMesh.ezMesh"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x7568553AF8F0D40CE24F29A56EA7CF10" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xB2F8EAAA8BF47106F971CD7FE03FE33E" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xFB38E942235506468E646FEE83DD0C7B" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Prefab",
+    "Dependencies" : "",
+    "DocumentID" : { "$t" : "uuid", "$b" : "0xFB38E942235506468E646FEE83DD0C7B" },
+    "Hash" : { "$t" : "uint64", "$v" : "13187045142999130741", "$b" : "0x75E28089B0CB01B7" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0x7568553AF8F0D40CE24F29A56EA7CF10" } ]
+   }
+  } ],
+ "Types" : [  ]
+}

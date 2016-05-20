@@ -10,6 +10,8 @@ ezDragDropInfo::ezDragDropInfo()
   m_vDropNormal.Set(ezMath::BasicType<float>::GetNaN());
   m_iTargetObjectSubID = -1;
   m_iTargetObjectInsertChildIndex = -1;
+  m_bShiftKeyDown = false;
+  m_bCtrlKeyDown = false;
 }
 
 

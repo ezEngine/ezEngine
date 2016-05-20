@@ -88,6 +88,8 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
     info.m_iTargetObjectSubID = res.m_uiPartIndex;
     info.m_TargetObject = res.m_PickedObject;
     info.m_TargetComponent = res.m_PickedComponent;
+    info.m_bShiftKeyDown = e->keyboardModifiers() & Qt::ShiftModifier;
+    info.m_bCtrlKeyDown = e->keyboardModifiers() & Qt::ControlModifier;
 
     ezDragDropConfig cfg;
     if (ezDragDropHandler::BeginDragDropOperation(&info, &cfg))
@@ -130,6 +132,8 @@ void ezQtSceneViewWidget::dragMoveEvent(QDragMoveEvent* e)
     info.m_iTargetObjectSubID = res.m_uiPartIndex;
     info.m_TargetObject = res.m_PickedObject;
     info.m_TargetComponent = res.m_PickedComponent;
+    info.m_bShiftKeyDown = e->keyboardModifiers() & Qt::ShiftModifier;
+    info.m_bCtrlKeyDown = e->keyboardModifiers() & Qt::ControlModifier;
 
     ezDragDropHandler::UpdateDragDropOperation(&info);
   }
@@ -151,6 +155,8 @@ void ezQtSceneViewWidget::dropEvent(QDropEvent * e)
     info.m_iTargetObjectSubID = res.m_uiPartIndex;
     info.m_TargetObject = res.m_PickedObject;
     info.m_TargetComponent = res.m_PickedComponent;
+    info.m_bShiftKeyDown = e->keyboardModifiers() & Qt::ShiftModifier;
+    info.m_bCtrlKeyDown = e->keyboardModifiers() & Qt::ControlModifier;
 
     ezDragDropHandler::FinishDragDrop(&info);
   }
