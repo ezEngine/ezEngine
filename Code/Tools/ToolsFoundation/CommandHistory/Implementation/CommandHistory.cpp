@@ -52,7 +52,7 @@ ezCommandHistory::~ezCommandHistory()
   EZ_ASSERT_ALWAYS(m_RedoHistory.IsEmpty(), "Must clear history before destructor as object manager will be dead already");
 }
 
-void ezCommandHistory::BeginTemporaryCommands()
+void ezCommandHistory::BeginTemporaryCommands(bool bFireEventsWhenUndoingTempCommands)
 {
   EZ_ASSERT_DEV(!m_bTemporaryMode, "Temporary Mode cannot be nested");
 
@@ -62,6 +62,7 @@ void ezCommandHistory::BeginTemporaryCommands()
     m_bTempTransaction = true;
   }
 
+  m_bFireEventsWhenUndoingTempCommands = bFireEventsWhenUndoingTempCommands;
   m_bTemporaryMode = true;
 }
 
@@ -179,7 +180,7 @@ void ezCommandHistory::StartTransaction()
   if (m_bTemporaryMode && !m_TransactionStack.IsEmpty())
   {
     pTransaction = m_TransactionStack.PeekBack();
-    pTransaction->Undo(false);
+    pTransaction->Undo(m_bFireEventsWhenUndoingTempCommands);
     pTransaction->Cleanup(ezCommand::CommandState::WasUndone);
     m_TransactionStack.PushBack(pTransaction);
     m_ActiveCommandStack.PushBack(pTransaction);

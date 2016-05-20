@@ -8,7 +8,7 @@ class ezPrefabComponentDragDropHandler : public ezComponentDragDropHandler
 
 public:
 
-  bool CanHandle(const ezDragDropInfo* pInfo) const;
+  float CanHandle(const ezDragDropInfo* pInfo) const;
 
   virtual void OnDragBegin(const ezDragDropInfo* pInfo) override;
 

@@ -4,6 +4,7 @@
 #include <Foundation/Reflection/Reflection.h>
 
 class ezDragDropInfo;
+class ezDragDropConfig;
 
 class EZ_EDITORFRAMEWORK_DLL ezDragDropHandler : public ezReflectedClass
 {
@@ -15,7 +16,7 @@ public:
   static bool IsHandlerActive() { return s_pActiveDnD != nullptr; }
 
   /// \brief Call this when a drag enter event occurs. Return value indicates whether a ezDragDropHandler was found to handle the operation. If not, subsequent drag & drop updates are ignored.
-  static bool BeginDragDropOperation(const ezDragDropInfo* pInfo);
+  static bool BeginDragDropOperation(const ezDragDropInfo* pInfo, ezDragDropConfig* pConfigToFillOut = nullptr);
 
   /// \brief Call this when a drag event occurs. Ignored if BeginDragDropOperation() was not successful.
   static void UpdateDragDropOperation(const ezDragDropInfo* pInfo);
@@ -33,10 +34,13 @@ public:
 
 protected:
 
-  /// \brief Used to ask a handler whether it knows how to handle a certain drag & drop situation. If it returns true, it will get further drag & drop calls.
+  /// \brief Used to ask a handler whether it knows how to handle a certain drag & drop situation.
   ///
-  /// If it returns false, it will be destroyed shortly after.
-  virtual bool CanHandle(const ezDragDropInfo* pInfo) const = 0;
+  /// The return value is a priority. By default CanHandle should return 0 or 1. To override an existing handler, values larger than 1 may be returned to take precedence.
+  virtual float CanHandle(const ezDragDropInfo* pInfo) const = 0;
+
+  /// \brief Potentially called by the drag drop target to request information about how to determine the ezDragDropInfo data.
+  virtual void RequestConfiguration(ezDragDropConfig* pConfigToFillOut) {}
 
   /// \brief Called shortly after CanHandle returned true to begin handling a drag operation.
   virtual void OnDragBegin(const ezDragDropInfo* pInfo) = 0;

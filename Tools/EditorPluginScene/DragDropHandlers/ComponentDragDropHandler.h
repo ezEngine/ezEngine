@@ -1,30 +1,17 @@
 #pragma once
 
 #include <EditorPluginScene/Plugin.h>
-#include <EditorFramework/DragDrop/DragDropHandler.h>
+#include <EditorPluginScene/DragDropHandlers/AssetDragDropHandler.h>
 
 class ezDocument;
 
-class ezComponentDragDropHandler : public ezDragDropHandler
+class ezComponentDragDropHandler : public ezAssetDragDropHandler
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezComponentDragDropHandler, ezDragDropHandler);
+  EZ_ADD_DYNAMIC_REFLECTION(ezComponentDragDropHandler, ezAssetDragDropHandler);
 
 public:
 
 protected:
-  bool IsAssetType(const ezDragDropInfo* pInfo) const;
-
-  ezString GetAssetGuidString(const ezDragDropInfo* pInfo) const;
-
-  ezUuid GetAssetGuid(const ezDragDropInfo* pInfo) const
-  {
-    return ezConversionUtils::ConvertStringToUuid(GetAssetGuidString(pInfo));
-  }
-
-  ezString GetAssetTypeName(const ezUuid& assetTypeGuid) const;
-
-  bool IsSpecificAssetType(const ezDragDropInfo* pInfo, const char* szType) const;
-
   void CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue);
 
   void MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPosition);
@@ -49,5 +36,8 @@ protected:
   virtual void OnDragCancel() override;
 
   virtual void OnDrop(const ezDragDropInfo* pInfo) override;
+
+  virtual float CanHandle(const ezDragDropInfo* pInfo) const override;
+
 };
 

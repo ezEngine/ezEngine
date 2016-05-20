@@ -8,9 +8,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPrefabComponentDragDropHandler, 1, ezRTTIDefau
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
-bool ezPrefabComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
+float ezPrefabComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
 {
-  return IsSpecificAssetType(pInfo, "Prefab");
+  if (ezComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
+    return 0.0f;
+
+  return IsSpecificAssetType(pInfo, "Prefab") ? 1.0f : 0.0f;
 }
 
 void ezPrefabComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)

@@ -13,3 +13,10 @@ ezDragDropInfo::ezDragDropInfo()
 }
 
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDragDropConfig, 1, ezRTTIDefaultAllocator<ezDragDropConfig>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezDragDropConfig::ezDragDropConfig()
+{
+  m_bPickSelectedObjects = false;
+}

@@ -6,9 +6,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshComponentDragDropHandler, 1, ezRTTIDefault
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
-bool ezMeshComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
+float ezMeshComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
 {
-  return IsSpecificAssetType(pInfo, "Mesh");
+  if (ezComponentDragDropHandler::CanHandle(pInfo) == 0.0f)
+    return 0.0f;
+
+  return IsSpecificAssetType(pInfo, "Mesh") ? 1.0f : 0.0f;
 }
 
 void ezMeshComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)

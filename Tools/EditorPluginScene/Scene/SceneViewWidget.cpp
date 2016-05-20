@@ -72,6 +72,7 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
   if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
     return;
 
+  m_LastDragMoveEvent = ezTime::Now();
   m_bAllowPickSelectedWhileDragging = false;
 
   {
@@ -88,112 +89,22 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
     info.m_TargetObject = res.m_PickedObject;
     info.m_TargetComponent = res.m_PickedComponent;
 
-    if (ezDragDropHandler::BeginDragDropOperation(&info))
+    ezDragDropConfig cfg;
+    if (ezDragDropHandler::BeginDragDropOperation(&info, &cfg))
     {
+      m_bAllowPickSelectedWhileDragging = cfg.m_bPickSelectedObjects;
+
       e->acceptProposedAction();
       return;
     }
   }
-
-  return;
-
-
-
-
-  m_bAllowPickSelectedWhileDragging = false;
-
-  if (e->mimeData()->hasFormat("application/ezEditor.AssetGuid"))
-  {
-    m_LastDragMoveEvent = ezTime::Now();
-
-    //m_DraggedObjects.Clear();
-    e->acceptProposedAction();
-
-    ezObjectPickingResult res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
-
-    if (res.m_vPickedPosition.IsNaN() || !res.m_PickedObject.IsValid())
-      res.m_vPickedPosition.SetZero();
-
-    QByteArray ba = e->mimeData()->data("application/ezEditor.AssetGuid");
-    QDataStream stream(&ba, QIODevice::ReadOnly);
-
-    int iGuids = 0;
-    stream >> iGuids;
-
-    ezStringBuilder sTemp;
-
-    m_pDocumentWindow->GetDocument()->GetCommandHistory()->StartTransaction();
-
-    for (ezInt32 i = 0; i < iGuids; ++i)
-    {
-      QString sGuid;
-      stream >> sGuid;
-
-      sTemp = sGuid.toUtf8().data();
-      ezUuid AssetGuid = ezConversionUtils::ConvertStringToUuid(sTemp);
-
-      if (ezAssetCurator::GetSingleton()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName == "Material")
-      {
-        m_bAllowPickSelectedWhileDragging = true;
-
-        m_pDocumentWindow->GetDocument()->GetCommandHistory()->CancelTransaction();
-        m_sDragMaterial = sTemp;
-        return;
-      }
-      //else if (ezAssetCurator::GetSingleton()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName == "Prefab")
-      //{
-      //  CreatePrefab(res.m_vPickedPosition, AssetGuid);
-      //}
-      //else if (ezAssetCurator::GetSingleton()->GetAssetInfo(AssetGuid)->m_Info.m_sAssetTypeName == "Mesh")
-      //{
-      //  CreateDropObject(res.m_vPickedPosition, "ezMeshComponent", "Mesh", sTemp);
-      //}
-    }
-
-    //if (m_DraggedObjects.IsEmpty())
-      m_pDocumentWindow->GetDocument()->GetCommandHistory()->CancelTransaction();
-  //  else
-  //  {
-  //    /// \todo We would need nested transactions that can be entirely canceled in dragLeaveEvent. The way it is currently implemented, we are destroying the Redo-history here.
-
-  //    auto pDoc = GetDocumentWindow()->GetDocument();
-
-  //    ezDeque<const ezDocumentObject*> NewSel;
-  //    for (const auto& id : m_DraggedObjects)
-  //    {
-  //      NewSel.PushBack(pDoc->GetObjectManager()->GetObject(id));
-  //    }
-
-  //    pDoc->GetSelectionManager()->SetSelection(NewSel);
-
-  //    pDoc->GetCommandHistory()->FinishTransaction();
-  //    pDoc->GetCommandHistory()->BeginTemporaryCommands();
-  //  }
   }
-}
 
 void ezQtSceneViewWidget::dragLeaveEvent(QDragLeaveEvent * e)
 {
   ezDragDropHandler::CancelDragDrop();
 
   ezQtEngineViewWidget::dragLeaveEvent(e);
-
-
-
-  //m_sDragMaterial.Clear();
-
-  // can only drag & drop objects around in perspective mode
-  //if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
-    //return;
-
-  //if (!m_DraggedObjects.IsEmpty())
-  //{
-  //  m_pDocumentWindow->GetDocument()->GetSelectionManager()->Clear();
-
-  //  m_pDocumentWindow->GetDocument()->GetCommandHistory()->CancelTemporaryCommands();
-  //  m_pDocumentWindow->GetDocument()->GetCommandHistory()->Undo();
-  //  m_DraggedObjects.Clear();
-  //}
 }
 
 void ezQtSceneViewWidget::dragMoveEvent(QDragMoveEvent* e)
@@ -222,32 +133,6 @@ void ezQtSceneViewWidget::dragMoveEvent(QDragMoveEvent* e)
 
     ezDragDropHandler::UpdateDragDropOperation(&info);
   }
-
-  return;
-
-
-
-
-
-  // can only drag & drop objects around in perspective mode
-  if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
-    return;
-
-  /// \todo workaround for bad picking behavior: update picking data every frame to get a decent result once we drop
-  ezObjectPickingResult res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
-
-  //if (!m_sDragMaterial.IsEmpty())
-  //{
-  //  return;
-  //}
-
-  //if (e->mimeData()->hasFormat("application/ezEditor.AssetGuid") && !m_DraggedObjects.IsEmpty())
-  //{
-  //  if (res.m_vPickedPosition.IsNaN() || !res.m_PickedObject.IsValid())
-  //    res.m_vPickedPosition.SetZero();
-
-  //  MoveDraggedObjectsToPosition(res.m_vPickedPosition);
-  //}
 }
 
 void ezQtSceneViewWidget::dropEvent(QDropEvent * e)
@@ -271,166 +156,7 @@ void ezQtSceneViewWidget::dropEvent(QDropEvent * e)
   }
 
   ezQtEngineViewWidget::dropEvent(e);
-
-  return;
-
-
-
-
-
-  // can only drag & drop objects around in perspective mode
-  if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
-    return;
-
-  if (!e->mimeData()->hasFormat("application/ezEditor.AssetGuid"))
-    return;
-
-  if (!m_sDragMaterial.IsEmpty())
-  {
-    ezStringBuilder sMaterial = m_sDragMaterial;
-    m_sDragMaterial.Clear();
-
-    ezObjectPickingResult res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
-
-    if (!res.m_PickedComponent.IsValid())
-      return;
-
-    const ezDocumentObject* pComponent = GetDocumentWindow()->GetDocument()->GetObjectManager()->GetObject(res.m_PickedComponent);
-
-    if (!pComponent || pComponent->GetTypeAccessor().GetType() != ezRTTI::FindTypeByName("ezMeshComponent"))
-      return;
-
-    ezResizeAndSetObjectPropertyCommand cmd;
-    cmd.m_Object = res.m_PickedComponent;
-    cmd.m_Index = res.m_uiPartIndex;
-    cmd.SetPropertyPath("Materials");
-    cmd.m_NewValue = sMaterial.GetData();
-
-    m_pDocumentWindow->GetDocument()->GetCommandHistory()->StartTransaction();
-    m_pDocumentWindow->GetDocument()->GetCommandHistory()->AddCommand(cmd);
-    m_pDocumentWindow->GetDocument()->GetCommandHistory()->FinishTransaction();
-  }
-  //else if (!m_DraggedObjects.IsEmpty())
-  //{
-  //  m_pDocumentWindow->GetDocument()->GetCommandHistory()->FinishTemporaryCommands();
-
-  //  m_pDocumentWindow->GetDocument()->GetCommandHistory()->MergeLastTwoTransactions();
-
-  //  ezDeque<const ezDocumentObject*> NewSelection;
-
-  //  for (const auto& guid : m_DraggedObjects)
-  //  {
-  //    auto pObj = m_pDocumentWindow->GetDocument()->GetObjectManager()->GetObject(guid);
-
-  //    if (pObj != nullptr)
-  //      NewSelection.PushBack(pObj);
-  //  }
-
-  //  m_pDocumentWindow->GetDocument()->GetSelectionManager()->SetSelection(NewSelection);
-
-  //  m_DraggedObjects.Clear();
-  //}
 }
-//
-//void ezQtSceneViewWidget::CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue)
-//{
-//  ezUuid ObjectGuid, CmpGuid;
-//  ObjectGuid.CreateNewUuid();
-//  CmpGuid.CreateNewUuid();
-//
-//  ezAddObjectCommand cmd;
-//  cmd.SetType("ezGameObject");
-//  cmd.m_NewObjectGuid = ObjectGuid;
-//  cmd.m_Index = -1;
-//  cmd.m_sParentProperty = "Children";
-//
-//  auto history = m_pDocumentWindow->GetDocument()->GetCommandHistory();
-//
-//  history->AddCommand(cmd);
-//
-//  ezSetObjectPropertyCommand cmd2;
-//  cmd2.m_Object = ObjectGuid;
-//
-//  cmd2.SetPropertyPath("LocalPosition");
-//  cmd2.m_NewValue = vPosition;
-//  history->AddCommand(cmd2);
-//
-//  cmd.SetType(szType);
-//  cmd.m_sParentProperty = "Components";
-//  cmd.m_Index = -1;
-//  cmd.m_NewObjectGuid = CmpGuid;
-//  cmd.m_Parent = ObjectGuid;
-//  history->AddCommand(cmd);
-//
-//  cmd2.m_Object = CmpGuid;
-//  cmd2.SetPropertyPath(szProperty);
-//  cmd2.m_NewValue = szValue;
-//  history->AddCommand(cmd2);
-//
-//  m_DraggedObjects.PushBack(ObjectGuid);
-//}
-//
-//void ezQtSceneViewWidget::CreatePrefab(const ezVec3& vPosition, const ezUuid& AssetGuid)
-//{
-//  auto* pDocument = static_cast<ezSceneDocument*>(GetDocumentWindow()->GetDocument());
-//  auto pCmdHistory = pDocument->GetCommandHistory();
-//
-//  ezInstantiatePrefabCommand PasteCmd;
-//  PasteCmd.m_sJsonGraph = pDocument->GetCachedPrefabGraph(AssetGuid);
-//  PasteCmd.m_RemapGuid.CreateNewUuid();
-//
-//  if (PasteCmd.m_sJsonGraph.IsEmpty())
-//    return; // error
-//
-//  pCmdHistory->AddCommand(PasteCmd);
-//
-//  if (PasteCmd.m_CreatedRootObject.IsValid())
-//  {
-//    auto pMeta = pDocument->m_DocumentObjectMetaData.BeginModifyMetaData(PasteCmd.m_CreatedRootObject);
-//    pMeta->m_CreateFromPrefab = AssetGuid;
-//    pMeta->m_PrefabSeedGuid = PasteCmd.m_RemapGuid;
-//    pMeta->m_sBasePrefab = PasteCmd.m_sJsonGraph;
-//    pDocument->m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
-//
-//    MoveObjectToPosition(PasteCmd.m_CreatedRootObject, vPosition);
-//
-//    m_DraggedObjects.PushBack(PasteCmd.m_CreatedRootObject);
-//  }
-//}
-//
-//
-//
-//void ezQtSceneViewWidget::MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPosition)
-//{
-//  auto history = m_pDocumentWindow->GetDocument()->GetCommandHistory();
-//
-//  ezSetObjectPropertyCommand cmd2;
-//  cmd2.m_Object = guid;
-//
-//  cmd2.SetPropertyPath("LocalPosition");
-//  cmd2.m_NewValue = vPosition;
-//  history->AddCommand(cmd2);
-//
-//}
-//
-//void ezQtSceneViewWidget::MoveDraggedObjectsToPosition(ezVec3 vPosition)
-//{
-//  if (m_DraggedObjects.IsEmpty() || vPosition.IsNaN())
-//    return;
-//
-//  ezSnapProvider::SnapTranslation(vPosition);
-//
-//  auto history = m_pDocumentWindow->GetDocument()->GetCommandHistory();
-//
-//  history->StartTransaction();
-//
-//  for (const auto& guid : m_DraggedObjects)
-//  {
-//    MoveObjectToPosition(guid, vPosition);
-//  }
-//
-//  history->FinishTransaction();
-//}
 
 
 ezQtSceneViewWidgetContainer::ezQtSceneViewWidgetContainer(QWidget* pParent, ezQtSceneDocumentWindow* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig)
@@ -453,7 +179,6 @@ ezQtSceneViewWidgetContainer::ezQtSceneViewWidgetContainer(QWidget* pParent, ezQ
     context.m_pDocument = pDocument->GetDocument();
     context.m_pWindow = m_pViewWidget;
     pToolBar->SetActionContext(context);
-    //pToolBar->setObjectName("SceneDocumentWindow_ToolBar");
     pLayout->addWidget(pToolBar);
   }
 
