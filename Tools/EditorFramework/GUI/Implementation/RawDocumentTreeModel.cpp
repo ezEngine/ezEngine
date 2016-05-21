@@ -8,10 +8,13 @@
 #include <QStringList>
 #include <QMimeData>
 #include <QMessageBox>
+#include <DragDrop/DragDropHandler.h>
+#include <DragDrop/DragDropInfo.h>
 
 ezQtDocumentTreeModel::ezQtDocumentTreeModel(const ezDocumentObjectManager* pTree, const ezRTTI* pBaseClass, const char* szChildProperty) :
   QAbstractItemModel(nullptr)
 {
+  m_bAllowDragDrop = false;
   m_pDocumentTree = pTree;
   m_pBaseClass = pBaseClass;
   m_sChildProperty = szChildProperty;
@@ -137,6 +140,12 @@ QModelIndex ezQtDocumentTreeModel::ComputeModelIndex(const ezDocumentObject* pOb
   return index(ComputeIndex(pObject), 0, ComputeParent(pObject));
 }
 
+
+void ezQtDocumentTreeModel::SetAllowDragDrop(bool bAllow)
+{
+  m_bAllowDragDrop = bAllow;
+}
+
 QModelIndex ezQtDocumentTreeModel::ComputeParent(const ezDocumentObject* pObject) const
 {
   const ezDocumentObject* pParent = pObject->GetParent();
@@ -202,7 +211,10 @@ QVariant ezQtDocumentTreeModel::data(const QModelIndex& index, int role) const
 
 Qt::DropActions ezQtDocumentTreeModel::supportedDropActions() const
 {
-  return Qt::MoveAction | Qt::CopyAction;
+  if (m_bAllowDragDrop)
+    return Qt::MoveAction | Qt::CopyAction;
+
+  return Qt::IgnoreAction;
 }
 
 Qt::ItemFlags ezQtDocumentTreeModel::flags(const QModelIndex &index) const
@@ -218,10 +230,50 @@ Qt::ItemFlags ezQtDocumentTreeModel::flags(const QModelIndex &index) const
   return Qt::ItemFlag::NoItemFlags;
 }
 
+
+bool ezQtDocumentTreeModel::canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const
+{
+  const ezDocumentObject* pParent = (const ezDocumentObject*)parent.internalPointer();
+
+  ezDragDropInfo info;
+  info.m_iTargetObjectInsertChildIndex = row;
+  info.m_pMimeData = data;
+  info.m_sTargetContext = "scenetree";
+  info.m_TargetDocument = m_pDocumentTree->GetDocument()->GetGuid();
+  info.m_TargetObject = pParent != nullptr ? pParent->GetGuid() : ezUuid();
+  info.m_bCtrlKeyDown = QApplication::queryKeyboardModifiers() & Qt::ControlModifier;
+  info.m_bShiftKeyDown = QApplication::queryKeyboardModifiers() & Qt::ShiftModifier;
+
+  if (ezDragDropHandler::CanDropOnly(&info))
+    return true;
+
+  return QAbstractItemModel::canDropMimeData(data, action, row, column, parent);
+}
+
 bool ezQtDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent)
 {
+  if (!m_bAllowDragDrop)
+    return false;
+
   if (column > 0)
     return false;
+
+  {
+    const ezDocumentObject* pParent = (const ezDocumentObject*)parent.internalPointer();
+
+    ezDragDropInfo info;
+    info.m_iTargetObjectInsertChildIndex = row;
+    info.m_pMimeData = data;
+    info.m_sTargetContext = "scenetree";
+    info.m_TargetDocument = m_pDocumentTree->GetDocument()->GetGuid();
+    info.m_TargetObject = pParent != nullptr ? pParent->GetGuid() : ezUuid();
+    info.m_bCtrlKeyDown = QApplication::queryKeyboardModifiers() & Qt::ControlModifier;
+    info.m_bShiftKeyDown = QApplication::queryKeyboardModifiers() & Qt::ShiftModifier;
+
+    if (ezDragDropHandler::DropOnly(&info))
+      return true;
+  }
+
 
   if (data->hasFormat("application/ezEditor.ObjectSelection"))
   {
@@ -301,44 +353,25 @@ bool ezQtDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction a
     return true;
   }
 
-  if (data->hasFormat("application/ezEditor.ObjectCreator"))
-  {
-    QByteArray encodedData = data->data("application/ezEditor.ObjectCreator");
-    QDataStream stream(&encodedData, QIODevice::ReadOnly);
-    QString typeName;
-    stream >> typeName;
-
-    ezAddObjectCommand cmd;
-    cmd.SetType(typeName.toUtf8().data());
-    cmd.m_sParentProperty = m_sChildProperty;
-    cmd.m_Index = row;
-
-    if (parent.isValid())
-      cmd.m_Parent = ((ezDocumentObject*) parent.internalPointer())->GetGuid();
-
-    auto history = m_pDocumentTree->GetDocument()->GetCommandHistory();
-
-    history->StartTransaction();
-
-    if (history->AddCommand(cmd).m_Result.Failed())
-      history->CancelTransaction();
-    else
-      history->FinishTransaction();
-  }
-
   return false;
 }
 
 QStringList ezQtDocumentTreeModel::mimeTypes() const
 {
   QStringList types;
-  types << "application/ezEditor.ObjectSelection";
-  types << "application/ezEditor.ObjectCreator";
+  if (m_bAllowDragDrop)
+  {
+    types << "application/ezEditor.ObjectSelection";
+  }
+
   return types;
 }
 
 QMimeData* ezQtDocumentTreeModel::mimeData(const QModelIndexList& indexes) const
 {
+  if (!m_bAllowDragDrop)
+    return nullptr;
+
   QMimeData* mimeData = new QMimeData();
   QByteArray encodedData;
 

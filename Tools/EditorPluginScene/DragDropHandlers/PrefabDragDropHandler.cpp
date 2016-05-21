@@ -21,20 +21,37 @@ void ezPrefabComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
   ezComponentDragDropHandler::OnDragBegin(pInfo);
 
   if (pInfo->m_bShiftKeyDown)
-    CreatePrefab(pInfo->m_vDropPosition, GetAssetGuid(pInfo));
+  {
+    if (pInfo->m_sTargetContext == "viewport")
+      CreatePrefab(pInfo->m_vDropPosition, GetAssetGuid(pInfo), ezUuid(), -1);
+    else
+      CreatePrefab(pInfo->m_vDropPosition, GetAssetGuid(pInfo), pInfo->m_TargetObject, pInfo->m_iTargetObjectInsertChildIndex);
+  }
   else
-    CreateDropObject(pInfo->m_vDropPosition, "ezPrefabReferenceComponent", "Prefab", GetAssetGuidString(pInfo));
+  {
+    if (pInfo->m_sTargetContext == "viewport")
+      CreateDropObject(pInfo->m_vDropPosition, "ezPrefabReferenceComponent", "Prefab", GetAssetGuidString(pInfo), ezUuid(), -1);
+    else
+      CreateDropObject(pInfo->m_vDropPosition, "ezPrefabReferenceComponent", "Prefab", GetAssetGuidString(pInfo), pInfo->m_TargetObject, pInfo->m_iTargetObjectInsertChildIndex);
+  }
 
   SelectCreatedObjects();
   BeginTemporaryCommands();
 }
 
-void ezPrefabComponentDragDropHandler::CreatePrefab(const ezVec3& vPosition, const ezUuid& AssetGuid)
+void ezPrefabComponentDragDropHandler::CreatePrefab(const ezVec3& vPosition, const ezUuid& AssetGuid, ezUuid parent, ezInt32 iInsertChildIndex)
 {
+  ezVec3 vPos = vPosition;
+
+  if (vPos.IsNaN())
+    vPos.SetZero();
+
   ezSceneDocument* pScene = static_cast<ezSceneDocument*>(m_pDocument);
   auto pCmdHistory = m_pDocument->GetCommandHistory();
 
   ezInstantiatePrefabCommand PasteCmd;
+  PasteCmd.m_Parent = parent;
+  //PasteCmd.m_Index = iInsertChildIndex;
   PasteCmd.m_sJsonGraph = pScene->GetCachedPrefabGraph(AssetGuid);
   PasteCmd.m_RemapGuid.CreateNewUuid();
 
@@ -51,7 +68,7 @@ void ezPrefabComponentDragDropHandler::CreatePrefab(const ezVec3& vPosition, con
     pMeta->m_sBasePrefab = PasteCmd.m_sJsonGraph;
     m_pDocument->m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
 
-    MoveObjectToPosition(PasteCmd.m_CreatedRootObject, vPosition);
+    MoveObjectToPosition(PasteCmd.m_CreatedRootObject, vPos);
 
     m_DraggedObjects.PushBack(PasteCmd.m_CreatedRootObject);
   }

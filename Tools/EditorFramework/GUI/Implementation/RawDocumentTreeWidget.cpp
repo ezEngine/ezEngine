@@ -107,6 +107,12 @@ void ezQtDocumentTreeWidget::EnsureLastSelectedItemVisible()
   scrollTo(index, QAbstractItemView::EnsureVisible);
 }
 
+
+void ezQtDocumentTreeWidget::SetAllowDragDrop(bool bAllow)
+{
+  m_pModel->SetAllowDragDrop(bAllow);
+}
+
 void ezQtDocumentTreeWidget::keyPressEvent(QKeyEvent* e)
 {
   if (e->key() == Qt::Key::Key_Delete)

@@ -17,6 +17,7 @@ ezScenegraphPanel::ezScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocumen
   m_pDocument = pDocument;
 
   m_pTreeWidget = new ezQtDocumentTreeWidget(this, pDocument, ezGetStaticRTTI<ezGameObject>(), "Children", std::unique_ptr<ezQtDocumentTreeModel>(new ezQtScenegraphModel(pDocument)));
+  m_pTreeWidget->SetAllowDragDrop(true);
   setWidget(m_pTreeWidget);
 
   m_pDocument->m_SceneEvents.AddEventHandler(ezMakeDelegate(&ezScenegraphPanel::DocumentSceneEventHandler, this));

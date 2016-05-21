@@ -18,11 +18,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScenePreferencesUser, 1, ezRTTIDefaultAllocato
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("CameraSpeed", m_iCameraSpeed)->AddAttributes(new ezDefaultValueAttribute(15), new ezClampValueAttribute(1, 30)),
-    EZ_MEMBER_PROPERTY("ViewSingle", m_ViewSingle),
-    EZ_MEMBER_PROPERTY("ViewQuad0", m_ViewQuad0),
-    EZ_MEMBER_PROPERTY("ViewQuad1", m_ViewQuad1),
-    EZ_MEMBER_PROPERTY("ViewQuad2", m_ViewQuad2),
-    EZ_MEMBER_PROPERTY("ViewQuad3", m_ViewQuad3),
+    EZ_MEMBER_PROPERTY("ViewSingle", m_ViewSingle)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("ViewQuad0", m_ViewQuad0)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("ViewQuad1", m_ViewQuad1)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("ViewQuad2", m_ViewQuad2)->AddAttributes(new ezHiddenAttribute()),
+    EZ_MEMBER_PROPERTY("ViewQuad3", m_ViewQuad3)->AddAttributes(new ezHiddenAttribute()),
   }
   EZ_END_PROPERTIES
 }

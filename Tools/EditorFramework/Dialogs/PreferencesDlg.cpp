@@ -60,6 +60,8 @@ PreferencesDlg::PreferencesDlg(QWidget* parent) : QDialog(parent)
   //m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&PreferencesDlg::PropertyChangedEventHandler, this));
 
   Tree->Initialize(m_pDocument, ezPreferences::GetStaticRTTI(), "");
+  Tree->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
+  Tree->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
 
   RegisterAllPreferenceTypes();
   AllPreferencesToObject();

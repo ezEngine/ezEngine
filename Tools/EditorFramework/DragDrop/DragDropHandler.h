@@ -28,6 +28,12 @@ public:
   static void CancelDragDrop();
 
 
+  /// \brief For targets that do not support full dragging, but only dropping on a single target, this allows to query whether there is a handler for the given target. See also DropOnly().
+  static bool CanDropOnly(const ezDragDropInfo* pInfo);
+
+  /// \brief Executes a complete drop action on a target that does not support continuous dragging. See also CanDropOnly().
+  static bool DropOnly(const ezDragDropInfo* pInfo);
+
 public:
   ezDragDropHandler();
 
@@ -55,5 +61,7 @@ protected:
   virtual void OnDrop(const ezDragDropInfo* pInfo) = 0;
 
 private:
+  static ezDragDropHandler* FindDragDropHandler(const ezDragDropInfo* pInfo);
+
   static ezDragDropHandler* s_pActiveDnD;
 };

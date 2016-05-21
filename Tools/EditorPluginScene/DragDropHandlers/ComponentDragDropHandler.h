@@ -12,7 +12,7 @@ class ezComponentDragDropHandler : public ezAssetDragDropHandler
 public:
 
 protected:
-  void CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue);
+  void CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue, ezUuid parent, ezInt32 iInsertChildIndex);
 
   void MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPosition);
 

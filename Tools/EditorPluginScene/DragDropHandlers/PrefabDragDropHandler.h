@@ -13,6 +13,6 @@ protected:
   virtual void OnDragUpdate(const ezDragDropInfo* pInfo) override;
 
 private:
-  void CreatePrefab(const ezVec3& vPosition, const ezUuid& AssetGuid);
+  void CreatePrefab(const ezVec3& vPosition, const ezUuid& AssetGuid, ezUuid parent, ezInt32 iInsertChildIndex);
 };
 

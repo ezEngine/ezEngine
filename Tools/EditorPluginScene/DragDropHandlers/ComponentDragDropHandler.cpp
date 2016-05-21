@@ -12,16 +12,22 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponentDragDropHandler, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-void ezComponentDragDropHandler::CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue)
+void ezComponentDragDropHandler::CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue, ezUuid parent, ezInt32 iInsertChildIndex)
 {
+  ezVec3 vPos = vPosition;
+
+  if (vPos.IsNaN())
+    vPos.SetZero();
+
   ezUuid ObjectGuid, CmpGuid;
   ObjectGuid.CreateNewUuid();
   CmpGuid.CreateNewUuid();
 
   ezAddObjectCommand cmd;
+  cmd.m_Parent = parent;
+  cmd.m_Index = iInsertChildIndex;
   cmd.SetType("ezGameObject");
   cmd.m_NewObjectGuid = ObjectGuid;
-  cmd.m_Index = -1;
   cmd.m_sParentProperty = "Children";
 
   auto history = m_pDocument->GetCommandHistory();
@@ -32,7 +38,7 @@ void ezComponentDragDropHandler::CreateDropObject(const ezVec3& vPosition, const
   cmd2.m_Object = ObjectGuid;
 
   cmd2.SetPropertyPath("LocalPosition");
-  cmd2.m_NewValue = vPosition;
+  cmd2.m_NewValue = vPos;
   history->AddCommand(cmd2);
 
   cmd.SetType(szType);

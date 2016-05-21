@@ -67,7 +67,7 @@ void ezProjectActions::RegisterActions()
   s_hShortcutEditor = EZ_REGISTER_ACTION_1("Editor.Shortcuts", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::Shortcuts);
   s_hEditorPlugins = EZ_REGISTER_ACTION_1("Editor.Plugins", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::EditorPlugins);
   s_hEnginePlugins = EZ_REGISTER_ACTION_1("Engine.Plugins", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::EnginePlugins);
-  s_hPreferencesDlg = EZ_REGISTER_ACTION_1("Editor.PreferencesDlg", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::PreferencesDialog);
+  s_hPreferencesDlg = EZ_REGISTER_ACTION_1("Editor.PreferencesDlg", ezActionScope::Global, "Editor", "Ctrl+P", ezProjectAction, ezProjectAction::ButtonType::PreferencesDialog);
   s_hTagsDlg = EZ_REGISTER_ACTION_1("Engine.TagsDlg", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::TagsDialog);
 
   s_hDataDirectories = EZ_REGISTER_ACTION_1("Project.DataDirectories", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::DataDirectories);

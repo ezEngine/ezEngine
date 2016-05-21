@@ -19,6 +19,8 @@ public:
 
   void EnsureLastSelectedItemVisible();
 
+  void SetAllowDragDrop(bool bAllow);
+
 protected:
   virtual void keyPressEvent(QKeyEvent* e) override;
 

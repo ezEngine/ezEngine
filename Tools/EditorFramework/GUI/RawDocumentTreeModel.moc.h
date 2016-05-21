@@ -23,6 +23,7 @@ public:
   virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
   virtual Qt::DropActions supportedDropActions() const override;
 
+  virtual bool canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const override;
   virtual bool dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) override;
   virtual QStringList mimeTypes() const override;
   virtual QMimeData* mimeData(const QModelIndexList& indexes) const override;
@@ -30,6 +31,8 @@ public:
   virtual bool setData(const QModelIndex& index, const QVariant& value, int role) override;
  
   QModelIndex ComputeModelIndex(const ezDocumentObject* pObject) const;
+
+  void SetAllowDragDrop(bool bAllow);
 
 protected:
   virtual void TreeEventHandler(const ezDocumentObjectStructureEvent& e);
@@ -41,6 +44,7 @@ private:
   void TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 
 protected:
+  bool m_bAllowDragDrop;
   const ezDocumentObjectManager* m_pDocumentTree;
   const ezRTTI* m_pBaseClass;
   ezString m_sChildProperty;
