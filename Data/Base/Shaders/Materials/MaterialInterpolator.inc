@@ -3,6 +3,7 @@
 #include <Shaders/Common/Common.inc>
 
 // defines:
+// USE_WORLDPOS
 // USE_NORMAL
 // USE_TANGENT
 // USE_TEXCOORD0
@@ -30,7 +31,7 @@ struct VS_IN
 	#endif
 	
 	#if defined(USE_COLOR)
-		float4 Color : COLOR
+		float4 Color : COLOR;
 	#endif
 };
 
@@ -43,7 +44,10 @@ struct VS_IN_COLORED
 struct VS_OUT
 {
 	float4 Position : SV_Position;
-	float3 WorldPosition : WORLDPOS;
+	
+	#if defined(USE_WORLDPOS)
+		float3 WorldPosition : WORLDPOS;
+	#endif
 	
 	#if defined(USE_NORMAL)
 		float3 Normal : NORMAL;

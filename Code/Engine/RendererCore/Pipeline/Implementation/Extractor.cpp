@@ -1,6 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/View.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExtractor, 1, ezRTTINoAllocator)
@@ -50,6 +51,27 @@ void ezVisibleObjectsExtractor::Extract(const ezView& view, ezExtractedRenderDat
       continue;
 
     pObject->SendMessage(msg);
+
+    if (false)
+    {
+      if (pObject->GetLocalBounds().IsValid())
+      {
+        ezDebugRenderer::DrawLineBox(view.GetWorld(), pObject->GetLocalBounds().GetBox(), ezColor::LimeGreen, pObject->GetGlobalTransform());
+        ezDebugRenderer::DrawLineBox(view.GetWorld(), pObject->GetGlobalBounds().GetBox(), ezColor::Magenta);
+      }
+
+      ezVec4 screenPos = view.GetViewProjectionMatrix().Transform(pObject->GetGlobalPosition().GetAsVec4(1.0f));
+      if (screenPos.w > 0.0f)
+      {
+        ezVec2 halfScreenSize(view.GetViewport().width * 0.5f, view.GetViewport().height * 0.5f);
+
+        screenPos /= screenPos.w;
+        screenPos.x = screenPos.x * halfScreenSize.x + halfScreenSize.x;
+        screenPos.y = screenPos.y * -halfScreenSize.y + halfScreenSize.y;
+
+        ezDebugRenderer::DrawText(view.GetWorld(), pObject->GetName(), ezVec2I32((ezInt32)screenPos.x, (ezInt32)screenPos.y), ezColor::White);
+      }
+    }
   }
 }
 

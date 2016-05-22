@@ -1,10 +1,10 @@
 #pragma once
 
+#define USE_WORLDPOS
+
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/ObjectConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.inc>
-
-
 
 
 VS_OUT FillVertexData(VS_IN Input)

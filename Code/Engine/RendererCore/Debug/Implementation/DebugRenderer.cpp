@@ -3,10 +3,12 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/Pipeline/Declarations.h>
+#include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Shader/ShaderResource.h>
+#include <RendererCore/Textures/TextureResource.h>
 
 #include <CoreUtils/Geometry/GeomUtils.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
+#include <CoreUtils/Graphics/SimpleASCIIFont.h>
 
 namespace
 {
@@ -28,12 +30,23 @@ namespace
 
   EZ_CHECK_AT_COMPILETIME(sizeof(BoxData) == 64);
 
+  struct GlyphData
+  {
+    ezVec2 m_topLeftCorner;
+    ezColorLinearUB m_color;
+    ezUInt16 m_glyphIndex;
+    ezUInt16 m_sizeInPixel;
+  };
+
+  EZ_CHECK_AT_COMPILETIME(sizeof(GlyphData) == 16);
+
   struct PerWorldData
   {
     ezDynamicArray<Vertex> m_lineVertices;
     ezDynamicArray<Vertex> m_triangleVertices;
     ezDynamicArray<BoxData> m_lineBoxes;
     ezDynamicArray<BoxData> m_solidBoxes;
+    ezDynamicArray<GlyphData> m_glyphs;
   };
 
   static ezDynamicArray<PerWorldData*> s_PerWorldData[2];
@@ -76,6 +89,7 @@ namespace
         pData->m_lineBoxes.Clear();
         pData->m_solidBoxes.Clear();
         pData->m_triangleVertices.Clear();
+        pData->m_glyphs.Clear();
       }
     }
   }
@@ -88,6 +102,7 @@ namespace
       LineBoxes,
       SolidBoxes,
       Triangles,
+      Glyphs,
 
       Count
     };
@@ -98,8 +113,11 @@ namespace
   ezMeshBufferResourceHandle s_hLineBoxMeshBuffer;
   ezMeshBufferResourceHandle s_hSolidBoxMeshBuffer;
   ezVertexDeclarationInfo s_VertexDeclarationInfo;
+  ezTextureResourceHandle s_hDebugFontTexture;
+
   ezShaderResourceHandle s_hDebugGeometryShader;
   ezShaderResourceHandle s_hDebugPrimitiveShader;
+  ezShaderResourceHandle s_hDebugTextShader;
 
   static void CreateDataBuffer(BufferType::Enum bufferType, ezUInt32 uiStructSize, ezUInt32 uiNumData, void* pData)
   {
@@ -163,6 +181,9 @@ void ezDebugRenderer::DrawLines(const ezWorld* pWorld, ezArrayPtr<Line> lines, c
 //static 
 void ezDebugRenderer::DrawLines(ezUInt32 uiWorldIndex, ezArrayPtr<Line> lines, const ezColor& color)
 {
+  if (lines.IsEmpty())
+    return;
+
   EZ_LOCK(s_Mutex);
 
   auto& data = GetDataForExtraction(uiWorldIndex);
@@ -292,6 +313,9 @@ void ezDebugRenderer::DrawSolidTriangles(const ezWorld* pWorld, ezArrayPtr<Trian
 //static
 void ezDebugRenderer::DrawSolidTriangles(ezUInt32 uiWorldIndex, ezArrayPtr<Triangle> triangles, const ezColor& color)
 {
+  if (triangles.IsEmpty())
+    return;
+
   EZ_LOCK(s_Mutex);
 
   auto& data = GetDataForExtraction(uiWorldIndex);
@@ -306,6 +330,36 @@ void ezDebugRenderer::DrawSolidTriangles(ezUInt32 uiWorldIndex, ezArrayPtr<Trian
       vertex.m_position = pPositions[i];
       vertex.m_color = color;
     }
+  }
+}
+
+void ezDebugRenderer::DrawText(const ezWorld* pWorld, const ezStringView& text, const ezVec2I32& topLeftCornerInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/)
+{
+  DrawText(pWorld->GetIndex(), text, topLeftCornerInPixel, color, uiSizeInPixel);
+}
+
+void ezDebugRenderer::DrawText(ezUInt32 uiWorldIndex, const ezStringView& text, const ezVec2I32& topLeftCornerInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/)
+{
+  if (text.IsEmpty())
+    return;
+
+  EZ_LOCK(s_Mutex);
+
+  auto& data = GetDataForExtraction(uiWorldIndex);
+
+  float fSizeInPixel = (float)uiSizeInPixel;
+  ezVec2 currentPos((float)topLeftCornerInPixel.x, (float)topLeftCornerInPixel.y);
+
+  for (ezUInt32 uiCharacter : text)
+  {
+    auto& glyphData = data.m_glyphs.ExpandAndGetRef();
+    glyphData.m_topLeftCorner = currentPos;
+    glyphData.m_color = color;
+    glyphData.m_glyphIndex = uiCharacter < 128 ? uiCharacter : 0;
+    glyphData.m_sizeInPixel = (ezUInt16)uiSizeInPixel;
+
+    // Glyphs only use 10x10 pixels in their 16x16 pixel block, thus we don't advance by full size here.
+    currentPos.x += ezMath::Ceil(fSizeInPixel * (10.0f / 16.0f));
   }
 }
 
@@ -331,6 +385,36 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
+  // SolidBoxes
+  {
+    const ezUInt32 uiNumSolidBoxes = pData->m_solidBoxes.GetCount();
+    if (uiNumSolidBoxes != 0)
+    {
+      DestroyBuffer(BufferType::SolidBoxes);
+      CreateDataBuffer(BufferType::SolidBoxes, sizeof(BoxData), uiNumSolidBoxes, pData->m_solidBoxes.GetData());
+
+      renderViewContext.m_pRenderContext->BindShader(s_hDebugGeometryShader);
+      renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "boxData", pDevice->GetDefaultResourceView(s_hDataBuffer[BufferType::SolidBoxes]));
+      renderViewContext.m_pRenderContext->BindMeshBuffer(s_hSolidBoxMeshBuffer);
+      renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiNumSolidBoxes);
+    }
+  }
+
+  // Triangles
+  {
+    const ezUInt32 uiNumTriangleVertices = pData->m_triangleVertices.GetCount();
+    if (uiNumTriangleVertices != 0)
+    {
+      DestroyBuffer(BufferType::Triangles);
+      CreateVertexBuffer(BufferType::Triangles, sizeof(Vertex), uiNumTriangleVertices, pData->m_triangleVertices.GetData());
+
+      renderViewContext.m_pRenderContext->BindShader(s_hDebugPrimitiveShader);
+      renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Triangles], ezGALBufferHandle(), &s_VertexDeclarationInfo,
+        ezGALPrimitiveTopology::Triangles, uiNumTriangleVertices / 3);
+      renderViewContext.m_pRenderContext->DrawMeshBuffer();
+    }
+  }
+
   // Lines
   {
     const ezUInt32 uiNumLineVertices = pData->m_lineVertices.GetCount();
@@ -354,44 +438,30 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
       DestroyBuffer(BufferType::LineBoxes);
       CreateDataBuffer(BufferType::LineBoxes, sizeof(BoxData), uiNumLineBoxes, pData->m_lineBoxes.GetData());
 
-      pGALContext->SetResourceView(ezGALShaderStage::VertexShader, 0, pDevice->GetDefaultResourceView(s_hDataBuffer[BufferType::LineBoxes]));
-
       renderViewContext.m_pRenderContext->BindShader(s_hDebugGeometryShader);
+      renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "boxData", pDevice->GetDefaultResourceView(s_hDataBuffer[BufferType::LineBoxes]));
       renderViewContext.m_pRenderContext->BindMeshBuffer(s_hLineBoxMeshBuffer);
       renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiNumLineBoxes);
     }
   }
 
-  // SolidBoxes
+  // Text
   {
-    const ezUInt32 uiNumSolidBoxes = pData->m_solidBoxes.GetCount();
-    if (uiNumSolidBoxes != 0)
+    const ezUInt32 uiNumGlyphs = pData->m_glyphs.GetCount();
+    if (uiNumGlyphs != 0)
     {
-      DestroyBuffer(BufferType::SolidBoxes);
-      CreateDataBuffer(BufferType::SolidBoxes, sizeof(BoxData), uiNumSolidBoxes, pData->m_solidBoxes.GetData());
+      DestroyBuffer(BufferType::Glyphs);
+      CreateDataBuffer(BufferType::Glyphs, sizeof(GlyphData), uiNumGlyphs, pData->m_glyphs.GetData());
 
-      pGALContext->SetResourceView(ezGALShaderStage::VertexShader, 0, pDevice->GetDefaultResourceView(s_hDataBuffer[BufferType::SolidBoxes]));
-
-      renderViewContext.m_pRenderContext->BindShader(s_hDebugGeometryShader);
-      renderViewContext.m_pRenderContext->BindMeshBuffer(s_hSolidBoxMeshBuffer);
-      renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiNumSolidBoxes);      
-    }
-  }
-  
-  // Triangles
-  {
-    const ezUInt32 uiNumTriangleVertices = pData->m_triangleVertices.GetCount();
-    if (uiNumTriangleVertices != 0)
-    {
-      DestroyBuffer(BufferType::Triangles);
-      CreateVertexBuffer(BufferType::Triangles, sizeof(Vertex), uiNumTriangleVertices, pData->m_triangleVertices.GetData());
-
-      renderViewContext.m_pRenderContext->BindShader(s_hDebugPrimitiveShader);
-      renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Triangles], ezGALBufferHandle(), &s_VertexDeclarationInfo, 
-        ezGALPrimitiveTopology::Lines, uiNumTriangleVertices / 3);
+      renderViewContext.m_pRenderContext->BindShader(s_hDebugTextShader);
+      renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "glyphData", pDevice->GetDefaultResourceView(s_hDataBuffer[BufferType::Glyphs]));
+      renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "FontTexture", s_hDebugFontTexture);
+      renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr,
+        ezGALPrimitiveTopology::Triangles, uiNumGlyphs * 2);
       renderViewContext.m_pRenderContext->DrawMeshBuffer();
     }
   }
+  
 }
 
 void ezDebugRenderer::OnEngineStartup()
@@ -435,8 +505,27 @@ void ezDebugRenderer::OnEngineStartup()
     si.m_uiElementSize = 4;
   }
 
+  {
+    ezImage debugFontImage;
+    ezGraphicsUtils::CreateSimpleASCIIFontTexture(debugFontImage);
+
+    ezGALSystemMemoryDescription memoryDesc;
+    memoryDesc.m_pData = debugFontImage.GetDataPointer<ezUInt8>();
+    memoryDesc.m_uiRowPitch = debugFontImage.GetRowPitch();
+    memoryDesc.m_uiSlicePitch = debugFontImage.GetDepthPitch();
+
+    ezTextureResourceDescriptor desc;
+    desc.m_DescGAL.m_uiWidth = debugFontImage.GetWidth();
+    desc.m_DescGAL.m_uiHeight = debugFontImage.GetHeight();
+    desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+    desc.m_InitialContent = ezMakeArrayPtr(&memoryDesc, 1);
+
+    s_hDebugFontTexture = ezResourceManager::CreateResource<ezTextureResource>("DebugFontTexture", desc);
+  }
+
   s_hDebugGeometryShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugGeometry.ezShader");
   s_hDebugPrimitiveShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugPrimitive.ezShader");
+  s_hDebugTextShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugText.ezShader");
 
   ezRenderLoop::s_EndFrameEvent.AddEventHandler(&ClearRenderData);
 }
@@ -452,7 +541,9 @@ void ezDebugRenderer::OnEngineShutdown()
 
   s_hLineBoxMeshBuffer.Invalidate();
   s_hSolidBoxMeshBuffer.Invalidate();
+  s_hDebugFontTexture.Invalidate();
 
   s_hDebugGeometryShader.Invalidate();
   s_hDebugPrimitiveShader.Invalidate();
+  s_hDebugTextShader.Invalidate();
 }

@@ -49,10 +49,11 @@ struct ezRenderContextFlags
     None = 0,
     ShaderStateChanged = EZ_BIT(0),
     TextureBindingChanged = EZ_BIT(1),
-    ConstantBufferBindingChanged = EZ_BIT(2),
-    MeshBufferBindingChanged = EZ_BIT(3),
+    BufferBindingChanged = EZ_BIT(2),
+    ConstantBufferBindingChanged = EZ_BIT(3),
+    MeshBufferBindingChanged = EZ_BIT(4),
 
-    ShaderStateValid = EZ_BIT(4),
+    ShaderStateValid = EZ_BIT(5),
 
     AllStatesInvalid = ShaderStateChanged | TextureBindingChanged | ConstantBufferBindingChanged | MeshBufferBindingChanged,
     Default = None
@@ -62,6 +63,7 @@ struct ezRenderContextFlags
   {
     StorageType ShaderStateChanged : 1;
     StorageType TextureBindingChanged : 1;
+    StorageType BufferBindingChanged : 1;
     StorageType ConstantBufferBindingChanged : 1;
     StorageType MeshBufferBindingChanged : 1;
     StorageType ShaderStateValid : 1;
@@ -69,6 +71,26 @@ struct ezRenderContextFlags
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezRenderContextFlags);
+
+struct ezDefaultSamplerFlags
+{
+  typedef ezUInt32 StorageType;
+
+  enum Enum
+  {
+    PointFiltering = 0,
+    LinearFiltering = EZ_BIT(0),
+
+    Wrap = 0,
+    Clamp = EZ_BIT(1)
+  };
+
+  struct Bits
+  {
+    StorageType LinearFiltering : 1;
+    StorageType Clamp : 1;
+  };
+};
 
 
 class EZ_RENDERERCORE_DLL ezRenderContext
@@ -107,6 +129,8 @@ public:
 
   void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture);
   void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView, ezGALSamplerStateHandle hSamplerState);
+
+  void BindBuffer(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
 
   void SetMaterialState(const ezMaterialResourceHandle& hMaterial);
   void BindConstantBuffer(const ezTempHashedString& sSlotName, const ezConstantBufferResourceHandle& hConstantBuffer);
@@ -176,6 +200,9 @@ public:
 
   static const MaterialParam* GetMaterialParameterPointer(ezUInt32 uiNameHash);
 
+
+  static ezGALSamplerStateHandle GetDefaultSamplerState(ezBitflags<ezDefaultSamplerFlags> flags);
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, RendererContext);
 
@@ -212,9 +239,9 @@ private:
     ezGALResourceViewHandle m_hResourceView;
     ezGALSamplerStateHandle m_hSamplerState;
   };
-
-
+  
   ezHashTable<ezUInt32, TextureViewSampler> m_BoundTextures[ezGALShaderStage::ENUM_COUNT];
+  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundBuffer[ezGALShaderStage::ENUM_COUNT];
   ezHashTable<ezUInt32, ezConstantBufferResourceHandle> m_BoundConstantBuffers;
 
   struct ShaderVertexDecl
@@ -249,12 +276,15 @@ private:
   static GlobalConstants s_GlobalConstants;
   static ezConstantBufferResourceHandle s_hGlobalConstantBuffer;
 
+  static ezGALSamplerStateHandle s_hDefaultSamplerStates[4];
+
 private: // Per Renderer States
   ezGALContext* m_pGALContext;
 
   // Member Functions
   void UploadGlobalConstants();
   void ApplyTextureBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
+  void ApplyBufferBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
   void ApplyConstantBufferBindings(const ezShaderStageBinary* pBinary);
 };
 

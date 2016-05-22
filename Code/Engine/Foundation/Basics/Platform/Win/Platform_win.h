@@ -39,6 +39,7 @@
 #undef DispatchMessage
 #undef PostMessage
 #undef SendMessage
+#undef DrawText
 
 #if defined(_MSC_VER)
 

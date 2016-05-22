@@ -10,6 +10,7 @@ ezRenderContext* ezRenderContext::s_DefaultInstance = nullptr;
 ezHybridArray<ezRenderContext*, 4> ezRenderContext::s_Instances;
 
 ezMap<ezRenderContext::ShaderVertexDecl, ezGALVertexDeclarationHandle> ezRenderContext::s_GALVertexDeclarations;
+ezGALSamplerStateHandle ezRenderContext::s_hDefaultSamplerStates[4];
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Graphics, RendererContext)
 
@@ -167,6 +168,25 @@ void ezRenderContext::BindTexture(ezGALShaderStage::Enum stage, const ezTempHash
   }
 
   m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged);
+}
+
+
+void ezRenderContext::BindBuffer(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView)
+{
+  ezGALResourceViewHandle* pOldResourceView = nullptr;
+  if (m_BoundBuffer[stage].TryGetValue(sSlotName.GetHash(), pOldResourceView))
+  {
+    if (*pOldResourceView == hResourceView)
+      return;
+
+    *pOldResourceView = hResourceView;
+  }
+  else
+  {
+    m_BoundBuffer[stage].Insert(sSlotName.GetHash(), hResourceView);
+  }
+
+  m_StateFlags.Add(ezRenderContextFlags::BufferBindingChanged);
 }
 
 void ezRenderContext::SetMaterialState(const ezMaterialResourceHandle& hMaterial)
@@ -376,15 +396,29 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
 
     for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
     {
-      auto pBin = pShaderPermutation->GetShaderStageBinary((ezGALShaderStage::Enum) stage);
-
-      if (pBin == nullptr)
-        continue;
-
-      ApplyTextureBindings((ezGALShaderStage::Enum) stage, pBin);
+      if (auto pBin = pShaderPermutation->GetShaderStageBinary((ezGALShaderStage::Enum) stage))
+      {
+        ApplyTextureBindings((ezGALShaderStage::Enum) stage, pBin);
+      }
     }
 
     m_StateFlags.Remove(ezRenderContextFlags::TextureBindingChanged);
+  }
+
+  if ((bForce || m_StateFlags.IsSet(ezRenderContextFlags::BufferBindingChanged)) && m_hActiveShaderPermutation.IsValid())
+  {
+    if (pShaderPermutation == nullptr)
+      pShaderPermutation = ezResourceManager::BeginAcquireResource(m_hActiveShaderPermutation, ezResourceAcquireMode::AllowFallback);
+
+    for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+    {
+      if (auto pBin = pShaderPermutation->GetShaderStageBinary((ezGALShaderStage::Enum) stage))
+      {
+        ApplyBufferBindings((ezGALShaderStage::Enum) stage, pBin);
+      }
+    }
+
+    m_StateFlags.Remove(ezRenderContextFlags::BufferBindingChanged);
   }
 
   UploadGlobalConstants();
@@ -473,6 +507,15 @@ void ezRenderContext::OnEngineShutdown()
   s_Instances.Clear();
   s_hGlobalConstantBuffer.Invalidate();
 
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_hDefaultSamplerStates); ++i)
+  {
+    if (!s_hDefaultSamplerStates[i].IsInvalidated())
+    {
+      ezGALDevice::GetDefaultDevice()->DestroySamplerState(s_hDefaultSamplerStates[i]);
+      s_hDefaultSamplerStates[i].Invalidate();
+    }
+  }
+
   for (auto it = s_GALVertexDeclarations.GetIterator(); it.IsValid(); ++it)
   {
     ezGALDevice::GetDefaultDevice()->DestroyVertexDeclaration(it.Value());
@@ -491,6 +534,29 @@ void ezRenderContext::OnCoreShutdown()
 
   for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
     ezShaderStageBinary::s_ShaderStageBinaries[i].Clear();
+}
+
+//static
+ezGALSamplerStateHandle ezRenderContext::GetDefaultSamplerState(ezBitflags<ezDefaultSamplerFlags> flags)
+{
+  ezUInt32 uiSamplerStateIndex = flags.GetValue();
+  EZ_ASSERT_DEV(uiSamplerStateIndex < EZ_ARRAY_SIZE(s_hDefaultSamplerStates), "");
+
+  if (s_hDefaultSamplerStates[uiSamplerStateIndex].IsInvalidated())
+  {
+    ezGALSamplerStateCreationDescription desc;
+    desc.m_MinFilter = flags.IsSet(ezDefaultSamplerFlags::LinearFiltering) ? ezGALTextureFilterMode::Linear : ezGALTextureFilterMode::Point;
+    desc.m_MagFilter = flags.IsSet(ezDefaultSamplerFlags::LinearFiltering) ? ezGALTextureFilterMode::Linear : ezGALTextureFilterMode::Point;
+    desc.m_MipFilter = flags.IsSet(ezDefaultSamplerFlags::LinearFiltering) ? ezGALTextureFilterMode::Linear : ezGALTextureFilterMode::Point;
+
+    desc.m_AddressU = flags.IsSet(ezDefaultSamplerFlags::Clamp) ? ezGALTextureAddressMode::Clamp : ezGALTextureAddressMode::Wrap;
+    desc.m_AddressV = flags.IsSet(ezDefaultSamplerFlags::Clamp) ? ezGALTextureAddressMode::Clamp : ezGALTextureAddressMode::Wrap;
+    desc.m_AddressW = flags.IsSet(ezDefaultSamplerFlags::Clamp) ? ezGALTextureAddressMode::Clamp : ezGALTextureAddressMode::Wrap;
+
+    s_hDefaultSamplerStates[uiSamplerStateIndex] = ezGALDevice::GetDefaultDevice()->CreateSamplerState(desc);
+  }
+
+  return s_hDefaultSamplerStates[uiSamplerStateIndex];
 }
 
 
@@ -580,5 +646,25 @@ void ezRenderContext::ApplyTextureBindings(ezGALShaderStage::Enum stage, const e
 
     m_pGALContext->SetResourceView(stage, resourceBinding.m_iSlot, textureTuple->m_hResourceView);
     m_pGALContext->SetSamplerState(stage, resourceBinding.m_iSlot, textureTuple->m_hSamplerState);
+  }
+}
+
+void ezRenderContext::ApplyBufferBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary)
+{
+  for (const auto& resourceBinding : pBinary->m_ShaderResourceBindings)
+  {
+    if (resourceBinding.m_Type != ezShaderStageResource::GenericBuffer)
+      continue;
+
+    const ezUInt32 uiResourceHash = resourceBinding.m_Name.GetHash();
+
+    ezGALResourceViewHandle hResourceView;
+    if (!m_BoundBuffer[stage].TryGetValue(uiResourceHash, hResourceView))
+    {
+      ezLog::Error("No resource is bound for shader slot '%s'", resourceBinding.m_Name.GetData());
+      continue;
+    }
+
+    m_pGALContext->SetResourceView(stage, resourceBinding.m_iSlot, hResourceView);
   }
 }

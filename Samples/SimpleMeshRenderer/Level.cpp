@@ -28,6 +28,7 @@ void SimpleMeshRendererGameState::CreateGameLevel()
 
   // World Mesh
   {
+    obj.m_sName.Assign("Sponza");
     m_pMainWorld->CreateObject(obj, pObj);
     
     pMeshCompMan->CreateComponent(pMesh);
@@ -37,6 +38,7 @@ void SimpleMeshRendererGameState::CreateGameLevel()
 
   // Tree Mesh
   {
+    obj.m_sName.Assign("Rotating Tree");
     obj.m_LocalScaling.Set(0.5f);
     obj.m_LocalPosition.y = -5;
     m_pMainWorld->CreateObject(obj, pObj);
@@ -54,6 +56,7 @@ void SimpleMeshRendererGameState::CreateGameLevel()
 
   // Tree Mesh
   {
+    obj.m_sName.Assign("Tree");
     obj.m_LocalScaling.Set(0.7f);
     obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(75));
     obj.m_LocalPosition.y = 5;

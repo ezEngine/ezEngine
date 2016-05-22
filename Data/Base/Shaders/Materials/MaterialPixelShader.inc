@@ -1,5 +1,7 @@
 #pragma once
 
+#define USE_WORLDPOS
+
 #include <Shaders/Materials/Lighting.inc>
 #include <Shaders/Materials/MaterialInterpolator.inc>
 
