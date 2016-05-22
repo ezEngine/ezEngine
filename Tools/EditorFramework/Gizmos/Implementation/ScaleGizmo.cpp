@@ -168,13 +168,12 @@ ezEditorInut ezScaleGizmo::mouseMoveEvent(QMouseEvent* e)
 
   QCursor::setPos(QPoint(m_MousePos.x, m_MousePos.y));
 
-  m_vScaleMouseMove += ezSnapProvider::GetScaleSnapped(m_vMoveAxis * vDiff.x);
-  m_vScaleMouseMove -= ezSnapProvider::GetScaleSnapped(m_vMoveAxis * vDiff.y);
+  m_vScaleMouseMove += m_vMoveAxis * vDiff.x;
+  m_vScaleMouseMove -= m_vMoveAxis * vDiff.y;
 
   m_vScalingResult.Set(1.0f);
 
   const float fScaleSpeed = 0.01f;
-
 
   if (m_vScaleMouseMove.x > 0.0f)
     m_vScalingResult.x = 1.0f + m_vScaleMouseMove.x * fScaleSpeed;
@@ -190,6 +189,8 @@ ezEditorInut ezScaleGizmo::mouseMoveEvent(QMouseEvent* e)
     m_vScalingResult.z = 1.0f + m_vScaleMouseMove.z * fScaleSpeed;
   if (m_vScaleMouseMove.z < 0.0f)
     m_vScalingResult.z = 1.0f / (1.0f - m_vScaleMouseMove.z * fScaleSpeed);
+
+  ezSnapProvider::SnapScale(m_vScalingResult);
 
   ezGizmoEvent ev;
   ev.m_pGizmo = this;

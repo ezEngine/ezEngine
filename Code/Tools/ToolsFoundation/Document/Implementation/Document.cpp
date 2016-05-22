@@ -125,6 +125,9 @@ void ezDocument::BroadcastSaveDocumentMetaState()
 
 ezStatus ezDocument::SaveDocument()
 {
+  if (!IsModified())
+    return ezStatus(EZ_SUCCESS);
+
   ezStatus ret = InternalSaveDocument();
 
   if (ret.m_Result.Succeeded())

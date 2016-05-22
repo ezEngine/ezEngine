@@ -47,7 +47,7 @@
     "AssetType" : "Prefab",
     "Dependencies" : "",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xE91DAC94BE5C8145A57C7CAF78AB7294" },
-    "Hash" : { "$t" : "uint64", "$v" : "7044546749648281382", "$b" : "0x261F6BF8F141C361" }
+    "Hash" : { "$t" : "uint64", "$v" : "16397671397010542992", "$b" : "0x909165CA413B90E3" }
    }
   },
   {
@@ -72,7 +72,7 @@
    "t" : "ezMeshComponent",
    "p" : {
     "Active" : true,
-    "Materials" : [  ],
+    "Materials" : [ "{ 5aca09be-6ccf-4dda-9281-2ffd1b411a96 }" ],
     "Mesh" : "{ 7771b49b-cbbc-4db7-8721-307042a07748 }"
    }
   } ],

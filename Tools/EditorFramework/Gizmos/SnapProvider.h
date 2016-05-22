@@ -35,6 +35,7 @@ public:
 
   static void SnapRotation(ezAngle& rotation);
 
+  static void SnapScale(float& scale);
   static void SnapScale(ezVec3& scale);
 
   static ezVec3 GetScaleSnapped(const ezVec3& scale);

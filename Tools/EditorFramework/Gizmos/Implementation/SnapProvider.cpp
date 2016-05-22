@@ -95,12 +95,21 @@ void ezSnapProvider::SnapRotation(ezAngle& rotation)
   }
 }
 
+void ezSnapProvider::SnapScale(float& scale)
+{
+  if (s_fScaleSnapValue > 0.0f)
+  {
+    scale = ezMath::Round(scale, s_fScaleSnapValue);
+  }
+}
+
 void ezSnapProvider::SnapScale(ezVec3& scale)
 {
   if (s_fScaleSnapValue > 0.0f)
   {
-    /// \todo Better scale snap
-    scale *= s_fScaleSnapValue;
+    SnapScale(scale.x);
+    SnapScale(scale.y);
+    SnapScale(scale.z);
   }
 }
 

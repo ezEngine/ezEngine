@@ -39,10 +39,13 @@ private:
   bool IsViewInOthoMode() const;
 
   QPoint m_LastMousePos;
+  ezVec3 m_vUnsnappedTranslationResult;
   ezVec3 m_vTranslationResult;
+  ezAngle m_UnsnappedRotationResult;
   ezQuat m_qRotationResult;
   float m_fScaleMouseMove;
   float m_fScalingResult;
+  float m_fUnsnappedScalingResult;
   bool m_bCanInteract;
   const ezCamera* m_pCamera;
   ezVec2I32 m_Viewport;

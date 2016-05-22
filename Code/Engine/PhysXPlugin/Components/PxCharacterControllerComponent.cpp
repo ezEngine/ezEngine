@@ -111,8 +111,6 @@ void ezPxCharacterControllerComponent::Update()
   const float tDiff = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
   ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
 
-  
-
   PxControllerState state;
   m_pController->getState(state);
   const bool isOnGround = (state.collisionFlags & PxControllerCollisionFlag::eCOLLISION_DOWN) != 0;

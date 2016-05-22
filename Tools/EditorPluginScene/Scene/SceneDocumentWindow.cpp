@@ -277,6 +277,10 @@ void ezQtSceneDocumentWindow::DocumentEventHandler(const ezSceneDocumentEvent& e
 
 ezStatus ezQtSceneDocumentWindow::RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header)
 {
+  auto res = GetDocument()->SaveDocument();
+  if (res.m_Result.Failed())
+    return res;
+
   ezExportSceneMsgToEngine msg;
   msg.m_sOutputFile = szTargetFile;
   msg.m_uiAssetHash = header.GetFileHash();

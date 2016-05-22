@@ -10,6 +10,7 @@
 #include <QKeyEvent>
 #include <EditorFramework/EngineProcess/ViewRenderSettings.h>
 #include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOrthoGizmoContext, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -82,26 +83,33 @@ ezEditorInut ezOrthoGizmoContext::mouseMoveEvent(QMouseEvent* e)
       fDistPerPixel = m_pCamera->GetFovOrDim() / (float)GetOwnerView()->size().width();
 
     const QPointF diff = e->globalPos() - m_LastMousePos;
-    ezQuat qRot;
-    qRot.SetIdentity();
 
-    m_vTranslationResult += m_pCamera->GetDirRight() * (float) diff.x() * fDistPerPixel;
-    m_vTranslationResult -= m_pCamera->GetDirUp() * (float)diff.y() * fDistPerPixel;
-    qRot.SetFromAxisAndAngle(m_pCamera->GetDirForwards(), ezAngle::Degree(-diff.x()));
+    m_vUnsnappedTranslationResult += m_pCamera->GetDirRight() * (float) diff.x() * fDistPerPixel;
+    m_vUnsnappedTranslationResult -= m_pCamera->GetDirUp() * (float)diff.y() * fDistPerPixel;
+    m_vTranslationResult = m_vUnsnappedTranslationResult;
+    ezSnapProvider::SnapTranslation(m_vTranslationResult);
 
-    m_qRotationResult = qRot * m_qRotationResult;
+    m_UnsnappedRotationResult += ezAngle::Degree(-diff.x());
+
+    ezAngle snappedRotation = m_UnsnappedRotationResult;
+    ezSnapProvider::SnapRotation(snappedRotation);
+
+    m_qRotationResult.SetFromAxisAndAngle(m_pCamera->GetDirForwards(), snappedRotation);
 
     {
-      float fFactor = 1.0f; // m_fSnappingValue != 0.0f ? m_fSnappingValue : 1.0f;
+      float fFactor = 1.0f;
       m_fScaleMouseMove += diff.x() * fFactor;
-      m_fScalingResult = 1.0f;
+      m_fUnsnappedScalingResult = 1.0f;
 
       const float fScaleSpeed = 0.01f;
 
       if (m_fScaleMouseMove > 0.0f)
-        m_fScalingResult = 1.0f + m_fScaleMouseMove * fScaleSpeed;
+        m_fUnsnappedScalingResult = 1.0f + m_fScaleMouseMove * fScaleSpeed;
       if (m_fScaleMouseMove < 0.0f)
-        m_fScalingResult = 1.0f / (1.0f - m_fScaleMouseMove * fScaleSpeed);
+        m_fUnsnappedScalingResult = 1.0f / (1.0f - m_fScaleMouseMove * fScaleSpeed);
+
+      m_fScalingResult = m_fUnsnappedScalingResult;
+      ezSnapProvider::SnapScale(m_fScalingResult);
     }
 
     m_LastMousePos = e->globalPos();
@@ -119,8 +127,11 @@ ezEditorInut ezOrthoGizmoContext::mouseMoveEvent(QMouseEvent* e)
   {
     m_LastMousePos = e->globalPos();
     m_vTranslationResult.SetZero();
+    m_vUnsnappedTranslationResult.SetZero();
     m_qRotationResult.SetIdentity();
+    m_UnsnappedRotationResult = ezAngle::Radian(0.0f);
     m_fScalingResult = 1.0f;
+    m_fUnsnappedScalingResult = 1.0f;
     m_fScaleMouseMove = 0.0f;
 
     m_bCanInteract = false;
