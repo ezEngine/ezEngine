@@ -1,6 +1,7 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Serialization/RttiConverter.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Logging/Log.h>
 
 ezRttiConverterReader::ezRttiConverterReader(const ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext)
 {
@@ -11,7 +12,11 @@ ezRttiConverterReader::ezRttiConverterReader(const ezAbstractObjectGraph* pGraph
 void* ezRttiConverterReader::CreateObjectFromNode(const ezAbstractObjectNode* pNode)
 {
   const ezRTTI* pRtti = ezRTTI::FindTypeByName(pNode->GetType());
-  EZ_ASSERT_DEV(pRtti != nullptr, "RTTI type '%s' is unknown", pNode->GetType());
+  if (pRtti == nullptr)
+  {
+    ezLog::Error("RTTI type '%s' is unknown, CreateObjectFromNode failed.", pNode->GetType());
+    return nullptr;
+  }
 
   void* pObject = m_pContext->CreateObject(pNode->GetGuid(), pRtti);
   if (pObject)
@@ -63,6 +68,11 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
           auto* pNode = m_pGraph->GetNode(guid);
           EZ_ASSERT_DEV(pNode != nullptr, "node must exist");
           pRefrencedObject = CreateObjectFromNode(pNode);
+          if (pRefrencedObject == nullptr)
+          {
+            ezLog::Error("Failed to set property '%s', type could not be created!", pProp->GetPropertyName());
+            return;
+          }
         }
         else
         {
@@ -121,6 +131,11 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
           auto* pNode = m_pGraph->GetNode(guid);
           EZ_ASSERT_DEV(pNode != nullptr, "node must exist");
           pRefrencedObject = CreateObjectFromNode(pNode);
+          if (pRefrencedObject == nullptr)
+          {
+            ezLog::Error("Failed to set array property '%s' element, type could not be created!", pProp->GetPropertyName());
+            continue;
+          }
         }
         else
         {
@@ -173,6 +188,11 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
           auto* pNode = m_pGraph->GetNode(guid);
           EZ_ASSERT_DEV(pNode != nullptr, "node must exist");
           pRefrencedObject = CreateObjectFromNode(pNode);
+          if (pRefrencedObject == nullptr)
+          {
+            ezLog::Error("Failed to insert set element in to property '%s', type could not be created!", pProp->GetPropertyName());
+            continue;
+          }
         }
         else
         {
