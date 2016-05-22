@@ -4,6 +4,7 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Utilities/ConversionUtils.h>
+#include <Foundation/Algorithm/Hashing.h>
 
 class ezReflectedClass;
 

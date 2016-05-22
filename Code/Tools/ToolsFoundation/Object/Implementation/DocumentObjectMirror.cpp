@@ -5,10 +5,6 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Logging/Log.h>
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezObjectChangeType, 1)
-EZ_ENUM_CONSTANTS(ezObjectChangeType::ObjectAdded, ezObjectChangeType::ObjectRemoved)
-EZ_ENUM_CONSTANTS(ezObjectChangeType::PropertySet, ezObjectChangeType::PropertyInserted, ezObjectChangeType::PropertyRemoved)
-EZ_END_STATIC_REFLECTED_ENUM();
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezObjectChangeStep, ezNoBase, 1, ezRTTIDefaultAllocator<ezObjectChangeStep>)
 {
@@ -26,10 +22,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezObjectChange, ezNoBase, 1, ezRTTIDefaultAllocat
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("Type", ezObjectChangeType, m_Type),
+    EZ_MEMBER_PROPERTY("Change", m_Change),
     EZ_MEMBER_PROPERTY("Root", m_Root),
     EZ_ARRAY_MEMBER_PROPERTY("Steps", m_Steps),
-    EZ_MEMBER_PROPERTY("Change", m_Change),
     EZ_MEMBER_PROPERTY("Graph", m_GraphData),
   }
   EZ_END_PROPERTIES
@@ -60,21 +55,19 @@ void ezObjectChange::SetGraph(ezAbstractObjectGraph& graph)
   m_GraphData = ezArrayPtr<const ezUInt8>(storage.GetData(), storage.GetStorageSize());
 }
 
-ezObjectChange::ezObjectChange( ezObjectChange && rhs )
+ezObjectChange::ezObjectChange( ezObjectChange&& rhs )
 {
-	m_Type = rhs.m_Type;
+	m_Change = std::move( rhs.m_Change );
 	m_Root = rhs.m_Root;
 	m_Steps = std::move( rhs.m_Steps );
-	m_Change = std::move( rhs.m_Change );
   m_GraphData = std::move( rhs.m_GraphData);
 }
 
 void ezObjectChange::operator=(ezObjectChange&& rhs)
 {
-  m_Type = rhs.m_Type;
+  m_Change = std::move(rhs.m_Change);
   m_Root = rhs.m_Root;
   m_Steps = std::move(rhs.m_Steps);
-  m_Change = std::move(rhs.m_Change);
   m_GraphData = std::move(rhs.m_GraphData);
 }
 
@@ -128,7 +121,7 @@ void ezDocumentObjectMirror::SendDocument()
   for (auto* pChild : pRoot->GetChildren())
   {
     ezObjectChange change;
-    change.m_Type = ezObjectChangeType::ObjectAdded;
+    change.m_Change.m_Operation = ezObjectChangeType::NodeAdded;
     change.m_Change.m_Value = pChild->GetGuid();
 
     ezAbstractObjectGraph graph;
@@ -148,7 +141,7 @@ void ezDocumentObjectMirror::Clear()
     for (auto* pChild : pRoot->GetChildren())
     {
       ezObjectChange change;
-      change.m_Type = ezObjectChangeType::ObjectRemoved;
+      change.m_Change.m_Operation = ezObjectChangeType::NodeRemoved;
       change.m_Change.m_Value = pChild->GetGuid();
 
       /*ezAbstractObjectGraph graph;
@@ -179,7 +172,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
         ezPropertyPath propPath = e.m_sParentProperty.GetData();
         CreatePath(change, e.m_pNewParent, propPath);
 
-        change.m_Type = ezObjectChangeType::PropertyInserted;
+        change.m_Change.m_Operation = ezObjectChangeType::PropertyInserted;
         change.m_Change.m_Index = e.m_PropertyIndex;
         change.m_Change.m_Value = e.m_pObject->GetGuid();
 
@@ -195,7 +188,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
       ezPropertyPath propPath = e.m_sParentProperty.GetData();
       CreatePath(change, e.m_pNewParent, propPath);
 
-      change.m_Type = ezObjectChangeType::ObjectAdded;
+      change.m_Change.m_Operation = ezObjectChangeType::NodeAdded;
       change.m_Change.m_Index = e.m_PropertyIndex;
       change.m_Change.m_Value = e.m_pObject->GetGuid();
 
@@ -222,7 +215,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
         ezPropertyPath propPath = e.m_sParentProperty.GetData();
         CreatePath(change, e.m_pPreviousParent, propPath);
 
-        change.m_Type = ezObjectChangeType::PropertyRemoved;
+        change.m_Change.m_Operation = ezObjectChangeType::PropertyRemoved;
         change.m_Change.m_Index = e.m_pObject->GetPropertyIndex();
         change.m_Change.m_Value = e.m_pObject->GetGuid();
 
@@ -238,7 +231,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
       ezPropertyPath propPath = e.m_sParentProperty.GetData();
       CreatePath(change, e.m_pPreviousParent, propPath);
 
-      change.m_Type = ezObjectChangeType::ObjectRemoved;
+      change.m_Change.m_Operation = ezObjectChangeType::NodeRemoved;
       change.m_Change.m_Index = e.m_PropertyIndex;
       change.m_Change.m_Value = e.m_pObject->GetGuid();
 
@@ -259,7 +252,7 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
       ezObjectChange change;
       CreatePath(change, e.m_pObject, propPath);
 
-      change.m_Type = ezObjectChangeType::PropertySet;
+      change.m_Change.m_Operation = ezObjectChangeType::PropertySet;
       change.m_Change.m_Index = e.m_NewIndex;
       change.m_Change.m_Value = e.m_NewValue;
       ApplyOp(change);
@@ -270,7 +263,7 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
       ezObjectChange change;
       CreatePath(change, e.m_pObject, propPath);
 
-      change.m_Type = ezObjectChangeType::PropertyInserted;
+      change.m_Change.m_Operation = ezObjectChangeType::PropertyInserted;
       change.m_Change.m_Index = e.m_NewIndex;
       change.m_Change.m_Value = e.m_NewValue;
       ApplyOp(change);
@@ -281,7 +274,7 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
       ezObjectChange change;
       CreatePath(change, e.m_pObject, propPath);
 
-      change.m_Type = ezObjectChangeType::PropertyRemoved;
+      change.m_Change.m_Operation = ezObjectChangeType::PropertyRemoved;
       change.m_Change.m_Index = e.m_OldIndex;
       change.m_Change.m_Value = e.m_OldValue;
       ApplyOp(change);
@@ -296,7 +289,7 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
         ezObjectChange change;
         CreatePath(change, e.m_pObject, propPath);
 
-        change.m_Type = ezObjectChangeType::PropertyRemoved;
+        change.m_Change.m_Operation = ezObjectChangeType::PropertyRemoved;
         change.m_Change.m_Index = uiOldIndex;
         change.m_Change.m_Value = e.m_NewValue;
         EZ_ASSERT_DEBUG(e.m_NewValue.IsValid(), "Value must be valid");
@@ -312,7 +305,7 @@ void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectProp
         ezObjectChange change;
         CreatePath(change, e.m_pObject, propPath);
 
-        change.m_Type = ezObjectChangeType::PropertyInserted;
+        change.m_Change.m_Operation = ezObjectChangeType::PropertyInserted;
         change.m_Change.m_Index = uiNewIndex;
         ApplyOp(change);
       }
@@ -385,7 +378,7 @@ ezUuid ezDocumentObjectMirror::FindRootOpObject(const ezDocumentObject* pParent,
   }
 }
 
-void ezDocumentObjectMirror::FlattenSteps(const ezArrayPtr<const ezDocumentObject* const> path, ezHybridArray<ezObjectChangeStep, 4>& out_steps)
+void ezDocumentObjectMirror::FlattenSteps(const ezArrayPtr<const ezDocumentObject* const> path, ezHybridArray<ezObjectChangeStep, 2>& out_steps)
 {
   ezUInt32 uiCount = path.GetCount();
   EZ_ASSERT_DEV(uiCount > 0, "Path must not be empty!");
@@ -402,7 +395,7 @@ void ezDocumentObjectMirror::FlattenSteps(const ezArrayPtr<const ezDocumentObjec
   }
 }
 
-void ezDocumentObjectMirror::AddPathToSteps(const char* szPropertyPath, const ezVariant& index, ezHybridArray<ezObjectChangeStep, 4>& out_steps, bool bAddLastProperty)
+void ezDocumentObjectMirror::AddPathToSteps(const char* szPropertyPath, const ezVariant& index, ezHybridArray<ezObjectChangeStep, 2>& out_steps, bool bAddLastProperty)
 {
   ezPropertyPath propPath = szPropertyPath;
   for (ezUInt32 j = 0; j < propPath.GetCount() - 1; ++j)
@@ -441,9 +434,9 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
     }
   }
 
-  switch (change.m_Type)
+  switch (change.m_Change.m_Operation)
   {
-  case ezObjectChangeType::ObjectAdded:
+  case ezObjectChangeType::NodeAdded:
     {
       ezAbstractObjectGraph graph;
       change.GetGraph(graph);
@@ -500,7 +493,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
       }
     }
     break;
-  case ezObjectChangeType::ObjectRemoved:
+  case ezObjectChangeType::NodeRemoved:
     {
       if (!change.m_Root.IsValid())
       {

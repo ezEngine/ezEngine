@@ -430,3 +430,17 @@ T ezVariant::ConvertNumber() const
   return T(0);
 }
 
+template <>
+struct ezHashHelper<ezVariant>
+{
+  EZ_FORCE_INLINE static ezUInt32 Hash(const ezVariant& value)
+  {
+    ezUInt64 uiHash = value.ComputeHash(0);
+    return (ezUInt32)uiHash;
+  }
+
+  EZ_FORCE_INLINE static bool Equal(const ezVariant& a, const ezVariant& b)
+  {
+    return a == b;
+  }
+};

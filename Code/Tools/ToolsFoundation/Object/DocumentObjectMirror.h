@@ -5,22 +5,6 @@
 #include <Foundation/Serialization/RttiConverter.h>
 #include <Foundation/Containers/HybridArray.h>
 
-struct EZ_TOOLSFOUNDATION_DLL ezObjectChangeType
-{
-  typedef ezInt8 StorageType;
-
-  enum Enum
-  {
-    ObjectAdded,
-    ObjectRemoved,
-    PropertySet,
-    PropertyInserted,
-    PropertyRemoved,
-
-    Default = ObjectAdded
-  };
-};
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezObjectChangeType);
 
 
 struct EZ_TOOLSFOUNDATION_DLL ezObjectChangeStep
@@ -37,7 +21,10 @@ struct EZ_TOOLSFOUNDATION_DLL ezObjectChangeStep
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezObjectChangeStep);
 
-
+/// \brief An object change starts at the heap object m_Root (because we can only safely store pointers to those).
+///  From this object we follow m_Steps (member arrays, structs) to execute m_Change at the end target.
+///
+/// In case of an NodeAdded operation, m_GraphData contains the entire subgraph of this node.
 class EZ_TOOLSFOUNDATION_DLL ezObjectChange
 {
 public:
@@ -49,11 +36,11 @@ public:
   void GetGraph(ezAbstractObjectGraph& graph) const;
   void SetGraph(ezAbstractObjectGraph& graph);
 
-  ezEnum<ezObjectChangeType> m_Type;
-  ezUuid m_Root; //< The object that is the parent of the op.
-  ezHybridArray<ezObjectChangeStep, 4> m_Steps;
-  ezObjectChangeStep m_Change;
-  ezDataBuffer m_GraphData;
+  ezDiffOperation m_Change; //< Change at the target.
+
+  ezUuid m_Root; //< The object that is the parent of the op, namely the parent heap object we can store a pointer to.
+  ezHybridArray<ezObjectChangeStep, 2> m_Steps; //< Path from root to target of change plus splitting of ezPropertyPath into separate steps.
+  ezDataBuffer m_GraphData; //< In case of ObjectAdded, this holds the binary serialized object graph.
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezObjectChange);
 
@@ -82,8 +69,8 @@ protected:
   bool IsHeapAllocated(const ezDocumentObject* pParent, const char* szParentProperty);
   static void CreatePath(ezObjectChange& out_change, const ezDocumentObject* pRoot, const ezPropertyPath& propertyPath);
   static ezUuid FindRootOpObject(const ezDocumentObject* pObject, ezHybridArray<const ezDocumentObject*, 8>& path);
-  static void FlattenSteps(const ezArrayPtr<const ezDocumentObject* const> path, ezHybridArray<ezObjectChangeStep, 4>& out_steps);
-  static void AddPathToSteps(const char* szPropertyPath, const ezVariant& index, ezHybridArray<ezObjectChangeStep, 4>& out_steps, bool bAddLastProperty = true);
+  static void FlattenSteps(const ezArrayPtr<const ezDocumentObject* const> path, ezHybridArray<ezObjectChangeStep, 2>& out_steps);
+  static void AddPathToSteps(const char* szPropertyPath, const ezVariant& index, ezHybridArray<ezObjectChangeStep, 2>& out_steps, bool bAddLastProperty = true);
 
   virtual void ApplyOp(ezObjectChange& change);
   void ApplyOp(ezRttiConverterObject object, const ezObjectChange& change);

@@ -1,5 +1,7 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Utilities/ConversionUtils.h>
+#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Types/Variant.h>
 
 namespace ezConversionUtils
 {
@@ -586,6 +588,21 @@ namespace ezConversionUtils
               value.Element(0, 1), value.Element(1, 1), value.Element(2, 1), value.Element(3, 1),
               value.Element(0, 2), value.Element(1, 2), value.Element(2, 2), value.Element(3, 2),
               value.Element(0, 3), value.Element(1, 3), value.Element(2, 3), value.Element(3, 3));
+    return sb;
+  }
+
+
+  ezString ToString(const ezDynamicArray<ezVariant>& value)
+  {
+    ezStringBuilder sb;
+    sb.Append("[");
+    for (const ezVariant& var : value)
+    {
+      sb.Append(var.ConvertTo<ezString>(), ", ");
+    }
+    if (!value.IsEmpty())
+      sb.Shrink(0, 2);
+    sb.Append("]");
     return sb;
   }
 

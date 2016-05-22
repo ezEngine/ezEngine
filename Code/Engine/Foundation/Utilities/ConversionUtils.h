@@ -9,6 +9,11 @@
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/Uuid.h>
 
+// Needed to prevent circular includes
+template <typename T, typename AllocatorWrapper>
+class ezDynamicArray;
+class ezVariant;
+
 /// \brief This namespace contains functions to convert between different types.
 ///
 /// Contains helper functions to convert from strings to numerical values.
@@ -199,6 +204,9 @@ namespace ezConversionUtils
   
   /// \brief Converts a Uuid to a string
   EZ_FOUNDATION_DLL ezString ToString(const ezUuid& value);
+
+  /// \brief Converts a ezVariantArray to a string
+  EZ_FOUNDATION_DLL ezString ToString(const ezDynamicArray<ezVariant, ezDefaultAllocatorWrapper>& value);
 
   /// \brief Fallback ToString implementation for all types that don't have one
   template <typename T>

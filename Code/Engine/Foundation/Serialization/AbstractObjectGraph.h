@@ -8,6 +8,8 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/Set.h>
+#include <Foundation/Types/Enum.h>
+#include <Foundation/Reflection/Reflection.h>
 
 class ezAbstractObjectGraph;
 
@@ -48,21 +50,49 @@ private:
   ezHybridArray<Property, 16> m_Properties;
 };
 
-class EZ_FOUNDATION_DLL ezAbstractGraphDiffOperation
+struct EZ_FOUNDATION_DLL ezAbstractGraphDiffOperation
 {
-public:
   enum class Op
   {
-    NodeAdd,
-    NodeDelete,
-    PropertySet,
+    NodeAdded,
+    NodeRemoved,
+    PropertyChanged
   };
 
   Op m_Operation;
-  ezUuid m_Node;
-  ezString m_sProperty;
+  ezUuid m_Node; // prop parent or added / deleted node
+  ezString m_sProperty; // prop name or type
   ezVariant m_Value;
 };
+
+struct EZ_FOUNDATION_DLL ezObjectChangeType
+{
+  typedef ezInt8 StorageType;
+
+  enum Enum
+  {
+    NodeAdded,
+    NodeRemoved,
+    PropertySet,
+    PropertyInserted,
+    PropertyRemoved,
+
+    Default = NodeAdded
+  };
+};
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezObjectChangeType);
+
+
+struct EZ_FOUNDATION_DLL ezDiffOperation
+{
+  ezEnum<ezObjectChangeType> m_Operation;
+  ezUuid m_Node; // owner of m_sProperty
+  ezString m_sProperty; // property
+  ezVariant m_Index;
+  ezVariant m_Value;
+};
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezDiffOperation);
+
 
 class EZ_FOUNDATION_DLL ezAbstractObjectGraph
 {
@@ -95,10 +125,11 @@ public:
 
   void ApplyDiff(ezDeque<ezAbstractGraphDiffOperation>& Diff);
 
+  void MergeDiffs(const ezDeque<ezAbstractGraphDiffOperation>& lhs, const ezDeque<ezAbstractGraphDiffOperation>& rhs, ezDeque<ezAbstractGraphDiffOperation>& out);
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezAbstractObjectGraph);
   void RemapVariant(ezVariant& value, const ezMap<ezUuid, ezUuid>& guidMap);
-
+  void MergeArrays(const ezVariantArray& baseArray, const ezVariantArray& leftArray, const ezVariantArray& rightArray, ezVariantArray& out);
   ezSet<ezString> m_Strings;
   ezMap<ezUuid, ezAbstractObjectNode*> m_Nodes;
   ezMap<const char*, ezAbstractObjectNode*> m_NodesByName;

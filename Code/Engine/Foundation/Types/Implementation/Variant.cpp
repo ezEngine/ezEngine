@@ -262,7 +262,9 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   if (IsNumber(type) && (IsNumber(m_Type) || m_Type == Type::String))
     return true;
 
-  if (type == Type::String && m_Type < Type::VariantArray && m_Type != Type::DataBuffer)
+  if (type == Type::String && m_Type < Type::LastStandardType && m_Type != Type::DataBuffer)
+    return true;
+  if (type == Type::String && m_Type == Type::VariantArray)
     return true;
 
   if (type == Type::VoidPointer && m_Type == Type::ReflectedPointer)
