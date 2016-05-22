@@ -140,6 +140,15 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
         GetSceneDocument()->DuplicateSelection();
       }
 
+      if (e.m_pGizmo->GetDynamicRTTI()->IsDerivedFrom<ezOrthoGizmoContext>())
+      {
+        if (m_TranslateGizmo.IsVisible() && QApplication::keyboardModifiers() & Qt::KeyboardModifier::ShiftModifier)
+        {
+          m_bMergeTransactions = true;
+          GetSceneDocument()->DuplicateSelection();
+        }
+      }
+
       if (e.m_pGizmo == &m_TranslateGizmo && QApplication::keyboardModifiers() & Qt::KeyboardModifier::ControlModifier)
       {
         m_TranslateGizmo.SetMovementMode(ezTranslateGizmo::MovementMode::MouseDiff);

@@ -84,6 +84,7 @@ protected:
   ezVec3 m_vCameraTargetPosition;
   ezVec3 m_vCameraStartDirection;
   ezVec3 m_vCameraTargetDirection;
+  ezVec3 m_vCameraUp;
   ezTime m_LastCameraUpdate;
 
   QHBoxLayout* m_pRestartButtonLayout;

@@ -193,7 +193,7 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
         if (!m_pWorld->TryGetObject(obj, pObj))
           continue;
 
-        bounds.ExpandToInclude(ezBoundingBoxSphere(pObj->GetGlobalPosition(), ezVec3(0.5f), 0.5f));
+        bounds.ExpandToInclude(ezBoundingBoxSphere(pObj->GetGlobalPosition(), ezVec3(0.0f), 0.0f));
       }
     }
   }

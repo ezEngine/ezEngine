@@ -141,7 +141,7 @@ void ezQtEngineViewWidget::UpdateCameraInterpolation()
   const float fNewFovOrDim = ezMath::Lerp(m_fCameraStartFovOrDim, m_fCameraTargetFovOrDim, fLerpValue);
 
   /// \todo Hard coded up vector
-  cam.LookAt(vNewPosition, vNewPosition + vNewDirection, ezVec3(0.0f, 0.0f, 1.0f));
+  cam.LookAt(vNewPosition, vNewPosition + vNewDirection, m_vCameraUp);
   cam.SetCameraMode(cam.GetCameraMode(), fNewFovOrDim, cam.GetNearPlane(), cam.GetFarPlane());
 }
 
@@ -157,11 +157,16 @@ void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ez
   m_vCameraStartDirection = m_pViewConfig->m_Camera.GetCenterDirForwards();
   m_vCameraTargetDirection = vDirection;
 
+  m_vCameraUp = m_pViewConfig->m_Camera.GetCenterDirUp();
+
   m_vCameraStartDirection.Normalize();
   m_vCameraTargetDirection.Normalize();
+  m_vCameraUp.Normalize();
+
 
   m_fCameraStartFovOrDim = m_pViewConfig->m_Camera.GetFovOrDim();
   m_fCameraTargetFovOrDim = fFovOrDim;
+  EZ_ASSERT_DEV(m_fCameraTargetFovOrDim > 0, "Invalid FOV or ortho dimension");
 
   if (m_vCameraStartPosition == m_vCameraTargetPosition &&
       m_vCameraStartDirection == m_vCameraTargetDirection &&

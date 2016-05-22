@@ -637,8 +637,6 @@ void ezQtSceneDocumentWindow::CreateViews(bool bQuad)
 
 void ezQtSceneDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg, ezQtSceneViewWidget* pSceneView)
 {
-  /// \todo Object Pivot Offset
-  /// \todo Zoom in / out only on second focus ?
   const ezVec3 vPivotPoint = pMsg->m_vCenter;
 
   const ezCamera& cam = pSceneView->m_pViewConfig->m_Camera;
@@ -655,78 +653,98 @@ void ezQtSceneDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxR
   if (cam.GetCameraMode() == ezCameraMode::PerspectiveFixedFovX ||
       cam.GetCameraMode() == ezCameraMode::PerspectiveFixedFovY)
   {
-    const ezAngle fovX = cam.GetFovX(fApsectRation);
-    const ezAngle fovY = cam.GetFovY(fApsectRation);
+    {
+      ezPlane p;
+      p.SetFromNormalAndPoint(vNewCameraDirection, vNewCameraPosition);
+      const float distBest = ezMath::Abs(p.GetDistanceTo(vPivotPoint));
 
-    ezBoundingBox bbox;
-    bbox.SetCenterAndHalfExtents(pMsg->m_vCenter, pMsg->m_vHalfExtents);
-    const float fRadius = bbox.GetBoundingSphere().m_fRadius * 1.5f;
+      vNewCameraPosition = vPivotPoint - vNewCameraDirection * distBest;
+    }
 
-    const float dist1 = fRadius / ezMath::Sin(fovX * 0.75);
-    const float dist2 = fRadius / ezMath::Sin(fovY * 0.75);
-    const float distBest = ezMath::Max(dist1, dist2);
+    // only zoom in on the object, if the target position is already identical (action executed twice)
+    if (!pMsg->m_vHalfExtents.IsZero(ezMath::BasicType<float>::DefaultEpsilon()) && vNewCameraPosition.IsEqual(cam.GetCenterPosition(), 0.01f))
+    {
+      const ezAngle fovX = cam.GetFovX(fApsectRation);
+      const ezAngle fovY = cam.GetFovY(fApsectRation);
 
-    // Previous method that will additionally rotate the camera
-    //// Hard coded 'up' axis
-    //// make sure the camera is always above the objects center point, looking down, never up
-    //ezVec3 vCamRefPoint = cam.GetCenterPosition();
-    //vCamRefPoint.z = ezMath::Max(vCamRefPoint.z, pMsg->m_vCenter.z + pMsg->m_vHalfExtents.z * 0.5f);
+      ezBoundingBox bbox;
+      bbox.SetCenterAndHalfExtents(pMsg->m_vCenter, pMsg->m_vHalfExtents);
+      const float fRadius = bbox.GetBoundingSphere().m_fRadius * 1.5f;
 
-    //vNewCameraDirection = vPivotPoint - vCamRefPoint;
-    //vNewCameraDirection.NormalizeIfNotZero(ezVec3(1, 0, 0));
+      const float dist1 = fRadius / ezMath::Sin(fovX * 0.75);
+      const float dist2 = fRadius / ezMath::Sin(fovY * 0.75);
+      const float distBest = ezMath::Max(dist1, dist2);
 
-    //{
-    //  const ezAngle maxAngle = ezAngle::Degree(30.0f);
+      // Previous method that will additionally rotate the camera
+      //// Hard coded 'up' axis
+      //// make sure the camera is always above the objects center point, looking down, never up
+      //ezVec3 vCamRefPoint = cam.GetCenterPosition();
+      //vCamRefPoint.z = ezMath::Max(vCamRefPoint.z, pMsg->m_vCenter.z + pMsg->m_vHalfExtents.z * 0.5f);
 
-    //  /// \todo Hard coded 'up' direction
-    //  ezVec3 vPlaneDir = vNewCameraDirection;
-    //  vPlaneDir.z = 0.0f;
+      //vNewCameraDirection = vPivotPoint - vCamRefPoint;
+      //vNewCameraDirection.NormalizeIfNotZero(ezVec3(1, 0, 0));
 
-    //  vPlaneDir.NormalizeIfNotZero(ezVec3(1, 0, 0));
+      //{
+      //  const ezAngle maxAngle = ezAngle::Degree(30.0f);
 
-    //  if (maxAngle < vPlaneDir.GetAngleBetween(vNewCameraDirection))
-    //  {
-    //    const ezVec3 vAxis = vPlaneDir.Cross(vNewCameraDirection).GetNormalized();
-    //    ezMat3 mRot;
-    //    mRot.SetRotationMatrix(vAxis, maxAngle);
+      //  /// \todo Hard coded 'up' direction
+      //  ezVec3 vPlaneDir = vNewCameraDirection;
+      //  vPlaneDir.z = 0.0f;
 
-    //    vNewCameraDirection = mRot * vPlaneDir;
-    //  }
-    //}
+      //  vPlaneDir.NormalizeIfNotZero(ezVec3(1, 0, 0));
 
-    vNewCameraPosition = vPivotPoint - vNewCameraDirection * distBest;
+      //  if (maxAngle < vPlaneDir.GetAngleBetween(vNewCameraDirection))
+      //  {
+      //    const ezVec3 vAxis = vPlaneDir.Cross(vNewCameraDirection).GetNormalized();
+      //    ezMat3 mRot;
+      //    mRot.SetRotationMatrix(vAxis, maxAngle);
+
+      //    vNewCameraDirection = mRot * vPlaneDir;
+      //  }
+      //}
+
+      vNewCameraPosition = vPivotPoint - vNewCameraDirection * distBest;
+    }
   }
   else
   {
     vNewCameraPosition = pMsg->m_vCenter;
 
-    const ezVec3 right = cam.GetDirRight();
-    const ezVec3 up = cam.GetDirUp();
-
-    const float fSizeFactor = 2.0f;
-
-    const float fRequiredWidth = ezMath::Abs(right.Dot(pMsg->m_vHalfExtents) * 2.0f) * fSizeFactor;
-    const float fRequiredHeight = ezMath::Abs(up.Dot(pMsg->m_vHalfExtents) * 2.0f) * fSizeFactor;
-
-    float fDimWidth, fDimHeight;
-
-    if (cam.GetCameraMode() == ezCameraMode::OrthoFixedHeight)
+    // only zoom in on the object, if the target position is already identical (action executed twice)
+    if (vNewCameraPosition.IsEqual(cam.GetCenterPosition(), 0.01f))
     {
-      fDimHeight = cam.GetFovOrDim();
-      fDimWidth = fDimHeight * fApsectRation;
+
+      const ezVec3 right = cam.GetDirRight();
+      const ezVec3 up = cam.GetDirUp();
+
+      const float fSizeFactor = 2.0f;
+
+      const float fRequiredWidth = ezMath::Abs(right.Dot(pMsg->m_vHalfExtents) * 2.0f) * fSizeFactor;
+      const float fRequiredHeight = ezMath::Abs(up.Dot(pMsg->m_vHalfExtents) * 2.0f) * fSizeFactor;
+
+      float fDimWidth, fDimHeight;
+
+      if (cam.GetCameraMode() == ezCameraMode::OrthoFixedHeight)
+      {
+        fDimHeight = cam.GetFovOrDim();
+        fDimWidth = fDimHeight * fApsectRation;
+      }
+      else
+      {
+        fDimWidth = cam.GetFovOrDim();
+        fDimHeight = fDimWidth / fApsectRation;
+      }
+
+      const float fScaleWidth = fRequiredWidth / fDimWidth;
+      const float fScaleHeight = fRequiredHeight / fDimHeight;
+
+      const float fScaleDim = ezMath::Max(fScaleWidth, fScaleHeight);
+
+      if (fScaleDim > 0.0f)
+      {
+        fNewFovOrDim *= fScaleDim;
+      }
     }
-    else
-    {
-      fDimWidth = cam.GetFovOrDim();
-      fDimHeight = fDimWidth / fApsectRation;
-    }
-
-    const float fScaleWidth = fRequiredWidth / fDimWidth;
-    const float fScaleHeight = fRequiredHeight / fDimHeight;
-
-    const float fScaleDim = ezMath::Max(fScaleWidth, fScaleHeight);
-
-    fNewFovOrDim *= fScaleDim;
   }
 
   pSceneView->m_pCameraMoveContext->SetOrbitPoint(vPivotPoint);
