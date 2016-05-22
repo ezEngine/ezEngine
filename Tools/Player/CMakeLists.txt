@@ -31,6 +31,8 @@ SET (ADDITIONAL_DEPENDENCIES
   ShaderCompilerHLSL
   InspectorPlugin
   InputXBox360
+  PhysXPlugin
+  FmodPlugin
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)

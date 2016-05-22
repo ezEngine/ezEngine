@@ -25,6 +25,7 @@ ezPxDynamicActorComponent::ezPxDynamicActorComponent()
 {
   m_bKinematic = false;
   m_bDisableGravity = false;
+  m_pActor = nullptr;
 
   m_fLinearDamping = 0.1f;
   m_fAngularDamping = 0.05f;

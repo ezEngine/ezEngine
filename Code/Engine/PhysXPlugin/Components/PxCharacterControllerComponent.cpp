@@ -12,7 +12,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 1)
     EZ_MEMBER_PROPERTY("Capsule Height", m_fCapsuleHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
     EZ_MEMBER_PROPERTY("Capsule Radius", m_fCapsuleRadius)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.1f, 5.0f)),
     EZ_MEMBER_PROPERTY("Max Step Height", m_fMaxStepHeight)->AddAttributes(new ezDefaultValueAttribute(0.3f), new ezClampValueAttribute(0.0f, 5.0f)),
+    EZ_MEMBER_PROPERTY("Jump Impulse", m_fJumpImpulse)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 5.0f)),
     EZ_MEMBER_PROPERTY("Walk Speed", m_fWalkSpeed)->AddAttributes(new ezDefaultValueAttribute(3.0f), new ezClampValueAttribute(0.01f, 20.0f)),
+    EZ_MEMBER_PROPERTY("Run Speed", m_fRunSpeed)->AddAttributes(new ezDefaultValueAttribute(6.0f), new ezClampValueAttribute(0.01f, 20.0f)),
+    EZ_MEMBER_PROPERTY("Air Speed", m_fAirSpeed)->AddAttributes(new ezDefaultValueAttribute(2.5f), new ezClampValueAttribute(0.01f, 20.0f)),
+    EZ_MEMBER_PROPERTY("Air Friction", m_fAirFriction)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("Rotate Speed", m_RotateSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90.0f)), new ezClampValueAttribute(ezAngle::Degree(1.0f), ezAngle::Degree(360.0f))),
     EZ_MEMBER_PROPERTY("Max Slope Angle", m_MaxClimbingSlope)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(40.0f)), new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(80.0f))),
     EZ_MEMBER_PROPERTY("Force Slope Sliding", m_bForceSlopeSliding)->AddAttributes(new ezDefaultValueAttribute(true)),
@@ -43,11 +47,17 @@ ezPxCharacterControllerComponent::ezPxCharacterControllerComponent()
   m_fCapsuleRadius = 0.25f;
   m_fMaxStepHeight = 0.3f;
   m_fWalkSpeed = 3.0f;
+  m_fRunSpeed = 6.0f;
+  m_fAirSpeed = 2.5f;
+  m_fAirFriction = 0.5f;
   m_RotateSpeed = ezAngle::Degree(90.0f);
   m_MaxClimbingSlope = ezAngle::Degree(40.0f);
   m_bForceSlopeSliding = true;
   m_bConstrainedClimbingMode = false;
   m_uiCollisionLayer = 0;
+  m_fJumpImpulse = 1.0f;
+  m_fVelocityUp = 0.0f;
+  m_vVelocityLateral.SetZero();
 }
 
 
@@ -63,8 +73,12 @@ void ezPxCharacterControllerComponent::SerializeComponent(ezWorldWriter& stream)
   s << m_bForceSlopeSliding;
   s << m_bConstrainedClimbingMode;
   s << m_fWalkSpeed;
+  s << m_fRunSpeed;
+  s << m_fAirSpeed;
+  s << m_fAirFriction;
   s << m_RotateSpeed;
   s << m_uiCollisionLayer;
+  s << m_fJumpImpulse;
 }
 
 
@@ -81,8 +95,12 @@ void ezPxCharacterControllerComponent::DeserializeComponent(ezWorldReader& strea
   s >> m_bForceSlopeSliding;
   s >> m_bConstrainedClimbingMode;
   s >> m_fWalkSpeed;
+  s >> m_fRunSpeed;
+  s >> m_fAirSpeed;
+  s >> m_fAirFriction;
   s >> m_RotateSpeed;
   s >> m_uiCollisionLayer;
+  s >> m_fJumpImpulse;
 }
 
 void ezPxCharacterControllerComponent::Update()
@@ -91,43 +109,140 @@ void ezPxCharacterControllerComponent::Update()
     return;
 
   const float tDiff = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
-
   ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
 
-  m_vRelativeMoveDirection = GetOwner()->GetGlobalRotation() * m_vRelativeMoveDirection * m_fWalkSpeed;
-  const ezVec3 pos2 = GetOwner()->GetGlobalPosition();
+  
 
-  m_vRelativeMoveDirection += pModule->GetCharacterGravity() * tDiff;
+  PxControllerState state;
+  m_pController->getState(state);
+  const bool isOnGround = (state.collisionFlags & PxControllerCollisionFlag::eCOLLISION_DOWN) != 0;
+  const bool touchesCeiling = (state.collisionFlags & PxControllerCollisionFlag::eCOLLISION_UP) != 0;
+  const bool canJump = isOnGround && !touchesCeiling;
+  const bool wantsJump = m_InputStateBits & InputStateBits::Jump;
 
-  PxVec3 mov;
-  mov.x = m_vRelativeMoveDirection.x;
-  mov.y = m_vRelativeMoveDirection.y;
-  mov.z = m_vRelativeMoveDirection.z;
+  const float fGravityFactor = 1.0f;
+  const float fJumpFactor = 1.0f;// 0.01f;
+  const float fGravity = pModule->GetCharacterGravity().z * fGravityFactor * tDiff;
 
-  ezPxQueryFilter CharFilter;
-
-  /// \todo Filter stuff ?
-  PxControllerFilters charFilter;
-  PxFilterData filter;
-  charFilter.mCCTFilterCallback = nullptr;
-  charFilter.mFilterCallback =  &CharFilter;
-  charFilter.mFilterData = &filter;
-  charFilter.mFilterFlags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
-
+  if (touchesCeiling || isOnGround)
   {
-    filter.word0 = EZ_BIT(m_uiCollisionLayer);
-    filter.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(m_uiCollisionLayer);
-    filter.word2 = 0;
-    filter.word3 = 0;
+    m_fVelocityUp = 0.0f;
   }
 
-  m_pController->move(mov, 0.1f * m_fWalkSpeed * tDiff, tDiff, charFilter);
+  // update gravity
+  {
+    m_fVelocityUp += fGravity; /// \todo allow other gravity directions
+  }
 
-  m_vRelativeMoveDirection.SetZero();
+  float fIntendedSpeed = m_fAirSpeed;
 
-  auto pos = m_pController->getPosition();
+  if (isOnGround)
+  {
+    fIntendedSpeed = (m_InputStateBits & InputStateBits::Run) ? m_fRunSpeed : m_fWalkSpeed;
+  }
 
-  GetOwner()->SetGlobalPosition(ezVec3((float)pos.x, (float)pos.y, (float)pos.z));
+  const ezVec3 vIntendedMovement = GetOwner()->GetGlobalRotation() * m_vRelativeMoveDirection * fIntendedSpeed;
+
+  if (wantsJump && canJump)
+  {
+    m_fVelocityUp = m_fJumpImpulse / tDiff * fJumpFactor;
+  }
+
+  ezVec3 vNewVelocity(0.0f);
+
+  if (isOnGround)
+  {
+    vNewVelocity = vIntendedMovement;
+    vNewVelocity.z = m_fVelocityUp;
+  }
+  else
+  {
+    m_vVelocityLateral *= ezMath::Pow(1.0f - m_fAirFriction, tDiff);
+
+    vNewVelocity = m_vVelocityLateral + vIntendedMovement;
+    vNewVelocity.z = m_fVelocityUp;
+  }
+
+  auto posBefore = m_pController->getPosition();
+  //{
+    const ezVec3 vMoveDiff = vNewVelocity * tDiff;
+
+    ezPxQueryFilter CharFilter;
+
+    /// \todo Filter dynamic stuff ?
+    PxControllerFilters charFilter;
+    PxFilterData filter;
+    charFilter.mCCTFilterCallback = nullptr;
+    charFilter.mFilterCallback = &CharFilter;
+    charFilter.mFilterData = &filter;
+    charFilter.mFilterFlags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
+
+    {
+      filter.word0 = EZ_BIT(m_uiCollisionLayer);
+      filter.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(m_uiCollisionLayer);
+      filter.word2 = 0;
+      filter.word3 = 0;
+    }
+
+    m_pController->move(PxVec3(vMoveDiff.x, vMoveDiff.y, vMoveDiff.z), 0.5f * fGravity, tDiff, charFilter);
+  //}
+
+  auto posAfter = m_pController->getPosition();
+
+  /// After move forwards, sweep test downwards to stick character to floor and detect falling
+  if (isOnGround && (!wantsJump || !canJump))
+  {
+    ezTransform t;
+    t.SetIdentity();
+    t.m_vPosition.Set((float)posAfter.x, (float)posAfter.y, (float)posAfter.z);
+
+    float fSweepDistance;
+    ezVec3 vSweepPosition, vSweepNormal;
+
+    if (pModule->SweepTestCapsule(t, ezVec3(0, 0, -1), m_fCapsuleRadius, m_fCapsuleHeight, m_fMaxStepHeight, m_uiCollisionLayer, fSweepDistance, vSweepPosition, vSweepNormal))
+    {
+      m_pController->move(PxVec3(0, 0, -fSweepDistance), 0.5f * fGravity, 0.0f, charFilter);
+
+      //ezLog::Info("Floor Distance: %.2f (%.2f | %.2f | %.2f) -> (%.2f | %.2f | %.2f), Radius: %.2f, Height: %.2f", fSweepDistance, t.m_vPosition.x, t.m_vPosition.y, t.m_vPosition.z, vSweepPosition.x, vSweepPosition.y, vSweepPosition.z, m_fCapsuleRadius, m_fCapsuleHeight);
+    }
+    else
+    {
+      //ezLog::Dev("Falling");
+    }
+
+    posAfter = m_pController->getPosition();
+  }
+
+  {
+    auto actualMoveDiff = posAfter - posBefore;
+
+    ezVec3 vVelocity(actualMoveDiff.x, actualMoveDiff.y, actualMoveDiff.z);
+    vVelocity /= tDiff;
+
+    // when touching ground store lateral velocity
+    if (isOnGround)
+      m_vVelocityLateral.Set(vVelocity.x, vVelocity.y, 0.0f);
+    else
+    {
+      // otherwise clamp stored lateral velocity by actual velocity
+
+      ezVec3 vRealDirLateral(vVelocity.x, vVelocity.y, 0);
+
+      if (!vRealDirLateral.IsZero())
+      {
+        vRealDirLateral.Normalize();
+
+        const float fSpeedAlongRealDir = vRealDirLateral.Dot(m_vVelocityLateral);
+
+        m_vVelocityLateral.SetLength(fSpeedAlongRealDir);
+      }
+      else
+        m_vVelocityLateral.SetZero();
+    }
+  }
+
+
+  GetOwner()->SetGlobalPosition(ezVec3((float)posAfter.x, (float)posAfter.y, (float)posAfter.z));
 
   if (m_RotateZ.GetRadian() != 0.0f)
   {
@@ -138,6 +253,10 @@ void ezPxCharacterControllerComponent::Update()
 
     m_RotateZ.SetRadian(0.0);
   }
+
+  // reset all, expect new input
+  m_vRelativeMoveDirection.SetZero();
+  m_InputStateBits = 0;
 }
 
 ezComponent::Initialization ezPxCharacterControllerComponent::Initialize()
@@ -145,6 +264,9 @@ ezComponent::Initialization ezPxCharacterControllerComponent::Initialize()
   ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
 
   m_vRelativeMoveDirection.SetZero();
+  m_InputStateBits = 0;
+  m_fVelocityUp = 0.0f;
+  m_vVelocityLateral.SetZero();
 
   const auto pos = GetOwner()->GetGlobalPosition();
   const auto rot = GetOwner()->GetGlobalRotation();
@@ -194,25 +316,25 @@ void ezPxCharacterControllerComponent::TriggerMessageHandler(ezTriggerMessage& m
 
   if (msg.m_UsageStringHash == ezTempHashedString("MoveForwards").GetHash())
   {
-    m_vRelativeMoveDirection += ezVec3(f, 0, 0);
+    m_vRelativeMoveDirection += ezVec3(1, 0, 0);
     return;
   }
 
   if (msg.m_UsageStringHash == ezTempHashedString("MoveBackwards").GetHash())
   {
-    m_vRelativeMoveDirection += ezVec3(-f, 0, 0);
+    m_vRelativeMoveDirection += ezVec3(-1, 0, 0);
     return;
   }
 
   if (msg.m_UsageStringHash == ezTempHashedString("StrafeLeft").GetHash())
   {
-    m_vRelativeMoveDirection += ezVec3(0, -f, 0);
+    m_vRelativeMoveDirection += ezVec3(0, -1, 0);
     return;
   }
 
   if (msg.m_UsageStringHash == ezTempHashedString("StrafeRight").GetHash())
   {
-    m_vRelativeMoveDirection += ezVec3(0, f, 0);
+    m_vRelativeMoveDirection += ezVec3(0, 1, 0);
     return;
   }
 
@@ -225,6 +347,28 @@ void ezPxCharacterControllerComponent::TriggerMessageHandler(ezTriggerMessage& m
   if (msg.m_UsageStringHash == ezTempHashedString("RotateRight").GetHash())
   {
     m_RotateZ += m_RotateSpeed * f;
+    return;
+  }
+
+  if (msg.m_UsageStringHash == ezTempHashedString("Run").GetHash())
+  {
+    m_InputStateBits |= InputStateBits::Run;
+    return;
+  }
+
+  if (msg.m_UsageStringHash == ezTempHashedString("Jump").GetHash())
+  {
+    if (msg.m_TriggerState == ezTriggerState::Activated)
+    {
+      m_InputStateBits |= InputStateBits::Jump;
+    }
+
+    return;
+  }
+
+  if (msg.m_UsageStringHash == ezTempHashedString("Crouch").GetHash())
+  {
+    m_InputStateBits |= InputStateBits::Crouch;
     return;
   }
 }

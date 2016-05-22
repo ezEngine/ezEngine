@@ -60,5 +60,27 @@
           "Key" : "mouse_move_posx",
           "Scale" : 1
         } ]
+    },
+    {
+      "Set" : "Player",
+      "Action" : "Jump",
+      "TimeScale" : true,
+      "Slots" : [ {
+          "Key" : "keyboard_space",
+          "Scale" : 1
+        },
+        {
+          "Key" : "keyboard_q",
+          "Scale" : 1
+        } ]
+    },
+    {
+      "Set" : "Player",
+      "Action" : "Run",
+      "TimeScale" : true,
+      "Slots" : [ {
+          "Key" : "keyboard_left_shift",
+          "Scale" : 1
+        } ]
     } ]
 }

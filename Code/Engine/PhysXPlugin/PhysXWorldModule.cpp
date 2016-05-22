@@ -15,7 +15,7 @@
 #include <PhysXPlugin/Components/PxSettingsComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXWorldModule, 1, ezRTTIDefaultAllocator<ezPhysXWorldModule>);
-  // no properties or message handlers
+// no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
@@ -132,7 +132,7 @@ void ezPhysXWorldModule::InternalUpdate()
 
   while (m_AccumulatedTimeSinceUpdate >= tStep)
   {
-    m_pPxScene->simulate((PxReal) tStep.GetSeconds());
+    m_pPxScene->simulate((PxReal)tStep.GetSeconds());
     m_pPxScene->fetchResults(true);
 
     m_AccumulatedTimeSinceUpdate -= tStep;
@@ -177,7 +177,7 @@ bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float
   ezPxQueryFilter QueryFilter;
 
   PxRaycastHit hit;
-  if (GetPxScene()->raycastSingle(reinterpret_cast<const PxVec3&>(vStart), reinterpret_cast<const PxVec3&>(vDir), 
+  if (GetPxScene()->raycastSingle(reinterpret_cast<const PxVec3&>(vStart), reinterpret_cast<const PxVec3&>(vDir),
                                   fMaxLen, PxHitFlag::ePOSITION | PxHitFlag::eNORMAL, hit,
                                   filter, &QueryFilter))
   {
@@ -209,6 +209,66 @@ bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float
   return false;
 }
 
+class ezPxSweepCallback : public PxSweepCallback
+{
+public:
+  ezPxSweepCallback()
+    : PxSweepCallback(nullptr, 0)
+  {
+
+  }
+
+  virtual PxAgain processTouches(const PxSweepHit* buffer, PxU32 nbHits) override
+  {
+    return false;
+  }
+};
+
+bool ezPhysXWorldModule::SweepTestCapsule(const ezTransform& start, const ezVec3& vDir, float fCapsuleRadius, float fCapsuleHeight, float fDistance, ezUInt8 uiCollisionLayer, float& out_fDistance, ezVec3& out_Position, ezVec3& out_Normal)
+{
+  PxQueryFilterData filter;
+  filter.data.setToDefault();
+  filter.flags = PxQueryFlag::eSTATIC | PxQueryFlag::eDYNAMIC | PxQueryFlag::ePREFILTER;
+
+  filter.data.word0 = EZ_BIT(uiCollisionLayer);
+  filter.data.word1 = ezPhysX::GetSingleton()->GetCollisionFilterConfig().GetFilterMask(uiCollisionLayer);
+  filter.data.word2 = 0;
+  filter.data.word3 = 0;
+
+  ezPxQueryFilter QueryFilter;
+
+  PxCapsuleGeometry capsule;
+  capsule.radius = fCapsuleRadius;
+  capsule.halfHeight = fCapsuleHeight * 0.5f;
+  EZ_ASSERT_DEBUG(capsule.isValid(), "Invalid capsule parameter. Radius = %.2f, Height = %.2f", fCapsuleRadius, fCapsuleHeight);
+
+  ezQuat qFixRot;
+  qFixRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90.0f));
+
+  ezQuat qRot;
+  qRot.SetFromMat3(start.m_Rotation);
+  qRot = qFixRot * qRot;
+
+  PxTransform pxt;
+  pxt.p = *reinterpret_cast<const PxVec3*>(&start.m_vPosition);
+  pxt.q = PxQuat(qRot.v.x, qRot.v.y, qRot.v.z, qRot.w);
+
+
+  ezPxSweepCallback closestHit;
+
+  PxRaycastHit hit;
+  if (!GetPxScene()->sweep(capsule, pxt, *reinterpret_cast<const PxVec3*>(&vDir), fDistance, closestHit, PxHitFlag::eDEFAULT, filter, &QueryFilter))
+    return false;
+
+  out_fDistance = closestHit.block.distance;
+  out_Position = *reinterpret_cast<ezVec3*>(&closestHit.block.position);
+  out_Normal = *reinterpret_cast<ezVec3*>(&closestHit.block.normal);
+  //closestHit.block.shape;
+  //closestHit.block.actor;
+
+
+  return true;
+}
 
 
 

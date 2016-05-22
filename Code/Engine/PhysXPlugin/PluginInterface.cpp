@@ -119,6 +119,8 @@ void ezPhysX::StartupVDB()
   PxVisualDebuggerConnectionFlags connectionFlags = PxVisualDebuggerExt::getAllConnectionFlags();
 
   m_VdbConnection = PxVisualDebuggerExt::createConnection(m_pPhysX->getPvdConnectionManager(), pvd_host_ip, port, timeout, connectionFlags);
+
+  m_pPhysX->getVisualDebugger()->setVisualDebuggerFlags(PxVisualDebuggerFlag::eTRANSMIT_CONSTRAINTS | PxVisualDebuggerFlag::eTRANSMIT_CONTACTS | PxVisualDebuggerFlag::eTRANSMIT_SCENEQUERIES);
 }
 
 void ezPhysX::ShutdownVDB()
