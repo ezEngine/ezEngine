@@ -43,7 +43,7 @@ void ezQtEditorApp::SaveOpenDocumentsList()
     allDocs.Insert(it.Value()->GetDocument()->GetDocumentPath());
   }
 
-  ezStringBuilder sFile = GetProjectUserDataFolder();
+  ezStringBuilder sFile = GetProjectPreferencesFolder(true);
   sFile.AppendPath("LastDocuments.txt");
 
   allDocs.Save(sFile);
@@ -53,7 +53,7 @@ ezRecentFilesList ezQtEditorApp::LoadOpenDocumentsList()
 {
   ezRecentFilesList allDocs(15);
 
-  ezStringBuilder sFile = GetProjectUserDataFolder();
+  ezStringBuilder sFile = GetProjectPreferencesFolder(true);
   sFile.AppendPath("LastDocuments.txt");
 
   allDocs.Load(sFile);

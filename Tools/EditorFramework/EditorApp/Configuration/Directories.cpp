@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
+#include <QStandardPaths>
 
 ezString ezQtEditorApp::GetEditorDataFolder()
 {
@@ -16,15 +17,6 @@ ezString ezQtEditorApp::GetPrecompiledToolsFolder()
   sPath.AppendPath("../../../Data/Tools/Precompiled");
   return sPath;
 
-}
-
-ezString ezQtEditorApp::GetProjectUserDataFolder()
-{
-  ezStringBuilder sFile = ezToolsProject::GetSingleton()->GetProjectDataFolder();
-  sFile.AppendPath(GetApplicationUserName());
-  sFile.Append(".user");
-
-  return sFile;
 }
 
 ezString ezQtEditorApp::GetDocumentDataFolder(const char* szDocument)
@@ -43,8 +35,9 @@ ezString ezQtEditorApp::GetEditorPreferencesFolder(bool bUserData)
 
   if (bUserData)
   {
-    /// \todo should maybe be stored in %appdata% instead ?
-    path.AppendPath(GetApplicationUserName());
+    const QString userData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+
+    path = userData.toUtf8().data();
   }
 
   path.MakeCleanPath();
@@ -58,8 +51,13 @@ ezString ezQtEditorApp::GetProjectPreferencesFolder(bool bUserData)
 
   if (bUserData)
   {
-    path.AppendPath(GetApplicationUserName());
-    path.Append(".user");
+    const QString userData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+
+    ezStringBuilder ProjectName = ezToolsProject::GetSingleton()->GetProjectDirectory();
+    ProjectName = ProjectName.GetFileName();
+
+    path = userData.toUtf8().data();
+    path.AppendPath("Projects", ProjectName);
   }
 
   path.MakeCleanPath();
@@ -73,8 +71,10 @@ ezString ezQtEditorApp::GetDocumentPreferencesFolder(const ezDocument* pDocument
 
   if (bUserData)
   {
-    path.AppendPath(GetApplicationUserName());
-    path.Append(".user");
+    const ezStringBuilder sGuid = ezConversionUtils::ToString(pDocument->GetGuid());
+
+    path = GetProjectPreferencesFolder(true);
+    path.AppendPath(sGuid);
   }
 
   path.MakeCleanPath();
