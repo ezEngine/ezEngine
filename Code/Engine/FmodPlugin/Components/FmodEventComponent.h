@@ -49,7 +49,7 @@ protected:
   // ************************************* FUNCTIONS *****************************
 
 public:
-  virtual ezComponent::Initialization Initialize() override;
+  virtual void Initialize() override;
   virtual void Deinitialize() override;
 
   void Restart();

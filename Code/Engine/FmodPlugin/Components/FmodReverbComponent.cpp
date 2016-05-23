@@ -103,13 +103,11 @@ void ezFmodReverbComponent::SetMaxDistance(float f)
   SetParameters3d();
 }
 
-ezComponent::Initialization ezFmodReverbComponent::Initialize()
+void ezFmodReverbComponent::Initialize()
 {
   EZ_FMOD_ASSERT(ezFmod::GetSingleton()->GetLowLevelSystem()->createReverb3D(&m_pReverb));
 
   SetParameters3d();
-
-  return ezComponent::Initialization::Done;
 }
 
 

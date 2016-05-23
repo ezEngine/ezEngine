@@ -79,7 +79,10 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
     if (renderViewContext.m_pRenderContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive).Failed())
     {
       // draw bounding box instead
-      ezDebugRenderer::DrawLineBox(renderViewContext.m_uiWorldIndex, pRenderData->m_GlobalBounds.GetBox(), ezColor::Magenta);
+      if (pRenderData->m_GlobalBounds.IsValid())
+      {
+        ezDebugRenderer::DrawLineBox(renderViewContext.m_uiWorldIndex, pRenderData->m_GlobalBounds.GetBox(), ezColor::Magenta);
+      }
     }
   }
 }

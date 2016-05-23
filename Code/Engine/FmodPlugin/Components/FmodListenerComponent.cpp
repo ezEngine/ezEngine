@@ -42,10 +42,8 @@ void ezFmodListenerComponent::DeserializeComponent(ezWorldReader& stream)
 }
 
 
-ezComponent::Initialization ezFmodListenerComponent::Initialize()
+void ezFmodListenerComponent::Initialize()
 {
-
-  return ezComponent::Initialization::Done;
 }
 
 

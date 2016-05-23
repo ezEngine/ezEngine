@@ -145,14 +145,12 @@ void ezFmodEventComponent::SetSoundEvent(const ezFmodSoundEventResourceHandle& h
   }
 }
 
-ezComponent::Initialization ezFmodEventComponent::Initialize()
+void ezFmodEventComponent::Initialize()
 {
   if (!m_bPaused)
   {
     Restart();
   }
-
-  return ezComponent::Initialization::Done;
 }
 
 
