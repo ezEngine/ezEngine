@@ -2,7 +2,7 @@
 
 #include <PhysXPlugin/Basics.h>
 #include <GameUtils/Components/SettingsComponent.h>
-#include <Core/World/ComponentManager.h>
+#include <Core/World/SettingsComponentManager.h>
 
 
 typedef ezSettingsComponentManager<class ezPxSettingsComponent> ezPxSettingsComponentManager;

@@ -37,7 +37,7 @@ protected:
 public:
   void Update();
 
-  virtual ezComponent::Initialization Initialize() override;
+  virtual void OnSimulationStarted() override;
 
   virtual void Deinitialize() override;
 

@@ -18,14 +18,11 @@ struct EZ_CORE_DLL ezTriggerMessage : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezTriggerMessage);
 
-  /// If this handle is valid, the message is targeted to one specific component and should be ignored by all other components
-  ezComponentHandle m_hTargetComponent;
-
   /// Identifies what the message should trigger. Only stores the hashed string, because one should only check for equality with some expected string. Use ezTempHashedString::GetHash() to assign and compare the value.
   ezUInt32 m_UsageStringHash;
 
   ezTriggerState::Enum m_TriggerState;
 
   /// For things that may have an analog trigger 'strength', e.g. for input messages
-  float m_fTriggerValue;
+  ezVariant m_TriggerValue;
 };

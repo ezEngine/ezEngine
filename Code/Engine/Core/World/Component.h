@@ -44,8 +44,18 @@ public:
   /// \brief Returns whether this component is active.
   bool IsActive() const;
 
+  /// \brief Returns whether this component is active and initialized.
+  bool IsActiveAndInitialized() const;
+
+  /// \brief Returns whether the OnSimulationStarted method has been called.
+  bool IsSimulationStarted() const;
+
+
   /// \brief Returns the corresponding manager for this component.
-  ezComponentManagerBase* GetManager() const;
+  ezComponentManagerBase* GetManager();
+
+  /// \brief Returns the corresponding manager for this component.
+  const ezComponentManagerBase* GetManager() const;
 
   /// \brief Returns the owner game object if the component is attached to one or nullptr.
   ezGameObject* GetOwner();
@@ -59,13 +69,19 @@ public:
   /// \brief Returns the corresponding world for this component.
   const ezWorld* GetWorld() const;
 
+  
   /// \brief Returns a handle to this component.
   ezComponentHandle GetHandle() const;
 
   /// \brief Returns the type id corresponding to this component type.
   static ezUInt16 TypeId();
 
-  ezUInt32 m_uiEditorPickingID;
+  /// \brief Returns the editor picking id for this component.
+  ezUInt32 GetEditorPickingID() const;
+
+  /// \brief Sets the editor picking id for this component.
+  void SetEditorPickingID(ezUInt32 uiEditorPickingID);
+  
 
   /// \brief Override this to save the current state of the component to the given stream.
   virtual void SerializeComponent(ezWorldWriter& stream) const {}
@@ -75,6 +91,17 @@ public:
   /// The active state will be automatically serialized. The 'initialized' state is not serialized, all components
   /// will be initialized after creation, even if they were already in an initialized state when they were serialized.
   virtual void DeserializeComponent(ezWorldReader& stream) {}
+
+
+  /// \brief Sends a message to this component.
+  void SendMessage(ezMessage& msg);
+  void SendMessage(ezMessage& msg) const;
+
+  /// \brief Queues the message for the given phase and processes it later in that phase.
+  void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType);
+
+  /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
+  void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay);
 
 protected:
   friend class ezWorld;
@@ -86,20 +113,10 @@ protected:
 
   ezBitflags<ezObjectFlags> m_ComponentFlags;
 
-  enum class Initialization
-  {
-    Done,
-    RequiresInit2
-  };
-
   virtual ezUInt16 GetTypeId() const = 0;
 
   /// \brief This method is called at the start of the next world update. The global position will be computed before initialization.
-  virtual Initialization Initialize() { return Initialization::Done; }
-
-  /// \brief If Initialize() returned Initialization::RequiresInit2, this function is called after Initialize() has been called on ALL other components during the world update start.
-  ///        This allows to access other components during Initialize2().
-  virtual void Initialize2() {}
+  virtual void Initialize() {}
 
   /// \brief This method is called before the destructor. A derived type can override this method to do common de-initialization work.
   virtual void Deinitialize() {}
@@ -113,11 +130,12 @@ protected:
   /// \brief This method is called when the component is detached from a game object. At this point the owner pointer is still set. A derived type can override this method to do additional work.
   virtual void OnBeforeDetachedFromObject() {}
 
-private:
-  void OnMessage(ezMessage& msg);
-  void OnMessage(ezMessage& msg) const;
+  /// \brief This method is called at the start of the next world update when the world is simulated. This method will be called after the initialization method.
+  virtual void OnSimulationStarted() {}
 
+private:
   ezGenericComponentId m_InternalId;
+  ezUInt32 m_uiEditorPickingID;
 
   ezComponentManagerBase* m_pManager;
   ezGameObject* m_pOwner;

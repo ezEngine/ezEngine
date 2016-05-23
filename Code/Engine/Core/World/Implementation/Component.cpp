@@ -1,5 +1,5 @@
 #include <Core/PCH.h>
-#include <Core/World/GameObject.h>
+#include <Core/World/World.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponent, 1, ezRTTINoAllocator)
 {
@@ -41,6 +41,21 @@ ezWorld* ezComponent::GetWorld()
 const ezWorld* ezComponent::GetWorld() const
 {
   return m_pManager->GetWorld();
+}
+
+ezComponentHandle ezComponent::GetHandle() const
+{
+  return ezComponentHandle(ezComponentId(m_InternalId, GetTypeId(), GetWorld()->GetIndex()));
+}
+
+void ezComponent::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType)
+{
+  GetWorld()->PostMessage(GetHandle(), msg, queueType);
+}
+
+void ezComponent::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay)
+{
+  GetWorld()->PostMessage(GetHandle(), msg, queueType, delay);
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_Component);

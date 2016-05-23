@@ -2,6 +2,8 @@
 
 #include <PhysXPlugin/Joints/PxJointComponent.h>
 
+struct ezCallDelayedStartMessage;
+
 typedef ezComponentManager<class ezPxDistanceJointComponent> ezPxDistanceJointComponentManager;
 
 class EZ_PHYSXPLUGIN_DLL ezPxDistanceJointComponent : public ezPxJointComponent
@@ -34,8 +36,8 @@ public:
 
 protected:
 
-  virtual ezComponent::Initialization Initialize() override { return ezComponent::Initialization::RequiresInit2; }
-  virtual void Initialize2() override;
+  virtual void OnSimulationStarted() override;
+  void OnDelayedSimulationStarted(ezCallDelayedStartMessage& msg);
 
   virtual PxJoint* CreateJointType(PxPhysics& api, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1) override;
 };

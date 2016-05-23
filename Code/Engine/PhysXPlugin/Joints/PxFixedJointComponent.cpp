@@ -1,10 +1,18 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Joints/PxFixedJointComponent.h>
 #include <PhysXPlugin/PhysXWorldModule.h>
+#include <Core/Messages/CallDelayedStartMessage.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ezPxFixedJointComponent, 1);
+{
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezCallDelayedStartMessage, OnDelayedSimulationStarted),
+  }
+  EZ_END_MESSAGEHANDLERS
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezPxFixedJointComponent::ezPxFixedJointComponent()
@@ -31,7 +39,12 @@ void ezPxFixedJointComponent::DeserializeComponent(ezWorldReader& stream)
 
 }
 
-void ezPxFixedJointComponent::Initialize2()
+void ezPxFixedJointComponent::OnSimulationStarted()
+{
+  PostMessage(ezCallDelayedStartMessage(), ezObjectMsgQueueType::NextFrame);
+}
+
+void ezPxFixedJointComponent::OnDelayedSimulationStarted(ezCallDelayedStartMessage& msg)
 {
   PxFixedJoint* pJoint = static_cast<PxFixedJoint*>(SetupJoint());
 

@@ -9,13 +9,18 @@ class EZ_RENDERERCORE_DLL ezShaderParser
 {
 public:
 
+  struct AttributeDefinition
+  {
+    ezString m_sName;
+    ezString m_sValue;
+  };
+
   struct ParameterDefinition
   {
-    const ezRTTI* m_pType;
     ezString m_sType;
     ezString m_sName;
 
-    ezHybridArray<ezPropertyAttribute*, 4> m_Attributes;
+    ezHybridArray<AttributeDefinition, 4> m_Attributes;
   };
 
   static void ParseMaterialParameterSection(ezStreamReader& stream, ezHybridArray<ParameterDefinition, 16>& out_Parameter);

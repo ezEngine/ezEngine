@@ -86,7 +86,7 @@ private:
   void TriggerSurfaceInteraction(const ezSurfaceResourceHandle& hSurface, const ezVec3& vPos, const ezVec3& vNormal, const ezVec3& vDirection, const char* szInteraction);
 
 protected:
-  virtual Initialization Initialize() override;
+  virtual void OnSimulationStarted() override;
 
   ezVec3 m_vVelocity;
 };

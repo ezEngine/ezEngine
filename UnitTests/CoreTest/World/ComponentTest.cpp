@@ -19,7 +19,7 @@ namespace
       desc.m_DependsOn.PushBack(desc2.m_Function); // update2 will be called before update
 
       auto descAsync = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(TestComponentManager::UpdateAsync, this);
-      descAsync.m_Phase = ezComponentManagerBase::UpdateFunctionDesc::Async;
+      descAsync.m_Phase = ezComponentManagerBase::UpdateFunctionDesc::Phase::Async;
       descAsync.m_uiGranularity = 20;
 
       this->RegisterUpdateFunction(desc);
@@ -43,10 +43,9 @@ namespace
     virtual void SerializeComponent(ezWorldWriter& stream) const override {}
     virtual void DeserializeComponent(ezWorldReader& stream) override {}
 
-    virtual ezComponent::Initialization Initialize() override
+    virtual void Initialize() override
     {
       ++s_iInitCounter;
-      return ezComponent::Initialization::Done;
     }
 
     virtual void Deinitialize() override

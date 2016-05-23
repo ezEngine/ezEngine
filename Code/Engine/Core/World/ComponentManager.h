@@ -65,28 +65,37 @@ protected:
   /// \brief Description of an update function that can be registered at the world.
   struct UpdateFunctionDesc
   {
-    enum Phase
+    struct Phase
     {
-      PreAsync,
-      Async,
-      PostAsync,
-      PostTransform,
-      PHASE_COUNT
+      typedef ezUInt8 StorageType;
+
+      enum Enum
+      {
+        PreAsync,
+        Async,
+        PostAsync,
+        PostTransform,
+        COUNT,
+
+        Default = PreAsync
+      };
     };
 
     UpdateFunctionDesc(const UpdateFunction& function, const char* szFunctionName)
     {
       m_Function = function;
       m_szFunctionName = szFunctionName;
-      m_Phase = PreAsync;
+      m_Phase = Phase::PreAsync;
+      m_bOnlyUpdateWhenSimulating = false;
       m_uiGranularity = 0;
     }
 
     UpdateFunction m_Function;                    ///< Delegate to the actual update function.
     const char* m_szFunctionName;                 ///< Name of the function. Use the EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC macro to create a description with the correct name.
     ezHybridArray<UpdateFunction, 4> m_DependsOn; ///< Array of other functions on which this function depends on. This function will be called after all its dependencies have been called.
-    Phase m_Phase;                                ///< The update phase in which this update function should be called. See ezWorld for a description on the different phases.
-    ezUInt32 m_uiGranularity;                     ///< The granularity in which batch updates should happen during the asynchronous phase. Has to be 0 for synchronous functions.
+    ezEnum<Phase> m_Phase;                        ///< The update phase in which this update function should be called. See ezWorld for a description on the different phases.
+    bool m_bOnlyUpdateWhenSimulating;             ///< The update function is only called when the world simulation is enabled.
+    ezUInt16 m_uiGranularity;                     ///< The granularity in which batch updates should happen during the asynchronous phase. Has to be 0 for synchronous functions.
   };
 
   /// \brief Registers the given update function at the world.
@@ -110,9 +119,6 @@ protected:
   void DeinitializeComponent(ezComponent* pComponent);
   void DeleteComponentEntry(ComponentStorageEntry storageEntry);
   virtual void DeleteDeadComponent(ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent);
-
-  static ezComponentId GetIdFromHandle(const ezComponentHandle& component);
-  static ezComponentHandle GetHandle(ezGenericComponentId internalId, ezUInt16 uiTypeId);
 
   /// \endcond
 
@@ -195,35 +201,6 @@ public:
 //////////////////////////////////////////////////////////////////////////
 
 
-/// \brief A component manager that does no update at all on components and expects only a single instance to be created per world.
-///
-/// Easy access to this single function is provided through the GetSingletonComponent() function.
-/// If a second component is created, the manager will log an error. The first created component will be used as the 'singleton',
-/// all other components are ignored.
-/// Use this for components derived from ezSettingsComponent, of which one should only of zero or one per world.
-template <typename ComponentType>
-class ezSettingsComponentManager : public ezComponentManager<ComponentType>
-{
-public:
-  ezSettingsComponentManager(ezWorld* pWorld) : ezComponentManager<ComponentType>(pWorld)
-  {
-    m_pSingleton = nullptr;
-  }
-
-  virtual ezComponentHandle AllocateComponent() override;
-  virtual void DeleteDeadComponent(ezComponentManagerBase::ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent) override;
-
-  /// \brief Returns the first component of this type that has been created.
-  ComponentType* GetSingletonComponent() const { return m_pSingleton; }
-
-private:
-  ComponentType* m_pSingleton;
-};
-
-
-//////////////////////////////////////////////////////////////////////////
-
-
 /// \brief Helper class to get component type ids and create new instances of component managers from rtti.
 class EZ_CORE_DLL ezComponentManagerFactory
 {
@@ -255,7 +232,8 @@ private:
   public: \
     typedef managerType ComponentManagerType; \
     ezComponentHandle GetHandle() const; \
-    ComponentManagerType* GetManager() const; \
+    ComponentManagerType* GetManager(); \
+    const ComponentManagerType* GetManager() const; \
     virtual ezUInt16 GetTypeId() const override { return TYPE_ID; } \
     static EZ_FORCE_INLINE ezUInt16 TypeId() { return TYPE_ID; } \
     static ezComponentHandle CreateComponent(ezWorld* pWorld, componentType*& pComponent); \
@@ -277,7 +255,8 @@ private:
 #define EZ_BEGIN_COMPONENT_TYPE(componentType, version) \
   ezUInt16 componentType::TYPE_ID = ezComponentManagerFactory::GetInstance()->RegisterComponentManager<componentType>(); \
   ezComponentHandle componentType::GetHandle() const { return ezComponent::GetHandle<componentType>(); } \
-  componentType::ComponentManagerType* componentType::GetManager() const { return static_cast<componentType::ComponentManagerType*>(ezComponent::GetManager()); } \
+  componentType::ComponentManagerType* componentType::GetManager() { return static_cast<componentType::ComponentManagerType*>(ezComponent::GetManager()); } \
+  const componentType::ComponentManagerType* componentType::GetManager() const { return static_cast<const componentType::ComponentManagerType*>(ezComponent::GetManager()); } \
   ezComponentHandle componentType::CreateComponent(ezWorld* pWorld, componentType*& pComponent) { return pWorld->GetOrCreateComponentManager<ComponentManagerType>()->CreateComponent(pComponent); } \
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(componentType, version, ezRTTINoAllocator);
 

@@ -41,78 +41,127 @@ namespace
     const ezRTTI* m_pType;
   };
 
+  static ezHashTable<const char*, const ezRTTI*> s_NameToTypeTable;
+
+  void InitializeTables()
+  {
+    if (!s_NameToTypeTable.IsEmpty())
+      return;
+
+    s_NameToTypeTable.Insert("float", ezGetStaticRTTI<float>());
+    s_NameToTypeTable.Insert("float2", ezGetStaticRTTI<ezVec2>());
+    s_NameToTypeTable.Insert("float3", ezGetStaticRTTI<ezVec3>());
+    s_NameToTypeTable.Insert("float4", ezGetStaticRTTI<ezVec4>());
+    s_NameToTypeTable.Insert("Color", ezGetStaticRTTI<ezColor>());
+    s_NameToTypeTable.Insert("Texture", ezGetStaticRTTI<ezString>());
+    s_NameToTypeTable.Insert("Texture2D", ezGetStaticRTTI<ezString>());
+    s_NameToTypeTable.Insert("Texture3D", ezGetStaticRTTI<ezString>());
+    s_NameToTypeTable.Insert("TextureCube", ezGetStaticRTTI<ezString>());
+  }
+
   static ezHashTable<ezString, PermutationVarConfig> s_PermutationVarConfigs;
 
-  void FillPermutationType(ezShaderParser::ParameterDefinition& def)
+  const ezRTTI* GetPermutationType(ezShaderParser::ParameterDefinition& def)
   {
     EZ_ASSERT_DEV(def.m_sType.IsEqual("Permutation"), "");
 
     PermutationVarConfig* pConfig = nullptr;
-    if (!s_PermutationVarConfigs.TryGetValue(def.m_sName, pConfig))
+    if (s_PermutationVarConfigs.TryGetValue(def.m_sName, pConfig))
     {
-      ezStringBuilder sTemp;
-      sTemp.Format("Shaders/PermutationVars/%s.ezPermVar", def.m_sName.GetData());
-
-      ezString sPath = sTemp;
-      ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
-
-      ezFileReader file;
-      if (file.Open(sPath).Failed())
-      {
-        return;
-      }
-
-      sTemp.ReadAll(file);
-
-      ezVariant defaultValue;
-      ezHybridArray<ezHashedString, 16> enumValues;
-
-      ezShaderParser::ParsePermutationVarConfig(sTemp, defaultValue, enumValues);
-      if (defaultValue.IsValid())
-      {
-        pConfig = &(s_PermutationVarConfigs[def.m_sName]);
-        pConfig->m_DefaultValue = defaultValue;
-
-        if (defaultValue.IsA<bool>())
-        {
-          pConfig->m_pType = ezGetStaticRTTI<bool>();
-        }
-        else
-        {
-          ezReflectedTypeDescriptor descEnum;
-          descEnum.m_sTypeName = def.m_sName;
-          descEnum.m_sPluginName = "ShaderTypes";
-          descEnum.m_sParentTypeName = ezGetStaticRTTI<ezEnumBase>()->GetTypeName();
-          descEnum.m_Flags = ezTypeFlags::IsEnum | ezTypeFlags::Phantom;
-          descEnum.m_uiTypeSize = 0;
-          descEnum.m_uiTypeVersion = 1;
-
-          ezArrayPtr<ezPropertyAttribute* const> noAttributes;
-
-          ezStringBuilder sEnumName;
-          sEnumName.Format("%s::Default", def.m_sName.GetData());
-
-          descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, defaultValue.Get<ezUInt32>(), noAttributes));
-          
-          for (ezUInt32 i = 0; i < enumValues.GetCount(); ++i)
-          {
-            if (enumValues[i].IsEmpty())
-              continue;
-
-            ezStringBuilder sEnumName;
-            sEnumName.Format("%s::%s", def.m_sName.GetData(), enumValues[i].GetData());
-
-            descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, (ezUInt32)i, noAttributes));
-          }
-
-          pConfig->m_pType = ezPhantomRttiManager::RegisterType(descEnum);
-        }
-      }
+      return pConfig->m_pType;
     }
 
-    if (pConfig != nullptr)
+    ezStringBuilder sTemp;
+    sTemp.Format("Shaders/PermutationVars/%s.ezPermVar", def.m_sName.GetData());
+
+    ezString sPath = sTemp;
+    ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
+
+    ezFileReader file;
+    if (file.Open(sPath).Failed())
     {
-      def.m_pType = pConfig->m_pType;
+      return nullptr;
+    }
+
+    sTemp.ReadAll(file);
+
+    ezVariant defaultValue;
+    ezHybridArray<ezHashedString, 16> enumValues;
+
+    ezShaderParser::ParsePermutationVarConfig(sTemp, defaultValue, enumValues);
+    if (defaultValue.IsValid())
+    {
+      pConfig = &(s_PermutationVarConfigs[def.m_sName]);
+      pConfig->m_DefaultValue = defaultValue;
+
+      if (defaultValue.IsA<bool>())
+      {
+        pConfig->m_pType = ezGetStaticRTTI<bool>();
+      }
+      else
+      {
+        ezReflectedTypeDescriptor descEnum;
+        descEnum.m_sTypeName = def.m_sName;
+        descEnum.m_sPluginName = "ShaderTypes";
+        descEnum.m_sParentTypeName = ezGetStaticRTTI<ezEnumBase>()->GetTypeName();
+        descEnum.m_Flags = ezTypeFlags::IsEnum | ezTypeFlags::Phantom;
+        descEnum.m_uiTypeSize = 0;
+        descEnum.m_uiTypeVersion = 1;
+
+        ezArrayPtr<ezPropertyAttribute* const> noAttributes;
+
+        ezStringBuilder sEnumName;
+        sEnumName.Format("%s::Default", def.m_sName.GetData());
+
+        descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, defaultValue.Get<ezUInt32>(), noAttributes));
+          
+        for (ezUInt32 i = 0; i < enumValues.GetCount(); ++i)
+        {
+          if (enumValues[i].IsEmpty())
+            continue;
+
+          ezStringBuilder sEnumName;
+          sEnumName.Format("%s::%s", def.m_sName.GetData(), enumValues[i].GetData());
+
+          descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, (ezUInt32)i, noAttributes));
+        }
+
+        pConfig->m_pType = ezPhantomRttiManager::RegisterType(descEnum);
+      }
+
+      return pConfig->m_pType;
+    }
+
+    return nullptr;
+  }
+
+  const ezRTTI* GetType(ezShaderParser::ParameterDefinition& def)
+  {
+    InitializeTables();
+
+    if (def.m_sType.IsEqual("Permutation"))
+    {
+      return GetPermutationType(def);
+    }
+
+    const ezRTTI* pType = nullptr;
+    s_NameToTypeTable.TryGetValue(def.m_sType.GetData(), pType);
+    return pType;
+  }
+
+  void AddAttributes(ezShaderParser::ParameterDefinition& def, ezHybridArray<ezPropertyAttribute*, 2>& attributes)
+  {
+    if (def.m_sType.IsEqual("Texture2D") || def.m_sType.IsEqual("Texture"))
+    {
+      attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture 2D"));
+    }
+    else if (def.m_sType.IsEqual("Texture3D"))
+    {
+      attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture 3D"));
+    }
+    else if (def.m_sType.IsEqual("TextureCube"))
+    {
+      attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture Cube"));
     }
   }
 }
@@ -299,30 +348,23 @@ const ezRTTI* ezMaterialAssetProperties::UpdateShaderType(const char* szShaderPa
 
   for (auto& parameter : parameters)
   {
-    if (parameter.m_pType == nullptr && parameter.m_sType.IsEqual("Permutation"))
-    {
-      FillPermutationType(parameter);
-    }
-    
-    if (parameter.m_pType == nullptr)
+    const ezRTTI* pType = GetType(parameter); 
+    if (pType == nullptr)
     {
       continue;
     }
 
     ezBitflags<ezPropertyFlags> flags = ezPropertyFlags::Phantom;
-    if (parameter.m_pType->IsDerivedFrom<ezEnumBase>())
+    if (pType->IsDerivedFrom<ezEnumBase>())
       flags |= ezPropertyFlags::IsEnum;
-    if (parameter.m_pType->IsDerivedFrom<ezBitflagsBase>())
+    if (pType->IsDerivedFrom<ezBitflagsBase>())
       flags |= ezPropertyFlags::Bitflags;
-    if (ezReflectionUtils::IsBasicType(parameter.m_pType))
+    if (ezReflectionUtils::IsBasicType(pType))
       flags |= ezPropertyFlags::StandardType;
 
-    ezReflectedPropertyDescriptor propDesc(ezPropertyCategory::Member, parameter.m_sName, parameter.m_pType->GetTypeName(), flags);
+    ezReflectedPropertyDescriptor propDesc(ezPropertyCategory::Member, parameter.m_sName, pType->GetTypeName(), flags);
 
-    for (auto attribute : parameter.m_Attributes)
-    {
-      propDesc.m_Attributes.PushBack(attribute);
-    }
+    AddAttributes(parameter, propDesc.m_Attributes);    
 
     desc.m_Properties.PushBack(propDesc);
   }

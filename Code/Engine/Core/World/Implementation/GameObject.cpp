@@ -272,7 +272,9 @@ ezResult ezGameObject::DetachComponent(ezComponent* pComponent)
     return EZ_FAILURE;
 
   if (pComponent->IsInitialized())
+  {
     pComponent->OnBeforeDetachedFromObject();
+  }
 
   pComponent->m_pOwner = nullptr;
   m_Components.RemoveAtSwap(uiIndex);
@@ -331,8 +333,7 @@ void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
     for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
     {
       ezComponent* pComponent = m_Components[i];
-      if (pComponent->IsActive())
-        pComponent->OnMessage(msg);
+      pComponent->SendMessage(msg);
     }
   }
 
@@ -379,8 +380,7 @@ void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
     for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
     {
       const ezComponent* pComponent = m_Components[i];
-      if (pComponent->IsActive())
-        pComponent->OnMessage(msg);
+      pComponent->SendMessage(msg);
     }
   }
 

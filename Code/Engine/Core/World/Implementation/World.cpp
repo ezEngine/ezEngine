@@ -20,12 +20,9 @@ ezStaticArray<ezWorld*, 64> ezWorld::s_Worlds;
 
 ezWorld::ezWorld(const char* szWorldName) :
   m_UpdateTask("", ezMakeDelegate(&ezWorld::UpdateFromThread, this)),
-  m_Data(szWorldName),
-  m_Clock(szWorldName)
+  m_Data(szWorldName)
 {
   m_Data.m_pCoordinateSystemProvider->m_pOwnerWorld = this;
-
-  m_Random.InitializeFromCurrentTime();
 
   ezStringBuilder sb = szWorldName;
   sb.Append(".Update");
@@ -33,8 +30,6 @@ ezWorld::ezWorld(const char* szWorldName) :
 
   sb.Append(" Task");
   m_UpdateTask.SetTaskName(sb);
-
-  m_bSimulateWorld = true;
 
   m_uiIndex = ezInvalidIndex;
 
@@ -259,7 +254,32 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& m
   QueuedMsgMetaData metaData;
   metaData.m_ReceiverObject = receiverObject;
   metaData.m_Routing = routing;
-  metaData.m_Due = m_Clock.GetAccumulatedTime() + delay;
+  metaData.m_Due = m_Data.m_Clock.GetAccumulatedTime() + delay;
+
+  ezMessage* pMsgCopy = msg.Clone(&m_Data.m_Allocator);
+  m_Data.m_TimedMessageQueues[queueType].Enqueue(pMsgCopy, metaData);
+}
+
+void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType)
+{
+  // This method is allowed to be called from multiple threads.
+
+  QueuedMsgMetaData metaData;
+  metaData.m_ReceiverComponent = receiverComponent;
+  metaData.m_uiReceiverIsComponent = 1;
+  
+  ezMessage* pMsgCopy = msg.Clone(ezFrameAllocator::GetCurrentAllocator());
+  m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
+}
+
+void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay)
+{
+  // This method is allowed to be called from multiple threads.
+
+  QueuedMsgMetaData metaData;
+  metaData.m_ReceiverComponent = receiverComponent;
+  metaData.m_uiReceiverIsComponent = 1;
+  metaData.m_Due = m_Data.m_Clock.GetAccumulatedTime() + delay;
 
   ezMessage* pMsgCopy = msg.Clone(&m_Data.m_Allocator);
   m_Data.m_TimedMessageQueues[queueType].Enqueue(pMsgCopy, metaData);
@@ -274,49 +294,16 @@ void ezWorld::Update()
   EZ_LOG_BLOCK(m_Data.m_sName.GetData());
   EZ_PROFILE(m_UpdateProfilingID);
 
-  m_Clock.SetPaused(!m_bSimulateWorld);
-  m_Clock.Update();
+  m_Data.m_Clock.SetPaused(!m_Data.m_bSimulateWorld);
+  m_Data.m_Clock.Update();
 
-  if (m_bSimulateWorld)
-  {
-    for (ezComponentHandle hComponent : m_ComponentsToInitialize)
-    {
-      ezComponent* pComponent = nullptr;
-      if (!TryGetComponent(hComponent, pComponent)) // if it is in the editor, the component might have been added and already deleted, without ever running the simulation
-        continue;
-
-      // may have been set to initialized by a deserializer in the mean time
-      if (!pComponent->IsInitialized())
-      {
-        // make sure the object's transform is up to date before the component is initialized
-        if (pComponent->GetOwner())
-        {
-          pComponent->GetOwner()->UpdateGlobalTransform();
-        }
-
-        if (pComponent->Initialize() == ezComponent::Initialization::RequiresInit2)
-        {
-          m_ComponentsToInitialize2.PushBack(pComponent);
-        }
-
-        pComponent->m_ComponentFlags.Add(ezObjectFlags::Initialized);
-      }
-    }
-
-    for (ezComponent* pComponent : m_ComponentsToInitialize2)
-    {
-      pComponent->Initialize2();
-    }
-
-    m_ComponentsToInitialize.Clear();
-    m_ComponentsToInitialize2.Clear();
-  }
+  ProcessComponentsToInitialize();
 
   // pre-async phase
   {
     EZ_PROFILE(s_PreAsyncProfilingID);
     ProcessQueuedMessages(ezObjectMsgQueueType::NextFrame);
-    UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::PreAsync]);
+    UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::PreAsync]);
   }
 
   // async phase
@@ -335,7 +322,7 @@ void ezWorld::Update()
   {
     EZ_PROFILE(s_PostAsyncProfilingID);
     ProcessQueuedMessages(ezObjectMsgQueueType::PostAsync);
-    UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::PostAsync]);
+    UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::PostAsync]);
   }
 
   // delete dead objects and update the object hierarchy
@@ -350,8 +337,9 @@ void ezWorld::Update()
     float fInvDelta = 0.0f;
 
     // when the clock is paused just use zero
-    if (m_Clock.GetTimeDiff().GetSeconds() > 0.0)
-      fInvDelta = 1.0f / (float)m_Clock.GetTimeDiff().GetSeconds();
+    const float fDelta = (float)m_Data.m_Clock.GetTimeDiff().GetSeconds();
+    if (fDelta > 0.0f)
+      fInvDelta = 1.0f / fDelta;
 
     EZ_PROFILE(s_UpdateTransformsProfilingID);
     m_Data.UpdateGlobalTransforms(fInvDelta);
@@ -361,8 +349,11 @@ void ezWorld::Update()
   {
     EZ_PROFILE(s_PostTransformProfilingID);
     ProcessQueuedMessages(ezObjectMsgQueueType::PostTransform);
-    UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::PostTransform]);
+    UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::PostTransform]);
   }
+
+  // Process again so new component can receive render messages, otherwise we introduce a frame delay.
+  ProcessComponentsToInitialize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -501,8 +492,8 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
       if (a.m_pMessage->GetId() != b.m_pMessage->GetId())
         return a.m_pMessage->GetId() < b.m_pMessage->GetId();
 
-      if (a.m_MetaData.m_ReceiverObject != b.m_MetaData.m_ReceiverObject)
-        return a.m_MetaData.m_ReceiverObject < b.m_MetaData.m_ReceiverObject;
+      if (a.m_MetaData.m_uiReceiverAndRouting != b.m_MetaData.m_uiReceiverAndRouting)
+        return a.m_MetaData.m_uiReceiverAndRouting < b.m_MetaData.m_uiReceiverAndRouting;
 
       return a.m_pMessage->GetHash() < b.m_pMessage->GetHash();
     }
@@ -517,10 +508,21 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
     {
       auto& entry = queue[i];
 
-      ezGameObject* pReceiverObject = nullptr;
-      if (TryGetObject(entry.m_MetaData.m_ReceiverObject, pReceiverObject))
+      if (entry.m_MetaData.m_uiReceiverIsComponent)
       {
-        pReceiverObject->SendMessage(*entry.m_pMessage, entry.m_MetaData.m_Routing);
+        ezComponent* pReceiverComponent = nullptr;
+        if (TryGetComponent(entry.m_MetaData.m_ReceiverComponent, pReceiverComponent))
+        {
+          pReceiverComponent->SendMessage(*entry.m_pMessage);
+        }
+      }
+      else
+      {
+        ezGameObject* pReceiverObject = nullptr;
+        if (TryGetObject(entry.m_MetaData.m_ReceiverObject, pReceiverObject))
+        {
+          pReceiverObject->SendMessage(*entry.m_pMessage, entry.m_MetaData.m_Routing);
+        }
       }
 
       // no need to deallocate these messages, they are allocated through a frame allocator
@@ -534,7 +536,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
     ezInternal::WorldData::MessageQueue& queue = m_Data.m_TimedMessageQueues[queueType];
     queue.Sort(MessageComparer());
 
-    const ezTime now = m_Clock.GetAccumulatedTime();
+    const ezTime now = m_Data.m_Clock.GetAccumulatedTime();
 
     while (!queue.IsEmpty())
     {
@@ -542,10 +544,21 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
       if (entry.m_MetaData.m_Due > now)
         break;
 
-      ezGameObject* pReceiverObject = nullptr;
-      if (TryGetObject(entry.m_MetaData.m_ReceiverObject, pReceiverObject))
+      if (entry.m_MetaData.m_uiReceiverIsComponent)
       {
-        pReceiverObject->SendMessage(*entry.m_pMessage, entry.m_MetaData.m_Routing);
+        ezComponent* pReceiverComponent = nullptr;
+        if (TryGetComponent(entry.m_MetaData.m_ReceiverComponent, pReceiverComponent))
+        {
+          pReceiverComponent->SendMessage(*entry.m_pMessage);
+        }
+      }
+      else
+      {
+        ezGameObject* pReceiverObject = nullptr;
+        if (TryGetObject(entry.m_MetaData.m_ReceiverObject, pReceiverObject))
+        {
+          pReceiverObject->SendMessage(*entry.m_pMessage, entry.m_MetaData.m_Routing);
+        }
       }
 
       EZ_DELETE(&m_Data.m_Allocator, entry.m_pMessage);
@@ -561,22 +574,21 @@ ezResult ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFun
 {
   CheckForWriteAccess();
 
-  EZ_ASSERT_DEV(desc.m_Phase == ezComponentManagerBase::UpdateFunctionDesc::Async || desc.m_uiGranularity == 0, "Granularity must be 0 for synchronous update functions");
+  EZ_ASSERT_DEV(desc.m_Phase == ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_uiGranularity == 0, "Granularity must be 0 for synchronous update functions");
 
   ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase];
 
   if (desc.m_DependsOn.IsEmpty())
   {
-    ezInternal::WorldData::RegisteredUpdateFunction newFunction;
+    ezInternal::WorldData::RegisteredUpdateFunction& newFunction = updateFunctions.ExpandAndGetRef();
     newFunction.m_Function = desc.m_Function;
     newFunction.m_szFunctionName = desc.m_szFunctionName;
+    newFunction.m_bOnlyUpdateWhenSimulating = desc.m_bOnlyUpdateWhenSimulating;
     newFunction.m_uiGranularity = desc.m_uiGranularity;
-
-    updateFunctions.PushBack(newFunction);
   }
   else
   {
-    EZ_ASSERT_DEV(desc.m_Phase != ezComponentManagerBase::UpdateFunctionDesc::Async, "Asynchronous update functions must not have dependencies");
+    EZ_ASSERT_DEV(desc.m_Phase != ezComponentManagerBase::UpdateFunctionDesc::Phase::Async, "Asynchronous update functions must not have dependencies");
 
     if (RegisterUpdateFunctionWithDependency(desc, true) == EZ_FAILURE)
       return EZ_FAILURE;
@@ -626,6 +638,7 @@ ezResult ezWorld::RegisterUpdateFunctionWithDependency(const ezComponentManagerB
   ezInternal::WorldData::RegisteredUpdateFunction newFunction;
   newFunction.m_Function = desc.m_Function;
   newFunction.m_szFunctionName = desc.m_szFunctionName;
+  newFunction.m_bOnlyUpdateWhenSimulating = desc.m_bOnlyUpdateWhenSimulating;
   newFunction.m_uiGranularity = desc.m_uiGranularity;
 
   updateFunctions.Insert(newFunction, uiInsertionIndex);
@@ -657,7 +670,7 @@ void ezWorld::DeregisterUpdateFunctions(ezComponentManagerBase* pManager)
 {
   CheckForWriteAccess();
 
-  for (ezUInt32 phase = ezComponentManagerBase::UpdateFunctionDesc::PreAsync; phase < ezComponentManagerBase::UpdateFunctionDesc::PHASE_COUNT; ++phase)
+  for (ezUInt32 phase = ezComponentManagerBase::UpdateFunctionDesc::Phase::PreAsync; phase < ezComponentManagerBase::UpdateFunctionDesc::Phase::COUNT; ++phase)
   {
     ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[phase];
 
@@ -673,7 +686,8 @@ void ezWorld::DeregisterUpdateFunctions(ezComponentManagerBase* pManager)
 
 void ezWorld::AddComponentToInitialize(ezComponentHandle hComponent)
 {
-  m_ComponentsToInitialize.PushBack(hComponent);
+  m_Data.m_ComponentsToInitialize.PushBack(hComponent);
+  m_Data.m_ComponentsToStartSimulation.PushBack(hComponent);
 }
 
 void ezWorld::UpdateFromThread()
@@ -683,11 +697,59 @@ void ezWorld::UpdateFromThread()
   Update();
 }
 
+
+void ezWorld::ProcessComponentsToInitialize()
+{
+  for (ezComponentHandle hComponent : m_Data.m_ComponentsToInitialize)
+  {
+    ezComponent* pComponent = nullptr;
+    if (!TryGetComponent(hComponent, pComponent)) // if it is in the editor, the component might have been added and already deleted, without ever running the simulation
+      continue;
+
+    // may have been initialized by someone else in the mean time
+    if (pComponent->IsInitialized())
+      continue;
+
+    // make sure the object's transform is up to date before the component is initialized
+    if (pComponent->GetOwner())
+    {
+      pComponent->GetOwner()->UpdateGlobalTransform();
+    }
+
+    pComponent->Initialize();
+    pComponent->m_ComponentFlags.Add(ezObjectFlags::Initialized);
+  }
+
+  m_Data.m_ComponentsToInitialize.Clear();
+
+  if (m_Data.m_bSimulateWorld)
+  {
+    for (ezComponentHandle hComponent : m_Data.m_ComponentsToStartSimulation)
+    {
+      ezComponent* pComponent = nullptr;
+      if (!TryGetComponent(hComponent, pComponent)) // if it is in the editor, the component might have been added and already deleted, without ever running the simulation
+        continue;
+
+      // may have been called by someone else in the mean time
+      if (pComponent->IsSimulationStarted())
+        continue;
+
+      pComponent->OnSimulationStarted();
+      pComponent->m_ComponentFlags.Add(ezObjectFlags::SimulationStarted);
+    }
+
+    m_Data.m_ComponentsToStartSimulation.Clear();
+  }
+}
+
 void ezWorld::UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions)
 {
-  for (ezUInt32 i = 0; i < updateFunctions.GetCount(); ++i)
+  for (auto& updateFunction : updateFunctions)
   {
-    updateFunctions[i].m_Function(0, ezInvalidIndex);
+    if (updateFunction.m_bOnlyUpdateWhenSimulating && !m_Data.m_bSimulateWorld)
+      continue;
+
+    updateFunction.m_Function(0, ezInvalidIndex);
   }
 }
 
@@ -696,13 +758,15 @@ void ezWorld::UpdateAsynchronous()
   ezTaskGroupID taskGroupId = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
 
   ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions =
-    m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Async];
+    m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::Async];
 
   ezUInt32 uiCurrentTaskIndex = 0;
 
-  for (ezUInt32 i = 0; i < updateFunctions.GetCount(); ++i)
+  for (auto& updateFunction : updateFunctions)
   {
-    ezInternal::WorldData::RegisteredUpdateFunction& updateFunction = updateFunctions[i];
+    if (updateFunction.m_bOnlyUpdateWhenSimulating && !m_Data.m_bSimulateWorld)
+      continue;
+
     ezComponentManagerBase* pManager = static_cast<ezComponentManagerBase*>(updateFunction.m_Function.GetClassInstance());
 
     const ezUInt32 uiTotalCount = pManager->GetComponentCount();

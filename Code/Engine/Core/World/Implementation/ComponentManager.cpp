@@ -41,9 +41,10 @@ ezComponentHandle ezComponentManagerBase::CreateComponentEntry(ComponentStorageE
   pComponent->m_pManager = this;
   pComponent->m_InternalId = newId;
 
-  GetWorld()->AddComponentToInitialize(pComponent->GetHandle());
+  ezComponentHandle hComponent = pComponent->GetHandle();
+  m_pWorld->AddComponentToInitialize(hComponent);
 
-  return GetHandle(newId, uiTypeId);
+  return hComponent;
 }
 
 void ezComponentManagerBase::DeinitializeComponent(ezComponent* pComponent)

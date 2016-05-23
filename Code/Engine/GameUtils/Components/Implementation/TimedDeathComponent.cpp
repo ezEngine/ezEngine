@@ -55,33 +55,26 @@ void ezTimedDeathComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_hTimeoutPrefab;
 }
 
-ezComponent::Initialization ezTimedDeathComponent::Initialize()
+void ezTimedDeathComponent::OnSimulationStarted()
 {
   ezTriggerMessage msg;
-  msg.m_hTargetComponent = GetHandle();
   msg.m_UsageStringHash = ezTempHashedString("Suicide").GetHash();
 
   ezWorld* pWorld = GetWorld();
 
   const ezTime tKill = ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleInRange(m_MinDelay.GetSeconds(), m_DelayRange.GetSeconds()));
 
-  pWorld->PostMessage(GetOwner()->GetHandle(), msg, ezObjectMsgQueueType::NextFrame, tKill, ezObjectMsgRouting::ToComponents);
+  PostMessage(msg, ezObjectMsgQueueType::NextFrame, tKill);
 
   // make sure the prefab is available when the component dies
   if (m_hTimeoutPrefab.IsValid())
   {
     ezResourceManager::PreloadResource(m_hTimeoutPrefab, tKill);
   }
-
-  return ezComponent::Initialization::Done;
 }
 
 void ezTimedDeathComponent::OnTriggered(ezTriggerMessage& msg)
 {
-  // mass suicide is theoretically possible by sending this message without a specific target
-  if (!msg.m_hTargetComponent.IsInvalidated() && msg.m_hTargetComponent != GetHandle())
-    return;
-
   if (msg.m_UsageStringHash != ezTempHashedString("Suicide").GetHash())
     return;
 

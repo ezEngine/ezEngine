@@ -26,7 +26,7 @@ public:
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
   /// \brief Once this function has been executed, the timeout for deletion is fixed and cannot be reset.
-  virtual Initialization Initialize() override;
+  virtual void OnSimulationStarted() override;
 
   void OnTriggered(ezTriggerMessage& msg);
 

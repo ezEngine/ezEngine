@@ -121,6 +121,9 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
     }
   }
 
+  // one update step so components are initialized
+  world.Update();
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Direct Routing")
   {
     ResetComponents(*pRoot);

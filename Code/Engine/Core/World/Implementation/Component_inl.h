@@ -24,7 +24,22 @@ EZ_FORCE_INLINE bool ezComponent::IsActive() const
   return m_pOwner && m_ComponentFlags.IsSet(ezObjectFlags::Active);
 }
 
-EZ_FORCE_INLINE ezComponentManagerBase* ezComponent::GetManager() const
+EZ_FORCE_INLINE bool ezComponent::IsActiveAndInitialized() const
+{
+  return m_pOwner && m_ComponentFlags.AreAllSet(ezObjectFlags::Active | ezObjectFlags::Initialized);
+}
+
+EZ_FORCE_INLINE bool ezComponent::IsSimulationStarted() const
+{
+  return m_ComponentFlags.IsSet(ezObjectFlags::SimulationStarted);
+}
+
+EZ_FORCE_INLINE ezComponentManagerBase* ezComponent::GetManager()
+{
+  return m_pManager;
+}
+
+EZ_FORCE_INLINE const ezComponentManagerBase* ezComponent::GetManager() const
 {
   return m_pManager;
 }
@@ -39,34 +54,41 @@ EZ_FORCE_INLINE const ezGameObject* ezComponent::GetOwner() const
   return m_pOwner;
 }
 
-EZ_FORCE_INLINE ezComponentHandle ezComponent::GetHandle() const
-{
-  return ezComponentHandle(ezComponentId(m_InternalId, GetTypeId()));
-}
 // static 
 EZ_FORCE_INLINE ezUInt16 ezComponent::TypeId()
 { 
   return TYPE_ID;
 }
 
+EZ_FORCE_INLINE ezUInt32 ezComponent::GetEditorPickingID() const
+{
+  return m_uiEditorPickingID;
+}
+
+EZ_FORCE_INLINE void ezComponent::SetEditorPickingID(ezUInt32 uiEditorPickingID)
+{
+  m_uiEditorPickingID = uiEditorPickingID;
+}
+
+EZ_FORCE_INLINE void ezComponent::SendMessage(ezMessage& msg)
+{
+  if (IsActiveAndInitialized())
+    GetDynamicRTTI()->DispatchMessage(this, msg);
+}
+
+EZ_FORCE_INLINE void ezComponent::SendMessage(ezMessage& msg) const
+{
+  if (IsActiveAndInitialized())
+    GetDynamicRTTI()->DispatchMessage(this, msg);
+}
+
 template <typename T>
 EZ_FORCE_INLINE ezComponentHandle ezComponent::GetHandle() const
 {
-  return ezComponentHandle(ezComponentId(m_InternalId, T::TypeId()));
+  return ezComponentHandle(ezComponentId(m_InternalId, T::TypeId(), GetWorld()->GetIndex()));
 }
 
 EZ_FORCE_INLINE bool ezComponent::IsInitialized() const
 {
   return m_ComponentFlags.IsSet(ezObjectFlags::Initialized);
 }
-
-EZ_FORCE_INLINE void ezComponent::OnMessage(ezMessage& msg) 
-{
-  GetDynamicRTTI()->DispatchMessage(this, msg);
-}
-
-EZ_FORCE_INLINE void ezComponent::OnMessage(ezMessage& msg) const
-{
-  GetDynamicRTTI()->DispatchMessage(this, msg);
-}
-

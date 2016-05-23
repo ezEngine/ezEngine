@@ -112,7 +112,7 @@ void ezPxDynamicActorComponent::Update()
   }
 }
 
-ezComponent::Initialization ezPxDynamicActorComponent::Initialize()
+void ezPxDynamicActorComponent::OnSimulationStarted()
 {
   ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
 
@@ -139,7 +139,7 @@ ezComponent::Initialization ezPxDynamicActorComponent::Initialize()
     m_pActor = nullptr;
 
     ezLog::Error("Rigid Body '%s' does not have any shape components. Actor will be removed.", GetOwner()->GetName());
-    return ezComponent::Initialization::Done;
+    return;
   }
 
   ezVec3 vCoM(0.0f);
@@ -169,8 +169,6 @@ ezComponent::Initialization ezPxDynamicActorComponent::Initialize()
   pModule->GetPxScene()->addActor(*m_pActor);
 
   m_pActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, m_bKinematic);
-
-  return ezComponent::Initialization::Done;
 }
 
 void ezPxDynamicActorComponent::Deinitialize()

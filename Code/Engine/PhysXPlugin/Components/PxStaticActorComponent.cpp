@@ -72,7 +72,7 @@ void ezPxStaticActorComponent::SetMesh(const ezPhysXMeshResourceHandle& hMesh)
   m_hCollisionMesh = hMesh;
 }
 
-ezComponent::Initialization ezPxStaticActorComponent::Initialize()
+void ezPxStaticActorComponent::OnSimulationStarted()
 {
   ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
 
@@ -174,15 +174,14 @@ ezComponent::Initialization ezPxStaticActorComponent::Initialize()
   }
 
   pModule->GetPxScene()->addActor(*m_pActor);
-
-  return ezComponent::Initialization::Done;
 }
 
 void ezPxStaticActorComponent::Deinitialize()
 {
-  ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
-
-  m_pActor->release();
-  m_pActor = nullptr;
+  if (m_pActor != nullptr)
+  {
+    m_pActor->release();
+    m_pActor = nullptr;
+  }
 }
 

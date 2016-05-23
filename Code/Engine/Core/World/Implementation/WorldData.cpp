@@ -35,8 +35,10 @@ WorldData::WorldData(const char* szWorldName) :
   m_AllocatorWrapper(&m_Allocator),
   m_BlockAllocator(szWorldName, &m_Allocator),
   m_ObjectStorage(&m_BlockAllocator, &m_Allocator),
+  m_Clock(szWorldName),
   m_WriteThreadID((ezThreadID)0),
   m_iWriteCounter(0),
+  m_bSimulateWorld(true),
   m_ReadMarker(*this),
   m_WriteMarker(*this),
   m_pUserData(nullptr)
@@ -45,12 +47,15 @@ WorldData::WorldData(const char* szWorldName) :
 
   m_sName.Assign(szWorldName);
 
+  m_Random.InitializeFromCurrentTime();
+
   // insert dummy entry to save some checks
   ObjectStorage::Entry entry = { nullptr };
   m_Objects.Insert(entry);
 
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 192);
   //EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject) == 128); /// \todo get game object size back to 128
+  EZ_CHECK_AT_COMPILETIME(sizeof(QueuedMsgMetaData) == 16);
 
   m_pCoordinateSystemProvider = EZ_NEW(&m_Allocator, DefaultCoordinateSystemProvider);
 }

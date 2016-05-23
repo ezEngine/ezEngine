@@ -215,6 +215,27 @@ EZ_FORCE_INLINE void ezWorld::SendMessage(const ezGameObjectHandle& receiverObje
   }
 }
 
+EZ_FORCE_INLINE void ezWorld::SendMessage(const ezComponentHandle& receiverComponent, ezMessage& msg)
+{
+  CheckForWriteAccess();
+
+  ezComponent* pReceiverComponent = nullptr;
+  if (TryGetComponent(receiverComponent, pReceiverComponent))
+  {
+    pReceiverComponent->SendMessage(msg);
+  }
+}
+
+EZ_FORCE_INLINE void ezWorld::SetWorldSimulationEnabled(bool bEnable)
+{
+  m_Data.m_bSimulateWorld = bEnable;
+}
+
+EZ_FORCE_INLINE bool ezWorld::GetWorldSimulationEnabled() const
+{
+  return m_Data.m_bSimulateWorld;
+}
+
 EZ_FORCE_INLINE ezTask* ezWorld::GetUpdateTask()
 {
   return &m_UpdateTask;
@@ -241,6 +262,21 @@ EZ_FORCE_INLINE void ezWorld::SetCoordinateSystemProvider(ezUniquePtr<ezCoordina
 EZ_FORCE_INLINE ezCoordinateSystemProvider* ezWorld::GetCoordinateSystemProvider() const
 {
   return m_Data.m_pCoordinateSystemProvider.Borrow();
+}
+
+EZ_FORCE_INLINE ezClock& ezWorld::GetClock()
+{
+  return m_Data.m_Clock;
+}
+
+EZ_FORCE_INLINE const ezClock& ezWorld::GetClock() const
+{
+  return m_Data.m_Clock;
+}
+
+EZ_FORCE_INLINE ezRandom& ezWorld::GetRandomNumberGenerator()
+{
+  return m_Data.m_Random;
 }
 
 EZ_FORCE_INLINE ezAllocatorBase* ezWorld::GetAllocator()

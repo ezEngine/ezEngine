@@ -124,8 +124,8 @@ void ezWorldRttiConverterContext::RegisterObject(const ezUuid& guid, const ezRTT
   {
     ezComponent* pComponent = static_cast<ezComponent*>(pObject);
     m_ComponentMap.RegisterObject(guid, pComponent->GetHandle());
-    pComponent->m_uiEditorPickingID = m_uiNextComponentPickingID++;
-    m_ComponentPickingMap.RegisterObject(guid, pComponent->m_uiEditorPickingID);
+    pComponent->SetEditorPickingID(m_uiNextComponentPickingID++);
+    m_ComponentPickingMap.RegisterObject(guid, pComponent->GetEditorPickingID());
   }
   
   ezRttiConverterContext::RegisterObject(guid, pRtti, pObject);

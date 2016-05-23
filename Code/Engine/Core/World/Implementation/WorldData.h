@@ -11,6 +11,9 @@
 
 #include <Foundation/Types/UniquePtr.h>
 
+#include <Foundation/Time/Clock.h>
+#include <Foundation/Math/Random.h>
+
 #include <Core/World/CoordinateSystem.h>
 #include <Core/World/GameObject.h>
 
@@ -91,6 +94,9 @@ namespace ezInternal
 
     ezDynamicArray<ezComponentManagerBase::ComponentStorageEntry, ezLocalAllocatorWrapper> m_DeadComponents;
 
+    ezDynamicArray<ezComponentHandle, ezLocalAllocatorWrapper> m_ComponentsToInitialize;
+    ezDynamicArray<ezComponentHandle, ezLocalAllocatorWrapper> m_ComponentsToStartSimulation;
+
     typedef ezComponentManagerBase::UpdateFunction UpdateFunction;
     struct RegisteredUpdateFunction
     {
@@ -98,7 +104,8 @@ namespace ezInternal
 
       UpdateFunction m_Function;
       const char* m_szFunctionName;
-      ezUInt32 m_uiGranularity;
+      bool m_bOnlyUpdateWhenSimulating;
+      ezUInt16 m_uiGranularity;
     };
   
     struct UpdateTask : public ezTask
@@ -110,17 +117,39 @@ namespace ezInternal
       ezUInt32 m_uiCount;
     };
 
-    ezDynamicArray<RegisteredUpdateFunction, ezLocalAllocatorWrapper> m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::PHASE_COUNT];
+    ezDynamicArray<RegisteredUpdateFunction, ezLocalAllocatorWrapper> m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::COUNT];
     ezDynamicArray<ezComponentManagerBase::UpdateFunctionDesc, ezLocalAllocatorWrapper> m_UnresolvedUpdateFunctions;
 
     ezDynamicArray<UpdateTask*, ezLocalAllocatorWrapper> m_UpdateTasks;
 
     ezUniquePtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;
 
+    ezClock m_Clock;
+    ezRandom m_Random;
+
     struct QueuedMsgMetaData
     {
-      ezGameObjectHandle m_ReceiverObject;
-      ezObjectMsgRouting::Enum m_Routing;
+      QueuedMsgMetaData() {}
+
+      EZ_DECLARE_POD_TYPE();
+
+      union
+      {
+        struct 
+        {
+          ezGameObjectHandle m_ReceiverObject;
+          ezObjectMsgRouting::Enum m_Routing;
+        };
+
+        ezComponentHandle m_ReceiverComponent;
+
+        struct  
+        {
+          ezUInt64 m_uiReceiverAndRouting : 63;
+          ezUInt64 m_uiReceiverIsComponent : 1;
+        };        
+      };
+      
       ezTime m_Due;
     };
 
@@ -131,6 +160,8 @@ namespace ezInternal
     ezThreadID m_WriteThreadID;
     ezInt32 m_iWriteCounter;
     mutable ezAtomicInteger32 m_iReadCounter;
+
+    bool m_bSimulateWorld;
 
   public:
     class ReadMarker

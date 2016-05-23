@@ -29,7 +29,7 @@ void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_hPrefab;
 
-  const bool instantiate = m_uiEditorPickingID != 0xFFFFFFFF;
+  const bool instantiate = GetEditorPickingID() != 0xFFFFFFFF;
   s << instantiate;
 }
 
@@ -157,7 +157,7 @@ static void SetEditorPickingID(ezGameObject* pObject, ezUInt32 uiPickingID, cons
 
   for (auto pComponent : pObject->GetComponents())
   {
-    pComponent->m_uiEditorPickingID = uiPickingID;
+    pComponent->SetEditorPickingID(uiPickingID);
   }
 
   
@@ -182,7 +182,7 @@ void ezPrefabReferenceComponentManager::SimpleUpdate(ezUInt32 uiStartIndex, ezUI
 
     // if this ID is valid, this prefab is instantiated at editor runtime
     // replicate the same ID across all instantiated sub components to get correct picking behavior
-    if (pPrefab->m_uiEditorPickingID != 0xFFFFFFFF)
+    if (pPrefab->GetEditorPickingID() != 0xFFFFFFFF)
     {
       // while exporting a scene all game objects with this tag are ignored and not exported
       // set this tag on all game objects that were created by instantiating this prefab
@@ -191,7 +191,7 @@ void ezPrefabReferenceComponentManager::SimpleUpdate(ezUInt32 uiStartIndex, ezUI
       ezTag tag;
       ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tag);
 
-      SetEditorPickingID(pPrefab->GetOwner(), pPrefab->m_uiEditorPickingID, tag);
+      SetEditorPickingID(pPrefab->GetOwner(), pPrefab->GetEditorPickingID(), tag);
       pPrefab->GetOwner()->GetTags().Remove(tag); // remove it from the top level prefab game object again
     }
   }

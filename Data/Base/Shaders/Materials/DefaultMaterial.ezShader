@@ -11,11 +11,11 @@ DEFAULT_MAT_USE_BASE_TEXTURE
 
 [MATERIALPARAMETER]
 
-Permutation BLEND_MODE @Name("BlendMode");
-Permutation SHADING_MODE @Name("ShadingMode");
-Permutation TWO_SIDED @Name("TwoSided");
+Permutation BLEND_MODE;
+Permutation SHADING_MODE;
+Permutation TWO_SIDED;
 
-Permutation DEFAULT_MAT_USE_BASE_TEXTURE @Name("UseBaseTexture");
+Permutation DEFAULT_MAT_USE_BASE_TEXTURE;
 Texture2D BaseTexture;
 Color BaseColor @Default(1.0, 1.0, 1.0);
 

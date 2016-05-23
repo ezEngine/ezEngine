@@ -93,7 +93,7 @@ protected:
   // ************************************* FUNCTIONS *****************************
 
 
-  virtual Initialization Initialize() override;
+  virtual void OnSimulationStarted() override;
 
   bool SpawnOnce();
 

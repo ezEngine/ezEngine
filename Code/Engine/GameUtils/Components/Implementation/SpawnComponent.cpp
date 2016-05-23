@@ -35,7 +35,7 @@ ezSpawnComponent::ezSpawnComponent()
 {
 }
 
-ezComponent::Initialization ezSpawnComponent::Initialize()
+void ezSpawnComponent::OnSimulationStarted()
 {
   if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::SpawnAtStart))
   {
@@ -43,8 +43,6 @@ ezComponent::Initialization ezSpawnComponent::Initialize()
 
     ScheduleSpawn();
   }
-
-  return ezComponent::Initialization::Done;
 }
 
 
@@ -97,7 +95,6 @@ void ezSpawnComponent::ScheduleSpawn()
     return;
 
   ezTriggerMessage msg;
-  msg.m_hTargetComponent = GetHandle();
   msg.m_UsageStringHash = ezTempHashedString("scheduled_spawn").GetHash();
 
   m_SpawnFlags.Add(ezSpawnComponentFlags::SpawnInFlight);
@@ -106,7 +103,7 @@ void ezSpawnComponent::ScheduleSpawn()
 
   const ezTime tKill = ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleInRange(m_MinDelay.GetSeconds(), m_DelayRange.GetSeconds()));
 
-  pWorld->PostMessage(GetOwner()->GetHandle(), msg, ezObjectMsgQueueType::NextFrame, tKill, ezObjectMsgRouting::ToComponents);
+  PostMessage(msg, ezObjectMsgQueueType::NextFrame, tKill);
 }
 
 void ezSpawnComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -182,9 +179,6 @@ void ezSpawnComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab)
 
 void ezSpawnComponent::OnTriggered(ezTriggerMessage& msg)
 {
-  if (!msg.m_hTargetComponent.IsInvalidated() && msg.m_hTargetComponent != GetHandle())
-    return;
-
   if (msg.m_UsageStringHash == ezTempHashedString("scheduled_spawn").GetHash())
   {
     m_SpawnFlags.Remove(ezSpawnComponentFlags::SpawnInFlight);

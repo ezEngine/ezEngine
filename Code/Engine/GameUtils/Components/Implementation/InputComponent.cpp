@@ -55,7 +55,8 @@ void ezInputComponent::Update()
 
   for (const ezString& actionName : AllActions)
   {
-    const ezKeyState::Enum state = ezInputManager::GetInputActionState(m_sInputSet, actionName, &msg.m_fTriggerValue);
+    float fValue = 0.0f;
+    const ezKeyState::Enum state = ezInputManager::GetInputActionState(m_sInputSet, actionName, &fValue);
 
     if (state == ezKeyState::Up)
       continue;
@@ -67,6 +68,8 @@ void ezInputComponent::Update()
     msg.m_TriggerState = ToTriggerState(state);
 
     msg.m_UsageStringHash = ezTempHashedString(actionName.GetData()).GetHash();
+
+    msg.m_TriggerValue = fValue;
 
     // SendMessage, not PostMessage, because the string pointers would not be valid otherwise
     GetOwner()->SendMessage(msg, ezObjectMsgRouting::ToComponents); /// \todo Make it configurable where the message is sent to

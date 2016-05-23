@@ -3,8 +3,6 @@
 #include <Core/World/Implementation/SpatialData.h>
 #include <Core/World/Implementation/WorldData.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <Foundation/Time/Clock.h>
-#include <Foundation/Math/Random.h>
 
 /// \brief A world encapsulates a scene graph of game objects and various component managers and their components.
 ///
@@ -122,11 +120,21 @@ public:
     ezObjectMsgQueueType::Enum queueType, ezTime delay, ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
 
 
-  /// \brief If enabled, the full simulation should be executed, otherwise only the rendering related updates should be done
-  void SetWorldSimulationEnabled(bool bEnable) { m_bSimulateWorld = bEnable; }
+  /// \brief Sends a message to the component.
+  void SendMessage(const ezComponentHandle& receiverComponent, ezMessage& msg);
+
+  /// \brief Queues the message for the given phase and send it later in that phase to the receiverComponent.
+  void PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType);
+
+  /// \brief Queues the message for the given phase. The message is send to the receiverComponent after the given delay in the corresponding phase.
+  void PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay);
+
 
   /// \brief If enabled, the full simulation should be executed, otherwise only the rendering related updates should be done
-  bool GetWorldSimulationEnabled() const { return m_bSimulateWorld; }
+  void SetWorldSimulationEnabled(bool bEnable);
+
+  /// \brief If enabled, the full simulation should be executed, otherwise only the rendering related updates should be done
+  bool GetWorldSimulationEnabled() const;
 
   /// \brief Updates the world by calling the various update methods on the component managers and also updates the transformation data of the game objects. 
   /// See ezWorld for a detailed description of the update phases.
@@ -152,6 +160,17 @@ public:
   ezCoordinateSystemProvider* GetCoordinateSystemProvider() const;
 
 
+  /// \brief Returns the clock that is used for all updates in this game world
+  ezClock& GetClock();
+
+  /// \brief Returns the clock that is used for all updates in this game world
+  const ezClock& GetClock() const;
+
+  /// \brief Accesses the default random number generator.
+  /// If more control is desired, individual components should use their own RNG.
+  ezRandom& GetRandomNumberGenerator();
+
+
   /// \brief Returns the allocator used by this world.
   ezAllocatorBase* GetAllocator();
 
@@ -170,16 +189,6 @@ public:
 
   /// \brief Returns the associated user data.
   void* GetUserData() const;
-
-  /// \brief Returns the clock that is used for all updates in this game world
-  ezClock& GetClock() { return m_Clock; }
-
-  /// \brief Returns the clock that is used for all updates in this game world
-  const ezClock& GetClock() const { return m_Clock; }
-
-  /// \brief Accesses the default random number generator.
-  /// If more control is desired, individual components should use their own RNG.
-  ezRandom& GetRandomNumberGenerator() { return m_Random; }
 
 public:
   /// \brief Returns the number of active worlds.
@@ -215,21 +224,13 @@ private:
   void AddComponentToInitialize(ezComponentHandle hComponent);
 
   void UpdateFromThread();
+  void ProcessComponentsToInitialize();
   void UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions);
   void UpdateAsynchronous();
   void DeleteDeadObjects();
   void DeleteDeadComponents();
 
   void PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformPreservation preserve);
-
-  // if true, the full simulation should be executed, otherwise only the rendering related updates should be done
-  bool m_bSimulateWorld;
-
-  // the timer that is used for all world and component updates
-  ezClock m_Clock;
-
-  // the default random number generator for this world
-  ezRandom m_Random;
 
   ezProfilingId m_UpdateProfilingID;
   ezDelegateTask<void> m_UpdateTask;
@@ -243,9 +244,6 @@ private:
 
   ezUInt32 m_uiIndex;
   static ezStaticArray<ezWorld*, 64> s_Worlds;
-
-  ezDeque<ezComponentHandle> m_ComponentsToInitialize;
-  ezDeque<ezComponent*> m_ComponentsToInitialize2;
 };
 
 #include <Core/World/Implementation/World_inl.h>

@@ -3,7 +3,7 @@
 #include <PhysXPlugin/Components/PxActorComponent.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
 
-typedef ezComponentManagerSimple<class ezPxStaticActorComponent, true> ezPxStaticActorComponentManager;
+typedef ezComponentManager<class ezPxStaticActorComponent> ezPxStaticActorComponentManager;
 
 class EZ_PHYSXPLUGIN_DLL ezPxStaticActorComponent : public ezPxActorComponent
 {
@@ -33,9 +33,7 @@ public:
   void SetMesh(const ezPhysXMeshResourceHandle& hMesh);
   EZ_FORCE_INLINE const ezPhysXMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; }
 
-  void Update() {}
-
-  virtual ezComponent::Initialization Initialize() override;
+  virtual void OnSimulationStarted() override;
 
   virtual void Deinitialize() override;
 

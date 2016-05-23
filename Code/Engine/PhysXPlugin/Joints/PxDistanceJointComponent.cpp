@@ -1,6 +1,7 @@
 #include <PhysXPlugin/PCH.h>
 #include <PhysXPlugin/Joints/PxDistanceJointComponent.h>
 #include <PhysXPlugin/PhysXWorldModule.h>
+#include <Core/Messages/CallDelayedStartMessage.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
@@ -15,6 +16,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDistanceJointComponent, 1)
     EZ_MEMBER_PROPERTY("Spring Tolerance", m_fSpringTolerance),
   }
   EZ_END_PROPERTIES
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezCallDelayedStartMessage, OnDelayedSimulationStarted),
+  }
+  EZ_END_MESSAGEHANDLERS
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -57,7 +63,12 @@ void ezPxDistanceJointComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fSpringTolerance;
 }
 
-void ezPxDistanceJointComponent::Initialize2()
+void ezPxDistanceJointComponent::OnSimulationStarted()
+{
+  PostMessage(ezCallDelayedStartMessage(), ezObjectMsgQueueType::NextFrame);
+}
+
+void ezPxDistanceJointComponent::OnDelayedSimulationStarted(ezCallDelayedStartMessage& msg)
 {
   PxDistanceJoint* pJoint = static_cast<PxDistanceJoint*>(SetupJoint());
 

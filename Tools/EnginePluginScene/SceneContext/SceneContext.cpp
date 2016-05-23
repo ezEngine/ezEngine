@@ -269,7 +269,7 @@ void ezSceneContext::GenerateShapeIconMesh()
         continue;
 
       ShapeIconData::PosID& pid = pData->m_IconPositions.ExpandAndGetRef();
-      pid.id = it->GetComponents()[0]->m_uiEditorPickingID;
+      pid.id = it->GetComponents()[0]->GetEditorPickingID();
       pid.pos = it->GetGlobalPosition();
     }
   }

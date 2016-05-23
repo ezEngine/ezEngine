@@ -17,6 +17,7 @@
 void OnLoadPlugin(bool bReloading)
 {
   ezTranslatorFromFiles::AddTranslationFile("AssetsPlugin.txt");
+  ezTranslatorFromFiles::AddTranslationFile("PermutationVars.txt");
 
   // Texture Asset
   {

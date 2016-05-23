@@ -257,7 +257,7 @@ void ezPxCharacterControllerComponent::Update()
   m_InputStateBits = 0;
 }
 
-ezComponent::Initialization ezPxCharacterControllerComponent::Initialize()
+void ezPxCharacterControllerComponent::OnSimulationStarted()
 {
   ezPhysXWorldModule* pModule = static_cast<ezPhysXWorldModule*>(GetManager()->GetUserData());
 
@@ -288,14 +288,12 @@ ezComponent::Initialization ezPxCharacterControllerComponent::Initialize()
   if (!cd.isValid())
   {
     ezLog::Error("The Character Controller configuration is invalid.");
-    return ezComponent::Initialization::Done;
+    return;
   }
 
   m_pController = static_cast<PxCapsuleController*>(pModule->GetCharacterManager()->createController(cd));
 
   EZ_ASSERT_DEV(m_pController != nullptr, "Failed to create character controller");
-
-  return ezComponent::Initialization::Done;
 }
 
 void ezPxCharacterControllerComponent::Deinitialize()
@@ -310,7 +308,7 @@ void ezPxCharacterControllerComponent::Deinitialize()
 
 void ezPxCharacterControllerComponent::TriggerMessageHandler(ezTriggerMessage& msg)
 {
-  float f = msg.m_fTriggerValue;
+  float f = msg.m_TriggerValue.ConvertTo<float>();
 
   if (msg.m_UsageStringHash == ezTempHashedString("MoveForwards").GetHash())
   {

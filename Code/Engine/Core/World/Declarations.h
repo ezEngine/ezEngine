@@ -90,22 +90,25 @@ struct ezComponentId : public ezGenericComponentId
   EZ_FORCE_INLINE ezComponentId() : ezGenericComponentId()
   {
     m_TypeId = 0;
+    m_WorldIndex = 0;
   }
 
-  EZ_FORCE_INLINE ezComponentId(StorageType instanceIndex, StorageType generation, ezUInt16 typeId = 0) : 
+  EZ_FORCE_INLINE ezComponentId(StorageType instanceIndex, StorageType generation, ezUInt16 typeId = 0, ezUInt16 worldIndex = 0) :
     ezGenericComponentId(instanceIndex, generation)
   {
     m_TypeId = typeId;
+    m_WorldIndex = worldIndex;
   }
 
-  EZ_FORCE_INLINE ezComponentId(ezGenericComponentId genericId, ezUInt16 typeId) : 
+  EZ_FORCE_INLINE ezComponentId(ezGenericComponentId genericId, ezUInt16 typeId, ezUInt16 worldIndex) :
     ezGenericComponentId(genericId)
   {
     m_TypeId = typeId;
+    m_WorldIndex = worldIndex;
   }
 
-  /// \todo ezComponentHandle becomes 8 (6 + padding) bytes large due to this. Was that intended?
   ezUInt16 m_TypeId;
+  ezUInt16 m_WorldIndex;
 };
 
 /// \brief A handle to a component.
@@ -133,6 +136,7 @@ struct ezObjectFlags
     Dynamic = EZ_BIT(0),
     Active  = EZ_BIT(1),
     Initialized = EZ_BIT(2),
+    SimulationStarted = EZ_BIT(3),
 
     Default = Dynamic | Active
   };
@@ -142,6 +146,7 @@ struct ezObjectFlags
     StorageType Dynamic : 1;
     StorageType Active : 1;
     StorageType Initialized : 1;
+    StorageType SimulationStarted : 1;
   };
 };
 

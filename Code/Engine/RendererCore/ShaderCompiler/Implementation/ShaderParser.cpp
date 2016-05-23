@@ -5,24 +5,6 @@
 
 namespace
 {
-  static ezHashTable<const char*, const ezRTTI*> s_NameToTypeTable;
-
-  void InitializeTables()
-  {
-    if (!s_NameToTypeTable.IsEmpty())
-      return;
-
-    s_NameToTypeTable.Insert("float", ezGetStaticRTTI<float>());
-    s_NameToTypeTable.Insert("float2", ezGetStaticRTTI<ezVec2>());
-    s_NameToTypeTable.Insert("float3", ezGetStaticRTTI<ezVec3>());
-    s_NameToTypeTable.Insert("float4", ezGetStaticRTTI<ezVec4>());
-    s_NameToTypeTable.Insert("Color", ezGetStaticRTTI<ezColor>());
-    s_NameToTypeTable.Insert("Texture", ezGetStaticRTTI<ezString>());
-    s_NameToTypeTable.Insert("Texture2D", ezGetStaticRTTI<ezString>());
-    s_NameToTypeTable.Insert("Texture3D", ezGetStaticRTTI<ezString>());
-    s_NameToTypeTable.Insert("TextureCube", ezGetStaticRTTI<ezString>());
-  }
-
   bool IsIdentifier(ezUInt32 c)
   {
     return !ezStringUtils::IsIdentifierDelimiter_C_Code(c);
@@ -33,28 +15,6 @@ namespace
     while (s.IsValid() && ezStringUtils::IsWhiteSpace(s.GetCharacter()))
     {
       ++s;
-    }
-  }
-
-  void FillType(ezShaderParser::ParameterDefinition& def)
-  {
-    InitializeTables();
-
-    def.m_pType = nullptr;
-    if (s_NameToTypeTable.TryGetValue(def.m_sType.GetData(), def.m_pType))
-    {
-      if (def.m_sType.IsEqual("Texture2D") || def.m_sType.IsEqual("Texture"))
-      {
-        def.m_Attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture 2D"));
-      }
-      else if (def.m_sType.IsEqual("Texture3D"))
-      {
-        def.m_Attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture 3D"));
-      }
-      else if (def.m_sType.IsEqual("TextureCube"))
-      {
-        def.m_Attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture Cube"));
-      }
     }
   }
 
@@ -73,7 +33,8 @@ namespace
       ++s;
     }
 
-    ezStringView sAttributeName(szNameStart, s.GetData());
+    ezShaderParser::AttributeDefinition attributeDef;
+    attributeDef.m_sName = ezStringView(szNameStart, s.GetData());
 
     SkipWhitespace(s);
 
@@ -93,7 +54,11 @@ namespace
 
     ++s; //skip )
 
-    ezStringView sAttributeValue(szValueStart, s.GetData());
+    attributeDef.m_sValue = ezStringView(szValueStart, s.GetData());
+    if (!def.m_sName.IsEmpty())
+    {
+      def.m_Attributes.PushBack(attributeDef);
+    }
   }
 }
 
@@ -121,7 +86,6 @@ void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& stream, ezHyb
 
     ParameterDefinition def;
     def.m_sType = ezStringView(szTypeStart, s.GetData());
-    FillType(def);
         
     SkipWhitespace(s);
 

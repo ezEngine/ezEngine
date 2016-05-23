@@ -104,14 +104,9 @@ void ezProjectileComponent::Update()
     ezVec3 vCurDirection = m_vVelocity * fTimeDiff;
     float fDistance = 0.0f;
     
-    /// \todo Fix that components can be updated before they are initialized
     if (!vCurDirection.IsZero())
       fDistance = vCurDirection.GetLengthAndNormalize();
-    else
-    {
-      int i = 0;
-    }
-
+    
     ezVec3 vPos, vNormal;
     ezGameObjectHandle hObject;
     ezSurfaceResourceHandle hSurface;
@@ -264,17 +259,14 @@ void ezProjectileComponent::TriggerSurfaceInteraction(const ezSurfaceResourceHan
 }
 
 
-ezComponent::Initialization ezProjectileComponent::Initialize()
+void ezProjectileComponent::OnSimulationStarted()
 {
   if (m_MaxLifetime.GetSeconds() > 0.0)
   {
     ezTriggerMessage msg;
-    msg.m_hTargetComponent = GetHandle();
     msg.m_UsageStringHash = ezTempHashedString("Suicide").GetHash();
 
-    ezWorld* pWorld = GetWorld();
-
-    pWorld->PostMessage(GetOwner()->GetHandle(), msg, ezObjectMsgQueueType::NextFrame, m_MaxLifetime, ezObjectMsgRouting::ToComponents);
+    PostMessage(msg, ezObjectMsgQueueType::NextFrame, m_MaxLifetime);
 
     // make sure the prefab is available when the projectile dies
     if (m_hTimeoutPrefab.IsValid())
@@ -284,16 +276,10 @@ ezComponent::Initialization ezProjectileComponent::Initialize()
   }
 
   m_vVelocity = GetOwner()->GetGlobalRotation() * ezVec3(1, 0, 0) * m_fMetersPerSecond;
-
-  return ezComponent::Initialization::Done;
 }
 
 void ezProjectileComponent::OnTriggered(ezTriggerMessage& msg)
 {
-  // mass suicide is theoretically possible by sending this message without a specific target
-  if (!msg.m_hTargetComponent.IsInvalidated() && msg.m_hTargetComponent != GetHandle())
-    return;
-
   if (msg.m_UsageStringHash != ezTempHashedString("Suicide").GetHash())
     return;
 

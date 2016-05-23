@@ -35,18 +35,6 @@ EZ_FORCE_INLINE ezUInt32 ezComponentManagerBase::GetComponentCount() const
   return m_Components.GetCount();
 }
 
-//static
-EZ_FORCE_INLINE ezComponentId ezComponentManagerBase::GetIdFromHandle(const ezComponentHandle& component)
-{
-  return component;
-}
-
-//static
-EZ_FORCE_INLINE ezComponentHandle ezComponentManagerBase::GetHandle(ezGenericComponentId internalId, ezUInt16 uiTypeId)
-{
-  return ezComponentHandle(ezComponentId(internalId, uiTypeId));
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename T, bool CompactStorage>
@@ -86,9 +74,11 @@ EZ_FORCE_INLINE ezComponentHandle ezComponentManager<T, CompactStorage>::CreateC
 template <typename T, bool CompactStorage>
 EZ_FORCE_INLINE bool ezComponentManager<T, CompactStorage>::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent)
 {
-  EZ_ASSERT_DEBUG(ComponentType::TypeId() == GetIdFromHandle(component).m_TypeId, 
+  EZ_ASSERT_DEV(ComponentType::TypeId() == component.GetInternalID().m_TypeId, 
     "The given component handle is not of the expected type. Expected type id %d, got type id %d",
-    ComponentType::TypeId(), GetIdFromHandle(component).m_TypeId);
+    ComponentType::TypeId(), component.GetInternalID().m_TypeId);
+  EZ_ASSERT_DEV(component.GetInternalID().m_WorldIndex == GetWorld()->GetIndex(),
+    "Component does not belong to this world. Expected world id %d got id %d", GetWorld()->GetIndex(), component.GetInternalID().m_WorldIndex);
 
   ezComponent* pComponent = nullptr;
   bool bResult = ezComponentManagerBase::TryGetComponent(component, pComponent);
@@ -99,9 +89,11 @@ EZ_FORCE_INLINE bool ezComponentManager<T, CompactStorage>::TryGetComponent(cons
 template <typename T, bool CompactStorage>
 EZ_FORCE_INLINE bool ezComponentManager<T, CompactStorage>::TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const
 {
-  EZ_ASSERT_DEBUG(ComponentType::TypeId() == GetIdFromHandle(component).m_TypeId,
+  EZ_ASSERT_DEV(ComponentType::TypeId() == component.GetInternalID().m_TypeId,
     "The given component handle is not of the expected type. Expected type id %d, got type id %d",
-    ComponentType::TypeId(), GetIdFromHandle(component).m_TypeId);
+    ComponentType::TypeId(), component.GetInternalID().m_TypeId);
+  EZ_ASSERT_DEV(component.GetInternalID().m_WorldIndex == GetWorld()->GetIndex(),
+    "Component does not belong to this world. Expected world id %d got id %d", GetWorld()->GetIndex(), component.GetInternalID().m_WorldIndex);
 
   const ezComponent* pComponent = nullptr;
   bool bResult = ezComponentManagerBase::TryGetComponent(component, pComponent);
@@ -168,6 +160,7 @@ void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::Initiali
   typedef ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating> OwnType;
 
   auto desc = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(OwnType::SimpleUpdate, this);
+  desc.m_bOnlyUpdateWhenSimulating = OnlyUpdateWhenSimulating;
 
   this->RegisterUpdateFunction(desc);
 }
@@ -175,53 +168,18 @@ void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::Initiali
 template <typename ComponentType, bool OnlyUpdateWhenSimulating>
 void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount)
 {
-  // ignore the update when this is a 'simulating' component type and the world is not in simulation mode
-  if (OnlyUpdateWhenSimulating && !ezComponentManagerBase::GetWorld()->GetWorldSimulationEnabled())
-    return;
-
   for (auto it = this->m_ComponentStorage.GetIterator(uiStartIndex, uiCount); it.IsValid(); ++it)
   {
-    if (it->IsActive())
-      it->Update();
+    ComponentType* pComponent = it;
+    if (pComponent->IsActiveAndInitialized())
+    {
+      EZ_ASSERT_DEV(!GetWorld()->GetWorldSimulationEnabled() || pComponent->IsSimulationStarted(), "Implementation error: simulation start must be called before any update method.");
+      pComponent->Update();
+    }
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
-
-
-template <typename ComponentType>
-ezComponentHandle ezSettingsComponentManager<ComponentType>::AllocateComponent()
-{
-  ezComponentHandle hComp = ezComponentManager<ComponentType>::AllocateComponent();
-
-  ComponentType* pComponent = nullptr;
-  TryGetComponent(hComp, pComponent);
-
-  if (!m_pSingleton)
-  {
-    m_pSingleton = pComponent;
-  }
-  else
-  {
-    ezLog::Error("A component of type '%s' is already present in this world. Having more than one may lead to unexpected behavior.", ezGetStaticRTTI<ComponentType>()->GetTypeName());
-  }
-
-  return hComp;
-}
-
-
-template <typename ComponentType>
-void ezSettingsComponentManager<ComponentType>::DeleteDeadComponent(ezComponentManagerBase::ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent)
-{
-  if (out_pMovedComponent == m_pSingleton)
-  {
-    m_pSingleton = nullptr;
-  }
-
-  ezComponentManager<ComponentType>::DeleteDeadComponent(storageEntry, out_pMovedComponent);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename ComponentType>
 ezUInt16 ezComponentManagerFactory::RegisterComponentManager()
