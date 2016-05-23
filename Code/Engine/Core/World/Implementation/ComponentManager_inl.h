@@ -173,7 +173,8 @@ void ezComponentManagerSimple<ComponentType, OnlyUpdateWhenSimulating>::SimpleUp
     ComponentType* pComponent = it;
     if (pComponent->IsActiveAndInitialized())
     {
-      EZ_ASSERT_DEV(!GetWorld()->GetWorldSimulationEnabled() || pComponent->IsSimulationStarted(), "Implementation error: simulation start must be called before any update method.");
+      // Can't access world without including it and creating circular includes 
+      //EZ_ASSERT_DEV(!GetWorld()->GetWorldSimulationEnabled() || pComponent->IsSimulationStarted(), "Implementation error: simulation start must be called before any update method.");
       pComponent->Update();
     }
   }

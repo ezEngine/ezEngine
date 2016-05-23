@@ -133,6 +133,9 @@ protected:
   /// \brief This method is called at the start of the next world update when the world is simulated. This method will be called after the initialization method.
   virtual void OnSimulationStarted() {}
 
+  /// \brief Shortcut to GetWorld()->GetIndex() to prevent circular includes.
+  ezUInt32 GetWorldIndex() const;
+
 private:
   ezGenericComponentId m_InternalId;
   ezUInt32 m_uiEditorPickingID;

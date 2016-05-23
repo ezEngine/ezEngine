@@ -85,7 +85,7 @@ EZ_FORCE_INLINE void ezComponent::SendMessage(ezMessage& msg) const
 template <typename T>
 EZ_FORCE_INLINE ezComponentHandle ezComponent::GetHandle() const
 {
-  return ezComponentHandle(ezComponentId(m_InternalId, T::TypeId(), GetWorld()->GetIndex()));
+  return ezComponentHandle(ezComponentId(m_InternalId, T::TypeId(), GetWorldIndex()));
 }
 
 EZ_FORCE_INLINE bool ezComponent::IsInitialized() const

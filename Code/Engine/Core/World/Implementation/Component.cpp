@@ -48,6 +48,12 @@ ezComponentHandle ezComponent::GetHandle() const
   return ezComponentHandle(ezComponentId(m_InternalId, GetTypeId(), GetWorld()->GetIndex()));
 }
 
+
+ezUInt32 ezComponent::GetWorldIndex() const
+{
+  return GetWorld()->GetIndex();
+}
+
 void ezComponent::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType)
 {
   GetWorld()->PostMessage(GetHandle(), msg, queueType);
