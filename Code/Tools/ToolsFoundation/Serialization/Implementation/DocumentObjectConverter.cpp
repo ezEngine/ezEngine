@@ -137,9 +137,17 @@ ezDocumentObject* ezDocumentObjectConverterReader::CreateObjectFromNode(const ez
   {
   case ezDocumentObjectConverterReader::Mode::CreateOnly:
     {
-      pObject = m_pManager->CreateObject(ezRTTI::FindTypeByName(pNode->GetType()), pNode->GetGuid());
-      if (pParent != nullptr)
-        pParent->InsertSubObject(pObject, szParentProperty, index);
+      ezRTTI* pType = ezRTTI::FindTypeByName(pNode->GetType());
+      if (pType)
+      {
+        pObject = m_pManager->CreateObject(pType, pNode->GetGuid());
+        if (pParent != nullptr)
+          pParent->InsertSubObject(pObject, szParentProperty, index);
+      }
+      else
+      {
+        ezLog::Error("Cannot create node of unknown type '%s'.", pNode->GetType());
+      }
     }
     break;
 

@@ -108,11 +108,15 @@ inline void TestNumberCanConvertTo(const ezVariant& v)
   EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "3");
 }
 
-inline void TestCanOnlyConvertToID(const ezVariant& v, ezVariant::Type::Enum type)
+inline void TestCanOnlyConvertToID(const ezVariant& v, ezVariant::Type::Enum type, bool bAndString = false)
 {
   for (int iType = 0; iType <= ezVariant::Type::VoidPointer; ++iType)
   {
     if (iType == type)
+    {
+      EZ_TEST_BOOL(v.CanConvertTo(type));
+    }
+    else if (bAndString && iType == ezVariant::Type::String)
     {
       EZ_TEST_BOOL(v.CanConvertTo(type));
     }
@@ -1323,7 +1327,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     ezVariantArray va;
     ezVariant v(va);
 
-    TestCanOnlyConvertToID(v, ezVariant::Type::VariantArray);
+    TestCanOnlyConvertToID(v, ezVariant::Type::VariantArray, true);
 
     EZ_TEST_BOOL(v.ConvertTo<ezVariantArray>() == va);
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::VariantArray).Get<ezVariantArray>() == va);

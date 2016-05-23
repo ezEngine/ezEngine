@@ -319,19 +319,19 @@ void ezAbstractObjectGraph::ApplyDiff(ezDeque<ezAbstractGraphDiffOperation>& Dif
   {
     switch (op.m_Operation)
     {
-    case ezObjectChangeType::NodeAdded:
+    case ezAbstractGraphDiffOperation::Op::NodeAdded:
       {
         AddNode(op.m_Node, op.m_sProperty, op.m_Value.Get<ezString>());
       }
       break;
 
-    case ezObjectChangeType::NodeRemoved:
+    case ezAbstractGraphDiffOperation::Op::NodeRemoved:
       {
         RemoveNode(op.m_Node);
       }
       break;
 
-    case ezObjectChangeType::PropertySet:
+    case ezAbstractGraphDiffOperation::Op::PropertyChanged:
       {
         auto* pNode = GetNode(op.m_Node);
         if (pNode)
