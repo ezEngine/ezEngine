@@ -239,7 +239,7 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& m
   // This method is allowed to be called from multiple threads.
 
   QueuedMsgMetaData metaData;
-  metaData.m_ReceiverObject = receiverObject;
+  metaData.m_uiReceiverObject = receiverObject.m_InternalId.m_Data;
   metaData.m_Routing = routing;
 
   ezMessage* pMsgCopy = msg.Clone(ezFrameAllocator::GetCurrentAllocator());
@@ -252,7 +252,7 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& m
   // This method is allowed to be called from multiple threads.
 
   QueuedMsgMetaData metaData;
-  metaData.m_ReceiverObject = receiverObject;
+  metaData.m_uiReceiverObject = receiverObject.m_InternalId.m_Data;
   metaData.m_Routing = routing;
   metaData.m_Due = m_Data.m_Clock.GetAccumulatedTime() + delay;
 
@@ -265,7 +265,7 @@ void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, ezMessage&
   // This method is allowed to be called from multiple threads.
 
   QueuedMsgMetaData metaData;
-  metaData.m_ReceiverComponent = receiverComponent;
+  metaData.m_uiReceiverComponent = *reinterpret_cast<const ezUInt64*>(&receiverComponent.m_InternalId);
   metaData.m_uiReceiverIsComponent = 1;
   
   ezMessage* pMsgCopy = msg.Clone(ezFrameAllocator::GetCurrentAllocator());
@@ -277,7 +277,7 @@ void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, ezMessage&
   // This method is allowed to be called from multiple threads.
 
   QueuedMsgMetaData metaData;
-  metaData.m_ReceiverComponent = receiverComponent;
+  metaData.m_uiReceiverComponent = *reinterpret_cast<const ezUInt64*>(&receiverComponent.m_InternalId);
   metaData.m_uiReceiverIsComponent = 1;
   metaData.m_Due = m_Data.m_Clock.GetAccumulatedTime() + delay;
 
@@ -475,6 +475,31 @@ const char* ezWorld::GetObjectGlobalKey(const ezGameObject* pObject) const
   return "";
 }
 
+void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::Entry& entry)
+{
+  if (entry.m_MetaData.m_uiReceiverIsComponent)
+  {
+    ezUInt64 uiReceiverComponent = entry.m_MetaData.m_uiReceiverComponent;
+    ezComponentId componentId = *reinterpret_cast<ezComponentId*>(&uiReceiverComponent);
+
+    ezComponent* pReceiverComponent = nullptr;
+    if (TryGetComponent(componentId, pReceiverComponent))
+    {
+      pReceiverComponent->SendMessage(*entry.m_pMessage);
+    }
+  }
+  else
+  {
+    ezGameObjectId objectId = entry.m_MetaData.m_uiReceiverObject;
+
+    ezGameObject* pReceiverObject = nullptr;
+    if (TryGetObject(objectId, pReceiverObject))
+    {
+      pReceiverObject->SendMessage(*entry.m_pMessage, entry.m_MetaData.m_Routing);
+    }
+  }
+}
+
 void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 {
   struct MessageComparer
@@ -506,24 +531,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 
     for (ezUInt32 i = 0; i < queue.GetCount(); ++i)
     {
-      auto& entry = queue[i];
-
-      if (entry.m_MetaData.m_uiReceiverIsComponent)
-      {
-        ezComponent* pReceiverComponent = nullptr;
-        if (TryGetComponent(entry.m_MetaData.m_ReceiverComponent, pReceiverComponent))
-        {
-          pReceiverComponent->SendMessage(*entry.m_pMessage);
-        }
-      }
-      else
-      {
-        ezGameObject* pReceiverObject = nullptr;
-        if (TryGetObject(entry.m_MetaData.m_ReceiverObject, pReceiverObject))
-        {
-          pReceiverObject->SendMessage(*entry.m_pMessage, entry.m_MetaData.m_Routing);
-        }
-      }
+      ProcessQueuedMessage(queue[i]);      
 
       // no need to deallocate these messages, they are allocated through a frame allocator
     }
@@ -544,22 +552,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
       if (entry.m_MetaData.m_Due > now)
         break;
 
-      if (entry.m_MetaData.m_uiReceiverIsComponent)
-      {
-        ezComponent* pReceiverComponent = nullptr;
-        if (TryGetComponent(entry.m_MetaData.m_ReceiverComponent, pReceiverComponent))
-        {
-          pReceiverComponent->SendMessage(*entry.m_pMessage);
-        }
-      }
-      else
-      {
-        ezGameObject* pReceiverObject = nullptr;
-        if (TryGetObject(entry.m_MetaData.m_ReceiverObject, pReceiverObject))
-        {
-          pReceiverObject->SendMessage(*entry.m_pMessage, entry.m_MetaData.m_Routing);
-        }
-      }
+      ProcessQueuedMessage(entry);
 
       EZ_DELETE(&m_Data.m_Allocator, entry.m_pMessage);
 

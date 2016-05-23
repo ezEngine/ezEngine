@@ -129,25 +129,23 @@ namespace ezInternal
 
     struct QueuedMsgMetaData
     {
-      QueuedMsgMetaData() {}
-
       EZ_DECLARE_POD_TYPE();
 
       union
       {
-        struct 
+        struct
         {
-          ezGameObjectHandle m_ReceiverObject;
+          ezUInt32 m_uiReceiverObject;
           ezObjectMsgRouting::Enum m_Routing;
         };
 
-        ezComponentHandle m_ReceiverComponent;
-
         struct  
         {
-          ezUInt64 m_uiReceiverAndRouting : 63;
+          ezUInt64 m_uiReceiverComponent : 63;
           ezUInt64 m_uiReceiverIsComponent : 1;
-        };        
+        };
+
+        ezUInt64 m_uiReceiverAndRouting;
       };
       
       ezTime m_Due;

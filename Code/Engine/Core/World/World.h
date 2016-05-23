@@ -213,6 +213,7 @@ private:
   void SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sGlobalKey);
   const char* GetObjectGlobalKey(const ezGameObject* pObject) const;
 
+  void ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::Entry& entry);
   void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
 
   ezResult RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctionDesc& desc);
