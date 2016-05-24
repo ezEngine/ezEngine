@@ -65,7 +65,7 @@ void ezRotateGizmo::FocusLost(bool bCancel)
   QApplication::restoreOverrideCursor();
 }
 
-ezEditorInut ezRotateGizmo::mousePressEvent(QMouseEvent* e)
+ezEditorInut ezRotateGizmo::doMousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
     return ezEditorInut::WasExclusivelyHandled;
@@ -133,7 +133,7 @@ ezEditorInut ezRotateGizmo::mousePressEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezRotateGizmo::mouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezRotateGizmo::doMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -147,7 +147,7 @@ ezEditorInut ezRotateGizmo::mouseReleaseEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezRotateGizmo::mouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezRotateGizmo::doMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;

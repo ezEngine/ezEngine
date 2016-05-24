@@ -31,6 +31,18 @@ public:
   /// \brief Initializes x and y with zero, width and height with the given values.
   ezRectTemplate(Type Width, Type Height);
 
+  /// The smaller value along x
+  Type Left() const { return x; }
+
+  /// The larger value along x
+  Type Right() const { return x + width; }
+
+  /// The smaller value along y
+  Type Top() const { return y; }
+
+  /// The larger value along y
+  Type Bottom() const { return y + height; }
+
 
 // *** Common Functions ***
 public:

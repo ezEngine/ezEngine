@@ -103,7 +103,7 @@ void ezTranslateGizmo::FocusLost(bool bCancel)
   m_vLastMoveDiff.SetZero();
 }
 
-ezEditorInut ezTranslateGizmo::mousePressEvent(QMouseEvent* e)
+ezEditorInut ezTranslateGizmo::doMousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
     return ezEditorInut::WasExclusivelyHandled;
@@ -199,7 +199,7 @@ ezEditorInut ezTranslateGizmo::mousePressEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezTranslateGizmo::mouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezTranslateGizmo::doMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -281,7 +281,7 @@ ezResult ezTranslateGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPo
   return EZ_SUCCESS;
 }
 
-ezEditorInut ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezTranslateGizmo::doMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;

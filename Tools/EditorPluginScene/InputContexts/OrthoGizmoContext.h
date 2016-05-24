@@ -22,10 +22,6 @@ public:
 
   virtual void FocusLost(bool bCancel);
 
-  virtual ezEditorInut mousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInut mouseReleaseEvent(QMouseEvent* e) override;
-  virtual ezEditorInut mouseMoveEvent(QMouseEvent* e) override;
-
   ezEvent<const ezGizmoEvent&> m_GizmoEvents;
 
   const ezVec3& GetTranslationResult() const { return m_vTranslationResult; }
@@ -34,12 +30,16 @@ public:
   float GetScalingResult() const { return m_fScalingResult; }
 
 protected:
+  virtual ezEditorInut doMousePressEvent(QMouseEvent* e) override;
+  virtual ezEditorInut doMouseReleaseEvent(QMouseEvent* e) override;
+  virtual ezEditorInut doMouseMoveEvent(QMouseEvent* e) override;
+
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override {}
 
 private:
   bool IsViewInOthoMode() const;
 
-  QPoint m_LastMousePos;
+  ezVec2I32 m_LastMousePos;
   ezVec3 m_vUnsnappedTranslationResult;
   ezVec3 m_vTranslationResult;
   ezVec3 m_vTranslationDiff;

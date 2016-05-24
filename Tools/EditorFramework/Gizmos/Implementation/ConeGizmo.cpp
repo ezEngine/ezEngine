@@ -66,7 +66,7 @@ void ezConeGizmo::FocusLost(bool bCancel)
   m_ManipulateMode = ManipulateMode::None;
 }
 
-ezEditorInut ezConeGizmo::mousePressEvent(QMouseEvent* e)
+ezEditorInut ezConeGizmo::doMousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
     return ezEditorInut::WasExclusivelyHandled;
@@ -103,7 +103,7 @@ ezEditorInut ezConeGizmo::mousePressEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezConeGizmo::mouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezConeGizmo::doMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -117,7 +117,7 @@ ezEditorInut ezConeGizmo::mouseReleaseEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezConeGizmo::mouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezConeGizmo::doMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;

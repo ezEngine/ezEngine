@@ -82,7 +82,7 @@ void ezCapsuleGizmo::FocusLost(bool bCancel)
   m_ManipulateMode = ManipulateMode::None;
 }
 
-ezEditorInut ezCapsuleGizmo::mousePressEvent(QMouseEvent* e)
+ezEditorInut ezCapsuleGizmo::doMousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
     return ezEditorInut::WasExclusivelyHandled;
@@ -119,7 +119,7 @@ ezEditorInut ezCapsuleGizmo::mousePressEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezCapsuleGizmo::mouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezCapsuleGizmo::doMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -133,7 +133,7 @@ ezEditorInut ezCapsuleGizmo::mouseReleaseEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezCapsuleGizmo::mouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezCapsuleGizmo::doMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;

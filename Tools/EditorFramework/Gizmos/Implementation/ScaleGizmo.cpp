@@ -74,7 +74,7 @@ void ezScaleGizmo::FocusLost(bool bCancel)
   QApplication::restoreOverrideCursor();
 }
 
-ezEditorInut ezScaleGizmo::mousePressEvent(QMouseEvent* e)
+ezEditorInut ezScaleGizmo::doMousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
     return ezEditorInut::WasExclusivelyHandled;
@@ -137,7 +137,7 @@ ezEditorInut ezScaleGizmo::mousePressEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezScaleGizmo::mouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezScaleGizmo::doMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -151,7 +151,7 @@ ezEditorInut ezScaleGizmo::mouseReleaseEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezScaleGizmo::mouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezScaleGizmo::doMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;

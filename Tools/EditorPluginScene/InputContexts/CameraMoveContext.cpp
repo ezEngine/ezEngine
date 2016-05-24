@@ -156,7 +156,7 @@ void ezCameraMoveContext::UpdateContext()
   }
 }
 
-ezEditorInut ezCameraMoveContext::keyReleaseEvent(QKeyEvent* e)
+ezEditorInut ezCameraMoveContext::doKeyReleaseEvent(QKeyEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -204,7 +204,7 @@ ezEditorInut ezCameraMoveContext::keyReleaseEvent(QKeyEvent* e)
   return ezEditorInut::MayBeHandledByOthers;
 }
 
-ezEditorInut ezCameraMoveContext::keyPressEvent(QKeyEvent* e)
+ezEditorInut ezCameraMoveContext::doKeyPressEvent(QKeyEvent* e)
 {
   if (m_pCamera == nullptr)
     return ezEditorInut::MayBeHandledByOthers;
@@ -263,7 +263,7 @@ ezEditorInut ezCameraMoveContext::keyPressEvent(QKeyEvent* e)
   return ezEditorInut::MayBeHandledByOthers;
 }
 
-ezEditorInut ezCameraMoveContext::mousePressEvent(QMouseEvent* e)
+ezEditorInut ezCameraMoveContext::doMousePressEvent(QMouseEvent* e)
 {
   if (m_pCamera == nullptr)
     return ezEditorInut::MayBeHandledByOthers;
@@ -392,7 +392,7 @@ void ezCameraMoveContext::SetCursorToWindowCenter(QPoint pos)
   }
 }
 
-ezEditorInut ezCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezCameraMoveContext::doMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -480,7 +480,7 @@ void ezCameraMoveContext::SetOrbitPoint(const ezVec3& vPos)
   m_pSettings->m_vOrbitPoint = vPos;
 }
 
-ezEditorInut ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezCameraMoveContext::doMouseMoveEvent(QMouseEvent* e)
 {
   // do nothing, unless this is an active context
   if (!IsActiveInputContext())
@@ -695,7 +695,7 @@ void ezCameraMoveContext::SetMoveSpeed(ezInt32 iSpeed)
   }
 }
 
-ezEditorInut ezCameraMoveContext::wheelEvent(QWheelEvent* e)
+ezEditorInut ezCameraMoveContext::doWheelEvent(QWheelEvent* e)
 {
   if (m_bMoveCamera || m_bMoveCameraInPlane || m_bOrbitCamera || m_bRotateCamera)
     return ezEditorInut::WasExclusivelyHandled; // ignore it, but others should not handle it either

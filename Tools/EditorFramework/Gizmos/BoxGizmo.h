@@ -14,15 +14,15 @@ public:
 
   virtual void FocusLost(bool bCancel) override;
 
-  virtual ezEditorInut mousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInut mouseReleaseEvent(QMouseEvent* e) override;
-  virtual ezEditorInut mouseMoveEvent(QMouseEvent* e) override;
-
   void SetSize(const ezVec3& size);
 
   const ezVec3& GetSize() const { return m_vSize; }
 
 protected:
+  virtual ezEditorInut doMousePressEvent(QMouseEvent* e) override;
+  virtual ezEditorInut doMouseReleaseEvent(QMouseEvent* e) override;
+  virtual ezEditorInut doMouseMoveEvent(QMouseEvent* e) override;
+
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
   virtual void OnTransformationChanged(const ezMat4& transform) override;

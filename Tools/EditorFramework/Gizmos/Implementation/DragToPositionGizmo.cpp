@@ -91,7 +91,7 @@ void ezDragToPositionGizmo::FocusLost(bool bCancel)
   m_AlignNZ.SetVisible(true);
 }
 
-ezEditorInut ezDragToPositionGizmo::mousePressEvent(QMouseEvent* e)
+ezEditorInut ezDragToPositionGizmo::doMousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
     return ezEditorInut::WasExclusivelyHandled;
@@ -128,7 +128,7 @@ ezEditorInut ezDragToPositionGizmo::mousePressEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezDragToPositionGizmo::mouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezDragToPositionGizmo::doMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -150,7 +150,7 @@ static const ezVec3 GetOrthogonalVector(const ezVec3& vDir)
   return -vDir.Cross(ezVec3(1, 0, 0));
 }
 
-ezEditorInut ezDragToPositionGizmo::mouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezDragToPositionGizmo::doMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;

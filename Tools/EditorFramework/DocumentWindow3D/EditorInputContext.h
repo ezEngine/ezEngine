@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Plugin.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Math/Rect.h>
 
 class QWidget;
 class QKeyEvent;
@@ -22,68 +23,36 @@ class EZ_EDITORFRAMEWORK_DLL ezEditorInputContext : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorInputContext, ezReflectedClass);
 
 public:
-  ezEditorInputContext()
-  {
-    m_pOwnerWindow = nullptr;
-    m_pOwnerView = nullptr;
-    m_bDisableShortcuts = false;
-  }
+  ezEditorInputContext();
 
   virtual ~ezEditorInputContext();
 
-  virtual void FocusLost(bool bCancel) {}
+  virtual void FocusLost(bool bCancel);
 
-  virtual ezEditorInut keyPressEvent(QKeyEvent* e);
-  virtual ezEditorInut keyReleaseEvent(QKeyEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
-  virtual ezEditorInut mousePressEvent(QMouseEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
-  virtual ezEditorInut mouseReleaseEvent(QMouseEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
-  virtual ezEditorInut mouseMoveEvent(QMouseEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
-  virtual ezEditorInut wheelEvent(QWheelEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
+  ezEditorInut keyPressEvent(QKeyEvent* e) { return doKeyPressEvent(e); }
+  ezEditorInut keyReleaseEvent(QKeyEvent* e) { return doKeyReleaseEvent(e); }
+  ezEditorInut mousePressEvent(QMouseEvent* e) { return doMousePressEvent(e); }
+  ezEditorInut mouseReleaseEvent(QMouseEvent* e) { return doMouseReleaseEvent(e); }
+  ezEditorInut mouseMoveEvent(QMouseEvent* e);
+  ezEditorInut wheelEvent(QWheelEvent* e) { return doWheelEvent(e); }
 
   static void SetActiveInputContext(ezEditorInputContext* pContext) { s_pActiveInputContext = pContext; }
 
-  void MakeActiveInputContext(bool bActive = true)
-  {
-    if (bActive)
-      s_pActiveInputContext = this;
-    else
-      s_pActiveInputContext = nullptr;
-  }
+  void MakeActiveInputContext(bool bActive = true);
 
   static bool IsAnyInputContextActive() { return s_pActiveInputContext != nullptr; }
 
   static ezEditorInputContext* GetActiveInputContext() { return s_pActiveInputContext; }
 
-  static void UpdateActiveInputContext()
-  {
-    if (s_pActiveInputContext != nullptr)
-      s_pActiveInputContext->UpdateContext();
-  }
+  static void UpdateActiveInputContext();
 
-  bool IsActiveInputContext() const
-  {
-    return s_pActiveInputContext == this;
-  }
+  bool IsActiveInputContext() const;
 
-  void SetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
-  {
-    m_pOwnerWindow = pOwnerWindow;
-    m_pOwnerView = pOwnerView;
+  void SetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView);
 
-    OnSetOwner(m_pOwnerWindow, m_pOwnerView);
-  }
+  ezQtEngineDocumentWindow* GetOwnerWindow() const;
 
-  ezQtEngineDocumentWindow* GetOwnerWindow() const
-  {
-    EZ_ASSERT_DEBUG(m_pOwnerWindow != nullptr, "Owner window pointer has not been set");
-    return m_pOwnerWindow;
-  }
-
-  ezQtEngineViewWidget* GetOwnerView() const
-  {
-    EZ_ASSERT_DEBUG(m_pOwnerView != nullptr, "Owner view pointer has not been set");
-    return m_pOwnerView;
-  }
+  ezQtEngineViewWidget* GetOwnerView() const;
 
   bool GetShortcutsDisabled() const { return m_bDisableShortcuts; }
 
@@ -92,8 +61,26 @@ public:
 
   virtual bool IsPickingSelectedAllowed() const { return true; }
 
+  enum class MouseMode
+  {
+    Normal,
+    WrapAtScreenBorders,
+    HideAndWrapAtScreenBorders,
+  };
+
+  void SetMouseMode(MouseMode mode);
+
+  ezVec2I32 UpdateMouseMode(QMouseEvent* e);
+
 protected:
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) = 0;
+
+  virtual ezEditorInut doKeyPressEvent(QKeyEvent* e);
+  virtual ezEditorInut doKeyReleaseEvent(QKeyEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
+  virtual ezEditorInut doMousePressEvent(QMouseEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
+  virtual ezEditorInut doMouseReleaseEvent(QMouseEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
+  virtual ezEditorInut doMouseMoveEvent(QMouseEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
+  virtual ezEditorInut doWheelEvent(QWheelEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
 
 private:
   static ezEditorInputContext* s_pActiveInputContext;
@@ -101,6 +88,18 @@ private:
   ezQtEngineDocumentWindow* m_pOwnerWindow;
   ezQtEngineViewWidget* m_pOwnerView;
   bool m_bDisableShortcuts;
+  bool m_bJustWrappedMouse;
+  MouseMode m_MouseMode;
+  ezVec2I32 m_MouseRestorePosition;
+  ezVec2I32 m_MousePosBeforeWrap;
+  ezVec2I32 m_ExpectedMousePosition;
+  ezRectU32 m_MouseWrapRect;
 
   virtual void UpdateContext() {}
 };
+
+
+
+
+
+

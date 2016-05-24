@@ -14,10 +14,6 @@ public:
 
   virtual void FocusLost(bool bCancel) override;
 
-  virtual ezEditorInut mousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInut mouseReleaseEvent(QMouseEvent* e) override;
-  virtual ezEditorInut mouseMoveEvent(QMouseEvent* e) override;
-
   void SetInnerSphere(bool bEnabled, float fRadius = 0.0f);
   void SetOuterSphere(float fRadius);
 
@@ -25,6 +21,10 @@ public:
   float GetOuterRadius() const { return m_fRadiusOuter; }
 
 protected:
+  virtual ezEditorInut doMousePressEvent(QMouseEvent* e) override;
+  virtual ezEditorInut doMouseReleaseEvent(QMouseEvent* e) override;
+  virtual ezEditorInut doMouseMoveEvent(QMouseEvent* e) override;
+
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
   virtual void OnTransformationChanged(const ezMat4& transform) override;

@@ -16,15 +16,14 @@ public:
     m_Viewport = viewport;
   }
 
-  virtual ezEditorInut mousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInut mouseReleaseEvent(QMouseEvent* e) override;
-
-
-  virtual ezEditorInut mouseMoveEvent(QMouseEvent* e) override;
-  virtual ezEditorInut keyPressEvent(QKeyEvent* e) override;
-  virtual ezEditorInut keyReleaseEvent(QKeyEvent* e) override;
-
 protected:
+  virtual ezEditorInut doMousePressEvent(QMouseEvent* e) override;
+  virtual ezEditorInut doMouseReleaseEvent(QMouseEvent* e) override;
+
+  virtual ezEditorInut doMouseMoveEvent(QMouseEvent* e) override;
+  virtual ezEditorInut doKeyPressEvent(QKeyEvent* e) override;
+  virtual ezEditorInut doKeyReleaseEvent(QKeyEvent* e) override;
+
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override {}
 
 private:
