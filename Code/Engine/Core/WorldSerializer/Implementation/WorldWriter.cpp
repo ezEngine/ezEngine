@@ -242,7 +242,5 @@ void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<con
   }
 }
 
-
-
 EZ_STATICLINK_FILE(Core, Core_WorldSerializer_Implementation_WorldWriter);
 
