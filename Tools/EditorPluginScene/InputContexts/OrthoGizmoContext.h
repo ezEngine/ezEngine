@@ -29,6 +29,7 @@ public:
   ezEvent<const ezGizmoEvent&> m_GizmoEvents;
 
   const ezVec3& GetTranslationResult() const { return m_vTranslationResult; }
+  const ezVec3& GetTranslationDiff() const { return m_vTranslationDiff; }
   const ezQuat& GetRotationResult() const { return m_qRotationResult; }
   float GetScalingResult() const { return m_fScalingResult; }
 
@@ -41,6 +42,7 @@ private:
   QPoint m_LastMousePos;
   ezVec3 m_vUnsnappedTranslationResult;
   ezVec3 m_vTranslationResult;
+  ezVec3 m_vTranslationDiff;
   ezAngle m_UnsnappedRotationResult;
   ezQuat m_qRotationResult;
   float m_fScaleMouseMove;

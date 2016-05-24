@@ -321,6 +321,17 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
 
             pScene->SetGlobalTransform(obj.m_pObject, tNew, ezSceneDocument::Translation);
           }
+
+          if (QApplication::keyboardModifiers() & Qt::KeyboardModifier::ControlModifier)
+          {
+            // move the camera with the translated object
+
+            auto* pFocusedView = GetFocusedViewWidget();
+            if (pFocusedView != nullptr)
+            {
+              pFocusedView->m_pViewConfig->m_Camera.MoveGlobally(pOrtho->GetTranslationDiff());
+            }
+          }
         }
 
         if (m_RotateGizmo.IsVisible())

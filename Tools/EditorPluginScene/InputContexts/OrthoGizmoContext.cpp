@@ -82,12 +82,17 @@ ezEditorInut ezOrthoGizmoContext::mouseMoveEvent(QMouseEvent* e)
     if (m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
       fDistPerPixel = m_pCamera->GetFovOrDim() / (float)GetOwnerView()->size().width();
 
+    const ezVec3 vLastTranslationResult = m_vTranslationResult;
+
     const QPointF diff = e->globalPos() - m_LastMousePos;
 
-    m_vUnsnappedTranslationResult += m_pCamera->GetDirRight() * (float) diff.x() * fDistPerPixel;
+    m_vUnsnappedTranslationResult += m_pCamera->GetDirRight() * (float)diff.x() * fDistPerPixel;
     m_vUnsnappedTranslationResult -= m_pCamera->GetDirUp() * (float)diff.y() * fDistPerPixel;
+
     m_vTranslationResult = m_vUnsnappedTranslationResult;
     ezSnapProvider::SnapTranslation(m_vTranslationResult);
+
+    m_vTranslationDiff = m_vTranslationResult - vLastTranslationResult;
 
     m_UnsnappedRotationResult += ezAngle::Degree(-diff.x());
 
