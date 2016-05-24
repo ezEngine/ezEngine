@@ -110,6 +110,9 @@ protected:
   /// \brief Returns the block allocator used by the world.
   ezInternal::WorldLargeBlockAllocator* GetBlockAllocator();
 
+  /// \brief Returns whether the world simulation is enabled.
+  bool GetWorldSimulationEnabled() const;
+
 protected:
   /// \cond
   // internal methods
@@ -254,7 +257,7 @@ private:
 /// \see EZ_BEGIN_DYNAMIC_REFLECTED_TYPE
 #define EZ_BEGIN_COMPONENT_TYPE(componentType, version) \
   ezUInt16 componentType::TYPE_ID = ezComponentManagerFactory::GetInstance()->RegisterComponentManager<componentType>(); \
-  ezComponentHandle componentType::GetHandle() const { return ezComponent::GetHandle<componentType>(); } \
+  ezComponentHandle componentType::GetHandle() const { return ezComponent::GetHandleInternal<componentType>(); } \
   componentType::ComponentManagerType* componentType::GetManager() { return static_cast<componentType::ComponentManagerType*>(ezComponent::GetManager()); } \
   const componentType::ComponentManagerType* componentType::GetManager() const { return static_cast<const componentType::ComponentManagerType*>(ezComponent::GetManager()); } \
   ezComponentHandle componentType::CreateComponent(ezWorld* pWorld, componentType*& pComponent) { return pWorld->GetOrCreateComponentManager<ComponentManagerType>()->CreateComponent(pComponent); } \

@@ -109,11 +109,15 @@ protected:
   friend class ezComponentManagerBase;
 
   template <typename T>
-  ezComponentHandle GetHandle() const;
+  ezComponentHandle GetHandleInternal() const;
 
   ezBitflags<ezObjectFlags> m_ComponentFlags;
 
   virtual ezUInt16 GetTypeId() const = 0;
+
+  /// \brief Shortcut to GetWorld()->GetIndex() to prevent circular includes.
+  ezUInt32 GetWorldIndex() const;
+
 
   /// \brief This method is called at the start of the next world update. The global position will be computed before initialization.
   virtual void Initialize() {}
@@ -132,9 +136,6 @@ protected:
 
   /// \brief This method is called at the start of the next world update when the world is simulated. This method will be called after the initialization method.
   virtual void OnSimulationStarted() {}
-
-  /// \brief Shortcut to GetWorld()->GetIndex() to prevent circular includes.
-  ezUInt32 GetWorldIndex() const;
 
 private:
   ezGenericComponentId m_InternalId;

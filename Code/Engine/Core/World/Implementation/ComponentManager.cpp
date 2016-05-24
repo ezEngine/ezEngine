@@ -91,6 +91,11 @@ ezInternal::WorldLargeBlockAllocator* ezComponentManagerBase::GetBlockAllocator(
   return m_pWorld->GetBlockAllocator();
 }
 
+bool ezComponentManagerBase::GetWorldSimulationEnabled() const
+{
+  return m_pWorld->GetWorldSimulationEnabled();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ezComponentManagerFactory::ezComponentManagerFactory()

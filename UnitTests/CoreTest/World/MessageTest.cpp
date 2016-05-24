@@ -299,7 +299,7 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
       pRoot->PostMessage(msg2, ezObjectMsgQueueType::NextFrame, ezTime::Seconds(i+1));
     }
 
-    world.GetClock().SetFixedTimeStep(ezTime::Seconds(1.0f));
+    world.GetClock().SetFixedTimeStep(ezTime::Seconds(1.001f));
 
     int iDesiredValue = 1;
     int iDesiredValue2 = 2;

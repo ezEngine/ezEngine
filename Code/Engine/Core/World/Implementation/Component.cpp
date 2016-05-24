@@ -48,12 +48,6 @@ ezComponentHandle ezComponent::GetHandle() const
   return ezComponentHandle(ezComponentId(m_InternalId, GetTypeId(), GetWorld()->GetIndex()));
 }
 
-
-ezUInt32 ezComponent::GetWorldIndex() const
-{
-  return GetWorld()->GetIndex();
-}
-
 void ezComponent::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType)
 {
   GetWorld()->PostMessage(GetHandle(), msg, queueType);
@@ -62,6 +56,11 @@ void ezComponent::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueTy
 void ezComponent::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay)
 {
   GetWorld()->PostMessage(GetHandle(), msg, queueType, delay);
+}
+
+ezUInt32 ezComponent::GetWorldIndex() const
+{
+  return GetWorld()->GetIndex();
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_Component);
