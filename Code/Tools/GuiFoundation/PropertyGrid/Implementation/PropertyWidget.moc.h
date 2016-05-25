@@ -22,6 +22,7 @@ class QToolButton;
 class QMenu;
 class ezDocumentObject;
 class QDoubleSpinBoxLessAnnoying;
+class ezQIntSpinbox;
 
 /// *** CHECKBOX ***
 
@@ -134,7 +135,7 @@ protected:
 
   bool m_bTemporaryCommand;
   QHBoxLayout* m_pLayout;
-  QSpinBox* m_pWidget;
+  ezQIntSpinbox* m_pWidget;
 };
 
 /// *** QUATERNION ***

@@ -10,6 +10,7 @@ public:
   explicit QDoubleSpinBoxLessAnnoying(QWidget* pParent);
 
   void setDisplaySuffix(const char* szSuffix);
+  void setDefaultValue(double value);
 
   virtual QString textFromValue(double val) const override;
   virtual double valueFromText(const QString &text) const override;
@@ -22,9 +23,29 @@ protected:
   virtual void focusInEvent(QFocusEvent *event) override;
   virtual void focusOutEvent(QFocusEvent *event) override;
 
+private slots:
+  void onCustomContextMenuRequested();
+
 private:
   QString m_sSuffix;
+  double m_fDefaultValue;
   mutable double m_fDisplayedValue;
   mutable QString m_sDisplayedText;
   mutable bool m_bInvalid;
+};
+
+
+class ezQIntSpinbox : public QSpinBox
+{
+  Q_OBJECT
+public:
+  explicit ezQIntSpinbox(QWidget* pParent);
+
+  void setDefaultValue(int value) { m_iDefaultValue = value; }
+
+private slots:
+  void onCustomContextMenuRequested();
+
+private:
+  int m_iDefaultValue;
 };

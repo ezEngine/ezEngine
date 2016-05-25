@@ -7,11 +7,20 @@ inline QDoubleSpinBoxLessAnnoying::QDoubleSpinBoxLessAnnoying(QWidget* pParent) 
 {
   m_fDisplayedValue = ezMath::BasicType<float>::GetNaN();
   m_bInvalid = false;
+  m_fDefaultValue = 0.0;
+
+  setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(this, &QWidget::customContextMenuRequested, this, &QDoubleSpinBoxLessAnnoying::onCustomContextMenuRequested);
 }
 
 void QDoubleSpinBoxLessAnnoying::setDisplaySuffix(const char* szSuffix)
 {
   m_sSuffix = QString::fromUtf8(szSuffix);
+}
+
+void QDoubleSpinBoxLessAnnoying::setDefaultValue(double value)
+{
+  m_fDefaultValue = value;
 }
 
 QString QDoubleSpinBoxLessAnnoying::textFromValue(double val) const
@@ -135,3 +144,22 @@ void QDoubleSpinBoxLessAnnoying::focusOutEvent(QFocusEvent *event)
 
 }
 
+void QDoubleSpinBoxLessAnnoying::onCustomContextMenuRequested()
+{
+  m_sDisplayedText = QDoubleSpinBox::textFromValue(m_fDefaultValue);
+  setValue(m_fDefaultValue);
+}
+
+ezQIntSpinbox::ezQIntSpinbox(QWidget* pParent)
+  : QSpinBox(pParent)
+{
+  m_iDefaultValue = 0;
+
+  setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(this, &QWidget::customContextMenuRequested, this, &ezQIntSpinbox::onCustomContextMenuRequested);
+}
+
+void ezQIntSpinbox::onCustomContextMenuRequested()
+{
+  setValue(m_iDefaultValue);
+}

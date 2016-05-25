@@ -114,6 +114,8 @@ ezPropertyEditorDoubleSpinboxWidget::ezPropertyEditorDoubleSpinboxWidget(ezInt8 
 void ezPropertyEditorDoubleSpinboxWidget::OnInit()
 {
   const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>();
+  const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>();
+
   if (pClamp)
   {
     switch (m_iNumComponents)
@@ -189,6 +191,59 @@ void ezPropertyEditorDoubleSpinboxWidget::OnInit()
           m_pWidget[1]->setMaximum(value.y);
           m_pWidget[2]->setMaximum(value.z);
           m_pWidget[3]->setMaximum(value.w);
+        }
+        break;
+      }
+    }
+  }
+
+  if (pDefault)
+  {
+    switch (m_iNumComponents)
+    {
+    case 1:
+      {
+        QtScopedBlockSignals bs(m_pWidget[0]);
+
+        if (pDefault->GetValue().CanConvertTo<double>())
+        {
+          m_pWidget[0]->setDefaultValue(pDefault->GetValue().ConvertTo<double>());
+        }
+        break;
+      }
+    case 2:
+      {
+        QtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1]);
+
+        if (pDefault->GetValue().CanConvertTo<ezVec2>())
+        {
+          m_pWidget[0]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec2>().x);
+          m_pWidget[1]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec2>().y);
+        }
+        break;
+      }
+    case 3:
+      {
+        QtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2]);
+
+        if (pDefault->GetValue().CanConvertTo<ezVec3>())
+        {
+          m_pWidget[0]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec3>().x);
+          m_pWidget[1]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec3>().y);
+          m_pWidget[2]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec3>().z);
+        }
+        break;
+      }
+    case 4:
+      {
+        QtScopedBlockSignals bs(m_pWidget[0], m_pWidget[1], m_pWidget[2], m_pWidget[3]);
+
+        if (pDefault->GetValue().CanConvertTo<ezVec4>())
+        {
+          m_pWidget[0]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec4>().x);
+          m_pWidget[1]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec4>().y);
+          m_pWidget[2]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec4>().z);
+          m_pWidget[3]->setDefaultValue(pDefault->GetValue().ConvertTo<ezVec4>().w);
         }
         break;
       }
@@ -336,6 +391,17 @@ void ezPropertyEditorTimeWidget::OnInit()
       m_pWidget->setMaximum(pClamp->GetMaxValue().ConvertTo<ezTime>().GetSeconds());
     }
   }
+
+  const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>();
+  if (pDefault)
+  {
+    QtScopedBlockSignals bs(m_pWidget);
+
+    if (pDefault->GetValue().CanConvertTo<ezTime>())
+    {
+      m_pWidget->setDefaultValue(pDefault->GetValue().ConvertTo<ezTime>().GetSeconds());
+    }
+  }
 }
 
 void ezPropertyEditorTimeWidget::InternalSetValue(const ezVariant& value)
@@ -420,6 +486,17 @@ void ezPropertyEditorAngleWidget::OnInit()
       m_pWidget->setMaximum(pClamp->GetMaxValue().ConvertTo<ezAngle>().GetDegree());
     }
   }
+
+  const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>();
+  if (pDefault)
+  {
+    QtScopedBlockSignals bs(m_pWidget);
+
+    if (pDefault->GetValue().CanConvertTo<ezAngle>())
+    {
+      m_pWidget->setDefaultValue(pDefault->GetValue().ConvertTo<ezAngle>().GetDegree());
+    }
+  }
 }
 
 void ezPropertyEditorAngleWidget::InternalSetValue(const ezVariant& value)
@@ -456,6 +533,7 @@ void ezPropertyEditorAngleWidget::SlotValueChanged()
 
 /// *** INT SPINBOX ***
 
+
 ezPropertyEditorIntSpinboxWidget::ezPropertyEditorIntSpinboxWidget(ezInt32 iMinValue, ezInt32 iMaxValue) : ezQtStandardPropertyWidget()
 {
   m_bTemporaryCommand = false;
@@ -463,7 +541,7 @@ ezPropertyEditorIntSpinboxWidget::ezPropertyEditorIntSpinboxWidget(ezInt32 iMinV
   m_pLayout->setMargin(0);
   setLayout(m_pLayout);
 
-  m_pWidget = new QSpinBox(this);
+  m_pWidget = new ezQIntSpinbox(this);
   m_pWidget->setMinimum(iMinValue);
   m_pWidget->setMaximum(iMaxValue);
   m_pWidget->setSingleStep(1);
@@ -490,6 +568,17 @@ void ezPropertyEditorIntSpinboxWidget::OnInit()
     if (pClamp->GetMaxValue().CanConvertTo<ezInt32>())
     {
       m_pWidget->setMaximum(pClamp->GetMaxValue().ConvertTo<ezInt32>());
+    }
+  }
+
+  const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>();
+  if (pDefault)
+  {
+    QtScopedBlockSignals bs(m_pWidget);
+
+    if (pDefault->GetValue().CanConvertTo<ezInt32>())
+    {
+      m_pWidget->setDefaultValue(pDefault->GetValue().ConvertTo<ezInt32>());
     }
   }
 }
