@@ -1,13 +1,16 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Shader/ShaderPermutationBinary.h>
 
-enum ezShaderPermutationBinaryVersion
+struct ezShaderPermutationBinaryVersion
 {
-  Version1 = 1,
-  Version2 = 2,
+  enum Enum : ezUInt32
+  {
+    Version1 = 1,
+    Version2 = 2,
 
-  ENUM_COUNT,
-  Current = ENUM_COUNT - 1
+    ENUM_COUNT,
+    Current = ENUM_COUNT - 1
+  };
 };
 
 ezShaderPermutationBinary::ezShaderPermutationBinary()

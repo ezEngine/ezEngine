@@ -1,3 +1,5 @@
+#pragma once
+
 #include <PCH.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>

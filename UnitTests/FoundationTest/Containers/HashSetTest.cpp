@@ -40,20 +40,6 @@ struct ezHashHelper<Collision>
   }
 };
 
-template <>
-struct ezHashHelper<st>
-{
-  EZ_FORCE_INLINE static ezUInt32 Hash(const st& value)
-  {
-    return ezHashHelper<ezInt32>::Hash(value.m_iData);
-  }
-
-  EZ_FORCE_INLINE static bool Equal(const st& a, const st& b)
-  {
-    return a == b;
-  }
-};
-
 EZ_CREATE_SIMPLE_TEST(Containers, HashSet)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")

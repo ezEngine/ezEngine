@@ -1,8 +1,6 @@
 #include <PCH.h>
 #include <Foundation/Containers/List.h>
 
-typedef ezConstructionCounter st;
-
 EZ_CREATE_SIMPLE_TEST(Containers, List)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
@@ -289,25 +287,25 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Element Constructions / Destructions")
   {
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
 
-    ezList<st> l;
+    ezList<ezConstructionCounter> l;
 
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
 
     l.PushBack();
-    EZ_TEST_BOOL(st::HasDone(2, 1));
+    EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 1));
 
-    l.PushBack(st(1));
-    EZ_TEST_BOOL(st::HasDone(2, 1));
+    l.PushBack(ezConstructionCounter(1));
+    EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 1));
 
     l.SetCount(4);
-    EZ_TEST_BOOL(st::HasDone(4, 2));
+    EZ_TEST_BOOL(ezConstructionCounter::HasDone(4, 2));
 
     l.Clear();
-    EZ_TEST_BOOL(st::HasDone(0, 4));
+    EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 4));
 
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator == / !=")

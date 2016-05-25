@@ -1,14 +1,17 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Shader/ShaderPermutationBinary.h>
 
-enum ezShaderStateVersion : ezUInt32
+struct ezShaderStateVersion
 {
-  Version0 = 0,
-  Version1,
+  enum Enum : ezUInt32
+  {
+    Version0 = 0,
+    Version1,
 
 
-  ENUM_COUNT,
-  Current = ENUM_COUNT - 1
+    ENUM_COUNT,
+    Current = ENUM_COUNT - 1
+  };
 };
 
 void ezShaderStateResourceDescriptor::Save(ezStreamWriter& stream) const

@@ -2,73 +2,77 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Plugin.h>
 
-static void SendPluginTelemetry()
+namespace PluginsDetail
 {
-  if (!ezTelemetry::IsConnectedToClient())
-    return;
-
-  ezTelemetry::Broadcast(ezTelemetry::Reliable, 'PLUG', 'CLR', nullptr, 0);
-
-  ezPlugin* pSub = ezPlugin::GetFirstInstance();
-
-  while (pSub)
+  static void SendPluginTelemetry()
   {
-    ezTelemetryMessage msg;
-    msg.SetMessageID('PLUG', 'DATA');
-    msg.GetWriter() << pSub->GetPluginName();
-    msg.GetWriter() << pSub->IsReloadable();
+    if (!ezTelemetry::IsConnectedToClient())
+      return;
 
-    ezStringBuilder s;
+    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'PLUG', 'CLR', nullptr, 0);
 
-    ezInt32 iDep = 0;
-    while (pSub->GetPluginDependency(iDep) != nullptr)
+    ezPlugin* pSub = ezPlugin::GetFirstInstance();
+
+    while (pSub)
     {
-      if (!s.IsEmpty())
-        s.Append(" | ");
+      ezTelemetryMessage msg;
+      msg.SetMessageID('PLUG', 'DATA');
+      msg.GetWriter() << pSub->GetPluginName();
+      msg.GetWriter() << pSub->IsReloadable();
 
-      s.Append(pSub->GetPluginDependency(iDep));
+      ezStringBuilder s;
 
-      ++iDep;
+      ezInt32 iDep = 0;
+      while (pSub->GetPluginDependency(iDep) != nullptr)
+      {
+        if (!s.IsEmpty())
+          s.Append(" | ");
+
+        s.Append(pSub->GetPluginDependency(iDep));
+
+        ++iDep;
+      }
+
+      msg.GetWriter() << s.GetData();
+
+      ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+
+      pSub = pSub->GetNextInstance();
     }
-
-    msg.GetWriter() << s.GetData();
-
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
-
-    pSub = pSub->GetNextInstance();
   }
-}
 
-static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
-{
-  switch (e.m_EventType)
+  static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
   {
-  case ezTelemetry::TelemetryEventData::ConnectedToClient:
-    SendPluginTelemetry();
-    break;
+    switch (e.m_EventType)
+    {
+    case ezTelemetry::TelemetryEventData::ConnectedToClient:
+      SendPluginTelemetry();
+      break;
+    }
   }
-}
 
-static void PluginEventHandler(const ezPlugin::PluginEvent& e)
-{
-  switch (e.m_EventType)
+  static void PluginEventHandler(const ezPlugin::PluginEvent& e)
   {
-  case ezPlugin::PluginEvent::AfterPluginChanges:
-    SendPluginTelemetry();
-    break;
+    switch (e.m_EventType)
+    {
+    case ezPlugin::PluginEvent::AfterPluginChanges:
+      SendPluginTelemetry();
+      break;
+    }
   }
+
 }
 
 void AddPluginEventHandler()
 {
-  ezTelemetry::AddEventHandler(TelemetryEventsHandler);
-  ezPlugin::s_PluginEvents.AddEventHandler(PluginEventHandler);
+  ezTelemetry::AddEventHandler(PluginsDetail::TelemetryEventsHandler);
+  ezPlugin::s_PluginEvents.AddEventHandler(PluginsDetail::PluginEventHandler);
 }
 
 void RemovePluginEventHandler()
 {
-  ezPlugin::s_PluginEvents.RemoveEventHandler(PluginEventHandler);
-  ezTelemetry::RemoveEventHandler(TelemetryEventsHandler);
+  ezPlugin::s_PluginEvents.RemoveEventHandler(PluginsDetail::PluginEventHandler);
+  ezTelemetry::RemoveEventHandler(PluginsDetail::TelemetryEventsHandler);
 }
 
 

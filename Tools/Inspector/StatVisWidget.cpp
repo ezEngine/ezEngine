@@ -9,18 +9,21 @@
 ezStatVisWidget* ezStatVisWidget::s_pWidget = nullptr;
 ezInt32 ezStatVisWidget::s_iCurColor = 0;
 
-static QColor s_Colors[ezStatVisWidget::s_uiMaxColors] =
+namespace StatVisWidgetDetail
 {
-  QColor(255, 106,   0), // orange
-  QColor(182, 255,   0), // lime green
-  QColor(255,   0, 255), // pink
-  QColor(  0, 148, 255), // light blue
-  QColor(255,   0,   0), // red
-  QColor(  0, 255, 255), // turquoise
-  QColor(178,   0, 255), // purple
-  QColor(  0,  38, 255), // dark blue
-  QColor( 72,   0, 255), // lilac
-};
+  static QColor s_Colors[ezStatVisWidget::s_uiMaxColors] =
+  {
+    QColor(255, 106, 0), // orange
+    QColor(182, 255, 0), // lime green
+    QColor(255, 0, 255), // pink
+    QColor(0, 148, 255), // light blue
+    QColor(255, 0, 0), // red
+    QColor(0, 255, 255), // turquoise
+    QColor(178, 0, 255), // purple
+    QColor(0, 38, 255), // dark blue
+    QColor(72, 0, 255), // lilac
+  };
+}
 
 ezStatVisWidget::ezStatVisWidget(QWidget* parent, ezInt32 iWindowNumber) : QDockWidget (parent), m_ShowWindowAction(parent)
 {
@@ -50,7 +53,7 @@ ezStatVisWidget::ezStatVisWidget(QWidget* parent, ezInt32 iWindowNumber) : QDock
   m_pPathMax = m_Scene.addPath (QPainterPath (), QPen (QBrush (QColor(64, 64, 64)), 0 ));
 
   for (ezUInt32 i = 0; i < s_uiMaxColors; ++i)
-    m_pPath[i] = m_Scene.addPath (QPainterPath (), QPen (QBrush (s_Colors[i]), 0 ));
+    m_pPath[i] = m_Scene.addPath(QPainterPath(), QPen(QBrush(StatVisWidgetDetail::s_Colors[i]), 0));
 
   QTransform t = StatHistoryView->transform ();
   t.scale (1, -1);
@@ -235,7 +238,7 @@ void ezStatVisWidget::AddStat(const ezString& sStatPath, bool bEnabled, bool bRa
     Stat.m_pListItem->setText(sStatPath.GetData());
     Stat.m_pListItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
     Stat.m_pListItem->setCheckState(bEnabled ? Qt::Checked : Qt::Unchecked);
-    Stat.m_pListItem->setTextColor(s_Colors[Stat.m_uiColor]);
+    Stat.m_pListItem->setTextColor(StatVisWidgetDetail::s_Colors[Stat.m_uiColor]);
 
     ListStats->addItem(Stat.m_pListItem);
   }

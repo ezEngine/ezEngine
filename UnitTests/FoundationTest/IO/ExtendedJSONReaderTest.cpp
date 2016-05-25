@@ -3,7 +3,10 @@
 #include <Foundation/Containers/Deque.h>
 #include <FoundationTest/IO/JSONTestHelpers.h>
 
-void TraverseTree(const ezVariant& var, ezDeque<ezString>& Compare);
+namespace JSONReaderTestDetail
+{
+  void TraverseTree(const ezVariant& var, ezDeque<ezString>& Compare);
+}
 
 EZ_CREATE_SIMPLE_TEST(IO, ExtendedJSONReader)
 {
@@ -99,7 +102,7 @@ EZ_CREATE_SIMPLE_TEST(IO, ExtendedJSONReader)
 
     sCompare.PushBack("</object>");
 
-    TraverseTree(reader.GetTopLevelObject(), sCompare);
+    JSONReaderTestDetail::TraverseTree(reader.GetTopLevelObject(), sCompare);
 
     EZ_TEST_BOOL(sCompare.IsEmpty());
   }

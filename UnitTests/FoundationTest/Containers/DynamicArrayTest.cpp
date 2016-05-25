@@ -3,10 +3,10 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Types/UniquePtr.h>
 
-typedef ezConstructionCounter st;
-
-namespace
+namespace DynamicArrayTestDetail
 {
+  typedef ezConstructionCounter st;
+
   static int g_iDummyCounter = 0;
 
   class Dummy
@@ -32,6 +32,17 @@ namespace
   {
     static ezAllocatorBase* GetAllocator() { return g_pTestAllocator; }
   };
+
+  static ezDynamicArray<st, ezTestAllocatorWrapper> CreateArray(ezUInt32 uiSize, ezUInt32 uiOffset)
+  {
+    ezDynamicArray<st, ezTestAllocatorWrapper> a;
+    a.SetCount(uiSize);
+
+    for (ezUInt32 i = 0; i < uiSize; ++i)
+      a[i] = uiOffset + i;
+
+    return a;
+  }
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
@@ -42,26 +53,15 @@ namespace
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Containers);
 
-static ezDynamicArray<st, ezTestAllocatorWrapper> CreateArray(ezUInt32 uiSize, ezUInt32 uiOffset)
-{
-  ezDynamicArray<st, ezTestAllocatorWrapper> a;
-  a.SetCount(uiSize);
-
-  for (ezUInt32 i = 0; i < uiSize; ++i)
-    a[i] = uiOffset + i;
-
-  return a;
-}
-
 EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 {
   ezProxyAllocator proxy("DynamicArrayTestAllocator", ezFoundation::GetDefaultAllocator());
-  g_pTestAllocator = &proxy;
+  DynamicArrayTestDetail::g_pTestAllocator = &proxy;
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
     ezDynamicArray<ezInt32> a1;
-    ezDynamicArray<st> a2;
+    ezDynamicArray<DynamicArrayTestDetail::st> a2;
 
     EZ_TEST_BOOL(a1.GetCount() == 0);
     EZ_TEST_BOOL(a2.GetCount() == 0);
@@ -71,7 +71,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy Constructor")
   {
-    ezDynamicArray<ezInt32, ezTestAllocatorWrapper> a1;
+    ezDynamicArray<ezInt32, DynamicArrayTestDetail::ezTestAllocatorWrapper> a1;
 
     EZ_TEST_BOOL(a1.GetHeapMemoryUsage() == 0);
 
@@ -97,25 +97,25 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move Constructor / Operator")
   {
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasAllDestructed());
 
     {
       // move constructor
-      ezDynamicArray<st, ezTestAllocatorWrapper> a1 (CreateArray(100, 20));
+      ezDynamicArray<DynamicArrayTestDetail::st, DynamicArrayTestDetail::ezTestAllocatorWrapper> a1(DynamicArrayTestDetail::CreateArray(100, 20));
 
       EZ_TEST_INT(a1.GetCount(), 100);
       for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
         EZ_TEST_INT(a1[i].m_iData, 20 + i);
 
       // move operator
-      a1 = CreateArray(200, 50);
+      a1 = DynamicArrayTestDetail::CreateArray(200, 50);
 
       EZ_TEST_INT(a1.GetCount(), 200);
       for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
         EZ_TEST_INT(a1[i].m_iData, 50 + i);
     }
 
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasAllDestructed());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Convert to ArrayPtr")
@@ -135,7 +135,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator =")
   {
-    ezDynamicArray<ezInt32, ezTestAllocatorWrapper> a1;
+    ezDynamicArray<ezInt32, DynamicArrayTestDetail::ezTestAllocatorWrapper> a1;
     ezDynamicArray<ezInt32> a2;
 
     for (ezInt32 i = 0; i < 100; ++i)
@@ -294,13 +294,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     for (ezInt32 i = 0; i < 100; ++i)
       EZ_TEST_INT(a1[i], 99 - i);
 
-    ezUniquePtr<st> ptr = EZ_DEFAULT_NEW(st);
-    EZ_TEST_BOOL(st::HasConstructed(1));
+    ezUniquePtr<DynamicArrayTestDetail::st> ptr = EZ_DEFAULT_NEW(DynamicArrayTestDetail::st);
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasConstructed(1));
 
     {
-      ezDynamicArray<ezUniquePtr<st>> a2;
+      ezDynamicArray<ezUniquePtr<DynamicArrayTestDetail::st>> a2;
       for (ezUInt32 i = 0; i < 10; ++i)
-        a2.Insert(ezUniquePtr<st>(), 0);
+        a2.Insert(ezUniquePtr<DynamicArrayTestDetail::st>(), 0);
 
       a2.Insert(std::move(ptr), 0);
       EZ_TEST_BOOL(ptr == nullptr);
@@ -310,7 +310,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
         EZ_TEST_BOOL(a2[i] == nullptr);
     }
 
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasAllDestructed());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove")
@@ -367,13 +367,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     for (ezInt32 i = 0; i < 5; ++i)
       EZ_TEST_INT(a1[i], i * 2);
 
-    ezUniquePtr<st> ptr = EZ_DEFAULT_NEW(st);
-    EZ_TEST_BOOL(st::HasConstructed(1));
+    ezUniquePtr<DynamicArrayTestDetail::st> ptr = EZ_DEFAULT_NEW(DynamicArrayTestDetail::st);
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasConstructed(1));
 
     {
-      ezDynamicArray<ezUniquePtr<st>> a2;
+      ezDynamicArray<ezUniquePtr<DynamicArrayTestDetail::st>> a2;
       for (ezUInt32 i = 0; i < 10; ++i)
-        a2.Insert(ezUniquePtr<st>(), 0);
+        a2.Insert(ezUniquePtr<DynamicArrayTestDetail::st>(), 0);
 
       a2.PushBack(std::move(ptr));
       EZ_TEST_BOOL(ptr == nullptr);
@@ -381,10 +381,10 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
       a2.RemoveAt(0);
       EZ_TEST_BOOL(a2[9] != nullptr);
-      EZ_TEST_BOOL(st::HasDone(0, 0));
+      EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(0, 0));
     }
 
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasAllDestructed());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveAtSwap")
@@ -405,13 +405,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     for (ezInt32 i = 0; i < 5; ++i)
       EZ_TEST_BOOL(ezMath::IsEven(a1[i]));
 
-    ezUniquePtr<st> ptr = EZ_DEFAULT_NEW(st);
-    EZ_TEST_BOOL(st::HasConstructed(1));
+    ezUniquePtr<DynamicArrayTestDetail::st> ptr = EZ_DEFAULT_NEW(DynamicArrayTestDetail::st);
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasConstructed(1));
 
     {
-      ezDynamicArray<ezUniquePtr<st>> a2;
+      ezDynamicArray<ezUniquePtr<DynamicArrayTestDetail::st>> a2;
       for (ezUInt32 i = 0; i < 10; ++i)
-        a2.Insert(ezUniquePtr<st>(), 0);
+        a2.Insert(ezUniquePtr<DynamicArrayTestDetail::st>(), 0);
 
       a2.PushBack(std::move(ptr));
       EZ_TEST_BOOL(ptr == nullptr);
@@ -421,7 +421,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
       EZ_TEST_BOOL(a2[0] != nullptr);
     }
 
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasAllDestructed());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushBack / PopBack / PeekBack")
@@ -470,48 +470,48 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Construction / Destruction")
   {
     {
-      EZ_TEST_BOOL(st::HasAllDestructed());
+      EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasAllDestructed());
 
-      ezDynamicArray<st> a1;
-      ezDynamicArray<st> a2;
+      ezDynamicArray<DynamicArrayTestDetail::st> a1;
+      ezDynamicArray<DynamicArrayTestDetail::st> a2;
 
-      EZ_TEST_BOOL(st::HasDone(0, 0)); // nothing has been constructed / destructed in between
-      EZ_TEST_BOOL(st::HasAllDestructed());
+      EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(0, 0)); // nothing has been constructed / destructed in between
+      EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasAllDestructed());
 
-      a1.PushBack(st(1));
-      EZ_TEST_BOOL(st::HasDone(2, 1)); // one temporary, one final (copy constructed)
+      a1.PushBack(DynamicArrayTestDetail::st(1));
+      EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(2, 1)); // one temporary, one final (copy constructed)
 
-      a1.Insert(st(2), 0);
-      EZ_TEST_BOOL(st::HasDone(2, 1)); // one temporary, one final (copy constructed)
+      a1.Insert(DynamicArrayTestDetail::st(2), 0);
+      EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(2, 1)); // one temporary, one final (copy constructed)
 
       a2 = a1;
-      EZ_TEST_BOOL(st::HasDone(2, 0)); // two copies
+      EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(2, 0)); // two copies
 
       a1.Clear();
-      EZ_TEST_BOOL(st::HasDone(0, 2));
+      EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(0, 2));
 
-      a1.PushBack(st(3));
-      a1.PushBack(st(4));
-      a1.PushBack(st(5));
-      a1.PushBack(st(6));
+      a1.PushBack(DynamicArrayTestDetail::st(3));
+      a1.PushBack(DynamicArrayTestDetail::st(4));
+      a1.PushBack(DynamicArrayTestDetail::st(5));
+      a1.PushBack(DynamicArrayTestDetail::st(6));
 
-      EZ_TEST_BOOL(st::HasDone(8, 4)); // four temporaries
+      EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(8, 4)); // four temporaries
 
-      a1.Remove(st(3));
-      EZ_TEST_BOOL(st::HasDone(1, 2)); // one temporary, one destroyed
+      a1.Remove(DynamicArrayTestDetail::st(3));
+      EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(1, 2)); // one temporary, one destroyed
 
-      a1.Remove(st(3));
-      EZ_TEST_BOOL(st::HasDone(1, 1)); // one temporary, none destroyed
+      a1.Remove(DynamicArrayTestDetail::st(3));
+      EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(1, 1)); // one temporary, none destroyed
 
       a1.RemoveAt(0);
-      EZ_TEST_BOOL(st::HasDone(0, 1)); // one destroyed
+      EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(0, 1)); // one destroyed
 
       a1.RemoveAtSwap(0);
-      EZ_TEST_BOOL(st::HasDone(0, 1)); // one destroyed
+      EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(0, 1)); // one destroyed
     }
 
     // tests the destructor of a2 and a1
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasAllDestructed());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortingPrimitives")
@@ -534,12 +534,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortingObjects")
   {
-    ezDynamicArray<Dummy> list;
+    ezDynamicArray<DynamicArrayTestDetail::Dummy> list;
     list.Reserve(128);
 
     for (ezUInt32 i = 0; i < 100; i++)
     {
-      list.PushBack(Dummy(rand()));
+      list.PushBack(DynamicArrayTestDetail::Dummy(rand()));
     }
     list.Sort();
 
@@ -553,12 +553,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortingMovableObjects")
   {
     {
-      ezDynamicArray<ezUniquePtr<st>> list;
+      ezDynamicArray<ezUniquePtr<DynamicArrayTestDetail::st>> list;
       list.Reserve(128);
 
       for (ezUInt32 i = 0; i < 100; i++)
       {
-        list.PushBack(EZ_DEFAULT_NEW(st));
+        list.PushBack(EZ_DEFAULT_NEW(DynamicArrayTestDetail::st));
       }
       list.Sort();
 
@@ -568,12 +568,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
       }
     }
 
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasAllDestructed());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Various")
   {
-    ezDynamicArray<Dummy> list;
+    ezDynamicArray<DynamicArrayTestDetail::Dummy> list;
     list.PushBack(1);
     list.PushBack(2);
     list.PushBack(3);
@@ -602,7 +602,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     list.PushBack(5);
     EZ_TEST_BOOL(list[4].a == 5);
-    Dummy d = list.PeekBack();
+    DynamicArrayTestDetail::Dummy d = list.PeekBack();
     list.PopBack();
     EZ_TEST_BOOL(d.a == 5);
     EZ_TEST_BOOL(list.GetCount() == 4);
@@ -610,16 +610,16 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Assignment")
   {
-    ezDynamicArray<Dummy> list;
+    ezDynamicArray<DynamicArrayTestDetail::Dummy> list;
     for (int i = 0; i < 16; i++)
     {
-      list.PushBack(Dummy(rand()));
+      list.PushBack(DynamicArrayTestDetail::Dummy(rand()));
     }
 
-    ezDynamicArray<Dummy> list2;
+    ezDynamicArray<DynamicArrayTestDetail::Dummy> list2;
     for (int i = 0; i < 8; i++)
     {
-      list2.PushBack(Dummy(rand()));
+      list2.PushBack(DynamicArrayTestDetail::Dummy(rand()));
     }
 
     list = list2;
@@ -634,7 +634,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     for (int i = 0; i < 16; i++)
     {
-      list2.PushBack(Dummy(rand()));
+      list2.PushBack(DynamicArrayTestDetail::Dummy(rand()));
     }
 
     list = list2;
@@ -644,10 +644,10 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Count")
   {
-    ezDynamicArray<Dummy> list;
+    ezDynamicArray<DynamicArrayTestDetail::Dummy> list;
     for (int i = 0; i < 16; i++)
     {
-      list.PushBack(Dummy(rand()));
+      list.PushBack(DynamicArrayTestDetail::Dummy(rand()));
     }
     list.SetCount(32);
     list.SetCount(4);
@@ -657,80 +657,80 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reserve")
   {
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasAllDestructed());
 
-    ezDynamicArray<st> a;
+    ezDynamicArray<DynamicArrayTestDetail::st> a;
 
-    EZ_TEST_BOOL(st::HasDone(0, 0)); // nothing has been constructed / destructed in between
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(0, 0)); // nothing has been constructed / destructed in between
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasAllDestructed());
 
     a.Reserve(100);
 
-    EZ_TEST_BOOL(st::HasDone(0, 0)); // nothing has been constructed / destructed in between
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(0, 0)); // nothing has been constructed / destructed in between
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasAllDestructed());
 
     a.SetCount(10);
-    EZ_TEST_BOOL(st::HasDone(10, 0));
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(10, 0));
 
     a.Reserve(100);
-    EZ_TEST_BOOL(st::HasDone(0, 0));
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(0, 0));
 
     a.SetCount(100);
-    EZ_TEST_BOOL(st::HasDone(90, 0));
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(90, 0));
 
     a.Reserve(200);
-    EZ_TEST_BOOL(st::HasDone(100, 100)); // had to copy some elements over
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(100, 100)); // had to copy some elements over
 
     a.SetCount(200);
-    EZ_TEST_BOOL(st::HasDone(100, 0));
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(100, 0));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compact")
   {
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasAllDestructed());
 
-    ezDynamicArray<st> a;
+    ezDynamicArray<DynamicArrayTestDetail::st> a;
 
-    EZ_TEST_BOOL(st::HasDone(0, 0)); // nothing has been constructed / destructed in between
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(0, 0)); // nothing has been constructed / destructed in between
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasAllDestructed());
 
     a.SetCount(100);
-    EZ_TEST_BOOL(st::HasDone(100, 0));
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(100, 0));
 
     a.SetCount(200);
-    EZ_TEST_BOOL(st::HasDone(200, 100));
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(200, 100));
 
     a.SetCount(10);
-    EZ_TEST_BOOL(st::HasDone(0, 190));
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(0, 190));
 
     // no reallocations and copying, if the memory is already available
     a.SetCount(200);
-    EZ_TEST_BOOL(st::HasDone(190, 0));
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(190, 0));
 
     a.SetCount(10);
-    EZ_TEST_BOOL(st::HasDone(0, 190));
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(0, 190));
 
     // now we remove the spare memory
     a.Compact();
-    EZ_TEST_BOOL(st::HasDone(10, 10));
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(10, 10));
 
     // this time the array needs to be relocated, and thus the already present elements need to be copied
     a.SetCount(200);
-    EZ_TEST_BOOL(st::HasDone(200, 10));
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(200, 10));
 
     // this does not deallocate memory
     a.Clear();
-    EZ_TEST_BOOL(st::HasDone(0, 200));
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(0, 200));
 
     a.SetCount(100);
-    EZ_TEST_BOOL(st::HasDone(100, 0));
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(100, 0));
 
     // therefore no object relocation
     a.SetCount(200);
-    EZ_TEST_BOOL(st::HasDone(100, 0));
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(100, 0));
 
     a.Clear();
-    EZ_TEST_BOOL(st::HasDone(0, 200));
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(0, 200));
 
     // this will deallocate ALL memory
     EZ_TEST_BOOL(a.GetHeapMemoryUsage() > 0);
@@ -738,11 +738,11 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST_BOOL(a.GetHeapMemoryUsage() == 0);
 
     a.SetCount(100);
-    EZ_TEST_BOOL(st::HasDone(100, 0));
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(100, 0));
 
     // this time objects need to be relocated
     a.SetCount(200);
-    EZ_TEST_BOOL(st::HasDone(200, 100));
+    EZ_TEST_BOOL(DynamicArrayTestDetail::st::HasDone(200, 100));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "STL Iterator")

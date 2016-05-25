@@ -1,6 +1,7 @@
 #pragma once
 
 #include <TestFramework/Basics.h>
+#include <Foundation/Algorithm/Hashing.h>
 
 struct ezConstructionCounter
 {
@@ -117,3 +118,16 @@ struct ezConstructionCounter
   static ezInt32 s_iDestructionsLast;
 };
 
+template <>
+struct ezHashHelper<ezConstructionCounter>
+{
+  EZ_FORCE_INLINE static ezUInt32 Hash(const ezConstructionCounter& value)
+  {
+    return ezHashHelper<ezInt32>::Hash(value.m_iData);
+  }
+
+  EZ_FORCE_INLINE static bool Equal(const ezConstructionCounter& a, const ezConstructionCounter& b)
+  {
+    return a == b;
+  }
+};

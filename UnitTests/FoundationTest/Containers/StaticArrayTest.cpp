@@ -1,9 +1,7 @@
 #include <PCH.h>
 #include <Foundation/Containers/StaticArray.h>
 
-typedef ezConstructionCounter st;
-
-namespace
+namespace StaticArrayTestDetail
 {
   class Dummy
   {
@@ -43,7 +41,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
     ezStaticArray<ezInt32, 32> a1;
-    ezStaticArray<st, 32> a2;
+    ezStaticArray<ezConstructionCounter, 32> a2;
 
     EZ_TEST_BOOL(a1.GetCount() == 0);
     EZ_TEST_BOOL(a2.GetCount() == 0);
@@ -321,48 +319,48 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Construction / Destruction")
   {
     {
-      EZ_TEST_BOOL(st::HasAllDestructed());
+      EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
 
-      ezStaticArray<st, 128> a1;
-      ezStaticArray<st, 100> a2;
+      ezStaticArray<ezConstructionCounter, 128> a1;
+      ezStaticArray<ezConstructionCounter, 100> a2;
 
-      EZ_TEST_BOOL(st::HasDone(0, 0)); // nothing has been constructed / destructed in between
-      EZ_TEST_BOOL(st::HasAllDestructed());
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 0)); // nothing has been constructed / destructed in between
+      EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
 
-      a1.PushBack(st(1));
-      EZ_TEST_BOOL(st::HasDone(2, 1)); // one temporary, one final (copy constructed)
+      a1.PushBack(ezConstructionCounter(1));
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 1)); // one temporary, one final (copy constructed)
 
-      a1.Insert(st(2), 0);
-      EZ_TEST_BOOL(st::HasDone(2, 1)); // one temporary, one final (copy constructed)
+      a1.Insert(ezConstructionCounter(2), 0);
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 1)); // one temporary, one final (copy constructed)
 
       a2 = a1;
-      EZ_TEST_BOOL(st::HasDone(2, 0)); // two copies
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 0)); // two copies
 
       a1.Clear();
-      EZ_TEST_BOOL(st::HasDone(0, 2));
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 2));
 
-      a1.PushBack(st(3));
-      a1.PushBack(st(4));
-      a1.PushBack(st(5));
-      a1.PushBack(st(6));
+      a1.PushBack(ezConstructionCounter(3));
+      a1.PushBack(ezConstructionCounter(4));
+      a1.PushBack(ezConstructionCounter(5));
+      a1.PushBack(ezConstructionCounter(6));
 
-      EZ_TEST_BOOL(st::HasDone(8, 4)); // four temporaries
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(8, 4)); // four temporaries
 
-      a1.Remove(st(3));
-      EZ_TEST_BOOL(st::HasDone(1, 2)); // one temporary, one destroyed
+      a1.Remove(ezConstructionCounter(3));
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(1, 2)); // one temporary, one destroyed
 
-      a1.Remove(st(3));
-      EZ_TEST_BOOL(st::HasDone(1, 1)); // one temporary, none destroyed
+      a1.Remove(ezConstructionCounter(3));
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(1, 1)); // one temporary, none destroyed
 
       a1.RemoveAt(0);
-      EZ_TEST_BOOL(st::HasDone(0, 1)); // one destroyed
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 1)); // one destroyed
 
       a1.RemoveAtSwap(0);
-      EZ_TEST_BOOL(st::HasDone(0, 1)); // one destroyed
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 1)); // one destroyed
     }
 
     // tests the destructor of a2 and a1
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortingPrimitives")
@@ -387,15 +385,15 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortingObjects")
   {
-    ezStaticArray<Dummy, 128> list;
+    ezStaticArray<StaticArrayTestDetail::Dummy, 128> list;
 
     for (ezUInt32 i = 0; i < 100; i++)
     {
-      list.PushBack(Dummy(rand()));
+      list.PushBack(StaticArrayTestDetail::Dummy(rand()));
     }
     list.Sort();
 
-    Dummy last = 0;
+    StaticArrayTestDetail::Dummy last = 0;
     for (ezUInt32 i = 0; i < list.GetCount(); i++)
     {
       EZ_TEST_BOOL(last <= list[i]);
@@ -405,7 +403,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Various")
   {
-    ezStaticArray<Dummy, 32> list;
+    ezStaticArray<StaticArrayTestDetail::Dummy, 32> list;
     list.PushBack(1);
     list.PushBack(2);
     list.PushBack(3);
@@ -434,7 +432,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
 
     list.PushBack(5);
     EZ_TEST_BOOL(list[4].a == 5);
-    Dummy d = list.PeekBack();
+    StaticArrayTestDetail::Dummy d = list.PeekBack();
     list.PopBack();
     EZ_TEST_BOOL(d.a == 5);
     EZ_TEST_BOOL(list.GetCount() == 4);
@@ -442,16 +440,16 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Assignment")
   {
-    ezStaticArray<Dummy, 32> list;
+    ezStaticArray<StaticArrayTestDetail::Dummy, 32> list;
     for (int i = 0; i < 16; i++)
     {
-      list.PushBack(Dummy(rand()));
+      list.PushBack(StaticArrayTestDetail::Dummy(rand()));
     }
 
-    ezStaticArray<Dummy, 32> list2;
+    ezStaticArray<StaticArrayTestDetail::Dummy, 32> list2;
     for (int i = 0; i < 8; i++)
     {
-      list2.PushBack(Dummy(rand()));
+      list2.PushBack(StaticArrayTestDetail::Dummy(rand()));
     }
 
     list = list2;
@@ -466,7 +464,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
 
     for (int i = 0; i < 16; i++)
     {
-      list2.PushBack(Dummy(rand()));
+      list2.PushBack(StaticArrayTestDetail::Dummy(rand()));
     }
 
     list = list2;
@@ -476,10 +474,10 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Count")
   {
-    ezStaticArray<Dummy, 32> list;
+    ezStaticArray<StaticArrayTestDetail::Dummy, 32> list;
     for (int i = 0; i < 16; i++)
     {
-      list.PushBack(Dummy(rand()));
+      list.PushBack(StaticArrayTestDetail::Dummy(rand()));
     }
     list.SetCount(32);
     list.SetCount(4);

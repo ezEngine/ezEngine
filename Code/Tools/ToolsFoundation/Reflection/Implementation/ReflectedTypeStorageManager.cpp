@@ -26,6 +26,7 @@ ON_CORE_SHUTDOWN
   ezReflectedTypeStorageManager::Shutdown();
 }
 
+
 EZ_END_SUBSYSTEM_DECLARATION
 
 ////////////////////////////////////////////////////////////////////////

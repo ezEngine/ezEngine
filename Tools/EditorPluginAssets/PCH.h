@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <QWidget>
 
 // <StaticLinkUtil::StartHere>
 // all include's before this will be left alone and not replaced by the StaticLinkUtil

@@ -372,77 +372,78 @@ HRESULT _ResizeSeparateColorAndAlpha( _In_ IWICImagingFactory* pWIC, _In_ bool i
     return hr;
 }
 
-
-//--- determine when to use WIC vs. non-WIC paths ---
-static bool _UseWICFiltering( _In_ DXGI_FORMAT format, _In_ DWORD filter )
+namespace DirectXTexMipmapsDetail
 {
-    if ( filter & TEX_FILTER_FORCE_NON_WIC )
+  //--- determine when to use WIC vs. non-WIC paths ---
+  static bool _UseWICFiltering(_In_ DXGI_FORMAT format, _In_ DWORD filter)
+  {
+    if (filter & TEX_FILTER_FORCE_NON_WIC)
     {
-        // Explicit flag indicates use of non-WIC code paths
-        return false;
+      // Explicit flag indicates use of non-WIC code paths
+      return false;
     }
 
-    if ( filter & TEX_FILTER_FORCE_WIC )
+    if (filter & TEX_FILTER_FORCE_WIC)
     {
-        // Explicit flag to use WIC code paths, skips all the case checks below
-        return true;
+      // Explicit flag to use WIC code paths, skips all the case checks below
+      return true;
     }
 
-    if ( IsSRGB(format) || (filter & TEX_FILTER_SRGB) )
+    if (IsSRGB(format) || (filter & TEX_FILTER_SRGB))
     {
-        // Use non-WIC code paths for sRGB correct filtering
-        return false;
+      // Use non-WIC code paths for sRGB correct filtering
+      return false;
     }
 
 #if defined(_XBOX_ONE) && defined(_TITLE)
     if ( format == DXGI_FORMAT_R16G16B16A16_FLOAT
-         || format == DXGI_FORMAT_R16_FLOAT )
+      || format == DXGI_FORMAT_R16_FLOAT )
     {
-        // Use non-WIC code paths as these conversions are not supported by Xbox One XDK
-        return false;
+      // Use non-WIC code paths as these conversions are not supported by Xbox One XDK
+      return false;
     }
 #endif
 
-    static_assert( TEX_FILTER_POINT == 0x100000, "TEX_FILTER_ flag values don't match TEX_FILTER_MASK" );
+    static_assert(TEX_FILTER_POINT == 0x100000, "TEX_FILTER_ flag values don't match TEX_FILTER_MASK");
 
-    switch ( filter & TEX_FILTER_MASK )
+    switch (filter & TEX_FILTER_MASK)
     {
     case TEX_FILTER_LINEAR:
-        if ( filter & TEX_FILTER_WRAP )
-        {
-            // WIC only supports 'clamp' semantics (MIRROR is equivalent to clamp for linear)
-            return false;
-        }
+      if (filter & TEX_FILTER_WRAP)
+      {
+        // WIC only supports 'clamp' semantics (MIRROR is equivalent to clamp for linear)
+        return false;
+      }
 
-        if ( BitsPerColor(format) > 8 )
-        {
-            // Avoid the WIC bitmap scaler when doing Linear filtering of XR/HDR formats
-            return false;
-        }
-        break;
+      if (BitsPerColor(format) > 8)
+      {
+        // Avoid the WIC bitmap scaler when doing Linear filtering of XR/HDR formats
+        return false;
+      }
+      break;
 
     case TEX_FILTER_CUBIC:
-        if ( filter & ( TEX_FILTER_WRAP | TEX_FILTER_MIRROR ) )
-        {
-            // WIC only supports 'clamp' semantics
-            return false;
-        }
+      if (filter & (TEX_FILTER_WRAP | TEX_FILTER_MIRROR))
+      {
+        // WIC only supports 'clamp' semantics
+        return false;
+      }
 
-        if ( BitsPerColor(format) > 8 )
-        {
-            // Avoid the WIC bitmap scaler when doing Cubic filtering of XR/HDR formats
-            return false;
-        }
-        break;
+      if (BitsPerColor(format) > 8)
+      {
+        // Avoid the WIC bitmap scaler when doing Cubic filtering of XR/HDR formats
+        return false;
+      }
+      break;
 
     case TEX_FILTER_TRIANGLE:
-        // WIC does not implement this filter
-        return false;
+      // WIC does not implement this filter
+      return false;
     }
 
     return true;
+  }
 }
-
 
 //--- mipmap (1D/2D) generation using WIC image scalar ---
 static HRESULT _GenerateMipMapsUsingWIC( _In_ const Image& baseImage, _In_ DWORD filter, _In_ size_t levels,
@@ -2531,7 +2532,7 @@ HRESULT GenerateMipMaps( const Image& baseImage, DWORD filter, size_t levels, Sc
 
     static_assert( TEX_FILTER_POINT == 0x100000, "TEX_FILTER_ flag values don't match TEX_FILTER_MASK" );
 
-    if ( _UseWICFiltering( baseImage.format, filter ) )
+    if ( DirectXTexMipmapsDetail::_UseWICFiltering( baseImage.format, filter ) )
     {
         //--- Use WIC filtering to generate mipmaps -----------------------------------
         switch(filter & TEX_FILTER_MASK)
@@ -2720,7 +2721,7 @@ HRESULT GenerateMipMaps( const Image* srcImages, size_t nimages, const TexMetada
 
     static_assert( TEX_FILTER_POINT == 0x100000, "TEX_FILTER_ flag values don't match TEX_FILTER_MASK" );
 
-    if ( _UseWICFiltering( metadata.format, filter ) )
+    if ( DirectXTexMipmapsDetail::_UseWICFiltering( metadata.format, filter ) )
     {
         //--- Use WIC filtering to generate mipmaps -----------------------------------
         switch(filter & TEX_FILTER_MASK)

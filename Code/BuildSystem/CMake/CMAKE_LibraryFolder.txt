@@ -20,6 +20,14 @@ if (EZ_ENABLE_QT_SUPPORT AND EZ_QTPROJECT)
   endif()
 endif ()
 
+foreach (CUR_SOURCE ${SOURCE_FILES})
+  get_filename_component(RawFilename ${CUR_SOURCE} NAME)
+  string(SUBSTRING ${RawFilename} 0 5 STARTS_WITH)   
+  if (${STARTS_WITH} STREQUAL "unity")
+    list(REMOVE_ITEM SOURCE_FILES ${CUR_SOURCE})
+  endif ()  
+endforeach ()
+
 set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${HEADER_FILES})
 set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${INLINE_FILES})
 set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${SOURCE_FILES})
@@ -38,6 +46,8 @@ if (EZ_ENABLE_QT_SUPPORT AND EZ_QTPROJECT)
   endif ()
 
   if (MOC_HEADERS)
+    # QT5_WRAP_CPP appends to the MOC_FILES variable. So we have to empty it first.
+	set (MOC_FILES "")
     QT5_WRAP_CPP (MOC_FILES ${MOC_HEADERS})
 
     set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${MOC_FILES})
@@ -52,11 +62,65 @@ if (EZ_ENABLE_QT_SUPPORT AND EZ_QTPROJECT)
   endif ()
 endif ()
 
+if (EZ_ENABLE_FOLDER_UNITY_FILES)
+  SET(SOURCE_FILES_CLEANED ${SOURCE_FILES} ${MOC_FILES})
+  foreach (CUR_SOURCE ${SOURCE_FILES} ${MOC_FILES})
+    list (FIND FILES_IN_UNITY ${CUR_SOURCE} _index)
+    get_filename_component(RawFilename ${CUR_SOURCE} NAME)
+    get_filename_component(Extension ${CUR_SOURCE} EXT)
+    if (RawFilename STREQUAL "PCH.cpp" OR ${_index} GREATER -1 OR ${Extension} STREQUAL ".c")
+      list(REMOVE_ITEM SOURCE_FILES_CLEANED ${CUR_SOURCE})
+    endif ()
+  endforeach()
+  # generate unity.cpp
+  if (SOURCE_FILES_CLEANED)
+    MATH(EXPR EZ_FOLDER_UNITY_COUNTER "${EZ_FOLDER_UNITY_COUNTER}+1")
+    set (FOLDER_UNITY_FILE "${CURRENT_FOLDER}/unity${EZ_FOLDER_UNITY_COUNTER}.cpp")
+    message (STATUS "Writing ${FOLDER_UNITY_FILE}")
+    file (WRITE ${FOLDER_UNITY_FILE} "// generated unity cpp file\n")
+    if (EZ_USE_PCH)
+      set (PCH_FOUND false)
+      set (PCH_FILE)
+
+      foreach (src_file ${ALL_SOURCE_FILES} ${HEADER_FILES})
+        get_filename_component(RawFilename ${src_file} NAME)
+        get_filename_component(Extension ${src_file} EXT)
+
+        if (${Extension} STREQUAL ".h")
+          if (RawFilename STREQUAL "PCH.h")
+            set (PCH_FOUND true)
+            set (PCH_FILE ${src_file})
+          endif()
+        endif ()
+
+      endforeach ()
+      
+      if (PCH_FOUND)
+        if (LIBRARY_PCH)
+          file(RELATIVE_PATH PCH_FILE ${PARENT_FOLDER} ${PCH_FILE})
+        else ()
+          get_filename_component(PCH_FILE ${PCH_FILE} NAME)
+        endif()
+        file(APPEND ${FOLDER_UNITY_FILE} "#include <${PCH_FILE}>\n")
+      endif ()
+    endif()
+    foreach (COMPILED_FILE ${SOURCE_FILES_CLEANED})
+      #get_filename_component(COMPILED_FILE_NAME ${COMPILED_FILE} NAME)
+	  file(RELATIVE_PATH COMPILED_FILE_NAME ${CURRENT_FOLDER} ${COMPILED_FILE})
+      file (APPEND ${FOLDER_UNITY_FILE} "#include \"${COMPILED_FILE_NAME}\"\n")
+      set_source_files_properties(${COMPILED_FILE} PROPERTIES HEADER_FILE_ONLY TRUE)
+    endforeach ()
+    set (SOURCE_FILES ${SOURCE_FILES} ${FOLDER_UNITY_FILE})
+	set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${FOLDER_UNITY_FILE})
+	SET (FILES_IN_UNITY ${FILES_IN_UNITY} ${SOURCE_FILES_CLEANED})
+  endif()
+endif ()
+
 set (SOURCE_GROUP_FOLDER "")
 
 # put all the files in an identically named folder in the visual studio solution, to mimic the file system
 foreach (VAR ${LIST_SOURCE_GROUP_FOLDER})
-	set (SOURCE_GROUP_FOLDER "${SOURCE_GROUP_FOLDER}\\${VAR}")
+    set (SOURCE_GROUP_FOLDER "${SOURCE_GROUP_FOLDER}\\${VAR}")
 endforeach ()
 
 source_group ("${SOURCE_GROUP_FOLDER}" FILES ${HEADER_FILES} ${INLINE_FILES} ${SOURCE_FILES} ${UI_FILES} ${QRC_FILES} ${MOC_HEADERS})
@@ -67,8 +131,8 @@ file (GLOB DIRS "${CURRENT_FOLDER}/*/CMakeLists.txt")
 # add all those directories to the to-be-processed queue
 foreach (VAR ${DIRS})
 
-	# add directory to the queue
-	include (${VAR})
+    # add directory to the queue
+    include (${VAR})
 
 endforeach ()
 

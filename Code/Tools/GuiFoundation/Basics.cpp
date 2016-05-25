@@ -16,7 +16,7 @@ QtScopedUpdatesDisabled::QtScopedUpdatesDisabled(QWidget* pWidget1, QWidget* pWi
     }
     else
     {
-      m_pWidgets[i] = nullptr;
+      m_pWidgets[i] = nullptr; 
     }
   }
 }

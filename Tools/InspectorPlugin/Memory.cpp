@@ -3,54 +3,59 @@
 #include <Foundation/Memory/MemoryTracker.h>
 #include <Foundation/Utilities/Stats.h>
 
-static void BroadcastMemoryStats()
+namespace MemoryDetail
 {
-  ezUInt64 uiTotalAllocations = 0;
 
-  for (auto it = ezMemoryTracker::GetIterator(); it.IsValid(); ++it)
+  static void BroadcastMemoryStats()
   {
-    ezTelemetryMessage msg;
-    msg.SetMessageID('MEM', 'STAT');
-    msg.GetWriter() << it.Name();
-    msg.GetWriter() << it.Stats();
+    ezUInt64 uiTotalAllocations = 0;
 
-    uiTotalAllocations += it.Stats().m_uiNumAllocations;
+    for (auto it = ezMemoryTracker::GetIterator(); it.IsValid(); ++it)
+    {
+      ezTelemetryMessage msg;
+      msg.SetMessageID('MEM', 'STAT');
+      msg.GetWriter() << it.Name();
+      msg.GetWriter() << it.Stats();
 
-    ezTelemetry::Broadcast(ezTelemetry::Unreliable, msg);
+      uiTotalAllocations += it.Stats().m_uiNumAllocations;
+
+      ezTelemetry::Broadcast(ezTelemetry::Unreliable, msg);
+    }
+
+    static ezUInt64 uiLastTotalAllocations = 0;
+
+    ezStringBuilder s;
+
+    s.Format("%lli", uiTotalAllocations - uiLastTotalAllocations);
+    ezStats::SetStat("App/Allocs Per Frame", s.GetData());
+
+    uiLastTotalAllocations = uiTotalAllocations;
   }
 
-  static ezUInt64 uiLastTotalAllocations = 0;
-
-  ezStringBuilder s;
-
-  s.Format("%lli", uiTotalAllocations - uiLastTotalAllocations);
-  ezStats::SetStat("App/Allocs Per Frame", s.GetData());
-
-  uiLastTotalAllocations = uiTotalAllocations;
-}
-
-static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
-{
-  if (!ezTelemetry::IsConnectedToClient())
-    return;
-
-  switch (e.m_EventType)
+  static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
   {
-  case ezTelemetry::TelemetryEventData::PerFrameUpdate:
-    BroadcastMemoryStats();
-    break;
+    if (!ezTelemetry::IsConnectedToClient())
+      return;
+
+    switch (e.m_EventType)
+    {
+    case ezTelemetry::TelemetryEventData::PerFrameUpdate:
+      BroadcastMemoryStats();
+      break;
+    }
   }
+
 }
 
 
 void AddMemoryEventHandler()
 {
-  ezTelemetry::AddEventHandler(TelemetryEventsHandler);
+  ezTelemetry::AddEventHandler(MemoryDetail::TelemetryEventsHandler);
 }
 
 void RemoveMemoryEventHandler()
 {
-  ezTelemetry::RemoveEventHandler(TelemetryEventsHandler);
+  ezTelemetry::RemoveEventHandler(MemoryDetail::TelemetryEventsHandler);
 }
 
 

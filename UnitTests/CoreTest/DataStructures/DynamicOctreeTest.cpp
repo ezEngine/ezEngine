@@ -4,21 +4,24 @@
 
 EZ_CREATE_SIMPLE_TEST_GROUP(DataStructures);
 
-static ezInt32 g_iSearchInstance = 0;
-static bool g_bFoundSearched = false;
-static ezUInt32 g_iReturned = 0;
-
-static bool ObjectFound(void* pPassThrough, ezDynamicTreeObjectConst Object)
+namespace DynamicOctreeTestDetail
 {
-  EZ_TEST_BOOL(pPassThrough == nullptr);
+  static ezInt32 g_iSearchInstance = 0;
+  static bool g_bFoundSearched = false;
+  static ezUInt32 g_iReturned = 0;
 
-  ++g_iReturned;
+  static bool ObjectFound(void* pPassThrough, ezDynamicTreeObjectConst Object)
+  {
+    EZ_TEST_BOOL(pPassThrough == nullptr);
 
-  if (Object.Value().m_iObjectInstance == g_iSearchInstance)
-    g_bFoundSearched = true;
+    ++g_iReturned;
 
-  // let it give us all the objects in range and count how many that are
-  return true;
+    if (Object.Value().m_iObjectInstance == g_iSearchInstance)
+      g_bFoundSearched = true;
+
+    // let it give us all the objects in range and count how many that are
+    return true;
+  }
 }
 
 EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicOctree)
@@ -130,25 +133,25 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicOctree)
 
     for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
-      g_iSearchInstance = i;
+      DynamicOctreeTestDetail::g_iSearchInstance = i;
 
-      g_iReturned = 0;
-      g_bFoundSearched = false;
-      o.FindObjectsInRange(Objects[i].m_vPos, ObjectFound, nullptr);
-      EZ_TEST_BOOL(g_bFoundSearched == true);
-      EZ_TEST_BOOL(g_iReturned < Objects.GetCount());
+      DynamicOctreeTestDetail::g_iReturned = 0;
+      DynamicOctreeTestDetail::g_bFoundSearched = false;
+      o.FindObjectsInRange(Objects[i].m_vPos, DynamicOctreeTestDetail::ObjectFound, nullptr);
+      EZ_TEST_BOOL(DynamicOctreeTestDetail::g_bFoundSearched == true);
+      EZ_TEST_BOOL(DynamicOctreeTestDetail::g_iReturned < Objects.GetCount());
 
-      g_iReturned = 0;
-      g_bFoundSearched = false;
-      o.FindObjectsInRange(Objects[i].m_vPos + Objects[i].m_vExtents * 0.9f, ObjectFound, nullptr);
-      EZ_TEST_BOOL(g_bFoundSearched == true);
-      EZ_TEST_BOOL(g_iReturned < Objects.GetCount());
+      DynamicOctreeTestDetail::g_iReturned = 0;
+      DynamicOctreeTestDetail::g_bFoundSearched = false;
+      o.FindObjectsInRange(Objects[i].m_vPos + Objects[i].m_vExtents * 0.9f, DynamicOctreeTestDetail::ObjectFound, nullptr);
+      EZ_TEST_BOOL(DynamicOctreeTestDetail::g_bFoundSearched == true);
+      EZ_TEST_BOOL(DynamicOctreeTestDetail::g_iReturned < Objects.GetCount());
 
-      g_iReturned = 0;
-      g_bFoundSearched = false;
-      o.FindObjectsInRange(Objects[i].m_vPos - Objects[i].m_vExtents * 0.9f, ObjectFound, nullptr);
-      EZ_TEST_BOOL(g_bFoundSearched == true);
-      EZ_TEST_BOOL(g_iReturned < Objects.GetCount());
+      DynamicOctreeTestDetail::g_iReturned = 0;
+      DynamicOctreeTestDetail::g_bFoundSearched = false;
+      o.FindObjectsInRange(Objects[i].m_vPos - Objects[i].m_vExtents * 0.9f, DynamicOctreeTestDetail::ObjectFound, nullptr);
+      EZ_TEST_BOOL(DynamicOctreeTestDetail::g_bFoundSearched == true);
+      EZ_TEST_BOOL(DynamicOctreeTestDetail::g_iReturned < Objects.GetCount());
     }
   }
 
@@ -167,41 +170,41 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicOctree)
 
     for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
-      g_iSearchInstance = i;
+      DynamicOctreeTestDetail::g_iSearchInstance = i;
 
       // point inside object
 
-      g_iReturned = 0;
-      g_bFoundSearched = false;
-      o.FindObjectsInRange(Objects[i].m_vPos, 1.0f, ObjectFound, nullptr);
-      EZ_TEST_BOOL(g_bFoundSearched == true);
-      EZ_TEST_BOOL(g_iReturned < Objects.GetCount());
+      DynamicOctreeTestDetail::g_iReturned = 0;
+      DynamicOctreeTestDetail::g_bFoundSearched = false;
+      o.FindObjectsInRange(Objects[i].m_vPos, 1.0f, DynamicOctreeTestDetail::ObjectFound, nullptr);
+      EZ_TEST_BOOL(DynamicOctreeTestDetail::g_bFoundSearched == true);
+      EZ_TEST_BOOL(DynamicOctreeTestDetail::g_iReturned < Objects.GetCount());
 
-      g_iReturned = 0;
-      g_bFoundSearched = false;
-      o.FindObjectsInRange(Objects[i].m_vPos + Objects[i].m_vExtents * 0.9f, 1.0f, ObjectFound, nullptr);
-      EZ_TEST_BOOL(g_bFoundSearched == true);
-      EZ_TEST_BOOL(g_iReturned < Objects.GetCount());
+      DynamicOctreeTestDetail::g_iReturned = 0;
+      DynamicOctreeTestDetail::g_bFoundSearched = false;
+      o.FindObjectsInRange(Objects[i].m_vPos + Objects[i].m_vExtents * 0.9f, 1.0f, DynamicOctreeTestDetail::ObjectFound, nullptr);
+      EZ_TEST_BOOL(DynamicOctreeTestDetail::g_bFoundSearched == true);
+      EZ_TEST_BOOL(DynamicOctreeTestDetail::g_iReturned < Objects.GetCount());
 
-      g_iReturned = 0;
-      g_bFoundSearched = false;
-      o.FindObjectsInRange(Objects[i].m_vPos - Objects[i].m_vExtents * 0.9f, 1.0f, ObjectFound, nullptr);
-      EZ_TEST_BOOL(g_bFoundSearched == true);
-      EZ_TEST_BOOL(g_iReturned < Objects.GetCount());
+      DynamicOctreeTestDetail::g_iReturned = 0;
+      DynamicOctreeTestDetail::g_bFoundSearched = false;
+      o.FindObjectsInRange(Objects[i].m_vPos - Objects[i].m_vExtents * 0.9f, 1.0f, DynamicOctreeTestDetail::ObjectFound, nullptr);
+      EZ_TEST_BOOL(DynamicOctreeTestDetail::g_bFoundSearched == true);
+      EZ_TEST_BOOL(DynamicOctreeTestDetail::g_iReturned < Objects.GetCount());
 
       // point outside object
 
-      g_iReturned = 0;
-      g_bFoundSearched = false;
-      o.FindObjectsInRange(Objects[i].m_vPos + Objects[i].m_vExtents + ezVec3(2, 0, 0), 2.5f, ObjectFound, nullptr);
-      EZ_TEST_BOOL(g_bFoundSearched == true);
-      EZ_TEST_BOOL(g_iReturned < Objects.GetCount());
+      DynamicOctreeTestDetail::g_iReturned = 0;
+      DynamicOctreeTestDetail::g_bFoundSearched = false;
+      o.FindObjectsInRange(Objects[i].m_vPos + Objects[i].m_vExtents + ezVec3(2, 0, 0), 2.5f, DynamicOctreeTestDetail::ObjectFound, nullptr);
+      EZ_TEST_BOOL(DynamicOctreeTestDetail::g_bFoundSearched == true);
+      EZ_TEST_BOOL(DynamicOctreeTestDetail::g_iReturned < Objects.GetCount());
 
-      g_iReturned = 0;
-      g_bFoundSearched = false;
-      o.FindObjectsInRange(Objects[i].m_vPos - Objects[i].m_vExtents - ezVec3(0, 2, 0), 2.5f, ObjectFound, nullptr);
-      EZ_TEST_BOOL(g_bFoundSearched == true);
-      EZ_TEST_BOOL(g_iReturned < Objects.GetCount());
+      DynamicOctreeTestDetail::g_iReturned = 0;
+      DynamicOctreeTestDetail::g_bFoundSearched = false;
+      o.FindObjectsInRange(Objects[i].m_vPos - Objects[i].m_vExtents - ezVec3(0, 2, 0), 2.5f, DynamicOctreeTestDetail::ObjectFound, nullptr);
+      EZ_TEST_BOOL(DynamicOctreeTestDetail::g_bFoundSearched == true);
+      EZ_TEST_BOOL(DynamicOctreeTestDetail::g_iReturned < Objects.GetCount());
     }
   }
 
@@ -220,7 +223,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicOctree)
 
     for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
-      g_iSearchInstance = i;
+      DynamicOctreeTestDetail::g_iSearchInstance = i;
 
       o.RemoveObject(Objects[i].m_hObject);
 
@@ -228,10 +231,10 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicOctree)
       EZ_TEST_INT(o.GetCount(), Objects.GetCount() - i - 1);
 
       // searching for it, won't return it anymore
-      g_iReturned = 0;
-      g_bFoundSearched = false;
-      o.FindObjectsInRange(Objects[i].m_vPos, 1.0f, ObjectFound, nullptr);
-      EZ_TEST_BOOL(g_bFoundSearched == false);
+      DynamicOctreeTestDetail::g_iReturned = 0;
+      DynamicOctreeTestDetail::g_bFoundSearched = false;
+      o.FindObjectsInRange(Objects[i].m_vPos, 1.0f, DynamicOctreeTestDetail::ObjectFound, nullptr);
+      EZ_TEST_BOOL(DynamicOctreeTestDetail::g_bFoundSearched == false);
     }
   }
 
@@ -250,7 +253,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicOctree)
 
     for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
-      g_iSearchInstance = i;
+      DynamicOctreeTestDetail::g_iSearchInstance = i;
 
       o.RemoveObject(i, i + 1);
 
@@ -258,10 +261,10 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicOctree)
       EZ_TEST_INT(o.GetCount(), Objects.GetCount() - i - 1);
 
       // searching for it, won't return it anymore
-      g_iReturned = 0;
-      g_bFoundSearched = false;
-      o.FindObjectsInRange(Objects[i].m_vPos, 1.0f, ObjectFound, nullptr);
-      EZ_TEST_BOOL(g_bFoundSearched == false);
+      DynamicOctreeTestDetail::g_iReturned = 0;
+      DynamicOctreeTestDetail::g_bFoundSearched = false;
+      o.FindObjectsInRange(Objects[i].m_vPos, 1.0f, DynamicOctreeTestDetail::ObjectFound, nullptr);
+      EZ_TEST_BOOL(DynamicOctreeTestDetail::g_bFoundSearched == false);
     }
   }
 
@@ -280,7 +283,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicOctree)
 
     for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)
     {
-      g_iSearchInstance = i + 1;
+      DynamicOctreeTestDetail::g_iSearchInstance = i + 1;
 
       o.RemoveObjectsOfType(i);
 
@@ -288,10 +291,10 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicOctree)
       EZ_TEST_INT(o.GetCount(), Objects.GetCount() - i - 1);
 
       // searching for it, won't return it anymore
-      g_iReturned = 0;
-      g_bFoundSearched = false;
-      o.FindObjectsInRange(Objects[i].m_vPos, 1.0f, ObjectFound, nullptr);
-      EZ_TEST_BOOL(g_bFoundSearched == false);
+      DynamicOctreeTestDetail::g_iReturned = 0;
+      DynamicOctreeTestDetail::g_bFoundSearched = false;
+      o.FindObjectsInRange(Objects[i].m_vPos, 1.0f, DynamicOctreeTestDetail::ObjectFound, nullptr);
+      EZ_TEST_BOOL(DynamicOctreeTestDetail::g_bFoundSearched == false);
     }
 
     for (ezUInt32 i = 0; i < Objects.GetCount(); ++i)

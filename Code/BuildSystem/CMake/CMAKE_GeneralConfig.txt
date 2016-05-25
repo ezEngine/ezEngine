@@ -34,6 +34,8 @@ set (LINKER_SETTINGS_ALL "")
 set (LINKER_SETTINGS_RELEASE "")
 set (LINKER_SETTINGS_DEBUG "")
 
+set (EZ_FOLDER_UNITY_COUNTER 0)
+
 # Doesn't work on OSX:
 #set (CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER}) # use the C++ compiler also for C code
 #set (CMAKE_DEBUG_POSTFIX "_d") # you could add a postfix for debug libraries here
@@ -244,6 +246,7 @@ set (EZ_BUILD_GAMES OFF CACHE BOOL "Whether game projects should be added to the
 set (EZ_BUILD_UNITTESTS ON CACHE BOOL "Whether unit-test projects should be added to the solution")
 set (EZ_BUILD_PHYSX OFF CACHE BOOL "Whether support for nVidia PhysX should be added")
 set (EZ_BUILD_FMOD OFF CACHE BOOL "Whether support for FMod should be added")
+set (EZ_ENABLE_FOLDER_UNITY_FILES CACHE BOOL "Wheter unity cpp files should be created per folder")
 
 set (EZ_OUTPUT_DIRECTORY_LIB "${CMAKE_SOURCE_DIR}/Output/Lib" CACHE PATH "Where to store the compiled .lib files.")
 set (EZ_OUTPUT_DIRECTORY_DLL "${CMAKE_SOURCE_DIR}/Output/Bin" CACHE PATH "Where to store the compiled .dll files.")

@@ -1,15 +1,13 @@
 #include <PCH.h>
 #include <Foundation/Containers/Set.h>
 
-typedef ezConstructionCounter st;
-
 EZ_CREATE_SIMPLE_TEST(Containers, Set)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
     ezSet<ezUInt32> m;
-    ezSet<st, ezUInt32> m2;
-    ezSet<st, st> m3;
+    ezSet<ezConstructionCounter, ezUInt32> m2;
+    ezSet<ezConstructionCounter, ezConstructionCounter> m3;
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEmpty")
@@ -47,38 +45,38 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
   {
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
 
     {
-      ezSet<st> m1;
-      m1.Insert(st(1));
-      EZ_TEST_BOOL(st::HasDone(2, 1));
+      ezSet<ezConstructionCounter> m1;
+      m1.Insert(ezConstructionCounter(1));
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 1));
 
-      m1.Insert(st(3));
-      EZ_TEST_BOOL(st::HasDone(2, 1));
+      m1.Insert(ezConstructionCounter(3));
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 1));
 
-      m1.Insert(st(1));
-      EZ_TEST_BOOL(st::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
+      m1.Insert(ezConstructionCounter(1));
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
 
       m1.Clear();
-      EZ_TEST_BOOL(st::HasDone(0, 2));
-      EZ_TEST_BOOL(st::HasAllDestructed());
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 2));
+      EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
     }
 
     {
-      ezSet<st> m1;
-      m1.Insert(st(0));
-      EZ_TEST_BOOL(st::HasDone(2, 1)); // one temporary
+      ezSet<ezConstructionCounter> m1;
+      m1.Insert(ezConstructionCounter(0));
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 1)); // one temporary
 
-      m1.Insert(st(1));
-      EZ_TEST_BOOL(st::HasDone(2, 1)); // one temporary
+      m1.Insert(ezConstructionCounter(1));
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 1)); // one temporary
 
-      m1.Insert(st(0));
-      EZ_TEST_BOOL(st::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
+      m1.Insert(ezConstructionCounter(0));
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
 
       m1.Clear();
-      EZ_TEST_BOOL(st::HasDone(0, 2));
-      EZ_TEST_BOOL(st::HasAllDestructed());
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 2));
+      EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
     }
   }
 

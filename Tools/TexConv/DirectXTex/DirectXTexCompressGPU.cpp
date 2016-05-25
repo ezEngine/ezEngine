@@ -19,175 +19,178 @@
 
 namespace DirectX
 {
+  namespace CompressGpuDetail
+  {
 
-inline static DWORD _GetSRGBFlags( _In_ DWORD compress )
-{
-    static_assert( TEX_COMPRESS_SRGB_IN == TEX_FILTER_SRGB_IN, "TEX_COMPRESS_SRGB* should match TEX_FILTER_SRGB*" );
-    static_assert( TEX_COMPRESS_SRGB_OUT == TEX_FILTER_SRGB_OUT, "TEX_COMPRESS_SRGB* should match TEX_FILTER_SRGB*" );
-    static_assert( TEX_COMPRESS_SRGB == TEX_FILTER_SRGB, "TEX_COMPRESS_SRGB* should match TEX_FILTER_SRGB*" );
-    return ( compress & TEX_COMPRESS_SRGB );
-}
+    inline static DWORD _GetSRGBFlags(_In_ DWORD compress)
+    {
+      static_assert(TEX_COMPRESS_SRGB_IN == TEX_FILTER_SRGB_IN, "TEX_COMPRESS_SRGB* should match TEX_FILTER_SRGB*");
+      static_assert(TEX_COMPRESS_SRGB_OUT == TEX_FILTER_SRGB_OUT, "TEX_COMPRESS_SRGB* should match TEX_FILTER_SRGB*");
+      static_assert(TEX_COMPRESS_SRGB == TEX_FILTER_SRGB, "TEX_COMPRESS_SRGB* should match TEX_FILTER_SRGB*");
+      return (compress & TEX_COMPRESS_SRGB);
+    }
 
 
-//-------------------------------------------------------------------------------------
-// Converts to R8G8B8A8_UNORM or R8G8B8A8_UNORM_SRGB doing any conversion logic needed
-//-------------------------------------------------------------------------------------
-static HRESULT _ConvertToRGBA32( _In_ const Image& srcImage, _In_ ScratchImage& image, bool srgb, _In_ DWORD filter )
-{
-    if ( !srcImage.pixels )
+    //-------------------------------------------------------------------------------------
+    // Converts to R8G8B8A8_UNORM or R8G8B8A8_UNORM_SRGB doing any conversion logic needed
+    //-------------------------------------------------------------------------------------
+    static HRESULT _ConvertToRGBA32(_In_ const Image& srcImage, _In_ ScratchImage& image, bool srgb, _In_ DWORD filter)
+    {
+      if (!srcImage.pixels)
         return E_POINTER;
 
-    DXGI_FORMAT format = srgb ? DXGI_FORMAT_R8G8B8A8_UNORM_SRGB : DXGI_FORMAT_R8G8B8A8_UNORM;
+      DXGI_FORMAT format = srgb ? DXGI_FORMAT_R8G8B8A8_UNORM_SRGB : DXGI_FORMAT_R8G8B8A8_UNORM;
 
-    HRESULT hr = image.Initialize2D( format, srcImage.width, srcImage.height, 1, 1 );
-    if ( FAILED(hr) )
+      HRESULT hr = image.Initialize2D(format, srcImage.width, srcImage.height, 1, 1);
+      if (FAILED(hr))
         return hr;
 
-    const Image *img = image.GetImage( 0, 0, 0 );
-    if ( !img )
-    {
+      const Image *img = image.GetImage(0, 0, 0);
+      if (!img)
+      {
         image.Release();
         return E_POINTER;
-    }
+      }
 
-    uint8_t* pDest = img->pixels;
-    if ( !pDest )
-    {
+      uint8_t* pDest = img->pixels;
+      if (!pDest)
+      {
         image.Release();
         return E_POINTER;
-    }
+      }
 
-    ScopedAlignedArrayXMVECTOR scanline( reinterpret_cast<XMVECTOR*>( _aligned_malloc( ( sizeof(XMVECTOR) * srcImage.width ), 16 ) ) );
-    if ( !scanline )
-    {
+      ScopedAlignedArrayXMVECTOR scanline(reinterpret_cast<XMVECTOR*>(_aligned_malloc((sizeof(XMVECTOR) * srcImage.width), 16)));
+      if (!scanline)
+      {
         image.Release();
         return E_OUTOFMEMORY;
-    }
+      }
 
-    const uint8_t *pSrc = srcImage.pixels;
-    for( size_t h = 0; h < srcImage.height; ++h )
-    {
-        if ( !_LoadScanline( scanline.get(), srcImage.width, pSrc, srcImage.rowPitch, srcImage.format ) )
+      const uint8_t *pSrc = srcImage.pixels;
+      for (size_t h = 0; h < srcImage.height; ++h)
+      {
+        if (!_LoadScanline(scanline.get(), srcImage.width, pSrc, srcImage.rowPitch, srcImage.format))
         {
-            image.Release();
-            return E_FAIL;
+          image.Release();
+          return E_FAIL;
         }
 
-        _ConvertScanline( scanline.get(), srcImage.width, format, srcImage.format, filter );
+        _ConvertScanline(scanline.get(), srcImage.width, format, srcImage.format, filter);
 
-        if ( !_StoreScanline( pDest, img->rowPitch, format, scanline.get(), srcImage.width ) )
+        if (!_StoreScanline(pDest, img->rowPitch, format, scanline.get(), srcImage.width))
         {
-            image.Release();
-            return E_FAIL;
+          image.Release();
+          return E_FAIL;
         }
 
         pSrc += srcImage.rowPitch;
         pDest += img->rowPitch;
+      }
+
+      return S_OK;
     }
 
-    return S_OK;
-}
 
-
-//-------------------------------------------------------------------------------------
-// Converts to DXGI_FORMAT_R32G32B32A32_FLOAT doing any conversion logic needed
-//-------------------------------------------------------------------------------------
-static HRESULT _ConvertToRGBAF32( const Image& srcImage, ScratchImage& image, _In_ DWORD filter )
-{
-    if ( !srcImage.pixels )
+    //-------------------------------------------------------------------------------------
+    // Converts to DXGI_FORMAT_R32G32B32A32_FLOAT doing any conversion logic needed
+    //-------------------------------------------------------------------------------------
+    static HRESULT _ConvertToRGBAF32(const Image& srcImage, ScratchImage& image, _In_ DWORD filter)
+    {
+      if (!srcImage.pixels)
         return E_POINTER;
 
-    HRESULT hr = image.Initialize2D( DXGI_FORMAT_R32G32B32A32_FLOAT, srcImage.width, srcImage.height, 1, 1 );
-    if ( FAILED(hr) )
+      HRESULT hr = image.Initialize2D(DXGI_FORMAT_R32G32B32A32_FLOAT, srcImage.width, srcImage.height, 1, 1);
+      if (FAILED(hr))
         return hr;
 
-    const Image *img = image.GetImage( 0, 0, 0 );
-    if ( !img )
-    {
+      const Image *img = image.GetImage(0, 0, 0);
+      if (!img)
+      {
         image.Release();
         return E_POINTER;
-    }
+      }
 
-    uint8_t* pDest = img->pixels;
-    if ( !pDest )
-    {
+      uint8_t* pDest = img->pixels;
+      if (!pDest)
+      {
         image.Release();
         return E_POINTER;
-    }
+      }
 
-    const uint8_t *pSrc = srcImage.pixels;
-    for( size_t h = 0; h < srcImage.height; ++h )
-    {
-        if ( !_LoadScanline( reinterpret_cast<XMVECTOR*>(pDest), srcImage.width, pSrc, srcImage.rowPitch, srcImage.format ) )
+      const uint8_t *pSrc = srcImage.pixels;
+      for (size_t h = 0; h < srcImage.height; ++h)
+      {
+        if (!_LoadScanline(reinterpret_cast<XMVECTOR*>(pDest), srcImage.width, pSrc, srcImage.rowPitch, srcImage.format))
         {
-            image.Release();
-            return E_FAIL;
+          image.Release();
+          return E_FAIL;
         }
 
-        _ConvertScanline( reinterpret_cast<XMVECTOR*>(pDest), srcImage.width, DXGI_FORMAT_R32G32B32A32_FLOAT, srcImage.format, filter );
+        _ConvertScanline(reinterpret_cast<XMVECTOR*>(pDest), srcImage.width, DXGI_FORMAT_R32G32B32A32_FLOAT, srcImage.format, filter);
 
         pSrc += srcImage.rowPitch;
         pDest += img->rowPitch;
+      }
+
+      return S_OK;
     }
 
-    return S_OK;
-}
 
-
-//-------------------------------------------------------------------------------------
-// Compress using GPU, converting to the proper input format for the shader if needed
-//-------------------------------------------------------------------------------------
-inline static HRESULT _GPUCompress( _In_ GPUCompressBC* gpubc, _In_ const Image& srcImage, _In_ const Image& destImage, _In_ DWORD compress )
-{
-    if ( !gpubc )
+    //-------------------------------------------------------------------------------------
+    // Compress using GPU, converting to the proper input format for the shader if needed
+    //-------------------------------------------------------------------------------------
+    inline static HRESULT _GPUCompress(_In_ GPUCompressBC* gpubc, _In_ const Image& srcImage, _In_ const Image& destImage, _In_ DWORD compress)
+    {
+      if (!gpubc)
         return E_POINTER;
 
-    assert( srcImage.pixels && destImage.pixels );
+      assert(srcImage.pixels && destImage.pixels);
 
-    DXGI_FORMAT format = gpubc->GetSourceFormat();
+      DXGI_FORMAT format = gpubc->GetSourceFormat();
 
-    if ( srcImage.format == format )
-    {
+      if (srcImage.format == format)
+      {
         // Input is already in our required source format
-        return gpubc->Compress( srcImage, destImage );
-    }
-    else
-    {
+        return gpubc->Compress(srcImage, destImage);
+      }
+      else
+      {
         // Convert format and then use as the source image
         ScratchImage image;
         HRESULT hr;
 
-        DWORD srgb = _GetSRGBFlags( compress );
+        DWORD srgb = _GetSRGBFlags(compress);
 
-        switch( format )
+        switch (format)
         {
         case DXGI_FORMAT_R8G8B8A8_UNORM:
-            hr = _ConvertToRGBA32( srcImage, image, false, srgb );
-            break;
+          hr = _ConvertToRGBA32(srcImage, image, false, srgb);
+          break;
 
         case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
-            hr = _ConvertToRGBA32( srcImage, image, true, srgb );
-            break;
+          hr = _ConvertToRGBA32(srcImage, image, true, srgb);
+          break;
 
         case DXGI_FORMAT_R32G32B32A32_FLOAT:
-            hr = _ConvertToRGBAF32( srcImage, image, srgb );
-            break;
+          hr = _ConvertToRGBAF32(srcImage, image, srgb);
+          break;
 
         default:
-            hr = E_UNEXPECTED;
-            break;
+          hr = E_UNEXPECTED;
+          break;
         }
 
-        if ( FAILED(hr) )
-            return hr;
+        if (FAILED(hr))
+          return hr;
 
-        const Image *img = image.GetImage( 0, 0, 0 );
-        if ( !img )
-            return E_POINTER;
+        const Image *img = image.GetImage(0, 0, 0);
+        if (!img)
+          return E_POINTER;
 
-        return gpubc->Compress( *img, destImage );
+        return gpubc->Compress(*img, destImage);
+      }
     }
-}
+  }
 
 
 //=====================================================================================
@@ -232,7 +235,7 @@ HRESULT Compress( ID3D11Device* pDevice, const Image& srcImage, DXGI_FORMAT form
         return E_POINTER;
     }
 
-    hr = _GPUCompress( gpubc.get(), srcImage, *img, compress );
+    hr = CompressGpuDetail::_GPUCompress(gpubc.get(), srcImage, *img, compress);
     if ( FAILED(hr) )
         image.Release();
 
@@ -321,7 +324,7 @@ HRESULT Compress( ID3D11Device* pDevice, const Image* srcImages, size_t nimages,
                         return E_FAIL;
                     }
 
-                    hr = _GPUCompress( gpubc.get(), src, dest[ index ], compress );
+                    hr = CompressGpuDetail::_GPUCompress(gpubc.get(), src, dest[index], compress);
                     if ( FAILED(hr) )
                     {
                         cImages.Release();
@@ -372,7 +375,7 @@ HRESULT Compress( ID3D11Device* pDevice, const Image* srcImages, size_t nimages,
                         return E_FAIL;
                     }
 
-                    hr = _GPUCompress( gpubc.get(), src, dest[ index ], compress );
+                    hr = CompressGpuDetail::_GPUCompress(gpubc.get(), src, dest[index], compress);
                     if ( FAILED(hr) )
                     {
                         cImages.Release();

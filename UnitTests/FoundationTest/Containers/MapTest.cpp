@@ -3,8 +3,6 @@
 #include <algorithm>
 #include <iterator>
 
-typedef ezConstructionCounter st;
-
 EZ_CREATE_SIMPLE_TEST(Containers, Map)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Iterator")
@@ -30,8 +28,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
     ezMap<ezUInt32, ezUInt32> m;
-    ezMap<st, ezUInt32> m2;
-    ezMap<st, st> m3;
+    ezMap<ezConstructionCounter, ezUInt32> m2;
+    ezMap<ezConstructionCounter, ezConstructionCounter> m3;
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEmpty")
@@ -69,38 +67,38 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
   {
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
 
     {
-      ezMap<ezUInt32, st> m1;
-      m1[0] = st(1);
-      EZ_TEST_BOOL(st::HasDone(3, 2)); // for inserting new elements 2 temporaries are created (and destroyed)
+      ezMap<ezUInt32, ezConstructionCounter> m1;
+      m1[0] = ezConstructionCounter(1);
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(3, 2)); // for inserting new elements 2 temporaries are created (and destroyed)
 
-      m1[1] = st(3);
-      EZ_TEST_BOOL(st::HasDone(3, 2)); // for inserting new elements 2 temporaries are created (and destroyed)
+      m1[1] = ezConstructionCounter(3);
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(3, 2)); // for inserting new elements 2 temporaries are created (and destroyed)
 
-      m1[0] = st(2);
-      EZ_TEST_BOOL(st::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
+      m1[0] = ezConstructionCounter(2);
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
 
       m1.Clear();
-      EZ_TEST_BOOL(st::HasDone(0, 2));
-      EZ_TEST_BOOL(st::HasAllDestructed());
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 2));
+      EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
     }
 
     {
-      ezMap<st, ezUInt32> m1;
-      m1[st(0)] = 1;
-      EZ_TEST_BOOL(st::HasDone(2, 1)); // one temporary
+      ezMap<ezConstructionCounter, ezUInt32> m1;
+      m1[ezConstructionCounter(0)] = 1;
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 1)); // one temporary
 
-      m1[st(1)] = 3;
-      EZ_TEST_BOOL(st::HasDone(2, 1)); // one temporary
+      m1[ezConstructionCounter(1)] = 3;
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(2, 1)); // one temporary
 
-      m1[st(0)] = 2;
-      EZ_TEST_BOOL(st::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
+      m1[ezConstructionCounter(0)] = 2;
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
 
       m1.Clear();
-      EZ_TEST_BOOL(st::HasDone(0, 2));
-      EZ_TEST_BOOL(st::HasAllDestructed());
+      EZ_TEST_BOOL(ezConstructionCounter::HasDone(0, 2));
+      EZ_TEST_BOOL(ezConstructionCounter::HasAllDestructed());
     }
   }
 

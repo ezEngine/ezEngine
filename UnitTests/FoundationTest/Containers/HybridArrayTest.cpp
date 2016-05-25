@@ -2,10 +2,10 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/String.h>
 
-typedef ezConstructionCounter st;
-
-namespace
+namespace HybridArrayTestDetail
 {
+  typedef ezConstructionCounter st;
+
   class Dummy
   {
   public:
@@ -30,6 +30,17 @@ namespace
     bool operator<(const Dummy& dummy) const { return a < dummy.a; }
     bool operator==(const Dummy& dummy) const { return a == dummy.a; }
   };
+
+  static ezHybridArray<st, 16> CreateArray(ezUInt32 uiSize, ezUInt32 uiOffset)
+  {
+    ezHybridArray<st, 16> a;
+    a.SetCount(uiSize);
+
+    for (ezUInt32 i = 0; i < uiSize; ++i)
+      a[i] = uiOffset + i;
+
+    return a;
+  }
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
@@ -37,17 +48,6 @@ namespace
 #else
   EZ_CHECK_AT_COMPILETIME(sizeof(ezHybridArray<ezInt32, 1>) == 20);
 #endif
-
-static ezHybridArray<st, 16> CreateArray(ezUInt32 uiSize, ezUInt32 uiOffset)
-{
-  ezHybridArray<st, 16> a;
-  a.SetCount(uiSize);
-
-  for (ezUInt32 i = 0; i < uiSize; ++i)
-    a[i] = uiOffset + i;
-
-  return a;
-}
 
 EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 {
@@ -99,43 +99,43 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move Constructor / Operator")
   {
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasAllDestructed());
 
     {
       // move constructor
-      ezHybridArray<st, 16> a1 (CreateArray(100, 20));
+      ezHybridArray<st, 16> a1 (HybridArrayTestDetail::CreateArray(100, 20));
 
       EZ_TEST_INT(a1.GetCount(), 100);
       for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
         EZ_TEST_INT(a1[i].m_iData, 20 + i);
 
       // move operator
-      a1 = CreateArray(200, 50);
+      a1 = HybridArrayTestDetail::CreateArray(200, 50);
 
       EZ_TEST_INT(a1.GetCount(), 200);
       for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
         EZ_TEST_INT(a1[i].m_iData, 50 + i);
     }
 
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasAllDestructed());
 
     {
       // move constructor
-      ezHybridArray<st, 16> a2 (CreateArray(10, 30));
+      ezHybridArray<st, 16> a2 (HybridArrayTestDetail::CreateArray(10, 30));
 
       EZ_TEST_INT(a2.GetCount(), 10);
       for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
         EZ_TEST_INT(a2[i].m_iData, 30 + i);
 
       // move operator
-      a2 = CreateArray(8, 70);
+      a2 = HybridArrayTestDetail::CreateArray(8, 70);
 
       EZ_TEST_INT(a2.GetCount(), 8);
       for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
         EZ_TEST_INT(a2[i].m_iData, 70 + i);
     }
 
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasAllDestructed());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Convert to ArrayPtr")
@@ -412,48 +412,48 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Construction / Destruction")
   {
     {
-      EZ_TEST_BOOL(st::HasAllDestructed());
+      EZ_TEST_BOOL(HybridArrayTestDetail::st::HasAllDestructed());
 
       ezHybridArray<st, 16> a1;
       ezHybridArray<st, 16> a2;
 
-      EZ_TEST_BOOL(st::HasDone(0, 0)); // nothing has been constructed / destructed in between
-      EZ_TEST_BOOL(st::HasAllDestructed());
+      EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(0, 0)); // nothing has been constructed / destructed in between
+      EZ_TEST_BOOL(HybridArrayTestDetail::st::HasAllDestructed());
 
-      a1.PushBack(st(1));
-      EZ_TEST_BOOL(st::HasDone(2, 1)); // one temporary, one final (copy constructed)
+      a1.PushBack(HybridArrayTestDetail::st(1));
+      EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(2, 1)); // one temporary, one final (copy constructed)
 
-      a1.Insert(st(2), 0);
-      EZ_TEST_BOOL(st::HasDone(2, 1)); // one temporary, one final (copy constructed)
+      a1.Insert(HybridArrayTestDetail::st(2), 0);
+      EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(2, 1)); // one temporary, one final (copy constructed)
 
       a2 = a1;
-      EZ_TEST_BOOL(st::HasDone(2, 0)); // two copies
+      EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(2, 0)); // two copies
 
       a1.Clear();
-      EZ_TEST_BOOL(st::HasDone(0, 2));
+      EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(0, 2));
 
-      a1.PushBack(st(3));
-      a1.PushBack(st(4));
-      a1.PushBack(st(5));
-      a1.PushBack(st(6));
+      a1.PushBack(HybridArrayTestDetail::st(3));
+      a1.PushBack(HybridArrayTestDetail::st(4));
+      a1.PushBack(HybridArrayTestDetail::st(5));
+      a1.PushBack(HybridArrayTestDetail::st(6));
 
-      EZ_TEST_BOOL(st::HasDone(8, 4)); // four temporaries
+      EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(8, 4)); // four temporaries
 
-      a1.Remove(st(3));
-      EZ_TEST_BOOL(st::HasDone(1, 2)); // one temporary, one destroyed
+      a1.Remove(HybridArrayTestDetail::st(3));
+      EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(1, 2)); // one temporary, one destroyed
 
-      a1.Remove(st(3));
-      EZ_TEST_BOOL(st::HasDone(1, 1)); // one temporary, none destroyed
+      a1.Remove(HybridArrayTestDetail::st(3));
+      EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(1, 1)); // one temporary, none destroyed
 
       a1.RemoveAt(0);
-      EZ_TEST_BOOL(st::HasDone(0, 1)); // one destroyed
+      EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(0, 1)); // one destroyed
 
       a1.RemoveAtSwap(0);
-      EZ_TEST_BOOL(st::HasDone(0, 1)); // one destroyed
+      EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(0, 1)); // one destroyed
     }
 
     // tests the destructor of a2 and a1
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasAllDestructed());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compact")
@@ -508,16 +508,16 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortingObjects")
   {
-    ezHybridArray<Dummy, 16> list;
+    ezHybridArray<HybridArrayTestDetail::Dummy, 16> list;
     list.Reserve(128);
 
     for (ezUInt32 i = 0; i < 100; i++)
     {
-      list.PushBack(Dummy(rand()));
+      list.PushBack(HybridArrayTestDetail::Dummy(rand()));
     }
     list.Sort();
 
-    Dummy last = 0;
+    HybridArrayTestDetail::Dummy last = 0;
     for (ezUInt32 i = 0; i < list.GetCount(); i++)
     {
       EZ_TEST_BOOL(last <= list[i]);
@@ -527,7 +527,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Various")
   {
-    ezHybridArray<Dummy, 16> list;
+    ezHybridArray<HybridArrayTestDetail::Dummy, 16> list;
     list.PushBack(1);
     list.PushBack(2);
     list.PushBack(3);
@@ -556,7 +556,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 
     list.PushBack(5);
     EZ_TEST_BOOL(list[4].a == 5);
-    Dummy d = list.PeekBack();
+    HybridArrayTestDetail::Dummy d = list.PeekBack();
     list.PopBack();
     EZ_TEST_BOOL(d.a == 5);
     EZ_TEST_BOOL(list.GetCount() == 4);
@@ -564,16 +564,16 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Assignment")
   {
-    ezHybridArray<Dummy, 16> list;
+    ezHybridArray<HybridArrayTestDetail::Dummy, 16> list;
     for (int i = 0; i < 16; i++)
     {
-      list.PushBack(Dummy(rand()));
+      list.PushBack(HybridArrayTestDetail::Dummy(rand()));
     }
 
-    ezHybridArray<Dummy, 16> list2;
+    ezHybridArray<HybridArrayTestDetail::Dummy, 16> list2;
     for (int i = 0; i < 8; i++)
     {
-      list2.PushBack(Dummy(rand()));
+      list2.PushBack(HybridArrayTestDetail::Dummy(rand()));
     }
 
     list = list2;
@@ -588,7 +588,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 
     for (int i = 0; i < 16; i++)
     {
-      list2.PushBack(Dummy(rand()));
+      list2.PushBack(HybridArrayTestDetail::Dummy(rand()));
     }
 
     list = list2;
@@ -598,10 +598,10 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Count")
   {
-    ezHybridArray<Dummy, 16> list;
+    ezHybridArray<HybridArrayTestDetail::Dummy, 16> list;
     for (int i = 0; i < 16; i++)
     {
-      list.PushBack(Dummy(rand()));
+      list.PushBack(HybridArrayTestDetail::Dummy(rand()));
     }
     list.SetCount(32);
     list.SetCount(4);
@@ -611,90 +611,90 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reserve")
   {
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasAllDestructed());
 
-    ezHybridArray<st, 16> a;
+    ezHybridArray<HybridArrayTestDetail::st, 16> a;
 
-    EZ_TEST_BOOL(st::HasDone(0, 0)); // nothing has been constructed / destructed in between
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(0, 0)); // nothing has been constructed / destructed in between
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasAllDestructed());
 
     a.Reserve(100);
 
-    EZ_TEST_BOOL(st::HasDone(0, 0)); // nothing has been constructed / destructed in between
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(0, 0)); // nothing has been constructed / destructed in between
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasAllDestructed());
 
     a.SetCount(10);
-    EZ_TEST_BOOL(st::HasDone(10, 0));
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(10, 0));
 
     a.Reserve(100);
-    EZ_TEST_BOOL(st::HasDone(0, 0));
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(0, 0));
 
     a.SetCount(100);
-    EZ_TEST_BOOL(st::HasDone(90, 0));
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(90, 0));
 
     a.Reserve(200);
-    EZ_TEST_BOOL(st::HasDone(100, 100)); // had to copy some elements over
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(100, 100)); // had to copy some elements over
 
     a.SetCount(200);
-    EZ_TEST_BOOL(st::HasDone(100, 0));
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(100, 0));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compact")
   {
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasAllDestructed());
 
-    ezHybridArray<st, 16> a;
+    ezHybridArray<HybridArrayTestDetail::st, 16> a;
 
-    EZ_TEST_BOOL(st::HasDone(0, 0)); // nothing has been constructed / destructed in between
-    EZ_TEST_BOOL(st::HasAllDestructed());
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(0, 0)); // nothing has been constructed / destructed in between
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasAllDestructed());
 
     a.SetCount(100);
-    EZ_TEST_BOOL(st::HasDone(100, 0));
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(100, 0));
 
     a.SetCount(200);
-    EZ_TEST_BOOL(st::HasDone(200, 100));
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(200, 100));
 
     a.SetCount(10);
-    EZ_TEST_BOOL(st::HasDone(0, 190));
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(0, 190));
 
     // no reallocations and copying, if the memory is already available
     a.SetCount(200);
-    EZ_TEST_BOOL(st::HasDone(190, 0));
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(190, 0));
 
     a.SetCount(10);
-    EZ_TEST_BOOL(st::HasDone(0, 190));
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(0, 190));
 
     // now we remove the spare memory
     a.Compact();
-    EZ_TEST_BOOL(st::HasDone(10, 10));
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(10, 10));
 
     // this time the array needs to be relocated, and thus the already present elements need to be copied
     a.SetCount(200);
-    EZ_TEST_BOOL(st::HasDone(200, 10));
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(200, 10));
 
     // this does not deallocate memory
     a.Clear();
-    EZ_TEST_BOOL(st::HasDone(0, 200));
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(0, 200));
 
     a.SetCount(100);
-    EZ_TEST_BOOL(st::HasDone(100, 0));
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(100, 0));
 
     // therefore no object relocation
     a.SetCount(200);
-    EZ_TEST_BOOL(st::HasDone(100, 0));
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(100, 0));
 
     a.Clear();
-    EZ_TEST_BOOL(st::HasDone(0, 200));
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(0, 200));
 
     // this will deallocate ALL memory
     a.Compact();
 
     a.SetCount(100);
-    EZ_TEST_BOOL(st::HasDone(100, 0));
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(100, 0));
 
     // this time objects need to be relocated
     a.SetCount(200);
-    EZ_TEST_BOOL(st::HasDone(200, 100));
+    EZ_TEST_BOOL(HybridArrayTestDetail::st::HasDone(200, 100));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "STL Iterator")

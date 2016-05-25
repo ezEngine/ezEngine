@@ -80,30 +80,33 @@ static void SendChangedGlobalEventTelemetry()
     s_LastState = data;
 }
 
-static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
+namespace GlobalEventsDetail
 {
-  if (!ezTelemetry::IsConnectedToClient())
-    return;
-
-  switch (e.m_EventType)
+  static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
   {
-  case ezTelemetry::TelemetryEventData::ConnectedToClient:
-    SendAllGlobalEventTelemetry();
-    break;
-  case ezTelemetry::TelemetryEventData::PerFrameUpdate:
-    SendChangedGlobalEventTelemetry();
-    break;
+    if (!ezTelemetry::IsConnectedToClient())
+      return;
+
+    switch (e.m_EventType)
+    {
+    case ezTelemetry::TelemetryEventData::ConnectedToClient:
+      SendAllGlobalEventTelemetry();
+      break;
+    case ezTelemetry::TelemetryEventData::PerFrameUpdate:
+      SendChangedGlobalEventTelemetry();
+      break;
+    }
   }
 }
 
 void AddGlobalEventHandler()
 {
-  ezTelemetry::AddEventHandler(TelemetryEventsHandler);
+  ezTelemetry::AddEventHandler(GlobalEventsDetail::TelemetryEventsHandler);
 }
 
 void RemoveGlobalEventHandler()
 {
-  ezTelemetry::RemoveEventHandler(TelemetryEventsHandler);
+  ezTelemetry::RemoveEventHandler(GlobalEventsDetail::TelemetryEventsHandler);
 }
 
 

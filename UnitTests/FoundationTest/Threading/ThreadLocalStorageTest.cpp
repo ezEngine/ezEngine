@@ -3,7 +3,7 @@
 #include <Foundation/Threading/ThreadLocalStorage.h>
 #include <Foundation/Threading/ThreadLocalPointer.h>
 
-namespace 
+namespace ThreadLocalStorageTestDetail
 {
   ezThreadLocalPointer<ezUInt32> g_TlsValue;
 
@@ -96,22 +96,22 @@ EZ_CREATE_SIMPLE_TEST(Threading, ThreadLocalStorage)
     ezUInt32 uiCopyValue = uiMainThreadValue;
 
     // First assign the TLS variable the address of the main thread
-    g_TlsValue = &uiMainThreadValue;
+    ThreadLocalStorageTestDetail::g_TlsValue = &uiMainThreadValue;
 
-    ezUInt32* pValueStoredInTLSVar = g_TlsValue;
+    ezUInt32* pValueStoredInTLSVar = ThreadLocalStorageTestDetail::g_TlsValue;
     EZ_TEST_BOOL(pValueStoredInTLSVar != nullptr);
     EZ_TEST_BOOL(pValueStoredInTLSVar == &uiMainThreadValue);
 
     EZ_TEST_BOOL(*pValueStoredInTLSVar == uiCopyValue);
 
-    ezStaticArray<TestThread*, EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT * 2> TestThreads;
+    ezStaticArray<ThreadLocalStorageTestDetail::TestThread*, EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT * 2> TestThreads;
 
     // Now spawn additional threads which also assign values to the TLS variable
     // We spawn more than available TLS slots to make sure nothing is allocated per thread
     // and not shared like intended
     for (ezUInt32 i = 0; i < EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT * 2; ++i)
     {
-      TestThreads.PushBack(EZ_DEFAULT_NEW(TestThread));
+      TestThreads.PushBack(EZ_DEFAULT_NEW(ThreadLocalStorageTestDetail::TestThread));
       TestThreads[i]->SetThreadLocalVariable(i);
       TestThreads[i]->Start();
     }

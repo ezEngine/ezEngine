@@ -163,77 +163,78 @@ static HRESULT _PerformResizeViaF32( _In_ const Image& srcImage, _In_ DWORD filt
     return S_OK;
 }
 
-
-//--- determine when to use WIC vs. non-WIC paths ---
-static bool _UseWICFiltering( _In_ DXGI_FORMAT format, _In_ DWORD filter )
+namespace DirectXTexResizeDetail
 {
-    if ( filter & TEX_FILTER_FORCE_NON_WIC )
+  //--- determine when to use WIC vs. non-WIC paths ---
+  static bool _UseWICFiltering(_In_ DXGI_FORMAT format, _In_ DWORD filter)
+  {
+    if (filter & TEX_FILTER_FORCE_NON_WIC)
     {
-        // Explicit flag indicates use of non-WIC code paths
-        return false;
+      // Explicit flag indicates use of non-WIC code paths
+      return false;
     }
 
-    if ( filter & TEX_FILTER_FORCE_WIC )
+    if (filter & TEX_FILTER_FORCE_WIC)
     {
-        // Explicit flag to use WIC code paths, skips all the case checks below
-        return true;
+      // Explicit flag to use WIC code paths, skips all the case checks below
+      return true;
     }
 
-    if ( IsSRGB(format) || (filter & TEX_FILTER_SRGB) )
+    if (IsSRGB(format) || (filter & TEX_FILTER_SRGB))
     {
-        // Use non-WIC code paths for sRGB correct filtering
-        return false;
+      // Use non-WIC code paths for sRGB correct filtering
+      return false;
     }
 
 #if defined(_XBOX_ONE) && defined(_TITLE)
     if ( format == DXGI_FORMAT_R16G16B16A16_FLOAT
-         || format == DXGI_FORMAT_R16_FLOAT )
+      || format == DXGI_FORMAT_R16_FLOAT )
     {
-        // Use non-WIC code paths as these conversions are not supported by Xbox One XDK
-        return false;
+      // Use non-WIC code paths as these conversions are not supported by Xbox One XDK
+      return false;
     }
 #endif
 
-    static_assert( TEX_FILTER_POINT == 0x100000, "TEX_FILTER_ flag values don't match TEX_FILTER_MASK" );
+    static_assert(TEX_FILTER_POINT == 0x100000, "TEX_FILTER_ flag values don't match TEX_FILTER_MASK");
 
-    switch ( filter & TEX_FILTER_MASK )
+    switch (filter & TEX_FILTER_MASK)
     {
     case TEX_FILTER_LINEAR:
-        if ( filter & TEX_FILTER_WRAP )
-        {
-            // WIC only supports 'clamp' semantics (MIRROR is equivalent to clamp for linear)
-            return false;
-        }
+      if (filter & TEX_FILTER_WRAP)
+      {
+        // WIC only supports 'clamp' semantics (MIRROR is equivalent to clamp for linear)
+        return false;
+      }
 
-        if ( BitsPerColor(format) > 8 )
-        {
-            // Avoid the WIC bitmap scaler when doing Linear filtering of XR/HDR formats
-            return false;
-        }
-        break;
+      if (BitsPerColor(format) > 8)
+      {
+        // Avoid the WIC bitmap scaler when doing Linear filtering of XR/HDR formats
+        return false;
+      }
+      break;
 
     case TEX_FILTER_CUBIC:
-        if ( filter & ( TEX_FILTER_WRAP | TEX_FILTER_MIRROR ) )
-        {
-            // WIC only supports 'clamp' semantics
-            return false;
-        }
+      if (filter & (TEX_FILTER_WRAP | TEX_FILTER_MIRROR))
+      {
+        // WIC only supports 'clamp' semantics
+        return false;
+      }
 
-        if ( BitsPerColor(format) > 8 )
-        {
-            // Avoid the WIC bitmap scaler when doing Cubic filtering of XR/HDR formats
-            return false;
-        }
-        break;
+      if (BitsPerColor(format) > 8)
+      {
+        // Avoid the WIC bitmap scaler when doing Cubic filtering of XR/HDR formats
+        return false;
+      }
+      break;
 
     case TEX_FILTER_TRIANGLE:
-        // WIC does not implement this filter
-        return false;
+      // WIC does not implement this filter
+      return false;
     }
 
     return true;
+  }
 }
-
 
 //-------------------------------------------------------------------------------------
 // Resize custom filters
@@ -858,7 +859,7 @@ HRESULT Resize( const Image& srcImage, size_t width, size_t height, DWORD filter
     if ( !rimage )
         return E_POINTER;
 
-    if ( _UseWICFiltering( srcImage.format, filter ) )
+    if ( DirectXTexResizeDetail::_UseWICFiltering( srcImage.format, filter ) )
     {
         WICPixelFormatGUID pfGUID;
         if ( _DXGIToWIC( srcImage.format, pfGUID, true ) )
@@ -910,7 +911,7 @@ HRESULT Resize( const Image* srcImages, size_t nimages, const TexMetadata& metad
     if ( FAILED(hr) )
         return hr;
 
-    bool usewic = _UseWICFiltering( metadata.format, filter );
+    bool usewic = DirectXTexResizeDetail::_UseWICFiltering( metadata.format, filter );
 
     WICPixelFormatGUID pfGUID = {0};
     bool wicpf = ( usewic ) ? _DXGIToWIC( metadata.format, pfGUID, true ) : false;

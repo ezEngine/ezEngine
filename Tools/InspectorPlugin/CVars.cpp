@@ -133,55 +133,59 @@ static void SendAllCVarTelemetry()
   }
 }
 
-
-static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
+namespace CVarsDetail
 {
-  switch (e.m_EventType)
-  {
-  case ezTelemetry::TelemetryEventData::ConnectedToClient:
-    SendAllCVarTelemetry();
-    break;
-  }
-}
 
-static void CVarEventHandler(const ezCVar::CVarEvent& e)
-{
-  if (!ezTelemetry::IsConnectedToClient())
-    return;
-
-  switch (e.m_EventType)
+  static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
   {
-  case ezCVar::CVarEvent::ValueChanged:
-    SendCVarTelemetry(e.m_pCVar);
-    break;
+    switch (e.m_EventType)
+    {
+    case ezTelemetry::TelemetryEventData::ConnectedToClient:
+      SendAllCVarTelemetry();
+      break;
+    }
   }
-}
 
-static void PluginEventHandler(const ezPlugin::PluginEvent& e)
-{
-  switch (e.m_EventType)
+  static void CVarEventHandler(const ezCVar::CVarEvent& e)
   {
-  case ezPlugin::PluginEvent::AfterPluginChanges:
-    SendAllCVarTelemetry();
-    break;
+    if (!ezTelemetry::IsConnectedToClient())
+      return;
+
+    switch (e.m_EventType)
+    {
+    case ezCVar::CVarEvent::ValueChanged:
+      SendCVarTelemetry(e.m_pCVar);
+      break;
+    }
   }
+
+  static void PluginEventHandler(const ezPlugin::PluginEvent& e)
+  {
+    switch (e.m_EventType)
+    {
+    case ezPlugin::PluginEvent::AfterPluginChanges:
+      SendAllCVarTelemetry();
+      break;
+    }
+  }
+
 }
 
 void AddCVarEventHandler()
 {
-  ezTelemetry::AddEventHandler(TelemetryEventsHandler);
+  ezTelemetry::AddEventHandler(CVarsDetail::TelemetryEventsHandler);
   ezTelemetry::AcceptMessagesForSystem('SVAR', true, TelemetryMessage, nullptr);
 
-  ezCVar::s_AllCVarEvents.AddEventHandler(CVarEventHandler);
-  ezPlugin::s_PluginEvents.AddEventHandler(PluginEventHandler);
+  ezCVar::s_AllCVarEvents.AddEventHandler(CVarsDetail::CVarEventHandler);
+  ezPlugin::s_PluginEvents.AddEventHandler(CVarsDetail::PluginEventHandler);
 }
 
 void RemoveCVarEventHandler()
 {
-  ezPlugin::s_PluginEvents.RemoveEventHandler(PluginEventHandler);
-  ezCVar::s_AllCVarEvents.RemoveEventHandler(CVarEventHandler);
+  ezPlugin::s_PluginEvents.RemoveEventHandler(CVarsDetail::PluginEventHandler);
+  ezCVar::s_AllCVarEvents.RemoveEventHandler(CVarsDetail::CVarEventHandler);
 
-  ezTelemetry::RemoveEventHandler(TelemetryEventsHandler);
+  ezTelemetry::RemoveEventHandler(CVarsDetail::TelemetryEventsHandler);
   ezTelemetry::AcceptMessagesForSystem('SVAR', false);
 }
 

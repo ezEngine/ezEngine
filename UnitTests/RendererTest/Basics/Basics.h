@@ -1,3 +1,5 @@
+#pragma once
+
 #include <PCH.h>
 #include "../TestClass/TestClass.h"
 #include <RendererCore/Textures/TextureResource.h>

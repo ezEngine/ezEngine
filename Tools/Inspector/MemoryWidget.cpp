@@ -6,18 +6,21 @@
 
 ezMemoryWidget* ezMemoryWidget::s_pWidget = nullptr;
 
-static QColor s_Colors[ezMemoryWidget::s_uiMaxColors] =
+namespace MemoryWidgetDetail
 {
-  QColor(255, 106,   0), // orange
-  QColor(182, 255,   0), // lime green
-  QColor(255,   0, 255), // pink
-  QColor(  0, 148, 255), // light blue
-  QColor(255,   0,   0), // red
-  QColor(  0, 255, 255), // turquoise
-  QColor(178,   0, 255), // purple
-  QColor(  0,  38, 255), // dark blue
-  QColor( 72,   0, 255), // lilac
-};
+  static QColor s_Colors[ezMemoryWidget::s_uiMaxColors] =
+  {
+    QColor(255, 106, 0), // orange
+    QColor(182, 255, 0), // lime green
+    QColor(255, 0, 255), // pink
+    QColor(0, 148, 255), // light blue
+    QColor(255, 0, 0), // red
+    QColor(0, 255, 255), // turquoise
+    QColor(178, 0, 255), // purple
+    QColor(0, 38, 255), // dark blue
+    QColor(72, 0, 255), // lilac
+  };
+}
 
 void FormatSize(ezStringBuilder& s, const char* szPrefix, ezUInt64 uiSize)
 {
@@ -54,7 +57,7 @@ ezMemoryWidget::ezMemoryWidget(QWidget* parent) : QDockWidget (parent)
   m_pPathMax = m_Scene.addPath (QPainterPath (), QPen (QBrush (QColor(255, 255, 255)), 0 ));
 
   for (ezUInt32 i = 0; i < s_uiMaxColors; ++i)
-    m_pPath[i] = m_Scene.addPath (QPainterPath (), QPen (QBrush (s_Colors[i]), 0 ));
+    m_pPath[i] = m_Scene.addPath(QPainterPath(), QPen(QBrush(MemoryWidgetDetail::s_Colors[i]), 0));
 
   QTransform t = UsedMemoryView->transform ();
   t.scale (1, -1);
@@ -132,7 +135,7 @@ void ezMemoryWidget::UpdateStats()
       pItem->setCheckState (it.Value().m_bDisplay ? Qt::Checked : Qt::Unchecked);
       pItem->setData(Qt::UserRole, QString(it.Key().GetData()));
 
-      pItem->setTextColor(s_Colors[it.Value().m_iColor % s_uiMaxColors]);
+      pItem->setTextColor(MemoryWidgetDetail::s_Colors[it.Value().m_iColor % s_uiMaxColors]);
 
       it.Value().m_pListItem = pItem;
     }

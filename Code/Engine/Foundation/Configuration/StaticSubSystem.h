@@ -38,14 +38,13 @@
 /// The first parameter is the name of the group, in which the subsystem resides, the second is the name of the subsystem itself.
 #define EZ_BEGIN_SUBSYSTEM_DECLARATION(GroupName, SubsystemName) \
   class GroupName##SubsystemName##SubSystem; \
-  typedef GroupName##SubsystemName##SubSystem SubSystemType; \
   class GroupName##SubsystemName##SubSystem : public ezSubSystem { \
     public: virtual const char* GetGroupName() const { return #GroupName; } \
     public: virtual const char* GetSubSystemName() const { return #SubsystemName; } \
 
 /// \brief Finishes a subsystem's startup / shutdown sequence declaration.
 #define EZ_END_SUBSYSTEM_DECLARATION \
-  }; static SubSystemType EZ_CONCAT(s_SubSystem, EZ_SOURCE_LINE);
+    } static EZ_CONCAT(s_SubSystem, EZ_SOURCE_LINE);
 
 /// \brief Defines what code is to be executed upon base startup.
 ///
