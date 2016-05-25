@@ -50,7 +50,7 @@ void ezConeGizmo::OnTransformationChanged(const ezMat4& transform)
   m_ConeRadius.SetVisible(m_bEnableRadiusHandle);
 }
 
-void ezConeGizmo::FocusLost(bool bCancel)
+void ezConeGizmo::DoFocusLost(bool bCancel)
 {
   ezGizmoEvent ev;
   ev.m_pGizmo = this;
@@ -66,7 +66,7 @@ void ezConeGizmo::FocusLost(bool bCancel)
   m_ManipulateMode = ManipulateMode::None;
 }
 
-ezEditorInut ezConeGizmo::doMousePressEvent(QMouseEvent* e)
+ezEditorInut ezConeGizmo::DoMousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
     return ezEditorInut::WasExclusivelyHandled;
@@ -91,7 +91,7 @@ ezEditorInut ezConeGizmo::doMousePressEvent(QMouseEvent* e)
 
   m_LastInteraction = ezTime::Now();
 
-  m_MousePos = ezVec2(e->globalPos().x(), e->globalPos().y());
+  m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
 
   SetActiveInputContext(this);
 
@@ -103,7 +103,7 @@ ezEditorInut ezConeGizmo::doMousePressEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezConeGizmo::doMouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezConeGizmo::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -117,7 +117,7 @@ ezEditorInut ezConeGizmo::doMouseReleaseEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezConeGizmo::doMouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezConeGizmo::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -129,10 +129,10 @@ ezEditorInut ezConeGizmo::doMouseMoveEvent(QMouseEvent* e)
 
   m_LastInteraction = tNow;
 
-  const ezVec2 vNewMousePos = ezVec2(e->globalPos().x(), e->globalPos().y());
-  ezVec2 vDiff = vNewMousePos - m_MousePos;
+  const ezVec2I32 vNewMousePos = ezVec2I32(e->globalPos().x(), e->globalPos().y());
+  const ezVec2I32 vDiff = vNewMousePos - m_LastMousePos;
 
-  QCursor::setPos(QPoint(m_MousePos.x, m_MousePos.y));
+  m_LastMousePos = UpdateMouseMode(e);
 
   const float fSpeed = 0.02f;
   const ezAngle aSpeed = ezAngle::Degree(1.0f);

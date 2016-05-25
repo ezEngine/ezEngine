@@ -30,9 +30,9 @@ public:
   float GetScalingResult() const { return m_fScalingResult; }
 
 protected:
-  virtual ezEditorInut doMousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doMouseReleaseEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doMouseMoveEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMousePressEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMouseReleaseEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMouseMoveEvent(QMouseEvent* e) override;
 
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override {}
 

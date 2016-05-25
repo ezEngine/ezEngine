@@ -77,7 +77,7 @@ void ezBoxGizmo::OnTransformationChanged(const ezMat4& transform)
   m_Faces[2].SetTransformation(scale * rot);
 }
 
-void ezBoxGizmo::FocusLost(bool bCancel)
+void ezBoxGizmo::DoFocusLost(bool bCancel)
 {
   ezGizmoEvent ev;
   ev.m_pGizmo = this;
@@ -90,7 +90,7 @@ void ezBoxGizmo::FocusLost(bool bCancel)
   m_ManipulateMode = ManipulateMode::None;
 }
 
-ezEditorInut ezBoxGizmo::doMousePressEvent(QMouseEvent* e)
+ezEditorInut ezBoxGizmo::DoMousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
     return ezEditorInut::WasExclusivelyHandled;
@@ -135,7 +135,7 @@ ezEditorInut ezBoxGizmo::doMousePressEvent(QMouseEvent* e)
 
   m_LastInteraction = ezTime::Now();
 
-  m_MousePos = ezVec2(e->globalPos().x(), e->globalPos().y());
+  m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
 
   SetActiveInputContext(this);
 
@@ -147,7 +147,7 @@ ezEditorInut ezBoxGizmo::doMousePressEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezBoxGizmo::doMouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezBoxGizmo::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -161,7 +161,7 @@ ezEditorInut ezBoxGizmo::doMouseReleaseEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezBoxGizmo::doMouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -173,10 +173,10 @@ ezEditorInut ezBoxGizmo::doMouseMoveEvent(QMouseEvent* e)
 
   m_LastInteraction = tNow;
 
-  const ezVec2 vNewMousePos = ezVec2(e->globalPos().x(), e->globalPos().y());
-  ezVec2 vDiff = vNewMousePos - m_MousePos;
+  const ezVec2I32 vNewMousePos = ezVec2I32(e->globalPos().x(), e->globalPos().y());
+  const ezVec2I32 vDiff = vNewMousePos - m_LastMousePos;
 
-  QCursor::setPos(QPoint(m_MousePos.x, m_MousePos.y));
+  m_LastMousePos = UpdateMouseMode(e);
 
   const float fSpeed = 0.02f;
   float fChange = 0.0f;

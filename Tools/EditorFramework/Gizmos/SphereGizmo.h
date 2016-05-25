@@ -12,8 +12,6 @@ class EZ_EDITORFRAMEWORK_DLL ezSphereGizmo : public ezGizmo
 public:
   ezSphereGizmo();
 
-  virtual void FocusLost(bool bCancel) override;
-
   void SetInnerSphere(bool bEnabled, float fRadius = 0.0f);
   void SetOuterSphere(float fRadius);
 
@@ -21,9 +19,11 @@ public:
   float GetOuterRadius() const { return m_fRadiusOuter; }
 
 protected:
-  virtual ezEditorInut doMousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doMouseReleaseEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doMouseMoveEvent(QMouseEvent* e) override;
+  virtual void DoFocusLost(bool bCancel) override;
+
+  virtual ezEditorInut DoMousePressEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMouseReleaseEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMouseMoveEvent(QMouseEvent* e) override;
 
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
@@ -33,7 +33,7 @@ protected:
 private:
   ezTime m_LastInteraction;
 
-  ezVec2 m_MousePos;
+  ezVec2I32 m_LastMousePos;
 
   ezEngineGizmoHandle m_InnerSphere;
   ezEngineGizmoHandle m_OuterSphere;

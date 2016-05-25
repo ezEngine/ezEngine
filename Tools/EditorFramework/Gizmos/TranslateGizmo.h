@@ -12,8 +12,6 @@ class EZ_EDITORFRAMEWORK_DLL ezTranslateGizmo : public ezGizmo
 public:
   ezTranslateGizmo();
 
-  virtual void FocusLost(bool bCancel) override;
-
   const ezVec3 GetTranslationResult() const { return GetTransformation().GetTranslationVector() - m_vStartPosition; }
   const ezVec3 GetTranslationDiff() const { return m_vLastMoveDiff; }
 
@@ -26,9 +24,11 @@ public:
   void SetMovementMode(MovementMode mode);
 
 protected:
-  virtual ezEditorInut doMousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doMouseReleaseEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doMouseMoveEvent(QMouseEvent* e) override;
+  virtual void DoFocusLost(bool bCancel) override;
+
+  virtual ezEditorInut DoMousePressEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMouseReleaseEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMouseMoveEvent(QMouseEvent* e) override;
 
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
@@ -38,10 +38,7 @@ protected:
   ezResult GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const;
 
 private:
-  void SetCursorToWindowCenter(QPoint pos);
-
-  QPoint m_LastMousePos;
-  QPoint m_OriginalMousePos;
+  ezVec2I32 m_LastMousePos;
 
   ezVec3 m_vLastMoveDiff;
 

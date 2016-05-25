@@ -49,7 +49,7 @@ void ezSphereGizmo::OnTransformationChanged(const ezMat4& transform)
   m_OuterSphere.SetTransformation(transform * mScaleOuter);
 }
 
-void ezSphereGizmo::FocusLost(bool bCancel)
+void ezSphereGizmo::DoFocusLost(bool bCancel)
 {
   ezGizmoEvent ev;
   ev.m_pGizmo = this;
@@ -65,7 +65,7 @@ void ezSphereGizmo::FocusLost(bool bCancel)
   m_ManipulateMode = ManipulateMode::None;
 }
 
-ezEditorInut ezSphereGizmo::doMousePressEvent(QMouseEvent* e)
+ezEditorInut ezSphereGizmo::DoMousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
     return ezEditorInut::WasExclusivelyHandled;
@@ -95,7 +95,7 @@ ezEditorInut ezSphereGizmo::doMousePressEvent(QMouseEvent* e)
 
   m_LastInteraction = ezTime::Now();
 
-  m_MousePos = ezVec2(e->globalPos().x(), e->globalPos().y());
+  m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
 
   SetActiveInputContext(this);
 
@@ -107,7 +107,7 @@ ezEditorInut ezSphereGizmo::doMousePressEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezSphereGizmo::doMouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezSphereGizmo::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -121,7 +121,7 @@ ezEditorInut ezSphereGizmo::doMouseReleaseEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezSphereGizmo::doMouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezSphereGizmo::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -133,10 +133,10 @@ ezEditorInut ezSphereGizmo::doMouseMoveEvent(QMouseEvent* e)
 
   m_LastInteraction = tNow;
 
-  const ezVec2 vNewMousePos = ezVec2(e->globalPos().x(), e->globalPos().y());
-  ezVec2 vDiff = vNewMousePos - m_MousePos;
+  const ezVec2I32 vNewMousePos = ezVec2I32(e->globalPos().x(), e->globalPos().y());
+  const ezVec2I32 vDiff = vNewMousePos - m_LastMousePos;
 
-  QCursor::setPos(QPoint(m_MousePos.x, m_MousePos.y));
+  m_LastMousePos = UpdateMouseMode(e);
 
   const float fSpeed = 0.02f;
 

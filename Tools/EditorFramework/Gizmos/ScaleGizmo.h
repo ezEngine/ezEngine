@@ -11,14 +11,14 @@ class EZ_EDITORFRAMEWORK_DLL ezScaleGizmo : public ezGizmo
 public:
   ezScaleGizmo();
 
-  virtual void FocusLost(bool bCancel) override;
-
   const ezVec3& GetScalingResult() const { return m_vScalingResult; }
 
 protected:
-  virtual ezEditorInut doMousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doMouseReleaseEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doMouseMoveEvent(QMouseEvent* e) override;
+  virtual void DoFocusLost(bool bCancel) override;
+
+  virtual ezEditorInut DoMousePressEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMouseReleaseEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMouseMoveEvent(QMouseEvent* e) override;
 
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
@@ -33,7 +33,7 @@ private:
   ezEngineGizmoHandle m_AxisZ;
   ezEngineGizmoHandle m_AxisXYZ;
 
-  ezVec2 m_MousePos;
+  ezVec2I32 m_LastMousePos;
 
   ezTime m_LastInteraction;
   ezVec3 m_vMoveAxis;

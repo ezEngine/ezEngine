@@ -48,7 +48,7 @@ void ezRotateGizmo::OnTransformationChanged(const ezMat4& transform)
   m_AxisZ.SetTransformation(transform * m);
 }
 
-void ezRotateGizmo::FocusLost(bool bCancel)
+void ezRotateGizmo::DoFocusLost(bool bCancel)
 {
   ezGizmoEvent ev;
   ev.m_pGizmo = this;
@@ -65,7 +65,7 @@ void ezRotateGizmo::FocusLost(bool bCancel)
   QApplication::restoreOverrideCursor();
 }
 
-ezEditorInut ezRotateGizmo::doMousePressEvent(QMouseEvent* e)
+ezEditorInut ezRotateGizmo::DoMousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
     return ezEditorInut::WasExclusivelyHandled;
@@ -102,10 +102,9 @@ ezEditorInut ezRotateGizmo::doMousePressEvent(QMouseEvent* e)
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
   msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
 
-  QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
-
-  m_MousePos = ezVec2(e->globalPos().x(), e->globalPos().y());
   m_Rotation = ezAngle();
+
+  m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
 
   //m_AxisX.SetVisible(false);
   //m_AxisY.SetVisible(false);
@@ -133,7 +132,7 @@ ezEditorInut ezRotateGizmo::doMousePressEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezRotateGizmo::doMouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezRotateGizmo::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -147,7 +146,7 @@ ezEditorInut ezRotateGizmo::doMouseReleaseEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezRotateGizmo::doMouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezRotateGizmo::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -159,10 +158,10 @@ ezEditorInut ezRotateGizmo::doMouseMoveEvent(QMouseEvent* e)
 
   m_LastInteraction = tNow;
 
-  const ezVec2 vNewMousePos = ezVec2(e->globalPos().x(), e->globalPos().y());
-  ezVec2 vDiff = vNewMousePos - m_MousePos;
+  const ezVec2I32 vNewMousePos = ezVec2I32(e->globalPos().x(), e->globalPos().y());
+  ezVec2I32 vDiff = vNewMousePos - m_LastMousePos;
 
-  QCursor::setPos(QPoint(m_MousePos.x, m_MousePos.y));
+  m_LastMousePos = UpdateMouseMode(e);
 
   m_Rotation += ezAngle::Degree(vDiff.x);
   m_Rotation -= ezAngle::Degree(vDiff.y);

@@ -56,7 +56,7 @@ void ezScaleGizmo::OnTransformationChanged(const ezMat4& transform)
   m_AxisXYZ.SetTransformation(transform * s * m);
 }
 
-void ezScaleGizmo::FocusLost(bool bCancel)
+void ezScaleGizmo::DoFocusLost(bool bCancel)
 {
   ezGizmoEvent ev;
   ev.m_pGizmo = this;
@@ -74,7 +74,7 @@ void ezScaleGizmo::FocusLost(bool bCancel)
   QApplication::restoreOverrideCursor();
 }
 
-ezEditorInut ezScaleGizmo::doMousePressEvent(QMouseEvent* e)
+ezEditorInut ezScaleGizmo::DoMousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
     return ezEditorInut::WasExclusivelyHandled;
@@ -105,9 +105,7 @@ ezEditorInut ezScaleGizmo::doMousePressEvent(QMouseEvent* e)
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
   msg.SendHighlightObjectMessage(GetOwnerWindow()->GetEditorEngineConnection());
 
-  QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
-
-  m_MousePos = ezVec2(e->globalPos().x(), e->globalPos().y());
+  m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
 
   //m_AxisX.SetVisible(false);
   //m_AxisY.SetVisible(false);
@@ -137,7 +135,7 @@ ezEditorInut ezScaleGizmo::doMousePressEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezScaleGizmo::doMouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezScaleGizmo::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -151,7 +149,7 @@ ezEditorInut ezScaleGizmo::doMouseReleaseEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezScaleGizmo::doMouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezScaleGizmo::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -163,13 +161,13 @@ ezEditorInut ezScaleGizmo::doMouseMoveEvent(QMouseEvent* e)
 
   m_LastInteraction = tNow;
 
-  const ezVec2 vNewMousePos = ezVec2(e->globalPos().x(), e->globalPos().y());
-  ezVec2 vDiff = (vNewMousePos - m_MousePos);
+  const ezVec2I32 vNewMousePos = ezVec2I32(e->globalPos().x(), e->globalPos().y());
+  ezVec2I32 vDiff = (vNewMousePos - m_LastMousePos);
 
-  QCursor::setPos(QPoint(m_MousePos.x, m_MousePos.y));
+  m_LastMousePos = UpdateMouseMode(e);
 
-  m_vScaleMouseMove += m_vMoveAxis * vDiff.x;
-  m_vScaleMouseMove -= m_vMoveAxis * vDiff.y;
+  m_vScaleMouseMove += m_vMoveAxis * (float)vDiff.x;
+  m_vScaleMouseMove -= m_vMoveAxis * (float)vDiff.y;
 
   m_vScalingResult.Set(1.0f);
 

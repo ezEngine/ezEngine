@@ -29,11 +29,13 @@ ezEditorInputContext::~ezEditorInputContext()
 
 void ezEditorInputContext::FocusLost(bool bCancel)
 {
+  DoFocusLost(bCancel);
+
   // reset mouse mode, if necessary
   SetMouseMode(MouseMode::Normal);
 }
 
-ezEditorInut ezEditorInputContext::doKeyPressEvent(QKeyEvent* e)
+ezEditorInut ezEditorInputContext::DoKeyPressEvent(QKeyEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -49,7 +51,7 @@ ezEditorInut ezEditorInputContext::doKeyPressEvent(QKeyEvent* e)
 }
 
 
-ezEditorInut ezEditorInputContext::mouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezEditorInputContext::MouseMoveEvent(QMouseEvent* e)
 {
   if (m_MouseMode != MouseMode::Normal)
   {
@@ -63,7 +65,6 @@ ezEditorInut ezEditorInputContext::mouseMoveEvent(QMouseEvent* e)
       {
         // this is an invalid message, it was still in the message queue with old coordinates and should be discarded
 
-        ezLog::Debug("Mouse move message was filtered out.");
         return ezEditorInut::WasExclusivelyHandled;
       }
 
@@ -71,7 +72,7 @@ ezEditorInut ezEditorInputContext::mouseMoveEvent(QMouseEvent* e)
     }
   }
 
-  return doMouseMoveEvent(e);
+  return DoMouseMoveEvent(e);
 }
 
 void ezEditorInputContext::MakeActiveInputContext(bool bActive /*= true*/)
@@ -113,22 +114,18 @@ ezQtEngineViewWidget* ezEditorInputContext::GetOwnerView() const
   return m_pOwnerView;
 }
 
-void ezEditorInputContext::SetMouseMode(MouseMode mode)
+ezVec2I32 ezEditorInputContext::SetMouseMode(MouseMode newMode)
 {
-  if (m_MouseMode == mode)
-    return;
-
-  m_bJustWrappedMouse = false;
   const QPoint curPos = QCursor::pos();
 
-  if (mode == MouseMode::HideAndWrapAtScreenBorders)
+  if (m_MouseMode == newMode)
+    return ezVec2I32(curPos.x(), curPos.y());
+
+  m_bJustWrappedMouse = false;
+
+  if (newMode != MouseMode::Normal)
   {
-    QCursor::setPos(QPoint(m_MouseRestorePosition.x, m_MouseRestorePosition.y));
-  }
-  
-  if (mode != MouseMode::Normal)
-  {
-    const QRect dsize = QApplication::desktop()->screenGeometry(curPos);
+    const QRect dsize = QApplication::desktop()->availableGeometry(curPos);
 
     m_MouseWrapRect.x = dsize.x() + 10;
     m_MouseWrapRect.y = dsize.y() + 10;
@@ -138,16 +135,19 @@ void ezEditorInputContext::SetMouseMode(MouseMode mode)
 
   if (m_MouseMode == MouseMode::HideAndWrapAtScreenBorders)
   {
+    QCursor::setPos(QPoint(m_MouseRestorePosition.x, m_MouseRestorePosition.y));
     QApplication::restoreOverrideCursor();
   }
 
-  if (mode == MouseMode::HideAndWrapAtScreenBorders)
+  if (newMode == MouseMode::HideAndWrapAtScreenBorders)
   {
+    m_MouseRestorePosition.Set(curPos.x(), curPos.y());
     QApplication::setOverrideCursor(Qt::BlankCursor);
   }
 
-  m_MouseRestorePosition.Set(curPos.x(), curPos.y());
-  m_MouseMode = mode;
+  m_MouseMode = newMode;
+
+  return ezVec2I32(curPos.x(), curPos.y());
 }
 
 ezVec2I32 ezEditorInputContext::UpdateMouseMode(QMouseEvent* e)

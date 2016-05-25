@@ -11,8 +11,6 @@ class EZ_EDITORFRAMEWORK_DLL ezDragToPositionGizmo : public ezGizmo
 public:
   ezDragToPositionGizmo();
 
-  virtual void FocusLost(bool bCancel) override;
-
   const ezVec3 GetTranslationResult() const { return GetTransformation().GetTranslationVector() - m_vStartPosition; }
   const ezQuat GetRotationResult() const { ezQuat q; q.SetFromMat3(GetTransformation().GetRotationalPart()); return q; }
 
@@ -22,9 +20,11 @@ public:
   bool ModifiesRotation() const { return m_bModifiesRotation; }
 
 protected:
-  virtual ezEditorInut doMousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doMouseReleaseEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doMouseMoveEvent(QMouseEvent* e) override;
+  virtual void DoFocusLost(bool bCancel) override;
+
+  virtual ezEditorInut DoMousePressEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMouseReleaseEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMouseMoveEvent(QMouseEvent* e) override;
   
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;

@@ -12,8 +12,6 @@ class EZ_EDITORFRAMEWORK_DLL ezConeGizmo : public ezGizmo
 public:
   ezConeGizmo();
 
-  virtual void FocusLost(bool bCancel) override;
-
   void SetAngle(ezAngle angle);
   void SetRadius(float radius);
 
@@ -23,9 +21,11 @@ public:
   void SetEnableRadiusHandle(bool enable) { m_bEnableRadiusHandle = enable; }
 
 protected:
-  virtual ezEditorInut doMousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doMouseReleaseEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doMouseMoveEvent(QMouseEvent* e) override;
+  virtual void DoFocusLost(bool bCancel) override;
+
+  virtual ezEditorInut DoMousePressEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMouseReleaseEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMouseMoveEvent(QMouseEvent* e) override;
 
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
@@ -35,7 +35,7 @@ protected:
 private:
   ezTime m_LastInteraction;
 
-  ezVec2 m_MousePos;
+  ezVec2I32 m_LastMousePos;
 
   ezEngineGizmoHandle m_ConeAngle;
   ezEngineGizmoHandle m_ConeRadius;

@@ -74,14 +74,8 @@ void ezTranslateGizmo::OnTransformationChanged(const ezMat4& transform)
   m_PlaneXZ.SetTransformation(transform * m);
 }
 
-void ezTranslateGizmo::FocusLost(bool bCancel)
+void ezTranslateGizmo::DoFocusLost(bool bCancel)
 {
-  if (m_MovementMode == MovementMode::MouseDiff)
-  {
-    QCursor::setPos(m_OriginalMousePos);
-    GetOwnerWindow()->setCursor(QCursor(Qt::ArrowCursor));
-  }
-
   ezGizmoEvent ev;
   ev.m_pGizmo = this;
   ev.m_Type = bCancel ? ezGizmoEvent::Type::CancelInteractions : ezGizmoEvent::Type::EndInteractions;
@@ -103,7 +97,7 @@ void ezTranslateGizmo::FocusLost(bool bCancel)
   m_vLastMoveDiff.SetZero();
 }
 
-ezEditorInut ezTranslateGizmo::doMousePressEvent(QMouseEvent* e)
+ezEditorInut ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
     return ezEditorInut::WasExclusivelyHandled;
@@ -112,8 +106,6 @@ ezEditorInut ezTranslateGizmo::doMousePressEvent(QMouseEvent* e)
     return ezEditorInut::MayBeHandledByOthers;
 
   m_vLastMoveDiff.SetZero();
-  m_LastMousePos = e->globalPos();
-  m_OriginalMousePos = m_LastMousePos;
 
   if (m_pInteractionGizmoHandle == &m_AxisX)
   {
@@ -178,6 +170,7 @@ ezEditorInut ezTranslateGizmo::doMousePressEvent(QMouseEvent* e)
 
   m_LastInteraction = ezTime::Now();
 
+  m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::WrapAtScreenBorders);
   SetActiveInputContext(this);
 
   if (m_Mode == TranslateMode::Axis)
@@ -199,7 +192,7 @@ ezEditorInut ezTranslateGizmo::doMousePressEvent(QMouseEvent* e)
   return ezEditorInut::WasExclusivelyHandled;
 }
 
-ezEditorInut ezTranslateGizmo::doMouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezTranslateGizmo::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -232,30 +225,6 @@ ezResult ezTranslateGizmo::GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenP
   return EZ_SUCCESS;
 }
 
-void ezTranslateGizmo::SetCursorToWindowCenter(QPoint pos)
-{
-  QDesktopWidget dw;
-  QRect rect = dw.screenGeometry(this->GetOwnerWindow());
-
-  QPoint center;
-  center.setX(rect.left() + rect.width() / 2);
-  center.setY(rect.top() + rect.height() / 2);
-
-  // Only move cursor if we reach the edge of this current screen.
-  rect.adjust(20, 20, -20, -20);
-  if (!rect.contains(pos))
-  {
-    m_LastMousePos = center;
-    QCursor::setPos(center);
-  }
-  else
-  {
-    m_LastMousePos = pos;
-  }
-
-  GetOwnerWindow()->setCursor(QCursor(Qt::BlankCursor));
-}
-
 ezResult ezTranslateGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const
 {
   out_Result = m_vStartPosition;
@@ -281,7 +250,7 @@ ezResult ezTranslateGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPo
   return EZ_SUCCESS;
 }
 
-ezEditorInut ezTranslateGizmo::doMouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
@@ -290,6 +259,8 @@ ezEditorInut ezTranslateGizmo::doMouseMoveEvent(QMouseEvent* e)
 
   if (tNow - m_LastInteraction < ezTime::Seconds(1.0 / 25.0))
     return ezEditorInut::WasExclusivelyHandled;
+
+  const ezVec2I32 CurMousePos(e->globalX(), e->globalY());
 
   m_LastInteraction = tNow;
 
@@ -303,12 +274,18 @@ ezEditorInut ezTranslateGizmo::doMouseMoveEvent(QMouseEvent* e)
     if (m_Mode == TranslateMode::Axis)
     {
       if (GetPointOnAxis(e->pos().x(), m_Viewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
+      {
+        m_LastMousePos = UpdateMouseMode(e);
         return ezEditorInut::WasExclusivelyHandled;
+      }
     }
     else if (m_Mode == TranslateMode::Plane)
     {
       if (GetPointOnPlane(e->pos().x(), m_Viewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
+      {
+        m_LastMousePos = UpdateMouseMode(e);
         return ezEditorInut::WasExclusivelyHandled;
+      }
     }
 
 
@@ -323,7 +300,7 @@ ezEditorInut ezTranslateGizmo::doMouseMoveEvent(QMouseEvent* e)
   {
     const float fSpeed = 0.2f;
 
-    const ezVec3 vMouseDir = m_pCamera->GetDirRight() * (float)(e->globalPos().x() - m_LastMousePos.x()) + -m_pCamera->GetDirUp() * (float)(e->globalPos().y() - m_LastMousePos.y());
+    const ezVec3 vMouseDir = m_pCamera->GetDirRight() * (float)(CurMousePos.x - m_LastMousePos.x) + -m_pCamera->GetDirUp() * (float)(CurMousePos.y - m_LastMousePos.y);
 
     if (m_Mode == TranslateMode::Axis)
     {
@@ -333,9 +310,9 @@ ezEditorInut ezTranslateGizmo::doMouseMoveEvent(QMouseEvent* e)
     {
       vTranslate = mTrans.GetTranslationVector() - m_vStartPosition + m_vPlaneAxis[0] * (m_vPlaneAxis[0].Dot(vMouseDir)) * fSpeed + m_vPlaneAxis[1] * (m_vPlaneAxis[1].Dot(vMouseDir)) * fSpeed;
     }
-
-    SetCursorToWindowCenter(e->globalPos());
   }
+
+  m_LastMousePos = UpdateMouseMode(e);
 
   ezSnapProvider::SnapTranslationInLocalSpace(mTrans.GetRotationalPart(), vTranslate);
 
@@ -367,13 +344,11 @@ void ezTranslateGizmo::SetMovementMode(MovementMode mode)
 
   if (m_MovementMode == MovementMode::MouseDiff)
   {
-    m_OriginalMousePos = QCursor::pos();
-    SetCursorToWindowCenter(m_OriginalMousePos);
+    m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
   }
   else
   {
-    QCursor::setPos(m_OriginalMousePos);
-    GetOwnerWindow()->setCursor(QCursor(Qt::ArrowCursor));
+    m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::WrapAtScreenBorders);
   }
 }
 

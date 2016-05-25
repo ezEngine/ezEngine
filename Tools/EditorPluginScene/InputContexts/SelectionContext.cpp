@@ -22,7 +22,7 @@ ezSelectionContext::ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, e
   SetOwner(pOwnerWindow, pOwnerView);
 }
 
-ezEditorInut ezSelectionContext::doMousePressEvent(QMouseEvent* e)
+ezEditorInut ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
 {
   if (e->button() == Qt::MouseButton::LeftButton)
   {
@@ -44,7 +44,7 @@ ezEditorInut ezSelectionContext::doMousePressEvent(QMouseEvent* e)
           if (pGizmo)
           {
             pGizmo->ConfigureInteraction(pGizmoHandle, m_pCamera, res.m_vPickedPosition, m_Viewport);
-            return pGizmo->mousePressEvent(e);
+            return pGizmo->MousePressEvent(e);
           }
         }
       }
@@ -56,7 +56,7 @@ ezEditorInut ezSelectionContext::doMousePressEvent(QMouseEvent* e)
   return ezEditorInut::MayBeHandledByOthers;
 }
 
-ezEditorInut ezSelectionContext::doMouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
 {
   auto* pDocument = GetOwnerWindow()->GetDocument();
 
@@ -210,7 +210,7 @@ bool ezSelectionContext::TryOpenMaterial(const ezString& sMatRef) const
   return false;
 }
 
-ezEditorInut ezSelectionContext::doMouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezSelectionContext::DoMouseMoveEvent(QMouseEvent* e)
 {
   ezViewHighlightMsgToEngine msg;
 
@@ -238,7 +238,7 @@ ezEditorInut ezSelectionContext::doMouseMoveEvent(QMouseEvent* e)
   return ezEditorInut::MayBeHandledByOthers;
 }
 
-ezEditorInut ezSelectionContext::doKeyPressEvent(QKeyEvent* e)
+ezEditorInut ezSelectionContext::DoKeyPressEvent(QKeyEvent* e)
 {
   /// \todo Handle the current cursor (icon) across all active input contexts
 
@@ -257,7 +257,7 @@ ezEditorInut ezSelectionContext::doKeyPressEvent(QKeyEvent* e)
   return ezEditorInut::MayBeHandledByOthers;
 }
 
-ezEditorInut ezSelectionContext::doKeyReleaseEvent(QKeyEvent* e)
+ezEditorInut ezSelectionContext::DoKeyReleaseEvent(QKeyEvent* e)
 {
   return ezEditorInut::MayBeHandledByOthers;
 }

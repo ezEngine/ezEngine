@@ -27,14 +27,14 @@ public:
 
   virtual ~ezEditorInputContext();
 
-  virtual void FocusLost(bool bCancel);
+  void FocusLost(bool bCancel);
 
-  ezEditorInut keyPressEvent(QKeyEvent* e) { return doKeyPressEvent(e); }
-  ezEditorInut keyReleaseEvent(QKeyEvent* e) { return doKeyReleaseEvent(e); }
-  ezEditorInut mousePressEvent(QMouseEvent* e) { return doMousePressEvent(e); }
-  ezEditorInut mouseReleaseEvent(QMouseEvent* e) { return doMouseReleaseEvent(e); }
-  ezEditorInut mouseMoveEvent(QMouseEvent* e);
-  ezEditorInut wheelEvent(QWheelEvent* e) { return doWheelEvent(e); }
+  ezEditorInut KeyPressEvent(QKeyEvent* e) { return DoKeyPressEvent(e); }
+  ezEditorInut KeyReleaseEvent(QKeyEvent* e) { return DoKeyReleaseEvent(e); }
+  ezEditorInut MousePressEvent(QMouseEvent* e) { return DoMousePressEvent(e); }
+  ezEditorInut MouseReleaseEvent(QMouseEvent* e) { return DoMouseReleaseEvent(e); }
+  ezEditorInut MouseMoveEvent(QMouseEvent* e);
+  ezEditorInut WheelEvent(QWheelEvent* e) { return DoWheelEvent(e); }
 
   static void SetActiveInputContext(ezEditorInputContext* pContext) { s_pActiveInputContext = pContext; }
 
@@ -61,26 +61,36 @@ public:
 
   virtual bool IsPickingSelectedAllowed() const { return true; }
 
+  /// \brief How the mouse position is updated when the mouse cursor reaches the screen borders.
   enum class MouseMode
   {
-    Normal,
-    WrapAtScreenBorders,
-    HideAndWrapAtScreenBorders,
+    Normal, ///< Nothing happens, the mouse will stop at screen borders as usual
+    WrapAtScreenBorders, ///< The mouse is visibly wrapped at screen borders. When this mode is disabled, the mouse stays where it is.
+    HideAndWrapAtScreenBorders, ///< The mouse is wrapped at screen borders, which enables infinite movement, but the cursor is invisible. When this mode is disabled the mouse is restored to the position where it was when it was enabled.
   };
 
-  void SetMouseMode(MouseMode mode);
+  /// \brief Sets how the mouse will act when it reaches the screen border. UpdateMouseMode() must be called on every mouseMoveEvent to update the state.
+  ///
+  /// The return value is the current global mouse position. Can be used to initialize a 'Last Mouse Position' variable.
+  ezVec2I32 SetMouseMode(MouseMode mode);
 
+  /// \brief Updates the mouse position. Can always be called but will only have an effect if SetMouseMode() was called with one of the wrap modes.
+  ///
+  /// Returns the new global mouse position, which may change drastically if the mouse cursor needed to be wrapped around the screen.
+  /// Should be used to update a "Last Mouse Position" variable.
   ezVec2I32 UpdateMouseMode(QMouseEvent* e);
 
 protected:
+  virtual void DoFocusLost(bool bCancel) {}
+
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) = 0;
 
-  virtual ezEditorInut doKeyPressEvent(QKeyEvent* e);
-  virtual ezEditorInut doKeyReleaseEvent(QKeyEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
-  virtual ezEditorInut doMousePressEvent(QMouseEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
-  virtual ezEditorInut doMouseReleaseEvent(QMouseEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
-  virtual ezEditorInut doMouseMoveEvent(QMouseEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
-  virtual ezEditorInut doWheelEvent(QWheelEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
+  virtual ezEditorInut DoKeyPressEvent(QKeyEvent* e);
+  virtual ezEditorInut DoKeyReleaseEvent(QKeyEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
+  virtual ezEditorInut DoMousePressEvent(QMouseEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
+  virtual ezEditorInut DoMouseReleaseEvent(QMouseEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
+  virtual ezEditorInut DoMouseMoveEvent(QMouseEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
+  virtual ezEditorInut DoWheelEvent(QWheelEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
 
 private:
   static ezEditorInputContext* s_pActiveInputContext;

@@ -12,16 +12,16 @@ class EZ_EDITORFRAMEWORK_DLL ezBoxGizmo : public ezGizmo
 public:
   ezBoxGizmo();
 
-  virtual void FocusLost(bool bCancel) override;
-
   void SetSize(const ezVec3& size);
 
   const ezVec3& GetSize() const { return m_vSize; }
 
 protected:
-  virtual ezEditorInut doMousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doMouseReleaseEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doMouseMoveEvent(QMouseEvent* e) override;
+  virtual void DoFocusLost(bool bCancel) override;
+
+  virtual ezEditorInut DoMousePressEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMouseReleaseEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMouseMoveEvent(QMouseEvent* e) override;
 
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
@@ -31,7 +31,7 @@ protected:
 private:
   ezTime m_LastInteraction;
 
-  ezVec2 m_MousePos;
+  ezVec2I32 m_LastMousePos;
 
   ezEngineGizmoHandle m_Corners;
   ezEngineGizmoHandle m_Edges[3];

@@ -21,8 +21,6 @@ class ezCameraMoveContext : public ezEditorInputContext
 public:
   ezCameraMoveContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, ezCameraMoveContextSettings* pSettings);
 
-  virtual void FocusLost(bool bCancel) override;
-
   void LoadState();
 
   void SetCamera(ezCamera* pCamera);
@@ -30,12 +28,14 @@ public:
   void SetOrbitPoint(const ezVec3& vPos);
 
 protected:
-  virtual ezEditorInut doKeyPressEvent(QKeyEvent* e) override;
-  virtual ezEditorInut doKeyReleaseEvent(QKeyEvent* e) override;
-  virtual ezEditorInut doMousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doMouseReleaseEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doMouseMoveEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doWheelEvent(QWheelEvent* e) override;
+  virtual void DoFocusLost(bool bCancel) override;
+
+  virtual ezEditorInut DoKeyPressEvent(QKeyEvent* e) override;
+  virtual ezEditorInut DoKeyReleaseEvent(QKeyEvent* e) override;
+  virtual ezEditorInut DoMousePressEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMouseReleaseEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMouseMoveEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoWheelEvent(QWheelEvent* e) override;
 
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override {}
 
@@ -44,14 +44,11 @@ private:
 
   void SetMoveSpeed(ezInt32 iSpeed);
   void ResetCursor();
-  void SetBlankCursor();
-  void SetCursorToWindowCenter(QPoint pos);
+  void SetCurrentMouseMode();
 
   ezCameraMoveContextSettings* m_pSettings;
 
-  QPoint m_LastMousePos;
-  QPoint m_OriginalMousePos;
-  bool m_bTempMousePosition;
+  ezVec2I32 m_LastMousePos;
 
   bool m_bRotateCamera;
   bool m_bMoveCamera;

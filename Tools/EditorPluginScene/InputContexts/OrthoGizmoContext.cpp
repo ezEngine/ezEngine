@@ -39,7 +39,7 @@ void ezOrthoGizmoContext::FocusLost(bool bCancel)
   ezEditorInputContext::FocusLost(bCancel);
 }
 
-ezEditorInut ezOrthoGizmoContext::doMousePressEvent(QMouseEvent* e)
+ezEditorInut ezOrthoGizmoContext::DoMousePressEvent(QMouseEvent* e)
 {
   if (!IsViewInOthoMode())
     return ezEditorInut::MayBeHandledByOthers;
@@ -55,7 +55,7 @@ ezEditorInut ezOrthoGizmoContext::doMousePressEvent(QMouseEvent* e)
   return ezEditorInut::MayBeHandledByOthers;
 }
 
-ezEditorInut ezOrthoGizmoContext::doMouseReleaseEvent(QMouseEvent* e)
+ezEditorInut ezOrthoGizmoContext::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
   {
@@ -72,12 +72,10 @@ ezEditorInut ezOrthoGizmoContext::doMouseReleaseEvent(QMouseEvent* e)
   return ezEditorInut::MayBeHandledByOthers;
 }
 
-ezEditorInut ezOrthoGizmoContext::doMouseMoveEvent(QMouseEvent* e)
+ezEditorInut ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
   {
-    SetMouseMode(ezEditorInputContext::MouseMode::WrapAtScreenBorders);
-
     float fDistPerPixel = 0;
 
     if (m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedHeight)
@@ -133,7 +131,7 @@ ezEditorInut ezOrthoGizmoContext::doMouseMoveEvent(QMouseEvent* e)
 
   if (m_bCanInteract)
   {
-    m_LastMousePos = ezVec2I32(e->globalX(), e->globalY());
+    m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::WrapAtScreenBorders);
     m_vTranslationResult.SetZero();
     m_vUnsnappedTranslationResult.SetZero();
     m_qRotationResult.SetIdentity();

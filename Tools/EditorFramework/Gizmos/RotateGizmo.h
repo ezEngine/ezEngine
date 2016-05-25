@@ -11,14 +11,14 @@ class EZ_EDITORFRAMEWORK_DLL ezRotateGizmo : public ezGizmo
 public:
   ezRotateGizmo();
 
-  virtual void FocusLost(bool bCancel) override;
-
   const ezQuat& GetRotationResult() const { return m_CurrentRotation; }
 
 protected:
-  virtual ezEditorInut doMousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doMouseReleaseEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doMouseMoveEvent(QMouseEvent* e) override;
+  virtual void DoFocusLost(bool bCancel) override;
+
+  virtual ezEditorInut DoMousePressEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMouseReleaseEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMouseMoveEvent(QMouseEvent* e) override;
 
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override;
   virtual void OnVisibleChanged(bool bVisible) override;
@@ -33,7 +33,7 @@ private:
   ezQuat m_CurrentRotation;
   ezAngle m_Rotation;
 
-  ezVec2 m_MousePos;
+  ezVec2I32 m_LastMousePos;
 
   ezTime m_LastInteraction;
   ezVec3 m_vMoveAxis;

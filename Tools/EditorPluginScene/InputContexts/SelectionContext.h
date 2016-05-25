@@ -17,12 +17,12 @@ public:
   }
 
 protected:
-  virtual ezEditorInut doMousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doMouseReleaseEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMousePressEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoMouseReleaseEvent(QMouseEvent* e) override;
 
-  virtual ezEditorInut doMouseMoveEvent(QMouseEvent* e) override;
-  virtual ezEditorInut doKeyPressEvent(QKeyEvent* e) override;
-  virtual ezEditorInut doKeyReleaseEvent(QKeyEvent* e) override;
+  virtual ezEditorInut DoMouseMoveEvent(QMouseEvent* e) override;
+  virtual ezEditorInut DoKeyPressEvent(QKeyEvent* e) override;
+  virtual ezEditorInut DoKeyReleaseEvent(QKeyEvent* e) override;
 
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override {}
 
