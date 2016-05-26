@@ -52,7 +52,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezSceneViewConfig
   ezCamera m_Camera;
   ezSceneViewConfig* m_pLinkedViewConfig; // used to store which other view config this is linked to, for resetting values when switching views
 
-  void ApplyPerspectiveSetting();
+  void ApplyPerspectiveSetting(float fov = 0.0f);
 };
 
 

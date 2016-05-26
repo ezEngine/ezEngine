@@ -12,6 +12,7 @@
 #include <EditorFramework/Gizmos/DragToPositionGizmo.h>
 #include <EditorPluginScene/Actions/GizmoActions.h>
 
+struct ezSceneViewPreferences;
 class QGridLayout;
 class ezQtSceneViewWidgetContainer;
 class ezQtSceneViewWidget;
@@ -70,9 +71,8 @@ private:
 
   void SendRedrawMsg();
 
-  void SetupDefaultViewConfigs();
-  void SaveViewConfig(QSettings& Settings, const ezSceneViewConfig& cfg, const char* szName) const;
-  void LoadViewConfig(QSettings& Settings, ezSceneViewConfig& cfg, const char* szName);
+  void SaveViewConfig(const ezSceneViewConfig& cfg, ezSceneViewPreferences& pref) const;
+  void LoadViewConfig(ezSceneViewConfig& cfg, ezSceneViewPreferences& pref);
   void SaveViewConfigs() const;
   void LoadViewConfigs();
   void CreateViews(bool bQuad);

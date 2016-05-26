@@ -241,12 +241,13 @@ void ezDocumentManager::CloseDocument(ezDocument* pDocument)
   if (!m_AllDocuments.Remove(pDocument))
     return;
 
-  pDocument->BroadcastSaveDocumentMetaState();
-
   Event e;
   e.m_pDocument = pDocument;
   e.m_Type = Event::Type::DocumentClosing;
   s_Events.Broadcast(e);
+
+  // do this after everyone was informed of the closing and thus wrote back all important state to the preferences
+  pDocument->BroadcastSaveDocumentMetaState();
   
   delete pDocument;
 
