@@ -15,14 +15,22 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
+  void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const;
+
   // ************************************* PROPERTIES ***********************************
 public:
 
-  float m_fRadius;
-  float m_fHeight;
+  void SetRadius(float value);
+  float GetRadius() const { return m_fRadius; }
+
+  void SetHeight(float value);
+  float GetHeight() const { return m_fHeight; }
 
 
 protected:
+
+  float m_fRadius;
+  float m_fHeight;
 
 
   // ************************************* FUNCTIONS *****************************

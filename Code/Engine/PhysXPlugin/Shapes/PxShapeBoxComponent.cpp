@@ -8,10 +8,15 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeBoxComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Extents", m_vExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
+    EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
   }
   EZ_END_PROPERTIES
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
+  }
+  EZ_END_MESSAGEHANDLERS
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezBoxManipulatorAttribute("Extents"),
     new ezBoxVisualizerAttribute("Extents"),
@@ -45,6 +50,23 @@ void ezPxShapeBoxComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_vExtents;
 
 
+}
+
+
+void ezPxShapeBoxComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
+{
+  msg.m_ResultingLocalBounds.ExpandToInclude(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f));
+}
+
+
+void ezPxShapeBoxComponent::SetExtents(const ezVec3& value)
+{
+  m_vExtents = ezVec3::ZeroVector().CompMax(value);
+
+  if (IsActiveAndInitialized())
+  {
+    GetOwner()->UpdateLocalBounds();
+  }
 }
 
 void ezPxShapeBoxComponent::AddToActor(PxRigidActor* pActor, const ezTransform& ParentTransform)

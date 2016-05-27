@@ -8,11 +8,16 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeCapsuleComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.1f, ezVariant())),
-    EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.1f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("Height", GetHeight, SetHeight)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
   }
   EZ_END_PROPERTIES
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
+  }
+  EZ_END_MESSAGEHANDLERS
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCapsuleManipulatorAttribute("Height", "Radius"),
     new ezCapsuleVisualizerAttribute("Height", "Radius"),
@@ -47,6 +52,34 @@ void ezPxShapeCapsuleComponent::DeserializeComponent(ezWorldReader& stream)
   auto& s = stream.GetStream();
   s >> m_fRadius;
   s >> m_fHeight;
+}
+
+
+void ezPxShapeCapsuleComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
+{
+  msg.m_ResultingLocalBounds.ExpandToInclude(ezBoundingSphere(ezVec3(0, 0, -m_fHeight * 0.5f), m_fRadius));
+  msg.m_ResultingLocalBounds.ExpandToInclude(ezBoundingSphere(ezVec3(0, 0, +m_fHeight * 0.5f), m_fRadius));
+}
+
+
+void ezPxShapeCapsuleComponent::SetRadius(float value)
+{
+  m_fRadius = ezMath::Max(0.0f, value);
+
+  if (IsActiveAndInitialized())
+  {
+    GetOwner()->UpdateLocalBounds();
+  }
+}
+
+void ezPxShapeCapsuleComponent::SetHeight(float value)
+{
+  m_fHeight = ezMath::Max(0.0f, value);
+
+  if (IsActiveAndInitialized())
+  {
+    GetOwner()->UpdateLocalBounds();
+  }
 }
 
 void ezPxShapeCapsuleComponent::AddToActor(PxRigidActor* pActor, const ezTransform& ParentTransform)

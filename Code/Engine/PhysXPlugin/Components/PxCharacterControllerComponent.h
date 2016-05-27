@@ -20,7 +20,10 @@ public:
 
   virtual void OnSimulationStarted() override;
 
+  virtual void Initialize() override;
   virtual void Deinitialize() override;
+
+  void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const;
 
   // ************************************* PROPERTIES ***********************************
 public:

@@ -49,6 +49,15 @@ void ezPxShapeComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_uiCollisionLayer;
 }
 
+
+void ezPxShapeComponent::Initialize()
+{
+  if (IsActive())
+  {
+    GetOwner()->UpdateLocalBounds();
+  }
+}
+
 void ezPxShapeComponent::SetSurfaceFile(const char* szFile)
 {
   if (!ezStringUtils::IsNullOrEmpty(szFile))

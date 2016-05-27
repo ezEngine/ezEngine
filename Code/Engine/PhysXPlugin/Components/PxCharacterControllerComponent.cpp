@@ -27,6 +27,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 1)
     EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezTriggerMessage, TriggerMessageHandler),
+    EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
   }
   EZ_END_MESSAGEHANDLERS
     EZ_BEGIN_ATTRIBUTES
@@ -101,6 +102,14 @@ void ezPxCharacterControllerComponent::DeserializeComponent(ezWorldReader& strea
   s >> m_RotateSpeed;
   s >> m_uiCollisionLayer;
   s >> m_fJumpImpulse;
+}
+
+void ezPxCharacterControllerComponent::Initialize()
+{
+  if (IsActive())
+  {
+    GetOwner()->UpdateLocalBounds();
+  }
 }
 
 void ezPxCharacterControllerComponent::Update()
@@ -304,6 +313,13 @@ void ezPxCharacterControllerComponent::Deinitialize()
     //m_pController->release();
     m_pController = nullptr;
   }
+}
+
+
+void ezPxCharacterControllerComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
+{
+  msg.m_ResultingLocalBounds.ExpandToInclude(ezBoundingSphere(ezVec3(0, 0, -m_fCapsuleHeight * 0.5f), m_fCapsuleRadius));
+  msg.m_ResultingLocalBounds.ExpandToInclude(ezBoundingSphere(ezVec3(0, 0,  m_fCapsuleHeight * 0.5f), m_fCapsuleRadius));
 }
 
 void ezPxCharacterControllerComponent::TriggerMessageHandler(ezTriggerMessage& msg)
