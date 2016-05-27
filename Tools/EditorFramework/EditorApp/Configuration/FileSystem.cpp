@@ -2,6 +2,28 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
 
+ezString ezQtEditorApp::FindFolderWithSubPath(const char* szStartDirectory, const char* szSubPath) const
+{
+  ezStringBuilder CurStartPath = szStartDirectory;
+  CurStartPath.MakeCleanPath();
+
+  ezStringBuilder FullPath;
+  
+  while (!CurStartPath.IsEmpty())
+  {
+    FullPath = CurStartPath;
+    FullPath.AppendPath(szSubPath);
+    FullPath.MakeCleanPath();
+
+    if (ezOSFile::ExistsDirectory(FullPath) || ezOSFile::ExistsFile(FullPath))
+      return CurStartPath;
+
+    CurStartPath.PathParentDirectory();
+  }
+
+  return ezString();
+}
+
 void ezQtEditorApp::AddPluginDataDirDependency(const char* szRelativePath)
 {
   ezStringBuilder sPath = szRelativePath;
@@ -48,7 +70,15 @@ void ezQtEditorApp::SetupDataDirectories()
   e.m_Type = ezEditorAppEvent::Type::BeforeApplyDataDirectories;
   m_Events.Broadcast(e);
 
-  ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency("../../Base");
+  ezStringBuilder sBaseDir = ezQtEditorApp::GetSingleton()->FindFolderWithSubPath(ezToolsProject::GetSingleton()->GetProjectDirectory(), "Data/Base");
+
+  if (!sBaseDir.IsEmpty())
+  {
+    sBaseDir.AppendPath("Data/Base");
+    sBaseDir.MakeRelativeTo(ezToolsProject::GetSingleton()->GetProjectDirectory());
+
+    ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(sBaseDir);
+  }
 
   // Make sure the project directory is always in the list of data directories
   {

@@ -36,7 +36,7 @@ void ToolsProjectEventHandler(const ezEditorAppEvent& e)
 {
   if (e.m_Type == ezEditorAppEvent::Type::BeforeApplyDataDirectories)
   {
-    ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency("../../Base");
+    //ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency("../../Base");
   }
 }
 

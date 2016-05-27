@@ -26,9 +26,9 @@ void ezQtEditorApp::GuiCreateOrOpenProject(bool bCreate)
   const char* szFilter = "ezProject (ezProject)";
 
   if (bCreate)
-    sFile = QFileDialog::getExistingDirectory(QApplication::activeWindow(), QLatin1String("Choose Folder for New Project"), sDir).toUtf8().data();
+    sFile = QFileDialog::getExistingDirectory(QApplication::activeWindow(), QLatin1String("Choose Folder for New Project"), sDir, QFileDialog::Option::DontResolveSymlinks).toUtf8().data();
   else
-    sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open Project"), sDir, QLatin1String(szFilter)).toUtf8().data();
+    sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open Project"), sDir, QLatin1String(szFilter), nullptr, QFileDialog::Option::DontResolveSymlinks).toUtf8().data();
 
   if (sFile.IsEmpty())
     return;

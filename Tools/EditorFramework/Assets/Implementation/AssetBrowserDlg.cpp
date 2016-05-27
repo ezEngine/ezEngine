@@ -95,7 +95,7 @@ void ezAssetBrowserDlg::on_ButtonFileDialog_clicked()
   m_sSelectedAssetPathRelative.Clear();
   m_sSelectedAssetPathAbsolute.Clear();
 
-  const QString sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open File"), sLastPath);
+  const QString sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open File"), sLastPath, QString(), nullptr, QFileDialog::Option::DontResolveSymlinks);
 
   if (sFile.isEmpty())
   {

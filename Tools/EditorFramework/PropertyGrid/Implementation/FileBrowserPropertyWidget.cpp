@@ -117,7 +117,7 @@ void ezQtFilePropertyWidget::on_BrowseFile_clicked()
   if (sStartDir.IsEmpty())
     sStartDir = ezToolsProject::GetSingleton()->GetProjectFile();
 
-  QString sResult = QFileDialog::getOpenFileName(this, pFileAttribute->GetDialogTitle(), sStartDir.GetData(), pFileAttribute->GetTypeFilter());
+  QString sResult = QFileDialog::getOpenFileName(this, pFileAttribute->GetDialogTitle(), sStartDir.GetData(), pFileAttribute->GetTypeFilter(), nullptr, QFileDialog::Option::DontResolveSymlinks);
 
   if (sResult.isEmpty())
     return;

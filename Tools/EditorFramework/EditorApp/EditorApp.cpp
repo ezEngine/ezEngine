@@ -37,8 +37,6 @@ ezInt32 ezQtEditorApp::RunEditor()
   return ret;
 }
 
-
-
 void ezQtEditorApp::SlotTimedUpdate()
 {
   if (ezEditorEngineProcessConnection::GetSingleton())
