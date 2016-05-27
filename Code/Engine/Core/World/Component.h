@@ -93,6 +93,13 @@ public:
   virtual void DeserializeComponent(ezWorldReader& stream) {}
 
 
+  /// \brief Ensures that the component is initialized.
+  void EnsureInitialized();
+
+  /// \brief Ensures that the OnSimulationStarted method has been called. Also ensures initialization first.
+  void EnsureSimulationStarted();
+
+
   /// \brief Sends a message to this component.
   void SendMessage(ezMessage& msg);
   void SendMessage(ezMessage& msg) const;
@@ -127,6 +134,9 @@ protected:
 
   /// \brief Returns whether this component is initialized. Internal method.
   bool IsInitialized() const;
+
+  /// \brief Returns whether this component is currently in the initialization process. Internal method.
+  bool IsInitializing() const;
 
   /// \brief This method is called when the component is attached to a game object. At this point the owner pointer is already set. A derived type can override this method to do additional work.
   virtual void OnAfterAttachedToObject() {}

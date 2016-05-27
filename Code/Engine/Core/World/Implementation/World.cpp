@@ -709,7 +709,11 @@ void ezWorld::ProcessComponentsToInitialize()
       pComponent->GetOwner()->UpdateGlobalTransform();
     }
 
+    pComponent->m_ComponentFlags.Add(ezObjectFlags::Initializing);
+
     pComponent->Initialize();
+
+    pComponent->m_ComponentFlags.Remove(ezObjectFlags::Initializing);
     pComponent->m_ComponentFlags.Add(ezObjectFlags::Initialized);
   }
 
@@ -727,7 +731,11 @@ void ezWorld::ProcessComponentsToInitialize()
       if (pComponent->IsSimulationStarted())
         continue;
 
+      pComponent->m_ComponentFlags.Add(ezObjectFlags::SimulationStarting);
+
       pComponent->OnSimulationStarted();
+
+      pComponent->m_ComponentFlags.Remove(ezObjectFlags::SimulationStarting);
       pComponent->m_ComponentFlags.Add(ezObjectFlags::SimulationStarted);
     }
 

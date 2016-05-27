@@ -78,7 +78,7 @@ const char* ezPointLightComponent::GetProjectedTextureFile() const
   return m_hProjectedTexture.GetResourceID();
 }
 
-void ezPointLightComponent::OnAfterAttachedToObject()
+void ezPointLightComponent::Initialize()
 {
   if (IsActive())
   {

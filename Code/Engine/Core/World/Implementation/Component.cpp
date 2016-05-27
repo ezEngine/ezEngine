@@ -48,6 +48,48 @@ ezComponentHandle ezComponent::GetHandle() const
   return ezComponentHandle(ezComponentId(m_InternalId, GetTypeId(), GetWorld()->GetIndex()));
 }
 
+
+void ezComponent::EnsureInitialized()
+{
+  if (IsInitializing())
+  {
+    ezLog::Error("Recursive initialize call is ignored.");
+    return;
+  }
+
+  if (!IsInitialized())
+  {
+    m_ComponentFlags.Add(ezObjectFlags::Initializing);
+
+    Initialize();
+
+    m_ComponentFlags.Remove(ezObjectFlags::Initializing);
+    m_ComponentFlags.Add(ezObjectFlags::Initialized);
+  }
+}
+
+
+void ezComponent::EnsureSimulationStarted()
+{
+  EnsureInitialized();
+
+  if (m_ComponentFlags.IsSet(ezObjectFlags::SimulationStarting))
+  {
+    ezLog::Error("Recursive simulation started call is ignored.");
+    return;
+  }
+
+  if (!IsSimulationStarted())
+  {
+    m_ComponentFlags.Add(ezObjectFlags::SimulationStarting);
+
+    OnSimulationStarted();
+
+    m_ComponentFlags.Remove(ezObjectFlags::SimulationStarting);
+    m_ComponentFlags.Add(ezObjectFlags::SimulationStarted);
+  }
+}
+
 void ezComponent::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType)
 {
   GetWorld()->PostMessage(GetHandle(), msg, queueType);

@@ -29,7 +29,7 @@ ezDirectionalLightComponent::ezDirectionalLightComponent()
 {
 }
 
-void ezDirectionalLightComponent::OnAfterAttachedToObject()
+void ezDirectionalLightComponent::Initialize()
 {
   if (IsActive())
   {

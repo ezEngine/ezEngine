@@ -26,7 +26,7 @@ class EZ_RENDERERCORE_DLL ezDirectionalLightComponent : public ezLightComponent
 public:
   ezDirectionalLightComponent();
 
-  virtual void OnAfterAttachedToObject() override;
+  virtual void Initialize() override;
   virtual void OnBeforeDetachedFromObject() override;
 
   void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const;

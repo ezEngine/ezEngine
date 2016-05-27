@@ -7,11 +7,7 @@
 
 EZ_BEGIN_COMPONENT_TYPE(ezPxFixedJointComponent, 1);
 {
-  EZ_BEGIN_MESSAGEHANDLERS
-  {
-    EZ_MESSAGE_HANDLER(ezCallDelayedStartMessage, OnDelayedSimulationStarted),
-  }
-  EZ_END_MESSAGEHANDLERS
+
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -40,11 +36,6 @@ void ezPxFixedJointComponent::DeserializeComponent(ezWorldReader& stream)
 }
 
 void ezPxFixedJointComponent::OnSimulationStarted()
-{
-  PostMessage(ezCallDelayedStartMessage(), ezObjectMsgQueueType::NextFrame);
-}
-
-void ezPxFixedJointComponent::OnDelayedSimulationStarted(ezCallDelayedStartMessage& msg)
 {
   PxFixedJoint* pJoint = static_cast<PxFixedJoint*>(SetupJoint());
 

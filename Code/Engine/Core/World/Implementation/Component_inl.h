@@ -72,13 +72,13 @@ EZ_FORCE_INLINE void ezComponent::SetEditorPickingID(ezUInt32 uiEditorPickingID)
 
 EZ_FORCE_INLINE void ezComponent::SendMessage(ezMessage& msg)
 {
-  if (IsActiveAndInitialized())
+  if (IsActiveAndInitialized() || IsInitializing())
     GetDynamicRTTI()->DispatchMessage(this, msg);
 }
 
 EZ_FORCE_INLINE void ezComponent::SendMessage(ezMessage& msg) const
 {
-  if (IsActiveAndInitialized())
+  if (IsActiveAndInitialized() || IsInitializing())
     GetDynamicRTTI()->DispatchMessage(this, msg);
 }
 
@@ -92,3 +92,10 @@ EZ_FORCE_INLINE bool ezComponent::IsInitialized() const
 {
   return m_ComponentFlags.IsSet(ezObjectFlags::Initialized);
 }
+
+EZ_FORCE_INLINE bool ezComponent::IsInitializing() const
+{
+  return m_ComponentFlags.IsSet(ezObjectFlags::Initializing);
+}
+
+

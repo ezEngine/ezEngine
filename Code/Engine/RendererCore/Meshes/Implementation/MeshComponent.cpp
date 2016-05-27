@@ -44,7 +44,7 @@ void ezMeshComponent::SetMesh(const ezMeshResourceHandle& hMesh)
   }
 }
 
-void ezMeshComponent::OnAfterAttachedToObject()
+void ezMeshComponent::Initialize()
 {
   if (IsActive() && m_hMesh.IsValid())
   {

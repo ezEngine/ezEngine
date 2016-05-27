@@ -38,7 +38,7 @@ public:
   void SetProjectedTextureFile(const char* szFile);
   const char* GetProjectedTextureFile() const;
 
-  virtual void OnAfterAttachedToObject() override;
+  virtual void Initialize() override;
   virtual void OnBeforeDetachedFromObject() override;
 
   void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const;

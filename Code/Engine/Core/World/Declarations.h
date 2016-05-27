@@ -136,7 +136,9 @@ struct ezObjectFlags
     Dynamic = EZ_BIT(0),
     Active  = EZ_BIT(1),
     Initialized = EZ_BIT(2),
-    SimulationStarted = EZ_BIT(3),
+    Initializing = EZ_BIT(3),
+    SimulationStarted = EZ_BIT(4),
+    SimulationStarting = EZ_BIT(5),
 
     Default = Dynamic | Active
   };
@@ -146,7 +148,9 @@ struct ezObjectFlags
     StorageType Dynamic : 1;
     StorageType Active : 1;
     StorageType Initialized : 1;
+    StorageType Initializing : 1;
     StorageType SimulationStarted : 1;
+    StorageType SimulationStarting : 1;
   };
 };
 

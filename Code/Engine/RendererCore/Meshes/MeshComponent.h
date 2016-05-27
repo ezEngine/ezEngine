@@ -54,7 +54,7 @@ public:
     m_RenderDataCategory = category;
   }
 
-  virtual void OnAfterAttachedToObject() override;
+  virtual void Initialize() override;
   virtual void OnBeforeDetachedFromObject() override;
 
   void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const;
