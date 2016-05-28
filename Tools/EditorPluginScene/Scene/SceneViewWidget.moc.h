@@ -31,14 +31,7 @@ protected:
   virtual void dragMoveEvent(QDragMoveEvent* e) override;
   virtual void dropEvent(QDropEvent* e) override;
 
-  //void CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue);
-  //void MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPosition);
-  //void MoveDraggedObjectsToPosition(ezVec3 vPosition);
-  //void CreatePrefab(const ezVec3& vPosition, const ezUuid& AssetGuid);
-
   bool m_bAllowPickSelectedWhileDragging;
-  ezString m_sDragMaterial;
-  //ezHybridArray<ezUuid, 16> m_DraggedObjects;
   ezTime m_LastDragMoveEvent;
 };
 

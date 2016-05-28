@@ -669,14 +669,14 @@ ezEditorInut ezCameraMoveContext::DoWheelEvent(QWheelEvent* e)
     //if (e->modifiers() == Qt::KeyboardModifier::AltModifier)
     //  fBoost *= 1.0f / fBoostFactor;
 
+    float fNewDim = 20.0f;
+
     if (e->delta() > 0)
-    {
-      m_pCamera->SetCameraMode(m_pCamera->GetCameraMode(), m_pCamera->GetFovOrDim() * ezMath::Pow(1.0f / fTick, fBoost), m_pCamera->GetNearPlane(), m_pCamera->GetFarPlane());
-    }
+      fNewDim = m_pCamera->GetFovOrDim() * ezMath::Pow(1.0f / fTick, fBoost);
     else
-    {
-      m_pCamera->SetCameraMode(m_pCamera->GetCameraMode(), m_pCamera->GetFovOrDim() * ezMath::Pow(fTick, fBoost), m_pCamera->GetNearPlane(), m_pCamera->GetFarPlane());
-    }
+      fNewDim = m_pCamera->GetFovOrDim() * ezMath::Pow(fTick, fBoost);
+
+    m_pCamera->SetCameraMode(m_pCamera->GetCameraMode(), fNewDim, m_pCamera->GetNearPlane(), m_pCamera->GetFarPlane());
 
     // handled, independent of whether we are the active context or not
     return ezEditorInut::WasExclusivelyHandled;

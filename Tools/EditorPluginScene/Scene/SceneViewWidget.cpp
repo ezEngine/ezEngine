@@ -71,8 +71,8 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
   // can only drag & drop objects around in perspective mode
   // when dragging between two windows, the editor crashes
   // can be reproduced with two perspective windows as well
-  if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
-    return;
+  //if (m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
+    //return;
 
   m_LastDragMoveEvent = ezTime::Now();
   m_bAllowPickSelectedWhileDragging = false;

@@ -61,6 +61,20 @@ void ezPickingRenderPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipeli
 
 static ezHashTable<ezGameObjectHandle, ezUInt32> s_SelectionSet;
 
+/*
+static void CopyMatD(ezMat4d& dst, ezMat4& src)
+{
+  for (ezUInt32 i = 0; i < 16; ++i)
+    dst.m_fElementsCM[i] = (double)src.m_fElementsCM[i];
+}
+
+static void CopyMatF(ezMat4& dst, ezMat4d& src)
+{
+  for (ezUInt32 i = 0; i < 16; ++i)
+    dst.m_fElementsCM[i] = (float)src.m_fElementsCM[i];
+}
+*/
+
 void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
   const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
@@ -160,6 +174,23 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
         if (mProj.IsNaN())
           return;
 
+        // Double precision version
+        /*
+        {
+          ezMat4d dView, dProj, dMVP;
+          CopyMatD(dView, mView);
+          CopyMatD(dProj, mProj);
+
+          dMVP = dProj * dView;
+          auto res = dMVP.Invert(0.00000001);
+
+          if (res.Failed())
+            ezLog::Debug("Inversion of View-Projection-Matrix failed. Picking results will be wrong.");
+
+          m_PickingInverseViewProjectionMatrix = dMVP;
+        }
+        */
+
         m_PickingInverseViewProjectionMatrix = (mProj * mView).GetInverse();
 
         m_PickingResultsDepth.Clear();
@@ -189,6 +220,23 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
       if (mProj.IsNaN())
         return;
+
+      // Double precision version
+      /*
+      {
+        ezMat4d dView, dProj, dMVP;
+        CopyMatD(dView, mView);
+        CopyMatD(dProj, mProj);
+
+        dMVP = dProj * dView;
+        auto res = dMVP.Invert(0.00000001);
+
+        if (res.Failed())
+          ezLog::Debug("Inversion of View-Projection-Matrix failed. Picking results will be wrong.");
+
+        m_PickingInverseViewProjectionMatrix = dMVP;
+      }
+      */
 
       m_PickingInverseViewProjectionMatrix = (mProj * mView).GetInverse();
 

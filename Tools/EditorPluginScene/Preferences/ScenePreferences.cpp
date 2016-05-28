@@ -48,7 +48,7 @@ ezScenePreferencesUser::ezScenePreferencesUser() : ezPreferences(Domain::Documen
   // Top Left: Top Down
   m_ViewQuad0.m_vCamPos.SetZero();
   m_ViewQuad0.m_vCamDir.Set(0, 0, -1);
-  m_ViewQuad0.m_vCamUp.Set(0, -1, 0);
+  m_ViewQuad0.m_vCamUp.Set(1, 0, 0);
   m_ViewQuad0.m_uiPerspectiveMode = ezSceneViewPerspective::Orthogonal_Top;
   m_ViewQuad0.m_uiRenderMode = ezViewRenderMode::WireframeMonochrome;
   m_ViewQuad0.m_fFov = 20.0f;
@@ -61,9 +61,9 @@ ezScenePreferencesUser::ezScenePreferencesUser() : ezPreferences(Domain::Documen
   m_ViewQuad1.m_uiRenderMode = ezViewRenderMode::Default;
   m_ViewQuad1.m_fFov = 90.0f;
 
-  // Bottom Left: Front to Back
+  // Bottom Left: Back to Front
   m_ViewQuad2.m_vCamPos.SetZero();
-  m_ViewQuad2.m_vCamDir.Set(-1, 0, 0);
+  m_ViewQuad2.m_vCamDir.Set(1, 0, 0);
   m_ViewQuad2.m_vCamUp.Set(0, 0, 1);
   m_ViewQuad2.m_uiPerspectiveMode = ezSceneViewPerspective::Orthogonal_Front;
   m_ViewQuad2.m_uiRenderMode = ezViewRenderMode::WireframeMonochrome;

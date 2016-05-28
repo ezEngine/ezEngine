@@ -5,6 +5,8 @@
 
 void ezSceneViewConfig::ApplyPerspectiveSetting(float fov)
 {
+  const float fOrthoRange = 1000.0f;
+
   switch (m_Perspective)
   {
   case ezSceneViewPerspective::Perspective:
@@ -15,22 +17,22 @@ void ezSceneViewConfig::ApplyPerspectiveSetting(float fov)
 
   case ezSceneViewPerspective::Orthogonal_Front:
     {
-      m_Camera.SetCameraMode(ezCameraMode::OrthoFixedHeight, fov == 0.0f ? 20.0f : fov, -10000.0f, 10000.0f);
-      m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + ezVec3(-1, 0, 0), ezVec3(0, 0, 1));
+      m_Camera.SetCameraMode(ezCameraMode::OrthoFixedHeight, fov == 0.0f ? 20.0f : fov, -fOrthoRange, fOrthoRange);
+      m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + ezVec3(1, 0, 0), ezVec3(0, 0, 1));
     }
     break;
 
   case ezSceneViewPerspective::Orthogonal_Right:
     {
-      m_Camera.SetCameraMode(ezCameraMode::OrthoFixedHeight, fov == 0.0f ? 20.0f : fov, -10000.0f, 10000.0f);
+      m_Camera.SetCameraMode(ezCameraMode::OrthoFixedHeight, fov == 0.0f ? 20.0f : fov, -fOrthoRange, fOrthoRange);
       m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + ezVec3(0, -1, 0), ezVec3(0, 0, 1));
     }
     break;
 
   case ezSceneViewPerspective::Orthogonal_Top:
     {
-      m_Camera.SetCameraMode(ezCameraMode::OrthoFixedHeight, fov == 0.0f ? 20.0f : fov, -10000.0f, 10000.0f);
-      m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + ezVec3(0, 0, -1), ezVec3(0, -1, 0));
+      m_Camera.SetCameraMode(ezCameraMode::OrthoFixedHeight, fov == 0.0f ? 20.0f : fov, -fOrthoRange, fOrthoRange);
+      m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + ezVec3(0, 0, -1), ezVec3(1, 0, 0));
     }
     break;
   }

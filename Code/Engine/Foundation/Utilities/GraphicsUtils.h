@@ -38,6 +38,9 @@ namespace ezGraphicsUtils
   /// even on platforms that use [-1; +1] range for clip-space z values. The DepthRange parameter needs to be correct to handle this case
   /// properly.
   EZ_FOUNDATION_DLL ezResult ConvertScreenPosToWorldPos(const ezMat4& InverseModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint, ezVec3* out_vDirection = nullptr, ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default); // [tested]
+
+
+  EZ_FOUNDATION_DLL ezResult ConvertScreenPosToWorldPos(const ezMat4d& InverseModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint, ezVec3* out_vDirection = nullptr, ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default);
 }
 
 
