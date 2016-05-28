@@ -62,7 +62,7 @@ ezStatus ezSceneDocument::CreatePrefabDocument(const char* szFile, const ezDocum
   auto pPrefabGraphMainNode = writer.AddObjectToGraph(pSaveAsPrefab);
 
   PrefabGraph.ReMapNodeGuids(invPrefabSeed, true);
-  
+
   ezDocument* pSceneDocument = nullptr;
 
   {
@@ -232,11 +232,10 @@ void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid
       ezAbstractGraphJsonSerializer::Read(stringReader, &graphNewPrefab);
     }
 
-    // copy the header, to be able to insert it into the result later
-    auto pHeader = graphNewPrefab.GetNodeByName("Header");
+    // remove the header
     {
+      auto pHeader = graphNewPrefab.GetNodeByName("Header");
       EZ_ASSERT_DEBUG(pHeader, "header is missing");
-      graphHeader.CopyNodeIntoGraph(pHeader);
       graphNewPrefab.RemoveNode(pHeader->GetGuid());
     }
 
@@ -273,7 +272,7 @@ void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid
       }
     }
 
-    
+
     ezDeque<ezAbstractGraphDiffOperation> InstanceToBase;
     graphCurrentInstance.CreateDiffWithBaseGraph(graphBasePrefab, InstanceToBase);
     ezDeque<ezAbstractGraphDiffOperation> TemplateToBase;
@@ -343,5 +342,5 @@ void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid
     m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
   }
 
-  
+
 }

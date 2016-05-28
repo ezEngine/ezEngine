@@ -100,14 +100,29 @@ bool ezPhantomRttiManager::UnregisterType(const ezRTTI* pRtti)
 // ezPhantomRttiManager private functions
 ////////////////////////////////////////////////////////////////////////
 
+void ezPhantomRttiManager::PluginEventHandler(const ezPlugin::PluginEvent& e)
+{
+  if (e.m_EventType == ezPlugin::PluginEvent::Type::BeforeUnloading)
+  {
+    while (!m_NameToPhantom.IsEmpty())
+    {
+      UnregisterType(m_NameToPhantom.GetIterator().Value());
+    }
+
+    EZ_ASSERT_DEV(m_NameToPhantom.IsEmpty(), "ezPhantomRttiManager::Shutdown: Removal of types failed!");
+  }
+}
+
 void ezPhantomRttiManager::Startup()
 {
-
+  ezPlugin::s_PluginEvents.AddEventHandler(&ezPhantomRttiManager::PluginEventHandler);
 }
 
 
 void ezPhantomRttiManager::Shutdown()
 {
+  ezPlugin::s_PluginEvents.RemoveEventHandler(&ezPhantomRttiManager::PluginEventHandler);
+
   while (!m_NameToPhantom.IsEmpty())
   {
     UnregisterType(m_NameToPhantom.GetIterator().Value());

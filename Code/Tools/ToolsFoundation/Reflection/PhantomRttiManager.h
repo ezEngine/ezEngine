@@ -50,6 +50,7 @@ private:
 
   static void Startup();
   static void Shutdown();
+  static void PluginEventHandler(const ezPlugin::PluginEvent& e);
 
 public:
 

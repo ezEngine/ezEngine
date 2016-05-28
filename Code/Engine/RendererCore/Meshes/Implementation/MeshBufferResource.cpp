@@ -395,8 +395,9 @@ ezResourceLoadDesc ezMeshBufferResource::CreateResource(const ezMeshBufferResour
   m_hVertexBuffer = ezGALDevice::GetDefaultDevice()->CreateVertexBuffer(descriptor.GetVertexDataSize(), descriptor.GetVertexCount(), descriptor.GetVertexBufferData().GetData());
 
   if (descriptor.HasIndexBuffer())
-    m_hIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort, descriptor.GetPrimitiveCount() * 3, &(descriptor.GetIndexBufferData()[0]));
-
+  {
+    m_hIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort, descriptor.GetPrimitiveCount() * ezGALPrimitiveTopology::VerticesPerPrimitive(descriptor.GetTopology()), &(descriptor.GetIndexBufferData()[0]));
+  }
   m_uiPrimitiveCount = descriptor.GetPrimitiveCount();
   m_Topology = descriptor.GetTopology();
 
