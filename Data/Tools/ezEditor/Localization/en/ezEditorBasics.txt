@@ -11,6 +11,7 @@ Project.DataDirectories;D&ata Directories
 Project.InputConfig;&Input Configuration
 Settings.Open;S&ettings
 Engine.ReloadResources;Reload Resources
+Engine.ReloadEngine;Reload Engine
 Document.Save;&Save
 Document.SaveAll;Save All
 Document.SaveAs;Save &As...

@@ -40,6 +40,7 @@ public:
   static ezActionDescriptorHandle s_hToolsMenu;
   static ezActionDescriptorHandle s_hToolsCategory;
   static ezActionDescriptorHandle s_hReloadResources;
+  static ezActionDescriptorHandle s_hReloadEngine;
 };
 
 ///
@@ -75,6 +76,7 @@ public:
     OpenProject,
     CloseProject,
     ReloadResources,
+    ReloadEngine,
     Shortcuts,
     EditorPlugins,
     DataDirectories,

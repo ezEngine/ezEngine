@@ -44,6 +44,7 @@ ezActionDescriptorHandle ezProjectActions::s_hTagsDlg;
 ezActionDescriptorHandle ezProjectActions::s_hToolsMenu;
 ezActionDescriptorHandle ezProjectActions::s_hToolsCategory;
 ezActionDescriptorHandle ezProjectActions::s_hReloadResources;
+ezActionDescriptorHandle ezProjectActions::s_hReloadEngine;
 
 void ezProjectActions::RegisterActions()
 {
@@ -76,6 +77,7 @@ void ezProjectActions::RegisterActions()
   s_hToolsMenu = EZ_REGISTER_MENU("Menu.Tools");
   s_hToolsCategory = EZ_REGISTER_CATEGORY("ToolsCategory");
   s_hReloadResources = EZ_REGISTER_ACTION_1("Engine.ReloadResources", ezActionScope::Global, "Engine", "F4", ezProjectAction, ezProjectAction::ButtonType::ReloadResources);
+  s_hReloadEngine = EZ_REGISTER_ACTION_1("Engine.ReloadEngine", ezActionScope::Global, "Engine", "Ctrl+Shift+F4", ezProjectAction, ezProjectAction::ButtonType::ReloadEngine);
 }
 
 void ezProjectActions::UnregisterActions()
@@ -96,6 +98,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hToolsMenu);
   ezActionManager::UnregisterAction(s_hToolsCategory);
   ezActionManager::UnregisterAction(s_hReloadResources);
+  ezActionManager::UnregisterAction(s_hReloadEngine);
   ezActionManager::UnregisterAction(s_hShortcutEditor);
   ezActionManager::UnregisterAction(s_hEditorPlugins);
   ezActionManager::UnregisterAction(s_hEnginePlugins);
@@ -130,6 +133,7 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hToolsMenu, "", 4.5f);
   pMap->MapAction(s_hToolsCategory, "Menu.Tools", 1.0f);
   pMap->MapAction(s_hReloadResources, "Menu.Tools/ToolsCategory", 1.0f);
+  pMap->MapAction(s_hReloadEngine, "Menu.Tools/ToolsCategory", 2.0f);
 
   pMap->MapAction(s_hEditorPlugins, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 1.0f);
   pMap->MapAction(s_hShortcutEditor, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 2.0f);
@@ -274,6 +278,9 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
   case ezProjectAction::ButtonType::ReloadResources:
     SetIconPath(":/GuiFoundation/Icons/ReloadResources16.png");
     break;
+  case ezProjectAction::ButtonType::ReloadEngine:
+    SetIconPath(":/GuiFoundation/Icons/ReloadEngine16.png");
+    break;
   case ezProjectAction::ButtonType::DataDirectories:
     SetIconPath(":/EditorFramework/Icons/DataDirectories16.png");
     break;
@@ -417,6 +424,12 @@ void ezProjectAction::Execute(const ezVariant& value)
       {
         m_Context.m_pDocument->ShowDocumentStatus("Reloading Resources");
       }
+    }
+    break;
+
+  case ezProjectAction::ButtonType::ReloadEngine:
+    {
+      ezEditorEngineProcessConnection::GetSingleton()->RestartProcess();
     }
     break;
   }

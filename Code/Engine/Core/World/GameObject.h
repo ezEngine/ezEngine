@@ -162,6 +162,9 @@ public:
   const ezWorld* GetWorld() const;
 
 
+  /// \brief Changes the position of the object local to its parent.
+  /// \note The rotation of the object itself does not affect the final global position!
+  /// The local position is always in the space of the parent object. If there is no parent, local position and global position are identical.
   void SetLocalPosition(const ezVec3& position);
   const ezVec3& GetLocalPosition() const;
 
