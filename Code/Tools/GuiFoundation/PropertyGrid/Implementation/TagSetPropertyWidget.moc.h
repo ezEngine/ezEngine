@@ -19,6 +19,9 @@ public:
   virtual void SetSelection(const ezHybridArray<Selection, 8>& items) override;
   virtual bool HasLabel() const override { return true; }
 
+protected:
+  virtual void DoPrepareToDie() override {}
+
 private slots:
   void on_Menu_aboutToShow();
   void onCheckBoxClicked(bool bChecked);

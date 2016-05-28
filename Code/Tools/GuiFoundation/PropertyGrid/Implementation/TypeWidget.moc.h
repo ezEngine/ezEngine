@@ -22,6 +22,7 @@ public:
   const ezHybridArray<ezQtPropertyWidget::Selection, 8>& GetSelection() const { return m_Items; }
   const ezRTTI* GetType() const { return m_pType; }
   const ezPropertyPath& GetPropertyPath() const { return m_ParentPath; }
+  void PrepareToDie();
 
 private:
   void BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath);
@@ -37,6 +38,7 @@ private:
   void UpdatePropertyMetaState();
 
 private:
+  bool m_bUndead;
   ezPropertyGridWidget* m_pGrid;
   const ezRTTI* m_pType;
   ezPropertyPath m_ParentPath;

@@ -623,15 +623,15 @@ void ezSceneDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Sele
 
   for (auto pObject : Selection)
   {
-    auto pMetaScene = m_SceneObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
+    
     auto pMetaDoc = m_DocumentObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
-
-    pMetaScene->m_CachedNodeName.Clear();
     pMetaDoc->m_CreateFromPrefab = ezUuid();
     pMetaDoc->m_PrefabSeedGuid = ezUuid();
     pMetaDoc->m_sBasePrefab.Clear();
-
     m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
+
+    auto pMetaScene = m_SceneObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
+    pMetaScene->m_CachedNodeName.Clear();
     m_SceneObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::CachedName);
   }
 

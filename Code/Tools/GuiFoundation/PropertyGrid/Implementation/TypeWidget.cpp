@@ -18,6 +18,7 @@
 ezTypeWidget::ezTypeWidget(QWidget* pParent, ezPropertyGridWidget* pGrid, const ezRTTI* pType, ezPropertyPath& parentPath)
   : QWidget(pParent)
 {
+  m_bUndead = false;
   m_pGrid = pGrid;
   m_pType = pType;
   m_ParentPath = parentPath;
@@ -75,6 +76,20 @@ void ezTypeWidget::SetSelection(const ezHybridArray<ezQtPropertyWidget::Selectio
   e.m_pManipulator = ezManipulatorManager::GetSingleton()->GetActiveManipulator(e.m_pDocument, e.m_pSelection);
   e.m_bHideManipulators = false; // irrelevant for this
   ManipulatorManagerEventHandler(e);
+}
+
+
+void ezTypeWidget::PrepareToDie()
+{
+  if (!m_bUndead)
+  {
+    m_bUndead = true;
+
+    for (auto it = m_PropertyWidgets.GetIterator(); it.IsValid(); ++it)
+    {
+      it.Value().m_pWidget->PrepareToDie();
+    }
+  }
 }
 
 void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath, const ezMap<ezString, const ezManipulatorAttribute*>& manipulatorMap)
@@ -175,15 +190,20 @@ void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath)
 
 void ezTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
 {
+  if (m_bUndead)
+    return;
+
   switch (ed.m_Type)
   {
   case  ezQtPropertyWidget::Event::Type::ValueChanged:
     {
+      auto history = m_pGrid->GetDocument()->GetCommandHistory();
+
       ezSetObjectPropertyCommand cmd;
       cmd.m_NewValue = ed.m_Value;
       cmd.SetPropertyPath(ed.m_pPropertyPath->GetPathString());
 
-      m_pGrid->GetDocument()->GetCommandHistory()->StartTransaction();
+      history->StartTransaction();
 
       ezStatus res;
 
@@ -192,16 +212,16 @@ void ezTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
         cmd.m_Object = sel.m_pObject->GetGuid();
         cmd.m_Index = sel.m_Index;
 
-        res = m_pGrid->GetDocument()->GetCommandHistory()->AddCommand(cmd);
+        res = history->AddCommand(cmd);
 
         if (res.m_Result.Failed())
           break;
       }
 
       if (res.m_Result.Failed())
-        m_pGrid->GetDocument()->GetCommandHistory()->CancelTransaction();
+        history->CancelTransaction();
       else
-        m_pGrid->GetDocument()->GetCommandHistory()->FinishTransaction();
+        history->FinishTransaction();
 
       ezUIServices::GetSingleton()->MessageBoxStatus(res, "Changing the property failed.");
 
@@ -230,11 +250,17 @@ void ezTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
 
 void ezTypeWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
+  if (m_bUndead)
+    return;
+
   UpdateProperty(e.m_pObject, e.m_sPropertyPath);
 }
 
 void ezTypeWidget::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
 {
+  if (m_bUndead)
+    return;
+
   switch (e.m_Type)
   {
   case ezCommandHistoryEvent::Type::UndoEnded:
@@ -251,6 +277,9 @@ void ezTypeWidget::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
 
 void ezTypeWidget::ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e)
 {
+  if (m_bUndead)
+    return;
+
   if (m_pGrid->GetDocument() != e.m_pDocument)
     return;
 

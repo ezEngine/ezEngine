@@ -67,16 +67,24 @@ public:
   virtual const char* GetLabel() const { return m_pProp->GetPropertyName(); }
 
   static const ezRTTI* GetCommonBaseType(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items);
+
+  void PrepareToDie();
   
 protected:
   void Broadcast(Event::Type type);
   virtual void OnInit() = 0;
+  bool IsUndead() const { return m_bUndead; }
 
 protected:
+  virtual void DoPrepareToDie() = 0;
+
   ezPropertyGridWidget* m_pGrid;
   const ezAbstractProperty* m_pProp;
   ezPropertyPath m_PropertyPath;
   ezHybridArray<Selection, 8> m_Items;
+
+private:
+  bool m_bUndead;
 };
 
 
@@ -89,6 +97,7 @@ public:
 
 protected:
   virtual void OnInit() override;
+  virtual void DoPrepareToDie() override {}
 
   QHBoxLayout* m_pLayout;
   QLabel* m_pWidget;
@@ -107,6 +116,7 @@ public:
 
 protected:
   void BroadcastValueChanged(const ezVariant& NewValue);
+  virtual void DoPrepareToDie() {}
 
   const ezVariant& GetOldValue() const { return m_OldValue; }
   virtual void InternalSetValue(const ezVariant& value) = 0;
@@ -127,8 +137,10 @@ public:
   virtual void SetSelection(const ezHybridArray<Selection, 8>& items) override;
   virtual bool HasLabel() const override { return false; }
 
+
 protected:
   virtual void OnInit() override;
+  virtual void DoPrepareToDie() override;
 
 protected:
   QHBoxLayout* m_pLayout;
@@ -148,12 +160,14 @@ public:
   virtual void SetSelection(const ezHybridArray<Selection, 8>& items) override;
   virtual bool HasLabel() const override { return false; }
 
+
 public slots:
   void OnDeleteButtonClicked();
 
 protected:
   virtual void OnInit() override;
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
+  virtual void DoPrepareToDie() override;
 
 protected:
   QHBoxLayout* m_pLayout;
@@ -175,6 +189,7 @@ public:
 
   virtual void SetSelection(const ezHybridArray<Selection, 8>& items) override;
   virtual bool HasLabel() const override { return false; }
+
 
 public slots:
   void OnElementButtonClicked();
@@ -200,6 +215,7 @@ protected:
   
   void DeleteItems(ezHybridArray<Selection, 8>& items, const ezPropertyPath& path);
   void MoveItems(ezHybridArray<Selection, 8>& items, const ezPropertyPath& path, ezInt32 iMove);
+  virtual void DoPrepareToDie() override;
 
 protected:
   QHBoxLayout* m_pLayout;

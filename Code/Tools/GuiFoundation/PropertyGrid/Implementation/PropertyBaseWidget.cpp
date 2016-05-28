@@ -22,6 +22,7 @@
 /// *** BASE ***
 ezQtPropertyWidget::ezQtPropertyWidget() : QWidget(nullptr), m_pGrid(nullptr), m_pProp(nullptr)
 {
+  m_bUndead = false;
   setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
 }
 
@@ -63,6 +64,16 @@ const ezRTTI* ezQtPropertyWidget::GetCommonBaseType(const ezHybridArray<ezQtProp
   }
 
   return pSubtype;
+}
+
+
+void ezQtPropertyWidget::PrepareToDie()
+{
+  EZ_ASSERT_DEBUG(!m_bUndead, "Object has already been marked for cleanup");
+
+  m_bUndead = true;
+
+  DoPrepareToDie();
 }
 
 void ezQtPropertyWidget::Broadcast(Event::Type type)
@@ -256,6 +267,15 @@ void ezQtPropertyPointerWidget::SetSelection(const ezHybridArray<Selection, 8>& 
   }
 }
 
+
+void ezQtPropertyPointerWidget::DoPrepareToDie()
+{
+  if (m_pTypeWidget)
+  {
+    m_pTypeWidget->PrepareToDie();
+  }
+}
+
 void ezQtPropertyPointerWidget::OnDeleteButtonClicked()
 {
   ezCommandHistory* history = m_pGrid->GetDocument()->GetObjectManager()->GetDocument()->GetCommandHistory();
@@ -282,6 +302,9 @@ void ezQtPropertyPointerWidget::OnDeleteButtonClicked()
 
 void ezQtPropertyPointerWidget::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
+  if (IsUndead())
+    return;
+
   switch (e.m_EventType)
   {
   case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
@@ -293,8 +316,8 @@ void ezQtPropertyPointerWidget::StructureEventHandler(const ezDocumentObjectStru
         return;
 
       if (std::none_of(cbegin(m_Items), cend(m_Items),
-        [&](const ezQtPropertyWidget::Selection& sel) { return e.m_pNewParent == sel.m_pObject || e.m_pPreviousParent == sel.m_pObject; }
-        ))
+                       [&](const ezQtPropertyWidget::Selection& sel) { return e.m_pNewParent == sel.m_pObject || e.m_pPreviousParent == sel.m_pObject; }
+      ))
         return;
 
       SetSelection(m_Items);
@@ -374,6 +397,15 @@ void ezQtPropertyTypeWidget::SetSelection(const ezHybridArray<Selection, 8>& ite
   pLayout->addWidget(m_pTypeWidget);
 }
 
+
+void ezQtPropertyTypeWidget::DoPrepareToDie()
+{
+  if (m_pTypeWidget)
+  {
+    m_pTypeWidget->PrepareToDie();
+  }
+}
+
 /// *** ezQtPropertyContainerWidget ***
 
 ezQtPropertyContainerWidget::ezQtPropertyContainerWidget()
@@ -407,6 +439,15 @@ void ezQtPropertyContainerWidget::SetSelection(const ezHybridArray<Selection, 8>
   if (m_pAddButton)
   {
     m_pAddButton->SetSelection(m_Items);
+  }
+}
+
+
+void ezQtPropertyContainerWidget::DoPrepareToDie()
+{
+  for (const auto& e : m_Elements)
+  {
+    e.m_pWidget->PrepareToDie();
   }
 }
 
@@ -716,6 +757,9 @@ void ezQtPropertyStandardTypeContainerWidget::UpdateElement(ezUInt32 index)
 
 void ezQtPropertyStandardTypeContainerWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
 {
+  if (IsUndead())
+    return;
+
   // Forward from child widget to parent ezTypeWidget.
   m_Events.Broadcast(ed);
 }
@@ -776,6 +820,9 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
 
 void ezQtPropertyTypeContainerWidget::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
+  if (IsUndead())
+    return;
+
   switch (e.m_EventType)
   {
   case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
@@ -787,8 +834,8 @@ void ezQtPropertyTypeContainerWidget::StructureEventHandler(const ezDocumentObje
         return;
 
       if (std::none_of(cbegin(m_Items), cend(m_Items),
-        [&](const ezQtPropertyWidget::Selection& sel) { return e.m_pNewParent == sel.m_pObject || e.m_pPreviousParent == sel.m_pObject; }
-        ))
+                       [&](const ezQtPropertyWidget::Selection& sel) { return e.m_pNewParent == sel.m_pObject || e.m_pPreviousParent == sel.m_pObject; }
+      ))
         return;
 
       UpdateElements();

@@ -208,6 +208,9 @@ void ezPropertyGridWidget::ClearSelection()
   {
     m_pContentLayout->removeWidget(m_pTypeWidget);
     m_pTypeWidget->hide();
+
+    m_pTypeWidget->PrepareToDie();
+
     m_pTypeWidget->deleteLater();
     m_pTypeWidget = nullptr;
   }

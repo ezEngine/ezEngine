@@ -14,6 +14,9 @@ class EZ_GUIFOUNDATION_DLL ezAddSubElementButton : public ezQtPropertyWidget
 public:
   ezAddSubElementButton();
 
+protected:
+  virtual void DoPrepareToDie() override {}
+
 private slots:
   void on_Menu_aboutToShow();
   void on_Button_clicked();
