@@ -306,6 +306,10 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
 
   if (m_ButtonType == ButtonType::CloseProject ||
       m_ButtonType == ButtonType::DataDirectories ||
+      m_ButtonType == ButtonType::EnginePlugins ||
+      m_ButtonType == ButtonType::TagsDialog ||
+      m_ButtonType == ButtonType::ReloadEngine ||
+      m_ButtonType == ButtonType::ReloadResources ||
       m_ButtonType == ButtonType::InputConfig)
   {
     SetEnabled(ezToolsProject::IsProjectOpen());
@@ -318,6 +322,10 @@ ezProjectAction::~ezProjectAction()
 {
   if (m_ButtonType == ButtonType::CloseProject ||
       m_ButtonType == ButtonType::DataDirectories ||
+      m_ButtonType == ButtonType::EnginePlugins ||
+      m_ButtonType == ButtonType::TagsDialog ||
+      m_ButtonType == ButtonType::ReloadEngine ||
+      m_ButtonType == ButtonType::ReloadResources ||
       m_ButtonType == ButtonType::InputConfig)
   {
     ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezProjectAction::ProjectEventHandler, this));

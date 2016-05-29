@@ -161,6 +161,12 @@ void ezAssetBrowserWidget::ProjectEventHandler(const ezToolsProject::Event& e)
       UpdateAssetTypes();
     }
     break;
+  case ezToolsProject::Event::Type::ProjectClosed:
+    {
+      // remove project structure from asset browser
+      ClearDirectoryTree();
+    }
+    break;
   }
 }
 
@@ -381,6 +387,13 @@ void ezAssetBrowserWidget::UpdateDirectoryTree()
 
   TreeFolderFilter->setSortingEnabled(true);
   TreeFolderFilter->sortItems(0, Qt::SortOrder::AscendingOrder);
+}
+
+
+void ezAssetBrowserWidget::ClearDirectoryTree()
+{
+  TreeFolderFilter->clear();
+  m_uiKnownAssetFolderCount = 0;
 }
 
 void ezAssetBrowserWidget::BuildDirectoryTree(const char* szCurPath, QTreeWidgetItem* pParent, const char* szCurPathToItem)

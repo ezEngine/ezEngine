@@ -118,3 +118,30 @@ ezBoundingBox ezGameGrid<CellData>::GetWorldBoundingBox() const
   return ezBoundingBox(m_vWorldSpaceOrigin, m_vWorldSpaceOrigin + m_vWorldSpaceCellSize.CompMult(vGridBox));
 }
 
+template<class CellData>
+bool ezGameGrid<CellData>::GetRayIntersection(const ezVec3& vRayStartWorldSpace, const ezVec3& vRayDirNormalizedWorldSpace, float fMaxLength, float& out_fIntersection, ezUInt32& out_CellIndex) const
+{
+  const ezVec3 vRayStart = m_RotateToGridspace * (vRayStartWorldSpace - m_vWorldSpaceOrigin);
+  const ezVec3 vRayDir = m_RotateToGridspace * vRayDirNormalizedWorldSpace;
+
+  ezVec3 vGridBox(m_uiWidth, m_uiHeight, 1.0f);
+
+  const ezBoundingBox localBox(ezVec3(0.0f), m_vWorldSpaceCellSize.CompMult(vGridBox));
+
+  if (!localBox.GetRayIntersection(vRayStart, vRayDir, &out_fIntersection, nullptr))
+    return false;
+
+  if (out_fIntersection > fMaxLength)
+    return false;
+
+  const ezVec3 vEnterPos = vRayStart + vRayDir * (out_fIntersection + 0.01f);
+
+  const ezVec3 vCell = vEnterPos.CompMult(m_vInverseWorldSpaceCellSize);
+
+  // Without the Floor, the border case when the position is outside (-1 / -1) is not immediately detected
+  const ezVec2I32 coord = ezVec2I32((ezInt32)ezMath::Floor(vCell.x), (ezInt32)ezMath::Floor(vCell.y));
+
+  out_CellIndex = ConvertCellCoordinateToIndex(coord);
+
+  return out_CellIndex < m_Cells.GetCount();
+}

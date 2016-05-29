@@ -56,6 +56,7 @@ private slots:
 private:
   void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
   void UpdateDirectoryTree();
+  void ClearDirectoryTree();
   void BuildDirectoryTree(const char* szCurPath, QTreeWidgetItem* pParent, const char* szCurPathToItem);
   bool SelectPathFilter(QTreeWidgetItem* pParent, const QString& sPath);
   void UpdateAssetTypes();

@@ -88,6 +88,18 @@ public:
   /// \brief Casts a world space ray through the grid and determines which cell is hit (if any).
   bool PickCell(const ezVec3& vRayStartPos, const ezVec3& vRayDirNorm, ezVec2I32* out_CellCoord, ezVec3* out_vIntersection = nullptr) const;
 
+  /// \brief Returns the lower left corner position in world space of the grid
+  const ezVec3& GetWorldSpaceOrigin() const { return m_vWorldSpaceOrigin; }
+
+  /// \brief Returns the matrix used to rotate coordinates from grid space to world space
+  const ezMat3& GetRotationToWorldSpace() const { return m_RotateToWorldspace; }
+
+  /// \brief Returns the matrix used to rotate coordinates from world space to grid space
+  const ezMat3& GetRotationToGridSpace() const { return m_RotateToGridspace; }
+
+  /// \brief Tests where and at which cell the given world space ray intersects the grids bounding box
+  bool GetRayIntersection(const ezVec3& vRayStartWorldSpace, const ezVec3& vRayDirNormalizedWorldSpace, float fMaxLength, float& out_fIntersection, ezUInt32& out_CellIndex) const;
+
 private:
   ezUInt16 m_uiWidth;
   ezUInt16 m_uiHeight;
@@ -101,6 +113,8 @@ private:
 
   ezDynamicArray<CellData> m_Cells;
 };
+
+
 
 #include <GameUtils/DataStructures/Implementation/GameGrid_inl.h>
 
