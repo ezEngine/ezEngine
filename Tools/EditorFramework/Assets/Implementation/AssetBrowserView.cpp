@@ -151,7 +151,7 @@ void QtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& op
   {
     QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin - 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
     thumbnailRect.setSize(QSize(16, 16));
-    QPixmap pixmap = qvariant_cast<QPixmap>(index.data(Qt::UserRole + 3));
+    QPixmap pixmap = qvariant_cast<QPixmap>(index.data(ezAssetBrowserModel::UserRoles::AssetIconPath));
     painter->drawPixmap(thumbnailRect, pixmap);
   }
 

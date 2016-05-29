@@ -52,6 +52,7 @@ private slots:
   void OnListOpenExplorer();
   void OnListOpenAssetDocument();
   void OnListToggleSortByRecentlyUsed();
+  void OnListCopyAssetGuid();
 
 private:
   void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);

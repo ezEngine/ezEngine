@@ -10,6 +10,14 @@ class EZ_EDITORFRAMEWORK_DLL ezAssetBrowserModel : public QAbstractItemModel
 
 public:
 
+  enum UserRoles
+  {
+    AssetGuid = Qt::UserRole + 0,
+    AbsolutePath = Qt::UserRole + 1,
+    RelativePath = Qt::UserRole + 2,
+    AssetIconPath = Qt::UserRole + 3,
+  };
+
   ezAssetBrowserModel(QObject* pParent);
   ~ezAssetBrowserModel();
   

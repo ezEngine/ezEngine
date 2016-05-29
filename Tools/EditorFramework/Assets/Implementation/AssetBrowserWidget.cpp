@@ -10,6 +10,7 @@
 #include <QSettings>
 #include <QMenu>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <QClipboard>
 
 ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
 {
@@ -172,17 +173,17 @@ void ezAssetBrowserWidget::ProjectEventHandler(const ezToolsProject::Event& e)
 
 void ezAssetBrowserWidget::on_ListAssets_clicked(const QModelIndex & index)
 {
-  emit ItemSelected(m_pModel->data(index, Qt::UserRole + 0).toString(), m_pModel->data(index, Qt::UserRole + 2).toString(), m_pModel->data(index, Qt::UserRole + 1).toString());
+  emit ItemSelected(m_pModel->data(index, ezAssetBrowserModel::UserRoles::AssetGuid).toString(), m_pModel->data(index, ezAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezAssetBrowserModel::UserRoles::AbsolutePath).toString());
 }
 
 void ezAssetBrowserWidget::on_ListAssets_activated(const QModelIndex & index)
 {
-  emit ItemSelected(m_pModel->data(index, Qt::UserRole + 0).toString(), m_pModel->data(index, Qt::UserRole + 2).toString(), m_pModel->data(index, Qt::UserRole + 1).toString());
+  emit ItemSelected(m_pModel->data(index, ezAssetBrowserModel::UserRoles::AssetGuid).toString(), m_pModel->data(index, ezAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezAssetBrowserModel::UserRoles::AbsolutePath).toString());
 }
 
 void ezAssetBrowserWidget::on_ListAssets_doubleClicked(const QModelIndex& index)
 {
-  QString sGuid = m_pModel->data(index, Qt::UserRole + 0).toString();
+  QString sGuid = m_pModel->data(index, ezAssetBrowserModel::UserRoles::AssetGuid).toString();
 
   if (!sGuid.isEmpty())
   {
@@ -190,7 +191,7 @@ void ezAssetBrowserWidget::on_ListAssets_doubleClicked(const QModelIndex& index)
     ezAssetCurator::GetSingleton()->UpdateAssetLastAccessTime(guid);
   }
 
-  emit ItemChosen(sGuid, m_pModel->data(index, Qt::UserRole + 2).toString(), m_pModel->data(index, Qt::UserRole + 1).toString());
+  emit ItemChosen(sGuid, m_pModel->data(index, ezAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezAssetBrowserModel::UserRoles::AbsolutePath).toString());
 }
 
 void ezAssetBrowserWidget::on_ButtonListMode_clicked()
@@ -429,7 +430,7 @@ void ezAssetBrowserWidget::BuildDirectoryTree(const char* szCurPath, QTreeWidget
 
   pNewParent = new QTreeWidgetItem();
   pNewParent->setText(0, sQtFolderName);
-  pNewParent->setData(0, Qt::UserRole + 1, QString::fromUtf8(sCurPath.GetData()));
+  pNewParent->setData(0, ezAssetBrowserModel::UserRoles::AbsolutePath, QString::fromUtf8(sCurPath.GetData()));
 
   pParent->addChild(pNewParent);
 
@@ -447,7 +448,7 @@ void ezAssetBrowserWidget::on_TreeFolderFilter_itemSelectionChanged()
 
   if (!TreeFolderFilter->selectedItems().isEmpty())
   {
-    sCurPath = TreeFolderFilter->selectedItems()[0]->data(0, Qt::UserRole + 1).toString().toUtf8().data();
+    sCurPath = TreeFolderFilter->selectedItems()[0]->data(0, ezAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
   }
 
   m_pModel->SetPathFilter(sCurPath);
@@ -479,7 +480,7 @@ void ezAssetBrowserWidget::OnTreeOpenExplorer()
   if (!TreeFolderFilter->currentItem())
     return;
 
-  ezString sPath = TreeFolderFilter->currentItem()->data(0, Qt::UserRole + 1).toString().toUtf8().data();
+  ezString sPath = TreeFolderFilter->currentItem()->data(0, ezAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
 
   if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
     return;
@@ -500,6 +501,7 @@ void ezAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoint
       m.setDefaultAction(m.addAction(QLatin1String("Select"), this, SLOT(OnListOpenAssetDocument())));
 
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open Containing Folder"), this, SLOT(OnListOpenExplorer()));
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnListCopyAssetGuid())); /// \todo Icon
   }
 
   auto pSortAction = m.addAction(QLatin1String("Sort by Recently Used"), this, SLOT(OnListToggleSortByRecentlyUsed()));
@@ -516,7 +518,7 @@ void ezAssetBrowserWidget::OnListOpenAssetDocument()
 
   auto index = ListAssets->currentIndex();
 
-  QString sGuid = m_pModel->data(index, Qt::UserRole + 0).toString();
+  QString sGuid = m_pModel->data(index, ezAssetBrowserModel::UserRoles::AssetGuid).toString();
 
   if (!sGuid.isEmpty())
   {
@@ -524,7 +526,7 @@ void ezAssetBrowserWidget::OnListOpenAssetDocument()
     ezAssetCurator::GetSingleton()->UpdateAssetLastAccessTime(guid);
   }
 
-  emit ItemChosen(sGuid, m_pModel->data(index, Qt::UserRole + 2).toString(), m_pModel->data(index, Qt::UserRole + 1).toString());
+  emit ItemChosen(sGuid, m_pModel->data(index, ezAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezAssetBrowserModel::UserRoles::AbsolutePath).toString());
 }
 
 void ezAssetBrowserWidget::OnListOpenExplorer()
@@ -532,9 +534,22 @@ void ezAssetBrowserWidget::OnListOpenExplorer()
   if (!ListAssets->selectionModel()->hasSelection())
     return;
 
-  ezString sPath = m_pModel->data(ListAssets->currentIndex(), Qt::UserRole + 1).toString().toUtf8().data();
+  ezString sPath = m_pModel->data(ListAssets->currentIndex(), ezAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
 
   ezUIServices::OpenInExplorer(sPath);
+}
+
+void ezAssetBrowserWidget::OnListCopyAssetGuid()
+{
+  if (!ListAssets->selectionModel()->hasSelection())
+    return;
+
+  QString sGuid = m_pModel->data(ListAssets->currentIndex(), ezAssetBrowserModel::UserRoles::AssetGuid).toString();
+
+  QClipboard* clipboard = QApplication::clipboard();
+  QMimeData* mimeData = new QMimeData();
+  mimeData->setText(sGuid);
+  clipboard->setMimeData(mimeData);
 }
 
 void ezAssetBrowserWidget::OnListToggleSortByRecentlyUsed()
@@ -552,7 +567,7 @@ void ezAssetBrowserWidget::OnPathFilterChanged()
 
 bool ezAssetBrowserWidget::SelectPathFilter(QTreeWidgetItem* pParent, const QString& sPath)
 {
-  if (pParent->data(0, Qt::UserRole + 1).toString() == sPath)
+  if (pParent->data(0, ezAssetBrowserModel::UserRoles::AbsolutePath).toString() == sPath)
   {
     pParent->setSelected(true);
     return true;
@@ -587,7 +602,7 @@ void ezAssetBrowserWidget::OnScrollToItem(QString sPath)
 {
   for (ezInt32 i = 0; i < m_pModel->rowCount(); ++i)
   {
-    if (m_pModel->data(m_pModel->index(i, 0), Qt::UserRole + 2) == sPath)
+    if (m_pModel->data(m_pModel->index(i, 0), ezAssetBrowserModel::UserRoles::RelativePath) == sPath)
     {
       ListAssets->selectionModel()->select(m_pModel->index(i, 0), QItemSelectionModel::SelectionFlag::ClearAndSelect);
       ListAssets->scrollTo(m_pModel->index(i, 0), QAbstractItemView::ScrollHint::EnsureVisible);

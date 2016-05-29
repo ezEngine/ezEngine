@@ -14,6 +14,7 @@
 #include <QMimeData>
 #include <QUrl>
 #include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
+#include <QClipboard>
 
 
 ezQtAssetPropertyWidget::ezQtAssetPropertyWidget() : ezQtStandardPropertyWidget()
@@ -229,6 +230,7 @@ void ezQtAssetPropertyWidget::on_customContextMenuRequested(const QPoint& pt)
   m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open Asset"), this, SLOT(OnOpenAssetDocument()))->setEnabled(bAsset);
   m.addAction(QIcon(), QLatin1String("Select in Asset Browser"), this, SLOT(OnSelectInAssetBrowser()))->setEnabled(bAsset);
   m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open Containing Folder"), this, SLOT(OnOpenExplorer()));
+  m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnCopyAssetGuid()));
 
   m.exec(m_pButton->mapToGlobal(pt));
 }
@@ -259,6 +261,29 @@ void ezQtAssetPropertyWidget::OnOpenExplorer()
   }
 
   ezUIServices::OpenInExplorer(sPath);
+}
+
+
+void ezQtAssetPropertyWidget::OnCopyAssetGuid()
+{
+  ezString sGuid;
+
+  if (m_AssetGuid.IsValid())
+  {
+    sGuid = ezConversionUtils::ToString(m_AssetGuid);
+  }
+  else
+  {
+    sGuid = m_pWidget->text().toUtf8().data();
+    if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sGuid))
+      return;
+  }
+
+  QClipboard* clipboard = QApplication::clipboard();
+  QMimeData* mimeData = new QMimeData();
+  mimeData->setText(QString::fromUtf8(sGuid.GetData()));
+  clipboard->setMimeData(mimeData);
+
 }
 
 void ezQtAssetPropertyWidget::on_BrowseFile_clicked()

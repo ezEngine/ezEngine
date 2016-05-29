@@ -255,16 +255,16 @@ QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
     }
     break;
 
-  case Qt::UserRole + 0:
+  case UserRoles::AssetGuid:
     return QString::fromUtf8(ezConversionUtils::ToString(pAssetInfo->m_Info.m_DocumentID).GetData());
 
-  case Qt::UserRole + 1:
+  case UserRoles::AbsolutePath:
     return QString::fromUtf8(pAssetInfo->m_sAbsolutePath);
 
-  case Qt::UserRole + 2:
+  case UserRoles::RelativePath:
     return QString::fromUtf8(pAssetInfo->m_sRelativePath);
 
-  case Qt::UserRole + 3:
+  case UserRoles::AssetIconPath:
     {
       ezStringBuilder sIconName;
       sIconName.Set(":/AssetIcons/", pAssetInfo->m_Info.m_sAssetTypeName);
@@ -345,8 +345,8 @@ QMimeData* ezAssetBrowserModel::mimeData(const QModelIndexList& indexes) const
   stream << indexes.size();
   for (int i = 0; i < indexes.size(); ++i)
   {
-    QString sGuid = data(indexes[i], Qt::UserRole + 0).toString();
-    QString sPath = data(indexes[i], Qt::UserRole + 1).toString();
+    QString sGuid = data(indexes[i], UserRoles::AssetGuid).toString();
+    QString sPath = data(indexes[i], UserRoles::AbsolutePath).toString();
 
     stream << sGuid;
     sGuids += sPath + "\n";
