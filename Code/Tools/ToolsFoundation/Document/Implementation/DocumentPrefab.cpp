@@ -4,8 +4,10 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <ToolsFoundation/Document/DocumentManager.h>
 
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 
 ezString ToBinary(const ezUuid& guid)
 {
