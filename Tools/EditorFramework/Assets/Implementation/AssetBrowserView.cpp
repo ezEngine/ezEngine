@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/Assets/AssetBrowserView.moc.h>
+#include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Logging/Log.h>
 

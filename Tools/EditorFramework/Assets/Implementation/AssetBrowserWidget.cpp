@@ -11,6 +11,7 @@
 #include <QMenu>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QClipboard>
+#include <QMimeData>
 
 ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
 {
