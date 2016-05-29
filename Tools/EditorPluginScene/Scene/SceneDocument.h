@@ -110,9 +110,6 @@ public:
   void ShowOrHideSelectedObjects(ShowOrHide action);
   void ShowOrHideAllObjects(ShowOrHide action);
   void HideUnselectedObjects();
-  void UpdatePrefabs();
-  void RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
-  void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
 
   bool IsPrefab() const { return m_bIsPrefab; }
 
@@ -126,6 +123,11 @@ public:
   bool PasteAt(const ezArrayPtr<PasteInfo>& info, const ezVec3& vPos);
   bool PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info);
 
+  virtual void UpdatePrefabs() override;
+  virtual void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection) override;
+  virtual ezUuid ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed) override;
+  virtual ezUuid RevertPrefab(const ezDocumentObject* pObject) override;
+
   enum TransformationChanges { Translation = EZ_BIT(0), Rotation = EZ_BIT(1), Scale = EZ_BIT(2), UniformScale = EZ_BIT(3), All = 0xFF };
 
   /// \brief Sets the new global transformation of the given object.
@@ -138,16 +140,9 @@ public:
   static ezTransform QueryLocalTransform(const ezDocumentObject* pObject);
   ezTransform ComputeGlobalTransform(const ezDocumentObject* pObject) const;
 
-  const ezString& GetCachedPrefabGraph(const ezUuid& AssetGuid);
-  ezString ReadDocumentAsString(const char* szFile) const;
-
   ezEvent<const ezSceneDocumentEvent&> m_SceneEvents;
   ezEvent <ezSceneDocumentExportEvent&> m_ExportEvent;
   ezObjectMetaData<ezUuid, ezSceneObjectMetaData> m_SceneObjectMetaData;
-
-  ezStatus CreatePrefabDocumentFromSelection(const char* szFile);
-  ezStatus CreatePrefabDocument(const char* szFile, const ezDocumentObject* pRootObject, const ezUuid& invPrefabSeed, ezUuid& out_NewDocumentGuid);
-  void ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed);
 
   GameMode GetGameMode() const { return m_GameMode; }
 
@@ -202,9 +197,6 @@ private:
 
   void InvalidateGlobalTransformValue(const ezDocumentObject* pObject);
 
-  void UpdatePrefabsRecursive(ezDocumentObject* pObject);
-  void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab);
-
   virtual const char* QueryAssetType() const override;
 
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) override;
@@ -238,6 +230,5 @@ private:
 
   mutable ezHashTable<const ezDocumentObject*, ezTransform> m_GlobalTransforms;
 
-  ezMap<ezUuid, ezString> m_CachedPrefabGraphs;
 
 };

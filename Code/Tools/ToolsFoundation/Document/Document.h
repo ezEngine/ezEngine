@@ -98,6 +98,20 @@ public:
   /// \brief Tries to compute the position and rotation for an object in the document. Returns EZ_SUCCESS if it was possible.
   virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const { return EZ_FAILURE; }
 
+
+  // Prefabs
+  virtual void UpdatePrefabs();
+  virtual void RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
+  virtual void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
+
+  virtual const ezString& GetCachedPrefabGraph(const ezUuid& documentGuid);
+  virtual ezStatus CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType);
+  virtual ezStatus CreatePrefabDocument(const char* szFile, const ezDocumentObject* pRootObject, const ezUuid& invPrefabSeed, ezUuid& out_NewDocumentGuid);
+  // Returns new guid of replaced object.
+  virtual ezUuid ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed);
+  // Returns new guid of reverted object.
+  virtual ezUuid RevertPrefab(const ezDocumentObject* pObject);
+
 public:
 
   ezObjectMetaData<ezUuid, ezDocumentObjectMetaData> m_DocumentObjectMetaData;
@@ -128,6 +142,12 @@ protected:
 
   void SetUnknownObjectTypes(const ezSet<ezString>& Types, ezUInt32 uiInstances);
 
+  // Prefabs
+  virtual void UpdatePrefabsRecursive(ezDocumentObject* pObject);
+  virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab);
+  ezString ReadDocumentAsString(const char* szFile) const;
+  virtual ezString GetDocumentPathFromGuid(const ezUuid& documentGuid) const;
+
 private:
   friend class ezDocumentManager;
   friend class ezCommandHistory;
@@ -146,4 +166,7 @@ private:
 
   ezSet<ezString> m_UnknownObjectTypes;
   ezUInt32 m_uiUnknownObjectTypeInstances;
+
+  ezMap<ezUuid, ezString> m_CachedPrefabGraphs;
+
 };

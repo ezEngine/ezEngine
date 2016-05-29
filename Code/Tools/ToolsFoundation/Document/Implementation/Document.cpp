@@ -324,4 +324,3 @@ void ezDocument::ShowDocumentStatus(const char* szFormat, ...)
 
   m_EventsOne.Broadcast(e);
 }
-

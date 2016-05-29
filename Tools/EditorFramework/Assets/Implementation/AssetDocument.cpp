@@ -344,6 +344,13 @@ void ezAssetDocument::SaveThumbnail(const ezImage& img)
   InvalidateAssetThumbnail();
 }
 
+ezString ezAssetDocument::GetDocumentPathFromGuid(const ezUuid& documentGuid) const
+{
+  auto* pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(documentGuid);
+
+  return pAssetInfo->m_sAbsolutePath;
+}
+
 ezString ezAssetDocument::GetFinalOutputFileName(const char* szPlatform)
 {
   const ezString sPlatform = DetermineFinalTargetPlatform(szPlatform);

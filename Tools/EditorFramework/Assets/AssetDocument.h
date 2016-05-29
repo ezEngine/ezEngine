@@ -98,6 +98,8 @@ protected:
   /// \brief Saves the given image as the new thumbnail for the asset
   void SaveThumbnail(const ezImage& img);
 
+  virtual ezString GetDocumentPathFromGuid(const ezUuid& documentGuid) const override;
+
 private:
   virtual ezDocumentInfo* CreateDocumentInfo() override;
 

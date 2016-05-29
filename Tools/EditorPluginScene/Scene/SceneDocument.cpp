@@ -13,6 +13,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
+#include <Core/World/GameObject.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneObjectMetaData, 1, ezRTTINoAllocator)
 {
@@ -340,21 +341,6 @@ void ezSceneDocument::HideUnselectedObjects()
   ShowOrHideSelectedObjects(ShowOrHide::Show);
 }
 
-ezString ezSceneDocument::ReadDocumentAsString(const char* szFile) const
-{
-  ezFileReader file;
-  if (file.Open(szFile) == EZ_FAILURE)
-  {
-    ezLog::Error("Failed to open document file '%s'", szFile);
-    return ezString();
-  }
-
-  ezStringBuilder sGraph;
-  sGraph.ReadAll(file);
-
-  return sGraph;
-}
-
 void ezSceneDocument::SetGameMode(GameMode mode)
 {
   if (m_GameMode == mode)
@@ -497,24 +483,6 @@ void ezSceneDocument::SetRenderShapeIcons(bool b)
   m_SceneEvents.Broadcast(e);
 }
 
-const ezString& ezSceneDocument::GetCachedPrefabGraph(const ezUuid& AssetGuid)
-{
-  /// \todo This should probably be moved into ezDocument directly
-
-  if (!m_CachedPrefabGraphs.Contains(AssetGuid))
-  {
-    auto* pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(AssetGuid);
-
-    const auto& sPrefabFile = pAssetInfo->m_sAbsolutePath;
-
-    m_CachedPrefabGraphs[AssetGuid] = ReadDocumentAsString(sPrefabFile);
-  }
-
-  return m_CachedPrefabGraphs[AssetGuid];
-}
-
-
-
 void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
 {
   const bool bHide = action == ShowOrHide::Hide;
@@ -538,103 +506,17 @@ void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
   });
 }
 
-void ezSceneDocument::RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection)
-{
-  if (Selection.IsEmpty())
-    return;
-
-  auto pHistory = GetCommandHistory();
-
-  m_CachedPrefabGraphs.Clear();
-
-  pHistory->StartTransaction();
-
-  for (auto pItem : Selection)
-  {
-    auto pMeta = m_DocumentObjectMetaData.BeginReadMetaData(pItem->GetGuid());
-
-    const ezUuid PrefabAsset = pMeta->m_CreateFromPrefab;
-
-    if (!PrefabAsset.IsValid())
-    {
-      m_DocumentObjectMetaData.EndReadMetaData();
-      continue;
-    }
-
-    const ezVec3 vLocalPos = pItem->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
-    const ezQuat vLocalRot = pItem->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
-    const ezVec3 vLocalScale = pItem->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
-    const float fLocalUniformScale = pItem->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>();
-
-    ezRemoveObjectCommand remCmd;
-    remCmd.m_Object = pItem->GetGuid();
-
-    ezInstantiatePrefabCommand instCmd;
-    instCmd.m_bAllowPickedPosition = false;
-    instCmd.m_Parent = pItem->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pItem->GetParent()->GetGuid();
-    instCmd.m_RemapGuid = pMeta->m_PrefabSeedGuid;
-    instCmd.m_sJsonGraph = GetCachedPrefabGraph(pMeta->m_CreateFromPrefab);
-
-    m_DocumentObjectMetaData.EndReadMetaData();
-
-    pHistory->AddCommand(remCmd);
-    pHistory->AddCommand(instCmd);
-
-    if (instCmd.m_CreatedRootObject.IsValid())
-    {
-      ezSetObjectPropertyCommand setCmd;
-      setCmd.m_Object = instCmd.m_CreatedRootObject;
-
-      setCmd.m_sPropertyPath = "LocalPosition";
-      setCmd.m_NewValue = vLocalPos;
-      pHistory->AddCommand(setCmd);
-
-      setCmd.m_sPropertyPath = "LocalRotation";
-      setCmd.m_NewValue = vLocalRot;
-      pHistory->AddCommand(setCmd);
-
-      setCmd.m_sPropertyPath = "LocalScaling";
-      setCmd.m_NewValue = vLocalScale;
-      pHistory->AddCommand(setCmd);
-
-      setCmd.m_sPropertyPath = "LocalUniformScaling";
-      setCmd.m_NewValue = fLocalUniformScale;
-      pHistory->AddCommand(setCmd);
-
-      auto pMeta = m_DocumentObjectMetaData.BeginModifyMetaData(instCmd.m_CreatedRootObject);
-      pMeta->m_CreateFromPrefab = PrefabAsset;
-      pMeta->m_PrefabSeedGuid = instCmd.m_RemapGuid;
-      pMeta->m_sBasePrefab = instCmd.m_sJsonGraph;
-
-      m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
-    }
-  }
-
-  pHistory->FinishTransaction();
-}
-
-
 void ezSceneDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection)
 {
-  if (Selection.IsEmpty())
-    return;
+  SUPER::UnlinkPrefabs(Selection);
 
-  /// \todo this operation is (currently) not undo-able, since it only operates on meta data
-
+  // Clear cached names.
   for (auto pObject : Selection)
   {
-    
-    auto pMetaDoc = m_DocumentObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
-    pMetaDoc->m_CreateFromPrefab = ezUuid();
-    pMetaDoc->m_PrefabSeedGuid = ezUuid();
-    pMetaDoc->m_sBasePrefab.Clear();
-    m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
-
     auto pMetaScene = m_SceneObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
     pMetaScene->m_CachedNodeName.Clear();
     m_SceneObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::CachedName);
   }
-
 }
 
 void ezSceneDocument::SetGizmoWorldSpace(bool bWorldSpace)
@@ -741,6 +623,61 @@ bool ezSceneDocument::PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info)
   }
 
   return true;
+}
+
+
+void ezSceneDocument::UpdatePrefabs()
+{
+  EZ_LOCK(m_SceneObjectMetaData.GetMutex());
+  SUPER::UpdatePrefabs();
+}
+
+
+ezUuid ezSceneDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed)
+{
+  ezUuid newGuid = SUPER::ReplaceByPrefab(pRootObject, szPrefabFile, PrefabAsset, PrefabSeed);
+  if (newGuid.IsValid())
+  {
+    auto pMeta = m_SceneObjectMetaData.BeginModifyMetaData(newGuid);
+    pMeta->m_CachedNodeName.Clear();
+    m_SceneObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::CachedName);
+  }
+  return newGuid;
+}
+
+
+ezUuid ezSceneDocument::RevertPrefab(const ezDocumentObject* pObject)
+{
+  auto pHistory = GetCommandHistory();
+  const ezVec3 vLocalPos = pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
+  const ezQuat vLocalRot = pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
+  const ezVec3 vLocalScale = pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
+  const float fLocalUniformScale = pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>();
+
+  ezUuid newGuid = SUPER::RevertPrefab(pObject);
+
+  if (newGuid.IsValid())
+  {
+    ezSetObjectPropertyCommand setCmd;
+    setCmd.m_Object = newGuid;
+
+    setCmd.m_sPropertyPath = "LocalPosition";
+    setCmd.m_NewValue = vLocalPos;
+    pHistory->AddCommand(setCmd);
+
+    setCmd.m_sPropertyPath = "LocalRotation";
+    setCmd.m_NewValue = vLocalRot;
+    pHistory->AddCommand(setCmd);
+
+    setCmd.m_sPropertyPath = "LocalScaling";
+    setCmd.m_NewValue = vLocalScale;
+    pHistory->AddCommand(setCmd);
+
+    setCmd.m_sPropertyPath = "LocalUniformScaling";
+    setCmd.m_NewValue = fLocalUniformScale;
+    pHistory->AddCommand(setCmd);
+  }
+  return newGuid;
 }
 
 bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition)
