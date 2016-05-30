@@ -101,8 +101,8 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
   EZ_TEST_BOOL(ezOSFile::CreateDirectoryStructure(sWriteDir.GetData()) == EZ_SUCCESS);
 
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sReadDir.GetData(), ezFileSystem::ReadOnly, "PreprocessorTest") == EZ_SUCCESS);
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sWriteDir.GetData(), ezFileSystem::AllowWrites, "PreprocessorTest") == EZ_SUCCESS);
+  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sReadDir.GetData(), "PreprocessorTest") == EZ_SUCCESS);
+  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sWriteDir.GetData(), "PreprocessorTest", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
 
   ezTokenizedFileCache SharedCache;
 
@@ -232,7 +232,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
         {
           fileName.Format("Preprocessor/%s.txt", TestSettings[i].m_szFileName);
           fileNameExp.Format("Preprocessor/%s - Expected.txt", TestSettings[i].m_szFileName);
-          fileNameOut.Format("Preprocessor/%s - Result.txt", TestSettings[i].m_szFileName);
+          fileNameOut.Format(":output/Preprocessor/%s - Result.txt", TestSettings[i].m_szFileName);
 
           EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName.GetData()), "File does not exist: '%s'", fileName.GetData());
 

@@ -129,7 +129,10 @@ public:
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
     // Add the empty data directory to access files via absolute paths
-    ezFileSystem::AddDataDirectory("");
+    ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites);
+
+    // use such a path to write to an absolute file
+    // ':abs/C:/some/file.txt"
   }
 
   virtual void BeforeCoreShutdown()

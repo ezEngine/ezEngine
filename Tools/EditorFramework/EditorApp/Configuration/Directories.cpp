@@ -7,6 +7,7 @@ ezString ezQtEditorApp::GetEditorDataFolder()
 {
   ezStringBuilder sAppDir = ezOSFile::GetApplicationDirectory();
   sAppDir.AppendPath("../../../Data/Tools", ezUIServices::GetApplicationName());
+  sAppDir.MakeCleanPath();
 
   return sAppDir;
 }
@@ -15,6 +16,8 @@ ezString ezQtEditorApp::GetPrecompiledToolsFolder()
 {
   ezStringBuilder sPath = ezOSFile::GetApplicationDirectory();
   sPath.AppendPath("../../../Data/Tools/Precompiled");
+  sPath.MakeCleanPath();
+
   return sPath;
 
 }
@@ -23,6 +26,7 @@ ezString ezQtEditorApp::GetDocumentDataFolder(const char* szDocument)
 {
   ezStringBuilder sPath = szDocument;
   sPath.Append("_data");
+  sPath.MakeCleanPath();
 
   return sPath;
 }

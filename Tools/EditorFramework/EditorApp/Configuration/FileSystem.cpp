@@ -24,7 +24,7 @@ ezString ezQtEditorApp::FindFolderWithSubPath(const char* szStartDirectory, cons
   return ezString();
 }
 
-void ezQtEditorApp::AddPluginDataDirDependency(const char* szRelativePath)
+void ezQtEditorApp::AddPluginDataDirDependency(const char* szRelativePath, const char* szRootName)
 {
   ezStringBuilder sPath = szRelativePath;
   sPath.MakeCleanPath();
@@ -41,6 +41,7 @@ void ezQtEditorApp::AddPluginDataDirDependency(const char* szRelativePath)
   ezApplicationFileSystemConfig::DataDirConfig cfg;
   cfg.m_sRelativePath = sPath;
   cfg.m_bWritable = false;
+  cfg.m_sRootName = szRootName;
   cfg.m_bHardCodedDependency = true;
 
   m_FileSystemConfig.m_DataDirs.PushBack(cfg);
@@ -77,7 +78,7 @@ void ezQtEditorApp::SetupDataDirectories()
     sBaseDir.AppendPath("Data/Base");
     sBaseDir.MakeRelativeTo(ezToolsProject::GetSingleton()->GetProjectDirectory());
 
-    ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(sBaseDir);
+    ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(sBaseDir, "base");
   }
 
   // Make sure the project directory is always in the list of data directories
@@ -97,6 +98,7 @@ void ezQtEditorApp::SetupDataDirectories()
     {
       ezApplicationFileSystemConfig::DataDirConfig dd;
       dd.m_bWritable = true;
+      dd.m_sRootName = "project";
       dd.m_bHardCodedDependency = true;
       m_FileSystemConfig.m_DataDirs.PushBack(dd);
     }

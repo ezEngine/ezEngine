@@ -14,7 +14,7 @@
 #include <GameUtils/Components/InputComponent.h>
 
 ezPlayerApplication::ezPlayerApplication()
-  : ezGameApplication(ezGameApplicationType::StandAlone, nullptr)
+  : ezGameApplication("ezPlayer", ezGameApplicationType::StandAlone, nullptr)
 {
   m_pWorld = nullptr;
 }

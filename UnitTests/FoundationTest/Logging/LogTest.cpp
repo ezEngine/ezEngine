@@ -20,9 +20,9 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
   ezOSFile::CreateDirectoryStructure(sOutputFolder1.GetData());
 
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), ezFileSystem::AllowWrites, "LoggingTest") == EZ_SUCCESS);
+  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), "LoggingTest", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
 
-  LogHTML.BeginLog("Log_FoundationTest.htm", "FoundationTest");
+  LogHTML.BeginLog(":output/Log_FoundationTest.htm", "FoundationTest");
 
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);

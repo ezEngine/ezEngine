@@ -195,6 +195,12 @@ public:
   /// \brief Returns the path in which the applications binary file is located.
   static const char* GetApplicationDirectory();
 
+  /// \brief Returns the folder into which user data may be safely written.
+  ///
+  /// On Windows this is typically the %appdata% folder.
+  /// If szSubFolder is specified, it will be appended to the result.
+  static ezString GetUserDataFolder(const char* szSubFolder = nullptr);
+
 public:
 
   /// \brief Describes the types of events that ezOSFile sends.
@@ -303,6 +309,9 @@ private:
 
   /// \brief The application binaries' path.
   static ezString64 s_ApplicationPath;
+
+  /// \brief The path where user data is stored on this OS
+  static ezString64 s_UserDataPath;
 
   /// \brief Counts how many different files are touched.225
   static ezAtomicInteger32 s_FileCounter;

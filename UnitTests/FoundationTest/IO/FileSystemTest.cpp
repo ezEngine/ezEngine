@@ -36,41 +36,41 @@ Only concrete and clocks.\n\
 
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(BUILDSYSTEM_OUTPUT_FOLDER, ezFileSystem::AllowWrites, "Clear") == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(BUILDSYSTEM_OUTPUT_FOLDER, "Clear", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
 
-    ezStringBuilder sTempFile = sOutputFolder1;
-    sTempFile.AppendPath("Temp.tmp");
+    ezStringBuilder sTempFile = ":output/";
+    sTempFile.AppendPath(sOutputFolder1, "Temp.tmp");
 
     ezFileWriter TempFile;
     EZ_TEST_BOOL(TempFile.Open(sTempFile.GetData()) == EZ_SUCCESS);
     TempFile.Close();
 
-    sTempFile = sOutputFolder2;
-    sTempFile.AppendPath("Temp.tmp");
+    sTempFile = ":output/";
+    sTempFile.AppendPath(sOutputFolder2, "Temp.tmp");
 
     EZ_TEST_BOOL(TempFile.Open(sTempFile.GetData()) == EZ_SUCCESS);
     TempFile.Close();
 
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), ezFileSystem::AllowWrites, "Clear") == EZ_SUCCESS);
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2.GetData(), ezFileSystem::ReadOnly, "Clear") == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), "Clear", "output1", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2.GetData(), "Clear") == EZ_SUCCESS);
 
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2.GetData(), ezFileSystem::AllowWrites, "Remove") == EZ_SUCCESS);
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), ezFileSystem::ReadOnly, "Remove") == EZ_SUCCESS);
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2.GetData(), ezFileSystem::ReadOnly, "Remove") == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2.GetData(), "Remove", "output2", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), "Remove") == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2.GetData(), "Remove") == EZ_SUCCESS);
 
     EZ_TEST_BOOL(ezFileSystem::RemoveDataDirectoryGroup("Remove") == 3);
 
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2.GetData(), ezFileSystem::AllowWrites, "Remove") == EZ_SUCCESS);
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), ezFileSystem::ReadOnly, "Remove") == EZ_SUCCESS);
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2.GetData(), ezFileSystem::ReadOnly, "Remove") == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2.GetData(), "Remove", "output2", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), "Remove") == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2.GetData(), "Remove") == EZ_SUCCESS);
 
     ezFileSystem::ClearAllDataDirectories();
 
     EZ_TEST_BOOL(ezFileSystem::RemoveDataDirectoryGroup("Remove") == 0);
     EZ_TEST_BOOL(ezFileSystem::RemoveDataDirectoryGroup("Clear") == 0);
 
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), ezFileSystem::AllowWrites) == EZ_SUCCESS);
-    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2.GetData(), ezFileSystem::ReadOnly) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), "", "output1", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2.GetData()) == EZ_SUCCESS);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Write File")
@@ -80,7 +80,7 @@ Only concrete and clocks.\n\
     ezStringBuilder sAbs = sOutputFolder1;
     sAbs.AppendPath("FileSystemTest.txt");
 
-    EZ_TEST_BOOL(FileOut.Open("FileSystemTest.txt") == EZ_SUCCESS);
+    EZ_TEST_BOOL(FileOut.Open(":output1/FileSystemTest.txt") == EZ_SUCCESS);
 
     EZ_TEST_BOOL(FileOut.GetFilePathRelative() == "FileSystemTest.txt");
     EZ_TEST_BOOL(FileOut.GetFilePathAbsolute() == sAbs.GetData());
@@ -141,8 +141,8 @@ Only concrete and clocks.\n\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Delete File / Exists File")
   {
-    EZ_TEST_BOOL(ezFileSystem::ExistsFile("FileSystemTest.txt"));
-    ezFileSystem::DeleteFile("FileSystemTest.txt");
+    EZ_TEST_BOOL(ezFileSystem::ExistsFile(":output1/FileSystemTest.txt"));
+    ezFileSystem::DeleteFile(":output1/FileSystemTest.txt");
     EZ_TEST_BOOL(!ezFileSystem::ExistsFile("FileSystemTest.txt"));
 
     ezFileReader FileIn;
@@ -153,7 +153,7 @@ Only concrete and clocks.\n\
   {
     ezString sRel, sAbs;
 
-    EZ_TEST_BOOL(ezFileSystem::ResolvePath("FileSystemTest2.txt", true, &sAbs, &sRel) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::ResolvePath(":output1/FileSystemTest2.txt", true, &sAbs, &sRel) == EZ_SUCCESS);
 
     ezStringBuilder sExpectedAbs = sOutputFolder1;
     sExpectedAbs.AppendPath("FileSystemTest2.txt");
@@ -163,11 +163,11 @@ Only concrete and clocks.\n\
 
     // create a file in the second dir
     {
-      EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2.GetData(), ezFileSystem::AllowWrites, "Remove") == EZ_SUCCESS);
+      EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2.GetData(), "Remove", "output2", ezFileSystem::AllowWrites) == EZ_SUCCESS);
 
       {
         ezFileWriter FileOut;
-        EZ_TEST_BOOL(FileOut.Open("FileSystemTest2.txt") == EZ_SUCCESS);
+        EZ_TEST_BOOL(FileOut.Open(":output2/FileSystemTest2.txt") == EZ_SUCCESS);
       }
 
       EZ_TEST_BOOL(ezFileSystem::RemoveDataDirectoryGroup("Remove") == 1);
@@ -186,7 +186,7 @@ Only concrete and clocks.\n\
 
     // find where we would write the file to (ignoring existing files)
     {
-      EZ_TEST_BOOL(ezFileSystem::ResolvePath("FileSystemTest2.txt", true, &sAbs, &sRel) == EZ_SUCCESS);
+      EZ_TEST_BOOL(ezFileSystem::ResolvePath(":output1/FileSystemTest2.txt", true, &sAbs, &sRel) == EZ_SUCCESS);
 
       sExpectedAbs = sOutputFolder1;
       sExpectedAbs.AppendPath("FileSystemTest2.txt");
@@ -197,7 +197,7 @@ Only concrete and clocks.\n\
 
     // find where we would write the file to (ignoring existing files)
     {
-      EZ_TEST_BOOL(ezFileSystem::ResolvePath("SubSub/FileSystemTest2.txt", true, &sAbs, &sRel) == EZ_SUCCESS);
+      EZ_TEST_BOOL(ezFileSystem::ResolvePath(":output1/SubSub/FileSystemTest2.txt", true, &sAbs, &sRel) == EZ_SUCCESS);
 
       sExpectedAbs = sOutputFolder1;
       sExpectedAbs.AppendPath("SubSub/FileSystemTest2.txt");
@@ -206,6 +206,7 @@ Only concrete and clocks.\n\
       EZ_TEST_BOOL(sRel == "SubSub/FileSystemTest2.txt");
     }
 
-    ezFileSystem::DeleteFile("FileSystemTest2.txt");
+    ezFileSystem::DeleteFile(":output1/FileSystemTest2.txt");
+    ezFileSystem::DeleteFile(":output2/FileSystemTest2.txt");
   }
 }

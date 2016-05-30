@@ -44,7 +44,11 @@ void ezGameApplication::DoSetupLogWriters()
 void ezGameApplication::DoConfigureFileSystem()
 {
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-  ezFileSystem::AddDataDirectory("");// for absolute paths
+
+  ezFileSystem::AddDataDirectory("", "AbsPaths", ":", ezFileSystem::ReadOnly); // for absolute paths
+  ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "AppBin", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
+  ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "ShaderCache", "shadercache", ezFileSystem::AllowWrites); // for shader files
+  ezFileSystem::AddDataDirectory(ezOSFile::GetUserDataFolder(m_sAppName), "AppData", "appdata", ezFileSystem::AllowWrites); // for writing app user data
 }
 
 

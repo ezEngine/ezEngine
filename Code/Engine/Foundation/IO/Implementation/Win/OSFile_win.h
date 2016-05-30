@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Shlobj.h>
+
 // Defined in Timestamp_win.h
 ezInt64 FileTimeToEpoch(FILETIME fileTime);
 
@@ -362,4 +364,17 @@ const char* ezOSFile::GetApplicationDirectory()
   return s_ApplicationPath.GetData();
 }
 
+ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
+{
+  if (s_UserDataPath.IsEmpty())
+  {
+    WCHAR szPath[MAX_PATH];
+    SHGetFolderPathW(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, szPath);
+    s_UserDataPath = ezStringWChar(szPath).GetData();
+  }
+
+  ezStringBuilder s = s_UserDataPath;
+  s.AppendPath(szSubFolder);
+  return s;
+}
 

@@ -17,6 +17,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationFileSystemConfig_DataDirConfig, ezNo
   {
     EZ_MEMBER_PROPERTY("RelativePath", m_sRelativePath),
     EZ_MEMBER_PROPERTY("Writable", m_bWritable),
+    EZ_MEMBER_PROPERTY("RootName", m_sRootName),
   }
   EZ_END_PROPERTIES
 }
@@ -45,6 +46,7 @@ ezResult ezApplicationFileSystemConfig::Save()
     json.BeginObject();
 
     json.AddVariableString("Path", m_DataDirs[i].m_sRelativePath);
+    json.AddVariableString("RootName", m_DataDirs[i].m_sRootName);
     json.AddVariableBool("Writable", m_DataDirs[i].m_bWritable);
 
     json.EndObject();
@@ -105,6 +107,8 @@ void ezApplicationFileSystemConfig::Load()
 
     if (datadir.TryGetValue("Path", pVar) && pVar->IsA<ezString>())
       cfg.m_sRelativePath = pVar->Get<ezString>();
+    if (datadir.TryGetValue("RootName", pVar) && pVar->IsA<ezString>())
+      cfg.m_sRootName = pVar->Get<ezString>();
     if (datadir.TryGetValue("Writable", pVar) && pVar->IsA<bool>())
       cfg.m_bWritable = pVar->Get<bool>();
 
@@ -127,7 +131,7 @@ void ezApplicationFileSystemConfig::Apply()
     s.AppendPath(var.m_sRelativePath);
     s.MakeCleanPath();
 
-    ezFileSystem::AddDataDirectory(s, var.m_bWritable ? ezFileSystem::DataDirUsage::AllowWrites : ezFileSystem::DataDirUsage::ReadOnly, "AppFileSystemConfig");
+    ezFileSystem::AddDataDirectory(s, "AppFileSystemConfig", var.m_sRootName, (!var.m_sRootName.IsEmpty() && var.m_bWritable) ? ezFileSystem::DataDirUsage::AllowWrites : ezFileSystem::DataDirUsage::ReadOnly);
   }
 }
 

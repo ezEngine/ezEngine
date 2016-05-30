@@ -16,8 +16,8 @@ EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
   EZ_TEST_BOOL(ezOSFile::CreateDirectoryStructure(sWriteDir.GetData()) == EZ_SUCCESS);
 
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sReadDir.GetData(), ezFileSystem::ReadOnly, "ImageTest") == EZ_SUCCESS);
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sWriteDir.GetData(), ezFileSystem::AllowWrites, "ImageTest") == EZ_SUCCESS);
+  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sReadDir.GetData(), "ImageTest") == EZ_SUCCESS);
+  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sWriteDir.GetData(), "ImageTest", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ComputeImageDifferenceABS RGB")
   {
@@ -27,7 +27,7 @@ EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
 
     ezImageUtils::ComputeImageDifferenceABS(ImageA, ImageB, ImageDiff);
 
-    ImageDiff.SaveTo("ImageUtils/Diff_RGB.tga");
+    ImageDiff.SaveTo(":output/ImageUtils/Diff_RGB.tga");
 
     EZ_TEST_FILES("ImageUtils/ExpectedDiff_RGB.tga", "ImageUtils/Diff_RGB.tga", "");
   }
@@ -40,7 +40,7 @@ EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
 
     ezImageUtils::ComputeImageDifferenceABS(ImageA, ImageB, ImageDiff);
 
-    ImageDiff.SaveTo("ImageUtils/Diff_RGBA.tga");
+    ImageDiff.SaveTo(":output/ImageUtils/Diff_RGBA.tga");
 
     EZ_TEST_FILES("ImageUtils/ExpectedDiff_RGBA.tga", "ImageUtils/Diff_RGBA.tga", "");
   }
@@ -51,7 +51,7 @@ EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
     ImageA.LoadFrom("ImageUtils/ImageA_RGB.tga");
     ezImageUtils::ScaleDownHalf(ImageA, ImageAc);
 
-    ImageAc.SaveTo("ImageUtils/ScaledHalf_RGB.tga");
+    ImageAc.SaveTo(":output/ImageUtils/ScaledHalf_RGB.tga");
 
     EZ_TEST_FILES("ImageUtils/ExpectedScaledHalf_RGB.tga", "ImageUtils/ScaledHalf_RGB.tga", "");
   }
@@ -62,7 +62,7 @@ EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
     ImageA.LoadFrom("ImageUtils/ImageA_RGBA.tga");
     ezImageUtils::ScaleDownHalf(ImageA, ImageAc);
 
-    ImageAc.SaveTo("ImageUtils/ScaledHalf_RGBA.tga");
+    ImageAc.SaveTo(":output/ImageUtils/ScaledHalf_RGBA.tga");
 
     EZ_TEST_FILES("ImageUtils/ExpectedScaledHalf_RGBA.tga", "ImageUtils/ScaledHalf_RGBA.tga", "");
   }
@@ -73,7 +73,7 @@ EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
     ImageA.LoadFrom("ImageUtils/ImageA_RGB.tga");
     ezImageUtils::CropImage(ImageA, ezVec2I32(100, 50), ezSizeU32(300, 200), ImageAc);
 
-    ImageAc.SaveTo("ImageUtils/Crop_RGB.tga");
+    ImageAc.SaveTo(":output/ImageUtils/Crop_RGB.tga");
 
     EZ_TEST_FILES("ImageUtils/ExpectedCrop_RGB.tga", "ImageUtils/Crop_RGB.tga", "");
   }
@@ -84,7 +84,7 @@ EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
     ImageA.LoadFrom("ImageUtils/ImageA_RGBA.tga");
     ezImageUtils::CropImage(ImageA, ezVec2I32(100, 75), ezSizeU32(300, 180), ImageAc);
 
-    ImageAc.SaveTo("ImageUtils/Crop_RGBA.tga");
+    ImageAc.SaveTo(":output/ImageUtils/Crop_RGBA.tga");
 
     EZ_TEST_FILES("ImageUtils/ExpectedCrop_RGBA.tga", "ImageUtils/Crop_RGBA.tga", "");
   }
@@ -102,7 +102,7 @@ EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
 
     ezImageUtils::ComputeImageDifferenceABS(ImageAc, ImageBc, ImageDiff);
 
-    ImageDiff.SaveTo("ImageUtils/MeanSquareDiff_RGB.tga");
+    ImageDiff.SaveTo(":output/ImageUtils/MeanSquareDiff_RGB.tga");
 
     EZ_TEST_FILES("ImageUtils/ExpectedMeanSquareDiff_RGB.tga", "ImageUtils/MeanSquareDiff_RGB.tga", "");
 

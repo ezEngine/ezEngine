@@ -6,7 +6,7 @@
 class EZ_RENDERERCORE_DLL ezShaderManager
 {
 public:
-  static void Configure(const char* szActivePlatform, bool bEnableRuntimeCompilation, const char* szShaderCacheDirectory = "ShaderCache", const char* szPermVarSubDirectory = "Shaders/PermutationVars");
+  static void Configure(const char* szActivePlatform, bool bEnableRuntimeCompilation, const char* szShaderCacheDirectory = ":shadercache/ShaderCache", const char* szPermVarSubDirectory = "Shaders/PermutationVars");
   static const ezString& GetPermutationVarSubDirectory() { return s_sPermVarSubDir; }
   static const ezString& GetActivePlatform() { return s_sPlatform; }
   static const ezString& GetCacheDirectory() { return s_ShaderCacheDirectory; }

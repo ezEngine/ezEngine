@@ -23,7 +23,7 @@ void ezTexConv::AfterCoreStartup()
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
   // Add the empty data directory to access files via absolute paths
-  ezFileSystem::AddDataDirectory("");
+  ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites);
 
   m_2dSource[0].m_uiChannelMask = EZ_BIT(0);
   m_2dSource[1].m_uiChannelMask = EZ_BIT(1);

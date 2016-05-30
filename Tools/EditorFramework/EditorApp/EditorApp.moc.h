@@ -125,7 +125,7 @@ public:
   
   /// \brief Adds a data directory as a hard dependency to the project. Should be used by plugins to ensure their required data is available.
   /// The path must be relative to the PROJECT folder.
-  void AddPluginDataDirDependency(const char* szRelativePath);
+  void AddPluginDataDirDependency(const char* szRelativePath, const char* szRootName = nullptr);
 
   const ezApplicationFileSystemConfig& GetFileSystemConfig() const { return m_FileSystemConfig; }
   const ezApplicationPluginConfig& GetEnginePluginConfig() const { return m_EnginePluginConfig; }

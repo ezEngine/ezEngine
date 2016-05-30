@@ -30,8 +30,8 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
   EZ_TEST_BOOL(ezOSFile::CreateDirectoryStructure(sWriteDir.GetData()) == EZ_SUCCESS);
 
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sReadDir.GetData(), ezFileSystem::ReadOnly, "ImageTest") == EZ_SUCCESS);
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sWriteDir.GetData(), ezFileSystem::AllowWrites, "ImageTest") == EZ_SUCCESS);
+  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sReadDir.GetData(), "ImageTest") == EZ_SUCCESS);
+  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sWriteDir.GetData(), "ImageTest", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "BMP - Good")
   {
@@ -55,7 +55,7 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
 
       {
         ezStringBuilder fileName;
-        fileName.Format("%s_out.bmp", testImagesGood[i]);
+        fileName.Format(":output/%s_out.bmp", testImagesGood[i]);
 
         EZ_TEST_BOOL_MSG(image.SaveTo(fileName.GetData()) == EZ_SUCCESS, "Writing image failed: '%s'", fileName.GetData());
         EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName.GetData()), "Output image file is missing: '%s'", fileName.GetData());
@@ -105,7 +105,7 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
 
       {
         ezStringBuilder fileName;
-        fileName.Format("%s_out.bmp", testImagesGood[i]);
+        fileName.Format(":output/%s_out.bmp", testImagesGood[i]);
 
         ezStringBuilder fileNameExpected;
         fileNameExpected.Format("%s_expected.bmp", testImagesGood[i]);
@@ -118,7 +118,7 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
 
       {
         ezStringBuilder fileName;
-        fileName.Format("%s_out.tga", testImagesGood[i]);
+        fileName.Format(":output/%s_out.tga", testImagesGood[i]);
 
         ezStringBuilder fileNameExpected;
         fileNameExpected.Format("%s_expected.tga", testImagesGood[i]);

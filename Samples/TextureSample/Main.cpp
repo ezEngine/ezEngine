@@ -100,10 +100,15 @@ public:
     }
 
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-    ezFileSystem::AddDataDirectory("");
-    ezFileSystem::AddDataDirectory(sBaseDir.GetData(), ezFileSystem::ReadOnly, "Base");
-    ezFileSystem::AddDataDirectory(sSharedDir.GetData(), ezFileSystem::ReadOnly, "Shared");
-    ezFileSystem::AddDataDirectory(sProjectDir.GetData(), ezFileSystem::AllowWrites, "Project");
+
+    ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites);
+    ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "AppBin", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
+    ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "ShaderCache", "shadercache", ezFileSystem::AllowWrites); // for shader files
+    ezFileSystem::AddDataDirectory(ezOSFile::GetUserDataFolder("ezEngine Project/TextureSample"), "AppData", "appdata", ezFileSystem::AllowWrites); // app user data
+
+    ezFileSystem::AddDataDirectory(sBaseDir.GetData(), "Base", "base");
+    ezFileSystem::AddDataDirectory(sSharedDir.GetData(), "Shared", "shared");
+    ezFileSystem::AddDataDirectory(sProjectDir.GetData(), "Project", "project", ezFileSystem::AllowWrites);
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);

@@ -9,14 +9,14 @@
 
 void ezQtEditorApp::SaveRecentFiles()
 {
-  s_RecentProjects.Save("Settings/RecentProjects.txt");
-  s_RecentDocuments.Save("Settings/RecentDocuments.txt");
+  s_RecentProjects.Save(":appdata/Settings/RecentProjects.txt");
+  s_RecentDocuments.Save(":appdata/Settings/RecentDocuments.txt");
 }
 
 void ezQtEditorApp::LoadRecentFiles()
 {
-  s_RecentProjects.Load("Settings/RecentProjects.txt");
-  s_RecentDocuments.Load("Settings/RecentDocuments.txt");
+  s_RecentProjects.Load(":appdata/Settings/RecentProjects.txt");
+  s_RecentDocuments.Load(":appdata/Settings/RecentDocuments.txt");
 }
 
 void ezQtEditorApp::SaveOpenDocumentsList()

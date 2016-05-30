@@ -2,6 +2,7 @@
 #include <Foundation/IO/OSFile.h>
 
 ezString64 ezOSFile::s_ApplicationPath;
+ezString64 ezOSFile::s_UserDataPath;
 ezAtomicInteger32 ezOSFile::s_FileCounter;
 ezOSFile::Event ezOSFile::s_FileEvents;
 
@@ -453,6 +454,7 @@ done:
 
     return Res;
   }
+
 
 #endif // EZ_SUPPORTS_FILE_STATS
 

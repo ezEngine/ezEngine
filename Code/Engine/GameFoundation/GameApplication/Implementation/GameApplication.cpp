@@ -13,10 +13,11 @@ namespace
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
 
 
-ezGameApplication::ezGameApplication(ezGameApplicationType type, const char* szProjectPath /*= nullptr*/)
+ezGameApplication::ezGameApplication(const char* szAppName, ezGameApplicationType type, const char* szProjectPath /*= nullptr*/)
   : m_UpdateTask("GameApplication.Update", ezMakeDelegate(&ezGameApplication::UpdateWorldsAndExtractViews, this))
   , m_sAppProjectPath(szProjectPath)
 {
+  m_sAppName = szAppName;
   s_pGameApplicationInstance = this;
   m_bWasQuitRequested = false;
   m_AppType = type;

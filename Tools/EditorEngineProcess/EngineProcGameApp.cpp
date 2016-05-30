@@ -7,8 +7,8 @@
 #include <RendererCore/Pipeline/Extractor.h>
 #include <Foundation/Configuration/Startup.h>
 
-ezEngineProcessGameApplication::ezEngineProcessGameApplication() 
-  : ezGameApplication(ezGameApplicationType::EmbeddedInTool, nullptr)
+ezEngineProcessGameApplication::ezEngineProcessGameApplication()
+  : ezGameApplication("ezEditorEngineProcess", ezGameApplicationType::EmbeddedInTool, nullptr)
 {
   m_pApp = nullptr;
 }
@@ -276,11 +276,16 @@ void ezEngineProcessGameApplication::DoSetupDataDirectories()
 {
   ezStringBuilder sAppDir = ezOSFile::GetApplicationDirectory();
   sAppDir.AppendPath("../../../Data/Tools/EditorEngineProcess");
+  sAppDir.MakeCleanPath();
 
   ezOSFile osf;
   osf.CreateDirectoryStructure(sAppDir);
 
-  ezFileSystem::AddDataDirectory(sAppDir.GetData(), ezFileSystem::AllowWrites, "App"); // for everything relative
+  ezFileSystem::AddDataDirectory("", "AbsPaths", ":", ezFileSystem::AllowWrites); // for absolute paths
+  ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "AppBin", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
+  ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "ShaderCache", "shadercache", ezFileSystem::AllowWrites); // for shader files
+  ezFileSystem::AddDataDirectory(sAppDir.GetData(), "AppData", "app"); // app specific data
+  ezFileSystem::AddDataDirectory(ezOSFile::GetUserDataFolder("ezEngine Project/EditorEngineProcess"), "AppData", "appdata", ezFileSystem::AllowWrites); // for writing app user data
 
   m_CustomFileSystemConfig.Apply();
 }

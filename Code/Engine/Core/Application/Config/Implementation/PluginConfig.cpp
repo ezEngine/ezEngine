@@ -103,7 +103,8 @@ ezResult ezApplicationPluginConfig::Save()
   m_Plugins.Sort();
 
   ezStringBuilder sPath;
-  sPath = GetProjectDirectory();
+  sPath = ":";
+  sPath.AppendPath(GetProjectDirectory());
   sPath.AppendPath("Plugins.ezManifest");
 
   ezFileWriter file;

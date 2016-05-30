@@ -55,25 +55,27 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory("", ezFileSystem::ReadOnly, "test") == EZ_SUCCESS);
-  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), ezFileSystem::AllowWrites, "test") == EZ_SUCCESS);
+  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory("", "test") == EZ_SUCCESS);
+  EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), "test", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
 
   // Delete all cvar setting files
   {
     ezStringBuilder sConfigFile;
 
-    sConfigFile = sOutputFolder1;
+    sConfigFile = ":output";
+    sConfigFile.AppendPath(sOutputFolder1);
     sConfigFile.AppendPath("CVars/CVars_ezFoundationTest_Plugin1.cfg");
 
     ezFileSystem::DeleteFile(sConfigFile.GetData());
 
-    sConfigFile = sOutputFolder1;
+    sConfigFile = ":output";
+    sConfigFile.AppendPath(sOutputFolder1);
     sConfigFile.AppendPath("CVars/CVars_ezFoundationTest_Plugin2.cfg");
 
     ezFileSystem::DeleteFile(sConfigFile.GetData());
   }
 
-  ezCVar::SetStorageFolder("CVars");
+  ezCVar::SetStorageFolder(":output/CVars");
   ezCVar::LoadCVars(); // should do nothing (no settings files available)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "No Plugin Loaded")

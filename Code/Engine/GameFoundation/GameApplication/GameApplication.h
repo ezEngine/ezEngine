@@ -35,8 +35,11 @@ class EZ_GAMEFOUNDATION_DLL ezGameApplication : public ezApplication
 public:
 
   /// szProjectPath may be nullptr, if FindProjectDirectory() is overridden.
-  ezGameApplication(ezGameApplicationType type, const char* szProjectPath);
+  ezGameApplication(const char* szAppName, ezGameApplicationType type, const char* szProjectPath);
   ~ezGameApplication();
+
+  /// \brief Returns the app name that was given to the constructor.
+  const ezString GetAppName() const { return m_sAppName; }
 
   /// \brief Returns the ezGameApplication singleton
   static ezGameApplication* GetGameApplicationInstance()
@@ -279,7 +282,7 @@ private:
   };
 
 
-
+  ezString m_sAppName;
   ezDynamicArray<WindowContext> m_Windows;
   ezHybridArray<WorldData, 4> m_Worlds;
   ezHybridArray<GameStateData, 4> m_GameStates;

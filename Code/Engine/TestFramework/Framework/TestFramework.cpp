@@ -675,7 +675,7 @@ bool ezTestFramework::CompareImages(ezUInt32 uiMaxError, char* szErrorMsg)
   ezImageUtils::ScaleDownHalf(imgRGB, imgSmall);
 
   sImgPathReference.Format("Images_Reference/%s.tga", sImgName.GetData());
-  sImgPathResult.Format("Images_Result/%s.tga", sImgName.GetData());
+  sImgPathResult.Format(":imgout/Images_Result/%s.tga", sImgName.GetData());
 
   ezImage imgExp, imgExpRGB;
   if (imgExp.LoadFrom(sImgPathReference).Failed())
@@ -704,7 +704,7 @@ bool ezTestFramework::CompareImages(ezUInt32 uiMaxError, char* szErrorMsg)
     imgSmall.SaveTo(sImgPathResult);
 
     ezStringBuilder sImgDiffName;
-    sImgDiffName.Format("Images_Diff/%s.tga", sImgName.GetData());
+    sImgDiffName.Format(":imgout/Images_Diff/%s.tga", sImgName.GetData());
 
     imgDiff.SaveTo(sImgDiffName);
 

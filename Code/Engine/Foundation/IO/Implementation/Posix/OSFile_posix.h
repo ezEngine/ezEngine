@@ -213,3 +213,14 @@ const char* ezOSFile::GetApplicationDirectory()
   return nullptr;
 }
 
+ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
+{
+  if (s_UserDataPath.IsEmpty())
+  {
+    s_UserDataPath = "/home";
+  }
+
+  ezStringBuilder s = s_UserDataPath;
+  s.AppendPath(szSubFolder);
+  return s;
+}

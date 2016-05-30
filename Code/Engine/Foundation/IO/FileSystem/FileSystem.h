@@ -88,15 +88,11 @@ public:
   /// to remove all data directories of the same group.
   /// You could use groups such as 'Base', 'Project', 'Settings', 'Level', 'Temp' to distinguish between different sets of data directories.
   /// You can also specify the exact same string as szDataDirectory for szGroup, and thus uniquely identify the data dir, to be able to remove just that one.
-  /// szCategory can be a (short) identifier, such as 'BIN', 'PACKAGE', 'SETTINGS' etc.
-  /// Categories are used to look up files in specific data directories via a path-prefix.
-  /// For example the path "<BIN>MyFolder/MyFile.txt" will only be looked up in all data directories of the "BIN" category.
-  /// The path "MyFolder/MyFile.txt" would only be looked up in folders of the "" (empty) category.
-  /// You can specify several search categories in one path by separating them with |
-  /// E.g. the path "<BIN|TEMP|>MyFolder/MyFile.txt" would be looked up in all data directories of the category "BIN", "TEMP" and "" (empty)
-  /// The path "MyFolder/MyFile.txt" is a shorthand for "<>MyFolder/MyFile.txt" (specifies only the empty category).
-  /// If you want a data directory to belong to several different categories, just mount it several times with different categories.
-  static ezResult AddDataDirectory(const char* szDataDirectory, DataDirUsage Usage = AllowWrites, const char* szGroup = "", const char* szCategory = "");
+  /// szRootName is optional for read-only data dirs, but mandatory for writable ones.
+  /// It has to be unique to clearly identify a file within that data directory. It must be used when writing to a file in this directory.
+  /// For instance, if a data dir root name is "mydata", then the path ":mydata/SomeFile.txt" can be used to write to the top level
+  /// folder of this data directory. The same can be used for reading exactly that file and ignoring the other data dirs.
+  static ezResult AddDataDirectory(const char* szDataDirectory, const char* szGroup = "", const char* szRootName = "", DataDirUsage Usage = ReadOnly);
 
   /// \brief Removes all data directories that belong to the given group. Returns the number of data directories that were removed.
   static ezUInt32 RemoveDataDirectoryGroup(const char* szGroup);
@@ -117,9 +113,8 @@ public:
 
   /// \brief Deletes the given file from all data directories, if possible.
   ///
-  /// Files in read-only data directories will not be deleted.
-  /// You can use category specifiers to only delete files from certain data directories (see AddDataDirectory).
-  /// E.g. "<SETTINGS>MySettings.txt" would only delete "MySettings.txt" from data directories of the "SETTINGS" category.
+  /// The path must be absolute or rooted, to uniquely identify which file to delete.
+  /// For example ":appdata/SomeData.txt", assuming a writable data directory has been mounted with the "appdata" root name.
   static void DeleteFile(const char* szFile);
 
   /// \brief Checks whether the given file exists in any data directory.
@@ -132,10 +127,8 @@ public:
   /// If bForWriting is false, all data directories will be searched for an existing file.
   /// This is similar to what opening a file for reading does. So if there is any file that could be opened for reading,
   /// the path to that file will be returned.
-  /// If bForWriting is true, the first valid location where the file could be written to will be returned.
-  /// Depending on how data directories are mounted (with read/write access), and which files are already existing,
-  /// the file for write output might end up in a place where it has higher or lower open-for-read priority than an identically
-  /// named file in another data directory.
+  /// If bForWriting is true, the path must be either an absolute native path, or 'rooted'. That means it must start with a
+  /// colon and then a data directory name. For instance ":appdata/UserData.txt".
   /// out_sAbsolutePath will contain the absolute path to the file. Might be nullptr.
   /// out_sDataDirRelativePath will contain the relative path to the file (from the data directory in which it might end up in). Might be nullptr.
   /// szPath can be an absolute path. This can also be used to find the relative location to the data directory that would handle it.
@@ -178,7 +171,7 @@ private:
 
 private:
   /// \brief Returns a list of data directory categories that were embedded in the path.
-  static const char* ExtractDataDirsToSearch(const char* szPath, ezHybridArray<ezString, 4>& SearchDirs);
+  static const char* ExtractRootName(const char* szPath, ezString& rootName);
 
   /// \brief Returns the given path relative to its data directory. The path must be inside the given data directory.
   static const char* GetDataDirRelativePath(const char* szPath, ezUInt32 uiDataDir);
@@ -187,7 +180,7 @@ private:
   {
     DataDirUsage m_Usage;
 
-    ezString m_sCategory;
+    ezString m_sRootName;
     ezString m_sGroup;
     ezDataDirectoryType* m_pDataDirectory;
   };

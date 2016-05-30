@@ -1,14 +1,17 @@
 {
   "DataDirectories" : [ {
       "Path" : "../../Base",
+      "RootName" : "",
       "Writable" : false
     },
     {
       "Path" : "",
+      "RootName" : "",
       "Writable" : true
     },
     {
       "Path" : "../../FreeContent",
+      "RootName" : "",
       "Writable" : false
     } ]
 }
