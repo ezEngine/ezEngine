@@ -43,6 +43,7 @@ enum TexConvReturnCodes
   FAILED_SAVE_AS_DDS,
   FAILED_INITIALIZE_CUBEMAP,
   FAILED_COMBINE_CUBEMAP,
+  FAILED_PREMULTIPLY_ALPHA,
 };
 
 class ezTexConv : public ezApplication
@@ -79,6 +80,7 @@ public:
   bool m_bGeneratedMipmaps;
   bool m_bCompress;
   bool m_bSRGBOutput;
+  bool m_bPremultiplyAlpha;
   ezUInt8 m_uiOutputChannels;
   ezHybridArray<ezImage*, 6> m_CleanupImages;
   ezUInt64 m_uiAssetHash;

@@ -22,5 +22,6 @@ public:
   ezEditorPreferencesUser();
 
   float m_fGizmoScale;
+  bool m_bUsePrecompiledTools;
 };
 

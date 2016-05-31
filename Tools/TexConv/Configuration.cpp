@@ -7,6 +7,7 @@ ezTexConv::ezTexConv()
   m_bCompress = false;
   m_uiOutputChannels = 4;
   m_bSRGBOutput = false;
+  m_bPremultiplyAlpha = false;
   m_uiAssetHash = 0;
   m_uiAssetVersion = 0;
   m_bAlphaIsMaskOnly = false;
@@ -235,12 +236,13 @@ void ezTexConv::ParseCommandLine()
     m_sOutputFile = pCmd->GetStringOption("-out");
   }
 
-  // some boolean states
+  // some other states
   {
     m_bGeneratedMipmaps = pCmd->GetBoolOption("-mipmaps", false);
     m_bCompress = pCmd->GetBoolOption("-compress", false);
     m_bSRGBOutput = pCmd->GetBoolOption("-srgb", false);
     m_uiOutputChannels = pCmd->GetIntOption("-channels", 4);
+    m_bPremultiplyAlpha = pCmd->GetBoolOption("-premulalpha", false);
   }
 
   // Thumbnail
@@ -352,6 +354,7 @@ void ezTexConv::PrintConfig()
   ezLog::Info("Use Compression: %s", m_bCompress ? "yes" : "no");
   ezLog::Info("Output Channels: %u", m_uiOutputChannels);
   ezLog::Info("Output is %s", m_bSRGBOutput ? "sRGB" : "Linear");
+  ezLog::Info("Pre-multiply alpha: %s", m_bPremultiplyAlpha ? "yes" : "no");
 
   for (ezUInt32 i = 0; i < m_uiOutputChannels; ++i)
   {

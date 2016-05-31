@@ -27,6 +27,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 1, ezRTTIDefaultAlloca
 
     EZ_MEMBER_PROPERTY("Mipmaps", m_bMipmaps)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Compression", m_bCompression)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("Premultiplied Alpha", m_bPremultipliedAlpha),
 
     EZ_ENUM_MEMBER_PROPERTY("Channel Mapping", ezChannelMappingEnum, m_ChannelMapping),
 

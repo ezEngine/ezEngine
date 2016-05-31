@@ -2,6 +2,8 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
 #include <QStandardPaths>
+#include <EditorFramework/Preferences/Preferences.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 
 ezString ezQtEditorApp::GetEditorDataFolder()
 {
@@ -15,7 +17,14 @@ ezString ezQtEditorApp::GetEditorDataFolder()
 ezString ezQtEditorApp::GetPrecompiledToolsFolder()
 {
   ezStringBuilder sPath = ezOSFile::GetApplicationDirectory();
-  sPath.AppendPath("../../../Data/Tools/Precompiled");
+  
+  ezEditorPreferencesUser* pPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+
+  if (pPref->m_bUsePrecompiledTools)
+  {
+    sPath.AppendPath("../../../Data/Tools/Precompiled");
+  }
+
   sPath.MakeCleanPath();
 
   return sPath;

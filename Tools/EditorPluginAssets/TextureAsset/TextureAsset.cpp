@@ -49,7 +49,7 @@ ezString ezTextureAssetDocument::FindTexConvTool() const
 
 ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail)
 {
-  const auto pProp = GetProperties();
+  const ezTextureAssetProperties* pProp = GetProperties();
 
   QStringList arguments;
   ezStringBuilder temp;
@@ -101,6 +101,9 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
   if (pProp->IsSRGB())
     arguments << "-srgb";
+
+  if (pProp->m_bPremultipliedAlpha)
+    arguments << "-premulalpha";
 
   if (pProp->IsTextureCube())
     arguments << "-cubemap";

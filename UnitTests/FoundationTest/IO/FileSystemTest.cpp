@@ -24,7 +24,6 @@ Only concrete and clocks.\n\
   ezStringBuilder sOutputFolder2 = BUILDSYSTEM_OUTPUT_FOLDER;
   sOutputFolder2.AppendPath("FoundationTest", "IO", "SubFolder2");
 
-
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Setup Data Dirs")
   {
     // adding the same factory three times would actually not make a difference
@@ -36,17 +35,19 @@ Only concrete and clocks.\n\
 
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
+    // for absolute paths
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites) == EZ_SUCCESS);
     EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(BUILDSYSTEM_OUTPUT_FOLDER, "Clear", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
 
-    ezStringBuilder sTempFile = ":output/";
-    sTempFile.AppendPath(sOutputFolder1, "Temp.tmp");
+    ezStringBuilder sTempFile = sOutputFolder1;
+    sTempFile.AppendPath("Temp.tmp");
 
     ezFileWriter TempFile;
     EZ_TEST_BOOL(TempFile.Open(sTempFile.GetData()) == EZ_SUCCESS);
     TempFile.Close();
 
-    sTempFile = ":output/";
-    sTempFile.AppendPath(sOutputFolder2, "Temp.tmp");
+    sTempFile = sOutputFolder2;
+    sTempFile.AppendPath("Temp.tmp");
 
     EZ_TEST_BOOL(TempFile.Open(sTempFile.GetData()) == EZ_SUCCESS);
     TempFile.Close();

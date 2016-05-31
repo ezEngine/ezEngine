@@ -40,6 +40,20 @@ ezResult ezTexConv::ConvertToOutputFormat()
   const ezImageFormat::Enum outputFormat = ChooseOutputFormat(false /*m_bSRGBOutput*/, m_bAlphaIsMaskOnly); // we don't want the implicit sRGB conversion of MS TexConv, so just write to non-sRGB target
   const DXGI_FORMAT dxgi = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(outputFormat);
 
+  if (m_bPremultiplyAlpha)
+  {
+    shared_ptr<ScratchImage> pNewScratch = make_shared<ScratchImage>();
+
+    if (FAILED(PremultiplyAlpha(m_pCurrentImage->GetImages(), m_pCurrentImage->GetImageCount(), m_pCurrentImage->GetMetadata(), m_bSRGBOutput ? TEX_PMALPHA_SRGB : TEX_PMALPHA_IGNORE_SRGB, *pNewScratch.get())))
+    {
+      SetReturnCode(TexConvReturnCodes::FAILED_PREMULTIPLY_ALPHA);
+      ezLog::Error("Pre-multiplying alpha failed");
+      return EZ_FAILURE;
+    }
+
+    m_pCurrentImage = pNewScratch;
+  }
+
   if (m_bCompress)
   {
     shared_ptr<ScratchImage> pNewScratch = make_shared<ScratchImage>();

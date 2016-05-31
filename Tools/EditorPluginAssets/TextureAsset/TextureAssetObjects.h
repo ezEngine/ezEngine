@@ -98,6 +98,7 @@ public:
 
   bool m_bMipmaps;
   bool m_bCompression;
+  bool m_bPremultipliedAlpha;
 
 private:
   ezEnum<ezTextureUsageEnum> m_TextureUsage;
