@@ -78,7 +78,7 @@ ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, const char*
     {
       if (dd.m_sRootName == sCleanRootName)
       {
-        ezLog::Error("A data directory with root name '%s' already exists.", sCleanRootName);
+        ezLog::Error("A data directory with root name '%s' already exists.", sCleanRootName.GetData());
         failed = true;
         break;
       }
