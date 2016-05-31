@@ -152,8 +152,6 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezProcessCommunicatio
   // Project Messages:
   if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSetupProjectMsgToEngine>())
   {
-
-
     const ezSetupProjectMsgToEngine* pSetupMsg = static_cast<const ezSetupProjectMsgToEngine*>(e.m_pMessage);
     ezSetupProjectMsgToEngine* pSetupMsgNonConst = const_cast<ezSetupProjectMsgToEngine*>(pSetupMsg);
 

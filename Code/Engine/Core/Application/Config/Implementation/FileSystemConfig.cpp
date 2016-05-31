@@ -123,7 +123,7 @@ void ezApplicationFileSystemConfig::Apply()
   ezStringBuilder s;
 
   // Make sure previous calls to Apply do not accumulate
-  ezFileSystem::RemoveDataDirectoryGroup("AppFileSystemConfig");
+  Clear();
 
   for (const auto& var : m_DataDirs)
   {
@@ -133,6 +133,12 @@ void ezApplicationFileSystemConfig::Apply()
 
     ezFileSystem::AddDataDirectory(s, "AppFileSystemConfig", var.m_sRootName, (!var.m_sRootName.IsEmpty() && var.m_bWritable) ? ezFileSystem::DataDirUsage::AllowWrites : ezFileSystem::DataDirUsage::ReadOnly);
   }
+}
+
+
+void ezApplicationFileSystemConfig::Clear()
+{
+  ezFileSystem::RemoveDataDirectoryGroup("AppFileSystemConfig");
 }
 
 ezResult ezApplicationFileSystemConfig::CreateDataDirStubFiles()

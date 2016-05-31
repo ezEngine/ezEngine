@@ -113,6 +113,8 @@ void ezQtEditorApp::SetupDataDirectories()
       ezToolsProject::GetSingleton()->AddAllowedDocumentRoot(sPath);
     }
   }
+
+  m_FileSystemConfig.Apply();
 }
 
 bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezString & sPath) const

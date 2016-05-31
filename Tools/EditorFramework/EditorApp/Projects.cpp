@@ -112,6 +112,8 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
 
       m_AssetCurator.Deinitialize();
 
+      // remove all data directories that were loaded by the project configuration
+      ezApplicationFileSystemConfig::Clear();
       ezApplicationConfig::SetProjectDirectory("");
 
       s_ReloadProjectRequiredReasons.Clear();
