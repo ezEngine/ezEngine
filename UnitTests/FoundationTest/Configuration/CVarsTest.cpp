@@ -62,15 +62,11 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
   {
     ezStringBuilder sConfigFile;
 
-    sConfigFile = ":output";
-    sConfigFile.AppendPath(sOutputFolder1);
-    sConfigFile.AppendPath("CVars/CVars_ezFoundationTest_Plugin1.cfg");
+    sConfigFile = ":output/CVars/CVars_ezFoundationTest_Plugin1.cfg";
 
     ezFileSystem::DeleteFile(sConfigFile.GetData());
 
-    sConfigFile = ":output";
-    sConfigFile.AppendPath(sOutputFolder1);
-    sConfigFile.AppendPath("CVars/CVars_ezFoundationTest_Plugin2.cfg");
+    sConfigFile = ":output/CVars/CVars_ezFoundationTest_Plugin2.cfg";
 
     ezFileSystem::DeleteFile(sConfigFile.GetData());
   }
