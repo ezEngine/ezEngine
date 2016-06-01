@@ -15,10 +15,7 @@ ezAssetBrowserDlg::ezAssetBrowserDlg(QWidget* parent, const char* szPreselectedA
   setupUi(this);
 
   m_sVisibleFilters = szVisibleFilters;
-
-  // Ok / Cancel buttons are disable atm
-  ButtonOk->setVisible(false);
-  ButtonCancel->setVisible(false);
+  ButtonSelect->setEnabled(false);
 
   AssetBrowserWidget->SetSelectedAsset(szPreselectedAsset);
   AssetBrowserWidget->ShowOnlyTheseTypeFilters(szVisibleFilters);
@@ -74,6 +71,8 @@ void ezAssetBrowserDlg::on_AssetBrowserWidget_ItemSelected(QString sAssetGUID, Q
   m_sSelectedAssetGuid = sAssetGUID.toUtf8().data();
   m_sSelectedAssetPathRelative = sAssetPathRelative.toUtf8().data();
   m_sSelectedAssetPathAbsolute = sAssetPathAbsolute.toUtf8().data();
+
+  ButtonSelect->setEnabled(!m_sSelectedAssetGuid.IsEmpty());
 }
 
 void ezAssetBrowserDlg::on_AssetBrowserWidget_ItemChosen(QString sAssetGUID, QString sAssetPathRelative, QString sAssetPathAbsolute)
@@ -83,6 +82,11 @@ void ezAssetBrowserDlg::on_AssetBrowserWidget_ItemChosen(QString sAssetGUID, QSt
   m_sSelectedAssetPathAbsolute = sAssetPathAbsolute.toUtf8().data();
 
   accept();
+}
+
+void ezAssetBrowserDlg::on_AssetBrowserWidget_ItemCleared()
+{
+  ButtonSelect->setEnabled(false);
 }
 
 void ezAssetBrowserDlg::on_ButtonFileDialog_clicked()
@@ -118,14 +122,9 @@ void ezAssetBrowserDlg::on_ButtonFileDialog_clicked()
   on_AssetBrowserWidget_ItemChosen("", QString::fromUtf8(m_sSelectedAssetPathRelative.GetData()), sFile);
 }
 
-void ezAssetBrowserDlg::on_ButtonOk_clicked()
+void ezAssetBrowserDlg::on_ButtonSelect_clicked()
 {
   /// \todo Deactivate Ok button, when nothing is selectable
 
   accept();
-}
-
-void ezAssetBrowserDlg::on_ButtonCancel_clicked()
-{
-  reject();
 }

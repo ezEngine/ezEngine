@@ -20,8 +20,8 @@ private slots:
   void on_ButtonFileDialog_clicked();
   void on_AssetBrowserWidget_ItemChosen(QString sAssetGUID, QString sAssetPathRelative, QString sAssetPathAbsolute);
   void on_AssetBrowserWidget_ItemSelected(QString sAssetGUID, QString sAssetPathRelative, QString sAssetPathAbsolute);
-  void on_ButtonOk_clicked();
-  void on_ButtonCancel_clicked();
+  void on_AssetBrowserWidget_ItemCleared();
+  void on_ButtonSelect_clicked();
 
 private:
   ezString m_sSelectedAssetPathRelative;

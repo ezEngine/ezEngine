@@ -23,6 +23,9 @@ ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
   ButtonListMode->setVisible(false);
   ButtonIconMode->setVisible(false);
 
+  ButtonClearSearch->setAutoDefault(false);
+  ButtonClearSearch->setDefault(false);
+
   m_pModel = new ezAssetBrowserModel(this);
 
   IconSizeSlider->setValue(50);
@@ -51,11 +54,15 @@ ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
   EZ_VERIFY(connect(m_pModel, SIGNAL(TextFilterChanged()), this, SLOT(OnTextFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pModel, SIGNAL(TypeFilterChanged()), this, SLOT(OnTypeFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pModel, SIGNAL(PathFilterChanged()), this, SLOT(OnPathFilterChanged())) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pModel, SIGNAL(modelReset()), this, SLOT(OnModelReset())) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(ListAssets->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(OnAssetSelectionChanged(const QItemSelection&, const QItemSelection&))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(ListAssets->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(OnAssetSelectionCurrentChanged(const QModelIndex &, const QModelIndex &))) != nullptr, "signal/slot connection failed");
 
   UpdateAssetTypes();
 
   ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezAssetBrowserWidget::AssetCuratorEventHandler, this));
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezAssetBrowserWidget::ProjectEventHandler, this));
+
 }
 
 ezAssetBrowserWidget::~ezAssetBrowserWidget()
@@ -237,6 +244,8 @@ void ezAssetBrowserWidget::on_ListAssets_ViewZoomed(ezInt32 iIconSizePercentage)
 void ezAssetBrowserWidget::OnTextFilterChanged()
 {
   LineSearchFilter->setText(QString::fromUtf8(m_pModel->GetTextFilter()));
+
+  QTimer::singleShot(0, this, SLOT(OnSelectionTimer()));
 }
 
 void ezAssetBrowserWidget::OnTypeFilterChanged()
@@ -259,6 +268,8 @@ void ezAssetBrowserWidget::OnTypeFilterChanged()
   }
 
   ListTypeFilter->item(0)->setCheckState(bAnyChecked ? Qt::Unchecked : Qt::Checked);
+
+  QTimer::singleShot(0, this, SLOT(OnSelectionTimer()));
 }
 
 void ezAssetBrowserWidget::on_LineSearchFilter_textEdited(const QString& text)
@@ -553,6 +564,54 @@ void ezAssetBrowserWidget::OnListCopyAssetGuid()
   clipboard->setMimeData(mimeData);
 }
 
+
+void ezAssetBrowserWidget::OnSelectionTimer()
+{
+  if (m_pModel->rowCount() == 1)
+  {
+    auto index = m_pModel->index(0, 0);
+
+    ListAssets->selectionModel()->select(index, QItemSelectionModel::SelectionFlag::ClearAndSelect);
+  }
+}
+
+
+void ezAssetBrowserWidget::OnAssetSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
+{
+  if (!ListAssets->selectionModel()->hasSelection())
+  {
+    emit ItemCleared();
+  }
+  else if (ListAssets->selectionModel()->selectedIndexes().size() == 1)
+  {
+    QModelIndex index = ListAssets->selectionModel()->selectedIndexes()[0];
+
+    QString sGuid = m_pModel->data(index, ezAssetBrowserModel::UserRoles::AssetGuid).toString();
+    emit ItemSelected(sGuid, m_pModel->data(index, ezAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezAssetBrowserModel::UserRoles::AbsolutePath).toString());
+  }
+}
+
+void ezAssetBrowserWidget::OnAssetSelectionCurrentChanged(const QModelIndex& current, const QModelIndex& previous)
+{
+  if (!ListAssets->selectionModel()->hasSelection())
+  {
+    emit ItemCleared();
+  }
+  else if (ListAssets->selectionModel()->selectedIndexes().size() == 1)
+  {
+    QModelIndex index = ListAssets->selectionModel()->selectedIndexes()[0];
+
+    QString sGuid = m_pModel->data(index, ezAssetBrowserModel::UserRoles::AssetGuid).toString();
+    emit ItemSelected(sGuid, m_pModel->data(index, ezAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezAssetBrowserModel::UserRoles::AbsolutePath).toString());
+  }
+}
+
+
+void ezAssetBrowserWidget::OnModelReset()
+{
+  emit ItemCleared();
+}
+
 void ezAssetBrowserWidget::OnListToggleSortByRecentlyUsed()
 {
   m_pModel->SetSortByRecentUse(!m_pModel->GetSortByRecentUse());
@@ -564,6 +623,8 @@ void ezAssetBrowserWidget::OnPathFilterChanged()
 
   if (TreeFolderFilter->topLevelItemCount() == 1)
     SelectPathFilter(TreeFolderFilter->topLevelItem(0), sPath);
+
+  QTimer::singleShot(0, this, SLOT(OnSelectionTimer()));
 }
 
 bool ezAssetBrowserWidget::SelectPathFilter(QTreeWidgetItem* pParent, const QString& sPath)

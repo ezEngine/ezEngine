@@ -40,16 +40,12 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="ButtonOk">
+      <widget class="QPushButton" name="ButtonSelect">
        <property name="text">
-        <string>OK</string>
+        <string>Select</string>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="ButtonCancel">
-       <property name="text">
-        <string>Cancel</string>
+       <property name="default">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

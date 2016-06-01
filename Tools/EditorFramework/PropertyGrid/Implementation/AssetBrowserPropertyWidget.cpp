@@ -312,7 +312,8 @@ void ezQtAssetPropertyWidget::on_BrowseFile_clicked()
   if (sFile.IsEmpty())
     return;
 
-  m_pWidget->setText(sFile.GetData());
+  InternalSetValue(sFile);
+
   on_TextFinished_triggered();
 }
 

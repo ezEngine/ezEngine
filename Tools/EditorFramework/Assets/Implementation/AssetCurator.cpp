@@ -290,6 +290,12 @@ void ezAssetCurator::Deinitialize()
 const ezAssetInfo* ezAssetCurator::FindAssetInfo(const char* szRelativePath) const
 {
   ezStringBuilder sPath = szRelativePath;
+
+  if (ezConversionUtils::IsStringUuid(sPath))
+  {
+    return GetAssetInfo(ezConversionUtils::ConvertStringToUuid(sPath));
+  }
+
   sPath.MakeCleanPath();
 
   if (sPath.IsAbsolutePath())

@@ -200,6 +200,16 @@
    <header location="global">EditorFramework/Assets/AssetBrowserView.moc.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>LineSearchFilter</tabstop>
+  <tabstop>ListAssets</tabstop>
+  <tabstop>ListTypeFilter</tabstop>
+  <tabstop>TreeFolderFilter</tabstop>
+  <tabstop>ButtonClearSearch</tabstop>
+  <tabstop>IconSizeSlider</tabstop>
+  <tabstop>ButtonListMode</tabstop>
+  <tabstop>ButtonIconMode</tabstop>
+ </tabstops>
  <resources>
   <include location="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc"/>
   <include location="../QtResources/resources.qrc"/>

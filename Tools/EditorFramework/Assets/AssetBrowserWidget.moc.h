@@ -28,6 +28,7 @@ public:
 signals:
   void ItemChosen(QString sAssetGUID, QString sAssetPathRelative, QString sAssetPathAbsolute);
   void ItemSelected(QString sAssetGUID, QString sAssetPathRelative, QString sAssetPathAbsolute);
+  void ItemCleared();
 
 private slots:
   void OnTextFilterChanged();
@@ -53,6 +54,10 @@ private slots:
   void OnListOpenAssetDocument();
   void OnListToggleSortByRecentlyUsed();
   void OnListCopyAssetGuid();
+  void OnSelectionTimer();
+  void OnAssetSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+  void OnAssetSelectionCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
+  void OnModelReset();
 
 private:
   void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
