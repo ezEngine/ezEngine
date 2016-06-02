@@ -21,7 +21,7 @@ public:
   ezGameGrid();
 
   /// \brief Clears all data and reallocates the grid with the given dimensions.
-  void CreateGrid(ezUInt16 uiWidth, ezUInt16 uiHeight);
+  void CreateGrid(ezUInt16 uiSizeX, ezUInt16 uiSizeY);
 
   /// \brief Sets the lower left position of the grid in world space coordinates and the cell size.
   ///
@@ -47,16 +47,16 @@ public:
   ezVec2I32 GetCellAtWorldPosition(const ezVec3& vWorldSpacePos) const;
 
   /// \brief Returns the number of cells along the X axis.
-  ezUInt16 GetGridWidth() const  { return m_uiWidth;  }
+  ezUInt16 GetGridSizeX() const  { return m_uiGridSizeX;  }
 
   /// \brief Returns the number of cells along the Y axis.
-  ezUInt16 GetGridHeight() const { return m_uiHeight;  }
+  ezUInt16 GetGridSizeY() const { return m_uiGridSizeY;  }
   
   /// \brief Returns the world-space bounding box of the grid, as specified via SetWorldDimensions.
   ezBoundingBox GetWorldBoundingBox() const;
 
   /// \brief Returns the total number of cells.
-  ezUInt32 GetNumCells() const { return m_uiWidth * m_uiHeight; }
+  ezUInt32 GetNumCells() const { return m_uiGridSizeX * m_uiGridSizeY; }
 
   /// \brief Gives access to a cell by cell index.
   CellData& GetCell(ezUInt32 uiIndex) { return m_Cells[uiIndex]; }
@@ -71,10 +71,10 @@ public:
   const CellData& GetCell(const ezVec2I32& Coord) const { return m_Cells[ConvertCellCoordinateToIndex(Coord)]; }
 
   /// \brief Converts a cell index into a 2D cell coordinate.
-  ezVec2I32 ConvertCellIndexToCoordinate(ezUInt32 uiIndex) const { return ezVec2I32 (uiIndex % m_uiWidth, uiIndex / m_uiWidth); }
+  ezVec2I32 ConvertCellIndexToCoordinate(ezUInt32 uiIndex) const { return ezVec2I32 (uiIndex % m_uiGridSizeX, uiIndex / m_uiGridSizeX); }
 
   /// \brief Converts a cell coordinate into a cell index.
-  ezUInt32 ConvertCellCoordinateToIndex(const ezVec2I32& Coord) const { return Coord.y * m_uiWidth + Coord.x; }
+  ezUInt32 ConvertCellCoordinateToIndex(const ezVec2I32& Coord) const { return Coord.y * m_uiGridSizeX + Coord.x; }
 
   /// \brief Returns the lower left world space position of the cell with the given coordinates.
   ezVec3 GetCellWorldSpaceOrigin(const ezVec2I32& Coord) const;
@@ -102,8 +102,8 @@ public:
   bool GetRayIntersection(const ezVec3& vRayStartWorldSpace, const ezVec3& vRayDirNormalizedWorldSpace, float fMaxLength, float& out_fIntersection, ezVec2I32& out_CellCoord) const;
 
 private:
-  ezUInt16 m_uiWidth;
-  ezUInt16 m_uiHeight;
+  ezUInt16 m_uiGridSizeX;
+  ezUInt16 m_uiGridSizeY;
 
   ezMat3 m_RotateToWorldspace;
   ezMat3 m_RotateToGridspace;

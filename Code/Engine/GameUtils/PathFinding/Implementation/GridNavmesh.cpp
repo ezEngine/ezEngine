@@ -47,7 +47,7 @@ ezRectU32 ezGridNavmesh::GetCellBBox(ezInt32 x, ezInt32 y) const
     r.y--;
   }
 
-  while(x < m_NodesGrid.GetGridWidth() - 1)
+  while(x < m_NodesGrid.GetGridSizeX() - 1)
   {
     if (iCellNode != m_NodesGrid.GetCell(ezVec2I32(x + 1, y)))
       break;
@@ -55,7 +55,7 @@ ezRectU32 ezGridNavmesh::GetCellBBox(ezInt32 x, ezInt32 y) const
     x++;
   }
 
-  while(y < m_NodesGrid.GetGridHeight() - 1)
+  while(y < m_NodesGrid.GetGridSizeY() - 1)
   {
     if (iCellNode != m_NodesGrid.GetCell(ezVec2I32(x, y + 1)))
       break;
@@ -149,9 +149,9 @@ void ezGridNavmesh::Optimize(ezRectU32 region, CellComparator IsSameCellType, vo
 
 bool ezGridNavmesh::CanCreateArea(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough) const
 {
-  if (region.x + region.width > m_NodesGrid.GetGridWidth())
+  if (region.x + region.width > m_NodesGrid.GetGridSizeX())
     return false;
-  if (region.y + region.height > m_NodesGrid.GetGridHeight())
+  if (region.y + region.height > m_NodesGrid.GetGridSizeY())
     return false;
 
   const ezUInt32 uiStartNode = m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(region.x, region.y));
@@ -218,7 +218,7 @@ bool ezGridNavmesh::CanMergeRight(ezInt32 x, ezInt32 y, CellComparator IsSameCel
 {
   const ezRectU32 r1 = GetCellBBox(x, y);
 
-  if (r1.x + r1.width >= m_NodesGrid.GetGridWidth())
+  if (r1.x + r1.width >= m_NodesGrid.GetGridSizeX())
     return false;
 
   const ezInt32 iCellNode = m_NodesGrid.GetCell(ezVec2I32(x, y));
@@ -243,7 +243,7 @@ bool ezGridNavmesh::CanMergeDown(ezInt32 x, ezInt32 y, CellComparator IsSameCell
 {
   const ezRectU32 r1 = GetCellBBox(x, y);
 
-  if (r1.y + r1.height >= m_NodesGrid.GetGridHeight())
+  if (r1.y + r1.height >= m_NodesGrid.GetGridSizeY())
     return false;
 
   const ezInt32 iCellNode = m_NodesGrid.GetCell(ezVec2I32(x, y));
@@ -376,7 +376,7 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
     }
   }
 
-  if (Area.m_Rect.y + Area.m_Rect.height < m_NodesGrid.GetGridHeight())
+  if (Area.m_Rect.y + Area.m_Rect.height < m_NodesGrid.GetGridSizeY())
   {
     AreaEdge e;
     e.m_EdgeRect.x = Area.m_Rect.x;
@@ -448,7 +448,7 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
     }
   }
 
-  if (Area.m_Rect.x + Area.m_Rect.width < m_NodesGrid.GetGridWidth())
+  if (Area.m_Rect.x + Area.m_Rect.width < m_NodesGrid.GetGridSizeX())
   {
     AreaEdge e;
     e.m_EdgeRect.x = Area.m_Rect.x + Area.m_Rect.width - 1;

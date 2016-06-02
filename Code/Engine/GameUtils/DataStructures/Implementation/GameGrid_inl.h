@@ -3,8 +3,8 @@
 template<class CellData>
 ezGameGrid<CellData>::ezGameGrid()
 {
-  m_uiWidth = 0;
-  m_uiHeight = 0;
+  m_uiGridSizeX = 0;
+  m_uiGridSizeY = 0;
 
   m_RotateToWorldspace.SetIdentity();
   m_RotateToGridspace.SetIdentity();
@@ -15,14 +15,14 @@ ezGameGrid<CellData>::ezGameGrid()
 }
 
 template<class CellData>
-void ezGameGrid<CellData>::CreateGrid(ezUInt16 uiWidth, ezUInt16 uiHeight)
+void ezGameGrid<CellData>::CreateGrid(ezUInt16 uiSizeX, ezUInt16 uiSizeY)
 {
   m_Cells.Clear();
 
-  m_uiWidth = uiWidth;
-  m_uiHeight = uiHeight;
+  m_uiGridSizeX = uiSizeX;
+  m_uiGridSizeY = uiSizeY;
 
-  m_Cells.SetCount(m_uiWidth * m_uiHeight);
+  m_Cells.SetCount(m_uiGridSizeX * m_uiGridSizeY);
 }
 
 template<class CellData>
@@ -84,8 +84,8 @@ ezVec3 ezGameGrid<CellData>::GetCellWorldSpaceCenter(const ezVec2I32& Coord) con
 template<class CellData>
 bool ezGameGrid<CellData>::IsValidCellCoordinate(const ezVec2I32& Coord) const
 {
-  return (Coord.x >= 0 && Coord.x < m_uiWidth &&
-          Coord.y >= 0 && Coord.y < m_uiHeight);
+  return (Coord.x >= 0 && Coord.x < m_uiGridSizeX &&
+          Coord.y >= 0 && Coord.y < m_uiGridSizeY);
 }
 
 template<class CellData>
@@ -111,7 +111,7 @@ bool ezGameGrid<CellData>::PickCell(const ezVec3& vRayStartPos, const ezVec3& vR
 template<class CellData>
 ezBoundingBox ezGameGrid<CellData>::GetWorldBoundingBox() const
 {
-  ezVec3 vGridBox(m_uiWidth, m_uiHeight, 1.0f);
+  ezVec3 vGridBox(m_uiGridSizeX, m_uiGridSizeY, 1.0f);
 
   vGridBox = m_RotateToWorldspace * vGridBox;
 
@@ -124,7 +124,7 @@ bool ezGameGrid<CellData>::GetRayIntersection(const ezVec3& vRayStartWorldSpace,
   const ezVec3 vRayStart = m_RotateToGridspace * (vRayStartWorldSpace - m_vWorldSpaceOrigin);
   const ezVec3 vRayDir = m_RotateToGridspace * vRayDirNormalizedWorldSpace;
 
-  ezVec3 vGridBox(m_uiWidth, m_uiHeight, 1.0f);
+  ezVec3 vGridBox(m_uiGridSizeX, m_uiGridSizeY, 1.0f);
 
   const ezBoundingBox localBox(ezVec3(0.0f), m_vWorldSpaceCellSize.CompMult(vGridBox));
 
@@ -148,8 +148,8 @@ bool ezGameGrid<CellData>::GetRayIntersection(const ezVec3& vRayStartWorldSpace,
 
   // Without the Floor, the border case when the position is outside (-1 / -1) is not immediately detected
   out_CellCoord = ezVec2I32((ezInt32)ezMath::Floor(vCell.x), (ezInt32)ezMath::Floor(vCell.y));
-  out_CellCoord.x = ezMath::Clamp(out_CellCoord.x, 0, m_uiWidth - 1);
-  out_CellCoord.y = ezMath::Clamp(out_CellCoord.y, 0, m_uiHeight - 1);
+  out_CellCoord.x = ezMath::Clamp(out_CellCoord.x, 0, m_uiGridSizeX - 1);
+  out_CellCoord.y = ezMath::Clamp(out_CellCoord.y, 0, m_uiGridSizeY - 1);
 
   return true;
 }
