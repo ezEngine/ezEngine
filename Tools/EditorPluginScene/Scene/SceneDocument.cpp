@@ -969,6 +969,11 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
 
 ezStatus ezSceneDocument::ExportScene()
 {
+  auto saveres = SaveDocument();
+
+  if (saveres.m_Result.Failed())
+    return saveres;
+
   auto res = TransformAssetManually();
 
   if (res.m_Result.Failed())

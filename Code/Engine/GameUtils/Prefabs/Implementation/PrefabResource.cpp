@@ -11,12 +11,12 @@ ezPrefabResource::ezPrefabResource()
 
 }
 
-void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent)
+void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects)
 {
   if (GetLoadingState() != ezResourceState::Loaded)
     return;
 
-  m_WorldReader.InstantiatePrefab(world, rootTransform, hParent);
+  m_WorldReader.InstantiatePrefab(world, rootTransform, hParent, out_CreatedRootObjects);
 }
 
 ezResourceLoadDesc ezPrefabResource::UnloadData(Unload WhatToUnload)

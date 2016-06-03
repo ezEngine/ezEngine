@@ -31,7 +31,9 @@ public:
   /// \brief Creates one instance of the world that was previously read by ReadWorldDescription().
   ///
   /// \param rootTransform is an additional transform that is applied to all root objects.
-  void InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent);
+  /// \param hParent allows to attach the newly created objects immediately to a parent
+  /// \param out_CreatedRootObjects If this is valid, all pointers the to created root objects are stored in this array
+  void InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects = nullptr);
 
   /// \brief Gives access to the stream of data. Use this inside component deserialization functions to read data.
   ezStreamReader& GetStream() const { return *m_pStream; }
@@ -69,10 +71,10 @@ private:
   void ReadComponentInfo(ezUInt32 uiComponentTypeIdx);
   void ReadComponentsOfType(ezUInt32 uiComponentTypeIdx);
   void FulfillComponentHandleRequets();
-  void Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent);
+  void Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects);
 
-  void CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent);
-  void CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, const ezTransform& rootTransform, ezGameObjectHandle hParent);
+  void CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects);
+  void CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects);
 
   ezStreamReader* m_pStream;
   ezWorld* m_pWorld;

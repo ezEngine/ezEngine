@@ -146,6 +146,33 @@ EZ_FORCE_INLINE void ezComponentManager<T, CompactStorage>::RegisterUpdateFuncti
   ezComponentManagerBase::RegisterUpdateFunction(desc);
 }
 
+
+template <typename T, bool CompactStorage /*= false*/>
+void ezComponentManager<T, CompactStorage>::CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents)
+{
+  out_AllComponents.Clear();
+  out_AllComponents.Reserve(m_ComponentStorage.GetCount());
+
+  for (auto it = GetComponents(); it.IsValid(); it.Next())
+  {
+    out_AllComponents.PushBack(it->GetHandle());
+  }
+}
+
+
+template <typename T, bool CompactStorage /*= false*/>
+void ezComponentManager<T, CompactStorage>::CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents)
+{
+  out_AllComponents.Clear();
+  out_AllComponents.Reserve(m_ComponentStorage.GetCount());
+
+  for (auto it = GetComponents(); it.IsValid(); it.Next())
+  {
+    out_AllComponents.PushBack(it);
+  }
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename ComponentType, bool OnlyUpdateWhenSimulating>

@@ -85,15 +85,15 @@ void ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
 
 void ezWorldReader::InstantiateWorld(ezWorld& world)
 {
-  Instantiate(world, false, ezTransform(), ezGameObjectHandle());
+  Instantiate(world, false, ezTransform(), ezGameObjectHandle(), nullptr);
 }
 
-void ezWorldReader::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent)
+void ezWorldReader::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects)
 {
-  Instantiate(world, true, rootTransform, hParent);
+  Instantiate(world, true, rootTransform, hParent, out_CreatedRootObjects);
 }
 
-void ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent)
+void ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects)
 {
   m_pWorld = &world;
 
@@ -107,14 +107,14 @@ void ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTran
 
   if (bUseTransform)
   {
-    CreateGameObjects(m_RootObjectsToCreate, rootTransform, hParent);
+    CreateGameObjects(m_RootObjectsToCreate, rootTransform, hParent, out_CreatedRootObjects);
   }
   else
   {
-    CreateGameObjects(m_RootObjectsToCreate, hParent);
+    CreateGameObjects(m_RootObjectsToCreate, hParent, out_CreatedRootObjects);
   }
 
-  CreateGameObjects(m_ChildObjectsToCreate, ezGameObjectHandle());
+  CreateGameObjects(m_ChildObjectsToCreate, ezGameObjectHandle(), nullptr);
 
   // read component data from copied memory stream
   if (m_ComponentStream.GetStorageSize() > 0)
@@ -339,7 +339,7 @@ void ezWorldReader::FulfillComponentHandleRequets()
   m_ComponentHandleRequests.Clear();
 }
 
-void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent)
+void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects)
 {
   if (hParent.IsInvalidated())
   {
@@ -350,6 +350,9 @@ void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& 
 
       ezGameObject* pObject;
       m_IndexToGameObjectHandle.PushBack(m_pWorld->CreateObject(desc, pObject));
+
+      if (out_CreatedRootObjects)
+        out_CreatedRootObjects->PushBack(pObject);
     }
   }
   else
@@ -361,12 +364,15 @@ void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& 
 
       ezGameObject* pObject;
       m_IndexToGameObjectHandle.PushBack(m_pWorld->CreateObject(desc, pObject));
+
+      if (out_CreatedRootObjects)
+        out_CreatedRootObjects->PushBack(pObject);
     }
   }
 }
 
 
-void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, const ezTransform& rootTransform, ezGameObjectHandle hParent)
+void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects)
 {
   for (const auto& godesc : objects)
   {
@@ -382,6 +388,9 @@ void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& 
     ezGameObject* pObject;
 
     m_IndexToGameObjectHandle.PushBack(m_pWorld->CreateObject(desc, pObject));
+
+    if (out_CreatedRootObjects)
+      out_CreatedRootObjects->PushBack(pObject);
   }
 
 }
