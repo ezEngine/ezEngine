@@ -248,17 +248,7 @@ EZ_FORCE_INLINE void ezGameObject::UpdateGlobalTransformAndBounds()
 template <typename T>
 bool ezGameObject::TryGetComponentOfBaseType(T*& out_pComponent) const
 {
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
-  {
-    ezComponent* pComponent = m_Components[i];
-    if (pComponent->IsInstanceOf<T>())
-    {
-      out_pComponent = static_cast<T*>(pComponent);
-      return true;
-    }
-  }
-
-  return false;
+  return TryGetComponentOfBaseType(ezGetStaticRTTI<T>(), (ezComponent*&)out_pComponent);
 }
 
 template <typename T>

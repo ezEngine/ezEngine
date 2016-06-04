@@ -282,6 +282,38 @@ ezResult ezGameObject::DetachComponent(ezComponent* pComponent)
   return EZ_SUCCESS;
 }
 
+
+bool ezGameObject::TryGetComponentOfBaseType(const ezRTTI* pType, ezComponent*& out_pComponent) const
+{
+  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  {
+    ezComponent* pComponent = m_Components[i];
+    if (pComponent->IsInstanceOf(pType))
+    {
+      out_pComponent = pComponent;
+      return true;
+    }
+  }
+
+  out_pComponent = nullptr;
+  return false;
+}
+
+
+void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray<ezComponent*, 8>& out_components) const
+{
+  out_components.Clear();
+
+  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  {
+    ezComponent* pComponent = m_Components[i];
+    if (pComponent->IsInstanceOf(pType))
+    {
+      out_components.PushBack(pComponent);
+    }
+  }
+}
+
 void ezGameObject::OnDeleteObject(ezDeleteObjectMessage& msg)
 {
   m_pWorld->DeleteObjectNow(GetHandle());
