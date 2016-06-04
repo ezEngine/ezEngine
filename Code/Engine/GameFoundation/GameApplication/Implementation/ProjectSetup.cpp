@@ -49,10 +49,14 @@ void ezGameApplication::DoConfigureFileSystem()
 
 void ezGameApplication::DoSetupDataDirectories()
 {
+  const ezString sUserData = ezOSFile::GetUserDataFolder(m_sAppName);
+
+  ezOSFile::CreateDirectoryStructure(sUserData);
+
   ezFileSystem::AddDataDirectory("", "GameApplication", ":", ezFileSystem::ReadOnly); // for absolute paths
   ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "GameApplication", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
   ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "GameApplication", "shadercache", ezFileSystem::AllowWrites); // for shader files
-  ezFileSystem::AddDataDirectory(ezOSFile::GetUserDataFolder(m_sAppName), "GameApplication", "appdata", ezFileSystem::AllowWrites); // for writing app user data
+  ezFileSystem::AddDataDirectory(sUserData, "GameApplication", "appdata", ezFileSystem::AllowWrites); // for writing app user data
 
   ezApplicationFileSystemConfig appFileSystemConfig;
   appFileSystemConfig.Load();

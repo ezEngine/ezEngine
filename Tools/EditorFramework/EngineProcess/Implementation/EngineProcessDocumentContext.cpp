@@ -424,8 +424,13 @@ void ezEngineProcessDocumentContext::ExportScene(const ezExportSceneMsgToEngine*
 
     ezTag tagEditor;
     ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tagEditor);
+
+    ezTag tagEditorPrefabInstance;
+    ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance", &tagEditorPrefabInstance);
+
     ezTagSet tags;
     tags.Set(tagEditor);
+    tags.Set(tagEditorPrefabInstance);
 
     ezWorldWriter ww;
     ww.Write(file, *m_pWorld, &tags);

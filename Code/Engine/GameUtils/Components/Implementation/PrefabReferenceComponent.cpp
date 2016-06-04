@@ -189,7 +189,7 @@ void ezPrefabReferenceComponentManager::SimpleUpdate(ezUInt32 uiStartIndex, ezUI
       // instead it should be instantiated at runtime again
       // only do this at editor time though, at regular runtime we do want to fully serialize the entire sub tree
       ezTag tag;
-      ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tag);
+      ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance", &tag);
 
       SetEditorPickingID(pPrefab->GetOwner(), pPrefab->GetEditorPickingID(), tag);
       pPrefab->GetOwner()->GetTags().Remove(tag); // remove it from the top level prefab game object again

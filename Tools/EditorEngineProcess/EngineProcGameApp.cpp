@@ -276,14 +276,17 @@ void ezEngineProcessGameApplication::DoSetupDataDirectories()
   sAppDir.AppendPath("../../../Data/Tools/EditorEngineProcess");
   sAppDir.MakeCleanPath();
 
-  ezOSFile osf;
-  osf.CreateDirectoryStructure(sAppDir);
+  ezStringBuilder sUserData = ezOSFile::GetUserDataFolder("ezEngine Project/EditorEngineProcess");
+
+  // make sure these directories exist
+  ezOSFile::CreateDirectoryStructure(sAppDir);
+  ezOSFile::CreateDirectoryStructure(sUserData);
 
   ezFileSystem::AddDataDirectory("", "EngineProcess", ":", ezFileSystem::AllowWrites); // for absolute paths
   ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "EngineProcess", "bin", ezFileSystem::ReadOnly); // writing to the binary directory
   ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "EngineProcess", "shadercache", ezFileSystem::AllowWrites); // for shader files
   ezFileSystem::AddDataDirectory(sAppDir.GetData(), "EngineProcess", "app"); // app specific data
-  ezFileSystem::AddDataDirectory(ezOSFile::GetUserDataFolder("ezEngine Project/EditorEngineProcess"), "EngineProcess", "appdata", ezFileSystem::AllowWrites); // for writing app user data
+  ezFileSystem::AddDataDirectory(sUserData, "EngineProcess", "appdata", ezFileSystem::AllowWrites); // for writing app user data
 
   m_CustomFileSystemConfig.Apply();
 }

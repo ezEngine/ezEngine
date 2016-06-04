@@ -136,16 +136,18 @@ void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
   ezStartup::StartupCore();
 
   const ezString sAppDir = GetEditorDataFolder();
+  const ezString sUserData = ezOSFile::GetUserDataFolder("ezEngine Project/ezEditor");
 
-  ezOSFile osf;
-  osf.CreateDirectoryStructure(sAppDir);
+  // make sure these folders exist
+  ezOSFile::CreateDirectoryStructure(sAppDir);
+  ezOSFile::CreateDirectoryStructure(sUserData);
 
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
   ezFileSystem::AddDataDirectory("", "AbsPaths", ":", ezFileSystem::AllowWrites); // for absolute paths
   ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory(), "AppBin", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
-  ezFileSystem::AddDataDirectory(sAppDir.GetData(), "AppData", "app"); // app specific data
-  ezFileSystem::AddDataDirectory(ezOSFile::GetUserDataFolder("ezEngine Project/ezEditor"), "AppData", "appdata", ezFileSystem::AllowWrites); // for writing app user data
+  ezFileSystem::AddDataDirectory(sAppDir, "AppData", "app"); // app specific data
+  ezFileSystem::AddDataDirectory(sUserData, "AppData", "appdata", ezFileSystem::AllowWrites); // for writing app user data
 
   m_LogHTML.BeginLog(":appdata/Log_Editor.htm", "ezEditor");
 

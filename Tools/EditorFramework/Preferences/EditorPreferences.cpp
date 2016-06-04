@@ -2,21 +2,6 @@
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesShared, 1, ezRTTIDefaultAllocator<ezEditorPreferencesShared>)
-{
-  //EZ_BEGIN_PROPERTIES
-  //{
-  //}
-  //EZ_END_PROPERTIES
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
-ezEditorPreferencesShared::ezEditorPreferencesShared()
-  : ezPreferences(Domain::Application, ezPreferences::Visibility::Shared, "General")
-{
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 
@@ -35,12 +20,12 @@ ezEditorPreferencesUser::ezEditorPreferencesUser()
   : ezPreferences(Domain::Application, ezPreferences::Visibility::User, "General")
 {
   m_fGizmoScale = 1.0f;
+  m_bUsePrecompiledTools = true;
 }
 
 
 
 void ezQtEditorApp::LoadEditorPreferences()
 {
-  ezPreferences::QueryPreferences<ezEditorPreferencesShared>();
   ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 }

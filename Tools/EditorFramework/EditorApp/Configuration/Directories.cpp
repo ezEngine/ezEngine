@@ -52,6 +52,11 @@ ezString ezQtEditorApp::GetEditorPreferencesFolder(bool bUserData)
 
     path = userData.toUtf8().data();
   }
+  else
+  {
+    int i = 0;
+    (void)i;
+  }
 
   path.MakeCleanPath();
   return path;

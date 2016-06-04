@@ -109,6 +109,7 @@ namespace ezDataDirectory
     if (!s_sRedirectionFile.IsEmpty())
     {
       ezStringBuilder sRedirectionFile(GetDataDirectoryPath(), "/", s_sRedirectionFile);
+      sRedirectionFile.MakeCleanPath();
 
       EZ_LOG_BLOCK("LoadRedirectionFile", sRedirectionFile.GetData());
 
@@ -154,7 +155,7 @@ namespace ezDataDirectory
         ezLog::Success("Redirection file contains %u entries", m_FileRedirection.GetCount());
       }
       else
-        ezLog::Warning("Redirection file could not be opened: '%s'", sRedirectionFile.GetData());
+        ezLog::Dev("No Redirection file found in: '%s'", sRedirectionFile.GetData());
     }
   }
 
