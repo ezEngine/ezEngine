@@ -11,3 +11,7 @@ SHADING_MODE::LIT;Lit
 SHADING_MODE::FULLBRIGHT;Fullbright
 
 TWO_SIDED;Two Sided
+DiffuseColor;Diffuse Color
+DiffuseTexture;Diffuse Texture
+NormalTexture;Normal Texture
+MetallicValue;Metallic Value

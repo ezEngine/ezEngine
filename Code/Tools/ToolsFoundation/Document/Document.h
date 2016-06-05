@@ -114,6 +114,7 @@ public:
   // Returns new guid of reverted object.
   virtual ezUuid RevertPrefab(const ezDocumentObject* pObject);
 
+  virtual ezVariant GetDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path) const;
   virtual bool IsDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path) const;
 public:
 

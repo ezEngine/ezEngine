@@ -13,6 +13,7 @@ class ezTypeWidget;
 class QHBoxLayout;
 class QVBoxLayout;
 class QLabel;
+class QMenu;
 class ezCollapsibleGroupBox;
 class ezAddSubElementButton;
 class ezPropertyGridWidget;
@@ -66,14 +67,21 @@ public:
   virtual bool HasLabel() const { return true; }
   virtual const char* GetLabel() const { return m_pProp->GetPropertyName(); }
 
+  void SetIsDefault(bool isDefault) { m_bIsDefault = isDefault; }
+
   static const ezRTTI* GetCommonBaseType(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items);
 
   void PrepareToDie();
+
+public slots:
+  void OnCustomContextMenu(const QPoint& pt);
   
 protected:
   void Broadcast(Event::Type type);
   virtual void OnInit() = 0;
   bool IsUndead() const { return m_bUndead; }
+
+  virtual void ExtendContextMenu(QMenu& menu) {}
 
 protected:
   virtual void DoPrepareToDie() = 0;
@@ -85,6 +93,7 @@ protected:
 
 private:
   bool m_bUndead;
+  bool m_bIsDefault;
 };
 
 

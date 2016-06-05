@@ -37,6 +37,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstantiatePrefabCommand, 1, ezRTTIDefaultAllo
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("ParentGuid", m_Parent),
+    EZ_MEMBER_PROPERTY("CreateFromPrefab", m_CreateFromPrefab),
     EZ_MEMBER_PROPERTY("JsonGraph", m_sJsonGraph),
     EZ_MEMBER_PROPERTY("RemapGuid", m_RemapGuid),
     EZ_MEMBER_PROPERTY("CreatedObjects", m_CreatedRootObject),
@@ -410,6 +411,15 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
 
     if (m_PastedObjects.IsEmpty())
       return ezStatus(EZ_FAILURE, "Paste Objects: nothing was pasted!");
+
+    if (m_CreatedRootObject.IsValid())
+    {
+      auto pMeta = pDocument->m_DocumentObjectMetaData.BeginReadMetaData(m_CreatedRootObject);
+      m_OldCreateFromPrefab = pMeta->m_CreateFromPrefab;
+      m_OldRemapGuid = pMeta->m_PrefabSeedGuid;
+      m_sOldJsonGraph = pMeta->m_sBasePrefab;
+      pDocument->m_DocumentObjectMetaData.EndReadMetaData();
+    }
   }
   else
   {
@@ -418,6 +428,15 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
     {
       pDocument->GetObjectManager()->AddObject(po.m_pObject, po.m_pParent, po.m_sParentProperty, po.m_Index);
     }
+  }
+
+  if (m_CreatedRootObject.IsValid())
+  {
+    auto pMeta = pDocument->m_DocumentObjectMetaData.BeginModifyMetaData(m_CreatedRootObject);
+    pMeta->m_CreateFromPrefab = m_CreateFromPrefab;
+    pMeta->m_PrefabSeedGuid = m_RemapGuid;
+    pMeta->m_sBasePrefab = m_sJsonGraph;
+    pDocument->m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
   }
   return ezStatus(EZ_SUCCESS);
 }
@@ -438,6 +457,14 @@ ezStatus ezInstantiatePrefabCommand::UndoInternal(bool bFireEvents)
     pDocument->GetObjectManager()->RemoveObject(po.m_pObject);
   }
 
+  if (m_CreatedRootObject.IsValid())
+  {
+    auto pMeta = pDocument->m_DocumentObjectMetaData.BeginModifyMetaData(m_CreatedRootObject);
+    pMeta->m_CreateFromPrefab = m_OldCreateFromPrefab;
+    pMeta->m_PrefabSeedGuid = m_OldRemapGuid;
+    pMeta->m_sBasePrefab = m_sOldJsonGraph;
+    pDocument->m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
+  }
   return ezStatus(EZ_SUCCESS);
 }
 

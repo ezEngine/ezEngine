@@ -10,7 +10,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezActionDescriptorHandle ezSceneActions::s_hSceneCategory;
-ezActionDescriptorHandle ezSceneActions::s_hUpdatePrefabs;
 ezActionDescriptorHandle ezSceneActions::s_hExportScene;
 ezActionDescriptorHandle ezSceneActions::s_hRunScene;
 ezActionDescriptorHandle ezSceneActions::s_hGameModeSimulate;
@@ -25,7 +24,6 @@ ezActionDescriptorHandle ezSceneActions::s_hGameModeStop;
 void ezSceneActions::RegisterActions()
 {
   s_hSceneCategory = EZ_REGISTER_CATEGORY("SceneCategory");
-  s_hUpdatePrefabs = EZ_REGISTER_ACTION_1("Prefabs.UpdateAll", ezActionScope::Document, "Scene", "Ctrl+Shift+P", ezSceneAction, ezSceneAction::ActionType::UpdatePrefabs);
   s_hExportScene = EZ_REGISTER_ACTION_1("Scene.Export", ezActionScope::Document, "Scene", "Ctrl+E", ezSceneAction, ezSceneAction::ActionType::ExportScene);
   s_hRunScene = EZ_REGISTER_ACTION_1("Scene.Run", ezActionScope::Document, "Scene", "Ctrl+R", ezSceneAction, ezSceneAction::ActionType::RunScene);
   s_hGameModeSimulate = EZ_REGISTER_ACTION_1("Scene.GameMode.Simulate", ezActionScope::Document, "Scene", "F5", ezSceneAction, ezSceneAction::ActionType::StartGameModeSimulate);
@@ -52,7 +50,6 @@ void ezSceneActions::RegisterActions()
 void ezSceneActions::UnregisterActions()
 {
   ezActionManager::UnregisterAction(s_hSceneCategory);
-  ezActionManager::UnregisterAction(s_hUpdatePrefabs);
   ezActionManager::UnregisterAction(s_hExportScene);
   ezActionManager::UnregisterAction(s_hRunScene);
   ezActionManager::UnregisterAction(s_hGameModeSimulate);
@@ -72,13 +69,6 @@ void ezSceneActions::MapMenuActions()
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap("EditorPluginScene_DocumentMenuBar");
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
-
-  {
-    const char* szSubPath = "Menu.Tools/SceneCategory";
-
-    pMap->MapAction(s_hSceneCategory, "Menu.Tools", 6.0f);
-    pMap->MapAction(s_hUpdatePrefabs, szSubPath, 1.0f);
-  }
 
   {
     const char* szSubPath = "Menu.Scene/SceneCategory";
@@ -139,10 +129,6 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
 
   switch (m_Type)
   {
-  case ActionType::UpdatePrefabs:
-    SetIconPath(":/EditorPluginScene/PrefabUpdate.png");
-    break;
-
   case ActionType::ExportScene:
     SetIconPath(":/EditorPluginScene/Icons/SceneExport16.png");
     break;
@@ -202,10 +188,6 @@ void ezSceneAction::Execute(const ezVariant& value)
 {
   switch (m_Type)
   {
-  case ActionType::UpdatePrefabs:
-    m_pSceneDocument->UpdatePrefabs();
-    return;
-
   case ActionType::ExportScene:
     m_pSceneDocument->ExportScene();
     return;
@@ -307,8 +289,7 @@ void ezSceneAction::UpdateState()
   if (m_Type == ActionType::StartGameModeSimulate ||
       m_Type == ActionType::StartGameModePlay ||
       m_Type == ActionType::ExportScene ||
-      m_Type == ActionType::RunScene ||
-      m_Type == ActionType::UpdatePrefabs)
+      m_Type == ActionType::RunScene)
   {
     SetEnabled(m_pSceneDocument->GetGameMode() == GameMode::Off);
   }

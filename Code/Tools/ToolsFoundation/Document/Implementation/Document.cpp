@@ -328,10 +328,10 @@ void ezDocument::ShowDocumentStatus(const char* szFormat, ...)
 }
 
 
-bool ezDocument::IsDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path) const
+ezVariant ezDocument::GetDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path) const
 {
   ezUuid rootObjectGuid = ezPrefabUtils::GetPrefabRoot(pObject, m_DocumentObjectMetaData);
-  ezVariant currentValue = pObject->GetTypeAccessor().GetValue(path);
+
   const ezAbstractProperty* pProp = ezToolsReflectionUtils::GetPropertyByPath(pObject->GetTypeAccessor().GetType(), path);
   if (pProp && rootObjectGuid.IsValid())
   {
@@ -358,11 +358,22 @@ bool ezDocument::IsDefaultValue(const ezDocumentObject* pObject, const ezPropert
       }
       if (defaultValue.IsValid())
       {
-        return currentValue == defaultValue;
+        return defaultValue;
       }
     }
   }
 
   ezVariant defaultValue = ezToolsReflectionUtils::GetDefaultValue(pProp);
-  return currentValue == defaultValue;
+  return defaultValue;
+
+}
+
+bool ezDocument::IsDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path) const
+{
+  const ezVariant def = GetDefaultValue(pObject, path);
+
+  if (!def.IsValid())
+    return true;
+
+  return pObject->GetTypeAccessor().GetValue(path) == def;
 }

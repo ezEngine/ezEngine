@@ -49,6 +49,7 @@ void OnLoadPlugin(bool bReloading)
       ezProjectActions::MapActions("MaterialAssetMenuBar");
       ezStandardMenus::MapActions("MaterialAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezDocumentActions::MapActions("MaterialAssetMenuBar", "Menu.File", false);
+      ezDocumentActions::MapToolsActions("MaterialAssetMenuBar", "Menu.Tools");
       ezCommandHistoryActions::MapActions("MaterialAssetMenuBar", "Menu.Edit");
     }
 
@@ -111,6 +112,7 @@ void OnLoadPlugin(bool bReloading)
       ezProjectActions::MapActions("SurfaceAssetMenuBar");
       ezStandardMenus::MapActions("SurfaceAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezDocumentActions::MapActions("SurfaceAssetMenuBar", "Menu.File", false);
+      ezDocumentActions::MapToolsActions("SurfaceAssetMenuBar", "Menu.Tools");
       ezCommandHistoryActions::MapActions("SurfaceAssetMenuBar", "Menu.Edit");
     }
 

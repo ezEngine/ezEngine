@@ -155,6 +155,9 @@ void ezTranslatorStorage::Reset()
   }
 }
 
+
+bool ezTranslatorLogMissing::s_bActive = true;
+
 const char* ezTranslatorLogMissing::Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage)
 {
   const char* szResult = ezTranslatorStorage::Translate(szString, uiStringHash, usage);
@@ -165,7 +168,10 @@ const char* ezTranslatorLogMissing::Translate(const char* szString, ezUInt32 uiS
   if (usage == ezTranslationUsage::Tooltip)
     return "";
 
-  ezLog::Warning("Missing Translation for '%s'", szString);
+  if (ezTranslatorLogMissing::s_bActive)
+  {
+    ezLog::Warning("Missing Translation for '%s'", szString);
+  }
 
   StoreTranslation(szString, uiStringHash, usage);
   return szString;

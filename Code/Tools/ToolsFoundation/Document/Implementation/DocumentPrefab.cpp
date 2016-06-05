@@ -174,6 +174,7 @@ ezUuid ezDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const ch
 
   ezInstantiatePrefabCommand instCmd;
   instCmd.m_bAllowPickedPosition = false;
+  instCmd.m_CreateFromPrefab = PrefabAsset;
   instCmd.m_Parent = pRootObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pRootObject->GetParent()->GetGuid();
   instCmd.m_sJsonGraph = ReadDocumentAsString(szPrefabFile); // since the prefab might have been created just now, going through the cache (via GUID) will most likely fail
   instCmd.m_RemapGuid = PrefabSeed;
@@ -182,14 +183,6 @@ ezUuid ezDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const ch
   GetCommandHistory()->AddCommand(instCmd);
   GetCommandHistory()->FinishTransaction();
 
-  if (instCmd.m_CreatedRootObject.IsValid())
-  {
-    auto pMeta = m_DocumentObjectMetaData.BeginModifyMetaData(instCmd.m_CreatedRootObject);
-    pMeta->m_CreateFromPrefab = PrefabAsset;
-    pMeta->m_PrefabSeedGuid = PrefabSeed;
-    pMeta->m_sBasePrefab = instCmd.m_sJsonGraph;
-    m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
-  }
   return instCmd.m_CreatedRootObject;
 }
 
@@ -211,6 +204,7 @@ ezUuid ezDocument::RevertPrefab(const ezDocumentObject* pObject)
 
   ezInstantiatePrefabCommand instCmd;
   instCmd.m_bAllowPickedPosition = false;
+  instCmd.m_CreateFromPrefab = PrefabAsset;
   instCmd.m_Parent = pObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pObject->GetParent()->GetGuid();
   instCmd.m_RemapGuid = pMeta->m_PrefabSeedGuid;
   instCmd.m_sJsonGraph = GetCachedPrefabDocument(pMeta->m_CreateFromPrefab);
@@ -220,15 +214,6 @@ ezUuid ezDocument::RevertPrefab(const ezDocumentObject* pObject)
   pHistory->AddCommand(remCmd);
   pHistory->AddCommand(instCmd);
 
-  if (instCmd.m_CreatedRootObject.IsValid())
-  {
-    auto pMeta = m_DocumentObjectMetaData.BeginModifyMetaData(instCmd.m_CreatedRootObject);
-    pMeta->m_CreateFromPrefab = PrefabAsset;
-    pMeta->m_PrefabSeedGuid = instCmd.m_RemapGuid;
-    pMeta->m_sBasePrefab = instCmd.m_sJsonGraph;
-
-    m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
-  }
   return instCmd.m_CreatedRootObject;
 }
 
@@ -277,23 +262,13 @@ void ezDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& Pre
   // instantiate prefab again
   ezInstantiatePrefabCommand inst;
   inst.m_bAllowPickedPosition = false;
+  inst.m_CreateFromPrefab = PrefabAsset;
   inst.m_Parent = pObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pObject->GetParent()->GetGuid();
   inst.m_RemapGuid = PrefabSeed;
   inst.m_sJsonGraph = sNewGraph;
 
   GetCommandHistory()->AddCommand(rm);
   GetCommandHistory()->AddCommand(inst);
-
-  // pass the prefab meta data to the new instance
-  if (inst.m_CreatedRootObject.IsValid())
-  {
-    auto pMeta = m_DocumentObjectMetaData.BeginModifyMetaData(inst.m_CreatedRootObject);
-    pMeta->m_CreateFromPrefab = PrefabAsset;
-    pMeta->m_PrefabSeedGuid = PrefabSeed;
-    pMeta->m_sBasePrefab = sNewPrefab;
-
-    m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
-  }
 }
 
 ezString ezDocument::ReadDocumentAsString(const char* szFile) const

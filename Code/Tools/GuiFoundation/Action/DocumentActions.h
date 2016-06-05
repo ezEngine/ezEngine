@@ -11,6 +11,7 @@ public:
   static void UnregisterActions();
 
   static void MapActions(const char* szMapping, const char* szPath, bool bForToolbar);
+  static void MapToolsActions(const char* szMapping, const char* szPath);
 
   static ezActionDescriptorHandle s_hSaveCategory;
   static ezActionDescriptorHandle s_hSave;
@@ -20,6 +21,8 @@ public:
   static ezActionDescriptorHandle s_hCloseCategory;
   static ezActionDescriptorHandle s_hClose;
   static ezActionDescriptorHandle s_hOpenContainingFolder;
+  static ezActionDescriptorHandle s_hUpdatePrefabs;
+  static ezActionDescriptorHandle s_hDocumentCategory;
 };
 
 
@@ -34,7 +37,8 @@ public:
     SaveAs,
     SaveAll,
     Close,
-    OpenContainingFolder
+    OpenContainingFolder,
+    UpdatePrefabs,
   };
   ezDocumentAction(const ezActionContext& context, const char* szName, ButtonType button);
   ~ezDocumentAction();

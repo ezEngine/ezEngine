@@ -8,6 +8,7 @@
 ezManipulatorLabel::ezManipulatorLabel(QWidget* parent, Qt::WindowFlags f)
   : QLabel(parent, f), m_pItems(nullptr), m_pManipulator(nullptr), m_bActive(false)
 {
+  setCursor(Qt::WhatsThisCursor);
 
 }
 
@@ -62,6 +63,12 @@ void ezManipulatorLabel::SetIsDefault(bool bIsDefault)
     f.setBold(!m_bIsDefault);
     setFont(f);
   }
+}
+
+
+void ezManipulatorLabel::contextMenuEvent(QContextMenuEvent *ev)
+{
+  emit customContextMenuRequested(ev->globalPos());
 }
 
 void ezManipulatorLabel::mousePressEvent(QMouseEvent *ev)

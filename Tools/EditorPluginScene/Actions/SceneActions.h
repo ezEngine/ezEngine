@@ -16,7 +16,6 @@ public:
   static void MapToolbarActions();
 
   static ezActionDescriptorHandle s_hSceneCategory;
-  static ezActionDescriptorHandle s_hUpdatePrefabs;
   static ezActionDescriptorHandle s_hExportScene;
   static ezActionDescriptorHandle s_hRunScene;
   static ezActionDescriptorHandle s_hGameModeSimulate;
@@ -38,7 +37,6 @@ public:
 
   enum class ActionType
   {
-    UpdatePrefabs,
     ExportScene,
     RunScene,
     StartGameModeSimulate,

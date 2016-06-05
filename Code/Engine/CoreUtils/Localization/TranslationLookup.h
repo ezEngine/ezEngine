@@ -61,6 +61,7 @@ protected:
 class EZ_COREUTILS_DLL ezTranslatorLogMissing : public ezTranslatorStorage
 {
 public:
+  static bool s_bActive;
 
   virtual const char* Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage) override;
 };

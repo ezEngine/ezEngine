@@ -69,6 +69,7 @@ public:
 
 public: // Properties
   ezUuid m_Parent;
+  ezUuid m_CreateFromPrefab;
   ezUuid m_RemapGuid;
   ezString m_sJsonGraph;
   ezUuid m_CreatedRootObject;
@@ -90,6 +91,10 @@ private:
   };
 
   ezHybridArray<PastedObject, 4> m_PastedObjects;
+
+  ezUuid m_OldCreateFromPrefab;
+  ezUuid m_OldRemapGuid;
+  ezString m_sOldJsonGraph;
 };
 
 class EZ_TOOLSFOUNDATION_DLL ezRemoveObjectCommand : public ezCommand

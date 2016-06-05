@@ -64,6 +64,7 @@ void OnLoadPlugin(bool bReloading)
   ezProjectActions::MapActions("EditorPluginScene_DocumentMenuBar");
   ezStandardMenus::MapActions("EditorPluginScene_DocumentMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Scene | ezStandardMenuTypes::Panels | ezStandardMenuTypes::View | ezStandardMenuTypes::Help);
   ezDocumentActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.File", false);
+  ezDocumentActions::MapToolsActions("EditorPluginScene_DocumentMenuBar", "Menu.Tools");
   ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
   ezGizmoActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
   ezSelectionActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");

@@ -22,6 +22,8 @@ ezActionDescriptorHandle ezDocumentActions::s_hSaveAll;
 ezActionDescriptorHandle ezDocumentActions::s_hCloseCategory;
 ezActionDescriptorHandle ezDocumentActions::s_hClose;
 ezActionDescriptorHandle ezDocumentActions::s_hOpenContainingFolder;
+ezActionDescriptorHandle ezDocumentActions::s_hUpdatePrefabs;
+ezActionDescriptorHandle ezDocumentActions::s_hDocumentCategory;
 
 void ezDocumentActions::RegisterActions()
 {
@@ -32,6 +34,9 @@ void ezDocumentActions::RegisterActions()
   s_hCloseCategory = EZ_REGISTER_CATEGORY("CloseCategory");
   s_hClose = EZ_REGISTER_ACTION_1("Document.Close", ezActionScope::Document, "Document", "Ctrl+W", ezDocumentAction, ezDocumentAction::ButtonType::Close);
   s_hOpenContainingFolder = EZ_REGISTER_ACTION_1("Document.OpenContainingFolder", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::OpenContainingFolder);
+
+  s_hDocumentCategory = EZ_REGISTER_CATEGORY("Tools.DocumentCategory");
+  s_hUpdatePrefabs = EZ_REGISTER_ACTION_1("Prefabs.UpdateAll", ezActionScope::Document, "Scene", "Ctrl+Shift+P", ezDocumentAction, ezDocumentAction::ButtonType::UpdatePrefabs);
 }
 
 void ezDocumentActions::UnregisterActions()
@@ -43,6 +48,8 @@ void ezDocumentActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hCloseCategory);
   ezActionManager::UnregisterAction(s_hClose);
   ezActionManager::UnregisterAction(s_hOpenContainingFolder);
+  ezActionManager::UnregisterAction(s_hDocumentCategory);
+  ezActionManager::UnregisterAction(s_hUpdatePrefabs);
 }
 
 void ezDocumentActions::MapActions(const char* szMapping, const char* szPath, bool bForToolbar)
@@ -50,9 +57,8 @@ void ezDocumentActions::MapActions(const char* szMapping, const char* szPath, bo
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the documents actions failed!", szMapping);
 
-  ezStringBuilder sSubPath(szPath, "/SaveCategory");
-
   pMap->MapAction(s_hSaveCategory, szPath, 1.0f);
+  ezStringBuilder sSubPath(szPath, "/SaveCategory");
 
   pMap->MapAction(s_hSave, sSubPath, 1.0f);
   //pMap->MapAction(s_hSaveAs, sSubPath, 2.0f);
@@ -65,6 +71,18 @@ void ezDocumentActions::MapActions(const char* szMapping, const char* szPath, bo
     pMap->MapAction(s_hClose, sSubPath, 1.0f);
     pMap->MapAction(s_hOpenContainingFolder, sSubPath, 2.0f);
   }
+}
+
+
+void ezDocumentActions::MapToolsActions(const char* szMapping, const char* szPath)
+{
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the documents actions failed!", szMapping);
+
+  pMap->MapAction(s_hDocumentCategory, szPath, 1.0f);
+  ezStringBuilder sSubPath(szPath, "/Tools.DocumentCategory");
+
+  pMap->MapAction(s_hUpdatePrefabs, sSubPath, 1.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -92,6 +110,9 @@ ezDocumentAction::ezDocumentAction(const ezActionContext& context, const char* s
     break;
   case ezDocumentAction::ButtonType::OpenContainingFolder:
     SetIconPath(":/GuiFoundation/Icons/OpenFolder16.png");
+    break;
+  case ezDocumentAction::ButtonType::UpdatePrefabs:
+    SetIconPath(":/EditorPluginScene/PrefabUpdate.png");
     break;
   }
 
@@ -197,6 +218,10 @@ void ezDocumentAction::Execute(const ezVariant& value)
       ezUIServices::OpenInExplorer(sPath);
     }
     break;
+
+  case ezDocumentAction::ButtonType::UpdatePrefabs:
+    m_Context.m_pDocument->UpdatePrefabs();
+    return;
   }
 }
 

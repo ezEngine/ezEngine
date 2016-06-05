@@ -23,6 +23,9 @@ public:
 
   void SetIsDefault(bool bIsDefault);
 
+protected:
+  virtual void contextMenuEvent(QContextMenuEvent *ev) override;
+
 private:
   virtual void mousePressEvent(QMouseEvent *ev) override;
   virtual void enterEvent(QEvent* ev) override;

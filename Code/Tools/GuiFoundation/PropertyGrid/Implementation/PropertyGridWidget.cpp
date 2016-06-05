@@ -404,7 +404,7 @@ void GetDefaultValues(const ezRTTI* pType, ezPropertyPath& ParentPath, const ezD
         else
         {
           ezString sPath = ParentPath.GetPathString();
-          (*e.m_pPropertyStates)[sPath].m_bDefaultValue = pDocument->IsDefaultValue(e.m_pObject, ParentPath);
+          (*e.m_pPropertyStates)[sPath].m_bIsDefaultValue = pDocument->IsDefaultValue(e.m_pObject, ParentPath);
         }
       }
       break;

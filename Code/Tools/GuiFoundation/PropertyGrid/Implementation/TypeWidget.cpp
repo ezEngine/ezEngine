@@ -134,6 +134,9 @@ void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath, cons
       pLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
       pLabel->setContentsMargins(18, 0, 0, 0); // 18 is a hacked value to align label with group boxes.
       pLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+
+      connect(pLabel, &QWidget::customContextMenuRequested, pNewWidget, &ezQtPropertyWidget::OnCustomContextMenu);
+
       m_pLayout->addWidget(pLabel, iRows + i, 0, 1, 1);
       m_pLayout->addWidget(pNewWidget, iRows + i, 2, 1, 1);
 
@@ -348,18 +351,18 @@ void ezTypeWidget::UpdatePropertyMetaState()
 
     const bool bReadOnly = (it.Value().m_pWidget->GetProperty()->GetFlags().IsSet(ezPropertyFlags::ReadOnly)) || (it.Value().m_pWidget->GetProperty()->GetAttributeByType<ezReadOnlyAttribute>() != nullptr);
     ezPropertyUiState::Visibility state = ezPropertyUiState::Default;
-    bool bDefaultValue = true;
+    bool bIsDefaultValue = true;
     if (itData.IsValid())
     {
       state = itData.Value().m_Visibility;
-      bDefaultValue = itData.Value().m_bDefaultValue;
+      bIsDefaultValue = itData.Value().m_bIsDefaultValue;
     }
 
     if (it.Value().m_pLabel)
     {
       it.Value().m_pLabel->setVisible(state != ezPropertyUiState::Invisible);
       it.Value().m_pLabel->setEnabled(!bReadOnly && state != ezPropertyUiState::Disabled);
-      it.Value().m_pLabel->SetIsDefault(bDefaultValue);
+      it.Value().m_pLabel->SetIsDefault(bIsDefaultValue);
 
       if (itData.IsValid() && !itData.Value().m_sNewLabelText.IsEmpty())
       {
@@ -369,19 +372,25 @@ void ezTypeWidget::UpdatePropertyMetaState()
       }
       else
       {
-        // do NOT translate the first string
+        bool temp = ezTranslatorLogMissing::s_bActive;
+        ezTranslatorLogMissing::s_bActive = false;
+
+        // do NOT translate the first string (this comment is now out of date)
         // unless there is a specific override, we want to show the exact property name
         // also we don't want to force people to add translations for each and every property name
-        it.Value().m_pLabel->setText(QString::fromUtf8(it.Value().m_sOriginalLabelText.GetData()));
+        it.Value().m_pLabel->setText(QString::fromUtf8(ezTranslate(it.Value().m_sOriginalLabelText.GetData())));
 
         // though do try to get a tooltip for the property
         // this will not log an error message, if the string is not translated
         it.Value().m_pLabel->setToolTip(QString::fromUtf8(ezTranslateTooltip(it.Value().m_sOriginalLabelText.GetData())));
+
+        ezTranslatorLogMissing::s_bActive = temp;
       }
     }
 
     it.Value().m_pWidget->setVisible(state != ezPropertyUiState::Invisible);
     it.Value().m_pWidget->setEnabled(!bReadOnly && state != ezPropertyUiState::Disabled);
+    it.Value().m_pWidget->SetIsDefault(bIsDefaultValue);
   }
 }
 

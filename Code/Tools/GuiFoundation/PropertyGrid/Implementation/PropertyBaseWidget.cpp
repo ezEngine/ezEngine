@@ -18,11 +18,13 @@
 #include <QStringBuilder>
 #include <QLabel>
 #include <CoreUtils/Localization/TranslationLookup.h>
+#include <QMenu>
 
 /// *** BASE ***
 ezQtPropertyWidget::ezQtPropertyWidget() : QWidget(nullptr), m_pGrid(nullptr), m_pProp(nullptr)
 {
   m_bUndead = false;
+  m_bIsDefault = true;
   setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
 }
 
@@ -74,6 +76,35 @@ void ezQtPropertyWidget::PrepareToDie()
   m_bUndead = true;
 
   DoPrepareToDie();
+}
+
+
+void ezQtPropertyWidget::OnCustomContextMenu(const QPoint& pt)
+{
+  QMenu m;
+
+  QAction* pRevert = m.addAction("Revert to Default");
+  pRevert->setEnabled(!m_bIsDefault);
+  connect(pRevert, &QAction::triggered, this, [this]() 
+  {
+    auto pHistory = m_pGrid->GetDocument()->GetCommandHistory();
+    pHistory->StartTransaction();
+    for (const Selection& sel : m_Items)
+    {
+      ezVariant defaultValue = m_pGrid->GetDocument()->GetDefaultValue(sel.m_pObject, m_PropertyPath);
+      ezSetObjectPropertyCommand cmd;
+      cmd.m_Object = sel.m_pObject->GetGuid();
+      cmd.m_Index = sel.m_Index;
+      cmd.m_NewValue = defaultValue;
+      cmd.m_sPropertyPath = m_PropertyPath.GetPathString();
+      
+      pHistory->AddCommand(cmd);
+    }
+    pHistory->FinishTransaction();
+  });
+
+  ExtendContextMenu(m);
+  m.exec(pt); // pt is already in global space, because we fixed that
 }
 
 void ezQtPropertyWidget::Broadcast(Event::Type type)
