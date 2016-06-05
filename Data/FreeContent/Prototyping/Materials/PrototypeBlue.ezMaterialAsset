@@ -7,7 +7,7 @@
     "AssetType" : "Material",
     "Dependencies" : "Shaders/Materials/DefaultMaterial.ezShader;{ 8b666abc-97c5-4048-9ba0-e369cc3e374d }",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xB7A1C745492AC148B2A52EED7DE93920" },
-    "Hash" : { "$t" : "uint64", "$v" : "12614894615736972392", "$b" : "0x6874FD01D11B11AF" }
+    "Hash" : { "$t" : "uint64", "$v" : "3075924690757797684", "$b" : "0x34C7789435E1AF2A" }
    }
   },
   {
@@ -35,8 +35,8 @@
    "t" : "Shaders/Materials/DefaultMaterial.ezShader",
    "p" : {
     "BLEND_MODE" : "BLEND_MODE::OPAQUE",
-    "BaseColor" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" },
-    "BaseTexture" : "SteelBlue.color",
+    "BaseColor" : { "$t" : "color", "$v" : "(0.0612, 0.2232, 0.4564, 1.0000)", "$b" : "0x29DD7A3DE095643EB6AEE93E0000803F" },
+    "BaseTexture" : "{ f962fc28-661b-485c-a527-c997e239a3f0 }",
     "DEFAULT_MAT_USE_BASE_TEXTURE" : true,
     "DEFAULT_MAT_USE_METALLIC_TEXTURE" : false,
     "DEFAULT_MAT_USE_NORMAL_TEXTURE" : false,
@@ -93,7 +93,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x02B8E78E9A9D0311063E99E9875D5D98" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [ { "$t" : "uuid", "$b" : "0x04AE78D59C3B934B8292524AD85CD0F8" } ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0x9D974B999715534D901A7BA5F6BB1BAF" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::IsEnum",
@@ -117,7 +117,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x4730992D1B087B23D29A5814378A231C" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [ { "$t" : "uuid", "$b" : "0x5073FD3BFD779949962A456C70D41827" }, { "$t" : "uuid", "$b" : "0x59DD0F801797E74BA3985267923FD9B3" } ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0x6BCFB3A550CF934B98D0D1590D14B70F" }, { "$t" : "uuid", "$b" : "0xE09B51CD8FB14F46A26D398AF0FA8F0C" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::StandardType",
@@ -129,7 +129,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x987025EA80DF7C264014A9979A941B17" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [ { "$t" : "uuid", "$b" : "0x947886FCE3A34A408B6517F245CF56D4" }, { "$t" : "uuid", "$b" : "0x1B8D5FF32A10724F91FF83BF0097F964" } ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0xDB001AACD2972F4DB974F90FC8537E34" }, { "$t" : "uuid", "$b" : "0xE9C3038A30DC4C438DD30CDB8558E9CF" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::StandardType",
@@ -153,7 +153,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x4BD8542A0F0625300B9D4387086C8EED" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [ { "$t" : "uuid", "$b" : "0x0726E719DA076348AA247F7FA4E8E0F7" }, { "$t" : "uuid", "$b" : "0x31D2E82B156DAC4ABF106F38534B0573" } ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0x659F7CDD5F5BDF498CE401B1AAD78CB0" }, { "$t" : "uuid", "$b" : "0x660244069E933341A7E4B83A084B01C0" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::StandardType",
@@ -177,7 +177,7 @@
    "#" : { "$t" : "uuid", "$b" : "0xEE428A3D02ED9D38C780E433744873FE" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [ { "$t" : "uuid", "$b" : "0x3B0C18E90C3D6C45B8D3F00F4DAC424F" } ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0xE85A93CC6E388C47985E0AF438BB9B34" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::StandardType",
@@ -186,176 +186,176 @@
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0xEB9EF03D969D494092F1251B0A9AC436" },
-   "t" : "ezCategoryAttribute",
-   "p" : {
-    "Category" : "Texture"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x947886FCE3A34A408B6517F245CF56D4" },
-   "t" : "ezCategoryAttribute",
-   "p" : {
-    "Category" : "Constant"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xE5A0CBD73EFD6940B84C5CFF199493EB" },
-   "t" : "ezDefaultValueAttribute",
-   "p" : {
-    "Value" : { "$t" : "double", "$v" : "0.25000000", "$b" : "0x000000000000D03F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x48115935E4303C43BB8B964A36BAE23C" },
-   "t" : "ezCategoryAttribute",
-   "p" : {
-    "Category" : "Texture"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xDB02C32DF2CD4343A2806902699F65D3" },
+   "#" : { "$t" : "uuid", "$b" : "0xC84BA30A60B52340A2FA10804C2493A6" },
    "t" : "ezCategoryAttribute",
    "p" : {
     "Category" : "Permutation"
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0xAB050107B0DF4C44B6529C3E664000C2" },
+   "#" : { "$t" : "uuid", "$b" : "0xB14D328361CB374085A2C9E3C58B42C0" },
    "t" : "ezCategoryAttribute",
    "p" : {
     "Category" : "Permutation"
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x3B0C18E90C3D6C45B8D3F00F4DAC424F" },
-   "t" : "ezCategoryAttribute",
-   "p" : {
-    "Category" : "Permutation"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xA2A3B79A28F4E945AA441438C256EEF5" },
+   "#" : { "$t" : "uuid", "$b" : "0xBF2FFF255BC29540A20582677DC61D0A" },
    "t" : "ezAssetBrowserAttribute",
    "p" : {
     "Filter" : ";Texture 2D;"
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x0726E719DA076348AA247F7FA4E8E0F7" },
-   "t" : "ezCategoryAttribute",
-   "p" : {
-    "Category" : "Constant"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xB96935EAD2586748B39BD4F90B12D52F" },
-   "t" : "ezCategoryAttribute",
-   "p" : {
-    "Category" : "Constant"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x5073FD3BFD779949962A456C70D41827" },
-   "t" : "ezCategoryAttribute",
-   "p" : {
-    "Category" : "Texture"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xE212D2DC20D6314ABB9AE209490FEC16" },
-   "t" : "ezCategoryAttribute",
-   "p" : {
-    "Category" : "Permutation"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x31D2E82B156DAC4ABF106F38534B0573" },
+   "#" : { "$t" : "uuid", "$b" : "0x660244069E933341A7E4B83A084B01C0" },
    "t" : "ezDefaultValueAttribute",
    "p" : {
     "Value" : { "$t" : "double", "$v" : "0.00000000", "$b" : "0x0000000000000000" }
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0xBF760E146CFFBF4A9E8D1591D5B255A6" },
-   "t" : "ezDefaultValueAttribute",
-   "p" : {
-    "Value" : { "$t" : "double", "$v" : "1.00000000", "$b" : "0x000000000000F03F" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x9505D6FD1344494BAA30ED85DC55BEE0" },
-   "t" : "ezCategoryAttribute",
-   "p" : {
-    "Category" : "Texture"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x04AE78D59C3B934B8292524AD85CD0F8" },
-   "t" : "ezCategoryAttribute",
-   "p" : {
-    "Category" : "Permutation"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x59DD0F801797E74BA3985267923FD9B3" },
+   "#" : { "$t" : "uuid", "$b" : "0xB3774CF31C020E428E9C6B14990D24CE" },
    "t" : "ezAssetBrowserAttribute",
    "p" : {
     "Filter" : ";Texture 2D;"
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0xB1FF91D388ED704CB98C5BE5EE472196" },
-   "t" : "ezAssetBrowserAttribute",
-   "p" : {
-    "Filter" : ";Texture 2D;"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xD4C7D4D0ABBF854CAE89E5AE66DF2226" },
+   "#" : { "$t" : "uuid", "$b" : "0x0A0646929325A64285E7E0C5A7E67253" },
    "t" : "ezCategoryAttribute",
    "p" : {
     "Category" : "Constant"
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0xF1FEC689A2B9424D9300D35870280563" },
+   "#" : { "$t" : "uuid", "$b" : "0xE9C3038A30DC4C438DD30CDB8558E9CF" },
+   "t" : "ezDefaultValueAttribute",
+   "p" : {
+    "Value" : { "$t" : "double", "$v" : "0.70000000", "$b" : "0x666666666666E63F" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x5CEF32B53AEC9B4381FAEE2588D6FCBE" },
+   "t" : "ezCategoryAttribute",
+   "p" : {
+    "Category" : "Permutation"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA8ACA1CBE469D04397AA38632F4C62A4" },
+   "t" : "ezCategoryAttribute",
+   "p" : {
+    "Category" : "Permutation"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE09B51CD8FB14F46A26D398AF0FA8F0C" },
    "t" : "ezAssetBrowserAttribute",
    "p" : {
     "Filter" : ";Texture 2D;"
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x5B5048ECF6651F4E9330C4696D7B7F6F" },
+   "#" : { "$t" : "uuid", "$b" : "0xE85A93CC6E388C47985E0AF438BB9B34" },
    "t" : "ezCategoryAttribute",
    "p" : {
     "Category" : "Permutation"
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x1B5F01486D2C5B4F8DD06B0EECF4C6C4" },
+   "#" : { "$t" : "uuid", "$b" : "0x36FE746C41041248909FE642FF15BB1D" },
+   "t" : "ezDefaultValueAttribute",
+   "p" : {
+    "Value" : { "$t" : "double", "$v" : "0.25000000", "$b" : "0x000000000000D03F" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xEAA5DB276C72CB48A4948FEC0FAFCCCD" },
    "t" : "ezCategoryAttribute",
    "p" : {
     "Category" : "Permutation"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xDE68704DC370D5489E43936E93921066" },
+   "t" : "ezAssetBrowserAttribute",
+   "p" : {
+    "Filter" : ";Texture 2D;"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xF9D7325E81B9944987A4CD60A86896FC" },
+   "t" : "ezDefaultValueAttribute",
+   "p" : {
+    "Value" : { "$t" : "double", "$v" : "1.00000000", "$b" : "0x000000000000F03F" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x659F7CDD5F5BDF498CE401B1AAD78CB0" },
+   "t" : "ezCategoryAttribute",
+   "p" : {
+    "Category" : "Constant"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x20821F971BFE2F4BA82D89C8BC0C16A4" },
+   "t" : "ezCategoryAttribute",
+   "p" : {
+    "Category" : "Texture"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x6BCFB3A550CF934B98D0D1590D14B70F" },
+   "t" : "ezCategoryAttribute",
+   "p" : {
+    "Category" : "Texture"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xAD2FF688DF261E4D8AFCE0ED5F0B76A8" },
+   "t" : "ezCategoryAttribute",
+   "p" : {
+    "Category" : "Texture"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x0F0380FAC352234DAE404EE82A2277E8" },
+   "t" : "ezCategoryAttribute",
+   "p" : {
+    "Category" : "Constant"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xDB001AACD2972F4DB974F90FC8537E34" },
+   "t" : "ezCategoryAttribute",
+   "p" : {
+    "Category" : "Constant"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x9D974B999715534D901A7BA5F6BB1BAF" },
+   "t" : "ezCategoryAttribute",
+   "p" : {
+    "Category" : "Permutation"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xBB413E7618B6794E94A4E3A7D535DCB3" },
+   "t" : "ezCategoryAttribute",
+   "p" : {
+    "Category" : "Texture"
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0x970E883D99CF5F4FDC61C54AF01844B5" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [ { "$t" : "uuid", "$b" : "0xDB02C32DF2CD4343A2806902699F65D3" } ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0x5CEF32B53AEC9B4381FAEE2588D6FCBE" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::StandardType",
     "Name" : "DEFAULT_MAT_USE_ROUGHNESS_TEXTURE",
     "Type" : "bool"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x1B8D5FF32A10724F91FF83BF0097F964" },
-   "t" : "ezDefaultValueAttribute",
-   "p" : {
-    "Value" : { "$t" : "double", "$v" : "0.70000000", "$b" : "0x666666666666E63F" }
    }
   },
   {
@@ -374,7 +374,7 @@
    "#" : { "$t" : "uuid", "$b" : "0xEA449E8FD8B5CE65247DF47843D200DE" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [ { "$t" : "uuid", "$b" : "0x9505D6FD1344494BAA30ED85DC55BEE0" }, { "$t" : "uuid", "$b" : "0xA2A3B79A28F4E945AA441438C256EEF5" } ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0xBB413E7618B6794E94A4E3A7D535DCB3" }, { "$t" : "uuid", "$b" : "0xB3774CF31C020E428E9C6B14990D24CE" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::StandardType",
@@ -424,7 +424,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x0D2E6B80EFAF708432C2BA36A405E4BF" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [ { "$t" : "uuid", "$b" : "0x5B5048ECF6651F4E9330C4696D7B7F6F" } ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0xC84BA30A60B52340A2FA10804C2493A6" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::StandardType",
@@ -450,7 +450,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x60EDED0C569AAEB621ECB43B9785FA23" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [ { "$t" : "uuid", "$b" : "0xE212D2DC20D6314ABB9AE209490FEC16" } ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0xA8ACA1CBE469D04397AA38632F4C62A4" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::StandardType",
@@ -462,7 +462,7 @@
    "#" : { "$t" : "uuid", "$b" : "0xA0C5208DC3B242C6E5191159B5B2D1C4" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [ { "$t" : "uuid", "$b" : "0x48115935E4303C43BB8B964A36BAE23C" }, { "$t" : "uuid", "$b" : "0xF1FEC689A2B9424D9300D35870280563" } ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0x20821F971BFE2F4BA82D89C8BC0C16A4" }, { "$t" : "uuid", "$b" : "0xDE68704DC370D5489E43936E93921066" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::StandardType",
@@ -474,7 +474,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x83A0928C868A7DC8A7A0BA1CCF2CCFF2" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [ { "$t" : "uuid", "$b" : "0xD4C7D4D0ABBF854CAE89E5AE66DF2226" }, { "$t" : "uuid", "$b" : "0xBF760E146CFFBF4A9E8D1591D5B255A6" } ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0x0A0646929325A64285E7E0C5A7E67253" }, { "$t" : "uuid", "$b" : "0xF9D7325E81B9944987A4CD60A86896FC" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::StandardType",
@@ -498,7 +498,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x9409BF8203C3F6CC66E69332886B179A" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [ { "$t" : "uuid", "$b" : "0xB96935EAD2586748B39BD4F90B12D52F" }, { "$t" : "uuid", "$b" : "0xE5A0CBD73EFD6940B84C5CFF199493EB" } ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0x0F0380FAC352234DAE404EE82A2277E8" }, { "$t" : "uuid", "$b" : "0x36FE746C41041248909FE642FF15BB1D" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::StandardType",
@@ -510,7 +510,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x3FFD640234B3C5DEDBF16DB777393BB2" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [ { "$t" : "uuid", "$b" : "0xAB050107B0DF4C44B6529C3E664000C2" } ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0xEAA5DB276C72CB48A4948FEC0FAFCCCD" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::StandardType",
@@ -522,7 +522,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x4F6595D0D8C0AFE832757329857B5AF1" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [ { "$t" : "uuid", "$b" : "0xEB9EF03D969D494092F1251B0A9AC436" }, { "$t" : "uuid", "$b" : "0xB1FF91D388ED704CB98C5BE5EE472196" } ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0xAD2FF688DF261E4D8AFCE0ED5F0B76A8" }, { "$t" : "uuid", "$b" : "0xBF2FFF255BC29540A20582677DC61D0A" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::StandardType",
@@ -534,7 +534,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x9AB2575D6EC23DF7C42976E078437A0E" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [ { "$t" : "uuid", "$b" : "0x1B5F01486D2C5B4F8DD06B0EECF4C6C4" } ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0xB14D328361CB374085A2C9E3C58B42C0" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::IsEnum",
