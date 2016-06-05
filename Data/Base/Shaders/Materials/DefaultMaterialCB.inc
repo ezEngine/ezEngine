@@ -2,10 +2,10 @@
 
 CONSTANT_BUFFER(MaterialCB, 1)
 {
-	COLOR(DiffuseColor);
-	FLOAT1(Metallic);
-	FLOAT1(Reflectance);
-	FLOAT1(Roughness);
+	COLOR(BaseColor);
+	FLOAT1(MetallicValue);
+	FLOAT1(ReflectanceValue);
+	FLOAT1(RoughnessValue);
 	FLOAT1(MaskThreshold);
 };
 

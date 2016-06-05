@@ -175,6 +175,18 @@ namespace
     {
       attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture Cube"));
     }
+
+    for (auto& attributeDef : def.m_Attributes)
+    {
+      if (attributeDef.m_sName.IsEqual("Default"))
+      {
+		//TODO: this needs a proper implementation for types other than float
+        double fValue;
+        ezConversionUtils::StringToFloat(attributeDef.m_sValue, fValue);
+
+        attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, fValue));
+      }
+    }
   }
 }
 

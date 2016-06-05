@@ -7,7 +7,10 @@ BLEND_MODE
 RENDER_PASS
 SHADING_MODE
 TWO_SIDED
-DEFAULT_MAT_USE_DIFFUSE_TEXTURE
+DEFAULT_MAT_USE_BASE_TEXTURE
+DEFAULT_MAT_USE_NORMAL_TEXTURE
+DEFAULT_MAT_USE_METALLIC_TEXTURE
+DEFAULT_MAT_USE_ROUGHNESS_TEXTURE
 
 [MATERIALPARAMETER]
 
@@ -15,12 +18,22 @@ Permutation BLEND_MODE;
 Permutation SHADING_MODE;
 Permutation TWO_SIDED;
 
-Permutation DEFAULT_MAT_USE_DIFFUSE_TEXTURE;
-Color DiffuseColor @Default(1.0, 1.0, 1.0);
-Texture2D DiffuseTexture;
+float MaskThreshold @Default(0.25)
+
+Permutation DEFAULT_MAT_USE_BASE_TEXTURE;
+Texture2D BaseTexture;
+Color BaseColor @Default(1.0, 1.0, 1.0);
+
+Permutation DEFAULT_MAT_USE_NORMAL_TEXTURE;
 Texture2D NormalTexture;
 
+Permutation DEFAULT_MAT_USE_METALLIC_TEXTURE;
+Texture2D MetallicTexture;
 float MetallicValue @Default(0.0) @Clamp(0.0, 1.0);
+
+Permutation DEFAULT_MAT_USE_ROUGHNESS_TEXTURE;
+Texture2D RoughnessTexture;
+float RoughnessValue @Default(0.7) @Clamp(0.0, 1.0);
 
 [RENDERSTATE]
 
@@ -50,31 +63,45 @@ VS_OUT main(VS_IN Input)
 #include <Shaders/Materials/DefaultMaterialCB.inc>
 #include <Shaders/Materials/MaterialPixelShader.inc>
 
-Texture2D DiffuseTexture;
-SamplerState DiffuseTextureSampler;
+Texture2D BaseTexture;
+SamplerState BaseTextureSampler;
+
 Texture2D NormalTexture;
 SamplerState NormalTextureSampler;
 
+Texture2D MetallicTexture;
+SamplerState MetallicTextureSampler;
+
+Texture2D RoughnessTexture;
+SamplerState RoughnessTextureSampler;
+
 float3 GetNormal(PS_IN Input)
 {
-	//return Input.Normal;
-	float3 vNt = NormalTexture.Sample(NormalTextureSampler, Input.TexCoords.xy).rgb * 2 - 1;
-	float3 vNout = normalize( vNt.x * Input.Tangent + vNt.y * Input.BiTangent + vNt.z * Input.Normal );
-	return vNout;
+	#if DEFAULT_MAT_USE_NORMAL_TEXTURE == TRUE
+		float3 vNt = NormalTexture.Sample(NormalTextureSampler, Input.TexCoords.xy).rgb * 2 - 1;
+		float3 vNout = normalize( vNt.x * Input.Tangent + vNt.y * Input.BiTangent + vNt.z * Input.Normal );
+		return vNout;
+	#else
+		return Input.Normal;
+	#endif
 }
 
-float3 GetDiffuseColor(PS_IN Input)
+float3 GetBaseColor(PS_IN Input)
 {
-	#if DEFAULT_MAT_USE_DIFFUSE_TEXTURE == TRUE
-		return DiffuseTexture.Sample(DiffuseTextureSampler, Input.TexCoords.xy).rgb * DiffuseColor.rgb;
+	#if DEFAULT_MAT_USE_BASE_TEXTURE == TRUE
+		return BaseTexture.Sample(BaseTextureSampler, Input.TexCoords.xy).rgb * BaseColor.rgb;
 	#else
-		return DiffuseColor.rgb;
+		return BaseColor.rgb;
 	#endif
 }
 
 float GetMetallic(PS_IN Input)
 {
-	return 0.0f;
+	#if DEFAULT_MAT_USE_METALLIC_TEXTURE == TRUE
+		return MetallicTexture.Sample(MetallicTextureSampler, Input.TexCoords.xy).r;
+	#else
+		return MetallicValue;
+	#endif
 }
 
 float GetReflectance(PS_IN Input)
@@ -84,20 +111,23 @@ float GetReflectance(PS_IN Input)
 	
 float GetRoughness(PS_IN Input)
 {
-	return 0.7f;
+	#if DEFAULT_MAT_USE_ROUGHNESS_TEXTURE == TRUE
+		return RoughnessTexture.Sample(RoughnessTextureSampler, Input.TexCoords.xy).r;
+	#else
+		return RoughnessValue;
+	#endif
 }
 
 float GetOpacity(PS_IN Input)
 {
-	#if DEFAULT_MAT_USE_DIFFUSE_TEXTURE == TRUE
-		float opacity = DiffuseTexture.Sample(DiffuseTextureSampler, Input.TexCoords.xy).a * DiffuseColor.a;
+	#if DEFAULT_MAT_USE_BASE_TEXTURE == TRUE
+		float opacity = BaseTexture.Sample(BaseTextureSampler, Input.TexCoords.xy).a * BaseColor.a;
 	#else
-		float opacity = DiffuseColor.a;
+		float opacity = BaseColor.a;
 	#endif
 	
 	#if BLEND_MODE == BLEND_MODE_MASKED
-		//return opacity - MaskThreshold;
-		return opacity - 0.1f;
+		return opacity - MaskThreshold;
 	#else
 		return opacity;
 	#endif

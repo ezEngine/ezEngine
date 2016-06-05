@@ -464,6 +464,10 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
     if (m_pVertexDeclarationInfo != nullptr && BuildVertexDeclaration(m_hActiveGALShader, *m_pVertexDeclarationInfo, hVertexDeclaration).Failed())
       return EZ_FAILURE;
 
+    // If there is a vertex buffer we need a valid vertex declaration as well.
+    if (!m_hVertexBuffer.IsInvalidated() && hVertexDeclaration.IsInvalidated())
+      return EZ_FAILURE;
+
     m_pGALContext->SetVertexDeclaration(hVertexDeclaration);
 
     m_StateFlags.Remove(ezRenderContextFlags::MeshBufferBindingChanged);

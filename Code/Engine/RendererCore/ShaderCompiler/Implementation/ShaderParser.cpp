@@ -24,7 +24,7 @@ namespace
 
     if (!s.IsValid() || s.GetCharacter() != '@')
       return;
-
+        
     ++s; //skip @
 
     const char* szNameStart = s.GetData();
@@ -97,7 +97,9 @@ void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& stream, ezHyb
 
     def.m_sName = ezStringView(szNameStart, s.GetData());
 
-    while (s.IsValid() && s.GetCharacter() != ';')
+    SkipWhitespace(s);
+
+    while (s.IsValid() && s.GetCharacter() == '@')
     {
       ParseAttribute(s, def);
 
@@ -107,7 +109,8 @@ void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& stream, ezHyb
     if (!s.IsValid())
       break;
 
-    ++s; //skip ;
+    if (s.GetCharacter() == ';')
+      ++s; //skip ;
 
     if (!def.m_sType.IsEmpty() && !def.m_sName.IsEmpty())
     {
