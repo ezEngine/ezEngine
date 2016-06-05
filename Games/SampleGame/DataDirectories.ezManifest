@@ -1,0 +1,12 @@
+{
+  "DataDirectories" : [ {
+      "Path" : "../../Data/Base",
+      "RootName" : "base",
+      "Writable" : false
+    },
+    {
+      "Path" : "",
+      "RootName" : "project",
+      "Writable" : true
+    } ]
+}
