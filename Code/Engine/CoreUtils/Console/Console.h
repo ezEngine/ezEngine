@@ -7,7 +7,7 @@
 #include <CoreUtils/Console/ConsoleFunction.h>
 
 
-/// \brief A Quake-style console is for in-game configuration of ezCVar and ezConsoleFunction.
+/// \brief A Quake-style console for in-game configuration of ezCVar and ezConsoleFunction.
 ///
 /// The console displays the recent log activity and allows to modify cvars and call console functions.
 /// It supports auto-completion of known keywords.

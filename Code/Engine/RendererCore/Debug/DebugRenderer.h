@@ -22,7 +22,7 @@ public:
     }
 
     ezVec3 m_start;
-    ezVec3 m_end;    
+    ezVec3 m_end;
   };
 
   struct Triangle
@@ -38,13 +38,13 @@ public:
 
     ezVec3 m_p0;
     ezVec3 m_p1;
-    ezVec3 m_p2;    
+    ezVec3 m_p2;
   };
 
 
   static void DrawLines(const ezWorld* pWorld, ezArrayPtr<Line> lines, const ezColor& color);
   static void DrawLines(ezUInt32 uiWorldIndex, ezArrayPtr<Line> lines, const ezColor& color);
-  
+
   static void DrawLineBox(const ezWorld* pWorld, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
   static void DrawLineBox(ezUInt32 uiWorldIndex, const ezBoundingBox& box, const ezColor& color, const ezTransform& transform = ezTransform::Identity());
 

@@ -698,7 +698,7 @@ void ezWorld::ProcessComponentsToInitialize()
   while (!m_Data.m_ComponentsToInitialize[0].IsEmpty() || !m_Data.m_ComponentsToInitialize[1].IsEmpty())
   {
     const ezUInt32 uiThisQueue = m_Data.m_uiCurrentInitializeQueue;
-    m_Data.m_uiCurrentInitializeQueue = (uiThisQueue + 1) & 2;
+    m_Data.m_uiCurrentInitializeQueue = (uiThisQueue + 1) % 2;
 
     for (ezComponentHandle hComponent : m_Data.m_ComponentsToInitialize[uiThisQueue])
     {
@@ -738,7 +738,7 @@ void ezWorld::ProcessComponentsToInitialize()
     while (!m_Data.m_ComponentsToStartSimulation[0].IsEmpty() || !m_Data.m_ComponentsToStartSimulation[1].IsEmpty())
     {
       const ezUInt32 uiThisQueue = m_Data.m_uiCurrentSimulationQueue;
-      m_Data.m_uiCurrentSimulationQueue = (uiThisQueue + 1) & 2;
+      m_Data.m_uiCurrentSimulationQueue = (uiThisQueue + 1) % 2;
 
       for (ezComponentHandle hComponent : m_Data.m_ComponentsToStartSimulation[uiThisQueue])
       {

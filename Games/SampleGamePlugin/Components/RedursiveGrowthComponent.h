@@ -5,7 +5,7 @@
 #include <Core/World/ComponentManager.h>
 #include <Core/World/World.h>
 
-typedef ezComponentManager<class RecursiveGrowthComponent> RecursiveGrowthComponentManager;
+typedef ezComponentManagerSimple<class RecursiveGrowthComponent, true> RecursiveGrowthComponentManager;
 
 class RecursiveGrowthComponent : public ezComponent
 {
@@ -19,6 +19,8 @@ public:
 
   virtual void OnSimulationStarted() override;
 
+  void Update();
+
 private:
   //////////////////////////////////////////////////////////////////////////
   /// Properties
@@ -27,6 +29,7 @@ private:
   ezUInt8 m_uiRecursionDepth;
 
 protected:
+  ezUInt32 m_uiChild;
 
 
 

@@ -24,6 +24,7 @@ RecursiveGrowthComponent::RecursiveGrowthComponent()
 {
   m_uiNumChildren = 2;
   m_uiRecursionDepth = 2;
+  m_uiChild = 0;
 }
 
 void RecursiveGrowthComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -81,6 +82,7 @@ void RecursiveGrowthComponent::OnSimulationStarted()
 
       pChildComp->m_uiNumChildren = m_uiNumChildren;
       pChildComp->m_uiRecursionDepth = m_uiRecursionDepth - 1;
+      pChildComp->m_uiChild = i;
 
       pChild->AttachComponent(pChildComp);
 
@@ -89,9 +91,14 @@ void RecursiveGrowthComponent::OnSimulationStarted()
   }
 }
 
+void RecursiveGrowthComponent::Update()
+{
+  // do stuff
+}
+
 void RecursiveGrowthComponent::Initialize()
 {
-  ezLog::Info("RecursiveGrowthComponent::Initialize");
+  ezLog::Info("RecursiveGrowthComponent::Initialize: Child %u, Recursions: %u", m_uiChild, m_uiRecursionDepth);
 
 
 }
