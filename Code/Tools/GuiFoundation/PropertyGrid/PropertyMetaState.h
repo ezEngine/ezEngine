@@ -20,10 +20,12 @@ struct ezPropertyUiState
   ezPropertyUiState()
   {
     m_Visibility = Visibility::Default;
+    m_bDefaultValue = true;
   }
 
   Visibility m_Visibility;
   ezString m_sNewLabelText;
+  bool m_bDefaultValue;
 };
 
 /// \brief Event that is broadcast whenever information about how to present properties is required

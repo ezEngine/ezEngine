@@ -118,18 +118,21 @@ public:
 
   void ReMapNodeGuids(const ezUuid& seedGuid, bool bRemapInverse = false);
 
+  /// \brief Deletes everything not accessible by the given root node.
+  void PruneGraph(const ezUuid& rootGuid);
+
   /// \brief Allows to copy a node from another graph into this graph.
   void CopyNodeIntoGraph(ezAbstractObjectNode* pNode);
 
-  void CreateDiffWithBaseGraph(const ezAbstractObjectGraph& base, ezDeque<ezAbstractGraphDiffOperation>& out_DiffResult);
+  void CreateDiffWithBaseGraph(const ezAbstractObjectGraph& base, ezDeque<ezAbstractGraphDiffOperation>& out_DiffResult) const;
 
   void ApplyDiff(ezDeque<ezAbstractGraphDiffOperation>& Diff);
 
-  void MergeDiffs(const ezDeque<ezAbstractGraphDiffOperation>& lhs, const ezDeque<ezAbstractGraphDiffOperation>& rhs, ezDeque<ezAbstractGraphDiffOperation>& out);
+  void MergeDiffs(const ezDeque<ezAbstractGraphDiffOperation>& lhs, const ezDeque<ezAbstractGraphDiffOperation>& rhs, ezDeque<ezAbstractGraphDiffOperation>& out) const;
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezAbstractObjectGraph);
   void RemapVariant(ezVariant& value, const ezMap<ezUuid, ezUuid>& guidMap);
-  void MergeArrays(const ezVariantArray& baseArray, const ezVariantArray& leftArray, const ezVariantArray& rightArray, ezVariantArray& out);
+  void MergeArrays(const ezVariantArray& baseArray, const ezVariantArray& leftArray, const ezVariantArray& rightArray, ezVariantArray& out) const;
   ezSet<ezString> m_Strings;
   ezMap<ezUuid, ezAbstractObjectNode*> m_Nodes;
   ezMap<const char*, ezAbstractObjectNode*> m_NodesByName;

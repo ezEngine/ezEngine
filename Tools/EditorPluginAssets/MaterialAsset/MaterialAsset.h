@@ -19,10 +19,10 @@ public:
   ezReflectedClass* GetShaderProperties() const;
 
   void SetDocument(ezMaterialAssetDocument* pDocument);
-  void UpdateShader();
+  void UpdateShader(bool bForce = false);
 
   void DeleteProperties();
-  void CreateProperties(const char* szShaderPath);
+  void CreateProperties(const char* szShaderPath, bool bForce = false);
 
   void SaveOldValues();
   void LoadOldValues();
@@ -36,6 +36,7 @@ public:
   ezString m_sTextureMask;
   ezString m_sTextureNormal;
 
+  ezMap<ezString, ezVariant> m_CachedProperties;
   ezMaterialAssetDocument* m_pDocument;
 };
 
@@ -54,7 +55,12 @@ public:
 
   ezDocumentObject* GetShaderPropertyObject();
 
+  void SetBaseMaterial(const char* szBaseMaterial);
+
 protected:
+  ezUuid GetSeedFromBaseMaterial(const char* szBaseGraph);
+  static ezUuid GetMaterialNodeGuid(const ezAbstractObjectGraph& graph);
+  virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab) override;
   virtual void InitializeAfterLoading() override;
 
   virtual ezUInt16 GetAssetTypeVersion() const override { return 1; }

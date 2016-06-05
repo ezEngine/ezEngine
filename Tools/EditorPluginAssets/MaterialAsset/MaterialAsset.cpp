@@ -10,6 +10,9 @@
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
+#include <ToolsFoundation/Document/PrefabUtils.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <Foundation/Serialization/JsonSerializer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 1, ezRTTIDefaultAllocator<ezMaterialAssetProperties>)
 {
@@ -169,8 +172,14 @@ namespace
 
 void ezMaterialAssetProperties::SetBaseMaterial(const char* szBaseMaterial)
 {
+  if (m_sBaseMaterial == szBaseMaterial)
+    return;
   m_sBaseMaterial = szBaseMaterial;
-  UpdateShader();
+  // If no doc is present, we are de-serializing the document so do nothing yet.
+  if (!m_pDocument)
+    return;
+  m_pDocument->SetBaseMaterial(m_sBaseMaterial);
+  
 }
 
 const char* ezMaterialAssetProperties::GetBaseMaterial() const
@@ -203,11 +212,15 @@ ezReflectedClass* ezMaterialAssetProperties::GetShaderProperties() const
 void ezMaterialAssetProperties::SetDocument(ezMaterialAssetDocument* pDocument)
 {
   m_pDocument = pDocument;
-  UpdateShader();
+  if (!m_sBaseMaterial.IsEmpty())
+  {
+    m_pDocument->SetBaseMaterial(m_sBaseMaterial);
+  }
+  UpdateShader(true);
 }
 
 
-void ezMaterialAssetProperties::UpdateShader()
+void ezMaterialAssetProperties::UpdateShader(bool bForce)
 {
   // If no doc is present, we are de-serializing the document so do nothing yet.
   if (!m_pDocument)
@@ -250,11 +263,11 @@ void ezMaterialAssetProperties::UpdateShader()
       // is the clean path to the shader at the moment.
       const ezRTTI* pType = pPropObject->GetTypeAccessor().GetType();
 
-      if (sShaderPath != pType->GetTypeName())
+      if (sShaderPath != pType->GetTypeName() || bForce)
       {
         // Shader has changed, delete old and create new one.
         DeleteProperties();
-        CreateProperties(sShaderPath);
+        CreateProperties(sShaderPath, bForce);
       }
       else
       {
@@ -287,13 +300,13 @@ void ezMaterialAssetProperties::DeleteProperties()
   EZ_ASSERT_DEV(res.m_Result.Succeeded(), "Removal of old properties should never fail.");
 }
 
-void ezMaterialAssetProperties::CreateProperties(const char* szShaderPath)
+void ezMaterialAssetProperties::CreateProperties(const char* szShaderPath, bool bForce)
 {
   ezCommandHistory* pHistory = m_pDocument->GetCommandHistory();
 
   const ezRTTI* pType = ezRTTI::FindTypeByName(szShaderPath);
 
-  if (!pType)
+  if (!pType || bForce)
   {
     pType = UpdateShaderType(szShaderPath);
   }
@@ -304,6 +317,8 @@ void ezMaterialAssetProperties::CreateProperties(const char* szShaderPath)
     cmd.m_pType = pType;
     cmd.m_sParentProperty = "ShaderProperties";
     cmd.m_Parent = m_pDocument->GetPropertyObject()->GetGuid();
+    cmd.m_NewObjectGuid = cmd.m_Parent;
+    cmd.m_NewObjectGuid.CombineWithSeed(ezUuid::StableUuidForString("ShaderProperties"));
 
     auto res = pHistory->AddCommand(cmd);
     EZ_ASSERT_DEV(res.m_Result.Succeeded(), "Addition of new properties should never fail.");
@@ -313,12 +328,55 @@ void ezMaterialAssetProperties::CreateProperties(const char* szShaderPath)
 
 void ezMaterialAssetProperties::SaveOldValues()
 {
-  // TODO: Cache old properties so they can be migrated to the new shader's properties.
+  ezDocumentObject* pPropObject = m_pDocument->GetShaderPropertyObject();
+  if (pPropObject)
+  {
+    const ezIReflectedTypeAccessor& accessor = pPropObject->GetTypeAccessor();
+    const ezRTTI* pType = accessor.GetType();
+    ezHybridArray<ezAbstractProperty*, 32> properties;
+    pType->GetAllProperties(properties);
+    for (ezAbstractProperty* pProp : properties)
+    {
+      if (pProp->GetCategory() == ezPropertyCategory::Member)
+      {
+        m_CachedProperties[pProp->GetPropertyName()] = accessor.GetValue(pProp->GetPropertyName());
+      }
+    }
+  }
 }
 
 void ezMaterialAssetProperties::LoadOldValues()
 {
-  // TODO:
+  ezDocumentObject* pPropObject = m_pDocument->GetShaderPropertyObject();
+  ezCommandHistory* pHistory = m_pDocument->GetCommandHistory();
+  if (pPropObject)
+  {
+    const ezIReflectedTypeAccessor& accessor = pPropObject->GetTypeAccessor();
+    const ezRTTI* pType = accessor.GetType();
+    ezHybridArray<ezAbstractProperty*, 32> properties;
+    pType->GetAllProperties(properties);
+    for (ezAbstractProperty* pProp : properties)
+    {
+      if (pProp->GetCategory() == ezPropertyCategory::Member)
+      {
+        ezString sPropName = pProp->GetPropertyName();
+        auto it = m_CachedProperties.Find(sPropName);
+        if (it.IsValid())
+        {
+          if (it.Value() != accessor.GetValue(sPropName.GetData()))
+          {
+            ezSetObjectPropertyCommand cmd;
+            cmd.m_Object = pPropObject->GetGuid();
+            cmd.m_sPropertyPath = sPropName;
+            cmd.m_NewValue = it.Value();
+
+            // Do not check for success, if a cached value failed to apply, simply ignore it.
+            pHistory->AddCommand(cmd);
+          }
+        }
+      }
+    }
+  }
 }
 
 const ezRTTI* ezMaterialAssetProperties::UpdateShaderType(const char* szShaderPath)
@@ -385,6 +443,8 @@ void ezMaterialAssetDocument::InitializeAfterLoading()
 {
   ezSimpleAssetDocument<ezMaterialAssetProperties>::InitializeAfterLoading();
   GetProperties()->SetDocument(this);
+
+
   // The above command may patch the doc with the newest shader properties so we need to clear the undo history here.
   GetCommandHistory()->ClearUndoHistory();
   SetModified(false);
@@ -406,6 +466,156 @@ ezDocumentObject* ezMaterialAssetDocument::GetShaderPropertyObject()
     pPropObject = GetObjectManager()->GetObject(propObjectGuid);
   }
   return pPropObject;
+}
+
+void ezMaterialAssetDocument::SetBaseMaterial(const char* szBaseMaterial)
+{
+  ezDocumentObject* pObject = GetPropertyObject();
+  auto* pAssetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(szBaseMaterial);
+  if (pAssetInfo == nullptr)
+  {
+    ezDeque<const ezDocumentObject*> sel;
+    sel.PushBack(pObject);
+    UnlinkPrefabs(sel);
+  }
+  else
+  {
+    const ezString& sNewBase = ReadDocumentAsString(pAssetInfo->m_sAbsolutePath);
+    ezUuid seed = GetSeedFromBaseMaterial(sNewBase);
+    if (!seed.IsValid())
+    {
+      ezLog::Error("The selected base material '%s' is not a valid material file!", szBaseMaterial);
+      return;
+    }
+
+    {
+      auto pMeta = m_DocumentObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
+      pMeta->m_sBasePrefab = sNewBase;
+      pMeta->m_CreateFromPrefab = pAssetInfo->m_Info.m_DocumentID;
+      pMeta->m_PrefabSeedGuid = seed;
+      m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
+    }
+    UpdatePrefabs();
+  }
+}
+
+ezUuid ezMaterialAssetDocument::GetSeedFromBaseMaterial(const char* szBaseGraph)
+{
+  ezAbstractObjectGraph baseGraph;
+  ezPrefabUtils::LoadGraph(baseGraph, szBaseGraph);
+
+  ezUuid instanceGuid = GetPropertyObject()->GetGuid();
+  ezUuid baseGuid = ezMaterialAssetDocument::GetMaterialNodeGuid(baseGraph);
+  if (baseGuid.IsValid())
+  {
+     //Create seed that converts base guid into instance guid
+    instanceGuid.RevertCombinationWithSeed(baseGuid);
+    return instanceGuid;
+  }
+
+  return ezUuid();
+}
+
+ezUuid ezMaterialAssetDocument::GetMaterialNodeGuid(const ezAbstractObjectGraph& graph)
+{
+  for (auto it = graph.GetAllNodes().GetIterator(); it.IsValid(); ++it)
+  {
+    if (ezStringUtils::IsEqual(it.Value()->GetType(), ezGetStaticRTTI<ezMaterialAssetProperties>()->GetTypeName()))
+    {
+      return it.Value()->GetGuid();
+    }
+  }
+  return ezUuid();
+}
+
+void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab)
+{
+  // Base
+  ezAbstractObjectGraph baseGraph;
+  ezPrefabUtils::LoadGraph(baseGraph, szBasePrefab);
+  baseGraph.PruneGraph(GetMaterialNodeGuid(baseGraph));
+
+  // NewBase
+  const ezString& sLeft = GetCachedPrefabDocument(PrefabAsset);
+  ezAbstractObjectGraph leftGraph;
+  ezPrefabUtils::LoadGraph(leftGraph, sLeft);
+  leftGraph.PruneGraph(GetMaterialNodeGuid(leftGraph));
+
+  // Instance
+  ezAbstractObjectGraph rightGraph;
+  {
+    ezDocumentObjectConverterWriter writer(&rightGraph, pObject->GetDocumentObjectManager(), true, true);
+    writer.AddObjectToGraph(pObject);
+    rightGraph.ReMapNodeGuids(PrefabSeed, true);
+  }
+
+  // Merge diffs relative to base
+  ezDeque<ezAbstractGraphDiffOperation> mergedDiff;
+  ezPrefabUtils::Merge(baseGraph, leftGraph, rightGraph, mergedDiff);
+
+  // Skip shader changes and add / remove calls, we want to preserve everything from base
+  ezDeque<ezAbstractGraphDiffOperation> cleanedDiff;
+  for (const ezAbstractGraphDiffOperation& op : mergedDiff)
+  {
+    if (op.m_Operation == ezAbstractGraphDiffOperation::Op::PropertyChanged)
+    {
+      if (op.m_sProperty == "Shader" || op.m_sProperty == "ShaderProperties")
+        continue;
+      
+      cleanedDiff.PushBack(op);
+    }
+  }
+
+  // Apply diff to base, making it the new instance
+  baseGraph.ApplyDiff(cleanedDiff);
+
+  // Create a new diff that changes our current instance to the new instance
+  ezDeque<ezAbstractGraphDiffOperation> newInstanceToCurrentInstance;
+  baseGraph.CreateDiffWithBaseGraph(rightGraph, newInstanceToCurrentInstance);
+  if (false)
+  {
+    ezFileWriter file;
+    file.Open("C:\\temp\\Material - diff.txt");
+
+    ezStringBuilder sDiff;
+    sDiff.Append("######## New Instance To Instance #######\n");
+    ezPrefabUtils::WriteDiff(newInstanceToCurrentInstance, sDiff);
+    file.WriteBytes(sDiff.GetData(), sDiff.GetElementCount());
+  }
+  // Apply diff to current instance
+  // Shader needs to be set first
+  for (ezUInt32 i = 0; i < newInstanceToCurrentInstance.GetCount(); ++i)
+  {
+    if (newInstanceToCurrentInstance[i].m_sProperty == "Shader")
+    {
+      ezAbstractGraphDiffOperation op = newInstanceToCurrentInstance[i];
+      newInstanceToCurrentInstance.RemoveAt(i);
+      newInstanceToCurrentInstance.Insert(op, 0);
+      break;
+    }
+  }
+  for (const ezAbstractGraphDiffOperation& op : newInstanceToCurrentInstance)
+  {
+    if (op.m_Operation == ezAbstractGraphDiffOperation::Op::PropertyChanged)
+    {
+      ezSetObjectPropertyCommand cmd;
+      cmd.m_Object = op.m_Node;
+      cmd.m_Object.CombineWithSeed(PrefabSeed);
+      cmd.m_NewValue = op.m_Value;
+      cmd.m_sPropertyPath = op.m_sProperty;
+      GetCommandHistory()->AddCommand(cmd);
+    }
+  }
+
+  // Update prefab meta data
+  {
+    auto pMeta = m_DocumentObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
+    pMeta->m_CreateFromPrefab = PrefabAsset; //Should not change
+    pMeta->m_PrefabSeedGuid = PrefabSeed; //Should not change
+    pMeta->m_sBasePrefab = sLeft;
+
+    m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
+  }
 }
 
 void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)

@@ -9,6 +9,7 @@
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <Foundation/Serialization/RttiConverter.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <ToolsFoundation/Document/PrefabUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentObjectMetaData, 1, ezRTTINoAllocator)
 {
@@ -40,6 +41,7 @@ ezDocumentInfo::ezDocumentInfo()
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocument, 1, ezRTTINoAllocator)
+
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezEvent<const ezDocumentEvent&> ezDocument::s_EventsAny;
@@ -323,4 +325,44 @@ void ezDocument::ShowDocumentStatus(const char* szFormat, ...)
   e.m_Type = ezDocumentEvent::Type::DocumentStatusMsg;
 
   m_EventsOne.Broadcast(e);
+}
+
+
+bool ezDocument::IsDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path) const
+{
+  ezUuid rootObjectGuid = ezPrefabUtils::GetPrefabRoot(pObject, m_DocumentObjectMetaData);
+  ezVariant currentValue = pObject->GetTypeAccessor().GetValue(path);
+  const ezAbstractProperty* pProp = ezToolsReflectionUtils::GetPropertyByPath(pObject->GetTypeAccessor().GetType(), path);
+  if (pProp && rootObjectGuid.IsValid())
+  {
+    auto pMeta = m_DocumentObjectMetaData.BeginReadMetaData(rootObjectGuid);
+    const ezAbstractObjectGraph* pGraph = GetCachedPrefabGraph(pMeta->m_CreateFromPrefab);
+    ezUuid objectPrefabGuid = pObject->GetGuid();
+    objectPrefabGuid.RevertCombinationWithSeed(pMeta->m_PrefabSeedGuid);
+    m_DocumentObjectMetaData.EndReadMetaData();
+
+    if (pGraph)
+    {
+      ezVariant defaultValue = ezPrefabUtils::GetDefaultValue(*pGraph, objectPrefabGuid, path);
+      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags) && defaultValue.IsA<ezString>())
+      {
+        ezInt64 iValue = 0;
+        if (ezReflectionUtils::StringToEnumeration(pProp->GetSpecificType(), defaultValue.Get<ezString>(), iValue))
+        {
+          defaultValue = iValue;
+        }
+        else
+        {
+          defaultValue = ezVariant();
+        }
+      }
+      if (defaultValue.IsValid())
+      {
+        return currentValue == defaultValue;
+      }
+    }
+  }
+
+  ezVariant defaultValue = ezToolsReflectionUtils::GetDefaultValue(pProp);
+  return currentValue == defaultValue;
 }

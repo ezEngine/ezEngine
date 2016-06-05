@@ -52,7 +52,7 @@ void ezPrefabComponentDragDropHandler::CreatePrefab(const ezVec3& vPosition, con
   ezInstantiatePrefabCommand PasteCmd;
   PasteCmd.m_Parent = parent;
   //PasteCmd.m_Index = iInsertChildIndex;
-  PasteCmd.m_sJsonGraph = pScene->GetCachedPrefabGraph(AssetGuid);
+  PasteCmd.m_sJsonGraph = pScene->GetCachedPrefabDocument(AssetGuid);
   PasteCmd.m_RemapGuid.CreateNewUuid();
 
   if (PasteCmd.m_sJsonGraph.IsEmpty())

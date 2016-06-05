@@ -12,7 +12,7 @@ ezManipulatorLabel::ezManipulatorLabel(QWidget* parent, Qt::WindowFlags f)
 }
 
 ezManipulatorLabel::ezManipulatorLabel(const QString& text, QWidget* parent, Qt::WindowFlags f)
-  : QLabel(text, parent, f), m_pItems(nullptr), m_pManipulator(nullptr), m_bActive(false)
+  : QLabel(text, parent, f), m_pItems(nullptr), m_pManipulator(nullptr), m_bActive(false), m_bIsDefault(true)
 {
 }
 
@@ -43,9 +43,6 @@ void ezManipulatorLabel::SetManipulatorActive(bool bActive)
 
   if (m_pManipulator)
   {
-    QFont f = font();
-    f.setBold(m_bActive);
-    setFont(f);
     setForegroundRole(m_bActive ? QPalette::ColorRole::LinkVisited : QPalette::ColorRole::Link);
   }
 }
@@ -53,6 +50,18 @@ void ezManipulatorLabel::SetManipulatorActive(bool bActive)
 void ezManipulatorLabel::SetSelection(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items)
 {
   m_pItems = &items;
+}
+
+
+void ezManipulatorLabel::SetIsDefault(bool bIsDefault)
+{
+  if (m_bIsDefault != bIsDefault)
+  {
+    m_bIsDefault = bIsDefault;
+    QFont f = font();
+    f.setBold(!m_bIsDefault);
+    setFont(f);
+  }
 }
 
 void ezManipulatorLabel::mousePressEvent(QMouseEvent *ev)
@@ -77,7 +86,6 @@ void ezManipulatorLabel::enterEvent(QEvent* ev)
   {
     QFont f = font();
     f.setUnderline(true);
-    f.setBold(m_bActive);
     setFont(f);
   }
 
@@ -90,7 +98,6 @@ void ezManipulatorLabel::leaveEvent(QEvent* ev)
   {
     QFont f = font();
     f.setUnderline(false);
-    f.setBold(m_bActive);
     setFont(f);
   }
 

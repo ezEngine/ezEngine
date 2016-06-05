@@ -9,6 +9,7 @@
 #include <Foundation/Logging/Log.h>
 #include <ToolsFoundation/Document/Implementation/Declarations.h>
 #include <CoreUtils/DataStructures/ObjectMetaData.h>
+#include <Foundation/Types/UniquePtr.h>
 
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectMetaData : public ezReflectedClass
 {
@@ -104,7 +105,8 @@ public:
   virtual void RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
   virtual void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
 
-  virtual const ezString& GetCachedPrefabGraph(const ezUuid& documentGuid);
+  virtual const ezString& GetCachedPrefabDocument(const ezUuid& documentGuid) const;
+  virtual const ezAbstractObjectGraph* GetCachedPrefabGraph(const ezUuid& documentGuid) const;
   virtual ezStatus CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType);
   virtual ezStatus CreatePrefabDocument(const char* szFile, const ezDocumentObject* pRootObject, const ezUuid& invPrefabSeed, ezUuid& out_NewDocumentGuid);
   // Returns new guid of replaced object.
@@ -112,6 +114,7 @@ public:
   // Returns new guid of reverted object.
   virtual ezUuid RevertPrefab(const ezDocumentObject* pObject);
 
+  virtual bool IsDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path) const;
 public:
 
   ezObjectMetaData<ezUuid, ezDocumentObjectMetaData> m_DocumentObjectMetaData;
@@ -167,6 +170,7 @@ private:
   ezSet<ezString> m_UnknownObjectTypes;
   ezUInt32 m_uiUnknownObjectTypeInstances;
 
-  ezMap<ezUuid, ezString> m_CachedPrefabGraphs;
+  mutable ezMap<ezUuid, ezString> m_CachedPrefabDocuments;
+  mutable ezMap<ezUuid, ezUniquePtr<ezAbstractObjectGraph>> m_CachedPrefabGraphs;
 
 };

@@ -210,6 +210,68 @@ void ezAbstractObjectGraph::ReMapNodeGuids(const ezUuid& seedGuid, bool bRemapIn
   }
 }
 
+
+void ezAbstractObjectGraph::PruneGraph(const ezUuid& rootGuid)
+{
+  ezSet<ezUuid> reachableNodes;
+  ezSet<ezUuid> inProgress;
+  inProgress.Insert(rootGuid);
+
+  while (!inProgress.IsEmpty())
+  {
+    ezUuid current = *inProgress.GetIterator();
+    auto it = m_Nodes.Find(current);
+    if (it.IsValid())
+    {
+      ezAbstractObjectNode* pNode = it.Value();
+      for (auto& prop : pNode->m_Properties)
+      {
+        if (prop.m_Value.IsA<ezUuid>())
+        {
+          const ezUuid& guid = prop.m_Value.Get<ezUuid>();
+          if (!reachableNodes.Contains(guid))
+          {
+            inProgress.Insert(guid);
+          }
+        }
+        // Arrays may be of uuids
+        else if (prop.m_Value.IsA<ezVariantArray>())
+        {
+          const ezVariantArray& values = prop.m_Value.Get<ezVariantArray>();
+          for (auto& subValue : values)
+          {
+            if (subValue.IsA<ezUuid>())
+            {
+              const ezUuid& guid = subValue.Get<ezUuid>();
+              if (!reachableNodes.Contains(guid))
+              {
+                inProgress.Insert(guid);
+              }
+            }
+          }
+        }
+      }
+    }
+    // Even if 'current' is not in the graph add it anyway to early out if it is found again.
+    reachableNodes.Insert(current);
+    inProgress.Remove(current);
+  }
+
+  // Determine nodes to be removed by subtracting valid ones from all nodes.
+  ezSet<ezUuid> removeSet;
+  for (auto it = GetAllNodes().GetIterator(); it.IsValid(); ++it)
+  {
+    removeSet.Insert(it.Key());
+  }
+  removeSet.Difference(reachableNodes);
+
+  // Remove nodes.
+  for (const ezUuid& guid : removeSet)
+  {
+    RemoveNode(guid);
+  }
+}
+
 void ezAbstractObjectGraph::CopyNodeIntoGraph(ezAbstractObjectNode* pNode)
 {
   auto pNewNode = AddNode(pNode->GetGuid(), pNode->GetType(), pNode->GetNodeName());
@@ -219,7 +281,7 @@ void ezAbstractObjectGraph::CopyNodeIntoGraph(ezAbstractObjectNode* pNode)
 }
 
 
-void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph& base, ezDeque<ezAbstractGraphDiffOperation>& out_DiffResult)
+void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph& base, ezDeque<ezAbstractGraphDiffOperation>& out_DiffResult) const
 {
   out_DiffResult.Clear();
 
@@ -350,7 +412,7 @@ void ezAbstractObjectGraph::ApplyDiff(ezDeque<ezAbstractGraphDiffOperation>& Dif
 }
 
 
-void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperation>& lhs, const ezDeque<ezAbstractGraphDiffOperation>& rhs, ezDeque<ezAbstractGraphDiffOperation>& out)
+void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperation>& lhs, const ezDeque<ezAbstractGraphDiffOperation>& rhs, ezDeque<ezAbstractGraphDiffOperation>& out) const
 {
   struct Prop
   {
@@ -523,7 +585,7 @@ void ezAbstractObjectGraph::RemapVariant(ezVariant& value, const ezMap<ezUuid, e
   }
 }
 
-void ezAbstractObjectGraph::MergeArrays(const ezDynamicArray<ezVariant>& baseArray, const ezDynamicArray<ezVariant>& leftArray, const ezDynamicArray<ezVariant>& rightArray, ezDynamicArray<ezVariant>& out)
+void ezAbstractObjectGraph::MergeArrays(const ezDynamicArray<ezVariant>& baseArray, const ezDynamicArray<ezVariant>& leftArray, const ezDynamicArray<ezVariant>& rightArray, ezDynamicArray<ezVariant>& out) const
 {
   // Find element type.
   ezVariantType::Enum type = ezVariantType::Invalid;

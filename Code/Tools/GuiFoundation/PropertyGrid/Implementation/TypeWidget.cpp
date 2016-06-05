@@ -348,16 +348,18 @@ void ezTypeWidget::UpdatePropertyMetaState()
 
     const bool bReadOnly = (it.Value().m_pWidget->GetProperty()->GetFlags().IsSet(ezPropertyFlags::ReadOnly)) || (it.Value().m_pWidget->GetProperty()->GetAttributeByType<ezReadOnlyAttribute>() != nullptr);
     ezPropertyUiState::Visibility state = ezPropertyUiState::Default;
-
+    bool bDefaultValue = true;
     if (itData.IsValid())
     {
       state = itData.Value().m_Visibility;
+      bDefaultValue = itData.Value().m_bDefaultValue;
     }
 
     if (it.Value().m_pLabel)
     {
       it.Value().m_pLabel->setVisible(state != ezPropertyUiState::Invisible);
       it.Value().m_pLabel->setEnabled(!bReadOnly && state != ezPropertyUiState::Disabled);
+      it.Value().m_pLabel->SetIsDefault(bDefaultValue);
 
       if (itData.IsValid() && !itData.Value().m_sNewLabelText.IsEmpty())
       {

@@ -19,6 +19,7 @@ class ezDocument;
 class ezDocumentObjectManager;
 class ezCommandHistory;
 struct ezDocumentObjectPropertyEvent;
+struct ezPropertyMetaStateEvent;
 
 class EZ_GUIFOUNDATION_DLL ezPropertyGridWidget : public QWidget
 {
@@ -49,6 +50,8 @@ private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(GuiFoundation, PropertyGrid);
 
 private:
+  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
+
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
   void FactoryEventHandler(const ezRttiMappedObjectFactory<ezQtPropertyWidget>::Event& e);
   void TypeEventHandler(const ezPhantomRttiManagerEvent& e);

@@ -5,6 +5,7 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <ToolsFoundation/Document/PrefabUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAddObjectCommand, 1, ezRTTIDefaultAllocator<ezAddObjectCommand>)
 {
@@ -364,67 +365,27 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
   if (!bRedo)
   {
     ezAbstractObjectGraph graph;
-
-    {
-      // Deserialize 
-      ezMemoryStreamStorage streamStorage;
-      ezMemoryStreamWriter memoryWriter(&streamStorage);
-      memoryWriter.WriteBytes(m_sJsonGraph.GetData(), m_sJsonGraph.GetElementCount());
-
-      ezMemoryStreamReader memoryReader(&streamStorage);
-      ezAbstractGraphJsonSerializer::Read(memoryReader, &graph);
-    }
+    ezPrefabUtils::LoadGraph(graph, m_sJsonGraph);
 
     // Remap
     graph.ReMapNodeGuids(m_RemapGuid);
 
-    ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
-
     ezHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
-
-    auto& nodes = graph.GetAllNodes();
-    for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
+    auto* pRealRootNode = ezPrefabUtils::GetFirstRootNode(graph);
+    if (pRealRootNode)
     {
-      auto* pNode = it.Value();
-      if (ezStringUtils::IsEqual(pNode->GetNodeName(), "ObjectTree"))
+      ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
+      auto* pNewObject = reader.CreateObjectFromNode(pRealRootNode, nullptr, nullptr, ezVariant());
+
+      if (pNewObject)
       {
-        for (const auto& ObjectTreeProp : pNode->GetProperties())
-        {
-          if (ezStringUtils::IsEqual(ObjectTreeProp.m_szPropertyName, "Children") && ObjectTreeProp.m_Value.IsA<ezVariantArray>())
-          {
-            const ezVariantArray& RootChildren = ObjectTreeProp.m_Value.Get<ezVariantArray>();
+        reader.ApplyPropertiesToObject(pRealRootNode, pNewObject);
 
-            for (const ezVariant& childGuid : RootChildren)
-            {
-              if (!childGuid.IsA<ezUuid>())
-                continue;
+        auto& ref = ToBePasted.ExpandAndGetRef();
+        ref.m_pObject = pNewObject;
+        ref.m_pParent = pParent;
 
-              const ezUuid& rootObjectGuid = childGuid.Get<ezUuid>();
-
-              auto pRealRootNode = graph.GetNode(rootObjectGuid);
-
-              auto* pNewObject = reader.CreateObjectFromNode(pRealRootNode, nullptr, nullptr, ezVariant());
-
-              if (pNewObject)
-              {
-                reader.ApplyPropertiesToObject(pRealRootNode, pNewObject);
-
-                auto& ref = ToBePasted.ExpandAndGetRef();
-                ref.m_pObject = pNewObject;
-                ref.m_pParent = pParent;
-
-                m_CreatedRootObject = pNewObject->GetGuid();
-              }
-
-              // only create the very first object, if there are multiple objects in the prefab, ignore the rest
-              break;
-            }
-
-            break;
-          }
-        }
-
-        break;
+        m_CreatedRootObject = pNewObject->GetGuid();
       }
     }
 
@@ -669,8 +630,14 @@ ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
     ezIReflectedTypeAccessor& accessor0 = m_pObject->GetTypeAccessor();
 
     m_OldValue = accessor0.GetValue(path, m_Index);
-    if (!m_OldValue.IsValid())
+    ezAbstractProperty* pProp = ezToolsReflectionUtils::GetPropertyByPath(accessor0.GetType(), path);
+    if (pProp == nullptr || !m_OldValue.IsValid())
       return ezStatus("Set Property: The property '%s' does not exist", m_sPropertyPath.GetData());
+
+    if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+    {
+      return ezStatus("Set Property: The property '%s' is a PointerOwner, use ezAddObjectCommand instead", m_sPropertyPath.GetData());
+    }
   }
 
   ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();

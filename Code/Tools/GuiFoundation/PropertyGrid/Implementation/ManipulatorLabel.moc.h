@@ -21,6 +21,8 @@ public:
 
   void SetSelection(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items);
 
+  void SetIsDefault(bool bIsDefault);
+
 private:
   virtual void mousePressEvent(QMouseEvent *ev) override;
   virtual void enterEvent(QEvent* ev) override;
@@ -30,4 +32,5 @@ private:
   const ezHybridArray<ezQtPropertyWidget::Selection, 8>* m_pItems;
   const ezManipulatorAttribute* m_pManipulator;
   bool m_bActive;
+  bool m_bIsDefault;
 };

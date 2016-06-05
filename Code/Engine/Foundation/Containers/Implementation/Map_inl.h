@@ -455,6 +455,15 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, Va
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
+typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::Insert(const KeyType& key, ValueType&& value)
+{
+  auto it = FindOrAdd(key);
+  it.Value() = std::move(value);
+
+  return it;
+}
+
+template <typename KeyType, typename ValueType, typename Comparer>
 bool ezMapBase<KeyType, ValueType, Comparer>::Remove(const KeyType& key)
 {
   bool bRemoved = true;
@@ -466,7 +475,7 @@ bool ezMapBase<KeyType, ValueType, Comparer>::Remove(const KeyType& key)
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::AcquireNode(const KeyType& key, const ValueType& value, ezInt32 uiLevel, Node* pParent)
+typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::AcquireNode(const KeyType& key, ValueType&& value, ezInt32 uiLevel, Node* pParent)
 {
   Node* pNode;
 
@@ -485,7 +494,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 
   pNode->m_pParent = pParent;
   pNode->m_Key = key;
-  pNode->m_Value = value;
+  pNode->m_Value = std::move(value);
   pNode->m_uiLevel = uiLevel;
   pNode->m_pLink[0] = reinterpret_cast<Node*>(&m_NilNode);
   pNode->m_pLink[1] = reinterpret_cast<Node*>(&m_NilNode);

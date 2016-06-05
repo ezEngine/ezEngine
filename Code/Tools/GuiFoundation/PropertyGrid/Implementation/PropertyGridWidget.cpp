@@ -2,6 +2,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/TagSetPropertyWidget.moc.h>
+#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/Widgets/CollapsibleGroupBox.moc.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <Foundation/Configuration/Startup.h>
@@ -94,11 +95,13 @@ static ezQtPropertyWidget* TagSetCreator(const ezRTTI* pRtti)
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
 
 BEGIN_SUBSYSTEM_DEPENDENCIES
-"ToolsFoundation"
+"ToolsFoundation", "PropertyMetaState"
 END_SUBSYSTEM_DEPENDENCIES
 
 ON_CORE_STARTUP
 {
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezPropertyGridWidget::PropertyMetaStateEventHandler);
+
   ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<bool>(), StandardTypeCreator);
   ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<float>(), StandardTypeCreator);
   ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<double>(), StandardTypeCreator);
@@ -129,6 +132,7 @@ ON_CORE_STARTUP
 
 ON_CORE_SHUTDOWN
 {
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezPropertyGridWidget::PropertyMetaStateEventHandler);
 }
 
 EZ_END_SUBSYSTEM_DECLARATION
@@ -365,6 +369,57 @@ void ezPropertyGridWidget::OnCollapseStateChanged(bool bCollapsed)
   ezCollapsibleGroupBox* pBox = qobject_cast<ezCollapsibleGroupBox*>(sender());
   ezUInt32 uiHash = GetGroupBoxHash(pBox);
   m_CollapseState[uiHash] = pBox->GetCollapseState();
+}
+
+
+void GetDefaultValues(const ezRTTI* pType, ezPropertyPath& ParentPath, const ezDocument* pDocument, ezPropertyMetaStateEvent& e)
+{
+  const ezRTTI* pParentType = pType->GetParentType();
+  if (pParentType != nullptr)
+    GetDefaultValues(pParentType, ParentPath, pDocument, e);
+
+  for (ezUInt32 i = 0; i < pType->GetProperties().GetCount(); ++i)
+  {
+    const ezAbstractProperty* pProp = pType->GetProperties()[i];
+    if (pProp->GetFlags().IsSet(ezPropertyFlags::Hidden))
+      continue;
+
+    if (pProp->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+      continue;
+
+    if (pProp->GetSpecificType()->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+      continue;
+
+    ParentPath.PushBack(pProp->GetPropertyName());
+
+    switch (pProp->GetCategory())
+    {
+    case ezPropertyCategory::Member:
+      {
+        if (!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType | ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+        {
+          // Member struct / class
+          GetDefaultValues(pProp->GetSpecificType(), ParentPath, pDocument, e);
+        }
+        else
+        {
+          ezString sPath = ParentPath.GetPathString();
+          (*e.m_pPropertyStates)[sPath].m_bDefaultValue = pDocument->IsDefaultValue(e.m_pObject, ParentPath);
+        }
+      }
+      break;
+    }
+
+    ParentPath.PopBack();
+  }
+}
+
+void ezPropertyGridWidget::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  const ezDocument* pDocument = e.m_pObject->GetDocumentObjectManager()->GetDocument();
+  const ezRTTI* pType = e.m_pObject->GetTypeAccessor().GetType();
+  ezPropertyPath ParentPath;
+  GetDefaultValues(pType, ParentPath, pDocument, e);
 }
 
 void ezPropertyGridWidget::SelectionEventHandler(const ezSelectionManagerEvent& e)

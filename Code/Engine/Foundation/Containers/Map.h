@@ -155,6 +155,9 @@ public:
   /// \brief Inserts the key/value pair into the tree and returns an Iterator to it. O(log n) operation.
   Iterator Insert(const KeyType& key, const ValueType& value); // [tested]
 
+  /// \brief Inserts the key/value pair into the tree and returns an Iterator to it. O(log n) operation.
+  Iterator Insert(const KeyType& key, ValueType&& value);
+
   /// \brief Erases the key/value pair with the given key, if it exists. O(log n) operation.
   bool Remove(const KeyType& key); // [tested]
 
@@ -209,7 +212,7 @@ private:
   void Constructor();
 
   /// \brief Creates one new node and initializes it.
-  Node* AcquireNode(const KeyType& key, const ValueType& value, int m_uiLevel, Node* pParent);
+  Node* AcquireNode(const KeyType& key, ValueType&& value, int m_uiLevel, Node* pParent);
 
   /// \brief Destroys the given node.
   void ReleaseNode(Node* pNode);

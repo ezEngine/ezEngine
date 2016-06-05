@@ -5,6 +5,7 @@
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
+#include <ToolsFoundation/Document/PrefabUtils.h>
 
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -26,40 +27,10 @@ ezString ToBinary(const ezUuid& guid)
   return sResult;
 }
 
-void WriteDiff(ezDeque<ezAbstractGraphDiffOperation> mergedDiff, ezStringBuilder &sDiff)
-{
-  for (const auto& diff : mergedDiff)
-  {
-    ezStringBuilder Data = ToBinary(diff.m_Node);
-
-    switch (diff.m_Operation)
-    {
-    case ezAbstractGraphDiffOperation::Op::NodeAdded:
-      {
-        sDiff.AppendFormat("<add> - {%s} (%s)\n", Data.GetData(), diff.m_sProperty.GetData());
-      }
-      break;
-
-    case ezAbstractGraphDiffOperation::Op::NodeRemoved:
-      {
-        sDiff.AppendFormat("<del> - {%s}\n", Data.GetData());
-      }
-      break;
-
-    case ezAbstractGraphDiffOperation::Op::PropertyChanged:
-      if (diff.m_Value.CanConvertTo<ezString>())
-        sDiff.AppendFormat("<set> - {%s} - \"%s\" = %s\n", Data.GetData(), diff.m_sProperty.GetData(), diff.m_Value.ConvertTo<ezString>().GetData());
-      else
-        sDiff.AppendFormat("<set> - {%s} - \"%s\" = xxx\n", Data.GetData(), diff.m_sProperty.GetData());
-      break;
-
-    }
-  }
-}
-
 void ezDocument::UpdatePrefabs()
 {
   // make sure the prefabs are updated
+  m_CachedPrefabDocuments.Clear();
   m_CachedPrefabGraphs.Clear();
 
   GetCommandHistory()->StartTransaction();
@@ -78,6 +49,7 @@ void ezDocument::RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection
 
   auto pHistory = GetCommandHistory();
 
+  m_CachedPrefabDocuments.Clear();
   m_CachedPrefabGraphs.Clear();
 
   pHistory->StartTransaction();
@@ -107,16 +79,38 @@ void ezDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection
   }
 }
 
-const ezString& ezDocument::GetCachedPrefabGraph(const ezUuid& documentGuid)
+const ezString& ezDocument::GetCachedPrefabDocument(const ezUuid& documentGuid) const
 {
-  if (!m_CachedPrefabGraphs.Contains(documentGuid))
+  if (!m_CachedPrefabDocuments.Contains(documentGuid))
   {
     ezString sPrefabFile = GetDocumentPathFromGuid(documentGuid);
 
-    m_CachedPrefabGraphs[documentGuid] = ReadDocumentAsString(sPrefabFile);
+    m_CachedPrefabDocuments[documentGuid] = ReadDocumentAsString(sPrefabFile);
   }
 
-  return m_CachedPrefabGraphs[documentGuid];
+  return m_CachedPrefabDocuments[documentGuid];
+}
+
+const ezAbstractObjectGraph* ezDocument::GetCachedPrefabGraph(const ezUuid& documentGuid) const
+{
+  if (m_CachedPrefabGraphs.Contains(documentGuid))
+  {
+    return m_CachedPrefabGraphs[documentGuid].Borrow();
+  }
+  else
+  {
+    const ezString& sPrefabFile = GetCachedPrefabDocument(documentGuid);
+    if (sPrefabFile.IsEmpty())
+    {
+      return nullptr;
+    }
+    else
+    {
+      auto it = m_CachedPrefabGraphs.Insert(documentGuid, ezUniquePtr<ezAbstractObjectGraph>(EZ_DEFAULT_NEW(ezAbstractObjectGraph)));
+      ezPrefabUtils::LoadGraph(*it.Value().Borrow(), sPrefabFile);
+      return it.Value().Borrow();
+    }
+  }
 }
 
 ezStatus ezDocument::CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType)
@@ -236,7 +230,7 @@ ezUuid ezDocument::RevertPrefab(const ezDocumentObject* pObject)
   instCmd.m_bAllowPickedPosition = false;
   instCmd.m_Parent = pObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pObject->GetParent()->GetGuid();
   instCmd.m_RemapGuid = pMeta->m_PrefabSeedGuid;
-  instCmd.m_sJsonGraph = GetCachedPrefabGraph(pMeta->m_CreateFromPrefab);
+  instCmd.m_sJsonGraph = GetCachedPrefabDocument(pMeta->m_CreateFromPrefab);
 
   m_DocumentObjectMetaData.EndReadMetaData();
 
@@ -258,6 +252,7 @@ ezUuid ezDocument::RevertPrefab(const ezDocumentObject* pObject)
 
 void ezDocument::UpdatePrefabsRecursive(ezDocumentObject* pObject)
 {
+  // Deliberately copy the array as the UpdatePrefabObject function will add / remove elements from the array.
   auto ChildArray = pObject->GetChildren();
 
   ezStringBuilder sPrefabBase;
@@ -287,132 +282,23 @@ void ezDocument::UpdatePrefabsRecursive(ezDocumentObject* pObject)
 
 void ezDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab)
 {
+  const ezString& sNewPrefab = GetCachedPrefabDocument(PrefabAsset);
+
+  ezStringBuilder sNewGraph;
+  ezPrefabUtils::Merge(szBasePrefab, sNewPrefab, pObject, PrefabSeed, sNewGraph);
+
+  // remove current object
+  ezRemoveObjectCommand rm;
+  rm.m_Object = pObject->GetGuid();
+  
+  // instantiate prefab again
   ezInstantiatePrefabCommand inst;
   inst.m_bAllowPickedPosition = false;
   inst.m_Parent = pObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pObject->GetParent()->GetGuid();
   inst.m_RemapGuid = PrefabSeed;
-  inst.m_sJsonGraph = GetCachedPrefabGraph(PrefabAsset);
+  inst.m_sJsonGraph = sNewGraph;
 
-  // prepare the original prefab as a graph
-  ezAbstractObjectGraph graphBasePrefab;
-  {
-    ezMemoryStreamStorage storage;
-    ezMemoryStreamWriter stringWriter(&storage);
-    ezMemoryStreamReader stringReader(&storage);
-    stringWriter.WriteBytes(szBasePrefab, ezStringUtils::GetStringElementCount(szBasePrefab));
-
-    ezAbstractGraphJsonSerializer::Read(stringReader, &graphBasePrefab);
-  }
-
-  {
-    ezAbstractObjectGraph graphNewPrefab, graphHeader;
-
-    // read the new template as a graph
-    {
-      ezMemoryStreamStorage storage;
-      ezMemoryStreamWriter stringWriter(&storage);
-      ezMemoryStreamReader stringReader(&storage);
-      stringWriter.WriteBytes(inst.m_sJsonGraph.GetData(), inst.m_sJsonGraph.GetElementCount());
-      ezAbstractGraphJsonSerializer::Read(stringReader, &graphNewPrefab);
-    }
-
-    // remove the header
-    {
-      auto pHeader = graphNewPrefab.GetNodeByName("Header");
-      EZ_ASSERT_DEBUG(pHeader, "header is missing");
-      graphNewPrefab.RemoveNode(pHeader->GetGuid());
-    }
-
-    // prepare the current state as a graph
-    ezAbstractObjectGraph graphCurrentInstance;
-    {
-      ezDocumentObjectConverterWriter writer(&graphCurrentInstance, GetObjectManager(), true, true);
-      writer.AddObjectToGraph(pObject);
-      graphCurrentInstance.ReMapNodeGuids(PrefabSeed, true);
-      // just take the entire ObjectTree node as is
-      graphCurrentInstance.CopyNodeIntoGraph(graphNewPrefab.GetNodeByName("ObjectTree"));
-    }
-
-
-    // debug output
-    if (false)
-    {
-      {
-        ezFileWriter file;
-        file.Open("D:\\Prefab - base.txt");
-        file.WriteBytes(szBasePrefab, ezStringUtils::GetStringElementCount(szBasePrefab));
-      }
-
-      {
-        ezFileWriter file;
-        file.Open("D:\\Prefab - org.txt");
-        ezAbstractGraphJsonSerializer::Write(file, &graphCurrentInstance, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
-      }
-
-      {
-        ezFileWriter file2;
-        file2.Open("D:\\Prefab - template.txt");
-        ezAbstractGraphJsonSerializer::Write(file2, &graphNewPrefab, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
-      }
-    }
-
-
-    ezDeque<ezAbstractGraphDiffOperation> InstanceToBase;
-    graphCurrentInstance.CreateDiffWithBaseGraph(graphBasePrefab, InstanceToBase);
-    ezDeque<ezAbstractGraphDiffOperation> TemplateToBase;
-    graphNewPrefab.CreateDiffWithBaseGraph(graphBasePrefab, TemplateToBase);
-    ezDeque<ezAbstractGraphDiffOperation> mergedDiff;
-    graphBasePrefab.MergeDiffs(TemplateToBase, InstanceToBase, mergedDiff);
-
-    // debug output
-    if (false)
-    {
-      ezFileWriter file3;
-      file3.Open("D:\\Prefab - diff.txt");
-
-      ezStringBuilder sDiff;
-      sDiff.Append("######## Template To Base #######\n");
-      WriteDiff(TemplateToBase, sDiff);
-      sDiff.Append("\n\n######## Instance To Base #######\n");
-      WriteDiff(InstanceToBase, sDiff);
-      sDiff.Append("\n\n######## Merged Diff #######\n");
-      WriteDiff(mergedDiff, sDiff);
-
-
-      file3.WriteBytes(sDiff.GetData(), sDiff.GetElementCount());
-    }
-
-    {
-      //graphBasePrefab.CopyNodeIntoGraph(graphHeader.GetNodeByName("Header"));
-      graphBasePrefab.ApplyDiff(mergedDiff);
-
-      ezMemoryStreamStorage stor;
-      ezMemoryStreamWriter sw(&stor);
-
-      ezAbstractGraphJsonSerializer::Write(sw, &graphBasePrefab, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
-
-      ezStringBuilder sNewGraph;
-      sNewGraph.SetSubString_ElementCount((const char*)stor.GetData(), stor.GetStorageSize());
-
-      inst.m_sJsonGraph = sNewGraph;
-    }
-
-    // debug output
-    if (false)
-    {
-      ezFileWriter file4;
-      file4.Open("D:\\Prefab - result.txt");
-      file4.WriteBytes(inst.m_sJsonGraph.GetData(), inst.m_sJsonGraph.GetElementCount());
-    }
-  }
-
-  ezRemoveObjectCommand rm;
-  rm.m_Object = pObject->GetGuid();
-
-  // remove current object
   GetCommandHistory()->AddCommand(rm);
-
-  // instantiate prefab again
   GetCommandHistory()->AddCommand(inst);
 
   // pass the prefab meta data to the new instance
@@ -421,7 +307,7 @@ void ezDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& Pre
     auto pMeta = m_DocumentObjectMetaData.BeginModifyMetaData(inst.m_CreatedRootObject);
     pMeta->m_CreateFromPrefab = PrefabAsset;
     pMeta->m_PrefabSeedGuid = PrefabSeed;
-    pMeta->m_sBasePrefab = GetCachedPrefabGraph(PrefabAsset);
+    pMeta->m_sBasePrefab = sNewPrefab;
 
     m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
   }
