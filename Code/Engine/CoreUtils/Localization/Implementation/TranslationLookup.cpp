@@ -97,6 +97,10 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFileName)
   for (const auto& line : Lines)
   {
     sLine = line;
+    sLine.Trim(" \t\r\n");
+
+    if (sLine.IsEmpty())
+      continue;
 
     const char* szSeperator = sLine.FindSubString(";");
 

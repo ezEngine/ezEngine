@@ -41,9 +41,7 @@ WorldData::WorldData(const char* szWorldName) :
   m_bSimulateWorld(true),
   m_ReadMarker(*this),
   m_WriteMarker(*this),
-  m_pUserData(nullptr),
-  m_uiCurrentInitializeQueue(0),
-  m_uiCurrentSimulationQueue(0)
+  m_pUserData(nullptr)
 {
   m_AllocatorWrapper.Reset();
 

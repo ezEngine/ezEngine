@@ -679,8 +679,8 @@ void ezWorld::DeregisterUpdateFunctions(ezComponentManagerBase* pManager)
 
 void ezWorld::AddComponentToInitialize(ezComponentHandle hComponent)
 {
-  m_Data.m_ComponentsToInitialize[m_Data.m_uiCurrentInitializeQueue].PushBack(hComponent);
-  m_Data.m_ComponentsToStartSimulation[m_Data.m_uiCurrentSimulationQueue].PushBack(hComponent);
+  m_Data.m_ComponentsToInitialize.PushBack(hComponent);
+  m_Data.m_ComponentsToStartSimulation.PushBack(hComponent);
 }
 
 void ezWorld::UpdateFromThread()
@@ -695,82 +695,50 @@ void ezWorld::ProcessComponentsToInitialize()
 {
   CheckForWriteAccess();
 
-  while (!m_Data.m_ComponentsToInitialize[0].IsEmpty() || !m_Data.m_ComponentsToInitialize[1].IsEmpty())
+  // Can't use foreach here because the array might be resized during iteration.
+  for (ezUInt32 i = 0; i < m_Data.m_ComponentsToInitialize.GetCount(); ++i)
   {
-    const ezUInt32 uiThisQueue = m_Data.m_uiCurrentInitializeQueue;
-    m_Data.m_uiCurrentInitializeQueue = (uiThisQueue + 1) % 2;
+    ezComponentHandle hComponent = m_Data.m_ComponentsToInitialize[i];
 
-    for (ezComponentHandle hComponent : m_Data.m_ComponentsToInitialize[uiThisQueue])
+    ezComponent* pComponent = nullptr;
+    if (!TryGetComponent(hComponent, pComponent)) // if it is in the editor, the component might have been added and already deleted, without ever running the simulation
+      continue;
+
+    // may have been initialized by someone else in the mean time
+    if (pComponent->IsInitialized())
+      continue;
+
+    // make sure the object's transform is up to date before the component is initialized
+    if (pComponent->GetOwner())
     {
-      ezComponent* pComponent = nullptr;
-      if (!TryGetComponent(hComponent, pComponent)) // if it is in the editor, the component might have been added and already deleted, without ever running the simulation
-        continue;
-
-      // may have been initialized by someone else in the mean time
-      if (pComponent->IsInitialized())
-        continue;
-
-      // make sure the object's transform is up to date before the component is initialized
-      if (pComponent->GetOwner())
-      {
-        pComponent->GetOwner()->UpdateGlobalTransform();
-      }
-
-      pComponent->m_ComponentFlags.Add(ezObjectFlags::Initializing);
-
-      pComponent->Initialize();
-
-      pComponent->m_ComponentFlags.Remove(ezObjectFlags::Initializing);
-      pComponent->m_ComponentFlags.Add(ezObjectFlags::Initialized);
+      pComponent->GetOwner()->UpdateGlobalTransform();
     }
 
-    m_Data.m_ComponentsToInitialize[uiThisQueue].Clear();
-
-    if (!m_Data.m_ComponentsToInitialize[m_Data.m_uiCurrentInitializeQueue].IsEmpty())
-    {
-      // this is here to figure out whether that can actually ever happen, it's not a problem, that's what the ping-pong array is for
-      ezLog::Warning("Components were added to initialization queue while initializing components!");
-    }
+    pComponent->EnsureInitialized();
   }
+
+  m_Data.m_ComponentsToInitialize.Clear();
 
   if (m_Data.m_bSimulateWorld)
   {
-    while (!m_Data.m_ComponentsToStartSimulation[0].IsEmpty() || !m_Data.m_ComponentsToStartSimulation[1].IsEmpty())
+    // Can't use foreach here because the array might be resized during iteration.
+    for (ezUInt32 i = 0; i < m_Data.m_ComponentsToStartSimulation.GetCount(); ++i)
     {
-      const ezUInt32 uiThisQueue = m_Data.m_uiCurrentSimulationQueue;
-      m_Data.m_uiCurrentSimulationQueue = (uiThisQueue + 1) % 2;
+      ezComponentHandle hComponent = m_Data.m_ComponentsToStartSimulation[i];
 
-      for (ezComponentHandle hComponent : m_Data.m_ComponentsToStartSimulation[uiThisQueue])
+      ezComponent* pComponent = nullptr;
+      if (!TryGetComponent(hComponent, pComponent)) // if it is in the editor, the component might have been added and already deleted, without ever running the simulation
       {
-        ezComponent* pComponent = nullptr;
-        if (!TryGetComponent(hComponent, pComponent)) // if it is in the editor, the component might have been added and already deleted, without ever running the simulation
-        {
-          // in an editor setting this can happen
-          // in a runtime setting this should actually not be possible, unless there is a multi-threading bug :-(
-          ezLog::Warning("Component in sim queue is invalid");
-          continue;
-        }
-
-        // may have been called by someone else in the mean time
-        if (pComponent->IsSimulationStarted())
-          continue;
-
-        pComponent->m_ComponentFlags.Add(ezObjectFlags::SimulationStarting);
-
-        pComponent->OnSimulationStarted();
-
-        pComponent->m_ComponentFlags.Remove(ezObjectFlags::SimulationStarting);
-        pComponent->m_ComponentFlags.Add(ezObjectFlags::SimulationStarted);
+        // in an editor setting this can happen
+        // in a runtime setting this should actually not be possible, unless there is a multi-threading bug :-(
+        ezLog::Warning("Component in sim queue is invalid");
+        continue;
       }
 
-      m_Data.m_ComponentsToStartSimulation[uiThisQueue].Clear();
-
-      if (!m_Data.m_ComponentsToStartSimulation[m_Data.m_uiCurrentSimulationQueue].IsEmpty())
-      {
-        // this is here to figure out whether that can actually ever happen, it's not a problem, that's what the ping-pong array is for
-        ezLog::Warning("Components were added to simulation start queue while starting components!");
-      }
+      pComponent->EnsureSimulationStarted();
     }
+
+    m_Data.m_ComponentsToStartSimulation.Clear();
   }
 }
 

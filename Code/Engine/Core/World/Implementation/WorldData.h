@@ -94,11 +94,8 @@ namespace ezInternal
 
     ezDynamicArray<ezComponentManagerBase::ComponentStorageEntry, ezLocalAllocatorWrapper> m_DeadComponents;
 
-    // these queues are used in a ping-pong way so that we can process one queue, while potentially writing to the other
-    ezUInt32 m_uiCurrentInitializeQueue;
-    ezUInt32 m_uiCurrentSimulationQueue;
-    ezDynamicArray<ezComponentHandle, ezLocalAllocatorWrapper> m_ComponentsToInitialize[2];
-    ezDynamicArray<ezComponentHandle, ezLocalAllocatorWrapper> m_ComponentsToStartSimulation[2];
+    ezDynamicArray<ezComponentHandle, ezLocalAllocatorWrapper> m_ComponentsToInitialize;
+    ezDynamicArray<ezComponentHandle, ezLocalAllocatorWrapper> m_ComponentsToStartSimulation;
 
     typedef ezComponentManagerBase::UpdateFunction UpdateFunction;
     struct RegisteredUpdateFunction
