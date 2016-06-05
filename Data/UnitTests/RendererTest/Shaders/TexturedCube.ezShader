@@ -23,10 +23,10 @@ VS_OUT main(VS_IN Input)
 
 #include "Common.inc"
 
-TextureCube TexDiffuse : register(t1);
-SamplerState TexDiffuseSampler : register(s1);
+TextureCube DiffuseTexture : register(t1);
+SamplerState DiffuseTextureSampler : register(s1);
 
 float4 main(PS_IN Input) : SV_Target
 {
-  return TexDiffuse.Sample(TexDiffuseSampler, normalize(Input.normal));
+  return DiffuseTexture.Sample(DiffuseTextureSampler, normalize(Input.normal));
 }

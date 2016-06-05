@@ -70,7 +70,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
           pRefrencedObject = CreateObjectFromNode(pNode);
           if (pRefrencedObject == nullptr)
           {
-            ezLog::Error("Failed to set property '%s', type could not be created!", pProp->GetPropertyName());
+            //ezLog::Error("Failed to set property '%s', type could not be created!", pProp->GetPropertyName());
             return;
           }
         }

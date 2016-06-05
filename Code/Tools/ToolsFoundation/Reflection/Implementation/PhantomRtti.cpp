@@ -175,15 +175,25 @@ bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
 
     }
 
-    if (desc.m_Attributes.GetCount() != GetAttributes().GetCount())
+    if (desc.m_Properties[i].m_Attributes.GetCount() != GetProperties()[i]->GetAttributes().GetCount())
       return false;
 
     // TODO: compare attribute values?
-    for (ezUInt32 i = 0; i < GetAttributes().GetCount(); i++)
+    for (ezUInt32 i2 = 0; i2 < desc.m_Properties[i].m_Attributes.GetCount(); i2++)
     {
-      if (desc.m_Attributes[i]->GetDynamicRTTI() != GetAttributes()[i]->GetDynamicRTTI())
+      if (desc.m_Properties[i].m_Attributes[i2]->GetDynamicRTTI() != GetProperties()[i]->GetAttributes()[i2]->GetDynamicRTTI())
         return false;
     }
+  }
+
+  if (desc.m_Attributes.GetCount() != GetAttributes().GetCount())
+    return false;
+
+  // TODO: compare attribute values?
+  for (ezUInt32 i = 0; i < GetAttributes().GetCount(); i++)
+  {
+    if (desc.m_Attributes[i]->GetDynamicRTTI() != GetAttributes()[i]->GetDynamicRTTI())
+      return false;
   }
   return true;
 }

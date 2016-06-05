@@ -3,6 +3,6 @@
   
   "Textures" :
   {
-    "TexDiffuse" : "Trees/Textures/Bark/deviantart.com/Pinetree_D.dds",
+    "DiffuseTexture" : "Trees/Textures/Bark/deviantart.com/Pinetree_D.dds",
   }  
 }

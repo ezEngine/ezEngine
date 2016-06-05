@@ -22,11 +22,11 @@ VS_OUT main(VS_IN Input)
 
 #include "Common.inc"
 
-Texture2D TexDiffuse : register(t0);
-SamplerState TexDiffuseSampler : register(s0);
+Texture2D DiffuseTexture : register(t0);
+SamplerState DiffuseTextureSampler : register(s0);
 
 float4 main(PS_IN Input) : SV_Target
 {
-  return TexDiffuse.Sample(TexDiffuseSampler, Input.texcoord0 * 4);
+  return DiffuseTexture.Sample(DiffuseTextureSampler, Input.texcoord0 * 4);
 }
 

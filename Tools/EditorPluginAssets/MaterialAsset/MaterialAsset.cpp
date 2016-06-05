@@ -13,6 +13,7 @@
 #include <ToolsFoundation/Document/PrefabUtils.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <Foundation/Serialization/JsonSerializer.h>
+#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 1, ezRTTIDefaultAllocator<ezMaterialAssetProperties>)
 {
@@ -22,11 +23,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 1, ezRTTIDefaultAlloc
     EZ_ACCESSOR_PROPERTY("Shader", GetShader, SetShader)->AddAttributes(new ezFileBrowserAttribute("Select Shader", "*.ezShader")),
     // This property holds the phantom shader properties type so it is only used in the object graph but not actually in the instance of this object.
     EZ_ACCESSOR_PROPERTY("ShaderProperties", GetShaderProperties, SetShaderProperties)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezContainerAttribute(false, false, false)),
-
-    EZ_MEMBER_PROPERTY("Permutations", m_sPermutationVarValues),
-    EZ_MEMBER_PROPERTY("Diffuse Texture", m_sTextureDiffuse)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
-    EZ_MEMBER_PROPERTY("Mask Texture", m_sTextureMask)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
-    EZ_MEMBER_PROPERTY("Normal Map", m_sTextureNormal)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
   }
   EZ_END_PROPERTIES
 }
@@ -154,6 +150,19 @@ namespace
 
   void AddAttributes(ezShaderParser::ParameterDefinition& def, ezHybridArray<ezPropertyAttribute*, 2>& attributes)
   {
+    if (def.m_sType.StartsWith_NoCase("texture"))
+    {
+      attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture"));
+    }
+    else if (def.m_sType.StartsWith_NoCase("permutation"))
+    {
+      attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Permutation"));
+    }
+    else
+    {
+      attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Constant"));
+    }
+
     if (def.m_sType.IsEqual("Texture2D") || def.m_sType.IsEqual("Texture"))
     {
       attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture 2D"));
@@ -444,10 +453,11 @@ void ezMaterialAssetDocument::InitializeAfterLoading()
   ezSimpleAssetDocument<ezMaterialAssetProperties>::InitializeAfterLoading();
   GetProperties()->SetDocument(this);
 
+  bool bSetModified = false;
 
   // The above command may patch the doc with the newest shader properties so we need to clear the undo history here.
   GetCommandHistory()->ClearUndoHistory();
-  SetModified(false);
+  SetModified(bSetModified);
 }
 
 ezBitflags<ezAssetDocumentFlags> ezMaterialAssetDocument::GetAssetFlags() const
@@ -490,9 +500,13 @@ void ezMaterialAssetDocument::SetBaseMaterial(const char* szBaseMaterial)
 
     {
       auto pMeta = m_DocumentObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
-      pMeta->m_sBasePrefab = sNewBase;
-      pMeta->m_CreateFromPrefab = pAssetInfo->m_Info.m_DocumentID;
-      pMeta->m_PrefabSeedGuid = seed;
+
+      if (pMeta->m_CreateFromPrefab != pAssetInfo->m_Info.m_DocumentID)
+      {
+        pMeta->m_sBasePrefab = sNewBase;
+        pMeta->m_CreateFromPrefab = pAssetInfo->m_Info.m_DocumentID;
+        pMeta->m_PrefabSeedGuid = seed;
+      }
       m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
     }
     UpdatePrefabs();
@@ -627,158 +641,190 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
 
   if (!pProp->m_sShader.IsEmpty())
     pInfo->m_FileDependencies.Insert(pProp->m_sShader);
-
-  if (!pProp->m_sTextureDiffuse.IsEmpty() && !ezPathUtils::HasExtension(pProp->m_sTextureDiffuse, "color"))
-    pInfo->m_FileDependencies.Insert(pProp->m_sTextureDiffuse);
-
-  if (!pProp->m_sTextureMask.IsEmpty() && !ezPathUtils::HasExtension(pProp->m_sTextureMask, "color"))
-    pInfo->m_FileDependencies.Insert(pProp->m_sTextureMask);
-
-  if (!pProp->m_sTextureNormal.IsEmpty() && !ezPathUtils::HasExtension(pProp->m_sTextureNormal, "color"))
-    pInfo->m_FileDependencies.Insert(pProp->m_sTextureNormal);
 }
 
 ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform)
 {
   const ezMaterialAssetProperties* pProp = GetProperties();
 
-  // see if we can generate a thumbnail
-  ezStringBuilder sImageFile = pProp->m_sTextureDiffuse;
+  //// see if we can generate a thumbnail
+  //ezStringBuilder sImageFile = pProp->m_sTextureDiffuse;
 
-  if (sImageFile.IsEmpty())
-    sImageFile = pProp->m_sTextureNormal;
+  //if (sImageFile.IsEmpty())
+  //  sImageFile = pProp->m_sTextureNormal;
 
-  if (sImageFile.IsEmpty())
-    sImageFile = pProp->m_sTextureMask;
+  //if (sImageFile.IsEmpty())
+  //  sImageFile = pProp->m_sTextureMask;
 
-  if (!sImageFile.IsEmpty())
-  {
-    ezImage image;
-    bool bValidImage = false;
+  //if (!sImageFile.IsEmpty())
+  //{
+  //  ezImage image;
+  //  bool bValidImage = false;
 
-    if (ezConversionUtils::IsStringUuid(sImageFile))
-    {
-      ezUuid guid = ezConversionUtils::ConvertStringToUuid(sImageFile);
+  //  if (ezConversionUtils::IsStringUuid(sImageFile))
+  //  {
+  //    ezUuid guid = ezConversionUtils::ConvertStringToUuid(sImageFile);
 
-      sImageFile = ezAssetCurator::GetSingleton()->GetAssetInfo(guid)->m_sAbsolutePath;
-    }
+  //    sImageFile = ezAssetCurator::GetSingleton()->GetAssetInfo(guid)->m_sAbsolutePath;
+  //  }
 
 
-    if (!ezPathUtils::HasExtension(sImageFile, "color"))
-    {
-      sImageFile.MakeCleanPath();
+  //  if (!ezPathUtils::HasExtension(sImageFile, "color"))
+  //  {
+  //    sImageFile.MakeCleanPath();
 
-      ezString sAbsPath = sImageFile;
+  //    ezString sAbsPath = sImageFile;
 
-      if (!sImageFile.IsAbsolutePath())
-      {
-        ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsPath);
-      }
+  //    if (!sImageFile.IsAbsolutePath())
+  //    {
+  //      ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsPath);
+  //    }
 
-      bValidImage = image.LoadFrom(sAbsPath).Succeeded();
-    }
-    else
-    {
-      ezStringBuilder sColorName = sImageFile.GetFileName();
+  //    bValidImage = image.LoadFrom(sAbsPath).Succeeded();
+  //  }
+  //  else
+  //  {
+  //    ezStringBuilder sColorName = sImageFile.GetFileName();
 
-      bool bValidColor = false;
-      const ezColorGammaUB color = ezConversionUtils::GetColorByName(sColorName, &bValidColor);
+  //    bool bValidColor = false;
+  //    const ezColorGammaUB color = ezConversionUtils::GetColorByName(sColorName, &bValidColor);
 
-      if (!bValidColor)
-      {
-        ezLog::Error("Material Asset uses an invalid color name '%s'", sColorName.GetData());
-      }
+  //    if (!bValidColor)
+  //    {
+  //      ezLog::Error("Material Asset uses an invalid color name '%s'", sColorName.GetData());
+  //    }
 
-      bValidImage = true;
-      image.SetWidth(4);
-      image.SetHeight(4);
-      image.SetDepth(1);
-      image.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM_SRGB);
-      image.SetNumMipLevels(1);
-      image.SetNumFaces(1);
-      image.AllocateImageData();
-      ezUInt8* pPixels = image.GetPixelPointer<ezUInt8>();
+  //    bValidImage = true;
+  //    image.SetWidth(4);
+  //    image.SetHeight(4);
+  //    image.SetDepth(1);
+  //    image.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM_SRGB);
+  //    image.SetNumMipLevels(1);
+  //    image.SetNumFaces(1);
+  //    image.AllocateImageData();
+  //    ezUInt8* pPixels = image.GetPixelPointer<ezUInt8>();
 
-      for (ezUInt32 px = 0; px < 4 * 4 * 4; px += 4)
-      {
-        pPixels[px + 0] = color.r;
-        pPixels[px + 1] = color.g;
-        pPixels[px + 2] = color.b;
-        pPixels[px + 3] = color.a;
-      }
-    }
+  //    for (ezUInt32 px = 0; px < 4 * 4 * 4; px += 4)
+  //    {
+  //      pPixels[px + 0] = color.r;
+  //      pPixels[px + 1] = color.g;
+  //      pPixels[px + 2] = color.b;
+  //      pPixels[px + 3] = color.a;
+  //    }
+  //  }
 
-    if (bValidImage)
-      SaveThumbnail(image);
-  }
+  //  if (bValidImage)
+  //    SaveThumbnail(image);
+  //}
 
   // now generate the .ezMaterialBin file
   {
-    ezUInt8 uiVersion = 1;
+    ezUInt8 uiVersion = 2;
 
     stream << uiVersion;
     stream << pProp->m_sBaseMaterial;
     stream << pProp->m_sShader;
 
-    // write out the permutation variables
+    ezHybridArray<ezAbstractProperty*, 16> Textures;
+    ezHybridArray<ezAbstractProperty*, 16> Permutation;
+    ezHybridArray<ezAbstractProperty*, 16> Constants;
+
+    ezDocumentObject* pObject = GetShaderPropertyObject();
+    if (pObject)
     {
-      ezStringBuilder sValues = pProp->m_sPermutationVarValues;
+      bool hasBaseMaterial = ezPrefabUtils::GetPrefabRoot(pObject, m_DocumentObjectMetaData).IsValid();
+      auto pType = pObject->GetTypeAccessor().GetType();
+      ezHybridArray<ezAbstractProperty*, 32> properties;
+      pType->GetAllProperties(properties);
 
-      ezHybridArray<ezString, 16> sVars;
-      sValues.Split(false, sVars, ";");
-
-      const ezUInt16 uiPermVars = sVars.GetCount();
-      stream << uiPermVars;
-
-      ezStringBuilder sValue;
-      ezHybridArray<ezString, 16> sAssignment;
-      for (ezString sVar : sVars)
+      for (auto* pProp : properties)
       {
-        sValue = sVar;
-        sValue.Split(false, sAssignment, "=");
+        if (hasBaseMaterial && IsDefaultValue(pObject, pProp->GetPropertyName()))
+          continue;
 
-        if (sAssignment.GetCount() == 2)
+        const ezCategoryAttribute* pCategory = pProp->GetAttributeByType<ezCategoryAttribute>();
+
+        EZ_ASSERT_DEBUG(pCategory, "Category cannot be null for a shader property");
+        if (pCategory == nullptr)
+          continue;
+
+        if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Texture"))
         {
-          stream << sAssignment[0];
-          stream << sAssignment[1];
+          Textures.PushBack(pProp);
+        }
+        else if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Permutation"))
+        {
+          Permutation.PushBack(pProp);
+        }
+        else if (ezStringUtils::IsEqual(pCategory->GetCategory(), "Constant"))
+        {
+          Constants.PushBack(pProp);
         }
         else
         {
-          stream << "";
-          stream << "";
+          EZ_REPORT_FAILURE("Invalid shader property type '%s'", pCategory->GetCategory());
         }
+      }
+    }
+
+    // write out the permutation variables
+    {
+      const ezUInt16 uiPermVars = Permutation.GetCount();
+      stream << uiPermVars;
+
+      for (ezUInt32 p = 0; p < uiPermVars; ++p)
+      {
+        ezString sValue;
+
+        const char* szName = Permutation[p]->GetPropertyName();
+        if (Permutation[p]->GetSpecificType()->GetVariantType() == ezVariantType::Bool)
+        {
+          sValue = pObject->GetTypeAccessor().GetValue(szName).Get<bool>() ? "TRUE" : "FALSE";
+        }
+        else if (Permutation[p]->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+        {
+          ezStringBuilder s;
+          ezReflectionUtils::EnumerationToString(Permutation[p]->GetSpecificType(), pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezInt64>(), s);
+
+          sValue = s.FindLastSubString("::") + 2;
+        }
+        else
+        {
+          EZ_REPORT_FAILURE("Invalid shader permutation property type '%s'", Permutation[p]->GetSpecificType()->GetTypeName());
+        }
+
+        stream << szName;
+        stream << sValue;
       }
     }
 
     // write out the textures
     {
-      ezUInt16 uiTextures = 0;
-
-      if (!pProp->m_sTextureDiffuse.IsEmpty())
-        ++uiTextures;
-      if (!pProp->m_sTextureMask.IsEmpty())
-        ++uiTextures;
-      if (!pProp->m_sTextureNormal.IsEmpty())
-        ++uiTextures;
-
+      const ezUInt16 uiTextures = Textures.GetCount();
       stream << uiTextures;
 
-      if (!pProp->m_sTextureDiffuse.IsEmpty())
+      for (ezUInt32 p = 0; p < uiTextures; ++p)
       {
-        stream << "TexDiffuse";
-        stream << pProp->m_sTextureDiffuse;
-      }
+        const char* szName = Textures[p]->GetPropertyName();
+        ezString sValue = pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezString>();
 
-      if (!pProp->m_sTextureMask.IsEmpty())
-      {
-        stream << "TexAlphaMask";
-        stream << pProp->m_sTextureMask;
+        stream << szName;
+        stream << sValue;
       }
+    }
 
-      if (!pProp->m_sTextureNormal.IsEmpty())
+    // write out the constants
+    {
+      const ezUInt16 uiConstants = Constants.GetCount();
+      stream << uiConstants;
+
+      for (ezUInt32 p = 0; p < uiConstants; ++p)
       {
-        stream << "TexNormal";
-        stream << pProp->m_sTextureNormal;
+        const char* szName = Constants[p]->GetPropertyName();
+        ezVariant value = pObject->GetTypeAccessor().GetValue(szName);
+
+        stream << szName;
+        stream << value;
       }
     }
   }

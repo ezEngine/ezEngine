@@ -11,6 +11,6 @@
   
   "Textures" :
   {
-    "TexDiffuse" : "Textures/LoadingMaterial_D.dds"
+    "DiffuseTexture" : "Textures/LoadingMaterial_D.dds"
   }  
 }

@@ -11,6 +11,6 @@
   
   "Textures" :
   {
-    "TexDiffuse" : "Textures/MissingPrefab_D.dds"
+    "DiffuseTexture" : "Textures/MissingPrefab_D.dds"
   }  
 }

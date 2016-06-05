@@ -70,7 +70,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
     ezUInt8 uiVersion = 0;
     (*Stream) >> uiVersion;
-    EZ_ASSERT_DEV(uiVersion == 1, "Unknown ezMaterialBin version %u", uiVersion);
+    EZ_ASSERT_DEV(uiVersion <= 2, "Unknown ezMaterialBin version %u", uiVersion);
 
     // Base material
     {
@@ -127,6 +127,32 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
         ezMaterialResourceDescriptor::TextureBinding& tc = m_Desc.m_TextureBindings.ExpandAndGetRef();
         tc.m_Name.Assign(sTemp.GetData());
         tc.m_Value = ezResourceManager::LoadResource<ezTextureResource>(sTemp2);
+      }
+    }
+
+    if (uiVersion >= 2)
+    {
+      // Shader constants
+
+      ezUInt16 uiConstants = 0;
+
+      (*Stream) >> uiConstants;
+
+      m_Desc.m_ShaderConstants.Reserve(uiConstants);
+
+      ezVariant vTemp;
+
+      for (ezUInt16 i = 0; i < uiConstants; ++i)
+      {
+        (*Stream) >> sTemp;
+        (*Stream) >> vTemp;
+
+        if (sTemp.IsEmpty() || !vTemp.IsValid())
+          continue;
+
+        ezMaterialResourceDescriptor::ShaderConstant& tc = m_Desc.m_ShaderConstants.ExpandAndGetRef();
+        tc.m_Name.Assign(sTemp.GetData());
+        tc.m_Value = vTemp;
       }
     }
   }

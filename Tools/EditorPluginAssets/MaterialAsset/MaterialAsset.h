@@ -31,10 +31,6 @@ public:
 public:
   ezString m_sBaseMaterial;
   ezString m_sShader;
-  ezString m_sPermutationVarValues;
-  ezString m_sTextureDiffuse;
-  ezString m_sTextureMask;
-  ezString m_sTextureNormal;
 
   ezMap<ezString, ezVariant> m_CachedProperties;
   ezMaterialAssetDocument* m_pDocument;

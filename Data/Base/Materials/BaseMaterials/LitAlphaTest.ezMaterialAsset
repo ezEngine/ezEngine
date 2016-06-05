@@ -12,10 +12,6 @@
    "t" : "ezMaterialAssetProperties",
    "p" : {
     "Base Material" : "",
-    "Diffuse Texture" : "",
-    "Mask Texture" : "",
-    "Normal Map" : "{ 4dc82890-39e3-4bfc-a97d-86a984d4d3db }",
-    "Permutations" : "BLEND_MODE=MASKED;SHADING_MODE=LIT;TWO_SIDED=FALSE",
     "Shader" : "Shaders/Materials/DefaultMaterial.ezShader",
     "ShaderProperties" : { "$t" : "uuid", "$b" : "0x73CE5DCC0D3BC85AC18C502287A859A2" }
    }
@@ -26,9 +22,9 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Material",
-    "Dependencies" : "Shaders/Materials/DefaultMaterial.ezShader;{ 4dc82890-39e3-4bfc-a97d-86a984d4d3db }",
+    "Dependencies" : "Shaders/Materials/DefaultMaterial.ezShader",
     "DocumentID" : { "$t" : "uuid", "$b" : "0x6EF0B5ABF2F4B14F94E9EED4A51E4490" },
-    "Hash" : { "$t" : "uint64", "$v" : "5948489296387619633", "$b" : "0x31BB65A57F478D52" }
+    "Hash" : { "$t" : "uint64", "$v" : "14424842847547503798", "$b" : "0xB634E7CC24562FC8" }
    }
   },
   {
@@ -36,10 +32,11 @@
    "t" : "Shaders/Materials/DefaultMaterial.ezShader",
    "p" : {
     "BLEND_MODE" : "BLEND_MODE::MASKED",
-    "BaseColor" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" },
-    "BaseTexture" : "",
-    "DEFAULT_MAT_USE_BASE_TEXTURE" : false,
+    "DEFAULT_MAT_USE_DIFFUSE_TEXTURE" : true,
+    "DiffuseColor" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" },
+    "DiffuseTexture" : "",
     "MetallicValue" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "NormalTexture" : "{ 4dc82890-39e3-4bfc-a97d-86a984d4d3db }",
     "SHADING_MODE" : "SHADING_MODE::LIT",
     "TWO_SIDED" : false
    }
@@ -86,7 +83,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x02B8E78E9A9D0311063E99E9875D5D98" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [  ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0x0E7F1DCCC701A04E9695EB6492AB23C9" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::IsEnum",
@@ -110,12 +107,12 @@
    "#" : { "$t" : "uuid", "$b" : "0x4730992D1B087B23D29A5814378A231C" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [  ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0x1C6D8BA99E3E934C8D2DD44D27E2F172" }, { "$t" : "uuid", "$b" : "0x5166EF2AEBE42A4AA0797271EE45E6EF" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::StandardType",
-    "Name" : "BaseColor",
-    "Type" : "ezColor"
+    "Name" : "DiffuseTexture",
+    "Type" : "ezString"
    }
   },
   {
@@ -146,19 +143,82 @@
    "#" : { "$t" : "uuid", "$b" : "0xEE428A3D02ED9D38C780E433744873FE" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [ { "$t" : "uuid", "$b" : "0x80B6336601BFD24EB74FA48021E6575A" } ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0xE28CDE7D303AFE4F984BB2D9BB851678" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::StandardType",
-    "Name" : "BaseTexture",
-    "Type" : "ezString"
+    "Name" : "DiffuseColor",
+    "Type" : "ezColor"
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x80B6336601BFD24EB74FA48021E6575A" },
+   "#" : { "$t" : "uuid", "$b" : "0x2D76DC1427603A40AFD55BE197AA8712" },
+   "t" : "ezCategoryAttribute",
+   "p" : {
+    "Category" : "Constant"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3C419A04ADF28540B365B1F901BD7066" },
+   "t" : "ezCategoryAttribute",
+   "p" : {
+    "Category" : "Permutation"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x9694AC91DDD249418B9A1D2F23AAC73C" },
+   "t" : "ezCategoryAttribute",
+   "p" : {
+    "Category" : "Texture"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x0E3BC95A56EB844189058D44D3D9E2A8" },
+   "t" : "ezCategoryAttribute",
+   "p" : {
+    "Category" : "Permutation"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xD8455F97AD45E547A2E5D4D0BEAEFB9E" },
    "t" : "ezAssetBrowserAttribute",
    "p" : {
     "Filter" : ";Texture 2D;"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x5A8F8EF61C0D9649810F03809932C7D8" },
+   "t" : "ezCategoryAttribute",
+   "p" : {
+    "Category" : "Permutation"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x5166EF2AEBE42A4AA0797271EE45E6EF" },
+   "t" : "ezAssetBrowserAttribute",
+   "p" : {
+    "Filter" : ";Texture 2D;"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x1C6D8BA99E3E934C8D2DD44D27E2F172" },
+   "t" : "ezCategoryAttribute",
+   "p" : {
+    "Category" : "Texture"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x0E7F1DCCC701A04E9695EB6492AB23C9" },
+   "t" : "ezCategoryAttribute",
+   "p" : {
+    "Category" : "Permutation"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE28CDE7D303AFE4F984BB2D9BB851678" },
+   "t" : "ezCategoryAttribute",
+   "p" : {
+    "Category" : "Constant"
    }
   },
   {
@@ -181,7 +241,7 @@
     "Flags" : "",
     "ParentTypeName" : "ezReflectedClass",
     "PluginName" : "ShaderTypes",
-    "Properties" : [ { "$t" : "uuid", "$b" : "0x02B8E78E9A9D0311063E99E9875D5D98" }, { "$t" : "uuid", "$b" : "0x9AB2575D6EC23DF7C42976E078437A0E" }, { "$t" : "uuid", "$b" : "0x60EDED0C569AAEB621ECB43B9785FA23" }, { "$t" : "uuid", "$b" : "0x9409BF8203C3F6CC66E69332886B179A" }, { "$t" : "uuid", "$b" : "0xEE428A3D02ED9D38C780E433744873FE" }, { "$t" : "uuid", "$b" : "0x4730992D1B087B23D29A5814378A231C" }, { "$t" : "uuid", "$b" : "0x83A0928C868A7DC8A7A0BA1CCF2CCFF2" } ],
+    "Properties" : [ { "$t" : "uuid", "$b" : "0x02B8E78E9A9D0311063E99E9875D5D98" }, { "$t" : "uuid", "$b" : "0x9AB2575D6EC23DF7C42976E078437A0E" }, { "$t" : "uuid", "$b" : "0x60EDED0C569AAEB621ECB43B9785FA23" }, { "$t" : "uuid", "$b" : "0x9409BF8203C3F6CC66E69332886B179A" }, { "$t" : "uuid", "$b" : "0xEE428A3D02ED9D38C780E433744873FE" }, { "$t" : "uuid", "$b" : "0x4730992D1B087B23D29A5814378A231C" }, { "$t" : "uuid", "$b" : "0x83A0928C868A7DC8A7A0BA1CCF2CCFF2" }, { "$t" : "uuid", "$b" : "0x3FFD640234B3C5DEDBF16DB777393BB2" } ],
     "TypeName" : "Shaders/Materials/DefaultMaterial.ezShader",
     "TypeSize" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
     "TypeVersion" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
@@ -229,7 +289,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x60EDED0C569AAEB621ECB43B9785FA23" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [  ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0x0E3BC95A56EB844189058D44D3D9E2A8" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::StandardType",
@@ -241,12 +301,12 @@
    "#" : { "$t" : "uuid", "$b" : "0x83A0928C868A7DC8A7A0BA1CCF2CCFF2" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [  ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0x9694AC91DDD249418B9A1D2F23AAC73C" }, { "$t" : "uuid", "$b" : "0xD8455F97AD45E547A2E5D4D0BEAEFB9E" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::StandardType",
-    "Name" : "MetallicValue",
-    "Type" : "float"
+    "Name" : "NormalTexture",
+    "Type" : "ezString"
    }
   },
   {
@@ -265,19 +325,31 @@
    "#" : { "$t" : "uuid", "$b" : "0x9409BF8203C3F6CC66E69332886B179A" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [  ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0x5A8F8EF61C0D9649810F03809932C7D8" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::StandardType",
-    "Name" : "DEFAULT_MAT_USE_BASE_TEXTURE",
+    "Name" : "DEFAULT_MAT_USE_DIFFUSE_TEXTURE",
     "Type" : "bool"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3FFD640234B3C5DEDBF16DB777393BB2" },
+   "t" : "ezReflectedPropertyDescriptor",
+   "p" : {
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0x2D76DC1427603A40AFD55BE197AA8712" } ],
+    "Category" : "ezPropertyCategory::Member",
+    "ConstantValue" : null,
+    "Flags" : "ezPropertyFlags::StandardType",
+    "Name" : "MetallicValue",
+    "Type" : "float"
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0x9AB2575D6EC23DF7C42976E078437A0E" },
    "t" : "ezReflectedPropertyDescriptor",
    "p" : {
-    "Attributes" : [  ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0x3C419A04ADF28540B365B1F901BD7066" } ],
     "Category" : "ezPropertyCategory::Member",
     "ConstantValue" : null,
     "Flags" : "ezPropertyFlags::IsEnum",

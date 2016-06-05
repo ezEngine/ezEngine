@@ -8,7 +8,7 @@
 float3 GetNormal(PS_IN Input);
 
 #if defined(USE_SIMPLE_MATERIAL_MODEL)
-	float3 GetBaseColor(PS_IN Input);
+	float3 GetDiffuseColor(PS_IN Input);
 	float GetMetallic(PS_IN Input);
 	float GetReflectance(PS_IN Input);
 #else
@@ -33,7 +33,7 @@ MaterialData FillMaterialData(PS_IN Input)
 	#endif
 	
 	#if defined(USE_SIMPLE_MATERIAL_MODEL)
-		float3 baseColor = GetBaseColor(Input);
+		float3 baseColor = GetDiffuseColor(Input);
 		float metallic = GetMetallic(Input);
 		float reflectance = GetReflectance(Input);
 		float f0 = 0.16f * reflectance * reflectance;
@@ -81,7 +81,7 @@ MaterialData FillMaterialData(PS_IN Input)
 				return float4(finalColor, opacity);
 			#else
 				#if defined(USE_SIMPLE_MATERIAL_MODEL)
-					float3 finalColor = GetBaseColor(Input);
+					float3 finalColor = GetDiffuseColor(Input);
 				#else
 					float3 finalColor = GetDiffuseColor(Input);
 				#endif
@@ -132,7 +132,7 @@ MaterialData FillMaterialData(PS_IN Input)
 			else
 			{
 				#if defined(USE_SIMPLE_MATERIAL_MODEL)
-					float3 finalColor = GetBaseColor(Input);
+					float3 finalColor = GetDiffuseColor(Input);
 				#else
 					float3 finalColor = GetDiffuseColor(Input);
 				#endif

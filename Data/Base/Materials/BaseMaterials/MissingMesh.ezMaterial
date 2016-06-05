@@ -11,6 +11,6 @@
   
   "Textures" :
   {
-    "TexDiffuse" : "Textures/MissingMesh_D.dds"
+    "DiffuseTexture" : "Textures/MissingMesh_D.dds"
   }  
 }

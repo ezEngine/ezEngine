@@ -29,12 +29,12 @@ VS_OUT main(VS_IN Input)
 
 #ifdef PLATFORM_DX11
 
-Texture2D TexDiffuse;
-SamplerState TexDiffuseSampler;
+Texture2D DiffuseTexture;
+SamplerState DiffuseTextureSampler;
 
 float4 main(PS_IN Input) : SV_Target
 {
-  return TexDiffuse.Sample(TexDiffuseSampler, Input.TexCoord0);
+  return DiffuseTexture.Sample(DiffuseTextureSampler, Input.TexCoord0);
 }
 
 #endif

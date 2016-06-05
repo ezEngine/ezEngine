@@ -3,6 +3,6 @@
   
   "Textures" :
   {
-    "TexDiffuse" : "Trees/Textures/Leaves/Default_D.dds",
+    "DiffuseTexture" : "Trees/Textures/Leaves/Default_D.dds",
   }  
 }
