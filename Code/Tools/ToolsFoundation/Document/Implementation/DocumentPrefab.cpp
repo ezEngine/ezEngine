@@ -10,23 +10,6 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 
-ezString ToBinary(const ezUuid& guid)
-{
-  ezStringBuilder s, sResult;
-
-  ezUInt8* pBytes = (ezUInt8*)&guid;
-
-  for (ezUInt32 i = 0; i < sizeof(ezUuid); ++i)
-  {
-    s.Format("%02X", (ezUInt32)*pBytes);
-    ++pBytes;
-
-    sResult.Append(s);
-  }
-
-  return sResult;
-}
-
 void ezDocument::UpdatePrefabs()
 {
   // make sure the prefabs are updated

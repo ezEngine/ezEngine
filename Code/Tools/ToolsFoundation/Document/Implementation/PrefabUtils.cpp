@@ -2,8 +2,28 @@
 #include <ToolsFoundation/Document/PrefabUtils.h>
 #include <Foundation/Serialization/JsonSerializer.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <ToolsFoundation/Object/DocumentObjectBase.h>
+#include <Foundation/IO/MemoryStream.h>
 
 #define PREFAB_DEBUG false
+
+ezString ToBinary(const ezUuid& guid)
+{
+  ezStringBuilder s, sResult;
+
+  ezUInt8* pBytes = (ezUInt8*)&guid;
+
+  for (ezUInt32 i = 0; i < sizeof(ezUuid); ++i)
+  {
+    s.Format("%02X", (ezUInt32)*pBytes);
+    ++pBytes;
+
+    sResult.Append(s);
+  }
+
+  return sResult;
+}
 
 void ezPrefabUtils::LoadGraph(ezAbstractObjectGraph& out_graph, const char* szGraph)
 {

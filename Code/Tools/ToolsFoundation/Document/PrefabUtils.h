@@ -1,6 +1,11 @@
 #pragma once
 
 #include <ToolsFoundation/Basics.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <CoreUtils/DataStructures/ObjectMetaData.h>
+#include <ToolsFoundation/Document/Document.h>
+
+class ezDocumentObject;
 
 class EZ_TOOLSFOUNDATION_DLL ezPrefabUtils
 {
