@@ -51,7 +51,7 @@ public:
   /// \brief Sends a message to the corresponding ezEngineProcessDocumentContext on the engine process.
   void SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage) const;
   /// \brief Handles all messages received from the corresponding ezEngineProcessDocumentContext on the engine process.
-  void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg);
+  virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg);
   /// \brief Returns the ezEditorEngineConnection for this document.
   ezEditorEngineConnection* GetEditorEngineConnection() const { return m_pEngineConnection; }
   /// \brief Registers a sync object for this document. It will be mirrored to the ezEngineProcessDocumentContext on the engine process.

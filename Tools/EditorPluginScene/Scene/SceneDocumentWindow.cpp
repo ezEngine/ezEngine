@@ -28,12 +28,9 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezAssetDocument* pDocument)
 
   LoadViewConfigs();
 
-  m_bResendSelection = false;
   m_bInGizmoInteraction = false;
   SetTargetFramerate(25);
 
-  GetSceneDocument()->m_DocumentObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::DocumentObjectMetaDataEventHandler, this));
-  GetSceneDocument()->m_ExportEvent.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SceneExportEventHandler, this));
 
   {
     // Menu Bar
@@ -101,9 +98,6 @@ ezQtSceneDocumentWindow::~ezQtSceneDocumentWindow()
 
   const ezSceneDocument* pSceneDoc = static_cast<const ezSceneDocument*>(GetDocument());
   pSceneDoc->m_SceneEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::DocumentEventHandler, this));
-
-  GetSceneDocument()->m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::DocumentObjectMetaDataEventHandler, this));
-  GetSceneDocument()->m_ExportEvent.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SceneExportEventHandler, this));
 
   m_TranslateGizmo.m_GizmoEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
   m_RotateGizmo.m_GizmoEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
@@ -267,45 +261,7 @@ void ezQtSceneDocumentWindow::DocumentEventHandler(const ezSceneDocumentEvent& e
   case ezSceneDocumentEvent::Type::SnapEachSelectedObjectToGrid:
     SnapSelectionToPosition(true);
     break;
-
-  case ezSceneDocumentEvent::Type::TriggerGameModePlay:
-  case ezSceneDocumentEvent::Type::TriggerStopGameModePlay:
-    {
-      ezGameModeMsgToEngine msg;
-      msg.m_bEnablePTG = e.m_Type == ezSceneDocumentEvent::Type::TriggerGameModePlay;
-      GetEditorEngineConnection()->SendMessage(&msg);
-    }
-    break;
   }
-}
-
-ezStatus ezQtSceneDocumentWindow::RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header)
-{
-  auto res = GetDocument()->SaveDocument();
-  if (res.m_Result.Failed())
-    return res;
-
-  ezExportSceneMsgToEngine msg;
-  msg.m_sOutputFile = szTargetFile;
-  msg.m_uiAssetHash = header.GetFileHash();
-  msg.m_uiVersion = header.GetFileVersion();
-
-  ezLog::Info("Exporting scene to \"%s\"", msg.m_sOutputFile.GetData());
-
-  GetEditorEngineConnection()->SendMessage(&msg);
-
-  if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezExportSceneMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60)).Failed())
-  {
-    ezLog::Error("Exporting scene to \"%s\" timed out.", msg.m_sOutputFile.GetData());
-  }
-  else
-  {
-    ezLog::Success("Scene \"%s\" has been exported.", msg.m_sOutputFile.GetData());
-
-    GetDocument()->ShowDocumentStatus("Scene exported successfully");
-  }
-
-  return ezStatus(EZ_SUCCESS);
 }
 
 void ezQtSceneDocumentWindow::FocusOnSelectionAllViews()
@@ -343,57 +299,6 @@ void ezQtSceneDocumentWindow::FocusOnSelectionHoveredView()
   GetDocument()->SendMessageToEngine(&msg);
 }
 
-void ezQtSceneDocumentWindow::SendObjectMsg(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg)
-{
-  // if ezObjectTagMsgToEngine were derived from a general 'object msg' one could send other message types as well
-
-  if (pObj == nullptr || !pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
-    return;
-
-  pMsg->m_ObjectGuid = pObj->GetGuid();
-  GetEditorEngineConnection()->SendMessage(pMsg);
-}
-void ezQtSceneDocumentWindow::SendObjectMsgRecursive(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg)
-{
-  // if ezObjectTagMsgToEngine were derived from a general 'object msg' one could send other message types as well
-
-  if (pObj == nullptr || !pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
-    return;
-
-  pMsg->m_ObjectGuid = pObj->GetGuid();
-  GetEditorEngineConnection()->SendMessage(pMsg);
-
-  for (auto pChild : pObj->GetChildren())
-  {
-    SendObjectMsgRecursive(pChild, pMsg);
-  }
-}
-
-void ezQtSceneDocumentWindow::SendObjectSelection()
-{
-  if (!m_bResendSelection)
-    return;
-
-  m_bResendSelection = false;
-
-  const auto& sel = GetDocument()->GetSelectionManager()->GetSelection();
-
-  ezObjectSelectionMsgToEngine msg;
-  ezStringBuilder sTemp;
-  ezString sGuid;
-
-  for (const auto& item : sel)
-  {
-    sGuid = ezConversionUtils::ToString(item->GetGuid());
-
-    sTemp.Append(";", sGuid);
-  }
-
-  msg.m_sSelection = sTemp;
-
-  GetEditorEngineConnection()->SendMessage(&msg);
-}
-
 void ezQtSceneDocumentWindow::InternalRedraw()
 {
   ezQtEngineDocumentWindow::InternalRedraw();
@@ -420,7 +325,7 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
     GetEditorEngineConnection()->SendMessage(&msg);
   }
 
-  SendObjectSelection();
+  GetSceneDocument()->SendObjectSelection();
 
   auto pHoveredView = GetHoveredViewWidget();
 
@@ -637,31 +542,6 @@ void ezQtSceneDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxR
   pSceneView->InterpolateCameraTo(vNewCameraPosition, vNewCameraDirection, fNewFovOrDim);
 }
 
-void ezQtSceneDocumentWindow::SyncObjectHiddenState()
-{
-  for (auto pChild : GetDocument()->GetObjectManager()->GetRootObject()->GetChildren())
-  {
-    SyncObjectHiddenState(pChild);
-  }
-}
-
-void ezQtSceneDocumentWindow::SyncObjectHiddenState(ezDocumentObject* pObject)
-{
-  const bool bHidden = GetSceneDocument()->m_DocumentObjectMetaData.BeginReadMetaData(pObject->GetGuid())->m_bHidden;
-  GetSceneDocument()->m_DocumentObjectMetaData.EndReadMetaData();
-
-  ezObjectTagMsgToEngine msg;
-  msg.m_bSetTag = bHidden;
-  msg.m_sTag = "EditorHidden";
-
-  SendObjectMsg(pObject, &msg);
-
-  for (auto pChild : pObject->GetChildren())
-  {
-    SyncObjectHiddenState(pChild);
-  }
-}
-
 void ezQtSceneDocumentWindow::ToggleViews(QWidget* pView)
 {
   ezQtSceneViewWidget* pViewport = qobject_cast<ezQtSceneViewWidget*>(pView);
@@ -715,23 +595,10 @@ void ezQtSceneDocumentWindow::ProcessMessageEventHandler(const ezEditorEngineDoc
     return;
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezGameModeMsgToEditor>())
-  {
-    GetSceneDocument()->HandleGameModeMsg(static_cast<const ezGameModeMsgToEditor*>(pMsg));
-
-    return;
-  }
-
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
-  {
-    SyncObjectHiddenState();
-  }
 }
 
 void ezQtSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManagerEvent& e)
 {
-  m_bResendSelection = true;
-
   switch (e.m_Type)
   {
   case ezSelectionManagerEvent::Type::SelectionCleared:
@@ -750,23 +617,6 @@ void ezQtSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionMana
     }
     break;
   }
-}
-
-void ezQtSceneDocumentWindow::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e)
-{
-  if ((e.m_uiModifiedFlags & ezDocumentObjectMetaData::HiddenFlag) != 0)
-  {
-    ezObjectTagMsgToEngine msg;
-    msg.m_bSetTag = e.m_pValue->m_bHidden;
-    msg.m_sTag = "EditorHidden";
-
-    SendObjectMsg(GetDocument()->GetObjectManager()->GetObject(e.m_ObjectKey), &msg);
-  }
-}
-
-void ezQtSceneDocumentWindow::SceneExportEventHandler(ezSceneDocumentExportEvent& e)
-{
-  e.m_ReturnStatus = RequestExportScene(e.m_szTargetFile, *e.m_pAssetFileHeader);
 }
 
 void ezQtSceneDocumentWindow::ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e)

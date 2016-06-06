@@ -61,10 +61,4 @@ protected:
 
 private:
   mutable ezObjectPickingResult m_LastPickingResult;
-
-
 };
-
-
-
-

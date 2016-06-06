@@ -43,13 +43,10 @@ protected:
 private:
   void TransformationGizmoEventHandler(const ezGizmoEvent& e);
   void SelectionManagerEventHandler(const ezSelectionManagerEvent& e);
-  void DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e);
-  void SceneExportEventHandler(ezSceneDocumentExportEvent& e);
   void ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e);
 
   void DocumentEventHandler(const ezSceneDocumentEvent& e);
 
-  ezStatus RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header);
 
   void FocusOnSelectionAllViews();
 
@@ -66,10 +63,6 @@ private:
 
   void SnapSelectionToPosition(bool bSnapEachObject);
 
-  void SendObjectMsg(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg);
-  void SendObjectMsgRecursive(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg);
-  void SendObjectSelection();
-
   void SendRedrawMsg();
 
   void SaveViewConfig(const ezSceneViewConfig& cfg, ezSceneViewPreferences& pref) const;
@@ -79,8 +72,6 @@ private:
   void CreateViews(bool bQuad);
 
   void HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg, ezQtSceneViewWidget* pSceneView);
-  void SyncObjectHiddenState();
-  void SyncObjectHiddenState(ezDocumentObject* pObject);
 
   ezSceneViewConfig m_ViewConfigSingle;
   ezSceneViewConfig m_ViewConfigQuad[4];
@@ -102,7 +93,6 @@ private:
     ezTransform m_GlobalTransform;
   };
 
-  bool m_bResendSelection;
   bool m_bInGizmoInteraction;
   bool m_bMergeTransactions;
   bool m_bMoveCameraWithGizmo;

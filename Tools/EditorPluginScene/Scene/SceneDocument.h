@@ -47,13 +47,6 @@ struct ezSceneDocumentEvent
   Type m_Type;
 };
 
-struct ezSceneDocumentExportEvent
-{
-  const char* m_szTargetFile;
-  const ezAssetFileHeader* m_pAssetFileHeader;
-  ezStatus m_ReturnStatus;
-};
-
 class ezSceneObjectMetaData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSceneObjectMetaData, ezReflectedClass);
@@ -141,7 +134,6 @@ public:
   ezTransform ComputeGlobalTransform(const ezDocumentObject* pObject) const;
 
   mutable ezEvent<const ezSceneDocumentEvent&> m_SceneEvents;
-  ezEvent <ezSceneDocumentExportEvent&> m_ExportEvent;
   ezObjectMetaData<ezUuid, ezSceneObjectMetaData> m_SceneObjectMetaData;
 
   GameMode GetGameMode() const { return m_GameMode; }
@@ -162,12 +154,17 @@ public:
   bool GetRenderShapeIcons() const { return m_CurrentMode.m_bRenderShapeIcons; }
   void SetRenderShapeIcons(bool b);
 
-  void HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg);
 
   ezStatus ExportScene();
 
   /// \brief Traverses the pObject hierarchy up until it hits an ezGameObject, then computes the global transform of that.
   virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const override;
+  
+  virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
+  void HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg);
+  void SendObjectMsg(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg);
+  void SendObjectMsgRecursive(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg);
+  void SendObjectSelection();
 
 protected:
   void SetGameMode(GameMode mode);
@@ -192,8 +189,12 @@ private:
   void ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void ObjectEventHandler(const ezDocumentObjectEvent& e);
+  void SelectionManagerEventHandler(const ezSelectionManagerEvent& e);
+  void DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e);
   void EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e);
   void ToolsProjectEventHandler(const ezToolsProject::Event& e);
+
+  ezStatus RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header);
 
   void InvalidateGlobalTransformValue(const ezDocumentObject* pObject) const;
 
@@ -210,6 +211,9 @@ private:
 
   virtual ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const override;
 
+  void SyncObjectHiddenState();
+  void SyncObjectHiddenState(ezDocumentObject* pObject);
+
   struct GameModeData
   {
     bool m_bRenderSelectionOverlay;
@@ -221,6 +225,7 @@ private:
   mutable bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
   GameMode m_GameMode;
   float m_fSimulationSpeed;
+  bool m_bResendSelection;
 
   GameModeData m_CurrentMode;
   GameModeData m_GameModeData[3];

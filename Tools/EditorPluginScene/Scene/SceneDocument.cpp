@@ -57,10 +57,14 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab)
 void ezSceneDocument::InitializeAfterLoading()
 {
   ezAssetDocument::InitializeAfterLoading();
+  m_bResendSelection = false;
 
   GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectPropertyEventHandler, this));
   GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectStructureEventHandler, this));
   GetObjectManager()->m_ObjectEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectEventHandler, this));
+  GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::SelectionManagerEventHandler, this));
+  m_DocumentObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezSceneDocument::DocumentObjectMetaDataEventHandler, this));
+
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ToolsProjectEventHandler, this));
 
   ezEditorEngineProcessConnection::GetSingleton()->s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
@@ -71,6 +75,9 @@ ezSceneDocument::~ezSceneDocument()
   GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectStructureEventHandler, this));
   GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectPropertyEventHandler, this));
   GetObjectManager()->m_ObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectEventHandler, this));
+  GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::SelectionManagerEventHandler, this));
+  m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::DocumentObjectMetaDataEventHandler, this));
+
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ToolsProjectEventHandler, this));
 
   ezEditorEngineProcessConnection::GetSingleton()->s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
@@ -420,7 +427,11 @@ void ezSceneDocument::TriggerGameModePlay()
 
   // attempt to start PTG
   // do not change state here
-
+  {
+    ezGameModeMsgToEngine msg;
+    msg.m_bEnablePTG = true;
+    GetEditorEngineConnection()->SendMessage(&msg);
+  }
   ezSceneDocumentEvent e;
   e.m_Type = ezSceneDocumentEvent::Type::TriggerGameModePlay;
   m_SceneEvents.Broadcast(e);
@@ -442,7 +453,11 @@ void ezSceneDocument::StopGameMode()
   {
     // attempt to stop PTG
     // do not change any state, that will be done by the response msg
-
+    {
+      ezGameModeMsgToEngine msg;
+      msg.m_bEnablePTG = false;
+      GetEditorEngineConnection()->SendMessage(&msg);
+    }
     ezSceneDocumentEvent e;
     e.m_Type = ezSceneDocumentEvent::Type::TriggerStopGameModePlay;
     m_SceneEvents.Broadcast(e);
@@ -813,6 +828,23 @@ void ezSceneDocument::ObjectEventHandler(const ezDocumentObjectEvent& e)
 }
 
 
+void ezSceneDocument::SelectionManagerEventHandler(const ezSelectionManagerEvent& e)
+{
+  m_bResendSelection = true;
+}
+
+void ezSceneDocument::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e)
+{
+  if ((e.m_uiModifiedFlags & ezDocumentObjectMetaData::HiddenFlag) != 0)
+  {
+    ezObjectTagMsgToEngine msg;
+    msg.m_bSetTag = e.m_pValue->m_bHidden;
+    msg.m_sTag = "EditorHidden";
+
+    SendObjectMsg(GetObjectManager()->GetObject(e.m_ObjectKey), &msg);
+  }
+}
+
 void ezSceneDocument::EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e)
 {
   switch (e.m_Type)
@@ -866,6 +898,62 @@ void ezSceneDocument::HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg)
 
   EZ_REPORT_FAILURE("Unreachable Code reached.");
 }
+
+
+void ezSceneDocument::SendObjectMsg(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg)
+{
+  // if ezObjectTagMsgToEngine were derived from a general 'object msg' one could send other message types as well
+
+  if (pObj == nullptr || !pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+    return;
+
+  pMsg->m_ObjectGuid = pObj->GetGuid();
+  GetEditorEngineConnection()->SendMessage(pMsg);
+}
+void ezSceneDocument::SendObjectMsgRecursive(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg)
+{
+  // if ezObjectTagMsgToEngine were derived from a general 'object msg' one could send other message types as well
+
+  if (pObj == nullptr || !pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+    return;
+
+  pMsg->m_ObjectGuid = pObj->GetGuid();
+  GetEditorEngineConnection()->SendMessage(pMsg);
+
+  for (auto pChild : pObj->GetChildren())
+  {
+    SendObjectMsgRecursive(pChild, pMsg);
+  }
+}
+
+void ezSceneDocument::SendObjectSelection()
+{
+  if (!m_bResendSelection)
+    return;
+
+  m_bResendSelection = false;
+
+  const auto& sel = GetSelectionManager()->GetSelection();
+
+  ezObjectSelectionMsgToEngine msg;
+  ezStringBuilder sTemp;
+  ezString sGuid;
+
+  for (const auto& item : sel)
+  {
+    sGuid = ezConversionUtils::ToString(item->GetGuid());
+
+    sTemp.Append(";", sGuid);
+  }
+
+  msg.m_sSelection = sTemp;
+
+  GetEditorEngineConnection()->SendMessage(&msg);
+}
+
+
+
+
 const ezTransform& ezSceneDocument::GetGlobalTransform(const ezDocumentObject* pObject) const
 {
   ezTransform Trans;
@@ -957,6 +1045,35 @@ void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const 
   InvalidateGlobalTransformValue(pObject);
 }
 
+ezStatus ezSceneDocument::RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header)
+{
+  auto res = SaveDocument();
+  if (res.m_Result.Failed())
+    return res;
+
+  ezExportSceneMsgToEngine msg;
+  msg.m_sOutputFile = szTargetFile;
+  msg.m_uiAssetHash = header.GetFileHash();
+  msg.m_uiVersion = header.GetFileVersion();
+
+  ezLog::Info("Exporting scene to \"%s\"", msg.m_sOutputFile.GetData());
+
+  GetEditorEngineConnection()->SendMessage(&msg);
+
+  if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezExportSceneMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60)).Failed())
+  {
+    ezLog::Error("Exporting scene to \"%s\" timed out.", msg.m_sOutputFile.GetData());
+  }
+  else
+  {
+    ezLog::Success("Scene \"%s\" has been exported.", msg.m_sOutputFile.GetData());
+
+    ShowDocumentStatus("Scene exported successfully");
+  }
+
+  return ezStatus(EZ_SUCCESS);
+}
+
 void ezSceneDocument::InvalidateGlobalTransformValue(const ezDocumentObject* pObject) const
 {
   // will be recomputed the next time it is queried
@@ -1027,16 +1144,26 @@ ezResult ezSceneDocument::ComputeObjectTransformation(const ezDocumentObject* pO
   }
 }
 
+
+void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
+{
+  ezAssetDocument::HandleEngineMessage(pMsg);
+
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezGameModeMsgToEditor>())
+  {
+    HandleGameModeMsg(static_cast<const ezGameModeMsgToEditor*>(pMsg));
+    return;
+  }
+
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
+  {
+    SyncObjectHiddenState();
+  }
+}
+
 ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
-  ezSceneDocumentExportEvent e;
-  e.m_szTargetFile = szTargetFile;
-  e.m_pAssetFileHeader = &AssetHeader;
-  e.m_ReturnStatus = ezStatus("No export handler available");
-
-  m_ExportEvent.Broadcast(e);
-
-  return e.m_ReturnStatus;
+  return RequestExportScene(szTargetFile, AssetHeader);
 }
 
 
@@ -1070,3 +1197,28 @@ ezBitflags<ezAssetDocumentFlags> ezSceneDocument::GetAssetFlags() const
   }
 }
 
+
+void ezSceneDocument::SyncObjectHiddenState()
+{
+  for (auto pChild : GetObjectManager()->GetRootObject()->GetChildren())
+  {
+    SyncObjectHiddenState(pChild);
+  }
+}
+
+void ezSceneDocument::SyncObjectHiddenState(ezDocumentObject* pObject)
+{
+  const bool bHidden = m_DocumentObjectMetaData.BeginReadMetaData(pObject->GetGuid())->m_bHidden;
+  m_DocumentObjectMetaData.EndReadMetaData();
+
+  ezObjectTagMsgToEngine msg;
+  msg.m_bSetTag = bHidden;
+  msg.m_sTag = "EditorHidden";
+
+  SendObjectMsg(pObject, &msg);
+
+  for (auto pChild : pObject->GetChildren())
+  {
+    SyncObjectHiddenState(pChild);
+  }
+}
