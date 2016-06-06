@@ -9,7 +9,8 @@ template<typename PropertyType>
 class ezSimpleAssetDocument : public ezAssetDocument
 {
 public:
-  ezSimpleAssetDocument(const char* szDocumentPath) : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezSimpleDocumentObjectManager<PropertyType>))
+  ezSimpleAssetDocument(const char* szDocumentPath, bool bUseEngineConnection = false, bool bUseIPCObjectMirror = false)
+    : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezSimpleDocumentObjectManager<PropertyType>), bUseEngineConnection, bUseIPCObjectMirror)
   {
 
   }

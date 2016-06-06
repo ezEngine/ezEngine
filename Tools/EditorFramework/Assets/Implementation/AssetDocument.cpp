@@ -95,16 +95,21 @@ void ezAssetDocumentInfo::SetDependencies(ezString s)
 //}
 
 
-ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager)
+ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, bool bUseEngineConnection, bool bUseIPCObjectMirror)
   : ezDocument(szDocumentPath, pObjectManager)
 {
+  m_bUseEngineConnection = bUseEngineConnection;
+  m_bUseIPCObjectMirror = bUseIPCObjectMirror;
   m_pEngineConnection = nullptr;
 }
 
 ezAssetDocument::~ezAssetDocument()
 {
   m_Mirror.DeInit();
-  ezEditorEngineProcessConnection::GetSingleton()->DestroyEngineConnection(this);
+  if (m_bUseEngineConnection)
+  {
+    ezEditorEngineProcessConnection::GetSingleton()->DestroyEngineConnection(this);
+  }
 }
 
 ezDocumentInfo* ezAssetDocument::CreateDocumentInfo()
@@ -156,10 +161,15 @@ void ezAssetDocument::InternalAfterSaveDocument()
 
 void ezAssetDocument::InitializeAfterLoading()
 {
-  m_pEngineConnection = ezEditorEngineProcessConnection::GetSingleton()->CreateEngineConnection(this);
-
-  m_Mirror.SetIPC(m_pEngineConnection);
-  m_Mirror.InitSender(GetObjectManager());
+  if (m_bUseEngineConnection)
+  {
+    m_pEngineConnection = ezEditorEngineProcessConnection::GetSingleton()->CreateEngineConnection(this);
+    if (m_bUseIPCObjectMirror)
+    {
+      m_Mirror.SetIPC(m_pEngineConnection);
+      m_Mirror.InitSender(GetObjectManager());
+    }
+  }
 }
 
 ezUInt64 ezAssetDocument::GetDocumentHash() const
@@ -386,7 +396,8 @@ void ezAssetDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
   {
-    m_Mirror.SendDocument();
+    if (m_bUseIPCObjectMirror)
+      m_Mirror.SendDocument();
 
     // make sure all sync objects are 'modified' so that they will get resent as well
     for (auto* pObject : m_SyncObjects)

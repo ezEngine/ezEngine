@@ -15,7 +15,7 @@ class EZ_EDITORFRAMEWORK_DLL ezAssetDocument : public ezDocument
   EZ_ADD_DYNAMIC_REFLECTION(ezAssetDocument, ezDocument);
 
 public:
-  ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager);
+  ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, bool bUseEngineConnection, bool bUseIPCObjectMirror);
   ~ezAssetDocument();
 
   /// \brief Returns one of the strings that ezAssetDocumentManager::QuerySupportedAssetTypes returned.
@@ -134,6 +134,9 @@ private:
   static ezString DetermineFinalTargetPlatform(const char* szPlatform);
 
 private:
+  bool m_bUseIPCObjectMirror;
+  bool m_bUseEngineConnection;
+
   ezIPCObjectMirror m_Mirror;
   ezEditorEngineConnection* m_pEngineConnection;
 

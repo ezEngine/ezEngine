@@ -95,7 +95,7 @@ ezStatus ezRenderPipelineNodeManager::InternalCanConnect(const ezPin* pSource, c
 }
 
 ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(const char* szDocumentPath)
-  : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezRenderPipelineNodeManager))
+  : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezRenderPipelineNodeManager), false, false)
 {
 }
 
