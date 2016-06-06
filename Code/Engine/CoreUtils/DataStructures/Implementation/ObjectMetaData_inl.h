@@ -108,8 +108,6 @@ void ezObjectMetaData<KEY, VALUE>::AttachMetaDataToAbstractGraph(ezAbstractObjec
       if (pProp->GetCategory() != ezPropertyCategory::Member)
         continue;
 
-      const ezAbstractMemberProperty* pDefVal = static_cast<ezAbstractMemberProperty*>(pProp);
-
       DefaultValues[pProp->GetPropertyName()] = ezReflectionUtils::GetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pProp), &m_DefaultValue);
     }
   }

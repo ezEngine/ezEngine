@@ -18,7 +18,7 @@
     {                                                                 \
       return &SELF::s_RTTI;                                           \
     }                                                                 \
-    virtual const ezRTTI* GetDynamicRTTI() const                      \
+    virtual const ezRTTI* GetDynamicRTTI() const override             \
     {                                                                 \
       return &SELF::s_RTTI;                                           \
     }                                                                 \
@@ -27,16 +27,16 @@
     EZ_REFLECTION_DEBUG_CODE
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG) && EZ_ENABLED(EZ_COMPILER_MSVC)
-  #define EZ_REFLECTION_DEBUG_CODE \
+#define EZ_REFLECTION_DEBUG_CODE \
     static const ezRTTI* ReflectionDebug_GetParentType()\
     {\
       return __super::GetStaticRTTI();\
     }
-  #define EZ_REFLECTION_DEBUG_GETPARENTFUNC &OwnType::ReflectionDebug_GetParentType
+#define EZ_REFLECTION_DEBUG_GETPARENTFUNC &OwnType::ReflectionDebug_GetParentType
 
 #else
-  #define EZ_REFLECTION_DEBUG_CODE /*empty*/
-  #define EZ_REFLECTION_DEBUG_GETPARENTFUNC nullptr
+#define EZ_REFLECTION_DEBUG_CODE /*empty*/
+#define EZ_REFLECTION_DEBUG_GETPARENTFUNC nullptr
 #endif
 
 
@@ -79,7 +79,22 @@ class ezArchiveReader;
 /// The only functionality that this class provides is the GetDynamicRTTI() function.
 class EZ_FOUNDATION_DLL ezReflectedClass : public ezNoBase
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezReflectedClass, ezNoBase);
+  static ezRTTI s_RTTI;
+  EZ_REFLECTION_DEBUG_CODE
+  EZ_ALLOW_PRIVATE_PROPERTIES(ezReflectedClass);
+
+public:
+  typedef ezNoBase SUPER;
+
+  EZ_FORCE_INLINE static const ezRTTI* GetStaticRTTI()
+  {
+    return &ezReflectedClass::s_RTTI;
+  }
+  virtual const ezRTTI* GetDynamicRTTI() const
+  {
+    return &ezReflectedClass::s_RTTI;
+  }
+
 public:
   EZ_FORCE_INLINE ezReflectedClass()
   {

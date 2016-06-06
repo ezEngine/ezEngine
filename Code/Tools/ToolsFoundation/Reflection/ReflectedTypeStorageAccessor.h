@@ -26,7 +26,7 @@ public:
   virtual bool RemoveValue(const ezPropertyPath& path, ezVariant index) override;
   virtual bool MoveValue(const ezPropertyPath& path, ezVariant oldIndex, ezVariant newIndex) override;
 
-  virtual ezVariant GetPropertyChildIndex(const ezPropertyPath& path, const ezVariant& value) const;
+  virtual ezVariant GetPropertyChildIndex(const ezPropertyPath& path, const ezVariant& value) const override;
 
 private:
   ezDynamicArray<ezVariant> m_Data;

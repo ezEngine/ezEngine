@@ -166,6 +166,9 @@ void ezDocumentAction::DocumentEventHandler(const ezDocumentEvent& e)
       }
     }
     break;
+
+  default:
+    break;
   }
 }
 
