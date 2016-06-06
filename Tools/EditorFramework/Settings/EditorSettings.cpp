@@ -44,7 +44,7 @@ void ezQtEditorApp::SaveOpenDocumentsList()
     allDocs.Insert(it.Value()->GetDocument()->GetDocumentPath());
   }
 
-  ezStringBuilder sFile = ezApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
+  ezStringBuilder sFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
   sFile.AppendPath("LastDocuments.txt");
 
   allDocs.Save(sFile);
