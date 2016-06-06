@@ -25,7 +25,7 @@ void OnDocumentManagerEvent(const ezDocumentManager::Event& e)
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSceneDocument>())
       {
-        ezQtDocumentWindow* pDocWnd = new ezQtSceneDocumentWindow(e.m_pDocument);
+        ezQtDocumentWindow* pDocWnd = new ezQtSceneDocumentWindow(static_cast<ezSceneDocument*>(e.m_pDocument));
       }
     }
     break;

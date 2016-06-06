@@ -123,7 +123,8 @@ void ezSceneActions::MapToolbarActions()
 ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName, ezSceneAction::ActionType type, float fSimSpeed) : ezButtonAction(context, szName, false, "")
 {
   m_Type = type;
-  m_pSceneDocument = static_cast<ezSceneDocument*>(context.m_pDocument);
+  // TODO const cast
+  m_pSceneDocument = const_cast<ezSceneDocument*>(static_cast<const ezSceneDocument*>(context.m_pDocument));
   m_pSceneDocument->m_SceneEvents.AddEventHandler(ezMakeDelegate(&ezSceneAction::SceneEventHandler, this));
   m_fSimSpeed = fSimSpeed;
 

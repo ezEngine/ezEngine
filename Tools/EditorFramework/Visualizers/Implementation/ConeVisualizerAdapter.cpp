@@ -1,8 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/Visualizers/ConeVisualizerAdapter.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
-#include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 
 ezConeVisualizerAdapter::ezConeVisualizerAdapter()
 {
@@ -15,17 +14,14 @@ ezConeVisualizerAdapter::~ezConeVisualizerAdapter()
 void ezConeVisualizerAdapter::Finalize()
 {
   auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument();
-
-  auto* pWindow = ezQtDocumentWindow::FindWindowByDocument(pDoc);
-
-  ezQtEngineDocumentWindow* pEngineWindow = qobject_cast<ezQtEngineDocumentWindow*>(pWindow);
-  EZ_ASSERT_DEV(pEngineWindow != nullptr, "Visualizers are only supported in engine document windows");
+  const ezAssetDocument* pAssetDocument = ezDynamicCast<const ezAssetDocument*>(pDoc);
+  EZ_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in ezAssetDocument.");
 
   const ezConeVisualizerAttribute* pAttr = static_cast<const ezConeVisualizerAttribute*>(m_pVisualizerAttr);
 
   m_Gizmo.Configure(nullptr, ezEngineGizmoHandleType::Cone, pAttr->m_Color, false, false, true);
 
-  m_Gizmo.SetOwner(pEngineWindow);
+  m_Gizmo.SetOwner(pAssetDocument);
   m_Gizmo.SetVisible(m_bVisualizerIsVisible);
 }
 

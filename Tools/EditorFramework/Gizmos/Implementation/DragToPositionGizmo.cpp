@@ -28,13 +28,13 @@ ezDragToPositionGizmo::ezDragToPositionGizmo()
 
 void ezDragToPositionGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  m_Bobble.SetOwner(pOwnerWindow);
-  m_AlignPX.SetOwner(pOwnerWindow);
-  m_AlignNX.SetOwner(pOwnerWindow);
-  m_AlignPY.SetOwner(pOwnerWindow);
-  m_AlignNY.SetOwner(pOwnerWindow);
-  m_AlignPZ.SetOwner(pOwnerWindow);
-  m_AlignNZ.SetOwner(pOwnerWindow);
+  m_Bobble.SetOwner(pOwnerWindow->GetDocument());
+  m_AlignPX.SetOwner(pOwnerWindow->GetDocument());
+  m_AlignNX.SetOwner(pOwnerWindow->GetDocument());
+  m_AlignPY.SetOwner(pOwnerWindow->GetDocument());
+  m_AlignNY.SetOwner(pOwnerWindow->GetDocument());
+  m_AlignPZ.SetOwner(pOwnerWindow->GetDocument());
+  m_AlignNZ.SetOwner(pOwnerWindow->GetDocument());
 }
 
 void ezDragToPositionGizmo::OnVisibleChanged(bool bVisible)

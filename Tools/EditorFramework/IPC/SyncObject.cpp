@@ -4,6 +4,7 @@
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineSyncObject, 1, ezRTTINoAllocator)
 {
@@ -36,7 +37,7 @@ ezEditorEngineSyncObject::~ezEditorEngineSyncObject()
   }
 }
 
-void ezEditorEngineSyncObject::SetOwner(ezQtEngineDocumentWindow* pOwner)
+void ezEditorEngineSyncObject::SetOwner(const ezAssetDocument* pOwner)
 { 
   EZ_ASSERT_DEV(pOwner != nullptr, "invalid owner");
   m_pOwner = pOwner;
@@ -54,7 +55,7 @@ void ezEditorEngineSyncObject::SetOwner(ezEngineProcessDocumentContext* pOwner)
 ezUuid ezEditorEngineSyncObject::GetDocumentGuid() const
 {
   if (m_pOwner)
-    return m_pOwner->GetDocument()->GetGuid();
+    return m_pOwner->GetGuid();
 
   if (m_pOwnerEngine)
     return m_pOwnerEngine->GetDocumentGuid();

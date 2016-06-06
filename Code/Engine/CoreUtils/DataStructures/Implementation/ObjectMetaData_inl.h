@@ -91,7 +91,7 @@ void ezObjectMetaData<KEY, VALUE>::EndModifyMetaData(ezUInt32 uiModifiedFlags /*
 
 
 template<typename KEY, typename VALUE>
-void ezObjectMetaData<KEY, VALUE>::AttachMetaDataToAbstractGraph(ezAbstractObjectGraph& graph)
+void ezObjectMetaData<KEY, VALUE>::AttachMetaDataToAbstractGraph(ezAbstractObjectGraph& graph) const
 {
   auto& AllNodes = graph.GetAllNodes();
 

@@ -7,29 +7,25 @@
 #include <Foundation/Time/Timestamp.h>
 
 #include <Foundation/Serialization/ReflectionSerializer.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 
-ezQtEngineDocumentWindow::ezQtEngineDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
+ezQtEngineDocumentWindow::ezQtEngineDocumentWindow(ezAssetDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {
-  m_pEngineConnection = nullptr;
-
-  m_pEngineConnection = ezEditorEngineProcessConnection::GetSingleton()->CreateEngineConnection(this);
-
-  m_Mirror.SetIPC(m_pEngineConnection);
-  m_Mirror.InitSender(pDocument->GetObjectManager());
+  pDocument->m_ProcessMessageEvent.AddEventHandler(ezMakeDelegate(&ezQtEngineDocumentWindow::ProcessMessageEventHandler, this));
 }
 
 ezQtEngineDocumentWindow::~ezQtEngineDocumentWindow()
 {
-  m_Mirror.DeInit();
+  GetDocument()->m_ProcessMessageEvent.RemoveEventHandler(ezMakeDelegate(&ezQtEngineDocumentWindow::ProcessMessageEventHandler, this));
+
   // delete all view widgets, so that they can send their messages before we clean up the engine connection
   DestroyAllViews();
-
-  ezEditorEngineProcessConnection::GetSingleton()->DestroyEngineConnection(this);
 }
 
-void ezQtEngineDocumentWindow::SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage) const
+
+ezEditorEngineConnection* ezQtEngineDocumentWindow::GetEditorEngineConnection() const
 {
-  m_pEngineConnection->SendMessage(pMessage);
+  return GetDocument()->GetEditorEngineConnection();
 }
 
 const ezObjectPickingResult& ezQtEngineDocumentWindow::PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const
@@ -54,7 +50,7 @@ const ezObjectPickingResult& ezQtEngineDocumentWindow::PickObject(ezUInt16 uiScr
       msg.m_uiPickPosX = uiScreenPosX;
       msg.m_uiPickPosY = uiScreenPosY;
 
-      SendMessageToEngine(&msg);
+      GetDocument()->SendMessageToEngine(&msg);
 
       if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezViewPickingResultMsgToEditor>(), ezTime::Seconds(3.0)).Failed())
         return m_LastPickingResult;
@@ -64,65 +60,16 @@ const ezObjectPickingResult& ezQtEngineDocumentWindow::PickObject(ezUInt16 uiScr
   return m_LastPickingResult;
 }
 
+
+ezAssetDocument* ezQtEngineDocumentWindow::GetDocument() const
+{
+  return static_cast<ezAssetDocument*>(ezQtDocumentWindow::GetDocument());
+}
+
 void ezQtEngineDocumentWindow::InternalRedraw()
 {
   // TODO: Move this to a better place (some kind of regular update function, not redraw)
-  SyncObjectsToEngine();
-}
-
-bool ezQtEngineDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
-{
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
-  {
-    m_Mirror.SendDocument();
-
-    // make sure all sync objects are 'modified' so that they will get resent as well
-    for (auto* pObject : m_SyncObjects)
-    {
-      pObject->SetModified();
-    }
-
-    return true;
-  }
-
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingResultMsgToEditor>())
-  {
-    const ezViewPickingResultMsgToEditor* pFullMsg = static_cast<const ezViewPickingResultMsgToEditor*>(pMsg);
-
-    m_LastPickingResult.m_PickedObject = pFullMsg->m_ObjectGuid;
-    m_LastPickingResult.m_PickedComponent = pFullMsg->m_ComponentGuid;
-    m_LastPickingResult.m_PickedOther = pFullMsg->m_OtherGuid;
-    m_LastPickingResult.m_uiPartIndex = pFullMsg->m_uiPartIndex;
-    m_LastPickingResult.m_vPickedPosition = pFullMsg->m_vPickedPosition;
-    m_LastPickingResult.m_vPickedNormal = pFullMsg->m_vPickedNormal;
-    m_LastPickingResult.m_vPickingRayStart = pFullMsg->m_vPickingRayStartPosition;
-
-    return true;
-  }
-
-  return false;
-}
-
-void ezQtEngineDocumentWindow::AddSyncObject(ezEditorEngineSyncObject* pSync)
-{
-  m_SyncObjects.PushBack(pSync);
-  pSync->m_pOwner = this;
-  m_AllSyncObjects[pSync->GetGuid()] = pSync;
-}
-
-void ezQtEngineDocumentWindow::RemoveSyncObject(ezEditorEngineSyncObject* pSync)
-{
-  m_DeletedObjects.PushBack(pSync->GetGuid());
-  m_AllSyncObjects.Remove(pSync->GetGuid());
-  m_SyncObjects.RemoveSwap(pSync);
-  pSync->m_pOwner = nullptr;
-}
-
-ezEditorEngineSyncObject* ezQtEngineDocumentWindow::FindSyncObject(const ezUuid& guid)
-{
-  ezEditorEngineSyncObject* pSync = nullptr;
-  m_AllSyncObjects.TryGetValue(guid, pSync);
-  return pSync;
+  GetDocument()->SyncObjectsToEngine();
 }
 
 ezQtEngineViewWidget* ezQtEngineDocumentWindow::GetHoveredViewWidget() const
@@ -167,7 +114,7 @@ ezQtEngineViewWidget* ezQtEngineDocumentWindow::GetFocusedViewWidget() const
   return nullptr;
 }
 
-ezQtEngineViewWidget * ezQtEngineDocumentWindow::GetViewWidgetByID(ezUInt32 uiViewID) const
+ezQtEngineViewWidget* ezQtEngineDocumentWindow::GetViewWidgetByID(ezUInt32 uiViewID) const
 {
   for (auto pView : m_ViewWidgets)
   {
@@ -178,39 +125,20 @@ ezQtEngineViewWidget * ezQtEngineDocumentWindow::GetViewWidgetByID(ezUInt32 uiVi
   return nullptr;
 }
 
-void ezQtEngineDocumentWindow::SyncObjectsToEngine()
+
+void ezQtEngineDocumentWindow::ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg)
 {
-  // Tell the engine which sync objects have been removed recently
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingResultMsgToEditor>())
   {
-    for (const auto& guid : m_DeletedObjects)
-    {
-      ezEditorEngineSyncObjectMsg msg;
-      msg.m_ObjectGuid = guid;
-      SendMessageToEngine(&msg);
-    }
+    const ezViewPickingResultMsgToEditor* pFullMsg = static_cast<const ezViewPickingResultMsgToEditor*>(pMsg);
 
-    m_DeletedObjects.Clear();
-  }
-
-  for (auto* pObject : m_SyncObjects)
-  {
-    if (!pObject->GetModified())
-      continue;
-
-    ezEditorEngineSyncObjectMsg msg;
-    msg.m_ObjectGuid = pObject->m_SyncObjectGuid;
-    msg.m_sObjectType = pObject->GetDynamicRTTI()->GetTypeName();
-
-    ezMemoryStreamStorage storage;
-    ezMemoryStreamWriter writer(&storage);
-    ezMemoryStreamReader reader(&storage);
-
-    ezReflectionSerializer::WriteObjectToBinary(writer, pObject->GetDynamicRTTI(), pObject);
-    msg.m_ObjectData = ezArrayPtr<const ezUInt8>(storage.GetData(), storage.GetStorageSize());
-
-    SendMessageToEngine(&msg);
-
-    pObject->SetModified(false);
+    m_LastPickingResult.m_PickedObject = pFullMsg->m_ObjectGuid;
+    m_LastPickingResult.m_PickedComponent = pFullMsg->m_ComponentGuid;
+    m_LastPickingResult.m_PickedOther = pFullMsg->m_OtherGuid;
+    m_LastPickingResult.m_uiPartIndex = pFullMsg->m_uiPartIndex;
+    m_LastPickingResult.m_vPickedPosition = pFullMsg->m_vPickedPosition;
+    m_LastPickingResult.m_vPickedNormal = pFullMsg->m_vPickedNormal;
+    m_LastPickingResult.m_vPickingRayStart = pFullMsg->m_vPickingRayStartPosition;
   }
 }
 

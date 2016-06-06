@@ -55,7 +55,7 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab) : e
 
 void ezSceneDocument::InitializeAfterLoading()
 {
-  ezDocument::InitializeAfterLoading();
+  ezAssetDocument::InitializeAfterLoading();
 
   GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectPropertyEventHandler, this));
   GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectStructureEventHandler, this));
@@ -75,7 +75,7 @@ ezSceneDocument::~ezSceneDocument()
   ezEditorEngineProcessConnection::GetSingleton()->s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
 }
 
-void ezSceneDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph)
+void ezSceneDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
 {
   ezAssetDocument::AttachMetaDataBeforeSaving(graph);
 
@@ -89,7 +89,7 @@ void ezSceneDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& g
   m_SceneObjectMetaData.RestoreMetaDataFromAbstractGraph(graph);
 }
 
-void ezSceneDocument::SetActiveGizmo(ActiveGizmo gizmo)
+void ezSceneDocument::SetActiveGizmo(ActiveGizmo gizmo) const
 {
   if (m_ActiveGizmo == gizmo)
     return;
@@ -106,7 +106,7 @@ ActiveGizmo ezSceneDocument::GetActiveGizmo() const
   return m_ActiveGizmo;
 }
 
-void ezSceneDocument::TriggerShowSelectionInScenegraph()
+void ezSceneDocument::TriggerShowSelectionInScenegraph() const
 {
   if (GetSelectionManager()->GetSelection().IsEmpty())
     return;
@@ -116,7 +116,7 @@ void ezSceneDocument::TriggerShowSelectionInScenegraph()
   m_SceneEvents.Broadcast(e);
 }
 
-void ezSceneDocument::TriggerFocusOnSelection(bool bAllViews)
+void ezSceneDocument::TriggerFocusOnSelection(bool bAllViews) const
 {
   if (GetSelectionManager()->GetSelection().IsEmpty())
     return;
@@ -126,7 +126,7 @@ void ezSceneDocument::TriggerFocusOnSelection(bool bAllViews)
   m_SceneEvents.Broadcast(e);
 }
 
-void ezSceneDocument::TriggerSnapPivotToGrid()
+void ezSceneDocument::TriggerSnapPivotToGrid() const
 {
   if (GetSelectionManager()->GetSelection().IsEmpty())
     return;
@@ -136,7 +136,7 @@ void ezSceneDocument::TriggerSnapPivotToGrid()
   m_SceneEvents.Broadcast(e);
 }
 
-void ezSceneDocument::TriggerSnapEachObjectToGrid()
+void ezSceneDocument::TriggerSnapEachObjectToGrid() const
 {
   if (GetSelectionManager()->GetSelection().IsEmpty())
     return;
@@ -145,6 +145,7 @@ void ezSceneDocument::TriggerSnapEachObjectToGrid()
   e.m_Type = ezSceneDocumentEvent::Type::SnapEachSelectedObjectToGrid;
   m_SceneEvents.Broadcast(e);
 }
+
 void ezSceneDocument::GroupSelection()
 {
   const auto& sel = GetSelectionManager()->GetTopLevelSelection(ezGetStaticRTTI<ezGameObject>());
@@ -536,7 +537,7 @@ void ezSceneDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Sele
   }
 }
 
-void ezSceneDocument::SetGizmoWorldSpace(bool bWorldSpace)
+void ezSceneDocument::SetGizmoWorldSpace(bool bWorldSpace) const
 {
   if (m_bGizmoWorldSpace == bWorldSpace)
     return;
@@ -559,12 +560,12 @@ bool ezSceneDocument::GetGizmoWorldSpace() const
   return m_bGizmoWorldSpace;
 }
 
-bool ezSceneDocument::Copy(ezAbstractObjectGraph& graph)
+bool ezSceneDocument::Copy(ezAbstractObjectGraph& graph) const
 {
   return Copy(graph, nullptr);
 }
 
-bool ezSceneDocument::Copy(ezAbstractObjectGraph& graph, ezMap<ezUuid, ezUuid>* out_pParents)
+bool ezSceneDocument::Copy(ezAbstractObjectGraph& graph, ezMap<ezUuid, ezUuid>* out_pParents) const
 {
   if (GetSelectionManager()->GetSelection().GetCount() == 0)
     return false;
@@ -864,7 +865,7 @@ void ezSceneDocument::HandleGameModeMsg(const ezGameModeMsgToEditor* pMsg)
 
   EZ_REPORT_FAILURE("Unreachable Code reached.");
 }
-const ezTransform& ezSceneDocument::GetGlobalTransform(const ezDocumentObject* pObject)
+const ezTransform& ezSceneDocument::GetGlobalTransform(const ezDocumentObject* pObject) const
 {
   ezTransform Trans;
 
@@ -876,7 +877,7 @@ const ezTransform& ezSceneDocument::GetGlobalTransform(const ezDocumentObject* p
   return m_GlobalTransforms[pObject];
 }
 
-void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges)
+void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges) const
 {
   auto pHistory = GetCommandHistory();
   if (!pHistory->IsInTransaction())
@@ -955,7 +956,7 @@ void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const 
   InvalidateGlobalTransformValue(pObject);
 }
 
-void ezSceneDocument::InvalidateGlobalTransformValue(const ezDocumentObject* pObject)
+void ezSceneDocument::InvalidateGlobalTransformValue(const ezDocumentObject* pObject) const
 {
   // will be recomputed the next time it is queried
   m_GlobalTransforms.Remove(pObject);

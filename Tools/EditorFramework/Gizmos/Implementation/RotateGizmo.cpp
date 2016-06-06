@@ -22,9 +22,9 @@ ezRotateGizmo::ezRotateGizmo()
 
 void ezRotateGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  m_AxisX.SetOwner(pOwnerWindow);
-  m_AxisY.SetOwner(pOwnerWindow);
-  m_AxisZ.SetOwner(pOwnerWindow);
+  m_AxisX.SetOwner(pOwnerWindow->GetDocument());
+  m_AxisY.SetOwner(pOwnerWindow->GetDocument());
+  m_AxisZ.SetOwner(pOwnerWindow->GetDocument());
 }
 
 void ezRotateGizmo::OnVisibleChanged(bool bVisible)

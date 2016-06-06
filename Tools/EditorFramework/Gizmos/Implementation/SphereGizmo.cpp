@@ -29,8 +29,8 @@ ezSphereGizmo::ezSphereGizmo()
 
 void ezSphereGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  m_InnerSphere.SetOwner(pOwnerWindow);
-  m_OuterSphere.SetOwner(pOwnerWindow);
+  m_InnerSphere.SetOwner(pOwnerWindow->GetDocument());
+  m_OuterSphere.SetOwner(pOwnerWindow->GetDocument());
 }
 
 void ezSphereGizmo::OnVisibleChanged(bool bVisible)

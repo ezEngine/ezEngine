@@ -58,7 +58,7 @@ ezGizmoAction::ezGizmoAction(const ezActionContext& context, const char* szName,
 {
   SetCheckable(true);
   m_Type = type;
-  m_pSceneDocument = static_cast<ezSceneDocument*>(context.m_pDocument);
+  m_pSceneDocument = static_cast<const ezSceneDocument*>(context.m_pDocument);
   m_pSceneDocument->m_SceneEvents.AddEventHandler(ezMakeDelegate(&ezGizmoAction::SceneEventHandler, this));
 
   switch (m_Type)
@@ -352,7 +352,7 @@ void ezTranslateGizmoAction::MapActions(const char* szMapping, const char* szPat
 
 ezTranslateGizmoAction::ezTranslateGizmoAction(const ezActionContext& context, const char* szName, ActionType type, float fSnappingValue) : ezButtonAction(context, szName, false, "")
 {
-  m_pSceneDocument = static_cast<ezSceneDocument*>(context.m_pDocument);
+  m_pSceneDocument = static_cast<const ezSceneDocument*>(context.m_pDocument);
   m_Type = type;
   m_fSnappingValue = fSnappingValue;
 

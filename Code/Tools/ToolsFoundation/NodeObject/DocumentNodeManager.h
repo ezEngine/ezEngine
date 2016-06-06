@@ -103,7 +103,7 @@ public:
   void Disconnect(const ezPin* pSource, const ezPin* pTarget);
   void MoveNode(ezDocumentObject* pObject, const ezVec2& vPos);
 
-  void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph);
+  void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const;
   void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph);
 
 protected:

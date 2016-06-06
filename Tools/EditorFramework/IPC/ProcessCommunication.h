@@ -33,7 +33,7 @@ public:
 
   bool IsHostAlive() const;
 
-  void SendMessage(ezProcessMessage* pMessage = nullptr);
+  void SendMessage(ezProcessMessage* pMessage);
 
   ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout);
 

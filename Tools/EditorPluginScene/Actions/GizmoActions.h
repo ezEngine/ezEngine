@@ -51,7 +51,7 @@ private:
   void UpdateState();
   void SceneEventHandler(const ezSceneDocumentEvent& e);
 
-  ezSceneDocument* m_pSceneDocument;
+  const ezSceneDocument* m_pSceneDocument;
   ActionType m_Type;
 };
 
@@ -155,7 +155,7 @@ public:
 private:
   void EventHandler(const ezSnapProviderEvent& e);
 
-  ezSceneDocument* m_pSceneDocument;
+  const ezSceneDocument* m_pSceneDocument;
   float m_fSnappingValue;
   ActionType m_Type;
 

@@ -268,7 +268,7 @@ ezStatus ezDocument::InternalLoadDocument()
 }
 
 
-void ezDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph)
+void ezDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
 {
   m_DocumentObjectMetaData.AttachMetaDataToAbstractGraph(graph);
 }
@@ -285,7 +285,7 @@ void ezDocument::SetUnknownObjectTypes(const ezSet<ezString>& Types, ezUInt32 ui
   m_uiUnknownObjectTypeInstances = uiInstances;
 }
 
-void ezDocument::DeleteSelectedObjects()
+void ezDocument::DeleteSelectedObjects() const
 {
   auto objects = GetSelectionManager()->GetSelection();
 
@@ -311,7 +311,7 @@ void ezDocument::DeleteSelectedObjects()
   history->FinishTransaction();
 }
 
-void ezDocument::ShowDocumentStatus(const char* szFormat, ...)
+void ezDocument::ShowDocumentStatus(const char* szFormat, ...) const
 {
   va_list args;
   va_start(args, szFormat);

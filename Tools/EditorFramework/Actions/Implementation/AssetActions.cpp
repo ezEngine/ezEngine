@@ -96,7 +96,8 @@ void ezAssetAction::Execute(const ezVariant& value)
   {
   case ezAssetAction::ButtonType::TransformAsset:
     {
-      ezAssetDocument* pDoc = static_cast<ezAssetDocument*>(m_Context.m_pDocument);
+      // TODO const cast
+      ezAssetDocument* pDoc = const_cast<ezAssetDocument*>(static_cast<const ezAssetDocument*>(m_Context.m_pDocument));
 
       auto ret = pDoc->TransformAsset();
 
@@ -130,7 +131,8 @@ void ezAssetAction::Execute(const ezVariant& value)
 
   case ezAssetAction::ButtonType::RetrieveAssetInfo:
     {
-      ezAssetDocument* pDoc = static_cast<ezAssetDocument*>(m_Context.m_pDocument);
+      // TODO const cast
+      ezAssetDocument* pDoc = const_cast<ezAssetDocument*>(static_cast<const ezAssetDocument*>(m_Context.m_pDocument));
 
       pDoc->RetrieveAssetInfo();
     }

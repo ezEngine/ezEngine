@@ -31,13 +31,13 @@ ezTranslateGizmo::ezTranslateGizmo()
 
 void ezTranslateGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  m_AxisX.SetOwner(pOwnerWindow);
-  m_AxisY.SetOwner(pOwnerWindow);
-  m_AxisZ.SetOwner(pOwnerWindow);
+  m_AxisX.SetOwner(pOwnerWindow->GetDocument());
+  m_AxisY.SetOwner(pOwnerWindow->GetDocument());
+  m_AxisZ.SetOwner(pOwnerWindow->GetDocument());
 
-  m_PlaneXY.SetOwner(pOwnerWindow);
-  m_PlaneXZ.SetOwner(pOwnerWindow);
-  m_PlaneYZ.SetOwner(pOwnerWindow);
+  m_PlaneXY.SetOwner(pOwnerWindow->GetDocument());
+  m_PlaneXZ.SetOwner(pOwnerWindow->GetDocument());
+  m_PlaneYZ.SetOwner(pOwnerWindow->GetDocument());
 }
 
 void ezTranslateGizmo::OnVisibleChanged(bool bVisible)

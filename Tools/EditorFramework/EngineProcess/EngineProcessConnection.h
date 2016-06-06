@@ -12,6 +12,7 @@ class ezDocumentObject;
 struct ezDocumentObjectPropertyEvent;
 struct ezDocumentObjectStructureEvent;
 class ezQtEngineDocumentWindow;
+class ezAssetDocument;
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineProcessConnection
 {
@@ -34,10 +35,10 @@ public:
   void ShutdownProcess();
   bool IsProcessCrashed() const { return m_bProcessCrashed; }
 
-  ezEditorEngineConnection* CreateEngineConnection(ezQtEngineDocumentWindow* pWindow);
-  void DestroyEngineConnection(ezQtEngineDocumentWindow* pWindow);
+  ezEditorEngineConnection* CreateEngineConnection(ezAssetDocument* pDocument);
+  void DestroyEngineConnection(ezAssetDocument* pDocument);
 
-  void SendMessage(ezProcessMessage* pMessage = false);
+  void SendMessage(ezProcessMessage* pMessage);
   ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout);
 
   void SetWaitForDebugger(bool bWait) { m_bProcessShouldWaitForDebugger = bWait; }
@@ -86,14 +87,14 @@ private:
   ezProcessCommunication m_IPC;
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezApplicationPluginConfig m_PluginConfig;
-  ezHashTable<ezUuid, ezQtEngineDocumentWindow*> m_DocumentWindow3DByGuid;
+  ezHashTable<ezUuid, ezAssetDocument*> m_DocumentByGuid;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineConnection
 {
 public:
 
-  void SendMessage(ezEditorEngineDocumentMsg* pMessage = false);
+  void SendMessage(ezEditorEngineDocumentMsg* pMessage);
 
   ezDocument* GetDocument() const { return m_pDocument; }
 

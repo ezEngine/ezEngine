@@ -32,7 +32,7 @@ ezEditorInut ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
 
     if (res.m_PickedOther.IsValid())
     {
-      auto pSO = GetOwnerWindow()->FindSyncObject(res.m_PickedOther);
+      auto pSO = GetOwnerWindow()->GetDocument()->FindSyncObject(res.m_PickedOther);
 
       if (pSO != nullptr)
       {
@@ -219,7 +219,7 @@ ezEditorInut ezSelectionContext::DoMouseMoveEvent(QMouseEvent* e)
 
     if (res.m_PickedComponent.IsValid())
     {
-      ezSceneDocument* pScene = static_cast<ezSceneDocument*>(GetOwnerWindow()->GetDocument());
+      const ezSceneDocument* pScene = static_cast<const ezSceneDocument*>(GetOwnerWindow()->GetDocument());
 
       pScene->SetPickingResult(res);
     }

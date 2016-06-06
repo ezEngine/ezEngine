@@ -6,6 +6,7 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 
 EZ_IMPLEMENT_SINGLETON(ezEditorEngineProcessConnection);
 
@@ -42,12 +43,12 @@ void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicatio
   {
     const ezEditorEngineDocumentMsg* pMsg = static_cast<const ezEditorEngineDocumentMsg*>(e.m_pMessage);
 
-    //EZ_ASSERT_DEBUG(m_DocumentWindow3DByGuid.Contains(pMsg->m_DocumentGuid), "The doument '%u' is not known!", pMsg->m_uiViewID);
-    ezQtEngineDocumentWindow* pWindow = m_DocumentWindow3DByGuid[pMsg->m_DocumentGuid];
+    //EZ_ASSERT_DEBUG(m_DocumentWindow3DByGuid.Contains(pMsg->m_DocumentGuid), "The document '%u' is not known!", pMsg->m_uiViewID);
+    ezAssetDocument* pDocument = m_DocumentByGuid[pMsg->m_DocumentGuid];
 
-    if (pWindow)
+    if (pDocument)
     {
-      pWindow->HandleEngineMessage(pMsg);
+      pDocument->HandleEngineMessage(pMsg);
     }
   }
   else if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineMsg>())
@@ -60,24 +61,24 @@ void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunicatio
   }
 }
 
-ezEditorEngineConnection* ezEditorEngineProcessConnection::CreateEngineConnection(ezQtEngineDocumentWindow* pWindow)
+ezEditorEngineConnection* ezEditorEngineProcessConnection::CreateEngineConnection(ezAssetDocument* pDocument)
 {
-  ezEditorEngineConnection* pConnection = new ezEditorEngineConnection(pWindow->GetDocument());
+  ezEditorEngineConnection* pConnection = new ezEditorEngineConnection(pDocument);
 
-  m_DocumentWindow3DByGuid[pWindow->GetDocument()->GetGuid()] = pWindow;
+  m_DocumentByGuid[pDocument->GetGuid()] = pDocument;
 
-  SendDocumentOpenMessage(pWindow->GetDocument(), true);
+  SendDocumentOpenMessage(pDocument, true);
 
   return pConnection;
 }
 
-void ezEditorEngineProcessConnection::DestroyEngineConnection(ezQtEngineDocumentWindow* pWindow)
+void ezEditorEngineProcessConnection::DestroyEngineConnection(ezAssetDocument* pDocument)
 {
-  SendDocumentOpenMessage(pWindow->GetDocument(), false);
+  SendDocumentOpenMessage(pDocument, false);
 
-  m_DocumentWindow3DByGuid.Remove(pWindow->GetDocument()->GetGuid());
+  m_DocumentByGuid.Remove(pDocument->GetGuid());
 
-  delete pWindow->GetEditorEngineConnection();
+  delete pDocument->GetEditorEngineConnection();
 }
 
 void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMessageType)
@@ -158,9 +159,9 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
   ezLog::Dev("Transmitting open documents to Engine Process");
 
   // resend all open documents
-  for (auto it = m_DocumentWindow3DByGuid.GetIterator(); it.IsValid(); ++it)
+  for (auto it = m_DocumentByGuid.GetIterator(); it.IsValid(); ++it)
   {
-    SendDocumentOpenMessage(it.Value()->GetDocument(), true);
+    SendDocumentOpenMessage(it.Value(), true);
   }
 
   ezLog::Success("Engine Process is running");

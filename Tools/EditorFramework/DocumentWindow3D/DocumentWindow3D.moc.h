@@ -10,6 +10,8 @@ class QWidget;
 class QHBoxLayout;
 class QPushButton;
 class ezQtEngineViewWidget;
+class ezAssetDocument;
+class ezEditorEngineDocumentMsg;
 
 struct ezObjectPickingResult
 {
@@ -31,23 +33,13 @@ class EZ_EDITORFRAMEWORK_DLL ezQtEngineDocumentWindow : public ezQtDocumentWindo
   Q_OBJECT
 
 public:
-
-  /// \brief Returns true if the given message has been handled in a meaningful way.
-  virtual bool HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg);
-
-public:
-  ezQtEngineDocumentWindow(ezDocument* pDocument);
+  ezQtEngineDocumentWindow(ezAssetDocument* pDocument);
   virtual ~ezQtEngineDocumentWindow();
 
-  ezEditorEngineConnection* GetEditorEngineConnection() const { return m_pEngineConnection; }
-
-  void SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage = false) const;
-
+  ezEditorEngineConnection* GetEditorEngineConnection() const;
   const ezObjectPickingResult& PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const;
 
-  void AddSyncObject(ezEditorEngineSyncObject* pSync);
-  void RemoveSyncObject(ezEditorEngineSyncObject* pSync);
-  ezEditorEngineSyncObject* FindSyncObject(const ezUuid& guid);
+  ezAssetDocument* GetDocument() const;
 
   /// \brief Returns the ezQtEngineViewWidget over which the mouse currently hovers
   ezQtEngineViewWidget* GetHoveredViewWidget() const;
@@ -59,22 +51,18 @@ public:
 
 protected:
   friend class ezQtEngineViewWidget;
-  ezIPCObjectMirror m_Mirror;
-  ezEditorEngineConnection* m_pEngineConnection;
+
   ezHybridArray<ezQtEngineViewWidget*, 4> m_ViewWidgets;
 
-  void SyncObjectsToEngine();
-  void DestroyAllViews();
+  virtual void ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg);
 
-private:
+  void DestroyAllViews();
   virtual void InternalRedraw() override;
 
+private:
   mutable ezObjectPickingResult m_LastPickingResult;
 
-  ezHashTable<ezUuid, ezEditorEngineSyncObject*> m_AllSyncObjects;
-  ezDeque<ezEditorEngineSyncObject*> m_SyncObjects;
 
-  ezHybridArray<ezUuid, 32> m_DeletedObjects;
 };
 
 

@@ -50,11 +50,9 @@ public:
   virtual const char* GetDocumentTypeDisplayString() const = 0;
 
   const ezDocumentObjectManager* GetObjectManager() const { return m_pObjectManager; }
-  const ezSelectionManager* GetSelectionManager() const { return &m_SelectionManager; }
-  ezCommandHistory* GetCommandHistory() const { return &m_CommandHistory; }
-
   ezDocumentObjectManager* GetObjectManager() { return m_pObjectManager; }
-  ezSelectionManager* GetSelectionManager() { return &m_SelectionManager; }
+  ezSelectionManager* GetSelectionManager() const { return &m_SelectionManager; }
+  ezCommandHistory* GetCommandHistory() const { return &m_CommandHistory; }
 
   const char* GetDocumentPath() const { return m_sDocumentPath; }
 
@@ -80,9 +78,9 @@ public:
     ezDocumentObject* m_pParent;
   };
 
-  virtual bool Copy(ezAbstractObjectGraph& out_objectGraph) { return false; };
+  virtual bool Copy(ezAbstractObjectGraph& out_objectGraph) const { return false; };
   virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition) { return false; };
-  virtual void DeleteSelectedObjects();
+  virtual void DeleteSelectedObjects() const;
 
   const ezSet<ezString>& GetUnknownObjectTypes() const { return m_UnknownObjectTypes; }
   ezUInt32 GetUnknownObjectTypeInstances() const { return m_uiUnknownObjectTypeInstances; }
@@ -94,7 +92,7 @@ public:
   bool GetAddToRecentFilesList() const { return m_bAddToRecentFilesList; }
 
   /// \brief Broadcasts a status message event. The window that displays the document may show this in some form, e.g. in the status bar.
-  void ShowDocumentStatus(const char* szFormat, ...);
+  void ShowDocumentStatus(const char* szFormat, ...) const;
 
   /// \brief Tries to compute the position and rotation for an object in the document. Returns EZ_SUCCESS if it was possible.
   virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const { return EZ_FAILURE; }
@@ -120,7 +118,7 @@ public:
 
   ezObjectMetaData<ezUuid, ezDocumentObjectMetaData> m_DocumentObjectMetaData;
   
-  ezEvent<const ezDocumentEvent&> m_EventsOne;
+  mutable ezEvent<const ezDocumentEvent&> m_EventsOne;
   static ezEvent<const ezDocumentEvent&> s_EventsAny;
 
 protected:
@@ -133,13 +131,13 @@ protected:
   /// \brief A hook to execute additional code after SUCCESSFULLY saving a document. E.g. manual asset transform can be done here.
   virtual void InternalAfterSaveDocument() {}
 
-  virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph);
+  virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const;
   virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph);
 
   virtual void InitializeBeforeLoading() {}
   virtual void InitializeAfterLoading() {}
 
-  ezSelectionManager m_SelectionManager;
+  mutable ezSelectionManager m_SelectionManager;
   mutable ezCommandHistory m_CommandHistory;
   ezDocumentInfo* m_pDocumentInfo;
   ezDocumentTypeDescriptor m_TypeDescriptor;

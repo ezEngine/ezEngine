@@ -39,7 +39,7 @@ class ezQtSceneViewWidgetContainer : public QWidget
 {
   Q_OBJECT
 public:
-  ezQtSceneViewWidgetContainer(QWidget* pParent, ezQtSceneDocumentWindow* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig);
+  ezQtSceneViewWidgetContainer(QWidget* pParent, ezQtSceneDocumentWindow* pDocumentWindow, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig);
   ~ezQtSceneViewWidgetContainer();
 
   ezQtSceneViewWidget* GetViewWidget() const { return m_pViewWidget; }

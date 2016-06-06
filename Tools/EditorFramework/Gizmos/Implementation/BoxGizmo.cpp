@@ -30,12 +30,12 @@ ezBoxGizmo::ezBoxGizmo()
 
 void ezBoxGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  m_Corners.SetOwner(pOwnerWindow);
+  m_Corners.SetOwner(pOwnerWindow->GetDocument());
 
   for (int i = 0; i < 3; ++i)
   {
-    m_Edges[i].SetOwner(pOwnerWindow);
-    m_Faces[i].SetOwner(pOwnerWindow);
+    m_Edges[i].SetOwner(pOwnerWindow->GetDocument());
+    m_Faces[i].SetOwner(pOwnerWindow->GetDocument());
   }
 }
 

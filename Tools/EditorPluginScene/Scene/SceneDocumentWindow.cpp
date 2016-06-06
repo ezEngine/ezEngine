@@ -15,7 +15,7 @@
 #include <EditorPluginScene/Preferences/ScenePreferences.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 
-ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezDocument* pDocument)
+ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
 {
   QWidget* pCenter = new QWidget(this);
@@ -55,7 +55,7 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezDocument* pDocument)
     addToolBar(pToolBar);
   }
 
-  ezSceneDocument* pSceneDoc = static_cast<ezSceneDocument*>(GetDocument());
+  const ezSceneDocument* pSceneDoc = static_cast<const ezSceneDocument*>(GetDocument());
   pSceneDoc->m_SceneEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::DocumentEventHandler, this));
 
   pSceneDoc->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SelectionManagerEventHandler, this));
@@ -99,7 +99,7 @@ ezQtSceneDocumentWindow::~ezQtSceneDocumentWindow()
 {
   SaveViewConfigs();
 
-  ezSceneDocument* pSceneDoc = static_cast<ezSceneDocument*>(GetDocument());
+  const ezSceneDocument* pSceneDoc = static_cast<const ezSceneDocument*>(GetDocument());
   pSceneDoc->m_SceneEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::DocumentEventHandler, this));
 
   GetSceneDocument()->m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::DocumentObjectMetaDataEventHandler, this));
@@ -116,6 +116,11 @@ ezQtSceneDocumentWindow::~ezQtSceneDocumentWindow()
   ezManipulatorManager::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::ManipulatorManagerEventHandler, this));
 
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SelectionManagerEventHandler, this));
+}
+
+ezSceneDocument* ezQtSceneDocumentWindow::GetSceneDocument() const
+{
+  return static_cast<ezSceneDocument*>(GetDocument());
 }
 
 void ezQtSceneDocumentWindow::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
@@ -315,7 +320,7 @@ void ezQtSceneDocumentWindow::FocusOnSelectionAllViews()
   ezQuerySelectionBBoxMsgToEngine msg;
   msg.m_uiViewID = 0xFFFFFFFF;
   msg.m_iPurpose = 0;
-  SendMessageToEngine(&msg);
+  GetDocument()->SendMessageToEngine(&msg);
 }
 
 void ezQtSceneDocumentWindow::FocusOnSelectionHoveredView()
@@ -335,7 +340,7 @@ void ezQtSceneDocumentWindow::FocusOnSelectionHoveredView()
   ezQuerySelectionBBoxMsgToEngine msg;
   msg.m_uiViewID = pView->GetViewID();
   msg.m_iPurpose = 0;
-  SendMessageToEngine(&msg);
+  GetDocument()->SendMessageToEngine(&msg);
 }
 
 void ezQtSceneDocumentWindow::SendObjectMsg(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg)
@@ -386,12 +391,12 @@ void ezQtSceneDocumentWindow::SendObjectSelection()
 
   msg.m_sSelection = sTemp;
 
-  m_pEngineConnection->SendMessage(&msg);
+  GetEditorEngineConnection()->SendMessage(&msg);
 }
 
 void ezQtSceneDocumentWindow::InternalRedraw()
 {
-  ezQtEngineDocumentWindow::SyncObjectsToEngine();
+  ezQtEngineDocumentWindow::InternalRedraw();
 
   ezEditorInputContext::UpdateActiveInputContext();
 
@@ -412,7 +417,7 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
     msg.m_bRenderOverlay = GetSceneDocument()->GetRenderSelectionOverlay();
     msg.m_bRenderShapeIcons = GetSceneDocument()->GetRenderShapeIcons();
     msg.m_bRenderSelectionBoxes = GetSceneDocument()->GetRenderVisualizers();
-    m_pEngineConnection->SendMessage(&msg);
+    GetEditorEngineConnection()->SendMessage(&msg);
   }
 
   SendObjectSelection();
@@ -677,8 +682,10 @@ void ezQtSceneDocumentWindow::ToggleViews(QWidget* pView)
   }
 }
 
-bool ezQtSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
+void ezQtSceneDocumentWindow::ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg)
 {
+  ezQtEngineDocumentWindow::ProcessMessageEventHandler(pMsg);
+
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezQuerySelectionBBoxResultMsgToEditor>())
   {
     const ezQuerySelectionBBoxResultMsgToEditor* msg = static_cast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg);
@@ -693,40 +700,32 @@ bool ezQtSceneDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMs
         if (msg->m_iPurpose == 0)
           HandleFocusOnSelection(msg, static_cast<ezQtSceneViewWidget*>(pView));
       }
-
     }
     else
     {
       ezQtSceneViewWidget* pSceneView = static_cast<ezQtSceneViewWidget*>(GetViewWidgetByID(msg->m_uiViewID));
 
       if (!pSceneView)
-        return true;
+        return;
 
       if (msg->m_iPurpose == 0)
         HandleFocusOnSelection(msg, pSceneView);
     }
 
-    return true;
+    return;
   }
 
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezGameModeMsgToEditor>())
   {
     GetSceneDocument()->HandleGameModeMsg(static_cast<const ezGameModeMsgToEditor*>(pMsg));
 
-    return true;
+    return;
   }
 
-  if (ezQtEngineDocumentWindow::HandleEngineMessage(pMsg))
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
   {
-    if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
-    {
-      SyncObjectHiddenState();
-    }
-
-    return true;
+    SyncObjectHiddenState();
   }
-
-  return false;
 }
 
 void ezQtSceneDocumentWindow::SelectionManagerEventHandler(const ezSelectionManagerEvent& e)

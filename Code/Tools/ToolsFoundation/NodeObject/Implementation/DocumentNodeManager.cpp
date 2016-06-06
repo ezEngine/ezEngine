@@ -246,7 +246,7 @@ void ezDocumentNodeManager::MoveNode(ezDocumentObject* pObject, const ezVec2& vP
   m_NodeEvents.Broadcast(e);
 }
 
-void ezDocumentNodeManager::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph)
+void ezDocumentNodeManager::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
 {
   auto& AllNodes = graph.GetAllNodes();
 

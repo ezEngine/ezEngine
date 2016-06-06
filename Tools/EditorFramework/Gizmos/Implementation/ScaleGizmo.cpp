@@ -23,10 +23,10 @@ ezScaleGizmo::ezScaleGizmo()
 
 void ezScaleGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  m_AxisX.SetOwner(pOwnerWindow);
-  m_AxisY.SetOwner(pOwnerWindow);
-  m_AxisZ.SetOwner(pOwnerWindow);
-  m_AxisXYZ.SetOwner(pOwnerWindow);
+  m_AxisX.SetOwner(pOwnerWindow->GetDocument());
+  m_AxisY.SetOwner(pOwnerWindow->GetDocument());
+  m_AxisZ.SetOwner(pOwnerWindow->GetDocument());
+  m_AxisXYZ.SetOwner(pOwnerWindow->GetDocument());
 }
 
 void ezScaleGizmo::OnVisibleChanged(bool bVisible)

@@ -28,9 +28,9 @@ ezCapsuleGizmo::ezCapsuleGizmo()
 
 void ezCapsuleGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  m_LengthTop.SetOwner(pOwnerWindow);
-  m_LengthBottom.SetOwner(pOwnerWindow);
-  m_Radius.SetOwner(pOwnerWindow);
+  m_LengthTop.SetOwner(pOwnerWindow->GetDocument());
+  m_LengthBottom.SetOwner(pOwnerWindow->GetDocument());
+  m_Radius.SetOwner(pOwnerWindow->GetDocument());
 }
 
 void ezCapsuleGizmo::OnVisibleChanged(bool bVisible)

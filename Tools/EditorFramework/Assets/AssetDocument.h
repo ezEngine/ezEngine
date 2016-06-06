@@ -5,6 +5,10 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <EditorFramework/Assets/Declarations.h>
 #include <EditorFramework/Assets/AssetDocumentInfo.h>
+#include <EditorFramework/IPC/IPCObjectMirror.h>
+
+class ezEditorEngineConnection;
+class ezEditorEngineSyncObject;
 
 class EZ_EDITORFRAMEWORK_DLL ezAssetDocument : public ezDocument
 {
@@ -41,6 +45,26 @@ public:
   /// \brief Called during certain operations, such as TransformAsset, to determine how to proceed with this asset.
   virtual ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const;
 
+  /// \name IPC Functions
+  ///@{
+
+  /// \brief Sends a message to the corresponding ezEngineProcessDocumentContext on the engine process.
+  void SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage) const;
+  /// \brief Handles all messages received from the corresponding ezEngineProcessDocumentContext on the engine process.
+  void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg);
+  /// \brief Returns the ezEditorEngineConnection for this document.
+  ezEditorEngineConnection* GetEditorEngineConnection() const { return m_pEngineConnection; }
+  /// \brief Registers a sync object for this document. It will be mirrored to the ezEngineProcessDocumentContext on the engine process.
+  void AddSyncObject(ezEditorEngineSyncObject* pSync) const;
+  /// \brief Removes a previously registered sync object. It will be removed on the engine process side.
+  void RemoveSyncObject(ezEditorEngineSyncObject* pSync) const;
+  /// \brief Returns the sync object registered under the given guid.
+  ezEditorEngineSyncObject* FindSyncObject(const ezUuid& guid) const;
+  /// \brief Sends messages to sync all sync objects to the engine process side.
+  void SyncObjectsToEngine();
+
+  ///@}
+
   struct AssetEvent
   {
     enum class Type
@@ -52,6 +76,8 @@ public:
   };
 
   ezEvent<const AssetEvent&> m_AssetEvents;
+
+  ezEvent<const ezEditorEngineDocumentMsg*> m_ProcessMessageEvent;
 
 protected:
   /// \brief Computes the hash from all document objects
@@ -68,6 +94,8 @@ protected:
 
   /// \brief Implements auto transform on save
   virtual void InternalAfterSaveDocument() override;
+
+  virtual void InitializeAfterLoading() override;
 
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) = 0;
 
@@ -104,5 +132,14 @@ private:
   virtual ezDocumentInfo* CreateDocumentInfo() override;
 
   static ezString DetermineFinalTargetPlatform(const char* szPlatform);
+
+private:
+  ezIPCObjectMirror m_Mirror;
+  ezEditorEngineConnection* m_pEngineConnection;
+
+  mutable ezHashTable<ezUuid, ezEditorEngineSyncObject*> m_AllSyncObjects;
+  mutable ezDeque<ezEditorEngineSyncObject*> m_SyncObjects;
+
+  mutable ezHybridArray<ezUuid, 32> m_DeletedObjects;
 };
 

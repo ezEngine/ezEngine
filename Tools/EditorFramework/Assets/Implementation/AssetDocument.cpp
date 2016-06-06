@@ -15,6 +15,8 @@
 #include <Foundation/IO/OSFile.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
+#include <EditorFramework/IPC/SyncObject.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, 1, ezRTTINoAllocator)
 {
@@ -96,10 +98,13 @@ void ezAssetDocumentInfo::SetDependencies(ezString s)
 ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager)
   : ezDocument(szDocumentPath, pObjectManager)
 {
+  m_pEngineConnection = nullptr;
 }
 
 ezAssetDocument::~ezAssetDocument()
 {
+  m_Mirror.DeInit();
+  ezEditorEngineProcessConnection::GetSingleton()->DestroyEngineConnection(this);
 }
 
 ezDocumentInfo* ezAssetDocument::CreateDocumentInfo()
@@ -147,6 +152,14 @@ void ezAssetDocument::InternalAfterSaveDocument()
       ezAssetCurator::GetSingleton()->WriteAssetTables();
     }
   }
+}
+
+void ezAssetDocument::InitializeAfterLoading()
+{
+  m_pEngineConnection = ezEditorEngineProcessConnection::GetSingleton()->CreateEngineConnection(this);
+
+  m_Mirror.SetIPC(m_pEngineConnection);
+  m_Mirror.InitSender(GetObjectManager());
 }
 
 ezUInt64 ezAssetDocument::GetDocumentHash() const
@@ -363,3 +376,82 @@ ezBitflags<ezAssetDocumentFlags> ezAssetDocument::GetAssetFlags() const
   return ezAssetDocumentFlags::Default;
 }
 
+
+void ezAssetDocument::SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage /*= false*/) const
+{
+  GetEditorEngineConnection()->SendMessage(pMessage);
+}
+
+void ezAssetDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
+{
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
+  {
+    m_Mirror.SendDocument();
+
+    // make sure all sync objects are 'modified' so that they will get resent as well
+    for (auto* pObject : m_SyncObjects)
+    {
+      pObject->SetModified();
+    }
+  }
+
+  m_ProcessMessageEvent.Broadcast(pMsg);
+}
+
+void ezAssetDocument::AddSyncObject(ezEditorEngineSyncObject* pSync) const
+{
+  m_SyncObjects.PushBack(pSync);
+  pSync->m_pOwner = this;
+  m_AllSyncObjects[pSync->GetGuid()] = pSync;
+}
+
+void ezAssetDocument::RemoveSyncObject(ezEditorEngineSyncObject* pSync) const
+{
+  m_DeletedObjects.PushBack(pSync->GetGuid());
+  m_AllSyncObjects.Remove(pSync->GetGuid());
+  m_SyncObjects.RemoveSwap(pSync);
+  pSync->m_pOwner = nullptr;
+}
+
+ezEditorEngineSyncObject* ezAssetDocument::FindSyncObject(const ezUuid& guid) const
+{
+  ezEditorEngineSyncObject* pSync = nullptr;
+  m_AllSyncObjects.TryGetValue(guid, pSync);
+  return pSync;
+}
+
+void ezAssetDocument::SyncObjectsToEngine()
+{
+  // Tell the engine which sync objects have been removed recently
+  {
+    for (const auto& guid : m_DeletedObjects)
+    {
+      ezEditorEngineSyncObjectMsg msg;
+      msg.m_ObjectGuid = guid;
+      SendMessageToEngine(&msg);
+    }
+
+    m_DeletedObjects.Clear();
+  }
+
+  for (auto* pObject : m_SyncObjects)
+  {
+    if (!pObject->GetModified())
+      continue;
+
+    ezEditorEngineSyncObjectMsg msg;
+    msg.m_ObjectGuid = pObject->m_SyncObjectGuid;
+    msg.m_sObjectType = pObject->GetDynamicRTTI()->GetTypeName();
+
+    ezMemoryStreamStorage storage;
+    ezMemoryStreamWriter writer(&storage);
+    ezMemoryStreamReader reader(&storage);
+
+    ezReflectionSerializer::WriteObjectToBinary(writer, pObject->GetDynamicRTTI(), pObject);
+    msg.m_ObjectData = ezArrayPtr<const ezUInt8>(storage.GetData(), storage.GetStorageSize());
+
+    SendMessageToEngine(&msg);
+
+    pObject->SetModified(false);
+  }
+}

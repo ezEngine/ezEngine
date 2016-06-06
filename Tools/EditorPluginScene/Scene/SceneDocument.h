@@ -85,7 +85,7 @@ public:
 
   virtual const char* GetDocumentTypeDisplayString() const override { return "Scene"; }
 
-  void SetActiveGizmo(ActiveGizmo gizmo);
+  void SetActiveGizmo(ActiveGizmo gizmo) const;
   ActiveGizmo GetActiveGizmo() const;
 
   enum class ShowOrHide
@@ -94,10 +94,10 @@ public:
     Hide
   };
 
-  void TriggerShowSelectionInScenegraph();
-  void TriggerFocusOnSelection(bool bAllViews);
-  void TriggerSnapPivotToGrid();
-  void TriggerSnapEachObjectToGrid();
+  void TriggerShowSelectionInScenegraph() const;
+  void TriggerFocusOnSelection(bool bAllViews) const;
+  void TriggerSnapPivotToGrid() const;
+  void TriggerSnapEachObjectToGrid() const;
   void GroupSelection();
   
   /// \brief Opens the Duplicate Special dialog
@@ -113,13 +113,13 @@ public:
 
   bool IsPrefab() const { return m_bIsPrefab; }
 
-  void SetGizmoWorldSpace(bool bWorldSpace);
+  void SetGizmoWorldSpace(bool bWorldSpace) const;
   bool GetGizmoWorldSpace() const;
 
-  virtual bool Copy(ezAbstractObjectGraph& out_objectGraph) override;
+  virtual bool Copy(ezAbstractObjectGraph& out_objectGraph) const override;
   virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition) override;
   bool Duplicate(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bSetSelected);
-  bool Copy(ezAbstractObjectGraph& graph, ezMap<ezUuid, ezUuid>* out_pParents);
+  bool Copy(ezAbstractObjectGraph& graph, ezMap<ezUuid, ezUuid>* out_pParents) const;
   bool PasteAt(const ezArrayPtr<PasteInfo>& info, const ezVec3& vPos);
   bool PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info);
 
@@ -132,15 +132,15 @@ public:
 
   /// \brief Sets the new global transformation of the given object.
   /// The transformationChanges bitmask (of type TransformationChanges) allows to tell the system that, e.g. only translation has changed and thus some work can be spared.
-  void SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges);
-  const ezTransform& GetGlobalTransform(const ezDocumentObject* pObject);
+  void SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges) const;
+  const ezTransform& GetGlobalTransform(const ezDocumentObject* pObject) const;
 
-  void SetPickingResult(const ezObjectPickingResult& res) { m_PickingResult = res; }
+  void SetPickingResult(const ezObjectPickingResult& res) const { m_PickingResult = res; }
 
   static ezTransform QueryLocalTransform(const ezDocumentObject* pObject);
   ezTransform ComputeGlobalTransform(const ezDocumentObject* pObject) const;
 
-  ezEvent<const ezSceneDocumentEvent&> m_SceneEvents;
+  mutable ezEvent<const ezSceneDocumentEvent&> m_SceneEvents;
   ezEvent <ezSceneDocumentExportEvent&> m_ExportEvent;
   ezObjectMetaData<ezUuid, ezSceneObjectMetaData> m_SceneObjectMetaData;
 
@@ -185,7 +185,7 @@ protected:
     }
   }
 
-  virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) override;
+  virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const override;
   virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph) override;
 
 private:
@@ -195,7 +195,7 @@ private:
   void EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e);
   void ToolsProjectEventHandler(const ezToolsProject::Event& e);
 
-  void InvalidateGlobalTransformValue(const ezDocumentObject* pObject);
+  void InvalidateGlobalTransformValue(const ezDocumentObject* pObject) const;
 
   virtual const char* QueryAssetType() const override;
 
@@ -218,15 +218,15 @@ private:
   };
 
   bool m_bIsPrefab;
-  bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
+  mutable bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
   GameMode m_GameMode;
   float m_fSimulationSpeed;
 
   GameModeData m_CurrentMode;
   GameModeData m_GameModeData[3];
 
-  ActiveGizmo m_ActiveGizmo;
-  ezObjectPickingResult m_PickingResult;
+  mutable ActiveGizmo m_ActiveGizmo;
+  mutable ezObjectPickingResult m_PickingResult;
 
   mutable ezHashTable<const ezDocumentObject*, ezTransform> m_GlobalTransforms;
 

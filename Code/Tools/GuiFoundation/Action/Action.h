@@ -65,7 +65,7 @@ struct EZ_GUIFOUNDATION_DLL ezActionContext
   ezActionContext()
     : m_pDocument(nullptr), m_pWindow(nullptr) {}
 
-  ezDocument* m_pDocument;
+  const ezDocument* m_pDocument;
   ezString m_sMapping;
   QWidget* m_pWindow;
 };

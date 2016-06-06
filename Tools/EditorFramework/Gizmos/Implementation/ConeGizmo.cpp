@@ -28,8 +28,8 @@ ezConeGizmo::ezConeGizmo()
 
 void ezConeGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
-  m_ConeAngle.SetOwner(pOwnerWindow);
-  m_ConeRadius.SetOwner(pOwnerWindow);
+  m_ConeAngle.SetOwner(pOwnerWindow->GetDocument());
+  m_ConeRadius.SetOwner(pOwnerWindow->GetDocument());
 }
 
 void ezConeGizmo::OnVisibleChanged(bool bVisible)

@@ -26,15 +26,19 @@ class ezQtSceneDocumentWindow : public ezQtEngineDocumentWindow
   Q_OBJECT
 
 public:
-  ezQtSceneDocumentWindow(ezDocument* pDocument);
+  ezQtSceneDocumentWindow(ezAssetDocument* pDocument);
   ~ezQtSceneDocumentWindow();
 
   virtual const char* GetGroupName() const { return "Scene"; }
 
-  ezSceneDocument* GetSceneDocument() const { return static_cast<ezSceneDocument*>(GetDocument()); }
+  ezSceneDocument* GetSceneDocument() const;
 
 public slots:
   void ToggleViews(QWidget* pView);
+
+protected:
+  virtual void ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual void InternalRedraw() override;
 
 private:
   void TransformationGizmoEventHandler(const ezGizmoEvent& e);
@@ -43,9 +47,6 @@ private:
   void SceneExportEventHandler(ezSceneDocumentExportEvent& e);
   void ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e);
 
-  virtual bool HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
-
-  virtual void InternalRedraw() override;
   void DocumentEventHandler(const ezSceneDocumentEvent& e);
 
   ezStatus RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header);

@@ -167,7 +167,7 @@ void ezQtSceneViewWidget::dropEvent(QDropEvent * e)
 }
 
 
-ezQtSceneViewWidgetContainer::ezQtSceneViewWidgetContainer(QWidget* pParent, ezQtSceneDocumentWindow* pDocument, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig)
+ezQtSceneViewWidgetContainer::ezQtSceneViewWidgetContainer(QWidget* pParent, ezQtSceneDocumentWindow* pDocumentWindow, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig)
 {
   setBackgroundRole(QPalette::Base);
   setAutoFillBackground(true);
@@ -177,14 +177,14 @@ ezQtSceneViewWidgetContainer::ezQtSceneViewWidgetContainer(QWidget* pParent, ezQ
   pLayout->setSpacing(0);
   setLayout(pLayout);
 
-  m_pViewWidget = new ezQtSceneViewWidget(this, pDocument, pCameraMoveSettings, pViewConfig);
+  m_pViewWidget = new ezQtSceneViewWidget(this, pDocumentWindow, pCameraMoveSettings, pViewConfig);
 
   {
     // Tool Bar
     ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "EditorPluginScene_ViewToolBar";
-    context.m_pDocument = pDocument->GetDocument();
+    context.m_pDocument = pDocumentWindow->GetDocument();
     context.m_pWindow = m_pViewWidget;
     pToolBar->SetActionContext(context);
     pLayout->addWidget(pToolBar);

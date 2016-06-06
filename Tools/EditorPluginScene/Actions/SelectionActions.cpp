@@ -131,7 +131,8 @@ void ezSelectionActions::MapContextMenuActions(const char* szMapping, const char
 ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char* szName, ezSelectionAction::ActionType type) : ezButtonAction(context, szName, false, "")
 {
   m_Type = type;
-  m_pSceneDocument = static_cast<ezSceneDocument*>(context.m_pDocument);
+  // TODO const cast
+  m_pSceneDocument = const_cast<ezSceneDocument*>(static_cast<const ezSceneDocument*>(context.m_pDocument));
 
   switch (m_Type)
   {
@@ -263,7 +264,7 @@ void ezSelectionAction::OpenPrefabDocument()
   if (sel.GetCount() != 1)
     return;
 
-  ezSceneDocument* pScene = static_cast<ezSceneDocument*>(m_Context.m_pDocument);
+  const ezSceneDocument* pScene = static_cast<const ezSceneDocument*>(m_Context.m_pDocument);
 
   auto pMeta = pScene->m_DocumentObjectMetaData.BeginReadMetaData(sel[0]->GetGuid());
   const ezUuid PrefabAsset = pMeta->m_CreateFromPrefab;
@@ -375,7 +376,7 @@ void ezSelectionAction::UpdateEnableState()
 
     bool bIsPrefab = false;
     {
-      ezSceneDocument* pScene = static_cast<ezSceneDocument*>(m_Context.m_pDocument);
+      const ezSceneDocument* pScene = static_cast<const ezSceneDocument*>(m_Context.m_pDocument);
 
       auto pMeta = pScene->m_DocumentObjectMetaData.BeginReadMetaData(sel[0]->GetGuid());
       bIsPrefab = pMeta->m_CreateFromPrefab.IsValid();

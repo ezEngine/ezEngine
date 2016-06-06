@@ -4,6 +4,7 @@
 
 ezIPCObjectMirror::ezIPCObjectMirror() : ezDocumentObjectMirror()
 {
+  m_pIPC = nullptr;
 }
 
 ezIPCObjectMirror::~ezIPCObjectMirror()

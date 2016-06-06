@@ -37,7 +37,7 @@ public:
   const VALUE& GetDefaultValue() const { return m_DefaultValue; }
 
   /// \brief Uses reflection information from VALUE to store all properties that differ from the default value as additional properties for the graph objects.
-  void AttachMetaDataToAbstractGraph(ezAbstractObjectGraph& graph);
+  void AttachMetaDataToAbstractGraph(ezAbstractObjectGraph& graph) const;
 
   /// \brief Uses reflection information from VALUE to restore all meta data properties from the graph.
   void RestoreMetaDataFromAbstractGraph(const ezAbstractObjectGraph& graph);

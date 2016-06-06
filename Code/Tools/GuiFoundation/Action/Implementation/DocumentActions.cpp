@@ -243,7 +243,8 @@ void ezDocumentAction::Execute(const ezVariant& value)
     break;
 
   case ezDocumentAction::ButtonType::UpdatePrefabs:
-    m_Context.m_pDocument->UpdatePrefabs();
+    // TODO const cast
+    const_cast<ezDocument*>(m_Context.m_pDocument)->UpdatePrefabs();
     return;
   }
 }

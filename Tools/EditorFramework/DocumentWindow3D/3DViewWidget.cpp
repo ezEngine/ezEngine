@@ -2,7 +2,7 @@
 #include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
 #include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
 #include <EditorFramework/DocumentWindow3D/EditorInputContext.h>
-
+#include <EditorFramework/Assets/AssetDocument.h>
 #include <QPaintEvent>
 #include <QPushButton>
 #include <QHBoxLayout>
@@ -52,7 +52,7 @@ ezQtEngineViewWidget::~ezQtEngineViewWidget()
 
   ezViewDestroyedMsgToEngine msg;
   msg.m_uiViewID = GetViewID();
-  m_pDocumentWindow->SendMessageToEngine(&msg);
+  m_pDocumentWindow->GetDocument()->SendMessageToEngine(&msg);
 
   m_pDocumentWindow->m_ViewWidgets.RemoveSwap(this);
 }

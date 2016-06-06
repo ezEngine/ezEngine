@@ -1,7 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/Visualizers/CapsuleVisualizerAdapter.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
-#include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
 
 ezCapsuleVisualizerAdapter::ezCapsuleVisualizerAdapter()
@@ -15,11 +14,8 @@ ezCapsuleVisualizerAdapter::~ezCapsuleVisualizerAdapter()
 void ezCapsuleVisualizerAdapter::Finalize()
 {
   auto* pDoc = m_pObject->GetDocumentObjectManager()->GetDocument();
-
-  auto* pWindow = ezQtDocumentWindow::FindWindowByDocument(pDoc);
-
-  ezQtEngineDocumentWindow* pEngineWindow = qobject_cast<ezQtEngineDocumentWindow*>(pWindow);
-  EZ_ASSERT_DEV(pEngineWindow != nullptr, "Visualizers are only supported in engine document windows");
+  const ezAssetDocument* pAssetDocument = ezDynamicCast<const ezAssetDocument*>(pDoc);
+  EZ_ASSERT_DEV(pAssetDocument != nullptr, "Visualizers are only supported in ezAssetDocument.");
 
   const ezCapsuleVisualizerAttribute* pAttr = static_cast<const ezCapsuleVisualizerAttribute*>(m_pVisualizerAttr);
 
@@ -28,9 +24,9 @@ void ezCapsuleVisualizerAdapter::Finalize()
   m_SphereBottom.Configure(nullptr, ezEngineGizmoHandleType::HalfSphereZ, pAttr->m_Color, false, false, true);
 
 
-  m_Cylinder.SetOwner(pEngineWindow);
-  m_SphereTop.SetOwner(pEngineWindow);
-  m_SphereBottom.SetOwner(pEngineWindow);
+  m_Cylinder.SetOwner(pAssetDocument);
+  m_SphereTop.SetOwner(pAssetDocument);
+  m_SphereBottom.SetOwner(pAssetDocument);
 
   m_Cylinder.SetVisible(m_bVisualizerIsVisible);
   m_SphereTop.SetVisible(m_bVisualizerIsVisible);
