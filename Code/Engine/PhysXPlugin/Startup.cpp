@@ -1,6 +1,7 @@
 #include <PhysXPlugin/PCH.h>
 #include <Foundation/Configuration/Startup.h>
 #include <PhysXPlugin/PhysXWorldModule.h>
+#include <PhysXPlugin/Resources/PxMeshResource.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXPlugin)
 
@@ -12,6 +13,9 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXPlugin)
   ON_CORE_STARTUP
   {
     ezPhysX::GetSingleton()->Startup();
+
+    ezResourceManager::RegisterResourceForAssetType("Collision Mesh", ezGetStaticRTTI<ezPxMeshResource>());
+    ezResourceManager::RegisterResourceForAssetType("Collision Mesh (Convex)", ezGetStaticRTTI<ezPxMeshResource>());
   }
 
   ON_CORE_SHUTDOWN

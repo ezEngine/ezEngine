@@ -13,6 +13,9 @@ typedef ezGALDeviceGL ezGALDeviceDefault;
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/JSONReader.h>
 #include <GameUtils/Prefabs/PrefabResource.h>
+#include <GameUtils/Collection/CollectionResource.h>
+#include <RendererCore/Material/MaterialResource.h>
+#include <GameUtils/Surfaces/SurfaceResource.h>
 
 void ezGameApplication::DoProjectSetup()
 {
@@ -70,6 +73,18 @@ void ezGameApplication::DoConfigureAssetManagement()
 
   // which platform assets to use
   ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/";
+
+  ezResourceManager::RegisterResourceForAssetType("Collection", ezGetStaticRTTI<ezCollectionResource>());
+  // collision mesh resources registered by PhysX plugin
+  ezResourceManager::RegisterResourceForAssetType("Material", ezGetStaticRTTI<ezMaterialResource>());
+  ezResourceManager::RegisterResourceForAssetType("Mesh", ezGetStaticRTTI<ezMeshResource>());
+  ezResourceManager::RegisterResourceForAssetType("Prefab", ezGetStaticRTTI<ezPrefabResource>());
+  ezResourceManager::RegisterResourceForAssetType("RenderPipeline", ezGetStaticRTTI<ezRenderPipelineResource>());
+  // sound bank resource registered by Fmod plugin
+  ezResourceManager::RegisterResourceForAssetType("Surface", ezGetStaticRTTI<ezSurfaceResource>());
+  ezResourceManager::RegisterResourceForAssetType("Texture 2D", ezGetStaticRTTI<ezTextureResource>());
+  ezResourceManager::RegisterResourceForAssetType("Texture 3D", ezGetStaticRTTI<ezTextureResource>());
+  ezResourceManager::RegisterResourceForAssetType("Texture Cube", ezGetStaticRTTI<ezTextureResource>());
 }
 
 void ezGameApplication::DoSetupDefaultResources()

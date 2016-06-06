@@ -41,5 +41,6 @@
 	<file>ezTimedDeathComponent.png</file>
 	<file>ezInputComponent.png</file>
 	<file>ezProjectileComponent.png</file>
+	<file>ezCollectionComponent.png</file>
   </qresource>  
 </RCC>

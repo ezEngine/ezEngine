@@ -18,7 +18,11 @@ ezAssetBrowserDlg::ezAssetBrowserDlg(QWidget* parent, const char* szPreselectedA
   ButtonSelect->setEnabled(false);
 
   AssetBrowserWidget->SetSelectedAsset(szPreselectedAsset);
-  AssetBrowserWidget->ShowOnlyTheseTypeFilters(szVisibleFilters);
+
+  if (!ezStringUtils::IsEqual(szVisibleFilters, ";;")) // that's an empty filter list
+  {
+    AssetBrowserWidget->ShowOnlyTheseTypeFilters(szVisibleFilters);
+  }
 
   QSettings Settings;
   Settings.beginGroup(QLatin1String("AssetBrowserDlg"));

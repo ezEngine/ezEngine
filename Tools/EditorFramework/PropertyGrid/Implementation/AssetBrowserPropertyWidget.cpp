@@ -79,6 +79,9 @@ bool ezQtAssetPropertyWidget::IsValidAssetType(const char* szAssetReference) con
 
   const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
 
+  if (ezStringUtils::IsEqual(pAssetAttribute->GetTypeFilter(), ";;")) // empty type list -> allows everything
+    return true;
+
   const ezStringBuilder sTypeFilter(";", pAsset->m_Info.m_sAssetTypeName, ";");
   return ezStringUtils::FindSubString_NoCase(pAssetAttribute->GetTypeFilter(), sTypeFilter) != nullptr;
 }

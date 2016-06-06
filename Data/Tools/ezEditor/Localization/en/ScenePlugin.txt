@@ -92,6 +92,7 @@ ezSpotLightComponent;Spot Light
 ezPointLightComponent;Point Light
 ezRotorComponent;Rotor
 ezSliderComponent;Slider
+ezCollectionComponent;Collection
 Components;Components
 Materials;Materials
 Surfaces;Surfaces

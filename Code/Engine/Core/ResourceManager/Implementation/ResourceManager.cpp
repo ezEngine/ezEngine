@@ -43,6 +43,8 @@ ezHashTable<ezUInt32, ezResourceCategory> ezResourceManager::m_ResourceCategorie
 ezEvent<const ezResourceEvent&> ezResourceManager::s_ResourceEvents;
 ezEvent<const ezResourceManagerEvent&> ezResourceManager::s_ManagerEvents;
 ezMutex ezResourceManager::s_ResourceMutex;
+ezHashTable<ezTempHashedString, ezHashedString> ezResourceManager::s_NamedResources;
+ezMap<ezString, const ezRTTI*> ezResourceManager::s_AssetToResourceType;
 
 ezResourceTypeLoader* ezResourceManager::GetResourceTypeLoader(const ezRTTI* pRTTI)
 {
@@ -60,6 +62,28 @@ void ezResourceManager::BroadcastResourceEvent(const ezResourceEvent& e)
 
   // and then broadcast it to everyone else through the general event
   s_ResourceEvents.Broadcast(e);
+}
+
+
+void ezResourceManager::RegisterResourceForAssetType(const char* szAssetTypeName, const ezRTTI* pResourceType)
+{
+  ezStringBuilder s = szAssetTypeName;
+  s.ToLower();
+
+  s_AssetToResourceType[s] = pResourceType;
+}
+
+const ezRTTI* ezResourceManager::FindResourceForAssetType(const char* szAssetTypeName)
+{
+  ezStringBuilder s = szAssetTypeName;
+  s.ToLower();
+
+  auto it = s_AssetToResourceType.Find(s);
+
+  if (it.IsValid())
+    return it.Value();
+
+  return nullptr;
 }
 
 void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool bHighestPriority)
@@ -422,6 +446,22 @@ void ezResourceManager::PreloadResource(ezResourceBase* pResource, ezTime tShoul
 }
 
 
+void ezResourceManager::PreloadTypelessResource(const ezTypelessResourceHandle& hResource, ezTime tShouldBeAvailableIn)
+{
+  // this is the same as BeginAcquireResource in PointerOnly mode
+
+  EZ_ASSERT_DEV(hResource.IsValid(), "Cannot acquire a resource through an invalid handle!");
+
+  ezResourceBase* pResource = hResource.m_pResource;
+  EZ_ASSERT_DEV(pResource->m_iLockCount < 20, "You probably forgot somewhere to call 'EndAcquireResource' in sync with 'BeginAcquireResource'.");
+
+  {
+    pResource->m_iLockCount.Increment();
+    PreloadResource(hResource.m_pResource, tShouldBeAvailableIn);
+    pResource->m_iLockCount.Decrement();
+  }
+}
+
 void ezResourceManager::ReloadResource(ezResourceBase* pResource)
 {
   EZ_LOCK(s_ResourceMutex);
@@ -700,9 +740,16 @@ ezResourceBase* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* 
 {
   ezResourceBase* pResource = nullptr;
 
-  const ezTempHashedString sResourceHash(szResourceID);
+  ezTempHashedString sResourceHash(szResourceID);
 
   EZ_LOCK(s_ResourceMutex);
+
+  ezHashedString* redirection;
+  if (s_NamedResources.TryGetValue(sResourceHash, redirection))
+  {
+    sResourceHash = *redirection;
+    szResourceID = redirection->GetData();
+  }
 
   if (m_LoadedResources.TryGetValue(sResourceHash, pResource))
     return pResource;
@@ -717,6 +764,32 @@ ezResourceBase* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* 
 
   return pNewResource;
 }
+
+ezTypelessResourceHandle ezResourceManager::LoadResourceByType(const ezRTTI* pResourceType, const char* szResourceID)
+{
+  return ezTypelessResourceHandle(GetResource(pResourceType, szResourceID, true));
+}
+
+void ezResourceManager::RegisterNamedResource(const char* szLookupName, const char* szRedirectionResource)
+{
+  EZ_LOCK(s_ResourceMutex);
+
+  ezTempHashedString lookup(szLookupName);
+  
+  ezHashedString redirection;
+  redirection.Assign(szRedirectionResource);
+
+  s_NamedResources[lookup] = redirection;
+}
+
+void ezResourceManager::UnregisterNamedResource(const char* szLookupName)
+{
+  EZ_LOCK(s_ResourceMutex);
+
+  ezTempHashedString hash(szLookupName);
+  s_NamedResources.Remove(hash);
+}
+
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ResourceManager)
 

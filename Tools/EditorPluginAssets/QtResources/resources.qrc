@@ -11,6 +11,7 @@
     <file>Scene.png</file>
     <file>Surface.png</file>
 	<file>RenderPipeline.png</file>
+	<file>Collection.png</file>
   </qresource>
 </RCC>
 

@@ -96,6 +96,5 @@ private:
 private:
   TreeNode m_Root;
   ezMap<ezUuid, ezTreeNode<ezActionMapDescriptor>*> m_Descriptors;
-  const ezRTTI* m_pRtti;
 };
 

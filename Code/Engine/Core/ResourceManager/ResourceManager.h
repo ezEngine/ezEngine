@@ -58,6 +58,19 @@ public:
 
   static void BroadcastResourceEvent(const ezResourceEvent& e);
 
+  /// \brief Registers which resource type to use to load an asset with the given type name
+  static void RegisterResourceForAssetType(const char* szAssetTypeName, const ezRTTI* pResourceType);
+
+  /// \brief Returns the resource type that was registered to handle the given asset type for loading. nullptr if no resource type was registered for this asset type.
+  static const ezRTTI* FindResourceForAssetType(const char* szAssetTypeName);
+
+  /// \brief Same as LoadResource(), but instead of a template argument, the resource type to use is given as ezRTTI info. Returns a typeless handle due to the missing template argument.
+  static ezTypelessResourceHandle LoadResourceByType(const ezRTTI* pResourceType, const char* szResourceID);
+
+  /// \brief Returns a handle to the requested resource. szResourceID must uniquely identify the resource, different spellings will result in different resources.
+  ///
+  /// After the call to this function the resource definitely exists in memory. Upon access through BeginAcquireResource the resource will be loaded. If it is not possible to load the resource
+  /// it will change to a 'missing' state. If the code accessing the resource cannot handle that case, the application will 'terminate' (that means crash).
   template<typename ResourceType>
   static ezTypedResourceHandle<ResourceType> LoadResource(const char* szResourceID);
 
@@ -92,6 +105,8 @@ public:
   template<typename ResourceType>
   static void PreloadResource(const ezTypedResourceHandle<ResourceType>& hResource, ezTime tShouldBeAvailableIn);
 
+  static void PreloadTypelessResource(const ezTypelessResourceHandle& hResource, ezTime tShouldBeAvailableIn);
+
   static ezUInt32 FreeUnusedResources(bool bFreeAllUnused);
 
   template<typename ResourceType>
@@ -119,6 +134,18 @@ public:
   static void ConfigureResourceCategory(const char* szCategoryName, ezUInt64 uiMemoryLimitCPU, ezUInt64 uiMemoryLimitGPU);
 
   static const ezResourceCategory& GetResourceCategory(const char* szCategoryName);
+
+  /// \brief Registers a 'named' resource. When a resource is looked up using \a szLookupName, the lookup will be redirected to \a szRedirectionResource.
+  ///
+  /// This can be used to register a resource under an easier to use name. For example one can register "MenuBackground" as the name for "{ E50DCC85-D375-4999-9CFE-42F1377FAC85 }".
+  /// If the lookup name already exists, it will be overwritten.
+  static void RegisterNamedResource(const char* szLookupName, const char* szRedirectionResource);
+
+  /// \brief Removes a previously registered name from the redirection table.
+  static void UnregisterNamedResource(const char* szLookupName);
+
+  /// \brief Returns the resource manager mutex. Allows to lock the manager on a thread when multiple operations need to be done in sequence.
+  static ezMutex& GetMutex() { return s_ResourceMutex; }
 
 private:
   friend class ezResourceManagerWorker;
@@ -183,6 +210,8 @@ private:
   static bool m_bBroadcastExistsEvent;
   static ezHashTable<ezUInt32, ezResourceCategory> m_ResourceCategories;
   static ezMutex s_ResourceMutex;
+  static ezHashTable<ezTempHashedString, ezHashedString> s_NamedResources;
+  static ezMap<ezString, const ezRTTI*> s_AssetToResourceType;
 };
 
 /// \brief Helper class to acquire and release a resource safely.
