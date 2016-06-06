@@ -33,7 +33,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScenePreferencesUser, 1, ezRTTIDefaultAllocato
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezScenePreferencesUser::ezScenePreferencesUser() : ezPreferences(Domain::Document, ezPreferences::Visibility::User, "Scene")
+ezScenePreferencesUser::ezScenePreferencesUser() : ezPreferences(Domain::Document, "Scene")
 {
   m_bQuadView = false;
   m_iCameraSpeed = 15;

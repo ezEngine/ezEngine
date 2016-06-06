@@ -46,23 +46,8 @@ public:
 
   ezEvent<const ezEditorAppEvent&> m_Events;
 
-  const ezString& GetApplicationUserName() { return s_sUserName; }
-
-  /// \brief Returns the folder path where editor data (preferences) should be stored.
-  ezString GetEditorDataFolder();
-
-  /// \brief Returns the folder in which the precompiled tools can be found
-  ezString GetPrecompiledToolsFolder();
-
-  /// \brief Returns the folder where editor preferences are stored
-  ezString GetEditorPreferencesFolder(bool bUserData);
-
-  /// \brief Returns the folder where project preferences are stored
-  ezString GetProjectPreferencesFolder(bool bUserData);
-
-  /// \brief Returns the folder where preferences for the given document are stored
-  ezString GetDocumentPreferencesFolder(const ezDocument* pDocument, bool bUserData);
-
+  /// \brief Returns the folder in which the tools binaries can be found. If enabled in the preferences, it uses the pre-compiled tools, otherwise the currently compiled ones.
+  ezString GetExternalToolsFolder();
 
 
   const ezPluginSet& GetEditorPlugins() const { return s_EditorPlugins; }
@@ -89,7 +74,7 @@ public:
   ezRecentFilesList LoadOpenDocumentsList();
 
   void InitQt(int argc, char** argv);
-  void StartupEditor(const char* szAppName, const char* szUserName);
+  void StartupEditor();
   void ShutdownEditor();
   ezInt32 RunEditor();
   void DeInitQt();
@@ -99,8 +84,6 @@ public:
 
   ezRecentFilesList& GetRecentProjectsList()   { return s_RecentProjects;  }
   ezRecentFilesList& GetRecentDocumentsList()  { return s_RecentDocuments; }
-
-  ezString GetDocumentDataFolder(const char* szDocument);
 
   ezEditorEngineProcessConnection* GetEngineViewProcess() { return s_pEngineViewProcess; }
 
@@ -183,8 +166,6 @@ private:
   void SetupDataDirectories();
   void SetStyleSheet();
   void CreatePanels();
-
-  ezString s_sUserName;
 
   ezSet<ezString> s_RestartRequiredReasons;
   ezSet<ezString> s_ReloadProjectRequiredReasons;

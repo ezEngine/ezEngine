@@ -37,9 +37,6 @@ public:
 
   void ShowColorDialog(const ezColor& color, bool bAlpha, QWidget* pParent, const char* slotCurColChanged, const char* slotAccept, const char* slotReject);
 
-  static void SetApplicationName(const char* szTitle) { s_sApplicationName = szTitle; }
-  static const char* GetApplicationName() { return s_sApplicationName ; }
-
   static void MessageBoxStatus(const ezStatus& s, const char* szFailureMsg, const char* szSuccessMsg = "", bool bOnlySuccessMsgIfDetails = true);
   static void MessageBoxInformation(const char* szMsg);
   static void MessageBoxWarning(const char* szMsg);
@@ -70,7 +67,6 @@ private slots:
   void SlotColorDialogClosed();
 
 private:
-  static ezString s_sApplicationName;
   QColorDialog* m_pColorDlg;
   QPoint m_ColorDlgPos;
 
@@ -78,7 +74,5 @@ private:
   static ezMap<ezString, QImage> s_ImagesCache;
   static ezMap<ezString, QPixmap> s_PixmapsCache;
 
-private:
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezUIServices);
 };
 

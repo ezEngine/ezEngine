@@ -3,23 +3,6 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectPreferencesShared, 1, ezRTTIDefaultAllocator<ezProjectPreferencesShared>)
-{
-  //EZ_BEGIN_PROPERTIES
-  //{
-  //}
-  //EZ_END_PROPERTIES
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
-ezProjectPreferencesShared::ezProjectPreferencesShared()
-  : ezPreferences(Domain::Project, ezPreferences::Visibility::Shared, "General")
-{
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectPreferencesUser, 1, ezRTTIDefaultAllocator<ezProjectPreferencesUser>)
 {
   EZ_BEGIN_PROPERTIES
@@ -31,13 +14,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectPreferencesUser, 1, ezRTTIDefaultAlloca
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezProjectPreferencesUser::ezProjectPreferencesUser()
-  : ezPreferences(Domain::Project, ezPreferences::Visibility::User, "General")
+  : ezPreferences(Domain::Project, "General")
 {
 }
 
 
 void ezQtEditorApp::LoadProjectPreferences()
 {
-  ezPreferences::QueryPreferences<ezProjectPreferencesShared>();
   ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
 }

@@ -62,6 +62,7 @@ private:
   public: \
     static self* GetSingleton() { return s_pSingleton; } \
   private: \
+    EZ_DISALLOW_COPY_AND_ASSIGN(self); \
     void RegisterSingleton() { s_pSingleton = this; ezSingletonRegistry::Register(this, #self); } \
     static void UnregisterSingleton() { if (s_pSingleton) { ezSingletonRegistry::Unregister(#self); s_pSingleton = nullptr; } } \
     friend class ezSingletonRegistrar<self>; \

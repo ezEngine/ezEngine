@@ -3,6 +3,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPreferences, 1, ezRTTINoAllocator)
 {
@@ -16,10 +17,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezMap<const ezDocument*, ezMap<const ezRTTI*, ezPreferences*>> ezPreferences::s_Preferences;
 
-ezPreferences::ezPreferences(Domain domain, Visibility visibility, const char* szUniqueName)
+ezPreferences::ezPreferences(Domain domain, const char* szUniqueName)
 {
   m_Domain = domain;
-  m_Visibility = visibility;
   m_sUniqueName = szUniqueName;
   m_pDocument = nullptr;
 }
@@ -65,35 +65,23 @@ ezString ezPreferences::GetFilePath() const
 
   if (m_Domain == Domain::Application)
   {
-    path = ezQtEditorApp::GetSingleton()->GetEditorPreferencesFolder(m_Visibility == Visibility::User);
+    path = ezApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
     path.AppendPath(m_sUniqueName);
-
-    if (m_Visibility == Visibility::User)
-      path.ChangeFileExtension("userpref");
-    else
-      path.ChangeFileExtension("pref");
+    path.ChangeFileExtension("userpref");
   }
 
   if (m_Domain == Domain::Project)
   {
-    path = ezQtEditorApp::GetSingleton()->GetProjectPreferencesFolder(m_Visibility == Visibility::User);
+    path = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
     path.AppendPath(m_sUniqueName);
-
-    if (m_Visibility == Visibility::User)
-      path.ChangeFileExtension("userpref");
-    else
-      path.ChangeFileExtension("pref");
+    path.ChangeFileExtension("userpref");
   }
 
   if (m_Domain == Domain::Document)
   {
-    path = ezQtEditorApp::GetSingleton()->GetDocumentPreferencesFolder(m_pDocument, m_Visibility == Visibility::User);
+    path = ezApplicationServices::GetSingleton()->GetDocumentPreferencesFolder(m_pDocument);
     path.AppendPath(m_sUniqueName);
-
-    if (m_Visibility == Visibility::User)
-      path.ChangeFileExtension("userpref");
-    else
-      path.ChangeFileExtension("pref");
+    path.ChangeFileExtension("userpref");
   }
 
   return path;
@@ -227,9 +215,6 @@ ezString ezPreferences::GetName() const
   }
 
   s.Append(": ", m_sUniqueName);
-
-  if (m_Visibility == Visibility::Shared)
-    s.Append(" (shared)");
 
   return s;
 }

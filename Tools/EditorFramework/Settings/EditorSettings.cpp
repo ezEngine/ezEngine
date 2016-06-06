@@ -6,6 +6,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <EditorFramework/Preferences/Preferences.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 
 void ezQtEditorApp::SaveRecentFiles()
 {
@@ -43,7 +44,7 @@ void ezQtEditorApp::SaveOpenDocumentsList()
     allDocs.Insert(it.Value()->GetDocument()->GetDocumentPath());
   }
 
-  ezStringBuilder sFile = GetProjectPreferencesFolder(true);
+  ezStringBuilder sFile = ezApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
   sFile.AppendPath("LastDocuments.txt");
 
   allDocs.Save(sFile);
@@ -53,7 +54,7 @@ ezRecentFilesList ezQtEditorApp::LoadOpenDocumentsList()
 {
   ezRecentFilesList allDocs(15);
 
-  ezStringBuilder sFile = GetProjectPreferencesFolder(true);
+  ezStringBuilder sFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
   sFile.AppendPath("LastDocuments.txt");
 
   allDocs.Load(sFile);

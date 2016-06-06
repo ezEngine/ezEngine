@@ -37,7 +37,7 @@ void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
 
 ezString ezTextureAssetDocument::FindTexConvTool() const
 {
-  ezStringBuilder sTool = ezQtEditorApp::GetSingleton()->GetPrecompiledToolsFolder(); 
+  ezStringBuilder sTool = ezQtEditorApp::GetSingleton()->GetExternalToolsFolder();
   sTool.AppendPath("TexConv.exe");
 
   if (ezFileSystem::ExistsFile(sTool))

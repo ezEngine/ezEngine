@@ -2,6 +2,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 
 void ezQtEditorApp::GetKnownInputSlots(ezDynamicArray<ezString>& slotList) const
 {
@@ -11,7 +12,7 @@ void ezQtEditorApp::GetKnownInputSlots(ezDynamicArray<ezString>& slotList) const
   ezStringBuilder sFile;
   ezDynamicArray<ezStringView> Lines;
 
-  ezStringBuilder sSearchDir = ezQtEditorApp::GetSingleton()->GetEditorDataFolder();
+  ezStringBuilder sSearchDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
   sSearchDir.AppendPath("InputSlots/*.txt");
 
   ezFileSystemIterator it;

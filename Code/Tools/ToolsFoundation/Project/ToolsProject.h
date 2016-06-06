@@ -61,6 +61,7 @@ public:
   /// \brief Returns the directory path in which project settings etc. should be stored
   ezString GetProjectDataFolder() const;
 
+  /// \brief Starts at the  given document and then searches the tree upwards until it finds an ezProject file.
   static ezString FindProjectDirectoryForDocument(const char* szDocumentPath);
 
   bool IsDocumentInAllowedRoot(const char* szDocumentPath, ezString* out_RelativePath = nullptr) const;

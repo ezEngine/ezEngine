@@ -1,6 +1,9 @@
 #include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <QTimer>
+#include <ToolsFoundation/Application/ApplicationServices.h>
+#include <EditorFramework/Preferences/Preferences.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 
 EZ_IMPLEMENT_SINGLETON(ezQtEditorApp);
 
@@ -12,8 +15,7 @@ ezQtEditorApp::ezQtEditorApp()
   m_pProgressbar = nullptr;
   m_pQtProgressbar = nullptr;
 
-  ezUIServices::SetApplicationName("ezEditor");
-  s_sUserName = "DefaultUser";
+  ezApplicationServices::GetSingleton()->SetApplicationName("ezEditor");
   s_pQtApplication = nullptr;
   s_pEngineViewProcess = nullptr;
 
@@ -68,6 +70,14 @@ void ezQtEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
     return;
   }
 }
+
+ezString ezQtEditorApp::GetExternalToolsFolder()
+{
+  ezEditorPreferencesUser* pPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  return ezApplicationServices::GetSingleton()->GetPrecompiledToolsFolder(pPref->m_bUsePrecompiledTools);
+}
+
+
 
 
 

@@ -17,7 +17,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorPreferencesUser, 1, ezRTTIDefaultAllocat
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezEditorPreferencesUser::ezEditorPreferencesUser()
-  : ezPreferences(Domain::Application, ezPreferences::Visibility::User, "General")
+  : ezPreferences(Domain::Application, "General")
 {
   m_fGizmoScale = 1.0f;
   m_bUsePrecompiledTools = true;

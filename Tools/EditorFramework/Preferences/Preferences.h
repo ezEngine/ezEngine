@@ -26,12 +26,6 @@ public:
     Document
   };
 
-  enum class Visibility
-  {
-    Shared,
-    User
-  };
-
   /// \brief Static function to query a preferences object of the given type.
   /// If the instance does not exist yet, it is created and the data is restored from file.
   template<typename TYPE>
@@ -72,9 +66,6 @@ public:
   /// \brief Whether the preferences are app, project or document specific
   Domain GetDomain() const { return m_Domain; }
 
-  /// \brief Whether the data is per user or shared
-  Visibility GetVisibility() const { return m_Visibility; }
-
   /// \brief Within the same domain and visibility the name must be unique, but across those it can be reused.
   ezString GetName() const;
 
@@ -83,7 +74,7 @@ public:
 
 protected:
 
-  ezPreferences(Domain domain, Visibility visibility, const char* szUniqueName);
+  ezPreferences(Domain domain, const char* szUniqueName);
 
   ezString GetFilePath() const;
 
@@ -98,7 +89,6 @@ private:
 
 private:
   Domain m_Domain;
-  Visibility m_Visibility;
   ezString m_sUniqueName;
   const ezDocument* m_pDocument;
 

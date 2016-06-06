@@ -1,8 +1,7 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QMessageBox>
-
-ezString ezUIServices::s_sApplicationName = "ezEditor";
+#include <ToolsFoundation/Application/ApplicationServices.h>
 
 void ezUIServices::MessageBoxStatus(const ezStatus& s, const char* szFailureMsg, const char* szSuccessMsg, bool bOnlySuccessMsgIfDetails)
 {
@@ -36,15 +35,15 @@ void ezUIServices::MessageBoxStatus(const ezStatus& s, const char* szFailureMsg,
 
 void ezUIServices::MessageBoxInformation(const char* szMsg)
 {
-  QMessageBox::information(QApplication::activeWindow(), QString::fromUtf8(s_sApplicationName.GetData()), QString::fromUtf8(szMsg), QMessageBox::StandardButton::Ok);
+  QMessageBox::information(QApplication::activeWindow(), QString::fromUtf8(ezApplicationServices::GetSingleton()->GetApplicationName()), QString::fromUtf8(szMsg), QMessageBox::StandardButton::Ok);
 }
 
 void ezUIServices::MessageBoxWarning(const char* szMsg)
 {
-  QMessageBox::warning(QApplication::activeWindow(), QString::fromUtf8(s_sApplicationName.GetData()), QString::fromUtf8(szMsg), QMessageBox::StandardButton::Ok);
+  QMessageBox::warning(QApplication::activeWindow(), QString::fromUtf8(ezApplicationServices::GetSingleton()->GetApplicationName()), QString::fromUtf8(szMsg), QMessageBox::StandardButton::Ok);
 }
 
 QMessageBox::StandardButton ezUIServices::MessageBoxQuestion(const char* szMsg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton)
 {
-  return QMessageBox::question(QApplication::activeWindow(), QString::fromUtf8(s_sApplicationName.GetData()), QString::fromUtf8(szMsg), buttons, defaultButton);
+  return QMessageBox::question(QApplication::activeWindow(), QString::fromUtf8(ezApplicationServices::GetSingleton()->GetApplicationName()), QString::fromUtf8(szMsg), buttons, defaultButton);
 }

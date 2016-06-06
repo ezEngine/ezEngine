@@ -7,6 +7,8 @@
 #include <Foundation/IO/OSFile.h>
 #include <QProcess>
 #include <QDir>
+#include <QClipboard>
+#include <QMimeData>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -24,6 +26,7 @@ ezActionDescriptorHandle ezDocumentActions::s_hClose;
 ezActionDescriptorHandle ezDocumentActions::s_hOpenContainingFolder;
 ezActionDescriptorHandle ezDocumentActions::s_hUpdatePrefabs;
 ezActionDescriptorHandle ezDocumentActions::s_hDocumentCategory;
+ezActionDescriptorHandle ezDocumentActions::s_hCopyAssetGuid;
 
 void ezDocumentActions::RegisterActions()
 {
@@ -34,6 +37,7 @@ void ezDocumentActions::RegisterActions()
   s_hCloseCategory = EZ_REGISTER_CATEGORY("CloseCategory");
   s_hClose = EZ_REGISTER_ACTION_1("Document.Close", ezActionScope::Document, "Document", "Ctrl+W", ezDocumentAction, ezDocumentAction::ButtonType::Close);
   s_hOpenContainingFolder = EZ_REGISTER_ACTION_1("Document.OpenContainingFolder", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::OpenContainingFolder);
+  s_hCopyAssetGuid = EZ_REGISTER_ACTION_1("Document.CopyAssetGuid", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::CopyAssetGuid);
 
   s_hDocumentCategory = EZ_REGISTER_CATEGORY("Tools.DocumentCategory");
   s_hUpdatePrefabs = EZ_REGISTER_ACTION_1("Prefabs.UpdateAll", ezActionScope::Document, "Scene", "Ctrl+Shift+P", ezDocumentAction, ezDocumentAction::ButtonType::UpdatePrefabs);
@@ -48,6 +52,7 @@ void ezDocumentActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hCloseCategory);
   ezActionManager::UnregisterAction(s_hClose);
   ezActionManager::UnregisterAction(s_hOpenContainingFolder);
+  ezActionManager::UnregisterAction(s_hCopyAssetGuid);
   ezActionManager::UnregisterAction(s_hDocumentCategory);
   ezActionManager::UnregisterAction(s_hUpdatePrefabs);
 }
@@ -69,7 +74,8 @@ void ezDocumentActions::MapActions(const char* szMapping, const char* szPath, bo
     sSubPath.Set(szPath, "/CloseCategory");
     pMap->MapAction(s_hCloseCategory, szPath, 2.0f);
     pMap->MapAction(s_hClose, sSubPath, 1.0f);
-    pMap->MapAction(s_hOpenContainingFolder, sSubPath, 2.0f);
+    pMap->MapAction(s_hCopyAssetGuid, sSubPath, 2.0f);
+    pMap->MapAction(s_hOpenContainingFolder, sSubPath, 3.0f);
   }
 }
 
@@ -110,6 +116,9 @@ ezDocumentAction::ezDocumentAction(const ezActionContext& context, const char* s
     break;
   case ezDocumentAction::ButtonType::OpenContainingFolder:
     SetIconPath(":/GuiFoundation/Icons/OpenFolder16.png");
+    break;
+  case ezDocumentAction::ButtonType::CopyAssetGuid:
+    //SetIconPath(":/GuiFoundation/Icons/OpenFolder16.png");
     break;
   case ezDocumentAction::ButtonType::UpdatePrefabs:
     SetIconPath(":/EditorPluginScene/PrefabUpdate.png");
@@ -216,6 +225,17 @@ void ezDocumentAction::Execute(const ezVariant& value)
         sPath = m_Context.m_pDocument->GetDocumentPath();
 
       ezUIServices::OpenInExplorer(sPath);
+    }
+    break;
+
+  case ezDocumentAction::ButtonType::CopyAssetGuid:
+    {
+      QString sGuid = QString::fromUtf8(ezConversionUtils::ToString(m_Context.m_pDocument->GetGuid()).GetData());
+
+      QClipboard* clipboard = QApplication::clipboard();
+      QMimeData* mimeData = new QMimeData();
+      mimeData->setText(sGuid);
+      clipboard->setMimeData(mimeData);
     }
     break;
 

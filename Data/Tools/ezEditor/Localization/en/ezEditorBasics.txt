@@ -17,6 +17,7 @@ Document.SaveAll;Save All
 Document.SaveAs;Save &As...
 Document.Close;Close
 Document.OpenContainingFolder;Open Containing &Folder
+Document.CopyAssetGuid;Copy Asset Guid
 Selection.Copy;Copy
 Selection.Paste;Paste
 Selection.PasteAsChild;Paste as Child

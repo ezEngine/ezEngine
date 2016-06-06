@@ -14,6 +14,7 @@
 #include <QStatusBar>
 #include <QLabel>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 
 ezDynamicArray<ezContainerWindow*> ezContainerWindow::s_AllContainerWindows;
 
@@ -68,7 +69,7 @@ void ezContainerWindow::UpdateWindowTitle()
     sTitle.Append(" - ");
   }
 
-  sTitle.Append(ezUIServices::GetApplicationName());
+  sTitle.Append(ezApplicationServices::GetSingleton()->GetApplicationName());
 
   setWindowTitle(QString::fromUtf8(sTitle.GetData()));
 }

@@ -9,6 +9,8 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/JSONReader.h>
 #include <Foundation/Logging/Log.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionManager)
 
@@ -121,14 +123,15 @@ ezActionDescriptorHandle ezActionManager::GetActionHandle(const char* szCategory
 
 void ezActionManager::SaveShortcutAssignment()
 {
-  const char* szFile = "Settings/Shortcuts.json";
+  ezStringBuilder sFile = ezApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
+  sFile.AppendPath("Settings/Shortcuts.json");
 
-  EZ_LOG_BLOCK("LoadShortcutAssignment", szFile);
+  EZ_LOG_BLOCK("LoadShortcutAssignment", sFile.GetData());
 
   ezFileWriter file;
-  if (file.Open(szFile).Failed())
+  if (file.Open(sFile).Failed())
   {
-    ezLog::Error("Failed to write shortcuts config file '%s'", szFile);
+    ezLog::Error("Failed to write shortcuts config file '%s'", sFile.GetData());
     return;
   }
 
@@ -158,14 +161,15 @@ void ezActionManager::SaveShortcutAssignment()
 
 void ezActionManager::LoadShortcutAssignment()
 {
-  const char* szFile = "Settings/Shortcuts.json";
+  ezStringBuilder sFile = ezApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
+  sFile.AppendPath("Settings/Shortcuts.json");
 
-  EZ_LOG_BLOCK("LoadShortcutAssignment", szFile);
+  EZ_LOG_BLOCK("LoadShortcutAssignment", sFile.GetData());
 
   ezFileReader file;
-  if (file.Open(szFile).Failed())
+  if (file.Open(sFile).Failed())
   {
-    ezLog::Dev("No shortcuts file '%s' was found", szFile);
+    ezLog::Dev("No shortcuts file '%s' was found", sFile.GetData());
     return;
   }
 

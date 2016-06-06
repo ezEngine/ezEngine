@@ -31,11 +31,7 @@ public:
 
   virtual ApplicationExecution Run() override
   {
-    QHostInfo hostInfo;
-    hostInfo = QHostInfo::fromName(QHostInfo::localHostName());
-    ezString sHostName = QHostInfo::localHostName().toUtf8().data();
-
-    ezQtEditorApp::GetSingleton()->StartupEditor("ezEditor", sHostName);
+    ezQtEditorApp::GetSingleton()->StartupEditor();
     {
       const ezInt32 iReturnCode = ezQtEditorApp::GetSingleton()->RunEditor();
       SetReturnCode(iReturnCode);

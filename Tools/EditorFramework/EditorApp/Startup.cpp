@@ -92,7 +92,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 EZ_END_SUBSYSTEM_DECLARATION
 
 
-void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
+void ezQtEditorApp::StartupEditor()
 {
   // ezUniquePtr does not work with forward declared classes :-(
   m_pProgressbar = EZ_DEFAULT_NEW(ezProgress);
@@ -104,10 +104,8 @@ void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
   const bool bSafeMode = ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-safe");
   const bool bNoRecent = bSafeMode || ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-norecent");
 
-  ezString sApplicationName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-appname", 0, szAppName);
-  ezUIServices::SetApplicationName(sApplicationName);
-
-  s_sUserName = szUserName;
+  ezString sApplicationName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-appname", 0, "ezEditor");
+  ezApplicationServices::GetSingleton()->SetApplicationName(sApplicationName);
 
   QLocale::setDefault(QLocale(QLocale::English));
 
@@ -117,7 +115,7 @@ void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
 
   QCoreApplication::setOrganizationDomain("www.ezEngine.net");
   QCoreApplication::setOrganizationName("ezEngine Project");
-  QCoreApplication::setApplicationName(ezUIServices::GetApplicationName());
+  QCoreApplication::setApplicationName(ezApplicationServices::GetSingleton()->GetApplicationName());
   QCoreApplication::setApplicationVersion("1.0.0");
 
   SetStyleSheet();
@@ -135,8 +133,8 @@ void ezQtEditorApp::StartupEditor(const char* szAppName, const char* szUserName)
 
   ezStartup::StartupCore();
 
-  const ezString sAppDir = GetEditorDataFolder();
-  const ezString sUserData = ezOSFile::GetUserDataFolder("ezEngine Project/ezEditor");
+  const ezString sAppDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
+  const ezString sUserData = ezApplicationServices::GetSingleton()->GetApplicationUserDataFolder();
 
   // make sure these folders exist
   ezOSFile::CreateDirectoryStructure(sAppDir);
