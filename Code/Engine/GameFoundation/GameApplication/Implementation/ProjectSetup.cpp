@@ -89,6 +89,7 @@ void ezGameApplication::DoConfigureAssetManagement()
 
 void ezGameApplication::DoSetupDefaultResources()
 {
+  // Textures
   {
     ezTextureResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTextureResource>("Textures/LoadingTexture_D.dds");
     ezTextureResourceHandle hMissingTexture = ezResourceManager::LoadResource<ezTextureResource>("Textures/MissingTexture_D.dds");
@@ -97,6 +98,7 @@ void ezGameApplication::DoSetupDefaultResources()
     ezTextureResource::SetTypeMissingResource(hMissingTexture);
   }
 
+  // Materials
   {
     ezMaterialResourceHandle hMissingMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/MissingMaterial.ezMaterial");
     ezMaterialResourceHandle hFallbackMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/LoadingMaterial.ezMaterial");
@@ -105,17 +107,27 @@ void ezGameApplication::DoSetupDefaultResources()
     ezMaterialResource::SetTypeMissingResource(hMissingMaterial);
   }
 
+  // Meshes
   {
     ezMeshResourceHandle hMissingMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezMesh");
     ezMeshResource::SetTypeMissingResource(hMissingMesh);
   }
 
+  // Prefabs
   {
-    //ezPrefabResourceDescriptor pd;
-    //ezPrefabResourceHandle hMissingPrefab = ezResourceManager::CreateResource<ezPrefabResource>("MissingPrefabResource", pd);
+    //ezPrefabResourceDescriptor emptyPrefab;
+    //ezPrefabResourceHandle hMissingPrefab = ezResourceManager::CreateResource<ezPrefabResource>("MissingPrefabResource", emptyPrefab, "MissingPrefabResource");
 
     ezPrefabResourceHandle hMissingPrefab = ezResourceManager::LoadResource<ezPrefabResource>("Prefabs/MissingPrefab.ezObjectGraph");
     ezPrefabResource::SetTypeMissingResource(hMissingPrefab);
+  }
+
+  // Collections
+  {
+    ezCollectionResourceDescriptor desc;
+    ezCollectionResourceHandle hMissingCollection = ezResourceManager::CreateResource<ezCollectionResource>("MissingCollectionResource", desc, "MissingCollectionResource");
+
+    ezCollectionResource::SetTypeMissingResource(hMissingCollection);
   }
 }
 

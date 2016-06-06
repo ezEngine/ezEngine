@@ -75,7 +75,7 @@ public:
 
   bool operator< (const QTableWidgetItem& other) const
   {
-    return m_uiBytes < ((ByteSizeItem&) other).m_uiBytes;
+    return m_uiBytes < ((ByteSizeItem&)other).m_uiBytes;
   }
 
   ezUInt32 m_uiBytes;
@@ -151,7 +151,7 @@ void ezResourceWidget::UpdateTable()
       {
         bShowItem = false;
       }
-      else if (!m_sNameFilter.IsEmpty() && res.m_sResourceID.FindSubString_NoCase(m_sNameFilter) == nullptr)
+      else if (!m_sNameFilter.IsEmpty() && res.m_sResourceID.FindSubString_NoCase(m_sNameFilter) == nullptr && res.m_sResourceDescription.FindSubString_NoCase(m_sNameFilter) == nullptr)
       {
         bShowItem = false;
       }
@@ -294,14 +294,14 @@ void ezResourceWidget::UpdateTable()
 
       ByteSizeItem* pByteItem;
 
-      pByteItem = (ByteSizeItem*) Table->item(iTableRow, 5);
+      pByteItem = (ByteSizeItem*)Table->item(iTableRow, 5);
       sTemp.Format("%u Bytes", res.m_Memory.m_uiMemoryCPU);
       pByteItem->setToolTip(sTemp.GetData());
       FormatSize(sTemp, "", res.m_Memory.m_uiMemoryCPU);
       pByteItem->setText(sTemp.GetData());
       pByteItem->m_uiBytes = res.m_Memory.m_uiMemoryCPU;
 
-      pByteItem = (ByteSizeItem*) Table->item(iTableRow, 6);
+      pByteItem = (ByteSizeItem*)Table->item(iTableRow, 6);
       sTemp.Format("%u Bytes", res.m_Memory.m_uiMemoryGPU);
       pByteItem->setToolTip(sTemp.GetData());
       FormatSize(sTemp, "", res.m_Memory.m_uiMemoryGPU);
@@ -394,7 +394,7 @@ void ezResourceWidget::ProcessTelemetry(void* pUnuseed)
 
       ezUInt8 uiPriority = 0;
       Msg.GetReader() >> uiPriority;
-      rd.m_Priority = (ezResourcePriority) uiPriority;
+      rd.m_Priority = (ezResourcePriority)uiPriority;
 
       ezUInt8 uiFlags = 0;
       Msg.GetReader() >> uiFlags;
@@ -404,20 +404,20 @@ void ezResourceWidget::ProcessTelemetry(void* pUnuseed)
       ezUInt8 uiLoadingState = 0;
       Msg.GetReader() >> uiLoadingState;
 
-      rd.m_LoadingState.m_State = (ezResourceState) uiLoadingState;
+      rd.m_LoadingState.m_State = (ezResourceState)uiLoadingState;
       Msg.GetReader() >> rd.m_LoadingState.m_uiQualityLevelsDiscardable;
       Msg.GetReader() >> rd.m_LoadingState.m_uiQualityLevelsLoadable;
 
       Msg.GetReader() >> rd.m_Memory.m_uiMemoryCPU;
       Msg.GetReader() >> rd.m_Memory.m_uiMemoryGPU;
-	  Msg.GetReader() >> rd.m_sResourceDescription;
+      Msg.GetReader() >> rd.m_sResourceDescription;
     }
 
     if (Msg.GetMessageID() == 'UPDT')
     {
       ezUInt8 uiPriority = 0;
       Msg.GetReader() >> uiPriority;
-      rd.m_Priority = (ezResourcePriority) uiPriority;
+      rd.m_Priority = (ezResourcePriority)uiPriority;
 
       ezUInt8 uiFlags = 0;
       Msg.GetReader() >> uiFlags;
@@ -427,7 +427,7 @@ void ezResourceWidget::ProcessTelemetry(void* pUnuseed)
       ezUInt8 uiLoadingState = 0;
       Msg.GetReader() >> uiLoadingState;
 
-      rd.m_LoadingState.m_State = (ezResourceState) uiLoadingState;
+      rd.m_LoadingState.m_State = (ezResourceState)uiLoadingState;
       Msg.GetReader() >> rd.m_LoadingState.m_uiQualityLevelsDiscardable;
       Msg.GetReader() >> rd.m_LoadingState.m_uiQualityLevelsLoadable;
 

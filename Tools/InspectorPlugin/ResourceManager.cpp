@@ -83,7 +83,8 @@ namespace ResourceManagerDetail
       return;
 
     if (e.m_EventType == ezResourceEventType::ResourceCreated ||
-      e.m_EventType == ezResourceEventType::ResourceExists)
+        e.m_EventType == ezResourceEventType::ResourceExists || 
+        e.m_EventType == ezResourceEventType::ResourceContentUpdated)
     {
       SendFullResourceInfo(e.m_pResource);
       return;
