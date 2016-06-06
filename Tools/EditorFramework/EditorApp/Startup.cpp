@@ -38,6 +38,7 @@
 #include <EditorFramework/Visualizers/CapsuleVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/DirectionVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/ConeVisualizerAdapter.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 

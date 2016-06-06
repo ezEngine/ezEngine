@@ -104,7 +104,7 @@ public:
   void DuplicateSpecial();
 
   /// \brief Creates a new empty node, either top-level (selection empty) or as a child of the selected item
-  void CreateEmptyNode();
+  void CreateEmptyNode(bool bAttachToParent, bool bAtPickedPosition);
 
   void DuplicateSelection();
   void ShowOrHideSelectedObjects(ShowOrHide action);

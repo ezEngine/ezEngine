@@ -21,7 +21,8 @@ public:
   static ezActionDescriptorHandle s_hFocusOnSelection;
   static ezActionDescriptorHandle s_hFocusOnSelectionAllViews;
   static ezActionDescriptorHandle s_hGroupSelectedItems;
-  static ezActionDescriptorHandle s_hCreateEmptyNode;
+  static ezActionDescriptorHandle s_hCreateEmptyChildNode;
+  static ezActionDescriptorHandle s_hCreateEmptyNodeAtPosition;
   static ezActionDescriptorHandle s_hHideSelectedObjects;
   static ezActionDescriptorHandle s_hHideUnselectedObjects;
   static ezActionDescriptorHandle s_hShowHiddenObjects;
@@ -47,7 +48,8 @@ public:
     FocusOnSelection,
     FocusOnSelectionAllViews,
     GroupSelectedItems,
-    CreateEmptyNode,
+    CreateEmptyChildNode,
+    CreateEmptyNodeAtPosition,
     HideSelectedObjects,
     HideUnselectedObjects,
     ShowHiddenObjects,

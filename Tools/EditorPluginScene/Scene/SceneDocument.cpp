@@ -242,7 +242,7 @@ void ezSceneDocument::DuplicateSpecial()
     history->FinishTransaction();
 }
 
-void ezSceneDocument::CreateEmptyNode()
+void ezSceneDocument::CreateEmptyNode(bool bAttachToParent, bool bAtPickedPosition)
 {
   auto history = GetCommandHistory();
 
@@ -253,22 +253,39 @@ void ezSceneDocument::CreateEmptyNode()
   cmdAdd.m_sParentProperty = "Children";
   cmdAdd.m_Index = -1;
 
+  ezUuid NewNode;
+
   const auto& Sel = GetSelectionManager()->GetSelection();
 
-  if (Sel.IsEmpty())
+  if (Sel.IsEmpty() || !bAttachToParent)
   {
+    cmdAdd.m_NewObjectGuid.CreateNewUuid();
+    NewNode = cmdAdd.m_NewObjectGuid;
+
     history->AddCommand(cmdAdd);
   }
   else
   {
-    for (auto pParent : Sel)
-    {
-      cmdAdd.m_Parent = pParent->GetGuid();
-      history->AddCommand(cmdAdd);
-    }
+    cmdAdd.m_NewObjectGuid.CreateNewUuid();
+    NewNode = cmdAdd.m_NewObjectGuid;
+
+    cmdAdd.m_Parent = Sel[0]->GetGuid();
+    history->AddCommand(cmdAdd);
+  }
+
+  if (!bAttachToParent && bAtPickedPosition && !m_PickingResult.m_vPickedPosition.IsNaN())
+  {
+    ezSetObjectPropertyCommand cmdSet;
+    cmdSet.m_NewValue = m_PickingResult.m_vPickedPosition;
+    cmdSet.m_Object = NewNode;
+    cmdSet.SetPropertyPath("LocalPosition");
+
+    history->AddCommand(cmdSet);
   }
 
   history->FinishTransaction();
+
+  GetSelectionManager()->SetSelection(GetObjectManager()->GetObject(NewNode));
 }
 
 void ezSceneDocument::DuplicateSelection()

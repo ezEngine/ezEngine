@@ -19,7 +19,8 @@ ezActionDescriptorHandle ezSelectionActions::s_hShowInScenegraph;
 ezActionDescriptorHandle ezSelectionActions::s_hFocusOnSelection;
 ezActionDescriptorHandle ezSelectionActions::s_hFocusOnSelectionAllViews;
 ezActionDescriptorHandle ezSelectionActions::s_hGroupSelectedItems;
-ezActionDescriptorHandle ezSelectionActions::s_hCreateEmptyNode;
+ezActionDescriptorHandle ezSelectionActions::s_hCreateEmptyChildNode;
+ezActionDescriptorHandle ezSelectionActions::s_hCreateEmptyNodeAtPosition;
 ezActionDescriptorHandle ezSelectionActions::s_hHideSelectedObjects;
 ezActionDescriptorHandle ezSelectionActions::s_hHideUnselectedObjects;
 ezActionDescriptorHandle ezSelectionActions::s_hShowHiddenObjects;
@@ -38,7 +39,8 @@ void ezSelectionActions::RegisterActions()
   s_hFocusOnSelection = EZ_REGISTER_ACTION_1("Selection.FocusSingleView", ezActionScope::Document, "Scene - Selection", "F", ezSelectionAction, ezSelectionAction::ActionType::FocusOnSelection);
   s_hFocusOnSelectionAllViews = EZ_REGISTER_ACTION_1("Selection.FocusAllViews", ezActionScope::Document, "Scene - Selection", "Ctrl+K,Ctrl+F", ezSelectionAction, ezSelectionAction::ActionType::FocusOnSelectionAllViews);
   s_hGroupSelectedItems = EZ_REGISTER_ACTION_1("Selection.GroupItems", ezActionScope::Document, "Scene - Selection", "G", ezSelectionAction, ezSelectionAction::ActionType::GroupSelectedItems);
-  s_hCreateEmptyNode = EZ_REGISTER_ACTION_1("Selection.CreateEmptyNode", ezActionScope::Document, "Scene - Selection", "Ctrl+Shift+N", ezSelectionAction, ezSelectionAction::ActionType::CreateEmptyNode);
+  s_hCreateEmptyChildNode = EZ_REGISTER_ACTION_1("Selection.CreateEmptyChildNode", ezActionScope::Document, "Scene - Selection", "Ctrl+Shift+N", ezSelectionAction, ezSelectionAction::ActionType::CreateEmptyChildNode);
+  s_hCreateEmptyNodeAtPosition = EZ_REGISTER_ACTION_1("Selection.CreateEmptyNodeAtPosition", ezActionScope::Document, "Scene - Selection", "Ctrl+Shift+X", ezSelectionAction, ezSelectionAction::ActionType::CreateEmptyNodeAtPosition);
   s_hHideSelectedObjects = EZ_REGISTER_ACTION_1("Selection.HideItems", ezActionScope::Document, "Scene - Selection", "H", ezSelectionAction, ezSelectionAction::ActionType::HideSelectedObjects);
   s_hHideUnselectedObjects = EZ_REGISTER_ACTION_1("Selection.HideUnselectedItems", ezActionScope::Document, "Scene - Selection", "Shift+H", ezSelectionAction, ezSelectionAction::ActionType::HideUnselectedObjects);
   s_hShowHiddenObjects = EZ_REGISTER_ACTION_1("Selection.ShowHidden", ezActionScope::Document, "Scene - Selection", "Ctrl+H", ezSelectionAction, ezSelectionAction::ActionType::ShowHiddenObjects);
@@ -59,7 +61,8 @@ void ezSelectionActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hFocusOnSelection);
   ezActionManager::UnregisterAction(s_hFocusOnSelectionAllViews);
   ezActionManager::UnregisterAction(s_hGroupSelectedItems);
-  ezActionManager::UnregisterAction(s_hCreateEmptyNode);
+  ezActionManager::UnregisterAction(s_hCreateEmptyChildNode);
+  ezActionManager::UnregisterAction(s_hCreateEmptyNodeAtPosition);
   ezActionManager::UnregisterAction(s_hHideSelectedObjects);
   ezActionManager::UnregisterAction(s_hHideUnselectedObjects);
   ezActionManager::UnregisterAction(s_hShowHiddenObjects);
@@ -80,7 +83,8 @@ void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
 
   pMap->MapAction(s_hSelectionCategory, szPath, 5.0f);
   
-  pMap->MapAction(s_hCreateEmptyNode, sSubPath, 1.0f);
+  pMap->MapAction(s_hCreateEmptyChildNode, sSubPath, 1.0f);
+  pMap->MapAction(s_hCreateEmptyNodeAtPosition, sSubPath, 1.1f);
   pMap->MapAction(s_hShowInScenegraph, sSubPath, 2.0f);
   pMap->MapAction(s_hFocusOnSelection, sSubPath, 3.0f);
   pMap->MapAction(s_hFocusOnSelectionAllViews, sSubPath, 3.5f);
@@ -116,7 +120,7 @@ void ezSelectionActions::MapContextMenuActions(const char* szMapping, const char
 
   pMap->MapAction(s_hSelectionCategory, szPath, 5.0f);
   
-  pMap->MapAction(s_hCreateEmptyNode, sSubPath, 0.5f);
+  pMap->MapAction(s_hCreateEmptyChildNode, sSubPath, 0.5f);
   pMap->MapAction(s_hFocusOnSelectionAllViews, sSubPath, 1.0f);
   pMap->MapAction(s_hGroupSelectedItems, sSubPath, 2.0f);
   pMap->MapAction(s_hHideSelectedObjects, sSubPath, 3.0f);
@@ -143,7 +147,10 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
   case ActionType::GroupSelectedItems:
     SetIconPath(":/EditorPluginScene/Icons/GroupSelection16.png");
     break;
-  case ActionType::CreateEmptyNode:
+  case ActionType::CreateEmptyChildNode:
+    SetIconPath(":/EditorPluginScene/Icons/CreateNode16.png");
+    break;
+  case ActionType::CreateEmptyNodeAtPosition:
     SetIconPath(":/EditorPluginScene/Icons/CreateNode16.png");
     break;
   case ActionType::HideSelectedObjects:
@@ -199,8 +206,11 @@ void ezSelectionAction::Execute(const ezVariant& value)
   case ActionType::GroupSelectedItems:
     m_pSceneDocument->GroupSelection();
     return;
-  case ActionType::CreateEmptyNode:
-    m_pSceneDocument->CreateEmptyNode();
+  case ActionType::CreateEmptyChildNode:
+    m_pSceneDocument->CreateEmptyNode(true, false);
+    return;
+  case ActionType::CreateEmptyNodeAtPosition:
+    m_pSceneDocument->CreateEmptyNode(false, true);
     return;
   case ActionType::HideSelectedObjects:
     m_pSceneDocument->ShowOrHideSelectedObjects(ezSceneDocument::ShowOrHide::Hide);
@@ -316,7 +326,7 @@ void ezSelectionAction::UpdateEnableState()
     SetEnabled(m_Context.m_pDocument->GetSelectionManager()->GetSelection().GetCount() > 1);
   }
 
-  if (m_Type == ActionType::CreateEmptyNode)
+  if (m_Type == ActionType::CreateEmptyChildNode)
   {
     SetEnabled(m_Context.m_pDocument->GetSelectionManager()->GetSelection().GetCount() <= 1);
   }
