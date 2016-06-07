@@ -27,8 +27,8 @@ struct ezNodePin
 
   EZ_FORCE_INLINE ezNodePin()
   {
-    m_uiInputIndex = -1;
-    m_uiOutputIndex = -1;
+    m_uiInputIndex = 0xFF;
+    m_uiOutputIndex = 0xFF;
     m_pParent = nullptr;
   }
 

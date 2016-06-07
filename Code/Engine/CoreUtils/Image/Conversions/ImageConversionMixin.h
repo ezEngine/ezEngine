@@ -52,8 +52,6 @@ struct ezImageConversionMixinBlockDecompression : ezImageConversionMixinBase<Imp
 
     // If the row pitch is a multiple of the pixel size, we can transform a whole slice at once
     // instead of converting row-wise.
-    const ezImageFormat::Enum sourceFormat = source.GetImageFormat();
-    const ezImageFormat::Enum targetFormat = target.GetImageFormat();
 
     const ezUInt32 uiSourceBytesPerPixel = Impl::s_uiSourceBpp / 8;
     const ezUInt32 uiTargetBytesPerPixel = Impl::s_uiTargetBpp / 8;
@@ -62,8 +60,6 @@ struct ezImageConversionMixinBlockDecompression : ezImageConversionMixinBase<Imp
 
     const ezUInt32 uiSourceDepthPitch = source.GetDepthPitch(uiMipLevel);
     const ezUInt32 uiTargetDepthPitch = target.GetDepthPitch(uiMipLevel);
-
-    ezUInt32 uiBytesPerBlock = uiBlockSize * uiBlockSize * uiSourceBytesPerPixel;
 
     for (ezUInt32 uiSlice = 0; uiSlice < source.GetDepth(uiMipLevel); uiSlice++)
     {
@@ -107,17 +103,12 @@ struct ezImageConversionMixinLinear : ezImageConversionMixinBase<Impl>
 
     // If the row pitch is a multiple of the pixel size, we can transform a whole slice at once
     // instead of converting row-wise.
-    const ezImageFormat::Enum sourceFormat = source.GetImageFormat();
-    const ezImageFormat::Enum targetFormat = target.GetImageFormat();
 
     const ezUInt32 uiSourceBytesPerPixel = Impl::s_uiSourceBpp / 8;
     const ezUInt32 uiTargetBytesPerPixel = Impl::s_uiTargetBpp / 8;
 
     const ezUInt32 uiSourceRowPitch = source.GetRowPitch(uiMipLevel);
     const ezUInt32 uiTargetRowPitch = target.GetRowPitch(uiMipLevel);
-
-    const ezUInt32 uiSourceDepthPitch = source.GetDepthPitch(uiMipLevel);
-    const ezUInt32 uiTargetDepthPitch = target.GetDepthPitch(uiMipLevel);
 
     const bool bConvertRowWise =
       (uiSourceRowPitch % uiSourceBytesPerPixel != 0) ||

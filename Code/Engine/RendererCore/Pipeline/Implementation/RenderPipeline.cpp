@@ -230,7 +230,7 @@ const ezRenderPipelinePassConnection* ezRenderPipeline::GetInputConnection(ezRen
 
   auto& data = it.Value();
   const ezNodePin* pPin = pPass->GetPinByName(sInputPinName);
-  if (!pPin || pPin->m_uiInputIndex == -1)
+  if (!pPin || pPin->m_uiInputIndex == 0xFF)
     return nullptr;
 
   return data.m_Inputs[pPin->m_uiInputIndex];
@@ -299,7 +299,6 @@ bool ezRenderPipeline::SortPasses()
   // Find all source passes from which we can start the output description propagation.
   for (auto& pPass : m_Passes)
   {
-    auto it = m_Connections.Find(pPass.Borrow());
     //if (std::all_of(cbegin(it.Value().m_Inputs), cend(it.Value().m_Inputs), [](ezRenderPipelinePassConnection* pConn){return pConn == nullptr; }))
     if (AreInputDescriptionsAvailable(pPass.Borrow(), done))
     {
@@ -658,6 +657,7 @@ void ezRenderPipeline::RemoveConnections(ezRenderPipelinePass* pPass)
     {
       ezRenderPipelinePass* pSource = static_cast<ezRenderPipelinePass*>(pConn->m_pOutput->m_pParent);      
       bool bRes = Disconnect(pSource, pSource->GetPinName(pConn->m_pOutput), pPass, pPass->GetPinName(pPass->GetInputPins()[i]));
+      EZ_IGNORE_UNUSED(bRes);
       EZ_ASSERT_DEBUG(bRes, "ezRenderPipeline::RemoveConnections should not fail to disconnect pins!");
     }
   }
@@ -668,6 +668,7 @@ void ezRenderPipeline::RemoveConnections(ezRenderPipelinePass* pPass)
     {
       ezRenderPipelinePass* pTarget = static_cast<ezRenderPipelinePass*>(pConn->m_Inputs[0]->m_pParent);
       bool bRes = Disconnect(pPass, pPass->GetPinName(pConn->m_pOutput), pTarget, pTarget->GetPinName(pConn->m_Inputs[0]));
+      EZ_IGNORE_UNUSED(bRes);
       EZ_ASSERT_DEBUG(bRes, "ezRenderPipeline::RemoveConnections should not fail to disconnect pins!");
 
       pConn = data.m_Outputs[i];
@@ -681,7 +682,7 @@ void ezRenderPipeline::ClearRenderPassGraphTextures()
   m_TextureUsageIdxSortedByFirstUsage.Clear();
   m_TextureUsageIdxSortedByLastUsage.Clear();
 
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  //ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   
   for (auto it = m_Connections.GetIterator(); it.IsValid(); ++it)
   {

@@ -204,7 +204,6 @@ void ezDynamicOctree::FindVisibleObjects (const ezFrustum& Viewfrustum, EZ_VISIB
   if (pos == ezVolumePosition::Inside)
   {
     mmk.m_uiKey = uiNextNodeID;
-    const ezDynamicTreeObjectConst itlast = m_NodeMap.LowerBound(mmk);
 
     while (it1.IsValid())
     {
@@ -220,7 +219,6 @@ void ezDynamicOctree::FindVisibleObjects (const ezFrustum& Viewfrustum, EZ_VISIB
   else if (pos == ezVolumePosition::Intersecting)
   {
     mmk.m_uiKey = uiNodeID + 1;
-    const ezDynamicTreeObjectConst itlast = m_NodeMap.LowerBound(mmk);
 
     while  (it1.IsValid())
     {

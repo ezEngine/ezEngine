@@ -77,6 +77,9 @@ public:
         break;
       case ezPreprocessor::ProcessingEvent::EndExpansion:
         break;
+
+      default:
+        break;
       }
 
       m_sOutput.AppendFormat("%s\r\n", event.m_szInfo);

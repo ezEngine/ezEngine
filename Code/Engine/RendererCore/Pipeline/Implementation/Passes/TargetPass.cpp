@@ -36,7 +36,7 @@ ezGALTextureHandle ezTargetPass::GetTextureHandle(const ezView& view, const ezNo
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   const ezGALRenderTagetSetup& setup = view.GetRenderTargetSetup();
   
-  auto inputs = GetInputPins();
+  //auto inputs = GetInputPins();
   if (pPin->m_pParent != this)
   {
     ezLog::Error("ezTargetPass::GetTextureHandle: The given pin is not part of this pass!");

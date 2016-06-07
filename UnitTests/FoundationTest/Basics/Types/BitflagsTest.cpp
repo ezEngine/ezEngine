@@ -62,6 +62,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Bitflags)
   ezBitflags<ManualFlags> manualFlags = ManualFlags::Default;
   EZ_TEST_BOOL(manualFlags.AreAllSet(ManualFlags::Bit1 | ManualFlags::Bit2));
   EZ_TEST_BOOL(manualFlags.GetValue() == flags.GetValue());
+  EZ_TEST_BOOL(manualFlags.AreAllSet(ManualFlags::Default & ManualFlags::Bit2));
 
   ezBitflags<AutoFlags> flags2 = AutoFlags::Bit1 & AutoFlags::Bit4;
   EZ_TEST_BOOL(flags2.GetValue() == 0);

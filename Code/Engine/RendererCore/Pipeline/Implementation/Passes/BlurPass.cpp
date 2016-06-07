@@ -78,8 +78,8 @@ ezBlurPass::~ezBlurPass()
 bool ezBlurPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs,
   ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  const ezGALRenderTagetSetup& setup = view.GetRenderTargetSetup();
+  //ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  //const ezGALRenderTagetSetup& setup = view.GetRenderTargetSetup();
 
   // Color
   if (inputs[m_PinInput.m_uiInputIndex])

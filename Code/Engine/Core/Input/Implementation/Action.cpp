@@ -259,7 +259,7 @@ void ezInputManager::UpdateInputActions(const char* szInputSet, ezActionMap& Act
       if (!itBestAction.IsValid())
         break;
 
-      const float fSlotScale = itBestAction.Value().m_Config.m_fInputSlotScale[itBestAction.Value().m_iTriggeredViaAlternative];
+      const float fSlotScale = itBestAction.Value().m_Config.m_fInputSlotScale[(ezUInt32)(itBestAction.Value().m_iTriggeredViaAlternative)];
 
       float fSlotValue = ItSlots.Value().m_fValue;
 

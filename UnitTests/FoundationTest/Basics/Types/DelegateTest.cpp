@@ -183,5 +183,10 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     auto d2 = ezMakeDelegate(&TestType::Method, &instance);
     auto d3 = ezMakeDelegate(&TestType::ConstMethod, &instance);
     auto d4 = ezMakeDelegate(&TestType::VirtualMethod, &instance);
+
+    EZ_IGNORE_UNUSED(d1);
+    EZ_IGNORE_UNUSED(d2);
+    EZ_IGNORE_UNUSED(d3);
+    EZ_IGNORE_UNUSED(d4);
   }
 }

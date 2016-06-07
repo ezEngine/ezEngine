@@ -197,7 +197,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
 
     const ezUInt32 uiElements = 100000;
 
-    const ezTime t0 = s.Checkpoint();
+    //const ezTime t0 = s.Checkpoint();
 
     {
       sa.Reserve(uiElements);
@@ -210,7 +210,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
       sa.Sort();
     }
 
-    const ezTime t1 = s.Checkpoint();
+    //const ezTime t1 = s.Checkpoint();
 
     {
       for (ezUInt32 i = 0; i < uiElements; ++i)
@@ -219,7 +219,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
       }
     }
 
-    const ezTime t2 = s.Checkpoint();
+    //const ezTime t2 = s.Checkpoint();
 
     {
       for (ezUInt32 i = 0; i < uiElements; ++i)
@@ -228,7 +228,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
       }
     }
 
-    const ezTime t3 = s.Checkpoint();
+    //const ezTime t3 = s.Checkpoint();
 
     {
       for (ezUInt32 i = 0; i < uiElements; ++i)
@@ -237,9 +237,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
       }
     }
 
-    const ezTime t4 = s.Checkpoint();
+    //const ezTime t4 = s.Checkpoint();
 
-    int breakpoint = 0;
+    //int breakpoint = 0;
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lower Bound / Upper Bound")

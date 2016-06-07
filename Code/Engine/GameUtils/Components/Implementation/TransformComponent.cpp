@@ -36,7 +36,7 @@ void ezTransformComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezTransformComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   ezTransformComponentFlags::StorageType flags;
   stream.GetStream() >> flags;

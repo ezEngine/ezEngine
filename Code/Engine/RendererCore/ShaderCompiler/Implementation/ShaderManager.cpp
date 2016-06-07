@@ -226,7 +226,7 @@ void ezShaderManager::PreloadPermutations(ezShaderResourceHandle hShader, const 
   if (!pShader->IsShaderValid())
     return;
 
-  ezUInt32 uiPermutationHash = FilterPermutationVars(pShader->GetUsedPermutationVars(), permVars);
+  /*ezUInt32 uiPermutationHash = */FilterPermutationVars(pShader->GetUsedPermutationVars(), permVars);
 
   EZ_ASSERT_NOT_IMPLEMENTED;
 #if 0

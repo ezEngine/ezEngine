@@ -18,7 +18,7 @@ void ezReflectionSerializer::WriteObjectToJSON(ezStreamWriter& stream, const ezR
   guid.CreateNewUuid();
 
   context.RegisterObject(guid, pRtti, const_cast<void*>(pObject));
-  ezAbstractObjectNode* pNode = conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
+  conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
 
   ezAbstractGraphJsonSerializer::Write(stream, &graph, nullptr, ezJSONWriter::WhitespaceMode::LessIndentation);
 }
@@ -33,7 +33,7 @@ void ezReflectionSerializer::WriteObjectToBinary(ezStreamWriter& stream, const e
   guid.CreateNewUuid();
 
   context.RegisterObject(guid, pRtti, const_cast<void*>(pObject));
-  ezAbstractObjectNode* pNode = conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
+  conv.AddObjectToGraph(pRtti, const_cast<void*>(pObject), "root");
 
   ezAbstractGraphBinarySerializer::Write(stream, &graph);
 }

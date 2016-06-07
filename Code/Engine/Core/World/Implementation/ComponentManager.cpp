@@ -111,7 +111,7 @@ ezComponentManagerFactory* ezComponentManagerFactory::GetInstance()
 
 ezUInt16 ezComponentManagerFactory::GetTypeId(const ezRTTI* pRtti)
 {
-  ezUInt16 uiTypeId = -1;
+  ezUInt16 uiTypeId = 0xFFFF;
   m_TypeToId.TryGetValue(pRtti, uiTypeId);
   return uiTypeId;
 }

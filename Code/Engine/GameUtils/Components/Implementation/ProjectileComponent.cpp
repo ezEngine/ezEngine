@@ -139,7 +139,7 @@ void ezProjectileComponent::Update()
           /// \todo Should reflect around the actual hit position
           /// \todo Should preserve travel distance while reflecting
 
-          const float fLength = (vPos - pEntity->GetGlobalPosition()).GetLength();
+          //const float fLength = (vPos - pEntity->GetGlobalPosition()).GetLength();
 
           vNewPosition = pEntity->GetGlobalPosition();// vPos;
 
@@ -204,7 +204,7 @@ void ezProjectileComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezProjectileComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
   s >> m_fMetersPerSecond;

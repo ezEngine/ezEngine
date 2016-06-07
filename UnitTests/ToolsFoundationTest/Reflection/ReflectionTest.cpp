@@ -194,9 +194,13 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, const ezRTTI
       break;
     case ezPropertyCategory::Array:
       {
-        ezAbstractArrayProperty* pProp3 = static_cast<ezAbstractArrayProperty*>(pProp);
+        //ezAbstractArrayProperty* pProp3 = static_cast<ezAbstractArrayProperty*>(pProp);
         // TODO
       }
+      break;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
       break;
     }
   }
@@ -234,16 +238,16 @@ static const ezRTTI* RegisterType(const char* szTypeName)
 
 EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
 {
-  const ezRTTI* pRttiBase = RegisterType("ezReflectedClass");
-  const ezRTTI* pRttiEnumBase = RegisterType("ezEnumBase");
-  const ezRTTI* pRttiBitflagsBase = RegisterType("ezBitflagsBase");
+  /*const ezRTTI* pRttiBase =*/ RegisterType("ezReflectedClass");
+  /*const ezRTTI* pRttiEnumBase =*/ RegisterType("ezEnumBase");
+  /*const ezRTTI* pRttiBitflagsBase =*/ RegisterType("ezBitflagsBase");
 
   const ezRTTI* pRttiInt = RegisterType("ezIntegerStruct");
   const ezRTTI* pRttiFloat = RegisterType("ezFloatStruct");
   const ezRTTI* pRttiPOD = RegisterType("ezPODClass");
   const ezRTTI* pRttiMath = RegisterType("ezMathClass");
-  const ezRTTI* pRttiEnum = RegisterType("ezExampleEnum");
-  const ezRTTI* pRttiFlags = RegisterType("ezExampleBitflags");
+  /*const ezRTTI* pRttiEnum =*/ RegisterType("ezExampleEnum");
+  /*const ezRTTI* pRttiFlags =*/ RegisterType("ezExampleBitflags");
   const ezRTTI* pRttiEnumerations = RegisterType("ezEnumerationsClass");
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezReflectedTypeDirectAccessor")

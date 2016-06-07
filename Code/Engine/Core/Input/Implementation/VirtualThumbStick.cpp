@@ -230,8 +230,8 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
 
     ezVec2 vTouchPos(0.0f);
 
-    ezInputManager::GetInputSlotState(m_ActionConfig.m_sFilterByInputSlotX[iTriggerAlt].GetData(), &vTouchPos.x);
-    ezInputManager::GetInputSlotState(m_ActionConfig.m_sFilterByInputSlotY[iTriggerAlt].GetData(), &vTouchPos.y);
+    ezInputManager::GetInputSlotState(m_ActionConfig.m_sFilterByInputSlotX[(ezUInt32)iTriggerAlt].GetData(), &vTouchPos.x);
+    ezInputManager::GetInputSlotState(m_ActionConfig.m_sFilterByInputSlotY[(ezUInt32)iTriggerAlt].GetData(), &vTouchPos.y);
 
     if (ks == ezKeyState::Pressed)
     {

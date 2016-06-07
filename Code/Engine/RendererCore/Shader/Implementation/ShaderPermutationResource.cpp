@@ -185,7 +185,6 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
     itEnd -= 8;
 
     ezString sHash = ezStringView(itEnd.GetData(), end(sPermutationFile).GetData()); // copy the hash (last 8 characters)
-    ezUInt32 uiPermutationHash = ezConversionUtils::ConvertHexStringToUInt32(sHash.GetData());
 
     sPermutationFile.Shrink(0, 8); // remove the hash at the end
     sPermutationFile.Append(".ezShader");
@@ -293,7 +292,7 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
         continue;
 
       // this is where the preloading happens
-      ezShaderStageBinary* pStageBin = ezShaderStageBinary::LoadStageBinary((ezGALShaderStage::Enum) stage, uiStageHash);
+      ezShaderStageBinary::LoadStageBinary((ezGALShaderStage::Enum) stage, uiStageHash);
     }
   }
 

@@ -131,6 +131,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
   ezGameObjectDesc gd;
   ezGameObject* pDummy;
   ezGameObjectHandle hDummy = world.CreateObject(gd, pDummy);
+  EZ_TEST_BOOL(!hDummy.IsInvalidated());
 
   TestComponent* pComponent = nullptr;
   ezGameObject* pObject = nullptr;
@@ -265,6 +266,10 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     desc.m_sName.Assign("B"); ezGameObjectHandle hObjectB = world.CreateObject(desc, pObjectB);
     desc.m_sName.Assign("C"); ezGameObjectHandle hObjectC = world.CreateObject(desc, pObjectC);
 
+    EZ_TEST_BOOL(!hObjectA.IsInvalidated());
+    EZ_TEST_BOOL(!hObjectB.IsInvalidated());
+    EZ_TEST_BOOL(!hObjectC.IsInvalidated());
+
     TestComponent* pComponentA = nullptr;
     TestComponent* pComponentB = nullptr;
     TestComponent* pComponentC = nullptr;
@@ -272,6 +277,10 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     ezComponentHandle hComponentA = TestComponent::CreateComponent(&world, pComponentA);
     ezComponentHandle hComponentB = TestComponent::CreateComponent(&world, pComponentB);
     ezComponentHandle hComponentC = TestComponent::CreateComponent(&world, pComponentC);
+
+    EZ_TEST_BOOL(!hComponentA.IsInvalidated());
+    EZ_TEST_BOOL(!hComponentB.IsInvalidated());
+    EZ_TEST_BOOL(!hComponentC.IsInvalidated());
 
     pObjectA->AttachComponent(pComponentA);
     pObjectB->AttachComponent(pComponentB);
@@ -313,6 +322,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     // creating a new component should reuse memory from component B
     TestComponent* pComponentB2 = nullptr;
     ezComponentHandle hComponentB2 = TestComponent::CreateComponent(&world, pComponentB2);
+    EZ_TEST_BOOL(!hComponentB2.IsInvalidated());
     EZ_TEST_BOOL(pComponentB2 == pComponentB);
 
     TestComponent::s_bGOInactiveCheck = false;

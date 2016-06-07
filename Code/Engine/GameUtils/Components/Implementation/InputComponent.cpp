@@ -36,11 +36,13 @@ static inline ezTriggerState::Enum ToTriggerState(ezKeyState::Enum s)
   {
   case ezKeyState::Pressed:
     return ezTriggerState::Activated;
+
   case ezKeyState::Released:
     return ezTriggerState::Deactivated;
-  }
 
-  return ezTriggerState::Continuing;
+  default:
+    return ezTriggerState::Continuing;
+  }
 }
 
 void ezInputComponent::Update()
@@ -88,7 +90,7 @@ void ezInputComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezInputComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
 

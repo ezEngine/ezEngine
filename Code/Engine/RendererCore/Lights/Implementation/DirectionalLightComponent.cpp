@@ -70,17 +70,16 @@ void ezDirectionalLightComponent::OnExtractRenderData(ezExtractRenderDataMessage
 void ezDirectionalLightComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
+  //ezStreamWriter& s = stream.GetStream();
 
-  ezStreamWriter& s = stream.GetStream();
 }
 
 void ezDirectionalLightComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  //ezStreamReader& s = stream.GetStream();
 
-
-  ezStreamReader& s = stream.GetStream();
 }
 
 

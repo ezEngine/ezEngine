@@ -28,9 +28,8 @@ struct ezBmpFileHeader
 };
 #pragma pack(pop)
 
-static const char* ezBmpFileHeaderFormat = "wdwwd";
-
-struct ezBmpFileInfoHeader {
+struct ezBmpFileInfoHeader
+{
   ezUInt32			m_size;
   ezUInt32			m_width;
   ezUInt32			m_height;
@@ -43,8 +42,6 @@ struct ezBmpFileInfoHeader {
   ezUInt32			m_clrUsed;
   ezUInt32			m_clrImportant;
 };
-
-static const char* ezBmpFileInfoHeaderFormat = "dddwwdddddd";
 
 struct ezCIEXYZ
 {
@@ -60,7 +57,8 @@ struct ezCIEXYZTRIPLE
   ezCIEXYZ ciexyzBlue;
 };
 
-struct ezBmpFileInfoHeaderV4 {
+struct ezBmpFileInfoHeaderV4
+{
   ezUInt32        m_redMask;
   ezUInt32        m_greenMask;
   ezUInt32        m_blueMask;
@@ -76,12 +74,11 @@ EZ_CHECK_AT_COMPILETIME(sizeof(ezCIEXYZTRIPLE) == 3 * 3 * 4);
 
 // just to be on the safe side
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezCIEXYZTRIPLE) == sizeof(CIEXYZTRIPLE));
+EZ_CHECK_AT_COMPILETIME(sizeof(ezCIEXYZTRIPLE) == sizeof(CIEXYZTRIPLE));
 #endif
 
-static const char* ezBmpFileInfoHeaderV4Format = "dddwwdddddd";
-
-struct ezBmpFileInfoHeaderV5 {
+struct ezBmpFileInfoHeaderV5
+{
   ezUInt32        m_intent;
   ezUInt32        m_profileData;
   ezUInt32        m_profileSize;
@@ -90,7 +87,8 @@ struct ezBmpFileInfoHeaderV5 {
 
 static const ezUInt16 ezBmpFileMagic = 0x4D42u;
 
-struct ezBmpBgrxQuad {
+struct ezBmpBgrxQuad
+{
   EZ_DECLARE_POD_TYPE();
 
   ezBmpBgrxQuad()
@@ -141,7 +139,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
 
     return WriteImage(stream, convertedImage, pLog);
   }
-  
+
   ezUInt32 uiRowPitch = image.GetRowPitch(0);
 
   ezUInt32 uiHeight = image.GetHeight(0);
@@ -273,7 +271,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
       return EZ_FAILURE;
     }
   }
-  
+
   return EZ_SUCCESS;
 }
 
@@ -372,7 +370,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     case 24:
       format = ezImageFormat::B8G8R8_UNORM;
       break;
-      
+
     case 32:
       format = ezImageFormat::B8G8R8X8_UNORM;
     }
@@ -409,7 +407,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
           fileInfoHeaderV4.m_redMask, fileInfoHeaderV4.m_greenMask,
           fileInfoHeaderV4.m_blueMask, fileInfoHeaderV4.m_alphaMask);
       }
-   
+
       break;
     }
     break;
@@ -431,6 +429,9 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
       format = ezImageFormat::B8G8R8X8_UNORM;
     }
     break;
+
+  default:
+    EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
   if (format == ezImageFormat::UNKNOWN)
@@ -497,7 +498,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     {
       paletteSize = 1U << uiBpp;
     }
-    else if(paletteSize > 65536)
+    else if (paletteSize > 65536)
     {
       ezLog::Error(pLog, "Palette size > 65536.");
       return EZ_FAILURE;
@@ -522,7 +523,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
       ezDynamicArray<ezUInt8> compressedData;
       compressedData.SetCount(uiDataSize);
-      
+
       if (stream.ReadBytes(&compressedData[0], uiDataSize) != uiDataSize)
       {
         ezLog::Error(pLog, "Failed to read data.");
@@ -539,7 +540,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
       ezBmpBgrxQuad* pLine = image.GetPixelPointer<ezBmpBgrxQuad>(0, 0, 0, 0, uiRow, 0);
 
       // Decode RLE data directly to RGBX
-      while(pIn < pInEnd)
+      while (pIn < pInEnd)
       {
         ezUInt32 uiByte1 = *pIn++;
         ezUInt32 uiByte2 = *pIn++;
@@ -580,12 +581,12 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
           // Absolute mode - the first byte specifies a number of indices encoded separately, or is a special marker
           switch (uiByte2)
           {
-          // End of line marker
+            // End of line marker
           case 0:
             {
 
               // Fill up with palette entry 0
-              while(uiCol < uiWidth)
+              while (uiCol < uiWidth)
               {
                 pLine[uiCol++] = palette[0];
               }
@@ -595,10 +596,10 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
               uiRow--;
               pLine -= uiWidth;
             }
-            
+
             break;
 
-          // End of image marker
+            // End of image marker
           case 1:
             // Check that we really reached the end of the image.
             if (uiRow != 0 && uiCol != uiHeight - 1)
@@ -614,7 +615,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
           default:
             // Read uiByte2 number of indices
-            
+
             // More data than fits into the image or can be read?
             if (uiCol + uiByte2 > uiWidth || pIn + (uiByte2 + 1) / 2 > pInEnd)
             {
@@ -688,7 +689,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     if (ezImageFormat::GetBitsPerPixel(format) != uiBpp)
     {
       ezLog::Error(pLog, "The number of bits per pixel specified in the file (%d) does not match the expected value of %d for the format '%s'.",
-        uiBpp, ezImageFormat::GetBitsPerPixel(format), ezImageFormat::GetName(format));
+                   uiBpp, ezImageFormat::GetBitsPerPixel(format), ezImageFormat::GetName(format));
       return EZ_FAILURE;
     }
 

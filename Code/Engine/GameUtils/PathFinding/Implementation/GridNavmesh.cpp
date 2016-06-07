@@ -155,14 +155,14 @@ bool ezGridNavmesh::CanCreateArea(ezRectU32 region, CellComparator IsSameCellTyp
     return false;
 
   const ezUInt32 uiStartNode = m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(region.x, region.y));
-  const ezInt32 iStartNodeArea = m_NodesGrid.GetCell(uiStartNode);
+  //const ezInt32 iStartNodeArea = m_NodesGrid.GetCell(uiStartNode);
 
   for (ezUInt32 y = region.y; y < region.y + region.height; ++y)
   {
     for (ezUInt32 x = region.x; x < region.x + region.width; ++x)
     {
       const ezUInt32 uiCurNode = m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(x, y));
-      const ezInt32 iCurNodeArea = m_NodesGrid.GetCell(uiCurNode);
+      //const ezInt32 iCurNodeArea = m_NodesGrid.GetCell(uiCurNode);
 
       //if (iCurNodeArea == iStartNodeArea)
         //continue;
@@ -221,7 +221,7 @@ bool ezGridNavmesh::CanMergeRight(ezInt32 x, ezInt32 y, CellComparator IsSameCel
   if (r1.x + r1.width >= m_NodesGrid.GetGridSizeX())
     return false;
 
-  const ezInt32 iCellNode = m_NodesGrid.GetCell(ezVec2I32(x, y));
+  //const ezInt32 iCellNode = m_NodesGrid.GetCell(ezVec2I32(x, y));
 
   if (!IsSameCellType(m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(x, y)), m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(r1.x + r1.width, y)), pPassThrough))
     return false;
@@ -246,7 +246,7 @@ bool ezGridNavmesh::CanMergeDown(ezInt32 x, ezInt32 y, CellComparator IsSameCell
   if (r1.y + r1.height >= m_NodesGrid.GetGridSizeY())
     return false;
 
-  const ezInt32 iCellNode = m_NodesGrid.GetCell(ezVec2I32(x, y));
+  //const ezInt32 iCellNode = m_NodesGrid.GetCell(ezVec2I32(x, y));
 
   if (!IsSameCellType(m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(x, y)), m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(x, r1.y + r1.height)), pPassThrough))
     return false;
@@ -308,7 +308,7 @@ bool ezGridNavmesh::MergeBestFit(ezRectU32 region, CellComparator IsSameCellType
       
       if (bRR)
       {
-        const float fRatio = (float) ezMath::Max(rr.width,  rr.height) / (float) ezMath::Min(rr.width,  rr.height);
+        //const float fRatio = (float) ezMath::Max(rr.width,  rr.height) / (float) ezMath::Min(rr.width,  rr.height);
 
         bMergedAny = true;
         Merge(rr);
@@ -316,7 +316,7 @@ bool ezGridNavmesh::MergeBestFit(ezRectU32 region, CellComparator IsSameCellType
 
       if (bRD)
       {
-        const float fRatio = (float) ezMath::Max(rd.width,  rd.height) / (float) ezMath::Min(rd.width,  rd.height);
+        //const float fRatio = (float) ezMath::Max(rd.width,  rd.height) / (float) ezMath::Min(rd.width,  rd.height);
 
         Merge(rd);
         bMergedAny = true;

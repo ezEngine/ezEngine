@@ -1067,7 +1067,6 @@ void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, e
   EZ_ASSERT_DEV(fHeight >= 0.0f, "Height must be positive");
 
   bool bFlipWinding = mTransform.GetRotationalPart().GetDeterminant() < 0;
-  const ezAngle fDegreeDiffSegments = ezAngle::Degree(360.0f / (float) (uiSegments));
   const ezAngle fDegreeDiffStacks = ezAngle::Degree(90.0f / (float) (uiStacks));
 
   const ezUInt32 uiFirstVertex = m_Vertices.GetCount();

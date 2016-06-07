@@ -46,6 +46,9 @@ static inline ezColorLinearUB GetPixelColor(const ezImage& image, ezUInt32 x, ez
     c.g = pPixel[1];
     c.b = pPixel[0];
     break;
+
+  default:
+    EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
   return c;
@@ -311,10 +314,6 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   image.SetDepth(1);
 
   image.AllocateImageData();
-
-  ezUInt32 uiRowPitch = image.GetRowPitch(0);
-
-
 
   if (Header.m_ImageType == 2)
   {

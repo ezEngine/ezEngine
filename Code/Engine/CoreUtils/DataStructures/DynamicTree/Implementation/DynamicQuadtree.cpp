@@ -238,7 +238,6 @@ void ezDynamicQuadtree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISI
   if (pos == ezVolumePosition::Inside)
   {
     mmk.m_uiKey = uiNextNodeID;
-    const ezDynamicTreeObjectConst itlast = m_NodeMap.LowerBound(mmk);
 
     while (it1.IsValid())
     {
@@ -256,7 +255,6 @@ void ezDynamicQuadtree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISI
     // the node is visible, but some parts might be outside, so refine the search
 
     mmk.m_uiKey = uiNodeID + 1;
-    const ezDynamicTreeObjectConst itlast = m_NodeMap.LowerBound(mmk);
 
     // first return all objects store at this particular node
     while (it1.IsValid())

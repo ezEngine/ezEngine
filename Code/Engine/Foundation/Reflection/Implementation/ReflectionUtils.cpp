@@ -600,7 +600,9 @@ void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ez
         GatherDependentTypes(pPropRtti, inout_types);
       }
       break;
+    case ezPropertyCategory::Constant:
     case ezPropertyCategory::Map:
+    default:
       {
         EZ_ASSERT_NOT_IMPLEMENTED;
       }

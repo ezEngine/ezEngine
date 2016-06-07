@@ -27,7 +27,7 @@ private:
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
-  virtual ezResourceLoadDesc CreateResource(const ezPrefabResourceDescriptor& descriptor);
+  virtual ezResourceLoadDesc CreateResource(const ezPrefabResourceDescriptor& descriptor) override;
 private:
   ezWorldReader m_WorldReader;
 };
