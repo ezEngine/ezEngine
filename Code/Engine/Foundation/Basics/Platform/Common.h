@@ -98,9 +98,9 @@
   /// This in turn will drag all global variables into the visibility of the linker, and since it mustn't optimize them away,
   /// they then end up in the final application, where they will do what they are meant for.
   #define EZ_STATICLINK_FILE(LibraryName, UniqueName) \
-    void ezReferenceFunction_##UniqueName(bool bReturn = true) { } \
-    void ezReferenceFunction_##LibraryName(bool bReturn = true); \
-    static ezStaticLinkHelper StaticLinkHelper(ezReferenceFunction_##LibraryName);
+    void ezReferenceFunction_##UniqueName(bool bReturn) { } \
+    void ezReferenceFunction_##LibraryName(bool bReturn); \
+    static ezStaticLinkHelper StaticLinkHelper_##UniqueName(ezReferenceFunction_##LibraryName);
 
   /// \brief Used by the tool 'StaticLinkUtil' to generate the block after EZ_STATICLINK_LIBRARY, to create references to all
   /// files inside a library. \see EZ_STATICLINK_FILE
