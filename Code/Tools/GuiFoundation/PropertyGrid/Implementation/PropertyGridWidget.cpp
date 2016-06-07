@@ -348,6 +348,10 @@ ezQtPropertyWidget* ezPropertyGridWidget::CreatePropertyWidget(const ezAbstractP
       }
     }
     break;
+
+  default:
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    break;
   }
 
   return new ezQtUnsupportedPropertyWidget();
@@ -407,6 +411,10 @@ void GetDefaultValues(const ezRTTI* pType, ezPropertyPath& ParentPath, const ezD
           (*e.m_pPropertyStates)[sPath].m_bIsDefaultValue = pDocument->IsDefaultValue(e.m_pObject, ParentPath);
         }
       }
+      break;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
       break;
     }
 

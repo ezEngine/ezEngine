@@ -102,6 +102,10 @@ static void SendCVarTelemetry(ezCVar* pCVar)
       msg.GetWriter() << val;
     }
     break;
+
+  case ezCVarType::ENUM_COUNT:
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    break;
   }
 
   ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
@@ -143,6 +147,9 @@ namespace CVarsDetail
     case ezTelemetry::TelemetryEventData::ConnectedToClient:
       SendAllCVarTelemetry();
       break;
+
+    default:
+      break;
     }
   }
 
@@ -156,6 +163,9 @@ namespace CVarsDetail
     case ezCVar::CVarEvent::ValueChanged:
       SendCVarTelemetry(e.m_pCVar);
       break;
+
+    default:
+      break;
     }
   }
 
@@ -165,6 +175,9 @@ namespace CVarsDetail
     {
     case ezPlugin::PluginEvent::AfterPluginChanges:
       SendAllCVarTelemetry();
+      break;
+
+    default:
       break;
     }
   }

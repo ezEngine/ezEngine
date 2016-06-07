@@ -274,6 +274,9 @@ void ezTypeWidget::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
       FlushQueuedChanges();
     }
     break;
+
+  default:
+    break;
   }
 }
 
@@ -287,7 +290,7 @@ void ezTypeWidget::ManipulatorManagerEventHandler(const ezManipulatorManagerEven
     return;
 
   const bool bActiveOnThis = (e.m_pSelection != nullptr) && (m_Items == *e.m_pSelection);
-  
+
   for (auto it = m_PropertyWidgets.GetIterator(); it.IsValid(); ++it)
   {
     if (it.Value().m_pLabel)
@@ -309,7 +312,7 @@ void ezTypeWidget::UpdateProperty(const ezDocumentObject* pObject, const ezStrin
 {
   if (std::none_of(cbegin(m_Items), cend(m_Items),
                    [=](const ezQtPropertyWidget::Selection& sel) { return pObject == sel.m_pObject; }
-                   ))
+  ))
     return;
 
   if (!m_QueuedChanges.Contains(sProperty))

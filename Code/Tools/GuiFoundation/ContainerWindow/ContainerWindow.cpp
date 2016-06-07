@@ -264,7 +264,7 @@ void ezContainerWindow::MoveDocumentWindowToContainer(ezQtDocumentWindow* pDocWi
   pDocWindow->m_pContainerWindow = this;
 
   QTabWidget* pTabs = GetTabWidget();
-  int iTab = pTabs->addTab(pDocWindow, QString::fromUtf8(pDocWindow->GetDisplayNameShort()));
+  pTabs->addTab(pDocWindow, QString::fromUtf8(pDocWindow->GetDisplayNameShort()));
 
   // we cannot call virutal functions on pDocWindow here, because the object might still be under construction
   // so we delay it until later
@@ -386,6 +386,9 @@ void ezContainerWindow::DocumentWindowEventHandler(const ezQtDocumentWindowEvent
   case ezQtDocumentWindowEvent::Type::WindowDecorationChanged:
     UpdateWindowDecoration(e.m_pWindow);
     break;
+
+  default:
+    break;
   }
 }
 
@@ -396,6 +399,9 @@ void ezContainerWindow::ProjectEventHandler(const ezToolsProject::Event& e)
   case ezToolsProject::Event::Type::ProjectOpened:
   case ezToolsProject::Event::Type::ProjectClosed:
     UpdateWindowTitle();
+    break;
+
+  default:
     break;
   }
 }
@@ -422,6 +428,9 @@ void ezContainerWindow::UIServicesEventHandler(const ezUIServices::Event& e)
       statusBar()->setHidden(e.m_sText.IsEmpty());
       m_pStatusBarLabel->setText(QString::fromUtf8(e.m_sText.GetData()));
     }
+    break;
+
+  default:
     break;
   }
 }

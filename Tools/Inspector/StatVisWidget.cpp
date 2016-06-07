@@ -251,9 +251,6 @@ void ezStatVisWidget::UpdateStats()
 
   QPainterPath pp[s_uiMaxColors];
 
-  ezTime tMin = ezTime::Seconds(100.0);
-  ezTime tMax = ezTime::Seconds(0.0);
-
   for (ezMap<ezString, StatsData>::Iterator it = m_Stats.GetIterator(); it.IsValid(); ++it)
   {
     if (it.Value().m_pListItem->checkState() != Qt::Checked)

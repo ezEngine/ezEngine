@@ -48,6 +48,9 @@ namespace PluginsDetail
     case ezTelemetry::TelemetryEventData::ConnectedToClient:
       SendPluginTelemetry();
       break;
+
+    default:
+      break;
     }
   }
 
@@ -57,6 +60,9 @@ namespace PluginsDetail
     {
     case ezPlugin::PluginEvent::AfterPluginChanges:
       SendPluginTelemetry();
+      break;
+
+    default:
       break;
     }
   }

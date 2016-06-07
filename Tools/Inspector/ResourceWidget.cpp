@@ -248,6 +248,9 @@ void ezResourceWidget::UpdateTable()
         pItem->setText("Lowest");
         pItem->setTextColor(QColor::fromRgb(127, 201, 255));
         break;
+
+      case ezResourcePriority::Unchanged:
+        break;
       }
 
       if (res.m_Flags.IsAnySet(ezResourceFlags::IsPreloading))

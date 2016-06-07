@@ -79,6 +79,9 @@ namespace InputDetail
       SendAllInputSlots();
       SendAllInputActions();
       break;
+    
+    default:
+      break;
     }
   }
 
@@ -94,6 +97,9 @@ namespace InputDetail
       break;
     case ezInputManager::InputEventData::InputSlotChanged:
       SendInputSlotData(e.m_szInputSlot);
+      break;
+    
+    default:
       break;
     }
   }

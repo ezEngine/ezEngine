@@ -49,5 +49,8 @@ void ezQtApplicationPanel::ToolsProjectEventHandler(const ezToolsProject::Event&
   case ezToolsProject::Event::Type::ProjectOpened:
     setEnabled(true);
     break;
+
+  default:
+    break;
   }
 }

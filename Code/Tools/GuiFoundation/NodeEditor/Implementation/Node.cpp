@@ -218,6 +218,9 @@ QVariant ezQtNode::itemChange(GraphicsItemChange change, const QVariant& value)
         m_DirtyFlags.Add(ezNodeFlags::Moved);
     }
     break;
+
+  default:
+    break;
   }
   return QGraphicsPathItem::itemChange(change, value);
 }

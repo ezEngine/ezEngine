@@ -114,8 +114,6 @@ void ezAddSubElementButton::on_Menu_aboutToShow()
   if (!m_pMenu->isEmpty())
     return;
 
-  auto& acc = m_Items[0].m_pObject->GetTypeAccessor();
-
   auto pProp = GetProperty();
 
   if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))

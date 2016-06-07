@@ -167,7 +167,7 @@ double ExtractValue(const char* szString)
 
     if (bFoundNumber)
     {
-      if (uiChar >= '0' && uiChar <= '9' || uiChar == '.')
+      if ((uiChar >= '0' && uiChar <= '9') || uiChar == '.')
         res.Prepend(uiChar);
       else
         break;
@@ -227,8 +227,6 @@ void ezMainWindow::on_TreeStats_itemChanged(QTreeWidgetItem* item, int column)
 {
   if (column == 0)
   {
-    int i = 0;
-
     ezString sPath = item->data(0, Qt::UserRole).toString().toUtf8().data();
 
     SetFavourite(sPath, (item->checkState(0) == Qt::Checked));

@@ -109,6 +109,9 @@ QListWidgetItem* ezLogWidget::CreateLogItem(const LogMsg& lm, ezInt32 iMessageIn
   case ezLogMsgType::DebugMsg:
     pItem->setTextColor(QColor::fromRgb(255, 0, 255));
     break;
+
+  default:
+    break;
   }
 
   pItem->setData(Qt::UserRole, iMessageIndex);

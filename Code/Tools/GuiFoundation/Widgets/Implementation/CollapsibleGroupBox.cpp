@@ -20,8 +20,6 @@ ezCollapsibleGroupBox::ezCollapsibleGroupBox(QWidget* pParent) : QWidget(pParent
 
   Icon->installEventFilter(this);
   Caption->installEventFilter(this);
-
-  m_FillColor;
 }
 
 void ezCollapsibleGroupBox::setTitle(const char* szTitle)

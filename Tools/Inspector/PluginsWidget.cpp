@@ -55,8 +55,6 @@ void ezPluginsWidget::UpdatePlugins()
 
     for (ezMap<ezString, PluginsData>::Iterator it = m_Plugins.GetIterator(); it.IsValid(); ++it)
     {
-      const PluginsData& ssd = it.Value();
-
       QLabel* pIcon = new QLabel();
       pIcon->setPixmap(ezUIServices::GetCachedPixmapResource(":/Icons/Icons/Plugin.png"));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);

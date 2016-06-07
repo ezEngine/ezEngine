@@ -49,8 +49,6 @@ void ezDataWidget::ProcessTelemetry(void* pUnuseed)
       ezString sName;
       msg.GetReader() >> sName;
 
-      TransferData& td = s_pWidget->m_Transfers[sName];
-
       s_pWidget->ComboTransfers->addItem(sName.GetData());
     }
 

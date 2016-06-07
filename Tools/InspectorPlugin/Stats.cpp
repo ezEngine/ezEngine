@@ -82,8 +82,8 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
 
       if ((Now - LastFPS).GetSeconds() >= 1.0)
       {
-      s.Format("%u", uiFPS);
-      ezStats::SetStat("App/FPS", s.GetData());
+        s.Format("%u", uiFPS);
+        ezStats::SetStat("App/FPS", s.GetData());
 
         LastFPS = Now;
         uiFPS = 0;
@@ -143,6 +143,9 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
         }
       }
     }
+    break;
+
+  default:
     break;
   }
 }

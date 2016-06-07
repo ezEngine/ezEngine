@@ -95,6 +95,9 @@ namespace GlobalEventsDetail
     case ezTelemetry::TelemetryEventData::PerFrameUpdate:
       SendChangedGlobalEventTelemetry();
       break;
+
+    default:
+      break;
     }
   }
 }

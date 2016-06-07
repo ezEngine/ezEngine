@@ -74,6 +74,9 @@ namespace ResourceManagerDetail
     case ezTelemetry::TelemetryEventData::ConnectedToClient:
       SendAllResourceTelemetry();
       break;
+    
+    default:
+      break;
     }
   }
 

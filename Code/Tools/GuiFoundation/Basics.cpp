@@ -41,8 +41,7 @@ QtScopedBlockSignals::QtScopedBlockSignals(QObject* pObject1, QObject* pObject2,
     if (pObjects[i] != nullptr && !pObjects[i]->signalsBlocked())
     {
       m_pObjects[i] = pObjects[i];
-      bool bOldState = m_pObjects[i]->blockSignals(true);
-      EZ_ASSERT_DEBUG(!bOldState, "signalsBlocked lied to us!");
+      m_pObjects[i]->blockSignals(true);
     }
     else
     {
@@ -57,8 +56,7 @@ QtScopedBlockSignals::~QtScopedBlockSignals()
   {
     if (m_pObjects[i] != nullptr)
     {
-      bool bOldState = m_pObjects[i]->blockSignals(false);
-      EZ_ASSERT_DEBUG(bOldState, "signalsBlocked lied to us!");
+      m_pObjects[i]->blockSignals(false);
     }
   }
 }

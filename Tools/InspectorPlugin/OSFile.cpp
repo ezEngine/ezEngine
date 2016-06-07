@@ -94,6 +94,9 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
       Msg.GetWriter() << e.m_bSuccess;
     }
     break;
+
+  case ezOSFile::EventType::None:
+    break;
   }
 
   ezUInt8 uiThreadType = 0;

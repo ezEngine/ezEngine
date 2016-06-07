@@ -205,6 +205,9 @@ void ezQtDocumentWindow::DocumentEventHandler(const ezDocumentEvent& e)
       ShowStatusBarMsgNoArgs(e.m_szStatusMsg);
     }
     break;
+
+  default:
+    break;
   }
 }
 
@@ -221,6 +224,9 @@ void ezQtDocumentWindow::DocumentManagerEventHandler(const ezDocumentManager::Ev
       }
     }
     break;
+
+  default:
+    break;
   }
 }
 
@@ -236,6 +242,9 @@ void ezQtDocumentWindow::UIServicesEventHandler(const ezUIServices::Event& e)
       statusBar()->setHidden(e.m_sText.IsEmpty());
       statusBar()->showMessage(QString::fromUtf8(e.m_sText.GetData()), (int) e.m_Time.GetMilliseconds());
     }
+    break;
+
+  default:
     break;
   }
 }

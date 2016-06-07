@@ -42,6 +42,9 @@ namespace MemoryDetail
     case ezTelemetry::TelemetryEventData::PerFrameUpdate:
       BroadcastMemoryStats();
       break;
+    
+    default:
+      break;
     }
   }
 

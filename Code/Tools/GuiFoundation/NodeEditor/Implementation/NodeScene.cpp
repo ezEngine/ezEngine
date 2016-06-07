@@ -135,6 +135,9 @@ void ezQtNodeScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
       event->accept();
       return;
     }
+
+  default:
+    break;
   }
   GetSelection(m_Selection);
 
@@ -369,6 +372,9 @@ void ezQtNodeScene::NodeEventsHandler(const ezDocumentNodeManagerEvent& e)
     //  {
     //  }
     //  break;
+
+  default:
+    break;
   }
 }
 

@@ -125,7 +125,7 @@ public:
 
 protected:
   void BroadcastValueChanged(const ezVariant& NewValue);
-  virtual void DoPrepareToDie() {}
+  virtual void DoPrepareToDie() override {}
 
   const ezVariant& GetOldValue() const { return m_OldValue; }
   virtual void InternalSetValue(const ezVariant& value) = 0;
