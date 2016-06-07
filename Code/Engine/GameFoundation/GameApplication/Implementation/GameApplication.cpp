@@ -2,7 +2,7 @@
 #include <GameFoundation/PCH.h>
 #include <GameFoundation/GameApplication/GameApplication.h>
 #include <Core/World/WorldModule.h>
-
+#include <Foundation/Time/DefaultTimeStepSmoothing.h>
 namespace
 {
   ezProfilingId g_BeforeWorldUpdateProfilingId = ezProfilingSystem::CreateId("GameApplication.BeforeWorldUpdate");
@@ -244,9 +244,9 @@ ezString ezGameApplication::FindProjectDirectoryForScene(const char* szScene) co
 ezWorld* ezGameApplication::CreateWorld(const char* szWorldName, bool bCreateWorldModules)
 {
   auto& wd = m_Worlds.ExpandAndGetRef();
+  wd.m_pTimeStepSmoothing = EZ_DEFAULT_NEW(ezDefaultTimeStepSmoothing);
   wd.m_pWorld = EZ_DEFAULT_NEW(ezWorld, szWorldName);
-  wd.m_pWorld->GetClock().SetTimeStepSmoothing(&wd.m_TimeStepSmoothing);
-
+  wd.m_pWorld->GetClock().SetTimeStepSmoothing(wd.m_pTimeStepSmoothing);
   if (bCreateWorldModules)
   {
     wd.CreateWorldModules();
@@ -294,7 +294,10 @@ void ezGameApplication::DestroyWorld(ezWorld* pWorld)
   }
 
   wd->DestroyWorldModules();
+  wd->m_pWorld->GetClock().SetTimeStepSmoothing(nullptr);
   wd->m_pWorld = nullptr;
+  EZ_DEFAULT_DELETE(wd->m_pTimeStepSmoothing);
+  wd->m_pTimeStepSmoothing = nullptr;
 
   EZ_DEFAULT_DELETE(pWorld);
 }

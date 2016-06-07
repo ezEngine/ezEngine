@@ -18,6 +18,9 @@ public:
   ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, bool bUseEngineConnection, bool bUseIPCObjectMirror);
   ~ezAssetDocument();
 
+  /// \name Asset Functions
+  ///@{
+
   /// \brief Returns one of the strings that ezAssetDocumentManager::QuerySupportedAssetTypes returned.
   ///
   /// This can be different for each instance of the same asset document type.
@@ -45,21 +48,39 @@ public:
   /// \brief Called during certain operations, such as TransformAsset, to determine how to proceed with this asset.
   virtual ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const;
 
+  ///@}
   /// \name IPC Functions
   ///@{
+  
+  enum class EngineStatus
+  {
+    Unsupported, ///< This document does not have engine IPC.
+    Disconnected, ///< Engine process crashed or not started yet.
+    Initializing, ///< Document is being initialized on the engine process side.
+    Loaded, ///< Any message sent after this state is reached will work on a fully loaded document.
+  };
+
+  /// \brief Returns the current state of the engine process side of this document.
+  EngineStatus GetEngineStatus() const { return m_EngineStatus; }
 
   /// \brief Sends a message to the corresponding ezEngineProcessDocumentContext on the engine process.
   void SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage) const;
+
   /// \brief Handles all messages received from the corresponding ezEngineProcessDocumentContext on the engine process.
   virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg);
+
   /// \brief Returns the ezEditorEngineConnection for this document.
   ezEditorEngineConnection* GetEditorEngineConnection() const { return m_pEngineConnection; }
+
   /// \brief Registers a sync object for this document. It will be mirrored to the ezEngineProcessDocumentContext on the engine process.
   void AddSyncObject(ezEditorEngineSyncObject* pSync) const;
+
   /// \brief Removes a previously registered sync object. It will be removed on the engine process side.
   void RemoveSyncObject(ezEditorEngineSyncObject* pSync) const;
+
   /// \brief Returns the sync object registered under the given guid.
   ezEditorEngineSyncObject* FindSyncObject(const ezUuid& guid) const;
+
   /// \brief Sends messages to sync all sync objects to the engine process side.
   void SyncObjectsToEngine();
 
@@ -80,6 +101,11 @@ public:
   ezEvent<const ezEditorEngineDocumentMsg*> m_ProcessMessageEvent;
 
 protected:
+  void EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e);
+
+  /// \name Hash Functions
+  ///@{
+
   /// \brief Computes the hash from all document objects
   ezUInt64 GetDocumentHash() const;
 
@@ -89,6 +115,10 @@ protected:
   /// \brief Computes the hash for transform relevant meta data of the given document object and combines it with the given hash.
   virtual void InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const {}
 
+  ///@}
+  /// \name Reimplemented Base Functions
+  ///@{
+
   /// \brief Overrides the base function to call UpdateAssetDocumentInfo() to update the settings hash
   virtual ezStatus InternalSaveDocument() override;
 
@@ -96,6 +126,10 @@ protected:
   virtual void InternalAfterSaveDocument() override;
 
   virtual void InitializeAfterLoading() override;
+
+  ///@}
+  /// \name Asset Functions
+  ///@{
 
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) = 0;
 
@@ -128,12 +162,15 @@ protected:
 
   virtual ezString GetDocumentPathFromGuid(const ezUuid& documentGuid) const override;
 
+  ///@}
+
 private:
   virtual ezDocumentInfo* CreateDocumentInfo() override;
 
   static ezString DetermineFinalTargetPlatform(const char* szPlatform);
 
 private:
+  EngineStatus m_EngineStatus;
   bool m_bUseIPCObjectMirror;
   bool m_bUseEngineConnection;
 

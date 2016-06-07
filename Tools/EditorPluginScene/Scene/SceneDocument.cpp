@@ -36,6 +36,7 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab)
   m_GameMode = GameMode::Off;
   m_fSimulationSpeed = 1.0f;
   m_bGizmoWorldSpace = true;
+  m_bResendSelection = false;
 
   m_CurrentMode.m_bRenderSelectionOverlay = true;
   m_CurrentMode.m_bRenderShapeIcons = true;
@@ -57,7 +58,6 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab)
 void ezSceneDocument::InitializeAfterLoading()
 {
   ezAssetDocument::InitializeAfterLoading();
-  m_bResendSelection = false;
 
   GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectPropertyEventHandler, this));
   GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectStructureEventHandler, this));
@@ -1047,6 +1047,19 @@ void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const 
 
 ezStatus ezSceneDocument::RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header)
 {
+  if (GetEngineStatus() == ezAssetDocument::EngineStatus::Disconnected)
+  {
+    return ezStatus("Exporting scene to \"%s\" failed, engine not started or crashed.", szTargetFile);
+  }
+  else if (GetEngineStatus() == ezAssetDocument::EngineStatus::Initializing)
+  {
+    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), ezTime::Seconds(10)).Failed())
+    {
+      return ezStatus("Exporting scene to \"%s\" failed, document initialization timed out.", szTargetFile);
+    }
+    EZ_ASSERT_DEV(GetEngineStatus() == ezAssetDocument::EngineStatus::Loaded, "After receiving ezDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
+  }
+
   auto res = SaveDocument();
   if (res.m_Result.Failed())
     return res;
@@ -1062,7 +1075,7 @@ ezStatus ezSceneDocument::RequestExportScene(const char* szTargetFile, const ezA
 
   if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezExportSceneMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60)).Failed())
   {
-    ezLog::Error("Exporting scene to \"%s\" timed out.", msg.m_sOutputFile.GetData());
+    return ezStatus("Exporting scene to \"%s\" timed out.", msg.m_sOutputFile.GetData());
   }
   else
   {
@@ -1189,11 +1202,11 @@ ezBitflags<ezAssetDocumentFlags> ezSceneDocument::GetAssetFlags() const
 {
   if (IsPrefab())
   {
-    return ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::TransformRequiresWindow;
+    return ezAssetDocumentFlags::AutoTransformOnSave;
   }
   else
   {
-    return ezAssetDocumentFlags::OnlyTransformManually | ezAssetDocumentFlags::TransformRequiresWindow;
+    return ezAssetDocumentFlags::OnlyTransformManually;
   }
 }
 

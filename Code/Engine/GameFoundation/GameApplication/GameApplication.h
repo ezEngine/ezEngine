@@ -3,12 +3,13 @@
 #include <GameFoundation/Basics.h>
 #include <GameFoundation/GameState/GameState.h>
 
-#include <Foundation/Time/DefaultTimeStepSmoothing.h>
 #include <Foundation/Threading/DelegateTask.h>
 
 #include <Core/Application/Application.h>
 
 #include <RendererFoundation/Device/SwapChain.h>
+
+class ezDefaultTimeStepSmoothing;
 
 /// \brief The base class for all typical game applications made with ezEngine
 ///
@@ -276,7 +277,7 @@ private:
     void ReinitWorldModules();
     void DestroyWorldModules();
 
-    ezDefaultTimeStepSmoothing m_TimeStepSmoothing;
+    ezDefaultTimeStepSmoothing* m_pTimeStepSmoothing;
     ezHybridArray<ezWorldModule*, 8> m_WorldModules;
     ezWorld* m_pWorld;
   };

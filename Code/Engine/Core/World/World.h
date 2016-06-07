@@ -29,6 +29,9 @@ public:
   /// \brief Returns the index of this world.
   ezUInt32 GetIndex() const;
   
+  /// \name Object Functions
+  ///@{
+
   /// \brief Create a new game object from the given description and returns a handle to it.
   ezGameObjectHandle CreateObject(const ezGameObjectDesc& desc);
 
@@ -76,6 +79,9 @@ public:
   /// \brief Traverses the game object tree starting at the top level objects and then recursively all children. The given callback function is called for every object.
   void Traverse(VisitorFunc visitorFunc, TraversalMethod method = DepthFirst);
 
+  ///@}
+  /// \name Component Functions
+  ///@{
 
   /// \brief Creates an instance of the given component manager type or returns a pointer to an already existing instance.
   template <typename ManagerType>
@@ -106,6 +112,9 @@ public:
   template <typename ComponentType>
   bool TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const;
 
+  ///@}
+  /// \name Message Functions
+  ///@{
 
   /// \brief Sends a message to all components of the receiverObject. Depending on the routing options the message is also send to parents or children.
   void SendMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
@@ -129,6 +138,7 @@ public:
   /// \brief Queues the message for the given phase. The message is send to the receiverComponent after the given delay in the corresponding phase.
   void PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay);
 
+  ///@}
 
   /// \brief If enabled, the full simulation should be executed, otherwise only the rendering related updates should be done
   void SetWorldSimulationEnabled(bool bEnable);

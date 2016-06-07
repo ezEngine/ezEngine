@@ -44,6 +44,9 @@ public:
   ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObjectManagerImpl);
   virtual ~ezDocument();
 
+  /// \name Document State Functions
+  ///@{
+
   bool IsModified() const { return m_bModified; }
   bool IsReadOnly() const { return m_bReadOnly; }
   const ezUuid& GetGuid() const { return m_pDocumentInfo->m_DocumentID; }
@@ -54,10 +57,20 @@ public:
   ezSelectionManager* GetSelectionManager() const { return &m_SelectionManager; }
   ezCommandHistory* GetCommandHistory() const { return &m_CommandHistory; }
 
+  virtual ezVariant GetDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path) const;
+  virtual bool IsDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path) const;
+
+  ///@}
+  /// \name Document Management Functions
+  ///@{
+
+  /// \brief Returns the absolute path to the document.
   const char* GetDocumentPath() const { return m_sDocumentPath; }
 
   ezStatus SaveDocument();
   ezStatus LoadDocument() { return InternalLoadDocument(); }
+
+  /// \brief Brings the corresponding window to the front.
   void EnsureVisible();
 
   void BroadcastSaveDocumentMetaState();
@@ -70,6 +83,10 @@ public:
 
   const ezDocumentInfo* GetDocumentInfo() { return m_pDocumentInfo; }
 
+  ///@}
+  /// \name Clipboard Functions
+  ///@{
+
   struct PasteInfo
   {
     EZ_DECLARE_POD_TYPE();
@@ -80,6 +97,11 @@ public:
 
   virtual bool Copy(ezAbstractObjectGraph& out_objectGraph) const { return false; };
   virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition) { return false; };
+
+  ///@}
+  /// \name Misc Functions
+  ///@{
+
   virtual void DeleteSelectedObjects() const;
 
   const ezSet<ezString>& GetUnknownObjectTypes() const { return m_UnknownObjectTypes; }
@@ -97,8 +119,10 @@ public:
   /// \brief Tries to compute the position and rotation for an object in the document. Returns EZ_SUCCESS if it was possible.
   virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const { return EZ_FAILURE; }
 
+  ///@}
+  /// \name Prefab Functions
+  ///@{
 
-  // Prefabs
   virtual void UpdatePrefabs();
   virtual void RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
   virtual void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
@@ -112,10 +136,9 @@ public:
   // Returns new guid of reverted object.
   virtual ezUuid RevertPrefab(const ezDocumentObject* pObject);
 
-  virtual ezVariant GetDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path) const;
-  virtual bool IsDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path) const;
-public:
+  ///@}
 
+public:
   ezObjectMetaData<ezUuid, ezDocumentObjectMetaData> m_DocumentObjectMetaData;
   
   mutable ezEvent<const ezDocumentEvent&> m_EventsOne;
@@ -137,18 +160,22 @@ protected:
   virtual void InitializeBeforeLoading() {}
   virtual void InitializeAfterLoading() {}
 
-  mutable ezSelectionManager m_SelectionManager;
-  mutable ezCommandHistory m_CommandHistory;
-  ezDocumentInfo* m_pDocumentInfo;
-  ezDocumentTypeDescriptor m_TypeDescriptor;
-
   void SetUnknownObjectTypes(const ezSet<ezString>& Types, ezUInt32 uiInstances);
 
-  // Prefabs
+  /// \name Prefab Functions
+  ///@{
+
   virtual void UpdatePrefabsRecursive(ezDocumentObject* pObject);
   virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab);
   ezString ReadDocumentAsString(const char* szFile) const;
   virtual ezString GetDocumentPathFromGuid(const ezUuid& documentGuid) const;
+
+  ///@}
+
+  mutable ezSelectionManager m_SelectionManager;
+  mutable ezCommandHistory m_CommandHistory;
+  ezDocumentInfo* m_pDocumentInfo;
+  ezDocumentTypeDescriptor m_TypeDescriptor;
 
 private:
   friend class ezDocumentManager;

@@ -98,17 +98,29 @@ void ezAssetDocumentInfo::SetDependencies(ezString s)
 ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, bool bUseEngineConnection, bool bUseIPCObjectMirror)
   : ezDocument(szDocumentPath, pObjectManager)
 {
+  m_EngineStatus = bUseEngineConnection ? EngineStatus::Disconnected : EngineStatus::Unsupported;
   m_bUseEngineConnection = bUseEngineConnection;
   m_bUseIPCObjectMirror = bUseIPCObjectMirror;
   m_pEngineConnection = nullptr;
+
+  if (m_bUseEngineConnection)
+  {
+    ezEditorEngineProcessConnection::GetSingleton()->s_Events.AddEventHandler(ezMakeDelegate(&ezAssetDocument::EngineConnectionEventHandler, this));
+  }
 }
 
 ezAssetDocument::~ezAssetDocument()
 {
   m_Mirror.DeInit();
+
   if (m_bUseEngineConnection)
   {
-    ezEditorEngineProcessConnection::GetSingleton()->DestroyEngineConnection(this);
+    ezEditorEngineProcessConnection::GetSingleton()->s_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetDocument::EngineConnectionEventHandler, this));
+
+    if (m_pEngineConnection)
+    {
+      ezEditorEngineProcessConnection::GetSingleton()->DestroyEngineConnection(this);
+    }
   }
 }
 
@@ -164,11 +176,24 @@ void ezAssetDocument::InitializeAfterLoading()
   if (m_bUseEngineConnection)
   {
     m_pEngineConnection = ezEditorEngineProcessConnection::GetSingleton()->CreateEngineConnection(this);
+    m_EngineStatus = EngineStatus::Initializing;
     if (m_bUseIPCObjectMirror)
     {
       m_Mirror.SetIPC(m_pEngineConnection);
       m_Mirror.InitSender(GetObjectManager());
     }
+  }
+}
+
+void ezAssetDocument::EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e)
+{
+  if (e.m_Type == ezEditorEngineProcessConnection::Event::Type::ProcessCrashed)
+  {
+    m_EngineStatus = EngineStatus::Disconnected;
+  }
+  else if (e.m_Type == ezEditorEngineProcessConnection::Event::Type::ProcessStarted)
+  {
+    m_EngineStatus = EngineStatus::Initializing;
   }
 }
 
@@ -397,8 +422,10 @@ void ezAssetDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
   {
     if (m_bUseIPCObjectMirror)
+    {
       m_Mirror.SendDocument();
-
+      m_EngineStatus = EngineStatus::Loaded;
+    }
     // make sure all sync objects are 'modified' so that they will get resent as well
     for (auto* pObject : m_SyncObjects)
     {
