@@ -751,7 +751,7 @@ public:
 
     UpdateStaticLinkLibraryBlock();
 
-    RewritePrecompiledHeaderIncludes();
+    //RewritePrecompiledHeaderIncludes();
 
     OverwriteModifiedFiles();
 
