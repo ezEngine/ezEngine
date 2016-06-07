@@ -101,8 +101,8 @@ public:
 
 
   /// \brief Sends a message to this component.
-  void SendMessage(ezMessage& msg);
-  void SendMessage(ezMessage& msg) const;
+  bool SendMessage(ezMessage& msg);
+  bool SendMessage(ezMessage& msg) const;
 
   /// \brief Queues the message for the given phase and processes it later in that phase.
   void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType);

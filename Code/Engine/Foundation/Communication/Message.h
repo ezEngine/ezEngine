@@ -14,6 +14,13 @@ typedef ezUInt16 ezMessageId;
 class EZ_FOUNDATION_DLL ezMessage
 {
 public:
+  ezMessage()
+  {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive = false;
+#endif
+  }
+
   virtual ~ezMessage() {}
 
   /// \brief Returns a copy of this allocated with the given allocator. This method is automatically implemented by adding EZ_DECLARE_MESSAGE_TYPE.
@@ -42,6 +49,12 @@ public:
   { 
     return ezHashing::MurmurHash(this, m_uiSize);
   }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  /// set to true while debugging a message routing problem
+  /// if the message is not delivered to any recipient at all, information about why that is will be written to ezLog
+  bool m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive;
+#endif
 
 protected:
   EZ_FORCE_INLINE static ezMessageId GetNextMsgId()

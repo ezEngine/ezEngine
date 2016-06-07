@@ -17,7 +17,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
     EZ_SET_ACCESSOR_PROPERTY("Components", Reflection_GetComponents, Reflection_AddComponent, Reflection_RemoveComponent)->AddFlags(ezPropertyFlags::PointerOwner),
   }
   EZ_END_PROPERTIES
-  EZ_BEGIN_MESSAGEHANDLERS
+    EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezDeleteObjectMessage, OnDeleteObject),
   }
@@ -342,7 +342,7 @@ void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
 {
   if (routing == ezObjectMsgRouting::ToSubTree)
   {
-    // walk up the sub tree and send to children form there to prevent double handling
+    // walk up the sub tree and send to children from there to prevent double handling
     ezGameObject* pCurrent = this;
     ezGameObject* pParent = GetParent();
     while (pParent != nullptr)
@@ -362,10 +362,31 @@ void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
   // in all cases other than ToObjectOnly, route message to all components now
   if (routing >= ezObjectMsgRouting::ToComponents)
   {
+    bool bSentToAny = false;
+
     for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
     {
       ezComponent* pComponent = m_Components[i];
-      pComponent->SendMessage(msg);
+      if (pComponent->SendMessage(msg))
+        bSentToAny = true;
+    }
+
+    if (!bSentToAny)
+    {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+      if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
+      {
+        if (!m_Components.IsEmpty())
+        {
+          ezLog::Warning("ezGameObject::SendMessage: None of the target object's components had a handler for messages of type %u.", msg.GetId());
+        }
+
+        if (routing == ezObjectMsgRouting::ToComponents)
+        {
+          ezLog::Warning("Message of type  %u was sent 'ToComponents' only. Object with %u components did not handle this. No further message routing will happen.", msg.GetId(), m_Components.GetCount());
+        }
+      }
+#endif
     }
   }
 

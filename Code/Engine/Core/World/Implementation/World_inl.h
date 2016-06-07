@@ -213,6 +213,13 @@ EZ_FORCE_INLINE void ezWorld::SendMessage(const ezGameObjectHandle& receiverObje
   {
     pReceiverObject->SendMessage(msg, routing);
   }
+  else
+  {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
+      ezLog::Warning("ezWorld::SendMessage: The receiver ezGameObject for message of type %u does not exist.", msg.GetId());
+#endif
+  }
 }
 
 EZ_FORCE_INLINE void ezWorld::SendMessage(const ezComponentHandle& receiverComponent, ezMessage& msg)
@@ -223,6 +230,13 @@ EZ_FORCE_INLINE void ezWorld::SendMessage(const ezComponentHandle& receiverCompo
   if (TryGetComponent(receiverComponent, pReceiverComponent))
   {
     pReceiverComponent->SendMessage(msg);
+  }
+  else
+  {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
+      ezLog::Warning("ezWorld::SendMessage: The receiver ezComponent for message of type %u does not exist.", msg.GetId());
+#endif
   }
 }
 

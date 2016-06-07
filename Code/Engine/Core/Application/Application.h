@@ -6,6 +6,7 @@
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Core/Basics.h>
 #include <Core/Application/Implementation/ApplicationEntryPoint.h>
+#include <Foundation/Reflection/Implementation/RTTI.h>
 
 class ezApplication;
 
@@ -83,6 +84,9 @@ public:
   /// If you need to set up custom allocators, this is the place to do this.
   virtual void BeforeCoreStartup()
   {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    ezRTTI::VerifyCorrectnessForAllTypes();
+#endif
   }
 
   /// \brief This function is called after basic engine initialization has been done.

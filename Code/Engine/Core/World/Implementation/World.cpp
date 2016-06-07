@@ -267,7 +267,7 @@ void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, ezMessage&
   QueuedMsgMetaData metaData;
   metaData.m_uiReceiverComponent = *reinterpret_cast<const ezUInt64*>(&receiverComponent.m_InternalId);
   metaData.m_uiReceiverIsComponent = 1;
-  
+
   ezMessage* pMsgCopy = msg.Clone(ezFrameAllocator::GetCurrentAllocator());
   m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
 }
@@ -487,6 +487,15 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
     {
       pReceiverComponent->SendMessage(*entry.m_pMessage);
     }
+    else
+    {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+      if (entry.m_pMessage->m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
+      {
+        ezLog::Warning("ezWorld::ProcessQueuedMessage: Receiver ezComponent for message of type %u does not exist anymore.", entry.m_pMessage->GetId());
+      }
+#endif
+    }
   }
   else
   {
@@ -496,6 +505,15 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
     if (TryGetObject(objectId, pReceiverObject))
     {
       pReceiverObject->SendMessage(*entry.m_pMessage, entry.m_MetaData.m_Routing);
+    }
+    else
+    {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+      if (entry.m_pMessage->m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
+      {
+        ezLog::Warning("ezWorld::ProcessQueuedMessage: Receiver ezGameObject for message of type %u does not exist anymore.", entry.m_pMessage->GetId());
+      }
+#endif
     }
   }
 }
@@ -531,7 +549,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 
     for (ezUInt32 i = 0; i < queue.GetCount(); ++i)
     {
-      ProcessQueuedMessage(queue[i]);      
+      ProcessQueuedMessage(queue[i]);
 
       // no need to deallocate these messages, they are allocated through a frame allocator
     }

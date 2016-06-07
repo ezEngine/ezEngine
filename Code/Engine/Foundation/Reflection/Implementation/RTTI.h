@@ -33,7 +33,14 @@ public:
   ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags,
     ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, const ezRTTI*(*fnVerifyParent)());
 
+
   ~ezRTTI();
+
+  /// \brief Can be called in debug builds to check that all reflected objects are correctly set up.
+  void VerifyCorrectness() const;
+
+  /// \brief Calls VerifyCorrectness() on all ezRTTI objects.
+  static void VerifyCorrectnessForAllTypes();
 
   /// \brief Returns the name of this type.
   EZ_FORCE_INLINE const char* GetTypeName() const { return m_szTypeName; } // [tested]
@@ -118,17 +125,21 @@ protected:
   void UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags);
 
 private:
+  void GatherDynamicMessageHandlers() const;
+
   const ezRTTI* m_pParentType;
   ezUInt32 m_uiVariantType;
   ezUInt32 m_uiTypeSize;
-  ezUInt32 m_uiMsgIdOffset;
+  mutable ezUInt32 m_uiMsgIdOffset;
   ezUInt32 m_uiTypeVersion;
   ezUInt32 m_uiTypeNameHash;
   ezBitflags<ezTypeFlags> m_TypeFlags;
   ezRTTIAllocator* m_pAllocator;
+  mutable bool m_bGatheredDynamicMessageHandlers;
+  const ezRTTI*(*m_fnVerifyParent)();
 
   ezArrayPtr<ezAbstractMessageHandler*> m_MessageHandlers;
-  ezDynamicArray<ezAbstractMessageHandler*> m_DynamicMessageHandlers;
+  mutable ezDynamicArray<ezAbstractMessageHandler*> m_DynamicMessageHandlers;
   
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, Reflection);

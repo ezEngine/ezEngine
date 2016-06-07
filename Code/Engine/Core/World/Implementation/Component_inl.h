@@ -1,3 +1,4 @@
+#include <Foundation/Logging/Log.h>
 
 EZ_FORCE_INLINE ezComponent::ezComponent() :
   m_ComponentFlags(ezObjectFlags::Default),
@@ -70,16 +71,58 @@ EZ_FORCE_INLINE void ezComponent::SetEditorPickingID(ezUInt32 uiEditorPickingID)
   m_uiEditorPickingID = uiEditorPickingID;
 }
 
-EZ_FORCE_INLINE void ezComponent::SendMessage(ezMessage& msg)
+EZ_FORCE_INLINE bool ezComponent::SendMessage(ezMessage& msg)
 {
   if (IsActiveAndInitialized() || IsInitializing())
-    GetDynamicRTTI()->DispatchMessage(this, msg);
+  {
+    if (!GetDynamicRTTI()->DispatchMessage(this, msg))
+    {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+      if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
+        ezLog::Warning("Component type '%s' does not have a message handler for messages of type %u", GetDynamicRTTI()->GetTypeName(), msg.GetId());
+#endif
+
+      return false;
+    }
+  }
+  else
+  {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
+      ezLog::Warning("Discarded message with ID %u because component of type '%s' is not initialized or not active at the moment", msg.GetId(), GetDynamicRTTI()->GetTypeName());
+#endif
+
+    return false;
+  }
+
+  return true;
 }
 
-EZ_FORCE_INLINE void ezComponent::SendMessage(ezMessage& msg) const
+EZ_FORCE_INLINE bool ezComponent::SendMessage(ezMessage& msg) const
 {
   if (IsActiveAndInitialized() || IsInitializing())
-    GetDynamicRTTI()->DispatchMessage(this, msg);
+  {
+    if (!GetDynamicRTTI()->DispatchMessage(this, msg))
+    {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+      if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
+        ezLog::Warning("(const) Component type '%s' does not have a CONST message handler for messages of type %u", GetDynamicRTTI()->GetTypeName(), msg.GetId());
+#endif
+
+      return false;
+    }
+  }
+  else
+  {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    if (msg.m_bPleaseTellMeInDetailWhenAndWhyThisMessageDoesNotArrive)
+      ezLog::Warning("Discarded message with ID %u because component of type '%s' is not initialized or not active at the moment", msg.GetId(), GetDynamicRTTI()->GetTypeName());
+#endif
+
+    return false;
+  }
+
+  return true;
 }
 
 template <typename T>
