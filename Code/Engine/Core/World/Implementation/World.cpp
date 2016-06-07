@@ -9,6 +9,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezWorldModule, 1, ezRTTINoAllocator);
 // no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+static ezProfilingId s_WhenInitializedMsgProfilingID = ezProfilingSystem::CreateId("When Initialized Msgs");
 static ezProfilingId s_PreAsyncProfilingID = ezProfilingSystem::CreateId("Pre-Async Phase");
 static ezProfilingId s_AsyncProfilingID = ezProfilingSystem::CreateId("Async Phase");
 static ezProfilingId s_PostAsyncProfilingID = ezProfilingSystem::CreateId("Post-Async Phase");
@@ -298,6 +299,12 @@ void ezWorld::Update()
   m_Data.m_Clock.Update();
 
   ProcessComponentsToInitialize();
+
+  // Send the 'WhenInitialized' messages
+  {
+    EZ_PROFILE(s_WhenInitializedMsgProfilingID);
+    ProcessQueuedMessages(ezObjectMsgQueueType::WhenInitialized);
+  }
 
   // pre-async phase
   {

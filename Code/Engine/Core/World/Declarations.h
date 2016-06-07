@@ -178,6 +178,7 @@ struct ezObjectMsgQueueType
     PostAsync,      ///< Process the message in the PostAsync phase.
     PostTransform,  ///< Process the message in the PostTransform phase.
     NextFrame,      ///< Process the message in the PreAsync phase of the next frame.
+    WhenInitialized,///< Deliver this message after all components have been initialized. This is basically the same as NextFrame.
     COUNT
   };
 };

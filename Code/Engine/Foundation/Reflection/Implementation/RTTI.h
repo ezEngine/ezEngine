@@ -111,8 +111,11 @@ public:
   }
 
   /// \brief Returns whether this type can handle the message type with the given id.
-  EZ_FORCE_INLINE bool CanHandleMessage(ezMessageId id) const
+  inline bool CanHandleMessage(ezMessageId id) const
   {
+    if (!m_bGatheredDynamicMessageHandlers)
+      GatherDynamicMessageHandlers();
+
     const ezUInt32 uiIndex = id - m_uiMsgIdOffset;
     return uiIndex < m_DynamicMessageHandlers.GetCount() && m_DynamicMessageHandlers[uiIndex] != nullptr;
   }
