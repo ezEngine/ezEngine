@@ -5,6 +5,7 @@ ezInputManager::ezEventInput ezInputManager::s_InputEvents;
 ezInputManager::InternalData* ezInputManager::s_pData = nullptr;
 ezUInt32 ezInputManager::s_LastCharacter = '\0';
 bool ezInputManager::s_bInputSlotResetRequired = true;
+ezString ezInputManager::s_sExclusiveInputSet;
 
 ezInputManager::InternalData& ezInputManager::GetInternals()
 {

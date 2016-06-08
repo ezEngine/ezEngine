@@ -7,6 +7,10 @@
 class ezWorld;
 struct ezRenderViewContext;
 
+template<typename Type>
+class ezRectTemplate;
+typedef ezRectTemplate<float> ezRectFloat;
+
 class EZ_RENDERERCORE_DLL ezDebugRenderer
 {
 public:

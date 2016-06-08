@@ -574,8 +574,12 @@ void ezGameApplication::RenderConsole()
     return;
 
   auto mainViews = ezRenderLoop::GetMainViews();
-  if (mainViews.GetCount() != 1)
-    return;
+
+  /// \todo Currently this would prevent the console to show in play-the-game mode in the editor (since we always have at least two main views there)
+  /// Maybe one could detect whether the current view outputs to a backbuffer ?
+  /// Also we are always using viewport[0] etc. here, which doesn't work well in the editor with multiple views and different sizes
+  //if (mainViews.GetCount() != 1)
+  //  return;
 
   const float fViewWidth = mainViews[0]->GetViewport().width;
   const float fViewHeight = mainViews[0]->GetViewport().height;

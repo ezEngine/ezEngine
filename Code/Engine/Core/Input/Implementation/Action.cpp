@@ -100,6 +100,9 @@ ezKeyState::Enum ezInputManager::GetInputActionState(const char* szInputSet, con
   if (iTriggeredSlot)
     *iTriggeredSlot = -1;
 
+  if (!s_sExclusiveInputSet.IsEmpty() && s_sExclusiveInputSet != szInputSet)
+    return ezKeyState::Up;
+
   const ezInputSetMap::ConstIterator ItSet = GetInternals().s_ActionMapping.Find(szInputSet);
 
   if (!ItSet.IsValid())

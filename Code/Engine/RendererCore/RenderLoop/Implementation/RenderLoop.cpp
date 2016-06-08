@@ -5,7 +5,7 @@
 
 #include <Foundation/Configuration/CVar.h>
 
-ezCVarBool CVarMultithreadedRendering("Renderer.Multithreading", true, ezCVarFlags::Default, "Enables multi-threaded update and rendering");
+ezCVarBool CVarMultithreadedRendering("r_Multithreading", true, ezCVarFlags::Default, "Enables multi-threaded update and rendering");
 
 ezEvent<ezUInt32> ezRenderLoop::s_BeginFrameEvent;
 ezEvent<ezUInt32> ezRenderLoop::s_EndFrameEvent;

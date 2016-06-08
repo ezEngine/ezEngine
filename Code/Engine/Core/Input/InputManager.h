@@ -185,6 +185,14 @@ public:
   /// \brief Returns the names of all input actions in the given input set.
   static void GetAllInputActions(const char* szInputSetName, ezHybridArray<ezString, 24>& out_InputActions); // [tested]
 
+  /// \brief This can be used to pass input exclusively to this input set and no others.
+  ///
+  /// Querying input from other input sets will always return 'key up.
+  static void SetExclusiveInputSet(const char* szExclusiveSet) { s_sExclusiveInputSet = szExclusiveSet; }
+
+  /// \brief Returns whether any input set gets input exclusively.
+  static const char* GetExclusiveInputSet() { return s_sExclusiveInputSet; }
+
   /// \brief This function allows to 'inject' input state for one frame.
   ///
   /// This can be useful to emulate certain keys, e.g. for virtual devices.
@@ -288,6 +296,9 @@ private:
   static ezUInt32 s_LastCharacter;
 
   static bool s_bInputSlotResetRequired;
+
+  /// \brief If not empty, all input for other input sets is returned as inactive ('key up')
+  static ezString s_sExclusiveInputSet;
 
   /// \brief Resets all input slot value to zero.
   static void ResetInputSlotValues();
