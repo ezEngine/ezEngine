@@ -414,7 +414,6 @@ void GetDefaultValues(const ezRTTI* pType, ezPropertyPath& ParentPath, const ezD
       break;
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
       break;
     }
 
