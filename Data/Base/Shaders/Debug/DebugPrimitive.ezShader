@@ -2,6 +2,7 @@
 ALL
 
 [PERMUTATIONS]
+PRE_TRANSFORMED_VERTICES
 
 [RENDERSTATE]
 
@@ -10,7 +11,11 @@ DestBlend0 = Blend_InvSrcAlpha
 SourceBlend0 = Blend_SrcAlpha
 
 DepthTest = true
-DepthWrite = true
+#if PRE_TRANSFORMED_VERTICES
+	DepthWrite = false
+#else
+	DepthWrite = true
+#endif
 
 [VERTEXSHADER]
 
@@ -22,7 +27,14 @@ DepthWrite = true
 VS_OUT_COLORED main(VS_IN_COLORED Input)
 {
   VS_OUT_COLORED RetVal;
-  RetVal.Position = mul(WorldToScreenMatrix, float4(Input.Position, 1.0f));
+  
+  #if PRE_TRANSFORMED_VERTICES
+	float2 screenPosition = (Input.Position.xy / Viewport.zw) * float2(2.0, -2.0) + float2(-1.0, 1.0);
+	RetVal.Position = float4(screenPosition, Input.Position.z, 1.0f);
+  #else
+	RetVal.Position = mul(WorldToScreenMatrix, float4(Input.Position, 1.0f));
+  #endif
+  
   RetVal.Color = Input.Color;
   
   return RetVal;

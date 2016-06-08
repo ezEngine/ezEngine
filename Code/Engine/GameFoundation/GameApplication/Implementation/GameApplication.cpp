@@ -3,6 +3,9 @@
 #include <GameFoundation/GameApplication/GameApplication.h>
 #include <Core/World/WorldModule.h>
 #include <Foundation/Time/DefaultTimeStepSmoothing.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <CoreUtils/Console/Console.h>
+
 namespace
 {
   ezProfilingId g_BeforeWorldUpdateProfilingId = ezProfilingSystem::CreateId("GameApplication.BeforeWorldUpdate");
@@ -20,7 +23,10 @@ ezGameApplication::ezGameApplication(const char* szAppName, ezGameApplicationTyp
   m_sAppName = szAppName;
   s_pGameApplicationInstance = this;
   m_bWasQuitRequested = false;
+  m_bShowFps = false;
   m_AppType = type;
+
+  m_pConsole = EZ_DEFAULT_NEW(ezConsole);
 }
 
 ezGameApplication::~ezGameApplication()
@@ -395,6 +401,7 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
     if (ezRenderLoop::GetMainViews().GetCount() > 0)
     {
       ezClock::GetGlobalClock()->Update();
+
       UpdateInput();
 
       UpdateWorldsAndRender();
@@ -422,6 +429,9 @@ void ezGameApplication::UpdateWorldsAndRender()
   {
     pDevice->BeginFrame();
 
+    RenderFps();
+    RenderConsole();
+    
     ezRenderLoop::Render(ezRenderContext::GetDefaultInstance());
 
     if (ezRenderLoop::GetUseMultithreadedRendering())
@@ -530,6 +540,85 @@ void ezGameApplication::DoUnloadPlugins()
   {
     s = ezPlugin::GetFirstInstance()->GetPluginName();
     EZ_VERIFY(ezPlugin::UnloadPlugin(s).Succeeded(), "Failed to unload plugin '%s'", s.GetData());
+  }
+}
+
+void ezGameApplication::RenderFps()
+{
+  static float fAccumTime = 0.5f;
+  static float fElapsedTime = 0.0f;
+  fAccumTime += (float)ezClock::GetGlobalClock()->GetTimeDiff().GetSeconds();
+
+  if (fAccumTime >= 0.5f)
+  {
+    fAccumTime -= 0.5f;
+
+    fElapsedTime = (float)ezClock::GetGlobalClock()->GetTimeDiff().GetSeconds();
+  }
+
+  auto mainViews = ezRenderLoop::GetMainViews();
+  if (m_bShowFps && mainViews.GetCount() > 0)
+  {
+    ezStringBuilder sFps;
+    sFps.Format("%4.4f fps, %4.4f ms", 1.0f / fElapsedTime, fElapsedTime * 1000.0f);
+
+    ezInt32 viewHeight = (ezInt32)(mainViews[0]->GetViewport().height);
+
+    ezDebugRenderer::DrawText(0U, sFps, ezVec2I32(10, viewHeight - 10 - 16), ezColor::White);
+  }
+}
+
+void ezGameApplication::RenderConsole()
+{
+  if (!m_bShowConsole || !m_pConsole)
+    return;
+
+  auto mainViews = ezRenderLoop::GetMainViews();
+  if (mainViews.GetCount() != 1)
+    return;
+
+  const float fViewWidth = mainViews[0]->GetViewport().width;
+  const float fViewHeight = mainViews[0]->GetViewport().height;
+  const float fTextHeight = 16.0f;
+  const float fConsoleHeight = (fViewHeight / 2.0f);
+  const float fBorderWidth = 3.0f;
+  const float fConsoleTextAreaHeight = fConsoleHeight - fTextHeight - (2.0f * fBorderWidth);
+
+  const ezInt32 iTextHeight = (ezInt32)fTextHeight;
+  const ezInt32 iTextLeft = (ezInt32)(fBorderWidth);
+
+  {
+    ezColor backgroundColor(0.3f, 0.3f, 0.3f, 0.5f);
+    ezDebugRenderer::Draw2DRectangle(0U, ezRectFloat(0.0f, 0.0f, fViewWidth, fConsoleHeight), 0.0f, backgroundColor);
+
+    ezColor foregroundColor(0.02f, 0.02f, 0.02f, 0.8f);
+    ezDebugRenderer::Draw2DRectangle(0U, ezRectFloat(fBorderWidth, 0.0f, fViewWidth - (2.0f * fBorderWidth), fConsoleTextAreaHeight), 0.0f, foregroundColor);
+    ezDebugRenderer::Draw2DRectangle(0U, ezRectFloat(fBorderWidth, fConsoleTextAreaHeight + fBorderWidth, fViewWidth - (2.0f * fBorderWidth), fTextHeight), 0.0f, foregroundColor);
+  }
+
+  {
+    auto& consoleStrings = m_pConsole->GetConsoleStrings();
+
+    ezUInt32 uiNumConsoleLines = (ezUInt32)(ezMath::Ceil(fConsoleTextAreaHeight / fTextHeight));
+    ezInt32 iFirstLinePos = (ezInt32)fConsoleTextAreaHeight - uiNumConsoleLines * iTextHeight;
+    ezInt32 uiFirstLine = m_pConsole->GetScrollPosition() + uiNumConsoleLines - 1;
+    ezInt32 uiSkippedLines = ezMath::Max(uiFirstLine - (ezInt32)consoleStrings.GetCount() + 1, 0);
+
+    for (ezUInt32 i = uiSkippedLines; i < uiNumConsoleLines; ++i)
+    {
+      auto& consoleString = consoleStrings[uiFirstLine - i];
+      ezDebugRenderer::DrawText(0U, consoleString.m_sText, ezVec2I32(iTextLeft, iFirstLinePos + i * iTextHeight), consoleString.m_TextColor);
+    }
+
+    ezStringView sInputLine(m_pConsole->GetInputLine());
+    ezDebugRenderer::DrawText(0U, sInputLine, ezVec2I32(iTextLeft, (ezInt32)(fConsoleTextAreaHeight + fBorderWidth)), ezColor::White);
+
+    if (ezMath::Fraction(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds()) > 0.5)
+    {
+      float fCaretPosition = (float)m_pConsole->GetCaretPosition();
+      ezColor caretColor(1.0f, 1.0f, 1.0f, 0.5f);
+      ezDebugRenderer::Draw2DRectangle(0U, ezRectFloat(fBorderWidth + fCaretPosition * 10.0f + 2.0f, fConsoleTextAreaHeight + fBorderWidth + 1.0f, 2.0f, fTextHeight - 2.0f), 0.0f, caretColor);
+    }
   }
 }
 

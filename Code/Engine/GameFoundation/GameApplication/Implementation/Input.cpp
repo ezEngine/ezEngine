@@ -8,6 +8,8 @@ namespace
 {
   const char* g_szInputSet = "GameApp";
   const char* g_szCloseAppAction = "CloseApp";
+  const char* g_szShowConsole = "ShowConsole";
+  const char* g_szShowFpsAction = "ShowFps";
   const char* g_szReloadResourcesAction = "ReloadResources";
   const char* g_szCaptureProfilingAction = "CaptureProfiling";
 }
@@ -18,6 +20,12 @@ void ezGameApplication::DoConfigureInput(bool bReinitialize)
 
   config.m_sInputSlotTrigger[0] = ezInputSlot_KeyEscape;
   ezInputManager::SetInputActionConfig(g_szInputSet, g_szCloseAppAction, config, true);
+
+  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyTilde;
+  ezInputManager::SetInputActionConfig(g_szInputSet, g_szShowConsole, config, true);
+
+  config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF2;
+  ezInputManager::SetInputActionConfig(g_szInputSet, g_szShowFpsAction, config, true);
 
   config.m_sInputSlotTrigger[0] = ezInputSlot_KeyF5;
   ezInputManager::SetInputActionConfig(g_szInputSet, g_szReloadResourcesAction, config, true);
@@ -44,6 +52,16 @@ void ezGameApplication::ProcessApplicationInput()
   if (ezInputManager::GetInputActionState(g_szInputSet, g_szCloseAppAction) == ezKeyState::Pressed)
   {
     RequestQuit();
+  }
+
+  if (ezInputManager::GetInputActionState(g_szInputSet, g_szShowConsole) == ezKeyState::Pressed)
+  {
+    m_bShowConsole = !m_bShowConsole;
+  }
+
+  if (ezInputManager::GetInputActionState(g_szInputSet, g_szShowFpsAction) == ezKeyState::Pressed)
+  {
+    m_bShowFps = !m_bShowFps;
   }
 
   if (ezInputManager::GetInputActionState(g_szInputSet, g_szReloadResourcesAction) == ezKeyState::Pressed)
@@ -74,11 +92,19 @@ void ezGameApplication::UpdateInput()
 
   ProcessApplicationInput();
 
-  for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
+  if (m_pConsole)
   {
-    if (m_GameStates[i].m_pState)
+    m_pConsole->DoDefaultInputHandling(m_bShowConsole);
+  }
+
+  if (!m_bShowConsole || !m_pConsole)
+  {
+    for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
     {
-      m_GameStates[i].m_pState->ProcessInput();
+      if (m_GameStates[i].m_pState)
+      {
+        m_GameStates[i].m_pState->ProcessInput();
+      }
     }
   }
 }

@@ -4,12 +4,14 @@
 #include <GameFoundation/GameState/GameState.h>
 
 #include <Foundation/Threading/DelegateTask.h>
+#include <Foundation/Types/UniquePtr.h>
 
 #include <Core/Application/Application.h>
 
 #include <RendererFoundation/Device/SwapChain.h>
 
 class ezDefaultTimeStepSmoothing;
+class ezConsole;
 
 /// \brief The base class for all typical game applications made with ezEngine
 ///
@@ -257,6 +259,9 @@ protected:
 private:
   static ezGameApplication* s_pGameApplicationInstance;
 
+  void RenderFps();
+  void RenderConsole();
+
   void DestroyGameState(ezUInt32 idx);
   void UpdateInput();
 
@@ -289,5 +294,9 @@ private:
   ezHybridArray<GameStateData, 4> m_GameStates;
 
   bool m_bWasQuitRequested;
+  bool m_bShowFps;
+  bool m_bShowConsole;
   ezGameApplicationType m_AppType;
+
+  ezUniquePtr<ezConsole> m_pConsole;
 };

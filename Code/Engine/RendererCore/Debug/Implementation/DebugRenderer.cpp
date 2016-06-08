@@ -44,6 +44,7 @@ namespace
   {
     ezDynamicArray<Vertex> m_lineVertices;
     ezDynamicArray<Vertex> m_triangleVertices;
+    ezDynamicArray<Vertex> m_triangle2DVertices;
     ezDynamicArray<BoxData> m_lineBoxes;
     ezDynamicArray<BoxData> m_solidBoxes;
     ezDynamicArray<GlyphData> m_glyphs;
@@ -89,6 +90,7 @@ namespace
         pData->m_lineBoxes.Clear();
         pData->m_solidBoxes.Clear();
         pData->m_triangleVertices.Clear();
+        pData->m_triangle2DVertices.Clear();
         pData->m_glyphs.Clear();
       }
     }
@@ -101,7 +103,8 @@ namespace
       Lines,
       LineBoxes,
       SolidBoxes,
-      Triangles,
+      Triangles3D,
+      Triangles2D,
       Glyphs,
 
       Count
@@ -333,6 +336,35 @@ void ezDebugRenderer::DrawSolidTriangles(ezUInt32 uiWorldIndex, ezArrayPtr<Trian
   }
 }
 
+void ezDebugRenderer::Draw2DRectangle(const ezWorld* pWorld, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color)
+{
+  Draw2DRectangle(pWorld->GetIndex(), rectInPixel, fDepth, color);
+}
+
+void ezDebugRenderer::Draw2DRectangle(ezUInt32 uiWorldIndex, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color)
+{
+  Vertex vertices[6];
+
+  vertices[0].m_position = ezVec3(rectInPixel.Left(), rectInPixel.Top(), fDepth);
+  vertices[1].m_position = ezVec3(rectInPixel.Right(), rectInPixel.Bottom(), fDepth);
+  vertices[2].m_position = ezVec3(rectInPixel.Left(), rectInPixel.Bottom(), fDepth);
+  vertices[3].m_position = ezVec3(rectInPixel.Left(), rectInPixel.Top(), fDepth);
+  vertices[4].m_position = ezVec3(rectInPixel.Right(), rectInPixel.Top(), fDepth);
+  vertices[5].m_position = ezVec3(rectInPixel.Right(), rectInPixel.Bottom(), fDepth);
+
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(vertices); ++i)
+  {
+    vertices[i].m_color = color;
+  }
+  
+
+  EZ_LOCK(s_Mutex);
+
+  auto& data = GetDataForExtraction(uiWorldIndex);
+ 
+  data.m_triangle2DVertices.PushBackRange(ezMakeArrayPtr(vertices));
+}
+
 void ezDebugRenderer::DrawText(const ezWorld* pWorld, const ezStringView& text, const ezVec2I32& topLeftCornerInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/)
 {
   DrawText(pWorld->GetIndex(), text, topLeftCornerInPixel, color, uiSizeInPixel);
@@ -405,11 +437,12 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
     const ezUInt32 uiNumTriangleVertices = pData->m_triangleVertices.GetCount();
     if (uiNumTriangleVertices != 0)
     {
-      DestroyBuffer(BufferType::Triangles);
-      CreateVertexBuffer(BufferType::Triangles, sizeof(Vertex), uiNumTriangleVertices, pData->m_triangleVertices.GetData());
+      DestroyBuffer(BufferType::Triangles3D);
+      CreateVertexBuffer(BufferType::Triangles3D, sizeof(Vertex), uiNumTriangleVertices, pData->m_triangleVertices.GetData());
 
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "FALSE");
       renderViewContext.m_pRenderContext->BindShader(s_hDebugPrimitiveShader);
-      renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Triangles], ezGALBufferHandle(), &s_VertexDeclarationInfo,
+      renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Triangles3D], ezGALBufferHandle(), &s_VertexDeclarationInfo,
         ezGALPrimitiveTopology::Triangles, uiNumTriangleVertices / 3);
       renderViewContext.m_pRenderContext->DrawMeshBuffer();
     }
@@ -423,6 +456,7 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
       DestroyBuffer(BufferType::Lines);
       CreateVertexBuffer(BufferType::Lines, sizeof(Vertex), uiNumLineVertices, pData->m_lineVertices.GetData());
 
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "FALSE");
       renderViewContext.m_pRenderContext->BindShader(s_hDebugPrimitiveShader);
       renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Lines], ezGALBufferHandle(), &s_VertexDeclarationInfo, 
         ezGALPrimitiveTopology::Lines, uiNumLineVertices / 2);
@@ -442,6 +476,22 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
       renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "boxData", pDevice->GetDefaultResourceView(s_hDataBuffer[BufferType::LineBoxes]));
       renderViewContext.m_pRenderContext->BindMeshBuffer(s_hLineBoxMeshBuffer);
       renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiNumLineBoxes);
+    }
+  }
+
+  // 2D Rectangles
+  {
+    const ezUInt32 uiNum2DVertices = pData->m_triangle2DVertices.GetCount();
+    if (uiNum2DVertices != 0)
+    {
+      DestroyBuffer(BufferType::Triangles2D);
+      CreateVertexBuffer(BufferType::Triangles2D, sizeof(Vertex), uiNum2DVertices, pData->m_triangle2DVertices.GetData());
+
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "TRUE");
+      renderViewContext.m_pRenderContext->BindShader(s_hDebugPrimitiveShader);
+      renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Triangles2D], ezGALBufferHandle(), &s_VertexDeclarationInfo,
+        ezGALPrimitiveTopology::Triangles, uiNum2DVertices / 3);
+      renderViewContext.m_pRenderContext->DrawMeshBuffer();
     }
   }
 
