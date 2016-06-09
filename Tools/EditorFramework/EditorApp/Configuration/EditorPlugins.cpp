@@ -35,7 +35,7 @@ void ezQtEditorApp::StoreEditorPluginsToBeLoaded()
   AddRestartRequiredReason("The set of active editor plugins was changed.");
 
   ezFileWriter FileOut;
-  FileOut.Open("EditorPlugins.json");
+  FileOut.Open(":appdata/EditorPlugins.json");
 
   ezStandardJSONWriter writer;
   writer.SetOutputStream(&FileOut);
@@ -64,7 +64,7 @@ void ezQtEditorApp::ReadEditorPluginsToBeLoaded()
   }
 
   ezFileReader FileIn;
-  if (FileIn.Open("EditorPlugins.json").Failed())
+  if (FileIn.Open(":appdata/EditorPlugins.json").Failed())
     return;
 
   ezJSONReader reader;

@@ -57,6 +57,12 @@ public:
     }
 #endif
 
+    {
+      // this is not thread safe (though we are only setting one flag), but this function should only be called during startup, where it is single-threaded anyway
+      ezResourceLock<SELF> pFallback(hResource, ezResourceAcquireMode::PointerOnly);
+      pFallback->m_Flags.Add(ezResourceFlags::IsMissingFallback);
+    }
+
     s_TypeMissingResource = hResource;
   }
 

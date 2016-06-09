@@ -31,6 +31,7 @@ struct EZ_CORE_DLL ezResourceFlags
     ResourceHasFallback   = EZ_BIT(2),  ///< Specifies whether this resource has a valid fallback resource that could be used. Automatically updated in ezResource::SetFallbackResource.
     IsReloadable          = EZ_BIT(3),  ///< The resource was created, not loaded from file
     IsPreloading          = EZ_BIT(4),
+    IsMissingFallback     = EZ_BIT(5),  ///< This flag will be set on resources that are used as a 'missing resource' fallback. By querying IsMissingResource() one can detect that the desired resource was not available.
     Default               = 0,
   };
 
