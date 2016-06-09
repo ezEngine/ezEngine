@@ -2,6 +2,7 @@
 #include <GameFoundation/GameApplication/GameApplication.h>
 #include <GameFoundation/GameApplication/InputConfig.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <CoreUtils/Console/Console.h>
 
 
 namespace
