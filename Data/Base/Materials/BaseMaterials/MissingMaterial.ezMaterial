@@ -11,6 +11,6 @@
   
   "Textures" :
   {
-    "DiffuseTexture" : "Textures/MissingMaterial_D.dds"
+    "BaseTexture" : "Textures/MissingMaterial_D.dds"
   }  
 }

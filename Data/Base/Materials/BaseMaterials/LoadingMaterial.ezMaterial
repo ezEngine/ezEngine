@@ -11,6 +11,6 @@
   
   "Textures" :
   {
-    "DiffuseTexture" : "Textures/LoadingMaterial_D.dds"
+    "BaseTexture" : "Textures/LoadingMaterial_D.dds"
   }  
 }

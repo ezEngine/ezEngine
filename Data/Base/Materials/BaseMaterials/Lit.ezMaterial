@@ -14,6 +14,6 @@
   
   "Textures" :
   {
-    "DiffuseTexture" : "Textures/Reference_D.dds"
+    "BaseTexture" : "Textures/Reference_D.dds"
   }  
 }

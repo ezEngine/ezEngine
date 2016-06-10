@@ -70,8 +70,8 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
 #include <Shaders/Materials/DefaultMaterialCB.inc>
 #include <Shaders/Materials/MaterialPixelShader.inc>
 
-Texture2D DiffuseTexture;
-SamplerState DiffuseTextureSampler;
+Texture2D BaseTexture;
+SamplerState BaseTextureSampler;
 
 float3 GetNormal(PS_IN Input)
 {
@@ -89,9 +89,9 @@ float3 GetDiffuseColor(PS_IN Input)
 		blendWeights = max((blendWeights - 0.2) * 7.0, 0.0);
 		blendWeights /= (blendWeights.x + blendWeights.y + blendWeights.z );
 		
-		float3 tex1 = DiffuseTexture.Sample(DiffuseTextureSampler, Input.WorldPosition.yz).rgb;
-		float3 tex2 = DiffuseTexture.Sample(DiffuseTextureSampler, Input.WorldPosition.zx).rgb;
-		float3 tex3 = DiffuseTexture.Sample(DiffuseTextureSampler, Input.WorldPosition.xy).rgb;
+		float3 tex1 = BaseTexture.Sample(BaseTextureSampler, Input.WorldPosition.yz).rgb;
+		float3 tex2 = BaseTexture.Sample(BaseTextureSampler, Input.WorldPosition.zx).rgb;
+		float3 tex3 = BaseTexture.Sample(BaseTextureSampler, Input.WorldPosition.xy).rgb;
 		
 		float3 blendedColor = tex1 * blendWeights.x + tex2 * blendWeights.y + tex3 * blendWeights.z;
 		
