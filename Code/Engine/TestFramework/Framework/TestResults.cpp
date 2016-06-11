@@ -107,7 +107,7 @@ bool ezTestFrameworkResult::WriteJsonToFile(const char* szAbsFileName) const
   ezStartup::StartupCore();
   // Make sure we can access absolute file paths
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-  ezFileSystem::AddDataDirectory("");
+  ezFileSystem::AddDataDirectory("", "whatever", ":", ezFileSystem::AllowWrites);
 
   {
     ezFileWriter file;
