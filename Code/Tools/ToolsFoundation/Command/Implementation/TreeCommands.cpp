@@ -681,7 +681,8 @@ ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
   e.m_sPropertyPath = m_sPropertyPath;
   e.m_NewIndex = m_Index;
 
-  pDocument->GetObjectManager()->m_PropertyEvents.Broadcast(e);
+  // Allow a recursion depth of 2 for property setters. This allowed for two levels of side-effects on property setters.
+  pDocument->GetObjectManager()->m_PropertyEvents.Broadcast(e, 2);
 
   return ezStatus(EZ_SUCCESS);
 }

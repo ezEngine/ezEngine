@@ -3,7 +3,7 @@
 template <typename EventData, typename MutexType>
 ezEventBase<EventData, MutexType>::ezEventBase(ezAllocatorBase* pAllocator) : m_EventHandlers(pAllocator)
 {
-  m_bBroadcasting = false;
+  m_uiRecursionDepth = 0;
 }
 
 /// A callback can be registered multiple times with different pass-through data (or even with the same,
@@ -30,21 +30,21 @@ void ezEventBase<EventData, MutexType>::RemoveEventHandler(Handler handler) cons
 
 /// The notification is sent to all event handlers in the order that they were registered.
 template <typename EventData, typename MutexType>
-void ezEventBase<EventData, MutexType>::Broadcast(EventData eventData)
+void ezEventBase<EventData, MutexType>::Broadcast(EventData eventData, ezUInt8 uiMaxRecursionDepth)
 {
   EZ_LOCK(m_Mutex);
 
-  EZ_ASSERT_DEV(!m_bBroadcasting, "The event has been triggered recursively or from several threads simultaneously.");  
+  EZ_ASSERT_DEV(m_uiRecursionDepth <= uiMaxRecursionDepth, "The event has been triggered recursively or from several threads simultaneously.");
 
-  if (m_bBroadcasting)
+  if (m_uiRecursionDepth > uiMaxRecursionDepth)
     return;
 
-  m_bBroadcasting = true;
+  ++m_uiRecursionDepth;
 
   for (ezUInt32 ui = 0; ui < m_EventHandlers.GetCount(); ++ui)
     m_EventHandlers[ui](eventData);
 
-  m_bBroadcasting = false;
+  --m_uiRecursionDepth;
 }
 
 

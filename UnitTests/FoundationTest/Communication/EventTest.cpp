@@ -14,6 +14,26 @@ namespace
 
     ezInt32 m_iData;
   };
+
+  struct TestRecursion
+  {
+    TestRecursion()
+    {
+      m_uiRecursionCount = 0;
+    }
+    void DoStuff(ezUInt32 uiRecursions)
+    {
+      if (m_uiRecursionCount < uiRecursions)
+      {
+        m_uiRecursionCount++;
+        m_Event.Broadcast(uiRecursions, 10);
+      }
+    }
+
+    typedef ezEvent<ezUInt32> Event;
+    Event m_Event;
+    ezUInt32 m_uiRecursionCount;
+  };
 }
 
 EZ_CREATE_SIMPLE_TEST(Communication, Event)
@@ -57,5 +77,19 @@ EZ_CREATE_SIMPLE_TEST(Communication, Event)
     e.Broadcast(&iResult);
 
     EZ_TEST_INT(iResult, 0);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Recursion")
+  {
+    for (ezUInt32 i = 0; i < 10; i++)
+    {
+      TestRecursion test;
+      test.m_Event.AddEventHandler(TestRecursion::Event::Handler(&TestRecursion::DoStuff, &test));
+      test.m_Event.Broadcast(i, 10);
+      EZ_TEST_INT(test.m_uiRecursionCount, i);
+      test.m_Event.RemoveEventHandler(TestRecursion::Event::Handler(&TestRecursion::DoStuff, &test));
+
+    }
+    
   }
 }
