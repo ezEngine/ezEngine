@@ -26,27 +26,20 @@ public:
   ezSceneViewContext(ezSceneContext* pSceneContext);
   ~ezSceneViewContext();
 
-  void SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);
+  virtual void HandleViewMessage(const ezEditorEngineViewMsg* pMsg) override;
 
-  void Redraw();
-
-  void SetCamera(const ezViewRedrawMsgToEngine* pMsg);
+protected:
+  virtual void Redraw() override;
+  virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg) override;
+  virtual ezView* CreateView() override;
+  virtual bool IsDefaultRenderPipeline(ezRenderPipelineResourceHandle hPipeline) override;
+  ezRenderPipelineResourceHandle CreateDefaultRenderPipeline() override;
 
   void PickObjectAt(ezUInt16 x, ezUInt16 y);
 
-  void SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg = false);
-
-  virtual void HandleViewMessage(const ezEditorEngineViewMsg* pMsg) override;
-
 private:
-  void CreateView();
-
-  ezRenderPipelineResourceHandle CreateEditorRenderPipeline();
-
   ezSceneContext* m_pSceneContext;
 
-  ezCamera m_Camera;
-  ezView* m_pView;
   bool m_bUpdatePickingData;
 
 

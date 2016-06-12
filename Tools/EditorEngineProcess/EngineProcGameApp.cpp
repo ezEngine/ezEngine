@@ -234,7 +234,7 @@ ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentCo
           const ezStringBuilder sDocTypes(";", static_cast<ezAbstractConstantProperty*>(pProp)->GetConstant().ConvertTo<ezString>(), ";");
           const ezStringBuilder sRequestedType(";", pMsg->m_sDocumentType, ";");
 
-          if (sRequestedType.FindSubString(sRequestedType) != nullptr)
+          if (sDocTypes.FindSubString(sRequestedType) != nullptr)
           {
             ezLog::Info("Created Context of type '%s' for '%s'", pRtti->GetTypeName(), pMsg->m_sDocumentType.GetData());
 

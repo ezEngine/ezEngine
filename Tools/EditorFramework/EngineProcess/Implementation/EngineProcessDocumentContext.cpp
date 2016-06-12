@@ -274,7 +274,7 @@ void ezEngineProcessDocumentContext::Deinitialize(bool bFullDestruction)
   m_pWorld = nullptr;
 }
 
-void ezEngineProcessDocumentContext::SendProcessMessage(ezProcessMessage* pMsg /*= false*/)
+void ezEngineProcessDocumentContext::SendProcessMessage(ezProcessMessage* pMsg)
 {
   m_pIPC->SendMessage(pMsg);
 }
