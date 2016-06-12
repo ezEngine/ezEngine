@@ -43,6 +43,8 @@ struct EZ_EDITORFRAMEWORK_DLL ezSceneViewConfig
 {
   ezSceneViewConfig()
   {
+    m_RenderMode = ezViewRenderMode::Default;
+    m_Perspective = ezSceneViewPerspective::Default;
     m_pLinkedViewConfig = nullptr;
   }
 

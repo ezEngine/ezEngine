@@ -219,13 +219,14 @@ void ezView::ApplyRenderPassProperties()
     {
       ezStringView sPassName(propertyValue.m_sObjectName.GetData(), szDot);
       ezRenderPipelinePass* pPass = m_pRenderPipeline->GetPassByName(sPassName);
-
-      pObject = pPass->GetRendererByType(ezRTTI::FindTypeByName(szDot + 1));
+      if (pPass)
+        pObject = pPass->GetRendererByType(ezRTTI::FindTypeByName(szDot + 1));
     }
     else
     {
       pObject = m_pRenderPipeline->GetPassByName(propertyValue.m_sObjectName);
     }
+
     if (pObject == nullptr)
     {
       ezLog::Error("The render pass '%s' does not exist. Property '%s' cannot be applied.", propertyValue.m_sObjectName.GetData(), propertyValue.m_sPropertyName.GetData());

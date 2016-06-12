@@ -6,9 +6,13 @@
 #include <QPaintEvent>
 #include <QPushButton>
 #include <QHBoxLayout>
+#include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 
 ezUInt32 ezQtEngineViewWidget::s_uiNextViewID = 0;
 
+////////////////////////////////////////////////////////////////////////
+// ezQtEngineViewWidget public functions
+////////////////////////////////////////////////////////////////////////
 
 ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentWindow* pDocumentWindow, ezSceneViewConfig* pViewConfig)
   : QWidget(pParent)
@@ -57,36 +61,6 @@ ezQtEngineViewWidget::~ezQtEngineViewWidget()
   m_pDocumentWindow->m_ViewWidgets.RemoveSwap(this);
 }
 
-void ezQtEngineViewWidget::paintEvent(QPaintEvent* event)
-{
-  //event->accept();
-
-}
-
-bool ezQtEngineViewWidget::eventFilter(QObject* object, QEvent* event)
-{
-  if (event->type() == QEvent::Type::ShortcutOverride)
-  {
-    if (ezEditorInputContext::IsAnyInputContextActive())
-    {
-      // if the active input context does not like other shortcuts,
-      // accept this event and thus block further shortcut processing
-      // instead Qt will then send a keypress event
-      if (ezEditorInputContext::GetActiveInputContext()->GetShortcutsDisabled())
-        event->accept();
-    }
-  }
-
-  return false;
-}
-
-
-void ezQtEngineViewWidget::GetCameraMatrices(ezMat4& out_ViewMatrix, ezMat4& out_ProjectionMatrix) const
-{
-  m_pViewConfig->m_Camera.GetViewMatrix(out_ViewMatrix);
-  m_pViewConfig->m_Camera.GetProjectionMatrix((float)width() / (float)height(), out_ProjectionMatrix);
-}
-
 void ezQtEngineViewWidget::SyncToEngine()
 {
   ezViewRedrawMsgToEngine cam;
@@ -113,6 +87,12 @@ void ezQtEngineViewWidget::SyncToEngine()
   m_pDocumentWindow->GetEditorEngineConnection()->SendMessage(&cam);
 }
 
+
+void ezQtEngineViewWidget::GetCameraMatrices(ezMat4& out_ViewMatrix, ezMat4& out_ProjectionMatrix) const
+{
+  m_pViewConfig->m_Camera.GetViewMatrix(out_ViewMatrix);
+  m_pViewConfig->m_Camera.GetProjectionMatrix((float)width() / (float)height(), out_ProjectionMatrix);
+}
 
 void ezQtEngineViewWidget::UpdateCameraInterpolation()
 {
@@ -178,31 +158,38 @@ void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ez
   m_fCameraLerp = 0.0f;
 }
 
+
+////////////////////////////////////////////////////////////////////////
+// ezQtEngineViewWidget qt overrides
+////////////////////////////////////////////////////////////////////////
+
+bool ezQtEngineViewWidget::eventFilter(QObject* object, QEvent* event)
+{
+  if (event->type() == QEvent::Type::ShortcutOverride)
+  {
+    if (ezEditorInputContext::IsAnyInputContextActive())
+    {
+      // if the active input context does not like other shortcuts,
+      // accept this event and thus block further shortcut processing
+      // instead Qt will then send a keypress event
+      if (ezEditorInputContext::GetActiveInputContext()->GetShortcutsDisabled())
+        event->accept();
+    }
+  }
+
+  return false;
+}
+
+
+void ezQtEngineViewWidget::paintEvent(QPaintEvent* event)
+{
+  //event->accept();
+
+}
+
 void ezQtEngineViewWidget::resizeEvent(QResizeEvent* event)
 {
   m_pDocumentWindow->TriggerRedraw();
-}
-
-void ezQtEngineViewWidget::keyReleaseEvent(QKeyEvent* e)
-{
-  // if a context is active, it gets exclusive access to the input data
-  if (ezEditorInputContext::IsAnyInputContextActive())
-  {
-    if (ezEditorInputContext::GetActiveInputContext()->KeyReleaseEvent(e) == ezEditorInut::WasExclusivelyHandled)
-      return;
-  }
-
-  if (ezEditorInputContext::IsAnyInputContextActive())
-    return;
-
-  // if no context is active, pass the input through in a certain order, until someone handles it
-  for (auto pContext : m_InputContexts)
-  {
-    if (pContext->KeyReleaseEvent(e) == ezEditorInut::WasExclusivelyHandled)
-      return;
-  }
-
-  QWidget::keyReleaseEvent(e);
 }
 
 void ezQtEngineViewWidget::keyPressEvent(QKeyEvent* e)
@@ -225,6 +212,28 @@ void ezQtEngineViewWidget::keyPressEvent(QKeyEvent* e)
   }
 
   QWidget::keyPressEvent(e);
+}
+
+void ezQtEngineViewWidget::keyReleaseEvent(QKeyEvent* e)
+{
+  // if a context is active, it gets exclusive access to the input data
+  if (ezEditorInputContext::IsAnyInputContextActive())
+  {
+    if (ezEditorInputContext::GetActiveInputContext()->KeyReleaseEvent(e) == ezEditorInut::WasExclusivelyHandled)
+      return;
+  }
+
+  if (ezEditorInputContext::IsAnyInputContextActive())
+    return;
+
+  // if no context is active, pass the input through in a certain order, until someone handles it
+  for (auto pContext : m_InputContexts)
+  {
+    if (pContext->KeyReleaseEvent(e) == ezEditorInut::WasExclusivelyHandled)
+      return;
+  }
+
+  QWidget::keyReleaseEvent(e);
 }
 
 void ezQtEngineViewWidget::mousePressEvent(QMouseEvent* e)
@@ -344,6 +353,11 @@ void ezQtEngineViewWidget::dropEvent(QDropEvent* e)
   m_bInDragAndDropOperation = false;
 }
 
+
+////////////////////////////////////////////////////////////////////////
+// ezQtEngineViewWidget protected functions
+////////////////////////////////////////////////////////////////////////
+
 void ezQtEngineViewWidget::EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e)
 {
   switch (e.m_Type)
@@ -395,7 +409,50 @@ void ezQtEngineViewWidget::ShowRestartButton(bool bShow)
 }
 
 
+////////////////////////////////////////////////////////////////////////
+// ezQtEngineViewWidget private slots
+////////////////////////////////////////////////////////////////////////
+
 void ezQtEngineViewWidget::SlotRestartEngineProcess()
 {
   ezEditorEngineProcessConnection::GetSingleton()->RestartProcess();
 }
+
+
+////////////////////////////////////////////////////////////////////////
+// ezQtViewWidgetContainer
+////////////////////////////////////////////////////////////////////////
+
+ezQtViewWidgetContainer::ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineViewWidget* pViewWidget, const char* szToolBarMapping)
+{
+  setBackgroundRole(QPalette::Base);
+  setAutoFillBackground(true);
+
+  QVBoxLayout* pLayout = new QVBoxLayout(this);
+  pLayout->setMargin(1);
+  pLayout->setSpacing(0);
+  setLayout(pLayout);
+
+  m_pViewWidget = pViewWidget;
+  m_pViewWidget->setParent(this);
+
+  if (!ezStringUtils::IsNullOrEmpty(szToolBarMapping))
+  {
+    // Add Tool Bar
+    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
+    ezActionContext context;
+    context.m_sMapping = szToolBarMapping;
+    context.m_pDocument = pViewWidget->GetDocumentWindow()->GetDocument();
+    context.m_pWindow = m_pViewWidget;
+    pToolBar->SetActionContext(context);
+    pLayout->addWidget(pToolBar);
+  }
+
+  pLayout->addWidget(m_pViewWidget);
+}
+
+ezQtViewWidgetContainer::~ezQtViewWidgetContainer()
+{
+
+}
+

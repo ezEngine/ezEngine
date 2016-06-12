@@ -11,6 +11,7 @@ class ezQtEngineDocumentWindow;
 class ezEditorInputContext;
 class QHBoxLayout;
 class QPushButton;
+class QVBoxLayout;
 
 class EZ_EDITORFRAMEWORK_DLL ezQtEngineViewWidget : public QWidget
 {
@@ -22,12 +23,6 @@ public:
 
   /// \brief Add input contexts in the order in which they are supposed to be processed
   ezHybridArray<ezEditorInputContext*, 8> m_InputContexts;
-
-  virtual void paintEvent(QPaintEvent* event) override;
-  virtual QPaintEngine* paintEngine() const override { return nullptr; }
-
-  /// \brief Used to deactivate shortcuts
-  virtual bool eventFilter(QObject* object, QEvent* event) override;
 
   /// \brief Returns the ID of this view
   ezUInt32 GetViewID() const { return m_uiViewID; }
@@ -47,10 +42,13 @@ public:
 
   virtual bool IsPickingAgainstSelectionAllowed() const { return !m_bInDragAndDropOperation; }
 
-private slots:
-  void SlotRestartEngineProcess();
-
 protected:
+  /// \brief Used to deactivate shortcuts
+  virtual bool eventFilter(QObject* object, QEvent* event) override;
+
+  virtual void paintEvent(QPaintEvent* event) override;
+  virtual QPaintEngine* paintEngine() const override { return nullptr; }
+
   virtual void resizeEvent(QResizeEvent* event) override;
 
   virtual void keyPressEvent(QKeyEvent* e) override;
@@ -64,9 +62,12 @@ protected:
   virtual void dragLeaveEvent(QDragLeaveEvent* e) override;
   virtual void dropEvent(QDropEvent* e) override;
 
-
+protected:
   void EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e);
   void ShowRestartButton(bool bShow);
+
+private slots:
+  void SlotRestartEngineProcess();
 
 protected:
   bool m_bUpdatePickingData;
@@ -91,4 +92,17 @@ protected:
   QPushButton* m_pRestartButton;
 };
 
+/// \brief Wraps and decorates a view widget with a toolbar and layout.
+class EZ_EDITORFRAMEWORK_DLL ezQtViewWidgetContainer : public QWidget
+{
+  Q_OBJECT
+public:
+  ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineViewWidget* pViewWidget, const char* szToolBarMapping);
+  ~ezQtViewWidgetContainer();
 
+  ezQtEngineViewWidget* GetViewWidget() const { return m_pViewWidget; }
+
+private:
+  ezQtEngineViewWidget* m_pViewWidget;
+  QVBoxLayout* m_pLayout;
+};

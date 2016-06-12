@@ -34,18 +34,3 @@ protected:
   bool m_bAllowPickSelectedWhileDragging;
   ezTime m_LastDragMoveEvent;
 };
-
-class ezQtSceneViewWidgetContainer : public QWidget
-{
-  Q_OBJECT
-public:
-  ezQtSceneViewWidgetContainer(QWidget* pParent, ezQtSceneDocumentWindow* pDocumentWindow, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig);
-  ~ezQtSceneViewWidgetContainer();
-
-  ezQtSceneViewWidget* GetViewWidget() const { return m_pViewWidget; }
-
-private:
-  ezQtSceneViewWidget* m_pViewWidget;
-  QVBoxLayout* m_pLayout;
-};
-

@@ -17,21 +17,19 @@ BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
 # add_definitions (-DMY_PREPROCESS_DEFINITION_1)
 # add_definitions (-DMY_PREPROCESS_DEFINITION_2)
 
-# Set this to true, if your application is a real win32 app (not a console app)
-SET (IS_WIN32_APPLICATION true)
-
 # Enables the use of Qt in this project and sets up the required modules.
-QT_MODULES(Core Gui Widgets Network)
+#QT_MODULES(Core Gui Widgets)
 
 # Call this in case this project does not function without Qt.
-BUILD_REQUIRES_QT()
+#BUILD_REQUIRES_QT()
 
 BUILD_REQUIRES_DX11()
 
 # Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES
-  Foundation
-  ThirdParty
+  Foundation  
+  ToolsFoundation
+  EditorFramework 
 
   Core
   System
@@ -39,18 +37,9 @@ SET (LINK_LIBRARIES
   RendererDX11
   RendererCore
   CoreUtils
-  EditorFramework
+
   GameFoundation
   GameUtils
-  InputXBox360
 )
 
-SET (ADDITIONAL_DEPENDENCIES
-  ShaderCompilerHLSL
-  EnginePluginScene
-  EnginePluginAssets
-)
-
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
-
-
+include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)

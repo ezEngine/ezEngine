@@ -85,6 +85,9 @@ public:
   /// \brief Returns whether the game state wants to quit the application.
   bool WasQuitRequested() const { return m_bStateWantsToQuit; }
 
+  /// \brief Returns the hard-coded default render pipeline.
+  static ezRenderPipelineResourceHandle GetMainRenderPipeline();
+
 protected:
   /// \brief Creates a default window (ezGameStateWindow) adds it to the application and fills out m_pMainWindow and m_hMainSwapChain
   virtual void CreateMainWindow();

@@ -1,29 +1,34 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
+#include <EditorFramework/EngineProcess/ViewRenderSettings.h>
 
 class QLabel;
 class QScrollArea;
 class QtImageWidget;
+class ezMaterialAssetDocument;
+class ezQtMaterialViewWidget;
 
-class ezMaterialAssetDocumentWindow : public ezQtDocumentWindow
+class ezMaterialAssetDocumentWindow : public ezQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezMaterialAssetDocumentWindow(ezDocument* pDocument);
+  ezMaterialAssetDocumentWindow(ezMaterialAssetDocument* pDocument);
   ~ezMaterialAssetDocumentWindow();
 
   virtual const char* GetGroupName() const { return "MaterialAsset"; }
 
-private slots:
-  
+protected:
+  virtual void InternalRedraw() override;
 
 private:
   void UpdatePreview();
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void SendRedrawMsg();
 
-  QtImageWidget* m_pImageWidget;
+  ezSceneViewConfig m_ViewConfig;
+  ezQtMaterialViewWidget* m_pViewWidget;
 };

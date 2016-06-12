@@ -19,6 +19,8 @@ void OnLoadPlugin(bool bReloading)
   ezTranslatorFromFiles::AddTranslationFile("AssetsPlugin.txt");
   ezTranslatorFromFiles::AddTranslationFile("PermutationVars.txt");
 
+  ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginAssets", "ezEnginePluginAssets");
+
   // Texture Asset
   {
     ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezTextureAssetProperties::PropertyMetaStateEventHandler);

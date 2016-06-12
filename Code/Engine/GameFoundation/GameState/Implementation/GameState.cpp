@@ -123,7 +123,7 @@ void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer, ezGALRe
 }
 
 
-ezRenderPipelineResourceHandle ezGameState::CreateMainRenderPipeline()
+ezRenderPipelineResourceHandle ezGameState::GetMainRenderPipeline()
 {
   auto hRP = ezResourceManager::GetExistingResource<ezRenderPipelineResource>("MainRenderPipeline");
   if (hRP.IsValid())
@@ -168,6 +168,11 @@ ezRenderPipelineResourceHandle ezGameState::CreateMainRenderPipeline()
   ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(pRenderPipeline.Borrow(), desc);
 
   return ezResourceManager::CreateResource<ezRenderPipelineResource>("MainRenderPipeline", desc);
+}
+
+ezRenderPipelineResourceHandle ezGameState::CreateMainRenderPipeline()
+{
+  return ezGameState::GetMainRenderPipeline();
 }
 
 void ezGameState::ChangeMainWorld(ezWorld* pNewMainWorld)

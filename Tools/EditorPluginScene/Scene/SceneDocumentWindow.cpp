@@ -409,20 +409,22 @@ void ezQtSceneDocumentWindow::CreateViews(bool bQuad)
   {
     for (ezUInt32 i = 0; i < 4; ++i)
     {
-      ezQtSceneViewWidgetContainer* pContainer = new ezQtSceneViewWidgetContainer(this, this, &m_CameraMoveSettings, &m_ViewConfigQuad[i]);
+      ezQtSceneViewWidget* pViewWidget = new ezQtSceneViewWidget(nullptr, this, &m_CameraMoveSettings, &m_ViewConfigQuad[i]);
+      ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(this, pViewWidget, "EditorPluginScene_ViewToolBar");
       m_ActiveMainViews.PushBack(pContainer);
       m_pViewLayout->addWidget(pContainer, i / 2, i % 2);
 
-      pContainer->GetViewWidget()->m_pOrthoGizmoContext->m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
+      pViewWidget->m_pOrthoGizmoContext->m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
     }
   }
   else
   {
-    ezQtSceneViewWidgetContainer* pContainer = new ezQtSceneViewWidgetContainer(this, this, &m_CameraMoveSettings, &m_ViewConfigSingle);
+    ezQtSceneViewWidget* pViewWidget = new ezQtSceneViewWidget(nullptr, this, &m_CameraMoveSettings, &m_ViewConfigSingle);
+    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(this, pViewWidget, "EditorPluginScene_ViewToolBar");
     m_ActiveMainViews.PushBack(pContainer);
     m_pViewLayout->addWidget(pContainer, 0, 0);
 
-    pContainer->GetViewWidget()->m_pOrthoGizmoContext->m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
+    pViewWidget->m_pOrthoGizmoContext->m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::TransformationGizmoEventHandler, this));
   }
 }
 

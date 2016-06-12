@@ -14,7 +14,7 @@
 
 struct ezSceneViewPreferences;
 class QGridLayout;
-class ezQtSceneViewWidgetContainer;
+class ezQtViewWidgetContainer;
 class ezQtSceneViewWidget;
 class QSettings;
 struct ezManipulatorManagerEvent;
@@ -75,7 +75,7 @@ private:
 
   ezSceneViewConfig m_ViewConfigSingle;
   ezSceneViewConfig m_ViewConfigQuad[4];
-  ezHybridArray<ezQtSceneViewWidgetContainer*, 4> m_ActiveMainViews;
+  ezHybridArray<ezQtViewWidgetContainer*, 4> m_ActiveMainViews;
 
   ezTranslateGizmo m_TranslateGizmo;
   ezRotateGizmo m_RotateGizmo;

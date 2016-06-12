@@ -456,7 +456,8 @@ const ezRTTI* ezMaterialAssetProperties::UpdateShaderType(const char* szShaderPa
 
 //////////////////////////////////////////////////////////////////////////
 
-ezMaterialAssetDocument::ezMaterialAssetDocument(const char* szDocumentPath) : ezSimpleAssetDocument<ezMaterialAssetProperties>(szDocumentPath)
+ezMaterialAssetDocument::ezMaterialAssetDocument(const char* szDocumentPath)
+  : ezSimpleAssetDocument<ezMaterialAssetProperties>(szDocumentPath, true)
 {
 }
 

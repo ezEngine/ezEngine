@@ -166,35 +166,3 @@ void ezQtSceneViewWidget::dropEvent(QDropEvent * e)
   ezQtEngineViewWidget::dropEvent(e);
 }
 
-
-ezQtSceneViewWidgetContainer::ezQtSceneViewWidgetContainer(QWidget* pParent, ezQtSceneDocumentWindow* pDocumentWindow, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig)
-{
-  setBackgroundRole(QPalette::Base);
-  setAutoFillBackground(true);
-
-  QVBoxLayout* pLayout = new QVBoxLayout(this);
-  pLayout->setMargin(1);
-  pLayout->setSpacing(0);
-  setLayout(pLayout);
-
-  m_pViewWidget = new ezQtSceneViewWidget(this, pDocumentWindow, pCameraMoveSettings, pViewConfig);
-
-  {
-    // Tool Bar
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
-    ezActionContext context;
-    context.m_sMapping = "EditorPluginScene_ViewToolBar";
-    context.m_pDocument = pDocumentWindow->GetDocument();
-    context.m_pWindow = m_pViewWidget;
-    pToolBar->SetActionContext(context);
-    pLayout->addWidget(pToolBar);
-  }
-
-  pLayout->addWidget(m_pViewWidget);
-}
-
-ezQtSceneViewWidgetContainer::~ezQtSceneViewWidgetContainer()
-{
-
-}
-
