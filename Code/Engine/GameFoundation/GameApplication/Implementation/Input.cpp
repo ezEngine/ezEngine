@@ -70,7 +70,7 @@ void ezGameApplication::ProcessApplicationInput()
 
   if (ezInputManager::GetInputActionState(g_szInputSet, g_szReloadResourcesAction) == ezKeyState::Pressed)
   {
-    ezResourceManager::ReloadAllResources();
+    ezResourceManager::ReloadAllResources(false);
   }
 
   if (ezInputManager::GetInputActionState(g_szInputSet, g_szCaptureProfilingAction) == ezKeyState::Pressed)

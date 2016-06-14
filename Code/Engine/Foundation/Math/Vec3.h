@@ -143,6 +143,7 @@ public:
 public:
 
   /// \brief Returns the positive angle between *this and rhs.
+  /// Both this and rhs must be normalized
   ezAngle GetAngleBetween(const ezVec3Template& rhs) const; // [tested]
 
   /// \brief Returns the Dot-product of the two vectors (commutative, order does not matter)

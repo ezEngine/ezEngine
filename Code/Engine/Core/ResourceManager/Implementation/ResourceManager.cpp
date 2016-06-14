@@ -45,6 +45,37 @@ ezEvent<const ezResourceManagerEvent&> ezResourceManager::s_ManagerEvents;
 ezMutex ezResourceManager::s_ResourceMutex;
 ezHashTable<ezTempHashedString, ezHashedString> ezResourceManager::s_NamedResources;
 ezMap<ezString, const ezRTTI*> ezResourceManager::s_AssetToResourceType;
+ezMap<ezResourceBase*, ezUniquePtr<ezResourceTypeLoader> > ezResourceManager::s_CustomLoaders;
+
+
+EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ResourceManager)
+
+BEGIN_SUBSYSTEM_DEPENDENCIES
+"Foundation"
+END_SUBSYSTEM_DEPENDENCIES
+
+ON_CORE_STARTUP
+{
+  ezResourceManager::OnCoreStartup();
+}
+
+ON_CORE_SHUTDOWN
+{
+  ezResourceManager::OnCoreShutdown();
+}
+
+ON_ENGINE_STARTUP
+{
+}
+
+ON_ENGINE_SHUTDOWN
+{
+  ezResourceManager::OnEngineShutdown();
+}
+
+EZ_END_SUBSYSTEM_DECLARATION
+
+
 
 ezResourceTypeLoader* ezResourceManager::GetResourceTypeLoader(const ezRTTI* pRTTI)
 {
@@ -284,6 +315,8 @@ void ezResourceManagerWorker::Execute()
 void ezResourceManagerWorker::DoWork(bool bCalledExternally)
 {
   ezResourceBase* pResourceToLoad = nullptr;
+  ezResourceTypeLoader* pLoader = nullptr;
+  ezUniquePtr<ezResourceTypeLoader> pCustomLoader;
 
   {
     EZ_LOCK(ezResourceManager::s_ResourceMutex);
@@ -299,9 +332,18 @@ void ezResourceManagerWorker::DoWork(bool bCalledExternally)
     auto it = ezResourceManager::m_RequireLoading.PeekFront();
     pResourceToLoad = it.m_pResource;
     ezResourceManager::m_RequireLoading.PopFront();
+
+
+    if (pResourceToLoad->m_Flags.IsSet(ezResourceFlags::HasCustomDataLoader))
+    {
+      pCustomLoader = std::move(ezResourceManager::s_CustomLoaders[pResourceToLoad]);
+      pLoader = pCustomLoader.Borrow();
+      pResourceToLoad->m_Flags.Remove(ezResourceFlags::HasCustomDataLoader);
+    }
   }
 
-  ezResourceTypeLoader* pLoader = ezResourceManager::GetResourceTypeLoader(pResourceToLoad->GetDynamicRTTI());
+  if (pLoader == nullptr)
+    pLoader = ezResourceManager::GetResourceTypeLoader(pResourceToLoad->GetDynamicRTTI());
 
   if (pLoader == nullptr)
     pLoader = pResourceToLoad->GetDefaultResourceTypeLoader();
@@ -381,6 +423,8 @@ void ezResourceManagerWorker::DoWork(bool bCalledExternally)
       ezResourceManager::m_bTaskRunning = false;
       ezResourceManager::RunWorkerTask(nullptr);
     }
+
+    pCustomLoader.Reset();
   }
 }
 
@@ -462,7 +506,7 @@ void ezResourceManager::PreloadTypelessResource(const ezTypelessResourceHandle& 
   }
 }
 
-void ezResourceManager::ReloadResource(ezResourceBase* pResource)
+void ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
 {
   EZ_LOCK(s_ResourceMutex);
 
@@ -504,7 +548,7 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource)
 
   if (pResource->GetLoadingState() != ezResourceState::LoadedResourceMissing)
   {
-    if (!pLoader->IsResourceOutdated(pResource))
+    if (!bForce && !pLoader->IsResourceOutdated(pResource))
       return;
 
     ezLog::Dev("Resource '%s' is outdated and will be reloaded", pResource->GetResourceID().GetData());
@@ -532,7 +576,7 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource)
   }
 }
 
-void ezResourceManager::ReloadResourcesOfType(const ezRTTI* pType)
+void ezResourceManager::ReloadResourcesOfType(const ezRTTI* pType, bool bForce)
 {
   EZ_LOCK(s_ResourceMutex);
   EZ_LOG_BLOCK("ezResourceManager::ReloadResourcesOfType", pType->GetTypeName());
@@ -540,18 +584,18 @@ void ezResourceManager::ReloadResourcesOfType(const ezRTTI* pType)
   for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
   {
     if (it.Value()->GetDynamicRTTI() == pType)
-      ReloadResource(it.Value());
+      ReloadResource(it.Value(), bForce);
   }
 }
 
-void ezResourceManager::ReloadAllResources()
+void ezResourceManager::ReloadAllResources(bool bForce)
 {
   EZ_LOCK(s_ResourceMutex);
   EZ_LOG_BLOCK("ezResourceManager::ReloadAllResources");
 
   for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
   {
-    ReloadResource(it.Value());
+    ReloadResource(it.Value(), bForce);
   }
 }
 
@@ -791,32 +835,19 @@ void ezResourceManager::UnregisterNamedResource(const char* szLookupName)
 }
 
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ResourceManager)
+void ezResourceManager::UpdateResourceWithCustomLoader(const ezTypelessResourceHandle& hResource, ezUniquePtr<ezResourceTypeLoader>&& loader)
+{
+  EZ_LOCK(s_ResourceMutex);
 
-  BEGIN_SUBSYSTEM_DEPENDENCIES
-    "Foundation"
-  END_SUBSYSTEM_DEPENDENCIES
+  hResource.m_pResource->m_Flags.Add(ezResourceFlags::HasCustomDataLoader);
+  s_CustomLoaders[hResource.m_pResource] = std::move(loader);
+  // if there was already a custom loader set, but it got no action yet, it is deleted here and replaced with the newer loader
 
-  ON_CORE_STARTUP
-  {
-    ezResourceManager::OnCoreStartup();
-  }
- 
-  ON_CORE_SHUTDOWN
-  {
-    ezResourceManager::OnCoreShutdown();
-  }
+  ReloadResource(hResource.m_pResource, true);
+};
 
-  ON_ENGINE_STARTUP
-  {
-  }
- 
-  ON_ENGINE_SHUTDOWN
-  {
-    ezResourceManager::OnEngineShutdown();
-  }
- 
-EZ_END_SUBSYSTEM_DECLARATION
+
+
 
 
 

@@ -32,6 +32,7 @@ struct EZ_CORE_DLL ezResourceFlags
     IsReloadable          = EZ_BIT(3),  ///< The resource was created, not loaded from file
     IsPreloading          = EZ_BIT(4),
     IsMissingFallback     = EZ_BIT(5),  ///< This flag will be set on resources that are used as a 'missing resource' fallback. By querying IsMissingResource() one can detect that the desired resource was not available.
+    HasCustomDataLoader   = EZ_BIT(6),  ///< True if someone wants to update a resource with custom data and has created a resource loader to update this specific resource
     Default               = 0,
   };
 

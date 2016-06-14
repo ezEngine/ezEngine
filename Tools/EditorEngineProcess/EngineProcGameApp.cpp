@@ -179,7 +179,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezProcessCommunicatio
     }
     else if (pMsg->m_sWhatToDo == "ReloadResources")
     {
-      ezResourceManager::ReloadAllResources();
+      ezResourceManager::ReloadAllResources(false);
     }
     else
       ezLog::Warning("Unknown ezSimpleConfigMsgToEngine '%s'", pMsg->m_sWhatToDo.GetData());

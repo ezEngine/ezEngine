@@ -83,7 +83,36 @@ bool ezResourceLoaderFromFile::IsResourceOutdated(const ezResourceBase* pResourc
   return true;
 }
 
+//////////////////////////////////////////////////////////////////////////
 
+ezResourceLoadData ezResourceLoaderFromMemory::OpenDataStream(const ezResourceBase* pResource)
+{
+  m_Reader.SetStorage(&m_CustomData);
+  m_Reader.SetReadPosition(0);
+
+  ezResourceLoadData res;
+
+  res.m_sResourceDescription = m_sResourceDescription;
+  res.m_LoadedFileModificationDate = m_ModificationTimestamp;
+  res.m_pDataStream = &m_Reader;
+  res.m_pCustomLoaderData = nullptr;
+
+  return res;
+}
+
+void ezResourceLoaderFromMemory::CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData)
+{
+}
+
+bool ezResourceLoaderFromMemory::IsResourceOutdated(const ezResourceBase* pResource) const
+{
+  if (pResource->GetLoadedFileModificationTime().IsValid() && m_ModificationTimestamp.IsValid())
+  {
+    return !m_ModificationTimestamp.IsEqual(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::FileTime);
+  }
+
+  return true;
+}
 
 
 

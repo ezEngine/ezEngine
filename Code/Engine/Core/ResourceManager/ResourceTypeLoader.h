@@ -3,6 +3,7 @@
 #include <Core/ResourceManager/Implementation/Declarations.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Time/Timestamp.h>
+#include <Foundation/IO/MemoryStream.h>
 
 /// \brief Data returned by ezResourceTypeLoader implementations.
 struct EZ_CORE_DLL ezResourceLoadData
@@ -66,5 +67,30 @@ public:
   virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) override;
   virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) override;
   virtual bool IsResourceOutdated(const ezResourceBase* pResource) const override;
+};
+
+
+/// \brief A resource loader that is mainly used to update a resource on the fly with custom data, e.g. in an editor
+///
+/// Use like this:
+/// Allocate a ezResourceLoaderFromMemory instance on the heap, using EZ_DEFAULT_NEW and store the result in a ezUniquePtr<ezResourceTypeLoader>.
+/// Then set the description, the modification time (simply use ezTimestamp::CurrentTimestamp()), and the custom date.
+/// Use a ezMemoryStreamWriter to write your custom data. Make sure to write EXACTLY the same format that the targeted resource type would read, including all data
+/// that would typically be written by outside code, e.g. the default ezResourceLoaderFromFile additionally writes the path to the resource at the start of the stream.
+/// If such data is usually present in the stream, you must write this yourself.
+/// Then call ezResourceManager::UpdateResourceWithCustomLoader(), specify the target resource and std::move your created loader in there.
+class EZ_CORE_DLL ezResourceLoaderFromMemory : public ezResourceTypeLoader
+{
+public:
+  virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) override;
+  virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) override;
+  virtual bool IsResourceOutdated(const ezResourceBase* pResource) const override;
+
+  ezString m_sResourceDescription;
+  ezTimestamp m_ModificationTimestamp;
+  ezMemoryStreamStorage m_CustomData;
+
+private:
+  ezMemoryStreamReader m_Reader;
 };
 

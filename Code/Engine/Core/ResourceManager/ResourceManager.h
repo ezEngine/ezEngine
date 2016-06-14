@@ -6,6 +6,7 @@
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Threading/TaskSystem.h>
+#include <Foundation/Types/UniquePtr.h>
 
 
 enum class ezResourceManagerEventType
@@ -110,14 +111,14 @@ public:
   static ezUInt32 FreeUnusedResources(bool bFreeAllUnused);
 
   template<typename ResourceType>
-  static void ReloadResource(const ezTypedResourceHandle<ResourceType>& hResource);
+  static void ReloadResource(const ezTypedResourceHandle<ResourceType>& hResource, bool bForce);
 
   template<typename ResourceType>
-  static void ReloadResourcesOfType();
+  static void ReloadResourcesOfType(bool bForce);
 
-  static void ReloadResourcesOfType(const ezRTTI* pType);
+  static void ReloadResourcesOfType(const ezRTTI* pType, bool bForce);
 
-  static void ReloadAllResources();
+  static void ReloadAllResources(bool bForce);
 
   //static void CleanUpResources();
 
@@ -147,12 +148,17 @@ public:
   /// \brief Returns the resource manager mutex. Allows to lock the manager on a thread when multiple operations need to be done in sequence.
   static ezMutex& GetMutex() { return s_ResourceMutex; }
 
+  /// \brief Calls ReloadResource on the given resource, but makes sure that the reload happens with the given custom loader.
+  ///
+  /// Use this e.g. with a ezResourceLoaderFromMemory to replace an existing resource with new data that was created on-the-fly.
+  static void UpdateResourceWithCustomLoader(const ezTypelessResourceHandle& hResource, ezUniquePtr<ezResourceTypeLoader>&& loader);
+
 private:
   friend class ezResourceManagerWorker;
   friend class ezResourceManagerWorkerGPU;
   friend class ezResourceHandleReadContext;
 
-  static void ReloadResource(ezResourceBase* pResource);
+  static void ReloadResource(ezResourceBase* pResource, bool bForce);
 
   static void PreloadResource(ezResourceBase* pResource, ezTime tShouldBeAvailableIn);
 
@@ -212,6 +218,7 @@ private:
   static ezMutex s_ResourceMutex;
   static ezHashTable<ezTempHashedString, ezHashedString> s_NamedResources;
   static ezMap<ezString, const ezRTTI*> s_AssetToResourceType;
+  static ezMap<ezResourceBase*, ezUniquePtr<ezResourceTypeLoader> > s_CustomLoaders;
 };
 
 /// \brief Helper class to acquire and release a resource safely.

@@ -1,5 +1,9 @@
 {
   "Plugins" : [ {
+      "Path" : "ezEnginePluginAssets",
+      "DependencyOf" : [ "EditorPluginAssets" ]
+    },
+    {
       "Path" : "ezEnginePluginScene",
       "DependencyOf" : [ "EditorPluginScene" ]
     },
