@@ -13,6 +13,7 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 #include <CoreUtils/Localization/TranslationLookup.h>
+#include <EditorFramework/Actions/ViewActions.h>
 
 void OnLoadPlugin(bool bReloading)
 {
@@ -62,6 +63,10 @@ void OnLoadPlugin(bool bReloading)
       ezCommandHistoryActions::MapActions("MaterialAssetToolBar", "");
       ezAssetActions::MapActions("MaterialAssetToolBar", true);
     }
+
+    // View Tool Bar
+    ezActionMapManager::RegisterActionMap("MaterialAssetViewToolBar");
+    ezViewActions::MapActions("MaterialAssetViewToolBar", "");
   }
 
   // Render Pipeline Asset

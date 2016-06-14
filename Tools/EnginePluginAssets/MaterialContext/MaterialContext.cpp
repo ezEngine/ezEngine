@@ -20,6 +20,8 @@
 #include <GameUtils/Components/InputComponent.h>
 #include <EditorFramework/Gizmos/GizmoRenderer.h>
 #include <RendererCore/Meshes/MeshComponent.h>
+#include <SharedPluginAssets/MaterialAsset/MaterialMessages.h>
+#include <Core/ResourceManager/ResourceTypeLoader.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialContext, 1, ezRTTIDefaultAllocator<ezMaterialContext>)
 {
@@ -38,7 +40,18 @@ ezMaterialContext::ezMaterialContext()
 
 void ezMaterialContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
- 
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineMaterialUpdateMsg>())
+  {
+    const ezEditorEngineMaterialUpdateMsg* pMsg2 = static_cast<const ezEditorEngineMaterialUpdateMsg*>(pMsg);
+
+    ezUniquePtr<ezResourceLoaderFromMemory> loader(EZ_DEFAULT_NEW(ezResourceLoaderFromMemory));
+    loader->m_ModificationTimestamp = ezTimestamp::CurrentTimestamp();
+    loader->m_sResourceDescription = "MaterialImmediateEditorUpdate";
+    ezMemoryStreamWriter memoryWriter(&loader->m_CustomData);
+    memoryWriter.WriteBytes(pMsg2->m_Data.GetData(), pMsg2->m_Data.GetCount());
+
+    ezResourceManager::UpdateResourceWithCustomLoader(m_hMaterial, std::move(loader));
+  }
   ezEngineProcessDocumentContext::HandleMessage(pMsg);
 }
 
@@ -101,12 +114,12 @@ void ezMaterialContext::OnInitialize()
     pMeshCompMan->CreateComponent(pMesh);
     pMesh->SetMesh(hMesh);
     ezString sMaterialGuid = ezConversionUtils::ToString(GetDocumentGuid());
-    ezMaterialResourceHandle hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(sMaterialGuid);
+    m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(sMaterialGuid);
 
     // TODO: Once we allow switching the preview mesh, we should be set, 20 material overrides should be enough for everyone.
     for (ezUInt32 i = 0; i < 20; ++i)
     {
-      pMesh->SetMaterial(i, hMaterial);
+      pMesh->SetMaterial(i, m_hMaterial);
     }
     pObj->AttachComponent(pMesh);
   }

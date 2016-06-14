@@ -1,7 +1,7 @@
 #cmake
 
 #
-# Copy this file into the folder of an engine library to add it to the solution.
+# Copy this file into the folder of an SHARED library to add it to the solution.
 # Below there are configuration options to add preprocessor definitions and link dependencies to the library.
 #
 # *** Modify this file as required ***
@@ -18,47 +18,27 @@ BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
 # add_definitions (-DMY_PREPROCESS_DEFINITION_2)
 
 # Enables the use of Qt in this project and sets up the required modules.
-QT_MODULES(Core Gui Widgets)
+#QT_MODULES(Core Gui Widgets)
 
 # Call this in case this project does not function without Qt.
-BUILD_REQUIRES_QT()
+#BUILD_REQUIRES_QT()
 
 BUILD_REQUIRES_DX11()
 
 # Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES
-  Foundation
-  EditorFramework
+  Foundation  
   ToolsFoundation
+  EditorFramework 
 
-  ThirdParty
   Core
   System
   RendererFoundation
-  RendererDX11
   RendererCore
   CoreUtils
+
+  GameFoundation
   GameUtils
-
-  SharedPluginAssets
 )
-
-if (BUILDSYSTEM_PLATFORM_64BIT)
-  
-SET (LINK_LIBRARIES
-    ${LINK_LIBRARIES}
-    debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/lib64/assimp.lib
-    optimized ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/lib64/assimp.lib
-)
-
-else()
-
-SET (LINK_LIBRARIES
-    ${LINK_LIBRARIES}
-    debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/lib32/assimp.lib
-    optimized ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/lib32/assimp.lib
-)
-
-endif()
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)

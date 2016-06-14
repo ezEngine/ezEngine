@@ -40,6 +40,8 @@ SET (LINK_LIBRARIES
 
   GameFoundation
   GameUtils
+
+  SharedPluginAssets
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)

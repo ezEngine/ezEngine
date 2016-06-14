@@ -412,6 +412,11 @@ ezBitflags<ezAssetDocumentFlags> ezAssetDocument::GetAssetFlags() const
 }
 
 
+ezUInt16 ezAssetDocument::GetAssetTypeVersion() const
+{
+  return (ezUInt16)GetDynamicRTTI()->GetTypeVersion();
+}
+
 void ezAssetDocument::SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage /*= false*/) const
 {
   GetEditorEngineConnection()->SendMessage(pMessage);

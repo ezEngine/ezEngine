@@ -19,6 +19,7 @@ public:
   ezMaterialAssetDocumentWindow(ezMaterialAssetDocument* pDocument);
   ~ezMaterialAssetDocumentWindow();
 
+  ezMaterialAssetDocument* GetMaterialDocument();
   virtual const char* GetGroupName() const { return "MaterialAsset"; }
 
 protected:

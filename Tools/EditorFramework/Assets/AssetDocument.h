@@ -48,6 +48,10 @@ public:
   /// \brief Called during certain operations, such as TransformAsset, to determine how to proceed with this asset.
   virtual ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const;
 
+  /// \brief Retruns the RTTI type version of this asset document type. E.g. when the algorithm to transform an asset changes,
+  /// Increase the RTTI version. This will ensure that assets get re-transformed, even though their settings and dependencies might not have changed.
+  ezUInt16 GetAssetTypeVersion() const;
+
   ///@}
   /// \name IPC Functions
   ///@{
@@ -146,10 +150,6 @@ protected:
   virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szPlatform, const ezAssetFileHeader& AssetHeader);
 
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) = 0;
-
-  /// \brief Override this to change the version of the asset type. E.g. when the algorithm to transform an asset changes.
-  /// This will ensure that assets get re-transformed, even though their settings and dependencies might not have changed.
-  virtual ezUInt16 GetAssetTypeVersion() const = 0;
 
   /// \brief Returns the full path to the jpg file in which the thumbnail for this asset is supposed to be
   ezString GetThumbnailFilePath() const;

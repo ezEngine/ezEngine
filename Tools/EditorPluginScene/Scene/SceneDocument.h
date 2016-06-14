@@ -207,8 +207,6 @@ private:
 
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override;
 
-  virtual ezUInt16 GetAssetTypeVersion() const override;
-
   virtual ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const override;
 
   void SyncObjectHiddenState();

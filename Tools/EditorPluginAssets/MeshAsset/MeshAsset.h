@@ -18,7 +18,6 @@ public:
   virtual const char* QueryAssetType() const override { return "Mesh"; }
 
 protected:
-  virtual ezUInt16 GetAssetTypeVersion() const override { return 1; }
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform) override;
 

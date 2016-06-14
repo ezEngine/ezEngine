@@ -5,6 +5,7 @@
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/Declarations.h>
 
 class ezObjectSelectionMsgToEngine;
 class ezRenderContext;
@@ -26,6 +27,8 @@ protected:
   virtual ezEngineProcessViewContext* CreateViewContext() override;
   virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
 
+private:
+  ezMaterialResourceHandle m_hMaterial;
 };
 
 

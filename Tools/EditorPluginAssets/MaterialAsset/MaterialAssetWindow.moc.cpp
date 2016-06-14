@@ -2,6 +2,7 @@
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialViewWidget.moc.h>
+#include <SharedPluginAssets/MaterialAsset/MaterialMessages.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
@@ -10,9 +11,12 @@
 #include <EditorFramework/DocumentWindow3D/EditorInputContext.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <CoreUtils/Assets/AssetFileHeader.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 
 ezMaterialAssetDocumentWindow::ezMaterialAssetDocumentWindow(ezMaterialAssetDocument* pDocument) : ezQtEngineDocumentWindow(pDocument)
 {
+
   GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezMaterialAssetDocumentWindow::PropertyEventHandler, this));
 
   // Menu Bar
@@ -35,6 +39,7 @@ ezMaterialAssetDocumentWindow::ezMaterialAssetDocumentWindow(ezMaterialAssetDocu
     addToolBar(pToolBar);
   }
 
+  // 3D View
   {
     SetTargetFramerate(25);
 
@@ -42,10 +47,11 @@ ezMaterialAssetDocumentWindow::ezMaterialAssetDocumentWindow(ezMaterialAssetDocu
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
     m_pViewWidget = new ezQtMaterialViewWidget(nullptr, this, &m_ViewConfig);
-    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, "");
+    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, "MaterialAssetViewToolBar");
     setCentralWidget(pContainer);
   }
 
+  // Property Grid
   {
     ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
     pPropertyPanel->setObjectName("MaterialAssetDockWidget");
@@ -71,6 +77,11 @@ ezMaterialAssetDocumentWindow::~ezMaterialAssetDocumentWindow()
 }
 
 
+ezMaterialAssetDocument* ezMaterialAssetDocumentWindow::GetMaterialDocument()
+{
+  return static_cast<ezMaterialAssetDocument*>(GetDocument());
+}
+
 void ezMaterialAssetDocumentWindow::InternalRedraw()
 {
   ezQtEngineDocumentWindow::InternalRedraw();
@@ -82,7 +93,28 @@ void ezMaterialAssetDocumentWindow::InternalRedraw()
 
 void ezMaterialAssetDocumentWindow::UpdatePreview()
 {
-  // TODO
+  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+    return;
+
+  ezEditorEngineMaterialUpdateMsg msg;
+
+  ezMemoryStreamStorage streamStorage;
+  ezMemoryStreamWriter memoryWriter(&streamStorage);
+
+  // Write Path
+  ezStringBuilder sAbsFilePath = GetMaterialDocument()->GetDocumentPath();
+  sAbsFilePath.ChangeFileExtension("ezMaterialBin");
+  // Write Header
+  memoryWriter << sAbsFilePath;
+  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(GetMaterialDocument()->GetGuid());
+  ezAssetFileHeader AssetHeader;
+  AssetHeader.SetFileHashAndVersion(uiHash, GetMaterialDocument()->GetAssetTypeVersion());
+  AssetHeader.Write(memoryWriter);
+  // Write Asset Data
+  GetMaterialDocument()->WriteMaterialAsset(memoryWriter, "PC");
+  msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize());
+
+  GetEditorEngineConnection()->SendMessage(&msg);
 }
 
 void ezMaterialAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)

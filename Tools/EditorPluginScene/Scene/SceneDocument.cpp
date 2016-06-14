@@ -1193,11 +1193,6 @@ ezStatus ezSceneDocument::InternalRetrieveAssetInfo(const char* szPlatform)
   return ezStatus(EZ_SUCCESS);
 }
 
-ezUInt16 ezSceneDocument::GetAssetTypeVersion() const
-{
-  return 1;
-}
-
 ezBitflags<ezAssetDocumentFlags> ezSceneDocument::GetAssetFlags() const
 {
   if (IsPrefab())

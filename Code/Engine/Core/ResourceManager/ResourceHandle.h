@@ -148,6 +148,17 @@ public:
     return m_Typeless != rhs.m_Typeless;
   }
 
+  /// \brief Returns the corresponding typeless resource handle.
+  EZ_FORCE_INLINE operator const ezTypelessResourceHandle() const
+  {
+    return m_Typeless;
+  }
+
+  /// \brief Returns the corresponding typeless resource handle.
+  EZ_FORCE_INLINE operator ezTypelessResourceHandle()
+  {
+    return m_Typeless;
+  }
 
   /// \brief Returns whether the handle stores a valid pointer to a resource.
   EZ_FORCE_INLINE bool IsValid() const

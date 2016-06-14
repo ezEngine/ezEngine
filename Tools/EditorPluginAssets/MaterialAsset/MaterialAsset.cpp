@@ -491,6 +491,11 @@ ezDocumentObject* ezMaterialAssetDocument::GetShaderPropertyObject()
   return pPropObject;
 }
 
+const ezDocumentObject* ezMaterialAssetDocument::GetShaderPropertyObject() const
+{
+  return const_cast<ezMaterialAssetDocument*>(this)->GetShaderPropertyObject();
+}
+
 void ezMaterialAssetDocument::SetBaseMaterial(const char* szBaseMaterial)
 {
   ezDocumentObject* pObject = GetPropertyObject();
@@ -658,6 +663,11 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
 
 ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform)
 {
+  return WriteMaterialAsset(stream, szPlatform);
+}
+
+ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, const char* szPlatform) const
+{
   const ezMaterialAssetProperties* pProp = GetProperties();
 
   //// see if we can generate a thumbnail
@@ -742,7 +752,7 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
     ezHybridArray<ezAbstractProperty*, 16> Permutation;
     ezHybridArray<ezAbstractProperty*, 16> Constants;
 
-    ezDocumentObject* pObject = GetShaderPropertyObject();
+    const ezDocumentObject* pObject = GetShaderPropertyObject();
     if (pObject)
     {
       bool hasBaseMaterial = ezPrefabUtils::GetPrefabRoot(pObject, m_DocumentObjectMetaData).IsValid();

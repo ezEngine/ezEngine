@@ -50,8 +50,11 @@ public:
   virtual ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const;
 
   ezDocumentObject* GetShaderPropertyObject();
+  const ezDocumentObject* GetShaderPropertyObject() const;
 
   void SetBaseMaterial(const char* szBaseMaterial);
+
+  ezStatus WriteMaterialAsset(ezStreamWriter& stream, const char* szPlatform) const;
 
 protected:
   ezUuid GetSeedFromBaseMaterial(const char* szBaseGraph);
@@ -59,7 +62,6 @@ protected:
   virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab) override;
   virtual void InitializeAfterLoading() override;
 
-  virtual ezUInt16 GetAssetTypeVersion() const override { return 1; }
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform) override;
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override { return ezStatus(EZ_SUCCESS); }
