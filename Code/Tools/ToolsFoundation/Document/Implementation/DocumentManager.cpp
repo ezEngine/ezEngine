@@ -246,12 +246,13 @@ void ezDocumentManager::CloseDocument(ezDocument* pDocument)
   e.m_Type = Event::Type::DocumentClosing;
   s_Events.Broadcast(e);
 
-  // do this after everyone was informed of the closing and thus wrote back all important state to the preferences
-  pDocument->BroadcastSaveDocumentMetaState();
-  
+  e.m_pDocument = pDocument;
+  e.m_Type = Event::Type::DocumentClosing2;
+  s_Events.Broadcast(e);
+
   delete pDocument;
 
-  e.m_pDocument = nullptr;
+  e.m_pDocument = pDocument;
   e.m_Type = Event::Type::DocumentClosed;
   s_Events.Broadcast(e);
 }

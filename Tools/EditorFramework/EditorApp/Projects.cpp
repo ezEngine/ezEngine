@@ -92,20 +92,20 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
 
       m_sLastDocumentFolder = ezToolsProject::GetSingleton()->GetProjectFile();
       m_sLastProjectFolder = ezToolsProject::GetSingleton()->GetProjectFile();
+
+      s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile());
     }
-    // fall through
+    break;
 
   case ezToolsProject::Event::Type::ProjectClosing:
     {
       s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile());
       SaveSettings();
 
-      if (r.m_Type == ezToolsProject::Event::Type::ProjectClosing)
-      {
-        ezPreferences::ClearProjectPreferences();
-      }
+      ezPreferences::ClearProjectPreferences();
     }
     break;
+
   case ezToolsProject::Event::Type::ProjectClosed:
     {
       ezEditorEngineProcessConnection::GetSingleton()->ShutdownProcess();

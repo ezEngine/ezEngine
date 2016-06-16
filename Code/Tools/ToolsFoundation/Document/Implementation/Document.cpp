@@ -115,16 +115,6 @@ void ezDocument::SetReadOnly(bool b)
   s_EventsAny.Broadcast(e);
 }
 
-void ezDocument::BroadcastSaveDocumentMetaState()
-{
-  ezDocumentEvent e;
-  e.m_pDocument = this;
-  e.m_Type = ezDocumentEvent::Type::SaveDocumentMetaState;
-
-  m_EventsOne.Broadcast(e);
-  s_EventsAny.Broadcast(e);
-}
-
 ezStatus ezDocument::SaveDocument()
 {
   if (!IsModified())
@@ -146,8 +136,6 @@ ezStatus ezDocument::SaveDocument()
     m_uiUnknownObjectTypeInstances = 0;
     m_UnknownObjectTypes.Clear();
   }
-
-  BroadcastSaveDocumentMetaState();
 
   if (ret.m_Result.Succeeded())
   {

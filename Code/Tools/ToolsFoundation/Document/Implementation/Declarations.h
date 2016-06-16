@@ -21,7 +21,6 @@ struct ezDocumentEvent
     ReadOnlyChanged,
     EnsureVisible,
     DocumentSaved,
-    SaveDocumentMetaState,
     DocumentStatusMsg,
   };
 

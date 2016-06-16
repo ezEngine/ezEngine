@@ -16,7 +16,6 @@ public:
     {
       ProjectCreated,
       ProjectOpened,
-      ProjectOpened2,
       ProjectClosing,
       ProjectClosed,
       ProjectConfigChanged, ///< Sent when global project configuration data was changed and thus certain menus would need to update their content (or just deselect any item, forcing the user to reselect and thus update state)

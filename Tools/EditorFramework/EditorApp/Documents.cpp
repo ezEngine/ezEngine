@@ -98,14 +98,9 @@ void ezQtEditorApp::DocumentEventHandler(const ezDocumentEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezDocumentEvent::Type::SaveDocumentMetaState:
-    {
-      ezPreferences::SaveDocumentPreferences(e.m_pDocument);
-    }
-    break;
-
   case ezDocumentEvent::Type::DocumentSaved:
     {
+      ezPreferences::SaveDocumentPreferences(e.m_pDocument);
       ezAssetCurator::GetSingleton()->NotifyOfPotentialAsset(e.m_pDocument->GetDocumentPath());
     }
     break;
@@ -122,15 +117,20 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
       if (r.m_pDocument->GetAddToRecentFilesList())
       {
         s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath());
-        SaveSettings();
+        SaveOpenDocumentsList();
       }
     }
     break;
-  case ezDocumentManager::Event::Type::DocumentClosing:
+
+  case ezDocumentManager::Event::Type::DocumentClosing2:
     {
       ezPreferences::SaveDocumentPreferences(r.m_pDocument);
       ezPreferences::ClearDocumentPreferences(r.m_pDocument);
+    }
+    break;
 
+  case ezDocumentManager::Event::Type::DocumentClosing:
+    {
       if (r.m_pDocument->GetAddToRecentFilesList())
       {
         // again, insert it into the recent documents list, such that the LAST CLOSED document is the LAST USED 

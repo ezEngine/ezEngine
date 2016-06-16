@@ -72,9 +72,6 @@ ezStatus ezToolsProject::Open()
   e.m_Type = Event::Type::ProjectOpened;
   s_Events.Broadcast(e);
 
-  e.m_Type = Event::Type::ProjectOpened2;
-  s_Events.Broadcast(e);
-
   return ezStatus(EZ_SUCCESS);
 }
 

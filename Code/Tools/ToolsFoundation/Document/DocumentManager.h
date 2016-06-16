@@ -45,6 +45,7 @@ public:
       DocumentWindowRequested, ///< Sent when the window for a document is needed. Each plugin should check this and see if it can create the desired window type
       AfterDocumentWindowRequested, ///< Sent after a document window was requested. Can be used to do things after the new window has been opened
       DocumentClosing,
+      DocumentClosing2, // sent after DocumentClosing but before removing the document, use this to do stuff that depends on code executed during DocumentClosing
       DocumentClosed, // this will not point to a valid document anymore, as the document is deleted, use DocumentClosing to get the event before it is deleted
     };
 

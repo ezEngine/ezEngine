@@ -73,8 +73,6 @@ public:
   /// \brief Brings the corresponding window to the front.
   void EnsureVisible();
 
-  void BroadcastSaveDocumentMetaState();
-
   ezDocumentManager* GetDocumentManager() const { return m_pDocumentManager; }
 
   bool HasWindowBeenRequested() const { return m_bWindowRequested; }
