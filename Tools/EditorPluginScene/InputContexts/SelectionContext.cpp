@@ -2,7 +2,7 @@
 #include <EditorPluginScene/InputContexts/SelectionContext.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/IPC/SyncObject.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
@@ -12,7 +12,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
-#include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 
 ezSelectionContext::ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera)
 {

@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/Gizmos/DragToPositionGizmo.h>
-#include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <Foundation/Logging/Log.h>
 #include <QMouseEvent>
 #include <CoreUtils/Graphics/Camera.h>

@@ -8,7 +8,7 @@
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <EditorFramework/DocumentWindow3D/EditorInputContext.h>
+#include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorPluginScene/InputContexts/SelectionContext.h>
 #include <EditorPluginScene/InputContexts/CameraMoveContext.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>

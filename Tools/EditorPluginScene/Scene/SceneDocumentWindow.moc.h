@@ -1,10 +1,10 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/IPC/ProcessCommunication.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
-#include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorPluginScene/InputContexts/CameraMoveContext.h>
 #include <EditorFramework/Gizmos/TranslateGizmo.h>
 #include <EditorFramework/Gizmos/RotateGizmo.h>

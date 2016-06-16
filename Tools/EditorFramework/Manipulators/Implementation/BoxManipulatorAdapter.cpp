@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/Manipulators/BoxManipulatorAdapter.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
-#include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
 
 ezBoxManipulatorAdapter::ezBoxManipulatorAdapter()

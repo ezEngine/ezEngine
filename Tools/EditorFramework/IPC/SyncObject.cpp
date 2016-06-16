@@ -2,7 +2,7 @@
 #include <EditorFramework/IPC/SyncObject.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
-#include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 

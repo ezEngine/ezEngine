@@ -1,7 +1,7 @@
 #include <PCH.h>
-#include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
-#include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
-#include <EditorFramework/DocumentWindow3D/EditorInputContext.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <QPaintEvent>
 #include <QPushButton>

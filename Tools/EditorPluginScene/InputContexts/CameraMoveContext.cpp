@@ -1,8 +1,8 @@
 #include <PCH.h>
 #include <EditorPluginScene/InputContexts/CameraMoveContext.h>
-#include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <CoreUtils/Graphics/Camera.h>
 #include <QKeyEvent>
 #include <QDesktopWidget>

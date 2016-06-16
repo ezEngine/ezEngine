@@ -2,14 +2,14 @@
 #include <EditorPluginScene/InputContexts/OrthoGizmoContext.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/IPC/SyncObject.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
 #include <Foundation/Logging/Log.h>
 #include <QKeyEvent>
 #include <EditorFramework/EngineProcess/ViewRenderSettings.h>
-#include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOrthoGizmoContext, 1, ezRTTINoAllocator);

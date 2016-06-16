@@ -1,10 +1,10 @@
 #include <PCH.h>
 #include <EditorFramework/Gizmos/CapsuleGizmo.h>
-#include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <Foundation/Logging/Log.h>
 #include <CoreUtils/Graphics/Camera.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
-#include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <QMouseEvent>
 #include <QDesktopWidget>
 

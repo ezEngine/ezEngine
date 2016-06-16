@@ -3,7 +3,7 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <EditorFramework/EngineProcess/ViewRenderSettings.h>
-#include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/ProjectPreferences.h>

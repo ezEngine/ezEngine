@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorFramework/DocumentWindow3D/EditorInputContext.h>
+#include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
 #include <QPoint>
 

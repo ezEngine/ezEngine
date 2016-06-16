@@ -1,9 +1,10 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <EditorFramework/DocumentWindow3D/3DViewWidget.moc.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 
 class ezMaterialAssetDocumentWindow;
+class ezOrbitCameraContext;
 
 class ezQtMaterialViewWidget : public ezQtEngineViewWidget
 {
@@ -11,4 +12,7 @@ class ezQtMaterialViewWidget : public ezQtEngineViewWidget
 public:
   ezQtMaterialViewWidget(QWidget* pParent, ezMaterialAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig);
   ~ezQtMaterialViewWidget();
+
+private:
+  ezOrbitCameraContext* m_pOrbitCameraContext;
 };

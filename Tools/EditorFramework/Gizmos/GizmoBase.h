@@ -2,7 +2,7 @@
 
 #include <ToolsFoundation/Basics.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
-#include <EditorFramework/DocumentWindow3D/EditorInputContext.h>
+#include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <Foundation/Logging/Log.h>
 
 class ezCamera;

@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorFramework/DocumentWindow3D/EditorInputContext.h>
+#include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <QKeyEvent>
 #include <QCursor>
 #include <QApplication>

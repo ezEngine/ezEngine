@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
-#include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <QMessageBox>
 #include <Foundation/Logging/Log.h>
 #include <ToolsFoundation/Document/Document.h>

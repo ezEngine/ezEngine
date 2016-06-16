@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/EngineProcess/ViewRenderSettings.h>
 
 class QLabel;
