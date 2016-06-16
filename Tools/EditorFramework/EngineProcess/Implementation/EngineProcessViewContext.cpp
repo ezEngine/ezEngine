@@ -100,6 +100,10 @@ void ezEngineProcessViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16
 
 void ezEngineProcessViewContext::Redraw()
 {
+  //const ezUInt32 uiLoaded = ezResourceManager::FinishLoadingOfResources();
+  //if (uiLoaded > 0)
+    //ezLog::Info("Waited for %u resources to finish loading", uiLoaded);
+
   auto pState = ezGameApplication::GetGameApplicationInstance()->GetGameStateForWorld(GetDocumentContext()->GetWorld());
 
   if (pState != nullptr)

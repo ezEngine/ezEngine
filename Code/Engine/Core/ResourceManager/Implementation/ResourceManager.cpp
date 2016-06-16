@@ -199,13 +199,13 @@ void ezResourceManager::RunWorkerTask(ezResourceBase* pResource)
     {
       bDoItYourself = true;
     }
-    else 
-    if (!m_bTaskRunning && !ezResourceManager::m_RequireLoading.IsEmpty())
-    {
-      m_bTaskRunning = true;
-      m_iCurrentWorker = (m_iCurrentWorker + 1) % 2;
-      ezTaskSystem::StartSingleTask(&m_WorkerTask[m_iCurrentWorker], ezTaskPriority::FileAccess);
-    }
+    else
+      if (!m_bTaskRunning && !ezResourceManager::m_RequireLoading.IsEmpty())
+      {
+        m_bTaskRunning = true;
+        m_iCurrentWorker = (m_iCurrentWorker + 1) % 2;
+        ezTaskSystem::StartSingleTask(&m_WorkerTask[m_iCurrentWorker], ezTaskPriority::FileAccess);
+      }
   }
 
   while (bDoItYourself)
@@ -438,7 +438,7 @@ ezUInt32 ezResourceManager::FreeUnusedResources(bool bFreeAllUnused)
 
   do
   {
-    bUnloadedAny =false;
+    bUnloadedAny = false;
 
     for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); /* empty */)
     {
@@ -490,7 +490,7 @@ void ezResourceManager::PreloadResource(ezResourceBase* pResource, ezTime tShoul
 }
 
 
-void ezResourceManager::PreloadTypelessResource(const ezTypelessResourceHandle& hResource, ezTime tShouldBeAvailableIn)
+void ezResourceManager::PreloadResource(const ezTypelessResourceHandle& hResource, ezTime tShouldBeAvailableIn)
 {
   // this is the same as BeginAcquireResource in PointerOnly mode
 
@@ -705,7 +705,7 @@ void ezResourceManager::CleanUpResources()
       }
 
       LastAccess += ((5 - pReference->GetPriority()) * ezTime::Seconds(5.0));
-      
+
 
       if (LastAccess < tNow)
       {
@@ -819,7 +819,7 @@ void ezResourceManager::RegisterNamedResource(const char* szLookupName, const ch
   EZ_LOCK(s_ResourceMutex);
 
   ezTempHashedString lookup(szLookupName);
-  
+
   ezHashedString redirection;
   redirection.Assign(szRedirectionResource);
 
@@ -846,10 +846,89 @@ void ezResourceManager::UpdateResourceWithCustomLoader(const ezTypelessResourceH
   ReloadResource(hResource.m_pResource, true);
 };
 
+ezUInt32 ezResourceManager::GetNumResourcesCurrentlyLoading(const ezRTTI* pType /* = ezGetStaticRTTI<ezResourceBase>() */)
+{
+  ezUInt32 count = 0;
+
+  {
+    EZ_LOCK(s_ResourceMutex);
+
+    for (ezUInt32 i = m_RequireLoading.GetCount(); i > 0; --i)
+    {
+      auto pRes = m_RequireLoading[i - 1].m_pResource;
+
+      if (pRes->GetDynamicRTTI()->IsDerivedFrom(pType))
+      {
+        ++count;
+      }
+    }
+  }
+
+  return count;
+}
 
 
+ezUInt32 ezResourceManager::FinishLoadingOfResources(const ezRTTI* pType /*= ezGetStaticRTTI<ezResourceBase>()*/)
+{
+  ezUInt32 uiLoaded = 0;
 
+  while (true)
+  {
+    ezResourceBase* pAcquire = nullptr;
 
+    {
+      EZ_LOCK(s_ResourceMutex);
+
+      for (ezUInt32 i = m_RequireLoading.GetCount(); i > 0; --i)
+      {
+        auto pRes = m_RequireLoading[i - 1].m_pResource;
+
+        if (pRes->GetDynamicRTTI()->IsDerivedFrom(pType))
+        {
+          pAcquire = pRes;
+          break;
+        }
+      }
+    }
+
+    if (pAcquire == nullptr)
+      return uiLoaded;
+
+    ++uiLoaded;
+    HelpResourceLoading();
+  }
+
+  return uiLoaded;
+}
+
+void ezResourceManager::EnsureResourceLoadingState(ezResourceBase* pResource, const ezResourceState RequestedState)
+{
+  // help loading until the requested resource is available
+  while ((ezInt32)pResource->GetLoadingState() < (ezInt32)RequestedState && (pResource->GetLoadingState() != ezResourceState::LoadedResourceMissing))
+  {
+    HelpResourceLoading();
+  }
+}
+
+void ezResourceManager::HelpResourceLoading()
+{
+  if (!m_WorkerTask[m_iCurrentWorker].IsTaskFinished())
+    ezTaskSystem::WaitForTask(&m_WorkerTask[m_iCurrentWorker]);
+  else
+  {
+    for (ezInt32 i = 0; i < 16; ++i)
+    {
+      // get the 'oldest' GPU task in the queue and try to finish that first
+      const ezInt32 iWorkerGPU = (ezResourceManager::m_iCurrentWorkerGPU + i) % 16;
+
+      if (!m_WorkerGPU[iWorkerGPU].IsTaskFinished())
+      {
+        ezTaskSystem::WaitForTask(&m_WorkerGPU[iWorkerGPU]);
+        break; // we waited for one of them, that's enough for this round
+      }
+    }
+  }
+}
 
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_ResourceManager);
 

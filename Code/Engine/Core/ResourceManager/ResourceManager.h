@@ -8,6 +8,8 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Types/UniquePtr.h>
 
+template<typename SELF, typename SELF_DESCRIPTOR>
+class ezResource;
 
 enum class ezResourceManagerEventType
 {
@@ -57,8 +59,6 @@ public:
   static ezEvent<const ezResourceEvent&> s_ResourceEvents;
   static ezEvent<const ezResourceManagerEvent&> s_ManagerEvents;
 
-  static void BroadcastResourceEvent(const ezResourceEvent& e);
-
   /// \brief Registers which resource type to use to load an asset with the given type name
   static void RegisterResourceForAssetType(const char* szAssetTypeName, const ezRTTI* pResourceType);
 
@@ -75,55 +75,70 @@ public:
   template<typename ResourceType>
   static ezTypedResourceHandle<ResourceType> LoadResource(const char* szResourceID);
 
+  /// \brief Same as LoadResource(), but additionally allows to set a priority on the resource and a custom fallback resource for this instance.
   template<typename ResourceType>
   static ezTypedResourceHandle<ResourceType> LoadResource(const char* szResourceID, ezResourcePriority Priority, ezTypedResourceHandle<ResourceType> hFallbackResource);
 
+  /// \brief Creates a resource from code.
+  ///
+  /// \param szResourceID The unique ID by which the resource is identified. E.g. in GetExistingResource()
+  /// \param descriptor A type specific descriptor that holds all the information to create the resource.
+  /// \param szResourceDescription An optional description that might help during debugging. Often a human readable name or path is stored here, to make it easier to identify this resource.
   template<typename ResourceType>
   static ezTypedResourceHandle<ResourceType> CreateResource(const char* szResourceID, const typename ResourceType::DescriptorType& descriptor, const char* szResourceDescription = nullptr);
 
+  /// \brief Returns a handle to the resource with the given ID. If the resource does not exist, the handle is invalid.
+  ///
+  /// Use this if a resource needs to be created procedurally (with CreateResource()), but it might already have been created.
+  /// If the returned handle is invalid, then just go through the resource creation step.
   template<typename ResourceType>
   static ezTypedResourceHandle<ResourceType> GetExistingResource(const char* szResourceID);
 
+  /// \brief Acquires a resource pointer from a handle. Prefer to use ezResourceLock, which wraps BeginAcquireResource / EndAcquireResource
+  ///
+  /// \param hResource The resource to acquire
+  /// \param mode The desired way to acquire the resource. See ezResourceAcquireMode for details.
+  /// \param hFallbackResource A custom fallback resource that should be returned if hResource is not yet available. Allows to use domain specific knowledge to get a better fallback.
+  /// \param Priority Allows to adjust the priority of the resource. This will affect how fast the resource is loaded, when it was not yet available.
   template<typename ResourceType>
   static ResourceType* BeginAcquireResource(const ezTypedResourceHandle<ResourceType>& hResource, ezResourceAcquireMode mode = ezResourceAcquireMode::AllowFallback, const ezTypedResourceHandle<ResourceType>& hFallbackResource = ezTypedResourceHandle<ResourceType>(), ezResourcePriority Priority = ezResourcePriority::Unchanged);
 
   template<typename ResourceType>
   static void EndAcquireResource(ResourceType* pResource);
 
+  /// \brief Sets the resource loader to use for the given resource type.
   template<typename ResourceType>
   static void SetResourceTypeLoader(ezResourceTypeLoader* pCreator);
 
+  /// \brief Sets the resource loader to use when no type specific resource loader is available.
   static void SetDefaultResourceLoader(ezResourceTypeLoader* pDefaultLoader);
 
+  /// \brief Returns the resource loader to use when no type specific resource loader is available.
   static ezResourceTypeLoader* GetDefaultResourceLoader() { return m_pDefaultResourceLoader; }
 
-  static void OnEngineShutdown();
+  /// \brief Triggers loading of the given resource. tShouldBeAvailableIn specifies how long the resource is not yet needed, thus allowing other resources to be loaded first.
+  static void PreloadResource(const ezTypelessResourceHandle& hResource, ezTime tShouldBeAvailableIn);
 
-  static void OnCoreShutdown();
-
-  static void OnCoreStartup();
-
-  template<typename ResourceType>
-  static void PreloadResource(const ezTypedResourceHandle<ResourceType>& hResource, ezTime tShouldBeAvailableIn);
-
-  static void PreloadTypelessResource(const ezTypelessResourceHandle& hResource, ezTime tShouldBeAvailableIn);
-
+  /// \brief Deallocates all resources whose refcount has reached 0. Returns the number of deleted resources.
   static ezUInt32 FreeUnusedResources(bool bFreeAllUnused);
 
   template<typename ResourceType>
   static void ReloadResource(const ezTypedResourceHandle<ResourceType>& hResource, bool bForce);
 
+  /// \brief Goes through all resources of the given type and makes sure they are reloaded, if they have changed. If bForce is true, resources are updated, even if there is no indication that they have changed.
   template<typename ResourceType>
   static void ReloadResourcesOfType(bool bForce);
 
+  /// \brief Goes through all resources of the given type and makes sure they are reloaded, if they have changed. If bForce is true, resources are updated, even if there is no indication that they have changed.
   static void ReloadResourcesOfType(const ezRTTI* pType, bool bForce);
 
+  /// \brief Goes through all resources and makes sure they are reloaded, if they have changed. If bForce is true, all reloadable resources are updated, even if there is no indication that they have changed.
   static void ReloadAllResources(bool bForce);
 
   //static void CleanUpResources();
 
+  /// \brief Must be called once per frame for some bookkeeping
   static void PerFrameUpdate();
-  
 
   /// \brief Goes through all existing resources and broadcasts the 'Exists' event.
   /// Used to announce all currently existing resources to interested event listeners.
@@ -153,10 +168,38 @@ public:
   /// Use this e.g. with a ezResourceLoaderFromMemory to replace an existing resource with new data that was created on-the-fly.
   static void UpdateResourceWithCustomLoader(const ezTypelessResourceHandle& hResource, ezUniquePtr<ezResourceTypeLoader>&& loader);
 
+  /// \brief Returns how many resources of the given type are in the loading queue at the moment
+  static ezUInt32 GetNumResourcesCurrentlyLoading(const ezRTTI* pType = ezGetStaticRTTI<ezResourceBase>());
+
+  /// \brief Makes sure all resources of the given base type, that are currently in the preload queue, are finished loading.
+  ///
+  /// Returns how many resources were waited for. Might be larger than the number of resources of the given type in the queue.
+  /// \note This will only wait for the preload queue to be empty at this point in time. It does not mean that all resources
+  /// are fully loaded (all levels-of-detail). Once you render a frame, more resources might end up in the preload queue again.
+  /// So if one wants to make a full detail screenshot and have all resources loaded with all details, one must render multiple frames
+  /// and only make a screenshot once no resources where waited for anymore.
+  static ezUInt32 FinishLoadingOfResources(const ezRTTI* pType = ezGetStaticRTTI<ezResourceBase>());
+
 private:
+  friend class ezResourceBase;
   friend class ezResourceManagerWorker;
   friend class ezResourceManagerWorkerGPU;
   friend class ezResourceHandleReadContext;
+
+  template<typename A, typename B>
+  friend class ezResource;
+
+  static void BroadcastResourceEvent(const ezResourceEvent& e);
+
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, ResourceManager);
+  static void OnEngineShutdown();
+  static void OnCoreShutdown();
+  static void OnCoreStartup();
+
+  static void EnsureResourceLoadingState(ezResourceBase* pResource, const ezResourceState RequestedState);
+
+  
+  static void HelpResourceLoading();
 
   static void ReloadResource(ezResourceBase* pResource, bool bForce);
 
@@ -203,6 +246,7 @@ private:
     }
   };
 
+  // this is the resource preload queue
   static ezDeque<LoadingInfo> m_RequireLoading;
 
   static bool m_bTaskRunning;

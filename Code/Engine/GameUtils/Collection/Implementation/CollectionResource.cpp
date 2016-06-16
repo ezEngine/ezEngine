@@ -30,7 +30,7 @@ void ezCollectionResource::PreloadResources(ezTime tShouldBeAvailableIn)
     ezTypelessResourceHandle hTypeless = ezResourceManager::LoadResourceByType(pRtti, e.m_sRedirectionName);
     m_hPreloadedResources.PushBack(hTypeless);
 
-    ezResourceManager::PreloadTypelessResource(hTypeless, tShouldBeAvailableIn);
+    ezResourceManager::PreloadResource(hTypeless, tShouldBeAvailableIn);
   }
 }
 

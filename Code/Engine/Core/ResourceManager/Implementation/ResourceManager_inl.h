@@ -101,7 +101,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
       if (Priority != ezResourcePriority::Unchanged)
         pResource->SetPriority(Priority);
 
-      // will append this at the preload array, thus will be loaded immediately
+      // will prepend this at the preload array, thus will be loaded immediately
       // even after recalculating priorities, it will end up as top priority
       InternalPreloadResource(pResource, true);
 
@@ -124,26 +124,8 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
 
       const ezResourceState RequestedState = (mode == ezResourceAcquireMode::MetaInfo) ? ezResourceState::UnloadedMetaInfoAvailable : ezResourceState::Loaded;
 
-      // help loading until the requested resource is available
-      while ((ezInt32) pResource->GetLoadingState() < (ezInt32) RequestedState && (pResource->GetLoadingState() != ezResourceState::LoadedResourceMissing))
-      {
-        if (!m_WorkerTask[m_iCurrentWorker].IsTaskFinished())
-          ezTaskSystem::WaitForTask(&m_WorkerTask[m_iCurrentWorker]);
-        else
-        {
-          for (ezInt32 i = 0; i < 16; ++i)
-          {
-            // get the 'oldest' GPU task in the queue and try to finish that first
-            const ezInt32 iWorkerGPU = (ezResourceManager::m_iCurrentWorkerGPU + i) % 16;
+      EnsureResourceLoadingState(pResource, RequestedState);
 
-            if (!m_WorkerGPU[iWorkerGPU].IsTaskFinished())
-            {
-              ezTaskSystem::WaitForTask(&m_WorkerGPU[iWorkerGPU]);
-              break; // we waited for one of them, that's enough for this round
-            }
-          }
-        }
-      }
     }
     else
     {
@@ -187,16 +169,6 @@ void ezResourceManager::EndAcquireResource(ResourceType* pResource)
 }
 
 template<typename ResourceType>
-void ezResourceManager::PreloadResource(const ezTypedResourceHandle<ResourceType>& hResource, ezTime tShouldBeAvailableIn)
-{
-  ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
-
-  PreloadResource(pResource, tShouldBeAvailableIn);
-
-  EndAcquireResource(pResource);
-}
-
-template<typename ResourceType>
 void ezResourceManager::ReloadResource(const ezTypedResourceHandle<ResourceType>& hResource, bool bForce)
 {
   ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
@@ -226,4 +198,5 @@ inline void ezResourceManager::SetDefaultResourceLoader(ezResourceTypeLoader* pD
 
   m_pDefaultResourceLoader = pDefaultLoader;
 }
+
 
