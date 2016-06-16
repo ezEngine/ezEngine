@@ -29,6 +29,7 @@ private:
   void UpdatePreview();
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void SendRedrawMsg();
+  void RestoreResource();
 
   ezSceneViewConfig m_ViewConfig;
   ezQtMaterialViewWidget* m_pViewWidget;

@@ -548,10 +548,13 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
 
   if (pResource->GetLoadingState() != ezResourceState::LoadedResourceMissing)
   {
-    if (!bForce && !pLoader->IsResourceOutdated(pResource))
-      return;
+    if (!bForce)
+    {
+      if (!pLoader->IsResourceOutdated(pResource))
+        return;
 
-    ezLog::Dev("Resource '%s' is outdated and will be reloaded", pResource->GetResourceID().GetData());
+      ezLog::Dev("Resource '%s' is outdated and will be reloaded", pResource->GetResourceID().GetData());
+    }
   }
   else
   {

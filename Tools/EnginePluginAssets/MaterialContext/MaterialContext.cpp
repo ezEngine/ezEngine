@@ -52,6 +52,12 @@ void ezMaterialContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
     ezResourceManager::UpdateResourceWithCustomLoader(m_hMaterial, std::move(loader));
   }
+
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineRestoreResourceMsg>())
+  {
+    ezResourceManager::ReloadResource(m_hMaterial, true);
+  }
+
   ezEngineProcessDocumentContext::HandleMessage(pMsg);
 }
 

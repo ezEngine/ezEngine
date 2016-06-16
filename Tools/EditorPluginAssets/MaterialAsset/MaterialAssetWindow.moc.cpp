@@ -73,6 +73,8 @@ ezMaterialAssetDocumentWindow::ezMaterialAssetDocumentWindow(ezMaterialAssetDocu
 
 ezMaterialAssetDocumentWindow::~ezMaterialAssetDocumentWindow()
 {
+  RestoreResource();
+
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezMaterialAssetDocumentWindow::PropertyEventHandler, this));
 }
 
@@ -156,5 +158,10 @@ void ezMaterialAssetDocumentWindow::SendRedrawMsg()
   }
 }
 
+void ezMaterialAssetDocumentWindow::RestoreResource()
+{
+  ezEditorEngineRestoreResourceMsg msg;
+  GetEditorEngineConnection()->SendMessage(&msg);
+}
 
 
