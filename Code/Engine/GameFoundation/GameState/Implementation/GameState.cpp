@@ -9,6 +9,7 @@
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
+#include <System/Screen/Screen.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameState, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -67,6 +68,9 @@ void ezGameState::AddAllMainViews()
 void ezGameState::CreateMainWindow()
 {
   EZ_LOG_BLOCK("ezGameState::CreateMainWindow");
+
+  ezHybridArray<ezScreenInfo, 2> screens;
+  ezScreen::EnumerateScreens(screens);
 
   m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow);
   m_hMainSwapChain = GetApplication()->AddWindow(m_pMainWindow);

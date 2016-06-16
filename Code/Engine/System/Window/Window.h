@@ -64,7 +64,7 @@ struct EZ_SYSTEM_DLL ezWindowCreationDesc
   ezVec2I32 m_WindowPosition;
   ezSizeU32 m_ClientAreaSize;
 
-  ezHybridString<64> m_Title;
+  ezString m_Title;
 
   /// \brief The number of the window. This is mostly used for setting up the input system, which then reports
   /// different mouse positions for each window.
@@ -76,7 +76,7 @@ struct EZ_SYSTEM_DLL ezWindowCreationDesc
   /// Ignored for fullscreen windows.
   bool m_bResizable;
 
-  /// Windows only - set to true if you want create a fullscreen window using the Windows device mode
+  /// Windows only - set to true if you want to create a fullscreen window using the Windows device mode
   /// Does not work together with DirectX device settings
   /// \remarks will be ignored if \code{.cpp} m_bFullscreenWindow == false\endcode
   bool m_bWindowsUseDevmodeFullscreen;
