@@ -7,7 +7,7 @@
     "AssetType" : "Texture 2D",
     "Dependencies" : "Sponza/Textures/background_diff.dds",
     "DocumentID" : { "$t" : "uuid", "$b" : "0xE9B59EC4C3C5764488DCE6CE653760A5" },
-    "Hash" : { "$t" : "uint64", "$v" : "16495002042197421062", "$b" : "0x062C858EF604EAE4" }
+    "Hash" : { "$t" : "uint64", "$v" : "2482140365830550088", "$b" : "0x48F2FC0383557222" }
    }
   },
   {
@@ -31,6 +31,7 @@
     "Input 5" : "",
     "Input 6" : "",
     "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
     "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   } ],

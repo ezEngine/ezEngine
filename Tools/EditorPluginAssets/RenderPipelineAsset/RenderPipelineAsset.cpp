@@ -99,8 +99,10 @@ ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(const char* szDocum
 {
 }
 
-void ezRenderPipelineAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
+void ezRenderPipelineAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
+  ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
+
 }
 
 ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform)

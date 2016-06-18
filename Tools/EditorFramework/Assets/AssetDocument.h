@@ -134,7 +134,7 @@ protected:
   /// \name Asset Functions
   ///@{
 
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) = 0;
+  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const;
 
   /// \brief Override this and write the transformed file into the given stream.
   ///
@@ -167,6 +167,8 @@ private:
   virtual ezDocumentInfo* CreateDocumentInfo() override;
 
 private:
+  void AddPrefabDependencies(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo) const;
+
   EngineStatus m_EngineStatus;
   bool m_bUseIPCObjectMirror;
   bool m_bUseEngineConnection;

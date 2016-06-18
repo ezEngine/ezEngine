@@ -645,8 +645,10 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
   }
 }
 
-void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
+void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
+  ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
+
   const ezMaterialAssetProperties* pProp = GetProperties();
 
   if (!pProp->m_sBaseMaterial.IsEmpty())

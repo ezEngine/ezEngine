@@ -11,26 +11,36 @@
 #include <Core/Application/Config/FileSystemConfig.h>
 #include <Foundation/Configuration/Singleton.h>
 
-class ezHashingTask;
+class ezUpdateTask;
 class ezTask;
 class ezAssetDocumentManager;
 struct ezFileStats;
 
 struct ezAssetInfo
 {
-  enum class State
+  enum class ExistanceState
   {
-    New,
-    Default,
-    ToBeDeleted
+    FileAdded,
+    FileUnchanged,
+    FileRemoved
+  };
+
+  enum class TransformState
+  {
+    Unknown,
+    NeedsTransform,
+    NeedsThumbnail,
+    UpToDate,
   };
 
   ezAssetInfo() : m_pManager(nullptr)
   {
-    m_State = State::New;
+    m_ExistanceState = ExistanceState::FileAdded;
+    m_TransformState = TransformState::Unknown;
   }
 
-  State m_State;
+  ExistanceState m_ExistanceState;
+  TransformState m_TransformState;
   ezAssetDocumentManager* m_pManager;
   ezString m_sAbsolutePath;
   ezString m_sRelativePath;
@@ -44,13 +54,13 @@ struct ezAssetCuratorEvent
   {
     AssetAdded,
     AssetRemoved,
-    AssetChanged,
+    AssetUpdated,
     AssetListReset,
     ActivePlatformChanged,
   };
 
   ezUuid m_AssetGuid;
-  ezAssetInfo* m_pInfo;
+  const ezAssetInfo* m_pInfo;
   Type m_Type;
 };
 
@@ -100,7 +110,9 @@ public:
   /// \brief The curator gathers all folders in which assets have been found. This list can only grow over the lifetime of the application.
   const ezSet<ezString>& GetAllAssetFolders() const { return m_AssetFolders; }
 
-  bool IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform, const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash) const;
+  bool IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform, const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash);
+
+  void UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetInfo::TransformState state);
 
 public:
 
@@ -139,29 +151,31 @@ private:
 
   void SetAllAssetStatusUnknown();
   void RemoveStaleFileInfos();
-  void QueueFilesForHashing();
-  void QueueFileForHashing(const ezString& sFile);
 
-  /// \brief Reads the asset JSON file
+  ezResult EnsureAssetInfoUpdated(const ezUuid& assetGuid);
+  ezResult EnsureAssetInfoUpdated(const char* szAbsFilePath);
   static ezResult UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetInfo& assetInfo, const ezFileStats* pFileStat);
 
 private:
-  bool m_bActive;
-  ezSet<ezUuid> m_NeedsCheck;
-  ezSet<ezUuid> m_NeedsTransform;
-  ezSet<ezUuid> m_Done;
+  void RestartUpdateTask();
+  void ShutdownUpdateTask();
+
+  bool m_bRunUpdateTask;
+  ezSet<ezUuid> m_TransformStateUnknown;
+  ezSet<ezUuid> m_TransformStateNeedsTransform;
+  ezSet<ezUuid> m_TransformStateNeedsThumbnail;
+  ezSet<ezUuid> m_TransformStateChanged;
 
   ezHashTable<ezUuid, ezAssetInfo*> m_KnownAssets;
   ezMap<ezString, FileStatus, ezCompareString_NoCase<ezString> > m_ReferencedFiles;
 
-  ezMap<ezString, FileStatus> m_FileHashingQueue;
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezString m_sActivePlatform;
   ezSet<ezString> m_ValidAssetExtensions;
   ezSet<ezString> m_AssetFolders;
 
 private:
-  friend class ezHashingTask;
+  friend class ezUpdateTask;
 
   /// \brief Computes the hash of the given file. Optionally passes the data stream through into another stream writer.
   static ezUInt64 HashFile(ezStreamReader& InputStream, ezStreamWriter* pPassThroughStream);
@@ -169,30 +183,27 @@ private:
   /// \brief Opens the asset JSON file and reads the "Header" into the given ezAssetDocumentInfo.
   static void ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReader& stream);
 
-  bool GetNextFileToHash(ezStringBuilder& sFile, FileStatus& status);
-  void OnHashingTaskFinished(ezTask* pTask);
+  bool GetNextAssetToUpdate(ezUuid& guid, ezStringBuilder& out_sAbsPath);
+  void OnUpdateTaskFinished(ezTask* pTask);
 
   /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
   ezResult WriteAssetTable(const char* szDataDirectory, const char* szPlatform = nullptr);
 
-  void RunNextHashingTask();
+  void RunNextUpdateTask();
 
-  mutable ezMutex m_HashingMutex;
-  ezHashingTask* m_pHashingTask;
+  mutable ezMutex m_CuratorMutex;
+  ezUpdateTask* m_pUpdateTask;
 
 };
 
-class ezHashingTask : public ezTask
+class ezUpdateTask : public ezTask
 {
 public:
-  ezHashingTask();
+  ezUpdateTask();
 
-  ezStringBuilder m_sFileToHash;
-  ezResult m_Result;
-
-  ezAssetCurator::FileStatus m_FileStatus;
-  ezAssetInfo m_AssetInfo;
 
 private:
+  ezStringBuilder m_sAssetPath;
+
   virtual void Execute() override;
 };

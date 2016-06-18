@@ -15,8 +15,10 @@ ezSurfaceAssetDocument::ezSurfaceAssetDocument(const char* szDocumentPath) : ezS
 {
 }
 
-void ezSurfaceAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
+void ezSurfaceAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
+  ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
+
   const ezSurfaceResourceDescriptor* pProp = GetProperties();
 
 }

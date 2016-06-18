@@ -36,8 +36,10 @@ ezCollectionAssetDocument::ezCollectionAssetDocument(const char* szDocumentPath)
 {
 }
 
-void ezCollectionAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
+void ezCollectionAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
+  ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
+
   const ezCollectionAssetData* pProp = GetProperties();
 
   // we currently do not follow references, so atm there are no dependencies

@@ -22,8 +22,10 @@ ezSoundBankAssetDocument::ezSoundBankAssetDocument(const char* szDocumentPath) :
 {
 }
 
-void ezSoundBankAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
+void ezSoundBankAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
+  ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
+
   const ezSoundBankAssetProperties* pProp = GetProperties();
 
   pInfo->m_FileDependencies.Insert(pProp->m_sSoundBank);

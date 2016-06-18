@@ -82,8 +82,10 @@ const char* ezCollisionMeshAssetDocument::QueryAssetType() const
   return "Collision Mesh";
 }
 
-void ezCollisionMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
+void ezCollisionMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
+  ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
+
   const ezCollisionMeshAssetProperties* pProp = GetProperties();
 
   if (!pProp->m_sMeshFile.IsEmpty())

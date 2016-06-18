@@ -156,6 +156,30 @@ void QtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& op
     painter->drawPixmap(thumbnailRect, pixmap);
   }
 
+  // Draw Transform State Icon
+  {
+    QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin + uiThumbnailSize - 16 + 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
+    thumbnailRect.setSize(QSize(16, 16));
+
+    ezAssetInfo::TransformState state = (ezAssetInfo::TransformState)index.data(ezAssetBrowserModel::UserRoles::TransformState).toInt();
+
+    switch (state)
+    {
+    case ezAssetInfo::TransformState::Unknown:
+      ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetUnknown16.png").paint(painter, thumbnailRect);
+      break;
+    case ezAssetInfo::TransformState::NeedsThumbnail:
+      ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsTransform16.png").paint(painter, thumbnailRect);
+      break;
+    case ezAssetInfo::TransformState::NeedsTransform:
+      ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsTransform16.png").paint(painter, thumbnailRect);
+      break;
+    case ezAssetInfo::TransformState::UpToDate:
+      ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetOk16.png").paint(painter, thumbnailRect);
+      break;
+    }
+  }
+
   // Draw caption.
   {
     painter->setFont(GetFont());
@@ -165,6 +189,7 @@ void QtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& op
     QString caption = qvariant_cast<QString>(index.data(Qt::DisplayRole));
     painter->drawText(textRect, Qt::AlignHCenter | Qt::AlignTop | Qt::TextWrapAnywhere, caption);
   }
+
 
   painter->restore();
 }

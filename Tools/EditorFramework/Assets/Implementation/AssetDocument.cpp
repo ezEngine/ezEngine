@@ -187,6 +187,36 @@ void ezAssetDocument::InitializeAfterLoading()
   }
 }
 
+void ezAssetDocument::AddPrefabDependencies(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo) const
+{
+  {
+    const ezDocumentObjectMetaData* pMeta = m_DocumentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
+
+    if (pMeta->m_CreateFromPrefab.IsValid())
+    {
+      pInfo->m_FileDependencies.Insert(ezConversionUtils::ToString(pMeta->m_CreateFromPrefab));
+    }
+
+    m_DocumentObjectMetaData.EndReadMetaData();
+  }
+
+
+  const ezHybridArray<ezDocumentObject*, 8>& children = pObject->GetChildren();
+
+  for (auto pChild : children)
+  {
+    AddPrefabDependencies(pChild, pInfo);
+  }
+}
+
+
+void ezAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+{
+  const ezDocumentObject* pRoot = GetObjectManager()->GetRootObject();
+
+  AddPrefabDependencies(pRoot, pInfo);
+}
+
 void ezAssetDocument::EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e)
 {
   if (e.m_Type == ezEditorEngineProcessConnection::Event::Type::ProcessCrashed)
@@ -229,7 +259,7 @@ ezStatus ezAssetDocument::TransformAssetManually(const char* szPlatform /*= null
 
   ezUInt64 uiHash = 0;
   if (ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), szPlatform, GetDocumentTypeDescriptor(), uiHash))
-    return ezStatus(EZ_SUCCESS);
+    return ezStatus(EZ_SUCCESS, "Transformed asset is already up to date");
 
   if (uiHash == 0)
     return ezStatus("Computing the hash for this asset or any dependency failed");

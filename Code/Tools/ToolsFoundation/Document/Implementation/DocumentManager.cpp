@@ -109,6 +109,7 @@ void ezDocumentManager::UpdatedAfterLoadingPlugins()
 
   // triggers a reevaluation next time
   s_AllDocumentDescriptors.Clear();
+  GetAllDocumentDescriptors();
 
 
   if (bChanges)

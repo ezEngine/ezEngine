@@ -73,8 +73,10 @@ ezMeshAssetDocument::ezMeshAssetDocument(const char* szDocumentPath) : ezSimpleA
 {
 }
 
-void ezMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
+void ezMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
+  ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
+
   const ezMeshAssetProperties* pProp = GetProperties();
 
   if (!pProp->m_sMeshFile.IsEmpty())

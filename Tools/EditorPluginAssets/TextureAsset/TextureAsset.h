@@ -15,7 +15,7 @@ public:
   virtual const char* QueryAssetType() const override;
 
 protected:
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) override;
+  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
   virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform) override { return ezStatus(EZ_SUCCESS); }
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override { return ezStatus(EZ_SUCCESS); }

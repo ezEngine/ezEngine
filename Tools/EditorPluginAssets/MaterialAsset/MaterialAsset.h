@@ -60,7 +60,7 @@ protected:
   virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab) override;
   virtual void InitializeAfterLoading() override;
 
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) override;
+  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform) override;
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override { return ezStatus(EZ_SUCCESS); }
 };

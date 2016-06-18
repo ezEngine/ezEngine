@@ -1108,9 +1108,9 @@ const char* ezSceneDocument::QueryAssetType() const
   return "Scene";
 }
 
-void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
+void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
-  /// \todo go through all objects, get asset properties, retrieve dependencies
+  ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
 
 
 }

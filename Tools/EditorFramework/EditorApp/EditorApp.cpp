@@ -44,6 +44,8 @@ void ezQtEditorApp::SlotTimedUpdate()
   if (ezEditorEngineProcessConnection::GetSingleton())
     ezEditorEngineProcessConnection::GetSingleton()->Update();
 
+  ezAssetCurator::GetSingleton()->MainThreadTick();
+
   m_pTimer->start(1);
 }
 

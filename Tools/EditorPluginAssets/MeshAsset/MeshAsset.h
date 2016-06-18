@@ -18,7 +18,7 @@ public:
   virtual const char* QueryAssetType() const override { return "Mesh"; }
 
 protected:
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) override;
+  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform) override;
 
   void CreateMeshFromGeom(const ezMeshAssetProperties* pProp, ezGeometry &geom, ezMeshResourceDescriptor &desc);

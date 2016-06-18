@@ -42,7 +42,25 @@ void ezAssetBrowserModel::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
   case ezAssetCuratorEvent::Type::AssetRemoved:
     resetModel();
     break;
+  case ezAssetCuratorEvent::Type::AssetUpdated:
+    QModelIndex idx = index(FindAssetIndex(e.m_AssetGuid), 0);
+    emit dataChanged(idx, idx);
+    break;
   }
+}
+
+
+ezInt32 ezAssetBrowserModel::FindAssetIndex(const ezUuid& assetGuid) const
+{
+  for (ezUInt32 i = 0; i < m_AssetsToDisplay.GetCount(); ++i)
+  {
+    if (m_AssetsToDisplay[i].m_Guid == assetGuid)
+    {
+      return i;
+    }
+  }
+
+  return -1;
 }
 
 void ezAssetBrowserModel::SetShowItemsInSubFolders(bool bShow)
@@ -274,6 +292,9 @@ QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
 
       return ezUIServices::GetCachedPixmapResource(sIconName.GetData());
     }
+    
+  case UserRoles::TransformState:
+    return (int)pAssetInfo->m_TransformState;
   }
 
   return QVariant();

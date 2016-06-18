@@ -21,8 +21,10 @@ ezTextureAssetDocument::ezTextureAssetDocument(const char* szDocumentPath) : ezS
 {
 }
 
-void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
+void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
+  ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
+
   const ezTextureAssetProperties* pProp = GetProperties();
 
   const ezInt32 iNumInputFiles = pProp->GetNumInputFiles();

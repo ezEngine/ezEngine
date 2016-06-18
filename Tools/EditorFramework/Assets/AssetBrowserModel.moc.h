@@ -16,6 +16,7 @@ public:
     AbsolutePath = Qt::UserRole + 1,
     RelativePath = Qt::UserRole + 2,
     AssetIconPath = Qt::UserRole + 3,
+    TransformState = Qt::UserRole + 4,
   };
 
   ezAssetBrowserModel(QObject* pParent);
@@ -64,11 +65,6 @@ public: //QAbstractItemModel interface
   virtual QMimeData* mimeData(const QModelIndexList& indexes) const override;
 
 private:
-  bool m_bIconMode;
-  bool m_bShowItemsInSubFolders;
-  bool m_bSortByRecentUse;
-  void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
-
   struct AssetEntry
   {
     ezString m_sSortingKey;
@@ -81,6 +77,13 @@ private:
     }
   };
 
+  void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
+  ezInt32 FindAssetIndex(const ezUuid& assetGuid) const;
+
   ezString m_sTextFilter, m_sTypeFilter, m_sPathFilter;
   ezDeque<AssetEntry> m_AssetsToDisplay;
+
+  bool m_bIconMode;
+  bool m_bShowItemsInSubFolders;
+  bool m_bSortByRecentUse;
 };
