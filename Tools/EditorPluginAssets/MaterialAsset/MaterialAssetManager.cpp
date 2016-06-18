@@ -13,11 +13,25 @@ ezMaterialAssetDocumentManager::ezMaterialAssetDocumentManager()
 
   // additional whitelist for non-asset files where an asset may be selected
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Material", "ezMaterial");
+
+  m_AssetDesc.m_bCanCreate = true;
+  m_AssetDesc.m_sDocumentTypeName = "Material Asset";
+  m_AssetDesc.m_sFileExtension = "ezMaterialAsset";
+  m_AssetDesc.m_sIcon = ":/AssetIcons/Material.png";
+  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezMaterialAssetDocument>();
+  m_AssetDesc.m_pManager = this;
 }
 
 ezMaterialAssetDocumentManager::~ezMaterialAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezMaterialAssetDocumentManager::OnDocumentManagerEvent, this));
+}
+
+
+ezBitflags<ezAssetDocumentFlags> ezMaterialAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
+{
+  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
+  return ezAssetDocumentFlags::AutoTransformOnSave;
 }
 
 void ezMaterialAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
@@ -28,7 +42,7 @@ void ezMaterialAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMana
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezMaterialAssetDocument>())
       {
-        ezMaterialAssetDocumentWindow* pDocWnd = new ezMaterialAssetDocumentWindow( static_cast<ezMaterialAssetDocument*>(e.m_pDocument));
+        ezMaterialAssetDocumentWindow* pDocWnd = new ezMaterialAssetDocumentWindow(static_cast<ezMaterialAssetDocument*>(e.m_pDocument));
       }
     }
     break;
@@ -47,17 +61,9 @@ ezStatus ezMaterialAssetDocumentManager::InternalCreateDocument(const char* szDo
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezMaterialAssetDocumentManager::InternalGetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const
+void ezMaterialAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  {
-    ezDocumentTypeDescriptor td;
-    td.m_bCanCreate = true;
-    td.m_sDocumentTypeName = "Material Asset";
-    td.m_sFileExtensions.PushBack("ezMaterialAsset");
-    td.m_sIcon = ":/AssetIcons/Material.png";
-
-    out_DocumentTypes.PushBack(td);
-  }
+  inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
 
 

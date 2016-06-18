@@ -8,24 +8,25 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, DocumentManager)
 
-  BEGIN_SUBSYSTEM_DEPENDENCIES
-    "Core"
-  END_SUBSYSTEM_DEPENDENCIES
+BEGIN_SUBSYSTEM_DEPENDENCIES
+"Core"
+END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORE_STARTUP
-  {
-    ezPlugin::s_PluginEvents.AddEventHandler(ezDocumentManager::OnPluginEvent);
-  }
- 
-  ON_CORE_SHUTDOWN
-  {
-    ezPlugin::s_PluginEvents.RemoveEventHandler(ezDocumentManager::OnPluginEvent);
-  }
+ON_CORE_STARTUP
+{
+  ezPlugin::s_PluginEvents.AddEventHandler(ezDocumentManager::OnPluginEvent);
+}
+
+ON_CORE_SHUTDOWN
+{
+  ezPlugin::s_PluginEvents.RemoveEventHandler(ezDocumentManager::OnPluginEvent);
+}
 
 EZ_END_SUBSYSTEM_DECLARATION
 
 ezSet<const ezRTTI*> ezDocumentManager::s_KnownManagers;
 ezHybridArray<ezDocumentManager*, 16> ezDocumentManager::s_AllDocumentManagers;
+ezDynamicArray<const ezDocumentTypeDescriptor*> ezDocumentManager::s_AllDocumentDescriptors;
 ezEvent<const ezDocumentManager::Event&> ezDocumentManager::s_Events;
 ezEvent<ezDocumentManager::Request&> ezDocumentManager::s_Requests;
 
@@ -46,6 +47,10 @@ void ezDocumentManager::UpdateBeforeUnloadingPlugins(const ezPlugin::PluginEvent
 {
   bool bChanges = false;
 
+  // triggers a reevaluation next time
+  s_AllDocumentDescriptors.Clear();
+
+  // remove all document managers that belong to this plugin
   for (ezUInt32 i = 0; i < s_AllDocumentManagers.GetCount();)
   {
     const ezRTTI* pRtti = s_AllDocumentManagers[i]->GetDynamicRTTI();
@@ -91,7 +96,7 @@ void ezDocumentManager::UpdatedAfterLoadingPlugins()
         if (pRtti->GetAllocator()->CanAllocate())
         {
           // create one instance of each manager type
-          ezDocumentManager* pManager = (ezDocumentManager*) pRtti->GetAllocator()->Allocate();
+          ezDocumentManager* pManager = (ezDocumentManager*)pRtti->GetAllocator()->Allocate();
           s_AllDocumentManagers.PushBack(pManager);
 
           bChanges = true;
@@ -102,6 +107,10 @@ void ezDocumentManager::UpdatedAfterLoadingPlugins()
     pRtti = pRtti->GetNextInstance();
   }
 
+  // triggers a reevaluation next time
+  s_AllDocumentDescriptors.Clear();
+
+
   if (bChanges)
   {
     Event e;
@@ -110,16 +119,21 @@ void ezDocumentManager::UpdatedAfterLoadingPlugins()
   }
 }
 
-void ezDocumentManager::GetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const
+void ezDocumentManager::GetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  out_DocumentTypes.Clear();
-  InternalGetSupportedDocumentTypes(out_DocumentTypes);
+  InternalGetSupportedDocumentTypes(inout_DocumentTypes);
 
+  for (auto& dt : inout_DocumentTypes)
+  {
+    EZ_ASSERT_DEBUG(dt->m_pDocumentType != nullptr, "No document type is set");
+    EZ_ASSERT_DEBUG(!dt->m_sFileExtension.IsEmpty(), "File extension must be valid");
+    EZ_ASSERT_DEBUG(dt->m_pManager != nullptr, "Document manager must be set");
+  }
 }
 
 ezStatus ezDocumentManager::CanOpenDocument(const char* szFilePath) const
 {
-  ezHybridArray<ezDocumentTypeDescriptor, 4> DocumentTypes;
+  ezDynamicArray<const ezDocumentTypeDescriptor*> DocumentTypes;
   GetSupportedDocumentTypes(DocumentTypes);
 
   ezStringBuilder sPath = szFilePath;
@@ -129,12 +143,9 @@ ezStatus ezDocumentManager::CanOpenDocument(const char* szFilePath) const
   // if not, we can definitely not open this file
   for (ezUInt32 i = 0; i < DocumentTypes.GetCount(); ++i)
   {
-    for (ezUInt32 e = 0; e < DocumentTypes[i].m_sFileExtensions.GetCount(); ++e)
+    if (DocumentTypes[i]->m_sFileExtension.IsEqual_NoCase(sExt))
     {
-      if (DocumentTypes[i].m_sFileExtensions[e].IsEqual_NoCase(sExt))
-      {
-        return InternalCanOpenDocument(DocumentTypes[i].m_sDocumentTypeName, szFilePath);
-      }
+      return InternalCanOpenDocument(DocumentTypes[i]->m_sDocumentTypeName, szFilePath);
     }
   }
 
@@ -178,14 +189,14 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
 
   ezStatus status;
 
-  ezHybridArray<ezDocumentTypeDescriptor, 4> DocumentTypes;
+  ezDynamicArray<const ezDocumentTypeDescriptor*> DocumentTypes;
   GetSupportedDocumentTypes(DocumentTypes);
 
   for (ezUInt32 i = 0; i < DocumentTypes.GetCount(); ++i)
   {
-    if (DocumentTypes[i].m_sDocumentTypeName == szDocumentTypeName)
+    if (DocumentTypes[i]->m_sDocumentTypeName == szDocumentTypeName)
     {
-      EZ_ASSERT_DEV(DocumentTypes[i].m_bCanCreate, "This document manager cannot create the document type '%s'", szDocumentTypeName);
+      EZ_ASSERT_DEV(DocumentTypes[i]->m_bCanCreate, "This document manager cannot create the document type '%s'", szDocumentTypeName);
 
       status = InternalCreateDocument(szDocumentTypeName, sPath, out_pDocument);
       EZ_ASSERT_DEV(status.m_Result == EZ_FAILURE || out_pDocument != nullptr, "Status was success, but the document manager returned a nullptr document.");
@@ -314,39 +325,39 @@ ezResult ezDocumentManager::EnsureDocumentIsClosed(const char* szPath)
   return EZ_FAILURE;
 }
 
-ezResult ezDocumentManager::FindDocumentTypeFromPath(const char* szPath, bool bForCreation, ezDocumentManager*& out_pTypeManager, ezDocumentTypeDescriptor* out_pTypeDesc)
+ezResult ezDocumentManager::FindDocumentTypeFromPath(const char* szPath, bool bForCreation, const ezDocumentTypeDescriptor*& out_pTypeDesc)
 {
   const ezString sFileExt = ezPathUtils::GetFileExtension(szPath);
 
-  out_pTypeManager = nullptr;
+  const auto& allDesc = GetAllDocumentDescriptors();
 
-  for (ezDocumentManager* pMan : ezDocumentManager::GetAllDocumentManagers())
+  for (auto desc : allDesc)
   {
-    ezHybridArray<ezDocumentTypeDescriptor, 4> Types;
-    pMan->GetSupportedDocumentTypes(Types);
+    if (bForCreation && !desc->m_bCanCreate)
+      continue;
 
-    for (const ezDocumentTypeDescriptor& desc : Types)
+    if (desc->m_sFileExtension.IsEqual_NoCase(sFileExt))
     {
-      if (bForCreation && !desc.m_bCanCreate)
-        continue;
-
-      for (const ezString& ext : desc.m_sFileExtensions)
-      {
-        if (ext.IsEqual_NoCase(sFileExt))
-        {
-          out_pTypeManager = pMan;
-
-          if (out_pTypeDesc != nullptr)
-            *out_pTypeDesc = desc;
-
-          return EZ_SUCCESS;
-        }
-      }
+      out_pTypeDesc = desc;
+      return EZ_SUCCESS;
     }
   }
 
   return EZ_FAILURE;
 }
 
-// todo on close doc: remove from m_AllDocuments
+const ezDynamicArray<const ezDocumentTypeDescriptor*>& ezDocumentManager::GetAllDocumentDescriptors()
+{
+  if (s_AllDocumentDescriptors.IsEmpty())
+  {
+    for (ezDocumentManager* pMan : ezDocumentManager::GetAllDocumentManagers())
+    {
+      pMan->GetSupportedDocumentTypes(s_AllDocumentDescriptors);
+    }
+  }
+
+  return s_AllDocumentDescriptors;
+}
+
+/// \todo on close doc: remove from m_AllDocuments
 

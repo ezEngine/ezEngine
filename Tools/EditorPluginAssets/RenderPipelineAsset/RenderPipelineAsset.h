@@ -26,9 +26,6 @@ public:
 
   virtual const char* QueryAssetType() const override { return "RenderPipeline"; }
 
-  /// \brief Called during certain operations, such as TransformAsset, to determine how to proceed with this asset.
-  virtual ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const;
-
 protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform) override;

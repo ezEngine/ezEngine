@@ -49,11 +49,6 @@ void ezCollectionAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pIn
 
 }
 
-ezBitflags<ezAssetDocumentFlags> ezCollectionAssetDocument::GetAssetFlags() const
-{
-  return ezAssetDocumentFlags::AutoTransformOnSave;
-}
-
 ezStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform)
 {
   const ezCollectionAssetData* pProp = GetProperties();

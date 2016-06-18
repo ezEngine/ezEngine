@@ -18,13 +18,19 @@ public:
     inout_AssetTypeNames.Insert("Collection");
   }
 
+
+  virtual ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const override;
+
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
 
   virtual ezStatus InternalCanOpenDocument(const char* szDocumentTypeName, const char* szFilePath) const;
   virtual ezStatus InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument);
-  virtual void InternalGetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const;
+  virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const;
 
   virtual bool GeneratesPlatformSpecificAssets() const override { return false; }
+
+private:
+  ezDocumentTypeDescriptor m_AssetDesc;
 };
 

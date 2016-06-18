@@ -8,6 +8,11 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentManager, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+ezBitflags<ezAssetDocumentFlags> ezAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
+{
+  return ezAssetDocumentFlags::Default;
+}
+
 bool ezAssetDocumentManager::IsResourceUpToDate(ezUInt64 uiHash, ezUInt16 uiTypeVersion, const char* szResourceFile)
 {
   ezFileReader file;
@@ -59,6 +64,12 @@ ezString ezAssetDocumentManager::GenerateResourceThumbnailPath(const char* szDoc
 
 }
 
+ezString ezAssetDocumentManager::GetFinalOutputFileName(const ezDocumentTypeDescriptor* pDescriptor, const char* szDocumentPath, const char* szPlatform) const
+{
+  const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(szPlatform);
+  return GenerateResourceFileName(szDocumentPath, sPlatform);
+}
+
 ezString ezAssetDocumentManager::GenerateRelativeResourceFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szPlatform) const
 {
   EZ_ASSERT_DEBUG(!ezStringUtils::IsNullOrEmpty(szPlatform), "Platform string must be set");
@@ -75,4 +86,14 @@ ezString ezAssetDocumentManager::GenerateRelativeResourceFileName(const char* sz
     sRelativePath.Prepend("Common/");
 
   return sRelativePath;
+}
+
+ezString ezAssetDocumentManager::DetermineFinalTargetPlatform(const char* szPlatform)
+{
+  if (ezStringUtils::IsNullOrEmpty(szPlatform))
+  {
+    return ezAssetCurator::GetSingleton()->GetActivePlatform();
+  }
+
+  return szPlatform;
 }

@@ -1193,19 +1193,6 @@ ezStatus ezSceneDocument::InternalRetrieveAssetInfo(const char* szPlatform)
   return ezStatus(EZ_SUCCESS);
 }
 
-ezBitflags<ezAssetDocumentFlags> ezSceneDocument::GetAssetFlags() const
-{
-  if (IsPrefab())
-  {
-    return ezAssetDocumentFlags::AutoTransformOnSave;
-  }
-  else
-  {
-    return ezAssetDocumentFlags::OnlyTransformManually;
-  }
-}
-
-
 void ezSceneDocument::SyncObjectHiddenState()
 {
   for (auto pChild : GetObjectManager()->GetRootObject()->GetChildren())

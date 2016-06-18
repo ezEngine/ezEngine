@@ -121,11 +121,12 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, const ezDocumentOb
 {
   EZ_ASSERT_DEV(pSaveAsPrefab != nullptr, "CreatePrefabDocument: pSaveAsPrefab must be a valod object!");
   const ezRTTI* pRootType = pSaveAsPrefab->GetTypeAccessor().GetType();
-  ezDocumentManager* pDocumentManager;
-  if (ezDocumentManager::FindDocumentTypeFromPath(szFile, true, pDocumentManager).Failed())
+
+  const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
+  if (ezDocumentManager::FindDocumentTypeFromPath(szFile, true, pTypeDesc).Failed())
     return ezStatus("Document type is unknown: '%s'", szFile);
 
-  if (pDocumentManager->EnsureDocumentIsClosed(szFile).Failed())
+  if (pTypeDesc->m_pManager->EnsureDocumentIsClosed(szFile).Failed())
   {
     return ezStatus("Could not close the existing prefab document");
   }
@@ -141,7 +142,7 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, const ezDocumentOb
   ezDocument* pSceneDocument = nullptr;
 
   {
-    auto res = pDocumentManager->CreateDocument("ezPrefab", szFile, pSceneDocument, false);
+    auto res = pTypeDesc->m_pManager->CreateDocument("ezPrefab", szFile, pSceneDocument, false);
 
     if (res.m_Result.Failed())
       return res;
@@ -160,7 +161,7 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, const ezDocumentOb
   reader.ApplyPropertiesToObject(pPrefabGraphMainNode, pPrefabSceneMainObject);
 
   auto res = pSceneDocument->SaveDocument();
-  pDocumentManager->CloseDocument(pSceneDocument);
+  pTypeDesc->m_pManager->CloseDocument(pSceneDocument);
   return res;
 }
 

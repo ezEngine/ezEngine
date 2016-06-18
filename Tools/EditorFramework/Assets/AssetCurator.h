@@ -100,6 +100,8 @@ public:
   /// \brief The curator gathers all folders in which assets have been found. This list can only grow over the lifetime of the application.
   const ezSet<ezString>& GetAllAssetFolders() const { return m_AssetFolders; }
 
+  bool IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform, const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash) const;
+
 public:
 
   ezEvent<const ezAssetCuratorEvent&> m_Events;

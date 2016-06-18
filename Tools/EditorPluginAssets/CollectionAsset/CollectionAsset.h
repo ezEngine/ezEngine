@@ -33,8 +33,6 @@ public:
 
   virtual const char* QueryAssetType() const override { return "Collection"; }
 
-  virtual ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const;
-
 protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform) override;

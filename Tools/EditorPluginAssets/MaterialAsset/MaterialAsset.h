@@ -47,8 +47,6 @@ public:
 
   virtual const char* QueryAssetType() const override { return "Material"; }
 
-  virtual ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const;
-
   ezDocumentObject* GetShaderPropertyObject();
   const ezDocumentObject* GetShaderPropertyObject() const;
 

@@ -197,6 +197,7 @@ void ezSceneAction::Execute(const ezVariant& value)
     {
       QStringList arguments;
       arguments << "-scene";
+
       const ezStringBuilder sPath = m_pSceneDocument->GetFinalOutputFileName();
       const char* szPath = sPath.GetData();
       arguments << QString::fromUtf8(szPath);

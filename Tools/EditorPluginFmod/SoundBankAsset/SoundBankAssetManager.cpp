@@ -14,6 +14,12 @@ ezSoundBankAssetDocumentManager::ezSoundBankAssetDocumentManager()
   // additional whitelist for non-asset files where an asset may be selected
   //ezAssetFileExtensionWhitelist::AddAssetFileExtension("Collision Mesh", "ezFmodMesh");
 
+  m_AssetDesc.m_bCanCreate = true;
+  m_AssetDesc.m_sDocumentTypeName = "Sound Bank Asset";
+  m_AssetDesc.m_sFileExtension = "ezSoundBankAsset";
+  m_AssetDesc.m_sIcon = ":/AssetIcons/Sound_Bank.png";
+  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundBankAssetDocument>();
+  m_AssetDesc.m_pManager = this;
 }
 
 ezSoundBankAssetDocumentManager::~ezSoundBankAssetDocumentManager()
@@ -48,17 +54,9 @@ ezStatus ezSoundBankAssetDocumentManager::InternalCreateDocument(const char* szD
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezSoundBankAssetDocumentManager::InternalGetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const
+void ezSoundBankAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  {
-    ezDocumentTypeDescriptor td;
-    td.m_bCanCreate = true;
-    td.m_sDocumentTypeName = "Sound Bank Asset";
-    td.m_sFileExtensions.PushBack("ezSoundBankAsset");
-    td.m_sIcon = ":/AssetIcons/Sound_Bank.png";
-
-    out_DocumentTypes.PushBack(td);
-  }
+  inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
 
 

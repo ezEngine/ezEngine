@@ -11,11 +11,24 @@ ezCollectionAssetDocumentManager::ezCollectionAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezCollectionAssetDocumentManager::OnDocumentManagerEvent, this));
 
+  m_AssetDesc.m_bCanCreate = true;
+  m_AssetDesc.m_sDocumentTypeName = "Collection Asset";
+  m_AssetDesc.m_sFileExtension = "ezCollectionAsset";
+  m_AssetDesc.m_sIcon = ":/AssetIcons/Collection.png";
+  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezCollectionAssetDocument>();
+  m_AssetDesc.m_pManager = this;
 }
 
 ezCollectionAssetDocumentManager::~ezCollectionAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezCollectionAssetDocumentManager::OnDocumentManagerEvent, this));
+}
+
+
+ezBitflags<ezAssetDocumentFlags> ezCollectionAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
+{
+  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
+  return ezAssetDocumentFlags::AutoTransformOnSave;
 }
 
 void ezCollectionAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
@@ -45,17 +58,9 @@ ezStatus ezCollectionAssetDocumentManager::InternalCreateDocument(const char* sz
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezCollectionAssetDocumentManager::InternalGetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const
+void ezCollectionAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  {
-    ezDocumentTypeDescriptor td;
-    td.m_bCanCreate = true;
-    td.m_sDocumentTypeName = "Collection Asset";
-    td.m_sFileExtensions.PushBack("ezCollectionAsset");
-    td.m_sIcon = ":/AssetIcons/Collection.png";
-
-    out_DocumentTypes.PushBack(td);
-  }
+  inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
 
 

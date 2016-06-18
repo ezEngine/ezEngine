@@ -27,12 +27,10 @@ void ezQtEditorApp::GuiCreateOrOpenDocument(bool bCreate)
 
   m_sLastDocumentFolder = ezPathUtils::GetFileDirectory(sFile);
 
-  ezDocumentManager* pManToCreate = nullptr;
-  ezDocumentTypeDescriptor DescToCreate;
-
-  if (ezDocumentManager::FindDocumentTypeFromPath(sFile, bCreate, pManToCreate, &DescToCreate).Succeeded())
+  const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
+  if (ezDocumentManager::FindDocumentTypeFromPath(sFile, bCreate, pTypeDesc).Succeeded())
   {
-    sSelectedExt = DescToCreate.m_sDocumentTypeName;
+    sSelectedExt = pTypeDesc->m_sDocumentTypeName;
   }
 
   CreateOrOpenDocument(bCreate, sFile);
@@ -60,34 +58,26 @@ ezString ezQtEditorApp::BuildDocumentTypeFileFilter(bool bForCreation)
     sepsep = ";;";
   }
 
-  for (ezDocumentManager* pMan : ezDocumentManager::GetAllDocumentManagers())
+  const auto& allDesc = ezDocumentManager::GetAllDocumentDescriptors();
+
+  for (auto desc : allDesc)
   {
-    ezHybridArray<ezDocumentTypeDescriptor, 4> Types;
-    pMan->GetSupportedDocumentTypes(Types);
+    if (bForCreation && !desc->m_bCanCreate)
+      continue;
 
-    for (const ezDocumentTypeDescriptor& desc : Types)
-    {
-      if (bForCreation && !desc.m_bCanCreate)
-        continue;
+    if (desc->m_sFileExtension.IsEmpty())
+      continue;
 
-      if (desc.m_sFileExtensions.IsEmpty())
-        continue;
+    sAllFilters.Append(sepsep, desc->m_sDocumentTypeName, " (");
+    sepsep = ";;";
 
-      sAllFilters.Append(sepsep, desc.m_sDocumentTypeName, " (");
-      sepsep = ";;";
+    const char* sep = "";
 
-      const char* sep = "";
+    sAllFilters.Append(sep, "*.", desc->m_sFileExtension);
 
-      for (const ezString& ext : desc.m_sFileExtensions)
-      {
-        sAllFilters.Append(sep, "*.", ext);
-        sep = "; ";
-      }
+    sAllFilters.Append(")");
 
-      sAllFilters.Append(")");
-
-      desc.m_sDocumentTypeName;
-    }
+    desc->m_sDocumentTypeName;
   }
 
   return sAllFilters;

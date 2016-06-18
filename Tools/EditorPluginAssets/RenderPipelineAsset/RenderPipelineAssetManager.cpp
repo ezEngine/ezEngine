@@ -13,11 +13,25 @@ ezRenderPipelineAssetManager::ezRenderPipelineAssetManager()
 
   // additional whitelist for non-asset files where an asset may be selected
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Material", "ezMaterial");
+
+  m_AssetDesc.m_bCanCreate = true;
+  m_AssetDesc.m_sDocumentTypeName = "Render Pipeline Asset";
+  m_AssetDesc.m_sFileExtension = "ezRenderPipelineAsset";
+  m_AssetDesc.m_sIcon = ":/AssetIcons/RenderPipeline.png";
+  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezRenderPipelineAssetDocument>();
+  m_AssetDesc.m_pManager = this;
 }
 
 ezRenderPipelineAssetManager::~ezRenderPipelineAssetManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezRenderPipelineAssetManager::OnDocumentManagerEvent, this));
+}
+
+
+ezBitflags<ezAssetDocumentFlags> ezRenderPipelineAssetManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
+{
+  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
+  return ezAssetDocumentFlags::AutoTransformOnSave;
 }
 
 void ezRenderPipelineAssetManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
@@ -47,17 +61,9 @@ ezStatus ezRenderPipelineAssetManager::InternalCreateDocument(const char* szDocu
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezRenderPipelineAssetManager::InternalGetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const
+void ezRenderPipelineAssetManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  {
-    ezDocumentTypeDescriptor td;
-    td.m_bCanCreate = true;
-    td.m_sDocumentTypeName = "Render Pipeline Asset";
-    td.m_sFileExtensions.PushBack("ezRenderPipelineAsset");
-    td.m_sIcon = ":/AssetIcons/RenderPipeline.png";
-
-    out_DocumentTypes.PushBack(td);
-  }
+  inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
 
 

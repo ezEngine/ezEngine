@@ -21,11 +21,6 @@ void ezSurfaceAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
 
 }
 
-ezBitflags<ezAssetDocumentFlags> ezSurfaceAssetDocument::GetAssetFlags() const
-{
-  return ezAssetDocumentFlags::AutoTransformOnSave;
-}
-
 ezStatus ezSurfaceAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform)
 {
   ezResourceHandleWriteContext writer;

@@ -475,7 +475,7 @@ ezQtDocumentWindow* ezQtDocumentWindow::FindWindowByDocument(const ezDocument* p
 ezString ezQtDocumentWindow::GetWindowIcon() const
 {
   if (GetDocument() != nullptr)
-    return GetDocument()->GetDocumentTypeDescriptor().m_sIcon;
+    return GetDocument()->GetDocumentTypeDescriptor()->m_sIcon;
 
   return ":/GuiFoundation/Icons/ezEditor16.png";
 }

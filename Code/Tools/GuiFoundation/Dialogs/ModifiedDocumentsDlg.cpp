@@ -52,7 +52,7 @@ ezModifiedDocumentsDlg::ezModifiedDocumentsDlg(QWidget* parent, const ezHybridAr
 
     QTableWidgetItem* pItem0 = new QTableWidgetItem();
     pItem0->setData(Qt::DisplayRole, QString::fromUtf8(pDoc->GetDocumentTypeDisplayString()));
-    pItem0->setIcon(ezUIServices::GetCachedIconResource(pDoc->GetDocumentTypeDescriptor().m_sIcon));
+    pItem0->setIcon(ezUIServices::GetCachedIconResource(pDoc->GetDocumentTypeDescriptor()->m_sIcon));
     TableDocuments->setItem(iRow, 0, pItem0);
 
     QTableWidgetItem* pItem1 = new QTableWidgetItem();

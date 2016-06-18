@@ -20,6 +20,13 @@ ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
   // texture asset source files
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "dds");
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "tga");
+
+  m_AssetDesc.m_bCanCreate = true;
+  m_AssetDesc.m_sDocumentTypeName = "Texture Asset";
+  m_AssetDesc.m_sFileExtension = "ezTextureAsset";
+  m_AssetDesc.m_sIcon = ":/AssetIcons/Texture_2D.png";
+  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
+  m_AssetDesc.m_pManager = this;
 }
 
 ezTextureAssetDocumentManager::~ezTextureAssetDocumentManager()
@@ -54,17 +61,9 @@ ezStatus ezTextureAssetDocumentManager::InternalCreateDocument(const char* szDoc
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezTextureAssetDocumentManager::InternalGetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const
+void ezTextureAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  {
-    ezDocumentTypeDescriptor td;
-    td.m_bCanCreate = true;
-    td.m_sDocumentTypeName = "Texture Asset";
-    td.m_sFileExtensions.PushBack("ezTextureAsset");
-    td.m_sIcon = ":/AssetIcons/Texture_2D.png";
-
-    out_DocumentTypes.PushBack(td);
-  }
+  inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
 
 

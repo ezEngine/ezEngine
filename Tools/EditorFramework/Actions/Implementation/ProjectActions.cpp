@@ -170,12 +170,12 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item
 
     ezLRUMenuAction::Item item;
 
-    ezDocumentManager* pManager;
-    ezDocumentTypeDescriptor td;
-    ezDocumentManager::FindDocumentTypeFromPath(s, false, pManager, &td);
+    const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
+    if (ezDocumentManager::FindDocumentTypeFromPath(s, false, pTypeDesc).Failed())
+      continue;
 
     item.m_UserValue = s;
-    item.m_Icon = ezUIServices::GetCachedIconResource(td.m_sIcon);
+    item.m_Icon = ezUIServices::GetCachedIconResource(pTypeDesc->m_sIcon);
 
     if (ezToolsProject::IsProjectOpen())
     {

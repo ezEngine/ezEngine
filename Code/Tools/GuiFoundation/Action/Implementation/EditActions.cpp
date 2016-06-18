@@ -131,7 +131,7 @@ void ezEditAction::Execute(const ezVariant& value)
       QClipboard* clipboard = QApplication::clipboard();
       QMimeData* mimeData = new QMimeData();
       QByteArray encodedData((const char*)streamStorage.GetData(), streamStorage.GetStorageSize());
-      mimeData->setData(m_Context.m_pDocument->GetDocumentTypeDescriptor().m_sDocumentTypeName.GetData(), encodedData);
+      mimeData->setData(m_Context.m_pDocument->GetDocumentTypeDescriptor()->m_sDocumentTypeName.GetData(), encodedData);
       mimeData->setText(QString::fromUtf8((const char*)streamStorage.GetData()));
       clipboard->setMimeData(mimeData);
     }
@@ -141,7 +141,7 @@ void ezEditAction::Execute(const ezVariant& value)
   case ezEditAction::ButtonType::PasteAsChild:
     {
       // Check for clipboard data of the correct type.
-      const ezString& sDocumentTypeName = m_Context.m_pDocument->GetDocumentTypeDescriptor().m_sDocumentTypeName;
+      const ezString& sDocumentTypeName = m_Context.m_pDocument->GetDocumentTypeDescriptor()->m_sDocumentTypeName;
       QClipboard* clipboard = QApplication::clipboard();
       auto mimedata = clipboard->mimeData();
       if (!mimedata->hasFormat(sDocumentTypeName.GetData()))

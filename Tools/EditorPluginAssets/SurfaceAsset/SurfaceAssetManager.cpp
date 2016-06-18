@@ -13,11 +13,24 @@ ezSurfaceAssetDocumentManager::ezSurfaceAssetDocumentManager()
 
   // additional whitelist for non-asset files where an asset may be selected
   //ezAssetFileExtensionWhitelist::AddAssetFileExtension("Surface", "ezSurface");
+  m_AssetDesc.m_bCanCreate = true;
+  m_AssetDesc.m_sDocumentTypeName = "Surface Asset";
+  m_AssetDesc.m_sFileExtension = "ezSurfaceAsset";
+  m_AssetDesc.m_sIcon = ":/AssetIcons/Surface.png";
+  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezSurfaceAssetDocument>();
+  m_AssetDesc.m_pManager = this;
 }
 
 ezSurfaceAssetDocumentManager::~ezSurfaceAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSurfaceAssetDocumentManager::OnDocumentManagerEvent, this));
+}
+
+
+ezBitflags<ezAssetDocumentFlags> ezSurfaceAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
+{
+  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
+  return ezAssetDocumentFlags::AutoTransformOnSave;
 }
 
 void ezSurfaceAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
@@ -47,17 +60,9 @@ ezStatus ezSurfaceAssetDocumentManager::InternalCreateDocument(const char* szDoc
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezSurfaceAssetDocumentManager::InternalGetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const
+void ezSurfaceAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  {
-    ezDocumentTypeDescriptor td;
-    td.m_bCanCreate = true;
-    td.m_sDocumentTypeName = "Surface Asset";
-    td.m_sFileExtensions.PushBack("ezSurfaceAsset");
-    td.m_sIcon = ":/AssetIcons/Surface.png";
-
-    out_DocumentTypes.PushBack(td);
-  }
+  inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
 
 

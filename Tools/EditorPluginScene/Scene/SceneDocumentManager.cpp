@@ -7,6 +7,44 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezSceneDocumentManager* ezSceneDocumentManager::s_pSingleton = nullptr;
 
+
+ezSceneDocumentManager::ezSceneDocumentManager()
+{
+  s_pSingleton = this;
+
+  {
+    m_SceneDesc.m_bCanCreate = true;
+    m_SceneDesc.m_sDocumentTypeName = "ezScene";
+    m_SceneDesc.m_sFileExtension = "ezScene";
+    m_SceneDesc.m_sIcon = ":/AssetIcons/Scene.png";
+    m_SceneDesc.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
+    m_SceneDesc.m_pManager = this;
+  }
+
+  {
+    m_PrefabDesc.m_bCanCreate = true;
+    m_PrefabDesc.m_sDocumentTypeName = "ezPrefab";
+    m_PrefabDesc.m_sFileExtension = "ezPrefab";
+    m_PrefabDesc.m_sIcon = ":/AssetIcons/Prefab.png";
+    m_PrefabDesc.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
+    m_PrefabDesc.m_pManager = this;
+  }
+}
+
+
+ezBitflags<ezAssetDocumentFlags> ezSceneDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
+{
+  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
+  if (pDescriptor == &m_PrefabDesc)
+  {
+    return ezAssetDocumentFlags::AutoTransformOnSave;
+  }
+  else
+  {
+    return ezAssetDocumentFlags::OnlyTransformManually;
+  }
+}
+
 ezStatus ezSceneDocumentManager::InternalCanOpenDocument(const char* szDocumentTypeName, const char* szFilePath) const
 {
   return ezStatus(EZ_SUCCESS);
@@ -39,27 +77,10 @@ ezStatus ezSceneDocumentManager::InternalCreateDocument(const char* szDocumentTy
   return status;
 }
 
-void ezSceneDocumentManager::InternalGetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const
+void ezSceneDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  {
-    ezDocumentTypeDescriptor td;
-    td.m_bCanCreate = true;
-    td.m_sDocumentTypeName = "ezScene";
-    td.m_sFileExtensions.PushBack("ezScene");
-    td.m_sIcon = ":/AssetIcons/Scene.png";
-
-    out_DocumentTypes.PushBack(td);
-  }
-
-  {
-    ezDocumentTypeDescriptor td;
-    td.m_bCanCreate = true;
-    td.m_sDocumentTypeName = "ezPrefab";
-    td.m_sFileExtensions.PushBack("ezPrefab");
-    td.m_sIcon = ":/AssetIcons/Prefab.png";
-
-    out_DocumentTypes.PushBack(td);
-  }
+  inout_DocumentTypes.PushBack(&m_SceneDesc);
+  inout_DocumentTypes.PushBack(&m_PrefabDesc);
 }
 
 ezString ezSceneDocumentManager::GetResourceTypeExtension() const

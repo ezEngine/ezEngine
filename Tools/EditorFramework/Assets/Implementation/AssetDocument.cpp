@@ -124,19 +124,19 @@ ezAssetDocument::~ezAssetDocument()
   }
 }
 
+ezAssetDocumentManager* ezAssetDocument::GetAssetDocumentManager() const
+{
+  return static_cast<ezAssetDocumentManager*>(GetDocumentManager());
+}
+
+ezBitflags<ezAssetDocumentFlags> ezAssetDocument::GetAssetFlags() const
+{
+  return GetAssetDocumentManager()->GetAssetDocumentTypeFlags(GetDocumentTypeDescriptor());
+}
+
 ezDocumentInfo* ezAssetDocument::CreateDocumentInfo()
 {
   return EZ_DEFAULT_NEW(ezAssetDocumentInfo);
-}
-
-ezString ezAssetDocument::DetermineFinalTargetPlatform(const char* szPlatform)
-{
-  if (ezStringUtils::IsNullOrEmpty(szPlatform))
-  {
-    return ezAssetCurator::GetSingleton()->GetActivePlatform();
-  }
-
-  return szPlatform;
 }
 
 ezStatus ezAssetDocument::InternalSaveDocument()
@@ -154,7 +154,9 @@ ezStatus ezAssetDocument::InternalSaveDocument()
 
 void ezAssetDocument::InternalAfterSaveDocument()
 {
-  if (GetAssetFlags().IsAnySet(ezAssetDocumentFlags::AutoTransformOnSave))
+  const auto flags = GetAssetFlags();
+  
+  if (flags.IsAnySet(ezAssetDocumentFlags::AutoTransformOnSave))
   {
     /// \todo Should only be done for platform agnostic assets
 
@@ -225,25 +227,20 @@ ezStatus ezAssetDocument::TransformAssetManually(const char* szPlatform /*= null
   if (flags.IsAnySet(ezAssetDocumentFlags::DisableTransform))
     return ezStatus("Asset transform has been disabled on this asset");
 
-  // cannot be transformed without a window, so skip this
-  if (flags.IsAnySet(ezAssetDocumentFlags::TransformRequiresWindow) && !HasWindowBeenRequested())
-    return ezStatus("Asset cannot be transformed without an open document window");
-
-  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(GetGuid());
+  ezUInt64 uiHash = 0;
+  if (ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), szPlatform, GetDocumentTypeDescriptor(), uiHash))
+    return ezStatus(EZ_SUCCESS);
 
   if (uiHash == 0)
     return ezStatus("Computing the hash for this asset or any dependency failed");
-
-  const ezString sPlatform = DetermineFinalTargetPlatform(szPlatform);
-  const ezString sTargetFile = GetFinalOutputFileName(sPlatform);
-
-  if (ezAssetDocumentManager::IsResourceUpToDate(uiHash, GetAssetTypeVersion(), sTargetFile))
-    return ezStatus(EZ_SUCCESS, "Transformed asset is already up to date");
 
   // Write resource
   {
     ezAssetFileHeader AssetHeader;
     AssetHeader.SetFileHashAndVersion(uiHash, GetAssetTypeVersion());
+
+    const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(szPlatform);
+    const ezString sTargetFile = static_cast<ezAssetDocumentManager*>(GetDocumentTypeDescriptor()->m_pManager)->GetFinalOutputFileName(GetDocumentTypeDescriptor(), GetDocumentPath(), sPlatform);
 
     auto ret = InternalTransformAsset(sTargetFile, sPlatform, AssetHeader);
 
@@ -270,10 +267,6 @@ ezStatus ezAssetDocument::TransformAsset(const char* szPlatform)
   {
     if (flags.IsAnySet(ezAssetDocumentFlags::DisableTransform | ezAssetDocumentFlags::OnlyTransformManually))
       return ezStatus(EZ_SUCCESS, "Transform is disabled for this asset");
-
-    // cannot be transformed without a window, so skip this
-    if (flags.IsAnySet(ezAssetDocumentFlags::TransformRequiresWindow) && !HasWindowBeenRequested())
-      return ezStatus(EZ_SUCCESS, "Transform requires a document window, which is currently not available");
   }
 
   return TransformAssetManually(szPlatform);
@@ -303,7 +296,7 @@ ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const
 
 ezStatus ezAssetDocument::RetrieveAssetInfo(const char* szPlatform)
 {
-  const ezString sPlatform = DetermineFinalTargetPlatform(szPlatform);
+  const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(szPlatform);
 
   ezStatus stat = InternalRetrieveAssetInfo(sPlatform);
 
@@ -399,22 +392,15 @@ ezString ezAssetDocument::GetDocumentPathFromGuid(const ezUuid& documentGuid) co
   return pAssetInfo->m_sAbsolutePath;
 }
 
-ezString ezAssetDocument::GetFinalOutputFileName(const char* szPlatform)
-{
-  const ezString sPlatform = DetermineFinalTargetPlatform(szPlatform);
-
-  return static_cast<ezAssetDocumentManager*>(GetDocumentManager())->GenerateResourceFileName(GetDocumentPath(), sPlatform);
-}
-
-ezBitflags<ezAssetDocumentFlags> ezAssetDocument::GetAssetFlags() const
-{
-  return ezAssetDocumentFlags::Default;
-}
-
-
 ezUInt16 ezAssetDocument::GetAssetTypeVersion() const
 {
   return (ezUInt16)GetDynamicRTTI()->GetTypeVersion();
+}
+
+ezString ezAssetDocument::GetFinalOutputFileName(const char* szPlatform /*= nullptr*/) const
+{
+  const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(szPlatform);
+  return GetAssetDocumentManager()->GetFinalOutputFileName(GetDocumentTypeDescriptor(), GetDocumentPath(), szPlatform);
 }
 
 void ezAssetDocument::SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage /*= false*/) const

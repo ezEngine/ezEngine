@@ -32,7 +32,7 @@ void ezEditorEngineProcessConnection::SendDocumentOpenMessage(const ezDocument* 
   ezDocumentOpenMsgToEngine m;
   m.m_DocumentGuid = pDocument->GetGuid();
   m.m_bDocumentOpen = bOpen;
-  m.m_sDocumentType = pDocument->GetDocumentTypeDescriptor().m_sDocumentTypeName;
+  m.m_sDocumentType = pDocument->GetDocumentTypeDescriptor()->m_sDocumentTypeName;
 
   SendMessage(&m);
 }

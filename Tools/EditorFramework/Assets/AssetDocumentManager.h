@@ -12,6 +12,8 @@ public:
   ezAssetDocumentManager() {};
   ~ezAssetDocumentManager() {};
 
+  virtual ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const;
+
   virtual ezString GetResourceTypeExtension() const = 0;
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const = 0;
@@ -21,5 +23,13 @@ public:
   static bool IsResourceUpToDate(ezUInt64 uiHash, ezUInt16 uiTypeVersion, const char* szResourceFile);
   ezString GenerateResourceFileName(const char* szDocumentPath, const char* szPlatform) const;
   static ezString GenerateResourceThumbnailPath(const char* szDocumentPath);
+
+  /// \brief Determines the path to the transformed asset file. May be overridden for special cases.
+  ///
+  /// The default implementation puts each asset into the AssetCache folder.
+  virtual ezString GetFinalOutputFileName(const ezDocumentTypeDescriptor* pDescriptor, const char* szDocumentPath, const char* szPlatform) const;
+
   ezString GenerateRelativeResourceFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szPlatform) const;
+  
+  static ezString DetermineFinalTargetPlatform(const char* szPlatform);
 };

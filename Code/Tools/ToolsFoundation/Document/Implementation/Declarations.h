@@ -7,11 +7,21 @@ class ezAbstractObjectGraph;
 
 struct EZ_TOOLSFOUNDATION_DLL ezDocumentTypeDescriptor
 {
-  ezHybridArray<ezString, 4> m_sFileExtensions;
+  ezDocumentTypeDescriptor()
+  {
+    m_pDocumentType = nullptr;
+    m_bCanCreate = false;
+    m_pManager = nullptr;
+  }
+
+  ezString m_sFileExtension;
   ezString m_sDocumentTypeName;
   bool m_bCanCreate;
   ezString m_sIcon;
+  const ezRTTI* m_pDocumentType;
+  ezDocumentManager* m_pManager;
 };
+
 
 struct ezDocumentEvent
 {

@@ -473,11 +473,6 @@ void ezMaterialAssetDocument::InitializeAfterLoading()
   SetModified(bSetModified);
 }
 
-ezBitflags<ezAssetDocumentFlags> ezMaterialAssetDocument::GetAssetFlags() const
-{
-  return ezAssetDocumentFlags::AutoTransformOnSave;
-}
-
 ezDocumentObject* ezMaterialAssetDocument::GetShaderPropertyObject()
 {
   ezDocumentObject* pObject = GetObjectManager()->GetRootObject()->GetChildren()[0];

@@ -13,9 +13,7 @@ public:
 
   static const ezHybridArray<ezDocumentManager*, 16>& GetAllDocumentManagers() { return s_AllDocumentManagers; }
 
-  static ezResult FindDocumentTypeFromPath(const char* szPath, bool bForCreation, ezDocumentManager*& out_pTypeManager, ezDocumentTypeDescriptor* out_pTypeDesc = nullptr);
-
-  void GetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const;
+  static ezResult FindDocumentTypeFromPath(const char* szPath, bool bForCreation, const ezDocumentTypeDescriptor*& out_pTypeDesc);
 
   ezStatus CanOpenDocument(const char* szFilePath) const;
 
@@ -69,10 +67,15 @@ public:
   static ezEvent<const Event&> s_Events;
   static ezEvent<Request&> s_Requests;
 
+  static const ezDynamicArray<const ezDocumentTypeDescriptor*>& GetAllDocumentDescriptors();
+
+protected:
+  void GetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const;
+
 private:
   virtual ezStatus InternalCanOpenDocument(const char* szDocumentTypeName, const char* szFilePath) const = 0;
   virtual ezStatus InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument) = 0;
-  virtual void InternalGetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const = 0;
+  virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const = 0;
 
 private:
   ezStatus CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow, bool bAddToRecentFilesList);
@@ -89,4 +92,6 @@ private:
 
   static ezSet<const ezRTTI*> s_KnownManagers;
   static ezHybridArray<ezDocumentManager*, 16> s_AllDocumentManagers;
+
+  static ezDynamicArray<const ezDocumentTypeDescriptor*> s_AllDocumentDescriptors;
 };

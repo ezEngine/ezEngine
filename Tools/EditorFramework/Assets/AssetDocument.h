@@ -9,6 +9,7 @@
 
 class ezEditorEngineConnection;
 class ezEditorEngineSyncObject;
+class ezAssetDocumentManager;
 
 class EZ_EDITORFRAMEWORK_DLL ezAssetDocument : public ezDocument
 {
@@ -20,6 +21,10 @@ public:
 
   /// \name Asset Functions
   ///@{
+
+  ezAssetDocumentManager* GetAssetDocumentManager() const;
+
+  ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const;
 
   /// \brief Returns one of the strings that ezAssetDocumentManager::QuerySupportedAssetTypes returned.
   ///
@@ -40,17 +45,11 @@ public:
 
   ezStatus RetrieveAssetInfo(const char* szPlatform = nullptr);
 
-  /// \brief Determines the path to the transformed asset file. May be overridden for special cases.
-  ///
-  /// The default implementation puts each asset into the AssetCache folder.
-  virtual ezString GetFinalOutputFileName(const char* szPlatform = nullptr);
-
-  /// \brief Called during certain operations, such as TransformAsset, to determine how to proceed with this asset.
-  virtual ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const;
-
-  /// \brief Retruns the RTTI type version of this asset document type. E.g. when the algorithm to transform an asset changes,
+  /// \brief Returns the RTTI type version of this asset document type. E.g. when the algorithm to transform an asset changes,
   /// Increase the RTTI version. This will ensure that assets get re-transformed, even though their settings and dependencies might not have changed.
   ezUInt16 GetAssetTypeVersion() const;
+
+  ezString GetFinalOutputFileName(const char* szPlatform = nullptr) const;
 
   ///@}
   /// \name IPC Functions
@@ -166,8 +165,6 @@ protected:
 
 private:
   virtual ezDocumentInfo* CreateDocumentInfo() override;
-
-  static ezString DetermineFinalTargetPlatform(const char* szPlatform);
 
 private:
   EngineStatus m_EngineStatus;

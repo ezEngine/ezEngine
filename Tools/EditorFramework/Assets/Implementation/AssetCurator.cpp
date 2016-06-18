@@ -39,23 +39,16 @@ void ezAssetCurator::BuildFileExtensionSet(ezSet<ezString>& AllExtensions)
   ezStringBuilder sTemp;
   AllExtensions.Clear();
 
-  for (auto pMan : ezDocumentManager::GetAllDocumentManagers())
+  const auto& allDesc = ezDocumentManager::GetAllDocumentDescriptors();
+
+  for (const auto& desc : allDesc)
   {
-    if (pMan->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocumentManager>())
+    if (desc->m_pManager->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocumentManager>())
     {
-      ezHybridArray<ezDocumentTypeDescriptor, 4> DocumentTypes;
-      pMan->GetSupportedDocumentTypes(DocumentTypes);
+      sTemp = desc->m_sFileExtension;
+      sTemp.ToLower();
 
-      for (const auto& DocType : DocumentTypes)
-      {
-        for (const auto& ext : DocType.m_sFileExtensions)
-        {
-          sTemp = ext;
-          sTemp.ToLower();
-
-          AllExtensions.Insert(sTemp);
-        }
-      }
+      AllExtensions.Insert(sTemp);
     }
   }
 }
@@ -77,6 +70,23 @@ void ezAssetCurator::NotifyOfPotentialAsset(const char* szAbsolutePath)
 
   /// \todo Move this into a regularly running thread or so
   MainThreadTick();
+}
+
+
+bool ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform, const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash) const
+{
+  out_AssetHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(assetGuid);
+
+  if (out_AssetHash == 0)
+    return false;
+
+  const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(szPlatform);
+  const ezString sTargetFile = static_cast<ezAssetDocumentManager*>(pTypeDescriptor->m_pManager)->GetFinalOutputFileName(pTypeDescriptor, GetAssetInfo(assetGuid)->m_sAbsolutePath, sPlatform);
+
+  if (ezAssetDocumentManager::IsResourceUpToDate(out_AssetHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion(), sTargetFile))
+    return true;
+
+  return false;
 }
 
 void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath)
@@ -433,6 +443,30 @@ void ezAssetCurator::TransformAllAssets(const char* szPlatform /* = nullptr*/)
 
     range.BeginNextStep(ezPathUtils::GetFileNameAndExtension(it.Value()->m_sRelativePath).GetData());
 
+    // Find the descriptor for the asset.
+    const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
+    if (ezDocumentManager::FindDocumentTypeFromPath(it.Value()->m_sAbsolutePath, false, pTypeDesc).Failed())
+    {
+      ezLog::Error("The asset '%s' could not be queried for its ezDocumentTypeDescriptor, skipping transform!", it.Value()->m_sRelativePath.GetData());
+      continue;
+    }
+
+    // Skip assets that cannot be auto-transformed.
+    EZ_ASSERT_DEV(pTypeDesc->m_pDocumentType->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('%s')", it.Value()->m_sRelativePath.GetData());
+    auto assetFlags = static_cast<ezAssetDocumentManager*>(pTypeDesc->m_pManager)->GetAssetDocumentTypeFlags(pTypeDesc);
+    if (assetFlags.IsAnySet(ezAssetDocumentFlags::DisableTransform | ezAssetDocumentFlags::OnlyTransformManually))
+      continue;
+
+    ezUInt64 uiHash = 0;
+    if (IsAssetUpToDate(it.Key(), szPlatform, pTypeDesc, uiHash))
+      continue;
+
+    if (uiHash == 0)
+    {
+      ezLog::Error("Computing the hash for asset '%s' or any dependency failed", it.Value()->m_sAbsolutePath.GetData());
+      continue;
+    }
+
     ezDocument* pDoc = ezQtEditorApp::GetSingleton()->OpenDocumentImmediate(it.Value()->m_sAbsolutePath, false, false);
 
     if (pDoc == nullptr)
@@ -441,11 +475,10 @@ void ezAssetCurator::TransformAllAssets(const char* szPlatform /* = nullptr*/)
       continue;
     }
 
-    EZ_ASSERT_DEV(pDoc->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('%s')", it.Value()->m_sRelativePath.GetData());
-
+    
     ezAssetDocument* pAsset = static_cast<ezAssetDocument*>(pDoc);
     auto ret = pAsset->TransformAsset(szPlatform);
-    
+
     if (ret.m_Result.Failed())
     {
       ezLog::Error("%s (%s)", ret.m_sMessage.GetData(), pDoc->GetDocumentPath());
@@ -606,12 +639,12 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
 
   // figure out which manager should handle this asset type
   {
-    ezDocumentManager* pDocMan = assetInfo.m_pManager;
-    if (assetInfo.m_pManager == nullptr && ezDocumentManager::FindDocumentTypeFromPath(szAbsFilePath, false, pDocMan).Failed())
+    const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
+    if (assetInfo.m_pManager == nullptr && ezDocumentManager::FindDocumentTypeFromPath(szAbsFilePath, false, pTypeDesc).Failed())
     {
       EZ_REPORT_FAILURE("Invalid asset setup");
     }
-    assetInfo.m_pManager = static_cast<ezAssetDocumentManager*>(pDocMan);
+    assetInfo.m_pManager = static_cast<ezAssetDocumentManager*>(pTypeDesc->m_pManager);
   }
 
   ezMemoryStreamStorage storage;

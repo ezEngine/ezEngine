@@ -20,10 +20,9 @@ void ezQtEditorApp::SlotQueuedOpenDocument(QString sProject)
 
 ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow, bool bAddToRecentFilesList)
 {
-  ezDocumentManager* pManToCreate = nullptr;
-  ezDocumentTypeDescriptor DescToCreate;
+  const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
 
-  if (ezDocumentManager::FindDocumentTypeFromPath(szFile, bCreate, pManToCreate, &DescToCreate).Failed())
+  if (ezDocumentManager::FindDocumentTypeFromPath(szFile, bCreate, pTypeDesc).Failed())
   {
     ezStringBuilder sTemp = szFile;
     ezStringBuilder sExt = sTemp.GetFileExtension();
@@ -35,21 +34,21 @@ ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile
   }
 
   // does the same document already exist and is open ?
-  ezDocument* pDocument = pManToCreate->GetDocumentByPath(szFile);
+  ezDocument* pDocument = pTypeDesc->m_pManager->GetDocumentByPath(szFile);
 
   if (!pDocument)
   {
     ezStatus res;
 
     if (bCreate)
-      res = pManToCreate->CreateDocument(DescToCreate.m_sDocumentTypeName, szFile, pDocument, bRequestWindow);
+      res = pTypeDesc->m_pManager->CreateDocument(pTypeDesc->m_sDocumentTypeName, szFile, pDocument, bRequestWindow);
     else
     {
-      res = pManToCreate->CanOpenDocument(szFile);
+      res = pTypeDesc->m_pManager->CanOpenDocument(szFile);
 
       if (res.m_Result.Succeeded())
       {
-        res = pManToCreate->OpenDocument(DescToCreate.m_sDocumentTypeName, szFile, pDocument, bRequestWindow, bAddToRecentFilesList);
+        res = pTypeDesc->m_pManager->OpenDocument(pTypeDesc->m_sDocumentTypeName, szFile, pDocument, bRequestWindow, bAddToRecentFilesList);
       }
     }
 
@@ -62,7 +61,7 @@ ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile
       return nullptr;
     }
 
-    EZ_ASSERT_DEV(pDocument != nullptr, "Creation of document type '%s' succeeded, but returned pointer is nullptr", DescToCreate.m_sDocumentTypeName.GetData());
+    EZ_ASSERT_DEV(pDocument != nullptr, "Creation of document type '%s' succeeded, but returned pointer is nullptr", pTypeDesc->m_sDocumentTypeName.GetData());
 
     if (pDocument->GetUnknownObjectTypeInstances() > 0)
     {

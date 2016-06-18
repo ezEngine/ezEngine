@@ -77,7 +77,7 @@ public:
 
   bool HasWindowBeenRequested() const { return m_bWindowRequested; }
 
-  const ezDocumentTypeDescriptor& GetDocumentTypeDescriptor() const { return m_TypeDescriptor; }
+  const ezDocumentTypeDescriptor* GetDocumentTypeDescriptor() const { return m_pTypeDescriptor; }
 
   const ezDocumentInfo* GetDocumentInfo() { return m_pDocumentInfo; }
 
@@ -173,13 +173,13 @@ protected:
   mutable ezSelectionManager m_SelectionManager;
   mutable ezCommandHistory m_CommandHistory;
   ezDocumentInfo* m_pDocumentInfo;
-  ezDocumentTypeDescriptor m_TypeDescriptor;
+  const ezDocumentTypeDescriptor* m_pTypeDescriptor;
 
 private:
   friend class ezDocumentManager;
   friend class ezCommandHistory;
 
-  void SetupDocumentInfo(const ezDocumentTypeDescriptor& TypeDescriptor);
+  void SetupDocumentInfo(const ezDocumentTypeDescriptor* pTypeDescriptor);
 
   ezDocumentObjectManager* m_pObjectTree;
   ezDocumentManager* m_pDocumentManager;
