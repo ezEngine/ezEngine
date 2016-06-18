@@ -60,7 +60,7 @@ ezUInt64 ezAssetCurator::HashFile(ezStreamReader& InputStream, ezStreamWriter* p
     if (uiRead == 0)
       break;
 
-    uiHash = ezHashing::MurmurHash64(uiCache, (size_t) uiRead, uiHash);
+    uiHash = ezHashing::MurmurHash64(uiCache, (size_t)uiRead, uiHash);
 
     if (pPassThroughStream != nullptr)
       pPassThroughStream->WriteBytes(uiCache, uiRead);
@@ -223,6 +223,7 @@ ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
     if (ezConversionUtils::IsStringUuid(sPath))
     {
       const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sPath);
+
       auto* pAsset = GetAssetInfo(guid);
 
       if (pAsset == nullptr)
@@ -231,15 +232,17 @@ ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
         return 0;
       }
 
-      sPath = pAsset->m_sAbsolutePath;
+      uiHashResult += GetAssetDependencyHash(guid);
+      uiHashResult += pAsset->m_Info.m_uiSettingsHash;
+
+      continue;
     }
-    else
+
+
+    if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
     {
-      if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
-      {
-        ezLog::Error("Failed to make path absolute '%s'", sPath.GetData());
-        return 0;
-      }
+      ezLog::Error("Failed to make path absolute '%s'", sPath.GetData());
+      return 0;
     }
 
     ezFileReader file;
