@@ -13,6 +13,7 @@ struct EZ_SYSTEM_DLL ezScreenInfo
   ezInt32 m_iOffsetY;
   ezInt32 m_iResolutionX;
   ezInt32 m_iResolutionY;
+  bool m_bIsPrimary;
 };
 
 class EZ_SYSTEM_DLL ezScreen
