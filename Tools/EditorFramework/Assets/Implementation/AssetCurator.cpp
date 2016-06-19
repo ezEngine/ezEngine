@@ -367,6 +367,8 @@ const ezAssetInfo* ezAssetCurator::FindAssetInfo(const char* szRelativePath) con
 
 void ezAssetCurator::CheckFileSystem()
 {
+  ezTime before = ezTime::Now();
+
   ezProgressRange range("Check File-System for Assets", m_FileSystemConfig.m_DataDirs.GetCount(), false);
 
   // make sure the hashing task has finished
@@ -400,6 +402,10 @@ void ezAssetCurator::CheckFileSystem()
   }
 
   RestartUpdateTask();
+
+  ezTime after = ezTime::Now();
+  ezTime diff = after - before;
+  ezLog::Info("Asset Curator Refresh Time: %.3f ms", diff.GetMilliseconds());
 }
 
 ezString ezAssetCurator::FindDataDirectoryForAsset(const char* szAbsoluteAssetPath) const
