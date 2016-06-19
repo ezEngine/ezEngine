@@ -67,11 +67,11 @@ void ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
   }
 }
 
-void ezQtEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
+void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 {
   switch (r.m_Type)
   {
-  case ezToolsProject::Event::Type::ProjectOpened:
+  case ezToolsProjectEvent::Type::ProjectOpened:
     {
       LoadProjectPreferences();
       SetupDataDirectories();
@@ -97,7 +97,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
     }
     break;
 
-  case ezToolsProject::Event::Type::ProjectClosing:
+  case ezToolsProjectEvent::Type::ProjectClosing:
     {
       s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile());
       SaveSettings();
@@ -106,7 +106,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
     }
     break;
 
-  case ezToolsProject::Event::Type::ProjectClosed:
+  case ezToolsProjectEvent::Type::ProjectClosed:
     {
       ezEditorEngineProcessConnection::GetSingleton()->ShutdownProcess();
 
@@ -125,11 +125,11 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
   }
 }
 
-void ezQtEditorApp::ProjectRequestHandler(ezToolsProject::Request& r)
+void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
 {
   switch (r.m_Type)
   {
-  case ezToolsProject::Request::Type::CanProjectClose:
+  case ezToolsProjectRequest::Type::CanProjectClose:
     {
       if (r.m_bProjectCanClose == false)
         return;

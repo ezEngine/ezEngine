@@ -126,6 +126,17 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
   }
 }
 
+
+void ezAssetCurator::GetAssetTransformStats(ezUInt32& out_uiNumAssets, ezUInt32& out_uiNumUnknown, ezUInt32& out_uiNumNeedTransform, ezUInt32& out_uiNumNeedThumb)
+{
+  EZ_LOCK(m_CuratorMutex);
+
+  out_uiNumAssets = m_KnownAssets.GetCount();
+  out_uiNumUnknown = m_TransformStateUnknown.GetCount();
+  out_uiNumNeedTransform = m_TransformStateNeedsTransform.GetCount();
+  out_uiNumNeedThumb = m_TransformStateNeedsThumbnail.GetCount();
+}
+
 void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath)
 {
   ezFileStats Stats;

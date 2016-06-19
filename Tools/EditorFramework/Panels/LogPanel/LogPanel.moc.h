@@ -72,7 +72,7 @@ private slots:
   void on_ComboFilter_currentIndexChanged(int index);
 
 protected:
-  virtual void ToolsProjectEventHandler(const ezToolsProject::Event& e) override;
+  virtual void ToolsProjectEventHandler(const ezToolsProjectEvent& e) override;
 
 private:
   ezQtLogModel m_EngineLog;

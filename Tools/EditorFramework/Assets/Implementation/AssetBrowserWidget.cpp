@@ -160,17 +160,17 @@ void ezAssetBrowserWidget::RestoreState(const char* szSettingsName)
   Settings.endGroup();
 }
 
-void ezAssetBrowserWidget::ProjectEventHandler(const ezToolsProject::Event& e)
+void ezAssetBrowserWidget::ProjectEventHandler(const ezToolsProjectEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezToolsProject::Event::Type::ProjectOpened:
+  case ezToolsProjectEvent::Type::ProjectOpened:
     {
       // this is necessary to detect new asset types when a plugin has been loaded (on project load)
       UpdateAssetTypes();
     }
     break;
-  case ezToolsProject::Event::Type::ProjectClosed:
+  case ezToolsProjectEvent::Type::ProjectClosed:
     {
       // remove project structure from asset browser
       ClearDirectoryTree();

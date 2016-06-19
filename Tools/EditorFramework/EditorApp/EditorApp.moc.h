@@ -151,8 +151,8 @@ private:
   void DocumentManagerEventHandler(const ezDocumentManager::Event& r);
   void DocumentEventHandler(const ezDocumentEvent& e);
   void DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e);
-  void ProjectRequestHandler(ezToolsProject::Request& r);
-  void ProjectEventHandler(const ezToolsProject::Event& r);
+  void ProjectRequestHandler(ezToolsProjectRequest& r);
+  void ProjectEventHandler(const ezToolsProjectEvent& r);
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
 
   void LoadEditorPreferences();

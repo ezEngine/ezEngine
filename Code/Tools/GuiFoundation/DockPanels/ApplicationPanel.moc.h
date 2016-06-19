@@ -22,7 +22,7 @@ public:
   static const ezDynamicArray<ezQtApplicationPanel*>& GetAllApplicationPanels() { return s_AllApplicationPanels; }
 
 protected:
-  virtual void ToolsProjectEventHandler(const ezToolsProject::Event& e);
+  virtual void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 
 private:
   friend class ezContainerWindow;

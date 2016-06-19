@@ -192,7 +192,7 @@ private:
   void SelectionManagerEventHandler(const ezSelectionManagerEvent& e);
   void DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e);
   void EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e);
-  void ToolsProjectEventHandler(const ezToolsProject::Event& e);
+  void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 
   ezStatus RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header);
 

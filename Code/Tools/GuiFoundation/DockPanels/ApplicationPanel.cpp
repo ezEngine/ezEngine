@@ -39,14 +39,14 @@ void ezQtApplicationPanel::EnsureVisible()
 }
 
 
-void ezQtApplicationPanel::ToolsProjectEventHandler(const ezToolsProject::Event& e)
+void ezQtApplicationPanel::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezToolsProject::Event::Type::ProjectClosing:
+  case ezToolsProjectEvent::Type::ProjectClosing:
     setEnabled(false);
     break;
-  case ezToolsProject::Event::Type::ProjectOpened:
+  case ezToolsProjectEvent::Type::ProjectOpened:
     setEnabled(true);
     break;
 

@@ -858,11 +858,11 @@ void ezSceneDocument::EngineConnectionEventHandler(const ezEditorEngineProcessCo
 }
 
 
-void ezSceneDocument::ToolsProjectEventHandler(const ezToolsProject::Event& e)
+void ezSceneDocument::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezToolsProject::Event::Type::ProjectConfigChanged:
+  case ezToolsProjectEvent::Type::ProjectConfigChanged:
     {
       // we are lazy and just re-select everything here
       // that ensures that ui elements will rebuild their content

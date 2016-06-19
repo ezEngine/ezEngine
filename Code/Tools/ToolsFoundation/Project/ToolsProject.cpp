@@ -6,8 +6,8 @@
 
 EZ_IMPLEMENT_SINGLETON(ezToolsProject);
 
-ezEvent<const ezToolsProject::Event&> ezToolsProject::s_Events;
-ezEvent<ezToolsProject::Request&> ezToolsProject::s_Requests;
+ezEvent<const ezToolsProjectEvent&> ezToolsProject::s_Events;
+ezEvent<ezToolsProjectRequest&> ezToolsProject::s_Requests;
 
 ezToolsProject::ezToolsProject(const char* szProjectPath)
   : m_SingletonRegistrar(this)
@@ -47,9 +47,9 @@ ezStatus ezToolsProject::Create()
     CreateSubFolder("Prefabs");
   }
 
-  Event e;
+  ezToolsProjectEvent e;
   e.m_pProject = this;
-  e.m_Type = Event::Type::ProjectCreated;
+  e.m_Type = ezToolsProjectEvent::Type::ProjectCreated;
   s_Events.Broadcast(e);
 
   return Open();
@@ -67,9 +67,9 @@ ezStatus ezToolsProject::Open()
 
   ProjectFile.Close();
 
-  Event e;
+  ezToolsProjectEvent e;
   e.m_pProject = this;
-  e.m_Type = Event::Type::ProjectOpened;
+  e.m_Type = ezToolsProjectEvent::Type::ProjectOpened;
   s_Events.Broadcast(e);
 
   return ezStatus(EZ_SUCCESS);
@@ -92,16 +92,16 @@ void ezToolsProject::CloseProject()
   {
     GetSingleton()->m_bIsClosing = true;
 
-    Event e;
+    ezToolsProjectEvent e;
     e.m_pProject = GetSingleton();
-    e.m_Type = Event::Type::ProjectClosing;
+    e.m_Type = ezToolsProjectEvent::Type::ProjectClosing;
     s_Events.Broadcast(e);
 
     ezDocumentManager::CloseAllDocuments();
 
     delete GetSingleton();
 
-    e.m_Type = Event::Type::ProjectClosed;
+    e.m_Type = ezToolsProjectEvent::Type::ProjectClosed;
     s_Events.Broadcast(e);
   }
 }
@@ -111,8 +111,8 @@ bool ezToolsProject::CanCloseProject()
   if (GetSingleton() == nullptr)
     return true;
 
-  Request e;
-  e.m_Type = Request::Type::CanProjectClose;
+  ezToolsProjectRequest e;
+  e.m_Type = ezToolsProjectRequest::Type::CanProjectClose;
   e.m_bProjectCanClose = true;
   s_Requests.Broadcast(e);
 
@@ -155,9 +155,9 @@ ezStatus ezToolsProject::CreateProject(const char* szProjectPath)
 
 void ezToolsProject::BroadcastConfigChanged()
 {
-  Event e;
+  ezToolsProjectEvent e;
   e.m_pProject = GetSingleton();
-  e.m_Type = Event::Type::ProjectConfigChanged;
+  e.m_Type = ezToolsProjectEvent::Type::ProjectConfigChanged;
 
   s_Events.Broadcast(e);
 }

@@ -392,12 +392,12 @@ void ezContainerWindow::DocumentWindowEventHandler(const ezQtDocumentWindowEvent
   }
 }
 
-void ezContainerWindow::ProjectEventHandler(const ezToolsProject::Event& e)
+void ezContainerWindow::ProjectEventHandler(const ezToolsProjectEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezToolsProject::Event::Type::ProjectOpened:
-  case ezToolsProject::Event::Type::ProjectClosed:
+  case ezToolsProjectEvent::Type::ProjectOpened:
+  case ezToolsProjectEvent::Type::ProjectClosed:
     UpdateWindowTitle();
     break;
 

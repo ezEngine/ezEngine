@@ -5,39 +5,42 @@
 #include <ToolsFoundation/Basics/Status.h>
 #include <Foundation/Configuration/Singleton.h>
 
+class ezToolsProject;
+
+struct ezToolsProjectEvent
+{
+  enum class Type
+  {
+    ProjectCreated,
+    ProjectOpened,
+    ProjectClosing,
+    ProjectClosed,
+    ProjectConfigChanged, ///< Sent when global project configuration data was changed and thus certain menus would need to update their content (or just deselect any item, forcing the user to reselect and thus update state)
+  };
+
+  ezToolsProject* m_pProject;
+  Type m_Type;
+};
+
+struct ezToolsProjectRequest
+{
+  enum class Type
+  {
+    CanProjectClose,
+  };
+
+  Type m_Type;
+  bool m_bProjectCanClose; // when the event 'CanProjectClose' is sent, interested code can set this to false to prevent project closing
+};
+
 class EZ_TOOLSFOUNDATION_DLL ezToolsProject
 {
   EZ_DECLARE_SINGLETON(ezToolsProject);
 
 public:
-  struct Event
-  {
-    enum class Type
-    {
-      ProjectCreated,
-      ProjectOpened,
-      ProjectClosing,
-      ProjectClosed,
-      ProjectConfigChanged, ///< Sent when global project configuration data was changed and thus certain menus would need to update their content (or just deselect any item, forcing the user to reselect and thus update state)
-    };
 
-    ezToolsProject* m_pProject;
-    Type m_Type;
-  };
-
-  struct Request
-  {
-    enum class Type
-    {
-      CanProjectClose,
-    };
-
-    Type m_Type;
-    bool m_bProjectCanClose; // when the event 'CanProjectClose' is sent, interested code can set this to false to prevent project closing
-  };
-
-  static ezEvent<const Event&> s_Events;
-  static ezEvent<Request&> s_Requests;
+  static ezEvent<const ezToolsProjectEvent&> s_Events;
+  static ezEvent<ezToolsProjectRequest&> s_Requests;
 
 public:
 

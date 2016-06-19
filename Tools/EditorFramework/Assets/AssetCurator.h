@@ -114,6 +114,9 @@ public:
 
   void UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetInfo::TransformState state);
 
+  /// \brief Returns the number of assets in the system and how many are in what transform state
+  void GetAssetTransformStats(ezUInt32& out_uiNumAssets, ezUInt32& out_uiNumUnknown, ezUInt32& out_uiNumNeedTransform, ezUInt32& out_uiNumNeedThumb);
+
 public:
 
   ezEvent<const ezAssetCuratorEvent&> m_Events;

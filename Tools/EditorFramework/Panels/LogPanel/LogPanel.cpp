@@ -44,11 +44,11 @@ ezQtLogPanel::~ezQtLogPanel()
   ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtLogPanel::EngineProcessMsgHandler, this));
 }
 
-void ezQtLogPanel::ToolsProjectEventHandler(const ezToolsProject::Event& e)
+void ezQtLogPanel::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezToolsProject::Event::Type::ProjectClosing:
+  case ezToolsProjectEvent::Type::ProjectClosing:
     {
       m_EditorLog.Clear();
       m_EngineLog.Clear();
@@ -56,8 +56,8 @@ void ezQtLogPanel::ToolsProjectEventHandler(const ezToolsProject::Event& e)
       ComboFilter->setCurrentIndex(0);
       // fallthrough
 
-  case ezToolsProject::Event::Type::ProjectOpened:
-      setEnabled(e.m_Type == ezToolsProject::Event::Type::ProjectOpened);
+  case ezToolsProjectEvent::Type::ProjectOpened:
+      setEnabled(e.m_Type == ezToolsProjectEvent::Type::ProjectOpened);
     }
     break;
   }

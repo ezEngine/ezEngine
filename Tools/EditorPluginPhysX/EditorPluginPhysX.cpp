@@ -18,7 +18,7 @@
 
 void UpdateCollisionLayerDynamicEnumValues();
 
-static void ToolsProjectEventHandler(const ezToolsProject::Event& e);
+static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 
 void OnLoadPlugin(bool bReloading)
 {
@@ -96,9 +96,9 @@ void UpdateCollisionLayerDynamicEnumValues()
   }
 }
 
-static void ToolsProjectEventHandler(const ezToolsProject::Event& e)
+static void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
 {
-  if (e.m_Type == ezToolsProject::Event::Type::ProjectOpened)
+  if (e.m_Type == ezToolsProjectEvent::Type::ProjectOpened)
   {
     UpdateCollisionLayerDynamicEnumValues();
   }

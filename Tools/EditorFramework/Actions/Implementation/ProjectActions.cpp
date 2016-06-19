@@ -332,7 +332,7 @@ ezProjectAction::~ezProjectAction()
   }
 }
 
-void ezProjectAction::ProjectEventHandler(const ezToolsProject::Event& e)
+void ezProjectAction::ProjectEventHandler(const ezToolsProjectEvent& e)
 {
   SetEnabled(ezToolsProject::IsProjectOpen());
 }

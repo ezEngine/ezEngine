@@ -92,7 +92,7 @@ public:
   virtual void Execute(const ezVariant& value) override;
 
 private:
-  void ProjectEventHandler(const ezToolsProject::Event& e);
+  void ProjectEventHandler(const ezToolsProjectEvent& e);
 
   ButtonType m_ButtonType;
 };
