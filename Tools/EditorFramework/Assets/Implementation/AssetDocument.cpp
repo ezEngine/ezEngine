@@ -280,6 +280,7 @@ ezStatus ezAssetDocument::TransformAssetManually(const char* szPlatform /*= null
       ezFileSystem::DeleteFile(sTargetFile);
     }
 
+    ezAssetCurator::GetSingleton()->NotifyOfPotentialAsset(sTargetFile);
     return ret;
   }
 }

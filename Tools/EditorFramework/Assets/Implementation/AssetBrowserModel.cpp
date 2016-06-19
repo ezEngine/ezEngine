@@ -44,7 +44,10 @@ void ezAssetBrowserModel::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
     break;
   case ezAssetCuratorEvent::Type::AssetUpdated:
     QModelIndex idx = index(FindAssetIndex(e.m_AssetGuid), 0);
-    emit dataChanged(idx, idx);
+    if (idx.isValid())
+    {
+      emit dataChanged(idx, idx);
+    }
     break;
   }
 }

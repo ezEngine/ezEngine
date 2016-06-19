@@ -37,6 +37,7 @@ struct ezAssetInfo
   {
     m_ExistanceState = ExistanceState::FileAdded;
     m_TransformState = TransformState::Unknown;
+    m_LastAssetDependencyHash = 0;
   }
 
   ExistanceState m_ExistanceState;
@@ -46,6 +47,7 @@ struct ezAssetInfo
   ezString m_sRelativePath;
   ezAssetDocumentInfo m_Info;
   ezTime m_LastAccess;
+  ezUInt64 m_LastAssetDependencyHash; ///< For debugging only.
 };
 
 struct ezAssetCuratorEvent
@@ -112,7 +114,6 @@ public:
 
   bool IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform, const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash);
 
-  void UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetInfo::TransformState state);
 
   /// \brief Returns the number of assets in the system and how many are in what transform state
   void GetAssetTransformStats(ezUInt32& out_uiNumAssets, ezUInt32& out_uiNumUnknown, ezUInt32& out_uiNumNeedTransform, ezUInt32& out_uiNumNeedThumb);
@@ -158,6 +159,9 @@ private:
   ezResult EnsureAssetInfoUpdated(const ezUuid& assetGuid);
   ezResult EnsureAssetInfoUpdated(const char* szAbsFilePath);
   static ezResult UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetInfo& assetInfo, const ezFileStats* pFileStat);
+  void TrackDependencies(ezAssetInfo* pAssetInfo);
+  void UntrackDependencies(ezAssetInfo* pAssetInfo);
+  void UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetInfo::TransformState state);
 
 private:
   void RestartUpdateTask();
@@ -171,7 +175,7 @@ private:
 
   ezHashTable<ezUuid, ezAssetInfo*> m_KnownAssets;
   ezMap<ezString, FileStatus, ezCompareString_NoCase<ezString> > m_ReferencedFiles;
-
+  ezMap<ezString, ezHybridArray<ezUuid, 1> > m_InverseDependency;
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezString m_sActivePlatform;
   ezSet<ezString> m_ValidAssetExtensions;
@@ -185,6 +189,7 @@ private:
 
   /// \brief Opens the asset JSON file and reads the "Header" into the given ezAssetDocumentInfo.
   static void ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReader& stream);
+
 
   bool GetNextAssetToUpdate(ezUuid& guid, ezStringBuilder& out_sAbsPath);
   void OnUpdateTaskFinished(ezTask* pTask);

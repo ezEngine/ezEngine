@@ -95,13 +95,14 @@ void ezAssetCurator::RunNextUpdateTask()
 
 ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
 {
-  ezLock<ezMutex> ml(m_CuratorMutex);
 
   if (EnsureAssetInfoUpdated(assetGuid).Failed())
   {
     ezLog::Error("Asset with GUID %s is unknown", ezConversionUtils::ToString(assetGuid).GetData());
     return 0;
   }
+
+  EZ_LOCK(m_CuratorMutex);
 
   ezAssetInfo* pInfo = nullptr;
   if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
@@ -110,11 +111,7 @@ ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
     return 0;
   }
 
-  
-
   EZ_LOG_BLOCK("ezAssetCurator::GetAssetDependencyHash", pInfo->m_sAbsolutePath.GetData());
-
-  FileStatus& status = m_ReferencedFiles[pInfo->m_sAbsolutePath];
 
   ezFileStats stat;
 
@@ -133,9 +130,6 @@ ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
     }
   }
 
-  
-
-
   // hash of the main asset file
   ezUInt64 uiHashResult = pInfo->m_Info.m_uiSettingsHash;
 
@@ -150,18 +144,7 @@ ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
     if (ezConversionUtils::IsStringUuid(sPath))
     {
       const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sPath);
-
-      auto* pAsset = GetAssetInfo(guid);
-
-      if (pAsset == nullptr)
-      {
-        ezLog::Error("Asset with guid '%s' is unknown", sPath.GetData());
-        return 0;
-      }
-
       uiHashResult += GetAssetDependencyHash(guid);
-      uiHashResult += pAsset->m_Info.m_uiSettingsHash;
-
       continue;
     }
 
@@ -185,7 +168,7 @@ ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
       return 0;
     }
 
-    auto& fileref = m_ReferencedFiles[dep];
+    auto& fileref = m_ReferencedFiles[sPath];
 
     // if the file has been modified, make sure to get updated data
     if (!fileref.m_Timestamp.IsEqual(stat.m_LastModificationTime, ezTimestamp::CompareMode::Identical))
@@ -199,8 +182,10 @@ ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
     uiHashResult += fileref.m_uiHash;
   }
 
-  // Add document manager version to add ability to invalidate all generated assets of a type.
-  uiHashResult += pInfo->m_pManager->GetDynamicRTTI()->GetTypeVersion();
+  if (pInfo->m_LastAssetDependencyHash != uiHashResult)
+  {
+    pInfo->m_LastAssetDependencyHash = uiHashResult;
+  }
   return uiHashResult;
 }
 
