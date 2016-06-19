@@ -3,6 +3,7 @@
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Logging/Log.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 
 #include <QWheelEvent>
 #include <QApplication>
