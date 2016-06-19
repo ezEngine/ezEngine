@@ -68,7 +68,7 @@ bool ezResourceLoaderFromFile::IsResourceOutdated(const ezResourceBase* pResourc
   if (pResource->GetLoadedFileModificationTime().IsValid())
   {
     ezString sAbs;
-    if (ezFileSystem::ResolvePath(pResource->GetResourceID(), false, &sAbs, nullptr).Failed())
+    if (ezFileSystem::ResolvePath(pResource->GetResourceID(), &sAbs, nullptr).Failed())
       return false;
 
     ezFileStats stat;

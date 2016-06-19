@@ -224,6 +224,18 @@ const char* ezFileSystem::GetDataDirRelativePath(const char* szPath, ezUInt32 ui
   return szRelPath;
 }
 
+
+ezFileSystem::DataDirectory* ezFileSystem::GetDataDirForRoot(const ezString& sRoot)
+{
+  for (ezUInt32 i = 0; i < s_Data->m_DataDirectories.GetCount(); ++i)
+  {
+    if (s_Data->m_DataDirectories[i].m_sRootName == sRoot)
+      return &s_Data->m_DataDirectories[i];
+  }
+
+  return nullptr;
+}
+
 void ezFileSystem::DeleteFile(const char* szFile)
 {
   EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
@@ -447,101 +459,53 @@ ezDataDirectoryWriter* ezFileSystem::GetFileWriter(const char* szFile, bool bAll
   return nullptr;
 }
 
-ezResult ezFileSystem::ResolvePath(const char* szPath, bool bForWriting, ezString* out_sAbsolutePath, ezString* out_sDataDirRelativePath)
+ezResult ezFileSystem::ResolvePath(const char* szPath, ezString* out_sAbsolutePath, ezString* out_sDataDirRelativePath)
 {
   EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
-  if (bForWriting)
+  EZ_LOCK(s_Data->m_Mutex);
+
+  ezStringBuilder absPath, relPath;
+
+  if (ezStringUtils::StartsWith(szPath, ":"))
   {
     // writing is only allowed using rooted paths
     ezString sRootName;
     ExtractRootName(szPath, sRootName);
 
-    EZ_ASSERT_DEV(!sRootName.IsEmpty(), "Only rooted paths can be used for writing to files.");
+    DataDirectory* pDataDir = GetDataDirForRoot(sRootName);
 
-    if (sRootName.IsEmpty())
+    if (pDataDir == nullptr)
       return EZ_FAILURE;
+
+    relPath = &szPath[sRootName.GetElementCount() + 2];
+
+    absPath = pDataDir->m_pDataDirectory->GetDataDirectoryPath();
+    absPath.AppendPath(relPath);
   }
-
-
-  EZ_LOCK(s_Data->m_Mutex);
-
-  ezResult bRet = EZ_FAILURE;
-  bool bWrite = bForWriting;
-
-  // if we only want to read the file, first actually try to read the file
-  if (!bWrite)
+  else
   {
     // try to get a reader -> if we get one, the file does indeed exist
     ezDataDirectoryReader* pReader = ezFileSystem::GetFileReader(szPath, true);
 
-    if (pReader)
-    {
-      if (out_sAbsolutePath)
-      {
-        ezStringBuilder sAbs = pReader->GetDataDirectory()->GetDataDirectoryPath();
-        sAbs.AppendPath(pReader->GetFilePath());
+    if (!pReader)
+      return EZ_FAILURE;
 
-        *out_sAbsolutePath = sAbs;
-      }
+    relPath = pReader->GetFilePath();
 
-      if (out_sDataDirRelativePath)
-        *out_sDataDirRelativePath = pReader->GetFilePath().GetData();
+    absPath = pReader->GetDataDirectory()->GetDataDirectoryPath();
+    absPath.AppendPath(relPath);
 
-      bRet = EZ_SUCCESS;
-
-      pReader->Close();
-    }
-    else
-    {
-      // if we could not get a reader, that means the file does not exist (yet)
-      // however, we do want to have some kind of valid path, so next we try to write the file, and check where we end up
-      bWrite = true;
-    }
+    pReader->Close();
   }
 
-  if (bWrite)
-  {
-    // store the filename and extension for later reuse
-    const ezString sFileNameAndExt = ezPathUtils::GetFileNameAndExtension(szPath);
+  if (out_sAbsolutePath)
+    *out_sAbsolutePath = absPath;
 
-    ezStringBuilder sNewPath = szPath;
-    sNewPath.ChangeFileNameAndExtension("__dummy__.tmp"); // we just assume there is no such file
+  if (out_sDataDirRelativePath)
+    *out_sDataDirRelativePath = relPath;
 
-    // note that this also allows to get the path for directories
-    // if a path of "Path/To/Folder/" is passed, the dummy file will be "Path/To/Folder/__dummy__.tmp"
-    // that will actually create the directory structure (if it did not exist yet)
-    // later the "Filename and Extension" will be changed back to "" and thus the path to the folder is returned
-
-    ezDataDirectoryWriter* pWriter = GetFileWriter(sNewPath, true); // try to open the file for writing
-
-    if (pWriter)
-    {
-      ezStringBuilder sRelativePath = pWriter->GetFilePath();    // get the path of the actually opened file
-      pWriter->Close();
-
-      ezStringBuilder sAbsPath = pWriter->GetDataDirectory()->GetDataDirectoryPath();
-      sAbsPath.AppendPath(sRelativePath);
-
-      ezFileSystem::DeleteFile(sNewPath);
-
-      if (out_sAbsolutePath)
-      {
-        sAbsPath.ChangeFileNameAndExtension(sFileNameAndExt); // change the filename back to the original filename
-        *out_sAbsolutePath = sAbsPath;
-      }
-
-      if (out_sDataDirRelativePath)
-      {
-        sRelativePath.ChangeFileNameAndExtension(sFileNameAndExt); // change the filename back to the original filename
-        *out_sDataDirRelativePath = sRelativePath;
-      }
-
-      bRet = EZ_SUCCESS;
-    }
-  }
-
-  return bRet;
+  return EZ_SUCCESS;
 }
 
 void ezFileSystem::ReloadAllExternalDataDirectoryConfigs()

@@ -129,7 +129,7 @@ ezResult ezDependencyFile::RetrieveFileTimeStamp(const char* szFile, ezTimestamp
     it.Value().m_LastCheck = ezTime::Now();
 
     ezString sAbsPath;
-    if (ezFileSystem::ResolvePath(szFile, false, &sAbsPath, nullptr).Failed())
+    if (ezFileSystem::ResolvePath(szFile, &sAbsPath, nullptr).Failed())
     {
       ezLog::Error("Could not resolve path for file '%s'", szFile);
       return EZ_FAILURE;

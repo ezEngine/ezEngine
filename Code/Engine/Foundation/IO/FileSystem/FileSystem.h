@@ -124,16 +124,18 @@ public:
 
   /// \brief Tries to resolve the given path and returns the absolute and relative path to the final file.
   ///
-  /// If bForWriting is false, all data directories will be searched for an existing file.
-  /// This is similar to what opening a file for reading does. So if there is any file that could be opened for reading,
-  /// the path to that file will be returned.
-  /// If bForWriting is true, the path must be either an absolute native path, or 'rooted'. That means it must start with a
-  /// colon and then a data directory name. For instance ":appdata/UserData.txt".
-  /// out_sAbsolutePath will contain the absolute path to the file. Might be nullptr.
-  /// out_sDataDirRelativePath will contain the relative path to the file (from the data directory in which it might end up in). Might be nullptr.
-  /// szPath can be an absolute path. This can also be used to find the relative location to the data directory that would handle it.
+  /// If the given path is a rooted path, for instance something like ":appdata/UserData.txt", (which is necessary for writing to files), 
+  /// the path can be converted easily and the file does not need to exist. Only the data directory with the given root name must be mounted.
+  ///
+  /// If the path is relative, it is attempted to open the specified file, which means it is searched in all available
+  /// data directories. The path to the file that is found will be returned.
+  ///
+  /// \param out_sAbsolutePath will contain the absolute path to the file. Might be nullptr.
+  /// \param out_sDataDirRelativePath will contain the relative path to the file (from the data directory in which it might end up in). Might be nullptr.
+  /// \param szPath can be a relative, an absolute or a rooted path. This can also be used to find the relative location to the data directory
+  /// that would handle it.
   /// The function will return EZ_FAILURE if it was not able to determine any location where the file could be read from or written to.
-  static ezResult ResolvePath(const char* szPath, bool bForWriting, ezString* out_sAbsolutePath, ezString* out_sDataDirRelativePath);
+  static ezResult ResolvePath(const char* szPath, ezString* out_sAbsolutePath, ezString* out_sDataDirRelativePath);
 
 
 private:
@@ -170,12 +172,6 @@ private:
   static void Shutdown();
 
 private:
-  /// \brief Returns a list of data directory categories that were embedded in the path.
-  static const char* ExtractRootName(const char* szPath, ezString& rootName);
-
-  /// \brief Returns the given path relative to its data directory. The path must be inside the given data directory.
-  static const char* GetDataDirRelativePath(const char* szPath, ezUInt32 uiDataDir);
-
   struct DataDirectory
   {
     DataDirUsage m_Usage;
@@ -192,6 +188,15 @@ private:
     ezEvent<const FileEvent&> m_Event;
     ezMutex m_Mutex;
   };
+
+  /// \brief Returns a list of data directory categories that were embedded in the path.
+  static const char* ExtractRootName(const char* szPath, ezString& rootName);
+
+  /// \brief Returns the given path relative to its data directory. The path must be inside the given data directory.
+  static const char* GetDataDirRelativePath(const char* szPath, ezUInt32 uiDataDir);
+
+  static DataDirectory* GetDataDirForRoot(const ezString& sRoot);
+
 
   static FileSystemData* s_Data;
 };

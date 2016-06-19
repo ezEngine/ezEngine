@@ -154,7 +154,7 @@ Only concrete and clocks.\n\
   {
     ezString sRel, sAbs;
 
-    EZ_TEST_BOOL(ezFileSystem::ResolvePath(":output1/FileSystemTest2.txt", true, &sAbs, &sRel) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::ResolvePath(":output1/FileSystemTest2.txt", &sAbs, &sRel) == EZ_SUCCESS);
 
     ezStringBuilder sExpectedAbs = sOutputFolder1;
     sExpectedAbs.AppendPath("FileSystemTest2.txt");
@@ -176,7 +176,7 @@ Only concrete and clocks.\n\
 
     // find the path to an existing file
     {
-      EZ_TEST_BOOL(ezFileSystem::ResolvePath("FileSystemTest2.txt", false, &sAbs, &sRel) == EZ_SUCCESS);
+      EZ_TEST_BOOL(ezFileSystem::ResolvePath("FileSystemTest2.txt", &sAbs, &sRel) == EZ_SUCCESS);
 
       sExpectedAbs = sOutputFolder2;
       sExpectedAbs.AppendPath("FileSystemTest2.txt");
@@ -187,7 +187,7 @@ Only concrete and clocks.\n\
 
     // find where we would write the file to (ignoring existing files)
     {
-      EZ_TEST_BOOL(ezFileSystem::ResolvePath(":output1/FileSystemTest2.txt", true, &sAbs, &sRel) == EZ_SUCCESS);
+      EZ_TEST_BOOL(ezFileSystem::ResolvePath(":output1/FileSystemTest2.txt", &sAbs, &sRel) == EZ_SUCCESS);
 
       sExpectedAbs = sOutputFolder1;
       sExpectedAbs.AppendPath("FileSystemTest2.txt");
@@ -198,7 +198,7 @@ Only concrete and clocks.\n\
 
     // find where we would write the file to (ignoring existing files)
     {
-      EZ_TEST_BOOL(ezFileSystem::ResolvePath(":output1/SubSub/FileSystemTest2.txt", true, &sAbs, &sRel) == EZ_SUCCESS);
+      EZ_TEST_BOOL(ezFileSystem::ResolvePath(":output1/SubSub/FileSystemTest2.txt", &sAbs, &sRel) == EZ_SUCCESS);
 
       sExpectedAbs = sOutputFolder1;
       sExpectedAbs.AppendPath("SubSub/FileSystemTest2.txt");
