@@ -27,6 +27,7 @@
     <file>Icons/Input16.png</file>
     <file>Icons/AssetUnknown16.png</file>
     <file>Icons/AssetNeedsTransform16.png</file>
+    <file>Icons/AssetNeedsThumbnail16.png</file>
     <file>Icons/AssetOk16.png</file>
   </qresource>
   <qresource prefix="AssetIcons">

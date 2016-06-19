@@ -12,6 +12,8 @@
 ezAssetBrowserView::ezAssetBrowserView(QWidget* parent) : QListView(parent)
 {
   m_iIconSizePercentage = 100;
+  m_pDelegate = new QtIconViewDelegate(this);
+
   SetDialogMode(false);
 
   setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectItems);
@@ -19,7 +21,6 @@ ezAssetBrowserView::ezAssetBrowserView(QWidget* parent) : QListView(parent)
   setUniformItemSizes(true);
   setResizeMode(QListView::ResizeMode::Adjust);
   
-  m_pDelegate = new QtIconViewDelegate(this);
   setItemDelegate(m_pDelegate);
   SetIconScale(m_iIconSizePercentage);
 }
@@ -30,11 +31,13 @@ void ezAssetBrowserView::SetDialogMode(bool bDialogMode)
 
   if (m_bDialogMode)
   {
+    m_pDelegate->SetDrawTransformState(false);
     setDragDropMode(QAbstractItemView::DragDropMode::NoDragDrop);
     setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
   }
   else
   {
+    m_pDelegate->SetDrawTransformState(true);
     setDragDropMode(QAbstractItemView::DragOnly);
     setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
   }
@@ -86,6 +89,7 @@ void ezAssetBrowserView::wheelEvent(QWheelEvent* pEvent)
 
 QtIconViewDelegate::QtIconViewDelegate(ezAssetBrowserView* pParent) : QItemDelegate(pParent)
 {
+  m_bDrawTransformState = true;
   m_iIconSizePercentage = 100;
   m_pView = pParent;
 }
@@ -158,6 +162,7 @@ void QtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& op
   }
 
   // Draw Transform State Icon
+  if (m_bDrawTransformState)
   {
     QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin + uiThumbnailSize - 16 + 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
     thumbnailRect.setSize(QSize(16, 16));
@@ -170,7 +175,7 @@ void QtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& op
       ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetUnknown16.png").paint(painter, thumbnailRect);
       break;
     case ezAssetInfo::TransformState::NeedsThumbnail:
-      ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsTransform16.png").paint(painter, thumbnailRect);
+      ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsThumbnail16.png").paint(painter, thumbnailRect);
       break;
     case ezAssetInfo::TransformState::NeedsTransform:
       ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsTransform16.png").paint(painter, thumbnailRect);

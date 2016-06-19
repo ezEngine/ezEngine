@@ -37,6 +37,8 @@ class QtIconViewDelegate : public QItemDelegate
 public:
   QtIconViewDelegate(ezAssetBrowserView* pParent = nullptr);
 
+  void SetDrawTransformState(bool b) { m_bDrawTransformState = b; }
+
   void SetIconScale(ezInt32 iIconSizePercentage);
 
 public:
@@ -58,6 +60,7 @@ private:
     TextSpacing = 5
   };
 
+  bool m_bDrawTransformState;
   ezInt32 m_iIconSizePercentage;
   ezAssetBrowserView* m_pView;
 };
