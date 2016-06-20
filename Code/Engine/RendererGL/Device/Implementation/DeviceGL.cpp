@@ -445,16 +445,6 @@ void ezGALDeviceGL::EndFramePlatform()
 {
 }
 
-void ezGALDeviceGL::FlushPlatform()
-{
-  glFlush();
-}
-
-void ezGALDeviceGL::FinishPlatform()
-{
-  glFinish();
-}
-
 void ezGALDeviceGL::SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain)
 {
   ezGALSwapChainGL* pSwapChainGL = static_cast<ezGALSwapChainGL*>(pSwapChain);

@@ -648,7 +648,10 @@ ID3D11Buffer* ezGALDeviceDX11::FindTempBuffer(ezUInt32 uiSize)
     }
   }
 
-  m_UsedTempBuffers.PushBack({pBuffer, m_uiFrameCounter});
+  auto& tempBuffer = m_UsedTempBuffers.ExpandAndGetRef();
+  tempBuffer.m_pBuffer = pBuffer;
+  tempBuffer.m_uiFrame = m_uiFrameCounter;
+  
   return pBuffer;
 }
 

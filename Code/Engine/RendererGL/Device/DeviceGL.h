@@ -156,10 +156,6 @@ protected:
 
   virtual void EndFramePlatform() override;
 
-  virtual void FlushPlatform() override;
-
-  virtual void FinishPlatform() override;
-
   virtual void SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain) override;
 
   virtual void FillCapabilitiesPlatform() override;
