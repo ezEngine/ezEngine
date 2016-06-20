@@ -482,8 +482,6 @@ void ezGALContext::WaitForFence(ezGALFenceHandle hFence)
 {
   AssertRenderingThread();
 
-  m_pDevice->Flush(); /// \todo - make this toggle-able
-
   ezGALFence* pPlatformSpecificFence = m_pDevice->m_Fences[hFence];
 
   while (!IsFenceReachedPlatform(pPlatformSpecificFence))
@@ -549,18 +547,18 @@ void ezGALContext::CopyBufferRegion(ezGALBufferHandle hDest, ezUInt32 uiDestOffs
   }
 }
 
-void ezGALContext::UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, const void* pSourceData, ezUInt32 uiByteCount)
+void ezGALContext::UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData)
 {
   AssertRenderingThread();
 
-  EZ_VERIFY(pSourceData != nullptr, "Source data pointer for buffer update is invalid!");
+  EZ_VERIFY(!pSourceData.IsEmpty(), "Source data for buffer update is invalid!");
 
   ezGALBuffer* pDest = nullptr;
 
   if (m_pDevice->m_Buffers.TryGetValue(hDest, pDest))
   {
-    EZ_VERIFY(pDest->GetSize() >= (uiDestOffset + uiByteCount), "Buffer is too small (or offset too big)");
-    UpdateBufferPlatform(pDest, uiDestOffset, pSourceData, uiByteCount);
+    EZ_VERIFY(pDest->GetSize() >= (uiDestOffset + pSourceData.GetCount()), "Buffer is too small (or offset too big)");
+    UpdateBufferPlatform(pDest, uiDestOffset, pSourceData);
   }
   else
   {

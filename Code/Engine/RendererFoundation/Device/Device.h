@@ -129,10 +129,6 @@ public:
 
   void EndFrame();
 
-  void Flush();
-
-  void Finish();
-
   void SetPrimarySwapChain(ezGALSwapChainHandle hSwapChain);
 
   ezGALSwapChainHandle GetPrimarySwapChain() const;
@@ -349,10 +345,6 @@ protected:
   virtual void BeginFramePlatform() = 0;
 
   virtual void EndFramePlatform() = 0;
-
-  virtual void FlushPlatform() = 0;
-
-  virtual void FinishPlatform() = 0;
 
   virtual void SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain) = 0;
 

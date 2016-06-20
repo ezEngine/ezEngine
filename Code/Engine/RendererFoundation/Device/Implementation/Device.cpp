@@ -730,8 +730,6 @@ void ezGALDevice::DestroySwapChain(ezGALSwapChainHandle hSwapChain)
 
 ezGALFenceHandle ezGALDevice::CreateFence()
 {
-  /// \todo Platform independent validation
-
   ezGALFence* pFence = CreateFencePlatform();
 
   if (pFence == nullptr)
@@ -896,20 +894,6 @@ void ezGALDevice::EndFrame()
   EndFramePlatform();
 
   m_bFrameBeginCalled = false;
-}
-
-void ezGALDevice::Flush()
-{
-  EZ_ASSERT_DEV(m_bFrameBeginCalled, "You must have called ezGALDevice::Begin before you can call this function");
-
-  FlushPlatform();
-}
-
-void ezGALDevice::Finish()
-{
-  EZ_ASSERT_DEV(m_bFrameBeginCalled, "You must have called ezGALDevice::Begin before you can call this function");
-
-  FinishPlatform();
 }
 
 void ezGALDevice::SetPrimarySwapChain(ezGALSwapChainHandle hSwapChain)

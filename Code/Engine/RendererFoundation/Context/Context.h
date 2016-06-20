@@ -100,7 +100,7 @@ public:
 
   void CopyBufferRegion(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezGALBufferHandle hSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount);
 
-  void UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, const void* pSourceData, ezUInt32 uiByteCount);
+  void UpdateBuffer(ezGALBufferHandle hDest, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData);
 
   void CopyTexture(ezGALTextureHandle hDest, ezGALTextureHandle hSource);
 
@@ -133,6 +133,8 @@ protected:
   ezGALContext(ezGALDevice* pDevice);
 
   virtual ~ezGALContext();
+
+  ezGALDevice* GetDevice();
 
   // Draw functions
 
@@ -213,7 +215,7 @@ protected:
 
   virtual void CopyBufferRegionPlatform(ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezGALBuffer* pSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount) = 0;
 
-  virtual void UpdateBufferPlatform(ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const void* pSourceData, ezUInt32 uiByteCount) = 0;
+  virtual void UpdateBufferPlatform(ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData) = 0;
 
   virtual void CopyTexturePlatform(ezGALTexture* pDestination, ezGALTexture* pSource) = 0;
 

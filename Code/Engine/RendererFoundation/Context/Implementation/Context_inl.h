@@ -1,4 +1,9 @@
 
+inline ezGALDevice* ezGALContext::GetDevice()
+{
+  return m_pDevice;
+}
+
 inline void ezGALContext::CountDrawCall()
 {
   m_uiDrawCalls++;

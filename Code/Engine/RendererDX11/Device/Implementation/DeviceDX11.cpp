@@ -4,6 +4,7 @@
 #include <RendererDX11/Device/SwapChainDX11.h>
 #include <RendererDX11/Shader/ShaderDX11.h>
 #include <RendererDX11/Resources/BufferDX11.h>
+#include <RendererDX11/Resources/FenceDX11.h>
 #include <RendererDX11/Resources/TextureDX11.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
@@ -22,6 +23,9 @@ ezGALDeviceDX11::ezGALDeviceDX11(const ezGALDeviceCreationDescription& Descripti
   , m_pDXGIAdapter(nullptr)
   , m_pDXGIDevice(nullptr)
   , m_FeatureLevel(D3D_FEATURE_LEVEL_9_1)
+  , m_uiCurrentEndFrameFence(0)
+  , m_uiNextEndFrameFence(0)
+  , m_uiFrameCounter(0)
 {
 }
 
@@ -141,11 +145,41 @@ retry:
 
   ezProjectionDepthRange::Default = ezProjectionDepthRange::ZeroToOne;
 
+
+  //End frame fences
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_EndFrameFences); ++i)
+  {
+    m_EndFrameFences[i].m_pFence = CreateFencePlatform();
+    m_EndFrameFences[i].m_uiFrame = -1;
+  }
+
   return EZ_SUCCESS;
 }
 
 ezResult ezGALDeviceDX11::ShutdownPlatform()
 {
+  for (auto it = m_FreeTempBuffers.GetIterator(); it.IsValid(); ++it)
+  {
+    ezDynamicArray<ID3D11Buffer*>& buffers = it.Value();
+    for (auto pBuffer : buffers)
+    {
+      EZ_GAL_DX11_RELEASE(pBuffer);
+    }
+  }
+  m_FreeTempBuffers.Clear();
+
+  for (ezUInt32 i = 0; i < m_UsedTempBuffers.GetCount(); ++i)
+  {
+    EZ_GAL_DX11_RELEASE(m_UsedTempBuffers[i].m_pBuffer);
+  }
+  m_UsedTempBuffers.Clear();
+
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_EndFrameFences); ++i)
+  {
+    DestroyFencePlatform(m_EndFrameFences[i].m_pFence);
+    m_EndFrameFences[i].m_pFence = nullptr;
+  }
+
   EZ_DELETE(&m_Allocator, m_pPrimaryContext);
 
   EZ_GAL_DX11_RELEASE(m_pDevice);
@@ -354,8 +388,6 @@ void ezGALDeviceDX11::DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRe
 
 
 // Other rendering creation functions
-
-/// \todo Move the real code creating things to the implementation files (all?)
 ezGALSwapChain* ezGALDeviceDX11::CreateSwapChainPlatform(const ezGALSwapChainCreationDescription& Description)
 {
   ezGALSwapChainDX11* pSwapChain = EZ_NEW(&m_Allocator, ezGALSwapChainDX11, Description);
@@ -378,13 +410,22 @@ void ezGALDeviceDX11::DestroySwapChainPlatform(ezGALSwapChain* pSwapChain)
 
 ezGALFence* ezGALDeviceDX11::CreateFencePlatform()
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return nullptr;
+  ezGALFenceDX11* pFence = EZ_NEW(&m_Allocator, ezGALFenceDX11);
+
+  if (!pFence->InitPlatform(this).Succeeded())
+  {
+    EZ_DELETE(&m_Allocator, pFence);
+    return nullptr;
+  }
+
+  return pFence;
 }
 
 void ezGALDeviceDX11::DestroyFencePlatform(ezGALFence* pFence)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  ezGALFenceDX11* pFenceDX11 = static_cast<ezGALFenceDX11*>(pFence);
+  pFenceDX11->DeInitPlatform(this);
+  EZ_DELETE(&m_Allocator, pFenceDX11);
 }
 
 ezGALQuery* ezGALDeviceDX11::CreateQueryPlatform(const ezGALQueryCreationDescription& Description)
@@ -415,12 +456,8 @@ ezGALVertexDeclaration* ezGALDeviceDX11::CreateVertexDeclarationPlatform(const e
 
 void ezGALDeviceDX11::DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration)
 {
-  // Why is it necessary to cast this here and then call the virtual function???
-  // couldn't the renderer abstraction call DeInitPlatform directly (also EZ_DEFAULT_DELETE) ?
-
   ezGALVertexDeclarationDX11* pVertexDeclarationDX11 = static_cast<ezGALVertexDeclarationDX11*>(pVertexDeclaration);
   pVertexDeclarationDX11->DeInitPlatform(this);
-
   EZ_DELETE(&m_Allocator, pVertexDeclarationDX11);
 }
 
@@ -452,15 +489,33 @@ void ezGALDeviceDX11::BeginFramePlatform()
 
 void ezGALDeviceDX11::EndFramePlatform()
 {
-}
+  // check if fence is reached
+  {
+    auto& endFrameFence = m_EndFrameFences[m_uiCurrentEndFrameFence];
+    if (endFrameFence.m_uiFrame != ((ezUInt64)-1))
+    {
+      if (GetPrimaryContext<ezGALContextDX11>()->IsFenceReachedPlatform(endFrameFence.m_pFence))
+      {
+        FreeTempResources(endFrameFence.m_uiFrame);
 
-void ezGALDeviceDX11::FlushPlatform()
-{
-  GetPrimaryContext<ezGALContextDX11>()->GetDXContext()->Flush();
-}
+        m_uiCurrentEndFrameFence = (m_uiCurrentEndFrameFence + 1) % EZ_ARRAY_SIZE(m_EndFrameFences);
+      }
+    }
+  }
 
-void ezGALDeviceDX11::FinishPlatform()
-{
+  // insert fence
+  {
+    auto& endFrameFence = m_EndFrameFences[m_uiNextEndFrameFence];
+
+    GetPrimaryContext<ezGALContextDX11>()->InsertFencePlatform(endFrameFence.m_pFence);
+    endFrameFence.m_uiFrame = m_uiFrameCounter;
+
+    m_uiNextEndFrameFence = (m_uiNextEndFrameFence + 1) % EZ_ARRAY_SIZE(m_EndFrameFences);
+    EZ_ASSERT_DEV(m_uiNextEndFrameFence != m_uiCurrentEndFrameFence, "Not enough fences");
+  }
+
+
+  ++m_uiFrameCounter;
 }
 
 void ezGALDeviceDX11::SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain)
@@ -550,6 +605,78 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
 
 }
 
+
+ID3D11Buffer* ezGALDeviceDX11::FindTempBuffer(ezUInt32 uiSize)
+{
+  const ezUInt32 uiExpGrowthLimit = 16 * 1024 * 1024;
+
+  uiSize = ezMath::Max(uiSize, 256U);
+  if (uiSize < uiExpGrowthLimit)
+  {
+    uiSize = ezMath::PowerOfTwo_Ceil(uiSize);
+  }
+  else
+  {
+    uiSize = ezMemoryUtils::AlignSize(uiSize, uiExpGrowthLimit);
+  }
+
+  ID3D11Buffer* pBuffer = nullptr;
+  auto it = m_FreeTempBuffers.Find(uiSize);
+  if (it.IsValid())
+  {
+    ezDynamicArray<ID3D11Buffer*>& buffers = it.Value();
+    if (!buffers.IsEmpty())
+    {
+      pBuffer = buffers[0];
+      buffers.RemoveAtSwap(0);
+    }
+  }
+
+  if (pBuffer == nullptr)
+  {
+    D3D11_BUFFER_DESC desc;
+    desc.ByteWidth = uiSize;
+    desc.Usage = D3D11_USAGE_STAGING;
+    desc.BindFlags = 0;
+    desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    desc.MiscFlags = 0;
+    desc.StructureByteStride = 0;
+
+    if (!SUCCEEDED(m_pDevice->CreateBuffer(&desc, nullptr, &pBuffer)))
+    {
+      return nullptr;
+    }
+  }
+
+  m_UsedTempBuffers.PushBack({pBuffer, m_uiFrameCounter});
+  return pBuffer;
+}
+
+void ezGALDeviceDX11::FreeTempResources(ezUInt64 uiFrame)
+{
+  while (!m_UsedTempBuffers.IsEmpty())
+  {
+    auto& usedStagingResource = m_UsedTempBuffers.PeekFront();
+    if (usedStagingResource.m_uiFrame == uiFrame)
+    {
+      D3D11_BUFFER_DESC desc;
+      usedStagingResource.m_pBuffer->GetDesc(&desc);
+
+      auto it = m_FreeTempBuffers.Find(desc.ByteWidth);
+      if (!it.IsValid())
+      {
+        it = m_FreeTempBuffers.Insert(desc.ByteWidth, ezDynamicArray<ID3D11Buffer*>(&m_Allocator));
+      }
+
+      it.Value().PushBack(usedStagingResource.m_pBuffer);
+      m_UsedTempBuffers.PopFront();
+    }
+    else
+    {
+      break;
+    }
+  }
+}
 
 void ezGALDeviceDX11::FillFormatLookupTable()
 {

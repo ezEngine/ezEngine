@@ -12,7 +12,7 @@
 
 namespace
 {
-  struct Vertex
+  struct EZ_ALIGN_16(Vertex)
   {
     ezVec3 m_position;
     ezColorLinearUB m_color;
@@ -20,7 +20,7 @@ namespace
 
   EZ_CHECK_AT_COMPILETIME(sizeof(Vertex) == 16);
 
-  struct BoxData
+  struct EZ_ALIGN_16(BoxData)
   {
     ezVec4 m_transform0;
     ezVec4 m_transform1;
@@ -30,7 +30,7 @@ namespace
 
   EZ_CHECK_AT_COMPILETIME(sizeof(BoxData) == 64);
 
-  struct GlyphData
+  struct EZ_ALIGN_16(GlyphData)
   {
     ezVec2 m_topLeftCorner;
     ezColorLinearUB m_color;
@@ -42,12 +42,12 @@ namespace
 
   struct PerWorldData
   {
-    ezDynamicArray<Vertex> m_lineVertices;
-    ezDynamicArray<Vertex> m_triangleVertices;
-    ezDynamicArray<Vertex> m_triangle2DVertices;
-    ezDynamicArray<BoxData> m_lineBoxes;
-    ezDynamicArray<BoxData> m_solidBoxes;
-    ezDynamicArray<GlyphData> m_glyphs;
+    ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_lineVertices;
+    ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_triangleVertices;
+    ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_triangle2DVertices;
+    ezDynamicArray<BoxData, ezAlignedAllocatorWrapper> m_lineBoxes;
+    ezDynamicArray<BoxData, ezAlignedAllocatorWrapper> m_solidBoxes;
+    ezDynamicArray<GlyphData, ezAlignedAllocatorWrapper> m_glyphs;
   };
 
   static ezDynamicArray<PerWorldData*> s_PerWorldData[2];
@@ -122,25 +122,49 @@ namespace
   ezShaderResourceHandle s_hDebugPrimitiveShader;
   ezShaderResourceHandle s_hDebugTextShader;
 
-  static void CreateDataBuffer(BufferType::Enum bufferType, ezUInt32 uiStructSize, ezUInt32 uiNumData, void* pData)
+  enum
+  {
+    DEBUG_BUFFER_SIZE = 1024 * 256
+  };
+
+  template <typename T>
+  static void CreateOrUpdateDataBuffer(ezGALContext* pGALContext, BufferType::Enum bufferType, ezArrayPtr<const T> pData)
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-    ezGALBufferCreationDescription desc;
-    desc.m_uiStructSize = uiStructSize;
-    desc.m_uiTotalSize = desc.m_uiStructSize * uiNumData;
-    desc.m_BufferType = ezGALBufferType::Generic;
-    desc.m_bUseAsStructuredBuffer = true;
-    desc.m_bAllowShaderResourceView = true;
+    if (s_hDataBuffer[bufferType].IsInvalidated())
+    {
+      ezGALBufferCreationDescription desc;
+      desc.m_uiStructSize = sizeof(T);
+      desc.m_uiTotalSize = DEBUG_BUFFER_SIZE;
+      desc.m_BufferType = ezGALBufferType::Generic;
+      desc.m_bUseAsStructuredBuffer = true;
+      desc.m_bAllowShaderResourceView = true;
+      desc.m_ResourceAccess.m_bImmutable = false;
 
-    s_hDataBuffer[bufferType] = pDevice->CreateBuffer(desc, pData);
+      s_hDataBuffer[bufferType] = pDevice->CreateBuffer(desc, nullptr);
+    }
+
+    pGALContext->UpdateBuffer(s_hDataBuffer[bufferType], 0, ezMakeArrayPtr(reinterpret_cast<const ezUInt8*>(pData.GetPtr()), pData.GetCount() * sizeof(T)));
   }
 
-  static void CreateVertexBuffer(BufferType::Enum bufferType, ezUInt32 uiVertexSize, ezUInt32 uiNumVertices, void* pData)
+  template <typename T>
+  static void CreateOrUpdateVertexBuffer(ezGALContext* pGALContext, BufferType::Enum bufferType, ezArrayPtr<const T> pData)
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-    s_hDataBuffer[bufferType] = pDevice->CreateVertexBuffer(uiVertexSize, uiNumVertices, pData);
+    if (s_hDataBuffer[bufferType].IsInvalidated())
+    {
+      ezGALBufferCreationDescription desc;
+      desc.m_uiStructSize = sizeof(T);
+      desc.m_uiTotalSize = DEBUG_BUFFER_SIZE;
+      desc.m_BufferType = ezGALBufferType::VertexBuffer;
+      desc.m_ResourceAccess.m_bImmutable = false;
+
+      s_hDataBuffer[bufferType] = pDevice->CreateBuffer(desc, nullptr);
+    }
+
+    pGALContext->UpdateBuffer(s_hDataBuffer[bufferType], 0, ezMakeArrayPtr(reinterpret_cast<const ezUInt8*>(pData.GetPtr()), pData.GetCount() * sizeof(T)));
   }
 
   static void DestroyBuffer(BufferType::Enum bufferType)
@@ -422,8 +446,7 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
     const ezUInt32 uiNumSolidBoxes = pData->m_solidBoxes.GetCount();
     if (uiNumSolidBoxes != 0)
     {
-      DestroyBuffer(BufferType::SolidBoxes);
-      CreateDataBuffer(BufferType::SolidBoxes, sizeof(BoxData), uiNumSolidBoxes, pData->m_solidBoxes.GetData());
+      CreateOrUpdateDataBuffer(pGALContext, BufferType::SolidBoxes, (ezArrayPtr<const BoxData>)pData->m_solidBoxes);
 
       renderViewContext.m_pRenderContext->BindShader(s_hDebugGeometryShader);
       renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "boxData", pDevice->GetDefaultResourceView(s_hDataBuffer[BufferType::SolidBoxes]));
@@ -437,8 +460,7 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
     const ezUInt32 uiNumTriangleVertices = pData->m_triangleVertices.GetCount();
     if (uiNumTriangleVertices != 0)
     {
-      DestroyBuffer(BufferType::Triangles3D);
-      CreateVertexBuffer(BufferType::Triangles3D, sizeof(Vertex), uiNumTriangleVertices, pData->m_triangleVertices.GetData());
+      CreateOrUpdateVertexBuffer(pGALContext, BufferType::Triangles3D, (ezArrayPtr<const Vertex>)pData->m_triangleVertices);
 
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "FALSE");
       renderViewContext.m_pRenderContext->BindShader(s_hDebugPrimitiveShader);
@@ -453,8 +475,7 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
     const ezUInt32 uiNumLineVertices = pData->m_lineVertices.GetCount();
     if (uiNumLineVertices != 0)
     {
-      DestroyBuffer(BufferType::Lines);
-      CreateVertexBuffer(BufferType::Lines, sizeof(Vertex), uiNumLineVertices, pData->m_lineVertices.GetData());
+      CreateOrUpdateVertexBuffer(pGALContext, BufferType::Lines, (ezArrayPtr<const Vertex>)pData->m_lineVertices);
 
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "FALSE");
       renderViewContext.m_pRenderContext->BindShader(s_hDebugPrimitiveShader);
@@ -469,8 +490,7 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
     const ezUInt32 uiNumLineBoxes = pData->m_lineBoxes.GetCount();
     if (uiNumLineBoxes != 0)
     {
-      DestroyBuffer(BufferType::LineBoxes);
-      CreateDataBuffer(BufferType::LineBoxes, sizeof(BoxData), uiNumLineBoxes, pData->m_lineBoxes.GetData());
+      CreateOrUpdateDataBuffer(pGALContext, BufferType::LineBoxes, (ezArrayPtr<const BoxData>)pData->m_lineBoxes);
 
       renderViewContext.m_pRenderContext->BindShader(s_hDebugGeometryShader);
       renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "boxData", pDevice->GetDefaultResourceView(s_hDataBuffer[BufferType::LineBoxes]));
@@ -484,8 +504,7 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
     const ezUInt32 uiNum2DVertices = pData->m_triangle2DVertices.GetCount();
     if (uiNum2DVertices != 0)
     {
-      DestroyBuffer(BufferType::Triangles2D);
-      CreateVertexBuffer(BufferType::Triangles2D, sizeof(Vertex), uiNum2DVertices, pData->m_triangle2DVertices.GetData());
+      CreateOrUpdateVertexBuffer(pGALContext, BufferType::Triangles2D, (ezArrayPtr<const Vertex>)pData->m_triangle2DVertices);
 
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "TRUE");
       renderViewContext.m_pRenderContext->BindShader(s_hDebugPrimitiveShader);
@@ -500,8 +519,7 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
     const ezUInt32 uiNumGlyphs = pData->m_glyphs.GetCount();
     if (uiNumGlyphs != 0)
     {
-      DestroyBuffer(BufferType::Glyphs);
-      CreateDataBuffer(BufferType::Glyphs, sizeof(GlyphData), uiNumGlyphs, pData->m_glyphs.GetData());
+      CreateOrUpdateDataBuffer(pGALContext, BufferType::Glyphs, (ezArrayPtr<const GlyphData>)pData->m_glyphs);
 
       renderViewContext.m_pRenderContext->BindShader(s_hDebugTextShader);
       renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "glyphData", pDevice->GetDefaultResourceView(s_hDataBuffer[BufferType::Glyphs]));

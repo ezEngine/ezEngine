@@ -11,6 +11,7 @@ struct ID3D11Debug;
 struct IDXGIFactory1;
 struct IDXGIAdapter1;
 struct IDXGIDevice1;
+struct ID3D11Buffer;
 enum DXGI_FORMAT;
 enum D3D_FEATURE_LEVEL;
 
@@ -126,10 +127,6 @@ protected:
 
   virtual void EndFramePlatform() override;
 
-  virtual void FlushPlatform() override;
-
-  virtual void FinishPlatform() override;
-
   virtual void SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain) override;
 
   virtual void FillCapabilitiesPlatform() override;
@@ -138,7 +135,12 @@ protected:
 
 private:
 
-  void FillFormatLookupTable();
+  friend class ezGALContextDX11;
+
+  ID3D11Buffer* FindTempBuffer(ezUInt32 uiSize);
+  void FreeTempResources(ezUInt64 uiFrame);
+
+  void FillFormatLookupTable();  
 
   ID3D11Device* m_pDevice;
 
@@ -153,6 +155,29 @@ private:
   ezGALFormatLookupTableDX11 m_FormatLookupTable;
 
   D3D_FEATURE_LEVEL m_FeatureLevel;
+
+  struct EndFrameFence
+  {
+    ezGALFence* m_pFence;
+    ezUInt64 m_uiFrame;
+  };
+
+  EndFrameFence m_EndFrameFences[4];
+  ezUInt8 m_uiCurrentEndFrameFence;
+  ezUInt8 m_uiNextEndFrameFence;
+
+  ezUInt64 m_uiFrameCounter;
+
+  struct UsedTempBuffer
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ID3D11Buffer* m_pBuffer;
+    ezUInt64 m_uiFrame;
+  };
+
+  ezMap<ezUInt32, ezDynamicArray<ID3D11Buffer*>, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_FreeTempBuffers;
+  ezDeque<UsedTempBuffer, ezLocalAllocatorWrapper> m_UsedTempBuffers;
 };
 
 #include <RendererDX11/Device/Implementation/DeviceDX11_inl.h>

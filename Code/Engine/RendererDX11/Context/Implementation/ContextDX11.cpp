@@ -1,8 +1,10 @@
 
 #include <RendererDX11/PCH.h>
 #include <RendererDX11/Context/ContextDX11.h>
+#include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Shader/ShaderDX11.h>
 #include <RendererDX11/Resources/BufferDX11.h>
+#include <RendererDX11/Resources/FenceDX11.h>
 #include <RendererDX11/Resources/TextureDX11.h>
 #include <RendererDX11/Resources/RenderTargetViewDX11.h>
 #include <RendererDX11/Shader/VertexDeclarationDX11.h>
@@ -376,12 +378,18 @@ void ezGALContextDX11::SetStreamOutBufferPlatform(ezUInt32 uiSlot, ezGALBuffer* 
 
 void ezGALContextDX11::InsertFencePlatform(ezGALFence* pFence)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  m_pDXContext->End(static_cast<ezGALFenceDX11*>(pFence)->GetDXFence());
 }
 
 bool ezGALContextDX11::IsFenceReachedPlatform(ezGALFence* pFence)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  BOOL data = FALSE;
+  if (m_pDXContext->GetData(static_cast<ezGALFenceDX11*>(pFence)->GetDXFence(), &data, sizeof(data), 0) == S_OK)
+  {
+    EZ_ASSERT_DEV(data == TRUE, "Implementation error");
+    return true;
+  }
+
   return false;
 }
 
@@ -399,40 +407,63 @@ void ezGALContextDX11::EndQueryPlatform(ezGALQuery* pQuery)
 
 void ezGALContextDX11::CopyBufferPlatform(ezGALBuffer* pDestination, ezGALBuffer* pSource)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  ID3D11Buffer* pDXDestination = static_cast<ezGALBufferDX11*>(pDestination)->GetDXBuffer();
+  ID3D11Buffer* pDXSource = static_cast<ezGALBufferDX11*>(pSource)->GetDXBuffer();
+
+  m_pDXContext->CopyResource(pDXDestination, pDXSource);
 }
 
 void ezGALContextDX11::CopyBufferRegionPlatform(ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezGALBuffer* pSource, ezUInt32 uiSourceOffset, ezUInt32 uiByteCount)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  ID3D11Buffer* pDXDestination = static_cast<ezGALBufferDX11*>(pDestination)->GetDXBuffer();
+  ID3D11Buffer* pDXSource = static_cast<ezGALBufferDX11*>(pSource)->GetDXBuffer();
+
+  D3D11_BOX srcBox = { uiSourceOffset, 0, 0, uiSourceOffset + uiByteCount, 1, 1 };
+  m_pDXContext->CopySubresourceRegion(pDXDestination, 0, uiDestOffset, 0, 0, pDXSource, 0, &srcBox);
 }
 
-void ezGALContextDX11::UpdateBufferPlatform(ezGALBuffer* pDestination, ezUInt32 uiDestOffset, const void* pSourceData, ezUInt32 uiByteCount)
+void ezGALContextDX11::UpdateBufferPlatform(ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData)
 {
-  ezGALBufferDX11* pDXBuffer = static_cast<ezGALBufferDX11*>(pDestination);
+  //EZ_CHECK_ALIGNMENT_16(pSourceData.GetPtr());
 
-  if (pDXBuffer->GetDescription().m_BufferType == ezGALBufferType::ConstantBuffer)
+  ID3D11Buffer* pDXDestination = static_cast<ezGALBufferDX11*>(pDestination)->GetDXBuffer();
+
+  if (pDestination->GetDescription().m_BufferType == ezGALBufferType::ConstantBuffer)
   {
-    EZ_ASSERT_DEV(uiDestOffset == 0 && uiByteCount == pDXBuffer->GetSize(), "Constant buffers can't be updated partially (and we don't check for DX11.1)!");
+    EZ_ASSERT_DEV(uiDestOffset == 0 && pSourceData.GetCount() == pDestination->GetSize(), "Constant buffers can't be updated partially (and we don't check for DX11.1)!");
 
     D3D11_MAPPED_SUBRESOURCE MapResult;
-    if (SUCCEEDED(m_pDXContext->Map(pDXBuffer->GetDXBuffer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &MapResult)))
+    if (SUCCEEDED(m_pDXContext->Map(pDXDestination, 0, D3D11_MAP_WRITE_DISCARD, 0, &MapResult)))
     {
-      memcpy(MapResult.pData, pSourceData, uiByteCount);
+      memcpy(MapResult.pData, pSourceData.GetPtr(), pSourceData.GetCount());
 
-      m_pDXContext->Unmap(pDXBuffer->GetDXBuffer(), 0);
+      m_pDXContext->Unmap(pDXDestination, 0);
     }
   }
   else
   {
-    ezLog::Warning("UpdateBuffer currently only for constant buffers implemented!");
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    if (ID3D11Buffer* pDXTempBuffer = static_cast<ezGALDeviceDX11*>(GetDevice())->FindTempBuffer(pSourceData.GetCount()))
+    {
+      D3D11_MAPPED_SUBRESOURCE MapResult;
+      HRESULT hRes = m_pDXContext->Map(pDXTempBuffer, 0, D3D11_MAP_WRITE, D3D11_MAP_FLAG_DO_NOT_WAIT, &MapResult);
+      EZ_ASSERT_DEV(SUCCEEDED(hRes), "Implementation error");
+
+      memcpy(MapResult.pData, pSourceData.GetPtr(), pSourceData.GetCount());
+
+      m_pDXContext->Unmap(pDXTempBuffer, 0);
+
+      D3D11_BOX srcBox = { 0, 0, 0, pSourceData.GetCount(), 1, 1 };
+      m_pDXContext->CopySubresourceRegion(pDXDestination, 0, uiDestOffset, 0, 0, pDXTempBuffer, 0, &srcBox);
+    }
   }
 }
 
 void ezGALContextDX11::CopyTexturePlatform(ezGALTexture* pDestination, ezGALTexture* pSource)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  ID3D11Resource* pDXDestination = static_cast<ezGALTextureDX11*>(pDestination)->GetDXTexture();
+  ID3D11Resource* pDXSource = static_cast<ezGALTextureDX11*>(pSource)->GetDXTexture();
+
+  m_pDXContext->CopyResource(pDXDestination, pDXSource);
 }
 
 void ezGALContextDX11::CopyTextureRegionPlatform(ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezVec3U32& DestinationPoint, ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box)

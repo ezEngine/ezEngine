@@ -69,9 +69,7 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, const void* pInitia
     BufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 
   BufferDesc.StructureByteStride = m_Description.m_uiStructSize;
-  BufferDesc.Usage = pInitialData != nullptr ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT; /// \todo See above
 
-  // Hack for constant buffers
   if(m_Description.m_BufferType == ezGALBufferType::ConstantBuffer)
   {
     BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
