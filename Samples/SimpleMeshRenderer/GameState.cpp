@@ -2,13 +2,46 @@
 #include <CoreUtils/Graphics/Camera.h>
 
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/Textures/TextureResource.h>
-#include <RendererCore/Material/MaterialResource.h>
 
 #include <GameUtils/Components/RotorComponent.h>
 #include <GameFoundation/GameApplication/GameApplication.h>
 
 #include "GameState.h"
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SimpleMeshRendererGameState, 1, ezRTTIDefaultAllocator<SimpleMeshRendererGameState>);
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+SimpleMeshRendererGameState::SimpleMeshRendererGameState()
+{
+}
+
+SimpleMeshRendererGameState::~SimpleMeshRendererGameState()
+{
+
+}
+
+void SimpleMeshRendererGameState::OnActivation(ezWorld* pWorld)
+{
+  EZ_LOG_BLOCK("SimpleMeshRendererGameState::Activate");
+
+  ezGameState::OnActivation(pWorld);
+
+  CreateGameLevel();
+}
+
+void SimpleMeshRendererGameState::OnDeactivation()
+{
+  EZ_LOG_BLOCK("SimpleMeshRendererGameState::Deactivate");
+
+  DestroyGameLevel();
+
+  ezGameState::OnDeactivation();
+}
+
+float SimpleMeshRendererGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const
+{
+  return 1.0f;
+}
 
 void SimpleMeshRendererGameState::CreateGameLevel()
 {
@@ -74,5 +107,7 @@ void SimpleMeshRendererGameState::DestroyGameLevel()
 {
   GetApplication()->DestroyWorld(m_pMainWorld);
 }
+
+EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "SimpleMeshRenderer", ezGameApplicationType::StandAlone, "Data/Samples/SimpleMeshRenderer");
 
 

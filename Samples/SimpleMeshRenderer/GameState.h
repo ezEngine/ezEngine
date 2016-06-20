@@ -8,13 +8,14 @@ class SimpleMeshRendererGameState : public ezFallbackGameState
 
 public:
   SimpleMeshRendererGameState();
+  ~SimpleMeshRendererGameState();
 
 private:
   virtual void OnActivation(ezWorld* pWorld) override;
   virtual void OnDeactivation() override;
+
+  virtual float CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const override;
   
   void CreateGameLevel();
   void DestroyGameLevel();
-
-  virtual float CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const override;
 };

@@ -335,7 +335,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
     m_hActiveGALShader.Invalidate();
 
     m_StateFlags.Remove(ezRenderContextFlags::ShaderStateValid);
-    m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged | ezRenderContextFlags::ConstantBufferBindingChanged);
+    m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged | ezRenderContextFlags::BufferBindingChanged | ezRenderContextFlags::ConstantBufferBindingChanged);
 
     if (!m_hActiveShader.IsValid())
       return EZ_FAILURE;
