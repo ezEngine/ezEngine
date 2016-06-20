@@ -69,7 +69,7 @@ void ezConstantBufferResource::UploadStateToGPU(ezGALContext* pContext)
 
   /// \todo Does it have benefits to only upload a part of the constant buffer? If yes, it should be easy to track the modified range
 
-  pContext->UpdateBuffer(m_hGALConstantBuffer, 0, m_Bytes.GetData(), m_Bytes.GetCount());
+  pContext->UpdateBuffer(m_hGALConstantBuffer, 0, m_Bytes);
 }
 
 void ezRenderContext::BindConstantBuffer(const ezTempHashedString& sSlotName, const ezConstantBufferResourceHandle& hConstantBuffer)
