@@ -68,16 +68,8 @@ ezString ezQtEditorApp::BuildDocumentTypeFileFilter(bool bForCreation)
     if (desc->m_sFileExtension.IsEmpty())
       continue;
 
-    sAllFilters.Append(sepsep, desc->m_sDocumentTypeName, " (");
+    sAllFilters.Append(sepsep, desc->m_sDocumentTypeName, " (*.", desc->m_sFileExtension, ")");
     sepsep = ";;";
-
-    const char* sep = "";
-
-    sAllFilters.Append(sep, "*.", desc->m_sFileExtension);
-
-    sAllFilters.Append(")");
-
-    desc->m_sDocumentTypeName;
   }
 
   return sAllFilters;

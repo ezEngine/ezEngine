@@ -58,6 +58,7 @@ private slots:
   void OnAssetSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
   void OnAssetSelectionCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
   void OnModelReset();
+  void OnNewAsset();
 
 private:
   void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
@@ -67,6 +68,7 @@ private:
   bool SelectPathFilter(QTreeWidgetItem* pParent, const QString& sPath);
   void UpdateAssetTypes();
   void ProjectEventHandler(const ezToolsProjectEvent& e);
+  void AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedAsset);
 
   bool m_bDialogMode;
   ezUInt32 m_uiKnownAssetFolderCount;

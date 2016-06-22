@@ -119,6 +119,9 @@ void ezQtEditorApp::SetupDataDirectories()
 
 bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezString & sPath) const
 {
+  if (ezPathUtils::IsAbsolutePath(sPath))
+    return true;
+
   if (ezConversionUtils::IsStringUuid(sPath))
   {
     ezUuid guid = ezConversionUtils::ConvertStringToUuid(sPath);

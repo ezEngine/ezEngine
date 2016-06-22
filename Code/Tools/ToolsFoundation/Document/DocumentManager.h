@@ -69,7 +69,6 @@ public:
 
   static const ezDynamicArray<const ezDocumentTypeDescriptor*>& GetAllDocumentDescriptors();
 
-protected:
   void GetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const;
 
 private:

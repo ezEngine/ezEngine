@@ -179,6 +179,53 @@ void ezAssetBrowserWidget::ProjectEventHandler(const ezToolsProjectEvent& e)
   }
 }
 
+
+void ezAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedAsset)
+{
+  if (m_bDialogMode)
+    return;
+
+  const ezHybridArray<ezDocumentManager*, 16>& managers = ezDocumentManager::GetAllDocumentManagers();
+
+  ezDynamicArray<const ezDocumentTypeDescriptor*> documentTypes;
+
+  QMenu* pSubMenu = pMenu->addMenu("New");
+
+  ezStringBuilder sTypeFilter = m_pModel->GetTypeFilter();
+
+  for (ezDocumentManager* pMan : managers)
+  {
+    if (!pMan->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocumentManager>())
+      continue;
+
+    ezAssetDocumentManager* pAssetMan = static_cast<ezAssetDocumentManager*>(pMan);
+
+    documentTypes.Clear();
+    pAssetMan->GetSupportedDocumentTypes(documentTypes);
+
+    for (const ezDocumentTypeDescriptor* desc : documentTypes)
+    {
+      if (!desc->m_bCanCreate)
+        continue;
+      if (desc->m_sFileExtension.IsEmpty())
+        continue;
+      //if (!sTypeFilter.IsEmpty() && !sTypeFilter.FindSubString(desc->m_sDocumentTypeName))
+        //continue;
+      
+
+      QAction* pAction = pSubMenu->addAction(desc->m_sDocumentTypeName.GetData());
+      pAction->setIcon(ezUIServices::GetSingleton()->GetCachedIconResource(desc->m_sIcon));
+      pAction->setProperty("AssetType", desc->m_sDocumentTypeName.GetData());
+      pAction->setProperty("AssetManager", qVariantFromValue<void*>(pAssetMan));
+      pAction->setProperty("Extension", desc->m_sFileExtension.GetData());
+      pAction->setProperty("UseSelection", useSelectedAsset);
+
+      connect(pAction, &QAction::triggered, this, &ezAssetBrowserWidget::OnNewAsset);
+    }
+  }
+
+}
+
 void ezAssetBrowserWidget::on_ListAssets_clicked(const QModelIndex & index)
 {
   emit ItemSelected(m_pModel->data(index, ezAssetBrowserModel::UserRoles::AssetGuid).toString(), m_pModel->data(index, ezAssetBrowserModel::UserRoles::RelativePath).toString(), m_pModel->data(index, ezAssetBrowserModel::UserRoles::AbsolutePath).toString());
@@ -479,6 +526,8 @@ void ezAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(const 
   pAction->setCheckable(true);
   pAction->setChecked(m_pModel->GetShowItemsInSubFolders());
 
+  AddAssetCreatorMenu(&m, false);
+
   m.exec(TreeFolderFilter->viewport()->mapToGlobal(pt));
 }
 
@@ -519,6 +568,8 @@ void ezAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoint
   auto pSortAction = m.addAction(QLatin1String("Sort by Recently Used"), this, SLOT(OnListToggleSortByRecentlyUsed()));
   pSortAction->setCheckable(true);
   pSortAction->setChecked(m_pModel->GetSortByRecentUse());
+
+  AddAssetCreatorMenu(&m, true);
 
   m.exec(ListAssets->viewport()->mapToGlobal(pt));
 }
@@ -610,6 +661,60 @@ void ezAssetBrowserWidget::OnAssetSelectionCurrentChanged(const QModelIndex& cur
 void ezAssetBrowserWidget::OnModelReset()
 {
   emit ItemCleared();
+}
+
+
+void ezAssetBrowserWidget::OnNewAsset()
+{
+  QAction* pSender = qobject_cast<QAction*>(sender());
+
+  ezAssetDocumentManager* pManager = (ezAssetDocumentManager*)pSender->property("AssetManager").value<void*>();
+  ezString sAssetType = pSender->property("AssetType").toString().toUtf8().data();
+  ezString sExtension = pSender->property("Extension").toString().toUtf8().data();
+  bool useSelection = pSender->property("UseSelection").toBool();
+
+  QString sStartDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+
+  // find path
+  {
+    if (TreeFolderFilter->currentItem())
+    {
+      ezString sPath = TreeFolderFilter->currentItem()->data(0, ezAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
+
+      if (!sPath.IsEmpty() && ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
+        sStartDir = sPath.GetData();
+    }
+
+    // this will take precedence
+    if (useSelection && ListAssets->selectionModel()->hasSelection())
+    {
+      ezString sPath = m_pModel->data(ListAssets->currentIndex(), ezAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
+
+      if (!sPath.IsEmpty() && ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
+      {
+        ezStringBuilder temp = sPath; 
+        sPath = temp.GetFileDirectory();
+
+        sStartDir = sPath.GetData();
+      }
+    }
+  }
+
+  ezStringBuilder title("Create ", sAssetType), sFilter;
+
+  sFilter.Format("%s (*.%s)", sAssetType.GetData(), sExtension.GetData());
+
+  QString sSelectedFilter = sExtension.GetData();
+  ezStringBuilder sOutput = QFileDialog::getSaveFileName(QApplication::activeWindow(), title.GetData(), sStartDir, sFilter.GetData(), &sSelectedFilter, QFileDialog::Option::DontResolveSymlinks).toUtf8().data();
+
+  if (sOutput.IsEmpty())
+    return;
+
+  ezDocument* pDoc;
+  if (pManager->CreateDocument(sAssetType, sOutput, pDoc).m_Result.Succeeded())
+  {
+    pDoc->EnsureVisible();
+  }
 }
 
 void ezAssetBrowserWidget::OnListToggleSortByRecentlyUsed()
