@@ -1,7 +1,19 @@
 #pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
-#include <EditorPluginFmod/SoundBankAsset/SoundBankAssetObjects.h>
+
+class ezSoundBankAssetProperties : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSoundBankAssetProperties, ezReflectedClass);
+
+public:
+  ezSoundBankAssetProperties() {}
+
+
+  ezString m_sSoundBank;
+
+};
+
 
 class ezSoundBankAssetDocument : public ezSimpleAssetDocument<ezSoundBankAssetProperties>
 {

@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorPluginFmod/SoundBankAsset/SoundBankAssetWindow.moc.h>
+#include <EditorPluginFmod/SoundEventAsset/SoundEventAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
@@ -7,15 +7,15 @@
 #include <QLabel>
 #include <QLayout>
 
-ezSoundBankAssetDocumentWindow::ezSoundBankAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
+ezSoundEventAssetDocumentWindow::ezSoundEventAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSoundBankAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSoundEventAssetDocumentWindow::PropertyEventHandler, this));
 
   // Menu Bar
   {
     ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
     ezActionContext context;
-    context.m_sMapping = "SoundBankAssetMenuBar";
+    context.m_sMapping = "SoundEventAssetMenuBar";
     context.m_pDocument = pDocument;
     pMenuBar->SetActionContext(context);
   }
@@ -24,17 +24,17 @@ ezSoundBankAssetDocumentWindow::ezSoundBankAssetDocumentWindow(ezDocument* pDocu
   {
     ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
     ezActionContext context;
-    context.m_sMapping = "SoundBankAssetToolBar";
+    context.m_sMapping = "SoundEventAssetToolBar";
     context.m_pDocument = pDocument;
     pToolBar->SetActionContext(context);
-    pToolBar->setObjectName("SoundBankAssetWindowToolBar");
+    pToolBar->setObjectName("SoundEventAssetWindowToolBar");
     addToolBar(pToolBar);
   }
 
   {
     ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
-    pPropertyPanel->setObjectName("SoundBankAssetDockWidget");
-    pPropertyPanel->setWindowTitle("Sound Bank Properties");
+    pPropertyPanel->setObjectName("SoundEventAssetDockWidget");
+    pPropertyPanel->setWindowTitle("Sound Event Properties");
     pPropertyPanel->show();
 
     ezPropertyGridWidget* pPropertyGrid = new ezPropertyGridWidget(pPropertyPanel, pDocument);
@@ -45,8 +45,8 @@ ezSoundBankAssetDocumentWindow::ezSoundBankAssetDocumentWindow(ezDocument* pDocu
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
 
-  m_pAssetDoc = static_cast<ezSoundBankAssetDocument*>(pDocument);
-  m_pAssetDoc->m_AssetEvents.AddEventHandler(ezMakeDelegate(&ezSoundBankAssetDocumentWindow::SoundBankAssetDocumentEventHandler, this));
+  m_pAssetDoc = static_cast<ezSoundEventAssetDocument*>(pDocument);
+  m_pAssetDoc->m_AssetEvents.AddEventHandler(ezMakeDelegate(&ezSoundEventAssetDocumentWindow::SoundEventAssetDocumentEventHandler, this));
 
   m_pLabelInfo = new QLabel(this);
   setCentralWidget(m_pLabelInfo);
@@ -58,14 +58,14 @@ ezSoundBankAssetDocumentWindow::ezSoundBankAssetDocumentWindow(ezDocument* pDocu
   UpdatePreview();
 }
 
-ezSoundBankAssetDocumentWindow::~ezSoundBankAssetDocumentWindow()
+ezSoundEventAssetDocumentWindow::~ezSoundEventAssetDocumentWindow()
 {
-  m_pAssetDoc->m_AssetEvents.RemoveEventHandler(ezMakeDelegate(&ezSoundBankAssetDocumentWindow::SoundBankAssetDocumentEventHandler, this));
+  m_pAssetDoc->m_AssetEvents.RemoveEventHandler(ezMakeDelegate(&ezSoundEventAssetDocumentWindow::SoundEventAssetDocumentEventHandler, this));
 
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezSoundBankAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezSoundEventAssetDocumentWindow::PropertyEventHandler, this));
 }
 
-void ezSoundBankAssetDocumentWindow::SoundBankAssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e)
+void ezSoundEventAssetDocumentWindow::SoundEventAssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e)
 {
   switch (e.m_Type)
   {
@@ -75,9 +75,9 @@ void ezSoundBankAssetDocumentWindow::SoundBankAssetDocumentEventHandler(const ez
   }
 }
 
-void ezSoundBankAssetDocumentWindow::UpdatePreview()
+void ezSoundEventAssetDocumentWindow::UpdatePreview()
 {
-  const auto& prop = ((ezSoundBankAssetDocument*)GetDocument())->GetProperties();
+  const auto& prop = ((ezSoundEventAssetDocument*)GetDocument())->GetProperties();
 
   //ezStringBuilder s;
   //s.Format("Vertices: %u\nTriangles: %u\nSubMeshes: %u", prop->m_uiVertices, prop->m_uiTriangles, prop->m_SlotNames.GetCount());
@@ -88,7 +88,7 @@ void ezSoundBankAssetDocumentWindow::UpdatePreview()
   //m_pLabelInfo->setText(QString::fromUtf8(s.GetData()));
 }
 
-void ezSoundBankAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void ezSoundEventAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   //if (e.m_sPropertyPath == "Texture File")
   //{

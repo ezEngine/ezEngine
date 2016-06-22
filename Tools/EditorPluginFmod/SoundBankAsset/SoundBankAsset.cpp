@@ -1,6 +1,5 @@
 #include <PCH.h>
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAsset.h>
-#include <EditorPluginFmod/SoundBankAsset/SoundBankAssetObjects.h>
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAssetManager.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -17,6 +16,15 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundBankAssetDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundBankAssetProperties, 1, ezRTTIDefaultAllocator<ezSoundBankAssetProperties>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("SoundBank File", m_sSoundBank)->AddAttributes(new ezFileBrowserAttribute("Select SoundBank", "*.bank")),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezSoundBankAssetDocument::ezSoundBankAssetDocument(const char* szDocumentPath) : ezSimpleAssetDocument<ezSoundBankAssetProperties>(szDocumentPath)
 {
@@ -55,13 +63,35 @@ ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream
     EZ_FMOD_ASSERT(g_pSystem->initialize(32, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, extraDriverData));
   }
 
-  FMOD::Studio::Bank* pBank;
+  FMOD::Studio::Bank* pBank = nullptr;
   auto res = g_pSystem->loadBankFile(sAssetFile, FMOD_STUDIO_LOAD_BANK_NORMAL, &pBank);
   if (res != FMOD_OK)
     return ezStatus("SoundBank '%s' could not be loaded", pProp->m_sSoundBank.GetData());
 
+  ezStringBuilder sStringsBank = sAssetFile;
+  sStringsBank.RemoveFileExtension();
+  sStringsBank.Append(".strings.bank");
+
+  FMOD::Studio::Bank* pStringsBank = nullptr;
+  g_pSystem->loadBankFile(sStringsBank, FMOD_STUDIO_LOAD_BANK_NORMAL, &pStringsBank);
+
   int iEvents = 0;
   EZ_FMOD_ASSERT(pBank->getEventCount(&iEvents));
+
+  ezInt32 iStrings = 0;
+  pStringsBank->getStringCount(&iStrings);
+  ezLog::Info("SoundBank has %i strings", iStrings);
+
+  for (ezInt32 i = 0; i < iStrings; ++i)
+  {
+    FMOD_GUID strGuid;
+    char path[256];
+    int len = 0;
+    pStringsBank->getStringInfo(i, &strGuid, path, 255, &len);
+    path[len] = '\0';
+
+    ezLog::Debug("String %i: %s", i, path);
+  }
 
   ezLog::Dev("SoundBank has %i events", iEvents);
 
@@ -81,13 +111,17 @@ ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream
 
     FMOD_GUID guid;
 
-    ezStringBuilder sGuid, sGuidNoSpace;
+    ezStringBuilder sGuid, sGuidNoSpace, sEventName;
 
     for (ezUInt32 i = 0; i < events.GetCount(); ++i)
     {
       iLen = 0;
       auto ret = events[i]->getPath(szPath, 255, &iLen);
       szPath[iLen] = '\0';
+
+      sEventName = szPath;
+      if (sEventName.StartsWith_NoCase("event:/"))
+        sEventName.Shrink(7, 0);
 
       events[i]->getID(&guid);
 
@@ -96,9 +130,9 @@ ezStatus ezSoundBankAssetDocument::InternalTransformAsset(ezStreamWriter& stream
       sGuidNoSpace = sGuid;
       sGuidNoSpace.ReplaceAll(" ", "");
 
-      //ezLog::Info("Event: '%s' -> '%s'", szPath, sGuid.GetData());
+      ezLog::Info("Event: '%s' -> '%s'", sEventName.GetData(), sGuid.GetData());
 
-      sSubAssetLine.Format("%s;%s|%s\n", sGuid.GetData(), sOwnGuid.GetData(), sGuidNoSpace.GetData());
+      sSubAssetLine.Format("%s;%s|%s;%s\n", sGuid.GetData(), sOwnGuid.GetData(), sGuidNoSpace.GetData(), sEventName.GetData());
 
       sSubAssetsFile.Append(sSubAssetLine);
     }
