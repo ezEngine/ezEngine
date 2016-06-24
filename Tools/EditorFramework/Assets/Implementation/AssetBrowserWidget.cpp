@@ -3,15 +3,16 @@
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Basics.h>
 #include <QVBoxLayout>
 #include <QScrollBar>
 #include <QTimer>
 #include <QSettings>
 #include <QMenu>
-#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QClipboard>
 #include <QMimeData>
+#include <QFileDialog>
 
 ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
 {
