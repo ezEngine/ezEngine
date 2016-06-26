@@ -25,4 +25,13 @@ ezUuid ezUuid::StableUuidForString(const char* szString)
 	return NewUuid;
 }
 
+ezUuid ezUuid::StableUuidForInt(ezInt64 iInt)
+{
+  ezUuid NewUuid;
+  NewUuid.m_uiLow = ezHashing::MurmurHash64(&iInt, sizeof(ezInt64));
+  NewUuid.m_uiHigh = ezHashing::MurmurHash64(&iInt, sizeof(ezInt64), 0x7FFFFFFFFFFFFFE7u);
+
+  return NewUuid;
+}
+
 EZ_STATICLINK_FILE(Foundation, Foundation_System_Implementation_UuidGenerator);

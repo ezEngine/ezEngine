@@ -25,6 +25,17 @@ bool ezAssetDocumentManager::IsResourceUpToDate(ezUInt64 uiHash, ezUInt16 uiType
   return AssetHeader.IsFileUpToDate(uiHash, uiTypeVersion);
 }
 
+bool ezAssetDocumentManager::IsThumbnailUpToDate(ezUInt64 uiThumbnailHash, ezUInt32 uiTypeVersion, const char* szDocumentPath)
+{
+  ezString sThumbPath = GenerateResourceThumbnailPath(szDocumentPath);
+  ezFileReader file;
+  if (file.Open(sThumbPath, 256).Failed())
+    return false;
+
+  // TODO: Verify hash and version somehow
+  return true;
+}
+
 ezString ezAssetDocumentManager::GenerateResourceFileName(const char* szDocumentPath, const char* szPlatform) const
 {
   EZ_ASSERT_DEBUG(!ezStringUtils::IsNullOrEmpty(szPlatform), "Platform string must be set");
@@ -55,7 +66,7 @@ ezString ezAssetDocumentManager::GenerateResourceThumbnailPath(const char* szDoc
   ezStringBuilder sRelativePath = szDocumentPath;
 
   sRelativePath.MakeRelativeTo(sProjectDir);
-  sRelativePath.ChangeFileExtension("jpg");
+  sRelativePath.Append(".jpg");
 
   ezStringBuilder sFinalPath(sProjectDir, "/AssetCache/Thumbnails/", sRelativePath);
   sFinalPath.MakeCleanPath();
@@ -97,3 +108,4 @@ ezString ezAssetDocumentManager::DetermineFinalTargetPlatform(const char* szPlat
 
   return szPlatform;
 }
+

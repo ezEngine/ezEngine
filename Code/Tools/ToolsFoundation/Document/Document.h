@@ -57,8 +57,8 @@ public:
   ezSelectionManager* GetSelectionManager() const { return &m_SelectionManager; }
   ezCommandHistory* GetCommandHistory() const { return &m_CommandHistory; }
 
-  virtual ezVariant GetDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path) const;
-  virtual bool IsDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path) const;
+  virtual ezVariant GetDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path, ezVariant index = ezVariant()) const;
+  virtual bool IsDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path, bool bReturnOnInvalid, ezVariant index = ezVariant()) const;
 
   ///@}
   /// \name Document Management Functions

@@ -22,6 +22,8 @@ public:
   virtual bool GeneratesPlatformSpecificAssets() const = 0;
 
   static bool IsResourceUpToDate(ezUInt64 uiHash, ezUInt16 uiTypeVersion, const char* szResourceFile);
+  static bool IsThumbnailUpToDate(ezUInt64 uiThumbnailHash, ezUInt32 uiTypeVersion, const char* szDocumentPath);
+
   ezString GenerateResourceFileName(const char* szDocumentPath, const char* szPlatform) const;
   static ezString GenerateResourceThumbnailPath(const char* szDocumentPath);
 

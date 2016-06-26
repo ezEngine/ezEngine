@@ -39,7 +39,7 @@ public:
   void DestroyEngineConnection(ezAssetDocument* pDocument);
 
   void SendMessage(ezProcessMessage* pMessage);
-  ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout);
+  ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunication::WaitForMessageCallback* pCallback = nullptr);
 
   void SetWaitForDebugger(bool bWait) { m_bProcessShouldWaitForDebugger = bWait; }
   bool GetWaitForDebugger() const { return m_bProcessShouldWaitForDebugger; }

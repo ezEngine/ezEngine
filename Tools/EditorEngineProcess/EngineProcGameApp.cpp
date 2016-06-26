@@ -90,6 +90,7 @@ ezApplication::ApplicationExecution ezEngineProcessGameApplication::Run()
   ezRenderLoop::ClearMainViews();
 
   ProcessIPCMessages();
+  ezEngineProcessDocumentContext::UpdateDocumentContexts();
 
   return ezGameApplication::Run();
 }
@@ -104,7 +105,6 @@ void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData & e)
   m_IPC.SendMessage(&msg);
 }
 
-
 void ezEngineProcessGameApplication::ProcessIPCMessages()
 {
   m_IPC.ProcessMessages();
@@ -113,13 +113,11 @@ void ezEngineProcessGameApplication::ProcessIPCMessages()
     RequestQuit();
 }
 
-
 void ezEngineProcessGameApplication::SendProjectReadyMessage()
 {
   ezProjectReadyMsgToEditor msg;
   m_IPC.SendMessage(&msg);
 }
-
 
 void ezEngineProcessGameApplication::SendReflectionInformation()
 {
@@ -269,6 +267,7 @@ ezString ezEngineProcessGameApplication::FindProjectDirectory() const
 {
   return m_sProjectDirectory;
 }
+
 
 void ezEngineProcessGameApplication::DoSetupDataDirectories()
 {

@@ -316,7 +316,7 @@ void ezDocument::ShowDocumentStatus(const char* szFormat, ...) const
 }
 
 
-ezVariant ezDocument::GetDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path) const
+ezVariant ezDocument::GetDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path, ezVariant index) const
 {
   ezUuid rootObjectGuid = ezPrefabUtils::GetPrefabRoot(pObject, m_DocumentObjectMetaData);
 
@@ -331,7 +331,7 @@ ezVariant ezDocument::GetDefaultValue(const ezDocumentObject* pObject, const ezP
 
     if (pGraph)
     {
-      ezVariant defaultValue = ezPrefabUtils::GetDefaultValue(*pGraph, objectPrefabGuid, path);
+      ezVariant defaultValue = ezPrefabUtils::GetDefaultValue(*pGraph, objectPrefabGuid, path, index);
       if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags) && defaultValue.IsA<ezString>())
       {
         ezInt64 iValue = 0;
@@ -356,12 +356,12 @@ ezVariant ezDocument::GetDefaultValue(const ezDocumentObject* pObject, const ezP
 
 }
 
-bool ezDocument::IsDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path) const
+bool ezDocument::IsDefaultValue(const ezDocumentObject* pObject, const ezPropertyPath& path, bool bReturnOnInvalid, ezVariant index) const
 {
-  const ezVariant def = GetDefaultValue(pObject, path);
+  const ezVariant def = GetDefaultValue(pObject, path, index);
 
   if (!def.IsValid())
-    return true;
+    return bReturnOnInvalid;
 
-  return pObject->GetTypeAccessor().GetValue(path) == def;
+  return pObject->GetTypeAccessor().GetValue(path, index) == def;
 }

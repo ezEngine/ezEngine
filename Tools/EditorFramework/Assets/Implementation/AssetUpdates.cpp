@@ -95,7 +95,16 @@ void ezAssetCurator::RunNextUpdateTask()
 
 ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
 {
+  return GetAssetHash(assetGuid, false);
+}
 
+ezUInt64 ezAssetCurator::GetAssetReferenceHash(ezUuid assetGuid)
+{
+  return GetAssetHash(assetGuid, true);
+}
+
+ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
+{
   if (EnsureAssetInfoUpdated(assetGuid).Failed())
   {
     ezLog::Error("Asset with GUID %s is unknown", ezConversionUtils::ToString(assetGuid).GetData());
@@ -111,30 +120,23 @@ ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
     return 0;
   }
 
-  EZ_LOG_BLOCK("ezAssetCurator::GetAssetDependencyHash", pInfo->m_sAbsolutePath.GetData());
+  EZ_LOG_BLOCK("ezAssetCurator::GetAssetHash", pInfo->m_sAbsolutePath.GetData());
 
   ezFileStats stat;
 
+  if (ezOSFile::GetFileStats(pInfo->m_sAbsolutePath, stat).Failed())
   {
-    ezFileReader file;
-    if (file.Open(pInfo->m_sAbsolutePath).Failed())
-    {
-      ezLog::Error("Failed to open asset file '%s'", pInfo->m_sAbsolutePath.GetData());
-      return 0;
-    }
-
-    if (ezOSFile::GetFileStats(pInfo->m_sAbsolutePath, stat).Failed())
-    {
-      ezLog::Error("Failed to retrieve file stats '%s'", file.GetFilePathAbsolute().GetData());
-      return 0;
-    }
+    ezLog::Error("Failed to retrieve file stats '%s'", pInfo->m_sAbsolutePath.GetData());
+    return 0;
   }
 
   // hash of the main asset file
   ezUInt64 uiHashResult = pInfo->m_Info.m_uiSettingsHash;
 
   // Iterate dependencies
-  for (const auto& dep : pInfo->m_Info.m_FileDependencies)
+  ezSet<ezString>& files = bReferences ? pInfo->m_Info.m_FileReferences : pInfo->m_Info.m_FileDependencies;
+
+  for (const auto& dep : files)
   {
     ezString sPath = dep;
 
@@ -144,27 +146,24 @@ ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
     if (ezConversionUtils::IsStringUuid(sPath))
     {
       const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sPath);
-      uiHashResult += GetAssetDependencyHash(guid);
+      uiHashResult += GetAssetHash(guid, bReferences);
       continue;
     }
 
-
     if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
     {
+      if (sPath.EndsWith(".color"))
+      {
+        // TODO: detect non-file assets and skip already in dependency gather function.
+        continue;
+      }
       ezLog::Error("Failed to make path absolute '%s'", sPath.GetData());
       return 0;
     }
 
-    ezFileReader file;
-    if (file.Open(sPath).Failed())
+    if (ezOSFile::GetFileStats(sPath, stat).Failed())
     {
-      ezLog::Error("Failed to open file '%s'", sPath.GetData());
-      return 0;
-    }
-
-    if (ezOSFile::GetFileStats(file.GetFilePathAbsolute(), stat).Failed())
-    {
-      ezLog::Error("Failed to retrieve file stats '%s'", file.GetFilePathAbsolute().GetData());
+      ezLog::Error("Failed to retrieve file stats '%s'", sPath.GetData());
       return 0;
     }
 
@@ -173,6 +172,12 @@ ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
     // if the file has been modified, make sure to get updated data
     if (!fileref.m_Timestamp.IsEqual(stat.m_LastModificationTime, ezTimestamp::CompareMode::Identical))
     {
+      ezFileReader file;
+      if (file.Open(sPath).Failed())
+      {
+        ezLog::Error("Failed to open file '%s'", sPath.GetData());
+        return 0;
+      }
       fileref.m_Timestamp = stat.m_LastModificationTime;
       fileref.m_uiHash = ezAssetCurator::HashFile(file, nullptr);
       fileref.m_Status = ezAssetCurator::FileStatus::Status::Valid;

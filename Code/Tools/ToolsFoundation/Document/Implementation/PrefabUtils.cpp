@@ -86,7 +86,7 @@ ezUuid ezPrefabUtils::GetPrefabRoot(const ezDocumentObject* pObject, const ezObj
 }
 
 
-ezVariant ezPrefabUtils::GetDefaultValue(const ezAbstractObjectGraph& graph, const ezUuid& objectGuid, const ezPropertyPath& path)
+ezVariant ezPrefabUtils::GetDefaultValue(const ezAbstractObjectGraph& graph, const ezUuid& objectGuid, const ezPropertyPath& path, ezVariant index)
 {
   const ezAbstractObjectNode* pNode = graph.GetNode(objectGuid);
   ezUInt32 uiIndex = 0;
@@ -98,6 +98,16 @@ ezVariant ezPrefabUtils::GetDefaultValue(const ezAbstractObjectGraph& graph, con
       const ezVariant& value = pProp->m_Value;
       if (uiIndex + 1 == path.GetCount())
       {
+        if (value.IsA<ezVariantArray>() && index.CanConvertTo<ezUInt32>())
+        {
+          ezUInt32 uiIndex = index.ConvertTo<ezUInt32>();
+          const ezVariantArray& valueArray = value.Get<ezVariantArray>();
+          if (uiIndex < valueArray.GetCount())
+          {
+            return valueArray[uiIndex];
+          }
+          return ezVariant();
+        }
         return value;
       }
       else if (value.IsA<ezUuid>())

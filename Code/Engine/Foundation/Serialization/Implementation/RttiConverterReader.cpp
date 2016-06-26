@@ -58,6 +58,9 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
     }
     else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
     {
+      if (!pSource->m_Value.IsA<ezUuid>())
+        return;
+
       ezUuid guid = pSource->m_Value.Get<ezUuid>();
       void* pRefrencedObject = nullptr;
 
@@ -84,6 +87,9 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
     }
     else
     {
+      if (!pSource->m_Value.IsA<ezUuid>())
+        return;
+
       void* pDirectPtr = pSpecific->GetPropertyPointer(pObject);
       bool bDelete = false;
       const ezUuid sourceGuid = pSource->m_Value.Get<ezUuid>();
@@ -109,7 +115,8 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
   else if (pProp->GetCategory() == ezPropertyCategory::Array)
   {
     ezAbstractArrayProperty* pSpecific = static_cast<ezAbstractArrayProperty*>(pProp);
-
+    if (!pSource->m_Value.IsA<ezVariantArray>())
+      return;
     const ezVariantArray& array = pSource->m_Value.Get<ezVariantArray>();
 
     pSpecific->SetCount(pObject, array.GetCount());
@@ -124,6 +131,8 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
     {
       for (ezUInt32 i = 0; i < array.GetCount(); ++i)
       {
+        if (!array[i].IsA<ezUuid>())
+          continue;
         ezUuid guid = array[i].Get<ezUuid>();
         void* pRefrencedObject = nullptr;
         if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
@@ -152,6 +161,9 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
       
       for (ezUInt32 i = 0; i < array.GetCount(); ++i)
       {
+        if (!array[i].IsA<ezUuid>())
+          continue;
+
         const ezUuid sourceGuid = array[i].Get<ezUuid>();
         auto* pNode = m_pGraph->GetNode(sourceGuid);
         EZ_ASSERT_DEV(pNode != nullptr, "node must exist");
@@ -166,6 +178,8 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
   else if (pProp->GetCategory() == ezPropertyCategory::Set)
   {
     ezAbstractSetProperty* pSpecific = static_cast<ezAbstractSetProperty*>(pProp);
+    if (!pSource->m_Value.IsA<ezVariantArray>())
+      return;
 
     const ezVariantArray& array = pSource->m_Value.Get<ezVariantArray>();
 
@@ -181,6 +195,9 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
     {
       for (ezUInt32 i = 0; i < array.GetCount(); ++i)
       {
+        if (!array[i].IsA<ezUuid>())
+          continue;
+
         ezUuid guid = array[i].Get<ezUuid>();
         void* pRefrencedObject = nullptr;
         if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
@@ -209,7 +226,10 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
 
       for (ezUInt32 i = 0; i < array.GetCount(); ++i)
       {
-        const ezUuid sourceGuid = pSource->m_Value.Get<ezUuid>();
+        if (!array[i].IsA<ezUuid>())
+          continue;
+
+        const ezUuid sourceGuid = array[i].Get<ezUuid>();
         auto* pNode = m_pGraph->GetNode(sourceGuid);
         EZ_ASSERT_DEV(pNode != nullptr, "node must exist");
 

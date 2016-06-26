@@ -44,7 +44,7 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
 
     if (pMsg2->m_uiWindowWidth > 0 && pMsg2->m_uiWindowHeight > 0)
     {
-      SetupRenderTarget(reinterpret_cast<HWND>(pMsg2->m_uiHWND), pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
+      HandleWindowUpdate(reinterpret_cast<HWND>(pMsg2->m_uiHWND), pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
       Redraw();
     }
   }
@@ -57,9 +57,9 @@ void ezEngineProcessViewContext::SendViewMessage(ezEditorEngineDocumentMsg* pVie
   GetDocumentContext()->SendProcessMessage(pViewMsg);
 }
 
-void ezEngineProcessViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight)
+void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight)
 {
-  EZ_LOG_BLOCK("ezEngineProcessViewContext::SetupRenderTarget");
+  EZ_LOG_BLOCK("ezEngineProcessViewContext::HandleWindowUpdate");
 
   if (GetEditorWindow().m_hWnd != 0)
   {
@@ -84,6 +84,16 @@ void ezEngineProcessViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16
   auto hSwapChainRTV = pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
   auto hSwapChainDSV = pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetDepthStencilBufferTexture());
 
+  ezGALRenderTagetSetup BackBufferRenderTargetSetup;
+  BackBufferRenderTargetSetup.SetRenderTarget(0, hSwapChainRTV).SetDepthStencilTarget(hSwapChainDSV);
+
+  SetupRenderTarget(BackBufferRenderTargetSetup, uiWidth, uiHeight);
+}
+
+void ezEngineProcessViewContext::SetupRenderTarget(ezGALRenderTagetSetup& renderTargetSetup, ezUInt16 uiWidth, ezUInt16 uiHeight)
+{
+  EZ_LOG_BLOCK("ezEngineProcessViewContext::SetupRenderTarget");
+
   // setup view
   {
     if (m_pView == nullptr)
@@ -91,9 +101,7 @@ void ezEngineProcessViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16
       m_pView = CreateView();
     }
 
-    ezGALRenderTagetSetup BackBufferRenderTargetSetup;
-    BackBufferRenderTargetSetup.SetRenderTarget(0, hSwapChainRTV).SetDepthStencilTarget(hSwapChainDSV);
-    m_pView->SetRenderTargetSetup(BackBufferRenderTargetSetup);
+    m_pView->SetRenderTargetSetup(renderTargetSetup);
     m_pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));
   }
 }

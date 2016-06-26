@@ -20,10 +20,12 @@ void ezSurfaceAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
   ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
 
   const ezSurfaceResourceDescriptor* pProp = GetProperties();
-
+  ezString sBase = pProp->GetBaseSurfaceFile();
+  if (!sBase.IsEmpty())
+    pInfo->m_FileDependencies.Insert(sBase);
 }
 
-ezStatus ezSurfaceAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform)
+ezStatus ezSurfaceAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
   ezResourceHandleWriteContext writer;
   writer.BeginWritingToStream(&stream);

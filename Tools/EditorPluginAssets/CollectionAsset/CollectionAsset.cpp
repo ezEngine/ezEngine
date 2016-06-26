@@ -42,16 +42,15 @@ void ezCollectionAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pIn
 
   const ezCollectionAssetData* pProp = GetProperties();
 
-  // we currently do not follow references, so atm there are no dependencies
-  //for (const auto& e : pProp->m_Entries)
-  //{
-  //  if (!e.m_sRedirectionAsset.IsEmpty())
-  //    pInfo->m_FileDependencies.Insert(e.m_sRedirectionAsset);
-  //}
+  for (const auto& e : pProp->m_Entries)
+  {
+    if (!e.m_sRedirectionAsset.IsEmpty())
+      pInfo->m_FileReferences.Insert(e.m_sRedirectionAsset);
+  }
 
 }
 
-ezStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform)
+ezStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
   const ezCollectionAssetData* pProp = GetProperties();
 

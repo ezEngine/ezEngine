@@ -125,9 +125,9 @@ void ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
   m_IPC.SendMessage(pMessage);
 }
 
-ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout)
+ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunication::WaitForMessageCallback* pCallback)
 {
-  return m_IPC.WaitForMessage(pMessageType, tTimeout);
+  return m_IPC.WaitForMessage(pMessageType, tTimeout, pCallback);
 }
 
 ezResult ezEditorEngineProcessConnection::RestartProcess()

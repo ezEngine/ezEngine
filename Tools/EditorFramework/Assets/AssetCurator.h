@@ -78,6 +78,8 @@ public:
 
   /// \brief Transforms all assets and writes the lookup tables. If the given platform is empty, the active platform is used.
   void TransformAllAssets(const char* szPlatform = nullptr);
+  ezStatus TransformAsset(const ezUuid& assetGuid, const char* szPlatform = nullptr);
+  ezStatus CreateThumbnail(const ezUuid& assetGuid);
 
   /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
   ezResult WriteAssetTables(const char* szPlatform = nullptr);
@@ -97,6 +99,9 @@ public:
   /// \brief Computes the combined hash for the asset and its dependencies. Returns 0 if anything went wrong.
   ezUInt64 GetAssetDependencyHash(ezUuid assetGuid);
 
+  /// \brief Computes the combined hash for the asset and its references. Returns 0 if anything went wrong.
+  ezUInt64 GetAssetReferenceHash(ezUuid assetGuid);
+
   /// \brief Iterates over all known data directories and returns the absolute path to the directory in which this asset is located
   ezString FindDataDirectoryForAsset(const char* szAbsoluteAssetPath) const;
 
@@ -112,7 +117,7 @@ public:
   /// \brief The curator gathers all folders in which assets have been found. This list can only grow over the lifetime of the application.
   const ezSet<ezString>& GetAllAssetFolders() const { return m_AssetFolders; }
 
-  bool IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform, const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash);
+  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform, const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash);
 
 
   /// \brief Returns the number of assets in the system and how many are in what transform state
@@ -147,6 +152,7 @@ private:
     Status m_Status;
   };
 
+  ezStatus ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPlatform);
   void DocumentManagerEventHandler(const ezDocumentManager::Event& r);
   static void BuildFileExtensionSet(ezSet<ezString>& AllExtensions);
   void IterateDataDirectory(const char* szDataDir, const ezSet<ezString>& validExtensions);
@@ -158,7 +164,10 @@ private:
 
   ezResult EnsureAssetInfoUpdated(const ezUuid& assetGuid);
   ezResult EnsureAssetInfoUpdated(const char* szAbsFilePath);
+  ezUInt64 GetAssetHash(ezUuid assetGuid, bool bReferences);
+
   static ezResult UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetInfo& assetInfo, const ezFileStats* pFileStat);
+  void UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezString>& files, ezMap<ezString, ezHybridArray<ezUuid, 1> >& inverseTracker, bool bAdd);
   void TrackDependencies(ezAssetInfo* pAssetInfo);
   void UntrackDependencies(ezAssetInfo* pAssetInfo);
   void UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetInfo::TransformState state);
@@ -176,6 +185,7 @@ private:
   ezHashTable<ezUuid, ezAssetInfo*> m_KnownAssets;
   ezMap<ezString, FileStatus, ezCompareString_NoCase<ezString> > m_ReferencedFiles;
   ezMap<ezString, ezHybridArray<ezUuid, 1> > m_InverseDependency;
+  ezMap<ezString, ezHybridArray<ezUuid, 1> > m_InverseReferences;
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezString m_sActivePlatform;
   ezSet<ezString> m_ValidAssetExtensions;

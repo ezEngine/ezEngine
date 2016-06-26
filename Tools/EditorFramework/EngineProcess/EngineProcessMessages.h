@@ -159,23 +159,45 @@ public:
   ezObjectChange m_change;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezExportSceneMsgToEngine : public ezEditorEngineDocumentMsg
+class EZ_EDITORFRAMEWORK_DLL ezExportDocumentMsgToEngine : public ezEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezExportSceneMsgToEngine, ezEditorEngineDocumentMsg);
+  EZ_ADD_DYNAMIC_REFLECTION(ezExportDocumentMsgToEngine, ezEditorEngineDocumentMsg);
 
 public:
+  ezExportDocumentMsgToEngine() : m_uiAssetHash(0), m_uiVersion(0) {}
+
   ezString m_sOutputFile;
   ezUInt64 m_uiAssetHash;
   ezUInt16 m_uiVersion;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezExportSceneMsgToEditor : public ezEditorEngineDocumentMsg
+class EZ_EDITORFRAMEWORK_DLL ezExportDocumentMsgToEditor : public ezEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezExportSceneMsgToEditor, ezEditorEngineDocumentMsg);
+  EZ_ADD_DYNAMIC_REFLECTION(ezExportDocumentMsgToEditor, ezEditorEngineDocumentMsg);
 
 public:
+  ezExportDocumentMsgToEditor() : m_bOutputSuccess(false) {}
 
-  bool m_bSuccess;
+  bool m_bOutputSuccess;
+};
+
+class EZ_EDITORFRAMEWORK_DLL ezCreateThumbnailMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezCreateThumbnailMsgToEngine, ezEditorEngineDocumentMsg);
+
+public:
+  ezCreateThumbnailMsgToEngine() : m_uiWidth(256), m_uiHeight(256) {}
+  ezUInt16 m_uiWidth;
+  ezUInt16 m_uiHeight;
+};
+
+class EZ_EDITORFRAMEWORK_DLL ezCreateThumbnailMsgToEditor : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezCreateThumbnailMsgToEditor, ezEditorEngineDocumentMsg);
+
+public:
+  ezCreateThumbnailMsgToEditor() {}
+  ezDataBuffer m_ThumbnailData; ///< Raw 8-bit RGBA data (256x256x4 bytes)
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezViewPickingMsgToEngine : public ezEditorEngineViewMsg

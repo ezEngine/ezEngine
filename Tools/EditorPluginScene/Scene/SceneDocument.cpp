@@ -1047,44 +1047,13 @@ void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const 
 
 ezStatus ezSceneDocument::RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header)
 {
-  if (GetEngineStatus() == ezAssetDocument::EngineStatus::Disconnected)
-  {
-    return ezStatus("Exporting scene to \"%s\" failed, engine not started or crashed.", szTargetFile);
-  }
-  else if (GetEngineStatus() == ezAssetDocument::EngineStatus::Initializing)
-  {
-    if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), ezTime::Seconds(10)).Failed())
-    {
-      return ezStatus("Exporting scene to \"%s\" failed, document initialization timed out.", szTargetFile);
-    }
-    EZ_ASSERT_DEV(GetEngineStatus() == ezAssetDocument::EngineStatus::Loaded, "After receiving ezDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
-  }
-
   auto res = SaveDocument();
   if (res.m_Result.Failed())
     return res;
 
-  ezExportSceneMsgToEngine msg;
-  msg.m_sOutputFile = szTargetFile;
-  msg.m_uiAssetHash = header.GetFileHash();
-  msg.m_uiVersion = header.GetFileVersion();
+  res = ezAssetDocument::RemoteExport(header, szTargetFile);
 
-  ezLog::Info("Exporting scene to \"%s\"", msg.m_sOutputFile.GetData());
-
-  GetEditorEngineConnection()->SendMessage(&msg);
-
-  if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezExportSceneMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60)).Failed())
-  {
-    return ezStatus("Exporting scene to \"%s\" timed out.", msg.m_sOutputFile.GetData());
-  }
-  else
-  {
-    ezLog::Success("Scene \"%s\" has been exported.", msg.m_sOutputFile.GetData());
-
-    ShowDocumentStatus("Scene exported successfully");
-  }
-
-  return ezStatus(EZ_SUCCESS);
+  return res;
 }
 
 void ezSceneDocument::InvalidateGlobalTransformValue(const ezDocumentObject* pObject) const
@@ -1111,10 +1080,7 @@ const char* ezSceneDocument::QueryAssetType() const
 void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
   ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
-
-
 }
-
 
 ezStatus ezSceneDocument::ExportScene()
 {
@@ -1180,7 +1146,7 @@ ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const
 }
 
 
-ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform)
+ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 

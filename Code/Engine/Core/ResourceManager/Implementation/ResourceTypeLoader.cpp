@@ -102,6 +102,7 @@ ezResourceLoadData ezResourceLoaderFromMemory::OpenDataStream(const ezResourceBa
 
 void ezResourceLoaderFromMemory::CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData)
 {
+  m_Reader.SetStorage(nullptr);
 }
 
 bool ezResourceLoaderFromMemory::IsResourceOutdated(const ezResourceBase* pResource) const

@@ -19,6 +19,9 @@
 #include <GameUtils/Components/CameraComponent.h>
 #include <GameUtils/Components/InputComponent.h>
 #include <EditorFramework/Gizmos/GizmoRenderer.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <CoreUtils/Assets/AssetFileHeader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
 {
@@ -494,4 +497,39 @@ void ezSceneContext::LoadShapeIconTextures()
     }
   }
 
+}
+
+bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
+{
+  ezDeferredFileWriter file;
+  file.SetOutput(pMsg->m_sOutputFile);
+
+  // export
+  {
+    // File Header
+    {
+      ezAssetFileHeader header;
+      header.SetFileHashAndVersion(pMsg->m_uiAssetHash, pMsg->m_uiVersion);
+      header.Write(file);
+
+      const char* szSceneTag = "[ezBinaryScene]";
+      file.WriteBytes(szSceneTag, sizeof(char) * 16);
+    }
+
+    ezTag tagEditor;
+    ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tagEditor);
+
+    ezTag tagEditorPrefabInstance;
+    ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance", &tagEditorPrefabInstance);
+
+    ezTagSet tags;
+    tags.Set(tagEditor);
+    tags.Set(tagEditorPrefabInstance);
+
+    ezWorldWriter ww;
+    ww.Write(file, *m_pWorld, &tags);
+  }
+
+  // do the actual file writing
+  return file.Close().Succeeded();
 }

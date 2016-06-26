@@ -35,7 +35,8 @@ public:
 
   void SendMessage(ezProcessMessage* pMessage);
 
-  ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout);
+  typedef ezDelegate<void(ezProcessMessage*)> WaitForMessageCallback;
+  ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, WaitForMessageCallback* pMessageCallack = nullptr );
 
   bool ProcessMessages(bool bAllowMsgDispatch = true);
 
@@ -51,7 +52,9 @@ private:
   void WriteMessages();
   void DispatchMessages();
 
+
   ezMutex m_SendQueueMutex;
+  WaitForMessageCallback m_WaitForMessageCallback;
   const ezRTTI* m_pWaitForMessageType;
   const ezRTTI* m_pFirstAllowedMessageType;
   ezInt64 m_iHostPID;

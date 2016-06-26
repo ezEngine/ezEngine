@@ -11,6 +11,8 @@ class ezEditorEngineDocumentMsg;
 class ezViewRedrawMsgToEngine;
 class ezEditorEngineViewMsg;
 class ezView;
+class ezGALRenderTagetSetup;
+
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
 /// \brief Represents the window inside the editor process, into which the engine process renders
@@ -42,16 +44,15 @@ public:
   virtual ~ezEngineProcessViewContext();
 
   ezEditorProcessViewWindow& GetEditorWindow() { return m_Window; }
-
   ezEngineProcessDocumentContext* GetDocumentContext() const { return m_pDocumentContext; }
 
   virtual void HandleViewMessage(const ezEditorEngineViewMsg* pMsg);
-
-  void SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg);
-
-protected:
-  virtual void SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);
+  virtual void SetupRenderTarget(ezGALRenderTagetSetup& renderTargetSetup, ezUInt16 uiWidth, ezUInt16 uiHeight);
   virtual void Redraw();
+  
+protected:
+  void SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg);
+  void HandleWindowUpdate(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);
   virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg);
 
   /// \brief Returns true if passed in handle matches the one created by CreateRenderPipeline.

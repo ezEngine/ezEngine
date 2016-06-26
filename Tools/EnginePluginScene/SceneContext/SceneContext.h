@@ -33,6 +33,7 @@ protected:
 
   virtual ezEngineProcessViewContext* CreateViewContext() override;
   virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
+  virtual bool ExportDocument(const ezExportDocumentMsgToEngine* pMsg) override;
 
 private:
   

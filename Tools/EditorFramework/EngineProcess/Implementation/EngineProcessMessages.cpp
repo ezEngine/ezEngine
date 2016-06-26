@@ -133,7 +133,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEntityMsgToEngine, 1, ezRTTIDefaultAllocator<e
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExportSceneMsgToEngine, 1, ezRTTIDefaultAllocator<ezExportSceneMsgToEngine>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExportDocumentMsgToEngine, 1, ezRTTIDefaultAllocator<ezExportDocumentMsgToEngine>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -145,11 +145,32 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExportSceneMsgToEngine, 1, ezRTTIDefaultAlloca
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExportSceneMsgToEditor, 1, ezRTTIDefaultAllocator<ezExportSceneMsgToEditor>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExportDocumentMsgToEditor, 1, ezRTTIDefaultAllocator<ezExportDocumentMsgToEditor>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Success", m_bSuccess),
+    EZ_MEMBER_PROPERTY("OutputSuccess", m_bOutputSuccess),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCreateThumbnailMsgToEngine, 1, ezRTTIDefaultAllocator<ezCreateThumbnailMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Width", m_uiWidth),
+    EZ_MEMBER_PROPERTY("Height", m_uiHeight),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCreateThumbnailMsgToEditor, 1, ezRTTIDefaultAllocator<ezCreateThumbnailMsgToEditor>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("ThumbnailData", m_ThumbnailData),
   }
   EZ_END_PROPERTIES
 }

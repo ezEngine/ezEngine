@@ -162,7 +162,7 @@ private:
     ezUInt64 m_uiFrame;
   };
 
-  EndFrameFence m_EndFrameFences[4];
+  EndFrameFence m_EndFrameFences[16];
   ezUInt8 m_uiCurrentEndFrameFence;
   ezUInt8 m_uiNextEndFrameFence;
 

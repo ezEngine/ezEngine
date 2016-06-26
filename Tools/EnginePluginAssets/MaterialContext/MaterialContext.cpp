@@ -144,3 +144,10 @@ void ezMaterialContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
 {
   EZ_DEFAULT_DELETE(pContext);
 }
+
+bool ezMaterialContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
+{
+  ezMaterialViewContext* pMaterialViewContext = static_cast<ezMaterialViewContext*>(pThumbnailViewContext);
+  pMaterialViewContext->PositionThumbnailCamera();
+  return true;
+}

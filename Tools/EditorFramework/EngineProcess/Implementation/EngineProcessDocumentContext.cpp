@@ -15,6 +15,12 @@
 #include <GameFoundation/GameApplication/GameApplication.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
+#include <RendererFoundation/Context/Context.h>
+#include <Core/ResourceManager/ResourceManager.h>
+#include <CoreUtils/Image/Image.h>
+#include <CoreUtils/Image/ImageUtils.h>
+#include <Foundation/Memory/MemoryUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -127,7 +133,7 @@ void ezWorldRttiConverterContext::RegisterObject(const ezUuid& guid, const ezRTT
     pComponent->SetEditorPickingID(m_uiNextComponentPickingID++);
     m_ComponentPickingMap.RegisterObject(guid, pComponent->GetEditorPickingID());
   }
-  
+
   ezRttiConverterContext::RegisterObject(guid, pRtti, pObject);
 }
 
@@ -222,6 +228,14 @@ void ezEngineProcessDocumentContext::AddDocumentContext(ezUuid guid, ezEnginePro
   pContext->Initialize(guid, pIPC);
 }
 
+void ezEngineProcessDocumentContext::UpdateDocumentContexts()
+{
+  for (auto it = s_DocumentContexts.GetIterator(); it.IsValid(); ++it)
+  {
+    it.Value()->UpdateDocumentContext();
+  }
+}
+
 void ezEngineProcessDocumentContext::DestroyDocumentContext(ezUuid guid)
 {
   ezEngineProcessDocumentContext* pContext = nullptr;
@@ -232,12 +246,13 @@ void ezEngineProcessDocumentContext::DestroyDocumentContext(ezUuid guid)
   }
 }
 
-
-
-
 ezEngineProcessDocumentContext::ezEngineProcessDocumentContext()
 {
   m_pWorld = nullptr;
+  m_uiThumbnailConvergenceFrames = 0;
+  m_uiThumbnailWidth = 0;
+  m_uiThumbnailHeight = 0;
+  m_pThumbnailViewContext = nullptr;
 }
 
 ezEngineProcessDocumentContext::~ezEngineProcessDocumentContext()
@@ -261,7 +276,7 @@ void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, ezPr
 void ezEngineProcessDocumentContext::Deinitialize(bool bFullDestruction)
 {
   //if (bFullDestruction)
-    ClearViewContexts();
+  ClearViewContexts();
   m_Mirror.Clear();
   m_Mirror.DeInit();
   m_Context.Clear();
@@ -312,14 +327,29 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
         pObject->GetTags().Remove(tag);
     }
   }
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezExportSceneMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezExportDocumentMsgToEngine>())
   {
-    const ezExportSceneMsgToEngine* pMsg2 = static_cast<const ezExportSceneMsgToEngine*>(pMsg);
+    const ezExportDocumentMsgToEngine* pMsg2 = static_cast<const ezExportDocumentMsgToEngine*>(pMsg);
+    ezExportDocumentMsgToEditor ret;
+    ret.m_DocumentGuid = pMsg->m_DocumentGuid;
+    ret.m_bOutputSuccess = ExportDocument(pMsg2);
+    if (!ret.m_bOutputSuccess)
+    {
+      ezLog::Error("Could not export to file '%s'.", pMsg2->m_sOutputFile.GetData());
+    }
 
-    ExportScene(pMsg2);
+    SendProcessMessage(&ret);
   }
-
-
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezCreateThumbnailMsgToEngine>())
+  {
+    ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
+    ezResourceManager::ReloadAllResources(false);
+    const ezCreateThumbnailMsgToEngine* pMsg2 = static_cast<const ezCreateThumbnailMsgToEngine*>(pMsg);
+    // As long as the thumbnail context is alive, we will trigger UpdateThumbnailViewContext
+    // inside the UpdateDocumentContext function until the thumbnail rendering has converged and
+    // the data is send back as a response.
+    CreateThumbnailViewContext(pMsg2);
+  }
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineViewMsg>())
   {
     if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
@@ -382,6 +412,15 @@ ezEditorEngineSyncObject* ezEngineProcessDocumentContext::FindSyncObject(const e
   return nullptr;
 }
 
+void ezEngineProcessDocumentContext::ResourceEventHandler(const ezResourceEvent& e)
+{
+  // If any resource has changed we assume it's not a good idea to take a screenshot now,
+  // so we restart the counter.
+  // TODO: Even in combination with ezResourceManager::FinishLoadingOfResources we end up with 
+  // broken thumbnails :-/
+  m_uiThumbnailConvergenceFrames = 0;
+}
+
 void ezEngineProcessDocumentContext::ClearViewContexts()
 {
   for (auto* pContext : m_ViewContexts)
@@ -400,53 +439,6 @@ void ezEngineProcessDocumentContext::CleanUpContextSyncObjects()
     auto it = m_SyncObjects.GetIterator();
     it.Value()->GetDynamicRTTI()->GetAllocator()->Deallocate(it.Value());
   }
-}
-
-void ezEngineProcessDocumentContext::ExportScene(const ezExportSceneMsgToEngine* pMsg)
-{
-  ezExportSceneMsgToEditor ret;
-  ret.m_DocumentGuid = pMsg->m_DocumentGuid;
-
-  ezDeferredFileWriter file;
-  file.SetOutput(pMsg->m_sOutputFile);
-
-  // export
-  {
-    // File Header
-    {
-      ezAssetFileHeader header;
-      header.SetFileHashAndVersion(pMsg->m_uiAssetHash, pMsg->m_uiVersion);
-      header.Write(file);
-
-      const char* szSceneTag = "[ezBinaryScene]";
-      file.WriteBytes(szSceneTag, sizeof(char) * 16);
-    }
-
-    ezTag tagEditor;
-    ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tagEditor);
-
-    ezTag tagEditorPrefabInstance;
-    ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance", &tagEditorPrefabInstance);
-
-    ezTagSet tags;
-    tags.Set(tagEditor);
-    tags.Set(tagEditorPrefabInstance);
-
-    ezWorldWriter ww;
-    ww.Write(file, *m_pWorld, &tags);
-
-    ret.m_bSuccess = true;
-  }
-
-  // do the actual file writing
-  ret.m_bSuccess = file.Close().Succeeded();
-
-  if (!ret.m_bSuccess)
-  {
-    ezLog::Error("Could not export to file '%s'", pMsg->m_sOutputFile.GetData());
-  }
-
-  SendProcessMessage(&ret);
 }
 
 void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEditorEngineSyncObjectMsg& msg)
@@ -511,6 +503,147 @@ void ezEngineProcessDocumentContext::Reset()
 
   Initialize(guid, ipc);
 }
+
+void ezEngineProcessDocumentContext::UpdateDocumentContext()
+{
+  if (m_pThumbnailViewContext)
+  {
+    m_uiThumbnailConvergenceFrames++;
+    // Once all resources are loaded and UpdateThumbnailViewContext returns true,
+    // we render 'ThumbnailConvergenceFramesTarget' frames and than download it.
+    if (ezResourceManager::FinishLoadingOfResources() > 0)
+      m_uiThumbnailConvergenceFrames = 0;
+    if (!UpdateThumbnailViewContext(m_pThumbnailViewContext))
+      m_uiThumbnailConvergenceFrames = 0;
+
+    if (m_uiThumbnailConvergenceFrames > ThumbnailConvergenceFramesTarget)
+    {
+      ezCreateThumbnailMsgToEditor ret;
+      ret.m_DocumentGuid = GetDocumentGuid();
+
+      // Download image
+      {
+        ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hThumbnailColorRT);
+
+        ezGALSystemMemoryDescription MemDesc;
+        {
+          MemDesc.m_uiRowPitch = 4 * m_uiThumbnailWidth;
+          MemDesc.m_uiSlicePitch = 4 * m_uiThumbnailWidth * m_uiThumbnailHeight;
+        }
+
+        ezImage image;
+        image.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
+        image.SetWidth(m_uiThumbnailWidth);
+        image.SetHeight(m_uiThumbnailHeight);
+        image.AllocateImageData();
+        EZ_ASSERT_DEV(m_uiThumbnailWidth * m_uiThumbnailHeight * 4 == image.GetDataSize(), "Thumbnail ezImage has different size than data buffer!");
+
+        MemDesc.m_pData = image.GetDataPointer<ezUInt8>();
+        ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
+        ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(m_hThumbnailColorRT, &SysMemDescs);
+
+        ezImage imageSwap;
+        ezImage* pImage = &image;
+        ezImage* pImageSwap = &imageSwap;
+        for (ezUInt32 uiSuperscaleFactor = ThumbnailSuperscaleFactor; uiSuperscaleFactor > 1; uiSuperscaleFactor /= 2)
+        {
+          ezImageUtils::ScaleDownHalf(*pImage, *pImageSwap);
+          ezMath::Swap(pImage, pImageSwap);
+        }
+
+
+        ret.m_ThumbnailData.SetCountUninitialized((m_uiThumbnailWidth / ThumbnailSuperscaleFactor)
+        * (m_uiThumbnailHeight / ThumbnailSuperscaleFactor) * 4);
+        ezMemoryUtils::Copy(ret.m_ThumbnailData.GetData(), pImage->GetDataPointer<ezUInt8>(), ret.m_ThumbnailData.GetCount());
+      }
+
+      DestroyThumbnailViewContext();
+
+      // Send response.
+      SendProcessMessage(&ret);
+    }
+    else
+    {
+      m_pThumbnailViewContext->Redraw();
+    }
+  }
+}
+
+bool ezEngineProcessDocumentContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
+{
+  ezLog::Error("Export document not implemented for '%s'", GetDynamicRTTI()->GetTypeName());
+  return false;
+}
+
+
+void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateThumbnailMsgToEngine* pMsg)
+{
+  EZ_CHECK_AT_COMPILETIME_MSG((ThumbnailSuperscaleFactor & (ThumbnailSuperscaleFactor - 1)) == 0, "ThumbnailSuperscaleFactor must be power of 2.");
+  m_uiThumbnailConvergenceFrames = 0;
+  m_uiThumbnailWidth = pMsg->m_uiWidth * ThumbnailSuperscaleFactor;
+  m_uiThumbnailHeight = pMsg->m_uiHeight * ThumbnailSuperscaleFactor;
+  m_pThumbnailViewContext = CreateViewContext();
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  // Create render target for picking
+  ezGALTextureCreationDescription tcd;
+  tcd.m_bAllowDynamicMipGeneration = false;
+  tcd.m_bAllowShaderResourceView = false;
+  tcd.m_bAllowUAV = false;
+  tcd.m_bCreateRenderTarget = true;
+  tcd.m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+  tcd.m_ResourceAccess.m_bReadBack = true;
+  tcd.m_Type = ezGALTextureType::Texture2D;
+  tcd.m_uiWidth = m_uiThumbnailWidth;
+  tcd.m_uiHeight = m_uiThumbnailHeight;
+
+  m_hThumbnailColorRT = pDevice->CreateTexture(tcd);
+
+  tcd.m_Format = ezGALResourceFormat::DFloat;
+  tcd.m_ResourceAccess.m_bReadBack = false;
+
+  m_hThumbnailDepthRT = pDevice->CreateTexture(tcd);
+
+  m_ThumbnailRenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hThumbnailColorRT))
+    .SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hThumbnailDepthRT));
+  m_pThumbnailViewContext->SetupRenderTarget(m_ThumbnailRenderTargetSetup, m_uiThumbnailWidth, m_uiThumbnailHeight);
+
+  UpdateThumbnailViewContext(m_pThumbnailViewContext);
+  m_pThumbnailViewContext->Redraw();
+
+  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::ResourceEventHandler, this));
+}
+
+void ezEngineProcessDocumentContext::DestroyThumbnailViewContext()
+{
+  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::ResourceEventHandler, this));
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  DestroyViewContext(m_pThumbnailViewContext);
+  m_pThumbnailViewContext = nullptr;
+
+  m_ThumbnailRenderTargetSetup.DestroyAllAttachedViews();
+  if (!m_hThumbnailColorRT.IsInvalidated())
+  {
+    pDevice->DestroyTexture(m_hThumbnailColorRT);
+    m_hThumbnailColorRT.Invalidate();
+  }
+
+  if (!m_hThumbnailDepthRT.IsInvalidated())
+  {
+    pDevice->DestroyTexture(m_hThumbnailDepthRT);
+    m_hThumbnailDepthRT.Invalidate();
+  }
+}
+
+bool ezEngineProcessDocumentContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
+{
+  ezLog::Error("UpdateThumbnailViewContext not implemented for '%s'", GetDynamicRTTI()->GetTypeName());
+  return true;
+}
+
 void ezEngineProcessDocumentContext::UpdateSyncObjects()
 {
   for (auto* pSyncObject : m_SyncObjects)

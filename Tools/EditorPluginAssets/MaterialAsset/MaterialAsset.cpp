@@ -658,84 +658,21 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
     pInfo->m_FileDependencies.Insert(pProp->m_sShader);
 }
 
-ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform)
+ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
-  return WriteMaterialAsset(stream, szPlatform);
+  ezStatus status = WriteMaterialAsset(stream, szPlatform);
+  return status;
+}
+
+ezStatus ezMaterialAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
+{
+  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
+  return status;
 }
 
 ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, const char* szPlatform) const
 {
   const ezMaterialAssetProperties* pProp = GetProperties();
-
-  //// see if we can generate a thumbnail
-  //ezStringBuilder sImageFile = pProp->m_sTextureDiffuse;
-
-  //if (sImageFile.IsEmpty())
-  //  sImageFile = pProp->m_sTextureNormal;
-
-  //if (sImageFile.IsEmpty())
-  //  sImageFile = pProp->m_sTextureMask;
-
-  //if (!sImageFile.IsEmpty())
-  //{
-  //  ezImage image;
-  //  bool bValidImage = false;
-
-  //  if (ezConversionUtils::IsStringUuid(sImageFile))
-  //  {
-  //    ezUuid guid = ezConversionUtils::ConvertStringToUuid(sImageFile);
-
-  //    sImageFile = ezAssetCurator::GetSingleton()->GetAssetInfo(guid)->m_sAbsolutePath;
-  //  }
-
-
-  //  if (!ezPathUtils::HasExtension(sImageFile, "color"))
-  //  {
-  //    sImageFile.MakeCleanPath();
-
-  //    ezString sAbsPath = sImageFile;
-
-  //    if (!sImageFile.IsAbsolutePath())
-  //    {
-  //      ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsPath);
-  //    }
-
-  //    bValidImage = image.LoadFrom(sAbsPath).Succeeded();
-  //  }
-  //  else
-  //  {
-  //    ezStringBuilder sColorName = sImageFile.GetFileName();
-
-  //    bool bValidColor = false;
-  //    const ezColorGammaUB color = ezConversionUtils::GetColorByName(sColorName, &bValidColor);
-
-  //    if (!bValidColor)
-  //    {
-  //      ezLog::Error("Material Asset uses an invalid color name '%s'", sColorName.GetData());
-  //    }
-
-  //    bValidImage = true;
-  //    image.SetWidth(4);
-  //    image.SetHeight(4);
-  //    image.SetDepth(1);
-  //    image.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM_SRGB);
-  //    image.SetNumMipLevels(1);
-  //    image.SetNumFaces(1);
-  //    image.AllocateImageData();
-  //    ezUInt8* pPixels = image.GetPixelPointer<ezUInt8>();
-
-  //    for (ezUInt32 px = 0; px < 4 * 4 * 4; px += 4)
-  //    {
-  //      pPixels[px + 0] = color.r;
-  //      pPixels[px + 1] = color.g;
-  //      pPixels[px + 2] = color.b;
-  //      pPixels[px + 3] = color.a;
-  //    }
-  //  }
-
-  //  if (bValidImage)
-  //    SaveThumbnail(image);
-  //}
 
   // now generate the .ezMaterialBin file
   {
@@ -759,7 +696,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
 
       for (auto* pProp : properties)
       {
-        if (hasBaseMaterial && IsDefaultValue(pObject, pProp->GetPropertyName()))
+        if (hasBaseMaterial && IsDefaultValue(pObject, pProp->GetPropertyName(), false))
           continue;
 
         const ezCategoryAttribute* pCategory = pProp->GetAttributeByType<ezCategoryAttribute>();

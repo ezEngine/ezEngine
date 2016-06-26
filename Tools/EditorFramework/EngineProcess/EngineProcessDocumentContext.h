@@ -5,6 +5,7 @@
 
 #include <Core/World/World.h>
 #include <Foundation/Types/Uuid.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 class ezEditorEngineSyncObjectMsg;
 class ezEditorEngineSyncObject;
@@ -13,8 +14,10 @@ class ezEngineProcessViewContext;
 class ezProcessCommunication;
 class ezProcessMessage;
 class ezEntityMsgToEngine;
-class ezExportSceneMsgToEngine;
+class ezExportDocumentMsgToEngine;
+class ezCreateThumbnailMsgToEngine;
 class ezScene;
+struct ezResourceEvent;
 
 template<typename HandleType>
 class ezEditorGuidEngineHandleMap
@@ -117,6 +120,7 @@ public:
 
   static ezEngineProcessDocumentContext* GetDocumentContext(ezUuid guid);
   static void AddDocumentContext(ezUuid guid, ezEngineProcessDocumentContext* pView, ezProcessCommunication* pIPC);
+  static void UpdateDocumentContexts();
   static void DestroyDocumentContext(ezUuid guid);
 
   void ProcessEditorEngineSyncObjectMsg(const ezEditorEngineSyncObjectMsg& msg);
@@ -133,10 +137,37 @@ public:
 protected:
   virtual void OnInitialize() {}
   virtual void OnDeinitialize() {}
+
+  /// \brief Needs to be implemented to create a view context used for windows and thumbnails rendering.
   virtual ezEngineProcessViewContext* CreateViewContext() = 0;
+  /// \brief Needs to be implemented to destroy the view context created in CreateViewContext.
   virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) = 0;
+
+  /// \brief A tick functions that allows each document context to do processing that continues
+  /// over multiple frames and can't be handled in HandleMessage directly.
+  ///
+  /// Make sure to call the base implementation when overwriting as this handles the thumbnail
+  /// rendering that takes multiple frames to complete.
+  virtual void UpdateDocumentContext();
   
+  /// \brief Exports to current document resource to file. Make sure to write ezAssetFileHeader at the start of it.
+  virtual bool ExportDocument(const ezExportDocumentMsgToEngine* pMsg);
   void UpdateSyncObjects();
+
+  /// \brief Creates the thumbnail view context. It uses 'CreateViewContext' in combination with an off-screen render target.  
+  void CreateThumbnailViewContext(const ezCreateThumbnailMsgToEngine* pMsg);
+
+  /// \brief Once a thumbnail is successfully rendered, the thumbnail view context is destroyed again.
+  void DestroyThumbnailViewContext();
+
+  /// \brief Overwrite this function to apply the thumbnail render settings to the given context.
+  ///
+  /// Return false if you need more frames to be rendered to setup everything correctly.
+  /// If true is returned for 'ThumbnailConvergenceFramesTarget' frames in a row the thumbnail image is taken.
+  /// This is to allow e.g. camera updates after more resources have been streamed in. The frame counter
+  /// will start over to count to 'ThumbnailConvergenceFramesTarget' when a new resource is being loaded
+  /// to make sure we do not make an image of half-streamed in data.
+  virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext);
 
   ezWorld* m_pWorld;
 
@@ -149,21 +180,36 @@ private:
 
 
 private:
+  void ResourceEventHandler(const ezResourceEvent& e);
   void ClearViewContexts();
-
 
   // Maps a document guid to the corresponding context that handles that document on the engine side
   static ezHashTable<ezUuid, ezEngineProcessDocumentContext*> s_DocumentContexts;
 
   /// Removes all sync objects that are tied to this context
   void CleanUpContextSyncObjects();
-  void ExportScene(const ezExportSceneMsgToEngine* pMsg);
+
   ezUuid m_DocumentGuid;
 
   ezProcessCommunication* m_pIPC;
   ezHybridArray<ezEngineProcessViewContext*, 4> m_ViewContexts;
 
   ezMap<ezUuid, ezEditorEngineSyncObject*> m_SyncObjects;
- 
+
+private:
+  enum Constants
+  {
+    ThumbnailSuperscaleFactor = 4, ///< Thumbnail render target size is multiplied by this and then the final image is downscaled again. Needs to be pot.
+    ThumbnailConvergenceFramesTarget = 4 ///< Due to multi-threaded rendering, this must be at least 2
+  };
+
+  ezUInt8 m_uiThumbnailConvergenceFrames;
+  ezUInt16 m_uiThumbnailWidth;
+  ezUInt16 m_uiThumbnailHeight;
+  ezEngineProcessViewContext* m_pThumbnailViewContext;
+  ezGALRenderTagetSetup m_ThumbnailRenderTargetSetup;
+  ezGALTextureHandle m_hThumbnailColorRT;
+  ezGALTextureHandle m_hThumbnailDepthRT;
+
 };
 

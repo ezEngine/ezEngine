@@ -20,6 +20,9 @@ public:
     inout_AssetTypeNames.Insert("Texture Cube");
   }
 
+
+  virtual ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const override;
+
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
 

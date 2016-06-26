@@ -40,6 +40,9 @@ public:
   /// \brief Creates a uuid from a string. The result is always the same for the same string.
   static ezUuid StableUuidForString(const char* szString);
 
+  /// \brief Creates a uuid from an integer. The result is always the same for the same input.
+  static ezUuid StableUuidForInt(ezInt64 iInt);
+
   /// \brief Adds the given seed value to this guid, creating a new guid. The process is reversible.
   EZ_FORCE_INLINE void CombineWithSeed(const ezUuid& seed);
 

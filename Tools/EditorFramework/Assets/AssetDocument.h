@@ -35,7 +35,13 @@ public:
   /// This is mostly used for sorting and filtering in the asset browser.
   virtual const char* QueryAssetType() const = 0;
 
+  /// \brief Transforms an asset.
+  ///   Should never be called manually. Called only by the curator which takes care of dependencies first.
   ezStatus TransformAsset(const char* szPlatform = nullptr);
+
+  /// \brief Updates the thumbnail of the asset.
+  ///   Should never be called manually. Called only by the curator which takes care of dependencies first.
+  ezStatus CreateThumbnail();
 
   /// \brief Will definitely try to transform the asset, ignoring whether the transform is disabled on an asset.
   ///
@@ -139,8 +145,8 @@ protected:
   /// \brief Override this and write the transformed file into the given stream.
   ///
   /// The stream already contains the ezAssetFileHeader. This is the function to prefer when the asset can be written
-  /// directly from the editor process.
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform) = 0;
+  /// directly from the editor process. AssetHeader is already written to the stream, but provided as reference.
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader) = 0;
 
   /// \brief Only override this function, if the transformed file must be written from another process.
   ///
@@ -150,16 +156,24 @@ protected:
 
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) = 0;
 
+  virtual ezString GetDocumentPathFromGuid(const ezUuid& documentGuid) const override;
+
+  ezStatus RemoteExport(const ezAssetFileHeader& header, const char* szOutputTarget) const;
+
+  ///@}
+  /// \name Thumbnail Functions
+  ///@{
+
+  /// \brief Override this function to generate a thumbnail. Only called if
+  virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader);
   /// \brief Returns the full path to the jpg file in which the thumbnail for this asset is supposed to be
   ezString GetThumbnailFilePath() const;
-
   /// \brief Should be called after manually changing the thumbnail, such that the system will reload it
-  void InvalidateAssetThumbnail();
-
+  void InvalidateAssetThumbnail() const;
+  /// \brief Requests the engine side to render a thumbnail, will call SaveThumbnail on success.
+  ezStatus RemoteCreateThumbnail(const ezAssetFileHeader& header) const;
   /// \brief Saves the given image as the new thumbnail for the asset
-  void SaveThumbnail(const ezImage& img);
-
-  virtual ezString GetDocumentPathFromGuid(const ezUuid& documentGuid) const override;
+  void SaveThumbnail(const ezImage& img) const;
 
   ///@}
 
@@ -168,6 +182,7 @@ private:
 
 private:
   void AddPrefabDependencies(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo) const;
+  void AddReferences(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo, bool bInsidePrefab) const;
 
   EngineStatus m_EngineStatus;
   bool m_bUseIPCObjectMirror;

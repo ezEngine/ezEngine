@@ -35,7 +35,7 @@ public:
   virtual ezRttiConverterObject GetObjectByGUID(const ezUuid& guid) const;
   virtual ezUuid GetObjectGUID(const ezRTTI* pRtti, void* pObject) const;
 
-  virtual ezUuid EnqueObject(const ezRTTI* pRtti, void* pObject);
+  virtual ezUuid EnqueObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject);
   virtual ezRttiConverterObject DequeueObject();
 
 protected:

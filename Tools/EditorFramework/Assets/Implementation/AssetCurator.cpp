@@ -71,25 +71,41 @@ void ezAssetCurator::NotifyOfPotentialAsset(const char* szAbsolutePath)
 }
 
 
-bool ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform, const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash)
+ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform, const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash)
 {
   out_AssetHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(assetGuid);
-
+  
   if (out_AssetHash == 0)
-    return false;
+    return ezAssetInfo::TransformState::Unknown;
 
   const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(szPlatform);
   const ezString sTargetFile = static_cast<ezAssetDocumentManager*>(pTypeDescriptor->m_pManager)->GetFinalOutputFileName(pTypeDescriptor, GetAssetInfo(assetGuid)->m_sAbsolutePath, sPlatform);
 
   if (ezAssetDocumentManager::IsResourceUpToDate(out_AssetHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion(), sTargetFile))
   {
+    auto flags = static_cast<ezAssetDocumentManager*>(pTypeDescriptor->m_pManager)->GetAssetDocumentTypeFlags(pTypeDescriptor);
+    if (flags.IsSet(ezAssetDocumentFlags::SupportsThumbnail))
+    {
+      ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(assetGuid);
+      ezString sAssetFile;
+      {
+        EZ_LOCK(m_CuratorMutex);
+        sAssetFile = GetAssetInfo(assetGuid)->m_sAbsolutePath;
+      }
+      if (!ezAssetDocumentManager::IsThumbnailUpToDate(uiThumbnailHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion(), sAssetFile))
+      {
+        UpdateAssetTransformState(assetGuid, ezAssetInfo::TransformState::NeedsThumbnail);
+        return ezAssetInfo::TransformState::NeedsThumbnail;
+      }
+    }
+
     UpdateAssetTransformState(assetGuid, ezAssetInfo::TransformState::UpToDate);
-    return true;
+    return ezAssetInfo::TransformState::UpToDate;
   }
   else
   {
     UpdateAssetTransformState(assetGuid, ezAssetInfo::TransformState::NeedsTransform);
-    return false;
+    return ezAssetInfo::TransformState::NeedsTransform;
   }
 }
 
@@ -119,6 +135,15 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
         if (it.IsValid())
         {
           for (const ezUuid& guid : it.Value())
+          {
+            UpdateAssetTransformState(guid, state);
+          }
+        }
+
+        auto it2 = m_InverseReferences.Find(pAssetInfo->m_sAbsolutePath);
+        if (it2.IsValid())
+        {
+          for (const ezUuid& guid : it2.Value())
           {
             UpdateAssetTransformState(guid, state);
           }
@@ -187,6 +212,15 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath, const ezSet
     if (it.IsValid())
     {
       for (const ezUuid& guid : it.Value())
+      {
+        UpdateAssetTransformState(guid, ezAssetInfo::TransformState::Unknown);
+      }
+    }
+
+    auto it2 = m_InverseReferences.Find(sAbsolutePath);
+    if (it2.IsValid())
+    {
+      for (const ezUuid& guid : it2.Value())
       {
         UpdateAssetTransformState(guid, ezAssetInfo::TransformState::Unknown);
       }
@@ -465,7 +499,8 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
   return EZ_SUCCESS;
 }
 
-void ezAssetCurator::TransformAllAssets(const char* szPlatform /* = nullptr*/)
+
+void ezAssetCurator::TransformAllAssets(const char* szPlatform)
 {
   ezProgressRange range("Transforming Assets", 1 + m_KnownAssets.GetCount(), true);
 
@@ -474,56 +509,120 @@ void ezAssetCurator::TransformAllAssets(const char* szPlatform /* = nullptr*/)
     if (range.WasCanceled())
       break;
 
-    range.BeginNextStep(ezPathUtils::GetFileNameAndExtension(it.Value()->m_sRelativePath).GetData());
+    ezAssetInfo* pAssetInfo = it.Value();
 
-    // Find the descriptor for the asset.
-    const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
-    if (ezDocumentManager::FindDocumentTypeFromPath(it.Value()->m_sAbsolutePath, false, pTypeDesc).Failed())
+    range.BeginNextStep(ezPathUtils::GetFileNameAndExtension(pAssetInfo->m_sRelativePath).GetData());
+
+    auto res = ProcessAsset(pAssetInfo, szPlatform);
+    if (res.m_Result.Failed())
     {
-      ezLog::Error("The asset '%s' could not be queried for its ezDocumentTypeDescriptor, skipping transform!", it.Value()->m_sRelativePath.GetData());
-      continue;
+      ezLog::Error("%s (%s)", res.m_sMessage.GetData(), pAssetInfo->m_sRelativePath.GetData());
     }
 
-    // Skip assets that cannot be auto-transformed.
-    EZ_ASSERT_DEV(pTypeDesc->m_pDocumentType->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('%s')", it.Value()->m_sRelativePath.GetData());
-    auto assetFlags = static_cast<ezAssetDocumentManager*>(pTypeDesc->m_pManager)->GetAssetDocumentTypeFlags(pTypeDesc);
-    if (assetFlags.IsAnySet(ezAssetDocumentFlags::DisableTransform | ezAssetDocumentFlags::OnlyTransformManually))
-      continue;
-
-    ezUInt64 uiHash = 0;
-    if (IsAssetUpToDate(it.Key(), szPlatform, pTypeDesc, uiHash))
-      continue;
-
-    if (uiHash == 0)
-    {
-      ezLog::Error("Computing the hash for asset '%s' or any dependency failed", it.Value()->m_sAbsolutePath.GetData());
-      continue;
-    }
-
-    ezDocument* pDoc = ezQtEditorApp::GetSingleton()->OpenDocumentImmediate(it.Value()->m_sAbsolutePath, false, false);
-
-    if (pDoc == nullptr)
-    {
-      ezLog::Error("Could not open asset document '%s'", it.Value()->m_sRelativePath.GetData());
-      continue;
-    }
-
-
-    ezAssetDocument* pAsset = static_cast<ezAssetDocument*>(pDoc);
-    auto ret = pAsset->TransformAsset(szPlatform);
-
-    if (ret.m_Result.Failed())
-    {
-      ezLog::Error("%s (%s)", ret.m_sMessage.GetData(), pDoc->GetDocumentPath());
-    }
-
-    if (!pDoc->HasWindowBeenRequested())
-      pDoc->GetDocumentManager()->CloseDocument(pDoc);
   }
 
   range.BeginNextStep("Writing Lookup Tables");
 
   ezAssetCurator::GetSingleton()->WriteAssetTables(szPlatform);
+}
+
+ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPlatform)
+{
+  for (const auto& dep : pAssetInfo->m_Info.m_FileDependencies)
+  {
+    ezString sPath = dep;
+
+    if (sPath.IsEmpty())
+      continue;
+
+    if (ezConversionUtils::IsStringUuid(sPath))
+    {
+      const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sPath);
+      ezAssetInfo* pInfo = nullptr;
+      if (!m_KnownAssets.TryGetValue(guid, pInfo))
+        continue;
+      
+      ezStatus res = ProcessAsset(pInfo, szPlatform);
+      if (res.m_Result.Failed())
+      {
+        return res;
+      }
+    }
+  }
+
+  // Find the descriptor for the asset.
+  const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
+  if (ezDocumentManager::FindDocumentTypeFromPath(pAssetInfo->m_sAbsolutePath, false, pTypeDesc).Failed())
+  {
+    return ezStatus("The asset '%s' could not be queried for its ezDocumentTypeDescriptor, skipping transform!", pAssetInfo->m_sRelativePath.GetData());
+  }
+
+  // Skip assets that cannot be auto-transformed.
+  EZ_ASSERT_DEV(pTypeDesc->m_pDocumentType->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('%s')", pAssetInfo->m_sRelativePath.GetData());
+  auto assetFlags = static_cast<ezAssetDocumentManager*>(pTypeDesc->m_pManager)->GetAssetDocumentTypeFlags(pTypeDesc);
+  if (assetFlags.IsAnySet(ezAssetDocumentFlags::DisableTransform | ezAssetDocumentFlags::OnlyTransformManually))
+    return ezStatus(EZ_SUCCESS);
+
+  ezUInt64 uiHash = 0;
+  auto state = IsAssetUpToDate(pAssetInfo->m_Info.m_DocumentID, szPlatform, pTypeDesc, uiHash);
+  if (state == ezAssetInfo::TransformState::UpToDate)
+    return ezStatus(EZ_SUCCESS);
+
+  if (uiHash == 0)
+  {
+    return ezStatus("Computing the hash for asset '%s' or any dependency failed", pAssetInfo->m_sAbsolutePath.GetData());
+  }
+
+  ezDocument* pDoc = ezQtEditorApp::GetSingleton()->OpenDocumentImmediate(pAssetInfo->m_sAbsolutePath, false, false);
+
+  if (pDoc == nullptr)
+  {
+    return ezStatus("Could not open asset document '%s'", pAssetInfo->m_sRelativePath.GetData());
+  }
+
+  ezStatus ret(EZ_SUCCESS);
+  ezAssetDocument* pAsset = static_cast<ezAssetDocument*>(pDoc);
+  if (state == ezAssetInfo::TransformState::NeedsTransform)
+  {
+    ret = pAsset->TransformAsset(szPlatform);
+  }
+  
+  if (assetFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail) && !assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform))
+  {
+    if (!ret.m_Result.Failed() && state >= ezAssetInfo::TransformState::NeedsThumbnail)
+    {
+      ret = pAsset->CreateThumbnail();
+    }
+  }
+
+  if (!pDoc->HasWindowBeenRequested())
+    pDoc->GetDocumentManager()->CloseDocument(pDoc);
+
+  return ret;
+}
+
+
+ezStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, const char* szPlatform)
+{
+  EZ_LOCK(m_CuratorMutex);
+
+  ezAssetInfo* pInfo = nullptr;
+  if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
+    return ezStatus("Transform failed, unknown asset.");
+
+  return ProcessAsset(pInfo, szPlatform);
+}
+
+
+ezStatus ezAssetCurator::CreateThumbnail(const ezUuid& assetGuid)
+{
+  EZ_LOCK(m_CuratorMutex);
+
+  ezAssetInfo* pInfo = nullptr;
+  if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
+    return ezStatus("Create thumbnail failed, unknown asset.");
+
+  return ProcessAsset(pInfo, nullptr);
 }
 
 ezResult ezAssetCurator::WriteAssetTables(const char* szPlatform /* = nullptr*/)
@@ -808,10 +907,9 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
   return EZ_SUCCESS;
 }
 
-
-void ezAssetCurator::TrackDependencies(ezAssetInfo* pAssetInfo)
+void ezAssetCurator::UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezString>& files, ezMap<ezString, ezHybridArray<ezUuid, 1> >& inverseTracker, bool bAdd)
 {
-  for (const auto& dep : pAssetInfo->m_Info.m_FileDependencies)
+  for (const auto& dep : files)
   {
     ezString sPath = dep;
 
@@ -833,37 +931,43 @@ void ezAssetCurator::TrackDependencies(ezAssetInfo* pAssetInfo)
         continue;
       }
     }
-    auto it = m_InverseDependency.FindOrAdd(sPath);
+    auto it = inverseTracker.FindOrAdd(sPath);
+    if (bAdd)
+    {
+      it.Value().PushBack(assetGuid);
+    }
+    else
+    {
+      it.Value().Remove(assetGuid);
+    }
+  }
+}
+void ezAssetCurator::TrackDependencies(ezAssetInfo* pAssetInfo)
+{
+  UpdateTrackedFiles(pAssetInfo->m_Info.m_DocumentID, pAssetInfo->m_Info.m_FileDependencies, m_InverseDependency, true);
+  UpdateTrackedFiles(pAssetInfo->m_Info.m_DocumentID, pAssetInfo->m_Info.m_FileReferences, m_InverseReferences, true);
+  
+  const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
+  if (ezDocumentManager::FindDocumentTypeFromPath(pAssetInfo->m_sAbsolutePath, false, pTypeDesc).Succeeded())
+  {
+    const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(nullptr);
+    const ezString sTargetFile = pAssetInfo->m_pManager->GetFinalOutputFileName(pTypeDesc, pAssetInfo->m_sAbsolutePath, sPlatform);
+    auto it = m_InverseReferences.FindOrAdd(sTargetFile);
     it.Value().PushBack(pAssetInfo->m_Info.m_DocumentID);
   }
 }
 
-
 void ezAssetCurator::UntrackDependencies(ezAssetInfo* pAssetInfo)
 {
-  for (const auto& dep : pAssetInfo->m_Info.m_FileDependencies)
+  UpdateTrackedFiles(pAssetInfo->m_Info.m_DocumentID, pAssetInfo->m_Info.m_FileDependencies, m_InverseDependency, false);
+  UpdateTrackedFiles(pAssetInfo->m_Info.m_DocumentID, pAssetInfo->m_Info.m_FileReferences, m_InverseReferences, false);
+
+  const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
+  if (ezDocumentManager::FindDocumentTypeFromPath(pAssetInfo->m_sAbsolutePath, false, pTypeDesc).Succeeded())
   {
-    ezString sPath = dep;
-
-    if (sPath.IsEmpty())
-      continue;
-
-    if (ezConversionUtils::IsStringUuid(sPath))
-    {
-      const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sPath);
-      const ezAssetInfo* pInfo = GetAssetInfo(guid);
-      if (pInfo == nullptr)
-        continue;
-      sPath = pInfo->m_sAbsolutePath;
-    }
-    else
-    {
-      if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
-      {
-        continue;
-      }
-    }
-    auto it = m_InverseDependency.FindOrAdd(sPath);
+    const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(nullptr);
+    const ezString sTargetFile = pAssetInfo->m_pManager->GetFinalOutputFileName(pTypeDesc, pAssetInfo->m_sAbsolutePath, sPlatform);
+    auto it = m_InverseReferences.FindOrAdd(sTargetFile);
     it.Value().Remove(pAssetInfo->m_Info.m_DocumentID);
   }
 }

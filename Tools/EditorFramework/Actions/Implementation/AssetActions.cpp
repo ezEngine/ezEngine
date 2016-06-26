@@ -96,14 +96,11 @@ void ezAssetAction::Execute(const ezVariant& value)
   {
   case ezAssetAction::ButtonType::TransformAsset:
     {
-      // TODO const cast
-      ezAssetDocument* pDoc = const_cast<ezAssetDocument*>(static_cast<const ezAssetDocument*>(m_Context.m_pDocument));
-
-      auto ret = pDoc->TransformAsset();
-
+      auto ret = ezAssetCurator::GetSingleton()->TransformAsset(m_Context.m_pDocument->GetGuid());
+     
       if (ret.m_Result.Failed())
       {
-        ezLog::Error("%s (%s)", ret.m_sMessage.GetData(), pDoc->GetDocumentPath());
+        ezLog::Error("%s (%s)", ret.m_sMessage.GetData(), m_Context.m_pDocument->GetDocumentPath());
       }
 
       ezAssetCurator::GetSingleton()->WriteAssetTables();

@@ -76,22 +76,28 @@ ezUuid ezRttiConverterContext::GetObjectGUID(const ezRTTI* pRtti, void* pObject)
   return guid;
 }
 
-ezUuid ezRttiConverterContext::EnqueObject(const ezRTTI* pRtti, void* pObject)
+ezUuid ezRttiConverterContext::EnqueObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject)
 {
-  ezUuid guid;
+  EZ_ASSERT_DEBUG(guid.IsValid(), "For stable serialization, guid must be well defined");
+  ezUuid res = guid;
 
   if (pObject != nullptr)
   {
-    if (!m_ObjectToGuid.TryGetValue(pObject, guid))
+    // In the rare case that this succeeds we already encountered the object with a different guid before.
+    // This can happen if two pointer owner point to the same object.
+    if (!m_ObjectToGuid.TryGetValue(pObject, res))
     {
-      guid.CreateNewUuid();
       RegisterObject(guid, pRtti, pObject);
     }
 
-    m_QueuedObjects.Insert(guid);
+    m_QueuedObjects.Insert(res);
   }
-
-  return guid;
+  else
+  {
+    // Replace nullptr with invalid uuid.
+    res = ezUuid();
+  }
+  return res;
 }
 
 ezRttiConverterObject ezRttiConverterContext::DequeueObject()
@@ -171,10 +177,11 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
         vTemp = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
         void* pRefrencedObject = vTemp.ConvertTo<void*>();
 
-        ezUuid guid;
+        ezUuid guid = pNode->GetGuid();
+        guid.CombineWithSeed(ezUuid::StableUuidForString(pProp->GetPropertyName()));
         if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
         {
-          guid = m_pContext->EnqueObject(pPropType, pRefrencedObject);
+          guid = m_pContext->EnqueObject(guid, pPropType, pRefrencedObject);
           pNode->AddProperty(pProp->GetPropertyName(), guid);
         }
         else
@@ -232,6 +239,8 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       }
       else if (pSpecific->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
+        ezUuid propertyGuid = pNode->GetGuid();
+        propertyGuid.CombineWithSeed(ezUuid::StableUuidForString(pProp->GetPropertyName()));
         for (ezUInt32 i = 0; i < uiCount; ++i)
         {
           vTemp = ezReflectionUtils::GetArrayPropertyValue(pSpecific, pObject, i);
@@ -239,7 +248,11 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
 
           ezUuid guid;
           if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
-            guid = m_pContext->EnqueObject(pPropType, pRefrencedObject);
+          {
+            guid = propertyGuid;
+            guid.CombineWithSeed(ezUuid::StableUuidForInt(i));
+            guid = m_pContext->EnqueObject(guid, pPropType, pRefrencedObject);
+          }
           else
             guid = m_pContext->GetObjectGUID(pPropType, pRefrencedObject);
 
@@ -283,13 +296,20 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       }
       else if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
+        ezUuid propertyGuid = pNode->GetGuid();
+        propertyGuid.CombineWithSeed(ezUuid::StableUuidForString(pProp->GetPropertyName()));
         for (ezUInt32 i = 0; i < values.GetCount(); ++i)
         {
           void* pRefrencedObject = values[i].ConvertTo<void*>();
 
           ezUuid guid;
           if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
-            guid = m_pContext->EnqueObject(pPropType, pRefrencedObject);
+          {
+            // TODO: pointer sets are never stable unless they use an array based pseudo set as storage.
+            guid = propertyGuid;
+            guid.CombineWithSeed(ezUuid::StableUuidForInt(i));
+            guid = m_pContext->EnqueObject(guid, pPropType, pRefrencedObject);
+          }
           else
             guid = m_pContext->GetObjectGUID(pPropType, pRefrencedObject);
 

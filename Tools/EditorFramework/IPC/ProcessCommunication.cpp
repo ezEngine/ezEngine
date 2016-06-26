@@ -305,12 +305,20 @@ bool ezProcessCommunication::ReadMessages()
   return true;
 }
 
-ezResult ezProcessCommunication::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout)
+ezResult ezProcessCommunication::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, WaitForMessageCallback* pMessageCallack)
 {
   EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function is not thread safe");
   EZ_ASSERT_DEV(m_pWaitForMessageType == nullptr, "Already waiting for another message!");
 
   m_pWaitForMessageType = pMessageType;
+  if (pMessageCallack)
+  {
+    m_WaitForMessageCallback = *pMessageCallack;
+  }
+  else
+  {
+    m_WaitForMessageCallback = WaitForMessageCallback();
+  }
 
   const ezTime tStart = ezTime::Now();
 
@@ -345,7 +353,14 @@ void ezProcessCommunication::DispatchMessages()
       ezProcessMessage* pObject = (ezProcessMessage*)ezReflectionSerializer::ReadObjectFromBinary(reader, pRtti);
 
       if (m_pWaitForMessageType != nullptr && pObject->GetDynamicRTTI()->IsDerivedFrom(m_pWaitForMessageType))
+      {
+        if (m_WaitForMessageCallback.IsValid())
+        {
+          m_WaitForMessageCallback(pObject);
+          m_WaitForMessageCallback = WaitForMessageCallback();
+        }
         m_pWaitForMessageType = nullptr;
+      }
 
       EZ_ASSERT_DEV(pRtti != nullptr, "Message Type unknown");
       EZ_ASSERT_DEV(pObject != nullptr, "Object could not be allocated");
