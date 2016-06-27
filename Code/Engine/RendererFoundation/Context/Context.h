@@ -205,6 +205,8 @@ protected:
 
   virtual bool IsFenceReachedPlatform(ezGALFence* pFence) = 0;
 
+  virtual void WaitForFencePlatform(ezGALFence* pFence) = 0;
+
   virtual void BeginQueryPlatform(ezGALQuery* pQuery) = 0;
 
   virtual void EndQueryPlatform(ezGALQuery* pQuery) = 0;

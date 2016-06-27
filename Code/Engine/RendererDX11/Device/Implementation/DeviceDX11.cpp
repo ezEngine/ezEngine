@@ -489,12 +489,21 @@ void ezGALDeviceDX11::BeginFramePlatform()
 
 void ezGALDeviceDX11::EndFramePlatform()
 {
+  ezGALContextDX11* pContext = GetPrimaryContext<ezGALContextDX11>();
+
   // check if fence is reached
   {
     auto& endFrameFence = m_EndFrameFences[m_uiCurrentEndFrameFence];
     if (endFrameFence.m_uiFrame != ((ezUInt64)-1))
     {
-      if (GetPrimaryContext<ezGALContextDX11>()->IsFenceReachedPlatform(endFrameFence.m_pFence))
+      bool bFenceReached = pContext->IsFenceReachedPlatform(endFrameFence.m_pFence);
+      if (!bFenceReached && m_uiNextEndFrameFence == m_uiCurrentEndFrameFence)
+      {
+        pContext->WaitForFencePlatform(endFrameFence.m_pFence);
+        bFenceReached = true;
+      }
+
+      if (bFenceReached)
       {
         FreeTempResources(endFrameFence.m_uiFrame);
 
@@ -506,12 +515,11 @@ void ezGALDeviceDX11::EndFramePlatform()
   // insert fence
   {
     auto& endFrameFence = m_EndFrameFences[m_uiNextEndFrameFence];
-
-    GetPrimaryContext<ezGALContextDX11>()->InsertFencePlatform(endFrameFence.m_pFence);
+    
+    pContext->InsertFencePlatform(endFrameFence.m_pFence);
     endFrameFence.m_uiFrame = m_uiFrameCounter;
 
     m_uiNextEndFrameFence = (m_uiNextEndFrameFence + 1) % EZ_ARRAY_SIZE(m_EndFrameFences);
-    EZ_ASSERT_DEV(m_uiNextEndFrameFence != m_uiCurrentEndFrameFence, "Not enough fences");
   }
 
 

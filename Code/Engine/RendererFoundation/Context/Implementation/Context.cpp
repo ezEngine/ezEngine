@@ -482,12 +482,7 @@ void ezGALContext::WaitForFence(ezGALFenceHandle hFence)
 {
   AssertRenderingThread();
 
-  ezGALFence* pPlatformSpecificFence = m_pDevice->m_Fences[hFence];
-
-  while (!IsFenceReachedPlatform(pPlatformSpecificFence))
-  {
-    ezThreadUtils::YieldTimeSlice(); /// \todo Spin lock count perhaps?
-  }
+  WaitForFencePlatform(m_pDevice->m_Fences[hFence]);
 }
 
 void ezGALContext::BeginQuery(ezGALQueryHandle hQuery)

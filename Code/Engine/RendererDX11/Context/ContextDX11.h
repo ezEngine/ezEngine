@@ -105,6 +105,8 @@ protected:
 
   virtual bool IsFenceReachedPlatform(ezGALFence* pFence) override;
 
+  virtual void WaitForFencePlatform(ezGALFence* pFence) override;
+
   virtual void BeginQueryPlatform(ezGALQuery* pQuery) override;
 
   virtual void EndQueryPlatform(ezGALQuery* pQuery) override;

@@ -393,6 +393,17 @@ bool ezGALContextDX11::IsFenceReachedPlatform(ezGALFence* pFence)
   return false;
 }
 
+void ezGALContextDX11::WaitForFencePlatform(ezGALFence* pFence)
+{
+  BOOL data = FALSE;
+  while (m_pDXContext->GetData(static_cast<ezGALFenceDX11*>(pFence)->GetDXFence(), &data, sizeof(data), 0) != S_OK)
+  {
+    ezThreadUtils::YieldTimeSlice();
+  }
+
+  EZ_ASSERT_DEV(data == TRUE, "Implementation error");
+}
+
 void ezGALContextDX11::BeginQueryPlatform(ezGALQuery* pQuery)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
