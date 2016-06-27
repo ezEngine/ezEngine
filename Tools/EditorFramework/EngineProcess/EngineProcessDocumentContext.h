@@ -200,7 +200,7 @@ private:
   enum Constants
   {
     ThumbnailSuperscaleFactor = 4, ///< Thumbnail render target size is multiplied by this and then the final image is downscaled again. Needs to be pot.
-    ThumbnailConvergenceFramesTarget = 4 ///< Due to multi-threaded rendering, this must be at least 2
+    ThumbnailConvergenceFramesTarget = 32 ///< Due to multi-threaded rendering, this must be at least 2
   };
 
   ezUInt8 m_uiThumbnailConvergenceFrames;

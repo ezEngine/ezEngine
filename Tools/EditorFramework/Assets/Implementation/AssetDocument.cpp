@@ -55,6 +55,14 @@ ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectMan
 
 ezAssetDocument::~ezAssetDocument()
 {
+  if (m_EngineStatus == EngineStatus::Initializing)
+  {
+    // In case we sent the init message, at least wait for the response before dying or someone else after us will see it as 'his' response.
+    // TODO: WaitForMessage isn't really a good idea with multiple documents in general. How do you know which response message it was?
+    ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), ezTime::Seconds(10));
+    EZ_ASSERT_DEV(m_EngineStatus == ezAssetDocument::EngineStatus::Loaded, "After receiving ezDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
+  }
+
   m_Mirror.DeInit();
 
   if (m_bUseEngineConnection)
