@@ -263,6 +263,7 @@ private:
   static ezHashTable<ezTempHashedString, ezHashedString> s_NamedResources;
   static ezMap<ezString, const ezRTTI*> s_AssetToResourceType;
   static ezMap<ezResourceBase*, ezUniquePtr<ezResourceTypeLoader> > s_CustomLoaders;
+  static ezAtomicInteger32 s_ResourcesLoadedRecently;
 };
 
 /// \brief Helper class to acquire and release a resource safely.

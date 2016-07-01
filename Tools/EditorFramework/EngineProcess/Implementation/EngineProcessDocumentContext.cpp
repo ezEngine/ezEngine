@@ -418,7 +418,9 @@ void ezEngineProcessDocumentContext::ResourceEventHandler(const ezResourceEvent&
   // so we restart the counter.
   // TODO: Even in combination with ezResourceManager::FinishLoadingOfResources we end up with 
   // broken thumbnails :-/
-  m_uiThumbnailConvergenceFrames = 0;
+
+  //ezLog::Debug("Resource changed, resetting counter");
+  //m_uiThumbnailConvergenceFrames = 0;
 }
 
 void ezEngineProcessDocumentContext::ClearViewContexts()
@@ -509,15 +511,27 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
   if (m_pThumbnailViewContext)
   {
     m_uiThumbnailConvergenceFrames++;
+
+    //ezLog::Debug("Updating document context for thumbnail: %u", m_uiThumbnailConvergenceFrames);
+
     // Once all resources are loaded and UpdateThumbnailViewContext returns true,
     // we render 'ThumbnailConvergenceFramesTarget' frames and than download it.
     if (ezResourceManager::FinishLoadingOfResources() > 0)
+    {
+      //ezLog::Debug("Resources loaded, Resetting convergence counter");
       m_uiThumbnailConvergenceFrames = 0;
+    }
+
     if (!UpdateThumbnailViewContext(m_pThumbnailViewContext))
+    {
+      ezLog::Debug("Not updated thumbnail context, Resetting convergence counter");
       m_uiThumbnailConvergenceFrames = 0;
+    }
 
     if (m_uiThumbnailConvergenceFrames > ThumbnailConvergenceFramesTarget)
     {
+      //ezLog::Debug("Convergence > threshold, storing thumbnail");
+
       ezCreateThumbnailMsgToEditor ret;
       ret.m_DocumentGuid = GetDocumentGuid();
 

@@ -46,6 +46,7 @@ ezMutex ezResourceManager::s_ResourceMutex;
 ezHashTable<ezTempHashedString, ezHashedString> ezResourceManager::s_NamedResources;
 ezMap<ezString, const ezRTTI*> ezResourceManager::s_AssetToResourceType;
 ezMap<ezResourceBase*, ezUniquePtr<ezResourceTypeLoader> > ezResourceManager::s_CustomLoaders;
+ezAtomicInteger32 ezResourceManager::s_ResourcesLoadedRecently;
 
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ResourceManager)
@@ -159,6 +160,8 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
   else
     m_RequireLoading.PushBack(li);
 
+  //ezLog::Debug("Adding resource '%s' -> '%s'to preload queue: %u items", pResource->GetDynamicRTTI()->GetTypeName(), pResource->GetResourceID().GetData(), m_RequireLoading.GetCount());
+
   ezResourceEvent e;
   e.m_pResource = pResource;
   e.m_EventType = ezResourceEventType::ResourceInPreloadQueue;
@@ -269,6 +272,7 @@ void ezResourceManagerWorkerGPU::Execute()
   if (!m_LoaderData.m_sResourceDescription.IsEmpty())
     m_pResourceToLoad->SetResourceDescription(m_LoaderData.m_sResourceDescription);
 
+  ezResourceManager::s_ResourcesLoadedRecently.Increment();
   m_pResourceToLoad->CallUpdateContent(m_LoaderData.m_pDataStream);
 
   // update the file modification date, if available
@@ -377,6 +381,7 @@ void ezResourceManagerWorker::DoWork(bool bCalledExternally)
     if (!LoaderData.m_sResourceDescription.IsEmpty())
       pResourceToLoad->SetResourceDescription(LoaderData.m_sResourceDescription);
 
+    ezResourceManager::s_ResourcesLoadedRecently.Increment();
     pResourceToLoad->CallUpdateContent(LoaderData.m_pDataStream);
 
     // update the file modification date, if available
@@ -895,13 +900,15 @@ ezUInt32 ezResourceManager::FinishLoadingOfResources(const ezRTTI* pType /*= ezG
     }
 
     if (pAcquire == nullptr)
+    {
+      uiLoaded = (ezUInt32) s_ResourcesLoadedRecently.Set(0);
+      //ezLog::Debug("FinishLoadingOfResources: %u", uiLoaded);
       return uiLoaded;
+    }
 
     ++uiLoaded;
     HelpResourceLoading();
   }
-
-  return uiLoaded;
 }
 
 void ezResourceManager::EnsureResourceLoadingState(ezResourceBase* pResource, const ezResourceState RequestedState)
