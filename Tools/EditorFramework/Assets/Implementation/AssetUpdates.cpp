@@ -23,7 +23,8 @@ void ezUpdateTask::Execute()
     return;
 
   ezUInt64 uiAssetHash = 0;
-  ezAssetCurator::GetSingleton()->IsAssetUpToDate(assetGuid, nullptr, pTypeDescriptor, uiAssetHash);
+  ezUInt64 uiThumbHash = 0;
+  ezAssetCurator::GetSingleton()->IsAssetUpToDate(assetGuid, nullptr, pTypeDescriptor, uiAssetHash, uiThumbHash);
 }
 
 ezUInt64 ezAssetCurator::HashFile(ezStreamReader& InputStream, ezStreamWriter* pPassThroughStream)
@@ -146,7 +147,13 @@ ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
     if (ezConversionUtils::IsStringUuid(sPath))
     {
       const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sPath);
-      uiHashResult += GetAssetHash(guid, bReferences);
+      ezUInt64 uiAssetHash = GetAssetHash(guid, bReferences);
+      if (uiAssetHash == 0)
+      {
+        ezLog::Error("Failed to hash dependency asset '%s'", sPath.GetData());
+        return 0;
+      }
+      uiHashResult += uiAssetHash;
       continue;
     }
 
@@ -187,9 +194,12 @@ ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
     uiHashResult += fileref.m_uiHash;
   }
 
-  if (pInfo->m_LastAssetDependencyHash != uiHashResult)
+  if (!bReferences)
   {
-    pInfo->m_LastAssetDependencyHash = uiHashResult;
+    if (pInfo->m_LastAssetDependencyHash != uiHashResult)
+    {
+      pInfo->m_LastAssetDependencyHash = uiHashResult;
+    }
   }
   return uiHashResult;
 }

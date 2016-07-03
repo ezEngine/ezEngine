@@ -13,7 +13,7 @@ class ezMemoryStreamWriter;
 ///
 /// ezMemoryStreamStorage holds internally an ezHybridArray<ezUInt8, 256>, to prevent allocations when only small temporary memory streams are needed.
 /// That means it will have a memory overhead of that size.
-class ezMemoryStreamStorage : public ezRefCounted
+class EZ_FOUNDATION_DLL ezMemoryStreamStorage : public ezRefCounted
 {
 public:
   /// \brief Creates the storage object for a memory stream. Use \a uiInitialCapacity to reserve a some memory up front, to reduce reallocations.
@@ -41,6 +41,9 @@ public:
   ezUInt64 GetHeapMemoryUsage() const { return m_Storage.GetHeapMemoryUsage(); }
 
   const ezUInt8* GetData() const { if (m_Storage.IsEmpty()) return nullptr; return &m_Storage[0]; }
+
+  /// \brief Replaces the current data with the entire content of the stream.
+  void ReadAll(ezStreamReader& Stream);
 
 private:
   friend class ezMemoryStreamReader;

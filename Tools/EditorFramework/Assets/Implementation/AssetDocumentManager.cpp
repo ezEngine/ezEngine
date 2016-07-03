@@ -32,7 +32,26 @@ bool ezAssetDocumentManager::IsThumbnailUpToDate(ezUInt64 uiThumbnailHash, ezUIn
   if (file.Open(sThumbPath, 256).Failed())
     return false;
 
-  // TODO: Verify hash and version somehow
+  char szTag[8];
+
+  const ezUInt64 uiHeaderSize = ezAssetFileHeader::GetSerializedSize() + 7;
+  ezUInt64 uiFileSize = file.GetFileSize();
+  if (uiFileSize < uiHeaderSize)
+    return false;
+
+  file.SkipBytes(uiFileSize - uiHeaderSize);
+  file.ReadBytes(szTag, 7);
+  szTag[7] = '\0';
+  if (!ezStringUtils::IsEqual(szTag, "ezThumb"))
+    return false;
+
+  ezAssetFileHeader assetHeader;
+  assetHeader.Read(file);
+  if (assetHeader.GetFileHash() != uiThumbnailHash)
+    return false;
+  if (assetHeader.GetFileVersion() != uiTypeVersion)
+    return false;
+
   return true;
 }
 

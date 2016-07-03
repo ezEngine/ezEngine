@@ -112,7 +112,20 @@ ezUInt32 ezMemoryStreamWriter::GetByteCount() const
   return m_pStreamStorage->m_Storage.GetCount();
 }
 
+void ezMemoryStreamStorage::ReadAll(ezStreamReader& Stream)
+{
+  Clear();
+  ezMemoryStreamWriter w(this); 
 
+  ezUInt8 uiTemp[1024];
+
+  while (true)
+  {
+    const ezUInt64 uiRead = Stream.ReadBytes(uiTemp, 1024);
+    w.WriteBytes(uiTemp, uiRead);
+    if (uiRead < 1024)
+      break;
+  }
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_MemoryStream);
-

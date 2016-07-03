@@ -173,7 +173,9 @@ protected:
   /// \brief Requests the engine side to render a thumbnail, will call SaveThumbnail on success.
   ezStatus RemoteCreateThumbnail(const ezAssetFileHeader& header) const;
   /// \brief Saves the given image as the new thumbnail for the asset
-  void SaveThumbnail(const ezImage& img) const;
+  void SaveThumbnail(const ezImage& img, const ezAssetFileHeader& header) const;
+  /// \brief Appends an asset header containing the thumbnail hash to the file. Each thumbnail is appended by it to check up-to-date state.
+  void AppendThumbnailInfo(const char* szThumbnailFile, const ezAssetFileHeader& header) const;
 
   ///@}
 

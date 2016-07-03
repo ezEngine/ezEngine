@@ -127,6 +127,8 @@ void ezAssetDocument::InternalAfterSaveDocument()
       ezAssetCurator::GetSingleton()->WriteAssetTables();
     }
   }
+  ezAssetCurator::GetSingleton()->NotifyOfFileChange(GetDocumentPath());
+  ezAssetCurator::GetSingleton()->NotifyOfAssetChange(GetGuid());
 }
 
 void ezAssetDocument::InitializeAfterLoading()
@@ -296,7 +298,8 @@ ezStatus ezAssetDocument::TransformAssetManually(const char* szPlatform /*= null
     return ezStatus("Asset transform has been disabled on this asset");
 
   ezUInt64 uiHash = 0;
-  if (ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), szPlatform, GetDocumentTypeDescriptor(), uiHash) == ezAssetInfo::TransformState::UpToDate)
+  ezUInt64 uiThumbHash = 0;
+  if (ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), szPlatform, GetDocumentTypeDescriptor(), uiHash, uiThumbHash) == ezAssetInfo::TransformState::UpToDate)
     return ezStatus(EZ_SUCCESS, "Transformed asset is already up to date");
 
   if (uiHash == 0)
@@ -318,7 +321,8 @@ ezStatus ezAssetDocument::TransformAssetManually(const char* szPlatform /*= null
       ezFileSystem::DeleteFile(sTargetFile);
     }
 
-    ezAssetCurator::GetSingleton()->NotifyOfPotentialAsset(sTargetFile);
+    ezAssetCurator::GetSingleton()->NotifyOfFileChange(sTargetFile);
+    ezAssetCurator::GetSingleton()->NotifyOfAssetChange(GetGuid());
     return ret;
   }
 }
@@ -344,7 +348,8 @@ ezStatus ezAssetDocument::TransformAsset(const char* szPlatform)
 ezStatus ezAssetDocument::CreateThumbnail()
 {
   ezUInt64 uiHash = 0;
-  if (ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), nullptr, GetDocumentTypeDescriptor(), uiHash) == ezAssetInfo::TransformState::UpToDate)
+  ezUInt64 uiThumbHash = 0;
+  if (ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), nullptr, GetDocumentTypeDescriptor(), uiHash, uiThumbHash) == ezAssetInfo::TransformState::UpToDate)
     return ezStatus("Transformed asset is already up to date");
 
   if (uiHash == 0)
@@ -352,8 +357,12 @@ ezStatus ezAssetDocument::CreateThumbnail()
 
   {
     ezAssetFileHeader AssetHeader;
-    AssetHeader.SetFileHashAndVersion(uiHash, GetAssetTypeVersion());
-    return InternalCreateThumbnail(AssetHeader);
+    AssetHeader.SetFileHashAndVersion(uiThumbHash, GetAssetTypeVersion());
+    ezStatus res =  InternalCreateThumbnail(AssetHeader);
+
+    InvalidateAssetThumbnail();
+    ezAssetCurator::GetSingleton()->NotifyOfAssetChange(GetGuid());
+    return res;
   }
 }
 
@@ -403,10 +412,11 @@ ezString ezAssetDocument::GetThumbnailFilePath() const
 void ezAssetDocument::InvalidateAssetThumbnail() const
 {
   const ezStringBuilder sResourceFile = GetThumbnailFilePath();
+  ezAssetCurator::GetSingleton()->NotifyOfFileChange(sResourceFile);
   ezQtImageCache::InvalidateCache(sResourceFile);
 }
 
-void ezAssetDocument::SaveThumbnail(const ezImage& img) const
+void ezAssetDocument::SaveThumbnail(const ezImage& img, const ezAssetFileHeader& header) const
 {
   const ezStringBuilder sResourceFile = GetThumbnailFilePath();
 
@@ -466,8 +476,34 @@ void ezAssetDocument::SaveThumbnail(const ezImage& img) const
     ezLog::Error("Could not save asset thumbnail: '%s'", sResourceFile.GetData());
     return;
   }
-
+  AppendThumbnailInfo(sResourceFile, header);
   InvalidateAssetThumbnail();
+}
+
+void ezAssetDocument::AppendThumbnailInfo(const char* szThumbnailFile, const ezAssetFileHeader& header) const
+{
+  ezMemoryStreamStorage storage;
+  {
+    ezFileReader reader;
+    if (reader.Open(szThumbnailFile).Failed())
+    {
+      return;
+    }
+    storage.ReadAll(reader);
+  }
+
+  ezDeferredFileWriter writer;
+  writer.SetOutput(szThumbnailFile);
+  writer.WriteBytes(storage.GetData(), storage.GetStorageSize());
+
+  static const char* sztTag = "ezThumb";
+  writer.WriteBytes(sztTag, 7);
+  header.Write(writer);
+
+  if (writer.Close().Failed())
+  {
+    ezLog::Error("Could not open file for writing: '%s'", szThumbnailFile);
+  }
 }
 
 ezString ezAssetDocument::GetDocumentPathFromGuid(const ezUuid& documentGuid) const
@@ -580,7 +616,7 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ezAssetFileHeader& header)
     image.AllocateImageData();
     EZ_ASSERT_DEV(data.GetCount() == image.GetDataSize(), "Thumbnail ezImage has different size than data buffer!");
     ezMemoryUtils::Copy(image.GetDataPointer<ezUInt8>(), data.GetData(), msg.m_uiWidth * msg.m_uiHeight * 4);
-    SaveThumbnail(image);
+    SaveThumbnail(image, header);
 
     ezLog::Success("%s thumbnail for \"%s\" has been exported.", QueryAssetType(), GetDocumentPath());
 

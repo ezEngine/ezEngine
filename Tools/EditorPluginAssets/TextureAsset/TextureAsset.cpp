@@ -81,10 +81,10 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   arguments << "-out";
   arguments << szTargetFile;
 
+  const ezStringBuilder sThumbnail = GetThumbnailFilePath();
   if (bUpdateThumbnail)
   {
     // Thumbnail
-    const ezStringBuilder sThumbnail = GetThumbnailFilePath();
     const ezStringBuilder sDir = sThumbnail.GetFileDirectory();
     ezOSFile::CreateDirectoryStructure(sDir);
 
@@ -215,6 +215,11 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
   if (bUpdateThumbnail)
   {
+    ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(GetGuid());
+    EZ_ASSERT_DEV(uiThumbnailHash != 0, "Thumbnail hash should never we nul when reaching this point!");
+    ezAssetFileHeader assetThumbnailHeader;
+    assetThumbnailHeader.SetFileHashAndVersion(uiThumbnailHash, GetAssetTypeVersion());
+    AppendThumbnailInfo(sThumbnail, assetThumbnailHeader);
     InvalidateAssetThumbnail();
   }
 

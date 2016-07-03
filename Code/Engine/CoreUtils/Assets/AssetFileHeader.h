@@ -27,7 +27,11 @@ public:
   /// \brief Returns the asset type version
   ezUInt16 GetFileVersion() const { return m_uiVersion; }
 
+  /// \brief Returns size of a serialized header. Needed to read header appended to files.
+  static ezUInt16 GetSerializedSize();
+
 private:
   ezUInt64 m_uiHash;
   ezUInt16 m_uiVersion;
+  static ezUInt16 s_uiSerializedHeaderSize;
 };

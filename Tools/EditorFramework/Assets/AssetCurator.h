@@ -112,12 +112,15 @@ public:
   void SetActivePlatform(const char* szPlatform);
 
   /// \brief Allows to tell the system of a new or changed file, that might be of interest to the Curator.
-  void NotifyOfPotentialAsset(const char* szAbsolutePath);
+  void NotifyOfFileChange(const char* szAbsolutePath);
+
+  /// \brief Allows to tell the system to re-evaluate an assets status.
+  void NotifyOfAssetChange(const ezUuid& assetGuid);
 
   /// \brief The curator gathers all folders in which assets have been found. This list can only grow over the lifetime of the application.
   const ezSet<ezString>& GetAllAssetFolders() const { return m_AssetFolders; }
 
-  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform, const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash);
+  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform, const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash);
 
 
   /// \brief Returns the number of assets in the system and how many are in what transform state

@@ -64,35 +64,40 @@ void ezAssetCurator::SetActivePlatform(const char* szPlatform)
   m_Events.Broadcast(e);
 }
 
-void ezAssetCurator::NotifyOfPotentialAsset(const char* szAbsolutePath)
+void ezAssetCurator::NotifyOfFileChange(const char* szAbsolutePath)
 {
   HandleSingleFile(szAbsolutePath);
   MainThreadTick();
 }
 
 
-ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform, const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash)
+void ezAssetCurator::NotifyOfAssetChange(const ezUuid& assetGuid)
+{
+  UpdateAssetTransformState(assetGuid, ezAssetInfo::TransformState::Unknown);
+}
+
+ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform, const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash)
 {
   out_AssetHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(assetGuid);
-  
+  out_ThumbHash = 0;
   if (out_AssetHash == 0)
     return ezAssetInfo::TransformState::Unknown;
 
   const ezString sPlatform = ezAssetDocumentManager::DetermineFinalTargetPlatform(szPlatform);
   const ezString sTargetFile = static_cast<ezAssetDocumentManager*>(pTypeDescriptor->m_pManager)->GetFinalOutputFileName(pTypeDescriptor, GetAssetInfo(assetGuid)->m_sAbsolutePath, sPlatform);
+  auto flags = static_cast<ezAssetDocumentManager*>(pTypeDescriptor->m_pManager)->GetAssetDocumentTypeFlags(pTypeDescriptor);
 
   if (ezAssetDocumentManager::IsResourceUpToDate(out_AssetHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion(), sTargetFile))
   {
-    auto flags = static_cast<ezAssetDocumentManager*>(pTypeDescriptor->m_pManager)->GetAssetDocumentTypeFlags(pTypeDescriptor);
     if (flags.IsSet(ezAssetDocumentFlags::SupportsThumbnail))
     {
-      ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(assetGuid);
+      out_ThumbHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(assetGuid);
       ezString sAssetFile;
       {
         EZ_LOCK(m_CuratorMutex);
         sAssetFile = GetAssetInfo(assetGuid)->m_sAbsolutePath;
       }
-      if (!ezAssetDocumentManager::IsThumbnailUpToDate(uiThumbnailHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion(), sAssetFile))
+      if (!ezAssetDocumentManager::IsThumbnailUpToDate(out_ThumbHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion(), sAssetFile))
       {
         UpdateAssetTransformState(assetGuid, ezAssetInfo::TransformState::NeedsThumbnail);
         return ezAssetInfo::TransformState::NeedsThumbnail;
@@ -104,6 +109,10 @@ ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetG
   }
   else
   {
+    if (flags.IsSet(ezAssetDocumentFlags::SupportsThumbnail))
+    {
+      out_ThumbHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(assetGuid);
+    }
     UpdateAssetTransformState(assetGuid, ezAssetInfo::TransformState::NeedsTransform);
     return ezAssetInfo::TransformState::NeedsTransform;
   }
@@ -564,7 +573,8 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
     return ezStatus(EZ_SUCCESS);
 
   ezUInt64 uiHash = 0;
-  auto state = IsAssetUpToDate(pAssetInfo->m_Info.m_DocumentID, szPlatform, pTypeDesc, uiHash);
+  ezUInt64 uiThumbHash = 0;
+  auto state = IsAssetUpToDate(pAssetInfo->m_Info.m_DocumentID, szPlatform, pTypeDesc, uiHash, uiThumbHash);
   if (state == ezAssetInfo::TransformState::UpToDate)
     return ezStatus(EZ_SUCCESS);
 
@@ -589,7 +599,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
   
   if (assetFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail) && !assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform))
   {
-    if (!ret.m_Result.Failed() && state >= ezAssetInfo::TransformState::NeedsThumbnail)
+    if (ret.m_Result.Succeeded() && state <= ezAssetInfo::TransformState::NeedsThumbnail)
     {
       ret = pAsset->CreateThumbnail();
     }

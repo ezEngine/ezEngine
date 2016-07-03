@@ -100,7 +100,6 @@ void ezQtEditorApp::DocumentEventHandler(const ezDocumentEvent& e)
   case ezDocumentEvent::Type::DocumentSaved:
     {
       ezPreferences::SaveDocumentPreferences(e.m_pDocument);
-      ezAssetCurator::GetSingleton()->NotifyOfPotentialAsset(e.m_pDocument->GetDocumentPath());
     }
     break;
   }
