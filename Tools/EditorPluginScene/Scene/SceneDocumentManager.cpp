@@ -37,7 +37,7 @@ ezBitflags<ezAssetDocumentFlags> ezSceneDocumentManager::GetAssetDocumentTypeFla
   EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
   if (pDescriptor == &m_PrefabDesc)
   {
-    return ezAssetDocumentFlags::AutoTransformOnSave;
+    return ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
   }
   else
   {

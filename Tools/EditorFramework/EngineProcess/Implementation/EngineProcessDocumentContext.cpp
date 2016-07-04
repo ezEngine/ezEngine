@@ -524,7 +524,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
 
     if (!UpdateThumbnailViewContext(m_pThumbnailViewContext))
     {
-      ezLog::Debug("Not updated thumbnail context, Resetting convergence counter");
+      //ezLog::Debug("Not updated thumbnail context, Resetting convergence counter");
       m_uiThumbnailConvergenceFrames = 0;
     }
 

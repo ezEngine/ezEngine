@@ -533,3 +533,32 @@ bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
   // do the actual file writing
   return file.Close().Succeeded();
 }
+
+bool ezSceneContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
+{
+  ezBoundingBoxSphere bounds;
+  bounds.SetInvalid();
+
+  {
+    EZ_LOCK(m_pWorld->GetReadMarker());
+    const ezWorld* pConstWorld = m_pWorld;
+    for (auto it = pConstWorld->GetObjects(); it.IsValid(); ++it)
+    {
+      const ezGameObject* pObj = it;
+      // TODO: How do I detect the camera that 'UpdateThumbnailCamera' is moving? Is it even there?
+      // It definitely never converges without this line.
+      if (ezStringUtils::IsEqual(pObj->GetName(), "Player"))
+        continue;
+      const auto& b = pObj->GetGlobalBounds();
+
+      if (b.IsValid())
+        bounds.ExpandToInclude(b);
+    }
+  }
+
+  if (!bounds.IsValid())
+    bounds = ezBoundingBoxSphere(ezVec3::ZeroVector(), ezVec3(1, 1, 1), 2);
+
+  ezSceneViewContext* pMaterialViewContext = static_cast<ezSceneViewContext*>(pThumbnailViewContext);
+  return pMaterialViewContext->UpdateThumbnailCamera(bounds);
+}

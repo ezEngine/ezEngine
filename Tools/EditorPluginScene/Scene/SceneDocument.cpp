@@ -1154,6 +1154,13 @@ ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const c
   return ezStatus(EZ_FAILURE);
 }
 
+
+ezStatus ezSceneDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
+{
+  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
+  return status;
+}
+
 ezStatus ezSceneDocument::InternalRetrieveAssetInfo(const char* szPlatform)
 {
   return ezStatus(EZ_SUCCESS);

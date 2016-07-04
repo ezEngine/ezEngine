@@ -27,6 +27,7 @@ public:
   ~ezSceneViewContext();
 
   virtual void HandleViewMessage(const ezEditorEngineViewMsg* pMsg) override;
+  bool UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds);
 
 protected:
   virtual void Redraw() override;

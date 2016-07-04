@@ -32,6 +32,10 @@ ezSceneViewContext::ezSceneViewContext(ezSceneContext* pSceneContext) : ezEngine
 {
   m_pSceneContext = pSceneContext;
   m_bUpdatePickingData = true;
+
+  // Start with something valid.
+  m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 45.0f, 0.1f, 1000.0f);
+  m_Camera.LookAt(ezVec3(1,1,1), ezVec3::ZeroVector(), ezVec3(0.0f, 0.0f, 1.0f));
 }
 
 ezSceneViewContext::~ezSceneViewContext()
@@ -64,6 +68,33 @@ void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 
     PickObjectAt(pMsg2->m_uiPickPosX, pMsg2->m_uiPickPosY);
   }
+}
+
+bool ezSceneViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds)
+{
+  bool bChanged = false;
+  ezVec3 vCameraPos = m_Camera.GetCenterPosition();
+  ezVec3 vCenterPos = bounds.GetSphere().m_vCenter;
+  
+  float fFov = 45.0f;
+  const float fDist = bounds.GetSphere().m_fRadius / ezMath::Sin(ezAngle::Degree(fFov / 2));
+  ezVec3 vDir(1.0f, 1.0f, -1.0f);
+  vDir.Normalize();
+  ezVec3 vNewCameraPos = vCenterPos - vDir * fDist;
+  if (!vNewCameraPos.IsEqual(vCameraPos, 0.01f))
+  {
+    vCameraPos = vNewCameraPos;
+    bChanged = true;
+  }
+
+  if (bChanged)
+  {
+    m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, fFov, 0.1f, 1000.0f);
+    m_Camera.LookAt(vNewCameraPos, vCenterPos, ezVec3(0.0f, 0.0f, 1.0f));
+    return false;
+  }
+
+  return true;
 }
 
 void ezSceneViewContext::Redraw()
