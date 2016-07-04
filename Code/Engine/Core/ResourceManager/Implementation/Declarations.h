@@ -43,6 +43,8 @@ struct EZ_CORE_DLL ezResourceFlags
     StorageType ResourceHasFallback   : 1;
     StorageType IsReloadable          : 1;
     StorageType IsPreloading          : 1;
+    StorageType IsMissingFallback     : 1;
+    StorageType HasCustomDataLoader   : 1;
   };
 };
 

@@ -168,17 +168,14 @@ public:
   /// Use this e.g. with a ezResourceLoaderFromMemory to replace an existing resource with new data that was created on-the-fly.
   static void UpdateResourceWithCustomLoader(const ezTypelessResourceHandle& hResource, ezUniquePtr<ezResourceTypeLoader>&& loader);
 
-  /// \brief Returns how many resources of the given type are in the loading queue at the moment
-  static ezUInt32 GetNumResourcesCurrentlyLoading(const ezRTTI* pType = ezGetStaticRTTI<ezResourceBase>());
-
-  /// \brief Makes sure all resources of the given base type, that are currently in the preload queue, are finished loading.
+  /// \brief Makes sure all resources that are currently in the preload queue, are finished loading.
   ///
-  /// Returns how many resources were waited for. Might be larger than the number of resources of the given type in the queue.
+  /// Returns whether any resources were waited for.
   /// \note This will only wait for the preload queue to be empty at this point in time. It does not mean that all resources
   /// are fully loaded (all levels-of-detail). Once you render a frame, more resources might end up in the preload queue again.
   /// So if one wants to make a full detail screenshot and have all resources loaded with all details, one must render multiple frames
   /// and only make a screenshot once no resources where waited for anymore.
-  static ezUInt32 FinishLoadingOfResources(const ezRTTI* pType = ezGetStaticRTTI<ezResourceBase>());
+  static bool FinishLoadingOfResources();
 
 private:
   friend class ezResourceBase;
@@ -199,7 +196,7 @@ private:
   static void EnsureResourceLoadingState(ezResourceBase* pResource, const ezResourceState RequestedState);
 
   
-  static void HelpResourceLoading();
+  static bool HelpResourceLoading();
 
   static void ReloadResource(ezResourceBase* pResource, bool bForce);
 
@@ -264,6 +261,7 @@ private:
   static ezMap<ezString, const ezRTTI*> s_AssetToResourceType;
   static ezMap<ezResourceBase*, ezUniquePtr<ezResourceTypeLoader> > s_CustomLoaders;
   static ezAtomicInteger32 s_ResourcesLoadedRecently;
+  static ezAtomicInteger32 s_ResourcesInLoadingLimbo; // not in the loading queue anymore but not yet finished loading either (typically now a task in the task system)
 };
 
 /// \brief Helper class to acquire and release a resource safely.

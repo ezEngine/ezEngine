@@ -516,7 +516,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
 
     // Once all resources are loaded and UpdateThumbnailViewContext returns true,
     // we render 'ThumbnailConvergenceFramesTarget' frames and than download it.
-    if (ezResourceManager::FinishLoadingOfResources() > 0)
+    if (ezResourceManager::FinishLoadingOfResources())
     {
       //ezLog::Debug("Resources loaded, Resetting convergence counter");
       m_uiThumbnailConvergenceFrames = 0;
@@ -537,6 +537,8 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
 
       // Download image
       {
+        //ezLog::Success("Reading back Thumbnail");
+
         ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hThumbnailColorRT);
 
         ezGALSystemMemoryDescription MemDesc;
@@ -578,6 +580,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
     }
     else
     {
+      //ezLog::Info("Rendering Thumbnail");
       m_pThumbnailViewContext->Redraw();
     }
   }

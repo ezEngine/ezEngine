@@ -47,6 +47,7 @@ ezHashTable<ezTempHashedString, ezHashedString> ezResourceManager::s_NamedResour
 ezMap<ezString, const ezRTTI*> ezResourceManager::s_AssetToResourceType;
 ezMap<ezResourceBase*, ezUniquePtr<ezResourceTypeLoader> > ezResourceManager::s_CustomLoaders;
 ezAtomicInteger32 ezResourceManager::s_ResourcesLoadedRecently;
+ezAtomicInteger32 ezResourceManager::s_ResourcesInLoadingLimbo;
 
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ResourceManager)
@@ -257,6 +258,7 @@ void ezResourceManager::UpdateLoadingDeadlines()
       e.m_EventType = ezResourceEventType::ResourceOutOfPreloadQueue;
       ezResourceManager::BroadcastResourceEvent(e);
 
+      //ezLog::Warning("Removing resource from preload queue due to time out");
       m_RequireLoading.RemoveAtSwap(i);
       --uiCount;
     }
@@ -272,6 +274,7 @@ void ezResourceManagerWorkerGPU::Execute()
   if (!m_LoaderData.m_sResourceDescription.IsEmpty())
     m_pResourceToLoad->SetResourceDescription(m_LoaderData.m_sResourceDescription);
 
+  //ezLog::Debug("Updating Resource Content");
   ezResourceManager::s_ResourcesLoadedRecently.Increment();
   m_pResourceToLoad->CallUpdateContent(m_LoaderData.m_pDataStream);
 
@@ -300,6 +303,10 @@ void ezResourceManagerWorkerGPU::Execute()
     EZ_LOCK(ezResourceManager::s_ResourceMutex);
     EZ_ASSERT_DEV(m_pResourceToLoad->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
     m_pResourceToLoad->m_Flags.Remove(ezResourceFlags::IsPreloading);
+
+    //ezLog::Dev("Finished loading resource on main thread");
+    EZ_ASSERT_DEV(ezResourceManager::s_ResourcesInLoadingLimbo > 0, "ezResourceManager::s_ResourcesInLoadingLimbo is incorrect");
+    ezResourceManager::s_ResourcesInLoadingLimbo.Decrement();
 
     ezResourceEvent e;
     e.m_pResource = m_pResourceToLoad;
@@ -333,9 +340,14 @@ void ezResourceManagerWorker::DoWork(bool bCalledExternally)
       return;
     }
 
+    // set this before we remove the resource from the queue
+    ezResourceManager::s_ResourcesInLoadingLimbo.Increment();
+
     auto it = ezResourceManager::m_RequireLoading.PeekFront();
     pResourceToLoad = it.m_pResource;
     ezResourceManager::m_RequireLoading.PopFront();
+
+    //ezLog::Warning("Task taking item out of preload queue: %u items remain", ezResourceManager::m_RequireLoading.GetCount());
 
 
     if (pResourceToLoad->m_Flags.IsSet(ezResourceFlags::HasCustomDataLoader))
@@ -374,6 +386,7 @@ void ezResourceManagerWorker::DoWork(bool bCalledExternally)
     pWorkerGPU->m_pLoader = pLoader;
     pWorkerGPU->m_pResourceToLoad = pResourceToLoad;
 
+    // the resource stays in 'limbo' until the GPU worker is finished with it
     ezTaskSystem::StartSingleTask(pWorkerGPU, ezTaskPriority::SomeFrameMainThread);
   }
   else
@@ -381,6 +394,7 @@ void ezResourceManagerWorker::DoWork(bool bCalledExternally)
     if (!LoaderData.m_sResourceDescription.IsEmpty())
       pResourceToLoad->SetResourceDescription(LoaderData.m_sResourceDescription);
 
+    //ezLog::Debug("Updating Resource Content");
     ezResourceManager::s_ResourcesLoadedRecently.Increment();
     pResourceToLoad->CallUpdateContent(LoaderData.m_pDataStream);
 
@@ -412,8 +426,13 @@ void ezResourceManagerWorker::DoWork(bool bCalledExternally)
   {
     EZ_LOCK(ezResourceManager::s_ResourceMutex);
 
+    // this resource was finished loading, so we can immediately reduce the limbo counter
+    ezResourceManager::s_ResourcesInLoadingLimbo.Decrement();
+
     if (!bResourceIsPreloading)
     {
+      //ezLog::Warning("Resource removed from preload queue");
+
       EZ_ASSERT_DEV(pResourceToLoad->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
       pResourceToLoad->m_Flags.Remove(ezResourceFlags::IsPreloading);
 
@@ -519,6 +538,8 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
     return;
 
   ezResourceTypeLoader* pLoader = ezResourceManager::GetResourceTypeLoader(pResource->GetDynamicRTTI());
+
+  /// \todo Do we need to handle HasCustomLoader here ??
 
   if (pLoader == nullptr)
     pLoader = pResource->GetDefaultResourceTypeLoader();
@@ -854,59 +875,31 @@ void ezResourceManager::UpdateResourceWithCustomLoader(const ezTypelessResourceH
   ReloadResource(hResource.m_pResource, true);
 };
 
-ezUInt32 ezResourceManager::GetNumResourcesCurrentlyLoading(const ezRTTI* pType /* = ezGetStaticRTTI<ezResourceBase>() */)
+bool ezResourceManager::FinishLoadingOfResources()
 {
-  ezUInt32 count = 0;
-
-  {
-    EZ_LOCK(s_ResourceMutex);
-
-    for (ezUInt32 i = m_RequireLoading.GetCount(); i > 0; --i)
-    {
-      auto pRes = m_RequireLoading[i - 1].m_pResource;
-
-      if (pRes->GetDynamicRTTI()->IsDerivedFrom(pType))
-      {
-        ++count;
-      }
-    }
-  }
-
-  return count;
-}
-
-
-ezUInt32 ezResourceManager::FinishLoadingOfResources(const ezRTTI* pType /*= ezGetStaticRTTI<ezResourceBase>()*/)
-{
-  ezUInt32 uiLoaded = 0;
-
   while (true)
   {
-    ezResourceBase* pAcquire = nullptr;
+    ezUInt32 uiRemaining = 0;
 
     {
       EZ_LOCK(s_ResourceMutex);
 
-      for (ezUInt32 i = m_RequireLoading.GetCount(); i > 0; --i)
-      {
-        auto pRes = m_RequireLoading[i - 1].m_pResource;
-
-        if (pRes->GetDynamicRTTI()->IsDerivedFrom(pType))
-        {
-          pAcquire = pRes;
-          break;
-        }
-      }
+      uiRemaining = m_RequireLoading.GetCount();
     }
 
-    if (pAcquire == nullptr)
+    //if (uiRemaining == 0 && s_ResourcesInLoadingLimbo != 0)
+    //{
+      //ezUInt32 i = s_ResourcesInLoadingLimbo;
+      //ezLog::Dev("Waiting for %u resources on main thread", i);
+    //}
+
+    if (uiRemaining == 0 && s_ResourcesInLoadingLimbo == 0)
     {
-      uiLoaded = (ezUInt32) s_ResourcesLoadedRecently.Set(0);
-      //ezLog::Debug("FinishLoadingOfResources: %u", uiLoaded);
-      return uiLoaded;
+      const bool bLoadedAny = s_ResourcesLoadedRecently.Set(0) > 0;
+      //ezLog::Debug("FinishLoadingOfResources: %s", bLoadedAny ? "true" : "false");
+      return bLoadedAny;
     }
 
-    ++uiLoaded;
     HelpResourceLoading();
   }
 }
@@ -920,10 +913,13 @@ void ezResourceManager::EnsureResourceLoadingState(ezResourceBase* pResource, co
   }
 }
 
-void ezResourceManager::HelpResourceLoading()
+bool ezResourceManager::HelpResourceLoading()
 {
   if (!m_WorkerTask[m_iCurrentWorker].IsTaskFinished())
+  {
     ezTaskSystem::WaitForTask(&m_WorkerTask[m_iCurrentWorker]);
+    return true;
+  }
   else
   {
     for (ezInt32 i = 0; i < 16; ++i)
@@ -934,10 +930,12 @@ void ezResourceManager::HelpResourceLoading()
       if (!m_WorkerGPU[iWorkerGPU].IsTaskFinished())
       {
         ezTaskSystem::WaitForTask(&m_WorkerGPU[iWorkerGPU]);
-        break; // we waited for one of them, that's enough for this round
+        return true; // we waited for one of them, that's enough for this round
       }
     }
   }
+
+  return false;
 }
 
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_ResourceManager);
