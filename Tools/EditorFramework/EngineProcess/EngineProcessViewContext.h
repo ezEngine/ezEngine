@@ -48,7 +48,7 @@ public:
 
   virtual void HandleViewMessage(const ezEditorEngineViewMsg* pMsg);
   virtual void SetupRenderTarget(ezGALRenderTagetSetup& renderTargetSetup, ezUInt16 uiWidth, ezUInt16 uiHeight);
-  virtual void Redraw();
+  virtual void Redraw(bool bRenderEditorGizmos);
   
 protected:
   void SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg);

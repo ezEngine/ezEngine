@@ -45,7 +45,7 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
     if (pMsg2->m_uiWindowWidth > 0 && pMsg2->m_uiWindowHeight > 0)
     {
       HandleWindowUpdate(reinterpret_cast<HWND>(pMsg2->m_uiHWND), pMsg2->m_uiWindowWidth, pMsg2->m_uiWindowHeight);
-      Redraw();
+      Redraw(true);
     }
   }
 }
@@ -106,12 +106,8 @@ void ezEngineProcessViewContext::SetupRenderTarget(ezGALRenderTagetSetup& render
   }
 }
 
-void ezEngineProcessViewContext::Redraw()
+void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
 {
-  //const ezUInt32 uiLoaded = ezResourceManager::FinishLoadingOfResources();
-  //if (uiLoaded > 0)
-    //ezLog::Info("Waited for %u resources to finish loading", uiLoaded);
-
   auto pState = ezGameApplication::GetGameApplicationInstance()->GetGameStateForWorld(GetDocumentContext()->GetWorld());
 
   if (pState != nullptr)
@@ -122,6 +118,19 @@ void ezEngineProcessViewContext::Redraw()
   // setting to only update one view ?
   //else
   {
+    ezTag tagEditor;
+    ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tagEditor);
+
+    if (!bRenderEditorGizmos)
+    {
+      // exclude all editor objects from rendering in proper game views
+      m_pView->m_ExcludeTags.Set(tagEditor);
+    }
+    else
+    {
+      m_pView->m_ExcludeTags.Remove(tagEditor);
+    }
+
     ezRenderLoop::AddMainView(m_pView);
   }
 }

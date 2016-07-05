@@ -97,7 +97,7 @@ bool ezSceneViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds
   return true;
 }
 
-void ezSceneViewContext::Redraw()
+void ezSceneViewContext::Redraw(bool bRenderEditorGizmos)
 {
   ezTag tagNoOrtho;
   ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode", &tagNoOrtho);
@@ -114,7 +114,7 @@ void ezSceneViewContext::Redraw()
 
   m_pView->SetRenderPassProperty("SimplePass.ezGizmoRenderer", "HighlightID", GetDocumentContext()->m_Context.m_uiHighlightID);
 
-  ezEngineProcessViewContext::Redraw();
+  ezEngineProcessViewContext::Redraw(bRenderEditorGizmos);
 }
 
 void ezSceneViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)

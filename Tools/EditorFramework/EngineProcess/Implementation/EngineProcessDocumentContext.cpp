@@ -581,7 +581,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
     else
     {
       //ezLog::Info("Rendering Thumbnail");
-      m_pThumbnailViewContext->Redraw();
+      m_pThumbnailViewContext->Redraw(false);
     }
   }
 }
@@ -627,7 +627,7 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
   m_pThumbnailViewContext->SetupRenderTarget(m_ThumbnailRenderTargetSetup, m_uiThumbnailWidth, m_uiThumbnailHeight);
 
   UpdateThumbnailViewContext(m_pThumbnailViewContext);
-  m_pThumbnailViewContext->Redraw();
+  m_pThumbnailViewContext->Redraw(false);
 
   ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::ResourceEventHandler, this));
 }

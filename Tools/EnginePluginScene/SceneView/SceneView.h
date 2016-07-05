@@ -30,7 +30,7 @@ public:
   bool UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds);
 
 protected:
-  virtual void Redraw() override;
+  virtual void Redraw(bool bRenderEditorGizmos) override;
   virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg) override;
   virtual ezView* CreateView() override;
   virtual bool IsDefaultRenderPipeline(ezRenderPipelineResourceHandle hPipeline) override;
