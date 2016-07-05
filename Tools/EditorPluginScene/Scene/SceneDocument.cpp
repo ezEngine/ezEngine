@@ -438,10 +438,10 @@ void ezSceneDocument::TriggerGameModePlay()
 }
 
 
-void ezSceneDocument::StopGameMode()
+bool ezSceneDocument::StopGameMode()
 {
   if (m_GameMode == GameMode::Off)
-    return;
+    return false;
 
   if (m_GameMode == GameMode::Simulate)
   {
@@ -462,6 +462,8 @@ void ezSceneDocument::StopGameMode()
     e.m_Type = ezSceneDocumentEvent::Type::TriggerStopGameModePlay;
     m_SceneEvents.Broadcast(e);
   }
+
+  return true;
 }
 
 void ezSceneDocument::SetSimulationSpeed(float f)
@@ -1158,6 +1160,14 @@ ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const c
 ezStatus ezSceneDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
 {
   ezStatus status = ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
+
+  // if we were to do this BEFORE making the screenshot, the scene would be killed, but not immediately restored
+  // and the screenshot would end up empty
+  // instead the engine side ensures simulation is stopped and makes a screenshot of whatever state is visible
+  // but then the editor and engine state are out of sync, so AFTER the screenshot is done,
+  // we ensure to also stop simulation on the editor side
+  StopGameMode();
+
   return status;
 }
 

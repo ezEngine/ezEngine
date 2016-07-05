@@ -541,14 +541,14 @@ bool ezSceneContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThu
 
   {
     EZ_LOCK(m_pWorld->GetReadMarker());
+
+    EZ_ASSERT_DEV(!m_pWorld->GetWorldSimulationEnabled(), "World simulation must be disabled while creating a thumbnail");
+
     const ezWorld* pConstWorld = m_pWorld;
     for (auto it = pConstWorld->GetObjects(); it.IsValid(); ++it)
     {
       const ezGameObject* pObj = it;
-      // TODO: How do I detect the camera that 'UpdateThumbnailCamera' is moving? Is it even there?
-      // It definitely never converges without this line.
-      if (ezStringUtils::IsEqual(pObj->GetName(), "Player"))
-        continue;
+
       const auto& b = pObj->GetGlobalBounds();
 
       if (b.IsValid())

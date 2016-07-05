@@ -601,6 +601,12 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
   m_uiThumbnailHeight = pMsg->m_uiHeight * ThumbnailSuperscaleFactor;
   m_pThumbnailViewContext = CreateViewContext();
 
+  // make sure the world is not simulating while making a screenshot
+  {
+    EZ_LOCK(m_pWorld->GetWriteMarker());
+    m_pWorld->SetWorldSimulationEnabled(false);
+  }
+
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   // Create render target for picking

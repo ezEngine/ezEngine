@@ -140,7 +140,9 @@ public:
 
   void StartSimulateWorld();
   void TriggerGameModePlay();
-  void StopGameMode();
+
+  /// Stops the world simulation, if it is running. Returns true, when the simulation needed to be stopped.
+  bool StopGameMode();
 
   float GetSimulationSpeed() const { return m_fSimulationSpeed; }
   void SetSimulationSpeed(float f);
