@@ -65,8 +65,10 @@ void OnLoadPlugin(bool bReloading)
     }
 
     // View Tool Bar
-    ezActionMapManager::RegisterActionMap("MaterialAssetViewToolBar");
-    ezViewActions::MapActions("MaterialAssetViewToolBar", "");
+    {
+      ezActionMapManager::RegisterActionMap("MaterialAssetViewToolBar");
+      ezViewActions::MapActions("MaterialAssetViewToolBar", "");
+    }
   }
 
   // Render Pipeline Asset
