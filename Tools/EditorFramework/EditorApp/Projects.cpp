@@ -59,11 +59,14 @@ void ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
     return;
   }
 
-  const ezRecentFilesList allDocs = LoadOpenDocumentsList();
-
-  for (auto& doc : allDocs.GetFileList())
+  if (!m_bSafeMode)
   {
-    OpenDocument(doc);
+    const ezRecentFilesList allDocs = LoadOpenDocumentsList();
+
+    for (auto& doc : allDocs.GetFileList())
+    {
+      OpenDocument(doc);
+    }
   }
 }
 

@@ -49,6 +49,8 @@ public:
   /// \brief Returns the folder in which the tools binaries can be found. If enabled in the preferences, it uses the pre-compiled tools, otherwise the currently compiled ones.
   ezString GetExternalToolsFolder();
 
+  /// \brief Can be set via the command line option '-safe'. In this mode the editor will not automatically load recent documents
+  bool IsInSafeMode() const { return m_bSafeMode; }
 
   const ezPluginSet& GetEditorPlugins() const { return s_EditorPlugins; }
   const ezPluginSet& GetEnginePlugins() const { return s_EnginePlugins; }
@@ -166,6 +168,8 @@ private:
   void SetupDataDirectories();
   void SetStyleSheet();
   void CreatePanels();
+
+  bool m_bSafeMode;
 
   ezSet<ezString> s_RestartRequiredReasons;
   ezSet<ezString> s_ReloadProjectRequiredReasons;

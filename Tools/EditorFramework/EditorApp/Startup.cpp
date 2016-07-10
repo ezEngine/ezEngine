@@ -102,8 +102,8 @@ void ezQtEditorApp::StartupEditor()
   ezProgress::SetGlobalProgressbar(m_pProgressbar);
   m_pQtProgressbar->SetProgressbar(m_pProgressbar);
 
-  const bool bSafeMode = ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-safe");
-  const bool bNoRecent = bSafeMode || ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-norecent");
+  m_bSafeMode = ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-safe");
+  const bool bNoRecent = m_bSafeMode || ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-norecent");
 
   ezString sApplicationName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-appname", 0, "ezEditor");
   ezApplicationServices::GetSingleton()->SetApplicationName(sApplicationName);
