@@ -15,11 +15,3 @@ public:
 
   ezDataBuffer m_Data;
 };
-
-class EZ_SHAREDPLUGINASSETS_DLL ezEditorEngineRestoreResourceMsg : public ezEditorEngineDocumentMsg
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineRestoreResourceMsg, ezEditorEngineDocumentMsg);
-
-public:
-
-};

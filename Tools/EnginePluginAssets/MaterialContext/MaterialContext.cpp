@@ -22,6 +22,7 @@
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <SharedPluginAssets/MaterialAsset/MaterialMessages.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
+#include <SharedPluginAssets/Common/Messages.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialContext, 1, ezRTTIDefaultAllocator<ezMaterialContext>)
 {

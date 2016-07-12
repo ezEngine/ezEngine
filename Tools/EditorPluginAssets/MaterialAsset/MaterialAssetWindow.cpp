@@ -13,6 +13,7 @@
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <SharedPluginAssets/Common/Messages.h>
 
 ezMaterialAssetDocumentWindow::ezMaterialAssetDocumentWindow(ezMaterialAssetDocument* pDocument) : ezQtEngineDocumentWindow(pDocument)
 {

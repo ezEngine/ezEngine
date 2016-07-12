@@ -13,6 +13,10 @@ ezRandom::ezRandom()
 
 void ezRandom::Initialize(ezUInt64 uiSeed)
 {
+  // make sure the seed is never zero
+  // otherwise the state will become zero and the RNG will produce only zeros
+  uiSeed |= 0x0102030405060708;
+
   m_uiIndex = 0;
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_uiState); i += 2)
