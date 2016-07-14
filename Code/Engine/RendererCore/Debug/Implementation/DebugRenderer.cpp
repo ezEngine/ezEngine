@@ -143,7 +143,7 @@ namespace
       desc.m_bAllowShaderResourceView = true;
       desc.m_ResourceAccess.m_bImmutable = false;
 
-      s_hDataBuffer[bufferType] = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc, nullptr);
+      s_hDataBuffer[bufferType] = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
     }
   }
 
@@ -157,7 +157,7 @@ namespace
       desc.m_BufferType = ezGALBufferType::VertexBuffer;
       desc.m_ResourceAccess.m_bImmutable = false;
 
-      s_hDataBuffer[bufferType] = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc, nullptr);
+      s_hDataBuffer[bufferType] = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
     }
   }
 

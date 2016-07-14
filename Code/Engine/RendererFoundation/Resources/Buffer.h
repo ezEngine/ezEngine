@@ -18,7 +18,7 @@ protected:
 
   virtual ~ezGALBuffer();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice, const void* pInitialData) = 0;
+  virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ezUInt8> pInitialData) = 0;
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
 };

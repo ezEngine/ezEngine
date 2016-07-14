@@ -158,21 +158,24 @@ retry:
 
 ezResult ezGALDeviceDX11::ShutdownPlatform()
 {
-  for (auto it = m_FreeTempBuffers.GetIterator(); it.IsValid(); ++it)
+  for (ezUInt32 type = 0; type < TempResourceType::ENUM_COUNT; ++type)
   {
-    ezDynamicArray<ID3D11Buffer*>& buffers = it.Value();
-    for (auto pBuffer : buffers)
+    for (auto it = m_FreeTempResources[type].GetIterator(); it.IsValid(); ++it)
     {
-      EZ_GAL_DX11_RELEASE(pBuffer);
+      ezDynamicArray<ID3D11Resource*>& resources = it.Value();
+      for (auto pResource : resources)
+      {
+        EZ_GAL_DX11_RELEASE(pResource);
+      }
     }
-  }
-  m_FreeTempBuffers.Clear();
+    m_FreeTempResources[type].Clear();
 
-  for (ezUInt32 i = 0; i < m_UsedTempBuffers.GetCount(); ++i)
-  {
-    EZ_GAL_DX11_RELEASE(m_UsedTempBuffers[i].m_pBuffer);
+    for (auto& tempResource : m_UsedTempResources[type])
+    {
+      EZ_GAL_DX11_RELEASE(tempResource.m_pResource);
+    }
+    m_UsedTempResources[type].Clear();
   }
-  m_UsedTempBuffers.Clear();
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_EndFrameFences); ++i)
   {
@@ -306,7 +309,7 @@ void ezGALDeviceDX11::DestroyShaderPlatform(ezGALShader* pShader)
   EZ_DELETE(&m_Allocator, pDX11Shader);
 }
 
-ezGALBuffer* ezGALDeviceDX11::CreateBufferPlatform(const ezGALBufferCreationDescription& Description, const void* pInitialData)
+ezGALBuffer* ezGALDeviceDX11::CreateBufferPlatform(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData)
 {
   ezGALBufferDX11* pBuffer = EZ_NEW(&m_Allocator, ezGALBufferDX11, Description);
 
@@ -326,7 +329,7 @@ void ezGALDeviceDX11::DestroyBufferPlatform(ezGALBuffer* pBuffer)
   EZ_DELETE(&m_Allocator, pDX11Buffer);
 }
 
-ezGALTexture* ezGALDeviceDX11::CreateTexturePlatform(const ezGALTextureCreationDescription& Description, const ezArrayPtr<ezGALSystemMemoryDescription>* pInitialData)
+ezGALTexture* ezGALDeviceDX11::CreateTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
   ezGALTextureDX11* pTexture = EZ_NEW(&m_Allocator, ezGALTextureDX11, Description);
 
@@ -614,7 +617,7 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
 }
 
 
-ID3D11Buffer* ezGALDeviceDX11::FindTempBuffer(ezUInt32 uiSize)
+ID3D11Resource* ezGALDeviceDX11::FindTempBuffer(ezUInt32 uiSize)
 {
   const ezUInt32 uiExpGrowthLimit = 16 * 1024 * 1024;
 
@@ -628,19 +631,19 @@ ID3D11Buffer* ezGALDeviceDX11::FindTempBuffer(ezUInt32 uiSize)
     uiSize = ezMemoryUtils::AlignSize(uiSize, uiExpGrowthLimit);
   }
 
-  ID3D11Buffer* pBuffer = nullptr;
-  auto it = m_FreeTempBuffers.Find(uiSize);
+  ID3D11Resource* pResource = nullptr;
+  auto it = m_FreeTempResources[TempResourceType::Buffer].Find(uiSize);
   if (it.IsValid())
   {
-    ezDynamicArray<ID3D11Buffer*>& buffers = it.Value();
-    if (!buffers.IsEmpty())
+    ezDynamicArray<ID3D11Resource*>& resources = it.Value();
+    if (!resources.IsEmpty())
     {
-      pBuffer = buffers[0];
-      buffers.RemoveAtSwap(0);
+      pResource = resources[0];
+      resources.RemoveAtSwap(0);
     }
   }
 
-  if (pBuffer == nullptr)
+  if (pResource == nullptr)
   {
     D3D11_BUFFER_DESC desc;
     desc.ByteWidth = uiSize;
@@ -650,41 +653,103 @@ ID3D11Buffer* ezGALDeviceDX11::FindTempBuffer(ezUInt32 uiSize)
     desc.MiscFlags = 0;
     desc.StructureByteStride = 0;
 
+    ID3D11Buffer* pBuffer = nullptr;
     if (!SUCCEEDED(m_pDevice->CreateBuffer(&desc, nullptr, &pBuffer)))
     {
       return nullptr;
     }
+
+    pResource = pBuffer;
   }
 
-  auto& tempBuffer = m_UsedTempBuffers.ExpandAndGetRef();
-  tempBuffer.m_pBuffer = pBuffer;
-  tempBuffer.m_uiFrame = m_uiFrameCounter;
+  auto& tempResource = m_UsedTempResources[TempResourceType::Buffer].ExpandAndGetRef();
+  tempResource.m_pResource = pResource;
+  tempResource.m_uiFrame = m_uiFrameCounter;
+  tempResource.m_uiHash = uiSize;
   
-  return pBuffer;
+  return pResource;
+}
+
+
+ID3D11Resource* ezGALDeviceDX11::FindTempTexture(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format)
+{
+  ezUInt32 data[] = { uiWidth, uiHeight, uiDepth, (ezUInt32)format };
+  ezUInt32 uiHash = ezHashing::MurmurHash(data, sizeof(data));
+
+  ID3D11Resource* pResource = nullptr;
+  auto it = m_FreeTempResources[TempResourceType::Texture].Find(uiHash);
+  if (it.IsValid())
+  {
+    ezDynamicArray<ID3D11Resource*>& resources = it.Value();
+    if (!resources.IsEmpty())
+    {
+      pResource = resources[0];
+      resources.RemoveAtSwap(0);
+    }
+  }
+
+  if (pResource == nullptr)
+  {
+    if (uiDepth == 1)
+    {
+      D3D11_TEXTURE2D_DESC desc;
+      desc.Width = uiWidth;
+      desc.Height = uiHeight;
+      desc.MipLevels = 1;
+      desc.ArraySize = 1;
+      desc.Format = GetFormatLookupTable().GetFormatInfo(format).m_eStorage;
+      desc.SampleDesc.Count = 1;
+      desc.SampleDesc.Quality = 0;
+      desc.Usage = D3D11_USAGE_STAGING;
+      desc.BindFlags = 0;
+      desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+      desc.MiscFlags = 0;
+      
+      ID3D11Texture2D* pTexture = nullptr;
+      if (!SUCCEEDED(m_pDevice->CreateTexture2D(&desc, nullptr, &pTexture)))
+      {
+        return nullptr;
+      }
+
+      pResource = pTexture;
+    }
+    else
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      return nullptr;
+    }
+  }
+
+  auto& tempResource = m_UsedTempResources[TempResourceType::Texture].ExpandAndGetRef();
+  tempResource.m_pResource = pResource;
+  tempResource.m_uiFrame = m_uiFrameCounter;
+  tempResource.m_uiHash = uiHash;
+
+  return pResource;
 }
 
 void ezGALDeviceDX11::FreeTempResources(ezUInt64 uiFrame)
 {
-  while (!m_UsedTempBuffers.IsEmpty())
+  for (ezUInt32 type = 0; type < TempResourceType::ENUM_COUNT; ++type)
   {
-    auto& usedStagingResource = m_UsedTempBuffers.PeekFront();
-    if (usedStagingResource.m_uiFrame == uiFrame)
+    while (!m_UsedTempResources[type].IsEmpty())
     {
-      D3D11_BUFFER_DESC desc;
-      usedStagingResource.m_pBuffer->GetDesc(&desc);
-
-      auto it = m_FreeTempBuffers.Find(desc.ByteWidth);
-      if (!it.IsValid())
+      auto& usedTempResource = m_UsedTempResources[type].PeekFront();
+      if (usedTempResource.m_uiFrame == uiFrame)
       {
-        it = m_FreeTempBuffers.Insert(desc.ByteWidth, ezDynamicArray<ID3D11Buffer*>(&m_Allocator));
-      }
+        auto it = m_FreeTempResources[type].Find(usedTempResource.m_uiHash);
+        if (!it.IsValid())
+        {
+          it = m_FreeTempResources[type].Insert(usedTempResource.m_uiHash, ezDynamicArray<ID3D11Resource*>(&m_Allocator));
+        }
 
-      it.Value().PushBack(usedStagingResource.m_pBuffer);
-      m_UsedTempBuffers.PopFront();
-    }
-    else
-    {
-      break;
+        it.Value().PushBack(usedTempResource.m_pResource);
+        m_UsedTempResources[type].PopFront();
+      }
+      else
+      {
+        break;
+      }
     }
   }
 }

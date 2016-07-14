@@ -392,14 +392,16 @@ ezResourceLoadDesc ezMeshBufferResource::CreateResource(const ezMeshBufferResour
   m_VertexDeclaration = descriptor.GetVertexDeclaration();
   m_VertexDeclaration.ComputeHash();
 
-  m_hVertexBuffer = ezGALDevice::GetDefaultDevice()->CreateVertexBuffer(descriptor.GetVertexDataSize(), descriptor.GetVertexCount(), descriptor.GetVertexBufferData().GetData());
+  m_uiPrimitiveCount = descriptor.GetPrimitiveCount();
+  m_Topology = descriptor.GetTopology();
+
+  m_hVertexBuffer = ezGALDevice::GetDefaultDevice()->CreateVertexBuffer(descriptor.GetVertexDataSize(), descriptor.GetVertexCount(), descriptor.GetVertexBufferData());
 
   if (descriptor.HasIndexBuffer())
   {
-    m_hIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort, descriptor.GetPrimitiveCount() * ezGALPrimitiveTopology::VerticesPerPrimitive(descriptor.GetTopology()), &(descriptor.GetIndexBufferData()[0]));
-  }
-  m_uiPrimitiveCount = descriptor.GetPrimitiveCount();
-  m_Topology = descriptor.GetTopology();
+    m_hIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort, 
+      m_uiPrimitiveCount * ezGALPrimitiveTopology::VerticesPerPrimitive(m_Topology), descriptor.GetIndexBufferData());
+  }  
 
   // we only know the memory usage here, so we write it back to the internal variable directly and then read it in UpdateMemoryUsage() again
   ModifyMemoryUsage().m_uiMemoryGPU = descriptor.GetVertexBufferData().GetCount() + descriptor.GetIndexBufferData().GetCount();

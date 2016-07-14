@@ -67,7 +67,7 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
       TexDesc.m_ResourceAccess.m_bReadBack = true;
 
     // And create the ez texture object wrapping the backbuffer texture
-    m_hBackBufferTexture = pDXDevice->CreateTexture(TexDesc, nullptr);
+    m_hBackBufferTexture = pDXDevice->CreateTexture(TexDesc);
     EZ_ASSERT_RELEASE(!m_hBackBufferTexture.IsInvalidated(), "Couldn't create backbuffer texture object!");
 
     // Optionally create depth buffer texture.
@@ -80,7 +80,7 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
       DepthStencilTexDesc.m_SampleCount = m_Description.m_SampleCount;
       DepthStencilTexDesc.m_bAllowShaderResourceView = true;
       DepthStencilTexDesc.m_bCreateRenderTarget = true;
-      m_hDepthStencilBufferTexture = pDXDevice->CreateTexture(DepthStencilTexDesc, nullptr);
+      m_hDepthStencilBufferTexture = pDXDevice->CreateTexture(DepthStencilTexDesc);
       EZ_ASSERT_RELEASE(!m_hDepthStencilBufferTexture.IsInvalidated(), "Couldn't create depth-stencil texture object!");
     }
 

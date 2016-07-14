@@ -453,7 +453,7 @@ void ezGALContextDX11::UpdateBufferPlatform(ezGALBuffer* pDestination, ezUInt32 
   }
   else
   {
-    if (ID3D11Buffer* pDXTempBuffer = static_cast<ezGALDeviceDX11*>(GetDevice())->FindTempBuffer(pSourceData.GetCount()))
+    if (ID3D11Resource* pDXTempBuffer = static_cast<ezGALDeviceDX11*>(GetDevice())->FindTempBuffer(pSourceData.GetCount()))
     {
       D3D11_MAPPED_SUBRESOURCE MapResult;
       HRESULT hRes = m_pDXContext->Map(pDXTempBuffer, 0, D3D11_MAP_WRITE, D3D11_MAP_FLAG_DO_NOT_WAIT, &MapResult);
@@ -465,6 +465,10 @@ void ezGALContextDX11::UpdateBufferPlatform(ezGALBuffer* pDestination, ezUInt32 
 
       D3D11_BOX srcBox = { 0, 0, 0, pSourceData.GetCount(), 1, 1 };
       m_pDXContext->CopySubresourceRegion(pDXDestination, 0, uiDestOffset, 0, 0, pDXTempBuffer, 0, &srcBox);
+    }
+    else
+    {
+      EZ_REPORT_FAILURE("Could not find a temp buffer for update.");
     }
   }
 }
@@ -479,17 +483,62 @@ void ezGALContextDX11::CopyTexturePlatform(ezGALTexture* pDestination, ezGALText
 
 void ezGALContextDX11::CopyTextureRegionPlatform(ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezVec3U32& DestinationPoint, ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  ID3D11Resource* pDXDestination = static_cast<ezGALTextureDX11*>(pDestination)->GetDXTexture();
+  ID3D11Resource* pDXSource = static_cast<ezGALTextureDX11*>(pSource)->GetDXTexture();
+
+  ezUInt32 dstSubResource = D3D11CalcSubresource(DestinationSubResource.m_uiMipLevel, DestinationSubResource.m_uiArraySlice, pDestination->GetDescription().m_uiMipLevelCount);
+  ezUInt32 srcSubResource = D3D11CalcSubresource(SourceSubResource.m_uiMipLevel, SourceSubResource.m_uiArraySlice, pSource->GetDescription().m_uiMipLevelCount);
+
+  D3D11_BOX srcBox = { Box.m_vMin.x, Box.m_vMin.y, Box.m_vMin.z, Box.m_vMax.x, Box.m_vMax.y, Box.m_vMax.z };
+  m_pDXContext->CopySubresourceRegion(pDXDestination, dstSubResource, DestinationPoint.x, DestinationPoint.y, DestinationPoint.z, pDXSource, srcSubResource, &srcBox);
 }
 
-void ezGALContextDX11::UpdateTexturePlatform(ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezBoundingBoxu32& DestinationBox, const void* pSourceData, ezUInt32 uiSourceRowPitch, ezUInt32 uiSourceDepthPitch)
+void ezGALContextDX11::UpdateTexturePlatform(ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  ID3D11Resource* pDXDestination = static_cast<ezGALTextureDX11*>(pDestination)->GetDXTexture();
+
+  ezUInt32 uiWidth = ezMath::Max(DestinationBox.m_vMax.x - DestinationBox.m_vMin.x, 1u);
+  ezUInt32 uiHeight = ezMath::Max(DestinationBox.m_vMax.y - DestinationBox.m_vMin.y, 1u);
+  ezUInt32 uiDepth = ezMath::Max(DestinationBox.m_vMax.z - DestinationBox.m_vMin.z, 1u);
+  ezGALResourceFormat::Enum format = pDestination->GetDescription().m_Format;
+
+ if (ID3D11Resource* pDXTempTexture = static_cast<ezGALDeviceDX11*>(GetDevice())->FindTempTexture(uiWidth, uiHeight, uiDepth, format))
+ {
+    D3D11_MAPPED_SUBRESOURCE MapResult;
+    HRESULT hRes = m_pDXContext->Map(pDXTempTexture, 0, D3D11_MAP_WRITE, D3D11_MAP_FLAG_DO_NOT_WAIT, &MapResult);
+    EZ_ASSERT_DEV(SUCCEEDED(hRes), "Implementation error");
+
+    ezUInt32 uiRowPitch = uiWidth * ezGALResourceFormat::GetBitsPerElement(format) / 8;
+    ezUInt32 uiSlicePitch = uiRowPitch * uiHeight;
+    EZ_ASSERT_DEV(pSourceData.m_uiRowPitch == uiRowPitch, "Invalid row pitch. Expected %d got %d", uiRowPitch, pSourceData.m_uiRowPitch);
+    EZ_ASSERT_DEV(pSourceData.m_uiSlicePitch == 0 || pSourceData.m_uiSlicePitch == uiSlicePitch, "Invalid slice pitch. Expected %d got %d", uiSlicePitch, pSourceData.m_uiSlicePitch);
+
+    memcpy(MapResult.pData, pSourceData.m_pData, uiSlicePitch * uiDepth);
+
+    m_pDXContext->Unmap(pDXTempTexture, 0);
+
+    ezUInt32 dstSubResource = D3D11CalcSubresource(DestinationSubResource.m_uiMipLevel, DestinationSubResource.m_uiArraySlice, pDestination->GetDescription().m_uiMipLevelCount);
+
+    D3D11_BOX srcBox = { 0, 0, 0, uiWidth, uiHeight, uiDepth };
+    m_pDXContext->CopySubresourceRegion(pDXDestination, dstSubResource, DestinationBox.m_vMin.x, DestinationBox.m_vMin.y, DestinationBox.m_vMin.z, pDXTempTexture, 0, &srcBox);
+  }
+ else
+ {
+   EZ_REPORT_FAILURE("Could not find a temp texture for update.");
+ }
 }
 
 void ezGALContextDX11::ResolveTexturePlatform(ezGALTexture* pDestination, const ezGALTextureSubresource& DestinationSubResource, ezGALTexture* pSource, const ezGALTextureSubresource& SourceSubResource)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  ID3D11Resource* pDXDestination = static_cast<ezGALTextureDX11*>(pDestination)->GetDXTexture();
+  ID3D11Resource* pDXSource = static_cast<ezGALTextureDX11*>(pSource)->GetDXTexture();
+
+  ezUInt32 dstSubResource = D3D11CalcSubresource(DestinationSubResource.m_uiMipLevel, DestinationSubResource.m_uiArraySlice, pDestination->GetDescription().m_uiMipLevelCount);
+  ezUInt32 srcSubResource = D3D11CalcSubresource(SourceSubResource.m_uiMipLevel, SourceSubResource.m_uiArraySlice, pSource->GetDescription().m_uiMipLevelCount);
+
+  DXGI_FORMAT DXFormat = static_cast<ezGALDeviceDX11*>(GetDevice())->GetFormatLookupTable().GetFormatInfo(pDestination->GetDescription().m_Format).m_eResourceViewType;
+
+  m_pDXContext->ResolveSubresource(pDXDestination, dstSubResource, pDXSource, srcSubResource, DXFormat);
 }
 
 void ezGALContextDX11::ReadbackTexturePlatform(ezGALTexture* pTexture)

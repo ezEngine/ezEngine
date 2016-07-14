@@ -582,22 +582,50 @@ void ezGALContext::CopyTextureRegion(ezGALTextureHandle hDest, const ezGALTextur
 {
   AssertRenderingThread();
 
-  /// \todo
-  EZ_REPORT_FAILURE("Not implemented!");
+  ezGALTexture* pDest = nullptr;
+  ezGALTexture* pSource = nullptr;
+
+  if (m_pDevice->m_Textures.TryGetValue(hDest, pDest) && m_pDevice->m_Textures.TryGetValue(hSource, pSource))
+  {
+    CopyTextureRegionPlatform(pDest, DestinationSubResource, DestinationPoint, pSource, SourceSubResource, Box);
+  }
+  else
+  {
+    EZ_REPORT_FAILURE("CopyTextureRegion failed, texture handle invalid - destination = %p, source = %p", pDest, pSource);
+  }
 }
 
-void ezGALContext::UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource, const ezBoundingBoxu32& DestinationBox, const void* pSourceData, ezUInt32 uiSourceRowPitch, ezUInt32 uiSourceDepthPitch)
+void ezGALContext::UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource, const ezBoundingBoxu32& DestinationBox, const ezGALSystemMemoryDescription& pSourceData)
 {
   AssertRenderingThread();
 
-  EZ_REPORT_FAILURE("Not implemented!");
+  ezGALTexture* pDest = nullptr;
+  
+  if (m_pDevice->m_Textures.TryGetValue(hDest, pDest))
+  {
+    UpdateTexturePlatform(pDest, DestinationSubResource, DestinationBox, pSourceData);
+  }
+  else
+  {
+    EZ_REPORT_FAILURE("UpdateTexture failed, texture handle invalid - destination = %p", pDest);
+  }
 }
 
 void ezGALContext::ResolveTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource, ezGALTextureHandle hSource, const ezGALTextureSubresource& SourceSubResource)
 {
   AssertRenderingThread();
 
-  EZ_REPORT_FAILURE("Not implemented!");
+  ezGALTexture* pDest = nullptr;
+  ezGALTexture* pSource = nullptr;
+
+  if (m_pDevice->m_Textures.TryGetValue(hDest, pDest) && m_pDevice->m_Textures.TryGetValue(hSource, pSource))
+  {
+    ResolveTexturePlatform(pDest, DestinationSubResource, pSource, SourceSubResource);
+  }
+  else
+  {
+    EZ_REPORT_FAILURE("ResolveTexture failed, texture handle invalid - destination = %p, source = %p", pDest, pSource);
+  }
 }
 
 void ezGALContext::ReadbackTexture(ezGALTextureHandle hTexture)

@@ -18,7 +18,7 @@ ezGALTextureDX11::~ezGALTextureDX11()
 
 EZ_DEFINE_AS_POD_TYPE(D3D11_SUBRESOURCE_DATA);
 
-ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<ezGALSystemMemoryDescription>* pInitialData)
+ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
 
@@ -81,22 +81,22 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<e
         Tex2DDesc.SampleDesc.Quality = 0;
 
         ezHybridArray<D3D11_SUBRESOURCE_DATA, 16> InitialData;
-        if(pInitialData != nullptr)
+        if (!pInitialData.IsEmpty())
         {
           const ezUInt32 uiInitialDataCount = (m_Description.m_uiMipLevelCount * (m_Description.m_Type  == ezGALTextureType::Texture2D ? 1 : 6));
-          EZ_ASSERT_DEV(pInitialData->GetCount() == uiInitialDataCount, "The array of initial data values is not equal to the amount of mip levels!");
+          EZ_ASSERT_DEV(pInitialData.GetCount() == uiInitialDataCount, "The array of initial data values is not equal to the amount of mip levels!");
 
           InitialData.SetCountUninitialized(uiInitialDataCount);
 
           for(ezUInt32 i = 0; i < uiInitialDataCount; i++)
           {
-            InitialData[i].pSysMem = pInitialData->GetPtr()[i].m_pData;
-            InitialData[i].SysMemPitch = pInitialData->GetPtr()[i].m_uiRowPitch;
-            InitialData[i].SysMemSlicePitch = pInitialData->GetPtr()[i].m_uiSlicePitch;
+            InitialData[i].pSysMem = pInitialData[i].m_pData;
+            InitialData[i].SysMemPitch = pInitialData[i].m_uiRowPitch;
+            InitialData[i].SysMemSlicePitch = pInitialData[i].m_uiSlicePitch;
           }
         }
 
-        if(FAILED(pDXDevice->GetDXDevice()->CreateTexture2D(&Tex2DDesc, pInitialData != nullptr ? &InitialData[0] : nullptr, reinterpret_cast<ID3D11Texture2D**>(&m_pDXTexture))))
+        if(FAILED(pDXDevice->GetDXDevice()->CreateTexture2D(&Tex2DDesc, pInitialData.IsEmpty() ? nullptr : &InitialData[0], reinterpret_cast<ID3D11Texture2D**>(&m_pDXTexture))))
         {
           return EZ_FAILURE;
         }

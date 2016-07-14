@@ -22,7 +22,7 @@ protected:
 
   ~ezGALTextureDX11();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<ezGALSystemMemoryDescription>* pInitialData) override;
+  virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 

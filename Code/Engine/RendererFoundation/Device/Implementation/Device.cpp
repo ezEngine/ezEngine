@@ -363,7 +363,7 @@ void ezGALDevice::DestroyShader(ezGALShaderHandle hShader)
 }
 
 
-ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription& desc, const void* pInitialData)
+ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription& desc, ezArrayPtr<const ezUInt8> pInitialData)
 {
   if (desc.m_uiTotalSize == 0)
   {
@@ -371,11 +371,21 @@ ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription
     return ezGALBufferHandle();
   }
 
-  if (desc.m_ResourceAccess.IsImmutable() && pInitialData == nullptr)
+  if (desc.m_ResourceAccess.IsImmutable())
   {
-    ezLog::Error("Trying to create an immutable buffer but not supplying initial data is not possible!");
-    return ezGALBufferHandle();
-  }
+    if (pInitialData.IsEmpty())
+    {
+      ezLog::Error("Trying to create an immutable buffer but not supplying initial data is not possible!");
+      return ezGALBufferHandle();
+    }
+
+    ezUInt32 uiBufferSize = desc.m_uiTotalSize;
+    if (uiBufferSize != pInitialData.GetCount())
+    {
+      ezLog::Error("Trying to create a buffer with invalid initial data!");
+      return ezGALBufferHandle();
+    }
+  }  
 
   /// \todo Platform independent validation (buffer type supported)
 
@@ -420,24 +430,24 @@ void ezGALDevice::DestroyBuffer(ezGALBufferHandle hBuffer)
 
 
 // Helper functions for buffers (for common, simple use cases)
-ezGALBufferHandle ezGALDevice::CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt32 uiVertexCount, const void* pInitialData /*= nullptr*/)
+ezGALBufferHandle ezGALDevice::CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt32 uiVertexCount, ezArrayPtr<const ezUInt8> pInitialData)
 {
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = uiVertexSize;
   desc.m_uiTotalSize = uiVertexSize * uiVertexCount;
   desc.m_BufferType = ezGALBufferType::VertexBuffer;
-  desc.m_ResourceAccess.m_bImmutable = pInitialData != nullptr;
+  desc.m_ResourceAccess.m_bImmutable = !pInitialData.IsEmpty();
 
   return CreateBuffer(desc, pInitialData);
 }
 
-ezGALBufferHandle ezGALDevice::CreateIndexBuffer(ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, const void* pInitialData /*= nullptr*/)
+ezGALBufferHandle ezGALDevice::CreateIndexBuffer(ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, ezArrayPtr<const ezUInt8> pInitialData)
 {
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = ezGALIndexType::GetSize(IndexType);
   desc.m_uiTotalSize = desc.m_uiStructSize * uiIndexCount;
   desc.m_BufferType = ezGALBufferType::IndexBuffer;
-  desc.m_ResourceAccess.m_bImmutable = pInitialData != nullptr;
+  desc.m_ResourceAccess.m_bImmutable = !pInitialData.IsEmpty();
 
   return CreateBuffer(desc, pInitialData);
 }
@@ -450,16 +460,16 @@ ezGALBufferHandle ezGALDevice::CreateConstantBuffer(ezUInt32 uiBufferSize)
   desc.m_BufferType = ezGALBufferType::ConstantBuffer;
   desc.m_ResourceAccess.m_bImmutable = false;
 
-  return CreateBuffer(desc, nullptr);
+  return CreateBuffer(desc);
 }
 
 
 
-ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescription& desc, const ezArrayPtr<ezGALSystemMemoryDescription>* pInitialData)
+ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescription& desc, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
   /// \todo Platform independent validation (desc width & height < platform maximum, format, etc.)
 
-  if (desc.m_ResourceAccess.IsImmutable() && (pInitialData == nullptr || pInitialData->GetCount() < desc.m_uiMipLevelCount) && !desc.m_bCreateRenderTarget)
+  if (desc.m_ResourceAccess.IsImmutable() && (pInitialData.IsEmpty() || pInitialData.GetCount() < desc.m_uiMipLevelCount) && !desc.m_bCreateRenderTarget)
   {
     ezLog::Error("Trying to create an immutable texture but not supplying initial data (or not enough data pointers) is not possible!");
     return ezGALTextureHandle();

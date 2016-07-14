@@ -349,7 +349,7 @@ ezResourceLoadDesc ezTextureResource::CreateResource(const ezTextureResourceDesc
   ret.m_uiQualityLevelsLoadable = descriptor.m_uiQualityLevelsLoadable;
   ret.m_State = ezResourceState::Loaded;
 
-  m_hGALTexture[m_uiLoadedTextures] = ezGALDevice::GetDefaultDevice()->CreateTexture(descriptor.m_DescGAL, &descriptor.m_InitialContent);
+  m_hGALTexture[m_uiLoadedTextures] = ezGALDevice::GetDefaultDevice()->CreateTexture(descriptor.m_DescGAL, descriptor.m_InitialContent);
 
   EZ_ASSERT_DEV(!m_hGALTexture[m_uiLoadedTextures].IsInvalidated(), "Texture Data could not be uploaded to the GPU");
 

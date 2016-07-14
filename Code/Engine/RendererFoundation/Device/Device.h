@@ -50,20 +50,20 @@ public:
 
   void DestroyShader(ezGALShaderHandle hShader);
 
-  ezGALBufferHandle CreateBuffer(const ezGALBufferCreationDescription& Description, const void* pInitialData);
+  ezGALBufferHandle CreateBuffer(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData = ezArrayPtr<const ezUInt8>());
 
   void DestroyBuffer(ezGALBufferHandle hBuffer);
 
 
   // Helper functions for buffers (for common, simple use cases)
-  ezGALBufferHandle CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt32 uiVertexCount, const void* pInitialData = nullptr);
+  ezGALBufferHandle CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt32 uiVertexCount, ezArrayPtr<const ezUInt8> pInitialData = ezArrayPtr<const ezUInt8>());
 
-  ezGALBufferHandle CreateIndexBuffer(ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, const void* pInitialData = nullptr);
+  ezGALBufferHandle CreateIndexBuffer(ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, ezArrayPtr<const ezUInt8> pInitialData = ezArrayPtr<const ezUInt8>());
 
   ezGALBufferHandle CreateConstantBuffer(ezUInt32 uiBufferSize);
 
 
-  ezGALTextureHandle CreateTexture(const ezGALTextureCreationDescription& Description, const ezArrayPtr<ezGALSystemMemoryDescription>* pInitialData = nullptr);
+  ezGALTextureHandle CreateTexture(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData = ezArrayPtr<ezGALSystemMemoryDescription>());
 
   void DestroyTexture(ezGALTextureHandle hTexture);
 
@@ -290,11 +290,11 @@ protected:
 
   virtual void DestroyShaderPlatform(ezGALShader* pShader) = 0;
 
-  virtual ezGALBuffer* CreateBufferPlatform(const ezGALBufferCreationDescription& Description, const void* pInitialData) = 0;
+  virtual ezGALBuffer* CreateBufferPlatform(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData) = 0;
 
   virtual void DestroyBufferPlatform(ezGALBuffer* pBuffer) = 0;
 
-  virtual ezGALTexture* CreateTexturePlatform(const ezGALTextureCreationDescription& Description, const ezArrayPtr<ezGALSystemMemoryDescription>* pInitialData) = 0;
+  virtual ezGALTexture* CreateTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) = 0;
 
   virtual void DestroyTexturePlatform(ezGALTexture* pTexture) = 0;
 

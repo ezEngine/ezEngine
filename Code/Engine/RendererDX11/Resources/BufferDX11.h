@@ -23,7 +23,7 @@ protected:
 
   virtual ~ezGALBufferDX11();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice, const void* pInitialData) override;
+  virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ezUInt8> pInitialData) override;
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 

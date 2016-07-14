@@ -16,7 +16,7 @@ protected:
 
   virtual ~ezGALTexture();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<ezGALSystemMemoryDescription>* pInitialData) = 0;
+  virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) = 0;
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
 };

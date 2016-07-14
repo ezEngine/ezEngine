@@ -11,7 +11,7 @@ struct ID3D11Debug;
 struct IDXGIFactory1;
 struct IDXGIAdapter1;
 struct IDXGIDevice1;
-struct ID3D11Buffer;
+struct ID3D11Resource;
 enum DXGI_FORMAT;
 enum D3D_FEATURE_LEVEL;
 
@@ -74,11 +74,11 @@ protected:
 
   virtual void DestroyShaderPlatform(ezGALShader* pShader) override;
 
-  virtual ezGALBuffer* CreateBufferPlatform(const ezGALBufferCreationDescription& Description, const void* pInitialData) override;
+  virtual ezGALBuffer* CreateBufferPlatform(const ezGALBufferCreationDescription& Description, ezArrayPtr<const ezUInt8> pInitialData) override;
 
   virtual void DestroyBufferPlatform(ezGALBuffer* pBuffer) override;
 
-  virtual ezGALTexture* CreateTexturePlatform(const ezGALTextureCreationDescription& Description, const ezArrayPtr<ezGALSystemMemoryDescription>* pInitialData) override;
+  virtual ezGALTexture* CreateTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
 
   virtual void DestroyTexturePlatform(ezGALTexture* pTexture) override;
 
@@ -137,7 +137,19 @@ private:
 
   friend class ezGALContextDX11;
 
-  ID3D11Buffer* FindTempBuffer(ezUInt32 uiSize);
+  struct TempResourceType
+  {
+    enum Enum
+    {
+      Buffer,
+      Texture,
+
+      ENUM_COUNT
+    };
+  };
+
+  ID3D11Resource* FindTempBuffer(ezUInt32 uiSize);
+  ID3D11Resource* FindTempTexture(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, ezGALResourceFormat::Enum format);
   void FreeTempResources(ezUInt64 uiFrame);
 
   void FillFormatLookupTable();  
@@ -168,16 +180,17 @@ private:
 
   ezUInt64 m_uiFrameCounter;
 
-  struct UsedTempBuffer
+  struct UsedTempResource
   {
     EZ_DECLARE_POD_TYPE();
 
-    ID3D11Buffer* m_pBuffer;
+    ID3D11Resource* m_pResource;
     ezUInt64 m_uiFrame;
+    ezUInt32 m_uiHash;
   };
 
-  ezMap<ezUInt32, ezDynamicArray<ID3D11Buffer*>, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_FreeTempBuffers;
-  ezDeque<UsedTempBuffer, ezLocalAllocatorWrapper> m_UsedTempBuffers;
+  ezMap<ezUInt32, ezDynamicArray<ID3D11Resource*>, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_FreeTempResources[TempResourceType::ENUM_COUNT];
+  ezDeque<UsedTempResource, ezLocalAllocatorWrapper> m_UsedTempResources[TempResourceType::ENUM_COUNT];
 };
 
 #include <RendererDX11/Device/Implementation/DeviceDX11_inl.h>

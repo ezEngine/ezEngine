@@ -18,7 +18,7 @@ ezGALBufferDX11::~ezGALBufferDX11()
 }
 
 
-ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, const void* pInitialData)
+ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ezUInt8> pInitialData)
 {
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
 
@@ -84,10 +84,10 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, const void* pInitia
   }
 
   D3D11_SUBRESOURCE_DATA DXInitialData;
-  DXInitialData.pSysMem = pInitialData;
+  DXInitialData.pSysMem = pInitialData.GetPtr();
   DXInitialData.SysMemPitch = DXInitialData.SysMemSlicePitch = 0;
 
-  if(SUCCEEDED(pDXDevice->GetDXDevice()->CreateBuffer(&BufferDesc, pInitialData != nullptr ? &DXInitialData : nullptr, &m_pDXBuffer)))
+  if(SUCCEEDED(pDXDevice->GetDXDevice()->CreateBuffer(&BufferDesc, pInitialData.IsEmpty() ? nullptr : &DXInitialData, &m_pDXBuffer)))
   {
     return EZ_SUCCESS;
   }
