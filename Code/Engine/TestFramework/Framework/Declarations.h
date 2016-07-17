@@ -35,7 +35,7 @@ struct TestSettings
     m_bAssertOnTestFail = false;
     m_bOpenHtmlOutput = false;
     m_bKeepConsoleOpen = false;
-    m_bShowMessageBox = true;
+    m_bShowMessageBox = false;
     m_bRunTests = false;
     m_bNoSaving = false;
     m_bCloseOnSuccess = false;

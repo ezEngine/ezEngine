@@ -162,10 +162,39 @@ bool ezPathUtils::IsRelativePath(const char* szPath)
   if (ezPathUtils::IsPathSeparator(szPath[0]))
     return false;
 
-  return !IsAbsolutePath(szPath);
+  return !IsAbsolutePath(szPath) && !IsRootedPath(szPath);
+}
+
+bool ezPathUtils::IsRootedPath(const char* szPath)
+{
+  return szPath != nullptr && szPath[0] == ':';
 }
 
 
+ezStringView ezPathUtils::GetRootedPathRootName(const char* szPath)
+{
+  if (!IsRootedPath(szPath))
+    return ezStringView();
+
+  const char* szStart = szPath;
+
+  do 
+  {
+    ezUnicodeUtils::MoveToNextUtf8(szStart);
+
+    if (*szStart == '\0')
+      return ezStringView();
+  }
+  while (IsPathSeparator(*szStart));
+
+  const char* szEnd = szStart;
+  ezUnicodeUtils::MoveToNextUtf8(szEnd);
+
+  while (*szEnd != '\0' && !IsPathSeparator(*szEnd))
+    ezUnicodeUtils::MoveToNextUtf8(szEnd);
+
+  return ezStringView(szStart, szEnd);
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_PathUtils);
 

@@ -53,6 +53,18 @@ public:
 
   /// \brief Returns true, if the given path represents a relative path on the current OS.
   static bool IsRelativePath(const char* szPath); // [tested]
+
+  /// \brief A rooted path starts with a colon and then names a file-system data directory. Rooted paths are used as 'absolute' paths within the ezFileSystem.
+  static bool IsRootedPath(const char* szPath); // [tested]
+
+  /// \brief Extracts the root name from a rooted path
+  ///
+  /// ":MyRoot" -> "MyRoot"
+  /// ":MyRoot\folder" -> "MyRoot"
+  /// ":\MyRoot\folder" -> "MyRoot"
+  /// ":/MyRoot\folder" -> "MyRoot"
+  /// Returns an empty string, if the path is not rooted.
+  static ezStringView GetRootedPathRootName(const char* szPath);
 };
 
 #include <Foundation/Strings/Implementation/PathUtils_inl.h>

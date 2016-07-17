@@ -68,10 +68,10 @@ public:
   typedef ezDataDirectoryType* (*ezDataDirFactory)(const char* szDataDirectory);
 
   /// \brief This function allows to register another data directory factory, which might be invoked when a new data directory is to be added.
-  static void RegisterDataDirectoryFactory(ezDataDirFactory Factory) { s_Data->m_DataDirFactories.PushBack(Factory); }
+  static void RegisterDataDirectoryFactory(ezDataDirFactory Factory) { s_Data->m_DataDirFactories.PushBack(Factory); } // [tested]
 
   /// \brief Will remove all known data directory factories.
-  static void ClearAllDataDirectoryFactories() { s_Data->m_DataDirFactories.Clear(); }
+  static void ClearAllDataDirectoryFactories() { s_Data->m_DataDirFactories.Clear(); } // [tested]
 
   /// \brief Describes in which mode a data directory is mounted.
   enum DataDirUsage
@@ -92,19 +92,19 @@ public:
   /// It has to be unique to clearly identify a file within that data directory. It must be used when writing to a file in this directory.
   /// For instance, if a data dir root name is "mydata", then the path ":mydata/SomeFile.txt" can be used to write to the top level
   /// folder of this data directory. The same can be used for reading exactly that file and ignoring the other data dirs.
-  static ezResult AddDataDirectory(const char* szDataDirectory, const char* szGroup = "", const char* szRootName = "", DataDirUsage Usage = ReadOnly);
+  static ezResult AddDataDirectory(const char* szDataDirectory, const char* szGroup = "", const char* szRootName = "", DataDirUsage Usage = ReadOnly); // [tested]
 
   /// \brief Removes all data directories that belong to the given group. Returns the number of data directories that were removed.
-  static ezUInt32 RemoveDataDirectoryGroup(const char* szGroup);
+  static ezUInt32 RemoveDataDirectoryGroup(const char* szGroup); // [tested]
 
   /// \brief Removes all data directories.
-  static void ClearAllDataDirectories();
+  static void ClearAllDataDirectories(); // [tested]
 
   /// \brief Returns the number of currently active data directories.
-  static ezUInt32 GetNumDataDirectories();
+  static ezUInt32 GetNumDataDirectories(); // [tested]
 
   /// \brief Returns the n-th currently active data directory.
-  static ezDataDirectoryType* GetDataDirectory(ezUInt32 uiDataDirIndex);
+  static ezDataDirectoryType* GetDataDirectory(ezUInt32 uiDataDirIndex); // [tested]
 
   /// \brief Calls ezDataDirectoryType::ReloadExternalConfigs() on all active data directories.
   static void ReloadAllExternalDataDirectoryConfigs();
@@ -115,12 +115,12 @@ public:
   ///
   /// The path must be absolute or rooted, to uniquely identify which file to delete.
   /// For example ":appdata/SomeData.txt", assuming a writable data directory has been mounted with the "appdata" root name.
-  static void DeleteFile(const char* szFile);
+  static void DeleteFile(const char* szFile); // [tested]
 
   /// \brief Checks whether the given file exists in any data directory.
   ///
   /// The search can be restricted to directories of certain categories (see AddDataDirectory).
-  static bool ExistsFile(const char* szFile);
+  static bool ExistsFile(const char* szFile); // [tested]
 
   /// \brief Tries to resolve the given path and returns the absolute and relative path to the final file.
   ///
@@ -135,7 +135,11 @@ public:
   /// \param szPath can be a relative, an absolute or a rooted path. This can also be used to find the relative location to the data directory
   /// that would handle it.
   /// The function will return EZ_FAILURE if it was not able to determine any location where the file could be read from or written to.
-  static ezResult ResolvePath(const char* szPath, ezString* out_sAbsolutePath, ezString* out_sDataDirRelativePath);
+  static ezResult ResolvePath(const char* szPath, ezString* out_sAbsolutePath, ezString* out_sDataDirRelativePath); // [tested]
+
+  /// \brief Starts at szStartDirectory and goes up until it finds a folder that contains the given sub folder structure.
+  /// Returns EZ_FAILURE if nothing is found. Otherwise \a result is the absolute path to the existing folder that has a given sub-folder.
+  static ezResult FindFolderWithSubPath(const char* szStartDirectory, const char* szSubPath, ezStringBuilder& result); // [tested]
 
 
 private:

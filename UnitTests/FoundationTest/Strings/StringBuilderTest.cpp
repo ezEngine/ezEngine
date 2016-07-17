@@ -1147,72 +1147,141 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(p.GetFileDirectory() == "");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsAbsolutePath / IsRelativePath")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsAbsolutePath / IsRelativePath / IsRootedPath")
   {
     ezStringBuilder p;
+
+    p = "";
+    EZ_TEST_BOOL(!p.IsAbsolutePath());
+    EZ_TEST_BOOL(p.IsRelativePath());
+    EZ_TEST_BOOL(!p.IsRootedPath());
 
     #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
       p = "C:\\temp.stuff";
       EZ_TEST_BOOL(p.IsAbsolutePath());
       EZ_TEST_BOOL(!p.IsRelativePath());
+      EZ_TEST_BOOL(!p.IsRootedPath());
 
       p = "C:/temp.stuff";
       EZ_TEST_BOOL(p.IsAbsolutePath());
       EZ_TEST_BOOL(!p.IsRelativePath());
+      EZ_TEST_BOOL(!p.IsRootedPath());
 
       p = "\\\\myserver\\temp.stuff";
       EZ_TEST_BOOL(p.IsAbsolutePath());
       EZ_TEST_BOOL(!p.IsRelativePath());
+      EZ_TEST_BOOL(!p.IsRootedPath());
 
       p = "\\myserver\\temp.stuff";
       EZ_TEST_BOOL(!p.IsAbsolutePath());
       EZ_TEST_BOOL(!p.IsRelativePath()); // neither absolute nor relativ, just stupid
+      EZ_TEST_BOOL(!p.IsRootedPath());
 
       p = "temp.stuff";
       EZ_TEST_BOOL(!p.IsAbsolutePath());
       EZ_TEST_BOOL(p.IsRelativePath());
+      EZ_TEST_BOOL(!p.IsRootedPath());
 
       p = "/temp.stuff";
       EZ_TEST_BOOL(!p.IsAbsolutePath());
       EZ_TEST_BOOL(!p.IsRelativePath()); // bloed
+      EZ_TEST_BOOL(!p.IsRootedPath());
 
       p = "\\temp.stuff";
       EZ_TEST_BOOL(!p.IsAbsolutePath());
       EZ_TEST_BOOL(!p.IsRelativePath()); // bloed
+      EZ_TEST_BOOL(!p.IsRootedPath());
 
       p = "..\\temp.stuff";
       EZ_TEST_BOOL(!p.IsAbsolutePath());
       EZ_TEST_BOOL(p.IsRelativePath());
+      EZ_TEST_BOOL(!p.IsRootedPath());
 
       p = ".\\temp.stuff";
       EZ_TEST_BOOL(!p.IsAbsolutePath());
       EZ_TEST_BOOL(p.IsRelativePath());
+      EZ_TEST_BOOL(!p.IsRootedPath());
+
+      p = ":MyDataDir\bla";
+      EZ_TEST_BOOL(!p.IsAbsolutePath());
+      EZ_TEST_BOOL(!p.IsRelativePath());
+      EZ_TEST_BOOL(p.IsRootedPath());
+
+      p = ":\\MyDataDir\bla";
+      EZ_TEST_BOOL(!p.IsAbsolutePath());
+      EZ_TEST_BOOL(!p.IsRelativePath());
+      EZ_TEST_BOOL(p.IsRootedPath());
+
+      p = ":/MyDataDir/bla";
+      EZ_TEST_BOOL(!p.IsAbsolutePath());
+      EZ_TEST_BOOL(!p.IsRelativePath());
+      EZ_TEST_BOOL(p.IsRootedPath());
 
     #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
   
       p = "C:\\temp.stuff";
       EZ_TEST_BOOL(!p.IsAbsolutePath());
       EZ_TEST_BOOL(p.IsRelativePath());
+      EZ_TEST_BOOL(!p.IsRootedPath());
   
       p = "temp.stuff";
       EZ_TEST_BOOL(!p.IsAbsolutePath());
       EZ_TEST_BOOL(p.IsRelativePath());
+      EZ_TEST_BOOL(!p.IsRootedPath());
   
       p = "/temp.stuff";
       EZ_TEST_BOOL(p.IsAbsolutePath());
       EZ_TEST_BOOL(!p.IsRelativePath());
+      EZ_TEST_BOOL(!p.IsRootedPath());
   
       p = "..\\temp.stuff";
       EZ_TEST_BOOL(!p.IsAbsolutePath());
       EZ_TEST_BOOL(p.IsRelativePath());
+      EZ_TEST_BOOL(!p.IsRootedPath());
   
       p = ".\\temp.stuff";
       EZ_TEST_BOOL(!p.IsAbsolutePath());
       EZ_TEST_BOOL(p.IsRelativePath());
+      EZ_TEST_BOOL(!p.IsRootedPath());
 
     #else
       #error "Unknown platform."
     #endif
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetRootedPathRootName")
+  {
+    ezStringBuilder p;
+
+    p = ":root\\bla";
+    EZ_TEST_BOOL(p.GetRootedPathRootName() == "root");
+
+    p = ":root/bla";
+    EZ_TEST_BOOL(p.GetRootedPathRootName() == "root");
+
+    p = "://root/bla";
+    EZ_TEST_BOOL(p.GetRootedPathRootName() == "root");
+
+    p = ":/\\/root\\/bla";
+    EZ_TEST_BOOL(p.GetRootedPathRootName() == "root");
+
+    p = "://\\root";
+    EZ_TEST_BOOL(p.GetRootedPathRootName() == "root");
+
+    p = ":";
+    EZ_TEST_BOOL(p.GetRootedPathRootName() == "");
+
+    p = "";
+    EZ_TEST_BOOL(p.GetRootedPathRootName() == "");
+
+    p = "noroot\\bla";
+    EZ_TEST_BOOL(p.GetRootedPathRootName() == "");
+
+    p = "C:\\noroot/bla";
+    EZ_TEST_BOOL(p.GetRootedPathRootName() == "");
+
+    p = "/noroot/bla";
+    EZ_TEST_BOOL(p.GetRootedPathRootName() == "");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsPathBelowFolder")

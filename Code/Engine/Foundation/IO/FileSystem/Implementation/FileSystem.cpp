@@ -2,6 +2,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/IO/OSFile.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, FileSystem)
 
@@ -506,6 +507,50 @@ ezResult ezFileSystem::ResolvePath(const char* szPath, ezString* out_sAbsolutePa
     *out_sDataDirRelativePath = relPath;
 
   return EZ_SUCCESS;
+}
+
+
+ezResult ezFileSystem::FindFolderWithSubPath(const char* szStartDirectory, const char* szSubPath, ezStringBuilder& result)
+{
+  ezStringBuilder sStartDirAbs = szStartDirectory;
+  sStartDirAbs.MakeCleanPath();
+
+  // in this case the given path and the absolute path are different
+  // but we want to return the same path format as is given
+  // ie. if we get ":MyRoot\Bla" with "MyRoot" pointing to "C:\Game", then the result should be
+  // ":MyRoot\blub", rather than "C:\Game\blub"
+  if (sStartDirAbs.StartsWith(":"))
+  {
+    ezString abs;
+    if (ResolvePath(sStartDirAbs, &abs, nullptr).Failed())
+    {
+      result.Clear();
+      return EZ_FAILURE;
+    }
+
+    sStartDirAbs = abs;
+  }
+
+
+  result = szStartDirectory;
+  result.MakeCleanPath();
+
+  ezStringBuilder FullPath;
+
+  while (!result.IsEmpty())
+  {
+    FullPath = sStartDirAbs;
+    FullPath.AppendPath(szSubPath);
+    FullPath.MakeCleanPath();
+
+    if (ezOSFile::ExistsDirectory(FullPath) || ezOSFile::ExistsFile(FullPath))
+      return EZ_SUCCESS;
+
+    result.PathParentDirectory();
+    sStartDirAbs.PathParentDirectory();
+  }
+
+  return EZ_FAILURE;
 }
 
 void ezFileSystem::ReloadAllExternalDataDirectoryConfigs()

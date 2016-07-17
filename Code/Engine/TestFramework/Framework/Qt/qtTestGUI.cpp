@@ -227,6 +227,13 @@ void ezQtTestGUI::on_actionEnableOnlyThis_triggered()
   m_pModel->dataChanged(QModelIndex(), QModelIndex());
 }
 
+
+void ezQtTestGUI::on_actionEnableOnlyFailed_triggered()
+{
+  m_pTestFramework->SetAllFailedTestsEnabledStatus();
+  m_pModel->dataChanged(QModelIndex(), QModelIndex());
+}
+
 void ezQtTestGUI::on_actionEnableAllChildren_triggered()
 {
   QModelIndex CurrentIndex = testTreeView->currentIndex();
@@ -320,6 +327,7 @@ void ezQtTestGUI::onTestTreeViewCustomContextMenuRequested(const QPoint& pnt)
     ContextMenu.addAction(actionEnableOnlyThis);
     ContextMenu.addAction(actionEnableAllChildren);
   }
+  ContextMenu.addAction(actionEnableOnlyFailed);
   ContextMenu.addAction(actionEnableAll);
   ContextMenu.addAction(actionDisableAll);
   ContextMenu.addSeparator();

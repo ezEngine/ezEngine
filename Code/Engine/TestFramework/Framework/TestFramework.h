@@ -25,6 +25,7 @@ public:
   void LoadTestOrder();
   void SaveTestOrder();
   void SetAllTestsEnabledStatus(bool bEnable);
+  void SetAllFailedTestsEnabledStatus();
 
   void GetTestSettingsFromCommandLine(int argc, const char** argv);
 

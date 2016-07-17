@@ -291,8 +291,17 @@ public:
   /// \brief Returns true, if the given path represents a relative path on the current OS.
   bool IsRelativePath() const; // [tested]
 
+  /// \brief Returns true, if the given path represents a 'rooted' path. See ezFileSystem for details.
+  bool IsRootedPath() const; // [tested]
 
-
+                             /// \brief Extracts the root name from a rooted path
+                             ///
+                             /// ":MyRoot" -> "MyRoot"
+                             /// ":MyRoot\folder" -> "MyRoot"
+                             /// ":\MyRoot\folder" -> "MyRoot"
+                             /// ":/MyRoot\folder" -> "MyRoot"
+                             /// Returns an empty string, if the path is not rooted.
+  ezStringView GetRootedPathRootName() const; // [tested]
 
   /// \brief Removes "../" where possible, replaces all path separators with /, removes double slashes.
   ///

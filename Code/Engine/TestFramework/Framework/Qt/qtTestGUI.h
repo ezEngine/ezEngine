@@ -34,6 +34,7 @@ private slots:
   void on_actionQuit_triggered();
 
   void on_actionEnableOnlyThis_triggered();
+  void on_actionEnableOnlyFailed_triggered();
   void on_actionEnableAllChildren_triggered();
   void on_actionEnableAll_triggered();
   void on_actionDisableAll_triggered();

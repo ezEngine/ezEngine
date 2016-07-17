@@ -150,7 +150,7 @@ Only concrete and clocks.\n\
     EZ_TEST_BOOL(FileIn.Open("FileSystemTest.txt") == EZ_FAILURE);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Find Valid Path")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ResolvePath")
   {
     ezString sRel, sAbs;
 
@@ -209,5 +209,79 @@ Only concrete and clocks.\n\
 
     ezFileSystem::DeleteFile(":output1/FileSystemTest2.txt");
     ezFileSystem::DeleteFile(":output2/FileSystemTest2.txt");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindFolderWithSubPath")
+  {
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(BUILDSYSTEM_OUTPUT_FOLDER, "remove", "toplevel", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder2.GetData(), "remove", "output2", ezFileSystem::AllowWrites) == EZ_SUCCESS);
+
+    ezStringBuilder StartPath;
+    ezStringBuilder SubPath;
+    ezStringBuilder result, expected;
+
+    // make sure this exists
+    {
+      ezFileWriter FileOut;
+      EZ_TEST_BOOL(FileOut.Open(":output2/FileSystemTest2.txt") == EZ_SUCCESS);
+    }
+
+
+    {
+      StartPath.Set(sOutputFolder1, "SubSub", "Irrelevant");
+      SubPath.Set("DoesNotExist");
+
+      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Failed());
+    }
+
+    {
+      StartPath.Set(sOutputFolder1, "SubSub", "Irrelevant");
+      SubPath.Set("SubFolder2");
+      expected.Set(BUILDSYSTEM_OUTPUT_FOLDER, "/FoundationTest/IO/");
+
+      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
+      EZ_TEST_STRING(result, expected);
+    }
+
+    {
+      StartPath.Set(sOutputFolder1, "SubSub");
+      SubPath.Set("IO/SubFolder2");
+      expected.Set(BUILDSYSTEM_OUTPUT_FOLDER, "/FoundationTest/");
+
+      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
+      EZ_TEST_STRING(result, expected);
+    }
+
+    {
+      StartPath.Set(sOutputFolder1, "SubSub");
+      SubPath.Set("FoundationTest/IO/SubFolder2");
+      expected.Set(BUILDSYSTEM_OUTPUT_FOLDER, "/");
+
+      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
+      EZ_TEST_STRING(result, expected);
+    }
+
+    {
+      StartPath.Set(sOutputFolder1, "SubSub", "Irrelevant");
+      SubPath.Set("SubFolder2/FileSystemTest2.txt");
+      expected.Set(BUILDSYSTEM_OUTPUT_FOLDER, "/FoundationTest/IO/");
+
+      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
+      EZ_TEST_STRING(result, expected);
+    }
+
+    {
+      StartPath.Set(":toplevel/FoundationTest/IO/SubFolder");
+      SubPath.Set("IO/SubFolder2");
+      expected.Set(":toplevel/FoundationTest/");
+
+      EZ_TEST_BOOL(ezFileSystem::FindFolderWithSubPath(StartPath, SubPath, result).Succeeded());
+      EZ_TEST_STRING(result, expected);
+    }
+
+    ezFileSystem::DeleteFile(":output1/FileSystemTest2.txt");
+    ezFileSystem::DeleteFile(":output2/FileSystemTest2.txt");
+
+    ezFileSystem::RemoveDataDirectoryGroup("remove");
   }
 }

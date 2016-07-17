@@ -196,6 +196,25 @@ void ezTestFramework::SetAllTestsEnabledStatus(bool bEnable)
   }
 }
 
+void ezTestFramework::SetAllFailedTestsEnabledStatus()
+{
+  const auto& LastResult = GetTestResult();
+
+  const ezUInt32 uiTestCount = GetTestCount();
+  for (ezUInt32 uiTestIdx = 0; uiTestIdx < uiTestCount; ++uiTestIdx)
+  {
+    const auto& TestRes = LastResult.GetTestResultData(uiTestIdx, -1);
+    m_TestEntries[uiTestIdx].m_bEnableTest = TestRes.m_bExecuted && !TestRes.m_bSuccess;
+
+    const ezUInt32 uiSubTestCount = (ezUInt32)m_TestEntries[uiTestIdx].m_SubTests.size();
+    for (ezUInt32 uiSubTest = 0; uiSubTest < uiSubTestCount; ++uiSubTest)
+    {
+      const auto& SubTestRes = LastResult.GetTestResultData(uiTestIdx, uiSubTest);
+      m_TestEntries[uiTestIdx].m_SubTests[uiSubTest].m_bEnableTest = SubTestRes.m_bExecuted && !SubTestRes.m_bSuccess;
+    }
+  }
+}
+
 void ezTestFramework::ResetTests()
 {
   m_iErrorCount = 0;

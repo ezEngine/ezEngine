@@ -362,5 +362,15 @@ inline bool ezStringBuilder::IsRelativePath() const
   return ezPathUtils::IsRelativePath(GetData());
 }
 
+inline bool ezStringBuilder::IsRootedPath() const
+{
+  return ezPathUtils::IsRootedPath(GetData());
+}
+
+inline ezStringView ezStringBuilder::GetRootedPathRootName() const
+{
+  return ezPathUtils::GetRootedPathRootName(GetData());
+}
+
 #include <Foundation/Strings/Implementation/AllStrings_inl.h>
 
