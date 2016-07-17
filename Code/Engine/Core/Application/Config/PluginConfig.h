@@ -3,15 +3,14 @@
 #include <Core/Basics.h>
 #include <Core/Application/Config/ApplicationConfig.h>
 
-class EZ_CORE_DLL ezApplicationPluginConfig : public ezApplicationConfig
+class EZ_CORE_DLL ezApplicationPluginConfig
 {
 public:
   ezApplicationPluginConfig();
 
-  virtual ezResult Save() override;
-  virtual void Load() override;
-
-  virtual void Apply() override;
+  ezResult Save();
+  void Load();
+  void Apply();
 
   /// \brief If enabled (default is true), Apply() will only load plugins that have the dependency '<manual>' and ignore all that do not have it.
   ///
@@ -24,7 +23,7 @@ public:
   {
     bool operator<(const PluginConfig& rhs) const;
 
-    ezString m_sRelativePath;
+    ezString m_sAppDirRelativePath;
     ezSet<ezString> m_sDependecyOf;
   };
 

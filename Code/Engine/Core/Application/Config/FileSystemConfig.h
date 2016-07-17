@@ -3,14 +3,14 @@
 #include <Core/Basics.h>
 #include <Core/Application/Config/ApplicationConfig.h>
 
-class EZ_CORE_DLL ezApplicationFileSystemConfig : public ezApplicationConfig
+class EZ_CORE_DLL ezApplicationFileSystemConfig
 {
 public:
-  virtual ezResult Save() override;
-  virtual void Load() override;
+  ezResult Save();
+  void Load();
 
   /// \brief Sets up the data directories that were configured or loaded into this object
-  virtual void Apply() override;
+  void Apply();
 
   /// \brief Removes all data directories that were set up by any call to ezApplicationFileSystemConfig::Apply()
   static void Clear();
@@ -19,7 +19,7 @@ public:
 
   struct DataDirConfig
   {
-    ezString m_sRelativePath;
+    ezString m_sSdkRootRelativePath;
     ezString m_sRootName;
     bool m_bWritable; ///< Whether the directory is going to be mounted for writing
     bool m_bHardCodedDependency; ///< If set to true, this indicates that it may not be removed by the user (in a config dialog)
@@ -30,7 +30,7 @@ public:
       m_bHardCodedDependency = false;
     }
 
-    bool operator==(const DataDirConfig& rhs) const { return m_bWritable == rhs.m_bWritable && m_sRelativePath == rhs.m_sRelativePath && m_sRootName == rhs.m_sRootName;  }
+    bool operator==(const DataDirConfig& rhs) const { return m_bWritable == rhs.m_bWritable && m_sSdkRootRelativePath == rhs.m_sSdkRootRelativePath && m_sRootName == rhs.m_sRootName;  }
   };
 
   bool operator==(const ezApplicationFileSystemConfig& rhs) const { return m_DataDirs == rhs.m_DataDirs; }

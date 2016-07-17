@@ -44,7 +44,7 @@ struct ezAssetInfo
   TransformState m_TransformState;
   ezAssetDocumentManager* m_pManager;
   ezString m_sAbsolutePath;
-  ezString m_sRelativePath;
+  ezString m_sDataDirRelativePath;
   ezAssetDocumentInfo m_Info;
   ezTime m_LastAccess;
   ezUInt64 m_LastAssetDependencyHash; ///< For debugging only.

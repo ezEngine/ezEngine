@@ -7,8 +7,9 @@
 #include <RendererDX11/Device/DeviceDX11.h>
 typedef ezGALDeviceDX11 ezGALDeviceDefault;
 #else
-#include <RendererGL/Device/DeviceGL.h>
-typedef ezGALDeviceGL ezGALDeviceDefault;
+/// \todo We might need a dummy graphics device type
+//#include <RendererGL/Device/DeviceGL.h>
+//typedef ezGALDeviceGL ezGALDeviceDefault;
 #endif
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/JSONReader.h>
@@ -134,6 +135,7 @@ void ezGameApplication::DoSetupDefaultResources()
 
 void ezGameApplication::DoSetupGraphicsDevice()
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     ezGALDeviceCreationDescription DeviceInit;
     DeviceInit.m_bCreatePrimarySwapChain = false;
 
@@ -154,6 +156,8 @@ void ezGameApplication::DoSetupGraphicsDevice()
     ezShaderManager::Configure("DX11_SM40", true);
 #else
     ezShaderManager::Configure("GL3", true);
+#endif
+
 #endif
 }
 

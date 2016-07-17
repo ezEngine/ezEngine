@@ -154,7 +154,7 @@ void ezRenderPipelineMenuAction::GetEntries(ezHybridArray<ezLRUMenuAction::Item,
 
       if (pAsset)
       {
-        entryItem.m_sDisplay = pAsset->m_sRelativePath;
+        entryItem.m_sDisplay = pAsset->m_sDataDirRelativePath;
       }
     }
     entryItem.m_CheckState = (pView->m_pViewConfig->m_sRenderPipelineResource == sEntry) ? ezLRUMenuAction::Item::CheckMark::Checked : ezLRUMenuAction::Item::CheckMark::Unchecked;

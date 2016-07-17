@@ -1,11 +1,11 @@
 {
   "DataDirectories" : [ {
-      "Path" : "../../Data/Base",
+      "Path" : "Data/Base",
       "RootName" : "base",
       "Writable" : false
     },
     {
-      "Path" : "",
+      "Path" : "Games/SampleGame/",
       "RootName" : "project",
       "Writable" : true
     } ]

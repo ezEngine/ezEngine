@@ -401,7 +401,7 @@ const ezAssetInfo* ezAssetCurator::FindAssetInfo(const char* szRelativePath) con
 
   for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
   {
-    if (it.Value()->m_sRelativePath.IsEqual_NoCase(sPath))
+    if (it.Value()->m_sDataDirRelativePath.IsEqual_NoCase(sPath))
       return it.Value();
   }
 
@@ -426,10 +426,10 @@ void ezAssetCurator::CheckFileSystem()
   // check every data directory
   for (auto& dd : m_FileSystemConfig.m_DataDirs)
   {
-    ezStringBuilder sTemp = m_FileSystemConfig.GetProjectDirectory();
-    sTemp.AppendPath(dd.m_sRelativePath);
+    ezStringBuilder sTemp = ezApplicationConfig::GetSdkRootDirectory();
+    sTemp.AppendPath(dd.m_sSdkRootRelativePath);
 
-    range.BeginNextStep(dd.m_sRelativePath);
+    range.BeginNextStep(dd.m_sSdkRootRelativePath);
 
     IterateDataDirectory(sTemp, m_ValidAssetExtensions);
   }
@@ -457,14 +457,14 @@ ezString ezAssetCurator::FindDataDirectoryForAsset(const char* szAbsoluteAssetPa
 
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {
-    ezStringBuilder sDataDir(ezApplicationFileSystemConfig::GetProjectDirectory(), "/", dd.m_sRelativePath);
+    ezStringBuilder sDataDir(ezApplicationConfig::GetSdkRootDirectory(), "/", dd.m_sSdkRootRelativePath);
 
     if (sAssetPath.IsPathBelowFolder(sDataDir))
       return sDataDir;
   }
 
   EZ_REPORT_FAILURE("Could not find data directory for asset '%s", szAbsoluteAssetPath);
-  return ezApplicationFileSystemConfig::GetProjectDirectory();
+  return ezApplicationConfig::GetSdkRootDirectory();
 }
 
 ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char* szPlatform)
@@ -520,12 +520,12 @@ void ezAssetCurator::TransformAllAssets(const char* szPlatform)
 
     ezAssetInfo* pAssetInfo = it.Value();
 
-    range.BeginNextStep(ezPathUtils::GetFileNameAndExtension(pAssetInfo->m_sRelativePath).GetData());
+    range.BeginNextStep(ezPathUtils::GetFileNameAndExtension(pAssetInfo->m_sDataDirRelativePath).GetData());
 
     auto res = ProcessAsset(pAssetInfo, szPlatform);
     if (res.m_Result.Failed())
     {
-      ezLog::Error("%s (%s)", res.m_sMessage.GetData(), pAssetInfo->m_sRelativePath.GetData());
+      ezLog::Error("%s (%s)", res.m_sMessage.GetData(), pAssetInfo->m_sDataDirRelativePath.GetData());
     }
 
   }
@@ -563,11 +563,11 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
   const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
   if (ezDocumentManager::FindDocumentTypeFromPath(pAssetInfo->m_sAbsolutePath, false, pTypeDesc).Failed())
   {
-    return ezStatus("The asset '%s' could not be queried for its ezDocumentTypeDescriptor, skipping transform!", pAssetInfo->m_sRelativePath.GetData());
+    return ezStatus("The asset '%s' could not be queried for its ezDocumentTypeDescriptor, skipping transform!", pAssetInfo->m_sDataDirRelativePath.GetData());
   }
 
   // Skip assets that cannot be auto-transformed.
-  EZ_ASSERT_DEV(pTypeDesc->m_pDocumentType->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('%s')", pAssetInfo->m_sRelativePath.GetData());
+  EZ_ASSERT_DEV(pTypeDesc->m_pDocumentType->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('%s')", pAssetInfo->m_sDataDirRelativePath.GetData());
   auto assetFlags = static_cast<ezAssetDocumentManager*>(pTypeDesc->m_pManager)->GetAssetDocumentTypeFlags(pTypeDesc);
   if (assetFlags.IsAnySet(ezAssetDocumentFlags::DisableTransform | ezAssetDocumentFlags::OnlyTransformManually))
     return ezStatus(EZ_SUCCESS);
@@ -587,7 +587,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
 
   if (pDoc == nullptr)
   {
-    return ezStatus("Could not open asset document '%s'", pAssetInfo->m_sRelativePath.GetData());
+    return ezStatus("Could not open asset document '%s'", pAssetInfo->m_sDataDirRelativePath.GetData());
   }
 
   ezStatus ret(EZ_SUCCESS);
@@ -645,7 +645,7 @@ ezResult ezAssetCurator::WriteAssetTables(const char* szPlatform /* = nullptr*/)
 
   for (const auto& dd : m_FileSystemConfig.m_DataDirs)
   {
-    s.Set(ezApplicationFileSystemConfig::GetProjectDirectory(), "/", dd.m_sRelativePath);
+    s.Set(ezApplicationConfig::GetSdkRootDirectory(), "/", dd.m_sSdkRootRelativePath);
 
     if (WriteAssetTable(s, szPlatform).Failed())
       res = EZ_FAILURE;
@@ -871,7 +871,7 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
     ezStringBuilder sRelPath = szAbsFilePath;
     sRelPath.MakeRelativeTo(sDataDir);
 
-    assetInfo.m_sRelativePath = sRelPath;
+    assetInfo.m_sDataDirRelativePath = sRelPath;
     assetInfo.m_sAbsolutePath = szAbsFilePath;
   }
 

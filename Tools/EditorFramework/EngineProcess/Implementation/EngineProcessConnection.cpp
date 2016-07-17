@@ -141,7 +141,7 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
   {
     // Send project setup.
     ezSetupProjectMsgToEngine msg;
-    msg.m_sProjectDir = m_FileSystemConfig.GetProjectDirectory();
+    msg.m_sProjectDir = ezApplicationConfig::GetProjectDirectory();
     msg.m_FileSystemConfig = m_FileSystemConfig;
     msg.m_PluginConfig = m_PluginConfig;
     ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);

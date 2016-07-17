@@ -155,7 +155,7 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
 
       if (pAsset)
       {
-        sText = pAsset->m_sRelativePath;
+        sText = pAsset->m_sDataDirRelativePath;
 
         sThumbnailPath = ezAssetDocumentManager::GenerateResourceThumbnailPath(pAsset->m_sAbsolutePath);
       }
@@ -245,7 +245,7 @@ void ezQtAssetPropertyWidget::OnOpenAssetDocument()
 
 void ezQtAssetPropertyWidget::OnSelectInAssetBrowser()
 {
-  ezQtAssetBrowserPanel::GetSingleton()->AssetBrowserWidget->SetSelectedAsset(ezAssetCurator::GetSingleton()->GetAssetInfo(m_AssetGuid)->m_sRelativePath);
+  ezQtAssetBrowserPanel::GetSingleton()->AssetBrowserWidget->SetSelectedAsset(ezAssetCurator::GetSingleton()->GetAssetInfo(m_AssetGuid)->m_sDataDirRelativePath);
 }
 
 void ezQtAssetPropertyWidget::OnOpenExplorer()

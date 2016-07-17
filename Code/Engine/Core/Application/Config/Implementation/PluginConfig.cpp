@@ -15,7 +15,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationPluginConfig_PluginConfig, ezNoBase,
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("RelativePath", m_sRelativePath),
+    EZ_MEMBER_PROPERTY("RelativePath", m_sAppDirRelativePath),
   }
   EZ_END_PROPERTIES
 }
@@ -24,7 +24,7 @@ EZ_END_STATIC_REFLECTED_TYPE
 
 bool ezApplicationPluginConfig::PluginConfig::operator<(const PluginConfig& rhs) const
 {
-  return m_sRelativePath < rhs.m_sRelativePath;
+  return m_sAppDirRelativePath < rhs.m_sAppDirRelativePath;
 }
 
 bool ezApplicationPluginConfig::AddPlugin(const PluginConfig& cfg0)
@@ -38,7 +38,7 @@ bool ezApplicationPluginConfig::AddPlugin(const PluginConfig& cfg0)
 
   for (ezUInt32 i = 0; i < m_Plugins.GetCount(); ++i)
   {
-    if (m_Plugins[i].m_sRelativePath == cfg.m_sRelativePath)
+    if (m_Plugins[i].m_sAppDirRelativePath == cfg.m_sAppDirRelativePath)
     {
       bool merged = false;
 
@@ -71,7 +71,7 @@ bool ezApplicationPluginConfig::RemovePlugin(const PluginConfig& cfg0)
 
   for (ezUInt32 i = 0; i < m_Plugins.GetCount(); ++i)
   {
-    if (m_Plugins[i].m_sRelativePath == cfg.m_sRelativePath)
+    if (m_Plugins[i].m_sAppDirRelativePath == cfg.m_sAppDirRelativePath)
     {
       for (auto it = cfg.m_sDependecyOf.GetIterator(); it.IsValid(); ++it)
       {
@@ -104,7 +104,7 @@ ezResult ezApplicationPluginConfig::Save()
 
   ezStringBuilder sPath;
   sPath = ":";
-  sPath.AppendPath(GetProjectDirectory());
+  sPath.AppendPath(ezApplicationConfig::GetProjectDirectory());
   sPath.AppendPath("Plugins.ezManifest");
 
   ezFileWriter file;
@@ -122,7 +122,7 @@ ezResult ezApplicationPluginConfig::Save()
   {
     json.BeginObject();
 
-    json.AddVariableString("Path", m_Plugins[i].m_sRelativePath);
+    json.AddVariableString("Path", m_Plugins[i].m_sAppDirRelativePath);
 
     if (!m_Plugins[i].m_sDependecyOf.IsEmpty())
     {
@@ -153,7 +153,7 @@ void ezApplicationPluginConfig::Load()
   m_Plugins.Clear();
 
   ezStringBuilder sPath;
-  sPath = GetProjectDirectory();
+  sPath = ezApplicationConfig::GetProjectDirectory();
   sPath.AppendPath("Plugins.ezManifest");
 
   ezFileReader file;
@@ -192,7 +192,7 @@ void ezApplicationPluginConfig::Load()
     PluginConfig cfg;
 
     if (datadir.TryGetValue("Path", pVar) && pVar->IsA<ezString>())
-      cfg.m_sRelativePath = pVar->Get<ezString>();
+      cfg.m_sAppDirRelativePath = pVar->Get<ezString>();
 
     if (datadir.TryGetValue("DependencyOf", pVar) && pVar->IsA<ezVariantArray>())
     {
@@ -225,7 +225,7 @@ void ezApplicationPluginConfig::Apply()
     }
 
 
-    ezPlugin::LoadPlugin(var.m_sRelativePath);
+    ezPlugin::LoadPlugin(var.m_sAppDirRelativePath);
   }
 
 }

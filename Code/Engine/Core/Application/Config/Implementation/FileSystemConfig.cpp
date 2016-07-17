@@ -15,7 +15,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationFileSystemConfig_DataDirConfig, ezNo
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("RelativePath", m_sRelativePath),
+    EZ_MEMBER_PROPERTY("RelativePath", m_sSdkRootRelativePath),
     EZ_MEMBER_PROPERTY("Writable", m_bWritable),
     EZ_MEMBER_PROPERTY("RootName", m_sRootName),
   }
@@ -27,7 +27,7 @@ EZ_END_STATIC_REFLECTED_TYPE
 ezResult ezApplicationFileSystemConfig::Save()
 {
   ezStringBuilder sPath;
-  sPath = GetProjectDirectory();
+  sPath = ezApplicationConfig::GetProjectDirectory();
   sPath.AppendPath("DataDirectories.ezManifest");
 
   ezFileWriter file;
@@ -45,7 +45,7 @@ ezResult ezApplicationFileSystemConfig::Save()
   {
     json.BeginObject();
 
-    json.AddVariableString("Path", m_DataDirs[i].m_sRelativePath);
+    json.AddVariableString("Path", m_DataDirs[i].m_sSdkRootRelativePath);
     json.AddVariableString("RootName", m_DataDirs[i].m_sRootName);
     json.AddVariableBool("Writable", m_DataDirs[i].m_bWritable);
 
@@ -66,7 +66,7 @@ void ezApplicationFileSystemConfig::Load()
   m_DataDirs.Clear();
 
   ezStringBuilder sPath;
-  sPath = GetProjectDirectory();
+  sPath = ezApplicationConfig::GetProjectDirectory();
   sPath.AppendPath("DataDirectories.ezManifest");
 
   ezFileReader file;
@@ -106,7 +106,7 @@ void ezApplicationFileSystemConfig::Load()
     cfg.m_bWritable = false;
 
     if (datadir.TryGetValue("Path", pVar) && pVar->IsA<ezString>())
-      cfg.m_sRelativePath = pVar->Get<ezString>();
+      cfg.m_sSdkRootRelativePath = pVar->Get<ezString>();
     if (datadir.TryGetValue("RootName", pVar) && pVar->IsA<ezString>())
       cfg.m_sRootName = pVar->Get<ezString>();
     if (datadir.TryGetValue("Writable", pVar) && pVar->IsA<bool>())
@@ -127,8 +127,8 @@ void ezApplicationFileSystemConfig::Apply()
 
   for (const auto& var : m_DataDirs)
   {
-    s = GetProjectDirectory();
-    s.AppendPath(var.m_sRelativePath);
+    s = ezApplicationConfig::GetSdkRootDirectory();
+    s.AppendPath(var.m_sSdkRootRelativePath);
     s.MakeCleanPath();
 
     ezFileSystem::AddDataDirectory(s, "AppFileSystemConfig", var.m_sRootName, (!var.m_sRootName.IsEmpty() && var.m_bWritable) ? ezFileSystem::DataDirUsage::AllowWrites : ezFileSystem::DataDirUsage::ReadOnly);
@@ -150,8 +150,8 @@ ezResult ezApplicationFileSystemConfig::CreateDataDirStubFiles()
 
   for (const auto& var : m_DataDirs)
   {
-    s = GetProjectDirectory();
-    s.AppendPath(var.m_sRelativePath);
+    s = ezApplicationConfig::GetSdkRootDirectory();
+    s.AppendPath(var.m_sSdkRootRelativePath);
     s.AppendPath("DataDir.ezManifest");
     s.MakeCleanPath();
 

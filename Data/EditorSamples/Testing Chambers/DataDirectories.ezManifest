@@ -1,17 +1,17 @@
 {
   "DataDirectories" : [ {
-      "Path" : "../../Base",
+      "Path" : "Data/FreeContent",
       "RootName" : "",
       "Writable" : false
     },
     {
-      "Path" : "",
-      "RootName" : "",
+      "Path" : "Data/Base",
+      "RootName" : "base",
+      "Writable" : false
+    },
+    {
+      "Path" : "Data/EditorSamples/Testing Chambers/",
+      "RootName" : "project",
       "Writable" : true
-    },
-    {
-      "Path" : "../../FreeContent",
-      "RootName" : "",
-      "Writable" : false
     } ]
 }

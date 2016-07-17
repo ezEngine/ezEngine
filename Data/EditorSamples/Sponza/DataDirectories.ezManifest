@@ -1,17 +1,17 @@
 {
   "DataDirectories" : [ {
-      "Path" : "../../Base",
+      "Path" : "Data/Base",
       "RootName" : "",
       "Writable" : false
     },
     {
-      "Path" : "../../FreeContent",
+      "Path" : "Data/FreeContent",
       "RootName" : "",
       "Writable" : false
     },
     {
-      "Path" : "",
-      "RootName" : "",
+      "Path" : "Data/EditorSamples/Sponza/",
+      "RootName" : "project",
       "Writable" : true
     } ]
 }

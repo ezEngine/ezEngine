@@ -1,14 +1,14 @@
 {
   "DataDirectories" : [ {
-      "Path" : "",
+      "Path" : "Data/Samples/Asteroids",
       "Writable" : true
     },
     {
-      "Path" : "../../Base",
+      "Path" : "Data/Base",
       "Writable" : false
     },
     {
-      "Path" : "../../FreeContent",
+      "Path" : "Data/FreeContent",
       "Writable" : false
     } ]
 }

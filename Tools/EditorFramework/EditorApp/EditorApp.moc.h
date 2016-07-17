@@ -109,8 +109,8 @@ public:
   ezString FindFolderWithSubPath(const char* szStartDirectory, const char* szSubPath) const;
   
   /// \brief Adds a data directory as a hard dependency to the project. Should be used by plugins to ensure their required data is available.
-  /// The path must be relative to the PROJECT folder.
-  void AddPluginDataDirDependency(const char* szRelativePath, const char* szRootName = nullptr);
+  /// The path must be relative to the SdkRoot folder.
+  void AddPluginDataDirDependency(const char* szSdkRootRelativePath, const char* szRootName = nullptr, bool bWriteable = false);
 
   const ezApplicationFileSystemConfig& GetFileSystemConfig() const { return m_FileSystemConfig; }
   const ezApplicationPluginConfig& GetEnginePluginConfig() const { return m_EnginePluginConfig; }

@@ -33,8 +33,8 @@ void DataDirsDlg::FillList()
     QListWidgetItem* pItem = new QListWidgetItem(ListDataDirs);
     pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable /*| Qt::ItemFlag::ItemIsUserCheckable*/);
 
-    QString sPath = QLatin1String("<Project>/");
-    sPath += QString::fromUtf8(dd.m_sRelativePath.GetData());
+    QString sPath = QLatin1String(":SdkRoot/");
+    sPath += QString::fromUtf8(dd.m_sSdkRootRelativePath.GetData());
 
     pItem->setText(sPath);
   //  pItem->setCheckState(bToBeLoaded ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
@@ -121,7 +121,7 @@ void DataDirsDlg::on_ButtonAdd_clicked()
   sRelPath.MakeRelativeTo(sProjectPath);
 
   ezApplicationFileSystemConfig::DataDirConfig dd;
-  dd.m_sRelativePath = sRelPath;
+  dd.m_sSdkRootRelativePath = sRelPath;
   dd.m_bWritable = false;
   m_Config.m_DataDirs.PushBack(dd);
 
@@ -147,8 +147,8 @@ void DataDirsDlg::on_ListDataDirs_itemSelectionChanged()
   const bool bCanRemove = m_iSelection >= 0 && ListDataDirs->item(m_iSelection)->data(Qt::UserRole + 1).toBool();
 
   ButtonRemove->setEnabled(bCanRemove);
-  ButtonUp->setEnabled(bCanRemove && m_iSelection > 0);
-  ButtonDown->setEnabled(bCanRemove && m_iSelection != -1 && m_iSelection < (ezInt32) m_Config.m_DataDirs.GetCount() - 1);
+  ButtonUp->setEnabled(m_iSelection > 0);
+  ButtonDown->setEnabled(m_iSelection != -1 && m_iSelection < (ezInt32) m_Config.m_DataDirs.GetCount() - 1);
 }
 
 void DataDirsDlg::on_ButtonOpenFolder_clicked()
@@ -156,7 +156,7 @@ void DataDirsDlg::on_ButtonOpenFolder_clicked()
   if (m_iSelection < 0)
     return;
 
-  ezStringBuilder sPath(ezApplicationFileSystemConfig::GetProjectDirectory(), "/", m_Config.m_DataDirs[m_iSelection].m_sRelativePath);
+  ezStringBuilder sPath(ezApplicationConfig::GetSdkRootDirectory(), "/", m_Config.m_DataDirs[m_iSelection].m_sSdkRootRelativePath);
   sPath.MakeCleanPath();
 
   QStringList args;

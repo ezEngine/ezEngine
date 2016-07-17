@@ -64,30 +64,17 @@ public:
   };
 
   /// \brief Constructor.
-  ezApplication() : 
-    m_iReturnCode(0), 
-    m_uiArgumentCount(0), 
-    m_ppArguments(nullptr),
-    m_bReportMemoryLeaks(true)
-  {
-  }
+  ezApplication();
 
   /// \brief Virtual destructor.
-  virtual ~ezApplication()
-  {
-  }
+  virtual ~ezApplication();
 
   /// \brief This function is called before any kind of engine initialization is done.
   ///
   /// Override this function to be able to configure subsystems, before they are initialized.
   /// After this function returns, ezStartup::StartupCore() is automatically called.
   /// If you need to set up custom allocators, this is the place to do this.
-  virtual void BeforeCoreStartup()
-  {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    ezRTTI::VerifyCorrectnessForAllTypes();
-#endif
-  }
+  virtual void BeforeCoreStartup();
 
   /// \brief This function is called after basic engine initialization has been done.
   ///
@@ -154,12 +141,7 @@ public:
 
   /// \brief Will set the command line arguments that were passed to the app by the OS.
   /// This is automatically called by EZ_APPLICATION_ENTRY_POINT() and EZ_CONSOLEAPP_ENTRY_POINT().
-  inline void SetCommandLineArguments(ezUInt32 uiArgumentCount, const char** ppArguments)
-  {
-    m_uiArgumentCount = uiArgumentCount;
-    m_ppArguments = ppArguments;
-    ezCommandLineUtils::GetGlobalInstance()->SetCommandLine(uiArgumentCount, ppArguments);
-  }
+  void SetCommandLineArguments(ezUInt32 uiArgumentCount, const char** ppArguments);
 
   /// \brief Returns the one instance of ezApplication that is available.
   static ezApplication* GetApplicationInstance()
@@ -176,12 +158,7 @@ public:
   }
 
   /// \brief Returns one of the command line arguments that was passed to the application.
-  const char* GetArgument(ezUInt32 uiArgument) const
-  {
-    EZ_ASSERT_DEV(uiArgument < m_uiArgumentCount, "There are only %i arguments, cannot access argument %i.", m_uiArgumentCount, uiArgument);
-
-    return m_ppArguments[uiArgument];
-  }
+  const char* GetArgument(ezUInt32 uiArgument) const;
 
   /// \brief Returns the complete array of command line arguments that were passed to the application.
   const char** GetArgumentsArray() const

@@ -1,7 +1,48 @@
 
 #include <Core/PCH.h>
 #include <Core/Application/Application.h>
+#include <Core/Application/Config/ApplicationConfig.h>
 
+
+ezApplication::ezApplication() :
+  m_iReturnCode(0),
+  m_uiArgumentCount(0),
+  m_ppArguments(nullptr),
+  m_bReportMemoryLeaks(true)
+{
+
+}
+
+
+ezApplication::~ezApplication()
+{
+
+}
+
+void ezApplication::BeforeCoreStartup()
+{
+  ezApplicationConfig::DetectSdkRootDirectory();
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  ezRTTI::VerifyCorrectnessForAllTypes();
+#endif
+}
+
+
+void ezApplication::SetCommandLineArguments(ezUInt32 uiArgumentCount, const char** ppArguments)
+{
+  m_uiArgumentCount = uiArgumentCount;
+  m_ppArguments = ppArguments;
+  ezCommandLineUtils::GetGlobalInstance()->SetCommandLine(uiArgumentCount, ppArguments);
+}
+
+
+const char* ezApplication::GetArgument(ezUInt32 uiArgument) const
+{
+  EZ_ASSERT_DEV(uiArgument < m_uiArgumentCount, "There are only %i arguments, cannot access argument %i.", m_uiArgumentCount, uiArgument);
+
+  return m_ppArguments[uiArgument];
+}
 
 ezApplication* ezApplication::s_pApplicationInstance = nullptr;
 

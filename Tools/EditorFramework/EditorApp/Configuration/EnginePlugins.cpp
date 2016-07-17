@@ -33,8 +33,8 @@ void ezQtEditorApp::DetectAvailableEnginePlugins()
 
   for (const auto& plugin : m_EnginePluginConfig.m_Plugins)
   {
-    s_EnginePlugins.m_Plugins[plugin.m_sRelativePath].m_bActive = true;
-    s_EnginePlugins.m_Plugins[plugin.m_sRelativePath].m_bToBeLoaded = plugin.m_sDependecyOf.Contains("<manual>");
+    s_EnginePlugins.m_Plugins[plugin.m_sAppDirRelativePath].m_bActive = true;
+    s_EnginePlugins.m_Plugins[plugin.m_sAppDirRelativePath].m_bToBeLoaded = plugin.m_sDependecyOf.Contains("<manual>");
   }
 }
 
@@ -45,7 +45,7 @@ void ezQtEditorApp::StoreEnginePluginsToBeLoaded()
   for (auto it = s_EnginePlugins.m_Plugins.GetIterator(); it.IsValid(); ++it)
   {
     ezApplicationPluginConfig::PluginConfig cfg;
-    cfg.m_sRelativePath = it.Key();
+    cfg.m_sAppDirRelativePath = it.Key();
 
     if (it.Value().m_bToBeLoaded)
     {
@@ -87,7 +87,7 @@ void ezQtEditorApp::ReadEnginePluginConfig()
     {
       ezApplicationPluginConfig::PluginConfig cfg;
       cfg.m_sDependecyOf.Insert(eplug.Key());
-      cfg.m_sRelativePath = *rdep;
+      cfg.m_sAppDirRelativePath = *rdep;
 
       m_EnginePluginConfig.AddPlugin(cfg);
     }

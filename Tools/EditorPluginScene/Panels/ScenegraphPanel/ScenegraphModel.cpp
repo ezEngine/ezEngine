@@ -34,7 +34,7 @@ void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, con
 
     if (pInfo)
     {
-      ezStringBuilder sPath = pInfo->m_sRelativePath;
+      ezStringBuilder sPath = pInfo->m_sDataDirRelativePath;
       sPath = sPath.GetFileName();
 
       out_Result.Set("Prefab: ", sPath);
@@ -101,7 +101,7 @@ void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, con
             auto pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo(AssetGuid);
 
             if (pAsset)
-              sValue = pAsset->m_sRelativePath;
+              sValue = pAsset->m_sDataDirRelativePath;
             else
               sValue = "<unknown>";
           }
@@ -212,7 +212,7 @@ QVariant ezQtScenegraphModel::data(const QModelIndex &index, int role) const
         auto pInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(prefab);
 
         if (pInfo)
-          return QString::fromUtf8(pInfo->m_sRelativePath);
+          return QString::fromUtf8(pInfo->m_sDataDirRelativePath);
 
         return QStringLiteral("Prefab asset could not be found");
       }

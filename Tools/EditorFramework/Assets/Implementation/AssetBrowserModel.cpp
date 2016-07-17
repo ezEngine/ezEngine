@@ -149,14 +149,14 @@ void ezAssetBrowserModel::resetModel()
     if (!m_sPathFilter.IsEmpty())
     {
       // if the string is not found in the path, ignore this asset
-      if (!it.Value()->m_sRelativePath.StartsWith_NoCase(m_sPathFilter))
+      if (!it.Value()->m_sDataDirRelativePath.StartsWith_NoCase(m_sPathFilter))
           continue;
 
       if (!m_bShowItemsInSubFolders)
       {
         // do we find another path separator after the prefix path?
         // if so, there is a sub-folder, and thus we ignore it
-        if (ezStringUtils::FindSubString(it.Value()->m_sRelativePath.GetData() + m_sPathFilter.GetElementCount() + 1, "/") != nullptr)
+        if (ezStringUtils::FindSubString(it.Value()->m_sDataDirRelativePath.GetData() + m_sPathFilter.GetElementCount() + 1, "/") != nullptr)
           continue;
       }
     }
@@ -164,7 +164,7 @@ void ezAssetBrowserModel::resetModel()
     if (!m_sTextFilter.IsEmpty())
     {
       // if the string is not found in the path, ignore this asset
-      if (it.Value()->m_sRelativePath.FindSubString_NoCase(m_sTextFilter) == nullptr)
+      if (it.Value()->m_sDataDirRelativePath.FindSubString_NoCase(m_sTextFilter) == nullptr)
         continue;
     }
 
@@ -178,7 +178,7 @@ void ezAssetBrowserModel::resetModel()
 
     ae.m_Guid = it.Key();
 
-    sTemp2 = it.Value()->m_sRelativePath;
+    sTemp2 = it.Value()->m_sDataDirRelativePath;
     sTemp = sTemp2.GetFileName();
 
     if (m_bSortByRecentUse)
@@ -252,13 +252,13 @@ QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
   {
   case Qt::DisplayRole:
     {
-      ezStringBuilder sFilename = ezPathUtils::GetFileName(pAssetInfo->m_sRelativePath);
+      ezStringBuilder sFilename = ezPathUtils::GetFileName(pAssetInfo->m_sDataDirRelativePath);
       return QString::fromUtf8(sFilename);
     }
     break;
 
   case Qt::ToolTipRole:
-    return QString::fromUtf8(pAssetInfo->m_sRelativePath.GetData());
+    return QString::fromUtf8(pAssetInfo->m_sDataDirRelativePath.GetData());
 
   case Qt::DecorationRole:
     {
@@ -283,7 +283,7 @@ QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
     return QString::fromUtf8(pAssetInfo->m_sAbsolutePath);
 
   case UserRoles::RelativePath:
-    return QString::fromUtf8(pAssetInfo->m_sRelativePath);
+    return QString::fromUtf8(pAssetInfo->m_sDataDirRelativePath);
 
   case UserRoles::AssetIconPath:
     {
