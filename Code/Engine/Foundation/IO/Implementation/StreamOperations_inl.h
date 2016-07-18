@@ -4,6 +4,7 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Types/Enum.h>
 
 // Standard operators for overloads of common data types
 
@@ -224,6 +225,26 @@ inline ezStreamReader& operator >> (ezStreamReader& Stream, ezStringBuilder& sVa
   }
   else
     sValue.Clear();
+
+  return Stream;
+}
+
+// ezEnum
+
+template <typename T>
+inline ezStreamWriter& operator << (ezStreamWriter& Stream, const ezEnum<T>& value)
+{
+  Stream << value.GetValue();
+
+  return Stream;
+}
+
+template <typename T>
+inline ezStreamReader& operator >> (ezStreamReader& Stream, ezEnum<T>& value)
+{
+  T::StorageType storedValue;
+  Stream >> storedValue;
+  value.SetValue(storedValue);
 
   return Stream;
 }

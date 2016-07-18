@@ -1,6 +1,8 @@
 #pragma once
 
 #include <RendererCore/Declarations.h>
+#include <RendererCore/Shader/ConstantBufferStorage.h>
+#include <RendererCore/Shader/ShaderStageBinary.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Containers/Map.h>
@@ -8,9 +10,8 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Context/Context.h>
 #include <Core/ResourceManager/Resource.h>
-#include <RendererCore/../../../Data/Base/Shaders/Common/ConstantBufferMacros.h>
 #include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
-#include <RendererCore/Shader/ShaderStageBinary.h>
+
 
 struct ezShaderBindFlags
 {
@@ -52,10 +53,9 @@ struct ezRenderContextFlags
     BufferBindingChanged = EZ_BIT(2),
     ConstantBufferBindingChanged = EZ_BIT(3),
     MeshBufferBindingChanged = EZ_BIT(4),
+    MaterialBindingChanged = EZ_BIT(5),
 
-    ShaderStateValid = EZ_BIT(5),
-
-    AllStatesInvalid = ShaderStateChanged | TextureBindingChanged | ConstantBufferBindingChanged | MeshBufferBindingChanged,
+    AllStatesInvalid = ShaderStateChanged | TextureBindingChanged | BufferBindingChanged | ConstantBufferBindingChanged | MeshBufferBindingChanged,
     Default = None
   };
 
@@ -66,7 +66,7 @@ struct ezRenderContextFlags
     StorageType BufferBindingChanged : 1;
     StorageType ConstantBufferBindingChanged : 1;
     StorageType MeshBufferBindingChanged : 1;
-    StorageType ShaderStateValid : 1;
+    StorageType MaterialBindingChanged : 1;
   };
 };
 
@@ -127,13 +127,20 @@ public:
   void SetShaderPermutationVariable(const char* szName, const ezTempHashedString& sValue);
   void SetShaderPermutationVariable(const ezHashedString& sName, const ezHashedString& sValue);
 
+  void BindMaterial(const ezMaterialResourceHandle& hMaterial);
+
   void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture);
   void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView, ezGALSamplerStateHandle hSamplerState);
 
   void BindBuffer(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
 
-  void SetMaterialState(const ezMaterialResourceHandle& hMaterial);
-  void BindConstantBuffer(const ezTempHashedString& sSlotName, const ezConstantBufferResourceHandle& hConstantBuffer);
+  void BindConstantBuffer(const ezTempHashedString& sSlotName, ezGALBufferHandle hConstantBuffer);
+  void BindConstantBuffer(const ezTempHashedString& sSlotName, ezConstantBufferStorageHandle hConstantBufferStorage);
+
+  /// \brief Sets the currently active shader on the given render context.
+  ///
+  /// This function has no effect until the next drawcall on the context.
+  void BindShader(ezShaderResourceHandle hShader, ezBitflags<ezShaderBindFlags> flags = ezShaderBindFlags::Default);
 
   void BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer);
   void BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer, const ezVertexDeclarationInfo* pVertexDeclarationInfo, 
@@ -141,73 +148,68 @@ public:
   ezResult DrawMeshBuffer(ezUInt32 uiPrimitiveCount = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0, ezUInt32 uiInstanceCount = 1);
 
   ezResult ApplyContextStates(bool bForce = false);
+
+  GlobalConstants& WriteGlobalConstants();
+  const GlobalConstants& ReadGlobalConstants() const;
   
-
-  /// \brief Sets the currently active shader on the given render context.
-  ///
-  /// This function has no effect until the next drawcall on the context.
-  void BindShader(ezShaderResourceHandle hShader, ezBitflags<ezShaderBindFlags> flags = ezShaderBindFlags::Default);
-
-  /// \brief Evaluates the currently active shader program and then returns that.
-  /// Can be used to determine the shader that needs to be used to create a vertex declaration.
-  ezGALShaderHandle GetActiveGALShader();
-
-  template<typename STRUCT>
-  STRUCT* BeginModifyConstantBuffer(ezConstantBufferResourceHandle hConstantBuffer)
-  {
-    return reinterpret_cast<STRUCT*>(InternalBeginModifyConstantBuffer(hConstantBuffer));
-  }
-
-  void EndModifyConstantBuffer();
-
   // Static Functions
-public:
+public: 
 
-  static GlobalConstants& WriteGlobalConstants()
+  // Constant buffer storage handling
+  template <typename T>
+  EZ_FORCE_INLINE static ezConstantBufferStorageHandle CreateConstantBufferStorage()
   {
-    s_bGlobalConstantsModified = true;
-    return s_GlobalConstants;
+    return CreateConstantBufferStorage(sizeof(T));
   }
 
-  static const GlobalConstants& ReadGlobalConstants()
+  template <typename T>
+  EZ_FORCE_INLINE static ezConstantBufferStorageHandle CreateConstantBufferStorage(ezConstantBufferStorage<T>*& out_pStorage)
   {
-    return s_GlobalConstants;
+    ezConstantBufferStorageBase* pStorage;
+    ezConstantBufferStorageHandle hStorage = CreateConstantBufferStorage(sizeof(T), pStorage);
+    out_pStorage = static_cast<ezConstantBufferStorage<T>*>(pStorage);
+    return hStorage;
   }
 
-  struct MaterialParam
+  EZ_FORCE_INLINE static ezConstantBufferStorageHandle CreateConstantBufferStorage(ezUInt32 uiSizeInBytes)
   {
-    ezUInt64 m_LastModification;
-    ezShaderMaterialParamCB::MaterialParameter::Type m_Type;
-    ezUInt8 m_uiArrayElements;
-    ezUInt16 m_uiDataSize;
-  };
+    ezConstantBufferStorageBase* pStorage;
+    return CreateConstantBufferStorage(uiSizeInBytes, pStorage);
+  }
 
-  static void SetMaterialParameter(const ezTempHashedString& sName, const float& value);
-  static void SetMaterialParameter(const ezTempHashedString& sName, const ezVec2& value);
-  static void SetMaterialParameter(const ezTempHashedString& sName, const ezVec3& value);
-  static void SetMaterialParameter(const ezTempHashedString& sName, const ezVec4& value);
-  static void SetMaterialParameter(const ezTempHashedString& sName, const ezColor& value);
-  static void SetMaterialParameter(const ezTempHashedString& sName, const ezInt32& value);
-  static void SetMaterialParameter(const ezTempHashedString& sName, const ezVec2I32& value);
-  static void SetMaterialParameter(const ezTempHashedString& sName, const ezVec3I32& value);
-  static void SetMaterialParameter(const ezTempHashedString& sName, const ezVec4I32& value);
-  //static void SetMaterialParameter(const ezTempHashedString& sName, const ezMat3& value); /// \todo ezMat3 does not work right, ezTransform maybe neither
-  static void SetMaterialParameter(const ezTempHashedString& sName, const ezMat4& value);
-  static void SetMaterialParameter(const ezTempHashedString& sName, const ezTransform& value);
-  static void SetMaterialParameter(const ezTempHashedString& sName, const ezVariant& value);
-  /// \todo Array versions of material parameters
+  static ezConstantBufferStorageHandle CreateConstantBufferStorage(ezUInt32 uiSizeInBytes, ezConstantBufferStorageBase*& out_pStorage);
+  static void DeleteConstantBufferStorage(ezConstantBufferStorageHandle hStorage);
 
+  template <typename T>
+  EZ_FORCE_INLINE static bool TryGetConstantBufferStorage(ezConstantBufferStorageHandle hStorage, ezConstantBufferStorage<T>*& out_pStorage)
+  {
+    ezConstantBufferStorageBase* pStorage = nullptr;
+    bool bResult = TryGetConstantBufferStorage(hStorage, pStorage);
+    out_pStorage = static_cast<ezConstantBufferStorage<T>*>(pStorage);
+    return bResult;
+  }
 
-  static const MaterialParam* GetMaterialParameterPointer(ezUInt32 uiNameHash);
+  static bool TryGetConstantBufferStorage(ezConstantBufferStorageHandle hStorage, ezConstantBufferStorageBase*& out_pStorage);
 
+  template <typename T>
+  EZ_FORCE_INLINE static T* GetConstantBufferData(ezConstantBufferStorageHandle hStorage)
+  {
+    ezConstantBufferStorage<T>* pStorage = nullptr;
+    if (TryGetConstantBufferStorage(hStorage, pStorage))
+    {
+      return &(pStorage->GetDataForWriting());
+    }
 
+    return nullptr;
+  }
+
+  // Default sampler state
   static ezGALSamplerStateHandle GetDefaultSamplerState(ezBitflags<ezDefaultSamplerFlags> flags);
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, RendererContext);
 
   static void OnEngineShutdown();
-  static void OnCoreShutdown();
 
 private:
 
@@ -215,11 +217,14 @@ private:
   ezBitflags<ezRenderContextFlags> m_StateFlags;
   ezShaderResourceHandle m_hActiveShader;
   ezGALShaderHandle m_hActiveGALShader;
+  
   ezHashTable<ezHashedString, ezHashedString> m_PermutationVariables;
+  ezHashTable<ezHashedString, ezVariant> m_TempMaterialParams;
+  ezMaterialResourceHandle m_hMaterial;
+  ezUInt64 m_uiMaterialLastModified;
   
   ezShaderPermutationResourceHandle m_hActiveShaderPermutation;
 
-  ezConstantBufferResource* m_pCurrentlyModifyingBuffer;
   ezBitflags<ezShaderBindFlags> m_ShaderBindFlags;
 
   ezGALBufferHandle m_hVertexBuffer;
@@ -228,13 +233,13 @@ private:
   ezGALPrimitiveTopology::Enum m_Topology;
   ezUInt32 m_uiMeshBufferPrimitiveCount;
 
-  ezUInt64 m_uiLastMaterialCBSync;
-
   struct TextureViewSampler
   {
+    EZ_DECLARE_POD_TYPE();
+
     TextureViewSampler() {}
     TextureViewSampler(ezGALResourceViewHandle hResourceView, ezGALSamplerStateHandle hSamplerState)
-    : m_hResourceView(hResourceView), m_hSamplerState(hSamplerState) {}
+      : m_hResourceView(hResourceView), m_hSamplerState(hSamplerState) {}
 
     ezGALResourceViewHandle m_hResourceView;
     ezGALSamplerStateHandle m_hSamplerState;
@@ -242,7 +247,24 @@ private:
   
   ezHashTable<ezUInt32, TextureViewSampler> m_BoundTextures[ezGALShaderStage::ENUM_COUNT];
   ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundBuffer[ezGALShaderStage::ENUM_COUNT];
-  ezHashTable<ezUInt32, ezConstantBufferResourceHandle> m_BoundConstantBuffers;
+  
+  struct BoundConstantBuffer
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    BoundConstantBuffer() {}
+    BoundConstantBuffer(ezGALBufferHandle hConstantBuffer)
+      : m_hConstantBuffer(hConstantBuffer) {}
+    BoundConstantBuffer(ezConstantBufferStorageHandle hConstantBufferStorage)
+      : m_hConstantBufferStorage(hConstantBufferStorage) {}
+
+    ezGALBufferHandle m_hConstantBuffer;
+    ezConstantBufferStorageHandle m_hConstantBufferStorage;
+  };
+
+  ezHashTable<ezUInt32, BoundConstantBuffer> m_BoundConstantBuffers;
+
+  ezConstantBufferStorageHandle m_hGlobalConstantBufferStorage;
 
   struct ShaderVertexDecl
   {
@@ -265,16 +287,12 @@ private:
   };
 
   static ezResult BuildVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl, ezGALVertexDeclarationHandle& out_Declaration);
-  ezUInt8* InternalBeginModifyConstantBuffer(ezConstantBufferResourceHandle hConstantBuffer);
-
-  static MaterialParam* InternalSetMaterialParameter(const ezTempHashedString& sName, ezShaderMaterialParamCB::MaterialParameter::Type type, ezUInt32 uiMaxArrayElements);
-
+  
   static ezMap<ShaderVertexDecl, ezGALVertexDeclarationHandle> s_GALVertexDeclarations;
-  static ezUInt64 s_LastMaterialParamModification;
 
-  static bool s_bGlobalConstantsModified;
-  static GlobalConstants s_GlobalConstants;
-  static ezConstantBufferResourceHandle s_hGlobalConstantBuffer;
+  static ezMutex s_ConstantBufferStorageMutex;
+  static ezIdTable<ezConstantBufferStorageId, ezConstantBufferStorageBase*> s_ConstantBufferStorageTable;
+  static ezMap<ezUInt32, ezDynamicArray<ezConstantBufferStorageBase*>> s_FreeConstantBufferStorage;
 
   static ezGALSamplerStateHandle s_hDefaultSamplerStates[4];
 
@@ -282,9 +300,12 @@ private: // Per Renderer States
   ezGALContext* m_pGALContext;
 
   // Member Functions
-  void UploadGlobalConstants();
-  void ApplyTextureBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
-  void ApplyBufferBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
+  void UploadConstants();
+
+  ezShaderPermutationResource* ApplyShaderState();
+  ezMaterialResource* ApplyMaterialState();
   void ApplyConstantBufferBindings(const ezShaderStageBinary* pBinary);
+  void ApplyTextureBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
+  void ApplyBufferBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);  
 };
 

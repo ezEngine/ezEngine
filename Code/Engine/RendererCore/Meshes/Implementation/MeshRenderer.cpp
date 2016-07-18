@@ -1,16 +1,35 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Pipeline/RenderDataBatch.h>
-#include <RendererCore/Pipeline/ViewData.h>
-#include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
+#include <Foundation/Types/ScopeExit.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
 
+EZ_CHECK_AT_COMPILETIME(sizeof(PerInstanceData) == 128);
+
+namespace
+{
+  enum
+  {
+    MAX_RENDER_DATA_PER_BATCH = 1024
+  };
+}
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderer, 1, ezRTTIDefaultAllocator<ezMeshRenderer>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezMeshRenderer::ezMeshRenderer()
+{
+  m_iInstancingThreshold = 4;
+}
+
+ezMeshRenderer::~ezMeshRenderer()
+{
+}
 
 void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)
 {
@@ -19,26 +38,15 @@ void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>
 
 void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch)
 {
-  if (!m_hObjectTransformCB.IsValid())
-  {
-    /// \todo Not sure ezMeshRenderer should create the ObjectConstants CB, probably this should be centralized somewhere else
-
-    // this always accesses the same constant buffer (same GUID), but every ezMeshRenderer holds its own reference to it
-    m_hObjectTransformCB = ezResourceManager::GetExistingResource<ezConstantBufferResource>("{34204E49-441A-49D6-AB09-9E8DE38BC803}");
-
-    if (!m_hObjectTransformCB.IsValid())
-    {
-      // only create this constant buffer, when it does not yet exist
-      ezConstantBufferResourceDescriptor<ObjectConstants> desc;
-      m_hObjectTransformCB = ezResourceManager::CreateResource<ezConstantBufferResource>("{34204E49-441A-49D6-AB09-9E8DE38BC803}", desc, "ezMeshRenderer CB");
-    }
-  }
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezRenderContext* pContext = renderViewContext.m_pRenderContext;
+  ezGALContext* pGALContext = pContext->GetGALContext();
 
   const ezMeshRenderData* pRenderData = batch.GetData<ezMeshRenderData>(0);
 
   const ezMeshResourceHandle& hMesh = pRenderData->m_hMesh;
   const ezMaterialResourceHandle& hMaterial = pRenderData->m_hMaterial;
-  ezUInt32 uiPartIndex = pRenderData->m_uiPartIndex;
+  const ezUInt32 uiPartIndex = pRenderData->m_uiPartIndex;
 
   ezResourceLock<ezMeshResource> pMesh(hMesh);
 
@@ -49,43 +57,122 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
     return;
   }
 
-  const ezMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiPartIndex];
+  const bool bUseInstancing = m_iInstancingThreshold > 0 && batch.GetCount() >= (ezUInt32)m_iInstancingThreshold;
+  const ezUInt32 uiMaxRenderDataPerBatch = bUseInstancing ? MAX_RENDER_DATA_PER_BATCH : 1;
+  
+  ezGALBufferHandle hPerInstanceData = CreateInstanceDataBuffer(bUseInstancing);
+  EZ_SCOPE_EXIT(DeleteInstanceDataBuffer(hPerInstanceData));
 
-  renderViewContext.m_pRenderContext->BindMeshBuffer(pMesh->GetMeshBuffer());
-  renderViewContext.m_pRenderContext->SetMaterialState(hMaterial);  
-
-  renderViewContext.m_pRenderContext->BindConstantBuffer("ObjectConstants", m_hObjectTransformCB);
-
-  const ezMat4& ViewMatrix = renderViewContext.m_pViewData->m_ViewMatrix;
-  const ezMat4& ViewProjMatrix = renderViewContext.m_pViewData->m_ViewProjectionMatrix;
-
-  // TODO: use instancing
-  for (auto it = batch.GetIterator<ezMeshRenderData>(); it.IsValid(); ++it)
+  if (bUseInstancing)
   {
-    pRenderData = it;
+    pContext->SetShaderPermutationVariable("INSTANCING", "TRUE");
 
-    EZ_ASSERT_DEV(pRenderData->m_hMesh == hMesh, "Invalid batching (mesh)");
-    EZ_ASSERT_DEV(pRenderData->m_hMaterial == hMaterial, "Invalid batching (material)");
-    EZ_ASSERT_DEV(pRenderData->m_uiPartIndex == uiPartIndex, "Invalid batching (part)");
-
-    ObjectConstants* cb = renderViewContext.m_pRenderContext->BeginModifyConstantBuffer<ObjectConstants>(m_hObjectTransformCB);
-    cb->ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
-    cb->ObjectToCameraMatrix = ViewMatrix * cb->ObjectToWorldMatrix;
-    cb->ObjectToScreenMatrix = ViewProjMatrix * cb->ObjectToWorldMatrix;
-    cb->GameObjectID = pRenderData->m_uiEditorPickingID;
-
-    renderViewContext.m_pRenderContext->EndModifyConstantBuffer();
-    
-    if (renderViewContext.m_pRenderContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive).Failed())
+    for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
     {
-      // draw bounding box instead
-      if (pRenderData->m_GlobalBounds.IsValid())
-      {
-        ezDebugRenderer::DrawLineBox(renderViewContext.m_uiWorldIndex, pRenderData->m_GlobalBounds.GetBox(), ezColor::Magenta);
-      }
+      pContext->BindBuffer((ezGALShaderStage::Enum)stage, "perInstanceData", pDevice->GetDefaultResourceView(hPerInstanceData));
     }
   }
+  else
+  {
+    pContext->SetShaderPermutationVariable("INSTANCING", "FALSE");
+    pContext->BindConstantBuffer("PerInstanceConstants", hPerInstanceData);
+  }
+
+  pContext->BindMaterial(hMaterial);
+  pContext->BindMeshBuffer(pMesh->GetMeshBuffer());
+
+  ezUInt32 uiStartIndex = 0;
+  while (uiStartIndex < batch.GetCount())
+  {
+    const ezUInt32 uiCount = ezMath::Min(batch.GetCount() - uiStartIndex, uiMaxRenderDataPerBatch);
+           
+    FillPerInstanceData(batch, uiStartIndex, uiCount);
+    if (m_perInstanceData.GetCount() > 0) // Instance data might be empty if all render data was filtered.
+    {
+      pGALContext->UpdateBuffer(hPerInstanceData, 0, m_perInstanceData.GetByteArrayPtr());
+
+      const ezMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiPartIndex];
+      if (pContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive, batch.GetCount()).Failed())
+      {
+        for (auto it = batch.GetIterator<ezMeshRenderData>(uiStartIndex, uiCount); it.IsValid(); ++it)
+        {
+          pRenderData = it;
+
+          // draw bounding box instead
+          if (pRenderData->m_GlobalBounds.IsValid())
+          {
+            ezDebugRenderer::DrawLineBox(renderViewContext.m_uiWorldIndex, pRenderData->m_GlobalBounds.GetBox(), ezColor::Magenta);
+          }
+        }
+      }
+    }
+
+    uiStartIndex += uiCount;
+  }
 }
+
+ezGALBufferHandle ezMeshRenderer::CreateInstanceDataBuffer(bool bUseInstancing)
+{
+  ezGALBufferCreationDescription desc;
+  desc.m_ResourceAccess.m_bImmutable = false;
+
+  if (bUseInstancing)
+  {    
+    desc.m_uiStructSize = sizeof(PerInstanceData);
+    desc.m_uiTotalSize = desc.m_uiStructSize * MAX_RENDER_DATA_PER_BATCH;
+    desc.m_BufferType = ezGALBufferType::Generic;
+    desc.m_bUseAsStructuredBuffer = true;
+    desc.m_bAllowShaderResourceView = true;
+  }
+  else
+  {
+    desc.m_uiTotalSize = sizeof(PerInstanceData);
+    desc.m_BufferType = ezGALBufferType::ConstantBuffer;
+  }
+
+  ///\todo use resource pool
+  //return ezGPUResourcePool::GetDefaultInstance()->GetBuffer(desc);
+  return ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
+}
+
+
+void ezMeshRenderer::DeleteInstanceDataBuffer(ezGALBufferHandle hBuffer)
+{
+  ///\todo use resource pool
+  //ezGPUResourcePool::GetDefaultInstance()->ReturnBuffer(hBuffer);
+  ezGALDevice::GetDefaultDevice()->DestroyBuffer(hBuffer);
+}
+
+void ezMeshRenderer::FillPerInstanceData(const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32 uiCount)
+{
+  m_perInstanceData.Clear();
+  m_perInstanceData.Reserve(uiCount);
+
+  for (auto it = batch.GetIterator<ezMeshRenderData>(uiStartIndex, uiCount); it.IsValid(); ++it)
+  {
+    const ezMeshRenderData* pRenderData = it;
+
+    auto& perInstanceData = m_perInstanceData.ExpandAndGetRef();
+    perInstanceData.ObjectToWorld = pRenderData->m_GlobalTransform;
+
+    const ezVec3 scalingFactors = pRenderData->m_GlobalTransform.m_Rotation.GetScalingFactors();
+    const float fEpsilon = ezMath::BasicType<float>::DefaultEpsilon();
+    const bool bHasUniformScale = ezMath::IsEqual(scalingFactors.x, scalingFactors.y, fEpsilon) && ezMath::IsEqual(scalingFactors.x, scalingFactors.z, fEpsilon);
+    if (bHasUniformScale)
+    {
+      perInstanceData.ObjectToWorldNormal = pRenderData->m_GlobalTransform;
+    }
+    else
+    {
+      ezMat3 rotation = pRenderData->m_GlobalTransform.m_Rotation.GetInverse().GetTranspose();
+      perInstanceData.ObjectToWorldNormal = ezTransform(ezVec3::ZeroVector(), rotation);
+    }
+
+    perInstanceData.GameObjectID = pRenderData->m_uiEditorPickingID;
+  }
+}
+
+
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshRenderer);
 

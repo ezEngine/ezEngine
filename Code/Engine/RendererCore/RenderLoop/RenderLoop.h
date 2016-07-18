@@ -33,12 +33,12 @@ public:
   static void BeginFrame();
   static void EndFrame();
 
-  static ezEvent<ezUInt32> s_BeginFrameEvent; ///< Triggered at the end of BeginFrame.
-  static ezEvent<ezUInt32> s_EndFrameEvent; ///< Triggered at the beginning of EndFrame before the frame counter is incremented.
+  static ezEvent<ezUInt64> s_BeginFrameEvent; ///< Triggered at the end of BeginFrame.
+  static ezEvent<ezUInt64> s_EndFrameEvent; ///< Triggered at the beginning of EndFrame before the frame counter is incremented.
 
   static bool GetUseMultithreadedRendering();
 
-  EZ_FORCE_INLINE static ezUInt32 GetFrameCounter()
+  EZ_FORCE_INLINE static ezUInt64 GetFrameCounter()
   {
     return s_uiFrameCounter;
   }
@@ -62,7 +62,7 @@ private:
   static void DeleteRenderPipeline(ezUniquePtr<ezRenderPipeline>& pRenderPipeline);
   static void OnEngineShutdown();
 
-  static ezUInt32 s_uiFrameCounter;
+  static ezUInt64 s_uiFrameCounter;
 
   static ezDynamicArray<ezView*> s_MainViews;
 };

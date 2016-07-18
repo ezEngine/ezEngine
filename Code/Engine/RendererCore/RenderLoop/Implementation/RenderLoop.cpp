@@ -7,10 +7,10 @@
 
 ezCVarBool CVarMultithreadedRendering("r_Multithreading", true, ezCVarFlags::Default, "Enables multi-threaded update and rendering");
 
-ezEvent<ezUInt32> ezRenderLoop::s_BeginFrameEvent;
-ezEvent<ezUInt32> ezRenderLoop::s_EndFrameEvent;
+ezEvent<ezUInt64> ezRenderLoop::s_BeginFrameEvent;
+ezEvent<ezUInt64> ezRenderLoop::s_EndFrameEvent;
 
-ezUInt32 ezRenderLoop::s_uiFrameCounter;
+ezUInt64 ezRenderLoop::s_uiFrameCounter;
 ezDynamicArray<ezView*> ezRenderLoop::s_MainViews;
 
 namespace
@@ -248,8 +248,7 @@ void ezRenderLoop::ExtractMainViews()
 
 void ezRenderLoop::Render(ezRenderContext* pRenderContext)
 {
-  const ezUInt32 uiFrameCounter = s_uiFrameCounter + (CVarMultithreadedRendering ? 1 : 0);
-  auto& filteredRenderPipelines = s_FilteredRenderPipelines[uiFrameCounter & 1];
+  auto& filteredRenderPipelines = s_FilteredRenderPipelines[GetDataIndexForRendering()];
 
   for (auto pRenderPipeline : filteredRenderPipelines)
   {

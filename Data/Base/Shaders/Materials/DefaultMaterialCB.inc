@@ -1,6 +1,6 @@
 #include <Shaders/Common/GlobalConstants.h>
 
-CONSTANT_BUFFER(MaterialCB, 1)
+CONSTANT_BUFFER(MaterialConstants, 1)
 {
 	COLOR(BaseColor);
 	FLOAT1(MetallicValue);

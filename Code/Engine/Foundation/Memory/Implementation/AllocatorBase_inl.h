@@ -18,7 +18,12 @@ namespace ezInternal
       m_pAllocator = pAllocator;
     }
 
-    EZ_FORCE_INLINE operator T*() const
+    EZ_FORCE_INLINE operator T*()
+    {
+      return m_pInstance;
+    }
+
+    EZ_FORCE_INLINE T* operator->()
     {
       return m_pInstance;
     }

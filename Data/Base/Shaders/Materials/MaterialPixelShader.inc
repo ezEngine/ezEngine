@@ -19,6 +19,14 @@ float3 GetNormal(PS_IN Input);
 float GetRoughness(PS_IN Input);
 float GetOpacity(PS_IN Input);
 
+PerInstanceData GetInstanceData(PS_IN Input)
+{
+	#if INSTANCING
+		return perInstanceData[Input.InstanceID];
+	#else
+		return perInstanceData;
+	#endif	
+}
 
 MaterialData FillMaterialData(PS_IN Input)
 {
@@ -93,7 +101,7 @@ MaterialData FillMaterialData(PS_IN Input)
 		
 			if (RenderPass == EDITOR_RENDER_PASS_PICKING)
 			{
-				return uintToFloat4(GameObjectID);
+				return uintToFloat4(GetInstanceData(Input).GameObjectID);
 			}
 			else if (RenderPass == EDITOR_RENDER_PASS_TEXCOORDS_UV0)
 			{
@@ -123,7 +131,7 @@ MaterialData FillMaterialData(PS_IN Input)
 		#elif RENDER_PASS == RENDER_PASS_WIREFRAME
 			if (RenderPass == WIREFRAME_RENDER_PASS_PICKING)
 			{
-				return uintToFloat4(GameObjectID);
+				return uintToFloat4(GetInstanceData(Input).GameObjectID);
 			}
 			else if (RenderPass == WIREFRAME_RENDER_PASS_MONOCHROME)
 			{

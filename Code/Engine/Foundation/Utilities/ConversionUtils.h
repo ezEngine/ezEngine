@@ -4,6 +4,7 @@
 #include <Foundation/Math/Color.h>
 #include <Foundation/Math/Mat3.h>
 #include <Foundation/Math/Mat4.h>
+#include <Foundation/Math/Transform.h>
 #include <Foundation/Math/Quat.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>
@@ -201,6 +202,9 @@ namespace ezConversionUtils
 
   /// \brief Converts a mat4 to a string
   EZ_FOUNDATION_DLL ezString ToString(const ezMat4& value); // [tested]
+
+  /// \brief Converts a transform to a string
+  EZ_FOUNDATION_DLL ezString ToString(const ezTransform& value); // [tested]
   
   /// \brief Converts a Uuid to a string
   EZ_FOUNDATION_DLL ezString ToString(const ezUuid& value);

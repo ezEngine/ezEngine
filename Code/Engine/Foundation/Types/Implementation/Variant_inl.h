@@ -250,6 +250,10 @@ void ezVariant::DispatchTo(Functor& functor, Type::Enum type)
     CALL_FUNCTOR(functor, ezMat4);
     break;
 
+  case Type::Transform:
+    CALL_FUNCTOR(functor, ezTransform);
+    break;
+
   case Type::String:
     CALL_FUNCTOR(functor, ezString);
     break;

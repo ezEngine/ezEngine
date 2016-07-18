@@ -15,7 +15,6 @@
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 
 
 
@@ -108,8 +107,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   ezGALDevice::SetDefaultDevice(m_pDevice);
 
   {
-    ezConstantBufferResourceDescriptor<ObjectCB> desc;
-    m_hObjectTransformCB = ezResourceManager::CreateResource<ezConstantBufferResource>("{E74F00FD-8C0C-47B9-A63D-E3D2E77FCFB4}", desc, "ObjectTransformCB");
+    m_hObjectTransformCB = ezRenderContext::CreateConstantBufferStorage<ObjectCB>();
 
     ezShaderManager::Configure("DX11_SM40", true);
 
@@ -126,6 +124,8 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
 void ezGraphicsTest::ShutdownRenderer()
 {
   m_hShader.Invalidate();
+
+  ezRenderContext::DeleteConstantBufferStorage(m_hObjectTransformCB);
   m_hObjectTransformCB.Invalidate();
 
   ezStartup::ShutdownEngine();
@@ -288,11 +288,9 @@ void ezGraphicsTest::RenderObject(ezMeshBufferResourceHandle hObject, const ezMa
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pContext = pDevice->GetPrimaryContext();
 
-
-  ObjectCB* ocb = ezRenderContext::GetDefaultInstance()->BeginModifyConstantBuffer<ObjectCB>(m_hObjectTransformCB);
+  ObjectCB* ocb = ezRenderContext::GetConstantBufferData<ObjectCB>(m_hObjectTransformCB);
     ocb->m_MVP = mTransform;
     ocb->m_Color = color;
-    ezRenderContext::GetDefaultInstance()->EndModifyConstantBuffer();
 
   ezRenderContext::GetDefaultInstance()->BindConstantBuffer("PerObject", m_hObjectTransformCB);
 

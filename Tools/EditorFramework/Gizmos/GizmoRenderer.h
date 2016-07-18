@@ -2,9 +2,6 @@
 
 #include <EditorFramework/Plugin.h>
 #include <RendererCore/Pipeline/Declarations.h>
-#include <Core/ResourceManager/ResourceHandle.h>
-
-typedef ezTypedResourceHandle<class ezConstantBufferResource> ezConstantBufferResourceHandle;
 
 class EZ_EDITORFRAMEWORK_DLL ezGizmoRenderer : public ezRenderer
 {
@@ -25,7 +22,5 @@ public:
 private:
 
   ezUInt32 m_uiHighlightID;
-
-  ezConstantBufferResourceHandle m_hGizmoConstantBuffer;
 };
 

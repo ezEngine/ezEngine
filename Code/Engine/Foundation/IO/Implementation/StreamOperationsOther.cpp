@@ -1,5 +1,6 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/HashedString.h>
 
 // ezAllocatorBase::Stats
 
@@ -46,8 +47,21 @@ void operator>> (ezStreamReader& Stream, ezUuid& Value)
   Stream >> Value.m_uiLow;
 }
 
+// ezHashedString
 
+void operator<< (ezStreamWriter& Stream, const ezHashedString& Value)
+{
+  Stream << Value.GetData();
+}
 
+void operator>> (ezStreamReader& Stream, ezHashedString& Value)
+{
+  ezString sTemp;
+  Stream >> sTemp;
+  Value.Assign(sTemp.GetData());
+}
+
+// ezVariant
 
 struct WriteValueFunc
 {
@@ -188,8 +202,6 @@ EZ_FORCE_INLINE void ReadValueFunc::operator()<ezDataBuffer>()
   m_pStream->ReadBytes(data.GetData(), iCount); 
   *m_pValue = data;
 }
-
-// ezVariant
 
 void operator<< (ezStreamWriter& Stream, const ezVariant& Value)
 {

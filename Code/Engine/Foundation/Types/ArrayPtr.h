@@ -15,6 +15,25 @@ public:
   typedef T ElementType;
   typedef typename ezTypeTraits<T>::NonConstType MutableElementType;
 
+private:
+  template <typename U>
+  struct ByteTypeHelper
+  {
+    typedef ezUInt8 type;
+  };
+
+  template <typename U>
+  struct ByteTypeHelper<const U>
+  {
+    typedef const ezUInt8 type;
+  };
+
+  typedef typename ByteTypeHelper<T>::type ByteType;
+
+public:
+
+  typedef typename ezArrayPtr<ByteType> ByteArrayType;
+
   /// \brief Initializes the ezArrayPtr to be empty.
   EZ_FORCE_INLINE ezArrayPtr() : m_ptr(nullptr), m_uiCount(0u) // [tested]
   {
@@ -104,6 +123,12 @@ public:
   {
     EZ_ASSERT_DEV(uiStart <= GetCount(), "uiStart (%i) has to be smaller or equal than the count (%i).", uiStart, GetCount());
     return ezArrayPtr<T>(GetPtr() + uiStart, GetCount() - uiStart);
+  }
+
+  /// \brief Reinterprets this array as a byte array.
+  EZ_FORCE_INLINE ByteArrayType ToByteArray()
+  {
+    return ByteArrayType(reinterpret_cast<ByteType*>(GetPtr()), GetCount() * sizeof(T));
   }
 
   /// \brief Index access.

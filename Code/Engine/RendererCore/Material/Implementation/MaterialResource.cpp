@@ -1,6 +1,9 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderLoop/RenderLoop.h>
+#include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <Foundation/IO/ExtendedJSONReader.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 
@@ -9,6 +12,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezMaterialResource::ezMaterialResource() : ezResource<ezMaterialResource, ezMaterialResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
+  m_uiLastModified = 0;
+  m_uiLastUpdated = 0;
 }
 
 
@@ -31,9 +36,96 @@ ezTempHashedString ezMaterialResource::GetPermutationValue(const ezTempHashedStr
   return ezTempHashedString("");
 }
 
+
+void ezMaterialResource::SetParameter(const char* szName, const ezVariant& value)
+{
+  ezTempHashedString sName(szName);
+
+  ezUInt32 uiIndex = ezInvalidIndex;
+  for (ezUInt32 i = 0; i < m_Desc.m_Parameters.GetCount(); ++i)
+  {
+    if (m_Desc.m_Parameters[i].m_Name == sName)
+    {
+      uiIndex = i;
+      break;
+    }
+  }
+
+  if (value.IsValid())
+  {
+    if (uiIndex != ezInvalidIndex)
+    {
+      if (m_Desc.m_Parameters[uiIndex].m_Value == value)
+      {
+        return;
+      }
+
+      m_Desc.m_Parameters[uiIndex].m_Value = value;
+    }
+    else
+    {
+      auto& param = m_Desc.m_Parameters.ExpandAndGetRef();
+      param.m_Name.Assign(szName);
+      param.m_Value = value;
+    }
+  }
+  else
+  {
+    if (uiIndex == ezInvalidIndex)
+    {
+      return;
+    }
+
+    m_Desc.m_Parameters.RemoveAtSwap(uiIndex);
+  }
+  
+  m_uiLastModified = ezMath::Max(ezRenderLoop::GetFrameCounter(), m_uiLastUpdated + 1);
+}
+
+void ezMaterialResource::SetTextureBinding(const char* szName, ezTextureResourceHandle value)
+{
+  ezTempHashedString sName(szName);
+
+  ezUInt32 uiIndex = ezInvalidIndex;
+  for (ezUInt32 i = 0; i < m_Desc.m_TextureBindings.GetCount(); ++i)
+  {
+    if (m_Desc.m_TextureBindings[i].m_Name == sName)
+    {
+      uiIndex = i;
+      break;
+    }
+  }
+
+  if (value.IsValid())
+  {
+    if (uiIndex != ezInvalidIndex)
+    {
+      m_Desc.m_TextureBindings[uiIndex].m_Value = value;
+    }
+    else
+    {
+      auto& binding = m_Desc.m_TextureBindings.ExpandAndGetRef();
+      binding.m_Name.Assign(szName);
+      binding.m_Value = value;
+    }
+  }
+  else
+  {
+    if (uiIndex != ezInvalidIndex)
+    {
+      m_Desc.m_TextureBindings.RemoveAtSwap(uiIndex);
+    }    
+  }
+}
+
 ezResourceLoadDesc ezMaterialResource::UnloadData(Unload WhatToUnload)
 {
   m_Desc.Clear();
+  if (!m_hConstantBufferStorage.IsInvalidated())
+  {
+    ezRenderContext::DeleteConstantBufferStorage(m_hConstantBufferStorage);
+    m_hConstantBufferStorage.Invalidate();
+  }
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -138,7 +230,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
       (*Stream) >> uiConstants;
 
-      m_Desc.m_ShaderConstants.Reserve(uiConstants);
+      m_Desc.m_Parameters.Reserve(uiConstants);
 
       ezVariant vTemp;
 
@@ -150,7 +242,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
         if (sTemp.IsEmpty() || !vTemp.IsValid())
           continue;
 
-        ezMaterialResourceDescriptor::ShaderConstant& tc = m_Desc.m_ShaderConstants.ExpandAndGetRef();
+        ezMaterialResourceDescriptor::Parameter& tc = m_Desc.m_Parameters.ExpandAndGetRef();
         tc.m_Name.Assign(sTemp.GetData());
         tc.m_Value = vTemp;
       }
@@ -249,10 +341,10 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
         {
           const ezVariantDictionary& dict = pValue->Get<ezVariantDictionary>();
 
-          m_Desc.m_ShaderConstants.Reserve(dict.GetCount());
+          m_Desc.m_Parameters.Reserve(dict.GetCount());
           for (auto it = dict.GetIterator(); it.IsValid(); ++it)
           {
-            ezMaterialResourceDescriptor::ShaderConstant& sc = m_Desc.m_ShaderConstants.ExpandAndGetRef();
+            ezMaterialResourceDescriptor::Parameter& sc = m_Desc.m_Parameters.ExpandAndGetRef();
             sc.m_Name.Assign(it.Key().GetData());
             sc.m_Value = it.Value();
           }
@@ -302,7 +394,7 @@ void ezMaterialResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezMaterialResource) +
                                      (ezUInt32) (m_Desc.m_PermutationVars.GetHeapMemoryUsage() +
-                                                 m_Desc.m_ShaderConstants.GetHeapMemoryUsage() +
+                                                 m_Desc.m_Parameters.GetHeapMemoryUsage() +
                                                  m_Desc.m_TextureBindings.GetHeapMemoryUsage());
 
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
@@ -321,7 +413,42 @@ ezResourceLoadDesc ezMaterialResource::CreateResource(const ezMaterialResourceDe
   return res;
 }
 
+void ezMaterialResource::UpdateConstantBuffer(ezHashTable<ezHashedString, ezVariant>& parameters, ezShaderPermutationResource* pShaderPermutation, ezUInt64 uiLastModified)
+{
+  ezTempHashedString sConstantBufferName("MaterialConstants");
+  const ezShaderResourceBinding* pBinding = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::PixelShader)->GetShaderResourceBinding(sConstantBufferName);
+  if (pBinding == nullptr)
+  {
+    pBinding = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::VertexShader)->GetShaderResourceBinding(sConstantBufferName);
+  }
 
+  const ezShaderConstantBufferLayout* pLayout = pBinding != nullptr ? pBinding->m_pLayout : nullptr;
+  if (pLayout == nullptr)
+    return;
+
+  if (m_hConstantBufferStorage.IsInvalidated())
+  {
+    m_hConstantBufferStorage = ezRenderContext::CreateConstantBufferStorage(pLayout->m_uiTotalSize);
+  }
+
+  ezConstantBufferStorageBase* pStorage = nullptr;
+  if (ezRenderContext::TryGetConstantBufferStorage(m_hConstantBufferStorage, pStorage))
+  {
+    ezArrayPtr<ezUInt8> data = pStorage->GetRawDataForWriting();
+
+    for (auto& constant : pLayout->m_Constants)
+    {
+      ezUInt8* pDest = &data[constant.m_uiOffset];
+
+      ezVariant* pValue = nullptr;
+      parameters.TryGetValue(constant.m_sName, pValue);
+
+      constant.CopyDataFormVariant(pDest, pValue);
+    }
+  }
+
+  m_uiLastUpdated = uiLastModified;
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Material_Implementation_MaterialResource);
 

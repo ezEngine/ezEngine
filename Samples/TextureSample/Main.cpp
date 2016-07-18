@@ -33,7 +33,6 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/Shader/ShaderResource.h>
-#include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Textures/TextureResource.h>
@@ -312,9 +311,7 @@ public:
       Proj.SetIdentity();
       Proj.SetOrthographicProjectionMatrix(m_vCameraPosition.x + -(float) g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float) g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float) g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float) g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
 
-      ezRenderContext::SetMaterialParameter("ViewProjectionMatrix", Proj);
-
-      ezRenderContext::GetDefaultInstance()->SetMaterialState(m_hMaterial);
+      ezRenderContext::GetDefaultInstance()->BindMaterial(m_hMaterial);
 
       ezMat4 mTransform;
       mTransform.SetIdentity();
@@ -336,8 +333,6 @@ public:
         for (ezInt32 x = iLeftBound; x < iRightBound; ++x)
         {
           mTransform.SetTranslationVector(ezVec3((float) x * 100.0f, (float) y * 100.0f, 0));
-
-          ezRenderContext::SetMaterialParameter("ModelMatrix", mTransform);
 
           sResourceName.Format("Loaded_%+03i_%+03i_D", x, y);
 

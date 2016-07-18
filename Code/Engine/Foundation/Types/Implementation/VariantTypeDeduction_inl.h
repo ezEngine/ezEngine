@@ -275,6 +275,19 @@ struct ezVariant::TypeDeduction<ezMat4>
 };
 
 template <>
+struct ezVariant::TypeDeduction<ezTransform>
+{
+  enum
+  {
+    value = Type::Transform,
+    forceSharing = false,
+    hasReflectedMembers = false
+  };
+
+  typedef ezTransform StorageType;
+};
+
+template <>
 struct ezVariant::TypeDeduction<ezString>
 {
   enum

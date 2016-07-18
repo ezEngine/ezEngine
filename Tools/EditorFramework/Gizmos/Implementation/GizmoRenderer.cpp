@@ -6,7 +6,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Pipeline/RenderDataBatch.h>
 #include <RendererCore/Pipeline/ViewData.h>
-#include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
+#include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Editor/GizmoConstants.h>
@@ -27,16 +27,6 @@ ezGizmoRenderer::ezGizmoRenderer()
 {
   m_uiHighlightID = 0;
   m_bEnabled = true;
-
-  // this always accesses the same constant buffer (same GUID), but every ezMeshRenderer holds its own reference to it
-  m_hGizmoConstantBuffer = ezResourceManager::GetExistingResource<ezConstantBufferResource>("<GizmoRendererContantBuffer>");
-
-  if (!m_hGizmoConstantBuffer.IsValid())
-  {
-    // only create this constant buffer, when it does not yet exist
-    ezConstantBufferResourceDescriptor<GizmoConstants> desc;
-    m_hGizmoConstantBuffer = ezResourceManager::CreateResource<ezConstantBufferResource>("<GizmoRendererContantBuffer>", desc, "ezMeshRenderer CB");
-  }
 }
 
 ezGizmoRenderer::~ezGizmoRenderer()
@@ -71,9 +61,12 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
   const ezMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiPartIndex];
 
   renderViewContext.m_pRenderContext->BindMeshBuffer(pMesh->GetMeshBuffer());
-  renderViewContext.m_pRenderContext->SetMaterialState(hMaterial);  
+  renderViewContext.m_pRenderContext->BindMaterial(hMaterial);  
 
-  renderViewContext.m_pRenderContext->BindConstantBuffer("GizmoConstants", m_hGizmoConstantBuffer);
+  ezConstantBufferStorage<GizmoConstants>* pGizmoConstantBuffer;
+  ezConstantBufferStorageHandle hGizmoConstantBuffer = ezRenderContext::CreateConstantBufferStorage(pGizmoConstantBuffer);
+
+  renderViewContext.m_pRenderContext->BindConstantBuffer("GizmoConstants", hGizmoConstantBuffer);
 
   // since typically the fov is tied to the height, we orient the gizmo size on that
   const float fGizmoScale = s_fGizmoScale * (128.0f / (float)renderViewContext.m_pViewData->m_ViewPortRect.height);
@@ -93,14 +86,12 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
       color = color * 2.0f + highlight;
     }
 
-    GizmoConstants* cb = renderViewContext.m_pRenderContext->BeginModifyConstantBuffer<GizmoConstants>(m_hGizmoConstantBuffer);
-    cb->ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
-    cb->GizmoColor = color;
-    cb->GizmoScale = fGizmoScale;
-    cb->GameObjectID = pRenderData->m_uiEditorPickingID;
+    GizmoConstants& cb = pGizmoConstantBuffer->GetDataForWriting();
+    cb.ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
+    cb.GizmoColor = color;
+    cb.GizmoScale = fGizmoScale;
+    cb.GameObjectID = pRenderData->m_uiEditorPickingID;
 
-    renderViewContext.m_pRenderContext->EndModifyConstantBuffer();
- 
     if (renderViewContext.m_pRenderContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive).Failed())
     {
       // draw bounding box instead
@@ -110,6 +101,8 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
       }
     }
   }
+
+  ezRenderContext::DeleteConstantBufferStorage(hGizmoConstantBuffer);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshRenderer);

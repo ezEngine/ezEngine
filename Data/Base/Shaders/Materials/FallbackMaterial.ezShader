@@ -6,6 +6,7 @@ ALL
 BLEND_MODE
 RENDER_PASS
 TOPOLOGY
+INSTANCING
 
 [RENDERSTATE]
 
@@ -29,6 +30,10 @@ struct GS_IN
 {
 	float4 Position : SV_Position;
 	float3 WorldPos : WORLDPOS;
+	
+	#if INSTANCING
+		uint InstanceID : SV_InstanceID;
+	#endif
 };
 
 struct GS_OUT
@@ -36,6 +41,10 @@ struct GS_OUT
 	float4 Position : SV_Position;
 	float3 WorldPos : WORLDPOS;
 	float3 Normal : NORMAL;
+	
+	#if INSTANCING
+		uint InstanceID : SV_InstanceID;
+	#endif
 };
 
 [maxvertexcount(3)]
@@ -52,6 +61,10 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
 		output.Position = input[i].Position;
 		output.WorldPos = input[i].WorldPos;
 		output.Normal = normal;
+
+		#if INSTANCING
+			output.InstanceID = input[i].InstanceID;
+		#endif
 		
 		outputStream.Append(output);
 	}

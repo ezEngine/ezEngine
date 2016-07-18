@@ -81,8 +81,8 @@ private: // Member data
 
   // Profiling
   ezProfilingId m_RenderProfilingID;
-  ezUInt32 m_uiLastExtractionFrame;
-  ezUInt32 m_uiLastRenderFrame;
+  ezUInt64 m_uiLastExtractionFrame;
+  ezUInt64 m_uiLastRenderFrame;
 
   // Render pass graph data
   PipelineState m_PipelineState;

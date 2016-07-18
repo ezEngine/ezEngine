@@ -24,6 +24,14 @@ EZ_FOUNDATION_DLL void operator<< (ezStreamWriter& Stream, const ezUuid& Value);
 /// \brief Operator to serialize ezUuid objects. [tested]
 EZ_FOUNDATION_DLL void operator>> (ezStreamReader& Stream, ezUuid& Value);
 
+class ezHashedString;
+
+/// \brief Operator to serialize ezHashedString objects. [tested]
+EZ_FOUNDATION_DLL void operator<< (ezStreamWriter& Stream, const ezHashedString& Value);
+
+/// \brief Operator to serialize ezHashedString objects. [tested]
+EZ_FOUNDATION_DLL void operator>> (ezStreamReader& Stream, ezHashedString& Value);
+
 class ezVariant;
 
 /// \brief Operator to serialize ezVariant objects.

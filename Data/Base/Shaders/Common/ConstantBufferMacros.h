@@ -1,10 +1,23 @@
 #pragma once
 
-#if defined(DX11_SM40_93) || defined(DX11_SM40) || defined(DX11_SM41) || defined(DX11_SM50)
+#if EZ_ENABLED(PLATFORM_DX11)
 
 // HLSL
 
+struct Transform
+{
+	float4 r0;
+	float4 r1;
+	float4 r2;
+};
+
+float4x4 TransformToMatrix(Transform t)
+{
+	return float4x4(t.r0, t.r1, t.r2, float4(0, 0, 0, 1));
+}
+
 #define CONSTANT_BUFFER(Name, Slot) cbuffer Name : register(b##Slot)
+#define STRUCTURED_BUFFER(Name, Type) StructuredBuffer<Type> Name
 #define FLOAT1(Name) float Name
 #define FLOAT2(Name) float2 Name
 #define FLOAT3(Name) float3 Name
@@ -15,13 +28,15 @@
 #define INT4(Name) int4 Name
 #define MAT3(Name) float3x3 Name
 #define MAT4(Name) float4x4 Name
+#define TRANSFORM(Name) Transform Name
 #define COLOR(Name) float4 Name
 
-#elif defined(GL3) || defined(GL4)
+#elif EZ_ENABLED(PLATFORM_OPENGL)
 
 // GLSL
 
 #define CONSTANT_BUFFER(Name, Slot) layout(shared) Name
+#define STRUCTURED_BUFFER(Name, Type)
 #define FLOAT1(Name) float Name
 #define FLOAT2(Name) vec2 Name
 #define FLOAT3(Name) vec3 Name
@@ -38,7 +53,10 @@
 
 // C++
 
-#define CONSTANT_BUFFER(Name, Slot) struct Name
+#include <RendererCore/Shader/Types.h>
+
+#define CONSTANT_BUFFER(Name, Slot) EZ_ALIGN_16(struct) Name
+#define STRUCTURED_BUFFER(Name, Type)
 #define FLOAT1(Name) float Name
 #define FLOAT2(Name) ezVec2 Name
 #define FLOAT3(Name) ezVec3 Name
@@ -47,8 +65,9 @@
 #define INT2(Name) ezVec2I32 Name
 #define INT3(Name) ezVec3I32 Name
 #define INT4(Name) ezVec4I32 Name
-#define MAT3(Name) ezMat3 Name
+#define MAT3(Name) ezShaderMat3 Name
 #define MAT4(Name) ezMat4 Name
+#define TRANSFORM(Name) ezShaderTransform Name
 #define COLOR(Name) ezColor Name
 
 #endif

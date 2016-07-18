@@ -73,9 +73,10 @@ EZ_FORCE_INLINE const T* ezRenderDataBatch::GetData(ezUInt32 uiIndex) const
 }
 
 template <typename T>
-EZ_FORCE_INLINE ezRenderDataBatch::Iterator<T> ezRenderDataBatch::GetIterator() const
+EZ_FORCE_INLINE ezRenderDataBatch::Iterator<T> ezRenderDataBatch::GetIterator(ezUInt32 uiStartIndex, ezUInt32 uiCount) const
 {
-  return Iterator<T>(begin(m_Data), end(m_Data), m_Filter);
+  ezUInt32 uiEndIndex = ezMath::Min(uiStartIndex + uiCount, m_Data.GetCount());
+  return Iterator<T>(m_Data.GetPtr() + uiStartIndex, m_Data.GetPtr() + uiEndIndex, m_Filter);
 }
 
 //////////////////////////////////////////////////////////////////////////

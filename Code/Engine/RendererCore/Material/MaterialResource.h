@@ -1,6 +1,7 @@
 #pragma once
 
 #include <RendererCore/Declarations.h>
+#include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Core/ResourceManager/Resource.h>
@@ -10,7 +11,7 @@ typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
 
 struct ezMaterialResourceDescriptor
 {
-  struct ShaderConstant
+  struct Parameter
   {
     ezHashedString m_Name;
     ezVariant m_Value;
@@ -27,14 +28,14 @@ struct ezMaterialResourceDescriptor
     m_hBaseMaterial.Invalidate();
     m_hShader.Invalidate();
     m_PermutationVars.Clear();
-    m_ShaderConstants.Clear();
+    m_Parameters.Clear();
     m_TextureBindings.Clear();
   }
 
   ezMaterialResourceHandle m_hBaseMaterial;
   ezShaderResourceHandle m_hShader;
   ezDynamicArray<ezPermutationVar> m_PermutationVars;
-  ezDynamicArray<ShaderConstant> m_ShaderConstants;
+  ezDynamicArray<Parameter> m_Parameters;
   ezDynamicArray<TextureBinding> m_TextureBindings;
 };
 
@@ -46,6 +47,9 @@ public:
   ezMaterialResource();
 
   ezTempHashedString GetPermutationValue(const ezTempHashedString& sName);
+  
+  void SetParameter(const char* szName, const ezVariant& value);
+  void SetTextureBinding(const char* szName, ezTextureResourceHandle value);
 
   EZ_FORCE_INLINE const ezMaterialResourceDescriptor& GetDescriptor()
   {
@@ -60,6 +64,14 @@ private:
 
 private:
   ezMaterialResourceDescriptor m_Desc;
+
+  friend class ezRenderContext;
+
+  void UpdateConstantBuffer(ezHashTable<ezHashedString, ezVariant>& parameters, ezShaderPermutationResource* pShaderPermutation, ezUInt64 uiLastModified);
+
+  ezUInt64 m_uiLastModified;
+  ezUInt64 m_uiLastUpdated;
+  ezConstantBufferStorageHandle m_hConstantBufferStorage;
 };
 
 

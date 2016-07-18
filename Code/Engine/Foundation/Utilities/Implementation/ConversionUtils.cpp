@@ -591,6 +591,13 @@ namespace ezConversionUtils
     return sb;
   }
 
+  ezString ToString(const ezTransform& value)
+  {
+    ezStringBuilder sb;
+    sb.Format("{ position=%s, rotation=%s }", value.m_vPosition, value.m_Rotation);
+    return sb;
+  }
+
 
   ezString ToString(const ezDynamicArray<ezVariant>& value)
   {

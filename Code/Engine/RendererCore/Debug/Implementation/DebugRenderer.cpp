@@ -22,9 +22,7 @@ namespace
 
   struct EZ_ALIGN_16(BoxData)
   {
-    ezVec4 m_transform0;
-    ezVec4 m_transform1;
-    ezVec4 m_transform2;
+    ezShaderTransform m_transform;
     ezColor m_color;
   };
 
@@ -54,7 +52,7 @@ namespace
 
   static ezMutex s_Mutex;
 
-  static ezUInt32 s_uiLastRenderedFrame;
+  static ezUInt64 s_uiLastRenderedFrame;
 
   PerWorldData& GetDataForExtraction(ezUInt32 uiWorldIndex)
   {
@@ -77,7 +75,7 @@ namespace
     return *pData;
   }
 
-  void ClearRenderData(ezUInt32)
+  void ClearRenderData(ezUInt64)
   {
     auto& perWorldData = s_PerWorldData[ezRenderLoop::GetDataIndexForRendering()];
 
@@ -161,12 +159,6 @@ namespace
     }
   }
 
-  template <typename T>
-  static void UpdateBuffer(ezGALContext* pGALContext, BufferType::Enum bufferType, ezArrayPtr<const T> pData)
-  {
-    pGALContext->UpdateBuffer(s_hDataBuffer[bufferType], 0, ezMakeArrayPtr(reinterpret_cast<const ezUInt8*>(pData.GetPtr()), pData.GetCount() * sizeof(T)));
-  }
-
   static void DestroyBuffer(BufferType::Enum bufferType)
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
@@ -246,11 +238,7 @@ void ezDebugRenderer::DrawLineBox(ezUInt32 uiWorldIndex, const ezBoundingBox& bo
   ezMat3 scalingMat; scalingMat.SetScalingMatrix(box.GetHalfExtents());
   ezTransform boxTransform(box.GetCenter(), scalingMat);
 
-  ezMat4 matrix = (transform * boxTransform).GetAsMat4();
-
-  boxData.m_transform0 = matrix.GetRow(0);
-  boxData.m_transform1 = matrix.GetRow(1);
-  boxData.m_transform2 = matrix.GetRow(2);
+  boxData.m_transform = transform * boxTransform;
   boxData.m_color = color;
 }
 
@@ -323,11 +311,7 @@ void ezDebugRenderer::DrawSolidBox(ezUInt32 uiWorldIndex, const ezBoundingBox& b
   ezMat3 scalingMat; scalingMat.SetScalingMatrix(box.GetHalfExtents());
   ezTransform boxTransform(box.GetCenter(), scalingMat);
 
-  ezMat4 matrix = (transform * boxTransform).GetAsMat4();
-
-  boxData.m_transform0 = matrix.GetRow(0);
-  boxData.m_transform1 = matrix.GetRow(1);
-  boxData.m_transform2 = matrix.GetRow(2);
+  boxData.m_transform = transform * boxTransform;
   boxData.m_color = color;
 }
 
@@ -456,7 +440,7 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
       while (uiNumSolidBoxes > 0)
       {
         const ezUInt32 uiNumSolidBoxesInBatch = ezMath::Min<ezUInt32>(uiNumSolidBoxes, BOXES_PER_BATCH);
-        UpdateBuffer(pGALContext, BufferType::SolidBoxes, ezMakeArrayPtr(pSolidBoxData, uiNumSolidBoxesInBatch));
+        pGALContext->UpdateBuffer(s_hDataBuffer[BufferType::SolidBoxes], 0, ezMakeArrayPtr(pSolidBoxData, uiNumSolidBoxesInBatch).ToByteArray());
 
         renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiNumSolidBoxesInBatch);
 
@@ -481,7 +465,7 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
       {
         const ezUInt32 uiNumTriangleVerticesInBatch = ezMath::Min<ezUInt32>(uiNumTriangleVertices, TRIANGLE_VERTICES_PER_BATCH);
         EZ_ASSERT_DEV(uiNumTriangleVerticesInBatch % 3 == 0, "Vertex count must be a multiple of 3.");
-        UpdateBuffer(pGALContext, BufferType::Triangles3D, ezMakeArrayPtr(pTriangleData, uiNumTriangleVerticesInBatch));
+        pGALContext->UpdateBuffer(s_hDataBuffer[BufferType::Triangles3D], 0, ezMakeArrayPtr(pTriangleData, uiNumTriangleVerticesInBatch).ToByteArray());
 
         renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Triangles3D], ezGALBufferHandle(), &s_VertexDeclarationInfo,
           ezGALPrimitiveTopology::Triangles, uiNumTriangleVerticesInBatch / 3);
@@ -508,7 +492,7 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
       {
         const ezUInt32 uiNumLineVerticesInBatch = ezMath::Min<ezUInt32>(uiNumLineVertices, LINE_VERTICES_PER_BATCH);
         EZ_ASSERT_DEV(uiNumLineVerticesInBatch % 2 == 0, "Vertex count must be a multiple of 2.");
-        UpdateBuffer(pGALContext, BufferType::Lines, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch));
+        pGALContext->UpdateBuffer(s_hDataBuffer[BufferType::Lines], 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray());
 
         renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Lines], ezGALBufferHandle(), &s_VertexDeclarationInfo,
           ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
@@ -535,7 +519,7 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
       while (uiNumLineBoxes > 0)
       {
         const ezUInt32 uiNumLineBoxesInBatch = ezMath::Min<ezUInt32>(uiNumLineBoxes, BOXES_PER_BATCH);
-        UpdateBuffer(pGALContext, BufferType::LineBoxes, ezMakeArrayPtr(pLineBoxData, uiNumLineBoxesInBatch));
+        pGALContext->UpdateBuffer(s_hDataBuffer[BufferType::LineBoxes], 0, ezMakeArrayPtr(pLineBoxData, uiNumLineBoxesInBatch).ToByteArray());
 
         renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiNumLineBoxesInBatch);
 
@@ -560,7 +544,7 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
       {
         const ezUInt32 uiNum2DVerticesInBatch = ezMath::Min<ezUInt32>(uiNum2DVertices, TRIANGLE_VERTICES_PER_BATCH);
         EZ_ASSERT_DEV(uiNum2DVerticesInBatch % 3 == 0, "Vertex count must be a multiple of 3.");
-        UpdateBuffer(pGALContext, BufferType::Triangles2D, ezMakeArrayPtr(pTriangleData, uiNum2DVerticesInBatch));
+        pGALContext->UpdateBuffer(s_hDataBuffer[BufferType::Triangles2D], 0, ezMakeArrayPtr(pTriangleData, uiNum2DVerticesInBatch).ToByteArray());
 
         renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Triangles2D], ezGALBufferHandle(), &s_VertexDeclarationInfo,
           ezGALPrimitiveTopology::Triangles, uiNum2DVerticesInBatch / 3);
@@ -587,7 +571,7 @@ void ezDebugRenderer::Render(const ezRenderViewContext& renderViewContext)
       while (uiNumGlyphs > 0)
       {
         const ezUInt32 uiNumGlyphsInBatch = ezMath::Min<ezUInt32>(uiNumGlyphs, GLYPHS_PER_BATCH);
-        UpdateBuffer(pGALContext, BufferType::Glyphs, ezMakeArrayPtr(pGlyphData, uiNumGlyphsInBatch));
+        pGALContext->UpdateBuffer(s_hDataBuffer[BufferType::Glyphs], 0, ezMakeArrayPtr(pGlyphData, uiNumGlyphsInBatch).ToByteArray());
 
         renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr,
           ezGALPrimitiveTopology::Triangles, uiNumGlyphsInBatch * 2);

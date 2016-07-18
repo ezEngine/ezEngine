@@ -50,7 +50,7 @@ public:
   const T* GetData(ezUInt32 uiIndex) const;
 
   template <typename T>
-  Iterator<T> GetIterator() const;
+  Iterator<T> GetIterator(ezUInt32 uiStartIndex = 0, ezUInt32 uiCount = ezInvalidIndex) const;
 
 private:
   friend class ezExtractedRenderData;

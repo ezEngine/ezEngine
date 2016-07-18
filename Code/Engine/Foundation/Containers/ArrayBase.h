@@ -121,11 +121,17 @@ public:
   /// \brief Returns a pointer to the array data, or nullptr if the array is empty.
   const T* GetData() const;
 
-  /// \brief Returns a array pointer to the array data, or an empty array pointer if the array is empty.
+  /// \brief Returns an array pointer to the array data, or an empty array pointer if the array is empty.
   ezArrayPtr<T> GetArrayPtr(); // [tested]
 
-  /// \brief Returns a array pointer to the array data, or an empty array pointer if the array is empty.
+  /// \brief Returns an array pointer to the array data, or an empty array pointer if the array is empty.
   ezArrayPtr<const T> GetArrayPtr() const; // [tested]
+
+  /// \brief Returns a byte array pointer to the array data, or an empty array pointer if the array is empty.
+  typename ezArrayPtr<T>::ByteArrayType GetByteArrayPtr(); // [tested]
+
+  /// \brief Returns a byte array pointer to the array data, or an empty array pointer if the array is empty.
+  typename ezArrayPtr<const T>::ByteArrayType GetByteArrayPtr() const; // [tested]
 
   /// \brief Returns the reserved number of elements that the array can hold without reallocating.
   ezUInt32 GetCapacity() const { return m_uiCapacity; }

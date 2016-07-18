@@ -6,6 +6,7 @@
 #include <Foundation/Math/Vec4.h>
 #include <Foundation/Math/Mat3.h>
 #include <Foundation/Math/Mat4.h>
+#include <Foundation/Math/Transform.h>
 #include <Foundation/Math/Plane.h>
 #include <Foundation/Math/Quat.h>
 #include <Foundation/Math/BoundingBox.h>
@@ -110,6 +111,26 @@ inline ezStreamReader& operator >> (ezStreamReader& Stream, ezMat4Template<Type>
   for (ezUInt32 i = 0; i < 16; ++i)
     Stream >> Value.m_fElementsCM[i];
   
+  return Stream;
+}
+
+// ezTransformTemplate
+
+template<typename Type>
+inline ezStreamWriter& operator << (ezStreamWriter& Stream, const ezTransformTemplate<Type>& Value)
+{
+  Stream << Value.m_Rotation;
+  Stream << Value.m_vPosition;
+
+  return Stream;
+}
+
+template<typename Type>
+inline ezStreamReader& operator >> (ezStreamReader& Stream, ezTransformTemplate<Type>& Value)
+{
+  Stream >> Value.m_Rotation;
+  Stream >> Value.m_vPosition;
+
   return Stream;
 }
 

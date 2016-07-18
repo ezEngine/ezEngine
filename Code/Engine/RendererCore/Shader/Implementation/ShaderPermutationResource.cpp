@@ -13,8 +13,10 @@ ezShaderPermutationResource::ezShaderPermutationResource() : ezResource<ezShader
 {
   m_bShaderPermutationValid = false;
 
-  for (ezUInt32 e = ezGALShaderStage::VertexShader; e < ezGALShaderStage::ENUM_COUNT; ++e)
-    m_pShaderStageBinaries[e] = nullptr;
+  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  {
+    m_pShaderStageBinaries[stage] = nullptr;
+  }
 }
 
 ezResourceLoadDesc ezShaderPermutationResource::UnloadData(Unload WhatToUnload)

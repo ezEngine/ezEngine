@@ -53,7 +53,7 @@ protected:
   ezWindow* m_pWindow;
   ezGALDevice* m_pDevice;
 
-  ezConstantBufferResourceHandle m_hObjectTransformCB;
+  ezConstantBufferStorageHandle m_hObjectTransformCB;
   ezShaderResourceHandle m_hShader;
 };
 

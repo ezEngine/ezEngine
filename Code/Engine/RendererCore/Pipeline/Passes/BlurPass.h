@@ -2,6 +2,7 @@
 
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Declarations.h>
+#include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 
@@ -27,15 +28,11 @@ public:
   ezInt32 GetRadius() const;
 
 protected:
-  void UpdateConstants(const ezRenderViewContext& renderViewContext);
-
-protected:
   ezInputNodePin m_PinInput;
   ezOutputNodePin m_PinOutput;
 
-  bool m_bConstantsDirty;
   ezInt32 m_iRadius;
-  ezConstantBufferResourceHandle m_hBlurCB;
+  ezConstantBufferStorageHandle m_hBlurCB;
   ezGALSamplerStateHandle m_hSamplerState;
   ezShaderResourceHandle m_hShader;
   ezMeshBufferResourceHandle m_hMesh;

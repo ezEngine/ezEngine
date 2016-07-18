@@ -21,9 +21,7 @@ DepthWrite = true
 
 struct BoxData
 {
-	float4 t0;
-	float4 t1;
-	float4 t2;
+	Transform transform;
 	float4 color;
 };
 
@@ -37,11 +35,7 @@ struct VS_IN_POS_ONLY
 
 VS_OUT_COLORED main(VS_IN_POS_ONLY Input)
 {
-  float4 t0 = boxData[Input.InstanceID].t0;
-  float4 t1 = boxData[Input.InstanceID].t1;
-  float4 t2 = boxData[Input.InstanceID].t2;
-
-  float4x4 worldMatrix = float4x4(t0, t1, t2, float4(0, 0, 0, 1));
+  float4x4 worldMatrix = TransformToMatrix(boxData[Input.InstanceID].transform);
 
   float4 worldPos = mul(worldMatrix, float4(Input.Position, 1.0f));
 

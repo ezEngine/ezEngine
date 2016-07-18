@@ -3,8 +3,6 @@
 #include <RendererCore/Pipeline/Declarations.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
-typedef ezTypedResourceHandle<class ezConstantBufferResource> ezConstantBufferResourceHandle;
-
 /// \brief This renderer is used to gather the information on all visible lights.
 class EZ_RENDERERCORE_DLL ezLightGatheringRenderer : public ezRenderer
 {

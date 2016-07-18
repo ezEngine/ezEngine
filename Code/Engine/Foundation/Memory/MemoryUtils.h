@@ -133,6 +133,10 @@ public:
   template <typename T>
   static bool IsAligned(const T* ptr, size_t uiAlignment); // [tested]
 
+   /// \brief Checks whether the given size is aligned.
+  template <typename T>
+  static bool IsSizeAligned(T uiSize, T uiAlignment); // [tested]
+
   /// \brief Reserves the lower 4GB of address space in 64-bit builds to ensure all allocations start above 4GB.
   ///
   /// \note Note that this does NOT reserve 4GB of RAM, only address space.

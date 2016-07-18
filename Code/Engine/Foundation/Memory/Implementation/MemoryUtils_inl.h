@@ -179,6 +179,12 @@ EZ_FORCE_INLINE bool ezMemoryUtils::IsAligned(const T* ptr, size_t uiAlignment)
   return (reinterpret_cast<size_t>(ptr) & (uiAlignment - 1)) == 0;
 }
 
+template <typename T>
+EZ_FORCE_INLINE bool ezMemoryUtils::IsSizeAligned(T uiSize, T uiAlignment)
+{
+  return (uiSize & (uiAlignment - 1)) == 0;
+}
+
 // private methods
 
 template <typename T>

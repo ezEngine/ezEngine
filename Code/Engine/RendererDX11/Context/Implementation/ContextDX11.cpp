@@ -435,7 +435,7 @@ void ezGALContextDX11::CopyBufferRegionPlatform(ezGALBuffer* pDestination, ezUIn
 
 void ezGALContextDX11::UpdateBufferPlatform(ezGALBuffer* pDestination, ezUInt32 uiDestOffset, ezArrayPtr<const ezUInt8> pSourceData)
 {
-  //EZ_CHECK_ALIGNMENT_16(pSourceData.GetPtr());
+  EZ_CHECK_ALIGNMENT_16(pSourceData.GetPtr());
 
   ID3D11Buffer* pDXDestination = static_cast<ezGALBufferDX11*>(pDestination)->GetDXBuffer();
 

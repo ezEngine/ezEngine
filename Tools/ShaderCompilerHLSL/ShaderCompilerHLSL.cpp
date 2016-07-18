@@ -57,7 +57,8 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
 {
   ID3D11ShaderReflection* pReflector = nullptr;
 
-  D3DReflect(inout_Data.m_StageBinary[Stage].m_ByteCode.GetData(), inout_Data.m_StageBinary[Stage].m_ByteCode.GetCount(), IID_ID3D11ShaderReflection, (void**) &pReflector);
+  auto byteCode = inout_Data.m_StageBinary[Stage].GetByteCode();
+  D3DReflect(byteCode.GetData(), byteCode.GetCount(), IID_ID3D11ShaderReflection, (void**) &pReflector);
 
   D3D11_SHADER_DESC shaderDesc;
   pReflector->GetDesc(&shaderDesc);
@@ -69,39 +70,40 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
 
     //ezLog::Info("Bound Resource: '%s' at slot %u (Count: %u, Flags: %u)", sibd.Name, sibd.BindPoint, sibd.BindCount, sibd.uFlags);
 
-    ezShaderStageResource shaderStageResource;
-    shaderStageResource.m_Type = ezShaderStageResource::Unknown;
-    shaderStageResource.m_iSlot = shaderInputBindDesc.BindPoint;
-    shaderStageResource.m_Name.Assign(shaderInputBindDesc.Name);    
+    ezShaderResourceBinding shaderResourceBinding;
+    shaderResourceBinding.m_Type = ezShaderResourceBinding::Unknown;
+    shaderResourceBinding.m_iSlot = shaderInputBindDesc.BindPoint;
+    shaderResourceBinding.m_sName.Assign(shaderInputBindDesc.Name);
 
     if (shaderInputBindDesc.Type == D3D_SIT_TEXTURE)
     {
       switch (shaderInputBindDesc.Dimension)
       {
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1D:
-        shaderStageResource.m_Type = ezShaderStageResource::Texture1D; break;
+        shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture1D; break;
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1DARRAY:
-        shaderStageResource.m_Type = ezShaderStageResource::Texture1DArray; break;
+        shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture1DArray; break;
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2D: 
-        shaderStageResource.m_Type = ezShaderStageResource::Texture2D; break;
+        shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture2D; break;
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DARRAY: 
-        shaderStageResource.m_Type = ezShaderStageResource::Texture2DArray; break;
+        shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture2DArray; break;
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMS: 
-        shaderStageResource.m_Type = ezShaderStageResource::Texture2DMS; break;
+        shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture2DMS; break;
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMSARRAY: 
-        shaderStageResource.m_Type = ezShaderStageResource::Texture2DMSArray; break;
+        shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture2DMSArray; break;
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE3D: 
-        shaderStageResource.m_Type = ezShaderStageResource::Texture3D; break;
+        shaderResourceBinding.m_Type = ezShaderResourceBinding::Texture3D; break;
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBE: 
-        shaderStageResource.m_Type = ezShaderStageResource::TextureCube; break;
+        shaderResourceBinding.m_Type = ezShaderResourceBinding::TextureCube; break;
       case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBEARRAY: 
-        shaderStageResource.m_Type = ezShaderStageResource::TextureCubeArray; break;
+        shaderResourceBinding.m_Type = ezShaderResourceBinding::TextureCubeArray; break;
       }
     }
 
     else if (shaderInputBindDesc.Type == D3D_SIT_CBUFFER)
     {
-      shaderStageResource.m_Type = ezShaderStageResource::ConstantBuffer;
+      shaderResourceBinding.m_Type = ezShaderResourceBinding::ConstantBuffer;
+      shaderResourceBinding.m_pLayout = ReflectConstantBufferLayout(inout_Data.m_StageBinary[Stage], pReflector->GetConstantBufferByName(shaderInputBindDesc.Name));
     }
     else if (shaderInputBindDesc.Type == D3D_SIT_SAMPLER)
     {
@@ -109,153 +111,108 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
     }
     else
     {
-      shaderStageResource.m_Type = ezShaderStageResource::GenericBuffer;
+      shaderResourceBinding.m_Type = ezShaderResourceBinding::GenericBuffer;
     }
 
-    if (shaderStageResource.m_Type != ezShaderStageResource::Unknown)
+    if (shaderResourceBinding.m_Type != ezShaderResourceBinding::Unknown)
     {
-      inout_Data.m_StageBinary[Stage].m_ShaderResourceBindings.PushBack(shaderStageResource);
+      inout_Data.m_StageBinary[Stage].AddShaderResourceBinding(shaderResourceBinding);
     }
-  }
-
-  ReflectMaterialParameters(inout_Data, Stage, pReflector);
-}
-
-void ezShaderCompilerHLSL::ReflectMaterialParameters(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage, ID3D11ShaderReflection* pReflector)
-{
-
-  const char* szMaterialCBName = "MaterialCB";
-
-  ID3D11ShaderReflectionConstantBuffer* pMaterialCB = pReflector->GetConstantBufferByName(szMaterialCBName);
-
-  if (pMaterialCB != nullptr)
-  {
-    D3D11_SHADER_BUFFER_DESC shaderBufferDesc;
-
-    if (SUCCEEDED(pMaterialCB->GetDesc(&shaderBufferDesc)))
-    {
-      EZ_LOG_BLOCK("Material Block", szMaterialCBName);
-      ezLog::Debug("MaterialCB has %u variables, Size is %u", shaderBufferDesc.Variables, shaderBufferDesc.Size);
-
-      ezShaderMaterialParamCB mcb;
-
-      mcb.m_uiMaterialCBSize = shaderBufferDesc.Size;
-
-      for (ezUInt32 var = 0; var < shaderBufferDesc.Variables; ++var)
-      {
-        ID3D11ShaderReflectionVariable* pVar = pMaterialCB->GetVariableByIndex(var);
-
-        D3D11_SHADER_VARIABLE_DESC svd;
-        pVar->GetDesc(&svd);
-
-        EZ_LOG_BLOCK("Material Parameter", svd.Name);
-
-        D3D11_SHADER_TYPE_DESC std;
-        pVar->GetType()->GetDesc(&std);
-
-        ezShaderMaterialParamCB::MaterialParameter mp;
-        mp.m_Type = ezShaderMaterialParamCB::MaterialParameter::Type::Unknown;
-        mp.m_uiNameHash = ezTempHashedString(svd.Name).GetHash();
-        mp.m_uiOffset = svd.StartOffset;
-        mp.m_uiArrayElements = std.Elements;
-
-        if (std.Class == D3D_SVC_SCALAR || std.Class == D3D_SVC_VECTOR)
-        {
-          switch (std.Type)
-          {
-          case D3D_SVT_FLOAT:
-            mp.m_Type = (ezShaderMaterialParamCB::MaterialParameter::Type) ((ezInt32) ezShaderMaterialParamCB::MaterialParameter::Type::Float1 + std.Columns - 1);
-            break;
-          case D3D_SVT_INT:
-            mp.m_Type = (ezShaderMaterialParamCB::MaterialParameter::Type) ((ezInt32) ezShaderMaterialParamCB::MaterialParameter::Type::Int1 + std.Columns - 1);
-            break;
-
-          default:
-            break;
-          }
-        }
-        else if (std.Class == D3D_SVC_MATRIX_ROWS || std.Class == D3D_SVC_MATRIX_COLUMNS)
-        {
-          /// \todo Only support one matrix layout type
-
-          if (std.Type != D3D_SVT_FLOAT)
-          {
-            ezLog::Error("Variable '%s': Only float matrices are supported", svd.Name);
-            continue;
-          }
-
-          if (std.Columns == 3 && std.Rows == 3)
-            mp.m_Type = ezShaderMaterialParamCB::MaterialParameter::Type::Mat3x3;
-          else if (std.Columns == 4 && std.Rows == 4)
-            mp.m_Type = ezShaderMaterialParamCB::MaterialParameter::Type::Mat4x4;
-          else if (std.Columns == 4 && std.Rows == 3)
-            mp.m_Type = ezShaderMaterialParamCB::MaterialParameter::Type::Mat3x4;
-          else
-          {
-            ezLog::Error("Variable '%s': %ux%u matrices are not supported", svd.Name, std.Rows, std.Columns);
-            continue;
-          }
-        }
-        else if (std.Class == D3D_SVC_MATRIX_COLUMNS)
-        {
-          ezLog::Error("Variable '%s': Column-Major matrices are not supported", svd.Name);
-          continue;
-        }
-
-        if (mp.m_Type == ezShaderMaterialParamCB::MaterialParameter::Type::Unknown)
-        {
-          ezLog::Error("Variable '%s': Variable type is unknown / not supported", svd.Name);
-          continue;
-        }
-
-        mcb.m_MaterialParameters.PushBack(mp);
-
-        //ezLog::Dev("Variable '%s', Offset: %u, Size: %u", svd.Name, svd.StartOffset, svd.Size);
-
-        //switch (std.Class)
-        //{
-        //case D3D_SVC_SCALAR:
-        //  ezLog::Dev("%s: Type is scalar", std.Name);
-        //  break;
-        //case D3D_SVC_VECTOR:
-        //  ezLog::Dev("%s: Type is vector", std.Name);
-        //  break;
-        //case D3D_SVC_MATRIX_ROWS:
-        //  ezLog::Dev("%s: Type is row matrix", std.Name);
-        //  break;
-        //case D3D_SVC_MATRIX_COLUMNS:
-        //  ezLog::Dev("%s: Type is column matrix", std.Name);
-        //  break;
-        //default:
-        //  ezLog::Error("Unknown Type Class");
-        //}
-
-        //switch (std.Type)
-        //{
-        //case D3D_SVT_FLOAT:
-        //  ezLog::Dev("%s: Type is FLOAT", std.Name);
-        //  break;
-
-        //case D3D_SVT_INT:
-        //  ezLog::Dev("%s: Type is INT", std.Name);
-        //  break;
-
-        //case D3D_SVT_BOOL:
-        //case D3D_SVT_UINT:
-        //case D3D_SVT_UINT8:
-        //case D3D_SVT_DOUBLE:
-
-        //default:
-        //  ezLog::Error("Unknown Type");
-        //}
-      }
-
-      inout_Data.m_StageBinary[Stage].CreateMaterialParamObject(mcb);
-    }
-
   }
 
   pReflector->Release();
+}
+
+ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(ezShaderStageBinary& pStageBinary, ID3D11ShaderReflectionConstantBuffer* pConstantBufferReflection)
+{
+  D3D11_SHADER_BUFFER_DESC shaderBufferDesc;
+
+  if (FAILED(pConstantBufferReflection->GetDesc(&shaderBufferDesc)))
+  {
+    return nullptr;
+  }
+
+  EZ_LOG_BLOCK("Constant Buffer Layout", shaderBufferDesc.Name);
+  ezLog::Debug("Constant Buffer has %u variables, Size is %u", shaderBufferDesc.Variables, shaderBufferDesc.Size);
+
+  ezShaderConstantBufferLayout* pLayout = pStageBinary.CreateConstantBufferLayout();
+
+  pLayout->m_uiTotalSize = shaderBufferDesc.Size;
+
+  for (ezUInt32 var = 0; var < shaderBufferDesc.Variables; ++var)
+  {
+    ID3D11ShaderReflectionVariable* pVar = pConstantBufferReflection->GetVariableByIndex(var);
+
+    D3D11_SHADER_VARIABLE_DESC svd;
+    pVar->GetDesc(&svd);
+
+    EZ_LOG_BLOCK("Constant", svd.Name);
+
+    D3D11_SHADER_TYPE_DESC std;
+    pVar->GetType()->GetDesc(&std);
+
+    ezShaderConstantBufferLayout::Constant constant;
+    constant.m_uiArrayElements = ezMath::Max(std.Elements, 1u);
+    constant.m_uiOffset = svd.StartOffset;
+    constant.m_sName.Assign(svd.Name);
+
+    if (std.Class == D3D_SVC_SCALAR || std.Class == D3D_SVC_VECTOR)
+    {
+      switch (std.Type)
+      {
+      case D3D_SVT_FLOAT:
+        constant.m_Type = (ezShaderConstantBufferLayout::Constant::Type::Enum) ((ezInt32)ezShaderConstantBufferLayout::Constant::Type::Float1 + std.Columns - 1);
+        break;
+      case D3D_SVT_INT:
+        constant.m_Type = (ezShaderConstantBufferLayout::Constant::Type::Enum) ((ezInt32)ezShaderConstantBufferLayout::Constant::Type::Int1 + std.Columns - 1);
+        break;
+
+      default:
+        break;
+      }
+    }
+    else if (std.Class == D3D_SVC_MATRIX_COLUMNS)
+    {
+      if (std.Type != D3D_SVT_FLOAT)
+      {
+        ezLog::Error("Variable '%s': Only float matrices are supported", svd.Name);
+        continue;
+      }
+
+      if (std.Columns == 3 && std.Rows == 3)
+      {
+        constant.m_Type = ezShaderConstantBufferLayout::Constant::Type::Mat3x3;
+      }
+      else if (std.Columns == 4 && std.Rows == 4)
+      {
+        constant.m_Type = ezShaderConstantBufferLayout::Constant::Type::Mat4x4;
+      }
+      else
+      {
+        ezLog::Error("Variable '%s': %ux%u matrices are not supported", svd.Name, std.Rows, std.Columns);
+        continue;
+      }
+    }
+    else if (std.Class == D3D_SVC_MATRIX_ROWS)
+    {
+      ezLog::Error("Variable '%s': Row-Major matrices are not supported", svd.Name);
+      continue;
+    }
+    else if (std.Class == D3D_SVC_STRUCT)
+    {
+      continue;
+    }
+
+    if (constant.m_Type == ezShaderConstantBufferLayout::Constant::Type::Default)
+    {
+      ezLog::Error("Variable '%s': Variable type '%d' is unknown / not supported", svd.Name, std.Class);
+      continue;
+    }
+
+    pLayout->m_Constants.PushBack(constant);
+  }
+
+  return pLayout;
 }
 
 const char* GetProfileName(const char* szPlatform, ezGALShaderStage::Enum Stage)
@@ -317,7 +274,7 @@ ezResult ezShaderCompilerHLSL::Compile(ezShaderProgramData& inout_Data, ezLogInt
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
     // shader already compiled
-    if (!inout_Data.m_StageBinary[stage].m_ByteCode.IsEmpty())
+    if (!inout_Data.m_StageBinary[stage].GetByteCode().IsEmpty())
     {
       ezLog::Debug("Shader for stage '%s' is already compiled.", ezGALShaderStage::Names[stage]);
       continue;
@@ -328,7 +285,7 @@ ezResult ezShaderCompilerHLSL::Compile(ezShaderProgramData& inout_Data, ezLogInt
 
     if (uiLength > 0 && ezStringUtils::FindSubString(szShaderSource, "main") != nullptr)
     {
-      if (CompileDXShader(inout_Data.m_szSourceFile, szShaderSource, GetProfileName(inout_Data.m_szPlatform, (ezGALShaderStage::Enum) stage), "main", inout_Data.m_StageBinary[stage].m_ByteCode).Succeeded())
+      if (CompileDXShader(inout_Data.m_szSourceFile, szShaderSource, GetProfileName(inout_Data.m_szPlatform, (ezGALShaderStage::Enum) stage), "main", inout_Data.m_StageBinary[stage].GetByteCode()).Succeeded())
       {
         ReflectShaderStage(inout_Data, (ezGALShaderStage::Enum) stage);
       }

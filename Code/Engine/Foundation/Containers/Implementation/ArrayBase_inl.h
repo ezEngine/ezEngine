@@ -336,7 +336,7 @@ void ezArrayBase<T, Derived>::Sort()
 }
 
 template <typename T, typename Derived>
-T* ezArrayBase<T, Derived>::GetData()
+EZ_FORCE_INLINE T* ezArrayBase<T, Derived>::GetData()
 {
   if (IsEmpty())
     return nullptr;
@@ -345,7 +345,7 @@ T* ezArrayBase<T, Derived>::GetData()
 }
 
 template <typename T, typename Derived>
-const T* ezArrayBase<T, Derived>::GetData() const
+EZ_FORCE_INLINE const T* ezArrayBase<T, Derived>::GetData() const
 {
   if (IsEmpty())
     return nullptr;
@@ -354,13 +354,25 @@ const T* ezArrayBase<T, Derived>::GetData() const
 }
 
 template <typename T, typename Derived>
-ezArrayPtr<T> ezArrayBase<T, Derived>::GetArrayPtr()
+EZ_FORCE_INLINE ezArrayPtr<T> ezArrayBase<T, Derived>::GetArrayPtr()
 {
     return ezArrayPtr<T>(GetData(), GetCount());
 }
 
 template <typename T, typename Derived>
-ezArrayPtr<const T> ezArrayBase<T, Derived>::GetArrayPtr() const
+EZ_FORCE_INLINE ezArrayPtr<const T> ezArrayBase<T, Derived>::GetArrayPtr() const
 {
     return ezArrayPtr<const T>(GetData(), GetCount());
+}
+
+template <typename T, typename Derived>
+EZ_FORCE_INLINE typename ezArrayPtr<T>::ByteArrayType ezArrayBase<T, Derived>::GetByteArrayPtr()
+{
+  return GetArrayPtr().ToByteArray();
+}
+
+template <typename T, typename Derived>
+EZ_FORCE_INLINE typename ezArrayPtr<const T>::ByteArrayType ezArrayBase<T, Derived>::GetByteArrayPtr() const
+{
+  return GetArrayPtr().ToByteArray();
 }

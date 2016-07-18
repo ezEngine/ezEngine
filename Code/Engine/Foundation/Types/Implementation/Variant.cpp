@@ -34,17 +34,19 @@ EZ_FORCE_INLINE void ComputeHashFunc::operator() < ezString > ()
 template <>
 EZ_FORCE_INLINE void ComputeHashFunc::operator() < ezMat3 > ()
 {
-  ezMat3* pData = (ezMat3*) m_pData;
-
-  m_uiHash = ezHashing::MurmurHash64(pData, sizeof(ezMat3), m_uiHash);
+  m_uiHash = ezHashing::MurmurHash64(m_pData, sizeof(ezMat3), m_uiHash);
 }
 
 template <>
 EZ_FORCE_INLINE void ComputeHashFunc::operator() < ezMat4 > ()
 {
-  ezMat4* pData = (ezMat4*) m_pData;
+  m_uiHash = ezHashing::MurmurHash64(m_pData, sizeof(ezMat4), m_uiHash);
+}
 
-  m_uiHash = ezHashing::MurmurHash64(pData, sizeof(ezMat4), m_uiHash);
+template <>
+EZ_FORCE_INLINE void ComputeHashFunc::operator() < ezTransform > ()
+{
+  m_uiHash = ezHashing::MurmurHash64(m_pData, sizeof(ezTransform), m_uiHash);
 }
 
 template <>

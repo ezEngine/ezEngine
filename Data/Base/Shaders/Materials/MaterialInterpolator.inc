@@ -33,6 +33,10 @@ struct VS_IN
 	#if defined(USE_COLOR)
 		float4 Color : COLOR;
 	#endif
+	
+	#if INSTANCING
+		uint InstanceID : SV_InstanceID;
+	#endif
 };
 
 struct VS_IN_COLORED
@@ -72,6 +76,10 @@ struct VS_OUT
 	
 	#if defined(CUSTOM_INTERPOLATOR)
 		CUSTOM_INTERPOLATOR
+	#endif
+	
+	#if INSTANCING
+		uint InstanceID : SV_InstanceID;
 	#endif
 	
 	#if defined(PIXEL_SHADER) && TWO_SIDED == TRUE
