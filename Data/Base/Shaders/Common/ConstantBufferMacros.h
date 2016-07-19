@@ -4,6 +4,8 @@
 
 // HLSL
 
+#define EZ_ALIGN_16(decl) decl
+
 struct Transform
 {
 	float4 r0;
@@ -34,6 +36,8 @@ float4x4 TransformToMatrix(Transform t)
 #elif EZ_ENABLED(PLATFORM_OPENGL)
 
 // GLSL
+
+#define EZ_ALIGN_16(decl) decl
 
 #define CONSTANT_BUFFER(Name, Slot) layout(shared) Name
 #define STRUCTURED_BUFFER(Name, Type)

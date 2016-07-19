@@ -3,7 +3,7 @@
 #include "Platforms.h"
 #include "ConstantBufferMacros.h"
 
-struct PerInstanceData
+EZ_ALIGN_16(struct) PerInstanceData
 {
 	TRANSFORM(ObjectToWorld);
 	TRANSFORM(ObjectToWorldNormal);

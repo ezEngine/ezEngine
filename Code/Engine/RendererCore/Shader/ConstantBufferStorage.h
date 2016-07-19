@@ -27,7 +27,8 @@ public:
 protected:
   bool m_bHasBeenModified;
   ezGALBufferHandle m_hGALConstantBuffer;
-  ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper> m_Data;
+  
+  ezArrayPtr<ezUInt8> m_Data;
 };
 
 template <typename T>

@@ -111,17 +111,17 @@ EZ_FORCE_INLINE ezTempHashedString::ezTempHashedString(ezHashing::StringWrapper 
   m_uiHash = ezHashing::MurmurHash(szString);
 }
 
-inline ezTempHashedString::ezTempHashedString(const ezTempHashedString& rhs)
+EZ_FORCE_INLINE ezTempHashedString::ezTempHashedString(const ezTempHashedString& rhs)
 {
   m_uiHash = rhs.m_uiHash;
 }
 
-inline ezTempHashedString::ezTempHashedString(const ezHashedString& rhs)
+EZ_FORCE_INLINE ezTempHashedString::ezTempHashedString(const ezHashedString& rhs)
 {
   m_uiHash = rhs.GetHash();
 }
 
-inline ezTempHashedString::ezTempHashedString(ezUInt32 uiHash)
+EZ_FORCE_INLINE ezTempHashedString::ezTempHashedString(ezUInt32 uiHash)
 {
   m_uiHash = uiHash;
 }
@@ -137,27 +137,27 @@ EZ_FORCE_INLINE void ezTempHashedString::operator= (ezHashing::StringWrapper szS
   m_uiHash = ezHashing::MurmurHash(szString);
 }
 
-inline void ezTempHashedString::operator= (const ezTempHashedString& rhs)
+EZ_FORCE_INLINE void ezTempHashedString::operator= (const ezTempHashedString& rhs)
 {
   m_uiHash = rhs.m_uiHash;
 }
 
-inline void ezTempHashedString::operator= (const ezHashedString& rhs)
+EZ_FORCE_INLINE void ezTempHashedString::operator= (const ezHashedString& rhs)
 {
   m_uiHash = rhs.GetHash();
 }
 
-inline bool ezTempHashedString::operator==  (const ezTempHashedString& rhs) const
+EZ_FORCE_INLINE bool ezTempHashedString::operator==  (const ezTempHashedString& rhs) const
 {
   return m_uiHash == rhs.m_uiHash;
 }
 
-inline bool ezTempHashedString::operator!=  (const ezTempHashedString& rhs) const
+EZ_FORCE_INLINE bool ezTempHashedString::operator!=  (const ezTempHashedString& rhs) const
 {
   return !(m_uiHash == rhs.m_uiHash);
 }
 
-inline bool ezTempHashedString::operator< (const ezTempHashedString& rhs) const
+EZ_FORCE_INLINE bool ezTempHashedString::operator< (const ezTempHashedString& rhs) const
 {
   return m_uiHash < rhs.m_uiHash;
 }

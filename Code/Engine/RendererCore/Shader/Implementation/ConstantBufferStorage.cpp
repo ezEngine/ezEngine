@@ -4,13 +4,17 @@
 
 ezConstantBufferStorageBase::ezConstantBufferStorageBase(ezUInt32 uiSizeInBytes)
 {
-  m_Data.SetCountUninitialized(uiSizeInBytes);
+  m_Data = ezMakeArrayPtr(static_cast<ezUInt8*>(ezFoundation::GetAlignedAllocator()->Allocate(uiSizeInBytes, 16)), uiSizeInBytes);
+
   m_hGALConstantBuffer = ezGALDevice::GetDefaultDevice()->CreateConstantBuffer(uiSizeInBytes);
 }
 
 ezConstantBufferStorageBase::~ezConstantBufferStorageBase()
 {
   ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hGALConstantBuffer);
+  
+  ezFoundation::GetAlignedAllocator()->Deallocate(m_Data.GetPtr());
+  m_Data.Reset();
 }
 
 ezArrayPtr<ezUInt8> ezConstantBufferStorageBase::GetRawDataForWriting()

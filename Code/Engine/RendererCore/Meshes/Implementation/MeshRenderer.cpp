@@ -130,17 +130,13 @@ ezGALBufferHandle ezMeshRenderer::CreateInstanceDataBuffer(bool bUseInstancing)
     desc.m_BufferType = ezGALBufferType::ConstantBuffer;
   }
 
-  ///\todo use resource pool
-  //return ezGPUResourcePool::GetDefaultInstance()->GetBuffer(desc);
-  return ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
+  return ezGPUResourcePool::GetDefaultInstance()->GetBuffer(desc);
 }
 
 
 void ezMeshRenderer::DeleteInstanceDataBuffer(ezGALBufferHandle hBuffer)
 {
-  ///\todo use resource pool
-  //ezGPUResourcePool::GetDefaultInstance()->ReturnBuffer(hBuffer);
-  ezGALDevice::GetDefaultDevice()->DestroyBuffer(hBuffer);
+  ezGPUResourcePool::GetDefaultInstance()->ReturnBuffer(hBuffer);
 }
 
 void ezMeshRenderer::FillPerInstanceData(const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32 uiCount)

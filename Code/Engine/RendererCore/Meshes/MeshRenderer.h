@@ -25,6 +25,6 @@ protected:
   virtual void FillPerInstanceData(const ezRenderDataBatch& batch, ezUInt32 uiStartIndex, ezUInt32 uiCount);
 
   ezInt32 m_iInstancingThreshold;
-  ezDynamicArray<PerInstanceData> m_perInstanceData;
+  ezDynamicArray<PerInstanceData, ezAlignedAllocatorWrapper> m_perInstanceData;
 };
 

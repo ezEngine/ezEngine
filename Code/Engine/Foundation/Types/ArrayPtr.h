@@ -32,7 +32,7 @@ private:
 
 public:
 
-  typedef typename ezArrayPtr<ByteType> ByteArrayType;
+  typedef ezArrayPtr<typename ByteType> ByteArrayType;
 
   /// \brief Initializes the ezArrayPtr to be empty.
   EZ_FORCE_INLINE ezArrayPtr() : m_ptr(nullptr), m_uiCount(0u) // [tested]

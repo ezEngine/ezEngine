@@ -92,14 +92,18 @@ void GetShaderSections(const char* szContent, ezTextSectionizer& out_Sections)
 
 ezUInt32 CalculateHash(const ezArrayPtr<ezPermutationVar>& vars)
 {
-  ezStringBuilder s;
+  ezHybridArray<ezUInt32, 128> buffer;
+  buffer.SetCountUninitialized(vars.GetCount() * 2);
 
-  for (auto& var : vars)
+  for (ezUInt32 i = 0; i < vars.GetCount(); ++i)
   {
-    s.AppendFormat("%s = %s;", var.m_sName.GetData(), var.m_sValue.GetData());
+    auto& var = vars[i];
+    buffer[i * 2 + 0] = var.m_sName.GetHash();
+    buffer[i * 2 + 1] = var.m_sValue.GetHash();
   }
 
-  return ezHashing::MurmurHash(ezHashing::StringWrapper(s.GetData()));
+  auto bytes = buffer.GetByteArrayPtr();
+  return ezHashing::MurmurHash(bytes.GetPtr(), bytes.GetCount());
 }
 
 }
