@@ -253,7 +253,9 @@ void ezRenderContext::BindShader(ezShaderResourceHandle hShader, ezBitflags<ezSh
   {
     m_ShaderBindFlags = flags;
     m_hActiveShader = hShader;
+    m_hMaterial.Invalidate();
 
+    m_StateFlags.Remove(ezRenderContextFlags::MaterialBindingChanged);
     m_StateFlags.Add(ezRenderContextFlags::ShaderStateChanged);
   }
 }
