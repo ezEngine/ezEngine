@@ -121,8 +121,6 @@ void ezWorldWriter::IncludeAllComponentBaseTypes(const ezRTTI* pRtti)
   if (pRtti == nullptr || !pRtti->IsDerivedFrom<ezComponent>() || m_AllComponents.Contains(pRtti))
     return;
 
-  auto& dummy = m_AllComponents[pRtti];
-
   IncludeAllComponentBaseTypes(pRtti->GetParentType());
 }
 

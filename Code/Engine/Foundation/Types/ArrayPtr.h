@@ -28,11 +28,8 @@ private:
     typedef const ezUInt8 type;
   };
 
-  typedef typename ByteTypeHelper<T>::type ByteType;
-
 public:
-
-  typedef ezArrayPtr<typename ByteType> ByteArrayType;
+  typedef typename ByteTypeHelper<T>::type ByteType;
 
   /// \brief Initializes the ezArrayPtr to be empty.
   EZ_FORCE_INLINE ezArrayPtr() : m_ptr(nullptr), m_uiCount(0u) // [tested]
@@ -126,9 +123,9 @@ public:
   }
 
   /// \brief Reinterprets this array as a byte array.
-  EZ_FORCE_INLINE ByteArrayType ToByteArray()
+  EZ_FORCE_INLINE ezArrayPtr<ByteType> ToByteArray()
   {
-    return ByteArrayType(reinterpret_cast<ByteType*>(GetPtr()), GetCount() * sizeof(T));
+    return ezArrayPtr<ByteType>(reinterpret_cast<ByteType*>(GetPtr()), GetCount() * sizeof(T));
   }
 
   /// \brief Index access.

@@ -166,8 +166,6 @@ void WorldData::DeleteTransformationData(const ezBitflags<ezObjectFlags>& object
     while (it.IsValid())
     {
       auto pTransformData = it->m_pTransformationData;
-      auto pSelf = pTransformData->m_pObject;
-      auto pPreviousParent = pTransformData->m_pParentData;
       pTransformData->m_pParentData = pCurrent;
       it.Next();
     }

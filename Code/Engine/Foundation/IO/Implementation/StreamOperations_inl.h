@@ -242,7 +242,7 @@ inline ezStreamWriter& operator << (ezStreamWriter& Stream, const ezEnum<T>& val
 template <typename T>
 inline ezStreamReader& operator >> (ezStreamReader& Stream, ezEnum<T>& value)
 {
-  T::StorageType storedValue;
+  typename T::StorageType storedValue;
   Stream >> storedValue;
   value.SetValue(storedValue);
 

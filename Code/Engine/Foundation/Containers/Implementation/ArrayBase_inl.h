@@ -366,13 +366,13 @@ EZ_FORCE_INLINE ezArrayPtr<const T> ezArrayBase<T, Derived>::GetArrayPtr() const
 }
 
 template <typename T, typename Derived>
-EZ_FORCE_INLINE typename ezArrayPtr<T>::ByteArrayType ezArrayBase<T, Derived>::GetByteArrayPtr()
+EZ_FORCE_INLINE ezArrayPtr<typename ezArrayPtr<T>::ByteType> ezArrayBase<T, Derived>::GetByteArrayPtr()
 {
   return GetArrayPtr().ToByteArray();
 }
 
 template <typename T, typename Derived>
-EZ_FORCE_INLINE typename ezArrayPtr<const T>::ByteArrayType ezArrayBase<T, Derived>::GetByteArrayPtr() const
+EZ_FORCE_INLINE ezArrayPtr<typename ezArrayPtr<const T>::ByteType> ezArrayBase<T, Derived>::GetByteArrayPtr() const
 {
   return GetArrayPtr().ToByteArray();
 }
