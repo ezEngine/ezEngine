@@ -246,6 +246,34 @@ void ezEngineProcessDocumentContext::DestroyDocumentContext(ezUuid guid)
   }
 }
 
+ezBoundingBoxSphere ezEngineProcessDocumentContext::GetWorldBounds(ezWorld* pWorld)
+{
+  ezBoundingBoxSphere bounds;
+  bounds.SetInvalid();
+
+  {
+    EZ_LOCK(pWorld->GetReadMarker());
+
+    EZ_ASSERT_DEV(!pWorld->GetWorldSimulationEnabled(), "World simulation must be disabled to get bounds!");
+
+    const ezWorld* pConstWorld = pWorld;
+    for (auto it = pConstWorld->GetObjects(); it.IsValid(); ++it)
+    {
+      const ezGameObject* pObj = it;
+
+      const auto& b = pObj->GetGlobalBounds();
+
+      if (b.IsValid())
+        bounds.ExpandToInclude(b);
+    }
+  }
+
+  if (!bounds.IsValid())
+    bounds = ezBoundingBoxSphere(ezVec3::ZeroVector(), ezVec3(1, 1, 1), 2);
+
+  return bounds;
+}
+
 ezEngineProcessDocumentContext::ezEngineProcessDocumentContext()
 {
   m_pWorld = nullptr;

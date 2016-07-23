@@ -97,7 +97,7 @@ ezPropertyEditorDoubleSpinboxWidget::ezPropertyEditorDoubleSpinboxWidget(ezInt8 
     m_pWidget[c] = new QDoubleSpinBoxLessAnnoying(this);
     m_pWidget[c]->setMinimum(-ezMath::BasicType<double>::GetInfinity());
     m_pWidget[c]->setMaximum(ezMath::BasicType<double>::GetInfinity());
-    m_pWidget[c]->setSingleStep(1.0);
+    m_pWidget[c]->setSingleStep(0.1f);
     m_pWidget[c]->setAccelerated(true);
     m_pWidget[c]->setDecimals(3);
 
@@ -361,7 +361,7 @@ ezPropertyEditorTimeWidget::ezPropertyEditorTimeWidget() : ezQtStandardPropertyW
     m_pWidget->setDisplaySuffix(" (sec)");
     m_pWidget->setMinimum(-ezMath::BasicType<double>::GetInfinity());
     m_pWidget->setMaximum(ezMath::BasicType<double>::GetInfinity());
-    m_pWidget->setSingleStep(1.0);
+    m_pWidget->setSingleStep(0.1f);
     m_pWidget->setAccelerated(true);
     m_pWidget->setDecimals(3);
 
@@ -456,7 +456,7 @@ ezPropertyEditorAngleWidget::ezPropertyEditorAngleWidget() : ezQtStandardPropert
     m_pWidget->setDisplaySuffix(ezStringUtf8(L"\u00B0").GetData());
     m_pWidget->setMinimum(-ezMath::BasicType<double>::GetInfinity());
     m_pWidget->setMaximum(ezMath::BasicType<double>::GetInfinity());
-    m_pWidget->setSingleStep(1.0);
+    m_pWidget->setSingleStep(0.1f);
     m_pWidget->setAccelerated(true);
     m_pWidget->setDecimals(1);
 

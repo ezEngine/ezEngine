@@ -1,6 +1,6 @@
 #include <PCH.h>
-#include <EnginePluginAssets/MaterialContext/MaterialContext.h>
-#include <EnginePluginAssets/MaterialView/MaterialView.h>
+#include <EnginePluginAssets/MaterialAsset/MaterialContext.h>
+#include <EnginePluginAssets/MaterialAsset/MaterialView.h>
 
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/MeshComponent.h>

@@ -27,6 +27,13 @@ ezMeshAssetDocumentManager::~ezMeshAssetDocumentManager()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezMeshAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
+
+ezBitflags<ezAssetDocumentFlags> ezMeshAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
+{
+  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
+  return ezAssetDocumentFlags::SupportsThumbnail;
+}
+
 void ezMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
 {
   switch (e.m_Type)
@@ -35,7 +42,7 @@ void ezMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezMeshAssetDocument>())
       {
-        ezMeshAssetDocumentWindow* pDocWnd = new ezMeshAssetDocumentWindow(e.m_pDocument);
+        ezMeshAssetDocumentWindow* pDocWnd = new ezMeshAssetDocumentWindow(static_cast<ezMeshAssetDocument*>(e.m_pDocument));
       }
     }
     break;

@@ -135,6 +135,31 @@ void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
   }
 }
 
+bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir)
+{
+  ezVec3 vDir = vViewDir;
+  bool bChanged = false;
+  ezVec3 vCameraPos = camera.GetCenterPosition();
+  ezVec3 vCenterPos = objectBounds.GetSphere().m_vCenter;
+
+  const float fDist = objectBounds.GetSphere().m_fRadius / ezMath::Sin(ezAngle::Degree(fFov / 2));
+  vDir.Normalize();
+  ezVec3 vNewCameraPos = vCenterPos - vDir * fDist;
+  if (!vNewCameraPos.IsEqual(vCameraPos, 0.01f))
+  {
+    vCameraPos = vNewCameraPos;
+    bChanged = true;
+  }
+
+  if (bChanged)
+  {
+    camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, fFov, 0.1f, 1000.0f);
+    camera.LookAt(vNewCameraPos, vCenterPos, ezVec3(0.0f, 0.0f, 1.0f));
+  }
+
+  return bChanged;
+}
+
 void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
   m_Camera.SetCameraMode((ezCameraMode::Enum) pMsg->m_iCameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
@@ -164,4 +189,14 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
       }
     }
   }
+}
+
+bool ezEngineProcessViewContext::IsDefaultRenderPipeline(ezRenderPipelineResourceHandle hPipeline)
+{
+  return hPipeline == ezGameState::GetMainRenderPipeline();
+}
+
+ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDefaultRenderPipeline()
+{
+  return ezGameState::GetMainRenderPipeline();
 }

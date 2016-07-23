@@ -69,7 +69,8 @@ public:
   }
 };
 
-ezMeshAssetDocument::ezMeshAssetDocument(const char* szDocumentPath) : ezSimpleAssetDocument<ezMeshAssetProperties>(szDocumentPath)
+ezMeshAssetDocument::ezMeshAssetDocument(const char* szDocumentPath)
+  : ezSimpleAssetDocument<ezMeshAssetProperties>(szDocumentPath, true)
 {
 }
 
@@ -413,5 +414,11 @@ ezStatus ezMeshAssetDocument::InternalRetrieveAssetInfo(const char * szPlatform)
 
 
   return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezMeshAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
+{
+  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
+  return status;
 }
 

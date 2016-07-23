@@ -1,32 +1,38 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
+#include <EditorFramework/EngineProcess/ViewRenderSettings.h>
 
 class QLabel;
 class QScrollArea;
 class QtImageWidget;
+class ezQtMeshViewWidget;
 
-class ezMeshAssetDocumentWindow : public ezQtDocumentWindow
+class ezMeshAssetDocumentWindow : public ezQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezMeshAssetDocumentWindow(ezDocument* pDocument);
+  ezMeshAssetDocumentWindow(ezMeshAssetDocument* pDocument);
   ~ezMeshAssetDocumentWindow();
 
+  ezMeshAssetDocument* GetMeshDocument();
   virtual const char* GetGroupName() const { return "MeshAsset"; }
 
-private slots:
-  
+protected:
+  virtual void InternalRedraw() override;
 
 private:
   void UpdatePreview();
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void MeshAssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e);
+  void SendRedrawMsg();
 
-  ezMeshAssetDocument* m_pAssetDoc;
+  ezSceneViewConfig m_ViewConfig;
+  ezQtMeshViewWidget* m_pViewWidget;
+
   QLabel* m_pLabelInfo;
 };

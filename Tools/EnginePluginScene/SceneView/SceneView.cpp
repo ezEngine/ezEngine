@@ -72,29 +72,7 @@ void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 
 bool ezSceneViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds)
 {
-  bool bChanged = false;
-  ezVec3 vCameraPos = m_Camera.GetCenterPosition();
-  ezVec3 vCenterPos = bounds.GetSphere().m_vCenter;
-  
-  float fFov = 45.0f;
-  const float fDist = bounds.GetSphere().m_fRadius / ezMath::Sin(ezAngle::Degree(fFov / 2));
-  ezVec3 vDir(1.0f, 1.0f, -1.0f);
-  vDir.Normalize();
-  ezVec3 vNewCameraPos = vCenterPos - vDir * fDist;
-  if (!vNewCameraPos.IsEqual(vCameraPos, 0.01f))
-  {
-    vCameraPos = vNewCameraPos;
-    bChanged = true;
-  }
-
-  if (bChanged)
-  {
-    m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, fFov, 0.1f, 1000.0f);
-    m_Camera.LookAt(vNewCameraPos, vCenterPos, ezVec3(0.0f, 0.0f, 1.0f));
-    return false;
-  }
-
-  return true;
+  return !FocusCameraOnObject(m_Camera, bounds, 45.0f, ezVec3(1.0f, 1.0f, -1.0f));
 }
 
 void ezSceneViewContext::Redraw(bool bRenderEditorGizmos)

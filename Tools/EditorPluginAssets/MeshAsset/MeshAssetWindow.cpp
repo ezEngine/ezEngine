@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetWindow.moc.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
+#include <EditorPluginAssets/MeshAsset/MeshViewWidget.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
@@ -9,11 +10,13 @@
 #include <QLabel>
 #include <QLayout>
 #include <CoreUtils/Image/ImageConversion.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/Preferences/Preferences.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
+#include <EditorFramework/InputContexts/EditorInputContext.h>
 
-ezMeshAssetDocumentWindow::ezMeshAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
+ezMeshAssetDocumentWindow::ezMeshAssetDocumentWindow(ezMeshAssetDocument* pDocument) : ezQtEngineDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezMeshAssetDocumentWindow::PropertyEventHandler, this));
-
   // Menu Bar
   {
     ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
@@ -34,6 +37,20 @@ ezMeshAssetDocumentWindow::ezMeshAssetDocumentWindow(ezDocument* pDocument) : ez
     addToolBar(pToolBar);
   }
 
+  // 3D View
+  ezQtViewWidgetContainer* pContainer = nullptr;
+  {
+    SetTargetFramerate(25);
+
+    m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfig.ApplyPerspectiveSetting(90);
+
+    m_pViewWidget = new ezQtMeshViewWidget(nullptr, this, &m_ViewConfig);
+    pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, nullptr/*"MeshAssetViewToolBar"*/);
+    setCentralWidget(pContainer);
+  }
+
+  // Property Grid
   {
     ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
     pPropertyPanel->setObjectName("MeshAssetDockWidget");
@@ -48,13 +65,11 @@ ezMeshAssetDocumentWindow::ezMeshAssetDocumentWindow(ezDocument* pDocument) : ez
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
 
-  m_pAssetDoc = static_cast<ezMeshAssetDocument*>(pDocument);
-  m_pAssetDoc->m_AssetEvents.AddEventHandler(ezMakeDelegate(&ezMeshAssetDocumentWindow::MeshAssetDocumentEventHandler, this));
+  GetMeshDocument()->m_AssetEvents.AddEventHandler(ezMakeDelegate(&ezMeshAssetDocumentWindow::MeshAssetDocumentEventHandler, this));
 
   m_pLabelInfo = new QLabel(this);
-  setCentralWidget(m_pLabelInfo);
-
   m_pLabelInfo->setText("<Mesh Information>");
+  pContainer->GetLayout()->addWidget(m_pLabelInfo, 0);
 
   FinishWindowCreation();
 
@@ -63,9 +78,19 @@ ezMeshAssetDocumentWindow::ezMeshAssetDocumentWindow(ezDocument* pDocument) : ez
 
 ezMeshAssetDocumentWindow::~ezMeshAssetDocumentWindow()
 {
-  m_pAssetDoc->m_AssetEvents.RemoveEventHandler(ezMakeDelegate(&ezMeshAssetDocumentWindow::MeshAssetDocumentEventHandler, this));
+  GetMeshDocument()->m_AssetEvents.RemoveEventHandler(ezMakeDelegate(&ezMeshAssetDocumentWindow::MeshAssetDocumentEventHandler, this));
+}
 
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezMeshAssetDocumentWindow::PropertyEventHandler, this));
+
+ezMeshAssetDocument* ezMeshAssetDocumentWindow::GetMeshDocument()
+{
+  return static_cast<ezMeshAssetDocument*>(GetDocument());
+}
+
+
+void ezMeshAssetDocumentWindow::UpdatePreview()
+{
+
 }
 
 void ezMeshAssetDocumentWindow::MeshAssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e)
@@ -78,27 +103,48 @@ void ezMeshAssetDocumentWindow::MeshAssetDocumentEventHandler(const ezAssetDocum
   }
 }
 
-void ezMeshAssetDocumentWindow::UpdatePreview()
+void ezMeshAssetDocumentWindow::SendRedrawMsg()
 {
-  const auto& prop = ((ezMeshAssetDocument*)GetDocument())->GetProperties();
+  // do not try to redraw while the process is crashed, it is obviously futile
+  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+    return;
 
-  //ezStringBuilder s;
-  //s.Format("Vertices: %u\nTriangles: %u\nSubMeshes: %u", prop->m_uiVertices, prop->m_uiTriangles, prop->m_SlotNames.GetCount());
+  {
+    ezSceneSettingsMsgToEngine msg;
+    msg.m_bSimulateWorld = false;
+    msg.m_fSimulationSpeed = 1.0f;
+    msg.m_fGizmoScale = ezPreferences::QueryPreferences<ezEditorPreferencesUser>()->m_fGizmoScale;
+    msg.m_bRenderOverlay = false;
+    msg.m_bRenderShapeIcons = false;
+    msg.m_bRenderSelectionBoxes = false;
+    GetEditorEngineConnection()->SendMessage(&msg);
+  }
 
-  //for (ezUInt32 m = 0; m < prop->m_SlotNames.GetCount(); ++m)
-  //  s.AppendFormat("\nSlot %u: %s", m, prop->m_SlotNames[m].GetData());
-  
-  //m_pLabelInfo->setText(QString::fromUtf8(s.GetData()));
+  //auto pHoveredView = GetHoveredViewWidget();
+
+  for (auto pView : m_ViewWidgets)
+  {
+    pView->SetEnablePicking(false);
+    pView->UpdateCameraInterpolation();
+    pView->SyncToEngine();
+  }
+
+  {
+    ezSyncWithProcessMsgToEngine sm;
+    ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&sm);
+
+    ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::Seconds(2.0));
+  }
 }
 
-void ezMeshAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void ezMeshAssetDocumentWindow::InternalRedraw()
 {
-  //if (e.m_sPropertyPath == "Texture File")
-  //{
-  //  UpdatePreview();
-  //}
-}
+  ezQtEngineDocumentWindow::InternalRedraw();
 
+  ezEditorInputContext::UpdateActiveInputContext();
+
+  SendRedrawMsg();
+}
 
 
 

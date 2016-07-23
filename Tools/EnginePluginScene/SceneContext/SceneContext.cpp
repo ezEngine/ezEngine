@@ -536,28 +536,7 @@ bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 
 bool ezSceneContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
-  ezBoundingBoxSphere bounds;
-  bounds.SetInvalid();
-
-  {
-    EZ_LOCK(m_pWorld->GetReadMarker());
-
-    EZ_ASSERT_DEV(!m_pWorld->GetWorldSimulationEnabled(), "World simulation must be disabled while creating a thumbnail");
-
-    const ezWorld* pConstWorld = m_pWorld;
-    for (auto it = pConstWorld->GetObjects(); it.IsValid(); ++it)
-    {
-      const ezGameObject* pObj = it;
-
-      const auto& b = pObj->GetGlobalBounds();
-
-      if (b.IsValid())
-        bounds.ExpandToInclude(b);
-    }
-  }
-
-  if (!bounds.IsValid())
-    bounds = ezBoundingBoxSphere(ezVec3::ZeroVector(), ezVec3(1, 1, 1), 2);
+  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
 
   ezSceneViewContext* pMaterialViewContext = static_cast<ezSceneViewContext*>(pThumbnailViewContext);
   return pMaterialViewContext->UpdateThumbnailCamera(bounds);

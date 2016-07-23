@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EnginePluginAssets/MaterialView/MaterialView.h>
+#include <EnginePluginAssets/MaterialAsset/MaterialView.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
@@ -18,7 +18,7 @@
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <Core/World/GameObject.h>
 #include <Core/World/Component.h>
-#include <MaterialContext/MaterialContext.h>
+#include <EnginePluginAssets/MaterialAsset/MaterialContext.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
 #include <RendererCore/Lights/LightGatheringRenderer.h>
@@ -55,14 +55,4 @@ ezView* ezMaterialViewContext::CreateView()
   pView->SetWorld(pDocumentContext->GetWorld());
   pView->SetLogicCamera(&m_Camera);
   return pView;
-}
-
-bool ezMaterialViewContext::IsDefaultRenderPipeline(ezRenderPipelineResourceHandle hPipeline)
-{
-  return hPipeline == ezGameState::GetMainRenderPipeline();
-}
-
-ezRenderPipelineResourceHandle ezMaterialViewContext::CreateDefaultRenderPipeline()
-{
-  return ezGameState::GetMainRenderPipeline();
 }

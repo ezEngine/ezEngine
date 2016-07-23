@@ -50,15 +50,18 @@ public:
   virtual void SetupRenderTarget(ezGALRenderTagetSetup& renderTargetSetup, ezUInt16 uiWidth, ezUInt16 uiHeight);
   virtual void Redraw(bool bRenderEditorGizmos);
   
+  /// \brief Focuses camera on the given object
+  static bool FocusCameraOnObject(ezCamera& camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir);
+
 protected:
   void SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg);
   void HandleWindowUpdate(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);
   virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg);
 
   /// \brief Returns true if passed in handle matches the one created by CreateRenderPipeline.
-  virtual bool IsDefaultRenderPipeline(ezRenderPipelineResourceHandle hPipeline) = 0;
+  virtual bool IsDefaultRenderPipeline(ezRenderPipelineResourceHandle hPipeline);
   /// \brief Returns the handle to the default render pipeline.
-  virtual ezRenderPipelineResourceHandle CreateDefaultRenderPipeline() = 0;
+  virtual ezRenderPipelineResourceHandle CreateDefaultRenderPipeline();
   /// \brief Create the actual view.
   virtual ezView* CreateView() = 0;
 

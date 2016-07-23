@@ -428,11 +428,11 @@ ezQtViewWidgetContainer::ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineVie
   setBackgroundRole(QPalette::Base);
   setAutoFillBackground(true);
 
-  QVBoxLayout* pLayout = new QVBoxLayout(this);
-  pLayout->setMargin(1);
-  pLayout->setSpacing(0);
-  setLayout(pLayout);
-
+  m_pLayout = new QVBoxLayout(this);
+  m_pLayout->setMargin(1);
+  m_pLayout->setSpacing(0);
+  setLayout(m_pLayout);
+   
   m_pViewWidget = pViewWidget;
   m_pViewWidget->setParent(this);
 
@@ -445,10 +445,10 @@ ezQtViewWidgetContainer::ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineVie
     context.m_pDocument = pViewWidget->GetDocumentWindow()->GetDocument();
     context.m_pWindow = m_pViewWidget;
     pToolBar->SetActionContext(context);
-    pLayout->addWidget(pToolBar);
+    m_pLayout->addWidget(pToolBar, 0);
   }
 
-  pLayout->addWidget(m_pViewWidget);
+  m_pLayout->addWidget(m_pViewWidget, 1);
 }
 
 ezQtViewWidgetContainer::~ezQtViewWidgetContainer()

@@ -101,7 +101,7 @@ public:
   ~ezQtViewWidgetContainer();
 
   ezQtEngineViewWidget* GetViewWidget() const { return m_pViewWidget; }
-
+  QVBoxLayout* GetLayout() const { return m_pLayout; }
 private:
   ezQtEngineViewWidget* m_pViewWidget;
   QVBoxLayout* m_pLayout;

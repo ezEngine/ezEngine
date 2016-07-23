@@ -123,6 +123,9 @@ public:
   static void UpdateDocumentContexts();
   static void DestroyDocumentContext(ezUuid guid);
 
+  // \brief Returns the bounding box of the objects in the world.
+  ezBoundingBoxSphere GetWorldBounds(ezWorld* pWorld);
+
   void ProcessEditorEngineSyncObjectMsg(const ezEditorEngineSyncObjectMsg& msg);
 
   const ezUuid& GetDocumentGuid() const { return m_DocumentGuid; }

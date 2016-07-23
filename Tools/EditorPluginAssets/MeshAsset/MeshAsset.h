@@ -26,5 +26,6 @@ protected:
   ezStatus CreateMeshFromFile(const ezMeshAssetProperties* pProp, ezMeshResourceDescriptor &desc, const ezMat3 &mTransformation);
 
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override;
+  virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
 
 };

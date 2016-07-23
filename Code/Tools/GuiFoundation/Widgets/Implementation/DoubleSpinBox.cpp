@@ -9,6 +9,7 @@ inline QDoubleSpinBoxLessAnnoying::QDoubleSpinBoxLessAnnoying(QWidget* pParent) 
   m_bInvalid = false;
   m_fDefaultValue = 0.0;
 
+  setSingleStep(0.1f);
   setContextMenuPolicy(Qt::CustomContextMenu);
   connect(this, &QWidget::customContextMenuRequested, this, &QDoubleSpinBoxLessAnnoying::onCustomContextMenuRequested);
 }
