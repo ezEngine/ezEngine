@@ -14,6 +14,7 @@ public:
 
   static ezActionDescriptorHandle s_hRenderMode;
   static ezActionDescriptorHandle s_hPerspective;
+  static ezActionDescriptorHandle s_hCameraUsageHint;
   static ezActionDescriptorHandle s_hRenderPipeline;
 };
 
@@ -33,6 +34,16 @@ class EZ_EDITORFRAMEWORK_DLL ezPerspectiveAction : public ezEnumerationMenuActio
   EZ_ADD_DYNAMIC_REFLECTION(ezPerspectiveAction, ezEnumerationMenuAction);
 public:
   ezPerspectiveAction(const ezActionContext& context, const char* szName, const char* szIconPath);
+  virtual ezInt64 GetValue() const override;
+  virtual void Execute(const ezVariant& value) override;
+};
+
+///
+class EZ_EDITORFRAMEWORK_DLL ezCameraUsageHintAction : public ezEnumerationMenuAction
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezCameraUsageHintAction, ezEnumerationMenuAction);
+public:
+  ezCameraUsageHintAction(const ezActionContext& context, const char* szName, const char* szIconPath);
   virtual ezInt64 GetValue() const override;
   virtual void Execute(const ezVariant& value) override;
 };

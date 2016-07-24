@@ -1,7 +1,7 @@
 #include <GameFoundation/PCH.h>
 #include <GameFoundation/GameState/FallbackGameState.h>
 #include <GameFoundation/GameApplication/InputConfig.h>
-#include <GameUtils/Components/CameraComponent.h>
+#include <RendererCore/Camera/CameraComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFallbackGameState, 1, ezRTTIDefaultAllocator<ezFallbackGameState>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -94,7 +94,7 @@ const ezCameraComponent* ezFallbackGameState::FindActiveCameraComponent()
   while (itComp.IsValid())
   {
     const ezCameraComponent* pComp = itComp;
-    Cameras[pComp->m_UsageHint.GetValue()].PushBack(pComp);
+    Cameras[pComp->GetUsageHint().GetValue()].PushBack(pComp);
 
     itComp.Next();
   }
@@ -152,10 +152,10 @@ void ezFallbackGameState::ProcessInput()
   {
     auto* pCamNode = pCamComp->GetOwner();
 
-    if (pCamComp->m_Mode == ezCameraMode::PerspectiveFixedFovX || pCamComp->m_Mode == ezCameraMode::PerspectiveFixedFovY)
-      m_MainCamera.SetCameraMode(pCamComp->m_Mode, pCamComp->m_fPerspectiveFieldOfView, pCamComp->m_fNearPlane, pCamComp->m_fFarPlane);
+    if (pCamComp->GetCameraMode() == ezCameraMode::PerspectiveFixedFovX || pCamComp->GetCameraMode() == ezCameraMode::PerspectiveFixedFovY)
+      m_MainCamera.SetCameraMode(pCamComp->GetCameraMode(), pCamComp->GetFieldOfView(), pCamComp->GetNearPlane(), pCamComp->GetFarPlane());
     else
-      m_MainCamera.SetCameraMode(pCamComp->m_Mode, pCamComp->m_fOrthoDimension, pCamComp->m_fNearPlane, pCamComp->m_fFarPlane);
+      m_MainCamera.SetCameraMode(pCamComp->GetCameraMode(), pCamComp->GetOrthoDimension(), pCamComp->GetNearPlane(), pCamComp->GetFarPlane());
 
     m_MainCamera.LookAt(pCamNode->GetGlobalPosition(), pCamNode->GetGlobalPosition() + pCamNode->GetGlobalRotation() * ezVec3(1, 0, 0), (pCamNode->GetGlobalRotation() * ezVec3(0, 0, 1)).GetNormalized());
 

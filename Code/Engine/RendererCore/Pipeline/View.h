@@ -5,9 +5,9 @@
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Types/TagSet.h>
 #include <Foundation/Types/UniquePtr.h>
-
 #include <CoreUtils/NodeGraph/Node.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
+#include <RendererCore/Camera/Declarations.h>
 #include <RendererCore/Pipeline/ViewData.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 
@@ -45,6 +45,12 @@ public:
 
   void SetRenderCamera(const ezCamera* pCamera);
   const ezCamera* GetRenderCamera() const;
+
+  /// \brief Returns the camera usage hint for the view.
+  ezEnum<ezCameraComponentUsageHint> GetCameraUsageHint() const;
+  /// \brief Sets the camera usage hint for the view. If not 'None', the camera component of the same usage will be auto-connected
+  ///   to this view via the game state.
+  void SetCameraUsageHint(ezEnum<ezCameraComponentUsageHint> val);
 
   void SetViewport(const ezRectFloat& viewport);
   const ezRectFloat& GetViewport() const;
@@ -109,6 +115,7 @@ private:
   ezRenderPipelineResourceHandle m_hRenderPipeline;
   ezUInt32 m_uiRenderPipelineResourceDescriptionCounter;
   ezUniquePtr<ezRenderPipeline> m_pRenderPipeline;
+  ezEnum<ezCameraComponentUsageHint> m_CameraUsageHint;
   const ezCamera* m_pLogicCamera;
   const ezCamera* m_pRenderCamera;
 

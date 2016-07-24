@@ -3,6 +3,7 @@
 #include <EditorFramework/Plugin.h>
 #include <CoreUtils/Graphics/Camera.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <RendererCore/Camera/Declarations.h>
 
 struct EZ_EDITORFRAMEWORK_DLL ezViewRenderMode
 {
@@ -45,11 +46,14 @@ struct EZ_EDITORFRAMEWORK_DLL ezSceneViewConfig
   {
     m_RenderMode = ezViewRenderMode::Default;
     m_Perspective = ezSceneViewPerspective::Default;
+    m_CameraUsageHint = ezCameraComponentUsageHint::EditorView;
     m_pLinkedViewConfig = nullptr;
   }
 
   ezViewRenderMode::Enum m_RenderMode;
   ezSceneViewPerspective::Enum m_Perspective;
+  ezCameraComponentUsageHint::Enum m_CameraUsageHint;
+
   ezString m_sRenderPipelineResource;
   ezCamera m_Camera;
   ezSceneViewConfig* m_pLinkedViewConfig; // used to store which other view config this is linked to, for resetting values when switching views

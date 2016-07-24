@@ -6,6 +6,7 @@
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
 #include <Core/Application/Config/FileSystemConfig.h>
 #include <Core/Application/Config/PluginConfig.h>
+#include <RendererCore/Camera/Declarations.h>
 
 ///////////////////////////////////// ezProcessMessages ///////////////////////////////////// 
 
@@ -136,11 +137,12 @@ public:
   bool m_bUpdatePickingData;
   bool m_bEnablePickingSelected;
 
-  ezInt8 m_iCameraMode;
+  ezInt8 m_iCameraMode; ///< ezCameraMode::Enum
   float m_fNearPlane;
   float m_fFarPlane;
   float m_fFovOrDim;
   ezUInt8 m_uiRenderMode; ///< ezViewRenderMode::Enum
+  ezCameraComponentUsageHint::Enum m_CameraUsageHint;
   ezString m_sRenderPipelineResource;
 
   ezVec3 m_vPosition;

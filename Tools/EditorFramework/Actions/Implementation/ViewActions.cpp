@@ -7,9 +7,11 @@
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/ProjectPreferences.h>
+#include <RendererCore/Camera/Declarations.h>
 
 ezActionDescriptorHandle ezViewActions::s_hRenderMode;
 ezActionDescriptorHandle ezViewActions::s_hPerspective;
+ezActionDescriptorHandle ezViewActions::s_hCameraUsageHint;
 ezActionDescriptorHandle ezViewActions::s_hRenderPipeline;
 
 
@@ -17,6 +19,7 @@ void ezViewActions::RegisterActions()
 {
   s_hRenderMode = EZ_REGISTER_LRU_MENU("View.RenderMode", ezRenderModeAction, ":/EditorFramework/Icons/RenderMode.png");
   s_hPerspective = EZ_REGISTER_LRU_MENU("View.RenderPerspective", ezPerspectiveAction, ":/EditorFramework/Icons/Perspective.png");
+  s_hCameraUsageHint = EZ_REGISTER_LRU_MENU("View.CameraUsageHint", ezCameraUsageHintAction, ":/EditorFramework/Icons/Tag16.png");
   s_hRenderPipeline = EZ_REGISTER_LRU_MENU("View.RenderPipeline", ezRenderPipelineMenuAction, ":/AssetIcons/RenderPipeline.png");
 }
 
@@ -24,6 +27,7 @@ void ezViewActions::UnregisterActions()
 {
   ezActionManager::UnregisterAction(s_hRenderMode);
   ezActionManager::UnregisterAction(s_hPerspective);
+  ezActionManager::UnregisterAction(s_hCameraUsageHint);
   ezActionManager::UnregisterAction(s_hRenderPipeline);
 }
 
@@ -34,7 +38,8 @@ void ezViewActions::MapActions(const char* szMapping, const char* szPath)
 
   pMap->MapAction(s_hPerspective, szPath, 1.0f);
   pMap->MapAction(s_hRenderMode, szPath, 2.0f);
-  pMap->MapAction(s_hRenderPipeline, szPath, 3.0f);
+  pMap->MapAction(s_hCameraUsageHint, szPath, 3.0f);
+  pMap->MapAction(s_hRenderPipeline, szPath, 4.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -99,6 +104,34 @@ void ezPerspectiveAction::Execute(const ezVariant& value)
   }
 }
 
+////////////////////////////////////////////////////////////////////////
+// ezCameraUsageHintAction
+////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCameraUsageHintAction, 1, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezCameraUsageHintAction::ezCameraUsageHintAction(const ezActionContext& context, const char* szName, const char* szIconPath)
+  : ezEnumerationMenuAction(context, szName, szIconPath)
+{
+  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(context.m_pWindow);
+  EZ_ASSERT_DEV(pView != nullptr, "context.m_pWindow must be derived from type 'ezQtEngineViewWidget'!");
+  InitEnumerationType(ezGetStaticRTTI<ezCameraComponentUsageHint>());
+}
+
+ezInt64 ezCameraUsageHintAction::GetValue() const
+{
+  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
+  return (ezInt64)pView->m_pViewConfig->m_CameraUsageHint;
+}
+
+void ezCameraUsageHintAction::Execute(const ezVariant& value)
+{
+  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
+  auto newValue = (ezCameraComponentUsageHint::Enum)value.ConvertTo<ezInt64>();
+  pView->m_pViewConfig->m_CameraUsageHint = newValue;
+  TriggerUpdate();
+}
 
 ////////////////////////////////////////////////////////////////////////
 // ezRenderPipelineMenuAction

@@ -35,6 +35,7 @@ Menu.ProjectSettings;Project Settings
 Menu.EditorSettings;Editor Settings
 View.RenderMode;Render Mode
 View.RenderPerspective;Perspective
+View.View.CameraUsageHint;Camera Usage Hint
 View.RenderPipeline;Render Pipeline
 Asset.Transform;Transform Asset;Transform: Creates the runtime data for this asset
 Asset.TransformAll;Transform All Assets;Transform All: Runs asset transformation on all modified assets
@@ -98,10 +99,8 @@ ezCameraMode::OrthoFixedWidth;Ortho Fixed Width
 ezCameraMode::OrthoFixedHeight;Ortho Fixed Height
 ezCameraComponentUsageHint::None;None
 ezCameraComponentUsageHint::MainView;Main View
-ezCameraComponentUsageHint::Player;Player
-ezCameraComponentUsageHint::NPC;NPC
-ezCameraComponentUsageHint::SecurityCamera;Security Camera
-ezCameraComponentUsageHint::SceneThumbnail;Scene Thumbnail
+ezCameraComponentUsageHint::EditorView;Editor View
+ezCameraComponentUsageHint::Thumbnail;Thumbnail
 ezInputMessageGranularity::PressOnly;Only Key Pressed
 ezInputMessageGranularity::PressAndRelease;Key Pressed and Released
 ezInputMessageGranularity::PressReleaseAndDown;Key Pressed, Released and Down

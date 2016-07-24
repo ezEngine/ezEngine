@@ -65,6 +65,8 @@ void ezQtEngineViewWidget::SyncToEngine()
 {
   ezViewRedrawMsgToEngine cam;
   cam.m_uiRenderMode = m_pViewConfig->m_RenderMode;
+  cam.m_CameraUsageHint = m_pViewConfig->m_CameraUsageHint;
+
   cam.m_uiViewID = GetViewID();
   cam.m_fNearPlane = m_pViewConfig->m_Camera.GetNearPlane();
   cam.m_fFarPlane = m_pViewConfig->m_Camera.GetFarPlane();

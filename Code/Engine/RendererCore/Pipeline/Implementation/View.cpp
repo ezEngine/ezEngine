@@ -76,6 +76,18 @@ ezRenderPipelineResourceHandle ezView::GetRenderPipelineResource() const
   return m_hRenderPipeline;
 }
 
+
+ezEnum<ezCameraComponentUsageHint> ezView::GetCameraUsageHint() const
+{
+  return m_CameraUsageHint;
+}
+
+
+void ezView::SetCameraUsageHint(ezEnum<ezCameraComponentUsageHint> val)
+{
+  m_CameraUsageHint = val;
+}
+
 void ezView::UpdateRenderPipeline(ezUniquePtr<ezRenderPipeline>&& pRenderPipeline)
 {
   if (m_pRenderPipeline != nullptr)

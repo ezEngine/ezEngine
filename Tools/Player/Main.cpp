@@ -9,7 +9,7 @@
 #include <GameUtils/Components/TimedDeathComponent.h>
 #include <GameUtils/Components/SpawnComponent.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
-#include <GameUtils/Components/CameraComponent.h>
+#include <RendererCore/Camera/CameraComponent.h>
 #include <GameUtils/Components/SliderComponent.h>
 #include <GameUtils/Components/InputComponent.h>
 
