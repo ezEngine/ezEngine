@@ -167,7 +167,10 @@ public:
   void SetCoordinateSystemProvider(ezUniquePtr<ezCoordinateSystemProvider>&& pProvider);
 
   /// \brief Returns the coordinate system provider that is associated with this world.
-  ezCoordinateSystemProvider* GetCoordinateSystemProvider() const;
+  ezCoordinateSystemProvider* GetCoordinateSystemProvider();
+
+  /// \brief Returns the coordinate system provider that is associated with this world.
+  const ezCoordinateSystemProvider* GetCoordinateSystemProvider() const;
 
 
   /// \brief Returns the clock that is used for all updates in this game world

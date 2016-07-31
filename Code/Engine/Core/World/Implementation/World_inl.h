@@ -273,7 +273,12 @@ EZ_FORCE_INLINE void ezWorld::SetCoordinateSystemProvider(ezUniquePtr<ezCoordina
   m_Data.m_pCoordinateSystemProvider->m_pOwnerWorld = this;
 }
 
-EZ_FORCE_INLINE ezCoordinateSystemProvider* ezWorld::GetCoordinateSystemProvider() const
+EZ_FORCE_INLINE ezCoordinateSystemProvider* ezWorld::GetCoordinateSystemProvider()
+{
+  return m_Data.m_pCoordinateSystemProvider.Borrow();
+}
+
+EZ_FORCE_INLINE const ezCoordinateSystemProvider* ezWorld::GetCoordinateSystemProvider() const
 {
   return m_Data.m_pCoordinateSystemProvider.Borrow();
 }

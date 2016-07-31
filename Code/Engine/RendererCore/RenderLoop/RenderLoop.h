@@ -22,8 +22,6 @@ public:
     return s_MainViews;
   }
 
-  static void AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline, ezView* pView);
-
   static void AddViewToRender(ezView* pView);
 
   static void ExtractMainViews();
@@ -59,7 +57,8 @@ private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, RendererLoop);
   friend class ezView;
 
-  static void DeleteRenderPipeline(ezUniquePtr<ezRenderPipeline>& pRenderPipeline);
+  static void AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline, ezView* pView);
+
   static void OnEngineShutdown();
 
   static ezUInt64 s_uiFrameCounter;

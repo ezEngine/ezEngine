@@ -15,12 +15,12 @@ ezRenderPipelineResource::ezRenderPipelineResource() : ezResource<ezRenderPipeli
 {
 }
 
-ezRenderPipeline* ezRenderPipelineResource::CreateRenderPipeline() const
+ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResource::CreateRenderPipeline() const
 {
   if (GetLoadingState() != ezResourceState::Loaded)
   {
     ezLog::Error("Can't create render pipeline '%s', the resource is not loaded!", GetResourceID().GetData());
-    return nullptr;
+    return ezInternal::NewInstance<ezRenderPipeline>(nullptr, nullptr);
   }
 
   return ezRenderPipelineResourceLoader::CreateRenderPipeline(m_Desc);

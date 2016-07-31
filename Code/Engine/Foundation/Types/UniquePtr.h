@@ -38,17 +38,29 @@ public:
   /// \brief Releases the managed object. The unique ptr will be empty afterwards.
   T* Release();
 
+  /// \brief Releases the managed object. The unique ptr will be empty afterwards.
+  T* Release(ezAllocatorBase*& out_pAllocator);
+
   /// \brief Borrows the managed object. The unique ptr stays unmodified.
-  T* Borrow() const;
+  const T* Borrow() const;
+
+  /// \brief Borrows the managed object. The unique ptr stays unmodified.
+  T* Borrow();
 
   /// \brief Destroys the managed object and resets the unique ptr.
   void Reset();
 
   /// \brief Provides access to the managed object.
-  T& operator*() const;
+  const T& operator*() const;
 
   /// \brief Provides access to the managed object.
-  T* operator->() const;
+  T& operator*();
+
+  /// \brief Provides access to the managed object.
+  const T* operator->() const;
+
+  /// \brief Provides access to the managed object.
+  T* operator->();
 
   /// \brief Returns true if there is managed object and false if the unique ptr is empty.
   operator bool() const;

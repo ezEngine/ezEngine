@@ -56,7 +56,7 @@ void ezView::SetRenderTargetSetup(ezGALRenderTagetSetup& renderTargetSetup)
   m_RenderTargetSetup = renderTargetSetup;
   if (m_pRenderPipeline)
   {
-    ezRenderLoop::AddRenderPipelineToRebuild(m_pRenderPipeline.Borrow(), this);
+    ezRenderLoop::AddRenderPipelineToRebuild(m_pRenderPipeline, this);
     m_pRenderPipeline->ResetPipelineState();
   }
 }
@@ -88,22 +88,6 @@ void ezView::SetCameraUsageHint(ezEnum<ezCameraComponentUsageHint> val)
   m_CameraUsageHint = val;
 }
 
-void ezView::UpdateRenderPipeline(ezUniquePtr<ezRenderPipeline>&& pRenderPipeline)
-{
-  if (m_pRenderPipeline != nullptr)
-  {
-    ezRenderLoop::DeleteRenderPipeline(m_pRenderPipeline);
-  }
-
-  m_pRenderPipeline = std::move(pRenderPipeline);
-  ezRenderLoop::AddRenderPipelineToRebuild(m_pRenderPipeline.Borrow(), this);
-
-  ezStringBuilder sb = m_sName.GetString();
-  sb.Append(".Render");
-  m_pRenderPipeline->m_RenderProfilingID = ezProfilingSystem::CreateId(sb.GetData());
-}
-
-
 void ezView::EnsureUpToDate()
 {
   EZ_ASSERT_DEBUG(m_hRenderPipeline.IsValid(), "Renderpipeline has not been set on this view");
@@ -116,7 +100,12 @@ void ezView::EnsureUpToDate()
   {
     m_uiRenderPipelineResourceDescriptionCounter = uiCounter;
 
-    UpdateRenderPipeline(ezUniquePtr<ezRenderPipeline>(pPipeline->CreateRenderPipeline(), ezFoundation::GetDefaultAllocator()));
+    m_pRenderPipeline = pPipeline->CreateRenderPipeline();
+    ezRenderLoop::AddRenderPipelineToRebuild(m_pRenderPipeline, this);
+
+    ezStringBuilder sb = m_sName.GetString();
+    sb.Append(".Render");
+    m_pRenderPipeline->m_RenderProfilingID = ezProfilingSystem::CreateId(sb.GetData());
 
     ResetAllPropertyStates(m_PassProperties);
     ResetAllPropertyStates(m_ExtractorProperties);

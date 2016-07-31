@@ -4,7 +4,7 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Types/TagSet.h>
-#include <Foundation/Types/UniquePtr.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <CoreUtils/NodeGraph/Node.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererCore/Camera/Declarations.h>
@@ -114,7 +114,7 @@ private:
   ezGALRenderTagetSetup m_RenderTargetSetup;
   ezRenderPipelineResourceHandle m_hRenderPipeline;
   ezUInt32 m_uiRenderPipelineResourceDescriptionCounter;
-  ezUniquePtr<ezRenderPipeline> m_pRenderPipeline;
+  ezSharedPtr<ezRenderPipeline> m_pRenderPipeline;
   ezEnum<ezCameraComponentUsageHint> m_CameraUsageHint;
   const ezCamera* m_pLogicCamera;
   const ezCamera* m_pRenderCamera;
@@ -131,7 +131,6 @@ private:
 
   /// \brief Rebuilds pipeline if necessary and pushes double-buffered settings into the pipeline.
   void EnsureUpToDate();
-  void UpdateRenderPipeline(ezUniquePtr<ezRenderPipeline>&& pRenderPipeline);
 
   mutable ezUInt32 m_uiLastCameraSettingsModification;
   mutable ezUInt32 m_uiLastCameraOrientationModification;

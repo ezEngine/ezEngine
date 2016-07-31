@@ -370,13 +370,13 @@ bool ezRenderPipeline::SortPasses()
   struct ezPipelineSorter
   {
     /// \brief Returns true if a is less than b
-    EZ_FORCE_INLINE bool Less(const ezUniquePtr<ezRenderPipelinePass>& a, const ezUniquePtr<ezRenderPipelinePass>& b) const
+    EZ_FORCE_INLINE bool Less(ezUniquePtr<ezRenderPipelinePass>& a, ezUniquePtr<ezRenderPipelinePass>& b) const
     {
       return m_pDone->IndexOf(a.Borrow()) < m_pDone->IndexOf(b.Borrow());
     }
 
     /// \brief Returns true if a is equal to b
-    EZ_FORCE_INLINE bool Equal(const ezUniquePtr<ezRenderPipelinePass>& a, const ezUniquePtr<ezRenderPipelinePass>& b) const
+    EZ_FORCE_INLINE bool Equal(ezUniquePtr<ezRenderPipelinePass>& a, ezUniquePtr<ezRenderPipelinePass>& b) const
     {
       return a.Borrow() == b.Borrow();
     }
@@ -583,7 +583,7 @@ bool ezRenderPipeline::InitRenderPipelinePasses()
 {
   ezLogBlock b("Init Render Pipeline Passes");
   // Init every pass now.
-  for (const auto& pPass : m_Passes)
+  for (auto& pPass : m_Passes)
   {
     ConnectionData& data = m_Connections[pPass.Borrow()];
     pPass->InitRenderPipelinePass(data.m_Inputs, data.m_Outputs);

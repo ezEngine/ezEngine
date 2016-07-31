@@ -251,13 +251,11 @@ void ezRenderContext::BindShader(ezShaderResourceHandle hShader, ezBitflags<ezSh
 {
   if (flags.IsAnySet(ezShaderBindFlags::ForceRebind) || m_hActiveShader != hShader)
   {
-    m_ShaderBindFlags = flags;
-    m_hActiveShader = hShader;
     m_hMaterial.Invalidate();
-
     m_StateFlags.Remove(ezRenderContextFlags::MaterialBindingChanged);
-    m_StateFlags.Add(ezRenderContextFlags::ShaderStateChanged);
   }
+
+  BindShaderInternal(hShader, flags);
 }
 
 void ezRenderContext::BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer)
@@ -677,6 +675,17 @@ void ezRenderContext::UploadConstants()
 }
 
 
+void ezRenderContext::BindShaderInternal(ezShaderResourceHandle hShader, ezBitflags<ezShaderBindFlags> flags)
+{
+  if (flags.IsAnySet(ezShaderBindFlags::ForceRebind) || m_hActiveShader != hShader)
+  {
+    m_ShaderBindFlags = flags;
+    m_hActiveShader = hShader;
+
+    m_StateFlags.Add(ezRenderContextFlags::ShaderStateChanged);
+  }
+}
+
 ezShaderPermutationResource* ezRenderContext::ApplyShaderState()
 {
   m_hActiveGALShader.Invalidate();
@@ -735,7 +744,7 @@ ezMaterialResource* ezRenderContext::ApplyMaterialState()
 {
   if (!m_hMaterial.IsValid())
   {
-    BindShader(ezShaderResourceHandle());
+    BindShaderInternal(ezShaderResourceHandle(), ezShaderBindFlags::Default);
     return nullptr;
   }
 
@@ -819,7 +828,7 @@ ezMaterialResource* ezRenderContext::ApplyMaterialState()
 
   // Always bind the shader so that in case of an invalid shader the drawcall is skipped later.
   // Otherwise we will render with the shader of the previous material which can lead to strange behavior.
-  BindShader(hShader);
+  BindShaderInternal(hShader, ezShaderBindFlags::Default);
 
   return bModified ? materialHierarchy[0] : nullptr;
 }

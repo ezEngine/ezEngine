@@ -8,7 +8,7 @@ struct ezRenderPipelineResourceDescriptor;
 
 struct EZ_RENDERERCORE_DLL ezRenderPipelineResourceLoader
 {
-  static ezRenderPipeline* CreateRenderPipeline(const ezRenderPipelineResourceDescriptor& desc);
+  static ezInternal::NewInstance<ezRenderPipeline> CreateRenderPipeline(const ezRenderPipelineResourceDescriptor& desc);
   static void CreateRenderPipelineResourceDescriptor(const ezRenderPipeline* pPipeline, ezRenderPipelineResourceDescriptor& desc);
 };
 

@@ -302,6 +302,7 @@ private: // Per Renderer States
   // Member Functions
   void UploadConstants();
 
+  void BindShaderInternal(ezShaderResourceHandle hShader, ezBitflags<ezShaderBindFlags> flags);
   ezShaderPermutationResource* ApplyShaderState();
   ezMaterialResource* ApplyMaterialState();
   void ApplyConstantBufferBindings(const ezShaderStageBinary* pBinary);

@@ -4,10 +4,6 @@
 #include <Foundation/Threading/AtomicUtils.h>
 
 /// \brief Base class for reference counted objects.
-///
-/// Note that no automatic deletion etc. happens, this is just to have shared base functionality for reference
-/// counted objects. The actual action which, should happen once an object is no longer referenced, obliges
-/// to the system that is using the objects.
 class EZ_FOUNDATION_DLL ezRefCounted
 {
 public:
@@ -27,16 +23,16 @@ public:
     // do not copy the ref count
   }
 
-  /// \brief Increments the reference counter
-  inline void AddRef() // [tested]
+  /// \brief Increments the reference counter. Returns the new reference count.
+  inline ezInt32 AddRef() // [tested]
   {
-    ezAtomicUtils::Increment(m_iRefCount);
+    return ezAtomicUtils::Increment(m_iRefCount);
   }
 
-  /// \brief Decrements the reference counter
-  inline void ReleaseRef() // [tested]
+  /// \brief Decrements the reference counter. Returns the new reference count.
+  inline ezInt32 ReleaseRef() // [tested]
   {
-    ezAtomicUtils::Decrement(m_iRefCount);
+    return ezAtomicUtils::Decrement(m_iRefCount);
   }
 
   /// \brief Returns true if the reference count is greater than 0, false otherwise
@@ -57,6 +53,10 @@ private:
 };
 
 /// \brief Stores a pointer to a reference counted object and automatically increases / decreases the reference count.
+///
+/// Note that no automatic deletion etc. happens, this is just to have shared base functionality for reference
+/// counted objects. The actual action which, should happen once an object is no longer referenced, obliges
+/// to the system that is using the objects.
 template <typename T> 
 class ezScopedRefPointer
 {

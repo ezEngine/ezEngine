@@ -22,7 +22,7 @@ namespace
   static ezMutex s_ViewsToRenderMutex;
   static ezDynamicArray<ezView*> s_ViewsToRender;
 
-  static ezDynamicArray<ezRenderPipeline*> s_FilteredRenderPipelines[2];
+  static ezDynamicArray<ezSharedPtr<ezRenderPipeline>> s_FilteredRenderPipelines[2];
 
   struct PipelineToRebuild
   {
@@ -34,30 +34,6 @@ namespace
   
   static ezMutex s_PipelinesToRebuildMutex;
   static ezDynamicArray<PipelineToRebuild> s_PipelinesToRebuild;
-
-  struct DeletedPipeline
-  {
-    EZ_DECLARE_MEM_RELOCATABLE_TYPE();
-
-    ezUniquePtr<ezRenderPipeline> m_pPipeline;
-    ezUInt32 m_uiFrameUntilDeletion;
-  };
-
-  static ezMutex s_DeletedPipelinesMutex;
-  static ezDynamicArray<DeletedPipeline> s_DeletedPipelines;
-
-  static bool IsDeleted(ezRenderPipeline* pRenderPipeline)
-  {
-    EZ_LOCK(s_DeletedPipelinesMutex);
-
-    for (auto& deletedPipeline : s_DeletedPipelines)
-    {
-      if (deletedPipeline.m_pPipeline.Borrow() == pRenderPipeline)
-        return true;
-    }
-
-    return false;
-  }
 }
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Graphics, RendererLoop)
@@ -97,22 +73,9 @@ void ezRenderLoop::DeleteView(ezView* pView)
       }
     }
   }
-
-  DeleteRenderPipeline(pView->m_pRenderPipeline);
   
   pView->~ezView();
   ezFoundation::GetDefaultAllocator()->Deallocate(pView);
-}
-
-void ezRenderLoop::DeleteRenderPipeline(ezUniquePtr<ezRenderPipeline>& pRenderPipeline)
-{
-  {
-    EZ_LOCK(s_DeletedPipelinesMutex);
-
-    auto& deletedPipeline = s_DeletedPipelines.ExpandAndGetRef();
-    deletedPipeline.m_pPipeline = std::move(pRenderPipeline);
-    deletedPipeline.m_uiFrameUntilDeletion = 2;
-  }
 }
 
 void ezRenderLoop::AddMainView(ezView* pView)
@@ -146,24 +109,6 @@ void ezRenderLoop::ClearMainViews()
   EZ_ASSERT_DEV(!s_bInExtract, "Cannot clear main views during extraction");
 
   s_MainViews.Clear();
-}
-
-void ezRenderLoop::AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline, ezView* pView)
-{
-  EZ_LOCK(s_PipelinesToRebuildMutex);
-
-  for (auto& pipelineToRebuild : s_PipelinesToRebuild)
-  {
-    if (pipelineToRebuild.m_pView == pView)
-    {
-      pipelineToRebuild.m_pPipeline = pRenderPipeline;
-      return;
-    }
-  }
-
-  auto& pipelineToRebuild = s_PipelinesToRebuild.ExpandAndGetRef();
-  pipelineToRebuild.m_pPipeline = pRenderPipeline;
-  pipelineToRebuild.m_pView = pView;
 }
 
 void ezRenderLoop::AddViewToRender(ezView* pView)
@@ -230,12 +175,12 @@ void ezRenderLoop::ExtractMainViews()
 
   // filter out duplicates and reverse order so that dependent views are rendered first
   {
-    auto& filteredRenderPipelines = s_FilteredRenderPipelines[s_uiFrameCounter & 1];
+    auto& filteredRenderPipelines = s_FilteredRenderPipelines[GetDataIndexForExtraction()];
     filteredRenderPipelines.Clear();
 
     for (ezUInt32 i = s_ViewsToRender.GetCount(); i-- > 0;)
     {
-      ezRenderPipeline* pRenderPipeline = s_ViewsToRender[i]->m_pRenderPipeline.Borrow();
+      auto& pRenderPipeline = s_ViewsToRender[i]->m_pRenderPipeline;
       if (!filteredRenderPipelines.Contains(pRenderPipeline))
       {
         filteredRenderPipelines.PushBack(pRenderPipeline);
@@ -250,31 +195,17 @@ void ezRenderLoop::Render(ezRenderContext* pRenderContext)
 {
   auto& filteredRenderPipelines = s_FilteredRenderPipelines[GetDataIndexForRendering()];
 
-  for (auto pRenderPipeline : filteredRenderPipelines)
+  for (auto& pRenderPipeline : filteredRenderPipelines)
   {
-    if (IsDeleted(pRenderPipeline))
-      continue;
-
-    pRenderPipeline->Render(pRenderContext);
+    // If we are the only one holding a reference to the pipeline skip rendering. The pipeline is not needed anymore and will be deleted soon.
+    if (pRenderPipeline->GetRefCount() > 1)
+    {
+      pRenderPipeline->Render(pRenderContext);
+    }
+    pRenderPipeline = nullptr;
   }
 
   filteredRenderPipelines.Clear();
-
-  {
-    EZ_LOCK(s_DeletedPipelinesMutex);
-
-    for (ezUInt32 i = s_DeletedPipelines.GetCount(); i-- > 0;)
-    {
-      auto& deletedPipeline = s_DeletedPipelines[i];
-      deletedPipeline.m_uiFrameUntilDeletion--;
-
-      if (deletedPipeline.m_uiFrameUntilDeletion == 0)
-      {
-        deletedPipeline.m_pPipeline.Reset();
-        s_DeletedPipelines.RemoveAt(i);
-      }
-    }
-  }
 }
 
 void ezRenderLoop::BeginFrame()
@@ -321,8 +252,29 @@ bool ezRenderLoop::IsRenderingThread()
   return s_RenderingThreadID == ezThreadUtils::GetCurrentThreadID();
 }
 
+void ezRenderLoop::AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline, ezView* pView)
+{
+  EZ_LOCK(s_PipelinesToRebuildMutex);
+
+  for (auto& pipelineToRebuild : s_PipelinesToRebuild)
+  {
+    if (pipelineToRebuild.m_pView == pView)
+    {
+      pipelineToRebuild.m_pPipeline = pRenderPipeline;
+      return;
+    }
+  }
+
+  auto& pipelineToRebuild = s_PipelinesToRebuild.ExpandAndGetRef();
+  pipelineToRebuild.m_pPipeline = pRenderPipeline;
+  pipelineToRebuild.m_pView = pView;
+}
+
 void ezRenderLoop::OnEngineShutdown()
 {
+  s_FilteredRenderPipelines[0].Clear();
+  s_FilteredRenderPipelines[1].Clear();
+
   for (auto pView : s_MainViews)
   {
     pView->~ezView();
@@ -330,6 +282,4 @@ void ezRenderLoop::OnEngineShutdown()
   }
 
   ClearMainViews();
-
-  s_DeletedPipelines.Clear();
 }

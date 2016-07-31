@@ -127,10 +127,10 @@ void ezRenderPipelineRttiConverterContext::DeleteObject(const ezUuid& guid)
   }
 }
 
-
-ezRenderPipeline* ezRenderPipelineResourceLoader::CreateRenderPipeline(const ezRenderPipelineResourceDescriptor& desc)
+//static
+ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::CreateRenderPipeline(const ezRenderPipelineResourceDescriptor& desc)
 {
-  ezRenderPipeline* pPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
+  auto pPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
   ezRenderPipelineRttiConverterContext context;
   context.m_pRenderPipeline = pPipeline;
 
@@ -207,6 +207,7 @@ ezRenderPipeline* ezRenderPipelineResourceLoader::CreateRenderPipeline(const ezR
   return pPipeline;
 }
 
+//static
 void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(const ezRenderPipeline* pPipeline, ezRenderPipelineResourceDescriptor& desc)
 {
   ezRenderPipelineRttiConverterContext context;

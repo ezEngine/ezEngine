@@ -32,7 +32,7 @@ public:
     return m_Desc;
   }
 
-  ezRenderPipeline* CreateRenderPipeline() const;
+  ezInternal::NewInstance<ezRenderPipeline> CreateRenderPipeline() const;
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;

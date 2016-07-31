@@ -12,7 +12,7 @@ class ezProfilingId;
 class ezView;
 class ezRenderPipelinePass;
 
-class EZ_RENDERERCORE_DLL ezRenderPipeline
+class EZ_RENDERERCORE_DLL ezRenderPipeline : public ezRefCounted
 {
 public:
   enum class PipelineState
