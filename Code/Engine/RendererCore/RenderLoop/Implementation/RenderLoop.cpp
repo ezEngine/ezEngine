@@ -11,6 +11,7 @@ ezEvent<ezUInt64> ezRenderLoop::s_BeginFrameEvent;
 ezEvent<ezUInt64> ezRenderLoop::s_EndFrameEvent;
 
 ezUInt64 ezRenderLoop::s_uiFrameCounter;
+ezDynamicArray<ezView*> ezRenderLoop::s_Views;
 ezDynamicArray<ezView*> ezRenderLoop::s_MainViews;
 
 namespace
@@ -57,6 +58,9 @@ ezView* ezRenderLoop::CreateView(const char* szName)
   
   pView->SetName(szName);
   pView->InitializePins();
+
+  s_Views.PushBack(pView);
+
   return pView;
 }
 
@@ -73,6 +77,9 @@ void ezRenderLoop::DeleteView(ezView* pView)
       }
     }
   }
+
+  RemoveMainView(pView);
+  s_Views.Remove(pView);
   
   pView->~ezView();
   ezFoundation::GetDefaultAllocator()->Deallocate(pView);

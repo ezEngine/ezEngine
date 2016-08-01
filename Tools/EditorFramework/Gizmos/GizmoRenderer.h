@@ -17,10 +17,9 @@ public:
 
   static float s_fGizmoScale;
 
-  bool m_bEnabled;
-
 private:
 
+  bool m_bEnabled;
   ezUInt32 m_uiHighlightID;
 };
 

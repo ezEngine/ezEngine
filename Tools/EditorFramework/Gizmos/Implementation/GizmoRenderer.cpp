@@ -15,6 +15,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoRenderer, 1, ezRTTIDefaultAllocator<ezGiz
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_MEMBER_PROPERTY("Enabled", m_bEnabled),
     EZ_MEMBER_PROPERTY("HighlightID", m_uiHighlightID)
   }
   EZ_END_PROPERTIES
@@ -25,8 +26,8 @@ float ezGizmoRenderer::s_fGizmoScale = 1.0f;
 
 ezGizmoRenderer::ezGizmoRenderer()
 {
-  m_uiHighlightID = 0;
   m_bEnabled = true;
+  m_uiHighlightID = 0;  
 }
 
 ezGizmoRenderer::~ezGizmoRenderer()

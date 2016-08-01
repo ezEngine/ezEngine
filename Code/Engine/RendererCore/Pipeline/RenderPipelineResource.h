@@ -34,6 +34,9 @@ public:
 
   ezInternal::NewInstance<ezRenderPipeline> CreateRenderPipeline() const;
 
+public:
+  static ezRenderPipelineResourceHandle CreateMissingPipeline();
+
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;

@@ -40,16 +40,18 @@ public:
   void SetRenderPipelineResource(ezRenderPipelineResourceHandle hPipeline);
   ezRenderPipelineResourceHandle GetRenderPipelineResource() const;
 
-  void SetLogicCamera(const ezCamera* pCamera);
+  void SetLogicCamera(ezCamera* pCamera);
+  ezCamera* GetLogicCamera();
   const ezCamera* GetLogicCamera() const;
 
-  void SetRenderCamera(const ezCamera* pCamera);
+  void SetRenderCamera(ezCamera* pCamera);
+  ezCamera* GetRenderCamera();
   const ezCamera* GetRenderCamera() const;
 
   /// \brief Returns the camera usage hint for the view.
   ezEnum<ezCameraComponentUsageHint> GetCameraUsageHint() const;
   /// \brief Sets the camera usage hint for the view. If not 'None', the camera component of the same usage will be auto-connected
-  ///   to this view via the game state.
+  ///   to this view.
   void SetCameraUsageHint(ezEnum<ezCameraComponentUsageHint> val);
 
   void SetViewport(const ezRectFloat& viewport);
@@ -116,8 +118,8 @@ private:
   ezUInt32 m_uiRenderPipelineResourceDescriptionCounter;
   ezSharedPtr<ezRenderPipeline> m_pRenderPipeline;
   ezEnum<ezCameraComponentUsageHint> m_CameraUsageHint;
-  const ezCamera* m_pLogicCamera;
-  const ezCamera* m_pRenderCamera;
+  ezCamera* m_pLogicCamera;
+  ezCamera* m_pRenderCamera;
 
 private:
   ezInputNodePin m_PinRenderTarget0;

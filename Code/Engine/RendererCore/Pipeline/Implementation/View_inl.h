@@ -24,9 +24,14 @@ EZ_FORCE_INLINE const ezGALRenderTagetSetup& ezView::GetRenderTargetSetup() cons
   return m_RenderTargetSetup;
 }
 
-EZ_FORCE_INLINE void ezView::SetLogicCamera(const ezCamera* pCamera)
+EZ_FORCE_INLINE void ezView::SetLogicCamera(ezCamera* pCamera)
 {
   m_pLogicCamera = pCamera;
+}
+
+EZ_FORCE_INLINE ezCamera* ezView::GetLogicCamera()
+{
+  return m_pLogicCamera;
 }
 
 EZ_FORCE_INLINE const ezCamera* ezView::GetLogicCamera() const
@@ -34,9 +39,14 @@ EZ_FORCE_INLINE const ezCamera* ezView::GetLogicCamera() const
   return m_pLogicCamera;
 }
 
-EZ_FORCE_INLINE void ezView::SetRenderCamera(const ezCamera* pCamera)
+EZ_FORCE_INLINE void ezView::SetRenderCamera(ezCamera* pCamera)
 {
   m_pRenderCamera = pCamera;
+}
+
+EZ_FORCE_INLINE ezCamera* ezView::GetRenderCamera()
+{
+  return m_pRenderCamera != nullptr ? m_pRenderCamera : m_pLogicCamera;
 }
 
 EZ_FORCE_INLINE const ezCamera* ezView::GetRenderCamera() const

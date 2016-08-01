@@ -6,8 +6,26 @@
 #include <Core/World/Component.h>
 #include <CoreUtils/Graphics/Camera.h>
 
+class ezView;
 
-typedef ezComponentManager<class ezCameraComponent> ezCameraComponentManager;
+class EZ_RENDERERCORE_DLL ezCameraComponentManager : public ezComponentManager<class ezCameraComponent, true>
+{
+public:
+  ezCameraComponentManager(ezWorld* pWorld);
+  ~ezCameraComponentManager();
+
+  virtual void Initialize() override;
+
+  void Update(ezUInt32 uiStartIndex, ezUInt32 uiCount);
+
+  const ezCameraComponent* GetCameraByUsageHint(ezCameraComponentUsageHint::Enum usageHint) const;
+
+private:
+  friend class ezCameraComponent;
+
+  ezDynamicArray<ezComponentHandle> m_modifiedCameras;
+};
+
 
 class EZ_RENDERERCORE_DLL ezCameraComponent : public ezComponent
 {
@@ -15,6 +33,7 @@ class EZ_RENDERERCORE_DLL ezCameraComponent : public ezComponent
 
 public:
   ezCameraComponent();
+  ~ezCameraComponent();
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
@@ -43,8 +62,7 @@ public:
   const char* GetRenderPipelineFile() const;
   void SetRenderPipelineFile(const char* szFile);
 
-  /// \brief Returns a counter that is increased every time the camera settings are modified.
-  ezUInt32 GetSettingsModificationCounter() const { return m_uiSettingsModificationCounter; }
+  void ApplySettingsToView(ezView* pView) const;
 
 private:
   ezEnum<ezCameraComponentUsageHint> m_UsageHint;
@@ -55,7 +73,6 @@ private:
   float m_fOrthoDimension;
   ezRenderPipelineResourceHandle m_hRenderPipeline;
 
-private:
-  ezUInt32 m_uiSettingsModificationCounter;
-
+  void MarkAsModified();
+  bool m_bIsModified;
 };

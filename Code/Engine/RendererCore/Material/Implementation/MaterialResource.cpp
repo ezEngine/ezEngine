@@ -415,6 +415,9 @@ ezResourceLoadDesc ezMaterialResource::CreateResource(const ezMaterialResourceDe
 
 void ezMaterialResource::UpdateConstantBuffer(ezHashTable<ezHashedString, ezVariant>& parameters, ezShaderPermutationResource* pShaderPermutation, ezUInt64 uiLastModified)
 {
+  if (pShaderPermutation == nullptr)
+    return;
+
   ezTempHashedString sConstantBufferName("MaterialConstants");
   const ezShaderResourceBinding* pBinding = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::PixelShader)->GetShaderResourceBinding(sConstantBufferName);
   if (pBinding == nullptr)

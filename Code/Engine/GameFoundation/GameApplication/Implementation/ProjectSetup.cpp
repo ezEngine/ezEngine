@@ -130,6 +130,12 @@ void ezGameApplication::DoSetupDefaultResources()
 
     ezCollectionResource::SetTypeMissingResource(hMissingCollection);
   }
+
+  // Render Pipelines
+  {
+    ezRenderPipelineResourceHandle hMissingRenderPipeline = ezRenderPipelineResource::CreateMissingPipeline();
+    ezRenderPipelineResource::SetTypeMissingResource(hMissingRenderPipeline);
+  }
 }
 
 

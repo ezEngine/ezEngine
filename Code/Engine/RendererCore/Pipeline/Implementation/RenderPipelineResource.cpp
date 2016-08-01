@@ -1,5 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
+#include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 
@@ -24,6 +25,35 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResource::CreateRender
   }
 
   return ezRenderPipelineResourceLoader::CreateRenderPipeline(m_Desc);
+}
+
+// static
+ezRenderPipelineResourceHandle ezRenderPipelineResource::CreateMissingPipeline()
+{
+  ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
+
+  ezSimpleRenderPass* pSimplePass = nullptr;
+  {
+    ezUniquePtr<ezSimpleRenderPass> pPass = EZ_DEFAULT_NEW(ezSimpleRenderPass);
+    pSimplePass = pPass.Borrow();
+    pSimplePass->SetMessage("Render pipeline resource is missing. Ensure that the corresponding asset has been transformed.");
+    pRenderPipeline->AddPass(std::move(pPass));
+  }
+
+  ezTargetPass* pTargetPass = nullptr;
+  {
+    ezUniquePtr<ezTargetPass> pPass = EZ_DEFAULT_NEW(ezTargetPass);
+    pTargetPass = pPass.Borrow();
+    pRenderPipeline->AddPass(std::move(pPass));
+  }
+
+  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "Color", pTargetPass, "Color0"), "Connect failed!");
+  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "DepthStencil", pTargetPass, "DepthStencil"), "Connect failed!");
+
+  ezRenderPipelineResourceDescriptor desc;
+  ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(pRenderPipeline.Borrow(), desc);
+
+  return ezResourceManager::CreateResource<ezRenderPipelineResource>("MissingRenderPipeline", desc, "MissingRenderPipeline");
 }
 
 ezResourceLoadDesc ezRenderPipelineResource::UnloadData(Unload WhatToUnload)

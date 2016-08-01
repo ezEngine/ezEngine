@@ -33,8 +33,6 @@ protected:
   virtual void Redraw(bool bRenderEditorGizmos) override;
   virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg) override;
   virtual ezView* CreateView() override;
-  virtual bool IsDefaultRenderPipeline(ezRenderPipelineResourceHandle hPipeline) override;
-  ezRenderPipelineResourceHandle CreateDefaultRenderPipeline() override;
 
   void PickObjectAt(ezUInt16 x, ezUInt16 y);
 

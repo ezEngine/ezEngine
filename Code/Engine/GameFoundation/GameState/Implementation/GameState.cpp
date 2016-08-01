@@ -111,7 +111,7 @@ void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer, ezGALRe
     .SetDepthStencilTarget(hDSV);
   m_pMainView->SetRenderTargetSetup(RTS);
 
-  m_pMainView->SetRenderPipelineResource(CreateMainRenderPipeline());
+  m_pMainView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>("{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"));
 
   ezSizeU32 size = m_pMainWindow->GetClientAreaSize();
   m_pMainView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));
@@ -124,59 +124,6 @@ void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer, ezGALRe
 
   // exclude all editor objects from rendering in proper game views
   m_pMainView->m_ExcludeTags.Set(tagEditor);
-}
-
-
-ezRenderPipelineResourceHandle ezGameState::GetMainRenderPipeline()
-{
-  auto hRP = ezResourceManager::GetExistingResource<ezRenderPipelineResource>("MainRenderPipeline");
-  if (hRP.IsValid())
-    return hRP;
-
-  ezUniquePtr<ezRenderPipeline> pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
-
-  ezForwardRenderPass* pForwardPass = nullptr;
-  {
-    ezUniquePtr<ezForwardRenderPass> pPass = EZ_DEFAULT_NEW(ezForwardRenderPass);
-    pForwardPass = pPass.Borrow();
-
-    pForwardPass->AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
-
-    pRenderPipeline->AddPass(std::move(pPass));
-  }
-
-  ezSimpleRenderPass* pSimplePass = nullptr;
-  {
-    ezUniquePtr<ezSimpleRenderPass> pPass = EZ_DEFAULT_NEW(ezSimpleRenderPass);
-    pSimplePass = pPass.Borrow();
-    pRenderPipeline->AddPass(std::move(pPass));
-  }
-
-  ezTargetPass* pTargetPass = nullptr;
-  {
-    ezUniquePtr<ezTargetPass> pPass = EZ_DEFAULT_NEW(ezTargetPass);
-    pTargetPass = pPass.Borrow();
-    pRenderPipeline->AddPass(std::move(pPass));
-  }
-
-  EZ_VERIFY(pRenderPipeline->Connect(pForwardPass, "Color", pSimplePass, "Color"), "Connect failed!");
-  EZ_VERIFY(pRenderPipeline->Connect(pForwardPass, "DepthStencil", pSimplePass, "DepthStencil"), "Connect failed!");
-
-  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "Color", pTargetPass, "Color0"), "Connect failed!");
-  EZ_VERIFY(pRenderPipeline->Connect(pSimplePass, "DepthStencil", pTargetPass, "DepthStencil"), "Connect failed!");
-
-  pRenderPipeline->AddExtractor(EZ_DEFAULT_NEW(ezVisibleObjectsExtractor));
-
-
-  ezRenderPipelineResourceDescriptor desc;
-  ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(pRenderPipeline.Borrow(), desc);
-
-  return ezResourceManager::CreateResource<ezRenderPipelineResource>("MainRenderPipeline", desc);
-}
-
-ezRenderPipelineResourceHandle ezGameState::CreateMainRenderPipeline()
-{
-  return ezGameState::GetMainRenderPipeline();
 }
 
 void ezGameState::ChangeMainWorld(ezWorld* pNewMainWorld)

@@ -7,13 +7,11 @@
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
 #include <EnginePluginScene/SceneContext/SceneContext.h>
-#include <EditorFramework/Gizmos/GizmoRenderer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPickingRenderPass, 1, ezRTTIDefaultAllocator<ezPickingRenderPass>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Enable", m_bEnable),
     EZ_MEMBER_PROPERTY("PickSelected", m_bPickSelected),
     EZ_MEMBER_PROPERTY("PickingPosition", m_PickingPosition),
     EZ_ENUM_MEMBER_PROPERTY("ViewRenderMode", ezViewRenderMode, m_ViewRenderMode),
@@ -26,7 +24,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezPickingRenderPass::ezPickingRenderPass() : ezRenderPipelinePass("EditorPickingRenderPass")
 {
   m_pSceneContext = nullptr;
-  m_bEnable = true;
   m_bPickSelected = true;
   AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
 }
@@ -78,9 +75,6 @@ static void CopyMatF(ezMat4& dst, ezMat4d& src)
 void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
   const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
-  if (!m_bEnable)
-    return;
-
   const ezRectFloat& viewPortRect = renderViewContext.m_pViewData->m_ViewPortRect;
   m_uiWindowWidth = (ezUInt32)viewPortRect.width;
   m_uiWindowHeight = (ezUInt32)viewPortRect.height;
@@ -112,10 +106,13 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   // copy selection to set for faster checks
   s_SelectionSet.Clear();
 
-  auto& selection = m_pSceneContext->GetSelectionWithChildren();
-  for (auto hObj : selection)
+  if (m_pSceneContext != nullptr)
   {
-    s_SelectionSet.Insert(hObj, 0);
+    auto& selection = m_pSceneContext->GetSelectionWithChildren();
+    for (auto hObj : selection)
+    {
+      s_SelectionSet.Insert(hObj, 0);
+    }
   }
 
   // filter out all selected objects
@@ -124,12 +121,6 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
     return s_SelectionSet.Contains(pRenderData->m_hOwner);
   });
 
-  // we have to disable rendering of gizmos while we drag stuff, to not pick against a gizmo that is always under the mouse cursor anyway
-  {
-    ezGizmoRenderer* pGR = (ezGizmoRenderer*)GetRendererByType(ezGizmoRenderer::GetStaticRTTI());
-    pGR->m_bEnabled = m_bPickSelected;
-  }
-
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque, filter);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked, filter);
 
@@ -137,9 +128,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   {
     RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Selection);
     m_pSceneContext->RenderShapeIcons(renderViewContext.m_pRenderContext);
-  }
-
-  
+  }  
 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
 
@@ -150,12 +139,6 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "FORWARD");
-
-  // make sure not to leave the gizmo renderer disabled
-  {
-    ezGizmoRenderer* pGR = (ezGizmoRenderer*)GetRendererByType(ezGizmoRenderer::GetStaticRTTI());
-    pGR->m_bEnabled = true;
-  }
 
   {
     {

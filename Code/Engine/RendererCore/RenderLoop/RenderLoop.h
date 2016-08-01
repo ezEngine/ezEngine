@@ -17,9 +17,15 @@ public:
   static void AddMainViews(const ezArrayPtr<ezView*>& views);
   static void RemoveMainView(ezView* pView);
   static void ClearMainViews();
+  
   EZ_FORCE_INLINE static ezArrayPtr<ezView*> GetMainViews()
   {
     return s_MainViews;
+  }
+
+  EZ_FORCE_INLINE static ezArrayPtr<ezView*> GetAllViews()
+  {
+    return s_Views;
   }
 
   static void AddViewToRender(ezView* pView);
@@ -63,6 +69,7 @@ private:
 
   static ezUInt64 s_uiFrameCounter;
 
-  static ezDynamicArray<ezView*> s_MainViews;
+  static ezDynamicArray<ezView*> s_Views;
+  static ezDynamicArray<ezView*> s_MainViews;  
 };
 

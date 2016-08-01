@@ -3,25 +3,16 @@
 #include <EditorFramework/EngineProcess/ViewRenderSettings.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <RendererCore/Camera/CameraComponent.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/Pipeline/Passes/SelectionHighlightPass.h>
-#include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
-#include <RendererCore/Pipeline/Passes/TargetPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <GameFoundation/GameApplication/GameApplication.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorFramework/Gizmos/GizmoRenderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
-#include <Core/World/GameObject.h>
-#include <Core/World/Component.h>
-#include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
-#include <RendererCore/Meshes/MeshRenderer.h>
-#include <RendererCore/Lights/LightGatheringRenderer.h>
 
 ezEngineProcessViewContext::ezEngineProcessViewContext(ezEngineProcessDocumentContext* pContext)
   : m_pDocumentContext(pContext), m_pView(nullptr)
@@ -162,43 +153,32 @@ bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& camera, const ezB
 
 void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
-  if (m_pView)
-    m_pView->SetCameraUsageHint(pMsg->m_CameraUsageHint);
-  m_Camera.SetCameraMode((ezCameraMode::Enum) pMsg->m_iCameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
-
-  m_Camera.LookAt(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
-
-  if (m_pView)
+  if (m_pView != nullptr && m_pView->GetWorld() != nullptr && m_pView->GetCameraUsageHint() != pMsg->m_CameraUsageHint)
   {
-    ezRenderPipelineResourceHandle hRenderPipeline = m_pView->GetRenderPipelineResource();
-    ezResourceLock<ezRenderPipelineResource> pPipeline(hRenderPipeline, ezResourceAcquireMode::NoFallback);
-    if (pMsg->m_sRenderPipelineResource.IsEmpty() && !IsDefaultRenderPipeline(hRenderPipeline))
+    if (const ezCameraComponentManager* pCameraManager = m_pView->GetWorld()->GetComponentManager<ezCameraComponentManager>())
     {
-      auto hPipe = CreateDefaultRenderPipeline();
-      if (hPipe.IsValid())
+      if (const ezCameraComponent* pCamera = pCameraManager->GetCameraByUsageHint(pMsg->m_CameraUsageHint))
       {
-        ezLog::Info("Setting view's render pipeline to: '%s'", "<Default>");
-        m_pView->SetRenderPipelineResource(hPipe);
-      }
-    }
-    else if (!pMsg->m_sRenderPipelineResource.IsEmpty() && pPipeline->GetResourceID() != pMsg->m_sRenderPipelineResource)
-    {
-      auto hPipe = ezResourceManager::LoadResource<ezRenderPipelineResource>(pMsg->m_sRenderPipelineResource);
-      if (hPipe.IsValid())
-      {
-        ezLog::Info("Setting view's render pipeline to: '%s'", pMsg->m_sRenderPipelineResource.GetData());
-        m_pView->SetRenderPipelineResource(hPipe);
+        m_pView->SetCameraUsageHint(pMsg->m_CameraUsageHint);
+        pCamera->ApplySettingsToView(m_pView);
       }
     }
   }
-}
 
-bool ezEngineProcessViewContext::IsDefaultRenderPipeline(ezRenderPipelineResourceHandle hPipeline)
-{
-  return hPipeline == ezGameState::GetMainRenderPipeline();
+  ezCameraMode::Enum cameraMode = (ezCameraMode::Enum)pMsg->m_iCameraMode;
+  if (cameraMode == ezCameraMode::OrthoFixedWidth || cameraMode == ezCameraMode::OrthoFixedHeight)
+  {
+    m_Camera.SetCameraMode(cameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
+  }
+  else
+  {
+    m_Camera.SetCameraMode(cameraMode, m_Camera.GetFovOrDim(), m_Camera.GetNearPlane(), m_Camera.GetFarPlane());
+  }  
+
+  m_Camera.LookAt(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
 }
 
 ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDefaultRenderPipeline()
 {
-  return ezGameState::GetMainRenderPipeline();
+  return ezResourceManager::LoadResource<ezRenderPipelineResource>("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }");
 }

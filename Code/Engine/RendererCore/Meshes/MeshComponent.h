@@ -18,7 +18,7 @@ public:
 };
 
 class ezMeshComponent;
-typedef ezComponentManager<ezMeshComponent> ezMeshComponentManager;
+typedef ezComponentManager<ezMeshComponent, true> ezMeshComponentManager;
 
 class EZ_RENDERERCORE_DLL ezMeshComponent : public ezComponent
 {

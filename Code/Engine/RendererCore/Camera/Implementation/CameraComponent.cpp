@@ -1,8 +1,71 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Camera/CameraComponent.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderLoop/RenderLoop.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
+
+
+ezCameraComponentManager::ezCameraComponentManager(ezWorld* pWorld)
+  : ezComponentManager<ezCameraComponent, true>(pWorld)
+{
+
+}
+
+ezCameraComponentManager::~ezCameraComponentManager()
+{
+
+}
+
+void ezCameraComponentManager::Initialize()
+{
+  auto desc = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(ezCameraComponentManager::Update, this);
+  desc.m_Phase = UpdateFunctionDesc::Phase::PostTransform;
+
+  this->RegisterUpdateFunction(desc);
+}
+
+void ezCameraComponentManager::Update(ezUInt32 uiStartIndex, ezUInt32 uiCount)
+{
+  for (auto hCameraComponent : m_modifiedCameras)
+  {
+    ezCameraComponent* pCameraComponent = nullptr;
+    if (!TryGetComponent(hCameraComponent, pCameraComponent))
+    {
+      continue;
+    }
+
+    ezCameraComponentUsageHint::Enum usageHint = pCameraComponent->GetUsageHint();
+
+    for (auto pView : ezRenderLoop::GetAllViews())
+    {
+      if (pView->GetCameraUsageHint() == usageHint)
+      {
+        pCameraComponent->ApplySettingsToView(pView);
+      }
+    }
+
+    pCameraComponent->m_bIsModified = false;
+  }
+
+  m_modifiedCameras.Clear();
+}
+
+const ezCameraComponent* ezCameraComponentManager::GetCameraByUsageHint(ezCameraComponentUsageHint::Enum usageHint) const
+{
+  for (auto it = GetComponents(); it.IsValid(); ++it)
+  {
+    if (it->GetUsageHint() == usageHint)
+    {
+      return it;
+    }
+  }
+
+  return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 2)
 {
@@ -32,7 +95,12 @@ ezCameraComponent::ezCameraComponent()
   m_fFarPlane = 1000.0f;
   m_fPerspectiveFieldOfView = 60.0f;
   m_fOrthoDimension = 10.0f;
-  m_uiSettingsModificationCounter = 0;
+  m_bIsModified = false;
+}
+
+ezCameraComponent::~ezCameraComponent()
+{
+
 }
 
 void ezCameraComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -73,7 +141,7 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
     s >> m_hRenderPipeline;
   }
 
-  m_uiSettingsModificationCounter++;
+  MarkAsModified();
 }
 
 void ezCameraComponent::SetUsageHint(ezEnum<ezCameraComponentUsageHint> val)
@@ -81,7 +149,8 @@ void ezCameraComponent::SetUsageHint(ezEnum<ezCameraComponentUsageHint> val)
   if (val == m_UsageHint)
     return;
   m_UsageHint = val;
-  m_uiSettingsModificationCounter++;
+  
+  MarkAsModified();
 }
 
 
@@ -90,7 +159,8 @@ void ezCameraComponent::SetCameraMode(ezEnum<ezCameraMode> val)
   if (val == m_Mode)
     return;
   m_Mode = val;
-  m_uiSettingsModificationCounter++;
+  
+  MarkAsModified();
 }
 
 
@@ -99,7 +169,8 @@ void ezCameraComponent::SetNearPlane(float val)
   if (val == m_fNearPlane)
     return;
   m_fNearPlane = val;
-  m_uiSettingsModificationCounter++;
+  
+  MarkAsModified();
 }
 
 
@@ -108,7 +179,8 @@ void ezCameraComponent::SetFarPlane(float val)
   if (val == m_fFarPlane)
     return;
   m_fFarPlane = val;
-  m_uiSettingsModificationCounter++;
+  
+  MarkAsModified();
 }
 
 
@@ -117,7 +189,8 @@ void ezCameraComponent::SetFieldOfView(float val)
   if (val == m_fPerspectiveFieldOfView)
     return;
   m_fPerspectiveFieldOfView = val;
-  m_uiSettingsModificationCounter++;
+  
+  MarkAsModified();
 }
 
 
@@ -126,7 +199,8 @@ void ezCameraComponent::SetOrthoDimension(float val)
   if (val == m_fOrthoDimension)
     return;
   m_fOrthoDimension = val;
-  m_uiSettingsModificationCounter++;
+  
+  MarkAsModified();
 }
 
 void ezCameraComponent::SetRenderPipeline(ezRenderPipelineResourceHandle hRenderPipeline)
@@ -134,7 +208,8 @@ void ezCameraComponent::SetRenderPipeline(ezRenderPipelineResourceHandle hRender
   if (hRenderPipeline == m_hRenderPipeline)
     return;
   m_hRenderPipeline = hRenderPipeline;
-  m_uiSettingsModificationCounter++;
+  
+  MarkAsModified();
 }
 
 const char* ezCameraComponent::GetRenderPipelineFile() const
@@ -147,12 +222,41 @@ const char* ezCameraComponent::GetRenderPipelineFile() const
 
 void ezCameraComponent::SetRenderPipelineFile(const char* szFile)
 {
-  ezRenderPipelineResourceHandle hMesh;
+  ezRenderPipelineResourceHandle hRenderPipeline;
 
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
-    hMesh = ezResourceManager::LoadResource<ezRenderPipelineResource>(szFile);
+    hRenderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>(szFile);
   }
 
-  SetRenderPipeline(hMesh);
+  SetRenderPipeline(hRenderPipeline);
+}
+
+void ezCameraComponent::ApplySettingsToView(ezView* pView) const
+{
+  if (m_UsageHint == ezCameraComponentUsageHint::None)
+    return;
+
+  float fFovOrDim = m_fPerspectiveFieldOfView;
+  if (m_Mode == ezCameraMode::OrthoFixedWidth || m_Mode == ezCameraMode::OrthoFixedHeight)
+  {
+    fFovOrDim = m_fOrthoDimension;
+  }
+
+  ezCamera* pCamera = pView->GetLogicCamera();
+  pCamera->SetCameraMode(m_Mode, fFovOrDim, m_fNearPlane, m_fFarPlane);
+
+  if (m_hRenderPipeline.IsValid())
+  {
+    pView->SetRenderPipelineResource(m_hRenderPipeline);
+  }
+}
+
+void ezCameraComponent::MarkAsModified()
+{
+  if (!m_bIsModified)
+  {
+    GetManager()->m_modifiedCameras.PushBack(GetHandle());
+    m_bIsModified = true;
+  }
 }

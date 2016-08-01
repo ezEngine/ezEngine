@@ -58,8 +58,6 @@ protected:
   void HandleWindowUpdate(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);
   virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg);
 
-  /// \brief Returns true if passed in handle matches the one created by CreateRenderPipeline.
-  virtual bool IsDefaultRenderPipeline(ezRenderPipelineResourceHandle hPipeline);
   /// \brief Returns the handle to the default render pipeline.
   virtual ezRenderPipelineResourceHandle CreateDefaultRenderPipeline();
   /// \brief Create the actual view.

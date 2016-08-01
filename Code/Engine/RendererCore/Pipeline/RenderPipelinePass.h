@@ -37,6 +37,12 @@ public:
   ezArrayPtr<ezRenderer* const> GetRenderers() const;
   ezRenderer* GetRendererByType(const ezRTTI* pType);
 
+  template <typename T>
+  EZ_FORCE_INLINE T* GetRendererByType()
+  {
+    return static_cast<T*>(GetRendererByType(ezGetStaticRTTI<T>()));
+  }
+
   void AddRenderer(ezRenderer* pRenderer);
   void RemoveRenderer(ezRenderer* pRenderer);
 

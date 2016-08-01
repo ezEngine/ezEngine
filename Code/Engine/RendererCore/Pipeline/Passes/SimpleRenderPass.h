@@ -20,7 +20,11 @@ public:
   virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
+  void SetMessage(const char* szMessage);
+
 protected:
   ezPassThroughNodePin m_PinColor;
   ezPassThroughNodePin m_PinDepthStencil;
+
+  ezString m_sMessage;
 };

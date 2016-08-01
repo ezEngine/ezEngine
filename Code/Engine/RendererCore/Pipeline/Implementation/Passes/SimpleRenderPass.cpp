@@ -14,6 +14,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleRenderPass, 1, ezRTTIDefaultAllocator<ez
   {
     EZ_MEMBER_PROPERTY("Color", m_PinColor),
     EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
+    EZ_MEMBER_PROPERTY("Message", m_sMessage),
   }
   EZ_END_PROPERTIES
 }
@@ -109,6 +110,11 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleTransparent);
 
+  if (!m_sMessage.IsEmpty())
+  {
+    ezDebugRenderer::DrawText(0u, m_sMessage, ezVec2I32(20, 20), ezColor::OrangeRed);
+  }
+
   ezDebugRenderer::Render(renderViewContext);
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
@@ -116,4 +122,9 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
+}
+
+void ezSimpleRenderPass::SetMessage(const char* szMessage)
+{
+  m_sMessage = szMessage;
 }
