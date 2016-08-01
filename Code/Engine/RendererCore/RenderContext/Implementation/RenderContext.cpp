@@ -157,7 +157,7 @@ void ezRenderContext::SetShaderPermutationVariable(const ezHashedString& sName, 
 
 void ezRenderContext::BindMaterial(const ezMaterialResourceHandle& hMaterial)
 {
-  if (m_hMaterial != hMaterial)
+  //if (m_hMaterial != hMaterial)
   {
     m_hMaterial = hMaterial;
 

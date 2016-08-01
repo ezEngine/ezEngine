@@ -10,7 +10,16 @@ EZ_END_STATIC_REFLECTED_ENUM();
 
 ezCamera::ezCamera()
 {
+  m_fNearPlane = 0.1f;
+  m_fFarPlane = 1000.0f;
   m_Mode = ezCameraMode::None;
+  m_fFovOrDim = 90.0f;
+
+  m_vPosition.SetZero();
+  m_vDirForwards = ezVec3(1.0f, 0.0f, 0.0f);
+  m_vDirUp = ezVec3(0.0f, 0.0f, 1.0f);
+  m_vDirRight = ezVec3(0.0f, 1.0f, 0.0f);
+
   m_uiSettingsModificationCounter = 0;
   m_uiOrientationModificationCounter = 0;
 }

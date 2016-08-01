@@ -1,6 +1,8 @@
 #include <RendererCore/PCH.h>
+#include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
+#include <RendererCore/Pipeline/Passes/TargetPass.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 
