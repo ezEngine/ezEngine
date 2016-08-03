@@ -45,16 +45,15 @@ class EZ_RENDERERCORE_DLL ezMaterialResource : public ezResource<ezMaterialResou
 
 public:
   ezMaterialResource();
+  ~ezMaterialResource();
 
-  ezTempHashedString GetPermutationValue(const ezTempHashedString& sName);
+  ezHashedString GetPermutationValue(const ezTempHashedString& sName);
   
-  void SetParameter(const char* szName, const ezVariant& value);
-  void SetTextureBinding(const char* szName, ezTextureResourceHandle value);
+  void SetParameter(const ezHashedString& sName, const ezVariant& value);
+  ezVariant GetParameter(const ezTempHashedString& sName);
 
-  EZ_FORCE_INLINE const ezMaterialResourceDescriptor& GetDescriptor()
-  {
-    return m_Desc;
-  }
+  void SetTextureBinding(const ezHashedString& sName, ezTextureResourceHandle value);
+  ezTextureResourceHandle GetTextureBinding(const ezTempHashedString& sName);
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
@@ -67,11 +66,26 @@ private:
 
   friend class ezRenderContext;
 
-  void UpdateConstantBuffer(ezHashTable<ezHashedString, ezVariant>& parameters, ezShaderPermutationResource* pShaderPermutation, ezUInt64 uiLastModified);
+  ezEvent<const ezMaterialResource*> m_ModifiedEvent;
+  void OnBaseMaterialModified(const ezMaterialResource* pModifiedMaterial);
+  void OnResourceEvent(const ezResourceEvent& resourceEvent);
 
-  ezUInt64 m_uiLastModified;
-  ezUInt64 m_uiLastUpdated;
+  ezAtomicInteger32 m_iLastModified;
+  ezAtomicInteger32 m_iLastConstantsModified;
+  ezInt32 m_iLastUpdated;
+  ezInt32 m_iLastConstantsUpdated;
+
+  bool IsModified();
+  bool AreContantsModified();
+
+  void UpdateCaches();
+  void UpdateConstantBuffer(ezShaderPermutationResource* pShaderPermutation);
+
   ezConstantBufferStorageHandle m_hConstantBufferStorage;
+
+  ezMutex m_CacheMutex;
+  ezShaderResourceHandle m_hCachedShader;
+  ezHashTable<ezHashedString, ezHashedString> m_CachedPermutationVars;
+  ezHashTable<ezHashedString, ezVariant> m_CachedParameters;
+  ezHashTable<ezHashedString, ezTextureResourceHandle> m_CachedTextureBindings;
 };
-
-

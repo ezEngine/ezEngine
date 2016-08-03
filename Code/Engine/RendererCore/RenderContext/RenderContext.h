@@ -148,6 +148,7 @@ public:
   ezResult DrawMeshBuffer(ezUInt32 uiPrimitiveCount = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0, ezUInt32 uiInstanceCount = 1);
 
   ezResult ApplyContextStates(bool bForce = false);
+  void ResetContextState();
 
   GlobalConstants& WriteGlobalConstants();
   const GlobalConstants& ReadGlobalConstants() const;
@@ -211,6 +212,8 @@ private:
 
   static void OnEngineShutdown();
 
+  void OnEndFrame(ezUInt64);
+
 private:
 
   Statistics m_Statistics;
@@ -219,9 +222,8 @@ private:
   ezGALShaderHandle m_hActiveGALShader;
   
   ezHashTable<ezHashedString, ezHashedString> m_PermutationVariables;
-  ezHashTable<ezHashedString, ezVariant> m_TempMaterialParams;
+  ezMaterialResourceHandle m_hNewMaterial;
   ezMaterialResourceHandle m_hMaterial;
-  ezUInt64 m_uiMaterialLastModified;
   
   ezShaderPermutationResourceHandle m_hActiveShaderPermutation;
 

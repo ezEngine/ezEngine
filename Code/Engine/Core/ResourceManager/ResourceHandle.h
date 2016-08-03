@@ -77,6 +77,18 @@ public:
     return m_pResource != rhs.m_pResource;
   }
 
+  /// \brief Checks whether the handle points to the given resource.
+  EZ_FORCE_INLINE bool operator==(const ezResourceBase* rhs) const
+  {
+    return m_pResource == rhs;
+  }
+
+  /// \brief Checks whether the handle points to the given resource.
+  EZ_FORCE_INLINE bool operator!=(const ezResourceBase* rhs) const
+  {
+    return m_pResource != rhs;
+  }
+
 protected:
 
   ezResourceBase* m_pResource;
@@ -146,6 +158,18 @@ public:
   EZ_FORCE_INLINE bool operator!=(const ezTypedResourceHandle<ResourceType>& rhs) const
   {
     return m_Typeless != rhs.m_Typeless;
+  }
+
+  /// \brief Checks whether the handle points to the given resource.
+  EZ_FORCE_INLINE bool operator==(const ezResourceBase* rhs) const
+  {
+    return m_Typeless == rhs;
+  }
+
+  /// \brief Checks whether the handle points to the given resource.
+  EZ_FORCE_INLINE bool operator!=(const ezResourceBase* rhs) const
+  {
+    return m_Typeless != rhs;
   }
 
   /// \brief Returns the corresponding typeless resource handle.
