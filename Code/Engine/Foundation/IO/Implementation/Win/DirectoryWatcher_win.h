@@ -19,6 +19,7 @@ ezDirectoryWatcher::ezDirectoryWatcher()
   : m_bDirectoryOpen(false)
   , m_pImpl(EZ_DEFAULT_NEW(ezDirectoryWatcherImpl))
 {
+  m_pImpl->m_buffer.SetCount(4096);
 }
 
 ezResult ezDirectoryWatcher::OpenDirectory(const ezString& path, ezBitflags<Watch> whatToWatch)
@@ -79,8 +80,9 @@ ezDirectoryWatcher::~ezDirectoryWatcher()
 void ezDirectoryWatcherImpl::DoRead()
 {
   memset(&m_overlapped, 0, sizeof(m_overlapped));
-  ReadDirectoryChangesW(m_directoryHandle, m_buffer.GetData(), m_buffer.GetCount(), m_watchSubdirs,
+  BOOL success = ReadDirectoryChangesW(m_directoryHandle, m_buffer.GetData(), m_buffer.GetCount(), m_watchSubdirs,
     m_filter, nullptr, &m_overlapped, nullptr);
+  EZ_ASSERT_DEV(success, "ReadDirectoryChangesW failed.");
 }
 
 void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, Action action)> func)
@@ -109,8 +111,9 @@ void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, 
       if (bytesNeeded > 0)
       {
         ezHybridArray<char, 1024> dir;
-        dir.SetCount(bytesNeeded);
+        dir.SetCount(bytesNeeded+1);
         WideCharToMultiByte(CP_UTF8, 0, directory.GetPtr(), directory.GetCount(), dir.GetData(), dir.GetCount(), nullptr, nullptr);
+        dir[bytesNeeded] = '\0';
         Action action;
         switch (info->Action)
         {
