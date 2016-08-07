@@ -3,6 +3,8 @@
 
 #include <CoreUtils/Basics.h>
 
+class ezStreamGroup;
+
 /// \brief Base class for all stream processor implementations.
 class EZ_COREUTILS_DLL ezStreamProcessor
 {

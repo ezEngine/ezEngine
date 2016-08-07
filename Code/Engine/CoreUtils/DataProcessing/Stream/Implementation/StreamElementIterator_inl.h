@@ -9,8 +9,8 @@ ezStreamElementIterator<Type>::ezStreamElementIterator( const ezStream* pStream,
 
   m_uiElementStride = pStream->GetElementStride();
 
-  m_pCurrentPtr = ezMemoryUtils::AddByteOffset( pStream->GetWritableData(), uiStartIndex * m_uiElementStride );
-  m_pEndPtr = ezMemoryUtils::AddByteOffset( pStream->GetWritableData(), (uiStartIndex + uiNumElements) * m_uiElementStride );
+  m_pCurrentPtr = ezMemoryUtils::AddByteOffset( pStream->GetWritableData(), static_cast<ptrdiff_t>(uiStartIndex * m_uiElementStride) );
+  m_pEndPtr = ezMemoryUtils::AddByteOffset( pStream->GetWritableData(), static_cast<ptrdiff_t>((uiStartIndex + uiNumElements) * m_uiElementStride) );
 }
 
 template<typename Type>
