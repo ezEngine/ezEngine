@@ -21,6 +21,24 @@ class EZ_EDITORFRAMEWORK_DLL ezSyncWithProcessMsgToEditor : public ezProcessMess
   EZ_ADD_DYNAMIC_REFLECTION(ezSyncWithProcessMsgToEditor, ezProcessMessage);
 };
 
+///////////////////////////////////// Curator ///////////////////////////////////// 
+
+
+class EZ_EDITORFRAMEWORK_DLL ezProcessAsset : public ezProcessMessage
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcessAsset, ezProcessMessage);
+public:
+  ezUuid m_AssetGuid;
+  ezString m_sAssetPath;
+};
+
+class EZ_EDITORFRAMEWORK_DLL ezProcessAssetResponse : public ezProcessMessage
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcessAssetResponse, ezProcessMessage);
+public:
+  bool m_bSuccess;
+};
+
 ///////////////////////////////////// ezEditorEngineMsg ///////////////////////////////////// 
 
 /// \brief Base class for all messages between editor and engine that are not bound to any document

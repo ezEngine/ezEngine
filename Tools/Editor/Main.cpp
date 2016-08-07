@@ -31,7 +31,7 @@ public:
 
   virtual ApplicationExecution Run() override
   {
-    ezQtEditorApp::GetSingleton()->StartupEditor();
+    ezQtEditorApp::GetSingleton()->StartupEditor(false);
     {
       const ezInt32 iReturnCode = ezQtEditorApp::GetSingleton()->RunEditor();
       SetReturnCode(iReturnCode);

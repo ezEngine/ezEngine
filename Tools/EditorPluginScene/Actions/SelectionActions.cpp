@@ -270,7 +270,7 @@ void ezSelectionAction::OpenPrefabDocument()
   const ezUuid PrefabAsset = pMeta->m_CreateFromPrefab;
   pScene->m_DocumentObjectMetaData.EndReadMetaData();
 
-  auto pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo(PrefabAsset);
+  auto pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo2(PrefabAsset);
   if (pAsset)
   {
     ezQtEditorApp::GetSingleton()->OpenDocument(pAsset->m_sAbsolutePath);

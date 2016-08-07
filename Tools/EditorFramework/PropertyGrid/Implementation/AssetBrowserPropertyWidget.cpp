@@ -70,7 +70,7 @@ bool ezQtAssetPropertyWidget::IsValidAssetType(const char* szAssetReference) con
   {
     const ezUuid AssetGuid = ezConversionUtils::ConvertStringToUuid(szAssetReference);
 
-    pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo(AssetGuid);
+    pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo2(AssetGuid);
   }
 
   // invalid asset in general
@@ -151,7 +151,7 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
 
       m_AssetGuid = ezConversionUtils::ConvertStringToUuid(sText);
 
-      const auto* pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo(m_AssetGuid);
+      const auto* pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo2(m_AssetGuid);
 
       if (pAsset)
       {
@@ -240,12 +240,12 @@ void ezQtAssetPropertyWidget::on_customContextMenuRequested(const QPoint& pt)
 
 void ezQtAssetPropertyWidget::OnOpenAssetDocument()
 {
-  ezQtEditorApp::GetSingleton()->OpenDocument(ezAssetCurator::GetSingleton()->GetAssetInfo(m_AssetGuid)->m_sAbsolutePath);
+  ezQtEditorApp::GetSingleton()->OpenDocument(ezAssetCurator::GetSingleton()->GetAssetInfo2(m_AssetGuid)->m_sAbsolutePath);
 }
 
 void ezQtAssetPropertyWidget::OnSelectInAssetBrowser()
 {
-  ezQtAssetBrowserPanel::GetSingleton()->AssetBrowserWidget->SetSelectedAsset(ezAssetCurator::GetSingleton()->GetAssetInfo(m_AssetGuid)->m_sDataDirRelativePath);
+  ezQtAssetBrowserPanel::GetSingleton()->AssetBrowserWidget->SetSelectedAsset(ezAssetCurator::GetSingleton()->GetAssetInfo2(m_AssetGuid)->m_sDataDirRelativePath);
 }
 
 void ezQtAssetPropertyWidget::OnOpenExplorer()
@@ -254,7 +254,7 @@ void ezQtAssetPropertyWidget::OnOpenExplorer()
 
   if (m_AssetGuid.IsValid())
   {
-    sPath = ezAssetCurator::GetSingleton()->GetAssetInfo(m_AssetGuid)->m_sAbsolutePath;
+    sPath = ezAssetCurator::GetSingleton()->GetAssetInfo2(m_AssetGuid)->m_sAbsolutePath;
   }
   else
   {

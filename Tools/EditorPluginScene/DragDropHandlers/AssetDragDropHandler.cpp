@@ -32,7 +32,7 @@ ezString ezAssetDragDropHandler::GetAssetGuidString(const ezDragDropInfo* pInfo)
 
 ezString ezAssetDragDropHandler::GetAssetTypeName(const ezUuid& assetTypeGuid) const
 {
-  return ezAssetCurator::GetSingleton()->GetAssetInfo(assetTypeGuid)->m_Info.m_sAssetTypeName;
+  return ezAssetCurator::GetSingleton()->GetAssetInfo2(assetTypeGuid)->m_Info.m_sAssetTypeName;
 }
 
 bool ezAssetDragDropHandler::IsSpecificAssetType(const ezDragDropInfo* pInfo, const char* szType) const

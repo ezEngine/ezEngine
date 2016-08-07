@@ -51,6 +51,8 @@ public:
 
   /// \brief Can be set via the command line option '-safe'. In this mode the editor will not automatically load recent documents
   bool IsInSafeMode() const { return m_bSafeMode; }
+  /// \brief Returns true if StartupEditor was called with true. This is the case in an EditorProcessor.
+  bool IsInHeadlessMode() const { return m_bHeadless; }
 
   const ezPluginSet& GetEditorPlugins() const { return s_EditorPlugins; }
   const ezPluginSet& GetEnginePlugins() const { return s_EnginePlugins; }
@@ -76,7 +78,7 @@ public:
   ezRecentFilesList LoadOpenDocumentsList();
 
   void InitQt(int argc, char** argv);
-  void StartupEditor();
+  void StartupEditor(bool bHeadless);
   void ShutdownEditor();
   ezInt32 RunEditor();
   void DeInitQt();
@@ -130,6 +132,9 @@ public:
   /// as txt files. Each line names one input slot.
   void GetKnownInputSlots(ezDynamicArray<ezString>& slots) const;
 
+signals:
+  void IdleEvent();
+
 private:
   ezString BuildDocumentTypeFileFilter(bool bForCreation);
   
@@ -170,6 +175,7 @@ private:
   void CreatePanels();
 
   bool m_bSafeMode;
+  bool m_bHeadless;
 
   ezSet<ezString> s_RestartRequiredReasons;
   ezSet<ezString> s_ReloadProjectRequiredReasons;

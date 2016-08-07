@@ -14,6 +14,8 @@
 class ezUpdateTask;
 class ezTask;
 class ezAssetDocumentManager;
+class ezDirectoryWatcher;
+class ezProcessCommunication;
 struct ezFileStats;
 
 struct ezAssetInfo
@@ -28,6 +30,7 @@ struct ezAssetInfo
   enum class TransformState
   {
     Unknown,
+    Updating,
     NeedsTransform,
     NeedsThumbnail,
     UpToDate,
@@ -45,8 +48,10 @@ struct ezAssetInfo
   ezAssetDocumentManager* m_pManager;
   ezString m_sAbsolutePath;
   ezString m_sDataDirRelativePath;
-  ezAssetDocumentInfo m_Info;
   ezTime m_LastAccess;
+
+  ezAssetDocumentInfo m_Info;
+
   ezUInt64 m_LastAssetDependencyHash; ///< For debugging only.
 };
 
@@ -59,6 +64,7 @@ struct ezAssetCuratorEvent
     AssetUpdated,
     AssetListReset,
     ActivePlatformChanged,
+    ProcessTaskStateChanged
   };
 
   ezUuid m_AssetGuid;
@@ -74,7 +80,20 @@ public:
   ezAssetCurator();
   ~ezAssetCurator();
 
-  void CheckFileSystem();
+  /// \name Setup
+  ///@{
+
+  void Initialize(const ezApplicationFileSystemConfig& cfg);
+  void Deinitialize();
+
+  const char* GetActivePlatform() const { return m_sActivePlatform; }
+  void SetActivePlatform(const char* szPlatform);
+
+  void MainThreadTick();
+
+  ///@}
+  /// \name High Level Functions
+  ///@{
 
   /// \brief Transforms all assets and writes the lookup tables. If the given platform is empty, the active platform is used.
   void TransformAllAssets(const char* szPlatform = nullptr);
@@ -84,17 +103,17 @@ public:
   /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
   ezResult WriteAssetTables(const char* szPlatform = nullptr);
 
-  void MainThreadTick();
+  void RestartProcessTask();
+  void ShutdownProcessTask();
+  bool IsProcessTaskRunning() const;
 
-  void Initialize(const ezApplicationFileSystemConfig& cfg);
-  void Deinitialize();
+  ///@}
+  /// \name Asset Access
+  ///@{
 
   const ezAssetInfo* FindAssetInfo(const char* szRelativePath) const;
-
-  const ezAssetInfo* GetAssetInfo(const ezUuid& assetGuid) const;
+  const ezAssetInfo* GetAssetInfo2(const ezUuid& assetGuid) const;
   const ezHashTable<ezUuid, ezAssetInfo*>& GetKnownAssets() const;
-
-  void UpdateAssetLastAccessTime(const ezUuid& assetGuid);
 
   /// \brief Computes the combined hash for the asset and its dependencies. Returns 0 if anything went wrong.
   ezUInt64 GetAssetDependencyHash(ezUuid assetGuid);
@@ -102,29 +121,34 @@ public:
   /// \brief Computes the combined hash for the asset and its references. Returns 0 if anything went wrong.
   ezUInt64 GetAssetReferenceHash(ezUuid assetGuid);
 
+  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform, const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash);
+  /// \brief Returns the number of assets in the system and how many are in what transform state
+  void GetAssetTransformStats(ezUInt32& out_uiNumAssets, ezUInt32& out_uiNumUnknown, ezUInt32& out_uiNumNeedTransform, ezUInt32& out_uiNumNeedThumb);
+
   /// \brief Iterates over all known data directories and returns the absolute path to the directory in which this asset is located
   ezString FindDataDirectoryForAsset(const char* szAbsoluteAssetPath) const;
 
-  // TODO: Background file-system watcher and main thread update tick to add background info to main data
-  // TODO: Hash changed in different thread
+  /// \brief The curator gathers all folders in which assets have been found. This list can only grow over the lifetime of the application.
+  const ezSet<ezString>& GetAllAssetFolders() const { return m_AssetFolders; }
+  
+  ///@}
+  /// \name Manual and Automatic Change Notification
+  ///@{
 
-  const char* GetActivePlatform() const { return m_sActivePlatform; }
-  void SetActivePlatform(const char* szPlatform);
+  // TODO: Background file-system watcher and main thread update tick to add background info to main data
 
   /// \brief Allows to tell the system of a new or changed file, that might be of interest to the Curator.
   void NotifyOfFileChange(const char* szAbsolutePath);
 
   /// \brief Allows to tell the system to re-evaluate an assets status.
   void NotifyOfAssetChange(const ezUuid& assetGuid);
+  void UpdateAssetLastAccessTime(const ezUuid& assetGuid);
 
-  /// \brief The curator gathers all folders in which assets have been found. This list can only grow over the lifetime of the application.
-  const ezSet<ezString>& GetAllAssetFolders() const { return m_AssetFolders; }
+  /// \brief Checks file system for any changes. Call in case the file system watcher does not pick up certain changes.
+  void CheckFileSystem();
 
-  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform, const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash);
+  ///@}
 
-
-  /// \brief Returns the number of assets in the system and how many are in what transform state
-  void GetAssetTransformStats(ezUInt32& out_uiNumAssets, ezUInt32& out_uiNumUnknown, ezUInt32& out_uiNumNeedTransform, ezUInt32& out_uiNumNeedThumb);
 
 public:
 
@@ -155,66 +179,102 @@ private:
     Status m_Status;
   };
 
-  ezStatus ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPlatform);
   void DocumentManagerEventHandler(const ezDocumentManager::Event& r);
-  static void BuildFileExtensionSet(ezSet<ezString>& AllExtensions);
-  void IterateDataDirectory(const char* szDataDir, const ezSet<ezString>& validExtensions);
+
+  /// \name Processing
+  ///@{
+
+  ezStatus ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPlatform);
+  ezAssetInfo* GetAssetInfo(const ezUuid& assetGuid);
+  ezAssetInfo* GetAssetInfo(const ezString& sPath);
   void HandleSingleFile(const ezString& sAbsolutePath);
   void HandleSingleFile(const ezString& sAbsolutePath, const ezSet<ezString>& validExtensions, const ezFileStats& FileStat);
+  /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
+  ezResult WriteAssetTable(const char* szDataDirectory, const char* szPlatform = nullptr);
 
-  void SetAllAssetStatusUnknown();
-  void RemoveStaleFileInfos();
+  ///@}
+  /// \name Update Task
+  ///@{
 
-  ezResult EnsureAssetInfoUpdated(const ezUuid& assetGuid);
-  ezResult EnsureAssetInfoUpdated(const char* szAbsFilePath);
-  ezUInt64 GetAssetHash(ezUuid assetGuid, bool bReferences);
-
-  static ezResult UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetInfo& assetInfo, const ezFileStats* pFileStat);
-  void UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezString>& files, ezMap<ezString, ezHybridArray<ezUuid, 1> >& inverseTracker, bool bAdd);
-  void TrackDependencies(ezAssetInfo* pAssetInfo);
-  void UntrackDependencies(ezAssetInfo* pAssetInfo);
-  void UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetInfo::TransformState state);
-
-private:
   void RestartUpdateTask();
   void ShutdownUpdateTask();
 
+  bool GetNextAssetToUpdate(ezUuid& out_guid, ezStringBuilder& out_sAbsPath);
+  void OnUpdateTaskFinished(ezTask* pTask);
+  void RunNextUpdateTask();
+
+  ///@}
+  /// \name Process Task
+  ///@{
+
+  bool GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezStringBuilder& out_sAbsPath);
+  bool GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out_sAbsPath);
+  void OnProcessTaskFinished(ezTask* pTask);
+  void RunNextProcessTask();
+
+  ///@}
+  /// \name Asset Hashing and Status Updates (AssetUpdates.cpp)
+  ///@{
+
+  ezUInt64 GetAssetHash(ezUuid assetGuid, bool bReferences);
+  bool AddAssetHash(ezString& sPath, bool bReferences, ezUInt64& uiHashResult);
+
+  ezResult EnsureAssetInfoUpdated(const ezUuid& assetGuid);
+  ezResult EnsureAssetInfoUpdated(const char* szAbsFilePath);
+  void TrackDependencies(ezAssetInfo* pAssetInfo);
+  void UntrackDependencies(ezAssetInfo* pAssetInfo);
+  void UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezString>& files, ezMap<ezString, ezHybridArray<ezUuid, 1> >& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid> >& unresolved, bool bAdd);
+  void UpdateUnresolvedTrackedFiles(ezMap<ezString, ezHybridArray<ezUuid, 1> >& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid> >& unresolved);
+  static ezResult UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetInfo& assetInfo, const ezFileStats* pFileStat);
+  /// \brief Opens the asset JSON file and reads the "Header" into the given ezAssetDocumentInfo.
+  static void ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReader& stream);
+  /// \brief Computes the hash of the given file. Optionally passes the data stream through into another stream writer.
+  static ezUInt64 HashFile(ezStreamReader& InputStream, ezStreamWriter* pPassThroughStream);
+
+  void UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetInfo::TransformState state);
+
+  ///@}
+  /// \name Check File System Helper
+  ///@{
+
+  void SetAllAssetStatusUnknown();
+  void RemoveStaleFileInfos();
+  static void BuildFileExtensionSet(ezSet<ezString>& AllExtensions);
+  void IterateDataDirectory(const char* szDataDir, const ezSet<ezString>& validExtensions);
+
+  ///@}
+
+private:
+  friend class ezUpdateTask;
+  friend class ezProcessTask;
+
   bool m_bRunUpdateTask;
+  bool m_bRunProcessTask;
+  bool m_bNeedToReloadResources;
   ezSet<ezUuid> m_TransformStateUnknown;
+  ezSet<ezUuid> m_TransformStateUpdating;
   ezSet<ezUuid> m_TransformStateNeedsTransform;
   ezSet<ezUuid> m_TransformStateNeedsThumbnail;
+
   ezSet<ezUuid> m_TransformStateChanged;
 
   ezHashTable<ezUuid, ezAssetInfo*> m_KnownAssets;
   ezMap<ezString, FileStatus, ezCompareString_NoCase<ezString> > m_ReferencedFiles;
   ezMap<ezString, ezHybridArray<ezUuid, 1> > m_InverseDependency;
   ezMap<ezString, ezHybridArray<ezUuid, 1> > m_InverseReferences;
+  ezSet<std::tuple<ezUuid, ezUuid> > m_UnresolvedDependencies; ///< If a dependency wasn't known yet when an asset info was loaded, it is put in here. 
+  ezSet<std::tuple<ezUuid, ezUuid> > m_UnresolvedReferences;
+
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezString m_sActivePlatform;
   ezSet<ezString> m_ValidAssetExtensions;
   ezSet<ezString> m_AssetFolders;
 
-private:
-  friend class ezUpdateTask;
-
-  /// \brief Computes the hash of the given file. Optionally passes the data stream through into another stream writer.
-  static ezUInt64 HashFile(ezStreamReader& InputStream, ezStreamWriter* pPassThroughStream);
-
-  /// \brief Opens the asset JSON file and reads the "Header" into the given ezAssetDocumentInfo.
-  static void ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReader& stream);
-
-
-  bool GetNextAssetToUpdate(ezUuid& guid, ezStringBuilder& out_sAbsPath);
-  void OnUpdateTaskFinished(ezTask* pTask);
-
-  /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
-  ezResult WriteAssetTable(const char* szDataDirectory, const char* szPlatform = nullptr);
-
-  void RunNextUpdateTask();
-
   mutable ezMutex m_CuratorMutex;
   ezUpdateTask* m_pUpdateTask;
-
+  ezDynamicArray<ezDirectoryWatcher*> m_Watchers;
+  ezDynamicArray<ezProcessTask*> m_ProcessTasks;
+  ezTaskGroupID m_ProcessTaskGroup; ///< TODO: Does not work at the moment as grouping marks tasks as running
 };
 
 class ezUpdateTask : public ezTask
@@ -226,5 +286,26 @@ public:
 private:
   ezStringBuilder m_sAssetPath;
 
+  virtual void Execute() override;
+};
+
+class ezProcessTask : public ezTask
+{
+public:
+  ezProcessTask();
+  ~ezProcessTask();
+
+  void EventHandlerIPC(const ezProcessCommunication::Event& e);
+  void StartProcess();
+  void ShutdownProcess();
+
+private:
+  ezUuid m_assetGuid;
+  ezStringBuilder m_sAssetPath;
+  ezProcessCommunication* m_pIPC;
+  bool m_bProcessShouldBeRunning;
+  bool m_bProcessCrashed;
+  bool m_bWaiting;
+  bool m_bSuccess;
   virtual void Execute() override;
 };

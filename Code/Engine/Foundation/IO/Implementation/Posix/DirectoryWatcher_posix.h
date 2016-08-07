@@ -7,8 +7,7 @@ struct ezDirectoryWatcherImpl
 };
 
 ezDirectoryWatcher::ezDirectoryWatcher()
-  : m_bDirectoryOpen(false)
-  , m_pImpl(nullptr)
+  : m_pImpl(nullptr)
 {
 }
 

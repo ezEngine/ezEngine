@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/MemoryStream.h>
 

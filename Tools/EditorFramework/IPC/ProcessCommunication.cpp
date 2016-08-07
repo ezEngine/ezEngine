@@ -21,7 +21,7 @@ ezProcessCommunication::ezProcessCommunication()
   m_pWaitForMessageType = nullptr;
 }
 
-ezResult ezProcessCommunication::StartClientProcess(const char* szProcess, const char* szArguments, const ezRTTI* pFirstAllowedMessageType, ezUInt32 uiMemSize)
+ezResult ezProcessCommunication::StartClientProcess(const char* szProcess, const QStringList& args, const ezRTTI* pFirstAllowedMessageType, ezUInt32 uiMemSize)
 {
   EZ_LOG_BLOCK("ezProcessCommunication::StartClientProcess");
 
@@ -70,9 +70,7 @@ success:
   arguments << QLatin1String(sMemName.GetData());
   arguments << "-PID";
   arguments << sPID.GetData();
-
-  if (!ezStringUtils::IsNullOrEmpty(szArguments))
-    arguments << QString::fromUtf8(szArguments);
+  arguments.append(args);
 
   m_pClientProcess = new QProcess();
   m_pClientProcess->start(QString::fromUtf8(sPath.GetData()), arguments);
@@ -213,7 +211,7 @@ bool ezProcessCommunication::ProcessMessages(bool bAllowMsgDispatch)
   if (!m_pSharedMemory)
     return false;
 
-  EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function is not thread safe");
+  //EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function is not thread safe");
 
   EZ_VERIFY(m_pSharedMemory->lock(), "Implementation error?");
 
@@ -307,7 +305,7 @@ bool ezProcessCommunication::ReadMessages()
 
 ezResult ezProcessCommunication::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, WaitForMessageCallback* pMessageCallack)
 {
-  EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function is not thread safe");
+  //EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function is not thread safe");
   EZ_ASSERT_DEV(m_pWaitForMessageType == nullptr, "Already waiting for another message!");
 
   m_pWaitForMessageType = pMessageType;

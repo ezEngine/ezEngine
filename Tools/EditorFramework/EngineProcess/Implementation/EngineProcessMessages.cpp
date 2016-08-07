@@ -20,6 +20,30 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ///////////////////////////////////// ezEditorEngineMsg ///////////////////////////////////// 
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessAsset, 1, ezRTTIDefaultAllocator<ezProcessAsset>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("AssetGuid", m_AssetGuid),
+    EZ_MEMBER_PROPERTY("AssetPath", m_sAssetPath),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessAssetResponse, 1, ezRTTIDefaultAllocator<ezProcessAssetResponse>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Success", m_bSuccess),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+
+///////////////////////////////////// ezEditorEngineMsg ///////////////////////////////////// 
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineMsg, 1, ezRTTINoAllocator )
 EZ_END_DYNAMIC_REFLECTED_TYPE
 

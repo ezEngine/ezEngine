@@ -51,14 +51,18 @@ public:
   ~ezDirectoryWatcher();
 
   /// \brief
-  ///   Opens the directory at \p path for watching. \p whatToWatch controls what exactly should be watched.
+  ///   Opens the directory at \p absolutePath for watching. \p whatToWatch controls what exactly should be watched.
   ///
   /// \note A instance of ezDirectoryWatcher can only watch one directory at a time.
-  ezResult OpenDirectory(const ezString& path, ezBitflags<Watch> whatToWatch);
+  ezResult OpenDirectory(const ezString& absolutePath, ezBitflags<Watch> whatToWatch);
 
   /// \brief
   ///   Closes the currently watched directory if any.
   void CloseDirectory();
+
+  /// \brief
+  ///   Returns the opened directory, will be empty if no directory was opened.
+  const char* GetDirectory() const { return m_sDirectoryPath; }
 
   /// \brief
   ///   Calls the callback \p func for each change since the last call. For each change the filename
@@ -68,6 +72,8 @@ public:
   void EnumerateChanges(ezDelegate<void(const char* filename, Action action)> func);
 
 private:
-  bool m_bDirectoryOpen;
+  ezString m_sDirectoryPath;
   ezDirectoryWatcherImpl* m_pImpl;
 };
+
+EZ_DECLARE_FLAGS_OPERATORS(ezDirectoryWatcher::Watch);

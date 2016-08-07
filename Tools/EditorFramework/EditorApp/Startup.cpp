@@ -93,17 +93,21 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 EZ_END_SUBSYSTEM_DECLARATION
 
 
-void ezQtEditorApp::StartupEditor()
+void ezQtEditorApp::StartupEditor(bool bHeadless)
 {
-  // ezUniquePtr does not work with forward declared classes :-(
-  m_pProgressbar = EZ_DEFAULT_NEW(ezProgress);
-  m_pQtProgressbar = EZ_DEFAULT_NEW(ezQtProgressbar);
+  m_bHeadless = bHeadless;
+  if (!bHeadless)
+  { 
+    // ezUniquePtr does not work with forward declared classes :-(
+    m_pProgressbar = EZ_DEFAULT_NEW(ezProgress);
+    m_pQtProgressbar = EZ_DEFAULT_NEW(ezQtProgressbar);
 
-  ezProgress::SetGlobalProgressbar(m_pProgressbar);
-  m_pQtProgressbar->SetProgressbar(m_pProgressbar);
+    ezProgress::SetGlobalProgressbar(m_pProgressbar);
+    m_pQtProgressbar->SetProgressbar(m_pProgressbar);
+  }
 
   m_bSafeMode = ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-safe");
-  const bool bNoRecent = m_bSafeMode || ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-norecent");
+  const bool bNoRecent = m_bSafeMode || bHeadless || ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-norecent");
 
   ezString sApplicationName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-appname", 0, "ezEditor");
   ezApplicationServices::GetSingleton()->SetApplicationName(sApplicationName);
@@ -119,10 +123,13 @@ void ezQtEditorApp::StartupEditor()
   QCoreApplication::setApplicationName(ezApplicationServices::GetSingleton()->GetApplicationName());
   QCoreApplication::setApplicationVersion("1.0.0");
 
-  SetStyleSheet();
+  if (!bHeadless)
+  {
+    SetStyleSheet();
 
-  ezContainerWindow* pContainer = new ezContainerWindow();
-  pContainer->show();
+    ezContainerWindow* pContainer = new ezContainerWindow();
+    pContainer->show();
+  }
 
   ezDocumentManager::s_Requests.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentManagerRequestHandler, this));
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEditorApp::DocumentManagerEventHandler, this));
@@ -170,11 +177,14 @@ void ezQtEditorApp::StartupEditor()
 
   ezUIServices::GetSingleton()->LoadState();
 
-  ezActionManager::LoadShortcutAssignment();
+  if (!bHeadless)
+  {
+    ezActionManager::LoadShortcutAssignment();
 
-  LoadRecentFiles();
+    LoadRecentFiles();
 
-  CreatePanels();
+    CreatePanels();
+  }
 
   LoadEditorPlugins();
 
@@ -188,9 +198,12 @@ void ezQtEditorApp::StartupEditor()
     }
   }
 
-  if (ezQtDocumentWindow::GetAllDocumentWindows().IsEmpty())
+  if (!bHeadless)
   {
-    ShowSettingsDocument();
+    if (ezQtDocumentWindow::GetAllDocumentWindows().IsEmpty())
+    {
+      ShowSettingsDocument();
+    }
   }
 }
 
@@ -212,11 +225,13 @@ void ezQtEditorApp::ShutdownEditor()
 
   CloseSettingsDocument();
 
-  while (!ezContainerWindow::GetAllContainerWindows().IsEmpty())
+  if (!m_bHeadless)
   {
-    delete ezContainerWindow::GetAllContainerWindows()[0];
+    while (!ezContainerWindow::GetAllContainerWindows().IsEmpty())
+    {
+      delete ezContainerWindow::GetAllContainerWindows()[0];
+    }
   }
-
   // HACK to figure out why the panels are not always properly destroyed together with the ContainerWindows
   // if you run into this, please try to figure this out
   // every ezQtApplicationPanel actually registers itself with a container window in its constructor

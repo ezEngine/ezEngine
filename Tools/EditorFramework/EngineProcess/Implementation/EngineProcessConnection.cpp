@@ -92,7 +92,12 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   m_bProcessCrashed = false;
   m_bClientIsConfigured = false;
 
-  if (m_IPC.StartClientProcess("EditorEngineProcess.exe", m_bProcessShouldWaitForDebugger ? "-debug" : "", pFirstAllowedMessageType).Failed())
+  QStringList args;
+  if (m_bProcessShouldWaitForDebugger)
+  {
+    args << "-debug";
+  }
+  if (m_IPC.StartClientProcess("EditorEngineProcess.exe", args, pFirstAllowedMessageType).Failed())
   {
     m_bProcessCrashed = true;
   }

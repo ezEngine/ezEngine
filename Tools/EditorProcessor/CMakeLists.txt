@@ -37,7 +37,6 @@ SET (LINK_LIBRARIES
 )
 
 SET (ADDITIONAL_DEPENDENCIES
-  EditorProcessor
   EditorEngineProcess
   EditorPluginScene
   EditorPluginAssets

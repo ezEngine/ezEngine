@@ -508,7 +508,7 @@ void ezAssetDocument::AppendThumbnailInfo(const char* szThumbnailFile, const ezA
 
 ezString ezAssetDocument::GetDocumentPathFromGuid(const ezUuid& documentGuid) const
 {
-  auto* pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(documentGuid);
+  auto* pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo2(documentGuid);
 
   return pAssetInfo->m_sAbsolutePath;
 }

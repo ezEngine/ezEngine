@@ -9,6 +9,7 @@
 
 class QProcess;
 class QSharedMemory;
+class QStringList;
 
 class EZ_EDITORFRAMEWORK_DLL ezProcessMessage : public ezReflectedClass
 {
@@ -23,7 +24,7 @@ class EZ_EDITORFRAMEWORK_DLL ezProcessCommunication
 public:
   ezProcessCommunication();
 
-  ezResult StartClientProcess(const char* szProcess, const char* szArguments = nullptr, const ezRTTI* pFirstAllowedMessageType = nullptr, ezUInt32 uiMemSize = 1024 * 1024 * 10);
+  ezResult StartClientProcess(const char* szProcess, const QStringList& args, const ezRTTI* pFirstAllowedMessageType = nullptr, ezUInt32 uiMemSize = 1024 * 1024 * 10);
 
   ezResult ConnectToHostProcess();
 

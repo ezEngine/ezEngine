@@ -16,14 +16,17 @@ struct ezDirectoryWatcherImpl
 };
 
 ezDirectoryWatcher::ezDirectoryWatcher()
-  : m_bDirectoryOpen(false)
-  , m_pImpl(EZ_DEFAULT_NEW(ezDirectoryWatcherImpl))
+  : m_pImpl(EZ_DEFAULT_NEW(ezDirectoryWatcherImpl))
 {
   m_pImpl->m_buffer.SetCount(4096);
 }
 
-ezResult ezDirectoryWatcher::OpenDirectory(const ezString& path, ezBitflags<Watch> whatToWatch)
+ezResult ezDirectoryWatcher::OpenDirectory(const ezString& absolutePath, ezBitflags<Watch> whatToWatch)
 {
+  EZ_ASSERT_DEV(m_sDirectoryPath.IsEmpty(), "Directory already open, call CloseDirectory first!");
+  ezStringBuilder sPath(absolutePath);
+  sPath.MakeCleanPath();
+
   m_pImpl->m_watchSubdirs = whatToWatch.IsSet(Watch::Subdirectories);
   m_pImpl->m_filter = 0;
   if (whatToWatch.IsSet(Watch::Reads))
@@ -36,7 +39,7 @@ ezResult ezDirectoryWatcher::OpenDirectory(const ezString& path, ezBitflags<Watc
     m_pImpl->m_filter |= FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME;
 
   m_pImpl->m_directoryHandle = CreateFileW(
-    ezStringWChar(path).GetData(),
+    ezStringWChar(sPath).GetData(),
     FILE_LIST_DIRECTORY,
     FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
     nullptr,
@@ -55,19 +58,19 @@ ezResult ezDirectoryWatcher::OpenDirectory(const ezString& path, ezBitflags<Watc
   }
 
   m_pImpl->DoRead();
-  m_bDirectoryOpen = true;
+  m_sDirectoryPath = sPath;
 
   return EZ_SUCCESS;
 }
 
 void ezDirectoryWatcher::CloseDirectory()
 {
-  if (m_bDirectoryOpen)
+  if (!m_sDirectoryPath.IsEmpty())
   {
     CancelIo(m_pImpl->m_directoryHandle);
     CloseHandle(m_pImpl->m_completionPort);
     CloseHandle(m_pImpl->m_directoryHandle);
-    m_bDirectoryOpen = false;
+    m_sDirectoryPath.Clear();
   }
 }
 
@@ -87,7 +90,7 @@ void ezDirectoryWatcherImpl::DoRead()
 
 void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, Action action)> func)
 {
-  EZ_ASSERT_DEV(m_bDirectoryOpen, "No directory opened!");
+  EZ_ASSERT_DEV(!m_sDirectoryPath.IsEmpty(), "No directory opened!");
   OVERLAPPED* lpOverlapped;
   DWORD numberOfBytes;
   ULONG_PTR completionKey;

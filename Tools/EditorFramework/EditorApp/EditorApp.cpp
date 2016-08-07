@@ -14,7 +14,8 @@ ezQtEditorApp::ezQtEditorApp()
 {
   m_pProgressbar = nullptr;
   m_pQtProgressbar = nullptr;
-
+  m_bSafeMode = false;
+  m_bHeadless = false;
   ezApplicationServices::GetSingleton()->SetApplicationName("ezEditor");
   s_pQtApplication = nullptr;
   s_pEngineViewProcess = nullptr;
@@ -45,6 +46,8 @@ void ezQtEditorApp::SlotTimedUpdate()
     ezEditorEngineProcessConnection::GetSingleton()->Update();
 
   ezAssetCurator::GetSingleton()->MainThreadTick();
+
+  emit IdleEvent();
 
   m_pTimer->start(1);
 }
