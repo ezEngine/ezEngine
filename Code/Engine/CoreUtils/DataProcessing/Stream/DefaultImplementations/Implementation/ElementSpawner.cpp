@@ -31,7 +31,7 @@ void ezStreamElementSpawnerZeroInitialized::SpawnElements( ezUInt64 uiStartIndex
 
   for ( ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i )
   {
-    ezMemoryUtils::ZeroFill<ezUInt8>( static_cast<ezUInt8*>(ezMemoryUtils::AddByteOffset( m_pStream->GetWritableData(), i * uiElementStride ) ), uiElementSize);
+    ezMemoryUtils::ZeroFill<ezUInt8>( static_cast<ezUInt8*>(ezMemoryUtils::AddByteOffset( m_pStream->GetWritableData(), static_cast<ptrdiff_t>(i * uiElementStride) ) ), static_cast<size_t>(uiElementSize));
   }
 
 }

@@ -42,7 +42,7 @@ ezStreamGroup::~ezStreamGroup()
 
 void ezStreamGroup::AddStreamProcessor( ezStreamProcessor* pStreamProcessor )
 {
-  EZ_ASSERT_DEV( pStreamProcessor, "Stream processor may not be null!" );
+  EZ_ASSERT_DEV( pStreamProcessor != nullptr, "Stream processor may not be null!" );
 
   if (pStreamProcessor->m_pStreamGroup != nullptr)
   {
@@ -59,7 +59,7 @@ void ezStreamGroup::AddStreamProcessor( ezStreamProcessor* pStreamProcessor )
 
 void ezStreamGroup::AddStreamElementSpawner( ezStreamElementSpawner* pStreamElementSpawner )
 {
-  EZ_ASSERT_DEV( pStreamElementSpawner, "Stream element spawner may not be null!" );
+  EZ_ASSERT_DEV( pStreamElementSpawner != nullptr, "Stream element spawner may not be null!" );
 
   if ( pStreamElementSpawner->m_pStreamGroup != nullptr )
   {
@@ -227,10 +227,10 @@ void ezStreamGroup::RunPendingOperations()
     {
       const ezUInt64 uiStreamElementStride = pStream->GetElementStride();
       const ezUInt64 uiStreamElementSize = pStream->GetElementSize();
-      const void* pSourceData = ezMemoryUtils::AddByteOffsetConst( pStream->GetData(), uiLastActiveElementIndex * uiStreamElementStride );
-      void* pTargetData = ezMemoryUtils::AddByteOffset( pStream->GetWritableData(), uiElementToRemove * uiStreamElementStride );
+      const void* pSourceData = ezMemoryUtils::AddByteOffsetConst( pStream->GetData(), static_cast<ptrdiff_t>(uiLastActiveElementIndex * uiStreamElementStride) );
+      void* pTargetData = ezMemoryUtils::AddByteOffset( pStream->GetWritableData(), static_cast<ptrdiff_t>(uiElementToRemove * uiStreamElementStride) );
 
-      ezMemoryUtils::Copy<ezUInt8>( static_cast<ezUInt8*>(pTargetData), static_cast<const ezUInt8*>(pSourceData), uiStreamElementSize );
+      ezMemoryUtils::Copy<ezUInt8>( static_cast<ezUInt8*>(pTargetData), static_cast<const ezUInt8*>(pSourceData), static_cast<size_t>(uiStreamElementSize) );
     }
 
     // And decrease the size since we swapped the last element to the location of the element we just removed

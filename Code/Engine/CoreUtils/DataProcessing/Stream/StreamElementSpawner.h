@@ -3,6 +3,8 @@
 
 #include <CoreUtils/Basics.h>
 
+class ezStreamGroup;
+
 /// \brief Base class for stream element spawners. These objects initialize newly activated elements with specific values (e.g. particle velocity, life time of a particle etc.)
 class EZ_COREUTILS_DLL ezStreamElementSpawner
 {

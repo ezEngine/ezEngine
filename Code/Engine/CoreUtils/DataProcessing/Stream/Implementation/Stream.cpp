@@ -33,11 +33,11 @@ ezResult ezStream::SetSize( ezUInt64 uiNumElements )
 
   if ( m_uiAlignment > 0 )
   {
-    m_pData = ezFoundation::GetAlignedAllocator()->Allocate( uiNumElements * GetDataTypeSize( m_Type ), m_uiAlignment );
+    m_pData = ezFoundation::GetAlignedAllocator()->Allocate( static_cast<size_t>(uiNumElements * GetDataTypeSize( m_Type )), static_cast<size_t>(m_uiAlignment) );
   }
   else
   {
-    m_pData = ezFoundation::GetDefaultAllocator()->Allocate( uiNumElements * GetDataTypeSize( m_Type ), 0 );
+    m_pData = ezFoundation::GetDefaultAllocator()->Allocate( static_cast<size_t>(uiNumElements * GetDataTypeSize( m_Type )), 0 );
   }
 
   
