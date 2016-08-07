@@ -9,6 +9,8 @@
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <IPC/ProcessCommunication.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
+#include <Foundation/Serialization/JsonSerializer.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezAssetCurator Asset Hashing and Status Updates

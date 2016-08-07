@@ -11,6 +11,7 @@
 #include <QProgressBar>
 #include <QToolButton>
 #include <QPainter>
+#include <QBoxLayout>
 
 ezQtCuratorControl::ezQtCuratorControl(QWidget* pParent)
   : QWidget(pParent)
