@@ -1,0 +1,262 @@
+
+#include <CoreUtils/PCH.h>
+#include <CoreUtils/Basics.h>
+#include <CoreUtils/DataProcessing/Stream/StreamGroup.h>
+#include <CoreUtils/DataProcessing/Stream/StreamProcessor.h>
+#include <CoreUtils/DataProcessing/Stream/StreamElementSpawner.h>
+#include <CoreUtils/DataProcessing/Stream/Stream.h>
+#include <Foundation/Memory/MemoryUtils.h>
+
+ezStreamGroup::ezStreamGroup()
+  : m_uiPendingNumberOfElementsToSpawn(0)
+  , m_uiNumElements(0)
+  , m_uiNumActiveElements(0)
+  , m_uiHighestNumActiveElements(0)
+  , m_bStreamAssignmentDirty(true)
+{
+}
+
+ezStreamGroup::~ezStreamGroup()
+{
+  for ( ezStreamProcessor* pStreamProcessor : m_StreamProcessors )
+  {
+    EZ_DEFAULT_DELETE( pStreamProcessor );
+  }
+
+  m_StreamProcessors.Clear();
+
+  for ( ezStreamElementSpawner* pStreamElementSpawner : m_StreamElementSpawners )
+  {
+    EZ_DEFAULT_DELETE( pStreamElementSpawner );
+  }
+
+  m_StreamElementSpawners.Clear();
+
+  for ( ezStream* pStream : m_DataStreams )
+  {
+    EZ_DEFAULT_DELETE( pStream );
+  }
+
+  m_DataStreams.Clear();
+}
+
+void ezStreamGroup::AddStreamProcessor( ezStreamProcessor* pStreamProcessor )
+{
+  EZ_ASSERT_DEV( pStreamProcessor, "Stream processor may not be null!" );
+
+  if (pStreamProcessor->m_pStreamGroup != nullptr)
+  {
+    ezLog::Debug( "Stream processor is already assigned to a stream group!" );
+    return;
+  }
+
+  m_StreamProcessors.PushBack( pStreamProcessor );
+
+  pStreamProcessor->m_pStreamGroup = this;
+
+  m_bStreamAssignmentDirty = true;
+}
+
+void ezStreamGroup::AddStreamElementSpawner( ezStreamElementSpawner* pStreamElementSpawner )
+{
+  EZ_ASSERT_DEV( pStreamElementSpawner, "Stream element spawner may not be null!" );
+
+  if ( pStreamElementSpawner->m_pStreamGroup != nullptr )
+  {
+    ezLog::Debug( "Stream element spawner is already assigned to a stream group!" );
+    return;
+  }
+
+  m_StreamElementSpawners.PushBack( pStreamElementSpawner );
+
+  pStreamElementSpawner->m_pStreamGroup = this;
+
+  m_bStreamAssignmentDirty = true;
+}
+
+ezStream* ezStreamGroup::AddStream( const char* szName, ezStream::DataType Type )
+{
+  // Treat adding a stream two times as an error (return null)
+  if ( GetStreamByName( szName ) )
+    return nullptr;
+
+  ezStream* pStream = EZ_DEFAULT_NEW( ezStream, szName, Type, 64 );
+
+  m_DataStreams.PushBack( pStream );
+
+  m_bStreamAssignmentDirty = true;
+
+  return pStream;
+}
+
+ezStream* ezStreamGroup::GetStreamByName( const char* szName ) const
+{
+  ezHashedString Temp;
+  Temp.Assign(szName);
+
+  return GetStreamByName(Temp);
+}
+
+ezStream* ezStreamGroup::GetStreamByName( ezHashedString Name ) const
+{
+  for ( ezStream* Stream : m_DataStreams )
+  {
+    if ( Stream->GetName() == Name )
+    {
+      return Stream;
+    }
+  }
+
+  return nullptr;
+}
+
+ezResult ezStreamGroup::SetSize( ezUInt64 uiNumElements )
+{
+  if ( m_uiNumElements == uiNumElements )
+    return EZ_SUCCESS;
+
+  // Set the new size on all stream.
+  for ( ezStream* Stream : m_DataStreams )
+  {
+    if ( Stream->SetSize( uiNumElements ).Failed() )
+    {
+      return EZ_FAILURE;
+    }
+  }
+
+  m_uiNumElements = uiNumElements;
+
+  // Also reset any pending remove and spawn operations since they refer to the old size and content
+  m_PendingRemoveIndices.Clear();
+  m_uiPendingNumberOfElementsToSpawn = 0;
+  
+  m_uiHighestNumActiveElements = 0;
+
+  // Stream processors etc. may have pointers to the stream data for some reason.
+  m_bStreamAssignmentDirty = true;
+
+  return EZ_SUCCESS;
+}
+
+/// \brief Removes an element (e.g. due to the death of a particle etc.), this will be enqueued (and thus is safe to be called from within data processors).
+void ezStreamGroup::RemoveElement( ezUInt64 uiElementIndex )
+{
+  if ( m_PendingRemoveIndices.Contains( uiElementIndex ) )
+    return;
+
+  EZ_ASSERT_DEBUG( uiElementIndex < m_uiNumElements, "Element which should be removed is outside of active element range!" );
+
+  m_PendingRemoveIndices.PushBack( uiElementIndex );
+}
+
+/// \brief Spawns a number of new elements, they will be added as newly initialized stream elements. Safe to call from data processors since the spawning will be queued.
+void ezStreamGroup::SpawnElements( ezUInt64 uiNumElements )
+{
+  m_uiPendingNumberOfElementsToSpawn += uiNumElements;
+}
+
+void ezStreamGroup::Process()
+{
+  // Run any pending operations the user may have triggered after running Process() the last time
+  RunPendingOperations();
+
+  // TODO: Identify which processors work on which streams and find independent groups and use separate tasks for them?
+  for ( ezStreamProcessor* pStreamProcessor : m_StreamProcessors )
+  {
+    pStreamProcessor->Process(m_uiNumActiveElements);
+  }
+
+  // Run any pending operations which happened due to stream processor execution
+  RunPendingOperations();
+}
+
+
+void ezStreamGroup::RunPendingOperations()
+{
+  // If any stream processors or streams were added we may need to inform them.
+  if ( m_bStreamAssignmentDirty )
+  {
+    for ( ezStreamProcessor* pStreamProcessor : m_StreamProcessors )
+    {
+      pStreamProcessor->UpdateStreamBindings();
+    }
+
+    for ( ezStreamElementSpawner* pStreamElementSpawner : m_StreamElementSpawners )
+    {
+      pStreamElementSpawner->UpdateStreamBindings();
+    }
+
+    m_bStreamAssignmentDirty = false;
+  }
+
+  // Remove elements
+  while ( !m_PendingRemoveIndices.IsEmpty() )
+  {
+    if ( m_uiNumActiveElements == 0 )
+      break;
+
+    ezUInt64 uiLastActiveElementIndex = m_uiNumActiveElements - 1;
+
+    ezUInt64 uiElementToRemove = m_PendingRemoveIndices.PeekBack();
+    m_PendingRemoveIndices.PopBack();
+
+    // If the element which should be removed is the last element we can just decrement the number of active elements
+    // and no further work needs to be done
+    if ( uiElementToRemove == uiLastActiveElementIndex )
+    {
+      m_uiNumActiveElements--;
+      continue;
+    }
+
+    // Since we swap with the last element we need to make sure that any pending removals of the (current) last element are updated
+    // and point to the place where we moved the data to.
+    for ( ezUInt32 i = 0; i < m_PendingRemoveIndices.GetCount(); ++i )
+    {
+      // Is the pending remove in the array actually the last element we use to swap with? It's simply a matter of updating it to point to the new index.
+      if ( m_PendingRemoveIndices[i] == uiLastActiveElementIndex )
+      {
+        m_PendingRemoveIndices[i] = uiElementToRemove;
+        
+        // We can break since the RemoveElement() operation takes care that each index can be in the array only once
+        break;
+      }
+    }
+
+    // Move the data
+    for ( ezStream* pStream : m_DataStreams )
+    {
+      const ezUInt64 uiStreamElementStride = pStream->GetElementStride();
+      const ezUInt64 uiStreamElementSize = pStream->GetElementSize();
+      const void* pSourceData = ezMemoryUtils::AddByteOffsetConst( pStream->GetData(), uiLastActiveElementIndex * uiStreamElementStride );
+      void* pTargetData = ezMemoryUtils::AddByteOffset( pStream->GetWritableData(), uiElementToRemove * uiStreamElementStride );
+
+      ezMemoryUtils::Copy<ezUInt8>( static_cast<ezUInt8*>(pTargetData), static_cast<const ezUInt8*>(pSourceData), uiStreamElementSize );
+    }
+
+    // And decrease the size since we swapped the last element to the location of the element we just removed
+    m_uiNumActiveElements--;
+  }
+
+  m_PendingRemoveIndices.Clear();
+
+
+  // Check if elements need to be spawned. If this is the case spawn them. (This is limited by the maximum number of elements).
+  if ( m_uiPendingNumberOfElementsToSpawn > 0 )
+  {
+    m_uiPendingNumberOfElementsToSpawn = ezMath::Min( m_uiPendingNumberOfElementsToSpawn, m_uiNumElements - m_uiNumActiveElements );
+
+    if ( m_uiPendingNumberOfElementsToSpawn )
+    {
+      for ( ezStreamElementSpawner* pStreamElementSpawner : m_StreamElementSpawners )
+      {
+        pStreamElementSpawner->SpawnElements( m_uiNumActiveElements, m_uiPendingNumberOfElementsToSpawn );
+      }
+    }
+
+    m_uiNumActiveElements += m_uiPendingNumberOfElementsToSpawn;
+
+    m_uiHighestNumActiveElements = ezMath::Max( m_uiNumActiveElements, m_uiHighestNumActiveElements );
+
+    m_uiPendingNumberOfElementsToSpawn = 0;
+  }
+}
