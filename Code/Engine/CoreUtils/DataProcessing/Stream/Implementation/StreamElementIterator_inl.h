@@ -5,7 +5,7 @@ ezStreamElementIterator<Type>::ezStreamElementIterator( const ezStream* pStream,
   , m_pEndPtr(nullptr)
   , m_uiElementStride(0)
 {
-  EZ_ASSERT_DEV( pStream, "Stream pointer may not be null!" );
+  EZ_ASSERT_DEV( pStream != nullptr, "Stream pointer may not be null!" );
 
   m_uiElementStride = pStream->GetElementStride();
 
