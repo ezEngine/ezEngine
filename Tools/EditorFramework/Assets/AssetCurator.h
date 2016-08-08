@@ -10,12 +10,14 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <Core/Application/Config/FileSystemConfig.h>
 #include <Foundation/Configuration/Singleton.h>
+#include <tuple>
 
 class ezUpdateTask;
 class ezTask;
 class ezAssetDocumentManager;
 class ezDirectoryWatcher;
 class ezProcessCommunication;
+class ezProcessTask;
 struct ezFileStats;
 
 struct ezAssetInfo
