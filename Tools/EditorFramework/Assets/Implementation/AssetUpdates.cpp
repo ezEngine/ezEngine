@@ -600,6 +600,7 @@ void ezProcessTask::ShutdownProcess()
 
   m_bProcessShouldBeRunning = false;
   m_pIPC->CloseConnection();
+  EZ_DEFAULT_DELETE(m_pIPC);
 }
 
 void ezProcessTask::Execute()

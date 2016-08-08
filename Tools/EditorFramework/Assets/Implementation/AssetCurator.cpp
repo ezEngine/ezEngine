@@ -67,6 +67,7 @@ void ezAssetCurator::Initialize(const ezApplicationFileSystemConfig& cfg)
 void ezAssetCurator::Deinitialize()
 {
   ShutdownUpdateTask();
+  ShutdownProcessTask();
 
   {
     ezLock<ezMutex> ml(m_CuratorMutex);
@@ -302,17 +303,24 @@ void ezAssetCurator::RestartProcessTask()
 
 void ezAssetCurator::ShutdownProcessTask()
 {
+  ezDynamicArray<ezProcessTask*> Tasks;
   {
     ezLock<ezMutex> ml(m_CuratorMutex);
+    Tasks = m_ProcessTasks;
+    m_ProcessTasks.Clear();
     m_bRunProcessTask = false;
   }
 
-  if (!m_ProcessTasks.IsEmpty())
+  if (!Tasks.IsEmpty())
   {
-    ezTaskSystem::WaitForTask((ezTask*)m_pUpdateTask);
+    for (ezProcessTask* pTask : Tasks)
+    {
+      ezTaskSystem::WaitForTask((ezTask*)pTask);
 
-    ezLock<ezMutex> ml(m_CuratorMutex);
-    EZ_DEFAULT_DELETE(m_pUpdateTask);
+      // Delete and remove under lock.
+      ezLock<ezMutex> ml(m_CuratorMutex);
+      EZ_DEFAULT_DELETE(pTask);
+    }
   }
 
   {
