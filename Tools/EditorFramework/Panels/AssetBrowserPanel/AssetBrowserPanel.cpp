@@ -32,7 +32,7 @@ ezQtAssetBrowserPanel::ezQtAssetBrowserPanel()
   setWindowIcon(ezUIServices::GetCachedIconResource(":/EditorFramework/Icons/Asset16.png"));
   setWindowTitle(QString::fromUtf8(ezTranslate("Panel.AssetBrowser")));
 
-  EZ_VERIFY(connect(AssetBrowserWidget, SIGNAL(ItemChosen(QString, QString, QString)), this, SLOT(SlotAssetChosen(QString, QString, QString))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(AssetBrowserWidget, &ezAssetBrowserWidget::ItemChosen, this, &ezQtAssetBrowserPanel::SlotAssetChosen) != nullptr, "signal/slot connection failed");
 
   AssetBrowserWidget->RestoreState("AssetBrowserPanel2");
 }
@@ -42,7 +42,7 @@ ezQtAssetBrowserPanel::~ezQtAssetBrowserPanel()
   AssetBrowserWidget->SaveState("AssetBrowserPanel2");
 }
 
-void ezQtAssetBrowserPanel::SlotAssetChosen(QString sAssetGuid, QString sAssetPathRelative, QString sAssetPathAbsolute)
+void ezQtAssetBrowserPanel::SlotAssetChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute)
 {
   ezQtEditorApp::GetSingleton()->OpenDocument(sAssetPathAbsolute.toUtf8().data());
 }

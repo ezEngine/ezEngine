@@ -213,9 +213,6 @@ void ezAssetCurator::MainThreadTick()
 
 void ezAssetCurator::TransformAllAssets(const char* szPlatform)
 {
-  RestartProcessTask();
-  return;
-
   ezProgressRange range("Transforming Assets", 1 + m_KnownAssets.GetCount(), true);
 
   for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)

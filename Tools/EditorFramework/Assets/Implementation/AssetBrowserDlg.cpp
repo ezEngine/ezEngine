@@ -70,18 +70,18 @@ ezAssetBrowserDlg::~ezAssetBrowserDlg()
   AssetBrowserWidget->SaveState("AssetBrowserDlg");
 }
 
-void ezAssetBrowserDlg::on_AssetBrowserWidget_ItemSelected(QString sAssetGUID, QString sAssetPathRelative, QString sAssetPathAbsolute)
+void ezAssetBrowserDlg::on_AssetBrowserWidget_ItemSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute)
 {
-  m_sSelectedAssetGuid = sAssetGUID.toUtf8().data();
+  m_SelectedAssetGuid = guid;
   m_sSelectedAssetPathRelative = sAssetPathRelative.toUtf8().data();
   m_sSelectedAssetPathAbsolute = sAssetPathAbsolute.toUtf8().data();
 
-  ButtonSelect->setEnabled(!m_sSelectedAssetGuid.IsEmpty());
+  ButtonSelect->setEnabled(m_SelectedAssetGuid.IsValid());
 }
 
-void ezAssetBrowserDlg::on_AssetBrowserWidget_ItemChosen(QString sAssetGUID, QString sAssetPathRelative, QString sAssetPathAbsolute)
+void ezAssetBrowserDlg::on_AssetBrowserWidget_ItemChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute)
 {
-  m_sSelectedAssetGuid = sAssetGUID.toUtf8().data();
+  m_SelectedAssetGuid = guid;
   m_sSelectedAssetPathRelative = sAssetPathRelative.toUtf8().data();
   m_sSelectedAssetPathAbsolute = sAssetPathAbsolute.toUtf8().data();
 
@@ -99,7 +99,7 @@ void ezAssetBrowserDlg::on_ButtonFileDialog_clicked()
 
   static QString sLastPath;
 
-  m_sSelectedAssetGuid.Clear();
+  m_SelectedAssetGuid = ezUuid();
   m_sSelectedAssetPathRelative.Clear();
   m_sSelectedAssetPathAbsolute.Clear();
 
@@ -123,7 +123,7 @@ void ezAssetBrowserDlg::on_ButtonFileDialog_clicked()
   }
 
   sLastPath = sFile;
-  on_AssetBrowserWidget_ItemChosen("", QString::fromUtf8(m_sSelectedAssetPathRelative.GetData()), sFile);
+  on_AssetBrowserWidget_ItemChosen(ezUuid(), QString::fromUtf8(m_sSelectedAssetPathRelative.GetData()), sFile);
 }
 
 void ezAssetBrowserDlg::on_ButtonSelect_clicked()

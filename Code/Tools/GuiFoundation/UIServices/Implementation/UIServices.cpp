@@ -19,6 +19,7 @@ static ezUIServices g_instance;
 ezUIServices::ezUIServices()
   : m_SingletonRegistrar(this)
 {
+  int id = qRegisterMetaType<ezUuid>();
   m_pColorDlg = nullptr;
 }
 

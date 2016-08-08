@@ -298,7 +298,9 @@ void ezQtAssetPropertyWidget::on_BrowseFile_clicked()
   if (dlg.exec() == 0)
     return;
 
-  sFile = dlg.GetSelectedAssetGuid();
+  ezUuid assetGuid = dlg.GetSelectedAssetGuid();
+  if (assetGuid.IsValid())
+    sFile = ezConversionUtils::ToString(assetGuid);
 
   if (sFile.IsEmpty())
   {

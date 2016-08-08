@@ -2,6 +2,8 @@
 
 #include <Foundation/Basics.h>
 #include <ToolsFoundation/Basics.h>
+#include <Foundation/Types/Uuid.h>
+#include <QMetaType>
 
 // Configure the DLL Import/Export Define
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
@@ -16,6 +18,9 @@
 
 class QWidget;
 class QObject;
+
+
+Q_DECLARE_METATYPE(ezUuid);
 
 class EZ_GUIFOUNDATION_DLL QtScopedUpdatesDisabled
 {

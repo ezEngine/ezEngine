@@ -26,8 +26,8 @@ public:
   const ezAssetBrowserModel* GetAssetBrowserModel() const { return m_pModel; }
 
 signals:
-  void ItemChosen(QString sAssetGUID, QString sAssetPathRelative, QString sAssetPathAbsolute);
-  void ItemSelected(QString sAssetGUID, QString sAssetPathRelative, QString sAssetPathAbsolute);
+  void ItemChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute);
+  void ItemSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute);
   void ItemCleared();
 
 private slots:
@@ -52,6 +52,7 @@ private slots:
   void on_ListAssets_customContextMenuRequested(const QPoint& pt);
   void OnListOpenExplorer();
   void OnListOpenAssetDocument();
+  void OnTransform();
   void OnListToggleSortByRecentlyUsed();
   void OnListCopyAssetGuid();
   void OnSelectionTimer();

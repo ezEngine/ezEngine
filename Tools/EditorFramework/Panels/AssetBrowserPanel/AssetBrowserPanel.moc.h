@@ -22,7 +22,7 @@ public:
   ~ezQtAssetBrowserPanel();
 
 private slots:
-  void SlotAssetChosen(QString sAssetGuid, QString sAssetPathRelative, QString sAssetPathAbsolute);
+  void SlotAssetChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute);
 
 private:
   void AssetCuratorEvents(const ezAssetCuratorEvent& e);
