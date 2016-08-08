@@ -5,9 +5,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Mesh",
-    "Dependencies" : "FleetOps/Calypso/calypso.obj",
+    "Dependencies" : [ "FleetOps/Calypso/calypso.obj" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0xFBD95FC7D7432340A5C0CCB045A9FD76" },
-    "Hash" : { "$t" : "uint64", "$v" : "18139861692516949935", "$b" : "0xAF5F30A919BCBDFB" }
+    "Hash" : { "$t" : "uint64", "$v" : "18139861692516949935", "$b" : "0xAF5F30A919BCBDFB" },
+    "References" : [ "{ 47ba7957-b7aa-46c3-ab15-e6a5fedf04f1 }" ]
    }
   },
   {
@@ -47,5 +48,6 @@
     "Label" : "DefaultMaterial",
     "Resource" : "{ 47ba7957-b7aa-46c3-ab15-e6a5fedf04f1 }"
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

@@ -69,9 +69,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Mesh",
-    "Dependencies" : "Sponza/sponza.obj",
+    "Dependencies" : [ "Sponza/sponza.obj" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x7E56A3CE366D8F419259F2E157979BCC" },
-    "Hash" : { "$t" : "uint64", "$v" : "6920698627728615437", "$b" : "0x0D284C07BC420B60" }
+    "Hash" : { "$t" : "uint64", "$v" : "6920698627728615437", "$b" : "0x0D284C07BC420B60" },
+    "References" : [ "{ 0d4c8685-12e3-413f-a4fe-d188c2214c5b }", "{ 26c576cb-e60b-476e-a0f5-330826893652 }", "{ 28c59daa-ee0c-4686-9999-ec6150513758 }", "{ 35ade1e7-9c4d-44d2-bcb8-9b0c8cac4212 }", "{ 38a37450-7cf9-4f5e-a683-660f6c2ee96f }", "{ 39a2e955-1cb9-46f5-a8b9-924d533ed332 }", "{ 3bd3aa7f-41c2-4731-9bca-78c21213f74e }", "{ 52fbb321-9fdd-4fac-a9b1-3c18d0a656c9 }", "{ 59d0b998-fb91-4c18-8c33-5280205535c9 }", "{ 6585839f-2e86-4c0d-8219-380d99c43cb5 }", "{ 6f545f12-3280-47bd-ab3f-420de1071331 }", "{ 74297c04-5c23-42c0-8fb7-ee7405e9eb8e }", "{ 76d7b65d-44c9-4a76-9826-33bbd0274aa7 }", "{ 7ef12b09-f007-4a8f-8806-41fa1a188df1 }", "{ 80896210-28ce-4f66-bfd4-27ef6e408aea }", "{ 88af4217-811b-421b-89b7-db8591191a4f }", "{ 91760381-5e4f-4d98-98d9-69ed62ff463a }", "{ 9ef97415-b170-400d-b9f7-e1e8201a8552 }", "{ b270f48c-afca-41f4-a759-7d8ab0fb2a34 }", "{ c187b901-2c21-4709-8d0c-2d96555e04eb }", "{ ca74f4d9-8c8a-4c54-be73-948df814775e }", "{ d389ee71-783f-434a-9fc1-df3134d86c12 }", "{ e904b847-a959-4eea-8835-91e35d68117a }", "{ eaefbc42-9e8a-4d9d-949a-35c372004fc0 }" ]
    }
   },
   {
@@ -231,5 +232,6 @@
     "Label" : "SponzaCurtainGreen",
     "Resource" : "{ 88af4217-811b-421b-89b7-db8591191a4f }"
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

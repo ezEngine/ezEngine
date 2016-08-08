@@ -5,9 +5,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : "Sponza/Textures/sponza_curtain_blue_diff.dds",
+    "Dependencies" : [ "Sponza/Textures/sponza_curtain_blue_diff.dds" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0xBA30E74D80FE2A48B70C37F31F040DFD" },
-    "Hash" : { "$t" : "uint64", "$v" : "7795242209575804732", "$b" : "0x3C9FE5177D432E6C" }
+    "Hash" : { "$t" : "uint64", "$v" : "18396328861846208439", "$b" : "0xB7FF9BC5A1E34CFF" },
+    "References" : [  ]
    }
   },
   {
@@ -31,6 +32,7 @@
     "Input 5" : "",
     "Input 6" : "",
     "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
     "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   } ],

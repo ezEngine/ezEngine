@@ -5,9 +5,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : "Sponza/Textures/vase_round.dds",
+    "Dependencies" : [ "Sponza/Textures/vase_round.dds" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x9EFF324AEFF6D446A1A41D11C956CF51" },
-    "Hash" : { "$t" : "uint64", "$v" : "464603055981937697", "$b" : "0x21445D91049A7206" }
+    "Hash" : { "$t" : "uint64", "$v" : "14805296688791041918", "$b" : "0x7E37A889E5FA76CD" },
+    "References" : [  ]
    }
   },
   {
@@ -31,6 +32,7 @@
     "Input 5" : "",
     "Input 6" : "",
     "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
     "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   } ],

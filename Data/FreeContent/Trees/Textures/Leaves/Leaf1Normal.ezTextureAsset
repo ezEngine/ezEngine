@@ -5,9 +5,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : "Trees/Textures/Leaves/Blender3D/Leaf_1_N.dds",
+    "Dependencies" : [ "Trees/Textures/Leaves/Blender3D/Leaf_1_N.dds" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0xB5157CEFD16AEF47927847A7A70D0C89" },
-    "Hash" : { "$t" : "uint64", "$v" : "14290485848634819386", "$b" : "0x3A03A0432A0152C6" }
+    "Hash" : { "$t" : "uint64", "$v" : "13117997740018112823", "$b" : "0x37192842717D0CB6" },
+    "References" : [  ]
    }
   },
   {
@@ -31,6 +32,7 @@
     "Input 5" : "",
     "Input 6" : "",
     "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
     "Usage" : "ezTextureUsageEnum::NormalMap"
    }
   } ],

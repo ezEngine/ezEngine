@@ -5,9 +5,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : "Sponza/Textures/sponza_ceiling_a_diff.dds",
+    "Dependencies" : [ "Sponza/Textures/sponza_ceiling_a_diff.dds" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x624C76B69CC21F40ADD69BFE54523A8A" },
-    "Hash" : { "$t" : "uint64", "$v" : "11936529747590242428", "$b" : "0x7CE0FF1F9012A7A5" }
+    "Hash" : { "$t" : "uint64", "$v" : "12863614583497986368", "$b" : "0x4091EE304FBD84B2" },
+    "References" : [  ]
    }
   },
   {
@@ -31,6 +32,7 @@
     "Input 5" : "",
     "Input 6" : "",
     "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
     "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   } ],

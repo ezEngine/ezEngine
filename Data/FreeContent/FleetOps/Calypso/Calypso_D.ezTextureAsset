@@ -12,6 +12,7 @@
     "Input 5" : "",
     "Input 6" : "",
     "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
     "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   },
@@ -29,9 +30,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : "FleetOps/Calypso/Calypso_D.dds",
+    "Dependencies" : [ "FleetOps/Calypso/Calypso_D.dds" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0xA88EC1C639432A4BBA8C346AFDFEB7A6" },
-    "Hash" : { "$t" : "uint64", "$v" : "11729991462207852976", "$b" : "0xB0914333164DC9A2" }
+    "Hash" : { "$t" : "uint64", "$v" : "14717052919901439659", "$b" : "0xABC65907A8793DCC" },
+    "References" : [  ]
    }
   } ],
  "Types" : [  ]

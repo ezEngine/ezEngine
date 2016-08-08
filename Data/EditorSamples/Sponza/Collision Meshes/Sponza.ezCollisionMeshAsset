@@ -53,9 +53,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Collision Mesh",
-    "Dependencies" : "Sponza/sponza.obj",
+    "Dependencies" : [ "Sponza/sponza.obj" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x01DB0A2C49CA3142B10C450AF1B8FA1D" },
-    "Hash" : { "$t" : "uint64", "$v" : "3181681720562339184", "$b" : "0x70CD78E6AA9A272C" }
+    "Hash" : { "$t" : "uint64", "$v" : "3181681720562339184", "$b" : "0x70CD78E6AA9A272C" },
+    "References" : [ "{ 0a105955-e069-4523-80ce-7b9867bde687 }", "{ 14bf3313-89f3-4692-873c-d127980bf748 }", "{ 479c8816-d06c-48fd-a907-af5be24225cb }", "{ 56a944d9-3686-4730-8b7d-104d2f02e2b1 }", "{ 72115f7a-5947-4a21-899f-868368bd41d7 }", "{ a28bc6e0-f7ba-4e1a-9515-8ccf0ae28d1c }", "{ ccd32963-93f9-401c-95d1-bf4e491a2df3 }", "{ f1f2d899-331b-47f8-bbe3-e520a23b481e }" ]
    }
   },
   {
@@ -223,5 +224,6 @@
     "Label" : "VaseHanging",
     "Resource" : "{ a28bc6e0-f7ba-4e1a-9515-8ccf0ae28d1c }"
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

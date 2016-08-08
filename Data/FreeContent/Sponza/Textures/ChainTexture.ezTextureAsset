@@ -20,6 +20,7 @@
     "Input 5" : "",
     "Input 6" : "",
     "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
     "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   },
@@ -29,9 +30,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : "Sponza/Textures/chain_texture_diff.dds",
+    "Dependencies" : [ "Sponza/Textures/chain_texture_diff.dds" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x1F90B3BCB84A4E4EAE83BBEBEF895A40" },
-    "Hash" : { "$t" : "uint64", "$v" : "4341257184422566013", "$b" : "0x7D981E84683E3F3C" }
+    "Hash" : { "$t" : "uint64", "$v" : "2267335405994129020", "$b" : "0x7C36F2F48931771F" },
+    "References" : [  ]
    }
   } ],
  "Types" : [  ]

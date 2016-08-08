@@ -5,9 +5,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Surface",
-    "Dependencies" : "",
+    "Dependencies" : [ "{ 0a105955-e069-4523-80ce-7b9867bde687 }" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x1AD7B49AD7481C4286B09955A5F61F0D" },
-    "Hash" : { "$t" : "uint64", "$v" : "14182749235048449546", "$b" : "0x0A86812D493FD3C4" }
+    "Hash" : { "$t" : "uint64", "$v" : "14182749235048449546", "$b" : "0x0A86812D493FD3C4" },
+    "References" : [ "{ 0a105955-e069-4523-80ce-7b9867bde687 }" ]
    }
   },
   {
@@ -16,6 +17,7 @@
    "p" : {
     "Base Surface" : "{ 0a105955-e069-4523-80ce-7b9867bde687 }",
     "Dynamic Friction" : { "$t" : "float", "$v" : "0.4000", "$b" : "0xCDCCCC3E" },
+    "Interactions" : [  ],
     "Restitution" : { "$t" : "float", "$v" : "0.8000", "$b" : "0xCDCC4C3F" },
     "Static Friction" : { "$t" : "float", "$v" : "0.6000", "$b" : "0x9A99193F" }
    }
@@ -27,5 +29,6 @@
    "p" : {
     "Children" : [ { "$t" : "uuid", "$b" : "0xC07A0074C59BD6429733C9335715AC7F" } ]
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

@@ -35,9 +35,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Mesh",
-    "Dependencies" : "",
+    "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x8EF3627C3ADE694E90AB21F753F5F260" },
-    "Hash" : { "$t" : "uint64", "$v" : "16374158704070993170", "$b" : "0x12A5055C96B23CE3" }
+    "Hash" : { "$t" : "uint64", "$v" : "16374158704070993170", "$b" : "0x12A5055C96B23CE3" },
+    "References" : [ "{ 8b666abc-97c5-4048-9ba0-e369cc3e374d }" ]
    }
   },
   {

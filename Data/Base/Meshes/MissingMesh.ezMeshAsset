@@ -13,9 +13,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Mesh",
-    "Dependencies" : "",
+    "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x67B1E6E98CC160429B0E4CF4503C1463" },
-    "Hash" : { "$t" : "uint64", "$v" : "9721322242363875251", "$b" : "0xB3DF33DB1213E986" }
+    "Hash" : { "$t" : "uint64", "$v" : "9721322242363875251", "$b" : "0xB3DF33DB1213E986" },
+    "References" : [ "Materials/BaseMaterials/MissingMesh.ezMaterial" ]
    }
   },
   {

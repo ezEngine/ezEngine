@@ -4,14 +4,18 @@
    "t" : "ezPxCharacterControllerComponent",
    "p" : {
     "Active" : true,
+    "Air Friction" : { "$t" : "float", "$v" : "0.5000", "$b" : "0x0000003F" },
+    "Air Speed" : { "$t" : "float", "$v" : "2.5000", "$b" : "0x00002040" },
     "Capsule Height" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Capsule Radius" : { "$t" : "float", "$v" : "0.2500", "$b" : "0x0000803E" },
     "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
     "Constrained Climb Mode" : true,
     "Force Slope Sliding" : true,
+    "Jump Impulse" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Max Slope Angle" : { "$t" : "angle", "$v" : "40.0000", "$b" : "0xC2B8323F" },
     "Max Step Height" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" },
     "Rotate Speed" : { "$t" : "angle", "$v" : "180.0000", "$b" : "0xDB0F4940" },
+    "Run Speed" : { "$t" : "float", "$v" : "6.0000", "$b" : "0x0000C040" },
     "Walk Speed" : { "$t" : "float", "$v" : "3.0000", "$b" : "0x00004040" }
    }
   },
@@ -21,6 +25,7 @@
    "p" : {
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x51CC195532CEE3458CCEB3E4D0AA8C85" }, { "$t" : "uuid", "$b" : "0x19DE4952D495A34ABAA8B4EC1D1E22D6" } ],
+    "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, 0.0000, -0.1000)", "$b" : "0x0200003F00000033D0CCCCBD" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000320000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
@@ -49,6 +54,7 @@
    "p" : {
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x0C981F92CCCC3E4985876BC497CB9B6D" }, { "$t" : "uuid", "$b" : "0x0AFB7D7AF7FF0447AEA0FCC565D9BF11" }, { "$t" : "uuid", "$b" : "0x130764A2F6E2E84DB59F5D56967C13F7" } ],
+    "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
@@ -79,6 +85,7 @@
     "Far Plane" : { "$t" : "float", "$v" : "1000.0000", "$b" : "0x00007A44" },
     "Mode" : "ezCameraMode::PerspectiveFixedFovY",
     "Near Plane" : { "$t" : "float", "$v" : "0.2500", "$b" : "0x0000803E" },
+    "Render Pipeline" : "",
     "Usage Hint" : "ezCameraComponentUsageHint::MainView"
    }
   },
@@ -106,8 +113,7 @@
    "p" : {
     "Active" : true,
     "Materials" : [  ],
-    "Mesh" : "{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
+    "Mesh" : "{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }"
    }
   },
   {
@@ -116,6 +122,7 @@
    "p" : {
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x46E29EF620B0D447A9EF20F45DAD8895" }, { "$t" : "uuid", "$b" : "0x2B255A0D3166B0469C4D745DF6B403A8" } ],
+    "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(0.0250, 0.0250, 0.0250)", "$b" : "0xCDCCCC3CCDCCCC3CCDCCCC3C" },
@@ -130,8 +137,7 @@
    "p" : {
     "Active" : true,
     "Materials" : [  ],
-    "Mesh" : "{ cea3567e-6d36-418f-9259-f2e157979bcc }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
+    "Mesh" : "{ cea3567e-6d36-418f-9259-f2e157979bcc }"
    }
   },
   {
@@ -157,9 +163,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Scene",
-    "Dependencies" : "",
+    "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x5D079F69E049C14CAE6B2A2B47BE2858" },
-    "Hash" : { "$t" : "uint64", "$v" : "10493317128897976182", "$b" : "0x76577C2F55C09F91" }
+    "Hash" : { "$t" : "uint64", "$v" : "17271658954332850158", "$b" : "0xEE47B44E4F42B1EF" },
+    "References" : [ "{ 2c0adb01-ca49-4231-b10c-450af1b8fa1d }", "{ 4673a1ba-52f2-4cce-9924-b63957d980fc }", "{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }", "{ cea3567e-6d36-418f-9259-f2e157979bcc }" ]
    }
   },
   {
@@ -168,6 +175,7 @@
    "p" : {
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x6F63A764865EE946ABED25BC6DD976ED" } ],
+    "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(-1.8275, -0.0000, 1.3607)", "$b" : "0x11EDE9BF0000C0B3EC2AAE3F" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x4DDD9BB1B59F883ECB40C732A9B7763F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(0.9997, 1.0000, 0.9997)", "$b" : "0xC7EC7F3F0000803FC4EC7F3F" },
@@ -194,6 +202,7 @@
    "p" : {
     "Children" : [ { "$t" : "uuid", "$b" : "0x36EFC841A36CD14D8D08858F7236F0F3" }, { "$t" : "uuid", "$b" : "0x20661DD8F4FC2948BF927787162B7CAD" }, { "$t" : "uuid", "$b" : "0x9EF7412E8CE9DF44ABAA2868BAB9A2BB" } ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x2759BFE5AFC6BE42A57980E5FEC9C47A" }, { "$t" : "uuid", "$b" : "0xE840C06671511F47B1C0A77742CBB021" } ],
+    "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(-0.3893, 4.5296, 1.4195)", "$b" : "0xB852C7BE32F290409EB1B53F" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x00000000000000007E1B44BFBB8D243F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
@@ -201,5 +210,6 @@
     "Name" : "Ship",
     "Tags" : [  ]
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

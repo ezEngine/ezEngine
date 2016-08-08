@@ -5,9 +5,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : "Sponza/Textures/vase_hanging_diff.dds",
+    "Dependencies" : [ "Sponza/Textures/vase_hanging_diff.dds" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0xE3164B684F144B408A4C7BCE873EB91E" },
-    "Hash" : { "$t" : "uint64", "$v" : "9106001241000528758", "$b" : "0x764B1A0EE2035F7E" }
+    "Hash" : { "$t" : "uint64", "$v" : "7979665210903578380", "$b" : "0x0C4773323B77BD6E" },
+    "References" : [  ]
    }
   },
   {
@@ -31,6 +32,7 @@
     "Input 5" : "",
     "Input 6" : "",
     "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
     "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   } ],

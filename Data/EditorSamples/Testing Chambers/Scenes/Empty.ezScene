@@ -5,9 +5,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Scene",
-    "Dependencies" : "",
+    "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x0BC6B2A676541F40BB0673D2B8DE023D" },
-    "Hash" : { "$t" : "uint64", "$v" : "1866738673122147160", "$b" : "0x58FBEDCBEEFCE719" }
+    "Hash" : { "$t" : "uint64", "$v" : "2075668752048723839", "$b" : "0x7F173E8DBB41CE1C" },
+    "References" : [ "{ 42e938fb-5523-4606-8e64-6fee83dd0c7b }" ]
    }
   },
   {
@@ -66,6 +67,7 @@
     "Far Plane" : { "$t" : "float", "$v" : "1000.0000", "$b" : "0x00007A44" },
     "Mode" : "ezCameraMode::PerspectiveFixedFovY",
     "Near Plane" : { "$t" : "float", "$v" : "0.2500", "$b" : "0x0000803E" },
+    "Render Pipeline" : "",
     "Usage Hint" : "ezCameraComponentUsageHint::MainView"
    }
   } ],

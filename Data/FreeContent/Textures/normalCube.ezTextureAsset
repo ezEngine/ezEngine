@@ -5,9 +5,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : "Textures/normalCube.tga",
+    "Dependencies" : [ "Textures/normalCube.tga" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x5AC796243775BC408662D6C1A76D50BF" },
-    "Hash" : { "$t" : "uint64", "$v" : "2758845919314766963", "$b" : "0x73ECCA22BF634926" }
+    "Hash" : { "$t" : "uint64", "$v" : "5001769025140212828", "$b" : "0x5CC408886DDA6945" },
+    "References" : [  ]
    }
   },
   {
@@ -23,6 +24,7 @@
     "Input 5" : "",
     "Input 6" : "",
     "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
     "Usage" : "ezTextureUsageEnum::NormalMap"
    }
   },

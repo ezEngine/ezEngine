@@ -5,9 +5,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : "Sponza/Textures/vase_plant_diff.dds",
+    "Dependencies" : [ "Sponza/Textures/vase_plant_diff.dds" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x99D47A1320BBCF41AC844247FD165170" },
-    "Hash" : { "$t" : "uint64", "$v" : "5511640455281427999", "$b" : "0x1FC6B8CACA477D4C" }
+    "Hash" : { "$t" : "uint64", "$v" : "9365313809192681506", "$b" : "0x2280FD364A47F881" },
+    "References" : [  ]
    }
   },
   {
@@ -31,6 +32,7 @@
     "Input 5" : "",
     "Input 6" : "",
     "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
     "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   } ],

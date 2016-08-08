@@ -5,9 +5,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture Cube",
-    "Dependencies" : "Cubemaps/SanFranciscoBeach.dds",
+    "Dependencies" : [ "Cubemaps/SanFranciscoBeach.dds" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x5DB76CBA6757094599C742EE599607A3" },
-    "Hash" : { "$t" : "uint64", "$v" : "14362092621005848448", "$b" : "0x80FF4F2A256750C7" }
+    "Hash" : { "$t" : "uint64", "$v" : "2226901229816081203", "$b" : "0x336B11B1DE8AE71E" },
+    "References" : [  ]
    }
   },
   {
@@ -23,6 +24,7 @@
     "Input 5" : "",
     "Input 6" : "",
     "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
     "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   },

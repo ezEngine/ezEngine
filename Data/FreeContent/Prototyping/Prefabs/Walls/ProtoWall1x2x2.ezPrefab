@@ -39,9 +39,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Prefab",
-    "Dependencies" : "",
+    "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x15CC7B6B46BA93479E224051D11482C8" },
-    "Hash" : { "$t" : "uint64", "$v" : "12608935442748347659", "$b" : "0x0B15D9ECFAEFFBAE" }
+    "Hash" : { "$t" : "uint64", "$v" : "12608935442748347659", "$b" : "0x0B15D9ECFAEFFBAE" },
+    "References" : [ "{ d41e8906-09ce-4a3a-8bf2-883e28ed9f1d }", "{ f7c921a1-51dd-4f43-b8c6-b8c0210bd198 }" ]
    }
   },
   {

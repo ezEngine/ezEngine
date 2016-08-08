@@ -29,9 +29,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Prefab",
-    "Dependencies" : "",
+    "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0xFB38E942235506468E646FEE83DD0C7B" },
-    "Hash" : { "$t" : "uint64", "$v" : "13187045142999130741", "$b" : "0x75E28089B0CB01B7" }
+    "Hash" : { "$t" : "uint64", "$v" : "13187045142999130741", "$b" : "0x75E28089B0CB01B7" },
+    "References" : [ "Materials/BaseMaterials/MissingPrefab.ezMaterial", "Meshes/MissingMesh.ezMesh" ]
    }
   },
   {

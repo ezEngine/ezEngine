@@ -19,9 +19,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Collision Mesh",
-    "Dependencies" : "FleetOps/Calypso/calypso.obj",
+    "Dependencies" : [ "FleetOps/Calypso/calypso.obj" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0xFAA0D158FE023644A56007CB68AA8CCE" },
-    "Hash" : { "$t" : "uint64", "$v" : "3682525799639034974", "$b" : "0x5E2CB233B4F51A33" }
+    "Hash" : { "$t" : "uint64", "$v" : "3682525799639034974", "$b" : "0x5E2CB233B4F51A33" },
+    "References" : [ "{ f1f2d899-331b-47f8-bbe3-e520a23b481e }" ]
    }
   },
   {
@@ -39,5 +40,6 @@
     "Label" : "DefaultMaterial",
     "Resource" : "{ f1f2d899-331b-47f8-bbe3-e520a23b481e }"
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

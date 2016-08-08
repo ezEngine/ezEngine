@@ -12,6 +12,7 @@
     "Input 5" : "",
     "Input 6" : "",
     "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
     "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   },
@@ -21,9 +22,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : "Sponza/Textures/spnza_bricks_a_diff.dds",
+    "Dependencies" : [ "Sponza/Textures/spnza_bricks_a_diff.dds" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x276046DA322BBB46ADCF0DF0C2727ACA" },
-    "Hash" : { "$t" : "uint64", "$v" : "10211697338051653144", "$b" : "0x18EE5E04A03CB78D" }
+    "Hash" : { "$t" : "uint64", "$v" : "6755743494427415849", "$b" : "0x2995002BEA38C15D" },
+    "References" : [  ]
    }
   },
   {

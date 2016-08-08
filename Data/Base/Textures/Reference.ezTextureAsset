@@ -12,6 +12,7 @@
     "Input 5" : "",
     "Input 6" : "",
     "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
     "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   },
@@ -29,9 +30,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : "Textures/Reference_D.dds",
+    "Dependencies" : [ "Textures/Reference_D.dds" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x890270AAAE9AC54E81EA9C381EC8309E" },
-    "Hash" : { "$t" : "uint64", "$v" : "11190788054257014390", "$b" : "0x7696ACAA71AA4D9B" }
+    "Hash" : { "$t" : "uint64", "$v" : "16166257190377300351", "$b" : "0x7F210B1C43155AE0" },
+    "References" : [  ]
    }
   } ],
  "Types" : [  ]

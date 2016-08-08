@@ -12,6 +12,7 @@
     "Input 5" : "",
     "Input 6" : "",
     "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
     "Usage" : "ezTextureUsageEnum::NormalMap"
    }
   },
@@ -29,9 +30,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : "Textures/NeutralNormal.tga",
+    "Dependencies" : [ "Textures/NeutralNormal.tga" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x9028C84DE339FC4BA97D86A984D4D3DB" },
-    "Hash" : { "$t" : "uint64", "$v" : "18108448328669387663", "$b" : "0x8FDBDAEFCF214EFB" }
+    "Hash" : { "$t" : "uint64", "$v" : "18171684461863066713", "$b" : "0x595CD587BDCA2EFC" },
+    "References" : [  ]
    }
   } ],
  "Types" : [  ]

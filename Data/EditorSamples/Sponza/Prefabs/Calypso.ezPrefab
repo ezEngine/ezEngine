@@ -5,6 +5,7 @@
    "p" : {
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x8DF6F61CA127CFF9F823965B498DE5A9" }, { "$t" : "uuid", "$b" : "0xED29BC9CFFCD44FDF5229F7060B1A957" } ],
+    "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(4.4000, 0.0000, -4.0000)", "$b" : "0xCDCC8C4000000000000080C0" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
@@ -19,9 +20,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Prefab",
-    "Dependencies" : "",
+    "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0xEDEF6A568D21274AB21D4CE1FCD4CBF5" },
-    "Hash" : { "$t" : "uint64", "$v" : "15713181153838367038", "$b" : "0x3E01E6E5016F10DA" }
+    "Hash" : { "$t" : "uint64", "$v" : "7089335424779148268", "$b" : "0xECDB8D0702616262" },
+    "References" : [ "{ 58d1a0fa-02fe-4436-a560-07cb68aa8cce }", "{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }" ]
    }
   },
   {
@@ -38,8 +40,7 @@
    "p" : {
     "Active" : true,
     "Materials" : [  ],
-    "Mesh" : "{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }",
-    "Mesh Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
+    "Mesh" : "{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }"
    }
   },
   {
@@ -47,7 +48,9 @@
    "t" : "ezPxStaticActorComponent",
    "p" : {
     "Active" : true,
+    "Collision Layer" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
     "Collision Mesh" : "{ 58d1a0fa-02fe-4436-a560-07cb68aa8cce }"
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

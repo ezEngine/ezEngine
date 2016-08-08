@@ -5,9 +5,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : "Sponza/Textures/sponza_flagpole_diff.dds",
+    "Dependencies" : [ "Sponza/Textures/sponza_flagpole_diff.dds" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x51C40756F0D86E478B654BA6305707E4" },
-    "Hash" : { "$t" : "uint64", "$v" : "7434418735628312148", "$b" : "0x545EA268735C2C67" }
+    "Hash" : { "$t" : "uint64", "$v" : "1552839000319929510", "$b" : "0xA62C71EFD7CA8C15" },
+    "References" : [  ]
    }
   },
   {
@@ -31,6 +32,7 @@
     "Input 5" : "",
     "Input 6" : "",
     "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
     "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   } ],

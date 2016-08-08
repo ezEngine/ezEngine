@@ -51,9 +51,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Mesh",
-    "Dependencies" : "Trees/Tree5.obj",
+    "Dependencies" : [ "Trees/Tree5.obj" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x95A7BE5B5803D84D86A9C277F7A59F53" },
-    "Hash" : { "$t" : "uint64", "$v" : "2576320415747484333", "$b" : "0xAD2A37A8C4EDC023" }
+    "Hash" : { "$t" : "uint64", "$v" : "2576320415747484333", "$b" : "0xAD2A37A8C4EDC023" },
+    "References" : [ "{ b700025c-5c7f-4247-8157-f409369ef16b }" ]
    }
   },
   {
@@ -63,5 +64,6 @@
     "Label" : "Sub_Branches_1_Branch",
     "Resource" : "{ b700025c-5c7f-4247-8157-f409369ef16b }"
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

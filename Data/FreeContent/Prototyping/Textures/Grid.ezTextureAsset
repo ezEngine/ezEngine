@@ -5,9 +5,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : "Prototyping/Textures/Grid.tga",
+    "Dependencies" : [ "Prototyping/Textures/Grid.tga" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x28FC62F91B665C48A527C997E239A3F0" },
-    "Hash" : { "$t" : "uint64", "$v" : "18137743909167741377", "$b" : "0xC1B9F2CCFC35B6FB" }
+    "Hash" : { "$t" : "uint64", "$v" : "18137743909167741377", "$b" : "0xC1B9F2CCFC35B6FB" },
+    "References" : [  ]
    }
   },
   {

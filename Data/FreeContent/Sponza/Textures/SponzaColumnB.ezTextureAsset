@@ -13,9 +13,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : "Sponza/Textures/sponza_column_b_diff.dds",
+    "Dependencies" : [ "Sponza/Textures/sponza_column_b_diff.dds" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x3051E271B5BCFB4B90A428FCFA3F477D" },
-    "Hash" : { "$t" : "uint64", "$v" : "5047604575065655243", "$b" : "0xCBC76C1F9EB10C46" }
+    "Hash" : { "$t" : "uint64", "$v" : "3429358239380212137", "$b" : "0xA909D1312687972F" },
+    "References" : [  ]
    }
   },
   {
@@ -31,6 +32,7 @@
     "Input 5" : "",
     "Input 6" : "",
     "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
     "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   } ],

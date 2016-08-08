@@ -5,9 +5,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : "Trees/Textures/Leaves/Default_D.dds",
+    "Dependencies" : [ "Trees/Textures/Leaves/Default_D.dds" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0xB95FB8D6BB01D543BE3F4C4DA87A0221" },
-    "Hash" : { "$t" : "uint64", "$v" : "3022306549474850112", "$b" : "0x40F5C83BCB63F129" }
+    "Hash" : { "$t" : "uint64", "$v" : "5222704332774656318", "$b" : "0x3E49ED69EBC57A48" },
+    "References" : [  ]
    }
   },
   {
@@ -31,6 +32,7 @@
     "Input 5" : "",
     "Input 6" : "",
     "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
     "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   } ],

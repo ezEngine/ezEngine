@@ -5,9 +5,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : "FleetOps/Calypso/Calypso_N.dds",
+    "Dependencies" : [ "FleetOps/Calypso/Calypso_N.dds" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0xE72A98CADECFD8439432640B8D191559" },
-    "Hash" : { "$t" : "uint64", "$v" : "13084077405429051310", "$b" : "0xAE2F50EC13FB93B5" }
+    "Hash" : { "$t" : "uint64", "$v" : "11609970547516886635", "$b" : "0x6BCE7D61B3E61EA1" },
+    "References" : [  ]
    }
   },
   {
@@ -31,6 +32,7 @@
     "Input 5" : "",
     "Input 6" : "",
     "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
     "Usage" : "ezTextureUsageEnum::NormalMap"
    }
   } ],

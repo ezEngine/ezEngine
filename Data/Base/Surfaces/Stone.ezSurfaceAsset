@@ -5,9 +5,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Surface",
-    "Dependencies" : "",
+    "Dependencies" : [ "{ 0a105955-e069-4523-80ce-7b9867bde687 }" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x1333BF14F3899246873CD127980BF748" },
-    "Hash" : { "$t" : "uint64", "$v" : "15071459564313386065", "$b" : "0x511C90299F9428D1" }
+    "Hash" : { "$t" : "uint64", "$v" : "15071459564313386065", "$b" : "0x511C90299F9428D1" },
+    "References" : [ "{ 0a105955-e069-4523-80ce-7b9867bde687 }" ]
    }
   },
   {
@@ -28,5 +29,6 @@
    "p" : {
     "Children" : [ { "$t" : "uuid", "$b" : "0xB32C63C0EA42824AAC55F24CBC878DFB" } ]
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

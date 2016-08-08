@@ -5,9 +5,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Sound Bank",
-    "Dependencies" : "Sound/Soundbanks/Desktop/FleetOps.bank",
+    "Dependencies" : [ "Sound/Soundbanks/Desktop/FleetOps.bank" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0xB54157270E4F5F47B6075B57A2CFA98A" },
-    "Hash" : { "$t" : "uint64", "$v" : "17351689413370387906", "$b" : "0xC21DD9989695CDF0" }
+    "Hash" : { "$t" : "uint64", "$v" : "17351689413370387906", "$b" : "0xC21DD9989695CDF0" },
+    "References" : [  ]
    }
   },
   {
@@ -24,5 +25,6 @@
    "p" : {
     "Children" : [ { "$t" : "uuid", "$b" : "0x101593CF14F6904AB4E44C3DB673BF7E" } ]
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

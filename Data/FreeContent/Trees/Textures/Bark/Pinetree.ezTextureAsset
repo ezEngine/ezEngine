@@ -13,9 +13,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : "Trees/Textures/Bark/deviantart.com/Pinetree_D.dds",
+    "Dependencies" : [ "Trees/Textures/Bark/deviantart.com/Pinetree_D.dds" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0xF6FEEC78ABAD264BBD76DA926D92F24A" },
-    "Hash" : { "$t" : "uint64", "$v" : "802612827619274950", "$b" : "0xC6306B421D74230B" }
+    "Hash" : { "$t" : "uint64", "$v" : "11473223155913576059", "$b" : "0x7BCE032DAC13399F" },
+    "References" : [  ]
    }
   },
   {
@@ -31,6 +32,7 @@
     "Input 5" : "",
     "Input 6" : "",
     "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
     "Usage" : "ezTextureUsageEnum::Diffuse"
    }
   } ],

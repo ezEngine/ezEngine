@@ -721,7 +721,8 @@
     "Far Plane" : { "$t" : "float", "$v" : "1000.0000", "$b" : "0x00007A44" },
     "Mode" : "ezCameraMode::PerspectiveFixedFovY",
     "Near Plane" : { "$t" : "float", "$v" : "0.2500", "$b" : "0x0000803E" },
-    "Usage Hint" : "ezCameraComponentUsageHint::Player"
+    "Render Pipeline" : "",
+    "Usage Hint" : "ezCameraComponentUsageHint::None"
    }
   },
   {
@@ -931,9 +932,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Scene",
-    "Dependencies" : "",
+    "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x4CD85FC44C71C247BFA61C213B20EC51" },
-    "Hash" : { "$t" : "uint64", "$v" : "120746082043170264", "$b" : "0xD80D3400ECF9AC01" }
+    "Hash" : { "$t" : "uint64", "$v" : "13849294956034047292", "$b" : "0x3CBD04C4629432C0" },
+    "References" : [ "{ 124837c3-3748-46bd-bd34-c38be3cdcf7c }", "{ 1ce6f3e5-326b-4dce-8cef-03cc8c06b40b }", "{ 3ebe2790-7cc4-40c8-bde6-e760b96b2636 }", "{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }", "{ 94ac1de9-5cbe-4581-a57c-7caf78ab7294 }", "{ 95f9db13-7fa3-4832-b349-4e00a23b3b10 }", "{ a2e664de-7b3e-47d8-99d3-d058896f7255 }", "{ ac0755c6-f78d-40ec-bfaa-55f2be674f87 }", "{ b727ba61-e20a-42d7-a170-860ede23e85d }", "{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }", "{ d65cd59b-50e0-44f3-aefb-a88943b81900 }", "{ e6c495bb-9dd5-43ef-9f20-618828f20781 }" ]
    }
   },
   {
@@ -3844,7 +3846,7 @@
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x0B01B0D223B1524AAB2D60EC45DADC3D" },
+   "#" : { "$t" : "uuid", "$b" : "0x309E03F7AD4601867B90342963ADB416" },
    "t" : "ezCategoryAttribute",
    "p" : {
     "Category" : "Sound"
@@ -3868,7 +3870,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x1398A761712F0FED44F4E230519668D1" },
    "t" : "ezReflectedTypeDescriptor",
    "p" : {
-    "Attributes" : [ { "$t" : "uuid", "$b" : "0x0B01B0D223B1524AAB2D60EC45DADC3D" } ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0x309E03F7AD4601867B90342963ADB416" } ],
     "Flags" : "ezTypeFlags::Abstract",
     "ParentTypeName" : "ezComponent",
     "PluginName" : "ezFmodPlugin",

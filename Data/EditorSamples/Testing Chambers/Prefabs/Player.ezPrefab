@@ -9,7 +9,8 @@
     "Far Plane" : { "$t" : "float", "$v" : "1000.0000", "$b" : "0x00007A44" },
     "Mode" : "ezCameraMode::PerspectiveFixedFovY",
     "Near Plane" : { "$t" : "float", "$v" : "0.2500", "$b" : "0x0000803E" },
-    "Usage Hint" : "ezCameraComponentUsageHint::Player"
+    "Render Pipeline" : "",
+    "Usage Hint" : "ezCameraComponentUsageHint::None"
    }
   },
   {
@@ -93,9 +94,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Prefab",
-    "Dependencies" : "",
+    "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0xD6EFE7215E6D034FA4D17A430CEB0F8A" },
-    "Hash" : { "$t" : "uint64", "$v" : "4624524552594080186", "$b" : "0xBA41712C949C2D40" }
+    "Hash" : { "$t" : "uint64", "$v" : "15814849410997163393", "$b" : "0x8115C8A6BFA179DB" },
+    "References" : [  ]
    }
   } ],
  "Types" : [ {
@@ -111,7 +113,7 @@
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x82490C799FD9A64BBE624D13E1625093" },
+   "#" : { "$t" : "uuid", "$b" : "0x309E03F7AD4601867B90342963ADB416" },
    "t" : "ezCategoryAttribute",
    "p" : {
     "Category" : "Sound"
@@ -135,7 +137,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x1398A761712F0FED44F4E230519668D1" },
    "t" : "ezReflectedTypeDescriptor",
    "p" : {
-    "Attributes" : [ { "$t" : "uuid", "$b" : "0x82490C799FD9A64BBE624D13E1625093" } ],
+    "Attributes" : [ { "$t" : "uuid", "$b" : "0x309E03F7AD4601867B90342963ADB416" } ],
     "Flags" : "ezTypeFlags::Abstract",
     "ParentTypeName" : "ezComponent",
     "PluginName" : "ezFmodPlugin",

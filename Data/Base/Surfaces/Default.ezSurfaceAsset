@@ -5,9 +5,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Surface",
-    "Dependencies" : "",
+    "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x5559100A69E0234580CE7B9867BDE687" },
-    "Hash" : { "$t" : "uint64", "$v" : "9384612861308419083", "$b" : "0x0BBCD9F0ACD73C82" }
+    "Hash" : { "$t" : "uint64", "$v" : "9384612861308419083", "$b" : "0x0BBCD9F0ACD73C82" },
+    "References" : [ "{ 542224c0-bfa2-48dc-8d02-cde130b82a41 }" ]
    }
   },
   {
@@ -38,5 +39,6 @@
     "Prefab" : "{ 542224c0-bfa2-48dc-8d02-cde130b82a41 }",
     "Type" : "BulletImpact"
    }
-  } ]
+  } ],
+ "Types" : [  ]
 }

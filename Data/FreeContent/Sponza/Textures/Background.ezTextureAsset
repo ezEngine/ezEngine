@@ -5,9 +5,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : "Sponza/Textures/background_diff.dds",
+    "Dependencies" : [ "Sponza/Textures/background_diff.dds" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0xE9B59EC4C3C5764488DCE6CE653760A5" },
-    "Hash" : { "$t" : "uint64", "$v" : "2482140365830550088", "$b" : "0x48F2FC0383557222" }
+    "Hash" : { "$t" : "uint64", "$v" : "2482140365830550088", "$b" : "0x48F2FC0383557222" },
+    "References" : [  ]
    }
   },
   {
