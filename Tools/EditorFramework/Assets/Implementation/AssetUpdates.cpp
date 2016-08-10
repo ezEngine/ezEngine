@@ -287,6 +287,8 @@ void ezAssetCurator::UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezS
       if (!bAdd)
       {
         unresolved.Remove(std::tuple<ezUuid, ezUuid>(assetGuid, guid));
+        if (pInfo == nullptr)
+          continue;
       }
 
       if (pInfo == nullptr && bAdd)
