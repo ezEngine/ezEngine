@@ -8,7 +8,7 @@
 
 float3 DiffuseLambert( float3 diffuseColor )
 {
-	return diffuseColor * (1.0f / PI);
+	return diffuseColor;
 }
 
 float SpecularGGX( float roughness, float NdotH )
@@ -22,7 +22,7 @@ float SpecularGGX( float roughness, float NdotH )
 	float m = roughness * roughness;
 	float m2 = m * m;
 	float f = ( NdotH * m2 - NdotH ) * NdotH + 1.0f;
-	return m2 / ( PI * f * f );
+	return m2 / ( f * f );
 }
 
 float VisibilitySmithJointApprox( float roughness, float NdotV, float NdotL )
@@ -38,7 +38,7 @@ float3 FresnelSchlick( float3 f0, float u )
 	return f0 + (1.0f - f0) * pow(1.0f - u, 5.0f);
 }
 
-// note that N.L is included in the light attenuation which is applied later
+// note that N.L * 1/PI is already included in the light attenuation which is applied later
 float3 DefaultShading( MaterialData matData, float3 L, float3 V, float2 diffSpecEnergy )
 {
 	float3 N = matData.worldNormal;

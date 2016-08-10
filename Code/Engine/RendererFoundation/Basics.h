@@ -3,6 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Types/Id.h>
 #include <Foundation/Types/RefCounted.h>
+#include <Foundation/Reflection/Reflection.h>
 
 // Configure the DLL Import/Export Define
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
@@ -112,8 +113,10 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALShaderStage
   static const char* Names[ENUM_COUNT];
 };
 
-struct ezGALMSAASampleCount
+struct EZ_RENDERERFOUNDATION_DLL ezGALMSAASampleCount
 {
+  typedef ezUInt8 StorageType;
+
   enum Enum
   {
     None = 1,
@@ -121,9 +124,13 @@ struct ezGALMSAASampleCount
     FourSamples = 4,
     EightSamples = 8,
 
+    Default = None,
+
     ENUM_COUNT = 4
   };
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERFOUNDATION_DLL, ezGALMSAASampleCount);
 
 struct ezGALTextureType
 {

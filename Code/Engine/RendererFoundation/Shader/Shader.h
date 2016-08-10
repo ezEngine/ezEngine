@@ -7,6 +7,7 @@
 class EZ_RENDERERFOUNDATION_DLL ezGALShader : public ezGALObject<ezGALShaderCreationDescription>
 {
 public:
+  virtual void SetDebugName(const char* szName) const = 0;
 
 protected:
 

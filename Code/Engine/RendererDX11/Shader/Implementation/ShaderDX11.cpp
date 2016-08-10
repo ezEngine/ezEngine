@@ -21,6 +21,41 @@ ezGALShaderDX11::~ezGALShaderDX11()
 {
 }
 
+void ezGALShaderDX11::SetDebugName(const char* szName) const
+{
+  ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szName);
+
+  if (m_pVertexShader != nullptr)
+  {
+    m_pVertexShader->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
+  }
+
+  if (m_pHullShader != nullptr)
+  {
+    m_pHullShader->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
+  }
+
+  if (m_pDomainShader != nullptr)
+  {
+    m_pDomainShader->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
+  }
+
+  if (m_pGeometryShader != nullptr)
+  {
+    m_pGeometryShader->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
+  }
+
+  if (m_pPixelShader != nullptr)
+  {
+    m_pPixelShader->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
+  }
+
+  if (m_pComputeShader != nullptr)
+  {
+    m_pComputeShader->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
+  }
+}
+
 ezResult ezGALShaderDX11::InitPlatform(ezGALDevice* pDevice)
 {
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);

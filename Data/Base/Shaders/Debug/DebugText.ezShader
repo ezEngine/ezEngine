@@ -62,7 +62,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
 	VS_OUT RetVal;
 	RetVal.Position = float4(screenPosition, 0.0, 1.0);
 	RetVal.TexCoords = (float2(texCoordX, texCoordY) + vertexPosition) * invAtlasSize;
-	RetVal.Color = uintToFloat4(data.color);
+	RetVal.Color = UIntToFloat4(data.color);
   
 	return RetVal;
 }

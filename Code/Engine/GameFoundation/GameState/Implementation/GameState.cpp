@@ -43,8 +43,7 @@ void ezGameState::OnActivation(ezWorld* pWorld)
   CreateMainWindow();
 
   const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_hMainSwapChain);
-  SetupMainView(ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(pSwapChain->GetBackBufferTexture()), 
-    ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(pSwapChain->GetDepthStencilBufferTexture()));
+  SetupMainView(ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(pSwapChain->GetBackBufferTexture()));
 
   ConfigureMainCamera();
 
@@ -73,7 +72,7 @@ void ezGameState::CreateMainWindow()
   ezScreen::EnumerateScreens(screens);
 
   m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow);
-  m_hMainSwapChain = GetApplication()->AddWindow(m_pMainWindow);
+  m_hMainSwapChain = GetApplication()->AddWindow(m_pMainWindow, ezGameApplication::COLOR_LINEAR);
 }
 
 void ezGameState::DestroyMainWindow()
@@ -99,17 +98,16 @@ void ezGameState::ConfigureInputActions()
 
 }
 
-void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV)
+void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer)
 {
   EZ_LOG_BLOCK("SetupMainView");
 
   m_pMainView = ezRenderLoop::CreateView("MainView");
   ezRenderLoop::AddMainView(m_pMainView);
 
-  ezGALRenderTagetSetup RTS;
-  RTS.SetRenderTarget(0, hBackBuffer)
-    .SetDepthStencilTarget(hDSV);
-  m_pMainView->SetRenderTargetSetup(RTS);
+  ezGALRenderTagetSetup renderTargetSetup;
+  renderTargetSetup.SetRenderTarget(0, hBackBuffer);
+  m_pMainView->SetRenderTargetSetup(renderTargetSetup);
 
   m_pMainView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>("{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"));
 

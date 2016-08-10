@@ -21,12 +21,6 @@ ezResult ezGALSwapChain::DeInitPlatform(ezGALDevice* pDevice)
     m_hBackBufferTexture.Invalidate();
   }
 
-  if (!m_hDepthStencilBufferTexture.IsInvalidated())
-  {
-    pDevice->DestroyTexture(m_hDepthStencilBufferTexture);
-    m_hDepthStencilBufferTexture.Invalidate();
-  }
-
   return EZ_SUCCESS;
 }
 

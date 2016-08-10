@@ -17,6 +17,8 @@ ezGALSwapChainDX11::~ezGALSwapChainDX11()
 
 ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
 {
+  ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
+
   DXGI_SWAP_CHAIN_DESC SwapChainDesc;
   SwapChainDesc.BufferCount = m_Description.m_bDoubleBuffered ? 2 : 1;
   SwapChainDesc.BufferUsage = DXGI_USAGE_BACK_BUFFER | DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -27,16 +29,12 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   SwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; /// \todo The mode switch needs to be handled (ResizeBuffers + communication with engine)
 
   /// \todo Get from enumeration of available modes
-  /// \todo (Find via format table)
-  SwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+  SwapChainDesc.BufferDesc.Format = pDXDevice->GetFormatLookupTable().GetFormatInfo(m_Description.m_BackBufferFormat).m_eRenderTarget;
   SwapChainDesc.BufferDesc.Width = m_Description.m_pWindow->GetClientAreaSize().width;
   SwapChainDesc.BufferDesc.Height = m_Description.m_pWindow->GetClientAreaSize().height;
   SwapChainDesc.BufferDesc.RefreshRate.Numerator = 60; SwapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
   SwapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
   SwapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-
-
-  ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
 
   if (FAILED(pDXDevice->GetDXGIFactory()->CreateSwapChain(pDXDevice->GetDXDevice(), &SwapChainDesc, &m_pDXSwapChain)))
   {
@@ -69,20 +67,6 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
     // And create the ez texture object wrapping the backbuffer texture
     m_hBackBufferTexture = pDXDevice->CreateTexture(TexDesc);
     EZ_ASSERT_RELEASE(!m_hBackBufferTexture.IsInvalidated(), "Couldn't create backbuffer texture object!");
-
-    // Optionally create depth buffer texture.
-    if (m_Description.m_bCreateDepthStencilBuffer)
-    {
-      ezGALTextureCreationDescription DepthStencilTexDesc;
-      DepthStencilTexDesc.m_uiWidth = SwapChainDesc.BufferDesc.Width;
-      DepthStencilTexDesc.m_uiHeight = SwapChainDesc.BufferDesc.Height;
-      DepthStencilTexDesc.m_Format = m_Description.m_DepthStencilBufferFormat;
-      DepthStencilTexDesc.m_SampleCount = m_Description.m_SampleCount;
-      DepthStencilTexDesc.m_bAllowShaderResourceView = true;
-      DepthStencilTexDesc.m_bCreateRenderTarget = true;
-      m_hDepthStencilBufferTexture = pDXDevice->CreateTexture(DepthStencilTexDesc);
-      EZ_ASSERT_RELEASE(!m_hDepthStencilBufferTexture.IsInvalidated(), "Couldn't create depth-stencil texture object!");
-    }
 
     return EZ_SUCCESS;
   }

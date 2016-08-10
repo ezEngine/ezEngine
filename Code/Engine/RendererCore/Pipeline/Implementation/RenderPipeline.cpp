@@ -338,11 +338,6 @@ bool ezRenderPipeline::SortPasses()
           {
             candidates.PushBack(pTargetPass);
           }
-
-          if (!usable.Contains(pTargetPass) && AreInputDescriptionsAvailable(pTargetPass, done))
-          {
-            usable.PushBack(pTargetPass);
-          }
         }
       }
     }
@@ -353,7 +348,7 @@ bool ezRenderPipeline::SortPasses()
     for (ezInt32 i = (ezInt32)candidates.GetCount() - 1; i >= 0; i--)
     {
       ezRenderPipelinePass* pCandidatePass = candidates[i];
-      if (ArePassThroughInputsDone(pCandidatePass, done))
+      if (AreInputDescriptionsAvailable(pCandidatePass, done) && ArePassThroughInputsDone(pCandidatePass, done))
       {
         usable.PushBack(pCandidatePass);
         candidates.RemoveAt(i);
@@ -816,6 +811,10 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
   gc.WorldToScreenMatrix = pViewData->m_ViewProjectionMatrix;
   gc.ScreenToWorldMatrix = pViewData->m_InverseViewProjectionMatrix;
   gc.Viewport = ezVec4(pViewData->m_ViewPortRect.x, pViewData->m_ViewPortRect.y, pViewData->m_ViewPortRect.width, pViewData->m_ViewPortRect.height);
+
+  // Wrap around to prevent floating point issues. Wrap around is dividable by all whole numbers up to 11.
+  gc.GlobalTime = (float)ezMath::Mod(ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds(), 20790.0); 
+  gc.DeltaTime = (float)ezClock::GetGlobalClock()->GetTimeDiff().GetSeconds();
 
   ezRenderViewContext renderViewContext;
   renderViewContext.m_pCamera = pCamera;

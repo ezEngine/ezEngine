@@ -2,9 +2,12 @@
 #pragma once
 
 #include <RendererFoundation/Basics.h>
+#include <Foundation/Reflection/Reflection.h>
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
 {
+  typedef ezUInt32 StorageType;
+
   enum Enum
   {
     Invalid = 0,
@@ -93,7 +96,9 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALResourceFormat
     BC7UNormalized,
     BC7UNormalizedsRGB,
 
-    ENUM_COUNT
+    ENUM_COUNT,
+
+    Default = RGBAUByteNormalizedsRGB
   };
 
 
@@ -117,6 +122,8 @@ private:
 
   static const ezUInt8 s_ChannelCount[ezGALResourceFormat::ENUM_COUNT];
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERFOUNDATION_DLL, ezGALResourceFormat);
 
 
 template<typename NativeFormatType, NativeFormatType InvalidFormat> class ezGALFormatLookupEntry

@@ -10,6 +10,8 @@ class EZ_RENDERERDX11_DLL ezGALBufferDX11 : public ezGALBuffer
 {
 public:
 
+  void SetDebugName(const char* szName) const override;
+
   EZ_FORCE_INLINE ID3D11Buffer* GetDXBuffer() const;
 
   EZ_FORCE_INLINE DXGI_FORMAT GetIndexFormat() const;

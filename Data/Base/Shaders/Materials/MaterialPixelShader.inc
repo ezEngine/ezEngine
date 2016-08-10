@@ -2,7 +2,7 @@
 
 #define USE_WORLDPOS
 
-#include <Shaders/Materials/Lighting.inc>
+#include <Shaders/Common/Lighting.inc>
 #include <Shaders/Materials/MaterialInterpolator.inc>
 
 float3 GetNormal(PS_IN Input);
@@ -101,7 +101,7 @@ MaterialData FillMaterialData(PS_IN Input)
 		
 			if (RenderPass == EDITOR_RENDER_PASS_PICKING)
 			{
-				return uintToFloat4(GetInstanceData(Input).GameObjectID);
+				return UIntToFloat4(GetInstanceData(Input).GameObjectID);
 			}
 			else if (RenderPass == EDITOR_RENDER_PASS_TEXCOORDS_UV0)
 			{
@@ -131,7 +131,7 @@ MaterialData FillMaterialData(PS_IN Input)
 		#elif RENDER_PASS == RENDER_PASS_WIREFRAME
 			if (RenderPass == WIREFRAME_RENDER_PASS_PICKING)
 			{
-				return uintToFloat4(GetInstanceData(Input).GameObjectID);
+				return UIntToFloat4(GetInstanceData(Input).GameObjectID);
 			}
 			else if (RenderPass == WIREFRAME_RENDER_PASS_MONOCHROME)
 			{

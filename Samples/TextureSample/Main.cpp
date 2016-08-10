@@ -169,8 +169,6 @@ public:
       DeviceInit.m_bDebugDevice = false; // On Windows 10 this makes device creation fail :-(
       DeviceInit.m_PrimarySwapChainDescription.m_pWindow = m_pWindow;
       DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = ezGALMSAASampleCount::None;
-      DeviceInit.m_PrimarySwapChainDescription.m_bCreateDepthStencilBuffer = true;
-      DeviceInit.m_PrimarySwapChainDescription.m_DepthStencilBufferFormat = ezGALResourceFormat::D24S8;
       DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
       DeviceInit.m_PrimarySwapChainDescription.m_bVerticalSynchronization = true;
 
@@ -188,9 +186,17 @@ public:
     {
       ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
       const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(hPrimarySwapChain);
+
+      ezGALTextureCreationDescription texDesc;
+      texDesc.m_uiWidth = g_uiWindowWidth;
+      texDesc.m_uiHeight = g_uiWindowHeight;
+      texDesc.m_Format = ezGALResourceFormat::D24S8;
+      texDesc.m_bCreateRenderTarget = true;
+
+      m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
       
       m_hBBRTV = m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
-      m_hBBDSV = m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetDepthStencilBufferTexture());
+      m_hBBDSV = m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture);
     }
 
     // Create Rasterizer State
@@ -366,6 +372,9 @@ public:
 
   void BeforeCoreShutdown() override
   {
+    m_pDevice->DestroyTexture(m_hDepthStencilTexture);
+    m_hDepthStencilTexture.Invalidate();
+
     m_hMaterial.Invalidate();
     m_hQuadMeshBuffer.Invalidate();
 
@@ -444,6 +453,7 @@ private:
 
   ezGALRenderTargetViewHandle m_hBBRTV;
   ezGALRenderTargetViewHandle m_hBBDSV;
+  ezGALTextureHandle m_hDepthStencilTexture;
 
   ezGALRasterizerStateHandle m_hRasterizerState;
   ezGALDepthStencilStateHandle m_hDepthStencilState;

@@ -19,11 +19,9 @@ struct ezGALSwapChainCreationDescription : public ezHashableStruct<ezGALSwapChai
 
   ezGALMSAASampleCount::Enum m_SampleCount;
   ezGALResourceFormat::Enum m_BackBufferFormat;
-  ezGALResourceFormat::Enum m_DepthStencilBufferFormat;
 
   bool m_bDoubleBuffered;
   bool m_bVerticalSynchronization;
-  bool m_bCreateDepthStencilBuffer;
   bool m_bFullscreen;
   bool m_bAllowScreenshots;
 };

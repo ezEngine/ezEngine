@@ -130,6 +130,8 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReader* St
     return res;
   }
 
+  pDevice->GetShader(m_hShader)->SetDebugName(GetResourceID());
+
   m_PermutationVars = PermutationBinary.m_PermutationVars;
 
   m_bShaderPermutationValid = true;

@@ -9,6 +9,8 @@ class ezGALTextureDX11 : public ezGALTexture
 {
 public:
 
+  void SetDebugName(const char* szName) const override;
+
   EZ_FORCE_INLINE ID3D11Resource* GetDXTexture() const;
 
   EZ_FORCE_INLINE ID3D11Resource* GetDXStagingTexture() const;

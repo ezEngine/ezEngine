@@ -21,6 +21,9 @@ public:
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
 protected:
+
+  virtual void SetupPermutationVars(const ezRenderViewContext& renderViewContext);
+
   ezPassThroughNodePin m_PinColor;
   ezPassThroughNodePin m_PinDepthStencil;
 };

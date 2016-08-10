@@ -69,15 +69,14 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
 
   ezLog::Debug("Creating Swapchain with size %u * %u", uiWidth, uiHeight);
 
-  auto hPrimarySwapChain = static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->AddWindow(&GetEditorWindow());
+  auto hPrimarySwapChain = static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->AddWindow(&GetEditorWindow(), ezGameApplication::COLOR_LINEAR);
   const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(hPrimarySwapChain);
   EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
 
   auto hSwapChainRTV = pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
-  auto hSwapChainDSV = pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetDepthStencilBufferTexture());
 
   ezGALRenderTagetSetup BackBufferRenderTargetSetup;
-  BackBufferRenderTargetSetup.SetRenderTarget(0, hSwapChainRTV).SetDepthStencilTarget(hSwapChainDSV);
+  BackBufferRenderTargetSetup.SetRenderTarget(0, hSwapChainRTV);
 
   SetupRenderTarget(BackBufferRenderTargetSetup, uiWidth, uiHeight);
 }
@@ -154,32 +153,36 @@ bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& camera, const ezB
 
 void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
-  if (m_pView != nullptr && m_pView->GetWorld() != nullptr && m_pView->GetCameraUsageHint() != pMsg->m_CameraUsageHint)
+  if (m_pView != nullptr && m_pView->GetWorld() != nullptr)
   {
-    if (const ezCameraComponentManager* pCameraManager = m_pView->GetWorld()->GetComponentManager<ezCameraComponentManager>())
+    if (pMsg->m_uiRenderMode == ezViewRenderMode::None)
     {
-      if (const ezCameraComponent* pCamera = pCameraManager->GetCameraByUsageHint(pMsg->m_CameraUsageHint))
+      if (const ezCameraComponentManager* pCameraManager = m_pView->GetWorld()->GetComponentManager<ezCameraComponentManager>())
       {
-        m_pView->SetCameraUsageHint(pMsg->m_CameraUsageHint);
-        pCamera->ApplySettingsToView(m_pView);
+        if (const ezCameraComponent* pCamera = pCameraManager->GetCameraByUsageHint(pMsg->m_CameraUsageHint))
+        {
+          m_pView->SetCameraUsageHint(pMsg->m_CameraUsageHint);
+          pCamera->ApplySettingsToView(m_pView);
+        }
       }
+    }
+    else
+    {
+      m_pView->SetRenderPipelineResource(CreateDebugRenderPipeline());
     }
   }
 
   ezCameraMode::Enum cameraMode = (ezCameraMode::Enum)pMsg->m_iCameraMode;
-  if (cameraMode == ezCameraMode::OrthoFixedWidth || cameraMode == ezCameraMode::OrthoFixedHeight)
-  {
-    m_Camera.SetCameraMode(cameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
-  }
-  else
-  {
-    m_Camera.SetCameraMode(cameraMode, m_Camera.GetFovOrDim(), m_Camera.GetNearPlane(), m_Camera.GetFarPlane());
-  }  
-
+  m_Camera.SetCameraMode(cameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
   m_Camera.LookAt(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
 }
 
 ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDefaultRenderPipeline()
 {
   return ezResourceManager::LoadResource<ezRenderPipelineResource>("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }");
+}
+
+ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDebugRenderPipeline()
+{
+  return ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }");
 }

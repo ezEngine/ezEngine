@@ -2,7 +2,7 @@
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/ObjectConstants.h>
-#include <Shaders/Materials/BRDF.inc>
+#include <Shaders/Common/BRDF.inc>
 
 float3 CalculateLighting(MaterialData matData)
 {
@@ -13,8 +13,8 @@ float3 CalculateLighting(MaterialData matData)
 	float3 L = normalize(float3(0.1, 0.3, 1.0f));
 	float3 V = normalize(CameraPosition - matData.worldPosition);
 	
-	float attenuation = saturate(dot(N, L));
-	float3 lightColor = float3(2.0f, 1.8f, 1.7f);
+	float attenuation = saturate(dot(N, L)) * (1.0f / PI);
+	float3 lightColor = float3(2.0f, 1.8f, 1.7f) * 10.0f;
 	
 	totalLight += DefaultShading(matData, L, V, float2(1.0f, 1.0f)) * lightColor * attenuation;	
 	

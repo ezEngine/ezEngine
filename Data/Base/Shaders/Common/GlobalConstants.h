@@ -34,6 +34,9 @@ CONSTANT_BUFFER(GlobalConstants, 0)
   MAT4(ScreenToWorldMatrix);
   FLOAT4(Viewport);
   
+  FLOAT1(GlobalTime);
+  FLOAT1(DeltaTime);
+  
   INT1(RenderPass);
 };
 

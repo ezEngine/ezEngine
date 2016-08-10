@@ -59,13 +59,19 @@ public:
   ///   Calls UpdateWorldsAndRender() \n
   virtual ezApplication::ApplicationExecution Run() override;
 
+  enum ColorMode
+  {
+    COLOR_SRGB,
+    COLOR_LINEAR
+  };
+
   /// \brief Adds a top level window to the application.
   /// 
   /// An ezGALSwapChain is created for that window. Run() will call ezWindowBase::ProcessWindowMessages()
   /// on all windows that have been added.
   /// Most applications should add exactly one such window to the game application.
   /// Only few applications will add zero or multiple windows.
-  ezGALSwapChainHandle AddWindow(ezWindowBase* pWindow);
+  ezGALSwapChainHandle AddWindow(ezWindowBase* pWindow, ColorMode colorMode = COLOR_SRGB);
 
   /// \brief Removes a previously added window. Destroys its swapchain. Should be called at application shutdown.
   void RemoveWindow(ezWindowBase* pWindow);

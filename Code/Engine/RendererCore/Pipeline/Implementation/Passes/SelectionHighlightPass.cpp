@@ -43,6 +43,7 @@ ezSelectionHighlightPass::ezSelectionHighlightPass(const char* szName) : ezRende
 
 ezSelectionHighlightPass::~ezSelectionHighlightPass()
 {
+  ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSamplerState);
 }
 
 bool ezSelectionHighlightPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs,
@@ -126,6 +127,7 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
     renderViewContext.m_pRenderContext->DrawMeshBuffer();
 
     // Prevent shader resource hazard in DX11
+    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SelectionDepthTexture", ezGALResourceViewHandle(), ezGALSamplerStateHandle());
     renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SceneDepthTexture", ezGALResourceViewHandle(), ezGALSamplerStateHandle());
     renderViewContext.m_pRenderContext->ApplyContextStates();
     pGALContext->Flush();

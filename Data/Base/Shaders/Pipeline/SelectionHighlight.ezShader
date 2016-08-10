@@ -23,7 +23,7 @@ SourceBlend0 = Blend_SrcAlpha
 #include <Shaders/Common/Common.inc>
 #include <Shaders/Common/GlobalConstants.h>
 
-struct VS_IN
+struct PS_IN
 {
 	float4 Position : SV_Position;
 	float2 TexCoord0 : TEXCOORD0;
@@ -37,7 +37,7 @@ SamplerState SelectionDepthTextureSampler;
 Texture2D SceneDepthTexture;
 SamplerState SceneDepthTextureSampler;
 
-float4 main(VS_IN Input) : SV_Target
+float4 main(PS_IN Input) : SV_Target
 {
 	float2 invScreenSize = 1.0f / Viewport.zw;
 	float2 coords = Input.Position.xy * invScreenSize;

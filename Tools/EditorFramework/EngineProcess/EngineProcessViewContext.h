@@ -60,6 +60,10 @@ protected:
 
   /// \brief Returns the handle to the default render pipeline.
   virtual ezRenderPipelineResourceHandle CreateDefaultRenderPipeline();
+
+  /// \brief Returns the handle to the debug render pipeline.
+  virtual ezRenderPipelineResourceHandle CreateDebugRenderPipeline();
+
   /// \brief Create the actual view.
   virtual ezView* CreateView() = 0;
 

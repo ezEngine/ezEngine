@@ -6,6 +6,9 @@
 
 class EZ_RENDERERFOUNDATION_DLL ezGALResourceBase : public ezRefCounted
 {
+public:
+  virtual void SetDebugName(const char* szName) const = 0;
+
 protected:
   friend class ezGALDevice;
 

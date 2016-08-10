@@ -16,6 +16,8 @@ class EZ_RENDERERDX11_DLL ezGALShaderDX11 : public ezGALShader
 {
 public:
 
+  void SetDebugName(const char* szName) const override;
+
   EZ_FORCE_INLINE ID3D11VertexShader* GetDXVertexShader() const;
 
   EZ_FORCE_INLINE ID3D11HullShader* GetDXHullShader() const;

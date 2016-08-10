@@ -11,8 +11,8 @@ class ezEditorRenderPass : public ezForwardRenderPass
 public:
   ezEditorRenderPass(const char* szName = "EditorRenderPass");
 
-  virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
+protected:
+  virtual void SetupPermutationVars(const ezRenderViewContext& renderViewContext) override;
 
   ezViewRenderMode::Enum m_ViewRenderMode;
 };

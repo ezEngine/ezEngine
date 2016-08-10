@@ -1,5 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
+#include <RendererFoundation/Resources/Buffer.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshBufferResource, 1, ezRTTIDefaultAllocator<ezMeshBufferResource>);
@@ -395,12 +396,21 @@ ezResourceLoadDesc ezMeshBufferResource::CreateResource(const ezMeshBufferResour
   m_uiPrimitiveCount = descriptor.GetPrimitiveCount();
   m_Topology = descriptor.GetTopology();
 
-  m_hVertexBuffer = ezGALDevice::GetDefaultDevice()->CreateVertexBuffer(descriptor.GetVertexDataSize(), descriptor.GetVertexCount(), descriptor.GetVertexBufferData());
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  m_hVertexBuffer = pDevice->CreateVertexBuffer(descriptor.GetVertexDataSize(), descriptor.GetVertexCount(), descriptor.GetVertexBufferData());
+
+  ezStringBuilder sName;
+  sName.Format("%s Vertex Buffer", GetResourceDescription().GetData());
+  pDevice->GetBuffer(m_hVertexBuffer)->SetDebugName(sName);
 
   if (descriptor.HasIndexBuffer())
   {
-    m_hIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort, 
+    m_hIndexBuffer = pDevice->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort,
       m_uiPrimitiveCount * ezGALPrimitiveTopology::VerticesPerPrimitive(m_Topology), descriptor.GetIndexBufferData());
+
+    sName.Format("%s Index Buffer", GetResourceDescription().GetData());
+    pDevice->GetBuffer(m_hIndexBuffer)->SetDebugName(sName);
   }  
 
   // we only know the memory usage here, so we write it back to the internal variable directly and then read it in UpdateMemoryUsage() again

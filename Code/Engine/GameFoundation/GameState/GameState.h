@@ -102,7 +102,7 @@ protected:
   virtual void ConfigureInputActions();
 
   /// \brief Creates a default render pipeline. Unless overridden, Activate() will do this for the main window.
-  virtual void SetupMainView(ezGALRenderTargetViewHandle hBackBuffer, ezGALRenderTargetViewHandle hDSV);
+  virtual void SetupMainView(ezGALRenderTargetViewHandle hBackBuffer);
 
   /// \brief Sets m_pMainWorld and updates m_pMainView to use that new world for rendering
   void ChangeMainWorld(ezWorld* pNewMainWorld);

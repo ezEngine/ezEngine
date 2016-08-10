@@ -16,6 +16,16 @@ ezGALTextureDX11::~ezGALTextureDX11()
 
 }
 
+void ezGALTextureDX11::SetDebugName(const char* szName) const
+{
+  ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szName);
+
+  if (m_pDXTexture != nullptr)
+  {
+    m_pDXTexture->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
+  }
+}
+
 EZ_DEFINE_AS_POD_TYPE(D3D11_SUBRESOURCE_DATA);
 
 ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)

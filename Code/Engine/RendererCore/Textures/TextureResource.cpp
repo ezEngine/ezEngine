@@ -1,5 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Textures/TextureResource.h>
+#include <RendererFoundation/Resources/Texture.h>
 #include <CoreUtils/Image/Formats/DdsFileFormat.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 
@@ -349,9 +350,12 @@ ezResourceLoadDesc ezTextureResource::CreateResource(const ezTextureResourceDesc
   ret.m_uiQualityLevelsLoadable = descriptor.m_uiQualityLevelsLoadable;
   ret.m_State = ezResourceState::Loaded;
 
-  m_hGALTexture[m_uiLoadedTextures] = ezGALDevice::GetDefaultDevice()->CreateTexture(descriptor.m_DescGAL, descriptor.m_InitialContent);
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
+  m_hGALTexture[m_uiLoadedTextures] = pDevice->CreateTexture(descriptor.m_DescGAL, descriptor.m_InitialContent);
   EZ_ASSERT_DEV(!m_hGALTexture[m_uiLoadedTextures].IsInvalidated(), "Texture Data could not be uploaded to the GPU");
+
+  pDevice->GetTexture(m_hGALTexture[m_uiLoadedTextures])->SetDebugName(GetResourceDescription());
 
   /// \todo HACK
   if (m_hSamplerState.IsInvalidated())
@@ -367,7 +371,7 @@ ezResourceLoadDesc ezTextureResource::CreateResource(const ezTextureResourceDesc
       SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Linear;
     }
 
-    m_hSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(SamplerDesc);
+    m_hSamplerState = pDevice->CreateSamplerState(SamplerDesc);
 
     EZ_ASSERT_DEV(!m_hSamplerState.IsInvalidated(), "Sampler state error");
   }

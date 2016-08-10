@@ -90,8 +90,6 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   DeviceInit.m_bDebugDevice = false;
   DeviceInit.m_PrimarySwapChainDescription.m_pWindow = m_pWindow;
   DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = ezGALMSAASampleCount::None;
-  DeviceInit.m_PrimarySwapChainDescription.m_bCreateDepthStencilBuffer = true;
-  DeviceInit.m_PrimarySwapChainDescription.m_DepthStencilBufferFormat = ezGALResourceFormat::D24S8;
   DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
   DeviceInit.m_PrimarySwapChainDescription.m_bVerticalSynchronization = true;
 
@@ -114,6 +112,14 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
     EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
 
     m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Default.ezShader");
+
+    ezGALTextureCreationDescription texDesc;
+    texDesc.m_uiWidth = uiResolutionX;
+    texDesc.m_uiHeight = uiResolutionY;
+    texDesc.m_Format = ezGALResourceFormat::D24S8;
+    texDesc.m_bCreateRenderTarget = true;
+
+    m_hDepthStencilTexture = m_pDevice->CreateTexture(texDesc);
   }
 
   ezStartup::StartupEngine();
@@ -123,6 +129,9 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
 
 void ezGraphicsTest::ShutdownRenderer()
 {
+  m_pDevice->DestroyTexture(m_hDepthStencilTexture);
+  m_hDepthStencilTexture.Invalidate();
+
   m_hShader.Invalidate();
 
   ezRenderContext::DeleteConstantBufferStorage(m_hObjectTransformCB);
@@ -196,7 +205,7 @@ void ezGraphicsTest::ClearScreen(const ezColor& color)
 
   ezGALRenderTagetSetup RTS;
   RTS.SetRenderTarget(0, m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture()))
-     .SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetDepthStencilBufferTexture()));
+     .SetDepthStencilTarget(m_pDevice->GetDefaultRenderTargetView(m_hDepthStencilTexture));
 
   pContext->SetRenderTargetSetup(RTS);
   pContext->SetViewport(ezRectFloat(0.0f, 0.0f, (float) m_pWindow->GetClientAreaSize().width, (float) m_pWindow->GetClientAreaSize().height), 0.0f, 1.0f);

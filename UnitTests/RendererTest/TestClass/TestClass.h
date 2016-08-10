@@ -55,6 +55,7 @@ protected:
 
   ezConstantBufferStorageHandle m_hObjectTransformCB;
   ezShaderResourceHandle m_hShader;
+  ezGALTextureHandle m_hDepthStencilTexture;
 };
 
 

@@ -39,23 +39,8 @@ bool ezForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, const 
   }
   else
   {
-    // If no input is available, we use the render target setup instead.    
-    const ezGALRenderTargetView* pTarget = pDevice->GetRenderTargetView(setup.GetRenderTarget(0));
-    if (pTarget)
-    {
-      const ezGALRenderTargetViewCreationDescription& desc = pTarget->GetDescription();
-      const ezGALTexture* pTexture = pDevice->GetTexture(desc.m_hTexture);
-      if (pTexture)
-      {
-        outputs[m_PinColor.m_uiOutputIndex] = pTexture->GetDescription();
-        outputs[m_PinColor.m_uiOutputIndex].m_bCreateRenderTarget = true;
-        outputs[m_PinColor.m_uiOutputIndex].m_bAllowShaderResourceView = true;
-        outputs[m_PinColor.m_uiOutputIndex].m_ResourceAccess.m_bReadBack = false;
-        outputs[m_PinColor.m_uiOutputIndex].m_ResourceAccess.m_bImmutable = true;
-        outputs[m_PinColor.m_uiOutputIndex].m_pExisitingNativeObject = nullptr;
-          
-      }
-    }
+    ezLog::Error("No color input connected to pass '%s'!", GetName());
+    return false;
   }
   
   // DepthStencil
@@ -65,17 +50,8 @@ bool ezForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, const 
   }
   else
   {
-    // If no input is available, we use the render target setup instead.
-    const ezGALRenderTargetView* pTarget = pDevice->GetRenderTargetView(setup.GetDepthStencilTarget());
-    if (pTarget)
-    {
-      const ezGALRenderTargetViewCreationDescription& desc = pTarget->GetDescription();
-      const ezGALTexture* pTexture = pDevice->GetTexture(desc.m_hTexture);
-      if (pTexture)
-      {
-        outputs[m_PinDepthStencil.m_uiOutputIndex] = pTexture->GetDescription();
-      }
-    }
+    ezLog::Error("No depth stencil input connected to pass '%s'!", GetName());
+    return false;
   }
 
   return true;
@@ -89,23 +65,20 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
   // Setup render target
   ezGALRenderTagetSetup renderTargetSetup;
-  if (outputs[m_PinColor.m_uiOutputIndex])
+  if (inputs[m_PinColor.m_uiInputIndex])
   {
-    renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinColor.m_uiOutputIndex]->m_TextureHandle));
+    renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(inputs[m_PinColor.m_uiInputIndex]->m_TextureHandle));
   }
 
-  if (outputs[m_PinDepthStencil.m_uiOutputIndex])
+  if (inputs[m_PinDepthStencil.m_uiInputIndex])
   {
-    renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(outputs[m_PinDepthStencil.m_uiOutputIndex]->m_TextureHandle));
+    renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
   }
 
   pGALContext->SetRenderTargetSetup(renderTargetSetup);
   pGALContext->SetViewport(renderViewContext.m_pViewData->m_ViewPortRect);
 
-  // Clear color and depth stencil
-  pGALContext->Clear(ezColor::Black);
-
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "FORWARD");
+  SetupPermutationVars(renderViewContext);
 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked);
@@ -116,4 +89,9 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
+}
+
+void ezForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& renderViewContext)
+{
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "FORWARD");
 }

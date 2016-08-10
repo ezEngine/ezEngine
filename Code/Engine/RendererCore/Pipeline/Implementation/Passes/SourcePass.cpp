@@ -1,0 +1,78 @@
+#include <RendererCore/PCH.h>
+#include <RendererCore/Pipeline/Passes/SourcePass.h>
+#include <RendererCore/Pipeline/View.h>
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSourcePass, 1, ezRTTIDefaultAllocator<ezSourcePass>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Output", m_PinOutput),
+    EZ_ENUM_MEMBER_PROPERTY("Format", ezGALResourceFormat, m_Format),
+    EZ_ENUM_MEMBER_PROPERTY("MSAA Mode", ezGALMSAASampleCount, m_MsaaMode),
+    EZ_MEMBER_PROPERTY("Clear Color", m_ClearColor),
+    EZ_MEMBER_PROPERTY("Clear", m_bClear),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezSourcePass::ezSourcePass(const char* szName) : ezRenderPipelinePass(szName)
+{
+  m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+  m_MsaaMode = ezGALMSAASampleCount::None;
+  m_bClear = true;
+}
+
+ezSourcePass::~ezSourcePass()
+{
+
+}
+
+bool ezSourcePass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
+{
+  ezUInt32 uiWidth = static_cast<ezUInt32>(view.GetViewport().width);
+  ezUInt32 uiHeight = static_cast<ezUInt32>(view.GetViewport().height);
+
+  ezGALTextureCreationDescription desc;
+  desc.m_uiWidth = uiWidth;
+  desc.m_uiHeight = uiHeight;
+  desc.m_SampleCount = m_MsaaMode;
+  desc.m_Format = m_Format;
+  desc.m_bCreateRenderTarget = true;
+
+  outputs[m_PinOutput.m_uiOutputIndex] = desc;
+
+  return true;
+}
+
+void ezSourcePass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+{
+  if (!m_bClear)
+    return;
+
+  auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
+  if (pOutput == nullptr)
+  {
+    return;
+  }
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
+
+  // Setup render target
+  ezGALRenderTagetSetup renderTargetSetup;
+  if (ezGALResourceFormat::IsDepthFormat(m_Format))
+  {
+    renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
+  }
+  else
+  {
+    renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pOutput->m_TextureHandle));
+  }
+
+  pGALContext->SetRenderTargetSetup(renderTargetSetup);
+  
+  // Clear color or depth stencil
+  pGALContext->Clear(m_ClearColor);
+}

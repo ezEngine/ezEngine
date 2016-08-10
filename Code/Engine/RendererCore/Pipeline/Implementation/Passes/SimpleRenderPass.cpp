@@ -91,14 +91,14 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
 
   // Setup render target
   ezGALRenderTagetSetup renderTargetSetup;
-  if (outputs[m_PinColor.m_uiOutputIndex])
+  if (inputs[m_PinColor.m_uiInputIndex])
   {
-    renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinColor.m_uiOutputIndex]->m_TextureHandle));
+    renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(inputs[m_PinColor.m_uiInputIndex]->m_TextureHandle));
   }
 
-  if (outputs[m_PinDepthStencil.m_uiOutputIndex])
+  if (inputs[m_PinDepthStencil.m_uiInputIndex])
   {
-    renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(outputs[m_PinDepthStencil.m_uiOutputIndex]->m_TextureHandle));
+    renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
   }
 
   pGALContext->SetRenderTargetSetup(renderTargetSetup);

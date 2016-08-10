@@ -643,7 +643,7 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
   tcd.m_bAllowShaderResourceView = false;
   tcd.m_bAllowUAV = false;
   tcd.m_bCreateRenderTarget = true;
-  tcd.m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+  tcd.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
   tcd.m_ResourceAccess.m_bReadBack = true;
   tcd.m_Type = ezGALTextureType::Texture2D;
   tcd.m_uiWidth = m_uiThumbnailWidth;

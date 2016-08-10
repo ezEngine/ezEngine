@@ -1,0 +1,40 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0xB310DF3ED2364F439683C653909ABE7E" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Texture 2D",
+    "Dependencies" : [ "Textures/Vignetting.tga" ],
+    "DocumentID" : { "$t" : "uuid", "$b" : "0xB310DF3ED2364F439683C653909ABE7E" },
+    "Hash" : { "$t" : "uint64", "$v" : "5862817596221837663", "$b" : "0x5F51B68D8AE95C51" },
+    "References" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3E59C96A6E0B6544904F41D217D0B451" },
+   "t" : "ezTextureAssetProperties",
+   "p" : {
+    "Channel Mapping" : "ezChannelMappingEnum::RGBA1_2D",
+    "Compression" : false,
+    "Input 1" : "Textures/Vignetting.tga",
+    "Input 2" : "",
+    "Input 3" : "",
+    "Input 4" : "",
+    "Input 5" : "",
+    "Input 6" : "",
+    "Mipmaps" : false,
+    "Premultiplied Alpha" : false,
+    "Usage" : "ezTextureUsageEnum::Other_Linear"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0x3E59C96A6E0B6544904F41D217D0B451" } ]
+   }
+  } ],
+ "Types" : [  ]
+}

@@ -17,6 +17,15 @@ ezGALBufferDX11::~ezGALBufferDX11()
 {
 }
 
+void ezGALBufferDX11::SetDebugName(const char* szName) const
+{
+  ezUInt32 uiLength = ezStringUtils::GetStringElementCount(szName);
+
+  if (m_pDXBuffer != nullptr)
+  {
+    m_pDXBuffer->SetPrivateData(WKPDID_D3DDebugObjectName, uiLength, szName);
+  }
+}
 
 ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<const ezUInt8> pInitialData)
 {

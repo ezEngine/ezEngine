@@ -1,6 +1,16 @@
 #include <RendererFoundation/PCH.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALResourceFormat, 1)
+EZ_BITFLAGS_CONSTANTS(ezGALResourceFormat::RGBAFloat, 
+  ezGALResourceFormat::RGBAHalf,
+  ezGALResourceFormat::RGB10A2UIntNormalized,
+  ezGALResourceFormat::RG11B10Float,
+  ezGALResourceFormat::RGBAUByteNormalizedsRGB, 
+  ezGALResourceFormat::D24S8
+  )
+EZ_END_STATIC_REFLECTED_ENUM();
+
 const ezUInt8 ezGALResourceFormat::s_BitsPerElement[ezGALResourceFormat::ENUM_COUNT] =
 {
   128, // RGBAFloat, XYZWFloat
