@@ -62,6 +62,21 @@ public:
   const char* GetRenderPipelineFile() const;
   void SetRenderPipelineFile(const char* szFile);
 
+  float GetAperture() const { return m_fAperture; }
+  void SetAperture(float fAperture);
+
+  float GetShutterTime() const { return m_fShutterTime; }
+  void SetShutterTime(float fShutterTime);
+
+  float GetISO() const { return m_fISO; }
+  void SetISO(float fISO);
+
+  float GetExposureCompensation() const { return m_fExposureCompensation; }
+  void SetExposureCompensation(float fEC);
+
+  float GetEV100() const;
+  float GetExposure() const;
+
   void ApplySettingsToView(ezView* pView) const;
 
 private:
@@ -72,6 +87,11 @@ private:
   float m_fPerspectiveFieldOfView;
   float m_fOrthoDimension;
   ezRenderPipelineResourceHandle m_hRenderPipeline;
+
+  float m_fAperture;
+  float m_fShutterTime;
+  float m_fISO;
+  float m_fExposureCompensation;
 
   void MarkAsModified();
   bool m_bIsModified;

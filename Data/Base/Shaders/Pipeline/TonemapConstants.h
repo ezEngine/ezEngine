@@ -5,7 +5,7 @@
 
 CONSTANT_BUFFER(TonemapConstants, 3)
 {
-  FLOAT1(ExposureBias);
+  FLOAT1(Exposure);
   FLOAT3(AutoExposureParams);
   
   COLOR(MoodColor);

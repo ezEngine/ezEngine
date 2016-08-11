@@ -4,12 +4,16 @@
    "t" : "ezCameraComponent",
    "p" : {
     "Active" : true,
+    "Aperture" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Dimensions (ortho)" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" },
-    "FOV (perspective)" : { "$t" : "float", "$v" : "60.0000", "$b" : "0x00007042" },
+    "Exposure Compensation" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "FOV (perspective)" : { "$t" : "float", "$v" : "90.0000", "$b" : "0x0000B442" },
     "Far Plane" : { "$t" : "float", "$v" : "1000.0000", "$b" : "0x00007A44" },
+    "ISO" : { "$t" : "float", "$v" : "100.0000", "$b" : "0x0000C842" },
     "Mode" : "ezCameraMode::PerspectiveFixedFovY",
     "Near Plane" : { "$t" : "float", "$v" : "0.2500", "$b" : "0x0000803E" },
     "Render Pipeline" : "{ da463c4d-c984-4910-b0b7-a0b3891d0448 }",
+    "Shutter Time" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Usage Hint" : "ezCameraComponentUsageHint::EditorView"
    }
   },
@@ -94,12 +98,16 @@
    "t" : "ezCameraComponent",
    "p" : {
     "Active" : true,
+    "Aperture" : { "$t" : "float", "$v" : "16.0000", "$b" : "0x00008041" },
     "Dimensions (ortho)" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" },
+    "Exposure Compensation" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
     "FOV (perspective)" : { "$t" : "float", "$v" : "60.0000", "$b" : "0x00007042" },
     "Far Plane" : { "$t" : "float", "$v" : "1000.0000", "$b" : "0x00007A44" },
+    "ISO" : { "$t" : "float", "$v" : "100.0000", "$b" : "0x0000C842" },
     "Mode" : "ezCameraMode::PerspectiveFixedFovY",
     "Near Plane" : { "$t" : "float", "$v" : "0.2500", "$b" : "0x0000803E" },
     "Render Pipeline" : "{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }",
+    "Shutter Time" : { "$t" : "float", "$v" : "0.0100", "$b" : "0x0AD7233C" },
     "Usage Hint" : "ezCameraComponentUsageHint::MainView"
    }
   },
@@ -194,7 +202,7 @@
     "AssetType" : "Scene",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x5D079F69E049C14CAE6B2A2B47BE2858" },
-    "Hash" : { "$t" : "uint64", "$v" : "1728859218015466657", "$b" : "0xA1B478844C24FE17" },
+    "Hash" : { "$t" : "uint64", "$v" : "454278071076528764", "$b" : "0x7C22C4AF7FEB4D06" },
     "References" : [ "{ 2c0adb01-ca49-4231-b10c-450af1b8fa1d }", "{ 4673a1ba-52f2-4cce-9924-b63957d980fc }", "{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }", "{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }", "{ cea3567e-6d36-418f-9259-f2e157979bcc }", "{ da463c4d-c984-4910-b0b7-a0b3891d0448 }" ]
    }
   },

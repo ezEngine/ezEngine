@@ -50,6 +50,14 @@ inline float ezCamera::GetFarPlane() const
   return m_fFarPlane;
 }
 
+inline float ezCamera::GetExposure() const
+{
+  return m_fExposure;
+}
 
+inline void ezCamera::SetExposure(float fExposure)
+{
+  m_fExposure = fExposure;
+}
 
 

@@ -72,7 +72,7 @@ void ezGameState::CreateMainWindow()
   ezScreen::EnumerateScreens(screens);
 
   m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow);
-  m_hMainSwapChain = GetApplication()->AddWindow(m_pMainWindow, ezGameApplication::COLOR_LINEAR);
+  m_hMainSwapChain = GetApplication()->AddWindow(m_pMainWindow);
 }
 
 void ezGameState::DestroyMainWindow()

@@ -3,6 +3,9 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
+#include <RendererFoundation/Resources/RenderTargetView.h>
+#include <RendererFoundation/Resources/Texture.h>
+
 #include <RendererCore/../../../Data/Base/Shaders/Pipeline/TonemapConstants.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTonemapPass, 1, ezRTTIDefaultAllocator<ezTonemapPass>)
@@ -24,6 +27,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezTonemapPass::ezTonemapPass() : ezRenderPipelinePass("TonemapPass")
 {
   m_hVignettingTexture = ezResourceManager::LoadResource<ezTextureResource>("White.color");
+  m_hNoiseTexture = ezResourceManager::LoadResource<ezTextureResource>("Textures/BlueNoise.dds");
 
   m_MoodColor = ezColor::Orange;
   m_fMoodStrength = 0.0f;
@@ -101,17 +105,20 @@ void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const 
 
   {
     TonemapConstants* constants = ezRenderContext::GetConstantBufferData<TonemapConstants>(m_hConstantBuffer);
-    constants->ExposureBias = 1.0f;
+    constants->Exposure = renderViewContext.m_pCamera->GetExposure();
     constants->MoodColor = m_MoodColor;
     constants->MoodStrength = m_fMoodStrength;
     constants->Saturation = m_fSaturation;
     constants->Contrast = m_fContrast;
   }
- 
+
+  ezGALSamplerStateHandle hPointSamplerState = ezRenderContext::GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering);
+
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
   renderViewContext.m_pRenderContext->BindConstantBuffer("TonemapConstants", m_hConstantBuffer);
   renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-  renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "VignettingTexture", m_hVignettingTexture);
+  renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "VignettingTexture", m_hVignettingTexture, ezResourceAcquireMode::NoFallback);
+  renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "NoiseTexture", m_hNoiseTexture, hPointSamplerState, ezResourceAcquireMode::NoFallback);
   renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SceneColorTexture", pDevice->GetDefaultResourceView(pColorInput->m_TextureHandle), ezGALSamplerStateHandle());
 
   renderViewContext.m_pRenderContext->DrawMeshBuffer();

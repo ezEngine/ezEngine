@@ -117,7 +117,7 @@
     "AssetType" : "RenderPipeline",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x3EEB1604C0694046BE5B77354E0E37D7" },
-    "Hash" : { "$t" : "uint64", "$v" : "7237619626162398229", "$b" : "0x1524CE14B4307164" },
+    "Hash" : { "$t" : "uint64", "$v" : "17870001242298632232", "$b" : "0x28C8FF5673FFFEF7" },
     "References" : [  ]
    }
   },
@@ -127,7 +127,7 @@
    "p" : {
     "Active" : true,
     "Clear" : true,
-    "Clear Color" : { "$t" : "color", "$v" : "(0.0802, 0.0802, 0.0802, 1.0000)", "$b" : "0x4B4AA43D4B4AA43D4B4AA43D0000803F" },
+    "Clear Color" : { "$t" : "color", "$v" : "(0.0130, 0.0130, 0.0130, 1.0000)", "$b" : "0xC7B6543CC7B6543CC7B6543C0000803F" },
     "Format" : "ezGALResourceFormat::RGBAUByteNormalizedsRGB",
     "MSAA Mode" : "ezGALMSAASampleCount::None",
     "Name" : "ColorSource",

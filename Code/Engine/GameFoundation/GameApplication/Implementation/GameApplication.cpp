@@ -36,14 +36,14 @@ ezGameApplication::~ezGameApplication()
   s_pGameApplicationInstance = nullptr;
 }
 
-ezGALSwapChainHandle ezGameApplication::AddWindow(ezWindowBase* pWindow, ColorMode colorMode)
+ezGALSwapChainHandle ezGameApplication::AddWindow(ezWindowBase* pWindow)
 {
   WindowContext& windowContext = m_Windows.ExpandAndGetRef();
   windowContext.m_pWindow = pWindow;
 
   ezGALSwapChainCreationDescription desc;
   desc.m_pWindow = pWindow;
-  desc.m_BackBufferFormat = colorMode == COLOR_SRGB ? ezGALResourceFormat::RGBAUByteNormalizedsRGB : ezGALResourceFormat::RGBAUByteNormalized;
+  desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
   desc.m_bAllowScreenshots = true;
 
   windowContext.m_hSwapChain = ezGALDevice::GetDefaultDevice()->CreateSwapChain(desc);

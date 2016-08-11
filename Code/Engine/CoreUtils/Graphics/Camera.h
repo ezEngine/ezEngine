@@ -108,6 +108,9 @@ public:
   /// \brief Calculates the projection matrix from the current camera properties and stores it in out_projectionMatrix.
   void GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out_projectionMatrix, ezProjectionDepthRange::Enum depthRange = ezProjectionDepthRange::Default) const;
 
+  float GetExposure() const;
+  void SetExposure(float fExposure);
+
   /// \brief Returns a counter that is increased every time the camera settings are modified.
   ///
   /// The camera settings are used to compute the projection matrix. This counter can be used to determine whether the projection matrix
@@ -144,6 +147,8 @@ private:
   ezVec3 m_vDirForwards;
   ezVec3 m_vDirUp;
   ezVec3 m_vDirRight;
+
+  float m_fExposure;
 
   ezUInt32 m_uiSettingsModificationCounter;
   ezUInt32 m_uiOrientationModificationCounter;

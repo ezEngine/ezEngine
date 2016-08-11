@@ -20,6 +20,8 @@ ezCamera::ezCamera()
   m_vDirUp = ezVec3(0.0f, 0.0f, 1.0f);
   m_vDirRight = ezVec3(0.0f, 1.0f, 0.0f);
 
+  m_fExposure = 1.0f;
+
   m_uiSettingsModificationCounter = 0;
   m_uiOrientationModificationCounter = 0;
 }
@@ -238,9 +240,6 @@ void ezCamera::RotateGlobally(ezAngle X, ezAngle Y, ezAngle Z)
 
   CameraOrientationChanged(false, true);
 }
-
-
-
 
 
 EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Graphics_Implementation_Camera);

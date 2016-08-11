@@ -27,6 +27,7 @@ protected:
   const char* GetVignettingTextureFile() const;
 
   ezTextureResourceHandle m_hVignettingTexture;
+  ezTextureResourceHandle m_hNoiseTexture;
 
   ezColor m_MoodColor;
   float m_fMoodStrength;

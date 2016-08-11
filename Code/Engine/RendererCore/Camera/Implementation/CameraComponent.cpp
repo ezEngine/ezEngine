@@ -78,6 +78,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 2)
     EZ_ACCESSOR_PROPERTY("FOV (perspective)", GetFieldOfView, SetFieldOfView)->AddAttributes(new ezDefaultValueAttribute(60.0f), new ezClampValueAttribute(1.0f, 179.0f)),
     EZ_ACCESSOR_PROPERTY("Dimensions (ortho)", GetOrthoDimension, SetOrthoDimension)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, 1000000.0f)),
     EZ_ACCESSOR_PROPERTY("Render Pipeline", GetRenderPipelineFile, SetRenderPipelineFile)->AddAttributes(new ezAssetBrowserAttribute("RenderPipeline")),
+    EZ_ACCESSOR_PROPERTY("Aperture", GetAperture, SetAperture)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(1.0f, 32.0f)),
+    EZ_ACCESSOR_PROPERTY("Shutter Time", GetShutterTime, SetShutterTime)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(1.0f/100000.0f, 600.0f)),
+    EZ_ACCESSOR_PROPERTY("ISO", GetISO, SetISO)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(50.0f, 64000.0f)),
+    EZ_ACCESSOR_PROPERTY("Exposure Compensation", GetExposureCompensation, SetExposureCompensation)->AddAttributes(new ezClampValueAttribute(-32.0f, 32.0f)),
+    /*EZ_ACCESSOR_PROPERTY_READ_ONLY("EV100", GetEV100),
+    EZ_ACCESSOR_PROPERTY_READ_ONLY("Final Exposure", GetExposure),*/
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
@@ -95,6 +101,12 @@ ezCameraComponent::ezCameraComponent()
   m_fFarPlane = 1000.0f;
   m_fPerspectiveFieldOfView = 60.0f;
   m_fOrthoDimension = 10.0f;
+
+  m_fAperture = 1.0f;
+  m_fShutterTime = 1.0f;
+  m_fISO = 100.0f;
+  m_fExposureCompensation = 0.0f;
+
   m_bIsModified = false;
 }
 
@@ -232,6 +244,67 @@ void ezCameraComponent::SetRenderPipelineFile(const char* szFile)
   SetRenderPipeline(hRenderPipeline);
 }
 
+void ezCameraComponent::SetAperture(float fAperture)
+{
+  if (m_fAperture == fAperture)
+    return;
+  m_fAperture = fAperture;
+
+  MarkAsModified();
+}
+
+void ezCameraComponent::SetShutterTime(float fShutterTime)
+{
+  if (m_fShutterTime == fShutterTime)
+    return;
+  m_fShutterTime = fShutterTime;
+
+  MarkAsModified();
+}
+
+void ezCameraComponent::SetISO(float fISO)
+{
+  if (m_fISO == fISO)
+    return;
+  m_fISO = fISO;
+
+  MarkAsModified();
+}
+
+void ezCameraComponent::SetExposureCompensation(float fEC)
+{
+  if (m_fExposureCompensation == fEC)
+    return;
+  m_fExposureCompensation = fEC;
+
+  MarkAsModified();
+}
+
+float ezCameraComponent::GetEV100() const
+{
+  // From: course_notes_moving_frostbite_to_pbr.pdf
+  // EV number is defined as:
+  // 2^ EV_s = N^2 / t and EV_s = EV_100 + log2 (S /100)
+  // This gives
+  // EV_s = log2 (N^2 / t)
+  // EV_100 + log2 (S /100) = log2 (N^2 / t)
+  // EV_100 = log2 (N^2 / t) - log2 (S /100)
+  // EV_100 = log2 (N^2 / t . 100 / S)
+  return ezMath::Log2((m_fAperture * m_fAperture) / m_fShutterTime * 100.0f / m_fISO) - m_fExposureCompensation;
+}
+
+float ezCameraComponent::GetExposure() const
+{
+  // Compute the maximum luminance possible with H_sbs sensitivity
+  // maxLum = 78 / ( S * q ) * N^2 / t
+  // = 78 / ( S * q ) * 2^ EV_100
+  // = 78 / (100 * 0.65) * 2^ EV_100
+  // = 1.2 * 2^ EV
+  // Reference : http://en.wikipedia.org/wiki/Film_speed
+  float maxLuminance = 1.2f * ezMath::Pow2(GetEV100());
+  return 1.0f / maxLuminance;
+}
+
 void ezCameraComponent::ApplySettingsToView(ezView* pView) const
 {
   if (m_UsageHint == ezCameraComponentUsageHint::None)
@@ -245,6 +318,9 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
 
   ezCamera* pCamera = pView->GetLogicCamera();
   pCamera->SetCameraMode(m_Mode, fFovOrDim, m_fNearPlane, m_fFarPlane);
+  pCamera->SetExposure(GetExposure());
+
+  //ezLog::Info("EV100: %f, Exposure: %f", GetEV100(), GetExposure());
 
   if (m_hRenderPipeline.IsValid())
   {

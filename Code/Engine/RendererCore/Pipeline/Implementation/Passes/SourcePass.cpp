@@ -1,6 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Pipeline/Passes/SourcePass.h>
 #include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSourcePass, 1, ezRTTIDefaultAllocator<ezSourcePass>)
 {

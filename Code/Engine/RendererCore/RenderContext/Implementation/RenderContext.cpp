@@ -166,10 +166,18 @@ void ezRenderContext::BindMaterial(const ezMaterialResourceHandle& hMaterial)
   m_StateFlags.Add(ezRenderContextFlags::MaterialBindingChanged);
 }
 
-void ezRenderContext::BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture)
+void ezRenderContext::BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture,
+  ezResourceAcquireMode acquireMode /*= ezResourceAcquireMode::AllowFallback*/)
 {
-  ezResourceLock<ezTextureResource> pTexture(hTexture, ezResourceAcquireMode::AllowFallback);
+  ezResourceLock<ezTextureResource> pTexture(hTexture, acquireMode);
   BindTexture(stage, sSlotName, ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(pTexture->GetGALTexture()), pTexture->GetGALSamplerState());
+}
+
+void ezRenderContext::BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture, 
+  ezGALSamplerStateHandle hOverrideSamplerState, ezResourceAcquireMode acquireMode /*= ezResourceAcquireMode::AllowFallback*/)
+{
+  ezResourceLock<ezTextureResource> pTexture(hTexture, acquireMode);
+  BindTexture(stage, sSlotName, ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(pTexture->GetGALTexture()), hOverrideSamplerState);
 }
 
 void ezRenderContext::BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView, ezGALSamplerStateHandle hSamplerState)
@@ -190,7 +198,6 @@ void ezRenderContext::BindTexture(ezGALShaderStage::Enum stage, const ezTempHash
 
   m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged);
 }
-
 
 void ezRenderContext::BindBuffer(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView)
 {

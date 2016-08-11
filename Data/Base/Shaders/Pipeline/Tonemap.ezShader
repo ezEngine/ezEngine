@@ -41,38 +41,22 @@ float3 FilmicTonemap(float3 x)
 	return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
 }
 
-float nrand( float2 seed )
-{
-	return frac(sin(dot(seed, float2(12.9898, 78.233))) * 43758.5453);
-}
-
-// From https://www.shadertoy.com/view/4t2SDh
-float3 TriangularNoise( float2 screenPos )
-{
-	float t = frac( GlobalTime );
-	float nrnd0 = nrand( screenPos + 0.07*t );
-	
-    // Convert uniform distribution into triangle-shaped distribution.
-    float orig = nrnd0 * 2.0 - 1.0;
-    nrnd0 = max(-1.0f, orig * rsqrt(abs(orig)));
-    nrnd0 = nrnd0 - sign(orig) + 0.5;
-	
-	return nrnd0 / 255.0;
-}
-
-// From http://media.steampowered.com/apps/valve/2015/Alex_Vlachos_Advanced_VR_Rendering_GDC2015.pdf
-float3 ScreenSpaceDither( float2 screenPos )
-{
-	// Iestyn's RGB dither (7 asm instructions) from Portal 2 X360
-	float3 dither = dot( float2( 171.0, 231.0 ), screenPos.xy + GlobalTime ).xxx;
-	dither.rgb = frac( dither.rgb / float3( 103.0, 71.0, 97.0 ) ) - float3( 0.5, 0.5, 0.5 );
-	return ( dither.rgb / 255.0 ) * 0.375;
-}
-
 Texture2D VignettingTexture;
 SamplerState VignettingTextureSampler;
 
+Texture2D NoiseTexture;
+SamplerState NoiseTextureSampler;
+
 Texture2D SceneColorTexture;
+
+float3 ScreenSpaceDither( float2 texCoords )
+{
+	float t = frac( GlobalTime );
+	texCoords = (texCoords + t) * (Viewport.zw / 256.0);
+	
+	// map to -0.5..1.5 bit range for an 8bit output target
+	return NoiseTexture.SampleLevel(NoiseTextureSampler, texCoords, 0.0).rgb * (2.0 / 255.0) - (0.5 / 255.0);
+}
 
 float4 main(PS_IN Input) : SV_Target
 {
@@ -86,7 +70,7 @@ float4 main(PS_IN Input) : SV_Target
 	sceneColor.rgb *= vignetting;
 	
 	// Tonemapping
-	sceneColor.rgb *= ExposureBias;	
+	sceneColor.rgb *= Exposure;	
 	float3 color = FilmicTonemap(sceneColor.rgb);
 	
 	float3 whiteScale = 1.0 / FilmicTonemap(11.2);
@@ -95,23 +79,21 @@ float4 main(PS_IN Input) : SV_Target
 	// Color correction
 	float luminance = GetLuminance(color);
 	
-	float3 moodColor = lerp(0.0, MoodColor, saturate(luminance * 2.0));
+	float3 moodColor = lerp(0.0, MoodColor.rgb, saturate(luminance * 2.0));
 	moodColor = lerp(moodColor, 1.0, saturate(luminance - 0.5) * 2.0);
 	color = lerp(color, moodColor, saturate( luminance * MoodStrength ));
 	
 	color = lerp(luminance.xxx, color, Saturation);
-	color = pow(color, Contrast); // TODO proper contrast modification
+	color = pow(color, Contrast); // TODO proper contrast modification 
 	
-	// Convert to Srgb before dither
-	color = LinearToSrgb(color);
+	// Cheap approx convert to sRGB before dither
+	color = sqrt(color);
 	
 	// Dither
-	// TODO blue noise
-	#if 1
-		color += TriangularNoise(Input.TexCoord0.xy);
-	#else
-		color += ScreenSpaceDither(Input.Position.xy);
-	#endif
+	color += ScreenSpaceDither(Input.TexCoord0.xy);
+	
+	// Convert back to linear
+	color *= color;
 	
 	return float4(color, sceneColor.a);
 }
