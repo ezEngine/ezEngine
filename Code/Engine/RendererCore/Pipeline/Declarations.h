@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Foundation/Math/Transform.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Core/World/Declarations.h>
 #include <RendererCore/Basics.h>

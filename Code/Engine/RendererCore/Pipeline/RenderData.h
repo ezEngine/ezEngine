@@ -1,6 +1,8 @@
 #pragma once
 
 #include <RendererCore/Pipeline/Declarations.h>
+#include <Foundation/Math/Transform.h>
+#include <Foundation/Math/BoundingBoxSphere.h>
 #include <Foundation/Memory/FrameAllocator.h>
 
 /// \brief Base class for all render data. Render data must contain all information that is needed to render the corresponding object.
