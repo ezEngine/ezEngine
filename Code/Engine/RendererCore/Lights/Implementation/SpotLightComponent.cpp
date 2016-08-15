@@ -18,7 +18,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 1)
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS
@@ -37,12 +36,32 @@ ezSpotLightComponent::ezSpotLightComponent()
 {
 }
 
+ezSpotLightComponent::~ezSpotLightComponent()
+{
+
+}
+
+ezResult ezSpotLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)
+{
+  const float t = ezMath::Tan(m_SpotAngle * 0.5f);
+  const float p = ezMath::Min(t * m_fRange, m_fRange);
+
+  ezBoundingBox box;
+  box.m_vMin = ezVec3(0.0f, -p, -p);
+  box.m_vMax = ezVec3(m_fRange, p, p);
+
+  bounds = box;
+  return EZ_SUCCESS;
+}
+
 void ezSpotLightComponent::SetRange(float fRange)
 {
   m_fRange = fRange;
 
   if (IsActive())
+  {
     GetOwner()->UpdateLocalBounds();
+  }
 }
 
 float ezSpotLightComponent::GetRange() const
@@ -53,6 +72,11 @@ float ezSpotLightComponent::GetRange() const
 void ezSpotLightComponent::SetSpotAngle( ezAngle SpotAngle )
 {
   m_SpotAngle = SpotAngle;
+
+  if (IsActive())
+  {
+    GetOwner()->UpdateLocalBounds();
+  }
 }
 
 ezAngle ezSpotLightComponent::GetSpotAngle() const
@@ -88,38 +112,6 @@ const char* ezSpotLightComponent::GetProjectedTextureFile() const
     return "";
 
   return m_hProjectedTexture.GetResourceID();
-}
-
-void ezSpotLightComponent::Initialize()
-{
-  if (IsActive())
-  {
-    GetOwner()->UpdateLocalBounds();
-  }
-}
-
-void ezSpotLightComponent::OnBeforeDetachedFromObject()
-{
-  if (IsActive())
-  {
-    // temporary set to inactive so we don't receive the msg
-    SetActive(false);
-    GetOwner()->UpdateLocalBounds();
-    SetActive(true);
-  }
-}
-
-void ezSpotLightComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
-{
-  const float t = ezMath::Tan(m_SpotAngle * 0.5f);
-
-  const float p = t * m_fRange;
-
-  ezBoundingBox box;
-  box.m_vMin = ezVec3(0.0f, -p, -p);
-  box.m_vMax = ezVec3(m_fRange, p, p);
-
-  msg.m_ResultingLocalBounds.ExpandToInclude(box);
 }
 
 void ezSpotLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg ) const

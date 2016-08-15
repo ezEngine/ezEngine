@@ -12,9 +12,7 @@ class EZ_RENDERERCORE_DLL ezDirectionalLightRenderData : public ezLightRenderDat
   EZ_ADD_DYNAMIC_REFLECTION(ezDirectionalLightRenderData, ezLightRenderData);
 
 public:
-  ezColor m_LightColor;
-  float m_fIntensity;
-  bool m_bCastShadows;
+
 };
 
 /// \brief The standard directional light component.
@@ -25,11 +23,11 @@ class EZ_RENDERERCORE_DLL ezDirectionalLightComponent : public ezLightComponent
 
 public:
   ezDirectionalLightComponent();
+  ~ezDirectionalLightComponent();
 
-  virtual void Initialize() override;
-  virtual void OnBeforeDetachedFromObject() override;
-
-  void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const;
+  // ezRenderComponent interface
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds) override;
+  
   void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;

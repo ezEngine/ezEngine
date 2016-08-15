@@ -30,6 +30,7 @@ public:
 #endif
 
   ezTransform m_GlobalTransform;
+  ezBoundingBoxSphere m_GlobalBounds;
 
 private:
   struct CategoryData

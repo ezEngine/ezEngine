@@ -17,7 +17,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 1)
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS
@@ -35,12 +34,25 @@ ezPointLightComponent::ezPointLightComponent()
 {
 }
 
+ezPointLightComponent::~ezPointLightComponent()
+{
+
+}
+
+ezResult ezPointLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)
+{
+  bounds = ezBoundingSphere(ezVec3::ZeroVector(), m_fRange);
+  return EZ_SUCCESS;
+}
+
 void ezPointLightComponent::SetRange(float fRange)
 {
   m_fRange = fRange;
 
   if (IsActive())
+  {
     GetOwner()->UpdateLocalBounds();
+  }
 }
 
 float ezPointLightComponent::GetRange() const
@@ -76,31 +88,6 @@ const char* ezPointLightComponent::GetProjectedTextureFile() const
     return "";
 
   return m_hProjectedTexture.GetResourceID();
-}
-
-void ezPointLightComponent::Initialize()
-{
-  if (IsActive())
-  {
-    GetOwner()->UpdateLocalBounds();
-  }
-}
-
-void ezPointLightComponent::OnBeforeDetachedFromObject()
-{
-  if (IsActive())
-  {
-    // temporary set to inactive so we don't receive the msg
-    SetActive(false);
-    GetOwner()->UpdateLocalBounds();
-    SetActive(true);
-  }
-}
-
-void ezPointLightComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
-{
-  ezBoundingSphere BoundingSphere(ezVec3::ZeroVector(), m_fRange);
-  msg.m_ResultingLocalBounds.ExpandToInclude(BoundingSphere);
 }
 
 void ezPointLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg ) const

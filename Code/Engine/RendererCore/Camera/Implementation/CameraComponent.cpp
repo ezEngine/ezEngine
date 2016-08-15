@@ -67,7 +67,7 @@ const ezCameraComponent* ezCameraComponentManager::GetCameraByUsageHint(ezCamera
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 2)
+EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 3)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -126,7 +126,15 @@ void ezCameraComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fFarPlane;
   s << m_fPerspectiveFieldOfView;
   s << m_fOrthoDimension;
+
+  // Version 2
   s << m_hRenderPipeline;
+
+  // Version 3
+  s << m_fAperture;
+  s << m_fShutterTime;
+  s << m_fISO;
+  s << m_fExposureCompensation;
 }
 
 void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
@@ -148,9 +156,18 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fFarPlane;
   s >> m_fPerspectiveFieldOfView;
   s >> m_fOrthoDimension;
+  
   if (uiVersion >= 2)
   {
     s >> m_hRenderPipeline;
+  }
+
+  if (uiVersion >= 3)
+  {
+    s >> m_fAperture;
+    s >> m_fShutterTime;
+    s >> m_fISO;
+    s >> m_fExposureCompensation;
   }
 
   MarkAsModified();

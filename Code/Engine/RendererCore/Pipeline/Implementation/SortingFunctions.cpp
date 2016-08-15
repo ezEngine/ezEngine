@@ -4,17 +4,18 @@
 
 namespace
 {
-  EZ_FORCE_INLINE ezUInt16 CalculateTypeHash(const ezRenderData* pRenderData)
+  EZ_FORCE_INLINE ezUInt32 CalculateTypeHash(const ezRenderData* pRenderData)
   {
     ezUInt32 uiTypeHash = pRenderData->GetDynamicRTTI()->GetTypeNameHash();
     return (uiTypeHash >> 16) ^ (uiTypeHash & 0xFFFF);
   }
 
-  EZ_FORCE_INLINE ezUInt16 CalculateDistance(const ezRenderData* pRenderData, const ezCamera& camera)
+  EZ_FORCE_INLINE ezUInt32 CalculateDistance(const ezRenderData* pRenderData, const ezCamera& camera)
   {
+    ///\todo might need to use projected length instead?
     const float fDistance = (camera.GetPosition() - pRenderData->m_GlobalTransform.m_vPosition).GetLength();
     const float fNormalizedDistance = ezMath::Min(fDistance / camera.GetFarPlane(), 1.0f);
-    return static_cast<ezUInt16>(fNormalizedDistance * 65535.0f);
+    return static_cast<ezUInt32>(fNormalizedDistance * 65535.0f);
   }
 }
 

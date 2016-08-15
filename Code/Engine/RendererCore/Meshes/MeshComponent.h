@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/World/World.h>
+#include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Pipeline/RenderData.h>
@@ -10,7 +11,6 @@ class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshRenderData, ezRenderData);
 
 public:
-  ezBoundingBoxSphere m_GlobalBounds;
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
   ezUInt32 m_uiPartIndex;
@@ -20,12 +20,16 @@ public:
 class ezMeshComponent;
 typedef ezComponentManager<ezMeshComponent, true> ezMeshComponentManager;
 
-class EZ_RENDERERCORE_DLL ezMeshComponent : public ezComponent
+class EZ_RENDERERCORE_DLL ezMeshComponent : public ezRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezMeshComponent, ezComponent, ezMeshComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezMeshComponent, ezRenderComponent, ezMeshComponentManager);
 
 public:
   ezMeshComponent();
+  ~ezMeshComponent();
+
+  // ezRenderComponent interface
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds) override;
 
   void SetMesh(const ezMeshResourceHandle& hMesh);
   EZ_FORCE_INLINE const ezMeshResourceHandle& GetMesh() const
@@ -33,31 +37,14 @@ public:
     return m_hMesh;
   }
 
-  EZ_FORCE_INLINE void SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial)
-  {
-    if (uiIndex >= m_Materials.GetCount())
-      m_Materials.SetCount(uiIndex + 1);
-
-    m_Materials[uiIndex] = hMaterial;
-  }
-
-  EZ_FORCE_INLINE ezMaterialResourceHandle GetMaterial(ezUInt32 uiIndex) const
-  {
-    if (uiIndex >= m_Materials.GetCount())
-      return ezMaterialResourceHandle();
-
-    return m_Materials[uiIndex];
-  }
+  void SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial);
+  ezMaterialResourceHandle GetMaterial(ezUInt32 uiIndex) const;
 
   EZ_FORCE_INLINE void SetRenderDataCategory(ezRenderData::Category category)
   {
     m_RenderDataCategory = category;
   }
 
-  virtual void Initialize() override;
-  virtual void OnBeforeDetachedFromObject() override;
-
-  void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const;
   void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
 
   void SetMeshFile(const char* szFile);

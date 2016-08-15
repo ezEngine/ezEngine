@@ -6,7 +6,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLightRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLightComponent, 1, ezRTTINoAllocator)
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -21,7 +21,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLightComponent, 1, ezRTTINoAllocator)
   }
   EZ_END_ATTRIBUTES
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_ABSTRACT_COMPONENT_TYPE
 
 ezLightComponent::ezLightComponent()
   : m_LightColor(ezColor::White)
@@ -70,21 +70,6 @@ void ezLightComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_LightColor;
   s << m_fIntensity;
   s << m_bCastShadows;
-
-/*
-  // ignore components that have created meshes (?)
-
-  s << GetMeshFile();
-  s << m_MeshColor;
-  s << m_RenderPass;
-
-  s << m_Materials.GetCount();
-
-  for (const auto& mat : m_Materials)
-  {
-    s << mat.GetResourceID();
-  }
-*/
 }
 
 void ezLightComponent::DeserializeComponent(ezWorldReader& stream)
@@ -97,28 +82,6 @@ void ezLightComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_LightColor;
   s >> m_fIntensity;
   s >> m_bCastShadows;
-
-/*
-  ezStringBuilder sTemp;
-
-  s >> sTemp;
-  SetMeshFile(sTemp);
-
-  s >> m_MeshColor;
-  s >> m_RenderPass;
-
-  ezUInt32 uiMaterials = 0;
-  s >> uiMaterials;
-  
-  m_Materials.SetCount(uiMaterials);
-
-  for (auto& mat : m_Materials)
-  {
-    s >> sTemp;
-
-    if (!sTemp.IsEmpty())
-      mat = ezResourceManager::LoadResource<ezMaterialResource>(sTemp);
-  }*/
 }
 
 

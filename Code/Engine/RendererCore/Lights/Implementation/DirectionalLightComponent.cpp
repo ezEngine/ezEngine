@@ -13,7 +13,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 1)
     EZ_END_PROPERTIES*/
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS
@@ -27,30 +26,18 @@ EZ_END_COMPONENT_TYPE
 
 ezDirectionalLightComponent::ezDirectionalLightComponent()
 {
+
 }
 
-void ezDirectionalLightComponent::Initialize()
+ezDirectionalLightComponent::~ezDirectionalLightComponent()
 {
-  if (IsActive())
-  {
-    GetOwner()->UpdateLocalBounds();
-  }
+
 }
 
-void ezDirectionalLightComponent::OnBeforeDetachedFromObject()
+ezResult ezDirectionalLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)
 {
-  if (IsActive())
-  {
-    // temporary set to inactive so we don't receive the msg
-    SetActive(false);
-    GetOwner()->UpdateLocalBounds();
-    SetActive(true);
-  }
-}
-
-void ezDirectionalLightComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
-{
-  // TODO: Infinity!
+  bounds = ezBoundingSphere(ezVec3::ZeroVector(), ezMath::BasicType<float>::MaxValue());
+  return EZ_SUCCESS;
 }
 
 void ezDirectionalLightComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const

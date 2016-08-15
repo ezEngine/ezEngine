@@ -10,14 +10,11 @@ typedef ezComponentManager<ezPointLightComponent> ezPointLightComponentManager;
 /// \brief The render data object for point lights.
 class EZ_RENDERERCORE_DLL ezPointLightRenderData : public ezLightRenderData
 {
-	EZ_ADD_DYNAMIC_REFLECTION(ezPointLightRenderData, ezLightRenderData);
+  EZ_ADD_DYNAMIC_REFLECTION(ezPointLightRenderData, ezLightRenderData);
 
 public:
-	ezColor m_LightColor;
-  float m_fIntensity;
-	float m_fRange;
+  float m_fRange;
   ezTextureResourceHandle m_hProjectedTexture;
-  bool m_bCastShadows;
 };
 
 /// \brief The standard point light component.
@@ -28,6 +25,10 @@ class EZ_RENDERERCORE_DLL ezPointLightComponent : public ezLightComponent
 
 public:
   ezPointLightComponent();
+  ~ezPointLightComponent();
+
+  // ezRenderComponent interface
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds) override;
 
   void SetRange(float fRange);
   float GetRange() const;
@@ -38,10 +39,6 @@ public:
   void SetProjectedTextureFile(const char* szFile);
   const char* GetProjectedTextureFile() const;
 
-  virtual void Initialize() override;
-  virtual void OnBeforeDetachedFromObject() override;
-
-  void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const;
   void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;

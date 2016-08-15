@@ -10,25 +10,26 @@ typedef ezComponentManager<ezSpotLightComponent> ezSpotLightComponentManager;
 /// \brief The render data object for spot lights.
 class EZ_RENDERERCORE_DLL ezSpotLightRenderData : public ezLightRenderData
 {
-	EZ_ADD_DYNAMIC_REFLECTION(ezSpotLightRenderData, ezLightRenderData);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSpotLightRenderData, ezLightRenderData);
 
 public:
-	ezColor m_LightColor;
-  float m_fIntensity;
-	float m_fRange;
+  float m_fRange;
   ezAngle m_SpotAngle;
   ezTextureResourceHandle m_hProjectedTexture;
-  bool m_bCastShadows;
 };
 
 /// \brief The standard spot light component.
-/// This component represents spot lights with various properties (e.g. a projected cube map, range, spot angle, etc.)
+/// This component represents spot lights with various properties (e.g. a projected texture, range, spot angle, etc.)
 class EZ_RENDERERCORE_DLL ezSpotLightComponent : public ezLightComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezSpotLightComponent, ezLightComponent, ezSpotLightComponentManager);
 
 public:
   ezSpotLightComponent();
+  ~ezSpotLightComponent();
+
+  // ezRenderComponent interface
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds) override;
 
   void SetRange(float fRange);
   float GetRange() const;
@@ -42,10 +43,6 @@ public:
   void SetProjectedTextureFile(const char* szFile);
   const char* GetProjectedTextureFile() const;
 
-  virtual void Initialize() override;
-  virtual void OnBeforeDetachedFromObject() override;
-
-  void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const;
   void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;

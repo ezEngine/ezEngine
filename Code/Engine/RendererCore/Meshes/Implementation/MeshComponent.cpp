@@ -15,14 +15,13 @@ EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, 1)
     EZ_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new ezAssetBrowserAttribute("Material")),
   }
   EZ_END_PROPERTIES
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering"),
   }
   EZ_END_ATTRIBUTES
-    EZ_BEGIN_MESSAGEHANDLERS
+  EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS
@@ -34,45 +33,47 @@ ezMeshComponent::ezMeshComponent()
   m_RenderDataCategory = ezInvalidIndex;
 }
 
+ezMeshComponent::~ezMeshComponent()
+{
+
+}
+
+ezResult ezMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)
+{
+  if (m_hMesh.IsValid())
+  {
+    ezResourceLock<ezMeshResource> pMesh(m_hMesh);
+    bounds = pMesh->GetBounds();
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+}
+
 void ezMeshComponent::SetMesh(const ezMeshResourceHandle& hMesh)
 {
   m_hMesh = hMesh;
 
-  if (IsActive() && GetOwner() != nullptr)
+  if (IsActive())
   {
     GetOwner()->UpdateLocalBounds();
   }
 }
 
-void ezMeshComponent::Initialize()
+void ezMeshComponent::SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial)
 {
-  if (IsActive() && m_hMesh.IsValid())
-  {
-    GetOwner()->UpdateLocalBounds();
-  }
+  if (uiIndex >= m_Materials.GetCount())
+    m_Materials.SetCount(uiIndex + 1);
+
+  m_Materials[uiIndex] = hMaterial;
 }
 
-void ezMeshComponent::OnBeforeDetachedFromObject()
+ezMaterialResourceHandle ezMeshComponent::GetMaterial(ezUInt32 uiIndex) const
 {
-  if (IsActive() && m_hMesh.IsValid())
-  {
-    // temporary set to inactive so we don't receive the msg
-    SetActive(false);
-    GetOwner()->UpdateLocalBounds();
-    SetActive(true);
-  }
-}
+  if (uiIndex >= m_Materials.GetCount())
+    return ezMaterialResourceHandle();
 
-void ezMeshComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
-{
-  if (!m_hMesh.IsValid())
-    return;
-
-  ezResourceLock<ezMeshResource> pMesh(m_hMesh);
-  if (pMesh->GetBounds().IsValid())
-  {
-    msg.m_ResultingLocalBounds.ExpandToInclude(pMesh->GetBounds());
-  }
+  return m_Materials[uiIndex];
 }
 
 void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
