@@ -1,0 +1,15 @@
+{
+  "Shader" : "Shaders/aoTest.ezShader",
+  
+  "Permutations" : 
+  {
+  },
+
+  "Constants" :
+  {
+  },
+  
+  "Textures" :
+  {
+  }  
+}
