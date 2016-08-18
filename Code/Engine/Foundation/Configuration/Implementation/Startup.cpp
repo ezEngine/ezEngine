@@ -69,7 +69,7 @@ void ezStartup::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
     }
     break;
 
-  case ezPlugin::PluginEvent::BeforeUnloading:
+  case ezPlugin::PluginEvent::StartupShutdown:
     {
       if (EventData.m_pPluginObject)
       {

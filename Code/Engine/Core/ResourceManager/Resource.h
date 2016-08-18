@@ -21,6 +21,22 @@ class ezResource : public ezResourceBase
 public:
   typedef SELF_DESCRIPTOR DescriptorType;
 
+  /// \brief Unfortunately this has to be called manually from within dynamic plugins during core engine shutdown.
+  ///
+  /// Without this, the dynamic plugin might still be referenced by the core engine during later shutdown phases and will crash, because memory
+  /// and code is still referenced, that is already unloaded.
+  static void CleanupDynamicPluginReferences()
+  {
+    s_TypeFallbackResource.Invalidate();
+    s_TypeMissingResource.Invalidate();
+
+    if (s_bAddedManagerEventHandler)
+    {
+      s_bAddedManagerEventHandler = false;
+      ezResourceManager::s_ManagerEvents.RemoveEventHandler(ManagerEventHandler);
+    }
+  }
+
   /// \brief Sets the fallback resource that can be used while this resource is not yet loaded.
   ///
   /// By default there is no fallback resource, so all resource will block the application when requested for the first time.
@@ -80,12 +96,12 @@ protected:
   ~ezResource() { }
 
 private:
+
   static void ManagerEventHandler(const ezResourceManagerEvent& e)
   {
     if (e.m_EventType == ezResourceManagerEventType::ManagerShuttingDown)
     {
-      s_TypeFallbackResource.Invalidate();
-      s_TypeMissingResource.Invalidate();
+      CleanupDynamicPluginReferences();
     }
   }
 

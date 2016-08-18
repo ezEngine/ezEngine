@@ -756,11 +756,31 @@ void ezResourceManager::CleanUpResources()
 }
 */
 
+
+void ezResourceManager::PluginEventHandler(const ezPlugin::PluginEvent& e)
+{
+  switch (e.m_EventType)
+  {
+  case ezPlugin::PluginEvent::AfterStartupShutdown:
+    {
+      // unload all resources until there are no more that can be unloaded
+      // this is to prevent having resources allocated that came from a dynamic plugin
+      FreeUnusedResources(true);
+    }
+    break;
+
+  default:
+    break;
+  }
+}
+
 void ezResourceManager::OnCoreStartup()
 {
   EZ_LOCK(s_ResourceMutex);
   m_bTaskRunning = false;
   m_bStop = false;
+
+  ezPlugin::s_PluginEvents.AddEventHandler(PluginEventHandler);
 }
 
 void ezResourceManager::OnEngineShutdown()
@@ -788,6 +808,8 @@ void ezResourceManager::OnEngineShutdown()
 
   // unload all resources until there are no more that can be unloaded
   FreeUnusedResources(true);
+
+  ezPlugin::s_PluginEvents.RemoveEventHandler(PluginEventHandler);
 }
 
 void ezResourceManager::OnCoreShutdown()

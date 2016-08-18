@@ -7,6 +7,7 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <Foundation/Configuration/Plugin.h>
 
 template<typename SELF, typename SELF_DESCRIPTOR>
 class ezResource;
@@ -187,6 +188,7 @@ private:
   friend class ezResource;
 
   static void BroadcastResourceEvent(const ezResourceEvent& e);
+  static void PluginEventHandler(const ezPlugin::PluginEvent& e);
 
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, ResourceManager);
   static void OnEngineShutdown();

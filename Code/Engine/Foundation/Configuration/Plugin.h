@@ -92,6 +92,8 @@ public:
       AfterLoadingBeforeInit, ///< Sent immediately after a new plugin has been loaded, even before it is initialized (which might trigger loading of other plugins)
       AfterLoading,           ///< Sent after a new plugin has been loaded and initialized
       BeforeUnloading,        ///< Sent before a plugin is going to be unloaded
+      StartupShutdown,        ///< Used by the startup system for automatic shutdown
+      AfterStartupShutdown,
       AfterUnloading,         ///< Sent after a plugin has been unloaded
       BeforePluginChanges,    ///< Sent (once) before any (group) plugin changes (load/unload) are done.
       AfterPluginChanges,     ///< Sent (once) after all (group) plugin changes (unload/load/reload) are finished.

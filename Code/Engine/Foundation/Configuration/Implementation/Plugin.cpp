@@ -148,6 +148,24 @@ ezResult ezPlugin::UnloadPluginInternal(const char* szPluginFile, bool bReloadin
     s_PluginEvents.Broadcast(e);
   }
 
+  // Broadcast event: Startup Shutdown
+  {
+    PluginEvent e;
+    e.m_EventType = PluginEvent::StartupShutdown;
+    e.m_pPluginObject = g_LoadedPlugins[szPluginFile].m_pPluginObject;
+    e.m_szPluginFile = szPluginFile;
+    s_PluginEvents.Broadcast(e);
+  }
+
+  // Broadcast event: After Startup Shutdown
+  {
+    PluginEvent e;
+    e.m_EventType = PluginEvent::AfterStartupShutdown;
+    e.m_pPluginObject = g_LoadedPlugins[szPluginFile].m_pPluginObject;
+    e.m_szPluginFile = szPluginFile;
+    s_PluginEvents.Broadcast(e);
+  }
+
   // if there is a plugin object, uninitialize it
   if (g_LoadedPlugins[szPluginFile].m_pPluginObject)
   {
@@ -296,7 +314,8 @@ success:
       pPlugin = pPlugin->GetNextInstance();
     }
 
-    EZ_ASSERT_RELEASE(iNewPlugins == 1, "A plugin must contain exactly one instance of an ezPlugin. While loading plugin '%s' %i ezPlugin instances were found.", szPluginFile, iNewPlugins);
+    /// \todo this doesn't work if one dynamic (e.g. editor) plugin has a link dependency on another dynamic (runtime) plugin
+    //EZ_ASSERT_RELEASE(iNewPlugins == 1, "A plugin must contain exactly one instance of an ezPlugin. While loading plugin '%s' %i ezPlugin instances were found.", szPluginFile, iNewPlugins);
   }
 
   ezLog::Success("Plugin '%s' is loaded.", szPluginFile);
@@ -320,7 +339,8 @@ ezResult ezPlugin::LoadPlugin(const char* szPluginFile)
   ezLog::Dev("Plugin to load: \"%s\"", szPluginFile);
   g_LoadedPlugins[szPluginFile].m_iReferenceCount = 1;
 
-  return LoadPluginInternal(szPluginFile, true, false);
+  /// \todo Set "copy dll" back to true again, when we know which plugins may be copied
+  return LoadPluginInternal(szPluginFile, false, false);
 }
 
 ezResult ezPlugin::UnloadPlugin(const char* szPluginFile)
@@ -517,7 +537,8 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
       ezStringBuilder sBackup = sNewPlugin;
       sBackup.Append(".backup");
 
-      if (LoadPluginInternal(PluginsToReload[i].GetData(), true, true) == EZ_FAILURE)
+      /// \todo Set "copy dll" back to true again, when we know which plugins may be copied
+      if (LoadPluginInternal(PluginsToReload[i].GetData(), false, true) == EZ_FAILURE)
       {
         ezLog::Error("Loading of Plugin '%s' failed. Falling back to backup of previous version.", PluginsToReload[i].GetData());
 
