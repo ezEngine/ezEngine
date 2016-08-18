@@ -162,3 +162,9 @@ class ezTransformTemplate;
 
 typedef ezTransformTemplate<float> ezTransform;
 typedef ezTransformTemplate<double> ezTransformd;
+
+class ezColor;
+class ezColorLinearUB;
+class ezColorGammaUB;
+
+

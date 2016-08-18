@@ -15,18 +15,10 @@ class ezCollisionMeshAssetDocumentWindow : public ezQtDocumentWindow
 
 public:
   ezCollisionMeshAssetDocumentWindow(ezDocument* pDocument);
-  ~ezCollisionMeshAssetDocumentWindow();
 
   virtual const char* GetGroupName() const { return "CollisionMeshAsset"; }
 
-private slots:
-  
-
 private:
-  void UpdatePreview();
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
-  void MeshAssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e);
-
   ezCollisionMeshAssetDocument* m_pAssetDoc;
   QLabel* m_pLabelInfo;
 };

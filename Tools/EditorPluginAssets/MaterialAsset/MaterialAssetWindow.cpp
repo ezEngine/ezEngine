@@ -2,7 +2,7 @@
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialViewWidget.moc.h>
-#include <SharedPluginAssets/MaterialAsset/MaterialMessages.h>
+#include <SharedPluginAssets/Common/Messages.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
@@ -99,7 +99,8 @@ void ezMaterialAssetDocumentWindow::UpdatePreview()
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
-  ezEditorEngineMaterialUpdateMsg msg;
+  ezEditorEngineResourceUpdateMsg msg;
+  msg.m_sResourceType = "Material";
 
   ezMemoryStreamStorage streamStorage;
   ezMemoryStreamWriter memoryWriter(&streamStorage);

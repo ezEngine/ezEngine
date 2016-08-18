@@ -11,8 +11,6 @@
 
 ezCollectionAssetDocumentWindow::ezCollectionAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezCollectionAssetDocumentWindow::PropertyEventHandler, this));
-
   // Menu Bar
   {
     ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
@@ -48,26 +46,8 @@ ezCollectionAssetDocumentWindow::ezCollectionAssetDocumentWindow(ezDocument* pDo
   }
 
   FinishWindowCreation();
-
-  UpdatePreview();
 }
 
 ezCollectionAssetDocumentWindow::~ezCollectionAssetDocumentWindow()
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezCollectionAssetDocumentWindow::PropertyEventHandler, this));
 }
-
-void ezCollectionAssetDocumentWindow::UpdatePreview()
-{
-
-  // TODO
-}
-
-void ezCollectionAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
-{
-
-}
-
-
-
-

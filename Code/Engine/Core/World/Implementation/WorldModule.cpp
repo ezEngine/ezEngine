@@ -19,9 +19,14 @@ void ezWorldModule::Startup(ezWorld* pOwner)
   InternalStartup();
 }
 
-void ezWorldModule::Shutdown()
+void ezWorldModule::BeforeWorldDestruction()
 {
-  InternalShutdown();
+  InternalBeforeWorldDestruction();
+}
+
+void ezWorldModule::AfterWorldDestruction()
+{
+  InternalAfterWorldDestruction();
 }
 
 void ezWorldModule::Update()

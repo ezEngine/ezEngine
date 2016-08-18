@@ -10,14 +10,7 @@ class ezSurfaceAssetDocumentWindow : public ezQtDocumentWindow
 
 public:
   ezSurfaceAssetDocumentWindow(ezDocument* pDocument);
-  ~ezSurfaceAssetDocumentWindow();
 
   virtual const char* GetGroupName() const { return "SurfaceAsset"; }
 
-private slots:
-  
-
-private:
-  void UpdatePreview();
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 };

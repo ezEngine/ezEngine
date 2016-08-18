@@ -296,17 +296,25 @@ void ezGameApplication::DestroyWorld(ezWorld* pWorld)
 
     for (auto pModule : wd->m_WorldModules)
     {
-      pModule->Shutdown();
+      pModule->BeforeWorldDestruction();
     }
   }
 
-  wd->DestroyWorldModules();
   wd->m_pWorld->GetClock().SetTimeStepSmoothing(nullptr);
   wd->m_pWorld = nullptr;
   EZ_DEFAULT_DELETE(wd->m_pTimeStepSmoothing);
   wd->m_pTimeStepSmoothing = nullptr;
 
   EZ_DEFAULT_DELETE(pWorld);
+
+  {
+    for (auto pModule : wd->m_WorldModules)
+    {
+      pModule->AfterWorldDestruction();
+    }
+  }
+
+  wd->DestroyWorldModules();
 }
 
 void ezGameApplication::AfterCoreStartup()

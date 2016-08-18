@@ -118,7 +118,8 @@ public:
 
 protected:
   virtual void InternalStartup() override;
-  virtual void InternalShutdown() override;
+  virtual void InternalBeforeWorldDestruction() override {}
+  virtual void InternalAfterWorldDestruction() override;
   virtual void InternalUpdate() override;
   virtual void InternalReinit() override;
 

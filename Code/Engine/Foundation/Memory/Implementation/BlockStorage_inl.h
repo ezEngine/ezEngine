@@ -238,6 +238,7 @@ void ezBlockStorage<T, BlockSize, CompactStorage>::Delete(Entry entry, T*& out_p
     --m_uiCount;
     if (m_uiCount != entry.m_uiIndex)
     {
+      /// \todo Could this maybe be std::move'd instead ?
       ezMemoryUtils::Copy(entry.m_Ptr, pLast, 1);
     }
 

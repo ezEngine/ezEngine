@@ -3,6 +3,7 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/RenderDataBatch.h>
 #include <RendererCore/Pipeline/ViewData.h>
+#include <CoreUtils/Graphics/Camera.h>
 
 class EZ_RENDERERCORE_DLL ezExtractedRenderData
 {

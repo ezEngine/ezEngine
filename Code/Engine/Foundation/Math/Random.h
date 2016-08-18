@@ -27,9 +27,15 @@ public:
   ezUInt32 UInt(); // [tested]
 
   /// \brief Returns a uint32 value in range [0 ; uiRange - 1]
+  ///
+  /// \note A range of 0 is invalid and will assert! It also has no mathematical meaning. A range of 1 already means "between 0 and 1 EXCLUDING 1".
+  /// So always use a range of at least 1.
   ezUInt32 UIntInRange(ezUInt32 uiRange); // [tested]
 
   /// \brief Returns an int32 value in range [iMinValue ; iMinValue + uiRange - 1]
+  ///
+  /// \note A range of 0 is invalid and will assert! It also has no mathematical meaning. A range of 1 already means "between 0 and 1 EXCLUDING 1".
+  /// So always use a range of at least 1.
   ezInt32 IntInRange(ezInt32 iMinValue, ezUInt32 uiRange); // [tested]
 
   /// \brief Returns an int32 value in range [iMinValue ; iMaxValue]

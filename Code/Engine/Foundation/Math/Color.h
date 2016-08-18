@@ -3,9 +3,6 @@
 #include <Foundation/Math/Math.h>
 #include <Foundation/Math/Vec4.h>
 
-class ezColorLinearUB;
-class ezColorGammaUB;
-
 /// \brief ezColor represents and RGBA color in linear color space. Values are stored as float, allowing HDR values and full precision color modifications.
 ///
 /// ezColor is the central class to handle colors throughout the engine. With floating point precision it can handle any value, including HDR colors.

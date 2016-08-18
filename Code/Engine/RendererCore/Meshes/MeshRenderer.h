@@ -5,6 +5,7 @@
 
 struct PerInstanceData;
 
+/// \brief Implements rendering of static meshes
 class EZ_RENDERERCORE_DLL ezMeshRenderer : public ezRenderer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshRenderer, ezRenderer);

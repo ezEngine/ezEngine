@@ -14,7 +14,8 @@ public:
   ~ezWorldModule();
 
   void Startup(ezWorld* pOwner);
-  void Shutdown();
+  void BeforeWorldDestruction();
+  void AfterWorldDestruction();
   void Update();
   void Reinit();
 
@@ -25,7 +26,8 @@ public:
 
 protected:
   virtual void InternalStartup() = 0;
-  virtual void InternalShutdown() = 0;
+  virtual void InternalBeforeWorldDestruction() = 0;
+  virtual void InternalAfterWorldDestruction() = 0;
   virtual void InternalUpdate() = 0;
   virtual void InternalReinit() = 0;
 

@@ -29,6 +29,9 @@ struct ezRenderViewContext
   ezUInt32 m_uiWorldIndex;
 };
 
+/// \brief This is the base class for types that handle rendering of different object types.
+///
+/// E.g. there are different renderers for meshes, particle effects, light sources, etc.
 class EZ_RENDERERCORE_DLL ezRenderer : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderer, ezReflectedClass);

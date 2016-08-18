@@ -20,7 +20,7 @@
 #include <GameUtils/Components/InputComponent.h>
 #include <EditorFramework/Gizmos/GizmoRenderer.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <SharedPluginAssets/MaterialAsset/MaterialMessages.h>
+#include <SharedPluginAssets/Common/Messages.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <SharedPluginAssets/Common/Messages.h>
 
@@ -41,17 +41,20 @@ ezMaterialContext::ezMaterialContext()
 
 void ezMaterialContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineMaterialUpdateMsg>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineResourceUpdateMsg>())
   {
-    const ezEditorEngineMaterialUpdateMsg* pMsg2 = static_cast<const ezEditorEngineMaterialUpdateMsg*>(pMsg);
+    const ezEditorEngineResourceUpdateMsg* pMsg2 = static_cast<const ezEditorEngineResourceUpdateMsg*>(pMsg);
 
-    ezUniquePtr<ezResourceLoaderFromMemory> loader(EZ_DEFAULT_NEW(ezResourceLoaderFromMemory));
-    loader->m_ModificationTimestamp = ezTimestamp::CurrentTimestamp();
-    loader->m_sResourceDescription = "MaterialImmediateEditorUpdate";
-    ezMemoryStreamWriter memoryWriter(&loader->m_CustomData);
-    memoryWriter.WriteBytes(pMsg2->m_Data.GetData(), pMsg2->m_Data.GetCount());
+    if (pMsg2->m_sResourceType == "Material")
+    {
+      ezUniquePtr<ezResourceLoaderFromMemory> loader(EZ_DEFAULT_NEW(ezResourceLoaderFromMemory));
+      loader->m_ModificationTimestamp = ezTimestamp::CurrentTimestamp();
+      loader->m_sResourceDescription = "MaterialImmediateEditorUpdate";
+      ezMemoryStreamWriter memoryWriter(&loader->m_CustomData);
+      memoryWriter.WriteBytes(pMsg2->m_Data.GetData(), pMsg2->m_Data.GetCount());
 
-    ezResourceManager::UpdateResourceWithCustomLoader(m_hMaterial, std::move(loader));
+      ezResourceManager::UpdateResourceWithCustomLoader(m_hMaterial, std::move(loader));
+    }
   }
 
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineRestoreResourceMsg>())

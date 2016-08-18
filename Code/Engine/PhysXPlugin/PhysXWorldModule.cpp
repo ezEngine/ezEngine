@@ -95,7 +95,7 @@ void ezPhysXWorldModule::InternalStartup()
   EZ_ASSERT_ALWAYS(m_pPxScene != nullptr, "Creating the PhysX scene failed");
 }
 
-void ezPhysXWorldModule::InternalShutdown()
+void ezPhysXWorldModule::InternalAfterWorldDestruction()
 {
   //m_pCharacterManager->purgeControllers();
   m_pCharacterManager->release();

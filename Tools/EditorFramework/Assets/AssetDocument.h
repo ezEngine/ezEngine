@@ -164,7 +164,7 @@ protected:
   /// \name Thumbnail Functions
   ///@{
 
-  /// \brief Override this function to generate a thumbnail. Only called if
+  /// \brief Override this function to generate a thumbnail. Only called if GetAssetFlags returns ezAssetDocumentFlags::SupportsThumbnail.
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader);
   /// \brief Returns the full path to the jpg file in which the thumbnail for this asset is supposed to be
   ezString GetThumbnailFilePath() const;
@@ -173,7 +173,7 @@ protected:
   /// \brief Requests the engine side to render a thumbnail, will call SaveThumbnail on success.
   ezStatus RemoteCreateThumbnail(const ezAssetFileHeader& header) const;
   /// \brief Saves the given image as the new thumbnail for the asset
-  void SaveThumbnail(const ezImage& img, const ezAssetFileHeader& header) const;
+  ezStatus SaveThumbnail(const ezImage& img, const ezAssetFileHeader& header) const;
   /// \brief Appends an asset header containing the thumbnail hash to the file. Each thumbnail is appended by it to check up-to-date state.
   void AppendThumbnailInfo(const char* szThumbnailFile, const ezAssetFileHeader& header) const;
 

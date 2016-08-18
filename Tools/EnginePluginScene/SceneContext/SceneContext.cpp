@@ -98,11 +98,11 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     m_bRenderSelectionBoxes = msg->m_bRenderSelectionBoxes;
 
     ezGameState* pState = GetGameState();
+    m_pWorld->GetClock().SetSpeed(msg->m_fSimulationSpeed);
 
     if (pState == nullptr && bSimulate != m_pWorld->GetWorldSimulationEnabled())
     {
       m_pWorld->SetWorldSimulationEnabled(bSimulate);
-      m_pWorld->GetClock().SetSpeed(msg->m_fSimulationSpeed);
 
       if (bSimulate)
         OnSimulationEnabled();

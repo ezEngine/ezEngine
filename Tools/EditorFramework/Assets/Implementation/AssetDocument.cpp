@@ -416,7 +416,7 @@ void ezAssetDocument::InvalidateAssetThumbnail() const
   ezQtImageCache::InvalidateCache(sResourceFile);
 }
 
-void ezAssetDocument::SaveThumbnail(const ezImage& img, const ezAssetFileHeader& header) const
+ezStatus ezAssetDocument::SaveThumbnail(const ezImage& img, const ezAssetFileHeader& header) const
 {
   const ezStringBuilder sResourceFile = GetThumbnailFilePath();
 
@@ -431,7 +431,7 @@ void ezAssetDocument::SaveThumbnail(const ezImage& img, const ezAssetFileHeader&
   if (ezImageConversion::Convert(img, converted, ezImageFormat::R8G8B8A8_UNORM).Failed())
   {
     ezLog::Error("Could not convert asset thumbnail to target format: '%s'", sResourceFile.GetData());
-    return;
+    return ezStatus("Could not convert asset thumbnail to target format: '%s'", sResourceFile.GetData());
   }
 
   QImage qimg(converted.GetPixelPointer<ezUInt8>(), converted.GetWidth(), converted.GetHeight(), QImage::Format_RGBA8888);
@@ -474,10 +474,13 @@ void ezAssetDocument::SaveThumbnail(const ezImage& img, const ezAssetFileHeader&
   if (!qimg.save(QString::fromUtf8(sResourceFile.GetData()), nullptr, 90))
   {
     ezLog::Error("Could not save asset thumbnail: '%s'", sResourceFile.GetData());
-    return;
+    return ezStatus("Could not save asset thumbnail: '%s'", sResourceFile.GetData());
   }
+
   AppendThumbnailInfo(sResourceFile, header);
   InvalidateAssetThumbnail();
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 void ezAssetDocument::AppendThumbnailInfo(const char* szThumbnailFile, const ezAssetFileHeader& header) const

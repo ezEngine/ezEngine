@@ -11,3 +11,16 @@ class EZ_SHAREDPLUGINASSETS_DLL ezEditorEngineRestoreResourceMsg : public ezEdit
 public:
 
 };
+
+class EZ_SHAREDPLUGINASSETS_DLL ezEditorEngineResourceUpdateMsg : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineResourceUpdateMsg, ezEditorEngineDocumentMsg);
+
+public:
+  ezEditorEngineResourceUpdateMsg()
+  {
+  }
+
+  ezString m_sResourceType;
+  ezDataBuffer m_Data;
+};

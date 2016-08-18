@@ -14,10 +14,4 @@ public:
 
   virtual const char* GetGroupName() const { return "CollectionAsset"; }
 
-private slots:
-  
-
-private:
-  void UpdatePreview();
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 };
