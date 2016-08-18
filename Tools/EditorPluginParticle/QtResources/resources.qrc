@@ -1,0 +1,9 @@
+<RCC>
+  <qresource prefix="AssetIcons">
+    <file>Particle_Effect.png</file>
+  </qresource>
+  <qresource prefix="TypeIcons">
+	<file>ezParticleComponent.png</file>
+  </qresource>  
+</RCC>
+

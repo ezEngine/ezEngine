@@ -92,6 +92,15 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xB7733D12A7484A428D3DB55A60AE29D4" },
+   "t" : "ezParticleExtractor",
+   "p" : {
+    "Name" : "",
+    "Node::Connections" : [  ],
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(-167.0000, -557.0000)", "$b" : "0x000027C300400BC4" }
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xF2DA00F1DDFFB44297763E0917427648" },
    "t" : "ezTonemapPass",
    "p" : {
@@ -144,7 +153,7 @@
    "t" : "ezDocumentRoot",
    "n" : "ObjectTree",
    "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x665790226845764AA23E8C8C7D95DFCE" }, { "$t" : "uuid", "$b" : "0xAF8E37781D04C347951BFE82BC017608" }, { "$t" : "uuid", "$b" : "0x8E65B5290411E14E8B3C585954A9C051" }, { "$t" : "uuid", "$b" : "0x6A577D8175BB5E4EA558245D6BA0F9F6" }, { "$t" : "uuid", "$b" : "0x68C7992341C84A40BDEDC3B6E73D0081" }, { "$t" : "uuid", "$b" : "0xF2252852B0632D4E82C7E9EC0E11CF9A" }, { "$t" : "uuid", "$b" : "0xF2DA00F1DDFFB44297763E0917427648" } ]
+    "Children" : [ { "$t" : "uuid", "$b" : "0x665790226845764AA23E8C8C7D95DFCE" }, { "$t" : "uuid", "$b" : "0xAF8E37781D04C347951BFE82BC017608" }, { "$t" : "uuid", "$b" : "0x8E65B5290411E14E8B3C585954A9C051" }, { "$t" : "uuid", "$b" : "0x6A577D8175BB5E4EA558245D6BA0F9F6" }, { "$t" : "uuid", "$b" : "0x68C7992341C84A40BDEDC3B6E73D0081" }, { "$t" : "uuid", "$b" : "0xF2252852B0632D4E82C7E9EC0E11CF9A" }, { "$t" : "uuid", "$b" : "0xF2DA00F1DDFFB44297763E0917427648" }, { "$t" : "uuid", "$b" : "0xB7733D12A7484A428D3DB55A60AE29D4" } ]
    }
   },
   {
@@ -204,7 +213,7 @@
     "AssetType" : "RenderPipeline",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x13E133C54C2A424FA546653C78F5E8A7" },
-    "Hash" : { "$t" : "uint64", "$v" : "14162789781546025652", "$b" : "0xB44295C544568CC4" },
+    "Hash" : { "$t" : "uint64", "$v" : "7921211252840965103", "$b" : "0xEFA36984AACBED6D" },
     "References" : [ "{ 3edf10b3-36d2-434f-9683-c653909abe7e }" ]
    }
   },

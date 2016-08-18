@@ -17,39 +17,26 @@ BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
 # add_definitions (-DMY_PREPROCESS_DEFINITION_1)
 # add_definitions (-DMY_PREPROCESS_DEFINITION_2)
 
-# Set this to true, if your application is a real win32 app (not a console app)
-SET (IS_WIN32_APPLICATION true)
-
 # Enables the use of Qt in this project and sets up the required modules.
-QT_MODULES(Core Gui Widgets Network)
+QT_MODULES(Core Gui Widgets)
 
 # Call this in case this project does not function without Qt.
 BUILD_REQUIRES_QT()
 
-# Add all the libraries that this project needs to link against here
-SET (LINK_LIBRARIES
+SET (LINK_LIBRARIES 
   Foundation
-  Core
-  ThirdParty
   EditorFramework
   ToolsFoundation
-  GuiFoundation
+
+  Core
+  CoreUtils
+  GameUtils
+  ParticlePlugin
+  SharedPluginAssets
 )
 
 SET (ADDITIONAL_DEPENDENCIES
-  EditorProcessor
-  EditorEngineProcess
-  EditorPluginScene
-  EditorPluginAssets
-  EditorPluginPhysX
-  EditorPluginFmod
-  EditorPluginParticle
-  PhysXPlugin
-  FmodPlugin
-  ParticlePlugin
-  TexConv
+  EnginePluginParticle
 )
 
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
-
-
+include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)

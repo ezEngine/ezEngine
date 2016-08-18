@@ -94,7 +94,7 @@
     "Name" : "EditorRenderPass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x65CE9370E0F776257419F424ABD62FFB" }, { "$t" : "uuid", "$b" : "0xF48A53CE128B3D1424E9CF91384ED0AD" }, { "$t" : "uuid", "$b" : "0x3B6F1F0DBE90B1CC263CF65724674D3B" } ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-428.3478, -280.1739)", "$b" : "0x862CD6C343168CC3" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0x38C7F4AF32A8FD4696FBF54ABDB4F776" } ],
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0x38C7F4AF32A8FD4696FBF54ABDB4F776" }, { "$t" : "uuid", "$b" : "0xA0994A001A7FBC49A52C9EE382D6D56C" } ],
     "ViewRenderMode" : "ezViewRenderMode::None"
    }
   },
@@ -104,6 +104,13 @@
    "p" : {
     "Enabled" : true,
     "HighlightID" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x200111E427063B4197EF61C0AA1AB808" },
+   "t" : "ezParticleRenderer",
+   "p" : {
+    
    }
   },
   {
@@ -119,6 +126,13 @@
    "p" : {
     "Enabled" : true,
     "HighlightID" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xF4A7F8F70CB4D444BBF753F01E5060D8" },
+   "t" : "ezParticleRenderer",
+   "p" : {
+    
    }
   },
   {
@@ -138,7 +152,7 @@
     "Name" : "EditorSelectionPass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x450C44A116D8AC39D169E6707DC1E5FE" } ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-19.0000, -289.0000)", "$b" : "0x000098C1008090C3" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0x4994DB49F14D704B86C6353AFFEAC5DC" } ]
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0x4994DB49F14D704B86C6353AFFEAC5DC" }, { "$t" : "uuid", "$b" : "0xA3AC62DDA516384FAC8ADBEED8C500E6" } ]
    }
   },
   {
@@ -179,7 +193,7 @@
     "Name" : "SimplePass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x0A24F3C23E8055C5485F2974F9861957" } ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(211.0000, -211.0000)", "$b" : "0x00005343000053C3" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0x1E7F0432A67C9B44A8A8CE85CA06F80F" } ]
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0x1E7F0432A67C9B44A8A8CE85CA06F80F" }, { "$t" : "uuid", "$b" : "0x200111E427063B4197EF61C0AA1AB808" } ]
    }
   },
   {
@@ -226,7 +240,7 @@
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-127.0435, -56.4348)", "$b" : "0x4316FEC238BD61C2" },
     "PickSelected" : false,
     "PickingPosition" : { "$t" : "vec2", "$v" : "(0.0000, 0.0000)", "$b" : "0x0000000000000000" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0x3D0E9189C147734190130922BA044549" }, { "$t" : "uuid", "$b" : "0x683B31A1A61C1E418B44E932107796CA" } ],
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0x3D0E9189C147734190130922BA044549" }, { "$t" : "uuid", "$b" : "0x683B31A1A61C1E418B44E932107796CA" }, { "$t" : "uuid", "$b" : "0xF4A7F8F70CB4D444BBF753F01E5060D8" } ],
     "SceneContext" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
     "ViewRenderMode" : "ezViewRenderMode::None"
    }
@@ -239,7 +253,7 @@
     "AssetType" : "RenderPipeline",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x4D3C46DA84C91049B0B7A0B3891D0448" },
-    "Hash" : { "$t" : "uint64", "$v" : "3940853852527884108", "$b" : "0x4C77A707B3B9B036" },
+    "Hash" : { "$t" : "uint64", "$v" : "10497322665230571268", "$b" : "0x0497B9C958FBAD91" },
     "References" : [ "{ 3edf10b3-36d2-434f-9683-c653909abe7e }" ]
    }
   },
@@ -260,11 +274,18 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xA0994A001A7FBC49A52C9EE382D6D56C" },
+   "t" : "ezParticleRenderer",
+   "p" : {
+    
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
    "t" : "ezDocumentRoot",
    "n" : "ObjectTree",
    "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xDFBE14DEB961AA46B15D595A6EB9E3B8" }, { "$t" : "uuid", "$b" : "0x5A8BF5B47F9B2A498BAB7B04BBFCE008" }, { "$t" : "uuid", "$b" : "0x5EF07BF3CF37B0489B2A829EDB6CD4AC" }, { "$t" : "uuid", "$b" : "0xCD33C3278B47334F947E8235D17DA7F5" }, { "$t" : "uuid", "$b" : "0xA1962937FE1D734097FA925A9FE08573" }, { "$t" : "uuid", "$b" : "0x39AC33576A9439479CFBCC623EE1E2A6" }, { "$t" : "uuid", "$b" : "0xD3EF04FB40775F458592A2905951124A" }, { "$t" : "uuid", "$b" : "0xFB7571937082BA4E8526D01652EABB4C" }, { "$t" : "uuid", "$b" : "0xA57BA525A9CB5548954D6E96BA60CD00" }, { "$t" : "uuid", "$b" : "0xA75CD438505D6548BF2485D13B00C1E3" } ]
+    "Children" : [ { "$t" : "uuid", "$b" : "0xDFBE14DEB961AA46B15D595A6EB9E3B8" }, { "$t" : "uuid", "$b" : "0x5A8BF5B47F9B2A498BAB7B04BBFCE008" }, { "$t" : "uuid", "$b" : "0x5EF07BF3CF37B0489B2A829EDB6CD4AC" }, { "$t" : "uuid", "$b" : "0xCD33C3278B47334F947E8235D17DA7F5" }, { "$t" : "uuid", "$b" : "0xA1962937FE1D734097FA925A9FE08573" }, { "$t" : "uuid", "$b" : "0x39AC33576A9439479CFBCC623EE1E2A6" }, { "$t" : "uuid", "$b" : "0xD3EF04FB40775F458592A2905951124A" }, { "$t" : "uuid", "$b" : "0xFB7571937082BA4E8526D01652EABB4C" }, { "$t" : "uuid", "$b" : "0xA57BA525A9CB5548954D6E96BA60CD00" }, { "$t" : "uuid", "$b" : "0xA75CD438505D6548BF2485D13B00C1E3" }, { "$t" : "uuid", "$b" : "0xA8887C0C7C30F74FAC997E170FFDEB24" } ]
    }
   },
   {
@@ -312,6 +333,22 @@
     "Node::Connections" : [  ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-70.0000, -542.0000)", "$b" : "0x00008CC2008007C4" },
     "SceneContext" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA3AC62DDA516384FAC8ADBEED8C500E6" },
+   "t" : "ezParticleRenderer",
+   "p" : {
+    
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA8887C0C7C30F74FAC997E170FFDEB24" },
+   "t" : "ezParticleExtractor",
+   "p" : {
+    "Name" : "",
+    "Node::Connections" : [  ],
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(-267.0000, -455.0000)", "$b" : "0x008085C30080E3C3" }
    }
   },
   {

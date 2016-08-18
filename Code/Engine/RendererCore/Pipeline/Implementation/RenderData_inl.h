@@ -23,7 +23,11 @@ static T* ezCreateRenderDataForThisFrame(const ezGameObject* pOwner, ezUInt32 ui
 
   T* pRenderData = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), T);
   pRenderData->m_uiBatchId = uiBatchId;
-  pRenderData->m_hOwner = pOwner->GetHandle();
+
+  if (pOwner != nullptr)
+  {
+    pRenderData->m_hOwner = pOwner->GetHandle();
+  }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   pRenderData->m_pOwner = pOwner;
