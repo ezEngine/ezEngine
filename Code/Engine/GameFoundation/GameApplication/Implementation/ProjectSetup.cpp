@@ -17,6 +17,7 @@ typedef ezGALDeviceDX11 ezGALDeviceDefault;
 #include <GameUtils/Collection/CollectionResource.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <GameUtils/Surfaces/SurfaceResource.h>
+#include <GameUtils/Curves/ColorGradientResource.h>
 
 void ezGameApplication::DoProjectSetup()
 {
@@ -135,6 +136,16 @@ void ezGameApplication::DoSetupDefaultResources()
   {
     ezRenderPipelineResourceHandle hMissingRenderPipeline = ezRenderPipelineResource::CreateMissingPipeline();
     ezRenderPipelineResource::SetTypeMissingResource(hMissingRenderPipeline);
+  }
+
+  // Color Gradient
+  {
+    ezColorGradientResourceDescriptor cg;
+    cg.m_Gradient.AddColorControlPoint(0, ezColor::RebeccaPurple);
+    cg.m_Gradient.AddColorControlPoint(1, ezColor::LawnGreen);
+
+    ezColorGradientResourceHandle hResource = ezResourceManager::CreateResource<ezColorGradientResource>("MissingColorGradient", cg, "Missing Color Gradient Resource");
+    ezColorGradientResource::SetTypeMissingResource(hResource);
   }
 }
 

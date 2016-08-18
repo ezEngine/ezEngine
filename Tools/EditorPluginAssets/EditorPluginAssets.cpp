@@ -154,6 +154,27 @@ void OnLoadPlugin(bool bReloading)
       ezAssetActions::MapActions("CollectionAssetToolBar", true);
     }
   }
+
+  // ColorGradient Asset
+  {
+    // Menu Bar
+    {
+      ezActionMapManager::RegisterActionMap("ColorGradientAssetMenuBar");
+      ezProjectActions::MapActions("ColorGradientAssetMenuBar");
+      ezStandardMenus::MapActions("ColorGradientAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezDocumentActions::MapActions("ColorGradientAssetMenuBar", "Menu.File", false);
+      ezDocumentActions::MapToolsActions("ColorGradientAssetMenuBar", "Menu.Tools");
+      ezCommandHistoryActions::MapActions("ColorGradientAssetMenuBar", "Menu.Edit");
+    }
+
+    // Tool Bar
+    {
+      ezActionMapManager::RegisterActionMap("ColorGradientAssetToolBar");
+      ezDocumentActions::MapActions("ColorGradientAssetToolBar", "", true);
+      ezCommandHistoryActions::MapActions("ColorGradientAssetToolBar", "");
+      ezAssetActions::MapActions("ColorGradientAssetToolBar", true);
+    }
+  }
 }
 
 void OnUnloadPlugin(bool bReloading)

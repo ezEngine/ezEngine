@@ -12,6 +12,7 @@
     <file>Surface.png</file>
 	<file>RenderPipeline.png</file>
 	<file>Collection.png</file>
+	<file>ColorGradient.png</file>
   </qresource>
 </RCC>
 
