@@ -19,15 +19,21 @@ class EZ_COREUTILS_DLL ezStreamGroup
     /// \brief Destructor
     ~ezStreamGroup();
 
+    void Clear();
+
     /// \brief Adds a stream processor to the stream group.
     /// Ownership is transferred to the stream group and EZ_DEFAULT_DELETE will be called on the stream processor on destruction.
     /// Processors are executed in the order they are added to the stream group.
     void AddStreamProcessor( ezStreamProcessor* pStreamProcessor );
+    
+    void ClearStreamProcessors();
 
     /// \brief Adds a stream element spawner to the stream group.
     /// Ownership is transferred to the stream group and EZ_DEFAULT_DELETE will be called on the stream element spawner on destruction.
     /// Spawners are executed in the order they are added to the stream group.
     void AddStreamElementSpawner( ezStreamElementSpawner* pStreamElementSpawner );
+
+    void ClearStreamElementSpawners();
 
     /// \brief Adds a stream with the given name to the stream group. Adding a stream two times with the same name will return nullptr for the second attempt to signal an error.
     ezStream* AddStream( const char* szName, ezStream::DataType Type );
@@ -71,7 +77,8 @@ class EZ_COREUTILS_DLL ezStreamGroup
   protected:
 
     /// \brief Internal helper function which removes any pending elements and spawns new elements as needed
-    void RunPendingOperations();
+    void RunPendingDeletions();
+    void RunPendingSpawns();
 
     ezHybridArray<ezStreamProcessor*, 8> m_StreamProcessors;
 
