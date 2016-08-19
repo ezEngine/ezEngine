@@ -21,4 +21,7 @@ protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override;
 
+
+  virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
+
 };

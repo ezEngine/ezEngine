@@ -32,7 +32,6 @@ public:
 
 protected:
   virtual void Process(ezUInt64 uiNumElements) override;
-  virtual void StepParticleSystem() override;
 
   ezPhysicsWorldModuleInterface* m_pPhysicsModule;
 };

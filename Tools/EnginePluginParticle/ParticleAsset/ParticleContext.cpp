@@ -26,7 +26,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezParticleContext::ezParticleContext()
 {
-  int i = 0;
+  m_pComponent = nullptr;
 }
 
 void ezParticleContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
@@ -64,21 +64,20 @@ void ezParticleContext::OnInitialize()
 
   ezGameObjectDesc obj;
   ezGameObject* pObj;
-  ezParticleComponent* pComponent;
 
   // Preview Effect
   {
     obj.m_sName.Assign("ParticlePreview");
     pWorld->CreateObject(obj, pObj);
 
-    pCompMan->CreateComponent(pComponent);
+    pCompMan->CreateComponent(m_pComponent);
 
     ezString sParticleGuid = ezConversionUtils::ToString(GetDocumentGuid());
     m_hParticle = ezResourceManager::LoadResource<ezParticleEffectResource>(sParticleGuid);
 
-    pComponent->SetParticleEffect(m_hParticle);
+    m_pComponent->SetParticleEffect(m_hParticle);
 
-    pObj->AttachComponent(pComponent);
+    pObj->AttachComponent(m_pComponent);
   }
 }
 
@@ -100,5 +99,19 @@ bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* p
 {
   ezParticleViewContext* pParticleViewContext = static_cast<ezParticleViewContext*>(pThumbnailViewContext);
   pParticleViewContext->PositionThumbnailCamera();
+
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+  m_pWorld->SetWorldSimulationEnabled(true);
+  m_pWorld->Update();
+  m_pWorld->SetWorldSimulationEnabled(false);
+
+  if (m_pComponent && m_pComponent->m_pParticleEffect)
+  {
+    for (ezUInt32 i = 0; i < 15; ++i)
+    {
+      m_pComponent->m_pParticleEffect->Update(ezTime::Seconds(0.1));
+    }
+  }
+
   return true;
 }

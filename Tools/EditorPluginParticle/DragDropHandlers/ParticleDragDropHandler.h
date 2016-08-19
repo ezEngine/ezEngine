@@ -2,9 +2,9 @@
 
 #include <EditorFramework/DragDrop/ComponentDragDropHandler.h>
 
-class ezMeshComponentDragDropHandler : public ezComponentDragDropHandler
+class ezParticleComponentDragDropHandler : public ezComponentDragDropHandler
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezMeshComponentDragDropHandler, ezComponentDragDropHandler);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleComponentDragDropHandler, ezComponentDragDropHandler);
 
 public:
 

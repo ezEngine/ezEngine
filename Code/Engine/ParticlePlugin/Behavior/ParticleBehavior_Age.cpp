@@ -40,9 +40,9 @@ ezParticleBehavior_Age::ezParticleBehavior_Age(ezParticleSystemInstance* pOwner)
 
 void ezParticleBehavior_Age::Process(ezUInt64 uiNumElements)
 {
-  const float tDiff = (float)m_pParticleSystem->GetWorld()->GetClock().GetTimeDiff().GetSeconds();
-
   ezStreamElementIterator<ezVec3> itLifeTime(m_pStreamLifeTime, uiNumElements);
+
+  const float tDiff = (float)m_TimeDiff.GetSeconds();
 
   ezUInt64 uiCurElement = 0;
   while (!itLifeTime.HasReachedEnd())
@@ -62,6 +62,3 @@ void ezParticleBehavior_Age::Process(ezUInt64 uiNumElements)
   }
 }
 
-void ezParticleBehavior_Age::StepParticleSystem()
-{
-}

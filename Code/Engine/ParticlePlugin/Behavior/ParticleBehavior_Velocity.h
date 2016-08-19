@@ -32,6 +32,5 @@ public:
 
 protected:
   virtual void Process(ezUInt64 uiNumElements) override;
-  virtual void StepParticleSystem() override;
 };
 

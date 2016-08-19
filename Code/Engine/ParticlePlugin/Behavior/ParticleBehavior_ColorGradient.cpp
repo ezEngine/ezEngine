@@ -106,6 +106,3 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
   }
 }
 
-void ezParticleBehavior_ColorGradient::StepParticleSystem()
-{
-}

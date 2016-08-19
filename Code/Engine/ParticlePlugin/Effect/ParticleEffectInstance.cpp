@@ -128,10 +128,10 @@ void ezParticleEffectInstance::SetTransform(const ezTransform& transform)
   }
 }
 
-void ezParticleEffectInstance::Update()
+void ezParticleEffectInstance::Update(const ezTime& tDiff)
 {
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
-    m_ParticleSystems[i]->Update();
+    m_ParticleSystems[i]->Update(tDiff);
   }
 }

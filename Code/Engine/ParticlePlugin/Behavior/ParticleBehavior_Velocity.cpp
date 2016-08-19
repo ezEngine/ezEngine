@@ -61,7 +61,7 @@ ezParticleBehavior_Velocity::ezParticleBehavior_Velocity(ezParticleSystemInstanc
 
 void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
 {
-  const float tDiff = (float)m_pParticleSystem->GetWorld()->GetClock().GetTimeDiff().GetSeconds();
+  const float tDiff = (float)m_TimeDiff.GetSeconds();
   
   ezStreamElementIterator<ezVec3> itPosition(m_pStreamPosition, uiNumElements);
   ezStreamElementIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements);
@@ -75,6 +75,3 @@ void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
   }
 }
 
-void ezParticleBehavior_Velocity::StepParticleSystem()
-{
-}

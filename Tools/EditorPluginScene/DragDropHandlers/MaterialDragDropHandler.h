@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorPluginScene/DragDropHandlers/AssetDragDropHandler.h>
+#include <EditorFramework/DragDrop/AssetDragDropHandler.h>
 
 class ezMaterialDragDropHandler : public ezAssetDragDropHandler
 {

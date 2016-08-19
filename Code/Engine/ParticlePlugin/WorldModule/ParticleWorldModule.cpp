@@ -76,7 +76,7 @@ void ezParticleWorldModule::UpdateEffects()
 
   for (ezUInt32 i = 0; i < m_ParticleEffects.GetCount(); ++i)
   {
-    m_ParticleEffects[i]->Update();
+    m_ParticleEffects[i]->Update(GetWorld()->GetClock().GetTimeDiff());
   }
 
   DestroyFinishedEffects();

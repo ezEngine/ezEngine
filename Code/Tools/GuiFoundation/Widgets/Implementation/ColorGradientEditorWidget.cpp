@@ -78,10 +78,16 @@ void QColorGradientEditorWidget::SetColorGradient(const ezColorGradient& gradien
   GradientWidget->update();
 }
 
-void QColorGradientEditorWidget::on_ButtonFrame_clicked()
+
+void QColorGradientEditorWidget::FrameGradient()
 {
   GradientWidget->FrameExtents();
   GradientWidget->update();
+}
+
+void QColorGradientEditorWidget::on_ButtonFrame_clicked()
+{
+  FrameGradient();
 }
 
 void QColorGradientEditorWidget::on_GradientWidget_selectionChanged(ezInt32 colorCP, ezInt32 alphaCP, ezInt32 intensityCP)
@@ -204,6 +210,12 @@ void QColorGradientEditorWidget::on_Color_reset()
 
     emit EndOperation(false);
   }
+}
+
+
+void QColorGradientEditorWidget::on_ButtonNormalize_clicked()
+{
+  emit NormalizeRange();
 }
 
 void QColorGradientEditorWidget::UpdateCpUi()

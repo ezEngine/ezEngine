@@ -39,7 +39,7 @@ public:
 protected:
   virtual void SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
 
-  virtual ezUInt32 ComputeSpawnCount() override;
+  virtual ezUInt32 ComputeSpawnCount(const ezTime& tDiff) override;
 
   ezTime m_NextSpawn;
 };

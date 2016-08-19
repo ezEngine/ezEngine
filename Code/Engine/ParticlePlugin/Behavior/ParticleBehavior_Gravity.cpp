@@ -65,7 +65,7 @@ void ezParticleBehavior_Gravity::Process(ezUInt64 uiNumElements)
 {
   const ezVec3 vGravity = m_pPhysicsModule->GetGravity();
 
-  const float tDiff = (float)m_pParticleSystem->GetWorld()->GetClock().GetTimeDiff().GetSeconds();
+  const float tDiff = (float)m_TimeDiff.GetSeconds();
   const ezVec3 addGravity = vGravity * m_fGravityFactor * tDiff;
 
   ezStreamElementIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements);
@@ -76,8 +76,4 @@ void ezParticleBehavior_Gravity::Process(ezUInt64 uiNumElements)
 
     itVelocity.Advance();
   }
-}
-
-void ezParticleBehavior_Gravity::StepParticleSystem()
-{
 }

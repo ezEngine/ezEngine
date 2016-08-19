@@ -3,6 +3,8 @@
 #include <EnginePluginParticle/Plugin.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 
+class ezParticleComponent;
+
 typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectResourceHandle;
 
 class EZ_ENGINEPLUGINPARTICLE_DLL ezParticleContext : public ezEngineProcessDocumentContext
@@ -24,6 +26,7 @@ protected:
 
 private:
   ezParticleEffectResourceHandle m_hParticle;
+  ezParticleComponent* m_pComponent;
 };
 
 

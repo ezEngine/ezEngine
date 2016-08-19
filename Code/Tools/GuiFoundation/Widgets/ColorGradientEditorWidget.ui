@@ -139,6 +139,13 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="ButtonNormalize">
+       <property name="text">
+        <string>Adjust X to [0 - 1]</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="ButtonFrame">
        <property name="text">
         <string>[ Frame ]</string>

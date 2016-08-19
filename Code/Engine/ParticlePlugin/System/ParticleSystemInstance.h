@@ -33,7 +33,7 @@ public:
   void SetTransform(const ezTransform& transform) { m_Transform = transform; }
   const ezTransform& GetTransform() const { return m_Transform; }
 
-  void Update();
+  void Update(const ezTime& tDiff);
 
   ezWorld* GetWorld() const { return m_pWorld; }
 

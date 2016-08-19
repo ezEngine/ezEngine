@@ -65,6 +65,8 @@ ezColorGradientAssetDocumentWindow::ezColorGradientAssetDocumentWindow(ezDocumen
   connect(m_pGradientEditor, &QColorGradientEditorWidget::BeginOperation, this, &ezColorGradientAssetDocumentWindow::onGradientBeginOperation);
   connect(m_pGradientEditor, &QColorGradientEditorWidget::EndOperation, this, &ezColorGradientAssetDocumentWindow::onGradientEndOperation);
 
+  connect(m_pGradientEditor, &QColorGradientEditorWidget::NormalizeRange, this, &ezColorGradientAssetDocumentWindow::onGradientNormalizeRange);
+
   {
     ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
     pPropertyPanel->setObjectName("ColorGradientAssetDockWidget");
@@ -349,6 +351,62 @@ void ezColorGradientAssetDocumentWindow::onGradientEndOperation(bool commit)
     history->FinishTemporaryCommands();
   else
     history->CancelTemporaryCommands();
+}
+
+
+void ezColorGradientAssetDocumentWindow::onGradientNormalizeRange()
+{
+  ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
+
+  ezColorGradient GradientData;
+  pDoc->FillGradientData(GradientData);
+
+  float minX, maxX;
+  if (!GradientData.GetExtents(minX, maxX))
+    return;
+
+  if (minX == 0 && maxX == 1)
+    return;
+
+  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+
+  const float rangeNorm = 1.0f / (maxX - minX);
+
+  history->StartTransaction();
+
+  ezUInt32 numRgb, numAlpha, numInt;
+  GradientData.GetNumControlPoints(numRgb, numAlpha, numInt);
+
+  for (ezUInt32 i = 0; i < numRgb; ++i)
+  {
+    float x = GradientData.GetColorControlPoint(i).m_PosX;
+    x -= minX;
+    x *= rangeNorm;
+
+    MoveCP(i, x, "Color CPs");
+  }
+
+  for (ezUInt32 i = 0; i < numAlpha; ++i)
+  {
+    float x = GradientData.GetAlphaControlPoint(i).m_PosX;
+    x -= minX;
+    x *= rangeNorm;
+
+    MoveCP(i, x, "Alpha CPs");
+  }
+
+  for (ezUInt32 i = 0; i < numInt; ++i)
+  {
+    float x = GradientData.GetIntensityControlPoint(i).m_PosX;
+    x -= minX;
+    x *= rangeNorm;
+
+    MoveCP(i, x, "Intensity CPs");
+  }
+
+  history->FinishTransaction();
+
+  m_pGradientEditor->FrameGradient();
 }
 
 void ezColorGradientAssetDocumentWindow::UpdatePreview()

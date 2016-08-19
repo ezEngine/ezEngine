@@ -45,7 +45,7 @@ void ezParticleEffectAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo*
 
   const ezParticleEffectDescriptor* pProp = GetProperties();
 
-  //pInfo->m_FileDependencies.Insert(pProp->m_sMeshFile);
+  /// \todo Dependencies: All asset references (color gradients etc)
 
 }
 
@@ -57,5 +57,11 @@ ezStatus ezParticleEffectAssetDocument::InternalTransformAsset(ezStreamWriter& s
 ezStatus ezParticleEffectAssetDocument::InternalRetrieveAssetInfo(const char* szPlatform)
 {
   return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezParticleEffectAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
+{
+  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
+  return status;
 }
 

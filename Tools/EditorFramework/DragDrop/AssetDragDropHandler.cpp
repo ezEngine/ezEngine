@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorPluginScene/DragDropHandlers/AssetDragDropHandler.h>
+#include <EditorFramework/DragDrop/AssetDragDropHandler.h>
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 

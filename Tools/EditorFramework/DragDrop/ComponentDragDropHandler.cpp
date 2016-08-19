@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorPluginScene/DragDropHandlers/ComponentDragDropHandler.h>
+#include <EditorFramework/DragDrop/ComponentDragDropHandler.h>
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
@@ -165,7 +165,12 @@ float ezComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const
 
   const ezDocument* pDocument = ezDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument);
 
-  if (!pDocument->GetDynamicRTTI()->IsDerivedFrom<ezSceneDocument>())
+  const ezRTTI* pRttiScene = ezRTTI::FindTypeByName("ezSceneDocument");
+
+  if (pRttiScene == nullptr)
+    return 0.0f;
+
+  if (!pDocument->GetDynamicRTTI()->IsDerivedFrom(pRttiScene))
     return 0.0f;
 
   return 1.0f;

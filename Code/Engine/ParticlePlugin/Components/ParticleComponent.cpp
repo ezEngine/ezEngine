@@ -31,7 +31,6 @@ ezParticleComponent::ezParticleComponent()
   m_pParticleEffect = nullptr;
 }
 
-
 ezParticleComponent::~ezParticleComponent()
 {
   EZ_ASSERT_DEBUG(m_pParticleEffect == nullptr, "Effect pointer should have been cleared");

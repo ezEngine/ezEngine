@@ -57,7 +57,5 @@ protected:
 
 public:
 
-protected:
-
   ezParticleEffectInstance* m_pParticleEffect;
 };

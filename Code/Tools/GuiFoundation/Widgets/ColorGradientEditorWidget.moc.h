@@ -22,6 +22,8 @@ public:
 
   void ShowColorPicker() { on_ButtonColor_clicked(); }
 
+  void FrameGradient();
+
 signals:
   void ColorCpAdded(float posX, const ezColorGammaUB& color);
   void ColorCpMoved(ezInt32 index, float newPosX);
@@ -37,6 +39,8 @@ signals:
   void IntensityCpMoved(ezInt32 index, float newPosX);
   void IntensityCpDeleted(ezInt32 index);
   void IntensityCpChanged(ezInt32 index, float intensity);
+
+  void NormalizeRange();
 
   void BeginOperation();
   void EndOperation(bool commit);
@@ -54,6 +58,7 @@ private slots:
   void on_CurrentColor_changed(const QColor&);
   void on_Color_accepted();
   void on_Color_reset();
+  void on_ButtonNormalize_clicked();
 
 private:
   void UpdateCpUi();

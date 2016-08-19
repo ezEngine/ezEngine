@@ -92,11 +92,11 @@ void ezParticleEmitter_Continuous::SpawnElements(ezUInt64 uiStartIndex, ezUInt64
   }
 }
 
-ezUInt32 ezParticleEmitter_Continuous::ComputeSpawnCount()
+ezUInt32 ezParticleEmitter_Continuous::ComputeSpawnCount(const ezTime& tDiff)
 {
-  const ezTime tCurrent = m_pOwnerSystem->GetWorld()->GetClock().GetAccumulatedTime();
+  m_NextSpawn -= tDiff;
 
-  if (tCurrent < m_NextSpawn)
+  if (m_NextSpawn > ezTime::Seconds(0))
     return 0;
 
   ezRandom& rng = m_pOwnerSystem->GetRNG();
@@ -107,7 +107,7 @@ ezUInt32 ezParticleEmitter_Continuous::ComputeSpawnCount()
 
   // we ignore the fact that with lower update frequencies (bad framerate), the actual interval will become larger and the effect
   // might visibly change
-  m_NextSpawn = tCurrent + interval;
+  m_NextSpawn = interval;
 
   return uiSpawn;
 }

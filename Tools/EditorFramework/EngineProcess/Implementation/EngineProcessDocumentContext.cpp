@@ -632,6 +632,7 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
   // make sure the world is not simulating while making a screenshot
   {
     EZ_LOCK(m_pWorld->GetWriteMarker());
+    m_bWorldSimStateBeforeThumbnail = m_pWorld->GetWorldSimulationEnabled();
     m_pWorld->SetWorldSimulationEnabled(false);
   }
 
@@ -687,6 +688,8 @@ void ezEngineProcessDocumentContext::DestroyThumbnailViewContext()
     pDevice->DestroyTexture(m_hThumbnailDepthRT);
     m_hThumbnailDepthRT.Invalidate();
   }
+
+  m_pWorld->SetWorldSimulationEnabled(m_bWorldSimStateBeforeThumbnail);
 }
 
 bool ezEngineProcessDocumentContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)

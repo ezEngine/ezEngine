@@ -38,6 +38,8 @@ private slots:
   void onGradientBeginOperation();
   void onGradientEndOperation(bool commit);
 
+  void onGradientNormalizeRange();
+
 private:
   void UpdatePreview();
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);

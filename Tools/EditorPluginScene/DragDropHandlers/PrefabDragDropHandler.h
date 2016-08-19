@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorPluginScene/DragDropHandlers/ComponentDragDropHandler.h>
+#include <EditorFramework/DragDrop/ComponentDragDropHandler.h>
 
 class ezPrefabComponentDragDropHandler : public ezComponentDragDropHandler
 {

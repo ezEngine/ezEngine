@@ -32,8 +32,9 @@ protected:
   ezParticleBehavior(ezParticleSystemInstance* pOwner);
 
   virtual ezResult UpdateStreamBindings() override;
-  virtual void StepParticleSystem() = 0;
+  virtual void StepParticleSystem(const ezTime& tDiff) { m_TimeDiff = tDiff; }
 
+  ezTime m_TimeDiff;
   ezParticleSystemInstance* m_pParticleSystem;
   ezStream* m_pStreamPosition;
   ezStream* m_pStreamVelocity;

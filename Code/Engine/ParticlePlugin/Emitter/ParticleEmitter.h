@@ -45,7 +45,7 @@ protected:
   virtual ezResult UpdateStreamBindings() override;
 
   /// \brief Called once per update. Must return how many new particles are to be spawned.
-  virtual ezUInt32 ComputeSpawnCount() = 0;
+  virtual ezUInt32 ComputeSpawnCount(const ezTime& tDiff) = 0;
 
   ezParticleSystemInstance* m_pOwnerSystem;
   ezStream* m_pStreamPosition;

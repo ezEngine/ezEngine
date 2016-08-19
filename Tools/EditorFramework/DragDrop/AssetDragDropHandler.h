@@ -1,11 +1,10 @@
 #pragma once
 
-#include <EditorPluginScene/Plugin.h>
 #include <EditorFramework/DragDrop/DragDropHandler.h>
 
 class ezDocument;
 
-class ezAssetDragDropHandler : public ezDragDropHandler
+class EZ_EDITORFRAMEWORK_DLL ezAssetDragDropHandler : public ezDragDropHandler
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAssetDragDropHandler, ezDragDropHandler);
 

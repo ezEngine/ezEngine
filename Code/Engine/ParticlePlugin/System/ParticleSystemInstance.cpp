@@ -167,13 +167,13 @@ void ezParticleSystemInstance::Initialize(ezUInt32 uiMaxParticles, ezWorld* pWor
   m_StreamGroup.SetSize(uiMaxParticles);
 }
 
-void ezParticleSystemInstance::Update()
+void ezParticleSystemInstance::Update(const ezTime& tDiff)
 {
   if (m_bEmitterEnabled)
   {
     for (auto pEmitter : m_Emitters)
     {
-      const ezUInt32 uiSpawn = pEmitter->ComputeSpawnCount();
+      const ezUInt32 uiSpawn = pEmitter->ComputeSpawnCount(tDiff);
 
       if (uiSpawn > 0)
       {
@@ -184,7 +184,7 @@ void ezParticleSystemInstance::Update()
 
   for (auto pBehavior : m_Behaviors)
   {
-    pBehavior->StepParticleSystem();
+    pBehavior->StepParticleSystem(tDiff);
   }
 
   m_StreamGroup.Process();

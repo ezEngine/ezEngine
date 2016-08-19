@@ -213,6 +213,6 @@ private:
   ezGALRenderTagetSetup m_ThumbnailRenderTargetSetup;
   ezGALTextureHandle m_hThumbnailColorRT;
   ezGALTextureHandle m_hThumbnailDepthRT;
-
+  bool m_bWorldSimStateBeforeThumbnail;
 };
 

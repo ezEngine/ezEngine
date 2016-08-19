@@ -30,7 +30,7 @@ ezParticleEffectAssetDocumentManager::~ezParticleEffectAssetDocumentManager()
 
 ezBitflags<ezAssetDocumentFlags> ezParticleEffectAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
 {
-  return ezAssetDocumentFlags::AutoTransformOnSave;
+  return ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 void ezParticleEffectAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
