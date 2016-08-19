@@ -3,6 +3,7 @@
 #include <GuiFoundation/Basics.h>
 #include <Foundation/Math/ColorGradient.h>
 #include <Code/Tools/GuiFoundation/ui_ColorGradientEditorWidget.h>
+#include <Foundation/Math/Color8UNorm.h>
 
 #include <QWidget>
 

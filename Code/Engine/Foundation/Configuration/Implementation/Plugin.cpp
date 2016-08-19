@@ -442,6 +442,8 @@ void ezPlugin::SortPluginReloadOrder(ezHybridArray<ezString, 16>& PluginsToReloa
 
 ezResult ezPlugin::ReloadPlugins(bool bForceReload)
 {
+  EZ_REPORT_FAILURE("This currently cannot work, because plugins do not load copied plugins.");
+
   EZ_LOG_BLOCK("Reload Plugins");
 
   ezLog::Dev("Reloading Plugins");

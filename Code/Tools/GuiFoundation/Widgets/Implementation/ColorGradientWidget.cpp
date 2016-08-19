@@ -1,5 +1,8 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/Widgets/ColorGradientWidget.moc.h>
+#include <QPainter>
+#include <Foundation/Math/Color8UNorm.h>
+#include <qevent.h>
 
 static const ezUInt32 CpAreaHeight = 20;
 static const ezUInt32 CpRadius = 5;

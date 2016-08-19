@@ -4,6 +4,7 @@
 #include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
 #include <ParticlePlugin/Manager/ParticleEffectManager.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
+#include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
 ezParticleEffectInstance::ezParticleEffectInstance()

@@ -1,4 +1,4 @@
-#include <RendererCore/PCH.h>
+#include <ParticlePlugin/PCH.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 

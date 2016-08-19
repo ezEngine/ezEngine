@@ -1,5 +1,7 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/Widgets/ColorGradientEditorWidget.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <Foundation/Math/Color8UNorm.h>
 
 QColorGradientEditorWidget::QColorGradientEditorWidget(QWidget* pParent)
   : QWidget(pParent)

@@ -10,6 +10,7 @@
 #include <CoreUtils/Image/ImageConversion.h>
 #include <GuiFoundation/Widgets/ColorGradientEditorWidget.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
+#include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
 
 ezColorGradientAssetDocumentWindow::ezColorGradientAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {

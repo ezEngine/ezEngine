@@ -8,6 +8,7 @@
 #include <SharedPluginAssets/Common/Messages.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 
 ezParticleEffectAssetDocumentWindow::ezParticleEffectAssetDocumentWindow(ezAssetDocument* pDocument) 
   : ezQtEngineDocumentWindow(pDocument)
