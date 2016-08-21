@@ -196,6 +196,27 @@ void OnLoadPlugin(bool bReloading)
       ezAssetActions::MapActions("Curve1DAssetToolBar", true);
     }
   }
+
+  // PropertyAnim Asset
+  {
+    // Menu Bar
+    {
+      ezActionMapManager::RegisterActionMap("PropertyAnimAssetMenuBar");
+      ezProjectActions::MapActions("PropertyAnimAssetMenuBar");
+      ezStandardMenus::MapActions("PropertyAnimAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezDocumentActions::MapActions("PropertyAnimAssetMenuBar", "Menu.File", false);
+      ezDocumentActions::MapToolsActions("PropertyAnimAssetMenuBar", "Menu.Tools");
+      ezCommandHistoryActions::MapActions("PropertyAnimAssetMenuBar", "Menu.Edit");
+    }
+
+    // Tool Bar
+    {
+      ezActionMapManager::RegisterActionMap("PropertyAnimAssetToolBar");
+      ezDocumentActions::MapActions("PropertyAnimAssetToolBar", "", true);
+      ezCommandHistoryActions::MapActions("PropertyAnimAssetToolBar", "");
+      ezAssetActions::MapActions("PropertyAnimAssetToolBar", true);
+    }
+  }
 }
 
 void OnUnloadPlugin(bool bReloading)

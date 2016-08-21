@@ -483,7 +483,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
               ezFileStats stat;
               if (ezOSFile::GetFileStats(sOldPlugin.GetData(), stat) == EZ_SUCCESS)
               {
-                if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile].m_LastModificationTime.IsEqual(stat.m_LastModificationTime, ezTimestamp::CompareMode::FileTime))
+                if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile].m_LastModificationTime.Compare(stat.m_LastModificationTime, ezTimestamp::CompareMode::FileTimeEqual))
                 {
                   ezLog::Dev("Plugin '%s' is not modified.", pPlugin->GetPluginName());
                   bModified = false;

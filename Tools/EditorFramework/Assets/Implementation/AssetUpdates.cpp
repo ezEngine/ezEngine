@@ -119,7 +119,7 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bReferences, ezUInt64& u
   auto& fileref = m_ReferencedFiles[sPath];
 
   // if the file has been modified, make sure to get updated data
-  if (!fileref.m_Timestamp.IsEqual(statDep.m_LastModificationTime, ezTimestamp::CompareMode::Identical))
+  if (!fileref.m_Timestamp.Compare(statDep.m_LastModificationTime, ezTimestamp::CompareMode::Identical))
   {
     ezFileReader file;
     if (file.Open(sPath).Failed())
@@ -154,7 +154,7 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
 
   EZ_LOCK(m_CuratorMutex);
 
-  if (m_ReferencedFiles[szAbsFilePath].m_Timestamp.IsEqual(fs.m_LastModificationTime, ezTimestamp::CompareMode::Identical))
+  if (m_ReferencedFiles[szAbsFilePath].m_Timestamp.Compare(fs.m_LastModificationTime, ezTimestamp::CompareMode::Identical))
     return EZ_SUCCESS;
 
   FileStatus& RefFile = m_ReferencedFiles[szAbsFilePath];

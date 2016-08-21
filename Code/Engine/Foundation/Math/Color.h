@@ -295,6 +295,9 @@ public:
   /// \brief Calculates the complementary color for this color (hue shifted by 180 degrees). The complementary color will have the same alpha.
   ezColor GetComplementaryColor() const; // [tested]
 
+  /// \brief Multiplies the given factor into red, green and blue, but not alpha.
+  void ScaleIntensity(float fIntensity);
+
   // *** Numeric properties ***
 public:
 

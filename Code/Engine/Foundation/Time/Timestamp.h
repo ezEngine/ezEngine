@@ -25,8 +25,9 @@ public:
   {
     enum Enum
     {
-      FileTime,  ///< Uses a resolution that guarantees that a file's timestamp is considered equal on all platforms.
+      FileTimeEqual,  ///< Uses a resolution that guarantees that a file's timestamp is considered equal on all platforms.
       Identical, ///< Uses maximal stored resolution.
+      Newer, ///< Just compares values and returns true if the left-hand side is larger than the right hand side
     };
   };
   /// \brief  Returns the current timestamp. Returned value will always be valid.
@@ -63,7 +64,7 @@ public:
   /// Use CompareMode::FileTime when working with file time stamps across platforms.
   /// It will use the lowest resolution supported by all platforms to make sure the
   /// timestamp of a file is considered equal regardless on which platform it was retrieved.
-  bool IsEqual(const ezTimestamp& rhs, CompareMode::Enum mode) const; // [tested]
+  bool Compare(const ezTimestamp& rhs, CompareMode::Enum mode) const; // [tested]
 
 // *** Operators ***
 public:

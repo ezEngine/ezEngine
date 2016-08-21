@@ -685,7 +685,7 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath, const ezSet
   // mark the file as valid (i.e. we saw it on disk, so it hasn't been deleted or such)
   RefFile.m_Status = FileStatus::Status::Valid;
 
-  bool fileChanged = !RefFile.m_Timestamp.IsEqual(FileStat.m_LastModificationTime, ezTimestamp::CompareMode::Identical);
+  bool fileChanged = !RefFile.m_Timestamp.Compare(FileStat.m_LastModificationTime, ezTimestamp::CompareMode::Identical);
   if (fileChanged)
   {
     RefFile.m_Timestamp.Invalidate();

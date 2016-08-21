@@ -19,15 +19,9 @@
 
 SET (LINK_LIBRARIES 
   Foundation
-  CoreUtils
   Core
+  CoreUtils
   GameUtils
-  RendererFoundation
-  RendererCore
-  RendererDX11
-  System
-  ThirdParty
-  Animation
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)

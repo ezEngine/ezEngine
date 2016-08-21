@@ -188,6 +188,14 @@ void ezColor::operator*= (const ezMat4& rhs)
   b = v.z;
 }
 
+
+void ezColor::ScaleIntensity(float fIntensity)
+{
+  r *= fIntensity;
+  g *= fIntensity;
+  b *= fIntensity;
+}
+
 ezColor ezColor::GetComplementaryColor() const
 {
   float hue, sat, val;

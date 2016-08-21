@@ -4,6 +4,7 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <CoreUtils/Image/Image.h>
 #include <Foundation/Math/Curve1D.h>
+#include <GameUtils/Curves/Curve1DResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DControlPoint, 1, ezRTTIDefaultAllocator<ezCurve1DControlPoint>)
 {
@@ -72,11 +73,16 @@ ezStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, 
 {
   const ezCurve1DAssetData* pProp = GetProperties();
 
-  //ezCurve1DResourceDescriptor desc;
-  //FillcurveData(desc.m_curve);
-  //desc.m_curve.SortControlPoints();
+  ezCurve1DResourceDescriptor desc;
+  desc.m_Curves.SetCount(pProp->m_Curves.GetCount());
 
-  //desc.Save(stream);
+  for (ezUInt32 i = 0; i < pProp->m_Curves.GetCount(); ++i)
+  {
+    FillCurve(i, desc.m_Curves[i]);
+    desc.m_Curves[i].SortControlPoints();
+  }
+
+  desc.Save(stream);
 
   return ezStatus(EZ_SUCCESS);
 }

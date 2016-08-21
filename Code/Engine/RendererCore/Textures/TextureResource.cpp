@@ -513,7 +513,7 @@ bool ezTextureResourceLoader::IsResourceOutdated(const ezResourceBase* pResource
     if (ezOSFile::GetFileStats(sAbs, stat).Failed())
       return false;
   
-    return !stat.m_LastModificationTime.IsEqual(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::FileTime);
+    return stat.m_LastModificationTime.Compare(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::Newer);
   }
 
 #endif

@@ -39,6 +39,7 @@ SET (LINK_LIBRARIES
   RendererCore
   CoreUtils
   GameUtils
+  Animation
 
   SharedPluginAssets
 )

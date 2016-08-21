@@ -42,16 +42,20 @@ void ezTimestamp::SetInt64(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime)
   }
 }
 
-bool ezTimestamp::IsEqual(const ezTimestamp& rhs, CompareMode::Enum mode) const
+bool ezTimestamp::Compare(const ezTimestamp& rhs, CompareMode::Enum mode) const
 {
   switch (mode)
   {
-  case CompareMode::FileTime:
+  case CompareMode::FileTimeEqual:
     // Resolution of seconds until all platforms are tuned to milliseconds.
     return (m_iTimestamp / 1000000LL) == (rhs.m_iTimestamp / 1000000LL);
   case CompareMode::Identical:
     return m_iTimestamp == rhs.m_iTimestamp;
+  case CompareMode::Newer:
+    return m_iTimestamp >= rhs.m_iTimestamp;
   }
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
   return false;
 }
 
