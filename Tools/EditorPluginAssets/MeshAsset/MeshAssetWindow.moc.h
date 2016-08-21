@@ -20,7 +20,7 @@ public:
   ~ezMeshAssetDocumentWindow();
 
   ezMeshAssetDocument* GetMeshDocument();
-  virtual const char* GetGroupName() const { return "MeshAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const { return "MeshAsset"; }
 
 protected:
   virtual void InternalRedraw() override;

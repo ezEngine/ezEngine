@@ -16,7 +16,7 @@ public:
   ezTextureAssetDocumentWindow(ezDocument* pDocument);
   ~ezTextureAssetDocumentWindow();
 
-  virtual const char* GetGroupName() const { return "TextureAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const { return "TextureAsset"; }
 
 private slots:
   

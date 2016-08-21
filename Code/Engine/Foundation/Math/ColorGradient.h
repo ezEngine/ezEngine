@@ -7,9 +7,14 @@
 class ezStreamWriter;
 class ezStreamReader;
 
+/// \brief A color curve for animating colors.
+///
+/// The gradient consists of a number of control points, for rgb, alpha and intensity.
+/// One can evaluate the curve at any x coordinate.
 class EZ_FOUNDATION_DLL ezColorGradient
 {
 public:
+  /// \brief Color control point. Stores red, green and blue in gamma space.
   struct ColorCP
   {
     EZ_DECLARE_POD_TYPE();
@@ -22,6 +27,7 @@ public:
     EZ_FORCE_INLINE bool operator<(const ColorCP& rhs) const { return m_PosX < rhs.m_PosX; }
   };
 
+  /// \brief Alpha control point.
   struct AlphaCP
   {
     EZ_DECLARE_POD_TYPE();
@@ -32,6 +38,7 @@ public:
     EZ_FORCE_INLINE bool operator<(const AlphaCP& rhs) const { return m_PosX < rhs.m_PosX; }
   };
 
+  /// \brief Intensity control point. Used to scale rgb for high-dynamic range values.
   struct IntensityCP
   {
     EZ_DECLARE_POD_TYPE();
@@ -45,36 +52,63 @@ public:
 public:
   ezColorGradient();
 
+  /// \brief Removes all control points.
   void Clear();
+
+  /// \brief Checks whether the curve has any control point.
   bool IsEmpty() const;
 
+  /// \brief Appends a color control point. SortControlPoints() must be called to before evaluating the curve.
   void AddColorControlPoint(float x, const ezColorGammaUB& rgb);
+
+  /// \brief Appends an alpha control point. SortControlPoints() must be called to before evaluating the curve.
   void AddAlphaControlPoint(float x, ezUInt8 alpha);
+
+  /// \brief Appends an intensity control point. SortControlPoints() must be called to before evaluating the curve.
   void AddIntensityControlPoint(float x, float intensity);
 
+  /// \brief Determines the min and max x-coordinate value across all control points.
   bool GetExtents(float& minx, float& maxx) const;
 
+  /// \brief Returns the number of control points of each type.
   void GetNumControlPoints(ezUInt32& rgb, ezUInt32& alpha, ezUInt32& intensity) const;
 
+  /// \brief Const access to a control point.
   const ColorCP& GetColorControlPoint(ezUInt32 idx) const { return m_ColorCPs[idx]; }
+  /// \brief Const access to a control point.
   const AlphaCP& GetAlphaControlPoint(ezUInt32 idx) const { return m_AlphaCPs[idx]; }
+  /// \brief Const access to a control point.
   const IntensityCP& GetIntensityControlPoint(ezUInt32 idx) const { return m_IntensityCPs[idx]; }
 
+  /// \brief Non-const access to a control point. If you modify the x coordinate, SortControlPoints() has to be called before evaluating the curve.
   ColorCP& ModifyColorControlPoint(ezUInt32 idx) { return m_ColorCPs[idx]; }
+  /// \brief Non-const access to a control point. If you modify the x coordinate, SortControlPoints() has to be called before evaluating the curve.
   AlphaCP& ModifyAlphaControlPoint(ezUInt32 idx) { return m_AlphaCPs[idx]; }
+  /// \brief Non-const access to a control point. If you modify the x coordinate, SortControlPoints() has to be called before evaluating the curve.
   IntensityCP& ModifyIntensityControlPoint(ezUInt32 idx) { return m_IntensityCPs[idx]; }
 
+  /// \brief Sorts the control point arrays by their x-coordinate. The CPs have to be sorted before calling Evaluate(), otherwise the result will be wrong.
   void SortControlPoints();
 
+  /// \brief Evaluates the curve at the given x-coordinate and returns RGBA and intensity separately.
+  ///
+  /// The control points have to be sorted, so call SortControlPoints() before, if any modifications where done.
   void Evaluate(float x, ezColorGammaUB& rgba, float& intensity) const;
 
+  /// \brief Evaluates only the color curve.
   void EvaluateColor(float x, ezColorGammaUB& rgb) const;
+  /// \brief Evaluates only the alpha curve.
   void EvaluateAlpha(float x, ezUInt8& alpha) const;
+  /// \brief Evaluates only the intensity curve.
   void EvaluateIntensity(float x, float& intensity) const;
 
+  /// \brief How much heap memory the curve uses.
   ezUInt64 GetHeapMemoryUsage() const;
 
+  /// \brief Stores the current state in a stream.
   void Save(ezStreamWriter& stream) const;
+
+  /// \brief Restores the state from a stream.
   void Load(ezStreamReader& stream);
 
 private:

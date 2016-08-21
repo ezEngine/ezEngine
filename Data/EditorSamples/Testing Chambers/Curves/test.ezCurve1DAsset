@@ -1,0 +1,91 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x1BE9347B7CB3A441B29191F2F1C271C8" },
+   "t" : "ezCurve1DControlPoint",
+   "p" : {
+    "Left Tangent" : { "$t" : "vec2", "$v" : "(0.0000, 0.0000)", "$b" : "0x0000000000000000" },
+    "Point" : { "$t" : "vec2", "$v" : "(4.1000, 0.5000)", "$b" : "0x333383400000003F" },
+    "Right Tangent" : { "$t" : "vec2", "$v" : "(0.0000, 0.0000)", "$b" : "0x0000000000000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xB5EC94520A2A3B4493F7740944D3AFA5" },
+   "t" : "ezCurve1DAssetData",
+   "p" : {
+    "Curves" : [ { "$t" : "uuid", "$b" : "0xD58FF043A81D2F468659647D5DDF4904" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x74809AFDB0821646AACEE7CAD31DED50" },
+   "t" : "ezCurve1DControlPoint",
+   "p" : {
+    "Left Tangent" : { "$t" : "vec2", "$v" : "(0.0000, 0.0000)", "$b" : "0x0000000000000000" },
+    "Point" : { "$t" : "vec2", "$v" : "(4.9884, -0.0231)", "$b" : "0x2FA19F402EA1BDBC" },
+    "Right Tangent" : { "$t" : "vec2", "$v" : "(0.0000, 0.0000)", "$b" : "0x0000000000000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xD58FF043A81D2F468659647D5DDF4904" },
+   "t" : "ezCurve1DData",
+   "p" : {
+    "Control Points" : [ { "$t" : "uuid", "$b" : "0x7220D000A1141A49A5B00E9C0F5149A8" }, { "$t" : "uuid", "$b" : "0x01FB2EB803883947AE2BB6E7D588D3B1" }, { "$t" : "uuid", "$b" : "0x008E1E9E2E36244D8AF4EB856B7D3A84" }, { "$t" : "uuid", "$b" : "0x1BE9347B7CB3A441B29191F2F1C271C8" }, { "$t" : "uuid", "$b" : "0x74809AFDB0821646AACEE7CAD31DED50" }, { "$t" : "uuid", "$b" : "0xA91E94E807997B4D94026EFFDD0DFF3C" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x01FB2EB803883947AE2BB6E7D588D3B1" },
+   "t" : "ezCurve1DControlPoint",
+   "p" : {
+    "Left Tangent" : { "$t" : "vec2", "$v" : "(0.0000, 0.0000)", "$b" : "0x0000000000000000" },
+    "Point" : { "$t" : "vec2", "$v" : "(1.0000, 1.0000)", "$b" : "0x0000803F0000803F" },
+    "Right Tangent" : { "$t" : "vec2", "$v" : "(0.0000, 0.0000)", "$b" : "0x0000000000000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x7220D000A1141A49A5B00E9C0F5149A8" },
+   "t" : "ezCurve1DControlPoint",
+   "p" : {
+    "Left Tangent" : { "$t" : "vec2", "$v" : "(0.0000, 0.0000)", "$b" : "0x0000000000000000" },
+    "Point" : { "$t" : "vec2", "$v" : "(-0.6366, -0.2431)", "$b" : "0x84F622BF8CE378BE" },
+    "Right Tangent" : { "$t" : "vec2", "$v" : "(0.0000, 0.0000)", "$b" : "0x0000000000000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0xB5EC94520A2A3B4493F7740944D3AFA5" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x008E1E9E2E36244D8AF4EB856B7D3A84" },
+   "t" : "ezCurve1DControlPoint",
+   "p" : {
+    "Left Tangent" : { "$t" : "vec2", "$v" : "(0.0000, 0.0000)", "$b" : "0x0000000000000000" },
+    "Point" : { "$t" : "vec2", "$v" : "(2.6181, 2.6366)", "$b" : "0x398E2740A1BD2840" },
+    "Right Tangent" : { "$t" : "vec2", "$v" : "(0.0000, 0.0000)", "$b" : "0x0000000000000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA91E94E807997B4D94026EFFDD0DFF3C" },
+   "t" : "ezCurve1DControlPoint",
+   "p" : {
+    "Left Tangent" : { "$t" : "vec2", "$v" : "(0.0000, 0.0000)", "$b" : "0x0000000000000000" },
+    "Point" : { "$t" : "vec2", "$v" : "(6.0000, 2.0000)", "$b" : "0x0000C04000000040" },
+    "Right Tangent" : { "$t" : "vec2", "$v" : "(0.0000, 0.0000)", "$b" : "0x0000000000000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x7931E41A177BAD4E816DFD1BE3FDAE14" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Curve1D",
+    "Dependencies" : [  ],
+    "DocumentID" : { "$t" : "uuid", "$b" : "0x7931E41A177BAD4E816DFD1BE3FDAE14" },
+    "Hash" : { "$t" : "uint64", "$v" : "6932371596874804508", "$b" : "0x1CEDBAF23CBB3460" },
+    "References" : [  ]
+   }
+  } ],
+ "Types" : [  ]
+}

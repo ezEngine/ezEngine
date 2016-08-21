@@ -187,7 +187,9 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
   pType->GetAllProperties(Properties);
   for (const auto* pProp : Properties)
   {
-    if (const ezAssetBrowserAttribute* pAssetAttrib = pProp->GetAttributeByType<ezAssetBrowserAttribute>())
+    // add all strings that are marked as asset references or file references
+    if (pProp->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr || 
+        pProp->GetAttributeByType<ezFileBrowserAttribute>() != nullptr)
     {
       switch (pProp->GetCategory())
       {
@@ -418,10 +420,6 @@ void ezAssetDocument::InvalidateAssetThumbnail() const
 
 ezStatus ezAssetDocument::SaveThumbnail(const ezImage& img, const ezAssetFileHeader& header) const
 {
-  const ezStringBuilder sResourceFile = GetThumbnailFilePath();
-
-  EZ_LOG_BLOCK("Save Asset Thumbnail", sResourceFile.GetData());
-
   ezImage converted;
 
   // make sure the thumbnail is in a format that Qt understands
@@ -430,16 +428,28 @@ ezStatus ezAssetDocument::SaveThumbnail(const ezImage& img, const ezAssetFileHea
 
   if (ezImageConversion::Convert(img, converted, ezImageFormat::R8G8B8A8_UNORM).Failed())
   {
+    const ezStringBuilder sResourceFile = GetThumbnailFilePath();
+
     ezLog::Error("Could not convert asset thumbnail to target format: '%s'", sResourceFile.GetData());
     return ezStatus("Could not convert asset thumbnail to target format: '%s'", sResourceFile.GetData());
   }
 
   QImage qimg(converted.GetPixelPointer<ezUInt8>(), converted.GetWidth(), converted.GetHeight(), QImage::Format_RGBA8888);
 
-  if (converted.GetWidth() == converted.GetHeight())
+  return SaveThumbnail(qimg, header);
+}
+
+ezStatus ezAssetDocument::SaveThumbnail(const QImage& qimg0, const ezAssetFileHeader& header) const
+{
+  const ezStringBuilder sResourceFile = GetThumbnailFilePath();
+  EZ_LOG_BLOCK("Save Asset Thumbnail", sResourceFile.GetData());
+
+  QImage qimg = qimg0;
+
+  if (qimg.width() == qimg.height())
   {
     // if necessary scale the image to the proper size
-    if (converted.GetWidth() != 256)
+    if (qimg.width() != 256)
       qimg = qimg.scaled(256, 256, Qt::AspectRatioMode::IgnoreAspectRatio, Qt::TransformationMode::SmoothTransformation);
   }
   else
@@ -447,7 +457,7 @@ ezStatus ezAssetDocument::SaveThumbnail(const ezImage& img, const ezAssetFileHea
     // center the image in a square canvas
 
     // scale the longer edge to 256
-    if (converted.GetWidth() > converted.GetHeight())
+    if (qimg.width() > qimg.height())
       qimg = qimg.scaledToWidth(256, Qt::TransformationMode::SmoothTransformation);
     else
       qimg = qimg.scaledToHeight(256, Qt::TransformationMode::SmoothTransformation);
@@ -720,4 +730,13 @@ void ezAssetDocument::SyncObjectsToEngine()
 
     pObject->SetModified(false);
   }
+}
+
+const char* ezAssetDocument::GetDocumentTypeDisplayString() const
+{
+  static ezStringBuilder dummy; // must be static to survive the function call
+  dummy = QueryAssetType();
+  dummy.Append(" Asset");
+
+  return dummy;
 }

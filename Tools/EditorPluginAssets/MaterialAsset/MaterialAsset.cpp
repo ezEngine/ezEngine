@@ -645,19 +645,6 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
   }
 }
 
-void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
-{
-  ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
-
-  const ezMaterialAssetProperties* pProp = GetProperties();
-
-  if (!pProp->m_sBaseMaterial.IsEmpty())
-    pInfo->m_FileDependencies.Insert(pProp->m_sBaseMaterial);
-
-  if (!pProp->m_sShader.IsEmpty())
-    pInfo->m_FileDependencies.Insert(pProp->m_sShader);
-}
-
 ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
   ezStatus status = WriteMaterialAsset(stream, szPlatform);

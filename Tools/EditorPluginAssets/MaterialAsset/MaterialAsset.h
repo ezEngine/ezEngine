@@ -43,8 +43,6 @@ class ezMaterialAssetDocument : public ezSimpleAssetDocument<ezMaterialAssetProp
 public:
   ezMaterialAssetDocument(const char* szDocumentPath);
 
-  virtual const char* GetDocumentTypeDisplayString() const override { return "Material Asset"; }
-
   virtual const char* QueryAssetType() const override { return "Material"; }
 
   ezDocumentObject* GetShaderPropertyObject();
@@ -60,7 +58,6 @@ protected:
   virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab) override;
   virtual void InitializeAfterLoading() override;
 
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override { return ezStatus(EZ_SUCCESS); }
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;

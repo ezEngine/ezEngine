@@ -52,8 +52,6 @@ class ezColorGradientAssetDocument : public ezSimpleAssetDocument<ezColorGradien
 public:
   ezColorGradientAssetDocument(const char* szDocumentPath);
 
-  virtual const char* GetDocumentTypeDisplayString() const override { return "ColorGradient Asset"; }
-
   virtual const char* QueryAssetType() const override { return "ColorGradient"; }
 
   /// \brief Fills out the ezColorGradient structure with an exact copy of the data in the asset.
@@ -61,7 +59,6 @@ public:
   void FillGradientData(ezColorGradient& out_Result) const;
 
 protected:
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override { return ezStatus(EZ_SUCCESS); }
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;

@@ -36,20 +36,6 @@ ezCollectionAssetDocument::ezCollectionAssetDocument(const char* szDocumentPath)
 {
 }
 
-void ezCollectionAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
-{
-  ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
-
-  const ezCollectionAssetData* pProp = GetProperties();
-
-  for (const auto& e : pProp->m_Entries)
-  {
-    if (!e.m_sRedirectionAsset.IsEmpty())
-      pInfo->m_FileReferences.Insert(e.m_sRedirectionAsset);
-  }
-
-}
-
 ezStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
   const ezCollectionAssetData* pProp = GetProperties();

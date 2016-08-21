@@ -808,8 +808,6 @@ void ezResourceManager::OnEngineShutdown()
 
   // unload all resources until there are no more that can be unloaded
   FreeUnusedResources(true);
-
-  ezPlugin::s_PluginEvents.RemoveEventHandler(PluginEventHandler);
 }
 
 void ezResourceManager::OnCoreShutdown()
@@ -829,6 +827,8 @@ void ezResourceManager::OnCoreShutdown()
       ezLog::Info("Refcount = %i, Type = '%s', ResourceID = '%s'", pReference->GetReferenceCount(), pReference->GetDynamicRTTI()->GetTypeName(), pReference->GetResourceID().GetData());
     }
   }
+
+  ezPlugin::s_PluginEvents.RemoveEventHandler(PluginEventHandler);
 }
 
 ezResourceBase* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* szResourceID, bool bIsReloadable)

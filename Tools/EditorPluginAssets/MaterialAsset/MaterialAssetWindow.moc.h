@@ -20,7 +20,7 @@ public:
   ~ezMaterialAssetDocumentWindow();
 
   ezMaterialAssetDocument* GetMaterialDocument();
-  virtual const char* GetGroupName() const { return "MaterialAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const { return "MaterialAsset"; }
 
 protected:
   virtual void InternalRedraw() override;

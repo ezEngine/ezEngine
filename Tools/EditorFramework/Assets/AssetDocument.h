@@ -10,6 +10,7 @@
 class ezEditorEngineConnection;
 class ezEditorEngineSyncObject;
 class ezAssetDocumentManager;
+class QImage;
 
 class EZ_EDITORFRAMEWORK_DLL ezAssetDocument : public ezDocument
 {
@@ -109,6 +110,9 @@ public:
 
   ezEvent<const ezEditorEngineDocumentMsg*> m_ProcessMessageEvent;
 
+  /// \brief Uses the asset type name from QueryAssetType and appends "Asset" to it
+  virtual const char* GetDocumentTypeDisplayString() const override;
+
 protected:
   void EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e);
 
@@ -140,6 +144,10 @@ protected:
   /// \name Asset Functions
   ///@{
 
+  /// \brief Override this to add custom data (e.g. additional file dependencies) to the info struct.
+  ///
+  /// \note ALWAYS call the base function! It automatically fills out references that it can determine.
+  ///       In most cases that is already sufficient.
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const;
 
   /// \brief Override this and write the transformed file into the given stream.
@@ -174,17 +182,24 @@ protected:
   ezStatus RemoteCreateThumbnail(const ezAssetFileHeader& header) const;
   /// \brief Saves the given image as the new thumbnail for the asset
   ezStatus SaveThumbnail(const ezImage& img, const ezAssetFileHeader& header) const;
+  /// \brief Saves the given image as the new thumbnail for the asset
+  ezStatus SaveThumbnail(const QImage& img, const ezAssetFileHeader& header) const;
   /// \brief Appends an asset header containing the thumbnail hash to the file. Each thumbnail is appended by it to check up-to-date state.
   void AppendThumbnailInfo(const char* szThumbnailFile, const ezAssetFileHeader& header) const;
 
   ///@}
 
-private:
-  virtual ezDocumentInfo* CreateDocumentInfo() override;
+protected:
+
+  /// \brief Adds all prefab dependencies to the ezAssetDocumentInfo object. Called automatically by UpdateAssetDocumentInfo()
+  void AddPrefabDependencies(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo) const;
+
+  /// \brief Crawls through all asset properties of pObject and adds all string properties that have a ezAssetBrowserAttribute as a dependency to pInfo.
+  /// Automatically called by UpdateAssetDocumentInfo()
+  void AddReferences(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo, bool bInsidePrefab) const;
 
 private:
-  void AddPrefabDependencies(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo) const;
-  void AddReferences(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo, bool bInsidePrefab) const;
+  virtual ezDocumentInfo* CreateDocumentInfo() override;
 
   EngineStatus m_EngineStatus;
   bool m_bUseIPCObjectMirror;

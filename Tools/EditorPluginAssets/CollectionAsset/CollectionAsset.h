@@ -29,12 +29,9 @@ class ezCollectionAssetDocument : public ezSimpleAssetDocument<ezCollectionAsset
 public:
   ezCollectionAssetDocument(const char* szDocumentPath);
 
-  virtual const char* GetDocumentTypeDisplayString() const override { return "Collection Asset"; }
-
   virtual const char* QueryAssetType() const override { return "Collection"; }
 
 protected:
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override { return ezStatus(EZ_SUCCESS); }
 };

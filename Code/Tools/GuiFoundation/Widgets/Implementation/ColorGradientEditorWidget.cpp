@@ -59,15 +59,15 @@ void QColorGradientEditorWidget::SetColorGradient(const ezColorGradient& gradien
       clearSelection = true;
   }
 
-  const bool wasEmpty = m_Gradient.IsEmpty();
+  //const bool wasEmpty = m_Gradient.IsEmpty();
 
   m_Gradient = gradient;
 
   {
     QtScopedUpdatesDisabled ud(this);
 
-    if (wasEmpty)
-      GradientWidget->FrameExtents();
+    //if (wasEmpty)
+    //  GradientWidget->FrameExtents();
 
     if (clearSelection)
       GradientWidget->ClearSelectedCP();

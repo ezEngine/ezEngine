@@ -1,7 +1,7 @@
 #include <Core/PCH.h>
 #include <Core/Application/Config/PluginConfig.h>
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationPluginConfig, ezApplicationConfig, 1, ezRTTIDefaultAllocator<ezApplicationPluginConfig>)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationPluginConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezApplicationPluginConfig>)
 {
   EZ_BEGIN_PROPERTIES
   {

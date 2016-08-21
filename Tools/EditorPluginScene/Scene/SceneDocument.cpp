@@ -83,6 +83,15 @@ ezSceneDocument::~ezSceneDocument()
   ezEditorEngineProcessConnection::GetSingleton()->s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
 }
 
+
+const char* ezSceneDocument::GetDocumentTypeDisplayString() const
+{
+  if (m_bIsPrefab)
+    return "Prefab";
+
+  return "Scene";
+}
+
 void ezSceneDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
 {
   ezAssetDocument::AttachMetaDataBeforeSaving(graph);
@@ -1077,11 +1086,6 @@ const char* ezSceneDocument::QueryAssetType() const
     return "Prefab";
 
   return "Scene";
-}
-
-void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
-{
-  ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
 }
 
 ezStatus ezSceneDocument::ExportScene()

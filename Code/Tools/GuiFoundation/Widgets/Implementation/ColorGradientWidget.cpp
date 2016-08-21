@@ -202,7 +202,7 @@ void QColorGradientWidget::PaintColorGradient(QPainter& p) const
       const ezColor linearColDark = linearCol * linearCol.a;
       const ezColorGammaUB rgbaColDar = linearColDark;
       const ezColorLinearUB linearAlpha(rgba.a, rgba.a, rgba.a, 255);
-      const ezColorGammaUB srgbAlpha = linearAlpha;
+      const ezColorGammaUB srgbAlpha = ezColor(linearAlpha);
 
       QColor qOnlyAlpha;
       qOnlyAlpha.setRgb(srgbAlpha.r, srgbAlpha.g, srgbAlpha.b, 255);
@@ -996,6 +996,12 @@ void QColorGradientWidget::FrameExtents()
   {
     m_fDisplayExtentMinX = 0;
     m_fDisplayExtentMaxX = 1;
+  }
+
+  if (m_fDisplayExtentMinX == m_fDisplayExtentMaxX)
+  {
+    m_fDisplayExtentMinX = ezMath::Floor(m_fDisplayExtentMinX - 0.1f, 1.0f);
+    m_fDisplayExtentMaxX = ezMath::Ceil(m_fDisplayExtentMaxX + 0.1f, 1.0f);
   }
 
   if (m_bEditMode)

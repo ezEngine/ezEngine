@@ -215,8 +215,15 @@ void ezCommandHistory::StartTransaction()
 void ezCommandHistory::EndTransaction(bool bCancel)
 {
   EZ_ASSERT_DEV(!m_TransactionStack.IsEmpty(), "Trying to end transaction without starting one!");
+
   if (m_TransactionStack.GetCount() == 1)
   {
+    /// Empty transactions are always canceled, so that they do not create an unnecessary undo action and clear the redo stack
+
+    const bool bDidAnything = m_TransactionStack.PeekBack()->HasChildActions();
+    if (!bDidAnything)
+      bCancel = true;
+
     ezCommandHistoryEvent e;
     e.m_pDocument = m_pDocument;
     e.m_Type = bCancel ? ezCommandHistoryEvent::Type::BeforeTransactionCanceled : ezCommandHistoryEvent::Type::BeforeTransactionEnded;

@@ -14,12 +14,12 @@ class ezCollisionMeshAssetDocument : public ezSimpleAssetDocument<ezCollisionMes
 public:
   ezCollisionMeshAssetDocument(const char* szDocumentPath);
 
+  /// \brief Overridden, because QueryAssetType() doesn't return a constant here
   virtual const char* GetDocumentTypeDisplayString() const override { return "Collision Mesh Asset"; }
 
   virtual const char* QueryAssetType() const override;
 
 protected:
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;
 
   ezStatus CreateMeshFromFile(const ezCollisionMeshAssetProperties* pProp, bool bFlipTriangles, const ezMat3 &mTransformation, ezChunkStreamWriter& stream);

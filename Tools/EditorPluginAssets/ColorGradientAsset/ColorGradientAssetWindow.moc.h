@@ -14,7 +14,7 @@ public:
   ezColorGradientAssetDocumentWindow(ezDocument* pDocument);
   ~ezColorGradientAssetDocumentWindow();
 
-  virtual const char* GetGroupName() const { return "ColorGradientAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const { return "ColorGradientAsset"; }
 
 private slots:
   void onGradientColorCpAdded(float posX, const ezColorGammaUB& color);
@@ -45,5 +45,6 @@ private:
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
 
+  bool m_bShowFirstTime;
   QColorGradientEditorWidget* m_pGradientEditor;
 };

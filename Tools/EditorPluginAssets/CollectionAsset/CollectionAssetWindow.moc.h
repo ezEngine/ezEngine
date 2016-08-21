@@ -12,6 +12,6 @@ public:
   ezCollectionAssetDocumentWindow(ezDocument* pDocument);
   ~ezCollectionAssetDocumentWindow();
 
-  virtual const char* GetGroupName() const { return "CollectionAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const { return "CollectionAsset"; }
 
 };

@@ -17,11 +17,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 1)
     new ezCategoryAttribute("FX"),
   }
   EZ_END_ATTRIBUTES
-    EZ_BEGIN_MESSAGEHANDLERS
-  {
-    EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
-  }
-  EZ_END_MESSAGEHANDLERS
 }
 EZ_END_COMPONENT_TYPE
 
@@ -35,15 +30,6 @@ ezParticleComponent::~ezParticleComponent()
 {
   EZ_ASSERT_DEBUG(m_pParticleEffect == nullptr, "Effect pointer should have been cleared");
 }
-
-void ezParticleComponent::Initialize()
-{
-  if (IsActive())
-  {
-    GetOwner()->UpdateLocalBounds();
-  }
-}
-
 
 void ezParticleComponent::OnAfterAttachedToObject()
 {
@@ -95,13 +81,6 @@ void ezParticleComponent::DeserializeComponent(ezWorldReader& stream)
 
 }
 
-
-void ezParticleComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
-{
-  // TODO
-  msg.m_ResultingLocalBounds.ExpandToInclude(ezBoundingSphere(ezVec3::ZeroVector(), 3.0f));
-}
-
 void ezParticleComponent::SetParticleEffect(const ezParticleEffectResourceHandle& hEffect)
 {
   m_hEffect = hEffect;
@@ -136,6 +115,12 @@ const char* ezParticleComponent::GetParticleEffectFile() const
   return m_hEffect.GetResourceID();
 }
 
+
+ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)
+{
+  bounds.ExpandToInclude(ezBoundingSphere(ezVec3::ZeroVector(), 1.0f));
+  return EZ_SUCCESS;
+}
 
 //////////////////////////////////////////////////////////////////////////
 

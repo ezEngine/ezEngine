@@ -2,11 +2,11 @@
 
 #include <ParticlePlugin/Basics.h>
 #include <Core/World/World.h>
-#include <Core/World/Component.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/ResourceManager/ResourceBase.h>
 #include <Core/World/ComponentManager.h>
+#include <RendererCore/Components/RenderComponent.h>
 
 class ezParticleRenderData;
 struct ezUpdateLocalBoundsMessage;
@@ -24,9 +24,9 @@ public:
   virtual void Initialize() override;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleComponent : public ezComponent
+class EZ_PARTICLEPLUGIN_DLL ezParticleComponent : public ezRenderComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezParticleComponent, ezComponent, ezParticleComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezParticleComponent, ezRenderComponent, ezParticleComponentManager);
 
 public:
   ezParticleComponent();
@@ -37,8 +37,6 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const;
-
   // ************************************* PROPERTIES ***********************************
 
   void SetParticleEffect(const ezParticleEffectResourceHandle& hEffect);
@@ -47,10 +45,11 @@ public:
   void SetParticleEffectFile(const char* szFile);
   const char* GetParticleEffectFile() const;
 
+
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds) override;
+
 protected:
   ezParticleEffectResourceHandle m_hEffect;
-
-  virtual void Initialize() override;
 
   virtual void OnAfterAttachedToObject() override;
   virtual void OnBeforeDetachedFromObject() override;

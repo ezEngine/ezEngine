@@ -11,6 +11,6 @@ class ezSurfaceAssetDocumentWindow : public ezQtDocumentWindow
 public:
   ezSurfaceAssetDocumentWindow(ezDocument* pDocument);
 
-  virtual const char* GetGroupName() const { return "SurfaceAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const { return "SurfaceAsset"; }
 
 };

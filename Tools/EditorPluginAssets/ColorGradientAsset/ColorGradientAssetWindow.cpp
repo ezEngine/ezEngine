@@ -37,6 +37,7 @@ ezColorGradientAssetDocumentWindow::ezColorGradientAssetDocumentWindow(ezDocumen
     addToolBar(pToolBar);
   }
 
+  m_bShowFirstTime = true;
   m_pGradientEditor = new QColorGradientEditorWidget(this);
 
   QWidget* pContainer = new QWidget(this);
@@ -67,6 +68,8 @@ ezColorGradientAssetDocumentWindow::ezColorGradientAssetDocumentWindow(ezDocumen
 
   connect(m_pGradientEditor, &QColorGradientEditorWidget::NormalizeRange, this, &ezColorGradientAssetDocumentWindow::onGradientNormalizeRange);
 
+  // property grid, if needed
+  if (false)
   {
     ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
     pPropertyPanel->setObjectName("ColorGradientAssetDockWidget");
@@ -356,6 +359,9 @@ void ezColorGradientAssetDocumentWindow::onGradientEndOperation(bool commit)
 
 void ezColorGradientAssetDocumentWindow::onGradientNormalizeRange()
 {
+  if (ezUIServices::GetSingleton()->MessageBoxQuestion("This will adjust the positions of all control points, such that the minimum is at 0 and the maximum at 1.\n\nContinue?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) != QMessageBox::StandardButton::Yes)
+    return;
+
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
   ezColorGradient GradientData;
@@ -365,7 +371,7 @@ void ezColorGradientAssetDocumentWindow::onGradientNormalizeRange()
   if (!GradientData.GetExtents(minX, maxX))
     return;
 
-  if (minX == 0 && maxX == 1)
+  if ((minX == 0 && maxX == 1) || (minX >= maxX))
     return;
 
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
@@ -417,6 +423,12 @@ void ezColorGradientAssetDocumentWindow::UpdatePreview()
   pDoc->FillGradientData(GradientData);
 
   m_pGradientEditor->SetColorGradient(GradientData);
+
+  if (m_bShowFirstTime)
+  {
+    m_bShowFirstTime = false;
+    m_pGradientEditor->FrameGradient();
+  }
 }
 
 void ezColorGradientAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)

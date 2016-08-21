@@ -175,6 +175,27 @@ void OnLoadPlugin(bool bReloading)
       ezAssetActions::MapActions("ColorGradientAssetToolBar", true);
     }
   }
+
+  // Curve1D Asset
+  {
+    // Menu Bar
+    {
+      ezActionMapManager::RegisterActionMap("Curve1DAssetMenuBar");
+      ezProjectActions::MapActions("Curve1DAssetMenuBar");
+      ezStandardMenus::MapActions("Curve1DAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezDocumentActions::MapActions("Curve1DAssetMenuBar", "Menu.File", false);
+      ezDocumentActions::MapToolsActions("Curve1DAssetMenuBar", "Menu.Tools");
+      ezCommandHistoryActions::MapActions("Curve1DAssetMenuBar", "Menu.Edit");
+    }
+
+    // Tool Bar
+    {
+      ezActionMapManager::RegisterActionMap("Curve1DAssetToolBar");
+      ezDocumentActions::MapActions("Curve1DAssetToolBar", "", true);
+      ezCommandHistoryActions::MapActions("Curve1DAssetToolBar", "");
+      ezAssetActions::MapActions("Curve1DAssetToolBar", true);
+    }
+  }
 }
 
 void OnUnloadPlugin(bool bReloading)

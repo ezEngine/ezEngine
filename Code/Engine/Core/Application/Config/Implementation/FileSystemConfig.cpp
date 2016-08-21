@@ -1,7 +1,7 @@
 #include <Core/PCH.h>
 #include <Core/Application/Config/FileSystemConfig.h>
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationFileSystemConfig, ezApplicationConfig, 1, ezRTTIDefaultAllocator<ezApplicationFileSystemConfig>)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationFileSystemConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezApplicationFileSystemConfig>)
 {
   EZ_BEGIN_PROPERTIES
   {

@@ -10,18 +10,13 @@ class ezParticleEffectAssetDocument : public ezSimpleAssetDocument<ezParticleEff
 public:
   ezParticleEffectAssetDocument(const char* szDocumentPath);
 
-  virtual const char* GetDocumentTypeDisplayString() const override { return "Particle Effect Asset"; }
-
-  virtual const char* QueryAssetType() const override;
+  virtual const char* QueryAssetType() const override { return "Particle Effect"; }
 
   ezStatus WriteParticleEffectAsset(ezStreamWriter& stream, const char* szPlatform) const;
 
 protected:
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;
-  virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override;
-
-
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
+  virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override { return ezStatus(EZ_SUCCESS); }
 
 };

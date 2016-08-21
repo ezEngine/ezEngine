@@ -29,7 +29,7 @@ public:
   ezQtSceneDocumentWindow(ezAssetDocument* pDocument);
   ~ezQtSceneDocumentWindow();
 
-  virtual const char* GetGroupName() const { return "Scene"; }
+  virtual const char* GetWindowLayoutGroupName() const { return "Scene"; }
 
   ezSceneDocument* GetSceneDocument() const;
 

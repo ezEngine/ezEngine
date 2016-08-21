@@ -17,7 +17,7 @@ public:
 
   virtual ezString GetWindowIcon() const override;
 
-  virtual const char* GetGroupName() const override { return "Settings"; }
+  virtual const char* GetWindowLayoutGroupName() const override { return "Settings"; }
   
 private slots:
   void SlotAssetChosen(QString sAssetGuid, QString sAssetPathRelative, QString sAssetPathAbsolute);

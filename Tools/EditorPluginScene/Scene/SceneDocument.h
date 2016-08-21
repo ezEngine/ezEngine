@@ -76,7 +76,7 @@ public:
   ezSceneDocument(const char* szDocumentPath, bool bIsPrefab);
   ~ezSceneDocument();
 
-  virtual const char* GetDocumentTypeDisplayString() const override { return "Scene"; }
+  virtual const char* GetDocumentTypeDisplayString() const override;
 
   void SetActiveGizmo(ActiveGizmo gizmo) const;
   ActiveGizmo GetActiveGizmo() const;
@@ -201,8 +201,6 @@ private:
   void InvalidateGlobalTransformValue(const ezDocumentObject* pObject) const;
 
   virtual const char* QueryAssetType() const override;
-
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 
   virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;

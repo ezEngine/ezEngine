@@ -16,7 +16,7 @@ class ezCollisionMeshAssetDocumentWindow : public ezQtDocumentWindow
 public:
   ezCollisionMeshAssetDocumentWindow(ezDocument* pDocument);
 
-  virtual const char* GetGroupName() const { return "CollisionMeshAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const { return "CollisionMeshAsset"; }
 
 private:
   ezCollisionMeshAssetDocument* m_pAssetDoc;

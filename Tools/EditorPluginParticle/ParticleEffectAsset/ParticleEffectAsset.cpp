@@ -24,12 +24,6 @@ ezParticleEffectAssetDocument::ezParticleEffectAssetDocument(const char* szDocum
 {
 }
 
-const char* ezParticleEffectAssetDocument::QueryAssetType() const
-{
-  return "Particle Effect";
-}
-
-
 ezStatus ezParticleEffectAssetDocument::WriteParticleEffectAsset(ezStreamWriter& stream, const char* szPlatform) const
 {
   const ezParticleEffectDescriptor* pProp = GetProperties();
@@ -39,24 +33,9 @@ ezStatus ezParticleEffectAssetDocument::WriteParticleEffectAsset(ezStreamWriter&
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezParticleEffectAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
-{
-  ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
-
-  const ezParticleEffectDescriptor* pProp = GetProperties();
-
-  /// \todo Dependencies: All asset references (color gradients etc)
-
-}
-
 ezStatus ezParticleEffectAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
   return WriteParticleEffectAsset(stream, szPlatform);
-}
-
-ezStatus ezParticleEffectAssetDocument::InternalRetrieveAssetInfo(const char* szPlatform)
-{
-  return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezParticleEffectAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
@@ -64,4 +43,5 @@ ezStatus ezParticleEffectAssetDocument::InternalCreateThumbnail(const ezAssetFil
   ezStatus status = ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
   return status;
 }
+
 

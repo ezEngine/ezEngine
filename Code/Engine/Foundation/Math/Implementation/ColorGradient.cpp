@@ -142,6 +142,8 @@ void ezColorGradient::EvaluateColor(float x, ezColorGammaUB& rgb) const
       const ezColor lhs(ezColorGammaUB(m_ColorCPs[iControlPoint].m_GammaRed, m_ColorCPs[iControlPoint].m_GammaGreen, m_ColorCPs[iControlPoint].m_GammaBlue, 255));
       const ezColor rhs(ezColorGammaUB(m_ColorCPs[iControlPoint + 1].m_GammaRed, m_ColorCPs[iControlPoint + 1].m_GammaGreen, m_ColorCPs[iControlPoint + 1].m_GammaBlue, 255));
 
+      /// \todo Use a midpoint interpolation
+
       // interpolate (linear for now)
       float lerpX = x - m_ColorCPs[iControlPoint].m_PosX;
       lerpX /= (m_ColorCPs[iControlPoint + 1].m_PosX - m_ColorCPs[iControlPoint].m_PosX);
@@ -189,6 +191,8 @@ void ezColorGradient::EvaluateAlpha(float x, ezUInt8& alpha) const
     }
     else
     {
+      /// \todo Use a midpoint interpolation
+
       // interpolate (linear for now)
       float lerpX = x - m_AlphaCPs[iControlPoint].m_PosX;
       lerpX /= (m_AlphaCPs[iControlPoint + 1].m_PosX - m_AlphaCPs[iControlPoint].m_PosX);
@@ -231,6 +235,8 @@ void ezColorGradient::EvaluateIntensity(float x, float& intensity) const
     }
     else
     {
+      /// \todo Use a midpoint interpolation
+
       // interpolate (linear for now)
       float lerpX = x - m_IntensityCPs[iControlPoint].m_PosX;
       lerpX /= (m_IntensityCPs[iControlPoint + 1].m_PosX - m_IntensityCPs[iControlPoint].m_PosX);

@@ -65,7 +65,7 @@ void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentO
 
   int y = h;
 
-  // Allign inputs
+  // Align inputs
   for (ezUInt32 i = 0; i < m_Inputs.GetCount(); ++i)
   {
     ezQtPin* pQtPin = m_Inputs[i];
@@ -77,7 +77,7 @@ void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentO
     y += rectPin.height();
   }
 
-  // Allign outputs
+  // Align outputs
   for (ezUInt32 i = 0; i < m_Outputs.GetCount(); ++i)
   {
     ezQtPin* pQtPin = m_Outputs[i];
@@ -89,7 +89,7 @@ void ezQtNode::InitNode(const ezDocumentNodeManager* pManager, const ezDocumentO
     y += rectPin.height();
   }
 
-  // Allign outputs to the right
+  // Align outputs to the right
   for (ezUInt32 i = 0; i < m_Outputs.GetCount(); ++i)
   {
     auto rectPin = m_Outputs[i]->GetPinRect();

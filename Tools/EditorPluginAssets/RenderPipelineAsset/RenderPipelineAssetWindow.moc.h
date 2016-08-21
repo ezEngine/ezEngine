@@ -15,7 +15,7 @@ public:
   ezRenderPipelineAssetDocumentWindow(ezDocument* pDocument);
   ~ezRenderPipelineAssetDocumentWindow();
 
-  virtual const char* GetGroupName() const { return "RenderPipelineAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const { return "RenderPipelineAsset"; }
 
 private slots:
   

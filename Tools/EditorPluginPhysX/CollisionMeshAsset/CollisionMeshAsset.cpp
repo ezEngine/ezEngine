@@ -82,17 +82,6 @@ const char* ezCollisionMeshAssetDocument::QueryAssetType() const
   return "Collision Mesh";
 }
 
-void ezCollisionMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
-{
-  ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
-
-  const ezCollisionMeshAssetProperties* pProp = GetProperties();
-
-  if (!pProp->m_sMeshFile.IsEmpty())
-    pInfo->m_FileDependencies.Insert(pProp->m_sMeshFile);
-
-}
-
 ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
   const ezCollisionMeshAssetProperties* pProp = GetProperties();

@@ -22,12 +22,9 @@ class ezRenderPipelineAssetDocument : public ezAssetDocument
 public:
   ezRenderPipelineAssetDocument(const char* szDocumentPath);
 
-  virtual const char* GetDocumentTypeDisplayString() const override { return "Render Pipeline Asset"; }
-
   virtual const char* QueryAssetType() const override { return "RenderPipeline"; }
 
 protected:
-  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override { return ezStatus(EZ_SUCCESS); }
 

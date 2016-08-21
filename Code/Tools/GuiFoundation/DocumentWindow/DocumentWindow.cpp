@@ -97,6 +97,17 @@ void ezQtDocumentWindow::SetVisibleInContainer(bool bVisible)
   if (m_bIsVisibleInContainer)
   {
     // if the window is now visible, immediately do a redraw and trigger the timers
+
+    // \todo While testing with Kraut it had to be like this (with comments), to not crash:
+    /*
+    //m_bIsDrawingATM = true;
+    //InternalRedraw();
+    //m_bIsDrawingATM = false;
+
+    //if (m_iTargetFramerate != 0)
+      TriggerRedraw();
+    */
+
     m_bIsDrawingATM = true;
     InternalRedraw();
     m_bIsDrawingATM = false;
@@ -283,7 +294,7 @@ void ezQtDocumentWindow::SaveWindowLayout()
     showNormal();
 
   ezStringBuilder sGroup;
-  sGroup.Format("DocumentWnd_%s", GetGroupName());
+  sGroup.Format("DocumentWnd_%s", GetWindowLayoutGroupName());
 
   QSettings Settings;
   Settings.beginGroup(QString::fromUtf8(sGroup));
@@ -302,7 +313,7 @@ void ezQtDocumentWindow::SaveWindowLayout()
 void ezQtDocumentWindow::RestoreWindowLayout()
 {
   ezStringBuilder sGroup;
-  sGroup.Format("DocumentWnd_%s", GetGroupName());
+  sGroup.Format("DocumentWnd_%s", GetWindowLayoutGroupName());
 
   QSettings Settings;
   Settings.beginGroup(QString::fromUtf8(sGroup));

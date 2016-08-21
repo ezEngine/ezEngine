@@ -74,20 +74,21 @@ ezMeshAssetDocument::ezMeshAssetDocument(const char* szDocumentPath)
 {
 }
 
-void ezMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
-{
-  ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
-
-  const ezMeshAssetProperties* pProp = GetProperties();
-
-  if (!pProp->m_sMeshFile.IsEmpty())
-    pInfo->m_FileDependencies.Insert(pProp->m_sMeshFile);
-
-  for (const ezMaterialResourceSlot& slot : pProp->m_Slots)
-  {
-    pInfo->m_FileReferences.Insert(slot.m_sResource);
-  }
-}
+// should not be necessary anymore
+//void ezMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+//{
+//  ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
+//
+//  const ezMeshAssetProperties* pProp = GetProperties();
+//
+//  if (!pProp->m_sMeshFile.IsEmpty())
+//    pInfo->m_FileDependencies.Insert(pProp->m_sMeshFile);
+//
+//  for (const ezMaterialResourceSlot& slot : pProp->m_Slots)
+//  {
+//    pInfo->m_FileReferences.Insert(slot.m_sResource);
+//  }
+//}
 
 ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
