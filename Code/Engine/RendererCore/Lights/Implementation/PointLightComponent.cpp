@@ -11,8 +11,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
-    EZ_ACCESSOR_PROPERTY("Projected Texture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture Cube")),
+    EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f)),
+    //EZ_ACCESSOR_PROPERTY("Projected Texture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture Cube")),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
@@ -30,7 +30,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 1)
 EZ_END_COMPONENT_TYPE
 
 ezPointLightComponent::ezPointLightComponent()
-  : m_fRange(1.0f)
+  : m_fRange(10.0f)
 {
 }
 

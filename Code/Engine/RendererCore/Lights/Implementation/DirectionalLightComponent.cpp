@@ -36,7 +36,8 @@ ezDirectionalLightComponent::~ezDirectionalLightComponent()
 
 ezResult ezDirectionalLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)
 {
-  bounds = ezBoundingSphere(ezVec3::ZeroVector(), ezMath::BasicType<float>::MaxValue());
+  ///\todo
+  bounds = ezBoundingSphere(ezVec3::ZeroVector(), 100000.0f);
   return EZ_SUCCESS;
 }
 

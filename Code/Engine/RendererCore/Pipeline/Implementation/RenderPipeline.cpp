@@ -1,5 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Pipeline/Extractor.h>
+#include <RendererCore/Pipeline/FrameDataProvider.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Pipeline/Passes/TargetPass.h>
@@ -743,6 +744,24 @@ bool ezRenderPipeline::ArePassThroughInputsDone(const ezRenderPipelinePass* pPas
   return true;
 }
 
+ezFrameDataProviderBase* ezRenderPipeline::GetFrameDataProvider(const ezRTTI* pRtti)
+{
+  ezUInt32 uiIndex = 0;
+  if (m_TypeToDataProviderIndex.TryGetValue(pRtti, uiIndex))
+  {
+    return m_DataProviders[uiIndex].Borrow();
+  }
+
+  ezUniquePtr<ezFrameDataProviderBase> pNewDataProvider(static_cast<ezFrameDataProviderBase*>(pRtti->GetAllocator()->Allocate()), ezFoundation::GetDefaultAllocator());
+  ezFrameDataProviderBase* pResult = pNewDataProvider.Borrow();
+  pResult->m_pOwnerPipeline = this;
+
+  m_TypeToDataProviderIndex.Insert(pRtti, m_DataProviders.GetCount());
+  m_DataProviders.PushBack(std::move(pNewDataProvider));
+
+  return pResult;
+}
+
 void ezRenderPipeline::ExtractData(const ezView& view)
 {
   EZ_ASSERT_DEV(m_CurrentExtractThread == (ezThreadID)0, "Extract must not be called from multiple threads.");
@@ -892,6 +911,11 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
   data.Clear();
 
   m_CurrentRenderThread = (ezThreadID)0;
+}
+
+const ezExtractedRenderData& ezRenderPipeline::GetRenderData() const
+{
+  return m_Data[ezRenderLoop::GetDataIndexForRendering()];
 }
 
 ezRenderDataBatchList ezRenderPipeline::GetRenderDataBatchesWithCategory(ezRenderData::Category category, ezRenderDataBatch::Filter filter) const

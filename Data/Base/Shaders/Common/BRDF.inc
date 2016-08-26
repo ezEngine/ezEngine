@@ -28,9 +28,9 @@ float SpecularGGX( float roughness, float NdotH )
 float VisibilitySmithJointApprox( float roughness, float NdotV, float NdotL )
 {
 	float a = roughness * roughness;
-	float lambdaSmithV = NdotL * ( NdotV * ( 1.0f - a ) + a );
-	float lambdaSmithL = NdotV * ( NdotL * ( 1.0f - a ) + a );
-	return 0.5f / ( lambdaSmithV + lambdaSmithL );
+	float lambdaV = NdotL * ( NdotV * ( 1.0f - a ) + a );
+	float lambdaL = NdotV * ( NdotL * ( 1.0f - a ) + a );
+	return 0.5f / ( lambdaV + lambdaL );
 }
 
 float3 FresnelSchlick( float3 f0, float u )

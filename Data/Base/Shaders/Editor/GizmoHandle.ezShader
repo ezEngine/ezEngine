@@ -77,12 +77,12 @@ float4 main(PS_IN_COLORED Input) : SV_Target
 	#if RENDER_PASS == RENDER_PASS_EDITOR
 		if (RenderPass == EDITOR_RENDER_PASS_PICKING)
 		{
-			return UIntToFloat4(GameObjectID);
+			return RGBA8ToFloat4(GameObjectID);
 		}
 	#elif RENDER_PASS == RENDER_PASS_WIREFRAME
 		if (RenderPass == WIREFRAME_RENDER_PASS_PICKING)
 		{
-			return UIntToFloat4(GameObjectID);
+			return RGBA8ToFloat4(GameObjectID);
 		}
 	#endif
 

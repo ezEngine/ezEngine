@@ -11,9 +11,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("Spot Angle", m_SpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(1.0f), ezAngle::Degree(179.0f)), new ezDefaultValueAttribute(ezAngle::Degree(30.0f))),
-    EZ_ACCESSOR_PROPERTY("Projected Texture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_ACCESSOR_PROPERTY("Range", GetRange, SetRange)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f)),
+    EZ_ACCESSOR_PROPERTY("Inner Spot Angle", GetInnerSpotAngle, SetInnerSpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(179.0f)), new ezDefaultValueAttribute(ezAngle::Degree(15.0f))),
+    EZ_ACCESSOR_PROPERTY("Outer Spot Angle", GetOuterSpotAngle, SetOuterSpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(179.0f)), new ezDefaultValueAttribute(ezAngle::Degree(30.0f))),
+    //EZ_ACCESSOR_PROPERTY("Projected Texture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
@@ -23,16 +24,17 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 1)
   EZ_END_MESSAGEHANDLERS
     EZ_BEGIN_ATTRIBUTES
   {
-    new ezConeVisualizerAttribute(ezBasisAxis::PositiveX, "Spot Angle", 1.0f, "Range", "Light Color"),
-    new ezConeManipulatorAttribute("Spot Angle", "Range"),
+    new ezConeVisualizerAttribute(ezBasisAxis::PositiveX, "Outer Spot Angle", 1.0f, "Range", "Light Color"),
+    new ezConeManipulatorAttribute("Outer Spot Angle", "Range"),
   }
   EZ_END_ATTRIBUTES
 }
 EZ_END_COMPONENT_TYPE
 
 ezSpotLightComponent::ezSpotLightComponent()
-  : m_fRange(1.0f)
-  , m_SpotAngle(ezAngle::Degree(30.0f))
+  : m_fRange(10.0f)
+  , m_InnerSpotAngle(ezAngle::Degree(15.0f))
+  , m_OuterSpotAngle(ezAngle::Degree(30.0f))
 {
 }
 
@@ -43,7 +45,7 @@ ezSpotLightComponent::~ezSpotLightComponent()
 
 ezResult ezSpotLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)
 {
-  const float t = ezMath::Tan(m_SpotAngle * 0.5f);
+  const float t = ezMath::Tan(m_OuterSpotAngle * 0.5f);
   const float p = ezMath::Min(t * m_fRange, m_fRange);
 
   ezBoundingBox box;
@@ -69,9 +71,19 @@ float ezSpotLightComponent::GetRange() const
   return m_fRange;
 }
 
-void ezSpotLightComponent::SetSpotAngle( ezAngle SpotAngle )
+void ezSpotLightComponent::SetInnerSpotAngle(ezAngle spotAngle)
 {
-  m_SpotAngle = SpotAngle;
+  m_InnerSpotAngle = ezMath::Clamp(spotAngle, ezAngle::Degree(0.0f), m_OuterSpotAngle);
+}
+
+ezAngle ezSpotLightComponent::GetInnerSpotAngle() const
+{
+  return m_InnerSpotAngle;
+}
+
+void ezSpotLightComponent::SetOuterSpotAngle(ezAngle spotAngle)
+{
+  m_OuterSpotAngle = ezMath::Clamp(spotAngle, m_InnerSpotAngle, ezAngle::Degree(179.0f));
 
   if (IsActive())
   {
@@ -79,9 +91,9 @@ void ezSpotLightComponent::SetSpotAngle( ezAngle SpotAngle )
   }
 }
 
-ezAngle ezSpotLightComponent::GetSpotAngle() const
+ezAngle ezSpotLightComponent::GetOuterSpotAngle() const
 {
-  return m_SpotAngle;
+  return m_OuterSpotAngle;
 }
 
 void ezSpotLightComponent::SetProjectedTexture(const ezTextureResourceHandle& hProjectedTexture)
@@ -124,7 +136,8 @@ void ezSpotLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg 
   pRenderData->m_LightColor = m_LightColor;
   pRenderData->m_fIntensity = m_fIntensity;
   pRenderData->m_fRange = m_fRange;
-  pRenderData->m_SpotAngle = m_SpotAngle;
+  pRenderData->m_InnerSpotAngle = m_InnerSpotAngle;
+  pRenderData->m_OuterSpotAngle = m_OuterSpotAngle;
   pRenderData->m_hProjectedTexture = m_hProjectedTexture;
   pRenderData->m_bCastShadows = m_bCastShadows;
 
@@ -138,7 +151,8 @@ void ezSpotLightComponent::SerializeComponent(ezWorldWriter& stream) const
   ezStreamWriter& s = stream.GetStream();
 
   s << m_fRange;
-  s << m_SpotAngle;
+  s << m_InnerSpotAngle;
+  s << m_OuterSpotAngle;
   s << GetProjectedTextureFile();
 }
 
@@ -149,7 +163,8 @@ void ezSpotLightComponent::DeserializeComponent(ezWorldReader& stream)
   ezStreamReader& s = stream.GetStream();
 
   s >> m_fRange;
-  s >> m_SpotAngle;
+  s >> m_InnerSpotAngle;
+  s >> m_OuterSpotAngle;
 
   ezStringBuilder temp;
   s >> temp;

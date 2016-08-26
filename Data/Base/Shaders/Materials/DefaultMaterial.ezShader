@@ -79,9 +79,8 @@ SamplerState RoughnessTextureSampler;
 float3 GetNormal(PS_IN Input)
 {
 	#if DEFAULT_MAT_USE_NORMAL_TEXTURE == TRUE
-		float3 vNt = NormalTexture.Sample(NormalTextureSampler, Input.TexCoords.xy).rgb * 2 - 1;
-		float3 vNout = normalize( vNt.x * Input.Tangent + vNt.y * Input.BiTangent + vNt.z * Input.Normal );
-		return vNout;
+		float3 vNt = NormalTexture.Sample(NormalTextureSampler, Input.TexCoords.xy).rgb * 2.0f - 1.0f;
+		return vNt.x * Input.Tangent + vNt.y * Input.BiTangent + vNt.z * Input.Normal;
 	#else
 		return Input.Normal;
 	#endif

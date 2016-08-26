@@ -6,7 +6,6 @@ class ezExtractedRenderData;
 
 class EZ_RENDERERCORE_DLL ezExtractor : public ezReflectedClass
 {
-public:
   EZ_ADD_DYNAMIC_REFLECTION(ezExtractor, ezReflectedClass);
   EZ_DISALLOW_COPY_AND_ASSIGN(ezExtractor);
 

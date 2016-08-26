@@ -166,6 +166,9 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
       case D3D_SVT_INT:
         constant.m_Type = (ezShaderConstantBufferLayout::Constant::Type::Enum) ((ezInt32)ezShaderConstantBufferLayout::Constant::Type::Int1 + std.Columns - 1);
         break;
+      case D3D_SVT_UINT:
+        constant.m_Type = (ezShaderConstantBufferLayout::Constant::Type::Enum) ((ezInt32)ezShaderConstantBufferLayout::Constant::Type::UInt1 + std.Columns - 1);
+        break;
 
       default:
         break;

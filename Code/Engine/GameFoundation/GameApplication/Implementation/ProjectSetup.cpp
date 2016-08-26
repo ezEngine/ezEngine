@@ -170,7 +170,7 @@ void ezGameApplication::DoSetupGraphicsDevice()
     ezGPUResourcePool::SetDefaultInstance(pResourcePool);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    ezShaderManager::Configure("DX11_SM40", true);
+    ezShaderManager::Configure("DX11_SM50", true);
 #else
     ezShaderManager::Configure("GL3", true);
 #endif

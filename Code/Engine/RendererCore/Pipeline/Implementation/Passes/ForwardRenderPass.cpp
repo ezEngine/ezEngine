@@ -1,5 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Pipeline/Passes/ForwardRenderPass.h>
+#include <RendererCore/Pipeline/DataProviders/ClusteredDataProvider.h>
+#include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
@@ -80,6 +82,11 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
   SetupPermutationVars(renderViewContext);
 
+  // Setup clustered data
+  ezClusteredData* pClusteredData = GetPipeline()->GetFrameDataProvider<ezClusteredDataProvider>()->GetData(renderViewContext);
+  pClusteredData->BindResources(renderViewContext.m_pRenderContext);
+
+  // Render
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent);

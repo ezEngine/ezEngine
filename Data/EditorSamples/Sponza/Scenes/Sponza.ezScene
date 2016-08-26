@@ -18,6 +18,21 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xD387D7D58EFE914197A056607A4C6C66" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x249DD0101835D343BFAE41CD8A3A754A" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(1.0000, 0.0000, 0.5000)", "$b" : "0x0000803F000000000000003F" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x2759BFE5AFC6BE42A57980E5FEC9C47A" },
    "t" : "ezPxCharacterControllerComponent",
    "p" : {
@@ -38,6 +53,31 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xF10CA132A4A0F3429F2E4E6E34FF4E61" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xC17F8DD03598454FA5B7EEDA235F9FC2" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(4.6539, -1.9350, 5.7275)", "$b" : "0x1EED94408AACF7BFB047B740" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x249DD0101835D343BFAE41CD8A3A754A" },
+   "t" : "ezPointLightComponent",
+   "p" : {
+    "Active" : true,
+    "Intensity" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" },
+    "Light Color" : { "$t" : "color", "$v" : "(1.0000, 0.3185, 0.0030, 1.0000)", "$b" : "0x0000803F9218A33E61EB463B0000803F" },
+    "Range" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" }
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x9EF7412E8CE9DF44ABAA2868BAB9A2BB" },
    "t" : "ezGameObject",
    "p" : {
@@ -49,6 +89,21 @@
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "Gun",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x2F89E1D18E8A4E4587AAE83AE9AE40FF" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xC51F92B98D5D9D49B1C1CD15C3233731" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-0.6588, 1.1357, 1.9804)", "$b" : "0x1CA528BF355D913F8E7EFD3F" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0xD68D6EBE75A33B3FE0719BBEE8FA0F3F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
     "Tags" : [  ]
    }
   },
@@ -71,7 +126,7 @@
    "t" : "ezGameObject",
    "p" : {
     "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x0C981F92CCCC3E4985876BC497CB9B6D" }, { "$t" : "uuid", "$b" : "0x0AFB7D7AF7FF0447AEA0FCC565D9BF11" }, { "$t" : "uuid", "$b" : "0x130764A2F6E2E84DB59F5D56967C13F7" } ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x0C981F92CCCC3E4985876BC497CB9B6D" }, { "$t" : "uuid", "$b" : "0x0AFB7D7AF7FF0447AEA0FCC565D9BF11" } ],
     "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
@@ -79,18 +134,6 @@
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "",
     "Tags" : [  ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x2B255A0D3166B0469C4D745DF6B403A8" },
-   "t" : "ezPointLightComponent",
-   "p" : {
-    "Active" : true,
-    "Cast Shadows" : false,
-    "Intensity" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Light Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" },
-    "Projected Texture" : "",
-    "Range" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" }
    }
   },
   {
@@ -143,7 +186,7 @@
    "t" : "ezGameObject",
    "p" : {
     "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x46E29EF620B0D447A9EF20F45DAD8895" }, { "$t" : "uuid", "$b" : "0x2B255A0D3166B0469C4D745DF6B403A8" } ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x46E29EF620B0D447A9EF20F45DAD8895" } ],
     "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
@@ -178,6 +221,18 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xC51F92B98D5D9D49B1C1CD15C3233731" },
+   "t" : "ezSpotLightComponent",
+   "p" : {
+    "Active" : true,
+    "Inner Spot Angle" : { "$t" : "angle", "$v" : "24.0000", "$b" : "0x5077D63E" },
+    "Intensity" : { "$t" : "float", "$v" : "1000.0000", "$b" : "0x00007A44" },
+    "Light Color" : { "$t" : "color", "$v" : "(1.0000, 0.0000, 0.0012, 1.0000)", "$b" : "0x0000803F00000000B4229F3A0000803F" },
+    "Outer Spot Angle" : { "$t" : "angle", "$v" : "50.0000", "$b" : "0xF3665F3F" },
+    "Range" : { "$t" : "float", "$v" : "50.0000", "$b" : "0x00004842" }
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x19DE4952D495A34ABAA8B4EC1D1E22D6" },
    "t" : "ezInputComponent",
    "p" : {
@@ -191,7 +246,22 @@
    "t" : "ezDocumentRoot",
    "n" : "ObjectTree",
    "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xE28EB66E4B66FD459872FCBD3D196E9C" }, { "$t" : "uuid", "$b" : "0xA3BC20670D78F0C8D319F9B161C3376F" }, { "$t" : "uuid", "$b" : "0x9CD3E5C5015B2449A2938B3753028645" } ]
+    "Children" : [ { "$t" : "uuid", "$b" : "0xE28EB66E4B66FD459872FCBD3D196E9C" }, { "$t" : "uuid", "$b" : "0xA3BC20670D78F0C8D319F9B161C3376F" }, { "$t" : "uuid", "$b" : "0x9CD3E5C5015B2449A2938B3753028645" }, { "$t" : "uuid", "$b" : "0xD387D7D58EFE914197A056607A4C6C66" }, { "$t" : "uuid", "$b" : "0x2F89E1D18E8A4E4587AAE83AE9AE40FF" }, { "$t" : "uuid", "$b" : "0xF10CA132A4A0F3429F2E4E6E34FF4E61" }, { "$t" : "uuid", "$b" : "0x6187EF0DF9236D4BBF77F69585432692" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x6187EF0DF9236D4BBF77F69585432692" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x5A3F5A795BB7164D9EE7C667DF06FA22" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 4.0000)", "$b" : "0x000000000000000000008040" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0xFEFF7F3ED7B3DD3ED7B3DDBE0100403F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
    }
   },
   {
@@ -202,8 +272,17 @@
     "AssetType" : "Scene",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x5D079F69E049C14CAE6B2A2B47BE2858" },
-    "Hash" : { "$t" : "uint64", "$v" : "454278071076528764", "$b" : "0x7C22C4AF7FEB4D06" },
+    "Hash" : { "$t" : "uint64", "$v" : "1095087337828914252", "$b" : "0x4C1452B92188320F" },
     "References" : [ "{ 2c0adb01-ca49-4231-b10c-450af1b8fa1d }", "{ 4673a1ba-52f2-4cce-9924-b63957d980fc }", "{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }", "{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }", "{ cea3567e-6d36-418f-9259-f2e157979bcc }", "{ da463c4d-c984-4910-b0b7-a0b3891d0448 }" ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x5A3F5A795BB7164D9EE7C667DF06FA22" },
+   "t" : "ezDirectionalLightComponent",
+   "p" : {
+    "Active" : true,
+    "Intensity" : { "$t" : "float", "$v" : "2.0000", "$b" : "0x00000040" },
+    "Light Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
    }
   },
   {
@@ -222,15 +301,13 @@
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x130764A2F6E2E84DB59F5D56967C13F7" },
+   "#" : { "$t" : "uuid", "$b" : "0xC17F8DD03598454FA5B7EEDA235F9FC2" },
    "t" : "ezPointLightComponent",
    "p" : {
     "Active" : true,
-    "Cast Shadows" : false,
-    "Intensity" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-    "Light Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" },
-    "Projected Texture" : "",
-    "Range" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" }
+    "Intensity" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" },
+    "Light Color" : { "$t" : "color", "$v" : "(0.0097, 0.2462, 1.0000, 1.0000)", "$b" : "0xBE451F3C381C7C3E0000803F0000803F" },
+    "Range" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" }
    }
   },
   {

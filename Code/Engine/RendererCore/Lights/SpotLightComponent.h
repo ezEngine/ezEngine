@@ -14,7 +14,8 @@ class EZ_RENDERERCORE_DLL ezSpotLightRenderData : public ezLightRenderData
 
 public:
   float m_fRange;
-  ezAngle m_SpotAngle;
+  ezAngle m_InnerSpotAngle;
+  ezAngle m_OuterSpotAngle;
   ezTextureResourceHandle m_hProjectedTexture;
 };
 
@@ -34,8 +35,11 @@ public:
   void SetRange(float fRange);
   float GetRange() const;
 
-  void SetSpotAngle(ezAngle fSpotAngle);
-  ezAngle GetSpotAngle() const;
+  void SetInnerSpotAngle(ezAngle fSpotAngle);
+  ezAngle GetInnerSpotAngle() const;
+
+  void SetOuterSpotAngle(ezAngle fSpotAngle);
+  ezAngle GetOuterSpotAngle() const;
 
   void SetProjectedTexture(const ezTextureResourceHandle& hProjectedTexture);
   const ezTextureResourceHandle& GetProjectedTexture() const;
@@ -51,7 +55,8 @@ public:
 private:
 
   float m_fRange;
-  ezAngle m_SpotAngle;
+  ezAngle m_InnerSpotAngle;
+  ezAngle m_OuterSpotAngle;
 
   ezTextureResourceHandle m_hProjectedTexture;  
 };

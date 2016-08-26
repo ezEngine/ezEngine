@@ -2,11 +2,7 @@
 
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 
-/// \brief A very basic render pass that renders into the color target.
-///
-/// Can either works as passthrough or if no input is present creates
-/// output targets matching the view's render target.
-/// Needs to be connected to a ezTargetPass to function.
+/// \brief A standard forward render pass that renders into the color target.
 class EZ_RENDERERCORE_DLL ezForwardRenderPass : public ezRenderPipelinePass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezForwardRenderPass, ezRenderPipelinePass);

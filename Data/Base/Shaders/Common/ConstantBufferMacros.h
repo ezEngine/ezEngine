@@ -28,6 +28,10 @@ float4x4 TransformToMatrix(Transform t)
 #define INT2(Name) int2 Name
 #define INT3(Name) int3 Name
 #define INT4(Name) int4 Name
+#define UINT1(Name) uint Name
+#define UINT2(Name) uint2 Name
+#define UINT3(Name) uint3 Name
+#define UINT4(Name) uint4 Name
 #define MAT3(Name) float3x3 Name
 #define MAT4(Name) float4x4 Name
 #define TRANSFORM(Name) Transform Name
@@ -49,6 +53,10 @@ float4x4 TransformToMatrix(Transform t)
 #define INT2(Name) ivec2 Name
 #define INT3(Name) ivec3 Name
 #define INT4(Name) ivec4 Name
+#define UINT1(Name) uint Name
+#define UINT2(Name) uvec2 Name
+#define UINT3(Name) uvec3 Name
+#define UINT4(Name) uvec4 Name
 #define MAT3(Name) mat3 Name
 #define MAT4(Name) mat4 Name
 #define COLOR(Name) vec4 Name
@@ -69,6 +77,10 @@ float4x4 TransformToMatrix(Transform t)
 #define INT2(Name) ezVec2I32 Name
 #define INT3(Name) ezVec3I32 Name
 #define INT4(Name) ezVec4I32 Name
+#define UINT1(Name) ezUInt32 Name
+#define UINT2(Name) ezVec2U32 Name
+#define UINT3(Name) ezVec2U32 Name
+#define UINT4(Name) ezVec2U32 Name
 #define MAT3(Name) ezShaderMat3 Name
 #define MAT4(Name) ezMat4 Name
 #define TRANSFORM(Name) ezShaderTransform Name

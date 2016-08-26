@@ -5,12 +5,12 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <CoreUtils/Graphics/Camera.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 
 class ezProfilingId;
 class ezView;
 class ezRenderPipelinePass;
+class ezFrameDataProviderBase;
 
 class EZ_RENDERERCORE_DLL ezRenderPipeline : public ezRefCounted
 {
@@ -47,6 +47,10 @@ public:
   void GetExtractors(ezHybridArray<ezExtractor*, 16>& extractors);
   ezExtractor* GetExtractorByName(const ezStringView& sExtractorName);
 
+  template <typename T>
+  EZ_FORCE_INLINE T* GetFrameDataProvider() { return static_cast<T*>(GetFrameDataProvider(ezGetStaticRTTI<T>())); }
+
+  const ezExtractedRenderData& GetRenderData() const;
   ezRenderDataBatchList GetRenderDataBatchesWithCategory(ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter()) const;
 
   EZ_DISALLOW_COPY_AND_ASSIGN(ezRenderPipeline);
@@ -67,6 +71,8 @@ private:
   void ClearRenderPassGraphTextures();
   bool AreInputDescriptionsAvailable(const ezRenderPipelinePass* pPass, const ezDynamicArray<ezRenderPipelinePass*>& done) const;
   bool ArePassThroughInputsDone(const ezRenderPipelinePass* pPass, const ezDynamicArray<ezRenderPipelinePass*>& done) const;
+
+  ezFrameDataProviderBase* GetFrameDataProvider(const ezRTTI* pRtti);
 
   void ExtractData(const ezView& view);
   void Render(ezRenderContext* pRenderer);
@@ -110,4 +116,8 @@ private: // Member data
 
   // Extractors
   ezDynamicArray<ezUniquePtr<ezExtractor>> m_Extractors;
+
+  // Data Providers
+  ezDynamicArray<ezUniquePtr<ezFrameDataProviderBase>> m_DataProviders;
+  ezHashTable<const ezRTTI*, ezUInt32> m_TypeToDataProviderIndex;
 };

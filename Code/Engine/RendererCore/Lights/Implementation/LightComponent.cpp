@@ -11,8 +11,8 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 1)
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Light Color", m_LightColor),
-    EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("Cast Shadows", m_bCastShadows),
+    EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f)),
+    //EZ_MEMBER_PROPERTY("Cast Shadows", m_bCastShadows),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
@@ -25,7 +25,7 @@ EZ_END_ABSTRACT_COMPONENT_TYPE
 
 ezLightComponent::ezLightComponent()
   : m_LightColor(ezColor::White)
-  , m_fIntensity(1.0f)
+  , m_fIntensity(10.0f)
   , m_bCastShadows(false)
 {
 }
