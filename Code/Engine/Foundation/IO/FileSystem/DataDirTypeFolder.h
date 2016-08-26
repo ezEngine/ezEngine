@@ -54,6 +54,7 @@ namespace ezDataDirectory
     ezHybridArray<ezDataDirectory::FolderReader*, 4> m_Readers;
     ezHybridArray<ezDataDirectory::FolderWriter*, 4> m_Writers;
 
+    mutable ezMutex m_RedirectionMutex;
     ezMap<ezString, ezString> m_FileRedirection;
   };
 

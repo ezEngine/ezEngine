@@ -104,6 +104,7 @@ namespace ezDataDirectory
 
   void FolderType::LoadRedirectionFile()
   {
+    EZ_LOCK(m_RedirectionMutex);
     m_FileRedirection.Clear();
 
     if (!s_sRedirectionFile.IsEmpty())
@@ -205,16 +206,19 @@ namespace ezDataDirectory
 
     ezStringBuilder sFileToOpen;
 
-    // Check if we know about a file redirection for this
-    auto it = m_FileRedirection.Find(szFile);
-
-    if (it.IsValid())
     {
-      // if available, open the file that is mentioned in the redirection file instead
-      sFileToOpen.Set(s_sRedirectionPrefix, it.Value());
-    }
-    else
-      sFileToOpen = szFile;
+      EZ_LOCK(m_RedirectionMutex);
+      // Check if we know about a file redirection for this
+      auto it = m_FileRedirection.Find(szFile);
+
+      if (it.IsValid())
+      {
+        // if available, open the file that is mentioned in the redirection file instead
+        sFileToOpen.Set(s_sRedirectionPrefix, it.Value());
+      }
+      else
+        sFileToOpen = szFile;
+    }  
 
     // if opening the file fails, the reader state is never set to 'used', so nothing else needs to be done
     if (pReader->Open(sFileToOpen, this) == EZ_FAILURE)

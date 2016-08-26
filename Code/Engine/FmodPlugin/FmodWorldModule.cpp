@@ -35,7 +35,7 @@ void ezFmodSceneModule::InternalStartup()
   InternalReinit();
 }
 
-void ezFmodSceneModule::InternalShutdown()
+void ezFmodSceneModule::InternalAfterWorldDestruction()
 {
   for (int i = 0; i < 5; ++i)
   {

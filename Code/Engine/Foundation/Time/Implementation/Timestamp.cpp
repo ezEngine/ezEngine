@@ -52,7 +52,7 @@ bool ezTimestamp::Compare(const ezTimestamp& rhs, CompareMode::Enum mode) const
   case CompareMode::Identical:
     return m_iTimestamp == rhs.m_iTimestamp;
   case CompareMode::Newer:
-    return m_iTimestamp >= rhs.m_iTimestamp;
+    return m_iTimestamp > rhs.m_iTimestamp;
   }
 
   EZ_ASSERT_NOT_IMPLEMENTED;

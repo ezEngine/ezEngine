@@ -18,8 +18,9 @@ public:
   ~ezSoundBankAssetDocumentWindow();
 
   virtual const char* GetGroupName() const { return "SoundBankAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const override { return "SoundBankAsset"; }
 
-private slots:
+  private slots:
   
 
 private:
