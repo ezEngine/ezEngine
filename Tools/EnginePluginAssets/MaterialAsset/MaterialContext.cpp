@@ -108,20 +108,16 @@ void ezMaterialContext::OnInitialize()
   auto pWorld = m_pWorld;
   EZ_LOCK(pWorld->GetWriteMarker());
 
-  ezMeshComponentManager* pMeshCompMan = pWorld->GetOrCreateComponentManager<ezMeshComponentManager>();
-  ezRotorComponentManager* pRotorCompMan = pWorld->GetOrCreateComponentManager<ezRotorComponentManager>();
-
   ezGameObjectDesc obj;
   ezGameObject* pObj;
-  ezMeshComponent* pMesh;
-
-
+  
   // Preview Mesh
   {
     obj.m_sName.Assign("MaterialPreview");
     pWorld->CreateObject(obj, pObj);
 
-    pMeshCompMan->CreateComponent(pMesh);
+    ezMeshComponent* pMesh;
+    ezMeshComponent::CreateComponent(pWorld, pMesh);
     pMesh->SetMesh(hMesh);
     ezString sMaterialGuid = ezConversionUtils::ToString(GetDocumentGuid());
     m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(sMaterialGuid);
@@ -132,6 +128,19 @@ void ezMaterialContext::OnInitialize()
       pMesh->SetMaterial(i, m_hMaterial);
     }
     pObj->AttachComponent(pMesh);
+  }
+
+  // Lights
+  {
+    obj.m_sName.Assign("DirLight");
+    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(60.0f));
+
+    pWorld->CreateObject(obj, pObj);
+
+    ezDirectionalLightComponent* pDirLight;
+    ezDirectionalLightComponent::CreateComponent(pWorld, pDirLight);
+
+    pObj->AttachComponent(pDirLight);
   }
 }
 
