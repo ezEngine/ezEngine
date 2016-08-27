@@ -14,6 +14,8 @@ ezStreamElementSpawnerZeroInitialized::ezStreamElementSpawnerZeroInitialized( co
 
 ezStreamElementSpawnerZeroInitialized::~ezStreamElementSpawnerZeroInitialized()
 {
+  int i = 0;
+  (void)i;
 }
 
 

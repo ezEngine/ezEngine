@@ -38,19 +38,25 @@ void ezStreamGroup::Clear()
 
 void ezStreamGroup::AddStreamProcessor(ezStreamProcessor* pStreamProcessor)
 {
-  EZ_ASSERT_DEV( pStreamProcessor != nullptr, "Stream processor may not be null!" );
+  EZ_ASSERT_DEV(pStreamProcessor != nullptr, "Stream processor may not be null!");
 
   if (pStreamProcessor->m_pStreamGroup != nullptr)
   {
-    ezLog::Debug( "Stream processor is already assigned to a stream group!" );
+    ezLog::Debug("Stream processor is already assigned to a stream group!");
     return;
   }
 
-  m_StreamProcessors.PushBack( pStreamProcessor );
+  m_StreamProcessors.PushBack(pStreamProcessor);
 
   pStreamProcessor->m_pStreamGroup = this;
 
   m_bStreamAssignmentDirty = true;
+}
+
+void ezStreamGroup::RemoveStreamProcessor(ezStreamProcessor* pStreamProcessor)
+{
+  m_StreamProcessors.Remove(pStreamProcessor);
+  EZ_DEFAULT_DELETE(pStreamProcessor);
 }
 
 void ezStreamGroup::ClearStreamProcessors()
@@ -67,19 +73,25 @@ void ezStreamGroup::ClearStreamProcessors()
 
 void ezStreamGroup::AddStreamElementSpawner(ezStreamElementSpawner* pStreamElementSpawner)
 {
-  EZ_ASSERT_DEV( pStreamElementSpawner != nullptr, "Stream element spawner may not be null!" );
+  EZ_ASSERT_DEV(pStreamElementSpawner != nullptr, "Stream element spawner may not be null!");
 
-  if ( pStreamElementSpawner->m_pStreamGroup != nullptr )
+  if (pStreamElementSpawner->m_pStreamGroup != nullptr)
   {
-    ezLog::Debug( "Stream element spawner is already assigned to a stream group!" );
+    ezLog::Debug("Stream element spawner is already assigned to a stream group!");
     return;
   }
 
-  m_StreamElementSpawners.PushBack( pStreamElementSpawner );
+  m_StreamElementSpawners.PushBack(pStreamElementSpawner);
 
   pStreamElementSpawner->m_pStreamGroup = this;
 
   m_bStreamAssignmentDirty = true;
+}
+
+void ezStreamGroup::RemoveStreamElementSpawner(ezStreamElementSpawner* pStreamElementSpawner)
+{
+  EZ_VERIFY(m_StreamElementSpawners.Remove(pStreamElementSpawner), "Invalid spawner, not part of this group");
+  EZ_DEFAULT_DELETE(pStreamElementSpawner);
 }
 
 void ezStreamGroup::ClearStreamElementSpawners()
@@ -97,31 +109,44 @@ void ezStreamGroup::ClearStreamElementSpawners()
 ezStream* ezStreamGroup::AddStream(const char* szName, ezStream::DataType Type)
 {
   // Treat adding a stream two times as an error (return null)
-  if ( GetStreamByName( szName ) )
+  if (GetStreamByName(szName))
     return nullptr;
 
-  ezStream* pStream = EZ_DEFAULT_NEW( ezStream, szName, Type, 64 );
+  ezStream* pStream = EZ_DEFAULT_NEW(ezStream, szName, Type, 64);
 
-  m_DataStreams.PushBack( pStream );
+  m_DataStreams.PushBack(pStream);
 
   m_bStreamAssignmentDirty = true;
 
   return pStream;
 }
 
-ezStream* ezStreamGroup::GetStreamByName( const char* szName ) const
+void ezStreamGroup::RemoveStreamByName(const char* szName)
 {
-  ezHashedString Temp;
-  Temp.Assign(szName);
+  ezHashedString Name;
+  Name.Assign(szName);
 
-  return GetStreamByName(Temp);
+  for (ezUInt32 i = 0; i < m_DataStreams.GetCount(); ++i)
+  {
+    if (m_DataStreams[i]->GetName() == Name)
+    {
+      EZ_DEFAULT_DELETE(m_DataStreams[i]);
+      m_DataStreams.RemoveAtSwap(i);
+
+      m_bStreamAssignmentDirty = true;
+      break;
+    }
+  }
 }
 
-ezStream* ezStreamGroup::GetStreamByName( ezHashedString Name ) const
+ezStream* ezStreamGroup::GetStreamByName(const char* szName) const
 {
-  for ( ezStream* Stream : m_DataStreams )
+  ezHashedString Name;
+  Name.Assign(szName);
+
+  for (ezStream* Stream : m_DataStreams)
   {
-    if ( Stream->GetName() == Name )
+    if (Stream->GetName() == Name)
     {
       return Stream;
     }
@@ -130,59 +155,50 @@ ezStream* ezStreamGroup::GetStreamByName( ezHashedString Name ) const
   return nullptr;
 }
 
-ezResult ezStreamGroup::SetSize( ezUInt64 uiNumElements )
+void ezStreamGroup::SetSize(ezUInt64 uiNumElements)
 {
-  if ( m_uiNumElements == uiNumElements )
-    return EZ_SUCCESS;
-
-  // Set the new size on all stream.
-  for ( ezStream* Stream : m_DataStreams )
-  {
-    if ( Stream->SetSize( uiNumElements ).Failed() )
-    {
-      return EZ_FAILURE;
-    }
-  }
+  if (m_uiNumElements == uiNumElements)
+    return;
 
   m_uiNumElements = uiNumElements;
 
   // Also reset any pending remove and spawn operations since they refer to the old size and content
   m_PendingRemoveIndices.Clear();
   m_uiPendingNumberOfElementsToSpawn = 0;
-  
+
   m_uiHighestNumActiveElements = 0;
 
   // Stream processors etc. may have pointers to the stream data for some reason.
   m_bStreamAssignmentDirty = true;
-
-  return EZ_SUCCESS;
 }
 
 /// \brief Removes an element (e.g. due to the death of a particle etc.), this will be enqueued (and thus is safe to be called from within data processors).
-void ezStreamGroup::RemoveElement( ezUInt64 uiElementIndex )
+void ezStreamGroup::RemoveElement(ezUInt64 uiElementIndex)
 {
-  if ( m_PendingRemoveIndices.Contains( uiElementIndex ) )
+  if (m_PendingRemoveIndices.Contains(uiElementIndex))
     return;
 
-  EZ_ASSERT_DEBUG( uiElementIndex < m_uiNumElements, "Element which should be removed is outside of active element range!" );
+  EZ_ASSERT_DEBUG(uiElementIndex < m_uiNumElements, "Element which should be removed is outside of active element range!");
 
-  m_PendingRemoveIndices.PushBack( uiElementIndex );
+  m_PendingRemoveIndices.PushBack(uiElementIndex);
 }
 
 /// \brief Spawns a number of new elements, they will be added as newly initialized stream elements. Safe to call from data processors since the spawning will be queued.
-void ezStreamGroup::SpawnElements( ezUInt64 uiNumElements )
+void ezStreamGroup::SpawnElements(ezUInt64 uiNumElements)
 {
   m_uiPendingNumberOfElementsToSpawn += uiNumElements;
 }
 
 void ezStreamGroup::Process()
 {
+  EnsureStreamAssignmentValid();
+
   // Run any pending operations the user may have triggered after running Process() the last time
   RunPendingDeletions();
   RunPendingSpawns();
 
   // TODO: Identify which processors work on which streams and find independent groups and use separate tasks for them?
-  for ( ezStreamProcessor* pStreamProcessor : m_StreamProcessors )
+  for (ezStreamProcessor* pStreamProcessor : m_StreamProcessors)
   {
     pStreamProcessor->Process(m_uiNumActiveElements);
   }
@@ -196,22 +212,6 @@ void ezStreamGroup::Process()
 
 void ezStreamGroup::RunPendingDeletions()
 {
-  // If any stream processors or streams were added we may need to inform them.
-  if (m_bStreamAssignmentDirty)
-  {
-    for (ezStreamProcessor* pStreamProcessor : m_StreamProcessors)
-    {
-      pStreamProcessor->UpdateStreamBindings();
-    }
-
-    for (ezStreamElementSpawner* pStreamElementSpawner : m_StreamElementSpawners)
-    {
-      pStreamElementSpawner->UpdateStreamBindings();
-    }
-
-    m_bStreamAssignmentDirty = false;
-  }
-
   // Remove elements
   while (!m_PendingRemoveIndices.IsEmpty())
   {
@@ -263,24 +263,49 @@ void ezStreamGroup::RunPendingDeletions()
   m_PendingRemoveIndices.Clear();
 }
 
+void ezStreamGroup::EnsureStreamAssignmentValid()
+{
+  // If any stream processors or streams were added we may need to inform them.
+  if (m_bStreamAssignmentDirty)
+  {
+    // Set the new size on all stream.
+    for (ezStream* Stream : m_DataStreams)
+    {
+      Stream->SetSize(m_uiNumElements);
+    }
+
+    for (ezStreamProcessor* pStreamProcessor : m_StreamProcessors)
+    {
+      pStreamProcessor->UpdateStreamBindings();
+    }
+
+    for (ezStreamElementSpawner* pStreamElementSpawner : m_StreamElementSpawners)
+    {
+      pStreamElementSpawner->UpdateStreamBindings();
+    }
+
+    m_bStreamAssignmentDirty = false;
+  }
+}
+
 void ezStreamGroup::RunPendingSpawns()
 {
   // Check if elements need to be spawned. If this is the case spawn them. (This is limited by the maximum number of elements).
-  if ( m_uiPendingNumberOfElementsToSpawn > 0 )
+  if (m_uiPendingNumberOfElementsToSpawn > 0)
   {
-    m_uiPendingNumberOfElementsToSpawn = ezMath::Min( m_uiPendingNumberOfElementsToSpawn, m_uiNumElements - m_uiNumActiveElements );
+    m_uiPendingNumberOfElementsToSpawn = ezMath::Min(m_uiPendingNumberOfElementsToSpawn, m_uiNumElements - m_uiNumActiveElements);
 
-    if ( m_uiPendingNumberOfElementsToSpawn )
+    if (m_uiPendingNumberOfElementsToSpawn)
     {
-      for ( ezStreamElementSpawner* pStreamElementSpawner : m_StreamElementSpawners )
+      for (ezStreamElementSpawner* pStreamElementSpawner : m_StreamElementSpawners)
       {
-        pStreamElementSpawner->SpawnElements( m_uiNumActiveElements, m_uiPendingNumberOfElementsToSpawn );
+        pStreamElementSpawner->SpawnElements(m_uiNumActiveElements, m_uiPendingNumberOfElementsToSpawn);
       }
     }
 
     m_uiNumActiveElements += m_uiPendingNumberOfElementsToSpawn;
 
-    m_uiHighestNumActiveElements = ezMath::Max( m_uiNumActiveElements, m_uiHighestNumActiveElements );
+    m_uiHighestNumActiveElements = ezMath::Max(m_uiNumActiveElements, m_uiHighestNumActiveElements);
 
     m_uiPendingNumberOfElementsToSpawn = 0;
   }

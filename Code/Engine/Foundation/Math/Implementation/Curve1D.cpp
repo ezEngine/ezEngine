@@ -7,12 +7,11 @@ ezCurve1D::ezCurve1D()
   Clear();
 }
 
-
 void ezCurve1D::Clear()
 {
+  m_bRecomputeBBox = true;
   m_ControlPoints.Clear();
 }
-
 
 bool ezCurve1D::IsEmpty() const
 {
@@ -21,6 +20,8 @@ bool ezCurve1D::IsEmpty() const
 
 ezCurve1D::ControlPoint& ezCurve1D::AddControlPoint(float x)
 {
+  m_bRecomputeBBox = true;
+
   auto& cp = m_ControlPoints.ExpandAndGetRef();
   cp.m_fPosX = x;
   cp.m_fValue = 0;
@@ -32,35 +33,23 @@ ezCurve1D::ControlPoint& ezCurve1D::AddControlPoint(float x)
   return cp;
 }
 
-bool ezCurve1D::GetExtents(float& minx, float& maxx) const
+void ezCurve1D::GetExtents(float& minx, float& maxx) const
 {
-  minx = ezMath::BasicType<float>::MaxValue();
-  maxx = -ezMath::BasicType<float>::MaxValue();
+  if (m_bRecomputeBBox)
+    RecomputeBBox();
 
-  for (const auto& cp : m_ControlPoints)
-  {
-    minx = ezMath::Min(minx, cp.m_fPosX);
-    maxx = ezMath::Max(maxx, cp.m_fPosX);
-  }
-
-  return minx <= maxx;
+  minx = m_fMinX;
+  maxx = m_fMaxX;
 }
 
 
-bool ezCurve1D::GetExtremeValues(float& minVal, float& maxVal) const
+void ezCurve1D::GetExtremeValues(float& minVal, float& maxVal) const
 {
-  /// \todo For splines we would need to compute the actually possible values using the tangents
+  if (m_bRecomputeBBox)
+    RecomputeBBox();
 
-  minVal = ezMath::BasicType<float>::MaxValue();
-  maxVal = -ezMath::BasicType<float>::MaxValue();
-
-  for (const auto& cp : m_ControlPoints)
-  {
-    minVal = ezMath::Min(minVal, cp.m_fValue);
-    maxVal = ezMath::Max(maxVal, cp.m_fValue);
-  }
-
-  return minVal <= maxVal;
+  minVal = m_fMinY;
+  maxVal = m_fMaxY;
 }
 
 ezUInt32 ezCurve1D::GetNumControlPoints() const
@@ -71,6 +60,7 @@ ezUInt32 ezCurve1D::GetNumControlPoints() const
 void ezCurve1D::SortControlPoints()
 {
   m_ControlPoints.Sort();
+  RecomputeBBox();
 }
 
 float ezCurve1D::Evaluate(float x) const
@@ -120,6 +110,26 @@ float ezCurve1D::Evaluate(float x) const
   return 0.0f;
 }
 
+float ezCurve1D::ConvertNormalizedPos(float pos) const
+{
+  float fMin, fMax;
+  GetExtents(fMin, fMax);
+
+  return ezMath::Lerp(fMin, fMax, pos);
+}
+
+
+float ezCurve1D::NormalizeValue(float value) const
+{
+  float fMin, fMax;
+  GetExtremeValues(fMin, fMax);
+
+  if (fMin >= fMax)
+    return 0.0f;
+
+  return (value - fMin) / (fMax - fMin);
+}
+
 ezUInt64 ezCurve1D::GetHeapMemoryUsage() const
 {
   return m_ControlPoints.GetHeapMemoryUsage();
@@ -160,4 +170,37 @@ void ezCurve1D::Load(ezStreamReader& stream)
     stream >> cp.m_fPosX;
     stream >> cp.m_fValue;
   }
+
+  m_bRecomputeBBox = true;
+  RecomputeBBox();
+}
+
+void ezCurve1D::RecomputeBBox() const
+{
+  if (!m_bRecomputeBBox)
+    return;
+
+  m_bRecomputeBBox = false;
+
+  m_fMinX = ezMath::BasicType<float>::MaxValue();
+  m_fMaxX = -ezMath::BasicType<float>::MaxValue();
+
+  for (const auto& cp : m_ControlPoints)
+  {
+    m_fMinX = ezMath::Min(m_fMinX, cp.m_fPosX);
+    m_fMaxX = ezMath::Max(m_fMaxX, cp.m_fPosX);
+  }
+
+
+  /// \todo For splines we would need to compute the actually possible values using the tangents
+
+  m_fMinY = ezMath::BasicType<float>::MaxValue();
+  m_fMaxY = -ezMath::BasicType<float>::MaxValue();
+
+  for (const auto& cp : m_ControlPoints)
+  {
+    m_fMinY = ezMath::Min(m_fMinY, cp.m_fValue);
+    m_fMaxY = ezMath::Max(m_fMaxY, cp.m_fValue);
+  }
+
 }

@@ -17,7 +17,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Gravity, 1, ezRTTIDefa
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Gravity, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Gravity, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Gravity>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezParticleBehaviorFactory_Gravity::ezParticleBehaviorFactory_Gravity()
@@ -25,17 +25,16 @@ ezParticleBehaviorFactory_Gravity::ezParticleBehaviorFactory_Gravity()
   m_fGravityFactor = 1.0f;
 }
 
-
-ezParticleBehavior* ezParticleBehaviorFactory_Gravity::CreateBehavior(ezParticleSystemInstance* pOwner) const
+const ezRTTI* ezParticleBehaviorFactory_Gravity::GetBehaviorType() const
 {
-  ezParticleBehavior_Gravity* pBehavior = EZ_DEFAULT_NEW(ezParticleBehavior_Gravity, pOwner);
+  return ezGetStaticRTTI<ezParticleBehavior_Gravity>();
+}
 
-  // Copy Properties
-  {
-    pBehavior->m_fGravityFactor = m_fGravityFactor;
-  }
+void ezParticleBehaviorFactory_Gravity::CopyBehaviorProperties(ezParticleBehavior* pObject) const
+{
+  ezParticleBehavior_Gravity* pBehavior = static_cast<ezParticleBehavior_Gravity*>(pObject);
 
-  return pBehavior;
+  pBehavior->m_fGravityFactor = m_fGravityFactor;
 }
 
 void ezParticleBehaviorFactory_Gravity::Save(ezStreamWriter& stream) const
@@ -54,11 +53,15 @@ void ezParticleBehaviorFactory_Gravity::Load(ezStreamReader& stream)
   stream >> m_fGravityFactor;
 }
 
-ezParticleBehavior_Gravity::ezParticleBehavior_Gravity(ezParticleSystemInstance* pOwner)
-  : ezParticleBehavior(pOwner)
+void ezParticleBehavior_Gravity::AfterPropertiesConfigured()
 {
-  m_fGravityFactor = 1.0f;
-  m_pPhysicsModule = static_cast<ezPhysicsWorldModuleInterface*>(ezWorldModule::FindModule(m_pParticleSystem->GetWorld(), ezPhysicsWorldModuleInterface::GetStaticRTTI()));
+  m_pPhysicsModule = static_cast<ezPhysicsWorldModuleInterface*>(ezWorldModule::FindModule(GetOwnerSystem()->GetWorld(), ezPhysicsWorldModuleInterface::GetStaticRTTI()));
+
+}
+
+void ezParticleBehavior_Gravity::CreateRequiredStreams()
+{
+  CreateStream("Velocity", ezStream::DataType::Float3, &m_pStreamVelocity);
 }
 
 void ezParticleBehavior_Gravity::Process(ezUInt64 uiNumElements)

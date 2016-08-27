@@ -36,7 +36,12 @@ public:
   float m_fMinSpeed;
   float m_fSpeedRange;
 
+
+  virtual void CreateRequiredStreams() override;
+
 protected:
   virtual void SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
 
+  ezStream* m_pStreamPosition;
+  ezStream* m_pStreamVelocity;
 };

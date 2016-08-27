@@ -14,3 +14,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineResourceUpdateMsg, 1, ezRTTIDefaul
   EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineRestartSimulationMsg, 1, ezRTTIDefaultAllocator<ezEditorEngineRestartSimulationMsg>)
+EZ_END_DYNAMIC_REFLECTED_TYPE

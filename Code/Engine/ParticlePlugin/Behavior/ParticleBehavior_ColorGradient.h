@@ -8,9 +8,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_ColorGradient : public ezP
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_ColorGradient, ezParticleBehaviorFactory);
 
 public:
-  ezParticleBehaviorFactory_ColorGradient();
-
-  virtual ezParticleBehavior* CreateBehavior(ezParticleSystemInstance* pOwner) const override;
+  virtual const ezRTTI* GetBehaviorType() const override;
+  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject) const override;
 
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
@@ -33,11 +32,13 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_ColorGradient : public ezParticle
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_ColorGradient, ezParticleBehavior);
 
 public:
-  ezParticleBehavior_ColorGradient(ezParticleSystemInstance* pOwner);
-
   ezColorGradientResourceHandle m_hGradient;
+
+  virtual void CreateRequiredStreams() override;
 
 protected:
   virtual void Process(ezUInt64 uiNumElements) override;
 
+  ezStream* m_pStreamLifeTime;
+  ezStream* m_pStreamColor;
 };

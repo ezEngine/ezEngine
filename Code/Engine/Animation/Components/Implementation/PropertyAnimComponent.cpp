@@ -245,9 +245,11 @@ void ezPropertyAnimComponent::ApplyAnimation(const ezTime& tDiff, ezUInt32 idx)
 
     const ezCurve1D& curve = pResource->GetDescriptor().m_Curves[0];
 
-    float fMin, fMax;
-    if (!curve.GetExtents(fMin, fMax)) // empty curve
+    if (curve.IsEmpty())
       return;
+
+    float fMin, fMax;
+    curve.GetExtents(fMin, fMax);
 
     fFinalValue = curve.Evaluate(fMin + fLookupPos * (fMax - fMin));
   }

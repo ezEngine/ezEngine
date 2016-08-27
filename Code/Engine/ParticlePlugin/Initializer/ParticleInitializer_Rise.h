@@ -34,10 +34,15 @@ public:
   float m_fMinRiseSpeed;
   float m_fRiseSpeedRange;
 
+
+  virtual void CreateRequiredStreams() override;
+
 protected:
   virtual void SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
 
   // used to rise/fall along the gravity vector
   ezPhysicsWorldModuleInterface* m_pPhysicsModule;
+
+  ezStream* m_pStreamVelocity;
 };
 

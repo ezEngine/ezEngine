@@ -11,7 +11,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Gravity : public ezParticl
 public:
   ezParticleBehaviorFactory_Gravity();
 
-  virtual ezParticleBehavior* CreateBehavior(ezParticleSystemInstance* pOwner) const override;
+  virtual const ezRTTI* GetBehaviorType() const override;
+  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject) const override;
 
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
@@ -26,13 +27,16 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Gravity : public ezParticleBehavi
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Gravity, ezParticleBehavior);
 
 public:
-  ezParticleBehavior_Gravity(ezParticleSystemInstance* pOwner);
-
   float m_fGravityFactor;
+
+  virtual void AfterPropertiesConfigured() override;
+  virtual void CreateRequiredStreams() override;
 
 protected:
   virtual void Process(ezUInt64 uiNumElements) override;
 
   ezPhysicsWorldModuleInterface* m_pPhysicsModule;
+
+  ezStream* m_pStreamVelocity;
 };
 

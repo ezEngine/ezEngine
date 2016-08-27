@@ -65,21 +65,25 @@ ezParticleEffectAssetDocumentWindow::ezParticleEffectAssetDocumentWindow(ezAsset
   }
 
   m_pAssetDoc = static_cast<ezParticleEffectAssetDocument*>(pDocument);
-  m_pAssetDoc->m_AssetEvents.AddEventHandler(ezMakeDelegate(&ezParticleEffectAssetDocumentWindow::ParticleEffectAssetDocumentEventHandler, this));
+  m_pAssetDoc->m_AssetEvents.AddEventHandler(ezMakeDelegate(&ezParticleEffectAssetDocumentWindow::AssetDocumentEventHandler, this));
 
   FinishWindowCreation();
 
   UpdatePreview();
+
+  GetParticleDocument()->m_Events.AddEventHandler(ezMakeDelegate(&ezParticleEffectAssetDocumentWindow::ParticleEventHandler, this));
 }
 
 ezParticleEffectAssetDocumentWindow::~ezParticleEffectAssetDocumentWindow()
 {
+  GetParticleDocument()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezParticleEffectAssetDocumentWindow::ParticleEventHandler, this));
+
   RestoreResource();
 
   GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezParticleEffectAssetDocumentWindow::StructureEventHandler, this));
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
 
-  m_pAssetDoc->m_AssetEvents.RemoveEventHandler(ezMakeDelegate(&ezParticleEffectAssetDocumentWindow::ParticleEffectAssetDocumentEventHandler, this));
+  m_pAssetDoc->m_AssetEvents.RemoveEventHandler(ezMakeDelegate(&ezParticleEffectAssetDocumentWindow::AssetDocumentEventHandler, this));
 }
 
 
@@ -88,7 +92,7 @@ ezParticleEffectAssetDocument* ezParticleEffectAssetDocumentWindow::GetParticleD
   return static_cast<ezParticleEffectAssetDocument*>(GetDocument());
 }
 
-void ezParticleEffectAssetDocumentWindow::ParticleEffectAssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e)
+void ezParticleEffectAssetDocumentWindow::AssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e)
 {
   switch (e.m_Type)
   {
@@ -138,6 +142,24 @@ void ezParticleEffectAssetDocumentWindow::StructureEventHandler(const ezDocument
   case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
   case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
     UpdatePreview();
+    break;
+  }
+}
+
+
+void ezParticleEffectAssetDocumentWindow::ParticleEventHandler(const ezParticleEffectAssetEvent& e)
+{
+  switch (e.m_Type)
+  {
+  case ezParticleEffectAssetEvent::RestartEffect:
+    {
+      ezEditorEngineRestartSimulationMsg msg;
+      GetEditorEngineConnection()->SendMessage(&msg);
+    }
+    break;
+
+  default:
+    EZ_ASSERT_NOT_IMPLEMENTED;
     break;
   }
 }

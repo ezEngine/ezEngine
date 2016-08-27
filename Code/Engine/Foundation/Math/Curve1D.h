@@ -40,10 +40,10 @@ public:
   ControlPoint& AddControlPoint(float pos);
 
   /// \brief Determines the min and max position value across all control points.
-  bool GetExtents(float& minx, float& maxx) const;
+  void GetExtents(float& minx, float& maxx) const;
 
   /// \brief Determines the min and max Y value across all control points.
-  bool GetExtremeValues(float& minVal, float& maxVal) const;
+  void GetExtremeValues(float& minVal, float& maxVal) const;
 
   /// \brief Returns the number of control points.
   ezUInt32 GetNumControlPoints() const;
@@ -52,7 +52,7 @@ public:
   const ControlPoint& GetControlPoint(ezUInt32 idx) const { return m_ControlPoints[idx]; }
 
   /// \brief Non-const access to a control point. If you modify the position, SortControlPoints() has to be called before evaluating the curve.
-  ControlPoint& ModifyControlPoint(ezUInt32 idx) { return m_ControlPoints[idx]; }
+  ControlPoint& ModifyControlPoint(ezUInt32 idx) { m_bRecomputeBBox = true;  return m_ControlPoints[idx]; }
 
   /// \brief Sorts the control point arrays by their position. The CPs have to be sorted before calling Evaluate(), otherwise the result will be wrong.
   void SortControlPoints();
@@ -61,6 +61,12 @@ public:
   ///
   /// The control points have to be sorted, so call SortControlPoints() before, if any modifications where done.
   float Evaluate(float position) const;
+
+  /// \brief Takes the normalized position [0;1] and converts it into a valid position on the curve
+  float ConvertNormalizedPos(float pos) const;
+
+  /// \brief Takes a value (typically returned by Evaluate()) and normalizes it into [0;1] range
+  float NormalizeValue(float value) const;
 
   /// \brief How much heap memory the curve uses.
   ezUInt64 GetHeapMemoryUsage() const;
@@ -72,6 +78,10 @@ public:
   void Load(ezStreamReader& stream);
 
 private:
+  void RecomputeBBox() const;
 
+  mutable bool m_bRecomputeBBox;
+  mutable float m_fMinX, m_fMaxX;
+  mutable float m_fMinY, m_fMaxY;
   ezHybridArray<ControlPoint, 8> m_ControlPoints;
 };

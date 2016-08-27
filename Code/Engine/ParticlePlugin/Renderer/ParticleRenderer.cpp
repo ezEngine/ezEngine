@@ -48,20 +48,39 @@ void ezParticleRenderer::RenderBatch(const ezRenderViewContext& renderViewContex
   {
     const ezParticleRenderData* pRenderData = it;
 
+    EZ_LOCK(pRenderData->m_pParticleSystem->m_Mutex);
+
     const ezUInt64 uiNumParticles = pRenderData->m_pParticleSystem->GetNumActiveParticles();
-    const ezVec3* pPosition = pRenderData->m_pParticleSystem->GetStreamPosition()->GetData<ezVec3>();
-    const ezColor* pColor = pRenderData->m_pParticleSystem->GetStreamColor()->GetData<ezColor>();
+
+    const ezStream* pStreamPosition = pRenderData->m_pParticleSystem->QueryStream("Position", ezStream::DataType::Float3);
+    const ezStream* pStreamColor = pRenderData->m_pParticleSystem->QueryStream("Color", ezStream::DataType::Float4);
+    const ezStream* pStreamSize = pRenderData->m_pParticleSystem->QueryStream("Size", ezStream::DataType::Float);
+
+    if (pStreamPosition == nullptr)
+      continue;
+
+    const ezVec3* pPosition = pStreamPosition->GetData<ezVec3>();
+    const ezColor* pColor = pStreamColor ? pStreamColor->GetData<ezColor>() : nullptr;
+    const float* pSize = pStreamSize ? pStreamSize->GetData<float>() : nullptr;
 
     for (ezUInt64 i = 0; i < uiNumParticles; ++i)
     {
       const ezVec3 vCenter = /*pRenderData->m_GlobalTransform **/ pPosition[i];
 
+      ezColor col = ezColor::White;
+      float size = 0.1f;
+
+      if (pColor)
+        col = pColor[i];
+      if (pSize)
+        size = pSize[i];
+
       ezBoundingBox box;
       box.SetInvalid();
-      box.ExpandToInclude(vCenter - ezVec3(-0.1f));
-      box.ExpandToInclude(vCenter - ezVec3(+0.1f));
+      box.ExpandToInclude(vCenter - ezVec3(+size));
+      box.ExpandToInclude(vCenter - ezVec3(-size));
 
-      ezDebugRenderer::DrawLineBox(renderViewContext.m_uiWorldIndex, box, pColor[i]);
+      ezDebugRenderer::DrawLineBox(renderViewContext.m_uiWorldIndex, box, col);
     }
 
     // now it may be deleted

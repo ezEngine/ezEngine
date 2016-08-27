@@ -70,14 +70,23 @@ void ezParticleInitializerFactory_SpherePosition::Load(ezStreamReader& stream)
   stream >> m_fSpeedRange;
 }
 
+
+void ezParticleInitializer_SpherePosition::CreateRequiredStreams()
+{
+  CreateStream("Position", ezStream::DataType::Float3, &m_pStreamPosition);
+
+  if (m_bSetVelocity)
+  {
+    CreateStream("Velocity", ezStream::DataType::Float3, &m_pStreamVelocity);
+  }
+}
+
 void ezParticleInitializer_SpherePosition::SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
-  const ezUInt64 uiElementSize = m_pStreamPosition->GetElementSize();
-
   ezVec3* pPosition = m_pStreamPosition->GetWritableData<ezVec3>();
-  ezVec3* pVelocity = m_pStreamVelocity->GetWritableData<ezVec3>();
+  ezVec3* pVelocity = m_bSetVelocity ? m_pStreamVelocity->GetWritableData<ezVec3>() : nullptr;
 
-  ezRandom& rng = m_pOwnerSystem->GetRNG();
+  ezRandom& rng = GetRNG();
 
   const float fRadiusSqr = m_fRadius * m_fRadius;
 
@@ -111,9 +120,9 @@ void ezParticleInitializer_SpherePosition::SpawnElements(ezUInt64 uiStartIndex, 
       const float fSpeed = (float)rng.DoubleInRange(m_fMinSpeed, m_fSpeedRange);
 
       /// \todo Ignore scale ?
-      pVelocity[i] = m_pOwnerSystem->GetTransform().m_Rotation * normalPos * fSpeed;
+      pVelocity[i] = GetOwnerSystem()->GetTransform().m_Rotation * normalPos * fSpeed;
     }
 
-    pPosition[i] = m_pOwnerSystem->GetTransform() * pos;
+    pPosition[i] = GetOwnerSystem()->GetTransform() * pos;
   }
 }

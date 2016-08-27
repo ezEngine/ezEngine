@@ -11,6 +11,7 @@
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <CoreUtils/Localization/TranslationLookup.h>
 #include <EditorFramework/Actions/ViewActions.h>
+#include <EditorPluginParticle/Actions/ParticleActions.h>
 
 
 void OnLoadPlugin(bool bReloading)
@@ -19,6 +20,8 @@ void OnLoadPlugin(bool bReloading)
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginParticle", "ezEnginePluginParticle");
 
   ezTranslatorFromFiles::AddTranslationFile("ParticlePlugin.txt");
+
+  ezParticleActions::RegisterActions();
 
   // Particle Effect Asset
   {
@@ -37,6 +40,7 @@ void OnLoadPlugin(bool bReloading)
       ezDocumentActions::MapActions("ParticleEffectAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("ParticleEffectAssetToolBar", "");
       ezAssetActions::MapActions("ParticleEffectAssetToolBar", true);
+      ezParticleActions::MapActions("ParticleEffectAssetToolBar", "");
     }
     
     // View Tool Bar

@@ -3,6 +3,7 @@
 #include <ParticlePlugin/Basics.h>
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
 #include <CoreUtils/DataProcessing/Stream/StreamProcessor.h>
+#include <ParticlePlugin/Base/ParticleBase.h>
 
 class ezStream;
 class ezParticleSystemInstance;
@@ -14,32 +15,27 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory, ezReflectedClass);
 
 public:
-  ezParticleBehaviorFactory();
+  virtual const ezRTTI* GetBehaviorType() const = 0;
+  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject) const = 0;
 
-  virtual ezParticleBehavior* CreateBehavior(ezParticleSystemInstance* pOwner) const = 0;
+  ezParticleBehavior* CreateBehavior(ezParticleSystemInstance* pOwner) const;
 
   virtual void Save(ezStreamWriter& stream) const = 0;
   virtual void Load(ezStreamReader& stream) = 0;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior : public ezStreamProcessor
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior : public ezParticleBase<ezStreamProcessor, false>
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior, ezStreamProcessor);
 
   friend class ezParticleSystemInstance;
 
 protected:
-  ezParticleBehavior(ezParticleSystemInstance* pOwner);
 
-  virtual ezResult UpdateStreamBindings() override;
   virtual void StepParticleSystem(const ezTime& tDiff) { m_TimeDiff = tDiff; }
 
   ezTime m_TimeDiff;
-  ezParticleSystemInstance* m_pParticleSystem;
-  ezStream* m_pStreamPosition;
-  ezStream* m_pStreamVelocity;
-  ezStream* m_pStreamColor;
-  ezStream* m_pStreamLifeTime;
+
 };
 
 

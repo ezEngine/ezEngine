@@ -32,6 +32,9 @@
    "#" : { "$t" : "uuid", "$b" : "0x79076CBC34700E47954018FBDA6AC708" },
    "t" : "ezParticleEmitterFactory_Continuous",
    "p" : {
+    "Count Curve" : "",
+    "Curve Duration" : { "$t" : "time", "$v" : "10.0000", "$b" : "0x0000000000002440" },
+    "Duration" : { "$t" : "time", "$v" : "0.0000", "$b" : "0x0000000000000000" },
     "Interval Range" : { "$t" : "time", "$v" : "0.0000", "$b" : "0x0000000000000000" },
     "Min Interval" : { "$t" : "time", "$v" : "0.1000", "$b" : "0x000000A09999B93F" },
     "Min Spawn Count" : { "$t" : "uint32", "$v" : "10", "$b" : "0x0A000000" },
@@ -79,7 +82,7 @@
     "AssetType" : "Particle Effect",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x491649B78879EA4BB1456550AB951811" },
-    "Hash" : { "$t" : "uint64", "$v" : "5096338858733326225", "$b" : "0x91CFD1C130D5B946" },
+    "Hash" : { "$t" : "uint64", "$v" : "10100871045782601304", "$b" : "0x587EE60DB3802D8C" },
     "References" : [ "{ 5c9d3e28-e23d-4305-a16e-2db6836ef5d6 }" ]
    }
   },

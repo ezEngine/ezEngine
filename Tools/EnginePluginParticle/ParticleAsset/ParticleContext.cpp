@@ -12,6 +12,7 @@
 #include <SharedPluginAssets/Common/Messages.h>
 #include <ParticlePlugin/Components/ParticleComponent.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
+#include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleContext, 1, ezRTTIDefaultAllocator<ezParticleContext>)
 {
@@ -50,6 +51,11 @@ void ezParticleContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineRestoreResourceMsg>())
   {
     ezResourceManager::ReloadResource(m_hParticle, true);
+  }
+
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineRestartSimulationMsg>())
+  {
+    RestartEffect();
   }
 
   ezEngineProcessDocumentContext::HandleMessage(pMsg);
@@ -105,13 +111,24 @@ bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* p
   m_pWorld->Update();
   m_pWorld->SetWorldSimulationEnabled(false);
 
-  if (m_pComponent && m_pComponent->m_pParticleEffect)
+  if (m_pComponent && !m_pComponent->m_ParticleEffect.IsAlive())
   {
     for (ezUInt32 i = 0; i < 15; ++i)
     {
-      m_pComponent->m_pParticleEffect->Update(ezTime::Seconds(0.1));
+      m_pComponent->m_ParticleEffect.Tick(ezTime::Seconds(0.1));
     }
   }
 
   return true;
+}
+
+void ezParticleContext::RestartEffect()
+{
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  if (m_pComponent)
+  {
+    m_pComponent->m_ParticleEffect.StopImmediate();
+    m_pComponent->m_ParticleEffect.Invalidate();
+  }
 }

@@ -4,6 +4,8 @@
 #include <Foundation/Math/Random.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <GameUtils/Curves/ColorGradientResource.h>
+#include <Core/WorldSerializer/ResourceHandleReader.h>
+#include <Core/WorldSerializer/ResourceHandleWriter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomColor, 1, ezRTTIDefaultAllocator<ezParticleInitializerFactory_RandomColor>)
 {
@@ -19,10 +21,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_RandomColor, 1, ezRTTIDefaultAllocator<ezParticleInitializer_RandomColor>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
-
-ezParticleInitializerFactory_RandomColor::ezParticleInitializerFactory_RandomColor()
-{
-}
 
 const ezRTTI* ezParticleInitializerFactory_RandomColor::GetInitializerType() const
 {
@@ -64,7 +62,7 @@ void ezParticleInitializerFactory_RandomColor::Save(ezStreamWriter& stream) cons
   const ezUInt8 uiVersion = 1;
   stream << uiVersion;
 
-  stream << GetColorGradientFile();
+  stream << m_hGradient;
   stream << m_Color1;
   stream << m_Color2;
 }
@@ -74,19 +72,22 @@ void ezParticleInitializerFactory_RandomColor::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
 
-  ezStringBuilder sGradient;
-  stream >> sGradient;
-  SetColorGradientFile(sGradient);
-
+  stream >> m_hGradient;
   stream >> m_Color1;
   stream >> m_Color2;
+}
+
+
+void ezParticleInitializer_RandomColor::CreateRequiredStreams()
+{
+  CreateStream("Color", ezStream::DataType::Float4, &m_pStreamColor);
 }
 
 void ezParticleInitializer_RandomColor::SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
   ezColor* pColor = m_pStreamColor->GetWritableData<ezColor>();
 
-  ezRandom& rng = m_pOwnerSystem->GetRNG();
+  ezRandom& rng = GetRNG();
 
   if (!m_hGradient.IsValid())
   {

@@ -8,22 +8,17 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezParticleBehaviorFactory::ezParticleBehaviorFactory()
+
+ezParticleBehavior* ezParticleBehaviorFactory::CreateBehavior(ezParticleSystemInstance* pOwner) const
 {
+  const ezRTTI* pRtti = GetBehaviorType();
 
-}
+  ezParticleBehavior* pBehavior = (ezParticleBehavior*)pRtti->GetAllocator()->Allocate();
+  pBehavior->Reset(pOwner);
 
-ezParticleBehavior::ezParticleBehavior(ezParticleSystemInstance* pOwner)
-{
-  m_pParticleSystem = pOwner;
-}
+  CopyBehaviorProperties(pBehavior);
+  pBehavior->AfterPropertiesConfigured();
+  pBehavior->CreateRequiredStreams();
 
-ezResult ezParticleBehavior::UpdateStreamBindings()
-{
-  m_pStreamPosition = m_pStreamGroup->GetStreamByName("Position");
-  m_pStreamVelocity = m_pStreamGroup->GetStreamByName("Velocity");
-  m_pStreamColor = m_pStreamGroup->GetStreamByName("Color");
-  m_pStreamLifeTime = m_pStreamGroup->GetStreamByName("LifeTime");
-
-  return EZ_SUCCESS;
+  return pBehavior;
 }

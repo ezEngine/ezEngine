@@ -17,25 +17,19 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Velocity, 1, ezRTTIDef
 //}
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Velocity, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Velocity, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Velocity>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezParticleBehaviorFactory_Velocity::ezParticleBehaviorFactory_Velocity()
+const ezRTTI* ezParticleBehaviorFactory_Velocity::GetBehaviorType() const
 {
-  //m_fVelocityDamping = 0.0f;
+  return ezGetStaticRTTI<ezParticleBehavior_Velocity>();
 }
 
-
-ezParticleBehavior* ezParticleBehaviorFactory_Velocity::CreateBehavior(ezParticleSystemInstance* pOwner) const
+void ezParticleBehaviorFactory_Velocity::CopyBehaviorProperties(ezParticleBehavior* pObject) const
 {
-  ezParticleBehavior_Velocity* pBehavior = EZ_DEFAULT_NEW(ezParticleBehavior_Velocity, pOwner);
+  ezParticleBehavior_Velocity* pBehavior = static_cast<ezParticleBehavior_Velocity*>(pObject);
 
-  // Copy Properties
-  {
-    //pBehavior->m_fVelocityDamping = m_fVelocityDamping;
-  }
 
-  return pBehavior;
 }
 
 void ezParticleBehaviorFactory_Velocity::Save(ezStreamWriter& stream) const
@@ -54,9 +48,10 @@ void ezParticleBehaviorFactory_Velocity::Load(ezStreamReader& stream)
   //stream >> m_fVelocityDamping;
 }
 
-ezParticleBehavior_Velocity::ezParticleBehavior_Velocity(ezParticleSystemInstance* pOwner)
-  : ezParticleBehavior(pOwner)
+void ezParticleBehavior_Velocity::CreateRequiredStreams()
 {
+  CreateStream("Position", ezStream::DataType::Float3, &m_pStreamPosition);
+  CreateStream("Velocity", ezStream::DataType::Float3, &m_pStreamVelocity);
 }
 
 void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)

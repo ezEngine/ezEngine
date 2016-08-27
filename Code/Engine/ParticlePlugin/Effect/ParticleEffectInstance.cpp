@@ -9,9 +9,7 @@
 
 ezParticleEffectInstance::ezParticleEffectInstance()
 {
-  m_Transform.SetIdentity();
-  m_bEmitterEnabled = true;
-  m_pWorld = nullptr;
+  Clear();
 }
 
 ezParticleEffectInstance::~ezParticleEffectInstance()
@@ -20,13 +18,34 @@ ezParticleEffectInstance::~ezParticleEffectInstance()
 }
 
 
+void ezParticleEffectInstance::Clear()
+{
+  Interrupt();
+
+  m_Transform.SetIdentity();
+  m_bEmitterEnabled = true;
+  m_pWorld = nullptr;
+  m_hResource.Invalidate();
+  m_hHandle.Invalidate();
+}
+
+
+void ezParticleEffectInstance::Interrupt()
+{
+  ClearParticleSystems();
+  m_bEmitterEnabled = false;
+}
+
 void ezParticleEffectInstance::SetEmitterEnabled(bool enable)
 {
   m_bEmitterEnabled = enable;
 
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
-    m_ParticleSystems[i]->SetEmitterEnabled(m_bEmitterEnabled);
+    if (m_ParticleSystems[i])
+    {
+      m_ParticleSystems[i]->SetEmitterEnabled(m_bEmitterEnabled);
+    }
   }
 }
 
@@ -35,8 +54,11 @@ bool ezParticleEffectInstance::HasActiveParticles() const
 {
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
-    if (m_ParticleSystems[i]->HasActiveParticles())
-      return true;
+    if (m_ParticleSystems[i])
+    {
+      if (m_ParticleSystems[i]->HasActiveParticles())
+        return true;
+    }
   }
 
   return false;
@@ -62,16 +84,16 @@ void ezParticleEffectInstance::ClearParticleSystems()
   m_ParticleSystems.Clear();
 }
 
-void ezParticleEffectInstance::Configure(const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld)
+void ezParticleEffectInstance::Configure(const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld, ezUInt64 uiRandomSeed)
 {
   m_pWorld = pWorld;
   m_hResource = hResource;
 
-  Reconfigure();
+  Reconfigure(uiRandomSeed);
 }
 
 
-void ezParticleEffectInstance::Reconfigure()
+void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed)
 {
   ezResourceLock<ezParticleEffectResource> pResource(m_hResource, ezResourceAcquireMode::NoFallback);
 
@@ -105,13 +127,15 @@ void ezParticleEffectInstance::Reconfigure()
     {
       if (m_ParticleSystems[i] == nullptr)
       {
-        m_ParticleSystems[i] = ezParticleEffectManager::GetSingleton()->CreateParticleSystemInstance(systems[i]->m_uiMaxParticles, m_pWorld);
+        m_ParticleSystems[i] = ezParticleEffectManager::GetSingleton()->CreateParticleSystemInstance(systems[i]->m_uiMaxParticles, m_pWorld, uiRandomSeed);
       }
     }
   }
 
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
+    EZ_LOCK(m_ParticleSystems[i]->m_Mutex);
+
     m_ParticleSystems[i]->ConfigureFromTemplate(systems[i]);
     m_ParticleSystems[i]->SetTransform(m_Transform);
     m_ParticleSystems[i]->SetEmitterEnabled(m_bEmitterEnabled);
@@ -124,14 +148,29 @@ void ezParticleEffectInstance::SetTransform(const ezTransform& transform)
 
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
-    m_ParticleSystems[i]->SetTransform(m_Transform);
+    if (m_ParticleSystems[i] != nullptr)
+    {
+      m_ParticleSystems[i]->SetTransform(m_Transform);
+    }
   }
 }
 
-void ezParticleEffectInstance::Update(const ezTime& tDiff)
+bool ezParticleEffectInstance::Update(const ezTime& tDiff)
 {
+  bool bAnyActive = false;
+
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
-    m_ParticleSystems[i]->Update(tDiff);
+    if (m_ParticleSystems[i] != nullptr)
+    {
+      bAnyActive = true;
+
+      if (m_ParticleSystems[i]->Update(tDiff) == ezParticleSystemState::Inactive)
+      {
+        ClearParticleSystem(i);
+      }
+    }
   }
+
+  return bAnyActive;
 }

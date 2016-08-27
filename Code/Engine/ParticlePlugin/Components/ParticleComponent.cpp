@@ -4,12 +4,15 @@
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 #include <Core/World/WorldModule.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Core/WorldSerializer/WorldReader.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Effect", GetParticleEffectFile, SetParticleEffectFile)->AddAttributes(new ezAssetBrowserAttribute("Particle Effect")),
+    EZ_MEMBER_PROPERTY("Random Seed", m_uiRandomSeed),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
@@ -23,18 +26,11 @@ EZ_END_COMPONENT_TYPE
 
 ezParticleComponent::ezParticleComponent()
 {
-  m_pParticleEffect = nullptr;
+  m_uiRandomSeed = 0;
 }
 
 ezParticleComponent::~ezParticleComponent()
 {
-  EZ_ASSERT_DEBUG(m_pParticleEffect == nullptr, "Effect pointer should have been cleared");
-}
-
-void ezParticleComponent::OnAfterAttachedToObject()
-{
-  EZ_ASSERT_DEBUG(m_pParticleEffect == nullptr, "Invalid effect pointer");
-
 }
 
 void ezParticleComponent::OnBeforeDetachedFromObject()
@@ -47,43 +43,43 @@ void ezParticleComponent::OnBeforeDetachedFromObject()
     SetActive(true);
   }
 
-  if (m_pParticleEffect)
-  {
-    ezParticleWorldModule* pModule = static_cast<ezParticleWorldModule*>(GetManager()->GetUserData());
-
-    pModule->DestroyParticleEffectInstance(m_pParticleEffect);
-    m_pParticleEffect = nullptr;
-  }
+  m_ParticleEffect.Invalidate();
 }
 
 void ezParticleComponent::Update()
 {
-  if (m_pParticleEffect == nullptr && m_hEffect.IsValid())
-  {
-    ezParticleWorldModule* pModule = static_cast<ezParticleWorldModule*>(GetManager()->GetUserData());
+  ezParticleWorldModule* pModule = static_cast<ezParticleWorldModule*>(GetManager()->GetUserData());
 
-    m_pParticleEffect = pModule->CreateParticleEffectInstance(m_hEffect);
+  if (!m_ParticleEffect.IsAlive() && m_hEffectResource.IsValid())
+  {
+    m_ParticleEffect.Create(m_hEffectResource, pModule, m_uiRandomSeed);
   }
 
-  if (m_pParticleEffect)
-  {
-    m_pParticleEffect->SetTransform(GetOwner()->GetGlobalTransform());
-  }
+  m_ParticleEffect.SetTransform(GetOwner()->GetGlobalTransform());
 }
 
 void ezParticleComponent::SerializeComponent(ezWorldWriter& stream) const
 {
+  auto& s = stream.GetStream();
 
+  s << m_uiRandomSeed;
+  s << m_hEffectResource;
+
+  /// \todo store effect state
 }
 
 void ezParticleComponent::DeserializeComponent(ezWorldReader& stream)
 {
+  auto& s = stream.GetStream();
+
+  s >> m_uiRandomSeed;
+  s >> m_hEffectResource;
 
 }
 
 void ezParticleComponent::SetParticleEffect(const ezParticleEffectResourceHandle& hEffect)
 {
-  m_hEffect = hEffect;
+  m_hEffectResource = hEffect;
 
   // TODO: Replace effect
 
@@ -109,10 +105,10 @@ void ezParticleComponent::SetParticleEffectFile(const char* szFile)
 
 const char* ezParticleComponent::GetParticleEffectFile() const
 {
-  if (!m_hEffect.IsValid())
+  if (!m_hEffectResource.IsValid())
     return "";
 
-  return m_hEffect.GetResourceID();
+  return m_hEffectResource.GetResourceID();
 }
 
 

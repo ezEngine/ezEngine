@@ -201,7 +201,13 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
     }
   }
 
-  EZ_ASSERT_DEV(bounds.IsValid() && !bounds.IsNaN(), "Invalid bounds");
+  //EZ_ASSERT_DEV(bounds.IsValid() && !bounds.IsNaN(), "Invalid bounds");
+
+  if (!bounds.IsValid() || bounds.IsNaN())
+  {
+    ezLog::Error("Selection has no valid bounding box");
+    return;
+  }
 
   const ezQuerySelectionBBoxMsgToEngine* msg = static_cast<const ezQuerySelectionBBoxMsgToEngine*>(pMsg);
 

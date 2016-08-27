@@ -1,6 +1,8 @@
 #include <ParticlePlugin/PCH.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_ColorGradient.h>
 #include <CoreUtils/DataProcessing/Stream/StreamElementIterator.h>
+#include <Core/WorldSerializer/ResourceHandleReader.h>
+#include <Core/WorldSerializer/ResourceHandleWriter.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_ColorGradient, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_ColorGradient>)
 {
@@ -12,33 +14,27 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_ColorGradient, 1, ezRT
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_ColorGradient, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_ColorGradient, 1, ezRTTIDefaultAllocator<ezParticleBehavior_ColorGradient>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezParticleBehaviorFactory_ColorGradient::ezParticleBehaviorFactory_ColorGradient()
+const ezRTTI* ezParticleBehaviorFactory_ColorGradient::GetBehaviorType() const
 {
-
+  return ezGetStaticRTTI<ezParticleBehavior_ColorGradient>();
 }
 
-ezParticleBehavior* ezParticleBehaviorFactory_ColorGradient::CreateBehavior(ezParticleSystemInstance* pOwner) const
+void ezParticleBehaviorFactory_ColorGradient::CopyBehaviorProperties(ezParticleBehavior* pObject) const
 {
-  ezParticleBehavior_ColorGradient* pBehavior = EZ_DEFAULT_NEW(ezParticleBehavior_ColorGradient, pOwner);
+  ezParticleBehavior_ColorGradient* pBehavior = static_cast<ezParticleBehavior_ColorGradient*>(pObject);
 
-  // Copy Properties
-  {
-    pBehavior->m_hGradient = m_hGradient;
-
-  }
-
-  return pBehavior;
+  pBehavior->m_hGradient = m_hGradient;
 }
 
 void ezParticleBehaviorFactory_ColorGradient::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 1;
+  const ezUInt8 uiVersion = 2;
   stream << uiVersion;
 
-  stream << GetColorGradientFile();
+  stream << m_hGradient;
 }
 
 void ezParticleBehaviorFactory_ColorGradient::Load(ezStreamReader& stream)
@@ -46,9 +42,7 @@ void ezParticleBehaviorFactory_ColorGradient::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
 
-  ezStringBuilder sGradient;
-  stream >> sGradient;
-  SetColorGradientFile(sGradient);
+  stream >> m_hGradient;
 }
 
 void ezParticleBehaviorFactory_ColorGradient::SetColorGradientFile(const char* szFile)
@@ -72,10 +66,10 @@ const char* ezParticleBehaviorFactory_ColorGradient::GetColorGradientFile() cons
   return m_hGradient.GetResourceID();
 }
 
-ezParticleBehavior_ColorGradient::ezParticleBehavior_ColorGradient(ezParticleSystemInstance* pOwner)
-  : ezParticleBehavior(pOwner)
+void ezParticleBehavior_ColorGradient::CreateRequiredStreams()
 {
-
+  CreateStream("LifeTime", ezStream::DataType::Float2, &m_pStreamLifeTime);
+  CreateStream("Color", ezStream::DataType::Float4, &m_pStreamColor);
 }
 
 void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
@@ -93,13 +87,16 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
 
   while (!itLifeTime.HasReachedEnd())
   {
-    const float fLifeTimeFraction = itLifeTime.Current().x / itLifeTime.Current().y;
+    if (itLifeTime.Current().y > 0)
+    {
+      const float fLifeTimeFraction = itLifeTime.Current().x / itLifeTime.Current().y;
 
-    ezColorGammaUB rgba;
-    float intensity;
-    pGradient->GetDescriptor().m_Gradient.Evaluate(1.0f - fLifeTimeFraction, rgba, intensity);
+      ezColorGammaUB rgba;
+      float intensity;
+      pGradient->GetDescriptor().m_Gradient.Evaluate(1.0f - fLifeTimeFraction, rgba, intensity);
 
-    itColor.Current() = rgba;
+      itColor.Current() = rgba;
+    }
 
     itLifeTime.Advance();
     itColor.Advance();

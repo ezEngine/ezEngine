@@ -56,10 +56,14 @@ void ezParticleInitializerFactory_Life::Load(ezStreamReader& stream)
 
 }
 
+
+void ezParticleInitializer_Life::CreateRequiredStreams()
+{
+  CreateStream("LifeTime", ezStream::DataType::Float2, &m_pStreamLifeTime);
+}
+
 void ezParticleInitializer_Life::SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
-  const ezUInt64 uiElementSize = m_pStreamPosition->GetElementSize();
-
   ezVec2* pLifeTime = m_pStreamLifeTime->GetWritableData<ezVec2>();
 
   if (m_LifeTimeRange == ezTime()) // 0 range
@@ -73,7 +77,7 @@ void ezParticleInitializer_Life::SpawnElements(ezUInt64 uiStartIndex, ezUInt64 u
   }
   else // random range
   {
-    ezRandom& rng = m_pOwnerSystem->GetRNG();
+    ezRandom& rng = GetRNG();
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {

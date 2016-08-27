@@ -19,18 +19,19 @@ ezStream::~ezStream()
   FreeData();
 }
 
-ezResult ezStream::SetSize( ezUInt64 uiNumElements )
+void ezStream::SetSize( ezUInt64 uiNumElements )
 {
   if ( m_uiNumElements == uiNumElements )
-    return EZ_SUCCESS;
+    return;
 
   FreeData();
 
   if ( uiNumElements == 0 )
   {
-    return EZ_SUCCESS;
+    return;
   }
 
+  /// \todo Allow to reuse memory from a pool ?
   if ( m_uiAlignment > 0 )
   {
     m_pData = ezFoundation::GetAlignedAllocator()->Allocate( static_cast<size_t>(uiNumElements * GetDataTypeSize( m_Type )), static_cast<size_t>(m_uiAlignment) );
@@ -40,18 +41,8 @@ ezResult ezStream::SetSize( ezUInt64 uiNumElements )
     m_pData = ezFoundation::GetDefaultAllocator()->Allocate( static_cast<size_t>(uiNumElements * GetDataTypeSize( m_Type )), 0 );
   }
 
-  
-
-  if ( m_pData )
-  {
-    m_uiNumElements = uiNumElements;
-    return EZ_SUCCESS;
-  }
-  else
-  {
-    m_uiNumElements = 0;
-    return EZ_FAILURE;
-  }
+  EZ_ASSERT_DEV(m_pData != nullptr, "Allocating %u elements of %u bytes each, with %u bytes alignment, failed", uiNumElements, GetDataTypeSize(m_Type), m_uiAlignment);
+  m_uiNumElements = uiNumElements;
 }
 
 void ezStream::FreeData()

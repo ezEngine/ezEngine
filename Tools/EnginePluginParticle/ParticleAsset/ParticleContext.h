@@ -24,6 +24,8 @@ protected:
   virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
   virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext) override;
 
+  void RestartEffect();
+
 private:
   ezParticleEffectResourceHandle m_hParticle;
   ezParticleComponent* m_pComponent;

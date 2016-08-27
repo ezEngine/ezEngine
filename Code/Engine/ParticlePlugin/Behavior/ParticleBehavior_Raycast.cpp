@@ -15,24 +15,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Raycast, 1, ezRTTIDefa
 //}
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Raycast, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Raycast, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Raycast>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-
-ezParticleBehaviorFactory_Raycast::ezParticleBehaviorFactory_Raycast()
+const ezRTTI* ezParticleBehaviorFactory_Raycast::GetBehaviorType() const
 {
+  return ezGetStaticRTTI<ezParticleBehavior_Raycast>();
 }
 
-
-ezParticleBehavior* ezParticleBehaviorFactory_Raycast::CreateBehavior(ezParticleSystemInstance* pOwner) const
+void ezParticleBehaviorFactory_Raycast::CopyBehaviorProperties(ezParticleBehavior* pObject) const
 {
-  ezParticleBehavior_Raycast* pBehavior = EZ_DEFAULT_NEW(ezParticleBehavior_Raycast, pOwner);
-
-  // Copy Properties
-  {
-  }
-
-  return pBehavior;
 }
 
 void ezParticleBehaviorFactory_Raycast::Save(ezStreamWriter& stream) const
@@ -47,10 +39,16 @@ void ezParticleBehaviorFactory_Raycast::Load(ezStreamReader& stream)
   stream >> uiVersion;
 }
 
-ezParticleBehavior_Raycast::ezParticleBehavior_Raycast(ezParticleSystemInstance* pOwner)
-  : ezParticleBehavior(pOwner)
+void ezParticleBehavior_Raycast::AfterPropertiesConfigured()
 {
-  m_pPhysicsModule = static_cast<ezPhysicsWorldModuleInterface*>(ezWorldModule::FindModule(m_pParticleSystem->GetWorld(), ezPhysicsWorldModuleInterface::GetStaticRTTI()));
+  m_pPhysicsModule = static_cast<ezPhysicsWorldModuleInterface*>(ezWorldModule::FindModule(GetOwnerSystem()->GetWorld(), ezPhysicsWorldModuleInterface::GetStaticRTTI()));
+}
+
+
+void ezParticleBehavior_Raycast::CreateRequiredStreams()
+{
+  CreateStream("Position", ezStream::DataType::Float3, &m_pStreamPosition);
+  CreateStream("Velocity", ezStream::DataType::Float3, &m_pStreamVelocity);
 }
 
 void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)

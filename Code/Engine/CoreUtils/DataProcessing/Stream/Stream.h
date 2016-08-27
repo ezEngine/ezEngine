@@ -92,7 +92,7 @@ class EZ_COREUTILS_DLL ezStream
 
     ezStream( const char* szName, DataType Type, ezUInt64 uiAlignment = 64 );
 
-    ezResult SetSize( ezUInt64 uiNumElements );
+    void SetSize( ezUInt64 uiNumElements );
 
     void FreeData();
 

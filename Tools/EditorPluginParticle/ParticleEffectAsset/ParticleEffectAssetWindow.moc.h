@@ -30,9 +30,10 @@ private:
   void SendRedrawMsg();
   void RestoreResource();
   void UpdatePreview();
-  void ParticleEffectAssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e);
+  void AssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e);
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
+  void ParticleEventHandler(const ezParticleEffectAssetEvent& e);
 
   ezParticleEffectAssetDocument* m_pAssetDoc;
 

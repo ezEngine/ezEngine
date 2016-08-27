@@ -1,0 +1,122 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0xCF311B5160453840BFEE4A2D244E35D4" },
+   "t" : "ezColorControlPoint",
+   "p" : {
+    "Blue" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Green" : { "$t" : "uint32", "$v" : "170", "$b" : "0xAA000000" },
+    "Position" : { "$t" : "float", "$v" : "0.4040", "$b" : "0xB7D3CE3E" },
+    "Red" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x06759BA9F1BD0B43A2B2BB9D69A157A9" },
+   "t" : "ezColorControlPoint",
+   "p" : {
+    "Blue" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Green" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Position" : { "$t" : "float", "$v" : "0.5542", "$b" : "0xF3DC0D3F" },
+    "Red" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xDC96E5423EF05845B969820AA14FECBB" },
+   "t" : "ezColorControlPoint",
+   "p" : {
+    "Blue" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Green" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Position" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Red" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x1DDE2649C90D6E489D4695193D0E9AD8" },
+   "t" : "ezColorControlPoint",
+   "p" : {
+    "Blue" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Green" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Position" : { "$t" : "float", "$v" : "0.6485", "$b" : "0x6F01263F" },
+    "Red" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x2107465758FA5C4AAFE49ED07562E8ED" },
+   "t" : "ezColorControlPoint",
+   "p" : {
+    "Blue" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Green" : { "$t" : "uint32", "$v" : "170", "$b" : "0xAA000000" },
+    "Position" : { "$t" : "float", "$v" : "0.8013", "$b" : "0x4B234D3F" },
+    "Red" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0x44B81CDAE603F04C89A595A3BDCD650E" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xD32B5EC58D06AE4BB45BE6315CD50B81" },
+   "t" : "ezColorControlPoint",
+   "p" : {
+    "Blue" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Green" : { "$t" : "uint32", "$v" : "170", "$b" : "0xAA000000" },
+    "Position" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "Red" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x44B81CDAE603F04C89A595A3BDCD650E" },
+   "t" : "ezColorGradientAssetData",
+   "p" : {
+    "Alpha CPs" : [  ],
+    "Color CPs" : [ { "$t" : "uuid", "$b" : "0xD32B5EC58D06AE4BB45BE6315CD50B81" }, { "$t" : "uuid", "$b" : "0x240EFDFDDA3AD64D95DC24C3A76B216B" }, { "$t" : "uuid", "$b" : "0xCF311B5160453840BFEE4A2D244E35D4" }, { "$t" : "uuid", "$b" : "0x06759BA9F1BD0B43A2B2BB9D69A157A9" }, { "$t" : "uuid", "$b" : "0x2107465758FA5C4AAFE49ED07562E8ED" }, { "$t" : "uuid", "$b" : "0x9CFA1D9EA71A834DA7E0428F9E9611C2" }, { "$t" : "uuid", "$b" : "0x1DDE2649C90D6E489D4695193D0E9AD8" }, { "$t" : "uuid", "$b" : "0xABB1234174FEC44F8CFF8EBD9ED36C1A" }, { "$t" : "uuid", "$b" : "0xDC96E5423EF05845B969820AA14FECBB" } ],
+    "Intensity CPs" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA0034F6DD7382D4DBC2C6344D359545D" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "ColorGradient",
+    "Dependencies" : [  ],
+    "DocumentID" : { "$t" : "uuid", "$b" : "0xA0034F6DD7382D4DBC2C6344D359545D" },
+    "Hash" : { "$t" : "uint64", "$v" : "5890633749025323516", "$b" : "0xFCF994502FBCBF51" },
+    "References" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x9CFA1D9EA71A834DA7E0428F9E9611C2" },
+   "t" : "ezColorControlPoint",
+   "p" : {
+    "Blue" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Green" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Position" : { "$t" : "float", "$v" : "0.2477", "$b" : "0x74997D3E" },
+    "Red" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x240EFDFDDA3AD64D95DC24C3A76B216B" },
+   "t" : "ezColorControlPoint",
+   "p" : {
+    "Blue" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Green" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Position" : { "$t" : "float", "$v" : "0.1526", "$b" : "0x5C461C3E" },
+    "Red" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xABB1234174FEC44F8CFF8EBD9ED36C1A" },
+   "t" : "ezColorControlPoint",
+   "p" : {
+    "Blue" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Green" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Position" : { "$t" : "float", "$v" : "0.9491", "$b" : "0xBEF5723F" },
+    "Red" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" }
+   }
+  } ],
+ "Types" : [  ]
+}

@@ -50,25 +50,43 @@ void ezParticleWorldModule::InternalUpdate()
 
 
 
-ezParticleEffectInstance* ezParticleWorldModule::CreateParticleEffectInstance(const ezParticleEffectResourceHandle& hResource)
+ezParticleEffectHandle ezParticleWorldModule::CreateParticleEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed)
 {
   ezParticleEffectInstance* pInstance = EZ_DEFAULT_NEW(ezParticleEffectInstance);
   m_ParticleEffects.PushBack(pInstance);
+  pInstance->m_hHandle = m_ActiveEffects.Insert(pInstance);
 
   ezResourceLock<ezParticleEffectResource> pResource(hResource, ezResourceAcquireMode::NoFallback);
 
-  pInstance->Configure(hResource, GetWorld());
+  pInstance->Configure(hResource, GetWorld(), uiRandomSeed);
 
-  return pInstance;
+  return pInstance->GetHandle();
 }
 
 
-void ezParticleWorldModule::DestroyParticleEffectInstance(ezParticleEffectInstance* pInstance)
+void ezParticleWorldModule::DestroyParticleEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately)
 {
-  pInstance->SetEmitterEnabled(false);
-  m_FinishingEffects.PushBack(pInstance);
+  ezParticleEffectInstance* pInstance = nullptr;
+  if (TryGetEffect(hEffect, pInstance))
+  {
+    pInstance->SetEmitterEnabled(false);
+    m_FinishingEffects.PushBack(pInstance);
+
+    // as far as the outside world is concerned, the effect is dead now
+    m_ActiveEffects.Remove(hEffect.GetInternalID());
+
+    if (bInterruptImmediately)
+    {
+      pInstance->Interrupt();
+    }
+  }
 }
 
+
+bool ezParticleWorldModule::TryGetEffect(const ezParticleEffectHandle& hEffect, ezParticleEffectInstance*& out_pEffect)
+{
+  return m_ActiveEffects.TryGetValue(hEffect.GetInternalID(), out_pEffect);
+}
 
 void ezParticleWorldModule::UpdateEffects()
 {
@@ -76,7 +94,13 @@ void ezParticleWorldModule::UpdateEffects()
 
   for (ezUInt32 i = 0; i < m_ParticleEffects.GetCount(); ++i)
   {
-    m_ParticleEffects[i]->Update(GetWorld()->GetClock().GetTimeDiff());
+    if (!m_ParticleEffects[i]->Update(GetWorld()->GetClock().GetTimeDiff()))
+    {
+      const ezParticleEffectHandle hEffect = m_ParticleEffects[i]->GetHandle();
+      EZ_ASSERT_DEBUG(!hEffect.IsInvalidated(), "Invalid particle effect handle");
+
+      DestroyParticleEffectInstance(hEffect, false);
+    }
   }
 
   DestroyFinishedEffects();
@@ -92,9 +116,12 @@ void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRen
   for (ezUInt32 e = 0; e < m_ParticleEffects.GetCount(); ++e)
   {
     ezParticleEffectInstance* pEffect = m_ParticleEffects[e];
-    
+
     for (ezUInt32 i = 0; i < pEffect->GetParticleSystems().GetCount(); ++i)
     {
+      if (!pEffect->GetParticleSystems()[i])
+        continue;
+
       if (!pEffect->GetParticleSystems()[i]->HasActiveParticles())
         continue;
 
@@ -167,7 +194,7 @@ void ezParticleWorldModule::ReconfigureEffects()
 {
   for (auto pEffect : m_EffectsToReconfigure)
   {
-    pEffect->Reconfigure();
+    pEffect->Reconfigure(0);
   }
 
   m_EffectsToReconfigure.Clear();

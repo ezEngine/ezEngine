@@ -31,7 +31,7 @@
     "AssetType" : "ColorGradient",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x283E9D5C3DE20543A16E2DB6836EF5D6" },
-    "Hash" : { "$t" : "uint64", "$v" : "1099673172527486424", "$b" : "0xD8158791ECD2420F" },
+    "Hash" : { "$t" : "uint64", "$v" : "12925183553750768484", "$b" : "0x641B092AF6795FB3" },
     "References" : [  ]
    }
   },
@@ -140,8 +140,8 @@
    "#" : { "$t" : "uuid", "$b" : "0x6DB280998CE09F4E8B5340A90B6FDEE2" },
    "t" : "ezAlphaControlPoint",
    "p" : {
-    "Alpha" : { "$t" : "uint32", "$v" : "235", "$b" : "0xEB000000" },
-    "Position" : { "$t" : "float", "$v" : "0.7395", "$b" : "0xC74E3D3F" }
+    "Alpha" : { "$t" : "uint32", "$v" : "195", "$b" : "0xC3000000" },
+    "Position" : { "$t" : "float", "$v" : "0.6934", "$b" : "0xD382313F" }
    }
   },
   {

@@ -60,7 +60,13 @@ void ezParticleInitializerFactory_Rise::Load(ezStreamReader& stream)
 
 void ezParticleInitializer_Rise::AfterPropertiesConfigured()
 {
-  m_pPhysicsModule = static_cast<ezPhysicsWorldModuleInterface*>(ezWorldModule::FindModule(m_pOwnerSystem->GetWorld(), ezPhysicsWorldModuleInterface::GetStaticRTTI()));
+  m_pPhysicsModule = static_cast<ezPhysicsWorldModuleInterface*>(ezWorldModule::FindModule(GetOwnerSystem()->GetWorld(), ezPhysicsWorldModuleInterface::GetStaticRTTI()));
+}
+
+
+void ezParticleInitializer_Rise::CreateRequiredStreams()
+{
+  CreateStream("Velocity", ezStream::DataType::Float3, &m_pStreamVelocity);
 }
 
 void ezParticleInitializer_Rise::SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
@@ -82,7 +88,7 @@ void ezParticleInitializer_Rise::SpawnElements(ezUInt64 uiStartIndex, ezUInt64 u
   }
   else
   {
-    ezRandom& rng = m_pOwnerSystem->GetRNG();
+    ezRandom& rng = GetRNG();
 
     const ezVec3 vVelocity = -vGravity.GetNormalized();
 

@@ -24,3 +24,11 @@ public:
   ezString m_sResourceType;
   ezDataBuffer m_Data;
 };
+
+class EZ_SHAREDPLUGINASSETS_DLL ezEditorEngineRestartSimulationMsg : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineRestartSimulationMsg, ezEditorEngineDocumentMsg);
+
+public:
+
+};

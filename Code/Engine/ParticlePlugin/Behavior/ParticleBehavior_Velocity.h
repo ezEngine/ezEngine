@@ -9,15 +9,13 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Velocity : public ezPartic
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Velocity, ezParticleBehaviorFactory);
 
 public:
-  ezParticleBehaviorFactory_Velocity();
 
-  virtual ezParticleBehavior* CreateBehavior(ezParticleSystemInstance* pOwner) const override;
+  virtual const ezRTTI* GetBehaviorType() const override;
+  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject) const override;
 
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
 
-public:
-  //float m_fVelocityDamping;
 };
 
 
@@ -26,11 +24,12 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Velocity : public ezParticleBehav
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Velocity, ezParticleBehavior);
 
 public:
-  ezParticleBehavior_Velocity(ezParticleSystemInstance* pOwner);
-
-  //float m_fVelocityDamping;
+  virtual void CreateRequiredStreams() override;
 
 protected:
   virtual void Process(ezUInt64 uiNumElements) override;
+
+  ezStream* m_pStreamPosition;
+  ezStream* m_pStreamVelocity;
 };
 

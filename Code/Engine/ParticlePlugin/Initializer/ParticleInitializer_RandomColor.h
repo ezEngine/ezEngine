@@ -10,15 +10,12 @@ class ezParticleInitializerFactory_RandomColor : public ezParticleInitializerFac
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_RandomColor, ezParticleInitializerFactory);
 
 public:
-  ezParticleInitializerFactory_RandomColor();
 
   virtual const ezRTTI* GetInitializerType() const override;
   virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer) const override;
 
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
-
-public:
 
   void SetColorGradient(const ezColorGradientResourceHandle& hResource) { m_hGradient = hResource; }
   EZ_FORCE_INLINE const ezColorGradientResourceHandle& GetColorGradient() const { return m_hGradient; }
@@ -45,7 +42,11 @@ public:
 
   ezColorGradientResourceHandle m_hGradient;
 
+
+  virtual void CreateRequiredStreams() override;
+
 protected:
   virtual void SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
 
+  ezStream* m_pStreamColor;
 };

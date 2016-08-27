@@ -2,6 +2,17 @@
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
+#include <Foundation/Communication/Event.h>
+
+struct ezParticleEffectAssetEvent
+{
+  enum Type
+  {
+    RestartEffect,
+  };
+
+  Type m_Type;
+};
 
 class ezParticleEffectAssetDocument : public ezSimpleAssetDocument<ezParticleEffectDescriptor>
 {
@@ -13,6 +24,10 @@ public:
   virtual const char* QueryAssetType() const override { return "Particle Effect"; }
 
   ezStatus WriteParticleEffectAsset(ezStreamWriter& stream, const char* szPlatform) const;
+
+  void TriggerRestartEffect();
+
+  ezEvent<const ezParticleEffectAssetEvent&> m_Events;
 
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader) override;
