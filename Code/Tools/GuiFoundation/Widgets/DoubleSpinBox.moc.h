@@ -20,10 +20,13 @@ public:
   double value() const;
 
 protected:
-  virtual void focusInEvent(QFocusEvent *event) override;
-  virtual void focusOutEvent(QFocusEvent *event) override;
+  virtual void focusInEvent(QFocusEvent* event) override;
+  virtual void focusOutEvent(QFocusEvent* event) override;
+  virtual void mousePressEvent(QMouseEvent* event) override;
+  virtual void mouseReleaseEvent(QMouseEvent* event) override;
+  virtual void mouseMoveEvent(QMouseEvent* event) override;
 
-private slots:
+  private slots:
   void onCustomContextMenuRequested();
 
 private:
@@ -32,6 +35,9 @@ private:
   mutable double m_fDisplayedValue;
   mutable QString m_sDisplayedText;
   mutable bool m_bInvalid;
+  bool m_bDragging;
+  bool m_bModified;
+  QPoint m_LastDragPos;
 };
 
 

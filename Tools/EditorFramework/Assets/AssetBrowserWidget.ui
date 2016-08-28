@@ -65,24 +65,27 @@
         </layout>
        </item>
        <item>
-        <widget class="QListWidget" name="ListTypeFilter"/>
-       </item>
-       <item>
-        <widget class="QTreeWidget" name="TreeFolderFilter">
-         <property name="uniformRowHeights">
-          <bool>true</bool>
+        <widget class="QSplitter" name="LeftSplitter">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
-         <property name="sortingEnabled">
-          <bool>true</bool>
-         </property>
-         <property name="headerHidden">
-          <bool>true</bool>
-         </property>
-         <column>
-          <property name="text">
-           <string notr="true">1</string>
+         <widget class="QListWidget" name="ListTypeFilter"/>
+         <widget class="QTreeWidget" name="TreeFolderFilter">
+          <property name="uniformRowHeights">
+           <bool>true</bool>
           </property>
-         </column>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="headerHidden">
+           <bool>true</bool>
+          </property>
+          <column>
+           <property name="text">
+            <string notr="true">1</string>
+           </property>
+          </column>
+         </widget>
         </widget>
        </item>
       </layout>
@@ -99,7 +102,7 @@
            <property name="sizeHint" stdset="0">
             <size>
              <width>40</width>
-             <height>20</height>
+             <height>0</height>
             </size>
            </property>
           </spacer>

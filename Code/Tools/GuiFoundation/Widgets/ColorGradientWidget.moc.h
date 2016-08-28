@@ -122,4 +122,5 @@ private:
   ezInt32 m_iSelectedIntensityCP;
 
   QPoint m_LastMousePosition;
+  QPixmap m_AlphaPattern;
 };

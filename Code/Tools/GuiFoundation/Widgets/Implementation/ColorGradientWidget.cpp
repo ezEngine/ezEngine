@@ -37,6 +37,23 @@ QColorGradientWidget::QColorGradientWidget(QWidget* pParent)
   {
     setCursor(Qt::PointingHandCursor);
   }
+
+  {
+    // Build grid pattern.
+    const int iSize = 16;
+    QImage img(iSize, iSize, QImage::Format::Format_RGBA8888);
+    img.fill(Qt::white);
+    QRgb halfGrayColor = qRgb(191, 191, 191);
+    for (int i = 0; i < iSize / 2; ++i)
+    {
+      for (int j = 0; j < iSize / 2; ++j)
+      {
+        img.setPixel(i, j, halfGrayColor);
+        img.setPixel(i + iSize / 2, j + iSize / 2, halfGrayColor);
+      }
+    }
+    m_AlphaPattern = QPixmap::fromImage(img);
+  }
 }
 
 
@@ -171,10 +188,7 @@ void QColorGradientWidget::PaintColorGradient(QPainter& p) const
   GradientFinal = *m_pColorGradientData;
   GradientFinal.SortControlPoints();
 
-  QBrush backgroundBrush;
-  backgroundBrush.setStyle(Qt::BrushStyle::CrossPattern);
-  backgroundBrush.setColor(QColor(255, 255, 255, 255));
-  p.fillRect(GradientArea, backgroundBrush);
+  p.drawTiledPixmap(GradientArea, m_AlphaPattern);
 
   if (m_fDisplayExtentMinX <= m_fDisplayExtentMaxX)
   {

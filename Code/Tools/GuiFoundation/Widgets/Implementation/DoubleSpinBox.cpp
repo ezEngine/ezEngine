@@ -2,12 +2,16 @@
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
 #include <Foundation/Math/Math.h>
 #include <QLineEdit>
+#include <QApplication>
+#include <QDesktopWidget>
 
 inline QDoubleSpinBoxLessAnnoying::QDoubleSpinBoxLessAnnoying(QWidget* pParent) : QDoubleSpinBox(pParent)
 {
   m_fDisplayedValue = ezMath::BasicType<float>::GetNaN();
   m_bInvalid = false;
   m_fDefaultValue = 0.0;
+  m_bDragging = false;
+  m_bModified = false;
 
   setSingleStep(0.1f);
   setContextMenuPolicy(Qt::CustomContextMenu);
@@ -29,7 +33,7 @@ QString QDoubleSpinBoxLessAnnoying::textFromValue(double val) const
   if (m_bInvalid)
     return QString();
 
-  if (hasFocus() && val == m_fDisplayedValue)
+  if (hasFocus() && val == m_fDisplayedValue && !ezMath::IsNaN(m_fDisplayedValue))
   {
     return m_sDisplayedText;
   }
@@ -143,6 +147,65 @@ void QDoubleSpinBoxLessAnnoying::focusOutEvent(QFocusEvent *event)
 {
   QDoubleSpinBox::focusOutEvent(event);
 
+}
+
+void QDoubleSpinBoxLessAnnoying::mousePressEvent(QMouseEvent* event)
+{
+  if (event->button() == Qt::LeftButton)
+  {
+    m_bDragging = true;
+    m_bModified = false;
+    m_LastDragPos = event->globalPos();
+    grabMouse();
+    event->accept();
+    return;
+  }
+  QDoubleSpinBox::mousePressEvent(event);
+}
+
+void QDoubleSpinBoxLessAnnoying::mouseReleaseEvent(QMouseEvent* event)
+{
+  if (event->button() == Qt::LeftButton)
+  {
+    m_bDragging = false;
+    if (m_bModified)
+    {
+      m_bModified = false;
+      emit editingFinished();
+    }
+    releaseMouse();
+    event->accept();
+    return;
+  }
+
+  QDoubleSpinBox::mouseReleaseEvent(event);
+}
+
+void QDoubleSpinBoxLessAnnoying::mouseMoveEvent(QMouseEvent* event)
+{
+  if (m_bDragging)
+  {
+    int iDelta = m_LastDragPos.y() - event->globalPos().y();
+    {
+      m_LastDragPos = event->globalPos();
+      const QRect dsize = QApplication::desktop()->availableGeometry(m_LastDragPos);
+      if (m_LastDragPos.y() < (dsize.top() + 10))
+      {
+        m_LastDragPos.setY(dsize.bottom() - 10);
+        QCursor::setPos(m_LastDragPos);
+      }
+      else if (m_LastDragPos.y() > (dsize.bottom() - 10))
+      {
+        m_LastDragPos.setY(dsize.top() + 10);
+        QCursor::setPos(m_LastDragPos);
+      }
+    }
+    double fValue = m_bInvalid ? m_fDefaultValue : value();
+    fValue += iDelta * 0.01;
+    setValue(fValue);
+    m_bModified = true;
+  }
+  QDoubleSpinBox::mouseMoveEvent(event);
 }
 
 void QDoubleSpinBoxLessAnnoying::onCustomContextMenuRequested()
