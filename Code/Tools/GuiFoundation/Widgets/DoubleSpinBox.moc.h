@@ -3,11 +3,11 @@
 #include <GuiFoundation/Basics.h>
 #include <QDoubleSpinBox>
 
-class EZ_GUIFOUNDATION_DLL QDoubleSpinBoxLessAnnoying : public QDoubleSpinBox
+class EZ_GUIFOUNDATION_DLL ezQDoubleSpinBox : public QDoubleSpinBox
 {
   Q_OBJECT
 public:
-  explicit QDoubleSpinBoxLessAnnoying(QWidget* pParent);
+  explicit ezQDoubleSpinBox(QWidget* pParent, bool bIntMode = false);
 
   void setDisplaySuffix(const char* szSuffix);
   void setDefaultValue(double value);
@@ -37,21 +37,6 @@ private:
   mutable bool m_bInvalid;
   bool m_bDragging;
   bool m_bModified;
+  bool m_bIntMode;
   QPoint m_LastDragPos;
-};
-
-
-class ezQIntSpinbox : public QSpinBox
-{
-  Q_OBJECT
-public:
-  explicit ezQIntSpinbox(QWidget* pParent);
-
-  void setDefaultValue(int value) { m_iDefaultValue = value; }
-
-private slots:
-  void onCustomContextMenuRequested();
-
-private:
-  int m_iDefaultValue;
 };

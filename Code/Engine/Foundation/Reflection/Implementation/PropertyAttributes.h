@@ -43,6 +43,24 @@ private:
   ezString m_sCategory;
 };
 
+/// \brief Used for any property shown as a line edit (int, float, vector etc).
+class EZ_FOUNDATION_DLL ezSuffixAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSuffixAttribute, ezPropertyAttribute);
+
+public:
+  ezSuffixAttribute() {}
+  ezSuffixAttribute(const char* szSuffix)
+  {
+    m_sSuffix = szSuffix;
+  }
+
+  const char* GetSuffix() const { return m_sSuffix; }
+
+private:
+  ezString m_sSuffix;
+};
+
 /// \brief Sets the default value of the property.
 class EZ_FOUNDATION_DLL ezDefaultValueAttribute : public ezPropertyAttribute
 {

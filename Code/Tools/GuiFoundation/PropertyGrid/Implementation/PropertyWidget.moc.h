@@ -21,8 +21,7 @@ class QStandardItem;
 class QToolButton;
 class QMenu;
 class ezDocumentObject;
-class QDoubleSpinBoxLessAnnoying;
-class ezQIntSpinbox;
+class ezQDoubleSpinBox;
 
 /// *** CHECKBOX ***
 
@@ -69,7 +68,7 @@ protected:
   bool m_bTemporaryCommand;
   ezInt8 m_iNumComponents;
   QHBoxLayout* m_pLayout;
-  QDoubleSpinBoxLessAnnoying*  m_pWidget[4];
+  ezQDoubleSpinBox*  m_pWidget[4];
 };
 
 /// *** TIME SPINBOX ***
@@ -91,7 +90,7 @@ protected:
 
   bool m_bTemporaryCommand;
   QHBoxLayout* m_pLayout;
-  QDoubleSpinBoxLessAnnoying*  m_pWidget;
+  ezQDoubleSpinBox*  m_pWidget;
 };
 
 /// *** ANGLE SPINBOX ***
@@ -113,7 +112,7 @@ protected:
 
   bool m_bTemporaryCommand;
   QHBoxLayout* m_pLayout;
-  QDoubleSpinBoxLessAnnoying*  m_pWidget;
+  ezQDoubleSpinBox*  m_pWidget;
 };
 
 /// *** INT SPINBOX ***
@@ -135,7 +134,7 @@ protected:
 
   bool m_bTemporaryCommand;
   QHBoxLayout* m_pLayout;
-  ezQIntSpinbox* m_pWidget;
+  ezQDoubleSpinBox* m_pWidget;
 };
 
 /// *** QUATERNION ***
@@ -152,13 +151,13 @@ private slots:
   void SlotValueChanged();
 
 protected:
-  virtual void OnInit() override {}
+  virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
 
 protected:
   bool m_bTemporaryCommand;
   QHBoxLayout* m_pLayout;
-  QDoubleSpinBox*  m_pWidget[3];
+  ezQDoubleSpinBox* m_pWidget[3];
 };
 
 

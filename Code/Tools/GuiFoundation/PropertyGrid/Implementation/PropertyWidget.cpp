@@ -94,7 +94,7 @@ ezPropertyEditorDoubleSpinboxWidget::ezPropertyEditorDoubleSpinboxWidget(ezInt8 
 
   for (ezInt32 c = 0; c < m_iNumComponents; ++c)
   {
-    m_pWidget[c] = new QDoubleSpinBoxLessAnnoying(this);
+    m_pWidget[c] = new ezQDoubleSpinBox(this);
     m_pWidget[c]->setMinimum(-ezMath::BasicType<double>::GetInfinity());
     m_pWidget[c]->setMaximum(ezMath::BasicType<double>::GetInfinity());
     m_pWidget[c]->setSingleStep(0.1f);
@@ -115,6 +115,7 @@ void ezPropertyEditorDoubleSpinboxWidget::OnInit()
 {
   const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>();
   const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>();
+  const ezSuffixAttribute* pSuffix = m_pProp->GetAttributeByType<ezSuffixAttribute>();
 
   if (pClamp)
   {
@@ -249,6 +250,14 @@ void ezPropertyEditorDoubleSpinboxWidget::OnInit()
       }
     }
   }
+
+  if (pSuffix)
+  {
+    for (int i = 0; i < m_iNumComponents; ++i)
+    {
+      m_pWidget[i]->setDisplaySuffix(pSuffix->GetSuffix());
+    }
+  }
 }
 
 void ezPropertyEditorDoubleSpinboxWidget::InternalSetValue(const ezVariant& value)
@@ -357,7 +366,7 @@ ezPropertyEditorTimeWidget::ezPropertyEditorTimeWidget() : ezQtStandardPropertyW
   QSizePolicy policy = sizePolicy();
 
   {
-    m_pWidget = new QDoubleSpinBoxLessAnnoying(this);
+    m_pWidget = new ezQDoubleSpinBox(this);
     m_pWidget->setDisplaySuffix(" (sec)");
     m_pWidget->setMinimum(-ezMath::BasicType<double>::GetInfinity());
     m_pWidget->setMaximum(ezMath::BasicType<double>::GetInfinity());
@@ -452,7 +461,7 @@ ezPropertyEditorAngleWidget::ezPropertyEditorAngleWidget() : ezQtStandardPropert
   QSizePolicy policy = sizePolicy();
 
   {
-    m_pWidget = new QDoubleSpinBoxLessAnnoying(this);
+    m_pWidget = new ezQDoubleSpinBox(this);
     m_pWidget->setDisplaySuffix(ezStringUtf8(L"\u00B0").GetData());
     m_pWidget->setMinimum(-ezMath::BasicType<double>::GetInfinity());
     m_pWidget->setMaximum(ezMath::BasicType<double>::GetInfinity());
@@ -496,6 +505,12 @@ void ezPropertyEditorAngleWidget::OnInit()
     {
       m_pWidget->setDefaultValue(pDefault->GetValue().ConvertTo<ezAngle>().GetDegree());
     }
+  }
+
+  const ezSuffixAttribute* pSuffix = m_pProp->GetAttributeByType<ezSuffixAttribute>();
+  if (pSuffix)
+  {
+    m_pWidget->setDisplaySuffix(pSuffix->GetSuffix());
   }
 }
 
@@ -541,7 +556,7 @@ ezPropertyEditorIntSpinboxWidget::ezPropertyEditorIntSpinboxWidget(ezInt32 iMinV
   m_pLayout->setMargin(0);
   setLayout(m_pLayout);
 
-  m_pWidget = new ezQIntSpinbox(this);
+  m_pWidget = new ezQDoubleSpinBox(this, true);
   m_pWidget->setMinimum(iMinValue);
   m_pWidget->setMaximum(iMaxValue);
   m_pWidget->setSingleStep(1);
@@ -581,6 +596,12 @@ void ezPropertyEditorIntSpinboxWidget::OnInit()
       m_pWidget->setDefaultValue(pDefault->GetValue().ConvertTo<ezInt32>());
     }
   }
+
+  const ezSuffixAttribute* pSuffix = m_pProp->GetAttributeByType<ezSuffixAttribute>();
+  if (pSuffix)
+  {
+    m_pWidget->setDisplaySuffix(pSuffix->GetSuffix());
+  }
 }
 
 void ezPropertyEditorIntSpinboxWidget::InternalSetValue(const ezVariant& value)
@@ -596,7 +617,7 @@ void ezPropertyEditorIntSpinboxWidget::SlotValueChanged()
 
   m_bTemporaryCommand = true;
 
-  BroadcastValueChanged(m_pWidget->value());
+  BroadcastValueChanged((ezInt32)m_pWidget->value());
 }
 
 void ezPropertyEditorIntSpinboxWidget::on_EditingFinished_triggered()
@@ -626,12 +647,13 @@ ezPropertyEditorQuaternionWidget::ezPropertyEditorQuaternionWidget() : ezQtStand
 
   for (ezInt32 c = 0; c < 3; ++c)
   {
-    m_pWidget[c] = new QDoubleSpinBoxLessAnnoying(this);
+    m_pWidget[c] = new ezQDoubleSpinBox(this);
     m_pWidget[c]->setMinimum(-ezMath::BasicType<double>::GetInfinity());
     m_pWidget[c]->setMaximum(ezMath::BasicType<double>::GetInfinity());
     m_pWidget[c]->setSingleStep(1.0);
     m_pWidget[c]->setAccelerated(true);
     m_pWidget[c]->setDecimals(3);
+    m_pWidget[c]->setDisplaySuffix("\xC2\xB0");
 
     policy.setHorizontalStretch(2);
     m_pWidget[c]->setSizePolicy(policy);
@@ -641,6 +663,10 @@ ezPropertyEditorQuaternionWidget::ezPropertyEditorQuaternionWidget() : ezQtStand
     connect(m_pWidget[c], SIGNAL(editingFinished()), this, SLOT(on_EditingFinished_triggered()));
     connect(m_pWidget[c], SIGNAL(valueChanged(double)), this, SLOT(SlotValueChanged()));
   }
+}
+
+void ezPropertyEditorQuaternionWidget::OnInit()
+{
 }
 
 void ezPropertyEditorQuaternionWidget::InternalSetValue(const ezVariant& value)
