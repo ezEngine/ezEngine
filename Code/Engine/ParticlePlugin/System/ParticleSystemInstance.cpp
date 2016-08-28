@@ -14,6 +14,7 @@
 
 ezParticleSystemInstance::ezParticleSystemInstance()
 {
+  m_bVisible = true;
   m_bEmitterEnabled = true;
 }
 
@@ -26,7 +27,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
 {
   EZ_LOCK(m_Mutex);
 
-  ezLog::Info("ezParticleSystemInstance::ConfigureFromTemplate");
+  m_bVisible = pTemplate->m_bVisible;
 
   bool allSpawnersEqual = true;
   bool allProcessorsEqual = true;
@@ -355,7 +356,6 @@ void ezParticleSystemInstance::CreateStreamZeroInitializers()
 
     if (info.m_pInitializer == nullptr)
     {
-      ezLog::Debug("Creating zero initializer for stream '%s'", info.m_sName.GetData());
       info.m_pInitializer = EZ_DEFAULT_NEW(ezStreamElementSpawnerZeroInitialized, info.m_sName);
       m_StreamGroup.AddStreamElementSpawner(info.m_pInitializer);
     }

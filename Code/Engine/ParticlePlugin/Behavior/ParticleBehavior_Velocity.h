@@ -9,6 +9,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Velocity : public ezPartic
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Velocity, ezParticleBehaviorFactory);
 
 public:
+  ezParticleBehaviorFactory_Velocity();
 
   virtual const ezRTTI* GetBehaviorType() const override;
   virtual void CopyBehaviorProperties(ezParticleBehavior* pObject) const override;
@@ -16,6 +17,8 @@ public:
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
 
+  float m_fRiseSpeed;
+  float m_fAcceleration;
 };
 
 
@@ -26,8 +29,15 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Velocity : public ezParticleBehav
 public:
   virtual void CreateRequiredStreams() override;
 
+  float m_fRiseSpeed;
+  float m_fAcceleration;
+
 protected:
+  virtual void AfterPropertiesConfigured() override;
   virtual void Process(ezUInt64 uiNumElements) override;
+
+  // used to rise/fall along the gravity vector
+  ezPhysicsWorldModuleInterface* m_pPhysicsModule;
 
   ezStream* m_pStreamPosition;
   ezStream* m_pStreamVelocity;

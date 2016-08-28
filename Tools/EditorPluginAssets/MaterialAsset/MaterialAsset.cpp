@@ -663,7 +663,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
 
   // now generate the .ezMaterialBin file
   {
-    ezUInt8 uiVersion = 2;
+    const ezUInt8 uiVersion = 2;
 
     stream << uiVersion;
     stream << pProp->m_sBaseMaterial;

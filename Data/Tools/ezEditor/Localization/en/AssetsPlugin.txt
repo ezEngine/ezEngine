@@ -33,3 +33,32 @@ Intensity CPs;Intensity Control Points
 ezColorControlPoint;Color
 ezAlphaControlPoint;Alpha
 ezIntensityControlPoint;Intensity
+ezPropertyAnimComponent;Property Animation
+Curves;Curves
+ezCurve1DData;Curve Data
+Control Points;Control Points
+ezCurve1DControlPoint;Control Point
+Animations;Animations
+ezPropertyAnimEntry;Animation
+ezPropertyAnimMode::Once;Once
+ezPropertyAnimMode::Loop;Loop
+ezPropertyAnimMode::BackAndForth;Back and Forth
+ezPropertyAnimTarget::Number;Number
+ezPropertyAnimTarget::VectorX;Vector X
+ezPropertyAnimTarget::VectorY;Vector Y
+ezPropertyAnimTarget::VectorZ;Vector Z
+ezPropertyAnimTarget::VectorW;Vector W
+ezPropertyAnimTarget::Color;Color
+ShaderProperties;Shader Properties
+Input 1;Input 1
+Input 2;Input 2
+Input 3;Input 3
+Input 4;Input 4
+Input 5;Input 5
+Input 6;Input 6
+Right (+X);Right (+X)
+Left (-X);Left (-X)
+Top (+Y);Top (+Y)
+Bottom (-Y);Bottom (-Y)
+Front (+Z);Front (+Z)
+Back (-Z);Back (-Z)

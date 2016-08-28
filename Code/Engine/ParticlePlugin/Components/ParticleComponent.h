@@ -38,6 +38,15 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
+  /// \brief Returns true, if a new effect was spawned.
+  bool SpawnEffect();
+  /// \brief Stops emitting further particles.
+  void StopEffect();
+  /// \brief Cancels the entire effect immediately, it will pop out of existence.
+  void InterruptEffect();
+  /// \brief Returns true, if an effect is currently in a state where it might emit new particles
+  bool IsEffectActive() const;
+
   // ************************************* PROPERTIES ***********************************
 
   void SetParticleEffect(const ezParticleEffectResourceHandle& hEffect);
@@ -47,16 +56,23 @@ public:
   const char* GetParticleEffectFile() const;
 
   ezUInt64 m_uiRandomSeed;
+  ezString m_sSharedInstanceName;
+
+  bool m_bSpawnAtStart;
+  bool m_bAutoRestart;
+  ezTime m_MinRestartDelay;
+  ezTime m_RestartDelayRange;
 
   //////////////////////////////////////////////////////////////////////////
 
 
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds) override;
 
-  ezParticleEffectController m_ParticleEffect;
+  ezParticleEffectController m_EffectController;
 
 protected:
   ezParticleEffectResourceHandle m_hEffectResource;
+  ezTime m_RestartTime;
 
   virtual void OnBeforeDetachedFromObject() override;
 

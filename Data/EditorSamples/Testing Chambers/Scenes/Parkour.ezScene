@@ -1,5 +1,52 @@
 {
  "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0xFCD53863501BD301A224D0CD6A5B104F" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x152DE4BE604F3E067F56A70785D67801" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xBECAC51E25585006BD8D20CC6E0995D3" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xAAC16ABEDF766B0A7CD6B1E8DFB788AD" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x8B70F72F15653F12B2AA806103970F85" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(7.0000, -20.0000, -4.0000)", "$b" : "0x0200E040FFFF9FC1000080C0" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x8090EDC7B7346F0AB9A78ED19BF3CE2E" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x4CB3BA931F19890C7809A84696700B83" },
    "t" : "ezGameObject",
    "p" : {
@@ -51,7 +98,7 @@
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x69CF2EE9993BA316AFD97EC937C77BBC" } ],
     "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 20.0000, -4.0000)", "$b" : "0x000000000000A041000080C0" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, 20.0000, -4.0000)", "$b" : "0x0000003F0000A041000080C0" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -66,7 +113,7 @@
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0xA2947652488F0F17CD50207B61EBE8EC" } ],
     "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, -4.0000, -4.0000)", "$b" : "0x00000000000080C0000080C0" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, -4.0000, -4.0000)", "$b" : "0x0000003F000080C0000080C0" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -96,12 +143,35 @@
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x03029A19A9D1451894005B69FAB26EF2" } ],
     "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 12.0000, 4.0000)", "$b" : "0x000000000000404100008040" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, 12.0000, 4.0000)", "$b" : "0x0000003F0000404100008040" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "",
     "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xF52CDFA1583DE5116475D85904B8A83C" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xD6DB6B138E2BB9199A49A7D227972F14" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-54.5000, 12.0000, -4.0000)", "$b" : "0x00005AC200004041000080C0" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x8B70F72F15653F12B2AA806103970F85" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 124837c3-3748-46bd-bd34-c38be3cdcf7c }"
    }
   },
   {
@@ -126,7 +196,7 @@
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x735ADF49D733691A9C97F7D681325BB8" } ],
     "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, -12.0000, 4.0000)", "$b" : "0x00000000000040C100008040" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, -12.0000, 4.0000)", "$b" : "0x0000003F000040C100008040" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -158,6 +228,21 @@
     "Components" : [ { "$t" : "uuid", "$b" : "0x514AB621B9D0851C7167535CFAAFE174" } ],
     "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(21.0000, -19.0000, 5.0000)", "$b" : "0x0000A841000098C10000A040" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xEB05EE83707D76157178BD0982E8E246" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xDD06C062CC1B14228F9541BB5964FD06" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, -1.5000, 0.0000)", "$b" : "0x0000003F0000C0BF00000000" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -228,6 +313,21 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x50A1CC83F27AE31794BF730C9D520482" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x42A29E624E198124B2DCF7BD74CE1E42" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-0.5000, -1.5000, 0.0000)", "$b" : "0x000000BF0000C0BF00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x6FFB29E57CBCF8177B3418C4B313DED7" },
    "t" : "ezGameObject",
    "p" : {
@@ -256,7 +356,8 @@
    "p" : {
     "Active" : true,
     "Effect" : "{ b7491649-7988-4bea-b145-6550ab951811 }",
-    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" }
+    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" },
+    "Shared Instance Name" : ""
    }
   },
   {
@@ -288,6 +389,37 @@
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "",
     "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3A3338CBAAA64719A7D0E0BD73D9E7F5" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x9E2B2849F01A94195BB0CC5D0C495E31" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x902CFA274CB9312679CD500FE4C478F1" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, 1.5000, 0.0000)", "$b" : "0x0000003F0000C03F00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xD6DB6B138E2BB9199A49A7D227972F14" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 124837c3-3748-46bd-bd34-c38be3cdcf7c }"
    }
   },
   {
@@ -397,6 +529,36 @@
     "Components" : [ { "$t" : "uuid", "$b" : "0x68AABC5ED259A72474093814AD5BF82B" } ],
     "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, -20.0000, 4.0000)", "$b" : "0x000000000000A0C100008040" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x8C5D2792B7D1E41C6E22AA469AC301FC" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x7E5EF970137082298C3F2EF8713F1CBC" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(1.5000, -1.5000, 0.0000)", "$b" : "0x0000C03F0000C0BF00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xBACA102A00B41F1D8761EFE14D78F6CE" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xACCBE2085C52BD29A57E739325F4108F" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-0.5000, 1.5000, 0.0000)", "$b" : "0x000000BF0000C03F00000000" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -559,6 +721,14 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xDD06C062CC1B14228F9541BB5964FD06" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xCE77512EC3C304238FE25B74EA6F05F6" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
@@ -583,6 +753,21 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x5AAD4EE0057D9C23C040E152980B3B55" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x3A3338CBAAA64719A7D0E0BD73D9E7F5" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-25.0000, 10.0000, 9.0000)", "$b" : "0x0000C8C10000204100001041" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xC55344DDB62DCD23935FB7B8C5D115F2" },
    "t" : "ezGameObject",
    "p" : {
@@ -595,6 +780,14 @@
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "",
     "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x42A29E624E198124B2DCF7BD74CE1E42" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
    }
   },
   {
@@ -618,6 +811,14 @@
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "",
     "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x902CFA274CB9312679CD500FE4C478F1" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
    }
   },
   {
@@ -682,11 +883,43 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x7E5EF970137082298C3F2EF8713F1CBC" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xACCBE2085C52BD29A57E739325F4108F" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xACC611B12D4E402A4F3237A105B8F14D" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x00F4108E9B1DC12A68015133CB7AD8DE" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
     "Active" : true,
     "Prefab" : "{ 94ac1de9-5cbe-4581-a57c-7caf78ab7294 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3332D67E3139EC2A42B538FA91FF4841" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"
    }
   },
   {
@@ -706,12 +939,88 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xCC4028C68824953468A237362AEA44AD" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xACC611B12D4E402A4F3237A105B8F14D" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-29.0000, 22.0000, 9.0000)", "$b" : "0x0000E8C10000B04100001041" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x53ACEC938C0F41355B25398FB6319CA0" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x3332D67E3139EC2A42B538FA91FF4841" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-25.0000, 26.0000, 9.0000)", "$b" : "0x0000C8C10000D04100001041" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x53BEA28D5B029E3639E02ED41DAF357C" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x45BF746CB7A03B4357FDB285F52A503C" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(1.5000, 0.5000, 0.0000)", "$b" : "0x0000C03F0000003F00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x2EDB7592FE12283F122C74136514D889" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x20DC47715AB1C54B3049F8C43C90F249" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(1.5000, 1.5000, 0.0000)", "$b" : "0x0000C03F0000C03F00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xD77857F2C21B3A3F5063EDD74E47F45B" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xC97929D11EBAD74B6E80718926C30E1C" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-1.5000, 0.5000, 0.0000)", "$b" : "0x0000C0BF0000003F00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xDC582A8F73700D409CDE2393E430464D" },
    "t" : "ezParticleComponent",
    "p" : {
     "Active" : true,
     "Effect" : "{ b7491649-7988-4bea-b145-6550ab951811 }",
-    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" }
+    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" },
+    "Shared Instance Name" : "Test"
    }
   },
   {
@@ -838,6 +1147,36 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x8106234C36E44F419FFE0E1BEE3BCD16" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x7307F52A9282ED4DBD1B93CCC5B7E7D6" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-1.5000, -1.5000, 0.0000)", "$b" : "0x0000C0BF0000C0BF00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x36E07E4649E55A4188F7D4B35285EC9D" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x2264D4ACA3D8064EA156216FD88F8004" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(15.2500, 25.7500, 1.0000)", "$b" : "0x000074410000CE410000803F" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xC92F12622CBE8E4184C87631B48EDBAA" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
@@ -851,7 +1190,8 @@
    "p" : {
     "Active" : true,
     "Effect" : "{ b7491649-7988-4bea-b145-6550ab951811 }",
-    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" }
+    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" },
+    "Shared Instance Name" : ""
    }
   },
   {
@@ -860,6 +1200,21 @@
    "p" : {
     "Active" : true,
     "Prefab" : "{ d65cd59b-50e0-44f3-aefb-a88943b81900 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE23A75BAC75C3A424313EF5B556CB754" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xD43B479923FBD74E6130730D2DE8D114" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-1.5000, -0.5000, 0.0000)", "$b" : "0x0000C0BF000000BF00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
    }
   },
   {
@@ -883,7 +1238,8 @@
    "p" : {
     "Active" : true,
     "Effect" : "{ 8db56ec7-1f24-497b-9541-5ff5e1e65a9a }",
-    "Random Seed" : { "$t" : "uint64", "$v" : "2", "$b" : "0x0200000000000000" }
+    "Random Seed" : { "$t" : "uint64", "$v" : "2", "$b" : "0x0200000000000000" },
+    "Shared Instance Name" : ""
    }
   },
   {
@@ -910,11 +1266,34 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x45BF746CB7A03B4357FDB285F52A503C" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xDDCF7B53B9668D438817E37971C9E1D2" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
     "Active" : true,
     "Prefab" : "{ 94ac1de9-5cbe-4581-a57c-7caf78ab7294 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x63326264D2B1BE43BD00313C11A41ADA" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xA4AD8D833EB1564D87FB30B66BCA7693" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5516, 5.8209, 4.5130)", "$b" : "0xE0330D3FA244BA40466A9040" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
    }
   },
   {
@@ -934,12 +1313,32 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x4E21C57466B76044B567A4E618764E7D" },
+   "t" : "ezPointLightComponent",
+   "p" : {
+    "Active" : true,
+    "Intensity" : { "$t" : "float", "$v" : "1000.0000", "$b" : "0x00007A44" },
+    "Light Color" : { "$t" : "color", "$v" : "(0.0065, 1.0000, 0.2195, 1.0000)", "$b" : "0x6163D53B0000803F7CCB603E0000803F" },
+    "Range" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" }
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xA926F05D639C8C448D10CE39DE5EE979" },
    "t" : "ezParticleComponent",
    "p" : {
     "Active" : true,
     "Effect" : "{ 912f4499-7b67-402b-9110-1871cc9d8a2c }",
-    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" }
+    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" },
+    "Shared Instance Name" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x21D62AB2B6D0D344950211E4EDDD06D7" },
+   "t" : "ezDirectionalLightComponent",
+   "p" : {
+    "Active" : true,
+    "Intensity" : { "$t" : "float", "$v" : "5.0000", "$b" : "0x0000A040" },
+    "Light Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
    }
   },
   {
@@ -949,7 +1348,7 @@
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x51CCA7688CBD0B4DBB5804C233D93279" } ],
     "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, -28.0000, -4.0000)", "$b" : "0x000000000000E0C1000080C0" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, -28.0000, -4.0000)", "$b" : "0x0000003F0000E0C1000080C0" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -972,14 +1371,15 @@
    "p" : {
     "Active" : true,
     "Effect" : "{ b7491649-7988-4bea-b145-6550ab951811 }",
-    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" }
+    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" },
+    "Shared Instance Name" : ""
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0x75C37F0B8E7B84458B3495D6F6BAED00" },
    "t" : "ezGameObject",
    "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x701D1BF756CF37458584354910FAABA1" }, { "$t" : "uuid", "$b" : "0x86DA360DFED24B8631831E9FCB79B340" }, { "$t" : "uuid", "$b" : "0xBF298F5A48419FCBD98FB5AEB370CA75" }, { "$t" : "uuid", "$b" : "0xC1E5E9E012A13B0F977C51023E0C6215" }, { "$t" : "uuid", "$b" : "0x8820A277644DCF0E7905B05014E8F4E4" }, { "$t" : "uuid", "$b" : "0x8ADCFCFD2EAD6B5237F24BA49E838C84" }, { "$t" : "uuid", "$b" : "0x39142E1473DB678825FA2FEB7071D610" }, { "$t" : "uuid", "$b" : "0x4FD1492A1ADF7BC9D1F818412CF1DDAF" }, { "$t" : "uuid", "$b" : "0x22530DA873E371105E2C8CF0D6D3E71A" }, { "$t" : "uuid", "$b" : "0x92AB52D8A145951266C3285E5E53D4E0" }, { "$t" : "uuid", "$b" : "0x5BA265F5BD51C55506392300BFCAFE4F" }, { "$t" : "uuid", "$b" : "0x9467AD5E6CA5315624B0C4B1E8EE6B80" }, { "$t" : "uuid", "$b" : "0x439FDE74B0D32D8C12B8A8F8BADCB50C" }, { "$t" : "uuid", "$b" : "0x5D5EC07B88B16199C425BF53496696EF" }, { "$t" : "uuid", "$b" : "0x595CFA8A57D741CDBEB6914E765CBDAB" }, { "$t" : "uuid", "$b" : "0x0C96F191CCDF5DCFB22DA39A1B54E07B" } ],
+    "Children" : [ { "$t" : "uuid", "$b" : "0x701D1BF756CF37458584354910FAABA1" }, { "$t" : "uuid", "$b" : "0x86DA360DFED24B8631831E9FCB79B340" }, { "$t" : "uuid", "$b" : "0xBF298F5A48419FCBD98FB5AEB370CA75" }, { "$t" : "uuid", "$b" : "0xC1E5E9E012A13B0F977C51023E0C6215" }, { "$t" : "uuid", "$b" : "0x8820A277644DCF0E7905B05014E8F4E4" }, { "$t" : "uuid", "$b" : "0x8ADCFCFD2EAD6B5237F24BA49E838C84" }, { "$t" : "uuid", "$b" : "0x39142E1473DB678825FA2FEB7071D610" }, { "$t" : "uuid", "$b" : "0x4FD1492A1ADF7BC9D1F818412CF1DDAF" }, { "$t" : "uuid", "$b" : "0x22530DA873E371105E2C8CF0D6D3E71A" }, { "$t" : "uuid", "$b" : "0x92AB52D8A145951266C3285E5E53D4E0" }, { "$t" : "uuid", "$b" : "0x5BA265F5BD51C55506392300BFCAFE4F" }, { "$t" : "uuid", "$b" : "0x9467AD5E6CA5315624B0C4B1E8EE6B80" }, { "$t" : "uuid", "$b" : "0x439FDE74B0D32D8C12B8A8F8BADCB50C" }, { "$t" : "uuid", "$b" : "0x5D5EC07B88B16199C425BF53496696EF" }, { "$t" : "uuid", "$b" : "0x595CFA8A57D741CDBEB6914E765CBDAB" }, { "$t" : "uuid", "$b" : "0x0C96F191CCDF5DCFB22DA39A1B54E07B" }, { "$t" : "uuid", "$b" : "0xF52CDFA1583DE5116475D85904B8A83C" }, { "$t" : "uuid", "$b" : "0x99C5099B4961F1561978B564A8BB9852" } ],
     "Components" : [  ],
     "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(31.0000, 0.0000, 0.0000)", "$b" : "0x0000F8410000000000000000" },
@@ -991,12 +1391,56 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xDEAC321F473CB145BA49AAD2132C82C3" },
+   "t" : "ezSpotLightComponent",
+   "p" : {
+    "Active" : true,
+    "Inner Spot Angle" : { "$t" : "angle", "$v" : "15.0000", "$b" : "0x920A863E" },
+    "Intensity" : { "$t" : "float", "$v" : "1000.0000", "$b" : "0x00007A44" },
+    "Light Color" : { "$t" : "color", "$v" : "(0.9387, 0.0116, 1.0000, 1.0000)", "$b" : "0xB84D703F49413E3C0000803F0000803F" },
+    "Outer Spot Angle" : { "$t" : "angle", "$v" : "54.0000", "$b" : "0x3C46713F" },
+    "Range" : { "$t" : "float", "$v" : "27.7600", "$b" : "0x7E14DE41" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xDBE7420DFF75B6458F89EFDB1B511A85" },
+   "t" : "ezRotorComponent",
+   "p" : {
+    "Acceleration" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "Active" : true,
+    "Auto-Toggle Direction" : false,
+    "Axis" : "ezBasisAxis::PositiveZ",
+    "Deceleration" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "Degrees to Rotate" : { "$t" : "int32", "$v" : "0", "$b" : "0x00000000" },
+    "Reverse at End" : false,
+    "Reverse at Start" : false,
+    "Run at Startup" : true,
+    "Speed" : { "$t" : "float", "$v" : "90.0000", "$b" : "0x0000B442" }
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xC7077B4027F56346A5974D97F269E0FC" },
    "t" : "ezParticleComponent",
    "p" : {
     "Active" : true,
     "Effect" : "{ b7491649-7988-4bea-b145-6550ab951811 }",
-    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" }
+    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" },
+    "Shared Instance Name" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xFB912016D890A5462045C6956FE71F07" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xED92F2F4332F43533E624A4747633AC7" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-1.5000, 1.5000, 0.0000)", "$b" : "0x0000C0BF0000C03F00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
    }
   },
   {
@@ -1060,7 +1504,8 @@
    "p" : {
     "Active" : true,
     "Effect" : "{ b7491649-7988-4bea-b145-6550ab951811 }",
-    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" }
+    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" },
+    "Shared Instance Name" : "Test"
    }
   },
   {
@@ -1076,11 +1521,39 @@
    "t" : "ezPointLightComponent",
    "p" : {
     "Active" : true,
-    "Cast Shadows" : false,
     "Intensity" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Light Color" : { "$t" : "color", "$v" : "(0.2747, 1.0000, 0.0091, 1.0000)", "$b" : "0x83A28C3E0000803F03A7153C0000803F" },
-    "Projected Texture" : "",
     "Range" : { "$t" : "float", "$v" : "3.5800", "$b" : "0xB31E6540" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x5CFF3364390A7047988289D8F04DE5B4" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x76C174B9DA5DC44FA9EB4024E43D5938" }, { "$t" : "uuid", "$b" : "0x614010360DBF224E80FEAA390ECED801" }, { "$t" : "uuid", "$b" : "0xD2B05CEB0FF0FD498D5F6A6B44626521" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-27.7500, 27.5000, 4.7500)", "$b" : "0x0000DEC10000DC4100009840" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x6B9E26D8393A954795755F0B8E66BEB9" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x5585ADAF3DF92648B7E04DAA6D47B297" }, { "$t" : "uuid", "$b" : "0x7D90C76FA33DA14CBF0AEA1F16EA21CE" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(15.2311, 25.4999, 2.3645)", "$b" : "0xA3B27341BFFFCB419D531740" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
    }
   },
   {
@@ -1091,8 +1564,18 @@
     "AssetType" : "Scene",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x4CD85FC44C71C247BFA61C213B20EC51" },
-    "Hash" : { "$t" : "uint64", "$v" : "12773104982951311618", "$b" : "0x02B995A34E2F43B1" },
-    "References" : [ "{ 1034ea07-7e19-43d0-8bd9-ff9a2558f4cf }", "{ 124837c3-3748-46bd-bd34-c38be3cdcf7c }", "{ 1ce6f3e5-326b-4dce-8cef-03cc8c06b40b }", "{ 3ebe2790-7cc4-40c8-bde6-e760b96b2636 }", "{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }", "{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }", "{ 8db56ec7-1f24-497b-9541-5ff5e1e65a9a }", "{ 912f4499-7b67-402b-9110-1871cc9d8a2c }", "{ 94ac1de9-5cbe-4581-a57c-7caf78ab7294 }", "{ 95f9db13-7fa3-4832-b349-4e00a23b3b10 }", "{ a2e664de-7b3e-47d8-99d3-d058896f7255 }", "{ ac0755c6-f78d-40ec-bfaa-55f2be674f87 }", "{ b727ba61-e20a-42d7-a170-860ede23e85d }", "{ b7491649-7988-4bea-b145-6550ab951811 }", "{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }", "{ d65cd59b-50e0-44f3-aefb-a88943b81900 }", "{ e6c495bb-9dd5-43ef-9f20-618828f20781 }" ]
+    "Hash" : { "$t" : "uint64", "$v" : "16922283722314343778", "$b" : "0x62E5EB286307D8EA" },
+    "References" : [ "{ 1034ea07-7e19-43d0-8bd9-ff9a2558f4cf }", "{ 124837c3-3748-46bd-bd34-c38be3cdcf7c }", "{ 1ce6f3e5-326b-4dce-8cef-03cc8c06b40b }", "{ 27eef412-bd5d-424b-9d58-48725a829568 }", "{ 3ebe2790-7cc4-40c8-bde6-e760b96b2636 }", "{ 40e17191-4dce-4f65-b4f7-1de9a179db08 }", "{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }", "{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }", "{ 8db56ec7-1f24-497b-9541-5ff5e1e65a9a }", "{ 912f4499-7b67-402b-9110-1871cc9d8a2c }", "{ 94ac1de9-5cbe-4581-a57c-7caf78ab7294 }", "{ 95f9db13-7fa3-4832-b349-4e00a23b3b10 }", "{ a2e664de-7b3e-47d8-99d3-d058896f7255 }", "{ ac0755c6-f78d-40ec-bfaa-55f2be674f87 }", "{ b727ba61-e20a-42d7-a170-860ede23e85d }", "{ b7491649-7988-4bea-b145-6550ab951811 }", "{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }", "{ d2764eb1-617d-475b-9638-bd6f42ca36b3 }", "{ d65cd59b-50e0-44f3-aefb-a88943b81900 }", "{ e6c495bb-9dd5-43ef-9f20-618828f20781 }" ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x5585ADAF3DF92648B7E04DAA6D47B297" },
+   "t" : "ezPointLightComponent",
+   "p" : {
+    "Active" : true,
+    "Intensity" : { "$t" : "float", "$v" : "50.0000", "$b" : "0x00004842" },
+    "Light Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" },
+    "Range" : { "$t" : "float", "$v" : "5.0000", "$b" : "0x0000A040" }
    }
   },
   {
@@ -1217,6 +1700,14 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xD2B05CEB0FF0FD498D5F6A6B44626521" },
+   "t" : "ezPropertyAnimComponent",
+   "p" : {
+    "Active" : true,
+    "Animation" : "{ d2764eb1-617d-475b-9638-bd6f42ca36b3 }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x6E0F507FC4A7004AB4E380AC9720BC36" },
    "t" : "ezPxCharacterControllerComponent",
    "p" : {
@@ -1266,7 +1757,7 @@
    "t" : "ezDocumentRoot",
    "n" : "ObjectTree",
    "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xA975EED72125684BAA69FBABA5539630" }, { "$t" : "uuid", "$b" : "0xA068B4176E72124E81D64B67A8932917" }, { "$t" : "uuid", "$b" : "0xF72235820B109E40A26D7C60D9D3BF2A" }, { "$t" : "uuid", "$b" : "0xD723364F8B7BBC4A86D06378C02C97F5" }, { "$t" : "uuid", "$b" : "0xB518F9F9AD923941BEE7BBC3CD696E20" }, { "$t" : "uuid", "$b" : "0x8FAF1F7B177B214EA4E2870718050F82" }, { "$t" : "uuid", "$b" : "0xCA3DB2578658C18845E5953F5AAA9F23" }, { "$t" : "uuid", "$b" : "0xBDA035EAB12BB28A44182EC4A230BC90" }, { "$t" : "uuid", "$b" : "0x8B3BD43CAC8A4D158DB8CA461BA0957B" }, { "$t" : "uuid", "$b" : "0xF43BEC436B0FC292303B0573693245DD" }, { "$t" : "uuid", "$b" : "0xAF38CEBBE605C34A920325C9D6FDF0A9" }, { "$t" : "uuid", "$b" : "0xB48C9116F29A4F9A506DDAC8E04A0470" }, { "$t" : "uuid", "$b" : "0xFD78D1B681261C4F9DD5C500B1168BF1" }, { "$t" : "uuid", "$b" : "0xAB7D124FC46D218F563EE75912D23F5E" }, { "$t" : "uuid", "$b" : "0xB93CF3B566868D974C5BB9AE234183AE" }, { "$t" : "uuid", "$b" : "0x6741344EA9CD92D705C4DA0785FC371B" }, { "$t" : "uuid", "$b" : "0x1052C4F89C9C3ADB04ED2B27B5D8FFDE" }, { "$t" : "uuid", "$b" : "0xC55344DDB62DCD23935FB7B8C5D115F2" }, { "$t" : "uuid", "$b" : "0x43FA7C0A157F7A6F32D3FEC413BEE1D9" }, { "$t" : "uuid", "$b" : "0xC9C32471C72A1BBBCCCE30714F9CCB66" }, { "$t" : "uuid", "$b" : "0x9F20449FE5F20C4B85D9B0AB2487FFBC" }, { "$t" : "uuid", "$b" : "0x23F89BADF365A48F0BF046675C74EB08" }, { "$t" : "uuid", "$b" : "0xB148EFF2D41B8EDFA9F48CA4733D47E1" }, { "$t" : "uuid", "$b" : "0x47038D4C319D41283A3D7A056219B32B" }, { "$t" : "uuid", "$b" : "0x822A933036825448815C33F4C012202F" }, { "$t" : "uuid", "$b" : "0x23655D1F8C3F2D40AADE1EA95383033B" }, { "$t" : "uuid", "$b" : "0x76CC3B0CDB3DB84AB2E10A3809C9FC5F" }, { "$t" : "uuid", "$b" : "0x98A019C9BED7389261D00D5F59BE7CBF" }, { "$t" : "uuid", "$b" : "0x8A3A918D4892D9846150AB4F0C3BD2AB" }, { "$t" : "uuid", "$b" : "0xFBB5DEFCF7BC6C8D2A00A76ED22C1DFC" }, { "$t" : "uuid", "$b" : "0x628B126BB40F19D2E17133158BE4EB6C" }, { "$t" : "uuid", "$b" : "0xEF722A871DCFD6408CD0FA46F8059B80" }, { "$t" : "uuid", "$b" : "0xB2AB07FE8D744A8F3780268686FC5D97" }, { "$t" : "uuid", "$b" : "0x9F54B920AE588C40AC4FC3C9A408BAB4" }, { "$t" : "uuid", "$b" : "0x5FD99AD32149658848B1F50D548AD817" }, { "$t" : "uuid", "$b" : "0x3712427EB3CA4349837AD30AD9897B06" }, { "$t" : "uuid", "$b" : "0x1A827BF418962E922D2D391302939653" }, { "$t" : "uuid", "$b" : "0x0022E1243B5D0F8E4571280DA67080E3" }, { "$t" : "uuid", "$b" : "0x520B32E19715AA4DB5C67A6233D41C02" }, { "$t" : "uuid", "$b" : "0xB3B713D92BB8BF8E66D054B73051F1B7" }, { "$t" : "uuid", "$b" : "0xD447A27FAEBFF9CFEBF616820BCF4C75" }, { "$t" : "uuid", "$b" : "0x73243A53FDC2B81C7BAE8317AC276A60" }, { "$t" : "uuid", "$b" : "0xA865B3FD56D5E8469C1BB8345C640AE4" }, { "$t" : "uuid", "$b" : "0xC54F325E68A84F8C44898EDD2892A140" }, { "$t" : "uuid", "$b" : "0x8F1A1602B1250C4389FA0F400F49044A" }, { "$t" : "uuid", "$b" : "0x05C6D1A6EC5A5B8D40D16E2D6E5B41CB" }, { "$t" : "uuid", "$b" : "0xA64B5852F476F2DBDDF7E9CD4B0C1C62" }, { "$t" : "uuid", "$b" : "0x485F754DCE4498D2E39D4C0D636D8DE9" }, { "$t" : "uuid", "$b" : "0xFCA9E205B2BE879534B07E5AD18AE19A" }, { "$t" : "uuid", "$b" : "0x9F11736BEC36B1D5ED6253732F54F35A" }, { "$t" : "uuid", "$b" : "0xB82C2D84178223D9CC55E0E48AC3981D" }, { "$t" : "uuid", "$b" : "0xE9A928778794E34B9D3877C6D8C02E0A" }, { "$t" : "uuid", "$b" : "0xB6ABFFF5D7A0209053856CD53C68B0F8" }, { "$t" : "uuid", "$b" : "0xCEBBAF01624D46924C7E9A16FCBFB17C" }, { "$t" : "uuid", "$b" : "0x380FFCF44282C4D8010DFBFF14BB16F1" }, { "$t" : "uuid", "$b" : "0x484B5055B1AF80DCBF3DFCB918DC3FEB" }, { "$t" : "uuid", "$b" : "0xA3C0ECD19F584F488BBCBBA0C988C397" }, { "$t" : "uuid", "$b" : "0xE88E3CE582520E864038EDFD10349FB0" }, { "$t" : "uuid", "$b" : "0xADC1FF28F725D3CCD44477B2A6DC85F1" }, { "$t" : "uuid", "$b" : "0xAFD9A142EFE3780E8CD25C907ABE623E" }, { "$t" : "uuid", "$b" : "0xF37DB810A5A76D59177166E525543258" }, { "$t" : "uuid", "$b" : "0x95640D5620B7045623F6B0308AC83CAF" }, { "$t" : "uuid", "$b" : "0xE03BEC0F334B909EA79E1BF322321506" }, { "$t" : "uuid", "$b" : "0xD657364BC1109A287A685BBE6480D524" }, { "$t" : "uuid", "$b" : "0x34BA26338C96A24B8734D7AE5508EE9D" }, { "$t" : "uuid", "$b" : "0x86A61246FE99A34D9EADFD6007909666" }, { "$t" : "uuid", "$b" : "0x83319CCCC3A0D449B2D407F032D13AD4" }, { "$t" : "uuid", "$b" : "0xB027F9C5793A8142BB29314E93ECCE57" }, { "$t" : "uuid", "$b" : "0x5F59A25C90F9854DBA0D5495F70DECB4" }, { "$t" : "uuid", "$b" : "0xBF7601CADE98AA4EB0DFE5342BC95F59" }, { "$t" : "uuid", "$b" : "0xD6D820DDF968B248A1E4774EB5EB90DD" }, { "$t" : "uuid", "$b" : "0x11E89C486975F640B207F5E11DD2DF3C" }, { "$t" : "uuid", "$b" : "0x9F20CC089BDD31934B0A48FF4139F5B8" }, { "$t" : "uuid", "$b" : "0xA6783766D279F2D306F019A337A51E97" } ]
+    "Children" : [ { "$t" : "uuid", "$b" : "0xA975EED72125684BAA69FBABA5539630" }, { "$t" : "uuid", "$b" : "0xA068B4176E72124E81D64B67A8932917" }, { "$t" : "uuid", "$b" : "0xF72235820B109E40A26D7C60D9D3BF2A" }, { "$t" : "uuid", "$b" : "0xD723364F8B7BBC4A86D06378C02C97F5" }, { "$t" : "uuid", "$b" : "0xB518F9F9AD923941BEE7BBC3CD696E20" }, { "$t" : "uuid", "$b" : "0x8FAF1F7B177B214EA4E2870718050F82" }, { "$t" : "uuid", "$b" : "0xCA3DB2578658C18845E5953F5AAA9F23" }, { "$t" : "uuid", "$b" : "0xBDA035EAB12BB28A44182EC4A230BC90" }, { "$t" : "uuid", "$b" : "0x8B3BD43CAC8A4D158DB8CA461BA0957B" }, { "$t" : "uuid", "$b" : "0xF43BEC436B0FC292303B0573693245DD" }, { "$t" : "uuid", "$b" : "0xAF38CEBBE605C34A920325C9D6FDF0A9" }, { "$t" : "uuid", "$b" : "0xB48C9116F29A4F9A506DDAC8E04A0470" }, { "$t" : "uuid", "$b" : "0xFD78D1B681261C4F9DD5C500B1168BF1" }, { "$t" : "uuid", "$b" : "0xAB7D124FC46D218F563EE75912D23F5E" }, { "$t" : "uuid", "$b" : "0xB93CF3B566868D974C5BB9AE234183AE" }, { "$t" : "uuid", "$b" : "0x6741344EA9CD92D705C4DA0785FC371B" }, { "$t" : "uuid", "$b" : "0x1052C4F89C9C3ADB04ED2B27B5D8FFDE" }, { "$t" : "uuid", "$b" : "0xC55344DDB62DCD23935FB7B8C5D115F2" }, { "$t" : "uuid", "$b" : "0x43FA7C0A157F7A6F32D3FEC413BEE1D9" }, { "$t" : "uuid", "$b" : "0xC9C32471C72A1BBBCCCE30714F9CCB66" }, { "$t" : "uuid", "$b" : "0x9F20449FE5F20C4B85D9B0AB2487FFBC" }, { "$t" : "uuid", "$b" : "0x23F89BADF365A48F0BF046675C74EB08" }, { "$t" : "uuid", "$b" : "0xB148EFF2D41B8EDFA9F48CA4733D47E1" }, { "$t" : "uuid", "$b" : "0x47038D4C319D41283A3D7A056219B32B" }, { "$t" : "uuid", "$b" : "0x822A933036825448815C33F4C012202F" }, { "$t" : "uuid", "$b" : "0x23655D1F8C3F2D40AADE1EA95383033B" }, { "$t" : "uuid", "$b" : "0x76CC3B0CDB3DB84AB2E10A3809C9FC5F" }, { "$t" : "uuid", "$b" : "0x98A019C9BED7389261D00D5F59BE7CBF" }, { "$t" : "uuid", "$b" : "0x8A3A918D4892D9846150AB4F0C3BD2AB" }, { "$t" : "uuid", "$b" : "0xFBB5DEFCF7BC6C8D2A00A76ED22C1DFC" }, { "$t" : "uuid", "$b" : "0x628B126BB40F19D2E17133158BE4EB6C" }, { "$t" : "uuid", "$b" : "0xEF722A871DCFD6408CD0FA46F8059B80" }, { "$t" : "uuid", "$b" : "0xB2AB07FE8D744A8F3780268686FC5D97" }, { "$t" : "uuid", "$b" : "0x9F54B920AE588C40AC4FC3C9A408BAB4" }, { "$t" : "uuid", "$b" : "0x5FD99AD32149658848B1F50D548AD817" }, { "$t" : "uuid", "$b" : "0x3712427EB3CA4349837AD30AD9897B06" }, { "$t" : "uuid", "$b" : "0x1A827BF418962E922D2D391302939653" }, { "$t" : "uuid", "$b" : "0x0022E1243B5D0F8E4571280DA67080E3" }, { "$t" : "uuid", "$b" : "0x520B32E19715AA4DB5C67A6233D41C02" }, { "$t" : "uuid", "$b" : "0xB3B713D92BB8BF8E66D054B73051F1B7" }, { "$t" : "uuid", "$b" : "0xD447A27FAEBFF9CFEBF616820BCF4C75" }, { "$t" : "uuid", "$b" : "0x73243A53FDC2B81C7BAE8317AC276A60" }, { "$t" : "uuid", "$b" : "0xA865B3FD56D5E8469C1BB8345C640AE4" }, { "$t" : "uuid", "$b" : "0xC54F325E68A84F8C44898EDD2892A140" }, { "$t" : "uuid", "$b" : "0x8F1A1602B1250C4389FA0F400F49044A" }, { "$t" : "uuid", "$b" : "0x05C6D1A6EC5A5B8D40D16E2D6E5B41CB" }, { "$t" : "uuid", "$b" : "0xA64B5852F476F2DBDDF7E9CD4B0C1C62" }, { "$t" : "uuid", "$b" : "0x485F754DCE4498D2E39D4C0D636D8DE9" }, { "$t" : "uuid", "$b" : "0xFCA9E205B2BE879534B07E5AD18AE19A" }, { "$t" : "uuid", "$b" : "0x9F11736BEC36B1D5ED6253732F54F35A" }, { "$t" : "uuid", "$b" : "0xB82C2D84178223D9CC55E0E48AC3981D" }, { "$t" : "uuid", "$b" : "0xE9A928778794E34B9D3877C6D8C02E0A" }, { "$t" : "uuid", "$b" : "0xB6ABFFF5D7A0209053856CD53C68B0F8" }, { "$t" : "uuid", "$b" : "0xCEBBAF01624D46924C7E9A16FCBFB17C" }, { "$t" : "uuid", "$b" : "0x380FFCF44282C4D8010DFBFF14BB16F1" }, { "$t" : "uuid", "$b" : "0x484B5055B1AF80DCBF3DFCB918DC3FEB" }, { "$t" : "uuid", "$b" : "0xA3C0ECD19F584F488BBCBBA0C988C397" }, { "$t" : "uuid", "$b" : "0xE88E3CE582520E864038EDFD10349FB0" }, { "$t" : "uuid", "$b" : "0xADC1FF28F725D3CCD44477B2A6DC85F1" }, { "$t" : "uuid", "$b" : "0xAFD9A142EFE3780E8CD25C907ABE623E" }, { "$t" : "uuid", "$b" : "0xF37DB810A5A76D59177166E525543258" }, { "$t" : "uuid", "$b" : "0x95640D5620B7045623F6B0308AC83CAF" }, { "$t" : "uuid", "$b" : "0xE03BEC0F334B909EA79E1BF322321506" }, { "$t" : "uuid", "$b" : "0xD657364BC1109A287A685BBE6480D524" }, { "$t" : "uuid", "$b" : "0x34BA26338C96A24B8734D7AE5508EE9D" }, { "$t" : "uuid", "$b" : "0x86A61246FE99A34D9EADFD6007909666" }, { "$t" : "uuid", "$b" : "0x83319CCCC3A0D449B2D407F032D13AD4" }, { "$t" : "uuid", "$b" : "0xB027F9C5793A8142BB29314E93ECCE57" }, { "$t" : "uuid", "$b" : "0x5F59A25C90F9854DBA0D5495F70DECB4" }, { "$t" : "uuid", "$b" : "0xBF7601CADE98AA4EB0DFE5342BC95F59" }, { "$t" : "uuid", "$b" : "0xD6D820DDF968B248A1E4774EB5EB90DD" }, { "$t" : "uuid", "$b" : "0x11E89C486975F640B207F5E11DD2DF3C" }, { "$t" : "uuid", "$b" : "0x9F20CC089BDD31934B0A48FF4139F5B8" }, { "$t" : "uuid", "$b" : "0xA6783766D279F2D306F019A337A51E97" }, { "$t" : "uuid", "$b" : "0x63326264D2B1BE43BD00313C11A41ADA" }, { "$t" : "uuid", "$b" : "0x8E57FF3E7A1F614EA1EAC5489184002D" }, { "$t" : "uuid", "$b" : "0x816D304B8EBBE04D84E0B8299FC3DF98" }, { "$t" : "uuid", "$b" : "0x5AAD4EE0057D9C23C040E152980B3B55" }, { "$t" : "uuid", "$b" : "0xFCE01E910F91666751192EB7B2C6A1D9" }, { "$t" : "uuid", "$b" : "0xB3BE0625776BD96D67C0CA157220888D" }, { "$t" : "uuid", "$b" : "0x55F2D6D5807FA3B1F898177A8CDBEE11" }, { "$t" : "uuid", "$b" : "0xA41D8CD322DC5BAF1B5A81ABC5CADC4A" }, { "$t" : "uuid", "$b" : "0x46515C842CF025F3AC32CE0FE08543CF" }, { "$t" : "uuid", "$b" : "0xCC4028C68824953468A237362AEA44AD" }, { "$t" : "uuid", "$b" : "0x2A0D58157F10CBF0D7C9EAD10F2FDE28" }, { "$t" : "uuid", "$b" : "0x53ACEC938C0F41355B25398FB6319CA0" }, { "$t" : "uuid", "$b" : "0xF5DFBC4496230B79ECFD85F3D0EC0225" }, { "$t" : "uuid", "$b" : "0x041E9A28501BD982DC09EAB1124AE29B" }, { "$t" : "uuid", "$b" : "0xA6516AD9592FA3C66DE236162D054920" }, { "$t" : "uuid", "$b" : "0x6136472484862C6BFE5737CABE8EEA82" }, { "$t" : "uuid", "$b" : "0x64639840BA20A7ADA912CAA25719F223" }, { "$t" : "uuid", "$b" : "0xE96DEAD28F75624BAB6403D326237978" }, { "$t" : "uuid", "$b" : "0x5CFF3364390A7047988289D8F04DE5B4" }, { "$t" : "uuid", "$b" : "0xA97E2E038ADA564F8052E98E3199144C" }, { "$t" : "uuid", "$b" : "0xB42D92B5833CDE9431453A4CE9528E94" }, { "$t" : "uuid", "$b" : "0x08D9EB86EF0247D9D9CD1E887A47917A" }, { "$t" : "uuid", "$b" : "0x36E07E4649E55A4188F7D4B35285EC9D" }, { "$t" : "uuid", "$b" : "0x6B9E26D8393A954795755F0B8E66BEB9" } ]
    }
   },
   {
@@ -1351,7 +1842,23 @@
    "p" : {
     "Active" : true,
     "Effect" : "{ b7491649-7988-4bea-b145-6550ab951811 }",
-    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" }
+    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" },
+    "Shared Instance Name" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE96DEAD28F75624BAB6403D326237978" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0xA0C4D31B06093CB0E5D43AFC335B5054" }, { "$t" : "uuid", "$b" : "0xFE90036BFCF4716C54FCED9719A0E9CF" } ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x1813853B9DD0CC4B9AA0D2E56860AC85" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-27.0000, 0.5000, 8.2500)", "$b" : "0x0000D8C10000003F00000441" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
    }
   },
   {
@@ -1376,12 +1883,44 @@
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0xBE8D31949CA43D479EA57E2D64126ABA" } ],
     "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(-27.5000, 9.5000, 0.0000)", "$b" : "0x0000DCC10000184100000000" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-20.7500, 14.2500, 3.5000)", "$b" : "0x0000A6C10000644100006040" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x00000000EE8384BE985C42B2EA46773F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "",
     "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x20DC47715AB1C54B3049F8C43C90F249" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x1813853B9DD0CC4B9AA0D2E56860AC85" },
+   "t" : "ezSliderComponent",
+   "p" : {
+    "Acceleration" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" },
+    "Active" : true,
+    "Auto-Toggle Direction" : false,
+    "Axis" : "ezBasisAxis::PositiveY",
+    "Deceleration" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" },
+    "Distance" : { "$t" : "float", "$v" : "5.5000", "$b" : "0x0000B040" },
+    "Reverse at End" : true,
+    "Reverse at Start" : true,
+    "Run at Startup" : true,
+    "Speed" : { "$t" : "float", "$v" : "5.0000", "$b" : "0x0000A040" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xC97929D11EBAD74B6E80718926C30E1C" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
    }
   },
   {
@@ -1400,6 +1939,14 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x7D90C76FA33DA14CBF0AEA1F16EA21CE" },
+   "t" : "ezPropertyAnimComponent",
+   "p" : {
+    "Active" : true,
+    "Animation" : "{ 40e17191-4dce-4f65-b4f7-1de9a179db08 }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x51CCA7688CBD0B4DBB5804C233D93279" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
@@ -1408,11 +1955,21 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xA4AD8D833EB1564D87FB30B66BCA7693" },
+   "t" : "ezPointLightComponent",
+   "p" : {
+    "Active" : true,
+    "Intensity" : { "$t" : "float", "$v" : "100.0000", "$b" : "0x0000C842" },
+    "Light Color" : { "$t" : "color", "$v" : "(0.5583, 0.3968, 1.0000, 1.0000)", "$b" : "0x69EF0E3F8323CB3E0000803F0000803F" },
+    "Range" : { "$t" : "float", "$v" : "17.2200", "$b" : "0x93C28941" }
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x0AD7387C55B2814DBFC2DBC8DF489200" },
    "t" : "ezGameObject",
    "p" : {
     "Children" : [ { "$t" : "uuid", "$b" : "0xF6C325CCF0588B4890FDBDFE2786CCD8" }, { "$t" : "uuid", "$b" : "0x39B2221ABD91748D2FBAFE01C4B04665" }, { "$t" : "uuid", "$b" : "0xA539D3D91AC001D7C4AB2D168A0B72FA" }, { "$t" : "uuid", "$b" : "0x6BF958984AB35B1A7867B44A37A9AD27" } ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0xB7B280037AE3814D8D49CA04D32D548F" }, { "$t" : "uuid", "$b" : "0xD75CD6E89370C746B11CED56BF2B2060" }, { "$t" : "uuid", "$b" : "0x7B064E606DA40E44AF48C915466D7063" }, { "$t" : "uuid", "$b" : "0xEC116D0C6A32694782FF381CEFBA9FC9" } ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xB7B280037AE3814D8D49CA04D32D548F" }, { "$t" : "uuid", "$b" : "0xD75CD6E89370C746B11CED56BF2B2060" }, { "$t" : "uuid", "$b" : "0x7B064E606DA40E44AF48C915466D7063" }, { "$t" : "uuid", "$b" : "0xEC116D0C6A32694782FF381CEFBA9FC9" }, { "$t" : "uuid", "$b" : "0x4E21C57466B76044B567A4E618764E7D" } ],
     "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
@@ -1453,7 +2010,7 @@
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0xDC582A8F73700D409CDE2393E430464D" } ],
     "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(-8.5000, -4.2500, 2.0000)", "$b" : "0x000008C1000088C000000040" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-20.5000, 10.0000, 3.5000)", "$b" : "0x0000A4C10000204100006040" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x16EFC33E0000000070B08F325E836C3F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -1482,6 +2039,39 @@
    "p" : {
     "Active" : true,
     "Prefab" : "{ ac0755c6-f78d-40ec-bfaa-55f2be674f87 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x816D304B8EBBE04D84E0B8299FC3DF98" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x21D62AB2B6D0D344950211E4EDDD06D7" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(13.4181, 15.7145, 9.5105)", "$b" : "0x6FB05641AC6E7B41252B1841" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x00000000FFFFFF3E2EBDBB32D7B35D3F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x7307F52A9282ED4DBD1B93CCC5B7E7D6" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x2264D4ACA3D8064EA156216FD88F8004" },
+   "t" : "ezParticleComponent",
+   "p" : {
+    "Active" : true,
+    "Effect" : "{ b7491649-7988-4bea-b145-6550ab951811 }",
+    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" },
+    "Shared Instance Name" : ""
    }
   },
   {
@@ -1515,6 +2105,31 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x614010360DBF224E80FEAA390ECED801" },
+   "t" : "ezPointLightComponent",
+   "p" : {
+    "Active" : true,
+    "Intensity" : { "$t" : "float", "$v" : "100.0000", "$b" : "0x0000C842" },
+    "Light Color" : { "$t" : "color", "$v" : "(0.0666, 0.7305, 1.0000, 1.0000)", "$b" : "0x3073883D7EFF3A3F0000803F0000803F" },
+    "Range" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x8E57FF3E7A1F614EA1EAC5489184002D" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0x4F27B288E6FBDF4FBA336A96A046DC03" } ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xDBE7420DFF75B6458F89EFDB1B511A85" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(17.0614, -11.1548, 10.2586)", "$b" : "0xBB7D8841157A32C15E232441" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x691B3C303A5E654EBC458231CC1E21AD" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
@@ -1535,6 +2150,14 @@
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "",
     "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xD43B479923FBD74E6130730D2DE8D114" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
    }
   },
   {
@@ -1583,6 +2206,36 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x955A799AC449524F37C869F97369D516" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x7609060CFA3726576D9C387297485CEE" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(7.0000, -12.0000, -4.0000)", "$b" : "0x0300E040FCFF3FC1000080C0" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA97E2E038ADA564F8052E98E3199144C" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0xFB912016D890A5462045C6956FE71F07" }, { "$t" : "uuid", "$b" : "0xCCC9F33FC9B9B2F99F709C1A978D7A13" }, { "$t" : "uuid", "$b" : "0x83E0B73662344AB8EA97B9620CBE3A26" }, { "$t" : "uuid", "$b" : "0xF1460F008D52F38D3B443E1354A48753" }, { "$t" : "uuid", "$b" : "0x8106234C36E44F419FFE0E1BEE3BCD16" }, { "$t" : "uuid", "$b" : "0xE0568AD1761BEFCFC0856C4CCA2E69FE" }, { "$t" : "uuid", "$b" : "0x8C5D2792B7D1E41C6E22AA469AC301FC" }, { "$t" : "uuid", "$b" : "0xF463E509F6D9ADACE064F9DAD400B94D" }, { "$t" : "uuid", "$b" : "0xAB7AA9008F54456B2B8C16234A317960" }, { "$t" : "uuid", "$b" : "0x232C12E004B1A0F961392356AD5A5E41" }, { "$t" : "uuid", "$b" : "0x9E2B2849F01A94195BB0CC5D0C495E31" }, { "$t" : "uuid", "$b" : "0xAF1BAD77065298D7D66E9E2496BE7C86" } ],
+    "Components" : [  ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(15.2500, 25.7500, 0.0000)", "$b" : "0x000074410000CE4100000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xE172545A0DA26B4F834F4DA95CA48713" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
@@ -1597,6 +2250,31 @@
     "Active" : true,
     "Character Gravity" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, -15.0000)", "$b" : "0x0000000000000000000070C1" },
     "Object Gravity" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, -9.8100)", "$b" : "0x0000000000000000C3F51CC1" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x76C174B9DA5DC44FA9EB4024E43D5938" },
+   "t" : "ezParticleComponent",
+   "p" : {
+    "Active" : true,
+    "Effect" : "{ 912f4499-7b67-402b-9110-1871cc9d8a2c }",
+    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" },
+    "Shared Instance Name" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x4F27B288E6FBDF4FBA336A96A046DC03" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xDEAC321F473CB145BA49AAD2132C82C3" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-0.0614, -0.0952, -0.0086)", "$b" : "0x00767BBD80F5C2BD00780DBC" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x00000000EE83843E985C4232EA46773F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
    }
   },
   {
@@ -1636,12 +2314,20 @@
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x6B8B896F649B3F5A6DC61A1DC262135C" } ],
     "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 28.0000, -4.0000)", "$b" : "0x000000000000E041000080C0" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, 28.0000, -4.0000)", "$b" : "0x0000003F0000E041000080C0" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "",
     "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xED92F2F4332F43533E624A4747633AC7" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
    }
   },
   {
@@ -1681,7 +2367,7 @@
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x3C51F266F33F995D3C0DF278E2A98527" } ],
     "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 20.0000, 4.0000)", "$b" : "0x000000000000A04100008040" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, 20.0000, 4.0000)", "$b" : "0x0000003F0000A04100008040" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -1711,12 +2397,35 @@
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x75163AD0A193055E5A84932A0CCEF257" } ],
     "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, -4.0000, 4.0000)", "$b" : "0x00000000000080C000008040" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, -4.0000, 4.0000)", "$b" : "0x0000003F000080C000008040" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "",
     "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x99C5099B4961F1561978B564A8BB9852" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x7A74960C7F4FC55E4F4C84DDCB9A1F2A" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-54.5000, 20.0000, -4.0000)", "$b" : "0x00005AC20000A041000080C0" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x7609060CFA3726576D9C387297485CEE" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 124837c3-3748-46bd-bd34-c38be3cdcf7c }"
    }
   },
   {
@@ -1755,6 +2464,21 @@
    "p" : {
     "Active" : true,
     "Prefab" : "{ 124837c3-3748-46bd-bd34-c38be3cdcf7c }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3FB14755DC43DF591901A24513DDE52C" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x31B2193438E27C66371E26F7EA5800ED" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, -1.5000, 0.0000)", "$b" : "0x0000003F0000C0BF00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
    }
   },
   {
@@ -1820,6 +2544,14 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xDC66087CB4BA115D38A92D228E944E7A" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x703C50B3DC6D765D43A886DCEBB1888B" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
@@ -1867,6 +2599,14 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x7A74960C7F4FC55E4F4C84DDCB9A1F2A" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 124837c3-3748-46bd-bd34-c38be3cdcf7c }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xEF841F435835CD5E17FB284F512C16BE" },
    "t" : "ezGameObject",
    "p" : {
@@ -1889,6 +2629,21 @@
     "Components" : [ { "$t" : "uuid", "$b" : "0x232C7AD40BAFC2663E3C5AEC81D56E1A" } ],
     "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 4.0000, 4.0000)", "$b" : "0x000000000000804000008040" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA9DA8BFBE97C1B5F0CA31D1BC402D879" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x9BDB5DDA451BB96B2AC0A1CC9B7EF239" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, 1.5000, 0.0000)", "$b" : "0x0000003F0000C03F00000000" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -1920,6 +2675,29 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x0E766AFB6B7A88612FEAD31DDF6CF9B4" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x00773CDAC718266E4D0758CFB6E81375" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-0.5000, 1.5000, 0.0000)", "$b" : "0x000000BF0000C03F00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xDE16ED55A11E1D623B8CED02F56D9670" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xC04A883AE7D92662E64100AB71738889" },
    "t" : "ezGameObject",
    "p" : {
@@ -1927,6 +2705,21 @@
     "Components" : [ { "$t" : "uuid", "$b" : "0xA1F914AC1CC8FA691C16CF2395520F61" } ],
     "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, -12.0000, 4.0000)", "$b" : "0x00000000000040C100008040" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x970C8B44B1336C621F15FB03527D7B44" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x890D5D230DD2096F3D327FB529F99504" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(1.5000, -1.5000, 0.0000)", "$b" : "0x0000C03F0000C0BF00000000" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -1955,6 +2748,14 @@
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "",
     "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x9344F00F1C9584634E50CA804DEE342E" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"
    }
   },
   {
@@ -2012,6 +2813,14 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x31B2193438E27C66371E26F7EA5800ED" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xD033ACB48D23A1664DCFF7C7740B9D95" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
@@ -2035,6 +2844,21 @@
     "Components" : [ { "$t" : "uuid", "$b" : "0xE945FEEB3B265269C8F26237F69B02D9" } ],
     "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, -3.0000)", "$b" : "0x0000000000000000000040C0" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xFCE01E910F91666751192EB7B2C6A1D9" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xDC66087CB4BA115D38A92D228E944E7A" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-29.0000, 10.0000, 9.0000)", "$b" : "0x0000E8C10000204100001041" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -2098,6 +2922,59 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x6136472484862C6BFE5737CABE8EEA82" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x4F0F44782C4CB0750ADB75C6DE108C8C" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-28.0000, -7.3750, 5.0000)", "$b" : "0x0000E0C10000ECC00000A040" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000F304353FF304353F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xAB7AA9008F54456B2B8C16234A317960" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x9D7B7BDFEAF2E27749A99AD421AD9320" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(1.5000, -0.5000, 0.0000)", "$b" : "0x0000C03F000000BF00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x9BDB5DDA451BB96B2AC0A1CC9B7EF239" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xFE90036BFCF4716C54FCED9719A0E9CF" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xDE16ED55A11E1D623B8CED02F56D9670" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(2.0000, 0.0000, 0.0000)", "$b" : "0x000000400000000000000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x68A32BB49C7E916C197CF7F0F50D8EC5" },
    "t" : "ezGameObject",
    "p" : {
@@ -2121,11 +2998,50 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xB3BE0625776BD96D67C0CA157220888D" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x9344F00F1C9584634E50CA804DEE342E" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-25.0000, 14.0000, 9.0000)", "$b" : "0x0000C8C10000604100001041" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x00773CDAC718266E4D0758CFB6E81375" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xD565A62F3B4DB66ED38D855EACBAAFC5" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xAF9CE783CDB6C36E5143BBF52EC67795" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
     "Active" : true,
     "Prefab" : "{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x890D5D230DD2096F3D327FB529F99504" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
    }
   },
   {
@@ -2149,6 +3065,90 @@
    "p" : {
     "Active" : true,
     "Prefab" : "{ 94ac1de9-5cbe-4581-a57c-7caf78ab7294 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x4F0F44782C4CB0750ADB75C6DE108C8C" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 3ebe2790-7cc4-40c8-bde6-e760b96b2636 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x9D7B7BDFEAF2E27749A99AD421AD9320" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE4A38313F5448478C399E91CEE178F3C" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xF5DFBC4496230B79ECFD85F3D0EC0225" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xD565A62F3B4DB66ED38D855EACBAAFC5" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-29.0000, 26.0000, 9.0000)", "$b" : "0x0000E8C10000D04100001041" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x041E9A28501BD982DC09EAB1124AE29B" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xE4A38313F5448478C399E91CEE178F3C" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-25.0000, 30.0000, 9.0000)", "$b" : "0x0000C8C10000F04100001041" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x8286CF636AD99083BAB4584FF608DB6F" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x7487A142C6772E90D8D1DC00CE84F52F" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(1.5000, 1.5000, 0.0000)", "$b" : "0x0000C03F0000C03F00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x2B24B1C32EE2A283F8EBD113E03BF741" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x1D2583A28A804090160956C5B7B71102" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-1.5000, 0.5000, 0.0000)", "$b" : "0x0000C0BF0000003F00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
    }
   },
   {
@@ -2211,7 +3211,22 @@
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x6789C37E33C11F8E6757ED17EF583A18" } ],
     "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, -20.0000, -4.0000)", "$b" : "0x000000000000A0C1000080C0" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, -20.0000, -4.0000)", "$b" : "0x0000003F0000A0C1000080C0" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x8CB586FE2F46D78650F15FD8A5F5465F" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x7EB658DD8BE474936E0EE4897D71611F" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-1.5000, -1.5000, 0.0000)", "$b" : "0x0000C0BF0000C0BF00000000" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -2225,7 +3240,8 @@
    "p" : {
     "Active" : true,
     "Effect" : "{ 8db56ec7-1f24-497b-9541-5ff5e1e65a9a }",
-    "Random Seed" : { "$t" : "uint64", "$v" : "1", "$b" : "0x0100000000000000" }
+    "Random Seed" : { "$t" : "uint64", "$v" : "1", "$b" : "0x0100000000000000" },
+    "Shared Instance Name" : ""
    }
   },
   {
@@ -2289,7 +3305,7 @@
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x1AC3BA85A8C93B905BCEFE6394505DE8" } ],
     "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 4.0000, -4.0000)", "$b" : "0x0000000000008040000080C0" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, 4.0000, -4.0000)", "$b" : "0x0000003F00008040000080C0" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -2301,7 +3317,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x72A5F07493B59188324524DC603A1BD4" },
    "t" : "ezGameObject",
    "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x6DFF8B605C0945882C95C44E7A79D974" }, { "$t" : "uuid", "$b" : "0x83BCA776030D59C9D893ADA435F9E013" }, { "$t" : "uuid", "$b" : "0xBC0B00C44D7BAC0E80A044B41DF0F748" }, { "$t" : "uuid", "$b" : "0xBEC75A4A18DB48523E8DE007A88B8FE8" }, { "$t" : "uuid", "$b" : "0x850213E16987DC5120163F567E6722B8" }, { "$t" : "uuid", "$b" : "0x87BE6D6734E77895DE02DBA90803BA57" }, { "$t" : "uuid", "$b" : "0x36F69E7D781575CBCC0ABFF0DAF003E4" }, { "$t" : "uuid", "$b" : "0x4CB3BA931F19890C7809A84696700B83" }, { "$t" : "uuid", "$b" : "0x1F357E11791D7F53053D1BF6405315EE" }, { "$t" : "uuid", "$b" : "0x8F8DC341A77FA2550DD4B763C8D201B4" }, { "$t" : "uuid", "$b" : "0x5884D65EC38BD298AD49B205294A2C23" }, { "$t" : "uuid", "$b" : "0x91491EC871DF3E99CBC053B7526E9953" }, { "$t" : "uuid", "$b" : "0x40814FDEB50D3BCFB9C837FE245CE3DF" }, { "$t" : "uuid", "$b" : "0x5A4031E58DEB6EDC6B364E59B3E5C3C2" }, { "$t" : "uuid", "$b" : "0x563E6BF45C114F1065C72054E0DBEA7E" }, { "$t" : "uuid", "$b" : "0x097862FBD1196B12593E32A085D30D4F" } ],
+    "Children" : [ { "$t" : "uuid", "$b" : "0x6DFF8B605C0945882C95C44E7A79D974" }, { "$t" : "uuid", "$b" : "0x83BCA776030D59C9D893ADA435F9E013" }, { "$t" : "uuid", "$b" : "0xBC0B00C44D7BAC0E80A044B41DF0F748" }, { "$t" : "uuid", "$b" : "0xBEC75A4A18DB48523E8DE007A88B8FE8" }, { "$t" : "uuid", "$b" : "0x850213E16987DC5120163F567E6722B8" }, { "$t" : "uuid", "$b" : "0x87BE6D6734E77895DE02DBA90803BA57" }, { "$t" : "uuid", "$b" : "0x36F69E7D781575CBCC0ABFF0DAF003E4" }, { "$t" : "uuid", "$b" : "0x4CB3BA931F19890C7809A84696700B83" }, { "$t" : "uuid", "$b" : "0x1F357E11791D7F53053D1BF6405315EE" }, { "$t" : "uuid", "$b" : "0x8F8DC341A77FA2550DD4B763C8D201B4" }, { "$t" : "uuid", "$b" : "0x5884D65EC38BD298AD49B205294A2C23" }, { "$t" : "uuid", "$b" : "0x91491EC871DF3E99CBC053B7526E9953" }, { "$t" : "uuid", "$b" : "0x40814FDEB50D3BCFB9C837FE245CE3DF" }, { "$t" : "uuid", "$b" : "0x5A4031E58DEB6EDC6B364E59B3E5C3C2" }, { "$t" : "uuid", "$b" : "0x563E6BF45C114F1065C72054E0DBEA7E" }, { "$t" : "uuid", "$b" : "0x097862FBD1196B12593E32A085D30D4F" }, { "$t" : "uuid", "$b" : "0xAAC16ABEDF766B0A7CD6B1E8DFB788AD" }, { "$t" : "uuid", "$b" : "0x955A799AC449524F37C869F97369D516" } ],
     "Components" : [  ],
     "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 31.5000, 0.0000)", "$b" : "0x000000000000FC4100000000" },
@@ -2394,7 +3410,8 @@
    "p" : {
     "Active" : true,
     "Effect" : "{ b7491649-7988-4bea-b145-6550ab951811 }",
-    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" }
+    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" },
+    "Shared Instance Name" : ""
    }
   },
   {
@@ -2422,13 +3439,28 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x064184C8D1F22C8CD137175327A1994F" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xF84156A72D91CA98EF549B04FF1CB40F" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-1.5000, 1.5000, 0.0000)", "$b" : "0x0000C0BF0000C03F00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x439FDE74B0D32D8C12B8A8F8BADCB50C" },
    "t" : "ezGameObject",
    "p" : {
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x244E6BE6E5C10194488C7771DEBB3CE4" } ],
     "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, -28.0000, 4.0000)", "$b" : "0x000000000000E0C100008040" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, -28.0000, 4.0000)", "$b" : "0x0000003F0000E0C100008040" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -2489,6 +3521,21 @@
     "Components" : [ { "$t" : "uuid", "$b" : "0x0AF6778EF32D4D8B44548E9A8E945A89" } ],
     "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(1.5000, 2.0000, 6.2500)", "$b" : "0x0000C03F000000400000C840" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xF1460F008D52F38D3B443E1354A48753" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xE347E1DEE8F0909A5961C2C42B20A213" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-0.5000, -1.5000, 0.0000)", "$b" : "0x000000BF0000C0BF00000000" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -2636,11 +3683,27 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x7487A142C6772E90D8D1DC00CE84F52F" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x1AC3BA85A8C93B905BCEFE6394505DE8" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
     "Active" : true,
     "Prefab" : "{ 124837c3-3748-46bd-bd34-c38be3cdcf7c }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x1D2583A28A804090160956C5B7B71102" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
    }
   },
   {
@@ -2781,6 +3844,14 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x7EB658DD8BE474936E0EE4897D71611F" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x244E6BE6E5C10194488C7771DEBB3CE4" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
@@ -2804,6 +3875,21 @@
     "Components" : [ { "$t" : "uuid", "$b" : "0x7F6BDDCAD1519D9C3BD7DB0E47F9E621" } ],
     "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, -28.0000, -4.0000)", "$b" : "0x000000000000E0C1000080C0" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xB42D92B5833CDE9431453A4CE9528E94" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0x064184C8D1F22C8CD137175327A1994F" }, { "$t" : "uuid", "$b" : "0xD77857F2C21B3A3F5063EDD74E47F45B" }, { "$t" : "uuid", "$b" : "0x8E8F1BE95B96D1FD9B8A0A20C477B46E" }, { "$t" : "uuid", "$b" : "0xFCF572B286B47AD3EC368FD00B5E019C" }, { "$t" : "uuid", "$b" : "0x8CB586FE2F46D78650F15FD8A5F5465F" }, { "$t" : "uuid", "$b" : "0xEB05EE83707D76157178BD0982E8E246" }, { "$t" : "uuid", "$b" : "0x970C8B44B1336C621F15FB03527D7B44" }, { "$t" : "uuid", "$b" : "0xFF1249BCEF3B35F291574A988CBA3296" }, { "$t" : "uuid", "$b" : "0xB6290DB388B6CCB0DC7E67E001EBF2A8" }, { "$t" : "uuid", "$b" : "0x2EDB7592FE12283F122C74136514D889" }, { "$t" : "uuid", "$b" : "0xA9DA8BFBE97C1B5F0CA31D1BC402D879" }, { "$t" : "uuid", "$b" : "0xBACA102A00B41F1D8761EFE14D78F6CE" } ],
+    "Components" : [  ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(15.2500, 25.7500, 4.2500)", "$b" : "0x000074410000CE4100008840" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -2935,6 +4021,14 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xF84156A72D91CA98EF549B04FF1CB40F" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x5884D65EC38BD298AD49B205294A2C23" },
    "t" : "ezGameObject",
    "p" : {
@@ -2971,7 +4065,7 @@
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x3E0D4DEDBD9F35A1FAF98DCC6C451DC7" } ],
     "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 28.0000, 4.0000)", "$b" : "0x000000000000E04100008040" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, 28.0000, 4.0000)", "$b" : "0x0000003F0000E04100008040" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -2992,6 +4086,14 @@
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "",
     "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE347E1DEE8F0909A5961C2C42B20A213" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
    }
   },
   {
@@ -3141,6 +4243,29 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xFD85E5CC554384A3B42B025755F7DA5F" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xEF86B7ABB1E121B0D24886082D73F51F" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, 1.5000, 0.0000)", "$b" : "0x0000003F0000C03F00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x84A375BEC70507A502EA8016A19889EB" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x89419B5703E656A586B7FA4CD2EAB2F8" },
    "t" : "ezGameObject",
    "p" : {
@@ -3171,6 +4296,14 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x804ABD06AB32E7A5CC643A670F29FDF4" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x9FB62ABAA31C34A6051467A27A698383" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
@@ -3184,6 +4317,29 @@
    "p" : {
     "Active" : true,
     "Prefab" : "{ 124837c3-3748-46bd-bd34-c38be3cdcf7c }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xEBB7E4151DFAD4A6C79DDF3FE3717E2A" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xDDB8B6F4789872B3E5BA63F1BAED98EA" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(1.5000, -1.5000, 0.0000)", "$b" : "0x0000C03F0000C0BF00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3578C0C025A94EA7DF2817E567A99BB2" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"
    }
   },
   {
@@ -3211,6 +4367,21 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xF463E509F6D9ADACE064F9DAD400B94D" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xE664B7E851784BB9FE817D8CAC7CD30D" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(1.5000, 0.5000, 0.0000)", "$b" : "0x0000C03F0000003F00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x6AF027C938D42AADBC8BC9C5F5C939D0" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
@@ -3224,6 +4395,21 @@
    "p" : {
     "Active" : true,
     "Prefab" : "{ 124837c3-3748-46bd-bd34-c38be3cdcf7c }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x64639840BA20A7ADA912CAA25719F223" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x523C959462E62AB8B595089F779B932D" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-26.0000, -7.3750, 5.0000)", "$b" : "0x0000D0C10000ECC00000A040" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000F304353FF304353F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
    }
   },
   {
@@ -3242,11 +4428,79 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xA41D8CD322DC5BAF1B5A81ABC5CADC4A" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x84A375BEC70507A502EA8016A19889EB" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-25.0000, 18.0000, 9.0000)", "$b" : "0x0000C8C10000904100001041" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xEF86B7ABB1E121B0D24886082D73F51F" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA0C4D31B06093CB0E5D43AFC335B5054" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x804ABD06AB32E7A5CC643A670F29FDF4" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-2.0000, 0.0000, 0.0000)", "$b" : "0x000000C00000000000000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xB6290DB388B6CCB0DC7E67E001EBF2A8" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xA82ADF91E4546ABDFA9BEB91D9660D69" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(1.5000, -0.5000, 0.0000)", "$b" : "0x0000C03F000000BF00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x2825C787C40165B166C806187B4C41EC" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
     "Active" : true,
     "Prefab" : "{ 94ac1de9-5cbe-4581-a57c-7caf78ab7294 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x55F2D6D5807FA3B1F898177A8CDBEE11" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x3578C0C025A94EA7DF2817E567A99BB2" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-29.0000, 14.0000, 9.0000)", "$b" : "0x0000E8C10000604100001041" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
    }
   },
   {
@@ -3262,6 +4516,14 @@
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "",
     "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xDDB8B6F4789872B3E5BA63F1BAED98EA" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
    }
   },
   {
@@ -3296,6 +4558,37 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x523C959462E62AB8B595089F779B932D" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 3ebe2790-7cc4-40c8-bde6-e760b96b2636 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x83E0B73662344AB8EA97B9620CBE3A26" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x75E18915BED2E7C408B53D14E43955E6" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-1.5000, -0.5000, 0.0000)", "$b" : "0x0000C0BF000000BF00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE664B7E851784BB9FE817D8CAC7CD30D" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x35668FEA7F6264BAEB3EEDA16AA46122" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
@@ -3319,12 +4612,52 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x86D753C4FE584EBC5472368108D3F5C0" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA82ADF91E4546ABDFA9BEB91D9660D69" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x75E18915BED2E7C408B53D14E43955E6" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA6516AD9592FA3C66DE236162D054920" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x86D753C4FE584EBC5472368108D3F5C0" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-29.0000, 30.0000, 9.0000)", "$b" : "0x0000E8C10000F04100001041" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x09E9EB070E2AC9C7F4F6055A68948EAB" },
    "t" : "ezParticleComponent",
    "p" : {
     "Active" : true,
     "Effect" : "{ 8db56ec7-1f24-497b-9541-5ff5e1e65a9a }",
-    "Random Seed" : { "$t" : "uint64", "$v" : "1", "$b" : "0x0100000000000000" }
+    "Random Seed" : { "$t" : "uint64", "$v" : "1", "$b" : "0x0100000000000000" },
+    "Shared Instance Name" : ""
    }
   },
   {
@@ -3357,7 +4690,22 @@
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x3080D69B4FCD4FD107CDE7B94FD06487" } ],
     "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 12.0000, -4.0000)", "$b" : "0x0000000000004041000080C0" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, 12.0000, -4.0000)", "$b" : "0x0000003F00004041000080C0" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE060E0CF9B0C40CBF879441437EA4945" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xD261B2AEF7AADDD71697C8C50E666405" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-1.5000, -1.5000, 0.0000)", "$b" : "0x0000C0BF0000C0BF00000000" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -3387,7 +4735,7 @@
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0xA0D81BCC7D2F73D30F648427D74F514D" } ],
     "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, -12.0000, -4.0000)", "$b" : "0x00000000000040C1000080C0" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, -12.0000, -4.0000)", "$b" : "0x0000003F000040C1000080C0" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -3417,7 +4765,7 @@
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0x3A0B87FC8CC515D5F48A60C7993B4483" } ],
     "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, -20.0000, 4.0000)", "$b" : "0x000000000000A0C100008040" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, -20.0000, 4.0000)", "$b" : "0x0000003F0000A0C100008040" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -3485,7 +4833,22 @@
     "Children" : [  ],
     "Components" : [ { "$t" : "uuid", "$b" : "0xED447E0302CE31D7E80172133F336753" } ],
     "GlobalKey" : "",
-    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 4.0000, 4.0000)", "$b" : "0x000000000000804000008040" },
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, 4.0000, 4.0000)", "$b" : "0x0000003F0000804000008040" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE0568AD1761BEFCFC0856C4CCA2E69FE" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xD2575CB0D2B98CDCDEA2F0FDA1AA83BE" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.5000, -1.5000, 0.0000)", "$b" : "0x0000003F0000C0BF00000000" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -3514,6 +4877,21 @@
    "p" : {
     "Active" : true,
     "Prefab" : "{ 94ac1de9-5cbe-4581-a57c-7caf78ab7294 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x5AECDD993DB995D079C0FB8EB8959C35" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x4CEDAF78995733DD97DD7F409011B7F5" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-1.5000, 1.5000, 0.0000)", "$b" : "0x0000C0BF0000C03F00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
    }
   },
   {
@@ -3610,6 +4988,21 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xFCF572B286B47AD3EC368FD00B5E019C" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xEEF64491E25218E00A541382E3D91B5C" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-0.5000, -1.5000, 0.0000)", "$b" : "0x000000BF0000C0BF00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xA6783766D279F2D306F019A337A51E97" },
    "t" : "ezGameObject",
    "p" : {
@@ -3653,7 +5046,8 @@
    "p" : {
     "Active" : true,
     "Effect" : "{ b7491649-7988-4bea-b145-6550ab951811 }",
-    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" }
+    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" },
+    "Shared Instance Name" : ""
    }
   },
   {
@@ -3809,6 +5203,29 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xAF1BAD77065298D7D66E9E2496BE7C86" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xA11C7F5662F035E4F48B22D66D3A9746" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-0.5000, 1.5000, 0.0000)", "$b" : "0x000000BF0000C03F00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xD261B2AEF7AADDD71697C8C50E666405" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x67B36376B86FF9D7A578073884918AB9" },
    "t" : "ezGameObject",
    "p" : {
@@ -3871,6 +5288,21 @@
     "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(-23.0000, -7.5000, 0.0000)", "$b" : "0x0000B8C10000F0C000000000" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000F304353FF304353F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x08D9EB86EF0247D9D9CD1E887A47917A" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0x5AECDD993DB995D079C0FB8EB8959C35" }, { "$t" : "uuid", "$b" : "0x2B24B1C32EE2A283F8EBD113E03BF741" }, { "$t" : "uuid", "$b" : "0xE23A75BAC75C3A424313EF5B556CB754" }, { "$t" : "uuid", "$b" : "0x50A1CC83F27AE31794BF730C9D520482" }, { "$t" : "uuid", "$b" : "0xE060E0CF9B0C40CBF879441437EA4945" }, { "$t" : "uuid", "$b" : "0x3FB14755DC43DF591901A24513DDE52C" }, { "$t" : "uuid", "$b" : "0xEBB7E4151DFAD4A6C79DDF3FE3717E2A" }, { "$t" : "uuid", "$b" : "0x53BEA28D5B029E3639E02ED41DAF357C" }, { "$t" : "uuid", "$b" : "0x0AD56684F47C35F584074C1C93DFF58E" }, { "$t" : "uuid", "$b" : "0x8286CF636AD99083BAB4584FF608DB6F" }, { "$t" : "uuid", "$b" : "0xFD85E5CC554384A3B42B025755F7DA5F" }, { "$t" : "uuid", "$b" : "0x0E766AFB6B7A88612FEAD31DDF6CF9B4" } ],
+    "Components" : [  ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(15.2500, 25.7500, 2.0000)", "$b" : "0x000074410000CE4100000040" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "",
@@ -3984,6 +5416,14 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xD2575CB0D2B98CDCDEA2F0FDA1AA83BE" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x87B3A339969E9CDC1193EC9A767B3A40" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
@@ -4012,6 +5452,14 @@
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "",
     "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x4CEDAF78995733DD97DD7F409011B7F5" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
    }
   },
   {
@@ -4062,6 +5510,14 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xEEF64491E25218E00A541382E3D91B5C" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xAA021F3415732EE0F6A886AA07B7A579" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
@@ -4109,6 +5565,14 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xA11C7F5662F035E4F48B22D66D3A9746" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x3BEFBD56C3D942E4A10A1DD2D6C44A9A" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
@@ -4147,11 +5611,27 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x0A934100243A76E6BE59EA3CEBFC8AC9" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x36244DA9597504E7CBC03AB6385EE1F4" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
     "Active" : true,
     "Prefab" : "{ 3ebe2790-7cc4-40c8-bde6-e760b96b2636 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x26D7456FD119D1E893C2CD7ABB53F06F" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"
    }
   },
   {
@@ -4202,6 +5682,96 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x2A0D58157F10CBF0D7C9EAD10F2FDE28" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x0A934100243A76E6BE59EA3CEBFC8AC9" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-25.0000, 22.0000, 9.0000)", "$b" : "0x0000C8C10000B04100001041" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xFF1249BCEF3B35F291574A988CBA3296" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xF1131B9B4BDAD2FEAF74CE4964364D56" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(1.5000, 0.5000, 0.0000)", "$b" : "0x0000C03F0000003F00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x46515C842CF025F3AC32CE0FE08543CF" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x26D7456FD119D1E893C2CD7ABB53F06F" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-29.0000, 18.0000, 9.0000)", "$b" : "0x0000E8C10000904100001041" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x0AD56684F47C35F584074C1C93DFF58E" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xFCD53863501BD301A224D0CD6A5B104F" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(1.5000, -0.5000, 0.0000)", "$b" : "0x0000C03F000000BF00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x232C12E004B1A0F961392356AD5A5E41" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x152DE4BE604F3E067F56A70785D67801" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(1.5000, 1.5000, 0.0000)", "$b" : "0x0000C03F0000C03F00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xCCC9F33FC9B9B2F99F709C1A978D7A13" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xBECAC51E25585006BD8D20CC6E0995D3" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-1.5000, 0.5000, 0.0000)", "$b" : "0x0000C0BF0000003F00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x2D64A44C0DACE1FBED6697AAB20ACE24" },
    "t" : "ezGameObject",
    "p" : {
@@ -4217,11 +5787,34 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x8E8F1BE95B96D1FD9B8A0A20C477B46E" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x8090EDC7B7346F0AB9A78ED19BF3CE2E" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-1.5000, -0.5000, 0.0000)", "$b" : "0x0000C0BF000000BF00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x6096AE170ED044FEF26E96A1526B369E" },
    "t" : "ezPrefabReferenceComponent",
    "p" : {
     "Active" : true,
     "Prefab" : "{ 94ac1de9-5cbe-4581-a57c-7caf78ab7294 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xF1131B9B4BDAD2FEAF74CE4964364D56" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ 27eef412-bd5d-424b-9d58-48725a829568 }"
    }
   } ],
  "Types" : [ {

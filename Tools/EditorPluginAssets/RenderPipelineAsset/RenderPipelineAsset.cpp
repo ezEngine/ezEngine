@@ -101,7 +101,7 @@ ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(const char* szDocum
 
 ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szPlatform, const ezAssetFileHeader& AssetHeader)
 {
-  ezUInt8 uiVersion = 1;
+  const ezUInt8 uiVersion = 1;
   stream << uiVersion;
 
   ezAbstractObjectGraph graph;

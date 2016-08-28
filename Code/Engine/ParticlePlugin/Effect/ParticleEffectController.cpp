@@ -3,6 +3,7 @@
 
 ezParticleEffectController::ezParticleEffectController()
 {
+  m_uiInstanceIdentifier = 0xFFFFFFFF;
   m_pModule = nullptr;
   m_hEffect.Invalidate();
 }
@@ -35,17 +36,26 @@ ezParticleEffectInstance* ezParticleEffectController::GetInstance() const
   return pEffect;
 }
 
-void ezParticleEffectController::Create(const ezParticleEffectResourceHandle& hEffectResource, ezParticleWorldModule* pModule, ezUInt64 uiRandomSeed)
+void ezParticleEffectController::Create(const ezParticleEffectResourceHandle& hEffectResource, ezParticleWorldModule* pModule, ezUInt64 uiRandomSeed, const char* szSharedName, ezUInt32 uiInstanceIdentifier)
 {
-  Invalidate();
+  if (ezStringUtils::IsNullOrEmpty(szSharedName))
+    m_uiInstanceIdentifier = 0xFFFFFFFF;
+  else
+    m_uiInstanceIdentifier = uiInstanceIdentifier;
 
+  // first get the new effect, to potentially increase a refcount to the same effect instance, before we decrease the refcount of our current one
+  ezParticleEffectHandle hNewEffect;
   if (pModule != nullptr && hEffectResource.IsValid())
   {
-    m_hEffect = pModule->CreateParticleEffectInstance(hEffectResource, uiRandomSeed);
+    hNewEffect = pModule->CreateParticleEffectInstance(hEffectResource, uiRandomSeed, szSharedName, m_uiInstanceIdentifier);
+  }
+
+  Invalidate();
+
+  m_hEffect = hNewEffect;
 
     if (!m_hEffect.IsInvalidated())
       m_pModule = pModule;
-  }
 }
 
 bool ezParticleEffectController::IsValid() const
@@ -63,9 +73,10 @@ void ezParticleEffectController::SetTransform(const ezTransform& t) const
 {
   ezParticleEffectInstance* pEffect = GetInstance();
 
+  // shared effects are always simulated at the origin
   if (pEffect)
   {
-    pEffect->SetTransform(t);
+    pEffect->SetTransform(m_uiInstanceIdentifier, t);
   }
 }
 
@@ -83,7 +94,7 @@ void ezParticleEffectController::StopImmediate()
 {
   if (m_pModule)
   {
-    m_pModule->DestroyParticleEffectInstance(m_hEffect, true);
+    m_pModule->DestroyParticleEffectInstance(m_hEffect, true, m_uiInstanceIdentifier);
 
     m_pModule = nullptr;
     m_hEffect.Invalidate();
@@ -94,7 +105,7 @@ void ezParticleEffectController::Invalidate()
 {
   if (m_pModule)
   {
-    m_pModule->DestroyParticleEffectInstance(m_hEffect, false);
+    m_pModule->DestroyParticleEffectInstance(m_hEffect, false, m_uiInstanceIdentifier);
 
     m_pModule = nullptr;
     m_hEffect.Invalidate();

@@ -35,7 +35,7 @@ Menu.ProjectSettings;Project Settings
 Menu.EditorSettings;Editor Settings
 View.RenderMode;Render Mode
 View.RenderPerspective;Perspective
-View.View.CameraUsageHint;Camera Usage Hint
+View.CameraUsageHint;Camera Usage Hint
 View.RenderPipeline;Render Pipeline
 Asset.Transform;Transform Asset;Transform: Creates the runtime data for this asset
 Asset.TransformAll;Transform All Assets;Transform All: Runs asset transformation on all modified assets
@@ -106,3 +106,5 @@ ezInputMessageGranularity::PressAndRelease;Key Pressed and Released
 ezInputMessageGranularity::PressReleaseAndDown;Key Pressed, Released and Down
 ezInputMessageGranularity::PressReleaseDownAndUp;All, even Key Up
 ezComponent;Component
+Animation;Animation
+FX;FX

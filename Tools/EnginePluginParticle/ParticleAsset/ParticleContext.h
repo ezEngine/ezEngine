@@ -25,6 +25,7 @@ protected:
   virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext) override;
 
   void RestartEffect();
+  void SetAutoRestartEffect(bool loop);
 
 private:
   ezParticleEffectResourceHandle m_hParticle;

@@ -151,7 +151,7 @@ void ezConsole::EnableLogOutput(bool bEnable)
 
 void ezConsole::SaveState(ezStreamWriter& Stream) const
 {
-  ezUInt8 uiVersion = 1;
+  const ezUInt8 uiVersion = 1;
   Stream << uiVersion;
 
   Stream << m_InputHistory.GetCount();

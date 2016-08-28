@@ -24,6 +24,7 @@ void ezParticleEffectInstance::Clear()
 
   m_Transform.SetIdentity();
   m_bEmitterEnabled = true;
+  m_bIsShared = false;
   m_pWorld = nullptr;
   m_hResource.Invalidate();
   m_hHandle.Invalidate();
@@ -84,20 +85,61 @@ void ezParticleEffectInstance::ClearParticleSystems()
   m_ParticleSystems.Clear();
 }
 
-void ezParticleEffectInstance::Configure(const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld, ezUInt64 uiRandomSeed)
+void ezParticleEffectInstance::Configure(const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld, ezUInt64 uiRandomSeed, bool bIsShared)
 {
   m_pWorld = pWorld;
   m_hResource = hResource;
+  m_bIsShared = bIsShared;
 
-  Reconfigure(uiRandomSeed);
+  Reconfigure(uiRandomSeed, true);
 }
 
 
-void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed)
+void ezParticleEffectInstance::PreSimulate()
+{
+  // Pre-simulate the effect, if desired, to get it into a 'good looking' state
+
+  {
+    ezTime tDiff = ezTime::Seconds(0.5);
+    while (m_PreSimulateDuration.GetSeconds() > 5.0)
+    {
+      Update(tDiff);
+      m_PreSimulateDuration -= tDiff;
+    }
+  }
+
+  {
+    ezTime tDiff = ezTime::Seconds(0.2);
+    while (m_PreSimulateDuration.GetSeconds() > 1.0)
+    {
+      Update(tDiff);
+      m_PreSimulateDuration -= tDiff;
+    }
+  }
+
+  {
+    ezTime tDiff = ezTime::Seconds(0.1);
+    while (m_PreSimulateDuration.GetSeconds() >= 0.1)
+    {
+      Update(tDiff);
+      m_PreSimulateDuration -= tDiff;
+    }
+  }
+}
+
+void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTime)
 {
   ezResourceLock<ezParticleEffectResource> pResource(m_hResource, ezResourceAcquireMode::NoFallback);
 
-  const auto& systems = pResource->GetDescriptor().m_Effect.GetParticleSystems();
+  const auto& desc = pResource->GetDescriptor().m_Effect;
+  const auto& systems = desc.GetParticleSystems();
+
+  m_bSimulateInLocalSpace = desc.m_bSimulateInLocalSpace;
+
+  if (bFirstTime)
+  {
+    m_PreSimulateDuration = desc.m_PreSimulateDuration;
+  }
 
   // TODO Check max number of particles etc. to reset
 
@@ -142,19 +184,6 @@ void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed)
   }
 }
 
-void ezParticleEffectInstance::SetTransform(const ezTransform& transform)
-{
-  m_Transform = transform;
-
-  for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
-  {
-    if (m_ParticleSystems[i] != nullptr)
-    {
-      m_ParticleSystems[i]->SetTransform(m_Transform);
-    }
-  }
-}
-
 bool ezParticleEffectInstance::Update(const ezTime& tDiff)
 {
   bool bAnyActive = false;
@@ -173,4 +202,75 @@ bool ezParticleEffectInstance::Update(const ezTime& tDiff)
   }
 
   return bAnyActive;
+}
+
+void ezParticleEffectInstance::SetTransform(ezUInt32 uiSharedInstanceIdentifier, const ezTransform& transform)
+{
+  if (uiSharedInstanceIdentifier == 0xFFFFFFFF)
+  {
+    m_Transform = transform;
+
+    if (!m_bSimulateInLocalSpace)
+    {
+      for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+      {
+        if (m_ParticleSystems[i] != nullptr)
+        {
+          m_ParticleSystems[i]->SetTransform(m_Transform);
+        }
+      }
+    }
+
+    return;
+  }
+
+  for (auto& info : m_SharedInstances)
+  {
+    if (info.m_uiIdentifier == uiSharedInstanceIdentifier)
+    {
+      info.m_Transform = transform;
+      return;
+    }
+  }
+}
+
+const ezTransform& ezParticleEffectInstance::GetTransform(ezUInt32 uiSharedInstanceIdentifier) const
+{
+  if (uiSharedInstanceIdentifier == 0xFFFFFFFF)
+    return m_Transform;
+
+  for (auto& info : m_SharedInstances)
+  {
+    if (info.m_uiIdentifier == uiSharedInstanceIdentifier)
+    {
+      return info.m_Transform;
+    }
+  }
+
+  return m_Transform;
+}
+
+void ezParticleEffectInstance::AddSharedInstance(ezUInt32 uiSharedInstanceIdentifier)
+{
+  for (auto& info : m_SharedInstances)
+  {
+    if (info.m_uiIdentifier == uiSharedInstanceIdentifier)
+      return;
+  }
+
+  auto& info = m_SharedInstances.ExpandAndGetRef();
+  info.m_uiIdentifier = uiSharedInstanceIdentifier;
+  info.m_Transform.SetIdentity();
+}
+
+void ezParticleEffectInstance::RemoveSharedInstance(ezUInt32 uiSharedInstanceIdentifier)
+{
+  for (ezUInt32 i = 0; i < m_SharedInstances.GetCount(); ++i)
+  {
+    if (m_SharedInstances[i].m_uiIdentifier == uiSharedInstanceIdentifier)
+    {
+      m_SharedInstances.RemoveAtSwap(i);
+      return;
+    }
+  }
 }

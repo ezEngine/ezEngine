@@ -1,0 +1,33 @@
+PFX.Restart;Restart
+PFX.AutoRestart;Loop
+PFX.Simulation.Speed.Menu;Simulation Speed
+PFX.Simulation.Speed.01;10%
+PFX.Simulation.Speed.025;25%
+PFX.Simulation.Speed.05;50%
+PFX.Simulation.Speed.1;100%
+PFX.Simulation.Speed.15;150%
+PFX.Simulation.Speed.2;200%
+PFX.Simulation.Speed.3;300%
+PFX.Simulation.Speed.4;400%
+PFX.Simulation.Speed.5;500%
+PFX.Simulation.Speed.10;1000%
+Particle Systems;Particle Systems
+ezParticleSystemDescriptor;Particle System
+Emitters;Emitters
+Initializers;Initializers
+Behaviors;Behaviors
+ezParticleBehaviorFactory_Age;Age
+ezParticleBehaviorFactory_ColorGradient;Color Gradient
+ezParticleBehaviorFactory_Velocity;Velocity
+ezParticleBehaviorFactory_Gravity;Gravity
+ezParticleBehaviorFactory_Raycast;Raycast
+ezParticleEmitterFactory_Continuous;Continuous
+ezParticleInitializerFactory_Life;Life
+ezParticleInitializerFactory_VelocityCone;Velocity Cone
+ezParticleComponent;Particle
+ezParticleInitializerFactory_BoxPosition;Box Position
+ezParticleInitializerFactory_CylinderPosition;Cylinder Position
+ezParticleInitializerFactory_RandomColor;Random Color
+ezParticleInitializerFactory_RandomSize;RandomS ize
+ezParticleInitializerFactory_SpherePosition;Sphere Position
+ezParticleBehaviorFactory_SizeCurve;Size Curve

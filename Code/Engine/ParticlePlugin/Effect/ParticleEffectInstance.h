@@ -24,6 +24,13 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleEffectInstance
   friend class ezParticleWorldModule;
 
 public:
+  struct SharedInstance
+  {
+    ezUInt32 m_uiIdentifier;
+    ezTransform m_Transform;
+  };
+
+public:
   ezParticleEffectInstance();
   ~ezParticleEffectInstance();
 
@@ -40,10 +47,10 @@ public:
 
   void ClearParticleSystems();
 
-  void Configure(const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld, ezUInt64 uiRandomSeed);
+  void Configure(const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld, ezUInt64 uiRandomSeed, bool bIsShared);
 
-  void SetTransform(const ezTransform& transform);
-  const ezTransform& GetTransform() const { return m_Transform; }
+  void PreSimulate();
+
 
   /// \brief Returns false when the effect is finished
   bool Update(const ezTime& tDiff);
@@ -54,13 +61,29 @@ public:
 
   const ezHybridArray<ezParticleSystemInstance*, 4>& GetParticleSystems() const { return m_ParticleSystems; }
 
+  bool IsSharedEffect() const { return m_bIsShared; }
+  bool IsSimulatedInLocalSpace() const { return m_bSimulateInLocalSpace; }
+
+  void AddSharedInstance(ezUInt32 uiSharedInstanceIdentifier);
+  void RemoveSharedInstance(ezUInt32 uiSharedInstanceIdentifier);
+  void SetTransform(ezUInt32 uiSharedInstanceIdentifier, const ezTransform& transform);
+  const ezTransform& GetTransform(ezUInt32 uiSharedInstanceIdentifier) const;
+
+
+  const ezDynamicArray<SharedInstance>& GetAllSharedInstances() const { return m_SharedInstances; }
+
 private:
-  void Reconfigure(ezUInt64 uiRandomSeed);
+  void Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTime);
   void ClearParticleSystem(ezUInt32 index);
 
+  ezDynamicArray<SharedInstance> m_SharedInstances;
   ezParticleEffectHandle m_hHandle;
+  bool m_bIsShared;
   bool m_bEmitterEnabled;
+  bool m_bSimulateInLocalSpace;
+  ezTime m_PreSimulateDuration;
   ezParticleEffectResourceHandle m_hResource;
+
 
   ezWorld* m_pWorld;
   ezTransform m_Transform;

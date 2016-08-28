@@ -33,6 +33,7 @@ public:
   const ezHybridArray<ezParticleBehaviorFactory*, 8>& GetBehaviorFactories() const { return m_BehaviorFactories; }
 
   ezUInt32 m_uiMaxParticles;
+  bool m_bVisible;
 
   //////////////////////////////////////////////////////////////////////////
 

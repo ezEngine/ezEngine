@@ -14,6 +14,8 @@ public:
 
   mutable ezMutex m_Mutex;
 
+  bool IsVisible() const { return m_bVisible; }
+
   void SetEmitterEnabled(bool enable) { m_bEmitterEnabled = enable; }
   bool GetEmitterEnabled() const { return m_bEmitterEnabled; }
 
@@ -51,6 +53,7 @@ private:
   ezHybridArray<ezParticleInitializer*, 2> m_Initializers;
   ezHybridArray<ezParticleBehavior*, 8> m_Behaviors;
 
+  bool m_bVisible; // typically used in editor to hide a system
   bool m_bEmitterEnabled;
   ezWorld* m_pWorld;
   ezTransform m_Transform;

@@ -22,6 +22,10 @@ public:
 
   void ClearSystems();
 
+  bool m_bSimulateInLocalSpace;
+  //bool m_bSimulateWhenNotVisible;
+  ezTime m_PreSimulateDuration;
+
 private:
   ezHybridArray<ezParticleSystemDescriptor*, 4> m_ParticleSystems;
 };

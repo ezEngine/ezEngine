@@ -8,6 +8,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectDescriptor, 1, ezRTTIDefaultAllo
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_MEMBER_PROPERTY("Simulate In Local Space", m_bSimulateInLocalSpace),
+    EZ_MEMBER_PROPERTY("PreSimulate Duration", m_PreSimulateDuration),
     EZ_SET_ACCESSOR_PROPERTY("Particle Systems", GetParticleSystems, AddParticleSystem, RemoveParticleSystem)->AddFlags(ezPropertyFlags::PointerOwner),
   }
   EZ_END_PROPERTIES
@@ -16,7 +18,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezParticleEffectDescriptor::ezParticleEffectDescriptor()
 {
+  m_bSimulateInLocalSpace = false;
+  m_PreSimulateDuration.SetZero();
 }
+
 
 ezParticleEffectDescriptor::~ezParticleEffectDescriptor()
 {
@@ -33,9 +38,21 @@ void ezParticleEffectDescriptor::ClearSystems()
   m_ParticleSystems.Clear();
 }
 
+enum ParticleEffectVersion
+{
+  Version_0 = 0,
+  Version_1,
+  Version_2,
+  Version_3,
+
+  // insert new version numbers above
+  Version_Count,
+  Version_Current = Version_Count - 1
+};
+
 void ezParticleEffectDescriptor::Save(ezStreamWriter& stream) const
 {
-  ezUInt8 uiVersion = 2;
+  const ezUInt8 uiVersion = ParticleEffectVersion::Version_Current;
 
   stream << uiVersion;
 
@@ -45,6 +62,10 @@ void ezParticleEffectDescriptor::Save(ezStreamWriter& stream) const
 
   ezResourceHandleWriteContext context;
   context.BeginWritingToStream(&stream);
+
+  // Version 3
+  stream << m_bSimulateInLocalSpace;
+  stream << m_PreSimulateDuration;
 
   for (auto pSystem : m_ParticleSystems)
   {
@@ -63,7 +84,7 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
 
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion <= 2, "Unknown particle effect template version %u", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= ParticleEffectVersion::Version_Current, "Unknown particle effect template version %u", uiVersion);
 
   if (uiVersion == 1)
   {
@@ -77,6 +98,12 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
   ezResourceHandleReadContext context;
   context.BeginReadingFromStream(&stream);
   context.BeginRestoringHandles(&stream);
+
+  if (uiVersion >= 3)
+  {
+    stream >> m_bSimulateInLocalSpace;
+    stream >> m_PreSimulateDuration;
+  }
 
   m_ParticleSystems.SetCountUninitialized(uiNumSystems);
 

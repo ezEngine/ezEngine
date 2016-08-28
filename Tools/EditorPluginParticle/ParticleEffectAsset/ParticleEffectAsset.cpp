@@ -6,12 +6,14 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocument, 2, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezParticleEffectAssetDocument::ezParticleEffectAssetDocument(const char* szDocumentPath) 
   : ezSimpleAssetDocument<ezParticleEffectDescriptor>(szDocumentPath, true)
 {
+  m_bAutoRestart = true;
+  m_fSimulationSpeed = 1.0f;
 }
 
 ezStatus ezParticleEffectAssetDocument::WriteParticleEffectAsset(ezStreamWriter& stream, const char* szPlatform) const
@@ -27,7 +29,38 @@ ezStatus ezParticleEffectAssetDocument::WriteParticleEffectAsset(ezStreamWriter&
 void ezParticleEffectAssetDocument::TriggerRestartEffect()
 {
   ezParticleEffectAssetEvent e;
+  e.m_pDocument = this;
   e.m_Type = ezParticleEffectAssetEvent::RestartEffect;
+
+  m_Events.Broadcast(e);
+}
+
+
+void ezParticleEffectAssetDocument::SetAutoRestart(bool enable)
+{
+  if (m_bAutoRestart == enable)
+    return;
+
+  m_bAutoRestart = enable;
+
+  ezParticleEffectAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezParticleEffectAssetEvent::AutoRestartChanged;
+
+  m_Events.Broadcast(e);
+}
+
+
+void ezParticleEffectAssetDocument::SetSimulationSpeed(float speed)
+{
+  if (m_fSimulationSpeed == speed)
+    return;
+
+  m_fSimulationSpeed = speed;
+
+  ezParticleEffectAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezParticleEffectAssetEvent::SimulationSpeedChanged;
 
   m_Events.Broadcast(e);
 }

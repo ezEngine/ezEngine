@@ -158,8 +158,15 @@ void ezParticleEffectAssetDocumentWindow::ParticleEventHandler(const ezParticleE
     }
     break;
 
+  case ezParticleEffectAssetEvent::AutoRestartChanged:
+    {
+      ezEditorEngineLoopAnimationMsg msg;
+      msg.m_bLoop = GetParticleDocument()->GetAutoRestart();
+      GetEditorEngineConnection()->SendMessage(&msg);
+    }
+    break;
+
   default:
-    EZ_ASSERT_NOT_IMPLEMENTED;
     break;
   }
 }
@@ -183,15 +190,13 @@ void ezParticleEffectAssetDocumentWindow::SendRedrawMsg()
   {
     ezSceneSettingsMsgToEngine msg;
     msg.m_bSimulateWorld = true;
-    msg.m_fSimulationSpeed = 1.0f;
+    msg.m_fSimulationSpeed = GetParticleDocument()->GetSimulationSpeed();
     msg.m_fGizmoScale = 0.0f;
     msg.m_bRenderOverlay = false;
     msg.m_bRenderShapeIcons = false;
     msg.m_bRenderSelectionBoxes = false;
     GetEditorEngineConnection()->SendMessage(&msg);
   }
-
-  //auto pHoveredView = GetHoveredViewWidget();
 
   for (auto pView : m_ViewWidgets)
   {

@@ -29,7 +29,7 @@ void ezParticleBehaviorFactory_Raycast::CopyBehaviorProperties(ezParticleBehavio
 
 void ezParticleBehaviorFactory_Raycast::Save(ezStreamWriter& stream) const
 {
-  ezUInt8 uiVersion = 1;
+  const ezUInt8 uiVersion = 1;
   stream << uiVersion;
 }
 

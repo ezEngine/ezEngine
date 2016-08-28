@@ -24,21 +24,12 @@ ezRenderComponent::~ezRenderComponent()
 
 void ezRenderComponent::Initialize()
 {
-  if (IsActive())
-  {
-    GetOwner()->UpdateLocalBounds();
-  }
+  TriggerLocalBoundsUpdate(true);
 }
 
 void ezRenderComponent::OnBeforeDetachedFromObject()
 {
-  if (IsActive())
-  {
-    // temporary set to inactive so we don't receive the msg
-    SetActive(false);
-    GetOwner()->UpdateLocalBounds();
-    SetActive(true);
-  }
+  TriggerLocalBoundsUpdate(false);
 }
 
 void ezRenderComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg)
@@ -49,5 +40,23 @@ void ezRenderComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg)
   if (GetLocalBounds(bounds).Succeeded() && bounds.IsValid())
   {
     msg.m_ResultingLocalBounds.ExpandToInclude(bounds);
+  }
+}
+
+void ezRenderComponent::TriggerLocalBoundsUpdate(bool bIncludeOwnBounds)
+{
+  if (!IsActive())
+    return;
+
+  if (bIncludeOwnBounds)
+  {
+    GetOwner()->UpdateLocalBounds();
+  }
+  else
+  {
+    // temporary set to inactive so we don't receive the msg
+    SetActive(false);
+    GetOwner()->UpdateLocalBounds();
+    SetActive(true);
   }
 }

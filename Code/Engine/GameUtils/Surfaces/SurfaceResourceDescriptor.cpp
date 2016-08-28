@@ -94,7 +94,7 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
 
 void ezSurfaceResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  ezUInt8 uiVersion = 3;
+  const ezUInt8 uiVersion = 3;
 
   stream << uiVersion;
   stream << m_fPhysicsRestitution;

@@ -42,16 +42,15 @@ void ezAssetActions::MapActions(const char* szMapping, bool bDocument)
 
   if (bDocument)
   {
-    pMap->MapAction(s_hTransformAsset, "AssetCategory", 1.0f);
-    pMap->MapAction(s_hRetrieveAssetInfo, "AssetCategory", 2.0f);
+    pMap->MapAction(s_hRetrieveAssetInfo, "AssetCategory", 1.0f);
+    pMap->MapAction(s_hTransformAsset, "AssetCategory", 2.0f);
   }
   else
   {
-    pMap->MapAction(s_hTransformAllAssets, "AssetCategory", 1.0f);
+    pMap->MapAction(s_hCheckFileSystem, "AssetCategory", 0.0f);
+    pMap->MapAction(s_hTransformAllAssets, "AssetCategory", 3.0f);
+    //pMap->MapAction(s_hWriteLookupTable, "AssetCategory", 4.0f);
   }
-
-  pMap->MapAction(s_hCheckFileSystem, "AssetCategory", 3.0f);
-  //pMap->MapAction(s_hWriteLookupTable, "AssetCategory", 4.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////

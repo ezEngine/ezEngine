@@ -32,6 +32,16 @@ ezParticleContext::ezParticleContext()
 
 void ezParticleContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezSceneSettingsMsgToEngine>())
+  {
+    // this message comes exactly once per 'update', afterwards there will be 1 to n redraw messages
+
+    auto msg = static_cast<const ezSceneSettingsMsgToEngine*>(pMsg);
+
+    m_pWorld->GetClock().SetSpeed(msg->m_fSimulationSpeed);
+    return;
+  }
+
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineResourceUpdateMsg>())
   {
     const ezEditorEngineResourceUpdateMsg* pMsg2 = static_cast<const ezEditorEngineResourceUpdateMsg*>(pMsg);
@@ -58,6 +68,11 @@ void ezParticleContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     RestartEffect();
   }
 
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineLoopAnimationMsg>())
+  {
+    SetAutoRestartEffect(((const ezEditorEngineLoopAnimationMsg*)pMsg)->m_bLoop);
+  }
+
   ezEngineProcessDocumentContext::HandleMessage(pMsg);
 }
 
@@ -77,6 +92,8 @@ void ezParticleContext::OnInitialize()
     pWorld->CreateObject(obj, pObj);
 
     pCompMan->CreateComponent(m_pComponent);
+    m_pComponent->m_bAutoRestart = true;
+    m_pComponent->m_MinRestartDelay = ezTime::Seconds(0.5);
 
     ezString sParticleGuid = ezConversionUtils::ToString(GetDocumentGuid());
     m_hParticle = ezResourceManager::LoadResource<ezParticleEffectResource>(sParticleGuid);
@@ -111,11 +128,11 @@ bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* p
   m_pWorld->Update();
   m_pWorld->SetWorldSimulationEnabled(false);
 
-  if (m_pComponent && !m_pComponent->m_ParticleEffect.IsAlive())
+  if (m_pComponent && !m_pComponent->m_EffectController.IsAlive())
   {
     for (ezUInt32 i = 0; i < 15; ++i)
     {
-      m_pComponent->m_ParticleEffect.Tick(ezTime::Seconds(0.1));
+      m_pComponent->m_EffectController.Tick(ezTime::Seconds(0.1));
     }
   }
 
@@ -128,7 +145,17 @@ void ezParticleContext::RestartEffect()
 
   if (m_pComponent)
   {
-    m_pComponent->m_ParticleEffect.StopImmediate();
-    m_pComponent->m_ParticleEffect.Invalidate();
+    m_pComponent->InterruptEffect();
+    m_pComponent->SpawnEffect();
+  }
+}
+
+void ezParticleContext::SetAutoRestartEffect(bool loop)
+{
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  if (m_pComponent)
+  {
+    m_pComponent->m_bAutoRestart = loop;
   }
 }

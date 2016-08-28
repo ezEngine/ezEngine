@@ -39,7 +39,7 @@ void ezParticleBehaviorFactory_Gravity::CopyBehaviorProperties(ezParticleBehavio
 
 void ezParticleBehaviorFactory_Gravity::Save(ezStreamWriter& stream) const
 {
-  ezUInt8 uiVersion = 1;
+  const ezUInt8 uiVersion = 1;
   stream << uiVersion;
 
   stream << m_fGravityFactor;

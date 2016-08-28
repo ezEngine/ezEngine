@@ -65,7 +65,7 @@ void ezParticleRenderer::RenderBatch(const ezRenderViewContext& renderViewContex
 
     for (ezUInt64 i = 0; i < uiNumParticles; ++i)
     {
-      const ezVec3 vCenter = /*pRenderData->m_GlobalTransform **/ pPosition[i];
+      const ezVec3 vCenter = pRenderData->m_GlobalTransform * pPosition[i];
 
       ezColor col = ezColor::White;
       float size = 0.1f;

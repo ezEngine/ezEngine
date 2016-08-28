@@ -5,6 +5,7 @@
 #include <GuiFoundation/Action/BaseActions.h>
 
 class ezParticleEffectAssetDocument;
+struct ezParticleEffectAssetEvent;
 
 class ezParticleActions
 {
@@ -16,6 +17,9 @@ public:
 
   static ezActionDescriptorHandle s_hCategory;
   static ezActionDescriptorHandle s_hRestartEffect;
+  static ezActionDescriptorHandle s_hAutoRestart;
+  static ezActionDescriptorHandle s_hSimulationSpeedMenu;
+  static ezActionDescriptorHandle s_hSimulationSpeed[10];
 };
 
 class ezParticleAction : public ezButtonAction
@@ -27,16 +31,22 @@ public:
   enum class ActionType
   {
     RestartEffect,
+    AutoRestart,
+    SimulationSpeed,
   };
 
-  ezParticleAction(const ezActionContext& context, const char* szName, ActionType type);
+  ezParticleAction(const ezActionContext& context, const char* szName, ActionType type, float fSimSpeed = 1.0f);
   ~ezParticleAction();
 
   virtual void Execute(const ezVariant& value) override;
 
 private:
+  void EffectEventHandler(const ezParticleEffectAssetEvent& e);
+  void UpdateState();
+
   ezParticleEffectAssetDocument* m_pEffectDocument;
   ActionType m_Type;
+  float m_fSimSpeed;
 };
 
 

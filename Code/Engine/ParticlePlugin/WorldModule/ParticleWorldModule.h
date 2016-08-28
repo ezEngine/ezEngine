@@ -23,10 +23,11 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleWorldModule : public ezWorldModule
 
 public:
 
-  ezParticleEffectHandle CreateParticleEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed);
+
+  ezParticleEffectHandle CreateParticleEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const char* szSharedName /*= nullptr*/, ezUInt32 uiInstanceIdentifier /*= 0*/);
 
   /// \brief This does not actually the effect, it first stops it from emitting and destroys it once all particles have actually died of old age.
-  void DestroyParticleEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately);
+  void DestroyParticleEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately, ezUInt32 uiInstanceIdentifier);
 
   bool TryGetEffect(const ezParticleEffectHandle& hEffect, ezParticleEffectInstance*& out_pEffect);
 
@@ -40,10 +41,14 @@ private:
   void DestroyFinishedEffects();
   void ResourceEventHandler(const ezResourceEvent& e);
   void ReconfigureEffects();
+  ezParticleEffectHandle InternalCreateSharedInstance(const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, ezUInt32 uiInstanceIdentifier);
+  ezParticleEffectHandle InternalCreateInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, bool bIsShared);
 
   ezDeque<ezParticleEffectInstance*> m_ParticleEffects;
   ezDeque<ezParticleEffectInstance*> m_FinishingEffects;
   ezDeque<ezParticleEffectInstance*> m_EffectsToReconfigure;
+  ezMap<ezString, ezParticleEffectHandle> m_SharedEffects;
+  ezIdTable<ezParticleEffectId, ezParticleEffectInstance*> m_ActiveEffects;
 
 protected:
   virtual void InternalStartup() override;
@@ -52,6 +57,5 @@ protected:
   virtual void InternalUpdate() override;
   virtual void InternalReinit() override {}
 
-  ezIdTable<ezParticleEffectId, ezParticleEffectInstance*> m_ActiveEffects;
 };
 
