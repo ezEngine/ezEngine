@@ -128,6 +128,9 @@ const char* ezSpotLightComponent::GetProjectedTextureFile() const
 
 void ezSpotLightComponent::OnExtractRenderData( ezExtractRenderDataMessage& msg ) const
 {
+  if (msg.m_OverrideCategory != ezInvalidIndex)
+    return;
+
   ezUInt32 uiBatchId = m_bCastShadows ? 0 : 1;
 
   auto pRenderData = ezCreateRenderDataForThisFrame<ezSpotLightRenderData>(GetOwner(), uiBatchId);

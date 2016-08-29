@@ -43,6 +43,9 @@ ezResult ezDirectionalLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds
 
 void ezDirectionalLightComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 {
+  if (msg.m_OverrideCategory != ezInvalidIndex)
+    return;
+
   ezUInt32 uiBatchId = m_bCastShadows ? 0 : 1;
 
   auto pRenderData = ezCreateRenderDataForThisFrame<ezDirectionalLightRenderData>(GetOwner(), uiBatchId);

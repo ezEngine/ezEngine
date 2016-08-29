@@ -41,6 +41,18 @@ float3 FilmicTonemap(float3 x)
 	return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
 }
 
+float3 AdjustContrast(float3 x)
+{
+	float3 x2 = x*x;
+	float3 x3 = x2*x;
+	
+	float a = ContrastParams.x;
+	float b = ContrastParams.y;
+	float c = ContrastParams.z;
+	
+	return a*x3 + b*x2 + c*x;
+}
+
 Texture2D VignettingTexture;
 SamplerState VignettingTextureSampler;
 
@@ -83,8 +95,8 @@ float4 main(PS_IN Input) : SV_Target
 	moodColor = lerp(moodColor, 1.0, saturate(luminance - 0.5) * 2.0);
 	color = lerp(color, moodColor, saturate( luminance * MoodStrength ));
 	
-	color = lerp(luminance.xxx, color, Saturation);
-	color = pow(color, Contrast); // TODO proper contrast modification 
+	color = saturate(lerp(luminance.xxx, color, Saturation));
+	color = AdjustContrast(color);
 	
 	// Cheap approx convert to sRGB before dither
 	color = sqrt(color);

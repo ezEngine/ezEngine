@@ -16,9 +16,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTonemapPass, 1, ezRTTIDefaultAllocator<ezTonem
     EZ_MEMBER_PROPERTY("Output", m_PinOutput),
     EZ_ACCESSOR_PROPERTY("VignettingTexture", GetVignettingTextureFile, SetVignettingTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
     EZ_MEMBER_PROPERTY("MoodColor", m_MoodColor)->AddAttributes(new ezDefaultValueAttribute(ezColor::Orange)),
-    EZ_MEMBER_PROPERTY("MoodStrength", m_fMoodStrength),
-    EZ_MEMBER_PROPERTY("Saturation", m_fSaturation)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("Contrast", m_fContrast)->AddAttributes(new ezDefaultValueAttribute(1.0f))
+    EZ_MEMBER_PROPERTY("MoodStrength", m_fMoodStrength)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("Saturation", m_fSaturation)->AddAttributes(new ezClampValueAttribute(0.0f, 2.0f), new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("Contrast", m_fContrast)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f))
   }
   EZ_END_PROPERTIES
 }
@@ -109,7 +109,13 @@ void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const 
     constants->MoodColor = m_MoodColor;
     constants->MoodStrength = m_fMoodStrength;
     constants->Saturation = m_fSaturation;
-    constants->Contrast = m_fContrast;
+
+    // Pre-calculate factors of a s-shaped polynomial-function
+    const float m = (0.5f - 0.5f * m_fContrast) / (0.5f + 0.5f * m_fContrast);
+    const float a = 2.0f * m - 2.0f;
+    const float b = -3.0f * m + 3.0f;
+
+    constants->ContrastParams = ezVec4(a, b, m, 0.0f);
   }
 
   ezGALSamplerStateHandle hPointSamplerState = ezRenderContext::GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering);

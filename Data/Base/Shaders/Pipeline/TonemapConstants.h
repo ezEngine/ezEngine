@@ -11,6 +11,7 @@ CONSTANT_BUFFER(TonemapConstants, 3)
   COLOR(MoodColor);
   FLOAT1(MoodStrength);
   FLOAT1(Saturation);
-  FLOAT1(Contrast);
+  FLOAT2(Padding);
+  FLOAT4(ContrastParams);
 };
 

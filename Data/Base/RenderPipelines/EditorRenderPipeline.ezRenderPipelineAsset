@@ -217,7 +217,7 @@
    "t" : "ezTonemapPass",
    "p" : {
     "Active" : true,
-    "Contrast" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Contrast" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
     "Input" : { "$t" : "uuid", "$b" : "0xC52BFDC876049AE41856B3C58179BFC9" },
     "MoodColor" : { "$t" : "color", "$v" : "(1.0000, 0.3763, 0.0000, 1.0000)", "$b" : "0x0000803F71A5C03E000000000000803F" },
     "MoodStrength" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
@@ -253,7 +253,7 @@
     "AssetType" : "RenderPipeline",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x4D3C46DA84C91049B0B7A0B3891D0448" },
-    "Hash" : { "$t" : "uint64", "$v" : "10497322665230571268", "$b" : "0x0497B9C958FBAD91" },
+    "Hash" : { "$t" : "uint64", "$v" : "18083851323287758578", "$b" : "0xF2668B57F7BEF6FA" },
     "References" : [ "{ 3edf10b3-36d2-434f-9683-c653909abe7e }" ]
    }
   },
@@ -543,7 +543,7 @@
     "PluginName" : "ezEnginePluginScene",
     "Properties" : [ { "$t" : "uuid", "$b" : "0x4F8038A9ED1F4303F31177F3958685E7" } ],
     "TypeName" : "ezSceneContext",
-    "TypeSize" : { "$t" : "uint32", "$v" : "1336", "$b" : "0x38050000" },
+    "TypeSize" : { "$t" : "uint32", "$v" : "1344", "$b" : "0x40050000" },
     "TypeVersion" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
    }
   },
