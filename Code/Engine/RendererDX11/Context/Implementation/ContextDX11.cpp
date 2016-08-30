@@ -40,11 +40,13 @@ ezGALContextDX11::ezGALContextDX11(ezGALDevice* pDevice, ID3D11DeviceContext* pD
     m_VertexBufferOffsets[i] = 0;
     m_VertexBufferStrides[i] = 0;
   }
+  m_BoundVertexBuffersRange.Reset();
 
   for (ezUInt32 i = 0; i < EZ_GAL_MAX_CONSTANT_BUFFER_COUNT; i++)
   {
     m_pBoundConstantBuffers[i] = nullptr;
   }
+  m_BoundConstantBuffersRange.Reset();
 
   for (ezUInt32 s = 0; s < ezGALShaderStage::ENUM_COUNT; s++)
   {
@@ -53,6 +55,11 @@ ezGALContextDX11::ezGALContextDX11(ezGALDevice* pDevice, ID3D11DeviceContext* pD
       m_pBoundShaderResourceViews[s][i] = nullptr;
       m_pBoundSamplerStates[s][i] = nullptr;
     }
+
+    m_BoundShaderResourceViewsRange[s].Reset();
+    m_BoundSamplerStatesRange[s].Reset();
+
+    m_pBoundShaders[s] = nullptr;
   }
 }
 
@@ -143,34 +150,124 @@ void ezGALContextDX11::EndStreamOutPlatform()
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
+static void SetShaderResources(ezGALShaderStage::Enum stage, ID3D11DeviceContext* pContext, ezUInt32 uiStartSlot, ezUInt32 uiNumSlots, ID3D11ShaderResourceView** pShaderResourceViews)
+{
+  switch (stage)
+  {
+  case ezGALShaderStage::VertexShader:
+    pContext->VSSetShaderResources(uiStartSlot, uiNumSlots, pShaderResourceViews);
+    break;
+  case ezGALShaderStage::HullShader:
+    pContext->HSSetShaderResources(uiStartSlot, uiNumSlots, pShaderResourceViews);
+    break;
+  case ezGALShaderStage::DomainShader:
+    pContext->DSSetShaderResources(uiStartSlot, uiNumSlots, pShaderResourceViews);
+    break;
+  case ezGALShaderStage::GeometryShader:
+    pContext->GSSetShaderResources(uiStartSlot, uiNumSlots, pShaderResourceViews);
+    break;
+  case ezGALShaderStage::PixelShader:
+    pContext->PSSetShaderResources(uiStartSlot, uiNumSlots, pShaderResourceViews);
+    break;
+  case ezGALShaderStage::ComputeShader:
+    pContext->CSSetShaderResources(uiStartSlot, uiNumSlots, pShaderResourceViews);
+    break;
+  default:
+    EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+}
+
+static void SetSamplers(ezGALShaderStage::Enum stage, ID3D11DeviceContext* pContext, ezUInt32 uiStartSlot, ezUInt32 uiNumSlots, ID3D11SamplerState** pSamplerStates)
+{
+  switch (stage)
+  {
+  case ezGALShaderStage::VertexShader:
+    pContext->VSSetSamplers(uiStartSlot, uiNumSlots, pSamplerStates);
+    break;
+  case ezGALShaderStage::HullShader:
+    pContext->HSSetSamplers(uiStartSlot, uiNumSlots, pSamplerStates);
+    break;
+  case ezGALShaderStage::DomainShader:
+    pContext->DSSetSamplers(uiStartSlot, uiNumSlots, pSamplerStates);
+    break;
+  case ezGALShaderStage::GeometryShader:
+    pContext->GSSetSamplers(uiStartSlot, uiNumSlots, pSamplerStates);
+    break;
+  case ezGALShaderStage::PixelShader:
+    pContext->PSSetSamplers(uiStartSlot, uiNumSlots, pSamplerStates);
+    break;
+  case ezGALShaderStage::ComputeShader:
+    pContext->CSSetSamplers(uiStartSlot, uiNumSlots, pSamplerStates);
+    break;
+  default:
+    EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+}
+
 // Some state changes are deferred so they can be updated faster
 void ezGALContextDX11::FlushDeferredStateChanges()
 {
-  if (m_DeferredStateChanged.IsSet(ezGALDX11::DeferredStateChanged::VertexBuffer))
+  if (m_BoundVertexBuffersRange.IsValid())
   {
-    m_pDXContext->IASetVertexBuffers(0, EZ_GAL_MAX_VERTEX_BUFFER_COUNT, m_pBoundVertexBuffers, m_VertexBufferStrides, m_VertexBufferOffsets);
+    const ezUInt32 uiStartSlot = m_BoundVertexBuffersRange.m_uiMin;
+    const ezUInt32 uiNumSlots = m_BoundVertexBuffersRange.GetCount();
+
+    m_pDXContext->IASetVertexBuffers(uiStartSlot, uiNumSlots, m_pBoundVertexBuffers + uiStartSlot, m_VertexBufferStrides + uiStartSlot, m_VertexBufferOffsets + uiStartSlot);
+
+    m_BoundVertexBuffersRange.Reset();
   }
 
-  if (m_DeferredStateChanged.IsSet(ezGALDX11::DeferredStateChanged::ConstantBuffer))
+  if (m_BoundConstantBuffersRange.IsValid())
   {
-    m_pDXContext->VSSetConstantBuffers(0, 4, m_pBoundConstantBuffers);
-    m_pDXContext->PSSetConstantBuffers(0, 4, m_pBoundConstantBuffers);
+    const ezUInt32 uiStartSlot = m_BoundConstantBuffersRange.m_uiMin;
+    const ezUInt32 uiNumSlots = m_BoundConstantBuffersRange.GetCount();
+
+    if (m_pBoundShaders[ezGALShaderStage::VertexShader] != nullptr)
+      m_pDXContext->VSSetConstantBuffers(uiStartSlot, uiNumSlots, m_pBoundConstantBuffers + uiStartSlot);
+
+    if (m_pBoundShaders[ezGALShaderStage::HullShader] != nullptr)
+      m_pDXContext->HSSetConstantBuffers(uiStartSlot, uiNumSlots, m_pBoundConstantBuffers + uiStartSlot);
+
+    if (m_pBoundShaders[ezGALShaderStage::DomainShader] != nullptr)
+      m_pDXContext->DSSetConstantBuffers(uiStartSlot, uiNumSlots, m_pBoundConstantBuffers + uiStartSlot);
+
+    if (m_pBoundShaders[ezGALShaderStage::GeometryShader] != nullptr)
+      m_pDXContext->GSSetConstantBuffers(uiStartSlot, uiNumSlots, m_pBoundConstantBuffers + uiStartSlot);
+    
+    if (m_pBoundShaders[ezGALShaderStage::PixelShader] != nullptr)
+      m_pDXContext->PSSetConstantBuffers(uiStartSlot, uiNumSlots, m_pBoundConstantBuffers + uiStartSlot);
+
+    if (m_pBoundShaders[ezGALShaderStage::ComputeShader] != nullptr)
+      m_pDXContext->CSSetConstantBuffers(uiStartSlot, uiNumSlots, m_pBoundConstantBuffers + uiStartSlot);    
+
+    m_BoundConstantBuffersRange.Reset();
   }
 
-  if (m_DeferredStateChanged.IsSet(ezGALDX11::DeferredStateChanged::ShaderResourceView))
+  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
-    /// \todo Optimize / add other stages
-    m_pDXContext->VSSetShaderResources(0, EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT, m_pBoundShaderResourceViews[ezGALShaderStage::VertexShader]);
-    m_pDXContext->PSSetShaderResources(0, EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT, m_pBoundShaderResourceViews[ezGALShaderStage::PixelShader]);
-  }
+    if (m_pBoundShaders[stage] == nullptr)
+      continue;
 
-  if (m_DeferredStateChanged.IsSet(ezGALDX11::DeferredStateChanged::SamplerState))
-  {
-    /// \todo Optimize / add other stages
-    m_pDXContext->PSSetSamplers(0, EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT, m_pBoundSamplerStates[ezGALShaderStage::PixelShader]);
-  }
+    if (m_BoundShaderResourceViewsRange[stage].IsValid())
+    {
+      const ezUInt32 uiStartSlot = m_BoundShaderResourceViewsRange[stage].m_uiMin;
+      const ezUInt32 uiNumSlots = m_BoundShaderResourceViewsRange[stage].GetCount();
 
-  m_DeferredStateChanged.Clear();
+      SetShaderResources((ezGALShaderStage::Enum)stage, m_pDXContext, uiStartSlot, uiNumSlots, m_pBoundShaderResourceViews[stage] + uiStartSlot);
+
+      m_BoundShaderResourceViewsRange[stage].Reset();
+    }
+
+    if (m_BoundSamplerStatesRange[stage].IsValid())
+    {
+      const ezUInt32 uiStartSlot = m_BoundSamplerStatesRange[stage].m_uiMin;
+      const ezUInt32 uiNumSlots = m_BoundSamplerStatesRange[stage].GetCount();
+
+      SetSamplers((ezGALShaderStage::Enum)stage, m_pDXContext, uiStartSlot, uiNumSlots, m_pBoundSamplerStates[stage] + uiStartSlot);
+
+      m_BoundSamplerStatesRange[stage].Reset();
+    }
+  }
 }
 
 // Dispatch
@@ -194,28 +291,60 @@ void ezGALContextDX11::DispatchIndirectPlatform(ezGALBuffer* pIndirectArgumentBu
 
 void ezGALContextDX11::SetShaderPlatform(ezGALShader* pShader)
 {
-  /// \todo Optimize (change only shaders which need to be set)
+  ID3D11VertexShader* pVS = nullptr;
+  ID3D11HullShader* pHS = nullptr;
+  ID3D11DomainShader* pDS = nullptr;
+  ID3D11GeometryShader* pGS = nullptr;
+  ID3D11PixelShader* pPS = nullptr;
+  ID3D11ComputeShader* pCS = nullptr;
+
   if (pShader != nullptr)
   {
     ezGALShaderDX11* pDXShader = static_cast<ezGALShaderDX11*>(pShader);
-
-    m_pDXContext->VSSetShader(pDXShader->GetDXVertexShader(), nullptr, 0);
-    m_pDXContext->HSSetShader(pDXShader->GetDXHullShader(), nullptr, 0);
-    m_pDXContext->DSSetShader(pDXShader->GetDXDomainShader(), nullptr, 0);
-    m_pDXContext->GSSetShader(pDXShader->GetDXGeometryShader(), nullptr, 0);
-    m_pDXContext->PSSetShader(pDXShader->GetDXPixelShader(), nullptr, 0);
-    m_pDXContext->CSSetShader(pDXShader->GetDXComputeShader(), nullptr, 0);
+    
+    pVS = pDXShader->GetDXVertexShader();
+    pHS = pDXShader->GetDXHullShader();
+    pDS = pDXShader->GetDXDomainShader();
+    pGS = pDXShader->GetDXGeometryShader();
+    pPS = pDXShader->GetDXPixelShader();
+    pCS = pDXShader->GetDXComputeShader();
   }
-  else
+  
+  if (pVS != m_pBoundShaders[ezGALShaderStage::VertexShader])
   {
-    m_pDXContext->VSSetShader(nullptr, nullptr, 0);
-    m_pDXContext->HSSetShader(nullptr, nullptr, 0);
-    m_pDXContext->DSSetShader(nullptr, nullptr, 0);
-    m_pDXContext->GSSetShader(nullptr, nullptr, 0);
-    m_pDXContext->PSSetShader(nullptr, nullptr, 0);
-    m_pDXContext->CSSetShader(nullptr, nullptr, 0);
+    m_pDXContext->VSSetShader(pVS, nullptr, 0);
+    m_pBoundShaders[ezGALShaderStage::VertexShader] = pVS;
   }
 
+  if (pHS != m_pBoundShaders[ezGALShaderStage::HullShader])
+  {
+    m_pDXContext->HSSetShader(pHS, nullptr, 0);
+    m_pBoundShaders[ezGALShaderStage::HullShader] = pHS;
+  }
+
+  if (pDS != m_pBoundShaders[ezGALShaderStage::DomainShader])
+  {
+    m_pDXContext->DSSetShader(pDS, nullptr, 0);
+    m_pBoundShaders[ezGALShaderStage::DomainShader] = pDS;
+  }
+
+  if (pGS != m_pBoundShaders[ezGALShaderStage::GeometryShader])
+  {
+    m_pDXContext->GSSetShader(pGS, nullptr, 0);
+    m_pBoundShaders[ezGALShaderStage::GeometryShader] = pGS;
+  }
+
+  if (pPS != m_pBoundShaders[ezGALShaderStage::PixelShader])
+  {
+    m_pDXContext->PSSetShader(pPS, nullptr, 0);
+    m_pBoundShaders[ezGALShaderStage::PixelShader] = pPS;
+  }
+
+  if (pCS != m_pBoundShaders[ezGALShaderStage::ComputeShader])
+  {
+    m_pDXContext->CSSetShader(pCS, nullptr, 0);
+    m_pBoundShaders[ezGALShaderStage::ComputeShader] = pCS;
+  }
 }
 
 void ezGALContextDX11::SetIndexBufferPlatform(ezGALBuffer* pIndexBuffer)
@@ -237,7 +366,7 @@ void ezGALContextDX11::SetVertexBufferPlatform(ezUInt32 uiSlot, ezGALBuffer* pVe
 
   m_pBoundVertexBuffers[uiSlot] = pVertexBuffer != nullptr ? static_cast<ezGALBufferDX11*>(pVertexBuffer)->GetDXBuffer() : nullptr;
   m_VertexBufferStrides[uiSlot] = pVertexBuffer != nullptr ? pVertexBuffer->GetDescription().m_uiStructSize : 0;
-  m_DeferredStateChanged.Add(ezGALDX11::DeferredStateChanged::VertexBuffer);
+  m_BoundVertexBuffersRange.SetToIncludeValue(uiSlot);
 }
 
 void ezGALContextDX11::SetVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration)
@@ -262,20 +391,20 @@ void ezGALContextDX11::SetConstantBufferPlatform(ezUInt32 uiSlot, ezGALBuffer* p
 {
   /// \todo Check if the device supports the slot index?
   m_pBoundConstantBuffers[uiSlot] = pBuffer != nullptr ? static_cast<ezGALBufferDX11*>(pBuffer)->GetDXBuffer() : nullptr;
-  m_DeferredStateChanged.Add(ezGALDX11::DeferredStateChanged::ConstantBuffer);
+  m_BoundConstantBuffersRange.SetToIncludeValue(uiSlot);
 }
 
 void ezGALContextDX11::SetSamplerStatePlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALSamplerState* pSamplerState)
 {
   /// \todo Check if the device supports the stage / the slot index
   m_pBoundSamplerStates[Stage][uiSlot] = pSamplerState != nullptr ? static_cast<ezGALSamplerStateDX11*>(pSamplerState)->GetDXSamplerState() : nullptr;
-  m_DeferredStateChanged.Add(ezGALDX11::DeferredStateChanged::SamplerState);
+  m_BoundSamplerStatesRange[Stage].SetToIncludeValue(uiSlot);
 }
 
 void ezGALContextDX11::SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALResourceView* pResourceView)
 {
   m_pBoundShaderResourceViews[Stage][uiSlot] = pResourceView != nullptr ? static_cast<ezGALResourceViewDX11*>(pResourceView)->GetDXResourceView() : nullptr;
-  m_DeferredStateChanged.Add(ezGALDX11::DeferredStateChanged::ShaderResourceView);
+  m_BoundShaderResourceViewsRange[Stage].SetToIncludeValue(uiSlot);
 }
 
 void ezGALContextDX11::SetRenderTargetSetupPlatform( ezGALRenderTargetView** ppRenderTargetViews, ezUInt32 uiRenderTargetCount, ezGALRenderTargetView* pDepthStencilView )

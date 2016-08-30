@@ -50,12 +50,13 @@ struct ezRenderContextFlags
     None = 0,
     ShaderStateChanged = EZ_BIT(0),
     TextureBindingChanged = EZ_BIT(1),
-    BufferBindingChanged = EZ_BIT(2),
-    ConstantBufferBindingChanged = EZ_BIT(3),
-    MeshBufferBindingChanged = EZ_BIT(4),
-    MaterialBindingChanged = EZ_BIT(5),
+    SamplerBindingChanged = EZ_BIT(2),
+    BufferBindingChanged = EZ_BIT(3),
+    ConstantBufferBindingChanged = EZ_BIT(4),
+    MeshBufferBindingChanged = EZ_BIT(5),
+    MaterialBindingChanged = EZ_BIT(6),
 
-    AllStatesInvalid = ShaderStateChanged | TextureBindingChanged | BufferBindingChanged | ConstantBufferBindingChanged | MeshBufferBindingChanged,
+    AllStatesInvalid = ShaderStateChanged | TextureBindingChanged | SamplerBindingChanged | BufferBindingChanged | ConstantBufferBindingChanged | MeshBufferBindingChanged,
     Default = None
   };
 
@@ -63,6 +64,7 @@ struct ezRenderContextFlags
   {
     StorageType ShaderStateChanged : 1;
     StorageType TextureBindingChanged : 1;
+    StorageType SamplerBindingChanged : 1;
     StorageType BufferBindingChanged : 1;
     StorageType ConstantBufferBindingChanged : 1;
     StorageType MeshBufferBindingChanged : 1;
@@ -91,6 +93,8 @@ struct ezDefaultSamplerFlags
     StorageType Clamp : 1;
   };
 };
+
+EZ_DECLARE_FLAGS_OPERATORS(ezDefaultSamplerFlags);
 
 
 class EZ_RENDERERCORE_DLL ezRenderContext
@@ -131,9 +135,9 @@ public:
 
   void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture, 
     ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowFallback);
-  void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture,
-    ezGALSamplerStateHandle hOverrideSamplerState, ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowFallback);
-  void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView, ezGALSamplerStateHandle hSamplerState);
+  void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
+
+  void BindSamplerState(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALSamplerStateHandle hSamplerSate);
 
   void BindBuffer(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
 
@@ -238,19 +242,8 @@ private:
   ezGALPrimitiveTopology::Enum m_Topology;
   ezUInt32 m_uiMeshBufferPrimitiveCount;
 
-  struct TextureViewSampler
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    TextureViewSampler() {}
-    TextureViewSampler(ezGALResourceViewHandle hResourceView, ezGALSamplerStateHandle hSamplerState)
-      : m_hResourceView(hResourceView), m_hSamplerState(hSamplerState) {}
-
-    ezGALResourceViewHandle m_hResourceView;
-    ezGALSamplerStateHandle m_hSamplerState;
-  };
-  
-  ezHashTable<ezUInt32, TextureViewSampler> m_BoundTextures[ezGALShaderStage::ENUM_COUNT];
+  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundTextures[ezGALShaderStage::ENUM_COUNT];
+  ezHashTable<ezUInt32, ezGALSamplerStateHandle> m_BoundSamplers[ezGALShaderStage::ENUM_COUNT];
   ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundBuffer[ezGALShaderStage::ENUM_COUNT];
   
   struct BoundConstantBuffer
@@ -312,6 +305,7 @@ private: // Per Renderer States
   ezMaterialResource* ApplyMaterialState();
   void ApplyConstantBufferBindings(const ezShaderStageBinary* pBinary);
   void ApplyTextureBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
+  void ApplySamplerBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
   void ApplyBufferBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);  
 };
 

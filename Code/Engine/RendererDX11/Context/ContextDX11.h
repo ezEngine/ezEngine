@@ -8,10 +8,36 @@
 
 namespace ezGALDX11
 {
-  EZ_DECLARE_FLAGS(ezUInt16, DeferredStateChanged, VertexBuffer, ConstantBuffer, ShaderResourceView, SamplerState);
+  struct ModifiedRange
+  {
+    EZ_FORCE_INLINE void Reset()
+    {
+      m_uiMin = ezInvalidIndex;
+      m_uiMax = 0;
+    }
+
+    EZ_FORCE_INLINE void SetToIncludeValue(ezUInt32 value)
+    {
+      m_uiMin = ezMath::Min(m_uiMin, value);
+      m_uiMax = ezMath::Max(m_uiMax, value);
+    }
+
+    EZ_FORCE_INLINE bool IsValid() const
+    {
+      return m_uiMin <= m_uiMax;
+    }
+
+    EZ_FORCE_INLINE ezUInt32 GetCount() const
+    {
+      return m_uiMax - m_uiMin + 1;
+    }
+
+    ezUInt32 m_uiMin;
+    ezUInt32 m_uiMax;
+  };
 }
 
-
+struct ID3D11DeviceChild;
 struct ID3D11DeviceContext;
 struct ID3DUserDefinedAnnotation;
 struct ID3D11RenderTargetView;
@@ -154,21 +180,23 @@ protected:
   ID3D11DepthStencilView* m_pBoundDepthStencilTarget;
 
   ID3D11Buffer* m_pBoundVertexBuffers[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
+  ezGALDX11::ModifiedRange m_BoundVertexBuffersRange;
 
   ezUInt32 m_VertexBufferStrides[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
-
   ezUInt32 m_VertexBufferOffsets[EZ_GAL_MAX_VERTEX_BUFFER_COUNT];
 
   ID3D11Buffer* m_pBoundConstantBuffers[EZ_GAL_MAX_CONSTANT_BUFFER_COUNT];
+  ezGALDX11::ModifiedRange m_BoundConstantBuffersRange;
 
   ezUInt32 m_uiBoundRenderTargetCount;
 
   ID3D11ShaderResourceView* m_pBoundShaderResourceViews[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
+  ezGALDX11::ModifiedRange m_BoundShaderResourceViewsRange[ezGALShaderStage::ENUM_COUNT];
 
   ID3D11SamplerState* m_pBoundSamplerStates[ezGALShaderStage::ENUM_COUNT][EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT];
+  ezGALDX11::ModifiedRange m_BoundSamplerStatesRange[ezGALShaderStage::ENUM_COUNT];
 
-  ezBitflags<ezGALDX11::DeferredStateChanged> m_DeferredStateChanged;
-
+  ID3D11DeviceChild* m_pBoundShaders[ezGALShaderStage::ENUM_COUNT];
 };
 
 #include <RendererDX11/Context/Implementation/ContextDX11_inl.h>

@@ -77,12 +77,12 @@ struct VS_TO_PS
 #if EZ_ENABLED(PLATFORM_DX11)
 
 Texture2D ShapeIcon;
-SamplerState ShapeIconSampler;
+SamplerState ShapeIcon_AutoSampler;
 
 float4 main(VS_TO_PS input) : SV_Target
 {
   float4 col = float4(1.0, 1.0, 1.0, 1.0);
-  float4 res = ShapeIcon.Sample(ShapeIconSampler, input.TexCoord0) * col;
+  float4 res = ShapeIcon.Sample(ShapeIcon_AutoSampler, input.TexCoord0) * col;
   
   if (res.a < 0.5)
     discard;

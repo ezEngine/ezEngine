@@ -18,9 +18,6 @@ public:
   virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
     ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
 
-  virtual void InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
-
   virtual void Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
@@ -33,7 +30,6 @@ protected:
 
   ezInt32 m_iRadius;
   ezConstantBufferStorageHandle m_hBlurCB;
-  ezGALSamplerStateHandle m_hSamplerState;
   ezShaderResourceHandle m_hShader;
   ezMeshBufferResourceHandle m_hMesh;
 };

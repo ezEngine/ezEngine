@@ -121,14 +121,15 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
 
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SelectionDepthTexture", pDevice->GetDefaultResourceView(hDepthTexture), m_hSamplerState);
-    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SceneDepthTexture", pDevice->GetDefaultResourceView(pDepthInput->m_TextureHandle), m_hSamplerState);
+    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SelectionDepthTexture", pDevice->GetDefaultResourceView(hDepthTexture));
+    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SceneDepthTexture", pDevice->GetDefaultResourceView(pDepthInput->m_TextureHandle));
+    renderViewContext.m_pRenderContext->BindSamplerState(ezGALShaderStage::PixelShader, "BorderClampSampler", m_hSamplerState);
     
     renderViewContext.m_pRenderContext->DrawMeshBuffer();
 
     // Prevent shader resource hazard in DX11
-    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SelectionDepthTexture", ezGALResourceViewHandle(), ezGALSamplerStateHandle());
-    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SceneDepthTexture", ezGALResourceViewHandle(), ezGALSamplerStateHandle());
+    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SelectionDepthTexture", ezGALResourceViewHandle());
+    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SceneDepthTexture", ezGALResourceViewHandle());
     renderViewContext.m_pRenderContext->ApplyContextStates();
     pGALContext->Flush();
 

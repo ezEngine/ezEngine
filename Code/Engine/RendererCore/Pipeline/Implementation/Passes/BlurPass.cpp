@@ -60,12 +60,6 @@ ezBlurPass::ezBlurPass() : ezRenderPipelinePass("BlurPass"), m_iRadius(15)
 
 ezBlurPass::~ezBlurPass()
 {
-  if (!m_hSamplerState.IsInvalidated())
-  {
-    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-    pDevice->DestroySamplerState(m_hSamplerState);
-  }
-
   ezRenderContext::DeleteConstantBufferStorage(m_hBlurCB);
   m_hBlurCB.Invalidate();
 }
@@ -85,22 +79,6 @@ bool ezBlurPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPt
   }
 
   return true;
-}
-
-void ezBlurPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection*const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection*const> outputs)
-{
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-  if (m_hSamplerState.IsInvalidated())
-  {
-    ezGALSamplerStateCreationDescription sscd;
-    sscd.m_MagFilter = ezGALTextureFilterMode::Linear;
-    sscd.m_MinFilter = ezGALTextureFilterMode::Point;
-    sscd.m_MipFilter = ezGALTextureFilterMode::Point;
-    sscd.m_AddressU = ezGALTextureAddressMode::Clamp;
-    sscd.m_AddressV = ezGALTextureAddressMode::Clamp;
-    m_hSamplerState = pDevice->CreateSamplerState(sscd);
-  }
 }
 
 void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
@@ -128,7 +106,7 @@ void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     // Bind shader and inputs
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
     renderViewContext.m_pRenderContext->BindMeshBuffer(m_hMesh);  
-    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "Input", hResourceView, m_hSamplerState);
+    renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "Input", hResourceView);
     renderViewContext.m_pRenderContext->BindConstantBuffer("BlurConstants", m_hBlurCB);
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer();

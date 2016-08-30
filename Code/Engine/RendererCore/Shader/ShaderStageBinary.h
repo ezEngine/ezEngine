@@ -90,7 +90,8 @@ struct EZ_RENDERERCORE_DLL ezShaderResourceBinding
     TextureCube,
     TextureCubeArray,
     ConstantBuffer,
-    GenericBuffer
+    GenericBuffer,
+    Sampler
   };
 
   ezShaderResourceBinding();

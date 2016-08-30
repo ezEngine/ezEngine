@@ -107,7 +107,13 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
     }
     else if (shaderInputBindDesc.Type == D3D_SIT_SAMPLER)
     {
-
+      shaderResourceBinding.m_Type = ezShaderResourceBinding::Sampler;
+      if (ezStringUtils::EndsWith(shaderInputBindDesc.Name, "_AutoSampler"))
+      {
+        ezStringBuilder sb = shaderInputBindDesc.Name;
+        sb.Shrink(0, ezStringUtils::GetStringElementCount("_AutoSampler"));
+        shaderResourceBinding.m_sName.Assign(sb.GetData());
+      }
     }
     else
     {

@@ -80,11 +80,11 @@ VS_OUT main(uint VertexID : SV_VertexID)
 #if EZ_ENABLED(PLATFORM_DX11)
 
 Texture2D FontTexture;
-SamplerState FontTextureSampler;
+SamplerState FontTexture_AutoSampler;
 
 float4 main(PS_IN Input) : SV_Target
 {
-	return FontTexture.Sample(FontTextureSampler, Input.TexCoords.xy) * Input.Color;
+	return FontTexture.Sample(FontTexture_AutoSampler, Input.TexCoords.xy) * Input.Color;
 }
 
 #endif

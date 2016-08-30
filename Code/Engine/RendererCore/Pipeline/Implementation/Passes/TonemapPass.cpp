@@ -118,20 +118,18 @@ void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const 
     constants->ContrastParams = ezVec4(a, b, m, 0.0f);
   }
 
-  ezGALSamplerStateHandle hPointSamplerState = ezRenderContext::GetDefaultSamplerState(ezDefaultSamplerFlags::PointFiltering);
-
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
   renderViewContext.m_pRenderContext->BindConstantBuffer("TonemapConstants", m_hConstantBuffer);
   renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
   renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "VignettingTexture", m_hVignettingTexture, ezResourceAcquireMode::NoFallback);
-  renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "NoiseTexture", m_hNoiseTexture, hPointSamplerState, ezResourceAcquireMode::NoFallback);
-  renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SceneColorTexture", pDevice->GetDefaultResourceView(pColorInput->m_TextureHandle), ezGALSamplerStateHandle());
+  renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::NoFallback);
+  renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SceneColorTexture", pDevice->GetDefaultResourceView(pColorInput->m_TextureHandle));
 
   renderViewContext.m_pRenderContext->DrawMeshBuffer();
 
   ///\ todo generalize prevention of resource hazards somehow?
   // Prevent shader resource hazard in DX11
-  renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SceneColorTexture", ezGALResourceViewHandle(), ezGALSamplerStateHandle());
+  renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "SceneColorTexture", ezGALResourceViewHandle());
   renderViewContext.m_pRenderContext->ApplyContextStates();
   pGALContext->Flush();
 }
