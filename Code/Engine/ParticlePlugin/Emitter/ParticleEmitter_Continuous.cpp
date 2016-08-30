@@ -14,6 +14,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_Continuous, 1, ezRTTIDe
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Duration", m_Duration),
+    EZ_MEMBER_PROPERTY("Start Delay", m_StartDelay),
 
     EZ_MEMBER_PROPERTY("Min Spawn Count", m_uiSpawnCountMin)->AddAttributes(new ezDefaultValueAttribute(1)),
     EZ_MEMBER_PROPERTY("Spawn Count Range", m_uiSpawnCountRange),
@@ -53,6 +54,7 @@ void ezParticleEmitterFactory_Continuous::CopyEmitterProperties(ezParticleEmitte
   ezParticleEmitter_Continuous* pEmitter = static_cast<ezParticleEmitter_Continuous*>(pEmitter0);
 
   pEmitter->m_Duration = m_Duration;
+  pEmitter->m_StartDelay = m_StartDelay;
 
   pEmitter->m_uiSpawnCountMin = m_uiSpawnCountMin;
   pEmitter->m_uiSpawnCountRange = m_uiSpawnCountRange;
@@ -64,13 +66,29 @@ void ezParticleEmitterFactory_Continuous::CopyEmitterProperties(ezParticleEmitte
   pEmitter->m_CurveDuration = ezMath::Max(m_CurveDuration, ezTime::Seconds(1.0));
 }
 
+enum class EmitterContinuousVersion
+{
+  Version_0 = 0,
+  Version_1,
+  Version_2,
+  Version_3,
+  Version_4, // added emitter start delay
+
+  // insert new version numbers above
+  Version_Count,
+  Version_Current = Version_Count - 1
+};
+
+
 void ezParticleEmitterFactory_Continuous::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 3;
+  const ezUInt8 uiVersion = (int)EmitterContinuousVersion::Version_Current;
   stream << uiVersion;
 
   // Version 3
   stream << m_Duration;
+  // Version 4
+  stream << m_StartDelay;
 
   // Version 1
   stream << m_uiSpawnCountMin;
@@ -88,11 +106,16 @@ void ezParticleEmitterFactory_Continuous::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= 3, "Invalid version %u", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= (int)EmitterContinuousVersion::Version_Current, "Invalid version %u", uiVersion);
 
   if (uiVersion >= 3)
   {
     stream >> m_Duration;
+  }
+
+  if (uiVersion >= 4)
+  {
+    stream >> m_StartDelay;
   }
 
   stream >> m_uiSpawnCountMin;
@@ -129,38 +152,28 @@ const char* ezParticleEmitterFactory_Continuous::GetCountCurveFile() const
 }
 
 
-void ezParticleEmitter_Continuous::CreateRequiredStreams()
+void ezParticleEmitter_Continuous::AfterPropertiesConfigured(bool bFirstTime)
 {
-  //CreateStream("Position", ezStream::DataType::Float3, &m_pStreamPosition);
-  //CreateStream("Velocity", ezStream::DataType::Float3, &m_pStreamVelocity);
-  //CreateStream("Color", ezStream::DataType::Float4, &m_pStreamColor);
 }
 
-void ezParticleEmitter_Continuous::SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+
+ezParticleEmitterState ezParticleEmitter_Continuous::IsFinished()
 {
-  //ezVec3* pPosition = m_pStreamPosition->GetWritableData<ezVec3>();
-  //ezVec3* pVelocity = m_pStreamVelocity->GetWritableData<ezVec3>();
-  //ezColor* pColor = m_pStreamColor->GetWritableData<ezColor>();
+  if (m_Duration == ezTime())
+    return ezParticleEmitterState::Active;
 
-  //ezRandom& rng = GetRNG();
-  //const ezTransform transform = GetOwnerSystem()->GetTransform();
-
-  //for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
-  //{
-  //  pPosition[i] = transform.m_vPosition;
-  //  pVelocity[i].SetZero();// = transform.m_Rotation * ezVec3(1, 3, 10);
-  //  pColor[i] = ezColor::White;
-  //}
+  return (m_RunningTime >= m_StartDelay + m_Duration) ? ezParticleEmitterState::Finished : ezParticleEmitterState::Active;
 }
 
 ezUInt32 ezParticleEmitter_Continuous::ComputeSpawnCount(const ezTime& tDiff)
 {
-  if (m_Duration > ezTime::Seconds(0))
+  m_RunningTime += tDiff;
+
+  // delay before the emitter becomes active
+  if (m_StartDelay > ezTime::Seconds(0))
   {
-    if (tDiff >= m_Duration)
-      m_Duration = ezTime::Seconds(-1);
-    else
-      m_Duration -= tDiff;
+    if (m_RunningTime < m_StartDelay)
+      return 0;
   }
 
   m_NextSpawn -= tDiff;

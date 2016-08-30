@@ -29,7 +29,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Gravity : public ezParticleBehavi
 public:
   float m_fGravityFactor;
 
-  virtual void AfterPropertiesConfigured() override;
+  virtual void AfterPropertiesConfigured(bool bFirstTime) override;
   virtual void CreateRequiredStreams() override;
 
 protected:

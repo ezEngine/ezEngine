@@ -27,7 +27,7 @@ public:
 
   void ConfigureFromTemplate(const ezParticleSystemDescriptor* pTemplate);
 
-  void Initialize(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed);
+  void Initialize(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect);
   void SetTransform(const ezTransform& transform) { m_Transform = transform; }
   const ezTransform& GetTransform() const { return m_Transform; }
 
@@ -46,6 +46,10 @@ public:
   /// \brief Returns the desired stream, if it already exists, creates it otherwise.
   void CreateStream(const char* szName, ezStream::DataType Type, ezStream** ppStream, ezParticleStreamBinding& binding, bool bExpectInitializedValue);
 
+  void ProcessEventQueue(const ezParticleEventQueue* pQueue);
+
+  ezParticleEffectInstance* GetOwnerEffect() const { return m_pOwnerEffect; }
+
 private:
   void CreateStreamZeroInitializers();
 
@@ -55,6 +59,7 @@ private:
 
   bool m_bVisible; // typically used in editor to hide a system
   bool m_bEmitterEnabled;
+  ezParticleEffectInstance* m_pOwnerEffect;
   ezWorld* m_pWorld;
   ezTransform m_Transform;
 

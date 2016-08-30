@@ -4,6 +4,7 @@
 #include <QLineEdit>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <qevent.h>
 
 inline ezQDoubleSpinBox::ezQDoubleSpinBox(QWidget* pParent, bool bIntMode) : QDoubleSpinBox(pParent)
 {

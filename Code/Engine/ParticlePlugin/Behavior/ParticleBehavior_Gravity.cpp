@@ -53,7 +53,7 @@ void ezParticleBehaviorFactory_Gravity::Load(ezStreamReader& stream)
   stream >> m_fGravityFactor;
 }
 
-void ezParticleBehavior_Gravity::AfterPropertiesConfigured()
+void ezParticleBehavior_Gravity::AfterPropertiesConfigured(bool bFirstTime)
 {
   m_pPhysicsModule = static_cast<ezPhysicsWorldModuleInterface*>(ezWorldModule::FindModule(GetOwnerSystem()->GetWorld(), ezPhysicsWorldModuleInterface::GetStaticRTTI()));
 

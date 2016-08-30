@@ -24,7 +24,7 @@ void ezParticleEffectManager::Shutdown()
   m_ParticleSystemFreeList.Clear();
 }
 
-ezParticleSystemInstance* ezParticleEffectManager::CreateParticleSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed)
+ezParticleSystemInstance* ezParticleEffectManager::CreateParticleSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect)
 {
   // TODO: Mutex
 
@@ -46,7 +46,7 @@ ezParticleSystemInstance* ezParticleEffectManager::CreateParticleSystemInstance(
     pResult = EZ_DEFAULT_NEW(ezParticleSystemInstance);
   }
 
-  pResult->Initialize(uiMaxParticles, pWorld, uiRandomSeed);
+  pResult->Initialize(uiMaxParticles, pWorld, uiRandomSeed, pOwnerEffect);
 
   return pResult;
 }

@@ -4,6 +4,7 @@
 #include <Core/World/WorldModule.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
+#include <ParticlePlugin/Events/ParticleEvent.h>
 
 typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectResourceHandle;
 class ezParticleEffectInstance;
@@ -37,6 +38,8 @@ public:
   /// \brief Extracts render data for all effects that are currently active.
   void ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData);
 
+  ezParticleEventQueueManager& GetEventQueueManager() { return m_QueueManager; }
+
 private:
   void DestroyFinishedEffects();
   void ResourceEventHandler(const ezResourceEvent& e);
@@ -49,6 +52,7 @@ private:
   ezDeque<ezParticleEffectInstance*> m_EffectsToReconfigure;
   ezMap<ezString, ezParticleEffectHandle> m_SharedEffects;
   ezIdTable<ezParticleEffectId, ezParticleEffectInstance*> m_ActiveEffects;
+  ezParticleEventQueueManager m_QueueManager;
 
 protected:
   virtual void InternalStartup() override;

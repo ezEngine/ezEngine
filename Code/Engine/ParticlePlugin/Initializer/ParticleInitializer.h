@@ -5,7 +5,7 @@
 #include <CoreUtils/DataProcessing/Stream/StreamElementSpawner.h>
 #include <CoreUtils/DataProcessing/Stream/Stream.h>
 #include <ParticlePlugin/Declarations.h>
-#include <ParticlePlugin/Base/ParticleBase.h>
+#include <ParticlePlugin/Module/ParticleModule.h>
 
 class ezParticleSystemInstance;
 class ezStream;
@@ -28,7 +28,7 @@ public:
 };
 
 /// \brief Base class for stream spawners that are used by ezParticleEmitter's
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer : public ezParticleBase<ezStreamElementSpawner, true>
+class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer : public ezParticleModule<ezStreamElementSpawner, true>
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer, ezStreamElementSpawner);
 

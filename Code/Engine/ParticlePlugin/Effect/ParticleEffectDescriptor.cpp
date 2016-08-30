@@ -38,7 +38,7 @@ void ezParticleEffectDescriptor::ClearSystems()
   m_ParticleSystems.Clear();
 }
 
-enum ParticleEffectVersion
+enum class ParticleEffectVersion
 {
   Version_0 = 0,
   Version_1,
@@ -52,7 +52,7 @@ enum ParticleEffectVersion
 
 void ezParticleEffectDescriptor::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = ParticleEffectVersion::Version_Current;
+  const ezUInt8 uiVersion = (int)ParticleEffectVersion::Version_Current;
 
   stream << uiVersion;
 
@@ -84,7 +84,7 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
 
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion <= ParticleEffectVersion::Version_Current, "Unknown particle effect template version %u", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= (int)ParticleEffectVersion::Version_Current, "Unknown particle effect template version %u", uiVersion);
 
   if (uiVersion == 1)
   {

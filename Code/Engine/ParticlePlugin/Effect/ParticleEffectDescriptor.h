@@ -1,9 +1,7 @@
 #pragma once
 
 #include <ParticlePlugin/Basics.h>
-#include <Foundation/Reflection/Implementation/DynamicRTTI.h>
-
-class ezParticleSystemDescriptor;
+#include <ParticlePlugin/Declarations.h>
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleEffectDescriptor : public ezReflectedClass
 {

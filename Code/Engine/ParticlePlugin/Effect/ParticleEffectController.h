@@ -3,10 +3,6 @@
 #include <ParticlePlugin/Basics.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 
-class ezParticleWorldModule;
-class ezParticleEffectInstance;
-typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectResourceHandle;
-
 class EZ_PARTICLEPLUGIN_DLL ezParticleEffectController
 {
 public:

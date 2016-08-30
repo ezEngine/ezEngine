@@ -3,7 +3,7 @@
 #include <ParticlePlugin/Basics.h>
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
 #include <CoreUtils/DataProcessing/Stream/StreamElementSpawner.h>
-#include <ParticlePlugin/Base/ParticleBase.h>
+#include <ParticlePlugin/Module/ParticleModule.h>
 
 class ezParticleSystemInstance;
 class ezStream;
@@ -24,8 +24,15 @@ public:
   virtual void Load(ezStreamReader& stream) = 0;
 };
 
+enum ezParticleEmitterState
+{
+  Active,
+  Finished,
+  OnlyReacting, //< Doesn't do anything, unless there are events that trigger it. That means it is considered finished, when all other emitters are finished.
+};
+
 /// \brief Base class for stream spawners that are used by ezParticleEmitter's
-class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter : public ezParticleBase<ezStreamElementSpawner, true>
+class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter : public ezParticleModule<ezStreamElementSpawner, true>
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitter, ezStreamElementSpawner);
 
@@ -38,6 +45,7 @@ protected:
   virtual ezUInt32 ComputeSpawnCount(const ezTime& tDiff) = 0;
 
   /// \brief Called before ComputeSpawnCount(). Should return true, if the emitter will never spawn any more particles.
-  virtual bool IsFinished() = 0;
+  virtual ezParticleEmitterState IsFinished() = 0;
 
+  virtual void ProcessEventQueue(const ezParticleEventQueue* pQueue) {}
 };

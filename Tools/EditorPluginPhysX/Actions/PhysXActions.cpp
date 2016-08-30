@@ -26,6 +26,7 @@ void ezPhysXActions::UnregisterActions()
 
 void ezPhysXActions::MapMenuActions()
 {
+  /// \todo Is there a way to integrate into ALL document types in a specific menu (ie. project settings)
   ezActionMap* pMap = ezActionMapManager::GetActionMap("EditorPluginScene_DocumentMenuBar");
   EZ_ASSERT_DEV(pMap != nullptr, "Mapping the actions failed!");
 

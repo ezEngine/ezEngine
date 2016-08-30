@@ -154,7 +154,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
       for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
       {
         factories[i]->CopyEmitterProperties(m_Emitters[i]);
-        m_Emitters[i]->AfterPropertiesConfigured();
+        m_Emitters[i]->AfterPropertiesConfigured(false);
         m_Emitters[i]->CreateRequiredStreams();
       }
     }
@@ -166,7 +166,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
       for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
       {
         factories[i]->CopyInitializerProperties(m_Initializers[i]);
-        m_Initializers[i]->AfterPropertiesConfigured();
+        m_Initializers[i]->AfterPropertiesConfigured(false);
         m_Initializers[i]->CreateRequiredStreams();
       }
     }
@@ -196,7 +196,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
       for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
       {
         factories[i]->CopyBehaviorProperties(m_Behaviors[i]);
-        m_Behaviors[i]->AfterPropertiesConfigured();
+        m_Behaviors[i]->AfterPropertiesConfigured(false);
         m_Behaviors[i]->CreateRequiredStreams();
       }
     }
@@ -206,7 +206,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
   CreateStreamZeroInitializers();
 }
 
-void ezParticleSystemInstance::Initialize(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed)
+void ezParticleSystemInstance::Initialize(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect)
 {
   EZ_LOCK(m_Mutex);
 
@@ -219,6 +219,7 @@ void ezParticleSystemInstance::Initialize(ezUInt32 uiMaxParticles, ezWorld* pWor
     m_Random.Initialize(uiRandomSeed);
   }
 
+  m_pOwnerEffect = pOwnerEffect;
   m_bEmitterEnabled = true;
   m_pWorld = pWorld;
 
@@ -242,9 +243,29 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
 
     for (auto pEmitter : m_Emitters)
     {
-      if (!pEmitter->IsFinished())
+      if (pEmitter->IsFinished() == ezParticleEmitterState::Active)
       {
         m_bEmitterEnabled = true;
+        const ezUInt32 uiSpawn = pEmitter->ComputeSpawnCount(tDiff);
+
+        if (uiSpawn > 0)
+        {
+          m_StreamGroup.SpawnElements(uiSpawn);
+        }
+      }
+    }
+  }
+
+  bool bHasReactingEmitters = false;
+
+  // always check reactive emitters, as long as there are particles alive, they might produce more
+  {
+    for (auto pEmitter : m_Emitters)
+    {
+      if (pEmitter->IsFinished() == ezParticleEmitterState::OnlyReacting)
+      {
+        bHasReactingEmitters = true;
+
         const ezUInt32 uiSpawn = pEmitter->ComputeSpawnCount(tDiff);
 
         if (uiSpawn > 0)
@@ -269,7 +290,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
   if (HasActiveParticles())
     return ezParticleSystemState::EmittersFinished;
 
-  return ezParticleSystemState::Inactive;
+  return bHasReactingEmitters ? ezParticleSystemState::OnlyReacting : ezParticleSystemState::Inactive;
 }
 
 const ezStream* ezParticleSystemInstance::QueryStream(const char* szName, ezStream::DataType Type) const
@@ -322,7 +343,6 @@ void ezParticleSystemInstance::CreateStream(const char* szName, ezStream::DataTy
   bind.m_ppStream = ppStream;
   bind.m_sName = fullName;
 }
-
 
 void ezParticleSystemInstance::CreateStreamZeroInitializers()
 {
@@ -379,3 +399,12 @@ ezParticleSystemInstance::StreamInfo::StreamInfo()
   m_bGetsInitialized = false;
   m_bInUse = false;
 }
+
+void ezParticleSystemInstance::ProcessEventQueue(const ezParticleEventQueue* pQueue)
+{
+  for (auto pEmitter : m_Emitters)
+  {
+    pEmitter->ProcessEventQueue(pQueue);
+  }
+}
+

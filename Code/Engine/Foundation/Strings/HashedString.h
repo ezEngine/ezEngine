@@ -132,10 +132,10 @@ class EZ_FOUNDATION_DLL ezTempHashedString
 {
   friend class ezHashedString;
 
-  /// \brief Default constructor is disabled, you are not supposed to store these objects as members.
-  ezTempHashedString();
-
 public:
+
+  ezTempHashedString() { m_uiHash = 0; }
+
   /// \brief Creates an ezTempHashedString object from the given string constant. The hash can be computed at compile time.
   template <size_t N>
   ezTempHashedString(const char(&szString)[N]); // [tested]

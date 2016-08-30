@@ -6,6 +6,7 @@
 
 class ezWorld;
 class ezParticleSystemInstance;
+class ezParticleEffectInstance;
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleEffectManager
 {
@@ -13,7 +14,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleEffectManager
 public:
   ezParticleEffectManager();
 
-  ezParticleSystemInstance* CreateParticleSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed);
+  ezParticleSystemInstance* CreateParticleSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect);
   void DestroyParticleSystemInstance(ezParticleSystemInstance* pInstance);
 
   void Shutdown();

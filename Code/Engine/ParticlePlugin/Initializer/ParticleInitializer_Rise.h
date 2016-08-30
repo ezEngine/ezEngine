@@ -29,7 +29,7 @@
 //  EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer_Rise, ezParticleInitializer);
 //
 //public:
-//  virtual void AfterPropertiesConfigured() override;
+//  virtual void AfterPropertiesConfigured(bool bFirstTime) override;
 //
 //  float m_fMinRiseSpeed;
 //  float m_fRiseSpeedRange;

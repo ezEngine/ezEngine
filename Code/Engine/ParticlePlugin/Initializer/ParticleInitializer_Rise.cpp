@@ -58,7 +58,7 @@
 //  stream >> m_fRiseSpeedRange;
 //}
 //
-//void ezParticleInitializer_Rise::AfterPropertiesConfigured()
+//void ezParticleInitializer_Rise::AfterPropertiesConfigured(bool bFirstTime)
 //{
 //  m_pPhysicsModule = static_cast<ezPhysicsWorldModuleInterface*>(ezWorldModule::FindModule(GetOwnerSystem()->GetWorld(), ezPhysicsWorldModuleInterface::GetStaticRTTI()));
 //}

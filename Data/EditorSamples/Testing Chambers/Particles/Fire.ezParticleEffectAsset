@@ -3,7 +3,25 @@
    "#" : { "$t" : "uuid", "$b" : "0x4F595775AA4B2140A5C950534CB3FCE0" },
    "t" : "ezParticleBehaviorFactory_Age",
    "p" : {
-    
+    "OnDeath Event" : ""
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xF444ADD4C4A12C438FE9A30EEBCCF998" },
+   "t" : "ezParticleSystemDescriptor",
+   "p" : {
+    "Behaviors" : [ { "$t" : "uuid", "$b" : "0x46C4653611AF55449BC4A69C92E1437A" }, { "$t" : "uuid", "$b" : "0x11637B601F8A2444856B148F5BE8E54D" }, { "$t" : "uuid", "$b" : "0x725B1F074C595646B099A969E18CE13A" } ],
+    "Emitters" : [ { "$t" : "uuid", "$b" : "0x7DDB8C2DBB2DA345AD30EB23A76F6790" } ],
+    "Initializers" : [ { "$t" : "uuid", "$b" : "0xE506A8A9E268E947A94BE9666E591EB5" } ],
+    "Max Particles" : { "$t" : "uint32", "$v" : "64", "$b" : "0x40000000" },
+    "Visible" : true
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x11637B601F8A2444856B148F5BE8E54D" },
+   "t" : "ezParticleBehaviorFactory_Gravity",
+   "p" : {
+    "Gravity Factor" : { "$t" : "float", "$v" : "0.1000", "$b" : "0xCDCCCC3D" }
    }
   },
   {
@@ -19,10 +37,17 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x46C4653611AF55449BC4A69C92E1437A" },
+   "t" : "ezParticleBehaviorFactory_Age",
+   "p" : {
+    "OnDeath Event" : ""
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x2ED09AC4E4378D44AB9A1696A2182FC0" },
    "t" : "ezParticleEffectDescriptor",
    "p" : {
-    "Particle Systems" : [ { "$t" : "uuid", "$b" : "0xE84750DD71977A4B829B570FE8DD36E2" } ],
+    "Particle Systems" : [ { "$t" : "uuid", "$b" : "0xE84750DD71977A4B829B570FE8DD36E2" }, { "$t" : "uuid", "$b" : "0xF444ADD4C4A12C438FE9A30EEBCCF998" } ],
     "PreSimulate Duration" : { "$t" : "time", "$v" : "0.0000", "$b" : "0x0000000000000000" },
     "Simulate In Local Space" : false
    }
@@ -36,6 +61,21 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x7DDB8C2DBB2DA345AD30EB23A76F6790" },
+   "t" : "ezParticleEmitterFactory_OnEvent",
+   "p" : {
+    "Event Name" : "Pop"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x725B1F074C595646B099A969E18CE13A" },
+   "t" : "ezParticleBehaviorFactory_Velocity",
+   "p" : {
+    "Acceleration" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "Rise Speed" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" }
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x79076CBC34700E47954018FBDA6AC708" },
    "t" : "ezParticleEmitterFactory_Continuous",
    "p" : {
@@ -44,16 +84,25 @@
     "Duration" : { "$t" : "time", "$v" : "0.0000", "$b" : "0x0000000000000000" },
     "Interval Range" : { "$t" : "time", "$v" : "0.0000", "$b" : "0x0000000000000000" },
     "Min Interval" : { "$t" : "time", "$v" : "0.1000", "$b" : "0x000000A09999B93F" },
-    "Min Spawn Count" : { "$t" : "uint32", "$v" : "5", "$b" : "0x05000000" },
-    "Spawn Count Range" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" }
+    "Min Spawn Count" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
+    "Spawn Count Range" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
+    "Start Delay" : { "$t" : "time", "$v" : "0.0000", "$b" : "0x0000000000000000" }
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0x6A6B0E0DDD694C47AD0170510F2F7126" },
    "t" : "ezParticleInitializerFactory_Life",
    "p" : {
-    "Life Time Range" : { "$t" : "time", "$v" : "1.0000", "$b" : "0x000000000000F03F" },
-    "Min Life Time" : { "$t" : "time", "$v" : "2.0000", "$b" : "0x0000000000000040" }
+    "Life Time Range" : { "$t" : "time", "$v" : "3.0000", "$b" : "0x0000000000000840" },
+    "Min Life Time" : { "$t" : "time", "$v" : "3.0000", "$b" : "0x0000000000000840" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE506A8A9E268E947A94BE9666E591EB5" },
+   "t" : "ezParticleInitializerFactory_Life",
+   "p" : {
+    "Life Time Range" : { "$t" : "time", "$v" : "0.0000", "$b" : "0x0000000000000000" },
+    "Min Life Time" : { "$t" : "time", "$v" : "1.0000", "$b" : "0x000000000000F03F" }
    }
   },
   {
@@ -84,10 +133,11 @@
    "#" : { "$t" : "uuid", "$b" : "0xE84750DD71977A4B829B570FE8DD36E2" },
    "t" : "ezParticleSystemDescriptor",
    "p" : {
-    "Behaviors" : [ { "$t" : "uuid", "$b" : "0x4F595775AA4B2140A5C950534CB3FCE0" }, { "$t" : "uuid", "$b" : "0x8BB9B14D2C8EEA4A903D3E9940F9669B" }, { "$t" : "uuid", "$b" : "0x5315B8686FC859458293CC3BA5720973" }, { "$t" : "uuid", "$b" : "0xA0DB0C97E87A924A9FC20C0531164EE8" } ],
+    "Behaviors" : [ { "$t" : "uuid", "$b" : "0x4F595775AA4B2140A5C950534CB3FCE0" }, { "$t" : "uuid", "$b" : "0x8BB9B14D2C8EEA4A903D3E9940F9669B" }, { "$t" : "uuid", "$b" : "0x5315B8686FC859458293CC3BA5720973" }, { "$t" : "uuid", "$b" : "0xA0DB0C97E87A924A9FC20C0531164EE8" }, { "$t" : "uuid", "$b" : "0xD92AC5F4376FEA4E83647FA8806BCC35" } ],
     "Emitters" : [ { "$t" : "uuid", "$b" : "0x79076CBC34700E47954018FBDA6AC708" } ],
     "Initializers" : [ { "$t" : "uuid", "$b" : "0x6A6B0E0DDD694C47AD0170510F2F7126" }, { "$t" : "uuid", "$b" : "0x4F2A54C8B25A304498CF09FF4D3138C6" } ],
-    "Max Particles" : { "$t" : "uint32", "$v" : "500", "$b" : "0xF4010000" }
+    "Max Particles" : { "$t" : "uint32", "$v" : "500", "$b" : "0xF4010000" },
+    "Visible" : true
    }
   },
   {
@@ -98,8 +148,16 @@
     "AssetType" : "Particle Effect",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x491649B78879EA4BB1456550AB951811" },
-    "Hash" : { "$t" : "uint64", "$v" : "5373596442399611868", "$b" : "0xDC1B886B7ED9924A" },
+    "Hash" : { "$t" : "uint64", "$v" : "1555236783802303764", "$b" : "0x144528689D4F9515" },
     "References" : [ "{ 4817c4cc-5a4a-462c-b80a-e97bc857ffc6 }", "{ 5c9d3e28-e23d-4305-a16e-2db6836ef5d6 }" ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xD92AC5F4376FEA4E83647FA8806BCC35" },
+   "t" : "ezParticleBehaviorFactory_Raycast",
+   "p" : {
+    "Collision Layer" : { "$t" : "uint32", "$v" : "7", "$b" : "0x07000000" },
+    "OnCollide Event" : "Pop"
    }
   } ],
  "Types" : [  ]

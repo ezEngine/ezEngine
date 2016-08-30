@@ -20,6 +20,7 @@ public:
 
 public:
   ezTime m_Duration;
+  ezTime m_StartDelay;
 
   ezUInt32 m_uiSpawnCountMin;
   ezUInt32 m_uiSpawnCountRange;
@@ -42,7 +43,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter_Continuous : public ezParticleEmit
 
 public:
 
-  ezTime m_Duration;
+  ezTime m_Duration; // overall duration in which the emitter is considered active, 0 for endless, -1 for finished
+  ezTime m_StartDelay; // delay before the emitter becomes active, to sync with other systems, only used once, has no effect later on
 
   ezUInt32 m_uiSpawnCountMin;
   ezUInt32 m_uiSpawnCountRange;
@@ -54,18 +56,16 @@ public:
   ezTime m_CurveDuration;
 
 
-  virtual void CreateRequiredStreams() override;
+  virtual void CreateRequiredStreams() override {}
+  virtual void AfterPropertiesConfigured(bool bFirstTime) override;
 
 protected:
-  virtual void SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  virtual void SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override {}
 
-  virtual bool IsFinished() override { return m_Duration < ezTime::Seconds(0); }
+  virtual ezParticleEmitterState IsFinished() override;
   virtual ezUInt32 ComputeSpawnCount(const ezTime& tDiff) override;
 
+  ezTime m_RunningTime;
   ezTime m_NextSpawn;
   ezTime m_CountCurveTime;
-
-  //ezStream* m_pStreamPosition;
-  //ezStream* m_pStreamVelocity;
-  //ezStream* m_pStreamColor;
 };

@@ -61,7 +61,7 @@ void ezParticleSystemDescriptor::ClearBehaviors()
   m_BehaviorFactories.Clear();
 }
 
-enum ParticleSystemVersion
+enum class ParticleSystemVersion
 {
   Version_0 = 0,
   Version_1,
@@ -76,7 +76,7 @@ enum ParticleSystemVersion
 
 void ezParticleSystemDescriptor::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = ParticleSystemVersion::Version_Current;
+  const ezUInt8 uiVersion = (int)ParticleSystemVersion::Version_Current;
 
   stream << uiVersion;
 
@@ -121,7 +121,7 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& stream)
 
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion <= ParticleSystemVersion::Version_Current, "Unknown particle template version %u", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= (int)ParticleSystemVersion::Version_Current, "Unknown particle template version %u", uiVersion);
 
   ezUInt32 uiNumEmitters = 0;
   ezUInt32 uiNumInitializers = 0;

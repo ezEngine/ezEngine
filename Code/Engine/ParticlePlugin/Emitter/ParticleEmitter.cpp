@@ -16,7 +16,7 @@ ezParticleEmitter* ezParticleEmitterFactory::CreateEmitter(ezParticleSystemInsta
   pEmitter->Reset(pOwner);
 
   CopyEmitterProperties(pEmitter);
-  pEmitter->AfterPropertiesConfigured();
+  pEmitter->AfterPropertiesConfigured(true);
   pEmitter->CreateRequiredStreams();
 
   return pEmitter;

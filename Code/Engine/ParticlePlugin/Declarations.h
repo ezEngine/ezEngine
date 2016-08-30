@@ -3,6 +3,8 @@
 #include <ParticlePlugin/Basics.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <Core/ResourceManager/ResourceHandle.h>
+#include <Foundation/Reflection/Implementation/DynamicRTTI.h>
 
 class ezWorld;
 class ezParticleSystemDescriptor;
@@ -12,6 +14,21 @@ class ezParticleBehavior;
 class ezStreamGroup;
 class ezStream;
 class ezRandom;
+class ezParticleEventQueue;
+class ezParticleEffectDescriptor;
+class ezParticleWorldModule;
+class ezParticleEffectInstance;
+
+typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectResourceHandle;
+
+typedef ezGenericId<22, 10> ezParticleEffectId;
+
+/// \brief A handle to a particle effect
+class ezParticleEffectHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezParticleEffectHandle, ezParticleEffectId);
+};
+
 
 struct ezParticleSystemState
 {
@@ -19,6 +36,7 @@ struct ezParticleSystemState
   {
     Active,
     EmittersFinished,
+    OnlyReacting,
     Inactive,
   };
 };

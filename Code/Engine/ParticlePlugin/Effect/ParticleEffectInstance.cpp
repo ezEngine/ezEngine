@@ -6,15 +6,19 @@
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 
 ezParticleEffectInstance::ezParticleEffectInstance()
 {
+  m_pOwnerModule = nullptr;
+
   Clear();
 }
 
 ezParticleEffectInstance::~ezParticleEffectInstance()
 {
   ClearParticleSystems();
+  DestroyEventQueues();
 }
 
 
@@ -28,12 +32,14 @@ void ezParticleEffectInstance::Clear()
   m_pWorld = nullptr;
   m_hResource.Invalidate();
   m_hHandle.Invalidate();
+  m_uiReviveTimeout = 5;
 }
 
 
 void ezParticleEffectInstance::Interrupt()
 {
   ClearParticleSystems();
+  DestroyEventQueues();
   m_bEmitterEnabled = false;
 }
 
@@ -85,9 +91,10 @@ void ezParticleEffectInstance::ClearParticleSystems()
   m_ParticleSystems.Clear();
 }
 
-void ezParticleEffectInstance::Configure(const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld, ezUInt64 uiRandomSeed, bool bIsShared)
+void ezParticleEffectInstance::Configure(const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared)
 {
   m_pWorld = pWorld;
+  m_pOwnerModule = pOwnerModule;
   m_hResource = hResource;
   m_bIsShared = bIsShared;
 
@@ -169,7 +176,7 @@ void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTim
     {
       if (m_ParticleSystems[i] == nullptr)
       {
-        m_ParticleSystems[i] = ezParticleEffectManager::GetSingleton()->CreateParticleSystemInstance(systems[i]->m_uiMaxParticles, m_pWorld, uiRandomSeed);
+        m_ParticleSystems[i] = ezParticleEffectManager::GetSingleton()->CreateParticleSystemInstance(systems[i]->m_uiMaxParticles, m_pWorld, uiRandomSeed, this);
       }
     }
   }
@@ -186,22 +193,30 @@ void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTim
 
 bool ezParticleEffectInstance::Update(const ezTime& tDiff)
 {
-  bool bAnyActive = false;
-
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     if (m_ParticleSystems[i] != nullptr)
     {
-      bAnyActive = true;
+      auto state = m_ParticleSystems[i]->Update(tDiff);
 
-      if (m_ParticleSystems[i]->Update(tDiff) == ezParticleSystemState::Inactive)
+      if (state == ezParticleSystemState::Inactive)
       {
         ClearParticleSystem(i);
+      }
+      else if (state != ezParticleSystemState::OnlyReacting)
+      {
+        // this is used to delay particle effect death by a couple of frames
+        // that way, if an event is in the pipeline that might trigger a reacting emitter,
+        // or particles are in the spawn queue, but not yet created, we don't kill the effect too early
+        m_uiReviveTimeout = 3;
       }
     }
   }
 
-  return bAnyActive;
+  ProcessEventQueues();
+
+  --m_uiReviveTimeout;
+  return m_uiReviveTimeout > 0;
 }
 
 void ezParticleEffectInstance::SetTransform(ezUInt32 uiSharedInstanceIdentifier, const ezTransform& transform)
@@ -274,3 +289,52 @@ void ezParticleEffectInstance::RemoveSharedInstance(ezUInt32 uiSharedInstanceIde
     }
   }
 }
+
+
+ezParticleEventQueue* ezParticleEffectInstance::GetEventQueue(const ezTempHashedString& EventType)
+{
+  for (ezUInt32 i = 0; i < m_EventQueues.GetCount(); ++i)
+  {
+    if (m_EventQueues[i].m_EventTypeHash == EventType.GetHash())
+      return m_EventQueues[i].m_pQueue;
+  }
+
+  auto& queue = m_EventQueues.ExpandAndGetRef();
+
+  queue.m_pQueue = m_pOwnerModule->GetEventQueueManager().CreateEventQueue(EventType.GetHash());
+  queue.m_EventTypeHash = EventType.GetHash();
+
+  return queue.m_pQueue;
+}
+
+
+void ezParticleEffectInstance::DestroyEventQueues()
+{
+  for (auto& queue : m_EventQueues)
+  {
+    m_pOwnerModule->GetEventQueueManager().DestroyEventQueue(queue.m_pQueue);
+  }
+
+  m_EventQueues.Clear();
+}
+
+void ezParticleEffectInstance::ProcessEventQueues()
+{
+  for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+  {
+    if (m_ParticleSystems[i])
+    {
+      for (const auto& queue : m_EventQueues)
+      {
+        m_ParticleSystems[i]->ProcessEventQueue(queue.m_pQueue);
+      }
+    }
+  }
+
+  for (auto& queue : m_EventQueues)
+  {
+    queue.m_pQueue->Clear();
+  }
+}
+
+

@@ -33,7 +33,7 @@ public:
   float m_fAcceleration;
 
 protected:
-  virtual void AfterPropertiesConfigured() override;
+  virtual void AfterPropertiesConfigured(bool bFirstTime) override;
   virtual void Process(ezUInt64 uiNumElements) override;
 
   // used to rise/fall along the gravity vector

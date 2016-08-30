@@ -17,7 +17,7 @@ ezParticleBehavior* ezParticleBehaviorFactory::CreateBehavior(ezParticleSystemIn
   pBehavior->Reset(pOwner);
 
   CopyBehaviorProperties(pBehavior);
-  pBehavior->AfterPropertiesConfigured();
+  pBehavior->AfterPropertiesConfigured(true);
   pBehavior->CreateRequiredStreams();
 
   return pBehavior;

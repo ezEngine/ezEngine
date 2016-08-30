@@ -3,7 +3,7 @@
 #include <ParticlePlugin/Basics.h>
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
 #include <CoreUtils/DataProcessing/Stream/StreamProcessor.h>
-#include <ParticlePlugin/Base/ParticleBase.h>
+#include <ParticlePlugin/Module/ParticleModule.h>
 
 class ezStream;
 class ezParticleSystemInstance;
@@ -24,7 +24,7 @@ public:
   virtual void Load(ezStreamReader& stream) = 0;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior : public ezParticleBase<ezStreamProcessor, false>
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior : public ezParticleModule<ezStreamProcessor, false>
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior, ezStreamProcessor);
 

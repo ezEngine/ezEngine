@@ -8,14 +8,14 @@
 class ezStream;
 
 template<class DerivedFrom, bool StreamInitializer>
-class ezParticleBase : public DerivedFrom
+class ezParticleModule : public DerivedFrom
 {
   friend class ezParticleSystemInstance;
 
 public:
 
   /// \brief Called after construction when m_pOwnerSystem is set and when properties have been set
-  virtual void AfterPropertiesConfigured() {}
+  virtual void AfterPropertiesConfigured(bool bFirstTime) {}
   virtual void CreateRequiredStreams() = 0;
 
   void Reset(ezParticleSystemInstance* pOwner)
@@ -27,6 +27,11 @@ public:
   const ezParticleSystemInstance* GetOwnerSystem() const
   {
     return m_pOwnerSystem;
+  }
+
+  ezParticleEffectInstance* GetOwnerEffect() const
+  {
+    return m_pOwnerSystem->GetOwnerEffect();
   }
 
 protected:

@@ -86,7 +86,7 @@ ezParticleEffectHandle ezParticleWorldModule::InternalCreateInstance(const ezPar
 
   ezResourceLock<ezParticleEffectResource> pResource(hResource, ezResourceAcquireMode::NoFallback);
 
-  pInstance->Configure(hResource, GetWorld(), uiRandomSeed, bIsShared);
+  pInstance->Configure(hResource, GetWorld(), this, uiRandomSeed, bIsShared);
 
   return pInstance->GetHandle();
 }

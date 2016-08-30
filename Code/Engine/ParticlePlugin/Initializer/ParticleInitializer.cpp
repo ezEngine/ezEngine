@@ -17,7 +17,7 @@ ezParticleInitializer* ezParticleInitializerFactory::CreateInitializer(ezParticl
   pInitializer->Reset(pOwner);
 
   CopyInitializerProperties(pInitializer);
-  pInitializer->AfterPropertiesConfigured();
+  pInitializer->AfterPropertiesConfigured(true);
   pInitializer->CreateRequiredStreams();
 
   return pInitializer;

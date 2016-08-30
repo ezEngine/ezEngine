@@ -40,7 +40,7 @@ void ezParticleBehaviorFactory_Velocity::CopyBehaviorProperties(ezParticleBehavi
   pBehavior->m_fAcceleration = m_fAcceleration;
 }
 
-enum BehaviorVelocityVersion
+enum class BehaviorVelocityVersion
 {
   Version_0 = 0,
   Version_1,
@@ -53,7 +53,7 @@ enum BehaviorVelocityVersion
 
 void ezParticleBehaviorFactory_Velocity::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = BehaviorVelocityVersion::Version_Current;
+  const ezUInt8 uiVersion = (int)BehaviorVelocityVersion::Version_Current;
   stream << uiVersion;
 
   stream << m_fRiseSpeed;
@@ -65,13 +65,13 @@ void ezParticleBehaviorFactory_Velocity::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= BehaviorVelocityVersion::Version_Current, "Invalid version %u", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= (int)BehaviorVelocityVersion::Version_Current, "Invalid version %u", uiVersion);
 
   stream >> m_fRiseSpeed;
   stream >> m_fAcceleration;
 }
 
-void ezParticleBehavior_Velocity::AfterPropertiesConfigured()
+void ezParticleBehavior_Velocity::AfterPropertiesConfigured(bool bFirstTime)
 {
   m_pPhysicsModule = static_cast<ezPhysicsWorldModuleInterface*>(ezWorldModule::FindModule(GetOwnerSystem()->GetWorld(), ezPhysicsWorldModuleInterface::GetStaticRTTI()));
 }

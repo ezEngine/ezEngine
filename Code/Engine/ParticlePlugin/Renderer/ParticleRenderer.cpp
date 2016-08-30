@@ -56,7 +56,7 @@ void ezParticleRenderer::RenderBatch(const ezRenderViewContext& renderViewContex
     const ezStream* pStreamColor = pRenderData->m_pParticleSystem->QueryStream("Color", ezStream::DataType::Float4);
     const ezStream* pStreamSize = pRenderData->m_pParticleSystem->QueryStream("Size", ezStream::DataType::Float);
 
-    if (pStreamPosition == nullptr)
+    if (pStreamPosition == nullptr || pStreamPosition->GetData<ezVec3>() == nullptr)
       continue;
 
     const ezVec3* pPosition = pStreamPosition->GetData<ezVec3>();
