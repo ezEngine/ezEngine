@@ -566,7 +566,7 @@ ezPropertyEditorIntSpinboxWidget::ezPropertyEditorIntSpinboxWidget(ezInt32 iMinV
   m_pLayout->addWidget(m_pWidget);
 
   connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_EditingFinished_triggered()));
-  connect(m_pWidget, SIGNAL(valueChanged(int)), this, SLOT(SlotValueChanged()));
+  connect(m_pWidget, SIGNAL(valueChanged(double)), this, SLOT(SlotValueChanged()));
 }
 
 void ezPropertyEditorIntSpinboxWidget::OnInit()
