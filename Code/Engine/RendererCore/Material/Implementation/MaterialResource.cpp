@@ -462,6 +462,15 @@ ezResourceLoadDesc ezMaterialResource::CreateResource(const ezMaterialResourceDe
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
+  if (m_Desc.m_hBaseMaterial.IsValid())
+  {
+    ezResourceLock<ezMaterialResource> pBaseMaterial(m_Desc.m_hBaseMaterial, ezResourceAcquireMode::PointerOnly);
+    pBaseMaterial->m_ModifiedEvent.AddEventHandler(ezMakeDelegate(&ezMaterialResource::OnBaseMaterialModified, this));
+  }
+
+  m_iLastModified.Increment();
+  m_iLastConstantsModified.Increment();
+
   return res;
 }
 

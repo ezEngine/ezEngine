@@ -81,6 +81,9 @@ public:
   bool m_bCompress;
   bool m_bSRGBOutput;
   bool m_bPremultiplyAlpha;
+  ezUInt8 m_uiAddressU;
+  ezUInt8 m_uiAddressV;
+  ezUInt8 m_uiAddressW;
   ezUInt8 m_uiOutputChannels;
   ezHybridArray<ezImage*, 6> m_CleanupImages;
   ezUInt64 m_uiAssetHash;

@@ -10,6 +10,9 @@ void ezTexConv::WriteTexHeader()
     header.Write(m_FileOut);
 
     m_FileOut << m_bSRGBOutput;
+    m_FileOut << m_uiAddressU;
+    m_FileOut << m_uiAddressV;
+    m_FileOut << m_uiAddressW;
   }
 }
 

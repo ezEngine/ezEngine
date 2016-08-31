@@ -124,9 +124,9 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALMSAASampleCount
     FourSamples = 4,
     EightSamples = 8,
 
-    Default = None,
+    ENUM_COUNT = 4,
 
-    ENUM_COUNT = 4
+    Default = None
   };
 };
 
@@ -242,6 +242,8 @@ struct ezGALTextureFilterMode
 
 struct ezGALTextureAddressMode
 {
+  typedef ezUInt8 StorageType;
+
   enum Enum
   {
     Wrap = 0,
@@ -250,7 +252,9 @@ struct ezGALTextureAddressMode
     Border,
     MirrorOnce,
 
-    ENUM_COUNT
+    ENUM_COUNT,
+
+    Default = Wrap
   };
 };
 

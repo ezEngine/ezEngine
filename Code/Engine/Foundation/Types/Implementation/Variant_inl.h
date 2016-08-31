@@ -238,6 +238,18 @@ void ezVariant::DispatchTo(Functor& functor, Type::Enum type)
     CALL_FUNCTOR(functor, ezVec4I32);
     break;
 
+  case Type::Vector2U:
+    CALL_FUNCTOR(functor, ezVec2U32);
+    break;
+
+  case Type::Vector3U:
+    CALL_FUNCTOR(functor, ezVec3U32);
+    break;
+
+  case Type::Vector4U:
+    CALL_FUNCTOR(functor, ezVec4U32);
+    break;
+
   case Type::Quaternion:
     CALL_FUNCTOR(functor, ezQuat);
     break;

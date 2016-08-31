@@ -260,24 +260,31 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReader* Stream)
   bool bSRGB = false;
   *Stream >> bSRGB;
 
+  ezEnum<ezGALTextureAddressMode> addressModeU = ezGALTextureAddressMode::Wrap;
+  ezEnum<ezGALTextureAddressMode> addressModeV = ezGALTextureAddressMode::Wrap;
+  ezEnum<ezGALTextureAddressMode> addressModeW = ezGALTextureAddressMode::Wrap;
+  *Stream >> addressModeU;
+  *Stream >> addressModeV;
+  *Stream >> addressModeW;
+
   const ezUInt32 uiNumMipmapsLowRes = s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : 6;
 
   const ezUInt32 uiNumMipLevels = ezMath::Min(m_uiLoadedTextures == 0 ? uiNumMipmapsLowRes : pImage->GetNumMipLevels(), pImage->GetNumMipLevels());
   const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
 
-  ezGALTextureCreationDescription TexDesc;
-  TexDesc.m_Format = ImgToGalFormat(pImage->GetImageFormat(), bSRGB);
-  TexDesc.m_uiWidth = pImage->GetWidth(uiHighestMipLevel);
-  TexDesc.m_uiHeight = pImage->GetHeight(uiHighestMipLevel);
-  TexDesc.m_uiDepth = pImage->GetDepth(uiHighestMipLevel);
-  TexDesc.m_uiMipLevelCount = uiNumMipLevels;
-  TexDesc.m_uiArraySize = pImage->GetNumArrayIndices();
+  ezGALTextureCreationDescription texDesc;
+  texDesc.m_Format = ImgToGalFormat(pImage->GetImageFormat(), bSRGB);
+  texDesc.m_uiWidth = pImage->GetWidth(uiHighestMipLevel);
+  texDesc.m_uiHeight = pImage->GetHeight(uiHighestMipLevel);
+  texDesc.m_uiDepth = pImage->GetDepth(uiHighestMipLevel);
+  texDesc.m_uiMipLevelCount = uiNumMipLevels;
+  texDesc.m_uiArraySize = pImage->GetNumArrayIndices();
 
-  if (TexDesc.m_uiDepth > 1)
-    TexDesc.m_Type = ezGALTextureType::Texture3D;
+  if (texDesc.m_uiDepth > 1)
+    texDesc.m_Type = ezGALTextureType::Texture3D;
 
   if (pImage->GetNumFaces() == 6)
-    TexDesc.m_Type = ezGALTextureType::TextureCube;
+    texDesc.m_Type = ezGALTextureType::TextureCube;
 
   EZ_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces (resource: '%s')", GetResourceID().GetData());
 
@@ -316,7 +323,10 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReader* Stream)
   const ezArrayPtr<ezGALSystemMemoryDescription> InitDataPtr(InitData);
 
   ezTextureResourceDescriptor td;
-  td.m_DescGAL = TexDesc;
+  td.m_DescGAL = texDesc;
+  td.m_SamplerDesc.m_AddressU = addressModeU;
+  td.m_SamplerDesc.m_AddressV = addressModeV;
+  td.m_SamplerDesc.m_AddressW = addressModeW;
   td.m_InitialContent = InitDataPtr;
 
   // ignore its return value here, we build our own
@@ -357,22 +367,9 @@ ezResourceLoadDesc ezTextureResource::CreateResource(const ezTextureResourceDesc
 
   pDevice->GetTexture(m_hGALTexture[m_uiLoadedTextures])->SetDebugName(GetResourceDescription());
 
-  /// \todo HACK
   if (m_hSamplerState.IsInvalidated())
   {
-    ezGALSamplerStateCreationDescription SamplerDesc;
-    SamplerDesc.m_MagFilter = ezGALTextureFilterMode::Linear;
-    SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Point;
-    SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Point;
-
-    if (descriptor.m_DescGAL.m_uiMipLevelCount > 1)
-    {
-      SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Linear;
-      SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Linear;
-    }
-
-    m_hSamplerState = pDevice->CreateSamplerState(SamplerDesc);
-
+    m_hSamplerState = pDevice->CreateSamplerState(descriptor.m_SamplerDesc);
     EZ_ASSERT_DEV(!m_hSamplerState.IsInvalidated(), "Sampler state error");
   }
 
@@ -388,6 +385,9 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
   ezResourceLoadData res;
 
   bool bSRGB = false;
+  ezEnum<ezGALTextureAddressMode> addressModeU = ezGALTextureAddressMode::Wrap;
+  ezEnum<ezGALTextureAddressMode> addressModeV = ezGALTextureAddressMode::Wrap;
+  ezEnum<ezGALTextureAddressMode> addressModeW = ezGALTextureAddressMode::Wrap;
 
   // Solid Color Textures
   if (ezPathUtils::HasExtension(pResource->GetResourceID(), "color"))
@@ -452,6 +452,9 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
 
       // read the ezTex file format
       File >> bSRGB;
+      File >> addressModeU;
+      File >> addressModeV;
+      File >> addressModeW;
 
       ezDdsFileFormat fmt;
       if (fmt.ReadImage(File, pData->m_Image, ezGlobalLog::GetOrCreateInstance()).Failed())
@@ -482,6 +485,9 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
   w.WriteBytes(&pImage, sizeof(ezImage*));
 
   w << bSRGB;
+  w << addressModeU;
+  w << addressModeV;
+  w << addressModeW;
 
   res.m_pDataStream = &pData->m_Reader;
   res.m_pCustomLoaderData = pData;

@@ -6,6 +6,15 @@
 #include <Shaders/Common/ObjectConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.inc>
 
+#if defined(USE_OBJECT_POSITION_OFFSET)
+	float3 GetObjectPositionOffset(VS_IN Input, PerInstanceData data);
+#endif
+
+#if defined(USE_WORLD_POSITION_OFFSET)
+	float3 GetWorldPositionOffset(VS_IN Input, PerInstanceData data);
+#endif
+
+
 PerInstanceData GetInstanceData(VS_IN Input)
 {
 	#if INSTANCING
@@ -21,10 +30,19 @@ VS_OUT FillVertexData(VS_IN Input)
 	float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
 	float3x3 objectToWorldNormal = (float3x3)TransformToMatrix(data.ObjectToWorldNormal);
 	
-	VS_OUT Output;
-	Output.WorldPosition = mul(objectToWorld, float4(Input.Position, 1.0)).xyz;
-	Output.Position = mul(WorldToScreenMatrix, float4(Output.WorldPosition, 1.0));
+	float3 objectPosition = Input.Position;
+	#if defined(USE_OBJECT_POSITION_OFFSET)
+		objectPosition += GetObjectPositionOffset(Input, data);
+	#endif
 	
+	VS_OUT Output;
+	Output.WorldPosition = mul(objectToWorld, float4(objectPosition, 1.0)).xyz;
+	#if defined(USE_WORLD_POSITION_OFFSET)
+		Output.WorldPosition += GetWorldPositionOffset(Input, data);
+	#endif
+	
+	Output.Position = mul(WorldToScreenMatrix, float4(Output.WorldPosition, 1.0));
+		
 	#if defined(USE_NORMAL)
 		Output.Normal = normalize(mul(objectToWorldNormal, Input.Normal));
 	#endif

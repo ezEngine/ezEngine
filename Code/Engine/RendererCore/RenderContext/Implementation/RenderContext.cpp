@@ -169,9 +169,16 @@ void ezRenderContext::BindMaterial(const ezMaterialResourceHandle& hMaterial)
 void ezRenderContext::BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture,
   ezResourceAcquireMode acquireMode /*= ezResourceAcquireMode::AllowFallback*/)
 {
-  ezResourceLock<ezTextureResource> pTexture(hTexture, acquireMode);
-  BindTexture(stage, sSlotName, ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(pTexture->GetGALTexture()));
-  BindSamplerState(stage, sSlotName, pTexture->GetGALSamplerState());
+  if (hTexture.IsValid())
+  {
+    ezResourceLock<ezTextureResource> pTexture(hTexture, acquireMode);
+    BindTexture(stage, sSlotName, ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(pTexture->GetGALTexture()));
+    BindSamplerState(stage, sSlotName, pTexture->GetGALSamplerState());
+  }
+  else
+  {
+    BindTexture(stage, sSlotName, ezGALResourceViewHandle());
+  }
 }
 
 void ezRenderContext::BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView)
@@ -765,7 +772,7 @@ ezShaderPermutationResource* ezRenderContext::ApplyShaderState()
 {
   m_hActiveGALShader.Invalidate();
 
-  m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged | ezRenderContextFlags::BufferBindingChanged | ezRenderContextFlags::ConstantBufferBindingChanged);
+  m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged | ezRenderContextFlags::SamplerBindingChanged | ezRenderContextFlags::BufferBindingChanged | ezRenderContextFlags::ConstantBufferBindingChanged);
 
   if (!m_hActiveShader.IsValid())
     return nullptr;

@@ -27,6 +27,9 @@ ezChannelMappingEnum::RGB1_CUBE;Cubemap: RGB - Single Input
 ezChannelMappingEnum::RGBA1_CUBE;Cubemap: RGBA - Single Input
 ezChannelMappingEnum::RGB1TO6_CUBE;Cubemap: RGB - 6 Inputs
 ezChannelMappingEnum::RGBA1TO6_CUBE;Cubemap: RGBA - 6 Inputs
+ezTextureAddressMode::Wrap;Wrap
+ezTextureAddressMode::Mirror;Mirror
+ezTextureAddressMode::Clamp;Clamp
 Color CPs;Color Control Points
 Alpha CPs;Alpha Control Points
 Intensity CPs;Intensity Control Points

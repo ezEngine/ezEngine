@@ -19,7 +19,7 @@ Permutation BLEND_MODE;
 Permutation SHADING_MODE;
 Permutation TWO_SIDED;
 
-float MaskThreshold @Default(0.25)
+float MaskThreshold @Default(0.25);
 
 Permutation DEFAULT_MAT_USE_BASE_TEXTURE;
 Texture2D BaseTexture;

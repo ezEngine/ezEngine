@@ -8,6 +8,9 @@ ezTexConv::ezTexConv()
   m_uiOutputChannels = 4;
   m_bSRGBOutput = false;
   m_bPremultiplyAlpha = false;
+  m_uiAddressU = 0;
+  m_uiAddressV = 0;
+  m_uiAddressW = 0;
   m_uiAssetHash = 0;
   m_uiAssetVersion = 0;
   m_bAlphaIsMaskOnly = false;
@@ -243,6 +246,10 @@ void ezTexConv::ParseCommandLine()
     m_bSRGBOutput = pCmd->GetBoolOption("-srgb", false);
     m_uiOutputChannels = pCmd->GetIntOption("-channels", 4);
     m_bPremultiplyAlpha = pCmd->GetBoolOption("-premulalpha", false);
+
+    m_uiAddressU = pCmd->GetIntOption("-addressU", 0);
+    m_uiAddressV = pCmd->GetIntOption("-addressV", 0);
+    m_uiAddressW = pCmd->GetIntOption("-addressW", 0);
   }
 
   // Thumbnail

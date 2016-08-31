@@ -90,6 +90,7 @@ ezMeshComponent;Mesh
 ezDirectionalLightComponent;Directional Light
 ezSpotLightComponent;Spot Light
 ezPointLightComponent;Point Light
+ezSkyBoxComponent;Sky Box
 ezRotorComponent;Rotor
 ezSliderComponent;Slider
 ezCollectionComponent;Collection

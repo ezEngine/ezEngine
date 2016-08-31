@@ -48,6 +48,9 @@ public:
       Vector2I,           ///< The variant stores an ezVec2I32.
       Vector3I,           ///< The variant stores an ezVec3I32.
       Vector4I,           ///< The variant stores an ezVec4I32.
+      Vector2U,           ///< The variant stores an ezVec2U32.
+      Vector3U,           ///< The variant stores an ezVec3U32.
+      Vector4U,           ///< The variant stores an ezVec4U32.
       Quaternion,         ///< The variant stores an ezQuat.
       Matrix3,            ///< The variant stores an ezMat3. A heap allocation is required to store this data type.
       Matrix4,            ///< The variant stores an ezMat4. A heap allocation is required to store this data type.

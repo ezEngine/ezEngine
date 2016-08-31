@@ -51,3 +51,25 @@ public:
 private:
   float m_Data[12];
 };
+
+/// \brief A wrapper class that converts a bool into the correct data layout for shaders.
+class ezShaderBool
+{
+public:
+  EZ_FORCE_INLINE ezShaderBool()
+  {
+  }
+
+  EZ_FORCE_INLINE ezShaderBool(bool b)
+  {
+    m_Data = b ? 0xFFFFFFFF : 0;
+  }
+
+  EZ_FORCE_INLINE void operator=(bool b)
+  {
+    m_Data = b ? 0xFFFFFFFF : 0;
+  }
+
+private:
+  ezUInt32 m_Data;
+};

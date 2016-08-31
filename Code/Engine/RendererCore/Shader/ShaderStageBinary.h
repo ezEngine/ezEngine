@@ -37,6 +37,7 @@ public:
         Mat3x3,
         Mat4x4,
         Transform,
+        Bool,
         ENUM_COUNT
       };
     };
@@ -65,7 +66,6 @@ private:
   ~ezShaderConstantBufferLayout();
 
 public:
-  ezUInt32 GetHash() const;
   ezResult Write(ezStreamWriter& stream) const;
   ezResult Read(ezStreamReader& stream);
 

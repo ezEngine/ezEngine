@@ -236,6 +236,45 @@ struct ezVariant::TypeDeduction<ezVec4I32>
 };
 
 template <>
+struct ezVariant::TypeDeduction<ezVec2U32>
+{
+  enum
+  {
+    value = Type::Vector2U,
+    forceSharing = false,
+    hasReflectedMembers = true
+  };
+
+  typedef ezVec2U32 StorageType;
+};
+
+template <>
+struct ezVariant::TypeDeduction<ezVec3U32>
+{
+  enum
+  {
+    value = Type::Vector3U,
+    forceSharing = false,
+    hasReflectedMembers = true
+  };
+
+  typedef ezVec3U32 StorageType;
+};
+
+template <>
+struct ezVariant::TypeDeduction<ezVec4U32>
+{
+  enum
+  {
+    value = Type::Vector4U,
+    forceSharing = false,
+    hasReflectedMembers = true
+  };
+
+  typedef ezVec4U32 StorageType;
+};
+
+template <>
 struct ezVariant::TypeDeduction<ezQuat>
 {
   enum

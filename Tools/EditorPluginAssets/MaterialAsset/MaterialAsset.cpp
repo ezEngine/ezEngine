@@ -51,6 +51,15 @@ namespace
     s_NameToTypeTable.Insert("float2", ezGetStaticRTTI<ezVec2>());
     s_NameToTypeTable.Insert("float3", ezGetStaticRTTI<ezVec3>());
     s_NameToTypeTable.Insert("float4", ezGetStaticRTTI<ezVec4>());
+    s_NameToTypeTable.Insert("int", ezGetStaticRTTI<int>());
+    s_NameToTypeTable.Insert("int2", ezGetStaticRTTI<ezVec2I32>());
+    s_NameToTypeTable.Insert("int3", ezGetStaticRTTI<ezVec3I32>());
+    s_NameToTypeTable.Insert("int4", ezGetStaticRTTI<ezVec4I32>());
+    s_NameToTypeTable.Insert("uint", ezGetStaticRTTI<ezUInt32>());
+    s_NameToTypeTable.Insert("uint2", ezGetStaticRTTI<ezVec2U32>());
+    s_NameToTypeTable.Insert("uint3", ezGetStaticRTTI<ezVec3U32>());
+    s_NameToTypeTable.Insert("uint4", ezGetStaticRTTI<ezVec4U32>());
+    s_NameToTypeTable.Insert("bool", ezGetStaticRTTI<bool>());
     s_NameToTypeTable.Insert("Color", ezGetStaticRTTI<ezColor>());
     s_NameToTypeTable.Insert("Texture", ezGetStaticRTTI<ezString>());
     s_NameToTypeTable.Insert("Texture2D", ezGetStaticRTTI<ezString>());
@@ -180,7 +189,7 @@ namespace
     {
       if (attributeDef.m_sName.IsEqual("Default"))
       {
-		//TODO: this needs a proper implementation for types other than float
+    //TODO: this needs a proper implementation for types other than float
         double fValue;
         ezConversionUtils::StringToFloat(attributeDef.m_sValue, fValue);
 

@@ -111,6 +111,10 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   if (pProp->IsTextureCube())
     arguments << "-cubemap";
 
+  arguments << "-addressU" << QString::number(pProp->m_AddressModeU.GetValue());
+  arguments << "-addressV" << QString::number(pProp->m_AddressModeV.GetValue());
+  arguments << "-addressW" << QString::number(pProp->m_AddressModeW.GetValue());
+
   const ezInt32 iNumInputFiles = pProp->GetNumInputFiles();
   for (ezInt32 i = 0; i < iNumInputFiles; ++i)
   {

@@ -1,0 +1,97 @@
+[PLATFORMS] 
+ALL
+
+[PERMUTATIONS]
+
+BLEND_MODE
+RENDER_PASS
+
+[MATERIALPARAMETER]
+
+Permutation BLEND_MODE;
+
+float MaskThreshold @Default(0.25);
+float ExposureBias;
+bool InverseTonemap;
+
+Texture2D BaseTexture;
+Color BaseColor @Default(1.0, 1.0, 1.0);
+
+[RENDERSTATE]
+
+#define TWO_SIDED TRUE
+#include <Shaders/Materials/MaterialState.inc>
+
+DepthWrite = false
+
+[VERTEXSHADER]
+
+#define USE_TEXCOORD0
+#define USE_WORLD_POSITION_OFFSET
+
+#include <Shaders/Materials/SkyMaterialCB.inc>
+#include <Shaders/Materials/MaterialVertexShader.inc>
+
+float3 GetWorldPositionOffset(VS_IN Input, PerInstanceData data)
+{
+	return CameraPosition;
+}
+
+VS_OUT main(VS_IN Input)
+{
+	VS_OUT Output = FillVertexData(Input);
+	Output.Position.z = Output.Position.w;
+	return Output;
+}
+
+[PIXELSHADER]
+
+#define USE_TEXCOORD0
+
+#include <Shaders/Materials/SkyMaterialCB.inc>
+#include <Shaders/Materials/MaterialPixelShader.inc>
+
+Texture2D BaseTexture;
+SamplerState BaseTexture_AutoSampler;
+
+float3 GetNormal(PS_IN Input)
+{
+	return float3(0.0f, 0.0f, 1.0f);
+}
+
+float3 GetDiffuseColor(PS_IN Input)
+{
+	float3 color = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).rgb * BaseColor.rgb;
+	float weight = exp2(ExposureBias);
+	
+	if (InverseTonemap)
+	{
+		float luminance = GetLuminance(color);
+		weight *= rcp(max(1.0f - luminance, 0.001f));
+	}
+	
+	color *= weight;
+	
+	return color;
+}
+
+float3 GetSpecularColor(PS_IN Input)
+{
+	return 0.0f;
+}
+
+float GetRoughness(PS_IN Input)
+{
+	return 1.0f;
+}
+
+float GetOpacity(PS_IN Input)
+{
+	float opacity = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).a * BaseColor.a;
+	
+	#if BLEND_MODE == BLEND_MODE_MASKED
+		return opacity - MaskThreshold;
+	#else
+		return opacity;
+	#endif
+}

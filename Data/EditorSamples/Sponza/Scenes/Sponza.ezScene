@@ -18,6 +18,21 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xD5ACAF78F8E9B9408D7230846A7CEC80" },
+   "t" : "ezSkyBoxComponent",
+   "p" : {
+    "Active" : true,
+    "Back Texture" : "{ b1a12ed8-9389-400a-8a56-f14dc856fb86 }",
+    "Down Texture" : "{ 566d4602-16df-4df2-a5fb-0e53879a7db5 }",
+    "Exposure Bias" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Front Texture" : "{ 16392084-7980-4556-97a2-6f0c0312d5a0 }",
+    "Inverse Tonemap" : true,
+    "Left Texture" : "{ aa3ec83f-a932-415e-ac02-8ceffdb733c1 }",
+    "Right Texture" : "{ ed0a89ca-d7a4-4e39-a25f-9518c1cd3aff }",
+    "Up Texture" : "{ 626d50a0-e628-485c-bfef-33879466108d }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xD387D7D58EFE914197A056607A4C6C66" },
    "t" : "ezGameObject",
    "p" : {
@@ -101,6 +116,21 @@
     "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(-0.6588, 1.1357, 1.9804)", "$b" : "0x1CA528BF355D913F8E7EFD3F" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0xD68D6EBE75A33B3FE0719BBEE8FA0F3F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x238730934B906845836405D425E96192" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xD5ACAF78F8E9B9408D7230846A7CEC80" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "",
@@ -246,7 +276,7 @@
    "t" : "ezDocumentRoot",
    "n" : "ObjectTree",
    "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0xE28EB66E4B66FD459872FCBD3D196E9C" }, { "$t" : "uuid", "$b" : "0xA3BC20670D78F0C8D319F9B161C3376F" }, { "$t" : "uuid", "$b" : "0x9CD3E5C5015B2449A2938B3753028645" }, { "$t" : "uuid", "$b" : "0xD387D7D58EFE914197A056607A4C6C66" }, { "$t" : "uuid", "$b" : "0x2F89E1D18E8A4E4587AAE83AE9AE40FF" }, { "$t" : "uuid", "$b" : "0xF10CA132A4A0F3429F2E4E6E34FF4E61" }, { "$t" : "uuid", "$b" : "0x6187EF0DF9236D4BBF77F69585432692" } ]
+    "Children" : [ { "$t" : "uuid", "$b" : "0xE28EB66E4B66FD459872FCBD3D196E9C" }, { "$t" : "uuid", "$b" : "0xA3BC20670D78F0C8D319F9B161C3376F" }, { "$t" : "uuid", "$b" : "0x9CD3E5C5015B2449A2938B3753028645" }, { "$t" : "uuid", "$b" : "0xD387D7D58EFE914197A056607A4C6C66" }, { "$t" : "uuid", "$b" : "0x2F89E1D18E8A4E4587AAE83AE9AE40FF" }, { "$t" : "uuid", "$b" : "0xF10CA132A4A0F3429F2E4E6E34FF4E61" }, { "$t" : "uuid", "$b" : "0x6187EF0DF9236D4BBF77F69585432692" }, { "$t" : "uuid", "$b" : "0x238730934B906845836405D425E96192" } ]
    }
   },
   {
@@ -257,7 +287,7 @@
     "Components" : [ { "$t" : "uuid", "$b" : "0x5A3F5A795BB7164D9EE7C667DF06FA22" } ],
     "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 4.0000)", "$b" : "0x000000000000000000008040" },
-    "LocalRotation" : { "$t" : "quat", "$b" : "0xFEFF7F3ED7B3DD3ED7B3DDBE0100403F" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x3719CB3ECCD79B3E72E32FBFC3F6063F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "",
@@ -272,8 +302,8 @@
     "AssetType" : "Scene",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x5D079F69E049C14CAE6B2A2B47BE2858" },
-    "Hash" : { "$t" : "uint64", "$v" : "1095087337828914252", "$b" : "0x4C1452B92188320F" },
-    "References" : [ "{ 2c0adb01-ca49-4231-b10c-450af1b8fa1d }", "{ 4673a1ba-52f2-4cce-9924-b63957d980fc }", "{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }", "{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }", "{ cea3567e-6d36-418f-9259-f2e157979bcc }", "{ da463c4d-c984-4910-b0b7-a0b3891d0448 }" ]
+    "Hash" : { "$t" : "uint64", "$v" : "6357535576504912307", "$b" : "0xB3C97B54EC803A58" },
+    "References" : [ "{ 16392084-7980-4556-97a2-6f0c0312d5a0 }", "{ 2c0adb01-ca49-4231-b10c-450af1b8fa1d }", "{ 4673a1ba-52f2-4cce-9924-b63957d980fc }", "{ 566d4602-16df-4df2-a5fb-0e53879a7db5 }", "{ 626d50a0-e628-485c-bfef-33879466108d }", "{ aa3ec83f-a932-415e-ac02-8ceffdb733c1 }", "{ b1a12ed8-9389-400a-8a56-f14dc856fb86 }", "{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }", "{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }", "{ cea3567e-6d36-418f-9259-f2e157979bcc }", "{ da463c4d-c984-4910-b0b7-a0b3891d0448 }", "{ ed0a89ca-d7a4-4e39-a25f-9518c1cd3aff }" ]
    }
   },
   {
@@ -281,7 +311,7 @@
    "t" : "ezDirectionalLightComponent",
    "p" : {
     "Active" : true,
-    "Intensity" : { "$t" : "float", "$v" : "2.0000", "$b" : "0x00000040" },
+    "Intensity" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" },
     "Light Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
    }
   },

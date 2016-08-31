@@ -1,0 +1,43 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0xD82EA1B189930A408A56F14DC856FB86" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Texture 2D",
+    "Dependencies" : [  ],
+    "DocumentID" : { "$t" : "uuid", "$b" : "0xD82EA1B189930A408A56F14DC856FB86" },
+    "Hash" : { "$t" : "uint64", "$v" : "14529284904887629982", "$b" : "0x9EB8453CA463A2C9" },
+    "References" : [ "Textures/skybox_bk.tga" ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xC1F67353A0EF1841B8960931291C2E47" },
+   "t" : "ezTextureAssetProperties",
+   "p" : {
+    "Address Mode U" : "ezTextureAddressMode::Clamp",
+    "Address Mode V" : "ezTextureAddressMode::Clamp",
+    "Address Mode W" : "ezTextureAddressMode::Clamp",
+    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
+    "Compression" : false,
+    "Input 1" : "Textures/skybox_bk.tga",
+    "Input 2" : "",
+    "Input 3" : "",
+    "Input 4" : "",
+    "Input 5" : "",
+    "Input 6" : "",
+    "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
+    "Usage" : "ezTextureUsageEnum::Diffuse"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0xC1F67353A0EF1841B8960931291C2E47" } ]
+   }
+  } ],
+ "Types" : [  ]
+}

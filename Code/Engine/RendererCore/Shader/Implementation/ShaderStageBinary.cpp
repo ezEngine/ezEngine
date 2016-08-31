@@ -14,16 +14,20 @@ ezUInt32 ezShaderConstantBufferLayout::Constant::s_TypeSize[(ezUInt32)Type::ENUM
   sizeof(int) * 2,
   sizeof(int) * 3,
   sizeof(int) * 4,
-  sizeof(float) * 12,
-  sizeof(float) * 16,
-  sizeof(float) * 12,
+  sizeof(ezUInt32) * 1,
+  sizeof(ezUInt32) * 2,
+  sizeof(ezUInt32) * 3,
+  sizeof(ezUInt32) * 4,
+  sizeof(ezShaderMat3),
+  sizeof(ezMat4),
+  sizeof(ezShaderTransform),
+  sizeof(ezShaderBool)
 };
 
 void ezShaderConstantBufferLayout::Constant::CopyDataFormVariant(ezUInt8* pDest, ezVariant* pValue) const
 {
   EZ_ASSERT_DEV(m_uiArrayElements == 1, "Array constants are not supported");
 
-  const ezUInt32 uiSize = s_TypeSize[m_Type];
   ezResult conversionResult = EZ_FAILURE;
 
   if (pValue != nullptr)
@@ -56,12 +60,27 @@ void ezShaderConstantBufferLayout::Constant::CopyDataFormVariant(ezUInt8* pDest,
     case Type::Int4:
       *reinterpret_cast<ezVec4I32*>(pDest) = pValue->Get<ezVec4I32>(); return;
 
+    case Type::UInt1:
+      *reinterpret_cast<ezUInt32*>(pDest) = pValue->ConvertTo<ezUInt32>(&conversionResult); break;
+    case Type::UInt2:
+      *reinterpret_cast<ezVec2U32*>(pDest) = pValue->Get<ezVec2U32>(); return;
+    case Type::UInt3:
+      *reinterpret_cast<ezVec3U32*>(pDest) = pValue->Get<ezVec3U32>(); return;
+    case Type::UInt4:
+      *reinterpret_cast<ezVec4U32*>(pDest) = pValue->Get<ezVec4U32>(); return;
+
     case Type::Mat3x3:
       *reinterpret_cast<ezShaderMat3*>(pDest) = pValue->Get<ezMat3>(); return;
     case Type::Mat4x4:
       *reinterpret_cast<ezMat4*>(pDest) = pValue->Get<ezMat4>(); return;
     case Type::Transform:
       *reinterpret_cast<ezShaderTransform*>(pDest) = pValue->Get<ezTransform>(); return;
+
+    case Type::Bool:
+      *reinterpret_cast<ezShaderBool*>(pDest) = pValue->ConvertTo<bool>(&conversionResult); break;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
     }
   }
 
@@ -71,6 +90,7 @@ void ezShaderConstantBufferLayout::Constant::CopyDataFormVariant(ezUInt8* pDest,
   }
   
   //ezLog::Error("Constant '%s' is not set, invalid or couldn't be converted to target type and will be set to zero.", m_sName.GetData());
+  const ezUInt32 uiSize = s_TypeSize[m_Type];
   ezMemoryUtils::ZeroFill(pDest, uiSize);
 }
 
@@ -81,19 +101,6 @@ ezShaderConstantBufferLayout::ezShaderConstantBufferLayout()
 
 ezShaderConstantBufferLayout::~ezShaderConstantBufferLayout()
 {
-}
-
-ezUInt32 ezShaderConstantBufferLayout::GetHash() const
-{
-  ezStringBuilder s;
-  s.AppendFormat("%u/%u", m_uiTotalSize, m_Constants.GetCount());
-
-  for (const auto& c : m_Constants)
-  {
-    s.AppendFormat("_%u/%u/%u", c.m_uiOffset, c.m_sName.GetHash(), Constant::s_TypeSize[c.m_Type] * c.m_uiArrayElements);
-  }
-
-  return ezHashing::MurmurHash(s.GetData());
 }
 
 ezResult ezShaderConstantBufferLayout::Write(ezStreamWriter& stream) const

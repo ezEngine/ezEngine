@@ -21,6 +21,7 @@ struct ezTextureResourceDescriptor
 
   /// Describes the texture format, etc.
   ezGALTextureCreationDescription m_DescGAL;
+  ezGALSamplerStateCreationDescription m_SamplerDesc;
 
   /// How many quality levels can be discarded and reloaded. For created textures this can currently only be 0 or 1.
   ezUInt8 m_uiQualityLevelsDiscardable;
@@ -58,7 +59,7 @@ private:
   ezUInt8 m_uiLoadedTextures;
   ezGALTextureHandle m_hGALTexture[2];
   ezUInt32 m_uiMemoryGPU[2];
-  ezGALSamplerStateHandle m_hSamplerState; // HACK
+  ezGALSamplerStateHandle m_hSamplerState;
 };
 
 

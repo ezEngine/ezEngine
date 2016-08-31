@@ -63,6 +63,24 @@ struct ezChannelMappingEnum
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezChannelMappingEnum);
 
+
+struct ezTextureAddressMode
+{
+  typedef ezInt8 StorageType;
+
+  enum Enum
+  {
+    Wrap = 0,
+    Mirror,
+    Clamp,
+
+    Default = Wrap
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTextureAddressMode);
+
+
 class ezTextureAssetProperties : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTextureAssetProperties, ezReflectedClass);
@@ -99,6 +117,10 @@ public:
   bool m_bMipmaps;
   bool m_bCompression;
   bool m_bPremultipliedAlpha;
+
+  ezEnum<ezTextureAddressMode> m_AddressModeU;
+  ezEnum<ezTextureAddressMode> m_AddressModeV;
+  ezEnum<ezTextureAddressMode> m_AddressModeW;
 
 private:
   ezEnum<ezTextureUsageEnum> m_TextureUsage;
