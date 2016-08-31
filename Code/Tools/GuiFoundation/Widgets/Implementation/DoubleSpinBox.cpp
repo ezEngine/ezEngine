@@ -156,7 +156,12 @@ void ezQDoubleSpinBox::focusOutEvent(QFocusEvent *event)
 
 void ezQDoubleSpinBox::mousePressEvent(QMouseEvent* event)
 {
-  if (event->button() == Qt::LeftButton)
+  QStyleOptionSpinBox opt;
+  initStyleOption(&opt);
+  opt.subControls = QStyle::SC_All;
+  QStyle::SubControl hoverControl = style()->hitTestComplexControl(QStyle::CC_SpinBox, &opt, event->pos(), this);
+
+  if (event->button() == Qt::LeftButton && (hoverControl == QStyle::SC_SpinBoxUp || hoverControl == QStyle::SC_SpinBoxDown))
   {
     m_bDragging = true;
     m_bModified = false;
@@ -170,13 +175,29 @@ void ezQDoubleSpinBox::mousePressEvent(QMouseEvent* event)
 
 void ezQDoubleSpinBox::mouseReleaseEvent(QMouseEvent* event)
 {
-  if (event->button() == Qt::LeftButton)
+  if (event->button() == Qt::LeftButton && m_bDragging)
   {
     m_bDragging = false;
     if (m_bModified)
     {
       m_bModified = false;
       emit editingFinished();
+    }
+    else
+    {
+      QStyleOptionSpinBox opt;
+      initStyleOption(&opt);
+      opt.subControls = QStyle::SC_All;
+      QStyle::SubControl hoverControl = style()->hitTestComplexControl(QStyle::CC_SpinBox, &opt, event->pos(), this);
+      if (hoverControl == QStyle::SC_SpinBoxUp)
+      {
+        stepUp();
+      }
+      else if (hoverControl == QStyle::SC_SpinBoxDown)
+      {
+        stepDown();
+      }
+      //emit editingFinished();
     }
     releaseMouse();
     event->accept();
