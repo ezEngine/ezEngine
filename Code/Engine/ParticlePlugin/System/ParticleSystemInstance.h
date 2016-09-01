@@ -50,12 +50,15 @@ public:
 
   ezParticleEffectInstance* GetOwnerEffect() const { return m_pOwnerEffect; }
 
+  bool Render(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass) const;
+
 private:
   void CreateStreamZeroInitializers();
 
   ezHybridArray<ezParticleEmitter*, 2> m_Emitters;
   ezHybridArray<ezParticleInitializer*, 2> m_Initializers;
   ezHybridArray<ezParticleBehavior*, 8> m_Behaviors;
+  ezHybridArray<ezParticleType*, 2> m_Types;
 
   bool m_bVisible; // typically used in editor to hide a system
   bool m_bEmitterEnabled;

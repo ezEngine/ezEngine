@@ -50,6 +50,9 @@ void ezParticleRenderer::RenderBatch(const ezRenderViewContext& renderViewContex
 
     EZ_LOCK(pRenderData->m_pParticleSystem->m_Mutex);
 
+    if (pRenderData->m_pParticleSystem->Render(renderViewContext, pPass))
+      continue;
+
     const ezUInt64 uiNumParticles = pRenderData->m_pParticleSystem->GetNumActiveParticles();
 
     const ezStream* pStreamPosition = pRenderData->m_pParticleSystem->QueryStream("Position", ezStream::DataType::Float3);

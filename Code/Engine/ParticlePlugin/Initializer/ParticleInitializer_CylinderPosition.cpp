@@ -78,13 +78,17 @@ void ezParticleInitializerFactory_CylinderPosition::Load(ezStreamReader& stream)
 void ezParticleInitializer_CylinderPosition::CreateRequiredStreams()
 {
   CreateStream("Position", ezStream::DataType::Float3, &m_pStreamPosition);
-  CreateStream("Velocity", ezStream::DataType::Float3, &m_pStreamVelocity);
+
+  if (m_bSetVelocity)
+  {
+    CreateStream("Velocity", ezStream::DataType::Float3, &m_pStreamVelocity);
+  }
 }
 
 void ezParticleInitializer_CylinderPosition::SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
   ezVec3* pPosition = m_pStreamPosition->GetWritableData<ezVec3>();
-  ezVec3* pVelocity = m_pStreamVelocity->GetWritableData<ezVec3>();
+  ezVec3* pVelocity = m_bSetVelocity ? m_pStreamVelocity->GetWritableData<ezVec3>() : nullptr;
 
   ezRandom& rng = GetRNG();
 

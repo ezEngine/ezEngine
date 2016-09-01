@@ -11,6 +11,7 @@ class ezParticleSystemDescriptor;
 class ezParticleEmitter;
 class ezParticleInitializer;
 class ezParticleBehavior;
+class ezParticleType;
 class ezStreamGroup;
 class ezStream;
 class ezRandom;
@@ -18,6 +19,9 @@ class ezParticleEventQueue;
 class ezParticleEffectDescriptor;
 class ezParticleWorldModule;
 class ezParticleEffectInstance;
+class ezParticleSystemInstance;
+struct ezRenderViewContext;
+class ezRenderPipelinePass;
 
 typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectResourceHandle;
 

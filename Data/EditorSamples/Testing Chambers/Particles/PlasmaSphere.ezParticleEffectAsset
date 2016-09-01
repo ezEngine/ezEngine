@@ -7,20 +7,42 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xEB786295CF243242AD8F10837108C196" },
+   "t" : "ezParticleInitializerFactory_RandomSize",
+   "p" : {
+    "Min Size" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Size Curve" : "",
+    "Size Range" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" }
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xE04F816F5C84414382900EA0459AE519" },
    "t" : "ezParticleEmitterFactory_Continuous",
    "p" : {
+    "Count Curve" : "",
+    "Curve Duration" : { "$t" : "time", "$v" : "10.0000", "$b" : "0x0000000000002440" },
+    "Duration" : { "$t" : "time", "$v" : "0.0000", "$b" : "0x0000000000000000" },
     "Interval Range" : { "$t" : "time", "$v" : "0.0000", "$b" : "0x0000000000000000" },
-    "Min Interval" : { "$t" : "time", "$v" : "0.1000", "$b" : "0x9A9999999999B93F" },
+    "Min Interval" : { "$t" : "time", "$v" : "0.1000", "$b" : "0x000000A09999B93F" },
     "Min Spawn Count" : { "$t" : "uint32", "$v" : "5", "$b" : "0x05000000" },
-    "Spawn Count Range" : { "$t" : "uint32", "$v" : "5", "$b" : "0x05000000" }
+    "Spawn Count Range" : { "$t" : "uint32", "$v" : "5", "$b" : "0x05000000" },
+    "Start Delay" : { "$t" : "time", "$v" : "0.0000", "$b" : "0x0000000000000000" }
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0xFE1021F3C53B5145A877F03214F4BD8A" },
    "t" : "ezParticleEffectDescriptor",
    "p" : {
-    "Particle Systems" : [ { "$t" : "uuid", "$b" : "0x36C6B8A2A387004AB66CDA1488FF289E" } ]
+    "Particle Systems" : [ { "$t" : "uuid", "$b" : "0x36C6B8A2A387004AB66CDA1488FF289E" } ],
+    "PreSimulate Duration" : { "$t" : "time", "$v" : "0.0000", "$b" : "0x0000000000000000" },
+    "Simulate In Local Space" : false
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA0488F3D4B30164694CC5CF59E118545" },
+   "t" : "ezParticleTypeBillboardFactory",
+   "p" : {
+    "Texture" : "{ 65ba423a-ef94-4c9e-9d72-5863b528e055 }"
    }
   },
   {
@@ -38,8 +60,8 @@
     "AssetType" : "Particle Effect",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0xC76EB58D241F7B4995415FF5E1E65A9A" },
-    "Hash" : { "$t" : "uint64", "$v" : "17951199601499567449", "$b" : "0x59F58393ED781FF9" },
-    "References" : [ "{ 935e1236-35a1-4670-a87c-657e77cd7029 }" ]
+    "Hash" : { "$t" : "uint64", "$v" : "6479075144704598538", "$b" : "0x0A222E39844CEA59" },
+    "References" : [ "{ 65ba423a-ef94-4c9e-9d72-5863b528e055 }", "{ 935e1236-35a1-4670-a87c-657e77cd7029 }" ]
    }
   },
   {
@@ -48,8 +70,10 @@
    "p" : {
     "Behaviors" : [ { "$t" : "uuid", "$b" : "0x2C751CCF78A06B4BBE653D3DB7E76E8B" }, { "$t" : "uuid", "$b" : "0xBC121C4D844E534983AD24D5E8589383" }, { "$t" : "uuid", "$b" : "0x8C7412B97195204E86A887EE3ADA8290" }, { "$t" : "uuid", "$b" : "0x22D0B7F61E951641A8DD3C8D2036199C" } ],
     "Emitters" : [ { "$t" : "uuid", "$b" : "0xE04F816F5C84414382900EA0459AE519" } ],
-    "Initializers" : [ { "$t" : "uuid", "$b" : "0x1F16A358A33E574FB60F049907F9D626" }, { "$t" : "uuid", "$b" : "0x55D7A38CA472274DA0237F4459495C26" } ],
-    "Max Particles" : { "$t" : "uint32", "$v" : "500", "$b" : "0xF4010000" }
+    "Initializers" : [ { "$t" : "uuid", "$b" : "0x1F16A358A33E574FB60F049907F9D626" }, { "$t" : "uuid", "$b" : "0x55D7A38CA472274DA0237F4459495C26" }, { "$t" : "uuid", "$b" : "0xEB786295CF243242AD8F10837108C196" } ],
+    "Max Particles" : { "$t" : "uint32", "$v" : "500", "$b" : "0xF4010000" },
+    "Types" : [ { "$t" : "uuid", "$b" : "0xA0488F3D4B30164694CC5CF59E118545" } ],
+    "Visible" : true
    }
   },
   {
@@ -64,7 +88,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x2C751CCF78A06B4BBE653D3DB7E76E8B" },
    "t" : "ezParticleBehaviorFactory_Age",
    "p" : {
-    
+    "OnDeath Event" : ""
    }
   },
   {
@@ -82,7 +106,8 @@
    "#" : { "$t" : "uuid", "$b" : "0x8C7412B97195204E86A887EE3ADA8290" },
    "t" : "ezParticleBehaviorFactory_Velocity",
    "p" : {
-    
+    "Acceleration" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "Rise Speed" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" }
    }
   },
   {

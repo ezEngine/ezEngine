@@ -8,7 +8,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_BoxPosition, 1, ezR
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Size", m_vSize)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1, 1, 0))),
+    EZ_MEMBER_PROPERTY("Size", m_vSize)->AddAttributes(new ezDefaultValueAttribute(ezVec3(0, 0, 0))),
   }
   EZ_END_PROPERTIES
 }
@@ -19,7 +19,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezParticleInitializerFactory_BoxPosition::ezParticleInitializerFactory_BoxPosition()
 {
-  m_vSize.Set(1, 1, 0);
+  m_vSize.Set(0, 0, 0);
 }
 
 const ezRTTI* ezParticleInitializerFactory_BoxPosition::GetInitializerType() const

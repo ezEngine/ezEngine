@@ -31,3 +31,5 @@ ezParticleInitializerFactory_RandomColor;Random Color
 ezParticleInitializerFactory_RandomSize;RandomS ize
 ezParticleInitializerFactory_SpherePosition;Sphere Position
 ezParticleBehaviorFactory_SizeCurve;Size Curve
+ezParticleTypeBillboardFactory;Billboards
+Types;Types

@@ -8,6 +8,7 @@
 class ezParticleEmitterFactory;
 class ezParticleBehaviorFactory;
 class ezParticleInitializerFactory;
+class ezParticleTypeFactory;
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleSystemDescriptor : public ezReflectedClass
 {
@@ -32,6 +33,10 @@ public:
   void RemoveBehaviorFactory(ezParticleBehaviorFactory* pFactory) { m_BehaviorFactories.Remove(pFactory); }
   const ezHybridArray<ezParticleBehaviorFactory*, 8>& GetBehaviorFactories() const { return m_BehaviorFactories; }
 
+  void AddTypeFactory(ezParticleTypeFactory* pFactory) { m_TypeFactories.PushBack(pFactory); }
+  void RemoveTypeFactory(ezParticleTypeFactory* pFactory) { m_TypeFactories.Remove(pFactory); }
+  const ezHybridArray<ezParticleTypeFactory*, 8>& GetTypeFactories() const { return m_TypeFactories; }
+
   ezUInt32 m_uiMaxParticles;
   bool m_bVisible;
 
@@ -44,8 +49,10 @@ private:
   void ClearEmitters();
   void ClearInitializers();
   void ClearBehaviors();
+  void ClearTypes();
   
   ezHybridArray<ezParticleEmitterFactory*, 2> m_EmitterFactories;
   ezHybridArray<ezParticleInitializerFactory*, 4> m_InitializerFactories;
   ezHybridArray<ezParticleBehaviorFactory*, 8> m_BehaviorFactories;
+  ezHybridArray<ezParticleTypeFactory*, 8> m_TypeFactories;
 };

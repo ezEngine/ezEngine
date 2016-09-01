@@ -31,7 +31,7 @@
     "AssetType" : "ColorGradient",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x283E9D5C3DE20543A16E2DB6836EF5D6" },
-    "Hash" : { "$t" : "uint64", "$v" : "12925183553750768484", "$b" : "0x641B092AF6795FB3" },
+    "Hash" : { "$t" : "uint64", "$v" : "18103226817127151731", "$b" : "0x7378300BE0943BFB" },
     "References" : [  ]
    }
   },
@@ -40,7 +40,7 @@
    "t" : "ezAlphaControlPoint",
    "p" : {
     "Alpha" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" },
-    "Position" : { "$t" : "float", "$v" : "0.9759", "$b" : "0x0DD6793F" }
+    "Position" : { "$t" : "float", "$v" : "0.9990", "$b" : "0xAFBB7F3F" }
    }
   },
   {
@@ -90,6 +90,14 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xCAE5FA64672CCA4A9E9C0E52147234F3" },
+   "t" : "ezAlphaControlPoint",
+   "p" : {
+    "Alpha" : { "$t" : "uint32", "$v" : "37", "$b" : "0x25000000" },
+    "Position" : { "$t" : "float", "$v" : "0.7430", "$b" : "0xA4353E3F" }
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x8BBE4CF0EA65D84ABE908D04567A2E6B" },
    "t" : "ezAlphaControlPoint",
    "p" : {
@@ -101,7 +109,7 @@
    "#" : { "$t" : "uuid", "$b" : "0x9820608435922B4C838ACE77A64559BB" },
    "t" : "ezColorGradientAssetData",
    "p" : {
-    "Alpha CPs" : [ { "$t" : "uuid", "$b" : "0x36D343528043DB42B720A0FE58A98CB8" }, { "$t" : "uuid", "$b" : "0x10717AD6BABC754283DC518EC058ECD5" }, { "$t" : "uuid", "$b" : "0x3B30A848A8AADE45A40289D721DFC9A8" }, { "$t" : "uuid", "$b" : "0x8BBE4CF0EA65D84ABE908D04567A2E6B" }, { "$t" : "uuid", "$b" : "0x6E586848ED07A14295C917890B51431D" }, { "$t" : "uuid", "$b" : "0xE1052A7DC99BE943B8ADFB3CD9784459" }, { "$t" : "uuid", "$b" : "0x6DB280998CE09F4E8B5340A90B6FDEE2" } ],
+    "Alpha CPs" : [ { "$t" : "uuid", "$b" : "0x36D343528043DB42B720A0FE58A98CB8" }, { "$t" : "uuid", "$b" : "0x10717AD6BABC754283DC518EC058ECD5" }, { "$t" : "uuid", "$b" : "0x3B30A848A8AADE45A40289D721DFC9A8" }, { "$t" : "uuid", "$b" : "0x8BBE4CF0EA65D84ABE908D04567A2E6B" }, { "$t" : "uuid", "$b" : "0x6E586848ED07A14295C917890B51431D" }, { "$t" : "uuid", "$b" : "0xE1052A7DC99BE943B8ADFB3CD9784459" }, { "$t" : "uuid", "$b" : "0x6DB280998CE09F4E8B5340A90B6FDEE2" }, { "$t" : "uuid", "$b" : "0xCAE5FA64672CCA4A9E9C0E52147234F3" } ],
     "Color CPs" : [ { "$t" : "uuid", "$b" : "0xC8BD9C5C7E4DFD47A7CEA13F4E8E0021" }, { "$t" : "uuid", "$b" : "0x0E6590FE3408C24AA3BBC64E2ECD1C6A" }, { "$t" : "uuid", "$b" : "0x397E7D516863FF4C87A97AA3DB8A11FF" }, { "$t" : "uuid", "$b" : "0x364DFF639BBC8E4E846EA17B8E8D2866" }, { "$t" : "uuid", "$b" : "0x32D00C93BE11C74DBAC390231C254CC1" }, { "$t" : "uuid", "$b" : "0x9CEFE0D1A9B9F24EBDF7479F4B157E28" }, { "$t" : "uuid", "$b" : "0xDB9E446861B5364F92DE2D69B4BF9F2F" }, { "$t" : "uuid", "$b" : "0x10193516B274AE4A840EC303A3CD5A87" } ],
     "Intensity CPs" : [  ]
    }
@@ -141,7 +149,7 @@
    "t" : "ezAlphaControlPoint",
    "p" : {
     "Alpha" : { "$t" : "uint32", "$v" : "195", "$b" : "0xC3000000" },
-    "Position" : { "$t" : "float", "$v" : "0.6934", "$b" : "0xD382313F" }
+    "Position" : { "$t" : "float", "$v" : "0.4871", "$b" : "0x325FF93E" }
    }
   },
   {
