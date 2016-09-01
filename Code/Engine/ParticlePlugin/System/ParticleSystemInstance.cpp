@@ -9,6 +9,7 @@
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
+#include <ParticlePlugin/Type/ParticleType.h>
 #include <CoreUtils/DataProcessing/Stream/DefaultImplementations/ElementSpawner.h>
 
 
