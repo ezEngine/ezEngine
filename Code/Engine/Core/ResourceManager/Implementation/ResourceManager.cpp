@@ -124,49 +124,51 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
   if (m_bStop)
     return;
 
-  EZ_LOCK(s_ResourceMutex);
-
-  // if there is nothing else that could be loaded, just return right away
-  if (pResource->GetLoadingState() == ezResourceState::Loaded && pResource->GetNumQualityLevelsLoadable() == 0)
-    return;
-
-  // if we are already preloading this resource, but now it has highest priority
-  // and it is still in the task queue (so not yet started)
-  if (pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading))
   {
-    if (bHighestPriority)
-    {
-      LoadingInfo li;
-      li.m_pResource = pResource;
+    EZ_LOCK(s_ResourceMutex);
 
-      // move it to the front of the queue
-      // if it is not in the queue anymore, it has already been started by some thread
-      if (m_RequireLoading.Remove(li))
-        m_RequireLoading.PushFront(li);
+    // if there is nothing else that could be loaded, just return right away
+    if (pResource->GetLoadingState() == ezResourceState::Loaded && pResource->GetNumQualityLevelsLoadable() == 0)
+      return;
+
+    // if we are already preloading this resource, but now it has highest priority
+    // and it is still in the task queue (so not yet started)
+    if (pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading))
+    {
+      if (bHighestPriority)
+      {
+        LoadingInfo li;
+        li.m_pResource = pResource;
+
+        // move it to the front of the queue
+        // if it is not in the queue anymore, it has already been started by some thread
+        if (m_RequireLoading.Remove(li))
+          m_RequireLoading.PushFront(li);
+      }
+
+      return;
     }
 
-    return;
+    EZ_ASSERT_DEV(!pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading), "");
+    pResource->m_Flags.Add(ezResourceFlags::IsPreloading);
+
+    LoadingInfo li;
+    li.m_pResource = pResource;
+    // not necessary here
+    //li.m_DueDate = pResource->GetLoadingDeadline();
+
+    if (bHighestPriority)
+      m_RequireLoading.PushFront(li);
+    else
+      m_RequireLoading.PushBack(li);
+
+    //ezLog::Debug("Adding resource '%s' -> '%s'to preload queue: %u items", pResource->GetDynamicRTTI()->GetTypeName(), pResource->GetResourceID().GetData(), m_RequireLoading.GetCount());
+
+    ezResourceEvent e;
+    e.m_pResource = pResource;
+    e.m_EventType = ezResourceEventType::ResourceInPreloadQueue;
+    ezResourceManager::BroadcastResourceEvent(e);
   }
-
-  EZ_ASSERT_DEV(!pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading), "");
-  pResource->m_Flags.Add(ezResourceFlags::IsPreloading);
-
-  LoadingInfo li;
-  li.m_pResource = pResource;
-  // not necessary here
-  //li.m_DueDate = pResource->GetLoadingDeadline();
-
-  if (bHighestPriority)
-    m_RequireLoading.PushFront(li);
-  else
-    m_RequireLoading.PushBack(li);
-
-  //ezLog::Debug("Adding resource '%s' -> '%s'to preload queue: %u items", pResource->GetDynamicRTTI()->GetTypeName(), pResource->GetResourceID().GetData(), m_RequireLoading.GetCount());
-
-  ezResourceEvent e;
-  e.m_pResource = pResource;
-  e.m_EventType = ezResourceEventType::ResourceInPreloadQueue;
-  ezResourceManager::BroadcastResourceEvent(e);
 
   RunWorkerTask(pResource);
 }
