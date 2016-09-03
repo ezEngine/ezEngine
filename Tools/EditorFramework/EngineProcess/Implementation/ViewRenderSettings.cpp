@@ -18,7 +18,7 @@ void ezSceneViewConfig::ApplyPerspectiveSetting(float fov)
   {
   case ezSceneViewPerspective::Perspective:
     {
-      m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, fov == 0.0f ? 90.0f : fov, 0.1f, 1000.0f);
+      m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, fov == 0.0f ? 70.0f : fov, 0.1f, 1000.0f);
     }
     break;
 

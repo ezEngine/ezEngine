@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
+#include <Preferences/EditorPreferences.h>
 
 ezUInt32 ezQtEngineViewWidget::s_uiNextViewID = 0;
 
@@ -67,11 +68,18 @@ void ezQtEngineViewWidget::SyncToEngine()
   cam.m_uiRenderMode = m_pViewConfig->m_RenderMode;
   cam.m_CameraUsageHint = m_pViewConfig->m_CameraUsageHint;
 
+  float fov = m_pViewConfig->m_Camera.GetFovOrDim();
+  if (m_pViewConfig->m_Camera.GetCameraMode() == ezCameraMode::PerspectiveFixedFovX || m_pViewConfig->m_Camera.GetCameraMode() == ezCameraMode::PerspectiveFixedFovY)
+  {
+    ezEditorPreferencesUser* pPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+    fov = pPref->m_fPerspectiveFieldOfView;
+  }
+
   cam.m_uiViewID = GetViewID();
   cam.m_fNearPlane = m_pViewConfig->m_Camera.GetNearPlane();
   cam.m_fFarPlane = m_pViewConfig->m_Camera.GetFarPlane();
   cam.m_iCameraMode = (ezInt8)m_pViewConfig->m_Camera.GetCameraMode();
-  cam.m_fFovOrDim = m_pViewConfig->m_Camera.GetFovOrDim();
+  cam.m_fFovOrDim = fov;
   cam.m_vDirForwards = m_pViewConfig->m_Camera.GetCenterDirForwards();
   cam.m_vDirUp = m_pViewConfig->m_Camera.GetCenterDirUp();
   cam.m_vDirRight = m_pViewConfig->m_Camera.GetCenterDirRight();

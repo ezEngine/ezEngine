@@ -361,7 +361,16 @@ void ezQtSceneDocumentWindow::LoadViewConfig(ezSceneViewConfig& cfg, ezSceneView
   cfg.m_Perspective = (ezSceneViewPerspective::Enum)pref.m_uiPerspectiveMode;
   cfg.m_RenderMode = (ezViewRenderMode::Enum)pref.m_uiRenderMode;
   cfg.m_Camera.LookAt(ezVec3(0), ezVec3(1, 0, 0), ezVec3(0, 0, 1));
-  cfg.ApplyPerspectiveSetting(pref.m_fFov);
+
+  if (cfg.m_Perspective == ezSceneViewPerspective::Perspective)
+  {
+    ezEditorPreferencesUser* pPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+    cfg.ApplyPerspectiveSetting(pPref->m_fPerspectiveFieldOfView);
+  }
+  else
+  {
+    cfg.ApplyPerspectiveSetting(pref.m_fFov);
+  }
 
   pref.m_vCamDir.NormalizeIfNotZero(ezVec3(1, 0, 0));
   pref.m_vCamUp.MakeOrthogonalTo(pref.m_vCamDir);
