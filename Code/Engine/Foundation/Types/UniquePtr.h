@@ -24,6 +24,9 @@ public:
   template <typename U>
   ezUniquePtr(ezUniquePtr<U>&& other);
 
+  /// \brief Initialization with nullptr to be able to return nullptr in functions that return unique ptr.
+  ezUniquePtr(std::nullptr_t null);
+
   /// \brief Destroys the managed object using the stored allocator.
   ~ezUniquePtr();
 

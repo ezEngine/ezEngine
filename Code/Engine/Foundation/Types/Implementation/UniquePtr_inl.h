@@ -34,6 +34,13 @@ EZ_FORCE_INLINE ezUniquePtr<T>::ezUniquePtr(ezUniquePtr<U>&& other)
 }
 
 template <typename T>
+EZ_FORCE_INLINE ezUniquePtr<T>::ezUniquePtr(std::nullptr_t null)
+{
+  m_pInstance = nullptr;
+  m_pAllocator = nullptr;
+}
+
+template <typename T>
 EZ_FORCE_INLINE ezUniquePtr<T>::~ezUniquePtr()
 {
   Reset();
