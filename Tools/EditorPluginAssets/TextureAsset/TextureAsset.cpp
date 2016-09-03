@@ -21,23 +21,6 @@ ezTextureAssetDocument::ezTextureAssetDocument(const char* szDocumentPath) : ezS
 {
 }
 
-// Should not be necessary anymore
-//void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
-//{
-//  ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
-//
-//  const ezTextureAssetProperties* pProp = GetProperties();
-//
-//  const ezInt32 iNumInputFiles = pProp->GetNumInputFiles();
-//
-//  for (ezInt32 i = 0; i < iNumInputFiles; ++i)
-//  {
-//    ezStringBuilder sTemp = pProp->GetInputFile(i);
-//    sTemp.MakeCleanPath();
-//    pInfo->m_FileDependencies.Insert(sTemp);
-//  }
-//}
-
 ezString ezTextureAssetDocument::FindTexConvTool() const
 {
   ezStringBuilder sTool = ezQtEditorApp::GetSingleton()->GetExternalToolsFolder();

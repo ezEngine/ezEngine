@@ -195,8 +195,8 @@ public:
 private:
 
   friend class ezResourceManager;
-  friend class ezResourceManagerWorker;
-  friend class ezResourceManagerWorkerGPU;
+  friend class ezResourceManagerWorkerDiskRead;
+  friend class ezResourceManagerWorkerMainThread;
 
   /// \brief Called by ezResourceManager shortly after resource creation.
   void SetUniqueID(const char* szUniqueID, bool bIsReloadable);

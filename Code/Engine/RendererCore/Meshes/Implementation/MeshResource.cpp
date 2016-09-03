@@ -9,7 +9,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezUInt32 ezMeshResource::s_MeshBufferNameSuffix = 0;
 
-ezMeshResource::ezMeshResource() : ezResource<ezMeshResource, ezMeshResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+/// \todo Use DoUpdate::OnAnyThread once GAL is actually thread-safe
+ezMeshResource::ezMeshResource() : ezResource<ezMeshResource, ezMeshResourceDescriptor>(DoUpdate::OnMainThread, 1)
 {
 }
 

@@ -32,10 +32,10 @@ ezResourceTypeLoader* ezResourceManager::m_pDefaultResourceLoader = &m_FileResou
 ezDeque<ezResourceManager::LoadingInfo> ezResourceManager::m_RequireLoading;
 bool ezResourceManager::m_bTaskRunning = false;
 bool ezResourceManager::m_bStop = false;
-ezResourceManagerWorker ezResourceManager::m_WorkerTask[2];
-ezResourceManagerWorkerGPU ezResourceManager::m_WorkerGPU[16];
-ezUInt8 ezResourceManager::m_iCurrentWorkerGPU = 0;
-ezUInt8 ezResourceManager::m_iCurrentWorker = 0;
+ezResourceManagerWorkerDiskRead ezResourceManager::m_WorkerTasksDiskRead[MaxDiskReadTasks];
+ezResourceManagerWorkerMainThread ezResourceManager::m_WorkerTasksMainThread[MaxMainThreadTasks];
+ezUInt8 ezResourceManager::m_iCurrentWorkerMainThread = 0;
+ezUInt8 ezResourceManager::m_iCurrentWorkerDiskRead = 0;
 ezTime ezResourceManager::m_LastDeadLineUpdate;
 ezTime ezResourceManager::m_LastFrameUpdate;
 bool ezResourceManager::m_bBroadcastExistsEvent = false;
@@ -187,15 +187,18 @@ void ezResourceManager::RunWorkerTask(ezResourceBase* pResource)
     if (!bTaskNamesInitialized)
     {
       bTaskNamesInitialized = true;
-
-      m_WorkerTask[0].SetTaskName("Resource Loader 1");
-      m_WorkerTask[1].SetTaskName("Resource Loader 2");
-
       ezStringBuilder s;
-      for (ezUInt32 i = 0; i < 16; ++i)
+
+      for (ezUInt32 i = 0; i < MaxDiskReadTasks; ++i)
       {
-        s.Format("GPU Resource Loader %u", i);
-        m_WorkerGPU[i].SetTaskName(s.GetData());
+        s.Format("Disk Resource Loader %u", i);
+        m_WorkerTasksDiskRead[i].SetTaskName(s.GetData());
+      }
+
+      for (ezUInt32 i = 0; i < MaxMainThreadTasks; ++i)
+      {
+        s.Format("Main Thread Resource Loader %u", i);
+        m_WorkerTasksMainThread[i].SetTaskName(s.GetData());
       }
     }
 
@@ -207,14 +210,14 @@ void ezResourceManager::RunWorkerTask(ezResourceBase* pResource)
       if (!m_bTaskRunning && !ezResourceManager::m_RequireLoading.IsEmpty())
       {
         m_bTaskRunning = true;
-        m_iCurrentWorker = (m_iCurrentWorker + 1) % 2;
-        ezTaskSystem::StartSingleTask(&m_WorkerTask[m_iCurrentWorker], ezTaskPriority::FileAccess);
+        m_iCurrentWorkerDiskRead = (m_iCurrentWorkerDiskRead + 1) % MaxDiskReadTasks;
+        ezTaskSystem::StartSingleTask(&m_WorkerTasksDiskRead[m_iCurrentWorkerDiskRead], ezTaskPriority::FileAccess);
       }
   }
 
   while (bDoItYourself)
   {
-    ezResourceManagerWorker::DoWork(true);
+    ezResourceManagerWorkerDiskRead::DoWork(true);
 
     {
       EZ_LOCK(s_ResourceMutex);
@@ -269,7 +272,7 @@ void ezResourceManager::UpdateLoadingDeadlines()
   m_RequireLoading.Sort();
 }
 
-void ezResourceManagerWorkerGPU::Execute()
+void ezResourceManagerWorkerMainThread::Execute()
 {
   if (!m_LoaderData.m_sResourceDescription.IsEmpty())
     m_pResourceToLoad->SetResourceDescription(m_LoaderData.m_sResourceDescription);
@@ -318,12 +321,12 @@ void ezResourceManagerWorkerGPU::Execute()
   m_pResourceToLoad = nullptr;
 }
 
-void ezResourceManagerWorker::Execute()
+void ezResourceManagerWorkerDiskRead::Execute()
 {
   DoWork(false);
 }
 
-void ezResourceManagerWorker::DoWork(bool bCalledExternally)
+void ezResourceManagerWorkerDiskRead::DoWork(bool bCalledExternally)
 {
   ezResourceBase* pResourceToLoad = nullptr;
   ezResourceTypeLoader* pLoader = nullptr;
@@ -371,23 +374,22 @@ void ezResourceManagerWorker::DoWork(bool bCalledExternally)
   // the resource data has been loaded (at least one piece), reset the due date
   pResourceToLoad->SetDueDate();
 
-  bool bResourceIsPreloading = false;
+  // we need this info later to do some work in a lock, all the directly following code is outside the lock
+  const bool bResourceIsLoadedOnMainThread = pResourceToLoad->GetBaseResourceFlags().IsAnySet(ezResourceFlags::UpdateOnMainThread);
 
-  if (pResourceToLoad->GetBaseResourceFlags().IsAnySet(ezResourceFlags::UpdateOnMainThread))
+  if (bResourceIsLoadedOnMainThread)
   {
-    bResourceIsPreloading = true;
+    ezResourceManagerWorkerMainThread* pWorkerMainThread = &ezResourceManager::m_WorkerTasksMainThread[ezResourceManager::m_iCurrentWorkerMainThread];
+    ezResourceManager::m_iCurrentWorkerMainThread = (ezResourceManager::m_iCurrentWorkerMainThread + 1) % ezResourceManager::MaxMainThreadTasks;
 
-    ezResourceManagerWorkerGPU* pWorkerGPU = &ezResourceManager::m_WorkerGPU[ezResourceManager::m_iCurrentWorkerGPU];
-    ezResourceManager::m_iCurrentWorkerGPU = (ezResourceManager::m_iCurrentWorkerGPU + 1) % 16;
+    ezTaskSystem::WaitForTask(pWorkerMainThread);
 
-    ezTaskSystem::WaitForTask(pWorkerGPU);
+    pWorkerMainThread->m_LoaderData = LoaderData;
+    pWorkerMainThread->m_pLoader = pLoader;
+    pWorkerMainThread->m_pResourceToLoad = pResourceToLoad;
 
-    pWorkerGPU->m_LoaderData = LoaderData;
-    pWorkerGPU->m_pLoader = pLoader;
-    pWorkerGPU->m_pResourceToLoad = pResourceToLoad;
-
-    // the resource stays in 'limbo' until the GPU worker is finished with it
-    ezTaskSystem::StartSingleTask(pWorkerGPU, ezTaskPriority::SomeFrameMainThread);
+    // the resource stays in 'limbo' until the main thread worker is finished with it
+    ezTaskSystem::StartSingleTask(pWorkerMainThread, ezTaskPriority::SomeFrameMainThread);
   }
   else
   {
@@ -422,15 +424,15 @@ void ezResourceManagerWorker::DoWork(bool bCalledExternally)
     pLoader->CloseDataStream(pResourceToLoad, LoaderData);
   }
 
-
+  // all this will happen inside a lock
   {
     EZ_LOCK(ezResourceManager::s_ResourceMutex);
 
-    // this resource was finished loading, so we can immediately reduce the limbo counter
-    ezResourceManager::s_ResourcesInLoadingLimbo.Decrement();
-
-    if (!bResourceIsPreloading)
+    if (!bResourceIsLoadedOnMainThread)
     {
+      // this resource was finished loading, so we can immediately reduce the limbo counter
+      ezResourceManager::s_ResourcesInLoadingLimbo.Decrement();
+
       //ezLog::Warning("Resource removed from preload queue");
 
       EZ_ASSERT_DEV(pResourceToLoad->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
@@ -796,14 +798,14 @@ void ezResourceManager::OnEngineShutdown()
     m_bStop = true;
   }
 
-  for (int i = 0; i < 2; ++i)
+  for (int i = 0; i < ezResourceManager::MaxDiskReadTasks; ++i)
   {
-    ezTaskSystem::CancelTask(&m_WorkerTask[i]);
+    ezTaskSystem::CancelTask(&m_WorkerTasksDiskRead[i]);
   }
 
-  for (int i = 0; i < 16; ++i)
+  for (int i = 0; i < ezResourceManager::MaxMainThreadTasks; ++i)
   {
-    ezTaskSystem::CancelTask(&m_WorkerGPU[i]);
+    ezTaskSystem::CancelTask(&m_WorkerTasksMainThread[i]);
   }
 
   // unload all resources until there are no more that can be unloaded
@@ -937,21 +939,21 @@ void ezResourceManager::EnsureResourceLoadingState(ezResourceBase* pResource, co
 
 bool ezResourceManager::HelpResourceLoading()
 {
-  if (!m_WorkerTask[m_iCurrentWorker].IsTaskFinished())
+  if (!m_WorkerTasksDiskRead[m_iCurrentWorkerDiskRead].IsTaskFinished())
   {
-    ezTaskSystem::WaitForTask(&m_WorkerTask[m_iCurrentWorker]);
+    ezTaskSystem::WaitForTask(&m_WorkerTasksDiskRead[m_iCurrentWorkerDiskRead]);
     return true;
   }
   else
   {
-    for (ezInt32 i = 0; i < 16; ++i)
+    for (ezInt32 i = 0; i < MaxMainThreadTasks; ++i)
     {
-      // get the 'oldest' GPU task in the queue and try to finish that first
-      const ezInt32 iWorkerGPU = (ezResourceManager::m_iCurrentWorkerGPU + i) % 16;
+      // get the 'oldest' main thread task in the queue and try to finish that first
+      const ezInt32 iWorkerMainThread = (ezResourceManager::m_iCurrentWorkerMainThread + i) % MaxMainThreadTasks;
 
-      if (!m_WorkerGPU[iWorkerGPU].IsTaskFinished())
+      if (!m_WorkerTasksMainThread[iWorkerMainThread].IsTaskFinished())
       {
-        ezTaskSystem::WaitForTask(&m_WorkerGPU[iWorkerGPU]);
+        ezTaskSystem::WaitForTask(&m_WorkerTasksMainThread[iWorkerMainThread]);
         return true; // we waited for one of them, that's enough for this round
       }
     }

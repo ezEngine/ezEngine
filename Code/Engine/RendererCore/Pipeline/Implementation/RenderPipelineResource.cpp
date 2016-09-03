@@ -15,7 +15,8 @@ void ezRenderPipelineResourceDescriptor::CreateFromRenderPipeline(const ezRender
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineResource, 1, ezRTTIDefaultAllocator<ezRenderPipelineResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezRenderPipelineResource::ezRenderPipelineResource() : ezResource<ezRenderPipelineResource, ezRenderPipelineResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+/// \todo Use DoUpdate::OnAnyThread once GAL is actually thread-safe
+ezRenderPipelineResource::ezRenderPipelineResource() : ezResource<ezRenderPipelineResource, ezRenderPipelineResourceDescriptor>(DoUpdate::OnMainThread, 1)
 {
 }
 

@@ -10,7 +10,8 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialResource, 1, ezRTTIDefaultAllocator<ezMaterialResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezMaterialResource::ezMaterialResource() : ezResource<ezMaterialResource, ezMaterialResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+/// \todo Use DoUpdate::OnAnyThread once GAL is actually thread-safe
+ezMaterialResource::ezMaterialResource() : ezResource<ezMaterialResource, ezMaterialResourceDescriptor>(DoUpdate::OnMainThread, 1)
 {
   m_iLastUpdated = 0;
   m_iLastConstantsUpdated = 0;

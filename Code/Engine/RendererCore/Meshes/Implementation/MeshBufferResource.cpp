@@ -332,8 +332,8 @@ ezBoundingBoxSphere ezMeshBufferResourceDescriptor::ComputeBounds() const
   return bounds;
 }
 
-
-ezMeshBufferResource::ezMeshBufferResource() : ezResource<ezMeshBufferResource, ezMeshBufferResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+/// \todo Use DoUpdate::OnAnyThread once GAL is actually thread-safe
+ezMeshBufferResource::ezMeshBufferResource() : ezResource<ezMeshBufferResource, ezMeshBufferResourceDescriptor>(DoUpdate::OnMainThread, 1)
 {
 }
 

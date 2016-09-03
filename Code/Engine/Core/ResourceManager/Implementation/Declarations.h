@@ -25,7 +25,7 @@ struct EZ_CORE_DLL ezResourceFlags
   /// \brief The flags of an ezResourceBase instance.
   enum Enum
   {
-    UpdateOnMainThread    = EZ_BIT(0),  ///< After loading the resource data on a thread, it must be uploaded on the main thread. Use this for GPU resources etc. which require a context that is only available on the main thread.
+    UpdateOnMainThread    = EZ_BIT(0),  ///< After loading the resource data on a thread, it must be uploaded on the main thread. Use this for resources which require a context that is only available on the main thread.
     NoFileAccessRequired  = EZ_BIT(1),  ///< The resource 'loading' does not require file accesses and can therefore be done on one or several non-file-loading threads. Use this for procedurally generated data.
     /// \todo implement NoFileAccessRequired
     ResourceHasFallback   = EZ_BIT(2),  ///< Specifies whether this resource has a valid fallback resource that could be used. Automatically updated in ezResource::SetFallbackResource.

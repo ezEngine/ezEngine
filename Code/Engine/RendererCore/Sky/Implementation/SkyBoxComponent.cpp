@@ -20,12 +20,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 1)
     EZ_ACCESSOR_PROPERTY("Down Texture", GetDownTextureFile, SetDownTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
   }
   EZ_END_PROPERTIES
-  EZ_BEGIN_ATTRIBUTES
+    EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering"),
   }
   EZ_END_ATTRIBUTES
-  EZ_BEGIN_MESSAGEHANDLERS
+    EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
   }
@@ -74,7 +74,7 @@ void ezSkyBoxComponent::Initialize()
     desc.UseExistingMeshBuffer(hMeshBuffer);
     for (ezUInt32 i = 0; i < 6; ++i)
     {
-      desc.AddSubMesh(2, i*2, 0);
+      desc.AddSubMesh(2, i * 2, 0);
     }
     desc.CalculateBounds();
 
@@ -83,38 +83,43 @@ void ezSkyBoxComponent::Initialize()
 
   for (ezUInt32 i = 0; i < 6; ++i)
   {
-    ezMaterialResourceDescriptor desc;
-    desc.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ b4b75b1c-c2c8-4a0e-8076-780bdd46d18b }"); // SkyMaterial
-
-    {
-      auto& param = desc.m_Parameters.ExpandAndGetRef();
-      param.m_Name.Assign("ExposureBias");
-      param.m_Value = m_fExposureBias;
-    }
-     
-    {
-      auto& param = desc.m_Parameters.ExpandAndGetRef();
-      param.m_Name.Assign("InverseTonemap");
-      param.m_Value = m_bInverseTonemap;
-    }
-
-    if (m_Textures[i].IsValid())
-    {
-      auto& binding = desc.m_TextureBindings.ExpandAndGetRef();
-      binding.m_Name.Assign("BaseTexture");
-      binding.m_Value = m_Textures[i];
-    }
-
     ezStringBuilder temp;
     temp.Format("SkyBoxMaterial_%08X_%d", GetOwner()->GetHandle().GetInternalID().m_Data, i);
-    m_Materials[i] = ezResourceManager::CreateResource<ezMaterialResource>(temp.GetData(), desc, temp.GetData());
+
+    m_Materials[i] = ezResourceManager::GetExistingResource<ezMaterialResource>(temp);
+    if (!m_Materials[i].IsValid())
+    {
+      ezMaterialResourceDescriptor desc;
+      desc.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ b4b75b1c-c2c8-4a0e-8076-780bdd46d18b }"); // SkyMaterial
+
+      {
+        auto& param = desc.m_Parameters.ExpandAndGetRef();
+        param.m_Name.Assign("ExposureBias");
+        param.m_Value = m_fExposureBias;
+      }
+
+      {
+        auto& param = desc.m_Parameters.ExpandAndGetRef();
+        param.m_Name.Assign("InverseTonemap");
+        param.m_Value = m_bInverseTonemap;
+      }
+
+      if (m_Textures[i].IsValid())
+      {
+        auto& binding = desc.m_TextureBindings.ExpandAndGetRef();
+        binding.m_Name.Assign("BaseTexture");
+        binding.m_Value = m_Textures[i];
+      }
+
+      m_Materials[i] = ezResourceManager::CreateResource<ezMaterialResource>(temp.GetData(), desc, temp.GetData());
+    }
   }
 }
 
 ezResult ezSkyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)
 {
   ///\todo
-  bounds = ezBoundingSphere(ezVec3::ZeroVector(), 100000.0f);
+  bounds = ezBoundingSphere(ezVec3::ZeroVector(), 1.0f);
   return EZ_SUCCESS;
 }
 
@@ -134,6 +139,7 @@ void ezSkyBoxComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) con
     ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
     {
       pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
+      pRenderData->m_GlobalTransform.m_vPosition.SetZero(); // skybox should always be at the origin
       pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
       pRenderData->m_hMesh = m_hMesh;
       pRenderData->m_hMaterial = hMaterial;
@@ -164,7 +170,7 @@ void ezSkyBoxComponent::SerializeComponent(ezWorldWriter& stream) const
   SUPER::SerializeComponent(stream);
   ezStreamWriter& s = stream.GetStream();
 
-  
+
 }
 
 void ezSkyBoxComponent::DeserializeComponent(ezWorldReader& stream)
@@ -174,7 +180,7 @@ void ezSkyBoxComponent::DeserializeComponent(ezWorldReader& stream)
 
   ezStreamReader& s = stream.GetStream();
 
-  
+
 }
 
 void ezSkyBoxComponent::SetExposureBias(float fExposureBias)

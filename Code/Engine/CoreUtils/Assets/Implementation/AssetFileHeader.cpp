@@ -43,12 +43,20 @@ void ezAssetFileHeader::Read(ezStreamReader& stream)
   m_uiHash = 0xFFFFFFFFFFFFFFFF;
   m_uiVersion = 0;
 
-  char szTag[8];
-  stream.ReadBytes(szTag, 7);
+  char szTag[8] = { 0 };
+  if (stream.ReadBytes(szTag, 7) < 7)
+  {
+    EZ_REPORT_FAILURE("The stream does not contain a valid asset file header");
+    return;
+  }
+
   szTag[7] = '\0';
 
   // invalid asset file ... this is not going to end well
   EZ_ASSERT_DEBUG(ezStringUtils::IsEqual(szTag, g_szAssetTag), "The stream does not contain a valid asset file header");
+
+  if (!ezStringUtils::IsEqual(szTag, g_szAssetTag))
+    return;
 
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;

@@ -26,20 +26,20 @@ struct ezResourceManagerEvent
 };
 
 /// \brief [internal] Worker thread/task for loading resources from disk.
-class EZ_CORE_DLL ezResourceManagerWorker : public ezTask
+class EZ_CORE_DLL ezResourceManagerWorkerDiskRead : public ezTask
 {
 private:
   friend class ezResourceManager;
 
-  ezResourceManagerWorker() { };
+  ezResourceManagerWorkerDiskRead() { };
 
   static void DoWork(bool bCalledExternally);
 
   virtual void Execute() override;
 };
 
-/// \brief [internal] Worker thread/task for loading into the GPU.
-class EZ_CORE_DLL ezResourceManagerWorkerGPU : public ezTask
+/// \brief [internal] Worker thread/task for loading on the main thread.
+class EZ_CORE_DLL ezResourceManagerWorkerMainThread : public ezTask
 {
 public:
   ezResourceLoadData m_LoaderData;
@@ -48,7 +48,7 @@ public:
 
 private:
   friend class ezResourceManager;
-  ezResourceManagerWorkerGPU() { };
+  ezResourceManagerWorkerMainThread() { };
 
   virtual void Execute() override;
 };
@@ -180,8 +180,8 @@ public:
 
 private:
   friend class ezResourceBase;
-  friend class ezResourceManagerWorker;
-  friend class ezResourceManagerWorkerGPU;
+  friend class ezResourceManagerWorkerDiskRead;
+  friend class ezResourceManagerWorkerMainThread;
   friend class ezResourceHandleReadContext;
 
   template<typename A, typename B>
@@ -248,12 +248,14 @@ private:
   // this is the resource preload queue
   static ezDeque<LoadingInfo> m_RequireLoading;
 
+  static const ezUInt32 MaxDiskReadTasks = 2;
+  static const ezUInt32 MaxMainThreadTasks = 16; 
   static bool m_bTaskRunning;
   static bool m_bStop;
-  static ezResourceManagerWorker m_WorkerTask[2];
-  static ezResourceManagerWorkerGPU m_WorkerGPU[16];
-  static ezUInt8 m_iCurrentWorkerGPU;
-  static ezUInt8 m_iCurrentWorker;
+  static ezResourceManagerWorkerDiskRead m_WorkerTasksDiskRead[MaxDiskReadTasks];
+  static ezResourceManagerWorkerMainThread m_WorkerTasksMainThread[MaxMainThreadTasks];
+  static ezUInt8 m_iCurrentWorkerMainThread;
+  static ezUInt8 m_iCurrentWorkerDiskRead;
   static ezTime m_LastDeadLineUpdate;
   static ezTime m_LastFrameUpdate;
   static bool m_bBroadcastExistsEvent;

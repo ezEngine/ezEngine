@@ -4,8 +4,16 @@
       "DependencyOf" : [ "EditorPluginAssets" ]
     },
     {
+      "Path" : "ezEnginePluginParticle",
+      "DependencyOf" : [ "EditorPluginParticle" ]
+    },
+    {
       "Path" : "ezEnginePluginScene",
       "DependencyOf" : [ "EditorPluginScene" ]
+    },
+    {
+      "Path" : "ezParticlePlugin",
+      "DependencyOf" : [ "EditorPluginParticle" ]
     },
     {
       "Path" : "ezPhysXPlugin",
