@@ -512,6 +512,9 @@ ezEditorInut ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
   {
     SetCurrentMouseMode();
 
+    // correct the up vector, if it got messed up
+    m_pCamera->LookAt(m_pCamera->GetCenterPosition(), m_pCamera->GetCenterPosition() + m_pCamera->GetCenterDirForwards(), ezVec3(0, 0, 1));
+
     const float fAspectRatio = (float)GetOwnerView()->size().width() / (float)GetOwnerView()->size().height();
     const ezAngle fFovX = m_pCamera->GetFovX(fAspectRatio);
     const ezAngle fFovY = m_pCamera->GetFovY(fAspectRatio);
@@ -533,13 +536,28 @@ ezEditorInut ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
       return ezEditorInut::WasExclusivelyHandled;
     }
 
-    if (m_bRotateCamera)
+    if (m_bRotateCamera || m_bOrbitCamera)
     {
+      float fDistToOrbit = 0.0f;
+
+      if (m_bOrbitCamera)
+      {
+        fDistToOrbit = (m_pSettings->m_vOrbitPoint - m_pCamera->GetCenterPosition()).GetLength();
+      }
+
       float fRotateHorizontal = diff.x * fMouseRotateSensitivityX;
       float fRotateVertical = diff.y * fMouseRotateSensitivityY;
 
       m_pCamera->RotateLocally(ezAngle::Radian(0), ezAngle::Radian(fRotateVertical), ezAngle::Radian(0));
       m_pCamera->RotateGlobally(ezAngle::Radian(0), ezAngle::Radian(0), ezAngle::Radian(fRotateHorizontal));
+
+      if (m_bOrbitCamera)
+      {
+        const ezVec3 vDirection = m_pCamera->GetDirForwards();
+        const ezVec3 vNewCamPos = m_pSettings->m_vOrbitPoint - vDirection * fDistToOrbit;
+
+        m_pCamera->LookAt(vNewCamPos, m_pSettings->m_vOrbitPoint, m_pCamera->GetDirUp());
+      }
 
       m_LastMousePos = UpdateMouseMode(e);
       return ezEditorInut::WasExclusivelyHandled;
@@ -570,31 +588,6 @@ ezEditorInut ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
 
       m_pSettings->m_vOrbitPoint += vDir * fMoveForward;
       m_pCamera->MoveGlobally(vDir * fMoveForward);
-
-      m_LastMousePos = UpdateMouseMode(e);
-
-      return ezEditorInut::WasExclusivelyHandled;
-    }
-
-    if (m_bOrbitCamera)
-    {
-      float fMoveRight = -diff.x * fMouseMoveSensitivity;
-      float fMoveUp = diff.y * fMouseMoveSensitivity;
-
-      const float fDistance = (m_pSettings->m_vOrbitPoint - m_pCamera->GetCenterPosition()).GetLength();
-
-      m_pCamera->MoveLocally(0, fMoveRight, fMoveUp);
-
-      ezVec3 vDir = m_pSettings->m_vOrbitPoint - m_pCamera->GetCenterPosition();
-      if (fDistance == 0.0f || vDir.SetLength(fDistance).Failed())
-      {
-        vDir.Set(0.01f, 0, 0);
-      }
-
-      if (ezMath::Abs(vDir.GetNormalized().Dot(ezVec3(0, 0, 1))) < 0.999f)
-        m_pCamera->LookAt(m_pSettings->m_vOrbitPoint - vDir, m_pSettings->m_vOrbitPoint, ezVec3(0.0f, 0.0f, 1.0f));
-      else
-        m_pSettings->m_vOrbitPoint += m_pCamera->MoveLocally(0, fMoveRight, fMoveUp);
 
       m_LastMousePos = UpdateMouseMode(e);
 
