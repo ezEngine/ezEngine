@@ -124,52 +124,51 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
   if (m_bStop)
     return;
 
+  EZ_LOCK(s_ResourceMutex);
+
+  // if there is nothing else that could be loaded, just return right away
+  if (pResource->GetLoadingState() == ezResourceState::Loaded && pResource->GetNumQualityLevelsLoadable() == 0)
+    return;
+
+  // if we are already preloading this resource, but now it has highest priority
+  // and it is still in the task queue (so not yet started)
+  if (pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading))
   {
-    EZ_LOCK(s_ResourceMutex);
-
-    // if there is nothing else that could be loaded, just return right away
-    if (pResource->GetLoadingState() == ezResourceState::Loaded && pResource->GetNumQualityLevelsLoadable() == 0)
-      return;
-
-    // if we are already preloading this resource, but now it has highest priority
-    // and it is still in the task queue (so not yet started)
-    if (pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading))
+    if (bHighestPriority)
     {
-      if (bHighestPriority)
-      {
-        LoadingInfo li;
-        li.m_pResource = pResource;
+      LoadingInfo li;
+      li.m_pResource = pResource;
 
-        // move it to the front of the queue
-        // if it is not in the queue anymore, it has already been started by some thread
-        if (m_RequireLoading.Remove(li))
-          m_RequireLoading.PushFront(li);
-      }
-
-      return;
+      // move it to the front of the queue
+      // if it is not in the queue anymore, it has already been started by some thread
+      if (m_RequireLoading.Remove(li))
+        m_RequireLoading.PushFront(li);
     }
 
-    EZ_ASSERT_DEV(!pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading), "");
-    pResource->m_Flags.Add(ezResourceFlags::IsPreloading);
-
-    LoadingInfo li;
-    li.m_pResource = pResource;
-    // not necessary here
-    //li.m_DueDate = pResource->GetLoadingDeadline();
-
-    if (bHighestPriority)
-      m_RequireLoading.PushFront(li);
-    else
-      m_RequireLoading.PushBack(li);
-
-    //ezLog::Debug("Adding resource '%s' -> '%s'to preload queue: %u items", pResource->GetDynamicRTTI()->GetTypeName(), pResource->GetResourceID().GetData(), m_RequireLoading.GetCount());
-
-    ezResourceEvent e;
-    e.m_pResource = pResource;
-    e.m_EventType = ezResourceEventType::ResourceInPreloadQueue;
-    ezResourceManager::BroadcastResourceEvent(e);
+    return;
   }
 
+  EZ_ASSERT_DEV(!pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading), "");
+  pResource->m_Flags.Add(ezResourceFlags::IsPreloading);
+
+  LoadingInfo li;
+  li.m_pResource = pResource;
+  // not necessary here
+  //li.m_DueDate = pResource->GetLoadingDeadline();
+
+  if (bHighestPriority)
+    m_RequireLoading.PushFront(li);
+  else
+    m_RequireLoading.PushBack(li);
+
+  //ezLog::Debug("Adding resource '%s' -> '%s'to preload queue: %u items", pResource->GetDynamicRTTI()->GetTypeName(), pResource->GetResourceID().GetData(), m_RequireLoading.GetCount());
+
+  ezResourceEvent e;
+  e.m_pResource = pResource;
+  e.m_EventType = ezResourceEventType::ResourceInPreloadQueue;
+  ezResourceManager::BroadcastResourceEvent(e);
+
+  // the mutex will be released by RunWorkerTask
   RunWorkerTask(pResource);
 }
 
@@ -217,6 +216,10 @@ void ezResourceManager::RunWorkerTask(ezResourceBase* pResource)
       }
   }
 
+  // this function is always called from within a mutex
+  // but we need to release the mutex between every loop iteration to prevent deadlocks
+  s_ResourceMutex.Release();
+
   while (bDoItYourself)
   {
     ezResourceManagerWorkerDiskRead::DoWork(true);
@@ -228,6 +231,9 @@ void ezResourceManager::RunWorkerTask(ezResourceBase* pResource)
         break;
     }
   }
+
+  // reacquire to get into the proper state
+  s_ResourceMutex.Acquire();
 }
 
 void ezResourceManager::UpdateLoadingDeadlines()
@@ -381,17 +387,29 @@ void ezResourceManagerWorkerDiskRead::DoWork(bool bCalledExternally)
 
   if (bResourceIsLoadedOnMainThread)
   {
-    ezResourceManagerWorkerMainThread* pWorkerMainThread = &ezResourceManager::m_WorkerTasksMainThread[ezResourceManager::m_iCurrentWorkerMainThread];
-    ezResourceManager::m_iCurrentWorkerMainThread = (ezResourceManager::m_iCurrentWorkerMainThread + 1) % ezResourceManager::MaxMainThreadTasks;
+    ezResourceManagerWorkerMainThread* pWorkerMainThread = nullptr;
 
+    {
+      EZ_LOCK(ezResourceManager::s_ResourceMutex);
+
+      pWorkerMainThread = &ezResourceManager::m_WorkerTasksMainThread[ezResourceManager::m_iCurrentWorkerMainThread];
+      ezResourceManager::m_iCurrentWorkerMainThread = (ezResourceManager::m_iCurrentWorkerMainThread + 1) % ezResourceManager::MaxMainThreadTasks;
+    }
+
+    /// \todo This part is still not thread safe
     ezTaskSystem::WaitForTask(pWorkerMainThread);
 
-    pWorkerMainThread->m_LoaderData = LoaderData;
-    pWorkerMainThread->m_pLoader = pLoader;
-    pWorkerMainThread->m_pResourceToLoad = pResourceToLoad;
+    {
+      EZ_LOCK(ezResourceManager::s_ResourceMutex);
 
-    // the resource stays in 'limbo' until the main thread worker is finished with it
-    ezTaskSystem::StartSingleTask(pWorkerMainThread, ezTaskPriority::SomeFrameMainThread);
+      pWorkerMainThread->m_LoaderData = LoaderData;
+      pWorkerMainThread->m_pLoader = pLoader;
+      pWorkerMainThread->m_pCustomLoader = std::move(pCustomLoader);
+      pWorkerMainThread->m_pResourceToLoad = pResourceToLoad;
+
+      // the resource stays in 'limbo' until the main thread worker is finished with it
+      ezTaskSystem::StartSingleTask(pWorkerMainThread, ezTaskPriority::SomeFrameMainThread);
+    }
   }
   else
   {

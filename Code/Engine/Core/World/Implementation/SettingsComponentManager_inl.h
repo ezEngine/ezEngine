@@ -5,7 +5,7 @@ ezComponentHandle ezSettingsComponentManager<ComponentType>::AllocateComponent()
   ezComponentHandle hComp = ezComponentManager<ComponentType>::AllocateComponent();
 
   ComponentType* pComponent = nullptr;
-  TryGetComponent(hComp, pComponent);
+  this->TryGetComponent(hComp, pComponent);
 
   if (!m_pSingleton)
   {

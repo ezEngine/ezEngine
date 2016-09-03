@@ -45,6 +45,9 @@ public:
   ezResourceLoadData m_LoaderData;
   ezResourceBase* m_pResourceToLoad;
   ezResourceTypeLoader* m_pLoader;
+  // this is only used to clean up a custom loader at the right time, if one is used
+  // m_pLoader is always set, no need to go through m_pCustomLoader
+  ezUniquePtr<ezResourceTypeLoader> m_pCustomLoader;
 
 private:
   friend class ezResourceManager;
