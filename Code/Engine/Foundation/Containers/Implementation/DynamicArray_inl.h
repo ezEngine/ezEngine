@@ -179,3 +179,8 @@ void ezDynamicArray<T, A>::operator=(ezDynamicArrayBase<T>&& rhs)
   ezDynamicArrayBase<T>::operator=(std::move(rhs));
 }
 
+template<typename T, typename AllocatorWrapper>
+ezArrayPtr<const T* const> ezMakeArrayPtr(const ezDynamicArray<T*, AllocatorWrapper> dynArray)
+{
+  return ezArrayPtr<const T* const>(dynArray.GetData(), dynArray.GetCount());
+}
