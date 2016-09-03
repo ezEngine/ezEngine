@@ -124,3 +124,35 @@ protected:
   bool m_bEnabled;
   bool m_bVisible;
 };
+
+
+class EZ_GUIFOUNDATION_DLL ezSliderAction : public ezNamedAction
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSliderAction, ezNamedAction);
+public:
+  ezSliderAction(const ezActionContext& context, const char* szName);
+
+  bool IsEnabled() const { return m_bEnabled; }
+  void SetEnabled(bool bEnable, bool bTriggerUpdate = true) { m_bEnabled = bEnable; if (bTriggerUpdate) TriggerUpdate(); }
+
+  bool IsVisible() const { return m_bVisible; }
+  void SetVisible(bool bVisible, bool bTriggerUpdate = true) { m_bVisible = bVisible; if (bTriggerUpdate) TriggerUpdate(); }
+
+  void GetRange(ezInt32& out_iMin, ezInt32& out_iMax) const
+  {
+    out_iMin = m_iMinValue;
+    out_iMax = m_iMaxValue;
+  }
+
+  void SetRange(ezInt32 iMin, ezInt32 iMax, bool bTriggerUpdate = true);
+
+  ezInt32 GetValue() const { return m_iCurValue; }
+  void SetValue(ezInt32 val, bool bTriggerUpdate = true);
+
+protected:
+  bool m_bEnabled;
+  bool m_bVisible;
+  ezInt32 m_iMinValue;
+  ezInt32 m_iMaxValue;
+  ezInt32 m_iCurValue;
+};

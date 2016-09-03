@@ -9,6 +9,8 @@
 #include <QAction>
 #include <CoreUtils/Localization/TranslationLookup.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <QSlider>
+#include <QWidgetAction>
 
 ezRttiMappedObjectFactory<ezQtProxy> ezQtProxy::s_Factory;
 ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> ezQtProxy::s_GlobalActions;
@@ -36,6 +38,10 @@ static ezQtProxy* QtLRUMenuProxyCreator(const ezRTTI* pRtti)
   return new(ezQtLRUMenuProxy);
 }
 
+static ezQtProxy* QtSliderProxyCreator(const ezRTTI* pRtti)
+{
+  return new(ezQtSliderProxy);
+}
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtProxies)
 
@@ -50,6 +56,7 @@ ON_CORE_STARTUP
   ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezCategoryAction>(), QtCategoryProxyCreator);
   ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezLRUMenuAction>(), QtLRUMenuProxyCreator);
   ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezButtonAction>(), QtButtonProxyCreator);
+  ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezSliderAction>(), QtSliderProxyCreator);
   ezQtProxy::s_pSignalProxy = new QObject;
 }
 
@@ -130,7 +137,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       if (!bExisted)
       {
         s_pSignalProxy->connect(context.m_pWindow, &QObject::destroyed,
-          s_pSignalProxy, [=]() { s_WindowActions.Remove(context.m_pWindow); });
+                                s_pSignalProxy, [=]() { s_WindowActions.Remove(context.m_pWindow); });
       }
       QWeakPointer<ezQtProxy> pTemp = it.Value()[hDesc];
       if (pTemp.isNull())
@@ -201,7 +208,9 @@ QMenu* ezQtMenuProxy::GetQMenu()
   return m_pMenu;
 }
 
+//////////////////////////////////////////////////////////////////////////
 //////////////////// ezQtButtonProxy /////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 ezQtButtonProxy::ezQtButtonProxy()
 {
@@ -357,3 +366,153 @@ void ezQtLRUMenuProxy::SlotMenuEntryTriggered()
 
 }
 
+
+ezQtSliderWidgetAction::ezQtSliderWidgetAction(QWidget* parent) : QWidgetAction(parent)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////// ezQtSliderProxy /////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+void ezQtSliderWidgetAction::setMinimum(int value)
+{
+  m_iMinimum = value;
+
+  const QList<QWidget*> widgets = createdWidgets();
+
+  for (QWidget* pWidget : widgets)
+  {
+    QSlider* pSlider = qobject_cast<QSlider*>(pWidget);
+    pSlider->setMinimum(m_iMinimum);
+  }
+}
+
+void ezQtSliderWidgetAction::setMaximum(int value)
+{
+  m_iMaximum = value;
+
+  const QList<QWidget*> widgets = createdWidgets();
+
+  for (QWidget* pWidget : widgets)
+  {
+    QSlider* pSlider = qobject_cast<QSlider*>(pWidget);
+    pSlider->setMaximum(m_iMaximum);
+  }
+}
+
+void ezQtSliderWidgetAction::setValue(int value)
+{
+  m_iValue = value;
+
+  const QList<QWidget*> widgets = createdWidgets();
+
+  for (QWidget* pWidget : widgets)
+  {
+    QSlider* pSlider = qobject_cast<QSlider*>(pWidget);
+    pSlider->setValue(m_iValue);
+  }
+}
+
+
+void ezQtSliderWidgetAction::OnValueChanged(int value)
+{
+  emit valueChanged(value);
+}
+
+QWidget* ezQtSliderWidgetAction::createWidget(QWidget * parent)
+{
+  QSlider* pSlider = new QSlider(parent);
+  pSlider->setOrientation(Qt::Orientation::Horizontal);
+
+  EZ_VERIFY(connect(pSlider, SIGNAL(valueChanged(int)), this, SLOT(OnValueChanged(int))) != nullptr, "connection failed");
+
+  pSlider->setMinimum(m_iMinimum);
+  pSlider->setMaximum(m_iMaximum);
+  pSlider->setValue(m_iValue);
+  pSlider->setToolTip(toolTip()); // seems not to work
+
+  return pSlider;
+}
+
+
+ezQtSliderProxy::ezQtSliderProxy()
+{
+  m_pQtAction = nullptr;
+}
+
+ezQtSliderProxy::~ezQtSliderProxy()
+{
+  m_pAction->m_StatusUpdateEvent.RemoveEventHandler(ezMakeDelegate(&ezQtSliderProxy::StatusUpdateEventHandler, this));
+
+  if (m_pQtAction != nullptr)
+  {
+    m_pQtAction->deleteLater();
+  }
+  m_pQtAction = nullptr;
+}
+
+void ezQtSliderProxy::Update()
+{
+  if (m_pQtAction == nullptr)
+    return;
+
+  auto pAction = static_cast<ezSliderAction*>(m_pAction);
+
+  const ezActionDescriptor* pDesc = m_pAction->GetDescriptorHandle().GetDescriptor();
+
+  ezQtSliderWidgetAction* pSliderAction = qobject_cast<ezQtSliderWidgetAction*>(m_pQtAction);
+  QtScopedBlockSignals bs(pSliderAction);
+
+  ezInt32 minVal, maxVal;
+  pAction->GetRange(minVal, maxVal);
+  pSliderAction->setMinimum(minVal);
+  pSliderAction->setMaximum(maxVal);
+  pSliderAction->setValue(pAction->GetValue());
+  pSliderAction->setToolTip(QString::fromUtf8(ezTranslateTooltip(pAction->GetName())));
+  pSliderAction->setEnabled(pAction->IsEnabled());
+  pSliderAction->setVisible(pAction->IsVisible());
+}
+
+void ezQtSliderProxy::SetAction(ezAction* pAction)
+{
+  EZ_ASSERT_DEV(m_pAction == nullptr, "Es darf nicht sein, es kann nicht sein!");
+
+  ezQtProxy::SetAction(pAction);
+  m_pAction->m_StatusUpdateEvent.AddEventHandler(ezMakeDelegate(&ezQtSliderProxy::StatusUpdateEventHandler, this));
+
+  ezActionDescriptorHandle hDesc = m_pAction->GetDescriptorHandle();
+  const ezActionDescriptor* pDesc = hDesc.GetDescriptor();
+
+  if (m_pQtAction == nullptr)
+  {
+    m_pQtAction = new ezQtSliderWidgetAction(nullptr);
+
+    EZ_VERIFY(connect(m_pQtAction, SIGNAL(valueChanged(int)), this, SLOT(OnValueChanged(int))) != nullptr, "connection failed");
+  }
+
+  Update();
+}
+
+QAction* ezQtSliderProxy::GetQAction()
+{
+  return m_pQtAction;
+}
+
+
+void ezQtSliderProxy::OnValueChanged(int value)
+{
+  // make sure all focus is lost, to trigger pending changes
+  if (QApplication::focusWidget())
+    QApplication::focusWidget()->clearFocus();
+
+  // make sure all instances of the slider get updated, by setting the new value
+  m_pQtAction->setValue(value);
+
+  m_pAction->Execute(value);
+}
+
+void ezQtSliderProxy::StatusUpdateEventHandler(ezAction* pAction)
+{
+  Update();
+}

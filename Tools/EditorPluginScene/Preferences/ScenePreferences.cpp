@@ -77,3 +77,11 @@ ezScenePreferencesUser::ezScenePreferencesUser() : ezPreferences(Domain::Documen
   m_ViewQuad3.m_uiRenderMode = ezViewRenderMode::WireframeMonochrome;
   m_ViewQuad3.m_fFov = 20.0f;
 }
+
+void ezScenePreferencesUser::SetCameraSpeed(ezInt32 value)
+{
+  m_iCameraSpeed = ezMath::Clamp(value, 1, 30);
+
+  // Kiff, inform the men!
+  TriggerPreferencesChangedEvent();
+}

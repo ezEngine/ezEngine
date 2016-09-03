@@ -122,6 +122,8 @@ void PreferencesDlg::ObjectToNative(ezUuid objectGuid, const ezDocument* pPrefDo
 
   ezPreferences* pPreferences = ezPreferences::QueryPreferences(pType, pPrefDocument);
   conv.ApplyPropertiesToObject(pNode, pType, pPreferences);
+
+  pPreferences->TriggerPreferencesChangedEvent();
 }
 
 

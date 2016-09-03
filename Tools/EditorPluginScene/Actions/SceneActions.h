@@ -5,6 +5,8 @@
 #include <GuiFoundation/Action/BaseActions.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 
+class ezPreferences;
+
 ///
 class EZ_EDITORPLUGINSCENE_DLL ezSceneActions
 {
@@ -26,6 +28,8 @@ public:
   static ezActionDescriptorHandle s_hSimulationSpeed[10];
   static ezActionDescriptorHandle s_hGameModePlay;
   static ezActionDescriptorHandle s_hGameModeStop;
+
+  static ezActionDescriptorHandle s_hCameraSpeed;
 };
 
 ///
@@ -61,6 +65,33 @@ private:
   ezSceneDocument* m_pSceneDocument;
   ActionType m_Type;
 };
+
+
+class EZ_EDITORPLUGINSCENE_DLL ezSceneSliderAction : public ezSliderAction
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSceneSliderAction, ezSliderAction);
+
+public:
+
+  enum class ActionType
+  {
+    CameraSpeed,
+  };
+
+  ezSceneSliderAction(const ezActionContext& context, const char* szName, ActionType type);
+  ~ezSceneSliderAction();
+
+  virtual void Execute(const ezVariant& value) override;
+
+private:
+  void OnPreferenceChange(ezPreferences* pref);
+  void UpdateState();
+
+  ezSceneDocument* m_pSceneDocument;
+  ActionType m_Type;
+};
+
+
 
 
 

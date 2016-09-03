@@ -72,6 +72,15 @@ public:
   /// \brief If these preferences are per document, the pointer is valid, otherwise nullptr.
   const ezDocument* GetDocumentAssociation() const { return m_pDocument; }
 
+  /// A simple event that can be fired when any preference property changes. No specific change details are given.
+  ezEvent<ezPreferences*> m_ChangedEvent;
+
+  /// Call this to broadcast that this preference object was modified.
+  void TriggerPreferencesChangedEvent()
+  {
+    m_ChangedEvent.Broadcast(this);
+  }
+
 protected:
 
   ezPreferences(Domain domain, const char* szUniqueName);

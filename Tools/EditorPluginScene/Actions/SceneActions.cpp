@@ -5,8 +5,12 @@
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <QProcess>
 #include <Foundation/Logging/Log.h>
+#include <Preferences/ScenePreferences.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneAction, 1, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneSliderAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezActionDescriptorHandle ezSceneActions::s_hSceneCategory;
@@ -20,6 +24,7 @@ ezActionDescriptorHandle ezSceneActions::s_hSimulationSpeedMenu;
 ezActionDescriptorHandle ezSceneActions::s_hSimulationSpeed[10];
 ezActionDescriptorHandle ezSceneActions::s_hGameModePlay;
 ezActionDescriptorHandle ezSceneActions::s_hGameModeStop;
+ezActionDescriptorHandle ezSceneActions::s_hCameraSpeed;
 
 void ezSceneActions::RegisterActions()
 {
@@ -45,6 +50,7 @@ void ezSceneActions::RegisterActions()
   s_hSimulationSpeed[8] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.5", ezActionScope::Document, "Simulation - Speed", "", ezSceneAction, ezSceneAction::ActionType::SimulationSpeed, 5.0f);
   s_hSimulationSpeed[9] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.10", ezActionScope::Document, "Simulation - Speed", "", ezSceneAction, ezSceneAction::ActionType::SimulationSpeed, 10.0f);
 
+  s_hCameraSpeed = EZ_REGISTER_ACTION_1("Scene.Camera.Speed", ezActionScope::Document, "Camera", "", ezSceneSliderAction, ezSceneSliderAction::ActionType::CameraSpeed);
 }
 
 void ezSceneActions::UnregisterActions()
@@ -59,6 +65,7 @@ void ezSceneActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hSimulationSpeedMenu);
   ezActionManager::UnregisterAction(s_hGameModePlay);
   ezActionManager::UnregisterAction(s_hGameModeStop);
+  ezActionManager::UnregisterAction(s_hCameraSpeed);
 
   for (int i = 0; i < EZ_ARRAY_SIZE(s_hSimulationSpeed); ++i)
     ezActionManager::UnregisterAction(s_hSimulationSpeed[i]);
@@ -95,6 +102,7 @@ void ezSceneActions::MapMenuActions()
     pMap->MapAction(s_hRenderSelectionOverlay, szSubPath, 1.0f);
     pMap->MapAction(s_hRenderVisualizers, szSubPath, 2.0f);
     pMap->MapAction(s_hRenderShapeIcons, szSubPath, 3.0f);
+    pMap->MapAction(s_hCameraSpeed, szSubPath, 4.0f);
   }
 }
 
@@ -117,6 +125,7 @@ void ezSceneActions::MapToolbarActions()
     pMap->MapAction(s_hRenderSelectionOverlay, szSubPath, 4.0f);
     pMap->MapAction(s_hRenderVisualizers, szSubPath, 5.0f);
     pMap->MapAction(s_hRenderShapeIcons, szSubPath, 6.0f);
+    pMap->MapAction(s_hCameraSpeed, szSubPath, 7.0f);
   }
 }
 
@@ -302,3 +311,74 @@ void ezSceneAction::UpdateState()
   }
 }
 
+
+ezSceneSliderAction::ezSceneSliderAction(const ezActionContext& context, const char* szName, ActionType type)
+  : ezSliderAction(context, szName)
+{
+  m_Type = type;
+  m_pSceneDocument = const_cast<ezSceneDocument*>(static_cast<const ezSceneDocument*>(context.m_pDocument));
+
+  switch (m_Type)
+  {
+  case ActionType::CameraSpeed:
+    {
+      ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(m_pSceneDocument);
+
+      pPreferences->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezSceneSliderAction::OnPreferenceChange, this));
+
+      SetRange(0, 30);
+    }
+    break;
+  }
+
+  UpdateState();
+}
+
+ezSceneSliderAction::~ezSceneSliderAction()
+{
+  switch (m_Type)
+  {
+  case ActionType::CameraSpeed:
+    {
+      ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(m_pSceneDocument);
+
+      pPreferences->m_ChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezSceneSliderAction::OnPreferenceChange, this));
+    }
+    break;
+  }
+}
+
+void ezSceneSliderAction::Execute(const ezVariant& value)
+{
+  const ezInt32 iValue = value.Get<ezInt32>();
+
+  switch (m_Type)
+  {
+  case ActionType::CameraSpeed:
+    {
+      ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(m_pSceneDocument);
+
+      pPreferences->SetCameraSpeed(value.Get<ezInt32>());
+    }
+    break;
+  }
+}
+
+void ezSceneSliderAction::OnPreferenceChange(ezPreferences* pref)
+{
+  UpdateState();
+}
+
+void ezSceneSliderAction::UpdateState()
+{
+  switch (m_Type)
+  {
+  case ActionType::CameraSpeed:
+    {
+      ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(m_pSceneDocument);
+
+      SetValue(pPreferences->GetCameraSpeed());
+    }
+    break;
+  }
+}

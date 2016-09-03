@@ -20,6 +20,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezButtonAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSliderAction, 1, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 ezEnumerationMenuAction::ezEnumerationMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezLRUMenuAction(context, szName, szIconPath)
 {
   m_pEnumerationType = nullptr;
@@ -67,4 +70,33 @@ ezButtonAction::ezButtonAction(const ezActionContext& context, const char* szNam
   m_bChecked = false;
   m_bEnabled = true;
   m_bVisible = true;
+}
+
+
+ezSliderAction::ezSliderAction(const ezActionContext& context, const char* szName)
+  : ezNamedAction (context, szName, nullptr)
+{
+  m_bEnabled = true;
+  m_bVisible = true;
+  m_iMinValue = 0;
+  m_iMaxValue = 100;
+  m_iCurValue = 50;
+}
+
+void ezSliderAction::SetRange(ezInt32 iMin, ezInt32 iMax, bool bTriggerUpdate /*= true*/)
+{
+  EZ_ASSERT_DEBUG(iMin < iMax, "Invalid range");
+
+  m_iMinValue = iMin;
+  m_iMaxValue = iMax;
+
+  if (bTriggerUpdate)
+    TriggerUpdate();
+}
+
+void ezSliderAction::SetValue(ezInt32 val, bool bTriggerUpdate /*= true*/)
+{
+  m_iCurValue = ezMath::Clamp(val, m_iMinValue, m_iMaxValue);
+  if (bTriggerUpdate)
+    TriggerUpdate();
 }

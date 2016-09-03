@@ -10,9 +10,11 @@
 #include <QObject>
 #include <QPointer>
 #include <QSharedPointer>
+#include <QWidgetAction>
 
 class QAction;
 class QMenu;
+class QSlider;
 class ezAction;
 
 class EZ_GUIFOUNDATION_DLL ezQtProxy : public QObject
@@ -113,4 +115,51 @@ private slots:
 
 private:
   ezHybridArray<ezLRUMenuAction::Item, 16> m_Entries;
+};
+
+class EZ_GUIFOUNDATION_DLL ezQtSliderWidgetAction : public QWidgetAction
+{
+  Q_OBJECT
+
+public:
+  ezQtSliderWidgetAction(QWidget* parent);
+  void setMinimum(int value);
+  void setMaximum(int value);
+  void setValue(int value);
+
+signals:
+  void valueChanged(int value);
+
+private slots:
+  void OnValueChanged(int value);
+
+protected:
+  virtual QWidget* createWidget(QWidget * parent) override;
+
+  ezInt32 m_iMinimum;
+  ezInt32 m_iMaximum;
+  ezInt32 m_iValue;
+};
+
+class EZ_GUIFOUNDATION_DLL ezQtSliderProxy : public ezQtActionProxy
+{
+  Q_OBJECT
+
+public:
+  ezQtSliderProxy();
+  ~ezQtSliderProxy();
+
+  virtual void Update() override;
+  virtual void SetAction(ezAction* pAction) override;
+
+  virtual QAction* GetQAction() override;
+
+private slots:
+  void OnValueChanged(int value);
+
+private:
+  void StatusUpdateEventHandler(ezAction* pAction);
+
+private:
+  QPointer<ezQtSliderWidgetAction> m_pQtAction;
 };

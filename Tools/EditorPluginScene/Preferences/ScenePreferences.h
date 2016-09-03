@@ -21,11 +21,16 @@ class ezScenePreferencesUser : public ezPreferences
 public:
   ezScenePreferencesUser();
 
-  int m_iCameraSpeed;
+  void SetCameraSpeed(ezInt32 value);
+  ezInt32 GetCameraSpeed() const { return m_iCameraSpeed; }
+
   bool m_bQuadView;
   ezSceneViewPreferences m_ViewSingle;
   ezSceneViewPreferences m_ViewQuad0;
   ezSceneViewPreferences m_ViewQuad1;
   ezSceneViewPreferences m_ViewQuad2;
   ezSceneViewPreferences m_ViewQuad3;
+
+protected:
+  int m_iCameraSpeed;
 };
