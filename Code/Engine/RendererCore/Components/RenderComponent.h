@@ -2,6 +2,7 @@
 
 #include <RendererCore/Basics.h>
 #include <Core/World/World.h>
+#include <Core/Messages/UpdateLocalBoundsMessage.h>
 
 class EZ_RENDERERCORE_DLL ezRenderComponent : public ezComponent
 {

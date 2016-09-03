@@ -3,6 +3,7 @@
 #include <PhysXPlugin/Basics.h>
 #include <Core/World/World.h>
 #include <Core/World/Component.h>
+#include <Core/Messages/UpdateLocalBoundsMessage.h>
 
 #include <PxPhysicsAPI.h>
 using namespace physx;

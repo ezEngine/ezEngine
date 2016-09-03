@@ -1,7 +1,7 @@
 #pragma once
 
 #include <PhysXPlugin/Basics.h>
-#include <GameUtils/Components/SettingsComponent.h>
+#include <Core/World/SettingsComponent.h>
 #include <Core/World/SettingsComponentManager.h>
 
 

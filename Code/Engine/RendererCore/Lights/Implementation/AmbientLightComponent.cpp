@@ -1,0 +1,117 @@
+#include <RendererCore/PCH.h>
+#include <RendererCore/Lights/AmbientLightComponent.h>
+#include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Core/WorldSerializer/WorldReader.h>
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAmbientLightRenderData, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_COMPONENT_TYPE(ezAmbientLightComponent, 1)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("Top Color", GetTopColor, SetTopColor)->AddAttributes(new ezDefaultValueAttribute(ezColor(0.2f, 0.2f, 0.3f))),
+    EZ_ACCESSOR_PROPERTY("Bottom Color", GetBottomColor, SetBottomColor)->AddAttributes(new ezDefaultValueAttribute(ezColor(0.1f, 0.1f, 0.15f))),
+    EZ_ACCESSOR_PROPERTY("Intensity", GetIntensity, SetIntensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f))
+  }
+  EZ_END_PROPERTIES
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
+  }
+  EZ_END_MESSAGEHANDLERS
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Rendering/Lighting"),
+  }
+  EZ_END_ATTRIBUTES
+}
+EZ_END_COMPONENT_TYPE
+
+ezAmbientLightComponent::ezAmbientLightComponent()
+  : m_TopColor(ezColor(0.2f, 0.2f, 0.3f))
+  , m_BottomColor(ezColor(0.1f, 0.1f, 0.15f))
+  , m_fIntensity(1.0f)
+{
+}
+
+ezAmbientLightComponent::~ezAmbientLightComponent()
+{
+
+}
+
+void ezAmbientLightComponent::SetTopColor(ezColor color)
+{
+  m_TopColor = color;
+  SetModified(EZ_BIT(1));
+}
+
+ezColor ezAmbientLightComponent::GetTopColor() const
+{
+  return m_TopColor;
+}
+
+void ezAmbientLightComponent::SetBottomColor(ezColor color)
+{
+  m_BottomColor = color;
+  SetModified(EZ_BIT(2));
+}
+
+ezColor ezAmbientLightComponent::GetBottomColor() const
+{
+  return m_BottomColor;
+}
+
+void ezAmbientLightComponent::SetIntensity(float fIntensity)
+{
+  m_fIntensity = fIntensity;
+  SetModified(EZ_BIT(3));
+}
+
+float ezAmbientLightComponent::GetIntensity() const
+{
+  return m_fIntensity;
+}
+
+void ezAmbientLightComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
+{
+  if (msg.m_OverrideCategory != ezInvalidIndex)
+    return;
+
+  ezUInt32 uiBatchId = 0;
+
+  auto pRenderData = ezCreateRenderDataForThisFrame<ezAmbientLightRenderData>(GetOwner(), uiBatchId);
+
+  pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
+  pRenderData->m_TopColor = m_TopColor * m_fIntensity;
+  pRenderData->m_BottomColor = m_BottomColor * m_fIntensity;
+  
+  msg.m_pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId);
+}
+
+void ezAmbientLightComponent::SerializeComponent(ezWorldWriter& stream) const
+{
+  SUPER::SerializeComponent(stream);
+
+  ezStreamWriter& s = stream.GetStream();
+
+  s << m_TopColor;
+  s << m_BottomColor;
+  s << m_fIntensity;
+}
+
+void ezAmbientLightComponent::DeserializeComponent(ezWorldReader& stream)
+{
+  SUPER::DeserializeComponent(stream);
+  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  ezStreamReader& s = stream.GetStream();
+
+  s >> m_TopColor;
+  s >> m_BottomColor;
+  s >> m_fIntensity;
+}
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_SpotLightComponent);
+

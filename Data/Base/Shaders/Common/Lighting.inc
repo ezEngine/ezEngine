@@ -69,11 +69,8 @@ float3 CalculateLighting(MaterialData matData)
 	
 	totalLight *= (1.0f / PI);
 	
-	// fake ambient
-	float3 ambientBottom = float3(0.1f, 0.1f, 0.15f);
-	float3 ambientTop = float3(0.2f, 0.2f, 0.3f);
-	float3 ambientLight = lerp(ambientBottom, ambientTop, matData.worldNormal.z * 0.5f + 0.5f);
-	
+	// simple two color diffuse ambient
+	float3 ambientLight = lerp(AmbientBottomColor.rgb, AmbientTopColor.rgb, matData.worldNormal.z * 0.5f + 0.5f);	
 	totalLight += matData.diffuseColor * ambientLight;
 	
 	return totalLight;

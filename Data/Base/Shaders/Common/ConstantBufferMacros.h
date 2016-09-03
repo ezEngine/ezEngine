@@ -81,8 +81,8 @@ float4x4 TransformToMatrix(Transform t)
 #define INT4(Name) ezVec4I32 Name
 #define UINT1(Name) ezUInt32 Name
 #define UINT2(Name) ezVec2U32 Name
-#define UINT3(Name) ezVec2U32 Name
-#define UINT4(Name) ezVec2U32 Name
+#define UINT3(Name) ezVec3U32 Name
+#define UINT4(Name) ezVec4U32 Name
 #define MAT3(Name) ezShaderMat3 Name
 #define MAT4(Name) ezMat4 Name
 #define TRANSFORM(Name) ezShaderTransform Name

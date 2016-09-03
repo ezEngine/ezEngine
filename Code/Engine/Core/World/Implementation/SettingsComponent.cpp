@@ -1,5 +1,5 @@
-#include <GameUtils/PCH.h>
-#include <GameUtils/Components/SettingsComponent.h>
+#include <Core/PCH.h>
+#include <Core/World/SettingsComponent.h>
 //#include <Core/WorldSerializer/WorldWriter.h>
 //#include <Core/WorldSerializer/WorldReader.h>
 

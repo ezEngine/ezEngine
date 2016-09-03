@@ -29,6 +29,11 @@ void ezExtractedRenderData::SortAndBatch()
   {
     EZ_FORCE_INLINE bool Less(const ezRenderDataBatch::SortableRenderData& a, const ezRenderDataBatch::SortableRenderData& b) const
     {
+      if (a.m_uiSortingKey == b.m_uiSortingKey)
+      {
+        return a.m_pRenderData->m_uiBatchId < b.m_pRenderData->m_uiBatchId;
+      }
+
       return a.m_uiSortingKey < b.m_uiSortingKey;
     }
   };

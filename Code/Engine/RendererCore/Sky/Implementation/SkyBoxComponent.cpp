@@ -86,34 +86,17 @@ void ezSkyBoxComponent::Initialize()
     ezStringBuilder temp;
     temp.Format("SkyBoxMaterial_%08X_%d", GetOwner()->GetHandle().GetInternalID().m_Data, i);
 
-    m_Materials[i] = ezResourceManager::GetExistingResource<ezMaterialResource>(temp);
+    m_Materials[i] = ezResourceManager::GetExistingResource<ezMaterialResource>(temp.GetData());
     if (!m_Materials[i].IsValid())
     {
       ezMaterialResourceDescriptor desc;
       desc.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ b4b75b1c-c2c8-4a0e-8076-780bdd46d18b }"); // SkyMaterial
 
-      {
-        auto& param = desc.m_Parameters.ExpandAndGetRef();
-        param.m_Name.Assign("ExposureBias");
-        param.m_Value = m_fExposureBias;
-      }
-
-      {
-        auto& param = desc.m_Parameters.ExpandAndGetRef();
-        param.m_Name.Assign("InverseTonemap");
-        param.m_Value = m_bInverseTonemap;
-      }
-
-      if (m_Textures[i].IsValid())
-      {
-        auto& binding = desc.m_TextureBindings.ExpandAndGetRef();
-        binding.m_Name.Assign("BaseTexture");
-        binding.m_Value = m_Textures[i];
-      }
-
       m_Materials[i] = ezResourceManager::CreateResource<ezMaterialResource>(temp.GetData(), desc, temp.GetData());
-    }
+    }    
   }
+
+  UpdateMaterials();
 }
 
 ezResult ezSkyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)

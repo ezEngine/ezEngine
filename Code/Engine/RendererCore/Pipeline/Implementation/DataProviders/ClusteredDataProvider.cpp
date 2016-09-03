@@ -1,4 +1,5 @@
 #include <RendererCore/PCH.h>
+#include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
@@ -140,6 +141,9 @@ ezClusteredDataProvider::~ezClusteredDataProvider()
 
 void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewContext, const ezExtractedRenderData& extractedData)
 {
+  ezColor ambientTopColor = ezColor::Black;
+  ezColor ambientBottomColor = ezColor::Black;
+
   {
     // Collect light data
     m_Data.m_LightData.Clear();
@@ -150,9 +154,17 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
     {
       const ezRenderDataBatch& batch = batchList.GetBatch(i);
 
-      for (auto it = batch.GetIterator<ezLightRenderData>(); it.IsValid(); ++it)
+      for (auto it = batch.GetIterator<ezRenderData>(); it.IsValid(); ++it)
       {
-        FillLightData(m_Data.m_LightData.ExpandAndGetRef(), it);
+        if (auto pLightRenderData = ezDynamicCast<const ezLightRenderData*>(it))
+        {
+          FillLightData(m_Data.m_LightData.ExpandAndGetRef(), pLightRenderData);
+        }
+        else if (auto pAmbientLightRenderData = ezDynamicCast<const ezAmbientLightRenderData*>(it))
+        {
+          ambientTopColor = pAmbientLightRenderData->m_TopColor;
+          ambientBottomColor = pAmbientLightRenderData->m_BottomColor;
+        }
       }
     }
 
@@ -165,6 +177,8 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
 
   ClusteredDataConstants* pConstants = renderViewContext.m_pRenderContext->GetConstantBufferData<ClusteredDataConstants>(m_Data.m_hConstantBuffer);
   pConstants->NumLights = m_Data.m_LightData.GetCount();
+  pConstants->AmbientTopColor = ambientTopColor;
+  pConstants->AmbientBottomColor = ambientBottomColor;
 
   return &m_Data;
 }

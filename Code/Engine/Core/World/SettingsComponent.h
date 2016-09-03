@@ -1,6 +1,5 @@
 #pragma once
 
-#include <GameUtils/Basics.h>
 #include <Core/World/Component.h>
 
 /// \brief Base class for settings components, of which only one per type should exist in each world.
@@ -12,7 +11,7 @@
 /// in the world.
 ///
 /// 
-class EZ_GAMEUTILS_DLL ezSettingsComponent : public ezComponent
+class EZ_CORE_DLL ezSettingsComponent : public ezComponent
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSettingsComponent, ezComponent);
 

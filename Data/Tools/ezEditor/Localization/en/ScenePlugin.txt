@@ -87,6 +87,7 @@ ezInputComponent;Input
 ezPrefabReferenceComponent;Prefab Reference
 ezCameraComponent;Camera
 ezMeshComponent;Mesh
+ezAmbientLightComponent;Ambient Light
 ezDirectionalLightComponent;Directional Light
 ezSpotLightComponent;Spot Light
 ezPointLightComponent;Point Light

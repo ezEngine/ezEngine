@@ -35,4 +35,8 @@ EZ_ALIGN_16(struct) PerLightData
 CONSTANT_BUFFER(ClusteredDataConstants, 3) 
 {
 	UINT1(NumLights);
+	UINT3(Padding);
+	
+	COLOR(AmbientTopColor);
+	COLOR(AmbientBottomColor);
 };

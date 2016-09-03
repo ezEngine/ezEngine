@@ -203,6 +203,16 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x12114131C95777478924C833776D6B1E" },
+   "t" : "ezAmbientLightComponent",
+   "p" : {
+    "Active" : true,
+    "Bottom Color" : { "$t" : "color", "$v" : "(0.1248, 0.1248, 0.1500, 1.0000)", "$b" : "0x6488FF3D6488FF3D118F193E0000803F" },
+    "Intensity" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Top Color" : { "$t" : "color", "$v" : "(0.2000, 0.2000, 0.3000, 1.0000)", "$b" : "0xCDCC4C3ECDCC4C3E9A99993E0000803F" }
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x46E29EF620B0D447A9EF20F45DAD8895" },
    "t" : "ezMeshComponent",
    "p" : {
@@ -284,7 +294,7 @@
    "t" : "ezGameObject",
    "p" : {
     "Children" : [  ],
-    "Components" : [ { "$t" : "uuid", "$b" : "0x5A3F5A795BB7164D9EE7C667DF06FA22" } ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x5A3F5A795BB7164D9EE7C667DF06FA22" }, { "$t" : "uuid", "$b" : "0x12114131C95777478924C833776D6B1E" } ],
     "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 4.0000)", "$b" : "0x000000000000000000008040" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x3719CB3ECCD79B3E72E32FBFC3F6063F" },
@@ -302,7 +312,7 @@
     "AssetType" : "Scene",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x5D079F69E049C14CAE6B2A2B47BE2858" },
-    "Hash" : { "$t" : "uint64", "$v" : "6357535576504912307", "$b" : "0xB3C97B54EC803A58" },
+    "Hash" : { "$t" : "uint64", "$v" : "3388959709252515430", "$b" : "0x66761B6CE600082F" },
     "References" : [ "{ 16392084-7980-4556-97a2-6f0c0312d5a0 }", "{ 2c0adb01-ca49-4231-b10c-450af1b8fa1d }", "{ 4673a1ba-52f2-4cce-9924-b63957d980fc }", "{ 566d4602-16df-4df2-a5fb-0e53879a7db5 }", "{ 626d50a0-e628-485c-bfef-33879466108d }", "{ aa3ec83f-a932-415e-ac02-8ceffdb733c1 }", "{ b1a12ed8-9389-400a-8a56-f14dc856fb86 }", "{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }", "{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }", "{ cea3567e-6d36-418f-9259-f2e157979bcc }", "{ da463c4d-c984-4910-b0b7-a0b3891d0448 }", "{ ed0a89ca-d7a4-4e39-a25f-9518c1cd3aff }" ]
    }
   },

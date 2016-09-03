@@ -2,12 +2,11 @@
 
 /// \file
 
-#include <Foundation/Communication/Message.h>
 #include <Foundation/Reflection/Reflection.h>
 
 #include <Core/World/Declarations.h>
-#include <Core/Messages/UpdateLocalBoundsMessage.h>
 
+class ezMessage;
 class ezWorldWriter;
 class ezWorldReader;
 
