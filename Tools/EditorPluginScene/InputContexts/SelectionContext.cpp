@@ -76,29 +76,14 @@ ezEditorInut ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
 
     const bool bToggle = (e->modifiers() & Qt::KeyboardModifier::ControlModifier) != 0;
 
-    if (e->modifiers() & Qt::KeyboardModifier::AltModifier)
+    if (res.m_PickedObject.IsValid())
     {
-      if (res.m_PickedComponent.IsValid())
-      {
-        const ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedComponent);
+      const ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
 
-        if (bToggle)
-          pDocument->GetSelectionManager()->ToggleObject(pObject);
-        else
-          pDocument->GetSelectionManager()->SetSelection(pObject);
-      }
-    }
-    else
-    {
-      if (res.m_PickedObject.IsValid())
-      {
-        const ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
-
-        if (bToggle)
-          pDocument->GetSelectionManager()->ToggleObject(pObject);
-        else
-          pDocument->GetSelectionManager()->SetSelection(pObject);
-      }
+      if (bToggle)
+        pDocument->GetSelectionManager()->ToggleObject(pObject);
+      else
+        pDocument->GetSelectionManager()->SetSelection(pObject);
     }
 
     m_bSelectOnMouseUp = false;

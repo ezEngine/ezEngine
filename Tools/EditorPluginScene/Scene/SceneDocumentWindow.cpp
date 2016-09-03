@@ -452,58 +452,43 @@ void ezQtSceneDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxR
 
   const float fApsectRation = (float)pSceneView->width() / (float)pSceneView->height();
 
+  ezBoundingBox bbox;
+
+  // clamp the bbox of the selection to ranges that won't break down due to float precision
+  {
+    bbox.SetCenterAndHalfExtents(pMsg->m_vCenter, pMsg->m_vHalfExtents);
+    bbox.m_vMin = bbox.m_vMin.CompMax(ezVec3(-1000.0f));
+    bbox.m_vMax = bbox.m_vMax.CompMin(ezVec3(+1000.0f));
+  }
+
+  const ezVec3 vCurrentOrbitPoint = pSceneView->m_pCameraMoveContext->GetOrbitPoint();
+  const bool bZoomIn = vPivotPoint.IsEqual(vCurrentOrbitPoint, 0.1f);
+
   if (cam.GetCameraMode() == ezCameraMode::PerspectiveFixedFovX ||
       cam.GetCameraMode() == ezCameraMode::PerspectiveFixedFovY)
   {
     {
       ezPlane p;
       p.SetFromNormalAndPoint(vNewCameraDirection, vNewCameraPosition);
-      const float distBest = ezMath::Abs(p.GetDistanceTo(vPivotPoint));
+
+      // at some distance the floating point precision gets so crappy that the camera movement breaks
+      // therefore we clamp it to a 'reasonable' distance here
+      const float distBest = ezMath::Min(ezMath::Abs(p.GetDistanceTo(vPivotPoint)), 500.0f);
 
       vNewCameraPosition = vPivotPoint - vNewCameraDirection * distBest;
     }
 
     // only zoom in on the object, if the target position is already identical (action executed twice)
-    if (!pMsg->m_vHalfExtents.IsZero(ezMath::BasicType<float>::DefaultEpsilon()) && vNewCameraPosition.IsEqual(cam.GetCenterPosition(), 0.01f))
+    if (!pMsg->m_vHalfExtents.IsZero(ezMath::BasicType<float>::DefaultEpsilon()) && bZoomIn)
     {
       const ezAngle fovX = cam.GetFovX(fApsectRation);
       const ezAngle fovY = cam.GetFovY(fApsectRation);
 
-      ezBoundingBox bbox;
-      bbox.SetCenterAndHalfExtents(pMsg->m_vCenter, pMsg->m_vHalfExtents);
       const float fRadius = bbox.GetBoundingSphere().m_fRadius * 1.5f;
 
       const float dist1 = fRadius / ezMath::Sin(fovX * 0.75);
       const float dist2 = fRadius / ezMath::Sin(fovY * 0.75);
       const float distBest = ezMath::Max(dist1, dist2);
-
-      // Previous method that will additionally rotate the camera
-      //// Hard coded 'up' axis
-      //// make sure the camera is always above the objects center point, looking down, never up
-      //ezVec3 vCamRefPoint = cam.GetCenterPosition();
-      //vCamRefPoint.z = ezMath::Max(vCamRefPoint.z, pMsg->m_vCenter.z + pMsg->m_vHalfExtents.z * 0.5f);
-
-      //vNewCameraDirection = vPivotPoint - vCamRefPoint;
-      //vNewCameraDirection.NormalizeIfNotZero(ezVec3(1, 0, 0));
-
-      //{
-      //  const ezAngle maxAngle = ezAngle::Degree(30.0f);
-
-      //  /// \todo Hard coded 'up' direction
-      //  ezVec3 vPlaneDir = vNewCameraDirection;
-      //  vPlaneDir.z = 0.0f;
-
-      //  vPlaneDir.NormalizeIfNotZero(ezVec3(1, 0, 0));
-
-      //  if (maxAngle < vPlaneDir.GetAngleBetween(vNewCameraDirection))
-      //  {
-      //    const ezVec3 vAxis = vPlaneDir.Cross(vNewCameraDirection).GetNormalized();
-      //    ezMat3 mRot;
-      //    mRot.SetRotationMatrix(vAxis, maxAngle);
-
-      //    vNewCameraDirection = mRot * vPlaneDir;
-      //  }
-      //}
 
       vNewCameraPosition = vPivotPoint - vNewCameraDirection * distBest;
     }
@@ -513,7 +498,7 @@ void ezQtSceneDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxR
     vNewCameraPosition = pMsg->m_vCenter;
 
     // only zoom in on the object, if the target position is already identical (action executed twice)
-    if (vNewCameraPosition.IsEqual(cam.GetCenterPosition(), 0.01f))
+    if (bZoomIn)
     {
 
       const ezVec3 right = cam.GetDirRight();
@@ -521,8 +506,8 @@ void ezQtSceneDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxR
 
       const float fSizeFactor = 2.0f;
 
-      const float fRequiredWidth = ezMath::Abs(right.Dot(pMsg->m_vHalfExtents) * 2.0f) * fSizeFactor;
-      const float fRequiredHeight = ezMath::Abs(up.Dot(pMsg->m_vHalfExtents) * 2.0f) * fSizeFactor;
+      const float fRequiredWidth = ezMath::Abs(right.Dot(bbox.GetHalfExtents()) * 2.0f) * fSizeFactor;
+      const float fRequiredHeight = ezMath::Abs(up.Dot(bbox.GetHalfExtents()) * 2.0f) * fSizeFactor;
 
       float fDimWidth, fDimHeight;
 

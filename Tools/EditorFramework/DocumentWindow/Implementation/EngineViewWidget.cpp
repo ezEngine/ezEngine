@@ -136,10 +136,6 @@ void ezQtEngineViewWidget::UpdateCameraInterpolation()
 
 void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim)
 {
-  // prevent restarting this in the middle of a move
-  if (m_fCameraLerp < 1.0f)
-    return;
-
   m_vCameraStartPosition = m_pViewConfig->m_Camera.GetPosition();
   m_vCameraTargetPosition = vPosition;
 

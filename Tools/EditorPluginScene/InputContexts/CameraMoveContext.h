@@ -25,6 +25,7 @@ public:
 
   void SetCamera(ezCamera* pCamera);
 
+  const ezVec3& GetOrbitPoint() const;
   void SetOrbitPoint(const ezVec3& vPos);
 
 protected:

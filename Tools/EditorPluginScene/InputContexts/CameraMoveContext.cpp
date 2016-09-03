@@ -443,6 +443,11 @@ ezEditorInut ezCameraMoveContext::DoMouseReleaseEvent(QMouseEvent* e)
   return ezEditorInut::MayBeHandledByOthers;
 }
 
+const ezVec3& ezCameraMoveContext::GetOrbitPoint() const
+{
+  return m_pSettings->m_vOrbitPoint;
+}
+
 void ezCameraMoveContext::SetOrbitPoint(const ezVec3& vPos)
 {
   m_pSettings->m_vOrbitPoint = vPos;
@@ -729,4 +734,3 @@ void ezCameraMoveContext::SetCamera(ezCamera* pCamera)
 
   m_pCamera = pCamera;
 }
-
