@@ -47,6 +47,7 @@ Scene.Render.ShapeIcons;Render Shape Icons
 Scene.GameMode.Stop;Reset World
 Scene.GameMode.Simulate;Simulate World
 Scene.GameMode.Play;Play the Game
+Scene.Camera.Speed;Camera Speed;Camera Speed: CTRL+Mousewheel to change
 Selection.ShowInScenegraph;Show in Scenegraph
 Selection.FocusSingleView;Focus on Selection
 Selection.FocusAllViews;Focus All Views on Selection

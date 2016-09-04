@@ -80,7 +80,7 @@ ezScenePreferencesUser::ezScenePreferencesUser() : ezPreferences(Domain::Documen
 
 void ezScenePreferencesUser::SetCameraSpeed(ezInt32 value)
 {
-  m_iCameraSpeed = ezMath::Clamp(value, 1, 30);
+  m_iCameraSpeed = ezMath::Clamp(value, 0, 24);
 
   // Kiff, inform the men!
   TriggerPreferencesChangedEvent();

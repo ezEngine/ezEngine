@@ -14,6 +14,7 @@
 
 class QAction;
 class QMenu;
+class QLabel;
 class QSlider;
 class ezAction;
 
@@ -117,6 +118,19 @@ private:
   ezHybridArray<ezLRUMenuAction::Item, 16> m_Entries;
 };
 
+
+
+class EZ_GUIFOUNDATION_DLL ezQtLabeledSlider : public QWidget
+{
+  Q_OBJECT
+
+public:
+  ezQtLabeledSlider(QWidget* parent);
+
+  QLabel* m_pLabel;
+  QSlider* m_pSlider;
+};
+
 class EZ_GUIFOUNDATION_DLL ezQtSliderWidgetAction : public QWidgetAction
 {
   Q_OBJECT
@@ -134,7 +148,8 @@ private slots:
   void OnValueChanged(int value);
 
 protected:
-  virtual QWidget* createWidget(QWidget * parent) override;
+  virtual QWidget* createWidget(QWidget* parent) override;
+  virtual bool eventFilter(QObject* obj, QEvent* e) override;
 
   ezInt32 m_iMinimum;
   ezInt32 m_iMaximum;

@@ -10,45 +10,37 @@
 #include <EditorPluginScene/Preferences/ScenePreferences.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 
-static const float s_fMoveSpeed[31] =
+static const float s_fMoveSpeed[25] =
 {
-  0.0078125f,
-  0.01171875f,
-  0.015625f,
-  0.0234375f,
-  0.03125f,
-
-  0.046875f,
-  0.0625f,
-  0.09375f,
-  0.125f,
-  0.1875f,
-
-  0.25f,
-  0.375f,
   0.5f,
   0.75f,
   1.0f,
-
   1.5f,
   2.0f,
+
   3.0f,
   4.0f,
   6.0f,
-
   8.0f,
   12.0f,
+
   16.0f,
   24.0f,
   32.0f,
-
   48.0f,
   64.0f,
+
   96.0f,
   128.0f,
   192.0f,
-
   256.0f,
+  384.0f,
+
+  512.0f,
+  768.0f,
+  1024.0f,
+  1536.0f,
+  2048.0f,
 };
 
 ezCameraMoveContext::ezCameraMoveContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, ezCameraMoveContextSettings* pSettings)

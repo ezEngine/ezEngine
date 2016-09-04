@@ -11,6 +11,8 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QSlider>
 #include <QWidgetAction>
+#include <QLabel>
+#include <QBoxLayout>
 
 ezRttiMappedObjectFactory<ezQtProxy> ezQtProxy::s_Factory;
 ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> ezQtProxy::s_GlobalActions;
@@ -375,6 +377,18 @@ ezQtSliderWidgetAction::ezQtSliderWidgetAction(QWidget* parent) : QWidgetAction(
 //////////////////// ezQtSliderProxy /////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+ezQtLabeledSlider::ezQtLabeledSlider(QWidget* parent) : QWidget(parent)
+{
+  m_pLabel = new QLabel(this);
+  m_pSlider = new QSlider(this);
+  setLayout(new QHBoxLayout(this));
+
+  layout()->addWidget(m_pLabel);
+  layout()->addWidget(m_pSlider);
+
+  setMaximumWidth(300);
+}
+
 void ezQtSliderWidgetAction::setMinimum(int value)
 {
   m_iMinimum = value;
@@ -383,8 +397,8 @@ void ezQtSliderWidgetAction::setMinimum(int value)
 
   for (QWidget* pWidget : widgets)
   {
-    QSlider* pSlider = qobject_cast<QSlider*>(pWidget);
-    pSlider->setMinimum(m_iMinimum);
+    ezQtLabeledSlider* pGroup = qobject_cast<ezQtLabeledSlider*>(pWidget);
+    pGroup->m_pSlider->setMinimum(m_iMinimum);
   }
 }
 
@@ -396,8 +410,8 @@ void ezQtSliderWidgetAction::setMaximum(int value)
 
   for (QWidget* pWidget : widgets)
   {
-    QSlider* pSlider = qobject_cast<QSlider*>(pWidget);
-    pSlider->setMaximum(m_iMaximum);
+    ezQtLabeledSlider* pGroup = qobject_cast<ezQtLabeledSlider*>(pWidget);
+    pGroup->m_pSlider->setMaximum(m_iMaximum);
   }
 }
 
@@ -409,11 +423,10 @@ void ezQtSliderWidgetAction::setValue(int value)
 
   for (QWidget* pWidget : widgets)
   {
-    QSlider* pSlider = qobject_cast<QSlider*>(pWidget);
-    pSlider->setValue(m_iValue);
+    ezQtLabeledSlider* pGroup = qobject_cast<ezQtLabeledSlider*>(pWidget);
+    pGroup->m_pSlider->setValue(m_iValue);
   }
 }
-
 
 void ezQtSliderWidgetAction::OnValueChanged(int value)
 {
@@ -422,19 +435,35 @@ void ezQtSliderWidgetAction::OnValueChanged(int value)
 
 QWidget* ezQtSliderWidgetAction::createWidget(QWidget * parent)
 {
-  QSlider* pSlider = new QSlider(parent);
-  pSlider->setOrientation(Qt::Orientation::Horizontal);
+  ezQtLabeledSlider* pGroup = new ezQtLabeledSlider(parent);
+  pGroup->m_pSlider->setOrientation(Qt::Orientation::Horizontal);
 
-  EZ_VERIFY(connect(pSlider, SIGNAL(valueChanged(int)), this, SLOT(OnValueChanged(int))) != nullptr, "connection failed");
+  EZ_VERIFY(connect(pGroup->m_pSlider, SIGNAL(valueChanged(int)), this, SLOT(OnValueChanged(int))) != nullptr, "connection failed");
 
-  pSlider->setMinimum(m_iMinimum);
-  pSlider->setMaximum(m_iMaximum);
-  pSlider->setValue(m_iValue);
-  pSlider->setToolTip(toolTip()); // seems not to work
+  pGroup->m_pLabel->setText(text());
+  pGroup->m_pLabel->installEventFilter(this);
+  pGroup->m_pLabel->setToolTip(toolTip());
+  pGroup->installEventFilter(this);
+  pGroup->m_pSlider->setMinimum(m_iMinimum);
+  pGroup->m_pSlider->setMaximum(m_iMaximum);
+  pGroup->m_pSlider->setValue(m_iValue);
+  pGroup->m_pSlider->setToolTip(toolTip());
 
-  return pSlider;
+  return pGroup;
 }
 
+bool ezQtSliderWidgetAction::eventFilter(QObject* obj, QEvent* e)
+{
+  if (e->type() == QEvent::Type::MouseButtonPress ||
+      e->type() == QEvent::Type::MouseButtonRelease ||
+      e->type() == QEvent::Type::MouseButtonDblClick)
+  {
+    e->accept();
+    return true;
+  }
+
+  return false;
+}
 
 ezQtSliderProxy::ezQtSliderProxy()
 {
@@ -469,7 +498,8 @@ void ezQtSliderProxy::Update()
   pSliderAction->setMinimum(minVal);
   pSliderAction->setMaximum(maxVal);
   pSliderAction->setValue(pAction->GetValue());
-  pSliderAction->setToolTip(QString::fromUtf8(ezTranslateTooltip(pAction->GetName())));
+  pSliderAction->setText(ezTranslate(pAction->GetName()));
+  pSliderAction->setToolTip(ezTranslateTooltip(pAction->GetName()));
   pSliderAction->setEnabled(pAction->IsEnabled());
   pSliderAction->setVisible(pAction->IsVisible());
 }

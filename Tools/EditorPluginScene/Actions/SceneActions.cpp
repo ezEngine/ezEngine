@@ -326,7 +326,7 @@ ezSceneSliderAction::ezSceneSliderAction(const ezActionContext& context, const c
 
       pPreferences->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezSceneSliderAction::OnPreferenceChange, this));
 
-      SetRange(0, 30);
+      SetRange(0, 24);
     }
     break;
   }
