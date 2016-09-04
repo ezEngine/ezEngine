@@ -161,17 +161,31 @@ void ezSkyBoxComponent::SerializeComponent(ezWorldWriter& stream) const
   SUPER::SerializeComponent(stream);
   ezStreamWriter& s = stream.GetStream();
 
-
+  s << m_fExposureBias;
+  s << m_bInverseTonemap;
+  s << m_Textures[0];
+  s << m_Textures[1];
+  s << m_Textures[2];
+  s << m_Textures[3];
+  s << m_Textures[4];
+  s << m_Textures[5];
 }
 
 void ezSkyBoxComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   ezStreamReader& s = stream.GetStream();
 
-
+  s >> m_fExposureBias;
+  s >> m_bInverseTonemap;
+  s >> m_Textures[0];
+  s >> m_Textures[1];
+  s >> m_Textures[2];
+  s >> m_Textures[3];
+  s >> m_Textures[4];
+  s >> m_Textures[5];
 }
 
 void ezSkyBoxComponent::SetExposureBias(float fExposureBias)

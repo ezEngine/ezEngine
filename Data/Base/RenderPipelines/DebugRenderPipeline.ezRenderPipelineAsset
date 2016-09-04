@@ -40,7 +40,7 @@
     "Name" : "SimplePass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x48EAC743DBF87FADE6B61E5CF3A4C5DB" } ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(25.0000, -562.0000)", "$b" : "0x0000C84100800CC4" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0xA9E18D782BF5E645B642811C7940B2F0" } ]
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0xA9E18D782BF5E645B642811C7940B2F0" }, { "$t" : "uuid", "$b" : "0x830246415B1CA249B2F170ADE068EFDF" } ]
    }
   },
   {
@@ -117,7 +117,7 @@
     "AssetType" : "RenderPipeline",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x3EEB1604C0694046BE5B77354E0E37D7" },
-    "Hash" : { "$t" : "uint64", "$v" : "17870001242298632232", "$b" : "0x28C8FF5673FFFEF7" },
+    "Hash" : { "$t" : "uint64", "$v" : "9580177272955328585", "$b" : "0x49D8C5C778A0F384" },
     "References" : [  ]
    }
   },
@@ -169,9 +169,16 @@
     "DepthStencil" : { "$t" : "uuid", "$b" : "0x9E4AF52F7EF911679A16A0AD083A063D" },
     "Name" : "EditorRenderPass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x76E7EC5A137BBD062805167A27011F0D" }, { "$t" : "uuid", "$b" : "0x20DF51A2B06202DDF5C62353C249B651" }, { "$t" : "uuid", "$b" : "0xD5A058AC4AFA04C90EAD97A88CFD6F04" } ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(-503.0000, -579.0000)", "$b" : "0x0080FBC300C010C4" },
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(-502.0000, -579.0000)", "$b" : "0x0000FBC300C010C4" },
     "Renderers" : [ { "$t" : "uuid", "$b" : "0x7FB2D0724C11F144B7E9B9FCB0FB5C56" } ],
     "ViewRenderMode" : "ezViewRenderMode::None"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x830246415B1CA249B2F170ADE068EFDF" },
+   "t" : "ezParticleRenderer",
+   "p" : {
+    
    }
   },
   {
@@ -179,7 +186,7 @@
    "t" : "ezDocumentRoot",
    "n" : "ObjectTree",
    "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x3C1FB67603A9594E921099D748B11E1A" }, { "$t" : "uuid", "$b" : "0x249E0C557415E043B74C0A91EBFC1E6D" }, { "$t" : "uuid", "$b" : "0x5E8A709F13756749AD68BC95FF848E07" }, { "$t" : "uuid", "$b" : "0x4E22B7CB82EBDD4A94D8CF769FD13EEF" }, { "$t" : "uuid", "$b" : "0x264289BA7372AF4082EB9433B67E76E1" }, { "$t" : "uuid", "$b" : "0x4BFF0B292B76BA419968C09561030851" }, { "$t" : "uuid", "$b" : "0xA1F50468F565F646B97CC40EE0819DF8" }, { "$t" : "uuid", "$b" : "0x8C5A442824DFD646A43FC3F3E42561B4" }, { "$t" : "uuid", "$b" : "0x6EF694E9E1EBD2449D6B318EA8C54680" } ]
+    "Children" : [ { "$t" : "uuid", "$b" : "0x3C1FB67603A9594E921099D748B11E1A" }, { "$t" : "uuid", "$b" : "0x249E0C557415E043B74C0A91EBFC1E6D" }, { "$t" : "uuid", "$b" : "0x5E8A709F13756749AD68BC95FF848E07" }, { "$t" : "uuid", "$b" : "0x4E22B7CB82EBDD4A94D8CF769FD13EEF" }, { "$t" : "uuid", "$b" : "0x264289BA7372AF4082EB9433B67E76E1" }, { "$t" : "uuid", "$b" : "0x4BFF0B292B76BA419968C09561030851" }, { "$t" : "uuid", "$b" : "0xA1F50468F565F646B97CC40EE0819DF8" }, { "$t" : "uuid", "$b" : "0x8C5A442824DFD646A43FC3F3E42561B4" }, { "$t" : "uuid", "$b" : "0x6EF694E9E1EBD2449D6B318EA8C54680" }, { "$t" : "uuid", "$b" : "0x5861F25A9699194FA4D31154B1879A5A" } ]
    }
   },
   {
@@ -191,7 +198,7 @@
     "DepthStencil" : { "$t" : "uuid", "$b" : "0xFD5597C9CE3DA8534B660490F59F41DB" },
     "Name" : "EditorSelectionPass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x6AE0B8E367ECEA6C232161A9465F0192" } ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(-213.0000, -627.0000)", "$b" : "0x000055C300C01CC4" },
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(-235.0000, -679.0000)", "$b" : "0x00006BC300C029C4" },
     "Renderers" : [ { "$t" : "uuid", "$b" : "0x6CD794929CE6DC468BA234A4BA2230F3" } ]
    }
   },
@@ -220,6 +227,15 @@
     "Node::Connections" : [  ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-468.0000, -853.0000)", "$b" : "0x0000EAC3004055C4" },
     "SceneContext" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x5861F25A9699194FA4D31154B1879A5A" },
+   "t" : "ezParticleExtractor",
+   "p" : {
+    "Name" : "",
+    "Node::Connections" : [  ],
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(-77.0000, -760.0000)", "$b" : "0x00009AC200003EC4" }
    }
   },
   {
@@ -465,7 +481,7 @@
     "PluginName" : "ezEnginePluginScene",
     "Properties" : [ { "$t" : "uuid", "$b" : "0x4F8038A9ED1F4303F31177F3958685E7" } ],
     "TypeName" : "ezSceneContext",
-    "TypeSize" : { "$t" : "uint32", "$v" : "1336", "$b" : "0x38050000" },
+    "TypeSize" : { "$t" : "uint32", "$v" : "1344", "$b" : "0x40050000" },
     "TypeVersion" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
    }
   },

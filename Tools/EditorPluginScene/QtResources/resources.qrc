@@ -42,5 +42,9 @@
 	<file>ezInputComponent.png</file>
 	<file>ezProjectileComponent.png</file>
 	<file>ezCollectionComponent.png</file>
+	<file>ezPropertyAnimComponent.png</file>
+	<file>ezPrefabReferenceComponent.png</file>
+	<file>ezSkyBoxComponent.png</file>
+	<file>ezAmbientLightComponent.png</file>
   </qresource>  
 </RCC>

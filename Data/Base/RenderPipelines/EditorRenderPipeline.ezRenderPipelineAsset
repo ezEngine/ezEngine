@@ -107,13 +107,6 @@
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x200111E427063B4197EF61C0AA1AB808" },
-   "t" : "ezParticleRenderer",
-   "p" : {
-    
-   }
-  },
-  {
    "#" : { "$t" : "uuid", "$b" : "0x3D0E9189C147734190130922BA044549" },
    "t" : "ezMeshRenderer",
    "p" : {
@@ -151,8 +144,8 @@
     "DepthStencil" : { "$t" : "uuid", "$b" : "0x94E2B4355B301645B5B75E85DC4884BB" },
     "Name" : "EditorSelectionPass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x450C44A116D8AC39D169E6707DC1E5FE" } ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(-19.0000, -289.0000)", "$b" : "0x000098C1008090C3" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0x4994DB49F14D704B86C6353AFFEAC5DC" }, { "$t" : "uuid", "$b" : "0xA3AC62DDA516384FAC8ADBEED8C500E6" } ]
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(-20.0000, -290.0000)", "$b" : "0x0000A0C1000091C3" },
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0x4994DB49F14D704B86C6353AFFEAC5DC" } ]
    }
   },
   {
@@ -193,7 +186,7 @@
     "Name" : "SimplePass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x0A24F3C23E8055C5485F2974F9861957" } ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(211.0000, -211.0000)", "$b" : "0x00005343000053C3" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0x1E7F0432A67C9B44A8A8CE85CA06F80F" }, { "$t" : "uuid", "$b" : "0x200111E427063B4197EF61C0AA1AB808" } ]
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0x1E7F0432A67C9B44A8A8CE85CA06F80F" }, { "$t" : "uuid", "$b" : "0x89A60D5286D1D94D9E1D3D581FD98151" } ]
    }
   },
   {
@@ -253,7 +246,7 @@
     "AssetType" : "RenderPipeline",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x4D3C46DA84C91049B0B7A0B3891D0448" },
-    "Hash" : { "$t" : "uint64", "$v" : "18083851323287758578", "$b" : "0xF2668B57F7BEF6FA" },
+    "Hash" : { "$t" : "uint64", "$v" : "5214212503824385240", "$b" : "0xD844DA69A59A5C48" },
     "References" : [ "{ 3edf10b3-36d2-434f-9683-c653909abe7e }" ]
    }
   },
@@ -296,6 +289,13 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x89A60D5286D1D94D9E1D3D581FD98151" },
+   "t" : "ezParticleRenderer",
+   "p" : {
+    
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xA973BF26E4BB2A4E82676846DC6C7556" },
    "t" : "ezOutputNodePin",
    "p" : {
@@ -333,13 +333,6 @@
     "Node::Connections" : [  ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-70.0000, -542.0000)", "$b" : "0x00008CC2008007C4" },
     "SceneContext" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" }
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xA3AC62DDA516384FAC8ADBEED8C500E6" },
-   "t" : "ezParticleRenderer",
-   "p" : {
-    
    }
   },
   {

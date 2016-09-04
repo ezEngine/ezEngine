@@ -92,6 +92,13 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0xE40826444E7F5B40AD9B77FB828F8F39" },
+   "t" : "ezParticleRenderer",
+   "p" : {
+    
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xB7733D12A7484A428D3DB55A60AE29D4" },
    "t" : "ezParticleExtractor",
    "p" : {
@@ -136,7 +143,7 @@
     "Name" : "SimplePass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x9ED631EE90DDDAECFC96E7CB90E691D8" } ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(9.0000, -274.0000)", "$b" : "0x00001041000089C3" },
-    "Renderers" : [  ]
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0xE40826444E7F5B40AD9B77FB828F8F39" } ]
    }
   },
   {
@@ -213,7 +220,7 @@
     "AssetType" : "RenderPipeline",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x13E133C54C2A424FA546653C78F5E8A7" },
-    "Hash" : { "$t" : "uint64", "$v" : "13343873003704165088", "$b" : "0xE022B649CCF52EB9" },
+    "Hash" : { "$t" : "uint64", "$v" : "14897911630031279004", "$b" : "0x9CD32CEBB103C0CE" },
     "References" : [ "{ 3edf10b3-36d2-434f-9683-c653909abe7e }" ]
    }
   },
