@@ -49,6 +49,7 @@ ezCurve1DAssetDocumentWindow::ezCurve1DAssetDocumentWindow(ezDocument* pDocument
 
   connect(m_pCurveEditor, &QCurve1DEditorWidget::CpMoved, this, &ezCurve1DAssetDocumentWindow::onCurveCpMoved);
   connect(m_pCurveEditor, &QCurve1DEditorWidget::CpDeleted, this, &ezCurve1DAssetDocumentWindow::onCurveCpDeleted);
+  connect(m_pCurveEditor, &QCurve1DEditorWidget::TangentMoved, this, &ezCurve1DAssetDocumentWindow::onCurveTangentMoved);
 
   connect(m_pCurveEditor, &QCurve1DEditorWidget::BeginOperation, this, &ezCurve1DAssetDocumentWindow::onCurveBeginOperation);
   connect(m_pCurveEditor, &QCurve1DEditorWidget::EndOperation, this, &ezCurve1DAssetDocumentWindow::onCurveEndOperation);
@@ -211,6 +212,25 @@ void ezCurve1DAssetDocumentWindow::onCurveCpDeleted(ezUInt32 curveIdx, ezUInt32 
 
   ezRemoveObjectCommand cmdSet;
   cmdSet.m_Object = cpGuid.Get<ezUuid>();
+  GetDocument()->GetCommandHistory()->AddCommand(cmdSet);
+}
+
+
+void ezCurve1DAssetDocumentWindow::onCurveTangentMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent)
+{
+  ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
+
+  auto pProp = pDoc->GetPropertyObject();
+
+  const ezVariant curveGuid = pProp->GetTypeAccessor().GetValue("Curves", curveIdx);
+  const ezDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<ezUuid>());
+  const ezVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("Control Points", cpIdx);
+
+  ezSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+
+  cmdSet.m_sPropertyPath = rightTangent ? "Right Tangent" : "Left Tangent";
+  cmdSet.m_NewValue = ezVec2(newPosX, newPosY);
   GetDocument()->GetCommandHistory()->AddCommand(cmdSet);
 }
 

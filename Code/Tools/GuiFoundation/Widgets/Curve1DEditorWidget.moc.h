@@ -26,8 +26,6 @@ public:
 protected:
   virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
   virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
-
-  static ezInt32 s_iMovedCps;
 };
 
 class ezQCurveSegment : public QGraphicsPathItem
@@ -44,10 +42,28 @@ public:
   void UpdateSegment();
 };
 
+class ezQCurveTangent : public QGraphicsEllipseItem
+{
+public:
+  ezQCurveTangent(QGraphicsItem* parent = nullptr);
+
+  virtual int type() const override { return QGraphicsItem::UserType + 3; }
+
+  QCurve1DEditorWidget* m_pOwner;
+  ezUInt32 m_uiCurveIdx;
+  ezUInt32 m_uiControlPoint;
+  bool m_bRightTangent;
+
+protected:
+  virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
+  virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
+};
+
 struct ControlPointMove
 {
   ezUInt32 curveIdx;
   ezUInt32 cpIdx;
+  ezInt32 tangentIdx; // 0 == point, 1 == left tangent, 2 == right tangent
   float x;
   float y;
 
@@ -57,8 +73,12 @@ struct ControlPointMove
       return true;
     if (curveIdx > rhs.curveIdx)
       return false;
+    if (cpIdx < rhs.cpIdx)
+      return true;
+    if (cpIdx > rhs.cpIdx)
+      return false;
 
-    return cpIdx < rhs.cpIdx;
+    return tangentIdx < rhs.tangentIdx;
   }
 };
 
@@ -86,6 +106,7 @@ signals:
   //void CpAdded(float posX, float value);
   void CpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY);
   void CpDeleted(ezUInt32 curveIdx, ezUInt32 cpIdx);
+  void TangentMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent);
 
   //void NormalizeRange();
 
@@ -111,6 +132,8 @@ private:
     ezCurve1D m_Curve;
     ezHybridArray<ezQCurveControlPoint*, 10> m_ControlPoints;
     ezHybridArray<ezQCurveSegment*, 10> m_Segments;
+    ezHybridArray<ezQCurveTangent*, 10> m_TangentsLeft;
+    ezHybridArray<ezQCurveTangent*, 10> m_TangentsRight;
   };
 
   ezHybridArray<Data, 4> m_Curves;
