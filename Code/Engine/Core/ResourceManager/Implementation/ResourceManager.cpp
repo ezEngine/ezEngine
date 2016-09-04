@@ -366,6 +366,7 @@ void ezResourceManagerWorkerDiskRead::DoWork(bool bCalledExternally)
       pCustomLoader = std::move(ezResourceManager::s_CustomLoaders[pResourceToLoad]);
       pLoader = pCustomLoader.Borrow();
       pResourceToLoad->m_Flags.Remove(ezResourceFlags::HasCustomDataLoader);
+      pResourceToLoad->m_Flags.Add(ezResourceFlags::PreventFileReload);
     }
   }
 
@@ -556,12 +557,12 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
 {
   EZ_LOCK(s_ResourceMutex);
 
-  if (!pResource->m_Flags.IsAnySet(ezResourceFlags::IsReloadable))
+  if (!pResource->m_Flags.IsAnySet(ezResourceFlags::IsReloadable | ezResourceFlags::PreventFileReload))
     return;
 
   ezResourceTypeLoader* pLoader = ezResourceManager::GetResourceTypeLoader(pResource->GetDynamicRTTI());
 
-  /// \todo Do we need to handle HasCustomLoader here ??
+  /// \todo Do we need to handle HasCustomDataLoader here ?? (apparently not)
 
   if (pLoader == nullptr)
     pLoader = pResource->GetDefaultResourceTypeLoader();

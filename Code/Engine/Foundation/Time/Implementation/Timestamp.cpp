@@ -51,8 +51,6 @@ bool ezTimestamp::Compare(const ezTimestamp& rhs, CompareMode::Enum mode) const
     return (m_iTimestamp / 1000000LL) == (rhs.m_iTimestamp / 1000000LL);
   case CompareMode::Identical:
     return m_iTimestamp == rhs.m_iTimestamp;
-  case CompareMode::Newer:
-    return m_iTimestamp > rhs.m_iTimestamp;
   }
 
   EZ_ASSERT_NOT_IMPLEMENTED;

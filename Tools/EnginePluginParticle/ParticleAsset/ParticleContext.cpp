@@ -55,12 +55,15 @@ void ezParticleContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
       memoryWriter.WriteBytes(pMsg2->m_Data.GetData(), pMsg2->m_Data.GetCount());
 
       ezResourceManager::UpdateResourceWithCustomLoader(m_hParticle, std::move(loader));
+
+      // force loading of the resource (not needed here, works well without it)
+      //ezResourceLock<ezParticleEffectResource> pResource(m_hParticle, ezResourceAcquireMode::NoFallback);
     }
   }
 
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineRestoreResourceMsg>())
   {
-    ezResourceManager::ReloadResource(m_hParticle, true);
+    ezResourceManager::RestoreResource(m_hParticle);
   }
 
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineRestartSimulationMsg>())

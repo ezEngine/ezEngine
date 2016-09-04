@@ -33,6 +33,7 @@ struct EZ_CORE_DLL ezResourceFlags
     IsPreloading          = EZ_BIT(4),
     IsMissingFallback     = EZ_BIT(5),  ///< This flag will be set on resources that are used as a 'missing resource' fallback. By querying IsMissingResource() one can detect that the desired resource was not available.
     HasCustomDataLoader   = EZ_BIT(6),  ///< True if someone wants to update a resource with custom data and has created a resource loader to update this specific resource
+    PreventFileReload     = EZ_BIT(7),  ///< Once this flag is set, no reloading from file is done, until the flag is manually removed. Automatically set when a custom loader is used. To restore a file to the disk state, this flag must be removed and then the resource can be reloaded.
     Default               = 0,
   };
 

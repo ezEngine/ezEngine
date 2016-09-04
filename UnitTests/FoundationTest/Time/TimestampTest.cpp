@@ -22,15 +22,11 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
     EZ_TEST_BOOL(currentTimestamp.IsValid());
     EZ_TEST_BOOL_MSG(currentTimestamp.GetInt64(ezSIUnitOfTime::Second) > 1384597970LL, "The current time is before this test was written!");
     EZ_TEST_BOOL_MSG(currentTimestamp.GetInt64(ezSIUnitOfTime::Second) < 32531209845LL, "This current time is after the year 3000! If this is actually the case, please fix this test.");
-    EZ_TEST_BOOL(!currentTimestamp.Compare(currentTimestamp, ezTimestamp::CompareMode::Newer));
 
     // Sleep for 10 milliseconds
     ezThreadUtils::Sleep(10);
     EZ_TEST_BOOL_MSG(currentTimestamp.GetInt64(ezSIUnitOfTime::Microsecond) < ezTimestamp::CurrentTimestamp().GetInt64(ezSIUnitOfTime::Microsecond), "Sleeping for 10 ms should cause the timestamp to change!");
     EZ_TEST_BOOL_MSG(!currentTimestamp.Compare(ezTimestamp::CurrentTimestamp(), ezTimestamp::CompareMode::Identical), "Sleeping for 10 ms should cause the timestamp to change!");
-    EZ_TEST_BOOL_MSG(!currentTimestamp.Compare(ezTimestamp::CurrentTimestamp(), ezTimestamp::CompareMode::Newer), "Sleeping for 10 ms should cause the timestamp to change!");
-    EZ_TEST_BOOL_MSG(ezTimestamp::CurrentTimestamp().Compare(currentTimestamp, ezTimestamp::CompareMode::Newer), "Sleeping for 10 ms should cause the timestamp to change!");
-
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Public Accessors")

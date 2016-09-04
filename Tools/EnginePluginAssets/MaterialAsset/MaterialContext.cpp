@@ -54,12 +54,15 @@ void ezMaterialContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
       memoryWriter.WriteBytes(pMsg2->m_Data.GetData(), pMsg2->m_Data.GetCount());
 
       ezResourceManager::UpdateResourceWithCustomLoader(m_hMaterial, std::move(loader));
+
+      // force loading of the resource
+      ezResourceLock<ezMaterialResource> pResource(m_hMaterial, ezResourceAcquireMode::NoFallback);
     }
   }
 
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineRestoreResourceMsg>())
   {
-    ezResourceManager::ReloadResource(m_hMaterial, true);
+    ezResourceManager::RestoreResource(m_hMaterial);
   }
 
   ezEngineProcessDocumentContext::HandleMessage(pMsg);

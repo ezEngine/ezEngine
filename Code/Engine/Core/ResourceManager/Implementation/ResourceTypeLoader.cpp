@@ -75,7 +75,7 @@ bool ezResourceLoaderFromFile::IsResourceOutdated(const ezResourceBase* pResourc
     if (ezOSFile::GetFileStats(sAbs, stat).Failed())
       return false;
   
-    if (stat.m_LastModificationTime.Compare(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::Newer))
+    if (stat.m_LastModificationTime.Compare(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::FileTimeEqual))
       return true;
 
     return false;
@@ -112,7 +112,7 @@ bool ezResourceLoaderFromMemory::IsResourceOutdated(const ezResourceBase* pResou
 {
   if (pResource->GetLoadedFileModificationTime().IsValid() && m_ModificationTimestamp.IsValid())
   {
-    if (m_ModificationTimestamp.Compare(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::Newer))
+    if (m_ModificationTimestamp.Compare(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::FileTimeEqual))
       return true;
 
     return false;

@@ -126,6 +126,10 @@ public:
   /// \brief Deallocates all resources whose refcount has reached 0. Returns the number of deleted resources.
   static ezUInt32 FreeUnusedResources(bool bFreeAllUnused);
 
+  /// \brief Removes the 'PreventFileReload' flag and forces a reload on the resource.
+  template<typename ResourceType>
+  static void RestoreResource(const ezTypedResourceHandle<ResourceType>& hResource);
+
   template<typename ResourceType>
   static void ReloadResource(const ezTypedResourceHandle<ResourceType>& hResource, bool bForce);
 

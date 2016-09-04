@@ -168,6 +168,18 @@ void ezResourceManager::EndAcquireResource(ResourceType* pResource)
   pResource->m_iLockCount.Decrement();
 }
 
+
+template<typename ResourceType>
+void ezResourceManager::RestoreResource(const ezTypedResourceHandle<ResourceType>& hResource)
+{
+  ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
+  pResource->m_Flags.Remove(ezResourceFlags::PreventFileReload);
+
+  ReloadResource(pResource, true);
+
+  EndAcquireResource(pResource);
+}
+
 template<typename ResourceType>
 void ezResourceManager::ReloadResource(const ezTypedResourceHandle<ResourceType>& hResource, bool bForce)
 {
