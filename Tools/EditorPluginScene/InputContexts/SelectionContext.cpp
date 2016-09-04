@@ -141,7 +141,7 @@ void ezSelectionContext::OpenPickedMaterial(const ezObjectPickingResult& res) co
 
   const ezUuid meshGuid = ezConversionUtils::ConvertStringToUuid(varMeshGuid.Get<ezString>());
 
-  const ezAssetInfo* pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo2(meshGuid);
+  auto pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo2(meshGuid);
 
   // unknown mesh asset
   if (!pAssetInfo)
@@ -170,7 +170,7 @@ void ezSelectionContext::OpenPickedMaterial(const ezObjectPickingResult& res) co
 
 bool ezSelectionContext::TryOpenMaterial(const ezString& sMatRef) const
 {
-  const ezAssetInfo* pAssetInfo = nullptr;
+  ezAssetCurator::ezLockedAssetInfo pAssetInfo;
 
   if (ezConversionUtils::IsStringUuid(sMatRef))
   {

@@ -10,6 +10,7 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <Core/Application/Config/FileSystemConfig.h>
 #include <Foundation/Configuration/Singleton.h>
+#include <Foundation/Threading/LockedObject.h>
 #include <tuple>
 
 class ezUpdateTask;
@@ -36,6 +37,8 @@ struct ezAssetInfo
     NeedsTransform,
     NeedsThumbnail,
     UpToDate,
+    MissingDependency,
+    MissingReference,
   };
 
   ezAssetInfo() : m_pManager(nullptr)
@@ -55,6 +58,8 @@ struct ezAssetInfo
   ezAssetDocumentInfo m_Info;
 
   ezUInt64 m_LastAssetDependencyHash; ///< For debugging only.
+  ezSet<ezString> m_MissingDependencies;
+  ezSet<ezString> m_MissingReferences;
 };
 
 struct ezAssetCuratorEvent
@@ -112,10 +117,12 @@ public:
   ///@}
   /// \name Asset Access
   ///@{
+  typedef ezLockedObject<ezMutex, ezAssetInfo> ezLockedAssetInfo;
+  const ezLockedAssetInfo FindAssetInfo(const char* szRelativePath) const;
+  const ezLockedAssetInfo GetAssetInfo2(const ezUuid& assetGuid) const;
 
-  const ezAssetInfo* FindAssetInfo(const char* szRelativePath) const;
-  const ezAssetInfo* GetAssetInfo2(const ezUuid& assetGuid) const;
-  const ezHashTable<ezUuid, ezAssetInfo*>& GetKnownAssets() const;
+  typedef ezLockedObject<ezMutex, const ezHashTable<ezUuid, ezAssetInfo*>> ezLockedAssetTable;
+  const ezLockedAssetTable GetKnownAssets() const;
 
   /// \brief Computes the combined hash for the asset and its dependencies. Returns 0 if anything went wrong.
   ezUInt64 GetAssetDependencyHash(ezUuid assetGuid);
@@ -125,7 +132,7 @@ public:
 
   ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform, const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash);
   /// \brief Returns the number of assets in the system and how many are in what transform state
-  void GetAssetTransformStats(ezUInt32& out_uiNumAssets, ezUInt32& out_uiNumUnknown, ezUInt32& out_uiNumNeedTransform, ezUInt32& out_uiNumNeedThumb);
+  void GetAssetTransformStats(ezUInt32& out_uiNumAssets, ezUInt32& out_uiNumUnknown, ezUInt32& out_uiNumNeedTransform, ezUInt32& out_uiNumNeedThumb, ezUInt32& out_uiNumMissingDep, ezUInt32& out_uiNumMissingRef);
 
   /// \brief Iterates over all known data directories and returns the absolute path to the directory in which this asset is located
   ezString FindDataDirectoryForAsset(const char* szAbsoluteAssetPath) const;
@@ -257,6 +264,8 @@ private:
   ezSet<ezUuid> m_TransformStateUpdating;
   ezSet<ezUuid> m_TransformStateNeedsTransform;
   ezSet<ezUuid> m_TransformStateNeedsThumbnail;
+  ezSet<ezUuid> m_TransformStateMissingDependency;
+  ezSet<ezUuid> m_TransformStateMissingReference;
 
   ezSet<ezUuid> m_TransformStateChanged;
 

@@ -23,8 +23,6 @@ void ezSceneObjectManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& 
 ezStatus ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const
 {
   const ezRTTI* pGameObjectType = ezRTTI::FindTypeByName(ezGetStaticRTTI<ezGameObject>()->GetTypeName());
-  // TODO: BLA
-  //const ezRTTI* pComponentType  = ezRTTI::FindTypeByName(ezGetStaticRTTI<ezComponent>()->GetTypeName());
 
   if (pParent == nullptr)
   {
@@ -35,5 +33,14 @@ ezStatus ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocum
     }
   }
   
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezSceneObjectManager::InternalCanSelect(const ezDocumentObject* pObject) const
+{
+  if (pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezGameObject>())
+  {
+    return ezStatus("Object of type '%s' is not a 'ezGameObject' and can't be selected.", pObject->GetTypeAccessor().GetType()->GetTypeName());
+  }
   return ezStatus(EZ_SUCCESS);
 }

@@ -48,7 +48,7 @@ ezStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& strea
     if (e.m_sRedirectionAsset.IsEmpty())
       continue;
 
-    const ezAssetInfo* pInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(e.m_sRedirectionAsset);
+    ezAssetCurator::ezLockedAssetInfo pInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(e.m_sRedirectionAsset);
 
     if (pInfo == nullptr)
     {

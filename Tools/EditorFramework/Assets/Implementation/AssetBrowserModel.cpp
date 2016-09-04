@@ -134,7 +134,8 @@ void ezAssetBrowserModel::resetModel()
 {
   beginResetModel();
 
-  const auto& AllAssets = ezAssetCurator::GetSingleton()->GetKnownAssets();
+  ezAssetCurator::ezLockedAssetTable AllAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownAssets();
+  const ezHashTable<ezUuid, ezAssetInfo*>& AllAssets = *(AllAssetsLocked.operator->());
 
   m_AssetsToDisplay.Clear();
   m_AssetsToDisplay.Reserve(AllAssets.GetCount());
@@ -241,7 +242,7 @@ QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
   
   const auto& asset = m_AssetsToDisplay[iRow];
   const ezUuid AssetGuid = asset.m_Guid;
-  const ezAssetInfo* pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo2(AssetGuid);
+  const ezAssetCurator::ezLockedAssetInfo pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo2(AssetGuid);
 
   EZ_ASSERT_DEV(pAssetInfo != nullptr, "Invalid Pointer! This can happen when an asset has been overwritten by a new file with a new asset GUID.");
 

@@ -198,7 +198,7 @@ void ezQDoubleSpinBox::mouseReleaseEvent(QMouseEvent* event)
       {
         stepDown();
       }
-      //emit editingFinished();
+      // editingFinished sent on leave focus
     }
     releaseMouse();
     event->accept();

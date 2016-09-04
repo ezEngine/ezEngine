@@ -183,6 +183,12 @@ void QtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& op
     case ezAssetInfo::TransformState::UpToDate:
       ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetOk16.png").paint(painter, thumbnailRect);
       break;
+    case ezAssetInfo::TransformState::MissingDependency:
+      ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingDependency16.png").paint(painter, thumbnailRect);
+      break;
+    case ezAssetInfo::TransformState::MissingReference:
+      ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingReference16.png").paint(painter, thumbnailRect);
+      break;
     }
   }
 

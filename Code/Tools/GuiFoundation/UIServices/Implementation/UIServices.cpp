@@ -13,6 +13,8 @@ ezEvent<const ezUIServices::Event&> ezUIServices::s_Events;
 ezMap<ezString, QIcon> ezUIServices::s_IconsCache;
 ezMap<ezString, QImage> ezUIServices::s_ImagesCache;
 ezMap<ezString, QPixmap> ezUIServices::s_PixmapsCache;
+bool ezUIServices::s_bHeadless;
+
 
 static ezUIServices g_instance;
 
@@ -21,6 +23,18 @@ ezUIServices::ezUIServices()
 {
   int id = qRegisterMetaType<ezUuid>();
   m_pColorDlg = nullptr;
+}
+
+
+bool ezUIServices::IsHeadless()
+{
+  return s_bHeadless;
+}
+
+
+void ezUIServices::SetHeadless(bool bHeadless)
+{
+  s_bHeadless = true;
 }
 
 void ezUIServices::SaveState()

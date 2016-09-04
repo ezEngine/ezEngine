@@ -380,6 +380,18 @@ ezStatus ezDocumentObjectManager::CanMove(const ezDocumentObject* pObject, const
   return InternalCanMove(pObject, pNewParent, szParentProperty, index);
 }
 
+ezStatus ezDocumentObjectManager::CanSelect(const ezDocumentObject* pObject) const
+{
+  EZ_ASSERT_DEV(pObject != nullptr, "pObject must be valid");
+
+  const ezDocumentObject* pOwnObject = GetObject(pObject->GetGuid());
+  if (pOwnObject == nullptr)
+    return ezStatus("Object of type '%s' is not part of the document and can't be selected", pObject->GetTypeAccessor().GetType()->GetTypeName());
+
+  return InternalCanSelect(pObject);
+}
+
+
 ////////////////////////////////////////////////////////////////////////
 // ezDocumentObjectManager Private Functions
 ////////////////////////////////////////////////////////////////////////

@@ -35,6 +35,9 @@ public:
 public:
   ezUIServices();
 
+  static bool IsHeadless();
+  static void SetHeadless(bool bHeadless);
+
   void ShowColorDialog(const ezColor& color, bool bAlpha, QWidget* pParent, const char* slotCurColChanged, const char* slotAccept, const char* slotReject);
 
   static void MessageBoxStatus(const ezStatus& s, const char* szFailureMsg, const char* szSuccessMsg = "", bool bOnlySuccessMsgIfDetails = true);
@@ -73,6 +76,7 @@ private:
   static ezMap<ezString, QIcon> s_IconsCache;
   static ezMap<ezString, QImage> s_ImagesCache;
   static ezMap<ezString, QPixmap> s_PixmapsCache;
+  static bool s_bHeadless;
 
 };
 

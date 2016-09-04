@@ -86,7 +86,7 @@ bool ezQtEditorApp::MakeDataDirectoryRelativePathAbsolute(ezString & sPath) cons
     ezUuid guid = ezConversionUtils::ConvertStringToUuid(sPath);
     auto pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo2(guid);
 
-    if (!pAsset)
+    if (pAsset == nullptr)
       return false;
 
     sPath = pAsset->m_sAbsolutePath;

@@ -46,11 +46,11 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   QPainter painter(this);
   painter.setPen(QPen(Qt::NoPen));
 
-  ezUInt32 uiNumAssets, uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb;
-  ezAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb);
-  const ezUInt32 uiDone = uiNumAssets - uiNumUnknown - uiNumNeedTransform - uiNumNeedThumb;
-  ezUInt32 sections[4] = { uiDone, uiNumNeedThumb, uiNumNeedTransform, uiNumUnknown };
-  QColor colors[4] = {QColor(Qt::darkGreen), QColor(Qt::darkBlue), QColor(Qt::blue), QColor(Qt::gray) };
+  ezUInt32 uiNumAssets, uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb, uiNumMissingDep, uiNumMissingRef;
+  ezAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb, uiNumMissingDep, uiNumMissingRef);
+  const ezUInt32 uiDone = uiNumAssets - uiNumUnknown - uiNumNeedTransform - uiNumNeedThumb - uiNumMissingDep - uiNumMissingRef;
+  ezUInt32 sections[6] = { uiDone, uiNumNeedThumb, uiNumNeedTransform, uiNumUnknown, uiNumMissingDep, uiNumMissingRef };
+  QColor colors[6] = {QColor(Qt::darkGreen), QColor(Qt::darkBlue), QColor(Qt::blue), QColor(Qt::gray), QColor(Qt::red), QColor(Qt::red) };
 
   const float fTotalCount = uiNumAssets;
   const ezInt32 iTargetWidth = rect.width();
@@ -72,7 +72,7 @@ void ezQtCuratorControl::paintEvent(QPaintEvent* e)
   }
 
   ezStringBuilder s;
-  s.Format("[Un: %u, Tr: %i, Th: %u]", uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb);
+  s.Format("[Un: %u, Tr: %i, Th: %u, Err: %u]", uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb, uiNumMissingDep + uiNumMissingRef);
 
   painter.setPen(QPen(Qt::white));
   painter.drawText(rect, s.GetData(), QTextOption(Qt::AlignCenter));
@@ -101,15 +101,15 @@ void ezQtCuratorControl::SlotUpdateTransformStats()
 {
   m_bScheduled = false;
 
-  ezUInt32 uiNumAssets, uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb;
-  ezAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb);
+  ezUInt32 uiNumAssets, uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb, uiNumMissingDep, uiNumMissingRef;
+  ezAssetCurator::GetSingleton()->GetAssetTransformStats(uiNumAssets, uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb, uiNumMissingDep, uiNumMissingRef);
 
   ezStringBuilder s;
 
   if (uiNumAssets > 0)
   {
-    const ezUInt32 uiDone = uiNumAssets - uiNumUnknown - uiNumNeedTransform - uiNumNeedThumb;
-    s.Format("Unknown: %u\nTransform Needed: %i\nThumbnail Needed: %u", uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb);
+    const ezUInt32 uiDone = uiNumAssets - uiNumUnknown - uiNumNeedTransform - uiNumNeedThumb - uiNumMissingDep - uiNumMissingRef;
+    s.Format("Unknown: %u\nTransform Needed: %i\nThumbnail Needed: %u\nMissing Dependency: %u\nMissing Reference: %u", uiNumUnknown, uiNumNeedTransform, uiNumNeedThumb, uiNumMissingDep, uiNumMissingRef);
     setToolTip(s.GetData());
   }
   else

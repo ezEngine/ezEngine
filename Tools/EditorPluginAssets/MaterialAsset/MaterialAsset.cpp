@@ -503,7 +503,7 @@ const ezDocumentObject* ezMaterialAssetDocument::GetShaderPropertyObject() const
 void ezMaterialAssetDocument::SetBaseMaterial(const char* szBaseMaterial)
 {
   ezDocumentObject* pObject = GetPropertyObject();
-  auto* pAssetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(szBaseMaterial);
+  auto pAssetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(szBaseMaterial);
   if (pAssetInfo == nullptr)
   {
     ezDeque<const ezDocumentObject*> sel;

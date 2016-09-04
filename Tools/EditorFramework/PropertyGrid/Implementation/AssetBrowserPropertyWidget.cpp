@@ -52,13 +52,13 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget() : ezQtStandardPropertyWidget(
 
 bool ezQtAssetPropertyWidget::IsValidAssetType(const char* szAssetReference) const
 {
-  const ezAssetInfo* pAsset = nullptr;
+  ezAssetCurator::ezLockedAssetInfo pAsset;
 
   if (!ezConversionUtils::IsStringUuid(szAssetReference))
   {
     pAsset = ezAssetCurator::GetSingleton()->FindAssetInfo(szAssetReference);
 
-    if (!pAsset)
+    if (pAsset == nullptr)
     {
       const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
 
@@ -74,7 +74,7 @@ bool ezQtAssetPropertyWidget::IsValidAssetType(const char* szAssetReference) con
   }
 
   // invalid asset in general
-  if (!pAsset)
+  if (pAsset == nullptr)
     return false;
 
   const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
@@ -151,7 +151,7 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
 
       m_AssetGuid = ezConversionUtils::ConvertStringToUuid(sText);
 
-      const auto* pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo2(m_AssetGuid);
+      auto pAsset = ezAssetCurator::GetSingleton()->GetAssetInfo2(m_AssetGuid);
 
       if (pAsset)
       {
@@ -186,7 +186,7 @@ void ezQtAssetPropertyWidget::on_TextFinished_triggered()
 {
   ezStringBuilder sText = m_pWidget->text().toUtf8().data();
 
-  const auto* pAsset = ezAssetCurator::GetSingleton()->FindAssetInfo(sText);
+  auto pAsset = ezAssetCurator::GetSingleton()->FindAssetInfo(sText);
 
   if (pAsset)
   {

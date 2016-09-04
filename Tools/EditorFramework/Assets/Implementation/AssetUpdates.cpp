@@ -43,6 +43,11 @@ ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
     return 0;
   }
 
+  if (bReferences)
+    pInfo->m_MissingReferences.Clear();
+  
+  pInfo->m_MissingDependencies.Clear();
+
   // hash of the main asset file
   ezUInt64 uiHashResult = pInfo->m_Info.m_uiSettingsHash;
 
@@ -54,7 +59,10 @@ ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
     ezString sPath = dep;
 
     if (!AddAssetHash(sPath, bReferences, uiHashResult))
+    {
+      pInfo->m_MissingDependencies.Insert(sPath);
       return 0;
+    }
   }
 
   if (bReferences)
@@ -67,7 +75,10 @@ ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
         continue;
 
       if (!AddAssetHash(sPath, bReferences, uiHashResult))
+      {
+        pInfo->m_MissingReferences.Insert(sPath);
         return 0;
+      }
     }
   }
 
@@ -107,7 +118,7 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bReferences, ezUInt64& u
       return true;
     }
     ezLog::Error("Failed to make path absolute '%s'", sPath.GetData());
-    return 0;
+    return false;
   }
   ezFileStats statDep;
   if (ezOSFile::GetFileStats(sPath, statDep).Failed())
@@ -213,13 +224,14 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
       m_TransformStateUnknown.Remove(oldGuid);
       m_TransformStateNeedsTransform.Remove(oldGuid);
       m_TransformStateNeedsThumbnail.Remove(oldGuid);
+      m_TransformStateMissingDependency.Remove(oldGuid);
+      m_TransformStateMissingReference.Remove(oldGuid);
 
       if (RefFile.m_AssetGuid.IsValid())
       {
         pAssetInfo = EZ_DEFAULT_NEW(ezAssetInfo, assetInfo);
         m_KnownAssets[RefFile.m_AssetGuid] = pAssetInfo;
         TrackDependencies(pAssetInfo);
-        
       }
     }
     else
@@ -475,6 +487,8 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
         m_TransformStateUpdating.Remove(assetGuid);
         m_TransformStateNeedsTransform.Remove(assetGuid);
         m_TransformStateNeedsThumbnail.Remove(assetGuid);
+        m_TransformStateMissingDependency.Remove(assetGuid);
+        m_TransformStateMissingReference.Remove(assetGuid);
 
         auto it = m_InverseDependency.Find(pAssetInfo->m_sAbsolutePath);
         if (it.IsValid())
@@ -500,18 +514,24 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
       m_TransformStateUpdating.Insert(assetGuid);
       m_TransformStateNeedsTransform.Remove(assetGuid);
       m_TransformStateNeedsThumbnail.Remove(assetGuid);
+      m_TransformStateMissingDependency.Remove(assetGuid);
+      m_TransformStateMissingReference.Remove(assetGuid);
       break;
     case ezAssetInfo::TransformState::NeedsTransform:
       m_TransformStateUnknown.Remove(assetGuid);
       m_TransformStateUpdating.Remove(assetGuid);
       m_TransformStateNeedsTransform.Insert(assetGuid);
       m_TransformStateNeedsThumbnail.Remove(assetGuid);
+      m_TransformStateMissingDependency.Remove(assetGuid);
+      m_TransformStateMissingReference.Remove(assetGuid);
       break;
     case ezAssetInfo::TransformState::NeedsThumbnail:
       m_TransformStateUnknown.Remove(assetGuid);
       m_TransformStateUpdating.Remove(assetGuid);
       m_TransformStateNeedsTransform.Remove(assetGuid);
       m_TransformStateNeedsThumbnail.Insert(assetGuid);
+      m_TransformStateMissingDependency.Remove(assetGuid);
+      m_TransformStateMissingReference.Remove(assetGuid);
       break;
     case ezAssetInfo::TransformState::UpToDate:
       {
@@ -519,9 +539,27 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
         m_TransformStateUpdating.Remove(assetGuid);
         m_TransformStateNeedsTransform.Remove(assetGuid);
         m_TransformStateNeedsThumbnail.Remove(assetGuid);
+        m_TransformStateMissingDependency.Remove(assetGuid);
+        m_TransformStateMissingReference.Remove(assetGuid);
         ezString sThumbPath = static_cast<ezAssetDocumentManager*>(pAssetInfo->m_pManager)->GenerateResourceThumbnailPath(pAssetInfo->m_sAbsolutePath);
         ezQtImageCache::InvalidateCache(sThumbPath);
       }
+      break;
+    case ezAssetInfo::TransformState::MissingDependency:
+      m_TransformStateUnknown.Remove(assetGuid);
+      m_TransformStateUpdating.Remove(assetGuid);
+      m_TransformStateNeedsTransform.Remove(assetGuid);
+      m_TransformStateNeedsThumbnail.Remove(assetGuid);
+      m_TransformStateMissingDependency.Insert(assetGuid);
+      m_TransformStateMissingReference.Remove(assetGuid);
+      break;
+    case ezAssetInfo::TransformState::MissingReference:
+      m_TransformStateUnknown.Remove(assetGuid);
+      m_TransformStateUpdating.Remove(assetGuid);
+      m_TransformStateNeedsTransform.Remove(assetGuid);
+      m_TransformStateNeedsThumbnail.Remove(assetGuid);
+      m_TransformStateMissingDependency.Remove(assetGuid);
+      m_TransformStateMissingReference.Insert(assetGuid);
       break;
     }
   }
@@ -637,6 +675,12 @@ void ezProcessTask::Execute()
 
   while (m_bWaiting)
   {
+    if (m_bProcessCrashed)
+    {
+      m_bWaiting = false;
+      m_bSuccess = false;
+      break;
+    }
     m_pIPC->ProcessMessages();
     ezThreadUtils::Sleep(10);
   }

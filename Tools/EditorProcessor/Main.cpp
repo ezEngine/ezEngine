@@ -51,6 +51,7 @@ public:
 #endif
 
     ezQtEditorApp::GetSingleton()->StartupEditor(true);
+    ezUIServices::SetHeadless(true);
 
     {
       ezResult res = m_IPC.ConnectToHostProcess();
@@ -63,10 +64,17 @@ public:
         ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(),
           [this]()
         {
+          static bool bRecursionBlock = false;
+          if (bRecursionBlock)
+            return;
+          bRecursionBlock = true;
+
           if (!m_IPC.IsHostAlive())
             QApplication::quit();
 
           m_IPC.ProcessMessages();
+
+          bRecursionBlock = false;
         });
 
         const ezInt32 iReturnCode = ezQtEditorApp::GetSingleton()->RunEditor();

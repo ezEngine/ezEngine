@@ -131,6 +131,7 @@ public:
   ezStatus CanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const;
   ezStatus CanRemove(const ezDocumentObject* pObject) const;
   ezStatus CanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const;
+  ezStatus CanSelect(const ezDocumentObject* pObject) const;
 
 private:
   virtual ezDocumentObject* InternalCreateObject(const ezRTTI* pRtti) { return EZ_DEFAULT_NEW(ezDocumentStorageObject, pRtti); }
@@ -138,6 +139,7 @@ private:
   virtual ezStatus InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const { return ezStatus(EZ_SUCCESS); };
   virtual ezStatus InternalCanRemove(const ezDocumentObject* pObject) const { return ezStatus(EZ_SUCCESS); };
   virtual ezStatus InternalCanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const { return ezStatus(EZ_SUCCESS); };
+  virtual ezStatus InternalCanSelect(const ezDocumentObject* pObject) const { return ezStatus(EZ_SUCCESS); };
 
   void RecursiveAddGuids(ezDocumentObject* pObject);
   void RecursiveRemoveGuids(ezDocumentObject* pObject);

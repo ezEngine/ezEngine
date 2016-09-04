@@ -187,9 +187,10 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
   pType->GetAllProperties(Properties);
   for (const auto* pProp : Properties)
   {
+    bool bIsReference = pProp->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr;
+    bool bIsDependency = pProp->GetAttributeByType<ezFileBrowserAttribute>() != nullptr;
     // add all strings that are marked as asset references or file references
-    if (pProp->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr || 
-        pProp->GetAttributeByType<ezFileBrowserAttribute>() != nullptr)
+    if (bIsDependency || bIsReference)
     {
       switch (pProp->GetCategory())
       {
@@ -202,7 +203,10 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
             {
               continue;
             }
-            pInfo->m_FileReferences.Insert(pObject->GetTypeAccessor().GetValue(path).Get<ezString>());
+            if (bIsDependency)
+              pInfo->m_FileDependencies.Insert(pObject->GetTypeAccessor().GetValue(path).Get<ezString>());
+            else
+              pInfo->m_FileReferences.Insert(pObject->GetTypeAccessor().GetValue(path).Get<ezString>());
           }
         }
         break;
@@ -221,7 +225,10 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
               {
                 continue;
               }
-              pInfo->m_FileReferences.Insert(value.Get<ezString>());
+              if (bIsDependency)
+                pInfo->m_FileDependencies.Insert(value.Get<ezString>());
+              else
+                pInfo->m_FileReferences.Insert(value.Get<ezString>());
             }
           }
 
@@ -521,7 +528,7 @@ void ezAssetDocument::AppendThumbnailInfo(const char* szThumbnailFile, const ezA
 
 ezString ezAssetDocument::GetDocumentPathFromGuid(const ezUuid& documentGuid) const
 {
-  auto* pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo2(documentGuid);
+  ezAssetCurator::ezLockedAssetInfo pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo2(documentGuid);
 
   return pAssetInfo->m_sAbsolutePath;
 }
