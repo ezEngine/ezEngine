@@ -80,7 +80,7 @@ void ezQtFilePropertyWidget::on_customContextMenuRequested(const QPoint& pt)
   QMenu m;
 
   m.setDefaultAction(m.addAction(QIcon(), QLatin1String("Select File"), this, SLOT(on_BrowseFile_clicked())));
-  //m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open File"), this, SLOT(OnOpenAssetDocument()))->setEnabled(bAsset);
+  m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open File"), this, SLOT(OnOpenFile()))->setEnabled(!m_pWidget->text().isEmpty());
   m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open Containing Folder"), this, SLOT(OnOpenExplorer()));
 
   m.exec(m_pButton->mapToGlobal(pt));
@@ -93,6 +93,17 @@ void ezQtFilePropertyWidget::OnOpenExplorer()
     return;
 
   ezUIServices::OpenInExplorer(sPath);
+}
+
+
+void ezQtFilePropertyWidget::OnOpenFile()
+{
+  ezString sPath = m_pWidget->text().toUtf8().data();
+  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
+    return;
+
+  if (!ezUIServices::OpenFileInDefaultProgram(sPath))
+    ezUIServices::MessageBoxInformation("File could not be opened.\nCheck that the file exists, that a program is associated with this file type and that access to this file is not denied.");
 }
 
 static ezMap<ezString, ezString> s_StartDirs;

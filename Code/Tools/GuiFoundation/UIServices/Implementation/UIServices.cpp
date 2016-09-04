@@ -6,6 +6,8 @@
 #include <QIcon>
 #include <QImage>
 #include <QPixmap>
+#include <QUrl>
+#include <QDesktopServices>
 
 EZ_IMPLEMENT_SINGLETON(ezUIServices);
 
@@ -123,6 +125,12 @@ void ezUIServices::ShowGlobalStatusBarMessage(const char* szMsg)
   e.m_Time = ezTime::Seconds(0);
 
   s_Events.Broadcast(e);
+}
+
+
+bool ezUIServices::OpenFileInDefaultProgram(const char* szPath)
+{
+  return QDesktopServices::openUrl(QUrl(szPath));
 }
 
 void ezUIServices::OpenInExplorer(const char* szPath)

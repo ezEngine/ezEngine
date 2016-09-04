@@ -51,6 +51,9 @@ public:
   /// \brief Shows a 'critical' message in all container windows (in red), which does not disappear, until it is replaced with another (empty) string.
   static void ShowGlobalStatusBarMessage(const char* szMsg);
 
+  /// \brief Opens the given file in the program that is registered in the OS to handle that file type.
+  static bool OpenFileInDefaultProgram(const char* szPath);
+
   /// \brief Opens the given file or folder in the Explorer
   static void OpenInExplorer(const char* szPath);
 

@@ -19,6 +19,7 @@ protected slots:
   void on_TextChanged_triggered(const QString& value);
   void on_customContextMenuRequested(const QPoint& pt);
   void OnOpenExplorer();
+  void OnOpenFile();
 
 protected:
   virtual void OnInit() override;

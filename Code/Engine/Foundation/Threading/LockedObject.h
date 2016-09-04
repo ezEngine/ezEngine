@@ -1,6 +1,6 @@
 #pragma once
 
-/// \brief Provides access to an object while managing a lock (e.g. a mutex) that ensures that during its lifetime th access to th object happens under the lock.
+/// \brief Provides access to an object while managing a lock (e.g. a mutex) that ensures that during its lifetime the access to the object happens under the lock.
 template <typename T, typename O>
 class ezLockedObject
 {
@@ -10,7 +10,7 @@ public:
   {
     m_pLock->Acquire();
   }
-  EZ_FORCE_INLINE explicit ezLockedObject()
+  EZ_FORCE_INLINE ezLockedObject()
   {
     m_pLock = nullptr;
     m_pObject = nullptr;
@@ -18,7 +18,7 @@ public:
 
   EZ_FORCE_INLINE ezLockedObject(const ezLockedObject<T, O>&& rhs)
   {
-    *this = rhs;
+    *this = std::move(rhs);
   }
 
   void operator= (const ezLockedObject<T, O>&& rhs)
