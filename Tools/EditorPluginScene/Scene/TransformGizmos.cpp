@@ -134,7 +134,8 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
       m_bMergeTransactions = false;
 
       // duplicate the object when shift is held while dragging the item
-      if (e.m_pGizmo == &m_TranslateGizmo && QApplication::keyboardModifiers() & Qt::KeyboardModifier::ShiftModifier)
+      if ((e.m_pGizmo == &m_TranslateGizmo || e.m_pGizmo == &m_DragToPosGizmo) 
+          && QApplication::keyboardModifiers() & Qt::KeyboardModifier::ShiftModifier)
       {
         m_bMergeTransactions = true;
         GetSceneDocument()->DuplicateSelection();

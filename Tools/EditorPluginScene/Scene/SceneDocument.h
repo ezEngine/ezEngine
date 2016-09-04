@@ -222,7 +222,11 @@ private:
   mutable bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
   GameMode m_GameMode;
   float m_fSimulationSpeed;
-  bool m_bResendSelection;
+
+  // when new objects are created the engine sometimes needs to catch up creating sub-objects (e.g. for reference prefabs)
+  // therefore when the selection is changed in the first frame, it might not be fully correct
+  // by sending it a second time, we can fix that easily
+  ezInt8 m_iResendSelection;
 
   GameModeData m_CurrentMode;
   GameModeData m_GameModeData[3];

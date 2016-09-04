@@ -36,7 +36,7 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab)
   m_GameMode = GameMode::Off;
   m_fSimulationSpeed = 1.0f;
   m_bGizmoWorldSpace = true;
-  m_bResendSelection = false;
+  m_iResendSelection = 0;
 
   m_CurrentMode.m_bRenderSelectionOverlay = true;
   m_CurrentMode.m_bRenderShapeIcons = true;
@@ -841,7 +841,7 @@ void ezSceneDocument::ObjectEventHandler(const ezDocumentObjectEvent& e)
 
 void ezSceneDocument::SelectionManagerEventHandler(const ezSelectionManagerEvent& e)
 {
-  m_bResendSelection = true;
+  m_iResendSelection = 2;
 }
 
 void ezSceneDocument::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e)
@@ -939,10 +939,10 @@ void ezSceneDocument::SendObjectMsgRecursive(const ezDocumentObject* pObj, ezObj
 
 void ezSceneDocument::SendObjectSelection()
 {
-  if (!m_bResendSelection)
+  if (m_iResendSelection <= 0)
     return;
 
-  m_bResendSelection = false;
+  --m_iResendSelection;
 
   const auto& sel = GetSelectionManager()->GetSelection();
 
