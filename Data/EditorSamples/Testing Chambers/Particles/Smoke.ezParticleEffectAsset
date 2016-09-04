@@ -56,15 +56,15 @@
     "AssetType" : "Particle Effect",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x4869C6F05A48304BAA61AEC523C2251F" },
-    "Hash" : { "$t" : "uint64", "$v" : "2355632448488920454", "$b" : "0x86D590313BE3B020" },
-    "References" : [ "{ 4817c4cc-5a4a-462c-b80a-e97bc857ffc6 }", "{ 65ba423a-ef94-4c9e-9d72-5863b528e055 }", "{ a1f3f932-460e-405a-8512-a0f3ce341d1b }" ]
+    "Hash" : { "$t" : "uint64", "$v" : "5845608299556914038", "$b" : "0x76432AEFC6C51F51" },
+    "References" : [ "{ 4817c4cc-5a4a-462c-b80a-e97bc857ffc6 }", "{ a1f3f932-460e-405a-8512-a0f3ce341d1b }", "{ e00262e8-58f5-42f5-880d-569257047201 }" ]
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0x978B37962B6FE94BA190F44ED32ADFA7" },
    "t" : "ezParticleTypeBillboardFactory",
    "p" : {
-    "Texture" : "{ 65ba423a-ef94-4c9e-9d72-5863b528e055 }"
+    "Texture" : "{ e00262e8-58f5-42f5-880d-569257047201 }"
    }
   },
   {

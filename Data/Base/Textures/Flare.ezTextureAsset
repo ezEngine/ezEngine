@@ -1,0 +1,43 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0xE86202E0F558F542880D569257047201" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Texture 2D",
+    "Dependencies" : [  ],
+    "DocumentID" : { "$t" : "uuid", "$b" : "0xE86202E0F558F542880D569257047201" },
+    "Hash" : { "$t" : "uint64", "$v" : "7521520268274616431", "$b" : "0x6FC86851D5CE6168" },
+    "References" : [ "Textures/Flare.tga" ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0x3645A6869DBCC84FB7AB2519B0F03FDE" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3645A6869DBCC84FB7AB2519B0F03FDE" },
+   "t" : "ezTextureAssetProperties",
+   "p" : {
+    "Address Mode U" : "ezTextureAddressMode::Wrap",
+    "Address Mode V" : "ezTextureAddressMode::Wrap",
+    "Address Mode W" : "ezTextureAddressMode::Wrap",
+    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
+    "Compression" : true,
+    "Input 1" : "Textures/Flare.tga",
+    "Input 2" : "",
+    "Input 3" : "",
+    "Input 4" : "",
+    "Input 5" : "",
+    "Input 6" : "",
+    "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
+    "Usage" : "ezTextureUsageEnum::Diffuse"
+   }
+  } ],
+ "Types" : [  ]
+}

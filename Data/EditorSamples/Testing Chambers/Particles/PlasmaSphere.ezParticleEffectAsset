@@ -42,7 +42,7 @@
    "#" : { "$t" : "uuid", "$b" : "0xA0488F3D4B30164694CC5CF59E118545" },
    "t" : "ezParticleTypeBillboardFactory",
    "p" : {
-    "Texture" : "{ 65ba423a-ef94-4c9e-9d72-5863b528e055 }"
+    "Texture" : "{ e00262e8-58f5-42f5-880d-569257047201 }"
    }
   },
   {
@@ -60,8 +60,8 @@
     "AssetType" : "Particle Effect",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0xC76EB58D241F7B4995415FF5E1E65A9A" },
-    "Hash" : { "$t" : "uint64", "$v" : "6479075144704598538", "$b" : "0x0A222E39844CEA59" },
-    "References" : [ "{ 65ba423a-ef94-4c9e-9d72-5863b528e055 }", "{ 935e1236-35a1-4670-a87c-657e77cd7029 }" ]
+    "Hash" : { "$t" : "uint64", "$v" : "11389193162309196824", "$b" : "0x185CBFADD68A0E9E" },
+    "References" : [ "{ 935e1236-35a1-4670-a87c-657e77cd7029 }", "{ e00262e8-58f5-42f5-880d-569257047201 }" ]
    }
   },
   {
