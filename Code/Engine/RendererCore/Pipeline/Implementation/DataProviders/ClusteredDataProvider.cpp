@@ -43,7 +43,7 @@ namespace
   {
     ezMemoryUtils::ZeroFill(&perLightData);
 
-    ezUInt32 uiType;
+    ezUInt32 uiType = 0;
 
     if (auto pPointLightRenderData = ezDynamicCast<const ezPointLightRenderData*>(pLightRenderData))
     {

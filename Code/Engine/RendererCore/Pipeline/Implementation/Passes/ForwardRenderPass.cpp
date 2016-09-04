@@ -31,9 +31,6 @@ ezForwardRenderPass::~ezForwardRenderPass()
 bool ezForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs,
   ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  const ezGALRenderTagetSetup& setup = view.GetRenderTargetSetup();
-
   // Color
   if (inputs[m_PinColor.m_uiInputIndex])
   {
