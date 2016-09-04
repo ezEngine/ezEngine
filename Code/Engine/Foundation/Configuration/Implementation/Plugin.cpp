@@ -343,9 +343,12 @@ ezResult ezPlugin::LoadPlugin(const char* szPluginFile)
   return LoadPluginInternal(szPluginFile, false, false);
 }
 
-ezResult ezPlugin::UnloadPlugin(const char* szPluginFile)
+ezResult ezPlugin::UnloadPlugin(const char* szPluginFile, ezInt32* out_pCurRefCount /*= nullptr*/)
 {
   EZ_LOG_BLOCK("Unloading Plugin", szPluginFile);
+
+  if (out_pCurRefCount)
+    *out_pCurRefCount = 0;
 
   if (!g_LoadedPlugins.Find(szPluginFile).IsValid())
   {
@@ -354,6 +357,9 @@ ezResult ezPlugin::UnloadPlugin(const char* szPluginFile)
   }
 
   g_LoadedPlugins[szPluginFile].m_iReferenceCount--;
+
+  if (out_pCurRefCount)
+    *out_pCurRefCount = g_LoadedPlugins[szPluginFile].m_iReferenceCount;
 
   if (g_LoadedPlugins[szPluginFile].m_iReferenceCount > 0)
   {

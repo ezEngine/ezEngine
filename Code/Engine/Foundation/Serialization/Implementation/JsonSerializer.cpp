@@ -131,7 +131,11 @@ void ezAbstractGraphJsonSerializer::Read(ezStreamReader& stream, ezAbstractObjec
 {
   ezExtendedJSONReader reader;
   reader.SetLogInterface(ezGlobalLog::GetOrCreateInstance());
-  reader.Parse(stream);
+  if (reader.Parse(stream).Failed())
+  {
+    EZ_REPORT_FAILURE("Failed to parse JSON graph");
+    return;
+  }
 
   ReadGraph(reader, pGraph, "Objects");
   if (pTypesGraph && reader.GetTopLevelObject().Contains("Types"))

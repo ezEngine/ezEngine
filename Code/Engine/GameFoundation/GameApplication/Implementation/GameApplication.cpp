@@ -544,11 +544,29 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
 
 void ezGameApplication::DoUnloadPlugins()
 {
+  ezSet<ezString> ToUnload;
+
+  // if a plugin is linked statically (which happens mostly in an editor context)
+  // then it cannot be unloaded and the ezPlugin instance won't ever go away
+  // however, ezPlugin::UnloadPlugin will always return that it is already unloaded, so we can just skip it there
+  // all other plugins must be unloaded as often as their refcount, though
   ezStringBuilder s;
   while (ezPlugin::GetFirstInstance() != nullptr)
   {
     s = ezPlugin::GetFirstInstance()->GetPluginName();
-    EZ_VERIFY(ezPlugin::UnloadPlugin(s).Succeeded(), "Failed to unload plugin '%s'", s.GetData());
+    ToUnload.Insert(s);
+  }
+
+  ezString temp;
+  while (!ToUnload.IsEmpty())
+  {
+    auto it = ToUnload.GetIterator();
+
+    ezInt32 iRefCount = 0;
+    EZ_VERIFY(ezPlugin::UnloadPlugin(it.Key(), &iRefCount).Succeeded(), "Failed to unload plugin '%s'", s.GetData());
+
+    if (iRefCount == 0)
+      ToUnload.Remove(it);
   }
 }
 

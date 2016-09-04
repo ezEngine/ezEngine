@@ -66,7 +66,7 @@ public:
   /// 
   /// EZ_SUCCESS is returned when the DLL is either successfully unloaded are has already been unloaded before (or has even never been loaded before).
   /// EZ_FAILURE is returned if the DLL cannot be unloaded (at this time).
-  static ezResult UnloadPlugin(const char* szPluginFile); // [tested]
+  static ezResult UnloadPlugin(const char* szPluginFile, ezInt32* out_pCurRefCount = nullptr); // [tested]
 
   /// \brief Hot-reloads all plugins that are marked as reloadable.
   ///
