@@ -15,6 +15,7 @@
 #include <QUrl>
 #include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
 #include <QClipboard>
+#include <QFileDialog>
 
 
 ezQtAssetPropertyWidget::ezQtAssetPropertyWidget() : ezQtStandardPropertyWidget()
@@ -234,6 +235,7 @@ void ezQtAssetPropertyWidget::on_customContextMenuRequested(const QPoint& pt)
   m.addAction(QIcon(), QLatin1String("Select in Asset Browser"), this, SLOT(OnSelectInAssetBrowser()))->setEnabled(bAsset);
   m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open Containing Folder"), this, SLOT(OnOpenExplorer()));
   m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnCopyAssetGuid()));
+  m.addAction(QIcon(), QLatin1String("Create New Asset"), this, SLOT(OnCreateNewAsset()));
 
   m.exec(m_pButton->mapToGlobal(pt));
 }
@@ -287,6 +289,88 @@ void ezQtAssetPropertyWidget::OnCopyAssetGuid()
   mimeData->setText(QString::fromUtf8(sGuid.GetData()));
   clipboard->setMimeData(mimeData);
 
+}
+
+
+void ezQtAssetPropertyWidget::OnCreateNewAsset()
+{
+  ezString sPath;
+
+  // try to pick a good path
+  {
+    if (m_AssetGuid.IsValid())
+    {
+      sPath = ezAssetCurator::GetSingleton()->GetAssetInfo2(m_AssetGuid)->m_sAbsolutePath;
+    }
+    else
+    {
+      sPath = m_pWidget->text().toUtf8().data();
+      ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
+    }
+  }
+
+  const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
+  ezStringBuilder sTypeFilter = pAssetAttribute->GetTypeFilter();
+
+  ezAssetDocumentManager* pAssetManToUse = nullptr;
+  {
+    const ezHybridArray<ezDocumentManager*, 16>& managers = ezDocumentManager::GetAllDocumentManagers();
+
+    ezSet<ezString> documentTypes;
+
+    for (ezDocumentManager* pMan : managers)
+    {
+      if (!pMan->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocumentManager>())
+        continue;
+
+      ezAssetDocumentManager* pAssetMan = static_cast<ezAssetDocumentManager*>(pMan);
+
+      documentTypes.Clear();
+      pAssetMan->QuerySupportedAssetTypes(documentTypes);
+
+      for (const ezString& assetType : documentTypes)
+      {
+        if (!sTypeFilter.FindSubString(assetType))
+          continue;
+
+        pAssetManToUse = pAssetMan;
+        goto found;
+      }
+    }
+  }
+
+  return;
+
+found:
+
+  ezDynamicArray<const ezDocumentTypeDescriptor*> documentTypes;
+  pAssetManToUse->GetSupportedDocumentTypes(documentTypes);
+  const ezString sAssetType = documentTypes[0]->m_sDocumentTypeName;
+  const ezString sExtension = documentTypes[0]->m_sFileExtension;
+
+  ezStringBuilder sOutput = sPath;
+  {
+    ezStringBuilder sTemp = sOutput.GetFileDirectory();
+    ezStringBuilder title("Create ", sAssetType), sFilter;
+
+    sFilter.Format("%s (*.%s)", sAssetType.GetData(), sExtension.GetData());
+
+    QString sStartDir = sTemp.GetData();
+    QString sSelectedFilter = sExtension.GetData();
+    sOutput = QFileDialog::getSaveFileName(QApplication::activeWindow(), title.GetData(), sStartDir, sFilter.GetData(), &sSelectedFilter, QFileDialog::Option::DontResolveSymlinks).toUtf8().data();
+
+    if (sOutput.IsEmpty())
+      return;
+  }
+
+  ezDocument* pDoc;
+  if (pAssetManToUse->CreateDocument(sAssetType, sOutput, pDoc).m_Result.Succeeded())
+  {
+    pDoc->EnsureVisible();
+
+    InternalSetValue(sOutput.GetData());
+    on_TextFinished_triggered();
+  }
 }
 
 void ezQtAssetPropertyWidget::on_BrowseFile_clicked()

@@ -31,6 +31,7 @@ protected slots:
   void OnSelectInAssetBrowser();
   void OnOpenExplorer();
   void OnCopyAssetGuid();
+  void OnCreateNewAsset();
 
 protected:
   virtual void OnInit() override;
