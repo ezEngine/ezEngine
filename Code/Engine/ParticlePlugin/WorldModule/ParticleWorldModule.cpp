@@ -188,6 +188,8 @@ void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRen
         if (!pSystem->HasActiveParticles() || !pSystem->IsVisible())
           continue;
 
+        EZ_LOCK(pSystem->m_Mutex);
+
         // Generate batch id from mesh, material and part index. 
         ezUInt32 data[] = { 42 };
         ezUInt32 uiBatchId = ezHashing::MurmurHash(data, sizeof(data));
@@ -208,6 +210,8 @@ void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRen
 
         ezUInt32 uiSortingKey = 0;
         pExtractedRenderData->AddRenderData(pRenderData, category, uiSortingKey);
+
+        pSystem->ExtractRenderData(view, pExtractedRenderData);
       }
     }
   }

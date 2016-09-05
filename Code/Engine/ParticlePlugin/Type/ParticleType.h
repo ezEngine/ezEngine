@@ -26,6 +26,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleType : public ezParticleModule<ezStreamPro
   friend class ezParticleSystemInstance;
 
 public:
+
+  virtual void ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData) const {}
   
   virtual void Render(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass) const = 0;
 

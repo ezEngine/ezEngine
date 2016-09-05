@@ -468,3 +468,12 @@ bool ezParticleSystemInstance::Render(const ezRenderViewContext& renderViewConte
   return !m_Types.IsEmpty();
 }
 
+void ezParticleSystemInstance::ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData) const
+{
+  for (auto pType : m_Types)
+  {
+    pType->ExtractRenderData(view, pExtractedRenderData);
+  }
+
+}
+

@@ -32,7 +32,7 @@
     "AssetType" : "Curve1D",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x80E835A330CB7345B0E8F1E6FF2D0358" },
-    "Hash" : { "$t" : "uint64", "$v" : "2232099083015805375", "$b" : "0xBFD9A1324A02FA1E" },
+    "Hash" : { "$t" : "uint64", "$v" : "7060411955506174124", "$b" : "0xACD8DD0F449FFB61" },
     "References" : [  ]
    }
   },
@@ -40,9 +40,9 @@
    "#" : { "$t" : "uuid", "$b" : "0xE254D5DBA3701D47A2BFCF32F5BFB296" },
    "t" : "ezCurve1DControlPoint",
    "p" : {
-    "Left Tangent" : { "$t" : "vec2", "$v" : "(-0.1000, 0.0000)", "$b" : "0xCDCCCCBD00000000" },
-    "Point" : { "$t" : "vec2", "$v" : "(4.5000, 0.4600)", "$b" : "0x000090401F85EB3E" },
-    "Right Tangent" : { "$t" : "vec2", "$v" : "(0.1000, 0.0000)", "$b" : "0xCDCCCC3D00000000" }
+    "Left Tangent" : { "$t" : "vec2", "$v" : "(-2.0000, -1.0000)", "$b" : "0x000000C0000080BF" },
+    "Point" : { "$t" : "vec2", "$v" : "(3.7400, 1.1200)", "$b" : "0x285C6F40295C8F3F" },
+    "Right Tangent" : { "$t" : "vec2", "$v" : "(1.0000, 2.0000)", "$b" : "0x0000803F00000040" }
    }
   },
   {
@@ -66,8 +66,8 @@
    "t" : "ezCurve1DControlPoint",
    "p" : {
     "Left Tangent" : { "$t" : "vec2", "$v" : "(-0.1000, 0.0000)", "$b" : "0xCDCCCCBD00000000" },
-    "Point" : { "$t" : "vec2", "$v" : "(-0.3600, 1.4400)", "$b" : "0xEC51B8BEEC51B83F" },
-    "Right Tangent" : { "$t" : "vec2", "$v" : "(0.1000, 0.0000)", "$b" : "0xCDCCCC3D00000000" }
+    "Point" : { "$t" : "vec2", "$v" : "(-0.1584, 4.1328)", "$b" : "0x9C3322BEE73F8440" },
+    "Right Tangent" : { "$t" : "vec2", "$v" : "(1.0000, 0.0000)", "$b" : "0x0000803F00000000" }
    }
   },
   {
@@ -92,8 +92,8 @@
    "t" : "ezCurve1DControlPoint",
    "p" : {
     "Left Tangent" : { "$t" : "vec2", "$v" : "(-0.1000, 0.0000)", "$b" : "0xCDCCCCBD00000000" },
-    "Point" : { "$t" : "vec2", "$v" : "(1.6800, 1.0600)", "$b" : "0x3E0AD73F15AE873F" },
-    "Right Tangent" : { "$t" : "vec2", "$v" : "(0.1000, 0.0000)", "$b" : "0xCDCCCC3D00000000" }
+    "Point" : { "$t" : "vec2", "$v" : "(1.6752, 2.4008)", "$b" : "0xF56CD63FB5A61940" },
+    "Right Tangent" : { "$t" : "vec2", "$v" : "(2.0000, 0.0000)", "$b" : "0x0000004000000000" }
    }
   },
   {
@@ -101,7 +101,7 @@
    "t" : "ezCurve1DControlPoint",
    "p" : {
     "Left Tangent" : { "$t" : "vec2", "$v" : "(-0.1000, 0.0000)", "$b" : "0xCDCCCCBD00000000" },
-    "Point" : { "$t" : "vec2", "$v" : "(6.1000, -0.0600)", "$b" : "0x3333C3408FC275BD" },
+    "Point" : { "$t" : "vec2", "$v" : "(6.6904, -0.3192)", "$b" : "0xC217D640306EA3BE" },
     "Right Tangent" : { "$t" : "vec2", "$v" : "(0.1000, 0.0000)", "$b" : "0xCDCCCC3D00000000" }
    }
   } ],

@@ -6,6 +6,9 @@
 #include <Foundation/Math/Random.h>
 #include <ParticlePlugin/Declarations.h>
 
+class ezView;
+class ezExtractedRenderData;
+
 /// \brief A particle system stores all data for one 'layer' of a running particle effect
 class EZ_PARTICLEPLUGIN_DLL ezParticleSystemInstance
 {
@@ -51,6 +54,8 @@ public:
   ezParticleEffectInstance* GetOwnerEffect() const { return m_pOwnerEffect; }
 
   bool Render(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass) const;
+
+  void ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData) const;
 
 private:
   void CreateStreamZeroInitializers();

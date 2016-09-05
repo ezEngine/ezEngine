@@ -32,4 +32,5 @@ ezParticleInitializerFactory_RandomSize;RandomS ize
 ezParticleInitializerFactory_SpherePosition;Sphere Position
 ezParticleBehaviorFactory_SizeCurve;Size Curve
 ezParticleTypeBillboardFactory;Billboards
+ezParticleTypeLightFactory;Light
 Types;Types

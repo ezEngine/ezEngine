@@ -28,7 +28,7 @@
     "AssetType" : "Particle Effect",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x7B155B9F1E975044BD928F8651AD35B2" },
-    "Hash" : { "$t" : "uint64", "$v" : "17738355242512195383", "$b" : "0x379FA0791C4C2BF6" },
+    "Hash" : { "$t" : "uint64", "$v" : "9489966173679126328", "$b" : "0x38079E78F421B383" },
     "References" : [ "{ 4817c4cc-5a4a-462c-b80a-e97bc857ffc6 }", "{ 5baa63c4-3b61-4125-bb86-dd4ab439c483 }", "{ e00262e8-58f5-42f5-880d-569257047201 }" ]
    }
   },
@@ -112,7 +112,7 @@
     "Emitters" : [ { "$t" : "uuid", "$b" : "0x847E5C38D6477B42A28752F155593F5A" } ],
     "Initializers" : [ { "$t" : "uuid", "$b" : "0x6A6B0E0DDD694C47AD0170510F2F7126" }, { "$t" : "uuid", "$b" : "0x83A1A4D556C7F748A593ED9524D729EF" }, { "$t" : "uuid", "$b" : "0x56D599B87C61E74DB0528FB4D6FE8455" }, { "$t" : "uuid", "$b" : "0x8293A0D00F842946BD52719E2045D46D" } ],
     "Max Particles" : { "$t" : "uint32", "$v" : "200", "$b" : "0xC8000000" },
-    "Types" : [ { "$t" : "uuid", "$b" : "0xF6C083068526D34A9D9E47BAF6D4B0BA" } ],
+    "Types" : [ { "$t" : "uuid", "$b" : "0xF6C083068526D34A9D9E47BAF6D4B0BA" }, { "$t" : "uuid", "$b" : "0x63EB733720668C4FA7D91C5A36BD3667" } ],
     "Visible" : true
    }
   },
@@ -121,6 +121,15 @@
    "t" : "ezParticleInitializerFactory_BoxPosition",
    "p" : {
     "Size" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x63EB733720668C4FA7D91C5A36BD3667" },
+   "t" : "ezParticleTypeLightFactory",
+   "p" : {
+    "Intensity" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" },
+    "Percentage" : { "$t" : "uint32", "$v" : "10", "$b" : "0x0A000000" },
+    "Size Factor" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" }
    }
   } ],
  "Types" : [  ]
