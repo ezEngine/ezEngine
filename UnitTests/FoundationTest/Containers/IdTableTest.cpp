@@ -43,11 +43,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
         table1.Insert(st(i));
       }
 
-      EZ_TEST_BOOL(table1.Remove(Id(0, 0)));
+      EZ_TEST_BOOL(table1.Remove(Id(0, 1)));
 
       for (ezInt32 i = 0; i < 99; ++i)
       {
         Id id;
+        id.m_Generation = 1;
       
         do
         {
@@ -101,6 +102,48 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
     EZ_TEST_BOOL(st::HasAllDestructed());
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Verify 0 is never valid")
+  {
+    ezIdTable<Id, TestObject> table;
+
+    ezUInt32 count1 = 0, count2 = 0;
+
+    TestObject x = { 11, "Test" };
+
+    while (true)
+    {
+      Id id = table.Insert(x);
+      EZ_TEST_BOOL(id.m_Generation != 0);
+
+      EZ_TEST_BOOL(table.Remove(id));
+
+      if (id.m_Generation > 1) // until all elements in generation 1 have been used up
+        break;
+
+      ++count1;
+    }
+
+    EZ_TEST_BOOL(!table.Contains(Id(0, 0)));
+
+    while (true)
+    {
+      Id id = table.Insert(x);
+      EZ_TEST_BOOL(id.m_Generation != 0);
+
+      EZ_TEST_BOOL(table.Remove(id));
+
+      if (id.m_Generation == 1) // wrap around
+        break;
+
+      ++count2;
+    }
+
+    EZ_TEST_BOOL(!table.Contains(Id(0, 0)));
+
+    EZ_TEST_INT(count1, 32);
+    EZ_TEST_INT(count2, 2097087);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert/Remove")
   {
     ezIdTable<Id, TestObject> table;
@@ -110,7 +153,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
       TestObject x = { rand(), "Test" };
       Id id = table.Insert(x);
       EZ_TEST_INT(id.m_InstanceIndex, i);
-      EZ_TEST_INT(id.m_Generation, 0);
+      EZ_TEST_INT(id.m_Generation, 1);
 
       EZ_TEST_BOOL(table.Contains(id));
 
@@ -120,8 +163,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
     }
     EZ_TEST_INT(table.GetCount(), 100);
 
-    Id ids[10] = { Id(13, 0), Id(0, 0), Id(16, 0), Id(34, 0), Id(56, 0),
-      Id(57, 0), Id(79, 0), Id(85, 0), Id(91, 0), Id(97, 0) };
+    Id ids[10] = { Id(13, 1), Id(0, 1), Id(16, 1), Id(34, 1), Id(56, 1),
+      Id(57, 1), Id(79, 1), Id(85, 1), Id(91, 1), Id(97, 1) };
 
 
     for (int i = 0; i < 10; i++)

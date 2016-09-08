@@ -196,6 +196,7 @@ IdType ezIdTableBase<IdType, ValueType>::Insert(const ValueType& value)
 
   m_uiFreelistDequeue = entry.id.m_InstanceIndex;
   entry.id.m_InstanceIndex = uiNewIndex;
+
   ezMemoryUtils::CopyConstruct(&entry.value, value, 1);
 
   ++m_uiCount;
@@ -221,6 +222,10 @@ bool ezIdTableBase<IdType, ValueType>::Remove(const IdType id, ValueType* out_ol
 
   entry.id.m_InstanceIndex = m_pEntries[m_uiFreelistEnqueue].id.m_InstanceIndex;
   ++entry.id.m_Generation;
+
+  // at wrap around, prevent generation from becoming 0, to ensure that a zero initialized array could ever contain a valid ID
+  if (entry.id.m_Generation == 0)
+    entry.id.m_Generation = 1;
 
   m_pEntries[m_uiFreelistEnqueue].id.m_InstanceIndex = uiIndex;
   m_uiFreelistEnqueue = uiIndex;
@@ -362,7 +367,7 @@ inline void ezIdTableBase<IdType, ValueType>::InitializeFreelist(IndexType uiSta
   for (IndexType i = uiStart; i < uiEnd; ++i)
   {
     IdType& id = m_pEntries[i].id;
-    id = IdType(i + 1, 0);
+    id = IdType(i + 1, 1); // initialize generation with 1, to prevent 0 from being a valid ID
   }
 
   m_uiFreelistEnqueue = uiEnd - 1;
