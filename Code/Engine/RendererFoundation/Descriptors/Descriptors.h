@@ -158,6 +158,12 @@ struct ezGALVertexAttributeSemantic
     TexCoord8,
     TexCoord9,
 
+    BiTangent,
+    BoneIndices0,
+    BoneIndices1,
+    BoneWeights0,
+    BoneWeights1,
+
     ENUM_COUNT
   };
 };

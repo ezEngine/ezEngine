@@ -1,6 +1,8 @@
 #include <PCH.h>
 #include <EditorPluginAssets/EditorPluginAssets.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
+#include <EditorPluginAssets/ModelImporter/ModelImporter.h>
+#include <EditorPluginAssets/ModelImporter/AssimpImporter.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
@@ -21,6 +23,10 @@ void OnLoadPlugin(bool bReloading)
   ezTranslatorFromFiles::AddTranslationFile("PermutationVars.txt");
 
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginAssets", "ezEnginePluginAssets");
+
+  // Importer
+  EZ_DEFAULT_NEW(ezModelImporter::Importer);
+  ezModelImporter::Importer::GetSingleton()->AddImporterImplementation(EZ_DEFAULT_NEW(ezModelImporter::AssimpImporter));
 
   // Texture Asset
   {
