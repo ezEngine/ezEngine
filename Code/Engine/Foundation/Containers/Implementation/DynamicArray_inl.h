@@ -180,7 +180,19 @@ void ezDynamicArray<T, A>::operator=(ezDynamicArrayBase<T>&& rhs)
 }
 
 template<typename T, typename AllocatorWrapper>
-ezArrayPtr<const T* const> ezMakeArrayPtr(const ezDynamicArray<T*, AllocatorWrapper> dynArray)
+ezArrayPtr<const T* const> ezMakeArrayPtr(const ezDynamicArray<T*, AllocatorWrapper>& dynArray)
 {
   return ezArrayPtr<const T* const>(dynArray.GetData(), dynArray.GetCount());
+}
+
+template<typename T, typename AllocatorWrapper>
+ezArrayPtr<const T> ezMakeArrayPtr(const ezDynamicArray<T, AllocatorWrapper>& dynArray)
+{
+  return ezArrayPtr<const T>(dynArray.GetData(), dynArray.GetCount());
+}
+
+template<typename T, typename AllocatorWrapper>
+ezArrayPtr<T> ezMakeArrayPtr(ezDynamicArray<T, AllocatorWrapper>& dynArray)
+{
+  return ezArrayPtr<T>(dynArray.GetData(), dynArray.GetCount());
 }

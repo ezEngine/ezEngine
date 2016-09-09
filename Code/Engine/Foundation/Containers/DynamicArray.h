@@ -81,9 +81,17 @@ public:
   void operator=(ezDynamicArrayBase<T>&& rhs);
 };
 
-/// Overload of ezMakeArrayPtr for const arrays of pointer pointing to const type.
+/// Overload of ezMakeArrayPtr for const dynamic arrays of pointer pointing to const type.
 template<typename T, typename AllocatorWrapper>
-ezArrayPtr<const T* const> ezMakeArrayPtr(const ezDynamicArray<T*, AllocatorWrapper> dynArray);
+ezArrayPtr<const T* const> ezMakeArrayPtr(const ezDynamicArray<T*, AllocatorWrapper>& dynArray);
+
+/// Overload of ezMakeArrayPtr for const dynamic arrays.
+template<typename T, typename AllocatorWrapper>
+ezArrayPtr<const T> ezMakeArrayPtr(const ezDynamicArray<T, AllocatorWrapper>& dynArray);
+
+/// Overload of ezMakeArrayPtr for dynamic arrays.
+template<typename T, typename AllocatorWrapper>
+ezArrayPtr<T> ezMakeArrayPtr(ezDynamicArray<T, AllocatorWrapper>& dynArray);
 
 
 EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass<ezDynamicArray<int>>::value == 2, "dynamic array is not memory relocatable");
