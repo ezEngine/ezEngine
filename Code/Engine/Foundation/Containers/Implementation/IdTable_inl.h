@@ -205,6 +205,24 @@ IdType ezIdTableBase<IdType, ValueType>::Insert(const ValueType& value)
 }
 
 template <typename IdType, typename ValueType>
+IdType ezIdTableBase<IdType, ValueType>::Insert(ValueType&& value)
+{
+  Reserve(m_uiCount + 1);
+
+  const IndexType uiNewIndex = m_uiFreelistDequeue;
+  Entry& entry = m_pEntries[uiNewIndex];
+
+  m_uiFreelistDequeue = entry.id.m_InstanceIndex;
+  entry.id.m_InstanceIndex = uiNewIndex;
+
+  ezMemoryUtils::MoveConstruct<ValueType>(&entry.value, std::move(value));
+
+  ++m_uiCount;
+
+  return entry.id;
+}
+
+template <typename IdType, typename ValueType>
 bool ezIdTableBase<IdType, ValueType>::Remove(const IdType id, ValueType* out_oldValue /*= nullptr*/)
 {
   if (m_uiCapacity <= id.m_InstanceIndex)

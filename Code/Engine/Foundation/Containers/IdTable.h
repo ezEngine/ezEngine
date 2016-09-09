@@ -98,6 +98,9 @@ public:
   /// \brief Inserts the value into the table and returns the corresponding id. 
   IdType Insert(const ValueType& value); // [tested]
 
+  /// \brief Inserts the temporary value into the table and returns the corresponding id. 
+  IdType Insert(ValueType&& value);
+
   /// \brief Removes the entry with the given id. Returns if an entry was removed and optionally writes out the old value to out_oldValue.
   bool Remove(const IdType id, ValueType* out_oldValue = nullptr); // [tested]
 
