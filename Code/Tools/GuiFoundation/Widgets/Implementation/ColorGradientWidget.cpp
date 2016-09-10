@@ -202,8 +202,14 @@ void QColorGradientWidget::PaintColorGradient(QPainter& p) const
     const ezInt32 yColorTransp = yColorDark + GradientArea.height() / 4;
     const ezInt32 yOnlyColor = GradientArea.bottom();
 
+    QImage qiOnlyAlpha(width, 1, QImage::Format::Format_RGB32);
+    QImage qiColorDark(width, 1, QImage::Format::Format_RGB32);
+    QImage qiColorTransp(width, 1, QImage::Format::Format_ARGB32);
+    QImage qiOnlyColor(width, 1, QImage::Format::Format_RGB32);
+
     for (ezInt32 posX = 0; posX < width; ++posX)
     {
+
       const ezInt32 xPos = GradientArea.left() + posX;
 
       ezColorGammaUB rgba;
@@ -218,31 +224,16 @@ void QColorGradientWidget::PaintColorGradient(QPainter& p) const
       const ezColorLinearUB linearAlpha(rgba.a, rgba.a, rgba.a, 255);
       const ezColorGammaUB srgbAlpha = ezColor(linearAlpha);
 
-      QColor qOnlyAlpha;
-      qOnlyAlpha.setRgb(srgbAlpha.r, srgbAlpha.g, srgbAlpha.b, 255);
-
-      QColor qColorDark;
-      qColorDark.setRgb(rgbaColDar.r, rgbaColDar.g, rgbaColDar.b, 255);
-
-      QColor qColorTransp;
-      qColorTransp.setRgb(rgba.r, rgba.g, rgba.b, rgba.a);
-
-      QColor qOnlyColor;
-      qOnlyColor.setRgb(rgba.r, rgba.g, rgba.b, 255);
-
-      p.setPen(qOnlyAlpha);
-      p.drawLine(QPoint(xPos, yTop), QPoint(xPos, yOnlyAlpha));
-
-      p.setPen(qColorDark);
-      p.drawLine(QPoint(xPos, yOnlyAlpha), QPoint(xPos, yColorDark));
-
-      p.setPen(qColorTransp);
-      p.drawLine(QPoint(xPos, yColorDark), QPoint(xPos, yColorTransp));
-
-      p.setPen(qOnlyColor);
-      p.drawLine(QPoint(xPos, yColorTransp), QPoint(xPos, yOnlyColor));
+      qiOnlyAlpha.setPixel(posX, 0, qRgb(srgbAlpha.r, srgbAlpha.g, srgbAlpha.b));
+      qiColorDark.setPixel(posX, 0, qRgb(rgbaColDar.r, rgbaColDar.g, rgbaColDar.b));
+      qiColorTransp.setPixel(posX, 0, qRgba(rgba.r, rgba.g, rgba.b, rgba.a));
+      qiOnlyColor.setPixel(posX, 0, qRgb(rgba.r, rgba.g, rgba.b));
     }
 
+    p.drawTiledPixmap(QRect(0, yTop, width, GradientArea.height() / 4), QPixmap::fromImage(qiOnlyAlpha));
+    p.drawTiledPixmap(QRect(0, yOnlyAlpha, width, GradientArea.height() / 4), QPixmap::fromImage(qiColorDark));
+    p.drawTiledPixmap(QRect(0, yColorDark, width, GradientArea.height() / 4), QPixmap::fromImage(qiColorTransp));
+    p.drawTiledPixmap(QRect(0, yColorTransp, width, GradientArea.height() / 4), QPixmap::fromImage(qiOnlyColor));
 
     // Paint Lines indicating the extremes
     {
@@ -370,14 +361,15 @@ void QColorGradientWidget::PaintCoordinateLines(QPainter& p)
 
   const ezInt32 iLineHeight = area.height() / 8;
 
+  QVarLengthArray<QLine, 100> lines;
   for (float fCurStop = fFirstStop; fCurStop < m_fDisplayExtentMaxX; fCurStop += fStep)
   {
     const ezInt32 xPos = GradientToWindowCoord(fCurStop);
 
-    p.drawLine(QPoint(xPos, area.top()), QPoint(xPos, area.top() + iLineHeight));
-    p.drawLine(QPoint(xPos, area.bottom()), QPoint(xPos, area.bottom() - iLineHeight));
+    lines.push_back(QLine(QPoint(xPos, area.top()), QPoint(xPos, area.top() + iLineHeight)));
+    lines.push_back(QLine(QPoint(xPos, area.bottom()), QPoint(xPos, area.bottom() - iLineHeight)));
   }
-
+  p.drawLines(lines.data(), lines.size());
   p.restore();
 }
 
