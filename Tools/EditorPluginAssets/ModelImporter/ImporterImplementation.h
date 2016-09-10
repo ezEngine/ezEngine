@@ -15,6 +15,8 @@ namespace ezModelImporter
   class ImporterImplementation
   {
   public:
+    virtual ~ImporterImplementation() {}
+
     /// Returns a list of all supported file formats for this importer.
     ///
     /// File endings without dot, e.g. "obj", "fbx".

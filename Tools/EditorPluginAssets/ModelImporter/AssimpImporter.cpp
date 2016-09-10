@@ -225,7 +225,7 @@ namespace ezModelImporter
 
       // Material - an assimp mesh uses only a single material!
       if (assimpMesh->mMaterialIndex >= materialHandles.GetCount())
-        ezLog::Warning("Mesh '%s' in '%s' points to material %i, but there are only %i materials.", assimpMesh->mMaterialIndex, materialHandles.GetCount());
+        ezLog::Warning("Mesh '%s' in '%s' points to material %i, but there are only %i materials.", mesh->m_Name.GetData(), szFileName, assimpMesh->mMaterialIndex, materialHandles.GetCount());
       else
       {
         SubMesh subMesh;
@@ -236,6 +236,89 @@ namespace ezModelImporter
       }
 
       outMeshHandles.PushBack(outScene.AddMesh(std::move(mesh)));
+    }
+  }
+
+  ObjectHandle ImportNodesRecursive(aiNode* assimpNode, ObjectHandle parentNode, const ezDynamicArray<ObjectHandle>& meshHandles, Scene& outScene)
+  {
+    Node* newNode = EZ_DEFAULT_NEW(Node);
+    ObjectHandle newNodeHandle = outScene.AddNode(ezUniquePtr<Node>(newNode, ezFoundation::GetDefaultAllocator()));
+
+    newNode->SetParent(parentNode);
+    newNode->m_Name = assimpNode->mName.C_Str();
+
+    // Transformation.
+    ezMat4 mTransformation;
+    mTransformation.SetFromArray(&assimpNode->mTransformation.a1, ezMatrixLayout::RowMajor);
+    newNode->m_RelativeTransform = ezTransform(mTransformation);
+
+    // Add metadata.
+    if (assimpNode->mMetaData)
+    {
+      for (unsigned int metadataIdx = 0; metadataIdx < assimpNode->mMetaData->mNumProperties; ++metadataIdx)
+      {
+        Node::Metadata data;
+        data.m_Key = assimpNode->mMetaData->mKeys[metadataIdx].C_Str();
+        switch (assimpNode->mMetaData->mValues[metadataIdx].mType)
+        {
+        case AI_BOOL:
+          data.m_Data = *static_cast<bool*> (assimpNode->mMetaData->mValues[metadataIdx].mData);
+          break;
+        case AI_INT:
+          data.m_Data = *static_cast<ezInt32*>(assimpNode->mMetaData->mValues[metadataIdx].mData);
+          break;
+        case AI_UINT64:
+          data.m_Data = *static_cast<ezInt64*>(assimpNode->mMetaData->mValues[metadataIdx].mData);
+          break;
+        case AI_FLOAT:
+          data.m_Data = *static_cast<float*>(assimpNode->mMetaData->mValues[metadataIdx].mData);
+          break;
+        case AI_AISTRING:
+          data.m_Data = static_cast<char*>(assimpNode->mMetaData->mValues[metadataIdx].mData);
+          break;
+        case AI_AIVECTOR3D:
+          data.m_Data = *static_cast<ezVec3*>(assimpNode->mMetaData->mValues[metadataIdx].mData);
+          break;
+        default:
+          EZ_ASSERT_NOT_IMPLEMENTED;
+        }
+      }
+    }
+
+    // Associate meshes.
+    for (unsigned int meshIdx = 0; meshIdx < assimpNode->mNumMeshes; ++meshIdx)
+    {
+      newNode->m_Children.PushBack(meshHandles[assimpNode->mMeshes[meshIdx]]);
+    }
+
+    // Associate lights.
+    // TODO
+
+    // Associate cameras.
+    // TODO
+
+    // Import children.
+    for (unsigned int childIdx = 0; childIdx < assimpNode->mNumChildren; ++childIdx)
+    {
+      newNode->m_Children.PushBack(ImportNodesRecursive(assimpNode->mChildren[childIdx], parentNode, meshHandles, outScene));
+    }
+
+    return newNodeHandle;
+  }
+
+  void ImportNodes(aiNode* assimpRootNode, const ezDynamicArray<ObjectHandle>& meshHandles, Scene& outScene)
+  {
+    // If assimps root node has no transformation and no meta data, we're ignoring it.
+    if (assimpRootNode->mTransformation.IsIdentity() && assimpRootNode->mMetaData == nullptr)
+    {
+      for (unsigned int childIdx = 0; childIdx < assimpRootNode->mNumChildren; ++childIdx)
+      {
+        ImportNodesRecursive(assimpRootNode->mChildren[childIdx], ObjectHandle(), meshHandles, outScene);
+      }
+    }
+    else
+    {
+      ImportNodesRecursive(assimpRootNode, ObjectHandle(), meshHandles, outScene);
     }
   }
 
@@ -277,6 +360,10 @@ namespace ezModelImporter
     // Import meshes.
     ezDynamicArray<ObjectHandle> meshHandles;
     ImportMeshes(ezArrayPtr<aiMesh*>(assimpScene->mMeshes, assimpScene->mNumMeshes), materialHandles, szFileName, *outScene, meshHandles);
+
+    // Import nodes.
+    ezDynamicArray<ObjectHandle> nodeHandles;
+    ImportNodes(assimpScene->mRootNode, meshHandles, *outScene);
 
     // Import lights.
     // TODO
