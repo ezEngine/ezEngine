@@ -165,7 +165,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
       {
         if (e.m_pNewParent == nullptr || e.m_pNewParent == m_pManager->GetRootObject())
         {
-          // Object is now a root object, nothing to do to attach it to its new parentparent.
+          // Object is now a root object, nothing to do to attach it to its new parent.
           break;
         }
         ezObjectChange change;
@@ -173,7 +173,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
         CreatePath(change, e.m_pNewParent, propPath);
 
         change.m_Change.m_Operation = ezObjectChangeType::PropertyInserted;
-        change.m_Change.m_Index = e.m_PropertyIndex;
+        change.m_Change.m_Index = e.getInsertIndex();
         change.m_Change.m_Value = e.m_pObject->GetGuid();
 
         ApplyOp(change);
@@ -189,7 +189,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
       CreatePath(change, e.m_pNewParent, propPath);
 
       change.m_Change.m_Operation = ezObjectChangeType::NodeAdded;
-      change.m_Change.m_Index = e.m_PropertyIndex;
+      change.m_Change.m_Index = e.getInsertIndex();
       change.m_Change.m_Value = e.m_pObject->GetGuid();
 
       ezAbstractObjectGraph graph;
@@ -215,14 +215,27 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
         ezPropertyPath propPath = e.m_sParentProperty.GetData();
         CreatePath(change, e.m_pPreviousParent, propPath);
 
+        // Do not delete heap object, just remove it from its owner.
         change.m_Change.m_Operation = ezObjectChangeType::PropertyRemoved;
-        change.m_Change.m_Index = e.m_pObject->GetPropertyIndex();
+        change.m_Change.m_Index = e.m_OldPropertyIndex;
         change.m_Change.m_Value = e.m_pObject->GetGuid();
 
         ApplyOp(change);
         break;
       }
-      // Intended falltrough as non ptr object might as well be destroyed and rebuild.
+      else
+      {
+        ezObjectChange change;
+        ezPropertyPath propPath = e.m_sParentProperty.GetData();
+        CreatePath(change, e.m_pPreviousParent, propPath);
+
+        change.m_Change.m_Operation = ezObjectChangeType::PropertyRemoved;
+        change.m_Change.m_Index = e.m_OldPropertyIndex;
+        change.m_Change.m_Value = e.m_pObject->GetGuid();
+
+        ApplyOp(change);
+        break;
+      }
     }
     //case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
   case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
@@ -232,7 +245,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
       CreatePath(change, e.m_pPreviousParent, propPath);
 
       change.m_Change.m_Operation = ezObjectChangeType::NodeRemoved;
-      change.m_Change.m_Index = e.m_PropertyIndex;
+      change.m_Change.m_Index = e.m_OldPropertyIndex;
       change.m_Change.m_Value = e.m_pObject->GetGuid();
 
       ApplyOp(change);
@@ -517,7 +530,7 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
       else if (pProp->GetCategory() == ezPropertyCategory::Array)
       {
         auto pSpecificProp = static_cast<ezAbstractArrayProperty*>(pProp);
-        pSpecificProp->Remove(object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>());
+        ezReflectionUtils::RemoveArrayPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>());
       }
       else if (pProp->GetCategory() == ezPropertyCategory::Set)
       {

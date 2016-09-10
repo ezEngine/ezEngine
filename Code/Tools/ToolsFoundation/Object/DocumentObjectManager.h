@@ -34,6 +34,7 @@ struct ezDocumentObjectStructureEvent
   ezDocumentObjectStructureEvent() : m_pObject(nullptr), m_pPreviousParent(nullptr), m_pNewParent(nullptr)
   {}
 
+  ezVariant getInsertIndex() const;
   enum class Type
   {
     BeforeObjectAdded,
@@ -51,7 +52,8 @@ struct ezDocumentObjectStructureEvent
   const ezDocumentObject* m_pPreviousParent;
   const ezDocumentObject* m_pNewParent;
   ezString m_sParentProperty;
-  ezVariant m_PropertyIndex;
+  ezVariant m_OldPropertyIndex;
+  ezVariant m_NewPropertyIndex;
 };
 
 struct ezDocumentObjectPropertyEvent

@@ -63,7 +63,7 @@ void ezQtDocumentTreeModel::TreeEventHandler(const ezDocumentObjectStructureEven
   {
   case ezDocumentObjectStructureEvent::Type::BeforeObjectAdded:
     {
-      ezInt32 iIndex = (ezInt32)e.m_PropertyIndex.ConvertTo<ezInt32>();
+      ezInt32 iIndex = (ezInt32)e.m_NewPropertyIndex.ConvertTo<ezInt32>();
       if (e.m_pNewParent == m_pDocumentTree->GetRootObject())
         beginInsertRows(QModelIndex(), iIndex, iIndex);
       else
@@ -89,7 +89,7 @@ void ezQtDocumentTreeModel::TreeEventHandler(const ezDocumentObjectStructureEven
     break;
   case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:
     {
-      ezInt32 iNewIndex = (ezInt32)e.m_PropertyIndex.ConvertTo<ezInt32>();
+      ezInt32 iNewIndex = (ezInt32)e.m_NewPropertyIndex.ConvertTo<ezInt32>();
       ezInt32 iIndex = ComputeIndex(e.m_pObject);
       beginMoveRows(ComputeModelIndex(e.m_pPreviousParent), iIndex, iIndex, ComputeModelIndex(e.m_pNewParent), iNewIndex);
     }
