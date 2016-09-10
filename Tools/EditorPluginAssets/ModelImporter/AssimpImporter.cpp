@@ -173,7 +173,7 @@ namespace ezModelImporter
         vertexDataStreams.PushBack(colors);
 
         if (assimpMesh->GetNumColorChannels() > 1)
-          ezLog::Warning("Mesh '%s' in '%s' has %i sets of vertex colors, only the first set will be imported!", mesh->m_Name, szFileName, assimpMesh->GetNumColorChannels());
+          ezLog::Warning("Mesh '%s' in '%s' has %i sets of vertex colors, only the first set will be imported!", mesh->m_Name.GetData(), szFileName, assimpMesh->GetNumColorChannels());
       }
       if (assimpMesh->HasTangentsAndBitangents())
       {
@@ -205,7 +205,7 @@ namespace ezModelImporter
       if (assimpMesh->HasBones())
       {
         /// \todo import animation data
-        ezLog::Warning("Mesh '%s' in '%s' has bone animation data. This is not yet supported and won't be imported.", mesh->m_Name, szFileName);
+        ezLog::Warning("Mesh '%s' in '%s' has bone animation data. This is not yet supported and won't be imported.", mesh->m_Name.GetData(), szFileName);
       }
 
       // Triangles/Indices

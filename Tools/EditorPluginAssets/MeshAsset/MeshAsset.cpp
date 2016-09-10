@@ -278,8 +278,8 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(const ezMeshAssetProperties* pP
     {
       // Todo: Would be nice to output which data stream it missing.
       // Todo: We should be able to work around an empty stream!
-      ezLog::Warning("Mesh '%s' from '%s' is missing a required vertex data stream.", mesh->m_Name, sMeshFileAbs.GetData());
-      return ezStatus("Mesh '%s' from '%s' is missing a required vertex data stream.", mesh->m_Name, sMeshFileAbs.GetData());
+      ezLog::Warning("Mesh '%s' from '%s' is missing a required vertex data stream.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
+      return ezStatus("Mesh '%s' from '%s' is missing a required vertex data stream.", mesh->m_Name.GetData(), sMeshFileAbs.GetData());
     }
   }
 

@@ -118,7 +118,7 @@ namespace ezModelImporter
       if (!targetStream)
       {
         ezLog::SeriousWarning("Cannot merge mesh %s properly since it has a vertex data stream with semantic %i that uses %i elements instead of %i which is used by the merge target. Skipping this data stream.",
-                               mesh.m_Name, it.Key(), sourceStream->GetNumElementsPerVertex(), targetStream->GetNumElementsPerVertex());
+                              mesh.m_Name.GetData(), it.Key(), sourceStream->GetNumElementsPerVertex(), targetStream->GetNumElementsPerVertex());
         continue;
       }
 

@@ -10,6 +10,8 @@
 /// Lookup is nearly as fast as a simple array lookup. 
 /// The table stores a free-list in its free elements to ensure fast insertion/erasure.
 ///
+/// \note Valid IDs will never be all zero (index + generation).
+///
 /// \see ezGenericId
 template <typename IdType, typename ValueType>
 class ezIdTableBase
