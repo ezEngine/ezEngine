@@ -2,7 +2,6 @@
 #include <EditorPluginAssets/ModelImporter/Mesh.h>
 #include <Foundation/Logging/Log.h>
 
-
 namespace ezModelImporter
 {
   VertexDataStream::VertexDataStream(ezUInt32 uiNumElementsPerVertex, ezUInt32 uiNumTriangles)
@@ -32,6 +31,23 @@ namespace ezModelImporter
 
   VertexDataStream* Mesh::AddDataStream(ezGALVertexAttributeSemantic::Enum semantic, ezUInt32 uiNumElementsPerVertex)
   {
+    // A few checks for meaningful element count.
+    switch (semantic)
+    {
+    case ezGALVertexAttributeSemantic::Position:
+      EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3, "Position vertex streams should always have exactly 3 elements.");
+      break;
+    case ezGALVertexAttributeSemantic::Normal:
+      EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3, "Normal vertex streams should always have exactly 3 elements.");
+      break;
+    case ezGALVertexAttributeSemantic::Tangent:
+      EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3, "Tangent vertex streams should always have exactly 3 elements.");
+      break;
+    case ezGALVertexAttributeSemantic::BiTangent:
+      EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3, "BiTangent vertex streams should always have exactly 3 elements.");
+      break;
+    }
+
     VertexDataStream* existingStream = nullptr;
     if (!m_VertexDataStreams.TryGetValue(static_cast<ezUInt32>(semantic), existingStream))
     {
@@ -101,6 +117,38 @@ namespace ezModelImporter
     return m_SubMeshes.PushBack(mesh);
   }
 
+  void Mesh::ApplyTransform(const ezTransform& transform)
+  {
+    ezMat4 transformMat = transform.GetAsMat4();
+
+    for (auto it = m_VertexDataStreams.GetIterator(); it.IsValid(); ++it)
+    {
+      VertexDataStream* sourceStream = it.Value();
+
+      // Positions
+      if (it.Key() == ezGALVertexAttributeSemantic::Position)
+      {
+        for (ezUInt32 i = 0; i < sourceStream->m_Data.GetCount(); i += 3)
+        {
+          ezVec3& pos = *reinterpret_cast<ezVec3*>(&sourceStream[i]);
+          pos = transformMat.TransformPosition(pos);
+        }
+      }
+
+      // Directions
+      else if (it.Key() == ezGALVertexAttributeSemantic::Normal ||
+               it.Key() == ezGALVertexAttributeSemantic::Tangent ||
+               it.Key() == ezGALVertexAttributeSemantic::BiTangent)
+      {
+        for (ezUInt32 i = 0; i < sourceStream->m_Data.GetCount(); i += 3)
+        {
+          ezVec3& dir = *reinterpret_cast<ezVec3*>(&sourceStream[i]);
+          dir = transformMat.TransformDirection(dir);
+        }
+      }
+    }
+  }
+
   void Mesh::AddData(const Mesh& mesh)
   {
     // Create new triangles.
@@ -145,5 +193,70 @@ namespace ezModelImporter
     {
       m_SubMeshes[i].m_uiFirstTriangle += oldTriangleCount;
     }
+  }
+
+  void Mesh::MergeSubMeshesWithSameMaterials()
+  {
+    // Find out which material maps to which submesh.
+    // To make the result deterministic and change the order of submeshes/materials as little as possible, we cannot rely on maps or hashmaps
+    bool anyDuplicate = false;
+    typedef ezHybridArray<SubMesh*, 4> SubMeshBundle;
+    ezDynamicArray<SubMeshBundle> subMeshBundles;
+    for (int i = m_SubMeshes.GetCount() - 1; i >= 0; --i)
+    {
+      auto materialHandle = m_SubMeshes[i].m_Material;
+      SubMeshBundle* existingBundle = nullptr;
+      for (SubMeshBundle& bundle : subMeshBundles)
+      {
+        if (bundle[0]->m_Material == materialHandle)
+        {
+          existingBundle = &bundle;
+          break;
+        }
+      }
+
+      if(!existingBundle)
+      {
+        SubMeshBundle bundle;
+        bundle.PushBack(&m_SubMeshes[i]);
+        subMeshBundles.PushBack(bundle);
+      }
+      else
+      {
+        existingBundle->PushBack(&m_SubMeshes[i]);
+       anyDuplicate = true;
+      }
+    }
+
+    // Nothing to do?
+    if (!anyDuplicate)
+      return;
+
+    // Rewrite triangle and submesh list.
+    // Note that in the special case in which all triangles are already sorted correctly we perform really badly. Optimizing this however is a lot more code.
+    ezDynamicArray<Triangle> trianglesNew;
+    trianglesNew.Reserve(m_Triangles.GetCount());
+    ezDynamicArray<SubMesh> subMeshesNew;
+    subMeshesNew.Reserve(subMeshBundles.GetCount());
+    for (SubMeshBundle& bundle : subMeshBundles)
+    {
+      SubMesh& newSubMesh = subMeshesNew.ExpandAndGetRef();
+      newSubMesh.m_Material = bundle[0]->m_Material;
+      newSubMesh.m_uiFirstTriangle = trianglesNew.GetCount();
+
+      for (SubMesh* oldSubMesh : bundle)
+      {
+        newSubMesh.m_uiTriangleCount += oldSubMesh->m_uiTriangleCount;
+        trianglesNew.PushBackRange(m_Triangles.GetArrayPtr().GetSubArray(oldSubMesh->m_uiFirstTriangle, oldSubMesh->m_uiTriangleCount));
+      }
+    }
+
+    if (m_Triangles.GetCount() > trianglesNew.GetCount())
+      ezLog::Warning("There were some triangles in submeshes of the mesh '%s' that were not referenced by any submesh. These triangles were discarded while merging submeshes.", m_Name.GetData());
+    else if(m_Triangles.GetCount() < trianglesNew.GetCount())
+      ezLog::Warning("There are submeshes in '%s' with overlapping triangle use. These triangles were duplicated while merging submeshes.", m_Name.GetData());
+
+    m_Triangles = std::move(trianglesNew);
+    m_SubMeshes = std::move(subMeshesNew);
   }
 }

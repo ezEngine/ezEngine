@@ -144,6 +144,9 @@ namespace ezModelImporter
     Mesh();
     ~Mesh();
 
+    // Triangles
+  public:
+
     struct Triangle
     {
       EZ_DECLARE_POD_TYPE();
@@ -159,7 +162,9 @@ namespace ezModelImporter
     ezArrayPtr<const Triangle> GetTriangles() const { return ezMakeArrayPtr(m_Triangles); }
     ezArrayPtr<Triangle> GetTriangles()             { return ezMakeArrayPtr(m_Triangles); }
 
-    // Data streams.
+    // Data Streams
+  public:
+
     /// Adds a new data stream with the given semantic.
     /// If a data stream already exists it will be returned, unless the existing data stream has a different element count per vertex.
     /// In this case nullptr will be returned.
@@ -170,14 +175,25 @@ namespace ezModelImporter
     const VertexDataStream* GetDataStream(ezGALVertexAttributeSemantic::Enum semantic) const;
 
     // Submeshes
+  public:
+
     ezUInt32 GetNumSubMeshes() const;
     const SubMesh& GetSubMesh(ezUInt32 idx) const;
     SubMesh& GetSubMesh(ezUInt32 idx);
     void AddSubMesh(SubMesh& mesh);
 
+    // Processing
+  public:
+
+    /// Applies a transform to all directional and positional vertex data.
+    void ApplyTransform(const ezTransform& transform);
 
     /// Adds all triangles, vertices and submeshes from an existing mesh.
     void AddData(const Mesh& mesh);
+
+    /// Merges all sub-meshes that use the same material.
+    /// Especially useful after merging meshes.
+    void MergeSubMeshesWithSameMaterials();
 
   private:
 

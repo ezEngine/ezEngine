@@ -12,6 +12,8 @@ namespace ezModelImporter
     /// Casts to another hierarchy object type.
     template<typename T>
     const T* Cast() const;
+    template<typename T>
+    T* Cast() { return const_cast<T*>(static_cast<const HierarchyObject*>(this)->Cast<T>()); }
 
     /// Type of this object, used for "dynamic" casting.
     const ObjectHandle::Type m_Type;

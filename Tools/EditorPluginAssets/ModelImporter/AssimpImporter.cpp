@@ -239,7 +239,6 @@ namespace ezModelImporter
     }
   }
 
-  /*
   ObjectHandle ImportNodesRecursive(aiNode* assimpNode, ObjectHandle parentNode, const ezDynamicArray<ObjectHandle>& meshHandles, Scene& outScene)
   {
     Node* newNode = EZ_DEFAULT_NEW(Node);
@@ -285,7 +284,7 @@ namespace ezModelImporter
         }
       }
     }
-    
+
     // Associate meshes.
     for (unsigned int meshIdx = 0; meshIdx < assimpNode->mNumMeshes; ++meshIdx)
     {
@@ -321,7 +320,7 @@ namespace ezModelImporter
     {
       ImportNodesRecursive(assimpRootNode, ObjectHandle(), meshHandles, outScene);
     }
-  }*/
+  }
 
   ezUniquePtr<Scene> AssimpImporter::ImportScene(const char* szFileName)
   {
@@ -345,7 +344,7 @@ namespace ezModelImporter
     // ImproveCacheLocality:  Why not. Would be nice if we implement this ourselves. See e.g. http://gfx.cs.princeton.edu/pubs/Sander_2007_%3eTR/tipsy.pdf
     // TransformUVCoords:     As of now we do not have a concept for uv transforms.
     const aiScene* assimpScene = importer.ReadFile(szFileName, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_ImproveCacheLocality | aiProcess_TransformUVCoords |
-                                                  aiProcess_PreTransformVertices | aiProcess_GenNormals | aiProcess_CalcTangentSpace); // TODO: Want to do all these ourselves!
+                                                   aiProcess_GenNormals | aiProcess_CalcTangentSpace); // TODO: Want to do all these ourselves!
     if (!assimpScene)
     {
       ezLog::Error("Assimp importer failed to load model %s with error %s.", szFileName, importer.GetErrorString());
@@ -363,8 +362,8 @@ namespace ezModelImporter
     ImportMeshes(ezArrayPtr<aiMesh*>(assimpScene->mMeshes, assimpScene->mNumMeshes), materialHandles, szFileName, *outScene, meshHandles);
 
     // Import nodes.
-   // ezDynamicArray<ObjectHandle> nodeHandles;
-   // ImportNodes(assimpScene->mRootNode, meshHandles, *outScene);
+    ezDynamicArray<ObjectHandle> nodeHandles;
+    ImportNodes(assimpScene->mRootNode, meshHandles, *outScene);
 
     // Import lights.
     // TODO

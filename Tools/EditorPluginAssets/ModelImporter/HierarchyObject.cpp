@@ -16,7 +16,7 @@ namespace ezModelImporter
 
   void HierarchyObject::SetParent(ObjectHandle newParent)
   {
-    EZ_ASSERT_DEBUG(newParent.GetType() == ObjectHandle::NODE, "Only nodes are valid parents for nodes.");
+    EZ_ASSERT_DEBUG(!newParent.IsValid() || newParent.GetType() == ObjectHandle::NODE, "Only nodes are valid parents for nodes.");
     m_Parent = newParent;
   }
 }

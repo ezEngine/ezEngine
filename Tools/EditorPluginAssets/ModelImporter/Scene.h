@@ -2,7 +2,7 @@
 
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <EditorPluginAssets/ModelImporter/Handles.h>
+#include <EditorPluginAssets/ModelImporter/HierarchyObject.h>
 
 namespace ezModelImporter
 {
@@ -30,7 +30,13 @@ namespace ezModelImporter
     ezArrayPtr<HierarchyObject*> GetRootObjects() { return ezMakeArrayPtr(m_RootObjects); }
 
     //const HierarchyObject* GetObject(ObjectReference handle) const;
+    const HierarchyObject* GetObject(ObjectHandle handle) const;
     HierarchyObject* GetObject(ObjectHandle handle);
+    template<typename T>
+    const T* GetObject(ObjectHandle handle) const { return GetObject(handle)->Cast<T>(); }
+    template<typename T>
+    T* GetObject(ObjectHandle handle) { return GetObject(handle)->Cast<T>(); }
+
     const Material* GetMaterial(MaterialHandle handle) const;
 
     const ezIdTable<ObjectId, ezUniquePtr<Node>>& GetNodes() const           { return m_Nodes; }
@@ -53,9 +59,11 @@ namespace ezModelImporter
     /// Merges all meshes into a single one.
     /// 
     /// Transformations from nodes will be applied. The resulting mesh will be stored in the list of root objects.
+    /// \param mergeSubmeshesWithIdenticalMaterials
+    ///   If true, all submeshes that use the same material will be merged in the resulting mesh.
     /// \return
     ///   Pointer to the newly created meshnode.
-    Mesh* MergeAllMeshes();
+    Mesh* MergeAllMeshes(bool mergeSubmeshesWithSameMaterials = true);
 
     /// Generates vertex normals for all meshes that do not have them yet.
     void GenerateVertexNormals();
@@ -66,6 +74,8 @@ namespace ezModelImporter
 
 
   private:
+    void RemoveEmptyNodesRec(ObjectId nodeId);
+
     ezDynamicArray<HierarchyObject*> m_RootObjects;
     
     ezIdTable<ObjectId, ezUniquePtr<Node>> m_Nodes;

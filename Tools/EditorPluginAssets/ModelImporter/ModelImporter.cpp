@@ -16,6 +16,10 @@ namespace ezModelImporter
   {
   }
 
+  Importer::~Importer()
+  {
+  }
+
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   void ValidateSceneGraph(Scene* scene)
   {

@@ -14,6 +14,7 @@ namespace ezModelImporter
     EZ_DECLARE_SINGLETON(ezModelImporter::Importer);
   public:
     Importer();
+    ~Importer();
 
     /// Imports a scene from given file using the first available ImporterImplementation that supports the given file.
     /// 
