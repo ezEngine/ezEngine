@@ -193,7 +193,7 @@ public:
   /// \brief Sets the 3x3 rotational part of the matrix.
   void SetRotationalPart(const ezMat3Template<Type>& Rotation); // [tested]
 
-  /// \brief Returns the 3x3 rotational part of the matrix.
+  /// \brief Returns the 3x3 rotational and scaling part of the matrix.
   const ezMat3Template<Type> GetRotationalPart() const; // [tested]
 
   /// \brief Returns the 3 scaling factors that are encoded in the matrix.

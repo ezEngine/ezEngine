@@ -38,6 +38,17 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
       EZ_TEST_VEC3(t.m_vPosition, ezVec3T(4, 5, 6), 0);
       EZ_TEST_BOOL(t.m_Rotation == ezMat3(2, 0, 0, 0, 3, 0, 0, 0, 4));
     }
+
+    {
+      ezMat3T mRot;
+      mRot.SetRotationMatrix(ezVec3T(1, 2, 3).GetNormalized(), ezAngle::Degree(42.0f));
+      ezMat4T mTrans;
+      mTrans.SetTransformationMatrix(mRot, ezVec3T(1, 2, 3));
+
+      ezTransformT t(mTrans);
+      EZ_TEST_VEC3(t.m_vPosition, ezVec3T(1, 2, 3), 0);
+      EZ_TEST_BOOL(t.m_Rotation == mRot);
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetIdentity")

@@ -45,6 +45,10 @@ public:
   /// \brief Sets position, rotation and scale.
   explicit ezTransformTemplate(const ezVec3Template<Type>& vPosition, const ezQuatTemplate<Type>& qRotation, const ezVec3Template<Type>& vScale); // [tested]
 
+  /// \brief Initializes by decomposing a 4x4 matrix. It is assume the given transformation is affine.
+  explicit ezTransformTemplate(const ezMat4Template<Type>& Transformation); // [tested]
+
+
   /// \brief Sets the position to be zero and the rotation to identity.
   void SetIdentity(); // [tested]
 

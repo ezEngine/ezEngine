@@ -27,6 +27,13 @@ inline ezTransformTemplate<Type>::ezTransformTemplate(const ezVec3Template<Type>
 }
 
 template<typename Type>
+inline ezTransformTemplate<Type>::ezTransformTemplate(const ezMat4Template<Type>& Transformation)
+{
+  m_vPosition = Transformation.GetTranslationVector();
+  m_Rotation = Transformation.GetRotationalPart();
+}
+
+template<typename Type>
 inline void ezTransformTemplate<Type>::SetIdentity()
 {
   m_vPosition.SetZero();
