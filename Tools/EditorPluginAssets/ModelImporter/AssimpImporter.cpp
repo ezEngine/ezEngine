@@ -239,6 +239,7 @@ namespace ezModelImporter
     }
   }
 
+  /*
   ObjectHandle ImportNodesRecursive(aiNode* assimpNode, ObjectHandle parentNode, const ezDynamicArray<ObjectHandle>& meshHandles, Scene& outScene)
   {
     Node* newNode = EZ_DEFAULT_NEW(Node);
@@ -284,7 +285,7 @@ namespace ezModelImporter
         }
       }
     }
-
+    
     // Associate meshes.
     for (unsigned int meshIdx = 0; meshIdx < assimpNode->mNumMeshes; ++meshIdx)
     {
@@ -320,7 +321,7 @@ namespace ezModelImporter
     {
       ImportNodesRecursive(assimpRootNode, ObjectHandle(), meshHandles, outScene);
     }
-  }
+  }*/
 
   ezUniquePtr<Scene> AssimpImporter::ImportScene(const char* szFileName)
   {
@@ -362,8 +363,8 @@ namespace ezModelImporter
     ImportMeshes(ezArrayPtr<aiMesh*>(assimpScene->mMeshes, assimpScene->mNumMeshes), materialHandles, szFileName, *outScene, meshHandles);
 
     // Import nodes.
-    ezDynamicArray<ObjectHandle> nodeHandles;
-    ImportNodes(assimpScene->mRootNode, meshHandles, *outScene);
+   // ezDynamicArray<ObjectHandle> nodeHandles;
+   // ImportNodes(assimpScene->mRootNode, meshHandles, *outScene);
 
     // Import lights.
     // TODO
