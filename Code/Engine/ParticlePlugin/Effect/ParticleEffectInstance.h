@@ -41,6 +41,7 @@ public:
   bool Update(const ezTime& tDiff);
 
   ezWorld* GetWorld() const { return m_pWorld; }
+  ezParticleWorldModule* GetOwnerWorldModule() const { return m_pOwnerModule; }
 
   const ezParticleEffectResourceHandle& GetResource() const { return m_hResource; }
 
@@ -57,6 +58,7 @@ public:
   const ezDynamicArray<SharedInstance>& GetAllSharedInstances() const { return m_SharedInstances; }
 
   ezParticleEventQueue* GetEventQueue(const ezTempHashedString& EventType);
+
 
 private:
   void Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTime);

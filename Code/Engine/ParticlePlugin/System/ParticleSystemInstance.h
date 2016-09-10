@@ -57,6 +57,11 @@ public:
 
   void ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData) const;
 
+  typedef ezEvent<const ezStreamGroupElementRemovedEvent&>::Handler ParticleDeathHandler;
+
+  void AddParticleDeathEventHandler(ParticleDeathHandler handler);
+  void RemoveParticleDeathEventHandler(ParticleDeathHandler handler);
+
 private:
   void CreateStreamZeroInitializers();
 

@@ -200,7 +200,7 @@ void QColorGradientWidget::PaintColorGradient(QPainter& p) const
     const ezInt32 yOnlyAlpha = yTop + GradientArea.height() / 4;
     const ezInt32 yColorDark = yOnlyAlpha + GradientArea.height() / 4;
     const ezInt32 yColorTransp = yColorDark + GradientArea.height() / 4;
-    const ezInt32 yOnlyColor = GradientArea.bottom();
+    const ezInt32 yOnlyColorHeight = GradientArea.bottom() - yColorTransp; // GradientArea.height() / 4 has rounding errors, so last segment has to fill the rest
 
     QImage qiOnlyAlpha(width, 1, QImage::Format::Format_RGB32);
     QImage qiColorDark(width, 1, QImage::Format::Format_RGB32);
@@ -233,7 +233,7 @@ void QColorGradientWidget::PaintColorGradient(QPainter& p) const
     p.drawTiledPixmap(QRect(0, yTop, width, GradientArea.height() / 4), QPixmap::fromImage(qiOnlyAlpha));
     p.drawTiledPixmap(QRect(0, yOnlyAlpha, width, GradientArea.height() / 4), QPixmap::fromImage(qiColorDark));
     p.drawTiledPixmap(QRect(0, yColorDark, width, GradientArea.height() / 4), QPixmap::fromImage(qiColorTransp));
-    p.drawTiledPixmap(QRect(0, yColorTransp, width, GradientArea.height() / 4), QPixmap::fromImage(qiOnlyColor));
+    p.drawTiledPixmap(QRect(0, yColorTransp, width, yOnlyColorHeight), QPixmap::fromImage(qiOnlyColor));
 
     // Paint Lines indicating the extremes
     {

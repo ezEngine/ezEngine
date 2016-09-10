@@ -36,8 +36,8 @@
     "AssetType" : "Scene",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0xA54DC853996FDB42AB097DA4165C1F7F" },
-    "Hash" : { "$t" : "uint64", "$v" : "11459922625538018817", "$b" : "0x01CEA720E9D2099F" },
-    "References" : [ "{ 8db56ec7-1f24-497b-9541-5ff5e1e65a9a }", "{ 912f4499-7b67-402b-9110-1871cc9d8a2c }", "{ 9f5b157b-971e-4450-bd92-8f8651ad35b2 }", "{ b7491649-7988-4bea-b145-6550ab951811 }", "{ d65cd59b-50e0-44f3-aefb-a88943b81900 }" ]
+    "Hash" : { "$t" : "uint64", "$v" : "8576715215307224606", "$b" : "0x1E3613040C9D0677" },
+    "References" : [ "{ 52e79efc-6a2c-4f4c-a629-9629af925ee9 }", "{ 8db56ec7-1f24-497b-9541-5ff5e1e65a9a }", "{ 912f4499-7b67-402b-9110-1871cc9d8a2c }", "{ 9f5b157b-971e-4450-bd92-8f8651ad35b2 }", "{ b7491649-7988-4bea-b145-6550ab951811 }", "{ d65cd59b-50e0-44f3-aefb-a88943b81900 }" ]
    }
   },
   {
@@ -82,6 +82,20 @@
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Name" : "",
     "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x642402A26C65634786BAB0A2378D86DC" },
+   "t" : "ezParticleComponent",
+   "p" : {
+    "Active" : true,
+    "Auto Restart" : false,
+    "Effect" : "{ 52e79efc-6a2c-4f4c-a629-9629af925ee9 }",
+    "Min Restart Delay" : { "$t" : "time", "$v" : "0.0000", "$b" : "0x0000000000000000" },
+    "Random Seed" : { "$t" : "uint64", "$v" : "0", "$b" : "0x0000000000000000" },
+    "Restart Delay Range" : { "$t" : "time", "$v" : "0.0000", "$b" : "0x0000000000000000" },
+    "Shared Instance Name" : "",
+    "Spawn At Start" : true
    }
   },
   {
@@ -140,7 +154,22 @@
    "t" : "ezDocumentRoot",
    "n" : "ObjectTree",
    "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x7BC4E2378E615B4DB733C5FC2E944DC3" }, { "$t" : "uuid", "$b" : "0x58DAFE1E87B2404A8CD973B6DB0A1D0E" }, { "$t" : "uuid", "$b" : "0xA67963A9899226954578146B6F124069" }, { "$t" : "uuid", "$b" : "0x1BC46E26CCB288D5F1043029D0376D1D" }, { "$t" : "uuid", "$b" : "0x501A76DE16C4B11988C27BDD1238548E" }, { "$t" : "uuid", "$b" : "0x1C58D53DB98AC29828CF2541A897F225" }, { "$t" : "uuid", "$b" : "0xBD0B3B8C670E6144834950876FB7CD13" }, { "$t" : "uuid", "$b" : "0x470E2998FFBA1047A771E02383D2B390" }, { "$t" : "uuid", "$b" : "0x70D77C60FC1B6B4DA1B3FEB4E95A09D0" } ]
+    "Children" : [ { "$t" : "uuid", "$b" : "0x7BC4E2378E615B4DB733C5FC2E944DC3" }, { "$t" : "uuid", "$b" : "0x58DAFE1E87B2404A8CD973B6DB0A1D0E" }, { "$t" : "uuid", "$b" : "0xA67963A9899226954578146B6F124069" }, { "$t" : "uuid", "$b" : "0x1BC46E26CCB288D5F1043029D0376D1D" }, { "$t" : "uuid", "$b" : "0x501A76DE16C4B11988C27BDD1238548E" }, { "$t" : "uuid", "$b" : "0x1C58D53DB98AC29828CF2541A897F225" }, { "$t" : "uuid", "$b" : "0xBD0B3B8C670E6144834950876FB7CD13" }, { "$t" : "uuid", "$b" : "0x470E2998FFBA1047A771E02383D2B390" }, { "$t" : "uuid", "$b" : "0x70D77C60FC1B6B4DA1B3FEB4E95A09D0" }, { "$t" : "uuid", "$b" : "0x598509CDC5A7B44C8BB05D0014FA1ED0" }, { "$t" : "uuid", "$b" : "0x6F66876F737D6093733281FF6A2A5D80" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x598509CDC5A7B44C8BB05D0014FA1ED0" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x642402A26C65634786BAB0A2378D86DC" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(20.7500, 16.7500, 0.0000)", "$b" : "0x0000A6410000864100000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
    }
   },
   {
@@ -188,6 +217,14 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x5F0A0363983F1F8E72BA3A7A78432FC8" },
+   "t" : "ezPrefabReferenceComponent",
+   "p" : {
+    "Active" : true,
+    "Prefab" : "{ d65cd59b-50e0-44f3-aefb-a88943b81900 }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xD83DC3445ECE6D91523735D22BA5BFD5" },
    "t" : "ezParticleComponent",
    "p" : {
@@ -199,6 +236,21 @@
     "Restart Delay Range" : { "$t" : "time", "$v" : "0.0000", "$b" : "0x0000000000000000" },
     "Shared Instance Name" : "Test",
     "Spawn At Start" : true
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x6F66876F737D6093733281FF6A2A5D80" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x5F0A0363983F1F8E72BA3A7A78432FC8" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(30.7500, -0.0000, 32.0000)", "$b" : "0x0300F64190CEE4B500000042" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0xF204B5A6F20435BF62C004B3F404353F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
    }
   },
   {

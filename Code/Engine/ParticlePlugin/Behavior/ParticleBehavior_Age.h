@@ -23,14 +23,20 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Age : public ezParticleBehavior
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Age, ezParticleBehavior);
 public:
+  ezParticleBehavior_Age();
+  ~ezParticleBehavior_Age();
 
   virtual void CreateRequiredStreams() override;
 
   ezTempHashedString m_sOnDeathEvent;
 
+  virtual void AfterPropertiesConfigured(bool bFirstTime) override;
+
 protected:
   virtual void Process(ezUInt64 uiNumElements) override;
+  void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);
 
+  bool m_bHasOnDeathEventHandler;
   ezStream* m_pStreamLifeTime;
   ezStream* m_pStreamPosition;
   ezStream* m_pStreamVelocity;

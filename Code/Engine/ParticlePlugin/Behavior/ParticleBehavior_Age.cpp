@@ -64,6 +64,20 @@ void ezParticleBehaviorFactory_Age::Load(ezStreamReader& stream)
   }
 }
 
+
+ezParticleBehavior_Age::ezParticleBehavior_Age()
+{
+  m_bHasOnDeathEventHandler = false;
+}
+
+ezParticleBehavior_Age::~ezParticleBehavior_Age()
+{
+  if (m_bHasOnDeathEventHandler)
+  {
+    GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleBehavior_Age::OnParticleDeath, this));
+  }
+}
+
 void ezParticleBehavior_Age::CreateRequiredStreams()
 {
   CreateStream("LifeTime", ezStream::DataType::Float2, &m_pStreamLifeTime);
@@ -75,18 +89,25 @@ void ezParticleBehavior_Age::CreateRequiredStreams()
   }
 }
 
-void ezParticleBehavior_Age::Process(ezUInt64 uiNumElements)
-{
-  ezVec2* pLifeTime = m_pStreamLifeTime->GetWritableData<ezVec2>();
 
-  const ezVec3* pPosition = nullptr;
-  const ezVec3* pVelocity = nullptr;
+void ezParticleBehavior_Age::AfterPropertiesConfigured(bool bFirstTime)
+{
+  if (m_bHasOnDeathEventHandler)
+  {
+    m_bHasOnDeathEventHandler = false;
+    GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleBehavior_Age::OnParticleDeath, this));
+  }
 
   if (m_sOnDeathEvent.GetHash() != 0)
   {
-    pPosition = m_pStreamPosition->GetData<ezVec3>();
-    pVelocity = m_pStreamVelocity->GetData<ezVec3>();
+    m_bHasOnDeathEventHandler = true;
+    GetOwnerSystem()->AddParticleDeathEventHandler(ezMakeDelegate(&ezParticleBehavior_Age::OnParticleDeath, this));
   }
+}
+
+void ezParticleBehavior_Age::Process(ezUInt64 uiNumElements)
+{
+  ezVec2* pLifeTime = m_pStreamLifeTime->GetWritableData<ezVec2>();
 
   const float tDiff = (float)m_TimeDiff.GetSeconds();
 
@@ -98,20 +119,23 @@ void ezParticleBehavior_Age::Process(ezUInt64 uiNumElements)
     {
       pLifeTime[i].x = 0;
 
-      if (m_sOnDeathEvent.GetHash() != 0)
-      {
-        ezParticleEventQueue* pQueue = GetOwnerEffect()->GetEventQueue(m_sOnDeathEvent);
-
-        ezParticleEvent e;
-        e.m_vPosition = pPosition[i];
-        e.m_vDirection = pVelocity[i];
-        e.m_vNormal.SetZero();
-        pQueue->AddEvent(e);
-      }
-
       /// \todo Get current element index from iterator ?
       m_pStreamGroup->RemoveElement(i);
     }
   }
+}
+
+void ezParticleBehavior_Age::OnParticleDeath(const ezStreamGroupElementRemovedEvent& e)
+{
+  const ezVec3* pPosition = m_pStreamPosition->GetData<ezVec3>();
+  const ezVec3* pVelocity = m_pStreamVelocity->GetData<ezVec3>();
+
+  ezParticleEventQueue* pQueue = GetOwnerEffect()->GetEventQueue(m_sOnDeathEvent);
+
+  ezParticleEvent pe;
+  pe.m_vPosition = pPosition[e.m_uiElementIndex];
+  pe.m_vDirection = pVelocity[e.m_uiElementIndex];
+  pe.m_vNormal.SetZero();
+  pQueue->AddEvent(pe);
 }
 

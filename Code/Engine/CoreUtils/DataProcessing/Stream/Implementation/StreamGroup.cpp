@@ -212,6 +212,9 @@ void ezStreamGroup::Process()
 
 void ezStreamGroup::RunPendingDeletions()
 {
+  ezStreamGroupElementRemovedEvent e;
+  e.m_pStreamGroup = this;
+
   // Remove elements
   while (!m_PendingRemoveIndices.IsEmpty())
   {
@@ -222,6 +225,10 @@ void ezStreamGroup::RunPendingDeletions()
 
     ezUInt64 uiElementToRemove = m_PendingRemoveIndices.PeekBack();
     m_PendingRemoveIndices.PopBack();
+
+    // inform any interested party about the tragic death
+    e.m_uiElementIndex = uiElementToRemove;
+    m_ElementRemovedEvent.Broadcast(e);
 
     // If the element which should be removed is the last element we can just decrement the number of active elements
     // and no further work needs to be done

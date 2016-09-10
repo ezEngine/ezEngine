@@ -4,9 +4,16 @@
 #include <CoreUtils/Basics.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <CoreUtils/DataProcessing/Stream/Stream.h>
+#include <Foundation/Communication/Event.h>
 
 class ezStreamProcessor;
 class ezStreamElementSpawner;
+
+struct ezStreamGroupElementRemovedEvent
+{
+  ezStreamGroup* m_pStreamGroup;
+  ezUInt64 m_uiElementIndex;
+};
 
 /// \brief A stream group encapsulates the streams and the corresponding data processors.
 class EZ_COREUTILS_DLL ezStreamGroup
@@ -78,6 +85,9 @@ public:
     return m_uiHighestNumActiveElements;
   }
 
+  /// \brief Subscribe to this event to be informed when (shortly before) items are deleted.
+  ezEvent<const ezStreamGroupElementRemovedEvent&> m_ElementRemovedEvent;
+
 protected:
 
   /// \brief Internal helper function which removes any pending elements and spawns new elements as needed
@@ -104,4 +114,5 @@ protected:
   ezUInt64 m_uiHighestNumActiveElements;
 
   bool m_bStreamAssignmentDirty;
+
 };

@@ -176,6 +176,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
 
       for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
       {
+        m_Emitters[i]->Reset(this);
         factories[i]->CopyEmitterProperties(m_Emitters[i]);
         m_Emitters[i]->AfterPropertiesConfigured(false);
         m_Emitters[i]->CreateRequiredStreams();
@@ -188,6 +189,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
 
       for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
       {
+        m_Initializers[i]->Reset(this);
         factories[i]->CopyInitializerProperties(m_Initializers[i]);
         m_Initializers[i]->AfterPropertiesConfigured(false);
         m_Initializers[i]->CreateRequiredStreams();
@@ -231,6 +233,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
 
       for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
       {
+        m_Behaviors[i]->Reset(this);
         factories[i]->CopyBehaviorProperties(m_Behaviors[i]);
         m_Behaviors[i]->AfterPropertiesConfigured(false);
         m_Behaviors[i]->CreateRequiredStreams();
@@ -243,6 +246,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
 
       for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
       {
+        m_Types[i]->Reset(this);
         factories[i]->CopyTypeProperties(m_Types[i]);
         m_Types[i]->AfterPropertiesConfigured(false);
         m_Types[i]->CreateRequiredStreams();
@@ -327,6 +331,11 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
   for (auto pBehavior : m_Behaviors)
   {
     pBehavior->StepParticleSystem(tDiff);
+  }
+
+  for (auto pType : m_Types)
+  {
+    pType->StepParticleSystem(tDiff);
   }
 
   m_StreamGroup.Process();
@@ -475,5 +484,15 @@ void ezParticleSystemInstance::ExtractRenderData(const ezView& view, ezExtracted
     pType->ExtractRenderData(view, pExtractedRenderData);
   }
 
+}
+
+void ezParticleSystemInstance::AddParticleDeathEventHandler(ParticleDeathHandler handler)
+{
+  m_StreamGroup.m_ElementRemovedEvent.AddEventHandler(handler);
+}
+
+void ezParticleSystemInstance::RemoveParticleDeathEventHandler(ParticleDeathHandler handler)
+{
+  m_StreamGroup.m_ElementRemovedEvent.RemoveEventHandler(handler);
 }
 

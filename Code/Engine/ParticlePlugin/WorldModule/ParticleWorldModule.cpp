@@ -94,6 +94,8 @@ ezParticleEffectHandle ezParticleWorldModule::InternalCreateInstance(const ezPar
 
 ezParticleEffectHandle ezParticleWorldModule::CreateParticleEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const char* szSharedName, ezUInt32 uiInstanceIdentifier)
 {
+  EZ_ASSERT_DEBUG(hResource.IsValid(), "Invalid Particle Effect resource handle");
+
   if (ezStringUtils::IsNullOrEmpty(szSharedName) || uiInstanceIdentifier == 0xFFFFFFFF)
   {
     return InternalCreateInstance(hResource, uiRandomSeed, false);

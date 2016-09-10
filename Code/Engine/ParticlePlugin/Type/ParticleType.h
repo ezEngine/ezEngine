@@ -31,7 +31,12 @@ public:
   
   virtual void Render(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass) const = 0;
 
-private:
+protected:
+
+  virtual void StepParticleSystem(const ezTime& tDiff) { m_TimeDiff = tDiff; }
+
+  ezTime m_TimeDiff;
+
 
   
 };

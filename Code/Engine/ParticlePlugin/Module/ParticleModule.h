@@ -24,6 +24,11 @@ public:
     m_StreamBinding.Clear();
   }
 
+  ezParticleSystemInstance* GetOwnerSystem()
+  {
+    return m_pOwnerSystem;
+  }
+
   const ezParticleSystemInstance* GetOwnerSystem() const
   {
     return m_pOwnerSystem;

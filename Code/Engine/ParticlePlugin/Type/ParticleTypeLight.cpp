@@ -17,7 +17,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeLightFactory, 1, ezRTTIDefaultAllo
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Size Factor", m_fSizeFactor)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.0f, 1000.0f)),
-    EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, 1000.0f)),
+    EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, 100000.0f)),
     EZ_MEMBER_PROPERTY("Percentage", m_uiPercentage)->AddAttributes(new ezDefaultValueAttribute(50), new ezClampValueAttribute(1, 100)),
   }
   EZ_END_PROPERTIES
@@ -83,6 +83,8 @@ void ezParticleTypeLightFactory::Load(ezStreamReader& stream)
 
 void ezParticleTypeLight::CreateRequiredStreams()
 {
+  m_pStreamOnOff = nullptr;
+
   CreateStream("Position", ezStream::DataType::Float3, &m_pStreamPosition);
   CreateStream("Size", ezStream::DataType::Float, &m_pStreamSize);
   CreateStream("Color", ezStream::DataType::Float4, &m_pStreamColor);
@@ -99,10 +101,19 @@ void ezParticleTypeLight::ExtractRenderData(const ezView& view, ezExtractedRende
   const ezVec3* pPosition = m_pStreamPosition->GetData<ezVec3>();
   const float* pSize = m_pStreamSize->GetData<float>();
   const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
-  ezInt32* pIndex = m_pStreamOnOff->GetWritableData<ezInt32>();
 
-  if (pPosition == nullptr || pSize == nullptr || pColor == nullptr || pIndex == nullptr)
+  if (pPosition == nullptr || pSize == nullptr || pColor == nullptr)
     return;
+
+  ezInt32* pOnOff = nullptr;
+  
+  if (m_pStreamOnOff)
+  {
+    pOnOff = m_pStreamOnOff->GetWritableData<ezInt32>();
+
+    if (pOnOff == nullptr)
+      return;
+  }
 
   ezRandom& rng = GetRNG();
 
@@ -112,16 +123,19 @@ void ezParticleTypeLight::ExtractRenderData(const ezView& view, ezExtractedRende
 
   for (ezUInt32 i = 0; i < uiNumParticles; ++i)
   {
-    if (pIndex[i] == 0)
+    if (pOnOff)
     {
-      if ((ezUInt32)rng.IntMinMax(0, 100) <= m_uiPercentage)
-        pIndex[i] = 1;
-      else
-        pIndex[i] = -1;
-    }
+      if (pOnOff[i] == 0)
+      {
+        if ((ezUInt32)rng.IntMinMax(0, 100) <= m_uiPercentage)
+          pOnOff[i] = 1;
+        else
+          pOnOff[i] = -1;
+      }
 
-    if (pIndex[i] < 0)
-      continue;
+      if (pOnOff[i] < 0)
+        continue;
+    }
 
     auto pRenderData = ezCreateRenderDataForThisFrame<ezPointLightRenderData>(nullptr, uiBatchId);
 

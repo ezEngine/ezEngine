@@ -58,6 +58,7 @@ void ezParticleComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_RestartDelayRange;
   s << m_RestartTime;
   s << m_uiRandomSeed;
+  s << m_sSharedInstanceName;
 
   /// \todo store effect state
 }
@@ -73,7 +74,7 @@ void ezParticleComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_RestartDelayRange;
   s >> m_RestartTime;
   s >> m_uiRandomSeed;
-
+  s >> m_sSharedInstanceName;
 }
 
 bool ezParticleComponent::SpawnEffect()
