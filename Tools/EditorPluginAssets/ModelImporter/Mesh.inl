@@ -8,7 +8,7 @@ namespace ezModelImporter
 {
   inline bool VertexDataStream::HasValue(VertexIndex index) const
   {
-    return m_IndexToData.GetCount() < index && m_IndexToData[index].IsValid();
+    return m_IndexToData.GetCount() > index && m_IndexToData[index].IsValid();
   }
 
   inline VertexDataIndex VertexDataStream::GetDataIndex(VertexIndex index) const

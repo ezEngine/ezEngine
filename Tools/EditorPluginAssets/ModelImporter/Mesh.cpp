@@ -137,8 +137,8 @@ namespace ezModelImporter
 
       // Directions
       else if (it.Key() == ezGALVertexAttributeSemantic::Normal ||
-               it.Key() == ezGALVertexAttributeSemantic::Tangent ||
-               it.Key() == ezGALVertexAttributeSemantic::BiTangent)
+        it.Key() == ezGALVertexAttributeSemantic::Tangent ||
+        it.Key() == ezGALVertexAttributeSemantic::BiTangent)
       {
         for (ezUInt32 i = 0; i < sourceStream->m_Data.GetCount(); i += 3)
         {
@@ -166,7 +166,7 @@ namespace ezModelImporter
       if (!targetStream)
       {
         ezLog::SeriousWarning("Cannot merge mesh %s properly since it has a vertex data stream with semantic %i that uses %i elements instead of %i which is used by the merge target. Skipping this data stream.",
-                              mesh.m_Name.GetData(), it.Key(), sourceStream->GetNumElementsPerVertex(), targetStream->GetNumElementsPerVertex());
+          mesh.m_Name.GetData(), it.Key(), sourceStream->GetNumElementsPerVertex(), targetStream->GetNumElementsPerVertex());
         continue;
       }
 
@@ -215,7 +215,7 @@ namespace ezModelImporter
         }
       }
 
-      if(!existingBundle)
+      if (!existingBundle)
       {
         SubMeshBundle bundle;
         bundle.PushBack(&m_SubMeshes[i]);
@@ -224,7 +224,7 @@ namespace ezModelImporter
       else
       {
         existingBundle->PushBack(&m_SubMeshes[i]);
-       anyDuplicate = true;
+        anyDuplicate = true;
       }
     }
 
@@ -253,10 +253,50 @@ namespace ezModelImporter
 
     if (m_Triangles.GetCount() > trianglesNew.GetCount())
       ezLog::Warning("There were some triangles in submeshes of the mesh '%s' that were not referenced by any submesh. These triangles were discarded while merging submeshes.", m_Name.GetData());
-    else if(m_Triangles.GetCount() < trianglesNew.GetCount())
+    else if (m_Triangles.GetCount() < trianglesNew.GetCount())
       ezLog::Warning("There are submeshes in '%s' with overlapping triangle use. These triangles were duplicated while merging submeshes.", m_Name.GetData());
 
     m_Triangles = std::move(trianglesNew);
     m_SubMeshes = std::move(subMeshesNew);
+  }
+
+  ezResult Mesh::ComputeNormals()
+  {
+    VertexDataStream* positionStream = GetDataStream(ezGALVertexAttributeSemantic::Position);
+    if (positionStream == nullptr)
+    {
+      ezLog::Error("Can't compute vertex normals for the mesh %s, because it doesn't have vertex positions.", m_Name.GetData());
+      return EZ_FAILURE;
+    }
+    VertexDataStream* normalStream = AddDataStream(ezGALVertexAttributeSemantic::Normal, 3);
+
+    // Normals have same mapping as positions.
+    normalStream->m_IndexToData = positionStream->m_IndexToData;
+    // Reset all normals to zero.
+    normalStream->m_Data.SetCount(positionStream->m_Data.GetCount());
+    ezMemoryUtils::ZeroFill<float>(normalStream->m_Data.GetData(), normalStream->m_Data.GetCount());
+
+    // Compute unnormalized triangle normals and add them to all vertices.
+    // This way large triangles have an higher influence on the vertex normal.
+    for (const Triangle& triangle : m_Triangles)
+    {
+      ezVec3 p0 = positionStream->GetValueVec3(triangle.m_Vertices[0]);
+      ezVec3 p1 = positionStream->GetValueVec3(triangle.m_Vertices[1]);
+      ezVec3 p2 = positionStream->GetValueVec3(triangle.m_Vertices[2]);
+
+      ezVec3 d01 = p1 - p0;
+      ezVec3 d02 = p2 - p0;
+
+      ezVec3 triNormal = d01.Cross(d02);
+      normalStream->SetValue(triangle.m_Vertices[0], normalStream->GetValueVec3(triangle.m_Vertices[0]) + triNormal); // (possible optimization: have a special addValue to avoid unnecessary lookup)
+      normalStream->SetValue(triangle.m_Vertices[1], normalStream->GetValueVec3(triangle.m_Vertices[1]) + triNormal);
+      normalStream->SetValue(triangle.m_Vertices[2], normalStream->GetValueVec3(triangle.m_Vertices[2]) + triNormal);
+    }
+
+    // Normalize normals.
+    for (ezUInt32 n = 0; n<normalStream->m_Data.GetCount(); n+=3)
+      reinterpret_cast<ezVec3*>(&normalStream->m_Data[n])->NormalizeIfNotZero();
+
+    return EZ_SUCCESS;
   }
 }

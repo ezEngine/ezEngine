@@ -195,6 +195,16 @@ namespace ezModelImporter
     /// Especially useful after merging meshes.
     void MergeSubMeshesWithSameMaterials();
 
+    /// Computes vertex normals from position data.
+    /// If the mesh already has a vertex stream for normals, they will be recomputed.
+    /// Fails if there is no position stream.
+    ezResult ComputeNormals();
+
+    /// Computes vertex tangents and bitangents.
+    /// If the mesh already has a vertex stream for (bi)tangent, they will be recomputed.
+    /// Fails if there is no normal stream.
+    ezResult ComputeTangents();
+
   private:
 
     ezDynamicArray<Triangle> m_Triangles;

@@ -260,9 +260,10 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
   // Want a single mesh so let's all merge it together.
   // Todo: Later we might want to point to a specific mesh inside the scene!
-  const Mesh* mesh = scene->MergeAllMeshes();
+  Mesh* mesh = scene->MergeAllMeshes();
  
   // TODO: Generate normals and tangents!
+  //mesh->ComputeNormals();
 
   // Prepare streams.
   const static int numReadMeshStreams = 5;
