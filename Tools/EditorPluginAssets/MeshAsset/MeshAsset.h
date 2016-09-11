@@ -6,6 +6,12 @@
 class ezMeshResourceDescriptor;
 class ezGeometry;
 
+namespace ezModelImporter
+{
+  class Mesh;
+  class Scene;
+}
+
 class ezMeshAssetDocument : public ezSimpleAssetDocument<ezMeshAssetProperties>
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshAssetDocument, ezSimpleAssetDocument<ezMeshAssetProperties>);
@@ -20,7 +26,13 @@ protected:
 
   void CreateMeshFromGeom(const ezMeshAssetProperties* pProp, ezGeometry &geom, ezMeshResourceDescriptor &desc);
 
-  ezStatus CreateMeshFromFile(const ezMeshAssetProperties* pProp, ezMeshResourceDescriptor &desc, const ezMat3 &mTransformation);
+  ezStatus CreateMeshFromFile(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor &desc, const ezMat3 &mTransformation);
+
+  /// Assigns and optionally imports materials.
+  /// Used for both InternalRetrieveAssetInfo and InternalTransformAsset.
+  /// desc is optional.
+  void ProcessMaterials(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor *desc, 
+                        const ezModelImporter::Mesh& mesh, const ezModelImporter::Scene& scene);
 
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override;
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;

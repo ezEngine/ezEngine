@@ -3,44 +3,12 @@
    "#" : { "$t" : "uuid", "$b" : "0x666E0F079E7E020EC78940853A48EFA1" },
    "t" : "ezMaterialResourceSlot",
    "p" : {
-    "Label" : "SponzaColumnC",
-    "Resource" : "{ b270f48c-afca-41f4-a759-7d8ab0fb2a34 }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xBED1F5F5BA2D2918E57EB2071F34CEC7" },
-   "t" : "ezMaterialResourceSlot",
-   "p" : {
     "Label" : "SponzaCurtainBlue",
     "Resource" : "{ 91760381-5e4f-4d98-98d9-69ed62ff463a }"
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0x4F5C61CADC515D1883B831340423D914" },
-   "t" : "ezMaterialResourceSlot",
-   "p" : {
-    "Label" : "SponzaFloor",
-    "Resource" : "{ 6585839f-2e86-4c0d-8219-380d99c43cb5 }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x6E59B5A43B94CC2ABCB8696C0757F65F" },
-   "t" : "ezMaterialResourceSlot",
-   "p" : {
-    "Label" : "vase",
-    "Resource" : "{ 6f545f12-3280-47bd-ab3f-420de1071331 }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x79DA45CDBE63252C8C48539ACF011C88" },
-   "t" : "ezMaterialResourceSlot",
-   "p" : {
-    "Label" : "SponzaColumnA",
-    "Resource" : "{ 74297c04-5c23-42c0-8fb7-ee7405e9eb8e }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x7B37168B3CBFFB37B05B8F83D73641A6" },
+   "#" : { "$t" : "uuid", "$b" : "0xBED1F5F5BA2D2918E57EB2071F34CEC7" },
    "t" : "ezMaterialResourceSlot",
    "p" : {
     "Label" : "SponzaThorn",
@@ -48,19 +16,51 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x4F5C61CADC515D1883B831340423D914" },
+   "t" : "ezMaterialResourceSlot",
+   "p" : {
+    "Label" : "chain",
+    "Resource" : "{ 0d4c8685-12e3-413f-a4fe-d188c2214c5b }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x6E59B5A43B94CC2ABCB8696C0757F65F" },
+   "t" : "ezMaterialResourceSlot",
+   "p" : {
+    "Label" : "SponzaFloor",
+    "Resource" : "{ 6585839f-2e86-4c0d-8219-380d99c43cb5 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x79DA45CDBE63252C8C48539ACF011C88" },
+   "t" : "ezMaterialResourceSlot",
+   "p" : {
+    "Label" : "VaseHanging",
+    "Resource" : "{ d389ee71-783f-434a-9fc1-df3134d86c12 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x7B37168B3CBFFB37B05B8F83D73641A6" },
+   "t" : "ezMaterialResourceSlot",
+   "p" : {
+    "Label" : "SponzaBricks",
+    "Resource" : "{ 35ade1e7-9c4d-44d2-bcb8-9b0c8cac4212 }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x46702663D916213878A93AE4A386C4BA" },
    "t" : "ezMaterialResourceSlot",
    "p" : {
-    "Label" : "SponzaFabricBlue",
-    "Resource" : "{ 39a2e955-1cb9-46f5-a8b9-924d533ed332 }"
+    "Label" : "SponzaFabricRed",
+    "Resource" : "{ c187b901-2c21-4709-8d0c-2d96555e04eb }"
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0xB26DD2DA35000B3AA9BE9BC178B0596C" },
    "t" : "ezMaterialResourceSlot",
    "p" : {
-    "Label" : "VaseRound",
-    "Resource" : "{ ca74f4d9-8c8a-4c54-be73-948df814775e }"
+    "Label" : "SponzaRoof",
+    "Resource" : "{ 76d7b65d-44c9-4a76-9826-33bbd0274aa7 }"
    }
   },
   {
@@ -71,7 +71,7 @@
     "AssetType" : "Mesh",
     "Dependencies" : [ "Sponza/sponza.obj" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x7E56A3CE366D8F419259F2E157979BCC" },
-    "Hash" : { "$t" : "uint64", "$v" : "6920698627728615437", "$b" : "0x0D284C07BC420B60" },
+    "Hash" : { "$t" : "uint64", "$v" : "3269491382103486981", "$b" : "0x05B27AEA16915F2D" },
     "References" : [ "{ 0d4c8685-12e3-413f-a4fe-d188c2214c5b }", "{ 26c576cb-e60b-476e-a0f5-330826893652 }", "{ 28c59daa-ee0c-4686-9999-ec6150513758 }", "{ 35ade1e7-9c4d-44d2-bcb8-9b0c8cac4212 }", "{ 38a37450-7cf9-4f5e-a683-660f6c2ee96f }", "{ 39a2e955-1cb9-46f5-a8b9-924d533ed332 }", "{ 3bd3aa7f-41c2-4731-9bca-78c21213f74e }", "{ 52fbb321-9fdd-4fac-a9b1-3c18d0a656c9 }", "{ 59d0b998-fb91-4c18-8c33-5280205535c9 }", "{ 6585839f-2e86-4c0d-8219-380d99c43cb5 }", "{ 6f545f12-3280-47bd-ab3f-420de1071331 }", "{ 74297c04-5c23-42c0-8fb7-ee7405e9eb8e }", "{ 76d7b65d-44c9-4a76-9826-33bbd0274aa7 }", "{ 7ef12b09-f007-4a8f-8806-41fa1a188df1 }", "{ 80896210-28ce-4f66-bfd4-27ef6e408aea }", "{ 88af4217-811b-421b-89b7-db8591191a4f }", "{ 91760381-5e4f-4d98-98d9-69ed62ff463a }", "{ 9ef97415-b170-400d-b9f7-e1e8201a8552 }", "{ b270f48c-afca-41f4-a759-7d8ab0fb2a34 }", "{ c187b901-2c21-4709-8d0c-2d96555e04eb }", "{ ca74f4d9-8c8a-4c54-be73-948df814775e }", "{ d389ee71-783f-434a-9fc1-df3134d86c12 }", "{ e904b847-a959-4eea-8835-91e35d68117a }", "{ eaefbc42-9e8a-4d9d-949a-35c372004fc0 }" ]
    }
   },
@@ -109,8 +109,8 @@
    "#" : { "$t" : "uuid", "$b" : "0x6411B721327B7163B2F483161453BF63" },
    "t" : "ezMaterialResourceSlot",
    "p" : {
-    "Label" : "SponzaCeiling",
-    "Resource" : "{ 9ef97415-b170-400d-b9f7-e1e8201a8552 }"
+    "Label" : "VasePlant",
+    "Resource" : "{ 28c59daa-ee0c-4686-9999-ec6150513758 }"
    }
   },
   {
@@ -125,36 +125,12 @@
    "#" : { "$t" : "uuid", "$b" : "0xB09DD55850D8D764C56699FEC4DBBEEA" },
    "t" : "ezMaterialResourceSlot",
    "p" : {
-    "Label" : "SponzaRoof",
-    "Resource" : "{ 76d7b65d-44c9-4a76-9826-33bbd0274aa7 }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x2EE312AE444A3F662711D1C752F767CB" },
-   "t" : "ezMaterialResourceSlot",
-   "p" : {
-    "Label" : "SponzaFabricRed",
-    "Resource" : "{ c187b901-2c21-4709-8d0c-2d96555e04eb }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x8985339DB6ABB170B927D1CF14A73DC1" },
-   "t" : "ezMaterialResourceSlot",
-   "p" : {
-    "Label" : "chain",
-    "Resource" : "{ 0d4c8685-12e3-413f-a4fe-d188c2214c5b }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x03B5BE039FA04B7FE8CFB017D10262DF" },
-   "t" : "ezMaterialResourceSlot",
-   "p" : {
     "Label" : "SponzaDetails",
     "Resource" : "{ 38a37450-7cf9-4f5e-a683-660f6c2ee96f }"
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0xCBCE91370C3C6695E21D1975752E31E1" },
+   "#" : { "$t" : "uuid", "$b" : "0x2EE312AE444A3F662711D1C752F767CB" },
    "t" : "ezMaterialResourceSlot",
    "p" : {
     "Label" : "SponzaFabricGreen",
@@ -162,47 +138,7 @@
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0xA891A03FDE3CC89B0314E45C6B5E43A2" },
-   "t" : "ezMaterialResourceSlot",
-   "p" : {
-    "Label" : "SponzaCurtainRed",
-    "Resource" : "{ 3bd3aa7f-41c2-4731-9bca-78c21213f74e }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x978CD9170236FFB0219386994E4B2FBF" },
-   "t" : "ezMaterialResourceSlot",
-   "p" : {
-    "Label" : "SponzaBackground",
-    "Resource" : "{ 26c576cb-e60b-476e-a0f5-330826893652 }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x61A334B31E3198B321DA3CA1C7065B57" },
-   "t" : "ezMaterialResourceSlot",
-   "p" : {
-    "Label" : "VasePlant",
-    "Resource" : "{ 28c59daa-ee0c-4686-9999-ec6150513758 }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xAE6A513555FE7EC88385CB416232A116" },
-   "t" : "ezMaterialResourceSlot",
-   "p" : {
-    "Label" : "SponzaLion",
-    "Resource" : "{ 80896210-28ce-4f66-bfd4-27ef6e408aea }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3A5AB7E4C14BB6D3A24A2F5DFBED625B" },
-   "t" : "ezMaterialResourceSlot",
-   "p" : {
-    "Label" : "SponzaBricks",
-    "Resource" : "{ 35ade1e7-9c4d-44d2-bcb8-9b0c8cac4212 }"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xE5157334BB8CC5D52C86D13C4A446446" },
+   "#" : { "$t" : "uuid", "$b" : "0x8985339DB6ABB170B927D1CF14A73DC1" },
    "t" : "ezMaterialResourceSlot",
    "p" : {
     "Label" : "SponzaArch",
@@ -210,27 +146,91 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x03B5BE039FA04B7FE8CFB017D10262DF" },
+   "t" : "ezMaterialResourceSlot",
+   "p" : {
+    "Label" : "SponzaCurtainRed",
+    "Resource" : "{ 3bd3aa7f-41c2-4731-9bca-78c21213f74e }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xCBCE91370C3C6695E21D1975752E31E1" },
+   "t" : "ezMaterialResourceSlot",
+   "p" : {
+    "Label" : "SponzaFabricBlue",
+    "Resource" : "{ 39a2e955-1cb9-46f5-a8b9-924d533ed332 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xA891A03FDE3CC89B0314E45C6B5E43A2" },
+   "t" : "ezMaterialResourceSlot",
+   "p" : {
+    "Label" : "SponzaCeiling",
+    "Resource" : "{ 9ef97415-b170-400d-b9f7-e1e8201a8552 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x978CD9170236FFB0219386994E4B2FBF" },
+   "t" : "ezMaterialResourceSlot",
+   "p" : {
+    "Label" : "SponzaLion",
+    "Resource" : "{ 80896210-28ce-4f66-bfd4-27ef6e408aea }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x61A334B31E3198B321DA3CA1C7065B57" },
+   "t" : "ezMaterialResourceSlot",
+   "p" : {
+    "Label" : "SponzaBackground",
+    "Resource" : "{ 26c576cb-e60b-476e-a0f5-330826893652 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xAE6A513555FE7EC88385CB416232A116" },
+   "t" : "ezMaterialResourceSlot",
+   "p" : {
+    "Label" : "SponzaColumnC",
+    "Resource" : "{ b270f48c-afca-41f4-a759-7d8ab0fb2a34 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3A5AB7E4C14BB6D3A24A2F5DFBED625B" },
+   "t" : "ezMaterialResourceSlot",
+   "p" : {
+    "Label" : "vase",
+    "Resource" : "{ 6f545f12-3280-47bd-ab3f-420de1071331 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE5157334BB8CC5D52C86D13C4A446446" },
+   "t" : "ezMaterialResourceSlot",
+   "p" : {
+    "Label" : "VaseRound",
+    "Resource" : "{ ca74f4d9-8c8a-4c54-be73-948df814775e }"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xC746C0F3F280D3D54330265D239CFD2A" },
    "t" : "ezMaterialResourceSlot",
    "p" : {
-    "Label" : "SponzaColumnB",
-    "Resource" : "{ eaefbc42-9e8a-4d9d-949a-35c372004fc0 }"
+    "Label" : "SponzaCurtainGreen",
+    "Resource" : "{ 88af4217-811b-421b-89b7-db8591191a4f }"
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0x593110C5EE38F9ECAC98CB53110634C5" },
    "t" : "ezMaterialResourceSlot",
    "p" : {
-    "Label" : "VaseHanging",
-    "Resource" : "{ d389ee71-783f-434a-9fc1-df3134d86c12 }"
+    "Label" : "SponzaColumnA",
+    "Resource" : "{ 74297c04-5c23-42c0-8fb7-ee7405e9eb8e }"
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0xBB7A8653939C12EDC311D1B742E8BA7B" },
    "t" : "ezMaterialResourceSlot",
    "p" : {
-    "Label" : "SponzaCurtainGreen",
-    "Resource" : "{ 88af4217-811b-421b-89b7-db8591191a4f }"
+    "Label" : "SponzaColumnB",
+    "Resource" : "{ eaefbc42-9e8a-4d9d-949a-35c372004fc0 }"
    }
   } ],
  "Types" : [  ]
