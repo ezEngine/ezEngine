@@ -8,6 +8,7 @@
 
 class ezStreamProcessor;
 class ezStreamElementSpawner;
+class ezStreamGroup;
 
 struct ezStreamGroupElementRemovedEvent
 {
