@@ -1,8 +1,8 @@
 #pragma once
 
 #include <ParticlePlugin/Basics.h>
-#include <CoreUtils/DataProcessing/Stream/Stream.h>
-#include <CoreUtils/DataProcessing/Stream/StreamGroup.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStream.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
 #include <ParticlePlugin/Declarations.h>
 
@@ -66,8 +66,8 @@ private:
   void CreateStreamZeroInitializers();
 
   ezHybridArray<ezParticleEmitter*, 2> m_Emitters;
-  ezHybridArray<ezParticleInitializer*, 2> m_Initializers;
-  ezHybridArray<ezParticleBehavior*, 8> m_Behaviors;
+  ezHybridArray<ezParticleInitializer*, 6> m_Initializers;
+  ezHybridArray<ezParticleBehavior*, 6> m_Behaviors;
   ezHybridArray<ezParticleType*, 2> m_Types;
 
   bool m_bVisible; // typically used in editor to hide a system

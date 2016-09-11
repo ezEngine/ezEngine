@@ -1,10 +1,10 @@
 
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/Basics.h>
-#include <CoreUtils/DataProcessing/Stream/StreamGroup.h>
-#include <CoreUtils/DataProcessing/Stream/StreamProcessor.h>
-#include <CoreUtils/DataProcessing/Stream/StreamElementSpawner.h>
-#include <CoreUtils/DataProcessing/Stream/Stream.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStreamGroup.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStreamProcessor.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStreamSpawner.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStream.h>
 #include <Foundation/Memory/MemoryUtils.h>
 
 ezProcessingStreamGroup::ezProcessingStreamGroup()
@@ -19,8 +19,8 @@ ezProcessingStreamGroup::~ezProcessingStreamGroup()
 
 void ezProcessingStreamGroup::Clear()
 {
-  ClearStreamProcessors();
-  ClearStreamElementSpawners();
+  ClearProcessors();
+  ClearSpawners();
 
   m_uiPendingNumberOfElementsToSpawn = 0;
   m_uiNumElements = 0;
@@ -36,74 +36,74 @@ void ezProcessingStreamGroup::Clear()
   m_DataStreams.Clear();
 }
 
-void ezProcessingStreamGroup::AddStreamProcessor(ezProcessingStreamProcessor* pStreamProcessor)
+void ezProcessingStreamGroup::AddProcessor(ezProcessingStreamProcessor* pProcessor)
 {
-  EZ_ASSERT_DEV(pStreamProcessor != nullptr, "Stream processor may not be null!");
+  EZ_ASSERT_DEV(pProcessor != nullptr, "Stream processor may not be null!");
 
-  if (pStreamProcessor->m_pStreamGroup != nullptr)
+  if (pProcessor->m_pStreamGroup != nullptr)
   {
     ezLog::Debug("Stream processor is already assigned to a stream group!");
     return;
   }
 
-  m_StreamProcessors.PushBack(pStreamProcessor);
+  m_Processors.PushBack(pProcessor);
 
-  pStreamProcessor->m_pStreamGroup = this;
+  pProcessor->m_pStreamGroup = this;
 
   m_bStreamAssignmentDirty = true;
 }
 
-void ezProcessingStreamGroup::RemoveStreamProcessor(ezProcessingStreamProcessor* pStreamProcessor)
+void ezProcessingStreamGroup::RemoveProcessor(ezProcessingStreamProcessor* pProcessor)
 {
-  m_StreamProcessors.Remove(pStreamProcessor);
-  EZ_DEFAULT_DELETE(pStreamProcessor);
+  m_Processors.Remove(pProcessor);
+  EZ_DEFAULT_DELETE(pProcessor);
 }
 
-void ezProcessingStreamGroup::ClearStreamProcessors()
+void ezProcessingStreamGroup::ClearProcessors()
 {
   m_bStreamAssignmentDirty = true;
 
-  for (ezProcessingStreamProcessor* pStreamProcessor : m_StreamProcessors)
+  for (ezProcessingStreamProcessor* pStreamProcessor : m_Processors)
   {
     EZ_DEFAULT_DELETE(pStreamProcessor);
   }
 
-  m_StreamProcessors.Clear();
+  m_Processors.Clear();
 }
 
-void ezProcessingStreamGroup::AddStreamElementSpawner(ezProcessingStreamSpawner* pStreamElementSpawner)
+void ezProcessingStreamGroup::AddSpawner(ezProcessingStreamSpawner* pSpawner)
 {
-  EZ_ASSERT_DEV(pStreamElementSpawner != nullptr, "Stream element spawner may not be null!");
+  EZ_ASSERT_DEV(pSpawner != nullptr, "Stream element spawner may not be null!");
 
-  if (pStreamElementSpawner->m_pStreamGroup != nullptr)
+  if (pSpawner->m_pStreamGroup != nullptr)
   {
     ezLog::Debug("Stream element spawner is already assigned to a stream group!");
     return;
   }
 
-  m_StreamElementSpawners.PushBack(pStreamElementSpawner);
+  m_Spawners.PushBack(pSpawner);
 
-  pStreamElementSpawner->m_pStreamGroup = this;
+  pSpawner->m_pStreamGroup = this;
 
   m_bStreamAssignmentDirty = true;
 }
 
-void ezProcessingStreamGroup::RemoveStreamElementSpawner(ezProcessingStreamSpawner* pStreamElementSpawner)
+void ezProcessingStreamGroup::RemoveSpawner(ezProcessingStreamSpawner* pSpawner)
 {
-  EZ_VERIFY(m_StreamElementSpawners.Remove(pStreamElementSpawner), "Invalid spawner, not part of this group");
-  EZ_DEFAULT_DELETE(pStreamElementSpawner);
+  EZ_VERIFY(m_Spawners.Remove(pSpawner), "Invalid spawner, not part of this group");
+  EZ_DEFAULT_DELETE(pSpawner);
 }
 
-void ezProcessingStreamGroup::ClearStreamElementSpawners()
+void ezProcessingStreamGroup::ClearSpawners()
 {
   m_bStreamAssignmentDirty = true;
 
-  for (ezProcessingStreamSpawner* pStreamElementSpawner : m_StreamElementSpawners)
+  for (ezProcessingStreamSpawner* pSpawner : m_Spawners)
   {
-    EZ_DEFAULT_DELETE(pStreamElementSpawner);
+    EZ_DEFAULT_DELETE(pSpawner);
   }
 
-  m_StreamElementSpawners.Clear();
+  m_Spawners.Clear();
 }
 
 ezProcessingStream* ezProcessingStreamGroup::AddStream(const char* szName, ezProcessingStream::DataType Type)
@@ -198,7 +198,7 @@ void ezProcessingStreamGroup::Process()
   RunPendingSpawns();
 
   // TODO: Identify which processors work on which streams and find independent groups and use separate tasks for them?
-  for (ezProcessingStreamProcessor* pStreamProcessor : m_StreamProcessors)
+  for (ezProcessingStreamProcessor* pStreamProcessor : m_Processors)
   {
     pStreamProcessor->Process(m_uiNumActiveElements);
   }
@@ -281,14 +281,14 @@ void ezProcessingStreamGroup::EnsureStreamAssignmentValid()
       Stream->SetSize(m_uiNumElements);
     }
 
-    for (ezProcessingStreamProcessor* pStreamProcessor : m_StreamProcessors)
+    for (ezProcessingStreamProcessor* pStreamProcessor : m_Processors)
     {
       pStreamProcessor->UpdateStreamBindings();
     }
 
-    for (ezProcessingStreamSpawner* pStreamElementSpawner : m_StreamElementSpawners)
+    for (ezProcessingStreamSpawner* pSpawner : m_Spawners)
     {
-      pStreamElementSpawner->UpdateStreamBindings();
+      pSpawner->UpdateStreamBindings();
     }
 
     m_bStreamAssignmentDirty = false;
@@ -304,9 +304,9 @@ void ezProcessingStreamGroup::RunPendingSpawns()
 
     if (m_uiPendingNumberOfElementsToSpawn)
     {
-      for (ezProcessingStreamSpawner* pStreamElementSpawner : m_StreamElementSpawners)
+      for (ezProcessingStreamSpawner* pSpawner : m_Spawners)
       {
-        pStreamElementSpawner->SpawnElements(m_uiNumActiveElements, m_uiPendingNumberOfElementsToSpawn);
+        pSpawner->SpawnElements(m_uiNumActiveElements, m_uiPendingNumberOfElementsToSpawn);
       }
     }
 

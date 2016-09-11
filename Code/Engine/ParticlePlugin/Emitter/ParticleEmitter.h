@@ -2,7 +2,7 @@
 
 #include <ParticlePlugin/Basics.h>
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
-#include <CoreUtils/DataProcessing/Stream/StreamElementSpawner.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStreamSpawner.h>
 #include <ParticlePlugin/Module/ParticleModule.h>
 
 class ezParticleSystemInstance;

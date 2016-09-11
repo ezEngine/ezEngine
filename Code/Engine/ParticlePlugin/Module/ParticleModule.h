@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ParticlePlugin/Basics.h>
-#include <CoreUtils/DataProcessing/Stream/Stream.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStream.h>
 #include <ParticlePlugin/Declarations.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 

@@ -1,6 +1,6 @@
 #include <ParticlePlugin/PCH.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
-#include <CoreUtils/DataProcessing/Stream/StreamGroup.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStreamGroup.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE

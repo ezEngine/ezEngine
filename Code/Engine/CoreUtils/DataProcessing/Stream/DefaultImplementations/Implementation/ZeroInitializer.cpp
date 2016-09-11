@@ -1,9 +1,9 @@
 
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/Basics.h>
-#include <CoreUtils/DataProcessing/Stream/DefaultImplementations/ElementSpawner.h>
-#include <CoreUtils/DataProcessing/Stream/StreamGroup.h>
-#include <CoreUtils/DataProcessing/Stream/Stream.h>
+#include <CoreUtils/DataProcessing/Stream/DefaultImplementations/ZeroInitializer.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStreamGroup.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStream.h>
 #include <Foundation/Memory/MemoryUtils.h>
 
 ezProcessingStreamSpawnerZeroInitialized::ezProcessingStreamSpawnerZeroInitialized( const char* szStreamName )

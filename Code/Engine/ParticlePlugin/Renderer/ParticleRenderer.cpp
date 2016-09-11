@@ -7,7 +7,7 @@
 #include <Foundation/Types/ScopeExit.h>
 #include <ParticlePlugin/Renderer/ParticleRenderData.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
-#include <CoreUtils/DataProcessing/Stream/Stream.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStream.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
 

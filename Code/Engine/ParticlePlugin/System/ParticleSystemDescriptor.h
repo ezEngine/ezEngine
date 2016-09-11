@@ -1,8 +1,8 @@
 #pragma once
 
 #include <ParticlePlugin/Basics.h>
-#include <CoreUtils/DataProcessing/Stream/Stream.h>
-#include <CoreUtils/DataProcessing/Stream/StreamGroup.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStream.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
 
 class ezParticleEmitterFactory;

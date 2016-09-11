@@ -5,7 +5,7 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <Core/World/World.h>
 #include <Foundation/Time/Clock.h>
-#include <CoreUtils/DataProcessing/Stream/StreamElementIterator.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStreamIterator.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Velocity, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Velocity>)
 {

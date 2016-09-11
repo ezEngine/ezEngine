@@ -3,7 +3,7 @@
 
 #include <CoreUtils/Basics.h>
 #include <Foundation/Containers/HybridArray.h>
-#include <CoreUtils/DataProcessing/Stream/Stream.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStream.h>
 #include <Foundation/Communication/Event.h>
 
 class ezProcessingStreamProcessor;
@@ -14,6 +14,11 @@ struct ezStreamGroupElementRemovedEvent
 {
   ezProcessingStreamGroup* m_pStreamGroup;
   ezUInt64 m_uiElementIndex;
+};
+
+struct ezStreamGroupElementsClearedEvent
+{
+  ezProcessingStreamGroup* m_pStreamGroup;
 };
 
 /// \brief A stream group encapsulates the streams and the corresponding data processors.
@@ -32,20 +37,24 @@ public:
   /// \brief Adds a stream processor to the stream group.
   /// Ownership is transferred to the stream group and EZ_DEFAULT_DELETE will be called on the stream processor on destruction.
   /// Processors are executed in the order they are added to the stream group.
-  void AddStreamProcessor(ezProcessingStreamProcessor* pStreamProcessor);
+  void AddProcessor(ezProcessingStreamProcessor* pProcessor);
 
-  void RemoveStreamProcessor(ezProcessingStreamProcessor* pStreamProcessor);
+  /// \brief Removes the given stream processor from the group.
+  void RemoveProcessor(ezProcessingStreamProcessor* pProcessor);
 
-  void ClearStreamProcessors();
+  /// \brief Removes all stream processors from the group.
+  void ClearProcessors();
 
   /// \brief Adds a stream element spawner to the stream group.
   /// Ownership is transferred to the stream group and EZ_DEFAULT_DELETE will be called on the stream element spawner on destruction.
   /// Spawners are executed in the order they are added to the stream group.
-  void AddStreamElementSpawner(ezProcessingStreamSpawner* pStreamElementSpawner);
+  void AddSpawner(ezProcessingStreamSpawner* pSpawner);
 
-  void RemoveStreamElementSpawner(ezProcessingStreamSpawner* pStreamElementSpawner);
+  /// \brief Removes the given spawner from the group.
+  void RemoveSpawner(ezProcessingStreamSpawner* pSpawner);
 
-  void ClearStreamElementSpawners();
+  /// \brief Removes all spawners from the group.
+  void ClearSpawners();
 
   /// \brief Adds a stream with the given name to the stream group. Adding a stream two times with the same name will return nullptr for the second attempt to signal an error.
   ezProcessingStream* AddStream(const char* szName, ezProcessingStream::DataType Type);
@@ -98,9 +107,9 @@ protected:
 
   void RunPendingSpawns();
 
-  ezHybridArray<ezProcessingStreamProcessor*, 8> m_StreamProcessors;
+  ezHybridArray<ezProcessingStreamProcessor*, 8> m_Processors;
 
-  ezHybridArray<ezProcessingStreamSpawner*, 8> m_StreamElementSpawners;
+  ezHybridArray<ezProcessingStreamSpawner*, 8> m_Spawners;
 
   ezHybridArray<ezProcessingStream*, 8> m_DataStreams;
 

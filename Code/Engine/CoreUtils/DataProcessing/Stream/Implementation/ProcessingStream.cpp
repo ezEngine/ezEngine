@@ -1,7 +1,7 @@
 
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/Basics.h>
-#include <CoreUtils/DataProcessing/Stream/Stream.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStream.h>
 
 ezProcessingStream::ezProcessingStream( const char* szName, ezProcessingStream::DataType Type, ezUInt64 uiAlignment /*= 64*/ )
   : m_pData(nullptr)

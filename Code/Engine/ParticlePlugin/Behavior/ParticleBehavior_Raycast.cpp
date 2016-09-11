@@ -4,7 +4,7 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <Core/World/World.h>
 #include <Foundation/Time/Clock.h>
-#include <CoreUtils/DataProcessing/Stream/StreamElementIterator.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 

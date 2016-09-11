@@ -1,13 +1,13 @@
 
 #include <PCH.h>
-#include <CoreUtils/DataProcessing/Stream/StreamGroup.h>
-#include <CoreUtils/DataProcessing/Stream/DefaultImplementations/ElementSpawner.h>
-#include <CoreUtils/DataProcessing/Stream/StreamElementIterator.h>
-#include <CoreUtils/DataProcessing/Stream/StreamProcessor.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStreamGroup.h>
+#include <CoreUtils/DataProcessing/Stream/DefaultImplementations/ZeroInitializer.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStreamIterator.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStreamProcessor.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP( DataProcessing );
 
-EZ_CREATE_SIMPLE_TEST( DataProcessing, Stream )
+EZ_CREATE_SIMPLE_TEST( DataProcessing, ProcessingStream )
 {
   ezProcessingStreamGroup Group;
   ezProcessingStream* pStream1 = Group.AddStream( "Stream1", ezProcessingStream::DataType::Float );
@@ -19,8 +19,8 @@ EZ_CREATE_SIMPLE_TEST( DataProcessing, Stream )
   ezProcessingStreamSpawnerZeroInitialized* pSpawner1 = EZ_DEFAULT_NEW( ezProcessingStreamSpawnerZeroInitialized, pStream1->GetName() );
   ezProcessingStreamSpawnerZeroInitialized* pSpawner2 = EZ_DEFAULT_NEW( ezProcessingStreamSpawnerZeroInitialized, pStream2->GetName() );
 
-  Group.AddStreamElementSpawner( pSpawner1 );
-  Group.AddStreamElementSpawner( pSpawner2 );
+  Group.AddSpawner( pSpawner1 );
+  Group.AddSpawner( pSpawner2 );
 
   Group.SetSize( 128 );
 
@@ -118,7 +118,7 @@ EZ_CREATE_SIMPLE_TEST( DataProcessing, Stream )
 
   AddOneStreamProcessor* pProcessor1 = EZ_DEFAULT_NEW( AddOneStreamProcessor, pStream1->GetName() );
 
-  Group.AddStreamProcessor( pProcessor1 );
+  Group.AddProcessor( pProcessor1 );
 
   Group.Process();
 

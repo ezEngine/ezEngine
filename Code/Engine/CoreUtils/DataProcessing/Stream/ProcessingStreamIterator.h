@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <CoreUtils/DataProcessing/Stream/Stream.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStream.h>
 #include <Foundation/Memory/MemoryUtils.h>
 
 /// \brief Helper template class to iterate over stream elements.
@@ -32,4 +32,4 @@ class ezProcessingStreamIterator
     ezUInt64 m_uiElementStride;
 };
 
-#include <CoreUtils/DataProcessing/Stream/Implementation/StreamElementIterator_inl.h>
+#include <CoreUtils/DataProcessing/Stream/Implementation/ProcessingStreamIterator_inl.h>

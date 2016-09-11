@@ -1,8 +1,8 @@
 #include <ParticlePlugin/PCH.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
-#include <CoreUtils/DataProcessing/Stream/StreamElementSpawner.h>
-#include <CoreUtils/DataProcessing/Stream/StreamProcessor.h>
-#include <CoreUtils/DataProcessing/Stream/StreamElementIterator.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStreamSpawner.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStreamProcessor.h>
+#include <CoreUtils/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <GameUtils/Interfaces/PhysicsWorldModule.h>
 #include <Core/World/World.h>
 #include <ParticlePlugin/Emitter/ParticleEmitter.h>
@@ -10,7 +10,7 @@
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 #include <ParticlePlugin/Type/ParticleType.h>
-#include <CoreUtils/DataProcessing/Stream/DefaultImplementations/ElementSpawner.h>
+#include <CoreUtils/DataProcessing/Stream/DefaultImplementations/ZeroInitializer.h>
 
 
 ezParticleSystemInstance::ezParticleSystemInstance()
@@ -140,7 +140,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
   if (!allSpawnersEqual)
   {
     // recreate emitters, initializers and behaviors
-    m_StreamGroup.ClearStreamElementSpawners();
+    m_StreamGroup.ClearSpawners();
 
     // emitters
     {
@@ -149,7 +149,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
       for (const auto pFactory : pTemplate->GetEmitterFactories())
       {
         ezParticleEmitter* pEmitter = pFactory->CreateEmitter(this);
-        m_StreamGroup.AddStreamElementSpawner(pEmitter);
+        m_StreamGroup.AddSpawner(pEmitter);
         m_Emitters.PushBack(pEmitter);
       }
     }
@@ -161,7 +161,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
       for (const auto pFactory : pTemplate->GetInitializerFactories())
       {
         ezParticleInitializer* pInitializer = pFactory->CreateInitializer(this);
-        m_StreamGroup.AddStreamElementSpawner(pInitializer);
+        m_StreamGroup.AddSpawner(pInitializer);
         m_Initializers.PushBack(pInitializer);
       }
     }
@@ -199,7 +199,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
 
   if (!allProcessorsEqual)
   {
-    m_StreamGroup.ClearStreamProcessors();
+    m_StreamGroup.ClearProcessors();
 
     // behaviors
     {
@@ -208,7 +208,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
       for (const auto pFactory : pTemplate->GetBehaviorFactories())
       {
         ezParticleBehavior* pBehavior = pFactory->CreateBehavior(this);
-        m_StreamGroup.AddStreamProcessor(pBehavior);
+        m_StreamGroup.AddProcessor(pBehavior);
         m_Behaviors.PushBack(pBehavior);
       }
     }
@@ -220,7 +220,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
       for (const auto pFactory : pTemplate->GetTypeFactories())
       {
         ezParticleType* pType = pFactory->CreateType(this);
-        m_StreamGroup.AddStreamProcessor(pType);
+        m_StreamGroup.AddProcessor(pType);
         m_Types.PushBack(pType);
       }
     }
@@ -409,7 +409,7 @@ void ezParticleSystemInstance::CreateStreamZeroInitializers()
 
     if ((!info.m_bInUse || info.m_bGetsInitialized) && info.m_pInitializer)
     {
-      m_StreamGroup.RemoveStreamElementSpawner(info.m_pInitializer);
+      m_StreamGroup.RemoveSpawner(info.m_pInitializer);
       info.m_pInitializer = nullptr;
     }
 
@@ -436,7 +436,7 @@ void ezParticleSystemInstance::CreateStreamZeroInitializers()
     if (info.m_pInitializer == nullptr)
     {
       info.m_pInitializer = EZ_DEFAULT_NEW(ezProcessingStreamSpawnerZeroInitialized, info.m_sName);
-      m_StreamGroup.AddStreamElementSpawner(info.m_pInitializer);
+      m_StreamGroup.AddSpawner(info.m_pInitializer);
     }
   }
 }
