@@ -100,10 +100,9 @@ void ezSkyBoxComponent::Initialize()
 
   // Do not show in orthographic viewports
   {
-    ezTag tagNoOrtho;
-    ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode", &tagNoOrtho);
+    const ezTag* tagNoOrtho = ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode");
 
-    GetOwner()->GetTags().Set(tagNoOrtho);
+    GetOwner()->GetTags().Set(*tagNoOrtho);
   }
 }
 

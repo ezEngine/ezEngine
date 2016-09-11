@@ -18,41 +18,63 @@ typedef ezUInt64 ezTagSetBlockStorage;
 /// Typical storage requirements for a given tag set instance should be small since the block storage is a sliding
 /// window. The standard class which can be used is ezTagSet, usage of ezTagSetTemplate is only necessary
 /// if the allocator needs to be overridden.
-template<typename BlockStorageAllocator = ezDefaultAllocatorWrapper> class ezTagSetTemplate
+template<typename BlockStorageAllocator = ezDefaultAllocatorWrapper> 
+class ezTagSetTemplate
 {
 public:
-  EZ_FORCE_INLINE ezTagSetTemplate();
+  ezTagSetTemplate();
 
   /// \brief Adds the given tag to the set.
-  EZ_FORCE_INLINE void Set(const ezTag& Tag); // [tested]
+  void Set(const ezTag& Tag); // [tested]
 
   /// \brief Removes the given tag.
-  EZ_FORCE_INLINE void Remove(const ezTag& Tag); // [tested]
+  void Remove(const ezTag& Tag); // [tested]
 
   /// \brief Returns true, if the given tag is in the set.
-  EZ_FORCE_INLINE bool IsSet(const ezTag& Tag) const; // [tested]
+  bool IsSet(const ezTag& Tag) const; // [tested]
 
   /// \brief Returns true if this tag set contains any tag set in the given other tag set.
-  EZ_FORCE_INLINE bool IsAnySet(const ezTagSetTemplate& OtherSet) const; // [tested]
+  bool IsAnySet(const ezTagSetTemplate& OtherSet) const; // [tested]
 
+  /// \brief Returns how many tags are in this set.
+  ezUInt32 GetNumTagsSet() const;
+
+  /// \brief True if the tag set never contained any tag or was cleared.
   EZ_FORCE_INLINE bool IsEmpty() const;
 
-  EZ_FORCE_INLINE void Clear();
+  /// \brief Removes all tags from the set
+  void Clear();
 
-  EZ_FORCE_INLINE void SetByName(const char* szTag);
-  EZ_FORCE_INLINE void RemoveByName(const char* szTag);
-  EZ_FORCE_INLINE bool IsSetByName(const char* szTag) const;
+  /// \brief Adds the tag with the given name. If the tag does not exist, it will be registered.
+  void SetByName(const char* szTag);
 
+  /// \brief Removes the given tag. If it doesn't exist, nothing happens.
+  void RemoveByName(const char* szTag);
+
+  /// \brief Checks whether the named tag is part of this set. Returns false if the tag does not exist.
+  bool IsSetByName(const char* szTag) const;
+
+  /// \brief Allows to iterate over all tags in this set
   class Iterator
   {
   public:
     Iterator(const ezTagSetTemplate<BlockStorageAllocator>* pSet, bool bEnd = false);
 
-    const char* operator*() const;
-    bool operator!=(const Iterator& rhs) const
+    /// \brief Returns a reference to the current tag
+    const ezTag* operator*() const;
+
+    /// \brief Returns whether the iterator is still pointing to a valid item
+    EZ_FORCE_INLINE bool IsValid() const
+    {
+      return m_uiIndex != 0xFFFFFFFF;
+    }
+
+    EZ_FORCE_INLINE bool operator!=(const Iterator& rhs) const
     {
       return m_pTagSet != rhs.m_pTagSet || m_uiIndex != rhs.m_uiIndex;
     }
+
+    /// \brief Advances the iterator to the next item
     void operator++();
 
   private:
@@ -62,15 +84,27 @@ public:
     ezUInt32 m_uiIndex;
   };
 
+  /// \brief Returns an iterator to list all tags in this set
   Iterator GetIterator() const { return Iterator(this); }
 
+  /// \brief Writes the tag set state to a stream.
+  ///
+  /// \note This only stores the tag hashes. The ezTagRegistry must be stored as well, to be able to restore the tags.
+  void Save(ezStreamWriter& stream) const;
+
+  /// \brief Reads the tag set state from a stream.
+  ///
+  /// \note This will restore all tags that could be found in the given registry.
+  ///       The registry must be serialized separately.
+  ///       Tags that are not found in the registry will be ignored.
+  void Load(ezStreamReader& stream, const ezTagRegistry& registry);
 
 private:
   friend class Iterator;
 
   EZ_FORCE_INLINE bool IsTagInAllocatedRange(const ezTag& Tag) const;
 
-  EZ_FORCE_INLINE void Reallocate(ezUInt32 uiNewTagBlockStart, ezUInt32 uiNewMaxBlockIndex);
+  void Reallocate(ezUInt32 uiNewTagBlockStart, ezUInt32 uiNewMaxBlockIndex);
 
   ezHybridArray<ezTagSetBlockStorage, 1, BlockStorageAllocator> m_TagBlocks;
 

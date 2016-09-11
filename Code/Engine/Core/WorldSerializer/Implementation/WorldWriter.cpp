@@ -10,7 +10,7 @@ void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet
 
   EZ_LOCK(m_pWorld->GetReadMarker());
 
-  const ezUInt8 uiVersion = 2;
+  const ezUInt8 uiVersion = 3;
   stream << uiVersion;
 
   m_AllRootObjects.Clear();
@@ -30,6 +30,9 @@ void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet
   m_pWorld->Traverse(ezMakeDelegate(&ezWorldWriter::ObjectTraverser, this), ezWorld::TraversalMethod::DepthFirst);
 
   IncludeAllComponentBaseTypes();
+
+  // write the current tag registry
+  ezTagRegistry::GetGlobalRegistry().Save(stream);
 
   stream << m_AllRootObjects.GetCount();
   stream << m_AllChildObjects.GetCount();
@@ -191,6 +194,7 @@ void ezWorldWriter::WriteGameObject(const ezGameObject* pObject)
   s << pObject->GetLocalUniformScaling();
   s << pObject->IsActive();
   s << pObject->IsDynamic();
+  pObject->GetTags().Save(s);
 
   /// \todo tags, write strings only once
 }

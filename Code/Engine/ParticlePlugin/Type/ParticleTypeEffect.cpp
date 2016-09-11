@@ -89,21 +89,21 @@ ezParticleTypeEffect::~ezParticleTypeEffect()
 {
   GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeEffect::OnParticleDeath, this));
 
-  // delete all effects that are still in the processing group
-  {
-    ezParticleWorldModule* pWorldModule = GetOwnerEffect()->GetOwnerWorldModule();
-    const ezUInt64 uiNumParticles = GetOwnerSystem()->GetNumActiveParticles();
+  //// delete all effects that are still in the processing group
+  //{
+  //  ezParticleWorldModule* pWorldModule = GetOwnerEffect()->GetOwnerWorldModule();
+  //  const ezUInt64 uiNumParticles = GetOwnerSystem()->GetNumActiveParticles();
 
-    ezUInt32* pEffectID = m_pStreamEffectID->GetWritableData<ezUInt32>();
+  //  ezUInt32* pEffectID = m_pStreamEffectID->GetWritableData<ezUInt32>();
 
-    for (ezUInt32 elemIdx = 0; elemIdx < uiNumParticles; ++elemIdx)
-    {
-      ezParticleEffectHandle hInstance(pEffectID[elemIdx]);
-      pEffectID[elemIdx] = 0;
+  //  for (ezUInt32 elemIdx = 0; elemIdx < uiNumParticles; ++elemIdx)
+  //  {
+  //    ezParticleEffectHandle hInstance(pEffectID[elemIdx]);
+  //    pEffectID[elemIdx] = 0;
 
-      pWorldModule->DestroyParticleEffectInstance(hInstance, false, nullptr);
-    }
-  }
+  //    pWorldModule->DestroyParticleEffectInstance(hInstance, false, nullptr);
+  //  }
+  //}
 }
 
 void ezParticleTypeEffect::CreateRequiredStreams()

@@ -2,7 +2,10 @@
 #pragma once
 
 class ezHashedString;
+class ezTempHashedString;
 class ezTag;
+class ezStreamWriter;
+class ezStreamReader;
 
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Containers/Map.h>
@@ -23,18 +26,31 @@ public:
 
   static ezTagRegistry& GetGlobalRegistry();
 
-  void RegisterTag(const char* szTagString, ezTag* ResultTag = nullptr); // [tested]
-  void RegisterTag(const ezHashedString& TagString, ezTag* ResultTag = nullptr); // [tested]
+  /// \brief Ensures the tag with the given name exists and returns a pointer to it.
+  const ezTag* RegisterTag(const char* szTagString); // [tested]
 
-  ezResult GetTag(const char* szTagString, ezTag& ResultTag) const; // [tested]
-  ezResult GetTag(const ezHashedString& TagString, ezTag& ResultTag) const; // [tested]
+  /// \brief Ensures the tag with the given name exists and returns a pointer to it.
+  const ezTag* RegisterTag(const ezHashedString& TagString); // [tested]
 
+  /// \brief Searches for a tag with the given name and returns a pointer to it
+  const ezTag* GetTagByName(const ezTempHashedString& TagString) const; // [tested]
+
+  /// \brief Returns the tag with the given index.
   const ezTag* GetTagByIndex(ezUInt32 uiIndex) const;
+
+  /// \brief Returns the number of registered tags.
+  ezUInt32 GetNumTags() const;
+
+  /// \brief Writes all information to the stream that is necessary to restore the registry.
+  void Save(ezStreamWriter& stream) const;
+
+  /// \brief Loads the saved state and integrates it into this registry. Does not discard previously registered tag information.
+  void Load(ezStreamReader& stream);
 
 protected:
 
   mutable ezMutex m_TagRegistryMutex;
 
-  ezMap<ezHashedString, ezTag> m_RegisteredTags;
+  ezMap<ezTempHashedString, ezTag> m_RegisteredTags;
   ezDeque<ezTag*> m_TagsByIndex;
 };

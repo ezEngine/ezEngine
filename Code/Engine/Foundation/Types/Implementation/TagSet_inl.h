@@ -2,6 +2,8 @@
 #pragma once
 
 #include <Foundation/Types/Tag.h>
+#include <Foundation/IO/Stream.h>
+#include <Foundation/Strings/HashedString.h>
 
 
 // Template specialization to be able to use ezTagSet properties as EZ_SET_MEMBER_PROPERTY.
@@ -82,16 +84,16 @@ ezTagSetTemplate<BlockStorageAllocator>::Iterator::Iterator(const ezTagSetTempla
 {
   if (!bEnd)
   {
-    m_uiIndex = pSet->m_uiTagBlockStart * (sizeof(ezTagSetBlockStorage) * 8);
+  m_uiIndex = pSet->m_uiTagBlockStart * (sizeof(ezTagSetBlockStorage) * 8);
 
-    if (pSet->IsEmpty())
-      m_uiIndex = 0xFFFFFFFF;
-    else
-    {
-      if (!IsBitSet())
-        operator++();
-    }
+  if (pSet->IsEmpty())
+    m_uiIndex = 0xFFFFFFFF;
+  else
+  {
+    if (!IsBitSet())
+      operator++();
   }
+}
   else
     m_uiIndex = 0xFFFFFFFF;
 }
@@ -115,18 +117,18 @@ void ezTagSetTemplate<BlockStorageAllocator>::Iterator::operator++()
   do
   {
     ++m_uiIndex;
-  } while (m_uiIndex < uiMax && !IsBitSet());
+  }
+  while (m_uiIndex < uiMax && !IsBitSet());
 
   if (m_uiIndex >= uiMax)
     m_uiIndex = 0xFFFFFFFF;
 }
 
 template <typename BlockStorageAllocator>
-const char* ezTagSetTemplate<BlockStorageAllocator>::Iterator::operator*() const
+const ezTag* ezTagSetTemplate<BlockStorageAllocator>::Iterator::operator*() const
 {
-  return ezTagRegistry::GetGlobalRegistry().GetTagByIndex(m_uiIndex)->GetTagString();
+  return ezTagRegistry::GetGlobalRegistry().GetTagByIndex(m_uiIndex);
 }
-
 
 template<typename BlockStorageAllocator>
 ezTagSetTemplate<BlockStorageAllocator>::ezTagSetTemplate()
@@ -204,6 +206,33 @@ bool ezTagSetTemplate<BlockStorageAllocator>::IsAnySet(const ezTagSetTemplate& O
   return false;
 }
 
+
+template<typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
+ezUInt32 ezTagSetTemplate<BlockStorageAllocator>::GetNumTagsSet() const
+{
+  if (IsEmpty())
+    return 0;
+
+  ezUInt32 count = 0;
+
+  for (ezUInt32 i = 0; i < m_TagBlocks.GetCount(); ++i)
+  {
+    const ezUInt64 value = m_TagBlocks[i];
+
+    for (ezUInt32 bit = 0; bit < 64; ++bit)
+    {
+      const ezUInt64 pattern = value >> bit;
+
+      if ((pattern & 1U) != 0) // lowest bit is set ?
+      {
+        ++count;
+      }
+    }
+  }
+
+  return count;
+}
+
 template<typename BlockStorageAllocator>
 bool ezTagSetTemplate<BlockStorageAllocator>::IsEmpty() const
 {
@@ -217,7 +246,6 @@ bool ezTagSetTemplate<BlockStorageAllocator>::IsEmpty() const
   //}
 
   return false;
-  return true;
 }
 
 template<typename BlockStorageAllocator>
@@ -230,25 +258,28 @@ void ezTagSetTemplate<BlockStorageAllocator>::Clear()
 template<typename BlockStorageAllocator>
 void ezTagSetTemplate<BlockStorageAllocator>::SetByName(const char* szTag)
 {
-  ezTag tag;
-  ezTagRegistry::GetGlobalRegistry().RegisterTag(szTag, &tag);
-  Set(tag);
+  const ezTag* tag = ezTagRegistry::GetGlobalRegistry().RegisterTag(szTag);
+  Set(*tag);
 }
 
 template<typename BlockStorageAllocator>
 void ezTagSetTemplate<BlockStorageAllocator>::RemoveByName(const char* szTag)
 {
-  ezTag tag;
-  ezTagRegistry::GetGlobalRegistry().RegisterTag(szTag, &tag);
-  Remove(tag);
+  const ezTag* tag = ezTagRegistry::GetGlobalRegistry().GetTagByName(szTag);
+
+  if (tag != nullptr)
+    Remove(*tag);
 }
 
 template<typename BlockStorageAllocator>
 bool ezTagSetTemplate<BlockStorageAllocator>::IsSetByName(const char* szTag) const
 {
-  ezTag tag;
-  ezTagRegistry::GetGlobalRegistry().RegisterTag(szTag, &tag);
-  return IsSet(tag);
+  const ezTag* tag = ezTagRegistry::GetGlobalRegistry().GetTagByName(szTag);
+
+  if (tag != nullptr)
+    return IsSet(*tag);
+
+  return false;
 }
 
 template<typename BlockStorageAllocator>
@@ -270,7 +301,7 @@ void ezTagSetTemplate<BlockStorageAllocator>::Reallocate(ezUInt32 uiNewTagBlockS
 
     return;
   }
-  
+
   EZ_ASSERT_DEBUG(uiNewTagBlockStart <= m_uiTagBlockStart, "New block start must be smaller or equal to current block start!");
 
   ezHybridArray<ezUInt64, 32, BlockStorageAllocator> helperArray;
@@ -290,3 +321,38 @@ void ezTagSetTemplate<BlockStorageAllocator>::Reallocate(ezUInt32 uiNewTagBlockS
   m_uiTagBlockStart = uiNewTagBlockStart;
   m_TagBlocks = helperArray;
 }
+
+template<typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
+void ezTagSetTemplate<BlockStorageAllocator>::Save(ezStreamWriter& stream) const
+{
+  const ezUInt32 uiNumTags = GetNumTagsSet();
+  stream << uiNumTags;
+
+  for (Iterator it = GetIterator(); it.IsValid(); ++it)
+  {
+    const ezTag* pTag = *it;
+
+    const ezUInt32 uiTagHash = pTag->GetTagHash();
+    stream << uiTagHash;
+  }
+}
+
+template<typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
+void ezTagSetTemplate<BlockStorageAllocator>::Load(ezStreamReader& stream, const ezTagRegistry& registry)
+{
+  ezUInt32 uiNumTags = 0;
+  stream >> uiNumTags;
+
+  for (ezUInt32 i = 0; i < uiNumTags; ++i)
+  {
+    ezUInt32 uiTagHash = 0;
+    stream >> uiTagHash;
+
+    const ezTag* pTag = registry.GetTagByName(ezTempHashedString(uiTagHash));
+
+    if (pTag != nullptr)
+      Set(*pTag);
+  }
+}
+
+

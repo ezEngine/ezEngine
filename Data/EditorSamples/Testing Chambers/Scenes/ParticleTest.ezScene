@@ -36,8 +36,17 @@
     "AssetType" : "Scene",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0xA54DC853996FDB42AB097DA4165C1F7F" },
-    "Hash" : { "$t" : "uint64", "$v" : "8576715215307224606", "$b" : "0x1E3613040C9D0677" },
-    "References" : [ "{ 52e79efc-6a2c-4f4c-a629-9629af925ee9 }", "{ 8db56ec7-1f24-497b-9541-5ff5e1e65a9a }", "{ 912f4499-7b67-402b-9110-1871cc9d8a2c }", "{ 9f5b157b-971e-4450-bd92-8f8651ad35b2 }", "{ b7491649-7988-4bea-b145-6550ab951811 }", "{ d65cd59b-50e0-44f3-aefb-a88943b81900 }" ]
+    "Hash" : { "$t" : "uint64", "$v" : "11193676525173852000", "$b" : "0x60C79D357EED579B" },
+    "References" : [ "{ 52e79efc-6a2c-4f4c-a629-9629af925ee9 }", "{ 8db56ec7-1f24-497b-9541-5ff5e1e65a9a }", "{ 90a2e76b-291c-43d2-8c21-4e1bccd22ea1 }", "{ 912f4499-7b67-402b-9110-1871cc9d8a2c }", "{ 9f5b157b-971e-4450-bd92-8f8651ad35b2 }", "{ b7491649-7988-4bea-b145-6550ab951811 }", "{ d65cd59b-50e0-44f3-aefb-a88943b81900 }" ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xF8ACC14A67B90044B4A5808F7F24AB87" },
+   "t" : "ezDirectionalLightComponent",
+   "p" : {
+    "Active" : true,
+    "Intensity" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" },
+    "Light Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
    }
   },
   {
@@ -48,6 +57,30 @@
     "Components" : [ { "$t" : "uuid", "$b" : "0x90428D7087F52049BAFC187AF892A65D" } ],
     "GlobalKey" : "",
     "LocalPosition" : { "$t" : "vec3", "$v" : "(3.7500, -0.7500, 0.0000)", "$b" : "0x00007040000040BF00000000" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xBC66B2348B025F45867562753F7FB63A" },
+   "t" : "ezMeshComponent",
+   "p" : {
+    "Active" : true,
+    "Materials" : [  ],
+    "Mesh" : "{ 90a2e76b-291c-43d2-8c21-4e1bccd22ea1 }"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x50CFE98B49F58045B32F1D74204B5145" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0x479ED3347E2EF24E9310CCAB0813DF36" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(-11.4766, 13.9090, 14.7770)", "$b" : "0x58A037C1748B5E41976E6C41" },
     "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
     "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
     "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
@@ -67,6 +100,21 @@
     "Restart Delay Range" : { "$t" : "time", "$v" : "0.0000", "$b" : "0x0000000000000000" },
     "Shared Instance Name" : "Test",
     "Spawn At Start" : true
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE0374D291C02D046AC9090DEAAE63A80" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xF8ACC14A67B90044B4A5808F7F24AB87" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(7.5320, -10.9310, 12.7940)", "$b" : "0x2806F14044E52EC153B44C41" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x2A5721BE5443523EF441BD3E4574643F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [  ]
    }
   },
   {
@@ -154,7 +202,7 @@
    "t" : "ezDocumentRoot",
    "n" : "ObjectTree",
    "p" : {
-    "Children" : [ { "$t" : "uuid", "$b" : "0x7BC4E2378E615B4DB733C5FC2E944DC3" }, { "$t" : "uuid", "$b" : "0x58DAFE1E87B2404A8CD973B6DB0A1D0E" }, { "$t" : "uuid", "$b" : "0xA67963A9899226954578146B6F124069" }, { "$t" : "uuid", "$b" : "0x1BC46E26CCB288D5F1043029D0376D1D" }, { "$t" : "uuid", "$b" : "0x501A76DE16C4B11988C27BDD1238548E" }, { "$t" : "uuid", "$b" : "0x1C58D53DB98AC29828CF2541A897F225" }, { "$t" : "uuid", "$b" : "0xBD0B3B8C670E6144834950876FB7CD13" }, { "$t" : "uuid", "$b" : "0x470E2998FFBA1047A771E02383D2B390" }, { "$t" : "uuid", "$b" : "0x70D77C60FC1B6B4DA1B3FEB4E95A09D0" }, { "$t" : "uuid", "$b" : "0x598509CDC5A7B44C8BB05D0014FA1ED0" }, { "$t" : "uuid", "$b" : "0x6F66876F737D6093733281FF6A2A5D80" } ]
+    "Children" : [ { "$t" : "uuid", "$b" : "0x7BC4E2378E615B4DB733C5FC2E944DC3" }, { "$t" : "uuid", "$b" : "0x58DAFE1E87B2404A8CD973B6DB0A1D0E" }, { "$t" : "uuid", "$b" : "0xA67963A9899226954578146B6F124069" }, { "$t" : "uuid", "$b" : "0x1BC46E26CCB288D5F1043029D0376D1D" }, { "$t" : "uuid", "$b" : "0x501A76DE16C4B11988C27BDD1238548E" }, { "$t" : "uuid", "$b" : "0x1C58D53DB98AC29828CF2541A897F225" }, { "$t" : "uuid", "$b" : "0xBD0B3B8C670E6144834950876FB7CD13" }, { "$t" : "uuid", "$b" : "0x470E2998FFBA1047A771E02383D2B390" }, { "$t" : "uuid", "$b" : "0x70D77C60FC1B6B4DA1B3FEB4E95A09D0" }, { "$t" : "uuid", "$b" : "0x598509CDC5A7B44C8BB05D0014FA1ED0" }, { "$t" : "uuid", "$b" : "0x6F66876F737D6093733281FF6A2A5D80" }, { "$t" : "uuid", "$b" : "0xE0374D291C02D046AC9090DEAAE63A80" }, { "$t" : "uuid", "$b" : "0x3D8303304AFEC64FA6E9AEFE4E7D963C" }, { "$t" : "uuid", "$b" : "0x50CFE98B49F58045B32F1D74204B5145" } ]
    }
   },
   {
@@ -214,6 +262,41 @@
     "Restart Delay Range" : { "$t" : "time", "$v" : "0.0000", "$b" : "0x0000000000000000" },
     "Shared Instance Name" : "",
     "Spawn At Start" : true
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x479ED3347E2EF24E9310CCAB0813DF36" },
+   "t" : "ezCameraComponent",
+   "p" : {
+    "Active" : true,
+    "Aperture" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Dimensions (ortho)" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" },
+    "Exclude Tags" : [ "Invisible" ],
+    "Exposure Compensation" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+    "FOV (perspective)" : { "$t" : "float", "$v" : "60.0000", "$b" : "0x00007042" },
+    "Far Plane" : { "$t" : "float", "$v" : "1000.0000", "$b" : "0x00007A44" },
+    "ISO" : { "$t" : "float", "$v" : "100.0000", "$b" : "0x0000C842" },
+    "Include Tags" : [  ],
+    "Mode" : "ezCameraMode::PerspectiveFixedFovY",
+    "Near Plane" : { "$t" : "float", "$v" : "0.2500", "$b" : "0x0000803E" },
+    "Render Pipeline" : "",
+    "Shutter Time" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Usage Hint" : "ezCameraComponentUsageHint::EditorView"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3D8303304AFEC64FA6E9AEFE4E7D963C" },
+   "t" : "ezGameObject",
+   "p" : {
+    "Children" : [  ],
+    "Components" : [ { "$t" : "uuid", "$b" : "0xBC66B2348B025F45867562753F7FB63A" } ],
+    "GlobalKey" : "",
+    "LocalPosition" : { "$t" : "vec3", "$v" : "(21.7500, 15.2500, 10.0000)", "$b" : "0x0000AE410000744100002041" },
+    "LocalRotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+    "LocalScaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" },
+    "LocalUniformScaling" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
+    "Name" : "",
+    "Tags" : [ "Invisible" ]
    }
   },
   {

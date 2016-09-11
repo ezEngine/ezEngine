@@ -7,6 +7,7 @@ ezWorldReader::ezWorldReader()
   m_pStream = nullptr;
   m_pWorld = nullptr;
   m_uiMaxComponents = 0;
+  m_uiVersion = 0;
 }
 
 void ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
@@ -15,10 +16,16 @@ void ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
 
   m_pStream = &stream;
 
-  ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
+  m_uiVersion = 0;
+  stream >> m_uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion == 2, "Invalid version");
+  EZ_ASSERT_DEV(m_uiVersion <= 3, "Invalid version %u", m_uiVersion);
+
+  if (m_uiVersion >= 3)
+  {
+    // add tags from the stream
+    ezTagRegistry::GetGlobalRegistry().Load(stream);
+  }
 
   ezUInt32 uiNumRootObjects = 0;
   stream >> uiNumRootObjects;
@@ -228,6 +235,9 @@ void ezWorldReader::ReadGameObjectDesc(GameObjectToCreate& godesc)
 
   bool bDynamic = true;
   *m_pStream >> bDynamic;
+
+  if (m_uiVersion >= 3)
+    desc.m_Tags.Load(*m_pStream, ezTagRegistry::GetGlobalRegistry());
 
   desc.m_Flags.AddOrRemove(ezObjectFlags::Active, bActive);
   desc.m_Flags.AddOrRemove(ezObjectFlags::Dynamic, bDynamic);

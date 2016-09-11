@@ -257,10 +257,9 @@ void ezSceneContext::GenerateShapeIconMesh()
     EZ_LOCK(m_pWorld->GetReadMarker());
 
     auto& tagReg = ezTagRegistry::GetGlobalRegistry();
-    ezTag tagHidden;
-    tagReg.RegisterTag("EditorHidden", &tagHidden);
-    ezTag tagEditor;
-    ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tagEditor);
+
+    const ezTag* tagHidden = tagReg.RegisterTag("EditorHidden");
+    const ezTag* tagEditor = tagReg.RegisterTag("Editor");
 
     ezUInt32 obj = 0;
     for (auto it = m_pWorld->GetObjects(); it.IsValid(); ++it)
@@ -268,7 +267,7 @@ void ezSceneContext::GenerateShapeIconMesh()
       if (it->GetComponents().IsEmpty())
         continue;
 
-      if (it->GetTags().IsSet(tagEditor) || it->GetTags().IsSet(tagHidden))
+      if (it->GetTags().IsSet(*tagEditor) || it->GetTags().IsSet(*tagHidden))
         continue;
 
       const ezRTTI* pRtti = it->GetComponents()[0]->GetDynamicRTTI();
@@ -522,15 +521,13 @@ bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
       file.WriteBytes(szSceneTag, sizeof(char) * 16);
     }
 
-    ezTag tagEditor;
-    ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tagEditor);
+    const ezTag* tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
 
-    ezTag tagEditorPrefabInstance;
-    ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance", &tagEditorPrefabInstance);
+    const ezTag* tagEditorPrefabInstance = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance");
 
     ezTagSet tags;
-    tags.Set(tagEditor);
-    tags.Set(tagEditorPrefabInstance);
+    tags.Set(*tagEditor);
+    tags.Set(*tagEditorPrefabInstance);
 
     ezWorldWriter ww;
     ww.Write(file, *m_pWorld, &tags);

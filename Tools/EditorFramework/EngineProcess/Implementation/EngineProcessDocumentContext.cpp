@@ -343,16 +343,15 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
 
     ezGameObjectHandle hObject = m_Context.m_GameObjectMap.GetHandle(pMsg2->m_ObjectGuid);
 
-    ezTag tag;
-    ezTagRegistry::GetGlobalRegistry().RegisterTag(pMsg2->m_sTag, &tag);
+    const ezTag* tag = ezTagRegistry::GetGlobalRegistry().RegisterTag(pMsg2->m_sTag);
 
     ezGameObject* pObject;
     if (m_pWorld->TryGetObject(hObject, pObject))
     {
       if (pMsg2->m_bSetTag)
-        pObject->GetTags().Set(tag);
+        pObject->GetTags().Set(*tag);
       else
-        pObject->GetTags().Remove(tag);
+        pObject->GetTags().Remove(*tag);
     }
   }
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezExportDocumentMsgToEngine>())

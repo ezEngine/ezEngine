@@ -109,17 +109,16 @@ void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
   // setting to only update one view ?
   //else
   {
-    ezTag tagEditor;
-    ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tagEditor);
+    const ezTag* tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
 
     if (!bRenderEditorGizmos)
     {
       // exclude all editor objects from rendering in proper game views
-      m_pView->m_ExcludeTags.Set(tagEditor);
+      m_pView->m_ExcludeTags.Set(*tagEditor);
     }
     else
     {
-      m_pView->m_ExcludeTags.Remove(tagEditor);
+      m_pView->m_ExcludeTags.Remove(*tagEditor);
     }
 
     ezRenderLoop::AddMainView(m_pView);

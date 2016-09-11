@@ -79,6 +79,7 @@ private:
   ezStreamReader* m_pStream;
   ezWorld* m_pWorld;
 
+  ezUInt8 m_uiVersion;
   ezUInt32 m_uiMaxComponents;
   ezDynamicArray<ezGameObjectHandle> m_IndexToGameObjectHandle;
   ezDynamicArray<ezComponentHandle> m_IndexToComponentHandle;

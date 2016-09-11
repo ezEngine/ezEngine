@@ -67,7 +67,7 @@ const ezCameraComponent* ezCameraComponentManager::GetCameraByUsageHint(ezCamera
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 3)
+EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 4)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -77,6 +77,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 3)
     EZ_ACCESSOR_PROPERTY("Far Plane", GetFarPlane, SetFarPlane)->AddAttributes(new ezDefaultValueAttribute(1000.0f), new ezClampValueAttribute(0.0f, 1000000.0f)),
     EZ_ACCESSOR_PROPERTY("FOV (perspective)", GetFieldOfView, SetFieldOfView)->AddAttributes(new ezDefaultValueAttribute(60.0f), new ezClampValueAttribute(1.0f, 179.0f)),
     EZ_ACCESSOR_PROPERTY("Dimensions (ortho)", GetOrthoDimension, SetOrthoDimension)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, 1000000.0f)),
+    EZ_SET_MEMBER_PROPERTY("Include Tags", m_IncludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
+    EZ_SET_MEMBER_PROPERTY("Exclude Tags", m_ExcludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
     EZ_ACCESSOR_PROPERTY("Render Pipeline", GetRenderPipelineFile, SetRenderPipelineFile)->AddAttributes(new ezAssetBrowserAttribute("RenderPipeline")),
     EZ_ACCESSOR_PROPERTY("Aperture", GetAperture, SetAperture)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(1.0f, 32.0f), new ezSuffixAttribute(" f-stop(s)")),
     EZ_ACCESSOR_PROPERTY("Shutter Time", GetShutterTime, SetShutterTime)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(1.0f/100000.0f, 600.0f), new ezSuffixAttribute(" s")),
@@ -135,6 +137,10 @@ void ezCameraComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fShutterTime;
   s << m_fISO;
   s << m_fExposureCompensation;
+
+  // Version 4
+  m_IncludeTags.Save(s);
+  m_ExcludeTags.Save(s);
 }
 
 void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
@@ -168,6 +174,12 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
     s >> m_fShutterTime;
     s >> m_fISO;
     s >> m_fExposureCompensation;
+  }
+
+  if (uiVersion >= 4)
+  {
+    m_IncludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
+    m_ExcludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
   }
 
   MarkAsModified();
@@ -336,6 +348,9 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
   ezCamera* pCamera = pView->GetLogicCamera();
   pCamera->SetCameraMode(m_Mode, fFovOrDim, m_fNearPlane, m_fFarPlane);
   pCamera->SetExposure(GetExposure());
+
+  pView->m_IncludeTags = m_IncludeTags;
+  pView->m_ExcludeTags = m_ExcludeTags;
 
   //ezLog::Info("EV100: %f, Exposure: %f", GetEV100(), GetExposure());
 

@@ -74,17 +74,16 @@ bool ezSceneViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds
 
 void ezSceneViewContext::Redraw(bool bRenderEditorGizmos)
 {
-  ezTag tagNoOrtho;
-  ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode", &tagNoOrtho);
+  const ezTag* tagNoOrtho = ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode");
 
   if (m_pView->GetRenderCamera()->GetCameraMode() == ezCameraMode::OrthoFixedHeight ||
       m_pView->GetRenderCamera()->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
   {
-    m_pView->m_ExcludeTags.Set(tagNoOrtho);
+    m_pView->m_ExcludeTags.Set(*tagNoOrtho);
   }
   else
   {
-    m_pView->m_ExcludeTags.Remove(tagNoOrtho);
+    m_pView->m_ExcludeTags.Remove(*tagNoOrtho);
   }
 
   m_pView->SetRenderPassProperty("SimplePass.ezGizmoRenderer", "HighlightID", GetDocumentContext()->m_Context.m_uiHighlightID);
@@ -118,10 +117,9 @@ ezView* ezSceneViewContext::CreateView()
   pView->SetLogicCamera(&m_Camera);
 
   auto& tagReg = ezTagRegistry::GetGlobalRegistry();
-  ezTag tagHidden;
-  tagReg.RegisterTag("EditorHidden", &tagHidden);
+  const ezTag* tagHidden = tagReg.RegisterTag("EditorHidden");
 
-  pView->m_ExcludeTags.Set(tagHidden);
+  pView->m_ExcludeTags.Set(*tagHidden);
   return pView;
 }
 

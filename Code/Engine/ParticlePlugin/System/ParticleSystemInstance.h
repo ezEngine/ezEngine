@@ -88,7 +88,7 @@ private:
     ezProcessingStreamSpawner* m_pInitializer;
   };
 
-  ezHybridArray<StreamInfo, 8> m_StreamInfo;
+  ezHybridArray<StreamInfo, 16> m_StreamInfo;
 
   ezRandom m_Random;
   mutable ezAtomicInteger32 m_RefCount;

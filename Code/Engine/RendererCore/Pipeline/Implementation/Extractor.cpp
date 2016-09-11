@@ -92,8 +92,6 @@ void ezSelectedObjectsExtractor::Extract(const ezView& view, ezExtractedRenderDa
   msg.m_pExtractedRenderData = pExtractedRenderData;
   msg.m_OverrideCategory = m_OverrideCategory;
 
-  auto exclFlags = view.m_ExcludeTags;
-
   EZ_LOCK(view.GetWorld()->GetReadMarker());
 
   for (const auto& hObj : *pSelection)
@@ -103,7 +101,7 @@ void ezSelectedObjectsExtractor::Extract(const ezView& view, ezExtractedRenderDa
     if (!view.GetWorld()->TryGetObject(hObj, pObject))
       continue;
 
-    if (!exclFlags.IsEmpty() && exclFlags.IsAnySet(pObject->GetTags()))
+    if (!view.m_ExcludeTags.IsEmpty() && view.m_ExcludeTags.IsAnySet(pObject->GetTags()))
       continue;
 
     if (!view.m_IncludeTags.IsEmpty() && !view.m_IncludeTags.IsAnySet(pObject->GetTags()))

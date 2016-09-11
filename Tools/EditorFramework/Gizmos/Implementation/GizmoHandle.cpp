@@ -526,17 +526,15 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
   m_hGameObject = pWorld->CreateObject(god, pObject);
 
   {
-    ezTag tagNoOrtho;
-    ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode", &tagNoOrtho);
+    const ezTag* tagNoOrtho = ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode");
 
-    pObject->GetTags().Set(tagNoOrtho);
+    pObject->GetTags().Set(*tagNoOrtho);
   }
 
   {
-    ezTag tagEditor;
-    ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor", &tagEditor);
+    const ezTag* tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
 
-    pObject->GetTags().Set(tagEditor);
+    pObject->GetTags().Set(*tagEditor);
   }
 
   ezGizmoComponent::CreateComponent(pWorld, m_pGizmoComponent);

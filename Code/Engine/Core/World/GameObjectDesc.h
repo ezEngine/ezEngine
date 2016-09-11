@@ -29,5 +29,6 @@ struct ezGameObjectDesc
   ezQuat m_LocalRotation;
   ezVec3 m_LocalScaling;
   float m_LocalUniformScaling;
+  ezTagSet m_Tags;
 };
 

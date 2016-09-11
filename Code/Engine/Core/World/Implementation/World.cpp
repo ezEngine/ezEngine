@@ -111,6 +111,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pNewObject->m_sName = desc.m_sName;
   pNewObject->m_pWorld = this;
   pNewObject->m_ParentIndex = uiParentIndex;
+  pNewObject->m_Tags = desc.m_Tags;
 
   pNewObject->m_uiHierarchyLevel = uiHierarchyLevel;
   pNewObject->m_uiTransformationDataIndex = uiTransformationDataIndex;
