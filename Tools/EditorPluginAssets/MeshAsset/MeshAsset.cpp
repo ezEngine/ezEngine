@@ -424,19 +424,19 @@ void ezMeshAssetDocument::ProcessMaterials(ezMeshAssetProperties* pProp, ezMeshR
   if (unusedMaterialSlots.GetCount() < mesh.GetNumSubMeshes())
     unusedMaterialSlots.SetCount(mesh.GetNumSubMeshes());
 
-  for (ezUInt32 i = 0; i<mesh.GetNumSubMeshes(); ++i)
+  for (ezUInt32 subMeshIdx = 0; subMeshIdx<mesh.GetNumSubMeshes(); ++subMeshIdx)
   {
-    const ezModelImporter::SubMesh& subMesh = mesh.GetSubMesh(i);
+    const ezModelImporter::SubMesh& subMesh = mesh.GetSubMesh(subMeshIdx);
     const ezModelImporter::Material* material = scene.GetMaterial(subMesh.m_Material);
 
     // Look for material with same label in old list to preserve the user's material choice.
     bool reusedOldOne = false;
-    for (ezUInt32 i = 0; i < unusedMaterialSlots.GetCount(); ++i)
+    for (ezUInt32 unusedSlotIdx = 0; unusedSlotIdx < unusedMaterialSlots.GetCount(); ++unusedSlotIdx)
     {
-      if (unusedMaterialSlots[i].m_sLabel == material->m_Name)
+      if (unusedMaterialSlots[unusedSlotIdx].m_sLabel == material->m_Name)
       {
-        pProp->m_Slots.PushBack(unusedMaterialSlots[i]);
-        unusedMaterialSlots.RemoveAt(i);
+        pProp->m_Slots.PushBack(unusedMaterialSlots[unusedSlotIdx]);
+        unusedMaterialSlots.RemoveAt(unusedSlotIdx);
         reusedOldOne = true;
         break;
       }
@@ -451,8 +451,8 @@ void ezMeshAssetDocument::ProcessMaterials(ezMeshAssetProperties* pProp, ezMeshR
     // Add submesh and material connection.
     if (desc)
     {
-      desc->AddSubMesh(subMesh.m_uiTriangleCount, subMesh.m_uiFirstTriangle, i);
-      desc->SetMaterial(i, pProp->GetResourceSlotProperty(i));
+      desc->AddSubMesh(subMesh.m_uiTriangleCount, subMesh.m_uiFirstTriangle, subMeshIdx);
+      desc->SetMaterial(subMeshIdx, pProp->GetResourceSlotProperty(subMeshIdx));
     }
   }
 
