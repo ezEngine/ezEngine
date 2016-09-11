@@ -10,7 +10,7 @@ public:
   ezParticleEffectController(const ezParticleEffectController& rhs);
   void operator=(const ezParticleEffectController& rhs);
 
-  void Create(const ezParticleEffectResourceHandle& hEffectResource, ezParticleWorldModule* pModule, ezUInt64 uiRandomSeed, const char* szSharedName /*= nullptr*/, ezUInt32 uiInstanceIdentifier /*= 0xFFFFFFFF*/);
+  void Create(const ezParticleEffectResourceHandle& hEffectResource, ezParticleWorldModule* pModule, ezUInt64 uiRandomSeed, const char* szSharedName /*= nullptr*/, const void* pSharedInstanceOwner /*= nullptr*/);
 
   bool IsValid() const;
   void Invalidate();
@@ -26,7 +26,7 @@ private:
   ezParticleEffectController(ezParticleWorldModule* pModule, ezParticleEffectHandle hEffect);
   ezParticleEffectInstance* GetInstance() const;
 
-  ezUInt32 m_uiInstanceIdentifier;
+  const void* m_pSharedInstanceOwner;
   ezParticleWorldModule* m_pModule;
   ezParticleEffectHandle m_hEffect;
 };

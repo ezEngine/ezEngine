@@ -50,7 +50,7 @@ void ezParticleWorldModule::InternalUpdate()
 
 
 
-ezParticleEffectHandle ezParticleWorldModule::InternalCreateSharedInstance(const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, ezUInt32 uiInstanceIdentifier)
+ezParticleEffectHandle ezParticleWorldModule::InternalCreateSharedInstance(const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner)
 {
   /// \todo Mutex
 
@@ -73,7 +73,7 @@ ezParticleEffectHandle ezParticleWorldModule::InternalCreateSharedInstance(const
   }
 
   EZ_ASSERT_DEBUG(pEffect != nullptr, "Invalid effect pointer");
-  pEffect->AddSharedInstance(uiInstanceIdentifier);
+  pEffect->AddSharedInstance(pSharedInstanceOwner);
 
   return it.Value();
 }
@@ -92,28 +92,28 @@ ezParticleEffectHandle ezParticleWorldModule::InternalCreateInstance(const ezPar
 }
 
 
-ezParticleEffectHandle ezParticleWorldModule::CreateParticleEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const char* szSharedName, ezUInt32 uiInstanceIdentifier)
+ezParticleEffectHandle ezParticleWorldModule::CreateParticleEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const char* szSharedName, const void* pSharedInstanceOwner)
 {
   EZ_ASSERT_DEBUG(hResource.IsValid(), "Invalid Particle Effect resource handle");
 
-  if (ezStringUtils::IsNullOrEmpty(szSharedName) || uiInstanceIdentifier == 0xFFFFFFFF)
+  if (ezStringUtils::IsNullOrEmpty(szSharedName) || pSharedInstanceOwner == nullptr)
   {
     return InternalCreateInstance(hResource, uiRandomSeed, false);
   }
   else
   {
-    return InternalCreateSharedInstance(szSharedName, hResource, uiRandomSeed, uiInstanceIdentifier);
+    return InternalCreateSharedInstance(szSharedName, hResource, uiRandomSeed, pSharedInstanceOwner);
   }
 }
 
-void ezParticleWorldModule::DestroyParticleEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately, ezUInt32 uiInstanceIdentifier)
+void ezParticleWorldModule::DestroyParticleEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately, const void* pSharedInstanceOwner)
 {
   ezParticleEffectInstance* pInstance = nullptr;
   if (TryGetEffect(hEffect, pInstance))
   {
-    if (uiInstanceIdentifier != 0xFFFFFFFF)
+    if (pSharedInstanceOwner != nullptr)
     {
-      pInstance->RemoveSharedInstance(uiInstanceIdentifier);
+      pInstance->RemoveSharedInstance(pSharedInstanceOwner);
       return; // never delete these
     }
 
@@ -149,7 +149,7 @@ void ezParticleWorldModule::UpdateEffects()
       const ezParticleEffectHandle hEffect = m_ParticleEffects[i]->GetHandle();
       EZ_ASSERT_DEBUG(!hEffect.IsInvalidated(), "Invalid particle effect handle");
 
-      DestroyParticleEffectInstance(hEffect, false, 0xFFFFFFFF);
+      DestroyParticleEffectInstance(hEffect, false, nullptr);
     }
   }
 
@@ -174,9 +174,9 @@ void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRen
       ezTransform systemTransform;
 
       if (!shared.IsEmpty())
-        systemTransform = pEffect->GetTransform(shared[shi].m_uiIdentifier);
+        systemTransform = pEffect->GetTransform(shared[shi].m_pSharedInstanceOwner);
       else if (pEffect->IsSimulatedInLocalSpace())
-        systemTransform = pEffect->GetTransform(0xFFFFFFFF);
+        systemTransform = pEffect->GetTransform(nullptr);
       else
         systemTransform.SetIdentity();
 

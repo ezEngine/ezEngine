@@ -25,10 +25,10 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleWorldModule : public ezWorldModule
 public:
 
 
-  ezParticleEffectHandle CreateParticleEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const char* szSharedName /*= nullptr*/, ezUInt32 uiInstanceIdentifier /*= 0*/);
+  ezParticleEffectHandle CreateParticleEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const char* szSharedName /*= nullptr*/, const void* pSharedInstanceOwner /*= nullptr*/);
 
   /// \brief This does not actually the effect, it first stops it from emitting and destroys it once all particles have actually died of old age.
-  void DestroyParticleEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately, ezUInt32 uiInstanceIdentifier);
+  void DestroyParticleEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately, const void* pSharedInstanceOwner);
 
   bool TryGetEffect(const ezParticleEffectHandle& hEffect, ezParticleEffectInstance*& out_pEffect);
 
@@ -44,7 +44,7 @@ private:
   void DestroyFinishedEffects();
   void ResourceEventHandler(const ezResourceEvent& e);
   void ReconfigureEffects();
-  ezParticleEffectHandle InternalCreateSharedInstance(const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, ezUInt32 uiInstanceIdentifier);
+  ezParticleEffectHandle InternalCreateSharedInstance(const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner);
   ezParticleEffectHandle InternalCreateInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, bool bIsShared);
 
   ezDeque<ezParticleEffectInstance*> m_ParticleEffects;

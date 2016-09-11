@@ -9,6 +9,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeEffectFactory, 1, ezRTTIDefaultAll
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Effect", m_sEffect)->AddAttributes(new ezAssetBrowserAttribute("Particle Effect")),
+    EZ_MEMBER_PROPERTY("Random Seed", m_uiRandomSeed),
+    // EZ_MEMBER_PROPERTY("Shared Instance Name", m_sSharedInstanceName), // there is currently no way (I can think of) to uniquely identify each sub-system for the 'shared owner'
   }
   EZ_END_PROPERTIES
 }
@@ -16,6 +18,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeEffect, 1, ezRTTIDefaultAllocator<ezParticleTypeEffect>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
+
+
+ezParticleTypeEffectFactory::ezParticleTypeEffectFactory()
+{
+  m_uiRandomSeed = 0;
+}
 
 const ezRTTI* ezParticleTypeEffectFactory::GetTypeType() const
 {
@@ -30,12 +38,16 @@ void ezParticleTypeEffectFactory::CopyTypeProperties(ezParticleType* pObject) co
 
   if (!m_sEffect.IsEmpty())
     pType->m_hEffect = ezResourceManager::LoadResource<ezParticleEffectResource>(m_sEffect);
+
+  pType->m_uiRandomSeed = m_uiRandomSeed;
+  pType->m_sSharedInstanceName = m_sSharedInstanceName;
 }
 
 enum class TypeEffectVersion
 {
   Version_0 = 0,
   Version_1,
+  Version_2,
 
   // insert new version numbers above
   Version_Count,
@@ -48,6 +60,8 @@ void ezParticleTypeEffectFactory::Save(ezStreamWriter& stream) const
   stream << uiVersion;
 
   stream << m_sEffect;
+  stream << m_uiRandomSeed;
+  stream << m_sSharedInstanceName;
 }
 
 void ezParticleTypeEffectFactory::Load(ezStreamReader& stream)
@@ -58,8 +72,18 @@ void ezParticleTypeEffectFactory::Load(ezStreamReader& stream)
   EZ_ASSERT_DEV(uiVersion <= (int)TypeEffectVersion::Version_Current, "Invalid version %u", uiVersion);
 
   stream >> m_sEffect;
+
+  if (uiVersion >= 2)
+  {
+    stream >> m_uiRandomSeed;
+    stream >> m_sSharedInstanceName;
+  }
 }
 
+
+ezParticleTypeEffect::ezParticleTypeEffect()
+{
+}
 
 ezParticleTypeEffect::~ezParticleTypeEffect()
 {
@@ -94,7 +118,7 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
   {
     if (pEffectID[i] == 0) // always an invalid ID
     {
-      ezParticleEffectHandle hInstance = pWorldModule->CreateParticleEffectInstance(m_hEffect, 0, nullptr, 0xFFFFFFFF);
+      ezParticleEffectHandle hInstance = pWorldModule->CreateParticleEffectInstance(m_hEffect, m_uiRandomSeed, m_sSharedInstanceName, nullptr);
 
       pEffectID[i] = hInstance.GetInternalID().m_Data;
     }
@@ -108,10 +132,9 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
       t.m_Rotation.SetIdentity();
       t.m_vPosition = pPosition[i];
 
-      pEffect->SetTransform(0xFFFFFFFF, t);
+      pEffect->SetTransform(t, nullptr);
     }
   }
-
 }
 
 void ezParticleTypeEffect::OnParticleDeath(const ezStreamGroupElementRemovedEvent& e)
@@ -122,7 +145,7 @@ void ezParticleTypeEffect::OnParticleDeath(const ezStreamGroupElementRemovedEven
 
   ezParticleEffectHandle hInstance(pEffectID[e.m_uiElementIndex]);
 
-  pWorldModule->DestroyParticleEffectInstance(hInstance, false, 0xFFFFFFFF);
+  pWorldModule->DestroyParticleEffectInstance(hInstance, false, nullptr);
 }
 
 

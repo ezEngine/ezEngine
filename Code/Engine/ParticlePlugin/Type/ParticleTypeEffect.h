@@ -10,6 +10,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleTypeEffectFactory : public ezParticleTypeF
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeEffectFactory, ezParticleTypeFactory);
 
 public:
+  ezParticleTypeEffectFactory();
+
   virtual const ezRTTI* GetTypeType() const override;
   virtual void CopyTypeProperties(ezParticleType* pObject) const override;
 
@@ -17,6 +19,8 @@ public:
   virtual void Load(ezStreamReader& stream) override;
 
   ezString m_sEffect;
+  ezUInt64 m_uiRandomSeed;
+  ezString m_sSharedInstanceName;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeEffect : public ezParticleType
@@ -24,15 +28,15 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleTypeEffect : public ezParticleType
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeEffect, ezParticleType);
 
 public:
+  ezParticleTypeEffect();
   ~ezParticleTypeEffect();
 
-  virtual void CreateRequiredStreams() override;
-
   ezParticleEffectResourceHandle m_hEffect;
+  ezUInt64 m_uiRandomSeed;
+  ezString m_sSharedInstanceName;
 
+  virtual void CreateRequiredStreams() override;
   virtual void Render(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass) const override {}
-
-
   virtual void AfterPropertiesConfigured(bool bFirstTime) override;
 
 protected:
@@ -41,7 +45,6 @@ protected:
 
   ezStream* m_pStreamPosition;
   ezStream* m_pStreamEffectID;
-
 };
 
 

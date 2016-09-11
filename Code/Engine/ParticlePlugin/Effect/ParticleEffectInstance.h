@@ -11,7 +11,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleEffectInstance
 public:
   struct SharedInstance
   {
-    ezUInt32 m_uiIdentifier;
+    const void* m_pSharedInstanceOwner;
     ezTransform m_Transform;
   };
 
@@ -50,10 +50,10 @@ public:
   bool IsSharedEffect() const { return m_bIsShared; }
   bool IsSimulatedInLocalSpace() const { return m_bSimulateInLocalSpace; }
 
-  void AddSharedInstance(ezUInt32 uiSharedInstanceIdentifier);
-  void RemoveSharedInstance(ezUInt32 uiSharedInstanceIdentifier);
-  void SetTransform(ezUInt32 uiSharedInstanceIdentifier, const ezTransform& transform);
-  const ezTransform& GetTransform(ezUInt32 uiSharedInstanceIdentifier) const;
+  void AddSharedInstance(const void* pSharedInstanceOwner);
+  void RemoveSharedInstance(const void* pSharedInstanceOwner);
+  void SetTransform(const ezTransform& transform, const void* pSharedInstanceOwner = nullptr);
+  const ezTransform& GetTransform(const void* pSharedInstanceOwner = nullptr) const;
 
   const ezDynamicArray<SharedInstance>& GetAllSharedInstances() const { return m_SharedInstances; }
 

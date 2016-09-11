@@ -219,9 +219,9 @@ bool ezParticleEffectInstance::Update(const ezTime& tDiff)
   return m_uiReviveTimeout > 0;
 }
 
-void ezParticleEffectInstance::SetTransform(ezUInt32 uiSharedInstanceIdentifier, const ezTransform& transform)
+void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const void* pSharedInstanceOwner)
 {
-  if (uiSharedInstanceIdentifier == 0xFFFFFFFF)
+  if (pSharedInstanceOwner == nullptr)
   {
     m_Transform = transform;
 
@@ -241,7 +241,7 @@ void ezParticleEffectInstance::SetTransform(ezUInt32 uiSharedInstanceIdentifier,
 
   for (auto& info : m_SharedInstances)
   {
-    if (info.m_uiIdentifier == uiSharedInstanceIdentifier)
+    if (info.m_pSharedInstanceOwner == pSharedInstanceOwner)
     {
       info.m_Transform = transform;
       return;
@@ -249,14 +249,14 @@ void ezParticleEffectInstance::SetTransform(ezUInt32 uiSharedInstanceIdentifier,
   }
 }
 
-const ezTransform& ezParticleEffectInstance::GetTransform(ezUInt32 uiSharedInstanceIdentifier) const
+const ezTransform& ezParticleEffectInstance::GetTransform(const void* pSharedInstanceOwner) const
 {
-  if (uiSharedInstanceIdentifier == 0xFFFFFFFF)
+  if (pSharedInstanceOwner == nullptr)
     return m_Transform;
 
   for (auto& info : m_SharedInstances)
   {
-    if (info.m_uiIdentifier == uiSharedInstanceIdentifier)
+    if (info.m_pSharedInstanceOwner == pSharedInstanceOwner)
     {
       return info.m_Transform;
     }
@@ -265,24 +265,24 @@ const ezTransform& ezParticleEffectInstance::GetTransform(ezUInt32 uiSharedInsta
   return m_Transform;
 }
 
-void ezParticleEffectInstance::AddSharedInstance(ezUInt32 uiSharedInstanceIdentifier)
+void ezParticleEffectInstance::AddSharedInstance(const void* pSharedInstanceOwner)
 {
   for (auto& info : m_SharedInstances)
   {
-    if (info.m_uiIdentifier == uiSharedInstanceIdentifier)
+    if (info.m_pSharedInstanceOwner == pSharedInstanceOwner)
       return;
   }
 
   auto& info = m_SharedInstances.ExpandAndGetRef();
-  info.m_uiIdentifier = uiSharedInstanceIdentifier;
+  info.m_pSharedInstanceOwner = pSharedInstanceOwner;
   info.m_Transform.SetIdentity();
 }
 
-void ezParticleEffectInstance::RemoveSharedInstance(ezUInt32 uiSharedInstanceIdentifier)
+void ezParticleEffectInstance::RemoveSharedInstance(const void* pSharedInstanceOwner)
 {
   for (ezUInt32 i = 0; i < m_SharedInstances.GetCount(); ++i)
   {
-    if (m_SharedInstances[i].m_uiIdentifier == uiSharedInstanceIdentifier)
+    if (m_SharedInstances[i].m_pSharedInstanceOwner == pSharedInstanceOwner)
     {
       m_SharedInstances.RemoveAtSwap(i);
       return;

@@ -85,7 +85,7 @@ bool ezParticleComponent::SpawnEffect()
   if (m_hEffectResource.IsValid())
   {
     ezParticleWorldModule* pModule = static_cast<ezParticleWorldModule*>(GetManager()->GetUserData());
-    m_EffectController.Create(m_hEffectResource, pModule, m_uiRandomSeed, m_sSharedInstanceName, GetHandle().GetInternalID().m_Data);
+    m_EffectController.Create(m_hEffectResource, pModule, m_uiRandomSeed, m_sSharedInstanceName, this);
 
     m_EffectController.SetTransform(GetOwner()->GetGlobalTransform());
 
