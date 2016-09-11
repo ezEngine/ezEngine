@@ -37,7 +37,7 @@ protected:
   void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);
 
   bool m_bHasOnDeathEventHandler;
-  ezStream* m_pStreamLifeTime;
-  ezStream* m_pStreamPosition;
-  ezStream* m_pStreamVelocity;
+  ezProcessingStream* m_pStreamLifeTime;
+  ezProcessingStream* m_pStreamPosition;
+  ezProcessingStream* m_pStreamVelocity;
 };

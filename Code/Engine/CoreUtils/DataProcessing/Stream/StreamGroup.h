@@ -6,55 +6,55 @@
 #include <CoreUtils/DataProcessing/Stream/Stream.h>
 #include <Foundation/Communication/Event.h>
 
-class ezStreamProcessor;
-class ezStreamElementSpawner;
-class ezStreamGroup;
+class ezProcessingStreamProcessor;
+class ezProcessingStreamSpawner;
+class ezProcessingStreamGroup;
 
 struct ezStreamGroupElementRemovedEvent
 {
-  ezStreamGroup* m_pStreamGroup;
+  ezProcessingStreamGroup* m_pStreamGroup;
   ezUInt64 m_uiElementIndex;
 };
 
 /// \brief A stream group encapsulates the streams and the corresponding data processors.
-class EZ_COREUTILS_DLL ezStreamGroup
+class EZ_COREUTILS_DLL ezProcessingStreamGroup
 {
 public:
 
   /// \brief Constructor
-  ezStreamGroup();
+  ezProcessingStreamGroup();
 
   /// \brief Destructor
-  ~ezStreamGroup();
+  ~ezProcessingStreamGroup();
 
   void Clear();
 
   /// \brief Adds a stream processor to the stream group.
   /// Ownership is transferred to the stream group and EZ_DEFAULT_DELETE will be called on the stream processor on destruction.
   /// Processors are executed in the order they are added to the stream group.
-  void AddStreamProcessor(ezStreamProcessor* pStreamProcessor);
+  void AddStreamProcessor(ezProcessingStreamProcessor* pStreamProcessor);
 
-  void RemoveStreamProcessor(ezStreamProcessor* pStreamProcessor);
+  void RemoveStreamProcessor(ezProcessingStreamProcessor* pStreamProcessor);
 
   void ClearStreamProcessors();
 
   /// \brief Adds a stream element spawner to the stream group.
   /// Ownership is transferred to the stream group and EZ_DEFAULT_DELETE will be called on the stream element spawner on destruction.
   /// Spawners are executed in the order they are added to the stream group.
-  void AddStreamElementSpawner(ezStreamElementSpawner* pStreamElementSpawner);
+  void AddStreamElementSpawner(ezProcessingStreamSpawner* pStreamElementSpawner);
 
-  void RemoveStreamElementSpawner(ezStreamElementSpawner* pStreamElementSpawner);
+  void RemoveStreamElementSpawner(ezProcessingStreamSpawner* pStreamElementSpawner);
 
   void ClearStreamElementSpawners();
 
   /// \brief Adds a stream with the given name to the stream group. Adding a stream two times with the same name will return nullptr for the second attempt to signal an error.
-  ezStream* AddStream(const char* szName, ezStream::DataType Type);
+  ezProcessingStream* AddStream(const char* szName, ezProcessingStream::DataType Type);
 
   /// \brief Removes the stream with the given name, if it exists.
   void RemoveStreamByName(const char* szName);
 
   /// \brief Returns the stream by it's name, returns nullptr if not existent. More efficient since direct use of ezHashedString.
-  ezStream* GetStreamByName(const char* szName) const;
+  ezProcessingStream* GetStreamByName(const char* szName) const;
 
   /// \brief Resizes all streams to contain storage for uiNumElements. Any pending remove and spawn operations will be reset!
   void SetSize(ezUInt64 uiNumElements);
@@ -98,11 +98,11 @@ protected:
 
   void RunPendingSpawns();
 
-  ezHybridArray<ezStreamProcessor*, 8> m_StreamProcessors;
+  ezHybridArray<ezProcessingStreamProcessor*, 8> m_StreamProcessors;
 
-  ezHybridArray<ezStreamElementSpawner*, 8> m_StreamElementSpawners;
+  ezHybridArray<ezProcessingStreamSpawner*, 8> m_StreamElementSpawners;
 
-  ezHybridArray<ezStream*, 8> m_DataStreams;
+  ezHybridArray<ezProcessingStream*, 8> m_DataStreams;
 
   ezHybridArray<ezUInt64, 64> m_PendingRemoveIndices;
 

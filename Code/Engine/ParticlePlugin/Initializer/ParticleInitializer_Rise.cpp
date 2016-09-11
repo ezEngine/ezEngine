@@ -66,14 +66,14 @@
 //
 //void ezParticleInitializer_Rise::CreateRequiredStreams()
 //{
-//  CreateStream("Velocity", ezStream::DataType::Float3, &m_pStreamVelocity);
+//  CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity);
 //}
 //
 //void ezParticleInitializer_Rise::SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 //{
 //  const ezVec3 vGravity = m_pPhysicsModule->GetGravity();
 //
-//  ezStreamElementIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements, uiStartIndex);
+//  ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements, uiStartIndex);
 //
 //  if (m_fRiseSpeedRange == 0)
 //  {

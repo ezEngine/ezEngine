@@ -85,13 +85,13 @@ void ezParticleTypeLight::CreateRequiredStreams()
 {
   m_pStreamOnOff = nullptr;
 
-  CreateStream("Position", ezStream::DataType::Float3, &m_pStreamPosition);
-  CreateStream("Size", ezStream::DataType::Float, &m_pStreamSize);
-  CreateStream("Color", ezStream::DataType::Float4, &m_pStreamColor);
+  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition);
+  CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize);
+  CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor);
 
   if (m_uiPercentage < 100)
   {
-    CreateStream("OnOff", ezStream::DataType::Int, &m_pStreamOnOff);
+    CreateStream("OnOff", ezProcessingStream::DataType::Int, &m_pStreamOnOff);
   }
 }
 

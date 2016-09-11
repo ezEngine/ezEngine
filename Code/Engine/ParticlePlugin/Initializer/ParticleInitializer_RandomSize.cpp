@@ -80,7 +80,7 @@ void ezParticleInitializerFactory_RandomSize::Load(ezStreamReader& stream)
 
 void ezParticleInitializer_RandomSize::CreateRequiredStreams()
 {
-  CreateStream("Size", ezStream::DataType::Float, &m_pStreamSize);
+  CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize);
 }
 
 void ezParticleInitializer_RandomSize::SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)

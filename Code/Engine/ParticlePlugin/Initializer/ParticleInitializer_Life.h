@@ -36,5 +36,5 @@ public:
 protected:
   virtual void SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
 
-  ezStream* m_pStreamLifeTime;
+  ezProcessingStream* m_pStreamLifeTime;
 };

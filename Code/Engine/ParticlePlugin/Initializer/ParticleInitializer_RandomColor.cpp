@@ -80,7 +80,7 @@ void ezParticleInitializerFactory_RandomColor::Load(ezStreamReader& stream)
 
 void ezParticleInitializer_RandomColor::CreateRequiredStreams()
 {
-  CreateStream("Color", ezStream::DataType::Float4, &m_pStreamColor);
+  CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor);
 }
 
 void ezParticleInitializer_RandomColor::SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)

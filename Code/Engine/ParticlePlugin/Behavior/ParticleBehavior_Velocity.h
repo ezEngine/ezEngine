@@ -39,7 +39,7 @@ protected:
   // used to rise/fall along the gravity vector
   ezPhysicsWorldModuleInterface* m_pPhysicsModule;
 
-  ezStream* m_pStreamPosition;
-  ezStream* m_pStreamVelocity;
+  ezProcessingStream* m_pStreamPosition;
+  ezProcessingStream* m_pStreamVelocity;
 };
 

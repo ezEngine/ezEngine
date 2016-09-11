@@ -55,9 +55,9 @@ void ezParticleRenderer::RenderBatch(const ezRenderViewContext& renderViewContex
 
     const ezUInt64 uiNumParticles = pRenderData->m_pParticleSystem->GetNumActiveParticles();
 
-    const ezStream* pStreamPosition = pRenderData->m_pParticleSystem->QueryStream("Position", ezStream::DataType::Float3);
-    const ezStream* pStreamColor = pRenderData->m_pParticleSystem->QueryStream("Color", ezStream::DataType::Float4);
-    const ezStream* pStreamSize = pRenderData->m_pParticleSystem->QueryStream("Size", ezStream::DataType::Float);
+    const ezProcessingStream* pStreamPosition = pRenderData->m_pParticleSystem->QueryStream("Position", ezProcessingStream::DataType::Float3);
+    const ezProcessingStream* pStreamColor = pRenderData->m_pParticleSystem->QueryStream("Color", ezProcessingStream::DataType::Float4);
+    const ezProcessingStream* pStreamSize = pRenderData->m_pParticleSystem->QueryStream("Size", ezProcessingStream::DataType::Float);
 
     if (pStreamPosition == nullptr || pStreamPosition->GetData<ezVec3>() == nullptr)
       continue;

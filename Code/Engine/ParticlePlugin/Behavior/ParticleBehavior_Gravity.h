@@ -37,6 +37,6 @@ protected:
 
   ezPhysicsWorldModuleInterface* m_pPhysicsModule;
 
-  ezStream* m_pStreamVelocity;
+  ezProcessingStream* m_pStreamVelocity;
 };
 

@@ -60,8 +60,8 @@ protected:
 
   ezPhysicsWorldModuleInterface* m_pPhysicsModule;
 
-  ezStream* m_pStreamPosition;
-  ezStream* m_pStreamLastPosition;
-  ezStream* m_pStreamVelocity;
+  ezProcessingStream* m_pStreamPosition;
+  ezProcessingStream* m_pStreamLastPosition;
+  ezProcessingStream* m_pStreamVelocity;
 };
 

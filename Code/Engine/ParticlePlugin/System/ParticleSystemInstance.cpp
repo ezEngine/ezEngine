@@ -350,7 +350,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
   return bHasReactingEmitters ? ezParticleSystemState::OnlyReacting : ezParticleSystemState::Inactive;
 }
 
-const ezStream* ezParticleSystemInstance::QueryStream(const char* szName, ezStream::DataType Type) const
+const ezProcessingStream* ezParticleSystemInstance::QueryStream(const char* szName, ezProcessingStream::DataType Type) const
 {
   ezStringBuilder fullName(szName);
   fullName.AppendFormat("(%i)", (int)Type);
@@ -358,7 +358,7 @@ const ezStream* ezParticleSystemInstance::QueryStream(const char* szName, ezStre
   return m_StreamGroup.GetStreamByName(fullName);
 }
 
-void ezParticleSystemInstance::CreateStream(const char* szName, ezStream::DataType Type, ezStream** ppStream, ezParticleStreamBinding& binding, bool bExpectInitializedValue)
+void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream, ezParticleStreamBinding& binding, bool bExpectInitializedValue)
 {
   EZ_ASSERT_DEV(ppStream != nullptr, "The pointer to the stream pointer must not be null");
 
@@ -367,7 +367,7 @@ void ezParticleSystemInstance::CreateStream(const char* szName, ezStream::DataTy
 
   StreamInfo* pInfo = nullptr;
 
-  ezStream* pStream = m_StreamGroup.GetStreamByName(fullName);
+  ezProcessingStream* pStream = m_StreamGroup.GetStreamByName(fullName);
   if (pStream == nullptr)
   {
     pStream = m_StreamGroup.AddStream(fullName, Type);
@@ -435,17 +435,17 @@ void ezParticleSystemInstance::CreateStreamZeroInitializers()
 
     if (info.m_pInitializer == nullptr)
     {
-      info.m_pInitializer = EZ_DEFAULT_NEW(ezStreamElementSpawnerZeroInitialized, info.m_sName);
+      info.m_pInitializer = EZ_DEFAULT_NEW(ezProcessingStreamSpawnerZeroInitialized, info.m_sName);
       m_StreamGroup.AddStreamElementSpawner(info.m_pInitializer);
     }
   }
 }
 
-void ezParticleStreamBinding::UpdateBindings(const ezStreamGroup* pGroup) const
+void ezParticleStreamBinding::UpdateBindings(const ezProcessingStreamGroup* pGroup) const
 {
   for (const auto& bind : m_Bindings)
   {
-    ezStream* pStream = pGroup->GetStreamByName(bind.m_sName);
+    ezProcessingStream* pStream = pGroup->GetStreamByName(bind.m_sName);
     EZ_ASSERT_DEV(pStream != nullptr, "Stream binding '%s' is invalid now", bind.m_sName.GetData());
 
     *bind.m_ppStream = pStream;

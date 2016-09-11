@@ -5,7 +5,7 @@
 #include <CoreUtils/DataProcessing/Stream/StreamProcessor.h>
 #include <ParticlePlugin/Module/ParticleModule.h>
 
-class ezStream;
+class ezProcessingStream;
 class ezParticleSystemInstance;
 class ezParticleBehavior;
 
@@ -24,9 +24,9 @@ public:
   virtual void Load(ezStreamReader& stream) = 0;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior : public ezParticleModule<ezStreamProcessor, false>
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior : public ezParticleModule<ezProcessingStreamProcessor, false>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior, ezStreamProcessor);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior, ezProcessingStreamProcessor);
 
   friend class ezParticleSystemInstance;
 

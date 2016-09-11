@@ -73,11 +73,11 @@ void ezParticleInitializerFactory_SpherePosition::Load(ezStreamReader& stream)
 
 void ezParticleInitializer_SpherePosition::CreateRequiredStreams()
 {
-  CreateStream("Position", ezStream::DataType::Float3, &m_pStreamPosition);
+  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition);
 
   if (m_bSetVelocity)
   {
-    CreateStream("Velocity", ezStream::DataType::Float3, &m_pStreamVelocity);
+    CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity);
   }
 }
 

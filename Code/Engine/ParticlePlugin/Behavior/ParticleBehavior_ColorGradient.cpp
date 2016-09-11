@@ -68,8 +68,8 @@ const char* ezParticleBehaviorFactory_ColorGradient::GetColorGradientFile() cons
 
 void ezParticleBehavior_ColorGradient::CreateRequiredStreams()
 {
-  CreateStream("LifeTime", ezStream::DataType::Float2, &m_pStreamLifeTime);
-  CreateStream("Color", ezStream::DataType::Float4, &m_pStreamColor);
+  CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime);
+  CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor);
 }
 
 void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
@@ -77,8 +77,8 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
   if (!m_hGradient.IsValid())
     return;
 
-  ezStreamElementIterator<ezVec3> itLifeTime(m_pStreamLifeTime, uiNumElements);
-  ezStreamElementIterator<ezColor> itColor(m_pStreamColor, uiNumElements);
+  ezProcessingStreamIterator<ezVec3> itLifeTime(m_pStreamLifeTime, uiNumElements);
+  ezProcessingStreamIterator<ezColor> itColor(m_pStreamColor, uiNumElements);
 
   ezResourceLock<ezColorGradientResource> pGradient(m_hGradient, ezResourceAcquireMode::NoFallback);
 

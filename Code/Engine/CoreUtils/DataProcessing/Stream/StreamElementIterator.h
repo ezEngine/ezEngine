@@ -5,12 +5,13 @@
 #include <Foundation/Memory/MemoryUtils.h>
 
 /// \brief Helper template class to iterate over stream elements.
-template<typename Type> class ezStreamElementIterator
+template<typename Type>
+class ezProcessingStreamIterator
 {
   public:
 
     /// \brief Constructor.
-    ezStreamElementIterator( const ezStream* pStream, ezUInt64 uiNumElements, ezUInt64 uiStartIndex = 0 );
+    ezProcessingStreamIterator( const ezProcessingStream* pStream, ezUInt64 uiNumElements, ezUInt64 uiStartIndex = 0 );
 
     /// \brief Returns a reference to the current element. Note that the behavior is undefined if HasReachedEnd() is true!
     Type& Current() const;

@@ -43,8 +43,8 @@ protected:
   virtual void Process(ezUInt64 uiNumElements) override;
   void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);
 
-  ezStream* m_pStreamPosition;
-  ezStream* m_pStreamEffectID;
+  ezProcessingStream* m_pStreamPosition;
+  ezProcessingStream* m_pStreamEffectID;
 };
 
 

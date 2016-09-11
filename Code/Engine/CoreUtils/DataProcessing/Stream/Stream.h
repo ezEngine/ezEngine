@@ -5,15 +5,15 @@
 #include <CoreUtils/Basics.h>
 
 /// \brief A single stream in a stream group holding contiguous data of a given type.
-class EZ_COREUTILS_DLL ezStream
+class EZ_COREUTILS_DLL ezProcessingStream
 {
   public:
 
     /// \brief Destructor.
-    ~ezStream();
+    ~ezProcessingStream();
 
     /// \brief The data types which can be stored in the stream.
-    /// When adding new data types the GetDataTypeSize() of ezStream needs to be updated.
+    /// When adding new data types the GetDataTypeSize() of ezProcessingStream needs to be updated.
     enum class DataType
     {
       Float,
@@ -88,9 +88,9 @@ class EZ_COREUTILS_DLL ezStream
 
   protected:
 
-    friend class ezStreamGroup;
+    friend class ezProcessingStreamGroup;
 
-    ezStream( const char* szName, DataType Type, ezUInt64 uiAlignment = 64 );
+    ezProcessingStream( const char* szName, DataType Type, ezUInt64 uiAlignment = 64 );
 
     void SetSize( ezUInt64 uiNumElements );
 

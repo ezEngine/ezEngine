@@ -6,7 +6,7 @@
 #include <ParticlePlugin/Module/ParticleModule.h>
 
 class ezParticleSystemInstance;
-class ezStream;
+class ezProcessingStream;
 class ezParticleEmitter;
 
 /// \brief Base class for all particle emitters
@@ -32,9 +32,9 @@ enum ezParticleEmitterState
 };
 
 /// \brief Base class for stream spawners that are used by ezParticleEmitter's
-class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter : public ezParticleModule<ezStreamElementSpawner, true>
+class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter : public ezParticleModule<ezProcessingStreamSpawner, true>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitter, ezStreamElementSpawner);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitter, ezProcessingStreamSpawner);
 
   friend class ezParticleSystemInstance;
   friend class ezParticleEmitterFactory;

@@ -33,9 +33,9 @@ public:
 protected:
   virtual void Process(ezUInt64 uiNumElements) override {}
 
-  ezStream* m_pStreamPosition;
-  ezStream* m_pStreamSize;
-  ezStream* m_pStreamColor;
+  ezProcessingStream* m_pStreamPosition;
+  ezProcessingStream* m_pStreamSize;
+  ezProcessingStream* m_pStreamColor;
 
   //void CreateVertexBuffer(ezUInt32 uiVertexSize) const;
   void CreateDataBuffer(ezUInt32 uiStructSize) const;

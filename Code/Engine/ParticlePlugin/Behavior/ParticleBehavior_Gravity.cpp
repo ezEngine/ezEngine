@@ -61,7 +61,7 @@ void ezParticleBehavior_Gravity::AfterPropertiesConfigured(bool bFirstTime)
 
 void ezParticleBehavior_Gravity::CreateRequiredStreams()
 {
-  CreateStream("Velocity", ezStream::DataType::Float3, &m_pStreamVelocity);
+  CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity);
 }
 
 void ezParticleBehavior_Gravity::Process(ezUInt64 uiNumElements)
@@ -71,7 +71,7 @@ void ezParticleBehavior_Gravity::Process(ezUInt64 uiNumElements)
   const float tDiff = (float)m_TimeDiff.GetSeconds();
   const ezVec3 addGravity = vGravity * m_fGravityFactor * tDiff;
 
-  ezStreamElementIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements);
+  ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements);
 
   while (!itVelocity.HasReachedEnd())
   {

@@ -73,8 +73,8 @@ void ezParticleEmitterFactory_OnEvent::Load(ezStreamReader& stream)
 
 void ezParticleEmitter_OnEvent::CreateRequiredStreams()
 {
-  CreateStream("Position", ezStream::DataType::Float3, &m_pStreamPosition);
-  CreateStream("Velocity", ezStream::DataType::Float3, &m_pStreamVelocity);
+  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition);
+  CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity);
 }
 
 void ezParticleEmitter_OnEvent::SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)

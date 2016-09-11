@@ -6,27 +6,27 @@
 #include <CoreUtils/DataProcessing/Stream/Stream.h>
 #include <Foundation/Memory/MemoryUtils.h>
 
-ezStreamElementSpawnerZeroInitialized::ezStreamElementSpawnerZeroInitialized( const char* szStreamName )
+ezProcessingStreamSpawnerZeroInitialized::ezProcessingStreamSpawnerZeroInitialized( const char* szStreamName )
   : m_pStream(nullptr)
 {
   m_StreamName.Assign( szStreamName );
 }
 
-ezStreamElementSpawnerZeroInitialized::~ezStreamElementSpawnerZeroInitialized()
+ezProcessingStreamSpawnerZeroInitialized::~ezProcessingStreamSpawnerZeroInitialized()
 {
   int i = 0;
   (void)i;
 }
 
 
-ezResult ezStreamElementSpawnerZeroInitialized::UpdateStreamBindings()
+ezResult ezProcessingStreamSpawnerZeroInitialized::UpdateStreamBindings()
 {
   m_pStream = m_pStreamGroup->GetStreamByName( m_StreamName );
   return m_pStream ? EZ_SUCCESS : EZ_FAILURE;
 }
 
 
-void ezStreamElementSpawnerZeroInitialized::SpawnElements( ezUInt64 uiStartIndex, ezUInt64 uiNumElements )
+void ezProcessingStreamSpawnerZeroInitialized::SpawnElements( ezUInt64 uiStartIndex, ezUInt64 uiNumElements )
 {
   const ezUInt64 uiElementSize = m_pStream->GetElementSize();
   const ezUInt64 uiElementStride = m_pStream->GetElementStride();

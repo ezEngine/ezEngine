@@ -1,6 +1,6 @@
 
 template<typename Type>
-ezStreamElementIterator<Type>::ezStreamElementIterator( const ezStream* pStream, ezUInt64 uiNumElements, ezUInt64 uiStartIndex /*= 0*/ )
+ezProcessingStreamIterator<Type>::ezProcessingStreamIterator( const ezProcessingStream* pStream, ezUInt64 uiNumElements, ezUInt64 uiStartIndex /*= 0*/ )
   : m_pCurrentPtr(nullptr)
   , m_pEndPtr(nullptr)
   , m_uiElementStride(0)
@@ -14,19 +14,19 @@ ezStreamElementIterator<Type>::ezStreamElementIterator( const ezStream* pStream,
 }
 
 template<typename Type>
-Type& ezStreamElementIterator<Type>::Current() const
+Type& ezProcessingStreamIterator<Type>::Current() const
 {
   return *static_cast<Type*>(m_pCurrentPtr);
 }
 
 template<typename Type>
-bool ezStreamElementIterator<Type>::HasReachedEnd() const
+bool ezProcessingStreamIterator<Type>::HasReachedEnd() const
 {
   return m_pCurrentPtr >= m_pEndPtr;
 }
 
 template<typename Type>
-void ezStreamElementIterator<Type>::Advance()
+void ezProcessingStreamIterator<Type>::Advance()
 {
   m_pCurrentPtr = ezMemoryUtils::AddByteOffset( m_pCurrentPtr, static_cast<ptrdiff_t>(m_uiElementStride) );
 }

@@ -3,7 +3,7 @@
 #include <CoreUtils/Basics.h>
 #include <CoreUtils/DataProcessing/Stream/Stream.h>
 
-ezStream::ezStream( const char* szName, ezStream::DataType Type, ezUInt64 uiAlignment /*= 64*/ )
+ezProcessingStream::ezProcessingStream( const char* szName, ezProcessingStream::DataType Type, ezUInt64 uiAlignment /*= 64*/ )
   : m_pData(nullptr)
   , m_uiAlignment(uiAlignment)
   , m_uiNumElements(0)
@@ -14,12 +14,12 @@ ezStream::ezStream( const char* szName, ezStream::DataType Type, ezUInt64 uiAlig
   m_Name.Assign( szName );
 }
 
-ezStream::~ezStream()
+ezProcessingStream::~ezProcessingStream()
 {
   FreeData();
 }
 
-void ezStream::SetSize( ezUInt64 uiNumElements )
+void ezProcessingStream::SetSize( ezUInt64 uiNumElements )
 {
   if ( m_uiNumElements == uiNumElements )
     return;
@@ -45,7 +45,7 @@ void ezStream::SetSize( ezUInt64 uiNumElements )
   m_uiNumElements = uiNumElements;
 }
 
-void ezStream::FreeData()
+void ezProcessingStream::FreeData()
 {
   if ( m_pData )
   {
@@ -62,7 +62,7 @@ void ezStream::FreeData()
   m_uiNumElements = 0;
 }
 
-size_t ezStream::GetDataTypeSize( DataType Type )
+size_t ezProcessingStream::GetDataTypeSize( DataType Type )
 {
   switch ( Type )
   {

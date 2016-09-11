@@ -12,8 +12,8 @@ class ezParticleEmitter;
 class ezParticleInitializer;
 class ezParticleBehavior;
 class ezParticleType;
-class ezStreamGroup;
-class ezStream;
+class ezProcessingStreamGroup;
+class ezProcessingStream;
 class ezRandom;
 class ezParticleEventQueue;
 class ezParticleEffectDescriptor;
@@ -48,7 +48,7 @@ struct ezParticleSystemState
 class ezParticleStreamBinding
 {
 public:
-  void UpdateBindings(const ezStreamGroup* pGroup) const;
+  void UpdateBindings(const ezProcessingStreamGroup* pGroup) const;
   void Clear() { m_Bindings.Clear(); }
 
 private:
@@ -57,7 +57,7 @@ private:
   struct Binding
   {
     ezString m_sName;
-    ezStream** m_ppStream;
+    ezProcessingStream** m_ppStream;
   };
 
   ezHybridArray<Binding, 4> m_Bindings;

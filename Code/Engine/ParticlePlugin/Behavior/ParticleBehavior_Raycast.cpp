@@ -97,18 +97,18 @@ void ezParticleBehavior_Raycast::AfterPropertiesConfigured(bool bFirstTime)
 
 void ezParticleBehavior_Raycast::CreateRequiredStreams()
 {
-  CreateStream("Position", ezStream::DataType::Float3, &m_pStreamPosition);
-  CreateStream("LastPosition", ezStream::DataType::Float3, &m_pStreamLastPosition);
-  CreateStream("Velocity", ezStream::DataType::Float3, &m_pStreamVelocity);
+  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition);
+  CreateStream("LastPosition", ezProcessingStream::DataType::Float3, &m_pStreamLastPosition);
+  CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity);
 }
 
 void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
 {
   const float tDiff = (float)m_TimeDiff.GetSeconds();
 
-  ezStreamElementIterator<ezVec3> itPosition(m_pStreamPosition, uiNumElements);
-  ezStreamElementIterator<ezVec3> itLastPosition(m_pStreamLastPosition, uiNumElements);
-  ezStreamElementIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements);
+  ezProcessingStreamIterator<ezVec3> itPosition(m_pStreamPosition, uiNumElements);
+  ezProcessingStreamIterator<ezVec3> itLastPosition(m_pStreamLastPosition, uiNumElements);
+  ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements);
 
   ezGameObjectHandle hHitObj;
   ezSurfaceResourceHandle hHitSurface;

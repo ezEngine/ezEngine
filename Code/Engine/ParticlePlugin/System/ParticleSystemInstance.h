@@ -44,10 +44,10 @@ public:
   ezRandom& GetRNG() { return m_Random; }
 
   /// \brief Returns the desired stream, if it already exists, nullptr otherwise.
-  const ezStream* QueryStream(const char* szName, ezStream::DataType Type) const;
+  const ezProcessingStream* QueryStream(const char* szName, ezProcessingStream::DataType Type) const;
 
   /// \brief Returns the desired stream, if it already exists, creates it otherwise.
-  void CreateStream(const char* szName, ezStream::DataType Type, ezStream** ppStream, ezParticleStreamBinding& binding, bool bExpectInitializedValue);
+  void CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream, ezParticleStreamBinding& binding, bool bExpectInitializedValue);
 
   void ProcessEventQueue(const ezParticleEventQueue* pQueue);
 
@@ -76,7 +76,7 @@ private:
   ezWorld* m_pWorld;
   ezTransform m_Transform;
 
-  ezStreamGroup m_StreamGroup;
+  ezProcessingStreamGroup m_StreamGroup;
 
   struct StreamInfo
   {
@@ -85,7 +85,7 @@ private:
     ezString m_sName;
     bool m_bGetsInitialized;
     bool m_bInUse;
-    ezStreamElementSpawner* m_pInitializer;
+    ezProcessingStreamSpawner* m_pInitializer;
   };
 
   ezHybridArray<StreamInfo, 8> m_StreamInfo;

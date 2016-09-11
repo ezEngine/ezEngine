@@ -5,7 +5,7 @@
 #include <ParticlePlugin/Declarations.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
-class ezStream;
+class ezProcessingStream;
 
 template<class DerivedFrom, bool StreamInitializer>
 class ezParticleModule : public DerivedFrom
@@ -40,7 +40,7 @@ public:
   }
 
 protected:
-  void CreateStream(const char* szName, ezStream::DataType Type, ezStream** ppStream)
+  void CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream)
   {
     m_pOwnerSystem->CreateStream(szName, Type, ppStream, m_StreamBinding, !StreamInitializer);
   }

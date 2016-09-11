@@ -76,8 +76,8 @@ const char* ezParticleBehaviorFactory_SizeCurve::GetSizeCurveFile() const
 
 void ezParticleBehavior_SizeCurve::CreateRequiredStreams()
 {
-  CreateStream("LifeTime", ezStream::DataType::Float2, &m_pStreamLifeTime);
-  CreateStream("Size", ezStream::DataType::Float, &m_pStreamSize);
+  CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime);
+  CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize);
 }
 
 void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
@@ -85,8 +85,8 @@ void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
   if (!m_hCurve.IsValid())
     return;
 
-  ezStreamElementIterator<ezVec3> itLifeTime(m_pStreamLifeTime, uiNumElements);
-  ezStreamElementIterator<float> itSize(m_pStreamSize, uiNumElements);
+  ezProcessingStreamIterator<ezVec3> itLifeTime(m_pStreamLifeTime, uiNumElements);
+  ezProcessingStreamIterator<float> itSize(m_pStreamSize, uiNumElements);
 
   ezResourceLock<ezCurve1DResource> pCurve(m_hCurve, ezResourceAcquireMode::NoFallback);
 

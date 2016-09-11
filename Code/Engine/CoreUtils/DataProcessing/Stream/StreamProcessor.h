@@ -4,24 +4,24 @@
 #include <CoreUtils/Basics.h>
 #include <Foundation/Reflection/Reflection.h>
 
-class ezStreamGroup;
+class ezProcessingStreamGroup;
 
 /// \brief Base class for all stream processor implementations.
-class EZ_COREUTILS_DLL ezStreamProcessor : public ezReflectedClass
+class EZ_COREUTILS_DLL ezProcessingStreamProcessor : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezStreamProcessor, ezReflectedClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcessingStreamProcessor, ezReflectedClass);
 
 public:
 
   /// \brief Base constructor
-  ezStreamProcessor();
+  ezProcessingStreamProcessor();
 
   /// \brief Base destructor.
-  virtual ~ezStreamProcessor();
+  virtual ~ezProcessingStreamProcessor();
 
 protected:
 
-  friend class ezStreamGroup;
+  friend class ezProcessingStreamGroup;
 
   /// \brief Internal method which needs to be implemented, gets the concrete stream bindings. 
   /// This is called every time the streams are resized. Implementations should check that their required streams exist and are of the correct data types.
@@ -32,6 +32,6 @@ protected:
 
   /// \brief Back pointer to the stream group - will be set to the owner stream group when adding the stream processor to the group.
   /// Can be used to get stream pointers in UpdateStreamBindings();
-  ezStreamGroup* m_pStreamGroup;
+  ezProcessingStreamGroup* m_pStreamGroup;
 
 };

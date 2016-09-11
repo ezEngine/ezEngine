@@ -42,8 +42,8 @@ protected:
 
   virtual void ProcessEventQueue(const ezParticleEventQueue* pQueue) override;
 
-  ezStream* m_pStreamPosition;
-  ezStream* m_pStreamVelocity;
+  ezProcessingStream* m_pStreamPosition;
+  ezProcessingStream* m_pStreamVelocity;
 
   ezDeque<ezParticleEvent> m_Events;
 };

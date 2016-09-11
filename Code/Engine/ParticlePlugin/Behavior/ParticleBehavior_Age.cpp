@@ -80,12 +80,12 @@ ezParticleBehavior_Age::~ezParticleBehavior_Age()
 
 void ezParticleBehavior_Age::CreateRequiredStreams()
 {
-  CreateStream("LifeTime", ezStream::DataType::Float2, &m_pStreamLifeTime);
+  CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime);
 
   if (m_sOnDeathEvent.GetHash() != 0)
   {
-    CreateStream("Position", ezStream::DataType::Float3, &m_pStreamPosition);
-    CreateStream("Velocity", ezStream::DataType::Float3, &m_pStreamVelocity);
+    CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition);
+    CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity);
   }
 }
 

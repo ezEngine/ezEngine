@@ -43,6 +43,6 @@
 //  // used to rise/fall along the gravity vector
 //  ezPhysicsWorldModuleInterface* m_pPhysicsModule;
 //
-//  ezStream* m_pStreamVelocity;
+//  ezProcessingStream* m_pStreamVelocity;
 //};
 //

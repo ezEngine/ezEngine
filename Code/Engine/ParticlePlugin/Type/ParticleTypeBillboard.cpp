@@ -72,9 +72,9 @@ void ezParticleTypeBillboardFactory::Load(ezStreamReader& stream)
 
 void ezParticleTypeBillboard::CreateRequiredStreams()
 {
-  CreateStream("Position", ezStream::DataType::Float3, &m_pStreamPosition);
-  CreateStream("Size", ezStream::DataType::Float, &m_pStreamSize);
-  CreateStream("Color", ezStream::DataType::Float4, &m_pStreamColor);
+  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition);
+  CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize);
+  CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor);
 }
 
 struct EZ_ALIGN_16(ParticleData)

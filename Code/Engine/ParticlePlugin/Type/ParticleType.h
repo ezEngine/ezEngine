@@ -19,9 +19,9 @@ public:
   virtual void Load(ezStreamReader& stream) = 0;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleType : public ezParticleModule<ezStreamProcessor, false>
+class EZ_PARTICLEPLUGIN_DLL ezParticleType : public ezParticleModule<ezProcessingStreamProcessor, false>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleType, ezStreamProcessor);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleType, ezProcessingStreamProcessor);
 
   friend class ezParticleSystemInstance;
 

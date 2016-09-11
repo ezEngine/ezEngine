@@ -39,6 +39,6 @@ public:
 protected:
   virtual void Process(ezUInt64 uiNumElements) override;
 
-  ezStream* m_pStreamLifeTime;
-  ezStream* m_pStreamColor;
+  ezProcessingStream* m_pStreamLifeTime;
+  ezProcessingStream* m_pStreamColor;
 };

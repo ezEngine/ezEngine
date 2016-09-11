@@ -9,15 +9,15 @@ EZ_CREATE_SIMPLE_TEST_GROUP( DataProcessing );
 
 EZ_CREATE_SIMPLE_TEST( DataProcessing, Stream )
 {
-  ezStreamGroup Group;
-  ezStream* pStream1 = Group.AddStream( "Stream1", ezStream::DataType::Float );
-  ezStream* pStream2 = Group.AddStream( "Stream2", ezStream::DataType::Float3 );
+  ezProcessingStreamGroup Group;
+  ezProcessingStream* pStream1 = Group.AddStream( "Stream1", ezProcessingStream::DataType::Float );
+  ezProcessingStream* pStream2 = Group.AddStream( "Stream2", ezProcessingStream::DataType::Float3 );
 
   EZ_TEST_BOOL( pStream1 != nullptr );
   EZ_TEST_BOOL( pStream2 != nullptr );
 
-  ezStreamElementSpawnerZeroInitialized* pSpawner1 = EZ_DEFAULT_NEW( ezStreamElementSpawnerZeroInitialized, pStream1->GetName() );
-  ezStreamElementSpawnerZeroInitialized* pSpawner2 = EZ_DEFAULT_NEW( ezStreamElementSpawnerZeroInitialized, pStream2->GetName() );
+  ezProcessingStreamSpawnerZeroInitialized* pSpawner1 = EZ_DEFAULT_NEW( ezProcessingStreamSpawnerZeroInitialized, pStream1->GetName() );
+  ezProcessingStreamSpawnerZeroInitialized* pSpawner2 = EZ_DEFAULT_NEW( ezProcessingStreamSpawnerZeroInitialized, pStream2->GetName() );
 
   Group.AddStreamElementSpawner( pSpawner1 );
   Group.AddStreamElementSpawner( pSpawner2 );
@@ -35,7 +35,7 @@ EZ_CREATE_SIMPLE_TEST( DataProcessing, Stream )
 
 
   {
-    ezStreamElementIterator<float> stream1Iterator( pStream1, 3 );
+    ezProcessingStreamIterator<float> stream1Iterator( pStream1, 3 );
 
     int iElementsVisited = 0;
     while ( !stream1Iterator.HasReachedEnd() )
@@ -54,7 +54,7 @@ EZ_CREATE_SIMPLE_TEST( DataProcessing, Stream )
   Group.Process();
 
   {
-    ezStreamElementIterator<ezVec3> stream2Iterator( pStream2, Group.GetNumActiveElements() );
+    ezProcessingStreamIterator<ezVec3> stream2Iterator( pStream2, Group.GetNumActiveElements() );
 
     int iElementsVisited = 0;
     while ( !stream2Iterator.HasReachedEnd() )
@@ -82,7 +82,7 @@ EZ_CREATE_SIMPLE_TEST( DataProcessing, Stream )
 
   // Add processor
 
-  class AddOneStreamProcessor : public ezStreamProcessor
+  class AddOneStreamProcessor : public ezProcessingStreamProcessor
   {
     public:
 
@@ -102,7 +102,7 @@ EZ_CREATE_SIMPLE_TEST( DataProcessing, Stream )
 
       virtual void Process( ezUInt64 uiNumElements ) override
       {
-        ezStreamElementIterator<float> streamIterator( m_pStream, uiNumElements );
+        ezProcessingStreamIterator<float> streamIterator( m_pStream, uiNumElements );
 
         while ( !streamIterator.HasReachedEnd() )
         {
@@ -113,7 +113,7 @@ EZ_CREATE_SIMPLE_TEST( DataProcessing, Stream )
       }
 
       ezHashedString m_StreamName;
-      ezStream* m_pStream;
+      ezProcessingStream* m_pStream;
   };
 
   AddOneStreamProcessor* pProcessor1 = EZ_DEFAULT_NEW( AddOneStreamProcessor, pStream1->GetName() );
@@ -123,7 +123,7 @@ EZ_CREATE_SIMPLE_TEST( DataProcessing, Stream )
   Group.Process();
 
   {
-    ezStreamElementIterator<float> stream1Iterator( pStream1, Group.GetNumActiveElements() );
+    ezProcessingStreamIterator<float> stream1Iterator( pStream1, Group.GetNumActiveElements() );
     while ( !stream1Iterator.HasReachedEnd() )
     {
       EZ_TEST_FLOAT( stream1Iterator.Current(), 1.0f, 0.001f );
@@ -135,7 +135,7 @@ EZ_CREATE_SIMPLE_TEST( DataProcessing, Stream )
   Group.Process();
 
   {
-    ezStreamElementIterator<float> stream1Iterator( pStream1, Group.GetNumActiveElements() );
+    ezProcessingStreamIterator<float> stream1Iterator( pStream1, Group.GetNumActiveElements() );
     while ( !stream1Iterator.HasReachedEnd() )
     {
       EZ_TEST_FLOAT( stream1Iterator.Current(), 2.0f, 0.001f );
