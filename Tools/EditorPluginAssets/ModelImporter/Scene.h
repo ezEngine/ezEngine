@@ -65,13 +65,6 @@ namespace ezModelImporter
     ///   Pointer to the newly created meshnode.
     Mesh* MergeAllMeshes(bool mergeSubmeshesWithSameMaterials = true);
 
-    /// Generates vertex normals for all meshes that do not have them yet.
-    void GenerateVertexNormals();
-
-    /// Generates tangents for all meshes that do not have tangents.
-    /// Does not work if a mesh has no normals an UV coordinates.
-    void GenerateVertexTangents();
-
 
   private:
     void RemoveEmptyNodesRec(ObjectId nodeId);

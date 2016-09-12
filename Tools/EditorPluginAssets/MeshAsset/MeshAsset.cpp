@@ -261,9 +261,8 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   // Want a single mesh so let's all merge it together.
   // Todo: Later we might want to point to a specific mesh inside the scene!
   Mesh* mesh = scene->MergeAllMeshes();
- 
-  // TODO: Generate normals and tangents!
-  //mesh->ComputeNormals();
+  mesh->ComputeNormals();
+  mesh->ComputeTangents();
 
   // Prepare streams.
   const static int numReadMeshStreams = 5;
@@ -316,12 +315,11 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     vNormal = mTransformation.TransformDirection(vNormal).GetNormalized();
     ezVec3 vTangent = dataStreams[3]->GetValueVec3(dataIndices[3]);
     vTangent = mTransformation.TransformDirection(vTangent).GetNormalized();
-    ezVec3 vBitangent = dataStreams[4]->GetValueVec3(dataIndices[4]);
-    vBitangent = mTransformation.TransformDirection(vBitangent).GetNormalized();
+    float biTangentSign = dataStreams[4]->GetValueFloat(dataIndices[4]);
+    biTangentSign = bFlipTriangles ? -biTangentSign : biTangentSign;
 
     // We encode the handedness of the tangent space in the length of the tangent.
-    ezVec3 vBitangentTest = vNormal.Cross(vTangent);
-    if (vBitangent.Dot(vBitangentTest) < 0.0f)
+    if (biTangentSign < 0.0f)
     {
       vTangent *= 1.7320508075688772935274463415059f; //ezMath::Root(3, 2)
     }

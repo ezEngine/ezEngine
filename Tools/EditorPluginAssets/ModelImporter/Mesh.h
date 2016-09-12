@@ -169,6 +169,9 @@ namespace ezModelImporter
     /// If a data stream already exists it will be returned, unless the existing data stream has a different element count per vertex.
     /// In this case nullptr will be returned.
     VertexDataStream* AddDataStream(ezGALVertexAttributeSemantic::Enum semantic, ezUInt32 uiNumElementsPerVertex);
+
+    /// Removes a data stream from the mesh.
+    void RemoveDataStream(ezGALVertexAttributeSemantic::Enum semantic);
     
     /// Retrieves a data stream for a given semantic. Null if there is none.
     VertexDataStream* GetDataStream(ezGALVertexAttributeSemantic::Enum semantic);
@@ -200,9 +203,11 @@ namespace ezModelImporter
     /// Fails if there is no position stream.
     ezResult ComputeNormals();
 
-    /// Computes vertex tangents and bitangents.
+    /// Computes vertex tangents and bitangent signs.
+    /// 
+    /// Bitangent vertex stream will only have a single element which determines the sign of the bitangent. BiTangent = (normal x tangent) * sign
     /// If the mesh already has a vertex stream for (bi)tangent, they will be recomputed.
-    /// Fails if there is no normal stream.
+    /// Fails if there is no normal stream or there is no Texcoord0 stream with 2 components.
     ezResult ComputeTangents();
 
   private:

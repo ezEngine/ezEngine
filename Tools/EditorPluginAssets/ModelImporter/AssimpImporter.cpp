@@ -341,10 +341,8 @@ namespace ezModelImporter
     // Note: ReadFileFromMemory is not able to read dependent files even if use our own Assimp::IOSystem. It is possible to use ReadFile instead but this involves leads to a lot of code...
     // Triangulate:           Our mesh format cannot handle anything else.
     // JoinIdenticalVertices: Assimp doesn't use index buffer at all if this is not specified.
-    // ImproveCacheLocality:  Why not. Would be nice if we implement this ourselves. See e.g. http://gfx.cs.princeton.edu/pubs/Sander_2007_%3eTR/tipsy.pdf
     // TransformUVCoords:     As of now we do not have a concept for uv transforms.
-    const aiScene* assimpScene = importer.ReadFile(szFileName, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_ImproveCacheLocality | aiProcess_TransformUVCoords |
-                                                   aiProcess_GenNormals | aiProcess_CalcTangentSpace); // TODO: Want to do all these ourselves!
+    const aiScene* assimpScene = importer.ReadFile(szFileName, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_TransformUVCoords);
     if (!assimpScene)
     {
       ezLog::Error("Assimp importer failed to load model %s with error %s.", szFileName, importer.GetErrorString());

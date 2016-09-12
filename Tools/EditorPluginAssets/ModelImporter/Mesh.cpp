@@ -2,6 +2,8 @@
 #include <EditorPluginAssets/ModelImporter/Mesh.h>
 #include <Foundation/Logging/Log.h>
 
+#include <ThirdParty/mikktspace/mikktspace.h>
+
 namespace ezModelImporter
 {
   VertexDataStream::VertexDataStream(ezUInt32 uiNumElementsPerVertex, ezUInt32 uiNumTriangles)
@@ -44,7 +46,7 @@ namespace ezModelImporter
       EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3, "Tangent vertex streams should always have exactly 3 elements.");
       break;
     case ezGALVertexAttributeSemantic::BiTangent:
-      EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3, "BiTangent vertex streams should always have exactly 3 elements.");
+      EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 3 || uiNumElementsPerVertex == 1, "BiTangent vertex streams should have either 3 elements (vector) or 1 element (sign).");
       break;
     }
 
@@ -62,6 +64,11 @@ namespace ezModelImporter
       }
       return existingStream;
     }
+  }
+
+  void Mesh::RemoveDataStream(ezGALVertexAttributeSemantic::Enum semantic)
+  {
+    m_VertexDataStreams.Remove(semantic);
   }
 
   VertexDataStream* Mesh::GetDataStream(ezGALVertexAttributeSemantic::Enum semantic)
@@ -294,8 +301,142 @@ namespace ezModelImporter
     }
 
     // Normalize normals.
-    for (ezUInt32 n = 0; n<normalStream->m_Data.GetCount(); n+=3)
+    for (ezUInt32 n = 0; n < normalStream->m_Data.GetCount(); n += 3)
       reinterpret_cast<ezVec3*>(&normalStream->m_Data[n])->NormalizeIfNotZero();
+
+    return EZ_SUCCESS;
+  }
+
+  template <>
+  struct ezHashHelper<ezVec3>
+  {
+    EZ_FORCE_INLINE static ezUInt32 Hash(const ezVec3& value)
+    {
+      // could do something more clever that uses the fact it is a normalized vector
+      return ezHashing::MurmurHash(&value, sizeof(ezVec3));
+    }
+
+    EZ_FORCE_INLINE static bool Equal(const ezVec3& a, const ezVec3& b)
+    {
+      return a == b;
+    }
+  };
+
+  ezResult Mesh::ComputeTangents()
+  {
+    struct MikkInterfaceImpl
+    {
+      ezArrayPtr<Triangle> triangles;
+      const VertexDataStream* positionStream;
+      const VertexDataStream* normalStream;
+      const VertexDataStream* texStream;
+      VertexDataStream* tangentStream;
+      VertexDataStream* bitangentStream;
+      VertexDataIndex bitangentIndexPositive;
+      VertexDataIndex bitangentIndexNegative;
+
+      ezHashTable<ezVec3, VertexDataIndex> tangentDataMap;
+
+      int GetNumFaces() const { return triangles.GetCount(); }
+      int GetNumVerticesOfFace(const int iFace) const { return 3; }
+
+      void GetPosition(float fvPosOut[], const int iFace, const int iVert) const
+      {
+        ezVec3 p = positionStream->GetValueVec3(triangles[iFace].m_Vertices[iVert]);
+        fvPosOut[0] = p.x;
+        fvPosOut[1] = p.y;
+        fvPosOut[2] = p.z;
+      }
+      void GetNormal(float fvNormOut[], const int iFace, const int iVert) const
+      {
+        ezVec3 n = normalStream->GetValueVec3(triangles[iFace].m_Vertices[iVert]);
+        fvNormOut[0] = n.x;
+        fvNormOut[1] = n.y;
+        fvNormOut[2] = n.z;
+      }
+      void GetTexCoord(float fvTexcOut[], const int iFace, const int iVert) const
+      {
+        ezVec2 uv = texStream->GetValueVec2(triangles[iFace].m_Vertices[iVert]);
+        fvTexcOut[0] = uv.x;
+        fvTexcOut[1] = uv.y;
+      }
+
+      void SetTSpaceBasic(const float fvTangent[], const float fSign, const int iFace, const int iVert)
+      {
+        // Need to reconstruct indexing using hashmap lookups.
+        // (will get a call to SetTSpaceBasic for every triangle vertex, not for every data vertex.)
+        VertexIndex v = triangles[iFace].m_Vertices[iVert];
+        ezVec3 key = ezVec3(fvTangent[0], fvTangent[1], fvTangent[2]);
+        VertexDataIndex existingTangentIndex;
+        if (tangentDataMap.TryGetValue(key, existingTangentIndex))
+        {
+          tangentStream->SetDataIndex(v, existingTangentIndex);
+        }
+        else
+        {
+          tangentStream->SetValue(v, ezVec3(fvTangent[0], fvTangent[1], fvTangent[2]));
+          tangentDataMap.Insert(key, tangentStream->GetDataIndex(v));
+        }
+
+        // For bitangent sign its easy: There are only 2 signs and we've set the data already.
+        if(fSign >= 1.0f)
+          bitangentStream->SetDataIndex(v, bitangentIndexPositive);
+        else
+          bitangentStream->SetDataIndex(v, bitangentIndexNegative);
+      }
+    } mikkInterface;
+    mikkInterface.triangles = m_Triangles;
+
+    mikkInterface.positionStream = GetDataStream(ezGALVertexAttributeSemantic::Position);
+    if (mikkInterface.positionStream == nullptr)
+    {
+      ezLog::Error("Can't compute vertex tangents for the mesh %s, because it doesn't have vertex positions.", m_Name.GetData());
+      return EZ_FAILURE;
+    }
+    mikkInterface.normalStream = GetDataStream(ezGALVertexAttributeSemantic::Normal);
+    if (mikkInterface.normalStream == nullptr)
+    {
+      ezLog::Error("Can't compute tangents for the mesh %s, because it doesn't have vertex noramls.", m_Name.GetData());
+      return EZ_FAILURE;
+    }
+    mikkInterface.texStream = GetDataStream(ezGALVertexAttributeSemantic::TexCoord0);
+    if (mikkInterface.texStream == nullptr || mikkInterface.texStream->GetNumElementsPerVertex() != 2)
+    {
+      ezLog::Error("Can't compute tangents for the mesh %s, because it doesn't have TexCoord0 stream with two components.", m_Name.GetData());
+      return EZ_FAILURE;
+    }
+
+    // Make sure tangent stream exists.
+    mikkInterface.tangentStream = AddDataStream(ezGALVertexAttributeSemantic::Tangent, 3);
+    
+    // If there is already a data stream with 3 component bitangents, remove it.
+    mikkInterface.bitangentStream = GetDataStream(ezGALVertexAttributeSemantic::BiTangent);
+    if (mikkInterface.bitangentStream && mikkInterface.bitangentStream->GetNumElementsPerVertex() != 1)
+      RemoveDataStream(ezGALVertexAttributeSemantic::BiTangent);
+    mikkInterface.bitangentStream = AddDataStream(ezGALVertexAttributeSemantic::BiTangent, 1);
+    float biTangentSignValues[] = { -1.0f, 1.0f };
+    mikkInterface.bitangentStream->AddValues(ezMakeArrayPtr(biTangentSignValues));
+    mikkInterface.bitangentIndexNegative = VertexDataIndex(0);
+    mikkInterface.bitangentIndexPositive = VertexDataIndex(1);
+
+    // Use Morton S. Mikkelsen's tangent calculation.
+    SMikkTSpaceContext context;
+    SMikkTSpaceInterface functions;
+    context.m_pUserData = &mikkInterface;
+    context.m_pInterface = &functions;
+    functions.m_getNumFaces = [](const SMikkTSpaceContext* pContext) { return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->GetNumFaces(); };
+    functions.m_getNumVerticesOfFace = [](const SMikkTSpaceContext* pContext, const int iFace) { return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->GetNumVerticesOfFace(iFace); };
+    functions.m_getPosition = [](const SMikkTSpaceContext* pContext, float fvPosOut[], const int iFace, const int iVert) { return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->GetPosition(fvPosOut, iFace, iVert); };
+    functions.m_getNormal = [](const SMikkTSpaceContext* pContext, float fvPosOut[], const int iFace, const int iVert) { return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->GetNormal(fvPosOut, iFace, iVert); };
+    functions.m_getTexCoord = [](const SMikkTSpaceContext* pContext, float fvPosOut[], const int iFace, const int iVert) { return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->GetTexCoord(fvPosOut, iFace, iVert); };
+    functions.m_setTSpaceBasic = [](const SMikkTSpaceContext * pContext, const float fvTangent[], const float fSign, const int iFace, const int iVert) { return static_cast<MikkInterfaceImpl*>(pContext->m_pUserData)->SetTSpaceBasic(fvTangent, fSign, iFace, iVert); };
+    functions.m_setTSpace = nullptr;
+
+    if (!genTangSpaceDefault(&context))
+    {
+      ezLog::Error("Failed to compute compute tangents for the mesh %s.", m_Name.GetData());
+      return EZ_FAILURE;
+    }
 
     return EZ_SUCCESS;
   }
