@@ -141,9 +141,6 @@ public:
   ezTempHashedString(const char(&szString)[N]); // [tested]
 
   /// \brief Creates an ezTempHashedString object from the given string. Computes the hash of the given string during runtime, which might be slow.
-  ezTempHashedString(const char* szString); // [tested]
-
-  /// \brief Creates an ezTempHashedString object from the given string. Computes the hash of the given string during runtime, which might be slow.
   ezTempHashedString(ezHashing::StringWrapper szString); // [tested]
 
   /// \brief Copies the hash from rhs.
@@ -159,9 +156,6 @@ public:
   template <size_t N>
   void operator= (const char(&szString)[N]); // [tested]
 
-  /// \brief Computes and stores the hash of the given string during runtime, which might be slow.
-  void operator= (const char* szString);
-  
   /// \brief Computes and stores the hash of the given string during runtime, which might be slow.
   void operator= (ezHashing::StringWrapper szString); // [tested]
 

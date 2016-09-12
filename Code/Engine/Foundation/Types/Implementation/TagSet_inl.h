@@ -265,7 +265,7 @@ void ezTagSetTemplate<BlockStorageAllocator>::SetByName(const char* szTag)
 template<typename BlockStorageAllocator>
 void ezTagSetTemplate<BlockStorageAllocator>::RemoveByName(const char* szTag)
 {
-  const ezTag* tag = ezTagRegistry::GetGlobalRegistry().GetTagByName(szTag);
+  const ezTag* tag = ezTagRegistry::GetGlobalRegistry().GetTagByName(ezTempHashedString(szTag));
 
   if (tag != nullptr)
     Remove(*tag);
@@ -274,7 +274,7 @@ void ezTagSetTemplate<BlockStorageAllocator>::RemoveByName(const char* szTag)
 template<typename BlockStorageAllocator>
 bool ezTagSetTemplate<BlockStorageAllocator>::IsSetByName(const char* szTag) const
 {
-  const ezTag* tag = ezTagRegistry::GetGlobalRegistry().GetTagByName(szTag);
+  const ezTag* tag = ezTagRegistry::GetGlobalRegistry().GetTagByName(ezTempHashedString(szTag));
 
   if (tag != nullptr)
     return IsSet(*tag);

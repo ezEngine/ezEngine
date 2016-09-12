@@ -106,11 +106,6 @@ EZ_FORCE_INLINE ezTempHashedString::ezTempHashedString(const char(&szString)[N])
   m_uiHash = ezHashing::MurmurHash(szString);
 }
 
-EZ_FORCE_INLINE ezTempHashedString::ezTempHashedString(const char* szString)
-{
-  m_uiHash = ezHashing::MurmurHash(ezHashing::StringWrapper(szString));
-}
-
 EZ_FORCE_INLINE ezTempHashedString::ezTempHashedString(ezHashing::StringWrapper szString)
 {
   m_uiHash = ezHashing::MurmurHash(szString);
@@ -135,11 +130,6 @@ template <size_t N>
 EZ_FORCE_INLINE void ezTempHashedString::operator= (const char(&szString)[N])
 {
   m_uiHash = ezHashing::MurmurHash(szString);
-}
-
-EZ_FORCE_INLINE void ezTempHashedString::operator= (const char* szString)
-{
-  m_uiHash = ezHashing::MurmurHash(ezHashing::StringWrapper(szString));
 }
 
 EZ_FORCE_INLINE void ezTempHashedString::operator= (ezHashing::StringWrapper szString)
