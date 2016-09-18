@@ -594,7 +594,7 @@ namespace ezConversionUtils
   ezString ToString(const ezTransform& value)
   {
     ezStringBuilder sb;
-    sb.Format("{ position=%s, rotation=%s }", value.m_vPosition, value.m_Rotation);
+    sb.Format("{ position=%s, rotation=%s }", ToString(value.m_vPosition).GetData(), ToString(value.m_Rotation).GetData());
     return sb;
   }
 
@@ -1069,9 +1069,13 @@ namespace ezConversionUtils
     ezStringBuilder s;
 
     if (cg.a == 255)
+    {
       s.Format("#%02X%02X%02X", cg.r, cg.g, cg.b);
+    }
     else
+    {
       s.Format("#%02X%02X%02X%02X", cg.r, cg.g, cg.b, cg.a);
+    }
 
     return s;
   }
