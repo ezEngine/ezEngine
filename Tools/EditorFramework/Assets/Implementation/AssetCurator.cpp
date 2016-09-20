@@ -612,12 +612,16 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
     return ezStatus("Missing dependency for asset '%s', can't transform.", pAssetInfo->m_sAbsolutePath.GetData());
   }
 
-  ezDocument* pDoc = ezQtEditorApp::GetSingleton()->OpenDocumentImmediate(pAssetInfo->m_sAbsolutePath, false, false);
+  // does the document already exist and is open ?
+  bool bWasOpen = false;
+  ezDocument* pDoc = pTypeDesc->m_pManager->GetDocumentByPath(pAssetInfo->m_sAbsolutePath);
+  if (pDoc)
+    bWasOpen = true;
+  else
+    pDoc = ezQtEditorApp::GetSingleton()->OpenDocumentImmediate(pAssetInfo->m_sAbsolutePath, false, false);
 
   if (pDoc == nullptr)
-  {
     return ezStatus("Could not open asset document '%s'", pAssetInfo->m_sDataDirRelativePath.GetData());
-  }
 
   ezStatus ret(EZ_SUCCESS);
   ezAssetDocument* pAsset = static_cast<ezAssetDocument*>(pDoc);
@@ -639,7 +643,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
     }
   }
 
-  if (!pDoc->HasWindowBeenRequested())
+  if (!pDoc->HasWindowBeenRequested() && !bWasOpen)
     pDoc->GetDocumentManager()->CloseDocument(pDoc);
 
   return ret;
