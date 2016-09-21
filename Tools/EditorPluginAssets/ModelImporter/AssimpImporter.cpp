@@ -342,7 +342,8 @@ namespace ezModelImporter
     // Triangulate:           Our mesh format cannot handle anything else.
     // JoinIdenticalVertices: Assimp doesn't use index buffer at all if this is not specified.
     // TransformUVCoords:     As of now we do not have a concept for uv transforms.
-    const aiScene* assimpScene = importer.ReadFile(szFileName, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_TransformUVCoords);
+    // Process_FlipUVs:       Assimp assumes OpenGl style UV coordinate system otherwise.
+    const aiScene* assimpScene = importer.ReadFile(szFileName, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_TransformUVCoords | aiProcess_FlipUVs);
     if (!assimpScene)
     {
       ezLog::Error("Assimp importer failed to load model %s with error %s.", szFileName, importer.GetErrorString());

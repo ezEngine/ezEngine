@@ -312,9 +312,11 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     vPosition = mTransformation * vPosition;
     ezVec2 vTexcoord = dataStreams[1]->GetValueVec2(dataIndices[1]);
     ezVec3 vNormal = dataStreams[2]->GetValueVec3(dataIndices[2]);
-    vNormal = mTransformation.TransformDirection(vNormal).GetNormalized();
+    vNormal = mTransformation.TransformDirection(vNormal);
+    vNormal.NormalizeIfNotZero();
     ezVec3 vTangent = dataStreams[3]->GetValueVec3(dataIndices[3]);
-    vTangent = mTransformation.TransformDirection(vTangent).GetNormalized();
+    vTangent = mTransformation.TransformDirection(vTangent);
+    vTangent.NormalizeIfNotZero();
     float biTangentSign = dataStreams[4]->GetValueFloat(dataIndices[4]);
     biTangentSign = bFlipTriangles ? -biTangentSign : biTangentSign;
 
@@ -380,8 +382,6 @@ ezStatus ezMeshAssetDocument::InternalRetrieveAssetInfo(const char* szPlatform)
     }
 
     ezLog::Success("Scene has been imported", sMeshFileAbs.GetData());
-
-    // TODO: Generate normals and tangents!
 
     // Want a single mesh so let's all merge it together.
     // Todo: Later we might want to point to a specific mesh inside the scene!
