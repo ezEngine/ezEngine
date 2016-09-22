@@ -64,6 +64,8 @@ public:
   ezEnum<ezBasisAxis> m_UpDir;
 
   ezMeshPrimitive::Enum m_PrimitiveType;
+
+  bool m_bImportMaterials;
   ezHybridArray<ezMaterialResourceSlot, 8> m_Slots;
 
   const ezString GetResourceSlotProperty(ezUInt32 uiSlot) const;

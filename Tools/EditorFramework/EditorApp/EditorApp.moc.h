@@ -106,6 +106,9 @@ public:
   void OpenDocument(const char* szDocument);
   ezDocument* OpenDocumentImmediate(const char* szDocument, bool bRequestWindow = true, bool bAddToRecentFilesList = true);
 
+  ezDocument* CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow = true, bool bAddToRecentFilesList = true);
+  void CreateOrOpenProject(bool bCreate, const char* szFile);
+
   /// \brief Starts at szStartDirectory and goes up until it finds a folder that contains the given sub folder structure.
   /// Returns an empty string if nothing is found. Otherwise the returned path concatenated with szSubPath will be a valid, existing path.
   ezString FindFolderWithSubPath(const char* szStartDirectory, const char* szSubPath) const;
@@ -140,9 +143,6 @@ private:
   
   void GuiCreateOrOpenDocument(bool bCreate);
   void GuiCreateOrOpenProject(bool bCreate);
-
-  ezDocument* CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow = true, bool bAddToRecentFilesList = true);
-  void CreateOrOpenProject(bool bCreate, const char* szFile);
 
 private slots:
   void SlotTimedUpdate();

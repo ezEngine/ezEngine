@@ -7,6 +7,8 @@
 #include <EditorPluginAssets/ModelImporter/Mesh.h>
 #include <EditorPluginAssets/ModelImporter/Material.h>
 
+#include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
+
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -18,6 +20,10 @@
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
+
+
+#include <ToolsFoundation/CommandHistory/CommandHistory.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -345,8 +351,33 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   }
 
   // Materials/Submeshes.
-  ProcessMaterials(pProp, &desc, *mesh, *scene);
-  
+  static const char* defaultMaterialAssetPath = "Materials/BaseMaterials/Lit.ezMaterialAsset";
+  const char* defaultMaterialAssetId = ezConversionUtils::ToString(ezAssetCurator::GetSingleton()->FindAssetInfo(defaultMaterialAssetPath)->m_Info.m_DocumentID);
+
+  for (ezUInt32 subMeshIdx = 0; subMeshIdx < mesh->GetNumSubMeshes(); ++subMeshIdx)
+  {
+    const ezModelImporter::SubMesh& subMesh = mesh->GetSubMesh(subMeshIdx);
+    const ezModelImporter::Material* material = scene->GetMaterial(subMesh.m_Material);
+
+    desc.AddSubMesh(subMesh.m_uiTriangleCount, subMesh.m_uiFirstTriangle, subMeshIdx);
+
+    // Try to find material in property list.
+    int assetMaterialIndex = -1;
+    for (ezUInt32 i = 0; i < pProp->m_Slots.GetCount(); ++i)
+    {
+      if (pProp->m_Slots[i].m_sLabel == material->m_Name)
+      {
+        assetMaterialIndex = i;
+        break;
+      }
+    }
+
+    if(assetMaterialIndex >=0)
+      desc.SetMaterial(subMeshIdx, pProp->GetResourceSlotProperty(assetMaterialIndex));
+    else
+      desc.SetMaterial(subMeshIdx, defaultMaterialAssetId);
+  }
+
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -390,7 +421,77 @@ ezStatus ezMeshAssetDocument::InternalRetrieveAssetInfo(const char* szPlatform)
     ezUInt32 uiTriangles = mesh->GetNumTriangles();
     ezLog::Info("Number of Triangles: %u", uiTriangles);
 
-    ProcessMaterials(pProp, nullptr, *mesh, *scene);
+
+    pProp->m_Slots.SetCount(mesh->GetNumSubMeshes());
+    for (ezUInt32 subMeshIdx = 0; subMeshIdx < mesh->GetNumSubMeshes(); ++subMeshIdx)
+    {
+      const ezModelImporter::SubMesh& subMesh = mesh->GetSubMesh(subMeshIdx);
+      const ezModelImporter::Material* material = scene->GetMaterial(subMesh.m_Material);
+      pProp->m_Slots[subMeshIdx].m_sLabel = material->m_Name;
+    }
+
+    if (pProp->m_bImportMaterials)
+    {
+      static const char* litMaterialAssetPath = "Materials/BaseMaterials/Lit.ezMaterialAsset";
+      ezString litMaterialAssetId = "";
+      {
+        auto litMaterialAssetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(litMaterialAssetPath);
+        if (litMaterialAssetInfo)
+          litMaterialAssetId = ezConversionUtils::ToString(litMaterialAssetInfo->m_Info.m_DocumentID);
+        else
+          ezLog::SeriousWarning("Can't find default lit material %s", litMaterialAssetPath);
+      }
+
+      for (ezUInt32 subMeshIdx = 0; subMeshIdx < mesh->GetNumSubMeshes(); ++subMeshIdx)
+      {
+        const ezModelImporter::SubMesh& subMesh = mesh->GetSubMesh(subMeshIdx);
+        const ezModelImporter::Material* material = scene->GetMaterial(subMesh.m_Material);
+
+        if (!ezAssetCurator::GetSingleton()->FindAssetInfo(pProp->m_Slots[subMeshIdx].m_sResource))
+        {
+          // Didn't find currently set resource, create new imported material.
+          ezStringBuilder newResourcePathAbs;
+          newResourcePathAbs.Format("%s_data/%s.ezMaterialAsset", GetDocumentPath(), material->m_Name.GetData());
+
+          ezMaterialAssetDocument* materialDocument = ezDynamicCast<ezMaterialAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateOrOpenDocument(true, newResourcePathAbs, false, false));
+          if (!materialDocument)
+          {
+            ezLog::Error("Failed to create new material '%s'", material->m_Name.GetData());
+            continue;
+          }
+
+          ezCommandHistory* history = materialDocument->GetCommandHistory();
+          history->StartTransaction();
+
+          // Set base material.
+          ezSetObjectPropertyCommand cmd;
+          cmd.m_Object = materialDocument->GetPropertyObject()->GetGuid();
+          cmd.m_NewValue = litMaterialAssetId;
+          cmd.m_Index = 0;
+          cmd.m_sPropertyPath = "Base Material";
+          ezStatus status = history->AddCommand(cmd);
+          if (status.m_Result.Failed())
+          {
+            ezLog::Error("Material import '%s' failed: %s", material->m_Name.GetData(), status.m_sMessage.GetData());
+            history->CancelTransaction();
+            continue;
+          }
+
+
+          history->FinishTransaction();
+          materialDocument->SaveDocument();
+          ezAssetCurator::GetSingleton()->TransformAsset(materialDocument->GetGuid());
+          pProp->m_Slots[subMeshIdx].m_sResource = ezConversionUtils::ToString(materialDocument->GetGuid());
+          materialDocument->GetDocumentManager()->CloseDocument(materialDocument);
+        }
+      }
+    }
+
+    if (mesh->GetNumSubMeshes() == 0)
+    {
+      pProp->m_Slots.SetCount(1);
+      pProp->m_Slots[0].m_sLabel = "Default";
+    }
   }
   else
   {
@@ -413,61 +514,6 @@ ezStatus ezMeshAssetDocument::InternalRetrieveAssetInfo(const char* szPlatform)
   GetSelectionManager()->AddObject(pPropObj);
 
   return ezStatus(EZ_SUCCESS);
-}
-
-void ezMeshAssetDocument::ProcessMaterials(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor *desc, const ezModelImporter::Mesh& mesh, const ezModelImporter::Scene& scene)
-{
-  // Set materials. Try to remap existing materials by label if any.
-  // Rebuild up pProp->m_Slots in the process.
-  ezHybridArray<ezMaterialResourceSlot, 8> unusedMaterialSlots = std::move(pProp->m_Slots);
-  if (unusedMaterialSlots.GetCount() < mesh.GetNumSubMeshes())
-    unusedMaterialSlots.SetCount(mesh.GetNumSubMeshes());
-
-  for (ezUInt32 subMeshIdx = 0; subMeshIdx<mesh.GetNumSubMeshes(); ++subMeshIdx)
-  {
-    const ezModelImporter::SubMesh& subMesh = mesh.GetSubMesh(subMeshIdx);
-    const ezModelImporter::Material* material = scene.GetMaterial(subMesh.m_Material);
-
-    // Look for material with same label in old list to preserve the user's material choice.
-    bool reusedOldOne = false;
-    for (ezUInt32 unusedSlotIdx = 0; unusedSlotIdx < unusedMaterialSlots.GetCount(); ++unusedSlotIdx)
-    {
-      if (unusedMaterialSlots[unusedSlotIdx].m_sLabel == material->m_Name)
-      {
-        pProp->m_Slots.PushBack(unusedMaterialSlots[unusedSlotIdx]);
-        unusedMaterialSlots.RemoveAt(unusedSlotIdx);
-        reusedOldOne = true;
-        break;
-      }
-    }
-
-    if (!reusedOldOne)
-    {
-      ezMaterialResourceSlot& newSlot = pProp->m_Slots.ExpandAndGetRef();
-      newSlot.m_sLabel = material->m_Name;
-    }
-
-    // Add submesh and material connection.
-    if (desc)
-    {
-      desc->AddSubMesh(subMesh.m_uiTriangleCount, subMesh.m_uiFirstTriangle, subMeshIdx);
-      desc->SetMaterial(subMeshIdx, pProp->GetResourceSlotProperty(subMeshIdx));
-    }
-  }
-
-  if (mesh.GetNumSubMeshes() == 0)
-  {
-    pProp->m_Slots.SetCount(1);
-    pProp->m_Slots[0].m_sLabel = "Default";
-
-    // Add submesh and material connection.
-    if (desc)
-    {
-      desc->AddSubMesh(mesh.GetNumTriangles(), 0, 0);
-      desc->SetMaterial(0, pProp->GetResourceSlotProperty(0));
-    }
-  }
-
 }
 
 ezStatus ezMeshAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)

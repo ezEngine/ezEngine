@@ -33,6 +33,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 1, ezRTTIDefaultAllocator
     EZ_MEMBER_PROPERTY("Cap", m_bCap)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Cap 2", m_bCap2)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Angle", m_fAngle)->AddAttributes(new ezDefaultValueAttribute(360.0f), new ezClampValueAttribute(0.0f, 360.0f)),
+    EZ_MEMBER_PROPERTY("Import Materials", m_bImportMaterials)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ARRAY_MEMBER_PROPERTY("Materials", m_Slots)->AddAttributes(new ezContainerAttribute(false, false, true)),
   }
   EZ_END_PROPERTIES
@@ -69,6 +70,7 @@ ezMeshAssetProperties::ezMeshAssetProperties()
   m_bCap = true;
   m_bCap2 = true;
   m_fAngle = 360.0f;
+  m_bImportMaterials = true;
 }
 
 
@@ -89,11 +91,13 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
     props["Cap"].m_Visibility = ezPropertyUiState::Invisible;
     props["Cap 2"].m_Visibility = ezPropertyUiState::Invisible;
     props["Angle"].m_Visibility = ezPropertyUiState::Invisible;
+    props["Import Materials"].m_Visibility = ezPropertyUiState::Invisible;
 
     switch (primType)
     {
     case ezMeshPrimitive::File:
       props["Mesh File"].m_Visibility = ezPropertyUiState::Default;
+      props["Import Materials"].m_Visibility = ezPropertyUiState::Default;
       break;
 
     case ezMeshPrimitive::Box:
