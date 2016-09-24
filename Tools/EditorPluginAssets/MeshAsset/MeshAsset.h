@@ -27,6 +27,7 @@ protected:
   void CreateMeshFromGeom(const ezMeshAssetProperties* pProp, ezGeometry &geom, ezMeshResourceDescriptor &desc);
 
   ezStatus CreateMeshFromFile(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor &desc, const ezMat3 &mTransformation);
+  void ImportMaterials(const ezModelImporter::Scene& scene, const ezModelImporter::Mesh& mesh, ezMeshAssetProperties* pProp, const char* sMeshFileAbs);
 
   /// Assigns and optionally imports materials.
   /// Used for both InternalRetrieveAssetInfo and InternalTransformAsset.
@@ -36,5 +37,6 @@ protected:
 
   virtual ezStatus InternalRetrieveAssetInfo(const char* szPlatform) override;
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
+
 
 };

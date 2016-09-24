@@ -40,31 +40,37 @@ namespace ezModelImporter
     return ezMakeArrayPtr(m_supportedFileFormats);
   }
 
-  float ConvertAssimpType(float value)
+  float ConvertAssimpType(float value, bool invert)
+  {
+    if (invert)
+      return 1.0f - value;
+    else
+      return value;
+  }
+
+  ezUInt32 ConvertAssimpType(int value, bool invert)
   {
     return value;
   }
 
-  ezUInt32 ConvertAssimpType(int value)
+  ezColor ConvertAssimpType(const aiColor3D& value, bool invert)
   {
-    return value;
-  }
-
-  ezColor ConvertAssimpType(const aiColor3D& value)
-  {
-    return ezColor(value.r, value.g, value.b);
+    if (invert)
+      return ezColor(1.0f - value.r, 1.0f - value.g, 1.0f - value.b);
+    else
+      return ezColor(value.r, value.g, value.b);
   }
 
   template<typename assimpType, typename ezType>
-  void TryReadAssimpProperty(const char* pKey, unsigned int type, unsigned int idx, Material::SemanticHint::Enum semantic, const aiMaterial& assimpMaterial, Material& material)
+  void TryReadAssimpProperty(const char* pKey, unsigned int type, unsigned int idx, Material::SemanticHint::Enum semantic, const aiMaterial& assimpMaterial, Material& material, bool invert = false)
   {
     assimpType assimpValue;
-    if (assimpMaterial.Get(pKey, type, idx, assimpValue))
+    if (assimpMaterial.Get(pKey, type, idx, assimpValue) == AI_SUCCESS)
     {
       Material::Property& materialProperty = material.m_Properties.ExpandAndGetRef();
       materialProperty.m_Semantic = pKey;
       materialProperty.m_SemanticHint = semantic;
-      materialProperty.m_Value = ConvertAssimpType(assimpValue);
+      materialProperty.m_Value = ConvertAssimpType(assimpValue, invert);
     }
   }
 
@@ -80,6 +86,7 @@ namespace ezModelImporter
 
       textureReference.m_SemanticHint = semanticHint;
       textureReference.m_Semantic = semanticString;
+      textureReference.m_FileName = path.C_Str();
     }
   }
 
@@ -107,7 +114,7 @@ namespace ezModelImporter
       TryReadAssimpProperty<aiColor3D, ezColor>(AI_MATKEY_COLOR_SPECULAR, Material::SemanticHint::METALLIC, *assimpMaterial, *material);
       TryReadAssimpProperty<aiColor3D, ezColor>(AI_MATKEY_COLOR_AMBIENT, Material::SemanticHint::AMBIENT, *assimpMaterial, *material);
       TryReadAssimpProperty<aiColor3D, ezColor>(AI_MATKEY_COLOR_EMISSIVE, Material::SemanticHint::EMISSIVE, *assimpMaterial, *material);
-      TryReadAssimpProperty<aiColor3D, ezColor>(AI_MATKEY_COLOR_TRANSPARENT, Material::SemanticHint::OPACITY, *assimpMaterial, *material);
+      TryReadAssimpProperty<aiColor3D, ezColor>(AI_MATKEY_COLOR_TRANSPARENT, Material::SemanticHint::OPACITY, *assimpMaterial, *material, true);
       TryReadAssimpProperty<int, ezInt32>(AI_MATKEY_ENABLE_WIREFRAME, Material::SemanticHint::WIREFRAME, *assimpMaterial, *material);
       TryReadAssimpProperty<int, ezInt32>(AI_MATKEY_TWOSIDED, Material::SemanticHint::TWOSIDED, *assimpMaterial, *material);
       TryReadAssimpProperty<int, ezInt32>(AI_MATKEY_SHADING_MODEL, Material::SemanticHint::SHADINGMODEL, *assimpMaterial, *material);

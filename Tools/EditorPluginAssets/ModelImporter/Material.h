@@ -56,6 +56,7 @@ namespace ezModelImporter
     {
       SemanticHint::Enum m_SemanticHint;
       ezString m_Semantic;
+      /// Relative file path to the texture.
       ezString m_FileName;
       /// Texcoord set used by this texture.
       ezUInt32 m_UVSetIndex;
@@ -67,6 +68,13 @@ namespace ezModelImporter
       ezString m_Semantic;
       ezVariant m_Value;
     };
+
+    /// Retrieves first property with the given semantic hint. Null if there is none.
+    const Property* GetProperty(SemanticHint::Enum hint) const;
+
+    /// Retrieves first texture with the given semantic hint. Null if there is none.
+    const TextureReference* GetTexture(SemanticHint::Enum hint) const;
+
 
     ezString m_Name;
     ezHybridArray<TextureReference, 4> m_Textures;

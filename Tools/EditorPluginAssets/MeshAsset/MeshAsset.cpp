@@ -381,6 +381,144 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   return ezStatus(EZ_SUCCESS);
 }
 
+void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, const ezModelImporter::Mesh& mesh, ezMeshAssetProperties* pProp, const char* sMeshFileAbs)
+{
+  static const char* litMaterialAssetPath = "Materials/BaseMaterials/Lit.ezMaterialAsset";
+  ezString litMaterialAssetId = "";
+  {
+    auto litMaterialAssetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(litMaterialAssetPath);
+    if (litMaterialAssetInfo)
+      litMaterialAssetId = ezConversionUtils::ToString(litMaterialAssetInfo->m_Info.m_DocumentID);
+    else
+      ezLog::SeriousWarning("Can't find default lit material %s", litMaterialAssetPath);
+  }
+  static const char* litAlphaTestMaterialAssetPath = "Materials/BaseMaterials/LitAlphaTest.ezMaterialAsset";
+  ezString litAlphaTestMaterialAssetId = "";
+  {
+    auto litAlphaTestMaterialAssetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(litAlphaTestMaterialAssetPath);
+    if (litAlphaTestMaterialAssetInfo)
+      litAlphaTestMaterialAssetId = ezConversionUtils::ToString(litAlphaTestMaterialAssetInfo->m_Info.m_DocumentID);
+    else
+      ezLog::SeriousWarning("Can't find default lit alpha test material %s", litMaterialAssetPath);
+  }
+
+  for (ezUInt32 subMeshIdx = 0; subMeshIdx < mesh.GetNumSubMeshes(); ++subMeshIdx)
+  {
+    const ezModelImporter::SubMesh& subMesh = mesh.GetSubMesh(subMeshIdx);
+    const ezModelImporter::Material* material = scene.GetMaterial(subMesh.m_Material);
+
+    if (!ezAssetCurator::GetSingleton()->FindAssetInfo(pProp->m_Slots[subMeshIdx].m_sResource))
+    {
+      // Didn't find currently set resource, create new imported material.
+      ezStringBuilder newResourcePathAbs;
+      newResourcePathAbs.Format("%s_data/%s.ezMaterialAsset", GetDocumentPath(), material->m_Name.GetData());
+
+      ezMaterialAssetDocument* materialDocument = ezDynamicCast<ezMaterialAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateOrOpenDocument(true, newResourcePathAbs, false, false));
+      if (!materialDocument)
+      {
+        ezLog::Error("Failed to create new material '%s'", material->m_Name.GetData());
+        continue;
+      }
+
+      ezCommandHistory* history = materialDocument->GetCommandHistory();
+      history->StartTransaction();
+      ezUuid propertySetterTarget = materialDocument->GetPropertyObject()->GetGuid();
+
+      auto setProperty = [material, materialDocument, history, &propertySetterTarget](const char* propertyPath, const ezVariant& newValue) -> ezResult
+      {
+        ezSetObjectPropertyCommand cmd;
+        cmd.m_Object = propertySetterTarget;
+        cmd.m_NewValue = newValue;
+        cmd.m_Index = 0;
+        cmd.m_sPropertyPath = propertyPath;
+        ezStatus status = history->AddCommand(cmd);
+        if (status.m_Result.Failed())
+        {
+          ezLog::Error("Material import '%s' failed: %s", material->m_Name.GetData(), status.m_sMessage.GetData());
+          history->CancelTransaction();
+          return EZ_FAILURE;
+        }
+        return EZ_SUCCESS;
+      };
+
+      ezString meshFileDirectory = ezPathUtils::GetFileDirectory(sMeshFileAbs);
+      auto resolveTexture = [material, &meshFileDirectory](const ezModelImporter::Material::TextureReference* texture) -> ezString
+      {
+        ezStringBuilder absPath = meshFileDirectory;
+        absPath.AppendPath(texture->m_FileName);
+        ezStringBuilder absAssetPath = absPath;
+        absAssetPath.ChangeFileExtension("ezTextureAsset");
+
+        // Todo: Import texture if not existing?
+
+        auto textureAssetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(absAssetPath);
+        if (textureAssetInfo)
+          return ezConversionUtils::ToString(textureAssetInfo->m_Info.m_DocumentID);
+        else
+          return absAssetPath;
+      };
+
+      // Set base material.
+      if (setProperty("Base Material", litMaterialAssetId) == EZ_FAILURE)
+        continue;
+
+      // From now on we're setting shader properties.
+      propertySetterTarget = materialDocument->GetShaderPropertyObject()->GetGuid();
+
+      // Set base color
+      if (const ezModelImporter::Material::Property* baseColor = material->GetProperty(ezModelImporter::Material::SemanticHint::DIFFUSE))
+      {
+        if (setProperty("BaseColor", baseColor->m_Value) == EZ_FAILURE)
+          continue;
+      }
+
+      // Set base texture.
+      if (const ezModelImporter::Material::TextureReference* baseTexture = material->GetTexture(ezModelImporter::Material::SemanticHint::DIFFUSE))
+      {
+        if (setProperty("DEFAULT_MAT_USE_BASE_TEXTURE", true) == EZ_FAILURE)
+          continue;
+        if (setProperty("BaseTexture", resolveTexture(baseTexture)) == EZ_FAILURE)
+          continue;
+      }
+      else
+      {
+        if (setProperty("DEFAULT_MAT_USE_BASE_TEXTURE", false) == EZ_FAILURE)
+          continue;
+      }
+
+      // Set Normal Texture
+      if (const ezModelImporter::Material::TextureReference* normalTexture = material->GetTexture(ezModelImporter::Material::SemanticHint::NORMAL))
+      {
+        if (setProperty("DEFAULT_MAT_USE_NORMAL_TEXTURE", true) == EZ_FAILURE)
+          continue;
+        if (setProperty("NormalTexture", resolveTexture(normalTexture)) == EZ_FAILURE)
+          continue;
+      }
+      else
+      {
+        if (setProperty("DEFAULT_MAT_USE_NORMAL_TEXTURE", false) == EZ_FAILURE)
+          continue;
+      }
+
+      // Todo:
+      // * Shading Mode
+      // * Two Sided
+      // * Mask Threshold
+      // * Use Metallic Texture / Metallic Texture
+      // * Metallic Value
+      // * Use Roughness Texture / Roughness Texture
+      // * Roughness Value
+
+
+      history->FinishTransaction();
+      materialDocument->SaveDocument();
+      ezAssetCurator::GetSingleton()->TransformAsset(materialDocument->GetGuid());
+      pProp->m_Slots[subMeshIdx].m_sResource = ezConversionUtils::ToString(materialDocument->GetGuid());
+      materialDocument->GetDocumentManager()->CloseDocument(materialDocument);
+    }
+  }
+}
+
 ezStatus ezMeshAssetDocument::InternalRetrieveAssetInfo(const char* szPlatform)
 {
   ezMeshAssetProperties* pProp = GetProperties();
@@ -431,61 +569,7 @@ ezStatus ezMeshAssetDocument::InternalRetrieveAssetInfo(const char* szPlatform)
     }
 
     if (pProp->m_bImportMaterials)
-    {
-      static const char* litMaterialAssetPath = "Materials/BaseMaterials/Lit.ezMaterialAsset";
-      ezString litMaterialAssetId = "";
-      {
-        auto litMaterialAssetInfo = ezAssetCurator::GetSingleton()->FindAssetInfo(litMaterialAssetPath);
-        if (litMaterialAssetInfo)
-          litMaterialAssetId = ezConversionUtils::ToString(litMaterialAssetInfo->m_Info.m_DocumentID);
-        else
-          ezLog::SeriousWarning("Can't find default lit material %s", litMaterialAssetPath);
-      }
-
-      for (ezUInt32 subMeshIdx = 0; subMeshIdx < mesh->GetNumSubMeshes(); ++subMeshIdx)
-      {
-        const ezModelImporter::SubMesh& subMesh = mesh->GetSubMesh(subMeshIdx);
-        const ezModelImporter::Material* material = scene->GetMaterial(subMesh.m_Material);
-
-        if (!ezAssetCurator::GetSingleton()->FindAssetInfo(pProp->m_Slots[subMeshIdx].m_sResource))
-        {
-          // Didn't find currently set resource, create new imported material.
-          ezStringBuilder newResourcePathAbs;
-          newResourcePathAbs.Format("%s_data/%s.ezMaterialAsset", GetDocumentPath(), material->m_Name.GetData());
-
-          ezMaterialAssetDocument* materialDocument = ezDynamicCast<ezMaterialAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateOrOpenDocument(true, newResourcePathAbs, false, false));
-          if (!materialDocument)
-          {
-            ezLog::Error("Failed to create new material '%s'", material->m_Name.GetData());
-            continue;
-          }
-
-          ezCommandHistory* history = materialDocument->GetCommandHistory();
-          history->StartTransaction();
-
-          // Set base material.
-          ezSetObjectPropertyCommand cmd;
-          cmd.m_Object = materialDocument->GetPropertyObject()->GetGuid();
-          cmd.m_NewValue = litMaterialAssetId;
-          cmd.m_Index = 0;
-          cmd.m_sPropertyPath = "Base Material";
-          ezStatus status = history->AddCommand(cmd);
-          if (status.m_Result.Failed())
-          {
-            ezLog::Error("Material import '%s' failed: %s", material->m_Name.GetData(), status.m_sMessage.GetData());
-            history->CancelTransaction();
-            continue;
-          }
-
-
-          history->FinishTransaction();
-          materialDocument->SaveDocument();
-          ezAssetCurator::GetSingleton()->TransformAsset(materialDocument->GetGuid());
-          pProp->m_Slots[subMeshIdx].m_sResource = ezConversionUtils::ToString(materialDocument->GetGuid());
-          materialDocument->GetDocumentManager()->CloseDocument(materialDocument);
-        }
-      }
-    }
+      ImportMaterials(*scene, *mesh, pProp, sMeshFileAbs);
 
     if (mesh->GetNumSubMeshes() == 0)
     {
