@@ -1,4 +1,5 @@
-#include <Tools/EditorPluginAssets/ModelImporter/Material.h>
+#include <PCH.h>
+#include <EditorPluginAssets/ModelImporter/Material.h>
 
 namespace ezModelImporter
 {
