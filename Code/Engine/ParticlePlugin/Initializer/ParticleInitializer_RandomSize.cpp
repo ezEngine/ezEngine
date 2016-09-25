@@ -103,7 +103,7 @@ void ezParticleInitializer_RandomSize::SpawnElements(ezUInt64 uiStartIndex, ezUI
     const ezCurve1D& curve = pResource->GetDescriptor().m_Curves[0];
 
     float fMinX, fMaxX;
-    curve.GetExtents(fMinX, fMaxX);
+    curve.QueryExtents(fMinX, fMaxX);
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {

@@ -99,7 +99,7 @@ void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
   auto& curve = pCurve->GetDescriptor().m_Curves[0];
 
   float fMinX, fMaxX;
-  curve.GetExtents(fMinX, fMaxX);
+  curve.QueryExtents(fMinX, fMaxX);
 
   while (!itLifeTime.HasReachedEnd())
   {

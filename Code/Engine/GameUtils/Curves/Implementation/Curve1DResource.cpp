@@ -107,5 +107,9 @@ void ezCurve1DResourceDescriptor::Load(ezStreamReader& stream)
   for (ezUInt32 i = 0; i < uiCurves; ++i)
   {
     m_Curves[i].Load(stream);
+
+    /// \todo We can do this on load, or somehow ensure this is always already correctly saved
+    m_Curves[i].SortControlPoints();
+    m_Curves[i].CreateLinearApproximation();
   }
 }

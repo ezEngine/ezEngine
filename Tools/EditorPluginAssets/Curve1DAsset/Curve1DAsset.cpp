@@ -40,7 +40,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DAssetData, 1, ezRTTIDefaultAllocator<ez
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DAssetDocument, 2, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezCurve1DAssetDocument::ezCurve1DAssetDocument(const char* szDocumentPath)
@@ -59,7 +59,7 @@ void ezCurve1DAssetDocument::FillCurve(ezUInt32 uiCurveIdx, ezCurve1D& out_Resul
   for (const auto& cp : curve.m_ControlPoints)
   {
     auto& ccp = out_Result.AddControlPoint(cp.m_Point.x);
-    ccp.m_fValue = cp.m_Point.y;
+    ccp.m_Position.y = cp.m_Point.y;
     ccp.m_LeftTangent = cp.m_LeftTangent;
     ccp.m_RightTangent = cp.m_RightTangent;
   }
@@ -111,11 +111,14 @@ ezStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader
     ezCurve1D curve;
     FillCurve(curveIdx, curve);
 
+    curve.SortControlPoints();
+    curve.CreateLinearApproximation();
+
     float fMin, fMax;
-    curve.GetExtents(fMin, fMax);
+    curve.QueryExtents(fMin, fMax);
 
     float fMin2, fMax2;
-    curve.GetExtremeValues(fMin2, fMax2);
+    curve.QueryExtremeValues(fMin2, fMax2);
 
     if (curveIdx == 0)
     {
@@ -158,6 +161,7 @@ ezStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader
     ezCurve1D curve;
     FillCurve(curveIdx, curve);
     curve.SortControlPoints();
+    curve.CreateLinearApproximation();
 
     const QColor curColor = curveColor[curveIdx % EZ_ARRAY_SIZE(curveColor)];
     QPen pen(curColor, 8.0f);

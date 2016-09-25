@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <Foundation/Math/Math.h>
+#include <Foundation/Math/Vec2.h>
 #include <Foundation/Logging/Log.h>
 
 /// ********************* Binary to Int conversion *********************

@@ -222,10 +222,10 @@ void QCurve1DEditorWidget::UpdateCpUi()
       point->m_uiControlPoint = cpIdx;
       pTangentLeft->m_uiControlPoint = cpIdx;
       pTangentRight->m_uiControlPoint = cpIdx;
-      point->setPos(cp.m_fPosX, cp.m_fValue);
+      point->setPos(cp.m_Position.x, cp.m_Position.y);
 
-      pTangentLeft->setPos(cp.m_fPosX + cp.m_LeftTangent.x, cp.m_fValue + cp.m_LeftTangent.y);
-      pTangentRight->setPos(cp.m_fPosX + cp.m_RightTangent.x, cp.m_fValue + cp.m_RightTangent.y);
+      pTangentLeft->setPos(cp.m_Position.x + cp.m_LeftTangent.x, cp.m_Position.y + cp.m_LeftTangent.y);
+      pTangentRight->setPos(cp.m_Position.x + cp.m_RightTangent.x, cp.m_Position.y + cp.m_RightTangent.y);
     }
 
     while (data.m_ControlPoints.GetCount() > curve.GetNumControlPoints())
@@ -451,8 +451,8 @@ QVariant ezQCurveTangent::itemChange(GraphicsItemChange change, const QVariant &
           move.curveIdx = m_uiCurveIdx;
           move.cpIdx = m_uiControlPoint;
           move.tangentIdx = m_bRightTangent ? 2 : 1;
-          move.x = pos().x() - cp.m_fPosX;
-          move.y = pos().y() - cp.m_fValue;
+          move.x = pos().x() - cp.m_Position.x;
+          move.y = pos().y() - cp.m_Position.y;
           s_TangentsChanged.Insert(move);
 
 
@@ -498,12 +498,12 @@ void ezQCurveSegment::UpdateSegment()
   const auto& cp0 = curve.GetControlPoint(m_uiSegment);
   const auto& cp1 = curve.GetControlPoint(m_uiSegment + 1);
 
-  const ezVec2 t0 = ezVec2(cp0.m_fPosX, cp0.m_fValue) + cp0.m_RightTangent;
-  const ezVec2 t1 = ezVec2(cp1.m_fPosX, cp1.m_fValue) + cp1.m_LeftTangent;
+  const ezVec2 t0 = ezVec2(cp0.m_Position.x, cp0.m_Position.y) + cp0.m_RightTangent;
+  const ezVec2 t1 = ezVec2(cp1.m_Position.x, cp1.m_Position.y) + cp1.m_LeftTangent;
 
-  p.moveTo(cp0.m_fPosX, cp0.m_fValue);
+  p.moveTo(cp0.m_Position.x, cp0.m_Position.y);
 
-  p.cubicTo(QPointF(t0.x, t0.y), QPointF(t1.x, t1.y), QPointF(cp1.m_fPosX, cp1.m_fValue));
+  p.cubicTo(QPointF(t0.x, t0.y), QPointF(t1.x, t1.y), QPointF(cp1.m_Position.x, cp1.m_Position.y));
 
   setPath(p);
 }
