@@ -59,6 +59,38 @@ void ezCurve1D::SortControlPoints()
   RecomputeExtents();
 }
 
+
+ezInt32 ezCurve1D::FindApproxControlPoint(float x) const
+{
+  ezUInt32 uiLowIdx = 0;
+  ezUInt32 uiHighIdx = m_LinearApproximation.GetCount();
+
+  // do a binary search to reduce the search space
+  while (uiHighIdx - uiLowIdx > 8)
+  {
+    const ezUInt32 uiMidIdx = uiLowIdx + ((uiHighIdx - uiLowIdx) >> 1); // lerp
+
+    // doesn't matter whether to use > or >=
+    if (m_LinearApproximation[uiMidIdx].x > x)
+      uiHighIdx = uiMidIdx;
+    else
+      uiLowIdx = uiMidIdx;
+  }
+
+  // now do a linear search to find the final item
+  for (ezUInt32 idx = uiLowIdx; idx < uiHighIdx; ++idx)
+  {
+    if (m_LinearApproximation[idx].x >= x)
+    {
+      // when m_LinearApproximation[0].x >= x, we want to return -1
+      return ((ezInt32)idx) - 1;
+    }
+  }
+
+  // return last index
+  return (ezInt32)uiHighIdx - 1;
+}
+
 float ezCurve1D::Evaluate(float x) const
 {
   EZ_ASSERT_DEBUG(!m_LinearApproximation.IsEmpty(), "Cannot evaluate curve without precomputing curve approximation data first. Call CreateLinearApproximation() on curve before calling Evaluate().");
@@ -69,16 +101,8 @@ float ezCurve1D::Evaluate(float x) const
   }
   else if (m_LinearApproximation.GetCount() >= 2)
   {
-    ezInt32 iControlPoint = -1;
-
     const ezUInt32 numCPs = m_LinearApproximation.GetCount();
-    for (ezUInt32 i = 0; i < numCPs; ++i)
-    {
-      if (m_LinearApproximation[i].x >= x)
-        break;
-
-      iControlPoint = i;
-    }
+    const ezInt32 iControlPoint = FindApproxControlPoint(x);
 
     if (iControlPoint == -1)
     {
