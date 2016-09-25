@@ -85,7 +85,68 @@ Milestone 8
   * GameObjects now also have a unique key for looking up specific objects at runtime
   * Added ezTexConv, a tool to combine textures, generate mipmaps and compress to DXT format
   * Integrated ezTexConv as the new texture asset transformation
-  * Editor viewport: Shift+Left Click now opens the picked material asset
+  * Editor viewport: CTRL+MMB now opens the picked material asset
+  * Added proper Preferences handling to the editor and improved the UI
+  * Added assets for level greyboxing
+  * Improvements to editor camera handling to be more like Maya and Unity
+  * Improved drag&drop functionality, can now also drop on the scene tree. Implemented it for Meshes, Prefabs, Materials, Particle Effects.
+  * Debug renderer can now print simple ASCII text
+  * PhysX interface now supports capsule sweep tests
+  * Implemented full 3-way merge for prefabs
+  * "Focus on Selection" now only translates the camera on first, and only zooms in when executed again.
+  * Improved component initialization behavior. Added OnSimulationStarted to handle non-simulating scenarios better.
+  * Added PostMessage methods for components so messages can be queued and then directly send to components.
+  * CMake now allows to generate "Unity" build files to speed up compilation considerably.
+  * All spinboxes in the property grid can now reset their value to default on right click.
+  * Added EnsureInitialized and EnsureSimulationStarted methods to ezComponent so initialization order can be ensured on dependent component types.
+  * FileSystem: Writing to files can now only be done using either absolute paths ("C:\bla\...") or using 'rooted' paths, which start with a colon and then a data directory root name.
+  * Materials now use the new prefab infrastructure and can query properties from the referenced shader.
+  * Added a sample game plugin.
+  * Properties in the editor property grid can now be reset to the "default" value or reverted to the prefab default using the context menu.
+  * Added an action to create an empty node at the picked position. Shortcut is CTRL+SHIFT+X.
+  * The resource manager can now redirect a "nice" name to the actual resource, which can be used to register a GUID under a name that is easier to use elsewhere in code
+  * Added 'Collection' resources and assets, which hold a key value table of nice names -> resources
+  * StaticLinkUtil does not rewrite PCH.h anymore.
+  * Implemented rendering of ezConsole in GameApplication, can be toggled with the "F1" key. Simple FPS Counter can be toggled with F5.
+  * One can now query after acquiring a resource, whether the returned resource is the "missing resource".
+  * added ezDGMLGraph, ezDGMLGraphWriter and ezDGMLGraphCreator with a sample method in the creator to create a tree from an ezWorld object containing all game objects and components.
+  * Materials and meshes can now be previewed
+  * Added functionality to the resource system to update a resource with custom in-memory data.
+  * Added functionality to wait for resources to be loaded.
+  * Added a function to enumerate all available screens and their geometry (Windows only).
+  * Implemented dynamic buffer update on DX11.
+  * Debug renderer now renders stuff in multiple passes if it doesn't fit into its buffers.
+  * New asset documents can now be created from a context menu in the asset browser. Path is automatically set to the folder of the selection.
+  * Added asset thumbnails for materials, meshes, prefabs, curves, particle effects and color gradients.
+  * Implemented dynamic texture update in DX11
+  * Added function to ezFileSystem to find a folder that contains a certain sub-path
+  * Added string functions to identify 'rooted' paths and to extract the path root name
+  * Data dir configuration now uses paths relative to the SDK, instead of relative to the project.
+  * Added EZ_SCOPE_EXIT macro to execute code when a scope closes.
+  * Implemented automatic instancing for mesh rendering. Still WIP.
+  * Implemented proper transformations of normals with non uniform scaling.
+  * Added stream operators for ezEnum, ezHashedString, ezTransform.
+  * Added ezSharedPtr which works similar to std::shared_ptr.
+  * Propagate camera component properties like fov, clip planes and render pipeline resource to views. This allows to configure camera properties in the editor and runtime.
+  * Added ezProcessingStream, which allows to efficiently operate on a large amounts of data in a "structure-of-arrays" way
+  * Asset transformation can now be done in the background and a filesystem watcher is used to detect external changes
+  * Added debug names to DX11 textures, buffers and shaders.
+  * Added a basic tonemapper for physically based rendering.
+  * Added ezShaderExplorer Sample.
+  * Changes to the plugin infrastructure, to allow static linking to a plugin that is also loaded dynamically.
+  * Added color gradient asset, resource and editor.
+  * Added particle effects (asset, resource, component)
+  * Added 1D curve (asset, resource) for interpolating data over time
+  * Added a simple "Property Animation" asset that allows to animate object properties over time.
+  * Added dynamic lighting: point light, spot light, directional light, ambient light
+  * Added a basic Skybox component
+  * Added float spinner hold&drag functionality to change value.
+  * Added address mode to texture assets.
+  * The Drag-To-Position gizmo now supports shift+drag for duplication
+  * ezIdTable now ensures that ID 0 is never valid.
+  * Added new ezModelImporter infrastructure for loading / processing / converting mesh data.
+  * Added a function to ezMath to evaluate a Bezier curve.
+  * UP TO REVISION: 1819
 
 Milestone 7
 -----------
