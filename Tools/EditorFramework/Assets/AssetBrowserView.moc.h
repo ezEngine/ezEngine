@@ -3,10 +3,11 @@
 #include <EditorFramework/Plugin.h>
 #include <QListView>
 #include <QItemDelegate>
+#include <GuiFoundation/Widgets/ItemView.moc.h>
 
 class QtIconViewDelegate;
 
-class ezAssetBrowserView : public QListView
+class ezAssetBrowserView : public ezQtItemView<QListView>
 {
   Q_OBJECT
 
@@ -31,7 +32,7 @@ private:
 };
 
 
-class QtIconViewDelegate : public QItemDelegate
+class QtIconViewDelegate : public ezQtItemDelegate
 {
   Q_OBJECT
 public:
@@ -40,6 +41,9 @@ public:
   void SetDrawTransformState(bool b) { m_bDrawTransformState = b; }
 
   void SetIconScale(ezInt32 iIconSizePercentage);
+
+  virtual bool mousePressEvent(QMouseEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index);
+  virtual bool mouseReleaseEvent(QMouseEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index);
 
 public:
   virtual void paint(QPainter* painter, const QStyleOptionViewItem& opt, const QModelIndex& index) const override;

@@ -9,7 +9,7 @@
 #include <QApplication>
 #include <QPainter>
 
-ezAssetBrowserView::ezAssetBrowserView(QWidget* parent) : QListView(parent)
+ezAssetBrowserView::ezAssetBrowserView(QWidget* parent) : ezQtItemView<QListView>(parent)
 {
   m_iIconSizePercentage = 100;
   m_pDelegate = new QtIconViewDelegate(this);
@@ -87,7 +87,7 @@ void ezAssetBrowserView::wheelEvent(QWheelEvent* pEvent)
   QListView::wheelEvent(pEvent);
 }
 
-QtIconViewDelegate::QtIconViewDelegate(ezAssetBrowserView* pParent) : QItemDelegate(pParent)
+QtIconViewDelegate::QtIconViewDelegate(ezAssetBrowserView* pParent) : ezQtItemDelegate(pParent)
 {
   m_bDrawTransformState = true;
   m_iIconSizePercentage = 100;
@@ -99,11 +99,39 @@ void QtIconViewDelegate::SetIconScale(ezInt32 iIconSizePercentage)
   m_iIconSizePercentage = iIconSizePercentage;
 }
 
+bool QtIconViewDelegate::mousePressEvent(QMouseEvent* event, const QStyleOptionViewItem& opt, const QModelIndex& index)
+{
+  const ezUInt32 uiThumbnailSize = ThumbnailSize();
+  QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin + uiThumbnailSize - 16 + 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
+  thumbnailRect.setSize(QSize(16, 16));
+  if (thumbnailRect.contains(event->localPos().toPoint()))
+  {
+    event->accept();
+    return true;
+  }
+  return false;
+}
+
+bool QtIconViewDelegate::mouseReleaseEvent(QMouseEvent* event, const QStyleOptionViewItem& opt, const QModelIndex& index)
+{
+  const ezUInt32 uiThumbnailSize = ThumbnailSize();
+  QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin + uiThumbnailSize - 16 + 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
+  thumbnailRect.setSize(QSize(16, 16));
+  if (thumbnailRect.contains(event->localPos().toPoint()))
+  {
+    ezUuid guid = index.data(ezAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
+    ezAssetCurator::GetSingleton()->TransformAsset(guid);
+    event->accept();
+    return true;
+  }
+  return false;
+}
+
 void QtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opt, const QModelIndex& index) const
 {
   if (!IsInIconMode())
   {
-    QItemDelegate::paint(painter, opt, index);
+    ezQtItemDelegate::paint(painter, opt, index);
     return;
   }
 
@@ -214,7 +242,7 @@ QSize	QtIconViewDelegate::sizeHint(const QStyleOptionViewItem& opt, const QModel
   }
   else
   {
-    return QItemDelegate::sizeHint(opt, index);
+    return ezQtItemDelegate::sizeHint(opt, index);
   }
 }
 
