@@ -238,5 +238,19 @@ namespace ezMath
   {
     return value * (1.0f / 255.0f);
   }
+
+
+  template<typename T>
+  T EvaluateBezierCurve(float t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint)
+  {
+    const float mt = 1 - t;
+
+    const float f1 = mt * mt * mt;
+    const float f2 = 3 * mt * mt * t;
+    const float f3 = 3 * mt * t * t;
+    const float f4 = t * t * t;
+
+    return f1 * startPoint + f2 * controlPoint1 + f3 * controlPoint2 + f4 * endPoint;
+  }
 }
 

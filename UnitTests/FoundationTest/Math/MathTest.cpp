@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <Foundation/Math/Math.h>
+#include <Foundation/Logging/Log.h>
 
 /// ********************* Binary to Int conversion *********************
 /// Most significant bit comes first.
@@ -568,5 +569,32 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_BOOL(ezMath::IsZero(0.001f, 0.01f) == true);
     EZ_TEST_BOOL(ezMath::IsZero(0.009f, 0.0001f) == false);
     EZ_TEST_BOOL(ezMath::IsZero(0.001f, 0.0001f) == false);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "EvaluateBezierCurve")
+  {
+    // Determined through the scientific method of manually comparing the result of the function with an online Bezier curve generator:
+    // https://www.desmos.com/calculator/cahqdxeshd
+    const ezVec2 res[] =
+    {
+      ezVec2(1, 5),
+      ezVec2(0.893, 4.455),
+      ezVec2(1.112, 4.008),
+      ezVec2(1.557, 3.631),
+      ezVec2(2.136, 3.304),
+      ezVec2(2.750, 3.000),
+      ezVec2(3.303, 2.695),
+      ezVec2(3.701, 2.368),
+      ezVec2(3.847, 1.991),
+      ezVec2(3.645, 1.543),
+      ezVec2(3, 1)
+    };
+
+    const float step = 1.0f / (EZ_ARRAY_SIZE(res) - 1);
+    for (int i = 0; i < EZ_ARRAY_SIZE(res); ++i)
+    {
+      const ezVec2 r = ezMath::EvaluateBezierCurve<ezVec2>(step * i, ezVec2(1, 5), ezVec2(0, 3), ezVec2(6, 3), ezVec2(3, 1));
+      EZ_TEST_VEC2(r, res[i], 0.001f);
+    }
   }
 }
