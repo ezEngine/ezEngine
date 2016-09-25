@@ -200,6 +200,8 @@ void ezCurve1D::Load(ezStreamReader& stream)
 
 void ezCurve1D::CreateLinearApproximation(float fMaxError /*= 0.01f*/)
 {
+  ClampTangents();
+
   m_LinearApproximation.Clear();
 
   if (m_ControlPoints.IsEmpty())
@@ -223,7 +225,6 @@ void ezCurve1D::CreateLinearApproximation(float fMaxError /*= 0.01f*/)
 
   RecomputeExtremes();
 }
-
 
 void ezCurve1D::RecomputeExtents()
 {
@@ -292,5 +293,46 @@ void ezCurve1D::ApproximateCurvePiece(const ezVec2& p0, const ezVec2& p1, const 
   m_LinearApproximation.PushBack(cubicCenter);
 
   ApproximateCurvePiece(p0, p1, p2, p3, tCenter, cubicCenter, tRight, pRight, fMaxErrorSQR);
+}
+
+void ezCurve1D::ClampTangents()
+{
+  for (ezUInt32 i = 1; i < m_ControlPoints.GetCount() - 1; ++i)
+  {
+    auto& tCP = m_ControlPoints[i];
+    const auto& pCP = m_ControlPoints[i - 1];
+    const auto& nCP = m_ControlPoints[i + 1];
+
+    ezVec2 lpt = tCP.m_Position + tCP.m_LeftTangent;
+    ezVec2 rpt = tCP.m_Position + tCP.m_RightTangent;
+
+    lpt.x = ezMath::Clamp(lpt.x, pCP.m_Position.x, tCP.m_Position.x);
+    rpt.x = ezMath::Clamp(rpt.x, tCP.m_Position.x, nCP.m_Position.x);
+
+    tCP.m_LeftTangent = lpt - tCP.m_Position;
+    tCP.m_RightTangent = rpt - tCP.m_Position;
+  }
+
+  // first CP
+  {
+    auto& tCP = m_ControlPoints[0];
+    const auto& nCP = m_ControlPoints[1];
+
+    ezVec2 rpt = tCP.m_Position + tCP.m_RightTangent;
+    rpt.x = ezMath::Clamp(rpt.x, tCP.m_Position.x, nCP.m_Position.x);
+
+    tCP.m_RightTangent = rpt - tCP.m_Position;
+  }
+
+  // last CP
+  {
+    auto& tCP = m_ControlPoints[m_ControlPoints.GetCount() - 1];
+    const auto& pCP = m_ControlPoints[m_ControlPoints.GetCount() - 2];
+
+    ezVec2 lpt = tCP.m_Position + tCP.m_LeftTangent;
+    lpt.x = ezMath::Clamp(lpt.x, pCP.m_Position.x, tCP.m_Position.x);
+
+    tCP.m_LeftTangent = lpt - tCP.m_Position;
+  }
 }
 

@@ -175,7 +175,9 @@ void QCurve1DEditorWidget::UpdateCpUi()
   for (ezUInt32 curveIdx = 0; curveIdx < m_Curves.GetCount(); ++curveIdx)
   {
     auto& data = m_Curves[curveIdx];
-    const auto& curve = data.m_Curve;
+    auto& curve = data.m_Curve;
+
+    curve.RecomputeExtents();
 
     for (ezUInt32 cpIdx = 0; cpIdx < curve.GetNumControlPoints(); ++cpIdx)
     {
@@ -394,10 +396,19 @@ ezQCurveTangent::ezQCurveTangent(QGraphicsItem* parent /*= nullptr*/)
 
 void ezQCurveTangent::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
-  auto palette = QApplication::palette();
-
   const ezCurve1D& curve = m_pOwner->GetCurve1D(m_uiCurveIdx);
   const auto& cp = curve.GetControlPoint(m_uiControlPoint);
+
+  float fMinX, fMaxX;
+  curve.QueryExtents(fMinX, fMaxX);
+
+  if (!m_bRightTangent && cp.m_Position.x == fMinX)
+    return;
+  if (m_bRightTangent && cp.m_Position.x == fMaxX)
+    return;
+
+  auto palette = QApplication::palette();
+
 
   QPen pen(QColor(50, 50, 100), 0.05f, Qt::SolidLine);
   painter->setPen(pen);
@@ -494,6 +505,7 @@ void ezQCurveSegment::UpdateSegment()
 
   ezCurve1D curve = m_pOwner->GetCurve1D(m_uiCurveIdx);
   curve.SortControlPoints();
+  curve.ClampTangents();
 
   const auto& cp0 = curve.GetControlPoint(m_uiSegment);
   const auto& cp1 = curve.GetControlPoint(m_uiSegment + 1);

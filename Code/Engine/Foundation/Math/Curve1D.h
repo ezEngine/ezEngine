@@ -100,6 +100,9 @@ public:
   /// \note All control points must already be in sorted order, so call SortControlPoints() first if necessary.
   void CreateLinearApproximation(float fMaxError = 0.01f);
 
+  /// \brief Adjusts the tangents such that the curve cannot make loopings
+  void ClampTangents();
+
 private:
   void RecomputeExtremes();
   void ApproximateCurve(const ezVec2& p0, const ezVec2& p1, const ezVec2& p2, const ezVec2& p3, float fMaxErrorSQR);
