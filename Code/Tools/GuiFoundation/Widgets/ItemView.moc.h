@@ -6,6 +6,7 @@
 #include <QHoverEvent>
 #include <QItemDelegate>
 #include <Foundation/Logging/Log.h>
+#include <QWidget>
 
 /// \brief In combination with ezQtItemView this delegate allows for receiving the full range of mouse input.
 class EZ_GUIFOUNDATION_DLL ezQtItemDelegate : public QItemDelegate

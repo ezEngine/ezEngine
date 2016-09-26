@@ -41,28 +41,9 @@
       <bool>false</bool>
      </property>
      <widget class="QWidget" name="layoutWidget">
-      <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,3">
+      <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <widget class="QLineEdit" name="LineSearchFilter">
-           <property name="placeholderText">
-            <string>Search Assets</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="ButtonClearSearch">
-           <property name="text">
-            <string/>
-           </property>
-           <property name="icon">
-            <iconset resource="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
-             <normaloff>:/GuiFoundation/Icons/Delete16.png</normaloff>:/GuiFoundation/Icons/Delete16.png</iconset>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="ezQtSearchWidget" name="SearchWidget" native="true"/>
        </item>
        <item>
         <widget class="QSplitter" name="LeftSplitter">
@@ -202,13 +183,17 @@
    <extends>QListView</extends>
    <header location="global">EditorFramework/Assets/AssetBrowserView.moc.h</header>
   </customwidget>
+  <customwidget>
+   <class>ezQtSearchWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">GuiFoundation/Widgets/SearchWidget.moc.h</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>LineSearchFilter</tabstop>
   <tabstop>ListAssets</tabstop>
   <tabstop>ListTypeFilter</tabstop>
   <tabstop>TreeFolderFilter</tabstop>
-  <tabstop>ButtonClearSearch</tabstop>
   <tabstop>IconSizeSlider</tabstop>
   <tabstop>ButtonListMode</tabstop>
   <tabstop>ButtonIconMode</tabstop>

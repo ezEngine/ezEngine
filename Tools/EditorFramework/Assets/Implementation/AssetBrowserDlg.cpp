@@ -47,7 +47,7 @@ ezAssetBrowserDlg::ezAssetBrowserDlg(QWidget* parent, const char* szPreselectedA
   if (!s_sTypeFilter[m_sVisibleFilters].IsEmpty())
     AssetBrowserWidget->GetAssetBrowserModel()->SetTypeFilter(s_sTypeFilter[m_sVisibleFilters]);
 
-  AssetBrowserWidget->LineSearchFilter->setFocus();
+  AssetBrowserWidget->SearchWidget->setFocus();
 }
 
 ezAssetBrowserDlg::~ezAssetBrowserDlg()

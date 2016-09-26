@@ -14,6 +14,7 @@
 #include <QMimeData>
 #include <QFileDialog>
 #include <CoreUtils/Other/Progress.h>
+#include <GuiFoundation/Widgets/SearchWidget.moc.h>
 
 ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
 {
@@ -25,10 +26,9 @@ ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
   ButtonListMode->setVisible(false);
   ButtonIconMode->setVisible(false);
 
-  ButtonClearSearch->setAutoDefault(false);
-  ButtonClearSearch->setDefault(false);
-
   m_pModel = new ezAssetBrowserModel(this);
+
+  SearchWidget->setPlaceholderText("Search Assets");
 
   IconSizeSlider->setValue(50);
 
@@ -59,6 +59,7 @@ ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
   EZ_VERIFY(connect(m_pModel, SIGNAL(modelReset()), this, SLOT(OnModelReset())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(ListAssets->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(OnAssetSelectionChanged(const QItemSelection&, const QItemSelection&))) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(ListAssets->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(OnAssetSelectionCurrentChanged(const QModelIndex &, const QModelIndex &))) != nullptr, "signal/slot connection failed");
+  connect(SearchWidget, &ezQtSearchWidget::textChanged, this, &ezAssetBrowserWidget::OnSearchWidgetTextChanged);
 
   UpdateAssetTypes();
 
@@ -291,7 +292,7 @@ void ezAssetBrowserWidget::on_ListAssets_ViewZoomed(ezInt32 iIconSizePercentage)
 
 void ezAssetBrowserWidget::OnTextFilterChanged()
 {
-  LineSearchFilter->setText(QString::fromUtf8(m_pModel->GetTextFilter()));
+  SearchWidget->setText(QString::fromUtf8(m_pModel->GetTextFilter()));
 
   QTimer::singleShot(0, this, SLOT(OnSelectionTimer()));
 }
@@ -320,15 +321,10 @@ void ezAssetBrowserWidget::OnTypeFilterChanged()
   QTimer::singleShot(0, this, SLOT(OnSelectionTimer()));
 }
 
-void ezAssetBrowserWidget::on_LineSearchFilter_textEdited(const QString& text)
+
+void ezAssetBrowserWidget::OnSearchWidgetTextChanged(const QString& text)
 {
   m_pModel->SetTextFilter(text.toUtf8().data());
-}
-
-void ezAssetBrowserWidget::on_ButtonClearSearch_clicked()
-{
-  m_pModel->SetTextFilter("");
-  LineSearchFilter->setFocus();
 }
 
 void ezAssetBrowserWidget::on_ListTypeFilter_itemChanged(QListWidgetItem* item)

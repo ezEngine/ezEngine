@@ -41,8 +41,7 @@ private slots:
   void on_ButtonIconMode_clicked();
   void on_IconSizeSlider_valueChanged(int iValue);
   void on_ListAssets_ViewZoomed(ezInt32 iIconSizePercentage);
-  void on_LineSearchFilter_textEdited(const QString& text);
-  void on_ButtonClearSearch_clicked();
+  void OnSearchWidgetTextChanged(const QString& text);
   void on_ListTypeFilter_itemChanged(QListWidgetItem* item);
   void on_TreeFolderFilter_itemSelectionChanged();
   void on_TreeFolderFilter_customContextMenuRequested(const QPoint& pt);

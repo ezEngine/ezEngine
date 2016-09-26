@@ -3,6 +3,7 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <QKeyEvent>
+#include <QSortFilterProxyModel>
 
 ezQtDocumentTreeWidget::ezQtDocumentTreeWidget(QWidget* parent)
   : QTreeView(parent)
@@ -25,10 +26,13 @@ void ezQtDocumentTreeWidget::Initialize(ezDocument* pDocument, const ezRTTI* pBa
   else
     m_pModel.reset(new ezQtDocumentTreeModel(pDocument->GetObjectManager(), pBaseClass, szChildProperty));
 
+  m_pFilterModel.reset(new QSortFilterProxyModel(this));
+  m_pFilterModel->setSourceModel(m_pModel.get());
+
   m_bBlockSelectionSignal = false;
   setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
   setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
-  setModel(m_pModel.get());
+  setModel(m_pFilterModel.get());
   setDragEnabled(true);
   setAcceptDrops(true);
   setDropIndicatorShown(true);
@@ -57,7 +61,12 @@ void ezQtDocumentTreeWidget::on_selectionChanged_triggered(const QItemSelection&
   foreach(QModelIndex index, selection)
   {
     if (index.isValid())
-      sel.PushBack((const ezDocumentObject*) index.internalPointer());
+    {
+      index = m_pFilterModel->mapToSource(index);
+
+      if (index.isValid())
+        sel.PushBack((const ezDocumentObject*)index.internalPointer());
+    }
   }
 
   // TODO const cast
@@ -87,7 +96,10 @@ void ezQtDocumentTreeWidget::SelectionEventHandler(const ezSelectionManagerEvent
       for (const ezDocumentObject* pObject : m_pDocument->GetSelectionManager()->GetSelection())
       {
         auto index = m_pModel->ComputeModelIndex(pObject);
-        selection.select(index, index);
+        index = m_pFilterModel->mapFromSource(index);
+
+        if (index.isValid())
+          selection.select(index, index);
       }
       selectionModel()->select(selection, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows | QItemSelectionModel::NoUpdate);
       m_bBlockSelectionSignal = false;
@@ -104,7 +116,10 @@ void ezQtDocumentTreeWidget::EnsureLastSelectedItemVisible()
   const ezDocumentObject* pObject = m_pDocument->GetSelectionManager()->GetSelection().PeekBack();
 
   auto index = m_pModel->ComputeModelIndex(pObject);
-  scrollTo(index, QAbstractItemView::EnsureVisible);
+  index = m_pFilterModel->mapFromSource(index);
+
+  if (index.isValid())
+    scrollTo(index, QAbstractItemView::EnsureVisible);
 }
 
 

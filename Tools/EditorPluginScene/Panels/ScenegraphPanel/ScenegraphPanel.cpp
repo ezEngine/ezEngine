@@ -7,6 +7,9 @@
 #include <GuiFoundation/Action/EditActions.h>
 #include <Actions/SelectionActions.h>
 #include <EditorPluginScene/Panels/ScenegraphPanel/ScenegraphModel.moc.h>
+#include <QBoxLayout>
+#include <QSortFilterProxyModel>
+#include <GuiFoundation/Widgets/SearchWidget.moc.h>
 
 ezScenegraphPanel::ezScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument)
   : ezDocumentPanel(pParent)
@@ -16,9 +19,21 @@ ezScenegraphPanel::ezScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocumen
 
   m_pDocument = pDocument;
 
+  m_pMainWidget = new QWidget(this);
+  m_pMainWidget->setLayout(new QVBoxLayout(this));
+  m_pMainWidget->setContentsMargins(0, 0, 0, 0);
+  m_pMainWidget->layout()->setContentsMargins(0, 0, 0, 0);
+
+  m_pFilterWidget = new ezQtSearchWidget(this);
+  connect(m_pFilterWidget, &ezQtSearchWidget::textChanged, this, &ezScenegraphPanel::OnFilterTextChanged);
+
+  m_pMainWidget->layout()->addWidget(m_pFilterWidget);
+
   m_pTreeWidget = new ezQtDocumentTreeWidget(this, pDocument, ezGetStaticRTTI<ezGameObject>(), "Children", std::unique_ptr<ezQtDocumentTreeModel>(new ezQtScenegraphModel(pDocument)));
   m_pTreeWidget->SetAllowDragDrop(true);
-  setWidget(m_pTreeWidget);
+  m_pMainWidget->layout()->addWidget(m_pTreeWidget);
+
+  setWidget(m_pMainWidget);
 
   m_pDocument->m_SceneEvents.AddEventHandler(ezMakeDelegate(&ezScenegraphPanel::DocumentSceneEventHandler, this));
 
@@ -75,6 +90,20 @@ void ezScenegraphPanel::OnRequestContextMenu(QPoint pos)
 
 }
 
+void ezScenegraphPanel::OnFilterTextChanged(const QString& text)
+{
+  if (text.isEmpty())
+  {
+    m_pTreeWidget->GetProxyFilterModel()->setFilterWildcard(QString());
+  }
+  else
+  {
+    const QString pattern = QString("*%1*").arg(text);
+
+    m_pTreeWidget->GetProxyFilterModel()->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_pTreeWidget->GetProxyFilterModel()->setFilterWildcard(pattern);
+  }
+}
 
 
 

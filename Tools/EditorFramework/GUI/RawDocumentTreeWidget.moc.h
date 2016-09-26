@@ -4,6 +4,7 @@
 #include <ToolsFoundation/Selection/SelectionManager.h>
 #include <QTreeView>
 #include <memory>
+#include <QSortFilterProxyModel>
 
 class EZ_EDITORFRAMEWORK_DLL ezQtDocumentTreeWidget : public QTreeView
 {
@@ -21,6 +22,8 @@ public:
 
   void SetAllowDragDrop(bool bAllow);
 
+  QSortFilterProxyModel* GetProxyFilterModel() const { return m_pFilterModel.get(); }
+
 protected:
   virtual void keyPressEvent(QKeyEvent* e) override;
 
@@ -32,6 +35,7 @@ private:
 
 private:
   std::unique_ptr<ezQtDocumentTreeModel> m_pModel;
+  std::unique_ptr<QSortFilterProxyModel> m_pFilterModel;
   ezDocument* m_pDocument;
   bool m_bBlockSelectionSignal;
 };
