@@ -108,7 +108,8 @@ signals:
   void CpDeleted(ezUInt32 curveIdx, ezUInt32 cpIdx);
   void TangentMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent);
 
-  //void NormalizeRange();
+  void NormalizeRangeX();
+  void NormalizeRangeY();
 
   void BeginCpChanges();
   void EndCpChanges();
@@ -121,7 +122,8 @@ private slots:
   void on_ButtonFrame_clicked();
   void on_SpinPosition_valueChanged(double value);
   void on_SpinValue_valueChanged(double value);
-  void on_ButtonNormalize_clicked();
+  void on_ButtonNormalizeX_clicked();
+  void on_ButtonNormalizeY_clicked();
   void onDeleteCPs();
 
 private:

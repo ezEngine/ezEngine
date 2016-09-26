@@ -20,6 +20,8 @@ private slots:
   void onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY);
   void onCurveCpDeleted(ezUInt32 curveIdx, ezUInt32 cpIdx);
   void onCurveTangentMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent);
+  void onCurveNormalizeX();
+  void onCurveNormalizeY();
 
   void onCurveBeginOperation();
   void onCurveEndOperation(bool commit);

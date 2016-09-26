@@ -51,6 +51,9 @@ ezCurve1DAssetDocumentWindow::ezCurve1DAssetDocumentWindow(ezDocument* pDocument
   connect(m_pCurveEditor, &QCurve1DEditorWidget::CpDeleted, this, &ezCurve1DAssetDocumentWindow::onCurveCpDeleted);
   connect(m_pCurveEditor, &QCurve1DEditorWidget::TangentMoved, this, &ezCurve1DAssetDocumentWindow::onCurveTangentMoved);
 
+  connect(m_pCurveEditor, &QCurve1DEditorWidget::NormalizeRangeX, this, &ezCurve1DAssetDocumentWindow::onCurveNormalizeX);
+  connect(m_pCurveEditor, &QCurve1DEditorWidget::NormalizeRangeY, this, &ezCurve1DAssetDocumentWindow::onCurveNormalizeY);
+
   connect(m_pCurveEditor, &QCurve1DEditorWidget::BeginOperation, this, &ezCurve1DAssetDocumentWindow::onCurveBeginOperation);
   connect(m_pCurveEditor, &QCurve1DEditorWidget::EndOperation, this, &ezCurve1DAssetDocumentWindow::onCurveEndOperation);
   connect(m_pCurveEditor, &QCurve1DEditorWidget::BeginCpChanges, this, &ezCurve1DAssetDocumentWindow::onCurveBeginCpChanges);
@@ -234,43 +237,115 @@ void ezCurve1DAssetDocumentWindow::onCurveTangentMoved(ezUInt32 curveIdx, ezUInt
   GetDocument()->GetCommandHistory()->AddCommand(cmdSet);
 }
 
-//
-//void ezCurve1DAssetDocumentWindow::onCurveNormalizeRange()
-//{
-//  ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
-//
-//  ezCurve1D CurveData;
-//  pDoc->FillCurveData(CurveData);
-//
-//  float minX, maxX;
-//  if (!CurveData.GetExtents(minX, maxX))
-//    return;
-//
-//  if (minX == 0 && maxX == 1)
-//    return;
-//
-//  ezCommandHistory* history = GetDocument()->GetCommandHistory();
-//
-//  const float rangeNorm = 1.0f / (maxX - minX);
-//
-//  history->StartTransaction();
-//
-//  ezUInt32 numRgb, numAlpha, numInt;
-//  CurveData.GetNumControlPoints(numRgb, numAlpha, numInt);
-//
-//  for (ezUInt32 i = 0; i < numRgb; ++i)
-//  {
-//    float x = CurveData.GetColorControlPoint(i).m_PosX;
-//    x -= minX;
-//    x *= rangeNorm;
-//
-//    MoveCP(i, x, "Color CPs");
-//  }
-//
-//  history->FinishTransaction();
-//
-//  m_pCurveEditor->FrameCurve();
-//}
+
+void ezCurve1DAssetDocumentWindow::onCurveNormalizeY()
+{
+  ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
+
+  /// \todo Active curve index
+  ezUInt32 uiActiveCurve = 0;
+
+  ezCurve1D CurveData;
+  pDoc->FillCurve(uiActiveCurve, CurveData);
+
+  const ezUInt32 numCPs = CurveData.GetNumControlPoints();
+
+  if (numCPs < 2)
+    return;
+
+  ezCurve1D CurveData2;
+  pDoc->FillCurve(uiActiveCurve, CurveData2);
+  CurveData2.SortControlPoints();
+  CurveData2.CreateLinearApproximation();
+
+  float minY, maxY;
+  CurveData2.QueryExtremeValues(minY, maxY);
+
+  if (minY == 0 && maxY == 1)
+    return;
+
+  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+
+  const float rangeNorm = 1.0f / (maxY - minY);
+
+  history->StartTransaction();
+
+  for (ezUInt32 i = 0; i < numCPs; ++i)
+  {
+    const auto& cp = CurveData.GetControlPoint(i);
+
+    ezVec2 pos = cp.m_Position;
+    pos.y -= minY;
+    pos.y *= rangeNorm;
+
+    onCurveCpMoved(uiActiveCurve, i, pos.x, pos.y);
+
+    ezVec2 lt = cp.m_LeftTangent;
+    lt.y *= rangeNorm;
+    onCurveTangentMoved(uiActiveCurve, i, lt.x, lt.y, false);
+
+    ezVec2 rt = cp.m_RightTangent;
+    rt.y *= rangeNorm;
+    onCurveTangentMoved(uiActiveCurve, i, rt.x, rt.y, true);
+  }
+
+  history->FinishTransaction();
+
+  m_pCurveEditor->FrameCurve();
+}
+
+void ezCurve1DAssetDocumentWindow::onCurveNormalizeX()
+{
+  ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
+
+  /// \todo Active curve index
+  ezUInt32 uiActiveCurve = 0;
+
+  ezCurve1D CurveData;
+  pDoc->FillCurve(uiActiveCurve, CurveData);
+
+  const ezUInt32 numCPs = CurveData.GetNumControlPoints();
+
+  if (numCPs < 2)
+    return;
+
+  CurveData.RecomputeExtents();
+
+  float minX, maxX;
+  CurveData.QueryExtents(minX, maxX);
+
+  if (minX == 0 && maxX == 1)
+    return;
+
+  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+
+  const float rangeNorm = 1.0f / (maxX - minX);
+
+  history->StartTransaction();
+
+  for (ezUInt32 i = 0; i < numCPs; ++i)
+  {
+    const auto& cp = CurveData.GetControlPoint(i);
+
+    ezVec2 pos = cp.m_Position;
+    pos.x -= minX;
+    pos.x *= rangeNorm;
+
+    onCurveCpMoved(uiActiveCurve, i, pos.x, pos.y);
+
+    ezVec2 lt = cp.m_LeftTangent;
+    lt.x *= rangeNorm;
+    onCurveTangentMoved(uiActiveCurve, i, lt.x, lt.y, false);
+
+    ezVec2 rt = cp.m_RightTangent;
+    rt.x *= rangeNorm;
+    onCurveTangentMoved(uiActiveCurve, i, rt.x, rt.y, true);
+  }
+
+  history->FinishTransaction();
+
+  m_pCurveEditor->FrameCurve();
+}
 
 void ezCurve1DAssetDocumentWindow::UpdatePreview()
 {

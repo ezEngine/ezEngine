@@ -121,11 +121,16 @@ void QCurve1DEditorWidget::on_SpinValue_valueChanged(double value)
 }
 
 
-void QCurve1DEditorWidget::on_ButtonNormalize_clicked()
+void QCurve1DEditorWidget::on_ButtonNormalizeX_clicked()
 {
-  //emit NormalizeRange();
+  emit NormalizeRangeX();
 }
 
+
+void QCurve1DEditorWidget::on_ButtonNormalizeY_clicked()
+{
+  emit NormalizeRangeY();
+}
 
 void QCurve1DEditorWidget::onDeleteCPs()
 {

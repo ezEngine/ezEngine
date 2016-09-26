@@ -8,7 +8,7 @@ ezQGraphicsView::ezQGraphicsView(QWidget* parent /*= nullptr*/)
 {
   m_fZoom = 50.0f;
   m_fMinZoom = 10.0f;
-  m_fMaxZoom = 100.0f;
+  m_fMaxZoom = 1000.0f;
   m_bPanning = false;
   m_bDragging = false;
   m_bForwardMouseEvents = true;

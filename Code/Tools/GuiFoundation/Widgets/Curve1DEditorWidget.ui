@@ -76,9 +76,16 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="ButtonNormalize">
+      <widget class="QPushButton" name="ButtonNormalizeX">
        <property name="text">
-        <string>Adjust X to [0 - 1]</string>
+        <string>Normalize X</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ButtonNormalizeY">
+       <property name="text">
+        <string>Normalize Y</string>
        </property>
       </widget>
      </item>
