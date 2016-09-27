@@ -5,6 +5,79 @@
 #include <QKeyEvent>
 #include <QSortFilterProxyModel>
 
+void ezQtScenegraphFilterModel::SetFilterText(const QString& text)
+{
+  // only clear the current visible state, if the new filter text got shorter
+  // this way previous information stays valid and can be used to early out
+  if (!text.contains(m_sFilterText, Qt::CaseInsensitive))
+    m_Visible.Clear();
+
+  m_sFilterText = text;
+
+  if (!m_sFilterText.isEmpty())
+  {
+    RecomputeVisibleItems();
+  }
+
+  invalidateFilter();
+}
+
+void ezQtScenegraphFilterModel::RecomputeVisibleItems()
+{
+  m_pSourceModel = sourceModel();
+
+  const int numRows = m_pSourceModel->rowCount();
+
+  for (int r = 0; r < numRows; ++r)
+  {
+    QModelIndex idx = m_pSourceModel->index(r, 0);
+
+    UpdateVisibility(idx);
+  }
+}
+
+bool ezQtScenegraphFilterModel::UpdateVisibility(const QModelIndex& idx)
+{
+  bool bExisted = false;
+  auto itVis = m_Visible.FindOrAdd(idx, &bExisted);
+
+  // early out, if we already know that this object is invisible (from previous searches)
+  if (bExisted && !itVis.Value())
+    return false;
+
+  QString name = m_pSourceModel->data(idx, Qt::DisplayRole).toString();
+
+  bool bAnyVisible = false;
+
+  if (name.contains(m_sFilterText, Qt::CaseInsensitive))
+    bAnyVisible = true;
+
+  const int numRows = m_pSourceModel->rowCount(idx);
+
+  for (int r = 0; r < numRows; ++r)
+  {
+    QModelIndex idxChild = m_pSourceModel->index(r, 0, idx);
+
+    if (UpdateVisibility(idxChild))
+      bAnyVisible = true;
+  }
+
+  itVis.Value() = bAnyVisible;
+  return bAnyVisible;
+}
+
+bool ezQtScenegraphFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+{
+  QModelIndex idx = sourceModel()->index(source_row, 0, source_parent);
+
+  if (m_sFilterText.isEmpty())
+    return true;
+
+  auto itVis = m_Visible.Find(idx);
+
+  return itVis.IsValid() && itVis.Value();
+}
+
 ezQtDocumentTreeWidget::ezQtDocumentTreeWidget(QWidget* parent)
   : QTreeView(parent)
 {
@@ -26,7 +99,7 @@ void ezQtDocumentTreeWidget::Initialize(ezDocument* pDocument, const ezRTTI* pBa
   else
     m_pModel.reset(new ezQtDocumentTreeModel(pDocument->GetObjectManager(), pBaseClass, szChildProperty));
 
-  m_pFilterModel.reset(new QSortFilterProxyModel(this));
+  m_pFilterModel.reset(new ezQtScenegraphFilterModel(this));
   m_pFilterModel->setSourceModel(m_pModel.get());
 
   m_bBlockSelectionSignal = false;

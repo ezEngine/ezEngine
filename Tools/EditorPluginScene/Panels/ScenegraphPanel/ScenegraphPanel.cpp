@@ -92,17 +92,7 @@ void ezScenegraphPanel::OnRequestContextMenu(QPoint pos)
 
 void ezScenegraphPanel::OnFilterTextChanged(const QString& text)
 {
-  if (text.isEmpty())
-  {
-    m_pTreeWidget->GetProxyFilterModel()->setFilterWildcard(QString());
-  }
-  else
-  {
-    const QString pattern = QString("*%1*").arg(text);
-
-    m_pTreeWidget->GetProxyFilterModel()->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    m_pTreeWidget->GetProxyFilterModel()->setFilterWildcard(pattern);
-  }
+  m_pTreeWidget->GetProxyFilterModel()->SetFilterText(text);
 }
 
 
