@@ -188,9 +188,10 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
 
   LoadEditorPlugins();
 
-  if (!bNoRecent)
-  {
+  ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
+  if (!bNoRecent && pPreferences->m_bLoadLastProjectAtStartup)
+  {
     // first open the project, so that the data directory list is read
     if (!s_RecentProjects.GetFileList().IsEmpty())
     {

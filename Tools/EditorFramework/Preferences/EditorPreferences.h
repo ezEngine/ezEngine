@@ -14,5 +14,6 @@ public:
   float m_fPerspectiveFieldOfView;
   float m_fGizmoScale;
   bool m_bUsePrecompiledTools;
+  bool m_bLoadLastProjectAtStartup;
 };
 
