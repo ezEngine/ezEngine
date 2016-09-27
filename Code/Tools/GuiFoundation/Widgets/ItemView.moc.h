@@ -6,7 +6,6 @@
 #include <QHoverEvent>
 #include <QItemDelegate>
 #include <Foundation/Logging/Log.h>
-#include <QWidget>
 
 /// \brief In combination with ezQtItemView this delegate allows for receiving the full range of mouse input.
 class EZ_GUIFOUNDATION_DLL ezQtItemDelegate : public QItemDelegate
@@ -45,7 +44,7 @@ public:
   ezQtItemView(QWidget* pParent)
     : Base(pParent), m_focusedDelegate(nullptr)
   {
-    setAttribute(Qt::WA_Hover, true);
+    this->setAttribute(Qt::WA_Hover, true);
   }
 
   virtual bool event(QEvent* ev) override
@@ -58,7 +57,7 @@ public:
       {
         QHoverEvent* pHoeverEvent = static_cast<QHoverEvent*>(ev);
         QPoint pos = pHoeverEvent->pos();
-        QModelIndex index = indexAt(pos);
+        QModelIndex index = this->indexAt(pos);
         if (m_hovered.isValid() && (ev->type() == QEvent::HoverLeave || index != m_hovered))
         {
           QHoverEvent hoverEvent(QEvent::HoverLeave, pos, pHoeverEvent->oldPos(), pHoeverEvent->modifiers());
@@ -86,13 +85,13 @@ public:
   virtual void mousePressEvent(QMouseEvent* event) override
   {
     QPoint pos = event->pos();
-    QModelIndex index = indexAt(pos);
+    QModelIndex index = this->indexAt(pos);
     if (ForwardEvent(index, event))
     {
       if (!m_focused.isValid())
       {
         m_focused = index;
-        viewport()->grabMouse();
+        this->viewport()->grabMouse();
       }
     }
     else
@@ -109,7 +108,7 @@ public:
       if (event->buttons() == Qt::NoButton)
       {
         m_focused = QModelIndex();
-        viewport()->releaseMouse();
+        this->viewport()->releaseMouse();
       }
     }
     else
@@ -121,7 +120,7 @@ public:
   virtual void mouseDoubleClickEvent(QMouseEvent* event) override
   {
     QPoint pos = event->pos();
-    QModelIndex index = indexAt(pos);
+    QModelIndex index = this->indexAt(pos);
     if (!ForwardEvent(index, event))
     {
       Base::mouseDoubleClickEvent(event);
@@ -131,7 +130,7 @@ public:
   virtual void mouseMoveEvent(QMouseEvent* event) override
   {
     QPoint pos = event->pos();
-    QModelIndex index = indexAt(pos);
+    QModelIndex index = this->indexAt(pos);
     if (!ForwardEvent(index, event))
     {
       Base::mouseMoveEvent(event);
@@ -146,11 +145,11 @@ private:
     if (!index.isValid())
       return false;
 
-    if (ezQtItemDelegate* pDelegate = qobject_cast<ezQtItemDelegate*>(itemDelegate(m_hovered)))
+    if (ezQtItemDelegate* pDelegate = qobject_cast<ezQtItemDelegate*>(this->itemDelegate(m_hovered)))
     {
-      QStyleOptionViewItem option = viewOptions();
-      option.rect = visualRect(index);
-      option.state |= (index == currentIndex() ? QStyle::State_HasFocus : QStyle::State_None);
+      QStyleOptionViewItem option = this->viewOptions();
+      option.rect = this->visualRect(index);
+      option.state |= (index == this->currentIndex() ? QStyle::State_HasFocus : QStyle::State_None);
 
       bool bRes = false;
       switch (pEvent->type())
@@ -173,7 +172,7 @@ private:
         bRes = pDelegate->mouseMoveEvent(static_cast<QMouseEvent*>(pEvent), option, index);
         break;
       }
-      update(index);
+      this->update(index);
       return bRes;
     }
 

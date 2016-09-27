@@ -39,6 +39,7 @@
 #include <EditorFramework/Visualizers/DirectionVisualizerAdapter.h>
 #include <EditorFramework/Visualizers/ConeVisualizerAdapter.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 
