@@ -163,6 +163,10 @@ void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ez
   m_fCameraLerp = 0.0f;
 }
 
+void ezQtEngineViewWidget::OpenContextMenu(QPoint globalPos)
+{
+  // overridden in derived classes
+}
 
 ////////////////////////////////////////////////////////////////////////
 // ezQtEngineViewWidget qt overrides
@@ -247,17 +251,26 @@ void ezQtEngineViewWidget::mousePressEvent(QMouseEvent* e)
   if (ezEditorInputContext::IsAnyInputContextActive())
   {
     if (ezEditorInputContext::GetActiveInputContext()->MousePressEvent(e) == ezEditorInut::WasExclusivelyHandled)
+    {
+      e->accept();
       return;
+    }
   }
 
   if (ezEditorInputContext::IsAnyInputContextActive())
+  {
+    e->accept();
     return;
+  }
 
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
     if (pContext->MousePressEvent(e) == ezEditorInut::WasExclusivelyHandled)
+    {
+      e->accept();
       return;
+    }
   }
 
   QWidget::mousePressEvent(e);
@@ -269,17 +282,26 @@ void ezQtEngineViewWidget::mouseReleaseEvent(QMouseEvent* e)
   if (ezEditorInputContext::IsAnyInputContextActive())
   {
     if (ezEditorInputContext::GetActiveInputContext()->MouseReleaseEvent(e) == ezEditorInut::WasExclusivelyHandled)
+    {
+      e->accept();
       return;
+    }
   }
 
   if (ezEditorInputContext::IsAnyInputContextActive())
+  {
+    e->accept();
     return;
+  }
 
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
     if (pContext->MouseReleaseEvent(e) == ezEditorInut::WasExclusivelyHandled)
+    {
+      e->accept();
       return;
+    }
   }
 
   QWidget::mouseReleaseEvent(e);
@@ -291,17 +313,26 @@ void ezQtEngineViewWidget::mouseMoveEvent(QMouseEvent* e)
   if (ezEditorInputContext::IsAnyInputContextActive())
   {
     if (ezEditorInputContext::GetActiveInputContext()->MouseMoveEvent(e) == ezEditorInut::WasExclusivelyHandled)
+    {
+      e->accept();
       return;
+    }
   }
 
   if (ezEditorInputContext::IsAnyInputContextActive())
+  {
+    e->accept();
     return;
+  }
 
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
     if (pContext->MouseMoveEvent(e) == ezEditorInut::WasExclusivelyHandled)
+    {
+      e->accept();
       return;
+    }
   }
 
   QWidget::mouseMoveEvent(e);

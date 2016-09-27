@@ -128,6 +128,21 @@ void ezSelectionActions::MapContextMenuActions(const char* szMapping, const char
   MapPrefabActions(szMapping, sSubPath, 4.0f);
 }
 
+
+void ezSelectionActions::MapViewContextMenuActions(const char* szMapping, const char* szPath)
+{
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the actions failed!", szMapping);
+
+  ezStringBuilder sSubPath(szPath, "/SelectionCategory");
+
+  pMap->MapAction(s_hSelectionCategory, szPath, 5.0f);
+
+  pMap->MapAction(s_hFocusOnSelectionAllViews, sSubPath, 1.0f);
+  pMap->MapAction(s_hGroupSelectedItems, sSubPath, 2.0f);
+  pMap->MapAction(s_hHideSelectedObjects, sSubPath, 3.0f);
+}
+
 ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char* szName, ezSelectionAction::ActionType type) : ezButtonAction(context, szName, false, "")
 {
   m_Type = type;

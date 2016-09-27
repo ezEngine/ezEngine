@@ -12,6 +12,7 @@ public:
 
   static void MapActions(const char* szMapping, const char* szPath);
   static void MapContextMenuActions(const char* szMapping, const char* szPath);
+  static void MapViewContextMenuActions(const char* szMapping, const char* szPath);
 
   static ezActionDescriptorHandle s_hEditCategory;
   static ezActionDescriptorHandle s_hCopy;

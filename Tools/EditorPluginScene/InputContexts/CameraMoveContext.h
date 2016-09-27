@@ -58,6 +58,7 @@ private:
   bool m_bSlideForwards;
   bool m_bPanOrbitPoint;
   float m_fSlideForwardsDistance;
+  bool m_bOpenMenuOnMouseUp;
 
   ezCamera* m_pCamera;
 

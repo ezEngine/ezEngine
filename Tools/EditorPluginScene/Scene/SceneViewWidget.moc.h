@@ -9,6 +9,7 @@
 class QVBoxLayout;
 class ezQtSceneDocumentWindow;
 class ezOrthoGizmoContext;
+class ezContextMenuContext;
 
 class ezQtSceneViewWidget : public ezQtEngineViewWidget
 {
@@ -25,6 +26,8 @@ public:
 
   virtual bool IsPickingAgainstSelectionAllowed() const override;
 
+  virtual void OpenContextMenu(QPoint globalPos) override;
+
 protected:
   virtual void dragEnterEvent(QDragEnterEvent* e) override;
   virtual void dragLeaveEvent(QDragLeaveEvent* e) override;
@@ -33,4 +36,6 @@ protected:
 
   bool m_bAllowPickSelectedWhileDragging;
   ezTime m_LastDragMoveEvent;
+
+  static bool s_bContextMenuInitialized;
 };

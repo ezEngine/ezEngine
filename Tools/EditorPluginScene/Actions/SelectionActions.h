@@ -15,6 +15,7 @@ public:
   static void MapActions(const char* szMapping, const char* szPath);
   static void MapPrefabActions(const char* szMapping, const char* szPath, float fPriority);
   static void MapContextMenuActions(const char* szMapping, const char* szPath);
+  static void MapViewContextMenuActions(const char* szMapping, const char* szPath);
 
   static ezActionDescriptorHandle s_hSelectionCategory;
   static ezActionDescriptorHandle s_hShowInScenegraph;

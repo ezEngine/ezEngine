@@ -71,6 +71,21 @@ void ezEditActions::MapContextMenuActions(const char* szMapping, const char* szP
   pMap->MapAction(s_hDelete, sSubPath, 3.0f);
 }
 
+
+void ezEditActions::MapViewContextMenuActions(const char* szMapping, const char* szPath)
+{
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the edit actions failed!", szMapping);
+
+  ezStringBuilder sSubPath(szPath, "/EditCategory");
+
+  pMap->MapAction(s_hEditCategory, szPath, 10.0f);
+
+  pMap->MapAction(s_hCopy, sSubPath, 1.0f);
+  pMap->MapAction(s_hPasteAsChild, sSubPath, 2.0f);
+  pMap->MapAction(s_hDelete, sSubPath, 3.0f);
+}
+
 ////////////////////////////////////////////////////////////////////////
 // ezEditAction
 ////////////////////////////////////////////////////////////////////////

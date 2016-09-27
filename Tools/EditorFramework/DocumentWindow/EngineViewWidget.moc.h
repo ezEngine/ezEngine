@@ -42,6 +42,8 @@ public:
 
   virtual bool IsPickingAgainstSelectionAllowed() const { return !m_bInDragAndDropOperation; }
 
+  virtual void OpenContextMenu(QPoint globalPos);
+
 protected:
   /// \brief Used to deactivate shortcuts
   virtual bool eventFilter(QObject* object, QEvent* event) override;

@@ -16,7 +16,12 @@
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorFramework/DragDrop/DragDropHandler.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
+#include <EditorPluginScene/Actions/SelectionActions.h>
+#include <GuiFoundation/Action/EditActions.h>
+#include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 
+bool ezQtSceneViewWidget::s_bContextMenuInitialized = false;
 
 ezQtSceneViewWidget::ezQtSceneViewWidget(QWidget* pParent, ezQtSceneDocumentWindow* pOwnerWindow, ezCameraMoveContextSettings* pCameraMoveSettings, ezSceneViewConfig* pViewConfig)
   : ezQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
@@ -62,6 +67,31 @@ bool ezQtSceneViewWidget::IsPickingAgainstSelectionAllowed() const
   }
 
   return ezQtEngineViewWidget::IsPickingAgainstSelectionAllowed();
+}
+
+void ezQtSceneViewWidget::OpenContextMenu(QPoint globalPos)
+{
+  if (!s_bContextMenuInitialized)
+  {
+    s_bContextMenuInitialized = true;
+
+    ezActionMapManager::RegisterActionMap("SceneViewContextMenu");
+
+    ezSelectionActions::MapViewContextMenuActions("SceneViewContextMenu", "");
+    ezEditActions::MapViewContextMenuActions("SceneViewContextMenu", "");
+  }
+
+  {
+    ezMenuActionMapView menu(nullptr);
+
+    ezActionContext context;
+    context.m_sMapping = "SceneViewContextMenu";
+    context.m_pDocument = GetDocumentWindow()->GetDocument();
+    context.m_pWindow = this;
+    menu.SetActionContext(context);
+
+    menu.exec(globalPos);
+  }
 }
 
 void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
@@ -165,4 +195,6 @@ void ezQtSceneViewWidget::dropEvent(QDropEvent * e)
 
   ezQtEngineViewWidget::dropEvent(e);
 }
+
+
 
