@@ -8,7 +8,6 @@ ALL
 BlendingEnabled0 = true
 DestBlend0 = Blend_One
 SourceBlend0 = Blend_SrcAlpha
-CullMode = CullMode_None
 
 DepthTest = true
 DepthWrite = false
@@ -38,11 +37,11 @@ VS_OUT main(uint VertexID : SV_VertexID)
 	float2 texCoords[6] =
 	{
 		float2(0.0, 0.0),
-		float2(1.0, 0.0),
+		float2(0.0, 1.0),
 		float2(1.0, 1.0),
 		float2(0.0, 0.0),
 		float2(1.0, 1.0),
-		float2(0.0, 1.0),
+		float2(1.0, 0.0),
 	};
 	
 	uint index = VertexID / 6;

@@ -3,7 +3,7 @@
 #include <EditorFramework/Plugin.h>
 #include <CoreUtils/Graphics/Camera.h>
 #include <Foundation/Reflection/Reflection.h>
-#include <RendererCore/Camera/Declarations.h>
+#include <RendererCore/Components/Declarations.h>
 
 struct EZ_EDITORFRAMEWORK_DLL ezViewRenderMode
 {
@@ -14,9 +14,14 @@ struct EZ_EDITORFRAMEWORK_DLL ezViewRenderMode
     None,
     WireframeColor,
     WireframeMonochrome,
+    LitOnly,
     TexCoordsUV0,
-    VertexNormals,
-    PixelDepth,
+    Normals,
+    DiffuseColor,
+    DiffuseColorRange,
+    SpecularColor,
+    Roughness,
+    Depth,
 
     Default = None
   };

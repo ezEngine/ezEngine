@@ -7,17 +7,10 @@
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
-#include <GameUtils/Components/RotorComponent.h>
-#include <GameUtils/Components/SliderComponent.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
-#include <CoreUtils/Geometry/GeomUtils.h>
 #include <GameFoundation/GameApplication/GameApplication.h>
-#include <GameUtils/Components/SpawnComponent.h>
-#include <GameUtils/Components/TimedDeathComponent.h>
-#include <RendererCore/Camera/CameraComponent.h>
-#include <GameUtils/Components/InputComponent.h>
 #include <EditorFramework/Gizmos/GizmoRenderer.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
@@ -32,8 +25,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezScen
   EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
-
-ezUInt32 ezSceneContext::s_uiShapeIconBufferCounter = 0;
 
 void ezSceneContext::ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds)
 {
@@ -248,7 +239,6 @@ void ezSceneContext::GenerateShapeIconMesh()
   {
     for (auto it = m_ShapeIcons.GetIterator(); it.IsValid(); ++it)
     {
-      it.Value().m_hMeshBuffer.Invalidate();
       it.Value().m_IconPositions.Clear();
     }
   }
@@ -282,50 +272,6 @@ void ezSceneContext::GenerateShapeIconMesh()
     }
   }
 
-  for (auto it = m_ShapeIcons.GetIterator(); it.IsValid(); ++it)
-  {
-    auto& dat = it.Value().m_IconPositions;
-    if (dat.IsEmpty())
-      continue;
-
-    ezMeshBufferResourceDescriptor desc;
-    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-    desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
-    desc.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezGALResourceFormat::RUInt);
-    desc.AllocateStreams(dat.GetCount() * 4, ezGALPrimitiveTopology::Triangles, dat.GetCount() * 2);
-
-
-    ezUInt32 obj = 0;
-    for (const auto& pid : dat)
-    {
-      desc.SetVertexData<ezVec3>(0, obj * 4 + 0, pid.pos);
-      desc.SetVertexData<ezVec3>(0, obj * 4 + 1, pid.pos);
-      desc.SetVertexData<ezVec3>(0, obj * 4 + 2, pid.pos);
-      desc.SetVertexData<ezVec3>(0, obj * 4 + 3, pid.pos);
-
-      desc.SetVertexData<ezVec2>(1, obj * 4 + 0, ezVec2(0, 0));
-      desc.SetVertexData<ezVec2>(1, obj * 4 + 1, ezVec2(1, 0));
-      desc.SetVertexData<ezVec2>(1, obj * 4 + 2, ezVec2(1, 1));
-      desc.SetVertexData<ezVec2>(1, obj * 4 + 3, ezVec2(0, 1));
-
-      desc.SetVertexData<ezUInt32>(2, obj * 4 + 0, pid.id);
-      desc.SetVertexData<ezUInt32>(2, obj * 4 + 1, pid.id);
-      desc.SetVertexData<ezUInt32>(2, obj * 4 + 2, pid.id);
-      desc.SetVertexData<ezUInt32>(2, obj * 4 + 3, pid.id);
-
-      desc.SetTriangleIndices(obj * 2 + 0, obj * 4 + 0, obj * 4 + 1, obj * 4 + 2);
-      desc.SetTriangleIndices(obj * 2 + 1, obj * 4 + 0, obj * 4 + 2, obj * 4 + 3);
-
-      ++obj;
-    }
-
-    ezStringBuilder s;
-    s.Format("ShapeIconMeshBuffer%u", s_uiShapeIconBufferCounter);
-    ++s_uiShapeIconBufferCounter;
-
-    it.Value().m_hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(s, desc);
-  }
-
   m_bShapeIconBufferValid = true;
 }
 
@@ -334,47 +280,17 @@ ezGameState* ezSceneContext::GetGameState() const
   return ezGameApplication::GetGameApplicationInstance()->GetGameStateForWorld(m_pWorld);
 }
 
-void ezSceneContext::RenderShapeIcons(ezRenderContext* pContext)
-{
-  /// \todo Disabled for now
-  return;
-
-  if (!m_bRenderShapeIcons)
-    return;
-
-  pContext->GetGALContext()->PushMarker("Shape Icons");
-
-  for (auto it = m_ShapeIcons.GetIterator(); it.IsValid(); ++it)
-  {
-    if (it.Value().m_IconPositions.IsEmpty())
-      continue;
-
-    pContext->BindMeshBuffer(it.Value().m_hMeshBuffer);
-    pContext->BindTexture(ezGALShaderStage::PixelShader, "ShapeIcon", it.Value().m_hTexture);
-    pContext->BindShader(m_hShapeIconShader);
-
-    pContext->DrawMeshBuffer();
-  }
-
-  pContext->GetGALContext()->PopMarker();
-
-  /// \todo Render all selected ones again (blend overlay color)
-}
-
 void ezSceneContext::OnInitialize()
 {
   auto pWorld = m_pWorld;
   EZ_LOCK(pWorld->GetWriteMarker());
 
   LoadShapeIconTextures();
-
-  m_hShapeIconShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Editor/ShapeIcon.ezShader");
 }
 
 void ezSceneContext::OnDeinitialize()
 {
   m_ShapeIcons.Clear();
-  m_hShapeIconShader.Invalidate();
 }
 
 ezEngineProcessViewContext* ezSceneContext::CreateViewContext()

@@ -20,8 +20,6 @@
 #include <Core/World/Component.h>
 #include <EnginePluginAssets/MaterialAsset/MaterialContext.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
-#include <RendererCore/Meshes/MeshRenderer.h>
-#include <RendererCore/Lights/LightGatheringRenderer.h>
 
 ezMaterialViewContext::ezMaterialViewContext(ezMaterialContext* pMaterialContext) : ezEngineProcessViewContext(pMaterialContext)
 {

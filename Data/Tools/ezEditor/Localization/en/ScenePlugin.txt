@@ -93,6 +93,7 @@ ezDirectionalLightComponent;Directional Light
 ezSpotLightComponent;Spot Light
 ezPointLightComponent;Point Light
 ezSkyBoxComponent;Sky Box
+ezSpriteComponent;Sprite
 ezRotorComponent;Rotor
 ezSliderComponent;Slider
 ezCollectionComponent;Collection

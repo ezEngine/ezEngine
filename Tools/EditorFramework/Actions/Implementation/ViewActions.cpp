@@ -7,7 +7,7 @@
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/ProjectPreferences.h>
-#include <RendererCore/Camera/Declarations.h>
+#include <RendererCore/Components/Declarations.h>
 
 ezActionDescriptorHandle ezViewActions::s_hRenderMode;
 ezActionDescriptorHandle ezViewActions::s_hPerspective;

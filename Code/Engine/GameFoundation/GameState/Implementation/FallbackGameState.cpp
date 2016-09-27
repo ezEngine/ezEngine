@@ -1,7 +1,7 @@
 #include <GameFoundation/PCH.h>
 #include <GameFoundation/GameState/FallbackGameState.h>
 #include <GameFoundation/GameApplication/InputConfig.h>
-#include <RendererCore/Camera/CameraComponent.h>
+#include <RendererCore/Components/CameraComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFallbackGameState, 1, ezRTTIDefaultAllocator<ezFallbackGameState>);
 EZ_END_DYNAMIC_REFLECTED_TYPE

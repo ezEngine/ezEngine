@@ -1,0 +1,127 @@
+[PLATFORMS] 
+ALL
+
+[PERMUTATIONS]
+
+RENDER_PASS
+
+[RENDERSTATE]
+
+DepthTest = true
+DepthWrite = true
+
+[VERTEXSHADER]
+
+#define USE_TEXCOORD0
+#define USE_COLOR
+
+#if RENDER_PASS == RENDER_PASS_PICKING
+	#define CUSTOM_INTERPOLATOR float4 GameObjectID : GAME_OBJECT_ID;
+#endif
+
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Materials/MaterialInterpolator.inc>
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+struct SpriteData
+{
+	float3 worldSpacePosition;
+	uint size;
+	uint color;
+	uint texCoordScale;
+	uint texCoordOffset;	
+	uint gameObjectID;
+};
+
+StructuredBuffer<SpriteData> spriteData;
+
+VS_OUT main(uint VertexID : SV_VertexID)
+{
+	float2 vertexPositions[6] = 
+	{
+		float2(0.0, 0.0),
+		float2(0.0, 1.0),
+		float2(1.0, 1.0),
+		float2(0.0, 0.0),
+		float2(1.0, 1.0),
+		float2(1.0, 0.0),
+	};
+	
+	uint index = VertexID / 6;
+	uint vertexIndex = VertexID % 6;
+	
+	float2 texCoords = vertexPositions[vertexIndex];
+	float2 vertexPosition = (texCoords - 0.5);
+  
+	SpriteData data = spriteData[index];
+	float3 worldPosition = data.worldSpacePosition;
+	float4 screenPosition = mul(WorldToScreenMatrix, float4(worldPosition, 1.0));
+	
+	float distance = screenPosition.w;
+	float2 scale = mul(CameraToScreenMatrix, float4(1.0, 1.0, distance, 1.0)).xy;
+	
+	float2 size = RG16FToFloat2(data.size);
+	scale *= size.x;
+	
+	if (size.y > 0.0)
+	{
+		float2 maxScreenSize = (size.y * distance * 2.0) / Viewport.zw;
+		scale = min(scale, maxScreenSize);
+	}
+		
+	screenPosition.xy += vertexPosition * scale;
+	
+	float2 texCoordScale = RG16FToFloat2(data.texCoordScale);
+	float2 texCoordOffset = RG16FToFloat2(data.texCoordOffset);
+	
+	VS_OUT RetVal;
+	RetVal.Position = screenPosition;
+	RetVal.TexCoords = texCoords * texCoordScale + texCoordOffset;
+	RetVal.Color = RGBA8ToFloat4(data.color);
+	
+	#if RENDER_PASS == RENDER_PASS_PICKING
+		RetVal.GameObjectID = RGBA8ToFloat4(data.gameObjectID);
+	#endif
+  
+	return RetVal;
+}
+
+#endif
+
+
+[PIXELSHADER]
+
+#define USE_TEXCOORD0
+#define USE_COLOR
+
+#if RENDER_PASS == RENDER_PASS_PICKING
+	#define CUSTOM_INTERPOLATOR float4 GameObjectID : GAME_OBJECT_ID;
+#endif
+
+#include <Shaders/Materials/MaterialInterpolator.inc>
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+Texture2D SpriteTexture;
+SamplerState SpriteTexture_AutoSampler;
+
+#if RENDER_PASS == RENDER_PASS_DEPTH_ONLY
+	void main(PS_IN Input)
+#else
+	float4 main(PS_IN Input) : SV_Target
+#endif
+{
+	float4 color = SpriteTexture.Sample(SpriteTexture_AutoSampler, Input.TexCoords.xy) * Input.Color;
+	
+	clip(color.a - 0.5);
+
+	#if RENDER_PASS == RENDER_PASS_PICKING
+		return Input.GameObjectID;
+	#elif RENDER_PASS != RENDER_PASS_DEPTH_ONLY
+		return color;
+	#endif	
+}
+
+#endif
+

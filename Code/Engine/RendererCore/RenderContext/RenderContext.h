@@ -147,7 +147,7 @@ public:
   /// \brief Sets the currently active shader on the given render context.
   ///
   /// This function has no effect until the next drawcall on the context.
-  void BindShader(ezShaderResourceHandle hShader, ezBitflags<ezShaderBindFlags> flags = ezShaderBindFlags::Default);
+  void BindShader(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags = ezShaderBindFlags::Default);
 
   void BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer);
   void BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer, const ezVertexDeclarationInfo* pVertexDeclarationInfo, 
@@ -300,7 +300,7 @@ private: // Per Renderer States
   // Member Functions
   void UploadConstants();
 
-  void BindShaderInternal(ezShaderResourceHandle hShader, ezBitflags<ezShaderBindFlags> flags);
+  void BindShaderInternal(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags);
   ezShaderPermutationResource* ApplyShaderState();
   ezMaterialResource* ApplyMaterialState();
   void ApplyConstantBufferBindings(const ezShaderStageBinary* pBinary);

@@ -3,7 +3,8 @@
 #include <EditorFramework/EngineProcess/ViewRenderSettings.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezViewRenderMode, 1)
-EZ_BITFLAGS_CONSTANTS(ezViewRenderMode::None, ezViewRenderMode::WireframeColor, ezViewRenderMode::WireframeMonochrome, ezViewRenderMode::TexCoordsUV0, ezViewRenderMode::VertexNormals, ezViewRenderMode::PixelDepth)
+EZ_BITFLAGS_CONSTANTS(ezViewRenderMode::None, ezViewRenderMode::WireframeColor, ezViewRenderMode::WireframeMonochrome, ezViewRenderMode::LitOnly, ezViewRenderMode::TexCoordsUV0)
+EZ_BITFLAGS_CONSTANTS(ezViewRenderMode::Normals, ezViewRenderMode::DiffuseColor, ezViewRenderMode::DiffuseColorRange, ezViewRenderMode::SpecularColor, ezViewRenderMode::Roughness, ezViewRenderMode::Depth)
 EZ_END_STATIC_REFLECTED_ENUM();
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSceneViewPerspective, 1)

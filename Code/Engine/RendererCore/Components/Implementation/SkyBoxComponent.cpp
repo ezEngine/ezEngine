@@ -1,5 +1,5 @@
 #include <RendererCore/PCH.h>
-#include <RendererCore/Sky/SkyBoxComponent.h>
+#include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/Textures/TextureResource.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -145,8 +145,7 @@ void ezSkyBoxComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) con
     }
     else
     {
-      ///\todo: sky category
-      category = ezDefaultRenderDataCategories::LitOpaque;
+      category = ezDefaultRenderDataCategories::Sky;
     }
 
     // Sort by material and then by mesh

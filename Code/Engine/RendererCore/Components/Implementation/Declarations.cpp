@@ -1,5 +1,5 @@
 #include <RendererCore/PCH.h>
-#include <RendererCore/Camera/Declarations.h>
+#include <RendererCore/Components/Declarations.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCameraComponentUsageHint, 1)
   EZ_ENUM_CONSTANT(ezCameraComponentUsageHint::None),

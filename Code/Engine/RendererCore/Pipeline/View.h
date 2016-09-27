@@ -7,7 +7,7 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <CoreUtils/NodeGraph/Node.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <RendererCore/Camera/Declarations.h>
+#include <RendererCore/Components/Declarations.h>
 #include <RendererCore/Pipeline/ViewData.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 

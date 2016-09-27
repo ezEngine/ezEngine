@@ -73,7 +73,7 @@
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-373.0000, -376.0000)", "$b" : "0x0080BAC30000BCC3" },
     "PickSelected" : false,
     "PickingPosition" : { "$t" : "vec2", "$v" : "(0.0000, 0.0000)", "$b" : "0x0000000000000000" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0x4F6F2BA85A30F9479193AA196EEF0AE1" }, { "$t" : "uuid", "$b" : "0x6955E97E2FC7FC4AA3062CDBFFA2E82F" } ],
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0x4F6F2BA85A30F9479193AA196EEF0AE1" }, { "$t" : "uuid", "$b" : "0x6955E97E2FC7FC4AA3062CDBFFA2E82F" }, { "$t" : "uuid", "$b" : "0xC6B8E43F71E4E04FBC1E6905546F1FF7" } ],
     "SceneContext" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
     "ViewRenderMode" : "ezViewRenderMode::None"
    }
@@ -117,7 +117,7 @@
     "AssetType" : "RenderPipeline",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x3EEB1604C0694046BE5B77354E0E37D7" },
-    "Hash" : { "$t" : "uint64", "$v" : "9580177272955328585", "$b" : "0x49D8C5C778A0F384" },
+    "Hash" : { "$t" : "uint64", "$v" : "2280354923685932224", "$b" : "0xC0EC1CA4B872A51F" },
     "References" : [  ]
    }
   },
@@ -170,13 +170,20 @@
     "Name" : "EditorRenderPass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x76E7EC5A137BBD062805167A27011F0D" }, { "$t" : "uuid", "$b" : "0x20DF51A2B06202DDF5C62353C249B651" }, { "$t" : "uuid", "$b" : "0xD5A058AC4AFA04C90EAD97A88CFD6F04" } ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-502.0000, -579.0000)", "$b" : "0x0000FBC300C010C4" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0x7FB2D0724C11F144B7E9B9FCB0FB5C56" } ],
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0x7FB2D0724C11F144B7E9B9FCB0FB5C56" }, { "$t" : "uuid", "$b" : "0xAEACA231D141AC49B71411D549655F4E" } ],
     "ViewRenderMode" : "ezViewRenderMode::None"
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0x830246415B1CA249B2F170ADE068EFDF" },
    "t" : "ezParticleRenderer",
+   "p" : {
+    
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xAEACA231D141AC49B71411D549655F4E" },
+   "t" : "ezSpriteRenderer",
    "p" : {
     
    }
@@ -199,7 +206,7 @@
     "Name" : "EditorSelectionPass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x6AE0B8E367ECEA6C232161A9465F0192" } ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-235.0000, -679.0000)", "$b" : "0x00006BC300C029C4" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0x6CD794929CE6DC468BA234A4BA2230F3" } ]
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0x6CD794929CE6DC468BA234A4BA2230F3" }, { "$t" : "uuid", "$b" : "0xDB7EC7B32E3C3C4B961F36B0E6F94722" } ]
    }
   },
   {
@@ -208,6 +215,13 @@
    "p" : {
     "Enabled" : true,
     "HighlightID" : { "$t" : "uint32", "$v" : "0", "$b" : "0x00000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xDB7EC7B32E3C3C4B961F36B0E6F94722" },
+   "t" : "ezSpriteRenderer",
+   "p" : {
+    
    }
   },
   {
@@ -236,6 +250,13 @@
     "Name" : "",
     "Node::Connections" : [  ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-77.0000, -760.0000)", "$b" : "0x00009AC200003EC4" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xC6B8E43F71E4E04FBC1E6905546F1FF7" },
+   "t" : "ezSpriteRenderer",
+   "p" : {
+    
    }
   },
   {
@@ -481,7 +502,7 @@
     "PluginName" : "ezEnginePluginScene",
     "Properties" : [ { "$t" : "uuid", "$b" : "0x4F8038A9ED1F4303F31177F3958685E7" } ],
     "TypeName" : "ezSceneContext",
-    "TypeSize" : { "$t" : "uint32", "$v" : "1344", "$b" : "0x40050000" },
+    "TypeSize" : { "$t" : "uint32", "$v" : "1336", "$b" : "0x38050000" },
     "TypeVersion" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
    }
   },

@@ -16,7 +16,6 @@
 #include <GameFoundation/GameApplication/GameApplication.h>
 #include <GameUtils/Components/SpawnComponent.h>
 #include <GameUtils/Components/TimedDeathComponent.h>
-#include <RendererCore/Camera/CameraComponent.h>
 #include <GameUtils/Components/InputComponent.h>
 #include <EditorFramework/Gizmos/GizmoRenderer.h>
 #include <RendererCore/Meshes/MeshComponent.h>

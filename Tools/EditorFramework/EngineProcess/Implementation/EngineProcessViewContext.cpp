@@ -3,7 +3,7 @@
 #include <EditorFramework/EngineProcess/ViewRenderSettings.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Core/ResourceManager/ResourceManager.h>
-#include <RendererCore/Camera/CameraComponent.h>
+#include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>

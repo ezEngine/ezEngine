@@ -1,7 +1,7 @@
 #pragma once
 
 #include <RendererCore/Basics.h>
-#include <RendererCore/Camera/Declarations.h>
+#include <RendererCore/Components/Declarations.h>
 #include <Core/World/World.h>
 #include <Core/World/Component.h>
 #include <CoreUtils/Graphics/Camera.h>

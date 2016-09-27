@@ -1,11 +1,9 @@
 #include <PCH.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <EnginePluginScene/EditorRenderPass/EditorRenderPass.h>
-#include <EnginePluginScene/SceneContext/SceneContext.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 
-#include <RendererFoundation/Context/Context.h>
-#include <RendererCore/Meshes/MeshRenderer.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorRenderPass, 1, ezRTTIDefaultAllocator<ezEditorRenderPass>)
 {
@@ -26,6 +24,8 @@ void ezEditorRenderPass::SetupPermutationVars(const ezRenderViewContext& renderV
   ezTempHashedString sRenderPass("FORWARD");
   ezUInt32 uiRenderPass = 0;
 
+  ezStringBuilder sDebugText;
+
   switch (m_ViewRenderMode)
   {
   case ezViewRenderMode::WireframeColor:
@@ -36,15 +36,36 @@ void ezEditorRenderPass::SetupPermutationVars(const ezRenderViewContext& renderV
     sRenderPass = "WIREFRAME";
     uiRenderPass = WIREFRAME_RENDER_PASS_MONOCHROME;
     break;
+  case ezViewRenderMode::LitOnly:
+    sRenderPass = "EDITOR";
+    uiRenderPass = EDITOR_RENDER_PASS_LIT_ONLY;
+    break;
   case ezViewRenderMode::TexCoordsUV0:
     sRenderPass = "EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_TEXCOORDS_UV0;
     break;
-  case ezViewRenderMode::VertexNormals:
+  case ezViewRenderMode::Normals:
     sRenderPass = "EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_NORMALS;
     break;
-  case ezViewRenderMode::PixelDepth:
+  case ezViewRenderMode::DiffuseColor:
+    sRenderPass = "EDITOR";
+    uiRenderPass = EDITOR_RENDER_PASS_DIFFUSE_COLOR;
+    break;
+  case ezViewRenderMode::DiffuseColorRange:
+    sRenderPass = "EDITOR";
+    uiRenderPass = EDITOR_RENDER_PASS_DIFFUSE_COLOR_RANGE;
+    sDebugText = "Pure magenta means the diffuse color is too dark, pure green means it is too bright.";
+    break;
+  case ezViewRenderMode::SpecularColor:
+    sRenderPass = "EDITOR";
+    uiRenderPass = EDITOR_RENDER_PASS_SPECULAR_COLOR;
+    break;
+  case ezViewRenderMode::Roughness:
+    sRenderPass = "EDITOR";
+    uiRenderPass = EDITOR_RENDER_PASS_ROUGHNESS;
+    break;
+  case ezViewRenderMode::Depth:
     sRenderPass = "EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_DEPTH;
     break;
@@ -54,4 +75,9 @@ void ezEditorRenderPass::SetupPermutationVars(const ezRenderViewContext& renderV
 
   auto& globalConstants = renderViewContext.m_pRenderContext->WriteGlobalConstants();
   globalConstants.RenderPass = uiRenderPass;
+
+  if (!sDebugText.IsEmpty())
+  {
+    ezDebugRenderer::DrawText(0u, sDebugText, ezVec2I32(10, 10), ezColor::White);
+  }
 }

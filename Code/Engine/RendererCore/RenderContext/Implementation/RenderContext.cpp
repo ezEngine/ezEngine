@@ -278,13 +278,10 @@ void ezRenderContext::BindConstantBuffer(const ezTempHashedString& sSlotName, ez
   m_StateFlags.Add(ezRenderContextFlags::ConstantBufferBindingChanged);
 }
 
-void ezRenderContext::BindShader(ezShaderResourceHandle hShader, ezBitflags<ezShaderBindFlags> flags)
+void ezRenderContext::BindShader(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags)
 {
-  if (flags.IsAnySet(ezShaderBindFlags::ForceRebind) || m_hActiveShader != hShader)
-  {
-    m_hMaterial.Invalidate();
-    m_StateFlags.Remove(ezRenderContextFlags::MaterialBindingChanged);
-  }
+  m_hMaterial.Invalidate();
+  m_StateFlags.Remove(ezRenderContextFlags::MaterialBindingChanged);
 
   BindShaderInternal(hShader, flags);
 }
@@ -459,7 +456,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
     }
   }
 
-  if (bForce || bRebuildVertexDeclaration || m_StateFlags.IsSet(ezRenderContextFlags::MeshBufferBindingChanged))
+  if (bForce || bRebuildVertexDeclaration)
   {
     if (m_hActiveGALShader.IsInvalidated())
       return EZ_FAILURE;
@@ -757,7 +754,7 @@ void ezRenderContext::UploadConstants()
 }
 
 
-void ezRenderContext::BindShaderInternal(ezShaderResourceHandle hShader, ezBitflags<ezShaderBindFlags> flags)
+void ezRenderContext::BindShaderInternal(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags)
 {
   if (flags.IsAnySet(ezShaderBindFlags::ForceRebind) || m_hActiveShader != hShader)
   {

@@ -58,19 +58,7 @@ void ezPickingRenderPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipeli
 
 static ezHashTable<ezGameObjectHandle, ezUInt32> s_SelectionSet;
 
-/*
-static void CopyMatD(ezMat4d& dst, ezMat4& src)
-{
-  for (ezUInt32 i = 0; i < 16; ++i)
-    dst.m_fElementsCM[i] = (double)src.m_fElementsCM[i];
-}
 
-static void CopyMatF(ezMat4& dst, ezMat4d& src)
-{
-  for (ezUInt32 i = 0; i < 16; ++i)
-    dst.m_fElementsCM[i] = (float)src.m_fElementsCM[i];
-}
-*/
 
 void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
   const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
@@ -89,19 +77,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   pGALContext->SetRenderTargetSetup(m_RenderTargetSetup);
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f));
 
-  ezTempHashedString sRenderPass("EDITOR");
-  ezUInt32 uiRenderPass = EDITOR_RENDER_PASS_PICKING;
-
-  if (m_ViewRenderMode == ezViewRenderMode::WireframeColor || m_ViewRenderMode == ezViewRenderMode::WireframeMonochrome)
-  {
-    sRenderPass = "WIREFRAME";
-    uiRenderPass = WIREFRAME_RENDER_PASS_PICKING;
-  }
-
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", sRenderPass);
-
-  auto& globalConstants = renderViewContext.m_pRenderContext->WriteGlobalConstants();
-  globalConstants.RenderPass = uiRenderPass;
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "PICKING");
 
   // copy selection to set for faster checks
   s_SelectionSet.Clear();
@@ -127,7 +103,6 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   if (m_bPickSelected)
   {
     RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Selection);
-    m_pSceneContext->RenderShapeIcons(renderViewContext.m_pRenderContext);
   }  
 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);

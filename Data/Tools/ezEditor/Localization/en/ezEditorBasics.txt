@@ -51,9 +51,14 @@ ezSceneViewPerspective::Perspective;Perspective
 ezViewRenderMode::None;Default
 ezViewRenderMode::WireframeColor;Wireframe Color
 ezViewRenderMode::WireframeMonochrome;Wireframe Monochrome
+ezViewRenderMode::LitOnly;Lit Only
 ezViewRenderMode::TexCoordsUV0;Texture Coordinates (UV0)
-ezViewRenderMode::VertexNormals;Vertex Normals
-ezViewRenderMode::PixelDepth;Depth
+ezViewRenderMode::Normals;Normals
+ezViewRenderMode::DiffuseColor;Diffuse Color
+ezViewRenderMode::DiffuseColorRange;Diffuse Color Range Check
+ezViewRenderMode::SpecularColor;Specular Color
+ezViewRenderMode::Roughness;Roughness
+ezViewRenderMode::Depth;Depth
 ezMeshPrimitive::File;From File
 ezMeshPrimitive::Box;Box
 ezMeshPrimitive::Rect;Rectangle

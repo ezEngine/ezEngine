@@ -1,27 +1,11 @@
 #include <PCH.h>
 #include <EnginePluginParticle/ParticleAsset/ParticleView.h>
-#include <RendererFoundation/Device/SwapChain.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
-#include <RendererCore/Pipeline/Extractor.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/Pipeline/Passes/SelectionHighlightPass.h>
-#include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
-#include <RendererCore/Pipeline/Passes/TargetPass.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <GameFoundation/GameApplication/GameApplication.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorFramework/Gizmos/GizmoRenderer.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <Core/World/GameObject.h>
-#include <Core/World/Component.h>
-#include <EnginePluginParticle/ParticleAsset/ParticleContext.h>
-#include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
-#include <RendererCore/Meshes/MeshRenderer.h>
-#include <RendererCore/Lights/LightGatheringRenderer.h>
 
 ezParticleViewContext::ezParticleViewContext(ezParticleContext* pParticleContext) : ezEngineProcessViewContext(pParticleContext)
 {

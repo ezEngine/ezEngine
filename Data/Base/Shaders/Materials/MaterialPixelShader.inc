@@ -81,44 +81,71 @@ MaterialData FillMaterialData(PS_IN Input)
 		#endif
 	#endif
 	
+	MaterialData matData = FillMaterialData(Input);
+	
+	#if RENDER_PASS == RENDER_PASS_EDITOR
+		if (RenderPass == EDITOR_RENDER_PASS_LIT_ONLY)
+		{
+			matData.diffuseColor = 0.5;
+			matData.specularColor = 0.0;
+		}
+	#endif
+	
+	float3 litColor = CalculateLighting(matData);
+	
 	#if RENDER_PASS == RENDER_PASS_FORWARD
 		#if defined(SHADING_MODE) && SHADING_MODE == SHADING_MODE_LIT
-			MaterialData matData = FillMaterialData(Input);
-		
-			float3 finalColor = CalculateLighting(matData);
-			return float4(finalColor, opacity);
+			return float4(litColor, opacity);
 		#else
-			#if defined(USE_SIMPLE_MATERIAL_MODEL)
-				float3 finalColor = GetBaseColor(Input);
-			#else
-				float3 finalColor = GetDiffuseColor(Input);
-			#endif
-			return float4(finalColor, opacity);
+			return float4(matData.diffuseColor, opacity);
 		#endif
 	
 	#elif RENDER_PASS == RENDER_PASS_EDITOR
-		MaterialData matData = FillMaterialData(Input);
-	
-		if (RenderPass == EDITOR_RENDER_PASS_PICKING)
+		if (RenderPass == EDITOR_RENDER_PASS_LIT_ONLY)
 		{
-			return RGBA8ToFloat4(GetInstanceData(Input).GameObjectID);
+			return float4(litColor, 1);
 		}
 		else if (RenderPass == EDITOR_RENDER_PASS_TEXCOORDS_UV0)
 		{
-			// Would need to be gamma corrected
 			#if defined(USE_TEXCOORD0)
-				return float4(frac(Input.TexCoords.xy), 0, 1);
+				return float4(SrgbToLinear(float3(frac(Input.TexCoords.xy), 0)), 1);
 			#else
 				return float4(0, 0, 0, 1);
 			#endif
 		}
 		else if (RenderPass == EDITOR_RENDER_PASS_NORMALS)
 		{
-			// Would need to be gamma corrected
-			return float4(matData.worldNormal * 0.5 + 0.5, 1);
+			return float4(SrgbToLinear(matData.worldNormal * 0.5 + 0.5), 1);
+		}
+		else if (RenderPass == EDITOR_RENDER_PASS_DIFFUSE_COLOR)
+		{
+			return float4(matData.diffuseColor, 1);
+		}
+		else if (RenderPass == EDITOR_RENDER_PASS_DIFFUSE_COLOR_RANGE)
+		{
+			float luminance = GetLuminance(matData.diffuseColor);
+			if (luminance < 0.017) // 40 srgb
+			{
+				return float4(1, 0, 1, 1);
+			}
+			else if (luminance > 0.9) // 243 srgb
+			{
+				return float4(0, 1, 0, 1);
+			}
+			
+			return float4(matData.diffuseColor, 1);
+		}		
+		else if (RenderPass == EDITOR_RENDER_PASS_SPECULAR_COLOR)
+		{
+			return float4(matData.specularColor, 1);
+		}
+		else if (RenderPass == EDITOR_RENDER_PASS_ROUGHNESS)
+		{
+			return float4(SrgbToLinear(matData.roughness), 1);
 		}
 		else if (RenderPass == EDITOR_RENDER_PASS_DEPTH)
 		{
+			// todo proper linearization
 			float depth = 1.0 - saturate(Input.Position.z / Input.Position.w);
 			depth = depth * depth * depth * depth;
 			return float4(depth, depth, depth, 1);
@@ -129,22 +156,17 @@ MaterialData FillMaterialData(PS_IN Input)
 		}
 	
 	#elif RENDER_PASS == RENDER_PASS_WIREFRAME
-		if (RenderPass == WIREFRAME_RENDER_PASS_PICKING)
-		{
-			return RGBA8ToFloat4(GetInstanceData(Input).GameObjectID);
-		}
-		else if (RenderPass == WIREFRAME_RENDER_PASS_MONOCHROME)
+		if (RenderPass == WIREFRAME_RENDER_PASS_MONOCHROME)
 		{
 			return float4(0.4f, 0.4f, 0.4f, 1.0f);
 		}
 		else
 		{
-			#if defined(USE_SIMPLE_MATERIAL_MODEL)
-				float3 finalColor = GetBaseColor(Input);
-			#else
-				float3 finalColor = GetDiffuseColor(Input);
-			#endif
-			return float4(finalColor, 1.0f);
+			return float4(matData.diffuseColor, 1.0f);
 		}
+		
+	#elif RENDER_PASS == RENDER_PASS_PICKING
+		return RGBA8ToFloat4(GetInstanceData(Input).GameObjectID);
+		
 	#endif
 }

@@ -22,7 +22,7 @@ public:
   const ezDeque<ezGameObjectHandle>& GetSelection() const { return m_Selection; }
   const ezDeque<ezGameObjectHandle>& GetSelectionWithChildren() const { return m_SelectionWithChildren; }
   bool GetRenderSelectionOverlay() const { return m_bRenderSelectionOverlay; }
-  void RenderShapeIcons(ezRenderContext* pContext);
+  
   void GenerateShapeIconMesh();
 
   ezGameState* GetGameState() const;
@@ -41,7 +41,9 @@ private:
   void HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg);
   void HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg);
   void ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds);
+  
   void DrawSelectionBounds();
+
   void InsertSelectedChildren(const ezGameObject* pObject);
   void LoadShapeIconTextures();
   void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
@@ -60,7 +62,6 @@ private:
   struct ShapeIconData
   {
     ezTextureResourceHandle m_hTexture;
-    ezMeshBufferResourceHandle m_hMeshBuffer;
 
     struct PosID
     {
@@ -72,9 +73,6 @@ private:
   };
 
   ezHashTable<const ezRTTI*, ShapeIconData> m_ShapeIcons;
-
-  ezShaderResourceHandle m_hShapeIconShader;
-  static ezUInt32 s_uiShapeIconBufferCounter;
 };
 
 

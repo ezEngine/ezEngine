@@ -86,6 +86,9 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   // Render
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked);
+
+  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Sky);
+
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent);
   
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");

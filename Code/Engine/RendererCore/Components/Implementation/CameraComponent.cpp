@@ -1,5 +1,5 @@
 #include <RendererCore/PCH.h>
-#include <RendererCore/Camera/CameraComponent.h>
+#include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
