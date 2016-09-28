@@ -46,5 +46,6 @@
 	<file>ezPrefabReferenceComponent.png</file>
 	<file>ezSkyBoxComponent.png</file>
 	<file>ezAmbientLightComponent.png</file>
+	<file>ezSpriteComponent.png</file>
   </qresource>  
 </RCC>

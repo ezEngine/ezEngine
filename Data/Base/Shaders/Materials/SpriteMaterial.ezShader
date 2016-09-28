@@ -53,6 +53,8 @@ VS_OUT main(uint VertexID : SV_VertexID)
 	
 	float2 texCoords = vertexPositions[vertexIndex];
 	float2 vertexPosition = (texCoords - 0.5);
+	
+	texCoords.y = 1.0 - texCoords.y;
   
 	SpriteData data = spriteData[index];
 	float3 worldPosition = data.worldSpacePosition;
