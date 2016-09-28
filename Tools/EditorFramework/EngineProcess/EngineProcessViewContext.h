@@ -43,6 +43,8 @@ public:
   ezEngineProcessViewContext(ezEngineProcessDocumentContext* pContext);
   virtual ~ezEngineProcessViewContext();
 
+  void SetViewID(ezUInt32 id);
+
   ezEditorProcessViewWindow& GetEditorWindow() { return m_Window; }
   ezEngineProcessDocumentContext* GetDocumentContext() const { return m_pDocumentContext; }
 
@@ -54,7 +56,7 @@ public:
   static bool FocusCameraOnObject(ezCamera& camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir);
 
 protected:
-  void SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg);
+  void SendViewMessage(ezEditorEngineViewMsg* pViewMsg);
   void HandleWindowUpdate(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);
   virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg);
 
@@ -74,6 +76,7 @@ private:
 protected:
   ezCamera m_Camera;
   ezView* m_pView;
+  ezUInt32 m_uiViewID;
 };
 
 

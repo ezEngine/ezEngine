@@ -18,12 +18,18 @@
 ezEngineProcessViewContext::ezEngineProcessViewContext(ezEngineProcessDocumentContext* pContext)
   : m_pDocumentContext(pContext), m_pView(nullptr)
 {
-  
+  m_uiViewID = 0xFFFFFFFF;
 }
 
 ezEngineProcessViewContext::~ezEngineProcessViewContext()
 {
 
+}
+
+void ezEngineProcessViewContext::SetViewID(ezUInt32 id)
+{
+  EZ_ASSERT_DEBUG(m_uiViewID == 0xFFFFFFFF, "View ID may only be set once");
+  m_uiViewID = id;
 }
 
 void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
@@ -42,9 +48,10 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
   }
 }
 
-void ezEngineProcessViewContext::SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg)
+void ezEngineProcessViewContext::SendViewMessage(ezEditorEngineViewMsg* pViewMsg)
 {
   pViewMsg->m_DocumentGuid = GetDocumentContext()->GetDocumentGuid();
+  pViewMsg->m_uiViewID = m_uiViewID;
 
   GetDocumentContext()->SendProcessMessage(pViewMsg);
 }

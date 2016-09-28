@@ -209,6 +209,30 @@ void ezQtSceneDocumentWindow::SnapSelectionToPosition(bool bSnapEachObject)
   m_GizmoSelection.Clear();
 }
 
+void ezQtSceneDocumentWindow::SnapCameraToObject()
+{
+  const auto& selection = GetSceneDocument()->GetSelectionManager()->GetSelection();
+
+  if (selection.GetCount() != 1)
+    return;
+
+  ezTransform trans;
+  if (GetSceneDocument()->ComputeObjectTransformation(selection[0], trans).Failed())
+    return;
+
+  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
+
+  if (ctxt.m_pLastHoveredViewWidget == nullptr)
+    return;
+
+  const ezVec3 vForward = trans.m_Rotation * ezVec3(1, 0, 0);
+  const ezVec3 vUp = trans.m_Rotation * ezVec3(0, 0, 1);
+
+  ezEditorPreferencesUser* pPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+  ctxt.m_pLastHoveredViewWidget->InterpolateCameraTo(trans.m_vPosition, vForward, pPref->m_fPerspectiveFieldOfView, &vUp);
+
+}
+
 void ezQtSceneDocumentWindow::UpdateManipulatorVisibility()
 {
   ezManipulatorManager::GetSingleton()->HideActiveManipulator(GetDocument(), GetSceneDocument()->GetActiveGizmo() != ActiveGizmo::None);
@@ -260,6 +284,10 @@ void ezQtSceneDocumentWindow::DocumentEventHandler(const ezSceneDocumentEvent& e
 
   case ezSceneDocumentEvent::Type::SnapEachSelectedObjectToGrid:
     SnapSelectionToPosition(true);
+    break;
+
+  case ezSceneDocumentEvent::Type::SnapCameraToObject:
+    SnapCameraToObject();
     break;
   }
 }

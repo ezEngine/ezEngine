@@ -12,17 +12,7 @@ class QPushButton;
 class ezQtEngineViewWidget;
 class ezAssetDocument;
 class ezEditorEngineDocumentMsg;
-
-struct ezObjectPickingResult
-{
-  ezUuid m_PickedObject;
-  ezUuid m_PickedComponent;
-  ezUuid m_PickedOther;
-  ezUInt32 m_uiPartIndex;
-  ezVec3 m_vPickedPosition;
-  ezVec3 m_vPickedNormal;
-  ezVec3 m_vPickingRayStart;
-};
+struct ezObjectPickingResult;
 
 /// \brief Base class for all document windows that need a connection to the engine process, and might want to render 3D content.
 ///
@@ -37,7 +27,7 @@ public:
   virtual ~ezQtEngineDocumentWindow();
 
   ezEditorEngineConnection* GetEditorEngineConnection() const;
-  const ezObjectPickingResult& PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const;
+  const ezObjectPickingResult& PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY, ezQtEngineViewWidget* pView) const;
 
   ezAssetDocument* GetDocument() const;
 
@@ -58,7 +48,4 @@ protected:
 
   void DestroyAllViews();
   virtual void InternalRedraw() override;
-
-private:
-  mutable ezObjectPickingResult m_LastPickingResult;
 };

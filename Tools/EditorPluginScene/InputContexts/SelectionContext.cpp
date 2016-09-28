@@ -28,7 +28,7 @@ ezEditorInut ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
   {
     m_bSelectOnMouseUp = false;
 
-    const ezObjectPickingResult& res = GetOwnerWindow()->PickObject(e->pos().x(), e->pos().y());
+    const ezObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
 
     if (res.m_PickedOther.IsValid())
     {
@@ -64,7 +64,7 @@ ezEditorInut ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
   {
     if (e->modifiers() & Qt::KeyboardModifier::ControlModifier)
     {
-      const ezObjectPickingResult& res = GetOwnerWindow()->PickObject(e->pos().x(), e->pos().y());
+      const ezObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
 
       OpenPickedMaterial(res);
     }
@@ -72,7 +72,7 @@ ezEditorInut ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
 
   if (e->button() == Qt::MouseButton::LeftButton && m_bSelectOnMouseUp)
   {
-    const ezObjectPickingResult& res = GetOwnerWindow()->PickObject(e->pos().x(), e->pos().y());
+    const ezObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
 
     const bool bToggle = (e->modifiers() & Qt::KeyboardModifier::ControlModifier) != 0;
 
@@ -200,14 +200,7 @@ ezEditorInut ezSelectionContext::DoMouseMoveEvent(QMouseEvent* e)
   ezViewHighlightMsgToEngine msg;
 
   {
-    const ezObjectPickingResult& res = GetOwnerWindow()->PickObject(e->pos().x(), e->pos().y());
-
-    if (res.m_PickedComponent.IsValid())
-    {
-      const ezSceneDocument* pScene = static_cast<const ezSceneDocument*>(GetOwnerWindow()->GetDocument());
-
-      pScene->SetPickingResult(res);
-    }
+    const ezObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
 
     if (res.m_PickedComponent.IsValid())
       msg.m_HighlightObject = res.m_PickedComponent;

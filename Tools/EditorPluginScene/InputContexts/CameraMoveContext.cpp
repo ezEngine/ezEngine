@@ -379,6 +379,11 @@ ezEditorInut ezCameraMoveContext::DoMouseReleaseEvent(QMouseEvent* e)
       m_bMoveCamera = false;
 
       ResetCursor();
+
+      if (!m_bDidMoveMouse[1] && m_bOpenMenuOnMouseUp)
+      {
+        GetOwnerView()->OpenContextMenu(e->globalPos());
+      }
       return ezEditorInut::WasExclusivelyHandled;
     }
   }

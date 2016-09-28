@@ -13,6 +13,21 @@ class QHBoxLayout;
 class QPushButton;
 class QVBoxLayout;
 
+struct ezObjectPickingResult
+{
+  ezObjectPickingResult() { Reset(); }
+  void Reset();
+
+  ezUuid m_PickedObject;
+  ezUuid m_PickedComponent;
+  ezUuid m_PickedOther;
+  ezUInt32 m_uiPartIndex;
+  ezVec3 m_vPickedPosition;
+  ezVec3 m_vPickedNormal;
+  ezVec3 m_vPickingRayStart;
+};
+
+/// \brief Base class for views that show engine output
 class EZ_EDITORFRAMEWORK_DLL ezQtEngineViewWidget : public QWidget
 {
   Q_OBJECT
@@ -36,13 +51,30 @@ public:
   void UpdateCameraInterpolation();
 
   /// \brief The view's camera will be interpolated to the given coordinates
-  void InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim);
+  void InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim, const ezVec3* pNewUpDirection = nullptr);
 
   void SetEnablePicking(bool bEnable) { m_bUpdatePickingData = bEnable; }
 
   virtual bool IsPickingAgainstSelectionAllowed() const { return !m_bInDragAndDropOperation; }
 
-  virtual void OpenContextMenu(QPoint globalPos);
+  /// Context Menu handling
+
+  struct InteractionContext
+  {
+    InteractionContext();
+
+    ezQtEngineViewWidget* m_pLastHoveredViewWidget;
+    const ezObjectPickingResult* m_pLastPickingResult;
+  };
+
+  void OpenContextMenu(QPoint globalPos);
+
+  static const InteractionContext& GetInteractionContext() { return s_InteractionContext; }
+
+  const ezObjectPickingResult& PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const;
+
+  /// \brief Processes incoming messages from the engine that are meant for this particular view. Mostly picking results.
+  void HandleViewMessage(const ezEditorEngineViewMsg* pMsg);
 
 protected:
   /// \brief Used to deactivate shortcuts
@@ -67,6 +99,7 @@ protected:
 protected:
   void EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e);
   void ShowRestartButton(bool bShow);
+  virtual void OnOpenContextMenu(QPoint globalPos) {}
 
 private slots:
   void SlotRestartEngineProcess();
@@ -92,6 +125,10 @@ protected:
 
   QHBoxLayout* m_pRestartButtonLayout;
   QPushButton* m_pRestartButton;
+
+  mutable ezObjectPickingResult m_LastPickingResult;
+
+  static InteractionContext s_InteractionContext;
 };
 
 /// \brief Wraps and decorates a view widget with a toolbar and layout.

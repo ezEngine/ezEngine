@@ -42,6 +42,7 @@ struct ezSceneDocumentEvent
     SimulationSpeedChanged,
     TriggerGameModePlay,
     TriggerStopGameModePlay,
+    SnapCameraToObject,
   };
 
   Type m_Type;
@@ -96,6 +97,9 @@ public:
   /// \brief Opens the Duplicate Special dialog
   void DuplicateSpecial();
 
+  /// \brief Moves the editor camera to the same position as the selected object
+  void SnapCameraToObject();
+
   /// \brief Creates a new empty node, either top-level (selection empty) or as a child of the selected item
   void CreateEmptyNode(bool bAttachToParent, bool bAtPickedPosition);
 
@@ -127,8 +131,6 @@ public:
   /// The transformationChanges bitmask (of type TransformationChanges) allows to tell the system that, e.g. only translation has changed and thus some work can be spared.
   void SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges) const;
   const ezTransform& GetGlobalTransform(const ezDocumentObject* pObject) const;
-
-  void SetPickingResult(const ezObjectPickingResult& res) const { m_PickingResult = res; }
 
   static ezTransform QueryLocalTransform(const ezDocumentObject* pObject);
   ezTransform ComputeGlobalTransform(const ezDocumentObject* pObject) const;
@@ -232,7 +234,6 @@ private:
   GameModeData m_GameModeData[3];
 
   mutable ActiveGizmo m_ActiveGizmo;
-  mutable ezObjectPickingResult m_PickingResult;
 
   mutable ezHashTable<const ezDocumentObject*, ezTransform> m_GlobalTransforms;
 

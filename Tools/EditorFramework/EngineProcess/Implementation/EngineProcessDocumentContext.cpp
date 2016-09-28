@@ -388,7 +388,9 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
     EZ_ASSERT_DEV(pViewMsg->m_uiViewID < 0xFFFFFFFF, "Invalid view ID in '%s'", pMsg->GetDynamicRTTI()->GetTypeName());
 
     if (pViewMsg->m_uiViewID >= m_ViewContexts.GetCount())
+    {
       m_ViewContexts.SetCount(pViewMsg->m_uiViewID + 1);
+    }
 
     if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewDestroyedMsgToEngine>())
     {
@@ -403,7 +405,10 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
     else
     {
       if (m_ViewContexts[pViewMsg->m_uiViewID] == nullptr)
+      {
         m_ViewContexts[pViewMsg->m_uiViewID] = CreateViewContext();
+        m_ViewContexts[pViewMsg->m_uiViewID]->SetViewID(pViewMsg->m_uiViewID);
+      }
 
       m_ViewContexts[pViewMsg->m_uiViewID]->HandleViewMessage(pViewMsg);
     }

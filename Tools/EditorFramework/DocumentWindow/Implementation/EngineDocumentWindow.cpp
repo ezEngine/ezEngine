@@ -28,36 +28,17 @@ ezEditorEngineConnection* ezQtEngineDocumentWindow::GetEditorEngineConnection() 
   return GetDocument()->GetEditorEngineConnection();
 }
 
-const ezObjectPickingResult& ezQtEngineDocumentWindow::PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const
+static ezObjectPickingResult s_DummyResult;
+
+const ezObjectPickingResult& ezQtEngineDocumentWindow::PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY, ezQtEngineViewWidget* pView) const
 {
-  m_LastPickingResult.m_PickedComponent = ezUuid();
-  m_LastPickingResult.m_PickedObject = ezUuid();
-  m_LastPickingResult.m_PickedOther = ezUuid();
-  m_LastPickingResult.m_uiPartIndex = 0;
-  m_LastPickingResult.m_vPickedPosition.SetZero();
-  m_LastPickingResult.m_vPickedNormal.SetZero();
-  m_LastPickingResult.m_vPickingRayStart.SetZero();
+  if (pView == nullptr)
+    pView = GetHoveredViewWidget();
 
-  // do not send picking messages while the engine process isn't fully configured yet
-  if (ezEditorEngineProcessConnection::GetSingleton()->IsEngineSetup())
-  {
-    auto pView = GetHoveredViewWidget();
+  if (pView != nullptr)
+    return pView->PickObject(uiScreenPosX, uiScreenPosY);
 
-    if (pView != nullptr)
-    {
-      ezViewPickingMsgToEngine msg;
-      msg.m_uiViewID = pView->GetViewID();
-      msg.m_uiPickPosX = uiScreenPosX;
-      msg.m_uiPickPosY = uiScreenPosY;
-
-      GetDocument()->SendMessageToEngine(&msg);
-
-      if (ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezViewPickingResultMsgToEditor>(), ezTime::Seconds(3.0)).Failed())
-        return m_LastPickingResult;
-    }
-  }
-
-  return m_LastPickingResult;
+  return s_DummyResult;
 }
 
 
@@ -103,7 +84,7 @@ ezQtEngineViewWidget* ezQtEngineDocumentWindow::GetFocusedViewWidget() const
     if (pCandidate != nullptr)
     {
       if (m_ViewWidgets.Contains(pCandidate))
-          return pCandidate;
+        return pCandidate;
 
       return nullptr;
     }
@@ -128,17 +109,14 @@ ezQtEngineViewWidget* ezQtEngineDocumentWindow::GetViewWidgetByID(ezUInt32 uiVie
 
 void ezQtEngineDocumentWindow::ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingResultMsgToEditor>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineViewMsg>())
   {
-    const ezViewPickingResultMsgToEditor* pFullMsg = static_cast<const ezViewPickingResultMsgToEditor*>(pMsg);
+    const ezEditorEngineViewMsg* pViewMsg = static_cast<const ezEditorEngineViewMsg*>(pMsg);
 
-    m_LastPickingResult.m_PickedObject = pFullMsg->m_ObjectGuid;
-    m_LastPickingResult.m_PickedComponent = pFullMsg->m_ComponentGuid;
-    m_LastPickingResult.m_PickedOther = pFullMsg->m_OtherGuid;
-    m_LastPickingResult.m_uiPartIndex = pFullMsg->m_uiPartIndex;
-    m_LastPickingResult.m_vPickedPosition = pFullMsg->m_vPickedPosition;
-    m_LastPickingResult.m_vPickedNormal = pFullMsg->m_vPickedNormal;
-    m_LastPickingResult.m_vPickingRayStart = pFullMsg->m_vPickingRayStartPosition;
+    ezQtEngineViewWidget* pView = GetViewWidgetByID(pViewMsg->m_uiViewID);
+
+    if (pView != nullptr)
+      pView->HandleViewMessage(pViewMsg);
   }
 }
 

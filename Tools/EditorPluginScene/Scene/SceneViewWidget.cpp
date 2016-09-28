@@ -69,7 +69,7 @@ bool ezQtSceneViewWidget::IsPickingAgainstSelectionAllowed() const
   return ezQtEngineViewWidget::IsPickingAgainstSelectionAllowed();
 }
 
-void ezQtSceneViewWidget::OpenContextMenu(QPoint globalPos)
+void ezQtSceneViewWidget::OnOpenContextMenu(QPoint globalPos)
 {
   if (!s_bContextMenuInitialized)
   {
@@ -108,7 +108,7 @@ void ezQtSceneViewWidget::dragEnterEvent(QDragEnterEvent* e)
   m_bAllowPickSelectedWhileDragging = false;
 
   {
-    ezObjectPickingResult res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
+    ezObjectPickingResult res = PickObject(e->pos().x(), e->pos().y());
 
     ezDragDropInfo info;
     info.m_pMimeData = e->mimeData();
@@ -152,7 +152,7 @@ void ezQtSceneViewWidget::dragMoveEvent(QDragMoveEvent* e)
 
   if (ezDragDropHandler::IsHandlerActive())
   {
-    ezObjectPickingResult res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
+    ezObjectPickingResult res = PickObject(e->pos().x(), e->pos().y());
 
     ezDragDropInfo info;
     info.m_pMimeData = e->mimeData();
@@ -175,7 +175,7 @@ void ezQtSceneViewWidget::dropEvent(QDropEvent * e)
 {
   if (ezDragDropHandler::IsHandlerActive())
   {
-    ezObjectPickingResult res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
+    ezObjectPickingResult res = PickObject(e->pos().x(), e->pos().y());
 
     ezDragDropInfo info;
     info.m_pMimeData = e->mimeData();

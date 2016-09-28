@@ -62,6 +62,7 @@ private:
   void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
 
   void SnapSelectionToPosition(bool bSnapEachObject);
+  void SnapCameraToObject();
 
   void SendRedrawMsg();
 

@@ -11,6 +11,19 @@
 
 ezUInt32 ezQtEngineViewWidget::s_uiNextViewID = 0;
 
+ezQtEngineViewWidget::InteractionContext ezQtEngineViewWidget::s_InteractionContext;
+
+void ezObjectPickingResult::Reset()
+{
+  m_PickedComponent = ezUuid();
+  m_PickedObject = ezUuid();
+  m_PickedOther = ezUuid();
+  m_uiPartIndex = 0;
+  m_vPickedPosition.SetZero();
+  m_vPickedNormal.SetZero();
+  m_vPickingRayStart.SetZero();
+}
+
 ////////////////////////////////////////////////////////////////////////
 // ezQtEngineViewWidget public functions
 ////////////////////////////////////////////////////////////////////////
@@ -43,6 +56,7 @@ ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentW
   m_pDocumentWindow->m_ViewWidgets.PushBack(this);
 
   m_fCameraLerp = 1.0f;
+  m_fCameraTargetFovOrDim = 70.0f;
 
   ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezQtEngineViewWidget::EngineViewProcessEventHandler, this));
 
@@ -134,7 +148,7 @@ void ezQtEngineViewWidget::UpdateCameraInterpolation()
   cam.SetCameraMode(cam.GetCameraMode(), fNewFovOrDim, cam.GetNearPlane(), cam.GetFarPlane());
 }
 
-void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim)
+void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim, const ezVec3* pNewUpDirection)
 {
   m_vCameraStartPosition = m_pViewConfig->m_Camera.GetPosition();
   m_vCameraTargetPosition = vPosition;
@@ -142,7 +156,10 @@ void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ez
   m_vCameraStartDirection = m_pViewConfig->m_Camera.GetCenterDirForwards();
   m_vCameraTargetDirection = vDirection;
 
-  m_vCameraUp = m_pViewConfig->m_Camera.GetCenterDirUp();
+  if (pNewUpDirection)
+    m_vCameraUp = *pNewUpDirection;
+  else
+    m_vCameraUp = m_pViewConfig->m_Camera.GetCenterDirUp();
 
   m_vCameraStartDirection.Normalize();
   m_vCameraTargetDirection.Normalize();
@@ -150,7 +167,11 @@ void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ez
 
 
   m_fCameraStartFovOrDim = m_pViewConfig->m_Camera.GetFovOrDim();
-  m_fCameraTargetFovOrDim = fFovOrDim;
+  
+  if (fFovOrDim > 0.0f)
+    m_fCameraTargetFovOrDim = fFovOrDim;
+
+
   EZ_ASSERT_DEV(m_fCameraTargetFovOrDim > 0, "Invalid FOV or ortho dimension");
 
   if (m_vCameraStartPosition == m_vCameraTargetPosition &&
@@ -165,7 +186,47 @@ void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ez
 
 void ezQtEngineViewWidget::OpenContextMenu(QPoint globalPos)
 {
-  // overridden in derived classes
+  s_InteractionContext.m_pLastHoveredViewWidget = this;
+  s_InteractionContext.m_pLastPickingResult = &m_LastPickingResult;
+
+  OnOpenContextMenu(globalPos);
+}
+
+
+const ezObjectPickingResult& ezQtEngineViewWidget::PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const
+{
+  if (!ezEditorEngineProcessConnection::GetSingleton()->IsEngineSetup())
+  {
+    m_LastPickingResult.Reset();
+  }
+  else
+  {
+    ezViewPickingMsgToEngine msg;
+    msg.m_uiViewID = GetViewID();
+    msg.m_uiPickPosX = uiScreenPosX;
+    msg.m_uiPickPosY = uiScreenPosY;
+
+    GetDocumentWindow()->GetDocument()->SendMessageToEngine(&msg);
+  }
+
+  return m_LastPickingResult;
+}
+
+
+void ezQtEngineViewWidget::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
+{
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingResultMsgToEditor>())
+  {
+    const ezViewPickingResultMsgToEditor* pFullMsg = static_cast<const ezViewPickingResultMsgToEditor*>(pMsg);
+
+    m_LastPickingResult.m_PickedObject = pFullMsg->m_ObjectGuid;
+    m_LastPickingResult.m_PickedComponent = pFullMsg->m_ComponentGuid;
+    m_LastPickingResult.m_PickedOther = pFullMsg->m_OtherGuid;
+    m_LastPickingResult.m_uiPartIndex = pFullMsg->m_uiPartIndex;
+    m_LastPickingResult.m_vPickedPosition = pFullMsg->m_vPickedPosition;
+    m_LastPickingResult.m_vPickedNormal = pFullMsg->m_vPickedNormal;
+    m_LastPickingResult.m_vPickingRayStart = pFullMsg->m_vPickingRayStartPosition;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -309,6 +370,12 @@ void ezQtEngineViewWidget::mouseReleaseEvent(QMouseEvent* e)
 
 void ezQtEngineViewWidget::mouseMoveEvent(QMouseEvent* e)
 {
+  s_InteractionContext.m_pLastHoveredViewWidget = this;
+  s_InteractionContext.m_pLastPickingResult = &m_LastPickingResult;
+
+  // kick off the picking
+  PickObject(e->pos().x(), e->pos().y());
+
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
   {
@@ -492,3 +559,8 @@ ezQtViewWidgetContainer::~ezQtViewWidgetContainer()
 
 }
 
+ezQtEngineViewWidget::InteractionContext::InteractionContext()
+{
+  m_pLastHoveredViewWidget = nullptr;
+  m_pLastPickingResult = nullptr;
+}

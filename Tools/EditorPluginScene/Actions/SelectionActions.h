@@ -33,7 +33,7 @@ public:
   static ezActionDescriptorHandle s_hUnlinkFromPrefab;
   static ezActionDescriptorHandle s_hOpenPrefabDocument;
   static ezActionDescriptorHandle s_hDuplicateSpecial;
-
+  static ezActionDescriptorHandle s_hSnapCameraToObject;
 };
 
 ///
@@ -59,6 +59,7 @@ public:
     UnlinkFromPrefab,
     OpenPrefabDocument,
     DuplicateSpecial,
+    SnapCameraToObject,
   };
 
   ezSelectionAction(const ezActionContext& context, const char* szName, ActionType type);

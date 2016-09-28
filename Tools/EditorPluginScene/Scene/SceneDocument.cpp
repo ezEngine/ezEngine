@@ -14,6 +14,7 @@
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <Core/World/GameObject.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneObjectMetaData, 1, ezRTTINoAllocator)
 {
@@ -260,6 +261,18 @@ void ezSceneDocument::DuplicateSpecial()
     history->FinishTransaction();
 }
 
+
+void ezSceneDocument::SnapCameraToObject()
+{
+  if (GetSelectionManager()->IsSelectionEmpty())
+    return;
+
+  ezSceneDocumentEvent e;
+  e.m_Type = ezSceneDocumentEvent::Type::SnapCameraToObject;
+
+  m_SceneEvents.Broadcast(e);
+}
+
 void ezSceneDocument::CreateEmptyNode(bool bAttachToParent, bool bAtPickedPosition)
 {
   auto history = GetCommandHistory();
@@ -291,10 +304,12 @@ void ezSceneDocument::CreateEmptyNode(bool bAttachToParent, bool bAtPickedPositi
     history->AddCommand(cmdAdd);
   }
 
-  if (!bAttachToParent && bAtPickedPosition && !m_PickingResult.m_vPickedPosition.IsNaN())
+  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
+
+  if (!bAttachToParent && bAtPickedPosition && ctxt.m_pLastPickingResult && !ctxt.m_pLastPickingResult->m_vPickedPosition.IsNaN())
   {
     ezSetObjectPropertyCommand cmdSet;
-    cmdSet.m_NewValue = m_PickingResult.m_vPickedPosition;
+    cmdSet.m_NewValue = ctxt.m_pLastPickingResult->m_vPickedPosition;
     cmdSet.m_Object = NewNode;
     cmdSet.SetPropertyPath("LocalPosition");
 
@@ -727,9 +742,11 @@ ezUuid ezSceneDocument::RevertPrefab(const ezDocumentObject* pObject)
 
 bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition)
 {
-  if (bAllowPickedPosition && m_PickingResult.m_PickedObject.IsValid())
+  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
+
+  if (bAllowPickedPosition && ctxt.m_pLastPickingResult && ctxt.m_pLastPickingResult->m_PickedObject.IsValid())
   {
-    if (!PasteAt(info, m_PickingResult.m_vPickedPosition))
+    if (!PasteAt(info, ctxt.m_pLastPickingResult->m_vPickedPosition))
       return false;
   }
   else

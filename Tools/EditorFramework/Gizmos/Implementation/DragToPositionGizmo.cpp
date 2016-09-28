@@ -162,7 +162,7 @@ ezEditorInut ezDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
   m_LastInteraction = tNow;
 
-  const ezObjectPickingResult& res = GetOwnerWindow()->PickObject(e->pos().x(), e->pos().y());
+  const ezObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
 
   if (!res.m_PickedObject.IsValid())
     return ezEditorInut::WasExclusivelyHandled;

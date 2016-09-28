@@ -58,6 +58,7 @@ Selection.ShowHidden;Show Hidden Objects
 Selection.CreateEmptyChildNode;Create Empty Child Node
 Selection.CreateEmptyNodeAtPosition;Create Empty Node At Position
 Selection.DuplicateSpecial;Duplicate...
+Selection.SnapCameraToObject;Align Camera with Object
 Prefabs.Menu;Prefabs
 Prefabs.UpdateAll;Update Prefabs
 Prefabs.Create;Create Prefab...
