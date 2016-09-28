@@ -42,23 +42,30 @@ public:
   /// \brief Returns the ID of this view
   ezUInt32 GetViewID() const { return m_uiViewID; }
   ezQtEngineDocumentWindow* GetDocumentWindow() const { return m_pDocumentWindow; }
+
+  /// \brief Sends the redraw message to the engine
   virtual void SyncToEngine();
 
   void GetCameraMatrices(ezMat4& out_ViewMatrix, ezMat4& out_ProjectionMatrix) const;
 
   ezSceneViewConfig* m_pViewConfig;
 
+  /// \brief Called every frame to move the camera to its current target (focus on selection, etc.)
   void UpdateCameraInterpolation();
 
   /// \brief The view's camera will be interpolated to the given coordinates
   void InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim, const ezVec3* pNewUpDirection = nullptr);
 
+  /// \brief If disabled, no picking takes place in this view.
+  ///
+  /// Disabled in views that do not need picking (material asset, particle asset, etc.)
+  /// and when the mouse is outside a view, to prevent useless picking.
   void SetEnablePicking(bool bEnable) { m_bUpdatePickingData = bEnable; }
 
+  /// \brief Disabled during drag&drop operations, to prevent picking against the dragged object.
   virtual bool IsPickingAgainstSelectionAllowed() const { return !m_bInDragAndDropOperation; }
 
-  /// Context Menu handling
-
+  /// \brief Holds information about the viewport that the user just now hovered over and what object was picked last
   struct InteractionContext
   {
     InteractionContext();
@@ -67,10 +74,13 @@ public:
     const ezObjectPickingResult* m_pLastPickingResult;
   };
 
-  void OpenContextMenu(QPoint globalPos);
-
+  /// \brief Returns the latest information about what viewport the user interacted with.
   static const InteractionContext& GetInteractionContext() { return s_InteractionContext; }
 
+  /// \brief Supposed to open a context menu at the given position. Derived classes must implement OnOpenContextMenu and do the actual work there.
+  void OpenContextMenu(QPoint globalPos);
+
+  /// \brief Starts a picking operation for the given pixel position in this view. Returns the most recent picking information in the meantime.
   const ezObjectPickingResult& PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const;
 
   /// \brief Processes incoming messages from the engine that are meant for this particular view. Mostly picking results.

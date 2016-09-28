@@ -18,11 +18,26 @@ enum class ActiveGizmo
   DragToPosition,
 };
 
-enum GameMode
+struct GameMode
 {
-  Off,
-  Simulate,
-  Play,
+  enum Enum
+  {
+    Off,
+    Simulate,
+    Play,
+  };
+};
+
+struct TransformationChanges
+{
+  enum Enum
+  {
+    Translation = EZ_BIT(0),
+    Rotation = EZ_BIT(1),
+    Scale = EZ_BIT(2),
+    UniformScale = EZ_BIT(3),
+    All = 0xFF
+  };
 };
 
 struct ezSceneDocumentEvent
@@ -43,6 +58,7 @@ struct ezSceneDocumentEvent
     TriggerGameModePlay,
     TriggerStopGameModePlay,
     SnapCameraToObject,
+    SnapObjectToCamera,
   };
 
   Type m_Type;
@@ -100,6 +116,9 @@ public:
   /// \brief Moves the editor camera to the same position as the selected object
   void SnapCameraToObject();
 
+  /// \brief Moves all selected objects to the editor camera position
+  void SnapObjectToCamera();
+
   /// \brief Creates a new empty node, either top-level (selection empty) or as a child of the selected item
   void CreateEmptyNode(bool bAttachToParent, bool bAtPickedPosition);
 
@@ -125,8 +144,6 @@ public:
   virtual ezUuid ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed) override;
   virtual ezUuid RevertPrefab(const ezDocumentObject* pObject) override;
 
-  enum TransformationChanges { Translation = EZ_BIT(0), Rotation = EZ_BIT(1), Scale = EZ_BIT(2), UniformScale = EZ_BIT(3), All = 0xFF };
-
   /// \brief Sets the new global transformation of the given object.
   /// The transformationChanges bitmask (of type TransformationChanges) allows to tell the system that, e.g. only translation has changed and thus some work can be spared.
   void SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges) const;
@@ -138,7 +155,7 @@ public:
   mutable ezEvent<const ezSceneDocumentEvent&> m_SceneEvents;
   ezObjectMetaData<ezUuid, ezSceneObjectMetaData> m_SceneObjectMetaData;
 
-  GameMode GetGameMode() const { return m_GameMode; }
+  GameMode::Enum GetGameMode() const { return m_GameMode; }
 
   void StartSimulateWorld();
   void TriggerGameModePlay();
@@ -171,7 +188,7 @@ public:
   void SendObjectSelection();
 
 protected:
-  void SetGameMode(GameMode mode);
+  void SetGameMode(GameMode::Enum mode);
 
   virtual void InitializeAfterLoading() override;
 
@@ -222,7 +239,7 @@ private:
 
   bool m_bIsPrefab;
   mutable bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
-  GameMode m_GameMode;
+  GameMode::Enum m_GameMode;
   float m_fSimulationSpeed;
 
   // when new objects are created the engine sometimes needs to catch up creating sub-objects (e.g. for reference prefabs)

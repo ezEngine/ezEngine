@@ -31,6 +31,7 @@ ezActionDescriptorHandle ezSelectionActions::s_hUnlinkFromPrefab;
 ezActionDescriptorHandle ezSelectionActions::s_hOpenPrefabDocument;
 ezActionDescriptorHandle ezSelectionActions::s_hDuplicateSpecial;
 ezActionDescriptorHandle ezSelectionActions::s_hSnapCameraToObject;
+ezActionDescriptorHandle ezSelectionActions::s_hSnapObjectToCamera;
 
 
 void ezSelectionActions::RegisterActions()
@@ -54,6 +55,7 @@ void ezSelectionActions::RegisterActions()
 
   s_hDuplicateSpecial = EZ_REGISTER_ACTION_1("Selection.DuplicateSpecial", ezActionScope::Document, "Scene - Selection", "Ctrl+D", ezSelectionAction, ezSelectionAction::ActionType::DuplicateSpecial);
   s_hSnapCameraToObject = EZ_REGISTER_ACTION_1("Selection.SnapCameraToObject", ezActionScope::Document, "Scene - Selection", "", ezSelectionAction, ezSelectionAction::ActionType::SnapCameraToObject);
+  s_hSnapObjectToCamera = EZ_REGISTER_ACTION_1("Selection.SnapObjectToCamera", ezActionScope::Document, "Scene - Selection", "", ezSelectionAction, ezSelectionAction::ActionType::SnapObjectToCamera);
 }
 
 void ezSelectionActions::UnregisterActions()
@@ -75,6 +77,7 @@ void ezSelectionActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hOpenPrefabDocument);
   ezActionManager::UnregisterAction(s_hDuplicateSpecial);
   ezActionManager::UnregisterAction(s_hSnapCameraToObject);
+  ezActionManager::UnregisterAction(s_hSnapObjectToCamera);
 }
 
 void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
@@ -97,6 +100,7 @@ void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
   pMap->MapAction(s_hShowHiddenObjects, sSubPath, 6.0f);
   pMap->MapAction(s_hDuplicateSpecial, sSubPath, 7.0f);
   pMap->MapAction(s_hSnapCameraToObject, sSubPath, 8.0f);
+  pMap->MapAction(s_hSnapObjectToCamera, sSubPath, 9.0f);
 
   MapPrefabActions(szMapping, sSubPath, 1.0f);
 }
@@ -146,6 +150,7 @@ void ezSelectionActions::MapViewContextMenuActions(const char* szMapping, const 
   pMap->MapAction(s_hGroupSelectedItems, sSubPath, 2.0f);
   pMap->MapAction(s_hHideSelectedObjects, sSubPath, 3.0f);
   pMap->MapAction(s_hSnapCameraToObject, sSubPath, 4.0f);
+  pMap->MapAction(s_hSnapObjectToCamera, sSubPath, 5.0f);
 }
 
 ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char* szName, ezSelectionAction::ActionType type) : ezButtonAction(context, szName, false, "")
@@ -199,6 +204,9 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
     SetIconPath(":/EditorPluginScene/Icons/Duplicate16.png");
     break;
   case ActionType::SnapCameraToObject:
+    //SetIconPath(":/EditorPluginScene/Icons/Duplicate16.png"); // TODO Icon
+    break;
+  case ActionType::SnapObjectToCamera:
     //SetIconPath(":/EditorPluginScene/Icons/Duplicate16.png"); // TODO Icon
     break;
   }
@@ -280,6 +288,10 @@ void ezSelectionAction::Execute(const ezVariant& value)
   case ActionType::SnapCameraToObject:
     m_pSceneDocument->SnapCameraToObject();
     break;
+
+  case ActionType::SnapObjectToCamera:
+    m_pSceneDocument->SnapObjectToCamera();
+    break;
   }
 }
 
@@ -344,6 +356,7 @@ void ezSelectionAction::UpdateEnableState()
       m_Type == ActionType::HideSelectedObjects ||
       m_Type == ActionType::ShowInScenegraph ||
       m_Type == ActionType::DuplicateSpecial ||
+      m_Type == ActionType::SnapObjectToCamera ||
       m_Type == ActionType::HideUnselectedObjects)
   {
     SetEnabled(!m_Context.m_pDocument->GetSelectionManager()->IsSelectionEmpty());

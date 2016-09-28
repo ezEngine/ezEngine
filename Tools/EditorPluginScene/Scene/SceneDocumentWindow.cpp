@@ -14,6 +14,7 @@
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <EditorPluginScene/Preferences/ScenePreferences.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
 
 ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
@@ -198,7 +199,7 @@ void ezQtSceneDocumentWindow::SnapSelectionToPosition(bool bSnapEachObject)
     }
 
     bDidAny = true;
-    GetSceneDocument()->SetGlobalTransform(obj.m_pObject, vSnappedPos, ezSceneDocument::Translation);
+    GetSceneDocument()->SetGlobalTransform(obj.m_pObject, vSnappedPos, TransformationChanges::Translation);
   }
 
   if (bDidAny)
@@ -230,7 +231,38 @@ void ezQtSceneDocumentWindow::SnapCameraToObject()
 
   ezEditorPreferencesUser* pPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
   ctxt.m_pLastHoveredViewWidget->InterpolateCameraTo(trans.m_vPosition, vForward, pPref->m_fPerspectiveFieldOfView, &vUp);
+}
 
+void ezQtSceneDocumentWindow::SnapObjectToCamera()
+{
+  const auto& selection = GetSceneDocument()->GetSelectionManager()->GetSelection();
+
+  if (selection.IsEmpty())
+    return;
+
+  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
+
+  if (ctxt.m_pLastHoveredViewWidget == nullptr)
+    return;
+
+  const auto& camera = ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Camera;
+
+  ezTransform transform;
+  transform.m_vPosition = camera.GetCenterPosition();
+  transform.m_Rotation.SetColumn(0, camera.GetCenterDirForwards());
+  transform.m_Rotation.SetColumn(1, camera.GetCenterDirRight());
+  transform.m_Rotation.SetColumn(2, camera.GetCenterDirUp());
+
+  auto* pHistory = GetSceneDocument()->GetCommandHistory();
+
+  pHistory->StartTransaction();
+  {
+    for (const ezDocumentObject* pObject : selection)
+    {
+      GetSceneDocument()->SetGlobalTransform(pObject, transform, TransformationChanges::Translation | TransformationChanges::Rotation);
+    }
+  }
+  pHistory->FinishTransaction();
 }
 
 void ezQtSceneDocumentWindow::UpdateManipulatorVisibility()
@@ -288,6 +320,10 @@ void ezQtSceneDocumentWindow::DocumentEventHandler(const ezSceneDocumentEvent& e
 
   case ezSceneDocumentEvent::Type::SnapCameraToObject:
     SnapCameraToObject();
+    break;
+
+  case ezSceneDocumentEvent::Type::SnapObjectToCamera:
+    SnapObjectToCamera();
     break;
   }
 }

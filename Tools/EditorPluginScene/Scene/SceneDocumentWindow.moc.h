@@ -62,7 +62,11 @@ private:
   void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
 
   void SnapSelectionToPosition(bool bSnapEachObject);
+
+  /// \brief Moves the camera to the position of the selected object
   void SnapCameraToObject();
+  /// \brief Moves all selected objects to the camera position
+  void SnapObjectToCamera();
 
   void SendRedrawMsg();
 

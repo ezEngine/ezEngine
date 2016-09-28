@@ -193,7 +193,7 @@ void ezSceneDocument::GroupSelection()
   pHistory->AddCommand(cmdAdd);
 
   auto pGroupObject = GetObjectManager()->GetObject(cmdAdd.m_NewObjectGuid);
-  SetGlobalTransform(pGroupObject, ezTransform(vCenter), ezSceneDocument::Translation);
+  SetGlobalTransform(pGroupObject, ezTransform(vCenter), TransformationChanges::Translation);
 
   ezMoveObjectCommand cmdMove;
   cmdMove.m_NewParent = cmdAdd.m_NewObjectGuid;
@@ -269,6 +269,18 @@ void ezSceneDocument::SnapCameraToObject()
 
   ezSceneDocumentEvent e;
   e.m_Type = ezSceneDocumentEvent::Type::SnapCameraToObject;
+
+  m_SceneEvents.Broadcast(e);
+}
+
+
+void ezSceneDocument::SnapObjectToCamera()
+{
+  if (GetSelectionManager()->IsSelectionEmpty())
+    return;
+
+  ezSceneDocumentEvent e;
+  e.m_Type = ezSceneDocumentEvent::Type::SnapObjectToCamera;
 
   m_SceneEvents.Broadcast(e);
 }
@@ -391,7 +403,7 @@ void ezSceneDocument::HideUnselectedObjects()
   ShowOrHideSelectedObjects(ShowOrHide::Show);
 }
 
-void ezSceneDocument::SetGameMode(GameMode mode)
+void ezSceneDocument::SetGameMode(GameMode::Enum mode)
 {
   if (m_GameMode == mode)
     return;
@@ -831,7 +843,7 @@ void ezSceneDocument::ObjectStructureEventHandler(const ezDocumentObjectStructur
       // read cached value, hopefully it was not invalidated in between BeforeObjectMoved and AfterObjectMoved
       ezTransform t = GetGlobalTransform(e.m_pObject);
 
-      SetGlobalTransform(e.m_pObject, t, ezSceneDocument::All);
+      SetGlobalTransform(e.m_pObject, t, TransformationChanges::All);
     }
     break;
   }

@@ -283,7 +283,7 @@ void ezDuplicateObjectsCommand::AdjustObjectPositions(ezHybridArray<ezDocument::
     /// \todo Christopher: Modifying the position through a command after creating the object seems to destroy the undo-ability of this operation
     /// Duplicating multiple objects (with some translation) and then undoing that will crash the editor process
 
-    pScene->SetGlobalTransform(pi.m_pObject, tGlobal, ezSceneDocument::Translation | ezSceneDocument::Rotation);
+    pScene->SetGlobalTransform(pi.m_pObject, tGlobal, TransformationChanges::Translation | TransformationChanges::Rotation);
   }
 
 }

@@ -59,6 +59,7 @@ Selection.CreateEmptyChildNode;Create Empty Child Node
 Selection.CreateEmptyNodeAtPosition;Create Empty Node At Position
 Selection.DuplicateSpecial;Duplicate...
 Selection.SnapCameraToObject;Align Camera with Object
+Selection.SnapObjectToCamera;Align Object with Camera
 Prefabs.Menu;Prefabs
 Prefabs.UpdateAll;Update Prefabs
 Prefabs.Create;Create Prefab...
