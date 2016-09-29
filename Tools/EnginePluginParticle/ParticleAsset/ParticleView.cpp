@@ -6,6 +6,7 @@
 #include <GameFoundation/GameApplication/GameApplication.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
+#include <EnginePluginParticle/ParticleAsset/ParticleContext.h>
 
 ezParticleViewContext::ezParticleViewContext(ezParticleContext* pParticleContext) 
   : ezEngineProcessViewContext(pParticleContext)

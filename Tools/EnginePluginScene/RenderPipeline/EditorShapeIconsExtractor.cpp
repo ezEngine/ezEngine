@@ -4,6 +4,7 @@
 #include <EnginePluginScene/RenderPipeline/EditorShapeIconsExtractor.h>
 #include <EnginePluginScene/SceneContext/SceneContext.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <RendererCore/Pipeline/ExtractedRenderData.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorShapeIconsExtractor, 1, ezRTTIDefaultAllocator<ezEditorShapeIconsExtractor>)
 {

@@ -3,6 +3,7 @@
 #include <Core/World/World.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
+#include <Core/ResourceManager/ResourceHandle.h>
 
 typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
 

@@ -6,6 +6,7 @@
 #include <CoreUtils/Graphics/Camera.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDragToPositionGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
