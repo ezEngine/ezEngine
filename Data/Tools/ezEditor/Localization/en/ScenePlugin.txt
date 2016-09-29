@@ -48,6 +48,9 @@ Scene.GameMode.Stop;Reset World
 Scene.GameMode.Simulate;Simulate World
 Scene.GameMode.Play;Play the Game
 Scene.Camera.Speed;Camera Speed;Camera Speed: CTRL+Mousewheel to change
+Scene.Camera.SnapCameraToObject;Align Camera with Object
+Scene.Camera.SnapObjectToCamera;Align Object with Camera
+Scene.Camera.MoveCameraHere;Move Camera Here
 Selection.ShowInScenegraph;Show in Scenegraph
 Selection.FocusSingleView;Focus on Selection
 Selection.FocusAllViews;Focus All Views on Selection
@@ -58,8 +61,6 @@ Selection.ShowHidden;Show Hidden Objects
 Selection.CreateEmptyChildNode;Create Empty Child Node
 Selection.CreateEmptyNodeAtPosition;Create Empty Node At Position
 Selection.DuplicateSpecial;Duplicate...
-Selection.SnapCameraToObject;Align Camera with Object
-Selection.SnapObjectToCamera;Align Object with Camera
 Prefabs.Menu;Prefabs
 Prefabs.UpdateAll;Update Prefabs
 Prefabs.Create;Create Prefab...

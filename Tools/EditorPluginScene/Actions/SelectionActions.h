@@ -35,6 +35,7 @@ public:
   static ezActionDescriptorHandle s_hDuplicateSpecial;
   static ezActionDescriptorHandle s_hSnapCameraToObject;
   static ezActionDescriptorHandle s_hSnapObjectToCamera;
+  static ezActionDescriptorHandle s_hMoveCameraHere;
 };
 
 ///
@@ -62,6 +63,7 @@ public:
     DuplicateSpecial,
     SnapCameraToObject,
     SnapObjectToCamera,
+    MoveCameraHere,
   };
 
   ezSelectionAction(const ezActionContext& context, const char* szName, ActionType type);

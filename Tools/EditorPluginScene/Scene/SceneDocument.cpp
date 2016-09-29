@@ -264,25 +264,78 @@ void ezSceneDocument::DuplicateSpecial()
 
 void ezSceneDocument::SnapCameraToObject()
 {
-  if (GetSelectionManager()->IsSelectionEmpty())
+  const auto& selection = GetSelectionManager()->GetSelection();
+
+  if (selection.GetCount() != 1)
     return;
 
-  ezSceneDocumentEvent e;
-  e.m_Type = ezSceneDocumentEvent::Type::SnapCameraToObject;
+  ezTransform trans;
+  if (ComputeObjectTransformation(selection[0], trans).Failed())
+    return;
 
-  m_SceneEvents.Broadcast(e);
+  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
+
+  if (ctxt.m_pLastHoveredViewWidget == nullptr)
+    return;
+
+  const ezCamera* pCamera = &ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Camera;
+
+  const ezVec3 vForward = trans.m_Rotation * ezVec3(1, 0, 0);
+  const ezVec3 vUp = trans.m_Rotation * ezVec3(0, 0, 1);
+
+  ctxt.m_pLastHoveredViewWidget->InterpolateCameraTo(trans.m_vPosition, vForward, pCamera->GetFovOrDim(), &vUp);
 }
 
 
 void ezSceneDocument::SnapObjectToCamera()
 {
-  if (GetSelectionManager()->IsSelectionEmpty())
+  const auto& selection = GetSelectionManager()->GetSelection();
+
+  if (selection.IsEmpty())
     return;
 
-  ezSceneDocumentEvent e;
-  e.m_Type = ezSceneDocumentEvent::Type::SnapObjectToCamera;
+  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
 
-  m_SceneEvents.Broadcast(e);
+  if (ctxt.m_pLastHoveredViewWidget == nullptr)
+    return;
+
+  const auto& camera = ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Camera;
+
+  ezTransform transform;
+  transform.m_vPosition = camera.GetCenterPosition();
+  transform.m_Rotation.SetColumn(0, camera.GetCenterDirForwards());
+  transform.m_Rotation.SetColumn(1, camera.GetCenterDirRight());
+  transform.m_Rotation.SetColumn(2, camera.GetCenterDirUp());
+
+  auto* pHistory = GetCommandHistory();
+
+  pHistory->StartTransaction();
+  {
+    for (const ezDocumentObject* pObject : selection)
+    {
+      SetGlobalTransform(pObject, transform, TransformationChanges::Translation | TransformationChanges::Rotation);
+    }
+  }
+  pHistory->FinishTransaction();
+
+}
+
+
+void ezSceneDocument::MoveCameraHere()
+{
+  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
+  const bool bCanMove = ctxt.m_pLastHoveredViewWidget != nullptr && ctxt.m_pLastPickingResult && !ctxt.m_pLastPickingResult->m_vPickedPosition.IsNaN();
+
+  if (!bCanMove)
+    return;
+
+  const ezCamera* pCamera = &ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Camera;
+
+  const ezVec3 vPos = ctxt.m_pLastPickingResult->m_vPickedPosition;
+  const ezVec3 vForward = pCamera->GetCenterDirForwards();
+  const ezVec3 vUp = pCamera->GetCenterDirUp();
+
+  ctxt.m_pLastHoveredViewWidget->InterpolateCameraTo(vPos, vForward, pCamera->GetFovOrDim(), &vUp);
 }
 
 void ezSceneDocument::CreateEmptyNode(bool bAttachToParent, bool bAtPickedPosition)

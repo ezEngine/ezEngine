@@ -57,8 +57,6 @@ struct ezSceneDocumentEvent
     SimulationSpeedChanged,
     TriggerGameModePlay,
     TriggerStopGameModePlay,
-    SnapCameraToObject,
-    SnapObjectToCamera,
   };
 
   Type m_Type;
@@ -118,6 +116,9 @@ public:
 
   /// \brief Moves all selected objects to the editor camera position
   void SnapObjectToCamera();
+
+  /// \brief Moves the camera to the current picking position
+  void MoveCameraHere();
 
   /// \brief Creates a new empty node, either top-level (selection empty) or as a child of the selected item
   void CreateEmptyNode(bool bAttachToParent, bool bAtPickedPosition);
