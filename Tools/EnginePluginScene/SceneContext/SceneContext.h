@@ -2,9 +2,6 @@
 
 #include <EnginePluginScene/Plugin.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/Shader/ShaderResource.h>
-#include <RendererCore/Textures/TextureResource.h>
 
 class ezObjectSelectionMsgToEngine;
 class ezRenderContext;
@@ -22,14 +19,12 @@ public:
   const ezDeque<ezGameObjectHandle>& GetSelection() const { return m_Selection; }
   const ezDeque<ezGameObjectHandle>& GetSelectionWithChildren() const { return m_SelectionWithChildren; }
   bool GetRenderSelectionOverlay() const { return m_bRenderSelectionOverlay; }
+  bool GetRenderShapeIcons() const { return m_bRenderShapeIcons; }
   
-  void GenerateShapeIconMesh();
-
   ezGameState* GetGameState() const;
 
 protected:
   virtual void OnInitialize() override;
-  virtual void OnDeinitialize();
 
   virtual ezEngineProcessViewContext* CreateViewContext() override;
   virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
@@ -45,7 +40,6 @@ private:
   void DrawSelectionBounds();
 
   void InsertSelectedChildren(const ezGameObject* pObject);
-  void LoadShapeIconTextures();
   void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
   void OnSimulationEnabled();
   void OnSimulationDisabled();
@@ -54,25 +48,10 @@ private:
   bool m_bRenderSelectionOverlay;
   bool m_bRenderShapeIcons;
   bool m_bRenderSelectionBoxes;
-  bool m_bShapeIconBufferValid;
+
   ezDeque<ezGameObjectHandle> m_Selection;
   ezDeque<ezGameObjectHandle> m_SelectionWithChildren;
   ezSet<ezGameObjectHandle> m_SelectionWithChildrenSet;
-
-  struct ShapeIconData
-  {
-    ezTextureResourceHandle m_hTexture;
-
-    struct PosID
-    {
-      ezVec3 pos;
-      ezUInt32 id;
-    };
-
-    ezDeque<PosID> m_IconPositions;
-  };
-
-  ezHashTable<const ezRTTI*, ShapeIconData> m_ShapeIcons;
 };
 
 

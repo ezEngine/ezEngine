@@ -3,13 +3,7 @@
 #include <EnginePluginScene/SceneView/SceneView.h>
 
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/Lights/PointLightComponent.h>
-#include <RendererCore/Lights/SpotLightComponent.h>
-#include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <GameFoundation/GameApplication/GameApplication.h>
 #include <EditorFramework/Gizmos/GizmoRenderer.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
@@ -68,9 +62,7 @@ void ezSceneContext::DrawSelectionBounds()
 ezSceneContext::ezSceneContext()
 {
   m_bRenderSelectionOverlay = true;
-  m_bRenderShapeIcons = true;
   m_bRenderSelectionBoxes = true;
-  m_bShapeIconBufferValid = false;
 }
 
 void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
@@ -132,21 +124,6 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
   {
     QuerySelectionBBox(pMsg);
     return;
-  }
-  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezObjectTagMsgToEngine>())
-  {
-    const ezObjectTagMsgToEngine* pMsg2 = static_cast<const ezObjectTagMsgToEngine*>(pMsg);
-
-    if (pMsg2->m_sTag == "EditorHidden")
-      m_bShapeIconBufferValid = false;
-
-    // fall through
-  }
-  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEntityMsgToEngine>())
-  {
-    m_bShapeIconBufferValid = false;
-
-    // fall through
   }
   else if (pMsg->IsInstanceOf<ezViewRedrawMsgToEngine>())
   {
@@ -227,54 +204,6 @@ void ezSceneContext::OnSimulationDisabled()
 
 }
 
-void ezSceneContext::GenerateShapeIconMesh()
-{
-  /// \todo Disabled for now
-  return;
-
-  if (m_bShapeIconBufferValid)
-    return;
-
-  // clear previous data
-  {
-    for (auto it = m_ShapeIcons.GetIterator(); it.IsValid(); ++it)
-    {
-      it.Value().m_IconPositions.Clear();
-    }
-  }
-
-  {
-    EZ_LOCK(m_pWorld->GetReadMarker());
-
-    auto& tagReg = ezTagRegistry::GetGlobalRegistry();
-
-    const ezTag* tagHidden = tagReg.RegisterTag("EditorHidden");
-    const ezTag* tagEditor = tagReg.RegisterTag("Editor");
-
-    ezUInt32 obj = 0;
-    for (auto it = m_pWorld->GetObjects(); it.IsValid(); ++it)
-    {
-      if (it->GetComponents().IsEmpty())
-        continue;
-
-      if (it->GetTags().IsSet(*tagEditor) || it->GetTags().IsSet(*tagHidden))
-        continue;
-
-      const ezRTTI* pRtti = it->GetComponents()[0]->GetDynamicRTTI();
-
-      ShapeIconData* pData = nullptr;
-      if (!m_ShapeIcons.TryGetValue(pRtti, pData))
-        continue;
-
-      ShapeIconData::PosID& pid = pData->m_IconPositions.ExpandAndGetRef();
-      pid.id = it->GetComponents()[0]->GetEditorPickingID();
-      pid.pos = it->GetGlobalPosition();
-    }
-  }
-
-  m_bShapeIconBufferValid = true;
-}
-
 ezGameState* ezSceneContext::GetGameState() const
 {
   return ezGameApplication::GetGameApplicationInstance()->GetGameStateForWorld(m_pWorld);
@@ -284,13 +213,6 @@ void ezSceneContext::OnInitialize()
 {
   auto pWorld = m_pWorld;
   EZ_LOCK(pWorld->GetWriteMarker());
-
-  LoadShapeIconTextures();
-}
-
-void ezSceneContext::OnDeinitialize()
-{
-  m_ShapeIcons.Clear();
 }
 
 ezEngineProcessViewContext* ezSceneContext::CreateViewContext()
@@ -397,27 +319,6 @@ void ezSceneContext::InsertSelectedChildren(const ezGameObject* pObject)
 
     it.Next();
   }
-}
-
-void ezSceneContext::LoadShapeIconTextures()
-{
-  EZ_LOG_BLOCK("LoadShapeIconTextures");
-
-  ezStringBuilder sPath;
-
-  for (ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    if (!pRtti->IsDerivedFrom<ezComponent>())
-      continue;
-
-    sPath.Set("ShapeIcons/", pRtti->GetTypeName(), ".dds");
-
-    if (ezFileSystem::ExistsFile(sPath))
-    {
-      m_ShapeIcons[pRtti].m_hTexture = ezResourceManager::LoadResource<ezTextureResource>(sPath);
-    }
-  }
-
 }
 
 bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)

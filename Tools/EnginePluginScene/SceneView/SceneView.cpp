@@ -100,6 +100,7 @@ void ezSceneViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     m_pView->SetRenderPassProperty("EditorSelectionPass", "Active", m_pSceneContext->GetRenderSelectionOverlay());
     m_pView->SetRenderPassProperty("EditorRenderPass", "ViewRenderMode", pMsg->m_uiRenderMode);
     m_pView->SetRenderPassProperty("EditorPickingPass", "ViewRenderMode", pMsg->m_uiRenderMode);
+    m_pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", m_pSceneContext->GetRenderShapeIcons());
   }
 }
 
@@ -111,6 +112,7 @@ ezView* ezSceneViewContext::CreateView()
 
   pView->SetRenderPassProperty("EditorPickingPass", "SceneContext", m_pSceneContext);
   pView->SetExtractorProperty("EditorSelectedObjectsExtractor", "SceneContext", m_pSceneContext);
+  pView->SetExtractorProperty("EditorShapeIconsExtractor", "SceneContext", m_pSceneContext);
 
   ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
   pView->SetWorld(pDocumentContext->GetWorld());

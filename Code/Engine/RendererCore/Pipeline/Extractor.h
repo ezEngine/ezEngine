@@ -22,6 +22,10 @@ public:
   virtual void Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData) = 0;
 
 private:
+  friend class ezRenderPipeline;
+
+  bool m_bActive;
+
   ezHashedString m_sName;
 };
 

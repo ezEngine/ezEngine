@@ -789,7 +789,10 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   // Extract object render data
   for (auto& pExtractor : m_Extractors)
   {
-    pExtractor->Extract(view, &data);
+    if (pExtractor->m_bActive)
+    {
+      pExtractor->Extract(view, &data);
+    }
   }
 
   data.SortAndBatch();

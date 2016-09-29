@@ -4,6 +4,8 @@
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
+typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
+
 class EZ_RENDERERCORE_DLL ezSpriteRenderData : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSpriteRenderData, ezRenderData);
