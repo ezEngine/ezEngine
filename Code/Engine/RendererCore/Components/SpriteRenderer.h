@@ -4,6 +4,8 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 
 struct SpriteData;
+class ezRenderDataBatch;
+typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
 
 /// \brief Implements rendering of sprites
 class EZ_RENDERERCORE_DLL ezSpriteRenderer : public ezRenderer

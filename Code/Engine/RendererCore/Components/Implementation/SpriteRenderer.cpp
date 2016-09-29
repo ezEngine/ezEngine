@@ -5,6 +5,8 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <Foundation/Math/Float16.h>
 #include <Foundation/Types/ScopeExit.h>
+#include <RendererCore/Shader/ShaderResource.h>
+#include <RendererCore/Pipeline/RenderDataBatch.h>
 
 struct EZ_ALIGN_16(SpriteData)
 {
