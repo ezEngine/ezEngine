@@ -338,6 +338,61 @@ void ezSceneDocument::MoveCameraHere()
   ctxt.m_pLastHoveredViewWidget->InterpolateCameraTo(vPos, vForward, pCamera->GetFovOrDim(), &vUp);
 }
 
+
+void ezSceneDocument::AttachToObject()
+{
+  const auto& selection = GetSelectionManager()->GetSelection();
+
+  if (selection.IsEmpty())
+    return;
+
+  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
+  if (ctxt.m_pLastHoveredViewWidget == nullptr || ctxt.m_pLastPickingResult == nullptr || !ctxt.m_pLastPickingResult->m_PickedObject.IsValid())
+    return;
+
+  ezMoveObjectCommand cmd;
+  cmd.m_sParentProperty = "Children";
+  cmd.m_NewParent = ctxt.m_pLastPickingResult->m_PickedObject;
+
+  auto* pHistory = GetCommandHistory();
+
+  pHistory->StartTransaction();
+  {
+    for (const ezDocumentObject* pObject : selection)
+    {
+      cmd.m_Object = pObject->GetGuid();
+
+      pHistory->AddCommand(cmd);
+    }
+  }
+  pHistory->FinishTransaction();
+}
+
+
+void ezSceneDocument::DetachFromParent()
+{
+  const auto& selection = GetSelectionManager()->GetSelection();
+
+  if (selection.IsEmpty())
+    return;
+
+  ezMoveObjectCommand cmd;
+  cmd.m_sParentProperty = "Children";
+
+  auto* pHistory = GetCommandHistory();
+
+  pHistory->StartTransaction();
+  {
+    for (const ezDocumentObject* pObject : selection)
+    {
+      cmd.m_Object = pObject->GetGuid();
+
+      pHistory->AddCommand(cmd);
+    }
+  }
+  pHistory->FinishTransaction();
+}
+
 void ezSceneDocument::CreateEmptyNode(bool bAttachToParent, bool bAtPickedPosition)
 {
   auto history = GetCommandHistory();

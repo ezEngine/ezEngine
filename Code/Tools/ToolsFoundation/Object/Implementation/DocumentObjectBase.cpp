@@ -27,7 +27,7 @@ void ezDocumentObject::InsertSubObject(ezDocumentObject* pObject, const char* sz
   
   if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
   {
-    if (index.CanConvertTo<ezInt32>() && index.ConvertTo<ezInt32>() == -1)
+    if (!index.IsValid() || (index.CanConvertTo<ezInt32>() && index.ConvertTo<ezInt32>() == -1))
     {
       ezVariant newIndex = accessor.GetCount(path);
       bool bRes = accessor.InsertValue(path, newIndex, pObject->GetGuid());

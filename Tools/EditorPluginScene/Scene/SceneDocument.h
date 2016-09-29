@@ -120,6 +120,12 @@ public:
   /// \brief Moves the camera to the current picking position
   void MoveCameraHere();
 
+  /// \brief Attaches all selected objects to the selected object
+  void AttachToObject();
+
+  /// \brief Detaches all selected objects from their current parent
+  void DetachFromParent();
+
   /// \brief Creates a new empty node, either top-level (selection empty) or as a child of the selected item
   void CreateEmptyNode(bool bAttachToParent, bool bAtPickedPosition);
 

@@ -36,6 +36,8 @@ public:
   static ezActionDescriptorHandle s_hSnapCameraToObject;
   static ezActionDescriptorHandle s_hSnapObjectToCamera;
   static ezActionDescriptorHandle s_hMoveCameraHere;
+  static ezActionDescriptorHandle s_hAttachToObject;
+  static ezActionDescriptorHandle s_hDetachFromParent;
 };
 
 ///
@@ -64,6 +66,8 @@ public:
     SnapCameraToObject,
     SnapObjectToCamera,
     MoveCameraHere,
+    AttachToObject,
+    DetachFromParent,
   };
 
   ezSelectionAction(const ezActionContext& context, const char* szName, ActionType type);
