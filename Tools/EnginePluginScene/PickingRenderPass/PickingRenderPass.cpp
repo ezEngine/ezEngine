@@ -218,7 +218,7 @@ void ezPickingRenderPass::ReadBackProperties(ezView* pView)
   const ezUInt32 y = (ezUInt32)m_PickingPosition.y;
   const ezUInt32 uiIndex = (y * m_uiWindowWidth) + x;
 
-  if (uiIndex >= m_PickingResultsID.GetCount())
+  if (uiIndex >= m_PickingResultsDepth.GetCount() || x >= m_uiWindowWidth || y >= m_uiWindowHeight)
   {
     //ezLog::Error("Picking position %u, %u is outside the available picking area of %u * %u", x, y, m_uiWindowWidth, m_uiWindowHeight);
     return;

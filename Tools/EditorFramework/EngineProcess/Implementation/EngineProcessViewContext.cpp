@@ -112,7 +112,6 @@ void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
   {
     pState->AddAllMainViews();
   }
-
   // setting to only update one view ?
   //else
   {
@@ -181,6 +180,15 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   ezCameraMode::Enum cameraMode = (ezCameraMode::Enum)pMsg->m_iCameraMode;
   m_Camera.SetCameraMode(cameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
   m_Camera.LookAt(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
+
+  // by default this stuff is disabled, derived classes can enable it
+  if (m_pView)
+  {
+    m_pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);
+    m_pView->SetRenderPassProperty("EditorRenderPass", "ViewRenderMode", (ezUInt8)ezViewRenderMode::Default);
+    m_pView->SetRenderPassProperty("EditorPickingPass", "ViewRenderMode", (ezUInt8)ezViewRenderMode::Default);
+    m_pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", false);
+  }
 }
 
 ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDefaultRenderPipeline()

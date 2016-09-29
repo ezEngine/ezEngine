@@ -172,6 +172,11 @@ protected:
   /// to make sure we do not make an image of half-streamed in data.
   virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext);
 
+  /// \brief Called after a thumbnail context was created. Allows to insert code before the thumbnail is generated.
+  virtual void OnThumbnailViewContextCreated() {}
+  /// \brief Called before a thumbnail context is destroyed. Used for cleanup of what was done in OnThumbnailViewContextCreated()
+  virtual void OnDestroyThumbnailViewContext() {}
+
   ezWorld* m_pWorld;
 
 private:

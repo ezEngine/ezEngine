@@ -21,7 +21,8 @@
 #include <EnginePluginAssets/MeshAsset/MeshContext.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 
-ezMeshViewContext::ezMeshViewContext(ezMeshContext* pMeshContext) : ezEngineProcessViewContext(pMeshContext)
+ezMeshViewContext::ezMeshViewContext(ezMeshContext* pMeshContext) 
+  : ezEngineProcessViewContext(pMeshContext)
 {
   m_pMeshContext = pMeshContext;
   m_pView = nullptr;

@@ -21,7 +21,8 @@
 #include <EnginePluginAssets/MaterialAsset/MaterialContext.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 
-ezMaterialViewContext::ezMaterialViewContext(ezMaterialContext* pMaterialContext) : ezEngineProcessViewContext(pMaterialContext)
+ezMaterialViewContext::ezMaterialViewContext(ezMaterialContext* pMaterialContext) 
+  : ezEngineProcessViewContext(pMaterialContext)
 {
   m_pMaterialContext = pMaterialContext;
   m_pView = nullptr;

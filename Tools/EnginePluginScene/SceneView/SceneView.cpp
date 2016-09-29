@@ -24,14 +24,15 @@
 #include <RenderPipeline/EditorSelectedObjectsExtractor.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 
-ezSceneViewContext::ezSceneViewContext(ezSceneContext* pSceneContext) : ezEngineProcessViewContext(pSceneContext)
+ezSceneViewContext::ezSceneViewContext(ezSceneContext* pSceneContext)
+  : ezEngineProcessViewContext(pSceneContext)
 {
   m_pSceneContext = pSceneContext;
   m_bUpdatePickingData = true;
 
   // Start with something valid.
   m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 45.0f, 0.1f, 1000.0f);
-  m_Camera.LookAt(ezVec3(1,1,1), ezVec3::ZeroVector(), ezVec3(0.0f, 0.0f, 1.0f));
+  m_Camera.LookAt(ezVec3(1, 1, 1), ezVec3::ZeroVector(), ezVec3(0.0f, 0.0f, 1.0f));
 }
 
 ezSceneViewContext::~ezSceneViewContext()
@@ -69,6 +70,14 @@ void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 
 bool ezSceneViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds)
 {
+  if (m_pView)
+  {
+    m_pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);
+    m_pView->SetRenderPassProperty("EditorRenderPass", "ViewRenderMode", (ezUInt8)ezViewRenderMode::Default);
+    m_pView->SetRenderPassProperty("EditorPickingPass", "ViewRenderMode", (ezUInt8)ezViewRenderMode::Default);
+    m_pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", false);
+  }
+
   return !FocusCameraOnObject(m_Camera, bounds, 45.0f, ezVec3(1.0f, 1.0f, -1.0f));
 }
 

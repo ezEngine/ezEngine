@@ -669,10 +669,14 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
   m_pThumbnailViewContext->Redraw(false);
 
   ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::ResourceEventHandler, this));
+
+  OnThumbnailViewContextCreated();
 }
 
 void ezEngineProcessDocumentContext::DestroyThumbnailViewContext()
 {
+  OnDestroyThumbnailViewContext();
+
   ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::ResourceEventHandler, this));
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();

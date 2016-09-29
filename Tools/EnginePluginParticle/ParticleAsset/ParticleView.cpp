@@ -7,7 +7,8 @@
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 
-ezParticleViewContext::ezParticleViewContext(ezParticleContext* pParticleContext) : ezEngineProcessViewContext(pParticleContext)
+ezParticleViewContext::ezParticleViewContext(ezParticleContext* pParticleContext) 
+  : ezEngineProcessViewContext(pParticleContext)
 {
   m_pParticleContext = pParticleContext;
   m_pView = nullptr;

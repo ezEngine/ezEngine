@@ -30,6 +30,8 @@ protected:
   virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
   virtual bool ExportDocument(const ezExportDocumentMsgToEngine* pMsg) override;
   virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext) override;
+  virtual void OnThumbnailViewContextCreated() override;
+  virtual void OnDestroyThumbnailViewContext() override;
 
 private:
   
@@ -52,6 +54,7 @@ private:
   ezDeque<ezGameObjectHandle> m_Selection;
   ezDeque<ezGameObjectHandle> m_SelectionWithChildren;
   ezSet<ezGameObjectHandle> m_SelectionWithChildrenSet;
+  ezGameObjectHandle m_hThumbnailLights;
 };
 
 

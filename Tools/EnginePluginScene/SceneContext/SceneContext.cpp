@@ -9,6 +9,8 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <RendererCore/Lights/AmbientLightComponent.h>
+#include <RendererCore/Lights/DirectionalLightComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
 {
@@ -63,6 +65,7 @@ ezSceneContext::ezSceneContext()
 {
   m_bRenderSelectionOverlay = true;
   m_bRenderSelectionBoxes = true;
+  m_bRenderShapeIcons = true;
 }
 
 void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
@@ -354,10 +357,46 @@ bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
   return file.Close().Succeeded();
 }
 
+void ezSceneContext::OnThumbnailViewContextCreated()
+{
+  EZ_LOCK(GetWorld()->GetWriteMarker());
+
+  const ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
+
+  ezGameObjectDesc obj;
+
+  obj.m_sName.Assign("DirLight");
+  obj.m_LocalPosition = bounds.m_vCenter;
+  obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(60.0f));
+
+  ezGameObject* pLight;
+  m_hThumbnailLights = GetWorld()->CreateObject(obj, pLight);
+
+  ezDirectionalLightComponent* pDirLight;
+  ezDirectionalLightComponent::CreateComponent(GetWorld(), pDirLight);
+  pLight->AttachComponent(pDirLight);
+
+  ezAmbientLightComponent* pAmbLight;
+  ezAmbientLightComponent::CreateComponent(GetWorld(), pAmbLight);
+  pLight->AttachComponent(pAmbLight);
+
+  m_bRenderSelectionOverlay = false;
+  m_bRenderShapeIcons = false;
+  m_bRenderSelectionBoxes = false;
+}
+
+void ezSceneContext::OnDestroyThumbnailViewContext()
+{
+    EZ_LOCK(GetWorld()->GetWriteMarker());
+    GetWorld()->DeleteObjectDelayed(m_hThumbnailLights);
+}
+
 bool ezSceneContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
-  ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
+  const ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
 
   ezSceneViewContext* pMaterialViewContext = static_cast<ezSceneViewContext*>(pThumbnailViewContext);
-  return pMaterialViewContext->UpdateThumbnailCamera(bounds);
+  const bool result = pMaterialViewContext->UpdateThumbnailCamera(bounds);
+
+  return result;
 }

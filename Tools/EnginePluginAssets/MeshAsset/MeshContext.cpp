@@ -21,6 +21,7 @@
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <SharedPluginAssets/Common/Messages.h>
+#include <RendererCore/Lights/AmbientLightComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshContext, 1, ezRTTIDefaultAllocator<ezMeshContext>)
 {
@@ -75,8 +76,11 @@ void ezMeshContext::OnInitialize()
 
     ezDirectionalLightComponent* pDirLight;
     ezDirectionalLightComponent::CreateComponent(pWorld, pDirLight);
-
     pObj->AttachComponent(pDirLight);
+
+    ezAmbientLightComponent* pAmbLight;
+    ezAmbientLightComponent::CreateComponent(GetWorld(), pAmbLight);
+    pObj->AttachComponent(pAmbLight);
   }
 }
 
