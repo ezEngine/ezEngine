@@ -466,6 +466,9 @@ void ezQtSceneDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxR
   if (cam.GetCameraMode() == ezCameraMode::PerspectiveFixedFovX ||
       cam.GetCameraMode() == ezCameraMode::PerspectiveFixedFovY)
   {
+    const float maxExt = pMsg->m_vHalfExtents.GetLength();
+    const float fMinDistance = cam.GetNearPlane() * 1.1f + maxExt;
+
     {
       ezPlane p;
       p.SetFromNormalAndPoint(vNewCameraDirection, vNewCameraPosition);
@@ -474,7 +477,7 @@ void ezQtSceneDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxR
       // therefore we clamp it to a 'reasonable' distance here
       const float distBest = ezMath::Min(ezMath::Abs(p.GetDistanceTo(vPivotPoint)), 500.0f);
 
-      vNewCameraPosition = vPivotPoint - vNewCameraDirection * distBest;
+      vNewCameraPosition = vPivotPoint - vNewCameraDirection * ezMath::Max(fMinDistance, distBest);
     }
 
     // only zoom in on the object, if the target position is already identical (action executed twice)
@@ -489,7 +492,7 @@ void ezQtSceneDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxR
       const float dist2 = fRadius / ezMath::Sin(fovY * 0.75);
       const float distBest = ezMath::Max(dist1, dist2);
 
-      vNewCameraPosition = vPivotPoint - vNewCameraDirection * distBest;
+      vNewCameraPosition = vPivotPoint - vNewCameraDirection * ezMath::Max(fMinDistance, distBest);
     }
   }
   else
