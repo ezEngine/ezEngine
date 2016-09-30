@@ -310,6 +310,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneSettingsMsgToEngine, 1, ezRTTIDefaultAllo
     EZ_MEMBER_PROPERTY("RenderOverlay", m_bRenderOverlay),
     EZ_MEMBER_PROPERTY("ShapeIcons", m_bRenderShapeIcons),
     EZ_MEMBER_PROPERTY("RenderSelectionBoxes", m_bRenderSelectionBoxes),
+    EZ_MEMBER_PROPERTY("AddAmbient", m_bAddAmbientLight),
   }
   EZ_END_PROPERTIES
 }

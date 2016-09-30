@@ -315,6 +315,7 @@ public:
   bool m_bRenderOverlay;
   bool m_bRenderShapeIcons;
   bool m_bRenderSelectionBoxes;
+  bool m_bAddAmbientLight;
   float m_fGizmoScale;
 };
 

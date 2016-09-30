@@ -44,6 +44,7 @@ Scene.Run;Run Scene...
 Scene.Render.SelectionOverlay;Visualize Selection
 Scene.Render.Visualizers;Render Visualizers
 Scene.Render.ShapeIcons;Render Shape Icons
+Scene.Render.AddAmbient;Add Ambient Light
 Scene.GameMode.Stop;Reset World
 Scene.GameMode.Simulate;Simulate World
 Scene.GameMode.Play;Play the Game

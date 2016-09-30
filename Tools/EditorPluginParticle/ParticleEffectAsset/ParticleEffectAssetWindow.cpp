@@ -195,6 +195,7 @@ void ezParticleEffectAssetDocumentWindow::SendRedrawMsg()
     msg.m_bRenderOverlay = false;
     msg.m_bRenderShapeIcons = false;
     msg.m_bRenderSelectionBoxes = false;
+    msg.m_bAddAmbientLight = true; // not implemented yet
     GetEditorEngineConnection()->SendMessage(&msg);
   }
 

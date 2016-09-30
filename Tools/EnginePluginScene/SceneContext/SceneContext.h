@@ -34,7 +34,8 @@ protected:
   virtual void OnDestroyThumbnailViewContext() override;
 
 private:
-  
+  void AddAmbientLight(bool bSetEditorTag);
+  void RemoveAmbientLight();
   void HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg);
   void HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg);
   void ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds);
@@ -54,7 +55,7 @@ private:
   ezDeque<ezGameObjectHandle> m_Selection;
   ezDeque<ezGameObjectHandle> m_SelectionWithChildren;
   ezSet<ezGameObjectHandle> m_SelectionWithChildrenSet;
-  ezGameObjectHandle m_hThumbnailLights;
+  ezGameObjectHandle m_hAmbientLight;
 };
 
 

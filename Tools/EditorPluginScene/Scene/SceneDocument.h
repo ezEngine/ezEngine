@@ -54,6 +54,7 @@ struct ezSceneDocumentEvent
     RenderSelectionOverlayChanged,
     RenderVisualizersChanged,
     RenderShapeIconsChanged,
+    AddAmbientLightChanged,
     SimulationSpeedChanged,
     TriggerGameModePlay,
     TriggerStopGameModePlay,
@@ -182,6 +183,9 @@ public:
   bool GetRenderShapeIcons() const { return m_CurrentMode.m_bRenderShapeIcons; }
   void SetRenderShapeIcons(bool b);
 
+  bool GetAddAmbientLight() const { return m_CurrentMode.m_bAddAmbientLight; }
+  void SetAddAmbientLight(bool b);
+
 
   ezStatus ExportScene();
 
@@ -242,6 +246,7 @@ private:
     bool m_bRenderSelectionOverlay;
     bool m_bRenderVisualizers;
     bool m_bRenderShapeIcons;
+    bool m_bAddAmbientLight;
   };
 
   bool m_bIsPrefab;

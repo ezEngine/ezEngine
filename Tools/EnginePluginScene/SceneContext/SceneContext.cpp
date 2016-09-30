@@ -96,6 +96,11 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
         OnSimulationDisabled();
     }
 
+    if (msg->m_bAddAmbientLight)
+      AddAmbientLight(true);
+    else
+      RemoveAmbientLight();
+
     if (pState && pState->WasQuitRequested())
     {
       ezGameApplication::GetGameApplicationInstance()->DeactivateGameStateForWorld(m_pWorld);
@@ -359,36 +364,15 @@ bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 
 void ezSceneContext::OnThumbnailViewContextCreated()
 {
-  EZ_LOCK(GetWorld()->GetWriteMarker());
-
-  const ezBoundingBoxSphere bounds = GetWorldBounds(m_pWorld);
-
-  ezGameObjectDesc obj;
-
-  obj.m_sName.Assign("DirLight");
-  obj.m_LocalPosition = bounds.m_vCenter;
-  obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(60.0f));
-
-  ezGameObject* pLight;
-  m_hThumbnailLights = GetWorld()->CreateObject(obj, pLight);
-
-  ezDirectionalLightComponent* pDirLight;
-  ezDirectionalLightComponent::CreateComponent(GetWorld(), pDirLight);
-  pLight->AttachComponent(pDirLight);
-
-  ezAmbientLightComponent* pAmbLight;
-  ezAmbientLightComponent::CreateComponent(GetWorld(), pAmbLight);
-  pLight->AttachComponent(pAmbLight);
-
-  m_bRenderSelectionOverlay = false;
-  m_bRenderShapeIcons = false;
-  m_bRenderSelectionBoxes = false;
+  // make sure there is ambient light in the thumbnails
+  // should check whether this is a prefab
+  RemoveAmbientLight();
+  AddAmbientLight(false);
 }
 
 void ezSceneContext::OnDestroyThumbnailViewContext()
 {
-    EZ_LOCK(GetWorld()->GetWriteMarker());
-    GetWorld()->DeleteObjectDelayed(m_hThumbnailLights);
+  RemoveAmbientLight();
 }
 
 bool ezSceneContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
@@ -400,3 +384,44 @@ bool ezSceneContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThu
 
   return result;
 }
+
+void ezSceneContext::AddAmbientLight(bool bSetEditorTag)
+{
+  if (!m_hAmbientLight.IsInvalidated())
+    return;
+
+  EZ_LOCK(GetWorld()->GetWriteMarker());
+
+  ezGameObjectDesc obj;
+  obj.m_sName.Assign("Ambient Light");
+  obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(60.0f));
+
+  if (bSetEditorTag)
+  {
+    const ezTag* tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
+    obj.m_Tags.Set(*tagEditor); // to prevent it from being exported
+  }
+
+  ezGameObject* pLight;
+  m_hAmbientLight = GetWorld()->CreateObject(obj, pLight);
+
+  ezDirectionalLightComponent* pDirLight;
+  ezDirectionalLightComponent::CreateComponent(GetWorld(), pDirLight);
+  pLight->AttachComponent(pDirLight);
+
+  ezAmbientLightComponent* pAmbLight;
+  ezAmbientLightComponent::CreateComponent(GetWorld(), pAmbLight);
+  pLight->AttachComponent(pAmbLight);
+}
+
+void ezSceneContext::RemoveAmbientLight()
+{
+  if (m_hAmbientLight.IsInvalidated())
+    return;
+
+  EZ_LOCK(GetWorld()->GetWriteMarker());
+
+  GetWorld()->DeleteObjectDelayed(m_hAmbientLight);
+  m_hAmbientLight.Invalidate();
+}
+

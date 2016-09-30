@@ -321,6 +321,7 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
     msg.m_bRenderOverlay = GetSceneDocument()->GetRenderSelectionOverlay();
     msg.m_bRenderShapeIcons = GetSceneDocument()->GetRenderShapeIcons();
     msg.m_bRenderSelectionBoxes = GetSceneDocument()->GetRenderVisualizers();
+    msg.m_bAddAmbientLight = GetSceneDocument()->GetAddAmbientLight();
     GetEditorEngineConnection()->SendMessage(&msg);
   }
 
