@@ -675,13 +675,22 @@ void ezPropertyEditorQuaternionWidget::InternalSetValue(const ezVariant& value)
   QtScopedBlockSignals b1(m_pWidget[1]);
   QtScopedBlockSignals b2(m_pWidget[2]);
 
-  const ezQuat qRot = value.ConvertTo<ezQuat>();
-  ezAngle x, y, z;
-  qRot.GetAsEulerAngles(x, y, z);
+  if (value.IsValid())
+  {
+    const ezQuat qRot = value.ConvertTo<ezQuat>();
+    ezAngle x, y, z;
+    qRot.GetAsEulerAngles(x, y, z);
 
-  m_pWidget[0]->setValue(x.GetDegree());
-  m_pWidget[1]->setValue(y.GetDegree());
-  m_pWidget[2]->setValue(z.GetDegree());
+    m_pWidget[0]->setValue(x.GetDegree());
+    m_pWidget[1]->setValue(y.GetDegree());
+    m_pWidget[2]->setValue(z.GetDegree());
+  }
+  else
+  {
+    m_pWidget[0]->setValueInvalid();
+    m_pWidget[1]->setValueInvalid();
+    m_pWidget[2]->setValueInvalid();
+  }
 }
 
 void ezPropertyEditorQuaternionWidget::on_EditingFinished_triggered()
