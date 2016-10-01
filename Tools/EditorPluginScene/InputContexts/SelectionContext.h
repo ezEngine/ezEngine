@@ -5,6 +5,7 @@
 class QWidget;
 class ezCamera;
 struct ezObjectPickingResult;
+class ezDocumentObject;
 
 class ezSelectionContext : public ezEditorInputContext
 {
@@ -25,6 +26,9 @@ protected:
   virtual ezEditorInut DoKeyReleaseEvent(QKeyEvent* e) override;
 
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override {}
+
+  const ezDocumentObject* determineObjectToSelect(const ezDocumentObject* pickedObject, bool bToggle, bool bDirect) const;
+
 
 private:
   void OpenPickedMaterial(const ezObjectPickingResult& res) const;

@@ -75,15 +75,16 @@ ezEditorInut ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
     const ezObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
 
     const bool bToggle = (e->modifiers() & Qt::KeyboardModifier::ControlModifier) != 0;
+    const bool bDirect = (e->modifiers() & Qt::KeyboardModifier::AltModifier) != 0;
 
     if (res.m_PickedObject.IsValid())
     {
       const ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
 
       if (bToggle)
-        pDocument->GetSelectionManager()->ToggleObject(pObject);
+        pDocument->GetSelectionManager()->ToggleObject(determineObjectToSelect(pObject, true, bDirect));
       else
-        pDocument->GetSelectionManager()->SetSelection(pObject);
+        pDocument->GetSelectionManager()->SetSelection(determineObjectToSelect(pObject, false, bDirect));
     }
 
     m_bSelectOnMouseUp = false;
@@ -240,5 +241,89 @@ ezEditorInut ezSelectionContext::DoKeyReleaseEvent(QKeyEvent* e)
   return ezEditorInut::MayBeHandledByOthers;
 }
 
+static const bool IsInSelection(const ezDeque<const ezDocumentObject*>& selection, const ezDocumentObject* pObject, const ezDocumentObject*& out_ParentInSelection, const ezDocumentObject*& out_ParentChild, const ezDocumentObject* pRootObject)
+{
+  if (pObject == pRootObject)
+    return false;
+
+  ezUInt32 index = selection.IndexOf(pObject);
+  if (index != ezInvalidIndex)
+  {
+    out_ParentInSelection = pObject;
+    return true;
+  }
+
+  const ezDocumentObject* pParent = pObject->GetParent();
+
+  if (IsInSelection(selection, pParent, out_ParentInSelection, out_ParentChild, pRootObject))
+  {
+    if (out_ParentChild == nullptr)
+      out_ParentChild = pObject;
+
+    return true;
+  }
+
+  return false;
+}
+
+static const ezDocumentObject* GetTopMostParent(const ezDocumentObject* pObject, const ezDocumentObject* pRootObject)
+{
+  const ezDocumentObject* pParent = pObject;
+
+  while (pParent->GetParent() != pRootObject)
+    pParent = pParent->GetParent();
+
+  return pParent;
+}
+
+const ezDocumentObject* ezSelectionContext::determineObjectToSelect(const ezDocumentObject* pickedObject, bool bToggle, bool bDirect) const
+{
+  auto* pDocument = GetOwnerWindow()->GetDocument();
+  const ezDeque<const ezDocumentObject*> sel = pDocument->GetSelectionManager()->GetSelection();
+
+  const ezDocumentObject* pRootObject = pDocument->GetObjectManager()->GetRootObject();
+
+  const ezDocumentObject* pParentInSelection = nullptr;
+  const ezDocumentObject* pParentChild = nullptr;
+
+  if (!IsInSelection(sel, pickedObject, pParentInSelection, pParentChild, pRootObject))
+  {
+    if (bDirect)
+      return pickedObject;
+
+    return GetTopMostParent(pickedObject, pRootObject);
+  }
+  else
+  {
+    if (bToggle)
+    {
+      // always toggle the object that is already in the selection
+      return pParentInSelection;
+    }
+
+    if (bDirect)
+      return pickedObject;
+
+    if (sel.GetCount() > 1)
+    {
+      // multi-selection, but no toggle, so we are about to set the selection
+      // -> always use the top-level parent in this case
+      return GetTopMostParent(pickedObject, pRootObject);
+    }
+
+    if (pParentInSelection == pickedObject)
+    {
+      // object itself is in the selection
+      return pickedObject;
+    }
+
+    if (pParentChild == nullptr)
+    {
+      return pParentInSelection;
+    }
+
+    return pParentChild;
+  }
+}
 
 
