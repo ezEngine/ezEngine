@@ -243,6 +243,12 @@ void ezFileSystem::DeleteFile(const char* szFile)
 
   EZ_LOCK(s_Data->m_Mutex);
 
+  if (ezPathUtils::IsAbsolutePath(szFile))
+  {
+    ezOSFile::DeleteFile(szFile);
+    return;
+  }
+
   ezString sRootName;
   szFile = ExtractRootName(szFile, sRootName);
 
