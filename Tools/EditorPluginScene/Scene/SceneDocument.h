@@ -135,7 +135,14 @@ public:
   void ShowOrHideAllObjects(ShowOrHide action);
   void HideUnselectedObjects();
 
+  /// \brief Whether this document represents a prefab or a scene
   bool IsPrefab() const { return m_bIsPrefab; }
+
+  /// \brief Determines whether the given object is an editor prefab
+  bool IsObjectEditorPrefab(const ezUuid& object, ezUuid* out_PrefabAssetGuid = nullptr) const;
+
+  /// \brief Determines whether the given object is an engine prefab
+  bool IsObjectEnginePrefab(const ezUuid& object, ezUuid* out_PrefabAssetGuid = nullptr) const;
 
   void SetGizmoWorldSpace(bool bWorldSpace) const;
   bool GetGizmoWorldSpace() const;
@@ -148,16 +155,32 @@ public:
   bool PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info);
 
   virtual void UpdatePrefabs() override;
+
+  /// \brief Removes the link to the prefab template, making the editor prefab a simple object
   virtual void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection) override;
+
   virtual ezUuid ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed) override;
+
+  /// \brief Reverts all selected editor prefabs to their original template state
   virtual ezUuid RevertPrefab(const ezDocumentObject* pObject) override;
+
+  /// \brief Converts all objects in the selection that are engine prefabs to their respective editor prefab representation
+  virtual void ConvertToEditorPrefab(const ezDeque<const ezDocumentObject*>& Selection);
+  /// \brief Converts all objects in the selection that are editor prefabs to their respective engine prefab representation
+  virtual void ConvertToEnginePrefab(const ezDeque<const ezDocumentObject*>& Selection);
 
   /// \brief Sets the new global transformation of the given object.
   /// The transformationChanges bitmask (of type TransformationChanges) allows to tell the system that, e.g. only translation has changed and thus some work can be spared.
   void SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges) const;
+
+  /// \brief Returns a cached value for the global transform of the given object, if available. Otherwise it calls ComputeGlobalTransform().
   const ezTransform& GetGlobalTransform(const ezDocumentObject* pObject) const;
 
+  /// \brief Retrieves the local transform property values from the object and combines it into one ezTransform
   static ezTransform QueryLocalTransform(const ezDocumentObject* pObject);
+
+  /// \brief Computes the global transform of the parent and combines it with the local transform of the given object.
+  /// This function does not return a cached value, but always computes it. It does update the internal cache for later reads though.
   ezTransform ComputeGlobalTransform(const ezDocumentObject* pObject) const;
 
   mutable ezEvent<const ezSceneDocumentEvent&> m_SceneEvents;

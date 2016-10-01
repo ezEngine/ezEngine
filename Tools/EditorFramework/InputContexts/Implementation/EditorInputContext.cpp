@@ -5,6 +5,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <Foundation/Logging/Log.h>
+#include "DocumentWindow/EngineViewWidget.moc.h"
 
 ezEditorInputContext* ezEditorInputContext::s_pActiveInputContext = nullptr;
 
@@ -110,8 +111,15 @@ ezQtEngineDocumentWindow* ezEditorInputContext::GetOwnerWindow() const
 
 ezQtEngineViewWidget* ezEditorInputContext::GetOwnerView() const
 {
-  EZ_ASSERT_DEBUG(m_pOwnerView != nullptr, "Owner view pointer has not been set");
-  return m_pOwnerView;
+  ezQtEngineViewWidget* pView = m_pOwnerView;
+
+  if (pView == nullptr)
+  {
+    pView = ezQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
+  }
+
+  EZ_ASSERT_DEBUG(pView != nullptr, "Owner view pointer has not been set");
+  return pView;
 }
 
 ezVec2I32 ezEditorInputContext::SetMouseMode(MouseMode newMode)

@@ -35,6 +35,8 @@ ezActionDescriptorHandle ezSelectionActions::s_hSnapObjectToCamera;
 ezActionDescriptorHandle ezSelectionActions::s_hMoveCameraHere;
 ezActionDescriptorHandle ezSelectionActions::s_hAttachToObject;
 ezActionDescriptorHandle ezSelectionActions::s_hDetachFromParent;
+ezActionDescriptorHandle ezSelectionActions::s_hConvertToEnginePrefab;
+ezActionDescriptorHandle ezSelectionActions::s_hConvertToEditorPrefab;
 
 
 
@@ -58,6 +60,8 @@ void ezSelectionActions::RegisterActions()
   s_hRevertPrefab = EZ_REGISTER_ACTION_1("Prefabs.Revert", ezActionScope::Document, "Prefabs", "Ctrl+P,Ctrl+R", ezSelectionAction, ezSelectionAction::ActionType::RevertPrefab);
   s_hUnlinkFromPrefab = EZ_REGISTER_ACTION_1("Prefabs.Unlink", ezActionScope::Document, "Prefabs", "Ctrl+P,Ctrl+U", ezSelectionAction, ezSelectionAction::ActionType::UnlinkFromPrefab);
   s_hOpenPrefabDocument = EZ_REGISTER_ACTION_1("Prefabs.OpenDocument", ezActionScope::Document, "Prefabs", "Ctrl+P,Ctrl+O", ezSelectionAction, ezSelectionAction::ActionType::OpenPrefabDocument);
+  s_hConvertToEnginePrefab = EZ_REGISTER_ACTION_1("Prefabs.ConvertToEngine", ezActionScope::Document, "Prefabs", "", ezSelectionAction, ezSelectionAction::ActionType::ConvertToEnginePrefab);
+  s_hConvertToEditorPrefab = EZ_REGISTER_ACTION_1("Prefabs.ConvertToEditor", ezActionScope::Document, "Prefabs", "", ezSelectionAction, ezSelectionAction::ActionType::ConvertToEditorPrefab);
 
   s_hDuplicateSpecial = EZ_REGISTER_ACTION_1("Selection.DuplicateSpecial", ezActionScope::Document, "Scene - Selection", "Ctrl+D", ezSelectionAction, ezSelectionAction::ActionType::DuplicateSpecial);
   s_hSnapCameraToObject = EZ_REGISTER_ACTION_1("Scene.Camera.SnapCameraToObject", ezActionScope::Document, "Camera", "", ezSelectionAction, ezSelectionAction::ActionType::SnapCameraToObject);
@@ -88,6 +92,8 @@ void ezSelectionActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hMoveCameraHere);
   ezActionManager::UnregisterAction(s_hAttachToObject);
   ezActionManager::UnregisterAction(s_hDetachFromParent);
+  ezActionManager::UnregisterAction(s_hConvertToEditorPrefab);
+  ezActionManager::UnregisterAction(s_hConvertToEnginePrefab);
 }
 
 void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
@@ -130,6 +136,8 @@ void ezSelectionActions::MapPrefabActions(const char* szMapping, const char* szP
   pMap->MapAction(s_hRevertPrefab, sPrefabSubPath, 2.0f);
   pMap->MapAction(s_hCreatePrefab, sPrefabSubPath, 3.0f);
   pMap->MapAction(s_hUnlinkFromPrefab, sPrefabSubPath, 4.0f);
+  pMap->MapAction(s_hConvertToEditorPrefab, sPrefabSubPath, 5.0f);
+  pMap->MapAction(s_hConvertToEnginePrefab, sPrefabSubPath, 6.0f);
 }
 
 void ezSelectionActions::MapContextMenuActions(const char* szMapping, const char* szPath)
@@ -168,6 +176,8 @@ void ezSelectionActions::MapViewContextMenuActions(const char* szMapping, const 
   pMap->MapAction(s_hSnapCameraToObject, sSubPath, 4.0f);
   pMap->MapAction(s_hSnapObjectToCamera, sSubPath, 5.0f);
   pMap->MapAction(s_hMoveCameraHere, sSubPath, 6.0f);
+
+  MapPrefabActions(szMapping, sSubPath, 7.0f);
 }
 
 ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char* szName, ezSelectionAction::ActionType type) : ezButtonAction(context, szName, false, "")
@@ -234,6 +244,12 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
     break;
   case ActionType::DetachFromParent:
     //SetIconPath(":/EditorPluginScene/Icons/Duplicate16.png"); // TODO Icon
+    break;
+  case ActionType::ConvertToEditorPrefab:
+    //SetIconPath(":/EditorPluginScene/PrefabRevert.png"); // TODO Icon
+    break;
+  case ActionType::ConvertToEnginePrefab:
+    //SetIconPath(":/EditorPluginScene/PrefabRevert.png"); // TODO Icon
     break;
   }
 
@@ -330,6 +346,22 @@ void ezSelectionAction::Execute(const ezVariant& value)
     m_pSceneDocument->DetachFromParent();
     break;
 
+  case ActionType::ConvertToEditorPrefab:
+    {
+      const ezDeque<const ezDocumentObject*> sel = m_pSceneDocument->GetSelectionManager()->GetTopLevelSelection(ezGetStaticRTTI<ezGameObject>());
+      m_pSceneDocument->ConvertToEditorPrefab(sel);
+    }
+    break;
+
+  case ActionType::ConvertToEnginePrefab:
+    {
+      if (ezUIServices::MessageBoxQuestion("Discard all modifications to the selected prefabs and convert them to engine prefabs?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
+      {
+        const ezDeque<const ezDocumentObject*> sel = m_pSceneDocument->GetSelectionManager()->GetTopLevelSelection(ezGetStaticRTTI<ezGameObject>());
+        m_pSceneDocument->ConvertToEnginePrefab(sel);
+      }
+    }
+    break;
   }
 }
 
@@ -433,6 +465,7 @@ void ezSelectionAction::UpdateEnableState()
   if (m_Type == ActionType::RevertPrefab ||
       m_Type == ActionType::UnlinkFromPrefab ||
       m_Type == ActionType::OpenPrefabDocument ||
+      m_Type == ActionType::ConvertToEnginePrefab||
       m_Type == ActionType::CreatePrefab)
   {
     const auto& sel = m_Context.m_pDocument->GetSelectionManager()->GetSelection();
@@ -457,18 +490,29 @@ void ezSelectionAction::UpdateEnableState()
 
     const bool bShouldBePrefab = (m_Type == ActionType::RevertPrefab) || 
                                  (m_Type == ActionType::OpenPrefabDocument) || 
+                                 (m_Type == ActionType::ConvertToEnginePrefab) ||
                                  (m_Type == ActionType::UnlinkFromPrefab);
 
-    bool bIsPrefab = false;
-    {
-      const ezSceneDocument* pScene = static_cast<const ezSceneDocument*>(m_Context.m_pDocument);
-
-      auto pMeta = pScene->m_DocumentObjectMetaData.BeginReadMetaData(sel[0]->GetGuid());
-      bIsPrefab = pMeta->m_CreateFromPrefab.IsValid();
-      pScene->m_DocumentObjectMetaData.EndReadMetaData();
-    }
+    const ezSceneDocument* pScene = static_cast<const ezSceneDocument*>(m_Context.m_pDocument);
+    const bool bIsPrefab = pScene->IsObjectEditorPrefab(sel[0]->GetGuid());
 
     SetEnabled(bIsPrefab == bShouldBePrefab);
+  }
+
+  if (m_Type == ActionType::ConvertToEditorPrefab)
+  {
+    const auto& sel = m_Context.m_pDocument->GetSelectionManager()->GetSelection();
+
+    if (sel.IsEmpty())
+    {
+      SetEnabled(false);
+      return;
+    }
+
+    const ezSceneDocument* pScene = static_cast<const ezSceneDocument*>(m_Context.m_pDocument);
+    const bool bIsPrefab = pScene->IsObjectEnginePrefab(sel[0]->GetGuid());
+
+    SetEnabled(bIsPrefab);
   }
 }
 

@@ -197,7 +197,7 @@ void ezQtNodeScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
   if (!moved.IsEmpty())
   {
     ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
-    history->StartTransaction();
+    history->StartTransaction("Move Node");
 
     ezStatus res;
     for (auto pObject : moved)
@@ -441,7 +441,7 @@ void ezQtNodeScene::RemoveNodeAction(ezQtNode* pNode)
   if (res.m_Result.Succeeded())
   {
     ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
-    history->StartTransaction();
+    history->StartTransaction("Remove Node");
 
     ezRemoveNodeCommand cmd;
     cmd.m_Object = pNode->GetObject()->GetGuid();
@@ -466,7 +466,7 @@ void ezQtNodeScene::ConnectPinsAction(const ezPin* pSourcePin, const ezPin* pTar
   if (res.m_Result.Succeeded())
   {
     ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
-    history->StartTransaction();
+    history->StartTransaction("Connect Pins");
 
     ezConnectNodePinsCommand cmd;
     cmd.m_ObjectSource = pSourcePin->GetParent()->GetGuid();
@@ -494,7 +494,7 @@ void ezQtNodeScene::DisconnectPinsAction(ezQtConnection* pConnection)
   if (res.m_Result.Succeeded())
   {
     ezCommandHistory* history = GetDocumentNodeManager()->GetDocument()->GetCommandHistory();
-    history->StartTransaction();
+    history->StartTransaction("Disconnect Pins");
 
     ezDisconnectNodePinsCommand cmd;
     cmd.m_ObjectSource = pConnection->GetConnection()->GetSourcePin()->GetParent()->GetGuid();
@@ -525,7 +525,7 @@ void ezQtNodeScene::DisconnectPinsAction(ezQtPin* pPin)
   }
 
   ezCommandHistory* history = m_pManager->GetDocument()->GetCommandHistory();
-  history->StartTransaction();
+  history->StartTransaction("Disconnect Pins");
 
   ezStatus res = ezStatus(EZ_SUCCESS);
   for (ezQtConnection* pConnection : connections)
@@ -547,7 +547,7 @@ void ezQtNodeScene::OnMenuAction()
   const ezRTTI* pRtti = static_cast<const ezRTTI*>(sender()->property("type").value<void*>());
 
   ezCommandHistory* history = m_pManager->GetDocument()->GetCommandHistory();
-  history->StartTransaction();
+  history->StartTransaction("Add Node");
 
   ezStatus res;
   {

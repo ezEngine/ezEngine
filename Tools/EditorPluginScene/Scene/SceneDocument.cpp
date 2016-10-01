@@ -186,7 +186,7 @@ void ezSceneDocument::GroupSelection()
 
   auto pHistory = GetCommandHistory();
 
-  pHistory->StartTransaction();
+  pHistory->StartTransaction("Group Selection");
 
   ezAddObjectCommand cmdAdd;
   cmdAdd.m_NewObjectGuid.CreateNewUuid();
@@ -257,7 +257,7 @@ void ezSceneDocument::DuplicateSpecial()
 
   auto history = GetCommandHistory();
 
-  history->StartTransaction();
+  history->StartTransaction("Duplicate Special");
 
   if (history->AddCommand(cmd).m_Result.Failed())
     history->CancelTransaction();
@@ -313,7 +313,7 @@ void ezSceneDocument::SnapObjectToCamera()
 
   auto* pHistory = GetCommandHistory();
 
-  pHistory->StartTransaction();
+  pHistory->StartTransaction("Snap Object to Camera");
   {
     for (const ezDocumentObject* pObject : selection)
     {
@@ -360,7 +360,7 @@ void ezSceneDocument::AttachToObject()
 
   auto* pHistory = GetCommandHistory();
 
-  pHistory->StartTransaction();
+  pHistory->StartTransaction("Attach to Object");
   {
     for (const ezDocumentObject* pObject : selection)
     {
@@ -385,7 +385,7 @@ void ezSceneDocument::DetachFromParent()
 
   auto* pHistory = GetCommandHistory();
 
-  pHistory->StartTransaction();
+  pHistory->StartTransaction("Detach from Parent");
   {
     for (const ezDocumentObject* pObject : selection)
     {
@@ -401,7 +401,7 @@ void ezSceneDocument::CreateEmptyNode(bool bAttachToParent, bool bAtPickedPositi
 {
   auto history = GetCommandHistory();
 
-  history->StartTransaction();
+  history->StartTransaction("Create Node");
 
   ezAddObjectCommand cmdAdd;
   cmdAdd.m_pType = ezGetStaticRTTI<ezGameObject>();
@@ -471,7 +471,7 @@ void ezSceneDocument::DuplicateSelection()
 
   auto history = GetCommandHistory();
 
-  history->StartTransaction();
+  history->StartTransaction("Duplicate Selection");
 
   if (history->AddCommand(cmd).m_Result.Failed())
     history->CancelTransaction();
@@ -702,20 +702,6 @@ void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
     m_DocumentObjectMetaData.EndModifyMetaData(uiFlags);
   });
 }
-
-void ezSceneDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection)
-{
-  SUPER::UnlinkPrefabs(Selection);
-
-  // Clear cached names.
-  for (auto pObject : Selection)
-  {
-    auto pMetaScene = m_SceneObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
-    pMetaScene->m_CachedNodeName.Clear();
-    m_SceneObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::CachedName);
-  }
-}
-
 void ezSceneDocument::SetGizmoWorldSpace(bool bWorldSpace) const
 {
   if (m_bGizmoWorldSpace == bWorldSpace)
@@ -820,61 +806,6 @@ bool ezSceneDocument::PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info)
   }
 
   return true;
-}
-
-
-void ezSceneDocument::UpdatePrefabs()
-{
-  EZ_LOCK(m_SceneObjectMetaData.GetMutex());
-  SUPER::UpdatePrefabs();
-}
-
-
-ezUuid ezSceneDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed)
-{
-  ezUuid newGuid = SUPER::ReplaceByPrefab(pRootObject, szPrefabFile, PrefabAsset, PrefabSeed);
-  if (newGuid.IsValid())
-  {
-    auto pMeta = m_SceneObjectMetaData.BeginModifyMetaData(newGuid);
-    pMeta->m_CachedNodeName.Clear();
-    m_SceneObjectMetaData.EndModifyMetaData(ezSceneObjectMetaData::CachedName);
-  }
-  return newGuid;
-}
-
-
-ezUuid ezSceneDocument::RevertPrefab(const ezDocumentObject* pObject)
-{
-  auto pHistory = GetCommandHistory();
-  const ezVec3 vLocalPos = pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
-  const ezQuat vLocalRot = pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
-  const ezVec3 vLocalScale = pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
-  const float fLocalUniformScale = pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>();
-
-  ezUuid newGuid = SUPER::RevertPrefab(pObject);
-
-  if (newGuid.IsValid())
-  {
-    ezSetObjectPropertyCommand setCmd;
-    setCmd.m_Object = newGuid;
-
-    setCmd.m_sPropertyPath = "LocalPosition";
-    setCmd.m_NewValue = vLocalPos;
-    pHistory->AddCommand(setCmd);
-
-    setCmd.m_sPropertyPath = "LocalRotation";
-    setCmd.m_NewValue = vLocalRot;
-    pHistory->AddCommand(setCmd);
-
-    setCmd.m_sPropertyPath = "LocalScaling";
-    setCmd.m_NewValue = vLocalScale;
-    pHistory->AddCommand(setCmd);
-
-    setCmd.m_sPropertyPath = "LocalUniformScaling";
-    setCmd.m_NewValue = fLocalUniformScale;
-    pHistory->AddCommand(setCmd);
-  }
-  return newGuid;
 }
 
 bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition)

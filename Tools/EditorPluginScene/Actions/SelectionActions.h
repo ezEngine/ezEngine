@@ -38,6 +38,8 @@ public:
   static ezActionDescriptorHandle s_hMoveCameraHere;
   static ezActionDescriptorHandle s_hAttachToObject;
   static ezActionDescriptorHandle s_hDetachFromParent;
+  static ezActionDescriptorHandle s_hConvertToEnginePrefab;
+  static ezActionDescriptorHandle s_hConvertToEditorPrefab;
 };
 
 ///
@@ -68,6 +70,8 @@ public:
     MoveCameraHere,
     AttachToObject,
     DetachFromParent,
+    ConvertToEnginePrefab,
+    ConvertToEditorPrefab,
   };
 
   ezSelectionAction(const ezActionContext& context, const char* szName, ActionType type);

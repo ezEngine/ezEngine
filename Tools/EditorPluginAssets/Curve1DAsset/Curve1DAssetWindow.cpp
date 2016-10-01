@@ -155,7 +155,7 @@ ezCurve1DAssetDocumentWindow::~ezCurve1DAssetDocumentWindow()
 void ezCurve1DAssetDocumentWindow::onCurveBeginOperation()
 {
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
-  history->BeginTemporaryCommands();
+  history->BeginTemporaryCommands("Modify Curve");
 }
 
 
@@ -174,7 +174,7 @@ void ezCurve1DAssetDocumentWindow::onCurveEndOperation(bool commit)
 
 void ezCurve1DAssetDocumentWindow::onCurveBeginCpChanges()
 {
-  GetDocument()->GetCommandHistory()->StartTransaction();
+  GetDocument()->GetCommandHistory()->StartTransaction("Modify Curve");
 }
 
 void ezCurve1DAssetDocumentWindow::onCurveEndCpChanges()
@@ -268,7 +268,7 @@ void ezCurve1DAssetDocumentWindow::onCurveNormalizeY()
 
   const float rangeNorm = 1.0f / (maxY - minY);
 
-  history->StartTransaction();
+  history->StartTransaction("Normalize Curve (Y)");
 
   for (ezUInt32 i = 0; i < numCPs; ++i)
   {
@@ -321,7 +321,7 @@ void ezCurve1DAssetDocumentWindow::onCurveNormalizeX()
 
   const float rangeNorm = 1.0f / (maxX - minX);
 
-  history->StartTransaction();
+  history->StartTransaction("Normalize Curve (X)");
 
   for (ezUInt32 i = 0; i < numCPs; ++i)
   {

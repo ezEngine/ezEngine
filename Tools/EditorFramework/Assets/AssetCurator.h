@@ -118,10 +118,19 @@ public:
   /// \name Asset Access
   ///@{
   typedef ezLockedObject<ezMutex, ezAssetInfo> ezLockedAssetInfo;
-  const ezLockedAssetInfo FindAssetInfo(const char* szRelativePath) const;
+
+  /// \brief Tries to find the asset information for an asset identified through a string.
+  ///
+  /// The string may be a stringyfied asset GUID or a relative or absolute path. The function will try all possibilities.
+  /// If no asset can be found, an empty/invalid ezAssetInfo is returned.
+  const ezLockedAssetInfo FindAssetInfo(const char* szPathOrGuid) const;
+
+  /// \brief Same as GetAssteInfo, but wraps the return value into a ezLockedAssetInfo struct
   const ezLockedAssetInfo GetAssetInfo2(const ezUuid& assetGuid) const;
 
   typedef ezLockedObject<ezMutex, const ezHashTable<ezUuid, ezAssetInfo*>> ezLockedAssetTable;
+
+  /// \brief Returns the table of all known assets in a locked structure
   const ezLockedAssetTable GetKnownAssets() const;
 
   /// \brief Computes the combined hash for the asset and its dependencies. Returns 0 if anything went wrong.
@@ -194,8 +203,13 @@ private:
   ///@{
 
   ezStatus ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPlatform);
+
+  /// \brief Returns the asset info for the asset with the given GUID or nullptr if no such asset exists.
   ezAssetInfo* GetAssetInfo(const ezUuid& assetGuid);
-  ezAssetInfo* GetAssetInfo(const ezString& sPath);
+
+  /// \brief Returns the asset info for the asset with the given (stringyfied) GUID or nullptr if no such asset exists.
+  ezAssetInfo* GetAssetInfo(const ezString& sAssetGuid);
+
   void HandleSingleFile(const ezString& sAbsolutePath);
   void HandleSingleFile(const ezString& sAbsolutePath, const ezSet<ezString>& validExtensions, const ezFileStats& FileStat);
   /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.

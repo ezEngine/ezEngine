@@ -171,7 +171,7 @@ void ezQtSceneDocumentWindow::SnapSelectionToPosition(bool bSnapEachObject)
 
   auto CmdHistory = GetDocument()->GetCommandHistory();
 
-  CmdHistory->StartTransaction();
+  CmdHistory->StartTransaction("Snap to Position");
 
   bool bDidAny = false;
 

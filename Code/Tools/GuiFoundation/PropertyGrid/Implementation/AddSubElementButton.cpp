@@ -206,7 +206,7 @@ void ezAddSubElementButton::OnAction(const ezRTTI* pRtti)
   EZ_ASSERT_DEV(pRtti != nullptr, "user data retrieval failed");
 
   ezCommandHistory* history = m_pGrid->GetCommandHistory();
-  history->StartTransaction();
+  history->StartTransaction("Add Element");
 
   ezStatus res;
   if (GetProperty()->GetFlags().IsSet(ezPropertyFlags::StandardType))

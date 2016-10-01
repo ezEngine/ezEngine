@@ -16,7 +16,7 @@ void ezDocument::UpdatePrefabs()
   m_CachedPrefabDocuments.Clear();
   m_CachedPrefabGraphs.Clear();
 
-  GetCommandHistory()->StartTransaction();
+  GetCommandHistory()->StartTransaction("Update Prefabs");
 
   UpdatePrefabsRecursive(GetObjectManager()->GetRootObject());
 
@@ -35,7 +35,7 @@ void ezDocument::RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection
   m_CachedPrefabDocuments.Clear();
   m_CachedPrefabGraphs.Clear();
 
-  pHistory->StartTransaction();
+  pHistory->StartTransaction("Revert Prefab");
 
   for (auto pItem : Selection)
   {
@@ -168,7 +168,7 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, const ezDocumentOb
 
 ezUuid ezDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed)
 {
-  GetCommandHistory()->StartTransaction();
+  GetCommandHistory()->StartTransaction("Replace by Prefab");
 
   ezRemoveObjectCommand remCmd;
   remCmd.m_Object = pRootObject->GetGuid();

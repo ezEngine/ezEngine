@@ -13,11 +13,15 @@ public:
 
   const char* GetName() const { return m_sName; }
 
+  const char* GetAdditionalDisplayString() { return m_sAdditionalDisplayString; }
+  void SetAdditionalDisplayString(const char* szString, bool bTriggerUpdate = true) { m_sAdditionalDisplayString = szString; if (bTriggerUpdate) TriggerUpdate(); }
+
   const char* GetIconPath() const { return m_sIconPath; }
   void SetIconPath(const char* szIconPath) { m_sIconPath = szIconPath; }
 
 protected:
   ezString m_sName;
+  ezString m_sAdditionalDisplayString; // to add some context to the current action
   ezString m_sIconPath;
 };
 

@@ -91,10 +91,12 @@ void ezCommandHistoryAction::UpdateState()
   switch (m_ButtonType)
   {
   case ButtonType::Undo:
+    SetAdditionalDisplayString(m_Context.m_pDocument->GetCommandHistory()->GetUndoDisplayString(), false);
     SetEnabled(m_Context.m_pDocument->GetCommandHistory()->CanUndo());
     break;
 
   case ButtonType::Redo:
+    SetAdditionalDisplayString(m_Context.m_pDocument->GetCommandHistory()->GetRedoDisplayString(), false);
     SetEnabled(m_Context.m_pDocument->GetCommandHistory()->CanRedo());
     break;
   }

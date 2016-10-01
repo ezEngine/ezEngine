@@ -33,7 +33,7 @@ void ezMaterialDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
   m_pDocument = ezDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument);
   EZ_ASSERT_DEV(m_pDocument != nullptr, "Invalid document GUID in drag & drop operation");
 
-  m_pDocument->GetCommandHistory()->BeginTemporaryCommands(true);
+  m_pDocument->GetCommandHistory()->BeginTemporaryCommands("Drag Material", true);
 }
 
 void ezMaterialDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
@@ -59,7 +59,7 @@ void ezMaterialDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)
   cmd.SetPropertyPath("Materials");
   cmd.m_NewValue = GetAssetGuidString(pInfo);
 
-  m_pDocument->GetCommandHistory()->StartTransaction();
+  m_pDocument->GetCommandHistory()->StartTransaction("Assign Material");
   m_pDocument->GetCommandHistory()->AddCommand(cmd);
   m_pDocument->GetCommandHistory()->FinishTransaction();
 }

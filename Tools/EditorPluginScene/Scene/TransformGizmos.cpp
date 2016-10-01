@@ -157,7 +157,7 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
 
       UpdateGizmoSelectionList();
 
-      GetDocument()->GetCommandHistory()->BeginTemporaryCommands();
+      GetDocument()->GetCommandHistory()->BeginTemporaryCommands("Transform Object");
     }
     break;
 
@@ -183,7 +183,7 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
   case ezGizmoEvent::Type::Interaction:
     {
       m_bInGizmoInteraction = true;
-      GetDocument()->GetCommandHistory()->StartTransaction();
+      GetDocument()->GetCommandHistory()->StartTransaction("Transform Object");
 
       auto pScene = GetSceneDocument();
       ezTransform tNew;

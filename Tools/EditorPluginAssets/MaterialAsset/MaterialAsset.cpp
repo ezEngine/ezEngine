@@ -266,7 +266,7 @@ void ezMaterialAssetProperties::UpdateShader(bool bForce)
   if (!pHistory->IsInTransaction())
   {
     bOpenedTransaction = true;
-    pHistory->StartTransaction();
+    pHistory->StartTransaction("Update Material Shader");
   }
 
   ezDocumentObject* pPropObject = m_pDocument->GetShaderPropertyObject();

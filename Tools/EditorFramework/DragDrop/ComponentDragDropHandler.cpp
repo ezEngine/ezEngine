@@ -80,7 +80,7 @@ void ezComponentDragDropHandler::MoveDraggedObjectsToPosition(ezVec3 vPosition, 
 
   auto history = m_pDocument->GetCommandHistory();
 
-  history->StartTransaction();
+  history->StartTransaction("Move to Position");
 
   for (const auto& guid : m_DraggedObjects)
   {
@@ -104,7 +104,7 @@ void ezComponentDragDropHandler::SelectCreatedObjects()
 void ezComponentDragDropHandler::BeginTemporaryCommands()
 {
   m_pDocument->GetCommandHistory()->FinishTransaction();
-  m_pDocument->GetCommandHistory()->BeginTemporaryCommands();
+  m_pDocument->GetCommandHistory()->BeginTemporaryCommands("Adjust Objects");
 }
 
 void ezComponentDragDropHandler::EndTemporaryCommands()
@@ -129,7 +129,7 @@ void ezComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
   m_pDocument = ezDocumentManager::GetDocumentByGuid(pInfo->m_TargetDocument);
   EZ_ASSERT_DEV(m_pDocument != nullptr, "Invalid document GUID in drag & drop operation");
 
-  m_pDocument->GetCommandHistory()->StartTransaction();
+  m_pDocument->GetCommandHistory()->StartTransaction("Add Object");
 }
 
 void ezComponentDragDropHandler::OnDragUpdate(const ezDragDropInfo* pInfo)

@@ -88,7 +88,7 @@ void ezQtPropertyWidget::OnCustomContextMenu(const QPoint& pt)
   connect(pRevert, &QAction::triggered, this, [this]() 
   {
     auto pHistory = m_pGrid->GetDocument()->GetCommandHistory();
-    pHistory->StartTransaction();
+    pHistory->StartTransaction("Revert to Default");
     for (const Selection& sel : m_Items)
     {
       ezVariant defaultValue = m_pGrid->GetDocument()->GetDefaultValue(sel.m_pObject, m_PropertyPath);
@@ -310,7 +310,7 @@ void ezQtPropertyPointerWidget::DoPrepareToDie()
 void ezQtPropertyPointerWidget::OnDeleteButtonClicked()
 {
   ezCommandHistory* history = m_pGrid->GetDocument()->GetObjectManager()->GetDocument()->GetCommandHistory();
-  history->StartTransaction();
+  history->StartTransaction("Delete Object");
 
   ezStatus res;
   ezRemoveObjectCommand cmd;
@@ -640,7 +640,7 @@ void ezQtPropertyContainerWidget::OnInit()
 void ezQtPropertyContainerWidget::DeleteItems(ezHybridArray<Selection, 8>& items, const ezPropertyPath& path)
 {
   ezCommandHistory* history = m_pGrid->GetDocument()->GetObjectManager()->GetDocument()->GetCommandHistory();
-  history->StartTransaction();
+  history->StartTransaction("Delete Object");
 
   ezStatus res;
   if (m_pProp->GetFlags().IsSet(ezPropertyFlags::StandardType))
@@ -681,7 +681,7 @@ void ezQtPropertyContainerWidget::DeleteItems(ezHybridArray<Selection, 8>& items
 void ezQtPropertyContainerWidget::MoveItems(ezHybridArray<Selection, 8>& items, const ezPropertyPath& path, ezInt32 iMove)
 {
   ezCommandHistory* history = m_pGrid->GetDocument()->GetObjectManager()->GetDocument()->GetCommandHistory();
-  history->StartTransaction();
+  history->StartTransaction("Reparent Object");
 
   ezStatus res(EZ_SUCCESS);
 

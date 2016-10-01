@@ -206,7 +206,7 @@ void ezTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
       cmd.m_NewValue = ed.m_Value;
       cmd.SetPropertyPath(ed.m_pPropertyPath->GetPathString());
 
-      history->StartTransaction();
+      history->StartTransaction("Change Property");
 
       ezStatus res;
 
@@ -233,7 +233,7 @@ void ezTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
 
   case  ezQtPropertyWidget::Event::Type::BeginTemporary:
     {
-      m_pGrid->GetDocument()->GetCommandHistory()->BeginTemporaryCommands();
+      m_pGrid->GetDocument()->GetCommandHistory()->BeginTemporaryCommands("Adjust Property");
     }
     break;
 

@@ -36,7 +36,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezScenePreferencesUser::ezScenePreferencesUser() : ezPreferences(Domain::Document, "Scene")
 {
   m_bQuadView = false;
-  m_iCameraSpeed = 15;
+  m_iCameraSpeed = 9;
 
   m_ViewSingle.m_vCamPos.SetZero();
   m_ViewSingle.m_vCamDir.Set(1, 0, 0);

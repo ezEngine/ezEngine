@@ -345,10 +345,10 @@ bool ezAssetCurator::IsProcessTaskRunning() const
 // ezAssetCurator Asset Access
 ////////////////////////////////////////////////////////////////////////
 
-const ezAssetCurator::ezLockedAssetInfo ezAssetCurator::FindAssetInfo(const char* szRelativePath) const
+const ezAssetCurator::ezLockedAssetInfo ezAssetCurator::FindAssetInfo(const char* szPathOrGuid) const
 {
   EZ_LOCK(m_CuratorMutex);
-  ezStringBuilder sPath = szRelativePath;
+  ezStringBuilder sPath = szPathOrGuid;
 
   if (ezConversionUtils::IsStringUuid(sPath))
   {
@@ -658,14 +658,14 @@ ezAssetInfo* ezAssetCurator::GetAssetInfo(const ezUuid& assetGuid)
   return nullptr;
 }
 
-ezAssetInfo* ezAssetCurator::GetAssetInfo(const ezString& sPath)
+ezAssetInfo* ezAssetCurator::GetAssetInfo(const ezString& sAssetGuid)
 {
-  if (sPath.IsEmpty())
+  if (sAssetGuid.IsEmpty())
     return nullptr;
 
-  if (ezConversionUtils::IsStringUuid(sPath))
+  if (ezConversionUtils::IsStringUuid(sAssetGuid))
   {
-    const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sPath);
+    const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sAssetGuid);
 
     ezAssetInfo* pInfo = nullptr;
     if (m_KnownAssets.TryGetValue(guid, pInfo))

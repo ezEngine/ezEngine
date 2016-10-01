@@ -37,6 +37,12 @@ public:
       m_pLock->Release();
   }
 
+  /// \brief Whether the encapsulated object exists at all or is nullptr
+  EZ_FORCE_INLINE bool isValid() const
+  {
+    return m_pObject != nullptr;
+  }
+
   O* operator->()
   {
     return m_pObject;

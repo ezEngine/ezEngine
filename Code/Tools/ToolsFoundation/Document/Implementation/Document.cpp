@@ -281,7 +281,7 @@ void ezDocument::DeleteSelectedObjects() const
   GetSelectionManager()->Clear();
 
   auto history = GetCommandHistory();
-  history->StartTransaction();
+  history->StartTransaction("Delete Object");
 
   ezRemoveObjectCommand cmd;
 

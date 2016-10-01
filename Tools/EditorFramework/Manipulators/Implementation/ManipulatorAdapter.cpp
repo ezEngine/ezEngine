@@ -95,7 +95,7 @@ ezTransform ezManipulatorAdapter::GetObjectTransform() const
 
 void ezManipulatorAdapter::BeginTemporaryInteraction()
 {
-  m_pObject->GetDocumentObjectManager()->GetDocument()->GetCommandHistory()->BeginTemporaryCommands();
+  m_pObject->GetDocumentObjectManager()->GetDocument()->GetCommandHistory()->BeginTemporaryCommands("Adjust Object");
 }
 
 void ezManipulatorAdapter::EndTemporaryInteraction()
@@ -144,7 +144,7 @@ void ezManipulatorAdapter::ClampProperty(const char* szProperty, ezVariant& valu
 void ezManipulatorAdapter::ChangeProperties(const char* szProperty1, ezVariant value1, const char* szProperty2 /*= nullptr*/, ezVariant value2 /*= ezVariant()*/, const char* szProperty3 /*= nullptr*/, ezVariant value3 /*= ezVariant()*/, const char* szProperty4 /*= nullptr*/, ezVariant value4 /*= ezVariant()*/)
 {
   auto pHistory = m_pObject->GetDocumentObjectManager()->GetDocument()->GetCommandHistory();
-  pHistory->StartTransaction();
+  pHistory->StartTransaction("Change Properties");
 
   ezSetObjectPropertyCommand cmd;
   cmd.m_Object = m_pObject->GetGuid();

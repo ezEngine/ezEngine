@@ -175,7 +175,7 @@ void ezEditAction::Execute(const ezVariant& value)
 
       auto history = m_Context.m_pDocument->GetCommandHistory();
 
-      history->StartTransaction();
+      history->StartTransaction("Paste");
 
       if (history->AddCommand(cmd).m_Result.Failed())
         history->CancelTransaction();

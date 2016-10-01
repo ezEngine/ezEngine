@@ -37,6 +37,7 @@ SET (LINK_LIBRARIES
   RendererDX11
   RendererCore
   CoreUtils
+  GameUtils
 )
 
 SET (ADDITIONAL_DEPENDENCIES

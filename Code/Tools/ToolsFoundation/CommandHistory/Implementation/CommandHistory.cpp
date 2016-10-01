@@ -52,13 +52,13 @@ ezCommandHistory::~ezCommandHistory()
   EZ_ASSERT_ALWAYS(m_RedoHistory.IsEmpty(), "Must clear history before destructor as object manager will be dead already");
 }
 
-void ezCommandHistory::BeginTemporaryCommands(bool bFireEventsWhenUndoingTempCommands)
+void ezCommandHistory::BeginTemporaryCommands(const char* szDisplayString, bool bFireEventsWhenUndoingTempCommands)
 {
   EZ_ASSERT_DEV(!m_bTemporaryMode, "Temporary Mode cannot be nested");
 
   if (m_TransactionStack.IsEmpty())
   {
-    StartTransaction();
+    StartTransaction(szDisplayString);
     m_bTempTransaction = true;
   }
 
@@ -171,7 +171,25 @@ bool ezCommandHistory::CanRedo() const
   return !m_RedoHistory.IsEmpty();
 }
 
-void ezCommandHistory::StartTransaction()
+
+const char* ezCommandHistory::GetUndoDisplayString() const
+{
+  if (m_UndoHistory.IsEmpty())
+    return "";
+
+  return m_UndoHistory.PeekBack()->m_sDisplayString;
+}
+
+
+const char* ezCommandHistory::GetRedoDisplayString() const
+{
+  if (m_RedoHistory.IsEmpty())
+    return "";
+
+  return m_RedoHistory.PeekBack()->m_sDisplayString;
+}
+
+void ezCommandHistory::StartTransaction(const char* szDisplayString)
 {
   /// \todo Allow to have a limited transaction history and clean up transactions after a while
 
@@ -189,6 +207,7 @@ void ezCommandHistory::StartTransaction()
 
   pTransaction = (ezCommandTransaction*) ezGetStaticRTTI<ezCommandTransaction>()->GetAllocator()->Allocate();
   pTransaction->m_pDocument = m_pDocument;
+  pTransaction->m_sDisplayString = szDisplayString;
 
   if (!m_TransactionStack.IsEmpty())
   {

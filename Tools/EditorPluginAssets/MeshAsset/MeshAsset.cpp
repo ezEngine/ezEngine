@@ -421,7 +421,7 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
       }
 
       ezCommandHistory* history = materialDocument->GetCommandHistory();
-      history->StartTransaction();
+      history->StartTransaction("Apply Materials");
       ezUuid propertySetterTarget = materialDocument->GetPropertyObject()->GetGuid();
 
       auto setProperty = [material, materialDocument, history, &propertySetterTarget](const char* propertyPath, const ezVariant& newValue) -> ezResult

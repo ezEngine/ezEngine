@@ -324,7 +324,7 @@ bool ezQtDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction a
 
     auto pDoc = m_pDocumentTree->GetDocument();
     auto pHistory = pDoc->GetCommandHistory();
-    pHistory->StartTransaction();
+    pHistory->StartTransaction("Reparent Object");
 
     ezStatus res(EZ_SUCCESS);
     for (ezUInt32 i = 0; i < Dragged.GetCount(); ++i)
@@ -408,7 +408,7 @@ bool ezQtDocumentTreeModel::setData(const QModelIndex& index, const QVariant& va
 
     auto pHistory = m_pDocumentTree->GetDocument()->GetCommandHistory();
 
-    pHistory->StartTransaction();
+    pHistory->StartTransaction("Change Name");
 
     ezSetObjectPropertyCommand cmd;
     cmd.m_NewValue = value.toString().toUtf8().data();

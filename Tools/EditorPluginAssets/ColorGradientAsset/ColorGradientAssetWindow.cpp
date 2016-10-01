@@ -101,7 +101,7 @@ void ezColorGradientAssetDocumentWindow::onGradientColorCpAdded(float posX, cons
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
-  history->StartTransaction();
+  history->StartTransaction("Add Color Control Point");
 
   ezAddObjectCommand cmdAdd;
   cmdAdd.m_Parent = pDoc->GetPropertyObject()->GetGuid();
@@ -140,7 +140,7 @@ void ezColorGradientAssetDocumentWindow::onGradientAlphaCpAdded(float posX, ezUI
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
-  history->StartTransaction();
+  history->StartTransaction("Add Alpha Control Point");
 
   ezAddObjectCommand cmdAdd;
   cmdAdd.m_Parent = pDoc->GetPropertyObject()->GetGuid();
@@ -171,7 +171,7 @@ void ezColorGradientAssetDocumentWindow::onGradientIntensityCpAdded(float posX, 
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
-  history->StartTransaction();
+  history->StartTransaction("Add Intensity Control Point");
 
   ezAddObjectCommand cmdAdd;
   cmdAdd.m_Parent = pDoc->GetPropertyObject()->GetGuid();
@@ -205,7 +205,7 @@ void ezColorGradientAssetDocumentWindow::MoveCP(ezInt32 idx, float newPosX, cons
   ezVariant objGuid = pProp->GetTypeAccessor().GetValue(szArrayName, idx);
 
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
-  history->StartTransaction();
+  history->StartTransaction("Move Control Point");
 
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = objGuid.Get<ezUuid>();
@@ -242,7 +242,7 @@ void ezColorGradientAssetDocumentWindow::RemoveCP(ezInt32 idx, const char* szArr
   ezVariant objGuid = pProp->GetTypeAccessor().GetValue(szArrayName, idx);
 
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
-  history->StartTransaction();
+  history->StartTransaction("Remove Control Point");
 
   ezRemoveObjectCommand cmdSet;
   cmdSet.m_Object = objGuid.Get<ezUuid>();
@@ -277,7 +277,7 @@ void ezColorGradientAssetDocumentWindow::onGradientColorCpChanged(ezInt32 idx, c
   ezVariant objGuid = pProp->GetTypeAccessor().GetValue("Color CPs", idx);
 
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
-  history->StartTransaction();
+  history->StartTransaction("Change Color");
 
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = objGuid.Get<ezUuid>();
@@ -306,7 +306,7 @@ void ezColorGradientAssetDocumentWindow::onGradientAlphaCpChanged(ezInt32 idx, e
   ezVariant objGuid = pProp->GetTypeAccessor().GetValue("Alpha CPs", idx);
 
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
-  history->StartTransaction();
+  history->StartTransaction("Change Alpha");
 
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = objGuid.Get<ezUuid>();
@@ -326,7 +326,7 @@ void ezColorGradientAssetDocumentWindow::onGradientIntensityCpChanged(ezInt32 id
   ezVariant objGuid = pProp->GetTypeAccessor().GetValue("Intensity CPs", idx);
 
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
-  history->StartTransaction();
+  history->StartTransaction("Change Intensity");
 
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = objGuid.Get<ezUuid>();
@@ -342,7 +342,7 @@ void ezColorGradientAssetDocumentWindow::onGradientIntensityCpChanged(ezInt32 id
 void ezColorGradientAssetDocumentWindow::onGradientBeginOperation()
 {
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
-  history->BeginTemporaryCommands();
+  history->BeginTemporaryCommands("Modify Gradient");
 }
 
 
@@ -378,7 +378,7 @@ void ezColorGradientAssetDocumentWindow::onGradientNormalizeRange()
 
   const float rangeNorm = 1.0f / (maxX - minX);
 
-  history->StartTransaction();
+  history->StartTransaction("Normalize Gradient Range");
 
   ezUInt32 numRgb, numAlpha, numInt;
   GradientData.GetNumControlPoints(numRgb, numAlpha, numInt);

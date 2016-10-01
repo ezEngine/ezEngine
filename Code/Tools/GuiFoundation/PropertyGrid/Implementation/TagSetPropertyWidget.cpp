@@ -173,10 +173,11 @@ void ezPropertyEditorTagSetWidget::onCheckBoxClicked(bool bChecked)
   ezVariant value = pCheckBox->property("Tag").toString().toUtf8().data();
 
   ezCommandHistory* history = m_pGrid->GetCommandHistory();
-  history->StartTransaction();
 
   if (pCheckBox->isChecked())
   {
+    history->StartTransaction("Add Tag");
+
     ezInsertObjectPropertyCommand cmd;
     cmd.SetPropertyPath(m_PropertyPath.GetPathString());
 
@@ -202,6 +203,8 @@ void ezPropertyEditorTagSetWidget::onCheckBoxClicked(bool bChecked)
   }
   else
   {
+    history->StartTransaction("Remove Tag");
+
     ezRemoveObjectPropertyCommand cmd;
     cmd.SetPropertyPath(m_PropertyPath.GetPathString());
 

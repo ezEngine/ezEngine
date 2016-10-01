@@ -240,8 +240,13 @@ void ezQtButtonProxy::Update()
   const ezActionDescriptor* pDesc = m_pAction->GetDescriptorHandle().GetDescriptor();
   m_pQtAction->setShortcut(QKeySequence(QString::fromUtf8(pDesc->m_sShortcut.GetData())));
 
+  ezStringBuilder sDisplay = ezTranslate(pButton->GetName());
+
+  if (!ezStringUtils::IsNullOrEmpty(pButton->GetAdditionalDisplayString()))
+    sDisplay.Append(" '", pButton->GetAdditionalDisplayString(), "'"); // TODO: translate this as well?
+
   m_pQtAction->setIcon(ezUIServices::GetCachedIconResource(pButton->GetIconPath()));
-  m_pQtAction->setText(QString::fromUtf8(ezTranslate(pButton->GetName())));
+  m_pQtAction->setText(QString::fromUtf8(sDisplay.GetData()));
   m_pQtAction->setToolTip(QString::fromUtf8(ezTranslateTooltip(pButton->GetName())));
   m_pQtAction->setCheckable(pButton->IsCheckable());
   m_pQtAction->setChecked(pButton->IsChecked());
