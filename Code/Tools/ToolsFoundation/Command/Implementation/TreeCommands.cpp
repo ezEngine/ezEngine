@@ -47,6 +47,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstantiatePrefabCommand, 1, ezRTTIDefaultAllo
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUnlinkPrefabCommand, 1, ezRTTIDefaultAllocator<ezUnlinkPrefabCommand>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Object", m_Object),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveObjectCommand, 1, ezRTTIDefaultAllocator<ezRemoveObjectCommand>)
 {
   EZ_BEGIN_PROPERTIES
@@ -432,11 +442,19 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
 
   if (m_CreatedRootObject.IsValid())
   {
-    auto pMeta = pDocument->m_DocumentObjectMetaData.BeginModifyMetaData(m_CreatedRootObject);
-    pMeta->m_CreateFromPrefab = m_CreateFromPrefab;
-    pMeta->m_PrefabSeedGuid = m_RemapGuid;
-    pMeta->m_sBasePrefab = m_sJsonGraph;
-    pDocument->m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
+    // if prefabs are not allowed in this document, just create this as a regular object, with no link to the prefab template
+    if (pDocument->ArePrefabsAllowed())
+    {
+      auto pMeta = pDocument->m_DocumentObjectMetaData.BeginModifyMetaData(m_CreatedRootObject);
+      pMeta->m_CreateFromPrefab = m_CreateFromPrefab;
+      pMeta->m_PrefabSeedGuid = m_RemapGuid;
+      pMeta->m_sBasePrefab = m_sJsonGraph;
+      pDocument->m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
+    }
+    else
+    {
+      pDocument->ShowDocumentStatus("Nested prefabs are not allowed. Instantiated object will not be linked to prefab template.");
+    }
   }
   return ezStatus(EZ_SUCCESS);
 }
@@ -459,6 +477,7 @@ ezStatus ezInstantiatePrefabCommand::UndoInternal(bool bFireEvents)
 
   if (m_CreatedRootObject.IsValid())
   {
+    // simply restore the values, this is independent of pDocument->ArePrefabsAllowed
     auto pMeta = pDocument->m_DocumentObjectMetaData.BeginModifyMetaData(m_CreatedRootObject);
     pMeta->m_CreateFromPrefab = m_OldCreateFromPrefab;
     pMeta->m_PrefabSeedGuid = m_OldRemapGuid;
@@ -479,6 +498,61 @@ void ezInstantiatePrefabCommand::CleanupInternal(CommandState state)
     m_PastedObjects.Clear();
   }
 
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// ezUnlinkPrefabCommand
+//////////////////////////////////////////////////////////////////////////
+
+ezStatus ezUnlinkPrefabCommand::DoInternal(bool bRedo)
+{
+  ezDocument* pDocument = GetDocument();
+  ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(m_Object);
+
+  if (pObject == nullptr)
+    return ezStatus(EZ_FAILURE, "Unlink Prefab: The given object does not exist!");
+
+  // store previous values
+  if (!bRedo)
+  {
+    auto pMeta = pDocument->m_DocumentObjectMetaData.BeginReadMetaData(m_Object);
+    m_OldCreateFromPrefab = pMeta->m_CreateFromPrefab;
+    m_OldRemapGuid = pMeta->m_PrefabSeedGuid;
+    m_sOldJsonGraph = pMeta->m_sBasePrefab;
+    pDocument->m_DocumentObjectMetaData.EndReadMetaData();
+  }
+
+  // unlink
+  {
+    auto pMeta = pDocument->m_DocumentObjectMetaData.BeginModifyMetaData(m_Object);
+    pMeta->m_CreateFromPrefab = ezUuid();
+    pMeta->m_PrefabSeedGuid = ezUuid();
+    pMeta->m_sBasePrefab.Clear();
+    pDocument->m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
+  }
+
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezUnlinkPrefabCommand::UndoInternal(bool bFireEvents)
+{
+  ezDocument* pDocument = GetDocument();
+  ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(m_Object);
+
+  if (pObject == nullptr)
+    return ezStatus(EZ_FAILURE, "Unlink Prefab: The given object does not exist!");
+
+  // restore link
+  {
+    auto pMeta = pDocument->m_DocumentObjectMetaData.BeginModifyMetaData(m_Object);
+    pMeta->m_CreateFromPrefab = m_OldCreateFromPrefab;
+    pMeta->m_PrefabSeedGuid = m_OldRemapGuid;
+    pMeta->m_sBasePrefab = m_sOldJsonGraph;
+    pDocument->m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
+  }
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 

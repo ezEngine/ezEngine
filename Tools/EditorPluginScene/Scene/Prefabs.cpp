@@ -20,7 +20,6 @@
 
 void ezSceneDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection)
 {
-  /// \todo this operation is (currently) not undo-able, since it only operates on meta data
   SUPER::UnlinkPrefabs(Selection);
 
   // Clear cached names.

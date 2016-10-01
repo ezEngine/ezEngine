@@ -144,6 +144,9 @@ public:
   /// \brief Determines whether the given object is an engine prefab
   bool IsObjectEnginePrefab(const ezUuid& object, ezUuid* out_PrefabAssetGuid = nullptr) const;
 
+  /// \brief Nested prefabs are not allowed
+  virtual bool ArePrefabsAllowed() const { return !IsPrefab(); }
+
   void SetGizmoWorldSpace(bool bWorldSpace) const;
   bool GetGizmoWorldSpace() const;
 

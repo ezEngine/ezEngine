@@ -201,6 +201,8 @@ void ezSceneContext::OnSimulationEnabled()
 {
   ezLog::Info("World Simulation enabled");
 
+  ezResourceManager::ReloadAllResources(false);
+
   ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
 
   ezGameApplication::GetGameApplicationInstance()->ReinitWorldModules(m_pWorld);

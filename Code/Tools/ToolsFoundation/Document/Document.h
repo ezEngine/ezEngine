@@ -121,8 +121,16 @@ public:
   /// \name Prefab Functions
   ///@{
 
+  /// \brief Whether the document allows to create prefabs in it. This may note be allowed for prefab documents themselves, to prevent nested prefabs.
+  virtual bool ArePrefabsAllowed() const { return true; }
+
+  /// \brief Updates ALL prefabs in the document with the latest changes. Merges the current prefab templates with the instances in the document.
   virtual void UpdatePrefabs();
+
+  /// \brief Resets the given objects to their template prefab state, if they have local modifications.
   virtual void RevertPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
+
+  /// \brief Removes the link between a prefab instance and its template, turning the instance into a regular object.
   virtual void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
 
   virtual const ezString& GetCachedPrefabDocument(const ezUuid& documentGuid) const;

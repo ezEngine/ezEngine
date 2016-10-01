@@ -50,16 +50,18 @@ void ezDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection
   if (Selection.IsEmpty())
     return;
 
-  /// \todo this operation is (currently) not undo-able, since it only operates on meta data
+  auto pHistory = GetCommandHistory();
+  pHistory->StartTransaction("Unlink Prefab");
 
   for (auto pObject : Selection)
   {
-    auto pMetaDoc = m_DocumentObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
-    pMetaDoc->m_CreateFromPrefab = ezUuid();
-    pMetaDoc->m_PrefabSeedGuid = ezUuid();
-    pMetaDoc->m_sBasePrefab.Clear();
-    m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
+    ezUnlinkPrefabCommand cmd;
+    cmd.m_Object = pObject->GetGuid();
+
+    pHistory->AddCommand(cmd);
   }
+
+  pHistory->FinishTransaction();
 }
 
 const ezString& ezDocument::GetCachedPrefabDocument(const ezUuid& documentGuid) const
