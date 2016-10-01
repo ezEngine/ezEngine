@@ -289,10 +289,16 @@ class EZ_EDITORFRAMEWORK_DLL ezObjectTagMsgToEngine : public ezEditorEngineDocum
   EZ_ADD_DYNAMIC_REFLECTION(ezObjectTagMsgToEngine, ezEditorEngineDocumentMsg);
 
 public:
+  ezObjectTagMsgToEngine()
+  {
+    m_bSetTag = false;
+    m_bApplyOnAllChildren = false;
+  }
 
   ezUuid m_ObjectGuid;
   ezString m_sTag;
   bool m_bSetTag;
+  bool m_bApplyOnAllChildren;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezObjectSelectionMsgToEngine : public ezEditorEngineDocumentMsg

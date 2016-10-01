@@ -936,6 +936,7 @@ void ezSceneDocument::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<
     ezObjectTagMsgToEngine msg;
     msg.m_bSetTag = e.m_pValue->m_bHidden;
     msg.m_sTag = "EditorHidden";
+    msg.m_bApplyOnAllChildren = true;
 
     SendObjectMsg(GetObjectManager()->GetObject(e.m_ObjectKey), &msg);
   }

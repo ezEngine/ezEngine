@@ -62,6 +62,9 @@ public:
     /// \brief Checks whether this iterator points to a valid object.
     bool IsValid() const;
 
+    /// \brief Returns the current object
+    const ezGameObject& Current() const { return *m_pObject; }
+
     /// \brief Shorthand for 'Next'
     void operator++();
 
@@ -78,6 +81,9 @@ public:
   public:
     ezGameObject& operator*();
     ezGameObject* operator->();
+
+    /// \brief Returns the current object
+    ezGameObject& Current() { return *m_pObject; }
 
     operator ezGameObject*();
 

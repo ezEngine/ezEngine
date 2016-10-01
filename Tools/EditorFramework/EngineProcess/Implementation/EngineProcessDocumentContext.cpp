@@ -341,20 +341,9 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
   {
     const ezObjectTagMsgToEngine* pMsg2 = static_cast<const ezObjectTagMsgToEngine*>(pMsg);
 
-    ezGameObjectHandle hObject = m_Context.m_GameObjectMap.GetHandle(pMsg2->m_ObjectGuid);
-
-    const ezTag* tag = ezTagRegistry::GetGlobalRegistry().RegisterTag(pMsg2->m_sTag);
-
-    ezGameObject* pObject;
-    if (m_pWorld->TryGetObject(hObject, pObject))
-    {
-      if (pMsg2->m_bSetTag)
-        pObject->GetTags().Set(*tag);
-      else
-        pObject->GetTags().Remove(*tag);
-    }
+    SetTagOnObject(pMsg2->m_ObjectGuid, pMsg2->m_sTag, pMsg2->m_bSetTag, pMsg2->m_bApplyOnAllChildren);
   }
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezExportDocumentMsgToEngine>())
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezExportDocumentMsgToEngine>())
   {
     const ezExportDocumentMsgToEngine* pMsg2 = static_cast<const ezExportDocumentMsgToEngine*>(pMsg);
     ezExportDocumentMsgToEditor ret;
@@ -367,7 +356,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
 
     SendProcessMessage(&ret);
   }
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezCreateThumbnailMsgToEngine>())
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezCreateThumbnailMsgToEngine>())
   {
     ezFileSystem::ReloadAllExternalDataDirectoryConfigs();
     ezResourceManager::ReloadAllResources(false);
@@ -377,7 +366,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
     // the data is send back as a response.
     CreateThumbnailViewContext(pMsg2);
   }
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineViewMsg>())
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineViewMsg>())
   {
     if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
     {
@@ -704,6 +693,53 @@ bool ezEngineProcessDocumentContext::UpdateThumbnailViewContext(ezEngineProcessV
 {
   ezLog::Error("UpdateThumbnailViewContext not implemented for '%s'", GetDynamicRTTI()->GetTypeName());
   return true;
+}
+
+void ezEngineProcessDocumentContext::SetTagOnObject(const ezUuid& object, const char* szTag, bool bSet, bool recursive)
+{
+  ezGameObjectHandle hObject = m_Context.m_GameObjectMap.GetHandle(object);
+
+  const ezTag* tag = ezTagRegistry::GetGlobalRegistry().RegisterTag(szTag);
+
+  ezGameObject* pObject;
+  if (m_pWorld->TryGetObject(hObject, pObject))
+  {
+    if (recursive)
+    {
+      if (bSet)
+        SetTagRecursive(pObject, *tag);
+      else
+        ClearTagRecursive(pObject, *tag);
+    }
+    else
+    {
+      if (bSet)
+        pObject->GetTags().Set(*tag);
+      else
+        pObject->GetTags().Remove(*tag);
+    }
+  }
+}
+
+void ezEngineProcessDocumentContext::SetTagRecursive(ezGameObject* pObject, const ezTag& tag)
+{
+  pObject->GetTags().Set(tag);
+
+  for (auto itChild = pObject->GetChildren(); itChild.IsValid(); ++itChild)
+  {
+
+    SetTagRecursive(&itChild.Current(), tag);
+  }
+}
+
+void ezEngineProcessDocumentContext::ClearTagRecursive(ezGameObject* pObject, const ezTag& tag)
+{
+  pObject->GetTags().Remove(tag);
+
+  for (auto itChild = pObject->GetChildren(); itChild.IsValid(); ++itChild)
+  {
+    ClearTagRecursive(&itChild.Current(), tag);
+  }
 }
 
 void ezEngineProcessDocumentContext::UpdateSyncObjects()

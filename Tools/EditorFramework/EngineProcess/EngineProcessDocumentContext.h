@@ -179,6 +179,14 @@ protected:
 
   ezWorld* m_pWorld;
 
+  /// \brief Sets or removes the given tag on the object and optionally all children
+  void SetTagOnObject(const ezUuid& object, const char* szTag, bool bSet, bool recursive);
+
+  /// \brief Sets the given tag on the object and all children.
+  void SetTagRecursive(ezGameObject* pObject, const ezTag& tag);
+  /// \brief Clears the given tag on the object and all children.
+  void ClearTagRecursive(ezGameObject* pObject, const ezTag& tag);
+
 private:
   friend class ezEditorEngineSyncObject;
 

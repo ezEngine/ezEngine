@@ -285,6 +285,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectTagMsgToEngine, 1, ezRTTIDefaultAllocato
     EZ_MEMBER_PROPERTY("ObjectGuid", m_ObjectGuid),
     EZ_MEMBER_PROPERTY("Tag", m_sTag),
     EZ_MEMBER_PROPERTY("Set", m_bSetTag),
+    EZ_MEMBER_PROPERTY("Recursive", m_bApplyOnAllChildren),
   }
   EZ_END_PROPERTIES
 }
