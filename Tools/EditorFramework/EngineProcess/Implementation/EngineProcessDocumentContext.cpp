@@ -746,22 +746,20 @@ void ezEngineProcessDocumentContext::UpdateSyncObjects()
 {
   for (auto* pSyncObject : m_SyncObjects)
   {
-    if (pSyncObject->GetModified() && pSyncObject->GetDynamicRTTI()->IsDerivedFrom<ezEngineGizmoHandle>())
+    if (pSyncObject->GetModified())
     {
       // reset the modified state to make sure the object isn't updated unless a new sync messages comes in
       pSyncObject->SetModified(false);
 
-      ezEngineGizmoHandle* pGizmoHandle = static_cast<ezEngineGizmoHandle*>(pSyncObject);
-
       EZ_LOCK(m_pWorld->GetWriteMarker());
 
-      if (pGizmoHandle->SetupForEngine(m_pWorld, m_Context.m_uiNextComponentPickingID))
+      if (pSyncObject->SetupForEngine(m_pWorld, m_Context.m_uiNextComponentPickingID))
       {
-        m_Context.m_OtherPickingMap.RegisterObject(pGizmoHandle->GetGuid(), m_Context.m_uiNextComponentPickingID);
+        m_Context.m_OtherPickingMap.RegisterObject(pSyncObject->GetGuid(), m_Context.m_uiNextComponentPickingID);
         ++m_Context.m_uiNextComponentPickingID;
       }
 
-      pGizmoHandle->UpdateForEngine(m_pWorld);
+      pSyncObject->UpdateForEngine(m_pWorld);
     }
   }
 }

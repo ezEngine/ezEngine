@@ -7,6 +7,7 @@
 
 class ezAssetDocument;
 class ezEngineProcessDocumentContext;
+class ezWorld;
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineSyncObject : public ezReflectedClass
 {
@@ -24,6 +25,9 @@ public:
   bool GetModified() const { return m_bModified; }
 
   ezUuid GetGuid() const { return m_SyncObjectGuid; }
+
+  virtual bool SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID) { return false; }
+  virtual void UpdateForEngine(ezWorld* pWorld) {}
 
 private:
   EZ_ALLOW_PRIVATE_PROPERTIES(ezEditorEngineSyncObject);

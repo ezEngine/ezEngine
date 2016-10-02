@@ -135,6 +135,8 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
   }
   else if (pMsg->IsInstanceOf<ezViewRedrawMsgToEngine>())
   {
+    /// \todo We are actually doing this once per view, but the data is going to be rendered in every view
+    /// That means we in 4-view mode we render this stuff 3 times more than necessary
     DrawSelectionBounds();
 
     // fall through

@@ -63,10 +63,8 @@ public:
 
   void Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize = true, bool bAlwaysOnTop = false, bool bVisualizer = false);
 
-  bool IsSetupForEngine() const { return !m_hGameObject.IsInvalidated(); }
-
-  bool SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID);
-  void UpdateForEngine(ezWorld* pWorld);
+  virtual bool SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID) override;
+  virtual void UpdateForEngine(ezWorld* pWorld) override;
 
   void SetColor(const ezColor& col);
 
