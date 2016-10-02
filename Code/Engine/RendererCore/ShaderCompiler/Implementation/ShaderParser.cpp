@@ -195,6 +195,9 @@ void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_De
     {
       sName.Trim(" \r\n\t");
 
+      if (sName.IsEmpty())
+        continue;
+
       const char* szValue = sName.FindSubString("=");
       if (!ezStringUtils::IsNullOrEmpty(szValue))
       {

@@ -40,6 +40,7 @@ public:
 
   void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
 
+  virtual void Initialize() override;
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 

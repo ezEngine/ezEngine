@@ -97,13 +97,6 @@ void ezSkyBoxComponent::Initialize()
   }
 
   UpdateMaterials();
-
-  // Do not show in orthographic viewports
-  {
-    const ezTag* tagNoOrtho = ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode");
-
-    GetOwner()->GetTags().Set(*tagNoOrtho);
-  }
 }
 
 ezResult ezSkyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)

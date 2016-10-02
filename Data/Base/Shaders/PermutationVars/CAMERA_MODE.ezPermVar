@@ -1,0 +1,5 @@
+enum CAMERA_MODE
+{
+	PERSPECTIVE,
+	ORTHO
+};

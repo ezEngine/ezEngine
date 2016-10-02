@@ -71,6 +71,16 @@ void ezEditorRenderPass::SetupPermutationVars(const ezRenderViewContext& renderV
     break;
   }
 
+  if (renderViewContext.m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedWidth ||
+      renderViewContext.m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedHeight)
+  {
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("CAMERA_MODE", "ORTHO");
+  }
+  else
+  {
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("CAMERA_MODE", "PERSPECTIVE");
+  }
+
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", sRenderPass);
 
   auto& globalConstants = renderViewContext.m_pRenderContext->WriteGlobalConstants();

@@ -101,4 +101,14 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 void ezForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& renderViewContext)
 {
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "FORWARD");
+
+  if (renderViewContext.m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedWidth ||
+      renderViewContext.m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedHeight)
+  {
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("CAMERA_MODE", "ORTHO");
+  }
+  else
+  {
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("CAMERA_MODE", "PERSPECTIVE");
+  }
 }

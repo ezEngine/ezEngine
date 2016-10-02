@@ -174,3 +174,17 @@ float ezSpriteComponent::GetMaxScreenSize() const
   return m_fMaxScreenSize;
 }
 
+void ezSpriteComponent::Initialize()
+{
+  /// \todo Do not show in orthographic viewports
+  // This is a hacky solution that will effectively hide the entire node in the ortho viewport, which is not what we want
+  // it would be nicer to not draw sprites in ortho mode in general
+  // However, since the same shader is also used to render the shape icons,
+  // this is not possible without splitting those two use cases up a bit
+  {
+    const ezTag* tagNoOrtho = ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode");
+
+    GetOwner()->GetTags().Set(*tagNoOrtho);
+  }
+}
+
