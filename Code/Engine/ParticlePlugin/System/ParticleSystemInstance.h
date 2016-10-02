@@ -53,9 +53,7 @@ public:
 
   ezParticleEffectInstance* GetOwnerEffect() const { return m_pOwnerEffect; }
 
-  bool Render(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass) const;
-
-  void ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData) const;
+  void ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const;
 
   typedef ezEvent<const ezStreamGroupElementRemovedEvent&>::Handler ParticleDeathHandler;
 

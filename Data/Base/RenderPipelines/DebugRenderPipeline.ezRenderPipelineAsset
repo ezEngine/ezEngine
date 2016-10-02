@@ -39,8 +39,8 @@
     "Message" : "",
     "Name" : "SimplePass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x48EAC743DBF87FADE6B61E5CF3A4C5DB" } ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(25.0000, -562.0000)", "$b" : "0x0000C84100800CC4" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0xA9E18D782BF5E645B642811C7940B2F0" }, { "$t" : "uuid", "$b" : "0x830246415B1CA249B2F170ADE068EFDF" } ]
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(20.0000, -561.0000)", "$b" : "0x0000A04100400CC4" },
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0xA9E18D782BF5E645B642811C7940B2F0" } ]
    }
   },
   {
@@ -117,7 +117,7 @@
     "AssetType" : "RenderPipeline",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x3EEB1604C0694046BE5B77354E0E37D7" },
-    "Hash" : { "$t" : "uint64", "$v" : "4478876200614414473", "$b" : "0x89C892A22C2A283E" },
+    "Hash" : { "$t" : "uint64", "$v" : "3652066611816981739", "$b" : "0xEB646AE53BBFAE32" },
     "References" : [  ]
    }
   },
@@ -151,7 +151,7 @@
     "Active" : true,
     "Name" : "",
     "Node::Connections" : [  ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(-400.0000, -771.0000)", "$b" : "0x0000C8C300C040C4" }
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(-400.0000, -770.0000)", "$b" : "0x0000C8C3008040C4" }
    }
   },
   {
@@ -173,13 +173,6 @@
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-502.0000, -579.0000)", "$b" : "0x0000FBC300C010C4" },
     "Renderers" : [ { "$t" : "uuid", "$b" : "0x7FB2D0724C11F144B7E9B9FCB0FB5C56" }, { "$t" : "uuid", "$b" : "0xAEACA231D141AC49B71411D549655F4E" } ],
     "ViewRenderMode" : "ezViewRenderMode::None"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x830246415B1CA249B2F170ADE068EFDF" },
-   "t" : "ezParticleRenderer",
-   "p" : {
-    
    }
   },
   {
@@ -264,6 +257,7 @@
     "Name" : "EditorShapeIconsExtractor",
     "Node::Connections" : [  ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-213.0000, -867.0000)", "$b" : "0x000055C300C058C4" },
+    "SceneContext" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
     "Size" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" }
    }
   },
@@ -555,7 +549,7 @@
     "PluginName" : "ezEnginePluginScene",
     "Properties" : [ { "$t" : "uuid", "$b" : "0x4F8038A9ED1F4303F31177F3958685E7" } ],
     "TypeName" : "ezSceneContext",
-    "TypeSize" : { "$t" : "uint32", "$v" : "1304", "$b" : "0x18050000" },
+    "TypeSize" : { "$t" : "uint32", "$v" : "1312", "$b" : "0x20050000" },
     "TypeVersion" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
    }
   },
@@ -609,10 +603,22 @@
     "Flags" : "",
     "ParentTypeName" : "ezExtractor",
     "PluginName" : "ezEnginePluginScene",
-    "Properties" : [ { "$t" : "uuid", "$b" : "0x85725B636C264722306389B9688890F3" }, { "$t" : "uuid", "$b" : "0x0B97ED2930EC280FA7EF2C705742911A" } ],
+    "Properties" : [ { "$t" : "uuid", "$b" : "0x85725B636C264722306389B9688890F3" }, { "$t" : "uuid", "$b" : "0x0B97ED2930EC280FA7EF2C705742911A" }, { "$t" : "uuid", "$b" : "0x87C2431F907A6AD942DED8901CB05D87" } ],
     "TypeName" : "ezEditorShapeIconsExtractor",
-    "TypeSize" : { "$t" : "uint32", "$v" : "64", "$b" : "0x40000000" },
+    "TypeSize" : { "$t" : "uint32", "$v" : "72", "$b" : "0x48000000" },
     "TypeVersion" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x87C2431F907A6AD942DED8901CB05D87" },
+   "t" : "ezReflectedPropertyDescriptor",
+   "p" : {
+    "Attributes" : [  ],
+    "Category" : "ezPropertyCategory::Member",
+    "ConstantValue" : null,
+    "Flags" : "ezPropertyFlags::Pointer",
+    "Name" : "SceneContext",
+    "Type" : "ezSceneContext"
    }
   },
   {

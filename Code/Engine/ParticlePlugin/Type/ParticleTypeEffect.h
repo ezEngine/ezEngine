@@ -36,8 +36,8 @@ public:
   ezString m_sSharedInstanceName;
 
   virtual void CreateRequiredStreams() override;
-  virtual void Render(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass) const override {}
   virtual void AfterPropertiesConfigured(bool bFirstTime) override;
+  virtual void ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override {}
 
 protected:
   virtual void Process(ezUInt64 uiNumElements) override;

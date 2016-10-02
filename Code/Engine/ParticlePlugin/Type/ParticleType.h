@@ -27,9 +27,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleType : public ezParticleModule<ezProcessin
 
 public:
 
-  virtual void ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData) const {}
-  
-  virtual void Render(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass) const = 0;
+  virtual void ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const = 0;
 
 protected:
 

@@ -92,16 +92,10 @@
    }
   },
   {
-   "#" : { "$t" : "uuid", "$b" : "0xE40826444E7F5B40AD9B77FB828F8F39" },
-   "t" : "ezParticleRenderer",
-   "p" : {
-    
-   }
-  },
-  {
    "#" : { "$t" : "uuid", "$b" : "0xB7733D12A7484A428D3DB55A60AE29D4" },
    "t" : "ezParticleExtractor",
    "p" : {
+    "Active" : true,
     "Name" : "",
     "Node::Connections" : [  ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-167.0000, -557.0000)", "$b" : "0x000027C300400BC4" }
@@ -150,13 +144,21 @@
     "Name" : "SimplePass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x9ED631EE90DDDAECFC96E7CB90E691D8" } ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(9.0000, -274.0000)", "$b" : "0x00001041000089C3" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0xE40826444E7F5B40AD9B77FB828F8F39" } ]
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0x4651B0110A4A5949A6B9476F10776C66" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x4651B0110A4A5949A6B9476F10776C66" },
+   "t" : "ezParticleBillboardRenderer",
+   "p" : {
+    
    }
   },
   {
    "#" : { "$t" : "uuid", "$b" : "0x665790226845764AA23E8C8C7D95DFCE" },
    "t" : "ezVisibleObjectsExtractor",
    "p" : {
+    "Active" : true,
     "Name" : "",
     "Node::Connections" : [  ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-299.0000, -469.0000)", "$b" : "0x008095C30080EAC3" }
@@ -195,7 +197,7 @@
     "DepthStencil" : { "$t" : "uuid", "$b" : "0x7CDB2778528602AAA34E52ECE36A8315" },
     "Name" : "",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x535868A4FE2CF2030E913EC779FBED55" }, { "$t" : "uuid", "$b" : "0x04D84AB3D1AFA5615D3DF0597666A8B2" } ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(-428.0000, -265.0000)", "$b" : "0x0000D6C3008084C3" },
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(-429.0000, -265.0000)", "$b" : "0x0080D6C3008084C3" },
     "Renderers" : [ { "$t" : "uuid", "$b" : "0x13A16C1297396D478DA087F27F5082AE" }, { "$t" : "uuid", "$b" : "0x929A7C4C3F97C646A5B28C46134A3003" } ]
    }
   },
@@ -227,7 +229,7 @@
     "AssetType" : "RenderPipeline",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x13E133C54C2A424FA546653C78F5E8A7" },
-    "Hash" : { "$t" : "uint64", "$v" : "15986064276130895869", "$b" : "0xFD1758E7C2E8D9DD" },
+    "Hash" : { "$t" : "uint64", "$v" : "16136254003392556867", "$b" : "0x432FB0C5857DEFDF" },
     "References" : [ "{ 3edf10b3-36d2-434f-9683-c653909abe7e }" ]
    }
   },

@@ -467,21 +467,11 @@ void ezParticleSystemInstance::ProcessEventQueue(const ezParticleEventQueue* pQu
   }
 }
 
-bool ezParticleSystemInstance::Render(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass) const
-{
-  for (ezParticleType* pType : m_Types)
-  {
-    pType->Render(renderViewContext, pPass);
-  }
-
-  return !m_Types.IsEmpty();
-}
-
-void ezParticleSystemInstance::ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData) const
+void ezParticleSystemInstance::ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   for (auto pType : m_Types)
   {
-    pType->ExtractRenderData(view, pExtractedRenderData);
+    pType->ExtractRenderData(view, pExtractedRenderData, instanceTransform, uiExtractedFrame);
   }
 
 }

@@ -162,3 +162,11 @@ private:
 };
 
 
+template<typename TYPE>
+class ezRefCountedContainer : public ezRefCounted
+{
+public:
+  TYPE m_Content;
+};
+
+

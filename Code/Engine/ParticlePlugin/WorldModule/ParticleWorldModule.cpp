@@ -7,11 +7,15 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/ResourceManager/ResourceBase.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
-#include <ParticlePlugin/Renderer/ParticleRenderData.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleWorldModule, 1, ezRTTIDefaultAllocator<ezParticleWorldModule>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezParticleWorldModule::ezParticleWorldModule()
+{
+  m_uiExtractedFrame = 0;
+}
 
 void ezParticleWorldModule::InternalStartup()
 {
@@ -156,13 +160,10 @@ void ezParticleWorldModule::UpdateEffects()
   DestroyFinishedEffects();
 }
 
-static ezParticleRenderData* CreateParticleRenderData(ezUInt32 uiBatchId)
-{
-  return ezCreateRenderDataForThisFrame<ezParticleRenderData>(nullptr, uiBatchId);
-}
-
 void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData)
 {
+  ++m_uiExtractedFrame;
+
   for (ezUInt32 e = 0; e < m_ParticleEffects.GetCount(); ++e)
   {
     ezParticleEffectInstance* pEffect = m_ParticleEffects[e];
@@ -192,28 +193,7 @@ void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRen
 
         EZ_LOCK(pSystem->m_Mutex);
 
-        // Generate batch id from mesh, material and part index. 
-        ezUInt32 data[] = { 42 };
-        ezUInt32 uiBatchId = ezHashing::MurmurHash(data, sizeof(data));
-
-        ezParticleRenderData* pRenderData = CreateParticleRenderData(uiBatchId);
-        {
-          pRenderData->m_GlobalTransform = systemTransform;
-          //pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds(); // TODO
-          pRenderData->m_pParticleSystem = pSystem;
-        }
-
-        // make sure it stays alive until the renderer is done with it
-        pRenderData->m_pParticleSystem->IncreaseRefCount();
-
-        // Determine render data category.
-        ezRenderData::Category category;
-        category = ezDefaultRenderDataCategories::SimpleTransparent;
-
-        ezUInt32 uiSortingKey = 0;
-        pExtractedRenderData->AddRenderData(pRenderData, category, uiSortingKey);
-
-        pSystem->ExtractRenderData(view, pExtractedRenderData);
+        pSystem->ExtractRenderData(view, pExtractedRenderData, systemTransform, m_uiExtractedFrame);
       }
     }
   }

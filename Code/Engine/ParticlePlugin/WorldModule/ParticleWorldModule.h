@@ -23,7 +23,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleWorldModule : public ezWorldModule
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleWorldModule, ezWorldModule);
 
 public:
-
+  ezParticleWorldModule();
 
   ezParticleEffectHandle CreateParticleEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const char* szSharedName /*= nullptr*/, const void* pSharedInstanceOwner /*= nullptr*/);
 
@@ -53,6 +53,7 @@ private:
   ezMap<ezString, ezParticleEffectHandle> m_SharedEffects;
   ezIdTable<ezParticleEffectId, ezParticleEffectInstance*> m_ActiveEffects;
   ezParticleEventQueueManager m_QueueManager;
+  ezUInt64 m_uiExtractedFrame;
 
 protected:
   virtual void InternalStartup() override;

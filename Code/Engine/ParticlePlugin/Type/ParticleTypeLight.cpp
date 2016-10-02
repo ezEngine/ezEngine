@@ -96,7 +96,7 @@ void ezParticleTypeLight::CreateRequiredStreams()
 }
 
 
-void ezParticleTypeLight::ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData) const
+void ezParticleTypeLight::ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   const ezVec3* pPosition = m_pStreamPosition->GetData<ezVec3>();
   const float* pSize = m_pStreamSize->GetData<float>();
@@ -140,7 +140,7 @@ void ezParticleTypeLight::ExtractRenderData(const ezView& view, ezExtractedRende
     auto pRenderData = ezCreateRenderDataForThisFrame<ezPointLightRenderData>(nullptr, uiBatchId);
 
     pRenderData->m_GlobalTransform.SetIdentity();
-    pRenderData->m_GlobalTransform.m_vPosition = pPosition[i];
+    pRenderData->m_GlobalTransform.m_vPosition = instanceTransform * pPosition[i];
     pRenderData->m_LightColor = pColor[i];
     pRenderData->m_fIntensity = m_fIntensity;
     pRenderData->m_fRange = pSize[i] * m_fSizeFactor;

@@ -2,8 +2,12 @@
 
 #include <ParticlePlugin/Type/ParticleType.h>
 #include <RendererFoundation/Basics.h>
+#include <Foundation/Types/SharedPtr.h>
+#include <Foundation/Containers/DynamicArray.h>
+#include <ParticlePlugin/Type/Billboard/BillboardRenderer.h>
 
 typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
+struct ezBillboardParticleData;
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeBillboardFactory : public ezParticleTypeFactory
 {
@@ -24,11 +28,13 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleTypeBillboard : public ezParticleType
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeBillboard, ezParticleType);
 
 public:
+  ezParticleTypeBillboard();
+
   virtual void CreateRequiredStreams() override;
 
-  virtual void Render(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass) const override;
-
   ezTextureResourceHandle m_hTexture;
+
+  virtual void ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
 
 protected:
   virtual void Process(ezUInt64 uiNumElements) override {}
@@ -37,9 +43,8 @@ protected:
   ezProcessingStream* m_pStreamSize;
   ezProcessingStream* m_pStreamColor;
 
-  //void CreateVertexBuffer(ezUInt32 uiVertexSize) const;
-  void CreateDataBuffer(ezUInt32 uiStructSize) const;
-  mutable ezGALBufferHandle m_hDataBuffer;
+  mutable ezUInt64 m_uiLastExtractedFrame;
+  mutable ezSharedPtr<ezBillboardParticleDataContainer> m_GpuData;
 };
 
 
