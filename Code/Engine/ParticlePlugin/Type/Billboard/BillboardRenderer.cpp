@@ -4,6 +4,7 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererCore/Pipeline/RenderDataBatch.h>
+#include <RendererCore/Shader/ShaderResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBillboardRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
