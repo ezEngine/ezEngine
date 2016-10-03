@@ -73,6 +73,7 @@ public:
     }
 #endif
 
+    if (hResource.IsValid())
     {
       // this is not thread safe (though we are only setting one flag), but this function should only be called during startup, where it is single-threaded anyway
       ezResourceLock<SELF> pFallback(hResource, ezResourceAcquireMode::PointerOnly);
@@ -102,6 +103,12 @@ private:
     if (e.m_EventType == ezResourceManagerEventType::ManagerShuttingDown)
     {
       CleanupDynamicPluginReferences();
+    }
+
+    if (e.m_EventType == ezResourceManagerEventType::ClearResourceFallbacks)
+    {
+      s_TypeFallbackResource.Invalidate();
+      s_TypeMissingResource.Invalidate();
     }
   }
 

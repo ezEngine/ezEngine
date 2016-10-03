@@ -343,6 +343,8 @@ void ezGameApplication::BeforeCoreShutdown()
 
   DestroyAllGameStates();
 
+  ezResourceManager::ClearAllResourceFallbacks();
+
   ezResourceManager::FreeUnusedResources(true);
 
   ezStartup::ShutdownEngine();
@@ -551,10 +553,13 @@ void ezGameApplication::DoUnloadPlugins()
   // however, ezPlugin::UnloadPlugin will always return that it is already unloaded, so we can just skip it there
   // all other plugins must be unloaded as often as their refcount, though
   ezStringBuilder s;
-  while (ezPlugin::GetFirstInstance() != nullptr)
+  ezPlugin* pPlugin = ezPlugin::GetFirstInstance();
+  while (pPlugin != nullptr)
   {
     s = ezPlugin::GetFirstInstance()->GetPluginName();
     ToUnload.Insert(s);
+
+    pPlugin = pPlugin->GetNextInstance();
   }
 
   ezString temp;

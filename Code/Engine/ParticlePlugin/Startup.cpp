@@ -2,7 +2,6 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
-#include <ParticlePlugin/Manager/ParticleEffectManager.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Particle, ParticlePlugin)
 
@@ -13,8 +12,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Particle, ParticlePlugin)
 
   ON_CORE_STARTUP
   {
-    EZ_DEFAULT_NEW(ezParticleEffectManager);
-
     ezResourceManager::RegisterResourceForAssetType("Particle Effect", ezGetStaticRTTI<ezParticleEffectResource>());
 
     ezParticleEffectResourceDescriptor desc;
@@ -25,9 +22,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Particle, ParticlePlugin)
   ON_CORE_SHUTDOWN
   {
     ezParticleEffectResource::CleanupDynamicPluginReferences();
-
-    auto ptr = ezParticleEffectManager::GetSingleton();
-    EZ_DEFAULT_DELETE(ptr);
   }
 
   ON_ENGINE_STARTUP
@@ -36,7 +30,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Particle, ParticlePlugin)
 
   ON_ENGINE_SHUTDOWN
   {
-    ezParticleEffectManager::GetSingleton()->Shutdown();
   }
 
 EZ_END_SUBSYSTEM_DECLARATION

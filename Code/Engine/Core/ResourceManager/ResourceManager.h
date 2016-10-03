@@ -16,6 +16,7 @@ enum class ezResourceManagerEventType
 {
   ManagerShuttingDown,
   ResourceCategoryChanged,
+  ClearResourceFallbacks, ///< Sent during system shutdown to cleanup all missing or loading resource fallbacks
 };
 
 
@@ -184,6 +185,9 @@ public:
   /// So if one wants to make a full detail screenshot and have all resources loaded with all details, one must render multiple frames
   /// and only make a screenshot once no resources where waited for anymore.
   static bool FinishLoadingOfResources();
+
+  /// \brief This will clear ALL resources that were registered as 'missing' or 'loading' fallback resources. This is called early during system shutdown to clean up resources.
+  static void ClearAllResourceFallbacks();
 
 private:
   friend class ezResourceBase;

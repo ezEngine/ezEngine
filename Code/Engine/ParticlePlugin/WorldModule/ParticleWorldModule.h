@@ -40,6 +40,9 @@ public:
 
   ezParticleEventQueueManager& GetEventQueueManager() { return m_QueueManager; }
 
+  ezParticleSystemInstance* CreateParticleSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect);
+  void DestroyParticleSystemInstance(ezParticleSystemInstance* pInstance);
+
 private:
   void DestroyFinishedEffects();
   void ResourceEventHandler(const ezResourceEvent& e);
@@ -47,6 +50,7 @@ private:
   ezParticleEffectHandle InternalCreateSharedInstance(const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner);
   ezParticleEffectHandle InternalCreateInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, bool bIsShared);
 
+  ezMutex m_Mutex;
   ezDeque<ezParticleEffectInstance*> m_ParticleEffects;
   ezDeque<ezParticleEffectInstance*> m_FinishingEffects;
   ezDeque<ezParticleEffectInstance*> m_EffectsToReconfigure;
@@ -54,6 +58,7 @@ private:
   ezIdTable<ezParticleEffectId, ezParticleEffectInstance*> m_ActiveEffects;
   ezParticleEventQueueManager m_QueueManager;
   ezUInt64 m_uiExtractedFrame;
+  ezDeque<ezParticleSystemInstance*> m_ParticleSystemFreeList;
 
 protected:
   virtual void InternalStartup() override;

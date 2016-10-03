@@ -270,6 +270,8 @@ void ezGameApplication::DoShutdownGraphicsDevice()
   // Cleanup resource pool
   ezGPUResourcePool::SetDefaultInstance(nullptr);
 
+  ezResourceManager::FreeUnusedResources(true);
+
   pDevice->Shutdown();
   EZ_DEFAULT_DELETE(pDevice);
   ezGALDevice::SetDefaultDevice(nullptr);

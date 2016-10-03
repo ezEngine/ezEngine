@@ -949,6 +949,14 @@ bool ezResourceManager::FinishLoadingOfResources()
   }
 }
 
+
+void ezResourceManager::ClearAllResourceFallbacks()
+{
+  ezResourceManagerEvent e;
+  e.m_EventType = ezResourceManagerEventType::ClearResourceFallbacks;
+  s_ManagerEvents.Broadcast(e);
+}
+
 void ezResourceManager::EnsureResourceLoadingState(ezResourceBase* pResource, const ezResourceState RequestedState)
 {
   // help loading until the requested resource is available

@@ -2,7 +2,6 @@
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
-#include <ParticlePlugin/Manager/ParticleEffectManager.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <Core/ResourceManager/ResourceManager.h>
@@ -76,7 +75,7 @@ void ezParticleEffectInstance::ClearParticleSystem(ezUInt32 index)
 {
   if (m_ParticleSystems[index])
   {
-    ezParticleEffectManager::GetSingleton()->DestroyParticleSystemInstance(m_ParticleSystems[index]);
+    m_pOwnerModule->DestroyParticleSystemInstance(m_ParticleSystems[index]);
     m_ParticleSystems[index] = nullptr;
   }
 }
@@ -176,7 +175,7 @@ void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTim
     {
       if (m_ParticleSystems[i] == nullptr)
       {
-        m_ParticleSystems[i] = ezParticleEffectManager::GetSingleton()->CreateParticleSystemInstance(systems[i]->m_uiMaxParticles, m_pWorld, uiRandomSeed, this);
+        m_ParticleSystems[i] = m_pOwnerModule->CreateParticleSystemInstance(systems[i]->m_uiMaxParticles, m_pWorld, uiRandomSeed, this);
       }
     }
   }

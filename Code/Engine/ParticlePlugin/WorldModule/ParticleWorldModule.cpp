@@ -1,6 +1,5 @@
 #include <ParticlePlugin/PCH.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
-#include <ParticlePlugin/Manager/ParticleEffectManager.h>
 #include <Foundation/Threading/Lock.h>
 #include <Core/World/World.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
@@ -31,7 +30,9 @@ void ezParticleWorldModule::InternalBeforeWorldDestruction()
 
 void ezParticleWorldModule::InternalAfterWorldDestruction()
 {
-  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezParticleWorldModule::ResourceEventHandler, this));
+  EZ_LOCK(m_Mutex);
+
+   ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezParticleWorldModule::ResourceEventHandler, this));
 
   for (auto pEffect : m_ParticleEffects)
   {
@@ -40,7 +41,15 @@ void ezParticleWorldModule::InternalAfterWorldDestruction()
 
   m_FinishingEffects.Clear();
   m_ParticleEffects.Clear();
+
+  for (auto pSystem : m_ParticleSystemFreeList)
+  {
+    EZ_DEFAULT_DELETE(pSystem);
+  }
+
+  m_ParticleSystemFreeList.Clear();
 }
+
 
 void ezParticleWorldModule::InternalUpdate()
 {
@@ -56,7 +65,7 @@ void ezParticleWorldModule::InternalUpdate()
 
 ezParticleEffectHandle ezParticleWorldModule::InternalCreateSharedInstance(const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner)
 {
-  /// \todo Mutex
+  EZ_LOCK(m_Mutex);
 
   ezStringBuilder fullName;
   fullName.Format("{%s}-{%s}[%llu]", szSharedName, hResource.GetResourceID().GetData(), uiRandomSeed);
@@ -84,6 +93,8 @@ ezParticleEffectHandle ezParticleWorldModule::InternalCreateSharedInstance(const
 
 ezParticleEffectHandle ezParticleWorldModule::InternalCreateInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, bool bIsShared)
 {
+  EZ_LOCK(m_Mutex);
+
   ezParticleEffectInstance* pInstance = EZ_DEFAULT_NEW(ezParticleEffectInstance);
   m_ParticleEffects.PushBack(pInstance);
   pInstance->m_hHandle = m_ActiveEffects.Insert(pInstance);
@@ -112,6 +123,8 @@ ezParticleEffectHandle ezParticleWorldModule::CreateParticleEffectInstance(const
 
 void ezParticleWorldModule::DestroyParticleEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately, const void* pSharedInstanceOwner)
 {
+  EZ_LOCK(m_Mutex);
+
   ezParticleEffectInstance* pInstance = nullptr;
   if (TryGetEffect(hEffect, pInstance))
   {
@@ -142,6 +155,8 @@ bool ezParticleWorldModule::TryGetEffect(const ezParticleEffectHandle& hEffect, 
 
 void ezParticleWorldModule::UpdateEffects()
 {
+  EZ_LOCK(m_Mutex);
+
   ReconfigureEffects();
 
   for (ezUInt32 i = 0; i < m_ParticleEffects.GetCount(); ++i)
@@ -162,6 +177,8 @@ void ezParticleWorldModule::UpdateEffects()
 
 void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData)
 {
+  EZ_LOCK(m_Mutex);
+
   ++m_uiExtractedFrame;
 
   for (ezUInt32 e = 0; e < m_ParticleEffects.GetCount(); ++e)
@@ -201,6 +218,8 @@ void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRen
 
 void ezParticleWorldModule::DestroyFinishedEffects()
 {
+  EZ_LOCK(m_Mutex);
+
   for (ezUInt32 i = 0; i < m_FinishingEffects.GetCount(); )
   {
     ezParticleEffectInstance* pEffect = m_FinishingEffects[i];
@@ -222,10 +241,10 @@ void ezParticleWorldModule::DestroyFinishedEffects()
 
 void ezParticleWorldModule::ResourceEventHandler(const ezResourceEvent& e)
 {
-  // TODO Mutex
-
   if (e.m_EventType == ezResourceEventType::ResourceContentUnloaded && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezParticleEffectResource>())
   {
+    EZ_LOCK(m_Mutex);
+
     ezParticleEffectResourceHandle hResource((ezParticleEffectResource*)(e.m_pResource));
 
     const ezUInt32 numEffects = m_ParticleEffects.GetCount();
@@ -242,10 +261,47 @@ void ezParticleWorldModule::ResourceEventHandler(const ezResourceEvent& e)
 
 void ezParticleWorldModule::ReconfigureEffects()
 {
+  EZ_LOCK(m_Mutex);
+
   for (auto pEffect : m_EffectsToReconfigure)
   {
     pEffect->Reconfigure(0, false);
   }
 
   m_EffectsToReconfigure.Clear();
+}
+
+ezParticleSystemInstance* ezParticleWorldModule::CreateParticleSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect)
+{
+  EZ_LOCK(m_Mutex);
+
+  ezParticleSystemInstance* pResult = nullptr;
+
+  for (ezUInt32 i = 0; i < m_ParticleSystemFreeList.GetCount(); ++i)
+  {
+    if (m_ParticleSystemFreeList[i]->GetRefCount() == 0)
+    {
+      pResult = m_ParticleSystemFreeList[i];
+      m_ParticleSystemFreeList.RemoveAtSwap(i);
+
+      break;
+    }
+  }
+
+  if (pResult == nullptr)
+  {
+    pResult = EZ_DEFAULT_NEW(ezParticleSystemInstance);
+  }
+
+  pResult->Initialize(uiMaxParticles, pWorld, uiRandomSeed, pOwnerEffect);
+
+  return pResult;
+}
+
+void ezParticleWorldModule::DestroyParticleSystemInstance(ezParticleSystemInstance* pInstance)
+{
+  EZ_LOCK(m_Mutex);
+
+  EZ_ASSERT_DEBUG(pInstance != nullptr, "Invalid particle system");
+  m_ParticleSystemFreeList.PushBack(pInstance);
 }

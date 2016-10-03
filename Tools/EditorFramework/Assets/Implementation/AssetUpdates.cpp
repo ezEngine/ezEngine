@@ -604,6 +604,10 @@ ezProcessTask::ezProcessTask()
 ezProcessTask::~ezProcessTask()
 {
   ShutdownProcess();
+
+  /// \todo The logic here seems to be flawed.
+  /// m_pIPC is immediately allocated in the constructor, and it can be deallocated in ShutdownProcess but is not re-allocated in StartProcess
+  EZ_DEFAULT_DELETE(m_pIPC);
 }
 
 void ezProcessTask::EventHandlerIPC(const ezProcessCommunication::Event& e)
