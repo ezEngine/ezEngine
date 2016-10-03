@@ -7,6 +7,8 @@
 #include <GameFoundation/GameApplication/GameApplication.h>
 
 #include "GameState.h"
+#include <RendererCore/Lights/AmbientLightComponent.h>
+#include <RendererCore/Lights/DirectionalLightComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SimpleMeshRendererGameState, 1, ezRTTIDefaultAllocator<SimpleMeshRendererGameState>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -98,6 +100,24 @@ void SimpleMeshRendererGameState::CreateGameLevel()
     pMeshCompMan->CreateComponent(pMesh);
     pMesh->SetMesh(hMeshTree);
     pObj->AttachComponent(pMesh);    
+  }
+
+  // Lights
+  {
+    obj.m_sName.Assign("DirLight");
+    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(60.0f));
+    obj.m_LocalPosition.SetZero();
+    obj.m_LocalRotation.SetIdentity();
+
+    m_pMainWorld->CreateObject(obj, pObj);
+
+    ezDirectionalLightComponent* pDirLight;
+    ezDirectionalLightComponent::CreateComponent(m_pMainWorld, pDirLight);
+    pObj->AttachComponent(pDirLight);
+
+    ezAmbientLightComponent* pAmbLight;
+    ezAmbientLightComponent::CreateComponent(m_pMainWorld, pAmbLight);
+    pObj->AttachComponent(pAmbLight);
   }
 
   ChangeMainWorld(m_pMainWorld);

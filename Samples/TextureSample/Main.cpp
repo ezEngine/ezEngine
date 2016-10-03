@@ -219,7 +219,7 @@ public:
 
     // Setup Shaders and Materials
     {
-      ezShaderManager::Configure("DX11_SM40", true);
+      ezShaderManager::Configure("DX11_SM50", true);
  
       m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Texture.ezMaterial");
 
@@ -348,7 +348,7 @@ public:
           if (g_bForceImmediateLoading)
             ezResourceLock<ezTextureResource> l(hTexture, ezResourceAcquireMode::NoFallback);
 
-          ezRenderContext::GetDefaultInstance()->BindTexture(ezGALShaderStage::PixelShader, "TexDiffuse", hTexture);
+          ezRenderContext::GetDefaultInstance()->BindTexture(ezGALShaderStage::PixelShader, "DiffuseTexture", hTexture);
           ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hQuadMeshBuffer);
           ezRenderContext::GetDefaultInstance()->DrawMeshBuffer();
         }
