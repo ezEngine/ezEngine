@@ -11,6 +11,7 @@ class ezParticleEffectInstance;
 struct ezResourceEvent;
 class ezView;
 class ezExtractedRenderData;
+class ezTaskGroupID;
 
 /// \brief This world module stores all particle effect data that is active in a given ezWorld instance
 ///
@@ -32,6 +33,8 @@ public:
 
   bool TryGetEffect(const ezParticleEffectHandle& hEffect, ezParticleEffectInstance*& out_pEffect);
 
+  void EnsureParticleUpdateFinished();
+
   /// \brief Updates all effects and deallocates those that have been destroyed and are finished.
   void UpdateEffects();
 
@@ -42,6 +45,7 @@ public:
 
   ezParticleSystemInstance* CreateParticleSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect);
   void DestroyParticleSystemInstance(ezParticleSystemInstance* pInstance);
+
 
 private:
   void DestroyFinishedEffects();
@@ -59,6 +63,7 @@ private:
   ezParticleEventQueueManager m_QueueManager;
   ezUInt64 m_uiExtractedFrame;
   ezDeque<ezParticleSystemInstance*> m_ParticleSystemFreeList;
+  ezTaskGroupID m_EffectUpdateTaskGroup;
 
 protected:
   virtual void InternalStartup() override;

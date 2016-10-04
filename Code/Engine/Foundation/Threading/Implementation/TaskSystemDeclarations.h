@@ -118,6 +118,9 @@ class EZ_FOUNDATION_DLL ezTaskGroupID
 public:
   ezTaskGroupID();
 
+  /// \brief Returns false, if the object has not been initialized before
+  bool IsValid() const;
+
 private:
   friend class ezTaskSystem;
 

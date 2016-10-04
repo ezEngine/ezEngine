@@ -72,7 +72,6 @@ void ezPlayerApplication::SetupLevel()
         file.ReadBytes(szSceneTag, sizeof(char) * 16);
 
         EZ_ASSERT_RELEASE(ezStringUtils::IsEqualN(szSceneTag, "[ezBinaryScene]", 16), "The given file is not a valid scene file");
-        EZ_ASSERT_RELEASE(header.GetFileVersion() == 1, "The given scene file has an invalid version: %u", header.GetFileVersion());
       }
 
       ezWorldReader reader;

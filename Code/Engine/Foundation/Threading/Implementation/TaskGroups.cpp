@@ -8,6 +8,11 @@ ezTaskGroupID::ezTaskGroupID()
   m_uiGroupCounter = 0;
 }
 
+bool ezTaskGroupID::IsValid() const
+{
+  return m_pTaskGroup != nullptr;
+}
+
 ezTaskGroup::ezTaskGroup()
 {
   m_bInUse = false;
@@ -128,7 +133,7 @@ void ezTaskSystem::StartTaskGroup(ezTaskGroupID Group)
 bool ezTaskSystem::IsTaskGroupFinished(ezTaskGroupID Group)
 {
   // if the counters differ, the task group has been reused since the GroupID was created, so that group has finished
-  return Group.m_pTaskGroup->m_uiGroupCounter != Group.m_uiGroupCounter;
+  return (Group.m_pTaskGroup == nullptr) || (Group.m_pTaskGroup->m_uiGroupCounter != Group.m_uiGroupCounter);
 }
 
 void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup)

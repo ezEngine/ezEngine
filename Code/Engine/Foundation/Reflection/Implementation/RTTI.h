@@ -142,7 +142,7 @@ private:
   const ezRTTI*(*m_fnVerifyParent)();
 
   ezArrayPtr<ezAbstractMessageHandler*> m_MessageHandlers;
-  mutable ezDynamicArray<ezAbstractMessageHandler*> m_DynamicMessageHandlers;
+  mutable ezDynamicArray<ezAbstractMessageHandler*, ezStaticAllocatorWrapper> m_DynamicMessageHandlers; // do not track this data, it won't be deallocated before shutdown
   
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, Reflection);

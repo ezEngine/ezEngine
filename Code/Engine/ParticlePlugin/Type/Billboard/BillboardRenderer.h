@@ -44,6 +44,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBillboardRenderer : public ezRenderer
 
 public:
   ezParticleBillboardRenderer();
+  ~ezParticleBillboardRenderer();
 
   virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) override;
   virtual void RenderBatch(const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) override;

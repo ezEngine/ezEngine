@@ -20,7 +20,15 @@ ezParticleBillboardRenderData::ezParticleBillboardRenderData()
 
 ezParticleBillboardRenderer::ezParticleBillboardRenderer()
 {
-  int i = 0;
+}
+
+ezParticleBillboardRenderer::~ezParticleBillboardRenderer()
+{
+  if (!m_hDataBuffer.IsInvalidated())
+  {
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hDataBuffer);
+    m_hDataBuffer.Invalidate();
+  }
 }
 
 void ezParticleBillboardRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)

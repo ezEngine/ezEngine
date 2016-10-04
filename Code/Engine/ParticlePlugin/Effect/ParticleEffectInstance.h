@@ -4,6 +4,21 @@
 #include <Foundation/Math/Transform.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
+class ezParticleEffectInstance;
+
+class ezParticleffectUpdateTask : public ezTask
+{
+public:
+  ezParticleffectUpdateTask(ezParticleEffectInstance* pEffect);
+
+  ezTime m_UpdateDiff;
+
+private:
+  virtual void Execute() override;
+
+  ezParticleEffectInstance* m_pEffect;
+};
+
 class EZ_PARTICLEPLUGIN_DLL ezParticleEffectInstance 
 {
   friend class ezParticleWorldModule;
@@ -59,6 +74,9 @@ public:
 
   ezParticleEventQueue* GetEventQueue(const ezTempHashedString& EventType);
 
+  /// \brief Returns the task that is used to update the effect
+  ezParticleffectUpdateTask* GetUpdateTask() { return &m_Task; }
+
 
 private:
   void Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTime);
@@ -79,6 +97,8 @@ private:
   ezWorld* m_pWorld;
   ezTransform m_Transform;
   ezHybridArray<ezParticleSystemInstance*, 4> m_ParticleSystems;
+
+  ezParticleffectUpdateTask m_Task;
 
   struct EventQueue
   {

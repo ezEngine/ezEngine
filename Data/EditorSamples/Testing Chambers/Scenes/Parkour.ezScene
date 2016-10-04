@@ -1112,10 +1112,12 @@
     "Active" : true,
     "Aperture" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Dimensions (ortho)" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" },
+    "Exclude Tags" : [  ],
     "Exposure Compensation" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
     "FOV (perspective)" : { "$t" : "float", "$v" : "60.0000", "$b" : "0x00007042" },
     "Far Plane" : { "$t" : "float", "$v" : "1000.0000", "$b" : "0x00007A44" },
     "ISO" : { "$t" : "float", "$v" : "100.0000", "$b" : "0x0000C842" },
+    "Include Tags" : [  ],
     "Mode" : "ezCameraMode::PerspectiveFixedFovY",
     "Near Plane" : { "$t" : "float", "$v" : "0.2500", "$b" : "0x0000803E" },
     "Render Pipeline" : "",
@@ -1451,7 +1453,7 @@
    "#" : { "$t" : "uuid", "$b" : "0xDD677A3D122A3145A248DDA5274A171F" },
    "t" : "ezAmbientLightComponent",
    "p" : {
-    "Active" : false,
+    "Active" : true,
     "Bottom Color" : { "$t" : "color", "$v" : "(0.1000, 0.1000, 0.1500, 1.0000)", "$b" : "0xCDCCCC3DCDCCCC3D9A99193E0000803F" },
     "Intensity" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
     "Top Color" : { "$t" : "color", "$v" : "(0.2000, 0.2000, 0.3000, 1.0000)", "$b" : "0xCDCC4C3ECDCC4C3E9A99993E0000803F" }
@@ -1586,7 +1588,7 @@
    "#" : { "$t" : "uuid", "$b" : "0xA6311A2AF8708F46B5E56BD3736FE2C4" },
    "t" : "ezDirectionalLightComponent",
    "p" : {
-    "Active" : false,
+    "Active" : true,
     "Intensity" : { "$t" : "float", "$v" : "5.0000", "$b" : "0x0000A040" },
     "Light Color" : { "$t" : "color", "$v" : "(1.0000, 1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F0000803F" }
    }
@@ -1736,7 +1738,7 @@
     "AssetType" : "Scene",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x4CD85FC44C71C247BFA61C213B20EC51" },
-    "Hash" : { "$t" : "uint64", "$v" : "64064705169732488", "$b" : "0x8833488A829AE300" },
+    "Hash" : { "$t" : "uint64", "$v" : "5582732252930954377", "$b" : "0x89D410CC67D9794D" },
     "References" : [ "{ 1034ea07-7e19-43d0-8bd9-ff9a2558f4cf }", "{ 124837c3-3748-46bd-bd34-c38be3cdcf7c }", "{ 16392084-7980-4556-97a2-6f0c0312d5a0 }", "{ 1ce6f3e5-326b-4dce-8cef-03cc8c06b40b }", "{ 27eef412-bd5d-424b-9d58-48725a829568 }", "{ 3ebe2790-7cc4-40c8-bde6-e760b96b2636 }", "{ 40e17191-4dce-4f65-b4f7-1de9a179db08 }", "{ 566d4602-16df-4df2-a5fb-0e53879a7db5 }", "{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }", "{ 626d50a0-e628-485c-bfef-33879466108d }", "{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }", "{ 8db56ec7-1f24-497b-9541-5ff5e1e65a9a }", "{ 912f4499-7b67-402b-9110-1871cc9d8a2c }", "{ 94ac1de9-5cbe-4581-a57c-7caf78ab7294 }", "{ 95f9db13-7fa3-4832-b349-4e00a23b3b10 }", "{ 9f5b157b-971e-4450-bd92-8f8651ad35b2 }", "{ a2e664de-7b3e-47d8-99d3-d058896f7255 }", "{ aa3ec83f-a932-415e-ac02-8ceffdb733c1 }", "{ ac0755c6-f78d-40ec-bfaa-55f2be674f87 }", "{ b1a12ed8-9389-400a-8a56-f14dc856fb86 }", "{ b727ba61-e20a-42d7-a170-860ede23e85d }", "{ b7491649-7988-4bea-b145-6550ab951811 }", "{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }", "{ d2764eb1-617d-475b-9638-bd6f42ca36b3 }", "{ d65cd59b-50e0-44f3-aefb-a88943b81900 }", "{ e6c495bb-9dd5-43ef-9f20-618828f20781 }", "{ ed0a89ca-d7a4-4e39-a25f-9518c1cd3aff }", "{ f0c66948-485a-4b30-aa61-aec523c2251f }" ]
    }
   },
@@ -1784,7 +1786,7 @@
    "#" : { "$t" : "uuid", "$b" : "0xF64CB0DE86E25848879A8A2B1BB37154" },
    "t" : "ezSkyBoxComponent",
    "p" : {
-    "Active" : false,
+    "Active" : true,
     "Back Texture" : "{ b1a12ed8-9389-400a-8a56-f14dc856fb86 }",
     "Down Texture" : "{ 566d4602-16df-4df2-a5fb-0e53879a7db5 }",
     "Exposure Bias" : { "$t" : "float", "$v" : "1.6200", "$b" : "0x295CCF3F" },

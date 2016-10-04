@@ -7,6 +7,7 @@
 #include <Core/ResourceManager/ResourceBase.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <Foundation/Threading/TaskSystem.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleWorldModule, 1, ezRTTIDefaultAllocator<ezParticleWorldModule>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -32,7 +33,7 @@ void ezParticleWorldModule::InternalAfterWorldDestruction()
 {
   EZ_LOCK(m_Mutex);
 
-   ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezParticleWorldModule::ResourceEventHandler, this));
+  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezParticleWorldModule::ResourceEventHandler, this));
 
   for (auto pEffect : m_ParticleEffects)
   {
@@ -153,30 +154,43 @@ bool ezParticleWorldModule::TryGetEffect(const ezParticleEffectHandle& hEffect, 
   return m_ActiveEffects.TryGetValue(hEffect.GetInternalID(), out_pEffect);
 }
 
+
+void ezParticleWorldModule::EnsureParticleUpdateFinished()
+{
+  // do NOT lock here, otherwise tasks cannot enter the lock
+  ezTaskSystem::WaitForGroup(m_EffectUpdateTaskGroup);
+}
+
 void ezParticleWorldModule::UpdateEffects()
 {
+  // do this outside the lock to allow tasks to enter it
+  EnsureParticleUpdateFinished();
+
   EZ_LOCK(m_Mutex);
+
+  m_EffectUpdateTaskGroup = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyNextFrame);
+
+  DestroyFinishedEffects();
 
   ReconfigureEffects();
 
+  const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
   for (ezUInt32 i = 0; i < m_ParticleEffects.GetCount(); ++i)
   {
-    m_ParticleEffects[i]->PreSimulate();
+    ezParticleffectUpdateTask* pTask = m_ParticleEffects[i]->GetUpdateTask();
+    pTask->m_UpdateDiff = tDiff;
 
-    if (!m_ParticleEffects[i]->Update(GetWorld()->GetClock().GetTimeDiff()))
-    {
-      const ezParticleEffectHandle hEffect = m_ParticleEffects[i]->GetHandle();
-      EZ_ASSERT_DEBUG(!hEffect.IsInvalidated(), "Invalid particle effect handle");
-
-      DestroyParticleEffectInstance(hEffect, false, nullptr);
-    }
+    ezTaskSystem::AddTaskToGroup(m_EffectUpdateTaskGroup, pTask);
   }
 
-  DestroyFinishedEffects();
+  ezTaskSystem::StartTaskGroup(m_EffectUpdateTaskGroup);
 }
 
 void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData)
 {
+  // do this outside the lock!
+  EnsureParticleUpdateFinished();
+
   EZ_LOCK(m_Mutex);
 
   ++m_uiExtractedFrame;
@@ -305,3 +319,9 @@ void ezParticleWorldModule::DestroyParticleSystemInstance(ezParticleSystemInstan
   EZ_ASSERT_DEBUG(pInstance != nullptr, "Invalid particle system");
   m_ParticleSystemFreeList.PushBack(pInstance);
 }
+
+
+
+
+
+

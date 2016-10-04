@@ -8,6 +8,7 @@
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 
 ezParticleEffectInstance::ezParticleEffectInstance()
+  : m_Task(this)
 {
   m_pOwnerModule = nullptr;
 
@@ -306,7 +307,6 @@ ezParticleEventQueue* ezParticleEffectInstance::GetEventQueue(const ezTempHashed
   return queue.m_pQueue;
 }
 
-
 void ezParticleEffectInstance::DestroyEventQueues()
 {
   for (auto& queue : m_EventQueues)
@@ -336,4 +336,27 @@ void ezParticleEffectInstance::ProcessEventQueues()
   }
 }
 
+ezParticleffectUpdateTask::ezParticleffectUpdateTask(ezParticleEffectInstance* pEffect)
+{
+  m_pEffect = pEffect;
+  m_UpdateDiff.SetZero();
+}
 
+void ezParticleffectUpdateTask::Execute()
+{
+  if (HasBeenCanceled())
+    return;
+
+  if (m_UpdateDiff.GetSeconds() != 0.0)
+  {
+    m_pEffect->PreSimulate();
+
+    if (!m_pEffect->Update(m_UpdateDiff))
+    {
+      const ezParticleEffectHandle hEffect = m_pEffect->GetHandle();
+      EZ_ASSERT_DEBUG(!hEffect.IsInvalidated(), "Invalid particle effect handle");
+
+      m_pEffect->GetOwnerWorldModule()->DestroyParticleEffectInstance(hEffect, false, nullptr);
+    }
+  }
+}
