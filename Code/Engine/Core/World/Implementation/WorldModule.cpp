@@ -29,9 +29,14 @@ void ezWorldModule::AfterWorldDestruction()
   InternalAfterWorldDestruction();
 }
 
-void ezWorldModule::Update()
+void ezWorldModule::UpdateBefore()
 {
-  InternalUpdate();
+  InternalUpdateBefore();
+}
+
+void ezWorldModule::UpdateAfter()
+{
+  InternalUpdateAfter();
 }
 
 void ezWorldModule::Reinit()

@@ -3,19 +3,34 @@
 #include <GameFoundation/GameApplication/GameApplication.h>
 
 
-void ezGameApplication::UpdateWorldModules(ezWorld* pWorld)
+void ezGameApplication::UpdateWorldModulesBefore(ezWorld* pWorld)
 {
   for (auto& wm : m_Worlds)
   {
     if (wm.m_pWorld == pWorld)
     {
-      wm.Update();
+      wm.UpdateBefore();
       return;
     }
   }
 
   EZ_REPORT_FAILURE("ezGameApplication::UpdateWorldModules called with a world that was not created through ezGameApplication");
 }
+
+void ezGameApplication::UpdateWorldModulesAfter(ezWorld* pWorld)
+{
+  for (auto& wm : m_Worlds)
+  {
+    if (wm.m_pWorld == pWorld)
+    {
+      wm.UpdateAfter();
+      return;
+    }
+  }
+
+  EZ_REPORT_FAILURE("ezGameApplication::UpdateWorldModules called with a world that was not created through ezGameApplication");
+}
+
 
 
 void ezGameApplication::ReinitWorldModules(ezWorld* pWorld)
@@ -33,13 +48,23 @@ void ezGameApplication::ReinitWorldModules(ezWorld* pWorld)
 }
 
 
-void ezGameApplication::WorldData::Update()
+void ezGameApplication::WorldData::UpdateBefore()
 {
   // mark world for write here ?
 
   for (auto pModule : m_WorldModules)
   {
-    pModule->Update();
+    pModule->UpdateBefore();
+  }
+}
+
+void ezGameApplication::WorldData::UpdateAfter()
+{
+  // mark world for write here ?
+
+  for (auto pModule : m_WorldModules)
+  {
+    pModule->UpdateAfter();
   }
 }
 

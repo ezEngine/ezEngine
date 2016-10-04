@@ -11,6 +11,7 @@ ezParticleEffectInstance::ezParticleEffectInstance()
   : m_Task(this)
 {
   m_pOwnerModule = nullptr;
+  m_Task.SetTaskName("Particle Effect Update");
 
   Clear();
 }

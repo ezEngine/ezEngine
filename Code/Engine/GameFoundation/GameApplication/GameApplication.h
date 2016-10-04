@@ -141,7 +141,8 @@ public:
   ezGameState* GetGameStateForWorld(ezWorld* pWorld) const;
 
   /// \brief Calls ezWorldModule::Update() on all modules associated with this world.
-  void UpdateWorldModules(ezWorld* pWorld);
+  void UpdateWorldModulesBefore(ezWorld* pWorld);
+  void UpdateWorldModulesAfter(ezWorld* pWorld);
 
   /// \brief Calls ezWorldModule::Reinit() on all modules associated with this world.
   void ReinitWorldModules(ezWorld* pWorld);
@@ -277,7 +278,8 @@ private:
 
   struct WorldData
   {
-    void Update();
+    void UpdateBefore();
+    void UpdateAfter();
     void CreateWorldModules();
     void ReinitWorldModules();
     void DestroyWorldModules();

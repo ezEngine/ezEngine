@@ -16,7 +16,8 @@ public:
   void Startup(ezWorld* pOwner);
   void BeforeWorldDestruction();
   void AfterWorldDestruction();
-  void Update();
+  void UpdateBefore();
+  void UpdateAfter();
   void Reinit();
 
   ezWorld* GetWorld() const { return m_pOwnerWorld; }
@@ -28,7 +29,8 @@ protected:
   virtual void InternalStartup() = 0;
   virtual void InternalBeforeWorldDestruction() = 0;
   virtual void InternalAfterWorldDestruction() = 0;
-  virtual void InternalUpdate() = 0;
+  virtual void InternalUpdateBefore() = 0;
+  virtual void InternalUpdateAfter() = 0;
   virtual void InternalReinit() = 0;
 
   ezWorld* m_pOwnerWorld;

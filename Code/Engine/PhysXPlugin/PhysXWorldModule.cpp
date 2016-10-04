@@ -108,7 +108,7 @@ void ezPhysXWorldModule::InternalAfterWorldDestruction()
   m_pCPUDispatcher = nullptr;
 }
 
-void ezPhysXWorldModule::InternalUpdate()
+void ezPhysXWorldModule::InternalUpdateBefore()
 {
   if (!GetWorld()->GetWorldSimulationEnabled())
     return;

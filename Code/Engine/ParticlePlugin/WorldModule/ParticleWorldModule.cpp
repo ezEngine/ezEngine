@@ -52,7 +52,7 @@ void ezParticleWorldModule::InternalAfterWorldDestruction()
 }
 
 
-void ezParticleWorldModule::InternalUpdate()
+void ezParticleWorldModule::InternalUpdateBefore()
 {
   if (!GetWorld()->GetWorldSimulationEnabled())
     return;
@@ -62,7 +62,10 @@ void ezParticleWorldModule::InternalUpdate()
   UpdateEffects();
 }
 
-
+void ezParticleWorldModule::InternalUpdateAfter()
+{
+  EnsureParticleUpdateFinished();
+}
 
 ezParticleEffectHandle ezParticleWorldModule::InternalCreateSharedInstance(const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner)
 {
@@ -188,8 +191,7 @@ void ezParticleWorldModule::UpdateEffects()
 
 void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData)
 {
-  // do this outside the lock!
-  EnsureParticleUpdateFinished();
+  EZ_ASSERT_RELEASE(ezTaskSystem::IsTaskGroupFinished(m_EffectUpdateTaskGroup), "Particle Effect Update Task is not finished!");
 
   EZ_LOCK(m_Mutex);
 

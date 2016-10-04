@@ -504,7 +504,7 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
 
   for (auto pWorld : worldsToUpdate)
   {
-    UpdateWorldModules(pWorld);
+    UpdateWorldModulesBefore(pWorld);
   }
 
   if (ezRenderLoop::GetUseMultithreadedRendering())
@@ -526,6 +526,11 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
 
       pWorld->Update();
     }
+  }
+
+  for (auto pWorld : worldsToUpdate)
+  {
+    UpdateWorldModulesAfter(pWorld);
   }
 
   {
