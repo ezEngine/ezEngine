@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="ezAssetBrowserWidget" name="AssetBrowserWidget" native="true"/>
+    <widget class="ezQtAssetBrowserWidget" name="AssetBrowserWidget" native="true"/>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -55,7 +55,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ezAssetBrowserWidget</class>
+   <class>ezQtAssetBrowserWidget</class>
    <extends>QWidget</extends>
    <header>EditorFramework/Assets/AssetBrowserWidget.moc.h</header>
    <container>1</container>

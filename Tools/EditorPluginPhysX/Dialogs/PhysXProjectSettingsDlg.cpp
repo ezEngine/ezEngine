@@ -10,7 +10,7 @@
 
 void UpdateCollisionLayerDynamicEnumValues();
 
-ezPhysxProjectSettingsDlg::ezPhysxProjectSettingsDlg(QWidget* parent) : QDialog(parent)
+ezQtPhysxProjectSettingsDlg::ezQtPhysxProjectSettingsDlg(QWidget* parent) : QDialog(parent)
 {
   setupUi(this);
 
@@ -21,7 +21,7 @@ ezPhysxProjectSettingsDlg::ezPhysxProjectSettingsDlg(QWidget* parent) : QDialog(
   SetupTable();
 }
 
-void ezPhysxProjectSettingsDlg::SetupTable()
+void ezQtPhysxProjectSettingsDlg::SetupTable()
 {
   QtScopedBlockSignals s1(FilterTable);
   QtScopedUpdatesDisabled s2(FilterTable);
@@ -53,7 +53,7 @@ void ezPhysxProjectSettingsDlg::SetupTable()
       pCheck->setChecked(m_Config.IsCollisionEnabled(m_IndexRemap[r], m_IndexRemap[c]));
       pCheck->setProperty("column", c);
       pCheck->setProperty("row", r);
-      connect(pCheck, &QCheckBox::clicked, this, &ezPhysxProjectSettingsDlg::onCheckBoxClicked);
+      connect(pCheck, &QCheckBox::clicked, this, &ezQtPhysxProjectSettingsDlg::onCheckBoxClicked);
 
       QWidget* pWidget = new QWidget();
       QHBoxLayout* pLayout = new QHBoxLayout(pWidget);
@@ -67,7 +67,7 @@ void ezPhysxProjectSettingsDlg::SetupTable()
   }
 }
 
-ezResult ezPhysxProjectSettingsDlg::Save()
+ezResult ezQtPhysxProjectSettingsDlg::Save()
 {
   ezStringBuilder sPath = ezApplicationConfig::GetProjectDirectory();
   sPath.AppendPath("Physics/CollisionLayers.cfg");
@@ -77,7 +77,7 @@ ezResult ezPhysxProjectSettingsDlg::Save()
     ezStringBuilder sError;
     sError.Format("Failed to save the Collision Layer file\n'%s'", sPath.GetData());
 
-    ezUIServices::GetSingleton()->MessageBoxWarning(sError);
+    ezQtUiServices::GetSingleton()->MessageBoxWarning(sError);
 
     return EZ_FAILURE;
   }
@@ -87,7 +87,7 @@ ezResult ezPhysxProjectSettingsDlg::Save()
   return EZ_SUCCESS;
 }
 
-ezResult ezPhysxProjectSettingsDlg::Load()
+ezResult ezQtPhysxProjectSettingsDlg::Load()
 {
   ezStringBuilder sPath = ezApplicationConfig::GetProjectDirectory();
   sPath.AppendPath("Physics/CollisionLayers.cfg");
@@ -165,7 +165,7 @@ ezResult ezPhysxProjectSettingsDlg::Load()
   return res;
 }
 
-void ezPhysxProjectSettingsDlg::onCheckBoxClicked(bool checked)
+void ezQtPhysxProjectSettingsDlg::onCheckBoxClicked(bool checked)
 {
   QCheckBox* pCheck = qobject_cast<QCheckBox*>(sender());
 
@@ -181,7 +181,7 @@ void ezPhysxProjectSettingsDlg::onCheckBoxClicked(bool checked)
   }
 }
 
-void ezPhysxProjectSettingsDlg::on_DefaultButtons_clicked(QAbstractButton* pButton)
+void ezQtPhysxProjectSettingsDlg::on_DefaultButtons_clicked(QAbstractButton* pButton)
 {
   if (pButton == DefaultButtons->button(QDialogButtonBox::Ok))
   {
@@ -206,13 +206,13 @@ void ezPhysxProjectSettingsDlg::on_DefaultButtons_clicked(QAbstractButton* pButt
   }
 }
 
-void ezPhysxProjectSettingsDlg::on_ButtonAddLayer_clicked()
+void ezQtPhysxProjectSettingsDlg::on_ButtonAddLayer_clicked()
 {
   const ezInt32 iNewIdx = m_Config.FindUnnamedGroup();
 
   if (iNewIdx < 0)
   {
-    ezUIServices::GetSingleton()->MessageBoxInformation("The maximum number of collision layers has been reached.");
+    ezQtUiServices::GetSingleton()->MessageBoxInformation("The maximum number of collision layers has been reached.");
     return;
   }
 
@@ -227,7 +227,7 @@ void ezPhysxProjectSettingsDlg::on_ButtonAddLayer_clicked()
 
     if (m_Config.GetFilterGroupByName(result.toUtf8().data()) >= 0)
     {
-      ezUIServices::GetSingleton()->MessageBoxWarning("A Collision Layer with the given name already exists.");
+      ezQtUiServices::GetSingleton()->MessageBoxWarning("A Collision Layer with the given name already exists.");
       continue;
     }
 
@@ -238,9 +238,9 @@ void ezPhysxProjectSettingsDlg::on_ButtonAddLayer_clicked()
   SetupTable();
 }
 
-void ezPhysxProjectSettingsDlg::on_ButtonRemoveLayer_clicked()
+void ezQtPhysxProjectSettingsDlg::on_ButtonRemoveLayer_clicked()
 {
-  if (ezUIServices::GetSingleton()->MessageBoxQuestion("Remove selected Collision Layer?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::No)
+  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Remove selected Collision Layer?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::No)
     return;
 
   const auto sel = FilterTable->selectionModel()->selectedRows();
@@ -257,7 +257,7 @@ void ezPhysxProjectSettingsDlg::on_ButtonRemoveLayer_clicked()
   FilterTable->clearSelection();
 }
 
-void ezPhysxProjectSettingsDlg::on_ButtonRenameLayer_clicked()
+void ezQtPhysxProjectSettingsDlg::on_ButtonRenameLayer_clicked()
 {
   const auto sel = FilterTable->selectionModel()->selectedRows();
 
@@ -282,7 +282,7 @@ void ezPhysxProjectSettingsDlg::on_ButtonRenameLayer_clicked()
 
     if (m_Config.GetFilterGroupByName(result.toUtf8().data()) >= 0)
     {
-      ezUIServices::GetSingleton()->MessageBoxWarning("A Collision Layer with the given name already exists.");
+      ezQtUiServices::GetSingleton()->MessageBoxWarning("A Collision Layer with the given name already exists.");
       continue;
     }
 
@@ -293,7 +293,7 @@ void ezPhysxProjectSettingsDlg::on_ButtonRenameLayer_clicked()
   }
 }
 
-void ezPhysxProjectSettingsDlg::on_FilterTable_itemSelectionChanged()
+void ezQtPhysxProjectSettingsDlg::on_FilterTable_itemSelectionChanged()
 {
   const auto sel = FilterTable->selectionModel()->selectedRows();
   ButtonRemoveLayer->setEnabled(!sel.isEmpty());

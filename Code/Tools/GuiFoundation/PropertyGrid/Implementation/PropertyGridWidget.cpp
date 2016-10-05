@@ -11,7 +11,7 @@
 #include <QLayout>
 #include <QScrollArea>
 
-ezRttiMappedObjectFactory<ezQtPropertyWidget> ezPropertyGridWidget::s_Factory;
+ezRttiMappedObjectFactory<ezQtPropertyWidget> ezQtPropertyGridWidget::s_Factory;
 
 static ezQtPropertyWidget* StandardTypeCreator(const ezRTTI* pRtti)
 {
@@ -20,55 +20,55 @@ static ezQtPropertyWidget* StandardTypeCreator(const ezRTTI* pRtti)
   switch (pRtti->GetVariantType())
   {
   case ezVariant::Type::Bool:
-    return new ezPropertyEditorCheckboxWidget();
+    return new ezQtPropertyEditorCheckboxWidget();
 
   case ezVariant::Type::Time:
-    return new ezPropertyEditorTimeWidget();
+    return new ezQtPropertyEditorTimeWidget();
 
   case ezVariant::Type::Float:
   case ezVariant::Type::Double:
-    return new ezPropertyEditorDoubleSpinboxWidget(1);
+    return new ezQtPropertyEditorDoubleSpinboxWidget(1);
 
   case ezVariant::Type::Vector2:
-    return new ezPropertyEditorDoubleSpinboxWidget(2);
+    return new ezQtPropertyEditorDoubleSpinboxWidget(2);
 
   case ezVariant::Type::Vector3:
-    return new ezPropertyEditorDoubleSpinboxWidget(3);
+    return new ezQtPropertyEditorDoubleSpinboxWidget(3);
 
   case ezVariant::Type::Vector4:
-    return new ezPropertyEditorDoubleSpinboxWidget(4);
+    return new ezQtPropertyEditorDoubleSpinboxWidget(4);
 
   case ezVariant::Type::Quaternion:
-    return new ezPropertyEditorQuaternionWidget();
+    return new ezQtPropertyEditorQuaternionWidget();
 
   case ezVariant::Type::Int8:
-    return new ezPropertyEditorIntSpinboxWidget(-127, 127);
+    return new ezQtPropertyEditorIntSpinboxWidget(-127, 127);
 
   case ezVariant::Type::UInt8:
-    return new ezPropertyEditorIntSpinboxWidget(0, 255);
+    return new ezQtPropertyEditorIntSpinboxWidget(0, 255);
 
   case ezVariant::Type::Int16:
-    return new ezPropertyEditorIntSpinboxWidget(-32767, 32767);
+    return new ezQtPropertyEditorIntSpinboxWidget(-32767, 32767);
 
   case ezVariant::Type::UInt16:
-    return new ezPropertyEditorIntSpinboxWidget(0, 65535);
+    return new ezQtPropertyEditorIntSpinboxWidget(0, 65535);
 
   case ezVariant::Type::Int32:
   case ezVariant::Type::Int64:
-    return new ezPropertyEditorIntSpinboxWidget(-2147483645, 2147483645);
+    return new ezQtPropertyEditorIntSpinboxWidget(-2147483645, 2147483645);
 
   case ezVariant::Type::UInt32:
   case ezVariant::Type::UInt64:
-    return new ezPropertyEditorIntSpinboxWidget(0, 2147483645);
+    return new ezQtPropertyEditorIntSpinboxWidget(0, 2147483645);
 
   case ezVariant::Type::String:
-    return new ezPropertyEditorLineEditWidget();
+    return new ezQtPropertyEditorLineEditWidget();
 
   case ezVariant::Type::Color:
-    return new ezPropertyEditorColorWidget();
+    return new ezQtPropertyEditorColorWidget();
 
   case ezVariant::Type::Angle:
-    return new ezPropertyEditorAngleWidget();
+    return new ezQtPropertyEditorAngleWidget();
 
 
   default:
@@ -79,17 +79,17 @@ static ezQtPropertyWidget* StandardTypeCreator(const ezRTTI* pRtti)
 
 static ezQtPropertyWidget* EnumCreator(const ezRTTI* pRtti)
 {
-  return new ezPropertyEditorEnumWidget();
+  return new ezQtPropertyEditorEnumWidget();
 }
 
 static ezQtPropertyWidget* BitflagsCreator(const ezRTTI* pRtti)
 {
-  return new ezPropertyEditorBitflagsWidget();
+  return new ezQtPropertyEditorBitflagsWidget();
 }
 
 static ezQtPropertyWidget* TagSetCreator(const ezRTTI* pRtti)
 {
-  return new ezPropertyEditorTagSetWidget();
+  return new ezQtPropertyEditorTagSetWidget();
 }
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, PropertyGrid)
@@ -100,49 +100,49 @@ END_SUBSYSTEM_DEPENDENCIES
 
 ON_CORE_STARTUP
 {
-  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezPropertyGridWidget::PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezQtPropertyGridWidget::PropertyMetaStateEventHandler);
 
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<bool>(), StandardTypeCreator);
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<float>(), StandardTypeCreator);
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<double>(), StandardTypeCreator);
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec2>(), StandardTypeCreator);
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec3>(), StandardTypeCreator);
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec4>(), StandardTypeCreator);
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezQuat>(), StandardTypeCreator);
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezInt8>(), StandardTypeCreator);
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezUInt8>(), StandardTypeCreator);
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezInt16>(), StandardTypeCreator);
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezUInt16>(), StandardTypeCreator);
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezInt32>(), StandardTypeCreator);
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezUInt32>(), StandardTypeCreator);
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezInt64>(), StandardTypeCreator);
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezUInt64>(), StandardTypeCreator);
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezConstCharPtr>(), StandardTypeCreator);
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezString>(), StandardTypeCreator);
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezTime>(), StandardTypeCreator);
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezColor>(), StandardTypeCreator);
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezAngle>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<bool>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<float>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<double>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec2>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec3>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVec4>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezQuat>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezInt8>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezUInt8>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezInt16>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezUInt16>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezInt32>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezUInt32>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezInt64>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezUInt64>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezConstCharPtr>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezString>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezTime>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezColor>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezAngle>(), StandardTypeCreator);
 
   // TODO: ezMat3, ezMat4, ezTransform, ezUuid, ezVariant
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezEnumBase>(), EnumCreator);
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezBitflagsBase>(), BitflagsCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezEnumBase>(), EnumCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezBitflagsBase>(), BitflagsCreator);
 
-  ezPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezTagSetWidgetAttribute>(), TagSetCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezTagSetWidgetAttribute>(), TagSetCreator);
 }
 
 ON_CORE_SHUTDOWN
 {
-  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezPropertyGridWidget::PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezQtPropertyGridWidget::PropertyMetaStateEventHandler);
 }
 
 EZ_END_SUBSYSTEM_DECLARATION
 
-ezRttiMappedObjectFactory<ezQtPropertyWidget>& ezPropertyGridWidget::GetFactory()
+ezRttiMappedObjectFactory<ezQtPropertyWidget>& ezQtPropertyGridWidget::GetFactory()
 {
   return s_Factory;
 }
 
-ezPropertyGridWidget::ezPropertyGridWidget(QWidget* pParent, ezDocument* pDocument)
+ezQtPropertyGridWidget::ezQtPropertyGridWidget(QWidget* pParent, ezDocument* pDocument)
   : QWidget(pParent)
 {
   m_pDocument = pDocument;
@@ -172,41 +172,41 @@ ezPropertyGridWidget::ezPropertyGridWidget(QWidget* pParent, ezDocument* pDocume
 
   m_pTypeWidget = nullptr;
 
-  s_Factory.m_Events.AddEventHandler(ezMakeDelegate(&ezPropertyGridWidget::FactoryEventHandler, this));
-  ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezPropertyGridWidget::TypeEventHandler, this));
+  s_Factory.m_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::FactoryEventHandler, this));
+  ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::TypeEventHandler, this));
 
   m_pDocument = nullptr;
   SetDocument(pDocument);
 }
 
-ezPropertyGridWidget::~ezPropertyGridWidget()
+ezQtPropertyGridWidget::~ezQtPropertyGridWidget()
 {
-  s_Factory.m_Events.RemoveEventHandler(ezMakeDelegate(&ezPropertyGridWidget::FactoryEventHandler, this));
-  ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezPropertyGridWidget::TypeEventHandler, this));
+  s_Factory.m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::FactoryEventHandler, this));
+  ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::TypeEventHandler, this));
 
   if (m_pDocument)
   {
-    m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezPropertyGridWidget::SelectionEventHandler, this));
+    m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::SelectionEventHandler, this));
   }
 }
 
 
-void ezPropertyGridWidget::SetDocument(ezDocument* pDocument)
+void ezQtPropertyGridWidget::SetDocument(ezDocument* pDocument)
 {
   if (m_pDocument)
   {
-    m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezPropertyGridWidget::SelectionEventHandler, this));
+    m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::SelectionEventHandler, this));
   }
 
   m_pDocument = pDocument;
 
   if (m_pDocument)
   {
-    m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezPropertyGridWidget::SelectionEventHandler, this));
+    m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::SelectionEventHandler, this));
   }
 }
 
-void ezPropertyGridWidget::ClearSelection()
+void ezQtPropertyGridWidget::ClearSelection()
 {
   if (m_pTypeWidget)
   {
@@ -222,7 +222,7 @@ void ezPropertyGridWidget::ClearSelection()
   m_Selection.Clear();
 }
 
-void ezPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObject*>& selection)
+void ezQtPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObject*>& selection)
 {
   QtScopedUpdatesDisabled _(this);
 
@@ -247,44 +247,44 @@ void ezPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObject*>& 
 
     ezPropertyPath path;
     const ezRTTI* pCommonType = ezQtPropertyWidget::GetCommonBaseType(Items);
-    m_pTypeWidget = new ezTypeWidget(m_pContent, this, pCommonType, path);
+    m_pTypeWidget = new ezQtTypeWidget(m_pContent, this, pCommonType, path);
     m_pTypeWidget->SetSelection(Items);
 
     m_pContentLayout->insertWidget(0, m_pTypeWidget, 0);
   }
 }
 
-const ezDocument* ezPropertyGridWidget::GetDocument() const
+const ezDocument* ezQtPropertyGridWidget::GetDocument() const
 {
   return m_pDocument;
 }
 
-const ezDocumentObjectManager* ezPropertyGridWidget::GetObjectManager() const
+const ezDocumentObjectManager* ezQtPropertyGridWidget::GetObjectManager() const
 {
   return m_pDocument->GetObjectManager();
 }
 
-ezCommandHistory* ezPropertyGridWidget::GetCommandHistory() const
+ezCommandHistory* ezQtPropertyGridWidget::GetCommandHistory() const
 {
   return m_pDocument->GetCommandHistory();
 }
 
-ezQtPropertyWidget* ezPropertyGridWidget::CreateMemberPropertyWidget(const ezAbstractProperty* pProp)
+ezQtPropertyWidget* ezQtPropertyGridWidget::CreateMemberPropertyWidget(const ezAbstractProperty* pProp)
 {
   // Try to create a registered widget for an existing ezTypeWidgetAttribute.
   const ezTypeWidgetAttribute* pAttrib = pProp->GetAttributeByType<ezTypeWidgetAttribute>();
   if (pAttrib != nullptr)
   {
-    ezQtPropertyWidget* pWidget = ezPropertyGridWidget::GetFactory().CreateObject(pAttrib->GetDynamicRTTI());
+    ezQtPropertyWidget* pWidget = ezQtPropertyGridWidget::GetFactory().CreateObject(pAttrib->GetDynamicRTTI());
     if (pWidget != nullptr)
       return pWidget;
   }
 
   // Try to create a registered widget for the given property type.
-  return ezPropertyGridWidget::GetFactory().CreateObject(pProp->GetSpecificType());
+  return ezQtPropertyGridWidget::GetFactory().CreateObject(pProp->GetSpecificType());
 }
 
-ezQtPropertyWidget* ezPropertyGridWidget::CreatePropertyWidget(const ezAbstractProperty* pProp)
+ezQtPropertyWidget* ezQtPropertyGridWidget::CreatePropertyWidget(const ezAbstractProperty* pProp)
 {
   switch (pProp->GetCategory())
   {
@@ -294,7 +294,7 @@ ezQtPropertyWidget* ezPropertyGridWidget::CreatePropertyWidget(const ezAbstractP
       const ezTypeWidgetAttribute* pAttrib = pProp->GetAttributeByType<ezTypeWidgetAttribute>();
       if (pAttrib != nullptr)
       {
-        ezQtPropertyWidget* pWidget = ezPropertyGridWidget::GetFactory().CreateObject(pAttrib->GetDynamicRTTI());
+        ezQtPropertyWidget* pWidget = ezQtPropertyGridWidget::GetFactory().CreateObject(pAttrib->GetDynamicRTTI());
         if (pWidget != nullptr)
           return pWidget;
       }
@@ -327,7 +327,7 @@ ezQtPropertyWidget* ezPropertyGridWidget::CreatePropertyWidget(const ezAbstractP
       const ezContainerWidgetAttribute* pAttrib = pProp->GetAttributeByType<ezContainerWidgetAttribute>();
       if (pAttrib != nullptr)
       {
-        ezQtPropertyWidget* pWidget = ezPropertyGridWidget::GetFactory().CreateObject(pAttrib->GetDynamicRTTI());
+        ezQtPropertyWidget* pWidget = ezQtPropertyGridWidget::GetFactory().CreateObject(pAttrib->GetDynamicRTTI());
         if (pWidget != nullptr)
           return pWidget;
       }
@@ -357,7 +357,7 @@ ezQtPropertyWidget* ezPropertyGridWidget::CreatePropertyWidget(const ezAbstractP
   return new ezQtUnsupportedPropertyWidget();
 }
 
-void ezPropertyGridWidget::SetCollapseState(ezCollapsibleGroupBox* pBox)
+void ezQtPropertyGridWidget::SetCollapseState(ezQtCollapsibleGroupBox* pBox)
 {
   ezUInt32 uiHash = GetGroupBoxHash(pBox);
   bool bCollapsed = false;
@@ -368,9 +368,9 @@ void ezPropertyGridWidget::SetCollapseState(ezCollapsibleGroupBox* pBox)
   pBox->SetCollapseState(bCollapsed);
 }
 
-void ezPropertyGridWidget::OnCollapseStateChanged(bool bCollapsed)
+void ezQtPropertyGridWidget::OnCollapseStateChanged(bool bCollapsed)
 {
-  ezCollapsibleGroupBox* pBox = qobject_cast<ezCollapsibleGroupBox*>(sender());
+  ezQtCollapsibleGroupBox* pBox = qobject_cast<ezQtCollapsibleGroupBox*>(sender());
   ezUInt32 uiHash = GetGroupBoxHash(pBox);
   m_CollapseState[uiHash] = pBox->GetCollapseState();
 }
@@ -421,7 +421,7 @@ void GetDefaultValues(const ezRTTI* pType, ezPropertyPath& ParentPath, const ezD
   }
 }
 
-void ezPropertyGridWidget::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+void ezQtPropertyGridWidget::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
   const ezDocument* pDocument = e.m_pObject->GetDocumentObjectManager()->GetDocument();
   const ezRTTI* pType = e.m_pObject->GetTypeAccessor().GetType();
@@ -429,7 +429,7 @@ void ezPropertyGridWidget::PropertyMetaStateEventHandler(ezPropertyMetaStateEven
   GetDefaultValues(pType, ParentPath, pDocument, e);
 }
 
-void ezPropertyGridWidget::SelectionEventHandler(const ezSelectionManagerEvent& e)
+void ezQtPropertyGridWidget::SelectionEventHandler(const ezSelectionManagerEvent& e)
 {
   switch (e.m_Type)
   {
@@ -448,24 +448,24 @@ void ezPropertyGridWidget::SelectionEventHandler(const ezSelectionManagerEvent& 
   }
 }
 
-void ezPropertyGridWidget::FactoryEventHandler(const ezRttiMappedObjectFactory<ezQtPropertyWidget>::Event& e)
+void ezQtPropertyGridWidget::FactoryEventHandler(const ezRttiMappedObjectFactory<ezQtPropertyWidget>::Event& e)
 {
   SetSelection(m_pDocument->GetSelectionManager()->GetSelection());
 }
 
-void ezPropertyGridWidget::TypeEventHandler(const ezPhantomRttiManagerEvent& e)
+void ezQtPropertyGridWidget::TypeEventHandler(const ezPhantomRttiManagerEvent& e)
 {
   SetSelection(m_pDocument->GetSelectionManager()->GetSelection());
 }
 
-ezUInt32 ezPropertyGridWidget::GetGroupBoxHash(ezCollapsibleGroupBox* pBox) const
+ezUInt32 ezQtPropertyGridWidget::GetGroupBoxHash(ezQtCollapsibleGroupBox* pBox) const
 {
   ezUInt32 uiHash = 0;
 
   QWidget* pCur = pBox;
   while (pCur != nullptr && pCur != this)
   {
-    ezCollapsibleGroupBox* pCurBox = qobject_cast<ezCollapsibleGroupBox*>(pCur);
+    ezQtCollapsibleGroupBox* pCurBox = qobject_cast<ezQtCollapsibleGroupBox*>(pCur);
     if (pCurBox != nullptr)
     {
       uiHash = ezHashing::MurmurHash(ezHashing::StringWrapper(pCurBox->title().toUtf8().data()), uiHash);

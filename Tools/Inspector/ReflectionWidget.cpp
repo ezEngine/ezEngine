@@ -4,9 +4,9 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <MainWindow.moc.h>
 
-ezReflectionWidget* ezReflectionWidget::s_pWidget = nullptr;
+ezQtReflectionWidget* ezQtReflectionWidget::s_pWidget = nullptr;
 
-ezReflectionWidget::ezReflectionWidget(QWidget* parent) : QDockWidget (parent)
+ezQtReflectionWidget::ezQtReflectionWidget(QWidget* parent) : QDockWidget (parent)
 {
   s_pWidget = this;
 
@@ -15,7 +15,7 @@ ezReflectionWidget::ezReflectionWidget(QWidget* parent) : QDockWidget (parent)
   ResetStats();
 }
 
-void ezReflectionWidget::ResetStats()
+void ezQtReflectionWidget::ResetStats()
 {
   TypeTree->clear();
 
@@ -32,7 +32,7 @@ void ezReflectionWidget::ResetStats()
   }
 }
 
-void ezReflectionWidget::ProcessTelemetry(void* pUnuseed)
+void ezQtReflectionWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;
@@ -103,7 +103,7 @@ found:
   }
 }
 
-bool ezReflectionWidget::UpdateTree()
+bool ezQtReflectionWidget::UpdateTree()
 {
   bool bAddedAny = false;
 

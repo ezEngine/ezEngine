@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QColorGradientWidget" name="GradientWidget" native="true">
+    <widget class="ezQtColorGradientWidget" name="GradientWidget" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
@@ -158,7 +158,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QColorGradientWidget</class>
+   <class>ezQtColorGradientWidget</class>
    <extends>QWidget</extends>
    <header location="global">GuiFoundation/Widgets/ColorGradientWidget.moc.h</header>
    <container>1</container>

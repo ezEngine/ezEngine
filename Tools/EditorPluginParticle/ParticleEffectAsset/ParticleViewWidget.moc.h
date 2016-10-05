@@ -3,14 +3,15 @@
 #include <Foundation/Basics.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 
-class ezParticleEffectAssetDocumentWindow;
+class ezQtParticleEffectAssetDocumentWindow;
 class ezOrbitCameraContext;
 
 class ezQtParticleViewWidget : public ezQtEngineViewWidget
 {
   Q_OBJECT
+
 public:
-  ezQtParticleViewWidget(QWidget* pParent, ezParticleEffectAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig);
+  ezQtParticleViewWidget(QWidget* pParent, ezQtParticleEffectAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig);
   ~ezQtParticleViewWidget();
 
 private:

@@ -7,15 +7,15 @@
 #include <Foundation/Strings/String.h>
 #include <Core/Input/InputManager.h>
 
-class ezInputWidget : public QDockWidget, public Ui_InputWidget
+class ezQtInputWidget : public QDockWidget, public Ui_InputWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezInputWidget(QWidget* parent = 0);
+  ezQtInputWidget(QWidget* parent = 0);
 
-  static ezInputWidget* s_pWidget;
+  static ezQtInputWidget* s_pWidget;
 
 private slots:
   virtual void on_ButtonClearSlots_clicked();

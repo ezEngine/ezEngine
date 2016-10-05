@@ -3,11 +3,11 @@
 #include <GuiFoundation/Basics.h>
 #include <QDoubleSpinBox>
 
-class EZ_GUIFOUNDATION_DLL ezQDoubleSpinBox : public QDoubleSpinBox
+class EZ_GUIFOUNDATION_DLL ezQtDoubleSpinBox : public QDoubleSpinBox
 {
   Q_OBJECT
 public:
-  explicit ezQDoubleSpinBox(QWidget* pParent, bool bIntMode = false);
+  explicit ezQtDoubleSpinBox(QWidget* pParent, bool bIntMode = false);
 
   void setDisplaySuffix(const char* szSuffix);
   void setDefaultValue(double value);

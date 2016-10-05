@@ -5,7 +5,7 @@
 #include <QGraphicsItem>
 #include <QPainterPath>
 
-QCurve1DEditorWidget::QCurve1DEditorWidget(QWidget* pParent)
+ezQtCurve1DEditorWidget::ezQtCurve1DEditorWidget(QWidget* pParent)
   : QWidget(pParent)
 {
   setupUi(this);
@@ -13,18 +13,18 @@ QCurve1DEditorWidget::QCurve1DEditorWidget(QWidget* pParent)
   m_Scene.setItemIndexMethod(QGraphicsScene::NoIndex);
   GraphicsView->setScene(&m_Scene);
 
-  connect(GraphicsView, &ezQGraphicsView::BeginDrag, this, [this]() { emit BeginOperation(); });
-  connect(GraphicsView, &ezQGraphicsView::EndDrag, this, [this]() { emit EndOperation(true); });
-  connect(GraphicsView, &ezQGraphicsView::DeleteCPs, this, &QCurve1DEditorWidget::onDeleteCPs);
+  connect(GraphicsView, &ezQtGraphicsView::BeginDrag, this, [this]() { emit BeginOperation(); });
+  connect(GraphicsView, &ezQtGraphicsView::EndDrag, this, [this]() { emit EndOperation(true); });
+  connect(GraphicsView, &ezQtGraphicsView::DeleteCPs, this, &ezQtCurve1DEditorWidget::onDeleteCPs);
 }
 
 
-QCurve1DEditorWidget::~QCurve1DEditorWidget()
+ezQtCurve1DEditorWidget::~ezQtCurve1DEditorWidget()
 {
 
 }
 
-void QCurve1DEditorWidget::SetNumCurves(ezUInt32 num)
+void ezQtCurve1DEditorWidget::SetNumCurves(ezUInt32 num)
 {
   if (num < m_Curves.GetCount())
   {
@@ -37,7 +37,7 @@ void QCurve1DEditorWidget::SetNumCurves(ezUInt32 num)
   m_Curves.SetCount(num);
 }
 
-void QCurve1DEditorWidget::SetCurve1D(ezUInt32 idx, const ezCurve1D& curve)
+void ezQtCurve1DEditorWidget::SetCurve1D(ezUInt32 idx, const ezCurve1D& curve)
 {
   QtScopedUpdatesDisabled ud(this);
   QtScopedBlockSignals bs(this);
@@ -48,14 +48,14 @@ void QCurve1DEditorWidget::SetCurve1D(ezUInt32 idx, const ezCurve1D& curve)
 }
 
 
-void QCurve1DEditorWidget::FrameCurve()
+void ezQtCurve1DEditorWidget::FrameCurve()
 {
 
   //curveWidget->update();
 }
 
 
-void QCurve1DEditorWidget::SetControlPoints(const ezSet<ControlPointMove>& moves)
+void ezQtCurve1DEditorWidget::SetControlPoints(const ezSet<ControlPointMove>& moves)
 {
   if (m_Scene.signalsBlocked())
     return;
@@ -77,12 +77,12 @@ void QCurve1DEditorWidget::SetControlPoints(const ezSet<ControlPointMove>& moves
   UpdateCpUi();
 }
 
-void QCurve1DEditorWidget::on_ButtonFrame_clicked()
+void ezQtCurve1DEditorWidget::on_ButtonFrame_clicked()
 {
   FrameCurve();
 }
 
-//void QCurve1DEditorWidget::on_curveWidget_selectionChanged(ezInt32 colorCP, ezInt32 alphaCP, ezInt32 intensityCP)
+//void ezQtCurve1DEditorWidget::on_curveWidget_selectionChanged(ezInt32 colorCP, ezInt32 alphaCP, ezInt32 intensityCP)
 //{
 //  m_iSelectedColorCP = colorCP;
 //  m_iSelectedAlphaCP = alphaCP;
@@ -104,7 +104,7 @@ void QCurve1DEditorWidget::on_ButtonFrame_clicked()
 //}
 
 
-void QCurve1DEditorWidget::on_SpinPosition_valueChanged(double value)
+void ezQtCurve1DEditorWidget::on_SpinPosition_valueChanged(double value)
 {
   //if (m_iSelectedColorCP != -1)
   //{
@@ -112,7 +112,7 @@ void QCurve1DEditorWidget::on_SpinPosition_valueChanged(double value)
   //}
 }
 
-void QCurve1DEditorWidget::on_SpinValue_valueChanged(double value)
+void ezQtCurve1DEditorWidget::on_SpinValue_valueChanged(double value)
 {
   //if (m_iSelectedIntensityCP != -1)
   //{
@@ -121,18 +121,18 @@ void QCurve1DEditorWidget::on_SpinValue_valueChanged(double value)
 }
 
 
-void QCurve1DEditorWidget::on_ButtonNormalizeX_clicked()
+void ezQtCurve1DEditorWidget::on_ButtonNormalizeX_clicked()
 {
   emit NormalizeRangeX();
 }
 
 
-void QCurve1DEditorWidget::on_ButtonNormalizeY_clicked()
+void ezQtCurve1DEditorWidget::on_ButtonNormalizeY_clicked()
 {
   emit NormalizeRangeY();
 }
 
-void QCurve1DEditorWidget::onDeleteCPs()
+void ezQtCurve1DEditorWidget::onDeleteCPs()
 {
   QList<QGraphicsItem*> selection = m_Scene.selectedItems();
 
@@ -159,7 +159,7 @@ void QCurve1DEditorWidget::onDeleteCPs()
   }
 }
 
-void QCurve1DEditorWidget::UpdateCpUi()
+void ezQtCurve1DEditorWidget::UpdateCpUi()
 {
   if (m_Scene.signalsBlocked())
     return;

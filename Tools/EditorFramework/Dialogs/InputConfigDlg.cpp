@@ -40,7 +40,7 @@ void UpdateInputDynamicEnumValues()
   }
 }
 
-InputConfigDlg::InputConfigDlg(QWidget* parent) : QDialog(parent)
+ezQtInputConfigDlg::ezQtInputConfigDlg(QWidget* parent) : QDialog(parent)
 {
   setupUi(this);
 
@@ -66,7 +66,7 @@ InputConfigDlg::InputConfigDlg(QWidget* parent) : QDialog(parent)
   on_TreeActions_itemSelectionChanged();
 }
 
-void InputConfigDlg::on_ButtonNewInputSet_clicked()
+void ezQtInputConfigDlg::on_ButtonNewInputSet_clicked()
 {
   QString sResult = QInputDialog::getText(this, "Input Set Name", "Name:");
 
@@ -79,14 +79,14 @@ void InputConfigDlg::on_ButtonNewInputSet_clicked()
 
   if (m_InputSetToItem.Find(sName).IsValid())
   {
-    ezUIServices::GetSingleton()->MessageBoxInformation("An Input Set with this name already exists.");
+    ezQtUiServices::GetSingleton()->MessageBoxInformation("An Input Set with this name already exists.");
   }
   else
   {
     auto* pItem = new QTreeWidgetItem(TreeActions);
     pItem->setText(0, sResult);
     pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
-    pItem->setIcon(0, ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Input16.png"));
+    pItem->setIcon(0, ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Input16.png"));
 
     m_InputSetToItem[sName] = pItem;
   }
@@ -94,7 +94,7 @@ void InputConfigDlg::on_ButtonNewInputSet_clicked()
   TreeActions->setItemSelected(m_InputSetToItem[sName], true);
 }
 
-void InputConfigDlg::on_ButtonNewAction_clicked()
+void ezQtInputConfigDlg::on_ButtonNewAction_clicked()
 {
   if (TreeActions->selectedItems().isEmpty())
     return;
@@ -116,7 +116,7 @@ void InputConfigDlg::on_ButtonNewAction_clicked()
   TreeActions->editItem(pNewItem);
 }
 
-void InputConfigDlg::on_ButtonRemove_clicked()
+void ezQtInputConfigDlg::on_ButtonRemove_clicked()
 {
   if (TreeActions->selectedItems().isEmpty())
     return;
@@ -128,21 +128,21 @@ void InputConfigDlg::on_ButtonRemove_clicked()
 
   if (TreeActions->indexOfTopLevelItem(pItem) >= 0)
   {
-    if (ezUIServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove the entire Input Set?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove the entire Input Set?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
       return;
 
     m_InputSetToItem.Remove(pItem->text(0).toUtf8().data());
   }
   else
   {
-    if (ezUIServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove this action?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove this action?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
       return;
   }
 
   delete pItem;
 }
 
-void InputConfigDlg::on_ButtonOk_clicked()
+void ezQtInputConfigDlg::on_ButtonOk_clicked()
 {
   GetActionsFromList();
   SaveActions();
@@ -150,19 +150,19 @@ void InputConfigDlg::on_ButtonOk_clicked()
   accept();
 }
 
-void InputConfigDlg::on_ButtonCancel_clicked()
+void ezQtInputConfigDlg::on_ButtonCancel_clicked()
 {
   reject();
 }
 
-void InputConfigDlg::on_ButtonReset_clicked()
+void ezQtInputConfigDlg::on_ButtonReset_clicked()
 {
   LoadActions();
   FillList();
   on_TreeActions_itemSelectionChanged();
 }
 
-void InputConfigDlg::on_TreeActions_itemSelectionChanged()
+void ezQtInputConfigDlg::on_TreeActions_itemSelectionChanged()
 {
   const bool hasSelection = !TreeActions->selectedItems().isEmpty();
 
@@ -170,7 +170,7 @@ void InputConfigDlg::on_TreeActions_itemSelectionChanged()
   ButtonNewAction->setEnabled(hasSelection);
 }
 
-void InputConfigDlg::LoadActions()
+void ezQtInputConfigDlg::LoadActions()
 {
   m_Actions.Clear();
 
@@ -185,7 +185,7 @@ void InputConfigDlg::LoadActions()
   ezGameAppInputConfig::ReadFromJson(file, m_Actions);
 }
 
-void InputConfigDlg::SaveActions()
+void ezQtInputConfigDlg::SaveActions()
 {
   ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectFile();
   sPath.PathParentDirectory();
@@ -198,7 +198,7 @@ void InputConfigDlg::SaveActions()
   ezGameAppInputConfig::WriteToJson(file, m_Actions);
 }
 
-void InputConfigDlg::FillList()
+void ezQtInputConfigDlg::FillList()
 {
   QtScopedBlockSignals bs(TreeActions);
   QtScopedUpdatesDisabled bu(TreeActions);
@@ -218,7 +218,7 @@ void InputConfigDlg::FillList()
     auto* pItem = new QTreeWidgetItem(TreeActions);
     pItem->setText(0, it.Key().GetData());
     pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
-    pItem->setIcon(0, ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Input16.png"));
+    pItem->setIcon(0, ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Input16.png"));
 
     m_InputSetToItem[it.Key()] = pItem;
   }
@@ -243,7 +243,7 @@ void InputConfigDlg::FillList()
   TreeActions->resizeColumnToContents(7);
 }
 
-void InputConfigDlg::GetActionsFromList()
+void ezQtInputConfigDlg::GetActionsFromList()
 {
   m_Actions.Clear();
 
@@ -272,7 +272,7 @@ void InputConfigDlg::GetActionsFromList()
 
 }
 
-QTreeWidgetItem* InputConfigDlg::CreateActionItem(QTreeWidgetItem* pParentItem, const ezGameAppInputConfig& action)
+QTreeWidgetItem* ezQtInputConfigDlg::CreateActionItem(QTreeWidgetItem* pParentItem, const ezGameAppInputConfig& action)
 {
   auto* pItem = new QTreeWidgetItem(pParentItem);
   pItem->setText(0, action.m_sInputAction.GetData());

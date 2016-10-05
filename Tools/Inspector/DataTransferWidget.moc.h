@@ -8,15 +8,15 @@
 #include <QDockWidget>
 #include <Tools/Inspector/ui_DataTransferWidget.h>
 
-class ezDataWidget : public QDockWidget, public Ui_DataTransferWidget
+class ezQtDataWidget : public QDockWidget, public Ui_DataTransferWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezDataWidget(QWidget* parent = 0);
+  ezQtDataWidget(QWidget* parent = 0);
 
-  static ezDataWidget* s_pWidget;
+  static ezQtDataWidget* s_pWidget;
 
 private slots:
   virtual void on_ButtonRefresh_clicked();

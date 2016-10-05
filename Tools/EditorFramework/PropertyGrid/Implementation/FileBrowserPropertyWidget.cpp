@@ -92,7 +92,7 @@ void ezQtFilePropertyWidget::OnOpenExplorer()
   if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
     return;
 
-  ezUIServices::OpenInExplorer(sPath);
+  ezQtUiServices::OpenInExplorer(sPath);
 }
 
 
@@ -102,8 +102,8 @@ void ezQtFilePropertyWidget::OnOpenFile()
   if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
     return;
 
-  if (!ezUIServices::OpenFileInDefaultProgram(sPath))
-    ezUIServices::MessageBoxInformation("File could not be opened.\nCheck that the file exists, that a program is associated with this file type and that access to this file is not denied.");
+  if (!ezQtUiServices::OpenFileInDefaultProgram(sPath))
+    ezQtUiServices::MessageBoxInformation("File could not be opened.\nCheck that the file exists, that a program is associated with this file type and that access to this file is not denied.");
 }
 
 static ezMap<ezString, ezString> s_StartDirs;
@@ -138,7 +138,7 @@ void ezQtFilePropertyWidget::on_BrowseFile_clicked()
 
   if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sFile))
   {
-    ezUIServices::GetSingleton()->MessageBoxInformation("The selected file is not under any data directory.\nPlease select another file or copy it into one of the project's data directories.");
+    ezQtUiServices::GetSingleton()->MessageBoxInformation("The selected file is not under any data directory.\nPlease select another file or copy it into one of the project's data directories.");
     return;
   }
 

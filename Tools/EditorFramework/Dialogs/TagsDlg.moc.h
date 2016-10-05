@@ -7,13 +7,13 @@
 #include <Foundation/Containers/Map.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>
 
-class EZ_EDITORFRAMEWORK_DLL TagsDlg : public QDialog, public Ui_TagsDlg
+class EZ_EDITORFRAMEWORK_DLL ezQtTagsDlg : public QDialog, public Ui_TagsDlg
 {
 public:
   Q_OBJECT
 
 public:
-  TagsDlg(QWidget* parent);
+  ezQtTagsDlg(QWidget* parent);
 
   private slots:
   void on_ButtonNewCategory_clicked();

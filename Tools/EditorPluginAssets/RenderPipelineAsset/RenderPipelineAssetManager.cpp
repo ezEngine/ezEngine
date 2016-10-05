@@ -42,7 +42,7 @@ void ezRenderPipelineAssetManager::OnDocumentManagerEvent(const ezDocumentManage
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezRenderPipelineAssetDocument>())
       {
-        ezRenderPipelineAssetDocumentWindow* pDocWnd = new ezRenderPipelineAssetDocumentWindow(e.m_pDocument);
+        ezQtRenderPipelineAssetDocumentWindow* pDocWnd = new ezQtRenderPipelineAssetDocumentWindow(e.m_pDocument);
       }
     }
     break;

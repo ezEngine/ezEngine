@@ -7,15 +7,15 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Configuration/Startup.h>
 
-class ezSubsystemsWidget : public QDockWidget, public Ui_SubsystemsWidget
+class ezQtSubsystemsWidget : public QDockWidget, public Ui_SubsystemsWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezSubsystemsWidget(QWidget* parent = 0);
+  ezQtSubsystemsWidget(QWidget* parent = 0);
 
-  static ezSubsystemsWidget* s_pWidget;
+  static ezQtSubsystemsWidget* s_pWidget;
 
 public:
   static void ProcessTelemetry(void* pUnuseed);

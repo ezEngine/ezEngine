@@ -12,13 +12,13 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
 ////////////////////////////////////////////////////////////////////////
-// ezAssetBrowserModel public functions
+// ezQtAssetBrowserModel public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezAssetBrowserModel::ezAssetBrowserModel(QObject* pParent)
+ezQtAssetBrowserModel::ezQtAssetBrowserModel(QObject* pParent)
   : QAbstractItemModel(pParent)
 {
-  ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezAssetBrowserModel::AssetCuratorEventHandler, this));
+  ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtAssetBrowserModel::AssetCuratorEventHandler, this));
 
   resetModel();
   SetIconMode(true);
@@ -28,12 +28,12 @@ ezAssetBrowserModel::ezAssetBrowserModel(QObject* pParent)
   EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), SIGNAL(ImageInvalidated(QString, ezUInt32)), this, SLOT(ThumbnailInvalidated(QString, ezUInt32))) != nullptr, "signal/slot connection failed");
 }
 
-ezAssetBrowserModel::~ezAssetBrowserModel()
+ezQtAssetBrowserModel::~ezQtAssetBrowserModel()
 {
-  ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetBrowserModel::AssetCuratorEventHandler, this));
+  ezAssetCurator::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtAssetBrowserModel::AssetCuratorEventHandler, this));
 }
 
-void ezAssetBrowserModel::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
+void ezQtAssetBrowserModel::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
 {
   switch (e.m_Type)
   {
@@ -53,7 +53,7 @@ void ezAssetBrowserModel::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
 }
 
 
-ezInt32 ezAssetBrowserModel::FindAssetIndex(const ezUuid& assetGuid) const
+ezInt32 ezQtAssetBrowserModel::FindAssetIndex(const ezUuid& assetGuid) const
 {
   for (ezUInt32 i = 0; i < m_AssetsToDisplay.GetCount(); ++i)
   {
@@ -66,7 +66,7 @@ ezInt32 ezAssetBrowserModel::FindAssetIndex(const ezUuid& assetGuid) const
   return -1;
 }
 
-void ezAssetBrowserModel::SetShowItemsInSubFolders(bool bShow)
+void ezQtAssetBrowserModel::SetShowItemsInSubFolders(bool bShow)
 {
   if (m_bShowItemsInSubFolders == bShow)
     return;
@@ -77,7 +77,7 @@ void ezAssetBrowserModel::SetShowItemsInSubFolders(bool bShow)
   emit ShowSubFolderItemsChanged();
 }
 
-void ezAssetBrowserModel::SetSortByRecentUse(bool bSort)
+void ezQtAssetBrowserModel::SetSortByRecentUse(bool bSort)
 {
   if (m_bSortByRecentUse == bSort)
     return;
@@ -89,7 +89,7 @@ void ezAssetBrowserModel::SetSortByRecentUse(bool bSort)
 }
 
 
-void ezAssetBrowserModel::SetTextFilter(const char* szText)
+void ezQtAssetBrowserModel::SetTextFilter(const char* szText)
 {
   ezStringBuilder sCleanText = szText;
   sCleanText.MakeCleanPath();
@@ -103,7 +103,7 @@ void ezAssetBrowserModel::SetTextFilter(const char* szText)
   emit TextFilterChanged();
 }
 
-void ezAssetBrowserModel::SetPathFilter(const char* szPath)
+void ezQtAssetBrowserModel::SetPathFilter(const char* szPath)
 {
   ezStringBuilder sCleanText = szPath;
   sCleanText.MakeCleanPath();
@@ -118,7 +118,7 @@ void ezAssetBrowserModel::SetPathFilter(const char* szPath)
   emit PathFilterChanged();
 }
 
-void ezAssetBrowserModel::SetTypeFilter(const char* szTypes)
+void ezQtAssetBrowserModel::SetTypeFilter(const char* szTypes)
 {
   if (m_sTypeFilter == szTypes)
     return;
@@ -130,7 +130,7 @@ void ezAssetBrowserModel::SetTypeFilter(const char* szTypes)
   emit TypeFilterChanged();
 }
 
-void ezAssetBrowserModel::resetModel()
+void ezQtAssetBrowserModel::resetModel()
 {
   beginResetModel();
 
@@ -200,10 +200,10 @@ void ezAssetBrowserModel::resetModel()
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ezAssetBrowserModel QAbstractItemModel functions
+// ezQtAssetBrowserModel QAbstractItemModel functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezAssetBrowserModel::ThumbnailLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2)
+void ezQtAssetBrowserModel::ThumbnailLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2)
 {
   const ezUuid guid(UserData1.toULongLong(), UserData2.toULongLong());
 
@@ -218,7 +218,7 @@ void ezAssetBrowserModel::ThumbnailLoaded(QString sPath, QModelIndex index, QVar
   }
 }
 
-void ezAssetBrowserModel::ThumbnailInvalidated(QString sPath, ezUInt32 uiImageID)
+void ezQtAssetBrowserModel::ThumbnailInvalidated(QString sPath, ezUInt32 uiImageID)
 {
   for (ezUInt32 i = 0; i < m_AssetsToDisplay.GetCount(); ++i)
   {
@@ -231,7 +231,7 @@ void ezAssetBrowserModel::ThumbnailInvalidated(QString sPath, ezUInt32 uiImageID
   }
 }
 
-QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
+QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
 {
   if (!index.isValid() || index.column() != 0)
     return QVariant();
@@ -297,7 +297,7 @@ QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
       sIconName.ReplaceAll("(", "");
       sIconName.ReplaceAll(")", "");
 
-      return ezUIServices::GetCachedPixmapResource(sIconName.GetData());
+      return ezQtUiServices::GetCachedPixmapResource(sIconName.GetData());
     }
     
   case UserRoles::TransformState:
@@ -307,7 +307,7 @@ QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
   return QVariant();
 }
 
-Qt::ItemFlags ezAssetBrowserModel::flags(const QModelIndex& index) const
+Qt::ItemFlags ezQtAssetBrowserModel::flags(const QModelIndex& index) const
 {
   if (!index.isValid())
     return 0;
@@ -315,7 +315,7 @@ Qt::ItemFlags ezAssetBrowserModel::flags(const QModelIndex& index) const
   return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
 }
 
-QVariant ezAssetBrowserModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant ezQtAssetBrowserModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
   if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
   {
@@ -328,7 +328,7 @@ QVariant ezAssetBrowserModel::headerData(int section, Qt::Orientation orientatio
   return QVariant();
 }
 
-QModelIndex ezAssetBrowserModel::index(int row, int column, const QModelIndex& parent) const
+QModelIndex ezQtAssetBrowserModel::index(int row, int column, const QModelIndex& parent) const
 {
   if (parent.isValid() || column != 0)
     return QModelIndex();
@@ -336,12 +336,12 @@ QModelIndex ezAssetBrowserModel::index(int row, int column, const QModelIndex& p
   return createIndex(row, column);
 }
 
-QModelIndex ezAssetBrowserModel::parent(const QModelIndex& index) const
+QModelIndex ezQtAssetBrowserModel::parent(const QModelIndex& index) const
 {
   return QModelIndex();
 }
 
-int ezAssetBrowserModel::rowCount(const QModelIndex& parent) const
+int ezQtAssetBrowserModel::rowCount(const QModelIndex& parent) const
 {
   if (parent.isValid())
     return 0;
@@ -349,19 +349,19 @@ int ezAssetBrowserModel::rowCount(const QModelIndex& parent) const
   return (int)m_AssetsToDisplay.GetCount();
 }
 
-int ezAssetBrowserModel::columnCount(const QModelIndex& parent) const
+int ezQtAssetBrowserModel::columnCount(const QModelIndex& parent) const
 {
   return 1;
 }
 
-QStringList ezAssetBrowserModel::mimeTypes() const
+QStringList ezQtAssetBrowserModel::mimeTypes() const
 {
   QStringList types;
   types << "application/ezEditor.AssetGuid";
   return types;
 }
 
-QMimeData* ezAssetBrowserModel::mimeData(const QModelIndexList& indexes) const
+QMimeData* ezQtAssetBrowserModel::mimeData(const QModelIndexList& indexes) const
 {
   QMimeData* mimeData = new QMimeData();
   QByteArray encodedData;

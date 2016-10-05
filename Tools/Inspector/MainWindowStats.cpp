@@ -5,7 +5,7 @@
 #include <qstandardpaths.h>
 #include <qdir.h>
 
-void ezMainWindow::SaveFavourites()
+void ezQtMainWindow::SaveFavourites()
 {
   QString sFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
   QDir d; d.mkpath(sFile);
@@ -30,7 +30,7 @@ void ezMainWindow::SaveFavourites()
   f.close();
 }
 
-void ezMainWindow::LoadFavourites()
+void ezQtMainWindow::LoadFavourites()
 {
   QString sFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
   QDir d; d.mkpath(sFile);
@@ -60,14 +60,14 @@ void ezMainWindow::LoadFavourites()
   f.close();
 }
 
-void ezMainWindow::ResetStats()
+void ezQtMainWindow::ResetStats()
 {
   m_Stats.Clear();
   TreeStats->clear();
   TreeFavourites->clear();
 }
 
-void ezMainWindow::UpdateStats()
+void ezQtMainWindow::UpdateStats()
 {
   static bool bWasConnected = false;
   const bool bIsConnected = ezTelemetry::IsConnectedToServer();
@@ -95,7 +95,7 @@ void ezMainWindow::UpdateStats()
   UpdateAlwaysOnTop();
 }
 
-QTreeWidgetItem* ezMainWindow::CreateStat(const char* szPath, bool bParent)
+QTreeWidgetItem* ezQtMainWindow::CreateStat(const char* szPath, bool bParent)
 {
   ezStringBuilder sCleanPath = szPath;
   if (sCleanPath.EndsWith("/"))
@@ -192,7 +192,7 @@ double ExtractValue(const char* szString)
   return dRes;
 }
 
-void ezMainWindow::SetFavourite(const ezString& sStat, bool bFavourite)
+void ezQtMainWindow::SetFavourite(const ezString& sStat, bool bFavourite)
 {
   StatData& sd = m_Stats[sStat];
 
@@ -223,7 +223,7 @@ void ezMainWindow::SetFavourite(const ezString& sStat, bool bFavourite)
   }
 }
 
-void ezMainWindow::on_TreeStats_itemChanged(QTreeWidgetItem* item, int column)
+void ezQtMainWindow::on_TreeStats_itemChanged(QTreeWidgetItem* item, int column)
 {
   if (column == 0)
   {
@@ -234,7 +234,7 @@ void ezMainWindow::on_TreeStats_itemChanged(QTreeWidgetItem* item, int column)
   }
 }
 
-void ezMainWindow::on_TreeStats_customContextMenuRequested(const QPoint& p)
+void ezQtMainWindow::on_TreeStats_customContextMenuRequested(const QPoint& p)
 {
   if (!TreeStats->currentItem())
     return;
@@ -259,7 +259,7 @@ void ezMainWindow::on_TreeStats_customContextMenuRequested(const QPoint& p)
 }
 
 
-void ezMainWindow::ShowStatIn()
+void ezQtMainWindow::ShowStatIn()
 {
   if (!TreeStats->currentItem())
     return;

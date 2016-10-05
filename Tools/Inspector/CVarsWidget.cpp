@@ -8,9 +8,9 @@
 #include <qspinbox.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
-ezCVarsWidget* ezCVarsWidget::s_pWidget = nullptr;
+ezQtCVarsWidget* ezQtCVarsWidget::s_pWidget = nullptr;
 
-ezCVarsWidget::ezCVarsWidget(QWidget* parent) : QDockWidget (parent)
+ezQtCVarsWidget::ezQtCVarsWidget(QWidget* parent) : QDockWidget (parent)
 {
   s_pWidget = this;
 
@@ -19,7 +19,7 @@ ezCVarsWidget::ezCVarsWidget(QWidget* parent) : QDockWidget (parent)
   ResetStats();
 }
 
-void ezCVarsWidget::ResetStats()
+void ezQtCVarsWidget::ResetStats()
 {
   m_CVarsBackup = m_CVars;
   m_CVars.Clear();
@@ -40,7 +40,7 @@ void ezCVarsWidget::ResetStats()
   }
 }
 
-void ezCVarsWidget::ProcessTelemetry(void* pUnuseed)
+void ezQtCVarsWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;
@@ -120,7 +120,7 @@ void ezCVarsWidget::ProcessTelemetry(void* pUnuseed)
 
 }
 
-void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
+void ezQtCVarsWidget::UpdateCVarsTable(bool bRecreate)
 {
   TableCVars->blockSignals(true);
 
@@ -149,7 +149,7 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
       it.Value().m_iTableRow = iRow;
 
       QLabel* pIcon = new QLabel();
-      pIcon->setPixmap(ezUIServices::GetCachedPixmapResource(":/Icons/Icons/CVar.png"));
+      pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/CVar.png"));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableCVars->setCellWidget(iRow, 0, pIcon);
 
@@ -261,13 +261,13 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
   }
 }
 
-void ezCVarsWidget::SyncAllCVarsToServer()
+void ezQtCVarsWidget::SyncAllCVarsToServer()
 {
   for (auto it = m_CVars.GetIterator(); it.IsValid(); ++it)
     SendCVarUpdateToServer(it.Key().GetData(), it.Value());
 }
 
-void ezCVarsWidget::SendCVarUpdateToServer(const char* szName, const CVarData& cvd)
+void ezQtCVarsWidget::SendCVarUpdateToServer(const char* szName, const CVarData& cvd)
 {
   ezTelemetryMessage Msg;
   Msg.SetMessageID('SVAR', 'SET');
@@ -296,7 +296,7 @@ void ezCVarsWidget::SendCVarUpdateToServer(const char* szName, const CVarData& c
   ezTelemetry::SendToServer(Msg);
 }
 
-void ezCVarsWidget::BoolChanged(int index)
+void ezQtCVarsWidget::BoolChanged(int index)
 {
   for (ezMap<ezString, CVarData>::Iterator it = m_CVars.GetIterator(); it.IsValid(); ++it)
   {
@@ -316,7 +316,7 @@ void ezCVarsWidget::BoolChanged(int index)
   }
 }
 
-void ezCVarsWidget::FloatChanged(double val)
+void ezQtCVarsWidget::FloatChanged(double val)
 {
   for (ezMap<ezString, CVarData>::Iterator it = m_CVars.GetIterator(); it.IsValid(); ++it)
   {
@@ -334,7 +334,7 @@ void ezCVarsWidget::FloatChanged(double val)
   }
 }
 
-void ezCVarsWidget::IntChanged(int val)
+void ezQtCVarsWidget::IntChanged(int val)
 {
   for (ezMap<ezString, CVarData>::Iterator it = m_CVars.GetIterator(); it.IsValid(); ++it)
   {
@@ -352,7 +352,7 @@ void ezCVarsWidget::IntChanged(int val)
   }
 }
 
-void ezCVarsWidget::StringChanged(const QString& val)
+void ezQtCVarsWidget::StringChanged(const QString& val)
 {
   for (ezMap<ezString, CVarData>::Iterator it = m_CVars.GetIterator(); it.IsValid(); ++it)
   {

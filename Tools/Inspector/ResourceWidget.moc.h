@@ -8,15 +8,15 @@
 #include <Foundation/Time/Time.h>
 #include <Core/ResourceManager/Resource.h>
 
-class ezResourceWidget : public QDockWidget, public Ui_ResourceWidget
+class ezQtResourceWidget : public QDockWidget, public Ui_ResourceWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezResourceWidget(QWidget* parent = 0);
+  ezQtResourceWidget(QWidget* parent = 0);
 
-  static ezResourceWidget* s_pWidget;
+  static ezQtResourceWidget* s_pWidget;
 
 private slots:
 

@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="ezQGraphicsView" name="GraphicsView"/>
+    <widget class="ezQtGraphicsView" name="GraphicsView"/>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -102,7 +102,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ezQGraphicsView</class>
+   <class>ezQtGraphicsView</class>
    <extends>QGraphicsView</extends>
    <header location="global">GuiFoundation/Widgets/GraphicsView.moc.h</header>
   </customwidget>

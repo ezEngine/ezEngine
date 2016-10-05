@@ -32,7 +32,7 @@ ezQtPropertyWidget::~ezQtPropertyWidget()
 {
 }
 
-void ezQtPropertyWidget::Init(ezPropertyGridWidget* pGrid, const ezAbstractProperty* pProp, const ezPropertyPath& path)
+void ezQtPropertyWidget::Init(ezQtPropertyGridWidget* pGrid, const ezAbstractProperty* pProp, const ezPropertyPath& path)
 {
   m_pGrid = pGrid;
   m_pProp = pProp;
@@ -204,7 +204,7 @@ ezQtPropertyPointerWidget::ezQtPropertyPointerWidget()
   m_pLayout->setMargin(0);
   setLayout(m_pLayout);
 
-  m_pGroup = new ezCollapsibleGroupBox(this);
+  m_pGroup = new ezQtCollapsibleGroupBox(this);
   m_pGroupLayout = new QHBoxLayout(nullptr);
   m_pGroupLayout->setSpacing(1);
   m_pGroupLayout->setContentsMargins(5, 0, 0, 0);
@@ -212,10 +212,10 @@ ezQtPropertyPointerWidget::ezQtPropertyPointerWidget()
 
   m_pLayout->addWidget(m_pGroup);
 
-  m_pAddButton = new ezAddSubElementButton();
+  m_pAddButton = new ezQtAddSubElementButton();
   m_pGroup->HeaderLayout->addWidget(m_pAddButton);
 
-  m_pDeleteButton = new ezElementGroupButton(m_pGroup->Header, ezElementGroupButton::ElementAction::DeleteElement, this);
+  m_pDeleteButton = new ezQtElementGroupButton(m_pGroup->Header, ezQtElementGroupButton::ElementAction::DeleteElement, this);
   m_pGroup->HeaderLayout->addWidget(m_pDeleteButton);
   connect(m_pDeleteButton, &QToolButton::clicked, this, &ezQtPropertyPointerWidget::OnDeleteButtonClicked);
 
@@ -231,7 +231,7 @@ void ezQtPropertyPointerWidget::OnInit()
 {
   m_pGroup->setTitle(ezTranslate(m_pProp->GetPropertyName()));
   m_pGrid->SetCollapseState(m_pGroup);
-  connect(m_pGroup, &ezCollapsibleGroupBox::CollapseStateChanged, m_pGrid, &ezPropertyGridWidget::OnCollapseStateChanged);
+  connect(m_pGroup, &ezQtCollapsibleGroupBox::CollapseStateChanged, m_pGrid, &ezQtPropertyGridWidget::OnCollapseStateChanged);
 
   // Add Buttons
   auto pAttr = m_pProp->GetAttributeByType<ezContainerAttribute>();
@@ -291,7 +291,7 @@ void ezQtPropertyPointerWidget::SetSelection(const ezHybridArray<Selection, 8>& 
     const ezRTTI* pCommonType = ezQtPropertyWidget::GetCommonBaseType(subItems);
 
     ezPropertyPath emptyPath;
-    m_pTypeWidget = new ezTypeWidget(m_pGroup->Content, m_pGrid, pCommonType, emptyPath);
+    m_pTypeWidget = new ezQtTypeWidget(m_pGroup->Content, m_pGrid, pCommonType, emptyPath);
     m_pTypeWidget->SetSelection(subItems);
 
     m_pGroupLayout->addWidget(m_pTypeWidget);
@@ -328,7 +328,7 @@ void ezQtPropertyPointerWidget::OnDeleteButtonClicked()
   else
     history->FinishTransaction();
 
-  ezUIServices::GetSingleton()->MessageBoxStatus(res, "Removing sub-element from the property failed.");
+  ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Removing sub-element from the property failed.");
 }
 
 void ezQtPropertyPointerWidget::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
@@ -371,7 +371,7 @@ ezQtPropertyTypeWidget::ezQtPropertyTypeWidget(bool bAddCollapsibleGroup)
 
   if (bAddCollapsibleGroup)
   {
-    m_pGroup = new ezCollapsibleGroupBox(this);
+    m_pGroup = new ezQtCollapsibleGroupBox(this);
     m_pGroupLayout = new QHBoxLayout(nullptr);
     m_pGroupLayout->setSpacing(1);
     m_pGroupLayout->setContentsMargins(5, 0, 0, 0);
@@ -392,7 +392,7 @@ void ezQtPropertyTypeWidget::OnInit()
   {
     m_pGroup->setTitle(ezTranslate(m_pProp->GetPropertyName()));
     m_pGrid->SetCollapseState(m_pGroup);
-    connect(m_pGroup, &ezCollapsibleGroupBox::CollapseStateChanged, m_pGrid, &ezPropertyGridWidget::OnCollapseStateChanged);
+    connect(m_pGroup, &ezQtCollapsibleGroupBox::CollapseStateChanged, m_pGrid, &ezQtPropertyGridWidget::OnCollapseStateChanged);
   }
 }
 
@@ -422,7 +422,7 @@ void ezQtPropertyTypeWidget::SetSelection(const ezHybridArray<Selection, 8>& ite
     // As we are not dealing with a pointer in this case the type must match the property exactly.
     pCommonType = m_pProp->GetSpecificType();
   }
-  m_pTypeWidget = new ezTypeWidget(pOwner, m_pGrid, pCommonType, m_PropertyPath);
+  m_pTypeWidget = new ezQtTypeWidget(pOwner, m_pGrid, pCommonType, m_PropertyPath);
   m_pTypeWidget->SetSelection(m_Items);
 
   pLayout->addWidget(m_pTypeWidget);
@@ -447,7 +447,7 @@ ezQtPropertyContainerWidget::ezQtPropertyContainerWidget()
   m_pLayout->setMargin(0);
   setLayout(m_pLayout);
 
-  m_pGroup = new ezCollapsibleGroupBox(this);
+  m_pGroup = new ezQtCollapsibleGroupBox(this);
   m_pGroupLayout = new QVBoxLayout(nullptr);
   m_pGroupLayout->setSpacing(1);
   m_pGroupLayout->setContentsMargins(5, 0, 0, 0);
@@ -484,23 +484,23 @@ void ezQtPropertyContainerWidget::DoPrepareToDie()
 
 void ezQtPropertyContainerWidget::OnElementButtonClicked()
 {
-  ezElementGroupButton* pButton = qobject_cast<ezElementGroupButton*>(sender());
+  ezQtElementGroupButton* pButton = qobject_cast<ezQtElementGroupButton*>(sender());
   const ezPropertyPath path = pButton->GetGroupWidget()->GetPropertyPath();
   ezHybridArray<Selection, 8> items = pButton->GetGroupWidget()->GetSelection();
 
   switch (pButton->GetAction())
   {
-  case ezElementGroupButton::ElementAction::MoveElementUp:
+  case ezQtElementGroupButton::ElementAction::MoveElementUp:
     {
       MoveItems(items, path, -1);
     }
     break;
-  case ezElementGroupButton::ElementAction::MoveElementDown:
+  case ezQtElementGroupButton::ElementAction::MoveElementDown:
     {
       MoveItems(items, path, 2);
     }
     break;
-  case ezElementGroupButton::ElementAction::DeleteElement:
+  case ezQtElementGroupButton::ElementAction::DeleteElement:
     {
       DeleteItems(items, path);
     }
@@ -510,8 +510,8 @@ void ezQtPropertyContainerWidget::OnElementButtonClicked()
 
 ezQtPropertyContainerWidget::Element& ezQtPropertyContainerWidget::AddElement(ezUInt32 index)
 {
-  ezCollapsibleGroupBox* pSubGroup = new ezCollapsibleGroupBox(m_pGroup);
-  connect(pSubGroup, &ezCollapsibleGroupBox::CollapseStateChanged, m_pGrid, &ezPropertyGridWidget::OnCollapseStateChanged);
+  ezQtCollapsibleGroupBox* pSubGroup = new ezQtCollapsibleGroupBox(m_pGroup);
+  connect(pSubGroup, &ezQtCollapsibleGroupBox::CollapseStateChanged, m_pGrid, &ezQtPropertyGridWidget::OnCollapseStateChanged);
 
   pSubGroup->SetFillColor(palette().window().color());
 
@@ -523,7 +523,7 @@ ezQtPropertyContainerWidget::Element& ezQtPropertyContainerWidget::AddElement(ez
   m_pGroupLayout->insertWidget((int)index, pSubGroup);
 
   bool bST = m_pProp->GetFlags().IsSet(ezPropertyFlags::StandardType);
-  ezQtPropertyWidget* pNewWidget = bST ? ezPropertyGridWidget::CreateMemberPropertyWidget(m_pProp) : new ezQtPropertyTypeWidget();
+  ezQtPropertyWidget* pNewWidget = bST ? ezQtPropertyGridWidget::CreateMemberPropertyWidget(m_pProp) : new ezQtPropertyTypeWidget();
 
   pNewWidget->setParent(pSubGroup);
   pSubLayout->addWidget(pNewWidget);
@@ -539,18 +539,18 @@ ezQtPropertyContainerWidget::Element& ezQtPropertyContainerWidget::AddElement(ez
     auto pAttr = m_pProp->GetAttributeByType<ezContainerAttribute>();
     if (!pAttr || pAttr->CanMove())
     {
-      ezElementGroupButton* pUpButton = new ezElementGroupButton(pSubGroup->Header, ezElementGroupButton::ElementAction::MoveElementUp, pNewWidget);
+      ezQtElementGroupButton* pUpButton = new ezQtElementGroupButton(pSubGroup->Header, ezQtElementGroupButton::ElementAction::MoveElementUp, pNewWidget);
       pSubGroup->HeaderLayout->addWidget(pUpButton);
       connect(pUpButton, &QToolButton::clicked, this, &ezQtPropertyContainerWidget::OnElementButtonClicked);
 
-      ezElementGroupButton* pDownButton = new ezElementGroupButton(pSubGroup->Header, ezElementGroupButton::ElementAction::MoveElementDown, pNewWidget);
+      ezQtElementGroupButton* pDownButton = new ezQtElementGroupButton(pSubGroup->Header, ezQtElementGroupButton::ElementAction::MoveElementDown, pNewWidget);
       pSubGroup->HeaderLayout->addWidget(pDownButton);
       connect(pDownButton, &QToolButton::clicked, this, &ezQtPropertyContainerWidget::OnElementButtonClicked);
     }
 
     if (!pAttr || pAttr->CanDelete())
     {
-      ezElementGroupButton* pDeleteButton = new ezElementGroupButton(pSubGroup->Header, ezElementGroupButton::ElementAction::DeleteElement, pNewWidget);
+      ezQtElementGroupButton* pDeleteButton = new ezQtElementGroupButton(pSubGroup->Header, ezQtElementGroupButton::ElementAction::DeleteElement, pNewWidget);
       pSubGroup->HeaderLayout->addWidget(pDeleteButton);
       connect(pDeleteButton, &QToolButton::clicked, this, &ezQtPropertyContainerWidget::OnElementButtonClicked);
     }
@@ -628,13 +628,13 @@ void ezQtPropertyContainerWidget::OnInit()
   const ezContainerAttribute* pArrayAttr = m_pProp->GetAttributeByType<ezContainerAttribute>();
   if (!pArrayAttr || pArrayAttr->CanAdd())
   {
-    m_pAddButton = new ezAddSubElementButton();
+    m_pAddButton = new ezQtAddSubElementButton();
     m_pAddButton->Init(m_pGrid, m_pProp, m_PropertyPath);
     m_pGroup->HeaderLayout->addWidget(m_pAddButton);
   }
 
   m_pGrid->SetCollapseState(m_pGroup);
-  connect(m_pGroup, &ezCollapsibleGroupBox::CollapseStateChanged, m_pGrid, &ezPropertyGridWidget::OnCollapseStateChanged);
+  connect(m_pGroup, &ezQtCollapsibleGroupBox::CollapseStateChanged, m_pGrid, &ezQtPropertyGridWidget::OnCollapseStateChanged);
 }
 
 void ezQtPropertyContainerWidget::DeleteItems(ezHybridArray<Selection, 8>& items, const ezPropertyPath& path)
@@ -675,7 +675,7 @@ void ezQtPropertyContainerWidget::DeleteItems(ezHybridArray<Selection, 8>& items
   else
     history->FinishTransaction();
 
-  ezUIServices::GetSingleton()->MessageBoxStatus(res, "Removing sub-element from the property failed.");
+  ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Removing sub-element from the property failed.");
 }
 
 void ezQtPropertyContainerWidget::MoveItems(ezHybridArray<Selection, 8>& items, const ezPropertyPath& path, ezInt32 iMove)
@@ -731,7 +731,7 @@ void ezQtPropertyContainerWidget::MoveItems(ezHybridArray<Selection, 8>& items, 
   else
     history->FinishTransaction();
 
-  ezUIServices::GetSingleton()->MessageBoxStatus(res, "Moving sub-element failed.");
+  ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Moving sub-element failed.");
 }
 
 
@@ -791,7 +791,7 @@ void ezQtPropertyStandardTypeContainerWidget::PropertyChangedHandler(const ezQtP
   if (IsUndead())
     return;
 
-  // Forward from child widget to parent ezTypeWidget.
+  // Forward from child widget to parent ezQtTypeWidget.
   m_Events.Broadcast(ed);
 }
 
@@ -842,7 +842,7 @@ void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)
   {
     ezStringBuilder sIconName;
     sIconName.Set(":/TypeIcons/", pCommonType->GetTypeName());
-    elem.m_pSubGroup->Icon2->setPixmap(ezUIServices::GetCachedPixmapResource(sIconName.GetData()));
+    elem.m_pSubGroup->Icon2->setPixmap(ezQtUiServices::GetCachedPixmapResource(sIconName.GetData()));
   }
 
   m_pGrid->SetCollapseState(elem.m_pSubGroup);

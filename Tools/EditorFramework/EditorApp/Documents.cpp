@@ -29,7 +29,7 @@ ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile
 
     sTemp.Format("The selected file extension '%s' is not registered with any known type.\nCannot open file '%s'", sExt.GetData(), szFile);
 
-    ezUIServices::MessageBoxWarning(sTemp);
+    ezQtUiServices::MessageBoxWarning(sTemp);
     return nullptr;
   }
 
@@ -57,7 +57,7 @@ ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile
       ezStringBuilder s;
       s.Format("Failed to open document: \n'%s'", szFile);
 
-      ezUIServices::MessageBoxStatus(res, s);
+      ezQtUiServices::MessageBoxStatus(res, s);
       return nullptr;
     }
 
@@ -75,20 +75,20 @@ The following types are missing:\n", pDocument->GetUnknownObjectTypeInstances())
         s.AppendFormat(" '%s' ", (*it).GetData());
       }
 
-      ezUIServices::MessageBoxWarning(s);
+      ezQtUiServices::MessageBoxWarning(s);
     }
   }
   else
   {
     if (bCreate)
     {
-      ezUIServices::MessageBoxInformation("The selected document is already open. You need to close the document before you can re-create it.");
+      ezQtUiServices::MessageBoxInformation("The selected document is already open. You need to close the document before you can re-create it.");
       return nullptr;
     }
   }
 
   if (bRequestWindow)
-    ezContainerWindow::EnsureVisibleAnyContainer(pDocument);
+    ezQtContainerWindow::EnsureVisibleAnyContainer(pDocument);
 
   return pDocument;
 }

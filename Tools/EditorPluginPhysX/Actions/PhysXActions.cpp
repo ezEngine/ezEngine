@@ -54,7 +54,7 @@ void ezPhysXAction::Execute(const ezVariant& value)
 {
   if (m_Type == ActionType::ProjectSettings)
   {
-    ezPhysxProjectSettingsDlg dlg(nullptr);
+    ezQtPhysxProjectSettingsDlg dlg(nullptr);
     if (dlg.exec() == QDialog::Accepted)
     {
       ezToolsProject::BroadcastConfigChanged();

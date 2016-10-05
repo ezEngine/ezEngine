@@ -7,12 +7,12 @@ class QHBoxLayout;
 class QPushButton;
 class QMenu;
 
-class EZ_GUIFOUNDATION_DLL ezAddSubElementButton : public ezQtPropertyWidget
+class EZ_GUIFOUNDATION_DLL ezQtAddSubElementButton : public ezQtPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezAddSubElementButton();
+  ezQtAddSubElementButton();
 
 protected:
   virtual void DoPrepareToDie() override {}

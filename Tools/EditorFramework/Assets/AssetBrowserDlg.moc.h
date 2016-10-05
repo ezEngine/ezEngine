@@ -4,13 +4,13 @@
 #include <Tools/EditorFramework/ui_AssetBrowserDlg.h>
 #include <QDialog>
 
-class ezAssetBrowserDlg : public QDialog, public Ui_AssetBrowserDlg
+class ezQtAssetBrowserDlg : public QDialog, public Ui_AssetBrowserDlg
 {
   Q_OBJECT
 
 public:
-  ezAssetBrowserDlg(QWidget* parent, const char* szPreselectedAsset, const char* szVisibleFilters);
-  ~ezAssetBrowserDlg();
+  ezQtAssetBrowserDlg(QWidget* parent, const char* szPreselectedAsset, const char* szVisibleFilters);
+  ~ezQtAssetBrowserDlg();
 
   const char* GetSelectedAssetPathRelative() const { return m_sSelectedAssetPathRelative; }
   const char* GetSelectedAssetPathAbsolute() const { return m_sSelectedAssetPathAbsolute; }

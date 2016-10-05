@@ -7,13 +7,13 @@
 
 class QMouseEvent;
 
-class EZ_GUIFOUNDATION_DLL QColorGradientWidget : public QWidget
+class EZ_GUIFOUNDATION_DLL ezQtColorGradientWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit QColorGradientWidget(QWidget* pParent);
-  ~QColorGradientWidget();
+  explicit ezQtColorGradientWidget(QWidget* pParent);
+  ~ezQtColorGradientWidget();
 
   void setColorGradientData(const ezColorGradient* gradient);
 

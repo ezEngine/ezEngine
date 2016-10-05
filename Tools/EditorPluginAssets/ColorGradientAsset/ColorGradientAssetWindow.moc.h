@@ -4,15 +4,15 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class QColorGradientEditorWidget;
+class ezQtColorGradientEditorWidget;
 
-class ezColorGradientAssetDocumentWindow : public ezQtDocumentWindow
+class ezQtColorGradientAssetDocumentWindow : public ezQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezColorGradientAssetDocumentWindow(ezDocument* pDocument);
-  ~ezColorGradientAssetDocumentWindow();
+  ezQtColorGradientAssetDocumentWindow(ezDocument* pDocument);
+  ~ezQtColorGradientAssetDocumentWindow();
 
   virtual const char* GetWindowLayoutGroupName() const { return "ColorGradientAsset"; }
 
@@ -46,5 +46,5 @@ private:
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
 
   bool m_bShowFirstTime;
-  QColorGradientEditorWidget* m_pGradientEditor;
+  ezQtColorGradientEditorWidget* m_pGradientEditor;
 };

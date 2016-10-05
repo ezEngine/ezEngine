@@ -5,14 +5,14 @@
 #include <Foundation/IO/OSFile.h>
 #include <QMessageBox>
 
-EditorPluginConfigDlg::EditorPluginConfigDlg(QWidget* parent) : QDialog(parent)
+ezQtEditorPluginConfigDlg::ezQtEditorPluginConfigDlg(QWidget* parent) : QDialog(parent)
 {
   setupUi(this);
 
   FillPluginList();
 }
 
-void EditorPluginConfigDlg::FillPluginList()
+void ezQtEditorPluginConfigDlg::FillPluginList()
 {
   ezPluginSet& Plugins = ezQtEditorApp::GetSingleton()->GetEditorPlugins();
 
@@ -46,7 +46,7 @@ void EditorPluginConfigDlg::FillPluginList()
   ListPlugins->blockSignals(false);
 }
 
-void EditorPluginConfigDlg::on_ButtonOK_clicked()
+void ezQtEditorPluginConfigDlg::on_ButtonOK_clicked()
 {
   ezPluginSet& Plugins = ezQtEditorApp::GetSingleton()->GetEditorPlugins();
 
@@ -75,7 +75,7 @@ void EditorPluginConfigDlg::on_ButtonOK_clicked()
   accept();
 }
 
-void EditorPluginConfigDlg::on_ButtonCancel_clicked()
+void ezQtEditorPluginConfigDlg::on_ButtonCancel_clicked()
 {
   reject();
 }

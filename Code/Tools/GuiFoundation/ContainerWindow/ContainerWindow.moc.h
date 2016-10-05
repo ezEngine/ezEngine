@@ -15,15 +15,15 @@ class ezQtApplicationPanel;
 struct ezDocumentTypeDescriptor;
 class QLabel;
 
-class EZ_GUIFOUNDATION_DLL ezContainerWindow : public QMainWindow
+class EZ_GUIFOUNDATION_DLL ezQtContainerWindow : public QMainWindow
 {
   Q_OBJECT
 
 public:
-  ezContainerWindow();
-  ~ezContainerWindow();
+  ezQtContainerWindow();
+  ~ezQtContainerWindow();
 
-  static const ezDynamicArray<ezContainerWindow*>& GetAllContainerWindows() { return s_AllContainerWindows; }
+  static const ezDynamicArray<ezQtContainerWindow*>& GetAllContainerWindows() { return s_AllContainerWindows; }
 
   void MoveDocumentWindowToContainer(ezQtDocumentWindow* pDocWindow);
   void MoveApplicationPanelToContainer(ezQtApplicationPanel* pPanel);
@@ -68,7 +68,7 @@ private:
 
   void DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e);
   void ProjectEventHandler(const ezToolsProjectEvent& e);
-  void UIServicesEventHandler(const ezUIServices::Event& e);
+  void UIServicesEventHandler(const ezQtUiServices::Event& e);
 
   void closeEvent(QCloseEvent* e);
 
@@ -80,7 +80,7 @@ private:
   ezDynamicArray<ezQtDocumentWindow*> m_DocumentWindows;
   ezDynamicArray<ezQtApplicationPanel*> m_ApplicationPanels;
 
-  static ezDynamicArray<ezContainerWindow*> s_AllContainerWindows;
+  static ezDynamicArray<ezQtContainerWindow*> s_AllContainerWindows;
 };
 
 

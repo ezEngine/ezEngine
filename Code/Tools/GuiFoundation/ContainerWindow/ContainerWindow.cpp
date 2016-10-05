@@ -16,9 +16,9 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
-ezDynamicArray<ezContainerWindow*> ezContainerWindow::s_AllContainerWindows;
+ezDynamicArray<ezQtContainerWindow*> ezQtContainerWindow::s_AllContainerWindows;
 
-ezContainerWindow::ezContainerWindow()
+ezQtContainerWindow::ezQtContainerWindow()
 {
   m_bWindowLayoutRestored = false;
   m_pStatusBarLabel = nullptr;
@@ -29,25 +29,25 @@ ezContainerWindow::ezContainerWindow()
 
   s_AllContainerWindows.PushBack(this);
 
-  ezQtDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezContainerWindow::DocumentWindowEventHandler, this));
-  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezContainerWindow::ProjectEventHandler, this));
-  ezUIServices::s_Events.AddEventHandler(ezMakeDelegate(&ezContainerWindow::UIServicesEventHandler, this));
+  ezQtDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezQtContainerWindow::DocumentWindowEventHandler, this));
+  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezQtContainerWindow::ProjectEventHandler, this));
+  ezQtUiServices::s_Events.AddEventHandler(ezMakeDelegate(&ezQtContainerWindow::UIServicesEventHandler, this));
 
   UpdateWindowTitle();
 
   ScheduleRestoreWindowLayout();
 }
 
-ezContainerWindow::~ezContainerWindow()
+ezQtContainerWindow::~ezQtContainerWindow()
 {
   s_AllContainerWindows.RemoveSwap(this);
 
-  ezQtDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezContainerWindow::DocumentWindowEventHandler, this));
-  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezContainerWindow::ProjectEventHandler, this));
-  ezUIServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezContainerWindow::UIServicesEventHandler, this));
+  ezQtDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::DocumentWindowEventHandler, this));
+  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::ProjectEventHandler, this));
+  ezQtUiServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::UIServicesEventHandler, this));
 }
 
-QTabWidget* ezContainerWindow::GetTabWidget() const
+QTabWidget* ezQtContainerWindow::GetTabWidget() const
 {
   QTabWidget* pTabs = (QTabWidget*)centralWidget();
   EZ_ASSERT_DEV(pTabs != nullptr, "The central widget is nullptr");
@@ -55,7 +55,7 @@ QTabWidget* ezContainerWindow::GetTabWidget() const
   return pTabs;
 }
 
-void ezContainerWindow::UpdateWindowTitle()
+void ezQtContainerWindow::UpdateWindowTitle()
 {
   ezStringBuilder sTitle;
 
@@ -74,18 +74,18 @@ void ezContainerWindow::UpdateWindowTitle()
   setWindowTitle(QString::fromUtf8(sTitle.GetData()));
 }
 
-void ezContainerWindow::ScheduleRestoreWindowLayout()
+void ezQtContainerWindow::ScheduleRestoreWindowLayout()
 {
   m_iWindowLayoutRestoreScheduled++;
   QTimer::singleShot(0, this, SLOT(SlotRestoreLayout()));
 }
 
-void ezContainerWindow::SlotRestoreLayout()
+void ezQtContainerWindow::SlotRestoreLayout()
 {
   RestoreWindowLayout();
 }
 
-void ezContainerWindow::closeEvent(QCloseEvent* e)
+void ezQtContainerWindow::closeEvent(QCloseEvent* e)
 {
   if (!ezToolsProject::CanCloseProject())
   {
@@ -97,7 +97,7 @@ void ezContainerWindow::closeEvent(QCloseEvent* e)
 }
 
 
-void ezContainerWindow::ReassignWindowIndex()
+void ezQtContainerWindow::ReassignWindowIndex()
 {
   QTabWidget* pTabs = GetTabWidget();
 
@@ -109,7 +109,7 @@ void ezContainerWindow::ReassignWindowIndex()
   }
 }
 
-void ezContainerWindow::SaveWindowLayout()
+void ezQtContainerWindow::SaveWindowLayout()
 {
   for (ezUInt32 i = 0; i < m_DocumentWindows.GetCount(); ++i)
     m_DocumentWindows[i]->SaveWindowLayout();
@@ -144,7 +144,7 @@ void ezContainerWindow::SaveWindowLayout()
   Settings.endGroup();
 }
 
-void ezContainerWindow::RestoreWindowLayout()
+void ezQtContainerWindow::RestoreWindowLayout()
 {
   EZ_ASSERT_DEBUG(m_iWindowLayoutRestoreScheduled > 0, "Incorrect use of ScheduleRestoreWindowLayout");
 
@@ -174,7 +174,7 @@ void ezContainerWindow::RestoreWindowLayout()
   m_bWindowLayoutRestored = true;
 }
 
-void ezContainerWindow::SetupDocumentTabArea()
+void ezQtContainerWindow::SetupDocumentTabArea()
 {
   if (centralWidget() != nullptr)
     return;
@@ -195,12 +195,12 @@ void ezContainerWindow::SetupDocumentTabArea()
   setCentralWidget(pTabs);
 }
 
-void ezContainerWindow::SlotUpdateWindowDecoration(void* pDocWindow)
+void ezQtContainerWindow::SlotUpdateWindowDecoration(void* pDocWindow)
 {
   UpdateWindowDecoration(static_cast<ezQtDocumentWindow*>(pDocWindow));
 }
 
-void ezContainerWindow::UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow)
+void ezQtContainerWindow::UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow)
 {
   const ezInt32 iListIndex = m_DocumentWindows.IndexOf(pDocWindow);
 
@@ -214,10 +214,10 @@ void ezContainerWindow::UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow)
 
   pTabs->setTabToolTip(iTabIndex, QString::fromUtf8(pDocWindow->GetDisplayName().GetData()));
   pTabs->setTabText(iTabIndex, QString::fromUtf8(pDocWindow->GetDisplayNameShort().GetData()));
-  pTabs->setTabIcon(iTabIndex, ezUIServices::GetCachedIconResource(pDocWindow->GetWindowIcon().GetData()));
+  pTabs->setTabIcon(iTabIndex, ezQtUiServices::GetCachedIconResource(pDocWindow->GetWindowIcon().GetData()));
 }
 
-void ezContainerWindow::RemoveDocumentWindowFromContainer(ezQtDocumentWindow* pDocWindow)
+void ezQtContainerWindow::RemoveDocumentWindowFromContainer(ezQtDocumentWindow* pDocWindow)
 {
   const ezInt32 iListIndex = m_DocumentWindows.IndexOf(pDocWindow);
 
@@ -236,7 +236,7 @@ void ezContainerWindow::RemoveDocumentWindowFromContainer(ezQtDocumentWindow* pD
   pDocWindow->m_pContainerWindow = nullptr;
 }
 
-void ezContainerWindow::RemoveApplicationPanelFromContainer(ezQtApplicationPanel* pPanel)
+void ezQtContainerWindow::RemoveApplicationPanelFromContainer(ezQtApplicationPanel* pPanel)
 {
   const ezInt32 iListIndex = m_ApplicationPanels.IndexOf(pPanel);
 
@@ -248,7 +248,7 @@ void ezContainerWindow::RemoveApplicationPanelFromContainer(ezQtApplicationPanel
   pPanel->m_pContainerWindow = nullptr;
 }
 
-void ezContainerWindow::MoveDocumentWindowToContainer(ezQtDocumentWindow* pDocWindow)
+void ezQtContainerWindow::MoveDocumentWindowToContainer(ezQtDocumentWindow* pDocWindow)
 {
   if (m_DocumentWindows.IndexOf(pDocWindow) != ezInvalidIndex)
     return;
@@ -271,7 +271,7 @@ void ezContainerWindow::MoveDocumentWindowToContainer(ezQtDocumentWindow* pDocWi
   QMetaObject::invokeMethod(this, "SlotUpdateWindowDecoration", Qt::ConnectionType::QueuedConnection, Q_ARG(void*, pDocWindow));
 }
 
-void ezContainerWindow::MoveApplicationPanelToContainer(ezQtApplicationPanel* pPanel)
+void ezQtContainerWindow::MoveApplicationPanelToContainer(ezQtApplicationPanel* pPanel)
 {
   // panel already in container window ?
   if (m_ApplicationPanels.IndexOf(pPanel) != ezInvalidIndex)
@@ -295,7 +295,7 @@ void ezContainerWindow::MoveApplicationPanelToContainer(ezQtApplicationPanel* pP
   ScheduleRestoreWindowLayout();
 }
 
-ezResult ezContainerWindow::EnsureVisible(ezQtDocumentWindow* pDocWindow)
+ezResult ezQtContainerWindow::EnsureVisible(ezQtDocumentWindow* pDocWindow)
 {
   if (m_DocumentWindows.IndexOf(pDocWindow) == ezInvalidIndex)
     return EZ_FAILURE;
@@ -306,7 +306,7 @@ ezResult ezContainerWindow::EnsureVisible(ezQtDocumentWindow* pDocWindow)
   return EZ_SUCCESS;
 }
 
-ezResult ezContainerWindow::EnsureVisible(ezDocument* pDocument)
+ezResult ezQtContainerWindow::EnsureVisible(ezDocument* pDocument)
 {
   for (auto doc : m_DocumentWindows)
   {
@@ -317,7 +317,7 @@ ezResult ezContainerWindow::EnsureVisible(ezDocument* pDocument)
   return EZ_FAILURE;
 }
 
-ezResult ezContainerWindow::EnsureVisible(ezQtApplicationPanel* pPanel)
+ezResult ezQtContainerWindow::EnsureVisible(ezQtApplicationPanel* pPanel)
 {
   if (m_ApplicationPanels.IndexOf(pPanel) == ezInvalidIndex)
     return EZ_FAILURE;
@@ -327,7 +327,7 @@ ezResult ezContainerWindow::EnsureVisible(ezQtApplicationPanel* pPanel)
   return EZ_SUCCESS;
 }
 
-ezResult ezContainerWindow::EnsureVisibleAnyContainer(ezDocument* pDocument)
+ezResult ezQtContainerWindow::EnsureVisibleAnyContainer(ezDocument* pDocument)
 {
   // make sure there is a window to make visible in the first place
   pDocument->GetDocumentManager()->EnsureWindowRequested(pDocument);
@@ -341,7 +341,7 @@ ezResult ezContainerWindow::EnsureVisibleAnyContainer(ezDocument* pDocument)
   return EZ_FAILURE;
 }
 
-void ezContainerWindow::SlotDocumentTabCloseRequested(int index)
+void ezQtContainerWindow::SlotDocumentTabCloseRequested(int index)
 {
   QTabWidget* pTabs = GetTabWidget();
 
@@ -353,7 +353,7 @@ void ezContainerWindow::SlotDocumentTabCloseRequested(int index)
   pDocWindow->CloseDocumentWindow();
 }
 
-void ezContainerWindow::SlotDocumentTabCurrentChanged(int index)
+void ezQtContainerWindow::SlotDocumentTabCurrentChanged(int index)
 {
   QTabWidget* pTabs = GetTabWidget();
 
@@ -376,7 +376,7 @@ void ezContainerWindow::SlotDocumentTabCurrentChanged(int index)
   ReassignWindowIndex();
 }
 
-void ezContainerWindow::DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e)
+void ezQtContainerWindow::DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e)
 {
   switch (e.m_Type)
   {
@@ -392,7 +392,7 @@ void ezContainerWindow::DocumentWindowEventHandler(const ezQtDocumentWindowEvent
   }
 }
 
-void ezContainerWindow::ProjectEventHandler(const ezToolsProjectEvent& e)
+void ezQtContainerWindow::ProjectEventHandler(const ezToolsProjectEvent& e)
 {
   switch (e.m_Type)
   {
@@ -406,11 +406,11 @@ void ezContainerWindow::ProjectEventHandler(const ezToolsProjectEvent& e)
   }
 }
 
-void ezContainerWindow::UIServicesEventHandler(const ezUIServices::Event& e)
+void ezQtContainerWindow::UIServicesEventHandler(const ezQtUiServices::Event& e)
 {
   switch (e.m_Type)
   {
-  case ezUIServices::Event::Type::ShowGlobalStatusBarText:
+  case ezQtUiServices::Event::Type::ShowGlobalStatusBarText:
     {
       if (statusBar() == nullptr)
         setStatusBar(new QStatusBar());
@@ -435,7 +435,7 @@ void ezContainerWindow::UIServicesEventHandler(const ezUIServices::Event& e)
   }
 }
 
-void ezContainerWindow::SlotTabsContextMenuRequested(const QPoint& pos)
+void ezQtContainerWindow::SlotTabsContextMenuRequested(const QPoint& pos)
 {
   QTabWidget* pTabs = GetTabWidget();
 

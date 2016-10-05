@@ -227,7 +227,7 @@ void ezDocumentAction::Execute(const ezVariant& value)
       else
         sPath = m_Context.m_pDocument->GetDocumentPath();
 
-      ezUIServices::OpenInExplorer(sPath);
+      ezQtUiServices::OpenInExplorer(sPath);
     }
     break;
 

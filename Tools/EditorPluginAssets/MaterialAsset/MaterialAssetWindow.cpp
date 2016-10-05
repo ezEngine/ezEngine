@@ -15,14 +15,14 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <SharedPluginAssets/Common/Messages.h>
 
-ezMaterialAssetDocumentWindow::ezMaterialAssetDocumentWindow(ezMaterialAssetDocument* pDocument) : ezQtEngineDocumentWindow(pDocument)
+ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAssetDocument* pDocument) : ezQtEngineDocumentWindow(pDocument)
 {
 
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezMaterialAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
 
   // Menu Bar
   {
-    ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
+    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
     ezActionContext context;
     context.m_sMapping = "MaterialAssetMenuBar";
     context.m_pDocument = pDocument;
@@ -31,7 +31,7 @@ ezMaterialAssetDocumentWindow::ezMaterialAssetDocumentWindow(ezMaterialAssetDocu
 
   // Tool Bar
   {
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
+    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "MaterialAssetToolBar";
     context.m_pDocument = pDocument;
@@ -54,12 +54,12 @@ ezMaterialAssetDocumentWindow::ezMaterialAssetDocumentWindow(ezMaterialAssetDocu
 
   // Property Grid
   {
-    ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
     pPropertyPanel->setObjectName("MaterialAssetDockWidget");
     pPropertyPanel->setWindowTitle("Material Properties");
     pPropertyPanel->show();
 
-    ezPropertyGridWidget* pPropertyGrid = new ezPropertyGridWidget(pPropertyPanel, pDocument);
+    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
@@ -72,20 +72,20 @@ ezMaterialAssetDocumentWindow::ezMaterialAssetDocumentWindow(ezMaterialAssetDocu
   UpdatePreview();
 }
 
-ezMaterialAssetDocumentWindow::~ezMaterialAssetDocumentWindow()
+ezQtMaterialAssetDocumentWindow::~ezQtMaterialAssetDocumentWindow()
 {
   RestoreResource();
 
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezMaterialAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
 }
 
 
-ezMaterialAssetDocument* ezMaterialAssetDocumentWindow::GetMaterialDocument()
+ezMaterialAssetDocument* ezQtMaterialAssetDocumentWindow::GetMaterialDocument()
 {
   return static_cast<ezMaterialAssetDocument*>(GetDocument());
 }
 
-void ezMaterialAssetDocumentWindow::InternalRedraw()
+void ezQtMaterialAssetDocumentWindow::InternalRedraw()
 {
   ezQtEngineDocumentWindow::InternalRedraw();
 
@@ -94,7 +94,7 @@ void ezMaterialAssetDocumentWindow::InternalRedraw()
   SendRedrawMsg();
 }
 
-void ezMaterialAssetDocumentWindow::UpdatePreview()
+void ezQtMaterialAssetDocumentWindow::UpdatePreview()
 {
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
@@ -121,12 +121,12 @@ void ezMaterialAssetDocumentWindow::UpdatePreview()
   GetEditorEngineConnection()->SendMessage(&msg);
 }
 
-void ezMaterialAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void ezQtMaterialAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   UpdatePreview();
 }
 
-void ezMaterialAssetDocumentWindow::SendRedrawMsg()
+void ezQtMaterialAssetDocumentWindow::SendRedrawMsg()
 {
   // do not try to redraw while the process is crashed, it is obviously futile
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
@@ -161,7 +161,7 @@ void ezMaterialAssetDocumentWindow::SendRedrawMsg()
   }
 }
 
-void ezMaterialAssetDocumentWindow::RestoreResource()
+void ezQtMaterialAssetDocumentWindow::RestoreResource()
 {
   ezEditorEngineRestoreResourceMsg msg;
   GetEditorEngineConnection()->SendMessage(&msg);

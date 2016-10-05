@@ -7,15 +7,15 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>
 
-class ezFileWidget : public QDockWidget, public Ui_FileWidget
+class ezQtFileWidget : public QDockWidget, public Ui_FileWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezFileWidget(QWidget* parent = 0);
+  ezQtFileWidget(QWidget* parent = 0);
 
-  static ezFileWidget* s_pWidget;
+  static ezQtFileWidget* s_pWidget;
 
 private slots:
 

@@ -38,12 +38,12 @@ void ezQtDocumentWindow::Constructor()
 
   setDockNestingEnabled(true);
 
-  ezMenuBarActionMapView* pMenuBar = new ezMenuBarActionMapView(this);
+  ezQtMenuBarActionMapView* pMenuBar = new ezQtMenuBarActionMapView(this);
   setMenuBar(pMenuBar);
 
-  ezContainerWindow::GetAllContainerWindows()[0]->MoveDocumentWindowToContainer(this);
+  ezQtContainerWindow::GetAllContainerWindows()[0]->MoveDocumentWindowToContainer(this);
 
-  ezUIServices::s_Events.AddEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesEventHandler, this));
+  ezQtUiServices::s_Events.AddEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesEventHandler, this));
 }
 
 ezQtDocumentWindow::ezQtDocumentWindow(ezDocument* pDocument)
@@ -70,7 +70,7 @@ ezQtDocumentWindow::ezQtDocumentWindow(const char* szUniqueName)
 
 ezQtDocumentWindow::~ezQtDocumentWindow()
 {
-  ezUIServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesEventHandler, this));
+  ezQtUiServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesEventHandler, this));
 
   s_AllDocumentWindows.RemoveSwap(this);
 
@@ -241,11 +241,11 @@ void ezQtDocumentWindow::DocumentManagerEventHandler(const ezDocumentManager::Ev
   }
 }
 
-void ezQtDocumentWindow::UIServicesEventHandler(const ezUIServices::Event& e)
+void ezQtDocumentWindow::UIServicesEventHandler(const ezQtUiServices::Event& e)
 {
   switch (e.m_Type)
   {
-  case ezUIServices::Event::Type::ShowDocumentStatusBarText:
+  case ezQtUiServices::Event::Type::ShowDocumentStatusBarText:
     {
       if (statusBar() == nullptr)
         setStatusBar(new QStatusBar());
@@ -338,7 +338,7 @@ ezStatus ezQtDocumentWindow::SaveDocument()
     {
       if (m_pDocument->GetUnknownObjectTypeInstances() > 0)
       {
-        if (ezUIServices::MessageBoxQuestion("Warning! This document contained unknown object types that could not be loaded. Saving the document means those objects will get lost permanently.\n\nDo you really want to save this document?",
+        if (ezQtUiServices::MessageBoxQuestion("Warning! This document contained unknown object types that could not be loaded. Saving the document means those objects will get lost permanently.\n\nDo you really want to save this document?",
                                              QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
           return ezStatus(EZ_SUCCESS); // failed successfully
       }
@@ -351,7 +351,7 @@ ezStatus ezQtDocumentWindow::SaveDocument()
     s.Format("Failed to save document:\n'%s'", m_pDocument->GetDocumentPath());
     s2.Format("Successfully saved document:\n'%s'", m_pDocument->GetDocumentPath());
 
-    ezUIServices::MessageBoxStatus(res, s, s2);
+    ezQtUiServices::MessageBoxStatus(res, s, s2);
 
     if (res.m_Result.Failed())
     {
@@ -461,7 +461,7 @@ void ezQtDocumentWindow::EnsureVisible()
 
 void ezQtDocumentWindow::RequestWindowTabContextMenu(const QPoint& GlobalPos)
 {
-  ezMenuActionMapView menu(nullptr);
+  ezQtMenuActionMapView menu(nullptr);
 
   ezActionContext context;
   context.m_sMapping = "DocumentWindowTabMenu";

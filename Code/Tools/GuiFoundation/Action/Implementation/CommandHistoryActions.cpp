@@ -71,7 +71,7 @@ void ezCommandHistoryAction::Execute(const ezVariant& value)
       EZ_ASSERT_DEV(m_Context.m_pDocument->GetCommandHistory()->CanUndo(), "The action should not be active");
 
       auto stat = m_Context.m_pDocument->GetCommandHistory()->Undo();
-      ezUIServices::MessageBoxStatus(stat, "Could not execute the Undo operation");
+      ezQtUiServices::MessageBoxStatus(stat, "Could not execute the Undo operation");
     }
     break;
 
@@ -80,7 +80,7 @@ void ezCommandHistoryAction::Execute(const ezVariant& value)
       EZ_ASSERT_DEV(m_Context.m_pDocument->GetCommandHistory()->CanRedo(), "The action should not be active");
 
       auto stat = m_Context.m_pDocument->GetCommandHistory()->Redo();
-      ezUIServices::MessageBoxStatus(stat, "Could not execute the Redo operation");
+      ezQtUiServices::MessageBoxStatus(stat, "Could not execute the Redo operation");
     }
     break;
   }

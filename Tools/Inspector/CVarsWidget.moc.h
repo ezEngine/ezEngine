@@ -7,15 +7,15 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Configuration/CVar.h>
 
-class ezCVarsWidget : public QDockWidget, public Ui_CVarsWidget
+class ezQtCVarsWidget : public QDockWidget, public Ui_CVarsWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezCVarsWidget(QWidget* parent = 0);
+  ezQtCVarsWidget(QWidget* parent = 0);
 
-  static ezCVarsWidget* s_pWidget;
+  static ezQtCVarsWidget* s_pWidget;
 
 private slots:
   virtual void BoolChanged(int index);

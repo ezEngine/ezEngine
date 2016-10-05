@@ -6,7 +6,7 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
 
-ezQtMeshViewWidget::ezQtMeshViewWidget(QWidget* pParent, ezMeshAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig)
+ezQtMeshViewWidget::ezQtMeshViewWidget(QWidget* pParent, ezQtMeshAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig)
   : ezQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
 {
   setAcceptDrops(true);

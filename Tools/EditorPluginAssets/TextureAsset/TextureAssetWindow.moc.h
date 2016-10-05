@@ -6,15 +6,15 @@
 
 class QLabel;
 class QScrollArea;
-class QtImageWidget;
+class ezQtImageWidget;
 
-class ezTextureAssetDocumentWindow : public ezQtDocumentWindow
+class ezQtTextureAssetDocumentWindow : public ezQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezTextureAssetDocumentWindow(ezDocument* pDocument);
-  ~ezTextureAssetDocumentWindow();
+  ezQtTextureAssetDocumentWindow(ezDocument* pDocument);
+  ~ezQtTextureAssetDocumentWindow();
 
   virtual const char* GetWindowLayoutGroupName() const { return "TextureAsset"; }
 
@@ -25,5 +25,5 @@ private:
   void UpdatePreview();
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 
-  QtImageWidget* m_pImageWidget;
+  ezQtImageWidget* m_pImageWidget;
 };

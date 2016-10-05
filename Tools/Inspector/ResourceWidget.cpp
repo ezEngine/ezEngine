@@ -10,9 +10,9 @@
 
 void FormatSize(ezStringBuilder& s, const char* szPrefix, ezUInt64 uiSize);
 
-ezResourceWidget* ezResourceWidget::s_pWidget = nullptr;
+ezQtResourceWidget* ezQtResourceWidget::s_pWidget = nullptr;
 
-ezResourceWidget::ezResourceWidget(QWidget* parent) : QDockWidget(parent)
+ezQtResourceWidget::ezQtResourceWidget(QWidget* parent) : QDockWidget(parent)
 {
   s_pWidget = this;
 
@@ -23,7 +23,7 @@ ezResourceWidget::ezResourceWidget(QWidget* parent) : QDockWidget(parent)
   ResetStats();
 }
 
-void ezResourceWidget::ResetStats()
+void ezQtResourceWidget::ResetStats()
 {
   m_Resources.Clear();
 
@@ -57,7 +57,7 @@ void ezResourceWidget::ResetStats()
 }
 
 
-void ezResourceWidget::UpdateStats()
+void ezQtResourceWidget::UpdateStats()
 {
   if (!m_bUpdateTable)
     return;
@@ -81,7 +81,7 @@ public:
   ezUInt32 m_uiBytes;
 };
 
-void ezResourceWidget::UpdateTable()
+void ezQtResourceWidget::UpdateTable()
 {
   if (!m_bUpdateTable)
     return;
@@ -333,7 +333,7 @@ void ezResourceWidget::UpdateTable()
   Table->blockSignals(false);
 }
 
-void ezResourceWidget::UpdateAll()
+void ezQtResourceWidget::UpdateAll()
 {
   m_bUpdateTable = true;
 
@@ -343,14 +343,14 @@ void ezResourceWidget::UpdateAll()
   }
 }
 
-void ezResourceWidget::on_LineFilterByName_textChanged()
+void ezQtResourceWidget::on_LineFilterByName_textChanged()
 {
   m_sNameFilter = LineFilterByName->text().toUtf8().data();
 
   UpdateAll();
 }
 
-void ezResourceWidget::on_ComboResourceTypes_currentIndexChanged(int state)
+void ezQtResourceWidget::on_ComboResourceTypes_currentIndexChanged(int state)
 {
   if (state == 0)
     m_sTypeFilter.Clear();
@@ -360,13 +360,13 @@ void ezResourceWidget::on_ComboResourceTypes_currentIndexChanged(int state)
   UpdateAll();
 }
 
-void ezResourceWidget::on_CheckShowDeleted_toggled(bool checked)
+void ezQtResourceWidget::on_CheckShowDeleted_toggled(bool checked)
 {
   m_bShowDeleted = checked;
   UpdateAll();
 }
 
-void ezResourceWidget::ProcessTelemetry(void* pUnuseed)
+void ezQtResourceWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;

@@ -5,13 +5,13 @@
 #include <Tools/EditorFramework/ui_DataDirsDlg.h>
 #include <Core/Application/Config/FileSystemConfig.h>
 
-class EZ_EDITORFRAMEWORK_DLL DataDirsDlg : public QDialog, public Ui_DataDirsDlg
+class EZ_EDITORFRAMEWORK_DLL ezQtDataDirsDlg : public QDialog, public Ui_DataDirsDlg
 {
 public:
   Q_OBJECT
 
 public:
-  DataDirsDlg(QWidget* parent);
+  ezQtDataDirsDlg(QWidget* parent);
 
 private slots:
   void on_ButtonOK_clicked();

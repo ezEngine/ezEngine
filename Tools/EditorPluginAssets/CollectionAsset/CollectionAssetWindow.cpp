@@ -9,11 +9,11 @@
 #include <QLayout>
 #include <CoreUtils/Image/ImageConversion.h>
 
-ezCollectionAssetDocumentWindow::ezCollectionAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
+ezQtCollectionAssetDocumentWindow::ezQtCollectionAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {
   // Menu Bar
   {
-    ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
+    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
     ezActionContext context;
     context.m_sMapping = "CollectionAssetMenuBar";
     context.m_pDocument = pDocument;
@@ -22,7 +22,7 @@ ezCollectionAssetDocumentWindow::ezCollectionAssetDocumentWindow(ezDocument* pDo
 
   // Tool Bar
   {
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
+    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "CollectionAssetToolBar";
     context.m_pDocument = pDocument;
@@ -32,12 +32,12 @@ ezCollectionAssetDocumentWindow::ezCollectionAssetDocumentWindow(ezDocument* pDo
   }
 
   {
-    ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
     pPropertyPanel->setObjectName("CollectionAssetDockWidget");
     pPropertyPanel->setWindowTitle("Collection Properties");
     pPropertyPanel->show();
 
-    ezPropertyGridWidget* pPropertyGrid = new ezPropertyGridWidget(pPropertyPanel, pDocument);
+    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
@@ -48,6 +48,6 @@ ezCollectionAssetDocumentWindow::ezCollectionAssetDocumentWindow(ezDocument* pDo
   FinishWindowCreation();
 }
 
-ezCollectionAssetDocumentWindow::~ezCollectionAssetDocumentWindow()
+ezQtCollectionAssetDocumentWindow::~ezQtCollectionAssetDocumentWindow()
 {
 }

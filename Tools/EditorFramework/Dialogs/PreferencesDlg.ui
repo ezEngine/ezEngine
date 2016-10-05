@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>PreferencesDlg</class>
- <widget class="QDialog" name="PreferencesDlg">
+ <class>ezQtPreferencesDlg</class>
+ <widget class="QDialog" name="ezQtPreferencesDlg">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -26,8 +26,8 @@
      <property name="childrenCollapsible">
       <bool>false</bool>
      </property>
-     <widget class="ezQtDocumentTreeWidget" name="Tree"/>
-     <widget class="ezPropertyGridWidget" name="Properties" native="true"/>
+     <widget class="ezQtDocumentTreeView" name="Tree"/>
+     <widget class="ezQtPropertyGridWidget" name="Properties" native="true"/>
     </widget>
    </item>
    <item>
@@ -71,13 +71,13 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ezPropertyGridWidget</class>
+   <class>ezQtPropertyGridWidget</class>
    <extends>QWidget</extends>
    <header location="global">GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ezQtDocumentTreeWidget</class>
+   <class>ezQtDocumentTreeView</class>
    <extends>QTreeView</extends>
    <header location="global">EditorFramework/GUI/RawDocumentTreeWidget.moc.h</header>
   </customwidget>

@@ -5,9 +5,9 @@
 #include <MainWindow.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
-ezInputWidget* ezInputWidget::s_pWidget = nullptr;
+ezQtInputWidget* ezQtInputWidget::s_pWidget = nullptr;
 
-ezInputWidget::ezInputWidget(QWidget* parent) : QDockWidget (parent)
+ezQtInputWidget::ezQtInputWidget(QWidget* parent) : QDockWidget (parent)
 {
   s_pWidget = this;
 
@@ -16,13 +16,13 @@ ezInputWidget::ezInputWidget(QWidget* parent) : QDockWidget (parent)
   ResetStats();
 }
 
-void ezInputWidget::ResetStats()
+void ezQtInputWidget::ResetStats()
 {
   ClearSlots();
   ClearActions();
 }
 
-void ezInputWidget::ClearSlots()
+void ezQtInputWidget::ClearSlots()
 {
   m_InputSlots.Clear();
   TableInputSlots->clear();
@@ -43,7 +43,7 @@ void ezInputWidget::ClearSlots()
   }
 }
 
-void ezInputWidget::ClearActions()
+void ezQtInputWidget::ClearActions()
 {
   m_InputActions.Clear();
   TableInputActions->clear();
@@ -65,7 +65,7 @@ void ezInputWidget::ClearActions()
   }
 }
 
-void ezInputWidget::ProcessTelemetry(void* pUnuseed)
+void ezQtInputWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;
@@ -147,7 +147,7 @@ void ezInputWidget::ProcessTelemetry(void* pUnuseed)
   if (bFillActionTable)
     s_pWidget->UpdateActionTable(false);}
 
-void ezInputWidget::UpdateSlotTable(bool bRecreate)
+void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
 {
   TableInputSlots->blockSignals(true);
 
@@ -179,7 +179,7 @@ void ezInputWidget::UpdateSlotTable(bool bRecreate)
       sTemp.Format("  %s  ", it.Key().GetData());
 
       QLabel* pIcon = new QLabel();
-      pIcon->setPixmap(ezUIServices::GetCachedPixmapResource(":/Icons/Icons/InputSlots.png"));
+      pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/InputSlots.png"));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableInputSlots->setCellWidget(iRow, 0, pIcon);
 
@@ -288,7 +288,7 @@ void ezInputWidget::UpdateSlotTable(bool bRecreate)
   TableInputSlots->blockSignals(false);
 }
 
-void ezInputWidget::UpdateActionTable(bool bRecreate)
+void ezQtInputWidget::UpdateActionTable(bool bRecreate)
 {
   TableInputActions->blockSignals(true);
 
@@ -321,7 +321,7 @@ void ezInputWidget::UpdateActionTable(bool bRecreate)
       sTemp.Format("  %s  ", it.Key().GetData());
 
       QLabel* pIcon = new QLabel();
-      pIcon->setPixmap(ezUIServices::GetCachedPixmapResource(":/Icons/Icons/InputActions.png"));
+      pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/InputActions.png"));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableInputActions->setCellWidget(iRow, 0, pIcon);
 
@@ -402,12 +402,12 @@ void ezInputWidget::UpdateActionTable(bool bRecreate)
   TableInputActions->blockSignals(false);
 }
 
-void ezInputWidget::on_ButtonClearSlots_clicked()
+void ezQtInputWidget::on_ButtonClearSlots_clicked()
 {
   ClearSlots();
 }
 
-void ezInputWidget::on_ButtonClearActions_clicked()
+void ezQtInputWidget::on_ButtonClearActions_clicked()
 {
   ClearActions();
 }

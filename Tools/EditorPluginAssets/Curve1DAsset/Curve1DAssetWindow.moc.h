@@ -4,15 +4,15 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class QCurve1DEditorWidget;
+class ezQtCurve1DEditorWidget;
 
-class ezCurve1DAssetDocumentWindow : public ezQtDocumentWindow
+class ezQtCurve1DAssetDocumentWindow : public ezQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezCurve1DAssetDocumentWindow(ezDocument* pDocument);
-  ~ezCurve1DAssetDocumentWindow();
+  ezQtCurve1DAssetDocumentWindow(ezDocument* pDocument);
+  ~ezQtCurve1DAssetDocumentWindow();
 
   virtual const char* GetWindowLayoutGroupName() const { return "Curve1DAsset"; }
 
@@ -33,5 +33,5 @@ private:
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
 
-  QCurve1DEditorWidget* m_pCurveEditor;
+  ezQtCurve1DEditorWidget* m_pCurveEditor;
 };

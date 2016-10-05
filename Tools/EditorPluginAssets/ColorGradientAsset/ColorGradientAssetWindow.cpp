@@ -12,14 +12,14 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
 
-ezColorGradientAssetDocumentWindow::ezColorGradientAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
+ezQtColorGradientAssetDocumentWindow::ezQtColorGradientAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezColorGradientAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezColorGradientAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtColorGradientAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtColorGradientAssetDocumentWindow::StructureEventHandler, this));
 
   // Menu Bar
   {
-    ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
+    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
     ezActionContext context;
     context.m_sMapping = "ColorGradientAssetMenuBar";
     context.m_pDocument = pDocument;
@@ -28,7 +28,7 @@ ezColorGradientAssetDocumentWindow::ezColorGradientAssetDocumentWindow(ezDocumen
 
   // Tool Bar
   {
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
+    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "ColorGradientAssetToolBar";
     context.m_pDocument = pDocument;
@@ -38,7 +38,7 @@ ezColorGradientAssetDocumentWindow::ezColorGradientAssetDocumentWindow(ezDocumen
   }
 
   m_bShowFirstTime = true;
-  m_pGradientEditor = new QColorGradientEditorWidget(this);
+  m_pGradientEditor = new ezQtColorGradientEditorWidget(this);
 
   QWidget* pContainer = new QWidget(this);
   pContainer->setLayout(new QVBoxLayout(this));
@@ -48,35 +48,35 @@ ezColorGradientAssetDocumentWindow::ezColorGradientAssetDocumentWindow(ezDocumen
 
   setCentralWidget(pContainer);
 
-  connect(m_pGradientEditor, &QColorGradientEditorWidget::ColorCpAdded, this, &ezColorGradientAssetDocumentWindow::onGradientColorCpAdded);
-  connect(m_pGradientEditor, &QColorGradientEditorWidget::ColorCpMoved, this, &ezColorGradientAssetDocumentWindow::onGradientColorCpMoved);
-  connect(m_pGradientEditor, &QColorGradientEditorWidget::ColorCpDeleted, this, &ezColorGradientAssetDocumentWindow::onGradientColorCpDeleted);
-  connect(m_pGradientEditor, &QColorGradientEditorWidget::ColorCpChanged, this, &ezColorGradientAssetDocumentWindow::onGradientColorCpChanged);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpAdded, this, &ezQtColorGradientAssetDocumentWindow::onGradientColorCpAdded);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpMoved, this, &ezQtColorGradientAssetDocumentWindow::onGradientColorCpMoved);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpDeleted, this, &ezQtColorGradientAssetDocumentWindow::onGradientColorCpDeleted);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::ColorCpChanged, this, &ezQtColorGradientAssetDocumentWindow::onGradientColorCpChanged);
 
-  connect(m_pGradientEditor, &QColorGradientEditorWidget::AlphaCpAdded, this, &ezColorGradientAssetDocumentWindow::onGradientAlphaCpAdded);
-  connect(m_pGradientEditor, &QColorGradientEditorWidget::AlphaCpMoved, this, &ezColorGradientAssetDocumentWindow::onGradientAlphaCpMoved);
-  connect(m_pGradientEditor, &QColorGradientEditorWidget::AlphaCpDeleted, this, &ezColorGradientAssetDocumentWindow::onGradientAlphaCpDeleted);
-  connect(m_pGradientEditor, &QColorGradientEditorWidget::AlphaCpChanged, this, &ezColorGradientAssetDocumentWindow::onGradientAlphaCpChanged);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpAdded, this, &ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpAdded);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpMoved, this, &ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpMoved);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpDeleted, this, &ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpDeleted);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::AlphaCpChanged, this, &ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpChanged);
 
-  connect(m_pGradientEditor, &QColorGradientEditorWidget::IntensityCpAdded, this, &ezColorGradientAssetDocumentWindow::onGradientIntensityCpAdded);
-  connect(m_pGradientEditor, &QColorGradientEditorWidget::IntensityCpMoved, this, &ezColorGradientAssetDocumentWindow::onGradientIntensityCpMoved);
-  connect(m_pGradientEditor, &QColorGradientEditorWidget::IntensityCpDeleted, this, &ezColorGradientAssetDocumentWindow::onGradientIntensityCpDeleted);
-  connect(m_pGradientEditor, &QColorGradientEditorWidget::IntensityCpChanged, this, &ezColorGradientAssetDocumentWindow::onGradientIntensityCpChanged);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpAdded, this, &ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpAdded);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpMoved, this, &ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpMoved);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpDeleted, this, &ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpDeleted);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::IntensityCpChanged, this, &ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpChanged);
 
-  connect(m_pGradientEditor, &QColorGradientEditorWidget::BeginOperation, this, &ezColorGradientAssetDocumentWindow::onGradientBeginOperation);
-  connect(m_pGradientEditor, &QColorGradientEditorWidget::EndOperation, this, &ezColorGradientAssetDocumentWindow::onGradientEndOperation);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::BeginOperation, this, &ezQtColorGradientAssetDocumentWindow::onGradientBeginOperation);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::EndOperation, this, &ezQtColorGradientAssetDocumentWindow::onGradientEndOperation);
 
-  connect(m_pGradientEditor, &QColorGradientEditorWidget::NormalizeRange, this, &ezColorGradientAssetDocumentWindow::onGradientNormalizeRange);
+  connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::NormalizeRange, this, &ezQtColorGradientAssetDocumentWindow::onGradientNormalizeRange);
 
   // property grid, if needed
   if (false)
   {
-    ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
     pPropertyPanel->setObjectName("ColorGradientAssetDockWidget");
     pPropertyPanel->setWindowTitle("ColorGradient Properties");
     pPropertyPanel->show();
 
-    ezPropertyGridWidget* pPropertyGrid = new ezPropertyGridWidget(pPropertyPanel, pDocument);
+    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
@@ -89,14 +89,14 @@ ezColorGradientAssetDocumentWindow::ezColorGradientAssetDocumentWindow(ezDocumen
   UpdatePreview();
 }
 
-ezColorGradientAssetDocumentWindow::~ezColorGradientAssetDocumentWindow()
+ezQtColorGradientAssetDocumentWindow::~ezQtColorGradientAssetDocumentWindow()
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezColorGradientAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezColorGradientAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtColorGradientAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtColorGradientAssetDocumentWindow::StructureEventHandler, this));
 }
 
 
-void ezColorGradientAssetDocumentWindow::onGradientColorCpAdded(float posX, const ezColorGammaUB& color)
+void ezQtColorGradientAssetDocumentWindow::onGradientColorCpAdded(float posX, const ezColorGammaUB& color)
 {
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
@@ -135,7 +135,7 @@ void ezColorGradientAssetDocumentWindow::onGradientColorCpAdded(float posX, cons
 }
 
 
-void ezColorGradientAssetDocumentWindow::onGradientAlphaCpAdded(float posX, ezUInt8 alpha)
+void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpAdded(float posX, ezUInt8 alpha)
 {
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
@@ -166,7 +166,7 @@ void ezColorGradientAssetDocumentWindow::onGradientAlphaCpAdded(float posX, ezUI
 }
 
 
-void ezColorGradientAssetDocumentWindow::onGradientIntensityCpAdded(float posX, float intensity)
+void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpAdded(float posX, float intensity)
 {
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
@@ -196,7 +196,7 @@ void ezColorGradientAssetDocumentWindow::onGradientIntensityCpAdded(float posX, 
   history->FinishTransaction();
 }
 
-void ezColorGradientAssetDocumentWindow::MoveCP(ezInt32 idx, float newPosX, const char* szArrayName)
+void ezQtColorGradientAssetDocumentWindow::MoveCP(ezInt32 idx, float newPosX, const char* szArrayName)
 {
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
@@ -217,23 +217,23 @@ void ezColorGradientAssetDocumentWindow::MoveCP(ezInt32 idx, float newPosX, cons
   history->FinishTransaction();
 }
 
-void ezColorGradientAssetDocumentWindow::onGradientColorCpMoved(ezInt32 idx, float newPosX)
+void ezQtColorGradientAssetDocumentWindow::onGradientColorCpMoved(ezInt32 idx, float newPosX)
 {
   MoveCP(idx, newPosX, "Color CPs");
 }
 
-void ezColorGradientAssetDocumentWindow::onGradientAlphaCpMoved(ezInt32 idx, float newPosX)
+void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpMoved(ezInt32 idx, float newPosX)
 {
   MoveCP(idx, newPosX, "Alpha CPs");
 }
 
 
-void ezColorGradientAssetDocumentWindow::onGradientIntensityCpMoved(ezInt32 idx, float newPosX)
+void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpMoved(ezInt32 idx, float newPosX)
 {
   MoveCP(idx, newPosX, "Intensity CPs");
 }
 
-void ezColorGradientAssetDocumentWindow::RemoveCP(ezInt32 idx, const char* szArrayName)
+void ezQtColorGradientAssetDocumentWindow::RemoveCP(ezInt32 idx, const char* szArrayName)
 {
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
@@ -251,25 +251,25 @@ void ezColorGradientAssetDocumentWindow::RemoveCP(ezInt32 idx, const char* szArr
   history->FinishTransaction();
 }
 
-void ezColorGradientAssetDocumentWindow::onGradientColorCpDeleted(ezInt32 idx)
+void ezQtColorGradientAssetDocumentWindow::onGradientColorCpDeleted(ezInt32 idx)
 {
   RemoveCP(idx, "Color CPs");
 }
 
 
-void ezColorGradientAssetDocumentWindow::onGradientAlphaCpDeleted(ezInt32 idx)
+void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpDeleted(ezInt32 idx)
 {
   RemoveCP(idx, "Alpha CPs");
 }
 
 
-void ezColorGradientAssetDocumentWindow::onGradientIntensityCpDeleted(ezInt32 idx)
+void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpDeleted(ezInt32 idx)
 {
   RemoveCP(idx, "Intensity CPs");
 }
 
 
-void ezColorGradientAssetDocumentWindow::onGradientColorCpChanged(ezInt32 idx, const ezColorGammaUB& color)
+void ezQtColorGradientAssetDocumentWindow::onGradientColorCpChanged(ezInt32 idx, const ezColorGammaUB& color)
 {
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
@@ -298,7 +298,7 @@ void ezColorGradientAssetDocumentWindow::onGradientColorCpChanged(ezInt32 idx, c
 }
 
 
-void ezColorGradientAssetDocumentWindow::onGradientAlphaCpChanged(ezInt32 idx, ezUInt8 alpha)
+void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpChanged(ezInt32 idx, ezUInt8 alpha)
 {
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
@@ -318,7 +318,7 @@ void ezColorGradientAssetDocumentWindow::onGradientAlphaCpChanged(ezInt32 idx, e
   history->FinishTransaction();
 }
 
-void ezColorGradientAssetDocumentWindow::onGradientIntensityCpChanged(ezInt32 idx, float intensity)
+void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpChanged(ezInt32 idx, float intensity)
 {
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
@@ -339,14 +339,14 @@ void ezColorGradientAssetDocumentWindow::onGradientIntensityCpChanged(ezInt32 id
 }
 
 
-void ezColorGradientAssetDocumentWindow::onGradientBeginOperation()
+void ezQtColorGradientAssetDocumentWindow::onGradientBeginOperation()
 {
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
   history->BeginTemporaryCommands("Modify Gradient");
 }
 
 
-void ezColorGradientAssetDocumentWindow::onGradientEndOperation(bool commit)
+void ezQtColorGradientAssetDocumentWindow::onGradientEndOperation(bool commit)
 {
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
 
@@ -357,9 +357,9 @@ void ezColorGradientAssetDocumentWindow::onGradientEndOperation(bool commit)
 }
 
 
-void ezColorGradientAssetDocumentWindow::onGradientNormalizeRange()
+void ezQtColorGradientAssetDocumentWindow::onGradientNormalizeRange()
 {
-  if (ezUIServices::GetSingleton()->MessageBoxQuestion("This will adjust the positions of all control points, such that the minimum is at 0 and the maximum at 1.\n\nContinue?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) != QMessageBox::StandardButton::Yes)
+  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("This will adjust the positions of all control points, such that the minimum is at 0 and the maximum at 1.\n\nContinue?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) != QMessageBox::StandardButton::Yes)
     return;
 
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
@@ -415,7 +415,7 @@ void ezColorGradientAssetDocumentWindow::onGradientNormalizeRange()
   m_pGradientEditor->FrameGradient();
 }
 
-void ezColorGradientAssetDocumentWindow::UpdatePreview()
+void ezQtColorGradientAssetDocumentWindow::UpdatePreview()
 {
   ezColorGradient GradientData;
 
@@ -431,12 +431,12 @@ void ezColorGradientAssetDocumentWindow::UpdatePreview()
   }
 }
 
-void ezColorGradientAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void ezQtColorGradientAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   UpdatePreview();
 }
 
-void ezColorGradientAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void ezQtColorGradientAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
   UpdatePreview();
 }

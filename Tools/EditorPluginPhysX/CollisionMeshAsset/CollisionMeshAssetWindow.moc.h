@@ -7,14 +7,14 @@
 
 class QLabel;
 class QScrollArea;
-class QtImageWidget;
+class ezQtImageWidget;
 
-class ezCollisionMeshAssetDocumentWindow : public ezQtDocumentWindow
+class ezQtCollisionMeshAssetDocumentWindow : public ezQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezCollisionMeshAssetDocumentWindow(ezDocument* pDocument);
+  ezQtCollisionMeshAssetDocumentWindow(ezDocument* pDocument);
 
   virtual const char* GetWindowLayoutGroupName() const { return "CollisionMeshAsset"; }
 

@@ -6,10 +6,10 @@
 
 class QGraphicsPixmapItem;
 
-class EZ_GUIFOUNDATION_DLL QtImageScene : public QGraphicsScene
+class EZ_GUIFOUNDATION_DLL ezQtImageScene : public QGraphicsScene
 {
 public:
-  QtImageScene(QObject* pParent = nullptr);
+  ezQtImageScene(QObject* pParent = nullptr);
 
   void SetImage(QPixmap pixmap);
 
@@ -18,13 +18,13 @@ private:
   QGraphicsPixmapItem* m_pImageItem;
 };
 
-class EZ_GUIFOUNDATION_DLL QtImageWidget : public QWidget, public Ui_ImageWidget
+class EZ_GUIFOUNDATION_DLL ezQtImageWidget : public QWidget, public Ui_ImageWidget
 {
   Q_OBJECT
 
 public:
-  QtImageWidget(QWidget* parent, bool bShowButtons = true);
-  ~QtImageWidget();
+  ezQtImageWidget(QWidget* parent, bool bShowButtons = true);
+  ~ezQtImageWidget();
 
   void SetImage(QPixmap pixmap);
 
@@ -41,7 +41,7 @@ private:
 
   void ImageApplyScale();
 
-  QtImageScene* m_pScene;
+  ezQtImageScene* m_pScene;
   float m_fCurrentScale;
 
 };

@@ -7,16 +7,16 @@
 
 class ezPreferencesDocument;
 class ezPreferences;
-class ezQtDocumentTreeWidget;
+class ezQtDocumentTreeView;
 
-class EZ_EDITORFRAMEWORK_DLL PreferencesDlg : public QDialog, public Ui_PreferencesDlg
+class EZ_EDITORFRAMEWORK_DLL ezQtPreferencesDlg : public QDialog, public Ui_PreferencesDlg
 {
 public:
   Q_OBJECT
 
 public:
-  PreferencesDlg(QWidget* parent);
-  ~PreferencesDlg();
+  ezQtPreferencesDlg(QWidget* parent);
+  ~ezQtPreferencesDlg();
 
   ezUuid NativeToObject(ezPreferences* pPreferences);
   void ObjectToNative(ezUuid objectGuid, const ezDocument* pPrefDocument);

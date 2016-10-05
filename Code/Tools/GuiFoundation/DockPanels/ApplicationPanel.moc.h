@@ -5,7 +5,7 @@
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <QDockWidget>
 
-class ezContainerWindow;
+class ezQtContainerWindow;
 
 /// \brief Base class for all panels that are supposed to be application wide (not tied to some document).
 class EZ_GUIFOUNDATION_DLL ezQtApplicationPanel : public QDockWidget
@@ -25,10 +25,10 @@ protected:
   virtual void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 
 private:
-  friend class ezContainerWindow;
+  friend class ezQtContainerWindow;
 
   static ezDynamicArray<ezQtApplicationPanel*> s_AllApplicationPanels;
 
-  ezContainerWindow* m_pContainerWindow;
+  ezQtContainerWindow* m_pContainerWindow;
 };
 

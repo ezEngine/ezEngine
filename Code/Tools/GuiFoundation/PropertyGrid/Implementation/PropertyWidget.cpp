@@ -23,7 +23,7 @@
 
 /// *** CHECKBOX ***
 
-ezPropertyEditorCheckboxWidget::ezPropertyEditorCheckboxWidget()
+ezQtPropertyEditorCheckboxWidget::ezQtPropertyEditorCheckboxWidget()
   : ezQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
@@ -37,7 +37,7 @@ ezPropertyEditorCheckboxWidget::ezPropertyEditorCheckboxWidget()
   EZ_VERIFY(connect(m_pWidget, SIGNAL(stateChanged(int)), this, SLOT(on_StateChanged_triggered(int))) != nullptr, "signal/slot connection failed");
 }
 
-void ezPropertyEditorCheckboxWidget::InternalSetValue(const ezVariant& value)
+void ezQtPropertyEditorCheckboxWidget::InternalSetValue(const ezVariant& value)
 {
   QtScopedBlockSignals b(m_pWidget);
 
@@ -53,14 +53,14 @@ void ezPropertyEditorCheckboxWidget::InternalSetValue(const ezVariant& value)
   }
 }
 
-void ezPropertyEditorCheckboxWidget::mousePressEvent(QMouseEvent* ev)
+void ezQtPropertyEditorCheckboxWidget::mousePressEvent(QMouseEvent* ev)
 {
   QWidget::mousePressEvent(ev);
 
   m_pWidget->toggle();
 }
 
-void ezPropertyEditorCheckboxWidget::on_StateChanged_triggered(int state)
+void ezQtPropertyEditorCheckboxWidget::on_StateChanged_triggered(int state)
 {
   if (state == Qt::PartiallyChecked)
   {
@@ -76,7 +76,7 @@ void ezPropertyEditorCheckboxWidget::on_StateChanged_triggered(int state)
 
 /// *** DOUBLE SPINBOX ***
 
-ezPropertyEditorDoubleSpinboxWidget::ezPropertyEditorDoubleSpinboxWidget(ezInt8 iNumComponents) : ezQtStandardPropertyWidget()
+ezQtPropertyEditorDoubleSpinboxWidget::ezQtPropertyEditorDoubleSpinboxWidget(ezInt8 iNumComponents) : ezQtStandardPropertyWidget()
 {
   m_iNumComponents = iNumComponents;
   m_bTemporaryCommand = false;
@@ -94,7 +94,7 @@ ezPropertyEditorDoubleSpinboxWidget::ezPropertyEditorDoubleSpinboxWidget(ezInt8 
 
   for (ezInt32 c = 0; c < m_iNumComponents; ++c)
   {
-    m_pWidget[c] = new ezQDoubleSpinBox(this);
+    m_pWidget[c] = new ezQtDoubleSpinBox(this);
     m_pWidget[c]->setMinimum(-ezMath::BasicType<double>::GetInfinity());
     m_pWidget[c]->setMaximum(ezMath::BasicType<double>::GetInfinity());
     m_pWidget[c]->setSingleStep(0.1f);
@@ -111,7 +111,7 @@ ezPropertyEditorDoubleSpinboxWidget::ezPropertyEditorDoubleSpinboxWidget(ezInt8 
   }
 }
 
-void ezPropertyEditorDoubleSpinboxWidget::OnInit()
+void ezQtPropertyEditorDoubleSpinboxWidget::OnInit()
 {
   const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>();
   const ezDefaultValueAttribute* pDefault = m_pProp->GetAttributeByType<ezDefaultValueAttribute>();
@@ -260,7 +260,7 @@ void ezPropertyEditorDoubleSpinboxWidget::OnInit()
   }
 }
 
-void ezPropertyEditorDoubleSpinboxWidget::InternalSetValue(const ezVariant& value)
+void ezQtPropertyEditorDoubleSpinboxWidget::InternalSetValue(const ezVariant& value)
 {
   QtScopedBlockSignals b0(m_pWidget[0]);
   QtScopedBlockSignals b1(m_pWidget[1]);
@@ -318,7 +318,7 @@ void ezPropertyEditorDoubleSpinboxWidget::InternalSetValue(const ezVariant& valu
 
 }
 
-void ezPropertyEditorDoubleSpinboxWidget::on_EditingFinished_triggered()
+void ezQtPropertyEditorDoubleSpinboxWidget::on_EditingFinished_triggered()
 {
   if (m_bTemporaryCommand)
     Broadcast(ezQtPropertyWidget::Event::Type::EndTemporary);
@@ -326,7 +326,7 @@ void ezPropertyEditorDoubleSpinboxWidget::on_EditingFinished_triggered()
   m_bTemporaryCommand = false;
 }
 
-void ezPropertyEditorDoubleSpinboxWidget::SlotValueChanged()
+void ezQtPropertyEditorDoubleSpinboxWidget::SlotValueChanged()
 {
   if (!m_bTemporaryCommand)
     Broadcast(ezQtPropertyWidget::Event::Type::BeginTemporary);
@@ -353,7 +353,7 @@ void ezPropertyEditorDoubleSpinboxWidget::SlotValueChanged()
 
 /// *** TIME SPINBOX ***
 
-ezPropertyEditorTimeWidget::ezPropertyEditorTimeWidget() : ezQtStandardPropertyWidget()
+ezQtPropertyEditorTimeWidget::ezQtPropertyEditorTimeWidget() : ezQtStandardPropertyWidget()
 {
   m_bTemporaryCommand = false;
 
@@ -366,7 +366,7 @@ ezPropertyEditorTimeWidget::ezPropertyEditorTimeWidget() : ezQtStandardPropertyW
   QSizePolicy policy = sizePolicy();
 
   {
-    m_pWidget = new ezQDoubleSpinBox(this);
+    m_pWidget = new ezQtDoubleSpinBox(this);
     m_pWidget->setDisplaySuffix(" (sec)");
     m_pWidget->setMinimum(-ezMath::BasicType<double>::GetInfinity());
     m_pWidget->setMaximum(ezMath::BasicType<double>::GetInfinity());
@@ -384,7 +384,7 @@ ezPropertyEditorTimeWidget::ezPropertyEditorTimeWidget() : ezQtStandardPropertyW
   }
 }
 
-void ezPropertyEditorTimeWidget::OnInit()
+void ezQtPropertyEditorTimeWidget::OnInit()
 {
   const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>();
   if (pClamp)
@@ -413,7 +413,7 @@ void ezPropertyEditorTimeWidget::OnInit()
   }
 }
 
-void ezPropertyEditorTimeWidget::InternalSetValue(const ezVariant& value)
+void ezQtPropertyEditorTimeWidget::InternalSetValue(const ezVariant& value)
 {
   QtScopedBlockSignals b0(m_pWidget);
 
@@ -427,7 +427,7 @@ void ezPropertyEditorTimeWidget::InternalSetValue(const ezVariant& value)
   }
 }
 
-void ezPropertyEditorTimeWidget::on_EditingFinished_triggered()
+void ezQtPropertyEditorTimeWidget::on_EditingFinished_triggered()
 {
   if (m_bTemporaryCommand)
     Broadcast(ezQtPropertyWidget::Event::Type::EndTemporary);
@@ -435,7 +435,7 @@ void ezPropertyEditorTimeWidget::on_EditingFinished_triggered()
   m_bTemporaryCommand = false;
 }
 
-void ezPropertyEditorTimeWidget::SlotValueChanged()
+void ezQtPropertyEditorTimeWidget::SlotValueChanged()
 {
   if (!m_bTemporaryCommand)
     Broadcast(ezQtPropertyWidget::Event::Type::BeginTemporary);
@@ -448,7 +448,7 @@ void ezPropertyEditorTimeWidget::SlotValueChanged()
 
 /// *** ANGLE SPINBOX ***
 
-ezPropertyEditorAngleWidget::ezPropertyEditorAngleWidget() : ezQtStandardPropertyWidget()
+ezQtPropertyEditorAngleWidget::ezQtPropertyEditorAngleWidget() : ezQtStandardPropertyWidget()
 {
   m_bTemporaryCommand = false;
 
@@ -461,7 +461,7 @@ ezPropertyEditorAngleWidget::ezPropertyEditorAngleWidget() : ezQtStandardPropert
   QSizePolicy policy = sizePolicy();
 
   {
-    m_pWidget = new ezQDoubleSpinBox(this);
+    m_pWidget = new ezQtDoubleSpinBox(this);
     m_pWidget->setDisplaySuffix(ezStringUtf8(L"\u00B0").GetData());
     m_pWidget->setMinimum(-ezMath::BasicType<double>::GetInfinity());
     m_pWidget->setMaximum(ezMath::BasicType<double>::GetInfinity());
@@ -479,7 +479,7 @@ ezPropertyEditorAngleWidget::ezPropertyEditorAngleWidget() : ezQtStandardPropert
   }
 }
 
-void ezPropertyEditorAngleWidget::OnInit()
+void ezQtPropertyEditorAngleWidget::OnInit()
 {
   const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>();
   if (pClamp)
@@ -514,7 +514,7 @@ void ezPropertyEditorAngleWidget::OnInit()
   }
 }
 
-void ezPropertyEditorAngleWidget::InternalSetValue(const ezVariant& value)
+void ezQtPropertyEditorAngleWidget::InternalSetValue(const ezVariant& value)
 {
   QtScopedBlockSignals b0(m_pWidget);
 
@@ -528,7 +528,7 @@ void ezPropertyEditorAngleWidget::InternalSetValue(const ezVariant& value)
   }
 }
 
-void ezPropertyEditorAngleWidget::on_EditingFinished_triggered()
+void ezQtPropertyEditorAngleWidget::on_EditingFinished_triggered()
 {
   if (m_bTemporaryCommand)
     Broadcast(ezQtPropertyWidget::Event::Type::EndTemporary);
@@ -536,7 +536,7 @@ void ezPropertyEditorAngleWidget::on_EditingFinished_triggered()
   m_bTemporaryCommand = false;
 }
 
-void ezPropertyEditorAngleWidget::SlotValueChanged()
+void ezQtPropertyEditorAngleWidget::SlotValueChanged()
 {
   if (!m_bTemporaryCommand)
     Broadcast(ezQtPropertyWidget::Event::Type::BeginTemporary);
@@ -549,14 +549,14 @@ void ezPropertyEditorAngleWidget::SlotValueChanged()
 /// *** INT SPINBOX ***
 
 
-ezPropertyEditorIntSpinboxWidget::ezPropertyEditorIntSpinboxWidget(ezInt32 iMinValue, ezInt32 iMaxValue) : ezQtStandardPropertyWidget()
+ezQtPropertyEditorIntSpinboxWidget::ezQtPropertyEditorIntSpinboxWidget(ezInt32 iMinValue, ezInt32 iMaxValue) : ezQtStandardPropertyWidget()
 {
   m_bTemporaryCommand = false;
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
   setLayout(m_pLayout);
 
-  m_pWidget = new ezQDoubleSpinBox(this, true);
+  m_pWidget = new ezQtDoubleSpinBox(this, true);
   m_pWidget->setMinimum(iMinValue);
   m_pWidget->setMaximum(iMaxValue);
   m_pWidget->setSingleStep(1);
@@ -569,7 +569,7 @@ ezPropertyEditorIntSpinboxWidget::ezPropertyEditorIntSpinboxWidget(ezInt32 iMinV
   connect(m_pWidget, SIGNAL(valueChanged(double)), this, SLOT(SlotValueChanged()));
 }
 
-void ezPropertyEditorIntSpinboxWidget::OnInit()
+void ezQtPropertyEditorIntSpinboxWidget::OnInit()
 {
   const ezClampValueAttribute* pClamp = m_pProp->GetAttributeByType<ezClampValueAttribute>();
   if (pClamp)
@@ -604,13 +604,13 @@ void ezPropertyEditorIntSpinboxWidget::OnInit()
   }
 }
 
-void ezPropertyEditorIntSpinboxWidget::InternalSetValue(const ezVariant& value)
+void ezQtPropertyEditorIntSpinboxWidget::InternalSetValue(const ezVariant& value)
 {
   QtScopedBlockSignals b(m_pWidget);
   m_pWidget->setValue(value.ConvertTo<ezInt32>());
 }
 
-void ezPropertyEditorIntSpinboxWidget::SlotValueChanged()
+void ezQtPropertyEditorIntSpinboxWidget::SlotValueChanged()
 {
   if (!m_bTemporaryCommand)
     Broadcast(ezQtPropertyWidget::Event::Type::BeginTemporary);
@@ -620,7 +620,7 @@ void ezPropertyEditorIntSpinboxWidget::SlotValueChanged()
   BroadcastValueChanged((ezInt32)m_pWidget->value());
 }
 
-void ezPropertyEditorIntSpinboxWidget::on_EditingFinished_triggered()
+void ezQtPropertyEditorIntSpinboxWidget::on_EditingFinished_triggered()
 {
   if (m_bTemporaryCommand)
     Broadcast(ezQtPropertyWidget::Event::Type::EndTemporary);
@@ -631,7 +631,7 @@ void ezPropertyEditorIntSpinboxWidget::on_EditingFinished_triggered()
 
 /// *** QUATERNION ***
 
-ezPropertyEditorQuaternionWidget::ezPropertyEditorQuaternionWidget() : ezQtStandardPropertyWidget()
+ezQtPropertyEditorQuaternionWidget::ezQtPropertyEditorQuaternionWidget() : ezQtStandardPropertyWidget()
 {
   m_bTemporaryCommand = false;
 
@@ -647,7 +647,7 @@ ezPropertyEditorQuaternionWidget::ezPropertyEditorQuaternionWidget() : ezQtStand
 
   for (ezInt32 c = 0; c < 3; ++c)
   {
-    m_pWidget[c] = new ezQDoubleSpinBox(this);
+    m_pWidget[c] = new ezQtDoubleSpinBox(this);
     m_pWidget[c]->setMinimum(-ezMath::BasicType<double>::GetInfinity());
     m_pWidget[c]->setMaximum(ezMath::BasicType<double>::GetInfinity());
     m_pWidget[c]->setSingleStep(1.0);
@@ -665,11 +665,11 @@ ezPropertyEditorQuaternionWidget::ezPropertyEditorQuaternionWidget() : ezQtStand
   }
 }
 
-void ezPropertyEditorQuaternionWidget::OnInit()
+void ezQtPropertyEditorQuaternionWidget::OnInit()
 {
 }
 
-void ezPropertyEditorQuaternionWidget::InternalSetValue(const ezVariant& value)
+void ezQtPropertyEditorQuaternionWidget::InternalSetValue(const ezVariant& value)
 {
   QtScopedBlockSignals b0(m_pWidget[0]);
   QtScopedBlockSignals b1(m_pWidget[1]);
@@ -693,7 +693,7 @@ void ezPropertyEditorQuaternionWidget::InternalSetValue(const ezVariant& value)
   }
 }
 
-void ezPropertyEditorQuaternionWidget::on_EditingFinished_triggered()
+void ezQtPropertyEditorQuaternionWidget::on_EditingFinished_triggered()
 {
   if (m_bTemporaryCommand)
     Broadcast(ezQtPropertyWidget::Event::Type::EndTemporary);
@@ -701,7 +701,7 @@ void ezPropertyEditorQuaternionWidget::on_EditingFinished_triggered()
   m_bTemporaryCommand = false;
 }
 
-void ezPropertyEditorQuaternionWidget::SlotValueChanged()
+void ezQtPropertyEditorQuaternionWidget::SlotValueChanged()
 {
   if (!m_bTemporaryCommand)
     Broadcast(ezQtPropertyWidget::Event::Type::BeginTemporary);
@@ -720,7 +720,7 @@ void ezPropertyEditorQuaternionWidget::SlotValueChanged()
 
 /// *** LINEEDIT ***
 
-ezPropertyEditorLineEditWidget::ezPropertyEditorLineEditWidget() : ezQtStandardPropertyWidget()
+ezQtPropertyEditorLineEditWidget::ezQtPropertyEditorLineEditWidget() : ezQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
@@ -736,7 +736,7 @@ ezPropertyEditorLineEditWidget::ezPropertyEditorLineEditWidget() : ezQtStandardP
   connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_TextFinished_triggered()));
 }
 
-void ezPropertyEditorLineEditWidget::OnInit()
+void ezQtPropertyEditorLineEditWidget::OnInit()
 {
   if (m_pProp->GetAttributeByType<ezReadOnlyAttribute>() != nullptr || m_pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
   {
@@ -751,7 +751,7 @@ void ezPropertyEditorLineEditWidget::OnInit()
   }
 }
 
-void ezPropertyEditorLineEditWidget::InternalSetValue(const ezVariant& value)
+void ezQtPropertyEditorLineEditWidget::InternalSetValue(const ezVariant& value)
 {
   QtScopedBlockSignals b(m_pWidget);
 
@@ -766,12 +766,12 @@ void ezPropertyEditorLineEditWidget::InternalSetValue(const ezVariant& value)
   }
 }
 
-void ezPropertyEditorLineEditWidget::on_TextChanged_triggered(const QString& value)
+void ezQtPropertyEditorLineEditWidget::on_TextChanged_triggered(const QString& value)
 {
   BroadcastValueChanged(value.toUtf8().data());
 }
 
-void ezPropertyEditorLineEditWidget::on_TextFinished_triggered()
+void ezQtPropertyEditorLineEditWidget::on_TextFinished_triggered()
 {
   BroadcastValueChanged(m_pWidget->text().toUtf8().data());
 }
@@ -779,12 +779,12 @@ void ezPropertyEditorLineEditWidget::on_TextFinished_triggered()
 
 /// *** COLOR ***
 
-ezColorButton::ezColorButton(QWidget* parent) : QFrame(parent)
+ezQtColorButtonWidget::ezQtColorButtonWidget(QWidget* parent) : QFrame(parent)
 {
   setAutoFillBackground(true);
 }
 
-void ezColorButton::SetColor(const ezVariant& color)
+void ezQtColorButtonWidget::SetColor(const ezVariant& color)
 {
   if (color.IsValid())
   {
@@ -807,18 +807,18 @@ void ezColorButton::SetColor(const ezVariant& color)
   }
 }
 
-void ezColorButton::mouseReleaseEvent(QMouseEvent* event)
+void ezQtColorButtonWidget::mouseReleaseEvent(QMouseEvent* event)
 {
   emit clicked();
 }
 
-ezPropertyEditorColorWidget::ezPropertyEditorColorWidget() : ezQtStandardPropertyWidget()
+ezQtPropertyEditorColorWidget::ezQtPropertyEditorColorWidget() : ezQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
   setLayout(m_pLayout);
 
-  m_pWidget = new ezColorButton(this);
+  m_pWidget = new ezQtColorButtonWidget(this);
   m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
 
   m_pLayout->addWidget(m_pWidget);
@@ -826,7 +826,7 @@ ezPropertyEditorColorWidget::ezPropertyEditorColorWidget() : ezQtStandardPropert
   EZ_VERIFY(connect(m_pWidget, SIGNAL(clicked()), this, SLOT(on_Button_triggered())) != nullptr, "signal/slot connection failed");
 }
 
-void ezPropertyEditorColorWidget::InternalSetValue(const ezVariant& value)
+void ezQtPropertyEditorColorWidget::InternalSetValue(const ezVariant& value)
 {
   QtScopedBlockSignals b(m_pWidget);
 
@@ -834,7 +834,7 @@ void ezPropertyEditorColorWidget::InternalSetValue(const ezVariant& value)
   m_pWidget->SetColor(value);
 }
 
-void ezPropertyEditorColorWidget::on_Button_triggered()
+void ezQtPropertyEditorColorWidget::on_Button_triggered()
 {
   Broadcast(ezQtPropertyWidget::Event::Type::BeginTemporary);
 
@@ -842,10 +842,10 @@ void ezPropertyEditorColorWidget::on_Button_triggered()
   if (m_OriginalValue.IsValid())
     temp = m_OriginalValue.ConvertTo<ezColor>();
 
-  ezUIServices::GetSingleton()->ShowColorDialog(temp, true, this, SLOT(on_CurrentColor_changed(const QColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
+  ezQtUiServices::GetSingleton()->ShowColorDialog(temp, true, this, SLOT(on_CurrentColor_changed(const QColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
 }
 
-void ezPropertyEditorColorWidget::on_CurrentColor_changed(const QColor& color)
+void ezQtPropertyEditorColorWidget::on_CurrentColor_changed(const QColor& color)
 {
   const ezColor NewCol(ezColorGammaUB(color.red(), color.green(), color.blue(), color.alpha()));
 
@@ -854,13 +854,13 @@ void ezPropertyEditorColorWidget::on_CurrentColor_changed(const QColor& color)
   BroadcastValueChanged(NewCol);
 }
 
-void ezPropertyEditorColorWidget::on_Color_reset()
+void ezQtPropertyEditorColorWidget::on_Color_reset()
 {
   m_pWidget->SetColor(m_OriginalValue);
   Broadcast(ezQtPropertyWidget::Event::Type::CancelTemporary);
 }
 
-void ezPropertyEditorColorWidget::on_Color_accepted()
+void ezQtPropertyEditorColorWidget::on_Color_accepted()
 {
   m_OriginalValue = GetOldValue();
   Broadcast(ezQtPropertyWidget::Event::Type::EndTemporary);
@@ -869,7 +869,7 @@ void ezPropertyEditorColorWidget::on_Color_accepted()
 
 /// *** ENUM COMBOBOX ***
 
-ezPropertyEditorEnumWidget::ezPropertyEditorEnumWidget() : ezQtStandardPropertyWidget()
+ezQtPropertyEditorEnumWidget::ezQtPropertyEditorEnumWidget() : ezQtStandardPropertyWidget()
 {
 
   m_pLayout = new QHBoxLayout(this);
@@ -883,7 +883,7 @@ ezPropertyEditorEnumWidget::ezPropertyEditorEnumWidget() : ezQtStandardPropertyW
   connect(m_pWidget, SIGNAL(currentIndexChanged(int)), this, SLOT(on_CurrentEnum_changed(int)));
 }
 
-void ezPropertyEditorEnumWidget::OnInit()
+void ezQtPropertyEditorEnumWidget::OnInit()
 {
   const ezRTTI* enumType = m_pProp->GetSpecificType();
 
@@ -906,7 +906,7 @@ void ezPropertyEditorEnumWidget::OnInit()
   }
 }
 
-void ezPropertyEditorEnumWidget::InternalSetValue(const ezVariant& value)
+void ezQtPropertyEditorEnumWidget::InternalSetValue(const ezVariant& value)
 {
   QtScopedBlockSignals b(m_pWidget);
 
@@ -922,7 +922,7 @@ void ezPropertyEditorEnumWidget::InternalSetValue(const ezVariant& value)
   }
 }
 
-void ezPropertyEditorEnumWidget::on_CurrentEnum_changed(int iEnum)
+void ezQtPropertyEditorEnumWidget::on_CurrentEnum_changed(int iEnum)
 {
   ezInt64 iValue = m_pWidget->itemData(iEnum).toLongLong();
   BroadcastValueChanged(iValue);
@@ -931,7 +931,7 @@ void ezPropertyEditorEnumWidget::on_CurrentEnum_changed(int iEnum)
 
 /// *** BITFLAGS COMBOBOX ***
 
-ezPropertyEditorBitflagsWidget::ezPropertyEditorBitflagsWidget() : ezQtStandardPropertyWidget()
+ezQtPropertyEditorBitflagsWidget::ezQtPropertyEditorBitflagsWidget() : ezQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
@@ -948,7 +948,7 @@ ezPropertyEditorBitflagsWidget::ezPropertyEditorBitflagsWidget() : ezQtStandardP
   connect(m_pMenu, SIGNAL(aboutToHide()), this, SLOT(on_Menu_aboutToHide()));
 }
 
-ezPropertyEditorBitflagsWidget::~ezPropertyEditorBitflagsWidget()
+ezQtPropertyEditorBitflagsWidget::~ezQtPropertyEditorBitflagsWidget()
 {
   m_Constants.Clear();
   m_pWidget->setMenu(nullptr);
@@ -957,7 +957,7 @@ ezPropertyEditorBitflagsWidget::~ezPropertyEditorBitflagsWidget()
   m_pMenu = nullptr;
 }
 
-void ezPropertyEditorBitflagsWidget::OnInit()
+void ezQtPropertyEditorBitflagsWidget::OnInit()
 {
   const ezRTTI* enumType = m_pProp->GetSpecificType();
 
@@ -985,7 +985,7 @@ void ezPropertyEditorBitflagsWidget::OnInit()
   }
 }
 
-void ezPropertyEditorBitflagsWidget::InternalSetValue(const ezVariant& value)
+void ezQtPropertyEditorBitflagsWidget::InternalSetValue(const ezVariant& value)
 {
   QtScopedBlockSignals b(m_pWidget);
   m_iCurrentBitflags = value.ConvertTo<ezInt64>();
@@ -1007,12 +1007,12 @@ void ezPropertyEditorBitflagsWidget::InternalSetValue(const ezVariant& value)
   m_pWidget->setText(sText);
 }
 
-void ezPropertyEditorBitflagsWidget::on_Menu_aboutToShow()
+void ezQtPropertyEditorBitflagsWidget::on_Menu_aboutToShow()
 {
   m_pMenu->setMinimumWidth(m_pWidget->geometry().width());
 }
 
-void ezPropertyEditorBitflagsWidget::on_Menu_aboutToHide()
+void ezQtPropertyEditorBitflagsWidget::on_Menu_aboutToHide()
 {
   ezInt64 iValue = 0;
   QString sText;

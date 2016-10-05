@@ -5,9 +5,9 @@
 #include <Foundation/IO/OSFile.h>
 #include <qgraphicsitem.h>
 
-ezFileWidget* ezFileWidget::s_pWidget = nullptr;
+ezQtFileWidget* ezQtFileWidget::s_pWidget = nullptr;
 
-ezFileWidget::ezFileWidget(QWidget* parent) : QDockWidget (parent)
+ezQtFileWidget::ezQtFileWidget(QWidget* parent) : QDockWidget (parent)
 {
   s_pWidget = this;
 
@@ -16,7 +16,7 @@ ezFileWidget::ezFileWidget(QWidget* parent) : QDockWidget (parent)
   ResetStats();
 }
 
-void ezFileWidget::ResetStats()
+void ezQtFileWidget::ResetStats()
 {
   m_iMaxID = 0;
   m_bUpdateTable = true;
@@ -44,7 +44,7 @@ void ezFileWidget::ResetStats()
   Table->sortByColumn(0, Qt::DescendingOrder);
 }
 
-void ezFileWidget::ProcessTelemetry(void* pUnuseed)
+void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;
@@ -221,7 +221,7 @@ void ezFileWidget::ProcessTelemetry(void* pUnuseed)
   }
 }
 
-QTableWidgetItem* ezFileWidget::GetStateString(FileOpState State) const
+QTableWidgetItem* ezQtFileWidget::GetStateString(FileOpState State) const
 {
   QTableWidgetItem* pItem = new QTableWidgetItem();
   pItem->setTextAlignment(Qt::AlignCenter);
@@ -312,7 +312,7 @@ QTableWidgetItem* ezFileWidget::GetStateString(FileOpState State) const
   return pItem;
 }
 
-void ezFileWidget::UpdateTable()
+void ezQtFileWidget::UpdateTable()
 {
   if (!m_bUpdateTable)
     return;
@@ -419,7 +419,7 @@ void ezFileWidget::UpdateTable()
   Table->blockSignals(false);
 }
 
-void ezFileWidget::UpdateStats()
+void ezQtFileWidget::UpdateStats()
 {
   if (!m_bUpdateTable)
     return;
@@ -427,22 +427,22 @@ void ezFileWidget::UpdateStats()
   UpdateTable();
 }
 
-void ezFileWidget::on_SpinLimitToRecent_valueChanged(int val)
+void ezQtFileWidget::on_SpinLimitToRecent_valueChanged(int val)
 {
   m_bUpdateTable = true;
 }
 
-void ezFileWidget::on_SpinMinDuration_valueChanged(double val)
+void ezQtFileWidget::on_SpinMinDuration_valueChanged(double val)
 {
   m_bUpdateTable = true;
 }
 
-void ezFileWidget::on_LineFilterByName_textChanged()
+void ezQtFileWidget::on_LineFilterByName_textChanged()
 {
   m_bUpdateTable = true;
 }
 
-void ezFileWidget::on_ComboThread_currentIndexChanged(int state)
+void ezQtFileWidget::on_ComboThread_currentIndexChanged(int state)
 {
   m_bUpdateTable = true;
 }

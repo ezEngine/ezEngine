@@ -14,7 +14,7 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <CoreUtils/Localization/TranslationLookup.h>
 
-ezCollapsibleGroupBox::ezCollapsibleGroupBox(QWidget* pParent) : QWidget(pParent), m_bCollapsed(false)
+ezQtCollapsibleGroupBox::ezQtCollapsibleGroupBox(QWidget* pParent) : QWidget(pParent), m_bCollapsed(false)
 {
   setupUi(this);
 
@@ -22,23 +22,23 @@ ezCollapsibleGroupBox::ezCollapsibleGroupBox(QWidget* pParent) : QWidget(pParent
   Caption->installEventFilter(this);
 }
 
-void ezCollapsibleGroupBox::setTitle(const char* szTitle)
+void ezQtCollapsibleGroupBox::setTitle(const char* szTitle)
 {
   Caption->setText(QString::fromUtf8(szTitle));
 }
 
-QString ezCollapsibleGroupBox::title() const
+QString ezQtCollapsibleGroupBox::title() const
 {
   return Caption->text();
 }
 
-void ezCollapsibleGroupBox::SetFillColor(const QColor& color)
+void ezQtCollapsibleGroupBox::SetFillColor(const QColor& color)
 {
   m_FillColor = color;
   update();
 }
 
-void ezCollapsibleGroupBox::SetCollapseState(bool bCollapsed)
+void ezQtCollapsibleGroupBox::SetCollapseState(bool bCollapsed)
 {
   if (bCollapsed == m_bCollapsed)
     return;
@@ -56,17 +56,17 @@ void ezCollapsibleGroupBox::SetCollapseState(bool bCollapsed)
     pCur = pCur->parentWidget();
   }
 
-  Icon->setPixmap(Content->isVisible() ? ezUIServices::GetCachedPixmapResource(":/GuiFoundation/Icons/groupOpen.png") : ezUIServices::GetCachedPixmapResource(":/GuiFoundation/Icons/groupClosed.png"));
+  Icon->setPixmap(Content->isVisible() ? ezQtUiServices::GetCachedPixmapResource(":/GuiFoundation/Icons/groupOpen.png") : ezQtUiServices::GetCachedPixmapResource(":/GuiFoundation/Icons/groupClosed.png"));
 
   emit CollapseStateChanged(bCollapsed);
 }
 
-bool ezCollapsibleGroupBox::GetCollapseState() const
+bool ezQtCollapsibleGroupBox::GetCollapseState() const
 {
   return m_bCollapsed;
 }
 
-bool ezCollapsibleGroupBox::eventFilter(QObject* object, QEvent* event)
+bool ezQtCollapsibleGroupBox::eventFilter(QObject* object, QEvent* event)
 {
   if (event->type() == QEvent::Type::MouseButtonPress || event->type() == QEvent::Type::MouseButtonDblClick)
   {
@@ -82,7 +82,7 @@ bool ezCollapsibleGroupBox::eventFilter(QObject* object, QEvent* event)
   return false;
 }
 
-void ezCollapsibleGroupBox::paintEvent(QPaintEvent* event)
+void ezQtCollapsibleGroupBox::paintEvent(QPaintEvent* event)
 {
   const QPalette& pal = palette();
   QWidget::paintEvent(event);

@@ -7,7 +7,7 @@
 #include <qevent.h>
 #include <qstyleoption.h>
 
-inline ezQDoubleSpinBox::ezQDoubleSpinBox(QWidget* pParent, bool bIntMode) : QDoubleSpinBox(pParent)
+inline ezQtDoubleSpinBox::ezQtDoubleSpinBox(QWidget* pParent, bool bIntMode) : QDoubleSpinBox(pParent)
 {
   m_fDisplayedValue = ezMath::BasicType<float>::GetNaN();
   m_bInvalid = false;
@@ -18,20 +18,20 @@ inline ezQDoubleSpinBox::ezQDoubleSpinBox(QWidget* pParent, bool bIntMode) : QDo
 
   setSingleStep(0.1f);
   setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(this, &QWidget::customContextMenuRequested, this, &ezQDoubleSpinBox::onCustomContextMenuRequested);
+  connect(this, &QWidget::customContextMenuRequested, this, &ezQtDoubleSpinBox::onCustomContextMenuRequested);
 }
 
-void ezQDoubleSpinBox::setDisplaySuffix(const char* szSuffix)
+void ezQtDoubleSpinBox::setDisplaySuffix(const char* szSuffix)
 {
   m_sSuffix = QString::fromUtf8(szSuffix);
 }
 
-void ezQDoubleSpinBox::setDefaultValue(double value)
+void ezQtDoubleSpinBox::setDefaultValue(double value)
 {
   m_fDefaultValue = value;
 }
 
-QString ezQDoubleSpinBox::textFromValue(double val) const
+QString ezQtDoubleSpinBox::textFromValue(double val) const
 {
   if (m_bInvalid)
     return QString();
@@ -79,7 +79,7 @@ QString ezQDoubleSpinBox::textFromValue(double val) const
   return sText;
 }
 
-double ezQDoubleSpinBox::valueFromText(const QString& text) const
+double ezQtDoubleSpinBox::valueFromText(const QString& text) const
 {
   if (m_bInvalid)
   {
@@ -107,7 +107,7 @@ double ezQDoubleSpinBox::valueFromText(const QString& text) const
   return val;
 }
 
-void ezQDoubleSpinBox::setValueInvalid()
+void ezQtDoubleSpinBox::setValueInvalid()
 {
   m_bInvalid = true;
   m_sDisplayedText = QString();
@@ -115,7 +115,7 @@ void ezQDoubleSpinBox::setValueInvalid()
   QDoubleSpinBox::setValue(minimum());
 }
 
-void ezQDoubleSpinBox::setValue(double val)
+void ezQtDoubleSpinBox::setValue(double val)
 {
   EZ_ASSERT_DEBUG(ezMath::IsFinite(val), "Spin box value must be finite!");
   m_bInvalid = false;
@@ -123,7 +123,7 @@ void ezQDoubleSpinBox::setValue(double val)
   QDoubleSpinBox::setValue(val);
 }
 
-double ezQDoubleSpinBox::value() const
+double ezQtDoubleSpinBox::value() const
 {
   if (m_bInvalid)
     return 0.0;
@@ -132,7 +132,7 @@ double ezQDoubleSpinBox::value() const
   return m_bIntMode ? ezMath::Round(QDoubleSpinBox::value()) : QDoubleSpinBox::value();
 }
 
-void ezQDoubleSpinBox::focusInEvent(QFocusEvent *event)
+void ezQtDoubleSpinBox::focusInEvent(QFocusEvent *event)
 {
   if (!m_sSuffix.isEmpty())
   {
@@ -149,13 +149,13 @@ void ezQDoubleSpinBox::focusInEvent(QFocusEvent *event)
   QDoubleSpinBox::focusInEvent(event);
 }
 
-void ezQDoubleSpinBox::focusOutEvent(QFocusEvent *event)
+void ezQtDoubleSpinBox::focusOutEvent(QFocusEvent *event)
 {
   QDoubleSpinBox::focusOutEvent(event);
 
 }
 
-void ezQDoubleSpinBox::mousePressEvent(QMouseEvent* event)
+void ezQtDoubleSpinBox::mousePressEvent(QMouseEvent* event)
 {
   QStyleOptionSpinBox opt;
   initStyleOption(&opt);
@@ -174,7 +174,7 @@ void ezQDoubleSpinBox::mousePressEvent(QMouseEvent* event)
   QDoubleSpinBox::mousePressEvent(event);
 }
 
-void ezQDoubleSpinBox::mouseReleaseEvent(QMouseEvent* event)
+void ezQtDoubleSpinBox::mouseReleaseEvent(QMouseEvent* event)
 {
   if (event->button() == Qt::LeftButton && m_bDragging)
   {
@@ -208,7 +208,7 @@ void ezQDoubleSpinBox::mouseReleaseEvent(QMouseEvent* event)
   QDoubleSpinBox::mouseReleaseEvent(event);
 }
 
-void ezQDoubleSpinBox::mouseMoveEvent(QMouseEvent* event)
+void ezQtDoubleSpinBox::mouseMoveEvent(QMouseEvent* event)
 {
   if (m_bDragging)
   {
@@ -235,7 +235,7 @@ void ezQDoubleSpinBox::mouseMoveEvent(QMouseEvent* event)
   QDoubleSpinBox::mouseMoveEvent(event);
 }
 
-void ezQDoubleSpinBox::onCustomContextMenuRequested()
+void ezQtDoubleSpinBox::onCustomContextMenuRequested()
 {
   m_sDisplayedText = QDoubleSpinBox::textFromValue(m_fDefaultValue);
   setValue(m_fDefaultValue);

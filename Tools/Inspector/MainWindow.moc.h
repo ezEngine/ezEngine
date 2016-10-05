@@ -11,7 +11,7 @@
 #include <qtreewidget.h>
 #include <Inspector/StatVisWidget.moc.h>
 
-class ezMainWindow : public QMainWindow, public Ui_MainWindow
+class ezQtMainWindow : public QMainWindow, public Ui_MainWindow
 {
   enum OnTopMode
   {
@@ -24,10 +24,10 @@ public:
   Q_OBJECT
 
 public:
-  ezMainWindow();
-  ~ezMainWindow();
+  ezQtMainWindow();
+  ~ezQtMainWindow();
 
-  static ezMainWindow* s_pWidget;
+  static ezQtMainWindow* s_pWidget;
 
   static void ProcessTelemetry(void* pUnuseed);
 
@@ -99,14 +99,14 @@ private:
     }
   };
 
-  friend class ezStatVisWidget;
+  friend class ezQtStatVisWidget;
 
   ezMap<ezString, StatData> m_Stats;
   ezSet<ezString> m_Favourites;
   QTimer* m_pNetworkTimer;
   OnTopMode m_OnTopMode;
 
-  ezStatVisWidget* m_pStatHistoryWidgets[10];
+  ezQtStatVisWidget* m_pStatHistoryWidgets[10];
 
   QAction* m_pActionShowStatIn[10];
   

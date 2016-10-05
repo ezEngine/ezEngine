@@ -42,7 +42,7 @@ void ezMaterialAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMana
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezMaterialAssetDocument>())
       {
-        ezMaterialAssetDocumentWindow* pDocWnd = new ezMaterialAssetDocumentWindow(static_cast<ezMaterialAssetDocument*>(e.m_pDocument));
+        ezQtMaterialAssetDocumentWindow* pDocWnd = new ezQtMaterialAssetDocumentWindow(static_cast<ezMaterialAssetDocument*>(e.m_pDocument));
       }
     }
     break;

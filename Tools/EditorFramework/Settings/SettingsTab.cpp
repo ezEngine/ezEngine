@@ -3,20 +3,20 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 
-EZ_IMPLEMENT_SINGLETON(ezSettingsTab);
+EZ_IMPLEMENT_SINGLETON(ezQtSettingsTab);
 
-ezString ezSettingsTab::GetWindowIcon() const
+ezString ezQtSettingsTab::GetWindowIcon() const
 {
   return ":/GuiFoundation/Icons/ezEditor16.png";
 }
 
 void ezQtEditorApp::ShowSettingsDocument()
 {
-  ezSettingsTab* pSettingsTab = ezSettingsTab::GetSingleton();
+  ezQtSettingsTab* pSettingsTab = ezQtSettingsTab::GetSingleton();
 
   if (pSettingsTab == nullptr)
   {
-    pSettingsTab = new ezSettingsTab();
+    pSettingsTab = new ezQtSettingsTab();
   }
 
   pSettingsTab->EnsureVisible();
@@ -24,7 +24,7 @@ void ezQtEditorApp::ShowSettingsDocument()
 
 void ezQtEditorApp::CloseSettingsDocument()
 {
-  ezSettingsTab* pSettingsTab = ezSettingsTab::GetSingleton();
+  ezQtSettingsTab* pSettingsTab = ezQtSettingsTab::GetSingleton();
 
   if (pSettingsTab != nullptr)
   {
@@ -32,7 +32,7 @@ void ezQtEditorApp::CloseSettingsDocument()
   }
 }
 
-ezSettingsTab::ezSettingsTab() 
+ezQtSettingsTab::ezQtSettingsTab() 
   : ezQtDocumentWindow("")
   , m_SingletonRegistrar(this)
 {
@@ -45,7 +45,7 @@ ezSettingsTab::ezSettingsTab()
 
   //EZ_VERIFY(connect(AssetBrowserWidget, SIGNAL(ItemChosen(QString, QString, QString)), this, SLOT(SlotAssetChosen(QString, QString, QString))) != nullptr, "signal/slot connection failed");
 
-  ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
+  ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
   ezActionContext context;
   context.m_sMapping = "SettingsTabMenuBar";
   context.m_pDocument = nullptr;
@@ -54,23 +54,23 @@ ezSettingsTab::ezSettingsTab()
   FinishWindowCreation();
 }
 
-ezSettingsTab::~ezSettingsTab()
+ezQtSettingsTab::~ezQtSettingsTab()
 {
 }
 
-bool ezSettingsTab::InternalCanCloseWindow()
+bool ezQtSettingsTab::InternalCanCloseWindow()
 {
   // if this is the last window, prevent closing it
   return ezQtDocumentWindow::GetAllDocumentWindows().GetCount() > 1;
 }
 
-void ezSettingsTab::InternalCloseDocumentWindow()
+void ezQtSettingsTab::InternalCloseDocumentWindow()
 {
   // make sure this instance isn't used anymore
   UnregisterSingleton();
 }
 
-void ezSettingsTab::SlotAssetChosen(QString sAssetGuid, QString sAssetPathRelative, QString sAssetPathAbsolute)
+void ezQtSettingsTab::SlotAssetChosen(QString sAssetGuid, QString sAssetPathRelative, QString sAssetPathAbsolute)
 {
   ezQtEditorApp::GetSingleton()->OpenDocument(sAssetPathAbsolute.toUtf8().data());
 }

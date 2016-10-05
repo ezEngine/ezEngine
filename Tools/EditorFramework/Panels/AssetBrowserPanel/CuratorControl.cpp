@@ -82,9 +82,9 @@ void ezQtCuratorControl::UpdateBackgroundProcessState()
 {
   bool bRunning = ezAssetCurator::GetSingleton()->IsProcessTaskRunning();
   if (bRunning)
-    m_pBackgroundProcess->setIcon(ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingPause16.png"));
+    m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingPause16.png"));
   else
-    m_pBackgroundProcess->setIcon(ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingStart16.png"));
+    m_pBackgroundProcess->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetProcessingStart16.png"));
   m_pBackgroundProcess->setCheckable(true);
   m_pBackgroundProcess->setChecked(bRunning);
 }

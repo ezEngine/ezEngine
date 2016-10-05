@@ -3,7 +3,7 @@
 #include <QScrollBar>
 #include <qevent.h>
 
-ezQGraphicsView::ezQGraphicsView(QWidget* parent /*= nullptr*/)
+ezQtGraphicsView::ezQtGraphicsView(QWidget* parent /*= nullptr*/)
   : QGraphicsView(parent)
 {
   m_fZoom = 50.0f;
@@ -21,7 +21,7 @@ ezQGraphicsView::ezQGraphicsView(QWidget* parent /*= nullptr*/)
   UpdateTransform();
 }
 
-void ezQGraphicsView::wheelEvent(QWheelEvent* e)
+void ezQtGraphicsView::wheelEvent(QWheelEvent* e)
 {
   if (e->delta() > 0)
   {
@@ -36,7 +36,7 @@ void ezQGraphicsView::wheelEvent(QWheelEvent* e)
 }
 
 
-void ezQGraphicsView::mousePressEvent(QMouseEvent* e)
+void ezQtGraphicsView::mousePressEvent(QMouseEvent* e)
 {
   if (e->buttons() == Qt::RightButton) // right button only
   {
@@ -60,7 +60,7 @@ void ezQGraphicsView::mousePressEvent(QMouseEvent* e)
   QGraphicsView::mousePressEvent(e);
 }
 
-void ezQGraphicsView::mouseReleaseEvent(QMouseEvent* e)
+void ezQtGraphicsView::mouseReleaseEvent(QMouseEvent* e)
 {
   if (!e->buttons().testFlag(Qt::RightButton))
   {
@@ -88,7 +88,7 @@ void ezQGraphicsView::mouseReleaseEvent(QMouseEvent* e)
   }
 }
 
-void ezQGraphicsView::mouseMoveEvent(QMouseEvent* e)
+void ezQtGraphicsView::mouseMoveEvent(QMouseEvent* e)
 {
   if (m_bPanning)
   {
@@ -111,7 +111,7 @@ void ezQGraphicsView::mouseMoveEvent(QMouseEvent* e)
   QGraphicsView::mouseMoveEvent(e);
 }
 
-void ezQGraphicsView::keyPressEvent(QKeyEvent* e)
+void ezQtGraphicsView::keyPressEvent(QKeyEvent* e)
 {
   if (e->key() == Qt::Key_Delete)
   {
@@ -122,13 +122,13 @@ void ezQGraphicsView::keyPressEvent(QKeyEvent* e)
   }
 }
 
-void ezQGraphicsView::SetZoom(float zoom)
+void ezQtGraphicsView::SetZoom(float zoom)
 {
   m_fZoom = zoom;
   UpdateTransform();
 }
 
-void ezQGraphicsView::SetZoomLimits(float minZoom, float maxZoom)
+void ezQtGraphicsView::SetZoomLimits(float minZoom, float maxZoom)
 {
   m_fMinZoom = ezMath::Min(minZoom, maxZoom);
   m_fMaxZoom = ezMath::Max(minZoom, maxZoom);
@@ -136,7 +136,7 @@ void ezQGraphicsView::SetZoomLimits(float minZoom, float maxZoom)
   UpdateTransform();
 }
 
-void ezQGraphicsView::UpdateTransform()
+void ezQtGraphicsView::UpdateTransform()
 {
   m_fZoom = ezMath::Clamp(m_fZoom, m_fMinZoom, m_fMaxZoom);
 

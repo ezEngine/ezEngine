@@ -150,7 +150,7 @@
         </layout>
        </item>
        <item>
-        <widget class="ezAssetBrowserView" name="ListAssets">
+        <widget class="ezQtAssetBrowserView" name="ListAssets">
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>
@@ -179,7 +179,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ezAssetBrowserView</class>
+   <class>ezQtAssetBrowserView</class>
    <extends>QListView</extends>
    <header location="global">EditorFramework/Assets/AssetBrowserView.moc.h</header>
   </customwidget>

@@ -10,16 +10,16 @@
 #include <CoreUtils/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 
-ezParticleEffectAssetDocumentWindow::ezParticleEffectAssetDocumentWindow(ezAssetDocument* pDocument) 
+ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezAssetDocument* pDocument) 
   : ezQtEngineDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezParticleEffectAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::StructureEventHandler, this));
 
 
   // Menu Bar
   {
-    ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
+    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
     ezActionContext context;
     context.m_sMapping = "ParticleEffectAssetMenuBar";
     context.m_pDocument = pDocument;
@@ -28,7 +28,7 @@ ezParticleEffectAssetDocumentWindow::ezParticleEffectAssetDocumentWindow(ezAsset
 
   // Tool Bar
   {
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
+    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "ParticleEffectAssetToolBar";
     context.m_pDocument = pDocument;
@@ -39,12 +39,12 @@ ezParticleEffectAssetDocumentWindow::ezParticleEffectAssetDocumentWindow(ezAsset
 
   // Property Grid
   {
-    ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
     pPropertyPanel->setObjectName("ParticleEffectAssetDockWidget");
     pPropertyPanel->setWindowTitle("Particle Effect Properties");
     pPropertyPanel->show();
 
-    ezPropertyGridWidget* pPropertyGrid = new ezPropertyGridWidget(pPropertyPanel, pDocument);
+    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
@@ -65,34 +65,34 @@ ezParticleEffectAssetDocumentWindow::ezParticleEffectAssetDocumentWindow(ezAsset
   }
 
   m_pAssetDoc = static_cast<ezParticleEffectAssetDocument*>(pDocument);
-  m_pAssetDoc->m_AssetEvents.AddEventHandler(ezMakeDelegate(&ezParticleEffectAssetDocumentWindow::AssetDocumentEventHandler, this));
+  m_pAssetDoc->m_AssetEvents.AddEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::AssetDocumentEventHandler, this));
 
   FinishWindowCreation();
 
   UpdatePreview();
 
-  GetParticleDocument()->m_Events.AddEventHandler(ezMakeDelegate(&ezParticleEffectAssetDocumentWindow::ParticleEventHandler, this));
+  GetParticleDocument()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::ParticleEventHandler, this));
 }
 
-ezParticleEffectAssetDocumentWindow::~ezParticleEffectAssetDocumentWindow()
+ezQtParticleEffectAssetDocumentWindow::~ezQtParticleEffectAssetDocumentWindow()
 {
-  GetParticleDocument()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezParticleEffectAssetDocumentWindow::ParticleEventHandler, this));
+  GetParticleDocument()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::ParticleEventHandler, this));
 
   RestoreResource();
 
-  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezParticleEffectAssetDocumentWindow::StructureEventHandler, this));
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
 
-  m_pAssetDoc->m_AssetEvents.RemoveEventHandler(ezMakeDelegate(&ezParticleEffectAssetDocumentWindow::AssetDocumentEventHandler, this));
+  m_pAssetDoc->m_AssetEvents.RemoveEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::AssetDocumentEventHandler, this));
 }
 
 
-ezParticleEffectAssetDocument* ezParticleEffectAssetDocumentWindow::GetParticleDocument()
+ezParticleEffectAssetDocument* ezQtParticleEffectAssetDocumentWindow::GetParticleDocument()
 {
   return static_cast<ezParticleEffectAssetDocument*>(GetDocument());
 }
 
-void ezParticleEffectAssetDocumentWindow::AssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e)
+void ezQtParticleEffectAssetDocumentWindow::AssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e)
 {
   switch (e.m_Type)
   {
@@ -102,7 +102,7 @@ void ezParticleEffectAssetDocumentWindow::AssetDocumentEventHandler(const ezAsse
   }
 }
 
-void ezParticleEffectAssetDocumentWindow::UpdatePreview()
+void ezQtParticleEffectAssetDocumentWindow::UpdatePreview()
 {
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
@@ -129,12 +129,12 @@ void ezParticleEffectAssetDocumentWindow::UpdatePreview()
   GetEditorEngineConnection()->SendMessage(&msg);
 }
 
-void ezParticleEffectAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   UpdatePreview();
 }
 
-void ezParticleEffectAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void ezQtParticleEffectAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
   switch (e.m_EventType)
   {
@@ -147,7 +147,7 @@ void ezParticleEffectAssetDocumentWindow::StructureEventHandler(const ezDocument
 }
 
 
-void ezParticleEffectAssetDocumentWindow::ParticleEventHandler(const ezParticleEffectAssetEvent& e)
+void ezQtParticleEffectAssetDocumentWindow::ParticleEventHandler(const ezParticleEffectAssetEvent& e)
 {
   switch (e.m_Type)
   {
@@ -171,7 +171,7 @@ void ezParticleEffectAssetDocumentWindow::ParticleEventHandler(const ezParticleE
   }
 }
 
-void ezParticleEffectAssetDocumentWindow::InternalRedraw()
+void ezQtParticleEffectAssetDocumentWindow::InternalRedraw()
 {
   ezQtEngineDocumentWindow::InternalRedraw();
 
@@ -181,7 +181,7 @@ void ezParticleEffectAssetDocumentWindow::InternalRedraw()
 }
 
 
-void ezParticleEffectAssetDocumentWindow::SendRedrawMsg()
+void ezQtParticleEffectAssetDocumentWindow::SendRedrawMsg()
 {
   // do not try to redraw while the process is crashed, it is obviously futile
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
@@ -214,7 +214,7 @@ void ezParticleEffectAssetDocumentWindow::SendRedrawMsg()
   }
 }
 
-void ezParticleEffectAssetDocumentWindow::RestoreResource()
+void ezQtParticleEffectAssetDocumentWindow::RestoreResource()
 {
   ezEditorEngineRestoreResourceMsg msg;
   GetEditorEngineConnection()->SendMessage(&msg);

@@ -5,16 +5,16 @@
 #include <GuiFoundation/ActionViews/QtProxy.moc.h>
 #include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 
-ezMenuBarActionMapView::ezMenuBarActionMapView(QWidget* parent) : QMenuBar(parent)
+ezQtMenuBarActionMapView::ezQtMenuBarActionMapView(QWidget* parent) : QMenuBar(parent)
 {
 }
 
-ezMenuBarActionMapView::~ezMenuBarActionMapView()
+ezQtMenuBarActionMapView::~ezQtMenuBarActionMapView()
 {
   ClearView();
 }
 
-void ezMenuBarActionMapView::SetActionContext(const ezActionContext& context)
+void ezQtMenuBarActionMapView::SetActionContext(const ezActionContext& context)
 {
   auto pMap = ezActionMapManager::GetActionMap(context.m_sMapping);
 
@@ -26,12 +26,12 @@ void ezMenuBarActionMapView::SetActionContext(const ezActionContext& context)
   CreateView();
 }
 
-void ezMenuBarActionMapView::ClearView()
+void ezQtMenuBarActionMapView::ClearView()
 {
   m_Proxies.Clear();
 }
 
-void ezMenuBarActionMapView::CreateView()
+void ezQtMenuBarActionMapView::CreateView()
 {
   ClearView();
 
@@ -62,7 +62,7 @@ void ezMenuBarActionMapView::CreateView()
       {
         QMenu* pQtMenu = static_cast<ezQtMenuProxy*>(pProxy.data())->GetQMenu();
         addMenu(pQtMenu);
-        ezMenuActionMapView::AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, pQtMenu, pChild);
+        ezQtMenuActionMapView::AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, pQtMenu, pChild);
       }
       break;
     }

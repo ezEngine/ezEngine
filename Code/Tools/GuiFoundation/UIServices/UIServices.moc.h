@@ -10,11 +10,11 @@
 
 class QColorDialog;
 
-class EZ_GUIFOUNDATION_DLL ezUIServices : public QObject
+class EZ_GUIFOUNDATION_DLL ezQtUiServices : public QObject
 {
   Q_OBJECT
 
-  EZ_DECLARE_SINGLETON(ezUIServices);
+  EZ_DECLARE_SINGLETON(ezQtUiServices);
 
 public:
   struct Event
@@ -30,10 +30,10 @@ public:
     ezTime m_Time;
   };
 
-  static ezEvent<const ezUIServices::Event&> s_Events;
+  static ezEvent<const ezQtUiServices::Event&> s_Events;
 
 public:
-  ezUIServices();
+  ezQtUiServices();
 
   static bool IsHeadless();
   static void SetHeadless(bool bHeadless);

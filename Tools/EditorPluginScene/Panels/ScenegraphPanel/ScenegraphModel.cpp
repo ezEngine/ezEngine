@@ -63,7 +63,7 @@ void ezQtScenegraphModel::DetermineNodeName(const ezDocumentObject* pObject, con
 
         ezStringBuilder sIconName;
         sIconName.Set(":/TypeIcons/", pChild->GetTypeAccessor().GetType()->GetTypeName());
-        icon = ezUIServices::GetCachedIconResource(sIconName.GetData());
+        icon = ezQtUiServices::GetCachedIconResource(sIconName.GetData());
       }
 
       if (out_Result.IsEmpty())

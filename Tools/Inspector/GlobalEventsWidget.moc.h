@@ -7,15 +7,15 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Communication/GlobalEvent.h>
 
-class ezGlobalEventsWidget : public QDockWidget, public Ui_GlobalEventsWidget
+class ezQtGlobalEventsWidget : public QDockWidget, public Ui_GlobalEventsWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezGlobalEventsWidget(QWidget* parent = 0);
+  ezQtGlobalEventsWidget(QWidget* parent = 0);
 
-  static ezGlobalEventsWidget* s_pWidget;
+  static ezQtGlobalEventsWidget* s_pWidget;
 
 public:
   static void ProcessTelemetry(void* pUnuseed);

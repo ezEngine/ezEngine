@@ -2,9 +2,9 @@
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <QCloseEvent>
 
-ezDynamicArray<ezDocumentPanel*> ezDocumentPanel::s_AllDocumentPanels;
+ezDynamicArray<ezQtDocumentPanel*> ezQtDocumentPanel::s_AllDocumentPanels;
 
-ezDocumentPanel::ezDocumentPanel(QWidget* parent) : QDockWidget(parent)
+ezQtDocumentPanel::ezQtDocumentPanel(QWidget* parent) : QDockWidget(parent)
 {
   s_AllDocumentPanels.PushBack(this);
 
@@ -13,12 +13,12 @@ ezDocumentPanel::ezDocumentPanel(QWidget* parent) : QDockWidget(parent)
   setFeatures(DockWidgetFeature::DockWidgetFloatable | DockWidgetFeature::DockWidgetMovable);
 }
 
-ezDocumentPanel::~ezDocumentPanel()
+ezQtDocumentPanel::~ezQtDocumentPanel()
 {
   s_AllDocumentPanels.RemoveSwap(this);
 }
 
-void ezDocumentPanel::closeEvent(QCloseEvent* e)
+void ezQtDocumentPanel::closeEvent(QCloseEvent* e)
 {
   e->ignore();
 }

@@ -7,11 +7,11 @@
 #include <QGroupBox>
 #include <QLayout>
 
-class EZ_GUIFOUNDATION_DLL ezCollapsibleGroupBox : public QWidget, public Ui_CollapsibleGroupBox
+class EZ_GUIFOUNDATION_DLL ezQtCollapsibleGroupBox : public QWidget, public Ui_CollapsibleGroupBox
 {
   Q_OBJECT
 public:
-  explicit ezCollapsibleGroupBox(QWidget* pParent);
+  explicit ezQtCollapsibleGroupBox(QWidget* pParent);
 
   void setTitle(const char* szTitle);
   QString title() const;

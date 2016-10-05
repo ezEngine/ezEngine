@@ -4,7 +4,7 @@
 #include <QColor>
 #include <QColorDialog>
 
-void ezUIServices::ShowColorDialog(const ezColor& color, bool bAlpha, QWidget* pParent, const char* slotCurColChanged, const char* slotAccept, const char* slotReject)
+void ezQtUiServices::ShowColorDialog(const ezColor& color, bool bAlpha, QWidget* pParent, const char* slotCurColChanged, const char* slotAccept, const char* slotReject)
 {
   ezColorGammaUB gamma = color;
 
@@ -22,7 +22,7 @@ void ezUIServices::ShowColorDialog(const ezColor& color, bool bAlpha, QWidget* p
   m_pColorDlg->open(pParent, slotCurColChanged);
 }
 
-void ezUIServices::SlotColorDialogClosed()
+void ezQtUiServices::SlotColorDialogClosed()
 {
   m_ColorDlgPos = m_pColorDlg->pos();
   m_pColorDlg = nullptr;

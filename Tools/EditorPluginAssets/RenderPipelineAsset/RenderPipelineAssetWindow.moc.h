@@ -7,13 +7,13 @@
 class ezQtNodeScene;
 class ezQtNodeView;
 
-class ezRenderPipelineAssetDocumentWindow : public ezQtDocumentWindow
+class ezQtRenderPipelineAssetDocumentWindow : public ezQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezRenderPipelineAssetDocumentWindow(ezDocument* pDocument);
-  ~ezRenderPipelineAssetDocumentWindow();
+  ezQtRenderPipelineAssetDocumentWindow(ezDocument* pDocument);
+  ~ezQtRenderPipelineAssetDocumentWindow();
 
   virtual const char* GetWindowLayoutGroupName() const { return "RenderPipelineAsset"; }
 

@@ -7,17 +7,17 @@
 
 class QLabel;
 class QScrollArea;
-class QtImageWidget;
+class ezQtImageWidget;
 class ezMaterialAssetDocument;
 class ezQtMaterialViewWidget;
 
-class ezMaterialAssetDocumentWindow : public ezQtEngineDocumentWindow
+class ezQtMaterialAssetDocumentWindow : public ezQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezMaterialAssetDocumentWindow(ezMaterialAssetDocument* pDocument);
-  ~ezMaterialAssetDocumentWindow();
+  ezQtMaterialAssetDocumentWindow(ezMaterialAssetDocument* pDocument);
+  ~ezQtMaterialAssetDocumentWindow();
 
   ezMaterialAssetDocument* GetMaterialDocument();
   virtual const char* GetWindowLayoutGroupName() const { return "MaterialAsset"; }

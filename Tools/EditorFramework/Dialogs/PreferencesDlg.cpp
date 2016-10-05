@@ -47,7 +47,7 @@ public:
 
 
 
-PreferencesDlg::PreferencesDlg(QWidget* parent) : QDialog(parent)
+ezQtPreferencesDlg::ezQtPreferencesDlg(QWidget* parent) : QDialog(parent)
 {
   setupUi(this);
 
@@ -57,7 +57,7 @@ PreferencesDlg::PreferencesDlg(QWidget* parent) : QDialog(parent)
   m_pDocument = EZ_DEFAULT_NEW(ezPreferencesDocument, "<none>");
 
   // if this is set, all properties are applied immediatly
-  //m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&PreferencesDlg::PropertyChangedEventHandler, this));
+  //m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPreferencesDlg::PropertyChangedEventHandler, this));
 
   Tree->Initialize(m_pDocument, ezPreferences::GetStaticRTTI(), "");
   Tree->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
@@ -71,7 +71,7 @@ PreferencesDlg::PreferencesDlg(QWidget* parent) : QDialog(parent)
   m_pDocument->GetSelectionManager()->SetSelection(m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
 }
 
-PreferencesDlg::~PreferencesDlg()
+ezQtPreferencesDlg::~ezQtPreferencesDlg()
 {
   delete Tree;
   Tree = nullptr;
@@ -82,7 +82,7 @@ PreferencesDlg::~PreferencesDlg()
   EZ_DEFAULT_DELETE(m_pDocument);
 }
 
-ezUuid PreferencesDlg::NativeToObject(ezPreferences* pPreferences)
+ezUuid ezQtPreferencesDlg::NativeToObject(ezPreferences* pPreferences)
 {
   const ezRTTI* pType = pPreferences->GetDynamicRTTI();
   // Write properties to graph.
@@ -106,7 +106,7 @@ ezUuid PreferencesDlg::NativeToObject(ezPreferences* pPreferences)
   return pObject->GetGuid();
 }
 
-void PreferencesDlg::ObjectToNative(ezUuid objectGuid, const ezDocument* pPrefDocument)
+void ezQtPreferencesDlg::ObjectToNative(ezUuid objectGuid, const ezDocument* pPrefDocument)
 {
   ezDocumentObject* pObject = m_pDocument->GetObjectManager()->GetObject(objectGuid);
   const ezRTTI* pType = pObject->GetTypeAccessor().GetType();
@@ -127,14 +127,14 @@ void PreferencesDlg::ObjectToNative(ezUuid objectGuid, const ezDocument* pPrefDo
 }
 
 
-void PreferencesDlg::on_ButtonOk_clicked()
+void ezQtPreferencesDlg::on_ButtonOk_clicked()
 {
   ApplyAllChanges();
   accept();
 }
 
 
-void PreferencesDlg::RegisterAllPreferenceTypes()
+void ezQtPreferencesDlg::RegisterAllPreferenceTypes()
 {
   ezPreferencesObjectManager* pManager = static_cast<ezPreferencesObjectManager*>(m_pDocument->GetObjectManager());
 
@@ -148,7 +148,7 @@ void PreferencesDlg::RegisterAllPreferenceTypes()
 }
 
 
-void PreferencesDlg::AllPreferencesToObject()
+void ezQtPreferencesDlg::AllPreferencesToObject()
 {
   ezHybridArray<ezPreferences*, 16> AllPrefs;
   ezPreferences::GatherAllPreferences(AllPrefs);
@@ -209,7 +209,7 @@ void PreferencesDlg::AllPreferencesToObject()
   }
 }
 
-void PreferencesDlg::PropertyChangedEventHandler(const ezDocumentObjectPropertyEvent& e)
+void ezQtPreferencesDlg::PropertyChangedEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   const ezUuid guid = e.m_pObject->GetGuid();
   EZ_ASSERT_DEV(m_DocumentBinding.Contains(guid), "Object GUID is not in the known list!");
@@ -217,7 +217,7 @@ void PreferencesDlg::PropertyChangedEventHandler(const ezDocumentObjectPropertyE
   ObjectToNative(guid, m_DocumentBinding[guid]);
 }
 
-void PreferencesDlg::ApplyAllChanges()
+void ezQtPreferencesDlg::ApplyAllChanges()
 {
   for (auto it = m_DocumentBinding.GetIterator(); it.IsValid(); ++it)
   {

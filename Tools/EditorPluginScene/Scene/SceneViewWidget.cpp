@@ -82,7 +82,7 @@ void ezQtSceneViewWidget::OnOpenContextMenu(QPoint globalPos)
   }
 
   {
-    ezMenuActionMapView menu(nullptr);
+    ezQtMenuActionMapView menu(nullptr);
 
     ezActionContext context;
     context.m_sMapping = "SceneViewContextMenu";

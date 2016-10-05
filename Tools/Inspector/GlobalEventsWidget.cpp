@@ -5,9 +5,9 @@
 #include <MainWindow.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
-ezGlobalEventsWidget* ezGlobalEventsWidget::s_pWidget = nullptr;
+ezQtGlobalEventsWidget* ezQtGlobalEventsWidget::s_pWidget = nullptr;
 
-ezGlobalEventsWidget::ezGlobalEventsWidget(QWidget* parent) : QDockWidget (parent)
+ezQtGlobalEventsWidget::ezQtGlobalEventsWidget(QWidget* parent) : QDockWidget (parent)
 {
   s_pWidget = this;
 
@@ -16,7 +16,7 @@ ezGlobalEventsWidget::ezGlobalEventsWidget(QWidget* parent) : QDockWidget (paren
   ResetStats();
 }
 
-void ezGlobalEventsWidget::ResetStats()
+void ezQtGlobalEventsWidget::ResetStats()
 {
   m_Events.Clear();
   TableEvents->clear();
@@ -35,7 +35,7 @@ void ezGlobalEventsWidget::ResetStats()
   }
 }
 
-void ezGlobalEventsWidget::ProcessTelemetry(void* pUnuseed)
+void ezQtGlobalEventsWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;
@@ -78,7 +78,7 @@ void ezGlobalEventsWidget::ProcessTelemetry(void* pUnuseed)
 
 }
 
-void ezGlobalEventsWidget::UpdateTable(bool bRecreate)
+void ezQtGlobalEventsWidget::UpdateTable(bool bRecreate)
 {
   TableEvents->blockSignals(true);
 
@@ -107,7 +107,7 @@ void ezGlobalEventsWidget::UpdateTable(bool bRecreate)
       it.Value().m_iTableRow = iRow;
 
       QLabel* pIcon = new QLabel();
-      pIcon->setPixmap(ezUIServices::GetCachedPixmapResource(":/Icons/Icons/GlobalEvent.png"));
+      pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/GlobalEvent.png"));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableEvents->setCellWidget(iRow, 0, pIcon);
 

@@ -4,7 +4,7 @@
 #include <Foundation/Logging/Log.h>
 #include <QMessageBox>
 
-void ezUIServices::MessageBoxStatus(const ezStatus& s, const char* szFailureMsg, const char* szSuccessMsg, bool bOnlySuccessMsgIfDetails)
+void ezQtUiServices::MessageBoxStatus(const ezStatus& s, const char* szFailureMsg, const char* szSuccessMsg, bool bOnlySuccessMsgIfDetails)
 {
   ezStringBuilder sResult;
 
@@ -34,7 +34,7 @@ void ezUIServices::MessageBoxStatus(const ezStatus& s, const char* szFailureMsg,
   }
 }
 
-void ezUIServices::MessageBoxInformation(const char* szMsg)
+void ezQtUiServices::MessageBoxInformation(const char* szMsg)
 {
   if (s_bHeadless)
     ezLog::Info("%s", szMsg);
@@ -42,7 +42,7 @@ void ezUIServices::MessageBoxInformation(const char* szMsg)
     QMessageBox::information(QApplication::activeWindow(), QString::fromUtf8(ezApplicationServices::GetSingleton()->GetApplicationName()), QString::fromUtf8(szMsg), QMessageBox::StandardButton::Ok);
 }
 
-void ezUIServices::MessageBoxWarning(const char* szMsg)
+void ezQtUiServices::MessageBoxWarning(const char* szMsg)
 {
   if (s_bHeadless)
     ezLog::Warning("%s", szMsg);
@@ -50,7 +50,7 @@ void ezUIServices::MessageBoxWarning(const char* szMsg)
     QMessageBox::warning(QApplication::activeWindow(), QString::fromUtf8(ezApplicationServices::GetSingleton()->GetApplicationName()), QString::fromUtf8(szMsg), QMessageBox::StandardButton::Ok);
 }
 
-QMessageBox::StandardButton ezUIServices::MessageBoxQuestion(const char* szMsg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton)
+QMessageBox::StandardButton ezQtUiServices::MessageBoxQuestion(const char* szMsg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton)
 {
   if (s_bHeadless)
   {

@@ -6,7 +6,7 @@
 
 ezDynamicArray<ezQtApplicationPanel*> ezQtApplicationPanel::s_AllApplicationPanels;
 
-ezQtApplicationPanel::ezQtApplicationPanel(const char* szPanelName) : QDockWidget(ezContainerWindow::GetAllContainerWindows()[0])
+ezQtApplicationPanel::ezQtApplicationPanel(const char* szPanelName) : QDockWidget(ezQtContainerWindow::GetAllContainerWindows()[0])
 {
   ezStringBuilder sPanel("AppPanel_", szPanelName);
 
@@ -19,7 +19,7 @@ ezQtApplicationPanel::ezQtApplicationPanel(const char* szPanelName) : QDockWidge
 
   m_pContainerWindow = nullptr;
 
-  ezContainerWindow::GetAllContainerWindows()[0]->MoveApplicationPanelToContainer(this);
+  ezQtContainerWindow::GetAllContainerWindows()[0]->MoveApplicationPanelToContainer(this);
 
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezQtApplicationPanel::ToolsProjectEventHandler, this));
 }

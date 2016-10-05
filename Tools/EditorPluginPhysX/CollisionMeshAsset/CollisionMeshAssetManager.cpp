@@ -35,7 +35,7 @@ void ezCollisionMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezCollisionMeshAssetDocument>())
       {
-        ezCollisionMeshAssetDocumentWindow* pDocWnd = new ezCollisionMeshAssetDocumentWindow(e.m_pDocument);
+        ezQtCollisionMeshAssetDocumentWindow* pDocWnd = new ezQtCollisionMeshAssetDocumentWindow(e.m_pDocument);
       }
     }
     break;

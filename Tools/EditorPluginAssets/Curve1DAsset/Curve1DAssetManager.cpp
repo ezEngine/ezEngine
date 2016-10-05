@@ -39,7 +39,7 @@ void ezCurve1DAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezCurve1DAssetDocument>())
       {
-        ezCurve1DAssetDocumentWindow* pDocWnd = new ezCurve1DAssetDocumentWindow(e.m_pDocument);
+        ezQtCurve1DAssetDocumentWindow* pDocWnd = new ezQtCurve1DAssetDocumentWindow(e.m_pDocument);
       }
     }
     break;

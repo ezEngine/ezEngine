@@ -9,11 +9,11 @@
 #include <QLayout>
 #include <CoreUtils/Image/ImageConversion.h>
 
-ezSurfaceAssetDocumentWindow::ezSurfaceAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
+ezQtSurfaceAssetDocumentWindow::ezQtSurfaceAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {
   // Menu Bar
   {
-    ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
+    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
     ezActionContext context;
     context.m_sMapping = "SurfaceAssetMenuBar";
     context.m_pDocument = pDocument;
@@ -22,7 +22,7 @@ ezSurfaceAssetDocumentWindow::ezSurfaceAssetDocumentWindow(ezDocument* pDocument
 
   // Tool Bar
   {
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
+    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "SurfaceAssetToolBar";
     context.m_pDocument = pDocument;
@@ -32,12 +32,12 @@ ezSurfaceAssetDocumentWindow::ezSurfaceAssetDocumentWindow(ezDocument* pDocument
   }
 
   {
-    ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
     pPropertyPanel->setObjectName("SurfaceAssetDockWidget");
     pPropertyPanel->setWindowTitle("Surface Properties");
     pPropertyPanel->show();
 
-    ezPropertyGridWidget* pPropertyGrid = new ezPropertyGridWidget(pPropertyPanel, pDocument);
+    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);

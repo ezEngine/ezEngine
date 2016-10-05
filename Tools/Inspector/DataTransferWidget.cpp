@@ -10,9 +10,9 @@
 #include <qdesktopservices.h>
 #include <QUrl>
 
-ezDataWidget* ezDataWidget::s_pWidget = nullptr;
+ezQtDataWidget* ezQtDataWidget::s_pWidget = nullptr;
 
-ezDataWidget::ezDataWidget(QWidget* parent) : QDockWidget(parent)
+ezQtDataWidget::ezQtDataWidget(QWidget* parent) : QDockWidget(parent)
 {
   /// \todo Improve Data Transfer UI
 
@@ -23,14 +23,14 @@ ezDataWidget::ezDataWidget(QWidget* parent) : QDockWidget(parent)
   ResetStats();
 }
 
-void ezDataWidget::ResetStats()
+void ezQtDataWidget::ResetStats()
 {
   m_Transfers.Clear();
   ComboTransfers->clear();
   ComboItems->clear();
 }
 
-void ezDataWidget::ProcessTelemetry(void* pUnuseed)
+void ezQtDataWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;
@@ -105,7 +105,7 @@ void ezDataWidget::ProcessTelemetry(void* pUnuseed)
   }
 }
 
-void ezDataWidget::on_ButtonRefresh_clicked()
+void ezQtDataWidget::on_ButtonRefresh_clicked()
 {
   if (ComboTransfers->currentIndex() < 0)
     return;
@@ -123,7 +123,7 @@ void ezDataWidget::on_ButtonRefresh_clicked()
   ezTelemetry::SendToServer(msg);
 }
 
-void ezDataWidget::on_ComboTransfers_currentIndexChanged(int index)
+void ezQtDataWidget::on_ComboTransfers_currentIndexChanged(int index)
 {
   ComboItems->clear();
 
@@ -150,7 +150,7 @@ void ezDataWidget::on_ComboTransfers_currentIndexChanged(int index)
   on_ComboItems_currentIndexChanged(ComboItems->currentIndex());
 }
 
-ezDataWidget::TransferDataObject* ezDataWidget::GetCurrentItem()
+ezQtDataWidget::TransferDataObject* ezQtDataWidget::GetCurrentItem()
 {
   auto Transfer = GetCurrentTransfer();
 
@@ -166,7 +166,7 @@ ezDataWidget::TransferDataObject* ezDataWidget::GetCurrentItem()
   return &itItem.Value();
 }
 
-ezDataWidget::TransferData* ezDataWidget::GetCurrentTransfer()
+ezQtDataWidget::TransferData* ezQtDataWidget::GetCurrentTransfer()
 {
   ezString sTransfer = ComboTransfers->currentText().toUtf8().data();
 
@@ -177,7 +177,7 @@ ezDataWidget::TransferData* ezDataWidget::GetCurrentTransfer()
   return &itTransfer.Value();
 }
 
-void ezDataWidget::on_ComboItems_currentIndexChanged(int index)
+void ezQtDataWidget::on_ComboItems_currentIndexChanged(int index)
 {
   if (index < 0)
     return;
@@ -226,7 +226,7 @@ void ezDataWidget::on_ComboItems_currentIndexChanged(int index)
   }
 }
 
-bool ezDataWidget::SaveToFile(TransferDataObject& item, const char* szFile)
+bool ezQtDataWidget::SaveToFile(TransferDataObject& item, const char* szFile)
 {
   auto& Stream = item.m_Storage;
   ezMemoryStreamReader Reader(&Stream);
@@ -250,7 +250,7 @@ bool ezDataWidget::SaveToFile(TransferDataObject& item, const char* szFile)
   return true;
 }
 
-void ezDataWidget::on_ButtonSave_clicked()
+void ezQtDataWidget::on_ButtonSave_clicked()
 {
   auto pItem = GetCurrentItem();
 
@@ -281,7 +281,7 @@ void ezDataWidget::on_ButtonSave_clicked()
   SaveToFile(*pItem, pItem->m_sFileName.GetData());
 }
 
-void ezDataWidget::on_ButtonOpen_clicked()
+void ezQtDataWidget::on_ButtonOpen_clicked()
 {
   auto pItem = GetCurrentItem();
 

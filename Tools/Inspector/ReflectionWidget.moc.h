@@ -7,15 +7,15 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Reflection/Reflection.h>
 
-class ezReflectionWidget : public QDockWidget, public Ui_ReflectionWidget
+class ezQtReflectionWidget : public QDockWidget, public Ui_ReflectionWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezReflectionWidget(QWidget* parent = 0);
+  ezQtReflectionWidget(QWidget* parent = 0);
 
-  static ezReflectionWidget* s_pWidget;
+  static ezQtReflectionWidget* s_pWidget;
 
 private slots:
 

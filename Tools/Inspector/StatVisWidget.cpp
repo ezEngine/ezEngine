@@ -6,12 +6,12 @@
 #include <QGraphicsPathItem>
 #include <QSettings>
 
-ezStatVisWidget* ezStatVisWidget::s_pWidget = nullptr;
-ezInt32 ezStatVisWidget::s_iCurColor = 0;
+ezQtStatVisWidget* ezQtStatVisWidget::s_pWidget = nullptr;
+ezInt32 ezQtStatVisWidget::s_iCurColor = 0;
 
 namespace StatVisWidgetDetail
 {
-  static QColor s_Colors[ezStatVisWidget::s_uiMaxColors] =
+  static QColor s_Colors[ezQtStatVisWidget::s_uiMaxColors] =
   {
     QColor(255, 106, 0), // orange
     QColor(182, 255, 0), // lime green
@@ -25,7 +25,7 @@ namespace StatVisWidgetDetail
   };
 }
 
-ezStatVisWidget::ezStatVisWidget(QWidget* parent, ezInt32 iWindowNumber) : QDockWidget (parent), m_ShowWindowAction(parent)
+ezQtStatVisWidget::ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber) : QDockWidget (parent), m_ShowWindowAction(parent)
 {
   m_iWindowNumber = iWindowNumber;
   m_DisplayInterval = ezTime::Seconds(60.0);
@@ -83,12 +83,12 @@ ezStatVisWidget::ezStatVisWidget(QWidget* parent, ezInt32 iWindowNumber) : QDock
   
 }
 
-void ezStatVisWidget::on_ComboTimeframe_currentIndexChanged(int index)
+void ezQtStatVisWidget::on_ComboTimeframe_currentIndexChanged(int index)
 {
   m_DisplayInterval = ezTime::Seconds(60.0) * (index + 1);
 }
 
-void ezStatVisWidget::on_LineName_textChanged(const QString& text)
+void ezQtStatVisWidget::on_LineName_textChanged(const QString& text)
 {
   ezStringBuilder sStatHistory;
   sStatHistory.Format("StatHistory%i", m_iWindowNumber);
@@ -102,7 +102,7 @@ void ezStatVisWidget::on_LineName_textChanged(const QString& text)
   m_ShowWindowAction.setText(LineName->text());
 }
 
-void ezStatVisWidget::on_SpinMin_valueChanged(double val)
+void ezQtStatVisWidget::on_SpinMin_valueChanged(double val)
 {
   ezStringBuilder sStatHistory;
   sStatHistory.Format("StatHistory%i", m_iWindowNumber);
@@ -113,7 +113,7 @@ void ezStatVisWidget::on_SpinMin_valueChanged(double val)
   Settings.endGroup();
 }
 
-void ezStatVisWidget::on_SpinMax_valueChanged(double val)
+void ezQtStatVisWidget::on_SpinMax_valueChanged(double val)
 {
   ezStringBuilder sStatHistory;
   sStatHistory.Format("StatHistory%i", m_iWindowNumber);
@@ -124,7 +124,7 @@ void ezStatVisWidget::on_SpinMax_valueChanged(double val)
   Settings.endGroup();
 }
 
-void ezStatVisWidget::on_ToggleVisible()
+void ezQtStatVisWidget::on_ToggleVisible()
 {
   setVisible(!isVisible());
 
@@ -132,12 +132,12 @@ void ezStatVisWidget::on_ToggleVisible()
     raise();
 }
 
-void ezStatVisWidget::on_ListStats_currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous)
+void ezQtStatVisWidget::on_ListStats_currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous)
 {
   ButtonRemove->setEnabled(current != nullptr);
 }
 
-void ezStatVisWidget::on_ButtonRemove_clicked()
+void ezQtStatVisWidget::on_ButtonRemove_clicked()
 {
   if (ListStats->currentItem() == nullptr)
     return;
@@ -153,7 +153,7 @@ void ezStatVisWidget::on_ButtonRemove_clicked()
   }
 }
 
-void ezStatVisWidget::Save()
+void ezQtStatVisWidget::Save()
 {
   ezStringBuilder sStatHistory;
   sStatHistory.Format("/StatWindow%i.stats", m_iWindowNumber);
@@ -182,7 +182,7 @@ void ezStatVisWidget::Save()
   f.close();
 }
 
-void ezStatVisWidget::Load()
+void ezQtStatVisWidget::Load()
 {
   ezStringBuilder sStatHistory;
   sStatHistory.Format("/StatWindow%i.stats", m_iWindowNumber);
@@ -219,7 +219,7 @@ void ezStatVisWidget::Load()
   f.close();
 }
 
-void ezStatVisWidget::AddStat(const ezString& sStatPath, bool bEnabled, bool bRaiseWindow)
+void ezQtStatVisWidget::AddStat(const ezString& sStatPath, bool bEnabled, bool bRaiseWindow)
 {
   if (bRaiseWindow)
   {
@@ -231,7 +231,7 @@ void ezStatVisWidget::AddStat(const ezString& sStatPath, bool bEnabled, bool bRa
 
   if (Stat.m_pListItem == nullptr)
   {
-    Stat.m_uiColor = s_iCurColor % ezStatVisWidget::s_uiMaxColors;
+    Stat.m_uiColor = s_iCurColor % ezQtStatVisWidget::s_uiMaxColors;
     ++s_iCurColor;
 
     Stat.m_pListItem = new QListWidgetItem();
@@ -244,7 +244,7 @@ void ezStatVisWidget::AddStat(const ezString& sStatPath, bool bEnabled, bool bRa
   }
 }
 
-void ezStatVisWidget::UpdateStats()
+void ezQtStatVisWidget::UpdateStats()
 {
   if (!isVisible())
     return;
@@ -256,7 +256,7 @@ void ezStatVisWidget::UpdateStats()
     if (it.Value().m_pListItem->checkState() != Qt::Checked)
       continue;
 
-    const ezDeque<ezMainWindow::StatSample>& Samples = ezMainWindow::s_pWidget->m_Stats[it.Key()].m_History;
+    const ezDeque<ezQtMainWindow::StatSample>& Samples = ezQtMainWindow::s_pWidget->m_Stats[it.Key()].m_History;
 
     if (Samples.IsEmpty())
       continue;
@@ -265,7 +265,7 @@ void ezStatVisWidget::UpdateStats()
 
     ezUInt32 uiFirstSample = 0;
 
-    const ezTime MaxGlobalTime = ezMainWindow::s_pWidget->m_MaxGlobalTime;
+    const ezTime MaxGlobalTime = ezQtMainWindow::s_pWidget->m_MaxGlobalTime;
 
     while ((uiFirstSample + 1 < Samples.GetCount()) && (MaxGlobalTime - Samples[uiFirstSample + 1].m_AtGlobalTime > m_DisplayInterval))
       ++uiFirstSample;

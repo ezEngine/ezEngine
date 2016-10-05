@@ -6,7 +6,7 @@
 #include <QTreeWidget>
 #include <QKeySequenceEdit>
 
-ezShortcutEditorDlg::ezShortcutEditorDlg(QWidget* parent) : QDialog(parent)
+ezQtShortcutEditorDlg::ezQtShortcutEditorDlg(QWidget* parent) : QDialog(parent)
 {
   setupUi(this);
 
@@ -93,12 +93,12 @@ ezShortcutEditorDlg::ezShortcutEditorDlg(QWidget* parent) : QDialog(parent)
   ButtonReset->setEnabled(false);
 }
 
-ezShortcutEditorDlg::~ezShortcutEditorDlg()
+ezQtShortcutEditorDlg::~ezQtShortcutEditorDlg()
 {
   ezActionManager::SaveShortcutAssignment();
 }
 
-void ezShortcutEditorDlg::UpdateTable()
+void ezQtShortcutEditorDlg::UpdateTable()
 {
   for (ezInt32 iTop = 0; iTop < Shortcuts->topLevelItemCount(); ++iTop)
   {
@@ -131,7 +131,7 @@ void ezShortcutEditorDlg::UpdateTable()
   ButtonAssign->setEnabled(!sText.isEmpty());
 }
 
-void ezShortcutEditorDlg::SlotSelectionChanged()
+void ezQtShortcutEditorDlg::SlotSelectionChanged()
 {
   auto selection = Shortcuts->selectedItems();
   if (selection.size() == 1)
@@ -154,12 +154,12 @@ void ezShortcutEditorDlg::SlotSelectionChanged()
   }
 }
 
-void ezShortcutEditorDlg::on_KeyEditor_editingFinished()
+void ezQtShortcutEditorDlg::on_KeyEditor_editingFinished()
 {
   UpdateKeyEdit();
 }
 
-void ezShortcutEditorDlg::UpdateKeyEdit()
+void ezQtShortcutEditorDlg::UpdateKeyEdit()
 {
   if (m_iSelectedAction < 0)
     return;
@@ -168,12 +168,12 @@ void ezShortcutEditorDlg::UpdateKeyEdit()
   ButtonAssign->setEnabled(!sText.isEmpty());
 }
 
-void ezShortcutEditorDlg::on_KeyEditor_keySequenceChanged(const QKeySequence & keySequence)
+void ezQtShortcutEditorDlg::on_KeyEditor_keySequenceChanged(const QKeySequence & keySequence)
 {
   UpdateKeyEdit();
 }
 
-void ezShortcutEditorDlg::on_ButtonAssign_clicked()
+void ezQtShortcutEditorDlg::on_ButtonAssign_clicked()
 {
   QString sText = KeyEditor->keySequence().toString(QKeySequence::SequenceFormat::NativeText);
   KeyEditor->clear();
@@ -184,7 +184,7 @@ void ezShortcutEditorDlg::on_ButtonAssign_clicked()
   UpdateTable();
 }
 
-void ezShortcutEditorDlg::on_ButtonRemove_clicked()
+void ezQtShortcutEditorDlg::on_ButtonRemove_clicked()
 {
   KeyEditor->clear();
 
@@ -194,7 +194,7 @@ void ezShortcutEditorDlg::on_ButtonRemove_clicked()
   UpdateTable();
 }
 
-void ezShortcutEditorDlg::on_ButtonReset_clicked()
+void ezQtShortcutEditorDlg::on_ButtonReset_clicked()
 {
   KeyEditor->clear();
 

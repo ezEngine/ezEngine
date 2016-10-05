@@ -8,7 +8,7 @@
 #include <QMainWindow>
 #include <ToolsFoundation/Document/DocumentManager.h>
 
-class ezContainerWindow;
+class ezQtContainerWindow;
 class ezDocument;
 class ezQtDocumentWindow;
 
@@ -95,7 +95,7 @@ private:
   void ShutdownDocumentWindow();
 
 private:
-  friend class ezContainerWindow;
+  friend class ezQtContainerWindow;
 
   void SetVisibleInContainer(bool bVisible);
 
@@ -105,14 +105,14 @@ private:
   bool m_bTriggerRedrawQueued;
   ezInt16 m_iTargetFramerate;
   ezDocument* m_pDocument;
-  ezContainerWindow* m_pContainerWindow;
+  ezQtContainerWindow* m_pContainerWindow;
   ezUInt32 m_uiWindowIndex;
 
 private:
   void Constructor();
   void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
   void DocumentEventHandler(const ezDocumentEvent& e);
-  void UIServicesEventHandler(const ezUIServices::Event& e);
+  void UIServicesEventHandler(const ezQtUiServices::Event& e);
 
   virtual void InternalDeleteThis() { delete this; }
   virtual bool InternalCanCloseWindow();

@@ -145,12 +145,14 @@ protected:
 class EZ_EDITORFRAMEWORK_DLL ezQtViewWidgetContainer : public QWidget
 {
   Q_OBJECT
+
 public:
   ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineViewWidget* pViewWidget, const char* szToolBarMapping);
   ~ezQtViewWidgetContainer();
 
   ezQtEngineViewWidget* GetViewWidget() const { return m_pViewWidget; }
   QVBoxLayout* GetLayout() const { return m_pLayout; }
+
 private:
   ezQtEngineViewWidget* m_pViewWidget;
   QVBoxLayout* m_pLayout;

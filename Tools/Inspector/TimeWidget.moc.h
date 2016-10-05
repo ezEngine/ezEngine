@@ -10,7 +10,7 @@
 #include <QGraphicsView>
 #include <QListWidgetItem>
 
-class ezTimeWidget : public QDockWidget, public Ui_TimeWidget
+class ezQtTimeWidget : public QDockWidget, public Ui_TimeWidget
 {
 public:
   Q_OBJECT
@@ -18,9 +18,9 @@ public:
 public:
   static const ezUInt8 s_uiMaxColors = 9;
 
-  ezTimeWidget(QWidget* parent = 0);
+  ezQtTimeWidget(QWidget* parent = 0);
 
-  static ezTimeWidget* s_pWidget;
+  static ezQtTimeWidget* s_pWidget;
 
 private slots:
 

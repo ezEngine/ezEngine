@@ -12,14 +12,14 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAsset.h>
 
-ezCurve1DAssetDocumentWindow::ezCurve1DAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
+ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezCurve1DAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezCurve1DAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtCurve1DAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtCurve1DAssetDocumentWindow::StructureEventHandler, this));
 
   // Menu Bar
   {
-    ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
+    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
     ezActionContext context;
     context.m_sMapping = "Curve1DAssetMenuBar";
     context.m_pDocument = pDocument;
@@ -28,7 +28,7 @@ ezCurve1DAssetDocumentWindow::ezCurve1DAssetDocumentWindow(ezDocument* pDocument
 
   // Tool Bar
   {
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
+    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "Curve1DAssetToolBar";
     context.m_pDocument = pDocument;
@@ -37,7 +37,7 @@ ezCurve1DAssetDocumentWindow::ezCurve1DAssetDocumentWindow(ezDocument* pDocument
     addToolBar(pToolBar);
   }
 
-  m_pCurveEditor = new QCurve1DEditorWidget(this);
+  m_pCurveEditor = new ezQtCurve1DEditorWidget(this);
 
   QWidget* pContainer = new QWidget(this);
   pContainer->setLayout(new QVBoxLayout(this));
@@ -47,25 +47,25 @@ ezCurve1DAssetDocumentWindow::ezCurve1DAssetDocumentWindow(ezDocument* pDocument
 
   setCentralWidget(pContainer);
 
-  connect(m_pCurveEditor, &QCurve1DEditorWidget::CpMoved, this, &ezCurve1DAssetDocumentWindow::onCurveCpMoved);
-  connect(m_pCurveEditor, &QCurve1DEditorWidget::CpDeleted, this, &ezCurve1DAssetDocumentWindow::onCurveCpDeleted);
-  connect(m_pCurveEditor, &QCurve1DEditorWidget::TangentMoved, this, &ezCurve1DAssetDocumentWindow::onCurveTangentMoved);
+  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpMoved, this, &ezQtCurve1DAssetDocumentWindow::onCurveCpMoved);
+  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpDeleted, this, &ezQtCurve1DAssetDocumentWindow::onCurveCpDeleted);
+  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::TangentMoved, this, &ezQtCurve1DAssetDocumentWindow::onCurveTangentMoved);
 
-  connect(m_pCurveEditor, &QCurve1DEditorWidget::NormalizeRangeX, this, &ezCurve1DAssetDocumentWindow::onCurveNormalizeX);
-  connect(m_pCurveEditor, &QCurve1DEditorWidget::NormalizeRangeY, this, &ezCurve1DAssetDocumentWindow::onCurveNormalizeY);
+  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::NormalizeRangeX, this, &ezQtCurve1DAssetDocumentWindow::onCurveNormalizeX);
+  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::NormalizeRangeY, this, &ezQtCurve1DAssetDocumentWindow::onCurveNormalizeY);
 
-  connect(m_pCurveEditor, &QCurve1DEditorWidget::BeginOperation, this, &ezCurve1DAssetDocumentWindow::onCurveBeginOperation);
-  connect(m_pCurveEditor, &QCurve1DEditorWidget::EndOperation, this, &ezCurve1DAssetDocumentWindow::onCurveEndOperation);
-  connect(m_pCurveEditor, &QCurve1DEditorWidget::BeginCpChanges, this, &ezCurve1DAssetDocumentWindow::onCurveBeginCpChanges);
-  connect(m_pCurveEditor, &QCurve1DEditorWidget::EndCpChanges, this, &ezCurve1DAssetDocumentWindow::onCurveEndCpChanges);
+  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::BeginOperation, this, &ezQtCurve1DAssetDocumentWindow::onCurveBeginOperation);
+  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::EndOperation, this, &ezQtCurve1DAssetDocumentWindow::onCurveEndOperation);
+  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::BeginCpChanges, this, &ezQtCurve1DAssetDocumentWindow::onCurveBeginCpChanges);
+  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::EndCpChanges, this, &ezQtCurve1DAssetDocumentWindow::onCurveEndCpChanges);
 
   {
-    ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
     pPropertyPanel->setObjectName("Curve1DAssetDockWidget");
     pPropertyPanel->setWindowTitle("Curve1D Properties");
     pPropertyPanel->show();
 
-    ezPropertyGridWidget* pPropertyGrid = new ezPropertyGridWidget(pPropertyPanel, pDocument);
+    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
@@ -78,14 +78,14 @@ ezCurve1DAssetDocumentWindow::ezCurve1DAssetDocumentWindow(ezDocument* pDocument
   UpdatePreview();
 }
 
-ezCurve1DAssetDocumentWindow::~ezCurve1DAssetDocumentWindow()
+ezQtCurve1DAssetDocumentWindow::~ezQtCurve1DAssetDocumentWindow()
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezCurve1DAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezCurve1DAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtCurve1DAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtCurve1DAssetDocumentWindow::StructureEventHandler, this));
 }
 
 
-//void ezCurve1DAssetDocumentWindow::onCurveColorCpAdded(float posX, const ezColorGammaUB& color)
+//void ezQtCurve1DAssetDocumentWindow::onCurveColorCpAdded(float posX, const ezColorGammaUB& color)
 //{
 //  ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
 //
@@ -123,7 +123,7 @@ ezCurve1DAssetDocumentWindow::~ezCurve1DAssetDocumentWindow()
 //  history->FinishTransaction();
 //}
 
-//void ezCurve1DAssetDocumentWindow::onCurveColorCpChanged(ezInt32 idx, const ezColorGammaUB& color)
+//void ezQtCurve1DAssetDocumentWindow::onCurveColorCpChanged(ezInt32 idx, const ezColorGammaUB& color)
 //{
 //  ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
 //
@@ -152,14 +152,14 @@ ezCurve1DAssetDocumentWindow::~ezCurve1DAssetDocumentWindow()
 //}
 
 
-void ezCurve1DAssetDocumentWindow::onCurveBeginOperation()
+void ezQtCurve1DAssetDocumentWindow::onCurveBeginOperation()
 {
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
   history->BeginTemporaryCommands("Modify Curve");
 }
 
 
-void ezCurve1DAssetDocumentWindow::onCurveEndOperation(bool commit)
+void ezQtCurve1DAssetDocumentWindow::onCurveEndOperation(bool commit)
 {
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
 
@@ -172,19 +172,19 @@ void ezCurve1DAssetDocumentWindow::onCurveEndOperation(bool commit)
 }
 
 
-void ezCurve1DAssetDocumentWindow::onCurveBeginCpChanges()
+void ezQtCurve1DAssetDocumentWindow::onCurveBeginCpChanges()
 {
   GetDocument()->GetCommandHistory()->StartTransaction("Modify Curve");
 }
 
-void ezCurve1DAssetDocumentWindow::onCurveEndCpChanges()
+void ezQtCurve1DAssetDocumentWindow::onCurveEndCpChanges()
 {
   GetDocument()->GetCommandHistory()->FinishTransaction();
 
   UpdatePreview();
 }
 
-void ezCurve1DAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY)
+void ezQtCurve1DAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY)
 {
   ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
 
@@ -203,7 +203,7 @@ void ezCurve1DAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cp
 }
 
 
-void ezCurve1DAssetDocumentWindow::onCurveCpDeleted(ezUInt32 curveIdx, ezUInt32 cpIdx)
+void ezQtCurve1DAssetDocumentWindow::onCurveCpDeleted(ezUInt32 curveIdx, ezUInt32 cpIdx)
 {
   ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
 
@@ -219,7 +219,7 @@ void ezCurve1DAssetDocumentWindow::onCurveCpDeleted(ezUInt32 curveIdx, ezUInt32 
 }
 
 
-void ezCurve1DAssetDocumentWindow::onCurveTangentMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent)
+void ezQtCurve1DAssetDocumentWindow::onCurveTangentMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent)
 {
   ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
 
@@ -238,7 +238,7 @@ void ezCurve1DAssetDocumentWindow::onCurveTangentMoved(ezUInt32 curveIdx, ezUInt
 }
 
 
-void ezCurve1DAssetDocumentWindow::onCurveNormalizeY()
+void ezQtCurve1DAssetDocumentWindow::onCurveNormalizeY()
 {
   ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
 
@@ -294,7 +294,7 @@ void ezCurve1DAssetDocumentWindow::onCurveNormalizeY()
   m_pCurveEditor->FrameCurve();
 }
 
-void ezCurve1DAssetDocumentWindow::onCurveNormalizeX()
+void ezQtCurve1DAssetDocumentWindow::onCurveNormalizeX()
 {
   ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
 
@@ -347,7 +347,7 @@ void ezCurve1DAssetDocumentWindow::onCurveNormalizeX()
   m_pCurveEditor->FrameCurve();
 }
 
-void ezCurve1DAssetDocumentWindow::UpdatePreview()
+void ezQtCurve1DAssetDocumentWindow::UpdatePreview()
 {
   ezCurve1D CurveData;
 
@@ -362,12 +362,12 @@ void ezCurve1DAssetDocumentWindow::UpdatePreview()
   }
 }
 
-void ezCurve1DAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void ezQtCurve1DAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   UpdatePreview();
 }
 
-void ezCurve1DAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
+void ezQtCurve1DAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
   UpdatePreview();
 }

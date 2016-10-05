@@ -4,16 +4,16 @@
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/ActionViews/QtProxy.moc.h>
 
-ezMenuActionMapView::ezMenuActionMapView(QWidget* parent)
+ezQtMenuActionMapView::ezQtMenuActionMapView(QWidget* parent)
 {
 }
 
-ezMenuActionMapView::~ezMenuActionMapView()
+ezQtMenuActionMapView::~ezQtMenuActionMapView()
 {
   ClearView();
 }
 
-void ezMenuActionMapView::SetActionContext(const ezActionContext& context)
+void ezQtMenuActionMapView::SetActionContext(const ezActionContext& context)
 {
   auto pMap = ezActionMapManager::GetActionMap(context.m_sMapping);
 
@@ -25,12 +25,12 @@ void ezMenuActionMapView::SetActionContext(const ezActionContext& context)
   CreateView();
 }
 
-void ezMenuActionMapView::ClearView()
+void ezQtMenuActionMapView::ClearView()
 {
   m_Proxies.Clear();
 }
 
-void ezMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedPointer<ezQtProxy>>& Proxies, ezActionContext& Context, ezActionMap* pActionMap, QMenu* pCurrentRoot, const ezActionMap::TreeNode* pObject)
+void ezQtMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedPointer<ezQtProxy>>& Proxies, ezActionContext& Context, ezActionMap* pActionMap, QMenu* pCurrentRoot, const ezActionMap::TreeNode* pObject)
 {
   if (pObject == nullptr)
     return;
@@ -71,7 +71,7 @@ void ezMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedPoi
   }
 }
 
-void ezMenuActionMapView::CreateView()
+void ezQtMenuActionMapView::CreateView()
 {
   ClearView();
 

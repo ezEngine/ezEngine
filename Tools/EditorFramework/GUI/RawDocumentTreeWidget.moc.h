@@ -8,6 +8,8 @@
 
 class EZ_EDITORFRAMEWORK_DLL ezQtScenegraphFilterModel : public QSortFilterProxyModel
 {
+  Q_OBJECT
+
 public:
   ezQtScenegraphFilterModel(QWidget* parent) : QSortFilterProxyModel(parent)
   {
@@ -25,15 +27,15 @@ protected:
   ezMap<QModelIndex, bool> m_Visible;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezQtDocumentTreeWidget : public QTreeView
+class EZ_EDITORFRAMEWORK_DLL ezQtDocumentTreeView : public QTreeView
 {
   Q_OBJECT
 
 public:
 
-  ezQtDocumentTreeWidget(QWidget* pParent);
-  ezQtDocumentTreeWidget(QWidget* pParent, ezDocument* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel = nullptr);
-  ~ezQtDocumentTreeWidget();
+  ezQtDocumentTreeView(QWidget* pParent);
+  ezQtDocumentTreeView(QWidget* pParent, ezDocument* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel = nullptr);
+  ~ezQtDocumentTreeView();
 
   void Initialize(ezDocument* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel = nullptr);
 

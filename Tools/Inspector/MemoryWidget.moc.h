@@ -10,7 +10,7 @@
 #include <QGraphicsView>
 #include <QListWidgetItem>
 
-class ezMemoryWidget : public QDockWidget, public Ui_MemoryWidget
+class ezQtMemoryWidget : public QDockWidget, public Ui_MemoryWidget
 {
 public:
   Q_OBJECT
@@ -18,9 +18,9 @@ public:
 public:
   static const ezUInt8 s_uiMaxColors = 9;
 
-  ezMemoryWidget(QWidget* parent = 0);
+  ezQtMemoryWidget(QWidget* parent = 0);
 
-  static ezMemoryWidget* s_pWidget;
+  static ezQtMemoryWidget* s_pWidget;
 
 private slots:
 

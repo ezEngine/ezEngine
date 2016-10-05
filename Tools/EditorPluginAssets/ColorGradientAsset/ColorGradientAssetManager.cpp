@@ -39,7 +39,7 @@ void ezColorGradientAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezColorGradientAssetDocument>())
       {
-        ezColorGradientAssetDocumentWindow* pDocWnd = new ezColorGradientAssetDocumentWindow(e.m_pDocument);
+        ezQtColorGradientAssetDocumentWindow* pDocWnd = new ezQtColorGradientAssetDocumentWindow(e.m_pDocument);
       }
     }
     break;

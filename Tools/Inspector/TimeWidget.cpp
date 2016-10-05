@@ -4,9 +4,9 @@
 #include <QGraphicsView>
 #include <QGraphicsPathItem>
 
-ezTimeWidget* ezTimeWidget::s_pWidget = nullptr;
+ezQtTimeWidget* ezQtTimeWidget::s_pWidget = nullptr;
 
-static QColor s_Colors[ezTimeWidget::s_uiMaxColors] =
+static QColor s_Colors[ezQtTimeWidget::s_uiMaxColors] =
 {
   QColor(255, 106,   0), // orange
   QColor(182, 255,   0), // lime green
@@ -19,7 +19,7 @@ static QColor s_Colors[ezTimeWidget::s_uiMaxColors] =
   QColor( 72,   0, 255), // lilac
 };
 
-ezTimeWidget::ezTimeWidget(QWidget* parent) : QDockWidget (parent)
+ezQtTimeWidget::ezQtTimeWidget(QWidget* parent) : QDockWidget (parent)
 {
   s_pWidget = this;
 
@@ -58,7 +58,7 @@ ezTimeWidget::ezTimeWidget(QWidget* parent) : QDockWidget (parent)
   ResetStats();
 }
 
-void ezTimeWidget::ResetStats()
+void ezQtTimeWidget::ResetStats()
 {
   m_ClockData.Clear();
 
@@ -70,7 +70,7 @@ void ezTimeWidget::ResetStats()
   ListClocks->clear();
 }
 
-void ezTimeWidget::UpdateStats()
+void ezQtTimeWidget::UpdateStats()
 {
   if (!isVisible())
     return;
@@ -90,7 +90,7 @@ void ezTimeWidget::UpdateStats()
     ListClocks->blockSignals(true);
     ListClocks->clear();
 
-    for (ezMap<ezString, ezTimeWidget::ClockData>::Iterator it = m_ClockData.GetIterator(); it.IsValid(); ++it)
+    for (ezMap<ezString, ezQtTimeWidget::ClockData>::Iterator it = m_ClockData.GetIterator(); it.IsValid(); ++it)
     {
       ListClocks->addItem(it.Key().GetData());
 
@@ -180,9 +180,9 @@ void ezTimeWidget::UpdateStats()
     s.Format("Max: %.0fms", tShowMax.GetMilliseconds());
     LabelMaxTime->setText(s.GetData());
 
-    for (ezMap<ezString, ezTimeWidget::ClockData>::Iterator it = m_ClockData.GetIterator(); it.IsValid(); ++it)
+    for (ezMap<ezString, ezQtTimeWidget::ClockData>::Iterator it = m_ClockData.GetIterator(); it.IsValid(); ++it)
     {
-      const ezTimeWidget::ClockData& Clock = it.Value();
+      const ezQtTimeWidget::ClockData& Clock = it.Value();
 
       if (!Clock.m_pListItem || Clock.m_TimeSamples.IsEmpty())
         continue;
@@ -196,7 +196,7 @@ void ezTimeWidget::UpdateStats()
   }
 }
 
-void ezTimeWidget::ProcessTelemetry(void* pUnuseed)
+void ezQtTimeWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (s_pWidget == nullptr)
     return;
@@ -264,12 +264,12 @@ void ezTimeWidget::ProcessTelemetry(void* pUnuseed)
   }
 }
 
-void ezTimeWidget::on_ListClocks_itemChanged(QListWidgetItem* item)
+void ezQtTimeWidget::on_ListClocks_itemChanged(QListWidgetItem* item)
 {
   m_ClockData[item->data(Qt::UserRole).toString().toUtf8().data()].m_bDisplay = (item->checkState() == Qt::Checked);
 }
 
-void ezTimeWidget::on_ComboTimeframe_currentIndexChanged(int index)
+void ezQtTimeWidget::on_ComboTimeframe_currentIndexChanged(int index)
 {
   m_DisplayInterval = ezTime::Seconds(60.0) * (index + 1);
 }

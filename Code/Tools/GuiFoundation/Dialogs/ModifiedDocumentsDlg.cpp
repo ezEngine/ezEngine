@@ -3,7 +3,7 @@
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
-ezModifiedDocumentsDlg::ezModifiedDocumentsDlg(QWidget* parent, const ezHybridArray<ezDocument*, 32>& ModifiedDocs) : QDialog(parent)
+ezQtModifiedDocumentsDlg::ezQtModifiedDocumentsDlg(QWidget* parent, const ezHybridArray<ezDocument*, 32>& ModifiedDocs) : QDialog(parent)
 {
   m_ModifiedDocs = ModifiedDocs;
 
@@ -52,7 +52,7 @@ ezModifiedDocumentsDlg::ezModifiedDocumentsDlg(QWidget* parent, const ezHybridAr
 
     QTableWidgetItem* pItem0 = new QTableWidgetItem();
     pItem0->setData(Qt::DisplayRole, QString::fromUtf8(pDoc->GetDocumentTypeDisplayString()));
-    pItem0->setIcon(ezUIServices::GetCachedIconResource(pDoc->GetDocumentTypeDescriptor()->m_sIcon));
+    pItem0->setIcon(ezQtUiServices::GetCachedIconResource(pDoc->GetDocumentTypeDescriptor()->m_sIcon));
     TableDocuments->setItem(iRow, 0, pItem0);
 
     QTableWidgetItem* pItem1 = new QTableWidgetItem();
@@ -66,7 +66,7 @@ ezModifiedDocumentsDlg::ezModifiedDocumentsDlg(QWidget* parent, const ezHybridAr
   TableDocuments->blockSignals(false);
 }
 
-ezResult ezModifiedDocumentsDlg::SaveDocument(ezDocument* pDoc)
+ezResult ezQtModifiedDocumentsDlg::SaveDocument(ezDocument* pDoc)
 {
   if (!pDoc->IsModified())
     return EZ_SUCCESS;
@@ -74,7 +74,7 @@ ezResult ezModifiedDocumentsDlg::SaveDocument(ezDocument* pDoc)
   {
     if (pDoc->GetUnknownObjectTypeInstances() > 0)
     {
-      if (ezUIServices::MessageBoxQuestion("Warning! This document contained unknown object types that could not be loaded. Saving the document means those objects will get lost permanently.\n\nDo you really want to save this document?",
+      if (ezQtUiServices::MessageBoxQuestion("Warning! This document contained unknown object types that could not be loaded. Saving the document means those objects will get lost permanently.\n\nDo you really want to save this document?",
                                            QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
         return EZ_SUCCESS; // failed successfully
     }
@@ -88,7 +88,7 @@ ezResult ezModifiedDocumentsDlg::SaveDocument(ezDocument* pDoc)
     s.Format("Failed to save document:\n'%s'", pDoc->GetDocumentPath());
     s2.Format("Successfully saved document:\n'%s'", pDoc->GetDocumentPath());
 
-    ezUIServices::MessageBoxStatus(res, s, s2);
+    ezQtUiServices::MessageBoxStatus(res, s, s2);
 
     return EZ_FAILURE;
   }
@@ -96,7 +96,7 @@ ezResult ezModifiedDocumentsDlg::SaveDocument(ezDocument* pDoc)
   return EZ_SUCCESS;
 }
 
-void ezModifiedDocumentsDlg::SlotSaveDocument()
+void ezQtModifiedDocumentsDlg::SlotSaveDocument()
 {
   QPushButton* pButtonSave = qobject_cast<QPushButton*>(sender());
 
@@ -110,7 +110,7 @@ void ezModifiedDocumentsDlg::SlotSaveDocument()
   pButtonSave->setEnabled(pDoc->IsModified());
 }
 
-void ezModifiedDocumentsDlg::SlotSelectionChanged(int currentRow, int currentColumn, int previousRow, int previousColumn)
+void ezQtModifiedDocumentsDlg::SlotSelectionChanged(int currentRow, int currentColumn, int previousRow, int previousColumn)
 {
   QPushButton* pButtonSave = qobject_cast<QPushButton*>(TableDocuments->cellWidget(currentRow, 2));
   
@@ -122,7 +122,7 @@ void ezModifiedDocumentsDlg::SlotSelectionChanged(int currentRow, int currentCol
   pDoc->EnsureVisible();
 }
 
-void ezModifiedDocumentsDlg::on_ButtonSaveSelected_clicked()
+void ezQtModifiedDocumentsDlg::on_ButtonSaveSelected_clicked()
 {
   for (ezDocument* pDoc : m_ModifiedDocs)
   {
@@ -133,12 +133,12 @@ void ezModifiedDocumentsDlg::on_ButtonSaveSelected_clicked()
   accept();
 }
 
-void ezModifiedDocumentsDlg::on_ButtonDontSave_clicked()
+void ezQtModifiedDocumentsDlg::on_ButtonDontSave_clicked()
 {
   accept();
 }
 
-void ezModifiedDocumentsDlg::on_ButtonCancel_clicked()
+void ezQtModifiedDocumentsDlg::on_ButtonCancel_clicked()
 {
   reject();
 }

@@ -5,15 +5,15 @@
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
-class ezToolBarActionMapView;
+class ezQtToolBarActionMapView;
 
-class ezAssetBrowserWidget : public QWidget, public Ui_AssetBrowserWidget
+class ezQtAssetBrowserWidget : public QWidget, public Ui_AssetBrowserWidget
 {
   Q_OBJECT
 
 public:
-  ezAssetBrowserWidget(QWidget* parent);
-  ~ezAssetBrowserWidget();
+  ezQtAssetBrowserWidget(QWidget* parent);
+  ~ezQtAssetBrowserWidget();
 
   void SetDialogMode();
   void SetSelectedAsset(const char* szAssetPath);
@@ -22,8 +22,8 @@ public:
   void SaveState(const char* szSettingsName);
   void RestoreState(const char* szSettingsName);
 
-  ezAssetBrowserModel* GetAssetBrowserModel() { return m_pModel; }
-  const ezAssetBrowserModel* GetAssetBrowserModel() const { return m_pModel; }
+  ezQtAssetBrowserModel* GetAssetBrowserModel() { return m_pModel; }
+  const ezQtAssetBrowserModel* GetAssetBrowserModel() const { return m_pModel; }
 
 signals:
   void ItemChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute);
@@ -73,7 +73,7 @@ private:
   bool m_bDialogMode;
   ezUInt32 m_uiKnownAssetFolderCount;
 
-  ezToolBarActionMapView* m_pToolbar;
+  ezQtToolBarActionMapView* m_pToolbar;
   ezString m_sAllTypesFilter;
-  ezAssetBrowserModel* m_pModel;
+  ezQtAssetBrowserModel* m_pModel;
 };

@@ -10,14 +10,14 @@
 
 struct ezActionDescriptor;
 
-class EZ_GUIFOUNDATION_DLL ezShortcutEditorDlg : public QDialog, public Ui_ShortcutEditor
+class EZ_GUIFOUNDATION_DLL ezQtShortcutEditorDlg : public QDialog, public Ui_ShortcutEditor
 {
 public:
   Q_OBJECT
 
 public:
-  ezShortcutEditorDlg(QWidget* parent);
-  ~ezShortcutEditorDlg();
+  ezQtShortcutEditorDlg(QWidget* parent);
+  ~ezQtShortcutEditorDlg();
 
   void UpdateTable();
 

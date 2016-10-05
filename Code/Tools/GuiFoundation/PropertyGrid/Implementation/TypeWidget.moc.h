@@ -9,15 +9,15 @@
 
 class QGridLayout;
 class ezDocument;
-class ezManipulatorLabel;
+class ezQtManipulatorLabel;
 struct ezManipulatorManagerEvent;
 
-class EZ_GUIFOUNDATION_DLL ezTypeWidget : public QWidget
+class EZ_GUIFOUNDATION_DLL ezQtTypeWidget : public QWidget
 {
   Q_OBJECT
 public:
-  ezTypeWidget(QWidget* pParent, ezPropertyGridWidget* pGrid, const ezRTTI* pType, ezPropertyPath& parentPath);
-  ~ezTypeWidget();
+  ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, const ezRTTI* pType, ezPropertyPath& parentPath);
+  ~ezQtTypeWidget();
   void SetSelection(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items);
   const ezHybridArray<ezQtPropertyWidget::Selection, 8>& GetSelection() const { return m_Items; }
   const ezRTTI* GetType() const { return m_pType; }
@@ -39,7 +39,7 @@ private:
 
 private:
   bool m_bUndead;
-  ezPropertyGridWidget* m_pGrid;
+  ezQtPropertyGridWidget* m_pGrid;
   const ezRTTI* m_pType;
   ezPropertyPath m_ParentPath;
   ezHybridArray<ezQtPropertyWidget::Selection, 8> m_Items;
@@ -47,7 +47,7 @@ private:
   struct PropertyWidgetData
   {
     ezQtPropertyWidget* m_pWidget;
-    ezManipulatorLabel* m_pLabel;
+    ezQtManipulatorLabel* m_pLabel;
     ezString m_sOriginalLabelText;
   };
 

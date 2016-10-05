@@ -9,7 +9,7 @@
 #include <QGraphicsView>
 #include <QListWidgetItem>
 
-class ezStatVisWidget : public QDockWidget, public Ui_StatVisWidget
+class ezQtStatVisWidget : public QDockWidget, public Ui_StatVisWidget
 {
 public:
   Q_OBJECT
@@ -17,11 +17,11 @@ public:
 public:
   static const ezUInt8 s_uiMaxColors = 9;
 
-  ezStatVisWidget(QWidget* parent, ezInt32 iWindowNumber);
+  ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber);
 
   void UpdateStats();
 
-  static ezStatVisWidget* s_pWidget;
+  static ezQtStatVisWidget* s_pWidget;
 
   void AddStat(const ezString& sStatPath, bool bEnabled = true, bool bRaiseWindow = true);
 

@@ -9,15 +9,15 @@
 #include <QWidget>
 
 class ezDocumentObject;
-class ezTypeWidget;
+class ezQtTypeWidget;
 class QHBoxLayout;
 class QVBoxLayout;
 class QLabel;
 class QMenu;
-class ezCollapsibleGroupBox;
-class ezAddSubElementButton;
-class ezPropertyGridWidget;
-class ezElementGroupButton;
+class ezQtCollapsibleGroupBox;
+class ezQtAddSubElementButton;
+class ezQtPropertyGridWidget;
+class ezQtElementGroupButton;
 
 /// \brief Base class for all property widgets
 class EZ_GUIFOUNDATION_DLL ezQtPropertyWidget : public QWidget
@@ -57,7 +57,7 @@ public:
   explicit ezQtPropertyWidget();
   virtual ~ezQtPropertyWidget();
 
-  void Init(ezPropertyGridWidget* pGrid, const ezAbstractProperty* pProp, const ezPropertyPath& path);
+  void Init(ezQtPropertyGridWidget* pGrid, const ezAbstractProperty* pProp, const ezPropertyPath& path);
   const ezAbstractProperty* GetProperty() const { return m_pProp; }
   const ezPropertyPath& GetPropertyPath() const { return m_PropertyPath; }
 
@@ -86,7 +86,7 @@ protected:
 protected:
   virtual void DoPrepareToDie() = 0;
 
-  ezPropertyGridWidget* m_pGrid;
+  ezQtPropertyGridWidget* m_pGrid;
   const ezAbstractProperty* m_pProp;
   ezPropertyPath m_PropertyPath;
   ezHybridArray<Selection, 8> m_Items;
@@ -153,9 +153,9 @@ protected:
 
 protected:
   QHBoxLayout* m_pLayout;
-  ezCollapsibleGroupBox* m_pGroup;
+  ezQtCollapsibleGroupBox* m_pGroup;
   QHBoxLayout* m_pGroupLayout;
-  ezTypeWidget* m_pTypeWidget;
+  ezQtTypeWidget* m_pTypeWidget;
 };
 
 /// \brief Used for property types that are pointers.
@@ -180,11 +180,11 @@ protected:
 
 protected:
   QHBoxLayout* m_pLayout;
-  ezCollapsibleGroupBox* m_pGroup;
-  ezAddSubElementButton* m_pAddButton;
-  ezElementGroupButton* m_pDeleteButton;
+  ezQtCollapsibleGroupBox* m_pGroup;
+  ezQtAddSubElementButton* m_pAddButton;
+  ezQtElementGroupButton* m_pDeleteButton;
   QHBoxLayout* m_pGroupLayout;
-  ezTypeWidget* m_pTypeWidget;
+  ezQtTypeWidget* m_pTypeWidget;
 };
 
 
@@ -207,9 +207,9 @@ protected:
   struct Element
   {
     Element() : m_pSubGroup(nullptr), m_pWidget(nullptr) {}
-    Element(ezCollapsibleGroupBox* pSubGroup, ezQtPropertyWidget* pWidget) : m_pSubGroup(pSubGroup), m_pWidget(pWidget) {}
+    Element(ezQtCollapsibleGroupBox* pSubGroup, ezQtPropertyWidget* pWidget) : m_pSubGroup(pSubGroup), m_pWidget(pWidget) {}
 
-    ezCollapsibleGroupBox* m_pSubGroup;
+    ezQtCollapsibleGroupBox* m_pSubGroup;
     ezQtPropertyWidget* m_pWidget;
   };
 
@@ -228,9 +228,9 @@ protected:
 
 protected:
   QHBoxLayout* m_pLayout;
-  ezCollapsibleGroupBox* m_pGroup;
+  ezQtCollapsibleGroupBox* m_pGroup;
   QVBoxLayout* m_pGroupLayout;
-  ezAddSubElementButton* m_pAddButton;
+  ezQtAddSubElementButton* m_pAddButton;
 
   ezDynamicArray<Element> m_Elements;
 };

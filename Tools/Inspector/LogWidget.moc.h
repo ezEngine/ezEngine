@@ -7,17 +7,17 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Logging/Log.h>
 
-class ezLogWidget : public QDockWidget, public Ui_LogWidget
+class ezQtLogWidget : public QDockWidget, public Ui_LogWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezLogWidget(QWidget* parent = 0);
+  ezQtLogWidget(QWidget* parent = 0);
 
   void Log(const char* szFormat, ...);
 
-  static ezLogWidget* s_pWidget;
+  static ezQtLogWidget* s_pWidget;
 
 private slots:
   virtual void on_ButtonClearLog_clicked();

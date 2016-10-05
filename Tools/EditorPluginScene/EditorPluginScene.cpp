@@ -56,7 +56,7 @@ void OnLoadPlugin(bool bReloading)
   ezScaleGizmoAction::RegisterActions();
   ezTranslateGizmoAction::RegisterActions();
   ezSceneViewActions::RegisterActions();
-  ezScenegraphPanel::RegisterActions();
+  ezQtScenegraphPanel::RegisterActions();
   ezSceneActions::RegisterActions();
 
   // Menu Bar

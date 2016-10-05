@@ -15,7 +15,7 @@
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <CoreUtils/Localization/TranslationLookup.h>
 
-ezTypeWidget::ezTypeWidget(QWidget* pParent, ezPropertyGridWidget* pGrid, const ezRTTI* pType, ezPropertyPath& parentPath)
+ezQtTypeWidget::ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, const ezRTTI* pType, ezPropertyPath& parentPath)
   : QWidget(pParent)
 {
   m_bUndead = false;
@@ -31,23 +31,23 @@ ezTypeWidget::ezTypeWidget(QWidget* pParent, ezPropertyGridWidget* pGrid, const 
   m_pLayout->setSpacing(0);
   setLayout(m_pLayout);
 
-  m_pGrid->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezTypeWidget::PropertyEventHandler, this));
-  m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezTypeWidget::CommandHistoryEventHandler, this));
-  ezManipulatorManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezTypeWidget::ManipulatorManagerEventHandler, this));
+  m_pGrid->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtTypeWidget::PropertyEventHandler, this));
+  m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtTypeWidget::CommandHistoryEventHandler, this));
+  ezManipulatorManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtTypeWidget::ManipulatorManagerEventHandler, this));
 
   ezPropertyPath ParentPath = m_ParentPath;
 
   BuildUI(pType, ParentPath);
 }
 
-ezTypeWidget::~ezTypeWidget()
+ezQtTypeWidget::~ezQtTypeWidget()
 {
-  m_pGrid->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezTypeWidget::PropertyEventHandler, this));
-  m_pGrid->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezTypeWidget::CommandHistoryEventHandler, this));
-  ezManipulatorManager::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezTypeWidget::ManipulatorManagerEventHandler, this));
+  m_pGrid->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtTypeWidget::PropertyEventHandler, this));
+  m_pGrid->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtTypeWidget::CommandHistoryEventHandler, this));
+  ezManipulatorManager::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtTypeWidget::ManipulatorManagerEventHandler, this));
 }
 
-void ezTypeWidget::SetSelection(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items)
+void ezQtTypeWidget::SetSelection(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items)
 {
   QtScopedUpdatesDisabled _(this);
 
@@ -79,7 +79,7 @@ void ezTypeWidget::SetSelection(const ezHybridArray<ezQtPropertyWidget::Selectio
 }
 
 
-void ezTypeWidget::PrepareToDie()
+void ezQtTypeWidget::PrepareToDie()
 {
   if (!m_bUndead)
   {
@@ -92,7 +92,7 @@ void ezTypeWidget::PrepareToDie()
   }
 }
 
-void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath, const ezMap<ezString, const ezManipulatorAttribute*>& manipulatorMap)
+void ezQtTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath, const ezMap<ezString, const ezManipulatorAttribute*>& manipulatorMap)
 {
   QtScopedUpdatesDisabled _(this);
 
@@ -116,12 +116,12 @@ void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath, cons
 
     ParentPath.PushBack(pProp->GetPropertyName());
 
-    ezQtPropertyWidget* pNewWidget = ezPropertyGridWidget::CreatePropertyWidget(pProp);
+    ezQtPropertyWidget* pNewWidget = ezQtPropertyGridWidget::CreatePropertyWidget(pProp);
     EZ_ASSERT_DEV(pNewWidget != nullptr, "No property editor defined for '%s'", pProp->GetPropertyName());
     pNewWidget->setParent(this);
     pNewWidget->Init(m_pGrid, pProp, ParentPath);
 
-    pNewWidget->m_Events.AddEventHandler(ezMakeDelegate(&ezTypeWidget::PropertyChangedHandler, this));
+    pNewWidget->m_Events.AddEventHandler(ezMakeDelegate(&ezQtTypeWidget::PropertyChangedHandler, this));
     auto& ref = m_PropertyWidgets[ParentPath.GetPathString()];
 
     ref.m_pWidget = pNewWidget;
@@ -129,7 +129,7 @@ void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath, cons
 
     if (pNewWidget->HasLabel())
     {
-      ezManipulatorLabel* pLabel = new ezManipulatorLabel(this);
+      ezQtManipulatorLabel* pLabel = new ezQtManipulatorLabel(this);
       pLabel->setText(QString::fromUtf8(pNewWidget->GetLabel()));
       pLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
       pLabel->setContentsMargins(18, 0, 0, 0); // 18 is a hacked value to align label with group boxes.
@@ -159,7 +159,7 @@ void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath, cons
 }
 
 
-void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath)
+void ezQtTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath)
 {
   ezMap<ezString, const ezManipulatorAttribute*> manipulatorMap;
 
@@ -191,7 +191,7 @@ void ezTypeWidget::BuildUI(const ezRTTI* pType, ezPropertyPath& ParentPath)
   BuildUI(pType, ParentPath, manipulatorMap);
 }
 
-void ezTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
+void ezQtTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
 {
   if (m_bUndead)
     return;
@@ -226,7 +226,7 @@ void ezTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
       else
         history->FinishTransaction();
 
-      ezUIServices::GetSingleton()->MessageBoxStatus(res, "Changing the property failed.");
+      ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Changing the property failed.");
 
     }
     break;
@@ -251,7 +251,7 @@ void ezTypeWidget::PropertyChangedHandler(const ezQtPropertyWidget::Event& ed)
   }
 }
 
-void ezTypeWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void ezQtTypeWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   if (m_bUndead)
     return;
@@ -259,7 +259,7 @@ void ezTypeWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
   UpdateProperty(e.m_pObject, e.m_sPropertyPath);
 }
 
-void ezTypeWidget::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
+void ezQtTypeWidget::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
 {
   if (m_bUndead)
     return;
@@ -281,7 +281,7 @@ void ezTypeWidget::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
 }
 
 
-void ezTypeWidget::ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e)
+void ezQtTypeWidget::ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e)
 {
   if (m_bUndead)
     return;
@@ -308,7 +308,7 @@ void ezTypeWidget::ManipulatorManagerEventHandler(const ezManipulatorManagerEven
 
 }
 
-void ezTypeWidget::UpdateProperty(const ezDocumentObject* pObject, const ezString& sProperty)
+void ezQtTypeWidget::UpdateProperty(const ezDocumentObject* pObject, const ezString& sProperty)
 {
   if (std::none_of(cbegin(m_Items), cend(m_Items),
                    [=](const ezQtPropertyWidget::Selection& sel) { return pObject == sel.m_pObject; }
@@ -321,7 +321,7 @@ void ezTypeWidget::UpdateProperty(const ezDocumentObject* pObject, const ezStrin
   }
 }
 
-void ezTypeWidget::FlushQueuedChanges()
+void ezQtTypeWidget::FlushQueuedChanges()
 {
   for (const ezString& sProperty : m_QueuedChanges)
   {
@@ -341,7 +341,7 @@ void ezTypeWidget::FlushQueuedChanges()
   UpdatePropertyMetaState();
 }
 
-void ezTypeWidget::UpdatePropertyMetaState()
+void ezQtTypeWidget::UpdatePropertyMetaState()
 {
   ezPropertyMetaState* pMeta = ezPropertyMetaState::GetSingleton();
 

@@ -51,7 +51,7 @@ public:
 #endif
 
     ezQtEditorApp::GetSingleton()->StartupEditor(true);
-    ezUIServices::SetHeadless(true);
+    ezQtUiServices::SetHeadless(true);
 
     {
       ezResult res = m_IPC.ConnectToHostProcess();

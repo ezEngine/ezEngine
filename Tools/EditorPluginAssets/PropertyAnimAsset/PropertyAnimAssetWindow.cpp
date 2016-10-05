@@ -9,11 +9,11 @@
 #include <QLayout>
 #include <CoreUtils/Image/ImageConversion.h>
 
-ezPropertyAnimAssetDocumentWindow::ezPropertyAnimAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
+ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {
   // Menu Bar
   {
-    ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
+    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
     ezActionContext context;
     context.m_sMapping = "PropertyAnimAssetMenuBar";
     context.m_pDocument = pDocument;
@@ -22,7 +22,7 @@ ezPropertyAnimAssetDocumentWindow::ezPropertyAnimAssetDocumentWindow(ezDocument*
 
   // Tool Bar
   {
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
+    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "PropertyAnimAssetToolBar";
     context.m_pDocument = pDocument;
@@ -32,12 +32,12 @@ ezPropertyAnimAssetDocumentWindow::ezPropertyAnimAssetDocumentWindow(ezDocument*
   }
 
   {
-    ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
     pPropertyPanel->setObjectName("PropertyAnimAssetDockWidget");
     pPropertyPanel->setWindowTitle("PropertyAnim Properties");
     pPropertyPanel->show();
 
-    ezPropertyGridWidget* pPropertyGrid = new ezPropertyGridWidget(pPropertyPanel, pDocument);
+    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
@@ -48,6 +48,6 @@ ezPropertyAnimAssetDocumentWindow::ezPropertyAnimAssetDocumentWindow(ezDocument*
   FinishWindowCreation();
 }
 
-ezPropertyAnimAssetDocumentWindow::~ezPropertyAnimAssetDocumentWindow()
+ezQtPropertyAnimAssetDocumentWindow::~ezQtPropertyAnimAssetDocumentWindow()
 {
 }

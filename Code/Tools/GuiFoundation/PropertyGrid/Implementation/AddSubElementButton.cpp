@@ -11,7 +11,7 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <CoreUtils/Localization/TranslationLookup.h>
 
-ezAddSubElementButton::ezAddSubElementButton()
+ezQtAddSubElementButton::ezQtAddSubElementButton()
   : ezQtPropertyWidget()
 {
   // Reset base class size policy as we are put in a layout that would cause us to vanish instead.
@@ -38,7 +38,7 @@ ezAddSubElementButton::ezAddSubElementButton()
 
 }
 
-void ezAddSubElementButton::OnInit()
+void ezQtAddSubElementButton::OnInit()
 {
   if (m_pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
   {
@@ -76,7 +76,7 @@ struct TypeComparer
   }
 };
 
-QMenu* ezAddSubElementButton::CreateCategoryMenu(const char* szCategory, ezMap<ezString, QMenu*>& existingMenus)
+QMenu* ezQtAddSubElementButton::CreateCategoryMenu(const char* szCategory, ezMap<ezString, QMenu*>& existingMenus)
 {
   if (ezStringUtils::IsNullOrEmpty(szCategory))
     return m_pMenu;
@@ -106,7 +106,7 @@ QMenu* ezAddSubElementButton::CreateCategoryMenu(const char* szCategory, ezMap<e
   return pNewMenu;
 }
 
-void ezAddSubElementButton::on_Menu_aboutToShow()
+void ezQtAddSubElementButton::on_Menu_aboutToShow()
 {
   if (m_Items.IsEmpty())
     return;
@@ -178,13 +178,13 @@ void ezAddSubElementButton::on_Menu_aboutToShow()
     EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnMenuAction())) != nullptr, "connection failed");
 
     sIconName.Set(":/TypeIcons/", pRtti->GetTypeName());
-    pAction->setIcon(ezUIServices::GetCachedIconResource(sIconName.GetData()));
+    pAction->setIcon(ezQtUiServices::GetCachedIconResource(sIconName.GetData()));
 
     pCat->addAction(pAction);
   }
 }
 
-void ezAddSubElementButton::on_Button_clicked()
+void ezQtAddSubElementButton::on_Button_clicked()
 {
   auto pProp = GetProperty();
 
@@ -194,14 +194,14 @@ void ezAddSubElementButton::on_Button_clicked()
   }
 }
 
-void ezAddSubElementButton::OnMenuAction()
+void ezQtAddSubElementButton::OnMenuAction()
 {
   const ezRTTI* pRtti = static_cast<const ezRTTI*>(sender()->property("type").value<void*>());
 
   OnAction(pRtti);
 }
 
-void ezAddSubElementButton::OnAction(const ezRTTI* pRtti)
+void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
 {
   EZ_ASSERT_DEV(pRtti != nullptr, "user data retrieval failed");
 
@@ -249,7 +249,7 @@ void ezAddSubElementButton::OnAction(const ezRTTI* pRtti)
   else
     history->FinishTransaction();
 
-  ezUIServices::GetSingleton()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
+  ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
 }
 
 

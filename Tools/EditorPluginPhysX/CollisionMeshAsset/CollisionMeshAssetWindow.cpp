@@ -8,11 +8,11 @@
 #include <QLabel>
 #include <QLayout>
 
-ezCollisionMeshAssetDocumentWindow::ezCollisionMeshAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
+ezQtCollisionMeshAssetDocumentWindow::ezQtCollisionMeshAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {
   // Menu Bar
   {
-    ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
+    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
     ezActionContext context;
     context.m_sMapping = "CollisionMeshAssetMenuBar";
     context.m_pDocument = pDocument;
@@ -21,7 +21,7 @@ ezCollisionMeshAssetDocumentWindow::ezCollisionMeshAssetDocumentWindow(ezDocumen
 
   // Tool Bar
   {
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
+    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "CollisionMeshAssetToolBar";
     context.m_pDocument = pDocument;
@@ -31,12 +31,12 @@ ezCollisionMeshAssetDocumentWindow::ezCollisionMeshAssetDocumentWindow(ezDocumen
   }
 
   {
-    ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
     pPropertyPanel->setObjectName("CollisionMeshAssetDockWidget");
     pPropertyPanel->setWindowTitle("Collision Mesh Properties");
     pPropertyPanel->show();
 
-    ezPropertyGridWidget* pPropertyGrid = new ezPropertyGridWidget(pPropertyPanel, pDocument);
+    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);

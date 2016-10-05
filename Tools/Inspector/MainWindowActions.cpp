@@ -16,94 +16,94 @@
 #include <qinputdialog.h>
 #include <QSettings>
 
-void ezMainWindow::on_ActionShowWindowLog_triggered()
+void ezQtMainWindow::on_ActionShowWindowLog_triggered()
 {
-  ezLogWidget::s_pWidget->setVisible(ActionShowWindowLog->isChecked());
-  ezLogWidget::s_pWidget->raise();
+  ezQtLogWidget::s_pWidget->setVisible(ActionShowWindowLog->isChecked());
+  ezQtLogWidget::s_pWidget->raise();
 }
 
-void ezMainWindow::on_ActionShowWindowMemory_triggered()
+void ezQtMainWindow::on_ActionShowWindowMemory_triggered()
 {
-  ezMemoryWidget::s_pWidget->setVisible(ActionShowWindowMemory->isChecked());
-  ezMemoryWidget::s_pWidget->raise();
+  ezQtMemoryWidget::s_pWidget->setVisible(ActionShowWindowMemory->isChecked());
+  ezQtMemoryWidget::s_pWidget->raise();
 }
 
-void ezMainWindow::on_ActionShowWindowTime_triggered()
+void ezQtMainWindow::on_ActionShowWindowTime_triggered()
 {
-  ezTimeWidget::s_pWidget->setVisible(ActionShowWindowTime->isChecked());
-  ezTimeWidget::s_pWidget->raise();
+  ezQtTimeWidget::s_pWidget->setVisible(ActionShowWindowTime->isChecked());
+  ezQtTimeWidget::s_pWidget->raise();
 }
 
-void ezMainWindow::on_ActionShowWindowInput_triggered()
+void ezQtMainWindow::on_ActionShowWindowInput_triggered()
 {
-  ezInputWidget::s_pWidget->setVisible(ActionShowWindowInput->isChecked());
-  ezInputWidget::s_pWidget->raise();
+  ezQtInputWidget::s_pWidget->setVisible(ActionShowWindowInput->isChecked());
+  ezQtInputWidget::s_pWidget->raise();
 }
 
-void ezMainWindow::on_ActionShowWindowCVar_triggered()
+void ezQtMainWindow::on_ActionShowWindowCVar_triggered()
 {
-  ezCVarsWidget::s_pWidget->setVisible(ActionShowWindowCVar->isChecked());
-  ezCVarsWidget::s_pWidget->raise();
+  ezQtCVarsWidget::s_pWidget->setVisible(ActionShowWindowCVar->isChecked());
+  ezQtCVarsWidget::s_pWidget->raise();
 }
 
-void ezMainWindow::on_ActionShowWindowReflection_triggered()
+void ezQtMainWindow::on_ActionShowWindowReflection_triggered()
 {
-  ezReflectionWidget::s_pWidget->setVisible(ActionShowWindowReflection->isChecked());
-  ezReflectionWidget::s_pWidget->raise();
+  ezQtReflectionWidget::s_pWidget->setVisible(ActionShowWindowReflection->isChecked());
+  ezQtReflectionWidget::s_pWidget->raise();
 }
 
-void ezMainWindow::on_ActionShowWindowSubsystems_triggered()
+void ezQtMainWindow::on_ActionShowWindowSubsystems_triggered()
 {
-  ezSubsystemsWidget::s_pWidget->setVisible(ActionShowWindowSubsystems->isChecked());
-  ezSubsystemsWidget::s_pWidget->raise();
+  ezQtSubsystemsWidget::s_pWidget->setVisible(ActionShowWindowSubsystems->isChecked());
+  ezQtSubsystemsWidget::s_pWidget->raise();
 }
 
-void ezMainWindow::on_ActionShowWindowPlugins_triggered()
+void ezQtMainWindow::on_ActionShowWindowPlugins_triggered()
 {
-  ezPluginsWidget::s_pWidget->setVisible(ActionShowWindowPlugins->isChecked());
-  ezPluginsWidget::s_pWidget->raise();
+  ezQtPluginsWidget::s_pWidget->setVisible(ActionShowWindowPlugins->isChecked());
+  ezQtPluginsWidget::s_pWidget->raise();
 }
 
-void ezMainWindow::on_ActionShowWindowFile_triggered()
+void ezQtMainWindow::on_ActionShowWindowFile_triggered()
 {
-  ezFileWidget::s_pWidget->setVisible(ActionShowWindowFile->isChecked());
-  ezFileWidget::s_pWidget->raise();
+  ezQtFileWidget::s_pWidget->setVisible(ActionShowWindowFile->isChecked());
+  ezQtFileWidget::s_pWidget->raise();
 }
 
-void ezMainWindow::on_ActionShowWindowGlobalEvents_triggered()
+void ezQtMainWindow::on_ActionShowWindowGlobalEvents_triggered()
 {
-  ezGlobalEventsWidget::s_pWidget->setVisible(ActionShowWindowGlobalEvents->isChecked());
-  ezGlobalEventsWidget::s_pWidget->raise();
+  ezQtGlobalEventsWidget::s_pWidget->setVisible(ActionShowWindowGlobalEvents->isChecked());
+  ezQtGlobalEventsWidget::s_pWidget->raise();
 }
 
-void ezMainWindow::on_ActionShowWindowData_triggered()
+void ezQtMainWindow::on_ActionShowWindowData_triggered()
 {
-  ezDataWidget::s_pWidget->setVisible(ActionShowWindowData->isChecked());
-  ezDataWidget::s_pWidget->raise();
+  ezQtDataWidget::s_pWidget->setVisible(ActionShowWindowData->isChecked());
+  ezQtDataWidget::s_pWidget->raise();
 }
 
-void ezMainWindow::on_ActionShowWindowResource_triggered()
+void ezQtMainWindow::on_ActionShowWindowResource_triggered()
 {
-  ezResourceWidget::s_pWidget->setVisible(ActionShowWindowResource->isChecked());
-  ezResourceWidget::s_pWidget->raise();
+  ezQtResourceWidget::s_pWidget->setVisible(ActionShowWindowResource->isChecked());
+  ezQtResourceWidget::s_pWidget->raise();
 }
 
-void ezMainWindow::on_ActionOnTopWhenConnected_triggered()
+void ezQtMainWindow::on_ActionOnTopWhenConnected_triggered()
 {
   SetAlwaysOnTop(WhenConnected);
 }
 
-void ezMainWindow::on_ActionAlwaysOnTop_triggered()
+void ezQtMainWindow::on_ActionAlwaysOnTop_triggered()
 {
   SetAlwaysOnTop(Always);
 }
 
-void ezMainWindow::on_ActionNeverOnTop_triggered()
+void ezQtMainWindow::on_ActionNeverOnTop_triggered()
 {
   SetAlwaysOnTop(Never);
 }
 
-void ezMainWindow::on_ButtonConnect_clicked()
+void ezQtMainWindow::on_ButtonConnect_clicked()
 {
   QSettings Settings;
   const QString sServer = Settings.value("LastConnection", QLatin1String("localhost:1040")).toString();

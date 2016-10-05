@@ -193,7 +193,7 @@ void ezQtMenuProxy::Update()
 {
   auto pMenu = static_cast<ezMenuAction*>(m_pAction);
 
-  m_pMenu->setIcon(ezUIServices::GetCachedIconResource(pMenu->GetIconPath()));
+  m_pMenu->setIcon(ezQtUiServices::GetCachedIconResource(pMenu->GetIconPath()));
   m_pMenu->setTitle(QString::fromUtf8(ezTranslate(pMenu->GetName())));
 }
 
@@ -245,7 +245,7 @@ void ezQtButtonProxy::Update()
   if (!ezStringUtils::IsNullOrEmpty(pButton->GetAdditionalDisplayString()))
     sDisplay.Append(" '", pButton->GetAdditionalDisplayString(), "'"); // TODO: translate this as well?
 
-  m_pQtAction->setIcon(ezUIServices::GetCachedIconResource(pButton->GetIconPath()));
+  m_pQtAction->setIcon(ezQtUiServices::GetCachedIconResource(pButton->GetIconPath()));
   m_pQtAction->setText(QString::fromUtf8(sDisplay.GetData()));
   m_pQtAction->setToolTip(QString::fromUtf8(ezTranslateTooltip(pButton->GetName())));
   m_pQtAction->setCheckable(pButton->IsCheckable());

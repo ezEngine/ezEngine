@@ -7,12 +7,12 @@ class QWheelEvent;
 class QMouseEvent;
 class QKeyEvent;
 
-class EZ_GUIFOUNDATION_DLL ezQGraphicsView : public QGraphicsView
+class EZ_GUIFOUNDATION_DLL ezQtGraphicsView : public QGraphicsView
 {
   Q_OBJECT
 
 public:
-  ezQGraphicsView(QWidget* parent = nullptr);
+  ezQtGraphicsView(QWidget* parent = nullptr);
 
   virtual void wheelEvent(QWheelEvent* e) override;
   virtual void mousePressEvent(QMouseEvent* e) override;

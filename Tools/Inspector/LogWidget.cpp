@@ -4,9 +4,9 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <MainWindow.moc.h>
 
-ezLogWidget* ezLogWidget::s_pWidget = nullptr;
+ezQtLogWidget* ezQtLogWidget::s_pWidget = nullptr;
 
-ezLogWidget::ezLogWidget(QWidget* parent) : QDockWidget (parent)
+ezQtLogWidget::ezQtLogWidget(QWidget* parent) : QDockWidget (parent)
 {
   s_pWidget = this;
 
@@ -18,13 +18,13 @@ ezLogWidget::ezLogWidget(QWidget* parent) : QDockWidget (parent)
   ResetStats();
 }
 
-void ezLogWidget::on_ButtonClearLog_clicked()
+void ezQtLogWidget::on_ButtonClearLog_clicked()
 {
   ListLog->clear();
   s_pWidget->m_Messages.Clear();
 }
 
-void ezLogWidget::ResetStats()
+void ezQtLogWidget::ResetStats()
 {
   ListLog->clear();
   s_pWidget->m_Messages.Clear();
@@ -34,7 +34,7 @@ void ezLogWidget::ResetStats()
   ComboLogLevel->setCurrentIndex(ezLogMsgType::All - m_LogLevel);
 }
 
-void ezLogWidget::Log(const char* szFormat, ...)
+void ezQtLogWidget::Log(const char* szFormat, ...)
 {
   char szString[4096];
 
@@ -64,7 +64,7 @@ void ezLogWidget::Log(const char* szFormat, ...)
     ListLog->setCurrentItem(ListLog->item(ListLog->count() - 1));
 }
 
-QListWidgetItem* ezLogWidget::CreateLogItem(const LogMsg& lm, ezInt32 iMessageIndex)
+QListWidgetItem* ezQtLogWidget::CreateLogItem(const LogMsg& lm, ezInt32 iMessageIndex)
 {
   ezStringBuilder sFormat;
 
@@ -119,7 +119,7 @@ QListWidgetItem* ezLogWidget::CreateLogItem(const LogMsg& lm, ezInt32 iMessageIn
   return pItem;
 }
 
-bool ezLogWidget::IsFiltered(const LogMsg& lm)
+bool ezQtLogWidget::IsFiltered(const LogMsg& lm)
 {
   if (lm.m_Type > m_LogLevel)
     return true;
@@ -136,7 +136,7 @@ bool ezLogWidget::IsFiltered(const LogMsg& lm)
   return true;
 }
 
-void ezLogWidget::ProcessTelemetry(void* pUnuseed)
+void ezQtLogWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;
@@ -178,21 +178,21 @@ void ezLogWidget::ProcessTelemetry(void* pUnuseed)
     s_pWidget->ListLog->setCurrentItem(s_pWidget->ListLog->item(s_pWidget->ListLog->count() - 1));
 }
 
-void ezLogWidget::on_ComboLogLevel_currentIndexChanged(int iIndex)
+void ezQtLogWidget::on_ComboLogLevel_currentIndexChanged(int iIndex)
 {
   m_LogLevel = (ezLogMsgType::Enum) (ezLogMsgType::All - iIndex);
 
   UpdateLogList();
 }
 
-void ezLogWidget::on_LineSearch_textChanged(QString sText)
+void ezQtLogWidget::on_LineSearch_textChanged(QString sText)
 {
   m_sSearchText = sText.toUtf8().data();
 
   UpdateLogList();
 }
 
-void ezLogWidget::UpdateLogList()
+void ezQtLogWidget::UpdateLogList()
 {
   ezInt32 iPrevSel = -1;
 

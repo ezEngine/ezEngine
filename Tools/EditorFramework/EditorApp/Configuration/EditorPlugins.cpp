@@ -142,7 +142,7 @@ void ezQtEditorApp::LoadEditorPlugins()
       s.AppendFormat(" '%s' ", it.Key().GetData());
     }
 
-    ezUIServices::MessageBoxWarning(s);
+    ezQtUiServices::MessageBoxWarning(s);
   }
 }
 

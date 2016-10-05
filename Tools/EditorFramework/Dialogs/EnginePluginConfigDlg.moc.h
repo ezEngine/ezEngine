@@ -4,13 +4,13 @@
 #include <QDialog>
 #include <Tools/EditorFramework/ui_EnginePluginConfigDlg.h>
 
-class EnginePluginConfigDlg : public QDialog, public Ui_EnginePluginConfigDlg
+class ezQtEnginePluginConfigDlg : public QDialog, public Ui_EnginePluginConfigDlg
 {
 public:
   Q_OBJECT
 
 public:
-  EnginePluginConfigDlg(QWidget* parent);
+  ezQtEnginePluginConfigDlg(QWidget* parent);
 
 
 private slots:

@@ -3,7 +3,7 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Foundation/Math/Color8UNorm.h>
 
-QColorGradientEditorWidget::QColorGradientEditorWidget(QWidget* pParent)
+ezQtColorGradientEditorWidget::ezQtColorGradientEditorWidget(QWidget* pParent)
   : QWidget(pParent)
 {
   setupUi(this);
@@ -18,31 +18,31 @@ QColorGradientEditorWidget::QColorGradientEditorWidget(QWidget* pParent)
 
   on_GradientWidget_selectionChanged(-1, -1, -1);
 
-  connect(GradientWidget, &QColorGradientWidget::addColorCp, this, [this](float x, const ezColorGammaUB& color) { emit ColorCpAdded(x, color); });
-  connect(GradientWidget, &QColorGradientWidget::moveColorCpToPos, this, [this](ezInt32 idx, float x) { emit ColorCpMoved(idx, x); });
-  connect(GradientWidget, &QColorGradientWidget::deleteColorCp, this, [this](ezInt32 idx) { emit ColorCpDeleted(idx); });
+  connect(GradientWidget, &ezQtColorGradientWidget::addColorCp, this, [this](float x, const ezColorGammaUB& color) { emit ColorCpAdded(x, color); });
+  connect(GradientWidget, &ezQtColorGradientWidget::moveColorCpToPos, this, [this](ezInt32 idx, float x) { emit ColorCpMoved(idx, x); });
+  connect(GradientWidget, &ezQtColorGradientWidget::deleteColorCp, this, [this](ezInt32 idx) { emit ColorCpDeleted(idx); });
 
-  connect(GradientWidget, &QColorGradientWidget::addAlphaCp, this, [this](float x, ezUInt8 alpha) { emit AlphaCpAdded(x, alpha); });
-  connect(GradientWidget, &QColorGradientWidget::moveAlphaCpToPos, this, [this](ezInt32 idx, float x) { emit AlphaCpMoved(idx, x); });
-  connect(GradientWidget, &QColorGradientWidget::deleteAlphaCp, this, [this](ezInt32 idx) { emit AlphaCpDeleted(idx); });
+  connect(GradientWidget, &ezQtColorGradientWidget::addAlphaCp, this, [this](float x, ezUInt8 alpha) { emit AlphaCpAdded(x, alpha); });
+  connect(GradientWidget, &ezQtColorGradientWidget::moveAlphaCpToPos, this, [this](ezInt32 idx, float x) { emit AlphaCpMoved(idx, x); });
+  connect(GradientWidget, &ezQtColorGradientWidget::deleteAlphaCp, this, [this](ezInt32 idx) { emit AlphaCpDeleted(idx); });
 
-  connect(GradientWidget, &QColorGradientWidget::addIntensityCp, this, [this](float x, float intensity) { emit IntensityCpAdded(x, intensity); });
-  connect(GradientWidget, &QColorGradientWidget::moveIntensityCpToPos, this, [this](ezInt32 idx, float x) { emit IntensityCpMoved(idx, x); });
-  connect(GradientWidget, &QColorGradientWidget::deleteIntensityCp, this, [this](ezInt32 idx) { emit IntensityCpDeleted(idx); });
+  connect(GradientWidget, &ezQtColorGradientWidget::addIntensityCp, this, [this](float x, float intensity) { emit IntensityCpAdded(x, intensity); });
+  connect(GradientWidget, &ezQtColorGradientWidget::moveIntensityCpToPos, this, [this](ezInt32 idx, float x) { emit IntensityCpMoved(idx, x); });
+  connect(GradientWidget, &ezQtColorGradientWidget::deleteIntensityCp, this, [this](ezInt32 idx) { emit IntensityCpDeleted(idx); });
 
-  connect(GradientWidget, &QColorGradientWidget::beginOperation, this, [this]() { emit BeginOperation(); });
-  connect(GradientWidget, &QColorGradientWidget::endOperation, this, [this](bool commit) { emit EndOperation(commit); });
+  connect(GradientWidget, &ezQtColorGradientWidget::beginOperation, this, [this]() { emit BeginOperation(); });
+  connect(GradientWidget, &ezQtColorGradientWidget::endOperation, this, [this](bool commit) { emit EndOperation(commit); });
 
-  connect(GradientWidget, &QColorGradientWidget::triggerPickColor, this, [this]() { on_ButtonColor_clicked(); });
+  connect(GradientWidget, &ezQtColorGradientWidget::triggerPickColor, this, [this]() { on_ButtonColor_clicked(); });
 }
 
 
-QColorGradientEditorWidget::~QColorGradientEditorWidget()
+ezQtColorGradientEditorWidget::~ezQtColorGradientEditorWidget()
 {
 }
 
 
-void QColorGradientEditorWidget::SetColorGradient(const ezColorGradient& gradient)
+void ezQtColorGradientEditorWidget::SetColorGradient(const ezColorGradient& gradient)
 {
   bool clearSelection = false;
 
@@ -79,18 +79,18 @@ void QColorGradientEditorWidget::SetColorGradient(const ezColorGradient& gradien
 }
 
 
-void QColorGradientEditorWidget::FrameGradient()
+void ezQtColorGradientEditorWidget::FrameGradient()
 {
   GradientWidget->FrameExtents();
   GradientWidget->update();
 }
 
-void QColorGradientEditorWidget::on_ButtonFrame_clicked()
+void ezQtColorGradientEditorWidget::on_ButtonFrame_clicked()
 {
   FrameGradient();
 }
 
-void QColorGradientEditorWidget::on_GradientWidget_selectionChanged(ezInt32 colorCP, ezInt32 alphaCP, ezInt32 intensityCP)
+void ezQtColorGradientEditorWidget::on_GradientWidget_selectionChanged(ezInt32 colorCP, ezInt32 alphaCP, ezInt32 intensityCP)
 {
   m_iSelectedColorCP = colorCP;
   m_iSelectedAlphaCP = alphaCP;
@@ -112,7 +112,7 @@ void QColorGradientEditorWidget::on_GradientWidget_selectionChanged(ezInt32 colo
 }
 
 
-void QColorGradientEditorWidget::on_SpinPosition_valueChanged(double value)
+void ezQtColorGradientEditorWidget::on_SpinPosition_valueChanged(double value)
 {
   if (m_iSelectedColorCP != -1)
   {
@@ -129,7 +129,7 @@ void QColorGradientEditorWidget::on_SpinPosition_valueChanged(double value)
 }
 
 
-void QColorGradientEditorWidget::on_SpinAlpha_valueChanged(int value)
+void ezQtColorGradientEditorWidget::on_SpinAlpha_valueChanged(int value)
 {
   if (m_iSelectedAlphaCP != -1)
   {
@@ -137,7 +137,7 @@ void QColorGradientEditorWidget::on_SpinAlpha_valueChanged(int value)
   }
 }
 
-void QColorGradientEditorWidget::on_SliderAlpha_valueChanged(int value)
+void ezQtColorGradientEditorWidget::on_SliderAlpha_valueChanged(int value)
 {
   if (m_iSelectedAlphaCP != -1)
   {
@@ -146,18 +146,18 @@ void QColorGradientEditorWidget::on_SliderAlpha_valueChanged(int value)
 }
 
 
-void QColorGradientEditorWidget::on_SliderAlpha_sliderPressed()
+void ezQtColorGradientEditorWidget::on_SliderAlpha_sliderPressed()
 {
   emit BeginOperation();
 }
 
 
-void QColorGradientEditorWidget::on_SliderAlpha_sliderReleased()
+void ezQtColorGradientEditorWidget::on_SliderAlpha_sliderReleased()
 {
   emit EndOperation(true);
 }
 
-void QColorGradientEditorWidget::on_SpinIntensity_valueChanged(double value)
+void ezQtColorGradientEditorWidget::on_SpinIntensity_valueChanged(double value)
 {
   if (m_iSelectedIntensityCP != -1)
   {
@@ -166,7 +166,7 @@ void QColorGradientEditorWidget::on_SpinIntensity_valueChanged(double value)
 }
 
 
-void QColorGradientEditorWidget::on_ButtonColor_clicked()
+void ezQtColorGradientEditorWidget::on_ButtonColor_clicked()
 {
   if (m_iSelectedColorCP != -1)
   {
@@ -177,12 +177,12 @@ void QColorGradientEditorWidget::on_ButtonColor_clicked()
 
     emit BeginOperation();
 
-    ezUIServices::GetSingleton()->ShowColorDialog(m_PickColorStart, false, this,
+    ezQtUiServices::GetSingleton()->ShowColorDialog(m_PickColorStart, false, this,
                                                   SLOT(on_CurrentColor_changed(const QColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
   }
 }
 
-void QColorGradientEditorWidget::on_CurrentColor_changed(const QColor& col)
+void ezQtColorGradientEditorWidget::on_CurrentColor_changed(const QColor& col)
 {
   if (m_iSelectedColorCP != -1)
   {
@@ -192,7 +192,7 @@ void QColorGradientEditorWidget::on_CurrentColor_changed(const QColor& col)
   }
 }
 
-void QColorGradientEditorWidget::on_Color_accepted()
+void ezQtColorGradientEditorWidget::on_Color_accepted()
 {
   if (m_iSelectedColorCP != -1)
   {
@@ -202,7 +202,7 @@ void QColorGradientEditorWidget::on_Color_accepted()
   }
 }
 
-void QColorGradientEditorWidget::on_Color_reset()
+void ezQtColorGradientEditorWidget::on_Color_reset()
 {
   if (m_iSelectedColorCP != -1)
   {
@@ -213,12 +213,12 @@ void QColorGradientEditorWidget::on_Color_reset()
 }
 
 
-void QColorGradientEditorWidget::on_ButtonNormalize_clicked()
+void ezQtColorGradientEditorWidget::on_ButtonNormalize_clicked()
 {
   emit NormalizeRange();
 }
 
-void QColorGradientEditorWidget::UpdateCpUi()
+void ezQtColorGradientEditorWidget::UpdateCpUi()
 {
   QtScopedBlockSignals bs(this);
   QtScopedUpdatesDisabled ud(this);

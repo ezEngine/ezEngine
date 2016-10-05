@@ -11,13 +11,13 @@
 #include <QLayout>
 #include <CoreUtils/Image/ImageConversion.h>
 
-ezTextureAssetDocumentWindow::ezTextureAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
+ezQtTextureAssetDocumentWindow::ezQtTextureAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezTextureAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtTextureAssetDocumentWindow::PropertyEventHandler, this));
 
   // Menu Bar
   {
-    ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
+    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
     ezActionContext context;
     context.m_sMapping = "TextureAssetMenuBar";
     context.m_pDocument = pDocument;
@@ -26,7 +26,7 @@ ezTextureAssetDocumentWindow::ezTextureAssetDocumentWindow(ezDocument* pDocument
 
   // Tool Bar
   {
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
+    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "TextureAssetToolBar";
     context.m_pDocument = pDocument;
@@ -35,16 +35,16 @@ ezTextureAssetDocumentWindow::ezTextureAssetDocumentWindow(ezDocument* pDocument
     addToolBar(pToolBar);
   }
 
-  m_pImageWidget = new QtImageWidget(this);
+  m_pImageWidget = new ezQtImageWidget(this);
   setCentralWidget(m_pImageWidget);
 
   {
-    ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
     pPropertyPanel->setObjectName("TextureAssetDockWidget");
     pPropertyPanel->setWindowTitle("Texture Properties");
     pPropertyPanel->show();
 
-    ezPropertyGridWidget* pPropertyGrid = new ezPropertyGridWidget(pPropertyPanel, pDocument);
+    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
@@ -58,12 +58,12 @@ ezTextureAssetDocumentWindow::ezTextureAssetDocumentWindow(ezDocument* pDocument
   UpdatePreview();
 }
 
-ezTextureAssetDocumentWindow::~ezTextureAssetDocumentWindow()
+ezQtTextureAssetDocumentWindow::~ezQtTextureAssetDocumentWindow()
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezTextureAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtTextureAssetDocumentWindow::PropertyEventHandler, this));
 }
 
-void ezTextureAssetDocumentWindow::UpdatePreview()
+void ezQtTextureAssetDocumentWindow::UpdatePreview()
 {
   auto* pObject = ((ezTextureAssetDocument*)GetDocument())->GetProperties();
 
@@ -79,7 +79,7 @@ void ezTextureAssetDocumentWindow::UpdatePreview()
   //m_pImageWidget->SetImage(QPixmap::fromImage(img));
 }
 
-void ezTextureAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void ezQtTextureAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   if (e.m_sPropertyPath == "Texture File")
   {

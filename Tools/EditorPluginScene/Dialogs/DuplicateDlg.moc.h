@@ -4,12 +4,12 @@
 #include <Tools/EditorPluginScene/ui_DuplicateDlg.h>
 #include <QDialog>
 
-class qtDuplicateDlg : public QDialog, public Ui_DuplicateDlg
+class ezQtDuplicateDlg : public QDialog, public Ui_DuplicateDlg
 {
   Q_OBJECT
 
 public:
-  qtDuplicateDlg(QWidget *parent = nullptr);
+  ezQtDuplicateDlg(QWidget *parent = nullptr);
 
   static ezUInt32 s_uiNumberOfCopies;
   static bool s_bGroupCopies;

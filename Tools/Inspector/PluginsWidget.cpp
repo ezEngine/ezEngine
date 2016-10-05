@@ -4,9 +4,9 @@
 #include <MainWindow.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
-ezPluginsWidget* ezPluginsWidget::s_pWidget = nullptr;
+ezQtPluginsWidget* ezQtPluginsWidget::s_pWidget = nullptr;
 
-ezPluginsWidget::ezPluginsWidget(QWidget* parent) : QDockWidget (parent)
+ezQtPluginsWidget::ezQtPluginsWidget(QWidget* parent) : QDockWidget (parent)
 {
   s_pWidget = this;
 
@@ -15,19 +15,19 @@ ezPluginsWidget::ezPluginsWidget(QWidget* parent) : QDockWidget (parent)
   ResetStats();
 }
 
-void ezPluginsWidget::ResetStats()
+void ezQtPluginsWidget::ResetStats()
 {
   m_bUpdatePlugins = true;
   m_Plugins.Clear();
 }
 
 
-void ezPluginsWidget::UpdateStats()
+void ezQtPluginsWidget::UpdateStats()
 {
   UpdatePlugins();
 }
 
-void ezPluginsWidget::UpdatePlugins()
+void ezQtPluginsWidget::UpdatePlugins()
 {
   if (!m_bUpdatePlugins)
     return;
@@ -56,7 +56,7 @@ void ezPluginsWidget::UpdatePlugins()
     for (ezMap<ezString, PluginsData>::Iterator it = m_Plugins.GetIterator(); it.IsValid(); ++it)
     {
       QLabel* pIcon = new QLabel();
-      pIcon->setPixmap(ezUIServices::GetCachedPixmapResource(":/Icons/Icons/Plugin.png"));
+      pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/Plugin.png"));
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TablePlugins->setCellWidget(iRow, 0, pIcon);
 
@@ -81,7 +81,7 @@ void ezPluginsWidget::UpdatePlugins()
   TablePlugins->blockSignals(false);
 }
 
-void ezPluginsWidget::ProcessTelemetry(void* pUnuseed)
+void ezQtPluginsWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;

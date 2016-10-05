@@ -9,13 +9,13 @@
 
 class QTreeWidgetItem;
 
-class EZ_EDITORFRAMEWORK_DLL InputConfigDlg : public QDialog, public Ui_InputConfigDialog
+class EZ_EDITORFRAMEWORK_DLL ezQtInputConfigDlg : public QDialog, public Ui_InputConfigDialog
 {
 public:
   Q_OBJECT
 
 public:
-  InputConfigDlg(QWidget* parent);
+  ezQtInputConfigDlg(QWidget* parent);
 
 private slots:
   void on_ButtonNewInputSet_clicked();

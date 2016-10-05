@@ -8,16 +8,16 @@
 
 class QLabel;
 class QScrollArea;
-class QtImageWidget;
+class ezQtImageWidget;
 class ezQtMeshViewWidget;
 
-class ezMeshAssetDocumentWindow : public ezQtEngineDocumentWindow
+class ezQtMeshAssetDocumentWindow : public ezQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezMeshAssetDocumentWindow(ezMeshAssetDocument* pDocument);
-  ~ezMeshAssetDocumentWindow();
+  ezQtMeshAssetDocumentWindow(ezMeshAssetDocument* pDocument);
+  ~ezQtMeshAssetDocumentWindow();
 
   ezMeshAssetDocument* GetMeshDocument();
   virtual const char* GetWindowLayoutGroupName() const { return "MeshAsset"; }

@@ -10,13 +10,13 @@
 class ezQtParticleViewWidget;
 class ezParticleEffectAssetDocument;
 
-class ezParticleEffectAssetDocumentWindow : public ezQtEngineDocumentWindow
+class ezQtParticleEffectAssetDocumentWindow : public ezQtEngineDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezParticleEffectAssetDocumentWindow(ezAssetDocument* pDocument);
-  ~ezParticleEffectAssetDocumentWindow();
+  ezQtParticleEffectAssetDocumentWindow(ezAssetDocument* pDocument);
+  ~ezQtParticleEffectAssetDocumentWindow();
 
   virtual const char* GetWindowLayoutGroupName() const { return "ParticleEffectAsset"; }
   ezParticleEffectAssetDocument* GetParticleDocument();

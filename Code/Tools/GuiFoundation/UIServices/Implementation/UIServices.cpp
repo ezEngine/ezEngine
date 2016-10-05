@@ -9,18 +9,18 @@
 #include <QUrl>
 #include <QDesktopServices>
 
-EZ_IMPLEMENT_SINGLETON(ezUIServices);
+EZ_IMPLEMENT_SINGLETON(ezQtUiServices);
 
-ezEvent<const ezUIServices::Event&> ezUIServices::s_Events;
-ezMap<ezString, QIcon> ezUIServices::s_IconsCache;
-ezMap<ezString, QImage> ezUIServices::s_ImagesCache;
-ezMap<ezString, QPixmap> ezUIServices::s_PixmapsCache;
-bool ezUIServices::s_bHeadless;
+ezEvent<const ezQtUiServices::Event&> ezQtUiServices::s_Events;
+ezMap<ezString, QIcon> ezQtUiServices::s_IconsCache;
+ezMap<ezString, QImage> ezQtUiServices::s_ImagesCache;
+ezMap<ezString, QPixmap> ezQtUiServices::s_PixmapsCache;
+bool ezQtUiServices::s_bHeadless;
 
 
-static ezUIServices g_instance;
+static ezQtUiServices g_instance;
 
-ezUIServices::ezUIServices()
+ezQtUiServices::ezQtUiServices()
   : m_SingletonRegistrar(this)
 {
   int id = qRegisterMetaType<ezUuid>();
@@ -28,18 +28,18 @@ ezUIServices::ezUIServices()
 }
 
 
-bool ezUIServices::IsHeadless()
+bool ezQtUiServices::IsHeadless()
 {
   return s_bHeadless;
 }
 
 
-void ezUIServices::SetHeadless(bool bHeadless)
+void ezQtUiServices::SetHeadless(bool bHeadless)
 {
   s_bHeadless = true;
 }
 
-void ezUIServices::SaveState()
+void ezQtUiServices::SaveState()
 {
   QSettings Settings;
   Settings.beginGroup("EditorGUI");
@@ -50,7 +50,7 @@ void ezUIServices::SaveState()
 }
 
 
-const QIcon& ezUIServices::GetCachedIconResource(const char* szIdentifier)
+const QIcon& ezQtUiServices::GetCachedIconResource(const char* szIdentifier)
 {
   const ezString sIdentifier = szIdentifier;
   auto& map = s_IconsCache;
@@ -66,7 +66,7 @@ const QIcon& ezUIServices::GetCachedIconResource(const char* szIdentifier)
 }
 
 
-const QImage& ezUIServices::GetCachedImageResource(const char* szIdentifier)
+const QImage& ezQtUiServices::GetCachedImageResource(const char* szIdentifier)
 {
   const ezString sIdentifier = szIdentifier;
   auto& map = s_ImagesCache;
@@ -82,7 +82,7 @@ const QImage& ezUIServices::GetCachedImageResource(const char* szIdentifier)
 }
 
 
-const QPixmap& ezUIServices::GetCachedPixmapResource(const char* szIdentifier)
+const QPixmap& ezQtUiServices::GetCachedPixmapResource(const char* szIdentifier)
 {
   const ezString sIdentifier = szIdentifier;
   auto& map = s_PixmapsCache;
@@ -97,7 +97,7 @@ const QPixmap& ezUIServices::GetCachedPixmapResource(const char* szIdentifier)
   return map[sIdentifier];
 }
 
-void ezUIServices::LoadState()
+void ezQtUiServices::LoadState()
 {
   QSettings Settings;
   Settings.beginGroup("EditorGUI");
@@ -107,7 +107,7 @@ void ezUIServices::LoadState()
   Settings.endGroup();
 }
 
-void ezUIServices::ShowAllDocumentsStatusBarMessage(const char* szMsg, ezTime timeOut)
+void ezQtUiServices::ShowAllDocumentsStatusBarMessage(const char* szMsg, ezTime timeOut)
 {
   Event e;
   e.m_Type = Event::ShowDocumentStatusBarText;
@@ -117,7 +117,7 @@ void ezUIServices::ShowAllDocumentsStatusBarMessage(const char* szMsg, ezTime ti
   s_Events.Broadcast(e);
 }
 
-void ezUIServices::ShowGlobalStatusBarMessage(const char* szMsg)
+void ezQtUiServices::ShowGlobalStatusBarMessage(const char* szMsg)
 {
   Event e;
   e.m_Type = Event::ShowGlobalStatusBarText;
@@ -128,12 +128,12 @@ void ezUIServices::ShowGlobalStatusBarMessage(const char* szMsg)
 }
 
 
-bool ezUIServices::OpenFileInDefaultProgram(const char* szPath)
+bool ezQtUiServices::OpenFileInDefaultProgram(const char* szPath)
 {
   return QDesktopServices::openUrl(QUrl(szPath));
 }
 
-void ezUIServices::OpenInExplorer(const char* szPath)
+void ezQtUiServices::OpenInExplorer(const char* szPath)
 {
   QStringList args;
   args << "/select," << QDir::toNativeSeparators(szPath);

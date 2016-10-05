@@ -15,11 +15,11 @@
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 
-ezMeshAssetDocumentWindow::ezMeshAssetDocumentWindow(ezMeshAssetDocument* pDocument) : ezQtEngineDocumentWindow(pDocument)
+ezQtMeshAssetDocumentWindow::ezQtMeshAssetDocumentWindow(ezMeshAssetDocument* pDocument) : ezQtEngineDocumentWindow(pDocument)
 {
   // Menu Bar
   {
-    ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
+    ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
     ezActionContext context;
     context.m_sMapping = "MeshAssetMenuBar";
     context.m_pDocument = pDocument;
@@ -28,7 +28,7 @@ ezMeshAssetDocumentWindow::ezMeshAssetDocumentWindow(ezMeshAssetDocument* pDocum
 
   // Tool Bar
   {
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
+    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = "MeshAssetToolBar";
     context.m_pDocument = pDocument;
@@ -52,12 +52,12 @@ ezMeshAssetDocumentWindow::ezMeshAssetDocumentWindow(ezMeshAssetDocument* pDocum
 
   // Property Grid
   {
-    ezDocumentPanel* pPropertyPanel = new ezDocumentPanel(this);
+    ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
     pPropertyPanel->setObjectName("MeshAssetDockWidget");
     pPropertyPanel->setWindowTitle("Mesh Properties");
     pPropertyPanel->show();
 
-    ezPropertyGridWidget* pPropertyGrid = new ezPropertyGridWidget(pPropertyPanel, pDocument);
+    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
@@ -65,7 +65,7 @@ ezMeshAssetDocumentWindow::ezMeshAssetDocumentWindow(ezMeshAssetDocument* pDocum
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
 
-  GetMeshDocument()->m_AssetEvents.AddEventHandler(ezMakeDelegate(&ezMeshAssetDocumentWindow::MeshAssetDocumentEventHandler, this));
+  GetMeshDocument()->m_AssetEvents.AddEventHandler(ezMakeDelegate(&ezQtMeshAssetDocumentWindow::MeshAssetDocumentEventHandler, this));
 
   m_pLabelInfo = new QLabel(this);
   m_pLabelInfo->setText("<Mesh Information>");
@@ -76,24 +76,24 @@ ezMeshAssetDocumentWindow::ezMeshAssetDocumentWindow(ezMeshAssetDocument* pDocum
   UpdatePreview();
 }
 
-ezMeshAssetDocumentWindow::~ezMeshAssetDocumentWindow()
+ezQtMeshAssetDocumentWindow::~ezQtMeshAssetDocumentWindow()
 {
-  GetMeshDocument()->m_AssetEvents.RemoveEventHandler(ezMakeDelegate(&ezMeshAssetDocumentWindow::MeshAssetDocumentEventHandler, this));
+  GetMeshDocument()->m_AssetEvents.RemoveEventHandler(ezMakeDelegate(&ezQtMeshAssetDocumentWindow::MeshAssetDocumentEventHandler, this));
 }
 
 
-ezMeshAssetDocument* ezMeshAssetDocumentWindow::GetMeshDocument()
+ezMeshAssetDocument* ezQtMeshAssetDocumentWindow::GetMeshDocument()
 {
   return static_cast<ezMeshAssetDocument*>(GetDocument());
 }
 
 
-void ezMeshAssetDocumentWindow::UpdatePreview()
+void ezQtMeshAssetDocumentWindow::UpdatePreview()
 {
 
 }
 
-void ezMeshAssetDocumentWindow::MeshAssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e)
+void ezQtMeshAssetDocumentWindow::MeshAssetDocumentEventHandler(const ezAssetDocument::AssetEvent& e)
 {
   switch (e.m_Type)
   {
@@ -103,7 +103,7 @@ void ezMeshAssetDocumentWindow::MeshAssetDocumentEventHandler(const ezAssetDocum
   }
 }
 
-void ezMeshAssetDocumentWindow::SendRedrawMsg()
+void ezQtMeshAssetDocumentWindow::SendRedrawMsg()
 {
   // do not try to redraw while the process is crashed, it is obviously futile
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
@@ -138,7 +138,7 @@ void ezMeshAssetDocumentWindow::SendRedrawMsg()
   }
 }
 
-void ezMeshAssetDocumentWindow::InternalRedraw()
+void ezQtMeshAssetDocumentWindow::InternalRedraw()
 {
   ezQtEngineDocumentWindow::InternalRedraw();
 

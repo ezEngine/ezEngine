@@ -10,7 +10,7 @@
 #include <QGraphicsItem>
 
 class QMouseEvent;
-class QCurve1DEditorWidget;
+class ezQtCurve1DEditorWidget;
 
 class ezQCurveControlPoint : public QGraphicsEllipseItem
 {
@@ -19,7 +19,7 @@ public:
 
   virtual int type() const override { return QGraphicsItem::UserType + 1; }
 
-  QCurve1DEditorWidget* m_pOwner;
+  ezQtCurve1DEditorWidget* m_pOwner;
   ezUInt32 m_uiCurveIdx;
   ezUInt32 m_uiControlPoint;
 
@@ -35,7 +35,7 @@ public:
 
   virtual int type() const override { return QGraphicsItem::UserType + 2; }
 
-  QCurve1DEditorWidget* m_pOwner;
+  ezQtCurve1DEditorWidget* m_pOwner;
   ezUInt32 m_uiCurveIdx;
   ezUInt32 m_uiSegment;
 
@@ -49,7 +49,7 @@ public:
 
   virtual int type() const override { return QGraphicsItem::UserType + 3; }
 
-  QCurve1DEditorWidget* m_pOwner;
+  ezQtCurve1DEditorWidget* m_pOwner;
   ezUInt32 m_uiCurveIdx;
   ezUInt32 m_uiControlPoint;
   bool m_bRightTangent;
@@ -82,13 +82,13 @@ struct ControlPointMove
   }
 };
 
-class EZ_GUIFOUNDATION_DLL QCurve1DEditorWidget : public QWidget, public Ui_Curve1DEditorWidget
+class EZ_GUIFOUNDATION_DLL ezQtCurve1DEditorWidget : public QWidget, public Ui_Curve1DEditorWidget
 {
   Q_OBJECT
 
 public:
-  explicit QCurve1DEditorWidget(QWidget* pParent);
-  ~QCurve1DEditorWidget();
+  explicit ezQtCurve1DEditorWidget(QWidget* pParent);
+  ~ezQtCurve1DEditorWidget();
 
   void SetNumCurves(ezUInt32 num);
 

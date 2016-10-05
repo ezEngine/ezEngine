@@ -316,7 +316,7 @@ bool ezQtDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction a
 
         if (!bCanMove)
         {
-          ezUIServices::MessageBoxInformation("Cannot move an object to one of its own children");
+          ezQtUiServices::MessageBoxInformation("Cannot move an object to one of its own children");
           return false;
         }
       }
@@ -349,7 +349,7 @@ bool ezQtDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction a
     else
       pHistory->FinishTransaction();
 
-    ezUIServices::GetSingleton()->MessageBoxStatus(res, "Node move failed.");
+    ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Node move failed.");
     return true;
   }
 

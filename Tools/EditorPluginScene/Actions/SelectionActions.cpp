@@ -301,7 +301,7 @@ void ezSelectionAction::Execute(const ezVariant& value)
 
   case ActionType::RevertPrefab:
     {
-      if (ezUIServices::MessageBoxQuestion("Discard all modifications to the selected prefabs and revert to the prefab template state?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
+      if (ezQtUiServices::MessageBoxQuestion("Discard all modifications to the selected prefabs and revert to the prefab template state?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
       {
         const ezDeque<const ezDocumentObject*> sel = m_pSceneDocument->GetSelectionManager()->GetTopLevelSelection(ezGetStaticRTTI<ezGameObject>());
         m_pSceneDocument->RevertPrefabs(sel);
@@ -311,7 +311,7 @@ void ezSelectionAction::Execute(const ezVariant& value)
 
   case ActionType::UnlinkFromPrefab:
     {
-      if (ezUIServices::MessageBoxQuestion("Unlink the selected prefab instances from their templates?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
+      if (ezQtUiServices::MessageBoxQuestion("Unlink the selected prefab instances from their templates?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
       {
         const ezDeque<const ezDocumentObject*> sel = m_pSceneDocument->GetSelectionManager()->GetTopLevelSelection(ezGetStaticRTTI<ezGameObject>());
         m_pSceneDocument->UnlinkPrefabs(sel);
@@ -355,7 +355,7 @@ void ezSelectionAction::Execute(const ezVariant& value)
 
   case ActionType::ConvertToEnginePrefab:
     {
-      if (ezUIServices::MessageBoxQuestion("Discard all modifications to the selected prefabs and convert them to engine prefabs?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
+      if (ezQtUiServices::MessageBoxQuestion("Discard all modifications to the selected prefabs and convert them to engine prefabs?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) == QMessageBox::StandardButton::Yes)
       {
         const ezDeque<const ezDocumentObject*> sel = m_pSceneDocument->GetSelectionManager()->GetTopLevelSelection(ezGetStaticRTTI<ezGameObject>());
         m_pSceneDocument->ConvertToEnginePrefab(sel);
@@ -386,7 +386,7 @@ void ezSelectionAction::OpenPrefabDocument()
   }
   else
   {
-    ezUIServices::MessageBoxWarning("The prefab asset of this instance is currently unknown. It may have been deleted. Try updating the asset library ('Check FileSystem'), if it should be there.");
+    ezQtUiServices::MessageBoxWarning("The prefab asset of this instance is currently unknown. It may have been deleted. Try updating the asset library ('Check FileSystem'), if it should be there.");
   }
 }
 
@@ -404,12 +404,12 @@ void ezSelectionAction::CreatePrefab()
 
     if (ezOSFile::ExistsFile(sFile))
     {
-      ezUIServices::MessageBoxInformation("You currently cannot replace an existing prefab this way. Please choose a new prefab file.");
+      ezQtUiServices::MessageBoxInformation("You currently cannot replace an existing prefab this way. Please choose a new prefab file.");
       return;
     }
 
     auto res = m_pSceneDocument->CreatePrefabDocumentFromSelection(sFile, ezGetStaticRTTI<ezGameObject>());
-    ezUIServices::MessageBoxStatus(res, "Failed to create Prefab", "Successfully created Prefab");
+    ezQtUiServices::MessageBoxStatus(res, "Failed to create Prefab", "Successfully created Prefab");
   }
 }
 

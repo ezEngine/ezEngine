@@ -11,13 +11,13 @@ class ezActionMap;
 class QAction;
 class ezQtProxy;
 
-class EZ_GUIFOUNDATION_DLL ezMenuBarActionMapView : public QMenuBar
+class EZ_GUIFOUNDATION_DLL ezQtMenuBarActionMapView : public QMenuBar
 {
   Q_OBJECT
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezMenuBarActionMapView);
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezQtMenuBarActionMapView);
 public:
-  explicit ezMenuBarActionMapView(QWidget* parent);
-  ~ezMenuBarActionMapView();
+  explicit ezQtMenuBarActionMapView(QWidget* parent);
+  ~ezQtMenuBarActionMapView();
 
   void SetActionContext(const ezActionContext& context);
 

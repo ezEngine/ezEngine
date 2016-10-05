@@ -4,13 +4,13 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezPropertyAnimAssetDocumentWindow : public ezQtDocumentWindow
+class ezQtPropertyAnimAssetDocumentWindow : public ezQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezPropertyAnimAssetDocumentWindow(ezDocument* pDocument);
-  ~ezPropertyAnimAssetDocumentWindow();
+  ezQtPropertyAnimAssetDocumentWindow(ezDocument* pDocument);
+  ~ezQtPropertyAnimAssetDocumentWindow();
 
   virtual const char* GetWindowLayoutGroupName() const { return "PropertyAnimAsset"; }
 

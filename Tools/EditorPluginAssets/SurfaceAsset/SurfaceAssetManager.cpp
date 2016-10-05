@@ -41,7 +41,7 @@ void ezSurfaceAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSurfaceAssetDocument>())
       {
-        ezSurfaceAssetDocumentWindow* pDocWnd = new ezSurfaceAssetDocumentWindow(e.m_pDocument);
+        ezQtSurfaceAssetDocumentWindow* pDocWnd = new ezQtSurfaceAssetDocumentWindow(e.m_pDocument);
       }
     }
     break;

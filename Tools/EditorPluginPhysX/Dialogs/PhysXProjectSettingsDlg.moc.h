@@ -5,13 +5,13 @@
 #include <Tools/EditorPluginPhysX/ui_PhysXProjectSettingsDlg.h>
 #include <GameUtils/CollisionFilter/CollisionFilter.h>
 
-class ezPhysxProjectSettingsDlg : public QDialog, public Ui_PhysXProjectSettingsDlg
+class ezQtPhysxProjectSettingsDlg : public QDialog, public Ui_PhysXProjectSettingsDlg
 {
 public:
   Q_OBJECT
 
 public:
-  ezPhysxProjectSettingsDlg(QWidget* parent);
+  ezQtPhysxProjectSettingsDlg(QWidget* parent);
 
 private slots:
   void onCheckBoxClicked(bool checked);

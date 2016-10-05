@@ -6,15 +6,15 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 
-class ezPluginsWidget : public QDockWidget, public Ui_PluginsWidget
+class ezQtPluginsWidget : public QDockWidget, public Ui_PluginsWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezPluginsWidget(QWidget* parent = 0);
+  ezQtPluginsWidget(QWidget* parent = 0);
 
-  static ezPluginsWidget* s_pWidget;
+  static ezQtPluginsWidget* s_pWidget;
 
 public:
   static void ProcessTelemetry(void* pUnuseed);

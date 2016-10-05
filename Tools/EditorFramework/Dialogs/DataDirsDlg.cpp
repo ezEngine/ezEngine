@@ -7,7 +7,7 @@
 #include <QFileDialog>
 #include <QProcess>
 
-DataDirsDlg::DataDirsDlg(QWidget* parent) : QDialog(parent)
+ezQtDataDirsDlg::ezQtDataDirsDlg(QWidget* parent) : QDialog(parent)
 {
   setupUi(this);
 
@@ -16,7 +16,7 @@ DataDirsDlg::DataDirsDlg(QWidget* parent) : QDialog(parent)
   FillList();
 }
 
-void DataDirsDlg::FillList()
+void ezQtDataDirsDlg::FillList()
 {
   if (m_Config.m_DataDirs.IsEmpty())
     m_iSelection = -1;
@@ -66,11 +66,11 @@ void DataDirsDlg::FillList()
   on_ListDataDirs_itemSelectionChanged();
 }
 
-void DataDirsDlg::on_ButtonOK_clicked()
+void ezQtDataDirsDlg::on_ButtonOK_clicked()
 {
   if (m_Config.CreateDataDirStubFiles().Failed())
   {
-    ezUIServices::MessageBoxWarning("Failed to create all data dir stub files ('DataDir.ezManifest'). Please review the selected folders, some might not be accessible. See the log for more details.");
+    ezQtUiServices::MessageBoxWarning("Failed to create all data dir stub files ('DataDir.ezManifest'). Please review the selected folders, some might not be accessible. See the log for more details.");
     return;
   }
 
@@ -78,12 +78,12 @@ void DataDirsDlg::on_ButtonOK_clicked()
   accept();
 }
 
-void DataDirsDlg::on_ButtonCancel_clicked()
+void ezQtDataDirsDlg::on_ButtonCancel_clicked()
 {
   reject();
 }
 
-void DataDirsDlg::on_ButtonUp_clicked()
+void ezQtDataDirsDlg::on_ButtonUp_clicked()
 {
   ezMath::Swap(m_Config.m_DataDirs[m_iSelection - 1], m_Config.m_DataDirs[m_iSelection]);
   --m_iSelection;
@@ -91,7 +91,7 @@ void DataDirsDlg::on_ButtonUp_clicked()
   FillList();
 }
 
-void DataDirsDlg::on_ButtonDown_clicked()
+void ezQtDataDirsDlg::on_ButtonDown_clicked()
 {
   ezMath::Swap(m_Config.m_DataDirs[m_iSelection], m_Config.m_DataDirs[m_iSelection + 1]);
   ++m_iSelection;
@@ -99,7 +99,7 @@ void DataDirsDlg::on_ButtonDown_clicked()
   FillList();
 }
 
-void DataDirsDlg::on_ButtonAdd_clicked()
+void ezQtDataDirsDlg::on_ButtonAdd_clicked()
 {
   static QString sPreviousFolder;
   if (sPreviousFolder.isEmpty())
@@ -130,14 +130,14 @@ void DataDirsDlg::on_ButtonAdd_clicked()
   FillList();
 }
 
-void DataDirsDlg::on_ButtonRemove_clicked()
+void ezQtDataDirsDlg::on_ButtonRemove_clicked()
 {
   m_Config.m_DataDirs.RemoveAt(m_iSelection);
 
   FillList();
 }
 
-void DataDirsDlg::on_ListDataDirs_itemSelectionChanged()
+void ezQtDataDirsDlg::on_ListDataDirs_itemSelectionChanged()
 {
   if (ListDataDirs->selectedItems().isEmpty())
     m_iSelection = -1;
@@ -151,7 +151,7 @@ void DataDirsDlg::on_ListDataDirs_itemSelectionChanged()
   ButtonDown->setEnabled(m_iSelection != -1 && m_iSelection < (ezInt32) m_Config.m_DataDirs.GetCount() - 1);
 }
 
-void DataDirsDlg::on_ButtonOpenFolder_clicked()
+void ezQtDataDirsDlg::on_ButtonOpenFolder_clicked()
 {
   if (m_iSelection < 0)
     return;
@@ -164,7 +164,7 @@ void DataDirsDlg::on_ButtonOpenFolder_clicked()
   QProcess::startDetached("explorer", args);
 }
 
-void DataDirsDlg::on_ListDataDirs_itemDoubleClicked(QListWidgetItem* pItem)
+void ezQtDataDirsDlg::on_ListDataDirs_itemDoubleClicked(QListWidgetItem* pItem)
 {
   on_ButtonOpenFolder_clicked();
 }

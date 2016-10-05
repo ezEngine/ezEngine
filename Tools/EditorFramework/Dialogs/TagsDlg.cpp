@@ -4,7 +4,7 @@
 #include <QInputDialog>
 #include <QTreeWidget>
 
-TagsDlg::TagsDlg(QWidget* parent) : QDialog(parent)
+ezQtTagsDlg::ezQtTagsDlg(QWidget* parent) : QDialog(parent)
 {
   setupUi(this);
 
@@ -14,7 +14,7 @@ TagsDlg::TagsDlg(QWidget* parent) : QDialog(parent)
   on_TreeTags_itemSelectionChanged();
 }
 
-void TagsDlg::on_ButtonNewCategory_clicked()
+void ezQtTagsDlg::on_ButtonNewCategory_clicked()
 {
   QString sResult = QInputDialog::getText(this, "Category Name", "Name:");
 
@@ -27,14 +27,14 @@ void TagsDlg::on_ButtonNewCategory_clicked()
 
   if (m_CategoryToItem.Find(sName).IsValid())
   {
-    ezUIServices::GetSingleton()->MessageBoxInformation("A Category with this name already exists.");
+    ezQtUiServices::GetSingleton()->MessageBoxInformation("A Category with this name already exists.");
   }
   else
   {
     auto* pItem = new QTreeWidgetItem(TreeTags);
     pItem->setText(0, sResult);
     pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
-    pItem->setIcon(0, ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"));
+    pItem->setIcon(0, ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"));
 
     m_CategoryToItem[sName] = pItem;
   }
@@ -42,7 +42,7 @@ void TagsDlg::on_ButtonNewCategory_clicked()
   TreeTags->setItemSelected(m_CategoryToItem[sName], true);
 }
 
-void TagsDlg::on_ButtonNewTag_clicked()
+void ezQtTagsDlg::on_ButtonNewTag_clicked()
 {
   if (TreeTags->selectedItems().isEmpty())
     return;
@@ -68,7 +68,7 @@ void TagsDlg::on_ButtonNewTag_clicked()
   //TreeTags->editItem(pNewItem);
 }
 
-void TagsDlg::on_ButtonRemove_clicked()
+void ezQtTagsDlg::on_ButtonRemove_clicked()
 {
   if (TreeTags->selectedItems().isEmpty())
     return;
@@ -80,40 +80,40 @@ void TagsDlg::on_ButtonRemove_clicked()
 
   if (TreeTags->indexOfTopLevelItem(pItem) >= 0)
   {
-    if (ezUIServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove the entire Tag Category?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove the entire Tag Category?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
       return;
 
     m_CategoryToItem.Remove(pItem->text(0).toUtf8().data());
   }
   else
   {
-    if (ezUIServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove this Tag?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove this Tag?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
       return;
   }
 
   delete pItem;
 }
 
-void TagsDlg::on_ButtonOk_clicked()
+void ezQtTagsDlg::on_ButtonOk_clicked()
 {
   GetTagsFromList();
   SaveTags();
   accept();
 }
 
-void TagsDlg::on_ButtonCancel_clicked()
+void ezQtTagsDlg::on_ButtonCancel_clicked()
 {
   reject();
 }
 
-void TagsDlg::on_ButtonReset_clicked()
+void ezQtTagsDlg::on_ButtonReset_clicked()
 {
   LoadTags();
   FillList();
   on_TreeTags_itemSelectionChanged();
 }
 
-void TagsDlg::on_TreeTags_itemSelectionChanged()
+void ezQtTagsDlg::on_TreeTags_itemSelectionChanged()
 {
   const bool hasSelection = !TreeTags->selectedItems().isEmpty();
 
@@ -121,7 +121,7 @@ void TagsDlg::on_TreeTags_itemSelectionChanged()
   ButtonNewTag->setEnabled(hasSelection);
 }
 
-void TagsDlg::LoadTags()
+void ezQtTagsDlg::LoadTags()
 {
   m_Tags.Clear();
 
@@ -141,7 +141,7 @@ void TagsDlg::LoadTags()
 }
 
 
-void TagsDlg::SaveTags()
+void ezQtTagsDlg::SaveTags()
 {
   ezToolsTagRegistry::Clear();
 
@@ -153,7 +153,7 @@ void TagsDlg::SaveTags()
   ezQtEditorApp::GetSingleton()->SaveTagRegistry();
 }
 
-void TagsDlg::FillList()
+void ezQtTagsDlg::FillList()
 {
   QtScopedBlockSignals bs(TreeTags);
   QtScopedUpdatesDisabled bu(TreeTags);
@@ -173,7 +173,7 @@ void TagsDlg::FillList()
     auto* pItem = new QTreeWidgetItem(TreeTags);
     pItem->setText(0, it.Key().GetData());
     pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
-    pItem->setIcon(0, ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"));
+    pItem->setIcon(0, ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"));
 
     m_CategoryToItem[it.Key()] = pItem;
   }
@@ -191,7 +191,7 @@ void TagsDlg::FillList()
   TreeTags->resizeColumnToContents(0);
 }
 
-void TagsDlg::GetTagsFromList()
+void ezQtTagsDlg::GetTagsFromList()
 {
   m_Tags.Clear();
 
@@ -212,7 +212,7 @@ void TagsDlg::GetTagsFromList()
   }
 }
 
-QTreeWidgetItem* TagsDlg::CreateTagItem(QTreeWidgetItem* pParentItem, const QString& tag)
+QTreeWidgetItem* ezQtTagsDlg::CreateTagItem(QTreeWidgetItem* pParentItem, const QString& tag)
 {
   auto* pItem = new QTreeWidgetItem(pParentItem);
   pItem->setText(0, tag);

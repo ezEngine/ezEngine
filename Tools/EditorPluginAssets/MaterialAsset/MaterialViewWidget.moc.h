@@ -3,14 +3,14 @@
 #include <Foundation/Basics.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 
-class ezMaterialAssetDocumentWindow;
+class ezQtMaterialAssetDocumentWindow;
 class ezOrbitCameraContext;
 
 class ezQtMaterialViewWidget : public ezQtEngineViewWidget
 {
   Q_OBJECT
 public:
-  ezQtMaterialViewWidget(QWidget* pParent, ezMaterialAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig);
+  ezQtMaterialViewWidget(QWidget* pParent, ezQtMaterialAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig);
   ~ezQtMaterialViewWidget();
 
 private:

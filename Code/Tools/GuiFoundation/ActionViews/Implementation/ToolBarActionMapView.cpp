@@ -9,18 +9,18 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <CoreUtils/Localization/TranslationLookup.h>
 
-ezToolBarActionMapView::ezToolBarActionMapView(QString title, QWidget* parent) : QToolBar(title, parent)
+ezQtToolBarActionMapView::ezQtToolBarActionMapView(QString title, QWidget* parent) : QToolBar(title, parent)
 {
   setIconSize(QSize(16, 16));
   setFloatable(false);
 }
 
-ezToolBarActionMapView::~ezToolBarActionMapView()
+ezQtToolBarActionMapView::~ezQtToolBarActionMapView()
 {
   ClearView();
 }
 
-void ezToolBarActionMapView::SetActionContext(const ezActionContext& context)
+void ezQtToolBarActionMapView::SetActionContext(const ezActionContext& context)
 {
   auto pMap = ezActionMapManager::GetActionMap(context.m_sMapping);
 
@@ -32,12 +32,12 @@ void ezToolBarActionMapView::SetActionContext(const ezActionContext& context)
   CreateView();
 }
 
-void ezToolBarActionMapView::ClearView()
+void ezQtToolBarActionMapView::ClearView()
 {
   m_Proxies.Clear();
 }
 
-void ezToolBarActionMapView::CreateView()
+void ezQtToolBarActionMapView::CreateView()
 {
   ClearView();
 
@@ -53,7 +53,7 @@ void ezToolBarActionMapView::CreateView()
   }
 }
 
-void ezToolBarActionMapView::CreateView(const ezActionMap::TreeNode* pObject)
+void ezQtToolBarActionMapView::CreateView(const ezActionMap::TreeNode* pObject)
 {
   for (auto pChild : pObject->GetChildren())
   {
@@ -92,14 +92,14 @@ void ezToolBarActionMapView::CreateView(const ezActionMap::TreeNode* pObject)
         pButton->setMenu(pQtMenu);
         pButton->setPopupMode(QToolButton::ToolButtonPopupMode::InstantPopup);
         pButton->setText(pQtMenu->title());
-        pButton->setIcon(ezUIServices::GetCachedIconResource(pNamed->GetIconPath()));
+        pButton->setIcon(ezQtUiServices::GetCachedIconResource(pNamed->GetIconPath()));
         pButton->setToolTip(pQtMenu->title().toUtf8().data());
 
         // TODO addWidget return value of QAction leaks!
         QAction* pToolButtonAction = addWidget(pButton);
         pToolButtonAction->setParent(pQtMenu);
 
-        ezMenuActionMapView::AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, pQtMenu, pChild);
+        ezQtMenuActionMapView::AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, pQtMenu, pChild);
       }
       break;
     }

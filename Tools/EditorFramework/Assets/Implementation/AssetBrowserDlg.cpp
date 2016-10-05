@@ -4,13 +4,13 @@
 #include <QSettings>
 #include <QFileDialog>
 
-bool ezAssetBrowserDlg::s_bShowItemsInSubFolder = true;
-bool ezAssetBrowserDlg::s_bSortByRecentUse = true;
-ezMap<ezString, ezString> ezAssetBrowserDlg::s_sTextFilter;
-ezMap<ezString, ezString> ezAssetBrowserDlg::s_sPathFilter;
-ezMap<ezString, ezString> ezAssetBrowserDlg::s_sTypeFilter;
+bool ezQtAssetBrowserDlg::s_bShowItemsInSubFolder = true;
+bool ezQtAssetBrowserDlg::s_bSortByRecentUse = true;
+ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_sTextFilter;
+ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_sPathFilter;
+ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_sTypeFilter;
 
-ezAssetBrowserDlg::ezAssetBrowserDlg(QWidget* parent, const char* szPreselectedAsset, const char* szVisibleFilters) : QDialog(parent)
+ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* parent, const char* szPreselectedAsset, const char* szVisibleFilters) : QDialog(parent)
 {
   setupUi(this);
 
@@ -50,7 +50,7 @@ ezAssetBrowserDlg::ezAssetBrowserDlg(QWidget* parent, const char* szPreselectedA
   AssetBrowserWidget->SearchWidget->setFocus();
 }
 
-ezAssetBrowserDlg::~ezAssetBrowserDlg()
+ezQtAssetBrowserDlg::~ezQtAssetBrowserDlg()
 {
   s_bShowItemsInSubFolder = AssetBrowserWidget->GetAssetBrowserModel()->GetShowItemsInSubFolders();
   s_bSortByRecentUse = AssetBrowserWidget->GetAssetBrowserModel()->GetSortByRecentUse();
@@ -70,7 +70,7 @@ ezAssetBrowserDlg::~ezAssetBrowserDlg()
   AssetBrowserWidget->SaveState("AssetBrowserDlg");
 }
 
-void ezAssetBrowserDlg::on_AssetBrowserWidget_ItemSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute)
+void ezQtAssetBrowserDlg::on_AssetBrowserWidget_ItemSelected(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute)
 {
   m_SelectedAssetGuid = guid;
   m_sSelectedAssetPathRelative = sAssetPathRelative.toUtf8().data();
@@ -79,7 +79,7 @@ void ezAssetBrowserDlg::on_AssetBrowserWidget_ItemSelected(ezUuid guid, QString 
   ButtonSelect->setEnabled(m_SelectedAssetGuid.IsValid());
 }
 
-void ezAssetBrowserDlg::on_AssetBrowserWidget_ItemChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute)
+void ezQtAssetBrowserDlg::on_AssetBrowserWidget_ItemChosen(ezUuid guid, QString sAssetPathRelative, QString sAssetPathAbsolute)
 {
   m_SelectedAssetGuid = guid;
   m_sSelectedAssetPathRelative = sAssetPathRelative.toUtf8().data();
@@ -88,12 +88,12 @@ void ezAssetBrowserDlg::on_AssetBrowserWidget_ItemChosen(ezUuid guid, QString sA
   accept();
 }
 
-void ezAssetBrowserDlg::on_AssetBrowserWidget_ItemCleared()
+void ezQtAssetBrowserDlg::on_AssetBrowserWidget_ItemCleared()
 {
   ButtonSelect->setEnabled(false);
 }
 
-void ezAssetBrowserDlg::on_ButtonFileDialog_clicked()
+void ezQtAssetBrowserDlg::on_ButtonFileDialog_clicked()
 {
   hide();
 
@@ -126,7 +126,7 @@ void ezAssetBrowserDlg::on_ButtonFileDialog_clicked()
   on_AssetBrowserWidget_ItemChosen(ezUuid(), QString::fromUtf8(m_sSelectedAssetPathRelative.GetData()), sFile);
 }
 
-void ezAssetBrowserDlg::on_ButtonSelect_clicked()
+void ezQtAssetBrowserDlg::on_ButtonSelect_clicked()
 {
   /// \todo Deactivate Ok button, when nothing is selectable
 

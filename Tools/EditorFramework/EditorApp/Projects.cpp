@@ -37,7 +37,7 @@ void ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 {
   if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetSingleton()->GetProjectFile() == szFile)
   {
-    ezUIServices::MessageBoxInformation("The selected project is already open");
+    ezQtUiServices::MessageBoxInformation("The selected project is already open");
     return;
   }
 
@@ -55,7 +55,7 @@ void ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
     ezStringBuilder s;
     s.Format("Failed to open project:\n'%s'", szFile);
 
-    ezUIServices::MessageBoxStatus(res, s);
+    ezQtUiServices::MessageBoxStatus(res, s);
     return;
   }
 
@@ -150,7 +150,7 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
 
       if (!ModifiedDocs.IsEmpty())
       {
-        ezModifiedDocumentsDlg dlg(QApplication::activeWindow(), ModifiedDocs);
+        ezQtModifiedDocumentsDlg dlg(QApplication::activeWindow(), ModifiedDocs);
         if (dlg.exec() == 0)
           r.m_bProjectCanClose = false;
       }

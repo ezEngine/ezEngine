@@ -72,22 +72,22 @@ public:
 
     SetStyleSheet();
 
-    ezMainWindow MainWindow;
+    ezQtMainWindow MainWindow;
 
-    ezTelemetry::AcceptMessagesForSystem('CVAR', true, ezCVarsWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('LOG', true, ezLogWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('MEM', true, ezMemoryWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('TIME', true, ezTimeWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('APP', true, ezMainWindow::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('FILE', true, ezFileWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('INPT', true, ezInputWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('STRT', true, ezSubsystemsWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('STAT', true, ezMainWindow::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('PLUG', true, ezPluginsWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('EVNT', true, ezGlobalEventsWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('RFLC', true, ezReflectionWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('TRAN', true, ezDataWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('RESM', true, ezResourceWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('CVAR', true, ezQtCVarsWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('LOG', true, ezQtLogWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('MEM', true, ezQtMemoryWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('TIME', true, ezQtTimeWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('APP', true, ezQtMainWindow::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('FILE', true, ezQtFileWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('INPT', true, ezQtInputWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('STRT', true, ezQtSubsystemsWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('STAT', true, ezQtMainWindow::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('PLUG', true, ezQtPluginsWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('EVNT', true, ezQtGlobalEventsWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('RFLC', true, ezQtReflectionWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('TRAN', true, ezQtDataWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('RESM', true, ezQtResourceWidget::ProcessTelemetry, nullptr);
     
     QSettings Settings;
     const QString sServer = Settings.value("LastConnection", QLatin1String("localhost:1040")).toString();

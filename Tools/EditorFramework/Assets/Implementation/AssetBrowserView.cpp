@@ -9,10 +9,10 @@
 #include <QApplication>
 #include <QPainter>
 
-ezAssetBrowserView::ezAssetBrowserView(QWidget* parent) : ezQtItemView<QListView>(parent)
+ezQtAssetBrowserView::ezQtAssetBrowserView(QWidget* parent) : ezQtItemView<QListView>(parent)
 {
   m_iIconSizePercentage = 100;
-  m_pDelegate = new QtIconViewDelegate(this);
+  m_pDelegate = new ezQtIconViewDelegate(this);
 
   SetDialogMode(false);
 
@@ -25,7 +25,7 @@ ezAssetBrowserView::ezAssetBrowserView(QWidget* parent) : ezQtItemView<QListView
   SetIconScale(m_iIconSizePercentage);
 }
 
-void ezAssetBrowserView::SetDialogMode(bool bDialogMode)
+void ezQtAssetBrowserView::SetDialogMode(bool bDialogMode)
 {
   m_bDialogMode = bDialogMode;
 
@@ -43,7 +43,7 @@ void ezAssetBrowserView::SetDialogMode(bool bDialogMode)
   }
 }
 
-void ezAssetBrowserView::SetIconMode(bool bIconMode)
+void ezQtAssetBrowserView::SetIconMode(bool bIconMode)
 {
   if (bIconMode)
   {
@@ -57,7 +57,7 @@ void ezAssetBrowserView::SetIconMode(bool bIconMode)
   }
 }
 
-void ezAssetBrowserView::SetIconScale(ezInt32 iIconSizePercentage)
+void ezQtAssetBrowserView::SetIconScale(ezInt32 iIconSizePercentage)
 {
   m_iIconSizePercentage = ezMath::Clamp(iIconSizePercentage, 10, 100);
   m_pDelegate->SetIconScale(m_iIconSizePercentage);
@@ -68,13 +68,13 @@ void ezAssetBrowserView::SetIconScale(ezInt32 iIconSizePercentage)
   setGridSize(m_pDelegate->sizeHint(QStyleOptionViewItem(), QModelIndex()));
 }
 
-ezInt32 ezAssetBrowserView::GetIconScale() const
+ezInt32 ezQtAssetBrowserView::GetIconScale() const
 {
   return m_iIconSizePercentage;
 }
 
 
-void ezAssetBrowserView::wheelEvent(QWheelEvent* pEvent)
+void ezQtAssetBrowserView::wheelEvent(QWheelEvent* pEvent)
 {
   if(pEvent->modifiers() == Qt::CTRL)
   {
@@ -87,19 +87,19 @@ void ezAssetBrowserView::wheelEvent(QWheelEvent* pEvent)
   QListView::wheelEvent(pEvent);
 }
 
-QtIconViewDelegate::QtIconViewDelegate(ezAssetBrowserView* pParent) : ezQtItemDelegate(pParent)
+ezQtIconViewDelegate::ezQtIconViewDelegate(ezQtAssetBrowserView* pParent) : ezQtItemDelegate(pParent)
 {
   m_bDrawTransformState = true;
   m_iIconSizePercentage = 100;
   m_pView = pParent;
 }
 
-void QtIconViewDelegate::SetIconScale(ezInt32 iIconSizePercentage)
+void ezQtIconViewDelegate::SetIconScale(ezInt32 iIconSizePercentage)
 {
   m_iIconSizePercentage = iIconSizePercentage;
 }
 
-bool QtIconViewDelegate::mousePressEvent(QMouseEvent* event, const QStyleOptionViewItem& opt, const QModelIndex& index)
+bool ezQtIconViewDelegate::mousePressEvent(QMouseEvent* event, const QStyleOptionViewItem& opt, const QModelIndex& index)
 {
   const ezUInt32 uiThumbnailSize = ThumbnailSize();
   QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin + uiThumbnailSize - 16 + 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
@@ -112,14 +112,14 @@ bool QtIconViewDelegate::mousePressEvent(QMouseEvent* event, const QStyleOptionV
   return false;
 }
 
-bool QtIconViewDelegate::mouseReleaseEvent(QMouseEvent* event, const QStyleOptionViewItem& opt, const QModelIndex& index)
+bool ezQtIconViewDelegate::mouseReleaseEvent(QMouseEvent* event, const QStyleOptionViewItem& opt, const QModelIndex& index)
 {
   const ezUInt32 uiThumbnailSize = ThumbnailSize();
   QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin + uiThumbnailSize - 16 + 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
   thumbnailRect.setSize(QSize(16, 16));
   if (thumbnailRect.contains(event->localPos().toPoint()))
   {
-    ezUuid guid = index.data(ezAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
+    ezUuid guid = index.data(ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
     ezAssetCurator::GetSingleton()->TransformAsset(guid);
     event->accept();
     return true;
@@ -127,7 +127,7 @@ bool QtIconViewDelegate::mouseReleaseEvent(QMouseEvent* event, const QStyleOptio
   return false;
 }
 
-void QtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opt, const QModelIndex& index) const
+void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opt, const QModelIndex& index) const
 {
   if (!IsInIconMode())
   {
@@ -185,7 +185,7 @@ void QtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& op
   {
     QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin - 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
     thumbnailRect.setSize(QSize(16, 16));
-    QPixmap pixmap = qvariant_cast<QPixmap>(index.data(ezAssetBrowserModel::UserRoles::AssetIconPath));
+    QPixmap pixmap = qvariant_cast<QPixmap>(index.data(ezQtAssetBrowserModel::UserRoles::AssetIconPath));
     painter->drawPixmap(thumbnailRect, pixmap);
   }
 
@@ -195,27 +195,27 @@ void QtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& op
     QRect thumbnailRect = opt.rect.adjusted(ItemSideMargin + uiThumbnailSize - 16 + 2, ItemSideMargin + uiThumbnailSize - 16 + 2, 0, 0);
     thumbnailRect.setSize(QSize(16, 16));
 
-    ezAssetInfo::TransformState state = (ezAssetInfo::TransformState)index.data(ezAssetBrowserModel::UserRoles::TransformState).toInt();
+    ezAssetInfo::TransformState state = (ezAssetInfo::TransformState)index.data(ezQtAssetBrowserModel::UserRoles::TransformState).toInt();
 
     switch (state)
     {
     case ezAssetInfo::TransformState::Unknown:
-      ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetUnknown16.png").paint(painter, thumbnailRect);
+      ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetUnknown16.png").paint(painter, thumbnailRect);
       break;
     case ezAssetInfo::TransformState::NeedsThumbnail:
-      ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsThumbnail16.png").paint(painter, thumbnailRect);
+      ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsThumbnail16.png").paint(painter, thumbnailRect);
       break;
     case ezAssetInfo::TransformState::NeedsTransform:
-      ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsTransform16.png").paint(painter, thumbnailRect);
+      ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsTransform16.png").paint(painter, thumbnailRect);
       break;
     case ezAssetInfo::TransformState::UpToDate:
-      ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetOk16.png").paint(painter, thumbnailRect);
+      ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetOk16.png").paint(painter, thumbnailRect);
       break;
     case ezAssetInfo::TransformState::MissingDependency:
-      ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingDependency16.png").paint(painter, thumbnailRect);
+      ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingDependency16.png").paint(painter, thumbnailRect);
       break;
     case ezAssetInfo::TransformState::MissingReference:
-      ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingReference16.png").paint(painter, thumbnailRect);
+      ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingReference16.png").paint(painter, thumbnailRect);
       break;
     }
   }
@@ -234,7 +234,7 @@ void QtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& op
   painter->restore();
 }
 
-QSize	QtIconViewDelegate::sizeHint(const QStyleOptionViewItem& opt, const QModelIndex& index) const
+QSize	ezQtIconViewDelegate::sizeHint(const QStyleOptionViewItem& opt, const QModelIndex& index) const
 {
   if (IsInIconMode())
   {
@@ -246,7 +246,7 @@ QSize	QtIconViewDelegate::sizeHint(const QStyleOptionViewItem& opt, const QModel
   }
 }
 
-QSize QtIconViewDelegate::ItemSize() const
+QSize ezQtIconViewDelegate::ItemSize() const
 {
   QFont font = GetFont();
   QFontMetrics fm(font);
@@ -258,7 +258,7 @@ QSize QtIconViewDelegate::ItemSize() const
   return QSize(iItemWidth, iItemHeight);
 }
 
-QFont QtIconViewDelegate::GetFont() const
+QFont ezQtIconViewDelegate::GetFont() const
 {
   QFont font = QApplication::font();
 
@@ -268,12 +268,12 @@ QFont QtIconViewDelegate::GetFont() const
   return font;
 }
 
-ezUInt32 QtIconViewDelegate::ThumbnailSize() const
+ezUInt32 ezQtIconViewDelegate::ThumbnailSize() const
 {
   return MaxSize * (float)m_iIconSizePercentage / 100.0f;
 }
 
-bool QtIconViewDelegate::IsInIconMode() const
+bool ezQtIconViewDelegate::IsInIconMode() const
 {
   return m_pView->viewMode() == QListView::ViewMode::IconMode;
 }

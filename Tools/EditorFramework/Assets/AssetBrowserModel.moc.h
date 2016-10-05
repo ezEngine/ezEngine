@@ -4,7 +4,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <QAbstractItemModel>
 
-class EZ_EDITORFRAMEWORK_DLL ezAssetBrowserModel : public QAbstractItemModel
+class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserModel : public QAbstractItemModel
 {
   Q_OBJECT
 
@@ -19,8 +19,8 @@ public:
     TransformState = Qt::UserRole + 4,
   };
 
-  ezAssetBrowserModel(QObject* pParent);
-  ~ezAssetBrowserModel();
+  ezQtAssetBrowserModel(QObject* pParent);
+  ~ezQtAssetBrowserModel();
   
   void resetModel();
 

@@ -8,13 +8,13 @@ class QPushButton;
 class QMenu;
 class QCheckBox;
 
-class EZ_GUIFOUNDATION_DLL ezPropertyEditorTagSetWidget : public ezQtPropertyWidget
+class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorTagSetWidget : public ezQtPropertyWidget
 {
   Q_OBJECT
 
 public:
-  ezPropertyEditorTagSetWidget();
-  virtual ~ezPropertyEditorTagSetWidget();
+  ezQtPropertyEditorTagSetWidget();
+  virtual ~ezQtPropertyEditorTagSetWidget();
 
   virtual void SetSelection(const ezHybridArray<Selection, 8>& items) override;
   virtual bool HasLabel() const override { return true; }

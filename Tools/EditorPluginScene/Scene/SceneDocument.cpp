@@ -219,7 +219,7 @@ void ezSceneDocument::DuplicateSpecial()
   if (GetSelectionManager()->IsSelectionEmpty())
     return;
 
-  qtDuplicateDlg dlg(nullptr);
+  ezQtDuplicateDlg dlg(nullptr);
   if (dlg.exec() == QDialog::Rejected)
     return;
 

@@ -4,13 +4,13 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezCollectionAssetDocumentWindow : public ezQtDocumentWindow
+class ezQtCollectionAssetDocumentWindow : public ezQtDocumentWindow
 {
   Q_OBJECT
 
 public:
-  ezCollectionAssetDocumentWindow(ezDocument* pDocument);
-  ~ezCollectionAssetDocumentWindow();
+  ezQtCollectionAssetDocumentWindow(ezDocument* pDocument);
+  ~ezQtCollectionAssetDocumentWindow();
 
   virtual const char* GetWindowLayoutGroupName() const { return "CollectionAsset"; }
 

@@ -15,7 +15,7 @@
 
 /// *** Tag Set ***
 
-ezPropertyEditorTagSetWidget::ezPropertyEditorTagSetWidget() : ezQtPropertyWidget()
+ezQtPropertyEditorTagSetWidget::ezQtPropertyEditorTagSetWidget() : ezQtPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
@@ -31,7 +31,7 @@ ezPropertyEditorTagSetWidget::ezPropertyEditorTagSetWidget() : ezQtPropertyWidge
   connect(m_pMenu, SIGNAL(aboutToShow()), this, SLOT(on_Menu_aboutToShow()));
 }
 
-ezPropertyEditorTagSetWidget::~ezPropertyEditorTagSetWidget()
+ezQtPropertyEditorTagSetWidget::~ezQtPropertyEditorTagSetWidget()
 {
   m_Tags.Clear();
   m_pWidget->setMenu(nullptr);
@@ -40,20 +40,20 @@ ezPropertyEditorTagSetWidget::~ezPropertyEditorTagSetWidget()
   m_pMenu = nullptr;
 }
 
-void ezPropertyEditorTagSetWidget::SetSelection(const ezHybridArray<Selection, 8>& items)
+void ezQtPropertyEditorTagSetWidget::SetSelection(const ezHybridArray<Selection, 8>& items)
 {
   ezQtPropertyWidget::SetSelection(items);
   InternalUpdateValue();
 }
 
-void ezPropertyEditorTagSetWidget::OnInit()
+void ezQtPropertyEditorTagSetWidget::OnInit()
 {
   EZ_ASSERT_DEV(m_pProp->GetCategory() == ezPropertyCategory::Set && m_pProp->GetSpecificType() == ezGetStaticRTTI<ezConstCharPtr>()
-    , "ezPropertyEditorTagSetWidget only works with ezTagSet.");
+    , "ezQtPropertyEditorTagSetWidget only works with ezTagSet.");
 
   // Retrieve tag categories.
   const ezTagSetWidgetAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezTagSetWidgetAttribute>();
-  EZ_ASSERT_DEV(pAssetAttribute != nullptr, "ezPropertyEditorTagSetWidget needs ezTagSetWidgetAttribute to be set.");
+  EZ_ASSERT_DEV(pAssetAttribute != nullptr, "ezQtPropertyEditorTagSetWidget needs ezTagSetWidgetAttribute to be set.");
   ezStringBuilder sTagFilter = pAssetAttribute->GetTagFilter();
   ezHybridArray<ezStringView, 4> categories;
   sTagFilter.Split(false, categories, ";");
@@ -69,7 +69,7 @@ void ezPropertyEditorTagSetWidget::OnInit()
   {
     if (!pTag->m_sCategory.IsEqual(szCurrentCategory))
     {
-      /*QAction* pCategory = */m_pMenu->addSection(ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"), QLatin1String("[") + QString(pTag->m_sCategory.GetData()) + QLatin1String("]"));
+      /*QAction* pCategory = */m_pMenu->addSection(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"), QLatin1String("[") + QString(pTag->m_sCategory.GetData()) + QLatin1String("]"));
       
       szCurrentCategory = pTag->m_sCategory;
 
@@ -93,7 +93,7 @@ void ezPropertyEditorTagSetWidget::OnInit()
     pCheckBox->setCheckable(true);
     pCheckBox->setCheckState(Qt::Unchecked);
     pCheckBox->setProperty("Tag", pTag->m_sName.GetData());
-    connect(pCheckBox, &QCheckBox::clicked, this, &ezPropertyEditorTagSetWidget::onCheckBoxClicked);
+    connect(pCheckBox, &QCheckBox::clicked, this, &ezQtPropertyEditorTagSetWidget::onCheckBoxClicked);
     pAction->setDefaultWidget(pCheckBox);
 
     m_Tags.PushBack(pCheckBox);
@@ -104,11 +104,11 @@ void ezPropertyEditorTagSetWidget::OnInit()
   // therefore, for every empty category, add an entry
   for (const auto& catname : categories)
   {
-    /*QAction* pCategory = */m_pMenu->addSection(ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"), QLatin1String("[") + QString(catname.GetData()) + QLatin1String("]"));
+    /*QAction* pCategory = */m_pMenu->addSection(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"), QLatin1String("[") + QString(catname.GetData()) + QLatin1String("]"));
   }
 }
 
-void ezPropertyEditorTagSetWidget::InternalUpdateValue()
+void ezQtPropertyEditorTagSetWidget::InternalUpdateValue()
 {
   ezMap<ezString, ezUInt32> tags;
 
@@ -158,16 +158,16 @@ void ezPropertyEditorTagSetWidget::InternalUpdateValue()
   else
     sText = "<none>";
 
-  //m_pWidget->setIcon(ezUIServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"));
+  //m_pWidget->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/Tag16.png"));
   m_pWidget->setText(sText);
 }
 
-void ezPropertyEditorTagSetWidget::on_Menu_aboutToShow()
+void ezQtPropertyEditorTagSetWidget::on_Menu_aboutToShow()
 {
   m_pMenu->setMinimumWidth(m_pWidget->geometry().width());
 }
 
-void ezPropertyEditorTagSetWidget::onCheckBoxClicked(bool bChecked)
+void ezQtPropertyEditorTagSetWidget::onCheckBoxClicked(bool bChecked)
 {
   QCheckBox* pCheckBox = qobject_cast<QCheckBox*>(sender());
   ezVariant value = pCheckBox->property("Tag").toString().toUtf8().data();

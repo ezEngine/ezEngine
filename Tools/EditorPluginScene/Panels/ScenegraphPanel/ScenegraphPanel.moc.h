@@ -7,13 +7,13 @@
 
 class ezQtSearchWidget;
 
-class ezScenegraphPanel : public ezDocumentPanel
+class ezQtScenegraphPanel : public ezQtDocumentPanel
 {
   Q_OBJECT
 
 public:
-  ezScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument);
-  ~ezScenegraphPanel();
+  ezQtScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument);
+  ~ezQtScenegraphPanel();
 
   static void RegisterActions();
 
@@ -27,6 +27,6 @@ private:
 
   QWidget* m_pMainWidget;
   ezSceneDocument* m_pDocument;
-  ezQtDocumentTreeWidget* m_pTreeWidget;
+  ezQtDocumentTreeView* m_pTreeWidget;
   ezQtSearchWidget* m_pFilterWidget;
 };

@@ -542,7 +542,7 @@ ezQtViewWidgetContainer::ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineVie
   if (!ezStringUtils::IsNullOrEmpty(szToolBarMapping))
   {
     // Add Tool Bar
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView("Toolbar", this);
+    ezQtToolBarActionMapView* pToolBar = new ezQtToolBarActionMapView("Toolbar", this);
     ezActionContext context;
     context.m_sMapping = szToolBarMapping;
     context.m_pDocument = pViewWidget->GetDocumentWindow()->GetDocument();

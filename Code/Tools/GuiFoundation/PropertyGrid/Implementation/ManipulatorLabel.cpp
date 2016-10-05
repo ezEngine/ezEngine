@@ -5,24 +5,24 @@
 #include <QFont>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
-ezManipulatorLabel::ezManipulatorLabel(QWidget* parent, Qt::WindowFlags f)
+ezQtManipulatorLabel::ezQtManipulatorLabel(QWidget* parent, Qt::WindowFlags f)
   : QLabel(parent, f), m_pItems(nullptr), m_pManipulator(nullptr), m_bActive(false)
 {
   setCursor(Qt::WhatsThisCursor);
 
 }
 
-ezManipulatorLabel::ezManipulatorLabel(const QString& text, QWidget* parent, Qt::WindowFlags f)
+ezQtManipulatorLabel::ezQtManipulatorLabel(const QString& text, QWidget* parent, Qt::WindowFlags f)
   : QLabel(text, parent, f), m_pItems(nullptr), m_pManipulator(nullptr), m_bActive(false), m_bIsDefault(true)
 {
 }
 
-const ezManipulatorAttribute* ezManipulatorLabel::GetManipulator() const
+const ezManipulatorAttribute* ezQtManipulatorLabel::GetManipulator() const
 {
   return m_pManipulator;
 }
 
-void ezManipulatorLabel::SetManipulator(const ezManipulatorAttribute* pManipulator)
+void ezQtManipulatorLabel::SetManipulator(const ezManipulatorAttribute* pManipulator)
 {
   m_pManipulator = pManipulator;
 
@@ -33,12 +33,12 @@ void ezManipulatorLabel::SetManipulator(const ezManipulatorAttribute* pManipulat
   }
 }
 
-const bool ezManipulatorLabel::GetManipulatorActive() const
+const bool ezQtManipulatorLabel::GetManipulatorActive() const
 {
   return m_bActive;
 }
 
-void ezManipulatorLabel::SetManipulatorActive(bool bActive)
+void ezQtManipulatorLabel::SetManipulatorActive(bool bActive)
 {
   m_bActive = bActive;
 
@@ -48,13 +48,13 @@ void ezManipulatorLabel::SetManipulatorActive(bool bActive)
   }
 }
 
-void ezManipulatorLabel::SetSelection(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items)
+void ezQtManipulatorLabel::SetSelection(const ezHybridArray<ezQtPropertyWidget::Selection, 8>& items)
 {
   m_pItems = &items;
 }
 
 
-void ezManipulatorLabel::SetIsDefault(bool bIsDefault)
+void ezQtManipulatorLabel::SetIsDefault(bool bIsDefault)
 {
   if (m_bIsDefault != bIsDefault)
   {
@@ -66,12 +66,12 @@ void ezManipulatorLabel::SetIsDefault(bool bIsDefault)
 }
 
 
-void ezManipulatorLabel::contextMenuEvent(QContextMenuEvent *ev)
+void ezQtManipulatorLabel::contextMenuEvent(QContextMenuEvent *ev)
 {
   emit customContextMenuRequested(ev->globalPos());
 }
 
-void ezManipulatorLabel::mousePressEvent(QMouseEvent *ev)
+void ezQtManipulatorLabel::mousePressEvent(QMouseEvent *ev)
 {
   if (ev->button() != Qt::LeftButton)
     return;
@@ -87,7 +87,7 @@ void ezManipulatorLabel::mousePressEvent(QMouseEvent *ev)
     ezManipulatorManager::GetSingleton()->SetActiveManipulator(pDoc, m_pManipulator, *m_pItems);
 }
 
-void ezManipulatorLabel::enterEvent(QEvent* ev)
+void ezQtManipulatorLabel::enterEvent(QEvent* ev)
 {
   if (m_pManipulator)
   {
@@ -99,7 +99,7 @@ void ezManipulatorLabel::enterEvent(QEvent* ev)
   QLabel::enterEvent(ev);
 }
 
-void ezManipulatorLabel::leaveEvent(QEvent* ev)
+void ezQtManipulatorLabel::leaveEvent(QEvent* ev)
 {
   if (m_pManipulator)
   {

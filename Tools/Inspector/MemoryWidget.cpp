@@ -4,11 +4,11 @@
 #include <QGraphicsView>
 #include <QGraphicsPathItem>
 
-ezMemoryWidget* ezMemoryWidget::s_pWidget = nullptr;
+ezQtMemoryWidget* ezQtMemoryWidget::s_pWidget = nullptr;
 
 namespace MemoryWidgetDetail
 {
-  static QColor s_Colors[ezMemoryWidget::s_uiMaxColors] =
+  static QColor s_Colors[ezQtMemoryWidget::s_uiMaxColors] =
   {
     QColor(255, 106, 0), // orange
     QColor(182, 255, 0), // lime green
@@ -34,7 +34,7 @@ void FormatSize(ezStringBuilder& s, const char* szPrefix, ezUInt64 uiSize)
     s.Format("%s%.2f GB", szPrefix, uiSize / 1024.0 / 1024.0 / 1024.0);
 }
 
-ezMemoryWidget::ezMemoryWidget(QWidget* parent) : QDockWidget (parent)
+ezQtMemoryWidget::ezQtMemoryWidget(QWidget* parent) : QDockWidget (parent)
 {
   s_pWidget = this;
 
@@ -73,7 +73,7 @@ ezMemoryWidget::ezMemoryWidget(QWidget* parent) : QDockWidget (parent)
   ResetStats();
 }
 
-void ezMemoryWidget::ResetStats()
+void ezQtMemoryWidget::ResetStats()
 {
   m_AllocatorData.Clear();
 
@@ -87,7 +87,7 @@ void ezMemoryWidget::ResetStats()
   ListAllocators->clear();
 }
 
-void ezMemoryWidget::UpdateStats()
+void ezQtMemoryWidget::UpdateStats()
 {
   if (!isVisible())
     return;
@@ -126,7 +126,7 @@ void ezMemoryWidget::UpdateStats()
       m_Accu.m_pListItem->setTextColor(QColor(255, 255, 255));
     }
 
-    for (ezMap<ezString, ezMemoryWidget::AllocatorData>::Iterator it = m_AllocatorData.GetIterator(); it.IsValid(); ++it)
+    for (ezMap<ezString, ezQtMemoryWidget::AllocatorData>::Iterator it = m_AllocatorData.GetIterator(); it.IsValid(); ++it)
     {
       ListAllocators->addItem(it.Key().GetData());
 
@@ -148,7 +148,7 @@ void ezMemoryWidget::UpdateStats()
   {
     m_LastUpdatedAllocatorList = ezTime::Now();
 
-    for (ezMap<ezString, ezMemoryWidget::AllocatorData>::Iterator it = m_AllocatorData.GetIterator(); it.IsValid(); ++it)
+    for (ezMap<ezString, ezQtMemoryWidget::AllocatorData>::Iterator it = m_AllocatorData.GetIterator(); it.IsValid(); ++it)
     {
       if (!it.Value().m_pListItem || it.Value().m_UsedMemory.IsEmpty())
         continue;
@@ -196,7 +196,7 @@ void ezMemoryWidget::UpdateStats()
 
     ezUInt64 uiSumMemory = 0;
 
-    for (ezMap<ezString, ezMemoryWidget::AllocatorData>::Iterator it = m_AllocatorData.GetIterator(); it.IsValid(); ++it)
+    for (ezMap<ezString, ezQtMemoryWidget::AllocatorData>::Iterator it = m_AllocatorData.GetIterator(); it.IsValid(); ++it)
     {
       // sometimes no data arrives in time (game is too slow)
       // in this case simply assume the stats have not changed
@@ -360,7 +360,7 @@ void ezMemoryWidget::UpdateStats()
   }
 }
 
-void ezMemoryWidget::ProcessTelemetry(void* pUnuseed)
+void ezQtMemoryWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (s_pWidget == nullptr)
     return;
@@ -393,7 +393,7 @@ void ezMemoryWidget::ProcessTelemetry(void* pUnuseed)
   }
 }
 
-void ezMemoryWidget::on_ListAllocators_itemChanged(QListWidgetItem* item)
+void ezQtMemoryWidget::on_ListAllocators_itemChanged(QListWidgetItem* item)
 {
   if (item->data(Qt::UserRole).toString() == "<Accumulated>")
   {
@@ -404,7 +404,7 @@ void ezMemoryWidget::on_ListAllocators_itemChanged(QListWidgetItem* item)
   m_AllocatorData[item->data(Qt::UserRole).toString().toUtf8().data()].m_bDisplay = (item->checkState() == Qt::Checked);
 }
 
-void ezMemoryWidget::on_ComboTimeframe_currentIndexChanged(int index)
+void ezQtMemoryWidget::on_ComboTimeframe_currentIndexChanged(int index)
 {
   m_uiDisplaySamples = 5 * 60 * (index + 1); // 5 samples per second, 60 seconds
 }

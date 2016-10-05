@@ -11,7 +11,7 @@ void ezQtEditorApp::AddRestartRequiredReason(const char* szReason)
     ezStringBuilder s;
     s.Format("The editor process must be restarted.\nReason: '%s'", szReason);
 
-    ezUIServices::MessageBoxInformation(s);
+    ezQtUiServices::MessageBoxInformation(s);
 
     UpdateGlobalStatusBarMessage();
   }
@@ -26,7 +26,7 @@ void ezQtEditorApp::AddReloadProjectRequiredReason(const char* szReason)
     ezStringBuilder s;
     s.Format("The project must be reloaded.\nReason: '%s'", szReason);
 
-    ezUIServices::MessageBoxInformation(s);
+    ezQtUiServices::MessageBoxInformation(s);
 
     UpdateGlobalStatusBarMessage();
   }
@@ -42,5 +42,5 @@ void ezQtEditorApp::UpdateGlobalStatusBarMessage()
   if (!s_ReloadProjectRequiredReasons.IsEmpty())
     sText.Append("Reload the Project to apply changes.   ");
 
-  ezUIServices::ShowGlobalStatusBarMessage(sText);
+  ezQtUiServices::ShowGlobalStatusBarMessage(sText);
 }

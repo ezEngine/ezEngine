@@ -11,8 +11,8 @@
 #include <QSortFilterProxyModel>
 #include <GuiFoundation/Widgets/SearchWidget.moc.h>
 
-ezScenegraphPanel::ezScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument)
-  : ezDocumentPanel(pParent)
+ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument)
+  : ezQtDocumentPanel(pParent)
 {
   setObjectName("ScenegraphPanel");
   setWindowTitle("Scenegraph");
@@ -25,17 +25,17 @@ ezScenegraphPanel::ezScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocumen
   m_pMainWidget->layout()->setContentsMargins(0, 0, 0, 0);
 
   m_pFilterWidget = new ezQtSearchWidget(this);
-  connect(m_pFilterWidget, &ezQtSearchWidget::textChanged, this, &ezScenegraphPanel::OnFilterTextChanged);
+  connect(m_pFilterWidget, &ezQtSearchWidget::textChanged, this, &ezQtScenegraphPanel::OnFilterTextChanged);
 
   m_pMainWidget->layout()->addWidget(m_pFilterWidget);
 
-  m_pTreeWidget = new ezQtDocumentTreeWidget(this, pDocument, ezGetStaticRTTI<ezGameObject>(), "Children", std::unique_ptr<ezQtDocumentTreeModel>(new ezQtScenegraphModel(pDocument)));
+  m_pTreeWidget = new ezQtDocumentTreeView(this, pDocument, ezGetStaticRTTI<ezGameObject>(), "Children", std::unique_ptr<ezQtDocumentTreeModel>(new ezQtScenegraphModel(pDocument)));
   m_pTreeWidget->SetAllowDragDrop(true);
   m_pMainWidget->layout()->addWidget(m_pTreeWidget);
 
   setWidget(m_pMainWidget);
 
-  m_pDocument->m_SceneEvents.AddEventHandler(ezMakeDelegate(&ezScenegraphPanel::DocumentSceneEventHandler, this));
+  m_pDocument->m_SceneEvents.AddEventHandler(ezMakeDelegate(&ezQtScenegraphPanel::DocumentSceneEventHandler, this));
 
   m_pTreeWidget->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
 
@@ -44,13 +44,13 @@ ezScenegraphPanel::ezScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocumen
 
 }
 
-ezScenegraphPanel::~ezScenegraphPanel()
+ezQtScenegraphPanel::~ezQtScenegraphPanel()
 {
-  m_pDocument->m_SceneEvents.RemoveEventHandler(ezMakeDelegate(&ezScenegraphPanel::DocumentSceneEventHandler, this));
+  m_pDocument->m_SceneEvents.RemoveEventHandler(ezMakeDelegate(&ezQtScenegraphPanel::DocumentSceneEventHandler, this));
   
 }
 
-void ezScenegraphPanel::RegisterActions()
+void ezQtScenegraphPanel::RegisterActions()
 {
   ezActionMapManager::RegisterActionMap("ScenegraphContextMenu");
 
@@ -58,7 +58,7 @@ void ezScenegraphPanel::RegisterActions()
   ezEditActions::MapContextMenuActions("ScenegraphContextMenu", "");
 }
 
-void ezScenegraphPanel::DocumentSceneEventHandler(const ezSceneDocumentEvent& e)
+void ezQtScenegraphPanel::DocumentSceneEventHandler(const ezSceneDocumentEvent& e)
 {
   switch (e.m_Type)
   {
@@ -71,14 +71,14 @@ void ezScenegraphPanel::DocumentSceneEventHandler(const ezSceneDocumentEvent& e)
 
 }
 
-void ezScenegraphPanel::OnItemDoubleClicked(const QModelIndex&)
+void ezQtScenegraphPanel::OnItemDoubleClicked(const QModelIndex&)
 {
   m_pDocument->TriggerFocusOnSelection(true);
 }
 
-void ezScenegraphPanel::OnRequestContextMenu(QPoint pos)
+void ezQtScenegraphPanel::OnRequestContextMenu(QPoint pos)
 {
-  ezMenuActionMapView menu(nullptr);
+  ezQtMenuActionMapView menu(nullptr);
 
   ezActionContext context;
   context.m_sMapping = "ScenegraphContextMenu";
@@ -90,7 +90,7 @@ void ezScenegraphPanel::OnRequestContextMenu(QPoint pos)
 
 }
 
-void ezScenegraphPanel::OnFilterTextChanged(const QString& text)
+void ezQtScenegraphPanel::OnFilterTextChanged(const QString& text)
 {
   m_pTreeWidget->GetProxyFilterModel()->SetFilterText(text);
 }

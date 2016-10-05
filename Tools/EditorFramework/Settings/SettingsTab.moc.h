@@ -5,15 +5,15 @@
 #include <Tools/EditorFramework/ui_SettingsTab.h>
 #include <Foundation/Configuration/Plugin.h>
 
-class ezSettingsTab : public ezQtDocumentWindow, Ui_SettingsTab
+class ezQtSettingsTab : public ezQtDocumentWindow, Ui_SettingsTab
 {
   Q_OBJECT
 
-  EZ_DECLARE_SINGLETON(ezSettingsTab);
+  EZ_DECLARE_SINGLETON(ezQtSettingsTab);
 
 public:
-  ezSettingsTab();
-  ~ezSettingsTab();
+  ezQtSettingsTab();
+  ~ezQtSettingsTab();
 
   virtual ezString GetWindowIcon() const override;
 

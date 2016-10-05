@@ -265,7 +265,7 @@ void ezQtAssetPropertyWidget::OnOpenExplorer()
       return;
   }
 
-  ezUIServices::OpenInExplorer(sPath);
+  ezQtUiServices::OpenInExplorer(sPath);
 }
 
 
@@ -378,7 +378,7 @@ void ezQtAssetPropertyWidget::on_BrowseFile_clicked()
   ezString sFile = m_pWidget->text().toUtf8().data();
   const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
 
-  ezAssetBrowserDlg dlg(this, sFile, pAssetAttribute->GetTypeFilter());
+  ezQtAssetBrowserDlg dlg(this, sFile, pAssetAttribute->GetTypeFilter());
   if (dlg.exec() == 0)
     return;
 

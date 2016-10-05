@@ -78,19 +78,19 @@ bool ezQtScenegraphFilterModel::filterAcceptsRow(int source_row, const QModelInd
   return itVis.IsValid() && itVis.Value();
 }
 
-ezQtDocumentTreeWidget::ezQtDocumentTreeWidget(QWidget* parent)
+ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* parent)
   : QTreeView(parent)
 {
 
 }
 
-ezQtDocumentTreeWidget::ezQtDocumentTreeWidget(QWidget* pParent, ezDocument* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)
+ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* pParent, ezDocument* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)
   : QTreeView(pParent)
 {
   Initialize(pDocument, pBaseClass, szChildProperty, std::move(pCustomModel));
 }
 
-void ezQtDocumentTreeWidget::Initialize(ezDocument* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)
+void ezQtDocumentTreeView::Initialize(ezDocument* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)
 {
   m_pDocument = pDocument;
 
@@ -114,15 +114,15 @@ void ezQtDocumentTreeWidget::Initialize(ezDocument* pDocument, const ezRTTI* pBa
   setEditTriggers(QAbstractItemView::EditTrigger::EditKeyPressed);
 
   EZ_VERIFY(connect(selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(on_selectionChanged_triggered(const QItemSelection&, const QItemSelection&))) != nullptr, "signal/slot connection failed");
-  pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtDocumentTreeWidget::SelectionEventHandler, this));
+  pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtDocumentTreeView::SelectionEventHandler, this));
 }
 
-ezQtDocumentTreeWidget::~ezQtDocumentTreeWidget()
+ezQtDocumentTreeView::~ezQtDocumentTreeView()
 {
-  m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentTreeWidget::SelectionEventHandler, this));
+  m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentTreeView::SelectionEventHandler, this));
 }
 
-void ezQtDocumentTreeWidget::on_selectionChanged_triggered(const QItemSelection& selected, const QItemSelection& deselected)
+void ezQtDocumentTreeView::on_selectionChanged_triggered(const QItemSelection& selected, const QItemSelection& deselected)
 {
   if (m_bBlockSelectionSignal)
     return;
@@ -146,7 +146,7 @@ void ezQtDocumentTreeWidget::on_selectionChanged_triggered(const QItemSelection&
   ((ezSelectionManager*) m_pDocument->GetSelectionManager())->SetSelection(sel);
 }
 
-void ezQtDocumentTreeWidget::SelectionEventHandler(const ezSelectionManagerEvent& e)
+void ezQtDocumentTreeView::SelectionEventHandler(const ezSelectionManagerEvent& e)
 {
   switch (e.m_Type)
   {
@@ -181,7 +181,7 @@ void ezQtDocumentTreeWidget::SelectionEventHandler(const ezSelectionManagerEvent
   }
 }
 
-void ezQtDocumentTreeWidget::EnsureLastSelectedItemVisible()
+void ezQtDocumentTreeView::EnsureLastSelectedItemVisible()
 {
   if (m_pDocument->GetSelectionManager()->GetSelection().IsEmpty())
     return;
@@ -196,12 +196,12 @@ void ezQtDocumentTreeWidget::EnsureLastSelectedItemVisible()
 }
 
 
-void ezQtDocumentTreeWidget::SetAllowDragDrop(bool bAllow)
+void ezQtDocumentTreeView::SetAllowDragDrop(bool bAllow)
 {
   m_pModel->SetAllowDragDrop(bAllow);
 }
 
-void ezQtDocumentTreeWidget::keyPressEvent(QKeyEvent* e)
+void ezQtDocumentTreeView::keyPressEvent(QKeyEvent* e)
 {
   if (e->key() == Qt::Key::Key_Delete)
   {

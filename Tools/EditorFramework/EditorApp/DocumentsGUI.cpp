@@ -8,7 +8,7 @@ void ezQtEditorApp::GuiCreateOrOpenDocument(bool bCreate)
 
   if (sAllFilters.IsEmpty())
   {
-    ezUIServices::MessageBoxInformation("No file types are currently known. Load plugins to add file types.");
+    ezQtUiServices::MessageBoxInformation("No file types are currently known. Load plugins to add file types.");
     return;
   }
 

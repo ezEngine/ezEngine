@@ -39,7 +39,7 @@ void ezCollectionAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezCollectionAssetDocument>())
       {
-        ezCollectionAssetDocumentWindow* pDocWnd = new ezCollectionAssetDocumentWindow(e.m_pDocument);
+        ezQtCollectionAssetDocumentWindow* pDocWnd = new ezQtCollectionAssetDocumentWindow(e.m_pDocument);
       }
     }
     break;
