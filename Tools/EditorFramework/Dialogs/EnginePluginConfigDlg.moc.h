@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <Tools/EditorFramework/ui_EnginePluginConfigDlg.h>
 
-class ezQtEnginePluginConfigDlg : public QDialog, public Ui_EnginePluginConfigDlg
+class ezQtEnginePluginConfigDlg : public QDialog, public Ui_ezQtEnginePluginConfigDlg
 {
 public:
   Q_OBJECT

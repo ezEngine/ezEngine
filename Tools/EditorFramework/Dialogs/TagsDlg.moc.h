@@ -7,7 +7,7 @@
 #include <Foundation/Containers/Map.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezQtTagsDlg : public QDialog, public Ui_TagsDlg
+class EZ_EDITORFRAMEWORK_DLL ezQtTagsDlg : public QDialog, public Ui_ezQtTagsDlg
 {
 public:
   Q_OBJECT

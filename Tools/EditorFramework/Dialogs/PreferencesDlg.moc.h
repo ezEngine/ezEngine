@@ -9,7 +9,7 @@ class ezPreferencesDocument;
 class ezPreferences;
 class ezQtDocumentTreeView;
 
-class EZ_EDITORFRAMEWORK_DLL ezQtPreferencesDlg : public QDialog, public Ui_PreferencesDlg
+class EZ_EDITORFRAMEWORK_DLL ezQtPreferencesDlg : public QDialog, public Ui_ezQtPreferencesDlg
 {
 public:
   Q_OBJECT
