@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorPluginScene/Scene/SceneDocumentManager.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentManager, 1, ezRTTIDefaultAllocator<ezSceneDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -29,6 +30,8 @@ ezSceneDocumentManager::ezSceneDocumentManager()
     m_PrefabDesc.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
     m_PrefabDesc.m_pManager = this;
   }
+
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("Scene", QPixmap(":/AssetIcons/Scene.png"));
 }
 
 

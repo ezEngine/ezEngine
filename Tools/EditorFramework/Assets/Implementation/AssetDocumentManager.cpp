@@ -62,7 +62,7 @@ ezString ezAssetDocumentManager::GenerateResourceFileName(const char* szDocument
   ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(szDocumentPath);
 
   ezString sPlatform;
-  if (GeneratesPlatformSpecificAssets()) /// \todo Put this into ezAssetDocumentFlag 
+  if (GeneratesPlatformSpecificAssets()) /// \todo Put this into ezAssetDocumentFlag
     sPlatform = szPlatform;
   else
     sPlatform = "Common";

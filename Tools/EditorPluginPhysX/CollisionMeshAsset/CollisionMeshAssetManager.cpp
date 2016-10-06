@@ -3,6 +3,7 @@
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAsset.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetWindow.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezCollisionMeshAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -20,6 +21,9 @@ ezCollisionMeshAssetDocumentManager::ezCollisionMeshAssetDocumentManager()
   m_AssetDesc.m_sIcon = ":/AssetIcons/Collision_Mesh.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezCollisionMeshAssetDocument>();
   m_AssetDesc.m_pManager = this;
+
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("Collision Mesh", QPixmap(":/AssetIcons/Collision_Mesh.png"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("Collision Mesh (Convex)", QPixmap(":/AssetIcons/Collision_Mesh.png"));
 }
 
 ezCollisionMeshAssetDocumentManager::~ezCollisionMeshAssetDocumentManager()

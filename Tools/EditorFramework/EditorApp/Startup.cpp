@@ -58,7 +58,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezActionMapManager::RegisterActionMap("SettingsTabMenuBar");
     ezProjectActions::MapActions("SettingsTabMenuBar");
     ezStandardMenus::MapActions("SettingsTabMenuBar", ezStandardMenuTypes::Panels);
-    
+
     ezActionMapManager::RegisterActionMap("AssetBrowserToolBar");
     ezAssetActions::MapActions("AssetBrowserToolBar", false);
 
@@ -98,7 +98,7 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
 {
   m_bHeadless = bHeadless;
   if (!bHeadless)
-  { 
+  {
     // ezUniquePtr does not work with forward declared classes :-(
     m_pProgressbar = EZ_DEFAULT_NEW(ezProgress);
     m_pQtProgressbar = EZ_DEFAULT_NEW(ezQtProgressbar);
@@ -267,7 +267,7 @@ void ezQtEditorApp::ShutdownEditor()
   UnloadEditorPlugins();
 
   // make sure no one tries to load any further images in parallel
-  ezQtImageCache::StopRequestProcessing(true);
+  ezQtImageCache::GetSingleton()->StopRequestProcessing(true);
 
   ezTranslationLookup::Clear();
 

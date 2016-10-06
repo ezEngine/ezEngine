@@ -112,7 +112,7 @@ ezStatus ezAssetDocument::InternalSaveDocument()
 void ezAssetDocument::InternalAfterSaveDocument()
 {
   const auto flags = GetAssetFlags();
-  
+
   if (flags.IsAnySet(ezAssetDocumentFlags::AutoTransformOnSave))
   {
     /// \todo Should only be done for platform agnostic assets
@@ -422,7 +422,7 @@ void ezAssetDocument::InvalidateAssetThumbnail() const
 {
   const ezStringBuilder sResourceFile = GetThumbnailFilePath();
   ezAssetCurator::GetSingleton()->NotifyOfFileChange(sResourceFile);
-  ezQtImageCache::InvalidateCache(sResourceFile);
+  ezQtImageCache::GetSingleton()->InvalidateCache(sResourceFile);
 }
 
 ezStatus ezAssetDocument::SaveThumbnail(const ezImage& img, const ezAssetFileHeader& header) const

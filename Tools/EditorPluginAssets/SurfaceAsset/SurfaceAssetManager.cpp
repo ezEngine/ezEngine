@@ -3,6 +3,7 @@
 #include <EditorPluginAssets/SurfaceAsset/SurfaceAsset.h>
 #include <EditorPluginAssets/SurfaceAsset/SurfaceAssetWindow.moc.h>
 #include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSurfaceAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -19,6 +20,8 @@ ezSurfaceAssetDocumentManager::ezSurfaceAssetDocumentManager()
   m_AssetDesc.m_sIcon = ":/AssetIcons/Surface.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezSurfaceAssetDocument>();
   m_AssetDesc.m_pManager = this;
+
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("Surface", QPixmap(":/AssetIcons/Surface.png"));
 }
 
 ezSurfaceAssetDocumentManager::~ezSurfaceAssetDocumentManager()

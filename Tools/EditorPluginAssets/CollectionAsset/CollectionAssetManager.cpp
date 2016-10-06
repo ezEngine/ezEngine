@@ -3,6 +3,7 @@
 #include <EditorPluginAssets/CollectionAsset/CollectionAsset.h>
 #include <EditorPluginAssets/CollectionAsset/CollectionAssetWindow.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezCollectionAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -17,6 +18,8 @@ ezCollectionAssetDocumentManager::ezCollectionAssetDocumentManager()
   m_AssetDesc.m_sIcon = ":/AssetIcons/Collection.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezCollectionAssetDocument>();
   m_AssetDesc.m_pManager = this;
+
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("Collection", QPixmap(":/AssetIcons/Collection.png"));
 }
 
 ezCollectionAssetDocumentManager::~ezCollectionAssetDocumentManager()

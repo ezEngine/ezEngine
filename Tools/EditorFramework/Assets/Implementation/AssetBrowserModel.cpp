@@ -239,7 +239,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
   const ezInt32 iRow = index.row();
   if (iRow < 0 || iRow >= (ezInt32)m_AssetsToDisplay.GetCount())
     return QVariant();
-  
+
   const auto& asset = m_AssetsToDisplay[iRow];
   const ezUuid AssetGuid = asset.m_Guid;
   const ezAssetCurator::ezLockedAssetInfo pAssetInfo = ezAssetCurator::GetSingleton()->GetAssetInfo2(AssetGuid);
@@ -270,7 +270,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
         ezUInt64 uiUserData1, uiUserData2;
         AssetGuid.GetValues(uiUserData1, uiUserData2);
 
-        const QPixmap* pThumbnailPixmap = ezQtImageCache::QueryPixmap(sThumbnailPath, index, QVariant(uiUserData1), QVariant(uiUserData2), &asset.m_uiThumbnailID);
+        const QPixmap* pThumbnailPixmap = ezQtImageCache::GetSingleton()->QueryPixmapForType(pAssetInfo->m_Info.m_sAssetTypeName, sThumbnailPath, index, QVariant(uiUserData1), QVariant(uiUserData2), &asset.m_uiThumbnailID);
 
         return *pThumbnailPixmap;
       }
@@ -299,7 +299,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
 
       return ezQtUiServices::GetCachedPixmapResource(sIconName.GetData());
     }
-    
+
   case UserRoles::TransformState:
     return (int)pAssetInfo->m_TransformState;
   }

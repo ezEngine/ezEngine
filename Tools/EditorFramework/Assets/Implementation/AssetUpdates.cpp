@@ -45,7 +45,7 @@ ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
 
   if (bReferences)
     pInfo->m_MissingReferences.Clear();
-  
+
   pInfo->m_MissingDependencies.Clear();
 
   // hash of the main asset file
@@ -203,8 +203,8 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
       }
       else
       {
-        EZ_REPORT_FAILURE("The assets '%s' and '%s' share the same GUID!", 
-          assetInfo.m_sAbsolutePath.GetData(), 
+        EZ_REPORT_FAILURE("The assets '%s' and '%s' share the same GUID!",
+          assetInfo.m_sAbsolutePath.GetData(),
           pAssetInfo->m_sAbsolutePath.GetData());
       }
 
@@ -542,7 +542,7 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
         m_TransformStateMissingDependency.Remove(assetGuid);
         m_TransformStateMissingReference.Remove(assetGuid);
         ezString sThumbPath = static_cast<ezAssetDocumentManager*>(pAssetInfo->m_pManager)->GenerateResourceThumbnailPath(pAssetInfo->m_sAbsolutePath);
-        ezQtImageCache::InvalidateCache(sThumbPath);
+        ezQtImageCache::GetSingleton()->InvalidateCache(sThumbPath);
       }
       break;
     case ezAssetInfo::TransformState::MissingDependency:

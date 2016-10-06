@@ -3,6 +3,7 @@
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAsset.h>
 #include <EditorPluginAssets/RenderPipelineAsset/RenderPipelineAssetWindow.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetManager, 1, ezRTTIDefaultAllocator<ezRenderPipelineAssetManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -20,6 +21,8 @@ ezRenderPipelineAssetManager::ezRenderPipelineAssetManager()
   m_AssetDesc.m_sIcon = ":/AssetIcons/RenderPipeline.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezRenderPipelineAssetDocument>();
   m_AssetDesc.m_pManager = this;
+
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("RenderPipeline", QPixmap(":/AssetIcons/RenderPipeline.png"));
 }
 
 ezRenderPipelineAssetManager::~ezRenderPipelineAssetManager()

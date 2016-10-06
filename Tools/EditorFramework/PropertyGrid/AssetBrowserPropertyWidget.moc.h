@@ -32,6 +32,7 @@ protected slots:
   void OnOpenExplorer();
   void OnCopyAssetGuid();
   void OnCreateNewAsset();
+  void OnClearReference();
 
 protected:
   virtual void OnInit() override;

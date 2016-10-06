@@ -14,12 +14,12 @@ void ezQtEditorApp::CloseProject()
 void ezQtEditorApp::SlotQueuedCloseProject()
 {
   // purge the image loading queue when a project is closed, but keep the existing cache
-  ezQtImageCache::StopRequestProcessing(false);
+  ezQtImageCache::GetSingleton()->StopRequestProcessing(false);
 
   ezToolsProject::CloseProject();
 
   // enable image loading again, the queue is purged now
-  ezQtImageCache::EnableRequestProcessing();
+  ezQtImageCache::GetSingleton()->EnableRequestProcessing();
 }
 
 void ezQtEditorApp::OpenProject(const char* szProject)

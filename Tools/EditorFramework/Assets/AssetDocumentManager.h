@@ -25,6 +25,8 @@ public:
   static bool IsThumbnailUpToDate(ezUInt64 uiThumbnailHash, ezUInt32 uiTypeVersion, const char* szDocumentPath);
 
   ezString GenerateResourceFileName(const char* szDocumentPath, const char* szPlatform) const;
+
+  /// \brief Returns the path to the thumbnail that belongs to the given document.
   static ezString GenerateResourceThumbnailPath(const char* szDocumentPath);
 
   /// \brief Determines the path to the transformed asset file. May be overridden for special cases.
@@ -33,6 +35,6 @@ public:
   virtual ezString GetFinalOutputFileName(const ezDocumentTypeDescriptor* pDescriptor, const char* szDocumentPath, const char* szPlatform) const;
 
   ezString GenerateRelativeResourceFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szPlatform) const;
-  
+
   static ezString DetermineFinalTargetPlatform(const char* szPlatform);
 };

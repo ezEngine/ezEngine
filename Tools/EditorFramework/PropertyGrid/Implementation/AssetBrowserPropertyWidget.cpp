@@ -101,7 +101,11 @@ void ezQtAssetPropertyWidget::UpdateThumbnail(const ezUuid& guid, const char* sz
     ezUInt64 uiUserData1, uiUserData2;
     m_AssetGuid.GetValues(uiUserData1, uiUserData2);
 
-    pThumbnailPixmap = ezQtImageCache::QueryPixmap(szThumbnailPath, QModelIndex(), QVariant(uiUserData1), QVariant(uiUserData2), &m_uiThumbnailID);
+    const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
+    ezStringBuilder sTypeFilter = pAssetAttribute->GetTypeFilter();
+    sTypeFilter.Trim(" ;");
+
+    pThumbnailPixmap = ezQtImageCache::GetSingleton()->QueryPixmapForType(sTypeFilter, szThumbnailPath, QModelIndex(), QVariant(uiUserData1), QVariant(uiUserData2), &m_uiThumbnailID);
   }
 
   if (pThumbnailPixmap)
@@ -236,6 +240,7 @@ void ezQtAssetPropertyWidget::on_customContextMenuRequested(const QPoint& pt)
   m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open Containing Folder"), this, SLOT(OnOpenExplorer()));
   m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnCopyAssetGuid()));
   m.addAction(QIcon(), QLatin1String("Create New Asset"), this, SLOT(OnCreateNewAsset()));
+  m.addAction(QIcon(":/GuiFoundation/Icons/Delete16.png"), QLatin1String("Clear Asset Reference"), this, SLOT(OnClearReference()));
 
   m.exec(m_pButton->mapToGlobal(pt));
 }
@@ -371,6 +376,13 @@ found:
     InternalSetValue(sOutput.GetData());
     on_TextFinished_triggered();
   }
+}
+
+
+void ezQtAssetPropertyWidget::OnClearReference()
+{
+  InternalSetValue("");
+  on_TextFinished_triggered();
 }
 
 void ezQtAssetPropertyWidget::on_BrowseFile_clicked()
