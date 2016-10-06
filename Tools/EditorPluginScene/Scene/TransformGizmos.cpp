@@ -134,7 +134,7 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
       m_bMergeTransactions = false;
 
       // duplicate the object when shift is held while dragging the item
-      if ((e.m_pGizmo == &m_TranslateGizmo || e.m_pGizmo == &m_DragToPosGizmo) 
+      if ((e.m_pGizmo == &m_TranslateGizmo || e.m_pGizmo == &m_DragToPosGizmo)
           && QApplication::keyboardModifiers() & Qt::KeyboardModifier::ShiftModifier)
       {
         m_bMergeTransactions = true;
@@ -235,7 +235,7 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
           tNew.m_Rotation = mRot * obj.m_GlobalTransform.m_Rotation;
           tNew.m_vPosition = vPivot + mRot * (obj.m_GlobalTransform.m_vPosition - vPivot);
 
-          pScene->SetGlobalTransform(obj.m_pObject, tNew, TransformationChanges::Rotation);
+          pScene->SetGlobalTransform(obj.m_pObject, tNew, TransformationChanges::Rotation | TransformationChanges::Translation);
         }
       }
 
