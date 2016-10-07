@@ -56,16 +56,16 @@ void ezProcessingStreamGroup::AddProcessor(ezProcessingStreamProcessor* pProcess
 void ezProcessingStreamGroup::RemoveProcessor(ezProcessingStreamProcessor* pProcessor)
 {
   m_Processors.Remove(pProcessor);
-  EZ_DEFAULT_DELETE(pProcessor);
+  pProcessor->GetDynamicRTTI()->GetAllocator()->Deallocate(pProcessor);
 }
 
 void ezProcessingStreamGroup::ClearProcessors()
 {
   m_bStreamAssignmentDirty = true;
 
-  for (ezProcessingStreamProcessor* pStreamProcessor : m_Processors)
+  for (ezProcessingStreamProcessor* pProcessor : m_Processors)
   {
-    EZ_DEFAULT_DELETE(pStreamProcessor);
+    pProcessor->GetDynamicRTTI()->GetAllocator()->Deallocate(pProcessor);
   }
 
   m_Processors.Clear();
@@ -91,7 +91,7 @@ void ezProcessingStreamGroup::AddSpawner(ezProcessingStreamSpawner* pSpawner)
 void ezProcessingStreamGroup::RemoveSpawner(ezProcessingStreamSpawner* pSpawner)
 {
   EZ_VERIFY(m_Spawners.Remove(pSpawner), "Invalid spawner, not part of this group");
-  EZ_DEFAULT_DELETE(pSpawner);
+  pSpawner->GetDynamicRTTI()->GetAllocator()->Deallocate(pSpawner);
 }
 
 void ezProcessingStreamGroup::ClearSpawners()
@@ -100,7 +100,7 @@ void ezProcessingStreamGroup::ClearSpawners()
 
   for (ezProcessingStreamSpawner* pSpawner : m_Spawners)
   {
-    EZ_DEFAULT_DELETE(pSpawner);
+    pSpawner->GetDynamicRTTI()->GetAllocator()->Deallocate(pSpawner);
   }
 
   m_Spawners.Clear();

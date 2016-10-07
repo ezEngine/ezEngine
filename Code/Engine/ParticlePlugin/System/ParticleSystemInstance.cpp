@@ -12,13 +12,6 @@
 #include <ParticlePlugin/Type/ParticleType.h>
 #include <CoreUtils/DataProcessing/Stream/DefaultImplementations/ZeroInitializer.h>
 
-
-ezParticleSystemInstance::ezParticleSystemInstance()
-{
-  m_bVisible = true;
-  m_bEmitterEnabled = true;
-}
-
 bool ezParticleSystemInstance::HasActiveParticles() const
 {
   return m_StreamGroup.GetNumActiveElements() > 0;
@@ -26,8 +19,6 @@ bool ezParticleSystemInstance::HasActiveParticles() const
 
 void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescriptor* pTemplate)
 {
-  EZ_LOCK(m_Mutex);
-
   m_bVisible = pTemplate->m_bVisible;
 
   bool allSpawnersEqual = true;
@@ -140,6 +131,8 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
   if (!allSpawnersEqual)
   {
     // recreate emitters, initializers and behaviors
+
+    // deletes everything that is referenced by m_Emitters, m_Initializers
     m_StreamGroup.ClearSpawners();
 
     // emitters
@@ -199,6 +192,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
 
   if (!allProcessorsEqual)
   {
+    // deletes everything that is referenced by m_Behaviors, m_Types
     m_StreamGroup.ClearProcessors();
 
     // behaviors
@@ -258,36 +252,35 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
   CreateStreamZeroInitializers();
 }
 
-void ezParticleSystemInstance::Initialize(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect)
+void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect)
 {
-  EZ_LOCK(m_Mutex);
-
-  if (uiRandomSeed == 0)
-  {
-    m_Random.InitializeFromCurrentTime();
-  }
-  else
-  {
-    m_Random.Initialize(uiRandomSeed);
-  }
-
   m_pOwnerEffect = pOwnerEffect;
   m_bEmitterEnabled = true;
+  m_bVisible = true;
   m_pWorld = pWorld;
 
+  m_StreamInfo.Clear();
+  m_StreamGroup.SetSize(uiMaxParticles);
+
+  if (uiRandomSeed == 0)
+    m_Random.InitializeFromCurrentTime();
+  else
+    m_Random.Initialize(uiRandomSeed);
+}
+
+void ezParticleSystemInstance::Destruct()
+{
   m_StreamGroup.Clear();
   m_Emitters.Clear();
   m_Initializers.Clear();
   m_Behaviors.Clear();
+  m_Types.Clear();
 
   m_StreamInfo.Clear();
-  m_StreamGroup.SetSize(uiMaxParticles);
 }
 
 ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff)
 {
-  EZ_LOCK(m_Mutex);
-
   if (m_bEmitterEnabled)
   {
     // if all emitters are finished, we deactivate this on the whole system
@@ -435,7 +428,10 @@ void ezParticleSystemInstance::CreateStreamZeroInitializers()
 
     if (info.m_pInitializer == nullptr)
     {
-      info.m_pInitializer = EZ_DEFAULT_NEW(ezProcessingStreamSpawnerZeroInitialized, info.m_sName);
+      ezProcessingStreamSpawnerZeroInitialized* pZeroInit = EZ_DEFAULT_NEW(ezProcessingStreamSpawnerZeroInitialized);
+      pZeroInit->SetStreamName(info.m_sName);
+
+      info.m_pInitializer = pZeroInit;
       m_StreamGroup.AddSpawner(info.m_pInitializer);
     }
   }

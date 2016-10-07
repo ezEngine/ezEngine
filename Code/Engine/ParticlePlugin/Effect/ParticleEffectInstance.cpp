@@ -13,29 +13,40 @@ ezParticleEffectInstance::ezParticleEffectInstance()
   m_pOwnerModule = nullptr;
   m_Task.SetTaskName("Particle Effect Update");
 
-  Clear();
+  Destruct();
 }
 
 ezParticleEffectInstance::~ezParticleEffectInstance()
 {
-  ClearParticleSystems();
-  DestroyEventQueues();
+  Destruct();
 }
 
+void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared)
+{
+  m_hEffectHandle = hEffectHandle;
+  m_pWorld = pWorld;
+  m_pOwnerModule = pOwnerModule;
+  m_hResource = hResource;
+  m_bIsShared = bIsShared;
+  m_bEmitterEnabled = true;
 
-void ezParticleEffectInstance::Clear()
+  Reconfigure(uiRandomSeed, true);
+}
+
+void ezParticleEffectInstance::Destruct()
 {
   Interrupt();
 
+  m_SharedInstances.Clear();
+  m_hEffectHandle.Invalidate();
+
   m_Transform.SetIdentity();
-  m_bEmitterEnabled = true;
   m_bIsShared = false;
   m_pWorld = nullptr;
   m_hResource.Invalidate();
-  m_hHandle.Invalidate();
+  m_hEffectHandle.Invalidate();
   m_uiReviveTimeout = 5;
 }
-
 
 void ezParticleEffectInstance::Interrupt()
 {
@@ -77,7 +88,7 @@ void ezParticleEffectInstance::ClearParticleSystem(ezUInt32 index)
 {
   if (m_ParticleSystems[index])
   {
-    m_pOwnerModule->DestroyParticleSystemInstance(m_ParticleSystems[index]);
+    m_pOwnerModule->DestroySystemInstance(m_ParticleSystems[index]);
     m_ParticleSystems[index] = nullptr;
   }
 }
@@ -92,23 +103,13 @@ void ezParticleEffectInstance::ClearParticleSystems()
   m_ParticleSystems.Clear();
 }
 
-void ezParticleEffectInstance::Configure(const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared)
-{
-  m_pWorld = pWorld;
-  m_pOwnerModule = pOwnerModule;
-  m_hResource = hResource;
-  m_bIsShared = bIsShared;
-
-  Reconfigure(uiRandomSeed, true);
-}
-
-
 void ezParticleEffectInstance::PreSimulate()
 {
   // Pre-simulate the effect, if desired, to get it into a 'good looking' state
 
+  // simulate in large steps to get close
   {
-    ezTime tDiff = ezTime::Seconds(0.5);
+    const ezTime tDiff = ezTime::Seconds(0.5);
     while (m_PreSimulateDuration.GetSeconds() > 5.0)
     {
       Update(tDiff);
@@ -116,8 +117,9 @@ void ezParticleEffectInstance::PreSimulate()
     }
   }
 
+  // finer steps
   {
-    ezTime tDiff = ezTime::Seconds(0.2);
+    const ezTime tDiff = ezTime::Seconds(0.2);
     while (m_PreSimulateDuration.GetSeconds() > 1.0)
     {
       Update(tDiff);
@@ -125,13 +127,21 @@ void ezParticleEffectInstance::PreSimulate()
     }
   }
 
+  // even finer
   {
-    ezTime tDiff = ezTime::Seconds(0.1);
+    const ezTime tDiff = ezTime::Seconds(0.1);
     while (m_PreSimulateDuration.GetSeconds() >= 0.1)
     {
       Update(tDiff);
       m_PreSimulateDuration -= tDiff;
     }
+  }
+
+  // final step if necessary
+  if (m_PreSimulateDuration.GetSeconds() > 0.0)
+  {
+    Update(m_PreSimulateDuration);
+    m_PreSimulateDuration = ezTime::Seconds(0);
   }
 }
 
@@ -177,15 +187,13 @@ void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTim
     {
       if (m_ParticleSystems[i] == nullptr)
       {
-        m_ParticleSystems[i] = m_pOwnerModule->CreateParticleSystemInstance(systems[i]->m_uiMaxParticles, m_pWorld, uiRandomSeed, this);
+        m_ParticleSystems[i] = m_pOwnerModule->CreateSystemInstance(systems[i]->m_uiMaxParticles, m_pWorld, uiRandomSeed, this);
       }
     }
   }
 
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
-    EZ_LOCK(m_ParticleSystems[i]->m_Mutex);
-
     m_ParticleSystems[i]->ConfigureFromTemplate(systems[i]);
     m_ParticleSystems[i]->SetTransform(m_Transform);
     m_ParticleSystems[i]->SetEmitterEnabled(m_bEmitterEnabled);
@@ -357,7 +365,7 @@ void ezParticleffectUpdateTask::Execute()
       const ezParticleEffectHandle hEffect = m_pEffect->GetHandle();
       EZ_ASSERT_DEBUG(!hEffect.IsInvalidated(), "Invalid particle effect handle");
 
-      m_pEffect->GetOwnerWorldModule()->DestroyParticleEffectInstance(hEffect, false, nullptr);
+      m_pEffect->GetOwnerWorldModule()->DestroyEffectInstance(hEffect, false, nullptr);
     }
   }
 }

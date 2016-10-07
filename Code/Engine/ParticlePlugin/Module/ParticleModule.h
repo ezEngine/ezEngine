@@ -22,6 +22,8 @@ public:
   {
     m_pOwnerSystem = pOwner;
     m_StreamBinding.Clear();
+
+    OnReset();
   }
 
   ezParticleSystemInstance* GetOwnerSystem()
@@ -40,6 +42,9 @@ public:
   }
 
 protected:
+  /// \brief Called by Reset()
+  virtual void OnReset() {}
+
   void CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream)
   {
     m_pOwnerSystem->CreateStream(szName, Type, ppStream, m_StreamBinding, !StreamInitializer);

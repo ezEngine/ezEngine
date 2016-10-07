@@ -17,7 +17,7 @@ class ezTaskGroupID;
 ///
 /// It is used to update all effects in one world and also to render them.
 /// When an effect is stopped, it only stops emitting new particles, but it lives on until all particles are dead.
-/// Therefore particle effects need to be managed outside of components. When a component dies, it only tells the 
+/// Therefore particle effects need to be managed outside of components. When a component dies, it only tells the
 /// world module to 'destroy' it's effect, the rest is handled behind the scenes.
 class EZ_PARTICLEPLUGIN_DLL ezParticleWorldModule : public ezWorldModule
 {
@@ -26,14 +26,14 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleWorldModule : public ezWorldModule
 public:
   ezParticleWorldModule();
 
-  ezParticleEffectHandle CreateParticleEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const char* szSharedName /*= nullptr*/, const void* pSharedInstanceOwner /*= nullptr*/);
+  ezParticleEffectHandle CreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const char* szSharedName /*= nullptr*/, const void* pSharedInstanceOwner /*= nullptr*/);
 
   /// \brief This does not actually the effect, it first stops it from emitting and destroys it once all particles have actually died of old age.
-  void DestroyParticleEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately, const void* pSharedInstanceOwner);
+  void DestroyEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately, const void* pSharedInstanceOwner);
 
-  bool TryGetEffect(const ezParticleEffectHandle& hEffect, ezParticleEffectInstance*& out_pEffect);
+  bool TryGetEffectInstance(const ezParticleEffectHandle& hEffect, ezParticleEffectInstance*& out_pEffect);
 
-  void EnsureParticleUpdateFinished();
+  void EnsureUpdatesFinished();
 
   /// \brief Updates all effects and deallocates those that have been destroyed and are finished.
   void UpdateEffects();
@@ -43,26 +43,28 @@ public:
 
   ezParticleEventQueueManager& GetEventQueueManager() { return m_QueueManager; }
 
-  ezParticleSystemInstance* CreateParticleSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect);
-  void DestroyParticleSystemInstance(ezParticleSystemInstance* pInstance);
+  ezParticleSystemInstance* CreateSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect);
+  void DestroySystemInstance(ezParticleSystemInstance* pInstance);
 
 
 private:
   void DestroyFinishedEffects();
   void ResourceEventHandler(const ezResourceEvent& e);
   void ReconfigureEffects();
-  ezParticleEffectHandle InternalCreateSharedInstance(const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner);
-  ezParticleEffectHandle InternalCreateInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, bool bIsShared);
+  ezParticleEffectHandle InternalCreateSharedEffectInstance(const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner);
+  ezParticleEffectHandle InternalCreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, bool bIsShared);
 
   ezMutex m_Mutex;
-  ezDeque<ezParticleEffectInstance*> m_ParticleEffects;
-  ezDeque<ezParticleEffectInstance*> m_FinishingEffects;
-  ezDeque<ezParticleEffectInstance*> m_EffectsToReconfigure;
+  ezDeque<ezParticleEffectInstance> m_ParticleEffects;
+  ezDynamicArray<ezParticleEffectInstance*> m_FinishingEffects;
+  ezDynamicArray<ezParticleEffectInstance*> m_EffectsToReconfigure;
+  ezDynamicArray<ezParticleEffectInstance*> m_ParticleEffectsFreeList;
   ezMap<ezString, ezParticleEffectHandle> m_SharedEffects;
   ezIdTable<ezParticleEffectId, ezParticleEffectInstance*> m_ActiveEffects;
   ezParticleEventQueueManager m_QueueManager;
-  ezUInt64 m_uiExtractedFrame;
-  ezDeque<ezParticleSystemInstance*> m_ParticleSystemFreeList;
+  ezUInt64 m_uiExtractedFrame; // Increased every frame, passed to modules such that instanced systems can prevent redundant work
+  ezDeque<ezParticleSystemInstance> m_ParticleSystems;
+  ezDynamicArray<ezParticleSystemInstance*> m_ParticleSystemFreeList;
   ezTaskGroupID m_EffectUpdateTaskGroup;
 
 protected:

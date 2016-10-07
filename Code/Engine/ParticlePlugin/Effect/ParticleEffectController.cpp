@@ -33,7 +33,7 @@ ezParticleEffectInstance* ezParticleEffectController::GetInstance() const
     return nullptr;
 
   ezParticleEffectInstance* pEffect = nullptr;
-  m_pModule->TryGetEffect(m_hEffect, pEffect);
+  m_pModule->TryGetEffectInstance(m_hEffect, pEffect);
   return pEffect;
 }
 
@@ -48,7 +48,7 @@ void ezParticleEffectController::Create(const ezParticleEffectResourceHandle& hE
   ezParticleEffectHandle hNewEffect;
   if (pModule != nullptr && hEffectResource.IsValid())
   {
-    hNewEffect = pModule->CreateParticleEffectInstance(hEffectResource, uiRandomSeed, szSharedName, pSharedInstanceOwner);
+    hNewEffect = pModule->CreateEffectInstance(hEffectResource, uiRandomSeed, szSharedName, pSharedInstanceOwner);
   }
 
   Invalidate();
@@ -95,7 +95,7 @@ void ezParticleEffectController::StopImmediate()
 {
   if (m_pModule)
   {
-    m_pModule->DestroyParticleEffectInstance(m_hEffect, true, m_pSharedInstanceOwner);
+    m_pModule->DestroyEffectInstance(m_hEffect, true, m_pSharedInstanceOwner);
 
     m_pModule = nullptr;
     m_hEffect.Invalidate();
@@ -106,7 +106,7 @@ void ezParticleEffectController::Invalidate()
 {
   if (m_pModule)
   {
-    m_pModule->DestroyParticleEffectInstance(m_hEffect, false, m_pSharedInstanceOwner);
+    m_pModule->DestroyEffectInstance(m_hEffect, false, m_pSharedInstanceOwner);
 
     m_pModule = nullptr;
     m_hEffect.Invalidate();

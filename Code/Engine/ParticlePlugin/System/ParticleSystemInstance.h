@@ -13,9 +13,10 @@ class ezExtractedRenderData;
 class EZ_PARTICLEPLUGIN_DLL ezParticleSystemInstance
 {
 public:
-  ezParticleSystemInstance();
+  ezParticleSystemInstance() {}
 
-  mutable ezMutex m_Mutex;
+  void Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect);
+  void Destruct();
 
   bool IsVisible() const { return m_bVisible; }
 
@@ -24,13 +25,8 @@ public:
 
   bool HasActiveParticles() const;
 
-  void IncreaseRefCount() const { m_RefCount.Increment(); }
-  void DecreaseRefCount() const { m_RefCount.Decrement(); }
-  ezUInt32 GetRefCount() const { return m_RefCount; }
-
   void ConfigureFromTemplate(const ezParticleSystemDescriptor* pTemplate);
 
-  void Initialize(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect);
   void SetTransform(const ezTransform& transform) { m_Transform = transform; }
   const ezTransform& GetTransform() const { return m_Transform; }
 
@@ -89,5 +85,4 @@ private:
   ezHybridArray<StreamInfo, 16> m_StreamInfo;
 
   ezRandom m_Random;
-  mutable ezAtomicInteger32 m_RefCount;
 };

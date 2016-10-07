@@ -35,7 +35,7 @@ public:
   void Clear();
 
   /// \brief Adds a stream processor to the stream group.
-  /// Ownership is transferred to the stream group and EZ_DEFAULT_DELETE will be called on the stream processor on destruction.
+  /// Ownership is transferred to the stream group and the processor will be deallocated using the RTTI deallocator on destruction.
   /// Processors are executed in the order they are added to the stream group.
   void AddProcessor(ezProcessingStreamProcessor* pProcessor);
 
@@ -46,7 +46,7 @@ public:
   void ClearProcessors();
 
   /// \brief Adds a stream element spawner to the stream group.
-  /// Ownership is transferred to the stream group and EZ_DEFAULT_DELETE will be called on the stream element spawner on destruction.
+  /// Ownership is transferred to the stream group and the spawner will be deallocated using the RTTI deallocator on destruction.
   /// Spawners are executed in the order they are added to the stream group.
   void AddSpawner(ezProcessingStreamSpawner* pSpawner);
 

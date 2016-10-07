@@ -83,27 +83,15 @@ void ezParticleTypeEffectFactory::Load(ezStreamReader& stream)
 
 ezParticleTypeEffect::ezParticleTypeEffect()
 {
+  m_pStreamEffectID = nullptr;
+  m_pStreamPosition = nullptr;
 }
 
 ezParticleTypeEffect::~ezParticleTypeEffect()
 {
   GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeEffect::OnParticleDeath, this));
 
-  //// delete all effects that are still in the processing group
-  //{
-  //  ezParticleWorldModule* pWorldModule = GetOwnerEffect()->GetOwnerWorldModule();
-  //  const ezUInt64 uiNumParticles = GetOwnerSystem()->GetNumActiveParticles();
-
-  //  ezUInt32* pEffectID = m_pStreamEffectID->GetWritableData<ezUInt32>();
-
-  //  for (ezUInt32 elemIdx = 0; elemIdx < uiNumParticles; ++elemIdx)
-  //  {
-  //    ezParticleEffectHandle hInstance(pEffectID[elemIdx]);
-  //    pEffectID[elemIdx] = 0;
-
-  //    pWorldModule->DestroyParticleEffectInstance(hInstance, false, nullptr);
-  //  }
-  //}
+  ClearEffects(true);
 }
 
 void ezParticleTypeEffect::CreateRequiredStreams()
@@ -120,6 +108,12 @@ void ezParticleTypeEffect::AfterPropertiesConfigured(bool bFirstTime)
   }
 }
 
+
+void ezParticleTypeEffect::OnReset()
+{
+  ClearEffects(true);
+}
+
 void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
 {
   if (!m_hEffect.IsValid())
@@ -134,7 +128,7 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
   {
     if (pEffectID[i] == 0) // always an invalid ID
     {
-      ezParticleEffectHandle hInstance = pWorldModule->CreateParticleEffectInstance(m_hEffect, m_uiRandomSeed, m_sSharedInstanceName, nullptr);
+      ezParticleEffectHandle hInstance = pWorldModule->CreateEffectInstance(m_hEffect, m_uiRandomSeed, m_sSharedInstanceName, nullptr);
 
       pEffectID[i] = hInstance.GetInternalID().m_Data;
     }
@@ -142,7 +136,7 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
     ezParticleEffectHandle hInstance(pEffectID[i]);
 
     ezParticleEffectInstance* pEffect = nullptr;
-    if (pWorldModule->TryGetEffect(hInstance, pEffect))
+    if (pWorldModule->TryGetEffectInstance(hInstance, pEffect))
     {
       ezTransform t;
       t.m_Rotation.SetIdentity();
@@ -161,8 +155,28 @@ void ezParticleTypeEffect::OnParticleDeath(const ezStreamGroupElementRemovedEven
 
   ezParticleEffectHandle hInstance(pEffectID[e.m_uiElementIndex]);
 
-  pWorldModule->DestroyParticleEffectInstance(hInstance, false, nullptr);
+  pWorldModule->DestroyEffectInstance(hInstance, false, nullptr);
 }
 
+void ezParticleTypeEffect::ClearEffects(bool bInterruptImmediately)
+{
+  // delete all effects that are still in the processing group
+
+  ezParticleWorldModule* pWorldModule = GetOwnerEffect()->GetOwnerWorldModule();
+  const ezUInt64 uiNumParticles = GetOwnerSystem()->GetNumActiveParticles();
+
+  if (uiNumParticles == 0 || m_pStreamEffectID == nullptr)
+    return;
+
+  ezUInt32* pEffectID = m_pStreamEffectID->GetWritableData<ezUInt32>();
+
+  for (ezUInt32 elemIdx = 0; elemIdx < uiNumParticles; ++elemIdx)
+  {
+    ezParticleEffectHandle hInstance(pEffectID[elemIdx]);
+    pEffectID[elemIdx] = 0;
+
+    pWorldModule->DestroyEffectInstance(hInstance, bInterruptImmediately, nullptr);
+  }
+}
 
 

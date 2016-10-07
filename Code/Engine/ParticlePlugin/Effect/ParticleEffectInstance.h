@@ -19,7 +19,7 @@ private:
   ezParticleEffectInstance* m_pEffect;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleEffectInstance 
+class EZ_PARTICLEPLUGIN_DLL ezParticleEffectInstance
 {
   friend class ezParticleWorldModule;
 
@@ -34,11 +34,12 @@ public:
   ezParticleEffectInstance();
   ~ezParticleEffectInstance();
 
-  void Clear();
+  void Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared);
+  void Destruct();
 
   void Interrupt();
 
-  const ezParticleEffectHandle& GetHandle() const { return m_hHandle; }
+  const ezParticleEffectHandle& GetHandle() const { return m_hEffectHandle; }
 
   void SetEmitterEnabled(bool enable);
   bool GetEmitterEnabled() const { return m_bEmitterEnabled; }
@@ -46,8 +47,6 @@ public:
   bool HasActiveParticles() const;
 
   void ClearParticleSystems();
-
-  void Configure(const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared);
 
   void PreSimulate();
 
@@ -85,7 +84,7 @@ private:
   void ProcessEventQueues();
 
   ezDynamicArray<SharedInstance> m_SharedInstances;
-  ezParticleEffectHandle m_hHandle;
+  ezParticleEffectHandle m_hEffectHandle;
   bool m_bIsShared;
   bool m_bEmitterEnabled;
   bool m_bSimulateInLocalSpace;

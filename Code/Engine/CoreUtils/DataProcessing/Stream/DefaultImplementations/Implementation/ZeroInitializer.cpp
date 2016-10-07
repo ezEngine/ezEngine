@@ -6,34 +6,36 @@
 #include <CoreUtils/DataProcessing/Stream/ProcessingStream.h>
 #include <Foundation/Memory/MemoryUtils.h>
 
-ezProcessingStreamSpawnerZeroInitialized::ezProcessingStreamSpawnerZeroInitialized( const char* szStreamName )
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessingStreamSpawnerZeroInitialized, 1, ezRTTIDefaultAllocator<ezProcessingStreamSpawnerZeroInitialized>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezProcessingStreamSpawnerZeroInitialized::ezProcessingStreamSpawnerZeroInitialized()
   : m_pStream(nullptr)
 {
-  m_StreamName.Assign( szStreamName );
 }
 
-ezProcessingStreamSpawnerZeroInitialized::~ezProcessingStreamSpawnerZeroInitialized()
+void ezProcessingStreamSpawnerZeroInitialized::SetStreamName(const char* szStreamName)
 {
-  int i = 0;
-  (void)i;
+  m_StreamName.Assign(szStreamName);
 }
-
 
 ezResult ezProcessingStreamSpawnerZeroInitialized::UpdateStreamBindings()
 {
-  m_pStream = m_pStreamGroup->GetStreamByName( m_StreamName );
+  EZ_ASSERT_DEBUG(!m_StreamName.IsEmpty(), "ezProcessingStreamSpawnerZeroInitialized: Stream name has not been configured");
+
+  m_pStream = m_pStreamGroup->GetStreamByName(m_StreamName);
   return m_pStream ? EZ_SUCCESS : EZ_FAILURE;
 }
 
 
-void ezProcessingStreamSpawnerZeroInitialized::SpawnElements( ezUInt64 uiStartIndex, ezUInt64 uiNumElements )
+void ezProcessingStreamSpawnerZeroInitialized::SpawnElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
   const ezUInt64 uiElementSize = m_pStream->GetElementSize();
   const ezUInt64 uiElementStride = m_pStream->GetElementStride();
 
-  for ( ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i )
+  for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
-    ezMemoryUtils::ZeroFill<ezUInt8>( static_cast<ezUInt8*>(ezMemoryUtils::AddByteOffset( m_pStream->GetWritableData(), static_cast<ptrdiff_t>(i * uiElementStride) ) ), static_cast<size_t>(uiElementSize));
+    ezMemoryUtils::ZeroFill<ezUInt8>(static_cast<ezUInt8*>(ezMemoryUtils::AddByteOffset(m_pStream->GetWritableData(), static_cast<ptrdiff_t>(i * uiElementStride))), static_cast<size_t>(uiElementSize));
   }
-
 }
+

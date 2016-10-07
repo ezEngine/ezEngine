@@ -40,8 +40,10 @@ public:
   virtual void ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override {}
 
 protected:
+  virtual void OnReset() override;
   virtual void Process(ezUInt64 uiNumElements) override;
   void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);
+  void ClearEffects(bool bInterruptImmediately);
 
   ezProcessingStream* m_pStreamPosition;
   ezProcessingStream* m_pStreamEffectID;
