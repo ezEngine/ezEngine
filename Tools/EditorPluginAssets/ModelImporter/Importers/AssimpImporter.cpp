@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorPluginAssets/ModelImporter/AssimpImporter.h>
+#include <EditorPluginAssets/ModelImporter/Importers/AssimpImporter.h>
 #include <EditorPluginAssets/ModelImporter/Scene.h>
 #include <EditorPluginAssets/ModelImporter/Node.h>
 #include <EditorPluginAssets/ModelImporter/Mesh.h>
