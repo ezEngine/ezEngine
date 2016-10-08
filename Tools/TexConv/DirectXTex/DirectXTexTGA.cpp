@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------------------
 // DirectXTexTGA.cpp
-//  
+//
 // DirectX Texture Library - Targa Truevision (TGA) file format reader/writer
 //
 // THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
@@ -25,7 +25,7 @@
 
 using namespace DirectX;
 
-namespace
+namespace NS_FIX_3
 {
     enum TGAImageType
     {
@@ -864,7 +864,7 @@ HRESULT DirectX::GetMetadataFromTGAMemory(
         return E_INVALIDARG;
 
     size_t offset;
-    return DecodeTGAHeader( pSource, size, metadata, offset, 0 );
+    return NS_FIX_3::DecodeTGAHeader( pSource, size, metadata, offset, 0 );
 }
 
 _Use_decl_annotations_
@@ -898,21 +898,21 @@ HRESULT DirectX::GetMetadataFromTGAFile(const wchar_t* szFile, TexMetadata& meta
     }
 
     // Need at least enough data to fill the standard header to be a valid TGA
-    if (fileInfo.EndOfFile.LowPart < (sizeof(TGA_HEADER)))
+    if (fileInfo.EndOfFile.LowPart < (sizeof(NS_FIX_3::TGA_HEADER)))
     {
         return E_FAIL;
     }
 
     // Read the standard header (we don't need the file footer to parse the file)
-    uint8_t header[sizeof(TGA_HEADER)];
+    uint8_t header[sizeof(NS_FIX_3::TGA_HEADER)];
     DWORD bytesRead = 0;
-    if (!ReadFile(hFile.get(), header, sizeof(TGA_HEADER), &bytesRead, nullptr))
+    if (!ReadFile(hFile.get(), header, sizeof(NS_FIX_3::TGA_HEADER), &bytesRead, nullptr))
     {
         return HRESULT_FROM_WIN32(GetLastError());
     }
 
     size_t offset;
-    return DecodeTGAHeader(header, bytesRead, metadata, offset, 0);
+    return NS_FIX_3::DecodeTGAHeader(header, bytesRead, metadata, offset, 0);
 }
 
 
@@ -934,7 +934,7 @@ HRESULT DirectX::LoadFromTGAMemory(
     size_t offset;
     DWORD convFlags = 0;
     TexMetadata mdata;
-    HRESULT hr = DecodeTGAHeader(pSource, size, mdata, offset, &convFlags);
+    HRESULT hr = NS_FIX_3::DecodeTGAHeader(pSource, size, mdata, offset, &convFlags);
     if (FAILED(hr))
         return hr;
 
@@ -951,13 +951,13 @@ HRESULT DirectX::LoadFromTGAMemory(
     if (FAILED(hr))
         return hr;
 
-    if (convFlags & CONV_FLAGS_RLE)
+    if (convFlags & NS_FIX_3::CONV_FLAGS_RLE)
     {
-        hr = UncompressPixels(pPixels, remaining, image.GetImage(0, 0, 0), convFlags);
+        hr = NS_FIX_3::UncompressPixels(pPixels, remaining, image.GetImage(0, 0, 0), convFlags);
     }
     else
     {
-        hr = CopyPixels(pPixels, remaining, image.GetImage(0, 0, 0), convFlags);
+        hr = NS_FIX_3::CopyPixels(pPixels, remaining, image.GetImage(0, 0, 0), convFlags);
     }
 
     if (FAILED(hr))
@@ -1012,15 +1012,15 @@ HRESULT DirectX::LoadFromTGAFile(
     }
 
     // Need at least enough data to fill the header to be a valid TGA
-    if (fileInfo.EndOfFile.LowPart < sizeof(TGA_HEADER))
+    if (fileInfo.EndOfFile.LowPart < sizeof(NS_FIX_3::TGA_HEADER))
     {
         return E_FAIL;
     }
 
     // Read the header
-    uint8_t header[sizeof(TGA_HEADER)];
+    uint8_t header[sizeof(NS_FIX_3::TGA_HEADER)];
     DWORD bytesRead = 0;
-    if (!ReadFile(hFile.get(), header, sizeof(TGA_HEADER), &bytesRead, nullptr))
+    if (!ReadFile(hFile.get(), header, sizeof(NS_FIX_3::TGA_HEADER), &bytesRead, nullptr))
     {
         return HRESULT_FROM_WIN32(GetLastError());
     }
@@ -1028,7 +1028,7 @@ HRESULT DirectX::LoadFromTGAFile(
     size_t offset;
     DWORD convFlags = 0;
     TexMetadata mdata;
-    HRESULT hr = DecodeTGAHeader(header, bytesRead, mdata, offset, &convFlags);
+    HRESULT hr = NS_FIX_3::DecodeTGAHeader(header, bytesRead, mdata, offset, &convFlags);
     if (FAILED(hr))
         return hr;
 
@@ -1037,7 +1037,7 @@ HRESULT DirectX::LoadFromTGAFile(
     if (remaining == 0)
         return E_FAIL;
 
-    if (offset > sizeof(TGA_HEADER))
+    if (offset > sizeof(NS_FIX_3::TGA_HEADER))
     {
         // Skip past the id string
         LARGE_INTEGER filePos = { static_cast<DWORD>(offset), 0 };
@@ -1053,7 +1053,7 @@ HRESULT DirectX::LoadFromTGAFile(
 
     assert(image.GetPixels());
 
-    if (!(convFlags & (CONV_FLAGS_RLE | CONV_FLAGS_EXPAND | CONV_FLAGS_INVERTX)) && (convFlags & CONV_FLAGS_INVERTY))
+    if (!(convFlags & (NS_FIX_3::CONV_FLAGS_RLE | NS_FIX_3::CONV_FLAGS_EXPAND | NS_FIX_3::CONV_FLAGS_INVERTX)) && (convFlags & NS_FIX_3::CONV_FLAGS_INVERTY))
     {
         // This case we can read directly into the image buffer in place
         if (!ReadFile(hFile.get(), image.GetPixels(), static_cast<DWORD>(image.GetPixelsSize()), &bytesRead, nullptr))
@@ -1175,7 +1175,7 @@ HRESULT DirectX::LoadFromTGAFile(
             // If there are no non-zero alpha channel entries, we'll assume alpha is not used and force it to opaque
             if (!nonzeroa)
             {
-                hr = SetAlphaChannelToOpaque(img);
+                hr = NS_FIX_3::SetAlphaChannelToOpaque(img);
                 if (FAILED(hr))
                 {
                     image.Release();
@@ -1207,13 +1207,13 @@ HRESULT DirectX::LoadFromTGAFile(
             return E_FAIL;
         }
 
-        if (convFlags & CONV_FLAGS_RLE)
+        if (convFlags & NS_FIX_3::CONV_FLAGS_RLE)
         {
-            hr = UncompressPixels(temp.get(), remaining, image.GetImage(0, 0, 0), convFlags);
+            hr = NS_FIX_3::UncompressPixels(temp.get(), remaining, image.GetImage(0, 0, 0), convFlags);
         }
         else
         {
-            hr = CopyPixels(temp.get(), remaining, image.GetImage(0, 0, 0), convFlags);
+            hr = NS_FIX_3::CopyPixels(temp.get(), remaining, image.GetImage(0, 0, 0), convFlags);
         }
 
         if (FAILED(hr))
@@ -1239,9 +1239,9 @@ HRESULT DirectX::SaveToTGAMemory(const Image& image, Blob& blob)
     if (!image.pixels)
         return E_POINTER;
 
-    TGA_HEADER tga_header;
+    NS_FIX_3::TGA_HEADER tga_header;
     DWORD convFlags = 0;
-    HRESULT hr = EncodeTGAHeader(image, tga_header, convFlags);
+    HRESULT hr = NS_FIX_3::EncodeTGAHeader(image, tga_header, convFlags);
     if (FAILED(hr))
         return hr;
 
@@ -1259,15 +1259,15 @@ HRESULT DirectX::SaveToTGAMemory(const Image& image, Blob& blob)
         ComputePitch(image.format, image.width, image.height, rowPitch, slicePitch, CP_FLAGS_NONE);
     }
 
-    hr = blob.Initialize(sizeof(TGA_HEADER) + slicePitch);
+    hr = blob.Initialize(sizeof(NS_FIX_3::TGA_HEADER) + slicePitch);
     if (FAILED(hr))
         return hr;
 
     // Copy header
     auto dPtr = reinterpret_cast<uint8_t*>(blob.GetBufferPointer());
     assert(dPtr != 0);
-    memcpy_s(dPtr, blob.GetBufferSize(), &tga_header, sizeof(TGA_HEADER));
-    dPtr += sizeof(TGA_HEADER);
+    memcpy_s(dPtr, blob.GetBufferSize(), &tga_header, sizeof(NS_FIX_3::TGA_HEADER));
+    dPtr += sizeof(NS_FIX_3::TGA_HEADER);
 
     auto pPixels = reinterpret_cast<const uint8_t*>(image.pixels);
     assert(pPixels);
@@ -1277,7 +1277,7 @@ HRESULT DirectX::SaveToTGAMemory(const Image& image, Blob& blob)
         // Copy pixels
         if (convFlags & CONV_FLAGS_888)
         {
-            Copy24bppScanline(dPtr, rowPitch, pPixels, image.rowPitch);
+          NS_FIX_3::Copy24bppScanline(dPtr, rowPitch, pPixels, image.rowPitch);
         }
         else if (convFlags & CONV_FLAGS_SWIZZLE)
         {
@@ -1308,9 +1308,9 @@ HRESULT DirectX::SaveToTGAFile(const Image& image, const wchar_t* szFile)
     if (!image.pixels)
         return E_POINTER;
 
-    TGA_HEADER tga_header;
+    NS_FIX_3::TGA_HEADER tga_header;
     DWORD convFlags = 0;
-    HRESULT hr = EncodeTGAHeader(image, tga_header, convFlags);
+    HRESULT hr = NS_FIX_3::EncodeTGAHeader(image, tga_header, convFlags);
     if (FAILED(hr))
         return hr;
 
@@ -1370,12 +1370,12 @@ HRESULT DirectX::SaveToTGAFile(const Image& image, const wchar_t* szFile)
 
         // Write header
         DWORD bytesWritten;
-        if (!WriteFile(hFile.get(), &tga_header, sizeof(TGA_HEADER), &bytesWritten, nullptr))
+        if (!WriteFile(hFile.get(), &tga_header, sizeof(NS_FIX_3::TGA_HEADER), &bytesWritten, nullptr))
         {
             return HRESULT_FROM_WIN32(GetLastError());
         }
 
-        if (bytesWritten != sizeof(TGA_HEADER))
+        if (bytesWritten != sizeof(NS_FIX_3::TGA_HEADER))
             return E_FAIL;
 
         // Write pixels
@@ -1386,7 +1386,7 @@ HRESULT DirectX::SaveToTGAFile(const Image& image, const wchar_t* szFile)
             // Copy pixels
             if (convFlags & CONV_FLAGS_888)
             {
-                Copy24bppScanline(temp.get(), rowPitch, pPixels, image.rowPitch);
+              NS_FIX_3::Copy24bppScanline(temp.get(), rowPitch, pPixels, image.rowPitch);
             }
             else if (convFlags & CONV_FLAGS_SWIZZLE)
             {

@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------------------
 // DirectXTexResize.cpp
-//  
+//
 // DirectX Texture Library - Image resizing operations
 //
 // THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
@@ -26,7 +26,7 @@ namespace DirectX
         _In_ size_t newWidth, _In_ size_t newHeight, _In_ DWORD filter, _Inout_ const Image* img);
 }
 
-namespace
+namespace NS_FIX_1
 {
     //--- Do image resize using WIC ---
     HRESULT PerformResizeUsingWIC(
@@ -873,17 +873,17 @@ HRESULT DirectX::Resize(
         if (_DXGIToWIC(srcImage.format, pfGUID, true))
         {
             // Case 1: Source format is supported by Windows Imaging Component
-            hr = PerformResizeUsingWIC(srcImage, filter, pfGUID, *rimage);
+            hr = NS_FIX_1::PerformResizeUsingWIC(srcImage, filter, pfGUID, *rimage);
         }
         else
         {
             // Case 2: Source format is not supported by WIC, so we have to convert, resize, and convert back
-            hr = PerformResizeViaF32(srcImage, filter, *rimage);
+            hr = NS_FIX_1::PerformResizeViaF32(srcImage, filter, *rimage);
         }
     }
     else
     {
-        hr = PerformResizeUsingCustomFilters(srcImage, filter, *rimage);
+        hr = NS_FIX_1::PerformResizeUsingCustomFilters(srcImage, filter, *rimage);
     }
 
     if (FAILED(hr))
@@ -968,18 +968,18 @@ HRESULT DirectX::Resize(
                 if (wicpf)
                 {
                     // Case 1: Source format is supported by Windows Imaging Component
-                    hr = PerformResizeUsingWIC(*srcimg, filter, pfGUID, *destimg);
+                    hr = NS_FIX_1::PerformResizeUsingWIC(*srcimg, filter, pfGUID, *destimg);
                 }
                 else
                 {
                     // Case 2: Source format is not supported by WIC, so we have to convert, resize, and convert back
-                    hr = PerformResizeViaF32(*srcimg, filter, *destimg);
+                    hr = NS_FIX_1::PerformResizeViaF32(*srcimg, filter, *destimg);
                 }
             }
             else
             {
                 // Case 3: not using WIC resizing
-                hr = PerformResizeUsingCustomFilters(*srcimg, filter, *destimg);
+                hr = NS_FIX_1::PerformResizeUsingCustomFilters(*srcimg, filter, *destimg);
             }
 
             if (FAILED(hr))
@@ -1027,18 +1027,18 @@ HRESULT DirectX::Resize(
                 if (wicpf)
                 {
                     // Case 1: Source format is supported by Windows Imaging Component
-                    hr = PerformResizeUsingWIC(*srcimg, filter, pfGUID, *destimg);
+                    hr = NS_FIX_1::PerformResizeUsingWIC(*srcimg, filter, pfGUID, *destimg);
                 }
                 else
                 {
                     // Case 2: Source format is not supported by WIC, so we have to convert, resize, and convert back
-                    hr = PerformResizeViaF32(*srcimg, filter, *destimg);
+                    hr = NS_FIX_1::PerformResizeViaF32(*srcimg, filter, *destimg);
                 }
             }
             else
             {
                 // Case 3: not using WIC resizing
-                hr = PerformResizeUsingCustomFilters(*srcimg, filter, *destimg);
+                hr = NS_FIX_1::PerformResizeUsingCustomFilters(*srcimg, filter, *destimg);
             }
 
             if (FAILED(hr))

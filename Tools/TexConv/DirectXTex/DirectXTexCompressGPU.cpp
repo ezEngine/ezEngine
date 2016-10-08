@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------------------
 // DirectXTexCompressGPU.cpp
-//  
+//
 // DirectX Texture Library - DirectCompute-based texture compression
 //
 // THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
@@ -19,7 +19,7 @@
 
 using namespace DirectX;
 
-namespace
+namespace NS_FIX_2
 {
     inline DWORD GetSRGBFlags(_In_ DWORD compress)
     {
@@ -250,7 +250,7 @@ HRESULT DirectX::Compress(
         return E_POINTER;
     }
 
-    hr = GPUCompress(gpubc.get(), srcImage, *img, compress);
+    hr = NS_FIX_2::GPUCompress(gpubc.get(), srcImage, *img, compress);
     if (FAILED(hr))
         image.Release();
 
@@ -346,7 +346,7 @@ HRESULT DirectX::Compress(
                     return E_FAIL;
                 }
 
-                hr = GPUCompress(gpubc.get(), src, dest[index], compress);
+                hr = NS_FIX_2::GPUCompress(gpubc.get(), src, dest[index], compress);
                 if (FAILED(hr))
                 {
                     cImages.Release();
@@ -397,7 +397,7 @@ HRESULT DirectX::Compress(
                     return E_FAIL;
                 }
 
-                hr = GPUCompress(gpubc.get(), src, dest[index], compress);
+                hr = NS_FIX_2::GPUCompress(gpubc.get(), src, dest[index], compress);
                 if (FAILED(hr))
                 {
                     cImages.Release();
