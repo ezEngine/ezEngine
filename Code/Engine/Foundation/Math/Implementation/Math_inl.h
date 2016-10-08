@@ -13,7 +13,7 @@ namespace ezMath
       ret++;
     }
 
-    return (ezUInt32) ret;
+    return (ezUInt32)ret;
   }
 
   EZ_FORCE_INLINE int Pow2(int i)
@@ -42,7 +42,7 @@ namespace ezMath
   template <typename T>
   EZ_FORCE_INLINE T Sign(T f)
   {
-    return (f < 0 ? T (-1) : f > 0 ? T (1) : 0);
+    return (f < 0 ? T(-1) : f > 0 ? T(1) : 0);
   }
 
   template <typename T>
@@ -60,13 +60,13 @@ namespace ezMath
   template <typename T>
   EZ_FORCE_INLINE T Min(T f1, T f2, T f3)
   {
-    return Min(Min (f1, f2), f3);
+    return Min(Min(f1, f2), f3);
   }
 
   template <typename T>
   EZ_FORCE_INLINE T Min(T f1, T f2, T f3, T f4)
   {
-    return Min(Min (f1, f2), Min (f3, f4));
+    return Min(Min(f1, f2), Min(f3, f4));
   }
 
   template <typename T>
@@ -78,13 +78,13 @@ namespace ezMath
   template <typename T>
   EZ_FORCE_INLINE T Max(T f1, T f2, T f3)
   {
-    return Max(Max (f1, f2), f3);
+    return Max(Max(f1, f2), f3);
   }
 
   template <typename T>
   EZ_FORCE_INLINE T Max(T f1, T f2, T f3, T f4)
   {
-    return Max(Max (f1, f2), Max (f3, f4));
+    return Max(Max(f1, f2), Max(f3, f4));
   }
 
   template <typename T>
@@ -99,12 +99,12 @@ namespace ezMath
   {
     if (i < 0)
     {
-      const ezInt32 iDivides = (i+1) / (ezInt32) uiMultiple;
+      const ezInt32 iDivides = (i + 1) / (ezInt32)uiMultiple;
 
-      return ((iDivides-1) * uiMultiple);
+      return ((iDivides - 1) * uiMultiple);
     }
 
-    const ezInt32 iDivides = i / (ezInt32) uiMultiple;
+    const ezInt32 iDivides = i / (ezInt32)uiMultiple;
     return (iDivides * uiMultiple);
   }
 
@@ -112,19 +112,19 @@ namespace ezMath
   {
     if (i < 0)
     {
-      const ezInt32 iDivides = i / (ezInt32) uiMultiple;
+      const ezInt32 iDivides = i / (ezInt32)uiMultiple;
 
       return (iDivides * uiMultiple);
     }
 
-    ezInt32 iDivides = (i-1) / (ezInt32) uiMultiple;
-    return ((iDivides+1) * uiMultiple);
+    ezInt32 iDivides = (i - 1) / (ezInt32)uiMultiple;
+    return ((iDivides + 1) * uiMultiple);
   }
 
   template<typename Type>
   Type Invert(Type f)
   {
-    return ((Type) 1) / f;
+    return ((Type)1) / f;
   }
 
   EZ_FORCE_INLINE bool IsOdd(ezInt32 i)
@@ -146,16 +146,16 @@ namespace ezMath
   template <typename T>
   EZ_FORCE_INLINE T Lerp(T f1, T f2, float factor)
   {
-    EZ_ASSERT_DEBUG ((factor >= -0.00001f) && (factor <= 1.0f + 0.00001f), "lerp: factor %.2f is not in the range [0; 1]", factor);
+    EZ_ASSERT_DEBUG((factor >= -0.00001f) && (factor <= 1.0f + 0.00001f), "lerp: factor %.2f is not in the range [0; 1]", factor);
 
-    return (T) (f1 + (factor * (f2 - f1)));
+    return (T)(f1 + (factor * (f2 - f1)));
   }
 
   ///  Returns 0, if value < edge, and 1, if value >= edge.
   template <typename T>
   EZ_FORCE_INLINE T Step(T value, T edge)
   {
-    return (value >= edge ? T (1) : T (0));
+    return (value >= edge ? T(1) : T(0));
   }
 
   EZ_FORCE_INLINE bool IsPowerOf2(ezInt32 value)
@@ -184,7 +184,7 @@ namespace ezMath
   template<typename Type>
   bool IsZero(Type f, Type fEpsilon)
   {
-    EZ_ASSERT_DEBUG (fEpsilon >= 0, "Epsilon may not be negative.");
+    EZ_ASSERT_DEBUG(fEpsilon >= 0, "Epsilon may not be negative.");
 
     return ((f >= -fEpsilon) && (f <= fEpsilon));
   }
@@ -213,26 +213,29 @@ namespace ezMath
   template<typename Type>
   EZ_FORCE_INLINE Type Fraction(Type f)
   {
-    return (f - Trunc (f));
+    return (f - Trunc(f));
   }
 
   template<typename Type>
   inline Type SmoothStep(Type x, Type edge1, Type edge2)
   {
-    if (x <= edge1)
-      return (Type) 0;
-    if (x >= edge2)
-      return (Type) 1;
+    const Type divider = edge2 - edge1;
 
-    const float divider = edge2 - edge1;
-
-    // this stupid condition is just to make MSVC happy and not create a "potential divide by zero" warning (which you cannot deactivate!)
-    // in case edge1 and edge2 are identical, which should already be covered by the first two conditions
-    if (divider == 0.0f)
-      return (Type) 0;
+    if (divider == (Type)0)
+    {
+      if (x >= edge2)
+        return (Type)1;
+      return (Type)0;
+    }
 
     x = (x - edge1) / divider;
-    return (x * x * ((Type) 3 - ((Type) 2 * x)));
+
+    if (x <= (Type)0)
+      return (Type)0;
+    if (x >= (Type)1)
+      return (Type)1;
+
+    return (x * x * ((Type)3 - ((Type)2 * x)));
   }
 
   inline ezUInt8 ColorFloatToByte(float value)
