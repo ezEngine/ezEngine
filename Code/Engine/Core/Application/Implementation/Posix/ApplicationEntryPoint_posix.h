@@ -21,7 +21,11 @@
     AppClass* pApp = new (appBuffer) AppClass(__VA_ARGS__); \
     pApp->SetCommandLineArguments((ezUInt32) argc, argv); \
     ezRun(pApp); /* Life cycle & run method calling */ \
-    int iReturnCode = pApp->GetReturnCode(); \
+    const int iReturnCode = pApp->GetReturnCode(); \
+    if (iReturnCode != 0) { \
+      std::string text = pApp->TranslateReturnCode(); \
+      if (!text.empty()) printf("Return Code: '%s'\n", text.c_str()); \
+    } \
     pApp->~AppClass(); \
     memset(pApp, 0, sizeof(AppClass)); \
     return iReturnCode; \

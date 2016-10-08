@@ -193,4 +193,46 @@ ezResult ezTexConv::SaveThumbnail()
   return EZ_SUCCESS;
 }
 
+const char* ezTexConv::TranslateReturnCode() const
+{
+  switch (GetReturnCode())
+  {
+  case TexConvReturnCodes::UNKNOWN_FAILURE:
+    return "UNKNOWN_FAILURE";
+  case TexConvReturnCodes::VALIDATION_FAILED:
+    return "VALIDATION_FAILED";
+  case TexConvReturnCodes::BAD_SINGLE_CUBEMAP_FILE:
+    return "BAD_SINGLE_CUBEMAP_FILE";
+  case TexConvReturnCodes::FAILED_CONVERT_INPUT_TO_RGBA:
+    return "FAILED_CONVERT_INPUT_TO_RGBA";
+  case TexConvReturnCodes::FAILED_WRITE_OUTPUT:
+    return "FAILED_WRITE_OUTPUT";
+  case TexConvReturnCodes::FAILED_LOAD_INPUTS:
+    return "FAILED_LOAD_INPUTS";
+  case TexConvReturnCodes::BAD_INPUT_RESOLUTIONS:
+    return "BAD_INPUT_RESOLUTIONS";
+  case TexConvReturnCodes::FAILED_PASS_THROUGH:
+    return "FAILED_PASS_THROUGH";
+  case TexConvReturnCodes::FAILED_MIPMAP_GENERATION:
+    return "FAILED_MIPMAP_GENERATION";
+  case TexConvReturnCodes::FAILED_BC_COMPRESSION:
+    return "FAILED_BC_COMPRESSION";
+  case TexConvReturnCodes::FAILED_CONVERT_TO_OUTPUT_FORMAT:
+    return "FAILED_CONVERT_TO_OUTPUT_FORMAT";
+  case TexConvReturnCodes::FAILED_SAVE_AS_DDS:
+    return "FAILED_SAVE_AS_DDS";
+  case TexConvReturnCodes::FAILED_INITIALIZE_CUBEMAP:
+    return "FAILED_INITIALIZE_CUBEMAP";
+  case TexConvReturnCodes::FAILED_COMBINE_CUBEMAP:
+    return "FAILED_COMBINE_CUBEMAP";
+  case TexConvReturnCodes::FAILED_PREMULTIPLY_ALPHA:
+    return "FAILED_PREMULTIPLY_ALPHA";
+
+  default:
+    return "UNKNOWN ERROR CODE";
+  }
+}
+
 EZ_CONSOLEAPP_ENTRY_POINT(ezTexConv);
+
+

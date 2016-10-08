@@ -22,7 +22,7 @@ ezResult ezTexConv::GenerateMipmaps()
   {
     shared_ptr<ScratchImage> pNewScratch = make_shared<ScratchImage>();
 
-    if (FAILED(GenerateMipMaps(m_pCurrentImage->GetImages(), m_pCurrentImage->GetImageCount(), m_pCurrentImage->GetMetadata(), TEX_FILTER_DEFAULT, 0, *pNewScratch.get())))
+    if (FAILED(GenerateMipMaps(m_pCurrentImage->GetImages(), m_pCurrentImage->GetImageCount(), m_pCurrentImage->GetMetadata(), TEX_FILTER_SEPARATE_ALPHA, 0, *pNewScratch.get())))
     {
       SetReturnCode(TexConvReturnCodes::FAILED_MIPMAP_GENERATION);
       ezLog::Error("Mipmap generation failed");

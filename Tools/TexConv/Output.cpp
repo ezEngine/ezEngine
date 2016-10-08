@@ -33,8 +33,13 @@ ezImageFormat::Enum ezTexConv::ChooseOutputFormat(bool bSRGB, bool bAlphaIsMask)
     {
       if (bAlphaIsMask)
       {
+        /// \todo BC1 seems to get its "1 Bit Alpha" going by premultiplying it into the color value. But might also be a bug in the DDS generator
+
         // BC1 supports 1 Bit alpha, so that is more efficient for textures that only use a simple mask for alpha
-        return bSRGB ? ezImageFormat::BC1_UNORM_SRGB : ezImageFormat::BC1_UNORM;
+        if (m_bPremultiplyAlpha)
+          return bSRGB ? ezImageFormat::BC1_UNORM_SRGB : ezImageFormat::BC1_UNORM;
+        else
+          return bSRGB ? ezImageFormat::BC2_UNORM_SRGB : ezImageFormat::BC2_UNORM;
       }
       else
       {

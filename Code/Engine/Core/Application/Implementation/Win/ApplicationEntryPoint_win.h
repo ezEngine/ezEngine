@@ -16,6 +16,10 @@
     pApp->SetCommandLineArguments((ezUInt32) argc, argv); \
     ezRun(pApp); /* Life cycle & run method calling */ \
     const int iReturnCode = pApp->GetReturnCode(); \
+    if (iReturnCode != 0) { \
+      std::string text = pApp->TranslateReturnCode(); \
+      if (!text.empty()) printf("Return Code: '%s'\n", text.c_str()); \
+    } \
     const bool memLeaks = pApp->IsMemoryLeakReportingEnalbed(); \
     pApp->~AppClass(); \
     memset(pApp, 0, sizeof(AppClass)); \
@@ -37,6 +41,10 @@
     pApp->SetCommandLineArguments((ezUInt32) __argc, const_cast<const char**>(__argv)); \
     ezRun(pApp); /* Life cycle & run method calling */ \
     const int iReturnCode = pApp->GetReturnCode(); \
+    if (iReturnCode != 0) { \
+      std::string text = pApp->TranslateReturnCode(); \
+      if (!text.empty()) printf("Return Code: '%s'\n", text.c_str()); \
+    } \
     const bool memLeaks = pApp->IsMemoryLeakReportingEnalbed(); \
     pApp->~AppClass(); \
     memset(pApp, 0, sizeof(AppClass)); \

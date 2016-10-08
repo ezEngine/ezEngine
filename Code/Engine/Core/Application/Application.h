@@ -30,26 +30,26 @@ EZ_CORE_DLL void ezRun(ezApplication* pApplicationInstance);
 ///   class ezSampleApp : public ezApplication
 ///   {
 ///   public:
-///   
+///
 ///     virtual void AfterCoreStartup() override
 ///     {
 ///       // Setup Filesystem, Logging, etc.
 ///     }
-///   
+///
 ///     virtual void BeforeCoreShutdown() override
 ///     {
 ///       // Close log file, etc.
 ///     }
-///   
+///
 ///     virtual ezApplication::ApplicationExecution Run() override
 ///     {
 ///       // Either run a one-time application (e.g. console script) and return ezApplication::Quit
 ///       // Or run one update (frame) of your game loop and return ezApplication::Continue
-///   
+///
 ///       return ezApplication::Quit;
 ///     }
 ///   };
-///   
+///
 ///   EZ_APPLICATION_ENTRY_POINT(ezSampleApp);
 /// \endcode
 class EZ_CORE_DLL ezApplication
@@ -103,7 +103,7 @@ public:
 
   /// \brief This function is called when an application is moved to the background.
   ///
-  /// On Windows that might simply mean that the main window lost the focus. 
+  /// On Windows that might simply mean that the main window lost the focus.
   /// On other devices this might mean that the application is not visible at all anymore and
   /// might even get shut down later. Override this function to be able to put the application
   /// into a proper sleep mode.
@@ -138,6 +138,9 @@ public:
   {
     return m_iReturnCode;
   }
+
+  /// \brief If the return code is not zero, this function might be called to get a string to print the error code in human readable form.
+  virtual const char* TranslateReturnCode() const { return ""; }
 
   /// \brief Will set the command line arguments that were passed to the app by the OS.
   /// This is automatically called by EZ_APPLICATION_ENTRY_POINT() and EZ_CONSOLEAPP_ENTRY_POINT().

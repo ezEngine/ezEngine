@@ -95,6 +95,7 @@ public:
 
   virtual void AfterCoreStartup() override;
   virtual void BeforeCoreShutdown() override;
+  virtual const char* TranslateReturnCode() const override;
 
   ChannelMapping ParseInputCfg(const char* cfg, ezInt8 iChannelIndex, bool bSingleChannel);
   void ParseCommandLine();
