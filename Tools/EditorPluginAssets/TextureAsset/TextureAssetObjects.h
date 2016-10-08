@@ -49,6 +49,7 @@ struct ezChannelMappingEnum
 
     RGBA1_2D,
     RGB1_A2_2D,
+    RGB1_ABLACK_2D,
     R1_G2_B3_A4_2D,
 
     RGB1_CUBE,

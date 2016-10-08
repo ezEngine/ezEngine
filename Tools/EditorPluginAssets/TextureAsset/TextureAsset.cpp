@@ -115,19 +115,19 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   case ezChannelMappingEnum::R1_2D:
     {
       arguments << "-r";
-      arguments << "in0.x"; // always linear
+      arguments << "in0.r"; // always linear
     }
     break;
   case ezChannelMappingEnum::RG1_2D:
     {
       arguments << "-rg";
-      arguments << "in0.xy"; // always linear
+      arguments << "in0.rg"; // always linear
     }
     break;
   case ezChannelMappingEnum::R1_G2_2D:
     {
       arguments << "-r";
-      arguments << "in0.x";
+      arguments << "in0.r";
       arguments << "-g";
       arguments << "in1.y"; // always linear
     }
@@ -136,6 +136,14 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
     {
       arguments << "-rgb";
       arguments << "in0.rgb";
+    }
+    break;
+  case ezChannelMappingEnum::RGB1_ABLACK_2D:
+    {
+      arguments << "-rgb";
+      arguments << "in0.rgb";
+      arguments << "-a";
+      arguments << "black";
     }
     break;
   case ezChannelMappingEnum::R1_G2_B3_2D:
@@ -159,7 +167,7 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
       arguments << "-rgb";
       arguments << "in0.rgb";
       arguments << "-a";
-      arguments << "in1.x";    }
+      arguments << "in1.r";    }
     break;
   case ezChannelMappingEnum::R1_G2_B3_A4_2D:
     {
@@ -170,7 +178,7 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
       arguments << "-b";
       arguments << "in2.r";
       arguments << "-a";
-      arguments << "in3.x";
+      arguments << "in3.r";
     }
     break;
 
@@ -223,7 +231,21 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
 
   RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail);
 
-  return ezStatus(EZ_SUCCESS);
+  ezFileStats stat;
+  if (ezOSFile::GetFileStats(szTargetFile, stat).Succeeded())
+  {
+    // if the file was touched, but nothing written to it, delete the file
+    // might happen if TexConv crashed or had an error
+    if (stat.m_uiFileSize == 0)
+    {
+      ezOSFile::DeleteFile(szTargetFile);
+      return ezStatus(EZ_FAILURE);
+    }
+
+    return ezStatus(EZ_SUCCESS);
+  }
+
+  return ezStatus(EZ_FAILURE);
 }
 
 const char* ezTextureAssetDocument::QueryAssetType() const

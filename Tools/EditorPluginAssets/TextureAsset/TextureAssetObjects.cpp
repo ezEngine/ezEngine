@@ -13,7 +13,7 @@ EZ_END_STATIC_REFLECTED_ENUM();
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezChannelMappingEnum, 1)
 EZ_ENUM_CONSTANTS(ezChannelMappingEnum::R1_2D)
 EZ_ENUM_CONSTANTS(ezChannelMappingEnum::RG1_2D, ezChannelMappingEnum::R1_G2_2D)
-EZ_ENUM_CONSTANTS(ezChannelMappingEnum::RGB1_2D, ezChannelMappingEnum::R1_G2_B3_2D)
+EZ_ENUM_CONSTANTS(ezChannelMappingEnum::RGB1_2D, ezChannelMappingEnum::RGB1_ABLACK_2D, ezChannelMappingEnum::R1_G2_B3_2D)
 EZ_ENUM_CONSTANTS(ezChannelMappingEnum::RGBA1_2D, ezChannelMappingEnum::RGB1_A2_2D, ezChannelMappingEnum::R1_G2_B3_A4_2D)
 EZ_ENUM_CONSTANTS(ezChannelMappingEnum::RGB1_CUBE, ezChannelMappingEnum::RGBA1_CUBE, ezChannelMappingEnum::RGB1TO6_CUBE, ezChannelMappingEnum::RGBA1TO6_CUBE)
 EZ_END_STATIC_REFLECTED_ENUM();
@@ -142,6 +142,7 @@ ezInt32 ezTextureAssetProperties::GetNumInputFiles() const
   case ezChannelMappingEnum::R1_2D:
   case ezChannelMappingEnum::RG1_2D:
   case ezChannelMappingEnum::RGB1_2D:
+  case ezChannelMappingEnum::RGB1_ABLACK_2D:
   case ezChannelMappingEnum::RGBA1_2D:
   case ezChannelMappingEnum::RGB1_CUBE:
   case ezChannelMappingEnum::RGBA1_CUBE:
@@ -184,6 +185,7 @@ ezInt32 ezTextureAssetProperties::GetNumChannels() const
   case ezChannelMappingEnum::RGB1TO6_CUBE:
     return 3;
 
+  case ezChannelMappingEnum::RGB1_ABLACK_2D:
   case ezChannelMappingEnum::RGBA1_2D:
   case ezChannelMappingEnum::RGB1_A2_2D:
   case ezChannelMappingEnum::R1_G2_B3_A4_2D:
@@ -225,6 +227,7 @@ bool ezTextureAssetProperties::IsTexture2D() const
           m_ChannelMapping == ezChannelMappingEnum::R1_G2_B3_A4_2D ||
           m_ChannelMapping == ezChannelMappingEnum::RG1_2D ||
           m_ChannelMapping == ezChannelMappingEnum::RGB1_2D ||
+          m_ChannelMapping == ezChannelMappingEnum::RGB1_ABLACK_2D ||
           m_ChannelMapping == ezChannelMappingEnum::RGB1_A2_2D ||
           m_ChannelMapping == ezChannelMappingEnum::RGBA1_2D);
 }

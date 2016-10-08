@@ -19,6 +19,10 @@ bool ezAssetDocumentManager::IsResourceUpToDate(ezUInt64 uiHash, ezUInt16 uiType
   if (file.Open(szResourceFile, 256).Failed())
     return false;
 
+  // this might happen if writing to the file failed
+  if (file.GetFileSize() == 0)
+    return false;
+
   ezAssetFileHeader AssetHeader;
   AssetHeader.Read(file);
 

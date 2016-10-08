@@ -36,14 +36,14 @@
   + ((unsigned long)EZ_8BIT(B2) <<  8) \
   + ((unsigned long)EZ_8BIT(B1))
 
-namespace 
+namespace
 {
     struct UniqueInt
     {
         int i, id;
         UniqueInt(int i, int id) : i(i), id(id) {}
 
-        bool operator < (const UniqueInt& rh) 
+        bool operator < (const UniqueInt& rh)
         {
             return this->i < rh.i;
         }
@@ -89,7 +89,7 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(90.0f)),  1.0f, 0.000001f);
     EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(180.0f)), 0.0f, 0.000001f);
     EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(270.0f)),-1.0f, 0.000001f);
-    
+
     EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(45.0f)),  0.7071067f, 0.000001f);
     EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(135.0f)), 0.7071067f, 0.000001f);
     EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(225.0f)),-0.7071067f, 0.000001f);
@@ -102,7 +102,7 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(90.0f)),  0.0f, 0.000001f);
     EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(180.0f)),-1.0f, 0.000001f);
     EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(270.0f)), 0.0f, 0.000001f);
-    
+
     EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(45.0f)),  0.7071067f, 0.000001f);
     EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(135.0f)),-0.7071067f, 0.000001f);
     EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(225.0f)),-0.7071067f, 0.000001f);
@@ -139,7 +139,7 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_FLOAT(ezMath::ASin(0.0f).GetDegree(),   0.0f, 0.00001f);
     EZ_TEST_FLOAT(ezMath::ASin(1.0f).GetDegree(),  90.0f, 0.00001f);
     EZ_TEST_FLOAT(ezMath::ASin(-1.0f).GetDegree(),-90.0f, 0.00001f);
-    
+
     EZ_TEST_FLOAT(ezMath::ASin(0.7071067f).GetDegree(),  45.0f, 0.0001f);
     EZ_TEST_FLOAT(ezMath::ASin(-0.7071067f).GetDegree(),-45.0f, 0.0001f);
   }
@@ -149,7 +149,7 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_FLOAT(ezMath::ACos(0.0f).GetDegree(),  90.0f, 0.00001f);
     EZ_TEST_FLOAT(ezMath::ACos(1.0f).GetDegree(),   0.0f, 0.00001f);
     EZ_TEST_FLOAT(ezMath::ACos(-1.0f).GetDegree(),180.0f, 0.0001f);
-    
+
     EZ_TEST_FLOAT(ezMath::ACos( 0.7071067f).GetDegree(), 45.0f, 0.0001f);
     EZ_TEST_FLOAT(ezMath::ACos(-0.7071067f).GetDegree(),135.0f, 0.0001f);
   }
@@ -314,7 +314,7 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_BOOL(ezMath::Max(1, 2, 3) == 3);
     EZ_TEST_BOOL(ezMath::Max(1, 2, 0) == 2);
     EZ_TEST_BOOL(ezMath::Max(1, 0, 0) == 1);
-                   
+
     EZ_TEST_BOOL(ezMath::Max(1, 2, 3, 4) == 4);
     EZ_TEST_BOOL(ezMath::Max(1, 2, 3, 0) == 3);
     EZ_TEST_BOOL(ezMath::Max(1, 2, 0, 0) == 2);

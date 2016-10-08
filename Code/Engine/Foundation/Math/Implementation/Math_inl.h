@@ -4,10 +4,10 @@
 
 namespace ezMath
 {
-  inline ezUInt32 Log2i(ezUInt32 val) 
+  inline ezUInt32 Log2i(ezUInt32 val)
   {
     ezInt32 ret = -1;
-    while (val != 0) 
+    while (val != 0)
     {
       val >>= 1;
       ret++;
@@ -35,12 +35,12 @@ namespace ezMath
 
   template <typename T>
   EZ_FORCE_INLINE T Square(T f)
-  { 
-    return (f * f); 
+  {
+    return (f * f);
   }
 
   template <typename T>
-  EZ_FORCE_INLINE T Sign(T f) 
+  EZ_FORCE_INLINE T Sign(T f)
   {
     return (f < 0 ? T (-1) : f > 0 ? T (1) : 0);
   }
@@ -88,11 +88,11 @@ namespace ezMath
   }
 
   template <typename T>
-  EZ_FORCE_INLINE T Clamp(T value, T min_val, T max_val) 
-  { 
-    if (value < min_val) return (min_val); 
-    if (max_val < value) return (max_val);	
-    return (value);	
+  EZ_FORCE_INLINE T Clamp(T value, T min_val, T max_val)
+  {
+    if (value < min_val) return (min_val);
+    if (max_val < value) return (max_val);
+    return (value);
   }
 
   inline ezInt32 Floor(ezInt32 i, ezUInt32 uiMultiple)
@@ -139,7 +139,7 @@ namespace ezMath
 
   template <typename T>
   EZ_FORCE_INLINE void Swap(T& f1, T& f2)
-  { 
+  {
     std::swap(f1, f2);
   }
 
@@ -160,7 +160,7 @@ namespace ezMath
 
   EZ_FORCE_INLINE bool IsPowerOf2(ezInt32 value)
   {
-    if (value < 1) 
+    if (value < 1)
       return false;
 
     return ((value & (value - 1)) == 0);
@@ -219,13 +219,19 @@ namespace ezMath
   template<typename Type>
   inline Type SmoothStep(Type x, Type edge1, Type edge2)
   {
-    x = (x - edge1) / (edge2 - edge1);
-
-    if (x <= (Type) 0)
+    if (x <= edge1)
       return (Type) 0;
-    if (x >= (Type) 1)
+    if (x >= edge2)
       return (Type) 1;
 
+    const float divider = edge2 - edge1;
+
+    // this stupid condition is just to make MSVC happy and not create a "potential divide by zero" warning (which you cannot deactivate!)
+    // in case edge1 and edge2 are identical, which should already be covered by the first two conditions
+    if (divider == 0.0f)
+      return (Type) 0;
+
+    x = (x - edge1) / divider;
     return (x * x * ((Type) 3 - ((Type) 2 * x)));
   }
 

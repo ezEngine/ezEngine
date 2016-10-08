@@ -27,6 +27,7 @@ ezChannelMappingEnum::RGB1_CUBE;Cubemap: RGB - Single Input
 ezChannelMappingEnum::RGBA1_CUBE;Cubemap: RGBA - Single Input
 ezChannelMappingEnum::RGB1TO6_CUBE;Cubemap: RGB - 6 Inputs
 ezChannelMappingEnum::RGBA1TO6_CUBE;Cubemap: RGBA - 6 Inputs
+ezChannelMappingEnum::RGB1_ABLACK_2D;RGBA - Input1.rgb, Alpha = Black
 ezTextureAddressMode::Wrap;Wrap
 ezTextureAddressMode::Mirror;Mirror
 ezTextureAddressMode::Clamp;Clamp
