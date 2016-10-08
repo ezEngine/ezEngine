@@ -70,38 +70,52 @@ void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRen
 
   EZ_LOCK(m_Mutex);
 
+  // increase frame count to identify which system has been updated in this frame already
   ++m_uiExtractedFrame;
 
   for (ezUInt32 e = 0; e < m_ParticleEffects.GetCount(); ++e)
   {
     ezParticleEffectInstance* pEffect = &m_ParticleEffects[e];
 
-    const auto& shared = pEffect->GetAllSharedInstances();
-
-    for (ezUInt32 shi = 0; shi < ezMath::Max<ezUInt32>(1, shared.GetCount()); ++shi)
+    if (pEffect->IsSharedEffect())
     {
-      ezTransform systemTransform;
+      const auto& shared = pEffect->GetAllSharedInstances();
 
-      if (!shared.IsEmpty())
-        systemTransform = pEffect->GetTransform(shared[shi].m_pSharedInstanceOwner);
-      else if (pEffect->IsSimulatedInLocalSpace())
-        systemTransform = pEffect->GetTransform(nullptr);
-      else
-        systemTransform.SetIdentity();
-
-      for (ezUInt32 i = 0; i < pEffect->GetParticleSystems().GetCount(); ++i)
+      for (ezUInt32 shi = 0; shi < shared.GetCount(); ++shi)
       {
-        const ezParticleSystemInstance* pSystem = pEffect->GetParticleSystems()[i];
+        /// \todo Determine per shared instance, whether it is visible at all
 
-        if (pSystem == nullptr)
-          continue;
-
-        if (!pSystem->HasActiveParticles() || !pSystem->IsVisible())
-          continue;
-
-        pSystem->ExtractRenderData(view, pExtractedRenderData, systemTransform, m_uiExtractedFrame);
+        ExtractEffectRenderData(pEffect, view, pExtractedRenderData, pEffect->GetTransform(shared[shi].m_pSharedInstanceOwner));
       }
     }
+    else
+    {
+      ezTransform systemTransform = ezTransform::Identity();
+
+      if (pEffect->IsSimulatedInLocalSpace())
+        systemTransform = pEffect->GetTransform(nullptr);
+
+      /// \todo Determine whether this instance is visible at all
+
+      ExtractEffectRenderData(pEffect, view, pExtractedRenderData, systemTransform);
+    }
+  }
+}
+
+
+void ezParticleWorldModule::ExtractEffectRenderData(ezParticleEffectInstance* pEffect, const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& systemTransform)
+{
+  for (ezUInt32 i = 0; i < pEffect->GetParticleSystems().GetCount(); ++i)
+  {
+    const ezParticleSystemInstance* pSystem = pEffect->GetParticleSystems()[i];
+
+    if (pSystem == nullptr)
+      continue;
+
+    if (!pSystem->HasActiveParticles() || !pSystem->IsVisible())
+      continue;
+
+    pSystem->ExtractSystemRenderData(view, pExtractedRenderData, systemTransform, m_uiExtractedFrame);
   }
 }
 

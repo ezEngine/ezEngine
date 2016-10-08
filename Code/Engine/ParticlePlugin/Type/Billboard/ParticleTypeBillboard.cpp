@@ -85,7 +85,7 @@ void ezParticleTypeBillboard::CreateRequiredStreams()
   CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor);
 }
 
-void ezParticleTypeBillboard::ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   if (!m_hTexture.IsValid())
     return;

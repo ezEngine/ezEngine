@@ -113,7 +113,7 @@ void ezParticleWorldModule::UpdateEffects()
   const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
   for (ezUInt32 i = 0; i < m_ParticleEffects.GetCount(); ++i)
   {
-    if (m_ParticleEffects[i].GetHandle().IsInvalidated())
+    if (!m_ParticleEffects[i].ShouldBeUpdated())
       continue;
 
     ezParticleffectUpdateTask* pTask = m_ParticleEffects[i].GetUpdateTask();

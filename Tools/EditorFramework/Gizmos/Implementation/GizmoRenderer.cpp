@@ -1,6 +1,6 @@
 #include <PCH.h>
-#include <EditorFramework/Gizmos/GizmoRenderer.h> 
-#include <EditorFramework/Gizmos/GizmoComponent.h> 
+#include <EditorFramework/Gizmos/GizmoRenderer.h>
+#include <EditorFramework/Gizmos/GizmoComponent.h>
 
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -8,6 +8,7 @@
 #include <RendererCore/Pipeline/ViewData.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Foundation/Types/ScopeExit.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Editor/GizmoConstants.h>
 
@@ -27,7 +28,7 @@ float ezGizmoRenderer::s_fGizmoScale = 1.0f;
 ezGizmoRenderer::ezGizmoRenderer()
 {
   m_bEnabled = true;
-  m_uiHighlightID = 0;  
+  m_uiHighlightID = 0;
 }
 
 ezGizmoRenderer::~ezGizmoRenderer()
@@ -62,10 +63,12 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
   const ezMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiPartIndex];
 
   renderViewContext.m_pRenderContext->BindMeshBuffer(pMesh->GetMeshBuffer());
-  renderViewContext.m_pRenderContext->BindMaterial(hMaterial);  
+  renderViewContext.m_pRenderContext->BindMaterial(hMaterial);
 
+  /// \brief This pattern looks like it is inefficient. Should it use the GPU pool instead somehow?
   ezConstantBufferStorage<GizmoConstants>* pGizmoConstantBuffer;
   ezConstantBufferStorageHandle hGizmoConstantBuffer = ezRenderContext::CreateConstantBufferStorage(pGizmoConstantBuffer);
+  EZ_SCOPE_EXIT(ezRenderContext::DeleteConstantBufferStorage(hGizmoConstantBuffer));
 
   renderViewContext.m_pRenderContext->BindConstantBuffer("GizmoConstants", hGizmoConstantBuffer);
 
@@ -102,8 +105,6 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
       }
     }
   }
-
-  ezRenderContext::DeleteConstantBufferStorage(hGizmoConstantBuffer);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshRenderer);

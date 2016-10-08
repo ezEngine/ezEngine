@@ -424,7 +424,7 @@ void ezParticleSystemInstance::CreateStreamZeroInitializers()
 
     EZ_ASSERT_DEV(info.m_bInUse, "Invalid state");
 
-    ezLog::Warning("Particle stream '%s' is zero-initialized.", info.m_sName.GetData());
+    //ezLog::Warning("Particle stream '%s' is zero-initialized.", info.m_sName.GetData());
 
     if (info.m_pInitializer == nullptr)
     {
@@ -463,11 +463,11 @@ void ezParticleSystemInstance::ProcessEventQueue(const ezParticleEventQueue* pQu
   }
 }
 
-void ezParticleSystemInstance::ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleSystemInstance::ExtractSystemRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   for (auto pType : m_Types)
   {
-    pType->ExtractRenderData(view, pExtractedRenderData, instanceTransform, uiExtractedFrame);
+    pType->ExtractTypeRenderData(view, pExtractedRenderData, instanceTransform, uiExtractedFrame);
   }
 
 }

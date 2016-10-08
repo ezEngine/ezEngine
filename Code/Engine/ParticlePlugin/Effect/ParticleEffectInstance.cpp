@@ -27,7 +27,7 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   m_pWorld = pWorld;
   m_pOwnerModule = pOwnerModule;
   m_hResource = hResource;
-  m_bIsShared = bIsShared;
+  m_bIsSharedEffect = bIsShared;
   m_bEmitterEnabled = true;
 
   Reconfigure(uiRandomSeed, true);
@@ -41,7 +41,7 @@ void ezParticleEffectInstance::Destruct()
   m_hEffectHandle.Invalidate();
 
   m_Transform.SetIdentity();
-  m_bIsShared = false;
+  m_bIsSharedEffect = false;
   m_pWorld = nullptr;
   m_hResource.Invalidate();
   m_hEffectHandle.Invalidate();
@@ -244,16 +244,16 @@ void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const 
         }
       }
     }
-
-    return;
   }
-
-  for (auto& info : m_SharedInstances)
+  else
   {
-    if (info.m_pSharedInstanceOwner == pSharedInstanceOwner)
+    for (auto& info : m_SharedInstances)
     {
-      info.m_Transform = transform;
-      return;
+      if (info.m_pSharedInstanceOwner == pSharedInstanceOwner)
+      {
+        info.m_Transform = transform;
+        return;
+      }
     }
   }
 }
@@ -314,6 +314,19 @@ ezParticleEventQueue* ezParticleEffectInstance::GetEventQueue(const ezTempHashed
   queue.m_EventTypeHash = EventType.GetHash();
 
   return queue.m_pQueue;
+}
+
+
+bool ezParticleEffectInstance::ShouldBeUpdated() const
+{
+  if (m_hEffectHandle.IsInvalidated())
+    return false;
+
+  // do not update shared instances when there is no one watching
+  if (m_bIsSharedEffect && m_SharedInstances.GetCount() == 0)
+    return false;
+
+  return true;
 }
 
 void ezParticleEffectInstance::DestroyEventQueues()

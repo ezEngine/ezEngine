@@ -61,7 +61,7 @@ public:
 
   const ezHybridArray<ezParticleSystemInstance*, 4>& GetParticleSystems() const { return m_ParticleSystems; }
 
-  bool IsSharedEffect() const { return m_bIsShared; }
+  bool IsSharedEffect() const { return m_bIsSharedEffect; }
   bool IsSimulatedInLocalSpace() const { return m_bSimulateInLocalSpace; }
 
   void AddSharedInstance(const void* pSharedInstanceOwner);
@@ -76,6 +76,8 @@ public:
   /// \brief Returns the task that is used to update the effect
   ezParticleffectUpdateTask* GetUpdateTask() { return &m_Task; }
 
+  /// \brief Whether this instance is in a state where its update task should be run
+  bool ShouldBeUpdated() const;
 
 private:
   void Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTime);
@@ -85,7 +87,7 @@ private:
 
   ezDynamicArray<SharedInstance> m_SharedInstances;
   ezParticleEffectHandle m_hEffectHandle;
-  bool m_bIsShared;
+  bool m_bIsSharedEffect;
   bool m_bEmitterEnabled;
   bool m_bSimulateInLocalSpace;
   ezUInt8 m_uiReviveTimeout;

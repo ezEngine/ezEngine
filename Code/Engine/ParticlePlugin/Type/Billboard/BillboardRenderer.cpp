@@ -5,6 +5,9 @@
 #include <RendererFoundation/Context/Context.h>
 #include <RendererCore/Pipeline/RenderDataBatch.h>
 #include <RendererCore/Shader/ShaderResource.h>
+#include <Foundation/Types/ScopeExit.h>
+
+#include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBillboardRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -55,8 +58,14 @@ void ezParticleBillboardRenderer::CreateDataBuffer()
 void ezParticleBillboardRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezRenderContext* pContext = renderViewContext.m_pRenderContext;
-  ezGALContext* pGALContext = pContext->GetGALContext();
+  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
+
+  /// \brief This pattern looks like it is inefficient. Should it use the GPU pool instead somehow?
+  // prepare the constant buffer
+  ezConstantBufferStorage<ParticleSystemConstants>* pConstantBuffer;
+  ezConstantBufferStorageHandle hConstantBuffer = ezRenderContext::CreateConstantBufferStorage(pConstantBuffer);
+  EZ_SCOPE_EXIT(ezRenderContext::DeleteConstantBufferStorage(hConstantBuffer));
+  renderViewContext.m_pRenderContext->BindConstantBuffer("ParticleSystemConstants", hConstantBuffer);
 
   // Bind the billboard particle shader
   {
@@ -87,6 +96,12 @@ void ezParticleBillboardRenderer::RenderBatch(const ezRenderViewContext& renderV
 
     renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "ParticleTexture", pRenderData->m_hTexture);
 
+    // fill the constant buffer
+    {
+      ParticleSystemConstants& cb = pConstantBuffer->GetDataForWriting();
+      cb.ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
+    }
+
     while (uiNumParticles > 0)
     {
       // upload this batch of particle data
@@ -101,5 +116,4 @@ void ezParticleBillboardRenderer::RenderBatch(const ezRenderViewContext& renderV
     }
   }
 }
-
 

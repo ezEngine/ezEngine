@@ -6,6 +6,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <ParticlePlugin/Renderer/ParticleRenderer.h>
 
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
 typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
@@ -37,9 +38,9 @@ public:
 
 
 /// \brief Implements rendering of particle systems
-class EZ_PARTICLEPLUGIN_DLL ezParticleBillboardRenderer : public ezRenderer
+class EZ_PARTICLEPLUGIN_DLL ezParticleBillboardRenderer : public ezParticleRenderer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBillboardRenderer, ezRenderer);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBillboardRenderer, ezParticleRenderer);
   EZ_DISALLOW_COPY_AND_ASSIGN(ezParticleBillboardRenderer);
 
 public:

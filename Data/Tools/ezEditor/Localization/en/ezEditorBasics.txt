@@ -95,9 +95,9 @@ ezTextureTypeEnum::Texture3D;Texture 3D
 ezTextureTypeEnum::TextureCube;Texture Cube
 Editor.Plugins;Editor Pl&ugins
 Editor.Shortcuts;Shortcuts
-Editor.PreferencesDlg;Preferences...
+Editor.ezQtPreferencesDlg;Preferences...
 Engine.Plugins;Engine Pl&ugins
-Engine.TagsDlg;Tags
+Engine.ezQtTagsDlg;Tags
 ezCameraMode::PerspectiveFixedFovX;Perspective Fixed X
 ezCameraMode::PerspectiveFixedFovY;Perspective Fixed Y
 ezCameraMode::OrthoFixedWidth;Ortho Fixed Width

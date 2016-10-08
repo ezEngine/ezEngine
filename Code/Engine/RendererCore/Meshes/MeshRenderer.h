@@ -3,7 +3,7 @@
 #include <RendererCore/Pipeline/Declarations.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
-struct PerInstanceData;
+#include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
 
 /// \brief Implements rendering of static meshes
 class EZ_RENDERERCORE_DLL ezMeshRenderer : public ezRenderer

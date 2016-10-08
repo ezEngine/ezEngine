@@ -96,7 +96,7 @@ void ezParticleTypeLight::CreateRequiredStreams()
 }
 
 
-void ezParticleTypeLight::ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   const ezVec3* pPosition = m_pStreamPosition->GetData<ezVec3>();
   const float* pSize = m_pStreamSize->GetData<float>();
@@ -106,7 +106,7 @@ void ezParticleTypeLight::ExtractRenderData(const ezView& view, ezExtractedRende
     return;
 
   ezInt32* pOnOff = nullptr;
-  
+
   if (m_pStreamOnOff)
   {
     pOnOff = m_pStreamOnOff->GetWritableData<ezInt32>();

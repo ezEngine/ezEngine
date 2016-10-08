@@ -54,6 +54,8 @@ private:
   ezParticleEffectHandle InternalCreateSharedEffectInstance(const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner);
   ezParticleEffectHandle InternalCreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, bool bIsShared);
 
+  void ExtractEffectRenderData(ezParticleEffectInstance* pEffect, const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& systemTransform);
+
   ezMutex m_Mutex;
   ezDeque<ezParticleEffectInstance> m_ParticleEffects;
   ezDynamicArray<ezParticleEffectInstance*> m_FinishingEffects;

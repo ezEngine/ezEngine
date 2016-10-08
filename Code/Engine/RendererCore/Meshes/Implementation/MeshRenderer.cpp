@@ -7,8 +7,6 @@
 #include <RendererCore/Pipeline/RenderDataBatch.h>
 #include <Foundation/Types/ScopeExit.h>
 
-#include <RendererCore/../../../Data/Base/Shaders/Common/ObjectConstants.h>
-
 EZ_CHECK_AT_COMPILETIME(sizeof(PerInstanceData) == 128);
 
 namespace
@@ -59,7 +57,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
 
   const bool bUseInstancing = m_iInstancingThreshold > 0 && batch.GetCount() >= (ezUInt32)m_iInstancingThreshold;
   const ezUInt32 uiMaxRenderDataPerBatch = bUseInstancing ? MAX_RENDER_DATA_PER_BATCH : 1;
-  
+
   ezGALBufferHandle hPerInstanceData = CreateInstanceDataBuffer(bUseInstancing);
   EZ_SCOPE_EXIT(DeleteInstanceDataBuffer(hPerInstanceData));
 
@@ -85,7 +83,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
   while (uiStartIndex < batch.GetCount())
   {
     const ezUInt32 uiCount = ezMath::Min(batch.GetCount() - uiStartIndex, uiMaxRenderDataPerBatch);
-           
+
     FillPerInstanceData(batch, uiStartIndex, uiCount);
     if (m_perInstanceData.GetCount() > 0) // Instance data might be empty if all render data was filtered.
     {
@@ -117,7 +115,7 @@ ezGALBufferHandle ezMeshRenderer::CreateInstanceDataBuffer(bool bUseInstancing)
   desc.m_ResourceAccess.m_bImmutable = false;
 
   if (bUseInstancing)
-  {    
+  {
     desc.m_uiStructSize = sizeof(PerInstanceData);
     desc.m_uiTotalSize = desc.m_uiStructSize * MAX_RENDER_DATA_PER_BATCH;
     desc.m_BufferType = ezGALBufferType::Generic;
