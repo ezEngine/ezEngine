@@ -21,9 +21,9 @@ struct ezShaderBindFlags
   {
     None = 0,                           ///< No flags causes the default shader binding behavior (all render states are applied)
     ForceRebind = EZ_BIT(0),    ///< Executes shader binding (and state setting), even if the shader hasn't changed. Use this, when the same shader was previously used with custom bound states
-    NoRasterizerState = EZ_BIT(1),    ///< The rasterizer state that is associated with the shader will not be bound. Use this when you intend to bind a custom rasterizer 
-    NoDepthStencilState = EZ_BIT(2),    ///< The depth-stencil state that is associated with the shader will not be bound. Use this when you intend to bind a custom depth-stencil 
-    NoBlendState = EZ_BIT(3),    ///< The blend state that is associated with the shader will not be bound. Use this when you intend to bind a custom blend 
+    NoRasterizerState = EZ_BIT(1),    ///< The rasterizer state that is associated with the shader will not be bound. Use this when you intend to bind a custom rasterizer
+    NoDepthStencilState = EZ_BIT(2),    ///< The depth-stencil state that is associated with the shader will not be bound. Use this when you intend to bind a custom depth-stencil
+    NoBlendState = EZ_BIT(3),    ///< The blend state that is associated with the shader will not be bound. Use this when you intend to bind a custom blend
     NoStateBinding = NoRasterizerState | NoDepthStencilState | NoBlendState,
 
     Default = None
@@ -133,7 +133,7 @@ public:
 
   void BindMaterial(const ezMaterialResourceHandle& hMaterial);
 
-  void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture, 
+  void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture,
     ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowFallback);
   void BindTexture(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
 
@@ -150,18 +150,18 @@ public:
   void BindShader(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags = ezShaderBindFlags::Default);
 
   void BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer);
-  void BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer, const ezVertexDeclarationInfo* pVertexDeclarationInfo, 
+  void BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer, const ezVertexDeclarationInfo* pVertexDeclarationInfo,
     ezGALPrimitiveTopology::Enum topology, ezUInt32 uiPrimitiveCount);
   ezResult DrawMeshBuffer(ezUInt32 uiPrimitiveCount = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0, ezUInt32 uiInstanceCount = 1);
 
   ezResult ApplyContextStates(bool bForce = false);
   void ResetContextState();
 
-  GlobalConstants& WriteGlobalConstants();
-  const GlobalConstants& ReadGlobalConstants() const;
-  
+  ezGlobalConstants& WriteGlobalConstants();
+  const ezGlobalConstants& ReadGlobalConstants() const;
+
   // Static Functions
-public: 
+public:
 
   // Constant buffer storage handling
   template <typename T>
@@ -227,11 +227,11 @@ private:
   ezBitflags<ezRenderContextFlags> m_StateFlags;
   ezShaderResourceHandle m_hActiveShader;
   ezGALShaderHandle m_hActiveGALShader;
-  
+
   ezHashTable<ezHashedString, ezHashedString> m_PermutationVariables;
   ezMaterialResourceHandle m_hNewMaterial;
   ezMaterialResourceHandle m_hMaterial;
-  
+
   ezShaderPermutationResourceHandle m_hActiveShaderPermutation;
 
   ezBitflags<ezShaderBindFlags> m_ShaderBindFlags;
@@ -245,7 +245,7 @@ private:
   ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundTextures[ezGALShaderStage::ENUM_COUNT];
   ezHashTable<ezUInt32, ezGALSamplerStateHandle> m_BoundSamplers[ezGALShaderStage::ENUM_COUNT];
   ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundBuffer[ezGALShaderStage::ENUM_COUNT];
-  
+
   struct BoundConstantBuffer
   {
     EZ_DECLARE_POD_TYPE();
@@ -285,7 +285,7 @@ private:
   };
 
   static ezResult BuildVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl, ezGALVertexDeclarationHandle& out_Declaration);
-  
+
   static ezMap<ShaderVertexDecl, ezGALVertexDeclarationHandle> s_GALVertexDeclarations;
 
   static ezMutex s_ConstantBufferStorageMutex;
@@ -306,6 +306,6 @@ private: // Per Renderer States
   void ApplyConstantBufferBindings(const ezShaderStageBinary* pBinary);
   void ApplyTextureBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
   void ApplySamplerBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
-  void ApplyBufferBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);  
+  void ApplyBufferBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
 };
 

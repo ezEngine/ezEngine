@@ -116,9 +116,9 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
 
     for (ezUInt32 p = 0; p < (ezUInt32)GetOwnerSystem()->GetNumActiveParticles(); ++p)
     {
-      TempData[p].m_vPosition = pPosition[p];
-      TempData[p].m_fSize = pSize[p];
-      TempData[p].m_Color = pColor[p];
+      TempData[p].Position = pPosition[p];
+      TempData[p].Size = pSize[p];
+      TempData[p].Color = pColor[p];
     }
   }
 

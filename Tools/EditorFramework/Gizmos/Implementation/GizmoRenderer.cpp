@@ -66,11 +66,11 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
   renderViewContext.m_pRenderContext->BindMaterial(hMaterial);
 
   /// \brief This pattern looks like it is inefficient. Should it use the GPU pool instead somehow?
-  ezConstantBufferStorage<GizmoConstants>* pGizmoConstantBuffer;
+  ezConstantBufferStorage<ezGizmoConstants>* pGizmoConstantBuffer;
   ezConstantBufferStorageHandle hGizmoConstantBuffer = ezRenderContext::CreateConstantBufferStorage(pGizmoConstantBuffer);
   EZ_SCOPE_EXIT(ezRenderContext::DeleteConstantBufferStorage(hGizmoConstantBuffer));
 
-  renderViewContext.m_pRenderContext->BindConstantBuffer("GizmoConstants", hGizmoConstantBuffer);
+  renderViewContext.m_pRenderContext->BindConstantBuffer("ezGizmoConstants", hGizmoConstantBuffer);
 
   // since typically the fov is tied to the height, we orient the gizmo size on that
   const float fGizmoScale = s_fGizmoScale * (128.0f / (float)renderViewContext.m_pViewData->m_ViewPortRect.height);
@@ -90,7 +90,7 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
       color = color * 2.0f + highlight;
     }
 
-    GizmoConstants& cb = pGizmoConstantBuffer->GetDataForWriting();
+    ezGizmoConstants& cb = pGizmoConstantBuffer->GetDataForWriting();
     cb.ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
     cb.GizmoColor = color;
     cb.GizmoScale = fGizmoScale;

@@ -7,8 +7,6 @@
 #include <RendererCore/Pipeline/RenderDataBatch.h>
 #include <Foundation/Types/ScopeExit.h>
 
-EZ_CHECK_AT_COMPILETIME(sizeof(PerInstanceData) == 128);
-
 namespace
 {
   enum
@@ -73,7 +71,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
   else
   {
     pContext->SetShaderPermutationVariable("INSTANCING", "FALSE");
-    pContext->BindConstantBuffer("PerInstanceConstants", hPerInstanceData);
+    pContext->BindConstantBuffer("ezPerInstanceConstants", hPerInstanceData);
   }
 
   pContext->BindMaterial(hMaterial);
@@ -116,7 +114,7 @@ ezGALBufferHandle ezMeshRenderer::CreateInstanceDataBuffer(bool bUseInstancing)
 
   if (bUseInstancing)
   {
-    desc.m_uiStructSize = sizeof(PerInstanceData);
+    desc.m_uiStructSize = sizeof(ezPerInstanceData);
     desc.m_uiTotalSize = desc.m_uiStructSize * MAX_RENDER_DATA_PER_BATCH;
     desc.m_BufferType = ezGALBufferType::Generic;
     desc.m_bUseAsStructuredBuffer = true;
@@ -124,7 +122,7 @@ ezGALBufferHandle ezMeshRenderer::CreateInstanceDataBuffer(bool bUseInstancing)
   }
   else
   {
-    desc.m_uiTotalSize = sizeof(PerInstanceData);
+    desc.m_uiTotalSize = sizeof(ezPerInstanceData);
     desc.m_BufferType = ezGALBufferType::ConstantBuffer;
   }
 

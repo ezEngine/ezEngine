@@ -27,7 +27,7 @@ ezBlurPass::ezBlurPass() : ezRenderPipelinePass("BlurPass"), m_iRadius(15)
   }
 
   {
-    m_hBlurCB = ezRenderContext::CreateConstantBufferStorage<BlurConstants>();
+    m_hBlurCB = ezRenderContext::CreateConstantBufferStorage<ezBlurConstants>();
   }
 
   {
@@ -107,7 +107,7 @@ void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
     renderViewContext.m_pRenderContext->BindMeshBuffer(m_hMesh);  
     renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "Input", hResourceView);
-    renderViewContext.m_pRenderContext->BindConstantBuffer("BlurConstants", m_hBlurCB);
+    renderViewContext.m_pRenderContext->BindConstantBuffer("ezBlurConstants", m_hBlurCB);
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer();
   }
@@ -117,7 +117,7 @@ void ezBlurPass::SetRadius(ezInt32 iRadius)
 {
   m_iRadius = iRadius;
   
-  BlurConstants* cb = ezRenderContext::GetConstantBufferData<BlurConstants>(m_hBlurCB);
+  ezBlurConstants* cb = ezRenderContext::GetConstantBufferData<ezBlurConstants>(m_hBlurCB);
   cb->BlurRadius = m_iRadius;
 }
 

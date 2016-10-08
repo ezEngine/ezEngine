@@ -36,8 +36,8 @@ ezTonemapPass::ezTonemapPass() : ezRenderPipelinePass("TonemapPass")
 
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Pipeline/Tonemap.ezShader");
   EZ_ASSERT_DEV(m_hShader.IsValid(), "Could not load tonemap shader!");
-  
-  m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage<TonemapConstants>();
+
+  m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezTonemapConstants>();
 }
 
 ezTonemapPass::~ezTonemapPass()
@@ -100,11 +100,11 @@ void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const 
   // Setup render target
   ezGALRenderTagetSetup renderTargetSetup;
   renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(pColorOutput->m_TextureHandle));
-  
+
   pGALContext->SetRenderTargetSetup(renderTargetSetup);
 
   {
-    TonemapConstants* constants = ezRenderContext::GetConstantBufferData<TonemapConstants>(m_hConstantBuffer);
+    ezTonemapConstants* constants = ezRenderContext::GetConstantBufferData<ezTonemapConstants>(m_hConstantBuffer);
     constants->Exposure = renderViewContext.m_pCamera->GetExposure();
     constants->MoodColor = m_MoodColor;
     constants->MoodStrength = m_fMoodStrength;
@@ -119,7 +119,7 @@ void ezTonemapPass::Execute(const ezRenderViewContext& renderViewContext, const 
   }
 
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
-  renderViewContext.m_pRenderContext->BindConstantBuffer("TonemapConstants", m_hConstantBuffer);
+  renderViewContext.m_pRenderContext->BindConstantBuffer("ezTonemapConstants", m_hConstantBuffer);
   renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
   renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "VignettingTexture", m_hVignettingTexture, ezResourceAcquireMode::NoFallback);
   renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::NoFallback);

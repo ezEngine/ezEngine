@@ -8,18 +8,11 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <ParticlePlugin/Renderer/ParticleRenderer.h>
 
+#include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
+#include <RendererCore/../../../Data/Base/Shaders/Particles/BillboardShaderData.h>
+
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
 typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
-
-struct EZ_PARTICLEPLUGIN_DLL EZ_ALIGN_16(ezBillboardParticleData)
-{
-  ezVec3 m_vPosition;
-  float m_fSize;
-  ezColorLinearUB m_Color;
-  float dummy[3];
-};
-
-EZ_CHECK_AT_COMPILETIME(sizeof(ezBillboardParticleData) == 32);
 
 typedef ezRefCountedContainer<ezDynamicArray<ezBillboardParticleData>> ezBillboardParticleDataContainer;
 

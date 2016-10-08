@@ -11,7 +11,7 @@
 #define LIGHT_HAS_SHADOWS (1 << 3)
 #define LIGHT_HAS_PROJECTOR (1 << 4)
 
-EZ_ALIGN_16(struct) ezPerLightData
+struct EZ_ALIGN_16(ezPerLightData)
 {
 	UINT1(colorAndType);
 	FLOAT1(intensity);

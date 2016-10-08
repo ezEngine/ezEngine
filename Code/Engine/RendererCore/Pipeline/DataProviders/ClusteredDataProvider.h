@@ -3,7 +3,7 @@
 #include <RendererCore/Pipeline/FrameDataProvider.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 
-struct PerLightData;
+struct ezPerLightData;
 
 struct ezClusteredData
 {
@@ -13,7 +13,7 @@ public:
   ezClusteredData();
   ~ezClusteredData();
 
-  ezDynamicArray<PerLightData> m_LightData;
+  ezDynamicArray<ezPerLightData> m_LightData;
   ezGALBufferHandle m_hLightDataBuffer;
 
   ezConstantBufferStorageHandle m_hConstantBuffer;

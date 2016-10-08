@@ -62,10 +62,10 @@ void ezParticleBillboardRenderer::RenderBatch(const ezRenderViewContext& renderV
 
   /// \brief This pattern looks like it is inefficient. Should it use the GPU pool instead somehow?
   // prepare the constant buffer
-  ezConstantBufferStorage<ParticleSystemConstants>* pConstantBuffer;
+  ezConstantBufferStorage<ezParticleSystemConstants>* pConstantBuffer;
   ezConstantBufferStorageHandle hConstantBuffer = ezRenderContext::CreateConstantBufferStorage(pConstantBuffer);
   EZ_SCOPE_EXIT(ezRenderContext::DeleteConstantBufferStorage(hConstantBuffer));
-  renderViewContext.m_pRenderContext->BindConstantBuffer("ParticleSystemConstants", hConstantBuffer);
+  renderViewContext.m_pRenderContext->BindConstantBuffer("ezParticleSystemConstants", hConstantBuffer);
 
   // Bind the billboard particle shader
   {
@@ -98,7 +98,7 @@ void ezParticleBillboardRenderer::RenderBatch(const ezRenderViewContext& renderV
 
     // fill the constant buffer
     {
-      ParticleSystemConstants& cb = pConstantBuffer->GetDataForWriting();
+      ezParticleSystemConstants& cb = pConstantBuffer->GetDataForWriting();
       cb.ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
     }
 

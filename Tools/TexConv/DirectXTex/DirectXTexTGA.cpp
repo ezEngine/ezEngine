@@ -1249,7 +1249,7 @@ HRESULT DirectX::SaveToTGAMemory(const Image& image, Blob& blob)
 
     // Determine memory required for image data
     size_t rowPitch, slicePitch;
-    if (convFlags & CONV_FLAGS_888)
+    if (convFlags & NS_FIX_3::CONV_FLAGS_888)
     {
         rowPitch = image.width * 3;
         slicePitch = image.height * rowPitch;
@@ -1275,11 +1275,11 @@ HRESULT DirectX::SaveToTGAMemory(const Image& image, Blob& blob)
     for (size_t y = 0; y < image.height; ++y)
     {
         // Copy pixels
-        if (convFlags & CONV_FLAGS_888)
+        if (convFlags & NS_FIX_3::CONV_FLAGS_888)
         {
           NS_FIX_3::Copy24bppScanline(dPtr, rowPitch, pPixels, image.rowPitch);
         }
-        else if (convFlags & CONV_FLAGS_SWIZZLE)
+        else if (convFlags & NS_FIX_3::CONV_FLAGS_SWIZZLE)
         {
             _SwizzleScanline(dPtr, rowPitch, pPixels, image.rowPitch, image.format, TEXP_SCANLINE_NONE);
         }
@@ -1329,7 +1329,7 @@ HRESULT DirectX::SaveToTGAFile(const Image& image, const wchar_t* szFile)
 
     // Determine size for TGA pixel data
     size_t rowPitch, slicePitch;
-    if (convFlags & CONV_FLAGS_888)
+    if (convFlags & NS_FIX_3::CONV_FLAGS_888)
     {
         rowPitch = image.width * 3;
         slicePitch = image.height * rowPitch;
@@ -1384,11 +1384,11 @@ HRESULT DirectX::SaveToTGAFile(const Image& image, const wchar_t* szFile)
         for (size_t y = 0; y < image.height; ++y)
         {
             // Copy pixels
-            if (convFlags & CONV_FLAGS_888)
+            if (convFlags & NS_FIX_3::CONV_FLAGS_888)
             {
               NS_FIX_3::Copy24bppScanline(temp.get(), rowPitch, pPixels, image.rowPitch);
             }
-            else if (convFlags & CONV_FLAGS_SWIZZLE)
+            else if (convFlags & NS_FIX_3::CONV_FLAGS_SWIZZLE)
             {
                 _SwizzleScanline(temp.get(), rowPitch, pPixels, image.rowPitch, image.format, TEXP_SCANLINE_NONE);
             }

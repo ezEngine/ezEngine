@@ -11,8 +11,6 @@
 
 #include <Foundation/Math/Float16.h>
 
-EZ_CHECK_AT_COMPILETIME(sizeof(PerLightData) == 48);
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClusteredDataProvider, 1, ezRTTIDefaultAllocator<ezClusteredDataProvider>)
 {
 }
@@ -39,7 +37,7 @@ namespace
     return r | (g << 16);
   }
 
-  void FillLightData(PerLightData& perLightData, const ezLightRenderData* pLightRenderData)
+  void FillLightData(ezPerLightData& perLightData, const ezLightRenderData* pLightRenderData)
   {
     ezMemoryUtils::ZeroFill(&perLightData);
 
@@ -93,7 +91,7 @@ ezClusteredData::ezClusteredData()
 
   {
     ezGALBufferCreationDescription desc;
-    desc.m_uiStructSize = sizeof(PerLightData);
+    desc.m_uiStructSize = sizeof(ezPerLightData);
     desc.m_uiTotalSize = desc.m_uiStructSize * MAX_LIGHT_DATA;
     desc.m_BufferType = ezGALBufferType::Generic;
     desc.m_bUseAsStructuredBuffer = true;
@@ -103,7 +101,7 @@ ezClusteredData::ezClusteredData()
     m_hLightDataBuffer = pDevice->CreateBuffer(desc);
   }
 
-  m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ClusteredDataConstants>();
+  m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezClusteredDataConstants>();
 }
 
 ezClusteredData::~ezClusteredData()
@@ -124,19 +122,19 @@ void ezClusteredData::BindResources(ezRenderContext* pRenderContext)
     pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "perLightData", pDevice->GetDefaultResourceView(m_hLightDataBuffer));
   }
 
-  pRenderContext->BindConstantBuffer("ClusteredDataConstants", m_hConstantBuffer);
+  pRenderContext->BindConstantBuffer("ezClusteredDataConstants", m_hConstantBuffer);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 ezClusteredDataProvider::ezClusteredDataProvider()
 {
-  
+
 }
 
 ezClusteredDataProvider::~ezClusteredDataProvider()
 {
- 
+
 }
 
 void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewContext, const ezExtractedRenderData& extractedData)
@@ -173,9 +171,9 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
     {
       renderViewContext.m_pRenderContext->GetGALContext()->UpdateBuffer(m_Data.m_hLightDataBuffer, 0, m_Data.m_LightData.GetByteArrayPtr());
     }
-  }  
+  }
 
-  ClusteredDataConstants* pConstants = renderViewContext.m_pRenderContext->GetConstantBufferData<ClusteredDataConstants>(m_Data.m_hConstantBuffer);
+  ezClusteredDataConstants* pConstants = renderViewContext.m_pRenderContext->GetConstantBufferData<ezClusteredDataConstants>(m_Data.m_hConstantBuffer);
   pConstants->NumLights = m_Data.m_LightData.GetCount();
   pConstants->AmbientTopColor = ambientTopColor;
   pConstants->AmbientBottomColor = ambientBottomColor;

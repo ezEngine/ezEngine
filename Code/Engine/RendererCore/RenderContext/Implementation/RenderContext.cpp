@@ -91,7 +91,7 @@ ezRenderContext::ezRenderContext()
   m_Topology = ezGALPrimitiveTopology::Triangles;
   m_uiMeshBufferPrimitiveCount = 0;
 
-  m_hGlobalConstantBufferStorage = CreateConstantBufferStorage<GlobalConstants>();
+  m_hGlobalConstantBufferStorage = CreateConstantBufferStorage<ezGlobalConstants>();
 
   ezRenderLoop::s_EndFrameEvent.AddEventHandler(ezMakeDelegate(&ezRenderContext::OnEndFrame, this));
 }
@@ -203,7 +203,7 @@ void ezRenderContext::BindSamplerState(ezGALShaderStage::Enum stage, const ezTem
 {
   EZ_ASSERT_DEBUG(sSlotName != "LinearSampler", "'LinearSampler' is a resevered sampler name and must not be set manually.");
   EZ_ASSERT_DEBUG(sSlotName != "LinearClampSampler", "'LinearClampSampler' is a resevered sampler name and must not be set manually.");
-  EZ_ASSERT_DEBUG(sSlotName != "PointSampler", "'PointSampler' is a resevered sampler name and must not be set manually.");  
+  EZ_ASSERT_DEBUG(sSlotName != "PointSampler", "'PointSampler' is a resevered sampler name and must not be set manually.");
   EZ_ASSERT_DEBUG(sSlotName != "PointClampSampler", "'PointClampSampler' is a resevered sampler name and must not be set manually.");
 
   ezGALSamplerStateHandle* pOldSamplerState = nullptr;
@@ -256,7 +256,7 @@ void ezRenderContext::BindConstantBuffer(const ezTempHashedString& sSlotName, ez
     m_BoundConstantBuffers.Insert(sSlotName.GetHash(), BoundConstantBuffer(hConstantBuffer));
   }
 
-  m_StateFlags.Add(ezRenderContextFlags::ConstantBufferBindingChanged);  
+  m_StateFlags.Add(ezRenderContextFlags::ConstantBufferBindingChanged);
 }
 
 void ezRenderContext::BindConstantBuffer(const ezTempHashedString& sSlotName, ezConstantBufferStorageHandle hConstantBufferStorage)
@@ -356,7 +356,7 @@ ezResult ezRenderContext::DrawMeshBuffer(ezUInt32 uiPrimitiveCount, ezUInt32 uiF
 
 ezResult ezRenderContext::ApplyContextStates(bool bForce)
 {
-  // First apply material state since this can modify all other states. 
+  // First apply material state since this can modify all other states.
   // Note ApplyMaterialState only returns a valid material pointer if the constant buffer of this material needs to be updated.
   // This needs to be done once we have determined the correct shader permutation.
   ezMaterialResource* pMaterial = nullptr;
@@ -377,7 +377,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
   if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::ShaderStateChanged))
   {
     pShaderPermutation = ApplyShaderState();
-    
+
     if (pShaderPermutation == nullptr)
     {
       return EZ_FAILURE;
@@ -437,7 +437,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
     if (pMaterial != nullptr)
     {
       pMaterial->UpdateConstantBuffer(pShaderPermutation);
-      BindConstantBuffer("MaterialConstants", pMaterial->m_hConstantBufferStorage);
+      BindConstantBuffer("ezMaterialConstants", pMaterial->m_hConstantBufferStorage);
     }
 
     UploadConstants();
@@ -519,16 +519,16 @@ void ezRenderContext::ResetContextState()
   m_BoundConstantBuffers.Clear();
 }
 
-GlobalConstants& ezRenderContext::WriteGlobalConstants()
+ezGlobalConstants& ezRenderContext::WriteGlobalConstants()
 {
-  ezConstantBufferStorage<GlobalConstants>* pStorage = nullptr;
+  ezConstantBufferStorage<ezGlobalConstants>* pStorage = nullptr;
   EZ_VERIFY(TryGetConstantBufferStorage(m_hGlobalConstantBufferStorage, pStorage), "Invalid Global Constant Storage");
   return pStorage->GetDataForWriting();
 }
 
-const GlobalConstants& ezRenderContext::ReadGlobalConstants() const
+const ezGlobalConstants& ezRenderContext::ReadGlobalConstants() const
 {
-  ezConstantBufferStorage<GlobalConstants>* pStorage = nullptr;
+  ezConstantBufferStorage<ezGlobalConstants>* pStorage = nullptr;
   EZ_VERIFY(TryGetConstantBufferStorage(m_hGlobalConstantBufferStorage, pStorage), "Invalid Global Constant Storage");
   return pStorage->GetDataForReading();
 }
@@ -740,7 +740,7 @@ ezResult ezRenderContext::BuildVertexDeclaration(ezGALShaderHandle hShader, cons
 
 void ezRenderContext::UploadConstants()
 {
-  BindConstantBuffer("GlobalConstants", m_hGlobalConstantBufferStorage);
+  BindConstantBuffer("ezGlobalConstants", m_hGlobalConstantBufferStorage);
 
   for (auto it = m_BoundConstantBuffers.GetIterator(); it.IsValid(); ++it)
   {
@@ -815,7 +815,7 @@ ezShaderPermutationResource* ezRenderContext::ApplyShaderState()
 
   if (!m_ShaderBindFlags.IsSet(ezShaderBindFlags::NoDepthStencilState))
     m_pGALContext->SetDepthStencilState(pShaderPermutation->GetDepthStencilState());
-  
+
   return pShaderPermutation;
 }
 
@@ -829,7 +829,7 @@ ezMaterialResource* ezRenderContext::ApplyMaterialState()
 
   // check whether material has been modified
   ezMaterialResource* pMaterial = ezResourceManager::BeginAcquireResource(m_hNewMaterial, ezResourceAcquireMode::AllowFallback);
-  
+
   if (m_hNewMaterial != m_hMaterial || pMaterial->IsModified())
   {
     pMaterial->UpdateCaches();
@@ -838,7 +838,7 @@ ezMaterialResource* ezRenderContext::ApplyMaterialState()
 
     if (!pMaterial->m_hConstantBufferStorage.IsInvalidated())
     {
-      BindConstantBuffer("MaterialConstants", pMaterial->m_hConstantBufferStorage);
+      BindConstantBuffer("ezMaterialConstants", pMaterial->m_hConstantBufferStorage);
     }
 
     for (auto it = pMaterial->m_CachedPermutationVars.GetIterator(); it.IsValid(); ++it)
@@ -865,7 +865,7 @@ ezMaterialResource* ezRenderContext::ApplyMaterialState()
 
     return pMaterial;
   }
-  
+
   ezResourceManager::EndAcquireResource(pMaterial);
   return nullptr;
 }

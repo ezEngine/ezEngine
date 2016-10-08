@@ -75,7 +75,7 @@ void ezMaterialResource::SetParameter(const ezHashedString& sName, const ezVaria
 
     m_Desc.m_Parameters.RemoveAtSwap(uiIndex);
   }
-  
+
   m_iLastModified.Increment();
   m_iLastConstantsModified.Increment();
 
@@ -124,7 +124,7 @@ void ezMaterialResource::SetTextureBinding(const ezHashedString& sName, ezTextur
     if (uiIndex != ezInvalidIndex)
     {
       m_Desc.m_TextureBindings.RemoveAtSwap(uiIndex);
-    }    
+    }
   }
 
   m_iLastModified.Increment();
@@ -558,7 +558,7 @@ void ezMaterialResource::UpdateCaches()
       m_CachedTextureBindings.Insert(textureBinding.m_Name, textureBinding.m_Value);
     }
 
-    // The last material is this material and was not acquired. 
+    // The last material is this material and was not acquired.
     if (i != 0)
     {
       ezResourceManager::EndAcquireResource(pMaterial);
@@ -574,7 +574,7 @@ void ezMaterialResource::UpdateConstantBuffer(ezShaderPermutationResource* pShad
   if (pShaderPermutation == nullptr)
     return;
 
-  ezTempHashedString sConstantBufferName("MaterialConstants");
+  ezTempHashedString sConstantBufferName("ezMaterialConstants");
   const ezShaderResourceBinding* pBinding = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::PixelShader)->GetShaderResourceBinding(sConstantBufferName);
   if (pBinding == nullptr)
   {
@@ -600,7 +600,7 @@ void ezMaterialResource::UpdateConstantBuffer(ezShaderPermutationResource* pShad
     {
       ezRenderContext::DeleteConstantBufferStorage(m_hConstantBufferStorage);
       m_hConstantBufferStorage = ezRenderContext::CreateConstantBufferStorage(pLayout->m_uiTotalSize);
-      
+
       EZ_VERIFY(ezRenderContext::TryGetConstantBufferStorage(m_hConstantBufferStorage, pStorage), "");
     }
 

@@ -71,7 +71,7 @@ float4x4 TransformToMatrix(Transform t)
 
 #include <RendererCore/Shader/Types.h>
 
-#define CONSTANT_BUFFER(Name, Slot) EZ_ALIGN_16(struct) Name
+#define CONSTANT_BUFFER(Name, Slot) struct EZ_ALIGN_16(Name)
 #define STRUCTURED_BUFFER(Name, Type)
 #define FLOAT1(Name) float Name
 #define FLOAT2(Name) ezVec2 Name

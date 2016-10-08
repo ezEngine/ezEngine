@@ -867,7 +867,7 @@ HRESULT DirectX::Resize(
     if (!rimage)
         return E_POINTER;
 
-    if (UseWICFiltering(srcImage.format, filter))
+    if (NS_FIX_1::UseWICFiltering(srcImage.format, filter))
     {
         WICPixelFormatGUID pfGUID;
         if (_DXGIToWIC(srcImage.format, pfGUID, true))
@@ -923,7 +923,7 @@ HRESULT DirectX::Resize(
     if (FAILED(hr))
         return hr;
 
-    bool usewic = !metadata.IsPMAlpha() && UseWICFiltering(metadata.format, filter);
+    bool usewic = !metadata.IsPMAlpha() && NS_FIX_1::UseWICFiltering(metadata.format, filter);
 
     WICPixelFormatGUID pfGUID = { 0 };
     bool wicpf = (usewic) ? _DXGIToWIC(metadata.format, pfGUID, true) : false;
