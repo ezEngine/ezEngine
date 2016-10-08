@@ -1,0 +1,43 @@
+{
+ "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0xA7E05C0C18727D429A9D47EF5E9AA33F" },
+   "t" : "ezAssetDocumentInfo",
+   "n" : "Header",
+   "p" : {
+    "AssetType" : "Texture 2D",
+    "Dependencies" : [ "Particles/Textures/Smoke.tga" ],
+    "DocumentID" : { "$t" : "uuid", "$b" : "0xA7E05C0C18727D429A9D47EF5E9AA33F" },
+    "Hash" : { "$t" : "uint64", "$v" : "11318037421869234126", "$b" : "0xCEF717D511BF119D" },
+    "References" : [  ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xE226C1BB517DDF47A80742108AFA1F7D" },
+   "t" : "ezTextureAssetProperties",
+   "p" : {
+    "Address Mode U" : "ezTextureAddressMode::Wrap",
+    "Address Mode V" : "ezTextureAddressMode::Wrap",
+    "Address Mode W" : "ezTextureAddressMode::Wrap",
+    "Channel Mapping" : "ezChannelMappingEnum::RGB1_A2_2D",
+    "Compression" : true,
+    "Input 1" : "Particles/Textures/Smoke.tga",
+    "Input 2" : "Particles/Textures/Smoke.tga",
+    "Input 3" : "",
+    "Input 4" : "",
+    "Input 5" : "",
+    "Input 6" : "",
+    "Mipmaps" : true,
+    "Premultiplied Alpha" : false,
+    "Usage" : "ezTextureUsageEnum::Diffuse"
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0x3F062C70DFD6AD4A9F8D3000A414FC3E" },
+   "t" : "ezDocumentRoot",
+   "n" : "ObjectTree",
+   "p" : {
+    "Children" : [ { "$t" : "uuid", "$b" : "0xE226C1BB517DDF47A80742108AFA1F7D" } ]
+   }
+  } ],
+ "Types" : [  ]
+}

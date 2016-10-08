@@ -114,11 +114,10 @@ void ezQtDataDirsDlg::on_ButtonAdd_clicked()
 
   sPreviousFolder = sFolder;
 
-  ezStringBuilder sProjectPath = ezToolsProject::GetSingleton()->GetProjectFile();
-  sProjectPath.PathParentDirectory();
+  ezStringBuilder sRootPath = ezApplicationConfig::GetSdkRootDirectory();
 
   ezStringBuilder sRelPath = sFolder.toUtf8().data();
-  sRelPath.MakeRelativeTo(sProjectPath);
+  sRelPath.MakeRelativeTo(sRootPath);
 
   ezApplicationFileSystemConfig::DataDirConfig dd;
   dd.m_sSdkRootRelativePath = sRelPath;

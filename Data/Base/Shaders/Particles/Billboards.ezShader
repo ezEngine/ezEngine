@@ -7,7 +7,7 @@ ALL
 
 BlendingEnabled0 = true
 DestBlend0 = Blend_One
-SourceBlend0 = Blend_SrcAlpha
+SourceBlend0 = Blend_InvSrcAlpha
 
 DepthTest = true
 DepthWrite = false
@@ -81,8 +81,9 @@ SamplerState ParticleTexture_AutoSampler;
 
 float4 main(PS_IN Input) : SV_Target
 {
-	return ParticleTexture.Sample(ParticleTexture_AutoSampler, Input.TexCoords.xy) * Input.Color;
-	//return Input.Color;
+  float4 color = ParticleTexture.Sample(ParticleTexture_AutoSampler, Input.TexCoords.xy);
+
+  return float4(color.rgb * Input.Color.rgb * Input.Color.a, color.a);
 }
 
 #endif

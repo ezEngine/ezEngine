@@ -1,12 +1,17 @@
 {
   "DataDirectories" : [ {
-      "Path" : "Data/FreeContent",
+      "Path" : "Data/Base",
+      "RootName" : "base",
+      "Writable" : false
+    },
+    {
+      "Path" : "Data/TempContent",
       "RootName" : "",
       "Writable" : false
     },
     {
-      "Path" : "Data/Base",
-      "RootName" : "base",
+      "Path" : "Data/FreeContent",
+      "RootName" : "",
       "Writable" : false
     },
     {

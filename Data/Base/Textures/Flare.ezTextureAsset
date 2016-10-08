@@ -5,10 +5,10 @@
    "n" : "Header",
    "p" : {
     "AssetType" : "Texture 2D",
-    "Dependencies" : [  ],
+    "Dependencies" : [ "Textures/Flare.tga" ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0xE86202E0F558F542880D569257047201" },
-    "Hash" : { "$t" : "uint64", "$v" : "7521520268274616431", "$b" : "0x6FC86851D5CE6168" },
-    "References" : [ "Textures/Flare.tga" ]
+    "Hash" : { "$t" : "uint64", "$v" : "9035750237458842511", "$b" : "0x8FC3E2AEF76E657D" },
+    "References" : [  ]
    }
   },
   {
@@ -26,7 +26,7 @@
     "Address Mode U" : "ezTextureAddressMode::Wrap",
     "Address Mode V" : "ezTextureAddressMode::Wrap",
     "Address Mode W" : "ezTextureAddressMode::Wrap",
-    "Channel Mapping" : "ezChannelMappingEnum::RGB1_2D",
+    "Channel Mapping" : "ezChannelMappingEnum::RGB1_ABLACK_2D",
     "Compression" : true,
     "Input 1" : "Textures/Flare.tga",
     "Input 2" : "",
