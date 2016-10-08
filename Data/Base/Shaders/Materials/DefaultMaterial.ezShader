@@ -1,4 +1,4 @@
-[PLATFORMS] 
+[PLATFORMS]
 ALL
 
 [PERMUTATIONS]
@@ -38,7 +38,7 @@ float RoughnessValue @Default(0.7) @Clamp(0.0, 1.0);
 
 [RENDERSTATE]
 
-#include <Shaders/Materials/MaterialState.inc>
+#include <Shaders/Materials/MaterialState.h>
 
 [VERTEXSHADER]
 
@@ -46,8 +46,8 @@ float RoughnessValue @Default(0.7) @Clamp(0.0, 1.0);
 #define USE_TANGENT
 #define USE_TEXCOORD0
 
-#include <Shaders/Materials/DefaultMaterialCB.inc>
-#include <Shaders/Materials/MaterialVertexShader.inc>
+#include <Shaders/Materials/DefaultMaterialCB.h>
+#include <Shaders/Materials/MaterialVertexShader.h>
 
 VS_OUT main(VS_IN Input)
 {
@@ -61,8 +61,8 @@ VS_OUT main(VS_IN Input)
 #define USE_TEXCOORD0
 #define USE_SIMPLE_MATERIAL_MODEL
 
-#include <Shaders/Materials/DefaultMaterialCB.inc>
-#include <Shaders/Materials/MaterialPixelShader.inc>
+#include <Shaders/Materials/DefaultMaterialCB.h>
+#include <Shaders/Materials/MaterialPixelShader.h>
 
 Texture2D BaseTexture;
 SamplerState BaseTexture_AutoSampler;
@@ -108,7 +108,7 @@ float GetReflectance(PS_IN Input)
 {
 	return 0.5f;
 }
-	
+
 float GetRoughness(PS_IN Input)
 {
 	#if DEFAULT_MAT_USE_ROUGHNESS_TEXTURE == TRUE
@@ -125,7 +125,7 @@ float GetOpacity(PS_IN Input)
 	#else
 		float opacity = BaseColor.a;
 	#endif
-	
+
 	#if BLEND_MODE == BLEND_MODE_MASKED
 		return opacity - MaskThreshold;
 	#else

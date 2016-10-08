@@ -1,4 +1,4 @@
-[PLATFORMS] 
+[PLATFORMS]
 ALL
 
 [PERMUTATIONS]
@@ -15,12 +15,12 @@ CullMode = CullMode_None
 	DepthTest = true
 	DepthWrite = true
 	DepthTestFunc = CompareFunc_Greater
-	
+
 #else
 	DepthTest = true
 	DepthWrite = true
 	DepthTestFunc = CompareFunc_LessEqual
-	
+
 #endif
 
 #if !PREPARE_DEPTH && RENDER_PASS == RENDER_PASS_FORWARD
@@ -33,27 +33,27 @@ CullMode = CullMode_None
 [VERTEXSHADER]
 
 #include <Shaders/Common/GlobalConstants.h>
-#include <Shaders/Editor/GizmoConstants.h>
-#include <Shaders/Materials/MaterialInterpolator.inc>
+#include <Shaders/Editor/ezGizmoConstants.h>
+#include <Shaders/Materials/MaterialInterpolator.h>
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
 VS_OUT_COLORED main(VS_IN_COLORED Input)
 {
 	float3 centerPosition = mul(ObjectToWorldMatrix, float4(0, 0, 0, 1)).xyz;
-		
+
 	#if GIZMO_CONSTANT_SIZE == 1
 		float scale = length(centerPosition - CameraPosition) * GizmoScale;
 	#else
 		float scale = 1.0f;
 	#endif
-	
+
 	float4 worldSpacePos = mul(ObjectToWorldMatrix, float4(Input.Position * scale, 1.0f));
-	
+
 	VS_OUT_COLORED RetVal;
 	RetVal.Position = mul(WorldToScreenMatrix, worldSpacePos);
 	RetVal.Color =  GizmoColor;
-	
+
 	return RetVal;
 }
 
@@ -63,8 +63,8 @@ VS_OUT_COLORED main(VS_IN_COLORED Input)
 [PIXELSHADER]
 
 #include <Shaders/Common/GlobalConstants.h>
-#include <Shaders/Editor/GizmoConstants.h>
-#include <Shaders/Materials/MaterialInterpolator.inc>
+#include <Shaders/Editor/ezGizmoConstants.h>
+#include <Shaders/Materials/MaterialInterpolator.h  >
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
@@ -79,7 +79,7 @@ float4 main(PS_IN_COLORED Input) : SV_Target
 	#else
 		return Input.Color;
 	#endif
-	
+
 #endif
 }
 

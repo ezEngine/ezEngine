@@ -9,7 +9,7 @@
 
   #undef PLATFORM_DX11
   #define PLATFORM_DX11 EZ_ON
-  
+
 #endif
 
 #if defined(GL3) || defined(GL4)

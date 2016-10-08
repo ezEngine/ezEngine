@@ -15,7 +15,7 @@
 #define	EDITOR_RENDER_PASS_ROUGHNESS 7
 #define	EDITOR_RENDER_PASS_DEPTH 8
 
-CONSTANT_BUFFER(GlobalConstants, 0)
+CONSTANT_BUFFER(ezGlobalConstants, 0)
 {
   FLOAT3(CameraPosition);
   FLOAT1(Padding1);

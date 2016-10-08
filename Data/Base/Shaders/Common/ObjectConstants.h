@@ -3,12 +3,12 @@
 #include "Platforms.h"
 #include "ConstantBufferMacros.h"
 
-EZ_ALIGN_16(struct) PerInstanceData
+EZ_ALIGN_16(struct) ezPerInstanceData
 {
 	TRANSFORM(ObjectToWorld);
 	TRANSFORM(ObjectToWorldNormal);
 	INT1(GameObjectID);
-	
+
 	INT3(Reserved);
 	FLOAT4(Reserved2);
 };
@@ -16,12 +16,14 @@ EZ_ALIGN_16(struct) PerInstanceData
 #if EZ_ENABLED(PLATFORM_DX11)
 
 	#if INSTANCING
-		StructuredBuffer<PerInstanceData> perInstanceData;
-	#else	
-		CONSTANT_BUFFER(PerInstanceConstants, 2) 
+		StructuredBuffer<ezPerInstanceData> perInstanceData;
+	#else
+		CONSTANT_BUFFER(ezPerInstanceConstants, 2)
 		{
-			PerInstanceData perInstanceData;
+			ezPerInstanceData perInstanceData;
 		};
 	#endif
-	
+
+#else
+  EZ_CHECK_AT_COMPILETIME(sizeof(ezPerInstanceData) == 128);
 #endif

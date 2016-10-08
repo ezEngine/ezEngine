@@ -35,7 +35,8 @@ float4x4 TransformToMatrix(Transform t)
 #define MAT3(Name) float3x3 Name
 #define MAT4(Name) float4x4 Name
 #define TRANSFORM(Name) Transform Name
-#define COLOR(Name) float4 Name
+#define COLOR4F(Name) float4 Name
+#define COLOR4UB(Name) uint Name
 #define BOOL(Name) bool Name
 
 #elif EZ_ENABLED(PLATFORM_OPENGL)
@@ -60,7 +61,8 @@ float4x4 TransformToMatrix(Transform t)
 #define UINT4(Name) uvec4 Name
 #define MAT3(Name) mat3 Name
 #define MAT4(Name) mat4 Name
-#define COLOR(Name) vec4 Name
+#define COLOR4F(Name) vec4 Name
+#define COLOR4UB(Name) uint Name
 #define BOOL(Name) bool Name
 
 #else
@@ -86,7 +88,8 @@ float4x4 TransformToMatrix(Transform t)
 #define MAT3(Name) ezShaderMat3 Name
 #define MAT4(Name) ezMat4 Name
 #define TRANSFORM(Name) ezShaderTransform Name
-#define COLOR(Name) ezColor Name
+#define COLOR4F(Name) ezColor Name
+#define COLOR4UB(Name) ezColorGammaUB Name
 #define BOOL(Name) ezShaderBool Name
 
 #endif

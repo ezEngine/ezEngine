@@ -1,4 +1,4 @@
-[PLATFORMS] 
+[PLATFORMS]
 ALL
 
 [PERMUTATIONS]
@@ -16,11 +16,11 @@ SourceBlend0 = Blend_SrcAlpha
 
 [VERTEXSHADER]
 
-#include <Shaders/Pipeline/FullscreenTriangleVertexShader.inc>
+#include <Shaders/Pipeline/FullscreenTriangleVertexShader.h>
 
 [PIXELSHADER]
 
-#include <Shaders/Common/Common.inc>
+#include <Shaders/Common/Common.h>
 #include <Shaders/Common/GlobalConstants.h>
 
 struct PS_IN
@@ -41,33 +41,33 @@ float4 main(PS_IN Input) : SV_Target
 	float2 invScreenSize = 1.0f / Viewport.zw;
 	float2 coords = Input.Position.xy * invScreenSize;
 	float depth = SelectionDepthTexture.SampleLevel(BorderClampSampler, coords, 0.0f).r;
-	
+
 	float3 selectionColor = float3(0.4, 0.55, 1);
-	
+
 	if (depth == 1.0f)
 	{
 		float avgEdgeDistance = 0.0f;
 		float validSampleCount = 0.0f;
-		
+
 		[unroll]
 		for (float y = -3.0f; y <= 3.0f; y++)
 		{
 			if (y == 0.0f)
 				continue;
-		
+
 			[unroll]
 			for (float x = -3.0f; x <= 3.0f; x++)
 			{
 				if (x == 0.0f)
 					continue;
-			
+
 				float edgeDistance = length(float2(x, y));
 				if (edgeDistance > 3.0f)
 					continue;
-				
+
 				float2 currentCoords = coords + float2(x, y) * invScreenSize;
 				float currentDepth = SelectionDepthTexture.SampleLevel(BorderClampSampler, currentCoords, 0.0f).r;
-				
+
 				if (currentDepth != 1.0f)
 				{
 					avgEdgeDistance += edgeDistance;
@@ -75,14 +75,14 @@ float4 main(PS_IN Input) : SV_Target
 				}
 			}
 		}
-		
+
 		if (validSampleCount == 0.0f)
 		{
 			discard;
 		}
-		
+
 		float x = (avgEdgeDistance / validSampleCount) - 2.0f;
-		
+
 		float edgeOpacity = saturate((x * x) * -1.0f + 1.0f);
 		return float4(selectionColor, edgeOpacity);
 	}
@@ -93,7 +93,7 @@ float4 main(PS_IN Input) : SV_Target
 		{
 			discard;
 		}
-		
+
 		return float4(selectionColor, 0.1);
 	}
 }

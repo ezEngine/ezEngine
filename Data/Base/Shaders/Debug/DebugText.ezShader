@@ -1,4 +1,4 @@
-[PLATFORMS] 
+[PLATFORMS]
 ALL
 
 [PERMUTATIONS]
@@ -18,7 +18,7 @@ DepthWrite = false
 #define USE_COLOR
 
 #include <Shaders/Common/GlobalConstants.h>
-#include <Shaders/Materials/MaterialInterpolator.inc>
+#include <Shaders/Materials/MaterialInterpolator.h>
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
@@ -33,7 +33,7 @@ StructuredBuffer<GlyphData> glyphData;
 
 VS_OUT main(uint VertexID : SV_VertexID)
 {
-	float2 vertexPositions[6] = 
+	float2 vertexPositions[6] =
 	{
 		float2(0.0, 0.0),
 		float2(1.0, 1.0),
@@ -42,28 +42,28 @@ VS_OUT main(uint VertexID : SV_VertexID)
 		float2(1.0, 0.0),
 		float2(1.0, 1.0),
 	};
-	
+
 	uint index = VertexID / 6;
 	uint vertexIndex = VertexID % 6;
-  
+
 	GlyphData data = glyphData[index];
-	
+
 	float glyphIndex = float(data.glyphIndexAndSize & 0xFFFF);
 	float size = float((data.glyphIndexAndSize >> 16) & 0xFFFF);
-	
-	float2 vertexPosition = vertexPositions[vertexIndex];	
+
+	float2 vertexPosition = vertexPositions[vertexIndex];
 	float2 positionInPixel = (vertexPosition * size + data.topLeftCorner);
 	float2 screenPosition = (positionInPixel / Viewport.zw) * float2(2.0, -2.0) + float2(-1.0, 1.0);
-	
+
 	float2 invAtlasSize = 1.0 / float2(16.0, 8.0);
 	float texCoordX = fmod( glyphIndex, 16.0 );
 	float texCoordY = floor( glyphIndex * invAtlasSize.x );
-	
+
 	VS_OUT RetVal;
 	RetVal.Position = float4(screenPosition, 0.0, 1.0);
 	RetVal.TexCoords = (float2(texCoordX, texCoordY) + vertexPosition) * invAtlasSize;
 	RetVal.Color = RGBA8ToFloat4(data.color);
-  
+
 	return RetVal;
 }
 
@@ -75,7 +75,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
 #define USE_TEXCOORD0
 #define USE_COLOR
 
-#include <Shaders/Materials/MaterialInterpolator.inc>
+#include <Shaders/Materials/MaterialInterpolator.h>
 
 #if EZ_ENABLED(PLATFORM_DX11)
 

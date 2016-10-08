@@ -1,4 +1,4 @@
-[PLATFORMS] 
+[PLATFORMS]
 ALL
 
 [PERMUTATIONS]
@@ -15,7 +15,7 @@ DepthWrite = true
 [VERTEXSHADER]
 
 #include <Shaders/Common/GlobalConstants.h>
-#include <Shaders/Materials/MaterialInterpolator.inc>
+#include <Shaders/Materials/MaterialInterpolator.h>
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
@@ -42,7 +42,7 @@ VS_OUT_COLORED main(VS_IN_POS_ONLY Input)
   VS_OUT_COLORED RetVal;
   RetVal.Position = mul(WorldToScreenMatrix, worldPos);
   RetVal.Color = boxData[Input.InstanceID].color;
-  
+
   return RetVal;
 }
 
@@ -51,7 +51,7 @@ VS_OUT_COLORED main(VS_IN_POS_ONLY Input)
 
 [PIXELSHADER]
 
-#include <Shaders/Materials/MaterialInterpolator.inc>
+#include <Shaders/Materials/MaterialInterpolator.h>
 
 #if EZ_ENABLED(PLATFORM_DX11)
 

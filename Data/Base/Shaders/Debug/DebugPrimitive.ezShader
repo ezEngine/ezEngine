@@ -1,4 +1,4 @@
-[PLATFORMS] 
+[PLATFORMS]
 ALL
 
 [PERMUTATIONS]
@@ -20,23 +20,23 @@ DepthTest = true
 [VERTEXSHADER]
 
 #include <Shaders/Common/GlobalConstants.h>
-#include <Shaders/Materials/MaterialInterpolator.inc>
+#include <Shaders/Materials/MaterialInterpolator.h>
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
 VS_OUT_COLORED main(VS_IN_COLORED Input)
 {
   VS_OUT_COLORED RetVal;
-  
+
   #if PRE_TRANSFORMED_VERTICES
 	float2 screenPosition = (Input.Position.xy / Viewport.zw) * float2(2.0, -2.0) + float2(-1.0, 1.0);
 	RetVal.Position = float4(screenPosition, Input.Position.z, 1.0f);
   #else
 	RetVal.Position = mul(WorldToScreenMatrix, float4(Input.Position, 1.0f));
   #endif
-  
+
   RetVal.Color = Input.Color;
-  
+
   return RetVal;
 }
 
@@ -45,7 +45,7 @@ VS_OUT_COLORED main(VS_IN_COLORED Input)
 
 [PIXELSHADER]
 
-#include <Shaders/Materials/MaterialInterpolator.inc>
+#include <Shaders/Materials/MaterialInterpolator.h>
 
 #if EZ_ENABLED(PLATFORM_DX11)
 

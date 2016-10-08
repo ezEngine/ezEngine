@@ -3,10 +3,10 @@
 #include "../Common/Platforms.h"
 #include "../Common/ConstantBufferMacros.h"
 
-CONSTANT_BUFFER(GizmoConstants, 2)
+CONSTANT_BUFFER(ezGizmoConstants, 2)
 {
 	MAT4(ObjectToWorldMatrix);
-	COLOR(GizmoColor);
+	COLOR4F(GizmoColor);
 	FLOAT1(GizmoScale);
 	INT1(GameObjectID);
 };
