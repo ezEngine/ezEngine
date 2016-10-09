@@ -18,6 +18,16 @@ float4x4 TransformToMatrix(Transform t)
 	return float4x4(t.r0, t.r1, t.r2, float4(0, 0, 0, 1));
 }
 
+float4 TransformToPosition(Transform t)
+{
+	return float4(t.r0.w, t.r1.w, t.r2.w, 1);
+}
+
+float3x3 TransformToRotation(Transform t)
+{
+	return float3x3(t.r0.xyz, t.r1.xyz, t.r2.xyz);
+}
+
 #define CONSTANT_BUFFER(Name, Slot) cbuffer Name : register(b##Slot)
 #define STRUCTURED_BUFFER(Name, Type) StructuredBuffer<Type> Name
 #define FLOAT1(Name) float Name

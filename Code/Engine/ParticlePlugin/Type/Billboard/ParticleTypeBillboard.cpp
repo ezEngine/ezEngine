@@ -10,6 +10,7 @@
 #include <RendererCore/Textures/TextureResource.h>
 #include <Core/World/GameObject.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <Core/World/World.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeBillboardFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeBillboardFactory>)
 {
@@ -83,6 +84,7 @@ void ezParticleTypeBillboard::CreateRequiredStreams()
   CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition);
   CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize);
   CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor);
+  CreateStream("RotationSpeed", ezProcessingStream::DataType::Float, &m_pStreamRotationSpeed);
 }
 
 void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
@@ -93,6 +95,8 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
   if (GetOwnerSystem()->GetNumActiveParticles() == 0)
     return;
 
+  const ezTime tCur = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
+
   // don't copy the data multiple times in the same frame, if the effect is instanced
   if (m_uiLastExtractedFrame != uiExtractedFrame)
   {
@@ -101,10 +105,7 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
     const ezVec3* pPosition = m_pStreamPosition->GetData<ezVec3>();
     const float* pSize = m_pStreamSize->GetData<float>();
     const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
-
-    /// \todo This is a hacky work-around for a race condition
-    if (pPosition == nullptr || pSize == nullptr || pColor == nullptr)
-      return;
+    const float* pRotationSpeed = m_pStreamRotationSpeed->GetData<float>();
 
     if (m_GpuData == nullptr)
     {
@@ -114,9 +115,13 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
 
     ezBillboardParticleData* TempData = m_GpuData->m_Content.GetData();
 
+    ezTransform t;
+
     for (ezUInt32 p = 0; p < (ezUInt32)GetOwnerSystem()->GetNumActiveParticles(); ++p)
     {
-      TempData[p].Position = pPosition[p];
+      t.m_Rotation.SetRotationMatrixY(ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[p])));
+      t.m_vPosition = pPosition[p];
+      TempData[p].Transform = t;
       TempData[p].Size = pSize[p];
       TempData[p].Color = pColor[p];
     }

@@ -4,10 +4,10 @@
 
 EZ_ALIGN_16(struct) ezBillboardParticleData
 {
-  FLOAT3(Position);
-  FLOAT1(Size);
+  TRANSFORM(Transform);
   COLOR4UB(Color);
-  FLOAT3(dummy1);
+  FLOAT1(Size);
+  FLOAT2(dummy1);
 };
 
 // this is only defined during shader compilation
@@ -17,7 +17,7 @@ StructuredBuffer<ezBillboardParticleData> particleData;
 
 #else
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezBillboardParticleData) == 32);
+EZ_CHECK_AT_COMPILETIME(sizeof(ezBillboardParticleData) == 64);
 
 #endif
 
