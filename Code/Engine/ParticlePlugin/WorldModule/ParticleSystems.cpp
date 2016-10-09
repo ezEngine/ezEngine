@@ -15,7 +15,7 @@ ezParticleSystemInstance* ezParticleWorldModule::CreateSystemInstance(ezUInt32 u
 
   if (pResult == nullptr)
   {
-    pResult = EZ_DEFAULT_NEW(ezParticleSystemInstance);
+    pResult = &m_ParticleSystems.ExpandAndGetRef();
   }
 
   pResult->Construct(uiMaxParticles, pWorld, uiRandomSeed, pOwnerEffect);

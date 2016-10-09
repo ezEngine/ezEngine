@@ -5,6 +5,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
+#include <RendererCore/Pipeline/View.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 1)
 {
@@ -93,7 +94,7 @@ void ezSkyBoxComponent::Initialize()
       desc.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>("{ b4b75b1c-c2c8-4a0e-8076-780bdd46d18b }"); // SkyMaterial
 
       m_Materials[i] = ezResourceManager::CreateResource<ezMaterialResource>(temp.GetData(), desc, temp.GetData());
-    }    
+    }
   }
 
   UpdateMaterials();
@@ -119,7 +120,7 @@ void ezSkyBoxComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) con
     ezMaterialResourceHandle hMaterial = m_Materials[i];
     const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? hMaterial.GetResourceIDHash() : 0;
 
-    // Generate batch id from mesh, material and part index. 
+    // Generate batch id from mesh, material and part index.
     ezUInt32 data[] = { uiMeshIDHash, uiMaterialIDHash, i };
     ezUInt32 uiBatchId = ezHashing::MurmurHash(data, sizeof(data));
 
