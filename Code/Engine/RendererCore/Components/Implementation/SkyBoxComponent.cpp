@@ -108,6 +108,10 @@ ezResult ezSkyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds)
 
 void ezSkyBoxComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 {
+  // Don't render in orthographic views
+  if (msg.m_pView->GetRenderCamera()->IsOrthographic())
+    return;
+
   const ezUInt32 uiMeshIDHash = m_hMesh.GetResourceIDHash();
 
   for (ezUInt32 i = 0; i < 6; ++i)

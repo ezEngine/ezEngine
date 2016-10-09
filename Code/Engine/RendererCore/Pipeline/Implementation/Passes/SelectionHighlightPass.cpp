@@ -86,16 +86,6 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
 
   ezGALTextureHandle hDepthTexture;
 
-  if (renderViewContext.m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedWidth ||
-      renderViewContext.m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedHeight)
-  {
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("CAMERA_MODE", "ORTHO");
-  }
-  else
-  {
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("CAMERA_MODE", "PERSPECTIVE");
-  }
-
   // render all selection objects to depth target only
   {
     ezUInt32 uiWidth = pColorOutput->m_Desc.m_uiWidth;

@@ -800,9 +800,9 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   m_CurrentExtractThread = (ezThreadID)0;
 }
 
-void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
+void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 {
-  EZ_PROFILE_AND_MARKER(pRendererContext->GetGALContext(), m_RenderProfilingID);
+  EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), m_RenderProfilingID);
 
   EZ_ASSERT_DEV(m_PipelineState != PipelineState::Uninitialized, "Pipeline must be rebuild before rendering.");
   if (m_PipelineState == PipelineState::RebuildError)
@@ -821,7 +821,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
   const ezCamera* pCamera = &data.GetCamera();
   const ezViewData* pViewData = &data.GetViewData();
 
-  auto& gc = pRendererContext->WriteGlobalConstants();
+  auto& gc = pRenderContext->WriteGlobalConstants();
   gc.CameraPosition = pCamera->GetPosition();
   gc.CameraDirForwards = pCamera->GetDirForwards();
   gc.CameraDirRight = pCamera->GetDirRight();
@@ -841,9 +841,16 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
   ezRenderViewContext renderViewContext;
   renderViewContext.m_pCamera = pCamera;
   renderViewContext.m_pViewData = pViewData;
-  renderViewContext.m_pRenderContext = pRendererContext;
+  renderViewContext.m_pRenderContext = pRenderContext;
   renderViewContext.m_uiWorldIndex = data.GetWorldIndex();
 
+  // Set camera mode permutation variable here since it doesn't change throughout the frame
+  static ezHashedString sCameraMode = ezMakeHashedString("CAMERA_MODE");
+  static ezHashedString sOrtho = ezMakeHashedString("ORTHO");
+  static ezHashedString sPerspective = ezMakeHashedString("PERSPECTIVE");
+
+  pRenderContext->SetShaderPermutationVariable(sCameraMode, pCamera->IsOrthographic() ? sOrtho : sPerspective);
+  
   ezUInt32 uiCurrentFirstUsageIdx = 0;
   ezUInt32 uiCurrentLastUsageIdx = 0;
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
@@ -874,7 +881,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRendererContext)
 
     // Execute pass block
     {
-      EZ_PROFILE_AND_MARKER(pRendererContext->GetGALContext(), pPass->m_ProfilingID);
+      EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), pPass->m_ProfilingID);
 
       ConnectionData& data = m_Connections[pPass.Borrow()];
       if (pPass->m_bActive)

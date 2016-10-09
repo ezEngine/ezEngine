@@ -83,7 +83,7 @@ void ezQtEngineViewWidget::SyncToEngine()
   cam.m_CameraUsageHint = m_pViewConfig->m_CameraUsageHint;
 
   float fov = m_pViewConfig->m_Camera.GetFovOrDim();
-  if (m_pViewConfig->m_Camera.GetCameraMode() == ezCameraMode::PerspectiveFixedFovX || m_pViewConfig->m_Camera.GetCameraMode() == ezCameraMode::PerspectiveFixedFovY)
+  if (m_pViewConfig->m_Camera.IsPerspective())
   {
     ezEditorPreferencesUser* pPref = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
     fov = pPref->m_fPerspectiveFieldOfView;

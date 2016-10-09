@@ -58,7 +58,7 @@ ezEditorInut ezOrbitCameraContext::DoMousePressEvent(QMouseEvent* e)
   if (m_pCamera == nullptr)
     return ezEditorInut::MayBeHandledByOthers;
 
-  if (m_pCamera->GetCameraMode() != ezCameraMode::PerspectiveFixedFovX && m_pCamera->GetCameraMode() != ezCameraMode::PerspectiveFixedFovY)
+  if (!m_pCamera->IsPerspective())
     return ezEditorInut::MayBeHandledByOthers;
 
   if (e->button() == Qt::MouseButton::LeftButton)
@@ -106,7 +106,7 @@ ezEditorInut ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
   if (!IsActiveInputContext())
     return ezEditorInut::MayBeHandledByOthers;
 
-  if (m_pCamera->GetCameraMode() != ezCameraMode::PerspectiveFixedFovX && m_pCamera->GetCameraMode() != ezCameraMode::PerspectiveFixedFovY)
+  if (!m_pCamera->IsPerspective())
     return ezEditorInut::MayBeHandledByOthers;
 
   // store that the mouse has been moved since the last click
@@ -168,7 +168,7 @@ ezEditorInut ezOrbitCameraContext::DoWheelEvent(QWheelEvent* e)
   if (m_bOrbitCamera)
     return ezEditorInut::WasExclusivelyHandled; // ignore it, but others should not handle it either
 
-  if (m_pCamera->GetCameraMode() != ezCameraMode::PerspectiveFixedFovX && m_pCamera->GetCameraMode() != ezCameraMode::PerspectiveFixedFovY)
+  if (!m_pCamera->IsPerspective())
     return ezEditorInut::MayBeHandledByOthers;
 
   float fScale = 1.1f;

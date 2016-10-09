@@ -261,7 +261,7 @@ ezEditorInut ezCameraMoveContext::DoMousePressEvent(QMouseEvent* e)
   if (m_pCamera == nullptr)
     return ezEditorInut::MayBeHandledByOthers;
 
-  if (m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedHeight || m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
+  if (m_pCamera->IsOrthographic())
   {
     if (e->button() == Qt::MouseButton::RightButton)
     {
@@ -372,7 +372,7 @@ ezEditorInut ezCameraMoveContext::DoMouseReleaseEvent(QMouseEvent* e)
   if (m_pCamera == nullptr)
     return ezEditorInut::MayBeHandledByOthers;
 
-  if (m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedHeight || m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
+  if (m_pCamera->IsOrthographic())
   {
     if (e->button() == Qt::MouseButton::RightButton)
     {
@@ -493,7 +493,7 @@ ezEditorInut ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
   const ezVec2I32 CurMousePos(QCursor::pos().x(), QCursor::pos().y());
   const ezVec2I32 diff = CurMousePos - m_LastMousePos;
 
-  if (m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedHeight || m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
+  if (m_pCamera->IsOrthographic())
   {
     float fDistPerPixel = 0;
 
@@ -663,7 +663,7 @@ ezEditorInut ezCameraMoveContext::DoWheelEvent(QWheelEvent* e)
 
   ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetOwnerWindow()->GetDocument());
 
-  if (m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedHeight || m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
+  if (m_pCamera->IsOrthographic())
   {
     float fBoost = 1.0f;
     const float fTick = 1.4f;

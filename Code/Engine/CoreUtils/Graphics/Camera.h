@@ -75,10 +75,12 @@ public:
   void SetCameraMode(ezCameraMode::Enum Mode, float fFovOrDim, float fNearPlane, float fFarPlane);
 
   /// \brief Returns the fFovOrDim parameter that was passed to SetCameraMode().
-  float GetFovOrDim() const { return m_fFovOrDim; }
+  float GetFovOrDim() const;
 
   /// \brief Returns the current camera mode.
-  ezCameraMode::Enum GetCameraMode() const { return m_Mode; };
+  ezCameraMode::Enum GetCameraMode() const;
+  bool IsPerspective() const;
+  bool IsOrthographic() const;
 
   /// \brief Sets the camera position and rotation from the given look at matrix.
   void SetFromMatrix(const ezMat4& mLookAtMatrix);

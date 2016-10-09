@@ -5,7 +5,6 @@ ALL
 
 BLEND_MODE
 RENDER_PASS
-CAMERA_MODE
 
 [MATERIALPARAMETER]
 
@@ -42,14 +41,6 @@ VS_OUT main(VS_IN Input)
 {
 	VS_OUT Output = FillVertexData(Input);
 	Output.Position.z = Output.Position.w;
-
-	#if CAMERA_MODE == CAMERA_MODE_ORTHO
-		// cull the skybox
-		Output.Position.x = 0.0;
-		Output.Position.y = 0.0;
-		Output.Position.z = 0.0;
-		Output.Position.w = 0.0;
-	#endif
 
 	return Output;
 }

@@ -104,16 +104,6 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
   pGALContext->SetRenderTargetSetup(renderTargetSetup);
   pGALContext->SetViewport(renderViewContext.m_pViewData->m_ViewPortRect);
 
-  if (renderViewContext.m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedWidth ||
-      renderViewContext.m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedHeight)
-  {
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("CAMERA_MODE", "ORTHO");
-  }
-  else
-  {
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("CAMERA_MODE", "PERSPECTIVE");
-  }
-
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "FORWARD");
 
   // Execute render functions

@@ -50,6 +50,26 @@ EZ_FORCE_INLINE float ezCamera::GetFarPlane() const
   return m_fFarPlane;
 }
 
+EZ_FORCE_INLINE float ezCamera::GetFovOrDim() const
+{
+  return m_fFovOrDim;
+}
+
+EZ_FORCE_INLINE ezCameraMode::Enum ezCamera::GetCameraMode() const
+{
+  return m_Mode;
+}
+
+EZ_FORCE_INLINE bool ezCamera::IsPerspective() const
+{
+  return m_Mode == ezCameraMode::PerspectiveFixedFovX || m_Mode == ezCameraMode::PerspectiveFixedFovY;
+}
+
+EZ_FORCE_INLINE bool ezCamera::IsOrthographic() const
+{
+  return m_Mode == ezCameraMode::OrthoFixedWidth || m_Mode == ezCameraMode::OrthoFixedHeight;
+}
+
 EZ_FORCE_INLINE float ezCamera::GetExposure() const
 {
   return m_fExposure;

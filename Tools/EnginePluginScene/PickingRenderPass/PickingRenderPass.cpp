@@ -77,16 +77,6 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   pGALContext->SetRenderTargetSetup(m_RenderTargetSetup);
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f));
 
-  if (renderViewContext.m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedWidth ||
-      renderViewContext.m_pCamera->GetCameraMode() == ezCameraMode::OrthoFixedHeight)
-  {
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("CAMERA_MODE", "ORTHO");
-  }
-  else
-  {
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("CAMERA_MODE", "PERSPECTIVE");
-  }
-
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "PICKING");
 
   // copy selection to set for faster checks
