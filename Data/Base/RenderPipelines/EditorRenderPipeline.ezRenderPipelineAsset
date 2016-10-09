@@ -1,5 +1,14 @@
 {
  "Objects" : [ {
+   "#" : { "$t" : "uuid", "$b" : "0x222FE151A91CC302238E66956E391846" },
+   "t" : "ConnectionInternal",
+   "p" : {
+    "SourcePin" : "DepthStencil",
+    "Target" : { "$t" : "uuid", "$b" : "0xD3EF04FB40775F458592A2905951124A" },
+    "TargetPin" : "DepthStencil"
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0xA68CEC63D78AD70820DFF48995F2AE54" },
    "t" : "ezPassThroughNodePin",
    "p" : {
@@ -71,7 +80,7 @@
    "t" : "ConnectionInternal",
    "p" : {
     "SourcePin" : "Output",
-    "Target" : { "$t" : "uuid", "$b" : "0xD3EF04FB40775F458592A2905951124A" },
+    "Target" : { "$t" : "uuid", "$b" : "0x39AC33576A9439479CFBCC623EE1E2A6" },
     "TargetPin" : "Color"
    }
   },
@@ -80,8 +89,8 @@
    "t" : "ConnectionInternal",
    "p" : {
     "SourcePin" : "Color",
-    "Target" : { "$t" : "uuid", "$b" : "0x39AC33576A9439479CFBCC623EE1E2A6" },
-    "TargetPin" : "Color"
+    "Target" : { "$t" : "uuid", "$b" : "0xDFBE14DEB961AA46B15D595A6EB9E3B8" },
+    "TargetPin" : "Color0"
    }
   },
   {
@@ -92,7 +101,7 @@
     "Color" : { "$t" : "uuid", "$b" : "0xA68CEC63D78AD70820DFF48995F2AE54" },
     "DepthStencil" : { "$t" : "uuid", "$b" : "0x8C01E0DB3A5FB9B4B4019FAD3905EE56" },
     "Name" : "EditorRenderPass",
-    "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x65CE9370E0F776257419F424ABD62FFB" }, { "$t" : "uuid", "$b" : "0xF48A53CE128B3D1424E9CF91384ED0AD" }, { "$t" : "uuid", "$b" : "0x3B6F1F0DBE90B1CC263CF65724674D3B" } ],
+    "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x65CE9370E0F776257419F424ABD62FFB" }, { "$t" : "uuid", "$b" : "0xF48A53CE128B3D1424E9CF91384ED0AD" } ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-428.3478, -280.1739)", "$b" : "0x862CD6C343168CC3" },
     "Renderers" : [ { "$t" : "uuid", "$b" : "0x38C7F4AF32A8FD4696FBF54ABDB4F776" }, { "$t" : "uuid", "$b" : "0x75BD1BCEB6D3F24881A9C62B9E0C0D23" }, { "$t" : "uuid", "$b" : "0xF1BBCB2142A86F4BAE0949E617B51D2E" } ],
     "ViewRenderMode" : "ezViewRenderMode::None"
@@ -158,8 +167,15 @@
     "DepthStencil" : { "$t" : "uuid", "$b" : "0x94E2B4355B301645B5B75E85DC4884BB" },
     "Name" : "EditorSelectionPass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x450C44A116D8AC39D169E6707DC1E5FE" } ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(-20.0000, -290.0000)", "$b" : "0x0000A0C1000091C3" },
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(169.0000, -243.0000)", "$b" : "0x00002943000073C3" },
     "Renderers" : [ { "$t" : "uuid", "$b" : "0x4994DB49F14D704B86C6353AFFEAC5DC" }, { "$t" : "uuid", "$b" : "0x5038F937E3B70949B810035DE7DD1948" } ]
+   }
+  },
+  {
+   "#" : { "$t" : "uuid", "$b" : "0xBDE3415F4D17A94694FBFFC4BCB94EEA" },
+   "t" : "ezSpriteRenderer",
+   "p" : {
+    
    }
   },
   {
@@ -198,9 +214,9 @@
     "DepthStencil" : { "$t" : "uuid", "$b" : "0x40FB8676C5787122E45A656B4768501C" },
     "Message" : "",
     "Name" : "SimplePass",
-    "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x0A24F3C23E8055C5485F2974F9861957" } ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(211.0000, -211.0000)", "$b" : "0x00005343000053C3" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0x1E7F0432A67C9B44A8A8CE85CA06F80F" }, { "$t" : "uuid", "$b" : "0x50F48C87F7C6A744B8EF8A79AF870713" }, { "$t" : "uuid", "$b" : "0x850B211970B0F640AABDE321C55A1D2D" } ]
+    "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x0A24F3C23E8055C5485F2974F9861957" }, { "$t" : "uuid", "$b" : "0x222FE151A91CC302238E66956E391846" } ],
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(-23.0000, -286.0000)", "$b" : "0x0000B8C100008FC3" },
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0x1E7F0432A67C9B44A8A8CE85CA06F80F" }, { "$t" : "uuid", "$b" : "0x50F48C87F7C6A744B8EF8A79AF870713" }, { "$t" : "uuid", "$b" : "0x850B211970B0F640AABDE321C55A1D2D" }, { "$t" : "uuid", "$b" : "0xBDE3415F4D17A94694FBFFC4BCB94EEA" } ]
    }
   },
   {
@@ -274,7 +290,7 @@
     "AssetType" : "RenderPipeline",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x4D3C46DA84C91049B0B7A0B3891D0448" },
-    "Hash" : { "$t" : "uint64", "$v" : "13231648510383911398", "$b" : "0xE67142463742A0B7" },
+    "Hash" : { "$t" : "uint64", "$v" : "8172202536101769813", "$b" : "0x5572E48CE87E6971" },
     "References" : [ "{ 3edf10b3-36d2-434f-9683-c653909abe7e }" ]
    }
   },
@@ -430,17 +446,8 @@
    "t" : "ConnectionInternal",
    "p" : {
     "SourcePin" : "Color",
-    "Target" : { "$t" : "uuid", "$b" : "0xDFBE14DEB961AA46B15D595A6EB9E3B8" },
-    "TargetPin" : "Color0"
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0x3B6F1F0DBE90B1CC263CF65724674D3B" },
-   "t" : "ConnectionInternal",
-   "p" : {
-    "SourcePin" : "DepthStencil",
     "Target" : { "$t" : "uuid", "$b" : "0xD3EF04FB40775F458592A2905951124A" },
-    "TargetPin" : "DepthStencil"
+    "TargetPin" : "Color"
    }
   },
   {

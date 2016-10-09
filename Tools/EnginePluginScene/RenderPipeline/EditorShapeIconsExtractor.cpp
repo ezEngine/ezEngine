@@ -25,7 +25,7 @@ ezEditorShapeIconsExtractor::ezEditorShapeIconsExtractor()
   m_fMaxScreenSize = 64.0f;
   m_pSceneContext = nullptr;
 
-  LoadShapeIconTextures();
+  FillShapeIconInfo();
 }
 
 ezEditorShapeIconsExtractor::~ezEditorShapeIconsExtractor()
@@ -39,8 +39,10 @@ void ezEditorShapeIconsExtractor::Extract(const ezView& view, ezExtractedRenderD
   for (auto it = view.GetWorld()->GetObjects(); it.IsValid(); ++it)
   {
     const ezGameObject* pObject = it;
+    if (FilterByViewTags(view, pObject))
+      continue;
 
-    ExtractShapeIcon(pObject, view, pExtractedRenderData, ezDefaultRenderDataCategories::LitOpaque);
+    ExtractShapeIcon(pObject, view, pExtractedRenderData, ezDefaultRenderDataCategories::SimpleOpaque);
   }
 
   if (m_pSceneContext != nullptr)
@@ -52,6 +54,9 @@ void ezEditorShapeIconsExtractor::Extract(const ezView& view, ezExtractedRenderD
       ezGameObject* pObject = nullptr;
       if (view.GetWorld()->TryGetObject(hObject, pObject))
       {
+        if (FilterByViewTags(view, pObject))
+          continue;
+
         ExtractShapeIcon(pObject, view, pExtractedRenderData, ezDefaultRenderDataCategories::Selection);
       }
     }
@@ -66,30 +71,24 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, 
   if (pObject->GetTags().IsSet(*tagEditor) || pObject->GetTags().IsSet(*tagHidden))
     return;
 
-  if (!view.m_ExcludeTags.IsEmpty() && view.m_ExcludeTags.IsAnySet(pObject->GetTags()))
-    return;
-
-  if (!view.m_IncludeTags.IsEmpty() && !view.m_IncludeTags.IsAnySet(pObject->GetTags()))
-    return;
-
   if (pObject->GetComponents().IsEmpty())
     return;
 
   const ezComponent* pComponent = pObject->GetComponents()[0];
   const ezRTTI* pRtti = pComponent->GetDynamicRTTI();
 
-  ezTextureResourceHandle hTexture;
-  if (m_ShapeIcons.TryGetValue(pRtti, hTexture))
+  ShapeIconInfo* pShapeIconInfo = nullptr;
+  if (m_ShapeIconInfos.TryGetValue(pRtti, pShapeIconInfo))
   {
-    const ezUInt32 uiTextureIDHash = hTexture.GetResourceIDHash();
+    const ezUInt32 uiTextureIDHash = pShapeIconInfo->m_hTexture.GetResourceIDHash();
     ezSpriteRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezSpriteRenderData>(pObject, uiTextureIDHash);
     {
       pRenderData->m_GlobalTransform = pObject->GetGlobalTransform();
       pRenderData->m_GlobalBounds = pObject->GetGlobalBounds();
-      pRenderData->m_hTexture = hTexture;
+      pRenderData->m_hTexture = pShapeIconInfo->m_hTexture;
       pRenderData->m_fSize = m_fSize;
       pRenderData->m_fMaxScreenSize = m_fMaxScreenSize;
-      pRenderData->m_color = ezColor::White;
+      pRenderData->m_color = pShapeIconInfo->m_pColorProperty != nullptr ? pShapeIconInfo->m_pColorProperty->GetValue(pComponent) : ezColor::White;
       pRenderData->m_texCoordScale = ezVec2(1.0f);
       pRenderData->m_texCoordOffset = ezVec2(0.0f);
       pRenderData->m_uiEditorPickingID = pComponent->GetEditorPickingID();
@@ -99,7 +98,24 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, 
   }
 }
 
-void ezEditorShapeIconsExtractor::LoadShapeIconTextures()
+const ezTypedMemberProperty<ezColor>* ezEditorShapeIconsExtractor::FindColorProperty(const ezRTTI* pRtti) const
+{
+  ezHybridArray<ezAbstractProperty*, 32> properties;
+  pRtti->GetAllProperties(properties);
+
+  for (const ezAbstractProperty* pProperty : properties)
+  {
+    if (pProperty->GetCategory() == ezPropertyCategory::Member &&
+      pProperty->GetSpecificType() == ezGetStaticRTTI<ezColor>())
+    {
+      return static_cast<const ezTypedMemberProperty<ezColor>*>(pProperty);
+    }
+  }
+
+  return nullptr;
+}
+
+void ezEditorShapeIconsExtractor::FillShapeIconInfo()
 {
   EZ_LOG_BLOCK("LoadShapeIconTextures");
 
@@ -114,7 +130,9 @@ void ezEditorShapeIconsExtractor::LoadShapeIconTextures()
 
     if (ezFileSystem::ExistsFile(sPath))
     {
-      m_ShapeIcons[pRtti] = ezResourceManager::LoadResource<ezTextureResource>(sPath);
+      auto& shapeIconInfo = m_ShapeIconInfos[pRtti];
+      shapeIconInfo.m_hTexture = ezResourceManager::LoadResource<ezTextureResource>(sPath);
+      shapeIconInfo.m_pColorProperty = FindColorProperty(pRtti);
     }
   }
 }

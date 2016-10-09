@@ -31,6 +31,17 @@ const char* ezExtractor::GetName() const
   return m_sName.GetData();
 }
 
+bool ezExtractor::FilterByViewTags(const ezView& view, const ezGameObject* pObject) const
+{
+  if (!view.m_ExcludeTags.IsEmpty() && view.m_ExcludeTags.IsAnySet(pObject->GetTags()))
+    return true;
+
+  if (!view.m_IncludeTags.IsEmpty() && !view.m_IncludeTags.IsAnySet(pObject->GetTags()))
+    return true;
+
+  return false;
+}
+
 void ezVisibleObjectsExtractor::Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData)
 {
   ezExtractRenderDataMessage msg;
@@ -44,11 +55,7 @@ void ezVisibleObjectsExtractor::Extract(const ezView& view, ezExtractedRenderDat
   for (auto it = view.GetWorld()->GetObjects(); it.IsValid(); ++it)
   {
     const ezGameObject* pObject = it;
-
-    if (!view.m_ExcludeTags.IsEmpty() && view.m_ExcludeTags.IsAnySet(pObject->GetTags()))
-      continue;
-
-    if (!view.m_IncludeTags.IsEmpty() && !view.m_IncludeTags.IsAnySet(pObject->GetTags()))
+    if (FilterByViewTags(view, pObject))
       continue;
 
     pObject->SendMessage(msg);
@@ -102,10 +109,7 @@ void ezSelectedObjectsExtractor::Extract(const ezView& view, ezExtractedRenderDa
     if (!view.GetWorld()->TryGetObject(hObj, pObject))
       continue;
 
-    if (!view.m_ExcludeTags.IsEmpty() && view.m_ExcludeTags.IsAnySet(pObject->GetTags()))
-      continue;
-
-    if (!view.m_IncludeTags.IsEmpty() && !view.m_IncludeTags.IsAnySet(pObject->GetTags()))
+    if (FilterByViewTags(view, pObject))
       continue;
 
     pObject->SendMessage(msg);

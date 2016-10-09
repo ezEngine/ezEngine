@@ -19,11 +19,18 @@ public:
 
 private:
   void ExtractShapeIcon(const ezGameObject* pObject, const ezView& view, ezExtractedRenderData* pExtractedRenderData, ezRenderData::Category category);
-  void LoadShapeIconTextures();
+  const ezTypedMemberProperty<ezColor>* FindColorProperty(const ezRTTI* pRtti) const;
+  void FillShapeIconInfo();
 
   float m_fSize;
   float m_fMaxScreenSize;
   ezSceneContext* m_pSceneContext;
 
-  ezHashTable<const ezRTTI*, ezTextureResourceHandle> m_ShapeIcons;
+  struct ShapeIconInfo 
+  {
+    ezTextureResourceHandle m_hTexture;
+    const ezTypedMemberProperty<ezColor>* m_pColorProperty;
+  };
+
+  ezHashTable<const ezRTTI*, ShapeIconInfo> m_ShapeIconInfos;
 };

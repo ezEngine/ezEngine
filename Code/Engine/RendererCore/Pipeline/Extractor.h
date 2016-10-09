@@ -19,6 +19,9 @@ public:
   /// \brief returns the name of the extractor.
   const char* GetName() const;
 
+  /// \brief returns true if the given object should be filtered by view tags.
+  bool FilterByViewTags(const ezView& view, const ezGameObject* pObject) const;
+
   virtual void Extract(const ezView& view, ezExtractedRenderData* pExtractedRenderData) = 0;
 
 private:
