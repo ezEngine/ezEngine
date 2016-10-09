@@ -557,8 +557,11 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
 {
   EZ_LOCK(s_ResourceMutex);
 
-  if (!pResource->m_Flags.IsAnySet(ezResourceFlags::IsReloadable | ezResourceFlags::PreventFileReload))
+  if (!pResource->m_Flags.IsAnySet(ezResourceFlags::IsReloadable))
     return;
+
+  if (!bForce && pResource->m_Flags.IsAnySet(ezResourceFlags::PreventFileReload))
+      return;
 
   ezResourceTypeLoader* pLoader = ezResourceManager::GetResourceTypeLoader(pResource->GetDynamicRTTI());
 

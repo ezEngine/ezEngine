@@ -4,6 +4,7 @@
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
+#include <RendererCore/Pipeline/View.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -89,7 +90,7 @@ void ezSpriteComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) con
 
   // Sort by mode and then by texture
   ezUInt32 uiSortingKey = (0u << 31) | (uiTextureIDHash & 0x7FFFFFFF);
-  msg.m_pExtractedRenderData->AddRenderData(pRenderData, category, uiSortingKey); 
+  msg.m_pExtractedRenderData->AddRenderData(pRenderData, category, uiSortingKey);
 }
 
 void ezSpriteComponent::SerializeComponent(ezWorldWriter& stream) const
