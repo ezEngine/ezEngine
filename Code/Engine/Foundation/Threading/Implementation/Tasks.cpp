@@ -2,12 +2,12 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Threading/Lock.h>
 
-ezTask::ezTask() 
+ezTask::ezTask()
 {
   Reset();
 
   m_bIsFinished = true;
-  m_bProfilingIDGenerated = false; 
+  m_bProfilingIDGenerated = false;
   m_sTaskName = "Unnamed Task";
 }
 
@@ -29,7 +29,7 @@ void ezTask::SetOnTaskFinished(OnTaskFinished Callback)
   m_OnTaskFinished = Callback;
 }
 
-void ezTask::Run() 
+void ezTask::Run()
 {
   // actually this should not be possible to happen
   if (m_bIsFinished || m_bCancelExecution)
@@ -178,7 +178,7 @@ bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriorit
     return false;
 
   td.m_pTask->Run();
-  
+
   // notify the group, that a task is finished, which might trigger other tasks to be executed
   TaskHasFinished(td.m_pTask, td.m_pBelongsToGroup);
 
@@ -198,17 +198,27 @@ void ezTaskSystem::WaitForTask(ezTask* pTask)
   ezTaskPriority::Enum FirstPriority = ezTaskPriority::EarlyThisFrame;
   ezTaskPriority::Enum LastPriority = ezTaskPriority::LateNextFrame;
 
+  // this specifies whether WaitForTask may fall back to processing standard tasks, when there is no more specific work available
+  // in some cases we absolutely want to avoid that, since it can produce deadlocks
+  // E.g. on the loading thread, if we are in the process of loading something and then we have to wait for something else,
+  // we must not start that work on the loading thread, because once THAT task runs into something where it has to wait for something
+  // to be loaded, we have a circular dependency on the thread itself and thus a deadlock
+  bool bAllowDefaultWork = true;
+
   if (bIsMainThread)
   {
     // if this is the main thread, we need to execute the main-thread tasks
     // otherwise a dependency on which pTask is waiting, might not get fulfilled
     FirstPriority = ezTaskPriority::ThisFrameMainThread;
     LastPriority = ezTaskPriority::SomeFrameMainThread;
+
+    /// \todo It is currently unclear whether bAllowDefaultWork should be false here as well (in which case the whole fall back mechanism could be removed)
   }
   else if (bIsLoadingThread)
   {
     FirstPriority = ezTaskPriority::FileAccessHighPriority;
     LastPriority = ezTaskPriority::FileAccess;
+    bAllowDefaultWork = false;
   }
 
   while (!pTask->IsTaskFinished())
@@ -220,17 +230,22 @@ void ezTaskSystem::WaitForTask(ezTask* pTask)
     // a task, it will get finished at some point
     if (!ExecuteTask(FirstPriority, LastPriority, pTask))
     {
-      // if there was nothing for us to do, that probably means that the task is either currently being processed by some other thread
-      // or it is in a priority list that we did not want to work on (maybe because we are on the main thread)
-      // in this case try it again with non-main-thread tasks
-
-      if (!pTask->IsTaskFinished() && !ExecuteTask(ezTaskPriority::EarlyThisFrame, ezTaskPriority::LateNextFrame, pTask))
+      if (!pTask->IsTaskFinished())
       {
-        // if there is STILL nothing for us to do, it might be a long running task OR it is already being processed
-        // we won't fall back to processing long running tasks, because that might stall the application
-        // instead we assume the task (or any dependency) is currently processed by another thread
-        // and to prevent a busy loop, we just give up our time-slice and try again later
-        ezThreadUtils::YieldTimeSlice();
+        // if there was nothing for us to do, that probably means that the task is either currently being processed by some other thread
+        // or it is in a priority list that we did not want to work on (maybe because we are on the main thread)
+        // in this case try it again with non-main-thread tasks
+
+        // if bAllowDefaultWork is false, we just always yield here
+
+        if (!bAllowDefaultWork || !ExecuteTask(ezTaskPriority::EarlyThisFrame, ezTaskPriority::LateNextFrame, pTask))
+        {
+          // if there is STILL nothing for us to do, it might be a long running task OR it is already being processed
+          // we won't fall back to processing long running tasks, because that might stall the application
+          // instead we assume the task (or any dependency) is currently processed by another thread
+          // and to prevent a busy loop, we just give up our time-slice and try again later
+          ezThreadUtils::YieldTimeSlice();
+        }
       }
     }
   }

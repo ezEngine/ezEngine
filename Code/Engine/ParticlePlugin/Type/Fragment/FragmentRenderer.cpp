@@ -1,5 +1,5 @@
 #include <ParticlePlugin/PCH.h>
-#include <ParticlePlugin/Type/Billboard/BillboardRenderer.h>
+#include <ParticlePlugin/Type/Fragment/FragmentRenderer.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererFoundation/Context/Context.h>
@@ -9,23 +9,23 @@
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBillboardRenderData, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFragmentRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBillboardRenderer, 1, ezRTTIDefaultAllocator<ezParticleBillboardRenderer>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFragmentRenderer, 1, ezRTTIDefaultAllocator<ezParticleFragmentRenderer>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezParticleBillboardRenderData::ezParticleBillboardRenderData()
+ezParticleFragmentRenderData::ezParticleFragmentRenderData()
 {
   m_uiNumParticles = 0;
 }
 
 
-ezParticleBillboardRenderer::ezParticleBillboardRenderer()
+ezParticleFragmentRenderer::ezParticleFragmentRenderer()
 {
 }
 
-ezParticleBillboardRenderer::~ezParticleBillboardRenderer()
+ezParticleFragmentRenderer::~ezParticleFragmentRenderer()
 {
   if (!m_hDataBuffer.IsInvalidated())
   {
@@ -34,17 +34,17 @@ ezParticleBillboardRenderer::~ezParticleBillboardRenderer()
   }
 }
 
-void ezParticleBillboardRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)
+void ezParticleFragmentRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)
 {
-  types.PushBack(ezGetStaticRTTI<ezParticleBillboardRenderData>());
+  types.PushBack(ezGetStaticRTTI<ezParticleFragmentRenderData>());
 }
 
-void ezParticleBillboardRenderer::CreateDataBuffer()
+void ezParticleFragmentRenderer::CreateDataBuffer()
 {
   if (m_hDataBuffer.IsInvalidated())
   {
     ezGALBufferCreationDescription desc;
-    desc.m_uiStructSize = sizeof(ezBillboardParticleData);
+    desc.m_uiStructSize = sizeof(ezFragmentParticleData);
     desc.m_uiTotalSize = s_uiMaxBufferSize;
     desc.m_BufferType = ezGALBufferType::Generic;
     desc.m_bUseAsStructuredBuffer = true;
@@ -55,7 +55,7 @@ void ezParticleBillboardRenderer::CreateDataBuffer()
   }
 }
 
-void ezParticleBillboardRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch)
+void ezParticleFragmentRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
@@ -67,17 +67,17 @@ void ezParticleBillboardRenderer::RenderBatch(const ezRenderViewContext& renderV
   EZ_SCOPE_EXIT(ezRenderContext::DeleteConstantBufferStorage(hConstantBuffer));
   renderViewContext.m_pRenderContext->BindConstantBuffer("ezParticleSystemConstants", hConstantBuffer);
 
-  // Bind the billboard particle shader
+  // Bind the Fragment particle shader
   {
     if (!m_hShader.IsValid())
     {
-      m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Particles/Billboard.ezShader");
+      m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Particles/Fragment.ezShader");
     }
 
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
   }
 
-  const ezUInt32 uiParticlesPerBatch(s_uiMaxBufferSize / sizeof(ezBillboardParticleData));
+  const ezUInt32 uiParticlesPerBatch(s_uiMaxBufferSize / sizeof(ezFragmentParticleData));
 
   // make sure our structured buffer is allocated and bound
   {
@@ -86,13 +86,13 @@ void ezParticleBillboardRenderer::RenderBatch(const ezRenderViewContext& renderV
     renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "particleData", pDevice->GetDefaultResourceView(m_hDataBuffer));
   }
 
-  // now render all particle effects of type billboard
-  for (auto it = batch.GetIterator<ezParticleBillboardRenderData>(0, batch.GetCount()); it.IsValid(); ++it)
+  // now render all particle effects of type Fragment
+  for (auto it = batch.GetIterator<ezParticleFragmentRenderData>(0, batch.GetCount()); it.IsValid(); ++it)
   {
-    const ezParticleBillboardRenderData* pRenderData = it;
+    const ezParticleFragmentRenderData* pRenderData = it;
     ezUInt32 uiNumParticles = pRenderData->m_uiNumParticles;
 
-    const ezBillboardParticleData* pParticleData = pRenderData->m_GpuData->m_Content.GetData();
+    const ezFragmentParticleData* pParticleData = pRenderData->m_GpuData->m_Content.GetData();
 
     renderViewContext.m_pRenderContext->BindTexture(ezGALShaderStage::PixelShader, "ParticleTexture", pRenderData->m_hTexture);
 

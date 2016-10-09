@@ -1,0 +1,90 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+[RENDERSTATE]
+
+BlendingEnabled0 = true
+DestBlend0 = Blend_One
+SourceBlend0 = Blend_InvSrcAlpha
+
+DepthTest = true
+DepthWrite = false
+
+[VERTEXSHADER]
+
+#define USE_TEXCOORD0
+#define USE_COLOR
+
+#include <Shaders/Common/GlobalConstants.h>
+#include <Shaders/Materials/MaterialInterpolator.h>
+#include <Shaders/Particles/BillboardShaderData.h>
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+VS_OUT main(uint VertexID : SV_VertexID)
+{
+	float2 texCoords[6] =
+	{
+		float2(0.0, 0.0),
+		float2(1.0, 0.0),
+		float2(1.0, 1.0),
+		float2(0.0, 0.0),
+		float2(1.0, 1.0),
+		float2(0.0, 1.0),
+	};
+
+	uint index = VertexID / 6;
+	uint vertexIndex = VertexID % 6;
+
+	ezBillboardParticleData particle = particleData[index];
+
+  float4 position = TransformToPosition(particle.Transform);
+  float3x3 rotation = TransformToRotation(particle.Transform);
+
+	float3 offsetRight = CameraDirRight * (texCoords[vertexIndex].x - 0.5) * particle.Size;
+	float3 offsetUp = CameraDirUp * (texCoords[vertexIndex].y - 0.5) * -particle.Size;
+
+  float3 offsetRightSS = mul(WorldToScreenMatrix, float4(offsetRight, 0)).xzy;
+  float3 offsetUpSS = mul(WorldToScreenMatrix, float4(offsetUp, 0)).xzy;
+
+  offsetRightSS = mul(rotation, offsetRightSS);
+  offsetUpSS = mul(rotation, offsetUpSS);
+
+  float3 worldPosition = mul(ObjectToWorldMatrix, position);
+	float4 screenPosition = mul(WorldToScreenMatrix, float4(worldPosition, 1.0));
+  screenPosition.xzy = screenPosition.xzy + offsetRightSS + offsetUpSS;
+
+	VS_OUT ret;
+	ret.Position = screenPosition;
+	ret.TexCoords = texCoords[vertexIndex];
+	ret.Color = RGBA8ToFloat4(particle.Color);
+
+	return ret;
+}
+
+#endif
+
+
+[PIXELSHADER]
+
+#define USE_TEXCOORD0
+#define USE_COLOR
+
+#include <Shaders/Materials/MaterialInterpolator.h>
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
+Texture2D ParticleTexture;
+SamplerState ParticleTexture_AutoSampler;
+
+float4 main(PS_IN Input) : SV_Target
+{
+  float4 color = ParticleTexture.Sample(ParticleTexture_AutoSampler, Input.TexCoords.xy);
+
+  return float4(color.rgb * Input.Color.rgb * Input.Color.a, color.a);
+}
+
+#endif
+

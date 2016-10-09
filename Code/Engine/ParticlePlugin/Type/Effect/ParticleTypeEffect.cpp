@@ -1,5 +1,5 @@
 #include <ParticlePlugin/PCH.h>
-#include <ParticlePlugin/Type/ParticleTypeEffect.h>
+#include <ParticlePlugin/Type/Effect/ParticleTypeEffect.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>

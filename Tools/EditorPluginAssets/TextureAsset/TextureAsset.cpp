@@ -33,7 +33,7 @@ ezString ezTextureAssetDocument::FindTexConvTool() const
   return "TexConv.exe";
 }
 
-ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail)
+ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail)
 {
   const ezTextureAssetProperties* pProp = GetProperties();
 
@@ -198,16 +198,10 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   QProcess proc;
   proc.start(QString::fromUtf8(FindTexConvTool().GetData()), arguments);
   if (!proc.waitForFinished(60000))
-  {
-    ezLog::Error("TexConv.exe timed out");
-    return EZ_FAILURE;
-  }
+    return ezStatus("TexConv.exe timed out");
 
   if (proc.exitCode() != 0)
-  {
-    ezLog::Error("TexConv.exe returned error code %i", proc.exitCode());
-    return EZ_FAILURE;
-  }
+    return ezStatus("TexConv.exe returned error code %i", proc.exitCode());
 
   if (bUpdateThumbnail)
   {
@@ -219,7 +213,7 @@ ezResult ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
     InvalidateAssetThumbnail();
   }
 
-  return EZ_SUCCESS;
+  return ezStatus(EZ_SUCCESS);
 }
 
 #define USE_TEXCONV
@@ -229,23 +223,18 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
   EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '%s' is not supported", szPlatform);
   const bool bUpdateThumbnail = ezStringUtils::IsEqual(szPlatform, "PC");
 
-  RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail);
+  ezStatus result = RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail);
 
   ezFileStats stat;
-  if (ezOSFile::GetFileStats(szTargetFile, stat).Succeeded())
+  if (ezOSFile::GetFileStats(szTargetFile, stat).Succeeded() && stat.m_uiFileSize == 0)
   {
     // if the file was touched, but nothing written to it, delete the file
     // might happen if TexConv crashed or had an error
-    if (stat.m_uiFileSize == 0)
-    {
-      ezOSFile::DeleteFile(szTargetFile);
-      return ezStatus(EZ_FAILURE);
-    }
-
-    return ezStatus(EZ_SUCCESS);
+    ezOSFile::DeleteFile(szTargetFile);
+    result.m_Result = EZ_FAILURE;
   }
 
-  return ezStatus(EZ_FAILURE);
+  return result;
 }
 
 const char* ezTextureAssetDocument::QueryAssetType() const

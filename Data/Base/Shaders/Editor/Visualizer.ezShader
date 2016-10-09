@@ -16,7 +16,7 @@ DepthTestFunc = CompareFunc_Less
 [VERTEXSHADER]
 
 #include <Shaders/Common/GlobalConstants.h>
-#include <Shaders/Editor/ezGizmoConstants.h>
+#include <Shaders/Editor/GizmoConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 
 #if EZ_ENABLED(PLATFORM_DX11)

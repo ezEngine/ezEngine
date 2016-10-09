@@ -15,7 +15,7 @@ ezResourceLoadDesc ezShaderResource::UnloadData(Unload WhatToUnload)
 {
   m_bShaderResourceIsValid = false;
   m_PermutationVarsUsed.Clear();
-  
+
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
@@ -59,6 +59,18 @@ void ezShaderResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 }
 
 
+
+ezResourceLoadDesc ezShaderResource::CreateResource(const ezShaderResourceDescriptor& descriptor)
+{
+  ezResourceLoadDesc ret;
+  ret.m_State = ezResourceState::Loaded;
+  ret.m_uiQualityLevelsDiscardable = 0;
+  ret.m_uiQualityLevelsLoadable = 0;
+
+  m_bShaderResourceIsValid = false;
+
+  return ret;
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_ShaderResource);
 

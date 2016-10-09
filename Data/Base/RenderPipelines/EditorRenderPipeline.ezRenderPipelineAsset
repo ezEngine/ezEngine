@@ -99,6 +99,13 @@
    }
   },
   {
+   "#" : { "$t" : "uuid", "$b" : "0x850B211970B0F640AABDE321C55A1D2D" },
+   "t" : "ezParticleFragmentRenderer",
+   "p" : {
+    
+   }
+  },
+  {
    "#" : { "$t" : "uuid", "$b" : "0x683B31A1A61C1E418B44E932107796CA" },
    "t" : "ezGizmoRenderer",
    "p" : {
@@ -193,7 +200,7 @@
     "Name" : "SimplePass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x0A24F3C23E8055C5485F2974F9861957" } ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(211.0000, -211.0000)", "$b" : "0x00005343000053C3" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0x1E7F0432A67C9B44A8A8CE85CA06F80F" }, { "$t" : "uuid", "$b" : "0x50F48C87F7C6A744B8EF8A79AF870713" } ]
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0x1E7F0432A67C9B44A8A8CE85CA06F80F" }, { "$t" : "uuid", "$b" : "0x50F48C87F7C6A744B8EF8A79AF870713" }, { "$t" : "uuid", "$b" : "0x850B211970B0F640AABDE321C55A1D2D" } ]
    }
   },
   {
@@ -267,7 +274,7 @@
     "AssetType" : "RenderPipeline",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x4D3C46DA84C91049B0B7A0B3891D0448" },
-    "Hash" : { "$t" : "uint64", "$v" : "6493472692671371522", "$b" : "0x0259609502731D5A" },
+    "Hash" : { "$t" : "uint64", "$v" : "13231648510383911398", "$b" : "0xE67142463742A0B7" },
     "References" : [ "{ 3edf10b3-36d2-434f-9683-c653909abe7e }" ]
    }
   },

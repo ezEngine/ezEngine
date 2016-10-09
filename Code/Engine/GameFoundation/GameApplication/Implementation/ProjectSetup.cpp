@@ -91,6 +91,14 @@ void ezGameApplication::DoConfigureAssetManagement()
 
 void ezGameApplication::DoSetupDefaultResources()
 {
+  // Shaders
+  {
+    ezShaderResourceDescriptor desc;
+    ezShaderResourceHandle hMissingShader = ezResourceManager::CreateResource<ezShaderResource>("MissingShaderResource", desc, "MissingShaderResource");
+
+    ezShaderResource::SetTypeMissingResource(hMissingShader);
+  }
+
   // Textures
   {
     ezTextureResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTextureResource>("Textures/LoadingTexture_D.dds");

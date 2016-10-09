@@ -1,5 +1,5 @@
 #include <ParticlePlugin/PCH.h>
-#include <ParticlePlugin/Type/ParticleTypeLight.h>
+#include <ParticlePlugin/Type/Light/ParticleTypeLight.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Device/Device.h>
