@@ -9,6 +9,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleSystemDescriptor, 1, ezRTTIDefaultAllo
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_MEMBER_PROPERTY("Name", m_sName),
     EZ_MEMBER_PROPERTY("Visible", m_bVisible)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Max Particles", m_uiMaxParticles)->AddAttributes(new ezDefaultValueAttribute(64)),
     EZ_SET_ACCESSOR_PROPERTY("Emitters", GetEmitterFactories, AddEmitterFactory, RemoveEmitterFactory)->AddFlags(ezPropertyFlags::PointerOwner),

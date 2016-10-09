@@ -147,6 +147,12 @@ void ezParticleEffectInstance::PreSimulate()
 
 void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTime)
 {
+  if (!m_hResource.IsValid())
+  {
+    ezLog::Error("Effect Reconfigure: Effect Resource is invalid");
+    return;
+  }
+
   ezResourceLock<ezParticleEffectResource> pResource(m_hResource, ezResourceAcquireMode::NoFallback);
 
   const auto& desc = pResource->GetDescriptor().m_Effect;

@@ -22,6 +22,7 @@ ezParticleBehaviorFactory_Velocity;Velocity
 ezParticleBehaviorFactory_Gravity;Gravity
 ezParticleBehaviorFactory_Raycast;Raycast
 ezParticleEmitterFactory_Continuous;Continuous
+ezParticleEmitterFactory_OnEvent;On Event
 ezParticleInitializerFactory_Life;Life
 ezParticleInitializerFactory_VelocityCone;Velocity Cone
 ezParticleComponent;Particle
@@ -37,3 +38,7 @@ ezParticleTypeLightFactory;Light
 ezParticleTypeEffectFactory;Effect
 ezParticleTypeFragmentFactory;Fragment
 Types;Types
+ezParticleRaycastHitReaction::Bounce;Bounce
+ezParticleRaycastHitReaction::Die;Die
+ezFragmentAxis::OrthogonalEmitterDirection;Orthogonal to Emitter
+ezFragmentAxis::EmitterDirection;Emitter Direction

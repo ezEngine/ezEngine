@@ -50,7 +50,8 @@ private:
   void ClearInitializers();
   void ClearBehaviors();
   void ClearTypes();
-  
+
+  ezString m_sName;
   ezHybridArray<ezParticleEmitterFactory*, 2> m_EmitterFactories;
   ezHybridArray<ezParticleInitializerFactory*, 4> m_InitializerFactories;
   ezHybridArray<ezParticleBehaviorFactory*, 8> m_BehaviorFactories;

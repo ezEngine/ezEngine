@@ -9,6 +9,24 @@
 typedef ezTypedResourceHandle<class ezTextureResource> ezTextureResourceHandle;
 struct ezFragmentParticleData;
 
+struct EZ_PARTICLEPLUGIN_DLL ezFragmentAxis
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    OrthogonalEmitterDirection,
+    EmitterDirection,
+    // these would require additional streams
+    //ParticleDirection, // -> last position for direction
+    //Random, // -> rotation axis
+
+    Default = OrthogonalEmitterDirection
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezFragmentAxis);
+
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeFragmentFactory : public ezParticleTypeFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeFragmentFactory, ezParticleTypeFactory);
@@ -21,6 +39,7 @@ public:
   virtual void Load(ezStreamReader& stream) override;
 
   ezString m_sTexture;
+  ezEnum<ezFragmentAxis> m_RotationAxis;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeFragment : public ezParticleType
@@ -33,6 +52,7 @@ public:
   virtual void CreateRequiredStreams() override;
 
   ezTextureResourceHandle m_hTexture;
+  ezEnum<ezFragmentAxis> m_RotationAxis;
 
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
 
