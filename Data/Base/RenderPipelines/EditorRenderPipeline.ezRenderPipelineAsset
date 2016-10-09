@@ -103,7 +103,7 @@
     "Name" : "EditorRenderPass",
     "Node::Connections" : [ { "$t" : "uuid", "$b" : "0x65CE9370E0F776257419F424ABD62FFB" }, { "$t" : "uuid", "$b" : "0xF48A53CE128B3D1424E9CF91384ED0AD" } ],
     "Node::Pos" : { "$t" : "vec2", "$v" : "(-428.3478, -280.1739)", "$b" : "0x862CD6C343168CC3" },
-    "Renderers" : [ { "$t" : "uuid", "$b" : "0x38C7F4AF32A8FD4696FBF54ABDB4F776" }, { "$t" : "uuid", "$b" : "0x75BD1BCEB6D3F24881A9C62B9E0C0D23" }, { "$t" : "uuid", "$b" : "0xF1BBCB2142A86F4BAE0949E617B51D2E" } ],
+    "Renderers" : [ { "$t" : "uuid", "$b" : "0x38C7F4AF32A8FD4696FBF54ABDB4F776" }, { "$t" : "uuid", "$b" : "0x75BD1BCEB6D3F24881A9C62B9E0C0D23" } ],
     "ViewRenderMode" : "ezViewRenderMode::None"
    }
   },
@@ -290,7 +290,7 @@
     "AssetType" : "RenderPipeline",
     "Dependencies" : [  ],
     "DocumentID" : { "$t" : "uuid", "$b" : "0x4D3C46DA84C91049B0B7A0B3891D0448" },
-    "Hash" : { "$t" : "uint64", "$v" : "8172202536101769813", "$b" : "0x5572E48CE87E6971" },
+    "Hash" : { "$t" : "uint64", "$v" : "1008560563076715805", "$b" : "0x1DD5A7107D20FF0D" },
     "References" : [ "{ 3edf10b3-36d2-434f-9683-c653909abe7e }" ]
    }
   },
@@ -317,13 +317,6 @@
    "n" : "ObjectTree",
    "p" : {
     "Children" : [ { "$t" : "uuid", "$b" : "0xDFBE14DEB961AA46B15D595A6EB9E3B8" }, { "$t" : "uuid", "$b" : "0x5A8BF5B47F9B2A498BAB7B04BBFCE008" }, { "$t" : "uuid", "$b" : "0x5EF07BF3CF37B0489B2A829EDB6CD4AC" }, { "$t" : "uuid", "$b" : "0xCD33C3278B47334F947E8235D17DA7F5" }, { "$t" : "uuid", "$b" : "0xA1962937FE1D734097FA925A9FE08573" }, { "$t" : "uuid", "$b" : "0x39AC33576A9439479CFBCC623EE1E2A6" }, { "$t" : "uuid", "$b" : "0xD3EF04FB40775F458592A2905951124A" }, { "$t" : "uuid", "$b" : "0xFB7571937082BA4E8526D01652EABB4C" }, { "$t" : "uuid", "$b" : "0xA57BA525A9CB5548954D6E96BA60CD00" }, { "$t" : "uuid", "$b" : "0xA75CD438505D6548BF2485D13B00C1E3" }, { "$t" : "uuid", "$b" : "0xA8887C0C7C30F74FAC997E170FFDEB24" }, { "$t" : "uuid", "$b" : "0x74B5AF1E295ECA4F9D6070FEF9D385BA" } ]
-   }
-  },
-  {
-   "#" : { "$t" : "uuid", "$b" : "0xF1BBCB2142A86F4BAE0949E617B51D2E" },
-   "t" : "ezParticleBillboardRenderer",
-   "p" : {
-    
    }
   },
   {

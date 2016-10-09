@@ -263,7 +263,7 @@
     "Max Screen Size" : { "$t" : "float", "$v" : "64.0000", "$b" : "0x00008042" },
     "Name" : "EditorShapeIconsExtractor",
     "Node::Connections" : [  ],
-    "Node::Pos" : { "$t" : "vec2", "$v" : "(-213.0000, -867.0000)", "$b" : "0x000055C300C058C4" },
+    "Node::Pos" : { "$t" : "vec2", "$v" : "(-214.0000, -867.0000)", "$b" : "0x000056C300C058C4" },
     "SceneContext" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
     "Size" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" }
    }

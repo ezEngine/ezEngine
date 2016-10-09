@@ -178,7 +178,7 @@ void ezProcessingStreamGroup::RemoveElement(ezUInt64 uiElementIndex)
   if (m_PendingRemoveIndices.Contains(uiElementIndex))
     return;
 
-  EZ_ASSERT_DEBUG(uiElementIndex < m_uiNumElements, "Element which should be removed is outside of active element range!");
+  EZ_ASSERT_DEBUG(uiElementIndex < m_uiNumActiveElements, "Element which should be removed is outside of active element range!");
 
   m_PendingRemoveIndices.PushBack(uiElementIndex);
 }
@@ -221,10 +221,12 @@ void ezProcessingStreamGroup::RunPendingDeletions()
     if (m_uiNumActiveElements == 0)
       break;
 
-    ezUInt64 uiLastActiveElementIndex = m_uiNumActiveElements - 1;
+    const ezUInt64 uiLastActiveElementIndex = m_uiNumActiveElements - 1;
 
-    ezUInt64 uiElementToRemove = m_PendingRemoveIndices.PeekBack();
+    const ezUInt64 uiElementToRemove = m_PendingRemoveIndices.PeekBack();
     m_PendingRemoveIndices.PopBack();
+
+    EZ_ASSERT_DEBUG(uiElementToRemove < m_uiNumActiveElements, "Invalid index to remove");
 
     // inform any interested party about the tragic death
     e.m_uiElementIndex = uiElementToRemove;
